@@ -37,7 +37,7 @@
 #include "peak-search.hh"
 
 
-coot::util::fffear_search::fffear_search(CMMDBManager *mol, int SelectionHandle, const clipper::Xmap<float> &xmap, float angular_resolution, bool translation_search_only) {
+coot::util::fffear_search::fffear_search(mmdb::Manager *mol, int SelectionHandle, const clipper::Xmap<float> &xmap, float angular_resolution, bool translation_search_only) {
 
    std::pair<clipper::Coord_orth, clipper::Coord_orth> e = extents(mol, SelectionHandle);
    float bx  = e.second.x() - e.first.x();
@@ -195,14 +195,14 @@ coot::util::fffear_search::fffear_search(CMMDBManager *mol, int SelectionHandle,
 
 
 int
-coot::util::fffear_search::fill_nxmap(CMMDBManager *mol, int SelectionHandle,
+coot::util::fffear_search::fill_nxmap(mmdb::Manager *mol, int SelectionHandle,
 				      const clipper::Coord_orth &mid_point) {
 
    // I use as a base clipper's contrib/edcalc.cpp
    // template<class T> bool EDcalc_iso<T>::operator() ( NXmap<T>& nxmap, const Atom_list& atoms ) const
    //
 
-   PCAtom *atom_selection;
+   mmdb::PAtom *atom_selection;
    int n_atoms;
    mol->GetSelIndex(SelectionHandle, atom_selection, n_atoms);
 
@@ -272,14 +272,14 @@ coot::util::fffear_search::fill_nxmap(CMMDBManager *mol, int SelectionHandle,
 }
 
 int
-coot::util::fffear_search::fill_nxmap_mask(CMMDBManager *mol, int SelectionHandle,
+coot::util::fffear_search::fill_nxmap_mask(mmdb::Manager *mol, int SelectionHandle,
 					   const clipper::Coord_orth &mid_point) {
 
    // I use as a base clipper's contrib/edcalc.cpp
    // template<class T> bool EDcalc_mask<T>::operator() ( NXmap<T>& nxmap, const Atom_list& atoms ) const
 
    //
-   PCAtom *atom_selection;
+   mmdb::PAtom *atom_selection;
    int n_atoms;
    mol->GetSelIndex(SelectionHandle, atom_selection, n_atoms);
 

@@ -26,13 +26,13 @@
 #include <cartesian.h>
 
 
-inline void setrealp(realtype *a, int i, realtype val){
+inline void setrealp(mmdb::realtype *a, int i, mmdb::realtype val){
 
   a[i] = val;
 
 }
 
-inline void setrealpp(realtype **a, int i, int j, realtype val){
+inline void setrealpp(mmdb::realtype **a, int i, int j, mmdb::realtype val){
 
   a[i][j] = val;
 
@@ -50,13 +50,13 @@ inline void setintpp(int **a, int i, int j, int val){
 
 }
 
-inline realtype getrealp(realtype *a, int i){
+inline mmdb::realtype getrealp(realtype *a, int i){
 
   return a[i];
 
 }
 
-inline realtype getrealpp(realtype **a, int i, int j){
+inline mmdb::realtype getrealpp(realtype **a, int i, int j){
 
   return a[i][j];
 
@@ -73,11 +73,11 @@ inline int getintpp(int **a, int i, int j){
   return a[i][j];
 
 }
-void printrealp(realtype *a, int size);
-void printrealpp(realtype **a, int rows, int cols);
+void printrealp(mmdb::realtype *a, int size);
+void printrealpp(mmdb::realtype **a, int rows, int cols);
 void printintp(int *a, int size);
 void printintpp(int **a, int rows, int cols);
 
-std::vector<Cartesian> PPCAtomsToCartesians(int natoms, PPCAtom atoms);
+std::vector<Cartesian> mmdb::PPAtomsToCartesians(int natoms, mmdb::PPAtom atoms);
 
 #endif

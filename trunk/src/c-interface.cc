@@ -95,7 +95,7 @@
 #include <vector>
 #include <string>
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
 #include "coords/mmdb-crystal.h"
@@ -626,7 +626,7 @@ int clear_and_update_model_molecule_from_file(int molecule_number,
    int imol = -1;
    if (is_valid_model_molecule(molecule_number)) {
       atom_selection_container_t asc = get_atom_selection(file_name, 1);
-      CMMDBManager *mol = asc.mol;
+      mmdb::Manager *mol = asc.mol;
       graphics_info_t::molecules[molecule_number].replace_molecule(mol);
       imol = molecule_number;
       graphics_draw();
@@ -1490,13 +1490,13 @@ float density_score_residue_scm(int imol, SCM residue_spec_scm, int imol_map) {
       if (is_valid_model_molecule(imol)) {
 	 graphics_info_t g;
 	 coot::residue_spec_t residue_spec = residue_spec_from_scm(residue_spec_scm);
-	 CResidue *r = g.molecules[imol].get_residue(residue_spec);
+	 mmdb::Residue *r = g.molecules[imol].get_residue(residue_spec);
 	 if (r) {
-	    PPCAtom residue_atoms = 0;
+	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
 	    r->GetAtomTable(residue_atoms, n_residue_atoms);
 	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
-	       CAtom *at = residue_atoms[iat];
+	       mmdb::Atom *at = residue_atoms[iat];
 	       float d_at = density_at_point(imol_map, at->x, at->y, at->z);
 	       v += d_at * at->occupancy;
 	    }
@@ -1515,13 +1515,13 @@ float density_score_residue_py(int imol, PyObject *residue_spec_py, int imol_map
       if (is_valid_model_molecule(imol)) {
 	 graphics_info_t g;
 	 coot::residue_spec_t residue_spec = residue_spec_from_py(residue_spec_py);
-	 CResidue *r = g.molecules[imol].get_residue(residue_spec);
+	 mmdb::Residue *r = g.molecules[imol].get_residue(residue_spec);
 	 if (r) {
-	    PPCAtom residue_atoms = 0;
+	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
 	    r->GetAtomTable(residue_atoms, n_residue_atoms);
 	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
-	       CAtom *at = residue_atoms[iat];
+	       mmdb::Atom *at = residue_atoms[iat];
 	       float d_at = density_at_point(imol_map, at->x, at->y, at->z);
 	       v += d_at * at->occupancy;
 	    }
@@ -1540,13 +1540,13 @@ float density_score_residue(int imol, const char *chain_id, int res_no, const ch
       if (is_valid_model_molecule(imol)) {
 	 graphics_info_t g;
 	 coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);
-	 CResidue *r = g.molecules[imol].get_residue(residue_spec);
+	 mmdb::Residue *r = g.molecules[imol].get_residue(residue_spec);
 	 if (r) {
-	    PPCAtom residue_atoms = 0;
+	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
 	    r->GetAtomTable(residue_atoms, n_residue_atoms);
 	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
-	       CAtom *at = residue_atoms[iat];
+	       mmdb::Atom *at = residue_atoms[iat];
 	       float d_at = density_at_point(imol_map, at->x, at->y, at->z);
 	       v += d_at * at->occupancy;
 	    }
@@ -2044,9 +2044,9 @@ void set_show_symmetry_master(short int state) {
       for (int ii=0; ii<g.n_molecules(); ii++)
 	 if (is_valid_model_molecule(ii)) {
 	    n_model_molecules++;
-	    mat44 my_matt;
+	    mmdb::mat44 my_matt;
 	    int err = graphics_info_t::molecules[ii].atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
-	    if (err == SYMOP_Ok) {
+	    if (err == mmdb::SYMOP_Ok) {
 	       n_has_symm++;
 	       break;
 	    }
@@ -3203,7 +3203,7 @@ char *centre_of_mass_string(int imol) {
 #ifdef USE_GUILE
    char *s = 0; // guile/SWIG sees this as #f
    if (is_valid_model_molecule(imol)) {
-      realtype x, y, z;
+      mmdb::realtype x, y, z;
       GetMassCenter(graphics_info_t::molecules[imol].atom_sel.atom_selection,
 		    graphics_info_t::molecules[imol].atom_sel.n_selected_atoms,
 		    x, y, z);
@@ -3224,7 +3224,7 @@ char *centre_of_mass_string(int imol) {
 #ifdef USE_PYTHON
    char *s = 0; // should do for python too
    if (is_valid_model_molecule(imol)) {
-      realtype x, y, z;
+      mmdb::realtype x, y, z;
       GetMassCenter(graphics_info_t::molecules[imol].atom_sel.atom_selection,
 		    graphics_info_t::molecules[imol].atom_sel.n_selected_atoms,
 		    x, y, z);
@@ -3251,7 +3251,7 @@ char *centre_of_mass_string_py(int imol) {
 
    char *s = 0; // should do for python too
    if (is_valid_model_molecule(imol)) {
-      realtype x, y, z;
+      mmdb::realtype x, y, z;
       GetMassCenter(graphics_info_t::molecules[imol].atom_sel.atom_selection,
 		    graphics_info_t::molecules[imol].atom_sel.n_selected_atoms,
 		    x, y, z);
@@ -4059,7 +4059,7 @@ gchar *get_text_for_phs_cell_chooser(int imol, char *field) {
    gchar *retval = NULL;
    retval = (gchar *) malloc(12); 
    int ihave_cell = 0; 
-   realtype cell[6];
+   mmdb::realtype cell[6];
    const char *spgrp = NULL; 
 
    if (imol >= 0) { 
@@ -4069,7 +4069,7 @@ gchar *get_text_for_phs_cell_chooser(int imol, char *field) {
 
 	       ihave_cell = 1; 
 
-	       realtype vol;
+	       mmdb::realtype vol;
 	       int orthcode;
 	       g.molecules[imol].atom_sel.mol->GetCell(cell[0], cell[1], cell[2],
 						       cell[3], cell[4], cell[5],
@@ -4184,7 +4184,7 @@ int set_go_to_atom_chain_residue_atom_name(const char *t1, int iresno, const cha
    graphics_info_t g; 
    int success = set_go_to_atom_chain_residue_atom_name_no_redraw(t1, iresno, t3, 1);
    if (success) { 
-      CAtom *at = 0; // passed but not used, it seems.
+      mmdb::Atom *at = 0; // passed but not used, it seems.
       GtkWidget *window = graphics_info_t::go_to_atom_window;
       if (window)
 	 g.update_widget_go_to_atom_values(window, at);
@@ -4203,7 +4203,7 @@ int set_go_to_atom_chain_residue_atom_name_full(const char *chain_id,
    g.set_go_to_atom_chain_residue_atom_name(chain_id, resno, ins_code, atom_name, alt_conf);
    int success = g.try_centre_from_new_go_to_atom();
    if (success) { 
-      CAtom *at = 0; // passed but not used, it seems.
+      mmdb::Atom *at = 0; // passed but not used, it seems.
       GtkWidget *window = graphics_info_t::go_to_atom_window;
       if (window)
 	 g.update_widget_go_to_atom_values(window, at);
@@ -4240,7 +4240,7 @@ int set_go_to_atom_chain_residue_atom_name_no_redraw(const char *t1, int iresno,
 					       altloc.c_str());
 
    }
-   CAtom *at = 0; // passed but not used, it seems.
+   mmdb::Atom *at = 0; // passed but not used, it seems.
    GtkWidget *window = graphics_info_t::go_to_atom_window;
    if (window)
       g.update_widget_go_to_atom_values(window, at);
@@ -5588,7 +5588,7 @@ SCM cis_peptides(int imol) {
 
    if (is_valid_model_molecule(imol)) {
 
-      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       std::vector<coot::util::cis_peptide_info_t> v =
 	 coot::util::cis_peptides_info_from_coords(mol);
 
@@ -5631,7 +5631,7 @@ PyObject *cis_peptides_py(int imol) {
 
    if (is_valid_model_molecule(imol)) {
 
-      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       std::vector<coot::util::cis_peptide_info_t> v =
 	 coot::util::cis_peptides_info_from_coords(mol);
 
@@ -6132,16 +6132,16 @@ void print_sequence_chain(int imol, const char *chain_id) {
 
    std::string seq;
    if (is_valid_model_molecule(imol)) {
-      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       int imod = 1;
-      CModel *model_p = mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 if (std::string(chain_p->GetChainID()) == chain_id) { 
 	    int nres = chain_p->GetNumberOfResidues();
-	    PCResidue residue_p;
+	    mmdb::PResidue residue_p;
 	    int residue_count_block = 0;
 	    int residue_count_line = 0;
 	    if (nres > 0 ) {
@@ -6180,8 +6180,8 @@ void do_sequence_view(int imol) {
 
    if (is_valid_model_molecule(imol)) {
       bool do_old_style = 0; 
-      CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-      std::vector<CResidue *> r = coot::util::residues_with_insertion_codes(mol);
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      std::vector<mmdb::Residue *> r = coot::util::residues_with_insertion_codes(mol);
       if (r.size() > 0) {
 	 do_old_style = 1;
       } else {

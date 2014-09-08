@@ -26,7 +26,7 @@
 #include <string>
 #include <vector>
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 
 #include "mini-mol/mini-mol.hh"
 #include "geometry/protein-geometry.hh" // for wiggly ligands
@@ -41,7 +41,7 @@ namespace coot {
    // atoms to be used to mask the map (i.e. those not in the
    // selection).
    std::pair<minimol::molecule, minimol::molecule>
-      make_mols_from_atom_selection_string(CMMDBManager *mol,
+      make_mols_from_atom_selection_string(mmdb::Manager *mol,
 					   std::string atom_selection_string,
 					   bool fill_masking_molecule_flag);
 
@@ -200,7 +200,7 @@ namespace coot {
 			     clipper::Xmap<float> *xmap_p);  // alter xmap_p
       void mask_around_coord(const clipper::Coord_orth &co, float atom_radius,
 			     clipper::Xmap<int> *xmap_p);  // alter xmap_p, template?
-      int make_selected_atoms(PPCAtom *atoms_p, CMMDBManager *mol); 
+      int make_selected_atoms(mmdb::PPAtom *atoms_p, mmdb::Manager *mol); 
 
       // for graphics "refine one residue" fitting, we don't want to
       // test orientations other than the first (identity) one.
@@ -391,10 +391,10 @@ namespace coot {
       // ~ligand(); // causes core dump currently (badness).
       // void mask_map(const clipper::DBAtom_selection &atoms);
 
-      void mask_map(CMMDBManager *mol, short int mask_waters_flag); // used in c-interface-ligand.cc
+      void mask_map(mmdb::Manager *mol, short int mask_waters_flag); // used in c-interface-ligand.cc
 
       // This is the prefered interface
-      void mask_map(CMMDBManager *mol, 
+      void mask_map(mmdb::Manager *mol, 
 		    int SelectionHandle,
 		    short int invert_flag); // if invert_flag is 0 put the map to 0
                                             // where the atoms are.  If 1, put map to
@@ -498,7 +498,7 @@ namespace coot {
       void make_pseudo_atoms();
 
       void install_ligand(std::string filename);
-      void install_ligand(CMMDBManager *mol);
+      void install_ligand(mmdb::Manager *mol);
       void install_ligand(const minimol::molecule &ligand);
 
       // return whether we successfully installed wiggly ligands or
@@ -623,7 +623,7 @@ namespace coot {
       void set_sphericity_test_off() { do_sphericity_test_flag = 0;}
 
       // sets protein atoms for moving ASU peaks to around the protein
-      void import_reference_coords(CMMDBManager *mol);
+      void import_reference_coords(mmdb::Manager *mol);
       
       // external error checking
       // 

@@ -591,7 +591,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 // 
 std::pair<unsigned int, coot::dictionary_residue_restraints_t>
 coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary_residue_restraints_t &ref,
-							  CResidue *residue_p,
+							  mmdb::Residue *residue_p,
 							  const std::string &new_comp_id_in) const {
    dictionary_residue_restraints_t dict = *this;
    bool debug = false;
@@ -608,8 +608,8 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    if (use_hydrogens == false)
       n_atoms = number_of_non_hydrogen_atoms();
    
-   CGraph *g_1 = make_graph(use_hydrogens);
-   CGraph *g_2 = ref.make_graph(use_hydrogens);
+   mmdb::math::Graph *g_1 = make_graph(use_hydrogens);
+   mmdb::math::Graph *g_2 = ref.make_graph(use_hydrogens);
 
    if (debug) {
       std::cout << "this-name :::::::::::::::::::" << residue_info.comp_id << std::endl;
@@ -624,16 +624,16 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    g_2->SetName ("reference-residue");
    g_2->MakeVertexIDs();
 
-   Boolean use_bond_order = False;
+   bool use_bond_order = false;
 
-   g_1->MakeSymmetryRelief(False);
-   g_2->MakeSymmetryRelief(False);
+   g_1->MakeSymmetryRelief(false);
+   g_2->MakeSymmetryRelief(false);
    
-   CGraphMatch match;
+   mmdb::math::GraphMatch match;
    int minMatch = ref.number_of_non_hydrogen_atoms() -2;
    if (minMatch<3) minMatch = 3;
 
-   Boolean vertext_type = True;
+   bool vertext_type = true;
    std::string s;
    if (!use_hydrogens)
       s = " non-hydrogen";
@@ -642,7 +642,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
       std::cout << "INFO:: Matching Graphs with minMatch " << minMatch << " with "
 		<< n_atoms << s << " atoms" << std::endl;
    
-   int build_result_1 = g_1->Build(False);
+   int build_result_1 = g_1->Build(false);
 
    if (build_result_1 != 0) {
       std::cout << "Bad graph build result_1" << std::endl;
@@ -660,14 +660,14 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 	    int imatch_best = 0;
 	    for (int imatch=0; imatch<n_match; imatch++) {
 	       int nv;
-	       realtype p1, p2;
-	       ivector FV1, FV2;
+	       mmdb::realtype p1, p2;
+	       mmdb::ivector FV1, FV2;
 	       match.GetMatch(imatch, FV1, FV2, nv, p1, p2); // n p1 p2 set
 	       // std::cout << "   imatch " << imatch << " " << nv << std::endl;
 	       int n_type_match = 0;
 	       for (int ipair=1; ipair<=nv; ipair++) {
-		  CVertex *V1 = g_1->GetVertex ( FV1[ipair] );
-		  CVertex *V2 = g_2->GetVertex ( FV2[ipair] );
+		  mmdb::math::Vertex *V1 = g_1->GetVertex ( FV1[ipair] );
+		  mmdb::math::Vertex *V2 = g_2->GetVertex ( FV2[ipair] );
 		  if ((!V1) || (!V2))  {
 		     std::cout << "Can't get vertices for match " << ipair << std::endl;
 		  } else {
@@ -729,7 +729,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 	    // change the residue atom names too (if non-NULL).
 	    bool something_changed = change_names(residue_p, change_name, new_comp_id);
 	    if (something_changed) {
-	       CMMDBManager *m = residue_p->chain->GetCoordHierarchy();
+	       mmdb::Manager *m = residue_p->chain->GetCoordHierarchy();
 	       if (m)
 		  m->FinishStructEdit();
 	    } 
@@ -744,17 +744,17 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 }
 
 bool
-coot::dictionary_residue_restraints_t::change_names(CResidue *residue_p,
+coot::dictionary_residue_restraints_t::change_names(mmdb::Residue *residue_p,
 						    const std::vector<std::pair<std::string, std::string> > &change_name, const std::string &new_comp_id) const {
 
    bool changed_something = false;
 
    if (residue_p) {
-      PPCAtom res_selection = NULL;
+      mmdb::PPAtom res_selection = NULL;
       int num_residue_atoms;
       residue_p->GetAtomTable(res_selection, num_residue_atoms);
       for (unsigned int iat=0; iat<num_residue_atoms; iat++) {
-	 CAtom *at = res_selection[iat];
+	 mmdb::Atom *at = res_selection[iat];
 	 std::string atom_name = at->name;
 	 for (unsigned int j=0; j<change_name.size(); j++) { 
 	    if (change_name[j].first == atom_name) {
@@ -855,7 +855,7 @@ coot::dictionary_residue_restraints_t::invent_new_name(const std::string &ele) c
 
 
 
-CGraph *
+mmdb::math::Graph *
 coot::dictionary_residue_restraints_t::make_graph(bool use_hydrogens) const { 
 
    std::map<std::string, unsigned int> name_map;
@@ -869,13 +869,13 @@ coot::dictionary_residue_restraints_t::make_graph(bool use_hydrogens) const {
    // 
    int vertex_indexing[atom_info.size()];
    
-   CGraph *graph = new CGraph;
+   mmdb::math::Graph *graph = new mmdb::math::Graph;
    int i_atom = 0;
    for (unsigned int iat=0; iat<atom_info.size(); iat++) { 
       std::string ele  = atom_info[iat].type_symbol;
       if (use_hydrogens || (ele != " H" && ele != "H")) { 
 	 std::string name = atom_info[iat].atom_id_4c;
-	 CVertex *v = new CVertex(ele.c_str(), name.c_str());
+	 mmdb::math::Vertex *v = new mmdb::math::Vertex(ele.c_str(), name.c_str());
 	 graph->AddVertex(v);
 	 name_map[name] = i_atom;
 	 i_atom++;
@@ -902,7 +902,7 @@ coot::dictionary_residue_restraints_t::make_graph(bool use_hydrogens) const {
 
 	       if (use_hydrogens || (!is_hydrogen(br.atom_id_1_4c()) &&
 				     !is_hydrogen(br.atom_id_2_4c()))) {
-		  CEdge *e = new CEdge(it_1->second + 1,  // 1-indexed
+		  mmdb::math::Edge *e = new mmdb::math::Edge(it_1->second + 1,  // 1-indexed
 				       it_2->second + 1,
 				       mmdb_bond_type);
 		  graph->AddEdge(e);

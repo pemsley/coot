@@ -32,8 +32,8 @@ int main( int argc, char** argv )
   mapfile.close_read();
 
   // read mmdb
-  CMMDBManager mmdb;
-  mmdb.SetFlag( MMDBF_AutoSerials | MMDBF_IgnoreDuplSeqNum );
+  mmdb::Manager mmdb;
+  mmdb.SetFlag( MMDBF_AutoSerials | mmdb::MMDBF_IgnoreDuplSeqNum );
   mmdb.ReadPDBASCII( mmdbfile.c_str() );
 
   // make sequence object

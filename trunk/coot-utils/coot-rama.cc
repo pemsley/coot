@@ -36,7 +36,7 @@ std::ostream& coot::util::operator<<(std::ostream &s, coot::util::phi_psi_t v) {
 }
 
 coot::util::phi_psi_t
-coot::util::ramachandran_angles(PCResidue *SelResidues, int nSelResidues) {
+coot::util::ramachandran_angles(mmdb::PResidue *SelResidues, int nSelResidues) {
 
    if (nSelResidues != 3) {
       std::string mess = "EXCEPTION: ramachandran_angles was given ";
@@ -59,19 +59,19 @@ coot::util::ramachandran_angles(PCResidue *SelResidues, int nSelResidues) {
 // SelResidue is guaranteed to have 3 residues (there is no protection
 // for that in this function).
 std::pair<bool, coot::util::phi_psi_t>
-coot::util::get_phi_psi(PCResidue *SelResidue) {
+coot::util::get_phi_psi(mmdb::PResidue *SelResidue) {
    return get_phi_psi(SelResidue[0], SelResidue[1], SelResidue[2]);
 } 
 
 // SelResidue is guaranteed to have 3 residues (there is no protection
 // for that in this function).
 std::pair<bool, coot::util::phi_psi_t>
-coot::util::get_phi_psi(CResidue *residue_0, CResidue *residue_1, CResidue *residue_2) {
+coot::util::get_phi_psi(mmdb::Residue *residue_0, mmdb::Residue *residue_1, mmdb::Residue *residue_2) {
 
    bool is_valid_flag = 0;
    coot::util::phi_psi_t phi_psi; // part of the returned value
    int nResidueAtoms;
-   PPCAtom res_selection;
+   mmdb::PPAtom res_selection;
    int natom = 0;
    int ires = residue_1->GetSeqNum();
    clipper::Coord_orth c_prev, n_this, ca_this, c_this, n_next;
@@ -167,7 +167,7 @@ coot::util::get_phi_psi(CResidue *residue_0, CResidue *residue_1, CResidue *resi
 
 // this can throw an exception (e.g. bonding atoms too far
 // apart).
-coot::util::phi_psi_t::phi_psi_t(CResidue *prev, CResidue *this_res, CResidue *next) {
+coot::util::phi_psi_t::phi_psi_t(mmdb::Residue *prev, mmdb::Residue *this_res, mmdb::Residue *next) {
 
    std::pair<bool, coot::util::phi_psi_t> bpp = coot::util::get_phi_psi(prev, this_res, next);
 

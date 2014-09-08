@@ -10,8 +10,8 @@
 #include <math.h>
 #include "CXXCircle.h"
 #include "CXXNewHood.h"
-#include <mmdb/mmdb_manager.h>
-#include <mmdb/mmdb_tables.h>
+#include <mmdb2/mmdb_manager.h>
+#include <mmdb2/mmdb_tables.h>
 
 CXXCircle::CXXCircle() :
 theAtomJ(0),
@@ -31,7 +31,7 @@ nodeNumber(0)
 {
 }
 
-CXXCircle::CXXCircle (CXXNewHood *aHood, PCAtom atom2, double radiusOfAtom2, double probeRadius) :
+CXXCircle::CXXCircle (CXXNewHood *aHood, mmdb::PAtom atom2, double radiusOfAtom2, double probeRadius) :
 theAtomJ(atom2),
 theBallJ(0),
 theParent(aHood),
@@ -276,7 +276,7 @@ double CXXCircle::getRadiusOfSphere() const{
 double CXXCircle::getRadiusOfSecondSphere() const{
 	return radiusOfSecondSphere;
 }
-const PCAtom CXXCircle::getAtomJ() const{
+const mmdb::PAtom CXXCircle::getAtomJ() const{
 	return theAtomJ;
 }
 
@@ -444,7 +444,7 @@ int CXXCircle::newIdentifyArcs(){
 	
 	//If this is an intact orbit, then atomK will be zero, and the first two nodes are trivially the start and
 	//Stop points
-	PCAtom atomK(theNodes.begin()->getAtomK());
+	mmdb::PAtom atomK(theNodes.begin()->getAtomK());
 	if (!atomK && theNodes.size()>1){
 		theStarts.push_back(&(*theNodes.begin()));
 		theStops.push_back(&theNodes.back());

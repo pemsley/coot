@@ -8,7 +8,7 @@ int main(int argc, char **argv) {return 0;}
 
 void molecule_from_comp_id(const std::string &comp_id) {
    try {
-      CResidue *residue_p = 0;
+      mmdb::Residue *residue_p = 0;
       coot::protein_geometry geom;
       // geom.init_standard();
 
@@ -17,13 +17,13 @@ void molecule_from_comp_id(const std::string &comp_id) {
       // std::string three_letter_code = "06C"; // simplest
 	 
       bool idealised_flag = true;
-      CMMDBManager *mol = geom.mol_from_dictionary(comp_id, idealised_flag);
+      mmdb::Manager *mol = geom.mol_from_dictionary(comp_id, idealised_flag);
 
       if (! mol) {
 	 std::cout << "Null mol from mol_from_dictionary() for " <<  comp_id << std::endl;
       } else {
 	 
-	 CResidue *residue_p = coot::util::get_first_residue(mol);
+	 mmdb::Residue *residue_p = coot::util::get_first_residue(mol);
 
 	 if (! residue_p) {
 	    // pretty strange

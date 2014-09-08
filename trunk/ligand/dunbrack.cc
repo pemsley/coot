@@ -30,8 +30,8 @@
 
 // #include "clipper/core/coords.h"
 
-// coot::dunbrack::dunbrack(CResidue *residue_in,
-// 			 CMMDBManager *mol_in,
+// coot::dunbrack::dunbrack(mmdb::Residue *residue_in,
+// 			 mmdb::Manager *mol_in,
 // 			 float lowest_prob) {
 
 // //    residue = residue_in;
@@ -152,15 +152,15 @@ coot::dunbrack_rotamer::compare_rotamers(const coot::simple_rotamer &a,
 coot::contact_info
 coot::dunbrack::getcontacts(const atom_selection_container_t &asc) const {
 
-   PSContact pscontact = NULL;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts;
    float min_dist = 0.1;
    float max_dist = 1.9; // CB->SG CYS 1.8A
    if (Residue_Type() == "MSE")
       max_dist = 2.0;
    long i_contact_group = 1;
-   mat44 my_matt;
-   CSymOps symm;
+   mmdb::mat44 my_matt;
+   mmdb::SymOps symm;
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 
 	 my_matt[i][j] = 0.0;      

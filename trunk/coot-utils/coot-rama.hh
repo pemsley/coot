@@ -29,7 +29,7 @@
 #include <string>
 #endif // HAVE_STRING
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 
 
 namespace coot {
@@ -71,7 +71,7 @@ namespace coot {
 	 };
 	 // this can throw an exception (e.g. bonding atoms too far
 	 // apart).  Uses get_phi_psi() below
-	 phi_psi_t(CResidue *prev, CResidue *this_res, CResidue *next); 
+	 phi_psi_t(mmdb::Residue *prev, mmdb::Residue *this_res, mmdb::Residue *next); 
       
 	 double phi() const {return phi_;}
 	 double psi() const {return psi_;}
@@ -87,13 +87,13 @@ namespace coot {
       std::ostream& operator<<(std::ostream &s, phi_psi_t v);
 
       // throw an exception on failure to get angles or nSelResidues is not 3.
-      phi_psi_t ramachandran_angles(PCResidue *SelResidues, int nSelResidues);
+      phi_psi_t ramachandran_angles(mmdb::PResidue *SelResidues, int nSelResidues);
 
       // used by ramachandran_angles:
-      std::pair<bool, phi_psi_t> get_phi_psi(PCResidue *SelResidue);
-      std::pair<bool, phi_psi_t> get_phi_psi(CResidue *residue_0,
-					     CResidue *residue_1,
-					     CResidue *residue_2);
+      std::pair<bool, phi_psi_t> get_phi_psi(mmdb::PResidue *SelResidue);
+      std::pair<bool, phi_psi_t> get_phi_psi(mmdb::Residue *residue_0,
+					     mmdb::Residue *residue_1,
+					     mmdb::Residue *residue_2);
 
       class phi_psi_pair_helper_t {
       public:

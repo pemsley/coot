@@ -1,13 +1,13 @@
 
 #include <iostream>
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 
 int main(int argc, char **argv) {
 
    if (argc > 1) {
       char *filename = argv[1];
-      CMMDBManager *mol = new CMMDBManager;
+      mmdb::Manager *mol = new mmdb::Manager;
       mol->ReadCoorFile(filename);
 
       std::cout << "(define obj (new-generic-object-number \"EJD's vectors\"))"
@@ -17,15 +17,15 @@ int main(int argc, char **argv) {
 	 int imod = 1;
 	 int ncount = 11; 
 	 
-	 CModel *model_p = mol->GetModel(imod);
-	 CChain *chain_p;
+	 mmdb::Model *model_p = mol->GetModel(imod);
+	 mmdb::Chain *chain_p;
 	 // run over chains of the existing mol
 	 int nchains = model_p->GetNumberOfChains();
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    chain_p = model_p->GetChain(ichain);
 	    int nres = chain_p->GetNumberOfResidues();
-	    PCResidue residue_p;
-	    CAtom *at;
+	    mmdb::PResidue residue_p;
+	    mmdb::Atom *at;
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = chain_p->GetResidue(ires);
 	       int n_atoms = residue_p->GetNumberOfAtoms();
@@ -35,10 +35,10 @@ int main(int argc, char **argv) {
 
 		  // inner atom loop
 		  for (int jchain=0; jchain<nchains; jchain++) {
-		     CChain *chain2_p = model_p->GetChain(jchain);
+		     mmdb::Chain *chain2_p = model_p->GetChain(jchain);
 		     int nres2 = chain2_p->GetNumberOfResidues();
-		     PCResidue residue2_p;
-		     CAtom *at2;
+		     mmdb::PResidue residue2_p;
+		     mmdb::Atom *at2;
 		     for (int jres=0; jres<nres2; jres++) { 
 			residue2_p = chain2_p->GetResidue(jres);
 			int n_atoms2 = residue2_p->GetNumberOfAtoms();

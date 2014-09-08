@@ -1,9 +1,9 @@
 #include <iostream>
 #include <vector>
 #include "clipper/clipper.h"
-#include <mmdb/mmdb_manager.h>
-#include <mmdb/mmdb_tables.h>
-#include <mmdb/mmdb_uddata.h>
+#include <mmdb2/mmdb_manager.h>
+#include <mmdb2/mmdb_tables.h>
+#include <mmdb2/mmdb_uddata.h>
 #include <math.h>
 #include "CXXCircle.h"
 #include "CXXCoord.h"
@@ -31,10 +31,10 @@ class CXXQADSurface {
 	} GRIDCELL;
 	
 private: 
-		double sample;
+	double sample;
 	double probeRadius;
 	double atomRadius;
-	PPCAtom	selectedAtoms;
+	mmdb::PPAtom	selectedAtoms;
 	int nSelectedAtoms;
 	clipper::Xmap<double> theDoubleMap;	
 	clipper::Xmap<int> theFlagMap;	
@@ -50,7 +50,7 @@ private:
 	void dump(clipper::Coord_grid theObject);
 	void dump(clipper::Grid_range theObject);
 	int selHndl;
-	class CMMDBManager *theMMDBManager;
+	class mmdb::Manager *theMMDBManager;
 	int coordIsBuriedByNeighbours(clipper::Coord_orth &point, int iAtom);
 	void addProbe(clipper::Coord_orth);
 	void copyFlagToDouble();
@@ -79,7 +79,7 @@ private:
 	int calculateAveragedNormals();
 	double maxAtomRadius;
 	double fastGetAtomRadius(int iAtom) {return atomRadii[iAtom];}
-	double getAtomRadius(PCAtom);
+	double getAtomRadius(mmdb::PAtom);
 	int transformTriTable();	
 	int setInaccessibleDistanceSq();
 	int sqrtDistanceSq();
@@ -92,7 +92,7 @@ public:
 			Solvent = 0, vdW = 1, Inaccessible = 2, Accessible = 3
 		};
 	
-	CXXQADSurface(PCMMDBManager theMMDBManager, int selHndl, 
+	CXXQADSurface(mmdb::PManager theMMDBManager, int selHndl, 
 				  double probeRadius_in, double sample_in);
 	~CXXQADSurface();	
 	clipper::Cell &getCell();

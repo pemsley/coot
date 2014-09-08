@@ -4,7 +4,7 @@ namespace coot {
    // declared in src somewhere then?
    // 
    std::pair<bool, std::string>
-   add_hydrogens(CResidue *residue_p,
+   add_hydrogens(mmdb::Residue *residue_p,
 		 const dictionary_residue_restraints_t &restraints);
 
 

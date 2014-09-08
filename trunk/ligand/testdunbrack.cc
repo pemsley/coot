@@ -24,7 +24,7 @@
 
 int main(int argc, char **argv) {
 
-   CResidue *r = 0; 
+   mmdb::Residue *r = 0; 
    coot::dunbrack d(r, "FRE");
 
 //    std::string test_string = "45%";

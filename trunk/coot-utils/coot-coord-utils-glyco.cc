@@ -39,15 +39,15 @@
 //    User has an ASN onto which they want to beam in a NAG.
 // 
 //    setup:
-//    Make CResidue *s and/or molecule for the N-linked NAG reference residues.
+//    Make mmdb::Residue *s and/or molecule for the N-linked NAG reference residues.
 // 
-///   Get the CResidue * for the user residue ASN 
-//    Get the CAtoms *s for the OD1, ND2, GC and CB in user residue [1]
-//    Get the CAtoms *s for the OD1, ND2, GC and CB in N-linked ASN molecule [2]
+///   Get the mmdb::Residue * for the user residue ASN 
+//    Get the mmdb::Atoms *s for the OD1, ND2, GC and CB in user residue [1]
+//    Get the mmdb::Atoms *s for the OD1, ND2, GC and CB in N-linked ASN molecule [2]
 //
 //    LSQ fit the NAG residue from the reference ASN+NAG pair using
 //    matrix that rotates [2] onto [1].  (We don't need the ASN from
-//    that pair).  Now we can add that rotated NAG CResidue * to user
+//    that pair).  Now we can add that rotated NAG mmdb::Residue * to user
 //    molecule.  we have N-linked-NAG template - consider renaming to
 //    ASN-NAG-via-NAG-ASN i.e. the general case
 //    {ResType1}-{ResType2}-via-{LinkName} where ResType1 and ResType2
@@ -57,7 +57,7 @@
 // This can throw a std::runtime_error if we can't find the group of
 // the input residues (for example).
 // 
-coot::beam_in_linked_residue::beam_in_linked_residue(CResidue *residue_ref_in,
+coot::beam_in_linked_residue::beam_in_linked_residue(mmdb::Residue *residue_ref_in,
 						     const std::string &link_type_in,
 						     const std::string &new_residue_type,
 						     coot::protein_geometry *geom_p_in) {
@@ -117,9 +117,9 @@ coot::beam_in_linked_residue::setup_by_comp_id(const std::string &comp_id_ref,
    
    if (coot::file_exists(full_path_pdb_filename)) {
    
-      CMMDBManager *t_mol = new CMMDBManager;
+      mmdb::Manager *t_mol = new mmdb::Manager;
       int status = t_mol->ReadPDBASCII(full_path_pdb_filename.c_str());
-      if (status != Error_NoError) {
+      if (status != mmdb::Error_NoError) {
 	 std::cout << "ERROR:: on reading " << full_path_pdb_filename << std::endl;
       } else {
 
@@ -178,9 +178,9 @@ coot::beam_in_linked_residue::setup_by_group_group(const std::string &group_ref,
       std::cout << "WARNING:: link template file " << full_path_pdb_filename
 		<< " does not exist " << std::endl;
    } else { 
-      CMMDBManager *t_mol = new CMMDBManager;
+      mmdb::Manager *t_mol = new mmdb::Manager;
       int status = t_mol->ReadPDBASCII(full_path_pdb_filename.c_str());
-      if (status != Error_NoError) {
+      if (status != mmdb::Error_NoError) {
 	 std::cout << "ERROR:: on reading " << full_path_pdb_filename << std::endl;
       } else {
 
@@ -235,9 +235,9 @@ coot::beam_in_linked_residue::setup_by_comp_id_group(const std::string &comp_id_
       std::cout << "WARNING:: link template file " << full_path_pdb_filename
 		<< " does not exist " << std::endl;
    } else {
-      CMMDBManager *t_mol = new CMMDBManager;
+      mmdb::Manager *t_mol = new mmdb::Manager;
       int pdb_status = t_mol->ReadPDBASCII(full_path_pdb_filename.c_str());
-      if (pdb_status != Error_NoError) {
+      if (pdb_status != mmdb::Error_NoError) {
 	 std::cout << "ERROR:: on reading " << full_path_pdb_filename << std::endl;
       } else {
 
@@ -271,14 +271,14 @@ coot::beam_in_linked_residue::setup_by_comp_id_group(const std::string &comp_id_
 
 
 // This can return NULL if we were unable to make the residue to be attached.
-CResidue *
+mmdb::Residue *
 coot::beam_in_linked_residue::get_residue() const {
 
-   CResidue *r = NULL;
+   mmdb::Residue *r = NULL;
    bool needs_O6_manip = false;
    double current_torsion = 0;
    double template_torsion = 64.0; // degrees (in the file)
-   CAtom *at_O6 = NULL;
+   mmdb::Atom *at_O6 = NULL;
    clipper::Coord_orth origin_shift;
    clipper::Coord_orth     position;
    clipper::Coord_orth    direction;
@@ -292,9 +292,9 @@ coot::beam_in_linked_residue::get_residue() const {
 	 // move the O6 of the residue to which we are linking, then
 	 // rotate rotate it and r back to match current torsion.
 	 // Fix-up needed for PDBv3
-	 CAtom *at_O5 = residue_ref->GetAtom(" O5 ");
-	 CAtom *at_C5 = residue_ref->GetAtom(" C5 ");
-	 CAtom *at_C6 = residue_ref->GetAtom(" C6 ");
+	 mmdb::Atom *at_O5 = residue_ref->GetAtom(" O5 ");
+	 mmdb::Atom *at_C5 = residue_ref->GetAtom(" C5 ");
+	 mmdb::Atom *at_C6 = residue_ref->GetAtom(" C6 ");
 	 at_O6 = residue_ref->GetAtom(" O6 ");
 	 if (at_O5 && at_C5 && at_C6 && at_O6) {
 	    coot::atom_quad quad(at_O5, at_C5, at_C6, at_O6);
@@ -333,11 +333,11 @@ coot::beam_in_linked_residue::get_residue() const {
 	    at_O6->y = new_pos.y();
 	    at_O6->z = new_pos.z();
 
-	    PPCAtom residue_atoms = 0;
+	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
 	    r->GetAtomTable(residue_atoms, n_residue_atoms);
 	    for (unsigned int i=0; i<n_residue_atoms; i++) {
-	       CAtom *at = residue_atoms[i];
+	       mmdb::Atom *at = residue_atoms[i];
 	       clipper::Coord_orth p(at->x, at->y, at->z);
 	       clipper::Coord_orth n =
 		  coot::util::rotate_round_vector(direction, p, origin_shift, -diff);
@@ -353,10 +353,10 @@ coot::beam_in_linked_residue::get_residue() const {
 }
 
 // This can return NULL if we were unable to make the residue to be attached.
-CResidue *
+mmdb::Residue *
 coot::beam_in_linked_residue::get_residue_raw() const {
 
-   CResidue *r = NULL;
+   mmdb::Residue *r = NULL;
    if (! have_template) {
       std::cout << "WARNING:: no template" << std::endl;
    } else {
@@ -402,14 +402,14 @@ coot::beam_in_linked_residue::get_residue_raw() const {
 	    if (r_res_name != comp_id_new) {
 
 	       // Something strange happens with the atom indices,
-	       // CResidue *r_new = geom_p->get_residue(comp_id_new, 1);
+	       // mmdb::Residue *r_new = geom_p->get_residue(comp_id_new, 1);
 
 	       // Try getting a molecule, then extracting the residue
 	       // (yes, that works).
 	       //
-	       CMMDBManager *r_mol = geom_p->mol_from_dictionary(comp_id_new, 1);
+	       mmdb::Manager *r_mol = geom_p->mol_from_dictionary(comp_id_new, 1);
 	       if (r_mol) {
-		  CResidue *r_new = coot::util::get_first_residue(r_mol);
+		  mmdb::Residue *r_new = coot::util::get_first_residue(r_mol);
 	       
 		  if (! r_new) {
 		     std::cout << "WARNING:: couldn't get reference residue coords for "
@@ -474,15 +474,15 @@ coot::beam_in_linked_residue::get_residue_raw() const {
 // atoms of template_res_mov.
 // 
 bool
-coot::beam_in_linked_residue::lsq_fit(CResidue *ref_res,
-				      CResidue *matcher_res,
-				      CResidue *mov_res,
+coot::beam_in_linked_residue::lsq_fit(mmdb::Residue *ref_res,
+				      mmdb::Residue *matcher_res,
+				      mmdb::Residue *mov_res,
 				      const std::vector<std::string> &lsq_atom_names_ref,
 				      const std::vector<std::string> &lsq_atom_names_match) const {
 
    bool status = false; 
-   std::vector<CAtom *> va_1 = get_atoms(    ref_res, lsq_atom_names_ref);
-   std::vector<CAtom *> va_2 = get_atoms(matcher_res, lsq_atom_names_match);
+   std::vector<mmdb::Atom *> va_1 = get_atoms(    ref_res, lsq_atom_names_ref);
+   std::vector<mmdb::Atom *> va_2 = get_atoms(matcher_res, lsq_atom_names_match);
 
    if (va_1.size() != lsq_atom_names_ref.size()) {
       std::cout << "Mismatch atoms length for " << comp_id_ref << " in "
@@ -513,14 +513,14 @@ coot::beam_in_linked_residue::lsq_fit(CResidue *ref_res,
 // apply the chem mod (specifically, the CHEM_MOD_FUNCTION_DELETE
 // 
 void
-coot::beam_in_linked_residue::delete_atom(CResidue *res, const std::string &atom_name) const {
+coot::beam_in_linked_residue::delete_atom(mmdb::Residue *res, const std::string &atom_name) const {
 
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    bool deleted = false;
    res->GetAtomTable(residue_atoms, n_residue_atoms);
    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-      CAtom *at = residue_atoms[iat];
+      mmdb::Atom *at = residue_atoms[iat];
       if (at) {  // unneeded precaution?
 	 std::string at_name(at->name);
 	 if (at_name == atom_name) {
@@ -537,7 +537,7 @@ coot::beam_in_linked_residue::delete_atom(CResidue *res, const std::string &atom
    res->GetAtomTable(residue_atoms, n_residue_atoms);
    std::string rn = res->GetResName();
    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
-      CAtom *at = residue_atoms[iat];
+      mmdb::Atom *at = residue_atoms[iat];
    }
    
    if (deleted)
@@ -554,12 +554,12 @@ coot::beam_in_linked_residue::atom_id_mmdb_expand(const std::string &atom_id,
 } 
 
 
-std::vector<CAtom *>
-coot::beam_in_linked_residue::get_atoms(CResidue *residue_p,
+std::vector<mmdb::Atom *>
+coot::beam_in_linked_residue::get_atoms(mmdb::Residue *residue_p,
 					const std::vector<std::string> &names) const {
 
-   std::vector<CAtom *> v;
-   PPCAtom residue_atoms = 0;
+   std::vector<mmdb::Atom *> v;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (unsigned int iname=0; iname<names.size(); iname++) {
@@ -618,20 +618,20 @@ coot::beam_in_linked_residue::make_reference_atom_names(const std::string &comp_
    return lsq_reference_atom_names;
 } 
 
-CResidue *
+mmdb::Residue *
 coot::beam_in_linked_residue::get_residue(const std::string &comp_id,
-					  CMMDBManager*mol) const {
+					  mmdb::Manager*mol) const {
 
-   CResidue *r = NULL;
+   mmdb::Residue *r = NULL;
    int imod = 1;
-   CModel *model_p = mol->GetModel(imod);
-   CChain *chain_p;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   mmdb::Chain *chain_p;
    int n_chains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<n_chains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
-      CResidue *residue_p;
-      CAtom *at;
+      mmdb::Residue *residue_p;
+      mmdb::Atom *at;
       for (int ires=0; ires<nres; ires++) { 
 	 residue_p = chain_p->GetResidue(ires);
 	 std::string res_name(residue_p->GetResName());
@@ -662,7 +662,7 @@ coot::operator<<(std::ostream &o, const linked_residue_t &lr) {
 
 // should this be part of protein_geometry?
 // 
-coot::glyco_tree_t::glyco_tree_t(CResidue *residue_p, CMMDBManager *mol,
+coot::glyco_tree_t::glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol,
 				 coot::protein_geometry *geom_p_in) {
 
    float dist_crit = 3.0; // A
@@ -670,17 +670,17 @@ coot::glyco_tree_t::glyco_tree_t(CResidue *residue_p, CMMDBManager *mol,
    if (residue_p) { 
       geom_p = geom_p_in;
 
-      std::queue<CResidue *> q;
-      std::vector<CResidue *> considered;
-      std::vector<CResidue *> linked_residues;
+      std::queue<mmdb::Residue *> q;
+      std::vector<mmdb::Residue *> considered;
+      std::vector<mmdb::Residue *> linked_residues;
       
       if (is_pyranose(residue_p) || std::string(residue_p->name) == "ASN")
 	 q.push(residue_p);
 
       while (q.size()) {
-	 CResidue *test_residue = q.front();
+	 mmdb::Residue *test_residue = q.front();
 	 q.pop();
-	 std::vector<CResidue *> residues = coot::residues_near_residue(test_residue, mol, dist_crit);
+	 std::vector<mmdb::Residue *> residues = coot::residues_near_residue(test_residue, mol, dist_crit);
 	 for (unsigned int ires=0; ires<residues.size(); ires++) {
 	    if (is_pyranose(residues[ires]) || std::string(residues[ires]->name) == "ASN") {
 	       if (std::find(considered.begin(), considered.end(), residues[ires]) == considered.end()) { 
@@ -716,7 +716,7 @@ coot::glyco_tree_t::glyco_tree_t(CResidue *residue_p, CMMDBManager *mol,
 }
 
 bool
-coot::glyco_tree_t::is_pyranose(CResidue *residue_p) const {
+coot::glyco_tree_t::is_pyranose(mmdb::Residue *residue_p) const {
 
    bool is_pyranose = false;
    try { 
@@ -737,8 +737,8 @@ coot::glyco_tree_t::is_pyranose(CResidue *residue_p) const {
 // residue_p is a member of residues.
 // 
 tree<coot::linked_residue_t> 
-coot::glyco_tree_t::find_ASN_rooted_tree(CResidue *residue_p,
-					 const std::vector<CResidue *> &residues) const {
+coot::glyco_tree_t::find_ASN_rooted_tree(mmdb::Residue *residue_p,
+					 const std::vector<mmdb::Residue *> &residues) const {
 
    return find_rooted_tree(residue_p, residues);
 }
@@ -748,22 +748,22 @@ coot::glyco_tree_t::find_ASN_rooted_tree(CResidue *residue_p,
 // residue_p is a member of residues.
 // 
 tree<coot::linked_residue_t> 
-coot::glyco_tree_t::find_rooted_tree(CResidue *residue_p,
-				     const std::vector<CResidue *> &residues) const {
+coot::glyco_tree_t::find_rooted_tree(mmdb::Residue *residue_p,
+				     const std::vector<mmdb::Residue *> &residues) const {
 
    linked_residue_t first_res(residue_p, "");
    tree<linked_residue_t> glyco_tree;
    tree<linked_residue_t>::iterator top = glyco_tree.insert(glyco_tree.begin(), first_res);
    bool something_added = true; // initial value 
    tree<linked_residue_t>::iterator this_iterator = top; // initial value
-   std::vector<std::pair<bool, CResidue *> > done_residues(residues.size());
+   std::vector<std::pair<bool, mmdb::Residue *> > done_residues(residues.size());
    for (unsigned int i=0; i<residues.size(); i++) {
       // Mark as not yet done, except if it is the first one, we have
       // inserted that one already.
       if (residues[i] == residue_p) {
-	 done_residues[i] = std::pair<bool, CResidue *>(1, residues[i]);
+	 done_residues[i] = std::pair<bool, mmdb::Residue *>(1, residues[i]);
       } else {
-	 done_residues[i] = std::pair<bool, CResidue *>(0, residues[i]);
+	 done_residues[i] = std::pair<bool, mmdb::Residue *>(0, residues[i]);
       }
    }
       
@@ -825,7 +825,7 @@ coot::glyco_tree_t::find_rooted_tree(CResidue *residue_p,
 }
 
 tree<coot::linked_residue_t>
-coot::glyco_tree_t::find_stand_alone_tree(const std::vector<CResidue *> &residues) const {
+coot::glyco_tree_t::find_stand_alone_tree(const std::vector<mmdb::Residue *> &residues) const {
 
    // The task is the find the root of the tree, then we simply call
    // find_rooted_tree with that residue.
@@ -834,11 +834,11 @@ coot::glyco_tree_t::find_stand_alone_tree(const std::vector<CResidue *> &residue
    if (!residues.size())
       return tr;
    
-   std::vector<std::pair<bool, CResidue *> > done_residues(residues.size());
+   std::vector<std::pair<bool, mmdb::Residue *> > done_residues(residues.size());
    for (unsigned int i=0; i<residues.size(); i++)
-      done_residues[i] = std::pair<bool, CResidue *>(0, residues[i]);
+      done_residues[i] = std::pair<bool, mmdb::Residue *>(0, residues[i]);
 
-   CResidue *current_head = residues[0];
+   mmdb::Residue *current_head = residues[0];
    bool something_added = true; 
    while (something_added) {
       something_added = false;

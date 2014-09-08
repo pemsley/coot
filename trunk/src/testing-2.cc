@@ -24,9 +24,9 @@ int test_dreiding_torsion_energy() {
    testing_data t;
 
    int imod = 1;
-   CResidue *residue_p = test_get_residue(atom_sel.mol, "B", 1);
+   mmdb::Residue *residue_p = test_get_residue(atom_sel.mol, "B", 1);
    if (residue_p) {
-      PPCAtom residue_atoms = 0;
+      mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       std::string comp_id = residue_p->GetResName();
@@ -48,7 +48,7 @@ int test_parallel_plane_restraints() {
 
    int status = 0;
    testing_data t;
-   CMMDBManager *mol = new CMMDBManager;
+   mmdb::Manager *mol = new mmdb::Manager;
    int ierr = mol->ReadPDBASCII("3tu4-test-37,38.pdb");
    std::cout << "ReadPDBASCII() returned " << ierr << std::endl;
 

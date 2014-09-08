@@ -25,9 +25,9 @@
 #include "residue_by_phi_psi.hh"
 
 
-coot::residue_by_phi_psi::residue_by_phi_psi(const CMMDBManager *mol_in,
+coot::residue_by_phi_psi::residue_by_phi_psi(const mmdb::Manager *mol_in,
 					     const std::string &terminus,
-					     const CResidue *res_p,
+					     const mmdb::Residue *res_p,
 					     const std::string &chain_id_in, 
 					     const std::string &res_type,
 					     float b_factor_in) { 
@@ -38,7 +38,7 @@ coot::residue_by_phi_psi::residue_by_phi_psi(const CMMDBManager *mol_in,
    residue_type = res_type;
    terminus_type = terminus;
    b_factor = b_factor_in;
-   residue_p = (CResidue *) res_p; // casting needed because
+   residue_p = (mmdb::Residue *) res_p; // casting needed because
                                    // GetAtom is not const (sigh).
    init_phi_psi_plot();
    set_dont_test_rotations();
@@ -397,7 +397,7 @@ coot::residue_by_phi_psi::get_connecting_residue_atoms() const {
 
    clipper::Coord_orth found_atom[3];
 
-   PPCAtom residue_atoms;
+   mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
    residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
    for (int isearch=0; isearch<3; isearch++) {
@@ -423,7 +423,7 @@ coot::residue_by_phi_psi::get_connecting_residue_atoms() const {
       std::cout << "ERROR: missing atoms in get_connecting_residue_atoms: we found "
 		<< pos.size() << " atoms\n";
       if (residue_p) {
-	 PPCAtom residue_atoms;
+	 mmdb::PPAtom residue_atoms;
 	 int nResidueAtoms;
 	 residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
 	 std::cout << "residue has " << nResidueAtoms << " atoms " << std::endl;

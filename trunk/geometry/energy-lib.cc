@@ -44,21 +44,25 @@ coot::energy_lib_t::read(const std::string &file_name, bool print_info_message_f
       return;
    }
    
-   CMMCIFFile ciffile;
+   mmdb::mmcif::File ciffile;
    int ierr = ciffile.ReadMMCIFFile(file_name.c_str());
-   if (ierr!=CIFRC_Ok) {
-      std::cout << "dirty mmCIF file? " << file_name.c_str() << std::endl;
-      std::cout << "    Bad CIFRC_Ok on ReadMMCIFFile" << std::endl;
-      std::cout << "    " << GetErrorDescription(ierr) << std::endl;
-      char        err_buff[1000];
-      std::cout <<  "CIF error rc=" << ierr << " reason:" << 
-	 GetCIFMessage (err_buff,ierr) << std::endl;
+   if (ierr!=mmdb::mmcif::CIFRC_Ok) {
+      
+       std::cout << "dirty mmCIF file? " << file_name.c_str() << std::endl;
+       std::cout << "    Bad mmdb::mmcif::CIFRC_Ok on ReadMMCIFFile" << std::endl;
+       mmdb::cpstr ed = mmdb::GetErrorDescription(mmdb::ERROR_CODE(ierr));
+       std::cout << "    " << ed << std::endl;
+       char        err_buff[1000];
+       std::cout <<  "CIF error rc=" << ierr << " reason:" << 
+	  mmdb::mmcif::GetCIFMessage (err_buff, ierr) << std::endl;
+       
+      
    } else {
       if (print_info_message_flag)
 	 std::cout << "There are " << ciffile.GetNofData() << " data in "
 		   << file_name << std::endl;
       for(int idata=0; idata<ciffile.GetNofData(); idata++) { 
-	 PCMMCIFData data = ciffile.GetCIFData(idata);
+	 mmdb::mmcif::PData data = ciffile.GetCIFData(idata);
 	 // if (std::string(data->GetDataName()).substr(0,5) == "_lib_atom") {
 	 // energy_lib_atoms(mmCIFLoop);
 
@@ -67,12 +71,12 @@ coot::energy_lib_t::read(const std::string &file_name, bool print_info_message_f
 	 if (std::string(data->GetDataName()) == "energy") {
 	    for (int icat=0; icat<data->GetNumberOfCategories(); icat++) { 
       
-	       PCMMCIFCategory cat = data->GetCategory(icat);
+	       mmdb::mmcif::PCategory cat = data->GetCategory(icat);
 	       std::string cat_name(cat->GetCategoryName());
 	       
 	       // std::cout << "DEBUG:: init_link is handling " << cat_name << std::endl;
 	       
-	       PCMMCIFLoop mmCIFLoop = data->GetLoop(cat_name.c_str());
+	       mmdb::mmcif::PLoop mmCIFLoop = data->GetLoop(cat_name.c_str());
 	       
 	       if (mmCIFLoop == NULL) { 
 		  std::cout << "null loop" << std::endl; 
@@ -95,7 +99,7 @@ coot::energy_lib_t::read(const std::string &file_name, bool print_info_message_f
 
 
 void
-coot::energy_lib_t::add_energy_lib_atoms(PCMMCIFLoop mmCIFLoop) {
+coot::energy_lib_t::add_energy_lib_atoms(mmdb::mmcif::PLoop mmCIFLoop) {
 
    // note that that:
    // if (ierr) {
@@ -107,11 +111,11 @@ coot::energy_lib_t::add_energy_lib_atoms(PCMMCIFLoop mmCIFLoop) {
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
       std::string type;
-      realtype weight = -1;
+      mmdb::realtype weight = -1;
       int hb_type = coot::energy_lib_atom::HB_UNASSIGNED;
-      realtype vdw_radius = -1;
-      realtype vdwh_radius = -1; // with implicit hydrogen, I presume
-      realtype ion_radius = -1;
+      mmdb::realtype vdw_radius = -1;
+      mmdb::realtype vdwh_radius = -1; // with implicit hydrogen, I presume
+      mmdb::realtype ion_radius = -1;
       std::string element;
       int valency = -1;
       int sp_hybridisation = -1;
@@ -226,16 +230,16 @@ coot::operator<<(std::ostream &s, const energy_lib_torsion &torsion) {
 
 
 void
-coot::energy_lib_t::add_energy_lib_bonds(PCMMCIFLoop mmCIFLoop) {
+coot::energy_lib_t::add_energy_lib_bonds(mmdb::mmcif::PLoop mmCIFLoop) {
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
       
       std::string atom_type_1;
       std::string atom_type_2;
       std::string type;
-      realtype spring_const;
-      realtype length;
-      realtype value_esd; 
+      mmdb::realtype spring_const;
+      mmdb::realtype length;
+      mmdb::realtype value_esd; 
       int ierr;
       int ierr_tot = 0;
 
@@ -282,7 +286,7 @@ coot::energy_lib_t::add_energy_lib_bonds(PCMMCIFLoop mmCIFLoop) {
 }
 
 void
-coot::energy_lib_t::add_energy_lib_angles(PCMMCIFLoop mmCIFLoop) {
+coot::energy_lib_t::add_energy_lib_angles(mmdb::mmcif::PLoop mmCIFLoop) {
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
       
@@ -290,10 +294,10 @@ coot::energy_lib_t::add_energy_lib_angles(PCMMCIFLoop mmCIFLoop) {
       std::string atom_type_2;
       std::string atom_type_3;
       std::string type;
-      realtype spring_const;
-      realtype value = 90.0;
-      realtype value_esd = 1.8; // some arbitrary default!
-      realtype ktheta = 45;
+      mmdb::realtype spring_const;
+      mmdb::realtype value = 90.0;
+      mmdb::realtype value_esd = 1.8; // some arbitrary default!
+      mmdb::realtype ktheta = 45;
       int ierr;
       int ierr_tot = 0;
 
@@ -344,7 +348,7 @@ coot::energy_lib_t::add_energy_lib_angles(PCMMCIFLoop mmCIFLoop) {
 }
 
 void
-coot::energy_lib_t::add_energy_lib_torsions(PCMMCIFLoop mmCIFLoop) {
+coot::energy_lib_t::add_energy_lib_torsions(mmdb::mmcif::PLoop mmCIFLoop) {
 
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
 
@@ -353,8 +357,8 @@ coot::energy_lib_t::add_energy_lib_torsions(PCMMCIFLoop mmCIFLoop) {
       std::string atom_type_3;
       std::string atom_type_4;
       std::string label;
-      realtype constant = 0;
-      realtype angle;
+      mmdb::realtype constant = 0;
+      mmdb::realtype angle;
       int period;
       int ierr;
       int ierr_tot = 0;

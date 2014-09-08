@@ -107,7 +107,7 @@ int test_topological_equivalence(const std::string &file_name) {
    // m.read("coot-non-chiral.mol"); // has equivalent atoms
    // m.read("propane.mol"); // has equivalent atoms
    m.read(file_name);
-   CMMDBManager *pdb_mol = NULL;
+   mmdb::Manager *pdb_mol = NULL;
    widgeted_molecule_t wm(m, pdb_mol);
 
    topological_equivalence_t top(wm.atoms, wm.bonds);

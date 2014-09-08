@@ -32,7 +32,7 @@
 #include <string>
 #include <stdexcept>
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
 
 #include "graphics-info.h"
@@ -66,11 +66,11 @@ SCM pucker_info_scm(int imol, SCM residue_spec_scm, int do_pukka_pucker_check) {
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t residue_spec = residue_spec_from_scm(residue_spec_scm);
-      CResidue *res_p = graphics_info_t::molecules[imol].get_residue(residue_spec);
+      mmdb::Residue *res_p = graphics_info_t::molecules[imol].get_residue(residue_spec);
       if (res_p) {
 	 try {
 	    coot::pucker_analysis_info_t pi(res_p, altconf);
-	    CResidue *following_res =
+	    mmdb::Residue *following_res =
 	       graphics_info_t::molecules[imol].get_following_residue(residue_spec);
 	    if (do_pukka_pucker_check) {
 	       if (following_res) {
@@ -130,11 +130,11 @@ PyObject *pucker_info_py(int imol, PyObject *residue_spec_py, int do_pukka_pucke
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
       coot::residue_spec_t residue_spec = residue_spec_from_py(residue_spec_py);
-      CResidue *res_p = graphics_info_t::molecules[imol].get_residue(residue_spec);
+      mmdb::Residue *res_p = graphics_info_t::molecules[imol].get_residue(residue_spec);
       if (res_p) {
 	 try {
 	    coot::pucker_analysis_info_t pi(res_p, altconf);
-	    CResidue *following_res =
+	    mmdb::Residue *following_res =
 	      graphics_info_t::molecules[imol].get_following_residue(residue_spec);
 	    if (do_pukka_pucker_check) {
 	       if (following_res) {
@@ -243,7 +243,7 @@ int ideal_nucleic_acid(const char *RNA_or_DNA, const char *form,
 			       down_sequence,
 			       graphics_info_t::standard_residues_asc.mol);
 	    ir.use_v3_names();
-	    CMMDBManager *mol = ir.make_molecule();
+	    mmdb::Manager *mol = ir.make_molecule();
 
 	    if (mol) {
 	       std::pair<bool, clipper::Coord_orth> cm = coot::centre_of_molecule(mol);
@@ -295,15 +295,15 @@ int watson_crick_pair(int imol, const char *chain_id, int resno) {
    int imol_return = -1;
 
    if (is_valid_model_molecule(imol)) {
-      CResidue *res = graphics_info_t::molecules[imol].get_residue(chain_id, resno, "");
+      mmdb::Residue *res = graphics_info_t::molecules[imol].get_residue(chain_id, resno, "");
       if (!res) {
 	 std::cout << "Residue not found in " << imol << " " << chain_id << " " << resno
 		   << std::endl;
       } else { 
-	 CResidue *res_wc =
+	 mmdb::Residue *res_wc =
 	    coot::watson_crick_partner(res, graphics_info_t::standard_residues_asc.mol);
 	 if (res_wc) {
-	    CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(res_wc);
+	    mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(res_wc);
 	    if (mol) {
 	       graphics_info_t g;
 	       int imol_new = g.create_molecule();

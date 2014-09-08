@@ -43,25 +43,25 @@ coot::protein_geometry testing_data::geom;
 
 
 namespace coot { 
-   class SortableChainsCMMDBManager : public CMMDBManager {
+   class SortableChainsmmdb::Manager : public mmdb::Manager {
    public:
       void SortChains();
    };
 }
 
 void
-coot::SortableChainsCMMDBManager::SortChains() {
+coot::SortableChainsmmdb::Manager::SortChains() {
 
    for (int imod=1; imod<=GetNumberOfModels(); imod++) { 
-      CModel *model_p = GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = GetModel(imod);
+      mmdb::Chain *chain_p;
       // run over chains of the existing mol
       int nchains = model_p->GetNumberOfChains();
-      std::vector<std::pair<CChain *, std::string> > chain_ids(nchains);
+      std::vector<std::pair<mmdb::Chain *, std::string> > chain_ids(nchains);
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 std::string chain_id = chain_p->GetChainID();
-	 chain_ids[ichain] = std::pair<CChain *, std::string> (chain_p, chain_id);
+	 chain_ids[ichain] = std::pair<mmdb::Chain *, std::string> (chain_p, chain_id);
       }
       // now chain_ids is full
       std::sort(chain_ids.begin(), chain_ids.end(), sort_chains_util);
@@ -69,7 +69,7 @@ coot::SortableChainsCMMDBManager::SortChains() {
 	 // model_p->Chain[ichain] = chain_ids[ichain].first;
       }
    }
-   PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+   PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    FinishStructEdit();
 }
 
@@ -125,7 +125,7 @@ bool test_quaternion_quaternion(coot::util::quaternion q) {
 void test_sort_chains() {
 
    std::string file_name = "test-sort-chains.pdb";
-   CMMDBManager *mol = new CMMDBManager;
+   mmdb::Manager *mol = new mmdb::Manager;
    mol->ReadCoorFile(file_name.c_str());
    coot::sort_chains(mol);
    mol->WritePDBASCII("test-sort-chains-sorted.pdb");
@@ -134,14 +134,14 @@ void test_sort_chains() {
 void test_lsq_improve() {
 
    std::cout << "========================= lsq-improve ==================" << std::endl;
-   CMMDBManager *mol_1 = new CMMDBManager;
-   CMMDBManager *mol_2 = new CMMDBManager;
+   mmdb::Manager *mol_1 = new mmdb::Manager;
+   mmdb::Manager *mol_2 = new mmdb::Manager;
 
    std::string ref_pdb = "tutorial-modern.pdb";
    std::string mov_pdb = "1py3-matched-A6-13.pdb";
 
-   int err_1 = mol_1->ReadCoorFile(ref_pdb.c_str());
-   int err_2 = mol_2->ReadCoorFile(mov_pdb.c_str());
+   mmdb::ERROR_CODE err_1 = mol_1->ReadCoorFile(ref_pdb.c_str());
+   mmdb::ERROR_CODE err_2 = mol_2->ReadCoorFile(mov_pdb.c_str());
 
    if (err_1) {
       std::cout << "There was an error reading " << ref_pdb << ".\n";
@@ -266,7 +266,7 @@ int test_glyco_tree() {
    int dynamic_add_status_4 = t.geom.try_dynamic_add("GAL", 1);
    // int dynamic_add_status_4 = t.geom.try_dynamic_add("GLB", 1); minimal
    
-   CMMDBManager *mol = new CMMDBManager;
+   mmdb::Manager *mol = new mmdb::Manager;
    // std::string file_name = "3u2s.pdb";
    // coot::residue_spec_t spec("G", 560, "");
 
@@ -274,7 +274,7 @@ int test_glyco_tree() {
    coot::residue_spec_t spec("", 1, "");
    
    mol->ReadCoorFile(file_name.c_str());
-   CResidue *r = coot::util::get_residue(spec, mol);
+   mmdb::Residue *r = coot::util::get_residue(spec, mol);
    if (! r) {
       std::cout << "No residue " << spec << std::endl;
    } else {
@@ -288,7 +288,7 @@ int test_glyco_tree() {
 
 int test_helix_analysis() {
 
-   CMMDBManager *mol = new CMMDBManager;
+   mmdb::Manager *mol = new mmdb::Manager;
    // std::string file_name = "theor-helix-down-z.pdb";
    std::string file_name = "helix-just-off-z.pdb";
    // file_name = "../src/pdb2qc1-sans-sans-ASN.pdb";
@@ -296,7 +296,7 @@ int test_helix_analysis() {
    // coot::residue_spec_t spec("B", 201, "");
    
    mol->ReadCoorFile(file_name.c_str());
-   CResidue *r = coot::util::get_residue(spec, mol);
+   mmdb::Residue *r = coot::util::get_residue(spec, mol);
    if (! r) {
       std::cout << "No residue " << spec << std::endl;
    } else {

@@ -43,7 +43,7 @@
 
 #include <iostream>
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
@@ -188,7 +188,7 @@ coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
 // If there is no imol_map then the geometry graph could not have been displayed.  You can
 // pass -1 for the map in that case.
 void
-graphics_info_t::update_geometry_graphs(PCResidue *SelResidues, int nSelResidues, int imol, int imol_map) {
+graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelResidues, int imol, int imol_map) {
 
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
@@ -288,8 +288,8 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
 	 //
 	 int n_models = moving_atoms_asc_local.mol->GetNumberOfModels();
 	 for (int imodel = 1; imodel <= n_models; imodel++) { 
-	    CModel *model_p = moving_atoms_asc_local.mol->GetModel(imodel);
-	    CChain *chain_p;
+	    mmdb::Model *model_p = moving_atoms_asc_local.mol->GetModel(imodel);
+	    mmdb::Chain *chain_p;
 	    const char *chain_id;
 	    int n_chains = model_p->GetNumberOfChains();
 
@@ -380,7 +380,7 @@ graphics_info_t::geometric_distortion(int imol) {
 //    istart_minus_flag = 0;  // from simple restraint code
 //    iend_plus_flag    = 0;
 
-   CMMDBManager *mol = molecules[imol].atom_sel.mol; // short-hand usage
+   mmdb::Manager *mol = molecules[imol].atom_sel.mol; // short-hand usage
 
    // This dcv used to be inside the mol test, but that tickled what I
    // believe a compiler bug (on deconstructing this vector).  So now
@@ -426,12 +426,12 @@ graphics_info_t::geometric_distortion(int imol) {
 
 #ifdef HAVE_GSL
 coot::geometry_distortion_info_container_t
-graphics_info_t::geometric_distortions(CResidue *residue_p) {
+graphics_info_t::geometric_distortions(mmdb::Residue *residue_p) {
    
    coot::geometry_distortion_info_container_t gdc(NULL, 0, "");
 
    if (residue_p) { 
-      CMMDBManager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
+      mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
       if (mol) {
 	 atom_selection_container_t asc = make_asc(mol);
 	 std::vector<coot::geometry_distortion_info_container_t> v = geometric_distortions_from_mol(asc);
@@ -473,8 +473,8 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
       int imod=1;
       {
 	 
-	 CModel *model_p = asc.mol->GetModel(imod);
-	 CChain *chain_p;
+	 mmdb::Model *model_p = asc.mol->GetModel(imod);
+	 mmdb::Chain *chain_p;
 	 int nchains = model_p->GetNumberOfChains();
 	 const char *chain_id;
 	 
@@ -490,7 +490,7 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 	       // 
 	       int selHnd = asc.mol->NewSelection(); // yes, it's deleted.
 	       int nSelResidues;
-	       PCResidue *SelResidues = NULL;
+	       mmdb::PResidue *SelResidues = NULL;
 	    
 	       // Consider as the altconf the altconf of one of the residues (we
 	       // must test that the altlocs of the selected atoms to be either
@@ -500,15 +500,15 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 	       // 
 	       // 
 	       // 
-	       asc.mol->Select(selHnd, STYPE_RESIDUE, imod,
+	       asc.mol->Select(selHnd, mmdb::STYPE_RESIDUE, imod,
 			       chain_id,
-			       ANY_RES, "*",
-			       ANY_RES, "*",
+			       mmdb::ANY_RES, "*",
+			       mmdb::ANY_RES, "*",
 			       "*",  // residue name
 			       "*",  // Residue must contain this atom name?
 			       "*",  // Residue must contain this Element?
 			       "*",  // altLocs
-			       SKEY_NEW // selection key
+			       mmdb::SKEY_NEW // selection key
 			       );
 	       asc.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 	       std::pair<int, std::vector<std::string> > icheck = 
@@ -531,7 +531,7 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 
 	       } else { // normal
 	       
-		  std::vector<CAtom *> fixed_atoms;
+		  std::vector<mmdb::Atom *> fixed_atoms;
 		  std::vector<coot::atom_spec_t> fixed_atom_specs;
 	       
 		  // Notice that we have to make 2 atom selections, one, which includes
@@ -552,9 +552,9 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 // 		  coot::restraints_container_t restraints(SelResidues, nSelResidues,
 // 							  std::string(chain_id),
 // 							  asc.mol);
-		  std::vector<std::pair<bool,CResidue *> > residue_vec;
+		  std::vector<std::pair<bool,mmdb::Residue *> > residue_vec;
 		  for (int ires=0; ires<nSelResidues; ires++)
-		     residue_vec.push_back(std::pair<bool, CResidue *> (0, SelResidues[ires]));
+		     residue_vec.push_back(std::pair<bool, mmdb::Residue *> (0, SelResidues[ires]));
 		  
 		  coot::restraints_container_t restraints(residue_vec,
 							  *Geom_p(),
@@ -639,7 +639,7 @@ graphics_info_t::b_factor_graphs(int imol) {
    if (imol<n_molecules())
       if (imol >= 0)
 	 if (molecules[imol].has_model()) {
-	    CMMDBManager *mol = molecules[imol].atom_sel.mol;
+	    mmdb::Manager *mol = molecules[imol].atom_sel.mol;
 	    bool is_shelx_mol = molecules[imol].is_from_shelx_ins();
 
 	    coot_extras::b_factor_analysis bfa(mol, is_shelx_mol);
@@ -653,8 +653,8 @@ graphics_info_t::b_factor_graphs(int imol) {
 			 << std::endl;
 	    } else { 
 	       for (int imodel = 1; imodel <= n_models; imodel++) { 
-		  CModel *model_p = mol->GetModel(imodel);
-		  CChain *chain_p;
+		  mmdb::Model *model_p = mol->GetModel(imodel);
+		  mmdb::Chain *chain_p;
 		  unsigned int n_chains = model_p->GetNumberOfChains();
 		  coot::geometry_graphs *graphs =
 		     new coot::geometry_graphs(coot::GEOMETRY_GRAPH_B_FACTOR,
@@ -712,15 +712,15 @@ graphics_info_t::omega_graphs(int imol) {
    if (imol >= 0) {
       if (imol < n_molecules()) {
 	 if (molecules[imol].has_model()) {
-	    CMMDBManager *mol = molecules[imol].atom_sel.mol;
+	    mmdb::Manager *mol = molecules[imol].atom_sel.mol;
 	    int n_models = mol->GetNumberOfModels();
 	    int max_chain_length = coot::util::max_min_max_residue_range(mol);
 	    if (max_chain_length <= 0) {
 	       std::cout << "WARNING:: Funny coords - no graphs for this molecule" << std::endl;
 	    } else { 
 	       for (int imodel = 1; imodel <= n_models; imodel++) { 
-		  CModel *model_p = mol->GetModel(imodel);
-		  CChain *chain_p;
+		  mmdb::Model *model_p = mol->GetModel(imodel);
+		  mmdb::Chain *chain_p;
 		  const char *chain_id;
 		  int n_chains = model_p->GetNumberOfChains();
 		  coot::geometry_graphs *graphs =
@@ -738,18 +738,18 @@ graphics_info_t::omega_graphs(int imol) {
 		     if (m.first) {
 			int offset = m.second - 1; // min resno = 1 -> offset = 0
 			int selHnd = mol->NewSelection();
-			PCResidue *SelResidues = NULL;
+			mmdb::PResidue *SelResidues = NULL;
 			int nSelResidues;
 
-			mol->Select(selHnd, STYPE_RESIDUE, 0,
+			mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
 				    chain_id,
-				    ANY_RES, "*",
-				    ANY_RES, "*",
+				    mmdb::ANY_RES, "*",
+				    mmdb::ANY_RES, "*",
 				    "*",  // residue name
 				    "*",  // Residue must contain this atom name?
 				    "*",  // Residue must contain this Element?
 				    "*",  // altLocs
-				    SKEY_NEW // selection key
+				    mmdb::SKEY_NEW // selection key
 				    );
 			mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 
@@ -802,15 +802,15 @@ graphics_info_t::rotamer_graphs(int imol) {
    if (imol >= 0) {
       if (imol < n_molecules()) {
 	 if (molecules[imol].has_model()) {
-	    CMMDBManager *mol = molecules[imol].atom_sel.mol;
+	    mmdb::Manager *mol = molecules[imol].atom_sel.mol;
 	    int n_models = mol->GetNumberOfModels();
 	    int max_chain_length = coot::util::max_min_max_residue_range(mol);
 	    if (max_chain_length <= 0) {
 	       std::cout << "WARNING:: Funny coords - no graphs for this molecule" << std::endl;
 	    } else {
 	       for (int imodel = 1; imodel <= n_models; imodel++) { 
-		  CModel *model_p = mol->GetModel(imodel);
-		  CChain *chain_p;
+		  mmdb::Model *model_p = mol->GetModel(imodel);
+		  mmdb::Chain *chain_p;
 		  const char *chain_id;
 		  int n_chains = model_p->GetNumberOfChains();
 		  coot::geometry_graphs *graphs = 0;
@@ -831,18 +831,18 @@ graphics_info_t::rotamer_graphs(int imol) {
 			if (m.first) {
 			   int offset = m.second - 1;
 			   int selHnd = mol->NewSelection();
-			   PCResidue *SelResidues = NULL;
+			   mmdb::PResidue *SelResidues = NULL;
 			   int nSelResidues;
 
-			   mol->Select(selHnd, STYPE_RESIDUE, 0,
+			   mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
 				       chain_id,
-				       ANY_RES, "*",
-				       ANY_RES, "*",
+				       mmdb::ANY_RES, "*",
+				       mmdb::ANY_RES, "*",
 				       "*",  // residue name
 				       "*",  // Residue must contain this atom name?
 				       "*",  // Residue must contain this Element?
 				       "*",  // altLocs
-				       SKEY_NEW // selection key
+				       mmdb::SKEY_NEW // selection key
 				       );
 			   mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 
@@ -954,12 +954,12 @@ graphics_info_t::rotamers_from_mol(const atom_selection_container_t &asc,
 
    std::vector<coot::geometry_graph_block_info_generic> dv;
 
-   CMMDBManager *mol = molecules[imol_moving_atoms].atom_sel.mol;
+   mmdb::Manager *mol = molecules[imol_moving_atoms].atom_sel.mol;
    // int n_models = mol->GetNumberOfModels();
    // for (int imodel = 1; imodel <= n_models; imodel++) { 
    int imodel = 1;
-   CModel *model_p = mol->GetModel(imodel);
-   CChain *chain_p;
+   mmdb::Model *model_p = mol->GetModel(imodel);
+   mmdb::Chain *chain_p;
    const char *chain_id;
    int n_chains = model_p->GetNumberOfChains();
 
@@ -971,18 +971,18 @@ graphics_info_t::rotamers_from_mol(const atom_selection_container_t &asc,
 	 if (m.first) {
 	    // int offset = m.second - 1;
 	    int selHnd = mol->NewSelection();
-	    PCResidue *SelResidues = NULL;
+	    mmdb::PResidue *SelResidues = NULL;
 	    int nSelResidues;
 
-	    mol->Select(selHnd, STYPE_RESIDUE, 0,
+	    mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
 			chain_id,
-			ANY_RES, "*",
-			ANY_RES, "*",
+			mmdb::ANY_RES, "*",
+			mmdb::ANY_RES, "*",
 			"*",  // residue name
 			"*",  // Residue must contain this atom name?
 			"*",  // Residue must contain this Element?
 			"*",  // altLocs
-			SKEY_NEW // selection key 
+			mmdb::SKEY_NEW // selection key 
 			);
 	    mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 
@@ -1058,7 +1058,7 @@ graphics_info_t::rotamers_from_mol(const atom_selection_container_t &asc,
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 std::vector<coot::geometry_graph_block_info_generic>
-graphics_info_t::rotamers_from_residue_selection(PCResidue *SelResidues,
+graphics_info_t::rotamers_from_residue_selection(mmdb::PResidue *SelResidues,
 						 int nSelResidues, int imol) {
    
    std::vector<coot::geometry_graph_block_info_generic> v;
@@ -1141,7 +1141,7 @@ graphics_info_t::density_fit_graphs(int imol) {
         imol_for_map = Imol_Refinement_Map();
 	    if (imol_for_map > -1) {
 	       // std::cout << "DEBUG:: starting" << std::endl;
-	       CMMDBManager *mol = molecules[imol].atom_sel.mol;
+	       mmdb::Manager *mol = molecules[imol].atom_sel.mol;
 	       // double max_grid_factor = coot::util::max_gridding(molecules[imol_for_map].xmap_list[0]);
 	       // std::cout << "DEBUG:: max_grid_factor: " << max_grid_factor << std::endl;
 	       // double sq_max_grid_fac = max_grid_factor * max_grid_factor;
@@ -1156,8 +1156,8 @@ graphics_info_t::density_fit_graphs(int imol) {
 		  std::cout << "WARNING:: Funny coords - no graphs\n";
 	       } else {
 		  for (int imodel = 1; imodel <= n_models; imodel++) { 
-		     CModel *model_p = mol->GetModel(imodel);
-		     CChain *chain_p;
+		     mmdb::Model *model_p = mol->GetModel(imodel);
+		     mmdb::Chain *chain_p;
 		     const char *chain_id;
 		     int n_chains = model_p->GetNumberOfChains();
 		     coot::geometry_graphs *graphs =
@@ -1176,18 +1176,18 @@ graphics_info_t::density_fit_graphs(int imol) {
 			if (m.first) {
 			   int offset = m.second - 1;
 			   int selHnd = mol->NewSelection();
-			   PCResidue *SelResidues = NULL;
+			   mmdb::PResidue *SelResidues = NULL;
 			   int nSelResidues;
 			   
-			   mol->Select(selHnd, STYPE_RESIDUE, 0,
+			   mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
 				       chain_id,
-				       ANY_RES, "*",
-				       ANY_RES, "*",
+				       mmdb::ANY_RES, "*",
+				       mmdb::ANY_RES, "*",
 				       "*",  // residue name
 				       "*",  // Residue must contain this atom name?
 				       "*",  // Residue must contain this Element?
 				       "*",  // altLocs
-				       SKEY_NEW // selection key
+				       mmdb::SKEY_NEW // selection key
 				       );
 			   mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 			   
@@ -1243,8 +1243,8 @@ graphics_info_t::density_fit_from_mol(const atom_selection_container_t &asc,
       
 	 for (int imod=1; imod<=n_models; imod++) { 
 	 
-	    CModel *model_p = asc.mol->GetModel(imod);
-	    CChain *chain_p;
+	    mmdb::Model *model_p = asc.mol->GetModel(imod);
+	    mmdb::Chain *chain_p;
 	    int nchains = model_p->GetNumberOfChains();
 	    const char *chain_id;
 	 
@@ -1258,17 +1258,17 @@ graphics_info_t::density_fit_from_mol(const atom_selection_container_t &asc,
 	    
 	       int selHnd = asc.mol->NewSelection();
 	       int nSelResidues;
-	       PCResidue *SelResidues = NULL;
+	       mmdb::PResidue *SelResidues = NULL;
 	    
-	       asc.mol->Select(selHnd, STYPE_RESIDUE, 0,
+	       asc.mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
 			       chain_id,
-			       ANY_RES, "*",
-			       ANY_RES, "*",
+			       mmdb::ANY_RES, "*",
+			       mmdb::ANY_RES, "*",
 			       "*",  // residue name
 			       "*",  // Residue must contain this atom name?
 			       "*",  // Residue must contain this Element?
 			       "*",  // altLocs
-			       SKEY_NEW // selection key
+			       mmdb::SKEY_NEW // selection key
 			       );
 	       asc.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 
@@ -1299,7 +1299,7 @@ graphics_info_t::density_fit_from_mol(const atom_selection_container_t &asc,
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 std::vector<coot::geometry_graph_block_info_generic>
-graphics_info_t::density_fit_from_residues(PCResidue *SelResidues, int nSelResidues,
+graphics_info_t::density_fit_from_residues(mmdb::PResidue *SelResidues, int nSelResidues,
 					   int imol,
 					   int imol_for_map) const {
 
@@ -1314,7 +1314,7 @@ graphics_info_t::density_fit_from_residues(PCResidue *SelResidues, int nSelResid
 	 if (this_resno > max_resno)
 	    max_resno = this_resno;
 
-	 PCAtom *residue_atoms;
+	 mmdb::PAtom *residue_atoms;
 	 int n_residue_atoms;
 
 	 SelResidues[ir]->GetAtomTable(residue_atoms, n_residue_atoms);
@@ -1367,7 +1367,7 @@ graphics_info_t::ncs_diffs(int imol, const coot::ncs_chain_difference_t &d) {
    for (unsigned int ires=0; ires<d.residue_info.size(); ires++) {
       if (d.residue_info[ires].filled) { 
 	 float distance = d.residue_info[ires].mean_diff;
-	 CAtom *at = molecules[imol].atom_intelligent(d.peer_chain_id,
+	 mmdb::Atom *at = molecules[imol].atom_intelligent(d.peer_chain_id,
 						      d.residue_info[ires].resno,
 						      d.residue_info[ires].inscode);
 	 std::string atom_name = " CA ";
@@ -1412,8 +1412,8 @@ graphics_info_t::ncs_diffs_from_mol(int imol) {
 	 float w = 1.0; // main chain weight
 	 coot::ncs_differences_t diff = graphics_info_t::molecules[imol].ncs_chain_differences(master, w);
    
-	 CMMDBManager *mol = molecules[imol].atom_sel.mol;
-	 CModel *model_p = mol->GetModel(imodel);
+	 mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+	 mmdb::Model *model_p = mol->GetModel(imodel);
 	 int n_chains = diff.diffs.size();
 	 int max_chain_length = coot::util::max_min_max_residue_range(mol);
 	 coot::geometry_graphs *graphs =

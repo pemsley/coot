@@ -1,5 +1,5 @@
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "clipper/core/coords.h"
 
 #include "utils/coot-utils.hh"
@@ -22,7 +22,7 @@ namespace coot {
    };
 
    class hole {
-      CMMDBManager *mol;
+      mmdb::Manager *mol;
       int radius_handle; // set by assign_vdw_radii;
       clipper::Coord_orth from_pt;
       clipper::Coord_orth to_pt;
@@ -72,7 +72,7 @@ namespace coot {
       } 
       
    public:
-      hole(CMMDBManager *mol, 
+      hole(mmdb::Manager *mol, 
 	   const clipper::Coord_orth &from_pt,
 	   const clipper::Coord_orth &to_pt,
 	   const coot::protein_geometry &geom_in);

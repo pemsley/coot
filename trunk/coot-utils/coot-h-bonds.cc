@@ -50,12 +50,12 @@ coot::operator<<(std::ostream &s, h_bond hb) {
 // selHnd_2 is for everything (else).
 // 
 std::vector<coot::h_bond>
-coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::protein_geometry &geom) {
+coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::protein_geometry &geom) {
 
    bool debug = 0;
    
-   realtype min_dist = 2.4; // H-bonds are longer than this
-   realtype max_dist = 3.9; // H-bonds are shorter than this
+   mmdb::realtype min_dist = 2.4; // H-bonds are longer than this
+   mmdb::realtype max_dist = 3.9; // H-bonds are shorter than this
    
    std::vector<coot::h_bond> v;
 
@@ -63,14 +63,14 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::pr
 
    // What is the nearest neighbour of the atoms in mol?
    // 
-   std::map<CAtom *, std::vector<std::pair<CAtom *, float> > > neighbour_map =
+   std::map<mmdb::Atom *, std::vector<std::pair<mmdb::Atom *, float> > > neighbour_map =
       make_neighbour_map(selHnd_1, selHnd_2, mol);
 
-   PPCAtom sel_1_atoms = 0;
-   PPCAtom sel_2_atoms = 0;
+   mmdb::PPAtom sel_1_atoms = 0;
+   mmdb::PPAtom sel_2_atoms = 0;
    int n_sel_1_atoms;
    int n_sel_2_atoms;
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 
 	 my_matt[i][j] = 0.0;      
@@ -79,7 +79,7 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::pr
    mol->GetSelIndex   (selHnd_1, sel_1_atoms, n_sel_1_atoms);
    mol->GetSelIndex   (selHnd_2, sel_2_atoms, n_sel_2_atoms);
 
-   PSContact pscontact = NULL;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts;
    long i_contact_group = 1;
 
@@ -95,8 +95,8 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::pr
    if (n_contacts > 0) {
       if (pscontact) {
 	 for (int i_contact=0; i_contact<n_contacts; i_contact++) {
-	    CAtom *at_1 = sel_1_atoms[pscontact[i_contact].id1];
-	    CAtom *at_2 = sel_2_atoms[pscontact[i_contact].id2];
+	    mmdb::Atom *at_1 = sel_1_atoms[pscontact[i_contact].id1];
+	    mmdb::Atom *at_2 = sel_2_atoms[pscontact[i_contact].id2];
 
 	    // are they donor and acceptor?
 	    //
@@ -146,8 +146,8 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::pr
 
 	       // donor first: xxx_1
 	       // 
-	       std::vector<std::pair<CAtom *, float> > nm_1 = neighbour_map[at_1];
-	       std::vector<std::pair<CAtom *, float> > nm_2 = neighbour_map[at_2];
+	       std::vector<std::pair<mmdb::Atom *, float> > nm_1 = neighbour_map[at_1];
+	       std::vector<std::pair<mmdb::Atom *, float> > nm_2 = neighbour_map[at_2];
 	       
 	       std::string res_type_1 = at_1->GetResName();
 	       std::string res_type_2 = at_2->GetResName();
@@ -297,22 +297,22 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, CMMDBManager *mol, const coot::pr
 // are different in H-bond analysis).
 // 
 std::vector<coot::h_bond>
-coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, CMMDBManager *mol,
+coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manager *mol,
 					 const protein_geometry &geom,
-					 realtype max_dist) {
+					 mmdb::realtype max_dist) {
    std::vector<coot::h_bond> v;
    // (and mark HB hydrogens too)
    int hb_type_udd_handle = mark_donors_and_acceptors(selHnd_1, selHnd_2, mol, geom); // using UDD data
 
    // These distance are from the acceptor to the H - not the donor
-   realtype min_dist = 0.1; // H-bonds are longer than this
+   mmdb::realtype min_dist = 0.1; // H-bonds are longer than this
    
-   PPCAtom sel_1_atoms = 0;
-   PPCAtom sel_2_atoms = 0;
+   mmdb::PPAtom sel_1_atoms = 0;
+   mmdb::PPAtom sel_2_atoms = 0;
    int n_sel_1_atoms;
    int n_sel_2_atoms;
-   mat44 my_matt;
-   PSContact pscontact = NULL;
+   mmdb::mat44 my_matt;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts;
    long i_contact_group = 1;
    for (int i=0; i<4; i++) 
@@ -335,12 +335,12 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, CMMDBManage
 
 	 // What is the nearest neighbour of the atoms in mol?
 	 // 
-	 std::map<CAtom *, std::vector<std::pair<CAtom *, float> > > neighbour_map =
+	 std::map<mmdb::Atom *, std::vector<std::pair<mmdb::Atom *, float> > > neighbour_map =
 	    make_neighbour_map(selHnd_1, selHnd_2, mol);
 	 
 	 for (int i_contact=0; i_contact<n_contacts; i_contact++) {
-	    CAtom *at_1 = sel_1_atoms[pscontact[i_contact].id1];
-	    CAtom *at_2 = sel_2_atoms[pscontact[i_contact].id2];
+	    mmdb::Atom *at_1 = sel_1_atoms[pscontact[i_contact].id1];
+	    mmdb::Atom *at_2 = sel_2_atoms[pscontact[i_contact].id2];
 
 	    if (at_1->residue != at_2->residue) { 
 
@@ -365,8 +365,8 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, CMMDBManage
 		  if (hb_type_2 == coot::energy_lib_atom::HB_ACCEPTOR ||
 		      hb_type_2 == coot::energy_lib_atom::HB_BOTH) {
 
-		     std::vector<std::pair<CAtom *, float> > nb_1 = neighbour_map[at_1];
-		     std::vector<std::pair<CAtom *, float> > nb_2 = neighbour_map[at_2];
+		     std::vector<std::pair<mmdb::Atom *, float> > nb_1 = neighbour_map[at_1];
+		     std::vector<std::pair<mmdb::Atom *, float> > nb_2 = neighbour_map[at_2];
 		     std::pair<bool, coot::h_bond> b_hbond =
 			make_h_bond_from_ligand_hydrogen(at_1, at_2, nb_1, nb_2);
 		     if (b_hbond.first)
@@ -387,8 +387,8 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, CMMDBManage
 		  if (hb_type_2 == coot::energy_lib_atom::HB_HYDROGEN ||
 		      std::string(at_2->GetResName()) == "HOH") {
 
-		     std::vector<std::pair<CAtom *, float> > nb_1 = neighbour_map[at_1];
-		     std::vector<std::pair<CAtom *, float> > nb_2 = neighbour_map[at_2];
+		     std::vector<std::pair<mmdb::Atom *, float> > nb_1 = neighbour_map[at_1];
+		     std::vector<std::pair<mmdb::Atom *, float> > nb_2 = neighbour_map[at_2];
 		     std::pair<bool, coot::h_bond> b_hbond =
 			make_h_bond_from_environment_residue_hydrogen(at_1, at_2, nb_1, nb_2);
 		     if (b_hbond.first)
@@ -405,10 +405,10 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, CMMDBManage
 // return an h_bond if the angles are good - otherwise first is 0.
 // 
 std::pair<bool, coot::h_bond> 
-coot::h_bonds::make_h_bond_from_ligand_hydrogen(CAtom *at_1, // H on ligand
-						CAtom *at_2, // acceptor on residue
-						const std::vector<std::pair<CAtom *, float> > &nb_1,
-						const std::vector<std::pair<CAtom *, float> > &nb_2) const {
+coot::h_bonds::make_h_bond_from_ligand_hydrogen(mmdb::Atom *at_1, // H on ligand
+						mmdb::Atom *at_2, // acceptor on residue
+						const std::vector<std::pair<mmdb::Atom *, float> > &nb_1,
+						const std::vector<std::pair<mmdb::Atom *, float> > &nb_2) const {
 
    coot::h_bond bond(at_1, at_2, 1); // ligand atom is Hydrogen
    bond.dist = coot::distance(at_1, at_2);
@@ -496,10 +496,10 @@ coot::h_bonds::make_h_bond_from_ligand_hydrogen(CAtom *at_1, // H on ligand
 // return an h_bond if the angles are good - otherwise first is 0.
 // 
 std::pair<bool, coot::h_bond> 
-coot::h_bonds::make_h_bond_from_environment_residue_hydrogen(CAtom *at_1, // acceptor on ligand
-							     CAtom *at_2, // H on residue
-							     const std::vector<std::pair<CAtom *, float> > &nb_1,
-							     const std::vector<std::pair<CAtom *, float> > &nb_2) const {
+coot::h_bonds::make_h_bond_from_environment_residue_hydrogen(mmdb::Atom *at_1, // acceptor on ligand
+							     mmdb::Atom *at_2, // H on residue
+							     const std::vector<std::pair<mmdb::Atom *, float> > &nb_1,
+							     const std::vector<std::pair<mmdb::Atom *, float> > &nb_2) const {
 
    coot::h_bond bond(at_2, at_1, 0); // H atom goes first for this constructor
    bond.dist = coot::distance(at_1, at_2);
@@ -594,17 +594,17 @@ coot::h_bonds::make_h_bond_from_environment_residue_hydrogen(CAtom *at_1, // acc
 // 
 // return the UDD handle
 int
-coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, CMMDBManager *mol,
+coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, mmdb::Manager *mol,
 					 const coot::protein_geometry &geom) {
 
    bool debug = 0;
-   PPCAtom sel_1_atoms = 0;
-   PPCAtom sel_2_atoms = 0;
+   mmdb::PPAtom sel_1_atoms = 0;
+   mmdb::PPAtom sel_2_atoms = 0;
    int n_sel_1_atoms;
    int n_sel_2_atoms;
    mol->GetSelIndex   (selHnd_1, sel_1_atoms, n_sel_1_atoms);
    mol->GetSelIndex   (selHnd_2, sel_2_atoms, n_sel_2_atoms);
-   int udd_h_bond_type_handle = mol->RegisterUDInteger(UDR_ATOM, "hb_type");
+   int udd_h_bond_type_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "hb_type");
 
    for (unsigned int i=0; i<n_sel_1_atoms; i++) { 
       std::string name = sel_1_atoms[i]->name;
@@ -640,24 +640,24 @@ coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, CMMDBManage
 
 // What is the nearest neighbour of the atoms in mol?
 // 
-std::map<CAtom *, std::vector<std::pair<CAtom *, float> > >
-coot::h_bonds::make_neighbour_map(int selHnd_1, int selHnd_2, CMMDBManager *mol) {
+std::map<mmdb::Atom *, std::vector<std::pair<mmdb::Atom *, float> > >
+coot::h_bonds::make_neighbour_map(int selHnd_1, int selHnd_2, mmdb::Manager *mol) {
 
-   std::map<CAtom *, std::vector<std::pair<CAtom *, float> > > atom_map;
-   PPCAtom sel_1_atoms = 0;
-   PPCAtom sel_2_atoms = 0;
+   std::map<mmdb::Atom *, std::vector<std::pair<mmdb::Atom *, float> > > atom_map;
+   mmdb::PPAtom sel_1_atoms = 0;
+   mmdb::PPAtom sel_2_atoms = 0;
    int n_sel_1_atoms;
    int n_sel_2_atoms;
    mol->GetSelIndex   (selHnd_1, sel_1_atoms, n_sel_1_atoms);
    mol->GetSelIndex   (selHnd_2, sel_2_atoms, n_sel_2_atoms);
 
-   mat44 my_matt;
+   mmdb::mat44 my_matt;
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 
 	 my_matt[i][j] = 0.0;      
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
    
-   PSContact pscontact = NULL;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts;
    long i_contact_group = 1;
 
@@ -685,7 +685,7 @@ coot::h_bonds::make_neighbour_map(int selHnd_1, int selHnd_2, CMMDBManager *mol)
 	    // same residue as the donor (or acceptor).
 	    // 
 	    if (res_1 == res_2) { 
-	       std::pair<CAtom *, float> p(sel_1_atoms[pscontact[i_contact].id2], d);
+	       std::pair<mmdb::Atom *, float> p(sel_1_atoms[pscontact[i_contact].id2], d);
 	       atom_map[sel_1_atoms[pscontact[i_contact].id1]].push_back(p);
 	    }
 	 }
@@ -720,12 +720,12 @@ coot::h_bonds::make_neighbour_map(int selHnd_1, int selHnd_2, CMMDBManager *mol)
 	    if (res_1 == res_2) { 
 
 	       float d = clipper::Coord_orth::length(pt_1, pt_2);
-	       std::pair<CAtom *, float> p(sel_2_atoms[pscontact[i_contact].id2], d);
+	       std::pair<mmdb::Atom *, float> p(sel_2_atoms[pscontact[i_contact].id2], d);
 
 	       // only add p if is not already in the atom map vector for this atom:
 	       // (this relies on the doubles matching :) but it seems to work...
 	       // 
-	       std::vector<std::pair<CAtom *, float> >::const_iterator it = 
+	       std::vector<std::pair<mmdb::Atom *, float> >::const_iterator it = 
 		  std::find(atom_map[sel_2_atoms[pscontact[i_contact].id1]].begin(),
 			    atom_map[sel_2_atoms[pscontact[i_contact].id1]].end(), p);
 	       if (it == atom_map[sel_2_atoms[pscontact[i_contact].id1]].end())
@@ -740,7 +740,7 @@ coot::h_bonds::make_neighbour_map(int selHnd_1, int selHnd_2, CMMDBManager *mol)
 
    // sort the neighbour by distance 
    //
-   std::map<CAtom *, std::vector<std::pair<CAtom *, float> > >::iterator it;
+   std::map<mmdb::Atom *, std::vector<std::pair<mmdb::Atom *, float> > >::iterator it;
    for (it=atom_map.begin(); it != atom_map.end(); it++) {
 
       //  You can't use a const_iterator to sort this vector's innards.
@@ -773,10 +773,10 @@ coot::h_bonds::make_neighbour_map(int selHnd_1, int selHnd_2, CMMDBManager *mol)
 // return the hb_type_udd_handle as second.
 // 
 std::pair<bool, int>
-coot::h_bonds::check_hb_status(int selhnd, CMMDBManager *mol, const protein_geometry &geom) {
+coot::h_bonds::check_hb_status(int selhnd, mmdb::Manager *mol, const protein_geometry &geom) {
 
    bool status = false;
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
 
    int hb_type = energy_lib_atom::HB_UNASSIGNED;
@@ -784,7 +784,7 @@ coot::h_bonds::check_hb_status(int selhnd, CMMDBManager *mol, const protein_geom
 
    mol->GetSelIndex(selhnd, residue_atoms, n_residue_atoms);
    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
-      CAtom *at = residue_atoms[iat];
+      mmdb::Atom *at = residue_atoms[iat];
       at->GetUDData(hb_type_udd_handle, hb_type);
       if (0)
 	 std::cout << "   " << atom_spec_t(at) << " " << hb_type << std::endl;

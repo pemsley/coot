@@ -23,7 +23,7 @@
 
 // return the number of trimmed atoms
 int
-coot::util::trim_molecule_by_map(CMMDBManager *mol,
+coot::util::trim_molecule_by_map(mmdb::Manager *mol,
 				 const clipper::Xmap<float> &xmap,
 				 float map_level,
 				 short int remove_or_zero_occ_flag,
@@ -31,7 +31,7 @@ coot::util::trim_molecule_by_map(CMMDBManager *mol,
 
    int n_changed = 0;
 
-   // Note mol->DeleteAtom(CAtom *at) doesn't exist
+   // Note mol->DeleteAtom(mmdb::Atom *at) doesn't exist
    // So we have to know the atom number in the residue
    // which means that we move away from simple atom_selection
    // looping to coordinate hierachy looping.
@@ -39,9 +39,9 @@ coot::util::trim_molecule_by_map(CMMDBManager *mol,
 
    if (1) { 
 
-      CModel *model_p = mol->GetModel(1);
+      mmdb::Model *model_p = mol->GetModel(1);
    
-      CChain *chain;
+      mmdb::Chain *chain;
       // run over chains of the existing mol
       int nchains = model_p->GetNumberOfChains();
       if (nchains <= 0) { 
@@ -59,7 +59,7 @@ coot::util::trim_molecule_by_map(CMMDBManager *mol,
 	    } else { 
 	       int nres = chain->GetNumberOfResidues();
 	       for (int ires=0; ires<nres; ires++) { 
-		  PCResidue residue_p = chain->GetResidue(ires);
+		  mmdb::PResidue residue_p = chain->GetResidue(ires);
 		  std::string resname = residue_p->name;
 		  if (((resname == "WAT" || resname == "HOH") && waters_only_flag)
 		      || !waters_only_flag) {
@@ -67,7 +67,7 @@ coot::util::trim_molecule_by_map(CMMDBManager *mol,
 		     int n_atoms = residue_p->GetNumberOfAtoms();
 		     for (int iat=0; iat<n_atoms; iat++) {
 
-			CAtom *at = residue_p->GetAtom(iat);
+			mmdb::Atom *at = residue_p->GetAtom(iat);
 			clipper::Coord_orth co(at->x, at->y, at->z);
 			if (density_at_point(xmap, co) < map_level) {
 			
@@ -93,7 +93,7 @@ coot::util::trim_molecule_by_map(CMMDBManager *mol,
    }
    if ((n_changed > 0) && (remove_or_zero_occ_flag == coot::util::TRIM_BY_MAP_DELETE)) {
       mol->FinishStructEdit();
-      mol->PDBCleanup(PDBCLEAN_SERIAL|PDBCLEAN_INDEX);
+      mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    }
    return n_changed;
 }

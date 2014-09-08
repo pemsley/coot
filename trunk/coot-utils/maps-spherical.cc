@@ -33,21 +33,21 @@
 
 
 void
-coot::util::emma::sfs_from_boxed_molecule(CMMDBManager *mol_orig, float border) {
+coot::util::emma::sfs_from_boxed_molecule(mmdb::Manager *mol_orig, float border) {
 
-   CMMDBManager *mol = new CMMDBManager;
-   mol->Copy(mol_orig, MMDBFCM_All);
-   PPCAtom atom_selection = 0;
+   mmdb::Manager *mol = new mmdb::Manager;
+   mol->Copy(mol_orig, mmdb::MMDBFCM_All);
+   mmdb::PPAtom atom_selection = 0;
    int n_selected_atoms;
    // now do selection
    int SelHnd = mol->NewSelection(); // d
    mol->SelectAtoms(SelHnd, 1, "*",
-		    ANY_RES, "*",
-		    ANY_RES, "*",
+		    mmdb::ANY_RES, "*",
+		    mmdb::ANY_RES, "*",
 		    "*", "*", 
 		    "*", // elements
 		    "*", // alt loc.
-		    SKEY_NEW);
+		    mmdb::SKEY_NEW);
    mol->GetSelIndex(SelHnd, atom_selection, n_selected_atoms);
 
    std::pair<bool, clipper::Coord_orth> centre = centre_of_molecule(mol);
@@ -267,7 +267,7 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
    std::vector<clipper::Coord_orth> vp;
    for (unsigned int ipeak=0; ipeak<peaks.size(); ipeak++)
       vp.push_back(peaks[ipeak].first.coord_frac(xmap.grid_sampling()).coord_orth(xmap.cell()));
-   CMMDBManager *mol = create_mmdbmanager_from_points(vp);
+   mmdb::Manager *mol = create_mmdbmanager_from_points(vp);
    
 
    clipper::CCP4MAPfile mapout;
@@ -348,7 +348,7 @@ coot::util::emma::overlap_simple(const clipper::Xmap<float> &xmap) const {
    std::vector<clipper::Coord_orth> vp;
    for (unsigned int ipeak=0; ipeak<peaks.size(); ipeak++)
       vp.push_back(peaks[ipeak].first.coord_frac(xmap.grid_sampling()).coord_orth(xmap.cell()));
-   CMMDBManager *mol = create_mmdbmanager_from_points(vp);
+   mmdb::Manager *mol = create_mmdbmanager_from_points(vp);
    
 
    clipper::CCP4MAPfile mapout;

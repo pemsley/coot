@@ -197,7 +197,7 @@ char Residue::residue_type( const clipper::String& type )
 
 bool Chain::add_pdb( const clipper::String file )
 {
-  const int mmdbflags = MMDBF_IgnoreBlankLines | MMDBF_IgnoreDuplSeqNum | MMDBF_IgnoreNonCoorPDBErrors | MMDBF_IgnoreRemarks;
+   const int mmdbflags = mmdb::MMDBF_IgnoreBlankLines | mmdb::MMDBF_IgnoreDuplSeqNum | mmdb::MMDBF_IgnoreNonCoorPDBErrors | mmdb::MMDBF_IgnoreRemarks;
   clipper::MMDBfile mfile;
   clipper::MiniMol mol;
   mfile.SetFlag( mmdbflags );

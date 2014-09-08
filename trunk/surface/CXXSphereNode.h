@@ -16,7 +16,8 @@
 
 #include "CXXCircle.h"
 
-class CAtom;
+// class mmdb::Atom;
+
 using namespace std;
 
 class CXXSphereNode {
@@ -25,9 +26,9 @@ private:
 	const CXXCircle *theIntersector;
 //	std::vector<int> references;
 	int shouldBeDrawn;
-	CAtom *theAtom;
+	mmdb::Atom *theAtom;
 public:
-		CXXSphereNode();
+	CXXSphereNode();
 	CXXSphereNode(const CXXCoord &aCoord);
 	const CXXCoord &vertex() const;
 	int setDoDraw(const int yesNo);
@@ -38,10 +39,10 @@ public:
 	int operator < (const CXXSphereNode &comparator) const {
 		return (theVertex[2] < comparator.vertex()[2]);
 	}
-	void setAtom ( CAtom *anAtom) {
+	void setAtom ( mmdb::Atom *anAtom) {
 		theAtom = anAtom;
 	};
-	CAtom *getAtom() const {
+	mmdb::Atom *getAtom() const {
 		return theAtom;
 	};
 };

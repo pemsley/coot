@@ -141,12 +141,12 @@ namespace coot {
       model_view_residue_button_info_t(){} // for new allocator
 
       model_view_residue_button_info_t(const std::string &lab,
-				       CResidue *res) {
+				       mmdb::Residue *res) {
 	 button_label = lab;
 	 residue_spec = res;
       } 
       std::string button_label;
-      // CResidue *residue; No. This can go out of date.
+      // mmdb::Residue *residue; No. This can go out of date.
       residue_spec_t residue_spec;
    };
 
@@ -154,12 +154,12 @@ namespace coot {
    public:
       // model_view_atom_tree_item_info_t() {}  // not needed?
       model_view_atom_tree_item_info_t(const std::string &label,
-				       CResidue *res) {
+				       mmdb::Residue *res) {
 	 button_label = label;
 	 residue_spec = res;
       }
       std::string button_label;
-      // CResidue *residue;
+      // mmdb::Residue *residue;
       residue_spec_t residue_spec;
    };
 
@@ -181,12 +181,12 @@ namespace coot {
    public:
       model_view_atom_button_info_t() {} // for new allocator
       model_view_atom_button_info_t(const std::string &label,
-				    CAtom *atom_in) {
+				    mmdb::Atom *atom_in) {
 	 button_label = label;
 	 atom = atom_in;
       }
       std::string button_label;
-      CAtom *atom;
+      mmdb::Atom *atom;
    };
 
 
@@ -294,10 +294,10 @@ namespace coot {
 	 name = name_in;
 	 display_it_flag = 1;
       }
-      void update_bonds(CMMDBManager *mol); // the parent's mol
+      void update_bonds(mmdb::Manager *mol); // the parent's mol
       bool is_empty() { return (SelectionHandle == -1); }
-      ncs_residue_info_t get_differences(CResidue *this_residue_p, 
-					 CResidue *master_residue_p, 
+      ncs_residue_info_t get_differences(mmdb::Residue *this_residue_p, 
+					 mmdb::Residue *master_residue_p, 
 					 float main_chain_weight) const;
       friend std::ostream& operator<<(std::ostream &s, const ghost_molecule_display_t &ghost);
    };
@@ -332,9 +332,9 @@ namespace coot {
 
    public:
       int imol;
-      CAtom *atom;
+      mmdb::Atom *atom;
       float dist;
-      at_dist_info_t(int imol_in, CAtom *atom_in, float dist_in) {
+      at_dist_info_t(int imol_in, mmdb::Atom *atom_in, float dist_in) {
 	 imol = imol_in;
 	 atom = atom_in;
 	 dist = dist_in;
@@ -345,7 +345,7 @@ namespace coot {
    public:
       animated_ligand_interactions_t(const fle_ligand_bond_t &lb) :
 	 fle_ligand_bond_t(lb) { }
-      void draw(CMMDBManager *mol,
+      void draw(mmdb::Manager *mol,
 		const gl_context_info_t &gl_info,
 		const long &start_time) const;
    };
@@ -356,13 +356,13 @@ namespace coot {
    // link is made.
    // 
    class dict_link_info_t {
-      bool check_for_order_switch(CResidue *residue_ref,
-				  CResidue *residue_new,
+      bool check_for_order_switch(mmdb::Residue *residue_ref,
+				  mmdb::Residue *residue_new,
 				  const std::string &link_type,
 				  const protein_geometry &geom) const;
    public:
       // this can throw a std::runtime_error
-      dict_link_info_t (CResidue *residue_ref, CResidue *residue_new,
+      dict_link_info_t (mmdb::Residue *residue_ref, mmdb::Residue *residue_new,
 			const std::string &link_type, const protein_geometry &geom);
       atom_spec_t spec_ref;
       atom_spec_t spec_new;
@@ -376,7 +376,7 @@ namespace coot {
       bool chain_id_is_set;
       int res_no;
       std::string chain_id;
-      goto_residue_string_info_t(const std::string &goto_residue_string, CMMDBManager *mol);
+      goto_residue_string_info_t(const std::string &goto_residue_string, mmdb::Manager *mol);
    }; 
 
    class atom_attribute_setting_help_t {
@@ -469,7 +469,7 @@ namespace coot {
 
       // Return the selection handle.  It is up to the caller to
       // dispose of the atom selection, with a DeleteSelection().
-      int select_atoms(CMMDBManager *mol) const;
+      int select_atoms(mmdb::Manager *mol) const;
       void using_altconf(const std::string &altconf_in) {
 	 altconf = altconf_in;
 	 alt_conf_is_set = 1;
@@ -487,7 +487,7 @@ namespace coot {
       bool draw_hydrogens_flag;
       graphical_bonds_container bonds_box;
       atom_selection_info_t atom_sel_info;
-      CMMDBManager *mol;
+      mmdb::Manager *mol;
       int display_list_handle;
       void update_self() {
 	 if (representation_type != BALL_AND_STICK || representation_type != LIQUORICE) {
@@ -498,7 +498,7 @@ namespace coot {
 	 display_list_handle = handle_in;
       }
       void fill_bonds_box();
-     additional_representations_t(CMMDBManager *mol_in,
+     additional_representations_t(mmdb::Manager *mol_in,
 				  int representation_type_in,
 				  int bonds_box_type_in,
 				  float bond_width_in,
@@ -515,7 +515,7 @@ namespace coot {
      }
      // on changind the outside (molecule_class_info_t's mol) we need
      // to change that of the additional_representations too.
-     void change_mol(CMMDBManager *mol_in) { 
+     void change_mol(mmdb::Manager *mol_in) { 
        mol = mol_in;
      } 
      void clear() { 
@@ -699,7 +699,7 @@ namespace coot {
 	    filled = true;
 	 }
       }
-      void SetAtom(CAtom *at, CResidue *res) {
+      void SetAtom(mmdb::Atom *at, mmdb::Residue *res) {
 	 if (filled) { 
 	    at->SetAtomName(atom_name.c_str());
 	    at->SetElementName(element_name.c_str());
@@ -791,9 +791,9 @@ class molecule_class_info_t {
    //
    short int molecule_is_all_c_alphas() const; 
    
-   std::string make_symm_atom_label_string(PCAtom atom,
+   std::string make_symm_atom_label_string(mmdb::PAtom atom,
 					   const std::pair <symm_trans_t, Cell_Translation> &symm_trans) const;
-   std::string make_atom_label_string(PCAtom atom, int brief_atom_labels_flag) const;
+   std::string make_atom_label_string(mmdb::PAtom atom, int brief_atom_labels_flag) const;
 
    // rebuild/save state command
    std::vector<std::string> save_state_command_strings_;
@@ -885,7 +885,7 @@ class molecule_class_info_t {
 						  int shelx_occ_fvar_number);
 
    short int is_mmcif(const std::string &filename) const; 
-   void unalt_conf_residue_atoms(CResidue *residue_p); 
+   void unalt_conf_residue_atoms(mmdb::Residue *residue_p); 
 
    // return status and a chain id [status = 0 when there are 26 chains...]
    // 
@@ -923,8 +923,8 @@ class molecule_class_info_t {
    std::string suggest_new_chain_id() const;
 
    // returned the copied residue (possibly can return NULL on failure).
-   CResidue* copy_and_add_residue_to_chain(CChain *this_model_chain, CResidue *add_model_residue);
-   void copy_and_add_chain_residues_to_chain(CChain *new_chain, CChain *this_molecule_chain);
+   mmdb::Residue* copy_and_add_residue_to_chain(mmdb::Chain *this_model_chain, mmdb::Residue *add_model_residue);
+   void copy_and_add_chain_residues_to_chain(mmdb::Chain *new_chain, mmdb::Chain *this_molecule_chain);
 
 
    short int ligand_flip_number;
@@ -977,20 +977,20 @@ class molecule_class_info_t {
    // alignment
    coot::chain_mutation_info_container_t
    align_on_chain(const std::string &chain_id,
-		  PCResidue *SelResidues, int nSelResidues,
+		  mmdb::PResidue *SelResidues, int nSelResidues,
 		  const std::string &target,
-		  realtype wgap,
-		  realtype wspace,
+		  mmdb::realtype wgap,
+		  mmdb::realtype wspace,
 		  bool is_nucleic_acid_flag = false,
 		  bool console_output = true) const;
 
 
    std::string
-   make_model_string_for_alignment(PCResidue *SelResidues,
+   make_model_string_for_alignment(mmdb::PResidue *SelResidues,
 				   int nSelResidues) const;
    // renumber_reidues starting at 1 and removing insertion codes
    // (no backup).  For use in alignment (maybe other places)
-   void simplify_numbering_internal(CChain *chain_p);
+   void simplify_numbering_internal(mmdb::Chain *chain_p);
 
 
 
@@ -1008,17 +1008,17 @@ class molecule_class_info_t {
 				      int start_resno,
 				      int end_resno);
 
-   void change_chain_id_with_residue_range_helper_insert_or_add(CChain *to_chain_p, CResidue *new_residue);
+   void change_chain_id_with_residue_range_helper_insert_or_add(mmdb::Chain *to_chain_p, mmdb::Residue *new_residue);
 
    // private nomenclature fixing (maybe) function.
-   int test_and_fix_PHE_TYR_nomenclature_errors(CResidue *res); 
+   int test_and_fix_PHE_TYR_nomenclature_errors(mmdb::Residue *res); 
 
    // shelx stuff
    bool is_from_shelx_ins_flag;
    coot::ShelxIns shelxins;
 
    // for NCS copying of A chain onto the other chains.
-   int copy_chain(CChain *from_chain, CChain *to_chain,
+   int copy_chain(mmdb::Chain *from_chain, mmdb::Chain *to_chain,
 		  clipper::RTop_orth a_to_b_transform);
 
    std::vector<coot::dots_representation_info_t> dots;
@@ -1032,11 +1032,11 @@ class molecule_class_info_t {
 				     bool use_this_chain_id) const;
    
    // return -1 on not found
-   int get_atom_index(CAtom *atom) { 
+   int get_atom_index(mmdb::Atom *atom) { 
      int idx = -1;
      if (has_model()) { 
        int ic = -1;
-       if (atom->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == UDDATA_Ok) {
+       if (atom->GetUDData(atom_sel.UDDAtomIndexHandle, ic) == mmdb::UDDATA_Ok) {
 	 idx = ic;
        }
      }
@@ -1068,9 +1068,9 @@ class molecule_class_info_t {
 						       float p_bond_width) const;
 
    // remove TER record from residue
-   bool residue_has_TER_atom(CResidue *res_p) const;
-   void remove_TER_internal(CResidue *res_p);
-   void remove_TER_on_last_residue(CChain *chain_p);
+   bool residue_has_TER_atom(mmdb::Residue *res_p) const;
+   void remove_TER_internal(mmdb::Residue *res_p);
+   void remove_TER_on_last_residue(mmdb::Chain *chain_p);
 
    // Return a new orienation, to be used to set the view orientation/quaternion.
    // 
@@ -1475,27 +1475,27 @@ public:        //                      public
    // Return a copy of the pointer to the chain (only).  Return NULL
    // on chain with given chain ID not found.
    // 
-   CChain *get_chain(const std::string &chain_id) const;
+   mmdb::Chain *get_chain(const std::string &chain_id) const;
 
    // Return a copy of the pointer (only).  Return NULL on residue not
    // found.
    // 
-   CResidue *get_residue(const std::string &chain_id,
+   mmdb::Residue *get_residue(const std::string &chain_id,
 			 int reso,
 			 const std::string &insertion_code) const;
 
    // Return a copy of the pointer (only).  Return NULL on residue not
    // found.
    // 
-   CResidue *get_residue(const coot::residue_spec_t &rs) const;
+   mmdb::Residue *get_residue(const coot::residue_spec_t &rs) const;
 
    // Return a copy of the pointer (only) of the residue following
    // that of the given spec.  Return NULL on residue not found.
    // 
-   CResidue *get_following_residue(const coot::residue_spec_t &rs) const;
+   mmdb::Residue *get_following_residue(const coot::residue_spec_t &rs) const;
 
    // Useful when we know that the molecule is just one residue
-   CResidue *get_first_residue();
+   mmdb::Residue *get_first_residue();
 
    // A function of molecule-class that returns the position
    // (if posible) of an atom given a string e.g. 
@@ -1509,11 +1509,11 @@ public:        //                      public
    //
    // Return NULL on not-able-to-find-atom.
    // 
-   CAtom *get_atom(const std::string &go_to_residue_string,
+   mmdb::Atom *get_atom(const std::string &go_to_residue_string,
 		   const coot::atom_spec_t &active_atom_spec,
 		   const coot::Cartesian &pt) const;
 
-   CAtom *get_atom(const coot::atom_spec_t &atom_spec) const;
+   mmdb::Atom *get_atom(const coot::atom_spec_t &atom_spec) const;
 
    void set_draw_hydrogens_state(int i) {
       if (draw_hydrogens_flag != i) { 
@@ -1590,11 +1590,11 @@ public:        //                      public
 		      bool is_from_shelx_ins=0);
 
    void install_model(int imol_no_in, 
-		      CMMDBManager *mol, const std::string &mol_name,
+		      mmdb::Manager *mol, const std::string &mol_name,
 		      short int display_in_display_control_widget_status,
 		      bool is_from_shelx_ins=0);
 
-   int copy_residue_range(CChain *from_chain, CChain *to_chain,
+   int copy_residue_range(mmdb::Chain *from_chain, mmdb::Chain *to_chain,
 			  int residue_range_1,
 			  int residue_range_2,
 			  clipper::RTop_orth a_to_b_transform);
@@ -1918,11 +1918,11 @@ public:        //                      public
    // 
    int full_atom_spec_to_atom_index(const coot::atom_spec_t &spec) const;
 
-   int atom_to_atom_index(CAtom *at) const;
+   int atom_to_atom_index(mmdb::Atom *at) const;
 
    // Does atom at from moving atoms match atom_sel.atom_selection[this_mol_index_maybe]?
    // or has atom_sel changed in the mean time?
-   bool moving_atom_matches(CAtom *at, int this_mol_index_maybe) const;
+   bool moving_atom_matches(mmdb::Atom *at, int this_mol_index_maybe) const;
 
    int atom_index_first_atom_in_residue(const std::string &chain_id,
 					int iresno,
@@ -1956,7 +1956,7 @@ public:        //                      public
 		       bool change_altconf_occs_flag,
 		       bool replace_coords_with_zero_occ_flag);
    // helper function for above function
-   bool movable_atom(CAtom *mol_atom, bool replace_coords_with_zero_occ_flag) const;
+   bool movable_atom(mmdb::Atom *mol_atom, bool replace_coords_with_zero_occ_flag) const;
 
    int add_terminal_residue_using_phi_psi(const std::string &chain_id,
 					  int res_no,
@@ -1967,7 +1967,7 @@ public:        //                      public
    void add_coords(const atom_selection_container_t &asc);
    //
    // Add a residue "in the middle" of some other residues
-   // (uses CChain::InsResidue()).
+   // (uses mmdb::Chain::InsResidue()).
    //
    // This relies on the mol of the asc being different to the mol of the
    // atom_sel.
@@ -1982,9 +1982,9 @@ public:        //                      public
    void insert_coords_change_altconf(const atom_selection_container_t &asc);
    // a utility function for insert_coords, return the residue (that
    // is currently at res_index) too.  Return a index of -1 (and a
-   // CResidue of NULL) when no residue found.
+   // mmdb::Residue of NULL) when no residue found.
    
-   std::pair<int, CResidue *> find_serial_number_for_insert(int res_index, const std::string &chain_id) const;
+   std::pair<int, mmdb::Residue *> find_serial_number_for_insert(int res_index, const std::string &chain_id) const;
 
    void update_molecule_to(std::vector<coot::scored_skel_coord> &pos_position); 
 
@@ -1999,7 +1999,7 @@ public:        //                      public
    // 
    int insert_waters_into_molecule(const coot::minimol::molecule &water_mol);
    int append_to_molecule(const coot::minimol::molecule &water_mol);
-   CResidue *residue_from_external(int reso, const std::string &insertion_code,
+   mmdb::Residue *residue_from_external(int reso, const std::string &insertion_code,
 				   const std::string &chain_id) const;
 
 
@@ -2032,8 +2032,8 @@ public:        //                      public
    std::string get_term_type(int atom_index); 
    // by alignment (against asigned pir seq file) return, "HIS", "ALA" etc, if we can.
    std::pair<bool, std::string> find_terminal_residue_type(const std::string &chain_id, int resno,
-							   realtype alignment_wgap,
-							   realtype alignment_wspace,
+							   mmdb::realtype alignment_wgap,
+							   mmdb::realtype alignment_wspace,
 							   bool is_nucleic_acid_flag = false) const;
 
 
@@ -2093,7 +2093,7 @@ public:        //                      public
    // return the success status (0: failure to delete, 1 is deleted)
    //
    // if you want to delete a/the residue without having to specify
-   // the model number (which is typically the case) pass MinInt4 as
+   // the model number (which is typically the case) pass mmdb::MinInt4 as
    // the model_number.
    // 
    short int delete_residue(int model_number,
@@ -2138,7 +2138,7 @@ public:        //                      public
    int mutate(int resno, const std::string &insertion_code,
 	       const std::string &chain_id, const std::string &residue_type);
    // and another:
-   int mutate(CResidue *res, const std::string &residue_type);
+   int mutate(mmdb::Residue *res, const std::string &residue_type);
 
    // Here is something that does DNA/RNA
    int mutate_base(const coot::residue_spec_t &res_spec, std::string type,
@@ -2153,25 +2153,25 @@ public:        //                      public
    coot::chain_mutation_info_container_t align_and_mutate(const std::string chain_id,
 							  const coot::fasta &seq,
 							  bool renumber_residues_flag,
-							  realtype wgap,
-							  realtype wspace);
+							  mmdb::realtype wgap,
+							  mmdb::realtype wspace);
    
    void mutate_chain(const std::string &chain_id,
 		     const coot::chain_mutation_info_container_t &mut_cont_info,
-		     PCResidue *SelResidues,
+		     mmdb::PResidue *SelResidues,
 		     int nSelResidues,
 		     bool renumber_residues_flag);
 
    std::pair<bool, std::string>
    residue_type_next_residue_by_alignment(const coot::residue_spec_t &clicked_residue,
-					  CChain *clicked_residue_chain_p, 
+					  mmdb::Chain *clicked_residue_chain_p, 
 					  short int is_n_term_addition,
-					  realtype alignment_wgap,
-					  realtype alignment_wspace) const;
+					  mmdb::realtype alignment_wgap,
+					  mmdb::realtype alignment_wspace) const;
 
    // return a status flag (alignments done)
    std::pair<bool, std::vector<coot::chain_mutation_info_container_t> > 
-   residue_mismatches(realtype alignment_wgap, realtype aligment_wspace) const;
+   residue_mismatches(mmdb::realtype alignment_wgap, mmdb::realtype aligment_wspace) const;
 
    // Try to align on all chains - pick the best one and return it in
    // the second.  If there is no chain that matches within match_frag
@@ -2179,7 +2179,7 @@ public:        //                      public
    // 
    std::pair<bool, std::pair<std::string, coot::chain_mutation_info_container_t> >
    try_align_on_all_chains(const std::string &target, float match_fragment,
-			   realtype wgap, realtype wspace) const;
+			   mmdb::realtype wgap, mmdb::realtype wspace) const;
 
    void make_backup_from_outside(); // when we have a multi mutate, we
 				    // want the wrapper to make a
@@ -2190,9 +2190,9 @@ public:        //                      public
    int backups_state() const { return backup_this_molecule; }
    void set_have_unsaved_changes_from_outside();
 
-   void mutate_internal(CResidue *residue, CResidue *std_residue, const std::string &alt_conf);
+   void mutate_internal(mmdb::Residue *residue, mmdb::Residue *std_residue, const std::string &alt_conf);
    bool progressive_residues_in_chain_check_by_chain(const char *chain_id) const;
-   void mutate_base_internal(CResidue *residue, CResidue *std_base, bool use_old_style_naming);
+   void mutate_base_internal(mmdb::Residue *residue, mmdb::Residue *std_base, bool use_old_style_naming);
 
    // multiple mutate: we don't want to put the results into an asc,
    // we simply want to make the replacement withouth user
@@ -2218,11 +2218,11 @@ public:        //                      public
    // and the functions that mutate functions uses:
    // (which returns success status - up from get_ori_to_this_res):
    //
-   short int move_std_residue(CResidue* moving_residue, const CResidue *reference_residue) const;
+   short int move_std_residue(mmdb::Residue* moving_residue, const mmdb::Residue *reference_residue) const;
    //
    // Get a deep copy:
 // return NULL on failure
-   CResidue *get_standard_residue_instance(const std::string &res_type);
+   mmdb::Residue *get_standard_residue_instance(const std::string &res_type);
 
    // Return the atom index of the "next" atom
    // -1 on failure.
@@ -2236,12 +2236,12 @@ public:        //                      public
 				 const std::string &atom_name,
 				 const std::string &ins_code,
 				 const coot::Cartesian &rc);
-   CResidue *next_residue_missing_residue(const coot::residue_spec_t &spec) const; 
-   CAtom *atom_intelligent(const std::string &chain_id, int resno,
+   mmdb::Residue *next_residue_missing_residue(const coot::residue_spec_t &spec) const; 
+   mmdb::Atom *atom_intelligent(const std::string &chain_id, int resno,
 			   const std::string &ins_code) const;
 
    // is point close (< 1A) to any atom in the given residue?
-   bool close_to_residue(CResidue *residue_p, coot::Cartesian point) const;
+   bool close_to_residue(mmdb::Residue *residue_p, coot::Cartesian point) const;
 
    // If there is a CA in this residue then return the index of that
    // atom, if not, then return the index of the first atom in the
@@ -2249,9 +2249,9 @@ public:        //                      public
    // 
    // Return -1 on no atoms in residue.
    //
-   int intelligent_this_residue_atom(CResidue *res_p) const;
+   int intelligent_this_residue_atom(mmdb::Residue *res_p) const;
    coot::atom_spec_t intelligent_this_residue_atom(const coot::residue_spec_t &rs) const;
-   CAtom *intelligent_this_residue_mmdb_atom(CResidue *res_p) const; // has null res_p protection.
+   mmdb::Atom *intelligent_this_residue_mmdb_atom(mmdb::Residue *res_p) const; // has null res_p protection.
 
    // pointer atoms:
    void add_pointer_atom(coot::Cartesian pos);
@@ -2259,8 +2259,8 @@ public:        //                      public
 
    // dummy atoms (not bonded)
    void add_dummy_atom(coot::Cartesian pos);
-   void add_pointer_multiatom(CResidue *res_p, const coot::Cartesian &pos, const std::string &type);
-   void add_multiple_dummies(CChain *chain_p,
+   void add_pointer_multiatom(mmdb::Residue *res_p, const coot::Cartesian &pos, const std::string &type);
+   void add_multiple_dummies(mmdb::Chain *chain_p,
 			     const std::vector<coot::scored_skel_coord> &pos_position);
    void add_multiple_dummies(const std::vector<coot::scored_skel_coord> &pos_position); 
    void add_multiple_dummies(const std::vector<coot::Cartesian> &positions);
@@ -2275,7 +2275,7 @@ public:        //                      public
    // Are we looking back along the chain (i.e. we are building forward (direction = 1))
    // or building backward (direction = 0)? 
    // 
-   std::vector<clipper::Coord_orth> previous_baton_atom(CAtom* latest_atom_addition,
+   std::vector<clipper::Coord_orth> previous_baton_atom(mmdb::Atom* latest_atom_addition,
 							short int direction) const;
 
    clipper::Xmap<coot::SkeletonTreeNode> skeleton_treenodemap;
@@ -2286,7 +2286,7 @@ public:        //                      public
    //
    // 20100125 now the chain-id is passed
    // 
-   CAtom *add_baton_atom(coot::Cartesian pos, 
+   mmdb::Atom *add_baton_atom(coot::Cartesian pos, 
 			 int i_chain_start_resno,
 			 const std::string &chain_id,
 			 short int i_start_resno_active, // dont ignore it this time?
@@ -2295,7 +2295,7 @@ public:        //                      public
 
    // Return the position of the previous atom.
    // 
-   std::pair<short int, CAtom *> baton_build_delete_last_residue();
+   std::pair<short int, mmdb::Atom *> baton_build_delete_last_residue();
    
    std::vector<coot::scored_skel_coord>
    next_ca_by_skel(const std::vector<clipper::Coord_orth> &previous_ca_positions,
@@ -2424,7 +2424,7 @@ public:        //                      public
    std::string Refmac_out_name() const;
    std::string Refmac_mtz_out_name() const;
    std::string name_sans_extension(short int include_path_flag) const;
-   CMMDBManager *get_residue_range_as_mol(const std::string &chain_id,
+   mmdb::Manager *get_residue_range_as_mol(const std::string &chain_id,
 					  int resno_start,
 					  int resno_end) const;
 
@@ -2479,7 +2479,7 @@ public:        //                      public
 				   const coot::protein_geometry &pg);
 
    // internal function for above two functions
-   int set_residue_to_rotamer_move_atoms(CResidue *res, CResidue *moving_res);
+   int set_residue_to_rotamer_move_atoms(mmdb::Residue *res, mmdb::Residue *moving_res);
 
    std::vector<coot::named_rotamer_score> score_rotamers(const std::string &chain_id,
 							 int res_no,
@@ -2494,16 +2494,16 @@ public:        //                      public
    // Add OXT atom:  Return status, 0 = fail, 1 = worked.
    // (use get_residue() to get the residue for this);
    // 
-   short int add_OXT_to_residue(CResidue *residue);
+   short int add_OXT_to_residue(mmdb::Residue *residue);
    short int add_OXT_to_residue(int reso, const std::string &insertion_code,
 				const std::string &chain_id); // external usage
-   bool residue_has_oxt_p(CResidue *residue) const; // used by above.  Dont add if returns true.
+   bool residue_has_oxt_p(mmdb::Residue *residue) const; // used by above.  Dont add if returns true.
 
    std::pair<short int, int>  last_residue_in_chain(const std::string &chain_id) const;
    std::pair<short int, int> first_residue_in_chain(const std::string &chain_id) const;
 
    // return NULL on no last residue.
-   CResidue *last_residue_in_chain(CChain *chain_p) const;
+   mmdb::Residue *last_residue_in_chain(mmdb::Chain *chain_p) const;
 
    // 
    int residue_serial_number(const std::string &chain_id, int reso, const std::string &insertion_code) const;
@@ -2526,16 +2526,16 @@ public:        //                      public
    void apply_atom_edits(const std::vector <coot::select_atom_info> &saiv);
    
    
-   CChain *water_chain() const; // which chain contains just waters
+   mmdb::Chain *water_chain() const; // which chain contains just waters
 				// (or is empty)?  return 0 if none.
 
-   CChain *water_chain_from_shelx_ins() const; // the single chain
+   mmdb::Chain *water_chain_from_shelx_ins() const; // the single chain
 
    std::pair<bool, std::string> chain_id_for_shelxl_residue_number(int resno) const;
 
    // return state, max_resno + 1, or 0, 1 of no residues in chain.
    // 
-   std::pair<short int, int> next_residue_in_chain(CChain *w) const;
+   std::pair<short int, int> next_residue_in_chain(mmdb::Chain *w) const;
 
 
    // For environment distance application, we need to find the atom
@@ -2557,7 +2557,7 @@ public:        //                      public
    // with altconf "") (0).
    atom_selection_container_t edit_residue_pull_residue(int atom_index,
 							short int whole_res_flag);
-   clipper::Coord_orth to_coord_orth(CAtom *atom) const;
+   clipper::Coord_orth to_coord_orth(mmdb::Atom *atom) const;
 
    std::pair<double, double> get_phi_psi(int atom_index) const;
 
@@ -2585,18 +2585,18 @@ public:        //                      public
    // match those of the passed (reference residue (from a different
    // molecule, typically).
    //
-   int match_torsions(CResidue *res_ref,
+   int match_torsions(mmdb::Residue *res_ref,
 		      const std::vector <coot::dict_torsion_restraint_t> &tr_ligand,
 		      const coot::protein_geometry &geom);
 
    // So that we can move around all the atoms of a ligand (typically)
    void translate_by(float x, float y, float z);
-   void translate_by_internal(const clipper::Coord_orth &co, CResidue *residue_p);
-   void transform_by(mat44 mat); // can't make this const: mmdb probs.
+   void translate_by_internal(const clipper::Coord_orth &co, mmdb::Residue *residue_p);
+   void transform_by(mmdb::mat44 mat); // can't make this const: mmdb probs.
    void transform_by(const clipper::RTop_orth &rtop);
-   void transform_by(const clipper::RTop_orth &rtop, CResidue *res);
+   void transform_by(const clipper::RTop_orth &rtop, mmdb::Residue *res);
    // called by above (no backup or bonds update here in internal function).
-   void transform_by_internal(const clipper::RTop_orth &rtop, CResidue *res);
+   void transform_by_internal(const clipper::RTop_orth &rtop, mmdb::Residue *res);
    // we add the arg make_backup_flag so that "splinter mode" doesn't do backups.
    void transform_zone_by(const std::string &chain_id, int resno_start, int resno_end,
 			  const std::string &ins_code,
@@ -2717,26 +2717,26 @@ public:        //                      public
 
    // internal (private) functions:
    std::pair<bool,std::string>
-   split_residue_internal(CResidue *residue,
+   split_residue_internal(mmdb::Residue *residue,
 			  const std::string &altconf, 
 			  const std::vector<std::string> &all_altconfs,
 			  atom_selection_container_t residue_mol,
 			  short int use_residue_mol_flag);
-   void split_residue_then_rotamer(CResidue *residue, const std::string &altconf, 
+   void split_residue_then_rotamer(mmdb::Residue *residue, const std::string &altconf, 
 				   const std::vector<std::string> &all_altconfs,
 				   atom_selection_container_t residue_mol,
 				   short int use_residue_mol_flag);
-   void split_residue_internal(CResidue *residue);
+   void split_residue_internal(mmdb::Residue *residue);
    // We just added a new atom to a residue, now we need to adjust the
    // occupancy of the other atoms (so that we don't get residues with
    // atoms whose occupancy is greater than 1.0 (Care for SHELX molecule?)).
-   void adjust_occupancy_other_residue_atoms(CAtom *at, CResidue *residue,
+   void adjust_occupancy_other_residue_atoms(mmdb::Atom *at, mmdb::Residue *residue,
 					     short int force_one_sum_flag);
-   std::vector<std::string> get_residue_alt_confs(CResidue *res) const;
+   std::vector<std::string> get_residue_alt_confs(mmdb::Residue *res) const;
    std::string make_new_alt_conf(const std::vector<std::string> &residue_alt_confs, 
 				 int alt_conf_split_type_in) const;
-   short int have_atoms_for_rotamer(CResidue *res) const;
-   CMMDBManager * create_mmdbmanager_from_res_selection(PCResidue *SelResidues, 
+   short int have_atoms_for_rotamer(mmdb::Residue *res) const;
+   mmdb::Manager * create_mmdbmanager_from_res_selection(mmdb::PResidue *SelResidues, 
 							int nSelResidues, 
 							int have_flanking_residue_at_start,
 							int have_flanking_residue_at_end, 
@@ -2747,7 +2747,7 @@ public:        //                      public
    // merge molecules
    
    std::pair<int, std::vector<std::string> > merge_molecules(const std::vector<atom_selection_container_t> &add_molecules);
-   std::pair<bool, std::vector<std::string> > try_add_by_consolidation(CMMDBManager *adding_mol);
+   std::pair<bool, std::vector<std::string> > try_add_by_consolidation(mmdb::Manager *adding_mol);
 
    int renumber_residue_range(const std::string &chain_id,
 			      int start_resno, int last_resno, int offset);
@@ -2862,7 +2862,7 @@ public:        //                      public
 
    // nomenclature errors
    // return a vector of the changed residues (used for updating the rotamer graph)
-   std::vector<CResidue *> fix_nomenclature_errors(coot::protein_geometry *geom_p);
+   std::vector<mmdb::Residue *> fix_nomenclature_errors(coot::protein_geometry *geom_p);
                                                       // by looking for bad rotamers in
 				                      // some residue types and alter ing
                             			      // the atom names to see if they get
@@ -2872,10 +2872,10 @@ public:        //                      public
 
    // ---- cis <-> trans conversion
    int cis_trans_conversion(const std::string &chain_id, int resno, const std::string &inscode);
-   int cis_trans_conversion(CAtom *at, short int is_N_flag);
-   int cis_trans_convert(PCResidue *mol_residues,   // internal function, make private
-			 PCResidue *trans_residues, // or move into utils?
-			 PCResidue *cis_residues);
+   int cis_trans_conversion(mmdb::Atom *at, short int is_N_flag);
+   int cis_trans_convert(mmdb::PResidue *mol_residues,   // internal function, make private
+			 mmdb::PResidue *trans_residues, // or move into utils?
+			 mmdb::PResidue *cis_residues);
 
 
    // ---- baton build redirection ----
@@ -2993,8 +2993,8 @@ public:        //                      public
    coot::minimol::molecule eigen_flip_residue(const std::string &chain_id, int resno); 
 
    // replace molecule
-   int replace_molecule(CMMDBManager *mol);
-   int replace_models(std::deque<CModel *> model_list);
+   int replace_molecule(mmdb::Manager *mol);
+   int replace_models(std::deque<mmdb::Model *> model_list);
 
 
    // add a factor to scale the colours in b factor representation:.
@@ -3002,13 +3002,13 @@ public:        //                      public
    void set_b_factor_bonds_scale_factor(float f);
 
    int
-   apply_sequence(int imol_map, CMMDBManager *mol,
+   apply_sequence(int imol_map, mmdb::Manager *mol,
 		  std::vector<coot::residue_spec_t> mmdb_residues,
 		  std::string best_seq, std::string chain_id,
 		  int resno_offset,
 		  const coot::protein_geometry &pg);
 
-   int delete_all_except_res(CResidue *res);
+   int delete_all_except_res(mmdb::Residue *res);
 
    // EM map function
    int scale_cell(float fac_u, float fac_v, float fac_w);
@@ -3105,7 +3105,7 @@ public:        //                      public
    // selection.
    // 
    // called by above
-   float fit_to_map_by_random_jiggle(PPCAtom atom_selection,
+   float fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 				     int n_atoms,
 				     const clipper::Xmap<float> &xmap,
 				     float map_sigma,
@@ -3209,10 +3209,10 @@ public:        //                      public
 		    const coot::protein_geometry &geom);
    // which uses:
    // (and this returns a status: 0 if we did not correct a chiral, 1 if we did)
-   bool sprout_hydrogens_correct_chirals_maybe(CResidue *residue_cp_p,
+   bool sprout_hydrogens_correct_chirals_maybe(mmdb::Residue *residue_cp_p,
 					       const std::string &alt_conf,
 					       const coot::dictionary_residue_restraints_t &rp);
-   void sprout_hydrogens_transfer_hydrogen_positions(CResidue *from_res, CResidue *to_res,
+   void sprout_hydrogens_transfer_hydrogen_positions(mmdb::Residue *from_res, mmdb::Residue *to_res,
 						     const std::string &alt_conf);
 
 
@@ -3229,14 +3229,14 @@ public:        //                      public
    
    // --------- match ligand atom names ------------------
    void match_ligand_atom_names(const std::string &chain_id, int res_no, const std::string &ins_code,
-				CResidue *res_ref);
+				mmdb::Residue *res_ref);
 
    // --------- molecule probability scoring ------------
    coot::rama_score_t get_all_molecule_rama_score() const;
    coot::rotamer_score_t get_all_molecule_rotamer_score(const coot::rotamer_probability_tables &rpt) const;
 
    // --------- lsq-improve ------------
-   void lsq_improve(CMMDBManager *mol_ref, const std::string &ref_selection_str,
+   void lsq_improve(mmdb::Manager *mol_ref, const std::string &ref_selection_str,
 		    const std::string &moving_selection_str, int n_res, float dist_crit);
 
    std::vector<ProteinDB::Chain> protein_db_loops(const std::vector<coot::residue_spec_t> &residue_specs,
@@ -3263,13 +3263,13 @@ public:        //                      public
 		  const std::string &link_name, float length,
 		  const coot::protein_geometry &geom);
    void delete_any_link_containing_residue(const coot::residue_spec_t &res_spec);
-   void delete_link(CLink *link, CModel *model_p);
+   void delete_link(mmdb::Link *link, mmdb::Model *model_p);
 
 
    // ------------ watson crick pair additions  ---------
    int watson_crick_pair_for_residue_range(const std::string &chain_id,
 					   int resno_start, int resno_end,
-					   CMMDBManager *standard_residues_mol);
+					   mmdb::Manager *standard_residues_mol);
 
    // --------- Pretty (hopefully) animated ligand interactions -----------
    std::vector<coot::animated_ligand_interactions_t> animated_ligand_interactions_vec;
@@ -3284,9 +3284,9 @@ public:        //                      public
    std::pair<bool, clipper::Coord_orth>
    residue_centre(const std::string &chain_id, int resno, const std::string &ins_code) const;
    // which calls:
-   std::pair<bool, clipper::Coord_orth> residue_centre(CResidue *residue_p) const;
+   std::pair<bool, clipper::Coord_orth> residue_centre(mmdb::Residue *residue_p) const;
    // related (distance between residue_centres), return negative number if not valid:
-   float distance_between_residues(CResidue *r1, CResidue *r2) const;
+   float distance_between_residues(mmdb::Residue *r1, mmdb::Residue *r2) const;
 
    // ------------------- ligand centre ---------------------
    // we want a button that goes to the ligand when we click it.
@@ -3305,7 +3305,7 @@ public:        //                      public
    // Add a LINK record if link_type is not blank (link_type is for
    // example "NAG-ASN")
    // return a pair, success-status and the added residue (it is a deep copy of the res_new)
-   std::pair<bool, CResidue *> add_residue(CResidue *res_new, const std::string &chain_id);
+   std::pair<bool, mmdb::Residue *> add_residue(mmdb::Residue *res_new, const std::string &chain_id);
    
    // Add a LINK record if link_type is not blank (link_type is for
    // example "NAG-ASN")
@@ -3362,10 +3362,10 @@ public:        //                      public
    std::vector<coot::residue_spec_t> het_groups() const;
 
    // return null on failure.  seq_trip is something like "ACE".
-   CAtom *get_centre_atom_from_sequence_triplet(const std::string &seq_trip) const;
+   mmdb::Atom *get_centre_atom_from_sequence_triplet(const std::string &seq_trip) const;
    // which uses (like align's make_model_string).  Ignores waters.
    // The length of the string is guaranteed to the the length of the vector.
-   std::pair<std::string, std::vector<CResidue *> > sequence_from_chain(CChain *chain_p) const;
+   std::pair<std::string, std::vector<mmdb::Residue *> > sequence_from_chain(mmdb::Chain *chain_p) const;
 
    std::vector<coot::chain_mutation_info_container_t>
    sequence_comparison_to_chains(const std::string &sequence) const;
@@ -3404,18 +3404,18 @@ public:        //                      public
    // atoms within shift_average_radius A of the central residue)
    // 
    int morph_fit_all(const clipper::Xmap<float> &xmap_in, float shift_average_radius);
-   int morph_fit_residues(std::vector<std::pair<CResidue *, std::vector<CResidue *> > > moving_residues,
+   int morph_fit_residues(std::vector<std::pair<mmdb::Residue *, std::vector<mmdb::Residue *> > > moving_residues,
 			  const clipper::Xmap<float> &xmap_in, float transformation_average_radius);
    int morph_fit_residues(const std::vector<coot::residue_spec_t> &residue_specs,
 			  const clipper::Xmap<float> &xmap_in, float transformation_average_radius);
    int morph_fit_chain(const std::string &chain_id,
 		       const clipper::Xmap<float> &xmap_in, float transformation_average_radius);
-   void morph_show_shifts(const std::map<CResidue *, morph_rtop_triple> &simple_shifts,
-			  const std::map<CResidue *, morph_rtop_triple> &smooth_shifts) const;
+   void morph_show_shifts(const std::map<mmdb::Residue *, morph_rtop_triple> &simple_shifts,
+			  const std::map<mmdb::Residue *, morph_rtop_triple> &smooth_shifts) const;
    // I fail to make a function that does a good "average" of RTops,
    // so do it long-hand by generating sets of coordinates by applying
    // each rtop to each atom - weights are transfered in the second part of the pair
-   void morph_residue_atoms_by_average_rtops(CResidue *this_residue,
+   void morph_residue_atoms_by_average_rtops(mmdb::Residue *this_residue,
 					     const std::vector<std::pair<clipper::RTop_orth, float> > &rtops);
 
    int fit_by_secondary_structure_elements(const std::string &chain_id,
@@ -3426,8 +3426,8 @@ public:        //                      public
    // applying the RTops (and move the atoms back from the origin
    // after of course).
    // 
-   std::map<CResidue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >
-   fit_by_secondary_structure_fragment(CChain *chain_p, const std::string &chain_id,
+   std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >
+   fit_by_secondary_structure_fragment(mmdb::Chain *chain_p, const std::string &chain_id,
 				       int initSeqNum, int endSeqNum,
 				       const clipper::Xmap<float> &xmap_in,
 				       bool simple_move);
@@ -3436,7 +3436,7 @@ public:        //                      public
    // fragment info for Alan:
    std::vector<coot::fragment_info_t> get_fragment_info(bool screen_output_also) const;
 
-   std::pair<CResidue *, coot::dictionary_residue_restraints_t>
+   std::pair<mmdb::Residue *, coot::dictionary_residue_restraints_t>
    invert_chiral_centre(const std::string &chain_id, int res_no,
 			const std::string &ins_code,
 			const std::string &atom_name,

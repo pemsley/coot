@@ -39,7 +39,7 @@
    #endif
 #endif
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #ifndef HAVE_STRING
 #define HAVE_STRING
 #include <string>
@@ -77,9 +77,9 @@ namespace coot {
       float res_scale;
       float row_scale;
       float row_offset;
-      std::vector<CMMDBManager *> mol;
-      void setup_internal(CMMDBManager *mol);
-      void mol_to_canvas(CMMDBManager *mol); 
+      std::vector<mmdb::Manager *> mol;
+      void setup_internal(mmdb::Manager *mol);
+      void mol_to_canvas(mmdb::Manager *mol); 
       std::string three_letter_to_one_letter(const std::string &resname) const;
       void setup_canvas(int max_n_res, int n_chains);
       void draw_mol_chain_label(std::string mol_chain, int i_chain, int mol_no);
@@ -89,19 +89,19 @@ namespace coot {
       GtkCanvasItem *tooltip_item_text;
       std::string seq_int_to_string(int i) const;
       std::vector<GtkCanvasItem *> canvas_item_vec;
-      int max_number_of_residues_in_a_chain(CMMDBManager *mol_in) const;
-      std::string colour_by_secstr(CResidue *res, CModel *model) const;
+      int max_number_of_residues_in_a_chain(mmdb::Manager *mol_in) const;
+      std::string colour_by_secstr(mmdb::Residue *res, mmdb::Model *model) const;
       std::string fixed_font;
       void draw_debugging_box() const;
 
 
    public:
-      sequence_view(CMMDBManager *mol_in,
+      sequence_view(mmdb::Manager *mol_in,
 		    std::string mol_name,
 		    int coot_mol_no_in);  // create a toplevel
       //! create the sequence-view inside container_widget:
-      sequence_view(CMMDBManager *mol_in, GtkWidget *container_widget);
-      void generate_from(CMMDBManager *mol_in);
+      sequence_view(mmdb::Manager *mol_in, GtkWidget *container_widget);
+      void generate_from(mmdb::Manager *mol_in);
       void regnerate(); // use mol pointer (it has had its atoms changed)
       sequence_view_res_info_t
       get_sequence_view_res_info(double worldx, double worldy) const;

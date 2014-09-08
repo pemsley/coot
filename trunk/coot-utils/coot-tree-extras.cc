@@ -40,7 +40,7 @@ coot::atom_tree_t::atom_tree_t(const coot::dictionary_residue_restraints_t &rest
 			       const std::string &altconf) {
 
    made_from_minimol_residue_flag = 1;
-   CResidue *residue_p = coot::GetResidue(res_in);
+   mmdb::Residue *residue_p = coot::GetResidue(res_in);
    n_selected_atoms = 0;
    atom_selection = NULL;
    construct_internal(rest, residue_p, altconf);
@@ -69,7 +69,7 @@ coot::atom_tree_t::atom_tree_t(const dictionary_residue_restraints_t &rest,
 // 
 coot::atom_tree_t::atom_tree_t(const std::vector<std::vector<int> > &contact_indices,
 			       int base_atom_index, 
-			       CMMDBManager *mol,
+			       mmdb::Manager *mol,
 			       int selection_handle) {
    
    made_from_minimol_residue_flag = 0;
@@ -85,7 +85,7 @@ coot::atom_tree_t::atom_tree_t(const std::vector<std::vector<int> > &contact_ind
 
 // can throw an exception.
 coot::atom_tree_t::atom_tree_t(const coot::dictionary_residue_restraints_t &rest,
-			       CResidue *res,
+			       mmdb::Residue *res,
 			       const std::string &altconf) {
 
    made_from_minimol_residue_flag = 0;
@@ -100,7 +100,7 @@ coot::atom_tree_t::atom_tree_t(const coot::dictionary_residue_restraints_t &rest
 // exception.
 coot::atom_tree_t::atom_tree_t(const std::vector<std::vector<int> > &contact_indices,
 			       int base_atom_index, 
-			       CResidue *res,
+			       mmdb::Residue *res,
 			       const std::string &altconf) {
 
    made_from_minimol_residue_flag = 0;
@@ -121,7 +121,7 @@ coot::atom_tree_t::atom_tree_t(const std::vector<std::vector<int> > &contact_ind
 
 void 
 coot::atom_tree_t::construct_internal(const coot::dictionary_residue_restraints_t &rest,
-				       CResidue *res,
+				       mmdb::Residue *res,
 				       const std::string &altconf) {
 
    if (! res) {
@@ -129,7 +129,7 @@ coot::atom_tree_t::construct_internal(const coot::dictionary_residue_restraints_
       throw std::runtime_error(mess);
    }
    residue = res; // class data now, used in rotate_about() - so that
-		  // we don't have to pass the CResidue * again.
+		  // we don't have to pass the mmdb::Residue * again.
 
    if (rest.tree.size() == 0) {
       std::string mess = "No tree in restraint";
@@ -137,7 +137,7 @@ coot::atom_tree_t::construct_internal(const coot::dictionary_residue_restraints_
    }
 
    // Fill bonds
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    res->GetAtomTable(residue_atoms, n_residue_atoms);
    // fill the bonds
@@ -182,7 +182,7 @@ coot::atom_tree_t::construct_internal(const coot::dictionary_residue_restraints_
 void
 coot::atom_tree_t::fill_name_map(const std::string &altconf) {
    
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    residue->GetAtomTable(residue_atoms, n_residue_atoms);
 
@@ -202,7 +202,7 @@ coot::atom_tree_t::fill_name_map(const std::string &altconf) {
 
 
 bool
-coot::atom_tree_t::fill_torsions(const coot::dictionary_residue_restraints_t &rest, CResidue *res,
+coot::atom_tree_t::fill_torsions(const coot::dictionary_residue_restraints_t &rest, mmdb::Residue *res,
 				 const std::string &altconf) {
 
 
@@ -268,7 +268,7 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts(const std::vector<std::ve
 
    bool r=0; // return 1 on successful fill
 
-   PPCAtom residue_atoms;
+   mmdb::PPAtom residue_atoms;
    int n_residue_atoms;
    residue->GetAtomTable(residue_atoms, n_residue_atoms);
    atom_vertex_vec.resize(n_residue_atoms);
@@ -280,7 +280,7 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts(const std::vector<std::ve
 
 bool
 coot::atom_tree_t::fill_atom_vertex_vec_using_contacts_by_atom_selection(const std::vector<std::vector<int> > &contact_indices,
-									 PPCAtom residue_atoms,
+									 mmdb::PPAtom residue_atoms,
 									 int n_atoms,
 									 int base_atom_index) {
    bool r = 0;
@@ -406,11 +406,11 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts_by_atom_selection(const s
 // 
 std::pair<bool,coot::atom_index_quad>
 coot::atom_tree_t::get_atom_index_quad(const coot::dict_torsion_restraint_t &tr,
-				       CResidue *res,
+				       mmdb::Residue *res,
 				       const std::string &altconf) const {
    bool success = 0;
    coot::atom_index_quad quad(-1,-1,-1,-1);
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    res->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) {
@@ -441,7 +441,7 @@ coot::atom_tree_t::get_atom_index_quad(const coot::dict_torsion_restraint_t &tr,
 
 bool
 coot::atom_tree_t::fill_atom_vertex_vec(const coot::dictionary_residue_restraints_t &rest,
-					CResidue *res,
+					mmdb::Residue *res,
 					const std::string &altconf) {
 
    bool debug = 0;
@@ -740,11 +740,11 @@ coot::atom_tree_t::rotate_about(const std::string &atom1, const std::string &ato
 
 	    // so now we have a set of moving atoms:
 	    // set up the coordinates for the rotation, and rotate
-	    PPCAtom residue_atoms = 0;
+	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
 	    residue->GetAtomTable(residue_atoms, n_residue_atoms);
-	    CAtom *at2 = residue_atoms[index2.index()];
-	    CAtom *at3 = residue_atoms[index3.index()];
+	    mmdb::Atom *at2 = residue_atoms[index2.index()];
+	    mmdb::Atom *at3 = residue_atoms[index3.index()];
 	    clipper::Coord_orth base_atom_pos(at2->x, at2->y, at2->z);
 	    clipper::Coord_orth    third_atom(at3->x, at3->y, at3->z);;
 	    clipper::Coord_orth direction = third_atom - base_atom_pos;
@@ -899,15 +899,15 @@ coot::atom_tree_t::rotate_about(int index2, int index3, double angle, bool rever
 	    }
       }
 
-      CAtom *at2 = NULL; 
-      CAtom *at3 = NULL;
+      mmdb::Atom *at2 = NULL; 
+      mmdb::Atom *at3 = NULL;
 
       if (atom_selection) { 
 	 at2 = atom_selection[index2];
 	 at3 = atom_selection[index3];
       } 
       if (residue) {
-	 PPCAtom residue_atoms = 0;
+	 mmdb::PPAtom residue_atoms = 0;
 	 int n_residue_atoms;
 	 residue->GetAtomTable(residue_atoms, n_residue_atoms);
 	 at2 = residue_atoms[index2];
@@ -953,7 +953,7 @@ coot::atom_tree_t::quad_to_torsion(const coot::map_index_t &index2) const {
    // std::cout << " this bond has a chi angle assigned" << std::endl;
    coot::atom_index_quad quad = atom_vertex_vec[index2.index()].torsion_quad.second;
    clipper::Coord_orth co[4];
-   PPCAtom residue_atoms;
+   mmdb::PPAtom residue_atoms;
    int n_residue_atoms;
    residue->GetAtomTable(residue_atoms, n_residue_atoms);
    co[0] = clipper::Coord_orth(residue_atoms[quad.index1]->x,
@@ -1142,7 +1142,7 @@ coot::atom_tree_t::rotate_internal(std::vector<coot::map_index_t> moving_atom_in
    if (debug)
       std::cout << "in rotate_internal with " << moving_atom_indices.size()
 		<< " moving atoms " << std::endl;
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
 
    if (residue) {
@@ -1157,7 +1157,7 @@ coot::atom_tree_t::rotate_internal(std::vector<coot::map_index_t> moving_atom_in
    
    for (unsigned int im=0; im<moving_atom_indices.size(); im++) {
       int idx = moving_atom_indices[im].index();
-      CAtom *at = residue_atoms[idx];
+      mmdb::Atom *at = residue_atoms[idx];
       clipper::Coord_orth po(at->x, at->y, at->z);
       clipper::Coord_orth pt = coot::util::rotate_round_vector(dir, po, base_atom_pos, angle);
       if (debug)
@@ -1362,11 +1362,11 @@ coot::atom_tree_t::in_forward_atoms(const coot::map_index_t &bond_atom_index,
 
 
 coot::map_index_t
-coot::atom_tree_t::get_index(CAtom *atom) const {
+coot::atom_tree_t::get_index(mmdb::Atom *atom) const {
 
    coot::map_index_t idx;
    if (residue) {
-      PPCAtom residue_atoms = 0;
+      mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       residue->GetAtomTable(residue_atoms, n_residue_atoms);
       for (unsigned int iat=0; iat<n_residue_atoms; iat++) {

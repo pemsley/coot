@@ -85,22 +85,22 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
   std::ostringstream output;
   char AtomID[30];
 
-  PPCAtom selAtom = NULL;
-  PPCAtom selAtom0 = NULL;
-  PPCResidue selRes = NULL;
-  PCChain pCh;
-  PCModel pMdl;
+  mmdb::PPAtom selAtom = NULL;
+  mmdb::PPAtom selAtom0 = NULL;
+  mmdb::PPResidue selRes = NULL;
+  mmdb::PChain pCh;
+  mmdb::PModel pMdl;
   PCSBStructure pSbRes=NULL;
-  ivector nMatchAtom = NULL;
+  mmdb::ivector nMatchAtom = NULL;
   imatrix matchAtom = NULL;
   int nAtominRes,nAtoms,ir,i,j,na1,na2,ia1,ia2,ib,selH = 0;
   int nModels,nm,nAtominModel; 
 
   int nr;
-  PSContact contacts = NULL;
+  mmdb::Contact *contacts = NULL;
   int ic,nContacts;
-  PCAtom pa1,pa2;
-  PCResidue pr1;
+  mmdb::PAtom pa1,pa2;
+  mmdb::PResidue pr1;
 
   int nAlt;
   int nAltTot = 0 ;
@@ -116,7 +116,7 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
 
   // Pointer to atoms in residue for all models
   // Big bovver if >100 models
-  PPCAtom modelSelAtom[100];
+  mmdb::PPAtom modelSelAtom[100];
   int nSelAtom[100];
   for (nm=1;nm<=100;nm++) {  modelSelAtom[nm]=NULL; }
 
@@ -128,7 +128,7 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
   if (nModels>1) {
     lastModel = nModels;
     firstModel = 0;
-    PCModel pMdl = NULL;
+    mmdb::PModel pMdl = NULL;
     while ( firstModel < lastModel && pMdl == NULL ) {
       firstModel++;
       pMdl = molHnds[0]->GetModel(firstModel);
@@ -286,8 +286,8 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
   //INTER-residue bonds
 
   selH = molHnds[0]->NewSelection();
-  molHnds[0]->SelectAtoms(selH,iMod,"*", ANY_RES,"*", ANY_RES,"*","*","*","*","*",SKEY_NEW);
-  molHnds[0]->SelectAtoms(selH,iMod,"*", ANY_RES,"*", ANY_RES,"*","*","*","H","*",SKEY_CLR);
+  molHnds[0]->SelectAtoms(selH,iMod,"*", mmdb::ANY_RES,"*", mmdb::ANY_RES,"*","*","*","*","*",mmdb::SKEY_NEW);
+  molHnds[0]->SelectAtoms(selH,iMod,"*", mmdb::ANY_RES,"*", mmdb::ANY_RES,"*","*","*","H","*",SKEY_CLR);
   selAtom0 = NULL;
   molHnds[0]->GetSelIndex ( selH,selAtom0,nAtoms );
 
@@ -335,8 +335,8 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
       for (nm = firstModel+1; nm <= lastModel; nm++) {
       if (molHnds[0]->GetModel(nm) != NULL) {
         //nb = 0;
-        molHnds[0]->SelectAtoms(selH,nm,"*", ANY_RES,"*", ANY_RES,"*","*","*","*","*",SKEY_NEW);
-        molHnds[0]->SelectAtoms(selH,nm,"*", ANY_RES,"*", ANY_RES,"*","*","*","H","*",SKEY_CLR);
+        molHnds[0]->SelectAtoms(selH,nm,"*", mmdb::ANY_RES,"*", mmdb::ANY_RES,"*","*","*","*","*",mmdb::SKEY_NEW);
+        molHnds[0]->SelectAtoms(selH,nm,"*", mmdb::ANY_RES,"*", mmdb::ANY_RES,"*","*","*","H","*",SKEY_CLR);
         selAtom0 = NULL;
         molHnds[0]->GetSelIndex ( selH,selAtom0,nAtoms );
         //cout << "selAtom0 " << nm << " nAtoms " << nAtoms << " nContacts " << nContacts << endl;
@@ -384,7 +384,7 @@ std::string CMolBonds::FindBonds ( int udd_sbaseCompoundID,
 
 
 //-----------------------------------------------------------
-void CMolBonds::AddConnection ( PCAtom pa1 , PCAtom pa2) {
+void CMolBonds::AddConnection ( mmdb::PAtom pa1 , mmdb::PAtom pa2) {
 //-----------------------------------------------------------
   
   //cout << "AddConnection " <<  GetMolHnd(0)->AtomLabel_atom(pa1) << " " 
@@ -412,16 +412,16 @@ void CMolBonds::AddConnection ( PCAtom pa1 , PCAtom pa2) {
 
 
 //-----------------------------------------------------------
-int CMolBonds::DeleteConnection ( PCAtom pa1 , PCAtom pa2) {
+int CMolBonds::DeleteConnection ( mmdb::PAtom pa1 , mmdb::PAtom pa2) {
 //-----------------------------------------------------------
 // Delete the connection between two atom - need to zap
 // from the bond list of both atoms
 
   SAtomBond *AtomBond;
   int nAtomBonds;
-  PCAtom atoms[10];
+  mmdb::PAtom atoms[10];
   byte order[10];
-  PCAtom pA,pB;
+  mmdb::PAtom pA,pB;
 
   //char AtomID1[30];
   //char AtomID2[30];
@@ -477,7 +477,7 @@ int CMolBonds::DeleteConnection ( PCAtom pa1 , PCAtom pa2) {
 
 //-----------------------------------------------------------
 void CMolBonds::AddConnection (
-    int ia1 , int ia2, PPCAtom selAtom, int offset ) {
+    int ia1 , int ia2, mmdb::PPAtom selAtom, int offset ) {
 //-----------------------------------------------------------
   //cout << "ia1,ia2,offset " << ia1 << " " << ia2 << " " << offset << endl;
   //printf ( "Bond %s %s %i %s %s %i\n",selAtom[ia1]->residue->name,
@@ -512,7 +512,7 @@ void CMolBonds::AddConnection (
 }
 //-----------------------------------------------------------
 void CMolBonds::AddConnection ( int ia1 , int ia2,
-                    PPCAtom selAtom1, PPCAtom selAtom2,
+                    mmdb::PPAtom selAtom1, mmdb::PPAtom selAtom2,
                     int offset1 , int offset2 ) {
 //-----------------------------------------------------------
   int ja1 = ia1 + offset1;
@@ -545,14 +545,14 @@ void CMolBonds::AddConnection ( int ia1 , int ia2,
 }
 
 //---------------------------------------------------------------------
-int CMolBonds::IntraResContacts ( PCResidue pRes, int nAlt, 
-     PPCAtom modelSelAtom[], int nSelAtom[], int firstModel, int lastModel ) {
+int CMolBonds::IntraResContacts ( mmdb::PResidue pRes, int nAlt, 
+     mmdb::PPAtom modelSelAtom[], int nSelAtom[], int firstModel, int lastModel ) {
 //---------------------------------------------------------------------
-  PPCAtom pAtom1=0;
-  PPCAtom pAtom2=0;
+  mmdb::PPAtom pAtom1=0;
+  mmdb::PPAtom pAtom2=0;
   int nAtom1,nAtom2,nContacts,ic;
-  PSContact contacts = NULL;
-  PCAtom pa1,pa2;
+  mmdb::Contact *contacts = NULL;
+  mmdb::PAtom pa1,pa2;
 
   pAtom1 = NULL;
   pAtom2 = NULL;
@@ -604,10 +604,10 @@ int CMolBonds::IntraResContacts ( PCResidue pRes, int nAlt,
 }
 
 //---------------------------------------------------------------------
-bool CMolBonds::ltBondDistance ( PCAtom pa1, PCAtom pa2, realtype dist ) {
+bool CMolBonds::ltBondDistance ( mmdb::PAtom pa1, mmdb::PAtom pa2, mmdb::realtype dist ) {
 //---------------------------------------------------------------------
   PCLibElement la1,la2;
-  realtype rmax;
+  mmdb::realtype rmax;
   if ( (la1 = params->sbase->LibElement(pa1->element)) &&
        (la2 = params->sbase->LibElement(pa2->element)) ) {
     rmax = (la1->maxBondRad + la2->maxBondRad) * params->maxBondRadFactor;
@@ -619,7 +619,7 @@ bool CMolBonds::ltBondDistance ( PCAtom pa1, PCAtom pa2, realtype dist ) {
 }
 
 //----------------------------------------------------------------------
-bool CMolBonds::isInterResBond ( PCAtom pa1, PCAtom pa2 ) {
+bool CMolBonds::isInterResBond ( mmdb::PAtom pa1, mmdb::PAtom pa2 ) {
 //----------------------------------------------------------------------
   int type1,type2,n;
   AtomName a1,a2;

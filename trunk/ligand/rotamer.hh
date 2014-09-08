@@ -123,7 +123,7 @@ namespace coot {
 
       // the chi angles here (first) numbered 1, 2, 3...
       // throws an exception
-      std::vector<rotamer_probability_info_t> probability_this_rotamer(CResidue *res) const;
+      std::vector<rotamer_probability_info_t> probability_this_rotamer(mmdb::Residue *res) const;
       
       bool is_well_formatted() const { return is_well_formatted_; }
       bool tried_and_failed() const { return tried_and_failed_; }
@@ -139,15 +139,15 @@ namespace coot {
       
       std::vector<std::vector<std::string> >
       rotamer_atoms(const std::string &residue_name) const;
-      std::vector<std::vector<int> > rotamer_atom_names_to_indices(const std::vector<std::vector<std::string> > &residue_rotamer_atoms, PCAtom *residue_atoms, int n_residue_atoms) const;
+      std::vector<std::vector<int> > rotamer_atom_names_to_indices(const std::vector<std::vector<std::string> > &residue_rotamer_atoms, mmdb::PAtom *residue_atoms, int n_residue_atoms) const;
       double chi_torsion(const std::vector<int> &chi_angle_atom_indices,
-			 PCAtom *residue_atoms);
+			 mmdb::PAtom *residue_atoms);
       std::vector<coot::simple_rotamer>
       get_all_rotamers(const std::string &res_type) const;
-      std::vector<CAtom *> ordered_residue_atoms(CResidue *residue_p) const;
+      std::vector<mmdb::Atom *> ordered_residue_atoms(mmdb::Residue *residue_p) const;
 
       // move the atoms of rres
-      void set_dihedrals(CResidue *rres,
+      void set_dihedrals(mmdb::Residue *rres,
 			 const coot::dictionary_residue_restraints_t &rest,
 			 const simple_rotamer &this_rot) const;
 
@@ -166,14 +166,14 @@ namespace coot {
       }
 
    protected:
-      CMMDBManager *stored_mol;
+      mmdb::Manager *stored_mol;
       float Probability_limit() const { return probability_limit; }
       void set_probability_limit(float lim) { probability_limit = lim;}
       std::string alt_conf;
       
    public:
 
-      rotamer(CResidue *res,
+      rotamer(mmdb::Residue *res,
 	      const std::string &alt_conf_in,
 	      short int add_extra_PHE_and_TYR_rotamers_flag ) :
 	 chi_angles(res, add_extra_PHE_and_TYR_rotamers_flag) {
@@ -182,7 +182,7 @@ namespace coot {
 
       // For use with Z-score (which is analysis only: we don't move anything)
       // 
-      rotamer(CResidue *residue) : chi_angles(residue, 0) {}
+      rotamer(mmdb::Residue *residue) : chi_angles(residue, 0) {}
 
       // LEU, VAL, THR have "nomenclature" (or real) chiral centres -
       // they are not dealt with here.
@@ -193,23 +193,23 @@ namespace coot {
       int optimize_rotamer_by_atom_names(bool apply_swap_if_found);
 
       rotamer_probability_info_t probability_of_this_rotamer(); // can't const - mmdb
-                                                                // CResidue issues...
+                                                                // mmdb::Residue issues...
 
       // Return a manipulated deep copy of input residue.
       // 
       // caller needs to delete returned residue and its chain.
       // 
-      CResidue *GetResidue(const dictionary_residue_restraints_t &rest,
+      mmdb::Residue *GetResidue(const dictionary_residue_restraints_t &rest,
 			   int i_rot) const; // rotamer/button number
       
       // Return a manipulated deep copy of input residue.
       // 
       // caller needs to delete returned residue and its chain.
       // 
-      CResidue *GetResidue(const dictionary_residue_restraints_t &rest,
+      mmdb::Residue *GetResidue(const dictionary_residue_restraints_t &rest,
 			   const std::string &rotamer_name) const;
       
-      CResidue *GetResidue_old(int i_rot) const; // for transitioning.  Delete later
+      mmdb::Residue *GetResidue_old(int i_rot) const; // for transitioning.  Delete later
       std::vector<coot::simple_rotamer> rotamers(const std::string &res_type, float prob_cut) const; 
       float Chi1(int i) const; // chi1 for the ith rotamer
       std::string rotamer_name(int irot);

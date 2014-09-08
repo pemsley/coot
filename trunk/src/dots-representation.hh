@@ -4,7 +4,7 @@
 #include <string>
 #include <vector>
 #include <clipper/core/coords.h>
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 
 #include "coot-colour.hh"
 #include "coot-utils/coot-coord-utils.hh"
@@ -28,18 +28,18 @@ namespace coot {
 	 points.push_back(std::pair<coot::colour_t, std::vector<clipper::Coord_orth> > (coot::colour_t(0.3, 0.4, 0.5), points_in));
 	 is_closed = 0;
       }
-      dots_representation_info_t(CMMDBManager *mol);
+      dots_representation_info_t(mmdb::Manager *mol);
       // make dots around the atoms of mol, only if they are close to
       // atoms of mol_exclude
-      dots_representation_info_t(CMMDBManager *mol, CMMDBManager *mol_exclude);
+      dots_representation_info_t(mmdb::Manager *mol, mmdb::Manager *mol_exclude);
       // mol_exclude can be NULL.
-      void add_dots(int SelHnd_in, CMMDBManager *mol, CMMDBManager *mol_exclude,
+      void add_dots(int SelHnd_in, mmdb::Manager *mol, mmdb::Manager *mol_exclude,
 		    double dots_density, const colour_t &single_col, bool use_single_col);
       void close_yourself() {
 	 points.clear();
 	 is_closed = 1;
       }
-      void pure_points(CMMDBManager *mol); // don't surface mol, the surface points *are* the
+      void pure_points(mmdb::Manager *mol); // don't surface mol, the surface points *are* the
 					   // (synthetic) atoms in mol.
       bool is_open_p() const {
 	 int r = 1 - is_closed;
@@ -55,7 +55,7 @@ namespace coot {
       // mol) and use all the atoms of mol to "bump into" each atom (and
       // that of course reduces the fraction of solvent exposure.
       // 
-      std::vector<std::pair<CAtom *, float> > solvent_exposure(int SelHnd_in, CMMDBManager *mol) const;
+      std::vector<std::pair<mmdb::Atom *, float> > solvent_exposure(int SelHnd_in, mmdb::Manager *mol) const;
 
       // create (and later delete, of course) a new molecule by deep
       // copying and assembling the passed residues.  Use that to make
@@ -63,9 +63,9 @@ namespace coot {
       // dots_representation_info_t::solvent_exposure()
       // 
       std::vector<std::pair<coot::atom_spec_t, float> >
-      solvent_accessibilities(CResidue *res_ref, const std::vector<CResidue *> &residues) const;
+      solvent_accessibilities(mmdb::Residue *res_ref, const std::vector<mmdb::Residue *> &residues) const;
       std::vector<solvent_exposure_difference_helper_t>
-      solvent_exposure_differences(CResidue *res_ref, const std::vector<CResidue *> &residues) const;
+      solvent_exposure_differences(mmdb::Residue *res_ref, const std::vector<mmdb::Residue *> &residues) const;
    };
 
 }

@@ -1629,7 +1629,7 @@ float map_to_model_correlation(int imol,
    float atom_radius = 1.5;
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
-	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	 mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
 	 clipper::Xmap<float> xmap_reference = graphics_info_t::molecules[imol_map].xmap;
 	 ret_val = coot::util::map_to_model_correlation(mol, specs, neighb_specs,
 							atom_mask_mode,
@@ -1681,7 +1681,7 @@ map_to_model_correlation_per_residue(int imol, const std::vector<coot::residue_s
    std::vector<std::pair<coot::residue_spec_t,float> > v;
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
-	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	 mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
 	 clipper::Xmap<float> xmap_reference = graphics_info_t::molecules[imol_map].xmap;
 	 v = coot::util::map_to_model_correlation_per_residue(mol, specs, atom_mask_mode, atom_radius, xmap_reference);
       }
@@ -1727,7 +1727,7 @@ SCM qq_plot_map_and_model_scm(int imol,
       if (is_valid_map_molecule(imol_map)) { 
 	 std::vector<coot::residue_spec_t> specs = scm_to_residue_specs(residue_specs_scm);
 	 std::vector<coot::residue_spec_t> nb_residues = scm_to_residue_specs(neighb_residue_specs_scm);
-	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	 mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
 	 const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
 	 if (mol) { 
 	    std::vector<std::pair<double, double> > v =
@@ -1794,7 +1794,7 @@ PyObject *qq_plot_map_and_model_py(int imol,
       if (is_valid_map_molecule(imol_map)) { 
          std::vector<coot::residue_spec_t> specs = py_to_residue_specs(residue_specs_py);
          std::vector<coot::residue_spec_t> nb_residues = py_to_residue_specs(neighb_residue_specs_py);
-         CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+         mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
          const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
          if (mol) { 
             std::vector<std::pair<double, double> > v =

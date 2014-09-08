@@ -36,7 +36,7 @@
 
 #include "simple-restraint.hh"
 
-// #include "mmdb.h" // for printing of CAtom pointers as info not raw
+// #include "mmdb.h" // for printing of mmdb::Atom pointers as info not raw
                      // pointers.  Removed. Too much (linking issues in)
                      // Makefile pain.
 
@@ -45,13 +45,13 @@
 // Before we ask this question, we need to match residues which chiral
 // restraints.
 //
-// i.e we need a function that takes a CMMDBManager * and returns
-// pairs of simple_restraint, CResidue, that is done in
+// i.e we need a function that takes a mmdb::Manager * and returns
+// pairs of simple_restraint, mmdb::Residue, that is done in
 //  molecule_class_info-other.cc
 // 
 std::vector<std::pair<short int, coot::atom_spec_t> >
 coot::is_inverted_chiral_atom_p(const coot::dict_chiral_restraint_t &chiral_restraint,
-				CResidue *res) {
+				mmdb::Residue *res) {
 
    short int ibad=0;
    coot::atom_spec_t chiral_atom;
@@ -175,7 +175,7 @@ coot::is_inverted_chiral_atom_p(const coot::dict_chiral_restraint_t &chiral_rest
 // 0 is good.
 // 
 std::pair<std::vector<std::string> , std::vector <coot::atom_spec_t> >
-coot::inverted_chiral_volumes(CMMDBManager *mol, protein_geometry *geom_p,
+coot::inverted_chiral_volumes(mmdb::Manager *mol, protein_geometry *geom_p,
 			      int cif_dictionary_read_number) {
 
    std::vector <coot::atom_spec_t> v;
@@ -187,8 +187,8 @@ coot::inverted_chiral_volumes(CMMDBManager *mol, protein_geometry *geom_p,
    int n_models = mol->GetNumberOfModels();
    for (int imod=1; imod<=n_models; imod++) { 
       
-      CModel *model_p = mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       // run over chains of the existing mol
       int nchains = model_p->GetNumberOfChains();
       if (nchains <= 0) { 
@@ -204,8 +204,8 @@ coot::inverted_chiral_volumes(CMMDBManager *mol, protein_geometry *geom_p,
 	       std::cout << "NULL chain in ... " << std::endl;
 	    } else { 
 	       int nres = chain_p->GetNumberOfResidues();
-	       PCResidue residue_p;
-	       // CAtom *at;
+	       mmdb::PResidue residue_p;
+	       // mmdb::Atom *at;
 	       for (int ires=0; ires<nres; ires++) { 
 		  residue_p = chain_p->GetResidue(ires);
 		  int n_atoms = residue_p->GetNumberOfAtoms();

@@ -565,7 +565,7 @@ coot::rotamer_probability_tables::probability_this_rotamer(unsigned int i_table,
 }
 
 std::vector<coot::rotamer_probability_info_t>
-coot::rotamer_probability_tables::probability_this_rotamer(CResidue *residue) const {
+coot::rotamer_probability_tables::probability_this_rotamer(mmdb::Residue *residue) const {
 
    if (0) { // debugging
       std::cout << "getting probability_this_rotamer for " << coot::residue_spec_t(residue) << " "

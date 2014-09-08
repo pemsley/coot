@@ -56,10 +56,10 @@ private:
   int test_VDW_radius;
   int label_VDW_radius;
   int exclude_hbondable;
-  realtype simple_max_cutoff;
-  realtype simple_min_cutoff;
-  realtype VDW_fraction_min;
-  realtype VDW_fraction_max;
+  mmdb::realtype simple_max_cutoff;
+  mmdb::realtype simple_min_cutoff;
+  mmdb::realtype VDW_fraction_min;
+  mmdb::realtype VDW_fraction_max;
 
 };
 #endif

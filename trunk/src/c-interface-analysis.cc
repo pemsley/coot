@@ -47,7 +47,7 @@ void hole(int imol, float start_x, float start_y, float start_z, float end_x, fl
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      CMMDBManager *mol = g.molecules[imol].atom_sel.mol;
+      mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
       clipper::Coord_orth p_1(start_x, start_y, start_z);
       clipper::Coord_orth p_2(  end_x,   end_y,   end_z);
 

@@ -38,7 +38,7 @@
 #include <string.h>  // strncpy
 
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "coords/Cartesian.h"
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
@@ -50,7 +50,7 @@
 #include "graphics-info.h"
 
 #ifdef HAVE_SSMLIB
-#include <ssm/ssm_align.h>
+#include <ssm-dev/ssm_align.h>
 #endif
 
 // This is called by make_bonds_type_checked(), which is called by
@@ -118,10 +118,10 @@ molecule_class_info_t::delete_ghost_selections() {
 
 // This is a ghost_molecule_display_t member function
 void
-coot::ghost_molecule_display_t::update_bonds(CMMDBManager *mol) {
+coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
 
    atom_selection_container_t asc;
-   asc.mol = (MyCMMDBManager *) mol;
+   asc.mol = mol;
 
    // We should update the atom selection here: Yes, this needs to
    // happen.  Otherwise: a modification is made and when we come to
@@ -141,9 +141,9 @@ coot::ghost_molecule_display_t::update_bonds(CMMDBManager *mol) {
    int imod = 1;
    // 
    mol->SelectAtoms(SelectionHandle, imod,
-		    (char *) chain_id.c_str(),
-		    ANY_RES, "*",
-		    ANY_RES, "*",
+		    chain_id.c_str(),
+		    mmdb::ANY_RES, "*",
+		    mmdb::ANY_RES, "*",
 		    "*", "*", "*", "*");
    
    asc.mol->GetSelIndex(SelectionHandle, asc.atom_selection,
@@ -238,8 +238,8 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
       if (n_models > 0) {
 	 int imod = 1; // otherwise madness
       
-	 CModel *model_p = atom_sel.mol->GetModel(imod);
-	 CChain *chain_p;
+	 mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+	 mmdb::Chain *chain_p;
 	 // run over chains of the existing mol
 	 int nchains = model_p->GetNumberOfChains();
 
@@ -258,12 +258,12 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 	       if (! chain_p->isSolventChain()) { 
 		  chain_ids[ichain] = chain_p->GetChainID();
 		  int iselhnd = atom_sel.mol->NewSelection();
-		  PCAtom *atom_selection = NULL;
+		  mmdb::PAtom *atom_selection = NULL;
 		  int nSelAtoms;
 		  atom_sel.mol->SelectAtoms(iselhnd, imod,
 					    chain_p->GetChainID(),
-					    ANY_RES, "*",
-					    ANY_RES, "*",
+					    mmdb::ANY_RES, "*",
+					    mmdb::ANY_RES, "*",
 					    "*", "*", "*", "*");
 		  atom_sel.mol->GetSelIndex(iselhnd, atom_selection, nSelAtoms);
 		  chain_atom_selection_handles[ichain] = iselhnd;
@@ -273,7 +273,7 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 		  
 		  // debugging the atom selection
 		  if (0) { 
-		     PPCAtom selatoms_1 = NULL;
+		     mmdb::PPAtom selatoms_1 = NULL;
 		     int n_sel_atoms_1; 
 		     atom_sel.mol->GetSelIndex(iselhnd, selatoms_1, n_sel_atoms_1);
  		     std::cout << "DEBUG:: fill_ghost_info: first atom of " << n_sel_atoms_1
@@ -286,7 +286,7 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 		  residue_types[ichain].resize(nres);
 // 		  std::cout << "INFO:: residues_types[" << ichain << "] resized to "
 // 			    << residue_types[ichain].size() << std::endl;
-		  PCResidue residue_p;
+		  mmdb::PResidue residue_p;
 		  for (int ires=0; ires<nres; ires++) { 
 		     residue_p = chain_p->GetResidue(ires);
 		     std::string resname(residue_p->name);
@@ -554,10 +554,10 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
 	 }
       } else  {
 
-	 PPCAtom selatoms_1 = NULL;
+	 mmdb::PPAtom selatoms_1 = NULL;
 	 int n_sel_atoms_1; 
 	 atom_sel.mol->GetSelIndex(SelHandle1, selatoms_1, n_sel_atoms_1);
-	 PPCAtom selatoms_2 = NULL;
+	 mmdb::PPAtom selatoms_2 = NULL;
 	 int n_sel_atoms_2; 
 	 atom_sel.mol->GetSelIndex(SelHandle2, selatoms_2, n_sel_atoms_2);
 	 // debugging the atom selection
@@ -573,10 +573,10 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
 	 // add residue_matches
 	 // 
 	 // int      selHndCa1,selHndCa2; // selection handles to used C-alphas
-	 // ivector  Ca1,Ca2;      // C-alpha correspondence vectors
+	 // mmdb::ivector  Ca1,Ca2;      // C-alpha correspondence vectors
 	 // Ca1[i] corresponds to a[i], where a is
 	 // selection identified by selHndCa1
-	 PCAtom *atom_selection1 = NULL;
+	 mmdb::PAtom *atom_selection1 = NULL;
 	 int n_selected_atoms_1;
 	 atom_sel.mol->GetSelIndex(SSMAlign->selHndCa1,
 				   atom_selection1,
@@ -610,10 +610,10 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
 #endif // HAVE_SSMLIB
    } else {
       // debugging the atom selection
-      PPCAtom selatoms_1 = NULL;
+      mmdb::PPAtom selatoms_1 = NULL;
       int n_sel_atoms_1; 
       atom_sel.mol->GetSelIndex(SelHandle1, selatoms_1, n_sel_atoms_1);
-      PPCAtom selatoms_2 = NULL;
+      mmdb::PPAtom selatoms_2 = NULL;
       int n_sel_atoms_2; 
       atom_sel.mol->GetSelIndex(SelHandle2, selatoms_2, n_sel_atoms_2);
       if (1) { 
@@ -824,7 +824,7 @@ molecule_class_info_t::ncs_averaged_maps(const clipper::Xmap<float> &xmap_in,
 	 SelectionHandle[iref] = atom_sel.mol->NewSelection();
 	 atom_sel.mol->SelectAtoms(SelectionHandle[iref], 0,
 				   (char *) reference_ids[iref].c_str(),
-				   ANY_RES, "*", ANY_RES, "*",
+				   mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
 				   "*", "*", "*", "*");
 	 std::pair<clipper::Coord_orth, clipper::Coord_orth> extents_pair =
 	    coot::util::extents(atom_sel.mol, SelectionHandle[iref]);
@@ -995,8 +995,8 @@ molecule_class_info_t::add_ncs_ghost(const std::string &chain_id,
    int imod = 1;
    atom_sel.mol->SelectAtoms(selHnd, imod,
 			     (char *) chain_id.c_str(),
-			     ANY_RES, "*",
-			     ANY_RES, "*", "*", "*", "*", "*");
+			     mmdb::ANY_RES, "*",
+			     mmdb::ANY_RES, "*", "*", "*", "*", "*");
    ncs_ghosts_have_rtops_flag = 1;
 
    ghost.update_bonds(atom_sel.mol);
@@ -1065,7 +1065,7 @@ molecule_class_info_t::ncs_chains_match_p(const std::vector<std::pair<std::strin
 	       min_v2 = v2[i].second;
 	 }
 
-	 // 20100601 Beware of the minimum resno being set to MinInt4 (a sign of an
+	 // 20100601 Beware of the minimum resno being set to mmdb::MinInt4 (a sign of an
 	 // empty chain - or something, just give up in that case) otherwise (prior to
 	 // now) -> crash.
 	 // 
@@ -1078,7 +1078,7 @@ molecule_class_info_t::ncs_chains_match_p(const std::vector<std::pair<std::strin
 
 	 // 20100601 crash protection tests added.
 	 // 
-	 if (a_offset != MinInt4) { 
+	 if (a_offset != mmdb::MinInt4) { 
 	    // std::cout << "in ncs_chains_match_p() " << max_indx << " - " << a_offset
 	    // << " +1 = " << max_indx-a_offset + 1 << std::endl;
 	    int vec_size = max_indx-a_offset + 1;
@@ -1162,7 +1162,7 @@ molecule_class_info_t::ncs_chains_match_with_offset_p(const std::vector<std::pai
 // overwrite the to_chain with a copy of the from_chain, internal private function.
 // 
 int
-molecule_class_info_t::copy_chain(CChain *from_chain, CChain *to_chain,
+molecule_class_info_t::copy_chain(mmdb::Chain *from_chain, mmdb::Chain *to_chain,
 				  clipper::RTop_orth a_to_b_transform) {
    
    int done_copy = 0;
@@ -1172,8 +1172,8 @@ molecule_class_info_t::copy_chain(CChain *from_chain, CChain *to_chain,
       make_backup();
       atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
       
-      CModel *model_p = atom_sel.mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       // run over chains of the existing mol
       int nchains = model_p->GetNumberOfChains();
       // std::cout << "INFO:: moving atoms using transformation:\n"
@@ -1181,14 +1181,14 @@ molecule_class_info_t::copy_chain(CChain *from_chain, CChain *to_chain,
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 if (to_chain == chain_p) { 
-	    CChain *new_chain = new CChain;
+	    mmdb::Chain *new_chain = new mmdb::Chain;
 	    new_chain->Copy(from_chain);
 	    int nres = new_chain->GetNumberOfResidues();
-	    PCResidue residue_p;
+	    mmdb::PResidue residue_p;
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = new_chain->GetResidue(ires);
 	       int n_atoms = residue_p->GetNumberOfAtoms();
-	       CAtom *at;
+	       mmdb::Atom *at;
 	       for (int iat=0; iat<n_atoms; iat++) {
 		  at = residue_p->GetAtom(iat);
 		  clipper::Coord_orth p(at->x, at->y, at->z);
@@ -1222,7 +1222,7 @@ molecule_class_info_t::copy_chain(CChain *from_chain, CChain *to_chain,
 }
 
 int
-molecule_class_info_t::copy_residue_range(CChain *from_chain, CChain *to_chain,
+molecule_class_info_t::copy_residue_range(mmdb::Chain *from_chain, mmdb::Chain *to_chain,
 					  int residue_range_1,
 					  int residue_range_2,
 					  clipper::RTop_orth a_to_b_transform) {
@@ -1266,13 +1266,13 @@ molecule_class_info_t::copy_residue_range(CChain *from_chain, CChain *to_chain,
       int n_from_chain_residues = from_chain->GetNumberOfResidues();
       for (int ifc=0; ifc<n_from_chain_residues; ifc++) {
 
-	 CResidue *from_residue = from_chain->GetResidue(ifc);
+	 mmdb::Residue *from_residue = from_chain->GetResidue(ifc);
 	 int resno = from_residue->GetSeqNum();
 	 char *ins_code = from_residue->GetInsCode();
 
 	 if ((resno>=residue_range_1) && (resno<=residue_range_2)) {
 
-	    PCAtom *from_residue_atoms;
+	    mmdb::PAtom *from_residue_atoms;
 	    int n_from_residue_atoms;
 	    
 	    // OK, copy this residue:
@@ -1282,8 +1282,8 @@ molecule_class_info_t::copy_residue_range(CChain *from_chain, CChain *to_chain,
 
 	    int nSelResidues = 0;
 	    int selHnd_res = atom_sel.mol->NewSelection();
-	    PPCResidue SelResidues;
-	    atom_sel.mol->Select(selHnd_res, STYPE_RESIDUE, 1,
+	    mmdb::PPResidue SelResidues;
+	    atom_sel.mol->Select(selHnd_res, mmdb::STYPE_RESIDUE, 1,
 				 to_chain->GetChainID(),
 				 resno, ins_code,
 				 resno, ins_code,
@@ -1291,11 +1291,11 @@ molecule_class_info_t::copy_residue_range(CChain *from_chain, CChain *to_chain,
 				 "*",  // Residue must contain this atom name?
 				 "*",  // Residue must contain this Element?
 				 "*",  // altLocs
-				 SKEY_NEW // selection key
+				 mmdb::SKEY_NEW // selection key
 				 );
 	    atom_sel.mol->GetSelIndex(selHnd_res, SelResidues, nSelResidues);
 
-	    CResidue *to_residue = 0;
+	    mmdb::Residue *to_residue = 0;
 	    if (nSelResidues > 0) {
 	       to_residue = SelResidues[0];
 	    }
@@ -1308,7 +1308,7 @@ molecule_class_info_t::copy_residue_range(CChain *from_chain, CChain *to_chain,
 	       
 	       // OK, that residue existed.
 
-	       PCAtom *old_to_residue_atoms;
+	       mmdb::PAtom *old_to_residue_atoms;
 	       int n_old_to_residue_atoms;
 	       to_residue->GetAtomTable(old_to_residue_atoms, n_old_to_residue_atoms);
 	       for (int iat=0; iat<n_old_to_residue_atoms; iat++) {
@@ -1323,7 +1323,7 @@ molecule_class_info_t::copy_residue_range(CChain *from_chain, CChain *to_chain,
 
 	       from_residue->GetAtomTable(from_residue_atoms, n_from_residue_atoms);
 	       for (int iat=0; iat<n_from_residue_atoms; iat++) {
-		  CAtom *at = new CAtom;
+		  mmdb::Atom *at = new mmdb::Atom;
 		  if (from_residue_atoms[iat]) { 
 		     at->Copy(from_residue_atoms[iat]);
 		     to_residue->AddAtom(at);
@@ -1358,14 +1358,14 @@ molecule_class_info_t::copy_residue_range(CChain *from_chain, CChain *to_chain,
 	       
 	       to_residue = coot::util::deep_copy_this_residue(from_residue);
 
-	       std::pair<int, CResidue *> serial_number =
+	       std::pair<int, mmdb::Residue *> serial_number =
 		  find_serial_number_for_insert(to_residue->GetSeqNum(),
 						to_chain->GetChainID());
 	       if (serial_number.first != -1) {
 		  to_chain->InsResidue(to_residue, serial_number.first);
 		  coot::copy_segid(serial_number.second, to_residue);
 	       } else {
-		  CResidue *res = last_residue_in_chain(to_chain);
+		  mmdb::Residue *res = last_residue_in_chain(to_chain);
 		  to_chain->AddResidue(to_residue);
 		  coot::copy_segid(res, to_residue);
 	       }
@@ -1374,7 +1374,7 @@ molecule_class_info_t::copy_residue_range(CChain *from_chain, CChain *to_chain,
 	    
 	    if (to_residue) {
 	       // Now we need to transform the atoms of to_residue:
-	       PCAtom *to_residue_atoms;
+	       mmdb::PAtom *to_residue_atoms;
 	       int n_to_residue_atoms;
 	       to_residue->GetAtomTable(to_residue_atoms, n_to_residue_atoms);
 	       for (int iat=0; iat<n_to_residue_atoms; iat++) {
@@ -1431,7 +1431,7 @@ molecule_class_info_t::update_strict_ncs_symmetry(const coot::Cartesian &centre_
       std::cout << "DEBUG:: Update ncs symmetry for " << strict_ncs_matrices.size()
 		<< " NCS matrices" << std::endl;
 
-   // We need to convert from internal coot_mat44 to mat44s, then do
+   // We need to convert from internal coot_mat44 to mmdb::mat44s, then do
    // similar things to update_symmetry()
 
    Cell_Translation c_t = extents.coord_to_unit_cell_translations(centre_point, atom_sel);
@@ -1479,24 +1479,24 @@ molecule_class_info_t::copy_chain(const std::string &from_chain_str,
 	    if  (ncs_ghosts[ighost].chain_id == to_chain_str) {
 	       if (ncs_ghosts[ighost].target_chain_id == from_chain_str) {
 		  clipper::RTop_orth rtop = ncs_ghosts[ighost].rtop.inverse();
-		  PPCAtom atom_selection = NULL;
+		  mmdb::PPAtom atom_selection = NULL;
 		  int n_atoms;
 		  atom_sel.mol->GetSelIndex(ncs_ghosts[ighost].SelectionHandle,
 					    atom_selection, n_atoms);
 		  if (n_atoms > 0) {
-		     CChain *to_chain = atom_selection[0]->GetChain();
+		     mmdb::Chain *to_chain = atom_selection[0]->GetChain();
 		     // OK, now let's find the from_chain:
 
 		     int imod = 1;
-		     CModel *model_p = atom_sel.mol->GetModel(imod);
-		     CChain *chain_p;
+		     mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+		     mmdb::Chain *chain_p;
 		     // run over chains of the existing mol
 		     int nchains = model_p->GetNumberOfChains();
 		     for (int ichain=0; ichain<nchains; ichain++) {
 			chain_p = model_p->GetChain(ichain);
 			std::string chain_id(chain_p->GetChainID());
 			if (from_chain_str == chain_id) {
-			   CChain *from_chain = chain_p;
+			   mmdb::Chain *from_chain = chain_p;
 			   copy_chain(from_chain, to_chain, rtop);
 			   done_copy_flag = 1;
 			   break;
@@ -1539,24 +1539,24 @@ molecule_class_info_t::copy_residue_range_from_ncs_master_to_other_using_ghost(s
 	    if  (ncs_ghosts[ighost].chain_id == to_chain_id) {
 	       if (ncs_ghosts[ighost].target_chain_id == from_chain_id) {
 		  clipper::RTop_orth rtop = ncs_ghosts[ighost].rtop.inverse();
-		  PPCAtom atom_selection = NULL;
+		  mmdb::PPAtom atom_selection = NULL;
 		  int n_atoms;
 		  atom_sel.mol->GetSelIndex(ncs_ghosts[ighost].SelectionHandle,
 					    atom_selection, n_atoms);
 		  if (n_atoms > 0) {
-		     CChain *to_chain = atom_selection[0]->GetChain();
+		     mmdb::Chain *to_chain = atom_selection[0]->GetChain();
 		     // OK, now let's find the from_chain:
 
 		     int imod = 1;
-		     CModel *model_p = atom_sel.mol->GetModel(imod);
-		     CChain *chain_p;
+		     mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+		     mmdb::Chain *chain_p;
 		     // run over chains of the existing mol
 		     int nchains = model_p->GetNumberOfChains();
 		     for (int ichain=0; ichain<nchains; ichain++) {
 			chain_p = model_p->GetChain(ichain);
 			std::string chain_id(chain_p->GetChainID());
 			if (from_chain_id == chain_id) {
-			   CChain *from_chain = chain_p;
+			   mmdb::Chain *from_chain = chain_p;
 			   if (0) { 
   			   std::cout << "Doing a copy_residue range "
  				     << from_chain->GetChainID() << " to "
@@ -1735,8 +1735,8 @@ molecule_class_info_t::set_ncs_master_chain(const std::string &new_master_chain_
       if (n_models > 0) {
 	 int imod = 1; // otherwise madness
       
-	 CModel *model_p = atom_sel.mol->GetModel(imod);
-	 CChain *chain_p;
+	 mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+	 mmdb::Chain *chain_p;
 	 // run over chains of the existing mol
 	 int nchains = model_p->GetNumberOfChains();
 	 if (nchains <= 0) { 
@@ -1752,12 +1752,12 @@ molecule_class_info_t::set_ncs_master_chain(const std::string &new_master_chain_
 	       if (! chain_p->isSolventChain()) { 
 		  chain_ids[ichain] = chain_p->GetChainID();
 		  int iselhnd = atom_sel.mol->NewSelection();
-		  PCAtom *atom_selection = NULL;
+		  mmdb::PAtom *atom_selection = NULL;
 		  int nSelAtoms;
 		  atom_sel.mol->SelectAtoms(iselhnd, imod,
 					    chain_p->GetChainID(),
-					    ANY_RES, "*",
-					    ANY_RES, "*",
+					    mmdb::ANY_RES, "*",
+					    mmdb::ANY_RES, "*",
 					    "*", "*", "*", "*");
 		  atom_sel.mol->GetSelIndex(iselhnd, atom_selection, nSelAtoms);
 		  chain_atom_selection_handles[ichain] = iselhnd;
@@ -1766,7 +1766,7 @@ molecule_class_info_t::set_ncs_master_chain(const std::string &new_master_chain_
 		  residue_types[ichain].resize(nres);
 // 		  std::cout << "INFO:: residues_types[" << ichain << "] resized to "
 // 			    << residue_types[ichain].size() << std::endl;
-		  PCResidue residue_p;
+		  mmdb::PResidue residue_p;
 		  for (int ires=0; ires<nres; ires++) { 
 		     residue_p = chain_p->GetResidue(ires);
 		     std::string resname(residue_p->name);
@@ -2196,12 +2196,12 @@ molecule_class_info_t::ncs_chain_differences(std::string master_chain_id,
       
       for (unsigned int ighost = 0; ighost<ncs_ghosts.size(); ighost++) {
 	 int imod = 1;
-	 CModel *model_p = atom_sel.mol->GetModel(imod);
-	 CChain *chain_p;
+	 mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+	 mmdb::Chain *chain_p;
 	 // run over chains of the existing mol
 	 int nchains = model_p->GetNumberOfChains();
-	 CChain *this_chain_p = 0;
-	 CChain *master_chain_p = 0;
+	 mmdb::Chain *this_chain_p = 0;
+	 mmdb::Chain *master_chain_p = 0;
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    chain_p = model_p->GetChain(ichain);
 	    if (std::string(chain_p->GetChainID()) == ncs_ghosts[ighost].chain_id) {
@@ -2215,8 +2215,8 @@ molecule_class_info_t::ncs_chain_differences(std::string master_chain_id,
 	       
 	    int nres_this     = this_chain_p->GetNumberOfResidues();
 	    int nres_master = master_chain_p->GetNumberOfResidues();
-	    PCResidue this_residue_p;
-	    PCResidue master_residue_p;
+	    mmdb::PResidue this_residue_p;
+	    mmdb::PResidue master_residue_p;
 	    std::vector<coot::ncs_residue_info_t> residue_info;
 
 	    // return first == 0 if residues not found in chain
@@ -2264,8 +2264,8 @@ molecule_class_info_t::ncs_chain_differences(std::string master_chain_id,
 // ncs_residue_info_t if filled is 0.
 // 
 coot::ncs_residue_info_t
-coot::ghost_molecule_display_t::get_differences(CResidue *this_residue_p, 
-						CResidue *master_residue_p,
+coot::ghost_molecule_display_t::get_differences(mmdb::Residue *this_residue_p, 
+						mmdb::Residue *master_residue_p,
 						float main_chain_weight) const {
    // has access to rtop
    coot::ncs_residue_info_t r;
@@ -2273,8 +2273,8 @@ coot::ghost_molecule_display_t::get_differences(CResidue *this_residue_p,
    if (std::string(this_residue_p->GetResName()) == std::string(master_residue_p->GetResName())) {
       std::vector<std::pair<int, int> > index_pairs =
 	 coot::util::pair_residue_atoms(this_residue_p, master_residue_p);
-      PPCAtom residue_atoms_1 = NULL;
-      PPCAtom residue_atoms_2 = NULL;
+      mmdb::PPAtom residue_atoms_1 = NULL;
+      mmdb::PPAtom residue_atoms_2 = NULL;
       int n_residue_atoms_1, n_residue_atoms_2;
         this_residue_p->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
       master_residue_p->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
@@ -2282,8 +2282,8 @@ coot::ghost_molecule_display_t::get_differences(CResidue *this_residue_p,
       double sum_dist = 0.0;
       for (unsigned int i=0; i<index_pairs.size(); i++) {
 	 float atom_weight = 1.0;
-	 CAtom *at1 = residue_atoms_1[index_pairs[i].first];
-	 CAtom *at2 = residue_atoms_2[index_pairs[i].second];
+	 mmdb::Atom *at1 = residue_atoms_1[index_pairs[i].first];
+	 mmdb::Atom *at2 = residue_atoms_2[index_pairs[i].second];
 	 std::string resname_1 = at1->GetResName(); // PDB puts waters in protein chains, bleugh.
 	 std::string resname_2 = at2->GetResName();
 	 if ((resname_1 != "HOH") && (resname_2 != "HOH")) {

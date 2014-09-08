@@ -33,7 +33,7 @@
 
 #include <string>
 #include "sequence-view.hh"
-#include <mmdb/mmdb_tables.h>
+#include <mmdb2/mmdb_tables.h>
 #include "seq-view-interface.h"
 #include "graphics-info.h" // for the callback
 
@@ -69,7 +69,7 @@ coot::sequence_view *coot::sequence_view_object_t::seq_view = NULL;
   #define gtk_canvas_window_to_world gnome_canvas_window_to_world
 #endif
 
-coot::sequence_view::sequence_view(CMMDBManager *mol_in, std::string name, int coot_mol_no_in) {
+coot::sequence_view::sequence_view(mmdb::Manager *mol_in, std::string name, int coot_mol_no_in) {
 
    GtkWidget *top_lev = create_sequence_view_dialog();
    gtk_widget_set_usize(GTK_WIDGET(top_lev), 500, 160);
@@ -96,7 +96,7 @@ coot::sequence_view::sequence_view(CMMDBManager *mol_in, std::string name, int c
 }
 
 void
-coot::sequence_view::setup_internal(CMMDBManager *mol_in) {
+coot::sequence_view::setup_internal(mmdb::Manager *mol_in) {
 
 //    GtkWidget *sequence_view_window = gtk_window_new (GTK_WINDOW_TOPLEVEL);
 //    gtk_container_set_border_width (GTK_CONTAINER(sequence_view_window), 2);
@@ -121,7 +121,7 @@ coot::sequence_view::setup_internal(CMMDBManager *mol_in) {
    tooltip_item_text = NULL;
 
    int mnr = max_number_of_residues_in_a_chain(mol_in);
-   CModel *model_p = mol_in->GetModel(1);
+   mmdb::Model *model_p = mol_in->GetModel(1);
    int n_chains = model_p->GetNumberOfChains();
    
    setup_canvas(mnr, n_chains);
@@ -326,13 +326,13 @@ coot::sequence_view::chain_and_resno(const coot::sequence_view_res_info_t &in) c
       //
       // We must make sure that we don't come here then - close the widget.
       // 
-      CModel *model_p = mol[in.molecule_number]->GetModel(1);
-      CChain *chain_p = model_p->GetChain(in.chain_number);
+      mmdb::Model *model_p = mol[in.molecule_number]->GetModel(1);
+      mmdb::Chain *chain_p = model_p->GetChain(in.chain_number);
 
       if (! chain_p) {
 	 std::cout << "ERROR:: missing (NULL) chain! " << std::endl;
       } else { 
-	 CResidue *residue_p = chain_p->GetResidue(in.residue_serial_number);
+	 mmdb::Residue *residue_p = chain_p->GetResidue(in.residue_serial_number);
 	 if (!residue_p) {
 	    out.residue_serial_number = -1; // signal an error in finding residue
 	 } else {
@@ -512,13 +512,13 @@ coot::sequence_view::seq_int_to_string(int i) const {
 // The canvas is all correct by the the time this has been called.
 //
 void
-coot::sequence_view::mol_to_canvas(CMMDBManager *mol_in) {
+coot::sequence_view::mol_to_canvas(mmdb::Manager *mol_in) {
    
    // Insertion codes are ignored.
 
    GtkCanvasItem *item;
    std::string res_code;
-   CModel *model_p = mol_in->GetModel(1);
+   mmdb::Model *model_p = mol_in->GetModel(1);
 
    std::cout << "calculating secondary structure...";
 
@@ -529,7 +529,7 @@ coot::sequence_view::mol_to_canvas(CMMDBManager *mol_in) {
 #endif // HAVE_MMDB_WITH_CISPEP   
    std::cout << "done.\n";
 
-   if (status == SSERC_Ok) {
+   if (status == mmdb::SSERC_Ok) {
       std::cout << "INFO:: SSE status was OK\n";
    } else {
       std::cout << "INFO:: SSE status was bad\n" << status << "\n";
@@ -548,7 +548,7 @@ coot::sequence_view::mol_to_canvas(CMMDBManager *mol_in) {
    int row = 0;
 
    std::string colour;
-   CChain *chain_p;
+   mmdb::Chain *chain_p;
    int n_chains = model_p->GetNumberOfChains(); 
    for (int i_chain=0; i_chain<n_chains; i_chain++) {
       chain_p = model_p->GetChain(i_chain); 
@@ -565,7 +565,7 @@ coot::sequence_view::mol_to_canvas(CMMDBManager *mol_in) {
 	 sequence_row.push_back(p);
 	 row++;
       } 
-      CResidue *residue_p;
+      mmdb::Residue *residue_p;
       for (int ires=0; ires<nres; ires++) { // ires is a serial number
 	 residue_p = chain_p->GetResidue(ires); 
 // 	 std::cout << "DEBUG:: GetResName: " << residue_p->GetResName() 
@@ -591,26 +591,26 @@ coot::sequence_view::mol_to_canvas(CMMDBManager *mol_in) {
 }
 
 std::string
-coot::sequence_view::colour_by_secstr(CResidue *residue_p, CModel *model_p) const {
+coot::sequence_view::colour_by_secstr(mmdb::Residue *residue_p, mmdb::Model *model_p) const {
 
    std::string s("black");
 
    switch (residue_p->SSE)  {
 
-   case SSE_Strand : s = "firebrick3";  break;
-   case SSE_Bulge  : s = "firebrick1";  break;
-   case SSE_3Turn  : s = "MediumBlue";  break;
-   case SSE_4Turn  : s = "SteelBlue4";  break;
-   case SSE_5Turn  : s = "DodgerBlue4"; break;
-   case SSE_Helix  : s = "navy";        break;
-   case SSE_None   : s = "black";       break;
+   case mmdb::SSE_Strand : s = "firebrick3";  break;
+   case mmdb::SSE_Bulge  : s = "firebrick1";  break;
+   case mmdb::SSE_3Turn  : s = "MediumBlue";  break;
+   case mmdb::SSE_4Turn  : s = "SteelBlue4";  break;
+   case mmdb::SSE_5Turn  : s = "DodgerBlue4"; break;
+   case mmdb::SSE_Helix  : s = "navy";        break;
+   case mmdb::SSE_None   : s = "black";       break;
    } 
 
    return s;
 }
 
 
-coot::sequence_view::sequence_view(CMMDBManager *mol_in, GtkWidget *container_widget) {
+coot::sequence_view::sequence_view(mmdb::Manager *mol_in, GtkWidget *container_widget) {
 
    // we need to create a canvas in container_widget
    //
@@ -646,7 +646,7 @@ coot::sequence_view::draw_mol_chain_label(std::string mol_chain, int i_row, int 
 
 
 void 
-coot::sequence_view::generate_from(CMMDBManager *mol_in) {
+coot::sequence_view::generate_from(mmdb::Manager *mol_in) {
    mol.push_back(mol_in);
    mol_to_canvas(mol_in);
 }
@@ -675,13 +675,13 @@ coot::sequence_view::undisplay(int coot_molecule_no) {
 
 
 int
-coot::sequence_view::max_number_of_residues_in_a_chain(CMMDBManager *mol_in) const {
+coot::sequence_view::max_number_of_residues_in_a_chain(mmdb::Manager *mol_in) const {
 
    int r = 0;
    int nres;
-   CModel *model_p = mol_in->GetModel(1);
+   mmdb::Model *model_p = mol_in->GetModel(1);
    if (model_p) {
-      CChain *chain_p;
+      mmdb::Chain *chain_p;
       int n_chains = model_p->GetNumberOfChains(); 
       for (int i_chain=0; i_chain<n_chains; i_chain++) {
 	 chain_p = model_p->GetChain(i_chain);

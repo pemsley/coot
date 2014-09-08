@@ -29,7 +29,7 @@
 #include <sys/stat.h>
 
 #include <string>
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
 #include "coords/Cartesian.h"
 #include "coords/mmdb-crystal.h"

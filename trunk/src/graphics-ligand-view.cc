@@ -23,7 +23,7 @@
 
 #include <GL/glut.h>
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "graphics-ligand-view.hh"
 
 #include "compat/coot-sysdep.h"
@@ -324,7 +324,7 @@ graphics_ligand_molecule::render() {
 } 
 
 bool
-graphics_ligand_molecule::setup_from(CResidue *residue_p,
+graphics_ligand_molecule::setup_from(mmdb::Residue *residue_p,
 				     const std::string &alt_conf,
 				     coot::protein_geometry *geom_p,
 				     bool against_a_dark_background) {

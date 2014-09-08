@@ -32,7 +32,7 @@ namespace coot {
       float solv_en;
       double pvalue;
       std::vector<pisa_residue_t> residues;
-      CMMDBManager *mol;
+      mmdb::Manager *mol;
    };
 
    class pisa_interface_t {

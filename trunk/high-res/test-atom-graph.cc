@@ -136,7 +136,7 @@ void simple_nodes() {
    for(int i=0; i<n_nodes; i++) 
       coords[i] = clipper::Coord_orth(double(i), double(i), double(i));
 
-   CMMDBManager *mol = new CMMDBManager;
+   mmdb::Manager *mol = new mmdb::Manager;
    mol->SetCell(10.0, 10.0, 10.0, 90, 90, 90);
    mol->SetSpaceGroup("P 1");
    

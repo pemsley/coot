@@ -9,19 +9,21 @@
 
 #ifndef CXXTorusNode_included
 #define CXXTorusNode_included
+#include <mmdb2/mmdb_manager.h>
+
 #include "CXXCoord.h"
 
-class CAtom;
+// class mmdb::Atom;
 
 class CXXTorusNode{
 private:
-	CAtom *theAtom;
+	mmdb::Atom *theAtom;
 	double theta;
 	double omega;
 	CXXCoord crd;
 	void init();
 public:
-		CXXTorusNode();
+	CXXTorusNode();
 	CXXTorusNode(double the, double om);
 	int setTheta(const double inTheta);
 	int setOmega(const double inOmega);
@@ -29,8 +31,8 @@ public:
 	const double getTheta() const;
 	const double getOmega() const;
 	int setCoord(const CXXCoord &);
-	int setAtom(CAtom *anAtom);
-	CAtom *getAtom() const;
+	int setAtom(mmdb::Atom *anAtom);
+	mmdb::Atom *getAtom() const;
 };
 
 #endif

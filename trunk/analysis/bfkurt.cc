@@ -7,11 +7,11 @@
 #include "bfkurt.hh"
 
 
-coot_extras::b_factor_analysis::b_factor_analysis(const CMMDBManager *mol_in, bool is_mol_from_shelx_flag_in) { 
+coot_extras::b_factor_analysis::b_factor_analysis(const mmdb::Manager *mol_in, bool is_mol_from_shelx_flag_in) { 
 
    // for each chain, we want a vector of residues, which contain the kertosis
    // 
-   CMMDBManager *mol = (CMMDBManager *) mol_in; // ghastly.
+   mmdb::Manager *mol = (mmdb::Manager *) mol_in; // ghastly.
    is_mol_from_shelx_flag = is_mol_from_shelx_flag_in;
    
    // recall kurtosis, $k$ of $N$ observations:
@@ -20,9 +20,9 @@ coot_extras::b_factor_analysis::b_factor_analysis(const CMMDBManager *mol_in, bo
 
 
    if (mol) { 
-      CModel *model_p = mol->GetModel(1);
+      mmdb::Model *model_p = mol->GetModel(1);
       if (model_p) { 
-	 CChain *chain_p;
+	 mmdb::Chain *chain_p;
 	 int nchains = model_p->GetNumberOfChains();
 	 if (nchains > 0) { 
 	    for (int ichain=0; ichain<nchains; ichain++) {
@@ -34,7 +34,7 @@ coot_extras::b_factor_analysis::b_factor_analysis(const CMMDBManager *mol_in, bo
 		  int nres = chain_p->GetNumberOfResidues();
 		  if (nres > 0) {
 		     for (int ires=0; ires<nres; ires++) { 
-			PCResidue residue_p = chain_p->GetResidue(ires);
+			mmdb::PResidue residue_p = chain_p->GetResidue(ires);
 			if (residue_p) { 
 			   std::string res_name(residue_p->GetResName());
 			   if (res_name != "HOH" && 
@@ -108,14 +108,14 @@ coot_extras::b_factor_analysis::set_questionable_flags(float z) {
 } 
 
 coot_extras::my_stats_t 
-coot_extras::b_factor_analysis::stats(CResidue *residue_p) const { 
+coot_extras::b_factor_analysis::stats(mmdb::Residue *residue_p) const { 
 
    coot_extras::my_stats_t my_stats;
    my_stats.mean = 0;
    my_stats.std_dev = 0;
    my_stats.n = 0;
 
-   PPCAtom residue_atoms;
+   mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
 
    double running_sum; 
@@ -158,7 +158,7 @@ coot_extras::b_factor_analysis::stats(CResidue *residue_p) const {
 	    }
 	 }
       }
-      CAtom *intel_at = coot::util::intelligent_this_residue_mmdb_atom(residue_p);
+      mmdb::Atom *intel_at = coot::util::intelligent_this_residue_mmdb_atom(residue_p);
       my_stats.atom_name = intel_at->name;
       double div = occ_sum;
       if (div > 0) { 

@@ -36,7 +36,7 @@ namespace coot {
 
   class residue_by_phi_psi : public ligand { 
 
-     const CMMDBManager *mol;
+     const mmdb::Manager *mol;
      int ires_terminus;
      std::string chain_id;
      std::string residue_type;
@@ -46,10 +46,10 @@ namespace coot {
      float b_factor;
 
 
-     // This is not const because GetAtom() fo CResidue is not a const
+     // This is not const because GetAtom() fo mmdb::Residue is not a const
      // function.  Argh!
      // 
-     CResidue *residue_p; // the residue of the last atom (we
+     mmdb::Residue *residue_p; // the residue of the last atom (we
                           // clicked on an atom of it).
 
      phi_psi_pair get_phi_psi_by_random() const;
@@ -92,9 +92,9 @@ namespace coot {
 
      
   public:
-     residue_by_phi_psi(const CMMDBManager *mol_in,
+     residue_by_phi_psi(const mmdb::Manager *mol_in,
 			const std::string &terminus_type, // "N", or "C"
-			const CResidue *res_p,
+			const mmdb::Residue *res_p,
 			const std::string &chain_id, 
 			const std::string &res_type,
 			float b_factor_in);

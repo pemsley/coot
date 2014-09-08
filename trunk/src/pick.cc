@@ -31,7 +31,7 @@
 #include <math.h>
 #include <string.h>  // strncpy
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 
 #include "coords/cos-sin.h"
 #include "coords/mmdb-extras.h"
@@ -66,7 +66,7 @@ pick_atom(const atom_selection_container_t &SelAtom, int imol,
    p_i.min_dist = 0; // keep compiler happy
    p_i.atom_index = -1; // ditto
    p_i.imol = -1; // ditto
-   p_i.model_number = MinInt4; // unset
+   p_i.model_number = mmdb::MinInt4; // unset
    p_i.success = GL_FALSE; 
    for (int i=0; i< SelAtom.n_selected_atoms; i++) {
 
@@ -157,7 +157,7 @@ atom_pick(GdkEventButton *event) {
    p_i.min_dist = 0; // keep compiler happy
    p_i.atom_index = -1; // ditto
    p_i.imol = -1; // ditto
-   p_i.model_number = MinInt4; // unset
+   p_i.model_number = mmdb::MinInt4; // unset
    p_i.success = GL_FALSE; 
 
 //     std::cout << "There are " << graphics_info_t::n_molecules << " molecules"
@@ -257,7 +257,7 @@ atom_pick(GdkEventButton *event) {
 
       if (p_i.success) {
 	 std::string ai;
-	 CAtom *at =
+	 mmdb::Atom *at =
 	    graphics_info_t::molecules[p_i.imol].atom_sel.atom_selection[p_i.atom_index];
 	 std::string alt_conf_bit("");
 	 std::string segid = at->segID;

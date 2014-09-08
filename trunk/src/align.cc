@@ -26,7 +26,7 @@
 #include "coot-utils/coot-coord-utils.hh"
 
 #include <mmdb/mmdb_align.h>
-#include <mmdb/mmdb_tables.h>
+#include <mmdb2/mmdb_tables.h>
 
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
@@ -34,8 +34,8 @@
 #include "coot-align.hh"
 
 void do_alignment(atom_selection_container_t asc);
-coot::chain_mutation_info_container_t align_on_chain(CChain *chain_p, PCResidue *SelResidues, int nSelResidues, const std::string &target);
-std::string make_model_string(PCResidue *SelResidues, int nSelResidues);
+coot::chain_mutation_info_container_t align_on_chain(mmdb::Chain *chain_p, mmdb::PResidue *SelResidues, int nSelResidues, const std::string &target);
+std::string make_model_string(mmdb::PResidue *SelResidues, int nSelResidues);
 
 int
 main(int argc, char **argv) {
@@ -69,12 +69,12 @@ do_alignment(atom_selection_container_t asc) {
 
    std::string target("DTSGTVCLSLPPEAIASDGPFPYSQDGTERFDSCVNCAWQRTGVVFQNRESVLPTQSYGYYHEYTVITP");
 
-   CMMDBManager *mol = asc.mol;
+   mmdb::Manager *mol = asc.mol;
    int n_models = mol->GetNumberOfModels();
    // int max_chain_length = coot::util::max_number_of_residues_in_chain(mol);
    for (int imodel = 1; imodel <= n_models; imodel++) { 
-      CModel *model_p = mol->GetModel(imodel);
-      CChain *chain_p;
+      mmdb::Model *model_p = mol->GetModel(imodel);
+      mmdb::Chain *chain_p;
       const char *chain_id;
       int n_chains = model_p->GetNumberOfChains();
 
@@ -85,18 +85,18 @@ do_alignment(atom_selection_container_t asc) {
 	 if (m.first) {
 	    // int offset = m.second;
 	    int selHnd = mol->NewSelection();
-	    PCResidue *SelResidues = NULL;
+	    mmdb::PResidue *SelResidues = NULL;
 	    int nSelResidues;
 
-	    mol->Select(selHnd, STYPE_RESIDUE, 0,
+	    mol->Select(selHnd, mmdb::STYPE_RESIDUE, 0,
 			chain_id,
-			ANY_RES, "*",
-			ANY_RES, "*",
+			mmdb::ANY_RES, "*",
+			mmdb::ANY_RES, "*",
 			"*",  // residue name
 			"*",  // Residue must contain this atom name?
 			"*",  // Residue must contain this Element?
 			"*",  // altLocs
-			SKEY_NEW // selection key
+			mmdb::SKEY_NEW // selection key
 			);
 	    mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 
@@ -111,7 +111,7 @@ do_alignment(atom_selection_container_t asc) {
 }
 
 coot::chain_mutation_info_container_t
-align_on_chain(CChain *chain_p, PCResidue *SelResidues, int nSelResidues,
+align_on_chain(mmdb::Chain *chain_p, mmdb::PResidue *SelResidues, int nSelResidues,
 	       const std::string &target)  {
 
    coot::chain_mutation_info_container_t ch_info(chain_p->GetChainID());
@@ -127,8 +127,8 @@ align_on_chain(CChain *chain_p, PCResidue *SelResidues, int nSelResidues,
    CAlignment align;
 
    // default values (it seems)
-   realtype wgap = 0.0;
-   realtype wspace = -1.0;
+   mmdb::realtype wgap = 0.0;
+   mmdb::realtype wspace = -1.0;
 
    std::string stripped_target = coot::util::remove_whitespace(target);
    
@@ -203,7 +203,7 @@ align_on_chain(CChain *chain_p, PCResidue *SelResidues, int nSelResidues,
    return ch_info;
 }
 
-std::string make_model_string(PCResidue *SelResidues, int nSelResidues) {
+std::string make_model_string(mmdb::PResidue *SelResidues, int nSelResidues) {
 
    std::string s;
    std::string this_residue;
@@ -214,7 +214,7 @@ std::string make_model_string(PCResidue *SelResidues, int nSelResidues) {
       this_residue = "X";
       pstr rn = SelResidues[i]->GetResName();
       std::string residue_name(rn);
-      Get1LetterCode(rn, r);
+      mmdb::Get1LetterCode(rn, r);
       this_residue = r[0];
       if (residue_name != "HOH") 
 	 s += this_residue;

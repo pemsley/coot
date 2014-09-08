@@ -500,7 +500,7 @@ coot::sequence_assignment::scored_chain_info_t::slider_hit(const std::vector<std
 } 
 
 void
-coot::sequence_assignment::side_chain_score_t::generate_scores(CMMDBManager *mol_in,
+coot::sequence_assignment::side_chain_score_t::generate_scores(mmdb::Manager *mol_in,
 							       const clipper::Xmap<float> &xmap) {
 
    // How do I approach this, then?
@@ -565,11 +565,11 @@ coot::sequence_assignment::side_chain_score_t::auto_fit_score(const std::string 
    // We want 2 major functions:
    //
    // mutate_to_target_type_and_rotamer_score which is given a model
-   // CResidue (ie. what it currently is, the main-chain coordinates
+   // mmdb::Residue (ie. what it currently is, the main-chain coordinates
    // of which are used to do the mutation).  We allow this function
    // to have control to run over the rotamers of dunbrack.
    //
-   // auto-fit-residue, which we give a CResidue that has been mutated
+   // auto-fit-residue, which we give a mmdb::Residue that has been mutated
    // to the correct type and runs over the dunbrack rotamers and
    // returns the best score (c.f. auto-fit-rotamer in
    // molecule_class_info_t).
@@ -582,7 +582,7 @@ coot::sequence_assignment::side_chain_score_t::auto_fit_score(const std::string 
 
 
 float
-coot::sequence_assignment::side_chain_score_t::auto_fit_score(CResidue *current_ala_res,
+coot::sequence_assignment::side_chain_score_t::auto_fit_score(mmdb::Residue *current_ala_res,
 							      const coot::sequence_assignment::side_chain_name_index &idx,
 							      const coot::dictionary_residue_restraints_t &rest,
 							      const clipper::Xmap<float> &xmap) {
@@ -599,7 +599,7 @@ coot::sequence_assignment::side_chain_score_t::auto_fit_score(CResidue *current_
    std::map<std::string, clipper::RTop_orth> rtops = 
       coot::util::get_ori_to_this_res(current_ala_res);
 
-   CResidue *rot_res = get_standard_residue(idx);
+   mmdb::Residue *rot_res = get_standard_residue(idx);
 
    std::map<std::string, clipper::RTop_orth>::const_iterator it = rtops.find("");
    if (it != rtops.end()) { 
@@ -622,8 +622,8 @@ coot::sequence_assignment::side_chain_score_t::auto_fit_score(CResidue *current_
 // move std_res atoms
 void
 coot::sequence_assignment::side_chain_score_t::move_std_res_to_this_res_pos(const clipper::RTop_orth &rtop,
-									    CResidue *std_residue) { 
-   PPCAtom residue_atoms;
+									    mmdb::Residue *std_residue) { 
+   mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
 
    std_residue->GetAtomTable(residue_atoms, nResidueAtoms);
@@ -639,7 +639,7 @@ coot::sequence_assignment::side_chain_score_t::move_std_res_to_this_res_pos(cons
 }
 
 
-CResidue *
+mmdb::Residue *
 coot::sequence_assignment::side_chain_score_t::get_standard_residue(const coot::sequence_assignment::side_chain_name_index &idx) const {
 
    return standard_residues[idx];
@@ -649,9 +649,9 @@ short int
 coot::sequence_assignment::side_chain_score_t::cache_standard_residues() {
 
    atom_selection_container_t st_res_asc = read_standard_residues();
-   CResidue *res;
+   mmdb::Residue *res;
    int nSelResidues;
-   PCResidue *SelResidue = NULL;
+   mmdb::PResidue *SelResidue = NULL;
    
    if (st_res_asc.read_success) {
       standard_residues.resize(20);
@@ -660,22 +660,22 @@ coot::sequence_assignment::side_chain_score_t::cache_standard_residues() {
 	 coot::sequence_assignment::side_chain_name_index idx =
 	    coot::sequence_assignment::side_chain_name_index(i);
 	 std::string residue_type = side_chain_name_index_to_name(idx);
-	 st_res_asc.mol->Select (selHnd, STYPE_RESIDUE, 1, // .. TYPE, iModel
+	 st_res_asc.mol->Select (selHnd, mmdb::STYPE_RESIDUE, 1, // .. TYPE, iModel
 				 "*", // Chain(s) it's "A" in this case.
-				 ANY_RES,"*",  // starting res
-				 ANY_RES,"*",  // ending res
+				 mmdb::ANY_RES,"*",  // starting res
+				 mmdb::ANY_RES,"*",  // ending res
 				 (char *) residue_type.c_str(),  // residue name
 				 "*",  // Residue must contain this atom name?
 				 "*",  // Residue must contain this Element?
 				 "*",  // altLocs
-				 SKEY_NEW // selection key
+				 mmdb::SKEY_NEW // selection key
 				 );
 	 st_res_asc.mol->GetSelIndex(selHnd, SelResidue, nSelResidues);
 	 if (nSelResidues < 0) {
 	    std::cout << "ERROR:: failed to find standard residue " << residue_type
 		      << " in cache_standard_residues" << std::endl;
 	 } else {
-	    CResidue *r = coot::util::deep_copy_this_residue(SelResidue[0]);
+	    mmdb::Residue *r = coot::util::deep_copy_this_residue(SelResidue[0]);
 	    standard_residues[i] = r;
 	 }
       }
@@ -696,8 +696,8 @@ coot::sequence_assignment::side_chain_score_t::find_unassigned_regions(float pr_
    int n_models = mol->GetNumberOfModels();
    for (int imod=1; imod<=n_models; imod++) { 
       
-      CModel *model_p = mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       // run over chains of the existing mol
       int nchains = model_p->GetNumberOfChains();
       if (nchains <= 0) { 
@@ -708,9 +708,9 @@ coot::sequence_assignment::side_chain_score_t::find_unassigned_regions(float pr_
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    chain_p = model_p->GetChain(ichain);
 	    int nres = chain_p->GetNumberOfResidues();
-	    PCResidue residue_p;
-	    PCResidue stop_residue;
-	    PCResidue previous_residue = NULL;
+	    mmdb::PResidue residue_p;
+	    mmdb::PResidue stop_residue;
+	    mmdb::PResidue previous_residue = NULL;
 	    int consecutive_ala_count = 0;
 	    std::string chain_id = chain_p->GetChainID();
 	    int iassigned;
@@ -722,7 +722,7 @@ coot::sequence_assignment::side_chain_score_t::find_unassigned_regions(float pr_
 	       std::string restype = residue_p->name;
 	       //
 	       istate = residue_p->GetUDData(udd_assigned_handle, iassigned);
-	       if (istate == UDDATA_Ok) {
+	       if (istate == mmdb::UDDATA_Ok) {
 		  //std::cout << "UDdata was OK for " << residue_p->GetChainID() << " "
 		  // 			    << residue_p->GetSeqNum() << std::endl;
 		  // std::cout << "data: " << iassigned << std::endl;
@@ -774,7 +774,7 @@ coot::sequence_assignment::side_chain_score_t::mark_unassigned_residues() {
    // only
 
    int istate;
-   udd_assigned_handle = mol->RegisterUDInteger (UDR_RESIDUE, "assigned residue info");
+   udd_assigned_handle = mol->RegisterUDInteger (mmdb::UDR_RESIDUE, "assigned residue info");
    if (!udd_assigned_handle) {
       std::cout << "ERROR getting udd_assigned_handle\n";
    } 
@@ -782,8 +782,8 @@ coot::sequence_assignment::side_chain_score_t::mark_unassigned_residues() {
    int n_models = mol->GetNumberOfModels();
    for (int imod=1; imod<=n_models; imod++) { 
       
-      CModel *model_p = mol->GetModel(imod);
-      CChain *chain_p;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      mmdb::Chain *chain_p;
       // run over chains of the existing mol
       int nchains = model_p->GetNumberOfChains();
       if (nchains <= 0) { 
@@ -799,9 +799,9 @@ coot::sequence_assignment::side_chain_score_t::mark_unassigned_residues() {
 	       std::cout << "NULL chain in ... " << std::endl;
 	    } else { 
 	       int nres = chain_p->GetNumberOfResidues();
-	       PCResidue residue_p;
-	       PCResidue save_res1 = 0; // unset
-	       PCResidue save_res2 = 0; // unset
+	       mmdb::PResidue residue_p;
+	       mmdb::PResidue save_res1 = 0; // unset
+	       mmdb::PResidue save_res2 = 0; // unset
 	       int consecutive_ala_count = 0;
 	       for (int ires=0; ires<nres; ires++) { 
 		  residue_p = chain_p->GetResidue(ires);
@@ -831,25 +831,25 @@ coot::sequence_assignment::side_chain_score_t::mark_unassigned_residues() {
 		     // mark up this residue and if this is the third, the previous 2
 		     //
 		     istate = residue_p->PutUDData(udd_assigned_handle, 1);
-		     if (istate == UDDATA_WrongUDRType)
-			std::cout << "ERROR::  UDDATA_WrongUDRType in find_unassigned_regions 1" << std::endl;
+		     if (istate == mmdb::UDDATA_WrongUDRType)
+			std::cout << "ERROR::  mmdb:UDDATA_WrongUDRType in find_unassigned_regions 1" << std::endl;
 
 		     // if this is the 3rd mark the previous 2:
 		     if (consecutive_ala_count == 3) {
 			istate = save_res1->PutUDData(udd_assigned_handle, 1);
-			if (istate == UDDATA_WrongUDRType)
-			   std::cout << "ERROR::  UDDATA_WrongUDRType in find_unassigned_regions 2" << std::endl;
+			if (istate == mmdb::UDDATA_WrongUDRType)
+			   std::cout << "ERROR::  mmdb:UDDATA_WrongUDRType in find_unassigned_regions 2" << std::endl;
 			istate = save_res2->PutUDData(udd_assigned_handle, 1);
-			if (istate == UDDATA_WrongUDRType)
-			   std::cout << "ERROR::  UDDATA_WrongUDRType in find_unassigned_regions 3" << std::endl;
+			if (istate == mmdb::UDDATA_WrongUDRType)
+			   std::cout << "ERROR::  mmdb:UDDATA_WrongUDRType in find_unassigned_regions 3" << std::endl;
 		     }
 		     
 		  } else {
 
 		     // set UDD as not unassigned.
 		     istate = residue_p->PutUDData(udd_assigned_handle, 0);
-		     if (istate == UDDATA_WrongUDRType)
-			std::cout << "ERROR::  UDDATA_WrongUDRType in find_unassigned_regions 4" << std::endl;
+		     if (istate == mmdb::UDDATA_WrongUDRType)
+			std::cout << "ERROR::  mmdb:UDDATA_WrongUDRType in find_unassigned_regions 4" << std::endl;
 		  }
 	       }
 	    }
@@ -963,14 +963,14 @@ coot::sequence_assignment::side_chain_score_t::test_residue_range_marking() {
    }
 }
 
-// best-fit-residue, which we give a CResidue that has been mutated
+// best-fit-residue, which we give a mmdb::Residue that has been mutated
 // to the correct type and runs over the dunbrack rotamers and
 // returns the best score (c.f. auto-fit-rotamer in
 // molecule_class_info_t).
 float
 coot::sequence_assignment::side_chain_score_t::best_rotamer_score(const clipper::Xmap<float> &xmap,
 								  const coot::dictionary_residue_restraints_t &rest,
-								  CResidue *res) const {
+								  mmdb::Residue *res) const {
 
    float best_score = 0.0;
    float score_this_rotamer;
@@ -979,14 +979,14 @@ coot::sequence_assignment::side_chain_score_t::best_rotamer_score(const clipper:
    //
    const std::string alt_conf = ""; // needs fixing?
    coot::dunbrack d(res, alt_conf);
-   CResidue *rotamer_res;
+   mmdb::Residue *rotamer_res;
    std::vector<float> probabilities = d.probabilities();
    if (probabilities.size() > 0) {
       for (unsigned int i=0; i<probabilities.size(); i++) {
 	 std::cout << "--- Rotamer number " << i << " ------"  << std::endl;
 	 rotamer_res = d.GetResidue(rest, i);
 	 int n_selected_atoms;
-	 PCAtom *residue_atoms;
+	 mmdb::PAtom *residue_atoms;
 	 rotamer_res->GetAtomTable(residue_atoms, n_selected_atoms);
 	 score_this_rotamer = coot::util::map_score(residue_atoms, n_selected_atoms,
 						    xmap, 1);

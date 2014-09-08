@@ -4,14 +4,14 @@
 #endif
  
 #include <iostream> // fixes undefined strchr, strchrr problems
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 
 #include "geometry/protein-geometry.hh"
 #include "coot-hydrogens.hh"
 
 
 std::pair<bool, std::string>
-coot::add_hydrogens(CResidue *residue_p,
+coot::add_hydrogens(mmdb::Residue *residue_p,
 		    const coot::dictionary_residue_restraints_t &restraints) {
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS

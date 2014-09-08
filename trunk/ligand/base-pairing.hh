@@ -20,15 +20,15 @@
  * 02110-1301, USA.
  */
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "clipper/core/coords.h"
 #include "coot-utils/coot-lsq-types.h"
 
 namespace coot {
    // we need standard residues to make the ideal RNA
-   CResidue * watson_crick_partner(CResidue *res_ref, CMMDBManager *standard_residues);
+   mmdb::Residue * watson_crick_partner(mmdb::Residue *res_ref, mmdb::Manager *standard_residues);
    std::pair<bool, clipper::RTop_orth> 
-      base_pair_match_matix(CResidue *res_ref, CResidue *res_moving);
+      base_pair_match_matix(mmdb::Residue *res_ref, mmdb::Residue *res_moving);
 
 }
 

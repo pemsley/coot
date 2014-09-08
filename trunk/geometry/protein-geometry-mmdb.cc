@@ -23,7 +23,7 @@
 #include <iostream>
 #include "protein-geometry.hh"
 
-#include <mmdb/mmdb_manager.h> // for debugging.
+#include <mmdb2/mmdb_manager.h> // for debugging.
 
 // This function is based on mmdb's CATom::MakePDBAtomName(), so we share
 // the copyright.
@@ -128,7 +128,7 @@ coot::protein_geometry::comp_atom_pad_atom_name(const std::string &atom_id,
 
 // debug
 //    
-//    CAtom at;
+//    mmdb::Atom at;
 //    at.SetAtomName(atom_id.c_str());
 //    at.SetElementName(type_symbol.c_str());
 //    at.MakePDBAtomName();

@@ -36,10 +36,10 @@ public:
   CMolBondParams(CMGSBase *sbase);
   ~CMolBondParams();
 protected:
-  realtype interResCut;
-  realtype intraResCut;
-  realtype maxBondRad;
-  realtype maxBondRadFactor;
+  mmdb::realtype interResCut;
+  mmdb::realtype intraResCut;
+  mmdb::realtype maxBondRad;
+  mmdb::realtype maxBondRadFactor;
   CMGSBase *sbase;
 
 };
@@ -58,15 +58,15 @@ public :
   std::string FindBonds (int udd_sbaseCompoundID,
 		 int udd_sbaseAtomOrdinal, int udd_atomEnergyType );
 
-  void AddConnection (int ia1, int ia2, PPCAtom selAtom1, PPCAtom selAtom2,
+  void AddConnection (int ia1, int ia2, mmdb::PPAtom selAtom1, mmdb::PPAtom selAtom2,
                        int offset1 =0 , int offset2 = 0);
-  void AddConnection (int ia1, int ia2, PPCAtom selAtom,int offset=0);
-  void AddConnection (PCAtom pa1, PCAtom pa2);
-  int DeleteConnection ( PCAtom pa1 , PCAtom pa2);
+  void AddConnection (int ia1, int ia2, mmdb::PPAtom selAtom,int offset=0);
+  void AddConnection (mmdb::PAtom pa1, mmdb::PAtom pa2);
+  int DeleteConnection ( mmdb::PAtom pa1 , mmdb::PAtom pa2);
 
-  bool isInterResBond ( PCAtom p1, PCAtom p2);
-  int IntraResContacts ( PCResidue p1, int nAlt,  PPCAtom modelSelAtom[]=NULL, int nSelAtom[]=NULL, int firstModel=0, int lastModel=0);
-  bool ltBondDistance ( PCAtom pa1, PCAtom pa2, realtype dist);
+  bool isInterResBond ( mmdb::PAtom p1, mmdb::PAtom p2);
+  int IntraResContacts ( mmdb::PResidue p1, int nAlt,  mmdb::PPAtom modelSelAtom[]=NULL, int nSelAtom[]=NULL, int firstModel=0, int lastModel=0);
+  bool ltBondDistance ( mmdb::PAtom pa1, mmdb::PAtom pa2, mmdb::realtype dist);
 
  private:
  
@@ -75,7 +75,7 @@ public :
   int nAtoms;
   int nRes;
   psvector  sbaseCompoundID;
-  ivector sbaseAtomIndex;
+  mmdb::ivector sbaseAtomIndex;
 
   // Structures for holding the selected bonds
   int nB;

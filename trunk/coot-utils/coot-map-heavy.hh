@@ -21,7 +21,7 @@
 
 #include "clipper/core/coords.h"
 #include "clipper/core/xmap.h"
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #ifdef HAVE_GSL
 #include "gsl/gsl_multimin.h"
 #endif // HAVE_GSL
@@ -37,7 +37,7 @@ namespace coot {
 
       class simplex_param_t {
       public:
-	 PPCAtom orig_atoms;
+	 mmdb::PPAtom orig_atoms;
 	 clipper::Coord_orth atoms_centre;
 	 int n_atoms;
 	 const clipper::Xmap<float> *xmap;
@@ -46,13 +46,13 @@ namespace coot {
       // Use asc.atom_selection as the moving atoms
       // and move them.
       // 
-      int fit_to_map_by_simplex_rigid(PPCAtom atom_selection,
+      int fit_to_map_by_simplex_rigid(mmdb::PPAtom atom_selection,
 				int n_selected_atoms,
 				const clipper::Xmap<float> &xmap);
 
       // internal simplex setup function:
       void setup_simplex_x_internal_rigid(gsl_vector *s,
-				    PPCAtom atom_selection,
+				    mmdb::PPAtom atom_selection,
 				    int n_selected_atoms);
 
       // the function that returns the value:
@@ -67,11 +67,11 @@ namespace coot {
 					const std::vector<std::pair<std::string, int> > &atom_number_list,
 					const clipper::Xmap<float> &map_in);
 
-      float z_weighted_density_score(const std::vector<CAtom *> &atoms,
+      float z_weighted_density_score(const std::vector<mmdb::Atom *> &atoms,
 				     const std::vector<std::pair<std::string, int> > &atom_number_list,
 				     const clipper::Xmap<float> &map);
 
-      float z_weighted_density_score_new(const std::vector<std::pair<CAtom *, float> > &atom_atom_number_pairs,
+      float z_weighted_density_score_new(const std::vector<std::pair<mmdb::Atom *, float> > &atom_atom_number_pairs,
 					 const clipper::Xmap<float> &map);
 
       float z_weighted_density_score(const minimol::molecule &mol,
@@ -88,13 +88,13 @@ namespace coot {
       // if annealing_factor is > 0, then scale the offsets by this amount
       // (so, between 0 and 1)
       // 
-      std::pair<clipper::RTop_orth, std::vector<CAtom> >
-      jiggle_atoms(const std::vector<CAtom *> &atoms,
+      std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> >
+      jiggle_atoms(const std::vector<mmdb::Atom *> &atoms,
 		   const clipper::Coord_orth &centre_pt,
 		   float jiggle_scale_factor,
 		   float annealing_factor=1.0);
-      std::pair<clipper::RTop_orth, std::vector<CAtom> >
-      jiggle_atoms(const std::vector<CAtom> &atoms,
+      std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> >
+      jiggle_atoms(const std::vector<mmdb::Atom> &atoms,
 		   const clipper::Coord_orth &centre_pt,
 		   float jiggle_scale_factor,
 		   float annealing_factor=1.0);
@@ -105,9 +105,9 @@ namespace coot {
 #endif // HAVE_GSL      
 
       class fffear_search {
-	 int fill_nxmap     (CMMDBManager *mol, int SelectionHandle,
+	 int fill_nxmap     (mmdb::Manager *mol, int SelectionHandle,
 			      const clipper::Coord_orth &low_left);
-	 int fill_nxmap_mask(CMMDBManager *mol, int SelectionHandle,
+	 int fill_nxmap_mask(mmdb::Manager *mol, int SelectionHandle,
 			      const clipper::Coord_orth &low_left);
 	 void generate_search_rtops(float angular_resolution); // fill ops (e.g. 10 degrees)
 	 double min_molecule_radius_; 
@@ -131,7 +131,7 @@ namespace coot {
       public:
 	 clipper::NXmap<float> nxmap;
 	 clipper::NXmap<float> nxmap_mask;
-	 fffear_search(CMMDBManager *mol, int SelectionHandle, const clipper::Xmap<float> &xmap,
+	 fffear_search(mmdb::Manager *mol, int SelectionHandle, const clipper::Xmap<float> &xmap,
 		       float angular_resolution, bool translation_search_only=false);
 	 std::vector<std::pair<clipper::RTop_orth, float> > get_scored_transformations() const;
 	 clipper::RTop_orth get_best_transformation() const;

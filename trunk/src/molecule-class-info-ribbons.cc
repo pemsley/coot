@@ -26,7 +26,7 @@
 #include <iostream>
 #include <vector>
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "mmdb-extras.h"
 #include "mmdb.h"
 #include "mmdb-crystal.h"
@@ -52,7 +52,7 @@
 void
 molecule_class_info_t::make_ribbons() {
 
-  InitMatType();
+  mmdb::InitMatType();
   graphics_info_t g;
   coot::protein_geometry* gp = g.Geom_p();
   std::string mon_lib_dir = gp->get_mon_lib_dir();
@@ -114,11 +114,12 @@ molecule_class_info_t::make_ribbons() {
   molHnd->ReadCoorFile(name_.c_str());
   int selHnd = molHnd->NewSelection();
 
-  molHnd->SelectAtoms(selHnd, 0,"*",ANY_RES,"*",ANY_RES,"*","*","*","*","*",SKEY_OR );
+  molHnd->SelectAtoms(selHnd, 0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,"*","*","*","*","*",
+		      mmdb::SKEY_OR );
   molHnd->GetMolBonds();
   molHnd->GetModel(1)->CalcSecStructure(0);
   int nSelAtoms;
-  PPCAtom selAtoms=0;
+  mmdb::PPAtom selAtoms=0;
 
   molHnd->GetSelIndex(selHnd,selAtoms,nSelAtoms);
 

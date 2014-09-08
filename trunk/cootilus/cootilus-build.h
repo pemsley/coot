@@ -11,7 +11,7 @@ class Coot_nucleic_acid_build {
   //! Constructor: takes filename for nucleic acid library file
   Coot_nucleic_acid_build( std::string filename );
   //! Build or extend a model
-  bool build( CMMDBManager* mmdb, const clipper::Xmap<float>& xmap, const clipper::Coord_orth& centre, double radius ) const;
+  bool build( mmdb::Manager* mmdb, const clipper::Xmap<float>& xmap, const clipper::Coord_orth& centre, double radius ) const;
  private:
   std::string filename_;
 };

@@ -6,12 +6,12 @@ namespace coot {
    // private (no SWIG interface)
    // 
    // the engine for the above calls
-   std::pair<CMMDBManager *, CResidue *>
+   std::pair<mmdb::Manager *, mmdb::Residue *>
    regularize_inner(PyObject *rdkit_mol,
 		    PyObject *restraints_py,
 		    const std::string &res_name);
 
-   std::pair<CMMDBManager *, CResidue *>
+   std::pair<mmdb::Manager *, mmdb::Residue *>
    regularize_inner(RDKit::ROMol &mol,
 		    PyObject *restraints_py,
 		    const std::string &res_name);
@@ -25,7 +25,7 @@ namespace coot {
    // now update the atom positions of the rdkit_molecule from residue_p
    // (perhaps this should be in rdkit-interface.hh?)
    // 
-   void update_coords(RDKit::RWMol *mol, int iconf, CResidue *residue_p);
+   void update_coords(RDKit::RWMol *mol, int iconf, mmdb::Residue *residue_p);
 
       // alter restraints
    int assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
@@ -83,9 +83,9 @@ namespace coot {
    int assign_chirals_mmcif_tags(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
 
    // Use the pointer to test if the match was successful.
-   std::pair<CResidue *, dictionary_residue_restraints_t>
+   std::pair<mmdb::Residue *, dictionary_residue_restraints_t>
    match_restraints_to_amino_acids(const dictionary_residue_restraints_t &restraints,
-				   CResidue *residue_p);
+				   mmdb::Residue *residue_p);
 
 }
 

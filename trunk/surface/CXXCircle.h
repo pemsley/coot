@@ -16,7 +16,7 @@
 #include "CXXCircleNode.h"
 #include "CXXCoord.h"
 #ifndef  __MMDB_Manager__
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #endif
 
 //#include "CXXAlloc.h"
@@ -30,7 +30,7 @@ class CXXCircle {
 private:
 	//Note that order now reflects position in 
 	//initialization lists
-	PCAtom theAtomJ;
+	mmdb::PAtom theAtomJ;
 	const CXXBall* theBallJ;
 	CXXNewHood *theParent;
 	CXXCoord centreOfSecondSphere;
@@ -56,7 +56,7 @@ private:
 	
 public:
 		CXXCircle();
-	CXXCircle (CXXNewHood *aHood, PCAtom atom2, double radiusOfAtom2, double probeRadius);
+	CXXCircle (CXXNewHood *aHood, mmdb::PAtom atom2, double radiusOfAtom2, double probeRadius);
 //	CXXCircle (const CXXCircle &oldOne);
 	CXXCircle (CXXNewHood *aHood, const CXXBall &aBall);
 	
@@ -71,7 +71,7 @@ public:
 	const CXXCoord &getCentreOfSecondSphere() const;
 	const CXXCoord &getCentreOfSphere() const;
 	const CXXCoord &getCentreToCircle() const;
-	const PCAtom    getAtomJ() const;
+	const mmdb::PAtom    getAtomJ() const;
 	const list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> > &getNodes() const { return theNodes;};
 	const CXXBall *getBallJ() const {
 		return theBallJ;

@@ -50,7 +50,7 @@
 // #include "Python.h"
 // #endif
 
-#include <ssm/ssm_align.h>
+#include <ssm-dev/ssm_align.h>
 #include <iostream>
 #include "interface.h"
 
@@ -85,8 +85,8 @@ void superpose(int imol1, int imol2, short int move_copy_of_imol2_flag) {
 
 	 if (is_valid_model_molecule(imol_new)) {
 	    // now move the cryst of mol2 to be the same as the cryst of mol1.
-	    CMMDBManager *m1 = graphics_info_t::molecules[imol1].atom_sel.mol;
-	    CMMDBManager *m2 = graphics_info_t::molecules[imol_new].atom_sel.mol;
+	    mmdb::Manager *m1 = graphics_info_t::molecules[imol1].atom_sel.mol;
+	    mmdb::Manager *m2 = graphics_info_t::molecules[imol_new].atom_sel.mol;
 
 	    bool success = coot::util::copy_cell_and_symm_headers(m1, m2);
 	    
@@ -132,8 +132,8 @@ void superpose_with_chain_selection(int imol1, int imol2,
 	    asc_ref.SelectionHandle = asc_ref.mol->NewSelection();
 	    asc_ref.mol->SelectAtoms(asc_ref.SelectionHandle, 0,
 				     (char *) chain_imol1,
-				     ANY_RES, "*",
-				     ANY_RES, "*",
+				     mmdb::ANY_RES, "*",
+				     mmdb::ANY_RES, "*",
 				     "*", "*", "*", "*");
 	    asc_ref.atom_selection = NULL;
 	    asc_ref.mol->GetSelIndex(asc_ref.SelectionHandle,
@@ -145,8 +145,8 @@ void superpose_with_chain_selection(int imol1, int imol2,
 	    asc_mov.SelectionHandle = asc_mov.mol->NewSelection();
 	    asc_mov.mol->SelectAtoms(asc_mov.SelectionHandle, 0,
 				     (char *) chain_imol2,
-				     ANY_RES, "*",
-				     ANY_RES, "*",
+				     mmdb::ANY_RES, "*",
+				     mmdb::ANY_RES, "*",
 				     "*", "*", "*", "*");
 	    asc_mov.atom_selection = NULL;
 	    asc_mov.mol->GetSelIndex(asc_mov.SelectionHandle,
@@ -165,8 +165,8 @@ void superpose_with_chain_selection(int imol1, int imol2,
 	 if (is_valid_model_molecule(imol_new)) {
 	    // now move the cryst of mol2 to be the same as the cryst of mol1.
 
-	    CMMDBManager *m1 = graphics_info_t::molecules[imol1].atom_sel.mol;
-	    CMMDBManager *m2 = graphics_info_t::molecules[imol_new].atom_sel.mol;
+	    mmdb::Manager *m1 = graphics_info_t::molecules[imol1].atom_sel.mol;
+	    mmdb::Manager *m2 = graphics_info_t::molecules[imol_new].atom_sel.mol;
 	    bool success = coot::util::copy_cell_and_symm_headers(m1, m2);
 	 } 
 	 
@@ -207,16 +207,16 @@ int superpose_with_atom_selection(int imol1, int imol2,
 	 graphics_info_t g;
 	 atom_selection_container_t asc_ref = graphics_info_t::molecules[imol1].atom_sel;
 	 asc_ref.SelectionHandle = asc_ref.mol->NewSelection();
-	 asc_ref.mol->Select(asc_ref.SelectionHandle, STYPE_ATOM,
-			     (char *)mmdb_atom_sel_str_1, SKEY_NEW);
+	 asc_ref.mol->Select(asc_ref.SelectionHandle, mmdb::STYPE_ATOM,
+			     (char *)mmdb_atom_sel_str_1, mmdb::SKEY_NEW);
 	 asc_ref.atom_selection = NULL;
 	 asc_ref.mol->GetSelIndex(asc_ref.SelectionHandle,
 				  asc_ref.atom_selection, asc_ref.n_selected_atoms);
 
 	 atom_selection_container_t asc_mov = graphics_info_t::molecules[imol2].atom_sel;
 	 asc_mov.SelectionHandle = asc_mov.mol->NewSelection();
-	 asc_mov.mol->Select(asc_mov.SelectionHandle, STYPE_ATOM,
-			     (char *)mmdb_atom_sel_str_2, SKEY_NEW);
+	 asc_mov.mol->Select(asc_mov.SelectionHandle, mmdb::STYPE_ATOM,
+			     (char *)mmdb_atom_sel_str_2, mmdb::SKEY_NEW);
 	 asc_mov.atom_selection = NULL;
 	 asc_mov.mol->GetSelIndex(asc_mov.SelectionHandle,
 				  asc_mov.atom_selection, asc_mov.n_selected_atoms);
@@ -235,11 +235,11 @@ int superpose_with_atom_selection(int imol1, int imol2,
 	 asc_mov.mol->DeleteSelection(asc_mov.SelectionHandle);
 
 	 // now move the cryst of mol2 to be the same as the cryst of mol1.
-	 realtype a[6];
-	 realtype vol;
+	 mmdb::realtype a[6];
+	 mmdb::realtype vol;
 	 int orthcode;
-	 CMMDBManager *m1 = graphics_info_t::molecules[imol1].atom_sel.mol;
-	 CMMDBManager *m2 = graphics_info_t::molecules[imol2].atom_sel.mol;
+	 mmdb::Manager *m1 = graphics_info_t::molecules[imol1].atom_sel.mol;
+	 mmdb::Manager *m2 = graphics_info_t::molecules[imol2].atom_sel.mol;
 
 	 bool success = coot::util::copy_cell_and_symm_headers(m1, m2);
       }
@@ -833,7 +833,7 @@ void lsq_improve(int imol_ref, const char *ref_selection,
 
    if (is_valid_model_molecule(imol_ref)) { 
       if (is_valid_model_molecule(imol_moving)) {
-	 CMMDBManager *mol_ref = graphics_info_t::molecules[imol_ref].atom_sel.mol;
+	 mmdb::Manager *mol_ref = graphics_info_t::molecules[imol_ref].atom_sel.mol;
 	 graphics_info_t::molecules[imol_moving].lsq_improve(mol_ref, ref_selection,
 							     moving_selection,
 							     n_res, dist_crit);

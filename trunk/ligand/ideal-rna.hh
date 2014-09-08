@@ -24,7 +24,7 @@
 #define IDEAL_RNA_HH
 
 #include <string>
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 
 namespace coot {
 
@@ -39,15 +39,15 @@ namespace coot {
       std::string form_;
       std::string seq;
       short int single_stranged_flag;
-      CResidue * get_standard_residue_instance(const std::string &residue_type,
-					       CMMDBManager *standard_residues) const;
+      mmdb::Residue * get_standard_residue_instance(const std::string &residue_type,
+					       mmdb::Manager *standard_residues) const;
       clipper::RTop_orth n_turns(int nbase, int n_in_chain, coot::ideal_rna::form_t form_flag) const;
-      CMMDBManager *standard_residues;
+      mmdb::Manager *standard_residues;
       bool is_valid_base(char base) const;
       char antisense_base(char base, bool is_dna_flag) const;
-      int mutate_res(CResidue *res, char base, bool is_dna_flag) const;
-      void delete_o2_prime(CResidue *res) const; // RNA -> DNA
-      void add_o2_prime(CResidue *res) const;    // DNA -> RNAv
+      int mutate_res(mmdb::Residue *res, char base, bool is_dna_flag) const;
+      void delete_o2_prime(mmdb::Residue *res) const; // RNA -> DNA
+      void add_o2_prime(mmdb::Residue *res) const;    // DNA -> RNAv
 
       // where "standard" means old-style:  "Ar", "Ad"...
       bool use_standard_refmac_names;
@@ -57,15 +57,15 @@ namespace coot {
       // 
       std::string residue_name_from_type(const std::string &residue_type_in) const ;
       std::string residue_name_old_to_new(const std::string &residue_type_in, bool is_dna_flag) const;
-      void fix_up_residue_and_atom_names(CResidue *res, bool is_dna_flag); // fiddle with res
+      void fix_up_residue_and_atom_names(mmdb::Residue *res, bool is_dna_flag); // fiddle with res
 
    public:
       ideal_rna(const std::string &RNA_or_DNA, const std::string &form,
 		short int single_stranged_flag,
-		const std::string &sequence, CMMDBManager *standard_residues);
+		const std::string &sequence, mmdb::Manager *standard_residues);
       void use_v3_names() { use_standard_refmac_names = 0; }
 
-      CMMDBManager *make_molecule();
+      mmdb::Manager *make_molecule();
 
    };
 

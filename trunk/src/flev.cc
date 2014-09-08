@@ -78,15 +78,15 @@ sprout_hydrogens(int imol,
 //  dictionary and (at least one) hydrogen in the model
 // (if ligand_res is a SO4 (no hydrogens) that should not cause a fail).
 // 
-bool flev_check_for_hydrogens(CResidue *ligand_res,
-			      const std::vector<CResidue *> &env_residues,
+bool flev_check_for_hydrogens(mmdb::Residue *ligand_res,
+			      const std::vector<mmdb::Residue *> &env_residues,
 			      coot::protein_geometry *geom_p) {
 
    bool status = false;
    int n_hydrogens_ligand = 0;
    int n_hydrogens_others = 0;
 
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    ligand_res->GetAtomTable(residue_atoms, n_residue_atoms);
    for (unsigned int i=0; i<n_residue_atoms; i++) { 
@@ -214,9 +214,9 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
    if (flat.read_success) {
       if (is_valid_model_molecule(imol_ligand_fragment)) {
 
-	 CMMDBManager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-	 CResidue  *res_ref = coot::util::get_residue(chain_id, res_no, ins_code, mol);
-	 CResidue *flat_res = coot::util::get_residue("", 1, "", flat.mol); // prodrg attribs
+	 mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	 mmdb::Residue  *res_ref = coot::util::get_residue(chain_id, res_no, ins_code, mol);
+	 mmdb::Residue *flat_res = coot::util::get_residue("", 1, "", flat.mol); // prodrg attribs
 
 	 std::string res_name_res_ref; // just in case res_ref is NULL
 	 if (res_ref)
@@ -236,7 +236,7 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 	 if (res_ref) { 
 	    
 	    std::string ligand_res_name(res_ref->GetResName());
-	    CMMDBManager *ligand_mol =
+	    mmdb::Manager *ligand_mol =
 	       graphics_info_t::molecules[imol_ligand_fragment].atom_sel.mol;
 	    int every_nth = 1;
 	    std::vector<coot::lsq_range_match_info_t> matches;
@@ -247,7 +247,7 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 	       coot::util::get_lsq_matrix(flat.mol, ligand_mol, matches, every_nth);
 	    
 	    if (lsq_mat.first) { 
-	       std::vector<CResidue *> residues =
+	       std::vector<mmdb::Residue *> residues =
 		  coot::residues_near_residue(res_ref, mol, residues_near_radius);
 	       
 	       // residues needs to be filtered to remove waters that
@@ -256,7 +256,7 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 	       // 20101228 water_max_dist was 3.6, not we tweak it to
 	       // 3.25.  Should be a user-setable param.
 	       // 
-	       std::vector<CResidue *> filtered_residues =
+	       std::vector<mmdb::Residue *> filtered_residues =
 		  coot::filter_residues_by_solvent_contact(res_ref, mol, residues, water_dist_max);
 	       
 	       // for the atoms in the ligand only, for the moment.
@@ -309,7 +309,7 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 	       if (filtered_residues.size()) {
 		  std::vector<coot::fle_residues_helper_t> centres(filtered_residues.size());
 		  for (unsigned int ires=0; ires<filtered_residues.size(); ires++) { 
-		     CResidue *res_copy = coot::util::deep_copy_this_residue(filtered_residues[ires]);
+		     mmdb::Residue *res_copy = coot::util::deep_copy_this_residue(filtered_residues[ires]);
 		     std::string res_name = filtered_residues[ires]->GetResName();
 		     coot::util::transform_atoms(res_copy, lsq_mat.second);
 		     std::pair<bool, clipper::Coord_orth> c =
@@ -438,8 +438,8 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
    coot::protein_geometry *geom_p = g.Geom_p();
 
    if (is_valid_model_molecule(imol)) { 
-      CResidue  *res_ref = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
-      CMMDBManager *mol_for_res_ref = g.molecules[imol].atom_sel.mol;
+      mmdb::Residue  *res_ref = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
+      mmdb::Manager *mol_for_res_ref = g.molecules[imol].atom_sel.mol;
       if (res_ref) {
 	 std::string ligand_res_name(res_ref->GetResName());
 
@@ -451,13 +451,13 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 		      << "Failed to get monomer_restraints for ligand of type "
 		      << ligand_res_name << std::endl;
 	 } else {
-	    std::vector<CResidue *> residues =
+	    std::vector<mmdb::Residue *> residues =
 	       coot::residues_near_residue(res_ref, mol_for_res_ref, residues_near_radius);
 	 
 	    // residues needs to be filtered to remove waters that
 	    // are not connected to a protein atom.
 	 
-	    std::vector<CResidue *> filtered_residues =
+	    std::vector<mmdb::Residue *> filtered_residues =
 	       coot::filter_residues_by_solvent_contact(res_ref, mol_for_res_ref, residues, 3.25);
 
 	    // for the atoms in the ligand only, for the moment.
@@ -483,7 +483,7 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 	       if (rdkm.getNumAtoms() < res_ref->GetNumberOfAtoms()) {
 		  std::cout << "oops failure to construct rdkit molecule " << std::endl;
 	       } else {
-		  PPCAtom residue_atoms = 0;
+		  mmdb::PPAtom residue_atoms = 0;
 		  int n_residue_atoms;
 		  res_ref->GetAtomTable(residue_atoms, n_residue_atoms);
 
@@ -500,9 +500,9 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 		  lig_build::molfile_molecule_t m =
 		     coot::make_molfile_molecule(rdkm, mol_2d_depict_conformer);
 
-		  CResidue *residue_flat =
+		  mmdb::Residue *residue_flat =
 		     coot::make_residue(rdkm, mol_2d_depict_conformer, "XXX");
-		  CMMDBManager *mol_for_flat_residue =
+		  mmdb::Manager *mol_for_flat_residue =
 		     coot::util::create_mmdbmanager_from_residue(residue_flat);
 
 		  if (0) 
@@ -606,7 +606,7 @@ void fle_view_set_h_bond_dist_max(float h_bond_dist_max) {
 
 
 std::vector<int>
-coot::make_add_reps_for_near_residues(std::vector<CResidue *> filtered_residues,
+coot::make_add_reps_for_near_residues(std::vector<mmdb::Residue *> filtered_residues,
 				      int imol) {
 
    std::vector<int> v(filtered_residues.size());
@@ -653,10 +653,10 @@ coot::operator<<(std::ostream &s, fle_residues_helper_t fler) {
 
 
 std::vector<coot::fle_residues_helper_t>
-coot::get_flev_residue_centres(CResidue *residue_ligand_3d,
-			       CMMDBManager *mol_containing_residue_ligand, 
-			       std::vector<CResidue *> residues,
-			       CMMDBManager *flat_mol) {
+coot::get_flev_residue_centres(mmdb::Residue *residue_ligand_3d,
+			       mmdb::Manager *mol_containing_residue_ligand, 
+			       std::vector<mmdb::Residue *> residues,
+			       mmdb::Manager *flat_mol) {
 
    std::vector<coot::fle_residues_helper_t> centres;
 
@@ -677,7 +677,7 @@ coot::get_flev_residue_centres(CResidue *residue_ligand_3d,
       // std::vector<coot::fle_residues_helper_t> centres(residues.size());
       centres.resize(residues.size());
       for (unsigned int ires=0; ires<residues.size(); ires++) { 
-	 CResidue *res_copy = coot::util::deep_copy_this_residue(residues[ires]);
+	 mmdb::Residue *res_copy = coot::util::deep_copy_this_residue(residues[ires]);
 	 std::string res_name = residues[ires]->GetResName();
 	 std::pair<bool, clipper::Coord_orth> absolute_centre =
 	    coot::util::get_residue_centre(res_copy);
@@ -719,23 +719,23 @@ coot::get_flev_residue_centres(CResidue *residue_ligand_3d,
 
 
 std::map<std::string, std::string>
-coot::make_flat_ligand_name_map(CResidue *flat_res) {
+coot::make_flat_ligand_name_map(mmdb::Residue *flat_res) {
 
    double bond_to_H_dist = 1.1;
 
    double b2Hd2 = bond_to_H_dist * bond_to_H_dist;
    std::map<std::string, std::string> map;
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    flat_res->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) {
-      CAtom *at_i = residue_atoms[iat];
+      mmdb::Atom *at_i = residue_atoms[iat];
       std::string ele_i = at_i->element;
       clipper::Coord_orth pt_i(at_i->x, at_i->y, at_i->z);
       if (ele_i == " H") { 
 	 for (int jat=0; jat<n_residue_atoms; jat++) {
 	    if (iat != jat) { 
-	       CAtom *at_j = residue_atoms[jat];
+	       mmdb::Atom *at_j = residue_atoms[jat];
 	       std::string ele_j = at_j->element;
 	       if (ele_j != " H") { 
 		  clipper::Coord_orth pt_j(at_j->x, at_j->y, at_j->z);
@@ -768,7 +768,7 @@ coot::write_fle_centres(const std::vector<fle_residues_helper_t> &v,
 			const std::vector<coot::fle_ligand_bond_t> &bonds_to_ligand,
 			const std::vector<coot::solvent_exposure_difference_helper_t> &sed,
 			const coot::pi_stacking_container_t &stack_info,
-			CResidue *res_flat) {
+			mmdb::Residue *res_flat) {
 
    if (0) {
       std::cout << "DEBUG:: in write_fle_centres() " << stack_info.stackings.size()
@@ -812,11 +812,11 @@ coot::write_fle_centres(const std::vector<fle_residues_helper_t> &v,
 	    // 
 	    for (unsigned int ib=0; ib<bonds_to_ligand.size(); ib++) { 
 	       if (bonds_to_ligand[ib].res_spec == v[i].spec) {
-		  PPCAtom residue_atoms = 0;
+		  mmdb::PPAtom residue_atoms = 0;
 		  int n_residue_atoms;
 		  res_flat->GetAtomTable(residue_atoms, n_residue_atoms);
 		  for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
-		     CAtom *at = residue_atoms[iat];
+		     mmdb::Atom *at = residue_atoms[iat];
 		     std::string atom_name(at->name);
 		     if (atom_name == bonds_to_ligand[ib].ligand_atom_spec.atom_name) {
 			// the coordinates of the matching flat ligand
@@ -921,7 +921,7 @@ coot::write_fle_centres(const std::vector<fle_residues_helper_t> &v,
 void
 coot::write_ligand_atom_accessibilities(const std::vector<std::pair<coot::atom_spec_t, float> > &sav,
 					const coot::flev_attached_hydrogens_t &attached_hydrogens,
-					CResidue *reference_residue) {
+					mmdb::Residue *reference_residue) {
 
    // for each of the atoms in reference_residue, find the spec in sav
    // and write out the coordinates and the atom name and the
@@ -932,11 +932,11 @@ coot::write_ligand_atom_accessibilities(const std::vector<std::pair<coot::atom_s
    if (!of) {
       std::cout << "failed to open output file " << file_name << std::endl;
    } else {
-      PPCAtom residue_atoms = 0;
+      mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       reference_residue->GetAtomTable(residue_atoms, n_residue_atoms);
       for (unsigned int i=0; i<n_residue_atoms; i++) {
-	 CAtom *at = residue_atoms[i];
+	 mmdb::Atom *at = residue_atoms[i];
 	 std::string atom_name(at->GetAtomName());
 	 for (unsigned int j=0; j<sav.size(); j++) {
 	    if (atom_name == sav[j].first.atom_name) {
@@ -961,9 +961,9 @@ coot::write_ligand_atom_accessibilities(const std::vector<std::pair<coot::atom_s
 // temporary  molecule and atom selections.
 // 
 std::vector<coot::fle_ligand_bond_t>
-coot::get_fle_ligand_bonds(CResidue *ligand_res,
-			   const std::vector<CResidue *> &residues,
-			   CMMDBManager *mol, 
+coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
+			   const std::vector<mmdb::Residue *> &residues,
+			   mmdb::Manager *mol, 
 			   const std::map<std::string, std::string> &name_map,
 			   const coot::protein_geometry &geom,
 			   float water_dist_max,
@@ -989,16 +989,16 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
       std::cout << "::::::::: h_bond_dist_max: " << h_bond_dist_max << std::endl;
    }
    
-   std::vector<CResidue *> rv = residues;
+   std::vector<mmdb::Residue *> rv = residues;
    rv.push_back(ligand_res);
 
-   std::pair<bool, CMMDBManager *> m = coot::util::create_mmdbmanager_from_residue_vector(rv);
+   std::pair<bool, mmdb::Manager *> m = coot::util::create_mmdbmanager_from_residue_vector(rv);
    coot::residue_spec_t ligand_spec(ligand_res);
 
    if (m.first) { 
       int SelHnd_all = m.second->NewSelection(); // d
       int SelHnd_lig = m.second->NewSelection(); // d
-      m.second->SelectAtoms(SelHnd_all, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "*", "*");
+      m.second->SelectAtoms(SelHnd_all, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
       m.second->SelectAtoms(SelHnd_lig, 0, ligand_spec.chain.c_str(),
 			    ligand_spec.resno, ligand_spec.insertion_code.c_str(),
 			    ligand_spec.resno, ligand_spec.insertion_code.c_str(),
@@ -1032,8 +1032,8 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
 							  hbonds[i].ligand_atom_is_donor);
 	 // override these 2 if ligand atom is donor
 	 // 
-	 CAtom      *ligand_atom = hbonds[i].acceptor;
-	 CAtom *env_residue_atom = hbonds[i].donor;
+	 mmdb::Atom      *ligand_atom = hbonds[i].acceptor;
+	 mmdb::Atom *env_residue_atom = hbonds[i].donor;
 	 double explict_H_bond_fudge_factor = 0.0; // for H-bonds with no Hs.
 	 // 
 	 if (hbonds[i].ligand_atom_is_donor) {
@@ -1162,7 +1162,7 @@ coot::get_fle_ligand_bonds(CResidue *ligand_res,
 
 
 std::vector<coot::fle_ligand_bond_t>
-coot::get_covalent_bonds_by_distance(CMMDBManager *mol,
+coot::get_covalent_bonds_by_distance(mmdb::Manager *mol,
 				     int SelHnd_lig,
 				     int SelHnd_all,
 				     const residue_spec_t &ligand_spec,
@@ -1174,35 +1174,35 @@ coot::get_covalent_bonds_by_distance(CMMDBManager *mol,
    
    std::vector<coot::fle_ligand_bond_t> v;
    int SelHnd_local = mol->NewSelection();
-   mol->SelectAtoms(SelHnd_local, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "*", "*");
-   mol->Select(SelHnd_local, STYPE_ATOM, 0, ligand_spec.chain.c_str(),
+   mol->SelectAtoms(SelHnd_local, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
+   mol->Select(SelHnd_local, mmdb::STYPE_ATOM, 0, ligand_spec.chain.c_str(),
 	       ligand_spec.resno, ligand_spec.insertion_code.c_str(),
 	       ligand_spec.resno, ligand_spec.insertion_code.c_str(),
-	       "*", "*", "*", "*", SKEY_XOR);
+	       "*", "*", "*", "*", mmdb::SKEY_XOR);
 
    // now find contacts:
    // 
-   PSContact pscontact = NULL;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts;
    long i_contact_group = 1;
-   mat44 my_matt;
-   CSymOps symm;
+   mmdb::mat44 my_matt;
+   mmdb::SymOps symm;
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 
 	 my_matt[i][j] = 0.0;      
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
 
-   PPCAtom lig_atom_selection = 0;
+   mmdb::PPAtom lig_atom_selection = 0;
    int n_lig_atoms;
    mol->GetSelIndex(SelHnd_lig, lig_atom_selection, n_lig_atoms);
 
-   PPCAtom other_atom_selection = 0;
+   mmdb::PPAtom other_atom_selection = 0;
    int n_other_atoms;
    mol->GetSelIndex(SelHnd_local, other_atom_selection, n_other_atoms);
 
-   realtype min_dist = 0.1;
-   realtype max_dist = 2.3; //  even S-S is shorter than this, I think
-   realtype cno_max_dist = 1.8;
+   mmdb::realtype min_dist = 0.1;
+   mmdb::realtype max_dist = 2.3; //  even S-S is shorter than this, I think
+   mmdb::realtype cno_max_dist = 1.8;
 
    mol->SeekContacts(lig_atom_selection,   n_lig_atoms,
 		     other_atom_selection, n_other_atoms,
@@ -1211,17 +1211,17 @@ coot::get_covalent_bonds_by_distance(CMMDBManager *mol,
 		     pscontact, n_contacts,
 		     0, &my_matt, i_contact_group);
 
-   std::vector<std::pair<CResidue *, CResidue *> > contacting_pairs_vec;
+   std::vector<std::pair<mmdb::Residue *, mmdb::Residue *> > contacting_pairs_vec;
 
    if (n_contacts > 0) {
       if (pscontact) {
 	 for (int i=0; i<n_contacts; i++) {
-	    CAtom *at_1 =   lig_atom_selection[pscontact[i].id1];
-	    CAtom *at_2 = other_atom_selection[pscontact[i].id2];
+	    mmdb::Atom *at_1 =   lig_atom_selection[pscontact[i].id1];
+	    mmdb::Atom *at_2 = other_atom_selection[pscontact[i].id2];
 // 	    std::cout << "DEUBG:: Covalent test "
 // 		      << coot::atom_spec_t(at_1) << "..."
 // 		      << coot::atom_spec_t(at_2) << std::endl;
-	    std::pair<CResidue *, CResidue *> pair(at_1->GetResidue(),
+	    std::pair<mmdb::Residue *, mmdb::Residue *> pair(at_1->GetResidue(),
 						   at_2->GetResidue());
 
 	    std::string ele_1 = at_1->element;
@@ -1261,8 +1261,8 @@ coot::get_covalent_bonds_by_distance(CMMDBManager *mol,
 }
 
 std::vector<coot::fle_ligand_bond_t>
-coot::get_covalent_bonds_by_links(CResidue *residue_ligand_p,
-				  CMMDBManager *mol) {
+coot::get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
+				  mmdb::Manager *mol) {
 
    std::vector<coot::fle_ligand_bond_t> v;
 
@@ -1278,19 +1278,19 @@ coot::get_covalent_bonds_by_links(CResidue *residue_ligand_p,
    if (residue_ligand_p) { 
       if (mol) {
 	 for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
-	    CModel *model_p = mol->GetModel(imod);
+	    mmdb::Model *model_p = mol->GetModel(imod);
 	    int n_links = model_p->GetNumberOfLinks();
 
 	    for (int i_link=1; i_link<=n_links; i_link++) {
-	       PCLink link = model_p->GetLink(i_link);
+	       mmdb::PLink link = model_p->GetLink(i_link);
 
 	       // Ligand then Protein
 	       if (residue_ligand_chain_id == link->chainID1) {
 		  if (residue_ligand_res_no == link->seqNum1) {
 		     if (residue_ligand_ins_code == link->insCode1) {
 			std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link);
-			CAtom *at_1 = coot::util::get_atom(linked_atoms.first,  mol);
-			CAtom *at_2 = coot::util::get_atom(linked_atoms.second, mol);
+			mmdb::Atom *at_1 = coot::util::get_atom(linked_atoms.first,  mol);
+			mmdb::Atom *at_2 = coot::util::get_atom(linked_atoms.second, mol);
 			if (at_1 && at_2) { 
 			   double dist = distance(at_1, at_2);
 			   fle_ligand_bond_t b(linked_atoms.first, linked_atoms.second,
@@ -1307,8 +1307,8 @@ coot::get_covalent_bonds_by_links(CResidue *residue_ligand_p,
 		  if (residue_ligand_res_no == link->seqNum2) {
 		     if (residue_ligand_ins_code == link->insCode2) {
 			std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link);
-			CAtom *at_1 = coot::util::get_atom(linked_atoms.first,  mol);
-			CAtom *at_2 = coot::util::get_atom(linked_atoms.second, mol);
+			mmdb::Atom *at_1 = coot::util::get_atom(linked_atoms.first,  mol);
+			mmdb::Atom *at_2 = coot::util::get_atom(linked_atoms.second, mol);
 			if (at_1 && at_2) { 
 			   double dist = distance(at_1, at_2);
 			   fle_ligand_bond_t b(linked_atoms.second, linked_atoms.first,
@@ -1328,7 +1328,7 @@ coot::get_covalent_bonds_by_links(CResidue *residue_ligand_p,
 
 
 std::vector<coot::fle_ligand_bond_t>
-coot::get_metal_bonds(CResidue *ligand_residue, const std::vector<CResidue *> &residues) {
+coot::get_metal_bonds(mmdb::Residue *ligand_residue, const std::vector<mmdb::Residue *> &residues) {
 
    // a non-Hydrogen, non-Carbon ligand atom, that is.
    double max_dist_metal_to_ligand_atom = 3.5; // pass this parameter?
@@ -1337,15 +1337,15 @@ coot::get_metal_bonds(CResidue *ligand_residue, const std::vector<CResidue *> &r
 
    double best_dist_sqrd = max_dist_metal_to_ligand_atom * max_dist_metal_to_ligand_atom;
    std::string ligand_atom_name; // goes with best_dist_sqrd
-   CAtom *ligand_atom = NULL;
-   CAtom *env_residue_atom = NULL;
+   mmdb::Atom *ligand_atom = NULL;
+   mmdb::Atom *env_residue_atom = NULL;
    
-   PPCAtom ligand_residue_atoms = 0;
+   mmdb::PPAtom ligand_residue_atoms = 0;
    int n_ligand_residue_atoms;
    ligand_residue->GetAtomTable(ligand_residue_atoms, n_ligand_residue_atoms);
    for (unsigned int i=0; i<residues.size(); i++) { 
       if (coot::is_a_metal(residues[i])) {
-	 PPCAtom residue_atoms = 0;
+	 mmdb::PPAtom residue_atoms = 0;
 	 int n_residue_atoms;
 	 residues[i]->GetAtomTable(residue_atoms, n_residue_atoms);
 	 for (unsigned int irat=0; irat<n_residue_atoms; irat++) {
@@ -1384,7 +1384,7 @@ coot::get_metal_bonds(CResidue *ligand_residue, const std::vector<CResidue *> &r
 // should be in coot-utils perhaps?
 //
 bool
-coot::is_a_metal(CResidue *res) {
+coot::is_a_metal(mmdb::Residue *res) {
 
    bool r = 0;
    std::string res_name = res->GetResName();
@@ -1427,32 +1427,32 @@ coot::is_a_metal(CResidue *res) {
 // return 100 if no other contact found (strange!)
 // 
 double
-coot::find_water_protein_length(CResidue *ligand_residue, CMMDBManager *mol) {
+coot::find_water_protein_length(mmdb::Residue *ligand_residue, mmdb::Manager *mol) {
 
    double dist = 100;
 
    double dist_sqrd = dist * dist;
    double dist_sqrd_init = dist_sqrd;
    
-   PPCAtom ligand_residue_atoms = 0;
+   mmdb::PPAtom ligand_residue_atoms = 0;
    int n_ligand_residue_atoms;
    ligand_residue->GetAtomTable(ligand_residue_atoms, n_ligand_residue_atoms);
 
 
    int imod = 1;
-   CModel *model_p = mol->GetModel(imod);
-   CChain *chain_p;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   mmdb::Chain *chain_p;
    int nchains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<nchains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
-      CResidue *residue_p;
+      mmdb::Residue *residue_p;
       for (int ires=0; ires<nres; ires++) { 
 	 residue_p = chain_p->GetResidue(ires);
 	 if (ligand_residue != residue_p) {
 	    std::string residue_name(residue_p->GetResName());
 	    if (residue_name != "HOH") { 
-	       PPCAtom residue_atoms = 0;
+	       mmdb::PPAtom residue_atoms = 0;
 	       int n_residue_atoms;
 	       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 	       for (unsigned int il=0; il<n_ligand_residue_atoms; il++) {
@@ -1644,11 +1644,11 @@ coot::get_prodrg_hybridizations(const std::string &prodrg_log_file_name) {
    return v;
 }
 
-std::vector<std::pair<CAtom *, std::vector<clipper::Coord_orth> > >
-coot::get_cannonball_vectors(CResidue *ligand_res_3d,
+std::vector<std::pair<mmdb::Atom *, std::vector<clipper::Coord_orth> > >
+coot::get_cannonball_vectors(mmdb::Residue *ligand_res_3d,
 			     const coot::dictionary_residue_restraints_t &monomer_restraints) {
 
-   std::vector<std::pair<CAtom *, std::vector<clipper::Coord_orth> > > v;
+   std::vector<std::pair<mmdb::Atom *, std::vector<clipper::Coord_orth> > > v;
 
    return v;
 }
@@ -1715,7 +1715,7 @@ coot::flev_attached_hydrogens_t::flev_attached_hydrogens_t(const coot::dictionar
 } 
 
 void
-coot::flev_attached_hydrogens_t::cannonballs(CResidue *ligand_residue_3d,
+coot::flev_attached_hydrogens_t::cannonballs(mmdb::Residue *ligand_residue_3d,
 					     const std::string &prodrg_3d_ligand_file_name,
 					     const coot::dictionary_residue_restraints_t &restraints) {
 
@@ -1726,18 +1726,18 @@ coot::flev_attached_hydrogens_t::cannonballs(CResidue *ligand_residue_3d,
 }
 
 void
-coot::flev_attached_hydrogens_t::cannonballs(CResidue *ligand_residue_3d,
-					     CMMDBManager *mol, 
+coot::flev_attached_hydrogens_t::cannonballs(mmdb::Residue *ligand_residue_3d,
+					     mmdb::Manager *mol, 
 					     const coot::dictionary_residue_restraints_t &restraints) {
 
    if (! mol)
       return;
    
-   PSContact pscontact = NULL;
+   mmdb::Contact *pscontact = NULL;
    int n_contacts;
    long i_contact_group = 1;
-   mat44 my_matt;
-   CSymOps symm;
+   mmdb::mat44 my_matt;
+   mmdb::SymOps symm;
    for (int i=0; i<4; i++) 
       for (int j=0; j<4; j++) 
 	 my_matt[i][j] = 0.0;      
@@ -1747,14 +1747,14 @@ coot::flev_attached_hydrogens_t::cannonballs(CResidue *ligand_residue_3d,
    int SelHnd_H = mol->NewSelection();
    int SelHnd_non_H = mol->NewSelection();
 
-   PPCAtom hydrogen_selection = 0;
-   PPCAtom non_hydrogen_selection = 0;
+   mmdb::PPAtom hydrogen_selection = 0;
+   mmdb::PPAtom non_hydrogen_selection = 0;
    int n_hydrogen_atoms;
    int n_non_hydrogen_atoms;
       
       
-   mol->SelectAtoms(SelHnd_H,     0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", " H", "*");
-   mol->SelectAtoms(SelHnd_non_H, 0, "*", ANY_RES, "*", ANY_RES, "*", "*", "*", "!H", "*");
+   mol->SelectAtoms(SelHnd_H,     0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", " H", "*");
+   mol->SelectAtoms(SelHnd_non_H, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "!H", "*");
       
    mol->GetSelIndex(SelHnd_H, hydrogen_selection, n_hydrogen_atoms);
    mol->GetSelIndex(SelHnd_non_H, non_hydrogen_selection, n_non_hydrogen_atoms);
@@ -1790,7 +1790,7 @@ coot::flev_attached_hydrogens_t::cannonballs(CResidue *ligand_residue_3d,
    // 
    if (n_contacts > 0) {
       for (int i=0; i< n_contacts; i++) {
-	 CAtom *at = non_hydrogen_selection[pscontact[i].id2];
+	 mmdb::Atom *at = non_hydrogen_selection[pscontact[i].id2];
 	 std::string atom_name_bonded_to_H(at->name);
 
 	 bool found_torsion_for_this_H = 0;
@@ -1799,7 +1799,7 @@ coot::flev_attached_hydrogens_t::cannonballs(CResidue *ligand_residue_3d,
 	 // 
 	 for (unsigned int iat=0; iat<atoms_with_riding_hydrogens.size(); iat++) { 
 	    if (atom_name_bonded_to_H == atoms_with_riding_hydrogens[iat].first) {
-	       CAtom *h_at = hydrogen_selection[pscontact[i].id1];
+	       mmdb::Atom *h_at = hydrogen_selection[pscontact[i].id1];
 	       found_torsion_for_this_H = add_named_torsion(h_at, at, restraints, mol, coot::H_IS_RIDING);
 	    }
 	    if (found_torsion_for_this_H)
@@ -1810,7 +1810,7 @@ coot::flev_attached_hydrogens_t::cannonballs(CResidue *ligand_residue_3d,
 	 // 
 	 for (unsigned int iat=0; iat<atoms_with_rotating_hydrogens.size(); iat++) { 
 	    if (atom_name_bonded_to_H == atoms_with_rotating_hydrogens[iat].first) {
-	       CAtom *h_at = hydrogen_selection[pscontact[i].id1];
+	       mmdb::Atom *h_at = hydrogen_selection[pscontact[i].id1];
 	       found_torsion_for_this_H = add_named_torsion(h_at, at, restraints, mol, coot::H_IS_ROTATABLE);
 	    }
 	    if (found_torsion_for_this_H)
@@ -1829,9 +1829,9 @@ coot::flev_attached_hydrogens_t::cannonballs(CResidue *ligand_residue_3d,
 // hydrogen_type is either H_IS_RIDING or H_IS_ROTATABLE
 //
 bool
-coot::flev_attached_hydrogens_t::add_named_torsion(CAtom *h_at, CAtom *at,
+coot::flev_attached_hydrogens_t::add_named_torsion(mmdb::Atom *h_at, mmdb::Atom *at,
 						   const coot::dictionary_residue_restraints_t &restraints,
-						   CMMDBManager *mol, // 3d prodrg ligand mol
+						   mmdb::Manager *mol, // 3d prodrg ligand mol
 						   int hydrogen_type)  {
 
    bool found_torsion_for_this_H = 0;
@@ -1872,18 +1872,18 @@ coot::flev_attached_hydrogens_t::add_named_torsion(CAtom *h_at, CAtom *at,
 			std::string base_atom_name = atom_name_b_2;
 
 			// now, where are those atoms (At_name_2 and base_atom_name)?
-			CAtom *At_2 = NULL;
-			CAtom *base_atom = NULL;
+			mmdb::Atom *At_2 = NULL;
+			mmdb::Atom *base_atom = NULL;
 
 			int imod = 1;
-			CModel *model_p = mol->GetModel(imod);
-			CChain *chain_p;
+			mmdb::Model *model_p = mol->GetModel(imod);
+			mmdb::Chain *chain_p;
 			int nchains = model_p->GetNumberOfChains();
 			for (int ichain=0; ichain<nchains; ichain++) {
 			   chain_p = model_p->GetChain(ichain);
 			   int nres = chain_p->GetNumberOfResidues();
-			   CResidue *residue_p;
-			   CAtom *residue_at;
+			   mmdb::Residue *residue_p;
+			   mmdb::Atom *residue_at;
 			   for (int ires=0; ires<nres; ires++) { 
 			      residue_p = chain_p->GetResidue(ires);
 			      int n_atoms = residue_p->GetNumberOfAtoms();
@@ -1949,19 +1949,19 @@ coot::flev_attached_hydrogens_t::add_named_torsion(CAtom *h_at, CAtom *at,
 // unit vector from the bonding atom in the direction of (each of, if
 // there are more than one) the hydrogen(s).
 // 
-std::vector<std::pair<CAtom *, std::vector<clipper::Coord_orth> > >
-coot::flev_attached_hydrogens_t::named_hydrogens_to_reference_ligand(CResidue *ligand_residue_3d,
+std::vector<std::pair<mmdb::Atom *, std::vector<clipper::Coord_orth> > >
+coot::flev_attached_hydrogens_t::named_hydrogens_to_reference_ligand(mmdb::Residue *ligand_residue_3d,
 								     const coot::dictionary_residue_restraints_t &restraints) const {
 
-   std::vector<std::pair<CAtom *, std::vector<clipper::Coord_orth> > > v;
+   std::vector<std::pair<mmdb::Atom *, std::vector<clipper::Coord_orth> > > v;
 
    for (unsigned int i=0; i<named_torsions.size(); i++) { 
       if (named_torsions[i].hydrogen_type == coot::H_IS_RIDING) {
-	 CAtom *atom_base = NULL;
-	 CAtom *atom_2 = NULL;
-	 CAtom *atom_bonded_to_H = NULL;
+	 mmdb::Atom *atom_base = NULL;
+	 mmdb::Atom *atom_2 = NULL;
+	 mmdb::Atom *atom_bonded_to_H = NULL;
 	 
-	 PPCAtom residue_atoms = 0;
+	 mmdb::PPAtom residue_atoms = 0;
 	 int n_residue_atoms;
 	 ligand_residue_3d->GetAtomTable(residue_atoms, n_residue_atoms);
 	 for (int iat=0; iat<n_residue_atoms; iat++) { 
@@ -2000,7 +2000,7 @@ coot::flev_attached_hydrogens_t::named_hydrogens_to_reference_ligand(CResidue *l
 	    if (! found_atom) {
 	       std::vector<clipper::Coord_orth> cov;
 	       cov.push_back(vect);
-	       std::pair<CAtom *, std::vector<clipper::Coord_orth> > p(atom_bonded_to_H, cov);
+	       std::pair<mmdb::Atom *, std::vector<clipper::Coord_orth> > p(atom_bonded_to_H, cov);
 	       v.push_back(p);
 	    } 
 	 }
@@ -2013,11 +2013,11 @@ coot::flev_attached_hydrogens_t::named_hydrogens_to_reference_ligand(CResidue *l
 
 // apply those cannonball directions onto the real reference ligand:
 void
-coot::flev_attached_hydrogens_t::distances_to_protein(CResidue *residue_reference, 
-						      CMMDBManager *mol_reference) {
+coot::flev_attached_hydrogens_t::distances_to_protein(mmdb::Residue *residue_reference, 
+						      mmdb::Manager *mol_reference) {
 
    float radius = 6.0;
-   std::vector<CResidue *> env_residues =
+   std::vector<mmdb::Residue *> env_residues =
       coot::residues_near_residue(residue_reference, mol_reference, radius);
    bool debug = 0;
 
@@ -2050,11 +2050,11 @@ coot::flev_attached_hydrogens_t::distances_to_protein(CResidue *residue_referenc
 	       std::cout << "pt_base_and_H: ligand atom at: " << pt_base_and_H.first.format()
 			 << " H atom at: " << pt_base_and_H.second.format() << std::endl;
 	    
-	    std::vector<CAtom *> atoms = close_atoms(pt_base_and_H.second, env_residues);
+	    std::vector<mmdb::Atom *> atoms = close_atoms(pt_base_and_H.second, env_residues);
 
 	    // bash is one of a (potentially) number of bash distances
 	    // for a given ligand (non-hydrogen) atom.
-	    // (passing the H coord, the lig-atom coord, a vector of CAtoms *s.)
+	    // (passing the H coord, the lig-atom coord, a vector of mmdb::Atoms *s.)
 	    // 
 	    coot::bash_distance_t bash = find_bash_distance(pt_base_and_H.first,
 							    pt_base_and_H.second,
@@ -2073,7 +2073,7 @@ coot::flev_attached_hydrogens_t::distances_to_protein(CResidue *residue_referenc
 	    int n_torsion_samples = 8;
 	    std::pair<clipper::Coord_orth, clipper::Coord_orth> pt_base_and_H =
 	       hydrogen_pos(named_torsions[i], residue_reference);
-	    std::vector<CAtom *> atoms = close_atoms(pt_base_and_H.second, env_residues);
+	    std::vector<mmdb::Atom *> atoms = close_atoms(pt_base_and_H.second, env_residues);
 	    for (unsigned int itor=0; itor<n_torsion_samples; itor++) {
 
 	       coot::named_torsion_t tmp_tor = named_torsions[i];
@@ -2106,8 +2106,8 @@ coot::flev_attached_hydrogens_t::distances_to_protein(CResidue *residue_referenc
 // This fills the atom_bashes vector.
 // 
 void
-coot::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(CResidue *ligand_residue,
-								       CMMDBManager *mol,
+coot::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(mmdb::Residue *ligand_residue,
+								       mmdb::Manager *mol,
 								       const coot::protein_geometry &geom) {
 
    // the constructor (called just before this) should fill
@@ -2115,19 +2115,19 @@ coot::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(CResidue 
    // vectors (using the restraints).
    
    float radius = 6.0;
-   std::vector<CResidue *> env_residues =
+   std::vector<mmdb::Residue *> env_residues =
       coot::residues_near_residue(ligand_residue, mol, radius);
 
    // -------------------------------------------------------------------
    //                    riding hydrogens
    // -------------------------------------------------------------------
    // 
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_ligand_atoms;
    ligand_residue->GetAtomTable(residue_atoms, n_ligand_atoms);
    for (unsigned int irh=0; irh<atoms_with_riding_hydrogens.size(); irh++) { 
-      CAtom *lig_at = NULL;
-      CAtom *H_at = NULL;
+      mmdb::Atom *lig_at = NULL;
+      mmdb::Atom *H_at = NULL;
       for (unsigned int iat=0; iat<n_ligand_atoms; iat++) { 
 	 std::string atom_name(residue_atoms[iat]->name);
 	 if (atom_name == atoms_with_riding_hydrogens[irh].first)
@@ -2141,7 +2141,7 @@ coot::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(CResidue 
 	 clipper::Coord_orth H_pt(H_at->x, H_at->y, H_at->z);
 	 clipper::Coord_orth lig_atom_pt(lig_at->x, lig_at->y, lig_at->z);
 	 
-	 std::vector<CAtom *> atoms = close_atoms(H_pt, env_residues);
+	 std::vector<mmdb::Atom *> atoms = close_atoms(H_pt, env_residues);
 	 coot::bash_distance_t bash = find_bash_distance(lig_atom_pt, H_pt, atoms);
 	 atom_bashes[atoms_with_riding_hydrogens[irh].first].push_back(bash);
 	 if (0) 
@@ -2156,8 +2156,8 @@ coot::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(CResidue 
    // 
    
    for (unsigned int irh=0; irh<atoms_with_rotating_hydrogens.size(); irh++) { 
-      CAtom *lig_at = NULL;
-      CAtom *H_at = NULL;
+      mmdb::Atom *lig_at = NULL;
+      mmdb::Atom *H_at = NULL;
       for (unsigned int iat=0; iat<n_ligand_atoms; iat++) { 
 	 std::string atom_name(residue_atoms[iat]->name);
 	 if (atom_name == atoms_with_rotating_hydrogens[irh].first)
@@ -2171,7 +2171,7 @@ coot::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(CResidue 
 	 clipper::Coord_orth H_pt(H_at->x, H_at->y, H_at->z);
 	 clipper::Coord_orth lig_atom_pt(lig_at->x, lig_at->y, lig_at->z);
 	 
-	 std::vector<CAtom *> atoms = close_atoms(H_pt, env_residues);
+	 std::vector<mmdb::Atom *> atoms = close_atoms(H_pt, env_residues);
 
 	 try { 
 	    clipper::Coord_orth vector_pt = get_atom_pos_bonded_to_atom(lig_at, H_at, // not H_at
@@ -2210,14 +2210,14 @@ coot::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(CResidue 
 // 
 std::pair<clipper::Coord_orth, clipper::Coord_orth>
 coot::flev_attached_hydrogens_t::hydrogen_pos(const coot::named_torsion_t &named_tor,
-					      CResidue *residue_p) const {
+					      mmdb::Residue *residue_p) const {
    clipper:: Coord_orth pt(0,0,0);
    clipper:: Coord_orth pt_ligand_atom(0,0,0);
-   CAtom *at_1 = NULL;
-   CAtom *at_2 = NULL;
-   CAtom *at_3 = NULL;
+   mmdb::Atom *at_1 = NULL;
+   mmdb::Atom *at_2 = NULL;
+   mmdb::Atom *at_3 = NULL;
 
-   PPCAtom residue_atoms = 0;
+   mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (unsigned int i=0; i<n_residue_atoms; i++) {
@@ -2260,8 +2260,8 @@ coot::flev_attached_hydrogens_t::hydrogen_pos(const coot::named_torsion_t &named
 // Can throw a std::runtime_error if not found.
 // 
 clipper::Coord_orth
-coot::flev_attached_hydrogens_t::get_atom_pos_bonded_to_atom(CAtom *lig_at, CAtom *H_at, // not H_at
-							     CResidue *ligand_residue,
+coot::flev_attached_hydrogens_t::get_atom_pos_bonded_to_atom(mmdb::Atom *lig_at, mmdb::Atom *H_at, // not H_at
+							     mmdb::Residue *ligand_residue,
 							     const coot::protein_geometry &geom) const {
    std::string res_name(lig_at->residue->GetResName());
    std::pair<bool, dictionary_residue_restraints_t> p = 
@@ -2273,7 +2273,7 @@ coot::flev_attached_hydrogens_t::get_atom_pos_bonded_to_atom(CAtom *lig_at, CAto
       m += " found in dictionary";
       throw std::runtime_error(m);
    } else {
-      CAtom *bonded_atom = NULL;
+      mmdb::Atom *bonded_atom = NULL;
       std::string bonded_atom_name;
       std::string lig_at_name = lig_at->name;
       std::string H_at_name = H_at->name;
@@ -2294,7 +2294,7 @@ coot::flev_attached_hydrogens_t::get_atom_pos_bonded_to_atom(CAtom *lig_at, CAto
 	 }
       }
       if (bonded_atom_name != "") {
-	 PPCAtom residue_atoms = 0;
+	 mmdb::PPAtom residue_atoms = 0;
 	 int n_residue_atoms;
 	 ligand_residue->GetAtomTable(residue_atoms, n_residue_atoms);
 	 for (unsigned int iat=0; iat<n_residue_atoms ; iat++) {
@@ -2325,17 +2325,17 @@ coot::flev_attached_hydrogens_t::get_atom_pos_bonded_to_atom(CAtom *lig_at, CAto
 // 
 // waters are not counted as close atoms.
 // 
-std::vector<CAtom *>
+std::vector<mmdb::Atom *>
 coot::flev_attached_hydrogens_t::close_atoms(const clipper::Coord_orth &pt,
-					     const std::vector<CResidue *> &env_residues) const {
+					     const std::vector<mmdb::Residue *> &env_residues) const {
 
-   std::vector<CAtom *> v;
+   std::vector<mmdb::Atom *> v;
    double dist_crit = 6.0;
    double dist_crit_squared = dist_crit * dist_crit;
    
    for (unsigned int i=0; i<env_residues.size(); i++) {
-      CResidue *residue_p = env_residues[i];
-      PPCAtom residue_atoms = 0;
+      mmdb::Residue *residue_p = env_residues[i];
+      mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
@@ -2355,7 +2355,7 @@ coot::flev_attached_hydrogens_t::close_atoms(const clipper::Coord_orth &pt,
 coot::bash_distance_t
 coot::flev_attached_hydrogens_t::find_bash_distance(const clipper::Coord_orth &ligand_atom_pos,
 						    const clipper::Coord_orth &hydrogen_pos,
-						    const std::vector<CAtom *> &close_residue_atoms) const {
+						    const std::vector<mmdb::Atom *> &close_residue_atoms) const {
 
    // find the residue from the close residue atoms and cache the
    // dictionaries here so that we can then call
@@ -2366,7 +2366,7 @@ coot::flev_attached_hydrogens_t::find_bash_distance(const clipper::Coord_orth &l
    // If hb_type is acceptor, then decrease bash distance,
    // atom_radius_plus_cbr by 0.8A or so.
    // 
-   std::map<CResidue *, coot::dictionary_residue_restraints_t> dictionary_map;
+   std::map<mmdb::Residue *, coot::dictionary_residue_restraints_t> dictionary_map;
 
    double cannonball_radius = 0.8; // radius of the cannonball, c.f. at least a hydrogen.
    

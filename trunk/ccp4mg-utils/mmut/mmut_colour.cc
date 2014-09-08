@@ -37,7 +37,7 @@
   \param scheme A pointer to the CColourSchemes class which has the definition of the colour schemes.  There is only one instance of this class created by the MG. 
   */
 //-----------------------------------------------------------------------
-CMolColour::CMolColour(PCMMDBManager molHndin, int selHndin,
+CMolColour::CMolColour(mmdb::PManager molHndin, int selHndin,
 		        PCColourSchemes schemein ) {
 //-----------------------------------------------------------------------
   //data  - needs initiallising BEFORE SetSelHandle
@@ -74,7 +74,7 @@ int CMolColour::SetSelHandle(int selHndin) {
   // No selection specified so select all
   if ( selHnd <= 0 ) {
     selHnd = molHnd->NewSelection();
-    RC = molHnd->Select ( selHnd,STYPE_ATOM,"*/*/*/*",SKEY_NEW );
+    RC = molHnd->Select ( selHnd,mmdb::STYPE_ATOM,"*/*/*/*",mmdb::SKEY_NEW );
   }
  
   Clear();
@@ -144,7 +144,7 @@ int CMolColour::GetAtomColourVector ( int &nat, int *icol ) {
 int CMolColour::Print( ) {
 //-----------------------------------------------------------------------
   int i;
-  PPCAtom selAtoms;
+  mmdb::PPAtom selAtoms;
 
   if ( !colour ) ReColour();
 
@@ -214,7 +214,7 @@ int CMolColour::ReColour() {
 int CMolColour::OneColour( ) {
 //-----------------------------------------------------------------------
   int i;
-  PPCAtom selAtoms;
+  mmdb::PPAtom selAtoms;
 
   molHnd->GetSelIndex (selHnd, selAtoms, natoms );
   FreeVectorMemory( colour,0);
@@ -230,7 +230,7 @@ int CMolColour::OneColour( ) {
 //-----------------------------------------------------------------------
 int CMolColour::ByAtomType( ) {
 //-----------------------------------------------------------------------
-  PPCAtom selAtoms;
+  mmdb::PPAtom selAtoms;
   int i,j;
 
   molHnd->GetSelIndex (selHnd, selAtoms, natoms );
@@ -253,7 +253,7 @@ int CMolColour::ByAtomType( ) {
 //-----------------------------------------------------------------------
 int CMolColour::ByResidueType( ) {
 //-----------------------------------------------------------------------
-  PPCAtom selAtoms;
+  mmdb::PPAtom selAtoms;
   int i,j;
  
   molHnd->GetSelIndex (selHnd, selAtoms, natoms );
@@ -276,17 +276,17 @@ int CMolColour::ByResidueType( ) {
 //-----------------------------------------------------------------------
 int CMolColour::ByChain( ) {
 //-----------------------------------------------------------------------
-  PPCAtom selAtoms;
+  mmdb::PPAtom selAtoms;
   int natoms;
   int i,j;
   int chnHnd, nChains;
-  PPCChain selChains;
-  ivector cols;
+  Pmmdb::PChain selChains;
+  mmdb::ivector cols;
   int ic = firstChainColour;
 
   molHnd->GetSelIndex (selHnd, selAtoms, natoms );
   chnHnd = molHnd->NewSelection(); 
-  molHnd->Select(chnHnd,STYPE_CHAIN,selHnd,SKEY_NEW);
+  molHnd->Select(chnHnd,STYPE_CHAIN,selHnd,mmdb::SKEY_NEW);
   molHnd->GetSelIndex (chnHnd, selChains, nChains );
   if ( nChains <= 0 ) return 1;
 
@@ -323,10 +323,10 @@ int CMolColour::SecondaryStructure( ) {
 //-----------------------------------------------------------------------
 int CMolColour::BValue () {
 //-----------------------------------------------------------------------
-  PPCAtom selAtoms;
+  mmdb::PPAtom selAtoms;
   int i,j;
   float frac;
-  ivector colourbin;
+  mmdb::ivector colourbin;
   molHnd->GetSelIndex (selHnd, selAtoms, natoms );
   FreeVectorMemory( colour,0);
   GetVectorMemory ( colour, natoms, 0);
@@ -400,7 +400,7 @@ int CColours::SetColours (int n, const char *cols[]) {
 }
 
 //-----------------------------------------------------------------------
-int CColours::GetCode ( int nAppCol, const psvector appCol, ivector code ) {
+int CColours::GetCode ( int nAppCol, const psvector appCol, mmdb::ivector code ) {
 //-----------------------------------------------------------------------
   //*****BEWARE code is in range 1 to nColours
   int i,j;
@@ -452,7 +452,7 @@ CColourSchemes::CColourSchemes () :
 
   //Default Bvalue blue->red in 10 bins between 0->100
   // and colour below and above that range white and yellow
-  realtype bvalrngs [4] = { NULL, 0.0,50.0 , NULL} ;
+  mmdb::realtype bvalrngs [4] = { NULL, 0.0,50.0 , NULL} ;
   int bvalbns[4] = { 1, 10, 1, NULL };
   const char *bvalcol[4] = { "white", "blue","red", "yellow" };
   
@@ -530,7 +530,7 @@ int CColourScheme::SetScheme (int n, int typs[], const char *cols[] ) {
 }
 
 //-----------------------------------------------------------------------
-int CColourScheme::SetScheme (int n, realtype rngs[], int bns[], const char *cols[]){
+int CColourScheme::SetScheme (int n, mmdb::realtype rngs[], int bns[], const char *cols[]){
 //-----------------------------------------------------------------------
   // Set colour scheme which is dependent value of a string attribute
   int RC,i;

@@ -31,7 +31,7 @@
 #define HAVE_VECTOR
 #endif
 
-#include <mmdb/mmdb_manager.h>
+#include <mmdb2/mmdb_manager.h>
 #include "clipper/core/cell.h"
 
 namespace coot {
@@ -157,8 +157,8 @@ namespace coot {
       int udd_afix_handle;
       int status;
       bool is_protein_flag;
-      CMMDBManager *mol;
-      shelx_read_file_info_t(int a, int b, CMMDBManager *mol_in) {
+      mmdb::Manager *mol;
+      shelx_read_file_info_t(int a, int b, mmdb::Manager *mol_in) {
 	 status = a;
 	 udd_afix_handle = b;
 	 mol = mol_in;
@@ -206,7 +206,7 @@ namespace coot {
       std::string make_atom_element(const std::string &atom_name_in,
 				    const int &atomic_weight) const;
       // return the success status of the assignment, 1 is OK, 0 is fail.
-      bool try_assign_cell(CMMDBManager *mol);
+      bool try_assign_cell(mmdb::Manager *mol);
 
       bool is_unit_line(const std::string &s) const {
 	 bool r = 0;
@@ -230,29 +230,29 @@ namespace coot {
       // And that means that the passed atom_vector needs to be a
       // reference (or a pointer, but we don't do that here) and no
       // longer const.
-      CResidue *add_shelx_residue(std::vector<CAtom *> &atom_vector,
+      mmdb::Residue *add_shelx_residue(std::vector<mmdb::Atom *> &atom_vector,
 				  const std::string &current_res_name,
 				  int &current_res_no) const;
       void save_fvars(const shelx_card_info_t &card);
-      CAtom *make_atom(const coot::shelx_card_info_t &card, const std::string &altconf,
+      mmdb::Atom *make_atom(const coot::shelx_card_info_t &card, const std::string &altconf,
 		       int udd_afix_handle,
 		       int udd_riding_atom_flag_handle,
 		       int udd_riding_atom_negative_u_value_handle,
 		       bool have_udd_atoms, int current_afix,
-		       clipper::Cell &cell, const std::vector<CAtom *> &atom_vector) const;
-      std::pair<int, std::string> write_ins_file_internal(CMMDBManager *mol_in,
+		       clipper::Cell &cell, const std::vector<mmdb::Atom *> &atom_vector) const;
+      std::pair<int, std::string> write_ins_file_internal(mmdb::Manager *mol_in,
 							  const std::string &filename) const;
       
-      CAtom *previous_non_riding_atom(const std::vector<CAtom *> &atom_vector,
+      mmdb::Atom *previous_non_riding_atom(const std::vector<mmdb::Atom *> &atom_vector,
 				      int udd_non_riding_atom_flag_handle) const {
 
 	 if (atom_vector.size()==0) {
 	    return NULL;
 	 } else { 
 	    for (int i=atom_vector.size()-1;  i>=0; i--) {
-	       CAtom *at = atom_vector[i];
+	       mmdb::Atom *at = atom_vector[i];
 	       int ic = -1; // is riding atom flag
-	       if (at->GetUDData(udd_non_riding_atom_flag_handle, ic) == UDDATA_Ok) {
+	       if (at->GetUDData(udd_non_riding_atom_flag_handle, ic) == mmdb::UDDATA_Ok) {
 		  if (ic==1)
 		     return at;
 	       } else {
@@ -265,7 +265,7 @@ namespace coot {
 	    return NULL;
 	 }
       }
-      std::string message_for_atom(const std::string &in_string, CAtom *at) const;
+      std::string message_for_atom(const std::string &in_string, mmdb::Atom *at) const;
 
       
    public:
@@ -274,7 +274,7 @@ namespace coot {
       shelx_read_file_info_t read_file(const std::string &filename);
       ShelxIns(const std::string &filename);
       // return status and message string
-      std::pair<int, std::string> write_ins_file(CMMDBManager *mol, const std::string &filename);
+      std::pair<int, std::string> write_ins_file(mmdb::Manager *mol, const std::string &filename);
       // is this real shelx data or an empty holder?
       short int is_filled_p() const { return filled_flag; }
       int add_fvar(float f); // return the shelx index FVAR number for this fvar
@@ -298,9 +298,9 @@ namespace coot {
 						 int shelx_latt);
 
 // return null on no conversion.
-   CMMDBManager *unshelx(CMMDBManager *mol);
+   mmdb::Manager *unshelx(mmdb::Manager *mol);
 // return null on no conversion.
-   CMMDBManager *reshelx(CMMDBManager *mol);
+   mmdb::Manager *reshelx(mmdb::Manager *mol);
 
 }
 

@@ -112,26 +112,26 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 				    short int diff_residue_flag,
 				    std::string molecule_name) const
 {
-   // we need a MyMMDBManager (not just an CMMDBManager) because it
+   // we need a MyMMDBManager (not just an mmdb::Manager) because it
    // become part of an atom_selection_container_t. 
    // 
-   MyCMMDBManager* MMDBManager;
+   mmdb::Manager *MMDBManager;
 
    //   Make routine initializations
    //
-   InitMatType();
+   mmdb::InitMatType();
 
-   // MyMMDBManager = new MyCMMDBManager();
-   // MMDBManager = new MyCMMDBManager;
+   // MyMMDBManager = new Mymmdb::Manager();
+   // MMDBManager = new Mymmdb::Manager;
 
    // There were problems converting between clipper space group
    // and mmdb space group (in the commented out code, in the case
    // of "R 3 2" - which mmdb did not recognise.
    //
-   // So, we use a clipper::MMDB which is a wrapper for CMMDBManager
+   // So, we use a clipper::MMDB which is a wrapper for mmdb::Manager
    // (and other things). 
    //
-   // We create a "new" object so that it (the CMMDBManager) does not
+   // We create a "new" object so that it (the mmdb::Manager) does not
    // get destroyed, but note that we cannot now delete the clipper::MMDB
    // (which is not ideal).
    //
@@ -140,14 +140,14 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
    // 
    
 //    clipper::MMDB* clmmdb = new clipper::MMDB( spg, cell );
-//    MMDBManager = reinterpret_cast<MyCMMDBManager*>(clmmdb->pcmmdbmanager());
+//    MMDBManager = reinterpret_cast<Mymmdb::Manager*>(clmmdb->pcmmdbmanager());
 
    clipper::MMDBManager *clmmdb;
    clmmdb = new clipper::MMDBManager;
    clmmdb->set_spacegroup(spg);
    clmmdb->set_cell(cell);
 
-   MMDBManager = reinterpret_cast<MyCMMDBManager*>(clmmdb);
+   MMDBManager = clmmdb;
 
 //    cout << "step 0: " << endl; 
 //    cout << "DEBUG: There are "
@@ -155,11 +155,11 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 // 	<< " sym ops" << endl; 
 
 //    for (int isym = 0; isym < MMDBManager->get_cell_p()->GetNumberOfSymOps(); isym++) {
-//       mat44 my_matt;
+//       mmdb::mat44 my_matt;
 //       int err2 = MMDBManager->get_cell_p()->GetTMatrix(my_matt, isym, 0, 0, 0); 
       
 //       if (err2 != 0) {
-// 	 cout << "!! something BAD with MMDB CMMDBCryst.GetTMatrix in convert_to_atoms_internal"
+// 	 cout << "!! something BAD with MMDB mmdb::CMMDBCryst.GetTMatrix in convert_to_atoms_internal"
 // 	      << endl;
 //       } else {
 // 	 cout << "DEBUG: symop " << isym << " clipper::MMDB seems OK..." << endl;
@@ -170,12 +170,12 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 
    atom_selection_container_t atom_selection_container;
 
-   CChain* chain_p = new CChain;
+   mmdb::Chain* chain_p = new mmdb::Chain;
    chain_p->SetChainID ( "X" );  // new chain ID
 
 //    // start of with space for the first residue (actually, the only residue)
 //    // 
-//    CResidue* res_p = new CResidue;
+//    mmdb::Residue* res_p = new mmdb::Residue;
 //    res_p->seqNum = 1;   // set the residue number to 1;
 
 //    strcpy(res_p->name, "SKELETONBONE"); 
@@ -189,11 +189,11 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 // 	<< " sym ops" << endl; 
 
 //    for (int isym = 0; isym < MMDBManager->get_cell_p()->GetNumberOfSymOps(); isym++) {
-//       mat44 my_matt;
+//       mmdb::mat44 my_matt;
 //       int err2 = MMDBManager->get_cell_p()->GetTMatrix(my_matt, isym, 0, 0, 0); 
       
 //       if (err2 != 0) {
-// 	 cout << "!! something BAD with MMDB CMMDBCryst.GetTMatrix in convert_to_atoms_internal"
+// 	 cout << "!! something BAD with MMDB mmdb::CMMDBCryst.GetTMatrix in convert_to_atoms_internal"
 // 	      << endl;
 //       } else {
 // 	 cout << "DEBUG: symop " << isym << " clipper::MMDB seems OK..." << endl;
@@ -202,20 +202,20 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 
    int i_atom_loop_count = 0; 
    int i_res_add = 0; 
-   CResidue* res_p = 0;
+   mmdb::Residue* res_p = 0;
 
    std::cout << "we were passed " << c.size() << " atoms to convert " << std::endl; 
    for (unsigned int ii=0; ii<c.size(); ii++) { 
       // for (int ii=0; ii<c.size(); ii++) {  // or 230 for testing
 
       if (i_atom_loop_count == 0 || diff_residue_flag == 1) { 
-	    res_p = new CResidue;
+	    res_p = new mmdb::Residue;
 	    res_p->seqNum = 1 + i_res_add;   // set the residue number to 1 + ... 
 	    strcpy(res_p->name, molecule_name.c_str()); 
 	    chain_p->AddResidue ( res_p );
       }
    
-      PCAtom atom = new CAtom;
+      mmdb::PAtom atom = new mmdb::Atom;
 
       atom->SetCoordinates(c[ii].x(), c[ii].y(), c[ii].z(), 1.0, 99);
       atom->SetResidue(res_p); 
@@ -242,12 +242,12 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 
 
 
-   CModel* model_p = new CModel;
+   mmdb::Model* model_p = new mmdb::Model;
    model_p->AddChain(chain_p);
 
    MMDBManager->AddModel(model_p);
    
-   MMDBManager->PDBCleanup ( PDBCLEAN_SERIAL | PDBCLEAN_INDEX );
+   MMDBManager->PDBCleanup ( mmdb::PDBCLEAN_SERIAL | mmdb::PDBCLEAN_INDEX );
 
    /*
    MMDBManager->SetCell(l1.cell().descr().a(),
@@ -271,11 +271,11 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
    }
    */
 
-   PPCAtom SelAtom;
+   mmdb::PPAtom SelAtom;
    
    int selHnd = MMDBManager->NewSelection();
    int nSelAtoms;
-   MMDBManager->SelectAtoms(selHnd, 0,"*",ANY_RES,"*",ANY_RES,
+   MMDBManager->SelectAtoms(selHnd, 0,"*",mmdb::ANY_RES,"*",mmdb::ANY_RES,
 			    "*","*",  // EndInsertionCode, RNames
 			    "*","*",  // ANames, Elements
 			    "*" );    // Alternate locations.
@@ -306,19 +306,19 @@ BuildCas::convert_to_atoms_internal(clipper::Spacegroup spg,
 //    cout << "DEBUG: There are "
 // 	<< atom_selection_container.mol->get_cell_p()->GetNumberOfSymOps()
 // 	<< " sym ops" << endl; 
-//    mat44 my_matt;
+//    mmdb::mat44 my_matt;
 //    for (int isym = 0; isym < atom_selection_container.mol->get_cell_p()->GetNumberOfSymOps(); isym++) {
 //       int err1 = atom_selection_container.mol->get_cell_p()->GetTMatrix(my_matt, isym, 0, 0, 0); 
 //       int err2 = MMDBManager->get_cell_p()->GetTMatrix(my_matt, isym, 0, 0, 0); 
       
 //       if (err1 != 0) {
-// 	 cout << "!! something BAD with asc.mol CMMDBCryst.GetTMatrix in convert_to_atoms_internal"
+// 	 cout << "!! something BAD with asc.mol mmdb::CMMDBCryst.GetTMatrix in convert_to_atoms_internal"
 // 	      << endl;
 //       } else {
 // 	 cout << "DEBUG: symop " << isym << "       asc.mol seems OK..." << endl;
 //       }
 //       if (err2 != 0) {
-// 	 cout << "!! something BAD with MMDB CMMDBCryst.GetTMatrix in convert_to_atoms_internal"
+// 	 cout << "!! something BAD with MMDB mmdb::CMMDBCryst.GetTMatrix in convert_to_atoms_internal"
 // 	      << endl;
 //       } else {
 // 	 cout << "DEBUG: symop " << isym << " clipper::MMDB seems OK..." << endl;
@@ -379,18 +379,18 @@ BuildCas::point_list_by_symmetry(atom_selection_container_t AtomSel,
 
    // vector <Cartesian_and_Grid> big_ball_l; // of points, _l local, no shadowing
    vector <coot::Cartesian> big_ball_l; // of points, _l local, no shadowing
-   mat44 my_matt;
-   PSContact contact;
+   mmdb::mat44 my_matt;
+   mmdb::Contact *contact;
    int ncontacts;
    
    if (AtomSel.n_selected_atoms > 0) { 
       
-      PCAtom point_atom_p = new CAtom;
+      mmdb::PAtom point_atom_p = new mmdb::Atom;
       point_atom_p->SetCoordinates(current_point.get_x(),
 				   current_point.get_y(),
 				   current_point.get_z(), 1.0, 99.9);
       
-      // CMMDBCryst *cryst_p =  (CMMDBCryst *) &AtomSel.mol->get_cell();
+      // mmdb::CMMDBCryst *cryst_p =  (mmdb::CMMDBCryst *) &AtomSel.mol->get_cell();
 
       cout << "DEBUG: There are " << AtomSel.mol->GetNumberOfSymOps() << " sym ops" << endl; 
       cout << "symmetry expanding about " << current_point << endl; 
@@ -404,15 +404,15 @@ BuildCas::point_list_by_symmetry(atom_selection_container_t AtomSel,
 		  int err = AtomSel.mol->GetTMatrix(my_matt, isym, ix, iy, iz); 
 
 		  if (err != 0)
-		     cout << "!! something BAD with CMMDBCryst.GetTMatrix"
+		     cout << "!! something BAD with mmdb::CMMDBCryst.GetTMatrix"
 			  << endl;
 		  
 		  // cout << "Here: " << ix << " " << iy << " " << iz << " " << isym << endl; 
 
-		  PPCAtom trans_selection = new PCAtom[AtomSel.n_selected_atoms];
+		  mmdb::PPAtom trans_selection = new mmdb::PAtom[AtomSel.n_selected_atoms];
 		  for (int ii=0; ii<AtomSel.n_selected_atoms; ii++) {
 		     
-		     trans_selection[ii] = new CAtom;
+		     trans_selection[ii] = new mmdb::Atom;
 		     trans_selection[ii]->Copy(AtomSel.atom_selection[ii]);
 		     trans_selection[ii]->Transform(my_matt);
 		  }
@@ -435,7 +435,7 @@ BuildCas::point_list_by_symmetry(atom_selection_container_t AtomSel,
 		     for (int ii=0; ii<ncontacts; ii++) {
 			
 			// consider pushing back contact[ii].id2, with 
-			// vector <PCAtom> big_ball;
+			// vector <mmdb::PAtom> big_ball;
 			// 
 			coot::Cartesian a(trans_selection [ contact[ii].id2 ]->x,
 				    trans_selection [ contact[ii].id2 ]->y,
@@ -1463,7 +1463,7 @@ BuildCas::fit_next_in_segment(const clipper::Xmap<float> &map) {
 // Given a vector of cartesians, return a vector of cartesians that
 // are "close to" a target point (start_point).
 //
-// If were were using mmdb (i.e. PCAtoms, this function may be faster -
+// If were were using mmdb (i.e. mmdb::PAtoms, this function may be faster -
 // consider recoding if this function is slow).
 //
 // We naively check all points in the big_ball.
@@ -1546,13 +1546,13 @@ BuildCas::build_big_ball(const clipper::Xmap<float> &map,
 coot::Cartesian
 BuildCas::move_by_symmetry(coot::Cartesian middle_mol, 
 			   coot::Cartesian target_point,
-			   CMMDBCryst *cryst_p) const {
+			   mmdb::Cryst *cryst_p) const {
 
    float current_min_dist = (middle_mol - target_point).amplitude(); 
    float test_dist; 
-   mat44 my_matt;
-   PCAtom atom = new CAtom;
-   PCAtom trans_atom = new CAtom; 
+   mmdb::mat44 my_matt;
+   mmdb::PAtom atom = new mmdb::Atom;
+   mmdb::PAtom trans_atom = new mmdb::Atom; 
 
    // we will use mmdb atoms to have the symmetry applied to it.
    // 
@@ -3296,11 +3296,10 @@ void
 BuildCas::export_coordinates(atom_selection_container_t asc, 
 			     std::string filename) const { 
 
-   int err = asc.mol->WritePDBASCII((char *)filename.c_str()); 
+   int err = asc.mol->WritePDBASCII(filename.c_str()); 
    
    if (err) { 
       std::cout << "There was an error in writing " << filename << endl; 
-      std::cout << GetErrorDescription(err) << endl; 
    } 
 
 } 

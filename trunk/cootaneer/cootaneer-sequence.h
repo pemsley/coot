@@ -10,7 +10,7 @@ class Coot_sequence {
   //! constructor: takes filename for resolution dependent LLK coefficients
   Coot_sequence( std::string filename );
   //! get sequence match and confidence for given chain
-  std::pair<std::string,double> sequence_chain( const clipper::Xmap<float>& xmap, const std::vector<std::pair<std::string,std::string> >& sequence, CMMDBManager& mmdb, std::string chain_id );
+  std::pair<std::string,double> sequence_chain( const clipper::Xmap<float>& xmap, const std::vector<std::pair<std::string,std::string> >& sequence, mmdb::Manager& mmdb, std::string chain_id );
   //! return the confidence of the the best sequence match
   double confidence() const { return prob; }
   //! return the best sequence match

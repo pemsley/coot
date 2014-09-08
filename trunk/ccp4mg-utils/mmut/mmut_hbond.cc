@@ -116,16 +116,16 @@ int CHBond::Calculate(bool separate_models)  {
 //-------------------------------------------------------------------
 int CHBond::Calculate0(int model)  {
 //-------------------------------------------------------------------
-  PPCAtom donorAtoms = NULL;
-  PPCAtom acceptorAtoms = NULL;
-  PPCAtom overlapAtoms = NULL;
+  mmdb::PPAtom donorAtoms = NULL;
+  mmdb::PPAtom acceptorAtoms = NULL;
+  mmdb::PPAtom overlapAtoms = NULL;
   int nDonors,nAcceptors;
   int udd,udd2;
   int loop,nLoops = 1;
   int uddD = -1, uddA = -1,selHndD = -1, selHndA = -1;
   PCMMUTManager molHndD = 0,molHndA = 0;
   int selHndDonors,selHndAcceptors,selHndHydrogens,selHndOverlap = -1;
-  PSContact contacts = NULL;
+  mmdb::Contact *contacts = NULL;
   int ncontacts;
   int nOverlap = 0;
  
@@ -134,7 +134,7 @@ int CHBond::Calculate0(int model)  {
   SAtomBond *donorBond = 0;
   SAtomBond *acceptorBond = 0;
   int nDBonds,nABonds,nH;
-  realtype H_A, D_H_A;
+  mmdb::realtype H_A, D_H_A;
   int donor_angles_OK;
 
   //std::ostringstream label;
@@ -158,8 +158,8 @@ int CHBond::Calculate0(int model)  {
   // For two sets of atoms - do the sets overlap?
   if (nLoops == 2 && molHnds[0] == molHnds[1]) {
     selHndOverlap = molHnds[0]->NewSelection();
-    molHnds[0]->Select ( selHndOverlap,STYPE_ATOM,selHnds[0],SKEY_NEW );    
-    molHnds[0]->Select ( selHndOverlap,STYPE_ATOM,selHnds[1],SKEY_AND );    
+    molHnds[0]->Select ( selHndOverlap,mmdb::STYPE_ATOM,selHnds[0],mmdb::SKEY_NEW );    
+    molHnds[0]->Select ( selHndOverlap,mmdb::STYPE_ATOM,selHnds[1],SKEY_AND );    
     molHnds[0]->GetSelIndex(selHndOverlap,overlapAtoms,nOverlap);
     //cout << "nOverlap " << nOverlap << endl;
   }
@@ -196,28 +196,28 @@ int CHBond::Calculate0(int model)  {
     //cout << "molHndA " << molHndA << " selHndA " << selHndA << endl;
 
   selHndDonors = molHndD->NewSelection();
-  molHndD->Select ( selHndDonors,STYPE_ATOM,selHndD,SKEY_NEW );
+  molHndD->Select ( selHndDonors,mmdb::STYPE_ATOM,selHndD,mmdb::SKEY_NEW );
   if (model > 0 && model <= molHndD->GetNumberOfModels() )
-    molHndD->Select (selHndDonors,STYPE_ATOM,model,"*",ANY_RES,
-         "*",ANY_RES, "*","*","*","*","*",SKEY_AND);
-  molHndD->SelectUDD (selHndDonors,STYPE_ATOM,uddD,
+    molHndD->Select (selHndDonors,mmdb::STYPE_ATOM,model,"*",mmdb::ANY_RES,
+         "*",mmdb::ANY_RES, "*","*","*","*","*",SKEY_AND);
+  molHndD->SelectUDD (selHndDonors,mmdb::STYPE_ATOM,uddD,
             HBTYPE_DONOR,HBTYPE_BOTH,SKEY_AND);
   molHndD->GetSelIndex(selHndDonors,donorAtoms,nDonors);
 
   selHndAcceptors = molHndA->NewSelection();
-  molHndA->Select ( selHndAcceptors,STYPE_ATOM,selHndA,SKEY_NEW );
+  molHndA->Select ( selHndAcceptors,mmdb::STYPE_ATOM,selHndA,mmdb::SKEY_NEW );
   if (model > 0 && model <= molHndA->GetNumberOfModels() )
-    molHndA->Select (selHndAcceptors,STYPE_ATOM,model,"*",ANY_RES,
-         "*",ANY_RES, "*","*","*","*","*",SKEY_AND);
-  molHndA->SelectUDD (selHndAcceptors,STYPE_ATOM,uddA,
+    molHndA->Select (selHndAcceptors,mmdb::STYPE_ATOM,model,"*",mmdb::ANY_RES,
+         "*",mmdb::ANY_RES, "*","*","*","*","*",SKEY_AND);
+  molHndA->SelectUDD (selHndAcceptors,mmdb::STYPE_ATOM,uddA,
            HBTYPE_BOTH,HBTYPE_ACCEPTOR,SKEY_AND);
   molHndA->GetSelIndex(selHndAcceptors,acceptorAtoms,nAcceptors);
 
 
   // And are there any actual real hydrogen atoms?
   selHndHydrogens = molHndD->NewSelection();
-  molHndD->Select ( selHndHydrogens,STYPE_ATOM,selHndD,SKEY_NEW );    
-  molHndD->SelectUDD (selHndHydrogens,STYPE_ATOM,uddD,
+  molHndD->Select ( selHndHydrogens,mmdb::STYPE_ATOM,selHndD,mmdb::SKEY_NEW );    
+  molHndD->SelectUDD (selHndHydrogens,mmdb::STYPE_ATOM,uddD,
             HBTYPE_HYDROGEN,HBTYPE_HYDROGEN,SKEY_AND);
 
   /*
@@ -235,7 +235,7 @@ int CHBond::Calculate0(int model)  {
   //cout << " nDonors " << nDonors << " nAcceptors " << nAcceptors << endl;
   if ( nDonors > 0 && nAcceptors > 0 ) {
     // Find close contacts beteen donors and acceptors
-    mat44 * TMatrix=0;
+    mmdb::mat44 * TMatrix=0;
 
     molHnds[0]->SeekContacts ( donorAtoms,nDonors,acceptorAtoms,nAcceptors,
         min_D_A,max_D_A,0,contacts,ncontacts, 0,TMatrix, 0 , 0);
@@ -380,14 +380,14 @@ int CHBond::LoadUDDHBType(PCMMUTManager molH ) {
   int udd;
   //char *foo;
 
-  udd = molH->GetUDDHandle ( UDR_ATOM,"hbtype" );
+  udd = molH->GetUDDHandle ( mmdb::UDR_ATOM,"hbtype" );
   if (udd <= 0 ) {
     udd = -1;
-    udd = molH->RegisterUDInteger ( UDR_ATOM,"hbtype" );
+    udd = molH->RegisterUDInteger ( mmdb::UDR_ATOM,"hbtype" );
     if (udd <= 0 ) return udd;
   }
   //cout << "HBond udd " << udd << endl;
-  PPCAtom atomTable = NULL;
+  mmdb::PPAtom atomTable = NULL;
   for (int im=1;im<=molH->GetNumberOfModels();im++) {
     for (int ic=0;ic<nchains;ic++) {
       nr0 = molH->GetNumberOfResidues(im,ic);
@@ -417,8 +417,8 @@ std::string CHBond::Print(bool geometry) {
   std::ostringstream output;
   std::string first,second,first_bonded,second_bonded;
   float first_angle, second_angle, distance;
-  std::vector<PCAtom>::iterator i = hbonds.pAtom1.begin();
-  std::vector<PCAtom>::iterator j = hbonds.pAtom2.begin();
+  std::vector<mmdb::PAtom>::iterator i = hbonds.pAtom1.begin();
+  std::vector<mmdb::PAtom>::iterator j = hbonds.pAtom2.begin();
   PCMMUTManager molHnd0,molHnd1;
   output.setf(ios::fixed);
   output.setf(ios::showpoint);

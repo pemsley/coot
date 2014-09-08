@@ -8,22 +8,22 @@ coot::test_elastic() {
 
    std::string file_name = "bit.pdb";
     file_name = "1x8b.pdb";
-   CMMDBManager *mol = new CMMDBManager;
+   mmdb::Manager *mol = new mmdb::Manager;
    mol->ReadCoorFile(file_name.c_str());
 
    int selhnd = mol->NewSelection();
 
    mol->SelectAtoms(selhnd, 0,
 		    "*",
-		    ANY_RES, "*",
-		    ANY_RES, "*",
+		    mmdb::ANY_RES, "*",
+		    mmdb::ANY_RES, "*",
 		    "*",  // residue name
 		    "*",  // Residue must contain this atom name?
 		    "*",  // Residue must contain this Element?
 		    "*"  // altLocs
 		    );
 
-   PPCAtom atom_selection = NULL;
+   mmdb::PPAtom atom_selection = NULL;
    int n_selected_atoms;
    mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
 

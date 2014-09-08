@@ -29,14 +29,14 @@ namespace coot {
       short int symm_trans_needed_flag;
       int index;
       clipper::RTop_orth rtop;
-      node_info(CMMDBManager *mol, int index_in, int isym, int ix, int iy, int iz) {
+      node_info(mmdb::Manager *mol, int index_in, int isym, int ix, int iy, int iz) {
 
 	 // construct the RTop_orth rtop here:
 	 // 
 	 index = index_in;
 	 symm_trans_needed_flag = 1;
 
-	 mat44 my_matt;
+	 mmdb::mat44 my_matt;
 	 mol->GetTMatrix(my_matt, isym, ix, iy, iz);
 	 for (int i=0; i<4; i++) 
 	    for (int j=0; j<4; j++) 

@@ -99,8 +99,8 @@ coot::rotamer::optimize_rotamer_by_atom_names(bool apply_swap_if_found) {
 
       // set up a copy of this residue
       // 
-      CResidue *residue_copy = deep_copy_residue(residue); // Yes, gets deleted.
-      PPCAtom residue_atoms;
+      mmdb::Residue *residue_copy = deep_copy_residue(residue); // Yes, gets deleted.
+      mmdb::PPAtom residue_atoms;
       int n_residue_atoms;
       residue_copy->GetAtomTable(residue_atoms, n_residue_atoms);
       int nfound = 0; 
@@ -147,7 +147,7 @@ coot::rotamer::optimize_rotamer_by_atom_names(bool apply_swap_if_found) {
 // 		      << " " << residue->GetChainID() << " " << residue->GetResName()
 // 		      << "\n";
 	    // make the changes to residue then
-	    PPCAtom residue_atoms;
+	    mmdb::PPAtom residue_atoms;
 	    int n_residue_atoms;
 	    residue->GetAtomTable(residue_atoms, n_residue_atoms);
 	    int nfound = 0; 
@@ -244,7 +244,7 @@ coot::rotamer::probability_of_this_rotamer() {
 // 	     << residue->GetSeqNum() << " " << residue->GetChainID() << " "
 // 	     << residue_name << std::endl;
 
-   PCAtom *residue_atoms;
+   mmdb::PAtom *residue_atoms;
    int n_residue_atoms;
    residue->GetAtomTable(residue_atoms, n_residue_atoms);
    std::vector<std::vector<std::string> > rotamer_ats = rotamer_atoms(residue_name);
@@ -492,7 +492,7 @@ coot::rotamer::rotamer_atoms(const std::string &residue_name) const {
 
 std::vector<std::vector<int> >
 coot::rotamer::rotamer_atom_names_to_indices(const std::vector<std::vector<std::string> > &residue_rotamer_atoms,
-					      PCAtom *residue_atoms,
+					      mmdb::PAtom *residue_atoms,
 					      int n_residue_atoms) const {
 
    std::vector<std::string> atom_indices(n_residue_atoms);
@@ -542,12 +542,12 @@ coot::rotamer::rotamer_atom_names_to_indices(const std::vector<std::vector<std::
 // return in degrees
 double
 coot::rotamer::chi_torsion(const std::vector<int> &chi_angle_atoms_indices,
-			    PCAtom *residue_atoms) {
+			    mmdb::PAtom *residue_atoms) {
 
    double tors = 0.0;
 
    std::vector<clipper::Coord_orth> a;
-   CAtom *at;
+   mmdb::Atom *at;
 
    for (unsigned int ich_at=0; ich_at<chi_angle_atoms_indices.size(); ich_at++) {
       at = residue_atoms[chi_angle_atoms_indices[ich_at]];
@@ -579,19 +579,19 @@ coot::rotamer::get_all_rotamers(const std::string &res_type) const {
 // 
 // caller needs to delete returned residue and its chain
 // 
-CResidue *
+mmdb::Residue *
 coot::rotamer::GetResidue(const coot::dictionary_residue_restraints_t &rest,
 			   int i_rot) const {
 
    bool debug = 0;
    // std::cout << "rotamer::GetResidue alt_conf is :" << alt_conf << ":" << std::endl;
-   CResidue *rres = deep_copy_residue(Residue()); 
+   mmdb::Residue *rres = deep_copy_residue(Residue()); 
    std::string rt = Residue_Type();
 
    std::vector<coot::simple_rotamer> rots = rotamers(rt, probability_limit);
 
    if (debug) { // debug
-      PPCAtom residue_atoms;
+      mmdb::PPAtom residue_atoms;
       int n_residue_atoms;
       Residue()->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int iat=0; iat<n_residue_atoms; iat++) {
@@ -610,12 +610,12 @@ coot::rotamer::GetResidue(const coot::dictionary_residue_restraints_t &rest,
    return rres;
 }
 
-CResidue *
+mmdb::Residue *
 coot::rotamer::GetResidue(const coot::dictionary_residue_restraints_t &rest,
 			  const std::string &rotamer_name) const {
 
-   CResidue *r = NULL; // returned value
-   CResidue *rres = deep_copy_residue(Residue());
+   mmdb::Residue *r = NULL; // returned value
+   mmdb::Residue *rres = deep_copy_residue(Residue());
    if (rres) { 
       std::string rt = Residue_Type();
       std::vector<coot::simple_rotamer> rots = rotamers(rt, probability_limit);
@@ -633,7 +633,7 @@ coot::rotamer::GetResidue(const coot::dictionary_residue_restraints_t &rest,
 
 // move the atoms of rres
 void
-coot::rotamer::set_dihedrals(CResidue *rres,
+coot::rotamer::set_dihedrals(mmdb::Residue *rres,
 			     const coot::dictionary_residue_restraints_t &rest,
 			     const simple_rotamer &this_rot) const {
 
@@ -676,10 +676,10 @@ coot::rotamer::set_dihedrals(CResidue *rres,
 
 // Return NULL if no residues available for this residue type
 // 
-CResidue *
+mmdb::Residue *
 coot::rotamer::GetResidue_old(int i_rot) const {
 
-   CResidue *rres = deep_copy_residue(Residue());
+   mmdb::Residue *rres = deep_copy_residue(Residue());
 
 //    std::cout << "debug:: deep_copy_residue of "
 // 	     << Residue()->GetSeqNum() << Residue()->GetInsCode()
@@ -699,7 +699,7 @@ coot::rotamer::GetResidue_old(int i_rot) const {
 
    coot::simple_rotamer this_rot = rots[i_rot];
    
-   PPCAtom residue_atoms;
+   mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
    rres->GetAtomTable(residue_atoms, nResidueAtoms); 
    if (nResidueAtoms == 0) {
@@ -709,7 +709,7 @@ coot::rotamer::GetResidue_old(int i_rot) const {
 
       // Let's make the coordinates:
       //
-      std::vector<CAtom *> ordered_atoms = ordered_residue_atoms(rres);
+      std::vector<mmdb::Atom *> ordered_atoms = ordered_residue_atoms(rres);
 //       std::cout << "DEBUG:: nResidueAtoms " << nResidueAtoms
 // 		<< " and ordered_atoms has size " << ordered_atoms.size() << std::endl;
 
@@ -728,7 +728,7 @@ coot::rotamer::GetResidue_old(int i_rot) const {
       }
 
       int nres_atoms = nResidueAtoms;
-      PCAtom *ordered_residue_atoms_ppcatom = new PCAtom[nres_atoms];
+      mmdb::PAtom *ordered_residue_atoms_ppcatom = new mmdb::PAtom[nres_atoms];
       for(int i=0; i<nResidueAtoms; i++)
 	 ordered_residue_atoms_ppcatom[i] = ordered_atoms[i];
       
@@ -770,7 +770,7 @@ coot::rotamer::GetResidue_old(int i_rot) const {
       // Contact indices:
       //
       atom_selection_container_t res_asc;
-      res_asc.mol = (MyCMMDBManager *) stored_mol;
+      res_asc.mol = stored_mol;
       res_asc.n_selected_atoms = nResidueAtoms;
       res_asc.atom_selection = ordered_residue_atoms_ppcatom;
 
@@ -920,11 +920,11 @@ coot::rotamer::GetResidue_old(int i_rot) const {
 // The dunbrack rotamers (and the interaction with mgtree) depend on
 // the atom ordering, e.g. for VAL CG1 should come before CG2.
 // 
-std::vector<CAtom *>
-coot::rotamer::ordered_residue_atoms(CResidue *residue_p) const {
+std::vector<mmdb::Atom *>
+coot::rotamer::ordered_residue_atoms(mmdb::Residue *residue_p) const {
 
-   std::vector<CAtom *> atom_vec;
-   std::vector<CAtom *> store_vec;
+   std::vector<mmdb::Atom *> atom_vec;
+   std::vector<mmdb::Atom *> store_vec;
 
 
    std::string residue_name(residue_p->GetResName());
@@ -986,7 +986,7 @@ coot::rotamer::ordered_residue_atoms(CResidue *residue_p) const {
 
    if (atom_order.size() == 0) {
       // not an atom with possible ordering problems (e.g SER)
-      PPCAtom residue_atoms;
+      mmdb::PPAtom residue_atoms;
       int nResidueAtoms;
       residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
       for(int i=0; i<nResidueAtoms; i++)
@@ -995,7 +995,7 @@ coot::rotamer::ordered_residue_atoms(CResidue *residue_p) const {
    } else { 
 
    
-      PPCAtom residue_atoms;
+      mmdb::PPAtom residue_atoms;
       int nResidueAtoms;
       residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
       if (nResidueAtoms == 0) {
@@ -1073,7 +1073,7 @@ coot::rotamer::ordered_residue_atoms(CResidue *residue_p) const {
 	    // more than 2 atoms to be ordered.  Run through the
 	    // residue atoms twice.  Once to pick up the atoms and the
 	    // second to order them.
-	    std::vector<CAtom *> other_atoms;
+	    std::vector<mmdb::Atom *> other_atoms;
 	    for (int ian=0; ian<atom_order.size(); ian++) {
 	       short int marked_atom = 0;
 	       for(int i=0; i<nResidueAtoms; i++) {

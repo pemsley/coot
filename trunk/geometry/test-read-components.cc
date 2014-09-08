@@ -19,19 +19,19 @@ int main(int argc, char ** argv) {
 
 void read_components_file(std::string cif_dictionary_filename) {
 
-   CMMCIFFile ciffile;
+   mmdb::mmcif::File ciffile;
    int ierr = ciffile.ReadMMCIFFile((char *)cif_dictionary_filename.c_str());
    
-   if (ierr!=CIFRC_Ok) {
+   if (ierr!=mmdb::mmcif::CIFRC_Ok) {
       std::cout << "dirty mmCIF file? " << cif_dictionary_filename.c_str()
 		<< std::endl;
-      std::cout << "    Bad CIFRC_Ok on ReadMMCIFFile" << std::endl;
+      std::cout << "    Bad mmdb::mmcif::CIFRC_Ok on ReadMMCIFFile" << std::endl;
    } else {
       std::cout << "There are " << ciffile.GetNofData()
 		<< " data in " << cif_dictionary_filename << std::endl; 
       
       for(int idata=0; idata<ciffile.GetNofData(); idata++) {
-	 PCMMCIFData data = ciffile.GetCIFData(idata);
+	 mmdb::mmcif::PData data = ciffile.GetCIFData(idata);
 	 std::string s = data->GetDataName();
 	 // std::cout << idata << " " << s << std::endl;
       }

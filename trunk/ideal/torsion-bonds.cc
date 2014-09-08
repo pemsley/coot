@@ -6,24 +6,24 @@
 
 // this can throw an exception
 // 
-std::vector<std::pair<CAtom *, CAtom *> >
-coot::torsionable_bonds(CMMDBManager *mol, PPCAtom atom_selection,
+std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> >
+coot::torsionable_bonds(mmdb::Manager *mol, mmdb::PPAtom atom_selection,
 			int n_selected_atoms,
 			coot::protein_geometry *geom_p) { 
 
-   std::vector<std::pair<CAtom *, CAtom *> > v;
+   std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > v;
    bool include_pyranose_ring_torsions_flag = false;
 
-   std::vector<CResidue *> residues;
-   std::map<CResidue *, std::vector<int> > atoms_in_residue;
+   std::vector<mmdb::Residue *> residues;
+   std::map<mmdb::Residue *, std::vector<int> > atoms_in_residue;
    // fill residues and atoms_in_residue
    for (unsigned int i=0; i<n_selected_atoms; i++) {
-      CResidue *r = atom_selection[i]->residue;
+      mmdb::Residue *r = atom_selection[i]->residue;
       if (std::find(residues.begin(), residues.end(), r) == residues.end())
 	 residues.push_back(r);
       atoms_in_residue[r].push_back(i);
    }
-   std::map<CResidue *, coot::dictionary_residue_restraints_t> res_restraints;
+   std::map<mmdb::Residue *, coot::dictionary_residue_restraints_t> res_restraints;
    for (unsigned int ires=0; ires<residues.size(); ires++) { 
       std::string rn = residues[ires]->GetResName();
       std::pair<bool, coot::dictionary_residue_restraints_t> rest =
@@ -38,7 +38,7 @@ coot::torsionable_bonds(CMMDBManager *mol, PPCAtom atom_selection,
 
    for (unsigned int ires=0; ires<residues.size(); ires++) {
       // a coot-coord-extras function
-      std::vector<std::pair<CAtom *, CAtom *> > v_inner =
+      std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > v_inner =
 	 coot::torsionable_bonds_monomer_internal(residues[ires],
 						  atom_selection,
 						  n_selected_atoms,
@@ -50,7 +50,7 @@ coot::torsionable_bonds(CMMDBManager *mol, PPCAtom atom_selection,
 	 v.push_back(v_inner[ip]);
    }
 
-   std::vector<std::pair<CAtom *, CAtom *> > v_link =    
+   std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > v_link =    
       coot::torsionable_link_bonds(residues, mol, geom_p);
    for (unsigned int il=0; il<v_link.size(); il++)
       v.push_back(v_link[il]);
@@ -66,18 +66,18 @@ coot::torsionable_bonds(CMMDBManager *mol, PPCAtom atom_selection,
    return v;
 }
 
-std::vector<std::pair<CAtom *, CAtom *> >
-coot::torsionable_link_bonds(std::vector<CResidue *> residues_in,
-			     CMMDBManager *mol, coot::protein_geometry *geom_p) {
+std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> >
+coot::torsionable_link_bonds(std::vector<mmdb::Residue *> residues_in,
+			     mmdb::Manager *mol, coot::protein_geometry *geom_p) {
 
-   std::vector<std::pair<CAtom *, CAtom *> > v;
+   std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > v;
 
    if (! mol)
       return v;
    
-   std::vector<std::pair<bool, CResidue *> > residues(residues_in.size());
+   std::vector<std::pair<bool, mmdb::Residue *> > residues(residues_in.size());
    for (unsigned int i=0; i<residues_in.size(); i++)
-      residues[i] = std::pair<bool, CResidue *> (0, residues_in[i]);
+      residues[i] = std::pair<bool, mmdb::Residue *> (0, residues_in[i]);
 
    std::vector<coot::atom_spec_t> dummy_fixed_atom_specs;
    coot::restraints_container_t restraints(residues, *geom_p, mol, dummy_fixed_atom_specs);
@@ -112,10 +112,10 @@ coot::torsionable_link_bonds(std::vector<CResidue *> residues_in,
 			 << bpc[i].res_2->GetResName()
 			 << std::endl;
 	    
-	    CAtom *link_atom_1 = bpc[i].res_1->GetAtom(link.link_bond_restraint[ib].atom_id_1_4c().c_str());
-	    CAtom *link_atom_2 = bpc[i].res_2->GetAtom(link.link_bond_restraint[ib].atom_id_2_4c().c_str());
+	    mmdb::Atom *link_atom_1 = bpc[i].res_1->GetAtom(link.link_bond_restraint[ib].atom_id_1_4c().c_str());
+	    mmdb::Atom *link_atom_2 = bpc[i].res_2->GetAtom(link.link_bond_restraint[ib].atom_id_2_4c().c_str());
 	    if (link_atom_1 && link_atom_2) { 
-	       std::pair<CAtom *, CAtom *> pair(link_atom_1, link_atom_2);
+	       std::pair<mmdb::Atom *, mmdb::Atom *> pair(link_atom_1, link_atom_2);
 	       v.push_back(pair);
 	    }
 	 }
@@ -125,19 +125,19 @@ coot::torsionable_link_bonds(std::vector<CResidue *> residues_in,
 	 // above (because they were link bond restraints)
 	 // 
 	 for (unsigned int it=0; it<link.link_torsion_restraint.size(); it++) {
-	    CResidue *res_for_at_2 = bpc[i].res_1;
-	    CResidue *res_for_at_3 = bpc[i].res_1;
+	    mmdb::Residue *res_for_at_2 = bpc[i].res_1;
+	    mmdb::Residue *res_for_at_3 = bpc[i].res_1;
 	    if (link.link_torsion_restraint[it].atom_2_comp_id == 1) res_for_at_2 = bpc[i].res_1;
 	    if (link.link_torsion_restraint[it].atom_2_comp_id == 2) res_for_at_2 = bpc[i].res_2;
 	    if (link.link_torsion_restraint[it].atom_3_comp_id == 1) res_for_at_3 = bpc[i].res_1;
 	    if (link.link_torsion_restraint[it].atom_3_comp_id == 2) res_for_at_3 = bpc[i].res_2;
 
 	    if (res_for_at_2 && res_for_at_3) {
-	       CAtom *link_atom_1 = res_for_at_2->GetAtom(link.link_torsion_restraint[it].atom_id_2_4c().c_str());
-	       CAtom *link_atom_2 = res_for_at_3->GetAtom(link.link_torsion_restraint[it].atom_id_3_4c().c_str());
+	       mmdb::Atom *link_atom_1 = res_for_at_2->GetAtom(link.link_torsion_restraint[it].atom_id_2_4c().c_str());
+	       mmdb::Atom *link_atom_2 = res_for_at_3->GetAtom(link.link_torsion_restraint[it].atom_id_3_4c().c_str());
 
 	       if (link_atom_1 && link_atom_2) {
-		  std::pair<CAtom *, CAtom *> pair(link_atom_1, link_atom_2);
+		  std::pair<mmdb::Atom *, mmdb::Atom *> pair(link_atom_1, link_atom_2);
 		  if (std::find(v.begin(), v.end(), pair) == v.end())
 		     v.push_back(pair);
 	       }
@@ -164,15 +164,15 @@ coot::torsionable_link_bonds(std::vector<CResidue *> residues_in,
 // this can throw an exception
 // 
 std::vector<coot::torsion_atom_quad>
-coot::torsionable_quads(CMMDBManager *mol, PPCAtom atom_selection,
+coot::torsionable_quads(mmdb::Manager *mol, mmdb::PPAtom atom_selection,
 			int n_selected_atoms,
 			coot::protein_geometry *geom_p) {
 
    bool pyranose_ring_torsion_flag = false; // no thanks
    std::vector<coot::torsion_atom_quad> quads;
-   std::vector<CResidue *> residues;
+   std::vector<mmdb::Residue *> residues;
    for (unsigned int i=0; i<n_selected_atoms; i++) { 
-      CResidue *r = atom_selection[i]->residue;
+      mmdb::Residue *r = atom_selection[i]->residue;
       if (std::find(residues.begin(), residues.end(), r) == residues.end())
 	 residues.push_back(r);
    }
@@ -181,7 +181,7 @@ coot::torsionable_quads(CMMDBManager *mol, PPCAtom atom_selection,
    for (unsigned int iquad=0; iquad<link_quads.size(); iquad++)
       quads.push_back(link_quads[iquad]);
    for (unsigned int ires=0; ires<residues.size(); ires++) {
-      PPCAtom residue_atoms = 0;
+      mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       residues[ires]->GetAtomTable(residue_atoms, n_residue_atoms);
       std::vector<coot::torsion_atom_quad> monomer_quads =
@@ -197,19 +197,19 @@ coot::torsionable_quads(CMMDBManager *mol, PPCAtom atom_selection,
 // And the atom_quad version of that (for setting link torsions)
 // 
 std::vector<coot::torsion_atom_quad>
-coot::torsionable_link_quads(std::vector<CResidue *> residues_in,
-			     CMMDBManager *mol, coot::protein_geometry *geom_p) {
+coot::torsionable_link_quads(std::vector<mmdb::Residue *> residues_in,
+			     mmdb::Manager *mol, coot::protein_geometry *geom_p) {
 
    std::vector<coot::torsion_atom_quad> quads;
-   std::vector<std::pair<bool, CResidue *> > residues(residues_in.size());
+   std::vector<std::pair<bool, mmdb::Residue *> > residues(residues_in.size());
    for (unsigned int i=0; i<residues_in.size(); i++)
-      residues[i] = std::pair<bool, CResidue *> (0, residues_in[i]);
+      residues[i] = std::pair<bool, mmdb::Residue *> (0, residues_in[i]);
 
    // We want a quick way of getting to the restaints of an atom's
    // residue (link_atom_1 and link_atom_2 below).
-   // So here we set up res_restraints map indexed by a CResidue *.
+   // So here we set up res_restraints map indexed by a mmdb::Residue *.
    // 
-   std::map<CResidue *, coot::dictionary_residue_restraints_t> res_restraints;
+   std::map<mmdb::Residue *, coot::dictionary_residue_restraints_t> res_restraints;
    for (unsigned int ires=0; ires<residues_in.size(); ires++) { 
       std::string rn = residues_in[ires]->GetResName();
       std::pair<bool, coot::dictionary_residue_restraints_t> rest =
@@ -244,10 +244,10 @@ coot::torsionable_link_quads(std::vector<CResidue *> residues_in,
 	       if (rest.is_pyranose_ring_torsion()) {
 		  // pass
 	       } else { 
-		  CResidue *r_1 = bpc[i].res_1;
-		  CResidue *r_2 = bpc[i].res_1;
-		  CResidue *r_3 = bpc[i].res_1;
-		  CResidue *r_4 = bpc[i].res_1;
+		  mmdb::Residue *r_1 = bpc[i].res_1;
+		  mmdb::Residue *r_2 = bpc[i].res_1;
+		  mmdb::Residue *r_3 = bpc[i].res_1;
+		  mmdb::Residue *r_4 = bpc[i].res_1;
 		  if (rest.atom_1_comp_id == 2)
 		     r_1 = bpc[i].res_2;
 		  if (rest.atom_2_comp_id == 2)
@@ -256,10 +256,10 @@ coot::torsionable_link_quads(std::vector<CResidue *> residues_in,
 		     r_3 = bpc[i].res_2;
 		  if (rest.atom_4_comp_id == 2)
 		     r_4 = bpc[i].res_2;
-		  CAtom *link_atom_1 = r_1->GetAtom(rest.atom_id_1_4c().c_str());
-		  CAtom *link_atom_2 = r_2->GetAtom(rest.atom_id_2_4c().c_str());
-		  CAtom *link_atom_3 = r_3->GetAtom(rest.atom_id_3_4c().c_str());
-		  CAtom *link_atom_4 = r_4->GetAtom(rest.atom_id_4_4c().c_str());
+		  mmdb::Atom *link_atom_1 = r_1->GetAtom(rest.atom_id_1_4c().c_str());
+		  mmdb::Atom *link_atom_2 = r_2->GetAtom(rest.atom_id_2_4c().c_str());
+		  mmdb::Atom *link_atom_3 = r_3->GetAtom(rest.atom_id_3_4c().c_str());
+		  mmdb::Atom *link_atom_4 = r_4->GetAtom(rest.atom_id_4_4c().c_str());
 	    
 		  std::cout << "   link residues "
 			    << coot::residue_spec_t(r_1) << " " << coot::residue_spec_t(r_2) << " "
@@ -288,8 +288,8 @@ coot::torsionable_link_quads(std::vector<CResidue *> residues_in,
 	    // So use a bond restaint to make one torsion (around the link bond).
 	    // 
 	    for (unsigned int ib=0; ib<link.link_bond_restraint.size(); ib++) { 
-	       CAtom *link_atom_1 = bpc[i].res_1->GetAtom(link.link_bond_restraint[ib].atom_id_1_4c().c_str());
-	       CAtom *link_atom_2 = bpc[i].res_2->GetAtom(link.link_bond_restraint[ib].atom_id_2_4c().c_str());
+	       mmdb::Atom *link_atom_1 = bpc[i].res_1->GetAtom(link.link_bond_restraint[ib].atom_id_1_4c().c_str());
+	       mmdb::Atom *link_atom_2 = bpc[i].res_2->GetAtom(link.link_bond_restraint[ib].atom_id_2_4c().c_str());
 	       if (link_atom_1 && link_atom_2) {
 		  // What are the neightbours of link_atom_1 (and link_atom_2)?
 		  // Try to find a non-hydrogen atom to which it is bonded.
@@ -303,8 +303,8 @@ coot::torsionable_link_quads(std::vector<CResidue *> residues_in,
 		  if (n1.size() && n2.size()) {
 		     std::string neigbhour_1_name = n1[0];
 		     std::string neigbhour_2_name = n2[0];
-		     CAtom *n_at_1 = bpc[i].res_1->GetAtom(neigbhour_1_name.c_str());
-		     CAtom *n_at_2 = bpc[i].res_2->GetAtom(neigbhour_2_name.c_str());
+		     mmdb::Atom *n_at_1 = bpc[i].res_1->GetAtom(neigbhour_1_name.c_str());
+		     mmdb::Atom *n_at_2 = bpc[i].res_2->GetAtom(neigbhour_2_name.c_str());
 		     if (n_at_1 && n_at_2) {
  			coot::torsion_atom_quad q(n_at_1, link_atom_1, link_atom_2, n_at_2,
 						  180.0, 40, 3); // synthetic values
@@ -329,7 +329,7 @@ coot::torsionable_link_quads(std::vector<CResidue *> residues_in,
 
 // this can throw an exception.
 void
-coot::multi_residue_torsion_fit_map(CMMDBManager *mol,
+coot::multi_residue_torsion_fit_map(mmdb::Manager *mol,
 				    const clipper::Xmap<float> &xmap,
 				    int n_trials,
 				    coot::protein_geometry *geom_p) {
@@ -338,21 +338,21 @@ coot::multi_residue_torsion_fit_map(CMMDBManager *mol,
    std::vector<std::pair<std::string, int> > atom_numbers = coot::util::atomic_number_atom_list();
    
    try { 
-      PPCAtom atom_selection = 0;
+      mmdb::PPAtom atom_selection = 0;
       int n_selected_atoms;
       int selhnd = mol->NewSelection(); // d
       mol->SelectAtoms(selhnd, 0, "*",
-		       ANY_RES, "*",
-		       ANY_RES, "*",
+		       mmdb::ANY_RES, "*",
+		       mmdb::ANY_RES, "*",
 		       "*", "*", "*", "*"); 
       mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
-      std::vector<std::pair<CAtom *, float> > atoms(n_selected_atoms); // for density fitting
+      std::vector<std::pair<mmdb::Atom *, float> > atoms(n_selected_atoms); // for density fitting
       for (unsigned int iat=0; iat<n_selected_atoms; iat++) {
 	 int atomic_number = coot::util::atomic_number(atom_selection[iat]->element, atom_numbers);
 	 float z = atomic_number;
 	 if (atomic_number == -1)
 	    z = 6.0f;
-	 atoms[iat] = std::pair<CAtom *, float> (atom_selection[iat], z);
+	 atoms[iat] = std::pair<mmdb::Atom *, float> (atom_selection[iat], z);
       } 
 
       if (n_selected_atoms > 0) { 
