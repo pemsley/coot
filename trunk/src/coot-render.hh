@@ -26,6 +26,18 @@ namespace coot {
       float zoom;
    public:
 
+      class ball_t {
+      public:
+	 Cartesian pos;
+	 colour_t colour;
+	 double radius;
+	 ball_t(const Cartesian &p, const colour_t c_in, double r) {
+	    pos = p;
+	    colour = c_in;
+	    radius = r;
+	 }
+      };
+
       class extra_line_representation {
       public:
 	 Cartesian p1;
@@ -51,6 +63,7 @@ namespace coot {
       std::vector<std::pair<Cartesian, Cartesian> > bone_lines;
       std::vector<colour_t> bond_colour;
       std::vector<std::pair<Cartesian, colour_t> > atom;
+      std::vector<ball_t> balls;
 
       // extra restraints representation
       std::vector<extra_line_representation> velr;
@@ -78,6 +91,9 @@ namespace coot {
 	 extra_line_representation el(c1, c2, c, thick);
 	 velr.push_back(el);
       }
+      void add_ball(const ball_t &b) {
+	 balls.push_back(b);
+      } 
    };
 
    class raytrace_info_t {

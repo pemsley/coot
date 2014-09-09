@@ -4090,7 +4090,7 @@ molecule_class_info_t::fill_raster_additional_info() const {
    if (draw_it) {
       if (draw_it_for_extra_restraints) {
 
-	 double thickness = 0.012;
+	 double thickness = 0.02; // 0.012 for silkworm
 	 if (extra_restraints_representation_for_bonds_go_to_CA)
 	    thickness = 0.08;
 	 
@@ -4113,6 +4113,54 @@ molecule_class_info_t::fill_raster_additional_info() const {
 	       coot::Cartesian p2(res.second);
 	       rti.add_extra_representation_line(p1, p2, c, thickness);
 	    }
+	 }
+
+	 coot::colour_t c(0.7, 0.7, 0.1);
+	 thickness = 0.04;
+	 for (unsigned int ipp=0; ipp<extra_restraints_representation.parallel_planes.size(); ipp++) { 
+	    const coot::extra_restraints_representation_t::extra_parallel_planes_restraints_representation_t &ppr = extra_restraints_representation.parallel_planes[ipp];
+	    coot::Cartesian p1(ppr.ring_centre);
+	    coot::Cartesian p2(ppr.plane_projection_point);
+	    rti.add_extra_representation_line(p1, p2, c, thickness);
+	    // add a small ball at the projection point end:
+	    coot::ray_trace_molecule_info::ball_t b(p2 ,c, 0.08);
+	    rti.balls.push_back(b);
+
+
+	    // now the rings:
+	    // 
+	    clipper::Coord_orth arb(0.2, 0.8, 0.1);
+	    clipper::Coord_orth cr(clipper::Coord_orth::cross(ppr.normal, arb).unit());
+	    clipper::Coord_orth first_pt = ppr.ring_centre + ppr.ring_radius * cr;
+	    clipper::Coord_orth first_pt_pp = ppr.plane_projection_point + ppr.pp_radius * cr;
+	    // std::cout << i << " r.plane_projection_point: " << r.plane_projection_point.format() << std::endl;
+
+	    unsigned int n_steps = 128;
+	    double step_frac = 1/double(n_steps);
+	    clipper::Coord_orth pt_1;
+	    clipper::Coord_orth pt_2;
+	    for (unsigned int istep=0; istep<n_steps; istep++) {
+	       double angle_1 = step_frac * 2.0 * M_PI * istep;
+	       double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
+	       pt_1 = coot::util::rotate_round_vector(ppr.normal, first_pt, ppr.ring_centre, angle_1);
+	       pt_2 = coot::util::rotate_round_vector(ppr.normal, first_pt, ppr.ring_centre, angle_2);
+	       coot::Cartesian p1(pt_1);
+	       coot::Cartesian p2(pt_2);
+	       rti.add_extra_representation_line(p1, p2, c, thickness);
+	    }
+
+	    n_steps = 64;
+	    step_frac = 1/double(n_steps);
+	    for (unsigned int istep=0; istep<n_steps; istep++) {
+	       double angle_1 = step_frac * 2.0 * M_PI * istep;
+	       double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
+	       pt_1 = coot::util::rotate_round_vector(ppr.normal, first_pt_pp, ppr.plane_projection_point, angle_1);
+	       pt_2 = coot::util::rotate_round_vector(ppr.normal, first_pt_pp, ppr.plane_projection_point, angle_2);
+	       coot::Cartesian p1(pt_1);
+	       coot::Cartesian p2(pt_2);
+	       rti.add_extra_representation_line(p1, p2, c, thickness);
+	    }
+	    
 	 }
       }
    }

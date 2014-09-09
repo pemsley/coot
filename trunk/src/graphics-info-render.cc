@@ -565,6 +565,18 @@ coot::ray_trace_molecule_info::render_molecule(std::ofstream &render_stream,
 		    << l.c.col[2] << "\n";
    }
 
+   for (unsigned int i=0; i<balls.size(); i++) { 
+      const ball_t &ball = balls[i];
+      render_stream << "2" << "\n";
+      render_stream << ball.pos.x() << " "
+		    << ball.pos.y() << " "
+		    << ball.pos.z() << " "
+		    << ball.radius 
+		    << " " << ball.colour.col[0]
+		    << " " << ball.colour.col[1]
+		    << " " << ball.colour.col[2]
+		    << "\n";
+   }
 }
 
 void
