@@ -2,7 +2,7 @@
 
 #include <clipper/clipper-ccp4.h>
 
-#include "coot-utils.hh"
+#include "utils/coot-utils.hh"
 #include "coot-map-utils.hh"
 #include "coot-map-heavy.hh"
 
