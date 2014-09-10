@@ -85,7 +85,7 @@ int main(int argc, char **argv) {
       
 	 mmdb::Manager *mol = new mmdb::Manager;
 	 int status = mol->ReadPDBASCII(file_name.c_str());
-	 if (status != Error_NoError) {
+	 if (status != mmdb::Error_NoError) {
 	    std::cout << "ERROR:: on reading " << file_name << std::endl;
 	 } else {
 	    int cr = mol->CrystReady();

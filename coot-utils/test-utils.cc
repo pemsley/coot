@@ -43,14 +43,14 @@ coot::protein_geometry testing_data::geom;
 
 
 namespace coot { 
-   class SortableChainsmmdb::Manager : public mmdb::Manager {
+   class SortableChainsManager : public mmdb::Manager {
    public:
       void SortChains();
    };
 }
 
 void
-coot::SortableChainsmmdb::Manager::SortChains() {
+coot::SortableChainsManager::SortChains() {
 
    for (int imod=1; imod<=GetNumberOfModels(); imod++) { 
       mmdb::Model *model_p = GetModel(imod);
