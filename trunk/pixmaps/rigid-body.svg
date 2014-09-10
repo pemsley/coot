@@ -29,6 +29,13 @@
        inkscape:vp_z="16 : 8 : 1"
        inkscape:persp3d-origin="8 : 5.3333333 : 1"
        id="perspective3773" />
+    <inkscape:perspective
+       id="perspective4003"
+       inkscape:persp3d-origin="0.5 : 0.33333333 : 1"
+       inkscape:vp_z="1 : 0.5 : 1"
+       inkscape:vp_y="0 : 1000 : 0"
+       inkscape:vp_x="0 : 0.5 : 1"
+       sodipodi:type="inkscape:persp3d" />
   </defs>
   <sodipodi:namedview
      id="base"
@@ -37,17 +44,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="7.848108"
-     inkscape:cx="-4.1935608"
-     inkscape:cy="21.061079"
+     inkscape:zoom="3.924054"
+     inkscape:cx="-1.6654035"
+     inkscape:cy="42.268423"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
-     inkscape:window-width="1007"
-     inkscape:window-height="907"
-     inkscape:window-x="59"
-     inkscape:window-y="30"
+     inkscape:window-width="1149"
+     inkscape:window-height="902"
+     inkscape:window-x="26"
+     inkscape:window-y="32"
      inkscape:window-maximized="0">
     <inkscape:grid
        type="xygrid"
@@ -100,5 +107,16 @@
          d="M 10.5,3.6797031 C 10.250495,3.1513202 10.628521,3.7868463 9.6613857,2.5"
          style="fill:none;stroke:#000000;stroke-width:1px;stroke-linecap:round;stroke-linejoin:miter;stroke-opacity:1" />
     </g>
+    <path
+       style="fill:#ffffff;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;fill-opacity:0.61256546"
+       d="M 33.129004,3.7855218 C 35,3 45,18 45,18 45,18 41.856953,20.642383 40,16 38,11 34,8 34,8 L 33.129004,3.7855218 z"
+       id="path3221"
+       transform="translate(0,-32)"
+       sodipodi:nodetypes="ccscc" />
+    <path
+       style="fill:#ffffff;fill-opacity:0.61256546;stroke:none"
+       d="M 35.934358,-0.41491988 C 33.563082,3.1031833 40,10 40,10 40,10 38.210386,12.02172 35.500334,7.8198614 32.581518,3.2943214 33,1 33,1 l 2.934358,-1.41491988 z"
+       id="path3221-8"
+       sodipodi:nodetypes="ccscc" />
   </g>
 </svg>

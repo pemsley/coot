@@ -67,7 +67,11 @@ diff-map.png	      plane-distances.png	   unknown-blob.svg               \
 diff-map.svg	      plane-distances.svg	   water-diff-map.svg             \
 display-manager.png   pointer-distances.png	   water-drop.svg                 \
 display-manager.svg   pointer-distances.svg \
-koppi-green-tick-64.png rygle-red-cross-64.png forest51690-dwcheckno-incomplete-64.png
+koppi-green-tick-64.png rygle-red-cross-64.png forest51690-dwcheckno-incomplete-64.png \
+  go-to-ligand.png go-to-atom.png azerbaijan.png add-water.png mutate.png \
+  mutate-auto-fit.png edit-backbone.png torsion-general.png anchor.png regularize-1.png \
+  refine-1.png
+
 
 
 # This is done by the Makefile in icons now.

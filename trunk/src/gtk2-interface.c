@@ -1538,7 +1538,7 @@ create_window1 (void)
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (display_manager_toolbutton), tooltips, _("Display the dialog for displaying and undisplaying molecules and changing their representation (F7)"), NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (display_manager_toolbutton), TRUE);
 
-  tmp_image = gtk_image_new_from_stock ("go-to-atom.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("go-to-atom.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   go_to_atom_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Go To Atom..."));
   gtk_widget_set_name (go_to_atom_toolbutton, "go_to_atom_toolbutton");
@@ -1549,7 +1549,7 @@ create_window1 (void)
                               GDK_F6, (GdkModifierType) 0,
                               GTK_ACCEL_VISIBLE);
 
-  tmp_image = gtk_image_new_from_stock ("go-to-ligand.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("go-to-ligand.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   go_to_ligand_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Go To Ligand"));
   gtk_widget_set_name (go_to_ligand_toolbutton, "go_to_ligand_toolbutton");
@@ -1965,7 +1965,7 @@ create_window1 (void)
 
   model_toolbar_refine_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_refine_togglebutton), _("Real Space Refine Zone"));
-  tmp_image = gtk_image_new_from_stock ("refine-1.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("refine-1.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_refine_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_refine_togglebutton, "model_toolbar_refine_togglebutton");
@@ -1976,7 +1976,7 @@ create_window1 (void)
 
   model_toolbar_regularize_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_regularize_togglebutton), _("Regularize Zone"));
-  tmp_image = gtk_image_new_from_stock ("regularize-1.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("regularize-1.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_regularize_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_regularize_togglebutton, "model_toolbar_regularize_togglebutton");
@@ -1985,7 +1985,7 @@ create_window1 (void)
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_regularize_togglebutton), tooltips, _("Send in the Bond Angels!    Ahem, I mean \"Regularize Zone (click 2 atoms)\""), NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (model_toolbar_regularize_togglebutton), TRUE);
 
-  tmp_image = gtk_image_new_from_stock ("anchor.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("anchor.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   model_toolbar_fixed_atoms_button = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Fixed Atoms..."));
   gtk_widget_set_name (model_toolbar_fixed_atoms_button, "model_toolbar_fixed_atoms_button");
@@ -1995,7 +1995,7 @@ create_window1 (void)
 
   model_toolbar_rigid_body_fit_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_rigid_body_fit_togglebutton), _("Rigid Body Fit Zone"));
-  tmp_image = gtk_image_new_from_stock ("rigid-body.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("rigid-body.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_rigid_body_fit_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_rigid_body_fit_togglebutton, "model_toolbar_rigid_body_fit_togglebutton");
@@ -2003,8 +2003,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_rigid_body_fit_togglebutton);
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rigid_body_fit_togglebutton), tooltips, _("Rigid Body Fit Zone (click on 2 atoms)"), NULL);
 
-  #ifdef GTK_TYPE_MENU_TOOL_BUTTON
-  tmp_image = gtk_image_new_from_stock ("rtz.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("rtz.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   model_toolbar_rot_trans_toolbutton = (GtkWidget*) gtk_menu_tool_button_new (tmp_image, _("Rotate Translate"));
   gtk_widget_set_name (model_toolbar_rot_trans_toolbutton, "model_toolbar_rot_trans_toolbutton");
@@ -2017,7 +2016,7 @@ create_window1 (void)
 
   model_toolbar_auto_fit_rotamer_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_auto_fit_rotamer_togglebutton), _("Auto Fit Rotamer"));
-  tmp_image = gtk_image_new_from_stock ("auto-fit-rotamer.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("auto-fit-rotamer.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_auto_fit_rotamer_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_auto_fit_rotamer_togglebutton, "model_toolbar_auto_fit_rotamer_togglebutton");
@@ -2027,7 +2026,7 @@ create_window1 (void)
 
   model_toolbar_rotamers_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_rotamers_togglebutton), _("Rotamers..."));
-  tmp_image = gtk_image_new_from_stock ("rotamers.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("rotamers.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_rotamers_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_rotamers_togglebutton, "model_toolbar_rotamers_togglebutton");
@@ -2037,7 +2036,7 @@ create_window1 (void)
 
   model_toolbar_edit_chi_angles_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_edit_chi_angles_togglebutton), _("Edit Chi Angles"));
-  tmp_image = gtk_image_new_from_stock ("edit-chi.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("edit-chi.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_edit_chi_angles_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_edit_chi_angles_togglebutton, "model_toolbar_edit_chi_angles_togglebutton");
@@ -2047,7 +2046,7 @@ create_window1 (void)
 
   model_toolbar_torsion_general_toggletoolbutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_torsion_general_toggletoolbutton), _("Torsion General"));
-  tmp_image = gtk_image_new_from_stock ("torsion-general.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("torsion-general.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_torsion_general_toggletoolbutton), tmp_image);
   gtk_widget_set_name (model_toolbar_torsion_general_toggletoolbutton, "model_toolbar_torsion_general_toggletoolbutton");
@@ -2057,7 +2056,7 @@ create_window1 (void)
 
   model_toolbar_flip_peptide_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_flip_peptide_togglebutton), _("Flip Peptide"));
-  tmp_image = gtk_image_new_from_stock ("flip-peptide.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("flip-peptide.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_flip_peptide_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_flip_peptide_togglebutton, "model_toolbar_flip_peptide_togglebutton");
@@ -2067,7 +2066,7 @@ create_window1 (void)
 
   model_toolbar_sidechain_180_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_sidechain_180_togglebutton), _(" Sidechain 180 Degree Flip"));
-  tmp_image = gtk_image_new_from_stock ("side-chain-180.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("side-chain-180.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_sidechain_180_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_sidechain_180_togglebutton, "model_toolbar_sidechain_180_togglebutton");
@@ -2077,7 +2076,7 @@ create_window1 (void)
 
   model_toolbar_edit_backbone_torsions_toggletoolbutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_edit_backbone_torsions_toggletoolbutton), _("Edit Backbone Torsions"));
-  tmp_image = gtk_image_new_from_stock ("edit-backbone.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("edit-backbone.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_edit_backbone_torsions_toggletoolbutton), tmp_image);
   gtk_widget_set_name (model_toolbar_edit_backbone_torsions_toggletoolbutton, "model_toolbar_edit_backbone_torsions_toggletoolbutton");
@@ -2107,7 +2106,7 @@ create_window1 (void)
 
   model_toolbar_mutate_and_autofit_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_mutate_and_autofit_togglebutton), _("Mutate & Auto Fit..."));
-  tmp_image = gtk_image_new_from_stock ("mutate-auto-fit.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("mutate-auto-fit.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_mutate_and_autofit_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_mutate_and_autofit_togglebutton, "model_toolbar_mutate_and_autofit_togglebutton");
@@ -2117,7 +2116,7 @@ create_window1 (void)
 
   model_toolbar_simple_mutate_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_simple_mutate_togglebutton), _("Simple Mutate..."));
-  tmp_image = gtk_image_new_from_stock ("mutate.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("mutate.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_simple_mutate_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_simple_mutate_togglebutton, "model_toolbar_simple_mutate_togglebutton");
@@ -2125,7 +2124,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_simple_mutate_togglebutton);
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_simple_mutate_togglebutton), tooltips, _("Simple Mutate (mutates amino acid residues and nucleic acids) A simple modelling tool - no map fitting happens"), NULL);
 
-  tmp_image = gtk_image_new_from_stock ("add-water.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("add-water.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   model_toolbar_find_water_button = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Find Waters..."));
   gtk_widget_set_name (model_toolbar_find_water_button, "model_toolbar_find_water_button");
@@ -2135,7 +2134,7 @@ create_window1 (void)
 
   model_toolbar_add_terminal_residue_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_add_terminal_residue_togglebutton), _("Add Terminal Residue..."));
-  tmp_image = gtk_image_new_from_stock ("add-peptide-1.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("add-peptide-1.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_add_terminal_residue_togglebutton), tmp_image);
   gtk_widget_set_name (model_toolbar_add_terminal_residue_togglebutton, "model_toolbar_add_terminal_residue_togglebutton");
@@ -2143,7 +2142,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_add_terminal_residue_togglebutton);
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_add_terminal_residue_togglebutton), tooltips, _("Add Residue..."), NULL);
 
-  tmp_image = gtk_image_new_from_stock ("add-alt-conf.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("add-alt-conf.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   model_toolbar_add_alt_conf_toolbutton = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Add Alt Conf..."));
   gtk_widget_set_name (model_toolbar_add_alt_conf_toolbutton, "model_toolbar_add_alt_conf_toolbutton");
@@ -2152,7 +2151,7 @@ create_window1 (void)
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_add_alt_conf_toolbutton), tooltips, _("Add Alternate (Alternative) Conformation to a Residue"), NULL);
   gtk_tool_item_set_is_important (GTK_TOOL_ITEM (model_toolbar_add_alt_conf_toolbutton), TRUE);
 
-  tmp_image = gtk_image_new_from_stock ("atom-at-pointer.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("atom-at-pointer.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   model_toolbar_add_atom_button = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Place Atom At Pointer"));
   gtk_widget_set_name (model_toolbar_add_atom_button, "model_toolbar_add_atom_button");
@@ -2212,7 +2211,7 @@ create_window1 (void)
   gtk_widget_show (vseparator2);
   gtk_container_add (GTK_CONTAINER (model_toolbar_vsep_toolitem2), vseparator2);
 
-  tmp_image = gtk_image_new_from_stock ("azerbaijan.svg", tmp_toolbar_icon_size);
+  tmp_image = gtk_image_new_from_stock ("azerbaijan.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   model_toolbar_refmac_button = (GtkWidget*) gtk_tool_button_new (tmp_image, _("Run Refmac..."));
   gtk_widget_set_name (model_toolbar_refmac_button, "model_toolbar_refmac_button");
@@ -31851,4 +31850,3 @@ create_ligand_check_dialog (void)
   return ligand_check_dialog;
 }
 
-#endif /* (GTK_MAJOR_VERSION > 1) */
