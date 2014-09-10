@@ -10,9 +10,9 @@
    xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   inkscape:export-ydpi="90"
-   inkscape:export-xdpi="90"
-   inkscape:export-filename="/home/paule/Projects/coot/pixmaps/flip-peptide.png"
+   inkscape:export-ydpi="29.09"
+   inkscape:export-xdpi="29.09"
+   inkscape:export-filename="/home/paule/Projects/coot/trunk/pixmaps/edit-backbone.png"
    sodipodi:docname="edit-backbone.svg"
    inkscape:version="0.47 r22583"
    sodipodi:version="0.32"
@@ -216,8 +216,8 @@
        sodipodi:type="inkscape:persp3d" />
   </defs>
   <sodipodi:namedview
-     inkscape:window-y="185"
-     inkscape:window-x="182"
+     inkscape:window-y="85"
+     inkscape:window-x="57"
      inkscape:window-height="903"
      inkscape:window-width="1029"
      inkscape:document-units="px"
@@ -242,6 +242,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -252,7 +253,7 @@
      transform="translate(0,32)">
     <g
        style="fill:none;stroke:#23ad4a;stroke-width:1.5;stroke-miterlimit:4;stroke-opacity:1"
-       transform="matrix(2.8915934,0.13872342,-0.13872342,2.8915934,-42.082241,-58.141806)"
+       transform="matrix(2.8915934,0.13872342,-0.13872342,2.8915934,-42.262439,-59.763588)"
        id="g3025">
       <path
          style="stroke-linecap:butt;stroke-linejoin:miter"
@@ -260,8 +261,8 @@
          id="path3021"
          sodipodi:nodetypes="cccc" />
       <path
-         style="stroke-linecap:butt;stroke-linejoin:miter"
-         d="M 21.87405,8.9909968 21.8463,14.306221"
+         style="stroke-width:1.51113141;stroke-linecap:butt;stroke-linejoin:miter"
+         d="m 21.853843,8.6859488 -0.0023,5.6144462"
          id="path3023"
          sodipodi:nodetypes="cc" />
     </g>
