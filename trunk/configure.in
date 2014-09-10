@@ -187,6 +187,8 @@ AM_PATH_PYTHON
 AM_WITH_GUILE_GTK
 AM_PATH_GUILE_GTK
 
+AX_BOOST_PYTHON
+
 dnl =========================== GLADE ================================
 
 # libglade:
