@@ -538,7 +538,7 @@ function post_install_slim {
        keep_lib_archs="$lib_sos"
     fi
 
-    file_list="etc info man share bin/coot bin/coot-real \
+    file_list="etc info man share bin/coot libexec/coot-bin \
         bin/findwaters bin/findwaters-real bin/findligand bin/findligand-real \
 	bin/guile bin/density-score-by-residue bin/density-score-by-residue-real \
         bin/curl $keep_lib_archs"
@@ -706,7 +706,7 @@ date
 if [ "$1" != "" ] ; then
    coot_binary=$1
 else 
-   coot_binary=$install_top_dir/bin/coot-real
+   coot_binary=$install_top_dir/libexec/coot-bin
 fi
 
 if test "$run_tests" = true ; then
@@ -746,8 +746,8 @@ if test "$run_tests" = true ; then
 	        (coot-real-exit 1)))
 EOF
 
-   echo $coot_binary --no-graphics --script command-line-greg.scm
-        $coot_binary --no-graphics --script command-line-greg.scm
+   echo $install_top_dir/bin/coot --no-graphics --script command-line-greg.scm
+        $install_top_dir/bin/coot --no-graphics --script command-line-greg.scm
 
    status=$?
    if [ $status = 0 ] ; then
@@ -788,8 +788,8 @@ if test "$run_tests" = true ; then
    export PYTHONPATH
    export PYTHONHOME
 
-   echo $install_top_dir/bin/coot-real --no-graphics --script python-tests/coot_unittest.py
-        $install_top_dir/bin/coot-real --no-graphics --script python-tests/coot_unittest.py
+   echo $install_top_dir/bin/coot --no-graphics --script python-tests/coot_unittest.py
+        $install_top_dir/bin/coot --no-graphics --script python-tests/coot_unittest.py
 
    status=$?
    if [ $status = 0 ] ; then
