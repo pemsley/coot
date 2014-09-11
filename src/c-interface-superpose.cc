@@ -43,14 +43,6 @@
 #include "c-interface.h"
 #include "cc-interface.hh"
 
-// Unless something strange is going on we don't need this here. Commenting out for now.
-// Delete later.
-// 
-// #ifdef USE_PYTHON
-// #include "Python.h"
-// #endif
-
-#include <ssm-dev/ssm_align.h>
 #include <iostream>
 #include "interface.h"
 
