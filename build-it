@@ -2149,8 +2149,8 @@ if [ -e $install_top_dir/include/$ssm_include_dir/ssm_align.h ] ; then
       build_ssmlib=1
    else 
 
-      # do we have version 1.4?
-      if grep "MINOR_VERSION = [4-9]" $install_top_dir/include/$ssm_include_dir/ssm_defs.h ; then
+      # do we have SSM version 1.4 or later?
+      if grep --silent "MINOR_VERSION = [4-9]" $install_top_dir/include/$ssm_include_dir/ssm_defs.h ; then
          echo SSM is found.
          build_ssmlib=
       else       
