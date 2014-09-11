@@ -141,9 +141,6 @@ coot_wrap_python_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h      \
 coot_wrap_python_gtk2.cc: coot_wrap_python_pre_gtk2.cc
 	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk2 $^ $@
 
-coot_gtk2.py: coot_wrap_python_pre_gtk2.cc
-
-
 #libcoot_wrap.so: coot_wrap.o
 #	-DVERSION=$(VERSION) already in config.h
 #	g++ --shared -o libcoot_wrap.so coot_wrap.o
