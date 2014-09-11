@@ -1,8 +1,8 @@
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #ifdef USE_PYTHON
-#ifndef HAVE_PYTHON
-#define HAVE_PYTHON
+#ifndef HAVE_INCLUDED_PYTHON
+#define HAVE_INCLUDED_PYTHON
 #include <Python.h>
 #endif
 #endif 
