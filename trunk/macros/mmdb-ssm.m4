@@ -35,7 +35,7 @@ if test x$with_ssmlib_prefix != x; then
 
       # AFAICS, ssm does not put its libs in $acl_libdirstem
       # MMDBSSM_LIBS="-L$with_ssmlib_prefix/$acl_libdirstem -lssm"
-      MMDBSSM_LIBS="-L$with_ssmlib_prefix/lib -lssm-dev"
+      MMDBSSM_LIBS="-L$with_ssmlib_prefix/lib -lssm"
       MMDBSSM_CXXFLAGS="-DHAVE_SSMLIB -I$with_ssmlib_prefix/include"
 
    else 
