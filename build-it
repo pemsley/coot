@@ -349,7 +349,8 @@
 # 5.14 20130920 Publish logs.
 # 5.15 20140408 New version of Python.
 # 5.16 20140817 Python version to 2.7.8
-script_version=5.16
+# 5.17 20140911 SSM updates
+script_version=5.17
 
 
 
@@ -2308,7 +2309,7 @@ if test -n "$build_ssmlib" ; then
    echo BUILDING SSM:
 #
 # ssm_version=0.0-pre-2-ysbl
-ssm_version=dev-1.4
+ssm_version=1.4
 #${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/SSMlib-$ssmlib_version.tar.gz
 #${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/SSMlib-$ssmlib_version.tar.gz
 # ${WGET} $extras_place/SSMlib-$ssmlib_version.tar.gz
