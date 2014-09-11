@@ -538,7 +538,7 @@ function post_install_slim {
        keep_lib_archs="$lib_sos"
     fi
 
-    file_list="etc info man share bin/coot libexec/coot-bin \
+    file_list="etc info man share libexec bin/coot libexec/coot-bin \
         bin/findwaters bin/findwaters-real bin/findligand bin/findligand-real \
 	bin/guile bin/density-score-by-residue bin/density-score-by-residue-real \
         bin/curl $keep_lib_archs"
@@ -2140,17 +2140,28 @@ else
     build_mmdb=1
 fi
 
-ssm_include_dir=ssm-dev
+
+
+ssm_include_dir=ssm
 if [ -e $install_top_dir/include/$ssm_include_dir/ssm_align.h ] ; then
    if [ "$build_mmdb" = 1 ] ; then
       build_ssmlib=1
    else 
-      echo SSMlib should not be built
-      build_ssmlib=
+
+      # do we have version 1.4?
+      if grep "MINOR_VERSION = [4-9]" $install_top_dir/include/$ssm_include_dir/ssm_defs.h ; then
+         echo SSM is found.
+         build_ssmlib=
+      else       
+         echo we need a newer SSM.
+         build_ssmlib=1
+      fi
    fi
 else
+   echo SSM not found - needs to be built
    build_ssmlib=1
 fi
+
 
 # clipper depends on mmdb, so if mmdb was built, the so must clipper.
 # likewise for fftw.
