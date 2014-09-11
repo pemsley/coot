@@ -31,7 +31,7 @@ AC_MSG_CHECKING([for ssm library])
 
 if test x$with_ssmlib_prefix != x; then
 
-   if test -r "$with_ssmlib_prefix/include/ssm-dev/ssm_superpose.h"; then
+   if test -r "$with_ssmlib_prefix/include/ssm/ssm_superpose.h"; then
 
       # AFAICS, ssm does not put its libs in $acl_libdirstem
       # MMDBSSM_LIBS="-L$with_ssmlib_prefix/$acl_libdirstem -lssm"
