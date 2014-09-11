@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <cstring>
 #include "clipper/clipper.h"
 #include <mmdb2/mmdb_manager.h>
 #include <mmdb2/mmdb_tables.h>

@@ -7,6 +7,8 @@
  *
  */
 
+#include <cstring>
+
 #ifndef CXXTorusNode_included
 #define CXXTorusNode_included
 #include <mmdb2/mmdb_manager.h>
