@@ -26,10 +26,10 @@
 #ifdef HAVE_GOOCANVAS
 
 #ifdef USE_PYTHON
-#ifndef HAVE_PYTHON
-#define HAVE_PYTHON
-#include <Python.h>
-#endif
+#   ifndef HAVE_INCLUDED_PYTHON
+#      define HAVE_INCLUDED_PYTHON
+#      include <Python.h>
+#   endif
 #endif 
 
 
