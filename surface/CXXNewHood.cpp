@@ -9,6 +9,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <cstring>
 
 #include "CXXSurface.h"
 #include "CXXNewHood.h"
