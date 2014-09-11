@@ -49,10 +49,6 @@
 #include "xmap-utils.h"
 #include "graphics-info.h"
 
-#ifdef HAVE_SSMLIB
-#include <ssm-dev/ssm_align.h>
-#endif
-
 // This is called by make_bonds_type_checked(), which is called by
 // update_molecule_after_additions().
 // 
