@@ -14,10 +14,13 @@
    height="48"
    id="svg2383"
    sodipodi:version="0.32"
-   inkscape:version="0.48.1 r9760"
+   inkscape:version="0.47 r22583"
    sodipodi:docname="go-to-ligand.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
-   version="1.1">
+   version="1.1"
+   inkscape:export-filename="/home/paule/Projects/coot/trunk/pixmaps/go-to-ligand.png"
+   inkscape:export-xdpi="30"
+   inkscape:export-ydpi="30">
   <defs
      id="defs2385">
     <linearGradient
@@ -110,17 +113,17 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="11.098901"
-     inkscape:cx="-3.1586199"
-     inkscape:cy="28.883812"
+     inkscape:zoom="7.8481082"
+     inkscape:cx="45.496241"
+     inkscape:cy="28.005559"
      inkscape:current-layer="layer1"
      showgrid="true"
      inkscape:grid-bbox="true"
      inkscape:document-units="px"
-     inkscape:window-width="1452"
+     inkscape:window-width="852"
      inkscape:window-height="840"
-     inkscape:window-x="140"
-     inkscape:window-y="28"
+     inkscape:window-x="32"
+     inkscape:window-y="49"
      inkscape:window-maximized="0"
      inkscape:snap-global="false">
     <inkscape:grid
@@ -139,7 +142,7 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
-        <dc:title />
+        <dc:title></dc:title>
       </cc:Work>
     </rdf:RDF>
   </metadata>
@@ -162,7 +165,7 @@
        inkscape:flatsided="true"
        inkscape:rounded="0"
        inkscape:randomized="0"
-       d="m -25,-4 -2.5,4.33012702 -5,0 L -35,-4 l 2.5,-4.330127 5,0 z"
+       d="m -25,-4 -2.5,4.33012702 -5,0 L -35,-4 l 2.5,-4.330127 5,0 L -25,-4 z"
        transform="matrix(2.3647916,0,0,2.3468057,84.186503,13.326459)" />
     <path
        style="fill:none;stroke:#282828;stroke-width:3.01021719;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none"
