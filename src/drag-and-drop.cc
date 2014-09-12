@@ -61,7 +61,7 @@ on_drag_data_received (GtkWidget *widget,
          // we have a text uri (file!?)
          gchar **uris;
          gint i = 0;
-         gchar *res;
+         gchar *res = 0;
          uris = g_uri_list_extract_uris((gchar*)selection_data-> data);
          if (uris) {
             while (uris[i] != 0) {

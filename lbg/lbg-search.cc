@@ -80,7 +80,7 @@ lbg_info_t::search() const {
    graph->SetName ("Coot-LBG-Query");
    graph->MakeVertexIDs();
    
-   int build_result = graph->Build(False);
+   int build_result = graph->Build(false);
 
    if (build_result != 0) {
 
@@ -89,7 +89,7 @@ lbg_info_t::search() const {
    } else { 
 
       if (geom_p) { 
-	 graph->MakeSymmetryRelief(False);
+	 graph->MakeSymmetryRelief(false);
 	 graph->Print();
 	 std::cout << "graph search using similarity  " << local_search_similarity << std::endl;
 	 std::cout << "graph build returns: " << build_result << std::endl;
@@ -131,7 +131,7 @@ lbg_info_t::get_search_similarity() const {
 coot::match_results_t
 lbg_info_t::residue_from_best_match(mmdb::math::Graph &graph_1, mmdb::math::Graph &graph_2,
 				    mmdb::math::GraphMatch &match, int n_match, 
-				    CCP4SRSMonomer *monomer_p) const {
+				    ccp4srs::Monomer *monomer_p) const {
 
    coot::match_results_t r("","",NULL);
    if (geom_p)

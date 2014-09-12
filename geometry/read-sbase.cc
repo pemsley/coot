@@ -38,7 +38,7 @@ coot::protein_geometry::read_ccp4srs_residues() {
 #ifdef HAVE_CCP4SRS
 
    if (SBase) { 
-      CCP4SRSMonomer *monomer_p = NULL;
+      ccp4srs::Monomer *monomer_p = NULL;
       std::vector<std::string> local_residue_codes;
       local_residue_codes.push_back("ASN");
       local_residue_codes.push_back("TRP");
@@ -48,7 +48,7 @@ coot::protein_geometry::read_ccp4srs_residues() {
 	 if (monomer_p) { 
 	    std::cout << monomer_p->ID() << " " << monomer_p->chem_name() << std::endl;
 	    for (int iat=0; iat<monomer_p->n_atoms(); iat++) {
-	       CCP4SRSAtom *at = monomer_p->atom(iat);
+	       ccp4srs::Atom *at = monomer_p->atom(iat);
 	       std::cout << "    " << at->name() << " ("
 			 << at->x() << "," << at->y() << ","
 			 << at->z() <<")\n";
@@ -73,11 +73,11 @@ coot::protein_geometry::get_ccp4srs_residue(const std::string &res_name) const {
 
 #ifdef HAVE_CCP4SRS   
    if (SBase) {
-      CCP4SRSMonomer *monomer_p = SBase->getMonomer(res_name.c_str());
+      ccp4srs::Monomer *monomer_p = SBase->getMonomer(res_name.c_str());
       if (monomer_p) {
 	 residue_p = new mmdb::Residue;
 	 for (int iat=0; iat<monomer_p->n_atoms(); iat++) {
-	    CCP4SRSAtom *at = monomer_p->atom(iat);
+	    ccp4srs::Atom *at = monomer_p->atom(iat);
 
 	    std::string new_atom_name = coot::atom_id_mmdb_expand(at->name(), at->element());
 
@@ -139,7 +139,7 @@ coot::protein_geometry::init_ccp4srs(const std::string &ccp4srs_monomer_dir_in) 
 
 #ifdef HAVE_CCP4SRS
 
-   int RC = CCP4SRS_FileNotFound; // initial status.
+   int RC = ccp4srs::CCP4SRS_FileNotFound; // initial status.
    // std::cout << "init_ccp4srs() with " << ccp4srs_monomer_dir_in << std::endl;
    std::string dir;
    const char *d1 = getenv(MONOMER_DIR_STR);
@@ -162,10 +162,10 @@ coot::protein_geometry::init_ccp4srs(const std::string &ccp4srs_monomer_dir_in) 
    
    if (dir.length()) {
       std::cout << "about to loadIndex with dir " << dir << std::endl;
-      SBase = new CCP4SRSBase;
+      SBase = new ccp4srs::Base;
       RC = SBase->loadIndex(dir.c_str());
       std::cout << "... loadIndex() returned " << RC << std::endl;
-      if (RC != CCP4SRS_Ok) {
+      if (RC != ccp4srs::CCP4SRS_Ok) {
          std::cout << "CCP4SRS init problem." << std::endl;
 	 delete SBase;
 	 SBase = NULL;
@@ -196,7 +196,7 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
    rest.residue_info.comp_id = monomer_type;
    
    if (SBase) {
-      CCP4SRSMonomer *monomer_p = SBase->getMonomer(monomer_type.c_str());
+      ccp4srs::Monomer *monomer_p = SBase->getMonomer(monomer_type.c_str());
       if (monomer_p) {
 
 	 // molecule info
@@ -228,7 +228,7 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 	 // atoms
 	 
 	 for (int iat=0; iat<monomer_p->n_atoms(); iat++) {
-	    CCP4SRSAtom *at = monomer_p->atom(iat);
+	    ccp4srs::Atom *at = monomer_p->atom(iat);
 	    std::pair<bool, float> pc(0,0); // partial charge.
 	    std::string type_symbol = at->element();
 	    std::string type_energy = at->energy_type();
@@ -249,7 +249,7 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 	 // bonds
 	 
 	 for (int ib=0; ib<monomer_p->n_bonds(); ib++) {
-	    CCP4SRSBond *bond = monomer_p->bond(ib);
+	    ccp4srs::Bond *bond = monomer_p->bond(ib);
 	    int ind_1 = bond->atom1();
 	    int ind_2 = bond->atom2();
 	    int order = bond->order();
@@ -260,28 +260,28 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 			 << " order " << order << std::endl;
 	    std::string type = "single";
 	    switch (order) {
-	    case CCP4SRSBond::noOrder:
+	    case ccp4srs::Bond::noOrder:
 	       type = "single";
 	       break;
-	    case CCP4SRSBond::Single:
+	    case ccp4srs::Bond::Single:
 	       type = "single";
 	       break;
-	    case CCP4SRSBond::Aromatic:
+	    case ccp4srs::Bond::Aromatic:
 	       type = "aromatic";
 	       break;
-	    case CCP4SRSBond::Double:
+	    case ccp4srs::Bond::Double:
 	       type = "double";
 	       break;
-	    case CCP4SRSBond::Triple:
+	    case ccp4srs::Bond::Triple:
 	       type = "triple";
 	       break;
-	    case CCP4SRSBond::Deloc:
+	    case ccp4srs::Bond::Deloc:
 	       type = "deloc";
 	       break;
-	    case CCP4SRSBond::Covalent:
+	    case ccp4srs::Bond::Covalent:
 	       type = "covalent";
 	       break;
-	    case CCP4SRSBond::Metal:
+	    case ccp4srs::Bond::Metal:
 	       type = "metal";
 	       break;
 	    default:
@@ -298,7 +298,7 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 	 // angles
 	 
 	 for (int ia=0; ia<monomer_p->n_angles(); ia++) {
-	    CCP4SRSAngle *angle = monomer_p->angle(ia);
+	    ccp4srs::Angle *angle = monomer_p->angle(ia);
 	    int ind_1 = angle->atom1();
 	    int ind_2 = angle->atom2();
 	    int ind_3 = angle->atom3();
@@ -314,7 +314,7 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 
 	 // torsions
 	 for (int ia=0; ia<monomer_p->n_torsions(); ia++) {
-	    CCP4SRSTorsion *torsion = monomer_p->torsion(ia);
+	    ccp4srs::Torsion *torsion = monomer_p->torsion(ia);
 	    int ind_1 = torsion->atom1();
 	    int ind_2 = torsion->atom2();
 	    int ind_3 = torsion->atom3();
@@ -336,7 +336,7 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 	 // chirals
 	 
 	 for (int ic=0; ic<monomer_p->n_chicenters(); ic++) {
-	    CCP4SRSChiCenter *chiral = monomer_p->chicenter(ic);
+	    ccp4srs::ChiCenter *chiral = monomer_p->chicenter(ic);
 	    int ind_c = chiral->center();
 	    int ind_1 = chiral->atom1();
 	    int ind_2 = chiral->atom2();
@@ -356,7 +356,7 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 	 // planes
 
 	 for (int ip=0; ip<monomer_p->n_planes(); ip++) {
-	    CCP4SRSPlane *plane = monomer_p->plane(ip);
+	    ccp4srs::Plane *plane = monomer_p->plane(ip);
 	    std::string id = plane->id();
 	    std::vector<std::string> atom_names;
 	    std::vector<double> esds;
@@ -431,7 +431,7 @@ coot::protein_geometry::try_load_sbase_description(const std::vector<std::string
 coot::match_results_t
 coot::protein_geometry::residue_from_best_match(mmdb::math::Graph &graph1, mmdb::math::Graph &graph2,
 						mmdb::math::GraphMatch &match, int n_match,
-						CCP4SRSMonomer *monomer_p) const {
+						ccp4srs::Monomer *monomer_p) const {
 
    match_results_t r("", "", NULL);
    int best_match = -1;
@@ -447,8 +447,8 @@ coot::protein_geometry::residue_from_best_match(mmdb::math::Graph &graph1, mmdb:
 	 std::cout << "   match " << imatch << " " << " set n pairs " << n << std::endl;
       int n_type_match = 0;
       for (int ipair=1; ipair<=n; ipair++) {
-	 Pmmdb::math::Vertex V1 = graph1.GetVertex ( FV1[ipair] );
-	 Pmmdb::math::Vertex V2 = graph2.GetVertex ( FV2[ipair] );
+	 mmdb::math::Vertex *V1 = graph1.GetVertex ( FV1[ipair] );
+	 mmdb::math::Vertex *V2 = graph2.GetVertex ( FV2[ipair] );
 	 if ((!V1) || (!V2))  {
 	    std::cout << "Can't get vertices for match " << ipair << std::endl;
 	 } else {
@@ -483,7 +483,7 @@ coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float sim
       //  There are several methods for retrieving graphs
       //  from the sbase, here we use one most convenient
       //  for serial extractions.
-      PCFile graphFile = SBase->getGraphFile();
+      mmdb::io::File *graphFile = SBase->getGraphFile();
       if (!graphFile)  {
 	 printf ( "\n CCP4SRS graph file not found.\n" );
       }
@@ -522,7 +522,7 @@ coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float sim
 	       // removes ~90% of the "hits" and returns molecules
 	       // with the wrong bond orders.
 	       // 
-	       graph_2->Build(False); // 20100608 was True
+	       graph_2->Build(false); // 20100608 was True
 
 	       mmdb::math::GraphMatch *match  = new mmdb::math::GraphMatch();
 	       if (min_match > 0) { 
@@ -534,8 +534,8 @@ coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float sim
 			std::cout << "found " << nMatches << " match(es) for query in structure "
 				  << is << " " << graph_1->GetName() << " vs " << graph_2->GetName()
 				  << std::endl;
-		     CFile *sf = SBase->getStructFile();
-		     CCP4SRSMonomer *monomer_p = SBase->getMonomer(is, sf);
+		     mmdb::io::File *sf = SBase->getStructFile();
+		     ccp4srs::Monomer *monomer_p = SBase->getMonomer(is, sf);
 		     if (monomer_p) {
 			if (monomer_p->chem_name()) {
 			   std::cout << "    " << n_match << " " << graph_2->GetName() << " : "

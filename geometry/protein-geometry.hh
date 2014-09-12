@@ -1564,7 +1564,7 @@ namespace coot {
    class protein_geometry {
 
 #ifdef HAVE_CCP4SRS      
-      PCCP4SRSBase SBase;
+      ccp4srs::PBase SBase;
 #endif      
 
       enum { MON_LIB_LIST_CIF = -999}; // A negative number special
@@ -2346,7 +2346,7 @@ namespace coot {
 #ifdef HAVE_CCP4SRS
       match_results_t residue_from_best_match(mmdb::math::Graph &graph1, mmdb::math::Graph &graph2,
 					      mmdb::math::GraphMatch &match, int n_match,
-					      CCP4SRSMonomer *monomer_p) const;
+					      ccp4srs::Monomer *monomer_p) const;
       std::vector<match_results_t>
       compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float similarity, int n_vertices) const;
       

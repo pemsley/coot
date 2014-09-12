@@ -61,7 +61,7 @@ lidia_LDADD = \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(GLOB_LIBS) $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS) \
-	$(RDKIT_LIBS) $(GOOCANVAS_LIBS) $(GTK_LIBS) $(PYTHON_LIBS)
+	$(RDKIT_LIBS) $(L_BOOST_PYTHON) $(GOOCANVAS_LIBS) $(GTK_LIBS) $(PYTHON_LIBS)
 
 EXTRA_DIST=lbg.glade $(appicon_DATA) lbg-callbacks.cc
 
