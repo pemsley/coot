@@ -2179,7 +2179,7 @@ int test_ccp4srs() {
       std::string sbase_monomer_dir = sbase_dir;
       int init_status = t.geom.init_ccp4srs(sbase_monomer_dir);
       std::cout << "   SBase init status: " << init_status << std::endl;
-      if (init_status != CCP4SRS_Ok) {
+      if (init_status != ccp4srs::CCP4SRS_Ok) {
 	 std::cout << "   WARNING:: Trouble initialising SBase" << std::endl;
       } else { 
 	 // t.geom.read_sbase_residues();
@@ -2691,7 +2691,7 @@ int test_position_residue_by_internal_coords() {
    if (sbase_dir) {
       std::string sbase_monomer_dir = sbase_dir;
       int init_status = t.geom.init_ccp4srs(sbase_monomer_dir);
-      if (init_status != CCP4SRS_Ok) {
+      if (init_status != ccp4srs::CCP4SRS_Ok) {
 	 std::cout << "   WARNING:: Trouble initialising SBase" << std::endl;
       } else { 
 

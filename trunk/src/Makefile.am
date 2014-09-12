@@ -439,11 +439,13 @@ fix_nomenclature_errors_LDADD = \
 	$(top_builddir)/utils/libcoot-utils.la	  	        \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
         $(GLOB_LIBS)		\
-        $(RDKIT_LIBS)		\
 	$(GSL_LIBS)		\
 	$(CLIPPER_LIBS) 	\
 	$(MMDB_LIBS)		
 
+# removed from fix_nomenclature_errors_LDADD:
+#        $(RDKIT_LIBS)		
+#        $(L_BOOST_PYTHON)	# also needs PYTHON_LIBS, I guess?
 
 # coot_bin_LDFLAGS = -static -lstdc++
 coot_bin_LDFLAGS =
@@ -468,6 +470,7 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 		$(CURL_LIBS)		\
 		$(LIBGLADE_LIBS)	\
 	  	$(RDKIT_LIBS)	        \
+	        $(L_BOOST_PYTHON)	\
 		$(GOOCANVAS_LIBS)       \
 		$(SQLITE3_LIBS)         \
 		@GTK_LIBS@

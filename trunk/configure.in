@@ -190,6 +190,17 @@ AM_PATH_GUILE_GTK
 
 AX_BOOST_PYTHON
 
+# So now BOOST_PYTHON_LIB is set (and that is typically "boost_python").
+# How do we use that?  At the moment we want to only use 
+# -l$(BOOST_PYTHON_LIB) when we have RDKIT_LIBS set
+
+if test -z "$RDKIT_LIBS" ; then
+   L_BOOST_PYTHON=
+else 
+   L_BOOST_PYTHON=-l$BOOST_PYTHON_LIB
+fi
+AC_SUBST(L_BOOST_PYTHON)
+
 dnl =========================== GLADE ================================
 
 # libglade:

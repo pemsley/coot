@@ -794,7 +794,7 @@ private:
 #ifdef HAVE_CCP4SRS   
    coot::match_results_t residue_from_best_match(mmdb::math::Graph &graph_1, mmdb::math::Graph &graph_2,
 						 mmdb::math::GraphMatch &match, int n_match, 
-						 CCP4SRSMonomer *monomer_p) const;
+						 ccp4srs::Monomer *monomer_p) const;
 #endif   
    void display_search_results(const std::vector<coot::match_results_t> &v) const;
    void rotate_latest_bond(int x, int y);
