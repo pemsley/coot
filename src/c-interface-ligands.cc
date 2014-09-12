@@ -683,13 +683,16 @@ void add_ligand_clear_ligands() {
    g.find_ligand_clear_ligand_mols();
 } 
 
-
+// Called from callbacks.c
+void execute_ligand_search() {
+   execute_ligand_search_internal();
+}
 
 
 // execute_find_ligands_real, you might say
 // 
 #ifdef USE_GUILE
-SCM execute_ligand_search() {
+SCM execute_ligand_search_scm() {
 
    std::vector<int> solutions = execute_ligand_search_internal();
    return generic_int_vector_to_list_internal(solutions);

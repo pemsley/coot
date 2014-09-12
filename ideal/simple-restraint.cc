@@ -586,7 +586,7 @@ coot::restraints_container_t::add_fixed_atoms_from_flanking_residues(const coot:
       residues_for_fixed_atoms[i]->GetAtomTable(residue_atoms, n_res_atoms);
       for (unsigned int iat=0; iat<n_res_atoms; iat++) { 
 	 mmdb::Atom *at = residue_atoms[iat];
-	 if (! at->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok) {
+	 if (! (at->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok)) {
 	    std::cout << "ERROR:: bad UDD for atom " << iat << std::endl;
 	 } else {
 	    if (std::find(fixed_atom_indices.begin(),
