@@ -333,8 +333,6 @@ coot::hole::write_probe_path(const std::vector<std::pair<clipper::Coord_orth, do
 	 unsigned int max_upstream_check_limit = i-5;
 	 unsigned int max_downstream_check_limit = i+5;
 
-	 if (max_upstream_check_limit<0)
-	    max_upstream_check_limit = 0;
 	 if (max_downstream_check_limit>=probe_path.size())
 	     max_downstream_check_limit=probe_path.size()-1;
 

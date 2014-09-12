@@ -19,7 +19,7 @@ molecule_class_info_t::export_map_fragment_with_origin_shift(float radius,
    if (has_xmap()) {
       clipper::Cell          xmap_cell = xmap.cell();
       clipper::Grid_sampling xmap_grid_sampling = xmap.grid_sampling();
-      clipper::Coord_orth centre_moved = centre_moved - clipper::Coord_orth(0.1, 0.1, 0.1);
+      clipper::Coord_orth centre_moved = centre - clipper::Coord_orth(0.1, 0.1, 0.1);
 
       clipper::Grid_range gr0(xmap_cell, xmap_grid_sampling, radius);
       clipper::Grid_range gr1(gr0.min() + centre.coord_frac(xmap_cell).coord_grid(xmap_grid_sampling),
