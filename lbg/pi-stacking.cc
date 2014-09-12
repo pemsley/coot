@@ -3,15 +3,19 @@
 #include <Python.h>
 #endif
 
+#include <cstring> // otherwise strchr() problems when using clang/Mac,
+                   // when including mmdb2/mmdb_manager.h at the top (or
+                   // after Python.h?)
+
 #include <mmdb2/mmdb_manager.h>
 #include <clipper/core/coords.h>
 
 #include "geometry/protein-geometry.hh"
 #include "coot-utils/residue-and-atom-specs.hh"
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-// #include "lidia-core/use-rdkit.hh"
 #include "lidia-core/rdkit-interface.hh"
 #endif
+
 #include "pi-stacking.hh"
 
 coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_residue_restraints_t &monomer_restraints,
