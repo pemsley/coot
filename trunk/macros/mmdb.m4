@@ -88,13 +88,16 @@ AC_MSG_CHECKING([for MMDB])
 
 if test x$have_mmdb = xyes; then
 
- LIBS="$saved_LIBS"
- HASH_FLAG=-DHAVE_MMDB_IGNORE_HASH
- CISPEP_FLAG=-DHAVE_MMDB_WITH_CISPEP
- CXXFLAGS="$saved_CXXFLAGS"
- MMDB_CXXFLAGS="$ac_MMDB_CXXFLAGS $HASH_FLAG $CISPEP_FLAG"
- MMDB_LIBS="$ac_MMDB_LIBS"
-ifelse([$1], , :, [$1])
+  LIBS="$saved_LIBS"
+  HASH_FLAG=-DHAVE_MMDB_IGNORE_HASH
+  CISPEP_FLAG=-DHAVE_MMDB_WITH_CISPEP
+  CXXFLAGS="$saved_CXXFLAGS"
+  MMDB_CXXFLAGS="$ac_MMDB_CXXFLAGS $HASH_FLAG $CISPEP_FLAG"
+  MMDB_LIBS="$ac_MMDB_LIBS"
+
+else 
+  
+  AC_MSG_FAILURE([ --with-mmdb-prefix specified but include files not found])
 
 fi
 
