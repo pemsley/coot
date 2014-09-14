@@ -65,6 +65,9 @@ ac_cv_boost_python,
  if test x$PYTHON_CPPFLAGS != x; then
    CPPFLAGS="$PYTHON_CPPFLAGS $CPPFLAGS"
  fi
+ if test x$BOOST_CPPFLAGS != x; then
+   CPPFLAGS="$BOOST_CPPFLAGS $PYTHON_CPPFLAGS $CPPFLAGS"
+ fi
  AC_COMPILE_IFELSE([AC_LANG_PROGRAM([[
  #include <boost/python/module.hpp>
  using namespace boost::python;

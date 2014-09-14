@@ -36,7 +36,7 @@ _pyrogen_swig_la_LIBADD = libcoot_py_restraints.la \
                           $(top_builddir)/ideal/libcoot-ideal.la             \
 			  $(top_builddir)/analysis/libcoot-analysis.la       \
 			  $(top_builddir)/geometry/libcoot-geometry.la       \
-                          $(RDKIT_LIBS) -l$(BOOST_PYTHON_LIB) $(CLIPPER_LIBS) $(MMDB_LIBS)
+                          $(RDKIT_LIBS) $(L_BOOST_PYTHON_LIB) $(CLIPPER_LIBS) $(MMDB_LIBS)
 
 # What does this do? If we add it, we don't get this message:
 #  `_pyrogen_swig.la' is not a standard libtool library name
@@ -65,7 +65,7 @@ libpyrogen_boost_la_LIBADD = libcoot_py_restraints.la \
                                 $(top_builddir)/geometry/libcoot-geometry.la       \
                                 $(top_builddir)/coords/libcoot-coords.la           \
 			        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
-                                $(RDKIT_LIBS) -l$(BOOST_PYTHON_LIB)
+                                $(RDKIT_LIBS) $(L_BOOST_PYTHON_LIB)
 
 
 dist_bin_SCRIPTS = pyrogen
