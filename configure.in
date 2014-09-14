@@ -188,6 +188,7 @@ AM_PATH_PYTHON
 AM_WITH_GUILE_GTK
 AM_PATH_GUILE_GTK
 
+AX_BOOST_BASE
 AX_BOOST_PYTHON
 
 # So now BOOST_PYTHON_LIB is set (and that is typically "boost_python").
@@ -195,9 +196,13 @@ AX_BOOST_PYTHON
 # -l$(BOOST_PYTHON_LIB) when we have RDKIT_LIBS set
 
 if test -z "$RDKIT_LIBS" ; then
-   L_BOOST_PYTHON=
+   :
 else 
-   L_BOOST_PYTHON=-l$BOOST_PYTHON_LIB
+   if test -z "$BOOST_PYTHON_LIB" ; then
+      :
+   else
+      L_BOOST_PYTHON=-l$BOOST_PYTHON_LIB
+   fi
 fi
 AC_SUBST(L_BOOST_PYTHON)
 
