@@ -1564,7 +1564,7 @@ namespace coot {
    class protein_geometry {
 
 #ifdef HAVE_CCP4SRS      
-      ccp4srs::PBase SBase;
+      ccp4srs::Base *SBase;
 #endif      
 
       enum { MON_LIB_LIST_CIF = -999}; // A negative number special
@@ -2057,7 +2057,11 @@ namespace coot {
       std::pair<bool, dictionary_residue_restraints_t>
       get_monomer_restraints_at_least_minimal(const std::string &monomer_type) const;
 
-      
+      // caller ensures that idx is valid
+      const dictionary_residue_restraints_t &
+      get_monomer_restraints(unsigned int idx) const {
+	 return dict_res_restraints[idx];
+      } 
 
       // non-const because we try to read in stuff from SBase when
       // it's not in the dictionary yet.  SBase gives us bond orders.
