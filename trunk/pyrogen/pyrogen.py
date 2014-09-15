@@ -455,7 +455,9 @@ def make_picture_to_file(mol, conf_id, output_file_name):
 
 def make_restraints_from_smiles(smiles_string, comp_id, compound_name, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes):
 
-   if not test_for_mogul(): return False
+   if not test_for_mogul():
+      # return False
+      exit(1)
    m = Chem.MolFromSmiles(smiles_string)
    if compound_name:
        m.SetProp('_Name', compound_name)
@@ -465,7 +467,9 @@ def make_restraints_from_smiles(smiles_string, comp_id, compound_name, mogul_dir
 # 
 def make_restraints_from_mdl(mol_file_name, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes):
 
-   if (not (test_for_mogul())): return False, False
+   if (not (test_for_mogul())):
+      # return False, False
+      exit(1)
 
    compound_name = '.'
    m = Chem.MolFromMolFile(mol_file_name)
