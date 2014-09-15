@@ -63,7 +63,7 @@ int main(int argc, char **argv) {
 
 	 std::string stub = it->first.first + "-" + it->first.second;
 
-	 // unimodal
+	 // fold in symmetry
 	 if (it->first.second < it->first.first)
 	    stub = it->first.second + "-" + it->first.first;
 	 
