@@ -122,8 +122,16 @@ coot::protein_geometry::matching_ccp4srs_residues_names(const std::string &compo
    std::string compound_name = coot::util::upcase(compound_name_frag);
    if (SBase) {
       int n_entries = SBase->n_entries();
+      
       // std::pair<std::string,std::string> p(monomer_p->ID(), monomer_p->name());
-   }
+
+      for (unsigned int i=0; i<n_entries; i++) { 
+	 // ccp4srs::Monomer *mon = SBase->getMonomer(i);
+	 
+      }
+   } else {
+      std::cout << "WARNING:: Null SBase" << std::endl;
+   } 
 #endif // HAVE_CCP4SRS   
    return v;
 }
