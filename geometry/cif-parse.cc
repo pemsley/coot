@@ -329,7 +329,7 @@ coot::protein_geometry::chem_comp_component(mmdb::mmcif::PStruct structure) {
 	 try {
 	    number_of_atoms_all = coot::util::string_to_int(field);
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    std::cout << rte.what() << std::endl;
 	 }
       }
@@ -337,7 +337,7 @@ coot::protein_geometry::chem_comp_component(mmdb::mmcif::PStruct structure) {
 	 try {
 	    number_of_atoms_nh = coot::util::string_to_int(field);
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    std::cout << rte.what() << std::endl;
 	 }
       }
@@ -414,7 +414,7 @@ coot::protein_geometry::chem_comp_tor_structure(mmdb::mmcif::PStruct structure) 
 	 try { 
 	    period = std::pair<bool, int> (1,coot::util::string_to_int(field));
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    std::cout << "WARNING:: not an integer: " << field << std::endl;
 	 }
       }
@@ -422,7 +422,7 @@ coot::protein_geometry::chem_comp_tor_structure(mmdb::mmcif::PStruct structure) 
 	 try { 
 	    value_angle = std::pair<bool, float> (1,coot::util::string_to_float(field));
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    std::cout << "WARNING:: value_angle not an number: " << field << std::endl;
 	 }
       }
@@ -430,7 +430,7 @@ coot::protein_geometry::chem_comp_tor_structure(mmdb::mmcif::PStruct structure) 
 	 try { 
 	    value_angle_esd = std::pair<bool, float> (1,coot::util::string_to_float(field));
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    std::cout << "WARNING:: value_angle_esd not an number: " << field << std::endl;
 	 }
       }
@@ -2974,16 +2974,16 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       ss = bond_restraint[i].type().c_str();
 	       mmCIFLoop->PutString(ss, "type", i);
 	       float v = bond_restraint[i].value_dist();
-	       try { 
-		  mmCIFLoop->PutReal(v, "value_dist", i);
+	       try {
+		  mmCIFLoop->PutReal(v, "value_dist", i, 5);
 		  v = bond_restraint[i].value_esd();
-		  mmCIFLoop->PutReal(v, "value_dist_esd", i);
+		  mmCIFLoop->PutReal(v, "value_dist_esd", i, 3);
 	       }
-	       catch (std::runtime_error rte) {
+	       catch (const std::runtime_error &rte) {
 		  // do nothing, it's not really an error if the dictionary
 		  // doesn't have target geometry (the bonding description came
 		  // from a Chemical Component Dictionary entry for example).
-	       } 
+	       }
 	    }
 	 }
       }
@@ -3015,9 +3015,9 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       mmCIFLoop->PutString(ss, "atom_id_3", i);
 	       
 	       float v = angle_restraint[i].angle();
-	       mmCIFLoop->PutReal(v, "value_angle", i);
+	       mmCIFLoop->PutReal(v, "value_angle", i, 5);
 	       v = angle_restraint[i].esd();
-	       mmCIFLoop->PutReal(v, "value_angle_esd", i);
+	       mmCIFLoop->PutReal(v, "value_angle_esd", i, 3);
 	    }
 	 }
       }
@@ -3051,9 +3051,9 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       ss = qan_4.c_str();
 	       mmCIFLoop->PutString(ss, "atom_id_4", i);
 	       float v = torsion_restraint[i].angle();
-	       mmCIFLoop->PutReal(v, "value_angle", i);
+	       mmCIFLoop->PutReal(v, "value_angle", i, 5);
 	       v = torsion_restraint[i].esd();
-	       mmCIFLoop->PutReal(v, "value_angle_esd", i);
+	       mmCIFLoop->PutReal(v, "value_angle_esd", i, 3);
 	       int p = torsion_restraint[i].periodicity();
 	       mmCIFLoop->PutInteger(p, "period", i);
 	    }
