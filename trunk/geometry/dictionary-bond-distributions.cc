@@ -28,14 +28,15 @@ int main(int argc, char **argv) {
    int read_number = 0;
    for (unsigned int i=1; i<argc; i++) {
       std::string file_name = argv[i];
-      // std::cout << "file_name " << file_name << std::endl;
       int status = geom.init_refmac_mon_lib(file_name, read_number);
+      // std::cout << "read " << file_name << " with status " << status << std::endl;
       read_number++;
    }
 
    std::map<std::pair<std::string, std::string>, std::vector<double> > bonds;
 
-   for (unsigned int i=0; i<geom.size(); i++) { 
+   std::cout << "Examining the bonds in the " << geom.size() << " entries."<< std::endl;
+   for (unsigned int i=0; i<geom.size(); i++) {
       const coot::dictionary_residue_restraints_t r = geom.get_monomer_restraints(i);
       for (unsigned int ibond=0; ibond<r.bond_restraint.size(); ibond++) { 
 	 const coot::dict_bond_restraint_t &br = r.bond_restraint[ibond];
@@ -49,15 +50,23 @@ int main(int argc, char **argv) {
    }
 
    std::map<std::pair<std::string, std::string>, std::vector<double> >::const_iterator it;
-   unsigned int min_counts = 250;
+   unsigned int min_counts = 100;
+   unsigned int n_found = 0;
    
    for (it=bonds.begin(); it!=bonds.end(); it++) {
       if (it->second.size() > min_counts) {
+
+	 n_found++;
 	 
-	 // std::cout << it->first.first << " " << it->first.second << " "
-	 // << it->second.size() << std::endl;
+// 	 std::cout << it->first.first << " " << it->first.second << " "
+// 		   << it->second.size() << std::endl;
 
 	 std::string stub = it->first.first + "-" + it->first.second;
+
+	 // unimodal
+	 if (it->first.second < it->first.first)
+	    stub = it->first.second + "-" + it->first.first;
+	 
 	 std::string file_name = stub + ".tab";
 	 write_bond_lengths(file_name, it->second);
 
@@ -70,10 +79,11 @@ int main(int argc, char **argv) {
 		   << stats.mean() << "   v: " << var << "   s: "
 		   << sqrt(var) << "   k: "
 		   << stats.kurtosis()  << std::endl;
-
-	 
       }
    }
+
+   std::cout << "Found " << n_found << " bond types with more than " << min_counts
+	     << " entries"<< std::endl;
 
    return r;
 } 
