@@ -1,7 +1,7 @@
 
 lib_LTLIBRARIES=libcoot-analysis.la
 
-pkginclude_HEADERS=bfkurt.hh mogul-interface.hh
+pkginclude_HEADERS=bfkurt.hh mogul-interface.hh stats.hh
 pkgincludedir = $(includedir)/coot/analysis
 
 # CXXFLAGS = 	$(COOT_GSL_FLAGS)
