@@ -1403,83 +1403,91 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop) {
 	 }
       }
 
-      s = mmCIFLoop->GetString("atom_id_1", j, ierr);
-      ierr_tot += ierr;
-      ierr_tot_for_ccd += ierr;
-      if (s) 
-	 atom_id_1 = get_padded_name(s, comp_id_index);
+      if (comp_id_index == -1 ) {
 
-      s = mmCIFLoop->GetString("atom_id_2", j, ierr);
-      ierr_tot += ierr;
-      ierr_tot_for_ccd += ierr;
-      if (s) 
-	 atom_id_2 = get_padded_name(s, comp_id_index);
+	 std::cout << "WARNING:: failed to find dictionary entry index for "
+		   << comp_id << std::endl;
 
-      s = mmCIFLoop->GetString("type", j, ierr);
-      if (s) 
-	 type = s;
-      // perhaps it was in the dictionary as "value_order"?
-      if (ierr) {
-	 s = mmCIFLoop->GetString("value_order", j, ierr);
-      }
-      if (! ierr) {
-	 if (s) { // just in case (should not be needed).
-	    std::string ss(s);
-	    // convert from Chemical Component Dictionary value_order to
-	    // refmac monomer library chem_comp_bond types - 
-	    // or FeiDrg output.
-	    if (ss == "SING")
-	       type = "single";
-	    if (ss == "DOUB")
-	       type = "double";
-	    if (ss == "TRIP")
-	       type = "triple";
-	    if (ss == "TRIPLE")
-	       type = "triple";
+      } else { 
 
-	    if (ss == "SINGLE")
-	       type = "single";
-	    if (ss == "DOUBLE")
-	       type = "double";
-	    if (ss == "DELOC")
-	       type = "deloc";
-	       
-	    // Chemical Chemical Dictionary also has an aromatic flag, so
-	    // we can have bonds that are (for example) "double"
-	    // "aromatic" Hmm!  Food for thought.
-	       
-	    // Metal bonds are "SING" (i.e. CCD doesn't have metal
-	    // bonds).
+	 s = mmCIFLoop->GetString("atom_id_1", j, ierr);
+	 ierr_tot += ierr;
+	 ierr_tot_for_ccd += ierr;
+	 if (s) 
+	    atom_id_1 = get_padded_name(s, comp_id_index);
+
+	 s = mmCIFLoop->GetString("atom_id_2", j, ierr);
+	 ierr_tot += ierr;
+	 ierr_tot_for_ccd += ierr;
+	 if (s) 
+	    atom_id_2 = get_padded_name(s, comp_id_index);
+
+	 s = mmCIFLoop->GetString("type", j, ierr);
+	 if (s) 
+	    type = s;
+	 // perhaps it was in the dictionary as "value_order"?
+	 if (ierr) {
+	    s = mmCIFLoop->GetString("value_order", j, ierr);
 	 }
-      }
-      ierr_tot += ierr;
-      ierr_tot_for_ccd += ierr;
+	 if (! ierr) {
+	    if (s) { // just in case (should not be needed).
+	       std::string ss(s);
+	       // convert from Chemical Component Dictionary value_order to
+	       // refmac monomer library chem_comp_bond types - 
+	       // or FeiDrg output.
+	       if (ss == "SING")
+		  type = "single";
+	       if (ss == "DOUB")
+		  type = "double";
+	       if (ss == "TRIP")
+		  type = "triple";
+	       if (ss == "TRIPLE")
+		  type = "triple";
 
-      ierr = mmCIFLoop->GetReal(value_dist, "value_dist", j);
-      ierr_tot += ierr;
+	       if (ss == "SINGLE")
+		  type = "single";
+	       if (ss == "DOUBLE")
+		  type = "double";
+	       if (ss == "DELOC")
+		  type = "deloc";
+	       
+	       // Chemical Chemical Dictionary also has an aromatic flag, so
+	       // we can have bonds that are (for example) "double"
+	       // "aromatic" Hmm!  Food for thought.
+	       
+	       // Metal bonds are "SING" (i.e. CCD doesn't have metal
+	       // bonds).
+	    }
+	 }
+	 ierr_tot += ierr;
+	 ierr_tot_for_ccd += ierr;
 
-      ierr = mmCIFLoop->GetReal(value_dist_esd, "value_dist_esd", j);
-      ierr_tot += ierr;
+	 ierr = mmCIFLoop->GetReal(value_dist, "value_dist", j);
+	 ierr_tot += ierr;
 
-      if (ierr_tot == 0) {
+	 ierr = mmCIFLoop->GetReal(value_dist_esd, "value_dist_esd", j);
+	 ierr_tot += ierr;
 
-	 mon_lib_add_bond(comp_id, atom_id_1, atom_id_2,
-			  type, value_dist, value_dist_esd); 
-	 nbond++;
-      } else {
+	 if (ierr_tot == 0) {
 
-	 if (! ierr_tot_for_ccd) {
-
-	    mon_lib_add_bond_no_target_geom(comp_id, atom_id_1, atom_id_2, type);
-	    
+	    mon_lib_add_bond(comp_id, atom_id_1, atom_id_2,
+			     type, value_dist, value_dist_esd); 
+	    nbond++;
 	 } else {
-	    // Hopeless - nothing worked...
+
+	    if (! ierr_tot_for_ccd) {
+
+	       mon_lib_add_bond_no_target_geom(comp_id, atom_id_1, atom_id_2, type);
 	    
-	    // std::cout << "DEBUG::  ierr_tot " << ierr_tot << std::endl;
-	    if (verbose_output) { 
-	       std::cout << "Fail on read " << atom_id_1 << ": :" << atom_id_2 << ": :"
-			 << type << ": :" << value_dist << ": :" << value_dist_esd
-			 << ":" << std::endl;
+	    } else {
+	       // Hopeless - nothing worked...
+	    
+	       // std::cout << "DEBUG::  ierr_tot " << ierr_tot << std::endl;
+	       if (verbose_output) { 
+		  std::cout << "Fail on read " << atom_id_1 << ": :" << atom_id_2 << ": :"
+			    << type << ": :" << value_dist << ": :" << value_dist_esd
+			    << ":" << std::endl;
+	       }
 	    }
 	 }
       } 

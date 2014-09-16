@@ -1,5 +1,7 @@
 
 #include <fstream>
+#include <iostream>
+#include <iomanip>
 #include "protein-geometry.hh"
 
 #include "analysis/stats.hh"
@@ -73,12 +75,27 @@ int main(int argc, char **argv) {
 	 coot::stats::single stats;
 	 for (unsigned int i=0; i<it->second.size(); i++)
 	    stats.add(it->second[i]);
-
 	 double var = stats.variance();
-	 std::cout << stub << "   N: " << stats.size() << " mean: "
-		   << stats.mean() << "   v: " << var << "   s: "
-		   << sqrt(var) << "   k: "
-		   << stats.kurtosis()  << std::endl;
+
+
+	 // Formatted output:
+	 //
+	 // For float/double numbers
+	 // Using std::fixed the precision is the number of decimal places
+	 // use std::right << set::precision(3) << std::fixed << f
+	 // You may need to set std::left at the beginning of the line (typically for strings)
+	 // To reset from std::fixed:
+	 // std::cout.setf(std::ios::fixed, std::ios::floatfield);
+	 
+	 std::cout << std::left;
+	 std::cout << std::setprecision(7);
+	 std::cout.setf(std::ios::fixed, std::ios::floatfield);
+	 
+	 std::cout << std::setw(9) << stub << "   N: " << stats.size()
+		   << "  mean: " << std::setw(8) << stats.mean()
+		   << "   s: "   << std::setw(9) << sqrt(var)
+		   << "   k: "   << std::setw(7) << std::right << std::setprecision(3)
+		   << std::fixed << stats.kurtosis() << std::endl;
       }
    }
 
@@ -87,3 +104,4 @@ int main(int argc, char **argv) {
 
    return r;
 } 
+
