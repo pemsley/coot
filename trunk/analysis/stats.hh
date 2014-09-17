@@ -14,7 +14,11 @@ namespace coot {
 
 	 single() {
 	    have_cached_kurtosis = false;
-	 } 
+	 }
+	 single(const std::vector<double> &v_in) {
+	    v = v_in;
+	    have_cached_kurtosis = false;
+	 }
 	 unsigned int size() const { return v.size(); }
 	 void add(const double &a) {
 	    v.push_back(a);
@@ -54,8 +58,12 @@ namespace coot {
 	    // k = \frac{\Sigma(x_i - \mu)^4} {N \sigma^4} - 3    
 	    // (x_i - \mu)^4 = x_i^4 + 4x_i^3\mu + 6x_i^2\mu^2 + 4x_i\mu^3 + \mu^4
 
-	    if (have_cached_kurtosis)
-	       return cached_kurtosis;
+	    // Can't enable this! A compiler bug (maybe) is apparent when sorting
+	    // (bonds_vec_k_sorter()).
+	    // g++ (Ubuntu 4.4.3-4ubuntu5.1) 4.4.3
+	    // 
+	    // if (have_cached_kurtosis)
+	    // return cached_kurtosis;
 	    
 	    double k = -999;
 	    if (v.size() ) {
