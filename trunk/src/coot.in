@@ -130,6 +130,9 @@ echo COOT_PREFIX is $COOT_PREFIX
 
 coot_bin=$COOT_PREFIX/libexec/coot-bin
 
+# we need this for movable/slim directory usage
+PYTHONHOME=$COOT_PREFIX
+
 
 # unlimit coredumpsize:
 # ulimit -c unlimited
