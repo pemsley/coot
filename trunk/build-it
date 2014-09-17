@@ -3252,7 +3252,7 @@ if test -n "$gtk_installed" ; then
 fi
 
 if [ "$ENABLE_GUILE_COOT" != "no" ] ; then 
-    scripting="--with-guile --with-guile-gtk --with-guile-gtk-prefix=$install_top_dir"
+    guile_scripting="--with-guile --with-guile-gtk --with-guile-gtk-prefix=$install_top_dir"
 fi
 
 # if ENABLE_PYTHON_COOT is not set, then we choose a day of the week
@@ -3343,7 +3343,7 @@ echo ./configure $coot_prefix \
       --with-ssmlib-prefix=$install_top_dir \
       $goocanvas_args     \
        $glut_prefix       \
-      $scripting          \
+      $guile_scripting    \
       $python_scripting   \
       $shared_static_flag \
       $coot_optim_args    \
@@ -3356,7 +3356,7 @@ echo ./configure $coot_prefix \
       $goocanvas_args     \
       $glut_prefix        \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
-      $scripting          \
+      $guile_scripting    \
       $python_scripting   \
       $shared_static_flag \
       $coot_optim_args    \
