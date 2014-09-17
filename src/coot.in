@@ -193,16 +193,11 @@ if [ $systype = Linux ] ; then
    fi
 fi
 
-# some (Intel, I supose) Mac users may need to change
-# DYLD_LIBRARY_PATH to DYLD_FALLBACK_LIBRARY_PATH, if running into
-#  problems with Framwork jpeg libraries (don't forget the export 
-# at the end too).
-#
 if [ $systype = Darwin ] ; then 
-   if [ -z "$DYLD_LIBRARY_PATH" ] ;  then
-	DYLD_LIBRARY_PATH=$COOT_PREFIX/lib
+   if [ -z "$DYLD_FALLBACK_LIBRARY_PATH" ] ;  then
+	DYLD_FALLBACK_LIBRARY_PATH=$COOT_PREFIX/lib
    else 
-	DYLD_LIBRARY_PATH=$COOT_PREFIX/lib:${DYLD_LIBRARY_PATH}
+	DYLD_FALLBACK_LIBRARY_PATH=$COOT_PREFIX/lib:${DYLD_FALLBACK_LIBRARY_PATH}
    fi
 fi
 if [ $systype = IRIX ] ; then 
@@ -234,7 +229,7 @@ export COOT_RESOURCES_FILE
 export COOT_PIXMAPS_DIR
 export COOT_DATA_DIR
 export GUILE_LOAD_PATH
-export DYLD_LIBRARY_PATH
+export DYLD_FALLBACK_LIBRARY_PATH
 export LD_LIBRARY_PATH
 export LD_LIBRARYN32_PATH
 
