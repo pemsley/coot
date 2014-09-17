@@ -7113,8 +7113,23 @@ Tue Jul  8 11:03:33 BST 2014
 ---
 Sat Jul 19 13:17:01 BST 2014
 
+
+   // the width settings specify the *minimum* width (i.e. the field
+   must be at least specified number of characters).  If the number is
+   longer than the minimum width, it just is wider.
+
    std::setw() before strings
    std::cout.width() before numbers
+
+	 // Formatted output:
+	 //
+	 // For float/double numbers
+	 // Using std::fixed the precision is the number of decimal places
+	 // use std::right << set::precision(3) << std::fixed << f
+	 // You may need to set std::left at the beginning of the line (typically for strings)
+	 // To reset from std::fixed:
+	 // std::cout.setf(std::ios::fixed, std::ios::floatfield);
+	 // See dictionary-bond-distributions.cc
 
 
 ---
