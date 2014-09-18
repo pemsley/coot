@@ -847,6 +847,9 @@
 		      ;; ,(burn-up-chart)  ;; not at the moment.
 		      (h3 "Latest Binary Tars")
 		      
+                      (p "Note: for Binay Tars, the colour merely denote age - not problems")
+		      (br)
+
 		      ;;we want the souce code revision number so that we can
 		      ;;colour the binary revision numbers in the binaries
 		      ;;table.
