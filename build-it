@@ -1550,7 +1550,7 @@ if test "$OS" = "Darwin" ; then
       DYLD_LIBRARY_PATH=$install_top_dir/lib
       export DYLD_LIBRARY_PATH
    else
-      DYLD_LIBRARY_PATH=$install_top_dir/lib:$LD_LIBRARY_PATH
+      DYLD_LIBRARY_PATH=$install_top_dir/lib:$DYLD_LIBRARY_PATH
       export DYLD_LIBRARY_PATH
    fi
 fi
