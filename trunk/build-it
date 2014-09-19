@@ -1250,23 +1250,7 @@ echo need_guile_unused_values_patch is $need_guile_unused_values_patch
 #
 echo "Testing version of make"
 MAKE=make
-make --version
-if [ $? -ne 0 ] ; then
-   # definately not GNU make
-   # Try gmake then....
-   gmake --version
-   if [ $? -ne 0 ] ; then
-      nomake=1
-   else
-      MAKE=gmake
-      nomake=0
-   fi
-   if [ $nomake -eq 1 ] ; then
-      echo Ooops.  Your make '(' `which make` ')' is not GNU make and gmake not found.
-      echo Exiting now.
-      my_exit 2
-   fi
-else 
+if make --version ; then
    # let's try to set some args
    if [ -e /proc/meminfo ] ; then 
       memory_kb=$(awk '/MemTotal:/ {print $2} ' /proc/meminfo)
@@ -1283,6 +1267,21 @@ else
             fi
          fi
       fi
+   fi
+else 
+   # definately not GNU make
+   # Try gmake then....
+   gmake --version
+   if [ $? -ne 0 ] ; then
+      nomake=1
+   else
+      MAKE=gmake
+      nomake=0
+   fi
+   if [ $nomake -eq 1 ] ; then
+      echo Ooops.  Your make '(' `which make` ')' is not GNU make and gmake not found.
+      echo Exiting now.
+      my_exit 2
    fi
 fi
 
@@ -2820,9 +2819,7 @@ if test -n "$build_readline" ; then
     echo BUILDING readline:
     readline_version=6.2
     readline_version=6.3
-    # ${WGET} ftp://ftp.cwru.edu/pub/bash/readline-$readline_version.tar.gz
     ${WGET} ftp://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
-    # ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/readline-5.1.patch
     ${WGET} $extras_place/readline-5.1.patch
     (
     date
@@ -2834,12 +2831,11 @@ if test -n "$build_readline" ; then
     fi
     cd readline-$readline_version
     ./configure $generic_prefix
-    $MAKE
-    status=$?
-    if [ "$status" != 0 ] ; then
-       echo make of readline failed
+    # single thread
+    if make ; then
+       make install
     else
-       $MAKE install
+       echo make of readline failed
     fi
     ) > $HOSTLOGDIR/10-pre-readline.txt 2>&1
 else 
