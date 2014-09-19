@@ -5384,7 +5384,7 @@ void set_add_alt_conf_split_type_number(short int i);
   conformation rotamer number rotamer_number.  
 
 Return the new alt_conf chain_id on sucess, scheme false on fail */
-SCM add_alt_conf_scm(int imol, const char*chain_id, int res_no, const char *ins_code, 
+SCM add_alt_conf_scm(int imol, const char *chain_id, int res_no, const char *ins_code, 
 		     const char *alt_conf, int rotamer_number);
 #endif	/* USE_GUILE */
 #ifdef USE_PYTHON
