@@ -1,32 +1,32 @@
 # This file contains a list of spacegroups, each in a
 # number of settings. Each setting is delimited by
-# begin_spacegroup / end_spacegroup records. For each 
-# spacegroup setting, the following are listed: 
-#   number = standard spacegroup number 
-#   basisop = change of basis operator 
-#   symbol ccp4 = CCP4 spacegroup number e.g. 1003 
-#                 (0 if not a CCP4 group) 
-#   symbol Hall = Hall symbol 
-#   symbol xHM =  extended Hermann Mauguin symbol 
-#   symbol old =  CCP4 spacegroup name 
-#                 (blank if not a CCP4 group) 
-#   symbol laue = Laue group symbol 
-#   symbol patt = Patterson group symbol 
-#   symbol pgrp = Point group symbol 
-#   hklasu ccp4 = reciprocal space asymmetric unit 
-#                 (with respect to standard setting) 
-#   mapasu ccp4 = CCP4 real space asymmetric unit 
-#                 (with respect to standard setting) 
-#                 (negative ranges if not a CCP4 group) 
-#   mapasu zero = origin based real space asymmetric unit 
-#                 (with respect to current setting) 
-#   mapasu nonz = non-origin based real space asymmetric unit 
-#                 (with respect to current setting) 
-#   cheshire = Cheshire cell 
-#                 (with respect to standard setting) 
-#   symop = list of primitive symmetry operators 
-#   cenop = list of centering operators 
-#    
+# begin_spacegroup / end_spacegroup records. For each
+# spacegroup setting, the following are listed:
+#   number = standard spacegroup number
+#   basisop = change of basis operator
+#   symbol ccp4 = CCP4 spacegroup number e.g. 1003
+#                 (0 if not a CCP4 group)
+#   symbol Hall = Hall symbol
+#   symbol xHM =  extended Hermann Mauguin symbol
+#   symbol old =  CCP4 spacegroup name
+#                 (blank if not a CCP4 group)
+#   symbol laue = Laue group symbol
+#   symbol patt = Patterson group symbol
+#   symbol pgrp = Point group symbol
+#   hklasu ccp4 = reciprocal space asymmetric unit
+#                 (with respect to standard setting)
+#   mapasu ccp4 = CCP4 real space asymmetric unit
+#                 (with respect to standard setting)
+#                 (negative ranges if not a CCP4 group)
+#   mapasu zero = origin based real space asymmetric unit
+#                 (with respect to current setting)
+#   mapasu nonz = non-origin based real space asymmetric unit
+#                 (with respect to current setting)
+#   cheshire = Cheshire cell
+#                 (with respect to standard setting)
+#   symop = list of primitive symmetry operators
+#   cenop = list of centering operators
+#
 begin_spacegroup
 number  1
 basisop x,y,z
@@ -52,7 +52,7 @@ basisop x,y,z
 symbol ccp4 2
 symbol Hall '-P 1'
 symbol xHM  'P -1'
-symbol old  'P -1'
+symbol old  'P 1-'
 symbol laue '-P 1' '-1'
 symbol patt '-P 1' '-1'
 symbol pgrp '-P 1' '-1'
@@ -210,10 +210,10 @@ end_spacegroup
 begin_spacegroup
 number  5
 basisop z,y,-x
-symbol ccp4 0
+symbol ccp4 2005
 symbol Hall ' C 2y (z,y,-x)'
 symbol xHM  'A 1 2 1'
-symbol old  ''
+symbol old  'A 1 2 1' 'A 2'
 symbol laue '-P 2y' '2/m'
 symbol patt '-A 2y' '2/m'
 symbol pgrp ' P 2y' '2'
@@ -7526,7 +7526,7 @@ basisop x-1/2,y-1/4,z+1/4
 symbol ccp4 68
 symbol Hall '-C 2a 2ac (x-1/2,y-1/4,z+1/4)'
 symbol xHM  'C c c a :1'
-symbol old  'C 2/c 2/c 2/a' 'C c c a'
+symbol old  'C c c a' 'C 2/c 2/c 2/a'
 symbol laue '-P 2 2' 'mmm'
 symbol patt '-C 2 2' 'mmm'
 symbol pgrp '-P 2 2' 'mmm'
@@ -10527,7 +10527,7 @@ basisop x-1/2,y+1/4,z-3/8
 symbol ccp4 142
 symbol Hall '-I 4bd 2c (x-1/2,y+1/4,z-3/8)'
 symbol xHM  'I 41/a c d :1'
-symbol old  'I 41/a 2/c 2/d' 'I41/a c d'
+symbol old  'I41/a c d' 'I 41/a 2/c 2/d'
 symbol laue '-P 4 2' '4/mmm'
 symbol patt '-I 4 2' '4/mmm'
 symbol pgrp '-P 4 2' '4/mmm'
@@ -13442,7 +13442,7 @@ basisop x-1/4,y-1/4,z-1/4
 symbol ccp4 222
 symbol Hall '-P 4a 2bc 3 (x-1/4,y-1/4,z-1/4)'
 symbol xHM  'P n -3 n :1'
-symbol old  'P 4/n -3 2/n' P n -3 n'
+symbol old  'P 4/n -3 2/n' 'P n -3 n'
 symbol laue '-P 4 2 3' 'm-3m'
 symbol patt '-P 4 2 3' 'm-3m'
 symbol pgrp '-P 4 2 3' 'm-3m'
@@ -14048,7 +14048,7 @@ basisop x-1/8,y-1/8,z-1/8
 symbol ccp4 228
 symbol Hall '-F 4ud 2vw 3 (x-1/8,y-1/8,z-1/8)'
 symbol xHM  'F d -3 c :1'
-symbol old  'F 41/d -3 2/c' 'F d -3 c'
+symbol old  'F d -3 c' 'F 41/d -3 2/c'
 symbol laue '-P 4 2 3' 'm-3m'
 symbol patt '-F 4 2 3' 'm-3m'
 symbol pgrp '-P 4 2 3' 'm-3m'
@@ -14317,7 +14317,7 @@ end_spacegroup
 begin_spacegroup
 number  5
 basisop x+1/4,y+1/4,-x+z-1/4
-symbol ccp4 3004
+symbol ccp4 5005
 symbol Hall ' C 2y (x+1/4,y+1/4,-x+z-1/4)'
 symbol xHM  'I 1 21 1'
 symbol old  'I 1 21 1'
@@ -14327,33 +14327,12 @@ symbol pgrp ' P 2y' '2'
 hklasu ccp4 'k>=0 and (l>0 or (l=0 and h>=0))'
 mapasu ccp4 0<=x<1; 0<=y<1/2; 0<=z<1
 mapasu zero 0<=x<=1/4; 0<=y<1; 0<=z<1
-mapasu nonz 0<=x<-1; 0<=y<-1; 0<=z<-1 
-cheshire 
+mapasu nonz 0<=x<-1; 0<=y<-1; 0<=z<-1
+cheshire
 symop x,y,z
 symop -x+1/2,y,-z+1/2
 cenop x,y,z
 cenop x+1/2,y+1/2,z+1/2
-end_spacegroup
-
-begin_spacegroup
-number  3
-basisop y,-1/2*x+z,1/2*x
-symbol ccp4 2005
-symbol Hall ' P 2y (y,-1/2*x+z,1/2*x)'
-symbol xHM  ''
-symbol old  'A 2 1 1'
-symbol laue '-P 2x' '2/m'
-symbol patt '-P 2y (y,-1/2*x+z,1/2*x)' 'Unknown'
-symbol pgrp ' P 2x' '2'
-hklasu ccp4 'k>=0 and (l>0 or (l=0 and h>=0))'
-mapasu ccp4 0<=x<1; 0<=y<=1/2; 0<=z<1/2
-mapasu zero 0<=x<1; 0<=y<=1/4; 0<=z<1
-mapasu nonz 0<=x<-1; 0<=y<-1; 0<=z<-1 
-cheshire 
-symop x,y,z
-symop x,-y,-z
-cenop x,y,z
-cenop x,y+1/2,z+1/2
 end_spacegroup
 
 begin_spacegroup
@@ -14369,8 +14348,8 @@ symbol pgrp ' P 2y' '2'
 hklasu ccp4 'k>=0 and (l>0 or (l=0 and h>=0))'
 mapasu ccp4 0<=x<=1/4; 0<=y<1; 0<=z<1
 mapasu zero 0<=x<1; 0<=y<1/2; 0<=z<=1/2
-mapasu nonz 0<=x<-1; 0<=y<-1; 0<=z<-1 
-cheshire 
+mapasu nonz 0<=x<-1; 0<=y<-1; 0<=z<-1
+cheshire
 symop x,y,z
 symop -x+1/2,y,-z
 cenop x,y,z
@@ -14379,23 +14358,23 @@ end_spacegroup
 
 begin_spacegroup
 number  8
-basisop x,y,z
+basisop -x,z,y
 symbol ccp4 1008
-symbol Hall ' C -2y'
+symbol Hall ' B -2'
 symbol xHM  'B 1 1 m'
 symbol old  'B 1 1 m'
-symbol laue '-P 2y' '2/m'
-symbol patt '-C 2y' '2/m'
-symbol pgrp ' P -2y' 'm'
+symbol laue '-P 2' '2/m'
+symbol patt '-B 2' '2/m'
+symbol pgrp ' P -2' 'm'
 hklasu ccp4 'k>=0 and (l>0 or (l=0 and h>=0))'
-mapasu ccp4 0<=x<-1; 0<=y<-1; 0<=z<-1
-mapasu zero 0<=x<1; 0<=y<=1/4; 0<=z<1
-mapasu nonz 0<=x<1; 0<=y<=1/4; 0<=z<1
-cheshire 
+mapasu ccp4 0<=x<1; 0<=y<1/4; 0<=z<1
+mapasu zero 0<=x<1/2; 0<=y<=1; 0<=z<1/2
+mapasu nonz 0<=x<1/2; 0<=y<=1; 0<=z<1/2
+cheshire
 symop x,y,z
-symop x,-y,z
+symop x,y,-z
 cenop x,y,z
-cenop x+1/2,y+1/2,z
+cenop x+1/2,y,z+1/2
 end_spacegroup
 
 begin_spacegroup
@@ -14411,8 +14390,8 @@ symbol pgrp ' P 2 2' '222'
 hklasu ccp4 'h>=0 and k>=0 and l>=0'
 mapasu ccp4 0<=x<1; 0<=y<=1/4; 0<=z<1
 mapasu zero 0<=x<1; 0<=y<=1/4; 0<=z<1
-mapasu nonz 0<=x<-1; 0<=y<-1; 0<=z<-1 
-cheshire 
+mapasu nonz 0<=x<-1; 0<=y<-1; 0<=z<-1
+cheshire
 symop x,y,z
 symop -x+1/2,-y+1/2,z
 symop x+1/2,-y,-z
@@ -14433,8 +14412,8 @@ symbol pgrp ' P 2 2' '222'
 hklasu ccp4 'h>=0 and k>=0 and l>=0'
 mapasu ccp4 0<=x<=1/4; 0<=y<=1/2; 0<=z<1
 mapasu zero 0<=x<=1/4; 0<=y<=1/2; 0<=z<1
-mapasu nonz 0<=x<-1; 0<=y<-1; 0<=z<-1 
-cheshire 
+mapasu nonz 0<=x<-1; 0<=y<-1; 0<=z<-1
+cheshire
 symop x,y,z
 symop -x+1/2,-y,z+1/2
 symop x,-y,-z
@@ -14456,8 +14435,8 @@ symbol pgrp ' P 2 2' '222'
 hklasu ccp4 'h>=0 and k>=0 and l>=0'
 mapasu ccp4 0<=x<1; 0<=y<=1/4; 0<=z<=1/2
 mapasu zero 0<=x<1; 0<=y<=1/4; 0<=z<=1/2
-mapasu nonz 0<=x<-1; 0<=y<-1; 0<=z<-1 
-cheshire 
+mapasu nonz 0<=x<-1; 0<=y<-1; 0<=z<-1
+cheshire
 symop x,y,z
 symop -x+1/2,-y+1/2,z
 symop x,-y+1/2,-z
@@ -14479,8 +14458,8 @@ symbol pgrp ' P 2 2' '222'
 hklasu ccp4 'h>=0 and k>=0 and l>=0'
 mapasu ccp4 0<=x<=1/4; 0<=y<=1/4; 0<=z<1
 mapasu zero 0<=x<=1/4; 0<=y<=1/4; 0<=z<1
-mapasu nonz 0<=x<-1; 0<=y<-1; 0<=z<-1 
-cheshire 
+mapasu nonz 0<=x<-1; 0<=y<-1; 0<=z<-1
+cheshire
 symop x,y,z
 symop -x,-y,z
 symop x,-y,-z+1/2
@@ -14504,8 +14483,8 @@ symbol pgrp ' P 2 2' '222'
 hklasu ccp4 'h>=0 and k>=0 and l>=0'
 mapasu ccp4 0<=x<=1/2; 0<=y<1; 0<=z<=1/4
 mapasu zero 0<=x<1; 0<=y<=1/4; 0<=z<1
-mapasu nonz 0<=x<-1; 0<=y<-1; 0<=z<-1 
-cheshire 
+mapasu nonz 0<=x<-1; 0<=y<-1; 0<=z<-1
+cheshire
 symop x,y,z
 symop -x+1/2,-y+1/2,z
 symop x,-y+1/2,-z+1/2
@@ -14527,8 +14506,8 @@ symbol pgrp ' P 4 2' '422'
 hklasu ccp4 'h>=k and k>=0 and l>=0'
 mapasu ccp4 0<=x<=1/2; 0<=y<=1/2; 0<=z<=1/2
 mapasu zero 0<=x<1; 0<=y<=1/4; 0<=z<1
-mapasu nonz 0<=x<-1; 0<=y<-1; 0<=z<-1 
-cheshire 
+mapasu nonz 0<=x<-1; 0<=y<-1; 0<=z<-1
+cheshire
 symop x,y,z
 symop -y,x+1/2,z+1/2
 symop -x+1/2,-y+1/2,z
@@ -14553,8 +14532,8 @@ symbol pgrp ' P 2 2 3' '23'
 hklasu ccp4 'h>=0 and ((l>=h and k>h) or (l=h and k=h))'
 mapasu ccp4 0<=x<1; 0<=y<1; 0<=z<=1/2
 mapasu zero 0<=x<=1/4; 0<=y<=1/4; 0<=z<1
-mapasu nonz 0<=x<-1; 0<=y<-1; 0<=z<-1 
-cheshire 
+mapasu nonz 0<=x<-1; 0<=y<-1; 0<=z<-1
+cheshire
 symop x,y,z
 symop -x+1/2,-y+1/2,z
 symop x,-y+1/2,-z+1/2
