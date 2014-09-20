@@ -3,6 +3,10 @@
 
 ---- 
 
+   o Check this ligand
+
+   o FFW_LIBS in surface.  Fix fftw macro.
+
    ---
 
    o Try glyco tree builder 528 on 4lxr. 
@@ -310,7 +314,6 @@ Not now.
    o Quick notebook: (what was changed on this residue? on previous rounds?)
 
 * Punt.
-
 
    o render the SMILES string in this file
 
@@ -638,7 +641,6 @@ Program terminated with signal 11, Segmentation fault.
    o Promote Sloop (db loop) to the gui 
 
 * Done.
-
 
    o B-factor colouring bug - Oliver Clark 
 

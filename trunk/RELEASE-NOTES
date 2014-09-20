@@ -1,4 +1,85 @@
 
+  Release 0.8
+
+  o FEATURE: Added a interface for Cootilus
+
+  o FEATURE: Pubchem support for drag and drop
+
+  o FEATURE: Added glyo and ProSMART modules
+
+  o FEATURE: Auto-open MTZ files with x.F_phi.F & x.F_phi.phi for any
+    value of x.
+
+  o FEATURE: When input map seems to be from EM, ignore modal density
+    values for statistics calculation
+
+  o FEATURE: labels and on-screen text can now be rendered with stroke
+    characters instead of bitmaps 
+    (set-use-stroke-characters 1)
+    set_use_stroke_characters(1)
+
+  o FEATURE: Enable the running of python commands from the command line
+
+  o FEATURE: Install appdata for GNOME Software Center
+
+  o FEATURE: New program compare-dictionaries added
+
+  o FEATURE: New program make-shelx-restraints added 
+
+  o FEATURE: pdb validation data parser and gui attached to Fetch
+    accession code.
+
+  o FEATURE: Added match-residue-and-dictionary() function for atom
+    name matching of similar monomers
+
+  o FEATURE: Added function to move a reference chain to a
+    symmetry-related position
+
+  o FEATURE: Add parallel nucleotide plane restraints
+
+  o CHANGE: Bond colours against a white background have been improved
+
+  o CHANGE: Main gui icons are now pngs
+
+  o CHANGE: Pyrogen bundled in enhanced-ligand version
+
+  o CHANGE: Deuteriums are pink
+
+  o CHANGE: Extra restraints added to Raster3D input
+
+  o CHANGE: Geman-McClure M-estimator used for extra distance restraints
+
+  o BUG-FIX: CA-mode now works for MSEs
+
+  o BUG-FIX: Mo bonding improved
+
+  o BUG-FIX: Unbonded CA now have stars in CA mode
+
+  o BUG-FIX: Better output of ligand fitting solutions [Andre White]
+
+  o BUG-FIX: Adjust hydrogens also on nomenclature correction
+
+  o BUG-FIX: Multi-solution ligand fitting fixed
+
+  o BUG-FIX: Wedge bonds can now be converted to single bonds in LBG
+
+  o BUG-FIX: Mol2 file atoms names are now preserved [Markus Rudolf]
+
+  o BUG-FIX: B-factor colouring now fixed [Oliver Smart]
+
+  o BUG-FIX: HOLE implementation handles large radii better
+
+  o BUG-FIX: Improved SHELX .ins parsing [Dale Tronrud]
+
+  o BUG-FIX: mmCIF output atom name quoting fix
+
+  o BUG-FIX: atom quad type check test fix [David Binderman]
+
+------
+
+
+  Release 0.7.2
+
 
   o BUG-FIX: Iodines are written to the correct column (Steven Sheriff)
 
