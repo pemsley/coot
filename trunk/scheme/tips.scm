@@ -66,3 +66,6 @@
   (lambda ()
     (set! *do-coot-tips-flag* #f)
     (set-tip-of-the-day-flag 0)))
+
+(define (show-coot-tips)
+  (set! *do-coot-tips-flag* #t))
