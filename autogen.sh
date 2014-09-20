@@ -58,4 +58,8 @@ touch configure
 # then in the build directory, configure.status needs to be newer that
 # ../coot/configure or else it does a reconfigure.
 
+if [ ! -e src/svn-revision.cc ] ; then
+   bash generate-svn-revision-cc.sh
+fi
+
 

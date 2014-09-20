@@ -1,5 +1,6 @@
 
-
+#ifndef COMMAND_LINE_HH
+#define COMMAND_LINE_HH
 
 class command_line_data { 
 
@@ -57,3 +58,4 @@ extern "C"
 void 
 handle_command_line_data(command_line_data cld); 
 
+#endif // COMMAND_LINE_HH

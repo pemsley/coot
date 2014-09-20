@@ -41,11 +41,6 @@ libcoot_geometry_la_SOURCES = protein-geometry.cc protein-geometry-mmdb.cc \
     chem_mods.cc \
     lbg-graph.cc  dreiding.cc dict-utils.cc cif-parse.cc
 
-
-#libcoot_geometry_la_LIBADD = \
-#        $(top_builddir)/utils/libcoot-utils.la \
-#        $(MMDB_LIBS) $(CLIPPER_LIBS)
-
 libcoot_geometry_la_LIBADD = \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
         $(top_builddir)/utils/libcoot-utils.la       \
@@ -74,8 +69,7 @@ test_read_components_LDADD =  \
         $(top_builddir)/utils/libcoot-utils.la       \
 	$(GLOB_LIBS) $(CLIPPER_LIBS) $(CCP4SRS_LIBS) $(MMDB_LIBS)
 
-dictionary_bond_distributions_LDADD = ./libcoot-geometry.la 
-
+dictionary_bond_distributions_LDADD = ./libcoot-geometry.la
 
 compare_dictionaries_SOURCES = compare-dictionaries.cc
 
@@ -87,5 +81,7 @@ compare_dictionaries_LDADD = ./libcoot-geometry.la \
 
 make_shelx_restraints_SOURCES = make-shelx-restraints.cc
 
-make_shelx_restraints_LDADD = ./libcoot-geometry.la
+# why is coot-utils.la needed? I don't understand.
+make_shelx_restraints_LDADD = ./libcoot-geometry.la \
+	        $(top_builddir)/utils/libcoot-utils.la 
 

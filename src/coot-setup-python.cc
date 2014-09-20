@@ -10,6 +10,7 @@
 #include "c-inner-main.h" // for does_file_exist()
 
 #include "graphics-info.h"
+#include "command-line.hh"
 
 #include <string>
 #include <iostream>
@@ -145,7 +146,9 @@ void setup_python(int argc, char **argv) {
 
      // we only want to run one state file if using both scripting
      // languages.  Let that be the guile one.
+     
 #ifndef USE_GUILE     
+     command_line_data cld = parse_command_line(argc, argv);
      handle_command_line_data(cld);
 
      run_state_file_maybe(); // run local 0-coot.state.py?
