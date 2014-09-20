@@ -2307,8 +2307,8 @@ display_density_level_maybe() {
 	 glDisable(GL_FOG);
 
 	 // glRasterPos3f();
-	 graphics_info_t::printString(graphics_info_t::display_density_level_screen_string,
-				      0.0, 0.95, -0.9);
+	 graphics_info_t::printString_for_density_level(graphics_info_t::display_density_level_screen_string,
+							0.0, 0.95, -0.9);
 
          glPopAttrib();
 	 glPopMatrix();
@@ -3958,11 +3958,11 @@ draw_axes(GL_matrix &m) {
       glEnd();
 
       // glRasterPos3f();
-      graphics_info_t::printString("x", 0.22, 0.0, 0.0);
+      graphics_info_t::printString_for_axes("x", 0.22, 0.0, 0.0);
       // glRasterPos3f();
-      graphics_info_t::printString("y", 0.0, 0.22, 0.0);
+      graphics_info_t::printString_for_axes("y", 0.0, 0.22, 0.0);
       // glRasterPos3f();
-      graphics_info_t::printString("z", 0.0, 0.0, 0.22);
+      graphics_info_t::printString_for_axes("z", 0.0, 0.0, 0.22);
 
       glMatrixMode(GL_PROJECTION);
       glPopMatrix();

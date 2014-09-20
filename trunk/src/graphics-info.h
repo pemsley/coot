@@ -1475,6 +1475,13 @@ public:
    static bool stroke_characters;
    static void printString(const std::string &s, 
 			   const double &x, const double &y, const double &z);
+   static void printString_for_axes(const std::string &s, 
+				    const double &x, const double &y, const double &z);
+   static void printString_for_density_level(const std::string &s, 
+					     const double &x, const double &y, const double &z);
+   static void printString_internal(const std::string &s, 
+				    const double &x, const double &y, const double &z, 
+				    bool do_unproject, bool mono_font, double scale_factor);
 
    std::string get_directory_for_fileselection() const {
      return directory_for_fileselection;
