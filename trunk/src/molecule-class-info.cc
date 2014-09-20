@@ -1167,14 +1167,14 @@ molecule_class_info_t::draw_unit_cell_internal(float rsc[8][3]) {
 	 // add a label
 // 	 glColor3f(1.0, 1.0, 1.0);
 // 	 glColor3f(1.0, 0.2, 1.0);
-	 glRasterPos3f(-1.6, -1.6,-1.6);      
-	 printString("0");
-	 glRasterPos3f(rsc[1][0]-1, rsc[1][1], rsc[1][2]+1);
-	 printString("C");
-	 glRasterPos3f(rsc[2][0]+1, rsc[2][1], rsc[2][2]+1);      
-	 printString("B");
-	 glRasterPos3f(rsc[4][0]+1, rsc[4][1]+1, rsc[4][2]-1);      
-	 printString("A");
+   // glRasterPos3f(-1.6, -1.6,-1.6);      
+   graphics_info_t::printString("0", -1.6, -1.6,-1.6);
+   // glRasterPos3f(rsc[1][0]-1, rsc[1][1], rsc[1][2]+1);
+   graphics_info_t::printString("C", rsc[1][0]-1, rsc[1][1], rsc[1][2]+1);
+   // glRasterPos3f(rsc[2][0]+1, rsc[2][1], rsc[2][2]+1);      
+   graphics_info_t::printString("B", rsc[2][0]+1, rsc[2][1], rsc[2][2]+1);
+   // glRasterPos3f(rsc[4][0]+1, rsc[4][1]+1, rsc[4][2]-1);      
+   graphics_info_t::printString("A", rsc[4][0]+1, rsc[4][1]+1, rsc[4][2]-1);
 
 
 }
@@ -2590,11 +2590,14 @@ molecule_class_info_t::label_symmetry_atom(int i) {
 	 
 	    coot::Cartesian symm_point = translate_atom_with_pre_shift(atom_sel, iatom_index, st);
 
-	    glRasterPos3f(symm_point.get_x(),
-			  symm_point.get_y()+0.02,
-			  symm_point.get_z()+0.02);
+// 	    glRasterPos3f(symm_point.get_x(),
+// 			  symm_point.get_y()+0.02,
+// 			  symm_point.get_z()+0.02);
 	 
-	    printString(label);
+	    graphics_info_t::printString(label,
+					 symm_point.get_x(),
+					 symm_point.get_y()+0.02,
+					 symm_point.get_z()+0.02);
 	 }
       }
    }
@@ -2624,8 +2627,8 @@ molecule_class_info_t::label_atom(int i, int brief_atom_labels_flag) {
 	    glColor3fv(pink);
 	    // glShadeModel (GL_FLAT);
       
-	    glRasterPos3f((atom)->x, (atom)->y+0.02, (atom)->z +0.02);
-	    printString(label);
+	    // glRasterPos3f((atom)->x, (atom)->y+0.02, (atom)->z +0.02);
+	    graphics_info_t::printString(label, (atom)->x, (atom)->y+0.02, (atom)->z +0.02);
       
 	 }
       } else { 

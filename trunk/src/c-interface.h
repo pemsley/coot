@@ -2454,6 +2454,9 @@ int get_font_size();
 /*! \brief set the colour of the atom label font - the arguments are
   in the range 0->1 */
 void set_font_colour(float red, float green, float blue);
+
+void set_use_stroke_characters(int state);
+
 /* \} */
 
 /*  ---------------------------------------------------------------------- */

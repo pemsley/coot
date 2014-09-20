@@ -500,6 +500,8 @@ int       graphics_info_t::label_atom_on_recentre_flag = 1;
 int       graphics_info_t::symmetry_atom_labels_expanded_flag = 0;
 coot::colour_holder graphics_info_t::font_colour = coot::colour_holder(1.0, 0.8, 0.8);
 
+bool      graphics_info_t::stroke_characters = false;
+
 short int graphics_info_t::brief_atom_labels_flag = 0;
 
 // scroll wheel
@@ -2304,8 +2306,9 @@ display_density_level_maybe() {
 	 glPushAttrib(GL_ENABLE_BIT);
 	 glDisable(GL_FOG);
 
-      	    glRasterPos3f(0.0, 0.95, -0.9);
- 	    printString(graphics_info_t::display_density_level_screen_string);
+	 // glRasterPos3f();
+	 graphics_info_t::printString(graphics_info_t::display_density_level_screen_string,
+				      0.0, 0.95, -0.9);
 
          glPopAttrib();
 	 glPopMatrix();
@@ -2489,12 +2492,12 @@ debug_draw_rotation_axes(float y_x, float y_z, float x_y, float x_z) {
    // 
    glEnd();
 
-   glRasterPos3f(12, 0.0, 0.0);
-   printString("x");
-   glRasterPos3f(0, 12.0, 0.0);
-   printString("y");
-   glRasterPos3f(0, 0.0, 12.0);
-   printString("z");
+   // glRasterPos3f();
+   graphics_info_t::printString("x", 12, 0.0, 0.0);
+   // glRasterPos3f();
+   graphics_info_t::printString("y", 0, 12.0, 0.0);
+   // glRasterPos3f();
+   graphics_info_t::printString("z", 0, 0.0, 12.0);
 } 
 
 gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
@@ -3954,12 +3957,12 @@ draw_axes(GL_matrix &m) {
       
       glEnd();
 
-      glRasterPos3f(0.22, 0.0, 0.0);
-      printString("x");
-      glRasterPos3f(0.0, 0.22, 0.0);
-      printString("y");
-      glRasterPos3f(0.0, 0.0, 0.22);
-      printString("z");
+      // glRasterPos3f();
+      graphics_info_t::printString("x", 0.22, 0.0, 0.0);
+      // glRasterPos3f();
+      graphics_info_t::printString("y", 0.0, 0.22, 0.0);
+      // glRasterPos3f();
+      graphics_info_t::printString("z", 0.0, 0.0, 0.22);
 
       glMatrixMode(GL_PROJECTION);
       glPopMatrix();
@@ -4533,21 +4536,5 @@ void set_skeleton_bond_colour_random(int i, const vector< vector<float> > &colou
 //    } 
 // }
 
-
-// ----------------------------------------------------------
-//
-// Remember, being in GL_LINES mode will cause this to fail silently.
-// 
-void printString(std::string s) {
-
-#ifdef HACK_OUT_GLUTBITMAPSCHARS
-   // pass
-#else   
-   glPushAttrib (GL_LIST_BIT);
-   for (unsigned int i = 0; i < s.length(); i++)
-      glutBitmapCharacter (graphics_info_t::atom_label_font, s[i]);
-   glPopAttrib ();
-#endif
-}
 
 

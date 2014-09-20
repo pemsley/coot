@@ -1472,14 +1472,17 @@ public:
    static int distances_and_angles_dialog_x_position; 
    static int distances_and_angles_dialog_y_position; 
 
+   static bool stroke_characters;
+   static void printString(const std::string &s, 
+			   const double &x, const double &y, const double &z);
+
    std::string get_directory_for_fileselection() const {
      return directory_for_fileselection;
    }
-#if (GTK_MAJOR_VERSION > 1)
    std::string get_directory_for_filechooser() const {
      return directory_for_filechooser;
    }
-#endif // GTK_MAJOR_VERSION
+
    
    static int map_line_width;
 

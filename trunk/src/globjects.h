@@ -122,8 +122,6 @@ void graphics_ligand_view();
 
 void draw_crosshairs_maybe();
 
-void printString(std::string s); 
-
 gint animate_idle_spin(GtkWidget *widget);
 gint animate_idle_rock(GtkWidget *widget);
 gint animate_idle_ligand_interactions(GtkWidget *widget);

@@ -1727,9 +1727,9 @@ graphics_info_t::environment_graphics_object_internal_lines(const graphical_bond
 		  glEnd();
 		  text_pos = pair.getFinish().mid_point(pair.getStart()) +
 		     coot::Cartesian(0.0, 0.1, 0.1);
-		  glRasterPos3f(text_pos.x(), text_pos.y(), text_pos.z());
+		  // glRasterPos3f(text_pos.x(), text_pos.y(), text_pos.z());
 		  dist = (pair.getStart() - pair.getFinish()).amplitude();
-		  printString(float_to_string(dist));
+		  printString(float_to_string(dist), text_pos.x(), text_pos.y(), text_pos.z());
 	       }
 	    }
 	 }
@@ -1791,14 +1791,57 @@ graphics_info_t::environment_graphics_object_internal_tubes(const graphical_bond
 		  glDisable(GL_LIGHTING);
 		  text_pos = pair.getFinish().mid_point(pair.getStart()) +
 		     coot::Cartesian(0.0, 0.2, 0.2);
-		  glRasterPos3f(text_pos.x(), text_pos.y(), text_pos.z());
+		  // glRasterPos3f();
 		  dist = (pair.getStart() - pair.getFinish()).amplitude();
-		  printString(float_to_string(dist));
+		  printString(float_to_string(dist), text_pos.x(), text_pos.y(), text_pos.z());
 		  glEnable(GL_LIGHTING);
 	       }
 	    }
 	 }
       }
+   }
+}
+
+
+
+// ----------------------------------------------------------
+//
+// Remember, being in GL_LINES mode will cause this to fail silently.
+//
+
+// #define HACK_OUT_GLUTBITMAPSCHARS
+
+// static
+void
+graphics_info_t::printString(const std::string &s,
+			     const double &x, const double &y, const double &z) {
+
+   if (graphics_info_t::stroke_characters) { 
+
+      // This doesn't do anything, it seems
+      // glRasterPos3f(x,y,z);
+
+      glLineWidth(1.0);
+   
+      glPushMatrix();
+      glTranslated(x,y,z);
+
+      double sf = 0.00008 * graphics_info_t::zoom;
+      glScaled(sf, sf, sf);
+
+      for (unsigned int i=0; i<s.length(); i++)
+	 glutStrokeCharacter(GLUT_STROKE_ROMAN, s[i]); // or GLUT_STROKE_MONO_ROMAN
+
+
+      glPopMatrix();
+
+   } else { 
+   
+      glRasterPos3f(x,y,z);
+      glPushAttrib (GL_LIST_BIT);
+      for (unsigned int i = 0; i < s.length(); i++)
+	 glutBitmapCharacter (graphics_info_t::atom_label_font, s[i]);
+      glPopAttrib();
    }
 }
 
@@ -3989,10 +4032,10 @@ graphics_info_t::geometry_objects() {
 				(*distance_object_vec)[i].start_pos + 
 				clipper::Coord_orth(0.0, 0.1, 0.1));
 		     glEnd();
-		     glRasterPos3d(text_pos.x(), text_pos.y(), text_pos.z());
+		     // glRasterPos3d(text_pos.x(), text_pos.y(), text_pos.z());
 		     dist = clipper::Coord_orth::length( (*distance_object_vec)[i].start_pos,
 							 (*distance_object_vec)[i].end_pos);
-		     printString(float_to_string(dist));
+		     printString(float_to_string(dist), text_pos.x(), text_pos.y(), text_pos.z());
 		  }
 	       }
 	    }
@@ -4047,9 +4090,9 @@ coot::intermediate_atom_distance_t::draw_dynamic_distance() const {
    text_pos += coot::Cartesian(0.0, 0.1, 0.1);
    coot::Cartesian vec_diff = at_pt - static_position;
    float dist = vec_diff.length();
-   glRasterPos3d(text_pos.x(), text_pos.y(), text_pos.z());
+   // glRasterPos3d();
    std::string t = coot::util::float_to_string(dist);
-   printString(t);
+   graphics_info_t::printString(t, text_pos.x(), text_pos.y(), text_pos.z());
 }
 
 void
@@ -4077,9 +4120,9 @@ graphics_info_t::pointer_distances_objects() {
 	 text_pos = (*pointer_distances_object_vec)[i].first + 
 	    0.5 * ( (*pointer_distances_object_vec)[i].second - (*pointer_distances_object_vec)[i].first + 
 		   clipper::Coord_orth(0.0, 0.1, 0.1));
-	 glRasterPos3d(text_pos.x(), text_pos.y(), text_pos.z());
+	 // glRasterPos3d(text_pos.x(), text_pos.y(), text_pos.z());
 	 dist = clipper::Coord_orth::length( (*pointer_distances_object_vec)[i].first, (*pointer_distances_object_vec)[i].second);
-	 printString(float_to_string(dist));
+	 printString(float_to_string(dist), text_pos.x(), text_pos.y(), text_pos.z());
       }
       glDisable(GL_LINE_STIPPLE);
    }

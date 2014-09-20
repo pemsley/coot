@@ -2975,6 +2975,13 @@ void set_font_colour(float red, float green, float blue) {
    graphics_draw();
 }
 
+void set_use_stroke_characters(int state) {
+
+   graphics_info_t::stroke_characters = state;
+   graphics_draw();
+} 
+
+
 
 /*  ---------------------------------------------------------------------- */
 /*                         Rotation Centre Cube Size                       */
