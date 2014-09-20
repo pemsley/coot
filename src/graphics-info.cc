@@ -1816,22 +1816,86 @@ void
 graphics_info_t::printString(const std::string &s,
 			     const double &x, const double &y, const double &z) {
 
-   if (graphics_info_t::stroke_characters) { 
+   double sf = 0.00008 * graphics_info_t::zoom;
+   graphics_info_t::printString_internal(s, x, y, z, true, false, sf);
+}
 
-      // This doesn't do anything, it seems
-      // glRasterPos3f(x,y,z);
+
+// static
+void
+graphics_info_t::printString_for_axes(const std::string &s,
+				      const double &x, const double &y, const double &z) {
+
+   double sf = 0.00078;
+   graphics_info_t::printString_internal(s, x, y, z, true, true, sf);
+}
+
+// static
+void
+graphics_info_t::printString_for_density_level(const std::string &s,
+					       const double &x, const double &y, const double &z) {
+
+   double sf = 0.00028;
+   graphics_info_t::printString_internal(s, x, y, z, false, false, sf);
+}
+
+// static
+void
+graphics_info_t::printString_internal(const std::string &s,
+				      const double &x, const double &y, const double &z,
+				      bool do_unproject, bool mono_font, double sf) {
+
+   if (graphics_info_t::stroke_characters) { 
 
       glLineWidth(1.0);
    
       glPushMatrix();
       glTranslated(x,y,z);
 
-      double sf = 0.00008 * graphics_info_t::zoom;
       glScaled(sf, sf, sf);
 
-      for (unsigned int i=0; i<s.length(); i++)
-	 glutStrokeCharacter(GLUT_STROKE_ROMAN, s[i]); // or GLUT_STROKE_MONO_ROMAN
+      if (do_unproject) { 
+	 coot::Cartesian b = unproject(1);
+	 coot::Cartesian f = unproject(0);
+	 coot::Cartesian b_to_f_cart = f - b;
 
+	 coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
+	 coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
+	 coot::Cartesian right  = unproject_xyz(1, 0, 0.5);
+	 coot::Cartesian top    = unproject_xyz(0, 1, 0.5);
+
+	 coot::Cartesian screen_x = (right - centre);
+	 // coot::Cartesian screen_y = (top   - centre);
+	 coot::Cartesian screen_y = (centre - top);
+	 coot::Cartesian screen_z = (front - centre);
+
+	 screen_x.unit_vector_yourself();
+	 screen_y.unit_vector_yourself();
+	 screen_z.unit_vector_yourself();
+
+	 float mat[16];
+	 mat[ 0] = screen_x.x(); mat[ 1] = screen_x.y(); mat[ 2] = screen_x.z();
+	 mat[ 4] = screen_y.x(); mat[ 5] = screen_y.y(); mat[ 6] = screen_y.z();
+	 mat[ 8] = screen_z.x(); mat[ 9] = screen_z.y(); mat[10] = screen_z.z();
+
+	 mat[ 3] = 0; mat[ 7] = 0; mat[11] = 0;
+	 mat[12] = 0; mat[13] = 0; mat[14] = 0; mat[15] = 1;
+
+	 glMultMatrixf(mat);
+	 
+      }
+      
+
+      void *font = GLUT_STROKE_ROMAN;
+      if (mono_font)
+	 font = GLUT_STROKE_MONO_ROMAN;
+      
+      for (unsigned int i=0; i<s.length(); i++) { 
+	 glutStrokeCharacter(font, s[i]);
+	 // space characters are full-width (105) - I don't like that, so slim them down
+	 if (s[i] == ' ')
+	    glTranslatef(-40, 0, 0);
+      }
 
       glPopMatrix();
 
@@ -1844,6 +1908,7 @@ graphics_info_t::printString(const std::string &s,
       glPopAttrib();
    }
 }
+
 
 void
 graphics_info_t::environment_graphics_object_internal_tube(const coot::CartesianPair &pair,
