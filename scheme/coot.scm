@@ -32,7 +32,7 @@
 ;; This has be be here (in a general place) because tips-gui (where it
 ;; used to be is conditionally loaded).
 ;; (default to tips-gui displayed is true).
-(define *do-coot-tips-flag* #t)
+(define *do-coot-tips-flag* #f)
 
 (define load-by-search 
   (lambda (file)
