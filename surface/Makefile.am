@@ -1,5 +1,8 @@
 
-INCLUDES = -I$(top_srcdir)/coot-utils $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) $(FFTW_CXXFLAGS)
+
+AM_CPPFLAGS = -I$(top_srcdir)/coot-utils      \
+	 $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) \
+	$(FFTW_CXXFLAGS) $(FFTW2_CXXFLAGS)
 
 AM_CXXFLAGS = $(OPENMP_CFLAGS)
 
@@ -48,7 +51,7 @@ libccp4mg_surface_la_SOURCES = \
 	CXXUtils.h \
 	CXXSphereFlatTriangle.h
 
-libccp4mg_surface_la_LIBADD = $(CLIPPER_LIBS) $(MMDB_LIBS) $(OPENMP_CFLAGS)
+libccp4mg_surface_la_LIBADD = $(CLIPPER_LIBS) $(FFTW2_LIBS) $(MMDB_LIBS) $(OPENMP_CFLAGS)
 
 
 # CXXAtom.h CXXAtom.cpp

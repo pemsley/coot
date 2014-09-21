@@ -20,7 +20,7 @@
 
   o FEATURE: Enable the running of python commands from the command line
 
-  o FEATURE: Install appdata for GNOME Software Center
+  o FEATURE: Install appdata for GNOME Software Center [Richard Hughes]
 
   o FEATURE: New program compare-dictionaries added
 

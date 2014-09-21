@@ -41,10 +41,7 @@ AC_ARG_WITH(clipper-prefix, [  --with-clipper-prefix=PFX Prefix where Clipper ha
  clipper_prefix="$withval",
  clipper_prefix="")
 
-  echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
-
   AC_MSG_CHECKING([for Clipper])
-
 
   if ${PKG_CONFIG} clipper ; then 
        CLIPPER_CXXFLAGS="$($PKG_CONFIG --cflags clipper)"
