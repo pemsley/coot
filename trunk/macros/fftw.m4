@@ -32,23 +32,40 @@
 #   Public Domain
 #
 
-AC_DEFUN([SINGLE_FFTW2],
+AC_DEFUN([AM_SINGLE_FFTW2],
 [
+
+AC_ARG_WITH(fftw-prefix,
+	AC_HELP_STRING( [--with-fftw-prefix=PRFX], [Prefix where fftw2 has been installed] ),
+	[ with_fftw_prefix="$withval" ],
+   	  with_fftw_prefix= )
+
 saved_LIBS="$LIBS"
+saved_CPPFLAGS="$CPPFLAGS"
 AC_LANG_PUSH(C++)
 
 AC_MSG_CHECKING([for prefixed single-precision FFTW2 (sfftw.h)])
-FFTW2_LIBS="-lsrfftw -lsfftw"
+
+if test x$with_fftw_prefix != x ; then
+   fftw_lib_prefix=-L$with_fftw_prefix/lib
+   FFTW2_CPPFLAGS=-I$with_fftw_prefix/include
+fi
+
+FFTW2_LIBS="$fftw_lib_prefix -lsrfftw -lsfftw"
+CPPFLAGS="$FFTW2_CPPFLAGS $CPPFLAGS"
 LIBS="$FFTW2_LIBS $saved_LIBS"
+
 AC_TRY_LINK([#include <sfftw.h>],
             [float a; fftw_real *p = &a; return *fftw_version], 
             have_fftw=yes, have_fftw=no)
 AC_MSG_RESULT($have_fftw)
 if test $have_fftw = yes; then
+  FFTW2_CXXFLAGS="-DFFTW2_PREFIX_S=1 $FFTW2_CPPFLAGS $CPPFLAGS"
   AC_DEFINE(FFTW2_PREFIX_S, 1, [Define if FFTW2 is prefixed.])
+
 else
-  AC_MSG_CHECKING([for not prefixed single-precision FFTW2 (fftw.h)])
-  FFTW2_LIBS="-lrfftw -lfftw"
+  AC_MSG_CHECKING([for non-prefixed single-precision FFTW2 (fftw.h)])
+  FFTW2_LIBS="$fftw_lib_prefix -lrfftw -lfftw"
   LIBS="$FFTW2_LIBS $saved_LIBS"
   AC_TRY_LINK([#include <fftw.h>],
               [float a; fftw_real *p = &a; return *fftw_version], 
@@ -59,5 +76,7 @@ fi
 
 AC_LANG_POP(C++)
 LIBS="$saved_LIBS"
+CXXFLAGS="$saved_CXXFLAGS"
 AC_SUBST(FFTW2_LIBS)
+AC_SUBST(FFTW2_CPPFLAGS)
 ])

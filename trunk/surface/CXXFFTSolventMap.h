@@ -1,4 +1,10 @@
+
+#ifdef FFTW2_PREFIX_S
+#include "srfftw.h"
+#else
 #include "rfftw.h"
+#endif 
+
 #include <math.h>
 #include <iostream>
 #include <fstream>
