@@ -141,23 +141,23 @@ int svn_revision();
 
 char *coot_version() {
 
-   std::string version_string = VERSION;
+   std::string version_string; //  = VERSION;
 
-   version_string += " (revision ";
+   version_string += "(revision ";
    version_string += coot::util::int_to_string(svn_revision());
-   version_string += ") ";
+   version_string += ")\n";
    
 #ifdef USE_GUILE
-   version_string += " [with guile ";
+   version_string += "[with guile ";
    version_string += coot::util::int_to_string(SCM_MAJOR_VERSION);
    version_string += ".";
    version_string += coot::util::int_to_string(SCM_MINOR_VERSION);
    version_string += ".";
    version_string += coot::util::int_to_string(SCM_MICRO_VERSION);
-   version_string += " embedded]";
+   version_string += " embedded]\n";
 #endif    
 #ifdef USE_PYTHON
-   version_string += " [with python ";
+   version_string += "[with python ";
    version_string += coot::util::int_to_string(PY_MAJOR_VERSION);
    version_string += ".";
    version_string += coot::util::int_to_string(PY_MINOR_VERSION);

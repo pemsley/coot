@@ -24676,9 +24676,9 @@ programs to which you may be more accustomed.
   <property name="urgency_hint">False</property>
 
   <child>
-    <widget class="GtkImage" id="image10157">
+    <widget class="GtkImage" id="image10617">
       <property name="visible">True</property>
-      <property name="pixbuf">coot-0.8-pre.png</property>
+      <property name="pixbuf">coot-0.8.png</property>
       <property name="xalign">0.5</property>
       <property name="yalign">0.5</property>
       <property name="xpad">0</property>
@@ -50204,7 +50204,8 @@ Move Molecule Here:</property>
   <property name="copyright" translatable="yes">Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 by The University of York
 Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The University of Oxford
 Copyright 2001, 2007 by Paul Emsley</property>
-  <property name="comments" translatable="yes">Punta Carretas</property>
+  <property name="comments" translatable="yes">Turtle Bay
+</property>
   <property name="license" translatable="yes">                    GNU GENERAL PUBLIC LICENSE
                        Version 3, 29 June 2007
 
@@ -50881,7 +50882,7 @@ Public License instead of this License.  But first, please read
 &lt;http://www.gnu.org/philosophy/why-not-lgpl.html&gt;.
 </property>
   <property name="wrap_license">False</property>
-  <property name="website">http://www.ysbl.york.ac.uk/~emsley/coot</property>
+  <property name="website">http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot</property>
   <property name="website_label" translatable="yes">Coot Website</property>
   <property name="authors">   Paul Emsley
    Kevin Cowtan
