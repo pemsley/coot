@@ -105,7 +105,8 @@ match_this_residue_and_dictionary(int imol, std::string chain_id, int res_no, st
 				  std::string reference_comp_id,
 				  std::string output_comp_id);
 				  
-
+bool
+enhanced_ligand_coot_p();
 
 
 #endif // C_INTERFACE_LIGANDS_SWIG_HH

@@ -129,6 +129,7 @@ int main(int argc, char **argv) {
    
    for (unsigned int i=0; i<geom.size(); i++) {
       const coot::dictionary_residue_restraints_t r = geom.get_monomer_restraints(i);
+      std::cout << "adding to map bonds in " << r.residue_info.comp_id << std::endl;
       for (unsigned int ibond=0; ibond<r.bond_restraint.size(); ibond++) { 
 	 const coot::dict_bond_restraint_t &br = r.bond_restraint[ibond];
 	 std::string an1 = br.atom_id_1_4c();
@@ -170,7 +171,7 @@ int main(int argc, char **argv) {
    std::sort(bonds_vec.begin(), bonds_vec.end(), bonds_vec_k_sorter);
    
 
-   unsigned int min_counts = 10;
+   unsigned int min_counts = 0;
    unsigned int n_found = 0;
 
    for (itv=bonds_vec.begin(); itv!=bonds_vec.end(); itv++) {

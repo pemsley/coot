@@ -1,6 +1,7 @@
 
 ;; scm aliases.  
 ;; 
+(define enhanced-ligand-coot? enhanced-ligand-coot-p)
 (define drag-intermediate-atom drag-intermediate-atom-scm)
 (define mark-atom-as-fixed mark-atom-as-fixed-scm)
 (define ncs-chain-ids ncs-chain-ids-scm)
