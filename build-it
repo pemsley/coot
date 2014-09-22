@@ -3337,6 +3337,7 @@ echo ./configure $coot_prefix \
         --with-mmdb-prefix=$install_top_dir \
      --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
+       --with-fftw-prefix=$install_top_dir  \
       $goocanvas_args     \
        $glut_prefix       \
       $guile_scripting    \
@@ -3349,6 +3350,7 @@ echo ./configure $coot_prefix \
         --with-mmdb-prefix=$install_top_dir \
      --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
+       --with-fftw-prefix=$install_top_dir  \
       $goocanvas_args     \
       $glut_prefix        \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
