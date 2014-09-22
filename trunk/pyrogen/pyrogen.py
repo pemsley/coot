@@ -725,9 +725,9 @@ if __name__ == "__main__":
     parser = OptionParser(usage='pyrogen [options] file-or-SMILES'+
                           '\n       if file-or-SMILES has extension ".smi" or ".smiles" ' +
                           'then it is treated as a file')
-    parser.add_option("-m", "--mmcif", dest="mmcif_file",
+    parser.add_option("-c", "--mmcif", dest="mmcif_file",
 		      help="Make restraints from input mmcif FILE", metavar="FILE")
-    parser.add_option("-s", "--sdf", dest="sdf_file",
+    parser.add_option("-m", "--mol", dest="sdf_file",
 		      help="Make restraints from input sdf/mol FILE", metavar="FILE")
     parser.add_option("-t", "--type", dest="comp_id", default='default',
 		      help="Create restraints for this type. Default is LIG")
