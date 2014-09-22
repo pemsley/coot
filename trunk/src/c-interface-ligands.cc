@@ -3078,3 +3078,15 @@ invert_chiral_centre(int imol,
    }
 }
 
+bool
+enhanced_ligand_coot_p() {
+
+   bool r = false;
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+   r = true;
+#endif
+      
+   return r;
+
+} 

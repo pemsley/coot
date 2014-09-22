@@ -99,6 +99,8 @@
 								      "get-recent-pdbe.scm"
 								      "extensions.scm"
 								      "shelx-extensions.scm"
+								      "ligand-check.scm"
+								      "enhanced-ligand.scm"
 								      )))
 	      (else 
 	       (append pre-list post-list)))))
