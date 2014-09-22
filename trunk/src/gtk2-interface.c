@@ -17,8 +17,6 @@
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
-#if (GTK_MAJOR_VERSION > 1)
-
 #include "callbacks.h"
 #include "interface.h"
 #include "support.h"
@@ -2011,8 +2009,6 @@ create_window1 (void)
   gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_rot_trans_toolbutton), FALSE);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_rot_trans_toolbutton);
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rot_trans_toolbutton), tooltips, _("Rotate Translate Zone/Chain/Molecule"), NULL);
-#endif
-
 
   model_toolbar_auto_fit_rotamer_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_auto_fit_rotamer_togglebutton), _("Auto Fit Rotamer"));
@@ -31662,7 +31658,7 @@ create_ligand_check_dialog (void)
   GtkWidget *ligand_check_dialog;
   GtkWidget *dialog_vbox130;
   GtkWidget *vbox323;
-  GtkWidget *label778;
+  GtkWidget *ligand_check_ligand_spec_label;
   GtkWidget *table7;
   GtkWidget *hbox428;
   GtkWidget *image_tick_density;
@@ -31679,6 +31675,7 @@ create_ligand_check_dialog (void)
   GtkWidget *label779;
   GtkWidget *label780;
   GtkWidget *label781;
+  GtkWidget *ligand_check_db_label;
   GtkWidget *dialog_action_area129;
   GtkWidget *ligand_check_cancelbutton;
   GtkWidget *ligand_check_okbutton;
@@ -31698,10 +31695,10 @@ create_ligand_check_dialog (void)
   gtk_widget_show (vbox323);
   gtk_box_pack_start (GTK_BOX (dialog_vbox130), vbox323, TRUE, TRUE, 0);
 
-  label778 = gtk_label_new (_("Ligand Report: <Spec Here>"));
-  gtk_widget_set_name (label778, "label778");
-  gtk_widget_show (label778);
-  gtk_box_pack_start (GTK_BOX (vbox323), label778, FALSE, FALSE, 6);
+  ligand_check_ligand_spec_label = gtk_label_new (_("Ligand Report: <Spec Here>"));
+  gtk_widget_set_name (ligand_check_ligand_spec_label, "ligand_check_ligand_spec_label");
+  gtk_widget_show (ligand_check_ligand_spec_label);
+  gtk_box_pack_start (GTK_BOX (vbox323), ligand_check_ligand_spec_label, FALSE, FALSE, 6);
 
   table7 = gtk_table_new (2, 3, FALSE);
   gtk_widget_set_name (table7, "table7");
@@ -31805,6 +31802,13 @@ create_ligand_check_dialog (void)
   gtk_misc_set_alignment (GTK_MISC (label781), 0, 0.5);
   gtk_misc_set_padding (GTK_MISC (label781), 0, 4);
 
+  ligand_check_db_label = gtk_label_new ("");
+  gtk_widget_set_name (ligand_check_db_label, "ligand_check_db_label");
+  gtk_widget_show (ligand_check_db_label);
+  gtk_box_pack_start (GTK_BOX (vbox323), ligand_check_db_label, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (ligand_check_db_label), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_padding (GTK_MISC (ligand_check_db_label), 0, 3);
+
   dialog_action_area129 = GTK_DIALOG (ligand_check_dialog)->action_area;
   gtk_widget_set_name (dialog_action_area129, "dialog_action_area129");
   gtk_widget_show (dialog_action_area129);
@@ -31822,11 +31826,15 @@ create_ligand_check_dialog (void)
   gtk_dialog_add_action_widget (GTK_DIALOG (ligand_check_dialog), ligand_check_okbutton, GTK_RESPONSE_OK);
   GTK_WIDGET_SET_FLAGS (ligand_check_okbutton, GTK_CAN_DEFAULT);
 
+  g_signal_connect ((gpointer) ligand_check_okbutton, "clicked",
+                    G_CALLBACK (on_ligand_check_okbutton_clicked),
+                    NULL);
+
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (ligand_check_dialog, ligand_check_dialog, "ligand_check_dialog");
   GLADE_HOOKUP_OBJECT_NO_REF (ligand_check_dialog, dialog_vbox130, "dialog_vbox130");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, vbox323, "vbox323");
-  GLADE_HOOKUP_OBJECT (ligand_check_dialog, label778, "label778");
+  GLADE_HOOKUP_OBJECT (ligand_check_dialog, ligand_check_ligand_spec_label, "ligand_check_ligand_spec_label");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, table7, "table7");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, hbox428, "hbox428");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, image_tick_density, "image_tick_density");
@@ -31843,6 +31851,7 @@ create_ligand_check_dialog (void)
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, label779, "label779");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, label780, "label780");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, label781, "label781");
+  GLADE_HOOKUP_OBJECT (ligand_check_dialog, ligand_check_db_label, "ligand_check_db_label");
   GLADE_HOOKUP_OBJECT_NO_REF (ligand_check_dialog, dialog_action_area129, "dialog_action_area129");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, ligand_check_cancelbutton, "ligand_check_cancelbutton");
   GLADE_HOOKUP_OBJECT (ligand_check_dialog, ligand_check_okbutton, "ligand_check_okbutton");

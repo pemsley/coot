@@ -5,8 +5,6 @@
 
    o Check this ligand
 
-   o FFW_LIBS in surface.  Fix fftw macro.
-
    ---
 
    o Try glyco tree builder 528 on 4lxr. 
@@ -698,6 +696,10 @@ Program terminated with signal 11, Segmentation fault.
 * Done.
 
    o change the front-page icons on the glade file. Puntable.
+
+* Done.
+
+   o FFW_LIBS in surface.  Fix fftw macro.
 
 * Done.
 

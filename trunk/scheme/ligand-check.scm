@@ -15,7 +15,9 @@
 ;;    possible split afterwards) need to generate a score from the
 ;;    probe result (how does clashscore do it? - should be easy)
 
-(load "cache-or-net-get.scm")
+;; (load "cache-or-net-get.scm")
+
+
 (load "contact-score-isolated-ligand.scm")
 (load "run-mogul.scm")
 
@@ -64,12 +66,10 @@
 
 		(make-directory-maybe refmac-dir)
 		(write-pdb-file imol-new sans-ligand-pdb-file-name)
-		(set! *refmac-data-f-col* fobs-col)
-		(set! *refmac-data-sigf-col* sig-fobs-col)
-		(set! *refmac-data-rfree-col* rfree-col)
-		(let ((r (refmac-calc-sfs-make-mtz sans-ligand-pdb-file-name
-						   refmac-input-mtz-file-name
-						   refmac-out-sfs-file-name)))
+		(let ((r (refmac-calc-sfs-make-mtz-with-columns sans-ligand-pdb-file-name
+								refmac-input-mtz-file-name
+								refmac-out-sfs-file-name
+								fobs-col sig-fobs-col rfree-col)))
 		  (if (eq? r #f)
 
 		      'problem-calculating-sfs-using-refmac
@@ -87,7 +87,8 @@
   (define (get-mogul-score use-cache?)
     ;; if run-result is a string, then it is the mogul-output file name
     ;; if it is a symbol something went wrong.
-    (let ((run-result (run-mogul 'bonds-and-angles imol chain-id res-no ins-code "vvv" use-cache?)))
+    (let ((run-result (run-mogul 'bonds-and-angles imol chain-id res-no ins-code "ligand-check" use-cache?)))
+      (format #t "run-result (mogul)::::::::::::: ~s~%" run-result)
       (if (not (string? run-result))
 	  run-result
 	  (let* ((mogul-results-list (mogul-results run-result))
@@ -112,7 +113,7 @@
   (let* ((stub-name (molecule-name-stub imol 0)))
     (let ((cor (get-correlation stub-name)))
       (if (number? cor)
-	  (let ((mog (get-mogul-score #t))) ;; use the cache for the ligand - testing only!
+	  (let ((mog (get-mogul-score #f))) ;; use the cache for the ligand? - testing only!
 	    (if (number? mog)
 		(let ((bmp (get-bump-score)))
 		  (if (number? bmp)
@@ -588,32 +589,6 @@
 
   (/ (median ligand-b-factors) (median (apply append env-b-factors))))
 
-  
-
-
-;; test
-(define (test-thing) 
-  ;; not  "4feg", because, as yet, we can't run refmac with mtz file only intensities
-  (let ((code-list
-	 ;; (list "3vff" "3tuc" "3t64" "3tud" "3vk2" "4eg6")
-	 ;; (list "3vk2")
-	 ;; (list "3vk2")
-	 ;; (list "3t64")
-	 ;; "4ekg" no dictionary
-	 ;; (list "3tyg"  "4b5m" "4gdc" "4gns" "4gdd" "4b5g" "4hfr")
-	 ;;  (list "4gdc")
-	 ;; (list "3s05") ;; caused a crash.
-	 ;; (list "3u08")
-	 ;; (list "3rfe") ;; not a great build
-	 ;; (list "3rkr")
-	 ;; (list "3tfj")
-	 (list "3rmz")
-	 ))
-    (process-accession-codes code-list #f)))
-
-;; (define this-weeks-file  "/lmb/home/pemsley/fei/All_pdb/pdb_Dec_1_2010.list")
-;; (define this-weeks-file  "/lmb/home/pemsley/fei/tiny-sample-bit")
-(define this-weeks-file  "/lmb/home/pemsley/fei/sample-bit")
 
 (define (fei-test)
   (if (not (file-exists? this-weeks-file))

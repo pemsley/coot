@@ -673,6 +673,7 @@ void regularize_residues(int imol, const std::vector<coot::residue_spec_t> &resi
 //! 
 //! presumes that imol_Refinement_Map has been set
 #ifdef USE_GUILE
+std::string mtz_file_name(int imol); 
 SCM refine_zone_with_full_residue_spec_scm(int imol, const char *chain_id,
 					   int resno1,
 					   const char*inscode_1,

@@ -12290,3 +12290,12 @@ on_mogul_geometry_dialog_close_button_clicked
    gtk_widget_destroy(dialog);
 }
 
+
+void 
+on_ligand_check_okbutton_clicked(GtkButton       *button,
+				 gpointer         user_data) { 
+
+  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "ligand_check_dialog");
+  gtk_widget_destroy(w);
+
+} 
