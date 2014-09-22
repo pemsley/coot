@@ -72,6 +72,8 @@ namespace coot {
    mtz_column_types_info_t get_mtz_columns(const std::string &filename);
 
    std::vector<std::string> get_f_cols(const std::string &mtz_file_name); 
+   std::vector<std::string> get_sigf_cols(const std::string &mtz_file_name); 
+   std::vector<std::string> get_r_free_cols(const std::string &mtz_file_name); 
    std::vector<std::string> get_phi_cols(const std::string &mtz_file_name); 
    std::vector<std::string> get_weight_cols(const std::string &mtz_file_name); 
    std::vector<std::string> get_d_cols(const std::string &mtz_file_name);

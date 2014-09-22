@@ -119,6 +119,7 @@ coot_wrap_guile_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h    \
                              $(top_srcdir)/src/lbg-interface.hh \
                              $(top_srcdir)/src/c-interface-ligands-swig.hh \
                              $(top_srcdir)/src/sdf-interface.hh \
+                             $(top_srcdir)/src/cmtz-interface.hh \
                              $(top_srcdir)/src/c-interface-mogul.hh
 	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(WITH_GUILE_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -I$(top_srcdir) -guile -c++  $(top_srcdir)/src/coot.i
 

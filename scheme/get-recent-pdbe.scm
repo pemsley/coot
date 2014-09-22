@@ -22,6 +22,8 @@
 	     (ice-9 format)
 	     (ice-9 q))
 
+(load-by-search "weeky-ligand-check.scm")
+
 
 (define *coot-pdbe-image-cache-dir* "coot-pdbe-images") ;; can be shared (dir should
                                                         ;; be writable by sharers).
@@ -301,7 +303,8 @@
 
 ;; return refmac-result or #f 
 ;; 
-(define (refmac-calc-sfs-make-mtz  pdb-in-file-name mtz-file-name mtz-refmaced-file-name)
+(define (refmac-calc-sfs-make-mtz-with-columns pdb-in-file-name mtz-file-name mtz-refmaced-file-name
+					       f-col sigf-col r-free-col)
   
   (let* ((refmac-stub (append-dir-file "coot-refmac"
 				       (strip-path 
@@ -340,7 +343,7 @@
 				     phib-fom-pair 
 				     force-n-cycles
 				     make-molecules-flag
-				     "" "F.F_sigF.F" "F.F_sigF.sigF" "Rfree.Flag.flag")))
+				     "" f-col sigf-col r-free-col)))
 	                             ;; ccp4i-project-dir f-col sig-f-col . r-free-col
 
 	;; restore refmac-extra-params to what it used to be
@@ -350,6 +353,12 @@
 	(if (file-exists? mtz-refmaced-file-name)
 	    refmac-result
 	    #f)))))
+
+
+(define (refmac-calc-sfs-make-mtz pdb-in-file-name mtz-file-name mtz-refmaced-file-name)
+
+  (refmac-calc-sfs-make-mtz-with-columns pdb-in-file-name mtz-file-name mtz-refmaced-file-name
+					 "F.F_sigF.F" "F.F_sigF.sigF" "Rfree.Flag.flag"))
     
 
 

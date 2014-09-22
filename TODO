@@ -1278,6 +1278,9 @@ Punted from 0.6:
 
    Release 0.9, Facelift-release [Dec 2013]
 
+   o generic display objects needs an "All off/ All on" check button
+     And a close button
+
    o can you make the double-line filter in contouring faster: using
      an index hash? (use long long) Write a test - scroll up and down
      a 20A sphere, say.

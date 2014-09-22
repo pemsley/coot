@@ -4419,3 +4419,8 @@ void
 on_mogul_geometry_dialog_close_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
+
+void 
+on_ligand_check_okbutton_clicked(GtkButton       *button,
+				 gpointer         user_data);
+

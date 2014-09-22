@@ -856,11 +856,11 @@ coot::ligand_report_absolute_t::make_percentiles() const {
       }
       sqlite3_close(db);
 
-      std::cout << "info:: density_correlation_vec.size() "
+      std::cout << "INFO:: density_correlation_vec.size() "
 		<< lrp.density_correlation_vec.size() << std::endl;
-      std::cout << "info:: mogul_z_worst_vec.size() "
+      std::cout << "INFO:: mogul_z_worst_vec.size() "
 		<< lrp.mogul_z_worst_vec.size() << std::endl;
-      std::cout << "info:: bad_contacts_vec.size() "
+      std::cout << "INFO:: bad_contacts_vec.size() "
 		<< lrp.bad_contacts_vec.size() << std::endl;
 
       std::sort(lrp.density_correlation_vec.begin(), lrp.density_correlation_vec.end());
@@ -886,13 +886,13 @@ coot::ligand_report_absolute_t::make_percentiles() const {
  			      lrp.bad_contacts_vec.end(),
  			      pcs.n_bad_overlaps);
 
-      std::cout << "density: lower_bound at position of " << density_correlation
+      std::cout << "density:      lower_bound at position of " << density_correlation
 		<< " is "
 		<< (it_d - lrp.density_correlation_vec.begin())
 		<< " of " << lrp.density_correlation_vec.size()
 		<< '\n';
 			      
-      std::cout << "mogul:   lower_bound at position of " << mogul_z_score
+      std::cout << "mogul:        lower_bound at position of " << mogul_z_score
 		<< " is "
 		<< (it_m - lrp.mogul_z_worst_vec.begin())
 		<< " of " << lrp.mogul_z_worst_vec.size()
@@ -918,9 +918,12 @@ coot::ligand_report_absolute_t::make_percentiles() const {
       lrp.mogul_percentile = frac_m;
       lrp.probe_clash_percentile = frac_b;
 
-      std::cout << "lrp: density_correlation_percentile " << lrp.density_correlation_percentile << std::endl;
-      std::cout << "lrp: mogul_percentile " << lrp.mogul_percentile << std::endl;
-      std::cout << "lrp: probe_clash_percentile " << lrp.probe_clash_percentile << std::endl;
+      std::cout << "INFO:: lrp: density_correlation_percentile "
+		<< lrp.density_correlation_percentile << std::endl;
+      std::cout << "INFO:: lrp:               mogul_percentile "
+		<< lrp.mogul_percentile << std::endl;
+      std::cout << "INFO:: lrp:         probe_clash_percentile "
+		<< lrp.probe_clash_percentile << std::endl;
 
    }
 #endif // USE_SQLITE   
@@ -959,12 +962,18 @@ coot::ligand_check_percentiles_dialog(coot::residue_spec_t spec,
       GtkWidget *bumps_cross_w = lookup_widget(w, "image_cross_bumps");
       GtkWidget *bumps_incom_w = lookup_widget(w, "image_incomplete_bumps");
 
-      std::cout << "lr.mogul_percentile " << lr.mogul_percentile << std::endl;
+      GtkWidget *spec_label = lookup_widget(w, "ligand_check_ligand_spec_label");
+      GtkWidget *db_label   = lookup_widget(w, "ligand_check_db_label");
+
+      std::cout << "percentile_limit                  " << percentile_limit << std::endl;
+      std::cout << "lr.mogul_percentile               " << lr.mogul_percentile << std::endl;
       std::cout << "lr.density_correlation_percentile "
 		<< lr.density_correlation_percentile << std::endl;
-      std::cout << "lr.probe_clash_percentile "
+      std::cout << "lr.probe_clash_percentile         "
 		<< lr.probe_clash_percentile << std::endl;
-      std::cout << "percentile_limit " << percentile_limit << std::endl;
+
+      std::string l = "Residue: " + spec.chain + " " + util::int_to_string(spec.resno);
+      gtk_label_set_text(GTK_LABEL(spec_label), l.c_str());
 
       if (lr.mogul_percentile < percentile_limit) {
 	 // bad ligand
@@ -982,15 +991,15 @@ coot::ligand_check_percentiles_dialog(coot::residue_spec_t spec,
 	 gtk_widget_hide(mogul_cross_w);
 	 gtk_widget_hide(mogul_incom_w);
       } 
-      
+
       if (lr.density_correlation_percentile < percentile_limit) {
 	 // bad ligand
-	 if (lr.density_correlation_percentile < percentile_limit) {
-	    // test failed
+	 if (lr.density_correlation_percentile < -1) {
+	    // the test failed/was incomplete
 	    gtk_widget_hide(density_tick_w);
 	    gtk_widget_hide(density_cross_w);
 	 } else {
-	    // ligand failed test
+	    // the ligand failed the percentile test
 	    gtk_widget_hide(density_tick_w);
 	    gtk_widget_hide(density_incom_w);
 	 } 

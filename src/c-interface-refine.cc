@@ -315,6 +315,16 @@ SCM refine_zone_with_full_residue_spec_scm(int imol, const char *chain_id,
 }
 #endif // USE_GUILE
 
+std::string mtz_file_name(int imol) {
+
+   std::string r;
+   if (is_valid_map_molecule(imol)) {
+      r = graphics_info_t::molecules[imol].Refmac_mtz_filename();
+   }
+   return r;
+} 
+
+
 
 #ifdef USE_PYTHON
 PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,

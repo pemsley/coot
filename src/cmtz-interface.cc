@@ -630,6 +630,31 @@ coot::get_f_cols(const std::string &mtz_file_name) {
    return v;
 }
 
+
+std::vector<std::string>
+coot::get_sigf_cols(const std::string &mtz_file_name) {
+
+   std::vector<std::string> v;
+   mtz_column_types_info_t ti = get_mtz_columns(mtz_file_name);
+   for (unsigned int i=0; i<ti.sigf_cols.size(); i++) {
+      v.push_back(ti.sigf_cols[i].column_label);
+   }
+   return v;
+}
+
+std::vector<std::string>
+coot::get_r_free_cols(const std::string &mtz_file_name) {
+
+   std::vector<std::string> v;
+   mtz_column_types_info_t ti = get_mtz_columns(mtz_file_name);
+   for (unsigned int i=0; i<ti.r_free_cols.size(); i++) { 
+      v.push_back(ti.r_free_cols[i].column_label);
+   }
+   return v;
+} 
+
+
+
 std::vector<std::string>
 coot::get_phi_cols(const std::string &mtz_file_name) {
 
