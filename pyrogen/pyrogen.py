@@ -729,7 +729,7 @@ if __name__ == "__main__":
 		      help="Make restraints from input mmcif FILE", metavar="FILE")
     parser.add_option("-m", "--mol", dest="sdf_file",
 		      help="Make restraints from input sdf/mol FILE", metavar="FILE")
-    parser.add_option("-t", "--type", dest="comp_id", default='default',
+    parser.add_option("-r", "--residue-type", dest="comp_id", default='default',
 		      help="Create restraints for this type. Default is LIG")
     parser.add_option("-4", "--quartet-planes", dest="quartet_planes",
 		      default=False,
@@ -744,7 +744,7 @@ if __name__ == "__main__":
                       help='Don\'t run CSD Mogul to update bond and angle restraints')
     parser.add_option("-N", '--name', dest='compound_name', default=False,
 		      help='Compound name')
-    parser.add_option("-T", "--tautomers", dest="show_tautomers",
+    parser.add_option("-t", "--tautomers", dest="show_tautomers",
 		      default=False, action="store_true",
                       help='Show SMILES for tautomers, don\'t generate restraints')
     parser.add_option("-d", '--directory', dest='mogul_dir',
