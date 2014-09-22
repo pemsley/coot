@@ -121,9 +121,8 @@ int main(int argc, char **argv) {
       read_number++;
    }
 
-   // std::map<std::pair<std::string, std::string>, std::vector<double> > bonds;
-
-   std::map<energy_type_key_t, std::vector<bond_dist_info_t> > bonds;
+   std::map<energy_type_key_t, std::vector<bond_dist_info_t> > bonds_map;
+   std::map<energy_type_key_t, std::vector<bond_dist_info_t> >::iterator it;
 
    if (0)
       std::cout << "Examining the bonds in the " << geom.size() << " entries."<< std::endl;
@@ -140,18 +139,29 @@ int main(int argc, char **argv) {
 				r.type_energy(an2),
 				br.type());
 	    bond_dist_info_t bi(br.value_dist(), r.residue_info.comp_id, an1, an2);
-	    bonds[k].push_back(bi);
+
+	    // Doing this directly tickles a compiler bug?
+	    // bonds[k].push_back(bi);
+	    // so let's use the iterator:
+
+	    it = bonds_map.find(k);
+	    if (it != bonds_map.end()) { 
+	       it->second.push_back(bi);
+	    } else {
+	       std::vector<bond_dist_info_t> v;
+	       v.push_back(bi);
+	       bonds_map[k] = v;
+	    } 
 	 }
       }
    }
 
    // convert to vector for sorting by N (counts)
    //
-   std::map<energy_type_key_t, std::vector<bond_dist_info_t> >::const_iterator it;
    std::vector<std::pair<energy_type_key_t, std::vector<bond_dist_info_t> > > bonds_vec;
    std::vector<std::pair<energy_type_key_t, std::vector<bond_dist_info_t> > >::const_iterator itv;
 
-   for (it=bonds.begin(); it!=bonds.end(); it++) {
+   for (it=bonds_map.begin(); it!=bonds_map.end(); it++) {
       std::pair<energy_type_key_t, std::vector<bond_dist_info_t> > p(it->first, it->second);
       bonds_vec.push_back(p);
    }
