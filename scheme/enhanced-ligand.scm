@@ -47,7 +47,7 @@
 
 	      (let ((status (goosh-command
 			     "pyrogen"
-			     (list "-m" mdl-file-name "-t" comp-id)
+			     (list "--mol" mdl-file-name "--residue-type" comp-id)
 			     '()
 			     (string-append "pyrogen-" comp-id ".log")
 			     #f)))
