@@ -1287,9 +1287,9 @@ coot::assign_chirals_mmcif_tags(const RDKit::ROMol &mol,
       catch (const KeyErrorException &kee) {
 	 // it's OK for this to happen.  Most atoms are not chiral.
 	 // Most input molecules are not from mmcif files.
-	 
-	 std::cout << "oops caught exception " << kee.key() << " "
-		   << kee.what() << std::endl;
+	 // 
+	 // std::cout << "oops caught exception " << kee.key() << " "
+	 // << kee.what() << std::endl;
       }
       // This shouldn't be needed because the exception should only be
       // KeyErrorException, and that should be caught by the block above.
