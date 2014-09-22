@@ -119,7 +119,10 @@
 	   (tlc-entry (gtk-entry-new))
 	   (smiles-label (gtk-label-new "SMILES string "))
 	   (smiles-entry (gtk-entry-new))
-	   (text (gtk-label-new "  [SMILES interface works by using CCP4's LIBCHECK]  "))
+	   (text (gtk-label-new
+		  (if (enhanced-ligand-coot?)
+		      "  [SMILES interface works by using Pyrogen]  "
+		      "  [SMILES interface works by using CCP4's LIBCHECK]  ")))
 	   (go-button (gtk-button-new-with-label "  Go  ")))
 
       (gtk-box-pack-start vbox hbox1 #f #f 0)
