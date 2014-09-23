@@ -1415,7 +1415,9 @@ if test "$build_coot_prerelease" = 1 ; then
 
       ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir/
       echo examining release server files ${AUTOBUILD_SOURCES}/index.html
-      coot_version=$(awk  ' /compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' \
+      # coot_version=$(awk  ' /compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' 
+      # have another go at latest version extraction.
+      coot_version=$(awk '/compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[++n]=file; } END {print files[n] }'  \
           ${AUTOBUILD_SOURCES}/index.html | tail -1)
       echo coot_version $coot_version
 
