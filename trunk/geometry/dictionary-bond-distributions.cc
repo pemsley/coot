@@ -117,14 +117,14 @@ int main(int argc, char **argv) {
    for (unsigned int i=1; i<argc; i++) {
       std::string file_name = argv[i];
       int status = geom.init_refmac_mon_lib(file_name, read_number);
-      // std::cout << "read " << file_name << " with status " << status << std::endl;
+      std::cout << "read " << file_name << " with status " << status << std::endl;
       read_number++;
    }
 
    std::map<energy_type_key_t, std::vector<bond_dist_info_t> > bonds_map;
    std::map<energy_type_key_t, std::vector<bond_dist_info_t> >::iterator it;
 
-   if (0)
+   if (1)
       std::cout << "Examining the bonds in the " << geom.size() << " entries."<< std::endl;
    
    for (unsigned int i=0; i<geom.size(); i++) {
@@ -176,7 +176,7 @@ int main(int argc, char **argv) {
 
    for (itv=bonds_vec.begin(); itv!=bonds_vec.end(); itv++) {
       
-      if (itv->second.size() > min_counts) {
+      if (itv->second.size() >= min_counts) {
 
 	 n_found++;
 	 
