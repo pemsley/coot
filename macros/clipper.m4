@@ -32,28 +32,27 @@
 # PE 1/2/2002.
 #
 # AM_PATH_CLIPPER([ACTION-IF-FOUND [,ACTION-IF-NOT-FOUND]])
+#
 AC_DEFUN([AM_PATH_CLIPPER],
 [
 AC_PROVIDE([AM_PATH_CLIPPER])
 
 
-AC_ARG_WITH(clipper-prefix, [  --with-clipper-prefix=PFX Prefix where Clipper has been built],
- clipper_prefix="$withval",
- clipper_prefix="")
+AC_MSG_CHECKING([for Clipper])
 
-  AC_MSG_CHECKING([for Clipper])
+if ${PKG_CONFIG} clipper ; then 
+   CLIPPER_CXXFLAGS="$($PKG_CONFIG --cflags clipper)"
+   CLIPPER_LIBS="$($PKG_CONFIG --libs clipper)"
+   coot_found_clipper=yes
+else
+   coot_found_clipper=no
+fi
 
-  if ${PKG_CONFIG} clipper ; then 
-       CLIPPER_CXXFLAGS="$($PKG_CONFIG --cflags clipper)"
-       CLIPPER_LIBS="$($PKG_CONFIG --libs clipper)"
-       coot_found_clipper=yes
-  else
-       CLIPPER_CFLAGS=""
-       CLIPPER_LIBS=""
-       coot_found_clipper=no
-  fi
+AC_MSG_RESULT($coot_found_clipper)
 
-   AC_MSG_RESULT($coot_found_clipper)
+if test $coot_found_clipper = no ; then
+   AC_MSG_FAILURE([Clipper not found])
+fi
 
 AC_SUBST(CLIPPER_CXXFLAGS)
 AC_SUBST(CLIPPER_LIBS)
