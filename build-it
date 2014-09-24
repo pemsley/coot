@@ -2341,13 +2341,13 @@ if test -n "$build_fftw" ; then
 #${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/fftw-2.1.5.tar.gz
 #${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/fftw-configure-stuff.tar.gz
 ${WGET} $extras_place/fftw-2.1.5.tar.gz
-${WGET} $extras_place/fftw-configure-stuff.tar.gz
+# ${WGET} $extras_place/fftw-configure-stuff.tar.gz # Don't need
 
 (
 date
 pwd
 gzip -dc ${AUTOBUILD_SOURCES}/fftw-2.1.5.tar.gz | tar xf -
-gzip -dc ${AUTOBUILD_SOURCES}/fftw-configure-stuff.tar.gz | tar xf -
+# gzip -dc ${AUTOBUILD_SOURCES}/fftw-configure-stuff.tar.gz | tar xf - # don't need.
 cd fftw-2.1.5
 if ./configure $generic_prefix --enable-shared --enable-float ; then
    if $MAKE ; then
