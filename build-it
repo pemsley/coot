@@ -2322,7 +2322,7 @@ date
 # gzip -dc ${AUTOBUILD_SOURCES}/ssm-1.3.tar.bz2 | tar xf -
 tar xf ${AUTOBUILD_SOURCES}/ssm-$ssm_version.tar.gz
 cd ssm-$ssm_version
-./configure $generic_prefix CPPFLAGS=-I$install_top_dir/include LDFLAGS=-L$install_top_dir/lib
+./configure $generic_prefix  --enable-shared --disable-static CPPFLAGS=-I$install_top_dir/include LDFLAGS=-L$install_top_dir/lib
 if $MAKE ; then 
    $MAKE install
 fi
