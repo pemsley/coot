@@ -31,6 +31,7 @@
 #
 #   Public Domain
 #
+# (Thanks Marcin)
 
 AC_DEFUN([AM_SINGLE_FFTW2],
 [
@@ -55,8 +56,15 @@ FFTW2_LIBS="$fftw_lib_prefix -lsrfftw -lsfftw"
 CPPFLAGS="$FFTW2_CPPFLAGS $CPPFLAGS"
 LIBS="$FFTW2_LIBS $saved_LIBS"
 
-AC_TRY_LINK([#include <sfftw.h>],
-            [float a; fftw_real *p = &a; return *fftw_version], 
+
+# FFTW2 uses sincos() from libm but is not linked with -lm.
+# Which is nothing unusual, at the times of FFTW2 underlinking was common.
+# But this causes problems with some linker configurations, e.g. Ubuntu 12.04.
+# To make sure that -lm (that should be already in $LIBS) is not discarded
+# by the linker as not needed we put a math function into the test below.
+AC_TRY_LINK([#include <sfftw.h>
+#include <math.h>],
+            [float a; fftw_real *p = &a; return (int)sin(*fftw_version)], 
             have_fftw=yes, have_fftw=no)
 AC_MSG_RESULT($have_fftw)
 if test $have_fftw = yes; then
@@ -67,8 +75,9 @@ else
   AC_MSG_CHECKING([for non-prefixed single-precision FFTW2 (fftw.h)])
   FFTW2_LIBS="$fftw_lib_prefix -lrfftw -lfftw"
   LIBS="$FFTW2_LIBS $saved_LIBS"
-  AC_TRY_LINK([#include <fftw.h>],
-              [float a; fftw_real *p = &a; return *fftw_version], 
+  AC_TRY_LINK([#include <fftw.h>
+#include <math.h>],
+              [float a; fftw_real *p = &a; return (int)sin(*fftw_version)], 
               [AC_MSG_RESULT(yes)],
               [AC_MSG_RESULT(no)
                AC_MSG_ERROR([single-precision FFTW 2 library not found.])])
