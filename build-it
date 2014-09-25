@@ -2078,9 +2078,10 @@ fi
 # ##############################################################
 
 # test for gnomecanvas here
-pkg-config --modversion libgnomecanvas-2.0
-if [ $? = 0 ] ; then 
-    gnome_canvas_result=`pkg-config --modversion libgnomecanvas-2.0`
+if pkg-config --modversion libgnomecanvas-2.0 ; then
+   :
+else 
+    gnome_canvas_result=$(pkg-config --modversion libgnomecanvas-2.0)
     case ${gnome_canvas_result} in
         2.*) 
          echo system has libgnomecanvas-2.0
@@ -2091,7 +2092,16 @@ if [ $? = 0 ] ; then
           ;; 
     esac
 else 
+   echo this builder does not build libgnomecanvas
    echo pkg-config does not find libgnomecanvas-2.0.  Exiting.
+   pkg_hnd=yum
+   if [ "$systype" = debian ] ; then 
+      pkg_hnd=apt-get
+   fi
+   if [ "$systype" = ubuntu ] ; then 
+      pkg_hnd=apt-get
+   fi
+   echo consider: $pkg_hnd install libgnomecanvas-devel
    my_exit 2
 fi
 
@@ -3333,11 +3343,13 @@ else
    coot_build_info_string="build-host: $HOST on: $cbis_d"
 fi
 
+# We no longer need this because clipper is found using pkg-config
+#     --with-clipper-prefix=$install_top_dir 
+
 echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 echo building in: $PWD
 echo ./configure $coot_prefix \
         --with-mmdb-prefix=$install_top_dir \
-     --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
        --with-fftw-prefix=$install_top_dir  \
       $goocanvas_args     \
@@ -3350,7 +3362,6 @@ echo ./configure $coot_prefix \
 
 ./configure $coot_prefix \
         --with-mmdb-prefix=$install_top_dir \
-     --with-clipper-prefix=$install_top_dir \
       --with-ssmlib-prefix=$install_top_dir \
        --with-fftw-prefix=$install_top_dir  \
       $goocanvas_args     \
