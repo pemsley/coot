@@ -4,8 +4,8 @@ cprodrg = "cprodrg"
 
 # we need $CLIBD to run prodrg (for prodrg.param), so check for it:
 if not os.getenv("CLIBD"):
-    print "BL INFO:: potential problem to run prodrg (no CLIBD set)"
-    print "          try to fix this"
+    # print "BL INFO:: potential problem to run prodrg (no CLIBD set)"
+    # print "          try to fix this"
     bin_dir = os.path.dirname(cprodrg)
     base_dir = os.path.dirname(bin_dir)
     clibd = os.path.join(base_dir, "lib", "data")
@@ -15,9 +15,13 @@ if not os.getenv("CLIBD"):
         print "BL INFO:: found prodrg.param"
         print "          and set CLIBD to", clibd
     else:
-        print "BL ERROR:: no prodrg.param available"
-        print "searched in ", clibd
-        print "Sorry, prodrg module not available"
+        # print "BL ERROR:: no prodrg.param available"
+        # print "searched in ", clibd
+        if enhanced_ligand_coot_p():
+            # we don't want to know that you can't find old programs
+            pass
+        else
+           print "Sorry, prodrg module not available"
         # should load rest?
         # i.e. stop here?
     
