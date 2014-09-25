@@ -353,14 +353,5 @@
 	 (lambda () 
 	   (add-synthetic-carbohydrate-planes)))
 
-	(add-simple-coot-menu-menuitem 
-	 menu "Movie mode on"
-	 (lambda () (set-make-movie-mode 1)))
-
-	(add-simple-coot-menu-menuitem 
-	 menu "Movie mode off"
-	 (lambda () (set-make-movie-mode 0)))
-
-
 	)))
 
