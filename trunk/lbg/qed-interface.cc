@@ -76,7 +76,7 @@ get_qed(PyObject *silicos_it_qed_default_func, const RDKit::ROMol &rdkm) {
 	 // get rid of them?  (Does that happen automatically?)
 	    
       }
-      catch (boost::python::error_already_set e) {
+      catch (const boost::python::error_already_set &e) {
 	 std::cout << "catch error_already_set exception "
 		   << std::endl;
 	 PyObject *type_ptr = NULL, *value_ptr = NULL, *traceback_ptr = NULL;

@@ -22,6 +22,8 @@ libcoot_lidia_la_SOURCES = lbg.cc wmolecule.cc  \
     lbg-search.cc  residue-circles.cc pi-stacking.cc \
     flev-annotations.cc lbg-drag-and-drop.cc qed-interface.cc alerts.cc alerts-list.cc
 
+# qed-interface.cc uses a boost::python function directly, so add L_BOOST_PYTHON
+# Thanks Marcin.
 libcoot_lidia_la_LIBADD = \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
@@ -29,7 +31,7 @@ libcoot_lidia_la_LIBADD = \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) \
-	$(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(GOOCANVAS_LIBS) $(GTK_LIBS)
+	$(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(L_BOOST_PYTHON) $(GOOCANVAS_LIBS) $(GTK_LIBS)
 
 lidia_SOURCES = lidia-main.cc lbg-callbacks-outer.cc 
 
