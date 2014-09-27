@@ -598,7 +598,11 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
       sane_H_mol = m_H
  
    AllChem.EmbedMolecule(sane_H_mol)
-   AllChem.UFFOptimizeMolecule(sane_H_mol)
+   use_mmff = Faslse
+   if use_mmff:
+      AllChem.MMFFOptimizeMolecule(sane_H_mol)
+   else:
+      AllChem.UFFOptimizeMolecule(sane_H_mol)
 
    atom_names = add_atom_names(sane_H_mol)
 
