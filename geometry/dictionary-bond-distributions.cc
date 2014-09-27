@@ -29,13 +29,30 @@ public:
       if (k.bond_type < bond_type) { 
 	 return true;
       } else {
-	 if (k.energy_type_1 < energy_type_1) {
-	    return true;
-	 } else {
-	    return (k.energy_type_2 < energy_type_2);
+	 if (k.bond_type == bond_type) { 
+	    if (k.energy_type_1 < energy_type_1) {
+	       return true;
+	    } else {
+	       if (k.energy_type_1 == energy_type_1) { 
+		  if (k.energy_type_2 < energy_type_2)
+		     return true;
+	       }
+	    }
 	 }
-      } 
+      }
+      return false;
    }
+   bool operator==(const energy_type_key_t &k) const {
+      if (k.bond_type == bond_type) {
+	 if (k.energy_type_1 == energy_type_1) {
+	    if (k.energy_type_2 == energy_type_2) {
+	       return true;
+	    }
+	 }
+      }
+      return false;
+   }
+   
 };
 
 class bond_dist_info_t {
