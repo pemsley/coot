@@ -48,7 +48,7 @@ libcoot_geometry_la_LIBADD = \
 
 # libcoot_geometry_la_CXXFLAGS = -g -O1
 
-check_PROGRAMS = test-geometry test-read-components dictionary-bond-distributions
+check_PROGRAMS = test-geometry test-read-components dictionary-bond-distributions 
 
 bin_PROGRAMS = compare-dictionaries make-shelx-restraints
 

@@ -47,10 +47,20 @@ libcoot_lidia_core_la_LIBADD =                        \
 
 # test_molfile_LDADD: libcoot-lidia-core.la
 
-check_PROGRAMS = test-cod-atom-types
+check_PROGRAMS = test-cod-atom-types dictionary-atom-types
+
 test_cod_atom_types_SOURCES = test-cod-atom-types.cc
 
 test_cod_atom_types_LDADD = libcoot-lidia-core.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(RDKIT_LIBS)
+
+
+dictionary_atom_types_SOURCES = dictionary-atom-types.cc
+
+
+dictionary_atom_types_LDADD = libcoot-lidia-core.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+        $(RDKIT_LIBS)
 

@@ -957,7 +957,6 @@ coot::charge_guanidinos(RDKit::RWMol *rdkm) {
 	    RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
 	    boost::tie(nbrIdx, endNbrs) = rdkm->getAtomNeighbors(C_at);
 	    while(nbrIdx != endNbrs) {
-	       const RDKit::ATOM_SPTR at = (*rdkm)[*nbrIdx];
 	       if (rdkm->getAtomWithIdx(*nbrIdx)->getAtomicNum() == 7) { 
 		  RDKit::Bond *bond = rdkm->getBondBetweenAtoms(idx_c, *nbrIdx);
 		  if (bond) {
@@ -1008,7 +1007,6 @@ coot::mogulify_nitro_groups(RDKit::RWMol *rdkm) {
 	    RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
 	    boost::tie(nbrIdx, endNbrs) = rdkm->getAtomNeighbors(N_at);
 	    while(nbrIdx != endNbrs) {
-	       const RDKit::ATOM_SPTR at = (*rdkm)[*nbrIdx];
 	       if (rdkm->getAtomWithIdx(*nbrIdx)->getAtomicNum() == 8) { 
 		  RDKit::Bond *bond = rdkm->getBondBetweenAtoms(idx_c, *nbrIdx);
 		  if (bond) {
