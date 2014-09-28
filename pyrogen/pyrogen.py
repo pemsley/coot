@@ -471,6 +471,10 @@ def make_restraints_from_mdl(mol_file_name, comp_id, mogul_dir, name_stub, pdb_o
       # return False, False
       exit(1)
 
+   if not os.path.exists(mol_file_name):
+      print "No such file:", mol_file_name
+      exit(1)
+
    compound_name = '.'
    m = Chem.MolFromMolFile(mol_file_name)
    return m, make_restraints(m, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name,
@@ -593,17 +597,19 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
 
    if do_hydrogen_atoms_shift:
       # simple sane pH H-exchanges
-      sane_H_mol = pyrogen_boost.hydrogen_exchanges(m_H)
+      sane_H_mol = pyrogen_boost.hydrogen_transformations(m_H)
    else:
       sane_H_mol = m_H
  
    AllChem.EmbedMolecule(sane_H_mol)
-   use_mmff = Faslse
+   use_mmff = False
    if use_mmff:
       AllChem.MMFFOptimizeMolecule(sane_H_mol)
    else:
       AllChem.UFFOptimizeMolecule(sane_H_mol)
 
+   # print >>file('uffed.mol','w+'),Chem.MolToMolBlock(sane_H_mol)
+   
    atom_names = add_atom_names(sane_H_mol)
 
    sane_H_mol.SetProp('comp_id', comp_id)
