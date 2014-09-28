@@ -314,10 +314,7 @@ cod::neighbour_sorter(const std::string &a, const std::string &b) {
       return true;
    if (a.length() < b.length())
       return false;
-   if (a < b)
-      return true;
-   else
-      return false;
+   return (a < b);
 } 
 
 

@@ -5,10 +5,18 @@ int main(int argc, char **argv) {return 0;}
 #include "cod-types.hh"
 
 #include <map>
+#include <algorithm>
 
 #include "geometry/protein-geometry.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "rdkit-interface.hh"
+
+// ordered so that the table is written in decreasing order
+bool string_int_pair_sorter(const std::pair<std::string, unsigned int> &p1,
+			    const std::pair<std::string, unsigned int> &p2) {
+
+   return (p2.second < p1.second);
+} 
 
 int find_string_in_vector(const std::vector<std::pair<std::string, unsigned int> > &v,
 			  const std::string &t) {
@@ -108,10 +116,12 @@ int main(int argc, char **argv) {
       }
    }
 
-   for (it=atom_map.begin(); it!=atom_map.end(); it++) {
-      std::cout << it->first << "       ";
-      for (unsigned int i=0; i<it->second.size(); i++) { 
-	 std::cout << "   " << it->second[i].first  << " " << it->second[i].second;
+   std::map<std::string, std::vector<std::pair<std::string, unsigned int> > >::iterator itv;
+   for (itv=atom_map.begin(); itv!=atom_map.end(); itv++) {
+      std::sort(itv->second.begin(), itv->second.end(), string_int_pair_sorter);
+      std::cout << itv->first << "       ";
+      for (unsigned int i=0; i<itv->second.size(); i++) { 
+	 std::cout << "   " << itv->second[i].first  << " " << itv->second[i].second;
       }
       std::cout << "\n";
 
