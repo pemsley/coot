@@ -1845,10 +1845,23 @@ graphics_info_t::printString_internal(const std::string &s,
 				      const double &x, const double &y, const double &z,
 				      bool do_unproject, bool mono_font, double sf) {
 
-   if (graphics_info_t::stroke_characters) { 
+   if (graphics_info_t::stroke_characters) {
+
+      // better text with these 3 lines?
+
+      // Not for me, there are missing fragments of the text when I
+      // enable them.  Consider another user-settable
+      // parameter/function: set_use_smooth_stroke_characters()
+      //
+      if (0) { 
+	 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	 glEnable(GL_BLEND);
+	 glEnable(GL_LINE_SMOOTH);
+      }
 
       glLineWidth(1.0);
-   
+      glPointSize(1.0);
+      
       glPushMatrix();
       glTranslated(x,y,z);
 

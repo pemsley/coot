@@ -7193,6 +7193,14 @@ Tue Aug 12 14:32:32 EDT 2014
 
    http://pubs.acs.org/doi/abs/10.1021/ci500156d
 
+---
+
+
+You can obtain the newest version of config.guess and config.sub from the ‘config’ project at http://savannah.gnu.org/. The commands to fetch them are
+
+$ wget -O config.guess 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess;hb=HEAD'
+$ wget -O config.sub 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub;hb=HEAD'
+
 
 ------
 
