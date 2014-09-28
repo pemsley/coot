@@ -124,9 +124,29 @@ int main(int argc, char **argv) {
 	 std::cout << "   " << itv->second[i].first  << " " << itv->second[i].second;
       }
       std::cout << "\n";
+   }
 
+   // reverse the mapping: the COD type is the key and the data is a
+   // vector of refmac energy types (of which should only be one, of
+   // course)
+
+   std::map<std::string, std::vector<std::string> > cod_map;
+   std::map<std::string, std::vector<std::string> >::const_iterator it_cod;
+   for (itv=atom_map.begin(); itv!=atom_map.end(); itv++) {
+      for (unsigned int i=0; i<itv->second.size(); i++) {
+	 cod_map[itv->second[i].first].push_back(itv->first);
+      }
+   }
+
+   for (it_cod=cod_map.begin(); it_cod!=cod_map.end(); it_cod++) {
+      if (it_cod->second.size() != 1) {
+	 std::cout << "strange cod: " << std::left << std::setw(20) << it_cod->first << "     ";
+	 for (unsigned int i=0; i<it_cod->second.size(); i++) { 
+	    std::cout << std::setw(5) << it_cod->second[i] << " ";
+	 }
+	 std::cout << "\n";
+      }
    } 
-
    
    return r;
 }
