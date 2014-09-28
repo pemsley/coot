@@ -757,7 +757,7 @@ private:
       show_alerts_user_control = false; // no pattern matching available
       geom_p = NULL; // no (static) geometry passed/set
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS   
-      show_alerts_user_control = true;
+      show_alerts_user_control = false;
       bond_pick_pending = false;
       atom_pick_pending = false;
 #ifdef USE_PYTHON

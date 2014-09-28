@@ -1430,7 +1430,7 @@ widgeted_molecule_t::delete_hydrogens(GooCanvasItem *root) {
 
    // for (unsigned int iat=0; iat<28; iat++) {
       if (atoms[iat].element == "H") {
-	 std::cout << "closing atom number " << iat << std::endl;
+	 // std::cout << "closing atom number " << iat << std::endl;
 	 close_atom(iat, root);
       } 
    } 
