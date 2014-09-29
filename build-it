@@ -2081,17 +2081,6 @@ fi
 if pkg-config --modversion libgnomecanvas-2.0 ; then
    :
 else 
-    gnome_canvas_result=$(pkg-config --modversion libgnomecanvas-2.0)
-    case ${gnome_canvas_result} in
-        2.*) 
-         echo system has libgnomecanvas-2.0
-         ;; 
-        *)
-          echo system does not have libgnomecanvas-2.0
-          my_exit 2
-          ;; 
-    esac
-else 
    echo this builder does not build libgnomecanvas
    echo pkg-config does not find libgnomecanvas-2.0.  Exiting.
    pkg_hnd=yum
