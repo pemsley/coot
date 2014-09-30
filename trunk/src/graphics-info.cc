@@ -1689,9 +1689,7 @@ graphics_info_t::environment_graphics_object_internal_lines(const graphical_bond
 	 if (! background_is_black_p())
 	    dark_bg_cor = 0.29;
 	 
-	 glEnable(GL_LINE_STIPPLE);
 	 glLineStipple (1, 0x00FF);
-	 glLineWidth(2.0);
 	 for (int i=0; i< env_bonds_box.num_colours; i++) {
 
 	    bool display_these_distances_flag = 1;
@@ -1712,22 +1710,26 @@ graphics_info_t::environment_graphics_object_internal_lines(const graphical_bond
 	       // according to if they have a carbon or not.
 	       // 
 	       glColor3f (0.8-dark_bg_cor, 0.8-0.4*it-dark_bg_cor, 0.4+0.5*it-dark_bg_cor);
+	       // These get turned off and set to 1 when writing stroke characters
+	       glEnable(GL_LINE_STIPPLE);
+	       glLineWidth(2.0);
 	    
+	       glBegin(GL_LINES);
 	       for (int j=0; j< env_bonds_box.bonds_[i].num_lines; j++) {
-	   
 		  const coot::CartesianPair &pair = ll.pair_list[j].positions;
-	    
-		  glBegin(GL_LINES);
 		  glVertex3f(pair.getStart().get_x(),
 			     pair.getStart().get_y(),
 			     pair.getStart().get_z());
 		  glVertex3f(pair.getFinish().get_x(),
 			     pair.getFinish().get_y(),
 			     pair.getFinish().get_z());
-		  glEnd();
+	       }
+	       glEnd();
+
+	       for (int j=0; j< env_bonds_box.bonds_[i].num_lines; j++) {
+		  const coot::CartesianPair &pair = ll.pair_list[j].positions;
 		  text_pos = pair.getFinish().mid_point(pair.getStart()) +
 		     coot::Cartesian(0.0, 0.1, 0.1);
-		  // glRasterPos3f(text_pos.x(), text_pos.y(), text_pos.z());
 		  dist = (pair.getStart() - pair.getFinish()).amplitude();
 		  printString(float_to_string(dist), text_pos.x(), text_pos.y(), text_pos.z());
 	       }
@@ -1858,6 +1860,8 @@ graphics_info_t::printString_internal(const std::string &s,
 	 glEnable(GL_BLEND);
 	 glEnable(GL_LINE_SMOOTH);
       }
+
+      glDisable(GL_LINE_STIPPLE);
 
       glLineWidth(1.0);
       glPointSize(1.0);
@@ -4091,35 +4095,46 @@ graphics_info_t::geometry_objects() {
       glLineStipple (1, 0x00FF);
       glLineWidth(2.0);
       glColor3f(0.5, 0.8, 0.6);
+      glBegin(GL_LINES);
+
+      const std::vector<coot::simple_distance_object_t> &d = *distance_object_vec;
+      for (int i=0; i<ndist; i++) {
+	 if (is_valid_model_molecule(d[i].imol_start)) { 
+	    if (is_valid_model_molecule(d[i].imol_end)) {
+	       if (molecules[d[i].imol_start].is_displayed_p()) { 
+		  if (molecules[d[i].imol_end].is_displayed_p()) { 
+		     glVertex3d( d[i].start_pos.x(),
+				 d[i].start_pos.y(),
+				 d[i].start_pos.z());
+		     glVertex3d( d[i].end_pos.x(),
+				 d[i].end_pos.y(),
+				 d[i].end_pos.z());
+		  }
+	       }
+	    }
+	 }
+      }
+      glEnd();
+      glDisable(GL_LINE_STIPPLE);
 
       for (int i=0; i<ndist; i++) {
-	 if (is_valid_model_molecule((*distance_object_vec)[i].imol_start)) { 
-	    if (is_valid_model_molecule((*distance_object_vec)[i].imol_end)) {
-	       if (molecules[(*distance_object_vec)[i].imol_start].is_displayed_p()) { 
-		  if (molecules[(*distance_object_vec)[i].imol_end].is_displayed_p()) { 
-		     
-		     glBegin(GL_LINES);
-		     glVertex3d( (*distance_object_vec)[i].start_pos.x(),
-				 (*distance_object_vec)[i].start_pos.y(),
-				 (*distance_object_vec)[i].start_pos.z());
-		     glVertex3d( (*distance_object_vec)[i].end_pos.x(),
-				 (*distance_object_vec)[i].end_pos.y(),
-				 (*distance_object_vec)[i].end_pos.z());
-		     text_pos = (*distance_object_vec)[i].start_pos + 
-			0.5 * ( (*distance_object_vec)[i].end_pos -
-				(*distance_object_vec)[i].start_pos + 
+	 if (is_valid_model_molecule(d[i].imol_start)) { 
+	    if (is_valid_model_molecule(d[i].imol_end)) {
+	       if (molecules[d[i].imol_start].is_displayed_p()) { 
+		  if (molecules[d[i].imol_end].is_displayed_p()) { 
+		     text_pos = d[i].start_pos + 
+			0.5 * ( d[i].end_pos - d[i].start_pos + 
 				clipper::Coord_orth(0.0, 0.1, 0.1));
-		     glEnd();
-		     // glRasterPos3d(text_pos.x(), text_pos.y(), text_pos.z());
-		     dist = clipper::Coord_orth::length( (*distance_object_vec)[i].start_pos,
-							 (*distance_object_vec)[i].end_pos);
+		     dist = clipper::Coord_orth::length( d[i].start_pos,
+							 d[i].end_pos);
 		     printString(float_to_string(dist), text_pos.x(), text_pos.y(), text_pos.z());
 		  }
 	       }
 	    }
 	 }
       }
-      glDisable(GL_LINE_STIPPLE);
+      
+      
    }
 
    if (dynamic_distances.size() > 0) {
