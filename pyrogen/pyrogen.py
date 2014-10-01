@@ -601,10 +601,24 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
       sane_H_mol = m_H
  
    AllChem.EmbedMolecule(sane_H_mol)
-   # use_mmff = False
+
    if use_mmff:
       AllChem.MMFFOptimizeMolecule(sane_H_mol)
-      pyrogen_boost.mmff_stuff(sane_H_mol)
+      ba = pyrogen_boost.mmff_bonds_and_angles(sane_H_mol) # uses _forcefield_ of the molecule 
+      n_bonds = ba.bonds_size()
+      if n_bonds > 0:
+         for i_bond in range(n_bonds):
+            bond = ba.get_bond(i_bond)
+            print bond.get_idx_1(), bond.get_idx_2(), bond.get_type(), \
+                  bond.get_resting_bond_length(), bond.get_sigma()
+      n_angles = ba.angles_size()
+      if n_angles > 0:
+         for i_angle in range(n_angles):
+            angle = ba.get_angle(i_angle)
+            print angle.get_idx_1(), angle.get_idx_2(), angle.get_idx_3(), \
+                  angle.get_resting_angle(), angle.get_sigma()
+         
+      
    else:
       AllChem.UFFOptimizeMolecule(sane_H_mol)
 
@@ -660,6 +674,8 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
          except KeyError:
             print "miss", name, atom.GetSymbol(), charge
 
+      # execute_mogul() tests if mogul is executable
+      #
       mogul_state = execute_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name)
       if mogul_state:
 

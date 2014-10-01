@@ -24,7 +24,7 @@ if COOT_USE_PYTHON
 if MAKE_ENHANCED_LIGAND_TOOLS
 
 pyexec_LTLIBRARIES += _pyrogen_swig.la 
-_pyrogen_swig_la_SOURCES = pyrogen-swig.cc restraints.cc restraints.hh restraints-private.hh
+_pyrogen_swig_la_SOURCES = pyrogen-swig.cc restraints.cc restraints.hh
 
 ## _pyrogen_swig_la_CFLAGS = $(PYTHON_CFLAGS) -I$(top_srcdir)/include $(PYTHON_CPPFLAGS) 
 
@@ -52,7 +52,7 @@ lib_LTLIBRARIES=libcoot_py_restraints.la libpyrogen_boost.la
 
 # this is a bona fide library
 #
-libcoot_py_restraints_la_SOURCES = py-restraints.cc py-restraints.hh
+libcoot_py_restraints_la_SOURCES = py-restraints.cc py-restraints.hh restraints-private.hh
 libcoot_py_restraints_la_LIBADD =  $(top_builddir)/geometry/libcoot-geometry.la
 
 # The name of this starts with lib so it fits with boost::python wrapper

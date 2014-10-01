@@ -6,6 +6,33 @@
 #include <lidia-core/rdkit-interface.hh>
 #include <coot-utils/coot-coord-utils.hh>
 
+std::string
+coot::convert_to_energy_lib_bond_type(RDKit::Bond::BondType bt) {
+
+   std::string r = "unset";
+
+   if (bt == RDKit::Bond::UNSPECIFIED) r = "unset";
+   if (bt == RDKit::Bond::SINGLE)      r = "single";
+   if (bt == RDKit::Bond::DOUBLE)      r = "double";
+   if (bt == RDKit::Bond::TRIPLE)      r = "triple";
+   if (bt == RDKit::Bond::QUADRUPLE)   r = "quadruple";
+   if (bt == RDKit::Bond::QUINTUPLE)   r = "quintuple";
+   if (bt == RDKit::Bond::HEXTUPLE)    r = "hextuple";
+   if (bt == RDKit::Bond::ONEANDAHALF) r = "deloc";
+   if (bt == RDKit::Bond::AROMATIC)    r = "aromatic";
+   
+//       TWOANDAHALF,
+//       THREEANDAHALF,
+//       FOURANDAHALF,
+//       FIVEANDAHALF,
+//       AROMATIC,
+//       IONIC,
+//       HYDROGEN,
+
+   return r;
+} 
+
+
 coot::dictionary_residue_restraints_t
 monomer_restraints_from_python(PyObject *restraints) {
 

@@ -177,6 +177,7 @@ namespace coot {
 	 have_target_values = 0;
 	 type_ = type;
       }
+      dict_bond_restraint_t() {} // boost::python needs this
       
       std::string type() const { return type_; }
       int mmdb_bond_type() const; // for mmdb::math::Graph mmdb::math::Edge usage 
@@ -225,6 +226,7 @@ namespace coot {
 	 angle_ = angle;
 	 angle_esd_ = angle_esd; 
       };
+      dict_angle_restraint_t() {} // boost::python needs this
 
       std::string atom_id_3() const { return atom_id_3_;}
       std::string atom_id_3_4c() const { return atom_id_mmdb_expand(atom_id_3_);}
