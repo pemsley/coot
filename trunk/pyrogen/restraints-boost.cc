@@ -1,6 +1,10 @@
 
 #include <GraphMol/GraphMol.h>
 
+#include <GraphMol/ForceFieldHelpers/MMFF/AtomTyper.h>
+#include <GraphMol/ForceFieldHelpers/MMFF/Builder.h>
+#include <ForceField/ForceField.h>
+
 #include <boost/python.hpp>
 using namespace boost::python;
 
@@ -25,6 +29,7 @@ namespace coot {
 					  const std::string &comp_id);
    RDKit::ROMol *hydrogen_transformations(const RDKit::ROMol &r);
    RDKit::ROMol *mogulify(const RDKit::ROMol &r);
+   void mmff_stuff(RDKit::ROMol &mol_in);
 
 }
 
@@ -35,6 +40,7 @@ BOOST_PYTHON_MODULE(libpyrogen_boost) {
    def("rdkit_mol_chem_comp_pdbx", coot::rdkit_mol_chem_comp_pdbx, return_value_policy<manage_new_object>());
    def("hydrogen_transformations", coot::hydrogen_transformations, return_value_policy<manage_new_object>());
    def("mogulify",                 coot::mogulify,                 return_value_policy<manage_new_object>());
+   def("mmff_stuff",               coot::mmff_stuff);
 }
 
 
@@ -45,6 +51,12 @@ coot::mogulify(const RDKit::ROMol &mol) {
    coot::mogulify_mol(rw);
    RDKit::ROMol *ro = new RDKit::ROMol(rw);
    return ro;
+}
+
+void coot::mmff_stuff(RDKit::ROMol &mol_in) {
+
+   RDKit::MMFF::MMFFMolProperties *mmffMolProperties = new RDKit::MMFF::MMFFMolProperties(mol_in);
+   ForceFields::ForceField *field = new ForceFields::ForceField();
 } 
 
 
