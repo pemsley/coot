@@ -1,4 +1,17 @@
 
+
+---
+
+   The fallback bond lookup should average the permissive bonds (if it
+   can) - except if it's a bond to a hydrogen. 
+
+---
+
+Caffeine: 'CN1C=NC2=C1C(=O)N(C(=O)N2C)C'
+   has plane restraints? 
+
+---
+
 pH transformations: 
 
 https://github.com/baoilleach/openbabel-svn-mirror/blob/master/data/phmodel.txt
