@@ -453,7 +453,7 @@ def make_picture_to_file(mol, conf_id, output_file_name):
    except ValueError as e:
       print 'ValueError in make_picture():', e
 
-def make_restraints_from_smiles(smiles_string, comp_id, compound_name, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes):
+def make_restraints_from_smiles(smiles_string, comp_id, compound_name, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes, use_mmff):
 
    if not test_for_mogul():
       # return False
@@ -461,11 +461,11 @@ def make_restraints_from_smiles(smiles_string, comp_id, compound_name, mogul_dir
    m = Chem.MolFromSmiles(smiles_string)
    if compound_name:
        m.SetProp('_Name', compound_name)
-   return make_restraints(m, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes)
+   return make_restraints(m, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes, use_mmff)
 
 # return the molecule and return value from make_restraints
 # 
-def make_restraints_from_mdl(mol_file_name, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes):
+def make_restraints_from_mdl(mol_file_name, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes, use_mmff):
 
    if (not (test_for_mogul())):
       # return False, False
@@ -478,14 +478,14 @@ def make_restraints_from_mdl(mol_file_name, comp_id, mogul_dir, name_stub, pdb_o
    compound_name = '.'
    m = Chem.MolFromMolFile(mol_file_name)
    return m, make_restraints(m, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name,
-			     quartet_planes, quartet_hydrogen_planes)
+			     quartet_planes, quartet_hydrogen_planes, use_mmff)
 
 
 # return a list of (mol, comp_id) pairs for every ligand in the cif
 # file.  Often only one of course.
 #
 def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir, output_postfix,
-				    quartet_planes, quartet_hydrogen_planes):
+				    quartet_planes, quartet_hydrogen_planes, use_mmff):
 
    if not test_for_mogul():
        return [(None, None)]
@@ -497,13 +497,13 @@ def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir, output
 	    t_mol = make_restraints_from_mmcif_dict_single(cif_file_name_in, type, mogul_dir,
 							   output_postfix,
 							   quartet_planes,
-							   quartet_hydrogen_planes)
+							   quartet_hydrogen_planes, use_mmff)
 	    l.append((t_mol, type))
       return l
    else:
        # just the one
        m = make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir, output_postfix,
-						  quartet_planes, quartet_hydrogen_planes)
+						  quartet_planes, quartet_hydrogen_planes, use_mmff)
        return [(m, comp_id)]
 
 # return a mol, given a sensible comp_id.
@@ -511,7 +511,7 @@ def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir, output
 # Return None on failure
 #
 def make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir, output_postfix,
-					   quartet_planes, quartet_hydrogen_planes):
+					   quartet_planes, quartet_hydrogen_planes, use_mmff):
 
    # print 'in make_restraints_from_mmcif_dict() comp_id is ', comp_id
    # print 'in make_restraints_from_mmcif_dict() cif_file_name_in is ', cif_file_name_in
@@ -558,9 +558,8 @@ def make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir,
 
 	  return make_restraints(m, comp_id, mogul_dir, file_name_stub,
 				 pdb_out_file_name, cif_restraints_file_name,
-				 quartet_planes, quartet_hydrogen_planes)
+				 quartet_planes, quartet_hydrogen_planes, use_mmff)
 
-      
 
 
 def n_hydrogens(mol):
@@ -574,7 +573,7 @@ def n_hydrogens(mol):
 # return sane_H_mol
 # 
 def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mmcif_dict_name,
-                    quartet_planes, quartet_hydrogen_planes):
+                    quartet_planes, quartet_hydrogen_planes, use_mmff):
 
    # pH-dependent protonation or deprotonation
    #
@@ -602,9 +601,10 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
       sane_H_mol = m_H
  
    AllChem.EmbedMolecule(sane_H_mol)
-   use_mmff = False
+   # use_mmff = False
    if use_mmff:
       AllChem.MMFFOptimizeMolecule(sane_H_mol)
+      pyrogen_boost.mmff_stuff(sane_H_mol)
    else:
       AllChem.UFFOptimizeMolecule(sane_H_mol)
 
@@ -768,6 +768,8 @@ if __name__ == "__main__":
                       action='store_true', default=False)
     parser.add_option('-v', '--version', dest='show_version', default=False,
                       action='store_true', help='Print version information')
+    parser.add_option('-M', '--testing', dest='use_mmcif', default=False,
+                      action='store_true', help='Testing function')
     parser.add_option("-q", "--quiet",
                   action="store_false", dest="verbose", default=True,
                   help="print less messages")
@@ -828,7 +830,8 @@ if __name__ == "__main__":
 	    mol_pairs = make_restraints_from_mmcif_dict(options.mmcif_file, comp_id, options.mogul_dir,
 							options.output_postfix,
 							options.quartet_planes,
-							options.quartet_hydrogen_planes)
+							options.quartet_hydrogen_planes,
+							options.use_mmcif)
 
 	    # this needs to be in a try block, I suppose, for example if the mmcif file
 	    # does not exist.
@@ -854,7 +857,8 @@ if __name__ == "__main__":
 							  options.mogul_dir, file_name_stub,
 							  pdb_out_file_name, cif_restraints_file_name,
 							  options.quartet_planes,
-							  options.quartet_hydrogen_planes)
+							  options.quartet_hydrogen_planes,
+							  options.use_mmcif)
 		if options.drawing:
 		    make_picture(mol, -1, comp_id, options.output_postfix)
 
@@ -868,7 +872,8 @@ if __name__ == "__main__":
 							 pdb_out_file_name,
 							 cif_restraints_file_name,
 							 options.quartet_planes,
-							 options.quartet_hydrogen_planes)
+							 options.quartet_hydrogen_planes,
+							 options.use_mmcif)
 		    if options.drawing:
 			mol = Chem.MolFromSmiles(smiles)
 			make_picture(mol, -1, comp_id, options.output_postfix)

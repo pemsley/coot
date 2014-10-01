@@ -4,6 +4,7 @@
 #include <GraphMol/ForceFieldHelpers/MMFF/AtomTyper.h>
 #include <GraphMol/ForceFieldHelpers/MMFF/Builder.h>
 #include <ForceField/ForceField.h>
+#include <ForceField/MMFF/BondStretch.h>
 
 #include <boost/python.hpp>
 using namespace boost::python;
@@ -56,7 +57,26 @@ coot::mogulify(const RDKit::ROMol &mol) {
 void coot::mmff_stuff(RDKit::ROMol &mol_in) {
 
    RDKit::MMFF::MMFFMolProperties *mmffMolProperties = new RDKit::MMFF::MMFFMolProperties(mol_in);
-   ForceFields::ForceField *field = new ForceFields::ForceField();
+   if (! mmffMolProperties->isValid()) {
+      std::cout << "invalid properties " << std::endl;
+   } else {
+      // happy path
+      ForceFields::MMFF::MMFFBondCollection *mmff_bonds =
+	 ForceFields::MMFF::MMFFBondCollection::getMMFFBond();
+      RDKit::ROMol::BondIterator bondIt;
+      for (bondIt=mol_in.beginBonds(); bondIt!=mol_in.endBonds(); bondIt++) {
+	 unsigned int idx1 = (*bondIt)->getBeginAtomIdx();
+	 unsigned int idx2 = (*bondIt)->getEndAtomIdx();
+	 unsigned int iAtomType = mmffMolProperties->getMMFFAtomType(idx1);
+	 unsigned int jAtomType = mmffMolProperties->getMMFFAtomType(idx2);
+	 unsigned int bondType = mmffMolProperties->getMMFFBondType(*bondIt);
+	 const ForceFields::MMFF::MMFFBond *mmffBondParams = (*mmff_bonds)(bondType, iAtomType, jAtomType);
+	 double r0 = ForceFields::MMFF::Utils::calcBondRestLength(mmffBondParams);
+	 double kb = ForceFields::MMFF::Utils::calcBondForceConstant(mmffBondParams);
+	 std::cout << idx1 << " " << idx2 << " r0: " << r0 << " " << kb*0.004 << std::endl;
+      }
+   }
+   
 } 
 
 
@@ -215,9 +235,6 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
       RDKit::Bond *bond_2 = r->getBondBetweenAtoms(at_c.get()->getIdx(), at_o2.get()->getIdx());
       RDKit::Bond *bond_3 = r->getBondBetweenAtoms(at_h.get()->getIdx(), at_o2.get()->getIdx());
 
-      std::cout << "debug at_h " << at_h << std::endl;
-      std::cout << "debug at_h.get() " << at_h.get() << std::endl;
-
       if (bond_1) {
 	 if (bond_2) {
 	 std::cout << "found bond 1 and bond 2  " << bond_1 << std::endl;
@@ -226,25 +243,16 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
 	 }
       }
 
-      std::cout << "done bond type setting " << std::endl;
-      
       at_o2->setFormalCharge(-1);
-      std::cout << "done formal charge setting " << std::endl;
       if (bond_3)
 	 r->removeBond(at_o2.get()->getIdx(), at_h.get()->getIdx());
       else
 	 std::cout << "no bond_3 found!" << std::endl;
-      std::cout << "done remove bond_3" << std::endl;
-      
       r->removeAtom(at_h.get());
-      std::cout << "done remove atom " << std::endl;
-
    }
 
    // do we neet to sanitize? Yes, we do because we go on to minimize this molecule
-   std::cout << "sanitizing r... " << std::endl;
    RDKit::MolOps::sanitizeMol(*r);
-   std::cout << "done sanitizing r... " << std::endl;
    
    RDKit::ROMol *ro_mol = new RDKit::ROMol(*r);
    if (0)

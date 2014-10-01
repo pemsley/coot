@@ -76,7 +76,9 @@ public:
 bool bonds_vec_sorter(const std::pair<energy_type_key_t, std::vector<bond_dist_info_t> > &k1,
 		      const std::pair<energy_type_key_t, std::vector<bond_dist_info_t> > &k2) {
 
-   return (k1.second.size() < k2.second.size());
+
+   return (k1.second.size() < k2.second.size()); // sort by counts
+
 }
 
 bool bonds_vec_k_sorter(const std::pair<energy_type_key_t, std::vector<bond_dist_info_t> > &k1,
