@@ -3,6 +3,10 @@
 
 ---- 
 
+   o compile a coot without python
+
+   o compile a coot without guile-gtk
+
      o Coot crashes on using the About dialog
 
    Mark Saper on a Mac (no guile-gtk):
