@@ -1852,8 +1852,9 @@ graphics_info_t::printString_internal(const std::string &s,
       // better text with these 3 lines?
 
       // Not for me, there are missing fragments of the text when I
-      // enable them.  Consider another user-settable
-      // parameter/function: set_use_smooth_stroke_characters()
+      // enable them (looks like stippling).  Consider another
+      // user-settable parameter/function:
+      // set_use_smooth_stroke_characters()
       //
       if (0) { 
 	 glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
