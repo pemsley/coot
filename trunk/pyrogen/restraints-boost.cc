@@ -1,12 +1,6 @@
 
 #include <GraphMol/GraphMol.h>
 
-#include <GraphMol/ForceFieldHelpers/MMFF/AtomTyper.h>
-#include <GraphMol/ForceFieldHelpers/MMFF/Builder.h>
-#include <ForceField/ForceField.h>
-#include <ForceField/MMFF/BondStretch.h>
-#include <ForceField/MMFF/AngleBend.h>
-
 #include <boost/python.hpp>
 using namespace boost::python;
 
@@ -18,80 +12,9 @@ using namespace boost::python;
 #include "py-restraints.hh"
 #include "restraints-private.hh" // for bond-order conversion
 
+#include "mmff-restraints.hh"
+
 namespace coot {
-
-   // this uses atom indices
-   class mmff_bond_restraint_info_t {
-   public:
-      mmff_bond_restraint_info_t() { sigma = -1;}
-      mmff_bond_restraint_info_t(unsigned int idx_1_in,
-				 unsigned int idx_2_in,
-				 const std::string &type_in,
-				 const double bl,
-				 const double sigma_in) {
-	 idx_1 = idx_1_in;
-	 idx_2 = idx_2_in;
-	 type = type_in;
-	 resting_bond_length = bl;
-	 sigma = sigma_in;
-      }
-      unsigned int idx_1;
-      unsigned int idx_2;
-      std::string type;
-      double resting_bond_length;
-      double sigma; // pseudo sigma based on K_{bond}
-      unsigned int get_idx_1() const { return idx_1; } 
-      unsigned int get_idx_2() const { return idx_2; }
-      std::string get_type() const { return type; }
-      double get_resting_bond_length() const { return resting_bond_length; }
-      double get_sigma() const { return sigma; } 
-   };
-
-   // this uses atom indices
-   class mmff_angle_restraint_info_t {
-   public:
-      mmff_angle_restraint_info_t() { sigma = -1;}
-      mmff_angle_restraint_info_t(unsigned int idx_1_in,
-				  unsigned int idx_2_in,
-				  unsigned int idx_3_in,
-				  const double angle,
-				  const double sigma_in) {
-	 idx_1 = idx_1_in;
-	 idx_2 = idx_2_in;
-	 idx_3 = idx_3_in;
-	 resting_angle = angle;
-	 sigma = sigma_in;
-      }
-      unsigned int idx_1;
-      unsigned int idx_2;
-      unsigned int idx_3;
-      double resting_angle;
-      double sigma; // pseudo sigma based on K_{angle}
-      unsigned int get_idx_1() const { return idx_1; } 
-      unsigned int get_idx_2() const { return idx_2; }
-      unsigned int get_idx_3() const { return idx_3; }
-      double get_resting_angle() const { return resting_angle; }
-      double get_sigma() const { return sigma; } 
-   };
-
-
-   class mmff_b_a_restraints_container_t {
-   public:
-      std::vector<mmff_bond_restraint_info_t>  bonds;
-      std::vector<mmff_angle_restraint_info_t> angles;
-      mmff_b_a_restraints_container_t() { }
-      unsigned int bonds_size() const { return bonds.size(); }
-      unsigned int angles_size() const { return angles.size(); }
-
-      // these will crash if you feed them an out-of-bounds index
-      mmff_bond_restraint_info_t get_bond(const unsigned int i) {
-	 return bonds[i];
-      } 
-      mmff_angle_restraint_info_t get_angle(const unsigned int i) {
-	 return angles[i];
-      }
-      
-   };
 
    RDKit::ROMol *regularize(RDKit::ROMol &r);
    RDKit::ROMol *regularize_with_dict(RDKit::ROMol &r,
@@ -104,7 +27,9 @@ namespace coot {
 					  const std::string &comp_id);
    RDKit::ROMol *hydrogen_transformations(const RDKit::ROMol &r);
    RDKit::ROMol *mogulify(const RDKit::ROMol &r);
-   mmff_b_a_restraints_container_t *mmff_bonds_and_angles(RDKit::ROMol &mol_in);
+
+   // delete 
+   // mmff_b_a_restraints_container_t *mmff_bonds_and_angles(RDKit::ROMol &mol_in);
 
 }
 
@@ -150,8 +75,6 @@ BOOST_PYTHON_MODULE(libpyrogen_boost) {
       .def("get_bond",    &coot::mmff_b_a_restraints_container_t::get_bond)
       .def("get_angle",   &coot::mmff_b_a_restraints_container_t::get_angle)
       ;
-
-
 }
 
 
@@ -164,103 +87,6 @@ coot::mogulify(const RDKit::ROMol &mol) {
    return ro;
 }
 
-coot::mmff_b_a_restraints_container_t *
-coot::mmff_bonds_and_angles(RDKit::ROMol &mol) {
-
-   mmff_b_a_restraints_container_t *r = new mmff_b_a_restraints_container_t;
-
-   RDKit::MMFF::MMFFMolProperties *mmffMolProperties = new RDKit::MMFF::MMFFMolProperties(mol);
-   if (! mmffMolProperties->isValid()) {
-      std::cout << "invalid properties " << std::endl;
-   } else {
-      // happy path
-
-      // iterate over bonds - simple
-      // 
-      ForceFields::MMFF::MMFFBondCollection *mmff_bonds =
-	 ForceFields::MMFF::MMFFBondCollection::getMMFFBond();
-      RDKit::ROMol::BondIterator bondIt;
-      for (bondIt=mol.beginBonds(); bondIt!=mol.endBonds(); bondIt++) {
-	 unsigned int idx_1 = (*bondIt)->getBeginAtomIdx();
-	 unsigned int idx_2 = (*bondIt)->getEndAtomIdx();
-	 unsigned int iAtomType_1 = mmffMolProperties->getMMFFAtomType(idx_1);
-	 unsigned int iAtomType_2 = mmffMolProperties->getMMFFAtomType(idx_2);
-	 unsigned int bondType  = mmffMolProperties->getMMFFBondType(*bondIt);
-	 const ForceFields::MMFF::MMFFBond *mmffBondParams =
-	    (*mmff_bonds)(bondType, iAtomType_1, iAtomType_2);
-	 if (mmffBondParams) { 
-	    double r0 = ForceFields::MMFF::Utils::calcBondRestLength(mmffBondParams);
-	    double kb = ForceFields::MMFF::Utils::calcBondForceConstant(mmffBondParams);
-	    double sigma = 0.04/sqrt(kb);
-	    std::string order = convert_to_energy_lib_bond_type((*bondIt)->getBondType());
-	    mmff_bond_restraint_info_t br(idx_1, idx_2, order, r0, sigma);
-	    r->bonds.push_back(br);
-	 }
-      }
-
-      
-      // iterate over angles
-      // 
-      ForceFields::MMFF::MMFFAngleCollection *mmff_angles =
-	 ForceFields::MMFF::MMFFAngleCollection::getMMFFAngle();
-      unsigned int n_atoms = mol.getNumAtoms();
-      std::map<unsigned long long, bool> done_angle;
-      for (unsigned int iat_1=0; iat_1<n_atoms; iat_1++) { 
-	 RDKit::ATOM_SPTR at_1 = mol[iat_1];
-	 RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
-	 boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_1);
-	 while(nbr_idx_1 != end_nbrs_1){
-	    const RDKit::ATOM_SPTR at_2 = mol[*nbr_idx_1];
-
-	    RDKit::ROMol::ADJ_ITER nbr_idx_2, end_nbrs_2;
-	    boost::tie(nbr_idx_2, end_nbrs_2) = mol.getAtomNeighbors(at_2);
-	    while(nbr_idx_2 != end_nbrs_2){
-	       const RDKit::ATOM_SPTR at_3 = mol[*nbr_idx_2];
-	       if (at_3 != at_1) {
-
-		  unsigned int idx_1 = at_1->getIdx();
-		  unsigned int idx_2 = at_2->getIdx();
-		  unsigned int idx_3 = at_3->getIdx();
-
-		  unsigned int m = 10000;
-		  unsigned long long angle_key_1 = idx_1 * m * m + idx_2 * m + idx_3;
-		  unsigned long long angle_key_2 = idx_3 * m * m + idx_2 * m + idx_1;
-
-		  if (done_angle.find(angle_key_1) == done_angle.end() &&
-		      done_angle.find(angle_key_2) == done_angle.end()) {
-
-		     done_angle[m] = true;
-
-		     unsigned int iAtomType_1 = mmffMolProperties->getMMFFAtomType(idx_1);
-		     unsigned int iAtomType_2 = mmffMolProperties->getMMFFAtomType(idx_2);
-		     unsigned int iAtomType_3 = mmffMolProperties->getMMFFAtomType(idx_3);
-
-		     unsigned int angle_type =
-			mmffMolProperties->getMMFFAngleType(mol, idx_1, idx_2, idx_3);
-
- 		     const ForceFields::MMFF::MMFFAngle *mmffAngleParams =
- 			(*mmff_angles)(angle_type, iAtomType_1, iAtomType_2, iAtomType_3);
-		     
-		     if (mmffAngleParams) {
-			double a = ForceFields::MMFF::Utils::calcAngleRestValue(mmffAngleParams);
-			double k = ForceFields::MMFF::Utils::calcAngleForceConstant(mmffAngleParams);
-			double esd = 3.0/sqrt(k);
-			if (0)
-			   std::cout << idx_1 << " " << idx_2 << " " << idx_3 << "    "
-				     << a << " " << k << std::endl;
-			mmff_angle_restraint_info_t angle(idx_1, idx_2, idx_3, a, esd);
-			r->angles.push_back(angle);
-		     }
-		  }
-	       }
-	       nbr_idx_2++;
-	    }
-	    nbr_idx_1++;
-	 }
-      }
-   }
-   return r;
-}
 
 RDKit::ROMol *
 coot::regularize(RDKit::ROMol &mol_in) {

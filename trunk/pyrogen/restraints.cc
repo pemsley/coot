@@ -79,8 +79,8 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
 
 
    dictionary_residue_restraints_t restraints =
-      mmcif_dict_from_mol_inner(comp_id, compound_name, rdkit_mol_py,
-				quartet_planes, quartet_hydrogen_planes);
+      mmcif_dict_from_mol_using_energy_lib(comp_id, compound_name, rdkit_mol_py,
+					   quartet_planes, quartet_hydrogen_planes);
    restraints.conservatively_replace_with(mogul_restraints);
    restraints.write_cif(mmcif_out_file_name);
 
@@ -173,7 +173,8 @@ coot::mmcif_dict_from_mol(const std::string &comp_id,
 			  bool quartet_planes, bool quartet_hydrogen_planes) {
    
    coot::dictionary_residue_restraints_t restraints =
-      mmcif_dict_from_mol_inner(comp_id, compound_name, rdkit_mol_py, quartet_planes, quartet_hydrogen_planes);
+      mmcif_dict_from_mol_using_energy_lib(comp_id, compound_name, rdkit_mol_py,
+					   quartet_planes, quartet_hydrogen_planes);
    if (restraints.is_filled()) { 
       restraints.write_cif(mmcif_out_file_name);
       return monomer_restraints_to_python(restraints);
@@ -186,10 +187,10 @@ coot::mmcif_dict_from_mol(const std::string &comp_id,
 } 
 
 coot::dictionary_residue_restraints_t
-coot::mmcif_dict_from_mol_inner(const std::string &comp_id,
-				const std::string &compound_name,
-				PyObject *rdkit_mol_py,
-				bool quartet_planes, bool quartet_hydrogen_planes) {
+coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
+					   const std::string &compound_name,
+					   PyObject *rdkit_mol_py,
+					   bool quartet_planes, bool quartet_hydrogen_planes) {
 
    coot::dictionary_residue_restraints_t restraints (comp_id, 1);
    

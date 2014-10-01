@@ -52,7 +52,8 @@ lib_LTLIBRARIES=libcoot_py_restraints.la libpyrogen_boost.la
 
 # this is a bona fide library
 #
-libcoot_py_restraints_la_SOURCES = py-restraints.cc py-restraints.hh restraints-private.hh
+libcoot_py_restraints_la_SOURCES = mmff-restraints.cc mmff-restraints.hh \
+	py-restraints.cc py-restraints.hh restraints-private.hh
 libcoot_py_restraints_la_LIBADD =  $(top_builddir)/geometry/libcoot-geometry.la
 
 # The name of this starts with lib so it fits with boost::python wrapper
