@@ -295,7 +295,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 
    
    for (unsigned int ia=0; ia<angle_mismatches.size(); ia++) {
-      if (angle_mismatches[ia].abs_diff > angle_tolerance) {
+      if (angle_mismatches[ia].abs_diff >= angle_tolerance) {
 
 	 bool at_1_is_hydrogen = false;
 	 bool at_2_is_hydrogen = false;
