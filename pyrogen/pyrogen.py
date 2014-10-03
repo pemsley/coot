@@ -292,6 +292,9 @@ def set_atom_types(mol):
         ('HNH1', '[H][NH1]',    0),
         ('HOH1', '[H][OH1]',    0),
         ('HOH2', '[H][OH2][H]', (0,2)), # H of HOH - water
+        ('HNT3', '[N^3;H3][H]', 1), # NH3+ 
+        ('HNT2', '[N^3;H2][H]', 1), # similar
+        ('HNT1', '[N^3;H1][H]', 1), # similar
         ('H',    '[H]',         0),
         
         # Nitrogen, SP3
