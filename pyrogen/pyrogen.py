@@ -604,21 +604,22 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
 
    if use_mmff:
       AllChem.MMFFOptimizeMolecule(sane_H_mol)
-      ba = pyrogen_boost.mmff_bonds_and_angles(sane_H_mol) # uses _forcefield_ of the molecule 
-      n_bonds = ba.bonds_size()
-      if n_bonds > 0:
-         for i_bond in range(n_bonds):
-            bond = ba.get_bond(i_bond)
-            print bond.get_idx_1(), bond.get_idx_2(), bond.get_type(), \
-                  bond.get_resting_bond_length(), bond.get_sigma()
-      n_angles = ba.angles_size()
-      if n_angles > 0:
-         for i_angle in range(n_angles):
-            angle = ba.get_angle(i_angle)
-            print angle.get_idx_1(), angle.get_idx_2(), angle.get_idx_3(), \
-                  angle.get_resting_angle(), angle.get_sigma()
-         
       
+      if False:  # debugging output
+         ba = pyrogen_boost.mmff_bonds_and_angles(sane_H_mol) # uses _forcefield_ of the molecule
+	 n_bonds = ba.bonds_size()
+	 if n_bonds > 0:
+	    for i_bond in range(n_bonds):
+	       bond = ba.get_bond(i_bond)
+	       print bond.get_idx_1(), bond.get_idx_2(), bond.get_type(), \
+		     bond.get_resting_bond_length(), bond.get_sigma()
+         n_angles = ba.angles_size()
+	 if n_angles > 0:
+	     for i_angle in range(n_angles):
+		 angle = ba.get_angle(i_angle)
+		 print angle.get_idx_1(), angle.get_idx_2(), angle.get_idx_3(), \
+		       angle.get_resting_angle(), angle.get_sigma()
+         
    else:
       AllChem.UFFOptimizeMolecule(sane_H_mol)
 
@@ -674,6 +675,11 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
          except KeyError:
             print "miss", name, atom.GetSymbol(), charge
 
+      #
+      replace_with_mmff_b_a_restraints = False
+      if use_mmff:
+	  replace_with_mmff_b_a_restraints = True
+
       # execute_mogul() tests if mogul is executable
       #
       mogul_state = execute_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name)
@@ -688,14 +694,16 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
                                                           compound_name, sane_H_mol, bor,
 							  mmcif_dict_name,
                                                           quartet_planes,
-							  quartet_hydrogen_planes)
+							  quartet_hydrogen_planes,
+							  replace_with_mmff_b_a_restraints)
          pysw.regularize_and_write_pdb(sane_H_mol, restraints, comp_id, pdb_out_file_name)
 
       else:
 
 	  restraints = pysw.mmcif_dict_from_mol(comp_id, compound_name, sane_H_mol,
 						mmcif_dict_name,
-						quartet_planes, quartet_hydrogen_planes)
+						quartet_planes, quartet_hydrogen_planes,
+						replace_with_mmff_b_a_restraints)
 	  if restraints == None:
 	      print "No restraints"
 	      return True # hacked in value
