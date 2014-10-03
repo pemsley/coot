@@ -9,6 +9,9 @@
 #include "mmff-restraints.hh"
 #include "restraints-private.hh" // for bond-order conversion
 
+// This function can potentially alter the aromaticity of the atoms of mol
+// 
+// caller disposes of returned object
 coot::mmff_b_a_restraints_container_t *
 coot::mmff_bonds_and_angles(RDKit::ROMol &mol) {
 
@@ -106,3 +109,62 @@ coot::mmff_bonds_and_angles(RDKit::ROMol &mol) {
    }
    return r;
 }
+
+// These functions can potentially alter the aromaticity of the atoms of mol
+coot::dictionary_residue_restraints_t
+coot::make_mmff_restraints(RDKit::ROMol &mol) {
+   
+   dictionary_residue_restraints_t r;
+   mmff_b_a_restraints_container_t *mm_info = mmff_bonds_and_angles(mol); // d
+
+   for (unsigned int ibond=0; ibond<mm_info->bonds_size(); ibond++) { 
+      try {
+	 unsigned int idx_1 = mm_info->bonds[ibond].get_idx_1();
+	 unsigned int idx_2 = mm_info->bonds[ibond].get_idx_2();
+	 RDKit::ATOM_SPTR at_p_1 = mol[idx_1];
+	 RDKit::ATOM_SPTR at_p_2 = mol[idx_2];
+	 std::string name_1 = "";
+	 std::string name_2 = "";
+	 at_p_1->getProp("name", name_1);
+	 at_p_2->getProp("name", name_2);
+
+	 dict_bond_restraint_t br(name_1, name_2,
+				  mm_info->bonds[ibond].get_type(),
+				  mm_info->bonds[ibond].get_resting_bond_length(),
+				  mm_info->bonds[ibond].get_sigma());
+	 r.bond_restraint.push_back(br);
+      }
+      catch (const KeyErrorException &kee) {
+	 std::cout << "ERROR:: OOps in make_mmff_restraints(): " << kee.what() << std::endl;
+      }
+   }
+   for (unsigned int iangle=0; iangle<mm_info->angles_size(); iangle++) { 
+      try {
+	 unsigned int idx_1 = mm_info->angles[iangle].get_idx_1();
+	 unsigned int idx_2 = mm_info->angles[iangle].get_idx_2();
+	 unsigned int idx_3 = mm_info->angles[iangle].get_idx_2();
+	 RDKit::ATOM_SPTR at_p_1 = mol[idx_1];
+	 RDKit::ATOM_SPTR at_p_2 = mol[idx_2];
+	 RDKit::ATOM_SPTR at_p_3 = mol[idx_3];
+	 std::string name_1 = "";
+	 std::string name_2 = "";
+	 std::string name_3 = "";
+	 at_p_1->getProp("name", name_1);
+	 at_p_2->getProp("name", name_2);
+	 at_p_3->getProp("name", name_3);
+
+	 dict_angle_restraint_t br(name_1, name_2, name_3,
+				   mm_info->angles[iangle].get_resting_angle(),
+				   mm_info->angles[iangle].get_sigma());
+	 r.angle_restraint.push_back(br);
+      }
+      catch (const KeyErrorException &kee) {
+	 std::cout << "ERROR:: OOps in make_mmff_restraints(): " << kee.what() << std::endl;
+      }
+   }
+   
+
+
+   delete mm_info;
+   return r;
+} 

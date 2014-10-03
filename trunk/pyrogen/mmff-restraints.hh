@@ -79,6 +79,9 @@ namespace coot {
       
    };
 
+   // caller disposes of returned pointer
+   // These functions can potentially alter the aromaticity of the atoms of mol
    mmff_b_a_restraints_container_t * mmff_bonds_and_angles(RDKit::ROMol &mol);
+   dictionary_residue_restraints_t make_mmff_restraints(RDKit::ROMol &mol);
 
 }

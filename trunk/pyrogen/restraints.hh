@@ -50,14 +50,16 @@ namespace coot {
 					    PyObject *rdkit_mol,
 					    PyObject *bond_order_restraints_py,
 					    const std::string &mmcif_out_file_name,
-					    bool quartet_planes, bool quartet_hydrogen_planes);
+					    bool quartet_planes, bool quartet_hydrogen_planes,
+					    bool replace_with_mmff_b_a_restraints=true);
 
    PyObject *
    mmcif_dict_from_mol(const std::string &comp_id,
 		       const std::string &compound_name,
 		       PyObject *rdkit_mol,
 		       const std::string &mmcif_out_file_name,
-		       bool quartet_planes, bool quartet_hydrogen_planes);
+		       bool quartet_planes, bool quartet_hydrogen_planes,
+		       bool replace_with_mmff_b_a_restraints=true);
    
    // which is a wrapper for:
    coot::dictionary_residue_restraints_t
