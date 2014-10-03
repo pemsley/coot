@@ -598,45 +598,17 @@ void setup_application_icon(GtkWindow *window) {
    int status = stat(app_icon_path.c_str(), &buf); 
    if (status == 0) { // icon file was found
 
-#if (GTK_MAJOR_VERSION == 2)
       GdkPixbuf *icon_pixbuf =
-		 gdk_pixbuf_new_from_file (app_icon_path.c_str(), NULL);
+	 gdk_pixbuf_new_from_file (app_icon_path.c_str(), NULL);
       if (icon_pixbuf) {
-		 gtk_window_set_icon (GTK_WINDOW (window), icon_pixbuf);
-		 gdk_pixbuf_unref (icon_pixbuf);
+	 gtk_window_set_icon (GTK_WINDOW (window), icon_pixbuf);
+	 g_object_unref(icon_pixbuf); // - what does this do?  I mean,
+	 // why do I want to unref this pixbuf now? What does
+	 // gtk_window_set_icon() do to the refcount? How do I know
+	 // the refcount on a widget?
       }
-
-
-#else
-      // gtk 1, use:
-      // 
-      // void gdk_window_set_icon(GdkWindow	  *window, 
-      // 				GdkWindow	  *icon_window,
-      // 				GdkPixmap	  *pixmap,
-      // 				GdkBitmap	  *mask);
-
-      // Argh. How do I make a bitmap from a file?  This is just too
-      // hard.  Give up.
-      // GdkBitmap *icon = ...(app_icon_path.c_str());
-      // gtk_window_set_icon(window, window, icon, icon);
-
-
-//       /* load a pixmap from a file */
-//       GdkBitmap *mask;
-//       GtkStyle *style = gtk_widget_get_style( window->default_widget );
-
-//       GdkPixmap *pixmap = gdk_pixmap_create_from_xpm( window, &mask,
-// 						      &style->bg[GTK_STATE_NORMAL],
-// 						      app_icon_path.c_str());
-//       GtkWidget *pixmapwid = gtk_pixmap_new( pixmap, mask );
-//       gtk_widget_show( pixmapwid );
-//       gtk_container_add( GTK_CONTAINER(window), pixmapwid );
-
-      
-#endif
    }
-#if (GTK_MAJOR_VERSION >= 2)
-
+   
    // load svg/png files to antialias icons
    // maybe should go somewhere else?!
    GtkIconSet* iconset;
@@ -680,9 +652,6 @@ void setup_application_icon(GtkWindow *window) {
       }
    }
    globfree(&myglob);
-
-	 
-#endif // GTK
 
 }
 
