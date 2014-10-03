@@ -1242,13 +1242,19 @@ coot_checked_exit(int retval) {
    add_to_history_typed(cmd, args);
    if (i_unsaved == 0) { // no unsaved.
 #ifdef USE_GUILE
+#  ifdef USE_GUILE_GTK      
       run_clear_backups(retval);
+#  else
+#    ifdef USE_PYGTK // MacOSX fink-build path
+        run_clear_backups_py(retval);
+#    endif       
+#  endif       
 #else
-#ifdef USE_PYGTK
+#  ifdef USE_PYGTK
       run_clear_backups_py(retval);
-#else
+#  else
       coot_real_exit(retval);
-#endif // USE_PYGTK
+#  endif // USE_PYGTK
 #endif // USE_GUILE
    }
    return TRUE; // path where there were unsaved changes, we don't
@@ -1258,6 +1264,11 @@ coot_checked_exit(int retval) {
 #ifdef USE_GUILE
 void run_clear_backups(int retval) {
 
+   // just exit if we don't have guile-gtk
+   
+#ifndef USE_GUILE_GTK
+   coot_real_exit(retval);
+#else    
    SCM r = safe_scheme_command("(clear-backups-maybe)");
 
    if (scm_is_undefined(r)) { 
@@ -1277,6 +1288,7 @@ void run_clear_backups(int retval) {
    if (! SCM_NFALSEP(r)) { // backup gui was not needed/shown
       coot_real_exit(retval);
    }
+#endif   
 } 
 #endif
 
