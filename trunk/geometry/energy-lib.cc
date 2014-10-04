@@ -535,21 +535,54 @@ coot::energy_lib_t::get_bond(const std::string &energy_type_1,
    try {
       return get_bond(energy_type_1, energy_type_2, bond_type, false);
    }
-   catch (const std::runtime_error &rte) {
+   catch (const std::runtime_error &rte1) {
       try { 
 	 return get_bond(energy_type_2, energy_type_1, bond_type, false);
       }
-      catch (const std::runtime_error &rte) {
+      catch (const std::runtime_error &rte2) {
 
 	 if (1)
 	    std::cout << "INFO:: falling back to permissive search for bond "
-		      << energy_type_1 << " " << energy_type_2 << std::endl;
-      
+		      << energy_type_1 << " " << energy_type_2 << " "
+		      << bond_type << "\n";
+
+	 coot::energy_lib_bond b1;
+	 coot::energy_lib_bond b2;
 	 try { 
-	    return get_bond(energy_type_1, energy_type_2, bond_type, true);
+	    b1 = get_bond(energy_type_1, energy_type_2, bond_type, true);
 	 }
-	 catch (const std::runtime_error &rte) {
-	    return get_bond(energy_type_2 , energy_type_1, bond_type, true);
+	 catch (const std::runtime_error &rte3) {
+	 }
+	 try { 
+	    b2 = get_bond(energy_type_2, energy_type_1, bond_type, true);
+	 }
+	 catch (const std::runtime_error &rte3) {
+	 }
+
+	 if (b1.filled() && b2.filled()) {
+
+	    double d2 = b1.length * b2.length;
+	    if (d2 < 0) d2 = 0;
+	    double d_harmonic = sqrt(d2);
+	    b1.length = d_harmonic;
+	    b1.esd = 0.02;
+	    return b1;
+	    
+	 } else {
+
+	    // crazy time
+	    
+	    if (b1.filled()) {
+	       return b1;
+	    } else {
+	       if (b2.filled()) {
+		  return b2;
+	       } else {
+		  std::string mess = "No bond found for " + energy_type_1 + " " +
+		     energy_type_2 + " " + bond_type;
+		  throw std::runtime_error(mess);
+	       } 
+	    }
 	 }
       }
    }

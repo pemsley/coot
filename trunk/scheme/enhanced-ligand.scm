@@ -86,6 +86,18 @@
 	     (lambda ()
 	       (toggle-flev-idle-ligand-interactions)))
 
+	    (add-simple-coot-menu-menuitem 
+	     menu "Solid Generic Objects"
+	     (lambda ()
+	       (set-display-generic-objects-as-solid 1)
+	       (graphics-draw)))
+
+	    (add-simple-coot-menu-menuitem 
+	     menu "Unsolid Generic Objects"
+	     (lambda ()
+	       (set-display-generic-objects-as-solid 0)
+	       (graphics-draw)))
+
 	    (add-simple-coot-menu-menuitem
 	     menu "Show Chemical Features"
 	     (lambda () 

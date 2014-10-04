@@ -142,7 +142,7 @@ coot::make_mmff_restraints(RDKit::ROMol &mol) {
       try {
 	 unsigned int idx_1 = mm_info->angles[iangle].get_idx_1();
 	 unsigned int idx_2 = mm_info->angles[iangle].get_idx_2();
-	 unsigned int idx_3 = mm_info->angles[iangle].get_idx_2();
+	 unsigned int idx_3 = mm_info->angles[iangle].get_idx_3();
 	 RDKit::ATOM_SPTR at_p_1 = mol[idx_1];
 	 RDKit::ATOM_SPTR at_p_2 = mol[idx_2];
 	 RDKit::ATOM_SPTR at_p_3 = mol[idx_3];
