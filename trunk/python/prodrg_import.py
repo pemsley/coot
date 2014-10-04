@@ -20,7 +20,7 @@ if not os.getenv("CLIBD"):
         if enhanced_ligand_coot_p():
             # we don't want to know that you can't find old programs
             pass
-        else
+        else:
            print "Sorry, prodrg module not available"
         # should load rest?
         # i.e. stop here?
