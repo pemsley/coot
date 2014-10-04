@@ -217,9 +217,11 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
    int matched_cooh = RDKit::SubstructMatch(mol,*query_cooh,matches_cooh,uniquify,recursionPossible, useChirality);
    int matched_n    = RDKit::SubstructMatch(mol,*query_n,   matches_n,   uniquify,recursionPossible, useChirality);
 
-   if (1)
-      std::cout << "COOH-NH2 hydrogen_transformations(): matches:  num COOH matches: "
-		<< matches_cooh.size() << "  num N matches: " << matches_n.size() << std::endl;
+   if (1) // this is useful info (at the moment at least)
+      std::cout << "Hydrogen_transformations:"
+		<< "\n    number of COOH matches: " << matches_cooh.size()
+		<< "\n    number of NH2  matches: " << matches_n.size()
+		<< "\n";
 
    for (unsigned int imatch_cooh=0; imatch_cooh<matches_cooh.size(); imatch_cooh++) {
       std::cout << "INFO:: hydrogen exchanges matches_cooh: ";
@@ -244,8 +246,11 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
 
       if (bond_1) {
 	 if (bond_2) {
-	 // bond_1->setBondType(RDKit::Bond::ONEANDAHALF);
-	 // bond_2->setBondType(RDKit::Bond::ONEANDAHALF);
+	    // We can't do this because molecule then fails the Oxygen
+	    // atom valence test in sanitization.
+	    // 
+	    // bond_1->setBondType(RDKit::Bond::ONEANDAHALF);
+	    // bond_2->setBondType(RDKit::Bond::ONEANDAHALF);
 	 }
       }
 
@@ -255,6 +260,29 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
       else
 	 std::cout << "no bond_3 found!" << std::endl;
       r->removeAtom(at_h.get());
+   }
+
+   for (unsigned int imatch_n=0; imatch_n<matches_n.size(); imatch_n++) {
+      unsigned int n_idx = matches_n[imatch_n][0].second;
+      RDKit::ATOM_SPTR at_n  = (*r)[n_idx];
+      at_n->setFormalCharge(+1);
+
+      // add a hydrogen atom and a bond to the nitrogen.
+      // 
+      RDKit::Atom *new_h_at = new RDKit::Atom(1);
+      // we want to find the idx of this added H, so we do that by
+      // keeping hold of the pointer (otherwise the atom gets copied
+      // on addAtom() and we lose the handle on the new H atom in the
+      // molecule).
+      bool updateLabel=true;
+      bool takeOwnership=true;
+      r->addAtom(new_h_at, updateLabel, takeOwnership);
+      int h_idx = new_h_at->getIdx();
+      if (h_idx != n_idx) { 
+	 r->addBond(n_idx, h_idx, RDKit::Bond::SINGLE);
+      } else {
+	 std::cout << "OOOPs: bad indexing on adding an amine H " << h_idx << std::endl;
+      } 
    }
 
    // do we neet to sanitize? Yes, we do because we go on to minimize this molecule

@@ -54,6 +54,9 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
    coot::dictionary_residue_restraints_t bond_order_restraints = 
       monomer_restraints_from_python(bond_order_restraints_py);
 
+   // std::cout << "in mogul_out_to_mmcif_dict_by_mol() " << std::endl;
+   // debug_rdkit_molecule(&mol);
+
    mogul mogul(mogul_file_name);
    std::vector<std::string> atom_names;
    unsigned int n_atoms_all = mol.getNumAtoms();
@@ -84,11 +87,6 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
 			    n_atoms_non_hydrogen,
 			    bond_order_restraints);
 
-   std::cout << "---------- here in mogul_out_to_mmcif_dict_by_mol() "
-	     << "with replace_with_mmff_b_a_restraints "
-	     << replace_with_mmff_b_a_restraints
-	     << std::endl;
-
    if (replace_with_mmff_b_a_restraints) {
       
       RDKit::ROMol mol_for_mmff(mol);
@@ -99,23 +97,7 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
       restraints = mmcif_dict_from_mol_using_energy_lib(comp_id, compound_name, rdkit_mol_py,
 							quartet_planes, quartet_hydrogen_planes);
 
-      for (unsigned int i=0; i<restraints.bond_restraint.size(); i++) { 
-	 std::cout << "Here e     " << i << " " << restraints.bond_restraint[i] << std::endl;
-      }
-      std::cout  << std::endl;
-      
-      for (unsigned int i=0; i<mmff_restraints.bond_restraint.size(); i++) { 
-	 std::cout << "Here m     " << i << " " << mmff_restraints.bond_restraint[i] << std::endl;
-      }
-      std::cout  << std::endl;
-
-      for (unsigned int i=0; i<mogul_restraints.bond_restraint.size(); i++) { 
-	 std::cout << "Here mogul " << i << " " << mogul_restraints.bond_restraint[i] << std::endl;
-      }
-      std::cout  << std::endl;
-      
       restraints.conservatively_replace_with( mmff_restraints);
-      
       restraints.conservatively_replace_with(mogul_restraints);
 
    } else {
@@ -125,25 +107,14 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
       dictionary_residue_restraints_t energy_lib_restraints =
 	 mmcif_dict_from_mol_using_energy_lib(comp_id, compound_name, rdkit_mol_py,
 					      quartet_planes, quartet_hydrogen_planes);
-      for (unsigned int i=0; i<restraints.bond_restraint.size(); i++) { 
-	 std::cout << "Here e     " << i << " " << restraints.bond_restraint[i] << std::endl;
-      }
-      std::cout  << std::endl;
-      
-      for (unsigned int i=0; i<mogul_restraints.bond_restraint.size(); i++) { 
-	 std::cout << "Here mogul " << i << " " << mogul_restraints.bond_restraint[i] << std::endl;
-      }
+      int n_angles = restraints.angle_restraint.size();
+      if (n_angles > 10) n_angles = 10;
       
       restraints = energy_lib_restraints;
       restraints.conservatively_replace_with(mogul_restraints);
 
    }
 
-   for (unsigned int i=0; i<mogul_restraints.bond_restraint.size(); i++) { 
-      std::cout << "Here o     " << i << " " << restraints.bond_restraint[i] << std::endl;
-   }
-   std::cout  << std::endl;
-   
    restraints.write_cif(mmcif_out_file_name);
 
    if (0) { // testing.
@@ -236,39 +207,17 @@ coot::mmcif_dict_from_mol(const std::string &comp_id,
 			  bool quartet_planes, bool quartet_hydrogen_planes,
 			  bool replace_with_mmff_b_a_restraints) {
 
-   std::cout << "---------- here in mmcif_dict_from_mol() "
-	     << "with replace_with_mmff_b_a_restraints "
-	     << replace_with_mmff_b_a_restraints
-	     << std::endl;
-   
    coot::dictionary_residue_restraints_t restraints =
       mmcif_dict_from_mol_using_energy_lib(comp_id, compound_name, rdkit_mol_py,
 					   quartet_planes, quartet_hydrogen_planes);
-   for (unsigned int i=0; i<restraints.bond_restraint.size(); i++) { 
-      std::cout << "Here 1 " << i << " " << restraints.bond_restraint[i] << std::endl;
-   }
-   std::cout  << std::endl;
-
    if (replace_with_mmff_b_a_restraints) {
       RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
       RDKit::ROMol mol_for_mmff(mol);
       // bonds and angles 
       dictionary_residue_restraints_t mmff_restraints = make_mmff_restraints(mol_for_mmff);
-
-      for (unsigned int i=0; i<mmff_restraints.bond_restraint.size(); i++) { 
-	 std::cout << "Here m " << i << " " << mmff_restraints.bond_restraint[i] << std::endl;
-      }
-      std::cout  << std::endl;
-      
       restraints.conservatively_replace_with(mmff_restraints);
    } 
    if (restraints.is_filled()) {
-
-      for (unsigned int i=0; i<restraints.bond_restraint.size(); i++) { 
-	 std::cout << "Here o " << i << " " << restraints.bond_restraint[i] << std::endl;
-      }
-      std::cout  << std::endl;
-      
       restraints.write_cif(mmcif_out_file_name);
       return monomer_restraints_to_python(restraints);
    } else {

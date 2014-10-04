@@ -624,8 +624,6 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
    else:
       AllChem.UFFOptimizeMolecule(sane_H_mol)
 
-   # print >>file('uffed.mol','w+'),Chem.MolToMolBlock(sane_H_mol)
-   
    atom_names = add_atom_names(sane_H_mol)
 
    sane_H_mol.SetProp('comp_id', comp_id)

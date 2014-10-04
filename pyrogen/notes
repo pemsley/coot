@@ -2,8 +2,12 @@
 
 ---
 
-   The fallback bond lookup should average the permissive bonds (if it
-   can) - except if it's a bond to a hydrogen. 
+pyrogen -n -M -o DB00225 drugbank/DB00225.smiles
+
+---
+
+   The fallback bond lookup should harmonic average the permissive
+   bonds (if it can) - except if it's a bond to a hydrogen. 
 
 ---
 

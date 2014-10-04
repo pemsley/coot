@@ -1308,6 +1308,9 @@ namespace coot {
 	    }
 	 }
 	 return r;
+      }
+      bool filled() const {
+	 return (type != "unset");
       } 
       friend std::ostream& operator<<(std::ostream &s, const energy_lib_bond &bond);
    };
