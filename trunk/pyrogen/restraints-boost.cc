@@ -31,6 +31,9 @@ namespace coot {
    // delete 
    // mmff_b_a_restraints_container_t *mmff_bonds_and_angles(RDKit::ROMol &mol_in);
 
+   // fiddle with mol
+   void delocalize_guanidinos(RDKit::RWMol *mol);
+   
 }
 
 
@@ -204,7 +207,7 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
    RDKit::RWMol *r = new RDKit::RWMol(mol);
    
    RDKit::ROMol *query_cooh = RDKit::SmartsToMol("[C^2](=O)O[H]");
-   RDKit::ROMol *query_n = RDKit::SmartsToMol("[N^3;H2]");
+   RDKit::ROMol *query_n    = RDKit::SmartsToMol("[N^3;H2]");
    std::vector<RDKit::MatchVectType>  matches_cooh;
    std::vector<RDKit::MatchVectType>  matches_n;
    bool recursionPossible = true;
@@ -240,21 +243,28 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
       RDKit::ATOM_SPTR at_o2 = (*r)[matches_cooh[imatch_cooh][2].second];
       RDKit::ATOM_SPTR at_h  = (*r)[matches_cooh[imatch_cooh][3].second];
 
+      at_c->setProp( "atom_type", "C");
+      at_o1->setProp("atom_type", "OC");
+      at_o2->setProp("atom_type", "OC");
+
       RDKit::Bond *bond_1 = r->getBondBetweenAtoms(at_c.get()->getIdx(), at_o1.get()->getIdx());
       RDKit::Bond *bond_2 = r->getBondBetweenAtoms(at_c.get()->getIdx(), at_o2.get()->getIdx());
       RDKit::Bond *bond_3 = r->getBondBetweenAtoms(at_h.get()->getIdx(), at_o2.get()->getIdx());
 
       if (bond_1) {
 	 if (bond_2) {
-	    // We can't do this because molecule then fails the Oxygen
-	    // atom valence test in sanitization.
+	    
+	    // We can't make the bonds deloc in combination with a
+	    // setting of the formal charge on the at_o2 because
+	    // molecule then fails the Oxygen atom valence test in
+	    // sanitization.
 	    // 
-	    // bond_1->setBondType(RDKit::Bond::ONEANDAHALF);
-	    // bond_2->setBondType(RDKit::Bond::ONEANDAHALF);
+	    bond_1->setBondType(RDKit::Bond::ONEANDAHALF);
+	    bond_2->setBondType(RDKit::Bond::ONEANDAHALF);
 	 }
       }
 
-      at_o2->setFormalCharge(-1);
+      // at_o2->setFormalCharge(-1); // not if the bonds are deloc/ONEANDAHALF.
       if (bond_3)
 	 r->removeBond(at_o2.get()->getIdx(), at_h.get()->getIdx());
       else
@@ -266,6 +276,7 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
       unsigned int n_idx = matches_n[imatch_n][0].second;
       RDKit::ATOM_SPTR at_n  = (*r)[n_idx];
       at_n->setFormalCharge(+1);
+      at_n->setProp("atom_type", "NT3"); // also set to NT3 by SMARTS match in pyrogen.py
 
       // add a hydrogen atom and a bond to the nitrogen.
       // 
@@ -285,8 +296,11 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
       } 
    }
 
+
    // do we neet to sanitize? Yes, we do because we go on to minimize this molecule
    RDKit::MolOps::sanitizeMol(*r);
+
+   // delocalize_guanidinos(r); // bleugh
    
    RDKit::ROMol *ro_mol = new RDKit::ROMol(*r);
    if (0)
@@ -294,4 +308,57 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
    delete r;
    return ro_mol;
 
+}
+
+void
+coot::delocalize_guanidinos(RDKit::RWMol *mol) {
+
+   RDKit::ROMol *query = RDKit::SmartsToMol("N[C^2](=N)N");
+   std::vector<RDKit::MatchVectType>  matches;
+   bool recursionPossible = true;
+   bool useChirality = true;
+   bool uniquify = true;
+
+   // Note that we get the atom indexing using mol, but we change the
+   // molecule r (I hope that the atoms are equivalently indexed).
+   
+   int matched = RDKit::SubstructMatch(*mol,*query,matches,uniquify,recursionPossible, useChirality);
+
+   if (1) // this is useful info (at the moment at least)
+      std::cout << "delocalize guanidinos:" << matches.size() << "\n";
+
+   for (unsigned int imatch=0; imatch<matches.size(); imatch++) {
+      std::cout << "INFO:: guanidino hydrogen exchanges matches: ";
+      for (unsigned int i=0; i<matches[imatch].size(); i++) { 
+	 std::cout << " [" <<  matches[imatch][i].first 
+		   << ": "  << matches[imatch][i].second
+		   << "]";
+      }
+      std::cout << std::endl;
+   }
+
+   
+   for (unsigned int imatch=0; imatch<matches.size(); imatch++) {
+
+      RDKit::ATOM_SPTR at_n1  = (*mol)[matches[imatch][0].second];
+      RDKit::ATOM_SPTR at_c   = (*mol)[matches[imatch][1].second];
+      RDKit::ATOM_SPTR at_n2  = (*mol)[matches[imatch][2].second];
+      RDKit::ATOM_SPTR at_n3  = (*mol)[matches[imatch][3].second];
+
+      std::cout << "INFO:: " << at_c->getHybridization() << std::endl;
+
+      RDKit::Bond *bond_1 = mol->getBondBetweenAtoms(at_c.get()->getIdx(), at_n2.get()->getIdx());
+      RDKit::Bond *bond_2 = mol->getBondBetweenAtoms(at_c.get()->getIdx(), at_n3.get()->getIdx());
+      
+      std::cout << "INFO:: " << at_c->getHybridization() << std::endl;
+      
+      if (bond_1) {
+	 if (bond_2) {
+	    bond_1->setBondType(RDKit::Bond::ONEANDAHALF);
+	    bond_2->setBondType(RDKit::Bond::ONEANDAHALF);	    
+	 }
+      }
+   }
+
+   
 }

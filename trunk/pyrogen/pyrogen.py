@@ -169,6 +169,8 @@ def make_restraints_for_bond_orders(mol):
 
 # match_atom_index can be of type int or a list - otherwise trouble.
 #
+# Note that atom_type properties can also have been set in hydrogen_transformations():
+#
 def set_atom_type(match, match_atom_index, mol, atom_type):
     # print "   trying to set ", match_atom_index, " of ", match
     try:
@@ -213,7 +215,8 @@ def set_atom_types(mol):
         ('OP',  'O~P',   0),
         ('OS',  'O~S',   0),
         ('OB',  'O~B',   0),
-        ('OC',  '*C(=O)[OH]', (2,3)), # carboxylate
+        ('OC',  '*C(=O)[OH]', (2,3)), # carboxylic acid
+        ('OC',  '*C(=O)O',    (2,3)), # carboxylate, doesn't match deloc bonds
         ('OH1', '[OH1]', 0), # alcohol
         ('O2',  "[oX2;H0]", 0), # ring oxygen
         ('O',   'O=*',   0), # carbonyl oxygen
@@ -598,6 +601,7 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
    if do_hydrogen_atoms_shift:
       # simple sane pH H-exchanges
       sane_H_mol = pyrogen_boost.hydrogen_transformations(m_H)
+      print >>file('sane_H.mol','w+'),Chem.MolToMolBlock(sane_H_mol)
    else:
       sane_H_mol = m_H
  
