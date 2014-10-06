@@ -1,7 +1,13 @@
  
  0.8.1
 
----- 
+----
+
+   o jiggle fit leaves behind atoms that have zero occupancy? 
+     e.g. jiggle-fit the acedrg output of Acedrg on I79.cif in 3rvb
+
+   o jiggle fit should use a map that has masked out density for
+     neighbour residues.
 
    o compile a coot without python
 
@@ -23,6 +29,8 @@
     (save-state)
 
    Mark Saper
+
+   o Torsion fit this residue pyrogen-I79.pdb in 3rvb
 
    o Check this ligand
 

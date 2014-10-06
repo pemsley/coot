@@ -310,6 +310,7 @@ def set_atom_types(mol):
         ('NR66', 'c12aaaan1aaaa2', 5), # (second) 66 atom is an N.
         ('NR56', 'c12aaaan1aaa2',  5), # (second) 56 atom is an N.
         ('NR55', 'c12aaan1aaa2',   4), # (second) 55 atom is an N.
+        ('NC2',  '[NX3;H2^2]', 0),     # N of sp2 NH2 (as in ARG).
         ('NH2',  '[NX3^2][CX3^2]=[N^2;X3+]', (0,2)), # amidinium (charged)... 
         ('NR15', '[nr5;X3;H1]',    0),
         ('NR5',  '[nr5;X3;H0]',    0),
