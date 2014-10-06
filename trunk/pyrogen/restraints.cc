@@ -1145,13 +1145,14 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
    typedef std::pair<std::string, double> d_pat;
 
    std::vector<d_pat> patterns;
-   patterns.push_back(d_pat("*C(=O)[O;H]",                 0.02));  // ASP
+   patterns.push_back(d_pat("*C(=O)[O;H]",                 0.02));  // ASP carboxylate, valence model (H)
+   patterns.push_back(d_pat("*[C;X3;^2](~O)~[O;X1]",       0.02));  // ASP carboxylate, no H
    patterns.push_back(d_pat("AC(=O)[N^2;H2,H1]([H])[A,H]", 0.02));  // ASN
    patterns.push_back(d_pat("*C(=N)[N^2;H2]([H])[A,H]",    0.02));  // amidine
    patterns.push_back(d_pat("CNC(=[NH])N([H])[H]",         0.02));  // guanidinium with H - testing
    patterns.push_back(d_pat("CNC(=[NH])N",                 0.02));  // guanidinium sans Hs
 
-   // Martin's pattern, these should be weaker though, I think
+   // Martin's pattern, these should be weaker (than standard 0.02) though, I think
    patterns.push_back(d_pat("[*^2]=[*^2]-[*^2]=[*;X1;^2]", 0.04));
    patterns.push_back(d_pat("[a^2]:[a^2]-[*^2]=[*;X1;^2]", 0.04));
    
