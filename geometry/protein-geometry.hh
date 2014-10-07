@@ -1272,10 +1272,12 @@ namespace coot {
       float spring_constant; // for energetics
       float length;
       float esd;
+      bool needed_permissive;
       energy_lib_bond() {
 	 type = "unset";
 	 length = 0;
 	 esd = 0;
+	 needed_permissive = false;
       }
       energy_lib_bond(const std::string &atom_type_1_in,
 		      const std::string &atom_type_2_in,
@@ -1289,6 +1291,7 @@ namespace coot {
 	 spring_constant = spring_constant_in;
 	 length = length_in;
 	 esd = esd_in;
+	 needed_permissive = false;
       }
       // Order-dependent.  Call twice - or more.
       bool matches(const std::string &type_1, const std::string &type_2,
@@ -1311,6 +1314,9 @@ namespace coot {
       }
       bool filled() const {
 	 return (type != "unset");
+      }
+      void set_needed_permissive() {
+	 needed_permissive = true;
       } 
       friend std::ostream& operator<<(std::ostream &s, const energy_lib_bond &bond);
    };
