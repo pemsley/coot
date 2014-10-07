@@ -205,6 +205,8 @@ RDKit::ROMol *
 coot::hydrogen_transformations(const RDKit::ROMol &mol) {
 
    RDKit::RWMol *r = new RDKit::RWMol(mol);
+
+   // debug_rdkit_molecule(r);
    
    RDKit::ROMol *query_cooh = RDKit::SmartsToMol("[C^2](=O)O[H]");
    RDKit::ROMol *query_n    = RDKit::SmartsToMol("[N^3;H2]");
@@ -300,7 +302,7 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
    // do we neet to sanitize? Yes, we do because we go on to minimize this molecule
    RDKit::MolOps::sanitizeMol(*r);
 
-   // delocalize_guanidinos(r); // bleugh
+   // delocalize_guanidinos(r); // not yet.
    
    RDKit::ROMol *ro_mol = new RDKit::ROMol(*r);
    if (0)
@@ -325,7 +327,7 @@ coot::delocalize_guanidinos(RDKit::RWMol *mol) {
    int matched = RDKit::SubstructMatch(*mol,*query,matches,uniquify,recursionPossible, useChirality);
 
    if (1) // this is useful info (at the moment at least)
-      std::cout << "delocalize guanidinos:" << matches.size() << "\n";
+      std::cout << "   delocalize guanidinos matches: " << matches.size() << "\n";
 
    for (unsigned int imatch=0; imatch<matches.size(); imatch++) {
       std::cout << "INFO:: guanidino hydrogen exchanges matches: ";
@@ -345,17 +347,27 @@ coot::delocalize_guanidinos(RDKit::RWMol *mol) {
       RDKit::ATOM_SPTR at_n2  = (*mol)[matches[imatch][2].second];
       RDKit::ATOM_SPTR at_n3  = (*mol)[matches[imatch][3].second];
 
-      std::cout << "INFO:: " << at_c->getHybridization() << std::endl;
+      std::cout << "INFO:: C hybridisation " << at_c->getHybridization() << std::endl;
 
-      RDKit::Bond *bond_1 = mol->getBondBetweenAtoms(at_c.get()->getIdx(), at_n2.get()->getIdx());
-      RDKit::Bond *bond_2 = mol->getBondBetweenAtoms(at_c.get()->getIdx(), at_n3.get()->getIdx());
+      RDKit::Bond *bond_1 = mol->getBondBetweenAtoms(at_c.get()->getIdx(), at_n1.get()->getIdx());
+      RDKit::Bond *bond_2 = mol->getBondBetweenAtoms(at_c.get()->getIdx(), at_n2.get()->getIdx());
+      RDKit::Bond *bond_3 = mol->getBondBetweenAtoms(at_c.get()->getIdx(), at_n3.get()->getIdx());
       
-      std::cout << "INFO:: " << at_c->getHybridization() << std::endl;
+      std::cout << "INFO:: C hybridisation " << at_c->getHybridization() << std::endl;
       
-      if (bond_1) {
-	 if (bond_2) {
-	    bond_1->setBondType(RDKit::Bond::ONEANDAHALF);
-	    bond_2->setBondType(RDKit::Bond::ONEANDAHALF);	    
+      if (bond_2) {
+	 if (bond_3) {
+	    at_n1->setHybridization(RDKit::Atom::SP2);
+	    at_c->setHybridization(RDKit::Atom::SP2);
+	    bond_2->setBondType(RDKit::Bond::ONEANDAHALF);
+	    bond_3->setBondType(RDKit::Bond::ONEANDAHALF);
+	    std::cout << "deloced bonds 2 and 3" << std::endl;
+	    //
+	    if (bond_1) {
+	       std::cout << "deloced bond 1 " << std::endl;
+	       bond_1->setBondType(RDKit::Bond::ONEANDAHALF);
+	    }
+
 	 }
       }
    }

@@ -28,15 +28,15 @@ namespace coot {
    void update_coords(RDKit::RWMol *mol, int iconf, mmdb::Residue *residue_p);
 
       // alter restraints
-   int assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
+   int assign_chirals(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints);
    // alter restraints
-   void add_chem_comp_atoms(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
+   void add_chem_comp_atoms(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints);
    // alter restraints
-   void add_chem_comp_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints,
+   void add_chem_comp_planes(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints,
 			     bool quartet_planes, bool quartet_hydrogen_planes);
    // alter restraints
    void add_chem_comp_aromatic_planes(const RDKit::ROMol &mol,
-				      coot::dictionary_residue_restraints_t *restraints,
+				      dictionary_residue_restraints_t *restraints,
 				      bool quartet_planes, bool quartet_hydrogen_planes);
    // which calls:
    dict_plane_restraint_t add_chem_comp_aromatic_plane_all_plane(const RDKit::MatchVectType &match,
@@ -46,41 +46,53 @@ namespace coot {
    // and
    // modify restraints
    void add_quartet_hydrogen_planes(const RDKit::ROMol &mol,
-				    coot::dictionary_residue_restraints_t *restraints);
+				    dictionary_residue_restraints_t *restraints);
 
    // and
    //
    // return the number of added planes
    int add_chem_comp_aromatic_plane_quartet_planes(const RDKit::MatchVectType &match,
 						   const RDKit::ROMol &mol,
-						   coot::dictionary_residue_restraints_t *restraints,
+						   dictionary_residue_restraints_t *restraints,
 						   int plane_id_idx);
 
    // alter restraints
-   void add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
+   void add_chem_comp_deloc_planes(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints);
    // alter restraints
-   void add_chem_comp_sp2_N_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
+   void add_chem_comp_sp2_N_planes(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints);
 
 
    // alter restraints
    void fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
-				   const coot::energy_lib_t &energy_lib,
-				   coot::dictionary_residue_restraints_t *restraints);
+				   const energy_lib_t &energy_lib,
+				   dictionary_residue_restraints_t *restraints);
+   // which calls
+   bool add_torsion_to_restraints(dictionary_residue_restraints_t *restraints,
+				  const RDKit::ROMol &mol,
+				  const RDKit::ATOM_SPTR at_1,
+				  const RDKit::ATOM_SPTR at_2,
+				  const RDKit::ATOM_SPTR at_3,
+				  const RDKit::ATOM_SPTR at_4,
+				  unsigned int *tors_no,
+				  unsigned int *const_no,
+				  const energy_lib_t &energy_lib);
+
+
    // alter restraints
    void fill_with_energy_lib_angles(const RDKit::ROMol &mol,
-				    const coot::energy_lib_t &energy_lib,
-				    coot::dictionary_residue_restraints_t *restraints);
+				    const energy_lib_t &energy_lib,
+				    dictionary_residue_restraints_t *restraints);
 
    // alter restraints
    void fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
-				      const coot::energy_lib_t &energy_lib,
-				      coot::dictionary_residue_restraints_t *restraints);
+				      const energy_lib_t &energy_lib,
+				      dictionary_residue_restraints_t *restraints);
 
    std::string convert_to_energy_lib_bond_type(RDKit::Bond::BondType bt);
 
 
-   int assign_chirals_rdkit_tags(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
-   int assign_chirals_mmcif_tags(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints);
+   int assign_chirals_rdkit_tags(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints);
+   int assign_chirals_mmcif_tags(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints);
 
    // Use the pointer to test if the match was successful.
    std::pair<mmdb::Residue *, dictionary_residue_restraints_t>
