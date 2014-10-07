@@ -275,7 +275,7 @@ def set_atom_types(mol):
         ('HCH1', '[H][CH1]',    0),
         ('HCH2', '[H][C;H2^3]', 0),
         ('HCH3', '[H][CH3]',    0),
-        ('HNC1', '[H][NX2;H1;^2]', 0), # H of N of N=C ? 
+        ('HNC1', '[H][N;H1;^2]~C(~N)~N', 0), # H of N of N=C ? 
         ('HNC2', '[H][NX3;H2;^2]', 0), # H on a NC2 (NH1 and NH2 of ARG)
         ('HNC3', '[H][NX3;H3;^2]', 0), # guess - no examples
         ('HNT1', '[H][NX4;H1;^3]', 0),
@@ -305,7 +305,11 @@ def set_atom_types(mol):
         ('NT2', '[NX3;H2;^3]',  0), # different to mon-lib!
         ('NT3', '[NX4;H3;^3]',  0),
         ('NT',  '[NX3;H0;^3]',  0),
-        
+
+
+        # NE-CZ in ARG should be deloc (guandino) - also NC1-C
+        # single (as is in ARG.cif) is not found in ener_lib!
+       
         # Nitrogen, SP2
         ('NR66', 'c12aaaan1aaaa2', 5), # (second) 66 atom is an N.
         ('NR56', 'c12aaaan1aaa2',  5), # (second) 56 atom is an N.
@@ -320,6 +324,8 @@ def set_atom_types(mol):
         ('NR16', '[nr6;H1]',    0),
         ('NRD6', 'a:[nr6;X2;H0]:a',  1), # aromatic N with no H, i.e. one double one single
         ('NR6',  '[nr6]',    0),
+        ('NC1',  '[H][N;H1;^2]~C(~N)~N', 1), 
+        ('NC1',  '[NX3;H1;^2]C(~N)~N', 0), # N, as in NE in ARG
         ('NC1',  '[NX2;H1;^2]', 0),  # N of N=C ? 
         ('NH1',  '[NX3;H1;^2]', 0),
         ('NH2',  '[NX3;H2;^2]', 0),  # sp2, e.g. ND2 of an ASP
@@ -629,16 +635,18 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
    else:
       AllChem.UFFOptimizeMolecule(sane_H_mol)
 
-   atom_names = add_atom_names(sane_H_mol)
+   # AllChem.UFFOptimizeMolecule(sane_H_mol)
 
-   sane_H_mol.SetProp('comp_id', comp_id)
-   sane_H_mol.SetProp('name', compound_name)
-   all_set = set_atom_types(sane_H_mol)
+   atom_names = add_atom_names(sane_H_mol) 
+   all_set = set_atom_types(sane_H_mol)  # has deloc bonds now, potentially
 
    if (all_set != True):
       return False
    else:
 
+      sane_H_mol.SetProp('comp_id', comp_id)
+      sane_H_mol.SetProp('name', compound_name)
+      
       sd_local = file_name_stub + ".sdf"
       sdf_file_name       = os.path.join(mogul_dir, file_name_stub + '-mogul.sdf')
       mogul_ins_file_name = os.path.join(mogul_dir, file_name_stub + '-mogul.ins')
