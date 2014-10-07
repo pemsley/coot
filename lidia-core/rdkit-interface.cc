@@ -2266,15 +2266,21 @@ coot::debug_rdkit_molecule(const RDKit::ROMol *rdkm) {
       }
       catch (const KeyErrorException &err) {
       }
+      catch (...) {
+	 // std::cout << "cannot happen" << std::endl; // yeah, it can (sigh)
+      } 
       int n = at_p->getAtomicNum();
       std::string element = tbl->getElementSymbol(n);
       unsigned int degree = rdkm->getAtomDegree(at_p);
+      RDKit::Atom::HybridizationType ht = at_p->getHybridization();
+      
       int f_c = at_p->getFormalCharge();
       std::cout << "   " << iat << " ele: " << std::setw(2) << std::right << element;
       if (! name.empty())
 	 std::cout << " name :" << name << ":";
       std::cout << " degree: " << degree;
-      std::cout << " formal-charge: " << f_c << std::endl;
+      std::cout << " formal-charge: " << f_c << " ";
+      std::cout << " hybridization: " << ht << std::endl;
    }
 
    int n_bonds = rdkm->getNumBonds();
@@ -2294,6 +2300,7 @@ coot::debug_rdkit_molecule(const RDKit::ROMol *rdkm) {
       }
       catch (const KeyErrorException &err) {
       }
+      catch (...) { }  // grr.
       std::cout << "   " << ib << "th between " << idx_1 << " "
 		<< n_1 << " " << idx_2 << " " << n_2 << " type " 
 		<< bond_p->getBondType() << std::endl;
