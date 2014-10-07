@@ -323,10 +323,10 @@ coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 	       std::string bt = convert_to_energy_lib_bond_type(bond_p->getBondType());
 	       energy_lib_bond bond =
 		  energy_lib.get_bond(atom_type_1, atom_type_2, bt); // add bond type as arg
-	       if (0)
+	       if (0) // or bond.needed_permissive
 		  std::cout << "....... " << atom_name_1 << " " << atom_name_2 << " types \""
 			    << atom_type_1 << "\" \"" << atom_type_2
-			    << "\" got bond " << bond << std::endl;
+			    << "\" got bond " << bond << " with permissive search " << std::endl;
 	       std::string bond_type = bond.type;
 	       dict_bond_restraint_t bondr(atom_name_1, atom_name_2, bond_type, bond.length, bond.esd);
 	       restraints->bond_restraint.push_back(bondr);
