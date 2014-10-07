@@ -721,12 +721,13 @@ coot::dictionary_residue_restraints_t::atom_id_swap(const std::vector< std::pair
       if (alter_idx.size())
 	 pr.set_atom_ids(alter_idx);
    }
-   
-   
 }
 
 
-
+// If include_hydrogen_torsions_flag is set, we check the neighbours
+// of the atom-2 and atom-3 to see if this is really a pure hydrogen
+// torsion.
+// 
 std::vector<coot::dict_torsion_restraint_t>
 coot::dictionary_residue_restraints_t::get_non_const_torsions(bool include_hydrogen_torsions_flag) const {
 
@@ -737,9 +738,52 @@ coot::dictionary_residue_restraints_t::get_non_const_torsions(bool include_hydro
 	    v.push_back(torsion_restraint[i]);
 	 } else {
 	    // only add this torsion if neither of end atoms of the torsion are hydrogen.
-	    if (!is_hydrogen(torsion_restraint[i].atom_id_1()))
-	       if (!is_hydrogen(torsion_restraint[i].atom_id_4()))
+	    if (!is_hydrogen(torsion_restraint[i].atom_id_1())) { 
+	       if (!is_hydrogen(torsion_restraint[i].atom_id_4())) { 
 		  v.push_back(torsion_restraint[i]);
+	       } else {
+
+		  // OK, so atom-4 was a hydrogen in the dictionary,
+		  // but is there an atom attached to atom_id_3 that
+		  // is not a hydrogen and not atom_id_3?  (Is so,
+		  // then this is not a pure hydrogen torsion, and we
+		  // can add it to the list).
+		  //
+
+		  std::vector<std::string> v_n = neighbours(torsion_restraint[i].atom_id_3(), false);
+		  for (unsigned int i_neighb=0; i_neighb<v_n.size(); i_neighb++) { 
+		     if (v_n[i_neighb] != torsion_restraint[i].atom_id_4()) { 
+			if (v_n[i_neighb] != torsion_restraint[i].atom_id_2()) { 
+			   if (v_n[i_neighb] != torsion_restraint[i].atom_id_1()) {
+			      if (! is_hydrogen(v_n[i_neighb])) {
+				 v.push_back(torsion_restraint[i]);
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    } else {
+
+	       // OK, so atom-1 was a hydrogen in the dictionary,
+	       // but is there an atom attached to atom_id_3 that
+	       // is not a hydrogen and not atom_id_3?  (Is so,
+	       // then this is not a pure hydrogen torsion, and we
+	       // can add it to the list).
+	       //
+	       std::vector<std::string> v_n = neighbours(torsion_restraint[i].atom_id_2(), false);
+	       for (unsigned int i_neighb=0; i_neighb<v_n.size(); i_neighb++) { 
+		  if (v_n[i_neighb] != torsion_restraint[i].atom_id_1()) { 
+		     if (v_n[i_neighb] != torsion_restraint[i].atom_id_3()) { 
+			if (v_n[i_neighb] != torsion_restraint[i].atom_id_4()) {
+			   if (! is_hydrogen(v_n[i_neighb])) {
+			      v.push_back(torsion_restraint[i]);
+			   }
+			}
+		     }
+		  }
+	       }
+	    } 
 	 }
       }
    }
