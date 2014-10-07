@@ -446,186 +446,245 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 	 while(nbr_idx_2 != end_nbrs_2){
 	    const RDKit::ATOM_SPTR at_3 = mol[*nbr_idx_2];
 	    if (at_3 != at_1) {
-
+	       
 	       RDKit::ROMol::ADJ_ITER nbr_idx_3, end_nbrs_3;
 	       boost::tie(nbr_idx_3, end_nbrs_3) = mol.getAtomNeighbors(at_3);
-	       while(nbr_idx_3 != end_nbrs_3){
-		  const RDKit::ATOM_SPTR at_4 = mol[*nbr_idx_3];
-		  if (at_4 != at_2 && at_4 != at_1) {
 
-		     // now do something with those indices
+	       // Is there another neighbour of 3 that is not a
+	       // hydrogen?  If so, we prefer that.  If not, we go
+	       // with the hydrogen atom.
 
-		     try {
-			std::string atom_type_1;
-			std::string atom_type_2;
-			std::string atom_type_3;
-			std::string atom_type_4;
-			std::string atom_name_1;
-			std::string atom_name_2;
-			std::string atom_name_3;
-			std::string atom_name_4;
-			at_1->getProp("atom_type", atom_type_1);
-			at_2->getProp("atom_type", atom_type_2);
-			at_3->getProp("atom_type", atom_type_3);
-			at_4->getProp("atom_type", atom_type_4);
-			at_1->getProp("name", atom_name_1);
-			at_2->getProp("name", atom_name_2);
-			at_3->getProp("name", atom_name_3);
-			at_4->getProp("name", atom_name_4);
+	       bool at_4_set = false;
+	       RDKit::ATOM_SPTR at_4 = mol[*nbr_idx_3]; // best so far, (maybe its at_2 though)
+	       if (at_4 != at_2 && at_4 != at_1)
+		  at_4_set = true; // OK, it wasn't.
+	       
+	       while (nbr_idx_3 != end_nbrs_3) {
 
-			// if we have not done this atom-2 <-> atom-3 torsion before...
-			//
-			std::string torsion_key_name_1;
-			std::string torsion_key_name_2;
-			torsion_key_name_1  = atom_name_2;
-			torsion_key_name_1 += "-";
-			torsion_key_name_1 += atom_name_3;
-			
-			torsion_key_name_2  = atom_name_3;
-			torsion_key_name_2 += "-";
-			torsion_key_name_2 += atom_name_2;
-
-			bool done_this_already = true;
-			if (done_torsion.find(torsion_key_name_1) == done_torsion.end() &&
-			    done_torsion.find(torsion_key_name_2) == done_torsion.end())
-			   done_this_already = false;
-
-			if (debug) { 
-			   std::cout << "considering torsion keys \"" << torsion_key_name_1 << "\" and \""
-				     << torsion_key_name_2 << "\"";
-			   if (done_this_already)
-			      std::cout << " done already" << std::endl;
-			   else
-			      std::cout << std::endl;
-			}
-
-			if (! done_this_already) {
-
-			   if (debug) 
-			      std::cout << "torsion-atoms..... "
-					<< at_1->getIdx() << " "
-					<< at_2->getIdx() << " "
-					<< at_3->getIdx() << " "
-					<< at_4->getIdx() << " "
-					<< atom_name_1 << " " 
-					<< atom_name_2 << " " 
-					<< atom_name_3 << " " 
-					<< atom_name_4 << " " 
-					<< std::endl;
-
-			   // some of the time we may try to get a torsion that does not
-			   // correspond to anything in the dictionary (with the given
-			   // atom types).  In that case, we will catch a runtime_error.
-			   // What to do then is not clear to me yet.
-			   // 
-			   try {
-			      if (debug)
-				 std::cout << "trying to get torsion-from-lib for " << atom_type_2
-					   << "---" << atom_type_3 << std::endl;
-			      energy_lib_torsion tors =
-				 energy_lib.get_torsion(atom_type_2, atom_type_3);
-			      
-			      bool is_const = is_const_torsion(mol, at_2.get(), at_3.get());
-
-			      if (debug)
-				 std::cout << "    torsion between a " << atom_type_2 << " and a "
-					   << atom_type_3 << " gave torsion " << tors << "  is_const: "
-					   << is_const << std::endl;
-
-			      if (tors.period != 0) { 
-				 double esd = 20.0;
-				 std::string tors_id;
-				 if (! is_const) { 
-				    tors_id = "var_";
-				    tors_id += util::int_to_string(tors_no);
-				    tors_no++;
-				 } else {
-				    tors_id = "CONST_";
-				    tors_id += util::int_to_string(const_no);
-				    const_no++;
-				 }
-				 dict_torsion_restraint_t torsionr(tors_id,
-								   atom_name_1, atom_name_2,
-								   atom_name_3, atom_name_4,
-								   tors.angle, esd, tors.period);
-				 restraints->torsion_restraint.push_back(torsionr);
-			      }
-			   }
-			   catch (const std::runtime_error &rte) {
-
-			      if (debug)
-				 std::cout << "failed  to get torsion-from-lib for " << atom_type_2
-					   << " to " << atom_type_3 << std::endl;
-			      
-			      // default
-			      double angle = 180;
-			      double esd = 20;
-			      int period = 1;
-			      
-			      bool is_const = is_const_torsion(mol, at_2.get(), at_3.get());
-			      RDKit::Atom::HybridizationType ht_2 = at_2->getHybridization();
-			      RDKit::Atom::HybridizationType ht_3 = at_3->getHybridization();
-
-			      if (ht_2 == RDKit::Atom::SP3 || ht_3 == RDKit::Atom::SP3) {
-				 period = 3;
-				 angle = 60;
-				 if (is_const) esd = 2;
-			      }
-
-			      if ((ht_2 == RDKit::Atom::SP2 && ht_3 == RDKit::Atom::SP3) ||
-				  (ht_2 == RDKit::Atom::SP3 && ht_3 == RDKit::Atom::SP2)) {
-				 period = 2;
-				 angle = 90;
-				 if (is_const) esd = 2;
-			      }
-
-
-			      if (ht_2 == RDKit::Atom::SP2 && ht_3 == RDKit::Atom::SP2) {
-				 period = 2;
-				 if (is_const) esd = 2;
-			      } 
-
-			      if (ht_2 == RDKit::Atom::SP || ht_3 == RDKit::Atom::SP) {
-				 is_const = 1;
-				 esd = 2;
-			      }
-
-			      std::string tors_id("var_");
-			      if (is_const) {
-				 tors_id="CONST_";
-				 tors_id+=util::int_to_string(const_no);
-				 const_no++;
-			      } else {
-				 tors_id+=util::int_to_string(tors_no);
-				 tors_no++;
-			      }
-
-			      dict_torsion_restraint_t torsionr(tors_id,
-								atom_name_1, atom_name_2,
-								atom_name_3, atom_name_4,
-								angle, esd, period);
-			      if (debug)
-				 std::cout << "fallback pushback::" << torsionr << std::endl;
-			      restraints->torsion_restraint.push_back(torsionr);
-			      
-			   } 
-			   done_torsion[torsion_key_name_1] = true;
-			   done_torsion[torsion_key_name_2] = true;
-			}
-		     }
-		     catch (const KeyErrorException &kee) {
-			std::cout << "WARNING:: caugh KeyErrorException in fill_with_energy_lib_angles() "
-				  << std::endl;
+		  const RDKit::ATOM_SPTR at_4_trial = mol[*nbr_idx_3];
+		  if (at_4_trial != at_2 && at_4_trial != at_1) {
+		     if (at_4_trial->getAtomicNum() != 1) {
+			// anything not hydrogen is good enough.
+			at_4 = at_4_trial;
+			at_4_set = true;
+			break;
 		     }
 		  }
-		  ++nbr_idx_3;
+		  ++nbr_idx_3++;
 	       }
+
+	       if (at_4_set) {
+		  
+		  try { 
+
+		     std::string atom_name_2;
+		     std::string atom_name_3;
+		     at_2->getProp("name", atom_name_2);
+		     at_3->getProp("name", atom_name_3);
+
+		     // if we have not done this atom-2 <-> atom-3 torsion before...
+		     //
+		     std::string torsion_key_name_23;
+		     std::string torsion_key_name_32;
+		     torsion_key_name_23  = atom_name_2;
+		     torsion_key_name_23 += "-";
+		     torsion_key_name_23 += atom_name_3;
+			
+		     torsion_key_name_32  = atom_name_3;
+		     torsion_key_name_32 += "-";
+		     torsion_key_name_32 += atom_name_2;
+
+		     bool done_this_already = true;
+		     if (done_torsion.find(torsion_key_name_23) == done_torsion.end() &&
+			 done_torsion.find(torsion_key_name_32) == done_torsion.end())
+			done_this_already = false;
+
+		     if (debug) { 
+			std::cout << "considering torsion keys \"" << torsion_key_name_23 << "\" and \""
+				  << torsion_key_name_32 << "\"";
+			if (done_this_already)
+			   std::cout << " done already" << std::endl;
+			else
+			   std::cout << std::endl;
+		     }
+
+		     if (! done_this_already) {
+
+			bool success = add_torsion_to_restraints(restraints, mol,
+								 at_1, at_2, at_3, at_4,
+								 &tors_no, &const_no,
+								 energy_lib);
+			   
+			if (success) {
+			   done_torsion[torsion_key_name_23] = true;
+			   done_torsion[torsion_key_name_32] = true;
+			}
+		     }
+		  }
+		  catch (const KeyErrorException &kee) {
+		     std::cout << "WARNING:: caugh KeyErrorException in fill_with_energy_lib_torsions() "
+			       << std::endl;
+		  }
+	       }
+	       
 	    }
 	    ++nbr_idx_2;
 	 }
 	 ++nbr_idx_1;
       }
    }
+}
+
+
+bool
+coot::add_torsion_to_restraints(coot::dictionary_residue_restraints_t *restraints,
+				const RDKit::ROMol &mol,
+				const RDKit::ATOM_SPTR at_1,
+				const RDKit::ATOM_SPTR at_2,
+				const RDKit::ATOM_SPTR at_3,
+				const RDKit::ATOM_SPTR at_4,
+				unsigned int *tors_no,
+				unsigned int *const_no,
+				const coot::energy_lib_t &energy_lib) {
+
+   bool added_state = false;
+   bool debug = false;
+   
+   try {
+      std::string atom_type_1;
+      std::string atom_type_2;
+      std::string atom_type_3;
+      std::string atom_type_4;
+      std::string atom_name_1;
+      std::string atom_name_2;
+      std::string atom_name_3;
+      std::string atom_name_4;
+      at_1->getProp("atom_type", atom_type_1);
+      at_2->getProp("atom_type", atom_type_2);
+      at_3->getProp("atom_type", atom_type_3);
+      at_4->getProp("atom_type", atom_type_4);
+      at_1->getProp("name", atom_name_1);
+      at_2->getProp("name", atom_name_2);
+      at_3->getProp("name", atom_name_3);
+      at_4->getProp("name", atom_name_4);
+
+
+      if (debug) 
+	 std::cout << "torsion-atoms..... ids: "
+		   << at_1->getIdx() << " "
+		   << at_2->getIdx() << " "
+		   << at_3->getIdx() << " "
+		   << at_4->getIdx() << "    names: "
+		   << atom_name_1 << " " 
+		   << atom_name_2 << " " 
+		   << atom_name_3 << " " 
+		   << atom_name_4 << " " 
+		   << std::endl;
+
+      // some of the time we may try to get a torsion that does not
+      // correspond to anything in the dictionary (with the given
+      // atom types).  In that case, we will catch a runtime_error.
+      // What to do then is not clear to me yet.
+      // 
+      try {
+	 if (debug)
+	    std::cout << "trying to get torsion-from-lib for " << atom_type_2
+		      << "---" << atom_type_3 << std::endl;
+	 energy_lib_torsion tors =
+	    energy_lib.get_torsion(atom_type_2, atom_type_3);
+			      
+	 bool is_const = is_const_torsion(mol, at_2.get(), at_3.get());
+
+	 if (debug)
+	    std::cout << "    torsion between a " << atom_type_2 << " and a "
+		      << atom_type_3 << " gave torsion " << tors << "  is_const: "
+		      << is_const << std::endl;
+
+	 if (tors.period != 0) { 
+	    double esd = 20.0;
+	    std::string tors_id;
+	    if (! is_const) { 
+	       tors_id = "var_";
+	       tors_id += util::int_to_string(*tors_no);
+	       (*tors_no)++;
+	    } else {
+	       tors_id = "CONST_";
+	       tors_id += util::int_to_string(*const_no);
+	       (*const_no)++;
+	    }
+	    dict_torsion_restraint_t torsionr(tors_id,
+					      atom_name_1, atom_name_2,
+					      atom_name_3, atom_name_4,
+					      tors.angle, esd, tors.period);
+	    restraints->torsion_restraint.push_back(torsionr);
+	    added_state = true;
+	 }
+      }
+      catch (const std::runtime_error &rte) {
+
+	 if (debug)
+	    std::cout << "failed  to get torsion-from-lib for " << atom_type_2
+		      << " to " << atom_type_3 << std::endl;
+			      
+	 // default
+	 double angle = 180;
+	 double esd = 20;
+	 int period = 1;
+			      
+	 bool is_const = is_const_torsion(mol, at_2.get(), at_3.get());
+	 RDKit::Atom::HybridizationType ht_2 = at_2->getHybridization();
+	 RDKit::Atom::HybridizationType ht_3 = at_3->getHybridization();
+
+	 if (ht_2 == RDKit::Atom::SP3 || ht_3 == RDKit::Atom::SP3) {
+	    period = 3;
+	    angle = 60;
+	    if (is_const) esd = 2;
+	 }
+
+	 if ((ht_2 == RDKit::Atom::SP2 && ht_3 == RDKit::Atom::SP3) ||
+	     (ht_2 == RDKit::Atom::SP3 && ht_3 == RDKit::Atom::SP2)) {
+	    period = 2;
+	    angle = 90;
+	    if (is_const) esd = 2;
+	 }
+
+
+	 if (ht_2 == RDKit::Atom::SP2 && ht_3 == RDKit::Atom::SP2) {
+	    period = 2;
+	    if (is_const) esd = 2;
+	 } 
+
+	 if (ht_2 == RDKit::Atom::SP || ht_3 == RDKit::Atom::SP) {
+	    is_const = 1;
+	    esd = 2;
+	 }
+
+	 std::string tors_id("var_");
+	 if (is_const) {
+	    tors_id="CONST_";
+	    tors_id+=util::int_to_string(*const_no);
+	    (*const_no)++;
+	 } else {
+	    tors_id+=util::int_to_string(*tors_no);
+	    (*tors_no)++;
+	 }
+
+	 dict_torsion_restraint_t torsionr(tors_id,
+					   atom_name_1, atom_name_2,
+					   atom_name_3, atom_name_4,
+					   angle, esd, period);
+	 if (debug)
+	    std::cout << "fallback pushback::" << torsionr << std::endl;
+	 restraints->torsion_restraint.push_back(torsionr);
+	 added_state = true;
+			      
+      }
+   }
+   catch (const KeyErrorException &kee) {
+      std::cout << "WARNING:: caugh KeyErrorException in fill_with_energy_lib_torsions() "
+		<< std::endl;
+   }
+   return added_state;
 }
 
 
