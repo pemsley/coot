@@ -566,6 +566,7 @@ coot::energy_lib_t::get_bond(const std::string &energy_type_1,
 	    double d_harmonic = sqrt(d2);
 	    b1.length = d_harmonic;
 	    b1.esd = 0.02;
+	    b1.set_needed_permissive();
 	    return b1;
 	    
 	 } else {
@@ -573,9 +574,11 @@ coot::energy_lib_t::get_bond(const std::string &energy_type_1,
 	    // crazy time
 	    
 	    if (b1.filled()) {
+	       b1.set_needed_permissive();
 	       return b1;
 	    } else {
 	       if (b2.filled()) {
+		  b2.set_needed_permissive();
 		  return b2;
 	       } else {
 		  std::string mess = "No bond found for " + energy_type_1 + " " +
