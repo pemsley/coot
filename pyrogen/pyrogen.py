@@ -172,13 +172,10 @@ def make_restraints_for_bond_orders(mol):
 # Note that atom_type properties can also have been set in hydrogen_transformations():
 #
 def set_atom_type(match, match_atom_index, mol, atom_type):
-    # print "   trying to set ", match_atom_index, " of ", match
     try:
         this_atom = match[match_atom_index]
-        # print "   this_atom:", this_atom
         try:
             current_type = mol.GetAtomWithIdx(this_atom).GetProp("atom_type")
-            # print "   oops - atom ", mol.GetAtomWithIdx(this_atom).GetProp("name"), " already has type ", current_type
         except KeyError:
             mol.GetAtomWithIdx(this_atom).SetProp("atom_type", atom_type)
             name = mol.GetAtomWithIdx(this_atom).GetProp("name")
@@ -790,6 +787,8 @@ if __name__ == "__main__":
                       help='Don\'t run CSD Mogul to update bond and angle restraints')
     parser.add_option("-N", '--name', dest='compound_name', default=False,
 		      help='Compound name')
+    parser.add_option('-S', '--smiles', dest="show_smiles",
+                      default=False, action="store_true")
     parser.add_option("-t", "--tautomers", dest="show_tautomers",
 		      default=False, action="store_true",
                       help='Show SMILES for tautomers, don\'t generate restraints')
@@ -839,8 +838,7 @@ if __name__ == "__main__":
              exit(1)
           checked_mkdir(options.mogul_dir)
 
-
-    if options.show_tautomers:
+    if options.show_tautomers or options.show_smiles:
 	mol = False
 	if len(args) > 0:
 	    smi_raw = args[0]
@@ -858,7 +856,11 @@ if __name__ == "__main__":
 			score_and_print_tautomers(mol_local, type, options.output_postfix, options.drawing)
 
 	if mol:
-	    score_and_print_tautomers(mol, comp_id, options.output_postfix, options.drawing)
+           if options.show_tautomers:
+              score_and_print_tautomers(mol, comp_id, options.output_postfix, options.drawing)
+           if options.show_smiles:
+              s = Chem.MolToSmiles(mol);
+              print s
 
     else:
 
