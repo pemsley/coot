@@ -53,8 +53,8 @@ def execute_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name):
    if f: 
       # print 'now run mogul using ins file %s' % mogul_ins_file_name
       if run_mogul:
-          call(['mogul', '-ins', mogul_ins_file_name])
-          return True
+          state = call(['mogul', '-ins', mogul_ins_file_name])
+	  return (state == 0)
       else:
           return False
    else:
@@ -399,7 +399,7 @@ def set_atom_types(mol):
 # return True if mogul is not run or mogul exe is in place.
 # return False if mogul is expected but not found.
 def test_for_mogul():
-   if (run_mogul):
+   if run_mogul:
       mogol_exe = which('mogul')
       if (mogol_exe == None):
          print "mogul not found in path"
@@ -709,15 +709,26 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
 
       else:
 
-	  restraints = pysw.mmcif_dict_from_mol(comp_id, compound_name, sane_H_mol,
-						mmcif_dict_name,
-						quartet_planes, quartet_hydrogen_planes,
-						replace_with_mmff_b_a_restraints)
-	  if restraints == None:
-	      print "No restraints"
-	      return True # hacked in value
+	  # mogul failed or was not in the path:
 	  
-	  pysw.write_pdb_from_mol(sane_H_mol, comp_id, pdb_out_file_name)
+	  if run_mogul == False:  
+
+	      # ... but that's OK if we told pyrogen to run without mogul
+	      
+	      restraints = pysw.mmcif_dict_from_mol(comp_id, compound_name, sane_H_mol,
+						    mmcif_dict_name,
+						    quartet_planes, quartet_hydrogen_planes,
+						    replace_with_mmff_b_a_restraints)
+	      if restraints == None:
+		  print "No restraints"
+		  return True # hacked in value
+
+	      pysw.write_pdb_from_mol(sane_H_mol, comp_id, pdb_out_file_name)
+
+	  else:
+	      # ... but not if we wanted to use mogul.
+	      # (We get here if there is a licence error for mogul)
+	      exit(1)
 	  
       return sane_H_mol
 
