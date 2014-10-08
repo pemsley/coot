@@ -3467,6 +3467,7 @@ if [ $clear_up_type != "" ] ; then
    else
       slim_dir=$(dirname $install_top_dir)/coot-${OS}-${systype}-gtk2
    fi
+   echo post-install slim... >&2
    post_install_slim $install_top_dir $slim_dir $clear_up_type 
 fi
 
@@ -3476,6 +3477,7 @@ if [ -e $LOGS/$build_type-test-status ] ; then
 fi
 # run test
 echo running tests...
+echo running tests... >&2
 if [ "$ENABLE_GUILE_COOT" = "yes" ] ; then 
     test_coot > $LOGS/$build_type-test.log 2>&1
     r=$?
@@ -3493,6 +3495,7 @@ gtk2=-gtk2
 if ( [ $r = 0 ] && [ $rp = 0 ] ); then
    echo ========================
    echo '   ' first coot test passed
+   echo '   ' first coot test passed >&2
    echo ========----============
    echo pass-test > $LOGS/$build_type-test-status
    if test "$do_nightlies" = "1" ; then 
@@ -3529,6 +3532,7 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
             if [ $test2_status = 0 ] ; then
                echo ========================
                echo second coot test passed
+               echo second coot test passed >&2
                echo ========================
                echo pass-2nd-test > $LOGS/$build_type-test-status
 
@@ -3551,6 +3555,7 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
                cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/PRE-RELEASE-NOTES
 
 	       echo about to publish files:
+	       echo about to publish files: >&2
 
 	       # only copy over the binary files if they are not there
 	       # already (checked by publish executable).
@@ -3592,6 +3597,7 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
 else
    echo ========================
    echo '  ' first coot test failed
+   echo '  ' first coot test failed >&2
    echo ========================
    echo greg test status: $r
    echo python test status: $rp
@@ -3611,3 +3617,5 @@ $publish_logs $LOGS
 
 
 echo finished.
+echo finished.>&2
+
