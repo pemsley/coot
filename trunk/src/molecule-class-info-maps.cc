@@ -3156,7 +3156,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 	       }
 	    }
 
-	    replace_coords(asc_ligand, bool(0), bool(0));
+	    replace_coords(asc_ligand, false, true);
 	    have_unsaved_changes_flag = 1; 
 	    make_bonds_type_checked();
 	 } else {
