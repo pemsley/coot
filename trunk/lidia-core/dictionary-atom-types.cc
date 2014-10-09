@@ -34,6 +34,7 @@ int find_string_in_vector(const std::vector<std::pair<std::string, unsigned int>
 int main(int argc, char **argv) {
 
    int r = 0;
+   bool debug = false;
 
    coot::protein_geometry geom;
    geom.set_verbose(false);
@@ -46,7 +47,7 @@ int main(int argc, char **argv) {
    }
 
 
-   if (1)
+   if (debug)
       std::cout << "Examining the atoms in the " << geom.size() << " entries."<< std::endl;
 
    // key: refmac enerygy type
@@ -116,37 +117,126 @@ int main(int argc, char **argv) {
       }
    }
 
-   std::map<std::string, std::vector<std::pair<std::string, unsigned int> > >::iterator itv;
-   for (itv=atom_map.begin(); itv!=atom_map.end(); itv++) {
-      std::sort(itv->second.begin(), itv->second.end(), string_int_pair_sorter);
-      std::cout << itv->first << "       ";
-      for (unsigned int i=0; i<itv->second.size(); i++) { 
-	 std::cout << "   " << itv->second[i].first  << " " << itv->second[i].second;
+   bool output_atom_map = false;
+   if (output_atom_map) { 
+      std::map<std::string, std::vector<std::pair<std::string, unsigned int> > >::iterator itv;
+      for (itv=atom_map.begin(); itv!=atom_map.end(); itv++) {
+	 std::sort(itv->second.begin(), itv->second.end(), string_int_pair_sorter);
+	 std::cout << itv->first << "       ";
+	 for (unsigned int i=0; i<itv->second.size(); i++) { 
+	    std::cout << "   " << itv->second[i].first  << " " << itv->second[i].second;
+	 }
+	 std::cout << "\n";
       }
-      std::cout << "\n";
    }
 
+   // lightweight - this only tells us which refmac atom types there
+   // are for a given COD atom type.  That's interesting, but not
+   // enough, we need to know the number of ocurrances of that type,
+   // so that we can pick the most popular one! Which gives us
+   // COD-type -> Refmac-Energy-Type
+   //
    // reverse the mapping: the COD type is the key and the data is a
    // vector of refmac energy types (of which should only be one, of
    // course)
 
-   std::map<std::string, std::vector<std::string> > cod_map;
-   std::map<std::string, std::vector<std::string> >::const_iterator it_cod;
-   for (itv=atom_map.begin(); itv!=atom_map.end(); itv++) {
-      for (unsigned int i=0; i<itv->second.size(); i++) {
-	 cod_map[itv->second[i].first].push_back(itv->first);
+   if (0) { 
+      std::map<std::string, std::vector<std::pair<std::string, unsigned int> > >::iterator itv;
+      std::map<std::string, std::vector<std::string> > cod_map;
+      std::map<std::string, std::vector<std::string> >::const_iterator it_cod;
+      for (itv=atom_map.begin(); itv!=atom_map.end(); itv++) {
+	 for (unsigned int i=0; i<itv->second.size(); i++) {
+	    cod_map[itv->second[i].first].push_back(itv->first);
+	 }
+      }
+
+      for (it_cod=cod_map.begin(); it_cod!=cod_map.end(); it_cod++) {
+	 if (it_cod->second.size() != 1) {
+	    std::cout << "strange cod: " << std::left << std::setw(20) << it_cod->first << "     ";
+	    for (unsigned int i=0; i<it_cod->second.size(); i++) { 
+	       std::cout << std::setw(5) << it_cod->second[i] << " ";
+	    }
+	    std::cout << "\n";
+	 }
       }
    }
 
-   for (it_cod=cod_map.begin(); it_cod!=cod_map.end(); it_cod++) {
-      if (it_cod->second.size() != 1) {
-	 std::cout << "strange cod: " << std::left << std::setw(20) << it_cod->first << "     ";
-	 for (unsigned int i=0; i<it_cod->second.size(); i++) { 
-	    std::cout << std::setw(5) << it_cod->second[i] << " ";
+   // reverse atom map:
+   // key: COD atom type
+   // data: vector of refmac energy type (type and n occurances)
+   std::map<std::string, std::vector<std::pair<std::string, unsigned int> > > reverse_atom_map;
+
+   if (debug)
+      std::cout << "Reverse atom map " << std::endl;
+
+   for (unsigned int i=0; i<geom.size(); i++) {
+      const coot::dictionary_residue_restraints_t &r = geom.get_monomer_restraints(i);
+
+      const std::string &comp_id = r.residue_info.comp_id;
+      bool idealised_flag = true;
+      mmdb::Manager *mol = geom.mol_from_dictionary(comp_id, idealised_flag);
+
+      if (! mol) {
+	 std::cout << "Null mol from mol_from_dictionary() for " <<  comp_id << std::endl;
+      } else {
+	 
+	 mmdb::Residue *residue_p = coot::util::get_first_residue(mol);
+
+	 if (! residue_p) {
+	    // pretty strange
+	    std::cout << "Null residue from mol from mol_from_dictionary() for "
+		      << comp_id << std::endl;
+	 } else { 
+
+	    try { 
+	       RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, geom);
+	       std::vector<std::string> v = cod::get_cod_atom_types(rdkm);
+	       if (v.size() == r.atom_info.size()) {
+		  for (unsigned int iat=0; iat<r.atom_info.size(); iat++) {
+		     const std::string &te = r.atom_info[iat].type_energy;
+		     const std::string &key = v[iat];
+
+		     it = reverse_atom_map.find(key);
+
+		     if (it == reverse_atom_map.end()) {
+			std::pair<std::string, unsigned int> p(te, 1);
+			reverse_atom_map[key].push_back(p);
+		     } else {
+			// is the type_energy there already?
+			int idx = find_string_in_vector(reverse_atom_map[key], te);
+			if (idx == -1) { // not found
+			   std::pair<std::string, unsigned int> p(te, 1);
+			   reverse_atom_map[key].push_back(p);
+			} else {
+			   reverse_atom_map[key][idx].second++;
+			}
+		     }
+		  }
+	       }
+	    }
+	    catch (const std::runtime_error &rte) {
+	       std::cout << "error:: rte " << rte.what() << " " << comp_id << std::endl;
+	    } 
+	    catch (const std::exception &e) {
+	       std::cout << "error:: exception " << e.what() << " " << comp_id << std::endl;
+	    } 
+	 }
+      }
+   }
+
+   bool output_reverse_atom_map = true;
+   if (output_reverse_atom_map) { 
+      std::map<std::string, std::vector<std::pair<std::string, unsigned int> > >::iterator itv;
+      for (itv=reverse_atom_map.begin(); itv!=reverse_atom_map.end(); itv++) {
+	 std::sort(itv->second.begin(), itv->second.end(), string_int_pair_sorter);
+	 std::cout << "cod type " << std::left << std::setw(20) << itv->first
+		   << "       energy-lib-types: ";
+	 for (unsigned int i=0; i<itv->second.size(); i++) { 
+	    std::cout << "   " << itv->second[i].first  << " " << itv->second[i].second;
 	 }
 	 std::cout << "\n";
       }
-   } 
+   }
    
    return r;
 }
