@@ -382,12 +382,16 @@ def smiles_gui():
       smiles_window.connect("delete_event",delete_event)
 
       smiles_window.show_all()
+      
    # first check that libcheck is available... if not put up and info
    # dialog.
-   if (find_exe(libcheck_exe, "CCP4_BIN", "PATH")):
+   if enhanced_ligand_coot_p():
       smiles_gui_internal()
    else:
-      info_dialog("You need to setup CCP4 (specifically LIBCHECK) first.")
+      if (find_exe(libcheck_exe, "CCP4_BIN", "PATH")):
+         smiles_gui_internal()
+      else:
+         info_dialog("You need to setup CCP4 (specifically LIBCHECK) first.")
       
 
 # Generic single entry widget

@@ -2487,6 +2487,13 @@ def pukka_puckers_qm(imol):
 # Run libcheck to convert from SMILES string
 #
 def new_molecule_by_smiles_string(tlc_text, smiles_text):
+
+    if enhanced_ligand_coot_p():
+        return new_molecule_by_smiles_string_by_pyrogen(tlc_text, smiles_text)
+    else:
+        return new_molecule_by_smiles_string_by_libcheck(tlc_text, smiles_text)
+    
+def new_molecule_by_smiles_string_by_libcheck(tlc_text, smiles_text):
     import shutil
     if len(smiles_text) > 0:
 
@@ -2533,6 +2540,26 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text):
             else:
                 print "OOPs.. libcheck returned exit status", status
 
+def new_molecule_by_smiles_string_by_pyrogen(comp_id, smiles_string):
+
+   if len(comp_id) > 0:
+      if len(smiles_string) > 0:
+         if command_in_path_qm('pyrogen'):
+            stub = comp_id + "-pyrogen-from-coot" 
+            log_file_name = stub + ".log"
+            pdb_file_name = stub + ".pdb"
+            cif_file_name = stub + ".cif"
+            args=['-M', '-n', '-r', comp_id, '-o', 'pyrogen-from-coot', smiles_string]
+            if command_in_path_qm('mogul'):
+               args=['-M', '-r', comp_id, '-o', 'pyrogen-from-coot', smiles_string]
+            status = popen_command('pyrogen', args, [], log_file_name, True)
+            if (status == 0):
+               handle_read_draw_molecule_and_move_molecule_here(pdb_file_name)
+               read_cif_dictionary(cif_file_name)
+         else:
+            print 'Ooops - pyrogen not in path'
+                
+                    
 
 # Generate restraints from the residue at the centre of the screen
 # using PRODRG. Delete hydrogens from the residue because PRODRG has
