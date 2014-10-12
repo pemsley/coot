@@ -2690,12 +2690,18 @@
 
 	    ;; OK, let's run pyrogen
 	    (let ((log-file-name "pyrogen.log"))
+
+	      ;; Embed a test for mogul
+	      ;;
+	      ;; 
 	      (let ((goosh-status
 		     (goosh-command
 		      "pyrogen"
 		      (if *use-mogul* 
 			  (list "--residue-type" tlc-text smiles-text)
-			  (list "--no-mogul" "--residue-type" tlc-text smiles-text))
+			  (if (command-in-path? "mogul")
+			      (list              "--residue-type" tlc-text smiles-text)
+			      (list "--no-mogul" "-M" "--residue-type" tlc-text smiles-text)))
 		      '() log-file-name #t)))
 		(if (ok-goosh-status? goosh-status)
 		    (begin

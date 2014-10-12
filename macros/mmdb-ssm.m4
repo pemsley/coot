@@ -19,39 +19,29 @@
 # 02110-1301, USA
 
 
-AC_DEFUN([AM_WITH_MMDBSSM],
-[AC_PROVIDE([AM_USE_MMDBSSM])
+AC_DEFUN([AM_WITH_SSM],
+[
+AC_PROVIDE([AM_WITH_SSM])
 
-AC_ARG_WITH(ssmlib-prefix, 
-	AC_HELP_STRING( [--with-ssmlib-prefix=PFX], [Prefix where SSMLib has been installed] ),
-	[ with_ssmlib_prefix="$withval" ],
-          with_ssmlib_prefix=)
 
-AC_MSG_CHECKING([for ssm library])
+AC_MSG_CHECKING([for ssm])
 
-if test x$with_ssmlib_prefix != x; then
-
-   if test -r "$with_ssmlib_prefix/include/ssm/ssm_superpose.h"; then
-
-      # AFAICS, ssm does not put its libs in $acl_libdirstem
-      # MMDBSSM_LIBS="-L$with_ssmlib_prefix/$acl_libdirstem -lssm"
-      MMDBSSM_LIBS="-L$with_ssmlib_prefix/lib -lssm"
-      MMDBSSM_CXXFLAGS="-DHAVE_SSMLIB -I$with_ssmlib_prefix/include"
-
-   else 
-      AC_MSG_FAILURE([ --with-ssmlib-prefix specified but include files not found])
-   fi
-  
-else 
-
-   MMDBSSM_CXXFLAGS=""
-   MMDBSSM_LIBS=""
-   with_ssmlib_prefix=no 
-
+if ${PKG_CONFIG} ssm ; then 
+   LIBSSM_CXXFLAGS="$($PKG_CONFIG --cflags ssm)"
+   LIBSSM_LIBS="$($PKG_CONFIG --libs ssm)"
+   coot_found_ssm=yes
+else
+   coot_found_ssm=no
 fi
 
-AC_MSG_RESULT([$with_ssmlib_prefix])
+AC_MSG_RESULT($coot_found_ssm)
 
-AC_SUBST(MMDBSSM_CXXFLAGS)
-AC_SUBST(MMDBSSM_LIBS)
+if test $coot_found_ssm = no ; then
+   AC_MSG_FAILURE([ssm not found])
+fi
+
+AC_SUBST(LIBSSM_CXXFLAGS)
+AC_SUBST(LIBSSM_LIBS)
+
 ])
+

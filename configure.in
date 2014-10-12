@@ -119,9 +119,9 @@ esac
 
 
 dnl Check for MMDB.
-AM_PATH_MMDB(, [echo Error locating necessary mmdb; exit 1],,)
+AM_PATH_MMDB2(, [echo Error locating necessary mmdb; exit 1],,)
 
-AM_WITH_MMDBSSM
+AM_WITH_SSM
 AM_WITH_CCP4SRS
 
 AM_SINGLE_FFTW2
