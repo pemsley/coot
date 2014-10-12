@@ -605,7 +605,7 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
    if do_hydrogen_atoms_shift:
       # simple sane pH H-exchanges
       sane_H_mol = pyrogen_boost.hydrogen_transformations(m_H)
-      print >>file('sane_H.mol','w+'),Chem.MolToMolBlock(sane_H_mol)
+      # print >>file('sane_H.mol','w+'),Chem.MolToMolBlock(sane_H_mol)
    else:
       sane_H_mol = m_H
  
@@ -814,8 +814,8 @@ if __name__ == "__main__":
                       action='store_true', default=False)
     parser.add_option('-v', '--version', dest='show_version', default=False,
                       action='store_true', help='Print version information')
-    parser.add_option('-M', '--testing', dest='use_mmcif', default=False,
-                      action='store_true', help='Testing function')
+    parser.add_option('-M', '--MMFF', dest='use_mmcif', default=False,
+                      action='store_true', help='Use MMFF fallbacks for bonds and angles')
     parser.add_option("-q", "--quiet",
                   action="store_false", dest="verbose", default=True,
                   help="print less messages")
