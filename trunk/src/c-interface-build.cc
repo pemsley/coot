@@ -6784,8 +6784,14 @@ PyObject *chain_id_for_shelxl_residue_number_py(int imol, int resno) {
 /*  ----------------------------------------------------------------------- */
 void do_smiles_gui() {
 
-#if defined USE_GUILE && !defined WINDOWS_MINGW
+#if defined USE_GUILE
+#if defined USE_GUILE_GTK
    safe_scheme_command("(smiles-gui)");
+#else   
+#ifdef USE_PYGTK
+   safe_python_command("smiles_gui()");
+#endif // USE_PYGTK
+#endif // USE_GUILE_GTK
 #else 
 #ifdef USE_PYGTK
    safe_python_command("smiles_gui()");
