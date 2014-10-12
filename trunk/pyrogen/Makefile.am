@@ -23,7 +23,7 @@ pyrogen-swig.cc: $(top_srcdir)/pyrogen/pyrogen-swig.i $(top_srcdir)/pyrogen/rest
 if COOT_USE_PYTHON
 if MAKE_ENHANCED_LIGAND_TOOLS
 
-pyexec_LTLIBRARIES += _pyrogen_swig.la 
+pyexec_LTLIBRARIES += _pyrogen_swig.la libpyrogen_boost.la
 _pyrogen_swig_la_SOURCES = pyrogen-swig.cc restraints.cc restraints.hh
 
 ## _pyrogen_swig_la_CFLAGS = $(PYTHON_CFLAGS) -I$(top_srcdir)/include $(PYTHON_CPPFLAGS) 
@@ -48,7 +48,7 @@ _pyrogen_swig_la_LDFLAGS = -module
 # These get installed in libdir - libpyrogen_boost.la needs to be
 # installed in $(libdir) because now it is a standard libtool library
 # not a pyexec lib.
-lib_LTLIBRARIES=libcoot_py_restraints.la libpyrogen_boost.la
+lib_LTLIBRARIES=libcoot_py_restraints.la
 
 # this is a bona fide library
 #
