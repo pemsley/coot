@@ -194,7 +194,7 @@ INCLUDES = \
         $(GOOCANVAS_CFLAGS)             \
 	@GTK_CFLAGS@ 			\
 	$(GLUT_CFLAGS)			\
-	$(MMDBSSM_CXXFLAGS) 		\
+	$(LIBBSSM_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\
 	$(CCP4SRS_CXXFLAGS) 		\
 	$(GSL_CFLAGS)			\
@@ -459,7 +459,7 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 		$(GUILE_GTK_LIBS)       \
 		$(GUILE_LDFLAGS)	\
 		$(CLIPPER_LIBS) 	\
-		$(MMDBSSM_LIBS)		\
+		$(LIBSSM_LIBS)		\
 		$(MMDB_LIBS)		\
 		$(PYTHON_LIBS)		\
 		$(GLOB_LIBS)		\

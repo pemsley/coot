@@ -57,7 +57,7 @@ INCLUDES = \
 	-I$(top_srcdir)/src     	\
 	$(CLIPPER_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\
-	$(MMDBSSM_CXXFLAGS) 		\
+	$(LIBSSM_CXXFLAGS) 		\
 	$(GLUT_CFLAGS)			\
 	$(CANVAS_CFLAGS) 		\
 	$(GTKGL_CONTEXT_CFLAGS)		\
