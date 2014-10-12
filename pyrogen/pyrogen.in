@@ -13,7 +13,6 @@ else
    prfx=$(readlink -f $(dirname "$current_exe_dir"))
 fi
 
-export PYTHONPATH=$prfx/lib
 export LD_LIBRARY_PATH=$prfx/lib
 export PATH=$prfx/bin:$PATH
 
