@@ -8,7 +8,7 @@
 #
 pyexec_LTLIBRARIES = 
 
-INCLUDES = $(RDKIT_CXXFLAGS) $(PYTHON_CFLAGS) -I$(top_srcdir) -I$(MMDBSSM_CXXFLAGS)
+INCLUDES = $(RDKIT_CXXFLAGS) $(PYTHON_CFLAGS) -I$(top_srcdir)
 
 AM_CXXFLAGS = -DPKGDATADIR='"$(pkgdatadir)"'
 
