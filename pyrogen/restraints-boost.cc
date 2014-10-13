@@ -37,7 +37,8 @@ namespace coot {
 }
 
 
-BOOST_PYTHON_MODULE(libpyrogen_boost) {
+
+BOOST_PYTHON_MODULE(pyrogen_boost) {
    def("regularize",               coot::regularize,               return_value_policy<manage_new_object>());
    def("regularize_with_dict",     coot::regularize_with_dict,     return_value_policy<manage_new_object>());
    def("rdkit_mol_chem_comp_pdbx", coot::rdkit_mol_chem_comp_pdbx, return_value_policy<manage_new_object>());

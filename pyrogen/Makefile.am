@@ -23,7 +23,7 @@ pyrogen-swig.cc: $(top_srcdir)/pyrogen/pyrogen-swig.i $(top_srcdir)/pyrogen/rest
 if COOT_USE_PYTHON
 if MAKE_ENHANCED_LIGAND_TOOLS
 
-pyexec_LTLIBRARIES += _pyrogen_swig.la libpyrogen_boost.la
+pyexec_LTLIBRARIES += _pyrogen_swig.la pyrogen_boost.la
 _pyrogen_swig_la_SOURCES = pyrogen-swig.cc restraints.cc restraints.hh
 
 ## _pyrogen_swig_la_CFLAGS = $(PYTHON_CFLAGS) -I$(top_srcdir)/include $(PYTHON_CPPFLAGS) 
@@ -44,10 +44,11 @@ _pyrogen_swig_la_LIBADD = libcoot_py_restraints.la \
 #
 _pyrogen_swig_la_LDFLAGS = -module -no-undefined 
 
+pyrogen_boost_la_LDFLAGS = -module -no-undefined 
 
-# These get installed in libdir - libpyrogen_boost.la needs to be
-# installed in $(libdir) because now it is a standard libtool library
-# not a pyexec lib.
+
+# These get installed in libdir.
+#
 lib_LTLIBRARIES=libcoot_py_restraints.la
 
 # this is a bona fide library
@@ -61,8 +62,8 @@ libcoot_py_restraints_la_LIBADD =  \
 libcoot_py_restraints_la_LDFLAGS = -no-undefined 
 
 # The name of this starts with lib so it fits with boost::python wrapper
-libpyrogen_boost_la_SOURCES = restraints-boost.cc restraints.hh
-libpyrogen_boost_la_LIBADD = libcoot_py_restraints.la \
+pyrogen_boost_la_SOURCES = restraints-boost.cc restraints.hh
+pyrogen_boost_la_LIBADD = libcoot_py_restraints.la \
                                 $(top_builddir)/ideal/libcoot-ideal.la             \
                                 $(top_builddir)/geometry/libcoot-geometry.la       \
                                 $(top_builddir)/coords/libcoot-coords.la           \
@@ -75,12 +76,18 @@ dist_bin_SCRIPTS = pyrogen
 
 dist_pkgpython_SCRIPTS = pyrogen.py jay_util.py tautomer.py pyrogen_swig.py coot_svn_repo_revision.py
 
-if OS_WIN32
-# Python .pyd modules are simply DLLs, but they have to be called .pyd for
-# python to find them, and libtool only creates .dll.
-install-exec-hook:
-	mv $(pyexecdir)/_pyrogen_swig.dll $(pyexecdir)/_pyrogen_swig.pyd
-endif
+# Something here is broken, I think.
+# on $ bash autogen.sh, I get:
+# pyrogen/Makefile.am:79: OS_WIN32 does not appear in AM_CONDITIONAL
+#
+# if OS_WIN32
+# # Python .pyd modules are simply DLLs, but they have to be called .pyd for
+# # python to find them, and libtool only creates .dll.
+# install-exec-hook:
+# 	mv $(pyexecdir)/_pyrogen_swig.dll $(pyexecdir)/_pyrogen_swig.pyd
+# endif
+
+
 # old
 # pyrogendir=$(pkgdatadir)/python
 

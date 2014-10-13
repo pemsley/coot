@@ -2,6 +2,11 @@
 
 ---
 
+   Try to link with pyrogen CCP4 SRS - so that we can search vs know ligands.
+
+---
+
+
 Caffeine: 'CN1C=NC2=C1C(=O)N(C(=O)N2C)C'
    has plane restraints? 
 
