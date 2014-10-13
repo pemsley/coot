@@ -49,3 +49,6 @@ libcoot_coords_la_LIBADD = \
    $(top_builddir)/utils/libcoot-utils.la            \
    $(RDKIT_LIBS)	        \
    $(MMDB_LIBS)
+
+libcoot_coords_la_LDFLAGS = -no-undefined
+

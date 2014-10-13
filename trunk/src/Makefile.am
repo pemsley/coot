@@ -217,6 +217,7 @@ fix_nomenclature_errors_SOURCES = \
 	coot-nomenclature.hh   \
 	coot-nomenclature.cc
 
+fix_nomenclature_errors_LDFLAGS = $(COOT_WINDOWS_LDFLAGS)
 
 coot_bin_SOURCES = \
 	main.cc 		 \
@@ -448,8 +449,8 @@ fix_nomenclature_errors_LDADD = \
 #        $(RDKIT_LIBS)		
 #        $(L_BOOST_PYTHON)	# also needs PYTHON_LIBS, I guess?
 
-# coot_bin_LDFLAGS = -static -lstdc++
-coot_bin_LDFLAGS =
+# coot_real_LDFLAGS = -static -lstdc++
+coot_bin_LDFLAGS = $(COOT_WINDOWS_LDFLAGS)
 
 # 20101220 Note: when libtool/ltmain.sh is fixed, OPENMP_CFLAGS will
 # not be needed here. So says Justin Lecher (see email).
@@ -542,3 +543,5 @@ density_score_by_residue_real_LDADD  =	\
 	$(CLIPPER_LIBS) 	\
 	$(MMDB_LIBS)		\
 	$(GSL_LIBS)
+
+density_score_by_residue_real_LDFLAGS = $(COOT_WINDOWS_LDFLAGS)

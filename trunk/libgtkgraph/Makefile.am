@@ -11,3 +11,4 @@ libcoot_gtkgraph_la_SOURCES = \
 
 libcoot_gtkgraph_la_LIBADD = $(GTK_LIBS) -lm
 
+libcoot_gtkgraph_la_LDFLAGS = -no-undefined 

@@ -14,6 +14,8 @@ libcoot_AngleInfo_a_sources = AngleInfo.cc AngleInfo.h  \
 
 libcoot_AngleInfo_la_SOURCES = $(libcoot_AngleInfo_a_sources)
 
+libcoot_AngleInfo_la_LDFLAGS = -no-undefined
+
 # needed to get past (some) g++ compilers.  Details forgotten.
 libcoot_AngleInfo_la_CXXFLAGS = -g -O1
 

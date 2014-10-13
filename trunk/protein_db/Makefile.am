@@ -28,6 +28,8 @@ libcoot_protein_db_la_SOURCES=protein_db.cpp  protein_db_utils.cpp rna_db.cpp
 
 libcoot_protein_db_la_LIBADD = $(CLIPPER_LIBS) $(MMDB_LIBS)
 
+libcoot_protein_db_la_LDFLAGS = -no-undefined 
+
 EXTRA_DIST=protein.db
 
 protein_db_datadir=$(pkgdatadir)/protein_db

@@ -6,5 +6,7 @@ pkgincludedir = $(includedir)/coot/compat
 
 libcoot_compat_la_SOURCES = getopt.c getopt1.c
 
+libcoot_compat_la_LDFLAGS = -no-undefined
+
 EXTRA_DIST = coot-sysdep.h sleep-fixups.h
 

@@ -39,6 +39,7 @@ libcoot_high_res_la_LIBADD = \
    $(top_builddir)/ligand/libcoot-ligand.la \
    $(CLIPPER_LIBS) $(MMDB_LIBS)
 
+libcoot_high_res_la_LDFLAGS = -no-undefined 
 
 #check_PROGRAMS = testatomgraph tracehighres testseqalign testseqassignment globularize_protein
 

@@ -38,8 +38,11 @@ libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc rdkit-
 
 libcoot_lidia_core_la_LIBADD =                        \
    $(top_builddir)/geometry/libcoot-geometry.la       \
+   $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
    $(top_builddir)/utils/libcoot-utils.la             \
    $(RDKIT_LIBS)
+
+libcoot_lidia_core_la_LDFLAGS = -no-undefined 
 
 # noinst_PROGRAMS = test-molfile
 
