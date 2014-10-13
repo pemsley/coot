@@ -24,8 +24,10 @@ AC_DEFUN([AM_MINGW_WINDOWS],
 
 AC_MSG_CHECKING([if this is MINGW on Windows])
 
- COOT_WINDOWS_CFLAGS=""
+ COOT_WINDOWS_CFLAGS=
+ COOT_WINDOWS_LDFLAGS=
  have_windows_mingw=no
+ windows=false
 
  # BL: workaround needed for new MinGW
  ac_cv_build_alias=${ac_cv_build_alias:=$build_alias}
@@ -34,12 +36,16 @@ AC_MSG_CHECKING([if this is MINGW on Windows])
 
   *-mingw*)
     COOT_WINDOWS_CFLAGS="-DWINDOWS_MINGW -DUSE_GNOME_CANVAS"
+    COOT_WINDOWS_LDFLAGS=-static
     have_windows_mingw=yes
+    windows=true
     ;;
  esac
 
+AM_CONDITIONAL([OS_WIN32], [test x$windows = xtrue])
 AC_MSG_RESULT([$have_windows_mingw])
 AC_SUBST(COOT_WINDOWS_CFLAGS)
+AC_SUBST(COOT_WINDOWS_LDFLAGS)
 
 ])
 

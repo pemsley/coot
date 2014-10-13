@@ -21,6 +21,8 @@ libcoot_analysis_la_LIBADD = \
    $(MMDB_LIBS)  \
    $(GSL_LIBS)
 
+libcoot_analysis_la_LDFLAGS = -no-undefined
+
 bin_PROGRAMS = bfactan
 
 check_PROGRAMS = test-mogul test-cablam

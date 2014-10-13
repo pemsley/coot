@@ -42,7 +42,7 @@ _pyrogen_swig_la_LIBADD = libcoot_py_restraints.la \
 #
 # _pyrogen_swig_la_LDFLAGS = -avoid-version -module -shared -export-dynamic
 #
-_pyrogen_swig_la_LDFLAGS = -module
+_pyrogen_swig_la_LDFLAGS = -module -no-undefined 
 
 
 # These get installed in libdir - libpyrogen_boost.la needs to be
@@ -54,7 +54,11 @@ lib_LTLIBRARIES=libcoot_py_restraints.la
 #
 libcoot_py_restraints_la_SOURCES = mmff-restraints.cc mmff-restraints.hh \
 	py-restraints.cc py-restraints.hh restraints-private.hh
-libcoot_py_restraints_la_LIBADD =  $(top_builddir)/geometry/libcoot-geometry.la
+libcoot_py_restraints_la_LIBADD =  \
+                                $(top_builddir)/geometry/libcoot-geometry.la \
+                                $(PYTHON_LIBS)
+
+libcoot_py_restraints_la_LDFLAGS = -no-undefined 
 
 # The name of this starts with lib so it fits with boost::python wrapper
 libpyrogen_boost_la_SOURCES = restraints-boost.cc restraints.hh
@@ -65,11 +69,18 @@ libpyrogen_boost_la_LIBADD = libcoot_py_restraints.la \
 			        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
                                 $(RDKIT_LIBS) $(L_BOOST_PYTHON)
 
+libpyrogen_boost_la_LIBDFLAGS = -no-undefined
 
 dist_bin_SCRIPTS = pyrogen
 
 dist_pkgpython_SCRIPTS = pyrogen.py jay_util.py tautomer.py pyrogen_swig.py coot_svn_repo_revision.py
 
+if OS_WIN32
+# Python .pyd modules are simply DLLs, but they have to be called .pyd for
+# python to find them, and libtool only creates .dll.
+install-exec-hook:
+	mv $(pyexecdir)/_pyrogen_swig.dll $(pyexecdir)/_pyrogen_swig.pyd
+endif
 # old
 # pyrogendir=$(pkgdatadir)/python
 

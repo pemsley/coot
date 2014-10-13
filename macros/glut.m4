@@ -85,7 +85,7 @@ if test x$glut_prefix != x ; then
 	   # BL says:: this is for MinGW Windows
 	   # for now we try just with GL_LIBS may have to be GTK_LIBS
 	   # we have freeglut on windows now, so test for this		
-	   if test -e $glut_prefix/GL/include/freeglut.h ; then
+	   if test -e $glut_prefix/include/GL/freeglut.h ; then
 	      GLUT_LDOPTS="-L$glut_prefix/lib -lfreeglut $GL_LIBS"
 	   else
 	      GLUT_LDOPTS="-L$glut_prefix/lib -lglut32 $GL_LIBS"

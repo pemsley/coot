@@ -59,6 +59,8 @@ libcoot_ligand_la_LIBADD = \
    $(top_builddir)/utils/libcoot-utils.la             \
    $(CLIPPER_LIBS) $(MMDB_LIBS)
 
+libcoot_ligand_la_LDFLAGS = -no-undefined 
+
 AM_CXXFLAGS = \
          $(OPENMP_CFLAGS) \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
@@ -179,6 +181,8 @@ findligand_real_LDADD = \
         $(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
+findligand_real_LDFLAGS = $(COOT_WINDOWS_LDFLAGS)
+
 findwaters_real_LDADD = \
 	./libcoot-ligand.la                                \
 	$(top_builddir)/ideal/libcoot-ideal.la             \
@@ -198,6 +202,8 @@ findwaters_real_LDADD = \
         $(GLOB_LIBS) \
         $(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
+
+findwaters_real_LDFLAGS = $(COOT_WINDOWS_LDFLAGS)
 
 #testwlig_LDADD = -L. -lcoot-ligand      \
 #	-L../mini-mol -lcoot-mini-mol    \

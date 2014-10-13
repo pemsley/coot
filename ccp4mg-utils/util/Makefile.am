@@ -36,17 +36,25 @@ libccp4mg_pygl_coord_la_SOURCES = \
 	matrix.cc matrix.h volume.cc volume.h plane.cc plane.h 		\
 	connect.cc connect.h geomutil.cc geomutil.h
 
+libccp4mg_pygl_coord_la_LDFLAGS = -no-undefined
+
 libccp4mg_mginterrupt_la_SOURCES = \
 	mginterrupt.cc mginterrupt.h
 
+libccp4mg_mginterrupt_la_LDFLAGS = -no-undefined
+
 libccp4mg_mgutil_la_SOURCES = \
 	mgutil.cc mgutil.h 
+
+libccp4mg_mgutil_la_LDFLAGS = -no-undefined
 
 libccp4mg_paramsmanager_la_SOURCES = \
 	CParamsManager.cc CParamsManager.h
 
 libccp4mg_redirect_la_SOURCES = \
 	redirect.cc redirect.h
+
+libccp4mg_redirect_la_LDFLAGS = -no-undefined
 
 # must have GUILE and GUILE_GTK flags before $(INCLUDES), and this 
 # does not happen because LTCXXCOMPILE has AM_CXXFLAGS after INCLUDES.

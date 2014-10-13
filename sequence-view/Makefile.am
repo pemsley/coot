@@ -74,6 +74,8 @@ libcoot_sequence_view_la_LIBADD = \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la \
    $(MMDB_LIBS) $(CANVAS_LIBS) $(GTK_LIBS)
 
+libcoot_sequence_view_la_LDFLAGS = -no-undefined 
+
 # bin_PROGRAMS = testsequenceview
 
 # testsequenceview_SOURCES = testsequenceview.cc
