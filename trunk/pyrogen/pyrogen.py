@@ -8,7 +8,7 @@ from rdkit.Chem import AllChem
 
 import coot_svn_repo_revision
 import pyrogen_swig as pysw
-import libpyrogen_boost as pyrogen_boost
+import pyrogen_boost
 
 from optparse import OptionParser
 
