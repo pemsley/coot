@@ -239,19 +239,23 @@ if [ -e $COOT_PREFIX/pending-install ] ; then
 fi
   
 # "Use $@ to stop word splitting" from Ben Eisenbraun.  
-$coot_bin "$@"
-status=$?
-
-if [ $status != 0 ] ; then
-    #./guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_real
-    # $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm .libs/lt-`basename $coot_real`
-    unset PYTHONHOME
-    unset PYTHONPATH
-    unset LD_LIBRARY_PATH
-    # only run the crash catcher if coot was compiled with guile
-    if [ "@COOT_USE_GUILE@" = "-DUSE_GUILE" ] ; then 
-       $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_real $*
-    fi
+if [ "$1" = --check-libs ] ; then 
+   ldd $coot_bin
+else 
+   # normal path
+   $coot_bin "$@"
+   status=$?
+   if [ $status != 0 ] ; then
+      #./guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_real
+      # $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm .libs/lt-`basename $coot_real`
+      unset PYTHONHOME
+      unset PYTHONPATH
+      unset LD_LIBRARY_PATH
+      # only run the crash catcher if coot was compiled with guile
+      if [ "@COOT_USE_GUILE@" = "-DUSE_GUILE" ] ; then 
+         $COOT_PREFIX/bin/guile -s $COOT_PREFIX/share/coot/scheme/coot-crash-catcher.scm $coot_real $*
+      fi
+   fi
+   exit $status
 fi 
-exit $status
 

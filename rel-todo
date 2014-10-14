@@ -3,58 +3,15 @@
 
 ----
 
-   o make check should run cleanly. Add it to build-for-release.
-
    o when you move a licorice model it goes ball-and-stick. Fix.
-
-   o how do I turn off generalization in mogul?
 
    o compile rdkit with inchi support. Test. Write to restriants. 
 
-   CONFIG SEARCH ALL GENERALISATION OFF
-
    o compile a coot without python
-
-   o compile a coot without guile-gtk
-
-     o Coot crashes on using the About dialog
-
-   Mark Saper on a Mac (no guile-gtk):
-
-1. Upon exiting Coot I receive these lines in the terminal output.  The window asking about clearing backups is never shown.
-
-    ...
-    (coot-checked-exit 0)
-    (clear-backups-maybe)
-    ((safe_scheme_command) Error in proc: key:  unbound-variable  args:  (#f Unbound variable: ~S (gtk-window-new) #f))
-    WARNING:: (clear-backups-maybe) returns object: #<unspecified>
-    (stereo-mode-state)
-    (stereo-mode-state)
-    (save-state)
-
-   Mark Saper
 
    o Torsion fit this residue pyrogen-I79.pdb in 3rvb
 
    o Check this ligand
-
-   o dictionary bonds:  I79 Do we have these ones:
-
-INFO:: falling back to permissive search for bond CR56 S2
-INFO:: falling back to permissive search for bond CR6 CL
-INFO:: falling back to permissive search for bond CH2 NR5
-INFO:: falling back to permissive search for bond CR6 NH2
-INFO:: falling back to permissive search for bond CR6 NH2
-INFO:: falling back to permissive search for bond C OC
-INFO:: falling back to permissive search for bond C OC
-INFO:: falling back to permissive search for bond CR5 S2
-INFO:: falling back to permissive search for bond HNC2 NH2
-INFO:: falling back to permissive search for bond HNC2 NH2
-INFO:: falling back to permissive search for bond HNC2 NH2
-INFO:: falling back to permissive search for bond HNC2 NH2
-INFO:: falling back to permissive search for bond HOH1 OC
-
-   o I79 short bonds to H18,H19 from N3
 
    o Try glyco tree builder 528 on 4lxr. 
 
@@ -77,3 +34,60 @@ INFO:: falling back to permissive search for bond HOH1 OC
      e.g. jiggle-fit the acedrg output of Acedrg on I79.cif in 3rvb
 
 * Done.
+
+   o make check should run cleanly. Add it to build-for-release.
+
+* Done
+
+   o compile a coot without guile-gtk
+
+* Done.
+
+   o how do I turn off generalization in mogul?
+
+     CONFIG SEARCH ALL GENERALISATION OFF
+   
+* Done in gui-mogul.scm
+
+
+   o Coot crashes on using the About dialog
+
+* Can't reproduce
+
+   Mark Saper on a Mac (no guile-gtk):
+
+1. Upon exiting Coot I receive these lines in the terminal output.  The window asking about clearing backups is never shown.
+
+    ...
+    (coot-checked-exit 0)
+    (clear-backups-maybe)
+    ((safe_scheme_command) Error in proc: key:  unbound-variable  args:  (#f Unbound variable: ~S (gtk-window-new) #f))
+    WARNING:: (clear-backups-maybe) returns object: #<unspecified>
+    (stereo-mode-state)
+    (stereo-mode-state)
+    (save-state)
+
+   Mark Saper
+
+* Done
+
+   o I79 short bonds to H18,H19 from N3
+
+* Done
+
+   o dictionary bonds:  I79 Do we have these ones:
+
+INFO:: falling back to permissive search for bond CR56 S2
+INFO:: falling back to permissive search for bond CR6 CL
+INFO:: falling back to permissive search for bond CH2 NR5
+INFO:: falling back to permissive search for bond CR6 NH2
+INFO:: falling back to permissive search for bond CR6 NH2
+INFO:: falling back to permissive search for bond C OC
+INFO:: falling back to permissive search for bond C OC
+INFO:: falling back to permissive search for bond CR5 S2
+INFO:: falling back to permissive search for bond HNC2 NH2
+INFO:: falling back to permissive search for bond HNC2 NH2
+INFO:: falling back to permissive search for bond HNC2 NH2
+INFO:: falling back to permissive search for bond HNC2 NH2
+INFO:: falling back to permissive search for bond HOH1 OC
+
