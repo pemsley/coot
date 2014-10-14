@@ -1295,6 +1295,9 @@ Punted from 0.6:
 
    o GLC pyranose 1-4 linked template.
 
+   o jiggle fit should use a map that has masked out density for
+     neighbour residues.  Punt.
+
 
    o column types are not set in mtz file written by mmcif_sfs_to_mtz().
 

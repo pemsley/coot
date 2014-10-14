@@ -7119,7 +7119,8 @@ Sat Jul 19 13:17:01 BST 2014
    longer than the minimum width, it just is wider.
 
    std::setw() before strings
-   std::cout.width() before numbers
+   std::cout.width() before numbers # this is nonsense I now think. Use setw() for both 
+                                      strings and ints
 
 	 // Formatted output:
 	 //
@@ -7206,6 +7207,10 @@ $ wget -O config.sub 'http://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_pl
 watch this vid:
 
 http://www.youtube.com/watch?v=aMSPwFvlICM
+
+---
+
+   how do I write atom names in an sdf file?
 
 
 ------

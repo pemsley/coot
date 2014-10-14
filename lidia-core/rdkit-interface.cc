@@ -934,7 +934,13 @@ coot::mogulify_mol(RDKit::RWMol &mol) {
    // sulfoxide: use a double S=O bond
    
    mogulify_nitro_groups(&mol);
+   
+   // std::cout << "---------------------- before ----------------" << std::endl;
    // debug_rdkit_molecule(&mol);
+   // RDKit::MolOps::Kekulize(mol);
+   // std::cout << "---------------------- after  ----------------" << std::endl;
+   // debug_rdkit_molecule(&mol);
+   
 }
 
 void
@@ -1063,7 +1069,9 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 		  at_p->getProp("_TriposAtomName", name);  // RDKit's version of an atom name from a Mol2 File.
 	       }
 	       catch  (const KeyErrorException &kee) {
-		  std::cout << "no name, _Name or _TriposAtomName for " << at_p << " " << kee.what() << std::endl;
+		  if (0)
+		     std::cout << "no name, _Name or _TriposAtomName for "
+			       << at_p << " " << kee.what() << std::endl;
 	       }
 	    }
 	 } 
@@ -2301,9 +2309,17 @@ coot::debug_rdkit_molecule(const RDKit::ROMol *rdkm) {
       catch (const KeyErrorException &err) {
       }
       catch (...) { }  // grr.
-      std::cout << "   " << ib << "th between " << idx_1 << " "
-		<< n_1 << " " << idx_2 << " " << n_2 << " type " 
-		<< bond_p->getBondType() << std::endl;
+      std::string bond_type;
+      if (bond_p->getBondType() == RDKit::Bond::SINGLE) bond_type = "single";
+      if (bond_p->getBondType() == RDKit::Bond::DOUBLE) bond_type = "double";
+      if (bond_p->getBondType() == RDKit::Bond::TRIPLE) bond_type = "triple";
+      if (bond_p->getBondType() == RDKit::Bond::ONEANDAHALF) bond_type = "one-and-a-half";
+      if (bond_p->getBondType() == RDKit::Bond::AROMATIC) bond_type = "aromatic";
+      
+      std::cout << "  " << std::setw(2) << ib << "th  "
+		<< std::setw(2) << idx_1 << " " << n_1 << " -- "
+		<< std::setw(2) << idx_2 << " " << n_2 << "  type " 
+		<< std::setw(2) << bond_p->getBondType() << " " << bond_type << std::endl;
    }
 }
 

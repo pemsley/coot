@@ -19,6 +19,8 @@
  * 02110-1301, USA
  */
 
+// -------------------------------This doesn't compile - not in make check either -----------
+// heyho.
 
 #include <iostream>
 #include <string>
@@ -31,14 +33,9 @@
 #include <string.h>
 #include <math.h>
 
-#ifndef  __MMDB_MMCIF__
-#include "mmdb_mmcif.h"
-#endif
-  
-
 #include <mmdb2/mmdb_manager.h>
-#include "mmdb-extras.h"
-#include "mmdb.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
 
 #include "test-indexing.hh"
 

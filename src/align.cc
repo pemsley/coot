@@ -25,7 +25,7 @@
 
 #include "coot-utils/coot-coord-utils.hh"
 
-#include <mmdb/mmdb_align.h>
+#include <mmdb2/mmdb_math_align.h>
 #include <mmdb2/mmdb_tables.h>
 
 #include "coords/mmdb-extras.h"
@@ -124,7 +124,7 @@ align_on_chain(mmdb::Chain *chain_p, mmdb::PResidue *SelResidues, int nSelResidu
    std::string model = make_model_string(SelResidues, nSelResidues);
 
 
-   CAlignment align;
+   mmdb::math::Alignment align;
 
    // default values (it seems)
    mmdb::realtype wgap = 0.0;
@@ -212,7 +212,7 @@ std::string make_model_string(mmdb::PResidue *SelResidues, int nSelResidues) {
    for (int i=0; i<nSelResidues; i++) {
       
       this_residue = "X";
-      pstr rn = SelResidues[i]->GetResName();
+      mmdb::pstr rn = SelResidues[i]->GetResName();
       std::string residue_name(rn);
       mmdb::Get1LetterCode(rn, r);
       this_residue = r[0];

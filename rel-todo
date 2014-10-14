@@ -3,11 +3,15 @@
 
 ----
 
-   o jiggle fit leaves behind atoms that have zero occupancy? 
-     e.g. jiggle-fit the acedrg output of Acedrg on I79.cif in 3rvb
+   o make check should run cleanly. Add it to build-for-release.
 
-   o jiggle fit should use a map that has masked out density for
-     neighbour residues.
+   o when you move a licorice model it goes ball-and-stick. Fix.
+
+   o how do I turn off generalization in mogul?
+
+   o compile rdkit with inchi support. Test. Write to restriants. 
+
+   CONFIG SEARCH ALL GENERALISATION OFF
 
    o compile a coot without python
 
@@ -67,5 +71,9 @@ INFO:: falling back to permissive search for bond HOH1 OC
 
    o fix the alerts on importing mol/residue -> 2d
 
------
+* Done
 
+   o jiggle fit leaves behind atoms that have zero occupancy? 
+     e.g. jiggle-fit the acedrg output of Acedrg on I79.cif in 3rvb
+
+* Done.

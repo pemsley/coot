@@ -24,8 +24,8 @@
 
 #include "lbg.hh"
 
-#include "lig-build.hh"
-#include "lbg-molfile.hh"
+#include "lidia-core/lig-build.hh"
+#include "lidia-core/lbg-molfile.hh"
 
 // #include "graphics-c-interface-functions-blanks.cc"
 
