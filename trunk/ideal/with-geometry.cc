@@ -31,7 +31,7 @@
 #include <math.h>
 
 #ifndef  __MMDB_MMCIF__
-#include <mmdb/mmdb_mmcif.h>
+#include <mmdb2/mmdb_utils.h>
 #endif
   
 #include <iostream>

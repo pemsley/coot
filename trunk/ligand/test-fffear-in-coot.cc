@@ -27,10 +27,10 @@
 #endif
 
 #ifdef __GNU_LIBRARY__
-#include "coot-getopt.h"
+#include "compat/coot-getopt.h"
 #else
 #define __GNU_LIBRARY__
-#include "coot-getopt.h"
+#include "compat/coot-getopt.h"
 #undef __GNU_LIBRARY__
 #endif
 
@@ -40,14 +40,14 @@
 
 #include <iostream>
 
-#include "mmdb-extras.h"
-#include "mmdb.h"
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
 #include "ligand.hh"
-#include "coot-utils.hh"
-#include "coot-map-utils.hh"
+#include "utils/coot-utils.hh"
+#include "coot-utils/coot-map-utils.hh"
 #include "clipper/core/map_utils.h"
 #include "clipper/ccp4/ccp4_map_io.h"
-#include "coot-map-heavy.hh"
+#include "coot-utils/coot-map-heavy.hh"
 
 int
 main(int argc, char **argv) {

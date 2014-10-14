@@ -2005,6 +2005,7 @@ else
    needed_gsl_version=1.11
    needed_gsl_version=1.12
    needed_gsl_version=1.15
+   needed_gsl_version=1.16
 
    # tmp value
    build_gsl=`awk -v A=$gsl_version -v N=$needed_gsl_version 'BEGIN{x = ((A+0) != (N+0)) ; print x}'`
@@ -3165,6 +3166,7 @@ if test -n "$build_gsl" ; then
 # if you change this, change needed_gsl_version above
 gsl_version=1.12
 gsl_version=1.15
+gsl_version=1.16
 # ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
 # ${WGET} http://ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
 ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz

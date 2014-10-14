@@ -33,7 +33,7 @@ int main( int argc, char** argv )
 
   // read mmdb
   mmdb::Manager mmdb;
-  mmdb.SetFlag( MMDBF_AutoSerials | mmdb::MMDBF_IgnoreDuplSeqNum );
+  mmdb.SetFlag( mmdb::MMDBF_AutoSerials | mmdb::MMDBF_IgnoreDuplSeqNum );
   mmdb.ReadPDBASCII( mmdbfile.c_str() );
 
   // make sequence object

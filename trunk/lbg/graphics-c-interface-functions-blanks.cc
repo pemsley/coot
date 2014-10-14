@@ -1,5 +1,5 @@
 
-#include "coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 
 extern "C" {
    
@@ -18,3 +18,5 @@ extern "C" {
 void orient_view(int imol,
  		 const coot::residue_spec_t &central_residue_spec,
  		 const coot::residue_spec_t &neighbour_residue_spec) {}
+
+void set_rotation_centre(const clipper::Coord_orth &x) {}
