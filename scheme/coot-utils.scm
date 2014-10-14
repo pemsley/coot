@@ -115,6 +115,15 @@
   (let ((s (format #f "~s" var)))
     `(format #t "DEBUG:: ~a is ~s~%" ,s ,var)))
 
+;; not tail-recursive
+;; 
+(define (all-true? ls)
+  (cond 
+   ((null? ls) #t)
+   ((car ls) (all-true? (cdr ls)))
+   (else #f)))
+
+
 ;; schemify function
 ;; 
 (define (molecule-has-hydrogens? imol)
@@ -2713,9 +2722,33 @@
 			    (let ((mc (molecule-centre imol)))
 			      (apply translate-molecule-by (cons imol (map - sc mc)))))
 			(read-cif-dictionary cif-file-name))))))))))
-	      
 
-		    
+(define (new-molecule-by-smiles-string-by-acedrg tlc-str smiles-str)
+
+  (let ((smi-file "acedrg-in.smi"))
+    (call-with-output-file smi-file
+      (lambda (port)
+	(display tlc-str port)
+	(newline port)))
+	
+  (let* ((stub (string-append "acedrg-" comp-id))
+	 (pdb-out-file-name (string-append stub ".pdb"))
+	 (cif-out-file-name (string-append stub ".cif")))
+    
+    (let ((goosh-status
+	   (goosh-command 
+	    "acedrg" 
+	    (list "-i" smi-file "-r" tlc-str -o stub)
+	    '()
+	    (string-append "acedrg-" tlc-str ".log")
+	    #t)))
+
+      (if (ok-goosh-status? status)
+	  (begin
+	    (handle-read-draw-molecule-and-move-molecule-here pdb-out-file-name)
+	    (read-cif-dictionary cif-out-file-name))
+	  (info-dialog "Bad exit status for Acedrg\n - see acedrg log"))))))
+  
 
 
 ;; Generate restraints from the residue at the centre of the screen
