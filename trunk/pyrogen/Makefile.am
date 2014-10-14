@@ -55,9 +55,11 @@ lib_LTLIBRARIES=libcoot_py_restraints.la
 #
 libcoot_py_restraints_la_SOURCES = mmff-restraints.cc mmff-restraints.hh \
 	py-restraints.cc py-restraints.hh restraints-private.hh
+
+# 20141014 Add $RDKIT_LIBS for Bill
 libcoot_py_restraints_la_LIBADD =  \
                                 $(top_builddir)/geometry/libcoot-geometry.la \
-                                $(PYTHON_LIBS)
+                                $(RDKIT_LIBS) $(PYTHON_LIBS)
 
 libcoot_py_restraints_la_LDFLAGS = -no-undefined 
 
