@@ -431,17 +431,6 @@ LOGS=${LOGS:=$HOME/public_html/build-logs/${OS}-${HOST}}
 # build_coot_prerelease=
 build_coot_prerelease=${build_coot_prerelease:=1}
 
-# We shall we check dependencies?  
-#
-# Should we look for gtk etc on the system or only in the installed
-# build directory? We want to do the first if we are a person using
-# this build script to build coot themselves and we want to do the
-# second to build a external-dependency-free coot build (like making
-# the binary tars distributed from York).
-
-# check_dependencies_in_install_only=
-check_dependencies_in_install_only=1
-
 # get build specials, e.g. change the compiler or the compiler options
 # (e.g build for debugging), extra libraries etc setup LD_LIBRARY_PATH
 # (or whatever) to include the autobuild library dir so that
@@ -1493,11 +1482,6 @@ else
    coot_prefix="$generic_prefix"
 fi
 PATH=$install_top_dir/bin:$PATH
-
-installed_check_maybe_prefix=
-if [ "$check_dependencies_in_install_only" = 1 ] ; then
-   installed_check_maybe_prefix=$install_top_dir/bin/
-fi
 
 
 # we need to export this for net-http, because it doesn't set
