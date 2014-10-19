@@ -6,7 +6,7 @@ sed -e 's/#include "callbacks.h.gtk2"/#if (GTK_MAJOR_VERSION > 1)\n\n#include "c
     -e 's/support.h.gtk2/support.h/' \
     -e 's/#include <unistd.h>/#ifndef _MSC_VER\n#include <unistd.h>\n#endif/' \
     -e '/gtk_about_dialog_set_comments/s/_(/_(g_strconcat(/' \
-    -e '/gtk_about_dialog_set_comments/s/));/, " ", coot_version(), NULL)));/' \
+    -e '/gtk_about_dialog_set_comments/s/));/, NULL)));/' \
     -e '
         /gtk_image_menu_item_new/,/gtk_image_menu_item_set_image/ {
         /svg/s/create_pixmap (window1, /gtk_image_new_from_stock (/

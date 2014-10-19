@@ -246,12 +246,12 @@ parse_command_line(int argc, char ** argv ) {
 		  } else {
 		     
 		     if (arg_str == "version") {
-			std::cout << VERSION << " " << coot_version() << std::endl;
+			std::cout << VERSION << " " << coot_version_extra_info() << std::endl;
 			exit(0);
 		     } else {
 			
 			if (arg_str == "version-full") {
-			   std::cout  << VERSION << " " << coot_version() << std::endl;
+			   std::cout  << VERSION << " " << coot_version_extra_info() << std::endl;
 			   std::cout << "Binary type: " << COOT_SYS_BUILD_TYPE << std::endl;
 			   std::string s = COOT_BUILD_INFO_STRING;
 // 			   if (s.length() == 0)

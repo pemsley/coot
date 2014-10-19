@@ -3,7 +3,19 @@
 
 ----
 
+   o when back home, check that we can update from glade-2
+     coot-gtk2.glade with the changed post-gtk2-glade.sh
+
+   o with-enhanced-ligand tools 
+ 
+   o in CA + Ligands mode with Hydrogen atoms off: the hydrogen atoms
+     are still displayed on the ligand: 
+
+      -- Alex Wlodawer
+
    o when you move a licorice model it goes ball-and-stick. Fix.
+
+      -- JED
 
    o compile rdkit with inchi support. Test. Write to restriants. 
 
