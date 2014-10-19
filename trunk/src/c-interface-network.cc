@@ -44,7 +44,7 @@
 #include "cc-interface.hh"
 #include "cc-interface-network.hh"
 
-#include "c-interface.h" // for coot_version().  Do we really need all of that..?
+// #include "c-interface.h" // for coot_version().  Do we really need all of that..?
 
 #include "graphics-info.h" // because that is where the curl handlers and filenames vector is stored
 
@@ -411,7 +411,7 @@ void curl_test_make_a_post() {
    std::string post_string = "name=";
    post_string += "#1234";
    post_string += "&version=";
-   post_string += coot_version();
+   post_string += VERSION;
    post_string += "&sys_build_type=";
    post_string += COOT_SYS_BUILD_TYPE;
 

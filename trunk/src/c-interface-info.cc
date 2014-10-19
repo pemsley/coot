@@ -4447,7 +4447,7 @@ void write_ccp4mg_picture_description(const char *filename) {
       mg_stream << "# CCP4mg picture definition file\n";
       mg_stream << "# See http://www.ysbl.york.ac.uk/~ccp4mg/ccp4mg_help/picture_definition.html\n";
       mg_stream << "# or your local copy of CCP4mg documentation.\n";
-      mg_stream << "# created by Coot " << coot_version() << "\n";
+      mg_stream << "# created by Coot " << VERSION << "\n";
 
       // View:
       graphics_info_t g;

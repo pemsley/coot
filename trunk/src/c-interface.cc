@@ -137,11 +137,17 @@
 #include "Python.h"
 #endif // USE_PYTHON
 
-int svn_revision(); 
+int svn_revision();
 
-char *coot_version() {
+std::string coot_version() {
 
-   std::string version_string; //  = VERSION;
+   std::string s = VERSION;
+   return s;
+}
+
+std::string coot_version_extra_info() {
+
+   std::string version_string; //  was = VERSION;
 
    version_string += "(revision ";
    version_string += coot::util::int_to_string(svn_revision());
@@ -167,10 +173,7 @@ char *coot_version() {
 #endif    
    int len = version_string.length();
 
-   
-   char *r = new char[len+1];
-   strncpy(r, version_string.c_str(), len+1);
-   return r;
+   return version_string;
 }
 
 // return the coot_revision as a char *.  note that svn_revision()
