@@ -126,7 +126,7 @@ else
       COOT_PREFIX=$(readlink -f $(dirname "$current_exe_dir"))
    fi
 fi
-echo COOT_PREFIX is $COOT_PREFIX
+# echo COOT_PREFIX is $COOT_PREFIX
 
 coot_bin=$COOT_PREFIX/libexec/coot-bin
 
