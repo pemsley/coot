@@ -36,7 +36,8 @@ AC_MSG_CHECKING([if this is MINGW on Windows])
 
   *-mingw*)
     COOT_WINDOWS_CFLAGS="-DWINDOWS_MINGW -DUSE_GNOME_CANVAS"
-    COOT_WINDOWS_LDFLAGS=-static
+    # BL says:: may need rethink for shared compilation of course!!
+    COOT_WINDOWS_LDFLAGS="-static -lstdc++"
     have_windows_mingw=yes
     windows=true
     ;;
