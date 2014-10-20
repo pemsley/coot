@@ -78,8 +78,12 @@ AC_DEFUN([AX_PYTHON_DEVEL],[
 		version to use, for example '2.3'. This string
 		will be appended to the Python interpreter
 		canonical name.])
-
-	AC_PATH_PROG([PYTHON],[python[$PYTHON_VERSION]])
+    if test $have_windows_mingw = yes ; then
+        dnl BL says:: not the way on windows maybe better use case here...
+	    AC_PATH_PROG([PYTHON],[python])
+    else
+	    AC_PATH_PROG([PYTHON],[python[$PYTHON_VERSION]])
+    fi
 	if test -z "$PYTHON"; then
 	   AC_MSG_ERROR([Cannot find python$PYTHON_VERSION in your system path])
 	   PYTHON_VERSION=""
@@ -212,11 +216,15 @@ EOD`
 		ac_python_library=`cat<<EOD | $PYTHON -
 
 import distutils.sysconfig
+import os
 c = distutils.sysconfig.get_config_vars()
 if 'LDVERSION' in c:
 	print ('python'+c[['LDVERSION']])
 else:
-	print ('python'+c[['VERSION']])
+    if (os.name == 'nt'):
+        print ('python')
+    else:
+	    print ('python'+c[['VERSION']])
 EOD`
 
 		# This small piece shamelessly adapted from PostgreSQL python macro;
@@ -233,7 +241,7 @@ EOD`
 			ac_python_libdir=`$PYTHON -c \
 			  "from distutils.sysconfig import get_python_lib as f; \
 			  import os; \
-			  print (os.path.join(f(plat_specific=1, standard_lib=1), 'config'));"`
+			  print ((os.path.join(os.path.dirname(f(plat_specific=1, standard_lib=1),), 'libs')) if os.name == 'nt' else (os.path.join(f(plat_specific=1, standard_lib=1), 'config')));"`
 			PYTHON_LDFLAGS="-L$ac_python_libdir -lpython$ac_python_version"
 		fi
 
@@ -276,8 +284,9 @@ EOD`
 	AC_MSG_CHECKING(python extra linking flags)
 	if test -z "$PYTHON_EXTRA_LDFLAGS"; then
 		PYTHON_EXTRA_LDFLAGS=`$PYTHON -c "import distutils.sysconfig; \
+            import os; \
 			conf = distutils.sysconfig.get_config_var; \
-			print (conf('LINKFORSHARED'))"`
+			print (conf('LINKFORSHARED') if os.name <> 'nt' else '')"`
 	fi
 	AC_MSG_RESULT([$PYTHON_EXTRA_LDFLAGS])
 	AC_SUBST(PYTHON_EXTRA_LDFLAGS)
