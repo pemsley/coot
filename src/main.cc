@@ -476,9 +476,11 @@ setup_splash_screen() {
    if (s) {
       splash_screen_pixmap_dir = s;
    }
+
+   if (0) 
+      std::cout << "INFO:: splash_screen_pixmap_dir " 
+		<< splash_screen_pixmap_dir << std::endl;
    
-   std::cout << "INFO:: splash_screen_pixmap_dir " 
-	     << splash_screen_pixmap_dir << std::endl;
    // now add splash_screen_pixmap_dir to the pixmaps_directories CList
    //
    add_pixmap_directory(splash_screen_pixmap_dir.c_str());
@@ -779,8 +781,9 @@ void setup_rgb_reps() {
    int status = stat(colours_file.c_str(), &buf); 
    if (status == 0) { // colours file was found in default location
       RGBReps r(colours_file);
-      std::cout << "INFO:: Colours file: " << colours_file << " loaded"
-		<< std::endl;
+      if (0) 
+	 std::cout << "INFO:: Colours file: " << colours_file << " loaded"
+		   << std::endl;
 
       // test:
 //       std::vector<std::string> test_col;
