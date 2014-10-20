@@ -390,6 +390,12 @@ low importance
 
 **** Python ****
 
+   o dont run python references if scm run.
+
+   o (toggle)toolbuttons for secondary structure restraints
+
+   o simple script to insert residue
+
    o if there is no python scripting. Dont load python scripts etc.
 
    o add other solvent molecule -> dont import cif again?!
