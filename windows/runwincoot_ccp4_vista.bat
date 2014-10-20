@@ -19,24 +19,18 @@ set COOT_PIXMAPS_DIR=%COOT_SHARE%\coot\pixmaps
 set COOT_RESOURCES_FILE=%COOT_SHARE%\coot\cootrc
 set COOT_DATA_DIR=%COOT_SHARE%\coot
 set COOT_REF_STRUCTS=%COOT_SHARE%\coot\reference-structures
-set COOT_PYTHON_DIR=%COOT_SHARE%\coot\python
+set COOT_PYTHON_DIR=%COOT_PREFIX%\python27\lib\site-packages\coot
 set COOT_REF_SEC_STRUCTS=%COOT_SHARE%\coot\ss-reference-structures
 
-if not "%PYTHONPATH%" == "" goto APPENDPATH
-        set PYTHONPATH=%COOT_SHARE%\coot\python
-        goto CONT
-:APPENDPATH
-        set PYTHONPATH=%COOT_SHARE%\coot\python;%PYTHONPATH%
-:CONT
-set PYTHONHOME=%COOT_PREFIX%\bin
+set PYTHONHOME=%COOT_PREFIX%\python27
 
 set GUILE_LOAD_PATH=%COOT_GUILE_PREFIX%/share/guile/1.8;%COOT_GUILE_PREFIX%/share/guile;%COOT_GUILE_PREFIX%/share/guile/gtk-2.0;%COOT_GUILE_PREFIX%/share/guile/gui;%COOT_GUILE_PREFIX%/share/guile/www;%COOT_GUILE_PREFIX%/share/guile/site
 
 set SYMINFO=%COOT_SHARE%\coot\syminfo.lib
 
-set PATH=%COOT_PREFIX%\bin;%COOT_PREFIX%\lib;%PATH%
+set PATH=%COOT_PREFIX%\bin;%COOT_PREFIX%\libexec;%COOT_PREFIX%\python27;%PATH%
 
 IF NOT EXIST %COOT_PREFIX%\etc\gtk-2.0\gdk-pixbuf.loaders (gdk-pixbuf-query-loaders.exe > %COOT_PREFIX%\etc\gtk-2.0\gdk-pixbuf.loaders)
 
-start /affinity 1 coot-real.exe %*
+start /affinity 1 coot-bin.exe %*
 

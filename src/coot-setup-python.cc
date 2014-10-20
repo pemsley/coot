@@ -2,6 +2,7 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include "compat/coot-sysdep.h"
 #include <gtk/gtk.h>
 #include "coot-setup-python.hh"
 #include "coot-glue.hh"
@@ -42,11 +43,11 @@ void setup_python(int argc, char **argv) {
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
      home_directory = getenv("COOT_HOME");
      std::string pkgdirectory = PKGDATADIR;
-     if (!directory) {
-       directory = getenv("HOME");
+     if (!home_directory) {
+       home_directory = getenv("HOME");
      }
-     if (!directory) {
-       directory = (char *)pkgdirectory.c_str();
+     if (!home_directory) {
+       home_directory = (char *)pkgdirectory.c_str();
      }
 #endif
 
@@ -55,7 +56,7 @@ void setup_python(int argc, char **argv) {
      // First load coot.py, then load the standard startup files, 
      // then load 0-coot.state.py
 
-     std::string pydirectory = PKGPYTHONDIR; // prefix/lib/python2.7/site-packages/coot
+     std::string pydirectory = PKGPYTHONDIR; /* prefix/lib/python2.7/site-packages/coot */
      
      char *pydirectory_over = getenv("COOT_PYTHON_DIR");
      if (pydirectory_over)
@@ -151,6 +152,7 @@ void setup_python(int argc, char **argv) {
      command_line_data cld = parse_command_line(argc, argv);
      handle_command_line_data(cld);
 
+     // BL says::should this still be here?
      run_state_file_maybe(); // run local 0-coot.state.py?
 
      // run_update_self_maybe(); nope.  Not yet.
