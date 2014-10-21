@@ -72,12 +72,7 @@ coot::db_strands::get_reference_strands(int n_strands, int strand_length) {
 	 mmdb::Manager *mol = get_mol(filename);
 	 if (mol) { 
 	    mmdb::Model *model_p = mol->GetModel(1);
-#ifdef HAVE_MMDB_WITH_CISPEP	    
 	    int status = model_p->CalcSecStructure(1); // Hmm. Used to have an atomselhnd arg.
-#else 	    
-	    int status = model_p->CalcSecStructure(1);
-
-#endif // HAVE_MMDB_WITH_CISPEP
 	    if (status == mmdb::SSERC_Ok) {
 	       std::cout << "INFO:: SSE status was OK\n";
 	       std::vector<coot::minimol::molecule> v_strand = 

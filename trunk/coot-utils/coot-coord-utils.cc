@@ -6052,13 +6052,8 @@ coot::util::cis_peptides_info_from_coords(mmdb::Manager *mol) {
 void
 coot::util::remove_wrong_cis_peptides(mmdb::Manager *mol) {
 
-#ifdef HAVE_MMDB_WITH_CISPEP
-   
    std::vector<coot::util::cis_peptide_info_t> v_coords = 
       coot::util::cis_peptides_info_from_coords(mol);
-//    std::cout << "INFO:: There were " << v_coords.size() << " CISPEPs from the coordinates"
-// 	     << std::endl;
-
 
    mmdb::PCisPep CisPep;
    int n_models = mol->GetNumberOfModels();
@@ -6070,8 +6065,9 @@ coot::util::remove_wrong_cis_peptides(mmdb::Manager *mol) {
       for (int icp=1; icp<=ncp; icp++) {
 	 CisPep = model_p->GetCisPep(icp);
 	 if (CisPep)  {
-// 	    std::cout << "mmdb:: " << " :" << CisPep->chainID1 << ": "<< CisPep->seqNum1 << " :" 
-// 		      << CisPep->chainID2 << ": " << CisPep->seqNum2 << std::endl;
+	    // 	    std::cout << "mmdb:: " << " :" << CisPep->chainID1 << ": "
+	    // << CisPep->seqNum1 << " :" 
+	    // << CisPep->chainID2 << ": " << CisPep->seqNum2 << std::endl;
 	    coot::util::cis_peptide_info_t cph(CisPep);
 
 	    // Does that match any of the coordinates cispeps?
@@ -6115,7 +6111,6 @@ coot::util::remove_wrong_cis_peptides(mmdb::Manager *mol) {
 	 }
       } 
    }
-#endif // HAVE_MMDB_WITH_CISPEP
 } 
 
 
@@ -6194,7 +6189,9 @@ int
 coot::write_coords_pdb(mmdb::Manager *mol, const std::string &file_name) {
 
 
-   coot::util::remove_wrong_cis_peptides(mol);
+   std::cout << "-------------- calling remove_wrong_cis_peptides() " << std::endl;
+   util::remove_wrong_cis_peptides(mol);
+   std::cout << "-------------- done remove_wrong_cis_peptides() " << std::endl;
    int r = mol->WritePDBASCII(file_name.c_str());
 
    return r;

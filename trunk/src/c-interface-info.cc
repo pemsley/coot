@@ -2296,7 +2296,7 @@ void set_show_environment_distances_as_solid(int state) {
    graphics_info_t::display_environment_graphics_object_as_solid_flag = state;
 } 
 
-void set_environment_distance_label_atom(int state) {
+void set_environment_distances_label_atom(int state) {
   graphics_info_t::environment_distance_label_atom = state;
 }
 
@@ -3052,7 +3052,8 @@ const char *mtz_hklin_for_map(int imol_map) {
    std::vector<coot::command_arg_t> args;
    args.push_back(imol_map);
    add_to_history_typed(cmd, args);
-   return mtz.c_str();
+   const char *s = strdup(mtz.c_str());
+   return s;
 }
 
 /*! \brief return the FP column in the file that was use to generate
@@ -3064,14 +3065,14 @@ const char *mtz_fp_for_map(int imol_map) {
 
    std::string fp;
    if (is_valid_map_molecule(imol_map)) {
-      std::cout << imol_map << " Is valid map molecule" << std::endl;
       fp = graphics_info_t::molecules[imol_map].save_f_col;
    }
    std::string cmd = "mtz-fp-for-map";
    std::vector<coot::command_arg_t> args;
    args.push_back(imol_map);
    add_to_history_typed(cmd, args);
-   return fp.c_str();
+   const char *s = strdup(fp.c_str());
+   return s;
 } 
 
 /*! \brief return the phases column in mtz file that was use to generate
@@ -3089,7 +3090,9 @@ const char *mtz_phi_for_map(int imol_map) {
    std::vector<coot::command_arg_t> args;
    args.push_back(imol_map);
    add_to_history_typed(cmd, args);
-   return phi.c_str();
+   const char *s = strdup(phi.c_str());
+   return s;
+   
 }
 
 /*! \brief return the weight column in the mtz file that was use to
@@ -3107,7 +3110,8 @@ const char *mtz_weight_for_map(int imol_map) {
    std::vector<coot::command_arg_t> args;
    args.push_back(imol_map);
    add_to_history_typed(cmd, args);
-   return weight.c_str();
+   const char *s = strdup(weight.c_str());
+   return s;
 }
 
 /*! \brief return flag for whether weights were used that was use to

@@ -3622,9 +3622,9 @@ on_environment_distance_label_atom_checkbutton_toggled
 {
 
   if (togglebutton->active) {
-    set_environment_distance_label_atom(1);
+    set_environment_distances_label_atom(1);
   } else {
-    set_environment_distance_label_atom(0);
+    set_environment_distances_label_atom(0);
   }
 
 }
