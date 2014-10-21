@@ -1663,21 +1663,28 @@ const char *mtz_hklin_for_map(int imol_map);
   the map
 
   return 0 when there is no mtz file associated with that map (it was
-  generated from a CCP4 map file say). */
+  generated from a CCP4 map file say). 
+
+ Caller should dispose of returned pointer.
+*/
 const char *mtz_fp_for_map(int imol_map);
 
 /*! \brief return the phases column in mtz file that was use to generate
   the map
 
   return 0 when there is no mtz file associated with that map (it was
-  generated from a CCP4 map file say). */
+  generated from a CCP4 map file say). 
+ Caller should dispose of returned pointer.
+*/
 const char *mtz_phi_for_map(int imol_map);
 
 /*! \brief return the weight column in the mtz file that was use to
   generate the map
 
   return 0 when there is no mtz file associated with that map (it was
-  generated from a CCP4 map file say) or no weights were used. */
+  generated from a CCP4 map file say) or no weights were used. 
+ Caller should dispose of returned pointer.
+*/
 const char *mtz_weight_for_map(int imol_map);
 
 /*! \brief return flag for whether weights were used that was use to
