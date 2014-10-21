@@ -3,6 +3,16 @@
 
 ----
 
+   o CSHL:
+
+       * key-binding for rock (Ctrl-R?)
+
+       * Scaling of density fit analysis with very fine grid
+
+       * Return should accept in Rotamer mode
+    
+       * Anti-submarine Unmodelled blobs -> no blobs
+
    o when back home, check that we can update from glade-2
      coot-gtk2.glade with the changed post-gtk2-glade.sh
 

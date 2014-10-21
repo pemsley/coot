@@ -6601,7 +6601,8 @@ molecule_class_info_t::write_pdb_file(const std::string &filename) {
 	 write_shelx_ins_file(filename);
       } else {
 	 mmdb::byte bz = mmdb::io::GZM_NONE;
-	 err = write_atom_selection_file(atom_sel, filename, bz);
+	 // err = write_atom_selection_file(atom_sel, filename, bz);
+	 err = coot::write_coords_pdb(atom_sel.mol, filename);
       }
    }
    return err; 
