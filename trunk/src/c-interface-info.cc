@@ -3041,6 +3041,7 @@ int does_residue_exist_p(int imol, char *chain_id, int resno, char *inscode) {
 
   return 0 when there is no mtz file associated with that map (it was
   generated from a CCP4 map file say). */
+// Caller should dispose of returned pointer.
 const char *mtz_hklin_for_map(int imol_map) {
 
    std::string mtz;
@@ -3061,6 +3062,7 @@ const char *mtz_hklin_for_map(int imol_map) {
 
   return 0 when there is no mtz file associated with that map (it was
   generated from a CCP4 map file say). */
+// Caller should dispose of returned pointer.
 const char *mtz_fp_for_map(int imol_map) {
 
    std::string fp;
@@ -3080,6 +3082,7 @@ const char *mtz_fp_for_map(int imol_map) {
 
   return 0 when there is no mtz file associated with that map (it was
   generated from a CCP4 map file say). */
+// Caller should dispose of returned pointer.
 const char *mtz_phi_for_map(int imol_map) {
 
    std::string phi;
@@ -3100,6 +3103,7 @@ const char *mtz_phi_for_map(int imol_map) {
 
   return 0 when there is no mtz file associated with that map (it was
   generated from a CCP4 map file say) or no weights were used. */
+// Caller should dispose of returned pointer.
 const char *mtz_weight_for_map(int imol_map) {
 
    std::string weight;
