@@ -41,6 +41,7 @@
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
 #include "ligand.hh"
+#include "utils/coot-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "coot-utils/coot-trim.hh"
 #include "clipper/core/map_utils.h"
@@ -138,13 +139,22 @@ main(int argc, char **argv) {
 		  map_file_name = optarg;
 	       }
 	       if (arg_str == "flood-atom-radius") {
-		  flood_atom_mask_radius = atof(optarg);
+
+		  try {
+		     flood_atom_mask_radius =
+			coot::util::string_to_float(optarg);
+		  }
+		  catch (const std::exception &e) {
+		     std::cout << "argument for --flood_atom_mask_radius"
+			       << " is not a number: " << optarg
+			       << std::endl;
+		     exit(1);
+		  } 
 	       }
 	       
 	    } else { 
 	       std::string arg_str = long_options[option_index].name;
 	       if (arg_str == "flood") {
-		  std::cout << "Flooding\n";
 		  do_flood_flag = 1;
 	       } else {
 		  if (arg_str == "chop") {

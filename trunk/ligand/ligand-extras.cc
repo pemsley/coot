@@ -592,7 +592,10 @@ coot::ligand::flood() {
 void
 coot::ligand::flood2(float n_sigma) {
 
-   int n_rounds = 10;
+   bool debug = false;
+
+   int n_rounds = 50/map_atom_mask_radius; // 1.4 default.
+
    std::vector<clipper::Coord_orth> water_list;
 
    mean_and_variance<float> mv_start = map_density_distribution(xmap_masked,0);
@@ -602,18 +605,29 @@ coot::ligand::flood2(float n_sigma) {
 
       mean_and_variance<float> mv_this = map_density_distribution(xmap_masked,0);
 
-      // float n_sigma_crit = n_sigma * sqrt(mv_start.variance/mv_this.variance);
-      // Hmm... try non-dynamic:
-      
       float n_sigma_crit = n_sigma * sqrt(mv_start.variance/mv_this.variance);
       
       coot::peak_search ps(xmap_masked);
+      
       std::vector<clipper::Coord_orth> peaks = ps.get_peaks(xmap_masked, n_sigma_crit);
+      
       std::cout << "INFO:: Round " << iround << " found " << peaks.size()
 		<< " peaks above " << n_sigma_crit
-		<< " sigma (based on the current map)"
-		<< std::endl;
-      if (peaks.size() == 0) break;
+		<< " rms" << std::endl;
+
+      if (debug) {
+	 for (unsigned int ipeak=0; ipeak<peaks.size(); ipeak++) {
+	    float d = density_at_point(peaks[ipeak], xmap_masked);
+	    std::cout << "peak " << ipeak << " " << peaks[ipeak].format() << " " 
+		      << d << std::endl;
+	 }
+      }
+      
+      if (peaks.size() == 0) {
+	 std::cout << "No peaks: breaking on round "
+		   << iround << " of " << n_rounds << std::endl;
+	 break;
+      }
       // mask new waters
       for (unsigned int iw=0; iw<peaks.size(); iw++) {
 	 if (! close_to_another(peaks[iw], water_list, map_atom_mask_radius)) {
