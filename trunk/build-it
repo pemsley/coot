@@ -3462,9 +3462,10 @@ if [ -e $LOGS/$build_type-test-status ] ; then
    rm $LOGS/$build_type-test-status
 fi
 # run test
-echo running tests...
-echo running tests... >&2
+echo running tests:
+echo running tests: >&2
 if [ "$ENABLE_GUILE_COOT" = "yes" ] ; then 
+    echo running first test... >&2
     test_coot > $LOGS/$build_type-test.log 2>&1
     r=$?
 else
@@ -3472,6 +3473,7 @@ else
 fi
 # run python tests too, maybe (i.e. if we build with python)
 if [ "$ENABLE_PYTHON_COOT" = "yes" ] ; then 
+    echo running python test... >&2
     test_coot_python > $LOGS/$build_type-test-python.log 2>&1
     rp=$?
 else
@@ -3513,6 +3515,7 @@ if ( [ $r = 0 ] && [ $rp = 0 ] ); then
 	    echo ln -s ../../$coot_dir_name/greg-tests .
 	    ln -s ../../$coot_dir_name/greg-tests .
             echo second coot test...
+            echo running second test... >&2
 	    test_coot bin/coot > $LOGS/$build_type-test-2.log 2>&1
             test2_status=$?
             if [ $test2_status = 0 ] ; then
