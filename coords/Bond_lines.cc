@@ -324,9 +324,21 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 		     
 		  } else { 
 
-		     // this +/- 1 residue test
-		     if (labs(res_1 - res_2) < 2 ||
-			 labs(atom_p_1->residue->index - atom_p_2->residue->index) < 2) {
+		     // this +/- 1 residue test, or are DUM atoms.
+
+		     bool is_neighbour = false;
+		     if (labs(res_1 - res_2) < 2)
+			is_neighbour = true;
+		     if (! is_neighbour)
+			if (labs(atom_p_1->residue->index - atom_p_2->residue->index) < 2)
+			   is_neighbour == true;
+
+// 		     if (! is_neighbour)
+// 			if (strncmp(atom_p_1->name, "DUM", 3))
+// 			   if (strncmp(atom_p_2->name, "DUM", 3))
+// 			      is_neighbour = true;
+		     
+		     if (is_neighbour) {
 
 			//  		  std::cout << "Adding bond " << atom_selection_1[ contact[i].id1 ]
 			//  			    << " to "

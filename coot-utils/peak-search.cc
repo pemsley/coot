@@ -182,7 +182,7 @@ coot::peak_search::peak_search_0(const clipper::Xmap<float> &xmap,
    float cut_off = map_rms * n_sigma;
    short int IN_CLUSTER = 3; 
    
-   std::cout << "map rms: " << map_rms << ", peak cut-off: " << cut_off << "\n";
+   // std::cout << "map rms: " << map_rms << ", peak cut-off: " << cut_off << "\n";
    
 //    std::cout << "There are " << neighb.size() << " neighbours\n";
 //    for (int i=0; i<neighb.size(); i++) {
