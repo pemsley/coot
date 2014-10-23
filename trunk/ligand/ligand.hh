@@ -584,6 +584,13 @@ namespace coot {
 				  // by peak picking. // find peaks
 				  // that are in density greater than
 				  // n_sigma
+      // which uses:
+      std::vector<clipper::Coord_orth>
+      move_waters_close_to_protein(const std::vector<clipper::Coord_orth> &water_list,
+				   const std::vector<clipper::Coord_orth> &sampled_protein_coords) const;
+      clipper::Coord_orth move_water_close_to_protein(const clipper::Coord_orth &water_pos,
+						      const std::vector<clipper::Coord_orth> &sampled_protein_coords) const;
+
 
       coot::minimol::molecule water_mol() { return water_molecule; }
 
