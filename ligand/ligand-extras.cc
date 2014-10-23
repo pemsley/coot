@@ -638,14 +638,78 @@ coot::ligand::flood2(float n_sigma) {
 	 }
       }
    }
+
+   // move these waters to around protein:
+   // 
+   std::vector <clipper::Coord_orth> sampled_protein_coords = make_sample_protein_coords();
+   std::vector<clipper::Coord_orth> moved_waters =
+      move_waters_close_to_protein(water_list, sampled_protein_coords);
+   
    std::cout << "INFO:: added " << n_added_waters << " waters to molecule\n";
    std::string ch = protein_atoms.unused_chain_id("W");
-   coot::minimol::molecule mol(water_list, "DUM", " DUM", ch);
+   // coot::minimol::molecule mol(water_list, "DUM", " DUM", ch);
+   coot::minimol::molecule mol(moved_waters, "DUM", " DUM", ch);
    mol.set_cell(xmap_masked.cell());
    std::string spg(xmap_masked.spacegroup().descr().symbol_hm());
    mol.set_spacegroup(spg);
    water_molecule = mol;
 }
+
+std::vector<clipper::Coord_orth>
+coot::ligand::move_waters_close_to_protein(const std::vector<clipper::Coord_orth> &water_list,
+					   const std::vector<clipper::Coord_orth> &sampled_protein_coords) const {
+
+
+   std::vector<clipper::Coord_orth> sample_set = sampled_protein_coords; // gets added to
+
+   // We add the moved waters to sampled_protein_coords so that the
+   // waters of this cluster are move likely to be in the same
+   // symmetry as the water above it in the list that it might
+   // otherwise have been.
+   
+   std::vector<clipper::Coord_orth> moved_waters = water_list;
+   for (unsigned int i=0; i<water_list.size(); i++) { 
+      moved_waters[i] = move_water_close_to_protein(water_list[i], sample_set);
+      sample_set.push_back(moved_waters[i]);
+   }
+   return moved_waters;
+}
+
+clipper::Coord_orth
+coot::ligand::move_water_close_to_protein(const clipper::Coord_orth &water_pos,
+					  const std::vector<clipper::Coord_orth> &sampled_protein_coords) const {
+
+   double best_dist = 999999999999999999999999999999;
+   clipper::Coord_orth moved_pos = water_pos;
+   
+   int n_sampled = sampled_protein_coords.size();
+   if (n_sampled > 0) { 
+      int n = xmap_pristine.spacegroup().num_symops();
+      clipper::Coord_frac cell_shift; 
+      clipper::Coord_orth t_point; 
+      for (int isym=0; isym<n; isym++) {
+	 for (int x_shift = -1; x_shift<2; x_shift++) { 
+	    for (int y_shift = -1; y_shift<2; y_shift++) { 
+	       for (int z_shift = -1; z_shift<2; z_shift++) {
+		  cell_shift = clipper::Coord_frac(x_shift, y_shift, z_shift); 
+		  clipper::RTop_orth orthop =
+		     clipper::RTop_frac(xmap_pristine.spacegroup().symop(isym).rot(),
+					xmap_pristine.spacegroup().symop(isym).trn() +
+					cell_shift).rtop_orth(xmap_pristine.cell());
+		  t_point = water_pos.transform(orthop); 
+		  double t_dist = min_dist_to_protein(t_point, sampled_protein_coords);
+		  if (t_dist < best_dist) {
+		     moved_pos = t_point;
+		     best_dist = t_dist;
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return moved_pos;
+} 
+
 
 bool
 coot::ligand::close_to_another(const clipper::Coord_orth &p1,
