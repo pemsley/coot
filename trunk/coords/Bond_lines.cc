@@ -333,6 +333,8 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 			if (labs(atom_p_1->residue->index - atom_p_2->residue->index) < 2)
 			   is_neighbour == true;
 
+		     // Maybe DUM-DUM needs it's own bonding selection and drawing function
+		     
 // 		     if (! is_neighbour)
 // 			if (strncmp(atom_p_1->name, "DUM", 3))
 // 			   if (strncmp(atom_p_2->name, "DUM", 3))

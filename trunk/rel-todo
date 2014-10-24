@@ -45,6 +45,8 @@
      find the screen centre and view quaternion that orients the ligand
      nicely. Puntable.
 
+   o reading a pdbfile that is a directory causes mmdb2 to hang?
+
 
 -------
 

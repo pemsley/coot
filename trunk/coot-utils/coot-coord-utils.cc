@@ -6188,12 +6188,8 @@ coot::mol_by_symmetry(mmdb::Manager *mol,
 int
 coot::write_coords_pdb(mmdb::Manager *mol, const std::string &file_name) {
 
-
-   std::cout << "-------------- calling remove_wrong_cis_peptides() " << std::endl;
    util::remove_wrong_cis_peptides(mol);
-   std::cout << "-------------- done remove_wrong_cis_peptides() " << std::endl;
    int r = mol->WritePDBASCII(file_name.c_str());
-
    return r;
 }
 

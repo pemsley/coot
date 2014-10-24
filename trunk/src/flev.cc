@@ -489,11 +489,9 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 
 		  // polar Hs only, that is - need new function here.
 		  // (can throw a std::exception)
-		  // std::cout << "DEBUG:: calling remove_non_polar_Hs() " << std::endl;
 		  coot::undelocalise(&rdkm);
 		  coot::assign_formal_charges(&rdkm);
 		  coot::remove_non_polar_Hs(&rdkm);
-		  // std::cout << "DEBUG::    done remove_non_polar_Hs() " << std::endl;
 
 		  int mol_2d_depict_conformer =
 		     coot::add_2d_conformer(&rdkm, weight_for_3d_distances);
