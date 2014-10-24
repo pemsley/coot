@@ -619,7 +619,7 @@ graphics_info_t::move_moving_atoms_by_shear_internal(const coot::Cartesian &diff
       if (squared_flag == 0) {
 	 // 	 frac = (1.0 - d_to_moving_at[i]/d_to_moving_at_max); old
 	 dr = d_to_moving_at[i]/d_to_moving_at_max;
-	 frac = (1-pow(dr, 2.0));
+	 frac = (1-pow(dr, 0.167));
       } else {
 	 dr = d_to_moving_at[i]/d_to_moving_at_max;
 	 // frac = (1.0 - dr)*(1.0 - dr);
