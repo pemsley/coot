@@ -276,6 +276,17 @@
 
 
 
+(greg-testcase "db-main makes mainchain" #t
+   (lambda ()	      
+
+     (read-pdb ".")
+
+     (let ((imol (read-pdb rnase-pdb)))
+       (db-mainchain imol"A" 10 20 "forward")
+       #t ;; didn't hang
+       )))
+
+
 (greg-testcase "Set Atom Attribute Test" #t
 	       (lambda ()
 		 (set-atom-attribute imol-rnase "A" 11 "" " CA " "" "x" 64.5) ; an Angstrom or so

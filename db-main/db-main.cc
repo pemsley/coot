@@ -344,10 +344,10 @@ coot::matches_pdb_name(std::string file_str) {
 
    // did it end in: .pdb .pdb.gz or was it pdb*.gz?
 
-   std::string::size_type t1 = file_str.find_last_of(".pdb");
-   std::string::size_type t2 = file_str.find_last_of(".pdb.gz");
-   std::string::size_type t3 = file_str.find_last_of("pdb");
-   std::string::size_type t4 = file_str.find_last_of(".gz");
+   std::string::size_type t1 = file_str.find(".pdb");
+   std::string::size_type t2 = file_str.find(".pdb.gz");
+   std::string::size_type t3 = file_str.find("pdb");
+   std::string::size_type t4 = file_str.find(".gz");
 
    if (t1 != std::string::npos) match_flag = true;
    if (t2 != std::string::npos) match_flag = true;
