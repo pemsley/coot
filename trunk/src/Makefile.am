@@ -194,7 +194,7 @@ INCLUDES = \
         $(GOOCANVAS_CFLAGS)             \
 	@GTK_CFLAGS@ 			\
 	$(GLUT_CFLAGS)			\
-	$(LIBBSSM_CXXFLAGS) 		\
+	$(LIBSSM_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\
 	$(CCP4SRS_CXXFLAGS) 		\
 	$(GSL_CFLAGS)			\

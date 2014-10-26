@@ -27,7 +27,7 @@ AC_PROVIDE([AM_WITH_SSM])
 AC_MSG_CHECKING([for ssm])
 
 if ${PKG_CONFIG} ssm ; then 
-   LIBSSM_CXXFLAGS="$($PKG_CONFIG --cflags ssm)"
+   LIBSSM_CXXFLAGS="$($PKG_CONFIG --cflags ssm) -DHAVE_SSMLIB"
    LIBSSM_LIBS="$($PKG_CONFIG --libs ssm)"
    coot_found_ssm=yes
 else
