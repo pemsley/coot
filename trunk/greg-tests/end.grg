@@ -1,0 +1,3 @@
+
+(map close-molecule (molecule-number-list))
+
