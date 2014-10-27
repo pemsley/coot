@@ -2115,6 +2115,9 @@ if test -n "$build_clipper" ; then
     clipper_hack_version=2.1-140110-fixup
     #${WGET} $extras_place/clipper-$clipper_hack_version.tar.gz
 
+    # fix mean and lean on windows, i.e. disable
+    ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/clipper_win32.patch
+
     # now clipper has all the bits.
     ${WGET} $extras_place/clipper-$clipper_version.tar.gz
 
@@ -2139,7 +2142,8 @@ if test -n "$build_clipper" ; then
     echo CPPFLAGS $CPPFLAGS
     echo LDFLAGS  $LDFLAGS
 
-    patch -p0 < ${AUTOBUILD_SOURCES}/clipper-2.1.thread.patch
+    patch -p0 < ${AUTOBUILD_SOURCES}/clipper_win32.patch
+    #patch -p0 < ${AUTOBUILD_SOURCES}/clipper-2.1.thread.patch
     ./configure --prefix=$install_top_dir \
 	--enable-mmdb=$install_top_dir    \
 	--enable-ccp4=$install_top_dir    \
@@ -2156,7 +2160,8 @@ if test -n "$build_clipper" ; then
        # CCP4_CXXFLAGS=-I$install_top_dir/include CCP4_LIBS=$install_top_dir/lib/libccp4c.la	\
     # we don't want to make the clipper executables, so let's cd in to the clipper libs and 
     # make (just) those.
-    cd clipper
+    # not any more!!! make all!!!
+    # cd clipper
     # it seems that examples do not compile on windows (hope it has no ill effect
     $MAKE
     status=$?
@@ -2200,7 +2205,8 @@ cd $build_dir
 glut_prefix="--with-glut-prefix=$install_top_dir"
 echo INFO:: setting glut_prefix to $glut_prefix
 # now move the files to the right place
-cd GLUT
+# maybe can unpack in install_top_dir directly now. Check/FIXME
+cd freeglut
 mkdir_maybe	$install_top_dir/include/GL
 cp include/GL/*.h $install_top_dir/include/GL/
 mkdir_maybe	$install_top_dir/bin
@@ -2497,6 +2503,7 @@ if test -n "$build_gtk" ; then
       7z x -y ${AUTOBUILD_SOURCES}/gtk+-dev_${gtk2_version}_win32.zip
       cd - 
       # install hicolor theme
+      hicolor_version=0.13
       ${WGET} http://icon-theme.freedesktop.org/releases/hicolor-icon-theme-${hicolor_version}.tar.gz
       gzip -cd ${AUTOBUILD_SOURCES}/hicolor-icon-theme-${hicolor_version}.tar.gz | tar xf -
       cd hicolor-icon-theme-${hicolor_version}
@@ -2532,19 +2539,20 @@ if test -n "$build_gtk" ; then
       echo NOT BUILDING gettext
    fi
    # run query loader to be able to load svg icons properly
-   # FIXME:: this should be relative path!!
    # FIXME this needs update with new gdk-pixbuf stuff!
-   # Note: should be ok !
-   cp $install_top_dir/etc/gtk-2.0/gdk-pixbuf.loaders $install_top_dir/etc/gtk-2.0/gdk-pixbuf.loaders.orig
-   gdk-pixbuf-query-loaders > $install_top_dir/etc/gtk-2.0/gdk-pixbuf.loaders
+   # NEW(?!): gdk-pixbuf.loaders doesnt exist any more use 
+   # gdk-pixbuf-query-loaders --update-cache 
+   # instead. But how to distribute?! There must be some cache somewhere...
+   # it is. Here:
+   # ./lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
+   # so now the new fix:
+   $install_top_dir/bin/gdk-pixbuf-query-loaders.exe --update-cache
    # now we have absolute paths in the file, let's make them relative
    # to avoid running the gdk-pixbuf.loaders during install
    sed -e "s|.*$install_top_dir|..|" \
-     $install_top_dir/etc/gtk-2.0/gdk-pixbuf.loaders > tmp.loaders
-   mv $install_top_dir/etc/gtk-2.0/gdk-pixbuf.loaders $install_top_dir/etc/gtk-2.0/gdk-pixbuf.loaders.bak
-   mv tmp.loaders $install_top_dir/etc/gtk-2.0/gdk-pixbuf.loaders
-   # may need this one (at least I do!?)
-   $install_top_dir/bin/gdk-pixbuf-query-loaders.exe --update-cache
+     $install_top_dir/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache > tmp.loaders
+   mv $install_top_dir/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache $install_top_dir/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache.bak
+   mv tmp.loaders $install_top_dir/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
 
    ) > $HOSTLOGDIR/06-gtk-prerequisites.txt 2>&1
    if test "$?" != 0 ; then
@@ -2904,9 +2912,10 @@ fi
 # N.B. pkgconfig on windows doesnt pick up prefix in *.pc file
 # well, actually overwrites it if 'usual' parent path (i.e. lib)
 if test -n "$build_python" ; then 
-   echo now copy over DLLs, Lib and $python_version
-   cp -r $global_py_inst_dir/DLLs $install_top_dir/bin
-   cp -r $global_py_inst_dir/Lib  $install_top_dir/bin
+   # echo now copy over DLLs, Lib and $python_version
+   # Not any more!?
+   #cp -r $global_py_inst_dir/DLLs $install_top_dir/bin
+   #cp -r $global_py_inst_dir/Lib  $install_top_dir/bin
    echo cp -r $saved_global_py_inst_dir  $install_top_dir/
    cp -r $saved_global_py_inst_dir  $install_top_dir/
    dll_name=${global_py_inst_dir}/python${pver_short/./}.dll
