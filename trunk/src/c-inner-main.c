@@ -100,7 +100,7 @@ c_inner_main(void *closure, int argc, char** argv) {
 /*    export commands */
 
   char *filename = ".coot";
-  char *preferences_filename = ".coot-preferences.scm";
+  char *preferences_filename = "coot-preferences.scm";
   char *directory;
   char* check_file;
   char *gui_lib = 0; 
@@ -264,8 +264,13 @@ c_inner_main(void *closure, int argc, char** argv) {
 
        for (p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) { 
          preferences_file = (*p);
-	 printf("INFO:: loading preferences file %s \n", preferences_file);
-	 scm_c_primitive_load(preferences_file);
+         char *found = strstr(preferences_file, preferences_filename);
+         // only load coot-preferences.scm if not python prefered and 
+         if ((!found) || (!prefer_python())) {
+            printf("INFO:: loading preferences file %s \n", preferences_file);
+            scm_c_primitive_load(preferences_file);
+         }
+
        }
        globfree(&myglob);
      }

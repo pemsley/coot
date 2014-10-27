@@ -122,13 +122,15 @@ void setup_python(int argc, char **argv) {
        char **p;
        for (p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) { 
          char *preferences_file(*p);
-	 // dont load the coot_toolbuttons.py if no graphics
-	 char *found = strstr(preferences_file, "coot_toolbuttons.py");
-	 if ((!found) || (use_graphics_flag)) {
-	   std::cout << "INFO:: loading preferences file " << preferences_file
-	 	     << std::endl;
-	   run_python_script(preferences_file);
-	 }
+         // dont load the coot_toolbuttons.py if no graphics
+         char *found = strstr(preferences_file, "coot_toolbuttons.py");
+         char *found2 = strstr(preferences_file, "coot_preferences.py");
+         if (((!found) || (use_graphics_flag)) && 
+             ((!found2) || (prefer_python()))) {
+            std::cout << "INFO:: loading preferences file " << preferences_file
+                      << std::endl;
+            run_python_script(preferences_file);
+         }
        }
        globfree(&myglob);
      }

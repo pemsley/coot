@@ -64,6 +64,8 @@
 #ifdef USE_GUILE
 #include <cstdio> /* for std::FILE in gmp.h for libguile.h */
 #include <libguile.h>		/* for SCM type (returned by safe_scheme_command) */
+#else
+#include <string> /* for std::string; included (sic!) in above for guile */
 #endif /*  USE_GUILE */
 #endif /* c++ */
 
