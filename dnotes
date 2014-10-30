@@ -7126,7 +7126,7 @@ Sat Jul 19 13:17:01 BST 2014
 	 //
 	 // For float/double numbers
 	 // Using std::fixed the precision is the number of decimal places
-	 // use std::right << set::precision(3) << std::fixed << f
+	 // use std::right << std::setprecision(3) << std::fixed << f
 	 // You may need to set std::left at the beginning of the line (typically for strings)
 	 // To reset from std::fixed:
 	 // std::cout.setf(std::ios::fixed, std::ios::floatfield);
@@ -7210,6 +7210,12 @@ http://www.youtube.com/watch?v=aMSPwFvlICM
 
 ---
 
+
+COD:
+/lmb/home/flong/COD/cod/cif/1/10/01
+
+--0
+
    how do I write atom names in an sdf file?
 
 
@@ -7219,6 +7225,11 @@ http://www.youtube.com/watch?v=aMSPwFvlICM
    anomalous data (Nat Echols is doing this?)
 
    1qw9 bad trp
+
+
+----
+
+   How can we find compact domains that are misplaced in density?
 
 
 ------
