@@ -2,6 +2,29 @@
  0.8.1
 
 ----
+ 
+   o  Lothar Esser
+
+Example: In phenix I use anomalous_flag= None (or True ) which triggers the
+calculation of anomalous map coefficients. So you have ANOM and PANOM columns.
+I open the mtz file (here called current.mtz) and select ANOM and PANOM and
+set the resolution to a lower value: In display manager I get:
+
+3 current.mtz ANOM PANOM 18.00 5.00    <-- good and short.
+
+In "Map" to be selected I get this:
+3
+/home/dxlab/esser/Project/xxx/xxxx/Crystals/Y104a/139B_A41/Refine/current.mtz
+/crystal/Fourier-map-coefficients/ANOM /crystal/Fourier-map-coefficients/PANOM
+18.00 5.00
+
+This seems a bit long. For me, the display manager entry would suffice.
+
+
+   o in the lsq fitting dialog - either rember the numbers or don't
+     dismiss the dialog on apply.  Or both.  Lothar Esser
+
+---
 
    o CSHL:
 
@@ -46,9 +69,6 @@
      nicely. Puntable.
 
    o reading a pdbfile that is a directory causes mmdb2 to hang?
-
-
--------
 
    o fix the alerts on importing mol/residue -> 2d
 
