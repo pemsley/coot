@@ -4911,7 +4911,8 @@ machine.  However, these parameters can be tweaked so that slower
 computers perform better:
 
 @itemize 
-@item @code{(set-smooth-scroll-steps 4) ; default 8 }
+@item @code{(set-use-stroke-characters 1) ; default is to use bitmap characters }
+@item @code{(set-smooth-scroll-steps 8) ; default 40 }
 @item @code{(set-smooth-scroll-limit 30) ; Angstroms}
 @item @code{(set-residue-selection-flash-frames-number 3);}
 @item @code{(set-skeleton-box-size 20.0) ; A (default 40).}
