@@ -36,8 +36,6 @@ libccp4mg_utils_la_SOURCES = geomutil.cc mgtree.cc cartesian.cc \
 libccp4mg_utils_la_LIBADD = \
    $(LIBPNG_LIBS)
 
-libccp4mg_utils_la_LDFLAGS = -no-undefined
-
 # -lgomp
 
 

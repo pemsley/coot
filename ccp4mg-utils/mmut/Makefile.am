@@ -44,7 +44,6 @@ libccp4mg_mmut_la_SOURCES = \
 	mmut_lipids.h mmut_morph.h	\
 	mmut_nma.cc mmut_colour.cc mmut_nma.h mmut_colour.h
 
-libccp4mg_mmut_la_LDFLAGS = - no-undefined 
 
 # must have GUILE and GUILE_GTK flags before $(INCLUDES), and this 
 # does not happen because LTCXXCOMPILE has AM_CXXFLAGS after INCLUDES.

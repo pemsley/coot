@@ -42,9 +42,9 @@ _pyrogen_swig_la_LIBADD = libcoot_py_restraints.la \
 #
 # _pyrogen_swig_la_LDFLAGS = -avoid-version -module -shared -export-dynamic
 #
-_pyrogen_swig_la_LDFLAGS = -module -no-undefined 
+_pyrogen_swig_la_LDFLAGS = -module
 
-pyrogen_boost_la_LDFLAGS = -module -no-undefined 
+pyrogen_boost_la_LDFLAGS = -module
 
 
 # These get installed in libdir.

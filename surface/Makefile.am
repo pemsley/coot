@@ -53,7 +53,6 @@ libccp4mg_surface_la_SOURCES = \
 
 libccp4mg_surface_la_LIBADD = $(CLIPPER_LIBS) $(FFTW2_LIBS) $(MMDB_LIBS) $(OPENMP_CFLAGS)
 
-libccp4mg_surface_la_LDFLAGS = -no-undefined 
 
 # CXXAtom.h CXXAtom.cpp
 

@@ -38,4 +38,3 @@ libcoot_utils_la_SOURCES = coot-utils.cc coot-fasta.cc atomic-numbers.cc \
 libcoot_utils_la_LIBADD = \
 	$(GLOB_LIBS)
 
-libcoot_utils_la_LDFLAGS = -no-undefined 

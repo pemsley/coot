@@ -32,5 +32,3 @@ libcoot_isosurface_la_SOURCES = Vectors.cpp CIsoSurface.cpp density-contour-tria
 libcoot_isosurface_la_LIBADD = \
 	$(top_builddir)/coords/libcoot-coords.la \
         $(CLIPPER_LIBS)
-
-libcoot_isosurface_la_LDFLAGS = -no-undefined
