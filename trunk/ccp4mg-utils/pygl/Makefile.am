@@ -44,12 +44,12 @@ libccp4mg_opengl_la_SOURCES = \
 	help.cc splineset.cc texture.cc help.h 	\
 	texture.h
 
-libccp4mg_opengl_la_LDFLAGS = -L../util -lccp4mg-pygl_coord -no-undefined
+libccp4mg_opengl_la_LDFLAGS = -L../util -lccp4mg-pygl_coord
 
 libccp4mg_bezier_la_SOURCES = \
 	catmull.cc lincrv.cc bezier.cc catmull.h lincrv.h
 
-libccp4mg_bezier_la_LDFLAGS = -L../util -lccp4mg-pygl_coord -no-undefined
+libccp4mg_bezier_la_LDFLAGS = -L../util -lccp4mg-pygl_coord
 
 libccp4mg_rgbreps_la_SOURCES = \
 	rgbreps.cc rgbreps.h
@@ -57,14 +57,14 @@ libccp4mg_rgbreps_la_SOURCES = \
 libccp4mg_atom_util_la_SOURCES = \
 	atom_util.cc bezier.cc rgbreps.cc atom_util.h
 
-libccp4mg_atom_util_la_LDFLAGS = -L. -lccp4mg-bezier -L../util -lccp4mg-pygl_coord -lccp4mg-mgutil -lccp4mg-rgbreps -no-undefined 
+libccp4mg_atom_util_la_LDFLAGS = -L. -lccp4mg-bezier -L../util -lccp4mg-pygl_coord -lccp4mg-mgutil -lccp4mg-rgbreps
 
 libccp4mg_font_cache_la_SOURCES = \
 	font_info.cc x11_font.cc win_font.cc freetype_font.cc	\
 	font_info.h x11_font.h win_font.h freetype_font.h	\
 	font_util.cc freetype_dl.c font_util.h freetype_dl.h
 
-libccp4mg_font_cache_la_LDFLAGS = -L../util -lccp4mg-mgutil -no-undefined 
+libccp4mg_font_cache_la_LDFLAGS = -L../util -lccp4mg-mgutil
 
 libccp4mg_cprim_la_SOURCES = \
 	sphere.cc subdivide.cc cdisplayobject.cc	\
@@ -72,12 +72,12 @@ libccp4mg_cprim_la_SOURCES = \
 	build_tree_primitives.cc cprimitive.cc text.cc	\
 	billboard.cc qt-text.cc cprimitive.h
 
-libccp4mg_cprim_la_LDFLAGS = -L../mmut -lccp4mg-mmut -L../util -lccp4mg-mginterrupt -lccp4mg-pygl_coord -lccp4mg-mgutil -lccp4mg-paramsmanager -L. -lccp4mg-rgbreps -lccp4mg-atom_util -lccp4mg-bezier -lccp4mg-opengl -lccp4mg-font_cache -no-undefined 
+libccp4mg_cprim_la_LDFLAGS = -L../mmut -lccp4mg-mmut -L../util -lccp4mg-mginterrupt -lccp4mg-pygl_coord -lccp4mg-mgutil -lccp4mg-paramsmanager -L. -lccp4mg-rgbreps -lccp4mg-atom_util -lccp4mg-bezier -lccp4mg-opengl -lccp4mg-font_cache
 
 libccp4mg_symmetry_la_SOURCES = \
 	symmetry.cc symmetry.h
 
-libccp4mg_symmetry_la_LDFLAGS = -L../util -ccp4mg-pygl_coord -L../mmut -lccp4mg-mmut -L../util -lccp4mg-mginterrupt -lccp4mg-mgutil -no-undefined 
+libccp4mg_symmetry_la_LDFLAGS = -L../util -ccp4mg-pygl_coord -L../mmut -lccp4mg-mmut -L../util -lccp4mg-mginterrupt -lccp4mg-mgutil
 
 libccp4mg_psutil_la_SOURCES = \
 	psutil.cc zsortps.cc psutil.h 

@@ -64,8 +64,6 @@ libcoot_coord_utils_la_LIBADD = \
     $(top_builddir)/geometry/libcoot-geometry.la \
     $(GSL_LIBS)
 
-libcoot_coord_utils_la_LDFLAGS = -no-undefined
-
 # shelx
 libcoot_shelx_la_SOURCES = coot-shelx-ins.cc
 
@@ -73,8 +71,6 @@ libcoot_shelx_la_SOURCES = coot-shelx-ins.cc
 libcoot_shelx_la_LIBADD =  \
     libcoot-coord-utils.la \
     $(top_builddir)/utils/libcoot-utils.la
-
-libcoot_shelx_la_LDFLAGS = -no-undefined
 
 # for non-simple coordinates things
 libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc \
@@ -87,7 +83,6 @@ libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc \
 libcoot_coord_extras_la_LIBADD = \
    libcoot-coord-utils.la 
 
-libcoot_coord_extras_la_LDFLAGS = -no-undefined
 
 # for (map) things that need to link mmdb and clipper:
 libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from-list.cc trim.cc \
@@ -95,10 +90,7 @@ libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from
 
 # clean
 libcoot_map_utils_la_LIBADD = \
-   libcoot-coord-utils.la  \
-   $(GSL_LIBS)
-
-libcoot_map_utils_la_LDFLAGS = -no-undefined
+   libcoot-coord-utils.la
 
 # for map things that need mmdb, clipper, gsl and other things
 libcoot_map_heavy_la_SOURCES = coot-map-heavy.cc coot-fffear.cc
@@ -111,7 +103,6 @@ libcoot_map_heavy_la_LIBADD = \
    libcoot-coord-utils.la \
    $(GSL_LIBS)
 
-libcoot_map_heavy_la_LDFLAGS = -no-undefined
 
 # test-agg-clust
 check_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-elastic test-spherical glyco-torsions test-tt-morph

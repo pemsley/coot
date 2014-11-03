@@ -74,8 +74,6 @@ libcoot_ideal_la_SOURCES = simple-restraint.cc chirals.cc  extra-restraints.cc \
         extra-restraints-kk.cc simple-restraint-kk.cc torsion-bonds.cc \
 	coot-compare-residues.hh coot-compare-residues.cc link-restraints.cc parallel-planes.cc
 
-libcoot_ideal_la_LDFLAGS = -no-undefined 
-
 check_PROGRAMS =  with-geometry logramatest
 bin_PROGRAMS = mini-rsr
 
@@ -123,8 +121,6 @@ mini_rsr_LDADD =  \
 	$(GLOB_LIBS) \
 	$(RDKIT_LIBS) \
         $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
-
-mini_rsr_LDFLAGS = $(COOT_WINDOWS_LDFLAGS)
 
 #test_indexing_LDADD = \
 #        ./libcoot-ideal.la                                \
