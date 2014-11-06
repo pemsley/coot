@@ -2048,7 +2048,7 @@ ${WGET} $extras_place/ssm-$ssm_version.tar.gz
 (
 date
 # gzip -dc ${AUTOBUILD_SOURCES}/SSMlib-$ssmlib_version.tar.gz | tar xf -
-tar xf ${AUTOBUILD_SOURCES}/ssm-$ssm_version.tar.gz
+gzip -cd ${AUTOBUILD_SOURCES}/ssm-$ssm_version.tar.gz | tar xf -
 cd ssm-$ssm_version
 # ./configure $generic_prefix --with-mmdb-prefix=$install_top_dir
 # grrr PE I agree
@@ -2194,8 +2194,7 @@ if test -n "$build_freeglut" ; then
 #nate's version is not good as it requires 'manual' adjustments to compilation
 #${WGET} http://www.xmission.com/~nate/glut/glut-3.7.6-bin.zip
 # we get another version instead
-${WGET} http://files.transmissionzero.co.uk/software/development/GLUT/freeglut-
-MinGW-2.8.1-1.mp.zip
+${WGET} http://files.transmissionzero.co.uk/software/development/GLUT/freeglut-MinGW-2.8.1-1.mp.zip
 
 (
 date
@@ -2214,9 +2213,9 @@ cp bin/freeglut.dll	$install_top_dir/bin/
 mkdir_maybe	$install_top_dir/lib
 cp lib/libfreeglut.a	$install_top_dir/lib/
 # and whilst we are here let's get the openGL extensions as well
-${WGET} http://www.opengl.org/registry/api/glext.h
-${WGET} http://www.opengl.org/registry/api/glxext.h
-${WGET} http://www.opengl.org/registry/api/wglext.h
+${WGET} --no-check-certificate http://www.opengl.org/registry/api/glext.h
+${WGET} --no-check-certificate http://www.opengl.org/registry/api/glxext.h
+${WGET} --no-check-certificate http://www.opengl.org/registry/api/wglext.h
 cp ${AUTOBUILD_SOURCES}/glext.h  $install_top_dir/include/GL/
 cp ${AUTOBUILD_SOURCES}/glxext.h $install_top_dir/include/GL/
 cp ${AUTOBUILD_SOURCES}/wglext.h $install_top_dir/include/GL/
@@ -2585,7 +2584,7 @@ if test -n "$build_gtkglext" ; then
            patch_file=gtk-gtkglwidget.c-for-modern-gtk.patch
         fi
         #${WGET}   http://lmb.bioch.ox.ac.uk/coot/software/extras/$patch_file
-        ${WGET}   $extras_place/gtkglext-$gtkglext_version.tar.gz
+        ${WGET}   $extras_place/$patch_file
 
         if patch -p0 < ${AUTOBUILD_SOURCES}/$patch_file ; then 
             echo gtkglext patched good.
@@ -2709,7 +2708,12 @@ if test -n "$build_python" ; then
     echo BUILDING Python ${pver}:
 #
 cd ${AUTOBUILD_SOURCES}
-${WGET} http://www.python.org/ftp/python/$pver/python-$pver.msi
+echo downloading python from http://www.python.org/ftp/python/$pver/python-$pver.msi
+${WGET} --no-check-certificate http://www.python.org/ftp/python/$pver/python-$pver.msi
+status=$?
+if [ "$status" != 0 ] ; then
+   echo problem downloading python
+fi
 #${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/unittest_skip_win.patch
 (
 date

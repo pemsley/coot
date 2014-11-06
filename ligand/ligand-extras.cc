@@ -679,7 +679,7 @@ clipper::Coord_orth
 coot::ligand::move_water_close_to_protein(const clipper::Coord_orth &water_pos,
 					  const std::vector<clipper::Coord_orth> &sampled_protein_coords) const {
 
-   double best_dist = 999999999999999999999999999999;
+   double best_dist = 999999999999999999999999999999.;
    clipper::Coord_orth moved_pos = water_pos;
    
    int n_sampled = sampled_protein_coords.size();

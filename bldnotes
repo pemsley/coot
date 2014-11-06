@@ -8,6 +8,8 @@ build-it-win rev 4739 (check 0.8 pre builder, add publishing?!)
 * THINGS TO DO BEFORE 0.7.2 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
 
+check up to dateness of supplied manuals
+
 Fix installer guile warning for windows feel.
 Test spider drag and drop
 
@@ -503,6 +505,8 @@ low importance
    o fix runwincoot.bat when PYTHONPATH points to a pygtk installation.
 
    o Add Documents\ and Settings//My Documents to favourites in filechooser
+
+   o build script: better for pango's friends (output and check)
 
    o fix dragNdrop for filenames with spaces!!
 
