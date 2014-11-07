@@ -11,6 +11,11 @@
 # set this to "no" if you don't want to compile the pre-release code.
 # build_coot_prerelease=
 build_coot_prerelease=${1:=1}
+if [ -e /z/make_stable_build ] ; then
+  build_coot_prerelease=0
+  rm /z/make_stable_build
+fi
+
 if [ $build_coot_prerelease == 0 ] ; then 
   echo building stable installer
 else
@@ -46,16 +51,16 @@ function copy_logs {
 
   if [ $1 = "python" ] ; then 
   # copy log files from local to public html
-   cp -p $LOCAL_HTML_LOGS/gtk2-build.log $PUBLIC_HTML_LOGS
+   cp -p $LOCAL_HTML_LOGS/gtk2-build.log $PUBLIC_HTML_LOGS/
    cp -p $LOCAL_HTML_LOGS/gtk2-build.log $PUBLIC_HTML_LOGS/gtk2-python-build.log
-   cp -r -p $LOCAL_HTML_LOGS/$HOSTLOG_STUB  $PUBLIC_HTML_LOGS
-   cp -p $LOCAL_HTML_LOGS/gtk2-test.log  $PUBLIC_HTML_LOGS
+   cp -r -p $LOCAL_HTML_LOGS/$HOSTLOG_STUB  $PUBLIC_HTML_LOGS/
+   cp -p $LOCAL_HTML_LOGS/gtk2-test.log  $PUBLIC_HTML_LOGS/
    cp -p $LOCAL_HTML_LOGS/gtk2-test.log  $PUBLIC_HTML_LOGS/gtk2-python-test.log
   else
   # copy log files from local to public html
-   cp -p $LOCAL_HTML_LOGS/gtk2-guile-build.log $PUBLIC_HTML_LOGS
-   cp -r -p $LOCAL_HTML_LOGS/${HOSTLOG_STUB}-guile  $PUBLIC_HTML_LOGS
-   cp -p $LOCAL_HTML_LOGS/gtk2-guile-test.log  $PUBLIC_HTML_LOGS
+   cp -p $LOCAL_HTML_LOGS/gtk2-guile-build.log $PUBLIC_HTML_LOGS/
+   cp -r -p $LOCAL_HTML_LOGS/${HOSTLOG_STUB}-guile  $PUBLIC_HTML_LOGS/
+   cp -p $LOCAL_HTML_LOGS/gtk2-guile-test.log  $PUBLIC_HTML_LOGS/
   fi
 
 }
