@@ -3917,6 +3917,8 @@ molecule_class_info_t::insert_coords(const atom_selection_container_t &asc) {
    }
 } 
 
+// This does and InsResidue or an AddResidue() as appropriate.
+// 
 void 
 molecule_class_info_t::insert_coords_internal(const atom_selection_container_t &asc) {
 
@@ -4382,8 +4384,10 @@ molecule_class_info_t::add_terminal_residue_using_phi_psi(const std::string &cha
 	       f.addresidue(r,0);
 	       coot::minimol::molecule m(f);
 	       mmdb::Manager *mol_new = m.pcmmdbmanager();
+
 	       atom_selection_container_t asc = make_asc(mol_new);
-	       add_coords(asc);
+	       insert_coords_internal(asc);
+	       
 	       update_molecule_after_additions(); // create UDDAtomIndexHandle for new atoms.
 	       status = 1;
 	    } else {

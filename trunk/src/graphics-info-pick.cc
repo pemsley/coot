@@ -588,9 +588,12 @@ graphics_info_t::move_single_atom_of_moving_atoms(int screenx, int screeny) {
 // diff_std is the difference in position of the moving atoms, the
 // other atoms of the moving_atoms_asc are moved relative to it by
 // different amounts...
+//
+// This function currently seems to be called with linear_movement_scaling_flag as false.
 // 
 void
-graphics_info_t::move_moving_atoms_by_shear_internal(const coot::Cartesian &diff_std, short int squared_flag) {
+graphics_info_t::move_moving_atoms_by_shear_internal(const coot::Cartesian &diff_std, 
+                                                     short int linear_movement_scaling_flag) {
 
    coot::Cartesian diff = diff_std;
    mmdb::Atom *mat = moving_atoms_asc->atom_selection[moving_atoms_dragged_atom_index];
@@ -616,10 +619,10 @@ graphics_info_t::move_moving_atoms_by_shear_internal(const coot::Cartesian &diff
 
       mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
       coot::Cartesian atom_pt(at->x, at->y, at->z);
-      if (squared_flag == 0) {
+      if (linear_movement_scaling_flag == 0) {
 	 // 	 frac = (1.0 - d_to_moving_at[i]/d_to_moving_at_max); old
 	 dr = d_to_moving_at[i]/d_to_moving_at_max;
-	 frac = (1-pow(dr, 0.167));
+	 frac = (1-pow(dr, 0.1));
       } else {
 	 dr = d_to_moving_at[i]/d_to_moving_at_max;
 	 // frac = (1.0 - dr)*(1.0 - dr);

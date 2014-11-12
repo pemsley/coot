@@ -2618,8 +2618,8 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 
 		     if (graphics_info_t::a_is_pressed) {
 
-			 // We can't use shift, because this never
-			 // happens because
+			// We can't use shift, because this never
+			// happens because
 			// in_moving_atoms_drag_atom_mode_flag is
 			// unset on shift-left-click ("label atom").
 			info.move_moving_atoms_by_shear(x_as_int, y_as_int, 1);
