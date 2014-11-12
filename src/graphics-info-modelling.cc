@@ -2307,6 +2307,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 			tmp_asc.atom_selection[i]->occupancy = 11.0;
 		     }
 		  } 
+
 		  molecules[imol_moving_atoms].insert_coords(tmp_asc);
 		  graphics_draw();
 	       }
