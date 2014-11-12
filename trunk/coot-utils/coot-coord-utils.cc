@@ -260,60 +260,14 @@ coot::util::shift(mmdb::Manager *mol, clipper::Coord_orth pt) {
 void
 coot::sort_chains(mmdb::Manager *mol) {
 
-#ifdef MMDB_MAJOR_VERSION
-#if ((MMDB_MAJOR_VERSION > 1) || ((MMDB_MAJOR_VERSION == 1) && (MMDB_MINOR_VERSION >= 22)))
-
-   for (int imod=1; imod<=mol->GetNumberOfModels(); imod++) {
-      mmdb::Model *model_p = mol->GetModel(imod);
-      model_p->SortChains(SORT_CHAIN_ChainID_Asc); // "B" comes after "A"
-   }
-   mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-   mol->FinishStructEdit();
-#endif   
-#else
-   
-   for (int imod=1; imod<=mol->GetNumberOfModels(); imod++) {
-
-      mmdb::Model *model_p = mol->GetModel(imod);
-      mmdb::Chain *chain_p;
-      // run over chains of the existing mol
-      int nchains = model_p->GetNumberOfChains();
-      std::vector<std::pair<mmdb::Chain *, std::string> > chain_ids(nchains);
-      for (int ichain=0; ichain<nchains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
-	 std::string chain_id = chain_p->GetChainID();
-	 chain_ids[ichain] = std::pair<mmdb::Chain *, std::string> (chain_p, chain_id);
+   if (mol) { 
+      for (int imod=1; imod<=mol->GetNumberOfModels(); imod++) {
+	 mmdb::Model *model_p = mol->GetModel(imod);
+	 model_p->SortChains(mmdb::SORT_CHAIN_ChainID_Asc); // "B" comes after "A"
       }
-      // now chain_ids is full
-      std::sort(chain_ids.begin(), chain_ids.end(), sort_chains_util);
-
-      if (0) 
-	 for (int ichain=0; ichain<nchains; ichain++)
-	    std::cout << " Sorted chain order " << ichain << " "
-		      << chain_ids[ichain].second << std::endl;
-      
-      mmdb::Model *new_model_p = new mmdb::Model;
-      mol->AddModel(new_model_p);
-      int new_model_number = new_model_p->GetSerNum();
-      std::cout << "new model number : " << new_model_number << std::endl;
-      for (int ichain=0; ichain<nchains; ichain++) {
-	 mmdb::Chain *new_chain_p = new mmdb::Chain;
-	 new_chain_p->Copy(chain_ids[ichain].first);
-	 new_chain_p->SetChainID(chain_ids[ichain].second.c_str());
-	 new_model_p->AddChain(new_chain_p);
-	 std::cout << " adding new chain " << new_chain_p->GetChainID() << std::endl;
-      }
-
-
-      mol->SwapModels(imod, new_model_number);
-      // Now delete the old model.
-      mol->DeleteModel(2);
-      
+      mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+      mol->FinishStructEdit();
    }
-   mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-   mol->FinishStructEdit();
-#endif
-   
 }
       
 
