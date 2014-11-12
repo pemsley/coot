@@ -4363,7 +4363,7 @@ molecule_class_info_t::add_terminal_residue_using_phi_psi(const std::string &cha
 		  }
 	       }
 	    }
-	    if (term_type == "C") {
+	    if (term_type == "C" || term_type == "singleton" ) {
 	       if (! (found_atoms_count&7)) {
 		  std::cout << "Bad for N current atom selection " << std::endl;
 	       } else {
