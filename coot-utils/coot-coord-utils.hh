@@ -386,10 +386,11 @@ namespace coot {
 
    // Fiddle with mol. 
    // 
-   // sort chains in lexographical order
+   // sort chains in lexographical order.  Calls PDBCleanup() and FinishStructEdit().
    void sort_chains(mmdb::Manager *mol);
 
    // sort residues
+   // Calls PDBCleanup() and FinishStructEdit().
    void sort_residues(mmdb::Manager *mol);
 
 
