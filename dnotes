@@ -3991,8 +3991,8 @@ INFO::
    o clear out pre-releases
    o check for updates - needs consideration?
    o Build binaries on some hosts
-   o Mail mailing list
    o Update latest version info on coot web page.
+   o Mail mailing list
 
 ---
 Mon Jan 12 00:17:05 GMT 2009
@@ -7153,12 +7153,10 @@ Sun Aug 17 18:10:34 BST 2014
 
    4mt6 good example for morphing - based no what though? Hmm.
 
-
 ----
 Wed Aug 20 00:01:56 BST 2014
 
-when compiling guile-dbi, rename src/guile-dbi.x so that it gets rebuilt.
-
+   If/when compiling guile-dbi, rename src/guile-dbi.x so that it gets rebuilt.
 
 ----
  3b75
@@ -7170,13 +7168,11 @@ IUCr Note
 
    o Sameer: java to javascript compiler - used to make javascript astexviewer
 
-
 ----
 IUCr Note: 
 
    Put the mogul/refmac colour annotations over the lbg representation
    of the figure.  Make it interactive.
-
 
 ----
 Tue Aug 12 14:32:32 EDT 2014
@@ -7188,11 +7184,11 @@ Tue Aug 12 14:32:32 EDT 2014
 
    Scoring Protein-Ligand Complex interactions:
 
-   http://pubs.acs.org/doi/abs/10.1021/jm050436v
+      http://pubs.acs.org/doi/abs/10.1021/jm050436v
 
    Improving the scoring of torsion? KDE by CCDC
 
-   http://pubs.acs.org/doi/abs/10.1021/ci500156d
+      http://pubs.acs.org/doi/abs/10.1021/ci500156d
 
 ---
 
@@ -7208,29 +7204,78 @@ watch this vid:
 
 http://www.youtube.com/watch?v=aMSPwFvlICM
 
----
-
-
-COD:
-/lmb/home/flong/COD/cod/cif/1/10/01
-
---0
-
-   how do I write atom names in an sdf file?
-
+  * it was OK, bit old now.
 
 ---
 
-   add Water Validation to validation tutorial. What about using the
-   anomalous data (Nat Echols is doing this?)
 
-   1qw9 bad trp
+   COD: /lmb/home/flong/COD/cod/cif/1/10/01
 
+---
+
+   How do I write atom names in an sdf file?
+
+---
+
+   o add Water Validation to validation tutorial. What about using the
+     anomalous data (Nat Echols is doing this?)
+
+   o Add intro to new validation report
+
+   o 1qw9 bad trp
+
+   o 4q8j many cis-peptides
+
+---
+
+   Read this paper: 
+
+   Acta Cryst. (2007). D63, 42-49  [ doi:10.1107/S0907444906041059 ]
+
+   EMatch: an efficient method for aligning atomic resolution subunits
+   into intermediate-resolution cryo-EM maps of large macromolecular
+   assemblies
+
+   O. Dror, K. Lasker, R. Nussinov and H. Wolfson
+
+   Synopsis: A method for detecting structural homologs of components
+   in an intermediate resolution cryo-EM map and their spatial
+   configuration is presented.
+
+
+---- 
+
+  CSHL 2nd Talk:
+
+  Pirate, Parrot, Buccaneer, Prosmart and refinement(?) 
 
 ----
 
    How can we find compact domains that are misplaced in density?
 
+----
+  
+   Read this:
+
+   practicalfragments.blogspot.com
+
+
+----
+
+   SLERPing:
+
+   http://number-none.com/product/Understanding%20Slerp,%20Then%20Not%20Using%20It/
+   http://www.cbloom.com/3d/
+
+   Thomas Busser, “PolySlerp, A Fast and Accurate Polynomial Approximation of 
+   Slerp”, Game Developer Magazine, February, 2004. 
+
+   http://mollyrocket.com/forums/molly_forum_246.html
+
+   Shoemake, K., Animating rotation with quaternion curves, Computer
+     Graphics 19, No 3 (Proc. SIGGRAPH'85), 245-254, 1985.
+   Pletinckx, D., Quaternion calculus as a basic tool in computer
+     graphics, The Visual Computer 5, 2-13, 1989.
+
 
 ------
-
