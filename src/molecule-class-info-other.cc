@@ -8364,8 +8364,9 @@ molecule_class_info_t::sort_chains() {
 void
 molecule_class_info_t::sort_residues() {
 
-  if (atom_sel.mol)
-    coot::sort_residues(atom_sel.mol);
+   if (atom_sel.mol)
+      // this calls clean up and FinishStructEdit()
+      coot::sort_residues(atom_sel.mol);
 
 }
 

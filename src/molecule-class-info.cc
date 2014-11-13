@@ -4325,8 +4325,11 @@ molecule_class_info_t::add_terminal_residue_using_phi_psi(const std::string &cha
 	    std::string term_type = get_term_type(atom_indx);
 	    int found_atoms_count = 0;
 	    clipper::Coord_orth previous_ca, previous_c, previous_n;
+	    mmdb::Atom *C_terminal_this_residue_O = NULL;
 	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
 	       std::string atom_name = residue_atoms[iat]->name;
+
+	       // PDBv3 FIXME.
 	       if (atom_name == " CA ") {
 		  found_atoms_count += 1;
 		  previous_ca = clipper::Coord_orth(residue_atoms[iat]->x,
@@ -4345,9 +4348,16 @@ molecule_class_info_t::add_terminal_residue_using_phi_psi(const std::string &cha
 						   residue_atoms[iat]->y,
 						   residue_atoms[iat]->z);
 	       }
+	       if (atom_name == " O  ") {
+		  // we store this because, if a residue is added to
+		  // the C-terminus, we want to move the O of the
+		  // current residue to be in the peptide plane that
+		  // is made when we have the new residue atoms.
+		  C_terminal_this_residue_O = residue_atoms[iat];
+	       }
 	    }
 	    coot::minimol::residue r;
-	    if (term_type == "N") { 
+	    if (term_type == "N") {
 	       if (! (found_atoms_count&7)) {
 		  std::cout << "Bad for N current atom selection " << std::endl;
 	       } else {
@@ -4363,6 +4373,8 @@ molecule_class_info_t::add_terminal_residue_using_phi_psi(const std::string &cha
 		  }
 	       }
 	    }
+
+	    // treat singletons like a C-terminal addition.
 	    if (term_type == "C" || term_type == "singleton" ) {
 	       if (! (found_atoms_count&7)) {
 		  std::cout << "Bad for N current atom selection " << std::endl;
@@ -4376,6 +4388,41 @@ molecule_class_info_t::add_terminal_residue_using_phi_psi(const std::string &cha
 		  if (cb.first) {
 		     coot::minimol::atom at(" CB ", " C", cb.second, "", 1.0, 30);
 		     r.addatom(at);
+
+		     // Also, we need to move the O of the current
+		     // atom into the plane of the CA
+		     // 
+		     if (C_terminal_this_residue_O) {
+			std::pair<bool, clipper::Coord_orth> ca_new(false, clipper::Coord_orth(0,0,0));
+			std::pair<bool, clipper::Coord_orth>  n_new(false, clipper::Coord_orth(0,0,0));
+
+			// PDBv3 FIXME.
+			// now get ca_new and n_new from r:
+			for (unsigned int jat=0; jat<r.n_atoms(); jat++) { 
+			   if (r[jat].name == " CA ") { 
+			      ca_new.first = true;
+			      ca_new.second = r[jat].pos;
+			   }
+			   if (r[jat].name == " N  ") { 
+			      n_new.first = true;
+			      n_new.second = r[jat].pos;
+			   }
+			}
+			// If we found them (we should have), generate
+			// a new pos for this O and apply it.
+			if (ca_new.first && n_new.first) { 
+			   double torsion_ca_n_c_o = clipper::Util::d2rad(0.0);
+			   double angle_n_c_o      = clipper::Util::d2rad(132.02);
+			   // bond/attach to the previous_c.
+			   clipper::Coord_orth new_pos(ca_new.second, 
+						       n_new.second,
+						       previous_c,
+						       1.23, angle_n_c_o, torsion_ca_n_c_o);
+			   C_terminal_this_residue_O->x = new_pos.x();
+			   C_terminal_this_residue_O->y = new_pos.y();
+			   C_terminal_this_residue_O->z = new_pos.z();
+			}
+		     }
 		  }
 	       }
 	    }
@@ -4387,7 +4434,7 @@ molecule_class_info_t::add_terminal_residue_using_phi_psi(const std::string &cha
 
 	       atom_selection_container_t asc = make_asc(mol_new);
 	       insert_coords_internal(asc);
-	       
+
 	       update_molecule_after_additions(); // create UDDAtomIndexHandle for new atoms.
 	       status = 1;
 	    } else {
