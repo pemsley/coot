@@ -19,17 +19,6 @@
 #include "read-sm-cif.hh"
 
 
-// add a casting hack for old versions of mmdb
-//
-#if (MMDB_MAJOR_VERSION == 1)
-#if (MMDB_MINOR_VERSION < 24)
-#define PSTR_CAST_HACK (mmdb::pstr *)
-#else 
-#define PSTR_CAST_HACK
-#endif
-#else 
-#define PSTR_CAST_HACK
-#endif
 
 // This can throw a std::runtime_error.
 // 
@@ -135,7 +124,7 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
 
    int ierr = 0;
    mmdb::pstr S = NULL;
-   mmdb::mmcif::PLoop loop = data->FindLoop(PSTR_CAST_HACK loopTagsAtom);
+   mmdb::mmcif::PLoop loop = data->FindLoop(loopTagsAtom);
    if (loop) {
       int ll = loop->GetLoopLength();
       if (ll >= 0) {
@@ -221,7 +210,7 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
    std::vector<coot::simple_sm_u> u_aniso_vec;
    
    // loop = data->FindLoop((pstr *) loopTagsAniso);
-   loop = data->FindLoop(PSTR_CAST_HACK loopTagsAniso);
+   loop = data->FindLoop(loopTagsAniso);
    if (loop) {
       int ll = loop->GetLoopLength();
       char *label  = NULL;
@@ -337,7 +326,7 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
 				     ""};
 
 	 // mmdb::mmcif::PLoop loop = data->FindLoop((pstr *) loopTag1);
-	 mmdb::mmcif::PLoop loop = data->FindLoop(PSTR_CAST_HACK loopTag1);
+	 mmdb::mmcif::PLoop loop = data->FindLoop(loopTag1);
 	 if (loop) {
 	    int ll = loop->GetLoopLength();
 	    // std::cout << "loop length: " << ll << std::endl;
@@ -431,7 +420,7 @@ coot::smcif::get_resolution(const clipper::Cell &cell,
 				      "_refln_index_l",
 				      ""};
       
-      mmdb::mmcif::PLoop loop = data->FindLoop(PSTR_CAST_HACK loopTag_data);
+      mmdb::mmcif::PLoop loop = data->FindLoop(loopTag_data);
       if (loop) {
 	 int ll = loop->GetLoopLength();
 	 if (ll > 0) {
@@ -502,7 +491,7 @@ coot::smcif::setup_hkls(const std::string &file_name) {
 				      "_refln_index_l",
 				      ""};
       
-      mmdb::mmcif::PLoop loop = data->FindLoop(PSTR_CAST_HACK loopTag_data);
+      mmdb::mmcif::PLoop loop = data->FindLoop(loopTag_data);
       if (loop) {
 	 clipper::HKL_data_base* f_sigf_input;
 	 int ll = loop->GetLoopLength();
@@ -584,7 +573,7 @@ coot::smcif::read_data_sm_cif(const std::string &file_name) {
 // 						"_refln_B_calc",
 					       ""};
       
-	       mmdb::mmcif::PLoop loop = data->FindLoop(PSTR_CAST_HACK loopTag_data);
+	       mmdb::mmcif::PLoop loop = data->FindLoop(loopTag_data);
 	       if (loop) {
 		  clipper::HKL_data_base* f_sigf_input;
 		  int ll = loop->GetLoopLength();
@@ -759,7 +748,7 @@ coot::smcif::get_space_group(mmdb::mmcif::PData data, const std::string &symm_ta
    const char *loopTag1[2] = { symm_tag.c_str(), ""};
    int n_tags = 1;
 
-   mmdb::mmcif::PLoop loop = data->FindLoop(PSTR_CAST_HACK loopTag1);
+   mmdb::mmcif::PLoop loop = data->FindLoop(loopTag1);
    // std::cout << "loop: " << loop << std::endl;
    if (loop) {
       int ll = loop->GetLoopLength();
