@@ -24,6 +24,12 @@
 GTKGL_CONTEXT_CFLAGS = $(GTKGL_CFLAGS) $(GTKGLEXT_CFLAGS)
 GTKGL_CONTEXT_LIBS   = $(GTKGL_LIBS) $(GTKGLEXT_LIBS)
 
+pkginclude_HEADERS = cartesian.h  CParamsManager.h  matrix.h       mgtree.h \
+		     plane.h  redirect.h connect.h    geomutil.h  \
+		     mginterrupt.h  mgutil.h	quat.h	 volume.h
+
+pkgincludedir = $(includedir)/coot/ccp4mg-utils/util
+
 # remove this from coot dependencies:
 # 	$(top_builddir)/mmtz-extras/libcoot-mmtz-extras.la 
 
