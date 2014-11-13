@@ -2752,6 +2752,9 @@ public:        //                      public
    int renumber_residue_range(const std::string &chain_id,
 			      int start_resno, int last_resno, int offset);
 
+   int renumber_residue_range_old(const std::string &chain_id,
+			      int start_resno, int last_resno, int offset);
+
    int change_residue_number(const std::string &chain_id_str,
 			     int current_resno,
 			     const std::string &current_inscode_str,
