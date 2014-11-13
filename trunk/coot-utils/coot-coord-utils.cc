@@ -281,18 +281,28 @@ coot::sort_chains_util(const std::pair<mmdb::Chain *, std::string> &a,
 void
 coot::sort_residues(mmdb::Manager *mol) {
 
-   for (int imod=1; imod<=mol->GetNumberOfModels(); imod++) {
-      mmdb::Model *model_p = mol->GetModel(imod);
-      mmdb::Chain *chain_p;
-      // run over chains of the existing mol
-      int nchains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<nchains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
-	 chain_p->SortResidues();
+   if (mol) { 
+      for (int imod=1; imod<=mol->GetNumberOfModels(); imod++) {
+	 mmdb::Model *model_p = mol->GetModel(imod);
+	 if (model_p) { 
+	    mmdb::Chain *chain_p;
+	    // run over chains of the existing mol
+	    int nchains = model_p->GetNumberOfChains();
+	    for (int ichain=0; ichain<nchains; ichain++) {
+	       chain_p = model_p->GetChain(ichain);
+	       chain_p->SortResidues();
+	    }
+	 } else {
+	    std::cout << "ERROR:: (trapped) sort_residues() Null Model "
+		      << imod << " of " << mol->GetNumberOfModels() << std::endl;
+	 } 
       }
-   }
-   mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-   mol->FinishStructEdit();
+      mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+      mol->FinishStructEdit();
+   } else {
+      std::cout << "ERROR:: (trapped) sort_residues() called with Null molecule"
+		<< std::endl;
+   } 
 }
 
 // return residue specs for residues that have atoms that are

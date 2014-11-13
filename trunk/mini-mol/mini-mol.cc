@@ -560,6 +560,7 @@ coot::minimol::residue::residue(mmdb::Residue *residue_p,
 bool
 coot::minimol::atom::is_hydrogen_p() const {
 
+   // PDBv3 FIXME.
    if (element == " H" ||
        element == " D") {
       return 1;
