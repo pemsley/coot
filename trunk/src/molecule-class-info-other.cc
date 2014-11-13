@@ -5321,6 +5321,67 @@ molecule_class_info_t::copy_and_add_residue_to_chain(mmdb::Chain *this_model_cha
 
 int
 molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
+                                              int start_resno, int last_resno, int offset) {
+
+
+   int status = 0;
+
+   // PDBCleanup(mmdb::PDBCLEAN_SERIAL) doesn't move the residue to
+   // the end of the chain when we change the seqNum. Boo.
+   // So, let's make a vector of residues that we will add
+   // (insert) after the original residues have been deleted.
+   //
+   // BL says:: I dont belive it, so lets try...
+   // OK, seems to be the case, so just add a SortResidues and
+   // Bob is your uncle.
+   
+   if (start_resno > last_resno) {
+      int tmp = start_resno;
+      start_resno = last_resno;
+      last_resno = tmp;
+   }
+   
+   if (atom_sel.n_selected_atoms > 0) {
+      mmdb::Model *model_p = atom_sel.mol->GetModel(1);
+      mmdb::Chain *chain_p;
+      int n_chains = model_p->GetNumberOfChains(); 
+      for (int i_chain=0; i_chain<n_chains; i_chain++) {
+         chain_p = model_p->GetChain(i_chain);
+         std::string mol_chain(chain_p->GetChainID());
+         if (mol_chain == chain_id) {
+
+            make_backup();
+            int nres = chain_p->GetNumberOfResidues();
+            mmdb::Residue *residue_p;
+            for (int ires=0; ires<nres; ires++) { // ires is a serial number
+               residue_p = chain_p->GetResidue(ires);
+               if (residue_p->seqNum >= start_resno) {
+                  if (residue_p->seqNum <= last_resno) {		     
+                     residue_p->seqNum += offset;
+                     status = 1; // found one residue at least.
+                  }
+               }
+            }
+         }
+         if (status)
+            chain_p->SortResidues();
+      }
+   }
+   if (status) {
+      have_unsaved_changes_flag = 1;
+      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+      atom_sel.mol->FinishStructEdit();
+      update_molecule_after_additions();
+      // need to redraw the bonds:
+      make_bonds_type_checked();
+   } 
+   return status;
+   
+}
+
+
+int
+molecule_class_info_t::renumber_residue_range_old(const std::string &chain_id,
 					      int start_resno, int last_resno, int offset) {
 
    int status = 0;
