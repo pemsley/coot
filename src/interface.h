@@ -182,6 +182,8 @@ GtkWidget* create_keyboard_goto_residue_window (void);
 GtkWidget* create_mogul_geometry_results_table_dialog();
 GtkWidget* create_build_na_dialog (void);
 GtkWidget* create_ligand_check_dialog (void);
+GtkWidget* create_generic_objects_dialog (void);
+
 #endif /* GTK_MAJOR_VERSION */ 
 
 END_C_DECLS

@@ -375,6 +375,7 @@ int test_function(int i, int j) {
 }
 
 
+#include "c-interface-widgets.h" // for wrapped_create_generic_objects_dialog();
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
@@ -384,6 +385,16 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    SCM r = SCM_BOOL_F;
 
    if (1) {
+
+      for (unsigned int io=0; io<20; io++) { 
+	 std::string name = "Test " + coot::util::int_to_string(io);
+	 int n = new_generic_object_number(name.c_str());
+	 to_generic_object_add_line(n, "green", 2+io, 1+io, 2, 3, 4, 5, 6);
+	 set_display_generic_object(n, 1);
+      }
+
+      GtkWidget *w = wrapped_create_generic_objects_dialog();
+      gtk_widget_show(w);
    }
 
    if (0) {

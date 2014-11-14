@@ -1012,6 +1012,7 @@ public:
 
       // generic display objects
       generic_objects_p = new std::vector<coot::generic_display_object_t>;
+      generic_objects_dialog = NULL;
 
       // generic text:
       generic_texts_p = new std::vector<coot::generic_text_object_t>;
@@ -3652,6 +3653,8 @@ public:
      int r = generic_objects_p->size() -1;
      return r;
    } 
+   static GtkWidget *generic_objects_dialog; 
+
 
    // ---- active atom:
    static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec();

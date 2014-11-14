@@ -1076,28 +1076,40 @@ int number_of_generic_objects() {
    return g.generic_objects_p->size();
 }
 
+#include "c-interface-widgets.h"
 
 void generic_objects_gui_wrapper() {
 
-   std::vector<std::string> cmd;
-   cmd.push_back("generic-objects-gui");
    graphics_info_t g;
+   if (! g.generic_objects_dialog) { 
+      g.generic_objects_dialog = wrapped_create_generic_objects_dialog();
+   }
+   gtk_widget_show(g.generic_objects_dialog);
+   
 
-#if defined USE_GUILE && !defined WINDOWS_MINGW
+   // --------------------------- old (by scripting) ------------------------
 
-   std::string s = g.state_command(cmd, coot::STATE_SCM);
-   safe_scheme_command(s);
+//    std::vector<std::string> cmd;
+//    cmd.push_back("generic-objects-gui");
+//    graphics_info_t g;
+
+// #if defined USE_GUILE && !defined WINDOWS_MINGW
+
+//    std::string s = g.state_command(cmd, coot::STATE_SCM);
+//    safe_scheme_command(s);
 
 
-#else
-#ifdef USE_PYGTK
+// #else
+// #ifdef USE_PYGTK
 
-   std::string s = g.state_command(cmd, coot::STATE_PYTHON);
-   safe_python_command(s);
+//    std::string s = g.state_command(cmd, coot::STATE_PYTHON);
+//    safe_python_command(s);
 
-#endif // USE_PYGTK
+// #endif // USE_PYGTK
 
-#endif // USE_GUILE
+// #endif // USE_GUILE
+
+   
 
 } 
 
@@ -1202,7 +1214,8 @@ std::string probe_dots_short_contact_name_to_expanded_name(const std::string &sh
 
 
 /*! \brief close generic object, clear the lines/points etc, not
-  available for buttons/displaying etc */
+  available for buttons/displaying etc
+*/
 void close_generic_object(int object_number) {
 
    graphics_info_t g;
@@ -1211,7 +1224,23 @@ void close_generic_object(int object_number) {
 	 (*g.generic_objects_p)[object_number].close_yourself();
       }
    }
-} 
+
+   if (g.generic_objects_dialog) {
+      // get the togglebutton and set its state
+      std::string stub = "generic_object_" + coot::util::int_to_string(object_number);
+      std::string toggle_button_name = stub + "_toggle_button";
+      std::string label_name = stub + "_label";
+      GtkWidget *toggle_button = lookup_widget(g.generic_objects_dialog,
+					       toggle_button_name.c_str());
+      GtkWidget *label = lookup_widget(g.generic_objects_dialog,
+				       label_name.c_str());
+      if (toggle_button)
+	 gtk_widget_hide(toggle_button);
+      if (label)
+	 gtk_widget_hide(label);
+      
+   }
+}
 
 /*! \brief has the generic object been closed? 
 

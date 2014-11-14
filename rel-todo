@@ -2,11 +2,6 @@
  0.8.1
 
 ----
-
-   o remove all references to MMDB_MAJOR_VERSION
-
-   o add-terminal-residue-by-phi-psi should allow me to add to a
-     singleton (add to the C-terminus)
  
    o  Lothar Esser
 
@@ -14,11 +9,11 @@
 
      Make ligand fitting more automated - add RSR.
 
-     Remove hydrogens from refinement.
+   o Remove hydrogens from refinement.  Punt for 0.9
 
    o Lothar Esser:
 
-         Fix the map selector:
+         Fix the map selector: (Home project)
   
      Example: In phenix I use anomalous_flag= None (or True ) which
      triggers the calculation of anomalous map coefficients. So you
@@ -150,3 +145,13 @@ INFO:: falling back to permissive search for bond HNC2 NH2
 INFO:: falling back to permissive search for bond HNC2 NH2
 INFO:: falling back to permissive search for bond HOH1 OC
 
+
+   o remove all references to MMDB_MAJOR_VERSION
+
+* Done.
+
+
+   o add-terminal-residue-by-phi-psi should allow me to add to a
+     singleton (add to the C-terminus)
+
+* Done.

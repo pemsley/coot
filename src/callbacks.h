@@ -4424,3 +4424,15 @@ void
 on_ligand_check_okbutton_clicked(GtkButton       *button,
 				 gpointer         user_data);
 
+void
+on_generic_objects_dialog_closebutton_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_generic_objects_dialog_close        (GtkDialog       *dialog,
+                                        gpointer         user_data);
+
+void
+on_generic_objects_dialog_destroy      (GtkObject       *object,
+                                        gpointer         user_data);

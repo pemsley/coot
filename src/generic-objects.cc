@@ -209,6 +209,21 @@ void set_display_generic_object(int object_number, short int istate) {
 		<< object_number << std::endl;
    }
    graphics_draw();
+
+   if (g.generic_objects_dialog) {
+      // get the togglebutton and set its state
+      std::string toggle_button_name = "generic_object_" +
+	 coot::util::int_to_string(object_number) +
+	 "_toggle_button";
+      GtkWidget *toggle_button = lookup_widget(g.generic_objects_dialog,
+					       toggle_button_name.c_str());
+      if (toggle_button) {
+	 if (istate)
+	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), TRUE);
+	 else
+	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), FALSE);
+      }
+   }
 }
 
 /*! \brief is generic display object displayed?
@@ -224,16 +239,29 @@ int generic_object_is_displayed_p(int object_number) {
    return is_displayed;
 }
 
+#include "c-interface-widgets.h" // for generic_objects_dialog_table_add_object_internal()
 
 
 int new_generic_object_number(const char *name) {
 
    graphics_info_t g;
-   std::string n;
+   std::string name_string;
    if (name)
-      n = std::string(name);
-   return g.new_generic_object_number(n);
-
+      name_string = std::string(name);
+   int n_new = g.new_generic_object_number(name_string);
+   
+   if (g.generic_objects_dialog) {
+      GtkWidget *table = lookup_widget(GTK_WIDGET(g.generic_objects_dialog),
+				       "generic_objects_dialog_table");
+      if (table) { 
+	 const coot::generic_display_object_t &gdo = (*g.generic_objects_p)[n_new];
+	 generic_objects_dialog_table_add_object_internal(gdo,
+							  g.generic_objects_dialog,
+							  table,
+							  n_new);
+      }
+   }
+   return n_new;
 }
 
 
@@ -329,9 +357,7 @@ void generic_object_clear(int object_number) {
       if (object_number < int(g.generic_objects_p->size())) {
 	 (*g.generic_objects_p)[object_number].clear();
       }
-   } 
- 
-
+   }
 }
 
 
