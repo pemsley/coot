@@ -3364,8 +3364,6 @@ coot::util::deep_copy_this_residue_add_chain(mmdb::Residue *residue,
       }
       rres->seqNum = residue->GetSeqNum();
       strcpy(rres->name, residue->name);
-      // BL says:: should copy insCode too, maybe more things...
-      strncpy(rres->insCode, residue->GetInsCode(), 3);
 
       mmdb::PPAtom residue_atoms;
       int nResidueAtoms;
@@ -3397,8 +3395,6 @@ coot::util::deep_copy_this_residue(mmdb::Residue *residue) {
       rres = new mmdb::Residue;
       rres->seqNum = residue->GetSeqNum();
       strcpy(rres->name, residue->name);
-      // BL says:: should copy insCode too, maybe more things...
-      strncpy(rres->insCode, residue->GetInsCode(), 3);
 
       mmdb::PPAtom residue_atoms = 0;
       int nResidueAtoms;
@@ -3445,8 +3441,6 @@ coot::util::deep_copy_this_residue_with_atom_index_and_afix_transfer(mmdb::Manag
    chain_p->SetChainID(((mmdb::Residue *)residue)->GetChainID());
    rres->seqNum = ((mmdb::Residue *)residue)->GetSeqNum();
    strcpy(rres->name, residue->name);
-   // BL says:: should copy insCode too, maybe more things.
-   strncpy(rres->insCode, ((mmdb::Residue *)residue)->GetInsCode(), 3);
 
    mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
