@@ -40,6 +40,8 @@
 // since the follwing two include python graphics-info.h is moved up
 #include "c-interface.h"
 
+#include "generic-display-objects-c.h"
+
 void do_rot_trans_adjustments(GtkWidget *dialog) { 
    graphics_info_t g;
    g.do_rot_trans_adjustments(dialog);
@@ -272,3 +274,9 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
 
    }
 }
+
+void clear_generic_objects_dialog_pointer() {
+
+   graphics_info_t g;
+   g.generic_objects_dialog = NULL;
+} 

@@ -187,6 +187,8 @@ bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code
 // ------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------
 
+#include "c-interface.h" // for set_display_generic_object()
+#include "c-interface-widgets.h" // for add_generic_display_object
 
 // internal - no public access
 // 
@@ -270,9 +272,9 @@ void chemical_features::show(const RDKit::ROMol &rdkm, std::string name) {
 	 }
       }
    }
-   g.generic_objects_p->push_back(features_obj);
-   // this is hacky.
-   g.generic_objects_p->back().is_displayed_flag = true;
+
+   int n_new = add_generic_display_object(features_obj);
+   set_display_generic_object(n_new, 1);
 }
 
 RDKit::MolChemicalFeatureFactory *

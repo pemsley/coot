@@ -12299,3 +12299,31 @@ on_ligand_check_okbutton_clicked(GtkButton       *button,
   gtk_widget_destroy(w);
 
 } 
+
+void
+on_generic_objects_dialog_closebutton_clicked
+                                        (GtkButton       *button,
+					 gpointer         user_data) { 
+
+
+  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "generic_objects_dialog");
+  gtk_widget_hide(w);
+
+} 
+
+/* I don't know how this function gets activated, it's not the close button of the dialog */
+void
+on_generic_objects_dialog_close        (GtkDialog       *dialog,
+                                        gpointer         user_data) { 
+
+  printf("on_generic_objects_dialog_close\n");
+
+}
+
+void
+on_generic_objects_dialog_destroy      (GtkObject       *object,
+                                        gpointer         user_data) { 
+
+  clear_generic_objects_dialog_pointer();
+
+} 
