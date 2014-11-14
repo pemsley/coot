@@ -264,6 +264,7 @@ coot_bin_SOURCES = \
 	c-interface-validate.cc	 \
 	c-interface-view.cc	 \
 	c-interface-widgets.cc   \
+	c-interface-widgets.h    \
 	c-interface-waters.cc	 \
 	c-interface-waters-gui.cc\
 	c-interface.cc		 \
@@ -303,13 +304,14 @@ coot_bin_SOURCES = \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
 	generic-display-object.hh\
+	generic-objects.cc   	 \
+	generic-display-objects-c.h \
 	geometry-graphs.cc	 \
 	geometry-graphs.hh	 \
 	get-residue.hh           \
 	get-residue.cc           \
 	flev.hh			 \
 	flev.cc                  \
-	generic-objects.cc   	 \
 	gl-bits.hh		 \
 	globjects.cc 		 \
 	globjects.h gl-matrix.h  \
