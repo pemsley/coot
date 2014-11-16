@@ -125,6 +125,9 @@ else
    else 
       COOT_PREFIX=$(readlink -f $(dirname "$current_exe_dir"))
    fi
+   if test "$COOT_PREFIX" = ""; then
+      COOT_PREFIX=$(dirname "$current_exe_dir")
+   fi
 fi
 # echo COOT_PREFIX is $COOT_PREFIX
 
