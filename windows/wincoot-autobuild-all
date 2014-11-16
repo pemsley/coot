@@ -125,6 +125,7 @@ do
         rm /z/make_clean_wincoot_prerelease
      fi
   fi
+  echo Now build with:: run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it $extra_flag
   run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it $extra_flag
   python_build_status=$?
   echo python build status $python_build_status
