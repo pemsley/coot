@@ -1203,6 +1203,11 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
 
    typedef std::pair<std::string, double> d_pat;
 
+   // There is a problem here - if we find the COOH from A-C(=O)O (as
+   // we do below) then the refmac atom types are set correctly (good)
+   // but then we fail to look up the (energy-lib) bond C-OC single
+   // and C-OC double.  Hmmm....
+
    std::vector<d_pat> patterns;
    patterns.push_back(d_pat("*C(=O)[O;H]",                 0.02));  // ASP carboxylate, valence model (H)
    patterns.push_back(d_pat("*[C;X3;^2](~O)~[O;X1]",       0.02));  // ASP carboxylate, no H

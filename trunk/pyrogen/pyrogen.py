@@ -608,11 +608,12 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
       # print >>file('sane_H.mol','w+'),Chem.MolToMolBlock(sane_H_mol)
    else:
       sane_H_mol = m_H
- 
-   AllChem.EmbedMolecule(sane_H_mol)
+
+   # This makes UFF types, which can fail sometimes.
+   conf_id = AllChem.EmbedMolecule(sane_H_mol)
 
    if use_mmff:
-      AllChem.MMFFOptimizeMolecule(sane_H_mol)
+      AllChem.MMFFOptimizeMolecule(sane_H_mol, confId=conf_id)
       
       if False:  # debugging output
          ba = pyrogen_boost.mmff_bonds_and_angles(sane_H_mol) # uses _forcefield_ of the molecule
@@ -630,7 +631,7 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
 		       angle.get_resting_angle(), angle.get_sigma()
          
    else:
-      AllChem.UFFOptimizeMolecule(sane_H_mol)
+      AllChem.UFFOptimizeMolecule(sane_H_mol, confId=conf_id)
 
    # AllChem.UFFOptimizeMolecule(sane_H_mol)
 
