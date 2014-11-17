@@ -1758,6 +1758,7 @@ public:
    static gint drag_refine_idle_function(GtkWidget *widget);
    static void add_drag_refine_idle_function();
    static gint drag_refine_refine_intermediate_atoms();
+   static double refinement_drag_elasticity;
    static coot::refinement_results_t saved_dragged_refinement_results;
 #ifdef USE_GUILE
    SCM refinement_results_to_scm(coot::refinement_results_t &rr);

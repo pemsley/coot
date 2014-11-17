@@ -3547,6 +3547,13 @@ void set_refinement_refine_per_frame(int istate);
 /*! \brief query the state of the above option */
 int refinement_refine_per_frame_state(); 
 
+/*! \brief - the elasticity of the dragged atom in refinement mode.
+
+Default 0.1
+
+ Bigger numbers mean bigger movement of the other atoms.*/
+void set_refinement_drag_elasticity(float e);
+
 /*! \brief turn on Ramachandran angles refinement in refinement and regularization */
 /*! name consistent with set_refine_with_torsion_restraints() !?  */
 void set_refine_ramachandran_angles(int state);

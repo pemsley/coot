@@ -2,6 +2,11 @@
  0.8.1
 
 ----
+
+   o make a minimol of oliver-clarke test.  Does it get all the chains?
+
+   o Not running test (the default?) - gives test failure message?  It
+     shouldn't.
  
    o  Lothar Esser
 
@@ -30,6 +35,8 @@
 
    o in the lsq fitting dialog - either rember the numbers or don't
      dismiss the dialog on apply.  Or both.  Lothar Esser
+
+   o make drag elasticity as user-settable parameter - Oliver Clarke.
 
 ---
 

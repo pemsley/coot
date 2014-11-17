@@ -303,7 +303,8 @@ int test_internal_single() {
       // status = test_read_prosmart_distance_restraints();
       // status = test_dreiding_torsion_energy();
       // status = test_parallel_plane_restraints();
-      status = test_map_tools();
+      // status = test_map_tools();
+      status = test_minimol();
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -336,7 +337,49 @@ run_internal_tests(std::vector<named_func> functions) {
    return status;
 }
 
+
+int test_minimol() {
+
+   int status = 0;
+   std::string filename = greg_test("tutorial-modern.pdb");
+   atom_selection_container_t atom_sel = get_atom_selection(filename, 1);
+   bool ifound = 0;
+
+   // OK, now let's make a minimol
+   if (atom_sel.read_success > 0) {
+      coot::minimol::molecule m_basic(atom_sel.mol);
+
+      coot::minimol::molecule m(m_basic[0]);
+
+      coot::minimol::atom at1(atom_sel.atom_selection[0]);
+      coot::minimol::atom at2(atom_sel.atom_selection[10]);
+      m.fragments[0][-100].addatom(at1);
+      m.fragments[0][ -99].addatom(at2);
       
+
+      // test for baddies
+
+      bool found_bad = false;
+      for(int ifrag=0; ifrag<m.fragments.size(); ifrag++) {
+	 for(int ires=m[ifrag].min_res_no(); ires<=m[ifrag].max_residue_number(); ires++) {
+	    if (m[ifrag][ires].seqnum < -100) {
+	       std::cout << "  Baddie! res-idx " << ires << " "
+			 << m[ifrag][ires].seqnum << std::endl;
+	       found_bad = true;
+	       break;
+	    } 
+	 }
+      }
+      // m.write_file("test-minimol.pdb", 20);
+
+      if (! found_bad)
+	 status = 1; // good
+   }
+
+   std::cout << "print test_minimol returns " << status << std::endl;
+   return status;
+}
+
 
       
 int test_alt_conf_rotamers() {

@@ -75,16 +75,17 @@ coot::minimol::molecule::molecule(const coot::minimol::fragment &frag) {
 // to set the positions of the atoms.  Used in rigid body
 // fitting of atoms moved with an atom selection (jiggle_fit)
 // 
-coot::minimol::molecule::molecule(mmdb::PPAtom atom_selection, int n_residues_atoms,
+coot::minimol::molecule::molecule(mmdb::PPAtom atom_selection, int n_atoms,
 				  const std::vector<mmdb::Atom> &atoms) {
 
-   if (atoms.size() != n_residues_atoms) {
-      std::cout << "ERROR inconsistence size in minimol molecule constructor"
+   if (atoms.size() != n_atoms) {
+      std::cout << "ERROR:: inconsistence size in minimol molecule constructor"
 		<< std::endl;
       return;
    }
 
-   for (int iat=0; iat<n_residues_atoms; iat++) {
+   for (int iat=0; iat<n_atoms; iat++) {
+
       mmdb::Atom *at = atom_selection[iat];
       mmdb::Residue *residue_p = at->residue;
       mmdb::Chain *chain_p = at->GetChain();
@@ -128,7 +129,7 @@ coot::minimol::molecule::molecule(mmdb::PPAtom atom_selection, int n_residues_at
 	 try { 
 	    fragments[ifrag_for_atom].addresidue(res,1);
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    std::cout << "ERROR:: minimol constructor " << rte.what() << std::endl;
 	 } 
       } else {
@@ -601,8 +602,9 @@ coot::minimol::fragment::operator[](int i) {
 
    // if in range that we have, no adjustment required...
 
-//    std::cout << "   at start of operator[] residues.size() " << residues.size()
-// 	     << " and offset: " << residues_offset << " and i: " << i << std::endl;
+   if (0) 
+      std::cout << "   at start of operator[] residues.size() " << residues.size()
+		<< " and offset: " << residues_offset << " and i: " << i << std::endl;
 
    int itmp = residues.size() + residues_offset;
    // This fails:
@@ -624,12 +626,21 @@ coot::minimol::fragment::operator[](int i) {
 
 	 // 	 check();
 
-// 	 std::cout << "DEBUG:: residues.size() is " << residues.size() << " and offset_diff is " << offset_diff
-// 		   << " new_offset " << new_offset << " residues_offset " << residues_offset
-// 		   << " and passed i " << i << std::endl;
-// 	 std::cout << "FYI: mmdb::MinInt4 is " << MinInt4 << std::endl;
+	 // 	 std::cout << "DEBUG:: residues.size() is " << residues.size()
+	 // << " and offset_diff is " << offset_diff
+	 // << " new_offset " << new_offset << " residues_offset " << residues_offset
+	 // << " and passed i " << i << std::endl;
 	 
 	 std::vector<residue> new_residues(residues.size() - offset_diff);
+	 
+	 // set the inital residue number of these residues
+	 for (unsigned int ires=0; ires<new_residues.size(); ires++) {
+	    if (0)
+	       std::cout << "setting new_residue[" << ires << "] to "
+			 << ires << " + " << offset_diff << std::endl;
+	    new_residues[ires].seqnum = ires + offset_diff;
+	 }
+
 	 // copy across the current residues...
 	 if (residues.size() > 0) { 
 	    for (int ires=1; ires<=int(residues.size()-1); ires++) {
@@ -651,11 +662,14 @@ coot::minimol::fragment::operator[](int i) {
 	 // adding to C terminus;
 	 residues.resize(i+1-residues_offset);
       }
-//       std::cout << "   at   end of operator[] residues.size() " << residues.size()
-// 		<< " and offset: " << residues_offset << " and i: " << i << std::endl;
-//       std::cout << "      returing with residues index " << i-residues_offset
-// 		<< " which has " << residues[i-residues_offset].atoms.size()
-// 		<< " atoms " << std::endl;
+
+      if (0)
+	 std::cout << "   at   end of operator[] residues.size() " << residues.size()
+		   << " and offset: " << residues_offset << " and i: " << i << "\n"
+		   << "      returing with residues index " << i-residues_offset
+		   << " which has " << residues[i-residues_offset].atoms.size()
+		   << " atoms " << std::endl;
+       
       return residues[i-residues_offset];
    }
 }

@@ -3499,7 +3499,7 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
    if (nSelAtoms == 0) { 
 
       std::cout << "Sorry (full_atom_spec_to_atom_index) Could not find "
-		<< atom_name << "," << "\"" << alt_conf  << "\"" << "/"
+		<< "\"" << atom_name << "\"," << "\"" << alt_conf  << "\"" << "/"
 		<< resno << insertion_code << "/" << chain << " in this molecule: ("
 		<<  imol_no << ") " << name_ << std::endl; 
 
@@ -3518,8 +3518,15 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
       atom_sel.mol->GetSelIndex(selHnd2, local_SelAtom, nSelAtoms);
 
       std::cout << "There were " << nSelAtoms << " atoms in that residue:\n";
-      for (int i=0; i<nSelAtoms; i++) { 
-	 std::cout << "      " << local_SelAtom[i] << "\n";
+
+      std::cout << "debgu:: resno " << resno << " vs MinInt4" << mmdb::MinInt4 << "\n";
+      
+      if (resno == mmdb::MinInt4) {
+	 std::cout << "      residue with resno MinInt4\n";
+      } else { 
+	 for (int i=0; i<nSelAtoms; i++) { 
+	    std::cout << "      " << local_SelAtom[i] << "\n";
+	 }
       }
 
       atom_sel.mol->DeleteSelection(selHnd2);
