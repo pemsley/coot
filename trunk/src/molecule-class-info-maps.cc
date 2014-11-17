@@ -26,6 +26,7 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+
 #include "compat/coot-sysdep.h"
 
 // Having to set up the include files like this so that
@@ -67,6 +68,9 @@
 #include <GL/glut.h> // needed (only?) for wirecube
 #include "globjects.h" // for set_bond_colour()
 #include "skeleton/graphical_skel.h"
+
+#include <iomanip> // for std::setw
+
 
 // #include "coords/mmdb.h"
 
@@ -3104,16 +3108,25 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 
    // these get updated in the following loop
    std::vector<std::pair<clipper::RTop_orth, float> > post_fit_trial_results = trial_results;
-   // 
+   //
+   float best_score_so_far = -999999;
    for (unsigned int i_trial=0; i_trial<n_for_rigid; i_trial++) {
       coot::minimol::molecule  trial_mol = direct_mol;
 
       trial_mol.transform(trial_results[i_trial].first, centre_pt);
       coot::minimol::molecule fitted_mol = rigid_body_fit(trial_mol, xmap, map_sigma);
       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap);
-      std::cout << "INFO:: Jiggle-fit: optimizing trial: " << i_trial << " was "
-		<< trial_results[i_trial].second << " post-fit " << this_score
-		<< std::endl;
+      std::cout << "INFO:: Jiggle-fit: optimizing trial "
+		<< std::setw(2) << i_trial << ": prelim-score was "
+		<< std::setw(5) << trial_results[i_trial].second << " post-fit "
+		<< std::setw(5) << this_score;
+      if (this_score > best_score_so_far) {
+	 best_score_so_far = this_score;
+	 if (this_score > initial_score) { 
+	    std::cout << " ***";
+	 }
+      }
+      std::cout << std::endl;
       post_fit_trial_results[i_trial].second = this_score;
    }
 

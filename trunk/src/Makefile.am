@@ -303,15 +303,15 @@ coot_bin_SOURCES = \
         dots-representation.hh   \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
+	flev.hh			 \
+	flev.cc                  \
 	generic-display-object.hh\
 	generic-objects.cc   	 \
-	generic-display-objects-c.h \
+        generic-display-objects-c.h \
 	geometry-graphs.cc	 \
 	geometry-graphs.hh	 \
 	get-residue.hh           \
 	get-residue.cc           \
-	flev.hh			 \
-	flev.cc                  \
 	gl-bits.hh		 \
 	globjects.cc 		 \
 	globjects.h gl-matrix.h  \

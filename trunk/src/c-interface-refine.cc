@@ -287,6 +287,16 @@ int  refinement_refine_per_frame_state() {
    return graphics_info_t::dragged_refinement_refine_per_frame_flag;
 }
 
+/*! \brief - the elasticity of the dragged atom in refinement mode.
+
+Default 0.1
+
+ Bigger numbers mean bigger movement of the other atoms.*/
+void set_refinement_drag_elasticity(float e) {
+   graphics_info_t::refinement_drag_elasticity = e;
+} 
+
+
 #ifdef USE_GUILE
 SCM refine_zone_with_full_residue_spec_scm(int imol, const char *chain_id,
 					   int resno1,

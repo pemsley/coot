@@ -1081,6 +1081,7 @@ short int graphics_info_t::show_citation_notice = 0; // on by default :)
 short int graphics_info_t::have_fixed_points_sheared_drag_flag = 0;
 int       graphics_info_t::dragged_refinement_steps_per_frame = 80;
 short int graphics_info_t::dragged_refinement_refine_per_frame_flag = 0;
+double    graphics_info_t::refinement_drag_elasticity = 0.1;
 
 // save the restraints:
 //

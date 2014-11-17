@@ -386,6 +386,13 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
    if (1) {
 
+      coot::minimol::molecule m;
+      m.read_file("oliver-clarke/oliver-clarke-test.pdb");
+      m.write_file("mini-mol-out.pdb", 20);
+   } 
+
+   if (0) {
+
       for (unsigned int io=0; io<20; io++) { 
 	 std::string name = "Test " + coot::util::int_to_string(io);
 	 int n = new_generic_object_number(name.c_str());
