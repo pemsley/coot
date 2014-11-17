@@ -148,8 +148,12 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 
 	 // 20140618: This was false - now try true so that it processes 110 (i.e. no more
 	 //           valence error).
-	 bool sanitize = true;
-	 RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest.second, "", sanitize);
+	 
+	 // 20141115: But if this is true, then 313 fails to find C-OC single or
+	 //           double bonds (it should be deloc - it's a carboxylate)
+	 // 
+	 bool undelocalize = true;
+	 RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest.second, "", undelocalize);
 
 	 RDKit::MolOps::assignStereochemistry(mol_rw);
 	 RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
