@@ -3461,143 +3461,150 @@ fi
 if [ -e $LOGS/$build_type-test-status ] ; then
    rm $LOGS/$build_type-test-status
 fi
-# run test
-echo running tests:
-echo running tests: >&2
-if [ "$ENABLE_GUILE_COOT" = "yes" ] ; then 
-    echo running first test... >&2
-    test_coot > $LOGS/$build_type-test.log 2>&1
-    r=$?
-else
-    r=0
-fi
-# run python tests too, maybe (i.e. if we build with python)
-if [ "$ENABLE_PYTHON_COOT" = "yes" ] ; then 
-    echo running python test... >&2
-    test_coot_python > $LOGS/$build_type-test-python.log 2>&1
-    rp=$?
-else
-    rp=0
-fi
-gtk2=-gtk2
-if ( [ $r = 0 ] && [ $rp = 0 ] ); then
-   echo ========================
-   echo '   ' first coot test passed
-   echo '   ' first coot test passed >&2
-   echo ========----============
-   echo pass-test > $LOGS/$build_type-test-status
-   if test "$do_nightlies" = "1" ; then 
-      if [ -d $BINARY_TAR_DEST_DIR ] ; then 
 
-         if [ ! -d $BINARY_TAR_DEST_DIR/holding ] ; then 
-            echo WARNING:: holding directory $BINARY_TAR_DEST_DIR/holding does not exist.
-         else 
-            # regular path
 
-            # original full fat:
-            # make_tar `basename $install_top_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-full-${OS}-${systype}${python_tag}${gtk2}.tar.gz
-            # slimmed:
-            bin_tar_file=$BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
-            holding_tar_file=$BINARY_TAR_DEST_DIR/holding/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
+if [ "$run_tests" = true ] ; then 
+   # run test
+   echo running tests:
+   echo running tests: >&2
+   if [ "$ENABLE_GUILE_COOT" = "yes" ] ; then 
+       echo running first test... >&2
+      test_coot > $LOGS/$build_type-test.log 2>&1
+       r=$?
+   else
+       r=0
+   fi
 
-  	    make_tar `basename $slim_dir` $holding_tar_file
+   # run python tests too, maybe (i.e. if we build with python)
+   if [ "$ENABLE_PYTHON_COOT" = "yes" ] ; then 
+       echo running python test... >&2
+       test_coot_python > $LOGS/$build_type-test-python.log 2>&1
+       rp=$?
+   else
+       rp=0
+   fi
 
-	    # Now test the tar file by un-taring it and running the
-   	    # tests.  Only if this test passes can we move tar file
-	    # from holding to the binary pre-release dir.
 
-            cd "$build_dir"
-	    mkdir test-tar
-	    cd test-tar
-	    tar xzf $holding_tar_file
-	    echo cding into `basename $slim_dir`  from `pwd`
-            cd `basename $slim_dir` 
-	    echo ln -s ../../$coot_dir_name/greg-tests .
-	    ln -s ../../$coot_dir_name/greg-tests .
-            echo second coot test...
-            echo running second test... >&2
-	    test_coot bin/coot > $LOGS/$build_type-test-2.log 2>&1
-            test2_status=$?
-            if [ $test2_status = 0 ] ; then
-               echo ========================
-               echo second coot test passed
-               echo second coot test passed >&2
-               echo ========================
-               echo pass-2nd-test > $LOGS/$build_type-test-status
+   gtk2=-gtk2
+   if ( [ $r = 0 ] && [ $rp = 0 ] ); then
+      echo ========================
+      echo '   ' first coot test passed
+      echo '   ' first coot test passed >&2
+      echo ========----============
+      echo pass-test > $LOGS/$build_type-test-status
+      if test "$do_nightlies" = "1" ; then 
+         if [ -d $BINARY_TAR_DEST_DIR ] ; then 
 
-	       mv $holding_tar_file $bin_tar_file
-	       mv $holding_tar_file.md5sum $bin_tar_file.md5sum
+            if [ ! -d $BINARY_TAR_DEST_DIR/holding ] ; then 
+               echo WARNING:: holding directory $BINARY_TAR_DEST_DIR/holding does not exist.
+            else 
+               # regular path
 
-               # update the description of the latest binary tar file for
-               # this build-type.
-               binary_type_latest=$BINARY_TAR_DEST_DIR/type-binary-${OS}-${systype}${python_tag}${gtk2}-latest.txt
-	       echo $coot_version > $binary_type_latest
+               # original full fat:
+               # make_tar `basename $install_top_dir` $BINARY_TAR_DEST_DIR/${coot_version}-binary-full-${OS}-${systype}${python_tag}${gtk2}.tar.gz
+               # slimmed:
+               bin_tar_file=$BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
+               holding_tar_file=$BINARY_TAR_DEST_DIR/holding/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
 
-               # update the ChangeLog, README and RELEASE-NOTES
+       	       make_tar `basename $slim_dir` $holding_tar_file
+
+   	       # Now test the tar file by un-taring it and running the
+   	       # tests.  Only if this test passes can we move tar file
+	       # from holding to the binary pre-release dir.
+
                cd "$build_dir"
-               cd $coot_dir_name
-               echo INFO:: in "$build_dir"/$coot_dir_name and about to copy over README and RELEASE-NOTES to $BINARY_TAR_DEST_DIR
-               cp ChangeLog $BINARY_TAR_DEST_DIR
-               cp README    coot-README
-               cp README    $BINARY_TAR_DEST_DIR/coot-README
-               cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/${coot_version}-RELEASE-NOTES
-               cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/PRE-RELEASE-NOTES
+	       mkdir test-tar
+	       cd test-tar
+	       tar xzf $holding_tar_file
+      	       echo cding into `basename $slim_dir`  from `pwd`
+               cd `basename $slim_dir` 
+	       echo ln -s ../../$coot_dir_name/greg-tests .
+	       ln -s ../../$coot_dir_name/greg-tests .
+               echo second coot test...
+               echo running second test... >&2
+	       test_coot bin/coot > $LOGS/$build_type-test-2.log 2>&1
+               test2_status=$?
+               if [ $test2_status = 0 ] ; then
+                  echo ========================
+                  echo second coot test passed
+                  echo second coot test passed >&2
+                  echo ========================
+                  echo pass-2nd-test > $LOGS/$build_type-test-status
 
-	       echo about to publish files:
-	       echo about to publish files: >&2
+	          mv $holding_tar_file $bin_tar_file
+	          mv $holding_tar_file.md5sum $bin_tar_file.md5sum
 
-	       # only copy over the binary files if they are not there
-	       # already (checked by publish executable).
-	       #
-	       echo $publish $bin_tar_file
-	       $publish $bin_tar_file
-	       echo $publish $bin_tar_file.md5sum
-	       $publish $bin_tar_file.md5sum
-	       echo $publish $binary_type_latest
-	       $publish $binary_type_latest
-	       echo $publish --no-server-check ChangeLog
-	       $publish --no-server-check ChangeLog
-	       echo $publish --no-server-check coot-README
-	       $publish --no-server-check coot-README
-               if [ -z "$build_coot_prerelease" ] ; then 
-   	          echo $publish  --no-server-check RELEASE-NOTES
-	          $publish --no-server-check RELEASE-NOTES
-               else 
-   	          echo $publish  --no-server-check $BINARY_TAR_DEST_DIR/PRE-RELEASE-NOTES
-	          $publish --no-server-check $BINARY_TAR_DEST_DIR/PRE-RELEASE-NOTES
+                  # update the description of the latest binary tar file for
+                  # this build-type.
+                  binary_type_latest=$BINARY_TAR_DEST_DIR/type-binary-${OS}-${systype}${python_tag}${gtk2}-latest.txt
+	          echo $coot_version > $binary_type_latest
+
+                  # update the ChangeLog, README and RELEASE-NOTES
+                  cd "$build_dir"
+                  cd $coot_dir_name
+                  echo INFO:: in "$build_dir"/$coot_dir_name and about to copy over README and RELEASE-NOTES to $BINARY_TAR_DEST_DIR
+                  cp ChangeLog $BINARY_TAR_DEST_DIR
+                  cp README    coot-README
+                  cp README    $BINARY_TAR_DEST_DIR/coot-README
+                  cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/${coot_version}-RELEASE-NOTES
+                  cp RELEASE-NOTES    $BINARY_TAR_DEST_DIR/PRE-RELEASE-NOTES
+
+	          echo about to publish files:
+	          echo about to publish files: >&2
+
+	          # only copy over the binary files if they are not there
+	          # already (checked by publish executable).
+	          #
+	          echo $publish $bin_tar_file
+	          $publish $bin_tar_file
+	          echo $publish $bin_tar_file.md5sum
+	          $publish $bin_tar_file.md5sum
+	          echo $publish $binary_type_latest
+	          $publish $binary_type_latest
+	          echo $publish --no-server-check ChangeLog
+	          $publish --no-server-check ChangeLog
+	          echo $publish --no-server-check coot-README
+	          $publish --no-server-check coot-README
+                  if [ -z "$build_coot_prerelease" ] ; then 
+   	             echo $publish  --no-server-check RELEASE-NOTES
+	             $publish --no-server-check RELEASE-NOTES
+                  else 
+   	             echo $publish  --no-server-check $BINARY_TAR_DEST_DIR/PRE-RELEASE-NOTES
+	             $publish --no-server-check $BINARY_TAR_DEST_DIR/PRE-RELEASE-NOTES
+                  fi
+
+	          echo done copy of README and RELEASE-NOTES
+	       else 
+                  echo ========================
+                  echo second coot test failed
+                  echo ========================
+                  echo fail-2nd-test $date > $LOGS/$build_type-test-status
                fi
-
-	       echo done copy of README and RELEASE-NOTES
-	    else 
-               echo ========================
-               echo second coot test failed
-               echo ========================
-               echo fail-2nd-test $date > $LOGS/$build_type-test-status
             fi
-         fi
 
-      else 
-         echo Directory for binaries $BINARY_TAR_DEST_DIR does not exist. 
-	 echo Skipping tar.
+         else 
+            echo Directory for binaries $BINARY_TAR_DEST_DIR does not exist. 
+	    echo Skipping tar.
+         fi
+      else
+         echo not doing tar files for nightlies: $do_nightlies
       fi
    else
-      echo not doing tar files for nightlies: $do_nightlies
-   fi
-else
-   echo ========================
-   echo '  ' first coot test failed
-   echo '  ' first coot test failed >&2
-   echo ========================
-   echo greg test status: $r
-   echo python test status: $rp
-   if [ $r = 0 ] ; then 
-      echo fail-test greg $date > $LOGS/$build_type-test-status
-   else 
-      if [ $rp = 0 ] ; then 
-         echo fail-test python $date > $LOGS/$build_type-test-status
+      echo ========================
+      echo '  ' first coot test failed
+      echo '  ' first coot test failed >&2
+      echo ========================
+      echo greg test status: $r
+      echo python test status: $rp
+      if [ $r = 0 ] ; then 
+         echo fail-test greg $date > $LOGS/$build_type-test-status
       else 
-         # this should not happen, AFAICS.
-         echo fail-test $date > $LOGS/$build_type-test-status
+         if [ $rp = 0 ] ; then 
+            echo fail-test python $date > $LOGS/$build_type-test-status
+         else 
+            # this should not happen, AFAICS.
+            echo fail-test $date > $LOGS/$build_type-test-status
+         fi
       fi
    fi
 fi
