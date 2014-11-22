@@ -3692,8 +3692,12 @@
 
 (define (template-keybindings-to-preferences)
 
+  (let* ((pkg-data-dir 
+          (if (file-exists? (pkgdatadir))
+              (pkgdatadir)
+              (append-dir-dir (append-dir-dir (getenv "COOT_PREFIX") "share") "coot"))))
   (let* ((bindings-file-name "template-key-bindings.scm")
-	 (scm-dir (append-dir-dir (pkgdatadir) "scheme"))
+	 (scm-dir (append-dir-dir pkg-data-dir "scheme"))
 	 (ref-scm (append-dir-file scm-dir bindings-file-name)))
     (if (not (string? ref-scm))
 	(begin
@@ -3718,7 +3722,7 @@
 			    (begin 
 			      (copy-file ref-scm pref-file)
 			      (if (file-exists? pref-file)
-				  (load pref-file)))))))))))))
+				  (load pref-file))))))))))))))
 	
 ;; Americans...
 ;; (define chiral-center-inverter chiral-centre-inverter)
