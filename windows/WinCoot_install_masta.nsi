@@ -182,7 +182,7 @@ Section "!WinCoot" SEC01
   File "${src_dir}\bin\bfactan.exe"
   File "${src_dir}\bin\coot"
   SetOverwrite on
-  File "${src_dir}\bin\coot-real.exe"
+  File "${src_dir}\libexec\coot-real.exe"
   SetOverwrite ifnewer
   File "${src_dir}\bin\density-score-by-residue"
   File "${src_dir}\bin\density-score-by-residue-real.exe"
@@ -526,6 +526,7 @@ Section Uninstall
   Delete "$INSTDIR\bin\bfactan.exe"
   Delete "$INSTDIR\bin\coot"
   Delete "$INSTDIR\bin\coot-real.exe"
+  Delete "$INSTDIR\libexec\coot-real.exe"
   Delete "$INSTDIR\bin\density-score-by-residue"
   Delete "$INSTDIR\bin\density-score-by-residue-real.exe"
   Delete "$INSTDIR\bin\findligand"
@@ -667,6 +668,8 @@ Section Uninstall
   RMDir "$INSTDIR\lib\gtk-2.0\2.10.0"
   RMDir "$INSTDIR\lib\gtk-2.0"
   RMDir "$INSTDIR\lib"
+  RMDir "$INSTDIR\libexec"
+  RMDir "$INSTDIR\python27"
   RMDir "$INSTDIR\examples"
   RMDir "$INSTDIR\doc"
   ; will only be removed if empty

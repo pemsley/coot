@@ -13,7 +13,6 @@
 build_coot_prerelease=${1:=1}
 if [ -e /z/make_stable_build ] ; then
   build_coot_prerelease=0
-  rm /z/make_stable_build
 fi
 
 if [ $build_coot_prerelease == 0 ] ; then 
@@ -132,6 +131,8 @@ do
   copy_logs python
   # read in variables from install run
   . ${HOME}/wincoot-installer-variables
+  # copy to public place too
+  cp ${HOME}/wincoot-installer-variables $PUBLIC_HTML_LOGS/
 
   if [ "$build_coot_prerelease" = "0" ] ; then
     install_top_dir=${HOME}/autobuild/${OS}-${HOST}-gtk2
@@ -278,6 +279,10 @@ if [ "$build_installer" = "0" ] ; then
    "$makensis" ${makensis_flag} ${src_dir} $wincoot_installer_script
    nsis_status=$?
    if [ "$nsis_status" = "0" ] ; then
+        if [ -e /z/make_stable_build ] ; then
+          # clean up since we managed
+          rm /z/make_stable_build
+        fi
 	# move files in correct places
 	# or do it before?!?
 	echo Installer script run successful!!
