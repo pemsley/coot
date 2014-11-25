@@ -2229,19 +2229,20 @@ class PdbMtzTestFunctions(unittest.TestCase):
                     "  Bad phosphate distance on 15 %s" %phosphate_distance)
 
 
-    def test98_0(self):
-        """Hundreds of Ramachandran refinements (post_manipulation_hook_py test)"""
+    # this takes too long - 30x everything else put together
+#     def test98_0(self):
+#         """Hundreds of Ramachandran refinements (post_manipulation_hook_py test)"""
 
-        # doesnt test for anything just crash
-        global imol_rnase, imol_rnase_map
+#         # doesnt test for anything just crash
+#         global imol_rnase, imol_rnase_map
 
-        imol = imol_rnase
-        turn_off_backup(imol)
-        set_imol_refinement_map(imol_rnase_map)
-        for i in range(3):
-            stepped_refine_protein_for_rama(imol)
+#         imol = imol_rnase
+#         turn_off_backup(imol)
+#         set_imol_refinement_map(imol_rnase_map)
+#         for i in range(3):
+#             stepped_refine_protein_for_rama(imol)
 
-        turn_on_backup(imol)
+#         turn_on_backup(imol)
 
 
     def test99_0(self):
