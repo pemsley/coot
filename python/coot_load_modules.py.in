@@ -155,10 +155,10 @@ def load_from_search_load_path(file):
         print "Error finding", file
 
 
-for name in python_list:
-    filename = os.path.join(search_load_path, name)
+for coot_python_file in python_list:
+    filename = os.path.join(search_load_path, coot_python_file)
     if filename and os.path.isfile(filename):
-        print "Loading:", name
+        print "Loading:", coot_python_file
         try:
             # BL says::
             # We execute the files rather than loading it as modules since
@@ -169,9 +169,11 @@ for name in python_list:
             execfile(filename)
         except:
             traceback.print_exc()
-            print "BL ERROR: couldn't load ", name
+            print "BL ERROR: couldn't load ", coot_python_file
             if coot_unittesting:
                 coot_real_exit(1)
     else:
-        print "ERROR: cannot find", name
+        print "ERROR: cannot find", coot_python_file
+
+
 
