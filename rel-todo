@@ -3,13 +3,12 @@
 
 ----
 
-   o make a minimol of oliver-clarke test.  Does it get all the chains?
+   o The dialogs that you get after Validate -> Check/Delete waters
+     should be transients.
 
    o Not running test (the default?) - gives test failure message?  It
      shouldn't.
  
-   o  Lothar Esser
-
    o November project: 
 
      Make ligand fitting more automated - add RSR.
@@ -35,8 +34,6 @@
 
    o in the lsq fitting dialog - either rember the numbers or don't
      dismiss the dialog on apply.  Or both.  Lothar Esser
-
-   o make drag elasticity as user-settable parameter - Oliver Clarke.
 
 ---
 
@@ -153,6 +150,16 @@ INFO:: falling back to permissive search for bond HNC2 NH2
 INFO:: falling back to permissive search for bond HOH1 OC
 
 
+   o make a minimol of oliver-clarke test.  Does it get all the chains?
+
+* Done.
+
+
+   o Not running test (the default?) - gives test failure message?  It
+     shouldn't.
+
+* Done.
+
    o remove all references to MMDB_MAJOR_VERSION
 
 * Done.
@@ -162,3 +169,8 @@ INFO:: falling back to permissive search for bond HOH1 OC
      singleton (add to the C-terminus)
 
 * Done.
+
+   o make drag elasticity as user-settable parameter - Oliver Clarke.
+
+* Done.
+

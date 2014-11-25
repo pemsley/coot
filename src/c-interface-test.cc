@@ -384,7 +384,50 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    graphics_info_t g;
    SCM r = SCM_BOOL_F;
 
+   // ------------------------ spherical density overlap -------------------------
+   // 
    if (1) {
+      int imol = scm_to_int(i_scm); // map molecule
+      int imol_map = scm_to_int(j_scm); // map molecule
+
+      if (is_valid_model_molecule(imol)) { 
+	 if (is_valid_map_molecule(imol_map)) { 
+
+	    const clipper::Xmap<float> &m = g.molecules[imol_map].xmap;
+	    clipper::Coord_orth c(0,0,0); // (set-rotation-centre -15 -4 21)
+	    coot::util::map_fragment_info_t mf(m, c, 50, true);
+
+	    if (mf.xmap.is_null()) {
+	       std::cout << "null map fragment xmap " << std::endl;
+	    } else { 
+	       clipper::CCP4MAPfile mapout;
+	       mapout.open_write("map-fragment-at-origin.map");
+	       mapout.export_xmap(mf.xmap);
+	       mapout.close_write();
+	       
+	       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	       coot::util::emma sphd(mol, 5); // 5 is border
+	       sphd.overlap_simple(mf.xmap);
+	       // sphd.overlap(mf.xmap);
+	    }
+	 }
+      }
+   }
+   
+   if (0) {
+
+      for (unsigned int io=0; io<20; io++) { 
+	 std::string name = "Test " + coot::util::int_to_string(io);
+	 int n = new_generic_object_number(name.c_str());
+	 to_generic_object_add_line(n, "green", 2+io, 1+io, 2, 3, 4, 5, 6);
+	 set_display_generic_object(n, 1);
+      }
+
+      GtkWidget *w = wrapped_create_generic_objects_dialog();
+      gtk_widget_show(w);
+   }
+
+   if (0) {
 
       coot::minimol::molecule m;
       m.read_file("oliver-clarke/oliver-clarke-test.pdb");
@@ -418,37 +461,6 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 			       rt.trn()[0],   rt.trn()[1],   rt.trn()[2]);
       }
    }
-
-   // ------------------------ spherical density overlap -------------------------
-   // 
-   if (0) {
-      int imol = scm_to_int(i_scm); // map molecule
-      int imol_map = scm_to_int(j_scm); // map molecule
-
-      if (is_valid_model_molecule(imol)) { 
-	 if (is_valid_map_molecule(imol_map)) { 
-
-	    const clipper::Xmap<float> &m = g.molecules[imol_map].xmap;
-	    clipper::Coord_orth c(0,0,0); // (set-rotation-centre -15 -4 21)
-	    coot::util::map_fragment_info_t mf(m, c, 50, true);
-
-	    if (mf.xmap.is_null()) {
-	       std::cout << "null map fragment xmap " << std::endl;
-	    } else { 
-	       clipper::CCP4MAPfile mapout;
-	       mapout.open_write("map-fragment-at-origin.map");
-	       mapout.export_xmap(mf.xmap);
-	       mapout.close_write();
-	       
-	       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-	       coot::util::emma sphd(mol, 5); // 5 is border
-	       sphd.overlap_simple(mf.xmap);
-	       // sphd.overlap(mf.xmap);
-	    }
-	 }
-      }
-   }
-   
 
    if (0) {
 
