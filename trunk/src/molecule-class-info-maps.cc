@@ -2730,16 +2730,17 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
 					   graphics_info_t::map_sampling_rate));
   cout << "done."<< endl;
 
-  std::cout << "PHS:: debug:: " << mydata.spacegroup().symbol_hm() << " " 
-	    << mydata.cell().descr().a() << " " 
-	    << mydata.cell().descr().b() << " " 
-	    << mydata.cell().descr().c() << " " 
-	    << clipper::Util::rad2d(mydata.cell().descr().alpha()) << " " 
-	    << clipper::Util::rad2d(mydata.cell().descr().beta ()) << " " 
-	    << clipper::Util::rad2d(mydata.cell().descr().gamma()) << std::endl;
-
-  std::cout << "PHS:: debug:: n_reflections: " << mydata.num_reflections()
-		   << std::endl;
+  if (0) { 
+     std::cout << "PHS:: debug:: " << mydata.spacegroup().symbol_hm() << " " 
+	       << mydata.cell().descr().a() << " " 
+	       << mydata.cell().descr().b() << " " 
+	       << mydata.cell().descr().c() << " " 
+	       << clipper::Util::rad2d(mydata.cell().descr().alpha()) << " " 
+	       << clipper::Util::rad2d(mydata.cell().descr().beta ()) << " " 
+	       << clipper::Util::rad2d(mydata.cell().descr().gamma()) << std::endl;
+     std::cout << "PHS:: debug:: n_reflections: " << mydata.num_reflections()
+	       << std::endl;
+  }
 
   ncount = 0; 
   // clipper::HKL_info::HKL_reference_index hri;

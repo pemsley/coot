@@ -3,6 +3,9 @@
 
 ----
 
+   o Make LSQ fit remember the previous settings - maybe use an Apply
+     and Close button.  - Lothar Esser
+
    o The dialogs that you get after Validate -> Check/Delete waters
      should be transients.
 
