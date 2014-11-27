@@ -1276,7 +1276,21 @@ Punted from 0.6:
 
 ------
 
-   Release 0.9, Facelift-release [Dec 2013]
+   Release 0.9, Facelift-release [May 2015]
+
+   o Remove hydrogens from refinement.  Punt for 0.9
+
+   o November project: 
+
+     Make ligand fitting more automated - add RSR.
+
+     there should be a details button/something in the refinement
+     results where you can see individual distortions - sorted.
+
+   o make it easier to learn key-bindings.  
+
+       Consolidate built-ins with custom?
+       Add accelerator labels to buttons?
 
    o generic display objects needs an "All off/ All on" check button
      And a close button

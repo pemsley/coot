@@ -518,8 +518,6 @@ graphics_info_t::set_transient_and_position(int widget_type, GtkWidget *window) 
    gtk_window_set_transient_for(GTK_WINDOW(window), main_window);
    
    if (widget_type == COOT_EDIT_CHI_DIALOG) {
-//       std::cout << "set_transient_and_position 2" 
-// 		<< graphics_info_t::edit_chi_angles_dialog_x_position << "\n";
 	 
       if (graphics_info_t::edit_chi_angles_dialog_x_position > -100) {
 	 if (graphics_info_t::edit_chi_angles_dialog_y_position > -100) {
