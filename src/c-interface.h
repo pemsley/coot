@@ -6509,6 +6509,10 @@ void to_generic_object_add_display_list_handle(int object_number, int display_li
   generally need this function.  */
 void set_display_generic_object(int object_number, short int istate);
 
+/*! \brief display (1) or undisplay (0) all generic display objects */
+void set_display_all_generic_objects(int state);
+
+
 /*! \brief is generic display object displayed?
 
   @return 1 for yes, otherwise 0  */
@@ -6551,6 +6555,8 @@ void close_generic_object(int object_number);
    @return 1 for yes, 0 othersize
 */
 short int is_closed_generic_object_p(int object_number);
+
+void close_all_generic_objects();
 
 /*! \brief clear out the lines and points from object_number, but keep
   it displayable (not closed). */
