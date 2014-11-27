@@ -12327,3 +12327,27 @@ on_generic_objects_dialog_destroy      (GtkObject       *object,
   clear_generic_objects_dialog_pointer();
 
 } 
+
+
+void
+on_generic_objects_display_all_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  int state = 0;
+  if (togglebutton->active)
+    state = 1;
+  set_display_all_generic_objects(state);
+
+}
+
+
+void
+on_generic_objects_close_all_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  close_all_generic_objects();
+}
+

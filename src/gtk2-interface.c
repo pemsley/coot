@@ -17,7 +17,6 @@
 #include <gdk/gdkkeysyms.h>
 #include <gtk/gtk.h>
 
-
 #include "callbacks.h"
 #include "interface.h"
 #include "support.h"
@@ -1704,6 +1703,7 @@ create_window1 (void)
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_rigid_body_fit_togglebutton);
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rigid_body_fit_togglebutton), tooltips, _("Rigid Body Fit Zone (click on 2 atoms)"), NULL);
 
+  #ifdef GTK_TYPE_MENU_TOOL_BUTTON
   tmp_image = gtk_image_new_from_stock ("rtz.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   model_toolbar_rot_trans_toolbutton = (GtkWidget*) gtk_menu_tool_button_new (tmp_image, _("Rotate Translate"));
@@ -1711,6 +1711,8 @@ create_window1 (void)
   gtk_tool_item_set_homogeneous (GTK_TOOL_ITEM (model_toolbar_rot_trans_toolbutton), FALSE);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_rot_trans_toolbutton);
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_rot_trans_toolbutton), tooltips, _("Rotate Translate Zone/Chain/Molecule"), NULL);
+#endif
+
 
   model_toolbar_auto_fit_rotamer_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_auto_fit_rotamer_togglebutton), _("Auto Fit Rotamer"));
@@ -4033,7 +4035,6 @@ create_show_symmetry_window (void)
   symmetry_colorbutton = gtk_color_button_new ();
   gtk_widget_show (symmetry_colorbutton);
   gtk_container_add (GTK_CONTAINER (frame33), symmetry_colorbutton);
-  gtk_color_button_set_title (GTK_COLOR_BUTTON (symmetry_colorbutton), _("Pick a Colour"));
 
   label68 = gtk_label_new (_("Sym Colour"));
   gtk_widget_show (label68);
@@ -28272,9 +28273,17 @@ create_generic_objects_dialog (void)
 {
   GtkWidget *generic_objects_dialog;
   GtkWidget *dialog_vbox131;
+  GtkWidget *hbox433;
+  GtkWidget *generic_objects_display_all_togglebutton;
   GtkWidget *generic_objects_scrolledwindow;
   GtkWidget *viewport24;
   GtkWidget *generic_objects_dialog_table;
+  GtkWidget *hbox431;
+  GtkWidget *generic_objects_close_all_button;
+  GtkWidget *alignment158;
+  GtkWidget *hbox432;
+  GtkWidget *image10618;
+  GtkWidget *label782;
   GtkWidget *dialog_action_area130;
   GtkWidget *generic_objects_dialog_closebutton;
 
@@ -28287,6 +28296,14 @@ create_generic_objects_dialog (void)
   dialog_vbox131 = GTK_DIALOG (generic_objects_dialog)->vbox;
   gtk_widget_show (dialog_vbox131);
 
+  hbox433 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox433);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox131), hbox433, FALSE, FALSE, 6);
+
+  generic_objects_display_all_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Display/Undisplay All"));
+  gtk_widget_show (generic_objects_display_all_togglebutton);
+  gtk_box_pack_start (GTK_BOX (hbox433), generic_objects_display_all_togglebutton, FALSE, FALSE, 0);
+
   generic_objects_scrolledwindow = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (generic_objects_scrolledwindow);
   gtk_box_pack_start (GTK_BOX (dialog_vbox131), generic_objects_scrolledwindow, TRUE, TRUE, 0);
@@ -28298,6 +28315,30 @@ create_generic_objects_dialog (void)
   generic_objects_dialog_table = gtk_table_new (3, 2, FALSE);
   gtk_widget_show (generic_objects_dialog_table);
   gtk_container_add (GTK_CONTAINER (viewport24), generic_objects_dialog_table);
+
+  hbox431 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_show (hbox431);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox131), hbox431, FALSE, FALSE, 6);
+
+  generic_objects_close_all_button = gtk_button_new ();
+  gtk_widget_show (generic_objects_close_all_button);
+  gtk_box_pack_start (GTK_BOX (hbox431), generic_objects_close_all_button, FALSE, FALSE, 0);
+
+  alignment158 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment158);
+  gtk_container_add (GTK_CONTAINER (generic_objects_close_all_button), alignment158);
+
+  hbox432 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox432);
+  gtk_container_add (GTK_CONTAINER (alignment158), hbox432);
+
+  image10618 = gtk_image_new_from_stock ("gtk-delete", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image10618);
+  gtk_box_pack_start (GTK_BOX (hbox432), image10618, FALSE, FALSE, 0);
+
+  label782 = gtk_label_new_with_mnemonic (_("Delete All Generic Display Objects"));
+  gtk_widget_show (label782);
+  gtk_box_pack_start (GTK_BOX (hbox432), label782, FALSE, FALSE, 0);
 
   dialog_action_area130 = GTK_DIALOG (generic_objects_dialog)->action_area;
   gtk_widget_show (dialog_action_area130);
@@ -28314,6 +28355,12 @@ create_generic_objects_dialog (void)
   g_signal_connect ((gpointer) generic_objects_dialog, "destroy",
                     G_CALLBACK (on_generic_objects_dialog_destroy),
                     NULL);
+  g_signal_connect ((gpointer) generic_objects_display_all_togglebutton, "toggled",
+                    G_CALLBACK (on_generic_objects_display_all_togglebutton_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) generic_objects_close_all_button, "clicked",
+                    G_CALLBACK (on_generic_objects_close_all_button_clicked),
+                    NULL);
   g_signal_connect ((gpointer) generic_objects_dialog_closebutton, "clicked",
                     G_CALLBACK (on_generic_objects_dialog_closebutton_clicked),
                     NULL);
@@ -28321,9 +28368,17 @@ create_generic_objects_dialog (void)
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (generic_objects_dialog, generic_objects_dialog, "generic_objects_dialog");
   GLADE_HOOKUP_OBJECT_NO_REF (generic_objects_dialog, dialog_vbox131, "dialog_vbox131");
+  GLADE_HOOKUP_OBJECT (generic_objects_dialog, hbox433, "hbox433");
+  GLADE_HOOKUP_OBJECT (generic_objects_dialog, generic_objects_display_all_togglebutton, "generic_objects_display_all_togglebutton");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, generic_objects_scrolledwindow, "generic_objects_scrolledwindow");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, viewport24, "viewport24");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, generic_objects_dialog_table, "generic_objects_dialog_table");
+  GLADE_HOOKUP_OBJECT (generic_objects_dialog, hbox431, "hbox431");
+  GLADE_HOOKUP_OBJECT (generic_objects_dialog, generic_objects_close_all_button, "generic_objects_close_all_button");
+  GLADE_HOOKUP_OBJECT (generic_objects_dialog, alignment158, "alignment158");
+  GLADE_HOOKUP_OBJECT (generic_objects_dialog, hbox432, "hbox432");
+  GLADE_HOOKUP_OBJECT (generic_objects_dialog, image10618, "image10618");
+  GLADE_HOOKUP_OBJECT (generic_objects_dialog, label782, "label782");
   GLADE_HOOKUP_OBJECT_NO_REF (generic_objects_dialog, dialog_action_area130, "dialog_action_area130");
   GLADE_HOOKUP_OBJECT (generic_objects_dialog, generic_objects_dialog_closebutton, "generic_objects_dialog_closebutton");
 

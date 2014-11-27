@@ -4436,3 +4436,12 @@ on_generic_objects_dialog_close        (GtkDialog       *dialog,
 void
 on_generic_objects_dialog_destroy      (GtkObject       *object,
                                         gpointer         user_data);
+
+void
+on_generic_objects_display_all_togglebutton_toggled
+                                        (GtkToggleButton *togglebutton,
+					 gpointer         user_data);
+void
+on_generic_objects_close_all_button_clicked
+                                        (GtkButton       *button,
+					 gpointer         user_data);
