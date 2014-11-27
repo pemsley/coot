@@ -3288,37 +3288,34 @@ def file_to_preferences(filename):
 
     import shutil
 
-    # depending on where/how Coot was build pkgdatadir may not be available
-    # or point the wrong way
-    pgkdata_dir = get_pkgdatadir()
-    if os.path.isdir(pkgdatadir):
-        ref_py = os.path.join(pkgdatadir, "python", filename)
-    else:
-        # dont have accessible pkgdata_dir, so guess install place
-        python_dir = os.getenv("COOT_PYTHON_DIR")
-        if os.path.isdir(python_dir):
-            ref_py = os.path.join(python_dir, "python", filename)
-    if not os.path.exists(ref_py):
-        add_status_bar_text("Missing reference template key bindings.")
-    else:
-        # happy path
-        home = os.getenv("HOME")
-        if is_windows():
-            home = os.getenv("COOT_HOME")
-        if isinstance(home, str):
-            pref_dir = os.path.join(home, ".coot-preferences")
-            if not os.path.isdir(pref_dir):
-                make_directory_maybe(pref_dir)
-            pref_file = os.path.join(pref_dir, filename)
-            # don't install it if it is already in place.
-            if os.path.isfile(pref_file):
-                s = "keybinding file " + pref_file + \
-                    " already exists. Not overwritten."
-                add_status_bar_text(s)
-            else:
-                shutil.copyfile(ref_py, pref_file)
+    coot_python_dir = os.getenv("COOT_PYTHON_DIR")
+    if not coot_python_dir:
+        coot_python_dir = os.path.join(sys.prefix, 'lib', 'python2.7', 'site-packages', 'coot')
+
+    if os.path.isdir(coot_python_dir):
+        ref_py = os.path.join(coot_python_dir, filename)
+
+        if not os.path.exists(ref_py):
+            add_status_bar_text("Missing reference template key bindings.")
+        else:
+            # happy path
+            home = os.getenv("HOME")
+            if is_windows():
+                home = os.getenv("COOT_HOME")
+            if isinstance(home, str):
+                pref_dir = os.path.join(home, ".coot-preferences")
+                if not os.path.isdir(pref_dir):
+                    make_directory_maybe(pref_dir)
+                pref_file = os.path.join(pref_dir, filename)
+                # don't install it if it is already in place.
                 if os.path.isfile(pref_file):
-                    execfile(pref_file, globals())
+                    s = "keybinding file " + pref_file + \
+                        " already exists. Not overwritten."
+                    add_status_bar_text(s)
+                else:
+                    shutil.copyfile(ref_py, pref_file)
+                    if os.path.isfile(pref_file):
+                        execfile(pref_file, globals())
 
 # add terminal residue is the normal thing we do with an aligned
 # sequence, but also we can try ton find the residue type of a
