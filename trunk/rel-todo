@@ -6,18 +6,6 @@
    o Make LSQ fit remember the previous settings - maybe use an Apply
      and Close button.  - Lothar Esser
 
-   o The dialogs that you get after Validate -> Check/Delete waters
-     should be transients.
-
-   o Not running test (the default?) - gives test failure message?  It
-     shouldn't.
- 
-   o November project: 
-
-     Make ligand fitting more automated - add RSR.
-
-   o Remove hydrogens from refinement.  Punt for 0.9
-
    o Lothar Esser:
 
          Fix the map selector: (Home project)
@@ -34,9 +22,6 @@
      3 /home/dxlab/esser/Project/xxx/xxxx/Crystals/Y104a/139B_A41/Refine/current.mtz /crystal/Fourier-map-coefficients/ANOM /crystal/Fourier-map-coefficients/PANOM 18.00 5.00
 
      This seems a bit long. For me, the display manager entry would suffice.
-
-   o in the lsq fitting dialog - either rember the numbers or don't
-     dismiss the dialog on apply.  Or both.  Lothar Esser
 
 ---
 
@@ -177,3 +162,8 @@ INFO:: falling back to permissive search for bond HOH1 OC
 
 * Done.
 
+
+   o The dialogs that you get after Validate -> Check/Delete waters
+     should be transients.
+
+* Done.

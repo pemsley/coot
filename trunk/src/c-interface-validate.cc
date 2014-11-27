@@ -118,6 +118,8 @@ GtkWidget *wrapped_create_check_waters_dialog() {
 
    GtkWidget *dialog = create_check_waters_dialog();
 
+   set_transient_and_position(COOT_CHECK_WATERS_DIALOG, dialog);
+
    // Opps - this (logical OR) should be on by default:
    GtkWidget *check_waters_OR_radiobutton  = lookup_widget(dialog, "check_waters_OR_radiobutton");
 
@@ -377,6 +379,8 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
    GtkWidget *w = NULL;
    if (graphics_info_t::use_graphics_interface_flag) { 
       w = create_checked_waters_baddies_dialog();
+
+      set_transient_and_position(COOT_CHECKED_WATERS_BADDIES_DIALOG, w);
 
       graphics_info_t g;
       int imol_for_map = g.Imol_Refinement_Map();
