@@ -226,6 +226,17 @@ void set_display_generic_object(int object_number, short int istate) {
    }
 }
 
+/*! \brief display (1) or undisplay (0) all generic display objects */
+void set_display_all_generic_objects(int state) {
+
+   graphics_info_t g;
+   unsigned int n_objs = g.generic_objects_p->size();
+   for (unsigned int i=0; i<n_objs; i++) {
+      set_display_generic_object(i, state);
+   }
+}
+
+
 /*! \brief is generic display object displayed?
 
   @return 1 for yes, otherwise 0  */
@@ -359,6 +370,116 @@ void generic_object_clear(int object_number) {
       }
    }
 }
+
+
+
+/*! \brief close generic object, clear the lines/points etc, not
+  available for buttons/displaying etc
+*/
+void close_generic_object(int object_number) {
+
+   graphics_info_t g;
+   if (object_number >=0) {
+      if (object_number < int(g.generic_objects_p->size())) {
+	 (*g.generic_objects_p)[object_number].close_yourself();
+      }
+   }
+
+   if (g.generic_objects_dialog) {
+      // get the togglebutton and set its state
+      std::string stub = "generic_object_" + coot::util::int_to_string(object_number);
+      std::string toggle_button_name = stub + "_toggle_button";
+      std::string label_name = stub + "_label";
+      GtkWidget *toggle_button = lookup_widget(g.generic_objects_dialog,
+					       toggle_button_name.c_str());
+      GtkWidget *label = lookup_widget(g.generic_objects_dialog,
+				       label_name.c_str());
+      if (toggle_button)
+	 gtk_widget_hide(toggle_button);
+      if (label)
+	 gtk_widget_hide(label);
+      
+   }
+}
+
+/*! \brief has the generic object been closed? 
+
+   @return 1 for yes, 0 othersize
+*/
+short int is_closed_generic_object_p(int object_number) {
+
+   short int state = 0;
+   graphics_info_t g;
+   if (object_number >=0) { 
+      if (object_number < int(g.generic_objects_p->size())) {
+	 state = (*g.generic_objects_p)[object_number].is_closed_flag;
+      }
+   }
+   return state;
+}
+
+
+void close_all_generic_objects() {
+
+   graphics_info_t g;
+   int n_objs = g.generic_objects_p->size();
+   for (unsigned int i=0; i<n_objs; i++) {
+      if (! is_closed_generic_object_p(i))
+	 close_generic_object(i);
+   }
+} 
+
+
+
+void set_display_generic_objects_as_solid(int state) {
+   graphics_info_t::display_generic_objects_as_solid_flag = state;
+} 
+
+
+/*! \brief print to the console the name and display status of the
+  generic display objects */
+void generic_object_info() {
+
+   graphics_info_t g;
+   unsigned int n_obs = g.generic_objects_p->size();
+   std::cout << "There are " << n_obs << " generic objects\n";
+   if (n_obs) {
+      for (int i=0; i<n_obs; i++) {
+	 std::string display_str(":Displayed:");
+	 if ((*g.generic_objects_p)[i].is_displayed_flag == 0)
+	    display_str = ":Not Displayed:";
+	 std::string closed_str(":Closed:");
+	 if ((*g.generic_objects_p)[i].is_closed_flag == 0)
+	    closed_str = ":Not Closed:";
+	 std::cout << " # " << i << " \"" << (*g.generic_objects_p)[i].name << "\" "
+		   << display_str << " " << closed_str << std::endl;
+      }
+   } else {
+      std::cout << "No Generic Display Objects" << std::endl;
+   } 
+} 
+
+// generic object obj_no has things to display?
+// Return 0 or 1.
+// 
+short int generic_object_has_objects_p(int object_number) {
+
+   short int r = 0;
+   graphics_info_t g;
+   if ((object_number >=0) && (object_number < g.generic_objects_p->size())) {
+      if ((*g.generic_objects_p)[object_number].lines_set.size() > 0)
+	 r = 1;
+      if ((*g.generic_objects_p)[object_number].points_set.size() > 0)
+	 r = 1;
+   } else {
+      std::cout << "WARNING:: object_number in generic_objects_p "
+		<< object_number << std::endl;
+   } 
+
+   return r;
+
+} 
+
 
 
 
