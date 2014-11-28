@@ -350,7 +350,8 @@
 # 5.15 20140408 New version of Python.
 # 5.16 20140817 Python version to 2.7.8
 # 5.17 20140911 SSM updates
-script_version=5.17
+# 5.18 20141128 Add hack bin for debian awk
+script_version=5.18
 
 
 
@@ -2879,6 +2880,24 @@ pwd
 gzip -dc ${AUTOBUILD_SOURCES}/guile-${guile_version}.tar.gz | tar xf -
 cd guile-${guile_version}
 # we need to pass CFLAGS and LDFLAGS because there is no --with-readline-prefix
+
+# guiles configure uses gawk (or maybe awk?).  Let's wrap one that doesn't have the readline 
+# lib problem.
+# 
+# we need to by-pass the awk: symbol lookup error: xxx/lib/libreadline.so.6: undefined symbol: UP
+# we do that by hacking in a wrapper to awk and gawk that by-passes the LD_LIBRARY_PATH
+#
+if [ $systype = debian ] ; then
+    mkdir -p hack-bin
+    echo "LD_LIBRARY_PATH= /usr/bin/gawk $*" > hack-bin/awk
+    echo "LD_LIBRARY_PATH= /usr/bin/gawk $*" > hack-bin/gawk
+    chmod +x hack-bin/awk
+    chmod +x hack-bin/gawk
+    export PATH=$PWD/hack-bin
+    echo debian hack
+    which awk
+    which gawk
+fi
 
 # note that for guile's guile-readline module to compile correctly,
 # ncurses-dev needs to be installed (that is on this Fed 15 machine,
