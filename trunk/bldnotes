@@ -5,8 +5,14 @@ tests        rev 5015 update
 build-it-win rev 4739 (check 0.8 pre builder, add publishing?!)
 
 -------------------------------------------------------
-* THINGS TO DO BEFORE 0.7.2 RELEASE * ONLY URGENT THING
+* THINGS TO DO BEFORE 0.8.1 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
+
+-revert serval delete commit froms Paul
+  o need test for opengl32
+  o --no-undefined
+  o renumber residues (incl insertion code) AND make sure we cannot dublicate
+    a residue number!!!
 
 check up to dateness of supplied manuals
 
@@ -98,6 +104,8 @@ scripting exercise
 
 **** General ****
 
+   o renumber residue should not allow doublication of residue numbers
+
    o keyboard shortcut letters for mutate?!
 
    o proper sphere selection (without neighbouring crap) and keeping
@@ -113,6 +121,8 @@ scripting exercise
 
    o make auto_read column labels public and expandable (cf pdb, mtz extension
 	list)
+
+   o Edit chi angles crahes in no-graphics mode
 
    o user defined click should keep selecting mouse pointer
 

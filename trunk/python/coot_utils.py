@@ -3290,7 +3290,11 @@ def file_to_preferences(filename):
 
     coot_python_dir = os.getenv("COOT_PYTHON_DIR")
     if not coot_python_dir:
-        coot_python_dir = os.path.join(sys.prefix, 'lib', 'python2.7', 'site-packages', 'coot')
+        if is_windows():
+            coot_python_dir = os.path.normpath(os.path.join(sys.prefix,
+                                                            'lib', 'site-packages', 'coot'))
+        else:
+            coot_python_dir = os.path.join(sys.prefix, 'lib', 'python2.7', 'site-packages', 'coot')
 
     if os.path.isdir(coot_python_dir):
         ref_py = os.path.join(coot_python_dir, filename)

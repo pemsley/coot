@@ -2229,23 +2229,18 @@ class PdbMtzTestFunctions(unittest.TestCase):
                     "  Bad phosphate distance on 15 %s" %phosphate_distance)
 
 
-    # this takes too long - 30x everything else put together
-#     def test98_0(self):
-#         """Hundreds of Ramachandran refinements (post_manipulation_hook_py test)"""
+    # replacement of Ramachandran refinement and just testing
+    # post_manipulation_hook_py (out of context)
+    def test60_0(self):
+        """post_manipulation_hook_py test (replaces Hundreds of Ramachandran refinements)"""
 
-#         # doesnt test for anything just crash
-#         global imol_rnase, imol_rnase_map
-
-#         imol = imol_rnase
-#         turn_off_backup(imol)
-#         set_imol_refinement_map(imol_rnase_map)
-#         for i in range(3):
-#             stepped_refine_protein_for_rama(imol)
-
-#         turn_on_backup(imol)
+        # doesnt test for anything just crash
+        n_post = 10000
+        for i in range(n_post):
+            safe_python_command_with_return("post_manipulation_script")
 
 
-    def test99_0(self):
+    def test61_0(self):
         """Read/write gz coordinate files"""
 
         # this is mainly an mmdb test for windows

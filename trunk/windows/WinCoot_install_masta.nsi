@@ -182,7 +182,7 @@ Section "!WinCoot" SEC01
   File "${src_dir}\bin\bfactan.exe"
   File "${src_dir}\bin\coot"
   SetOverwrite on
-  File "${src_dir}\libexec\coot-real.exe"
+  File "${src_dir}\libexec\coot-bin.exe"
   SetOverwrite ifnewer
   File "${src_dir}\bin\density-score-by-residue"
   File "${src_dir}\bin\density-score-by-residue-real.exe"
@@ -526,7 +526,7 @@ Section Uninstall
   Delete "$INSTDIR\bin\bfactan.exe"
   Delete "$INSTDIR\bin\coot"
   Delete "$INSTDIR\bin\coot-real.exe"
-  Delete "$INSTDIR\libexec\coot-real.exe"
+  Delete "$INSTDIR\libexec\coot-bin.exe"
   Delete "$INSTDIR\bin\density-score-by-residue"
   Delete "$INSTDIR\bin\density-score-by-residue-real.exe"
   Delete "$INSTDIR\bin\findligand"
@@ -936,7 +936,7 @@ Function FinishPagePreFunction
      ${If} $R0 == "Vista"
      ${OrIf} $R0 == "7"   ; assuming it's needed, wont harm
        ; change to run on 1 core only (to enable compositing!)
-       !insertmacro AdvReplaceInFile "coot-real.exe" "start /affinity 1 coot-real.exe" "0" "1" "$INSTDIR\runwincoot.bat.tmp"
+       !insertmacro AdvReplaceInFile "coot-bin.exe" "start /affinity 1 coot-bin.exe" "0" "1" "$INSTDIR\runwincoot.bat.tmp"
 ;       MessageBox MB_ICONINFORMATION|MB_OK "Have Vista or 7"
      ${EndIf}
 

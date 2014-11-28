@@ -7428,26 +7428,44 @@ PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const
 
    int n_trials = 1000;
    PyObject *r = Py_False;
+   bool do_fit_and_refine = graphics_info_t::linked_residue_fit_and_refine_state;
+
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
       g.cif_dictionary_read_number++;
       coot::residue_spec_t res_spec(chain_id, resno, ins_code);
+
       // 20140429
       coot::residue_spec_t new_res_spec =
 	 g.molecules[imol].add_linked_residue_by_atom_torsions(res_spec, new_residue_comp_id,
 							       link_type, g.Geom_p());
 
-      if (! new_res_spec.unset_p()) {
-	 r = py_residue(new_res_spec);
-	 if (is_valid_map_molecule(imol_refinement_map())) {
-	    const clipper::Xmap<float> &xmap =
-	       g.molecules[imol_refinement_map()].xmap;
-	    std::vector<coot::residue_spec_t> residue_specs;
-	    residue_specs.push_back(res_spec);
-	    residue_specs.push_back(new_res_spec);
-	    g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
-	 }
+      if (do_fit_and_refine) {
+         if (! new_res_spec.unset_p()) {
+            r = py_residue(new_res_spec);
+            if (is_valid_map_molecule(imol_refinement_map())) {
+               const clipper::Xmap<float> &xmap =
+                  g.molecules[imol_refinement_map()].xmap;
+               std::vector<coot::residue_spec_t> residue_specs;
+               residue_specs.push_back(res_spec);
+               residue_specs.push_back(new_res_spec);
+
+               // 2 rounds of fit then refine
+               for (int ii=0; ii<2; ii++) {
+                  g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
+
+                  // refine and re-torsion-fit
+                  int mode = graphics_info_t::refinement_immediate_replacement_flag;
+                  std::string alt_conf;
+                  graphics_info_t::refinement_immediate_replacement_flag = 1;
+                  refine_residues_with_alt_conf(imol, residue_specs, alt_conf);
+                  accept_regularizement();
+                  remove_initial_position_restraints(imol, residue_specs);
+                  graphics_info_t::refinement_immediate_replacement_flag = mode;
+               }
+            }
+         }
       }
       graphics_draw();
    }
