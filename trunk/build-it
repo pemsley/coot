@@ -351,7 +351,8 @@
 # 5.16 20140817 Python version to 2.7.8
 # 5.17 20140911 SSM updates
 # 5.18 20141128 Add hack bin for debian awk
-script_version=5.18
+# 5.19 20141128 Use dist_name for debian (not systype)
+script_version=5.19
 
 
 
@@ -2070,10 +2071,10 @@ else
    echo this builder does not build libgnomecanvas
    echo pkg-config does not find libgnomecanvas-2.0.  Exiting.
    pkg_hnd=yum
-   if [ "$systype" = debian ] ; then 
+   if [ "$dist_name" = debian ] ; then 
       pkg_hnd=apt-get
    fi
-   if [ "$systype" = ubuntu ] ; then 
+   if [ "$dist_name" = ubuntu ] ; then 
       pkg_hnd=apt-get
    fi
    echo consider: $pkg_hnd install libgnomecanvas-devel
@@ -2887,7 +2888,7 @@ cd guile-${guile_version}
 # we need to by-pass the awk: symbol lookup error: xxx/lib/libreadline.so.6: undefined symbol: UP
 # we do that by hacking in a wrapper to awk and gawk that by-passes the LD_LIBRARY_PATH
 #
-if [ $systype = debian ] ; then
+if [ "$dist_name" = debian ] ; then
     mkdir -p hack-bin
     echo "LD_LIBRARY_PATH= /usr/bin/gawk $*" > hack-bin/awk
     echo "LD_LIBRARY_PATH= /usr/bin/gawk $*" > hack-bin/gawk
