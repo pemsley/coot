@@ -51,7 +51,8 @@ namespace coot {
       clipper::Coord_orth add_probe_points(int iround, double frac,
 					   clipper::Coord_orth &pt,
 					   const trace_info_t &t1,
-					   bool use_trace_info_for_path_uv);
+					   bool use_trace_info_for_path_uv,
+					   bool make_surface_points);
       void output_grid() const;
       clipper::Coord_orth get_path_uv(const clipper::Coord_orth &start_path_uv,
 				      const clipper::Coord_orth &end_path_uv, double frac) const;
@@ -63,7 +64,14 @@ namespace coot {
 
       enum { N_CANYON_STEPS = 120,
 	     N_THETA_STEPS  = 50 };
-      std::pair<bool, clipper::Coord_orth> surface_points[N_CANYON_STEPS][N_THETA_STEPS]; 
+
+      // These go together, for every N_CANYON_STEPS step, there is a
+      // set of points in the plane and (probe_path_points) the origin
+      // of the ring of points
+      // 
+      std::pair<bool, clipper::Coord_orth> surface_points[N_CANYON_STEPS][N_THETA_STEPS];
+      clipper::Coord_orth  probe_path_points[N_CANYON_STEPS];
+
       clipper::Array2d<double>
       polynomial_path_fit(const std::vector<clipper::Coord_orth> &points) const;
       std::vector<double>
@@ -77,7 +85,10 @@ namespace coot {
       void set_start_path_point(const clipper::Coord_orth &pt) { start_path_point = pt; }
       void set_end_point(       const clipper::Coord_orth &pt) { end_point        = pt; }
       void set_end_path_point(  const clipper::Coord_orth &pt) { end_path_point   = pt; }
+      double tetrahedron_volume(const std::vector<clipper::Coord_orth> &positions) const;
       void trace();
+      double trace_volume();
+      
    };
 }
 
