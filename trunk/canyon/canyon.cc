@@ -8,6 +8,7 @@
 #include "canyon.hh"
 
 coot::canyon::canyon(mmdb::Manager *mol_in) {
+
    mol = mol_in;
    selHnd = -1;
    // unset values for surface points
@@ -37,6 +38,10 @@ coot::canyon::trace() {
 
    std::cout << "------------- calling get_refined_trace() " << std::endl;
    ti = get_refined_trace(ti);
+
+   double v = trace_volume();
+
+   std::cout << "volume: " << v << std::endl;
 }
 
 coot::trace_info_t
@@ -74,7 +79,7 @@ coot::canyon::get_initial_trace() {
       clipper::Coord_orth pt(current_point + path_uv * path_step);
       
       trace_info_t dummy_trace_info;
-      current_point = add_probe_points(i, f, pt, dummy_trace_info, false);
+      current_point = add_probe_points(i, f, pt, dummy_trace_info, false, false);
 
       probe_path_points.push_back(current_point);
    }
@@ -101,11 +106,21 @@ coot::canyon::get_refined_trace(const coot::trace_info_t &ti) {
    clipper::Coord_orth end_path_uv(-end_diff.unit());
    
 
+   // This is where the initial path starts
    clipper::Coord_orth current_point = start_point;
+   //
+   // Use modelled path, with ti=0:
+   current_point = clipper::Coord_orth(ti.beta_vec_hats(0,0),
+				       ti.beta_vec_hats(1,0),
+				       ti.beta_vec_hats(2,0));
+   
+
+   
    double d_tot = sqrt((end_point - start_point).lengthsq());
    double path_step = d_tot/double(N_CANYON_STEPS);
 
-   std::vector<clipper::Coord_orth> probe_path_points;
+   std::vector<clipper::Coord_orth> track_probe_path;
+   std::vector<clipper::Coord_orth> probe_path_points(N_CANYON_STEPS);
 
    for (unsigned int i=0; i<N_CANYON_STEPS; i++) {
 
@@ -124,7 +139,8 @@ coot::canyon::get_refined_trace(const coot::trace_info_t &ti) {
       
       clipper::Coord_orth pt(current_point + path_uv * path_step);
 
-      
+      probe_path_points[i] = pt;
+
       if (1) {   // debug uv using model path
 	 clipper::Coord_orth tmp_pt(current_point + 2 * path_uv); 
 	 std::cout << "line-uv "
@@ -137,9 +153,9 @@ coot::canyon::get_refined_trace(const coot::trace_info_t &ti) {
 		   << "#aabb22" << std::endl;
       }
 
-      current_point = add_probe_points(i, f, pt, ti, true);
+      current_point = add_probe_points(i, f, pt, ti, true, true);
 
-      probe_path_points.push_back(current_point);
+      track_probe_path.push_back(current_point);
    }
 
    output_grid();
@@ -222,12 +238,13 @@ coot::canyon::get_path_uv(const clipper::Coord_orth &start_path_uv,
    return r;
 } 
 
-// We need a signal that the get_path_uv() function should use the trace_info
+// We need a flag that the get_path_uv() function should use the trace_info
 // 
 clipper::Coord_orth
 coot::canyon::add_probe_points(int iround, double frac, clipper::Coord_orth &pt,
 			       const trace_info_t &ti,
-			       bool use_trace_info_for_path_uv) {
+			       bool use_trace_info_for_path_uv,
+			       bool make_surface_points) {
 
    clipper::Coord_orth tracked_centre = pt;  // initially
 
@@ -274,7 +291,13 @@ coot::canyon::add_probe_points(int iround, double frac, clipper::Coord_orth &pt,
       //                                                      dir pos orig-shift angle
       clipper::Coord_orth rpu(coot::util::rotate_round_vector(path_uv, cpu, origin, t).unit());
 
-      for (double ps=0; ps<path_max; ps += 0.2) {
+      if (make_surface_points) { 
+	 std::cout << "rpu unit " << rpu.x() << " " << rpu.y() << " " << rpu.z() << " " << std::endl;
+	 clipper::Coord_orth debug_pt(pt + 1.6 * rpu);
+	 std::cout << "rpu debug " << debug_pt.x() << " " << debug_pt.y() << " " << debug_pt.z() << " " << std::endl;
+      } 
+
+      for (double ps=0; ps<path_max; ps += 0.05) {
 	 clipper::Coord_orth test_pos(pt + rpu * ps);
 
 	 bool bumped = false;
@@ -323,6 +346,7 @@ coot::canyon::add_probe_points(int iround, double frac, clipper::Coord_orth &pt,
 	    pt_interesting.push_back(test_pos);
  	    surface_points[iround][i_theta].first = true;
  	    surface_points[iround][i_theta].second = test_pos;
+	    probe_path_points[iround] = pt;
 	    break;
 	 }
       }
@@ -459,7 +483,7 @@ void
 coot::canyon::output_grid() const {
 
    bool show_grid = true;
-   double d_max_sq = 3.0; // don't draw triangles with lines that are longer than this.
+   double d_max_sq = 33333.0; // don't draw triangles with lines that are longer than this.
 
    std::ofstream f("canyon-grid-lines.data");
    
@@ -475,8 +499,11 @@ coot::canyon::output_grid() const {
 	       if (surface_points[i][next_theta].first) {
 		  if (surface_points[i+1][next_theta].first) {
 
-		     if (clipper::Coord_orth(surface_points[i][j].second - surface_points[i][next_theta].second).lengthsq() < d_max_sq)
-			f << "line "
+		     bool do_it = true;
+
+		     // if (clipper::Coord_orth(surface_points[i][j].second - surface_points[i][next_theta].second).lengthsq() < d_max_sq)
+		     if (do_it) 
+			f << "line " << i << " " << j << " "
 			  << surface_points[i][j].second.x() << " " 
 			  << surface_points[i][j].second.y() << " " 
 			  << surface_points[i][j].second.z() << " " 
@@ -487,34 +514,38 @@ coot::canyon::output_grid() const {
 
 		     if (show_grid) { 
 
-			if (clipper::Coord_orth(surface_points[i][j].second - surface_points[i+1][j].second).lengthsq() < d_max_sq)
-			   f << "line "
+			// if (clipper::Coord_orth(surface_points[i][j].second - surface_points[i+1][j].second).lengthsq() < d_max_sq)
+			if (do_it) 
+			   f << "line " << i << " " << j << " "
 			     << surface_points[i][j].second.x() << " " 
 			     << surface_points[i][j].second.y() << " " 
 			     << surface_points[i][j].second.z() << " " 
 			     << surface_points[i+1][j].second.x() << " " 
 			     << surface_points[i+1][j].second.y() << " " 
 			     << surface_points[i+1][j].second.z() << " " 
-			     << "sea\n";
+			     << "green\n";
 		     
-			if (clipper::Coord_orth(surface_points[i+1][j].second - surface_points[i+1][next_theta].second).lengthsq() < d_max_sq)
-			   f << "line "
+			// if (clipper::Coord_orth(surface_points[i+1][j].second - surface_points[i+1][next_theta].second).lengthsq() < d_max_sq)
+			if (do_it) 
+			   f << "line " << i << " " << j << " "
 			     << surface_points[i+1][j].second.x() << " " 
 			     << surface_points[i+1][j].second.y() << " " 
 			     << surface_points[i+1][j].second.z() << " " 
 			     << surface_points[i+1][next_theta].second.x() << " " 
 			     << surface_points[i+1][next_theta].second.y() << " " 
 			     << surface_points[i+1][next_theta].second.z() << " " 
-			     << "sea\n";
-			if (clipper::Coord_orth(surface_points[i][next_theta].second - surface_points[i+1][next_theta].second).lengthsq() < d_max_sq)
-			   f << "line "
+			     << "red\n";
+			
+			// if (clipper::Coord_orth(surface_points[i][next_theta].second - surface_points[i+1][next_theta].second).lengthsq() < d_max_sq)
+			if (do_it)
+			   f << "line " << i << " " << j << " "
 			     << surface_points[i][next_theta].second.x() << " " 
 			     << surface_points[i][next_theta].second.y() << " " 
 			     << surface_points[i][next_theta].second.z() << " " 
 			     << surface_points[i+1][next_theta].second.x() << " " 
 			     << surface_points[i+1][next_theta].second.y() << " " 
 			     << surface_points[i+1][next_theta].second.z() << " " 
-			     << "sea\n";
+			     << "orange\n";
 		     }
 		  }
 	       }
@@ -523,7 +554,106 @@ coot::canyon::output_grid() const {
       }
    }
    f.close();
-} 
+}
+
+#include <iomanip>
+
+double
+coot::canyon::trace_volume() {
+
+   double vol = 0;
+
+   if (0) { 
+      probe_path_points[0] = clipper::Coord_orth(0.5,0,1);
+      probe_path_points[1] = clipper::Coord_orth(0.5,1,1);
+   
+      surface_points[0][0].first = true;
+      surface_points[0][1].first = true;
+      surface_points[1][0].first = true;
+      surface_points[1][1].first = true;
+   
+      surface_points[0][0].second = clipper::Coord_orth(0,0,0);
+      surface_points[0][1].second = clipper::Coord_orth(1,0,0);
+      surface_points[1][0].second = clipper::Coord_orth(0,1,0);
+      surface_points[1][1].second = clipper::Coord_orth(1,1,0);
+   }
+   
+
+   for (unsigned int i=0; i<(N_CANYON_STEPS-1); i++) { 
+      for (unsigned int j=0; j<N_THETA_STEPS; j++) {
+	 unsigned int next_theta = j + 1;
+	 if (next_theta == N_THETA_STEPS)
+	    next_theta = 0;
+
+	 // easy case: all grid points exist:
+	 if (surface_points[i][j].first) {
+	    if (surface_points[i+1][j].first) {
+	       if (surface_points[i][next_theta].first) {
+		  if (surface_points[i+1][next_theta].first) {
+
+		     // there are 3 tetrahedra from 6 points
+		     
+		     std::vector<clipper::Coord_orth> positions(4);
+		     positions[0] = surface_points[i  ][j].second;
+		     positions[1] = surface_points[i  ][next_theta].second;
+		     positions[2] = surface_points[i+1][j].second;
+		     positions[3] = probe_path_points[i];
+
+		     double vol1 = tetrahedron_volume(positions);
+
+		     positions[0] = surface_points[i  ][next_theta].second;
+		     positions[1] = surface_points[i+1][next_theta].second;
+		     positions[2] = surface_points[i+1][j].second;
+		     positions[3] = probe_path_points[i];
+		     
+		     double vol2 = tetrahedron_volume(positions);
+		     
+		     positions[0] = surface_points[i+1][j].second;
+		     positions[1] = surface_points[i+1][next_theta].second;
+		     positions[2] = probe_path_points[i];
+		     positions[3] = probe_path_points[i+1];
+
+		     double vol3 = tetrahedron_volume(positions);
+		     std::cout << "vols: " <<  i << " " << j << " " 
+			       << std::setprecision(8) << std::fixed << std::setw(11)
+			       << vol1 << " " << vol2 << " " << vol3
+			       << " at "
+			       << probe_path_points[i].x() << " "
+			       << probe_path_points[i].y() << " "
+			       << probe_path_points[i].z() << " next "
+			       << probe_path_points[i+1].x() << " "
+			       << probe_path_points[i+1].y() << " "
+			       << probe_path_points[i+1].z() << "\n";
+
+		     vol += fabs(vol1) + fabs(vol2) + fabs(vol3);
+		     
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return vol;
+}
+
+// take the first 4 positions
+double
+coot::canyon::tetrahedron_volume(const std::vector<clipper::Coord_orth> &positions) const {
+
+   double vol = 0;
+   if (positions.size() < 4) {
+      vol = -99999999.9;
+   } else {
+      clipper::Coord_orth a = positions[1] - positions[0];
+      clipper::Coord_orth b = positions[2] - positions[0];
+      clipper::Coord_orth c = positions[3] - positions[0];
+      double adotbcrossc = clipper::Coord_orth::dot(a, clipper::Coord_orth::cross(b, c));
+      double mf = 0.166666666667; // mathworld says that this should be 0.166666666666666667
+      vol = mf * adotbcrossc;
+   } 
+   return vol;
+}
+
 
 
 // start:   (58.042  6.9541 22.4479)
@@ -561,7 +691,17 @@ int main(int argc, char **argv) {
 	 c.set_end_path_point(d);
 	 
 	 c.trace();
+
+	 std::vector<clipper::Coord_orth> positions;
+	 positions.push_back(clipper::Coord_orth(1, 0, 0));
+	 positions.push_back(clipper::Coord_orth(0, 0, 1));
+	 positions.push_back(clipper::Coord_orth(0, 1, 0));
+	 positions.push_back(clipper::Coord_orth(0, 0, 0));
+	 
+	 
+	 double test = c.tetrahedron_volume(positions);
       }
    }
    return status;
 } 
+
