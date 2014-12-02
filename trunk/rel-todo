@@ -3,9 +3,6 @@
 
 ----
 
-   o Make LSQ fit remember the previous settings - maybe use an Apply
-     and Close button.  - Lothar Esser
-
    o Lothar Esser:
 
          Fix the map selector: (Home project)
@@ -22,6 +19,10 @@
      3 /home/dxlab/esser/Project/xxx/xxxx/Crystals/Y104a/139B_A41/Refine/current.mtz /crystal/Fourier-map-coefficients/ANOM /crystal/Fourier-map-coefficients/PANOM 18.00 5.00
 
      This seems a bit long. For me, the display manager entry would suffice.
+
+
+   o Make LSQ fit remember the previous settings - maybe use an Apply
+     and Close button.  - Lothar Esser
 
 ---
 
@@ -167,3 +168,8 @@ INFO:: falling back to permissive search for bond HOH1 OC
      should be transients.
 
 * Done.
+
+   o Fix the python-only template keybindings
+
+* Done.
+
