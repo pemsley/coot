@@ -11,12 +11,7 @@ coot::canyon::canyon(mmdb::Manager *mol_in) {
 
    mol = mol_in;
    selHnd = -1;
-   // unset values for surface points
-   for (unsigned int i=0; i<N_CANYON_STEPS; i++) { 
-      for (unsigned int j=0; j<N_THETA_STEPS; j++) { 
-	 surface_points[i][j].first = false;
-      }
-   }
+   clear_surface_points();
 }
 
 void
@@ -98,6 +93,8 @@ coot::canyon::get_initial_trace() {
 coot::trace_info_t
 coot::canyon::get_refined_trace(const coot::trace_info_t &ti) {
 
+   clear_surface_points(); // should not be needed - but for checking
+
    clipper::Coord_orth start_diff = start_path_point - start_point;
    clipper::Coord_orth start_path_uv(start_diff.unit());
 
@@ -110,10 +107,14 @@ coot::canyon::get_refined_trace(const coot::trace_info_t &ti) {
    clipper::Coord_orth current_point = start_point;
    //
    // Use modelled path, with ti=0:
-   current_point = clipper::Coord_orth(ti.beta_vec_hats(0,0),
-				       ti.beta_vec_hats(1,0),
-				       ti.beta_vec_hats(2,0));
-   
+   clipper::Coord_orth current_point_to0 = clipper::Coord_orth(ti.beta_vec_hats(0,0),
+							       ti.beta_vec_hats(1,0),
+							       ti.beta_vec_hats(2,0));
+
+   std::cout << "Compare these starts:  user: " << start_point.format() << "\n"
+	     << "                      model: " << current_point_to0.format() << std::endl;
+
+   current_point = current_point_to0;
 
    
    double d_tot = sqrt((end_point - start_point).lengthsq());
@@ -136,8 +137,11 @@ coot::canyon::get_refined_trace(const coot::trace_info_t &ti) {
 
       double f = double(i)/double(N_CANYON_STEPS);
       clipper::Coord_orth path_uv = get_path_uv(ti, f);
-      
+
       clipper::Coord_orth pt(current_point + path_uv * path_step);
+      std::cout << "Adding rotation points based on rotation round "
+		<< pt.x() << " " << pt.y() << " " << pt.z() << " with path_uv " << path_uv.format()
+		<< " and " << f << std::endl;
 
       probe_path_points[i] = pt;
 
@@ -293,8 +297,9 @@ coot::canyon::add_probe_points(int iround, double frac, clipper::Coord_orth &pt,
 
       if (make_surface_points) { 
 	 std::cout << "rpu unit " << rpu.x() << " " << rpu.y() << " " << rpu.z() << " " << std::endl;
-	 clipper::Coord_orth debug_pt(pt + 1.6 * rpu);
-	 std::cout << "rpu debug " << debug_pt.x() << " " << debug_pt.y() << " " << debug_pt.z() << " " << std::endl;
+	 clipper::Coord_orth debug_pt(pt + 0.16 * rpu);
+	 std::cout << "rpu debug " << debug_pt.x() << " " << debug_pt.y() << " " << debug_pt.z() << " "
+		   << std::endl;
       } 
 
       for (double ps=0; ps<path_max; ps += 0.05) {
@@ -344,8 +349,10 @@ coot::canyon::add_probe_points(int iround, double frac, clipper::Coord_orth &pt,
 				       (fm * bump_atom->z + om_fm * test_pos.z()));
 	    
 	    pt_interesting.push_back(test_pos);
- 	    surface_points[iround][i_theta].first = true;
- 	    surface_points[iround][i_theta].second = test_pos;
+	    if (make_surface_points) { 
+	       surface_points[iround][i_theta].first = true;
+	       surface_points[iround][i_theta].second = test_pos;
+	    }
 	    probe_path_points[iround] = pt;
 	    break;
 	 }
@@ -480,6 +487,17 @@ coot::canyon::polynomial_path_fit(const std::vector<clipper::Coord_orth> &points
 
 
 void
+coot::canyon::clear_surface_points() {
+
+   for (unsigned int i=0; i<(N_CANYON_STEPS-1); i++) { 
+      for (unsigned int j=0; j<N_THETA_STEPS; j++) {
+	 surface_points[i][j].first = false;
+      }
+   }
+} 
+
+
+void
 coot::canyon::output_grid() const {
 
    bool show_grid = true;
@@ -563,7 +581,7 @@ coot::canyon::trace_volume() {
 
    double vol = 0;
 
-   if (0) { 
+   if (0) { // debug - hack in a shape with a known volume to test (it works).
       probe_path_points[0] = clipper::Coord_orth(0.5,0,1);
       probe_path_points[1] = clipper::Coord_orth(0.5,1,1);
    

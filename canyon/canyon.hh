@@ -78,8 +78,11 @@ namespace coot {
       polynomial_path_fit(const std::vector<clipper::Coord_orth> &points,
 	 unsigned int points_vec_index) const;
       trace_info_t get_initial_trace(); 
-      trace_info_t get_refined_trace(const trace_info_t &ti); 
-      public:
+      trace_info_t get_refined_trace(const trace_info_t &ti);
+      void clear_surface_points();
+      
+   public:
+      
       canyon(mmdb::Manager *mol);
       void set_start_point(     const clipper::Coord_orth &pt) { start_point      = pt; }
       void set_start_path_point(const clipper::Coord_orth &pt) { start_path_point = pt; }
