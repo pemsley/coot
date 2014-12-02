@@ -104,20 +104,20 @@ graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
    GtkWidget *menuitem;
    int active_map_mol_no = -1;
 
-   //   std::cout << "DEBUG:: menu: " << menu << std::endl;
    if (menu)
       gtk_widget_destroy(menu);
    menu = gtk_menu_new();
    int menu_index = 0;
    
    for (int i=0; i<n_molecules(); i++) {
-      if (is_valid_map_molecule(i)) { 
-	 char s[200];
-	 snprintf(s,199,"%d", i);
-	 std::string ss(s);
-	 ss += " ";
-	 ss += molecules[i].name_;
-	 menuitem = gtk_menu_item_new_with_label(ss.c_str());
+      if (is_valid_map_molecule(i)) {
+
+	 std::string label = clipper::String(i);
+	 label += " ";
+	 label += molecules[i].name_for_display_manager();
+
+	 
+	 menuitem = gtk_menu_item_new_with_label(label.c_str());
 	 gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
 			    GTK_SIGNAL_FUNC(signal_func),
 			    GINT_TO_POINTER(i));
