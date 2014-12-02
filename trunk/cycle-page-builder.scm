@@ -902,6 +902,11 @@
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-release"
 	       #t #t)
 
+	 (list "binary-Linux-x86_64-ubuntu-14.04-python-gtk2"
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-ubuntu1404/gtk2"
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-release"
+	       #t #t)
+
 	 (list "binary-Linux-x86_64-openSUSE-12.3-python-gtk2"
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-emsley-vm-suse/gtk2" 
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-release"
