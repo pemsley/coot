@@ -4421,7 +4421,7 @@ void
 graphics_info_t::draw_generic_objects_solid() {
 
    graphics_info_t g;
-   double radius = 0.03;
+   double radius = 0.02;
 
    // Don't mess with the lighting if we aren't drawing anything
    // 
@@ -4509,7 +4509,9 @@ graphics_info_t::draw_generic_objects_solid() {
 		  glTranslatef((*generic_objects_p)[i].points_set[ips].points[ipoint].x(),
 			       (*generic_objects_p)[i].points_set[ips].points[ipoint].y(),
 			       (*generic_objects_p)[i].points_set[ips].points[ipoint].z());	 
-		  gluSphere(sphere_quad, radius, sphere_slices, sphere_stacks);
+		  gluSphere(sphere_quad,
+			    (*generic_objects_p)[i].points_set[ips].size * radius,
+			    sphere_slices, sphere_stacks);
 		  gluDeleteQuadric(sphere_quad);
 		  glPopMatrix();	 
 	       }
