@@ -1032,7 +1032,7 @@ echo update_config_guess_sub: $update_config_guess_sub
 
 
 # check dependencies for Ubuntu.
-case $systype in 
+case $dist_name in 
    *ubuntu*)
  
       dep_list='
@@ -1071,6 +1071,31 @@ case $systype in
       # swig is tested for later separately.
 
       ;;
+
+    debian)
+      dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev libgnomecanvas2-dev'
+      for dep in $dep_list 
+      do 
+         echo $dep
+         if dpkg-query --status $dep > /dev/null ; then
+            echo system has $dep
+         else
+            echo ======== $dep is missing ======
+            missing_list="$missing_list $dep"
+         fi
+      done
+      if [ "$missing_list" != '' ] ; then
+         echo " "
+         echo " "
+         echo install these packages: $missing_list
+         echo then re-run
+         echo " "
+         echo " "
+         my_exit 2
+      fi
+
+      ;; 
+
 esac
 
 # for SuSe 11.3, we need to install the following:
@@ -2890,14 +2915,11 @@ cd guile-${guile_version}
 #
 if [ "$dist_name" = debian ] ; then
     mkdir -p hack-bin
-    echo "LD_LIBRARY_PATH= /usr/bin/gawk $*" > hack-bin/awk
-    echo "LD_LIBRARY_PATH= /usr/bin/gawk $*" > hack-bin/gawk
+    echo "LD_LIBRARY_PATH= /usr/bin/awk $*" > hack-bin/awk
     chmod +x hack-bin/awk
-    chmod +x hack-bin/gawk
-    export PATH=$PWD/hack-bin
+    export PATH=$PWD/hack-bin:$PATH
     echo debian hack
     which awk
-    which gawk
 fi
 
 # note that for guile's guile-readline module to compile correctly,
