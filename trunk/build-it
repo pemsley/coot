@@ -353,7 +353,8 @@
 # 5.18 20141128 Add hack bin for debian awk
 # 5.19 20141128 Use dist_name for debian (not systype)
 # 5.20 20141203 More/better Debian awk hack.
-script_version=5.20
+# 5.21 20141203 Unset some build environment variables (including LD_LIBRARY_PATH)
+script_version=5.21
 
 
 
@@ -3377,8 +3378,6 @@ fi
 echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 echo building in: $PWD
 echo ./configure $coot_prefix \
-        --with-mmdb-prefix=$install_top_dir \
-      --with-ssmlib-prefix=$install_top_dir \
        --with-fftw-prefix=$install_top_dir  \
       $goocanvas_args     \
        $glut_prefix       \
@@ -3389,8 +3388,6 @@ echo ./configure $coot_prefix \
       $coot_extra_args
 
 ./configure $coot_prefix \
-        --with-mmdb-prefix=$install_top_dir \
-      --with-ssmlib-prefix=$install_top_dir \
        --with-fftw-prefix=$install_top_dir  \
       $goocanvas_args     \
       $glut_prefix        \
@@ -3400,6 +3397,10 @@ echo ./configure $coot_prefix \
       $shared_static_flag \
       $coot_optim_args    \
       $coot_extra_args
+
+# these are no longer used
+#         --with-mmdb-prefix=$install_top_dir 
+#       --with-ssmlib-prefix=$install_top_dir 
 
 # consider adding -DCOOT_SYS_TYPE=systype (or something like that)
 # here, so that coot --version-info/full returns it.
@@ -3448,8 +3449,15 @@ else
     echo coot build was good.
     echo pass-build $coot_revision > $LOGS/$build_type-build-status
 fi
-echo done coot build. 
+echo done coot build.
 
+# restore a sane environment for external programs (e.g. ftp)
+# 
+unset LD_LIBRARY_PATH
+unset CFLAGS
+unset CPPFLAGS
+unset LDFLAGS
+unset PKG_CONFIG_PATH
 
 # now, do we need to add the extra data files, the refmac monomer
 # library and the reference structures?
