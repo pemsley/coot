@@ -24008,6 +24008,10 @@ create_least_squares_dialog (void)
   GtkWidget *image1524;
   GtkWidget *label380;
   GtkWidget *least_squares_close_button;
+  GtkWidget *alignment159;
+  GtkWidget *hbox434;
+  GtkWidget *image10619;
+  GtkWidget *label783;
   GtkWidget *least_squares_cancel_button;
   GtkWidget *alignment56;
   GtkWidget *hbox207;
@@ -24191,10 +24195,26 @@ create_least_squares_dialog (void)
   gtk_widget_show (label380);
   gtk_box_pack_start (GTK_BOX (hbox206), label380, FALSE, FALSE, 0);
 
-  least_squares_close_button = gtk_button_new_from_stock ("gtk-close");
+  least_squares_close_button = gtk_button_new ();
   gtk_widget_show (least_squares_close_button);
   gtk_box_pack_start (GTK_BOX (hbox146), least_squares_close_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (least_squares_close_button), 2);
+
+  alignment159 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment159);
+  gtk_container_add (GTK_CONTAINER (least_squares_close_button), alignment159);
+
+  hbox434 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox434);
+  gtk_container_add (GTK_CONTAINER (alignment159), hbox434);
+
+  image10619 = gtk_image_new_from_stock ("gtk-close", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image10619);
+  gtk_box_pack_start (GTK_BOX (hbox434), image10619, FALSE, FALSE, 0);
+
+  label783 = gtk_label_new_with_mnemonic ("Close");
+  gtk_widget_show (label783);
+  gtk_box_pack_start (GTK_BOX (hbox434), label783, FALSE, FALSE, 0);
 
   least_squares_cancel_button = gtk_button_new ();
   gtk_box_pack_start (GTK_BOX (hbox146), least_squares_cancel_button, FALSE, FALSE, 0);
@@ -24277,6 +24297,10 @@ create_least_squares_dialog (void)
   GLADE_HOOKUP_OBJECT (least_squares_dialog, image1524, "image1524");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, label380, "label380");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_close_button, "least_squares_close_button");
+  GLADE_HOOKUP_OBJECT (least_squares_dialog, alignment159, "alignment159");
+  GLADE_HOOKUP_OBJECT (least_squares_dialog, hbox434, "hbox434");
+  GLADE_HOOKUP_OBJECT (least_squares_dialog, image10619, "image10619");
+  GLADE_HOOKUP_OBJECT (least_squares_dialog, label783, "label783");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, least_squares_cancel_button, "least_squares_cancel_button");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, alignment56, "alignment56");
   GLADE_HOOKUP_OBJECT (least_squares_dialog, hbox207, "hbox207");
