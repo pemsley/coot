@@ -102,6 +102,8 @@ void superpose(int imol1, int imol2, short int move_copy_of_imol2_flag) {
 }
 
 
+// we use short int move_imol2_flag because this has a C interface.
+// 
 void superpose_with_chain_selection(int imol1, int imol2, 
 				    const char *chain_imol1,
 				    const char *chain_imol2,
@@ -110,6 +112,8 @@ void superpose_with_chain_selection(int imol1, int imol2,
 				    short int move_imol2_flag) {
 
 #ifdef HAVE_SSMLIB
+
+   // These atom selections are not deleted?  // fixme-delete-atom-selection
 
    if (is_valid_model_molecule(imol1)) {
       if (is_valid_model_molecule(imol2)) { 
@@ -256,17 +260,13 @@ void execute_superpose(GtkWidget *w) {
 //    std::cout << "DEBUG:: superpose_imol2: " << graphics_info_t::superpose_imol2 << std::endl;
 
 
-   short int make_copy;
-
    GtkWidget *checkbutton = lookup_widget(w, "superpose_dialog_move_copy_checkbutton");
    GtkWidget *chain_mol1_checkbutton =  lookup_widget(w, "superpose_reference_chain_checkbutton");
    GtkWidget *chain_mol2_checkbutton =  lookup_widget(w, "superpose_moving_chain_checkbutton");
 
+   bool make_copy = false;
    if (GTK_TOGGLE_BUTTON(checkbutton)->active)
-      make_copy = 1;
-   else 
-      make_copy = 0;
-   
+      make_copy = true;
    
    if (imol1 >= 0 && imol1 < graphics_info_t::n_molecules()) { 
       if (imol2 >= 0 && imol2 < graphics_info_t::n_molecules()) {
@@ -296,7 +296,7 @@ void execute_superpose(GtkWidget *w) {
 	    if (!chain_used_flag_imol1 && !chain_used_flag_imol2) {
 	       self_superpose_flag = 1;
 	    } else {
-	       if (!make_copy) { 
+	       if (! make_copy) { 
 		  self_superpose_flag = 1;
 	       } else { 
 		  if (chain_used_flag_imol1 && chain_used_flag_imol2) {
@@ -309,7 +309,7 @@ void execute_superpose(GtkWidget *w) {
 	 }
 
 	 if (self_superpose_flag == 1)
-	    make_copy = 1;
+	    make_copy = true;
 	    
 	 std::string mol1chain_info;
 	 std::string mol2chain_info;
@@ -624,8 +624,6 @@ GtkWidget *wrapped_create_least_squares_dialog() {
    int match_type = -1; /* 0: CA
 		           1: main
    		           2: all  */
-   const char *ref_chain_id = 0;
-   const char *mov_chain_id = 0;
 
    GtkWidget *mov_option_menu = lookup_widget(lsq_dialog, "least_squares_moving_molecule_optionmenu");
    GtkWidget *ref_option_menu = lookup_widget(lsq_dialog, "least_squares_reference_molecule_optionmenu");
@@ -640,32 +638,34 @@ GtkWidget *wrapped_create_least_squares_dialog() {
    GtkWidget *ref_mol_chain_id_option_menu = lookup_widget(lsq_dialog, "least_squares_reference_chain_id");
    GtkWidget *mov_mol_chain_id_option_menu = lookup_widget(lsq_dialog, "least_squares_moving_chain_id");
    
-   const char *txt = 0;
-
-   // fill ref molecule option menu
-   // fill mov molecule option menu
-   // fill ref molecule chain option menu
-   // fill mov molecule chain option menu
-
    graphics_info_t g;
    GtkSignalFunc callback_func1 = GTK_SIGNAL_FUNC(lsq_ref_mol_option_menu_changed);
    GtkSignalFunc callback_func2 = GTK_SIGNAL_FUNC(lsq_mov_mol_option_menu_changed);
-   int imol = first_coords_imol();
-   graphics_info_t::lsq_ref_imol = imol;
-   graphics_info_t::lsq_mov_imol = imol;
-   g.fill_option_menu_with_coordinates_options(ref_option_menu, callback_func1, imol);
-   g.fill_option_menu_with_coordinates_options(mov_option_menu, callback_func2, imol);
+   
+   int imol_1 = first_coords_imol();
+   int imol_2 = first_coords_imol();
+   graphics_info_t::lsq_ref_imol = imol_1;
+   graphics_info_t::lsq_mov_imol = imol_2;
+
+   if (is_valid_model_molecule(g.lsq_dialog_values.reference_molecule_number))
+      imol_1 = g.lsq_dialog_values.reference_molecule_number;
+   if (is_valid_model_molecule(g.lsq_dialog_values.moving_molecule_number))
+      imol_2 = g.lsq_dialog_values.moving_molecule_number;
+
+   g.fill_option_menu_with_coordinates_options(ref_option_menu, callback_func1, imol_1);
+   g.fill_option_menu_with_coordinates_options(mov_option_menu, callback_func2, imol_2);
 
    // fill with 1 to 999
-   gtk_entry_set_text(GTK_ENTRY(ref_res_range_1), "1");
-   gtk_entry_set_text(GTK_ENTRY(ref_res_range_2), "999");
-   gtk_entry_set_text(GTK_ENTRY(mov_res_range_1), "1");
-   gtk_entry_set_text(GTK_ENTRY(mov_res_range_2), "999");
+   gtk_entry_set_text(GTK_ENTRY(ref_res_range_1), clipper::String(g.lsq_dialog_values.ref_res_range_start).c_str());
+   gtk_entry_set_text(GTK_ENTRY(ref_res_range_2), clipper::String(g.lsq_dialog_values.ref_res_range_end).c_str());
+   gtk_entry_set_text(GTK_ENTRY(mov_res_range_1), clipper::String(g.lsq_dialog_values.mov_res_range_start).c_str());
+   gtk_entry_set_text(GTK_ENTRY(mov_res_range_2), clipper::String(g.lsq_dialog_values.mov_res_range_end).c_str());
 
-   
-   fill_lsq_option_menu_with_chain_options(ref_mol_chain_id_option_menu, 1);
-   fill_lsq_option_menu_with_chain_options(mov_mol_chain_id_option_menu, 0);
+   std::string chain_id_ref = g.lsq_dialog_values.chain_id_ref.c_str();
+   std::string chain_id_mov = g.lsq_dialog_values.chain_id_mov.c_str();
 
+   fill_lsq_option_menu_with_chain_options(ref_mol_chain_id_option_menu, 1, chain_id_ref.c_str());
+   fill_lsq_option_menu_with_chain_options(mov_mol_chain_id_option_menu, 0, chain_id_mov.c_str());
 
    return lsq_dialog;
 
@@ -674,30 +674,42 @@ GtkWidget *wrapped_create_least_squares_dialog() {
 void
 lsq_ref_mol_option_menu_changed(GtkWidget *item, GtkPositionType pos) {
 
-   std::cout << "ref option menu changed to pos: " << pos << std::endl;
    graphics_info_t::lsq_ref_imol = pos;
 
    // now change the chain optionmenu for the reference structure:
    GtkWidget *ref_mol_chain_id_option_menu = lookup_widget(item, "least_squares_reference_chain_id");
-   fill_lsq_option_menu_with_chain_options(ref_mol_chain_id_option_menu, 1);
-   
+   fill_lsq_option_menu_with_chain_options(ref_mol_chain_id_option_menu, 1, "");
    
 }
 
 void
 lsq_mov_mol_option_menu_changed(GtkWidget *item, GtkPositionType pos) {
 
-   std::cout << "mov option menu changed to pos: " << pos << std::endl;
    graphics_info_t::lsq_mov_imol = pos;
 
    // now change the chain optionmenu for the moving structure:
    GtkWidget *mov_mol_chain_id_option_menu = lookup_widget(item, "least_squares_moving_chain_id");
-   fill_lsq_option_menu_with_chain_options(mov_mol_chain_id_option_menu, 0);
+   fill_lsq_option_menu_with_chain_options(mov_mol_chain_id_option_menu, 0, "");
 }
 
 
+void update_lsq_dialog_store_values(GtkWidget *lsq_dialog) {
+
+   graphics_info_t g;
+
+   graphics_info_t::lsq_dialog_values.update(lsq_dialog,
+					     g.lsq_ref_imol,
+					     g.lsq_mov_imol,
+					     g.lsq_match_chain_id_ref,
+					     g.lsq_match_chain_id_mov);
+   
+} 
+
 
 int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {
+
+   graphics_info_t g;
+   g.lsq_dialog_values.update(lsq_dialog);
 
    int imol_reference = graphics_info_t::lsq_ref_imol;
    int imol_moving    = graphics_info_t::lsq_mov_imol;
@@ -767,9 +779,13 @@ int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog) {
 } 
 
 
+
+// note that active_chain_id can be NULL.
+// 
 void
 fill_lsq_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
-					int is_reference_structure_flag) {
+					int is_reference_structure_flag,
+					const char *active_chain_id) {
 
    // c.f void
    // graphics_info_t::fill_superpose_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
@@ -779,20 +795,20 @@ fill_lsq_option_menu_with_chain_options(GtkWidget *chain_optionmenu,
    int imol = -1;
    if (is_reference_structure_flag) {  
       imol = graphics_info_t::lsq_ref_imol;
-      callback_func =
-	 GTK_SIGNAL_FUNC(lsq_reference_chain_option_menu_item_activate);
+      callback_func = GTK_SIGNAL_FUNC(lsq_reference_chain_option_menu_item_activate);
    } else {
       imol = graphics_info_t::lsq_mov_imol;
        callback_func =
 	 GTK_SIGNAL_FUNC(lsq_moving_chain_option_menu_item_activate);
    }
 
-   std::cout << "in fill_lsq_option_menu_with_chain_options " << imol << " "
-	     << is_reference_structure_flag << std::endl;
-   
-   if (imol >=0 && imol < graphics_info_t::n_molecules()) { 
-      std::string set_chain = graphics_info_t::fill_chain_option_menu(chain_optionmenu,
-								      imol, callback_func);
+   if (is_valid_model_molecule(imol)) {
+      std::string ss = "Unset";
+      if (active_chain_id)
+	 ss = active_chain_id;
+      std::string set_chain = graphics_info_t::fill_option_menu_with_chain_options(chain_optionmenu,
+										   imol, callback_func,
+										   ss);
       if (is_reference_structure_flag) {
 	 graphics_info_t::lsq_match_chain_id_ref = set_chain;
       } else {

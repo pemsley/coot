@@ -92,8 +92,8 @@ void graphics_info_t::fill_superpose_option_menu_with_chain_options(GtkWidget *c
    }
    
    if (imol >=0 && imol < n_molecules()) { 
-      std::string set_chain = graphics_info_t::fill_chain_option_menu(chain_optionmenu,
-								      imol, callback_func);
+      std::string set_chain = graphics_info_t::fill_option_menu_with_chain_options(chain_optionmenu,
+										   imol, callback_func);
       if (is_reference_structure_flag) {
 	 graphics_info_t::superpose_imol1_chain = set_chain;
       } else {
@@ -164,7 +164,7 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 					       int imol2,
 					       std::string moving_mol_name,
 					       std::string reference_mol_name,
-					       short int move_copy_of_imol2_flag) {
+					       bool move_copy_of_imol2_flag) {
 
    int imodel_return = -1;
 
@@ -489,7 +489,7 @@ graphics_info_t::print_ssm_sequence_alignment(ssm::Align *SSMAlign,
 					      atom_selection_container_t asc_mov,
 					      mmdb::PAtom *atom_selection1, mmdb::PAtom *atom_selection2,
 					      int n_selected_atoms_1, int n_selected_atoms_2,
-					      short int move_copy_of_imol2_flag) {
+					      bool move_copy_of_imol2_flag) {
 
    std::cout << "Another Go...\n\n";
 

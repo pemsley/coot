@@ -194,11 +194,13 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
 	 
 	 if (nSelResidues_1 == 0) { 
 	    std::cout << "WARNING - no residue for reference residue number "
-		      << ires << " " << match.reference_chain_id << std::endl;
+		      << ires << " for reference chain-id: \""
+		      << match.reference_chain_id << "\"" << std::endl;
 	 }
 	 if (nSelResidues_2 == 0) { 
 	    std::cout << "WARNING - no residue for moving molecule residue number "
-		      << ires_matcher << " " << match.matcher_chain_id << std::endl;
+		      << ires_matcher << " for matcher chain-id: \""
+		      << match.matcher_chain_id << "\"" << std::endl;
 	 }
       } else {
 

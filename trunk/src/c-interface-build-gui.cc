@@ -1423,8 +1423,8 @@ GtkWidget *wrapped_create_mutate_sequence_dialog() {
       graphics_info_t::mutate_sequence_imol = imol;
       GtkSignalFunc callback =
 	 GTK_SIGNAL_FUNC(mutate_sequence_chain_option_menu_item_activate);
-      std::string set_chain = graphics_info_t::fill_chain_option_menu(chain_option_menu, imol,
-								      callback);
+      std::string set_chain = graphics_info_t::fill_option_menu_with_chain_options(chain_option_menu, imol,
+										   callback);
       graphics_info_t::mutate_sequence_chain_from_optionmenu = set_chain;
    } else {
       graphics_info_t::mutate_sequence_imol = -1; // flag for can't mutate
@@ -1450,8 +1450,8 @@ void mutate_sequence_molecule_menu_item_activate(GtkWidget *item,
    GtkSignalFunc callback_func =
       GTK_SIGNAL_FUNC(mutate_sequence_chain_option_menu_item_activate);
    
-   std::string set_chain = graphics_info_t::fill_chain_option_menu(chain_option_menu,
-								   pos, callback_func);
+   std::string set_chain = graphics_info_t::fill_option_menu_with_chain_options(chain_option_menu,
+										pos, callback_func);
 
    graphics_info_t::mutate_sequence_chain_from_optionmenu = set_chain;
 }
@@ -1834,8 +1834,8 @@ GtkWidget *wrapped_create_align_and_mutate_dialog() {
 
    if (imol >= 0) {
       g.fill_option_menu_with_coordinates_options(mol_optionmenu, callback, imol);
-      std::string set_chain = graphics_info_t::fill_chain_option_menu(chain_optionmenu, imol,
-								      chain_callback);
+      std::string set_chain = graphics_info_t::fill_option_menu_with_chain_options(chain_optionmenu, imol,
+										   chain_callback);
       graphics_info_t::align_and_mutate_chain_from_optionmenu = set_chain;
    }
    
@@ -1924,8 +1924,8 @@ void align_and_mutate_molecule_menu_item_activate(GtkWidget *item,
    GtkSignalFunc chain_callback = GTK_SIGNAL_FUNC(align_and_mutate_chain_option_menu_item_activate);
    graphics_info_t::align_and_mutate_imol = pos;
    int imol = pos;
-   std::string set_chain = graphics_info_t::fill_chain_option_menu(chain_optionmenu, imol,
-								   chain_callback);
+   std::string set_chain = graphics_info_t::fill_option_menu_with_chain_options(chain_optionmenu, imol,
+										chain_callback);
 }
 
 void align_and_mutate_chain_option_menu_item_activate (GtkWidget *item,
@@ -1960,9 +1960,9 @@ GtkWidget *wrapped_create_change_chain_id_dialog() {
       graphics_info_t::change_chain_id_molecule = imol;
       GtkSignalFunc chain_callback_func =
 	 GTK_SIGNAL_FUNC(change_chain_ids_chain_menu_item_activate);
-      std::string set_chain = graphics_info_t::fill_chain_option_menu(chain_option_menu,
-								       imol,
-								      chain_callback_func);
+      std::string set_chain = graphics_info_t::fill_option_menu_with_chain_options(chain_option_menu,
+										   imol,
+										   chain_callback_func);
       graphics_info_t::change_chain_id_from_chain = set_chain;
    }
    graphics_info_t g; 
@@ -1978,9 +1978,9 @@ change_chain_ids_mol_option_menu_item_activate(GtkWidget *item,
    GtkWidget *chain_option_menu =  lookup_widget(item, "change_chain_id_chain_optionmenu");
    GtkSignalFunc chain_callback_func =
       GTK_SIGNAL_FUNC(change_chain_ids_chain_menu_item_activate);
-   std::string set_chain = graphics_info_t::fill_chain_option_menu(chain_option_menu,
-								   imol,
-								   chain_callback_func);
+   std::string set_chain = graphics_info_t::fill_option_menu_with_chain_options(chain_option_menu,
+										imol,
+										chain_callback_func);
    graphics_info_t::change_chain_id_from_chain = set_chain;
 }
 

@@ -349,6 +349,7 @@ coot_bin_SOURCES = \
 	interface.c	 	 \
 	interface.h              \
         manipulation-modes.hh    \
+	lsq-dialog-values.hh     \
 	lbg-interface.hh 	 \
 	lbg-callbacks-outer.cc 	 \
 	lbg-interface.cc 	 \

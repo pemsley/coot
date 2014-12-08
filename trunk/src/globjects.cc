@@ -183,6 +183,10 @@ std::string graphics_info_t::lsq_match_chain_id_ref;
 std::string graphics_info_t::lsq_match_chain_id_mov;
 int graphics_info_t::lsq_ref_imol = -1;
 int graphics_info_t::lsq_mov_imol = -1;
+// LSQ dialog values
+lsq_dialog_values_t graphics_info_t::lsq_dialog_values;
+
+
 
 // side by side stereo?
 short int graphics_info_t::in_side_by_side_stereo_mode = 0;
@@ -1294,6 +1298,7 @@ bool graphics_info_t::linked_residue_fit_and_refine_state = true;
 
 // 
 std::map<std::string, std::pair<std::string, std::string> > graphics_info_t::user_name_passwd_map;
+
 
 
 // GTK2 code

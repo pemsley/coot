@@ -1487,7 +1487,8 @@ void fill_ramachandran_plot_differences_option_menu_with_chain_options(GtkWidget
    }
 
    if (imol >=0 && imol< graphics_info_t::n_molecules()) {
-      std::string set_chain = graphics_info_t::fill_chain_option_menu(chain_optionmenu, imol, callback_func);
+      std::string set_chain = graphics_info_t::fill_option_menu_with_chain_options(chain_optionmenu,
+										   imol, callback_func);
       if (is_first_mol_flag) {
 	 graphics_info_t::ramachandran_plot_differences_imol1_chain = set_chain;
       } else {

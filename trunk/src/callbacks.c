@@ -9641,10 +9641,27 @@ on_least_squares_ok_button_clicked     (GtkButton       *button,
 
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "least_squares_dialog");
   int status = apply_lsq_matches_by_widget(w);
-  if (status == 1) { // OK
-    gtk_widget_destroy(w);
-  }
+
+  /* Don't close on pressing the fit button - make users explicitly
+     click the Close button */
+
+/*   if (status == 1) { */
+/*     gtk_widget_destroy(w); */
+/*   } */
+
 }
+
+
+void
+on_least_squares_close_button_clicked  (GtkButton       *button,
+                                        gpointer         user_data)
+{
+  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "least_squares_dialog");
+  update_lsq_dialog_store_values(w);
+  gtk_widget_destroy(w);
+}
+
+
 
 
 void
@@ -12350,4 +12367,5 @@ on_generic_objects_close_all_button_clicked
 {
   close_all_generic_objects();
 }
+
 
