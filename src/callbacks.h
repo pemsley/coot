@@ -3413,6 +3413,11 @@ void
 on_least_squares_cancel_button_clicked (GtkButton       *button,
                                         gpointer         user_data);
 
+
+void
+on_least_squares_close_button_clicked  (GtkButton       *button,
+                                        gpointer         user_data);
+
 void
 on_lsq_superpose1_activate             (GtkMenuItem     *menuitem,
                                         gpointer         user_data);

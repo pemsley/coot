@@ -3557,7 +3557,7 @@ graphics_info_t::fill_add_OXT_dialog_internal(GtkWidget *widget, int imol) {
    GtkWidget *chain_optionmenu = lookup_widget(widget, "add_OXT_chain_optionmenu");
    GtkSignalFunc signal_func = GTK_SIGNAL_FUNC(graphics_info_t::add_OXT_chain_menu_item_activate);
 
-   std::string a = fill_chain_option_menu(chain_optionmenu, imol, signal_func);
+   std::string a = fill_option_menu_with_chain_options(chain_optionmenu, imol, signal_func);
    if (a != "no-chain") {
       graphics_info_t::add_OXT_chain = a;
    }
@@ -3580,8 +3580,8 @@ graphics_info_t::add_OXT_chain_menu_item_activate (GtkWidget *item,
 // static
 // 
 std::string 
-graphics_info_t::fill_chain_option_menu(GtkWidget *chain_option_menu, int imol,
-					GtkSignalFunc signal_func) {
+graphics_info_t::fill_option_menu_with_chain_options(GtkWidget *chain_option_menu, int imol,
+						     GtkSignalFunc signal_func) {
 
    std::string r("no-chain");
 
@@ -3622,7 +3622,49 @@ graphics_info_t::fill_chain_option_menu(GtkWidget *chain_option_menu, int imol,
       }
    }
    return r;
-} 
+}
+
+
+
+// return the string at the top of the list:
+// 
+//static
+std::string graphics_info_t::fill_option_menu_with_chain_options(GtkWidget *option_menu,
+								 int imol,
+								 GtkSignalFunc signal_func, 
+								 const std::string &active_chain_id) {
+
+   std::pair<bool, std::string> top_string(false, "no-chain-set-in-fill_option_menu_with_chain_options");
+
+   if (is_valid_model_molecule(imol)) {
+      std::vector<std::string> chains = coot::util::chains_in_molecule(graphics_info_t::molecules[imol].atom_sel.mol);
+      GtkWidget *menu_item;
+      GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
+      if (menu)
+	 gtk_widget_destroy(menu);
+      menu = gtk_menu_new();
+      gtk_widget_show(menu);
+      for (unsigned int i=0; i<chains.size(); i++) {
+	 menu_item = gtk_menu_item_new_with_label(chains[i].c_str());
+	 gtk_signal_connect(GTK_OBJECT(menu_item), "activate", signal_func, NULL);
+	 gtk_menu_append(GTK_MENU(menu), menu_item);
+	 // g_object_set_data(G_OBJECT(menu_item), "chain-id", chains[i].c_str());
+	 gtk_widget_show(menu_item);
+	 if ((i == 0) || (chains[i] == active_chain_id)) {
+
+	    if (i==0) {
+	       top_string.first = true;
+	       top_string.second = chains[i];
+	    } 
+	    gtk_menu_set_active(GTK_MENU(menu), i);
+	 } 
+      }
+      /* Link the new menu to the optionmenu widget */
+      gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
+   } 
+   return top_string.second;
+}
+
 
 // static
 void
@@ -3672,7 +3714,7 @@ graphics_info_t::fill_renumber_residue_range_internal(GtkWidget *w, int imol) {
       lookup_widget(w, "renumber_residue_range_chain_optionmenu");
    GtkSignalFunc callback_func = 
       GTK_SIGNAL_FUNC(graphics_info_t::renumber_residue_range_chain_menu_item_select);
-   std::string a = fill_chain_option_menu(chain_option_menu, imol, callback_func);
+   std::string a = fill_option_menu_with_chain_options(chain_option_menu, imol, callback_func);
    if (a != "no-chain") {
       graphics_info_t::renumber_residue_range_chain = a;
    } 

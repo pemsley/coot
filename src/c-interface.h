@@ -5740,7 +5740,8 @@ void lsq_reference_chain_option_menu_item_activate(GtkWidget *item,
 void lsq_moving_chain_option_menu_item_activate(GtkWidget *item,
 						GtkPositionType pos);
 void fill_lsq_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
-					     int is_reference_structure_flag);
+					     int is_reference_structure_flag,
+					     const char *active_chain_id);
 /*! \} */
 
 
@@ -5855,6 +5856,8 @@ void execute_superpose(GtkWidget *w);
 GtkWidget *wrapped_create_superpose_dialog(); /* used by callback */
 void fill_superpose_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
  						   int is_reference_structure_flag);
+void update_lsq_dialog_store_values(GtkWidget *w);
+
  
 /* \} */
 

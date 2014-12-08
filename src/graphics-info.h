@@ -512,6 +512,7 @@ namespace coot {
 } // namespace coot
 
 
+#include "lsq-dialog-values.hh"
 #include "select-atom-info.hh"
 #include "gl-bits.hh"
 
@@ -3327,7 +3328,7 @@ public:
 				      int imol_mov,
 				      std::string moving_mol_name,
 				      std::string referennce_mol_name,
-				      short int move_copy_of_imol2_flag);
+				      bool move_copy_of_imol2_flag);
 
 #ifdef HAVE_SSMLIB
    void print_ssm_sequence_alignment(ssm::Align *SSMAlign,
@@ -3336,7 +3337,7 @@ public:
 				     mmdb::PAtom *atom_selection1, 
 				     mmdb::PAtom *atom_selection2, 
 				     int n_selected_atoms_1, int n_selected_atoms_2, 
-				     short int move_copy_of_imol2_flag);
+				     bool move_copy_of_imol2_flag);
 
    void make_and_print_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
 							 atom_selection_container_t asc_ref,
@@ -3439,9 +3440,15 @@ public:
    void fill_add_OXT_dialog_internal(GtkWidget *widget, int imol);
    // return the default chain string (top of the list).
    // (return "no-chain" if it was not assigned (nothing in the list)).
-   static std::string fill_chain_option_menu(GtkWidget *option_menu,
+   static std::string fill_option_menu_with_chain_options(GtkWidget *option_menu,
 					     int imol,
 					     GtkSignalFunc signal_func);
+   // as above, except if one of the chain options is active_chain_id,
+   // then set the active menu item to that.
+   static std::string fill_option_menu_with_chain_options(GtkWidget *option_menu,
+							  int imol,
+							  GtkSignalFunc signal_func, 
+							  const std::string &active_chain_id);
    static std::string add_OXT_chain;
    static void add_OXT_chain_menu_item_activate (GtkWidget *item,
 						 GtkPositionType pos);
@@ -3603,6 +3610,7 @@ public:
    static std::string lsq_match_chain_id_mov;
    static int lsq_ref_imol;
    static int lsq_mov_imol;
+   static lsq_dialog_values_t lsq_dialog_values;
 
    // -------- some people dont want restype and slashes in atom label:
    static short int brief_atom_labels_flag;
