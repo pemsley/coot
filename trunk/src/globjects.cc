@@ -3127,6 +3127,14 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       handled = TRUE; 
       break;
 
+   case GDK_r:
+      if (graphics_info_t::control_is_pressed) {
+	 toggle_idle_rock_function();
+	 handled = TRUE;
+      }
+      break;
+
+      
    case GDK_s:
       if (graphics_info_t::control_is_pressed) {
 	 quick_save();
@@ -3695,7 +3703,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_s:
    case GDK_S:
       if (graphics_info_t::control_is_pressed) {
-	 // nothing yet
+	 // quick_save() is on button-press
       } else {
 	 // as it used to be
 	 for (int ii = 0; ii< graphics_info_t::n_molecules(); ii++)
