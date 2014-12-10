@@ -355,7 +355,8 @@
 # 5.20 20141203 More/better Debian awk hack.
 # 5.21 20141203 Unset some build environment variables (including LD_LIBRARY_PATH)
 # 5.22 20141210 More LD_LIBRARY_PATH hacking for debian
-script_version=5.22
+# 5.23 20141210 libreadline needs to be linked with -lcurses (on Debian)
+script_version=5.23
 
 
 
@@ -1353,7 +1354,7 @@ build_dir=`pwd`
 echo checking wget
 echo which wget
 which wget
-wget  "http://www.ysbl.york.ac.uk/~emsley/build-logs/build-notes"
+wget  "http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/"
 if [ $? -ne 0 ] ; then
 	echo wget from york failed for some reason
 	echo exiting now.
@@ -2843,12 +2844,20 @@ if test -n "$build_readline" ; then
     date
     pwd
     gzip -dc ${AUTOBUILD_SOURCES}/readline-$readline_version.tar.gz | tar xf -
+    cd readline-$readline_version
     if test -n "$need_readline_patch" ; then
        echo patching readline...
+       # need a patch (for debian only) to add curses to the additional libs line
        patch -p0 < ${AUTOBUILD_SOURCES}/readline-5.1.patch
     fi
-    cd readline-$readline_version
-    ./configure $generic_prefix
+    if [ "$dist_name" = debian ] ; then 
+       echo applying debian sed patch for shared-lib libreadline
+       # thanks for the quoting help tony duan @ stackoverflow 
+       sed  -i '125,135 s/SHOBJ_LDFLAGS=.*/&\n        SHLIB_LIBS='"'"'$(TERMCAP_LIB)'"'"'/' support/shobj-conf
+       extra_args_for_debian="--with-curses --enable-shared"
+    fi
+    echo ./configure $generic_prefix $extra_args_for_debian
+    ./configure $generic_prefix $extra_args_for_debian
     # single thread
     if make ; then
        make install
@@ -2961,7 +2970,7 @@ fi
 
 # Debian gawk work-around
 if [ "$dist_name" = "debian" ] ; then
-   export LD_LIBRARY_PATH=llp_save
+   export LD_LIBRARY_PATH=$llp_save
 fi 
 
 exit $status
