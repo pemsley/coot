@@ -7,6 +7,8 @@
    o Make LSQ fit remember the previous settings - maybe use an Apply
      and Close button.  - Lothar Esser
 
+   o Forget about pyrogen for the moment.
+
 ---
 
    o CSHL:
@@ -156,7 +158,6 @@ INFO:: falling back to permissive search for bond HOH1 OC
 
 * Done.
 
-
    o Lothar Esser:
 
          Fix the map selector: (Home project)
@@ -174,7 +175,5 @@ INFO:: falling back to permissive search for bond HOH1 OC
 
      This seems a bit long. For me, the display manager entry would suffice.
 
-
 * Done.
-
 
