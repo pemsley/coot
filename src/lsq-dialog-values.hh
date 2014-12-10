@@ -43,9 +43,14 @@ public:
 	 mov_res_range_end   = im2;
       }
    }
-   void update(GtkWidget *dialog, const std::string &chain_id_1, const std::string &chain_id_2) {
+   void update(GtkWidget *dialog,
+	       int ref_mol_no,
+	       int mov_mol_no,
+	       const std::string &chain_id_1, const std::string &chain_id_2) {
       update(dialog);
       chain_id_ref = chain_id_1;
       chain_id_mov = chain_id_2;
+      reference_molecule_number = ref_mol_no;
+      moving_molecule_number    = mov_mol_no;
    }
 };
