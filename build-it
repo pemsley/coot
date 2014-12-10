@@ -354,7 +354,8 @@
 # 5.19 20141128 Use dist_name for debian (not systype)
 # 5.20 20141203 More/better Debian awk hack.
 # 5.21 20141203 Unset some build environment variables (including LD_LIBRARY_PATH)
-script_version=5.21
+# 5.22 20141210 More LD_LIBRARY_PATH hacking for debian
+script_version=5.22
 
 
 
@@ -946,21 +947,23 @@ fi
 
 if test $OS = Linux ; then 
 
-  if rpm -a ; then
-      for i in fedora-release redhat-release redhat-release-workstation centos-release sl-release openSUSE-release ; do
-        dist=`rpm -q --qf '%{name}' ${i}`
-        echo  dist is $dist
-        dist=`rpm -q --qf '%{name}' ${i}`
-        if test $? = 0 ; then
-          dist_name=$(echo ${dist} | sed -e 's/\-release//g' -e 's/\-workstation//g')
-          dist_ver=$(rpm -q --qf '%{version}' ${i})
-          break
-        else
-          dist_name='unknown'
-        fi
-      done
-   else
-      dist_name='unknown'
+   if [ -e /bin/rpm ] ; then 
+      if rpm -a ; then
+         for i in fedora-release redhat-release redhat-release-workstation centos-release sl-release openSUSE-release ; do
+           dist=`rpm -q --qf '%{name}' ${i}`
+           echo  dist is $dist
+           dist=`rpm -q --qf '%{name}' ${i}`
+           if test $? = 0 ; then
+              dist_name=$(echo ${dist} | sed -e 's/\-release//g' -e 's/\-workstation//g')
+              dist_ver=$(rpm -q --qf '%{version}' ${i})
+              break
+           else
+              dist_name='unknown'
+           fi
+         done
+      else
+         dist_name='unknown'
+      fi
    fi
 
   case ${dist_name} in
@@ -2902,37 +2905,20 @@ ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile/guile-${guile_v
 #${WGET} http://lmb.bioch.ox.ac.uk/coot/extras/guile-1.8.7-updated.patch
 ${WGET} $extras_place/guile-1.8.7-updated.patch
 
+ 
+# if debian, unset LD_LIBRARY_PATH and set it back again when done.
+if [ "$dist_name" = "debian" ] ; then
+   llp_save=$LD_LIBRARY_PATH
+   unset LD_LIBRARY_PATH
+   extra_flags_for_debian="LD_LIBRARY_PATH=$llp_save"
+fi
+
 ( 
 date
 pwd
 gzip -dc ${AUTOBUILD_SOURCES}/guile-${guile_version}.tar.gz | tar xf -
 cd guile-${guile_version}
 # we need to pass CFLAGS and LDFLAGS because there is no --with-readline-prefix
-
-# guiles configure uses awk (preferentially gawk, I think).  Let's wrap one that
-#  doesn't have the readline lib problem.
-# 
-# we need to by-pass the awk: symbol lookup error: xxx/lib/libreadline.so.6: undefined symbol: UP
-# we do that by hacking in a wrapper to awk and gawk that doesn't use LD_LIBRARY_PATH
-#
-if [ "$dist_name" = debian ] ; then
-    echo debian hack
-
-    mkdir -p hack-bin
-    echo 'LD_LIBRARY_PATH= /usr/bin/awk $*' > hack-bin/awk
-    chmod +x hack-bin/awk
-    export PATH=$PWD/hack-bin:$PATH
-    which awk
-
-    # and do the same for gawk if there was a gawk
-    #
-    if [ -e /usr/bin/gawk ] ; then 
-       echo 'LD_LIBRARY_PATH= /usr/bin/gawk $*' > hack-bin/gawk
-       chmod +x hack-bin/gawk
-       export PATH=$PWD/hack-bin:$PATH
-       which gawk
-    fi
-fi
 
 # note that for guile's guile-readline module to compile correctly,
 # ncurses-dev needs to be installed (that is on this Fed 15 machine,
@@ -2945,7 +2931,11 @@ else
    additional_unused_arg=
 fi
 # arg to guile's configure
-./configure $generic_prefix CFLAGS="-I$install_top_dir/include $additional_unused_arg -O" LDFLAGS=-L$install_top_dir/lib CPPFLAGS=-P
+./configure $generic_prefix \
+     CFLAGS="-I$install_top_dir/include $additional_unused_arg -O" \
+     LDFLAGS=-L$install_top_dir/lib \
+     CPPFLAGS=-P \
+     $extra_flags_for_debian
 # Multilib fix for procedures.txt
 echo =========== post-configure patching threads.doc ====================
 perl -pi -e 's|threads.doc||' `find . -name Makefile`
@@ -2968,6 +2958,12 @@ else
    echo 1 ---------------------------------------------------------------------
    $MAKE install
 fi 
+
+# Debian gawk work-around
+if [ "$dist_name" = "debian" ] ; then
+   export LD_LIBRARY_PATH=llp_save
+fi 
+
 exit $status
 ) > $HOSTLOGDIR/11-guile.txt 2>&1
 # -> 1: command not found
