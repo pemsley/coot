@@ -243,8 +243,10 @@ def downloader_thread(thread_no):
     
 
 # return refmac_result or False
-def refmac_calc_sfs_make_mtz(pdb_in_file_name, mtz_file_name,
-                             mtz_refmaced_file_name):
+#
+def refmac_calc_sfs_make_mtz_with_columns(pdb_in_file_name, mtz_file_name,
+                                          mtz_refmaced_file_name,
+                                          f_col, sigf_col, r_free_col):
 
     global refmac_extra_params
     
@@ -280,7 +282,7 @@ def refmac_calc_sfs_make_mtz(pdb_in_file_name, mtz_file_name,
                                            phib_fom_pair,
                                            force_n_cycles,
                                            make_molecules_flag,
-                                           "", "F.F_sigF.F", "F.F_sigF.sigF", "Rfree.Flag.flag")
+                                           "", f_col, sigf_col, r_free_col)
     # ccp4i-project-dir, f-col, sig-f-col, r-free-col
 
     # restore refmac-extra-params to what it used to be
@@ -291,6 +293,14 @@ def refmac_calc_sfs_make_mtz(pdb_in_file_name, mtz_file_name,
         return refmac_result
     else:
         return False
+
+def refmac_calc_sfs_make_mtz(pdb_in_file_name, mtz_file_name,
+                             mtz_refmaced_file_name):
+
+    refmac_calc_sfs_make_mtz_with_columns(pdb_in_file_name, mtz_file_name,
+                                          mtz_refmaced_file_name,
+                                          "F.F_sigF.F", "F.F_sigF.sigF",
+                                          "Rfree.Flag.flag")
 
 # include_get_sfs_flag is either "no-sfs" or "include-sfs"
 #

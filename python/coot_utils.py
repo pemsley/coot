@@ -2488,13 +2488,6 @@ def pukka_puckers_qm(imol):
 #
 def new_molecule_by_smiles_string(tlc_text, smiles_text):
 
-    if enhanced_ligand_coot_p():
-        return new_molecule_by_smiles_string_by_pyrogen(tlc_text, smiles_text)
-    else:
-        return new_molecule_by_smiles_string_by_libcheck(tlc_text, smiles_text)
-    
-def new_molecule_by_smiles_string_by_libcheck(tlc_text, smiles_text):
-    import shutil
     if len(smiles_text) > 0:
 
         if ((len(tlc_text) > 0) and (len(tlc_text) < 4)):
@@ -2503,42 +2496,56 @@ def new_molecule_by_smiles_string_by_libcheck(tlc_text, smiles_text):
             three_letter_code = tlc_text[0:3]
         else:
             three_letter_code = "DUM"
-
-        # ok let's run libcheck
-        smiles_file = "coot-" + three_letter_code + ".smi"
-        libcheck_data_lines = ["N",
-                               "MON " + three_letter_code,
-                               "FILE_SMILE " + smiles_file,
-                               ""]
-        log_file_name = "libcheck-" + three_letter_code + ".log"
-        pdb_file_name = "libcheck_" + three_letter_code + ".pdb"
-        cif_file_name = "libcheck_" + three_letter_code + ".cif"
-
-        smiles_input = file(smiles_file,'w')
-        smiles_input.write(smiles_text)
-        smiles_input.close()
-        # now let's run libcheck (based on libcheck.py)
-        libcheck_exe_file = find_exe(libcheck_exe, "CCP4_BIN", "PATH")
-
-        if (not libcheck_exe_file):
-            print " BL WARNING:: libcheck not found!"
+            
+        if enhanced_ligand_coot_p():
+            return new_molecule_by_smiles_string_by_pyrogen(three_letter_code,
+                                                            smiles_text)
         else:
-            status = popen_command(libcheck_exe_file, [], libcheck_data_lines, log_file_name, True)
-            # the output of libcheck goes to libcheck.lib, we want it in
-            # (i.e. overwrite the minimal description in cif_file_name
-            if (status == 0):
-                if (os.path.isfile("libcheck.lib")):
-                    # copy rather than rename file to avoid accession issues
-                    shutil.copy("libcheck.lib", cif_file_name)
-                    sc = rotation_centre()
-                    imol = handle_read_draw_molecule_with_recentre(pdb_file_name, 0)
-                    if (is_valid_model_molecule(imol)):
-                        mc = molecule_centre(imol)
-                        sc_mc = [sc[i]-mc[i] for i in range(len(mc))]
-                        translate_molecule_by(imol, *sc_mc)
-                    read_cif_dictionary(cif_file_name)
-            else:
-                print "OOPs.. libcheck returned exit status", status
+            return new_molecule_by_smiles_string_by_libcheck(three_letter_code,
+                                                             smiles_text)
+    else:
+        # invalid smiles length
+        print "BL WARNING:: no smiles text found. Bailing out."
+        return False
+    
+def new_molecule_by_smiles_string_by_libcheck(tlc_text, smiles_text):
+    import shutil
+
+    # ok let's run libcheck
+    smiles_file = "coot-" + three_letter_code + ".smi"
+    libcheck_data_lines = ["N",
+                           "MON " + three_letter_code,
+                           "FILE_SMILE " + smiles_file,
+                           ""]
+    log_file_name = "libcheck-" + three_letter_code + ".log"
+    pdb_file_name = "libcheck_" + three_letter_code + ".pdb"
+    cif_file_name = "libcheck_" + three_letter_code + ".cif"
+
+    smiles_input = file(smiles_file,'w')
+    smiles_input.write(smiles_text)
+    smiles_input.close()
+    # now let's run libcheck (based on libcheck.py)
+    libcheck_exe_file = find_exe(libcheck_exe, "CCP4_BIN", "PATH")
+
+    if (not libcheck_exe_file):
+        print " BL WARNING:: libcheck not found!"
+    else:
+        status = popen_command(libcheck_exe_file, [], libcheck_data_lines, log_file_name, True)
+        # the output of libcheck goes to libcheck.lib, we want it in
+        # (i.e. overwrite the minimal description in cif_file_name
+        if (status == 0):
+            if (os.path.isfile("libcheck.lib")):
+                # copy rather than rename file to avoid accession issues
+                shutil.copy("libcheck.lib", cif_file_name)
+                sc = rotation_centre()
+                imol = handle_read_draw_molecule_with_recentre(pdb_file_name, 0)
+                if (is_valid_model_molecule(imol)):
+                    mc = molecule_centre(imol)
+                    sc_mc = [sc[i]-mc[i] for i in range(len(mc))]
+                    translate_molecule_by(imol, *sc_mc)
+                read_cif_dictionary(cif_file_name)
+        else:
+            print "OOPs.. libcheck returned exit status", status
 
 def new_molecule_by_smiles_string_by_pyrogen(comp_id, smiles_string):
 
@@ -2559,7 +2566,28 @@ def new_molecule_by_smiles_string_by_pyrogen(comp_id, smiles_string):
          else:
             print 'Ooops - pyrogen not in path'
                 
-                    
+
+# new for ace_drg (not test as BL not running yet), scheme has error...
+# stud is a stub until acedrg is running. Scheme code doesnt make sense
+# this one currently neither.
+def new_molecule_by_smiles_string_by_acedrg(comp_id, smiles_str):
+
+    smi_file = "acedrg-in.smi"
+    
+    stub = "acedrg-" + comp_id 
+    pdb_out_file_name = stub + ".pdb"
+    cif_out_file_name = stub + ".cif"
+
+    args = ["-i", smi_file, "-r", smiles_str, "-o", stub]
+    log_file_name = "acedrg-" + smiles_str + ".log"
+    if command_in_path_qm("acedrg"):
+        status = popen_command("acedrg", args, [], log_file_name, True)
+        if (status == 0):
+            handle_read_draw_molecule_and_move_molecule_here(pdb_out_file_name)
+            read_cif_dictionary(cif_out_file_name)
+        else:
+            info_dialog("Bad exit status for Acedrg\n - see acedrg log")
+    
 
 # Generate restraints from the residue at the centre of the screen
 # using PRODRG. Delete hydrogens from the residue because PRODRG has
@@ -3126,10 +3154,13 @@ def set_use_curl(status):
 #
 # This should almost all be c++ code so that Bernie doesn't have to
 # redo it.  This is temporary then
-def chiral_centre_inverter():
-    # just to do something. Wait until this is in c++ code...
-    info_dialog("BL waiting for PE to put in C++ code.\n")
-    return False
+#
+# remove 29/11/14
+# not needed any more
+##def chiral_centre_inverter():
+##    # just to do something. Wait until this is in c++ code...
+##    info_dialog("BL waiting for PE to put in C++ code.\n")
+##    return False
 
 def residue_is_close_to_screen_centre_qm(imol, chain_id, res_no, ins_code):
     def square(x): return x * x
@@ -3723,10 +3754,8 @@ def isNumber(num):
     helper function to test for a number
     returns True if number, otherwise False
     """
-    if (isinstance(num, int) or isinstance(num, float)):
-        return True
-    else:
-        return False
+    import numbers
+    return isinstance(num, numbers.Number)
 
 
 # function to merge multiple solvent chains
@@ -3868,4 +3897,15 @@ if not use_gui_qm:
                 finally:
                     python_return_lock.release()
 
-        MyThread().start()
+
+                    MyThread().start()
+
+####### Back to Paul's scripting.
+####### This needs to follow find_exe
+
+# if you don't have mogul, set this to False
+global use_mogul
+use_mogul = True
+if (not command_in_path_qm("mogul")):
+    use_mogul = False
+        

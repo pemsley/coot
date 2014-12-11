@@ -1,8 +1,13 @@
  -*-text-*-
 
-scripts      rev 5209 (some prodrg stuff needs testing) generic objects, update running of jligand?! (r4782, need to use gtk.gdk.pixbuf_new_from_file() then)
-tests        rev 5015 update
+scripts      rev 5476 (some prodrg stuff needs testing) generic objects, update running of jligand?! (r4782, need to use gtk.gdk.pixbuf_new_from_file() then)
+tests        rev 5460 update
 build-it-win rev 4739 (check 0.8 pre builder, add publishing?!)
+missing script:
+ligand_check.py
+run_mogul.py 
+ligand_check_refmac_columns in enhanced_ligand.py
+enhanced_ligand.py      test it
 
 -------------------------------------------------------
 * THINGS TO DO BEFORE 0.8.1 RELEASE * ONLY URGENT THING

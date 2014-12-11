@@ -60,7 +60,7 @@ if (have_coot_python):
      #           user_define_restraints plugin
      # --------------------------------------------------
 
-     def add_plugin_user_defined_restraints():
+     def add_module_user_defined_restraints():
        menu = coot_menubar_menu("Restraints")
        load_from_search_load_path("user_define_restraints.py")
      
@@ -89,8 +89,8 @@ if (have_coot_python):
      menuitem_pisa = gtk.MenuItem("PISA...")
      submenu_pdbe = gtk.Menu()
      menuitem_pdbe = gtk.MenuItem("PDBe...")
-     submenu_plugins = gtk.Menu()
-     menuitem_plugins = gtk.MenuItem("Plug-ins...")
+     submenu_modules = gtk.Menu()
+     menuitem_modules = gtk.MenuItem("Modules...")
      submenu_ncs = gtk.Menu()
      menuitem_ncs = gtk.MenuItem("NCS...")
 
@@ -126,9 +126,9 @@ if (have_coot_python):
      menu.append(menuitem_7)
      menuitem_7.show()
 
-     menuitem_plugins.set_submenu(submenu_plugins)
-     menu.append(menuitem_plugins)
-     menuitem_plugins.show()
+     menuitem_modules.set_submenu(submenu_modules)
+     menu.append(menuitem_modules)
+     menuitem_modules.show()
 
      menuitem_pdbe.set_submenu(submenu_pdbe)
      menu.append(menuitem_pdbe)
@@ -552,11 +552,17 @@ if (have_coot_python):
 
      # --- I --------
 
-     #add_simple_coot_menu_menuitem(
-     #  submenu_models,
-     #  "Invert This Chiral Centre",
-     #  lambda func:
-     #     chiral_centre_inverter())
+     def chiral_centre_inverter_func():
+         with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
+             invert_chiral_centre(aa_imol, aa_chain_id, aa_res_no,
+                                  aa_ins_code, aa_atom_name)
+             
+     add_simple_coot_menu_menuitem(
+         submenu_models,
+         "Invert This Chiral Centre",
+         lambda func:
+            chiral_centre_inverter_func())
      
 
      # --- J --------
@@ -1370,6 +1376,11 @@ if (have_coot_python):
 
 
      add_simple_coot_menu_menuitem(
+         submenu_representation,
+         "HOLE...",
+         lambda func: hole_ify())
+
+     add_simple_coot_menu_menuitem(
        submenu_representation,
        "Label All CAs...",
        lambda func: molecule_chooser_gui("Choose a molecule to label",
@@ -1508,16 +1519,24 @@ if (have_coot_python):
 
 
      # ---------------------------------------------------------------------
-     #     Plugins
+     #     Modules
      # ---------------------------------------------------------------------
 
      add_simple_coot_menu_menuitem(
-       submenu_plugins, "SHELX...",
-       lambda func: add_plugin_shelx())
+       submenu_modules, "SHELX...",
+       lambda func: add_module_shelx())
 
      add_simple_coot_menu_menuitem(
-       submenu_plugins, "User-defined Restraints...",
-       lambda func: add_plugin_user_defined_restraints())
+       submenu_modules, "User-defined Restraints...",
+       lambda func: add_module_user_defined_restraints())
+
+     add_simple_coot_menu_menuitem(
+         submenu_modules, "ProSMART",
+         lambda func: add_module_prosmart())
+
+     add_simple_coot_menu_menuitem(
+         submenu_modules, "Carbohydrate",
+         lambda func: add_module_carbohydrate())
 
      
      # ---------------------------------------------------------------------

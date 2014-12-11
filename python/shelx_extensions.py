@@ -18,7 +18,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-def add_plugin_shelx():
+def add_module_shelx():
     # we only have the menu if shelxl is in PATH (and if we have the
     # python menubar)
     if not find_exe("shelxl", "PATH"):
