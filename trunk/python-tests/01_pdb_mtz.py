@@ -260,6 +260,14 @@ class PdbMtzTestFunctions(unittest.TestCase):
         # didn't crash
 
 
+    def test09_1(self):
+        """db-main makes mainchain"""
+        read_pdb(".")
+        imol = read_pdb(rnase_pdb())
+        db_mainchain(imol, "A", 10, 20, "forward")
+        # didn't hang
+        
+
     def test10_0(self):
         """Set Atom Atribute Test"""
         atom_ls = []

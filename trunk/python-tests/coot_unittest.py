@@ -60,6 +60,8 @@ else:
             print "   ", test
         print "\n"
 
+# finishe off closing all maps (maybe use end.py file?!)
+map(close_molecule, molecule_number_list())
 
 # some garbage collection. Not sure if this will really shed light into
 # reference counting e.g.

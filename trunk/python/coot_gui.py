@@ -364,7 +364,10 @@ def smiles_gui():
       tlc_entry.set_text("")
       smiles_label = gtk.Label("SMILES string ")
       smiles_entry = gtk.Entry()
-      text = gtk.Label("  [SMILES interface works by using CCP4's LIBCHECK]  ")
+      if enhanced_ligand_coot_p():
+          text = gtk.Label("  [SMILES interface works by using Pyrogen]  ")
+      else:
+          text = gtk.Label("  [SMILES interface works by using CCP4's LIBCHECK]  ")
       go_button = gtk.Button("  Go  ")
       vbox.pack_start(hbox1, False, False, 0)
       vbox.pack_start(hbox2, False, False, 4)

@@ -36,6 +36,10 @@ set_font_color = set_font_colour
 # deftexi set_dots_color
 set_dots_color = set_dots_colour
 
+# an americanism
+invert_chiral_center = invert_chiral_centre
+
+
 # some more from BL
 
 # an americanism

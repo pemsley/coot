@@ -45,6 +45,7 @@ def tips_gui():
     import random
 
     global do_coot_tips_flag, coot_tip_number
+    print ":::::::::::::::::::: do_coot_tips_flag:", do_coot_tips_flag
 
     def delete_event(*args):
         window.destroy()
