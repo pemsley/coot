@@ -1,5 +1,31 @@
 -----
 
+  Release 0.8.1
+
+  o CHANGE: Generic Dislay Objects dialog improved.
+
+  o CHANGE: Water validation dialogs are now transient
+
+  o CHANGE: Ctrl-R for Rock View
+
+  o CHANGE: Least Squares Fit dialog now remembers its values
+
+  o BUG-FIX: stippling for line and text geometry and environment
+    distances updated
+
+  o BUG-FIX: Jiggle fit moves atoms with zero occupancies.
+
+  o BUG-FIX: Problem with CA-Zone -> Mainchain fixed.
+
+  o BUG-FIX: The amount that the other atoms ove with moving the
+    picked atom has been reduced (but is configurable)
+
+  o BUG-FIX: Sort chains and residues has been fixed.
+
+  o BUG-FIX: Add Template Keybindings for Python now works
+
+-----
+
   Release 0.8
 
   o FEATURE: Added a interface for Cootilus

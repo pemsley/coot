@@ -2488,6 +2488,14 @@ def pukka_puckers_qm(imol):
 #
 def new_molecule_by_smiles_string(tlc_text, smiles_text):
 
+#     if enhanced_ligand_coot_p():
+#         return new_molecule_by_smiles_string_by_pyrogen(tlc_text, smiles_text)
+
+   return new_molecule_by_smiles_string_by_libcheck(tlc_text, smiles_text)
+
+    
+def new_molecule_by_smiles_string_by_libcheck(tlc_text, smiles_text):
+    import shutil
     if len(smiles_text) > 0:
 
         if ((len(tlc_text) > 0) and (len(tlc_text) < 4)):
