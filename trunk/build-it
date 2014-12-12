@@ -356,7 +356,8 @@
 # 5.21 20141203 Unset some build environment variables (including LD_LIBRARY_PATH)
 # 5.22 20141210 More LD_LIBRARY_PATH hacking for debian
 # 5.23 20141210 libreadline needs to be linked with -lcurses (on Debian)
-script_version=5.23
+# 5.25 20141212
+script_version=5.25
 
 
 
@@ -1439,10 +1440,9 @@ if test "$build_coot_prerelease" = 1 ; then
       echo examining release server files ${AUTOBUILD_SOURCES}/index.html
       # coot_version=$(awk  ' /compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' 
       # have another go at latest version extraction.
-      coot_version=$(awk '/compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[++n]=file; } END {print files[n] }'  \
-          ${AUTOBUILD_SOURCES}/index.html | tail -1)
+      coot_version=$(awk '/compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[++n]=file; } END {  for (file in files) print files[file]}'  \
+          ${AUTOBUILD_SOURCES}/index.html | sort | tail -1)
       echo coot_version $coot_version
-
 
    else
       build_coot_prerelease=1  # belt and braces
