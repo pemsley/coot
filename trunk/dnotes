@@ -3982,11 +3982,12 @@ INFO::
         To correct the transparency, duplicate layer, bucket fill with white 
         the bottom layer, merge and bevel 6.
    o svn add the new splash screen pixmap
+   o Change the pixmaps/Makefile.am for the current splash screen image
    o No longer: (Fix the old-coot timer in scheme/coot-gui.scm)
    o Fix the release name in the About dialog (aboutdialog)
          and copyright years.
    o commit
-   o Passes build (build-latest) on cycle? 
+   o Passes build (build-latest) on pc? 
         OK, disable the build-latest cron-job 
    o clear out pre-releases
    o check for updates - needs consideration?
