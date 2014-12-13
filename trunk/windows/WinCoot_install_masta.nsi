@@ -181,8 +181,6 @@ Section "!WinCoot" SEC01
   File "${src_dir}\bin\*.dll"
   File "${src_dir}\bin\bfactan.exe"
   File "${src_dir}\bin\coot"
-  SetOverwrite on
-  File "${src_dir}\libexec\coot-bin.exe"
   SetOverwrite ifnewer
   File "${src_dir}\bin\density-score-by-residue"
   File "${src_dir}\bin\density-score-by-residue-real.exe"
@@ -214,8 +212,10 @@ Section "!WinCoot" SEC01
   File "${src_dir}\bin\pkg-config.exe"
   File "C:\msys\home\bernhard\autobuild\extras\ppm2bmp.exe"
   ; now the new mingw files for static compilation (or not)
-  File "C:\msys\home\bernhard\autobuild\extras\libstdc++-6.dll"
-  File "C:\msys\home\bernhard\autobuild\extras\libgcc_s_dw2-1.dll"
+  ; FIXME:: seems to be only needed in newer versions of msys
+  ; ....... and maybe if we have shared compilation - not yet
+  ;File "C:\msys\home\bernhard\autobuild\extras\libstdc++-6.dll"
+  ;File "C:\msys\home\bernhard\autobuild\extras\libgcc_s_dw2-1.dll"
 ; PYTHON stuff new
   SetOutPath "$INSTDIR\python27"
   File /r "${src_dir}\python27\*.*"
@@ -231,6 +231,8 @@ Section "!WinCoot" SEC01
   File "C:\msys\home\bernhard\Projects\coot\windows\runwincoot_ccp4.bat"
   File "C:\msys\home\bernhard\Projects\coot\windows\runwincoot_ccp4_vista.bat"
 ; SHARE
+  SetOutPath "$INSTDIR\share\icons"
+  File /r "${src_dir}\share\icons\*.*"
   SetOutPath "$INSTDIR\share\coot"
   File "${src_dir}\share\coot\*"
   SetOutPath "$INSTDIR\share\coot\lib\data\monomers"
@@ -323,11 +325,9 @@ Section "!WinCoot" SEC01
   File "${src_dir}\share\coot\scheme\*"
   ;lib
   SetOutPath "$INSTDIR\lib\gdk-pixbuf-2.0"
-  File /r "${src_dir}\lib\gdk-pixbuf-2.0\*"
-  SetOutPath "$INSTDIR\lib\gtk-2.0\2.10.0\engines"
-  File "${src_dir}\lib\gtk-2.0\2.10.0\engines\*"
-  SetOutPath "$INSTDIR\lib\gtk-2.0\2.10.0\loaders"
-  File "${src_dir}\lib\gtk-2.0\2.10.0\loaders\*"
+  File /r "${src_dir}\lib\gdk-pixbuf-2.0\*.*"
+  SetOutPath "$INSTDIR\lib\gtk-2.0"
+  File /r "${src_dir}\lib\gtk-2.0\*.*"
   ;guile things (shouldnt they be in Guile section?! Never mind)
   SetOutPath "$INSTDIR\bin"
   File "${src_dir}-guile\bin\*guile*"
@@ -566,7 +566,7 @@ Section Uninstall
   Delete "$INSTDIR\etc\fonts\*"
   Delete "$INSTDIR\etc\*"
   Delete "$INSTDIR\lib\gdk-pixbuf-2.0\*"
-  Delete "$INSTDIR\lib\gtk-2.0\2.10.0\engines\*"
+  Delete "$INSTDIR\lib\gtk-2.0\engines\*"
   Delete "$INSTDIR\lib\gtk-2.0\2.10.0\loaders\*"
   Delete "$INSTDIR\examples\*"
   Delete "$INSTDIR\doc\*"
@@ -653,6 +653,7 @@ Section Uninstall
   RMDir "$INSTDIR\share\guile\1.8\ice-9"
   RMDir "$INSTDIR\share\guile\1.8"
   RMDir "$INSTDIR\share\guile"
+  RMDir /r "$INSTDIR\share\icons"
   RMDir "$INSTDIR\share"
   ; keep these in case they exist from previous versions
   RMDir /r "$INSTDIR\bin\Lib"
@@ -662,14 +663,12 @@ Section Uninstall
   RMDir "$INSTDIR\etc\fonts"
   RMDir "$INSTDIR\etc"
   RMDir "$INSTDIR\bin"
-  RMDir "$INSTDIR\lib\gdk-pixbuf-2.0"
-  RMDir "$INSTDIR\lib\gtk-2.0\2.10.0\engines"
-  RMDir "$INSTDIR\lib\gtk-2.0\2.10.0\loaders"
-  RMDir "$INSTDIR\lib\gtk-2.0\2.10.0"
-  RMDir "$INSTDIR\lib\gtk-2.0"
+  RMDir /r "$INSTDIR\lib\gdk-pixbuf-2.0"
+  RMDir /r "$INSTDIR\lib\gtk-2.0"
   RMDir "$INSTDIR\lib"
   RMDir "$INSTDIR\libexec"
-  RMDir "$INSTDIR\python27"
+  ; FIXME:: what to do with python? 
+  RMDir /r "$INSTDIR\python27"
   RMDir "$INSTDIR\examples"
   RMDir "$INSTDIR\doc"
   ; will only be removed if empty

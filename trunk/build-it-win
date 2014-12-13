@@ -2548,7 +2548,7 @@ if test -n "$build_gtk" ; then
    $install_top_dir/bin/gdk-pixbuf-query-loaders.exe --update-cache
    # now we have absolute paths in the file, let's make them relative
    # to avoid running the gdk-pixbuf.loaders during install
-   sed -e "s|.*$install_top_dir|..|" \
+   sed -e "s|$install_top_dir|..|" \
      $install_top_dir/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache > tmp.loaders
    mv $install_top_dir/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache $install_top_dir/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache.bak
    mv tmp.loaders $install_top_dir/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
