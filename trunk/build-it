@@ -1355,18 +1355,8 @@ build_dir=`pwd`
 echo checking wget
 echo which wget
 which wget
-wget  "http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/"
-if [ $? -ne 0 ] ; then
-	echo wget from york failed for some reason
-	echo exiting now.
-	df
-	# temporary hack
-        WGET="wget -N -P ${AUTOBUILD_SOURCES}"
-	# my_exit 1
-else
-	echo Done wget check.
-	WGET="wget -N -P ${AUTOBUILD_SOURCES}"
-fi
+WGET="wget -N -P ${AUTOBUILD_SOURCES}"
+WGETO="wget   -P ${AUTOBUILD_SOURCES}"
 
 # latest version (without .tar.gz extension)
 coot_version=$fallback_coot_version
@@ -1385,8 +1375,8 @@ extras_place=http://www2.mrc-lmb.cam.ac.uk/Groups/murshudov/coot/dependencies
 extras_place=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/dependencies
 
 
-${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir/
-${WGET} -O ${AUTOBUILD_SOURCES}/index-pre-release.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir/
+${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir/
+${WGETO} -O ${AUTOBUILD_SOURCES}/index-pre-release.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir/
 pre_release_files_html="none"
 if [ $build_coot_prerelease = 1 ]  ; then 
    pre_release_files_html=${AUTOBUILD_SOURCES}/index-pre-release.html
@@ -1423,7 +1413,7 @@ coot_prerelease_exists=
 
 if test "$build_coot_prerelease" = 1 ; then 
 
-   ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir/
+   ${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir/
    coot_version_pre=$(awk  ' /a href=.*.tar.gz/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
        ${AUTOBUILD_SOURCES}/index.html | tail -1)
 
@@ -1436,7 +1426,7 @@ if test "$build_coot_prerelease" = 1 ; then
       BINARY_TAR_DEST_DIR=$STABLE_DEST_DIR
       mkdir -p ${BINARY_TAR_DEST_DIR}/holding
 
-      ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir/
+      ${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir/
       echo examining release server files ${AUTOBUILD_SOURCES}/index.html
       # coot_version=$(awk  ' /compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { for (file in files) { final=file } ; print final } ' 
       # have another go at latest version extraction.
@@ -1462,7 +1452,7 @@ else
 
     echo ============= This is a stable build ==============
 
-    ${WGET} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir/
+    ${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir/
     echo examining release server files ${AUTOBUILD_SOURCES}/index.html
     coot_version=$(awk  ' /compressed.*a href=/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); files[file]=1; } END { asort(files, indices) ; for (file in files) { final=file } ; print final } ' \
         ${AUTOBUILD_SOURCES}/index.html | tail -1)
