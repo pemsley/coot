@@ -1,5 +1,13 @@
  
- 0.8.1
+ 0.8.2
+
+
+   o draw_generic_text() should have a user-setable font size.
+
+   o Does Acedrg get A3D correct?  (libcheck does not)  A3D in 4ND2
+
+   o Region morph.  I have control over the central residue and the
+     neighbours have RTops relative to this (do it by atom?)
 
 ----
 
