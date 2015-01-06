@@ -12394,7 +12394,7 @@ create_splash_screen_window (void)
   gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
   gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
 
-  image10620 = create_pixmap (splash_screen_window, "coot-0.8.1.png");
+  image10620 = create_pixmap (splash_screen_window, "coot-0.8.2-pre.png");
   gtk_widget_show (image10620);
   gtk_container_add (GTK_CONTAINER (splash_screen_window), image10620);
 
