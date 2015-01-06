@@ -14,6 +14,9 @@ build_coot_prerelease=${1:=1}
 if [ -e /z/make_stable_build ] ; then
   build_coot_prerelease=0
 fi
+if [ -z "$build_coot_prerelease" ] ; then
+  build_coot_prerelease=0
+fi
 
 if [ $build_coot_prerelease == 0 ] ; then 
   echo building stable installer
@@ -131,6 +134,9 @@ do
   copy_logs python
   # read in variables from install run
   . ${HOME}/wincoot-installer-variables
+  if [ -z "$build_coot_prerelease" ] ; then
+    build_coot_prerelease=0
+  fi
   # copy to public place too
   cp ${HOME}/wincoot-installer-variables $PUBLIC_HTML_LOGS/
 
@@ -175,6 +181,7 @@ do
           rm /z/make_clean_wincoot_prerelease-guile
        fi
     fi
+    echo Now build with:: run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it guile $extra_flag
     run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it guile $extra_flag
 
     copy_logs guile
@@ -220,8 +227,9 @@ done
 makensis_flag=
 src_dir=//Dsrc_dir="C:\msys\home\bernhard\autobuild\MINGW32_NT-5.1-sarabellum-pre-release-gtk2"
 PUBLIC_BINARY_DIR=$PUBLIC_NIGHTLY_DEST_DIR
-if [ "$build_coot_prerelease" = "0" ] ; then
+if [ "$build_coot_prerelease" != "1" ] ; then
    # stable release
+   echo Have stable release and set variables now
    makensis_flag=//Dbinary_dir="C:\msys\home\bernhard\public_html\software\binaries\stable"
    src_dir=//Dsrc_dir="C:\msys\home\bernhard\autobuild\MINGW32_NT-5.1-sarabellum-gtk2"
    BINARY_DIR=/c/msys/home/bernhard/public_html/software/binaries/stable

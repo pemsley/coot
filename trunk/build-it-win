@@ -2548,7 +2548,7 @@ if test -n "$build_gtk" ; then
    $install_top_dir/bin/gdk-pixbuf-query-loaders.exe --update-cache
    # now we have absolute paths in the file, let's make them relative
    # to avoid running the gdk-pixbuf.loaders during install
-   sed -e "s|$install_top_dir|..|" \
+   sed -e "s|[^\"]*$install_top_dir|..|" \
      $install_top_dir/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache > tmp.loaders
    mv $install_top_dir/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache $install_top_dir/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache.bak
    mv tmp.loaders $install_top_dir/lib/gdk-pixbuf-2.0/2.10.0/loaders.cache
@@ -3032,8 +3032,10 @@ cd guile-${guile_version}
 # Need a patch?
 patch -p0 < ${AUTOBUILD_SOURCES}/guile-${guile_version}.patch
 # make sure no pthread around?! FIXME
+# dont use these flags as old compiler doesnt like it
+#    CFLAGS="-I$install_top_dir/include -O -Wno-error=unused-but-set-variable -Wno-error=unused-function" \
 ./configure $generic_prefix \
-    CFLAGS="-I$install_top_dir/include -O -Wno-error=unused-but-set-variable -Wno-error=unused-function" \
+    CFLAGS="-I$install_top_dir/include -O" \
     LDFLAGS=-L$install_top_dir/lib --with-libintl-prefix=$install_top_dir
 #    --without-threads --host=i686-pc-mingw32 --disable-shared
 # Multilib fix for procedures.txt

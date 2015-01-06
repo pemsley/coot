@@ -953,7 +953,7 @@ Function FinishPagePreFunction
         ${If} $update = 0
            IfSilent endifbat
             MessageBox MB_ICONQUESTION|MB_YESNO "You already have a (modified) WinCoot batch file (runwincoot.bat).$\r$\n\
-            Do you want to keep it?" IDYES endifbat
+            Do you want to keep it (dont if you upgrade from <0.8)?" IDYES endifbat
             StrCpy $keep_old_bat "False"
            endifbat:
         ${EndIf}  ; update
