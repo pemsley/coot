@@ -6309,18 +6309,21 @@ molecule_class_info_t::model_view_residue_button_labels() const {
 // return vector of atom list (aka button) info for this residue
 // 
 std::vector<coot::model_view_atom_button_info_t>
-molecule_class_info_t::model_view_atom_button_labels(char *chain_id, int seqno) const {
+molecule_class_info_t::model_view_atom_button_labels(const std::string &chain_id,
+						     int seqno,
+						     const std::string &ins_code) const {
 
    graphics_info_t g;
    std::vector<coot::model_view_atom_button_info_t> v;
 
    // protection against the molecule having been deleted after the
    // gtklist widget was created:
+   
    if (atom_sel.n_selected_atoms > 0) { 
 
       mmdb::Chain *chain;
       
-      // first we have to find the residue res_p (from which we wil get the atoms)
+      // first we have to find the residue res_p (from which we will get the atoms)
       //
       int nchains = atom_sel.mol->GetNumberOfChains(1);
       for (int ichain=0; ichain<nchains; ichain++) {
@@ -6338,25 +6341,28 @@ molecule_class_info_t::model_view_atom_button_labels(char *chain_id, int seqno) 
 	       for (int ires=0; ires<nres; ires++) { 
 		  mmdb::PResidue res_p = chain->GetResidue(ires);
 		  if (res_p->GetSeqNum() == seqno) {
+		     std::string ins_code_res(res_p->GetInsCode());
+		     if (ins_code_res == ins_code) { 
       
-		     mmdb::PPAtom residue_atoms;
-		     int nResidueAtoms;
+			mmdb::PPAtom residue_atoms;
+			int nResidueAtoms;
 
-		     res_p->GetAtomTable(residue_atoms, nResidueAtoms);
-		     for (int i=0; i<nResidueAtoms; i++) {
-			if (! residue_atoms[i]->isTer()) { 
-			   std::string button_label = residue_atoms[i]->name;
-			   std::string altConf = residue_atoms[i]->altLoc;
-			   if (altConf != "") { 
-			      button_label += ",";
-			      button_label += altConf;
-			   }
-			   button_label += " occ=";
-			   button_label += g.float_to_string(residue_atoms[i]->occupancy);
-			   button_label += " bf=";
-			   button_label += g.float_to_string(residue_atoms[i]->tempFactor);
+			res_p->GetAtomTable(residue_atoms, nResidueAtoms);
+			for (int i=0; i<nResidueAtoms; i++) {
+			   if (! residue_atoms[i]->isTer()) { 
+			      std::string button_label = residue_atoms[i]->name;
+			      std::string altConf = residue_atoms[i]->altLoc;
+			      if (altConf != "") { 
+				 button_label += ",";
+				 button_label += altConf;
+			      }
+			      button_label += " occ=";
+			      button_label += g.float_to_string(residue_atoms[i]->occupancy);
+			      button_label += " bf=";
+			      button_label += g.float_to_string(residue_atoms[i]->tempFactor);
 			   
-			   v.push_back(coot::model_view_atom_button_info_t(button_label, residue_atoms[i]));
+			      v.push_back(coot::model_view_atom_button_info_t(button_label, residue_atoms[i]));
+			   }
 			}
 		     }
 		  }
