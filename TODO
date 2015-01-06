@@ -1280,6 +1280,28 @@ Punted from 0.6:
 
    o Remove hydrogens from refinement.  Punt for 0.9
 
+   o Make it easy to "accept current mode" early in a big sphere
+     refine - Oliver Clarke
+
+   o Oliver Clarke:
+
+   > another suggestion/query - the view can be rotated/translated
+   > with the mouse during selection of a zone for rigid body fit,
+   > regularize zone etc, but this does not work when selecting a zone
+   > for real space refinement. Is this intended?
+
+   > I find the capacity to alter the viewpoint during definition of a
+   > zone helpful, and I think it might be preferable if zone
+   > selection for real space refine worked the same way as for the
+   > other zone selection functions.
+
+   > I know you can hold down the Ctrl key to rotate the view during
+   > selection of a zone for real space refine, but I do not know of a
+   > way to translate the view like one can do when selecting a zone
+   > for rigid body fitting (and I dont see an obvious reason for the
+   > inconsistency in behaviour between the two functions).
+
+
    o November project: 
 
      Make ligand fitting more automated - add RSR.

@@ -1,0 +1,34 @@
+
+By Eugene Krissinel
+
+
+3.3. Surfing the coordinate hierarchy.
+
+More than 50 interface functions offer variety of tools for surfing
+the coordinate hierarchy. Generally, any model, chain, residue or atom
+may be addressed directly using either of three following methods:
+
+1) by specifying the model number, chain ID, sequence number, insertion
+   code, atom name, chemical element and alternative location; these
+   characteristics may be replaced by their positional equivalents,
+   e.g. 2nd chain (in a model), 25th residue (in a chain), 3rd atom
+   (in a residue).
+2) by specifying a special path string - the "coordinate ID" (CID)
+3) by looking up the hierarchy's internal reference tables.
+
+Different methods provide different flexibility and efficiency. Access
+through internal tables is the most efficient one, while using
+the coordinate ID provides for maximum flexibility.
+
+Coordinate ID is an ASCII string of the following format:
+
+    /mdl/chn/seq(res).ic/atm[elm]:aloc
+      
+where mdl stands for the model number, chn - chain ID, seq - residue
+sequence number, res - residue name, ic - residue insertion code,
+atm - atom name, elm - chemical element ID, aloc - alternative location
+indicator. Any item in coordinate ID may be replaced by a wildcard "*",
+which means indefinite value for that item. The wildcard value is
+automatically implied for any missing item except the chain ID,
+insertion code and alternative location indicator.
+

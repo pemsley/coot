@@ -29,6 +29,7 @@
 #endif
 
 #include <iostream>
+#include <iomanip> 
 #include "graphics-info.h"
 
 // ----------------------------------------------------------------------------
@@ -520,29 +521,31 @@ graphics_info_t::print_ssm_sequence_alignment(ssm::Align *SSMAlign,
 
    if (moving_chain_p && reference_chain_p) {
 
-      // print_alignment_table (not sequence)
+      // print alignment (distance) table (not sequence)
       // 
       if (n_selected_atoms_1 > 0) {
  	 clipper::RTop_orth ssm_matrix = coot::util::matrix_convert(SSMAlign->TMatrix);
-//       this is output later, no need to reproduce it here.
-// 	 std::cout << "ssm_matrix: \n" << ssm_matrix.format() << std::endl;
-	 std::cout << "      Moving  Reference   Distance" << std::endl;
+	 std::cout << "     Moving      Reference   Distance(/A)" << std::endl;
 	 for (int ires=0; ires<n_selected_atoms_1; ires++) {
 	    if (ires < SSMAlign->nalgn) { 
 	       mmdb::Atom *mov_at = atom_selection1[ires];
+	       std::string ins_code_mov(mov_at->GetInsCode());
 	    
 	       int mov_index = SSMAlign->Ca1[ires];
-	       std::cout << "      " << mov_at->GetChainID() << " " << mov_at->GetSeqNum();
+	       std::cout << "      " << mov_at->GetChainID() << " "
+			 << std::setw(3) << mov_at->GetSeqNum() << ins_code_mov;
 	       if ((mov_index > -1) && (mov_index < n_selected_atoms_1)) { 
 		  mmdb::Atom *ref_at = atom_selection2[mov_index];
 		  if (ref_at) {
-		     clipper::Coord_orth pos1(mov_at->x, mov_at->y, mov_at->z);
-		     clipper::Coord_orth pos2(ref_at->x, ref_at->y, ref_at->z);
+		     clipper::Coord_orth pos1 = coot::co(mov_at);
+		     clipper::Coord_orth pos2 = coot::co(ref_at);
 		     clipper::Coord_orth pos3 = pos1.transform(ssm_matrix);
 		     double d = clipper::Coord_orth::length(pos3, pos2);
-		     std::cout << " <---> " << ref_at->GetChainID() << " "
-			       << ref_at->GetSeqNum() << "  : " << d << "  "
-			       << " A\n";
+		     std::string ins_code_ref(ref_at->GetInsCode());
+		     std::cout << "  <--->  " << ref_at->GetChainID() << " "
+			       << std::setw(3) << ref_at->GetSeqNum() << ins_code_ref << "  :  "
+			       << std::right << std::setprecision(4) << std::fixed
+			       << d << "\n";
 		  }
 	       } else {
 		  std::cout << "\n";
