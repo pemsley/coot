@@ -2354,7 +2354,9 @@ public:        //                      public
    model_view_residue_tree_labels() const;
 
    std::vector<coot::model_view_atom_button_info_t>
-   model_view_atom_button_labels(char *chain_id, int seqno) const;
+   model_view_atom_button_labels(const std::string &chain_id,
+				 int seqno,
+				 const std::string &ins_code) const;
 
    // return the number of residues in chain with chain_id, return -1 on error
    // 

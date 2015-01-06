@@ -325,8 +325,6 @@ graphics_info_t::residue_tree_residue_row_activated(GtkTreeView        *treeview
    GtkTreeModel *model = gtk_tree_view_get_model(treeview);
    GtkTreeIter   iter;
 
-   std::cout << "residue_tree_residue_row_activated()!! " << std::endl;
-   
     if (gtk_tree_model_get_iter(model, &iter, path)) {
        gchar *name;
        gtk_tree_model_get(model, &iter, CHAIN_COL, &name, -1);
@@ -392,8 +390,10 @@ graphics_info_t::fill_go_to_atom_atom_list_gtk2(GtkWidget *go_to_atom_window, in
       // std::cout << "using a pre-existing atom tree...\n";
    }
 
+   std::string ins_code_str(ins_code);
+   std::string chain_id_str(chain_id);
    std::vector<coot::model_view_atom_button_info_t> atoms =
-      graphics_info_t::molecules[imol].model_view_atom_button_labels(chain_id, resno);
+      graphics_info_t::molecules[imol].model_view_atom_button_labels(chain_id_str, resno, ins_code_str);
 
    GtkListStore *list_store = 0;
    GtkTreeModel *model = gtk_tree_view_get_model(atom_tree);
