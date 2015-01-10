@@ -1760,13 +1760,13 @@ create_window1 (void)
   gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_flip_peptide_togglebutton), tooltips, _("Flip peptide... (click on an atom)"), NULL);
 
   model_toolbar_sidechain_180_togglebutton = (GtkWidget*) gtk_toggle_tool_button_new ();
-  gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_sidechain_180_togglebutton), _(" Sidechain 180 Degree Flip"));
+  gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_sidechain_180_togglebutton), _(" Sidechain 180\302\260 Flip"));
   tmp_image = gtk_image_new_from_stock ("side-chain-180.png", tmp_toolbar_icon_size);
   gtk_widget_show (tmp_image);
   gtk_tool_button_set_icon_widget (GTK_TOOL_BUTTON (model_toolbar_sidechain_180_togglebutton), tmp_image);
   gtk_widget_show (model_toolbar_sidechain_180_togglebutton);
   gtk_container_add (GTK_CONTAINER (model_toolbar), model_toolbar_sidechain_180_togglebutton);
-  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_sidechain_180_togglebutton), tooltips, _("Flip sidechain 180 degrees (click on an atom)"), NULL);
+  gtk_tool_item_set_tooltip (GTK_TOOL_ITEM (model_toolbar_sidechain_180_togglebutton), tooltips, _("Flip sidechain 180\302\260 (click on an atom)"), NULL);
 
   model_toolbar_edit_backbone_torsions_toggletoolbutton = (GtkWidget*) gtk_toggle_tool_button_new ();
   gtk_tool_button_set_label (GTK_TOOL_BUTTON (model_toolbar_edit_backbone_torsions_toggletoolbutton), _("Edit Backbone Torsions"));
@@ -7126,7 +7126,7 @@ create_model_refine_dialog (void)
   gtk_widget_show (image9);
   gtk_box_pack_start (GTK_BOX (hbox160), image9, FALSE, FALSE, 0);
 
-  label334 = gtk_label_new_with_mnemonic (_("Sidechain 180 Degree Flip"));
+  label334 = gtk_label_new_with_mnemonic (_("Sidechain 180\302\260 Flip"));
   gtk_widget_show (label334);
   gtk_box_pack_start (GTK_BOX (hbox160), label334, TRUE, TRUE, 0);
 
