@@ -374,10 +374,12 @@ lbg_info_t::convert_bond_dir(const lig_build::bond_t::bond_type_t &t) const {
 std::string
 lbg_info_t::get_smiles_string_from_mol_rdkit() const {
 
+   // here mol is a widgeted_molecule_t (no idea about aromaticity)
+   // 
    RDKit::RWMol rdkm = rdkit_mol(mol);
+   coot::rdkit_mol_sanitize(rdkm);
    return get_smiles_string(rdkm);
    
-//    coot::rdkit_mol_sanitize(rdkm);
 //    RDKit::ROMol *rdk_mol_with_no_Hs = RDKit::MolOps::removeHs(rdkm);
 //    bool doIsomericSmiles = true;
 //    std::string s = RDKit::MolToSmiles(*rdk_mol_with_no_Hs, doIsomericSmiles);
