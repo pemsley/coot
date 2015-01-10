@@ -3456,8 +3456,8 @@
 		  <child>
 		    <widget class="GtkToggleToolButton" id="model_toolbar_sidechain_180_togglebutton">
 		      <property name="visible">True</property>
-		      <property name="tooltip" translatable="yes">Flip sidechain 180 degrees (click on an atom)</property>
-		      <property name="label" translatable="yes"> Sidechain 180 Degree Flip</property>
+		      <property name="tooltip" translatable="yes">Flip sidechain 180° (click on an atom)</property>
+		      <property name="label" translatable="yes"> Sidechain 180° Flip</property>
 		      <property name="use_underline">True</property>
 		      <property name="icon">side-chain-180.png</property>
 		      <property name="visible_horizontal">True</property>
@@ -13402,7 +13402,7 @@ Do you want to continue?
 		      <child>
 			<widget class="GtkLabel" id="label334">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Sidechain 180 Degree Flip</property>
+			  <property name="label" translatable="yes">Sidechain 180° Flip</property>
 			  <property name="use_underline">True</property>
 			  <property name="use_markup">False</property>
 			  <property name="justify">GTK_JUSTIFY_LEFT</property>
