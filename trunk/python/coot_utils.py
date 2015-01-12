@@ -3847,14 +3847,18 @@ def is_windows():
 # find all windows drives
 #
 def get_windows_drives():
-    from ctypes import windll
-    drives = []
-    bitmask = windll.kernel32.GetLogicalDrives()
-    for letter in string.uppercase:
-        if bitmask & 1:
-            drives.append(letter + ":\\")
-        bitmask >>= 1
-
+    try:
+        from ctypes import windll
+        drives = []
+        bitmask = windll.kernel32.GetLogicalDrives()
+        for letter in string.uppercase:
+            if bitmask & 1:
+                drives.append(letter + ":\\")
+            bitmask >>= 1
+    except:
+        print "BL WARNING couldnt import windll! Need to find another way to find drives then. For now set to C:!"
+        drives = ["C:\\"]
+        
     return drives
 
 
