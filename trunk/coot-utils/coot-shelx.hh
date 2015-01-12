@@ -235,13 +235,21 @@ namespace coot {
 				  int &current_res_no) const;
       void save_fvars(const shelx_card_info_t &card);
       mmdb::Atom *make_atom(const coot::shelx_card_info_t &card, const std::string &altconf,
-		       int udd_afix_handle,
-		       int udd_riding_atom_flag_handle,
-		       int udd_riding_atom_negative_u_value_handle,
-		       bool have_udd_atoms, int current_afix,
-		       clipper::Cell &cell, const std::vector<mmdb::Atom *> &atom_vector) const;
+			    int udd_afix_handle,
+			    int udd_riding_atom_flag_handle,
+			    int udd_riding_atom_negative_u_value_handle,
+			    bool have_udd_atoms, int current_afix,
+			    clipper::Cell &cell, const std::vector<mmdb::Atom *> &atom_vector) const;
+
+      // not const because we add atoms to sfac.
       std::pair<int, std::string> write_ins_file_internal(mmdb::Manager *mol_in,
-							  const std::string &filename) const;
+							  const std::string &filename,
+							  bool mol_is_from_shelx_ins=true);
+
+      void write_orthodox_pre_atom_lines(std::ofstream &f) const;
+
+      // not const because we add atoms to sfac.
+      void write_synthetic_pre_atom_lines(mmdb::Manager *mol, std::ofstream &f);
       
       mmdb::Atom *previous_non_riding_atom(const std::vector<mmdb::Atom *> &atom_vector,
 				      int udd_non_riding_atom_flag_handle) const {
@@ -266,6 +274,7 @@ namespace coot {
 	 }
       }
       std::string message_for_atom(const std::string &in_string, mmdb::Atom *at) const;
+      std::map<std::string, unsigned int> get_atomic_contents(mmdb::Manager *mol) const;
 
       
    public:
@@ -274,7 +283,9 @@ namespace coot {
       shelx_read_file_info_t read_file(const std::string &filename);
       ShelxIns(const std::string &filename);
       // return status and message string
-      std::pair<int, std::string> write_ins_file(mmdb::Manager *mol, const std::string &filename);
+      std::pair<int, std::string> write_ins_file(mmdb::Manager *mol,
+						 const std::string &filename,
+						 bool mol_is_from_shelx_ins=true);
       // is this real shelx data or an empty holder?
       short int is_filled_p() const { return filled_flag; }
       int add_fvar(float f); // return the shelx index FVAR number for this fvar

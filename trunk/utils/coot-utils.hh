@@ -137,6 +137,8 @@ namespace coot {
 
       bool even_p(int ii);
 
+      bool close_double_p(const double &d1, const double &d2, const double &diff_crit=0.005);
+
       inline bool sd_compare(const std::pair<std::string, double> &p1,
 			     const std::pair<std::string, double> &p2) {
 	 return p1.second < p2.second;
