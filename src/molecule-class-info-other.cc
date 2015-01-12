@@ -6067,7 +6067,7 @@ molecule_class_info_t::write_shelx_ins_file(const std::string &filename) {
    std::pair<int, std::string> p(1, "");
    
    if (atom_sel.n_selected_atoms > 0) { 
-      p = shelxins.write_ins_file(atom_sel.mol, filename);
+      p = shelxins.write_ins_file(atom_sel.mol, filename, is_from_shelx_ins_flag);
 //       std::cout << "DEBUG:: in molecule_class_info_t::write_ins_file "
 // 		<< "got values " << p.first << " " << p.second
 // 		<< std::endl;

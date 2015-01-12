@@ -27,7 +27,9 @@
 
 #include <stdexcept> // for string_to_int.
 #include <sstream>   // ditto.
-#include <cstdio>    // 20090806 Justin Lecher says we need this on Gentoo 
+#include <cstdio>    // 20090806 Justin Lecher says we need this on Gentoo
+
+#include <math.h>  // for fabs
 
 #include "compat/coot-sysdep.h"
 #if defined _MSC_VER
@@ -255,7 +257,15 @@ coot::util::even_p(int ii) {
 
    bool r = ((ii%2)==0);
    return r;
+}
+
+bool
+coot::util::close_double_p(const double &d1, const double &d2, const double &diff_crit) {
+
+   double d = fabs(d1-d2);
+   return (d < diff_crit);
 } 
+
 
 
 std::string

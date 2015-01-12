@@ -31,6 +31,7 @@
 #include "coot-coord-utils.hh"
 #include "coot-shelx.hh"
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 
 #include "compat/coot-sysdep.h"
@@ -1090,16 +1091,224 @@ coot::ShelxIns::try_assign_cell(mmdb::Manager *mol) {
 
 std::pair<int, std::string>
 coot::ShelxIns::write_ins_file(mmdb::Manager *mol_in,
-					const std::string &filename) {
+			       const std::string &filename,
+			       bool mol_is_from_shelx_ins) {
    if (!have_cell_flag) { // Need cell for orth->frac convertion for atoms
       have_cell_flag = try_assign_cell(mol_in);
    }
-   return write_ins_file_internal(mol_in, filename);
+   return write_ins_file_internal(mol_in, filename, mol_is_from_shelx_ins);
+}
+
+void
+coot::ShelxIns::write_orthodox_pre_atom_lines(std::ofstream &f) const {
+
+   bool sfac_done = false;
+   for (unsigned int i=0; i<pre_atom_lines.size(); i++) {
+      if (is_unit_line(pre_atom_lines[i])) {
+	 write_sfac_line(f);
+	 sfac_done = true;
+	 f << pre_atom_lines[i];
+	 // BL says:: maybe only if size unit > sfac !?! or absolute value?!
+	 // lets say only when positive (FIXME!?)
+	 if (sfac.size() >= unit.size()) {
+	    // std::cout << "INFO :: padding UNIT card from size "
+	    // << unit.size() << " to " << sfac.size() << std::endl;
+	    for (unsigned int iextra=0; iextra<(sfac.size() - unit.size()); iextra++) {
+	       f << " 0"; // pad with 0s, like GMS suggests, 20080601
+	    }
+	 }
+	 f << "\n";
+      } else {
+	 f << pre_atom_lines[i];
+	 f << "\n";
+      } 
+   }
+	 
+   // SFAC line
+   if (! sfac_done)
+      write_sfac_line(f);
+
+   // FVAR lines
+   int fvar_count = 0;
+   for (unsigned int i=0; i<fvars.size(); i++) {
+      if (fvar_count == 0)
+	 f << "FVAR ";
+      f.precision(5); // Notes from Doug Kuntz, need 5 not 8, else
+      // shelxl bombs.
+      f << "  " << fvars[i];
+      fvar_count++;
+      if (fvar_count == 7) { 
+	 f << "\n";
+	 fvar_count = 0;
+      }
+   }
+   f << "\n\n";
+}
+
+
+// not const because we add atoms to sfac.
+void
+coot::ShelxIns::write_synthetic_pre_atom_lines(mmdb::Manager *mol,
+					       std::ofstream &f) {
+
+   // TITL
+   // CELL
+   // LATT
+   // SYMM
+   // SFAC ??
+   // UNIT
+
+   f << "TITL PDB->ins\n";
+
+   if (have_cell_flag) { 
+      mmdb::cpstr sg = mol->GetSpaceGroup();
+      if (sg) {
+	 std::pair<clipper::Cell, clipper::Spacegroup> cell_sg = util::get_cell_symm(mol);
+	 f << "CELL 1.54178  ";
+	 f << std::right << std::setprecision(4) << std::fixed
+	   << cell.descr().a() << " "
+	   << cell.descr().b() << " "
+	   << cell.descr().c() << " " 
+	   << clipper::Util::rad2d(cell.descr().alpha()) << " " 
+	   << clipper::Util::rad2d(cell.descr().beta())  << " " 
+	   << clipper::Util::rad2d(cell.descr().gamma()) << "\n";
+	 int n_symm = cell_sg.second.num_symops();
+	 f << "ZERR " << n_symm << "         "
+	   << 0.001 * cell.descr().a() << "  " 
+	   << 0.001 * cell.descr().b() << "  " 
+	   << 0.001 * cell.descr().c() << "  ";
+      
+	 // This (ZERR for angles) is a terrible hack - we need to
+	 // determine the variable angles from the space group.
+	 // 
+	 double zerr_angle[3] = {0.05, 0.05, 0.05};
+	 if (util::close_double_p(clipper::Util::rad2d(cell.descr().alpha()),  90.0))
+	    zerr_angle[0] = 0.0;
+	 if (util::close_double_p(clipper::Util::rad2d(cell.descr().alpha()), 120.0))
+	    zerr_angle[0] = 0.0;
+	 if (util::close_double_p(clipper::Util::rad2d(cell.descr().beta()),   90.0))
+	    zerr_angle[1] = 0.0;
+	 if (util::close_double_p(clipper::Util::rad2d(cell.descr().beta()),  120.0))
+	    zerr_angle[1] = 0.0;
+	 if (util::close_double_p(clipper::Util::rad2d(cell.descr().gamma()),  90.0))
+	    zerr_angle[2] = 0.0;
+	 if (util::close_double_p(clipper::Util::rad2d(cell.descr().gamma()), 120.0))
+	    zerr_angle[2] = 0.0;
+	 f << zerr_angle[0] << "  "
+	   << zerr_angle[1] << "  "
+	   << zerr_angle[2] << "\n";
+
+	 std::string spg(sg);
+	 if (spg.length() > 1) {
+	    int latt = 1;
+	    char lat_char = spg[0];
+	    if (lat_char == 'P')
+	       latt = 1;
+	    if (lat_char == 'I')
+	       latt = 2;
+	    if (lat_char == 'R')
+	       latt = 3;
+	    if (lat_char == 'F')
+	       latt = 4;
+	    if (lat_char == 'A')
+	       latt = 5;
+	    if (lat_char == 'B')
+	       latt = 6;
+	    if (lat_char == 'C')
+	       latt = 7;
+	    std::cout << "----------- debug:: cell_sg.second.is_null() " << cell_sg.second.is_null() << std::endl;
+	    if (! cell_sg.second.is_null()) {
+	       std::cout << "----------- debug:: cell_sg.second.num_inversion_symops() " << cell_sg.second.num_inversion_symops()
+			 << std::endl;
+		  std::cout << "Here are the inversion symops: " << std::endl;
+		  for (unsigned int ii=0; ii<cell_sg.second.num_inversion_symops(); ii++) {
+		     std::cout << "---------------- " << ii << " "
+			       << util::Upper(cell_sg.second.inversion_symop(ii).format()) << std::endl;
+		  }
+	       
+	       if (cell_sg.second.num_inversion_symops() == 0)
+		  latt = -latt;
+	    }
+	    f << "LATT " << latt << "\n";
+	    for (unsigned int isym=1; isym<cell_sg.second.num_primitive_symops(); isym++) { 
+	       f << "SYMM " << util::Upper(cell_sg.second.primitive_symop(isym).format()) << "\n";
+	    }
+	    f << "\n";
+	 }
+
+	 // SFAC & UNIT
+	 std::map<std::string, unsigned int> atomic_contents = get_atomic_contents(mol);
+	 std::map<std::string, unsigned int>::const_iterator it;
+	 if (atomic_contents.size()) {
+	    f << "SFAC ";
+	    for (it=atomic_contents.begin(); it!=atomic_contents.end(); it++)
+	       f << it->first << " ";
+	    f << "\n";
+	    f << "UNIT " ;
+	    for (it=atomic_contents.begin(); it!=atomic_contents.end(); it++)
+	       f << it->second * n_symm << " ";
+	    f << "\n";
+	    for (it=atomic_contents.begin(); it!=atomic_contents.end(); it++) { 
+	       add_sfac(it->first);
+	    }
+	 }
+      }
+   }
+
+   // f << "DEFS 0.02 0.1 0.01 0.04\n";
+   f << "CGLS 30 -1\n"; // 30 cycles, use-R-free
+   f << "SHEL 10 0.1\n";
+   f << "FMAP 2\n";
+   f << "PLAN 200 2.3\n";
+   f << "LIST 6\n";
+   f << "WPDB 2\n";
+ 
+   f << "DELU $C_* $N_* $O_* $S_*\n";
+   f << "SIMU 0.1 $C_* $N_* $O_* $S_*\n";
+   f << "ISOR 0.1 O_3001 > LAST\n";
+   f << "CONN 0 O_3001 > LAST\n";
+   f << "BUMP\n";
+
 } 
 
+
+// for SFAC & UNIT
+//
+std::map<std::string, unsigned int>
+coot::ShelxIns::get_atomic_contents(mmdb::Manager *mol) const {
+
+   std::map<std::string, unsigned int> m;
+
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   mmdb::Chain *chain_p;
+   int n_chains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<n_chains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      mmdb::Residue *residue_p;
+      mmdb::Atom *at;
+      for (int ires=0; ires<nres; ires++) { 
+	 residue_p = chain_p->GetResidue(ires);
+	 int n_atoms = residue_p->GetNumberOfAtoms();
+	 for (int iat=0; iat<n_atoms; iat++) {
+	    at = residue_p->GetAtom(iat);
+	    std::string ele(at->element);
+	    m[ele]++; // initial/default value is 0.
+	 }
+      }
+   }
+   return m;
+} 
+
+
+// write_synthetic_pre_atom_lines changes sfac so this can't be const (boo).
+// 
+// mol_is_from_shelx_ins is a default argument (false).
 std::pair<int, std::string>
 coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol_in,
-					const std::string &filename) const {
+					const std::string &filename,
+					bool mol_is_from_shelx_ins) {
 
    int istat = 0;
    std::string message;
@@ -1112,7 +1321,6 @@ coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol_in,
    if (have_cell_flag) { // Need cell for orth->frac convertion for atoms
       
       std::ofstream f(filename.c_str());
-      bool sfac_done = 0;
       double a = cell.descr().a();
       double b = cell.descr().b();
       double c = cell.descr().c();
@@ -1124,48 +1332,17 @@ coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol_in,
 	 // before the UNIT card (AFAICS - maybe after SYMM).  The
 	 // UNIT line need to be padded with 0s to the length of the
 	 // SFAC line.
-	 // 
- 	 for (unsigned int i=0; i<pre_atom_lines.size(); i++) {
-	    if (is_unit_line(pre_atom_lines[i])) {
-	       write_sfac_line(f);
-	       sfac_done = 1;
-	       f << pre_atom_lines[i];
-	       // BL says:: maybe only if size unit > sfac !?! or absolute value?!
-	       // lets say only when positive (FIXME!?)
-	       if (sfac.size() >= unit.size()) {
-		  // std::cout << "INFO :: padding UNIT card from size "
-		  // << unit.size() << " to " << sfac.size() << std::endl;
-		  for (unsigned int iextra=0; iextra<(sfac.size() - unit.size()); iextra++) {
-		     f << " 0"; // pad with 0s, like GMS suggests, 20080601
-		  }
-	       }
-	       f << "\n";
-	    } else {
-	       f << pre_atom_lines[i];
-	       f << "\n";
-	    } 
-	 }
-	 
-	 // SFAC line
-	 if (! sfac_done)
-	    write_sfac_line(f);
+	 //
 
-	 // FVAR lines
-	 int fvar_count = 0;
-	 for (unsigned int i=0; i<fvars.size(); i++) {
-	    if (fvar_count == 0)
-	       f << "FVAR ";
-	    f.precision(5); // Notes from Doug Kuntz, need 5 not 8, else
-                   	    // shelxl bombs.
-	    f << "  " << fvars[i];
-	    fvar_count++;
-	    if (fvar_count == 7) { 
-	       f << "\n";
-	       fvar_count = 0;
-	    }
+	 if (pre_atom_lines.size() == 0) {
+
+	    // we are trying to write a shelx ins file from a PDB file
+	    // 
+	    write_synthetic_pre_atom_lines(mol, f);
+
+	 } else {
+	    write_orthodox_pre_atom_lines(f);
 	 }
-	 f << "\n\n";
-	 
       
 	 std::string current_altloc = "";
 	 int n_models = mol->GetNumberOfModels();
@@ -1219,9 +1396,12 @@ coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol_in,
 		     for (int iat=0; iat<n_atoms; iat++) {
 			try { 
 			   at = residue_p->GetAtom(iat);
-			   float site_occ_factor = 11.000;
-			   // site_occ_factor = 10.0 + at->occupancy;
-			   site_occ_factor = at->occupancy;
+			   float site_occ_factor = at->occupancy;
+			   // reset occupancy to shelx standard occ
+			   // (FVAR 1 is implied if not set in the .ins file)
+			   if (! mol_is_from_shelx_ins)
+			      site_occ_factor = 11.000;
+
 			   clipper::Coord_orth co(at->x, at->y, at->z);
 			   clipper::Coord_frac cf = co.coord_frac(cell);
 			   int sfac_index = get_sfac_index(at->element);
@@ -1329,15 +1509,23 @@ coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol_in,
 	    std::cout << "WARNING:: and " << afix_failure_vec.size() - 10
 		      << " more AFIX failures" << std::endl;
 
-	 
-	 for (unsigned int i=0; i<post_atom_lines.size(); i++) {
-	    try { 
-	       f << post_atom_lines[i] << "\n";
+
+	 if (post_atom_lines.size() > 0) { 
+	    for (unsigned int i=0; i<post_atom_lines.size(); i++) {
+	       try { 
+		  f << post_atom_lines[i] << "\n";
+	       }
+	       catch (const std::ios::failure &e) { 
+		  std::cout << "WARNING:: IOS exception caught in post atom lines " << e.what() << std::endl;
+	       }
 	    }
-	    catch (const std::ios::failure &e) { 
-	       std::cout << "WARNING:: IOS exception caught in post atom lines " << e.what() << std::endl;
-	    }
-	 }
+	 } else {
+
+	    // Synthetic post-atom lines
+	    f << "HKLF 3\n";
+	    f << "END\n";
+	    
+	 } 
       }
       f.close();
       message =  "INFO:: SHELXL file ";
@@ -1383,12 +1571,14 @@ coot::ShelxIns::message_for_atom(const std::string &in_string, mmdb::Atom *at) c
 
 void
 coot::ShelxIns::write_sfac_line(std::ostream &f) const {
-   
-   f << "SFAC";
-   for (unsigned int i=0; i<sfac.size(); i++) {
-      f << "  " << sfac[i];
+
+   if (sfac.size() > 0) { 
+      f << "SFAC";
+      for (unsigned int i=0; i<sfac.size(); i++) {
+	 f << "  " << sfac[i];
+      }
+      f << "\n";
    }
-   f << "\n";
 }
 
 
@@ -1416,10 +1606,10 @@ coot::ShelxIns::get_sfac_index(const std::string &element) const {
 void
 coot::ShelxIns::add_sfac(const std::string &ele) {
 
-   bool found = 0;
+   bool found = false;
    for (unsigned int i=0; i<sfac.size(); i++) {
       if (sfac[i] == ele) {
-	 found = 1;
+	 found = true;
 	 break;
       }
    }
