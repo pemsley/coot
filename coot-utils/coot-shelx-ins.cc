@@ -1226,7 +1226,10 @@ coot::ShelxIns::write_synthetic_pre_atom_lines(mmdb::Manager *mol,
 			       << util::Upper(cell_sg.second.inversion_symop(ii).format()) << std::endl;
 		  }
 	       
-	       if (cell_sg.second.num_inversion_symops() == 0)
+               // P31 (and others presumably) has 1 inversion symop, it seems.
+               //
+               // make the latt negative if non-centrosymmetric.
+	       if (cell_sg.second.num_inversion_symops() <= 1)
 		  latt = -latt;
 	    }
 	    f << "LATT " << latt << "\n";
