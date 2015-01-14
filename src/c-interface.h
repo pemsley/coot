@@ -4568,7 +4568,7 @@ PyObject *compare_ligand_atom_types_py(int imol_ligand, int imol_ref, const char
 
   By using graph matching, make the names of the atoms of the
   given ligand/residue match those of the reference residue/ligand as
-  closely as possible - where there would be a atom name clash, invent
+  closely as possible - where there would be an atom name clash, invent
   a new atom name.
  */
 void match_ligand_atom_names(int imol_ligand, const char *chain_id_ligand, int resno_ligand, const char *ins_code_ligand,

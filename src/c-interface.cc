@@ -2649,6 +2649,7 @@ int additional_representation_by_attributes(int imol,  const char *chain_id,
       GtkWidget *dcw = g.display_control_window();
       coot::atom_selection_info_t info(chain_id, resno_start, resno_end, ins_code);
       gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
+
       r = graphics_info_t::molecules[imol].add_additional_representation(representation_type,
 									 bonds_box_type,
 									 bond_width,
