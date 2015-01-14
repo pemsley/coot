@@ -434,10 +434,13 @@ def read_smiles_tab(file_name):
        smiles_dict = True # we've tested for it
        return False
 
+# return a pair, the smiles string and the molecule name (which might be blank)
+#
 def get_smiles_from_file(file_name):
     f = open(file_name)
-    smi = f.readline()
-    return smi
+    smi_line = f.readline()
+    parts = smi_line.split()
+    return parts[0], ' '.join(parts[1:])
 
 def make_picture(mol, conf_id, comp_id, output_postfix):
 
@@ -768,14 +771,15 @@ if __name__ == "__main__":
 	   else:
 	       print 'Stop:: File', dirname, 'exists but is not a directory'
 
-    def smiles_from(smi_raw):
+    def smiles_and_name_from(smi_raw):
        extension = os.path.splitext(smi_raw)[1]
        smiles_string = ''
+       name=''
        if extension == '.smi' or extension == '.smiles':
-          smiles_string = get_smiles_from_file(smi_raw)
+          smiles_string,name = get_smiles_from_file(smi_raw)
        else:
          smiles_string = smi_raw
-       return smiles_string
+       return smiles_string,name
 
     parser = OptionParser(usage='pyrogen [options] file-or-SMILES'+
                           '\n       if file-or-SMILES has extension ".smi" or ".smiles" ' +
@@ -854,7 +858,7 @@ if __name__ == "__main__":
 	mol = False
 	if len(args) > 0:
 	    smi_raw = args[0]
-	    smiles = smiles_from(smi_raw)
+	    smiles,compound_name = smiles_and_name_from(smi_raw)
 	    mol = Chem.MolFromSmiles(smiles)
 	else:
 	    if options.sdf_file != None:
@@ -916,8 +920,13 @@ if __name__ == "__main__":
 
 		if len(args) > 0:
 		    smi_raw = args[0]
-		    smiles = smiles_from(smi_raw)
-		    status = make_restraints_from_smiles(smiles, comp_id, options.compound_name,
+		    smiles,compound_name_from_file = smiles_and_name_from(smi_raw)
+                    compound_name=False
+                    if len(compound_name_from_file) > 0:
+                       compound_name = compound_name_from_file
+                    if isinstance(options.compound_name, basestring):
+                       compound_name = options.compound_name
+		    status = make_restraints_from_smiles(smiles, comp_id, compound_name,
 							 options.mogul_dir, file_name_stub,
 							 pdb_out_file_name,
 							 cif_restraints_file_name,
