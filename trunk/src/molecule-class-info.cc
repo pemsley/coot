@@ -2371,7 +2371,7 @@ coot::additional_representations_t::info_string() const {
 
 int
 molecule_class_info_t::add_additional_representation(int representation_type,
-						     const int &bonds_box_type_in, 
+						     const int &bonds_box_type, 
 						     float bonds_width,
 						     bool draw_hydrogens_flag,
 						     const coot::atom_selection_info_t &info,
@@ -2379,13 +2379,31 @@ molecule_class_info_t::add_additional_representation(int representation_type,
 						     const gl_context_info_t &glci,
 						     const coot::protein_geometry *geom) {
 
-   coot::additional_representations_t rep(atom_sel.mol,
-					  representation_type,
-					  bonds_box_type_in,
-					  bonds_width, draw_hydrogens_flag, info);
+/*   representation_types:
 
-   float ball_radius = 0.28;
-   ball_radius = 0.11;
+   enum { SIMPLE_LINES, STICKS, BALL_AND_STICK, LIQUORICE, SURFACE };
+
+  bonds_box_type:
+  enum {  UNSET_TYPE = -1, NORMAL_BONDS=1, CA_BONDS=2, COLOUR_BY_CHAIN_BONDS=3,
+	  CA_BONDS_PLUS_LIGANDS=4, BONDS_NO_WATERS=5, BONDS_SEC_STRUCT_COLOUR=6,
+	  BONDS_NO_HYDROGENS=15,
+	  CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR=7,
+	  CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR=14,
+	  COLOUR_BY_MOLECULE_BONDS=8,
+	  COLOUR_BY_RAINBOW_BONDS=9, COLOUR_BY_B_FACTOR_BONDS=10,
+	  COLOUR_BY_OCCUPANCY_BONDS=11};
+
+*/
+
+
+   float sphere_size    = bonds_width;
+   bool  do_spheres     = true;
+
+   coot::additional_representations_t rep(atom_sel.mol,
+					  representation_type, 
+					  bonds_box_type,
+					  bonds_width, sphere_size, do_spheres,
+					  draw_hydrogens_flag, info);
 
    add_reps.push_back(rep);
    int n_rep = add_reps.size() -1;
@@ -2393,7 +2411,8 @@ molecule_class_info_t::add_additional_representation(int representation_type,
    GtkWidget *vbox = display_control_add_reps_container(display_control_window, imol_no);
    display_control_add_reps(vbox, imol_no, n_rep, rep.show_it, rep.bonds_box_type, name);
    if (representation_type == coot::BALL_AND_STICK) {
-      int display_list_handle_index = make_ball_and_stick(info.mmdb_string(), 0.11, ball_radius, 1,
+      int display_list_handle_index = make_ball_and_stick(info.mmdb_string(),
+							  bonds_width, sphere_size, do_spheres,
 							  glci, geom);
       if ((display_list_handle_index >= 0) && (display_list_handle_index < display_list_tags.size())) {
 	 add_reps[n_rep].add_display_list_handle(display_list_handle_index);
@@ -2940,14 +2959,29 @@ molecule_class_info_t::update_additional_representations(const gl_context_info_t
 	 
 	 int old_handle = add_reps[i].display_list_handle;
 	 remove_display_list_object_with_handle(old_handle);
-	 int handle = make_ball_and_stick(add_reps[i].atom_sel_info.mmdb_string(),
-					  0.11, 0.28, 1, gl_info, geom);
 
-	 if (0)
+	 
+// 	 int handle = make_ball_and_stick(add_reps[i].atom_sel_info.mmdb_string(),
+// 					  0.11, 0.28, true,
+// 					  gl_info, geom);
+
+	 std::cout << "calling make_ball_and_stick with bond_width " << add_reps[i].bond_width << std::endl;
+	 std::cout << "                            with sphere_radius " << add_reps[i].sphere_radius << std::endl;
+	 int handle = make_ball_and_stick(add_reps[i].atom_sel_info.mmdb_string(),
+					  add_reps[i].bond_width, 
+					  add_reps[i].sphere_radius, 
+					  add_reps[i].draw_atom_spheres_flag, 
+					  gl_info, geom);
+
+	 if (true)
 	    std::cout << " update a ball and stick rep " << i << " "
 		      << add_reps[i].show_it << std::endl;
-	 if ((handle >= 0) && (handle < display_list_tags.size())) 
+	 
+	 if ((handle >= 0) && (handle < display_list_tags.size())) {
+	    std::cout << "called add_reps[" << i << "].update_self_display_list_entity(" << handle << ")"
+		      << std::endl;
 	    add_reps[i].update_self_display_list_entity(handle);
+	 } 
 	 display_list_tags[handle].display_it = add_reps[i].show_it;
       }
    }
