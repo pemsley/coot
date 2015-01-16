@@ -2960,28 +2960,14 @@ molecule_class_info_t::update_additional_representations(const gl_context_info_t
 	 int old_handle = add_reps[i].display_list_handle;
 	 remove_display_list_object_with_handle(old_handle);
 
-	 
-// 	 int handle = make_ball_and_stick(add_reps[i].atom_sel_info.mmdb_string(),
-// 					  0.11, 0.28, true,
-// 					  gl_info, geom);
-
-	 std::cout << "calling make_ball_and_stick with bond_width " << add_reps[i].bond_width << std::endl;
-	 std::cout << "                            with sphere_radius " << add_reps[i].sphere_radius << std::endl;
 	 int handle = make_ball_and_stick(add_reps[i].atom_sel_info.mmdb_string(),
 					  add_reps[i].bond_width, 
 					  add_reps[i].sphere_radius, 
 					  add_reps[i].draw_atom_spheres_flag, 
 					  gl_info, geom);
 
-	 if (true)
-	    std::cout << " update a ball and stick rep " << i << " "
-		      << add_reps[i].show_it << std::endl;
-	 
-	 if ((handle >= 0) && (handle < display_list_tags.size())) {
-	    std::cout << "called add_reps[" << i << "].update_self_display_list_entity(" << handle << ")"
-		      << std::endl;
+	 if ((handle >= 0) && (handle < display_list_tags.size()))
 	    add_reps[i].update_self_display_list_entity(handle);
-	 } 
 	 display_list_tags[handle].display_it = add_reps[i].show_it;
       }
    }
