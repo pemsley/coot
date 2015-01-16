@@ -29,19 +29,16 @@
 mmdb::Residue *
 coot::deep_copy_residue(mmdb::Residue *residue) {
 
-   // Horrible casting to mmdb::Residue because GetSeqNum and GetAtomTable
-   // are not const functions.
-   // 
    mmdb::Residue *rres = new mmdb::Residue;
    mmdb::Chain   *chain_p = new mmdb::Chain;
-   chain_p->SetChainID(((mmdb::Residue *)residue)->GetChainID());
+   chain_p->SetChainID(residue->GetChainID());
    rres->SetResID(residue->GetResName(),
 		  residue->GetSeqNum(),
 		  residue->GetInsCode());
 
    mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
-   ((mmdb::Residue *)residue)->GetAtomTable(residue_atoms, nResidueAtoms);
+   residue->GetAtomTable(residue_atoms, nResidueAtoms);
    mmdb::Atom *atom_p;
    
    for(int iat=0; iat<nResidueAtoms; iat++) { 
