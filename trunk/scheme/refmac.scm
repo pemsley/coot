@@ -204,7 +204,7 @@
 				    extra-sad-params
 				    (list labin-string))
 			    (append std-lines
-				    (list "WEIGHT AUTO")
+				    (list "WEIGHT AUTO 5")
 				    extra-params
 				    extra-rigid-params
 				    extra-ncs-params
