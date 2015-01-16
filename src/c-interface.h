@@ -4613,6 +4613,9 @@ void  free_blob_dialog_memory(GtkWidget *w);
    peptide). */
 void flip_ligand(int imol, const char *chain_id, int resno);
 
+void jed_flip(int imol, const char *chain_id, int res_no, const char *ins_code, const char *atom_name, const char *alt_conf);
+
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

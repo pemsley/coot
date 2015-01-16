@@ -3128,7 +3128,7 @@ public:
    short int update_residue_by_chi_change_old(mmdb::Residue *residue,
 					  atom_selection_container_t &asc,
 					  int chi, double diff);
-   // this can throw an exception.
+   // this can throw an std::runtime_error exception.
    std::pair<std::string, std::string> get_chi_atom_names(mmdb::Residue *residue,
 							  const coot::dictionary_residue_restraints_t &rest,
 							  int nth_chi) const;

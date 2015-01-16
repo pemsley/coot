@@ -1063,6 +1063,19 @@ void flip_ligand(int imol, const char *chain_id, int resno) {
    graphics_draw();
 }
 
+void jed_flip(int imol, const char *chain_id, int res_no, const char *ins_code,
+	      const char *atom_name, const char *alt_conf) {
+
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t spec(chain_id, res_no, ins_code);
+      graphics_info_t::molecules[imol].jed_flip(spec, atom_name, alt_conf, graphics_info_t::Geom_p());
+   }
+   graphics_draw();
+
+} 
+
+
 
 
 /*  ----------------------------------------------------------------------- */

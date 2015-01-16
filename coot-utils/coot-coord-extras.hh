@@ -314,9 +314,11 @@ namespace coot {
       
 
       ~atom_tree_t() {
-	 if (made_from_minimol_residue_flag)
+	 if (made_from_minimol_residue_flag) { 
 	    // question: does this delete the atoms in the residue too?
-	    delete residue; 
+	    delete residue;
+	    residue = 0;
+	 }
       }
 
 
