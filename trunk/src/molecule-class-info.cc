@@ -7383,7 +7383,6 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 	    std::vector<coot::dict_torsion_restraint_t> all_torsions = p.second.get_non_const_torsions(iht);
 	    std::vector<std::vector<std::string> > ring_atoms_sets = p.second.get_ligand_ring_list();
 	    std::vector<coot::dict_torsion_restraint_t> interesting_torsions;
-	    std::cout << "there are " << all_torsions.size() << " non-const torsions" << std::endl;
 	    for (unsigned int it=0; it<all_torsions.size(); it++) { 
 	       if (! all_torsions[it].is_ring_torsion(ring_atoms_sets)) {
 		  if (all_torsions[it].atom_id_2_4c() == atom_name)
@@ -7392,9 +7391,6 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 		     interesting_torsions.push_back(all_torsions[it]);
 	       }
 	    }
-	    std::cout << "DEBUG:: there are "
-		      << interesting_torsions.size() << " interesting torsions on this atom "
-		      << atom_name << std::endl;
 
 	    if (interesting_torsions.size() > 0) {
 
@@ -7423,8 +7419,6 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 	 }
       }
    }
-   std::cout << "returning from molecule_class_info_t()::jed_flip() " << std::endl;
-
    return problem_string;
 }
 
@@ -7456,7 +7450,8 @@ molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
 					 const std::string &atom_name,
 					 int clicked_atom_idx) {
 
-   std::cout << "flip this torsion: " << torsion << std::endl;
+   make_backup();
+
    bool reverse = false;
 
    std::string atn_1 = torsion.atom_id_2_4c();
@@ -7470,8 +7465,12 @@ molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
    double angle = 360/torsion.periodicity();
    
    std::pair<unsigned int, unsigned int> p = tree.fragment_sizes(atn_1, atn_2, reverse);
-   std::cout << "DEBUG:: jed_flip_internal() fragment sizes: " << p.first << " " << p.second
-	     << std::endl;
+
+   if (false) {  // debug
+      std::cout << "flip this torsion: " << torsion << std::endl;
+      std::cout << "DEBUG:: jed_flip_internal() fragment sizes: " << p.first << " " << p.second
+		<< std::endl;
+   }
 
    if (p.first > p.second)
       reverse = true;
