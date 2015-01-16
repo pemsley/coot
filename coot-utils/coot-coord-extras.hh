@@ -202,6 +202,12 @@ namespace coot {
       std::vector<map_index_t>
       uniquify_atom_indices(const std::vector<map_index_t> &vin) const;
 
+      std::vector<map_index_t>
+      get_unique_moving_atom_indices(const std::string &atom1,
+				     const std::string &atom2,
+				     bool reversed_flag);
+      
+
       // Return the complementary indices c.f. the moving atom set,
       // but do not include index2 or index3 in the returned set (they
       // do not move even with the reverse flag (of course)).
@@ -321,7 +327,15 @@ namespace coot {
 	 }
       }
 
-
+      // when moving around the given atom pair, what are the fragment
+      // sizes?  We ask this because generally, we want to flip the
+      // small fragment.
+      // 
+      std::pair<unsigned int, unsigned int>
+      fragment_sizes(const std::string &atom1,
+		     const std::string &atom2,
+		     bool reversed_flag);
+      
       // Rotate round the 2 middle atoms of the torsion by angle (in
       // degress).  This is a relative rotation - not setting the
       // torsion angle.  The atoms of the mmdb::Residue residue are

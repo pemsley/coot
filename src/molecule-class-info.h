@@ -1104,8 +1104,17 @@ class molecule_class_info_t {
 
    // single model view
    int single_model_view_current_model_number;
-   
 
+   void jed_flip_internal(coot::atom_tree_t &tree,
+			  const std::vector<coot::dict_torsion_restraint_t> &interesting_torsions,
+			  const std::string &atom_name,
+			  int clicked_atom_idx);
+
+   void jed_flip_internal(coot::atom_tree_t &tree,
+			  const coot::dict_torsion_restraint_t &torsion,
+			  const std::string &atom_name,
+			  int clicked_atom_idx);
+   
    // ----------------------------------------------------------------------------------------
    // ----------------------------------------------------------------------------------------
 public:        //                      public
@@ -3017,12 +3026,6 @@ public:        //                      public
    // return value is an error string that we can put in the status bar
    std::string jed_flip(coot::residue_spec_t &spec, const std::string &atom_name, const std::string &alt_conf,
 			coot::protein_geometry *geom);
-
-   // private:
-   void jed_flip_internal(coot::atom_tree_t &tree,
-			  const std::vector<coot::dict_torsion_restraint_t> &interesting_torsions,
-			  int clicked_atom_idx);
-
 
    // replace molecule
    int replace_molecule(mmdb::Manager *mol);

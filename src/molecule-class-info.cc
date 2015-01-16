@@ -7351,9 +7351,13 @@ molecule_class_info_t::eigen_flip_residue(const std::string &chain_id, int resno
 }
 
 std::string
-molecule_class_info_t::jed_flip(coot::residue_spec_t &spec, const std::string &atom_name, const std::string &alt_conf,
+molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
+				const std::string &atom_name,
+				const std::string &alt_conf,
 				coot::protein_geometry *geom) {
 
+   std::string problem_string;
+   
    mmdb::Residue *residue = get_residue(spec);
    if (! residue) {
       std::cout << "WARNING:: no residue " << spec << " found in molecule" << std::endl;
@@ -7378,7 +7382,7 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec, const std::string &a
       }
 
       if (! clicked_atom) {
-	 std::cout << "WARNING:: atom " << atom_name << " not found in residue " << std::endl;
+	 std::cout << "WARNING:: atom \"" << atom_name << "\" not found in residue " << std::endl;
       } else { 
       
 	 std::string monomer_type = residue->GetResName();
@@ -7406,34 +7410,55 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec, const std::string &a
 		      << interesting_torsions.size() << " interesting torsions on this atom "
 		      << atom_name << std::endl;
 
-	    if (interesting_torsions.size() > 0) { 
-	       try {
-		  coot::atom_tree_t tree(p.second, residue, alt_conf);
-		  jed_flip_internal(tree, interesting_torsions, clicked_atom_idx);
-	       } 
-	       catch (const std::runtime_error &rte) {
-		  std::cout << "RUNTIME ERROR:: " << rte.what() << std::endl;
-		  atom_selection_container_t residue_asc;
-		  // make a constructor?
-		  residue_asc.n_selected_atoms = n_residue_atoms;
-		  residue_asc.atom_selection = residue_atoms;
-		  residue_asc.mol = atom_sel.mol;
-		  coot::contact_info contact = coot::getcontacts(residue_asc, monomer_type, geom);
-		  std::vector<std::vector<int> > contact_indices =
-		     contact.get_contact_indices_with_reverse_contacts();
+	    if (interesting_torsions.size() > 0) {
 
-		  try {
-		     coot::atom_tree_t tree(contact_indices, clicked_atom_idx, residue, alt_conf);
-		     std::cout << "no tree version " << std::endl;
-		     jed_flip_internal(tree, interesting_torsions, clicked_atom_idx);
-		  } 
-		  catch (const std::runtime_error &rte) {
-		     std::cout << "RUNTIME ERROR:: " << rte.what() << " - giving up" << std::endl;
-		  }
+	       // make a constructor?
+	       atom_selection_container_t residue_asc;
+	       residue_asc.n_selected_atoms = n_residue_atoms;
+	       residue_asc.atom_selection = residue_atoms;
+	       residue_asc.mol = 0;
+	       
+	       coot::contact_info contact = coot::getcontacts(residue_asc, monomer_type, geom);
+	       std::vector<std::vector<int> > contact_indices =
+		  contact.get_contact_indices_with_reverse_contacts();
+
+	       try {
+		  coot::atom_tree_t tree(contact_indices, clicked_atom_idx, residue, alt_conf);
+		  jed_flip_internal(tree, interesting_torsions, atom_name, clicked_atom_idx);
+		  atom_sel.mol->FinishStructEdit();
 	       }
+	       catch (const std::runtime_error &rte) {
+		  std::cout << "RUNTIME ERROR:: " << rte.what() << " - giving up" << std::endl;
+	       }
+
+	       make_bonds_type_checked();
+
 	    }
 	 }
       }
+   }
+   std::cout << "returning from molecule_class_info_t()::jed_flip() " << std::endl;
+
+   return problem_string;
+}
+
+
+// private:
+void
+molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
+					 const std::vector<coot::dict_torsion_restraint_t> &interesting_torsions,
+					 const std::string &atom_name,
+					 int atom_idx) {
+
+   unsigned int selected_idx = 0;
+   
+   if (interesting_torsions.size() > 0) {
+
+      if (interesting_torsions.size() > 1) {
+	 // select the best torsion based on fragment size.
+      }
+
+      jed_flip_internal(tree, interesting_torsions[selected_idx], atom_name, atom_idx);
    }
 } 
 
@@ -7441,15 +7466,33 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec, const std::string &a
 // private:
 void
 molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
-					 const std::vector<coot::dict_torsion_restraint_t> &interesting_torsions,
+					 const coot::dict_torsion_restraint_t &torsion,
+					 const std::string &atom_name,
 					 int clicked_atom_idx) {
 
-   if (interesting_torsions.size() > 0) {
-      std::cout << "interesting torsions: " << std::endl;
-      for (unsigned int it=0; it<interesting_torsions.size(); it++) { 
-	 std::cout << "    " << interesting_torsions[it] << std::endl;
-      }
+   std::cout << "flip this torsion: " << torsion << std::endl;
+   bool reverse = false;
+
+   std::string atn_1 = torsion.atom_id_2_4c();
+   std::string atn_2 = torsion.atom_id_3_4c();
+
+   if (torsion.atom_id_3_4c() == atom_name) {
+      atn_1 = torsion.atom_id_3_4c();
+      atn_2 = torsion.atom_id_2_4c();
    }
+
+   double angle = 360/torsion.periodicity();
+   
+   std::pair<unsigned int, unsigned int> p = tree.fragment_sizes(atn_1, atn_2, reverse);
+   std::cout << "DEBUG:: jed_flip_internal() fragment sizes: " << p.first << " " << p.second
+	     << std::endl;
+
+   if (p.first > p.second)
+      reverse = true;
+
+   tree.rotate_about(atn_1, atn_2, angle, reverse);
+   have_unsaved_changes_flag = 1; 
+   
 } 
 
 
