@@ -610,8 +610,150 @@ coot::atom_tree_t::add_unique_forward_atom(int this_index, int forward_atom_inde
 // 		<< forward_atom_index << std::endl;
       atom_vertex_vec[this_index].forward.push_back(forward_atom_index);
    } 
+}
 
+std::pair<unsigned int, unsigned int>
+coot::atom_tree_t::fragment_sizes(const std::string &atom1,
+				  const std::string &atom2,
+				  bool reversed_flag) {
+
+   coot::map_index_t index2 = name_to_index[atom1];
+   coot::map_index_t index3 = name_to_index[atom2];
+   std::vector<map_index_t> m = get_unique_moving_atom_indices(atom1, atom2, reversed_flag);
+   std::vector<map_index_t> c = complementary_indices(m, index2, index3);
+
+   return std::pair<unsigned int, unsigned int>(m.size(), c.size());
 } 
+
+std::vector<coot::map_index_t>
+coot::atom_tree_t::get_unique_moving_atom_indices(const std::string &atom1,
+						  const std::string &atom2,
+						  bool reversed_flag) {
+
+   std::vector<coot::map_index_t> unique_moving_atoms;
+
+   bool debug = 0;
+   // OK, so when the user clicks atom2 then atom1 (as the middle 2
+   // atoms), then they implictly want the fragment revsersed,
+   // relative to the atom order internally.  In that case, set
+   // internal_reversed, and only if it is not set and the
+   // reversed_flag flag *is* set, do the reversal (if both are set
+   // they cancel each other out).  Now we do not pre-reverse the
+   // indices in the calling function. The reverse is done here.
+   bool internal_reversed = 0;
+
+   if (debug)
+      std::cout << "rotate_about() " << atom1 << " " << atom2 << std::endl;
+
+   coot::map_index_t index2 = name_to_index[atom1];
+   coot::map_index_t index3 = name_to_index[atom2];
+
+   if ((atom_vertex_vec[index2.index()].forward.size() == 0) && 
+       (atom_vertex_vec[index3.index()].forward.size() == 0)) {
+      std::string s = "Neither index2 ";
+      s += coot::util::int_to_string(index2.index());
+      s += " nor index3 ";
+      s += coot::util::int_to_string(index3.index());
+      s += " has forward atoms!";
+      throw std::runtime_error(s);
+   } 
+       
+   if (index2.is_assigned()) { 
+      if (index3.is_assigned()) {
+
+	 // is index3 in the forward atoms of index2?
+	 // if not, then swap and test again.
+	 //
+	 bool index3_is_forward = 0;
+
+	 for (unsigned int ifo=0; ifo<atom_vertex_vec[index2.index()].forward.size(); ifo++) {
+	    if (atom_vertex_vec[index2.index()].forward[ifo] == index3.index()) {
+	       index3_is_forward = 1;
+	       break;
+	    }
+	 }
+
+	 if (! index3_is_forward) {
+	    // perhaps index2 is the forward atom of index3?
+	    bool index2_is_forward = 0;
+	    for (unsigned int ifo=0; ifo<atom_vertex_vec[index3.index()].forward.size(); ifo++) {
+	       if (atom_vertex_vec[index3.index()].forward[ifo] == index2.index()) {
+		  index2_is_forward = 1;
+		  break;
+	       }
+	    }
+
+	    // if index2 *was* the forward atom of index3, then swap
+	    // around index2 and 3 into "standard" order.
+	    // 
+	    if (index2_is_forward) {
+	       if (debug)
+		  std::cout << "    index2 was the forward atom of index3 - swapping "
+			    << "and setting internal_reversed" << std::endl;
+	       std::swap(index2, index3);
+	       index3_is_forward = 1;
+	       internal_reversed = 1;
+	    }
+	 }
+
+	 // OK, try again
+	 if (index3_is_forward) {
+
+	    std::pair<int, std::vector<coot::map_index_t> > moving_atom_indices_pair =
+	       get_forward_atoms(index3, index3);
+	    std::vector<coot::map_index_t> moving_atom_indices =
+	       moving_atom_indices_pair.second;
+	    if (debug) 
+	       std::cout << " in rotate_about() get_forward_atoms() called "
+			 << moving_atom_indices_pair.first
+			 << " times - indices size: "
+			 << moving_atom_indices_pair.second.size() << std::endl;
+
+	    // Maybe a synthetic forward atom was made, and later on
+	    // in the dictionary, it was a real (normal) forward atom
+	    // of a different atom.  In that case there can be 2
+	    // copies of the atom in moving_atom_indices.  So let's
+	    // filter them one.  Only the first copy.
+	    // 
+	    std::vector<coot::map_index_t> unique_moving_atom_indices =
+	       uniquify_atom_indices(moving_atom_indices);
+
+	    if (debug) {
+	       std::cout << "  number of moving atoms based on atom index " << index3.index()
+			 << " is " << moving_atom_indices.size() << std::endl;
+	       for (unsigned int imov=0; imov<unique_moving_atom_indices.size(); imov++) {
+		  std::cout << "now pre-reverse  moving atom[" << imov << "] is "
+			    << unique_moving_atom_indices[imov].index() << std::endl;
+	       }
+	    }
+
+	    // internal_reversed reversed_flag   action
+	    //      0                0             -
+	    //      0                1          complementary_indices
+	    //      1                0          complementary_indices
+	    //      1                1             -
+
+	    bool xor_reverse = reversed_flag ^ internal_reversed;
+	    if (xor_reverse) {
+	       unique_moving_atom_indices = complementary_indices(unique_moving_atom_indices,
+								  index2, index3);
+	       if (debug) {
+		  for (unsigned int imov=0; imov<unique_moving_atom_indices.size(); imov++) {
+		     std::cout << "now post-reverse  moving atom[" << imov << "] is "
+			       << unique_moving_atom_indices[imov].index() << std::endl;
+		  }
+	       }
+	    }
+
+	    unique_moving_atoms = unique_moving_atom_indices;
+	 }
+      }
+   }
+   
+   return unique_moving_atoms;
+
+}
+
 
 
 // Throw exception on unable to rotate atoms.

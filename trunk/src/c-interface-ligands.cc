@@ -1066,10 +1066,13 @@ void flip_ligand(int imol, const char *chain_id, int resno) {
 void jed_flip(int imol, const char *chain_id, int res_no, const char *ins_code,
 	      const char *atom_name, const char *alt_conf) {
 
-
    if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      std::string alt_conf_str(alt_conf);
+      std::string atom_name_str(atom_name);
       coot::residue_spec_t spec(chain_id, res_no, ins_code);
-      graphics_info_t::molecules[imol].jed_flip(spec, atom_name, alt_conf, graphics_info_t::Geom_p());
+      g.molecules[imol].jed_flip(spec, atom_name_str, alt_conf_str, g.Geom_p());
+      std::cout << "in c-interface-ligands() back from molecule jed_flip() " << std::endl;
    }
    graphics_draw();
 
