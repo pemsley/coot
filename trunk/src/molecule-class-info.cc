@@ -7336,6 +7336,8 @@ molecule_class_info_t::eigen_flip_residue(const std::string &chain_id, int resno
    return m;
 }
 
+// return non blank string on a problem (so that it can be written to the status bar)
+// 
 std::string
 molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 				const std::string &atom_name,
@@ -7406,7 +7408,7 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 
 	       try {
 		  coot::atom_tree_t tree(contact_indices, clicked_atom_idx, residue, alt_conf);
-		  jed_flip_internal(tree, interesting_torsions, atom_name, clicked_atom_idx);
+		  problem_string = jed_flip_internal(tree, interesting_torsions, atom_name, clicked_atom_idx);
 		  atom_sel.mol->FinishStructEdit();
 	       }
 	       catch (const std::runtime_error &rte) {
@@ -7423,32 +7425,54 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 }
 
 
-// private:
-void
+// return a non-null string on a problem
+// 
+std::string
 molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
 					 const std::vector<coot::dict_torsion_restraint_t> &interesting_torsions,
 					 const std::string &atom_name,
 					 int atom_idx) {
 
+   std::string problem_string;
    unsigned int selected_idx = 0;
    
    if (interesting_torsions.size() > 0) {
 
+      unsigned int best_fragment_size = 9999;
       if (interesting_torsions.size() > 1) {
 	 // select the best torsion based on fragment size.
+	 for (unsigned int i=0; i<interesting_torsions.size(); i++) {
+	    std::string atn_1 = interesting_torsions[i].atom_id_2_4c();
+	    std::string atn_2 = interesting_torsions[i].atom_id_3_4c();
+	    bool reverse = false; // dummy value
+	    
+	    std::pair<unsigned int, unsigned int> p = tree.fragment_sizes(atn_1, atn_2, reverse);
+	    if (p.first < best_fragment_size) {
+	       best_fragment_size = p.first;
+	       selected_idx = i;
+	    } 
+	    if (p.second < best_fragment_size) {
+	       best_fragment_size = p.second;
+	       selected_idx = i;
+	    } 
+	 }
       }
 
-      jed_flip_internal(tree, interesting_torsions[selected_idx], atom_name, atom_idx);
+      problem_string = jed_flip_internal(tree, interesting_torsions[selected_idx], atom_name, atom_idx);
    }
+   return problem_string;
 } 
 
 
-// private:
-void
+// return a non-null string on a problem
+// 
+std::string
 molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
 					 const coot::dict_torsion_restraint_t &torsion,
 					 const std::string &atom_name,
 					 int clicked_atom_idx) {
+
+   std::string problem_string;
 
    make_backup();
 
@@ -7462,22 +7486,29 @@ molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
       atn_2 = torsion.atom_id_2_4c();
    }
 
-   double angle = 360/torsion.periodicity();
-   
-   std::pair<unsigned int, unsigned int> p = tree.fragment_sizes(atn_1, atn_2, reverse);
+   int period = torsion.periodicity();
 
-   if (false) {  // debug
-      std::cout << "flip this torsion: " << torsion << std::endl;
-      std::cout << "DEBUG:: jed_flip_internal() fragment sizes: " << p.first << " " << p.second
-		<< std::endl;
+   if (period > 1) { 
+
+      double angle = 360/double(period);
+      std::pair<unsigned int, unsigned int> p = tree.fragment_sizes(atn_1, atn_2, reverse);
+
+      if (false) {  // debug
+	 std::cout << "flip this torsion: " << torsion << std::endl;
+	 std::cout << "DEBUG:: jed_flip_internal() fragment sizes: " << p.first << " " << p.second
+		   << std::endl;
+      }
+
+      if (p.first > p.second)
+	 reverse = true;
+
+      tree.rotate_about(atn_1, atn_2, angle, reverse);
+      have_unsaved_changes_flag = 1;
+   } else {
+      problem_string = "Torsion had a period of ";
+      problem_string += clipper::String(period).c_str();
    }
-
-   if (p.first > p.second)
-      reverse = true;
-
-   tree.rotate_about(atn_1, atn_2, angle, reverse);
-   have_unsaved_changes_flag = 1; 
-   
+   return problem_string;
 } 
 
 
