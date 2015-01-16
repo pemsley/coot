@@ -3593,7 +3593,7 @@ graphics_info_t::update_residue_by_chi_change(mmdb::Residue *residue,
 	    display_density_level_screen_string += float_to_string(new_torsion);
 	    add_status_bar_text(display_density_level_screen_string);
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    // std::cout << rte.what() << std::endl;
 	    int base_atom_index = 0;
 
@@ -3637,13 +3637,14 @@ graphics_info_t::update_residue_by_chi_change(mmdb::Residue *residue,
    return istat;
 }
 
-// this can throw an exception.
+// this can throw an std::runtime_error exception.
+// 
 std::pair<std::string, std::string>
 graphics_info_t::get_chi_atom_names(mmdb::Residue *residue,
 				    const coot::dictionary_residue_restraints_t &rest,
 				    int nth_chi) const {
 
-   std::pair<std::string, std::string> r(" CA ", " CB ");
+   std::pair<std::string, std::string> r(" CA ", " CB "); // PDBv3 FIXME
    int torsion_index = nth_chi -1;
    std::vector <coot::dict_torsion_restraint_t> torsion_restraints =
       rest.get_non_const_torsions(find_hydrogen_torsions_flag);

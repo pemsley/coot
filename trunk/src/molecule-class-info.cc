@@ -7348,6 +7348,108 @@ molecule_class_info_t::eigen_flip_residue(const std::string &chain_id, int resno
       replace_coords(make_asc(m.pcmmdbmanager()), 0, 1);
    }
    return m;
+}
+
+std::string
+molecule_class_info_t::jed_flip(coot::residue_spec_t &spec, const std::string &atom_name, const std::string &alt_conf,
+				coot::protein_geometry *geom) {
+
+   mmdb::Residue *residue = get_residue(spec);
+   if (! residue) {
+      std::cout << "WARNING:: no residue " << spec << " found in molecule" << std::endl;
+   } else {
+
+      // Does atom atom_name with given alt_conf exist in this residue?
+      mmdb::Atom *clicked_atom = 0;
+      int clicked_atom_idx = -1;
+      mmdb::PPAtom residue_atoms = 0;
+      int n_residue_atoms;
+      residue->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	 std::string an(residue_atoms[iat]->name);
+	 if (an == atom_name) {
+	    std::string ac(residue_atoms[iat]->altLoc);
+	    if (ac == alt_conf) {
+	       clicked_atom = residue_atoms[iat];
+	       clicked_atom_idx = iat;
+	       break;
+	    } 
+	 } 
+      }
+
+      if (! clicked_atom) {
+	 std::cout << "WARNING:: atom " << atom_name << " not found in residue " << std::endl;
+      } else { 
+      
+	 std::string monomer_type = residue->GetResName();
+
+	 std::pair<bool, coot::dictionary_residue_restraints_t> p =
+	    geom->get_monomer_restraints(monomer_type);
+   
+	 if (! p.first) {
+	    std::cout << "WARNING residue type " << monomer_type << " not found in dictionary" << std::endl;
+	 } else { 
+	    bool iht = false;  // include_hydrogen_torsions_flag
+	    std::vector<coot::dict_torsion_restraint_t> all_torsions = p.second.get_non_const_torsions(iht);
+	    std::vector<std::vector<std::string> > ring_atoms_sets = p.second.get_ligand_ring_list();
+	    std::vector<coot::dict_torsion_restraint_t> interesting_torsions;
+	    std::cout << "there are " << all_torsions.size() << " non-const torsions" << std::endl;
+	    for (unsigned int it=0; it<all_torsions.size(); it++) { 
+	       if (! all_torsions[it].is_ring_torsion(ring_atoms_sets)) {
+		  if (all_torsions[it].atom_id_2_4c() == atom_name)
+		     interesting_torsions.push_back(all_torsions[it]);
+		  if (all_torsions[it].atom_id_3_4c() == atom_name)
+		     interesting_torsions.push_back(all_torsions[it]);
+	       }
+	    }
+	    std::cout << "DEBUG:: there are "
+		      << interesting_torsions.size() << " interesting torsions on this atom "
+		      << atom_name << std::endl;
+
+	    if (interesting_torsions.size() > 0) { 
+	       try {
+		  coot::atom_tree_t tree(p.second, residue, alt_conf);
+		  jed_flip_internal(tree, interesting_torsions, clicked_atom_idx);
+	       } 
+	       catch (const std::runtime_error &rte) {
+		  std::cout << "RUNTIME ERROR:: " << rte.what() << std::endl;
+		  atom_selection_container_t residue_asc;
+		  // make a constructor?
+		  residue_asc.n_selected_atoms = n_residue_atoms;
+		  residue_asc.atom_selection = residue_atoms;
+		  residue_asc.mol = atom_sel.mol;
+		  coot::contact_info contact = coot::getcontacts(residue_asc, monomer_type, geom);
+		  std::vector<std::vector<int> > contact_indices =
+		     contact.get_contact_indices_with_reverse_contacts();
+
+		  try {
+		     coot::atom_tree_t tree(contact_indices, clicked_atom_idx, residue, alt_conf);
+		     std::cout << "no tree version " << std::endl;
+		     jed_flip_internal(tree, interesting_torsions, clicked_atom_idx);
+		  } 
+		  catch (const std::runtime_error &rte) {
+		     std::cout << "RUNTIME ERROR:: " << rte.what() << " - giving up" << std::endl;
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+} 
+
+
+// private:
+void
+molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
+					 const std::vector<coot::dict_torsion_restraint_t> &interesting_torsions,
+					 int clicked_atom_idx) {
+
+   if (interesting_torsions.size() > 0) {
+      std::cout << "interesting torsions: " << std::endl;
+      for (unsigned int it=0; it<interesting_torsions.size(); it++) { 
+	 std::cout << "    " << interesting_torsions[it] << std::endl;
+      }
+   }
 } 
 
 
