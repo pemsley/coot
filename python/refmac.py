@@ -277,7 +277,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
     data_lines = add_refmac_extra_params(std_lines, force_n_cycles)
 
     if (not extra_params_include_weight_p(data_lines)) :
-        data_lines.append("WEIGHT AUTO")
+        data_lines.append("WEIGHT AUTO 5")
 
     data_lines.append(labin_string)
 
