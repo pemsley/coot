@@ -2014,8 +2014,10 @@ else
    needed_gsl_version=1.15
    needed_gsl_version=1.16
 
-   # tmp value
+   # tmp value.  This uses awk.  It need not do.
+   # You can do the comparison with test.
    build_gsl=`awk -v A=$gsl_version -v N=$needed_gsl_version 'BEGIN{x = ((A+0) != (N+0)) ; print x}'`
+
    echo system/installation has the GSL version $gsl_version
    echo build_gsl is $build_gsl
 
@@ -2935,6 +2937,7 @@ fi
      LDFLAGS=-L$install_top_dir/lib \
      CPPFLAGS=-P \
      $extra_flags_for_debian
+
 # Multilib fix for procedures.txt
 echo =========== post-configure patching threads.doc ====================
 perl -pi -e 's|threads.doc||' `find . -name Makefile`
