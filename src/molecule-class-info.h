@@ -1105,15 +1105,17 @@ class molecule_class_info_t {
    // single model view
    int single_model_view_current_model_number;
 
-   void jed_flip_internal(coot::atom_tree_t &tree,
+   // return a non-null string on a problem
+   std::string jed_flip_internal(coot::atom_tree_t &tree,
 			  const std::vector<coot::dict_torsion_restraint_t> &interesting_torsions,
 			  const std::string &atom_name,
 			  int clicked_atom_idx);
 
-   void jed_flip_internal(coot::atom_tree_t &tree,
-			  const coot::dict_torsion_restraint_t &torsion,
-			  const std::string &atom_name,
-			  int clicked_atom_idx);
+   // return a non-null string on a problem
+   std::string jed_flip_internal(coot::atom_tree_t &tree,
+				 const coot::dict_torsion_restraint_t &torsion,
+				 const std::string &atom_name,
+				 int clicked_atom_idx);
    
    // ----------------------------------------------------------------------------------------
    // ----------------------------------------------------------------------------------------

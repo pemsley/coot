@@ -1071,7 +1071,10 @@ void jed_flip(int imol, const char *chain_id, int res_no, const char *ins_code,
       std::string alt_conf_str(alt_conf);
       std::string atom_name_str(atom_name);
       coot::residue_spec_t spec(chain_id, res_no, ins_code);
-      g.molecules[imol].jed_flip(spec, atom_name_str, alt_conf_str, g.Geom_p());
+      std::string problem_string = g.molecules[imol].jed_flip(spec, atom_name_str, alt_conf_str, g.Geom_p());
+      if (! problem_string.empty()) {
+	 add_status_bar_text(problem_string.c_str());
+      }
    }
    graphics_draw();
 
