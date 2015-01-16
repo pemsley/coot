@@ -1,6 +1,8 @@
  
  0.8.2
 
+   o Ctrl-Arrow keys on a residue should move just the given alt conf
+     atom set.
 
    o draw_generic_text() should have a user-setable font size.
 
@@ -10,14 +12,6 @@
      neighbours have RTops relative to this (do it by atom?)
 
 ----
-
-
-   o Make LSQ fit remember the previous settings - maybe use an Apply
-     and Close button.  - Lothar Esser
-
-   o Forget about pyrogen for the moment.
-
----
 
    o CSHL:
 
