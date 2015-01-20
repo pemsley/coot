@@ -1565,14 +1565,14 @@ on_skeleton_box_radius1_activate       (GtkMenuItem     *menuitem,
 {
   GtkWidget *widget;
   GtkWidget *entry; 
-  char *text; 
+  gchar *text; 
 
   widget = create_skeletonization_box_radius_window(); 
 
   text = get_text_for_skeleton_box_size_entry(); 
   entry = lookup_widget(widget, "skeleton_box_size_entry"); 
   gtk_entry_set_text(GTK_ENTRY(entry), text); 
-  free(text); 
+  g_free(text); 
   
 	/* show the widget */
   gtk_widget_show(widget); 
@@ -1586,7 +1586,7 @@ on_skeletonization_level1_activate     (GtkMenuItem     *menuitem,
 {
   GtkWidget *widget;
   GtkWidget *entry; 
-  char *text; 
+  gchar *text; 
   
   widget = create_skeletonization_level_window(); 
 
@@ -1595,7 +1595,7 @@ on_skeletonization_level1_activate     (GtkMenuItem     *menuitem,
   entry = lookup_widget(widget, "skeleton_level_entry"); 
   gtk_entry_set_text(GTK_ENTRY(entry), text); 
 
-  free(text); 
+  g_free(text); 
 				/* show the widget */
   gtk_widget_show(widget); 
 }

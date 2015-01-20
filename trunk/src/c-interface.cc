@@ -4648,7 +4648,7 @@ gchar *get_text_for_skeletonization_level_entry() {
 
    graphics_info_t g;
    gchar *txt = (gchar *)malloc(10); 
-   snprintf(txt, 9, "%f", g.skeleton_level); 
+   g_snprintf(txt, 9, "%f", g.skeleton_level); 
 
    return txt; 
 } 
@@ -4685,7 +4685,7 @@ gchar *get_text_for_skeleton_box_size_entry() {
    graphics_info_t g;
    gchar *txt = (gchar *)malloc(10); 
 
-   snprintf(txt, 9, "%f", g.skeleton_box_radius); 
+   g_snprintf(txt, 9, "%f", g.skeleton_box_radius); 
    return txt;
 } 
 
