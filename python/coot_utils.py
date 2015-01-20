@@ -3856,8 +3856,13 @@ def get_windows_drives():
                 drives.append(letter + ":\\")
             bitmask >>= 1
     except:
-        print "BL WARNING couldnt import windll! Need to find another way to find drives then. For now set to C:!"
-        drives = ["C:\\"]
+        import string
+        # poor man's version but simple
+        #print "BL INFO:: couldnt import ctypes, using simple version to get drives."
+        drives = []
+        for letter in string.lower:
+            if os.path.isdir(c + ":"):
+                drives.append(letter + ":\\")
         
     return drives
 
