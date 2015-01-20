@@ -10,7 +10,7 @@
 #
 # set this to "no" if you don't want to compile the pre-release code.
 # build_coot_prerelease=
-build_coot_prerelease=${1:=1}
+build_coot_prerelease=${1:-1}
 if [ -e /z/make_stable_build ] ; then
   build_coot_prerelease=0
 fi
@@ -18,11 +18,6 @@ if [ -z "$build_coot_prerelease" ] ; then
   build_coot_prerelease=0
 fi
 
-if [ $build_coot_prerelease == 0 ] ; then 
-  echo building stable installer
-else
-  echo building pre-release installer
-fi
 #
 BINARY_DIR=/c/msys/home/bernhard/public_html/software/binaries/nightlies/pre-release
 PRE_BINARY_DIR=/c/msys/home/bernhard/public_html/software/binaries/nightlies/pre-release
@@ -99,7 +94,13 @@ build_cycle=0
 minor_build_cycle=0
 build_installer=0
 (
-echo starting in brackets
+
+if [ $build_coot_prerelease == 0 ] ; then 
+  echo building stable installer
+else
+  echo building pre-release installer
+fi
+
 while [ $coot_version_status != 0 ]
 do
   # build a python version
