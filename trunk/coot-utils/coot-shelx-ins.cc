@@ -1595,6 +1595,7 @@ coot::ShelxIns::get_sfac_index(const std::string &element) const {
    }
 
    int indx = -1;
+   // std::cout << "in get_sfac_index() for :" << ele << ": sfac.size() is " << sfac.size() << std::endl;
    for (unsigned int i=0; i<sfac.size(); i++) {
       // std::cout << "comparing :" << ele << ": :" << sfac[i] << ":\n";
       if (ele == sfac[i]) {
@@ -1607,7 +1608,9 @@ coot::ShelxIns::get_sfac_index(const std::string &element) const {
 
 // do redundancy checking.
 void
-coot::ShelxIns::add_sfac(const std::string &ele) {
+coot::ShelxIns::add_sfac(const std::string &ele_in) {
+
+   std::string ele=util::remove_leading_spaces(ele_in);
 
    bool found = false;
    for (unsigned int i=0; i<sfac.size(); i++) {
