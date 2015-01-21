@@ -127,7 +127,7 @@ namespace coot {
 	 if (trace_id < 0) { 
 	    return false;
 	 } else {
-	    if (trace_id >= traces.size()) {
+	    if (trace_id >= int(traces.size())) {
 	       return false;
 	    } else {
 	       return true;

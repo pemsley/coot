@@ -807,7 +807,7 @@ coot::goograph::plot_smoothed_line_graph(int trace_id) {
       bool dashed = traces[trace_id].dashed;
       if (data.size()) { 
 	 GooCanvasItem *root = goo_canvas_get_root_item(canvas);
-	 int n_points = data.size();
+	 unsigned int n_points = data.size();
 	 std::string path_data;
 	 for (unsigned int i=0; i<data.size(); i++) {
 	    lig_build::pos_t p(data[i].first, data[i].second);
