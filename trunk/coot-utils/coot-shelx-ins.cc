@@ -1228,7 +1228,7 @@ coot::ShelxIns::write_synthetic_pre_atom_lines(mmdb::Manager *mol,
 	       std::cout << "----------- debug:: cell_sg.second.num_inversion_symops() " << cell_sg.second.num_inversion_symops()
 			 << std::endl;
 		  std::cout << "Here are the inversion symops: " << std::endl;
-		  for (unsigned int ii=0; ii<cell_sg.second.num_inversion_symops(); ii++) {
+		  for (int ii=0; ii<cell_sg.second.num_inversion_symops(); ii++) {
 		     std::cout << "---------------- " << ii << " "
 			       << util::Upper(cell_sg.second.inversion_symop(ii).format()) << std::endl;
 		  }
@@ -1240,7 +1240,7 @@ coot::ShelxIns::write_synthetic_pre_atom_lines(mmdb::Manager *mol,
 		  latt = -latt;
 	    }
 	    f << "LATT " << latt << "\n";
-	    for (unsigned int isym=1; isym<cell_sg.second.num_primitive_symops(); isym++) { 
+	    for (int isym=1; isym<cell_sg.second.num_primitive_symops(); isym++) { 
 	       f << "SYMM " << util::Upper(cell_sg.second.primitive_symop(isym).format()) << "\n";
 	    }
 	    f << "\n";

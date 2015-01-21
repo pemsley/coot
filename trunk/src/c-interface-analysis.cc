@@ -80,7 +80,7 @@ void hole(int imol, float start_x, float start_y, float start_z, float end_x, fl
 
       std::string text;
       double path_length = sqrt((p_1-p_2).lengthsq());
-      int n = hole_path_and_surface.first.size();
+      unsigned int n = hole_path_and_surface.first.size();
       for (unsigned int i=0; i<n; i++) {
 	 double f = path_length * double(i)/double(n);
 	 std::string line;
@@ -109,6 +109,15 @@ void hole(int imol, float start_x, float start_y, float start_z, float end_x, fl
       if (show_probe_radius_graph_flag)
 	 show_hole_probe_radius_graph(hole_path_and_surface.first, path_length);
 
+
+      bool export_map = true;
+      if (export_map) {
+	 int imol_map = imol_refinement_map();
+	 if (is_valid_map_molecule(imol_map)) { 
+	    const clipper::Xmap<float> &ref_map = g.molecules[imol_map].xmap;
+	    hole.carve_a_map(hole_path_and_surface.first, ref_map, "hole.map");
+	 }
+      } 
    }
 }
 
@@ -151,7 +160,7 @@ void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coo
    // graph needs to be realized before gtk_graph_trace_new()
    // returns a useful result.
    int trace = gtk_graph_trace_new(GTK_GRAPH(graph));
-   int n = hole_path.size();
+   unsigned int n = hole_path.size();
    gfloat *x = (gfloat *) malloc (n * sizeof(gfloat));
    gfloat *y = (gfloat *) malloc (n * sizeof(gfloat));
    for (unsigned int i=0; i<n; i++) {
@@ -184,7 +193,7 @@ void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper:
       coot::goograph* g = new coot::goograph;
       int trace = g->trace_new();
       std::vector<std::pair<double, double> > data;
-      int n = hole_path.size();
+      unsigned int n = hole_path.size();
       for (unsigned int i=0; i<n; i++) {
 	 double x, y;
 	 x = path_length * double(i)/double(n);

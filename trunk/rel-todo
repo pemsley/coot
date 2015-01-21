@@ -1,52 +1,57 @@
  
  0.8.2
+   o Add a user function to return mean, median, min, max, skew, kurtosis
+     and optionally histogram of map density values.
+      --- Alejandro Virrueta
 
-   o Ctrl-Arrow keys on a residue should move just the given alt conf
-     atom set.
+   o I noticed when adjusting the 'bond colours' using the slider in
+     'Edit/Bond Colours...' when an molecule (>1 chain) is 'coloured
+     by chain') with activated check mark 'Change colours for Carbons
+     only' only the colours of the first chain (chain A) can be
+     adjusted, the remaining chain(s) remain unchanged. In contrast,
+     this is not observed when 'Change colours for Carbons only' is
+     not ticked. I can't believe this is intentional?
+        - Christoph Parthier
+
+   o I've noticed that disulfide bonds are not drawn when color by
+     chain is activated in the Display Manager window. Changing
+     back to color by atoms restored disulfide bonds drawing. Probably a
+     bug or feature not sure. Just wanted to let you know.
+
+	- Donald Damian
+
+   o in Jones' Rainbow hetgroups should be yellow (or grey?)
+
+   o in Jones' Rainbow for 2hvs, why can't I pick D125? (because it
+     doesn't have a P)
+
+   o Validate menu checking for probe/reduce. Do it only once.
+
+   o a nice function - for ligand presentation (and rendering) is to
+     find the screen centre and view quaternion that orients the ligand
+     nicely. Puntable.
 
    o draw_generic_text() should have a user-setable font size.
 
    o Does Acedrg get A3D correct?  (libcheck does not)  A3D in 4ND2
 
-   o Region morph.  I have control over the central residue and the
-     neighbours have RTops relative to this (do it by atom?)
-
-----
+   o in CA + Ligands mode with Hydrogen atoms off: the hydrogen atoms
+     are still displayed on the ligand: 
+      -- Alex Wlodawer
 
    o CSHL:
-
-       * key-binding for rock (Ctrl-R?)
 
        * Scaling of density fit analysis with very fine grid
 
        * Return should accept in Rotamer mode
     
-       * Anti-submarine Unmodelled blobs -> no blobs
-
        * Try Ramachandran restraints with hydrogen atoms, look at
          clash score, low resolution maps
 
-   o when back home, check that we can update from glade-2
-     coot-gtk2.glade with the changed post-gtk2-glade.sh
-
-   o with-enhanced-ligand tools 
- 
-   o in CA + Ligands mode with Hydrogen atoms off: the hydrogen atoms
-     are still displayed on the ligand: 
-
-      -- Alex Wlodawer
-
-   o when you move a licorice model it goes ball-and-stick. Fix.
-
-      -- JED
-
-   o compile rdkit with inchi support. Test. Write to restriants. 
 
    o compile a coot without python
 
    o Torsion fit this residue pyrogen-I79.pdb in 3rvb
-
-   o Check this ligand
 
    o Try glyco tree builder 528 on 4lxr. 
 
@@ -54,128 +59,38 @@
 
 * Nasty - and interesting.
 
-   o a nice function - for ligand presentation (and rendering) is to
-     find the screen centre and view quaternion that orients the ligand
-     nicely. Puntable.
-
    o reading a pdbfile that is a directory causes mmdb2 to hang?
-
-   o fix the alerts on importing mol/residue -> 2d
-
-* Done
 
    o jiggle fit leaves behind atoms that have zero occupancy? 
      e.g. jiggle-fit the acedrg output of Acedrg on I79.cif in 3rvb
 
-* Done.
 
-   o make check should run cleanly. Add it to build-for-release.
+------
 
-* Done
+   o compile rdkit with inchi support. Test. Write to restriants. 
+Punt
 
-   o compile a coot without guile-gtk
+   o Ctrl-Arrow keys on a residue should move just the given alt conf
+     atom set.
+Punt
 
-* Done.
+   o Region morph.  I have control over the central residue and the
+     neighbours have RTops relative to this (do it by atom?)
+Punt.
 
-   o how do I turn off generalization in mogul?
-
-     CONFIG SEARCH ALL GENERALISATION OFF
-   
-* Done in gui-mogul.scm
-
-
-   o Coot crashes on using the About dialog
-
-* Can't reproduce
-
-   Mark Saper on a Mac (no guile-gtk):
-
-1. Upon exiting Coot I receive these lines in the terminal output.  The window asking about clearing backups is never shown.
-
-    ...
-    (coot-checked-exit 0)
-    (clear-backups-maybe)
-    ((safe_scheme_command) Error in proc: key:  unbound-variable  args:  (#f Unbound variable: ~S (gtk-window-new) #f))
-    WARNING:: (clear-backups-maybe) returns object: #<unspecified>
-    (stereo-mode-state)
-    (stereo-mode-state)
-    (save-state)
-
-   Mark Saper
-
-* Done
-
-   o I79 short bonds to H18,H19 from N3
-
-* Done
-
-   o dictionary bonds:  I79 Do we have these ones:
-
-INFO:: falling back to permissive search for bond CR56 S2
-INFO:: falling back to permissive search for bond CR6 CL
-INFO:: falling back to permissive search for bond CH2 NR5
-INFO:: falling back to permissive search for bond CR6 NH2
-INFO:: falling back to permissive search for bond CR6 NH2
-INFO:: falling back to permissive search for bond C OC
-INFO:: falling back to permissive search for bond C OC
-INFO:: falling back to permissive search for bond CR5 S2
-INFO:: falling back to permissive search for bond HNC2 NH2
-INFO:: falling back to permissive search for bond HNC2 NH2
-INFO:: falling back to permissive search for bond HNC2 NH2
-INFO:: falling back to permissive search for bond HNC2 NH2
-INFO:: falling back to permissive search for bond HOH1 OC
-
-
-   o make a minimol of oliver-clarke test.  Does it get all the chains?
+   o EL Coot should use pyrogen if mogul is available.
 
 * Done.
 
+   o when you move a licorice model it goes ball-and-stick. Fix.
 
-   o Not running test (the default?) - gives test failure message?  It
-     shouldn't.
-
-* Done.
-
-   o remove all references to MMDB_MAJOR_VERSION
+      -- JED
 
 * Done.
 
+   o when back home, check that we can update from glade-2
+     coot-gtk2.glade with the changed post-gtk2-glade.sh
 
-   o add-terminal-residue-by-phi-psi should allow me to add to a
-     singleton (add to the C-terminus)
+ * Done.
 
-* Done.
-
-   o make drag elasticity as user-settable parameter - Oliver Clarke.
-
-* Done.
-
-
-   o The dialogs that you get after Validate -> Check/Delete waters
-     should be transients.
-
-* Done.
-
-   o Fix the python-only template keybindings
-
-* Done.
-
-   o Lothar Esser:
-
-         Fix the map selector: (Home project)
-  
-     Example: In phenix I use anomalous_flag= None (or True ) which
-     triggers the calculation of anomalous map coefficients. So you
-     have ANOM and PANOM columns.  I open the mtz file (here called
-     current.mtz) and select ANOM and PANOM and set the resolution to
-     a lower value: In display manager I get:
-
-     3 current.mtz ANOM PANOM 18.00 5.00    <-- good and short.
-
-     In "Map" to be selected I get this:
-     3 /home/dxlab/esser/Project/xxx/xxxx/Crystals/Y104a/139B_A41/Refine/current.mtz /crystal/Fourier-map-coefficients/ANOM /crystal/Fourier-map-coefficients/PANOM 18.00 5.00
-
-     This seems a bit long. For me, the display manager entry would suffice.
-
-* Done.
 

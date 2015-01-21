@@ -1107,15 +1107,17 @@ class molecule_class_info_t {
 
    // return a non-null string on a problem
    std::string jed_flip_internal(coot::atom_tree_t &tree,
-			  const std::vector<coot::dict_torsion_restraint_t> &interesting_torsions,
-			  const std::string &atom_name,
-			  int clicked_atom_idx);
+				 const std::vector<coot::dict_torsion_restraint_t> &interesting_torsions,
+				 const std::string &atom_name,
+				 int clicked_atom_idx,
+				 bool invert_selection);
 
    // return a non-null string on a problem
    std::string jed_flip_internal(coot::atom_tree_t &tree,
 				 const coot::dict_torsion_restraint_t &torsion,
 				 const std::string &atom_name,
-				 int clicked_atom_idx);
+				 int clicked_atom_idx,
+				 bool invert_selection);
    
    // ----------------------------------------------------------------------------------------
    // ----------------------------------------------------------------------------------------
@@ -3027,6 +3029,7 @@ public:        //                      public
 
    // return value is an error string that we can put in the status bar
    std::string jed_flip(coot::residue_spec_t &spec, const std::string &atom_name, const std::string &alt_conf,
+			bool invert_selection,
 			coot::protein_geometry *geom);
 
    // replace molecule

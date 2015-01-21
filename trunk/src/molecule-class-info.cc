@@ -7342,6 +7342,7 @@ std::string
 molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 				const std::string &atom_name,
 				const std::string &alt_conf,
+				bool invert_selection,
 				coot::protein_geometry *geom) {
 
    std::string problem_string;
@@ -7383,40 +7384,46 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 	 } else { 
 	    bool iht = false;  // include_hydrogen_torsions_flag
 	    std::vector<coot::dict_torsion_restraint_t> all_torsions = p.second.get_non_const_torsions(iht);
-	    std::vector<std::vector<std::string> > ring_atoms_sets = p.second.get_ligand_ring_list();
-	    std::vector<coot::dict_torsion_restraint_t> interesting_torsions;
-	    for (unsigned int it=0; it<all_torsions.size(); it++) { 
-	       if (! all_torsions[it].is_ring_torsion(ring_atoms_sets)) {
-		  if (all_torsions[it].atom_id_2_4c() == atom_name)
-		     interesting_torsions.push_back(all_torsions[it]);
-		  if (all_torsions[it].atom_id_3_4c() == atom_name)
-		     interesting_torsions.push_back(all_torsions[it]);
+
+	    if (all_torsions.size() == 0) {
+	       problem_string = "There are no non-CONST torsions for this residue type";
+	    } else { 
+	       std::vector<std::vector<std::string> > ring_atoms_sets = p.second.get_ligand_ring_list();
+	       std::vector<coot::dict_torsion_restraint_t> interesting_torsions;
+	       for (unsigned int it=0; it<all_torsions.size(); it++) { 
+		  if (! all_torsions[it].is_ring_torsion(ring_atoms_sets)) {
+		     if (all_torsions[it].atom_id_2_4c() == atom_name)
+			interesting_torsions.push_back(all_torsions[it]);
+		     if (all_torsions[it].atom_id_3_4c() == atom_name)
+			interesting_torsions.push_back(all_torsions[it]);
+		  }
 	       }
-	    }
 
-	    if (interesting_torsions.size() > 0) {
+	       if (interesting_torsions.size() == 0) {
+		  problem_string = "There are no non-CONST non-ring torsions for this atom";
+	       } else { 
 
-	       // make a constructor?
-	       atom_selection_container_t residue_asc;
-	       residue_asc.n_selected_atoms = n_residue_atoms;
-	       residue_asc.atom_selection = residue_atoms;
-	       residue_asc.mol = 0;
+		  // make a constructor?
+		  atom_selection_container_t residue_asc;
+		  residue_asc.n_selected_atoms = n_residue_atoms;
+		  residue_asc.atom_selection = residue_atoms;
+		  residue_asc.mol = 0;
 	       
-	       coot::contact_info contact = coot::getcontacts(residue_asc, monomer_type, geom);
-	       std::vector<std::vector<int> > contact_indices =
-		  contact.get_contact_indices_with_reverse_contacts();
+		  coot::contact_info contact = coot::getcontacts(residue_asc, monomer_type, geom);
+		  std::vector<std::vector<int> > contact_indices =
+		     contact.get_contact_indices_with_reverse_contacts();
 
-	       try {
-		  coot::atom_tree_t tree(contact_indices, clicked_atom_idx, residue, alt_conf);
-		  problem_string = jed_flip_internal(tree, interesting_torsions, atom_name, clicked_atom_idx);
-		  atom_sel.mol->FinishStructEdit();
+		  try {
+		     coot::atom_tree_t tree(contact_indices, clicked_atom_idx, residue, alt_conf);
+		     problem_string = jed_flip_internal(tree, interesting_torsions,
+							atom_name, clicked_atom_idx, invert_selection);
+		     atom_sel.mol->FinishStructEdit();
+		  }
+		  catch (const std::runtime_error &rte) {
+		     std::cout << "RUNTIME ERROR:: " << rte.what() << " - giving up" << std::endl;
+		  }
+		  make_bonds_type_checked();
 	       }
-	       catch (const std::runtime_error &rte) {
-		  std::cout << "RUNTIME ERROR:: " << rte.what() << " - giving up" << std::endl;
-	       }
-
-	       make_bonds_type_checked();
-
 	    }
 	 }
       }
@@ -7431,7 +7438,8 @@ std::string
 molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
 					 const std::vector<coot::dict_torsion_restraint_t> &interesting_torsions,
 					 const std::string &atom_name,
-					 int atom_idx) {
+					 int atom_idx,
+					 bool invert_selection) {
 
    std::string problem_string;
    unsigned int selected_idx = 0;
@@ -7458,7 +7466,8 @@ molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
 	 }
       }
 
-      problem_string = jed_flip_internal(tree, interesting_torsions[selected_idx], atom_name, atom_idx);
+      problem_string = jed_flip_internal(tree, interesting_torsions[selected_idx],
+					 atom_name, atom_idx, invert_selection);
    }
    return problem_string;
 } 
@@ -7470,13 +7479,16 @@ std::string
 molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
 					 const coot::dict_torsion_restraint_t &torsion,
 					 const std::string &atom_name,
-					 int clicked_atom_idx) {
+					 int clicked_atom_idx,
+					 bool invert_selection) {
 
    std::string problem_string;
 
    make_backup();
 
    bool reverse = false;
+   if (invert_selection)
+      reverse = true;
 
    std::string atn_1 = torsion.atom_id_2_4c();
    std::string atn_2 = torsion.atom_id_3_4c();
@@ -7500,7 +7512,7 @@ molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
       }
 
       if (p.first > p.second)
-	 reverse = true;
+	 reverse = !reverse;
 
       tree.rotate_about(atn_1, atn_2, angle, reverse);
       have_unsaved_changes_flag = 1;
