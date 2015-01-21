@@ -1096,7 +1096,14 @@ coot::ShelxIns::write_ins_file(mmdb::Manager *mol_in,
    if (!have_cell_flag) { // Need cell for orth->frac convertion for atoms
       have_cell_flag = try_assign_cell(mol_in);
    }
-   return write_ins_file_internal(mol_in, filename, mol_is_from_shelx_ins);
+   if (mol_is_from_shelx_ins) { 
+      mmdb::Manager *mol = reshelx(mol_in);
+      std::pair<int, std::string> r = write_ins_file_internal(mol, filename, mol_is_from_shelx_ins);
+      delete mol;
+      return r;
+   } else {
+      return write_ins_file_internal(mol_in, filename, mol_is_from_shelx_ins);
+   } 
 }
 
 void
@@ -1309,13 +1316,12 @@ coot::ShelxIns::get_atomic_contents(mmdb::Manager *mol) const {
 // 
 // mol_is_from_shelx_ins is a default argument (false).
 std::pair<int, std::string>
-coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol_in,
+coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol,
 					const std::string &filename,
 					bool mol_is_from_shelx_ins) {
 
    int istat = 0;
    std::string message;
-   mmdb::Manager *mol = reshelx(mol_in);
 
    int udd_riding_atom_negative_u_value_handle_local = mol->GetUDDHandle(mmdb::UDR_ATOM, "riding_atom_negative_u");
 
@@ -1361,6 +1367,9 @@ coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol_in,
 	    // run over chains of the existing mol
 	    int nchains = model_p->GetNumberOfChains();
 	    for (int ichain=0; ichain<nchains; ichain++) {
+	       int resno_offset = 0;
+	       if (! mol_is_from_shelx_ins)
+		  resno_offset = ichain * 1000;  // fake an offset
 	       chain_p = model_p->GetChain(ichain);
 	       if (chain_p == NULL) {  
 		  // This should not be necessary. It seem to be a
@@ -1380,13 +1389,14 @@ coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol_in,
 			   f <<  "RESI ";
 			   // format to look like shelx resi:
 			   int resno = residue_p->GetSeqNum();
-			   if (resno < 1000)
+			   int resno_out = resno + resno_offset;
+			   if (resno_out < 1000)
 			      f << " ";
-			   if (resno < 100)
+			   if (resno_out < 100)
 			      f << " ";
-			   if (resno < 10)
+			   if (resno_out < 10)
 			      f << " ";
-			   f << resno << "   " << residue_p->GetResName() << "\n";
+			   f << resno_out << "   " << residue_p->GetResName() << "\n";
 			}
 			catch (const std::ios::failure &e) { 
 			   std::cout << "WARNING:: IOS exception caught on RESI start "
@@ -1541,7 +1551,6 @@ coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol_in,
 		<< std::endl;
       message = "WARNING:: no cell available... failure to write ins file.";
    }
-   delete mol;
    return std::pair<int, std::string>(istat, message);
 }
 
