@@ -194,7 +194,7 @@
 			     "NO" "PREP"))
 	     (status 
 	      (goosh-command *cprodrg*
-			     (list "XYZIN"  prodrg-xyzin
+			     (list "XYZIN"  prodrg-xyzin ;; this is global
 				   "XYZOUT" prodrg-xyzout
 				   "LIBOUT" prodrg-cif)
 			     (list (string-append "MINI " mini-mode) "END")

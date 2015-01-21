@@ -42,22 +42,25 @@
 
     (begin
 
-;      (set! import-from-3d-generator-from-mdl 
-;	    (lambda (mdl-file-name comp-id)
+      ;; Use pyrogen if we have mogul
+      ;; 
+      (if *use-mogul*
+	  (set! import-from-3d-generator-from-mdl 
+		(lambda (mdl-file-name comp-id)
 
-;	      (let ((status (goosh-command
-;			     "pyrogen"
-;			     (list "--mol" mdl-file-name "--residue-type" comp-id)
-;			     '()
-;			     (string-append "pyrogen-" comp-id ".log")
-;			     #f)))
-;		(format #t "goosh status for pyrogen: ~s~%" status)
-;		(if (ok-goosh-status? status)
-;		    (let ((pdb-name (string-append comp-id "-pyrogen.pdb"))
-;			  (cif-name (string-append comp-id "-pyrogen.cif")))
-		      
-;		      (read-pdb pdb-name)
-;		      (read-cif-dictionary cif-name))))))
+		  (let ((status (goosh-command
+				 "pyrogen"
+				 (list "--mol" mdl-file-name "--residue-type" comp-id)
+				 '()
+				 (string-append "pyrogen-" comp-id ".log")
+				 #f)))
+		    (format #t "goosh status for pyrogen: ~s~%" status)
+		    (if (ok-goosh-status? status)
+			(let ((pdb-name (string-append comp-id "-pyrogen.pdb"))
+			      (cif-name (string-append comp-id "-pyrogen.cif")))
+			  
+			  (read-pdb pdb-name)
+			  (read-cif-dictionary cif-name)))))))
 
       (if (defined? 'coot-main-menubar)
 	  (let ((menu (coot-menubar-menu "Ligand")))
