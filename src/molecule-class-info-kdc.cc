@@ -52,6 +52,8 @@ molecule_class_info_t::export_map_fragment(float radius,
       clipper::Grid_sampling grid = xmap.grid_sampling();
 
       // get grid range
+      // gr0: a grid range of the correct size (at the origin)
+      // gr1: a grid range of the correct size (around the correct place, comg)
       clipper::Grid_range gr0(cell, grid, radius);
       clipper::Grid_range gr1(gr0.min() + comg.coord_frac(cell).coord_grid(grid),
 			      gr0.max() + comg.coord_frac(cell).coord_grid(grid));

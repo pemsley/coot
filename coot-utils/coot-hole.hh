@@ -1,6 +1,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "clipper/core/coords.h"
+#include "clipper/core/nxmap.h"
 
 #include "utils/coot-utils.hh"
 #include "geometry/protein-geometry.hh"
@@ -69,8 +70,18 @@ namespace coot {
 	 if (c.green > 1.0)
 	    c.green = 1.0;
 	 return c;
-      } 
-      
+      }
+
+      // for generating a map, return (min_x, min_y_min_z), (max_x,
+      // max_y, max_z) for the points in the path
+      // 
+      std::pair<clipper::Coord_orth, clipper::Coord_orth>
+      get_min_and_max(const std::vector<std::pair<clipper::Coord_orth, double> > &probe_path) const;
+
+      void mask_around_coord(const clipper::Coord_orth &co, float atom_radius,
+			     clipper::Xmap<float> *xmap) const;
+
+
    public:
       hole(mmdb::Manager *mol, 
 	   const clipper::Coord_orth &from_pt,
@@ -85,7 +96,13 @@ namespace coot {
       void set_colour_shift(float colour_map_multiplier_in, float colour_map_offset_in) {
 	 colour_map_multiplier = colour_map_multiplier_in;
 	 colour_map_offset = colour_map_offset_in;
-      } 
+      }
+      clipper::NXmap<float> carve_a_map(const std::vector<std::pair<clipper::Coord_orth, double> > &probe_path,
+					const std::string &file_name) const;
+      clipper::Xmap<float> carve_a_map(const std::vector<std::pair<clipper::Coord_orth, double> > &probe_path,
+				       const clipper::Xmap<float> &xmap_ref,
+				       const std::string &file_name) const;
+      
    };
 }
      

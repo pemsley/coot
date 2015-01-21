@@ -1064,14 +1064,16 @@ void flip_ligand(int imol, const char *chain_id, int resno) {
 }
 
 void jed_flip(int imol, const char *chain_id, int res_no, const char *ins_code,
-	      const char *atom_name, const char *alt_conf) {
+	      const char *atom_name, const char *alt_conf, short int invert_selection) {
 
    if (is_valid_model_molecule(imol)) {
+      bool invert_selection_flag = invert_selection;
       graphics_info_t g;
       std::string alt_conf_str(alt_conf);
       std::string atom_name_str(atom_name);
       coot::residue_spec_t spec(chain_id, res_no, ins_code);
-      std::string problem_string = g.molecules[imol].jed_flip(spec, atom_name_str, alt_conf_str, g.Geom_p());
+      std::string problem_string = g.molecules[imol].jed_flip(spec, atom_name_str, alt_conf_str, 
+							      invert_selection_flag, g.Geom_p());
       if (! problem_string.empty()) {
 	 add_status_bar_text(problem_string.c_str());
       }
