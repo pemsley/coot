@@ -1,5 +1,9 @@
  
  0.8.2
+
+   o Put Export map and map fragment under File.
+            -- Andrea T
+
    o Add a user function to return mean, median, min, max, skew, kurtosis
      and optionally histogram of map density values.
       --- Alejandro Virrueta

@@ -414,7 +414,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 		<< plane_restraint.size() << " " << r.plane_restraint.size()
 		<< std::endl;
    bool planes_match = false;
-   int n_planes_matched = 0;
+   unsigned int n_planes_matched = 0;
    for (unsigned int i=0; i<plane_restraint.size(); i++) {
       bool matched_this_plane = false;
       for (unsigned int j=0; j<r.plane_restraint.size(); j++) {
@@ -592,12 +592,16 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 std::pair<unsigned int, coot::dictionary_residue_restraints_t>
 coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary_residue_restraints_t &ref,
 							  mmdb::Residue *residue_p,
-							  const std::string &new_comp_id_in) const {
+							  const std::string &new_comp_id_in,
+							  const std::string &new_compound_name) const {
    dictionary_residue_restraints_t dict = *this;
    bool debug = false;
    typedef std::pair<std::string, std::string> SP;
    std::vector<SP> change_name;
    std::vector<std::string> same_name;
+
+
+   std::cout << "--------------- in match_to_reference with new_comp_id_in " << new_comp_id_in << std::endl;
 
    std::string new_comp_id = new_comp_id_in;
    if (new_comp_id == "auto")
@@ -713,7 +717,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 	    // also header info.
 	    dict.residue_info.comp_id           = new_comp_id;
 	    dict.residue_info.three_letter_code = new_comp_id;
-	    dict.residue_info.name              = ref.residue_info.name;  // possibly wrong
+	    dict.residue_info.name              = new_compound_name;
 	    dict.residue_info.group             = ref.residue_info.group; // probably right.
 
 	    // do any of the target (to) names exist in dict already?  If so,
@@ -753,7 +757,7 @@ coot::dictionary_residue_restraints_t::change_names(mmdb::Residue *residue_p,
       mmdb::PPAtom res_selection = NULL;
       int num_residue_atoms;
       residue_p->GetAtomTable(res_selection, num_residue_atoms);
-      for (unsigned int iat=0; iat<num_residue_atoms; iat++) {
+      for (int iat=0; iat<num_residue_atoms; iat++) {
 	 mmdb::Atom *at = res_selection[iat];
 	 std::string atom_name = at->name;
 	 for (unsigned int j=0; j<change_name.size(); j++) { 

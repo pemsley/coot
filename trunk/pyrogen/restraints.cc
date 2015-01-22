@@ -156,7 +156,7 @@ coot::match_restraints_to_amino_acids(const coot::dictionary_residue_restraints_
       std::pair<bool, dictionary_residue_restraints_t> rest = pg.get_monomer_restraints(comp_ids[i]);
       if (rest.first) {
 	 std::pair<unsigned int, dictionary_residue_restraints_t> r_new =
-	    restraints.match_to_reference(rest.second, NULL, out_comp_id);
+	    restraints.match_to_reference(rest.second, NULL, out_comp_id, out_comp_id);
 	 std::cout << "Using " << comp_ids[i] << " found " << r_new.first << " matches" << std::endl;
 	 if (r_new.first > best_n_matches) {
 	    best_n_matches = r_new.first;
@@ -169,7 +169,7 @@ coot::match_restraints_to_amino_acids(const coot::dictionary_residue_restraints_
       returned_res = util::deep_copy_this_residue(residue_p);
       std::pair<bool, dictionary_residue_restraints_t> rest = pg.get_monomer_restraints(best_comp_id);
       std::pair<unsigned int, dictionary_residue_restraints_t> r_new =
-	 restraints.match_to_reference(rest.second, returned_res, out_comp_id);
+	 restraints.match_to_reference(rest.second, returned_res, out_comp_id, out_comp_id);
       returned_dict = r_new.second;
    } 
    return std::pair<mmdb::Residue *, coot::dictionary_residue_restraints_t> (returned_res, returned_dict);

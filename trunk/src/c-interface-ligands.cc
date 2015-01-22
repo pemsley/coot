@@ -544,7 +544,7 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
 			     std::string cif_dict_comp_id,
 			     std::string reference_comp_id,
 			     std::string output_comp_id,
-			     std::string output_comp_id_name) {
+			     std::string output_compound_name) {
 
    int result = 0;
 
@@ -567,14 +567,15 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
 	       // << rp_2.second.residue_info.comp_id << " to "
 	       // << rp_1.second.residue_info.comp_id << " names" << std::endl;
 	       std::pair<unsigned int, coot::dictionary_residue_restraints_t> new_dict =
-		  rp_2.second.match_to_reference(rp_1.second, residue_p, output_comp_id_name);
-	       if (new_dict.first > 0) { 
+		  rp_2.second.match_to_reference(rp_1.second, residue_p, output_comp_id,
+						 output_compound_name);
+	       if (new_dict.first > 0) {
 		  new_dict.second.residue_info.comp_id = output_comp_id;
-		  new_dict.second.residue_info.name =    output_comp_id_name;
+		  new_dict.second.residue_info.name = output_compound_name;
 		  new_dict.second.write_cif(cif_dict_out);
 	       } else {
 		  std::cout << "INFO:: not similar enough" << std::endl;
-	       } 
+	       }
 	    } else {
 	       std::cout << " not bonds from " << cif_dict_in << std::endl;
 	    }
@@ -615,7 +616,8 @@ match_this_residue_and_dictionary(int imol, std::string chain_id, int res_no, st
 	    if (dict_2.first) {
 	       
 	       std::pair<unsigned int, coot::dictionary_residue_restraints_t> new_dict =
-		  dict_1.second.match_to_reference(dict_2.second, this_residue, output_comp_id);
+		  dict_1.second.match_to_reference(dict_2.second, this_residue,
+						   output_comp_id, output_comp_id); // placeholder for name
 	       if (new_dict.first > 0) { 
 		  new_dict.second.residue_info.comp_id = output_comp_id;
 		  new_dict.second.residue_info.name =  ".";
