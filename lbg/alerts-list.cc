@@ -30,7 +30,7 @@ lbg_info_t::alert_smarts() const {
    // SC=O thioester
    
 
-   int n_smarts = 116;
+   unsigned int n_smarts = 116;
    std::pair<std::string, std::string> v[] = { 
       p("*1[O,S,N]*1", "three-membered hetrocycle"),
       p("[S,C](=[O,S])[F,Br,Cl,I]", ""),

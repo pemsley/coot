@@ -1173,6 +1173,8 @@ public:
 					 const std::string &url_file_name_file);
    int handle_lbg_drag_and_drop_mol_file(const std::string &uri_clean,
 					 const std::string &url_file_name_file);
+   int handle_lbg_drag_and_drop_smiles(const std::string &smiles);
+
    std::string get_id_string(const std::string &s, int prefix_len, int max_len) const;
    int get_chemspider_mol(const std::string &id_string);
    int get_pubchem_sid_mol(const std::string &id_string);

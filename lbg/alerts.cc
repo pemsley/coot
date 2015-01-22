@@ -77,8 +77,8 @@ lbg_info_t::user_defined_alert_smarts() const {
 
    if (user_defined_alerts_smarts_py) { 
       if (PyList_Check(user_defined_alerts_smarts_py)) {
-	 int len = PyList_Size(user_defined_alerts_smarts_py);
-	 for (unsigned int i=0; i<len; i++) { 
+	 Py_ssize_t len = PyList_Size(user_defined_alerts_smarts_py);
+	 for (Py_ssize_t i=0; i<len; i++) { 
 	    PyObject *item_pair = PyList_GetItem(user_defined_alerts_smarts_py, i);
 	    if (PyList_Check(item_pair)) {
 	       int item_len = PyList_Size(item_pair);

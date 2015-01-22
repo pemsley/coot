@@ -54,7 +54,7 @@ lig_build::pos_t::make_wedge_in_bond(const pos_t &pos_1, const pos_t &pos_2) {
    int n_lines = 5;
    double bond_length = pos_t::length(pos_2, pos_1);
    double length_scale = 0.03 * bond_length;
-   for (unsigned int i=1; i<=n_lines; i++) {
+   for (int i=1; i<=n_lines; i++) {
       // then centre point of the line, some way along the pos_1 -> pos_2 vector;
       double len = double(i) * length_scale;
       double frac = (double(i)- 0.3)/double(n_lines);

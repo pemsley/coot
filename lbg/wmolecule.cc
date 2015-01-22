@@ -526,7 +526,7 @@ widgeted_bond_t::make_wedge_in_bond_item(const lig_build::pos_t &pos_1,
    lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
    lig_build::pos_t buv_90 = buv.rotate(90);
    int n_lines = 5;
-   for (unsigned int i=1; i<=n_lines; i++) {
+   for (int i=1; i<=n_lines; i++) {
       // then centre point of the line, some way along the pos_1 -> pos_2 vector;
       double len = double(i) * 1.0;
       double frac = (double(i)- 0.3)/double(n_lines);
@@ -842,7 +842,7 @@ widgeted_molecule_t::close_bond(int ib, GooCanvasItem *root,
    // changed to NH or so.
 
    bool status = 0;
-   if ((ib >= 0) && (ib<bonds.size())) {
+   if ((ib >= 0) && (ib<int(bonds.size()))) {
       int ind_1 = bonds[ib].get_atom_1_index();
       int ind_2 = bonds[ib].get_atom_2_index();
       bonds[ib].close(root);
@@ -885,7 +885,7 @@ widgeted_molecule_t::close_atom(int iat, GooCanvasItem *root) {
    std::vector<int> bds = bonds_having_atom_with_atom_index(iat);
    
    bool status = 0;
-   if ((iat >= 0) && (iat<atoms.size())) {
+   if ((iat >= 0) && (iat<int(atoms.size()))) {
       atoms[iat].close(root);
       status = 1;
    }
@@ -1190,7 +1190,7 @@ widgeted_molecule_t::write_minimal_cif_file(const std::string &file_name) const 
       rc = mmCIFData->AddLoop("_chem_comp_atom", mmCIFLoop);
 
       if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
-         for (int i=0; i<atoms.size(); i++) {
+         for (unsigned int i=0; i<atoms.size(); i++) {
 
             mmCIFLoop->PutString(comp_id.c_str(), "comp_id", i);
 
@@ -1207,7 +1207,7 @@ widgeted_molecule_t::write_minimal_cif_file(const std::string &file_name) const 
       rc = mmCIFData->AddLoop("_chem_comp_bond", mmCIFLoop);
       if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
          // std::cout << " number of bonds: " << bond_restraint.size() << std::endl;
-         for (int i=0; i<bonds.size(); i++) {
+         for (unsigned int i=0; i<bonds.size(); i++) {
             // std::cout << "ading bond number " << i << std::endl;
             mmCIFLoop->PutString(comp_id.c_str(), "comp_id", i);
             std::string atom_name_1 = atoms[bonds[i].get_atom_1_index()].get_atom_id();

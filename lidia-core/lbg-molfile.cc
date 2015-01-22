@@ -145,8 +145,9 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
       }
 
       // atom block:
-      //
-      for (unsigned int i=4; i<lines.size()  && i<(n_atoms+4); i++) {
+      // 
+      unsigned int top_lim = n_atoms+4;
+      for (unsigned int i=4; i<lines.size()  && i<top_lim; i++) {
 
 	 int l = lines[i].length();
 	 if (l > 31) {
@@ -173,7 +174,8 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
       }
 
       // bond block
-      for (unsigned int i=(4+n_atoms); i<lines.size()  && i<(n_bonds+n_atoms+4); i++) {
+      unsigned int n_bonds_and_n_atoms_lim = n_bonds+n_atoms+4;
+      for (unsigned int i=top_lim; i<lines.size() && i<n_bonds_and_n_atoms_lim; i++) {
 	 // std::cout << "parse this bond line line :" << lines[i] << std::endl;
 	 int l = lines[i].length();
 	 if (l > 8) {
@@ -196,8 +198,8 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
 		  bt =  lig_build::bond_t::DOUBLE_BOND;
 	       if (bond_type == 3)
 		  bt =  lig_build::bond_t::TRIPLE_BOND;
-	       if (((index_1-1) >=0) && (index_1-1) < atoms.size()) { 
-		  if (((index_2-1) >=0) && (index_2-1) < atoms.size()) { 
+	       if (((index_1-1) >=0) && (index_1-1) < int(atoms.size())) { 
+		  if (((index_2-1) >=0) && (index_2-1) < int(atoms.size())) { 
 		     lig_build::molfile_bond_t bond(index_1-1, index_2-1, bt);
 		     if (stereo_bond != 0) {
 			// something interesting
@@ -237,9 +239,9 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
 		  int nca = lig_build::string_to_int(n_charged_atoms_str);
 		  // std::cout << "trying to find " << nca << " charged atoms on line"
 		  // << std::endl;
-
-		  for (unsigned int ic=0; ic<nca; ic++) {
-		     if (lines[i].length() > 10+ic*6+3) { 
+		  
+		  for (int ic=0; ic<nca; ic++) {
+		     if (int(lines[i].length()) > 10+ic*6+3) { 
 			std::string atom_number_string = lines[i].substr(10+ic*8,3);
 			std::string charge_string      = lines[i].substr(14+ic*8,3);
 			// std::cout << "found atom_number_string :"
@@ -285,7 +287,7 @@ lig_build::molfile_molecule_t::molfile_molecule_t(mmdb::Residue *residue_p,
    molfile_atom_t blank_atom(0,0,0, "");
    atoms.push_back(blank_atom); // blank atom for 0-index.
    // make the atoms
-   for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+   for (int iat=0; iat<n_residue_atoms; iat++) {
       clipper::Coord_orth pos(residue_atoms[iat]->x,
 			      residue_atoms[iat]->y,
 			      residue_atoms[iat]->z);
@@ -300,7 +302,7 @@ lig_build::molfile_molecule_t::molfile_molecule_t(mmdb::Residue *residue_p,
    std::map<std::string, std::vector<mmdb::Atom *> >::const_iterator it_1_atom_map;
    std::map<std::string, std::vector<mmdb::Atom *> >::const_iterator it_2_atom_map;
    std::map<mmdb::Atom *, int> atom_index_map;
-   for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+   for (int iat=0; iat<n_residue_atoms; iat++) { 
       atom_map[residue_atoms[iat]->name].push_back(residue_atoms[iat]);
       atom_index_map[residue_atoms[iat]] = iat;
    }
