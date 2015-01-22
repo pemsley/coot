@@ -261,7 +261,7 @@
 					      (string=? chain-id-2 ""))
 					  "."
 					  chain-id-2)
-				      resno-1
+				      resno-2 ;; fix Richard Bunker bug
 				      (if (or (string=? inscode-2 " ")
 					      (string=? inscode-2 ""))
 					  "."
