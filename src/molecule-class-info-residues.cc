@@ -188,7 +188,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-   for (unsigned int i=0; i<n_residue_atoms; i++)
+   for (int i=0; i<n_residue_atoms; i++)
       if (std::string(residue_atoms[i]->element) != " H")
 	 fixed_atoms.push_back(residue_atoms[i]);
     
@@ -361,14 +361,14 @@ molecule_class_info_t::sprout_hydrogens_transfer_hydrogen_positions(mmdb::Residu
    from_res_p->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
    to_res_p->GetAtomTable  (residue_atoms_2, n_residue_atoms_2);
 
-   for (unsigned int iat_1=0; iat_1<n_residue_atoms_1; iat_1++) {
+   for (int iat_1=0; iat_1<n_residue_atoms_1; iat_1++) {
       mmdb::Atom *at_1 = residue_atoms_1[iat_1];
       std::string ele_1 = at_1->element;
       if (ele_1 == " H") {                // PDBv3 FIXME
 	 std::string name_1(at_1->name);
 	 std::string altc_1(at_1->altLoc);
 	 if (altc_1 == alt_conf) { 
-	    for (unsigned int iat_2=0; iat_2<n_residue_atoms_2; iat_2++) {
+	    for (int iat_2=0; iat_2<n_residue_atoms_2; iat_2++) {
 	       mmdb::Atom *at_2 = residue_atoms_2[iat_2];
 	       std::string ele_2 = at_2->element;
 	       if (ele_2 == " H") {       // PDBv3 FIXME
@@ -472,7 +472,7 @@ molecule_class_info_t::get_vector(const coot::residue_spec_t &central_residue_sp
 	 neighbour_residue->GetAtomTable(n_residue_atoms, n_n_residue_atoms);
 	 clipper::Coord_orth sum_1(0,0,0);
 	 clipper::Coord_orth sum_2(0,0,0);
-	 for (unsigned int iat=0; iat<c_n_residue_atoms; iat++) {
+	 for (int iat=0; iat<c_n_residue_atoms; iat++) {
 	    if (! c_residue_atoms[iat]->isTer()) { 
 	       clipper::Coord_orth pt_1(c_residue_atoms[iat]->x,
 					c_residue_atoms[iat]->y,
@@ -480,7 +480,7 @@ molecule_class_info_t::get_vector(const coot::residue_spec_t &central_residue_sp
 	       sum_1 += pt_1;
 	    }
 	 }
-	 for (unsigned int jat=0; jat<n_n_residue_atoms; jat++) {
+	 for (int jat=0; jat<n_n_residue_atoms; jat++) {
 	    if (! n_residue_atoms[jat]->isTer()) { 
 	       clipper::Coord_orth pt_2(n_residue_atoms[jat]->x,
 					n_residue_atoms[jat]->y,
@@ -534,7 +534,7 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
    coot::rama_plot rp;
    rp.generate_phi_psis(atom_sel.mol, true);
 
-   unsigned int n = rp.n_phi_psi_model_sets();
+   int n = rp.n_phi_psi_model_sets();
 
    clipper::Ramachandran r_gly, r_pro, r_non_gly_pro, r_all;
 
@@ -566,7 +566,7 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
    double log_p_non_sec_str_sum = 0.0;
    int region;
 
-   for (unsigned int imod=1; imod<n; imod++) {
+   for (int imod=1; imod<n; imod++) {
       if (imod<=atom_sel.mol->GetNumberOfModels()) {
 	 
          coot::phi_psis_for_model_t pp = rp.get_phi_psis_for_model(imod);
@@ -833,7 +833,7 @@ coot::animated_ligand_interactions_t::draw(mmdb::Manager *mol,
 	 clipper::Coord_orth bond_vec = pt_1-pt_2;
 	 clipper::Coord_orth bond_frag(bond_vec * (1.0/double(n_parts)));
 	 
-	 for (unsigned int ipart=0; ipart<n_parts; ipart++) {
+	 for (int ipart=0; ipart<n_parts; ipart++) {
 
 	    if (coot::util::even_p(ipart)) { 
 	       glPushMatrix();
@@ -934,7 +934,7 @@ molecule_class_info_t::residue_centre(mmdb::Residue *residue_p) const {
       mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+      for (int iat=0; iat<n_residue_atoms; iat++) {
 	 if (! residue_atoms[iat]->isTer()) { 
 	    clipper::Coord_orth p(residue_atoms[iat]->x,
 				  residue_atoms[iat]->y,
@@ -1047,7 +1047,7 @@ molecule_class_info_t::new_ligand_centre(const clipper::Coord_orth &current_cent
 	 if (ligand_centres.size() > 1) {
 	    int next_ligand_centre_index = 0;
 	    // we are on the last one
-	    if (current_centre_index == (ligand_centres.size()-1)) {
+	    if (current_centre_index == (int(ligand_centres.size())-1)) {
 	       next_ligand_centre_index = 0;
 	    } else {
 	       // normal case, go to the next one
@@ -1269,14 +1269,14 @@ coot::dict_link_info_t::dict_link_info_t(mmdb::Residue *residue_ref,
 	       mmdb::PPAtom residue_atoms_1 = 0;
 	       int n_residue_atoms_1;
 	       res_1->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
-	       for (unsigned int iat1=0; iat1<n_residue_atoms_1; iat1++) { 
+	       for (int iat1=0; iat1<n_residue_atoms_1; iat1++) { 
 		  std::string atom_name_1(residue_atoms_1[iat1]->name);
 		  if (atom_name_1 == rr.link_bond_restraint[ibond].atom_id_1_4c()) {
 		     // OK so the first atom matched
 		     mmdb::PPAtom residue_atoms_2 = 0;
 		     int n_residue_atoms_2;
 		     res_2->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
-		     for (unsigned int iat2=0; iat2<n_residue_atoms_2; iat2++) { 
+		     for (int iat2=0; iat2<n_residue_atoms_2; iat2++) { 
 			std::string atom_name_2(residue_atoms_2[iat2]->name);
 			if (atom_name_2 == rr.link_bond_restraint[ibond].atom_id_2_4c()) {
 			   ifound = 1;
@@ -1531,7 +1531,7 @@ molecule_class_info_t::get_centre_atom_from_sequence_triplet(const std::string &
 	 if (ifound != std::string::npos) {
 	    // 	    std::cout << "... which is not npos " << std::endl;
 	    int idx = ifound_prev+ifound+i_offset;  // middle residue
-	    if (idx < seq.second.size()) {
+	    if (idx < int(seq.second.size())) {
 	       // this should always be so
 	       mmdb::Residue *r = seq.second[idx];
 	       int iat = intelligent_this_residue_atom(r);
@@ -1678,7 +1678,7 @@ molecule_class_info_t::invert_chiral_centre(const std::string &chain_id, int res
       mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+      for (int iat=0; iat<n_residue_atoms; iat++) { 
 	 mmdb::Atom *at = residue_atoms[iat];
 	 if (std::string(at->name) == atom_name) {
 	    chiral_atom = at;
