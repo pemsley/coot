@@ -94,7 +94,7 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
 			     std::string cif_dict_comp_id, // comp-id in the input file
 			     std::string reference_comp_id,
 			     std::string output_comp_id,
-			     std::string output_comp_id_name);
+			     std::string output_compound_name);
 
 // This is the GUI interface: User sits over on top of the residue
 // they want to change and provides an output dictionary cif file

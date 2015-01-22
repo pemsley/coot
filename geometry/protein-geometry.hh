@@ -709,7 +709,8 @@ namespace coot {
       std::pair<unsigned int, dictionary_residue_restraints_t>
       match_to_reference(const dictionary_residue_restraints_t &ref,
 			 mmdb::Residue *residue_p,
-			 const std::string &new_comp_id) const;
+			 const std::string &new_comp_id,
+			 const std::string &new_compound_name) const;
 
       // make a mmdb::math::Graph from the atom_info and bond restraints.
       //
