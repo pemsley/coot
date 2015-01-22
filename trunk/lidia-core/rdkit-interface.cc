@@ -785,36 +785,48 @@ coot::get_chiral_tag(mmdb::Residue *residue_p,
 	    // 
 	    if (atom_orders_match) {
 	       if (true) 
-		  std::cout << "atom orders match: true, vol sign " << chiral_restraint.volume_sign
-			    << " ->  CCW "
-			    << "for atom " << atom_name 
-			    << " neighbs " << ni[1] << " "  << ni[2] << " " << ni[3] << " "
-			    << chiral_restraint.atom_id_1_4c() << " "
-			    << chiral_restraint.atom_id_2_4c() << " " 
-			    << chiral_restraint.atom_id_3_4c() << std::endl;
+		  std::cout << "atom orders match:     true, vol sign "
+			    << std::setw(2) << chiral_restraint.volume_sign
+			    << " -> CCW "
+			    << "for atom \"" << atom_name 
+			    << "\" neighbs "
+			    << std::setw(2) << ni[1] << " "
+			    << std::setw(2) << ni[2] << " "
+			    << std::setw(2) << ni[3] << " \""
+			    << chiral_restraint.atom_id_1_4c() << "\" \""
+			    << chiral_restraint.atom_id_2_4c() << "\" \""
+			    << chiral_restraint.atom_id_3_4c() << "\"" << std::endl;
 	       if (chiral_restraint.volume_sign == 1)
-		  chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CW;
-	       if (chiral_restraint.volume_sign == -1)
 		  chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
+	       if (chiral_restraint.volume_sign == -1)
+		  chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CW;
 	    } else {
 	       if (true) 
-		  std::cout << "atom orders NOT match: true, vol sign " << chiral_restraint.volume_sign
-			    << "  ->  CW "
-			    << "for atom " << atom_name 
-			    << " neighbs "<< ni[1] << " "  << ni[2] << " " << ni[3] << " "
-			    << chiral_restraint.atom_id_1_4c() << " "
-			    << chiral_restraint.atom_id_2_4c() << " " 
-			    << chiral_restraint.atom_id_3_4c() << std::endl;
+		  std::cout << "atom orders NOT match: true, vol sign "
+			    << std::setw(2) << chiral_restraint.volume_sign
+			    << " ->  CW "
+			    << "for atom \"" << atom_name 
+			    << "\" neighbs "
+			    << std::setw(2) << ni[1] << " "
+			    << std::setw(2) << ni[2] << " "
+			    << std::setw(2) << ni[3] << " \""
+			    << chiral_restraint.atom_id_1_4c() << "\" \""
+			    << chiral_restraint.atom_id_2_4c() << "\" \"" 
+			    << chiral_restraint.atom_id_3_4c() << "\"" << std::endl;
 	       if (chiral_restraint.volume_sign == 1)
-		  chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
-	       if (chiral_restraint.volume_sign == -1)
 		  chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CW;
+	       if (chiral_restraint.volume_sign == -1)
+		  chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
 	    }
 	 }
 	 break; // because we found the restraint that matches the passed atom
       }
    }
-   std::cout << "returning chiral_tag " << chiral_tag << std::endl;
+   // CHI_UNSPECIFIED:     0
+   // CHI_TETRAHEDRAL_CW:  1
+   // CHI_TETRAHEDRAL_CCW: 2
+   // CHI_OTHER:           3
+   // std::cout << "returning chiral_tag " << chiral_tag << std::endl;
    return chiral_tag;
 }
 

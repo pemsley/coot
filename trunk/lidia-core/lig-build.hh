@@ -1015,10 +1015,10 @@ namespace lig_build {
       std::vector<int> get_unconnected_atoms() const {
 
 	 std::vector<int> v;
-	 for (unsigned int iat=0; iat<atoms.size(); iat++) {
+	 for (int iat=0; iat<atoms.size(); iat++) {
 	    if (! atoms[iat].is_closed()) { 
 	       bool in_a_bond = 0;
-	       for (unsigned int ib=0; ib<bonds.size(); ib++) { 
+	       for (int ib=0; ib<bonds.size(); ib++) { 
 		  if (! bonds[ib].is_closed()) {
 		     if (bonds[ib].get_atom_1_index() == iat)
 			in_a_bond = 1;
@@ -1156,7 +1156,7 @@ namespace lig_build {
       // return a status too saying that the distance was set.
       // 
       std::pair<bool, double>
-      dist_to_other_atoms_except(const std::vector<int> &avoid_atom_index,
+      dist_to_other_atoms_except(const std::vector<unsigned int> &avoid_atom_index,
 				 const pos_t &test_pos) const {
 	 double dist_closest = 99999999999.9;
 	 bool set_status = 0;

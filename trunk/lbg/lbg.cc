@@ -208,6 +208,9 @@ GtkWidget *get_canvas_from_scrolled_win(GtkWidget *canvas) {
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 // 
+// widgeted_molecule_t mol needs to (store and?) transfer chiral info to the RDKit molecule.
+// Sounds tricky.
+// 
 RDKit::RWMol
 lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 
@@ -375,6 +378,8 @@ std::string
 lbg_info_t::get_smiles_string_from_mol_rdkit() const {
 
    // here mol is a widgeted_molecule_t (no idea about aromaticity)
+   //
+   // What about chiral atoms, eh?
    // 
    RDKit::RWMol rdkm = rdkit_mol(mol);
    coot::rdkit_mol_sanitize(rdkm);
@@ -1594,7 +1599,7 @@ lbg_info_t::add_bond_to_atom_with_1_neighbour(int atom_index, int canvas_additio
 
    GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS (canvas));
 
-   std::vector<int> avoid_atoms(2);
+   std::vector<unsigned int> avoid_atoms(2);
    avoid_atoms[0] = atom_index;
    avoid_atoms[1] = other_atom_index;
 
@@ -1906,7 +1911,7 @@ lbg_info_t::new_pos_by_bisection(int atom_index,
    std::sort(sorted_angles.begin(), sorted_angles.end());
    lig_build::pos_t centre = mol.atoms[atom_index].atom_position;
    for (unsigned int i=0; i<bond_indices.size(); i++) { 
-      int j = i+1;
+      unsigned int j = i+1;
       if (j == bond_indices.size())
 	 j = 0;
       int idx_1 = mol.bonds[bond_indices[i]].get_other_index(atom_index);
@@ -1937,7 +1942,7 @@ lbg_info_t::get_angles(int atom_index, const std::vector<int> &bond_indices) con
    lig_build::pos_t centre = mol.atoms[atom_index].atom_position;
 
    for (unsigned int i=0; i<bond_indices.size(); i++) {
-      int j = i+1;
+      unsigned int j = i+1;
       if (j == bond_indices.size())
 	 j = 0;
       int idx_1 = mol.bonds[bond_indices[i]].get_other_index(atom_index);
@@ -2237,7 +2242,7 @@ lbg_info_t::stamp_polygon(int n_edges, lig_build::polygon_position_info_t ppi,
    }
    
    for (unsigned int i=0; i<atom_pos_index.size(); i++) {
-      int j = i + 1;
+      unsigned int j = i + 1;
       if (j == atom_pos_index.size())
 	 j = 0;
       int i_index = atom_pos_index[i].second.second;
@@ -3345,7 +3350,7 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
 	    s += "\"";
 	    throw std::runtime_error(s);
 	 } else { 
-	    int n_bonds = m->getNumBonds();
+	    unsigned int n_bonds = m->getNumBonds();
 	    for (unsigned int ib=0; ib<n_bonds; ib++) {
 	       const RDKit::Bond *bond_p = m->getBondWithIdx(ib);
 	       int idx_1 = bond_p->getBeginAtomIdx();
@@ -3414,7 +3419,7 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
    double weight_for_3d_distances = 0.4;
 
    int n_confs = m->getNumConformers();
-   // std::cout << "rdkit_mol_post_read_handling() n_confs is " << n_confs << std::endl;
+   std::cout << "rdkit_mol_post_read_handling() n_confs is " << n_confs << std::endl;
    
    if (n_confs > 0) {
       int iconf = 0;
@@ -3426,8 +3431,6 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
 	    std::cout << "WARNING:: import_mol_from_file() failed to make 2d conformer "
 		      << std::endl;
 
-      } else {
-	 // std::cout << "INFO:: file (and rdkit mol) was not 3D - using iconf " << iconf << std::endl;
       } 
 
       //    Old way (Pre-Feb 2013) goving via a molfile_molecule_t
@@ -3443,6 +3446,8 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
    
       render_from_molecule(wmol);
       update_descriptor_attributes();
+   } else {
+      std::cout << "WARNING:: molecule from " << file_name << " had no conformers " << std::endl;
    }
 }
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
@@ -3472,12 +3477,12 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
    
    widgeted_molecule_t m;
 
-   unsigned int n_conf  = rdkm->getNumConformers();
+   int n_conf  = rdkm->getNumConformers();
    if (iconf < n_conf) {
       const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
       
       RDKit::Conformer &conf = rdkm->getConformer(iconf);
-      int n_mol_atoms = rdkm->getNumAtoms();
+      unsigned int n_mol_atoms = rdkm->getNumAtoms();
 
       // determine the centre correction
       double sum_x = 0;
@@ -3553,7 +3558,7 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
 	 std::pair<bool,int> added = m.add_atom(mol_at);
       }
 
-      int n_bonds = rdkm->getNumBonds();
+      unsigned int n_bonds = rdkm->getNumBonds();
       for (unsigned int ib=0; ib<n_bonds; ib++) {
 	 const RDKit::Bond *bond_p = rdkm->getBondWithIdx(ib);
 	 int idx_1 = bond_p->getBeginAtomIdx();
@@ -4005,8 +4010,8 @@ lbg_info_t::ligand_grid::add_quadratic(const std::vector<std::pair<lig_build::po
       double scale_by_n_attach = 1.0/double(attachment_points.size());
       
       for (unsigned int iattach=0; iattach<attachment_points.size(); iattach++) {
-	 for (unsigned int ix=0; ix<x_size(); ix++) {
-	    for (unsigned int iy=0; iy<y_size(); iy++) {
+	 for (int ix=0; ix<x_size(); ix++) {
+	    for (int iy=0; iy<y_size(); iy++) {
 	       lig_build::pos_t pos = to_canvas_pos(ix, iy);
 	       double d2 = (pos-attachment_points[iattach].first).lengthsq();
 	       double val = 0.00002 * d2 * scale_by_n_attach;
@@ -4023,8 +4028,8 @@ lbg_info_t::ligand_grid::find_minimum_position() const {
 
    double best_pos_score = 1000000;
    lig_build::pos_t best_pos;
-   for (unsigned int ix=0; ix<x_size(); ix++) {
-      for (unsigned int iy=0; iy<y_size(); iy++) {
+   for (int ix=0; ix<x_size(); ix++) {
+      for (int iy=0; iy<y_size(); iy++) {
 	 if (grid_[ix][iy] < best_pos_score) {
 	    best_pos_score = grid_[ix][iy];
 	    best_pos = to_canvas_pos(ix,iy);
@@ -4056,8 +4061,8 @@ lbg_info_t::ligand_grid::find_nearest_zero(const lig_build::pos_t &pos,
 	 p = pos; // fine, no change
       } else {
 	 // search for someplace else
-	 for (unsigned int ix=0; ix<x_size(); ix++) {
-	    for (unsigned int iy=0; iy<y_size(); iy++) {
+	 for (int ix=0; ix<x_size(); ix++) {
+	    for (int iy=0; iy<y_size(); iy++) {
 	       if (grid_[ix][iy] < crit) {
 		  lig_build::pos_t gp = to_canvas_pos(ix, iy);
 		  double d = (gp - pos).lengthsq();
@@ -4732,7 +4737,7 @@ lbg_info_t::ligand_grid::plot_contour_lines(const std::vector<std::vector<lig_bu
    GooCanvasLineDash *dash = goo_canvas_line_dash_new (2, 1.5, 2.5);
 
    for (unsigned int i=0; i<contour_lines.size(); i++) { 
-      for (int j=0; j<(contour_lines[i].size()-1); j++) {
+      for (int j=0; j<int(contour_lines[i].size()-1); j++) {
 	 
 	 goo_canvas_polyline_new_line(group,
 				      contour_lines[i][j].x,
@@ -4900,7 +4905,7 @@ lbg_info_t::ligand_grid::ligand_grid(const lig_build::pos_t &low_x_and_y,
 
    std::vector<double> tmp_y (y_size_, 0.0);
    grid_.resize(x_size_);
-   for (unsigned int i=0; i<x_size_; i++)
+   for (int i=0; i<x_size_; i++)
       grid_[i] = tmp_y;
    if (0) 
       std::cout << "--- ligand_grid constructor, grid has extents "
@@ -5176,8 +5181,8 @@ lbg_info_t::read_residues(const std::string &file_name) const {
 	       std::string type = words[1];
 	       std::string::size_type l = lines[i].length();
 	       int n_atoms_max = 20;
-	       for (unsigned int iat=0; iat<n_atoms_max; iat++) {
-		  int name_index = 19+iat*6;
+	       for (int iat=0; iat<n_atoms_max; iat++) {
+		  std::string::size_type name_index = 19+iat*6;
 		  if (l > (name_index+4)) {
 		     std::string ss = lines[i].substr(name_index, 4);
 		     if (0)
@@ -5640,7 +5645,7 @@ lbg_info_t::draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, doub
       int n_circles = int(sa*40) + 1;    // needs fiddling?
       if (n_circles> 10) n_circles = 10; // needs fiddling?
       
-      for (unsigned int i=0; i<n_circles; i++) { 
+      for (int i=0; i<n_circles; i++) { 
 	 double rad =  LIGAND_TO_CANVAS_SCALE_FACTOR/23.0 * 3.0 * double(i+1); // needs fiddling?
 	 GooCanvasItem *circle = goo_canvas_ellipse_new(root,
 							pos.x, pos.y,

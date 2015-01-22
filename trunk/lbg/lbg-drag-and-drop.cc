@@ -119,7 +119,6 @@ lbg_info_t::handle_lbg_drag_and_drop_single_item(const std::string &uri) {
 	 handled = handle_lbg_drag_and_drop_filesystem_file(uri);
       }
 
-
       if (! handled) {
       
 	 if (uri.substr(0,7) == "http://") {
@@ -144,10 +143,22 @@ lbg_info_t::handle_lbg_drag_and_drop_single_item(const std::string &uri) {
 
 		     if (! handled)
 			handled = handle_lbg_drag_and_drop_chemspider_structure(uri_clean);
+
 		  }
 	       }
 	    }
-	 }
+	 } else {
+	    
+	    // maybe it's a SMILES string?
+	    std::string smi_clean = uri;
+	    int l = uri.length();
+	    if (uri[l-1] == '\n') 
+	       smi_clean = uri.substr(0, l-1);
+
+	    if (! handled)
+	       handled = handle_lbg_drag_and_drop_smiles(smi_clean);
+
+	 } 
       }
    }
    return handled;
@@ -322,6 +333,22 @@ lbg_info_t::handle_lbg_drag_and_drop_filesystem_file(const std::string &uri) {
    }
    return handled;
 }
+
+int
+lbg_info_t::handle_lbg_drag_and_drop_smiles(const std::string &smiles) {
+
+   int handled = FALSE;
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS   
+   RDKit::RWMol *rdk_mol = RDKit::SmilesToMol(smiles);
+   if (rdk_mol) {
+      RDDepict::compute2DCoords(*rdk_mol, NULL, true);
+      rdkit_mol_post_read_handling(rdk_mol, "from-SMILES-string");
+      handled = TRUE;
+   }
+#endif
+   return handled;
+} 
 
 
 int
