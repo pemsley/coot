@@ -249,7 +249,7 @@ bool
 coot::dict_plane_restraint_t::matches_names(const coot::dict_plane_restraint_t &r) const {
 
    bool status = true;
-   int n_found = 0;
+   unsigned int n_found = 0;
    if (atom_ids.size() != r.atom_ids.size())
       return false;
    if (atom_ids.size() > 0)
@@ -300,11 +300,11 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
       residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
 	 
       if (0) { //debug
-	 for (unsigned int iv=0; iv<nV; iv++) { 
+	 for (int iv=0; iv<nV; iv++) { 
 	    std::cout << "vertex " << iv << " of " << nV << " " << V[iv] << std::endl;
 	 }
 			      
-	 for (unsigned int ie=0; ie<nE; ie++) { 
+	 for (int ie=0; ie<nE; ie++) { 
 	    std::cout << "edge " << ie << " of " << nE << " " << E[ie] << std::endl;
 	    std::cout << "edge " << ie << " of " << nE << " with vertex1 "
 		      << E[ie]->GetVertex1() << " and vertex2 "
@@ -346,7 +346,7 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
       std::string desc_level(".");
       int n_all = nResidueAtoms;
       int n_non_H = 0;
-      for (unsigned int iat=0; iat<nResidueAtoms; iat++) {
+      for (int iat=0; iat<nResidueAtoms; iat++) {
 	 std::string ele(residue_atoms[iat]->element);
 	 if (ele != "H" && ele != " H" && ele != "D" && ele != " D")
 	    n_non_H++;
@@ -355,20 +355,20 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
       residue_info = dict_chem_comp_t(comp_id, comp_id, comp_id, group,
 				      n_all, n_non_H, desc_level);
       // also fill atom_info with dict_atom objects
-      for (unsigned int iat=0; iat<nResidueAtoms; iat++) {
+      for (int iat=0; iat<nResidueAtoms; iat++) {
 	 mmdb::Atom *at = residue_atoms[iat];
 	 dict_atom da(at->name, at->name, "", "", std::pair<bool, float> (false, 0));
 	 atom_info.push_back(da);
       }
 
       std::vector<atom_pair_t> bond_pairs;
-      for (unsigned int iat=0; iat<nResidueAtoms; iat++) { 
+      for (int iat=0; iat<nResidueAtoms; iat++) { 
 	 mmdb::Atom *at_1 = residue_atoms[iat];
 	 int n_bonds_1 = at_1->GetNBonds();
 	 mmdb::AtomBond *AtomBonds = NULL;
 	 int n_bonds_2; 
 	 at_1->GetBonds(AtomBonds, n_bonds_2);
-	 for (unsigned int ibond=0; ibond<n_bonds_2; ibond++) {
+	 for (int ibond=0; ibond<n_bonds_2; ibond++) { 
 	    mmdb::Atom *at_2 = AtomBonds[ibond].atom;
 	    if (at_1 < at_2) { // pointer comparison
 	       std::string at_name_1(at_1->name);
@@ -712,7 +712,7 @@ coot::dictionary_residue_restraints_t::atom_id_swap(const std::vector< std::pair
    for (unsigned int ip=0; ip<plane_restraint.size(); ip++) { 
       dict_plane_restraint_t &pr = plane_restraint[ip];
       alter_idx.clear();
-      for (unsigned int iat=0; iat<pr.n_atoms(); iat++) { 
+      for (int iat=0; iat<pr.n_atoms(); iat++) { 
 	 for (unsigned int j=0; j<from_tos.size(); j++) {
 	    if (pr.atom_id(iat) == from_tos[j].first)
 	       alter_idx.push_back(std::pair<int, std::string>(iat, from_tos[j].second));
@@ -1091,7 +1091,7 @@ std::ostream& coot::operator<<(std::ostream&s, coot::dict_plane_restraint_t rest
 
    s << "[plane-restraint: " << rest.plane_id << " " << " {"
      << rest.n_atoms() << " atoms} ";
-   for (unsigned int iatom=0; iatom<rest.n_atoms(); iatom++) {
+   for (int iatom=0; iatom<rest.n_atoms(); iatom++) {
       s << ":" << rest[iatom].first << " " << rest[iatom].second << ": ";
    }
    s << "]";
@@ -1183,7 +1183,7 @@ coot::protein_geometry::info() const {
 
 
    std::cout << "::::: MONOMER GEOMETRY:" << std::endl;
-   for (int idr=0; idr<size(); idr++) {
+   for (unsigned int idr=0; idr<size(); idr++) {
       // ejd says that "restraints" has an "n" in it.  Fixed.
       std::cout << dict_res_restraints[idr].residue_info.comp_id << std::endl;
       std::cout << "   " << dict_res_restraints[idr].bond_restraint.size()
@@ -1996,7 +1996,7 @@ coot::protein_geometry::get_monomer_chiral_volumes(const std::string monomer_typ
    // check the monomer_type against the three_letter_codes.
    // 
    if (ifound == 0) {
-      for (int i=0; i<dict_res_restraints.size(); i++) {
+      for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
 	 if (dict_res_restraints[i].residue_info.three_letter_code == monomer_type) {
 	    ifound = 1;
 	    rv = dict_res_restraints[i].chiral_restraint;
@@ -2225,7 +2225,7 @@ coot::protein_geometry::atoms_match_dictionary(mmdb::Residue *residue_p,
       } 
    } 
    
-   for (unsigned int i=0; i<n_residue_atoms; i++) {
+   for (int i=0; i<n_residue_atoms; i++) {
 
       if (! residue_atoms[i]->isTer()) { 
 	 std::string residue_atom_name(residue_atoms[i]->name);
@@ -2323,11 +2323,11 @@ coot::protein_geometry::atoms_match_dictionary_bond_distance_check(mmdb::Residue
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    if (n_residue_atoms > 2) { 
       for (unsigned int ibond=0; ibond<restraints.bond_restraint.size(); ibond++) {
-	 for (unsigned int iat=0; iat<(n_residue_atoms-1); iat++) {
+	 for (int iat=0; iat<(n_residue_atoms-1); iat++) {
 	    const mmdb::Atom *at_1 = residue_atoms[iat];
 	    std::string atom_name_1(at_1->name);
 	    if (restraints.bond_restraint[ibond].atom_id_1_4c() == atom_name_1) { 
-	       for (unsigned int jat=iat+1; jat<n_residue_atoms; jat++) {
+	       for (int jat=iat+1; jat<n_residue_atoms; jat++) {
 		  const mmdb::Atom *at_2 = residue_atoms[jat];
 		  std::string atom_name_2(at_2->name);
 		  if (restraints.bond_restraint[ibond].atom_id_2_4c() == atom_name_2) {
@@ -3081,8 +3081,8 @@ coot::dictionary_residue_restraints_t::is_redundant_plane_restraint(std::vector<
 	 // do all of the atoms in this_rest have matchers in ref_rest?
 	 //
 	 int n_match = 0;
-	 for (unsigned int i=0; i<it_ref->n_atoms(); i++) {
-	    for (unsigned int j=0; j<it_this->n_atoms(); j++) {
+	 for (int i=0; i<it_ref->n_atoms(); i++) {
+	    for (int j=0; j<it_this->n_atoms(); j++) {
 	       if (it_this->atom_id(j) == it_ref->atom_id(i)) {
 		  n_match++;
 		  break;
@@ -3093,10 +3093,10 @@ coot::dictionary_residue_restraints_t::is_redundant_plane_restraint(std::vector<
 	    if (0) { 
 	       std::cout << "test plane     " << it_ref->plane_id << " matches list plane id "
 			 << it_this->plane_id << " ref plane: ";
-	       for (unsigned int iat=0; iat<it_ref->n_atoms(); iat++)
+	       for (int iat=0; iat<it_ref->n_atoms(); iat++)
 		  std::cout << " " << it_ref->atom_id(iat);
 	       std::cout << " vs list-plane ";
-	       for (unsigned int iat=0; iat<it_this->n_atoms(); iat++)
+	       for (int iat=0; iat<it_this->n_atoms(); iat++)
 		  std::cout << " " << it_this->atom_id(iat);
 
 	       std::cout << std::endl;
@@ -3116,7 +3116,7 @@ void coot::dictionary_residue_restraints_t::reweight_subplanes() {
    std::map<std::string, int> name_map;
    std::vector<dict_plane_restraint_t>::iterator it;
    for (it=plane_restraint.begin(); it!=plane_restraint.end(); it++) {
-      for (unsigned int i=0; i<it->n_atoms(); i++) {
+      for (int i=0; i<it->n_atoms(); i++) {
 	 const std::string &atom_name = it->atom_id(i);
 	 name_map[atom_name]++;
       }
@@ -3145,8 +3145,8 @@ void coot::dictionary_residue_restraints_t::reweight_subplanes() {
 	 dict_plane_restraint_t &rest_2 = plane_restraint[j];
 	 if (i != j) {
 	    std::vector<int> matchers_1;
-	    for (unsigned int ii=0; ii<rest_1.n_atoms(); ii++) {
-	       for (unsigned int jj=0; jj<rest_2.n_atoms(); jj++) {
+	    for (int ii=0; ii<rest_1.n_atoms(); ii++) {
+	       for (int jj=0; jj<rest_2.n_atoms(); jj++) {
 		  if (rest_1.atom_id(ii) == rest_2.atom_id(jj)) {
 		     matchers_1.push_back(ii);
 		  }
@@ -3364,7 +3364,7 @@ coot::dictionary_residue_restraints_t::conservatively_replace_with_angles(const 
 std::vector<std::string>
 coot::protein_geometry::monomer_types() const {
    std::vector<std::string> v;
-   for (int i=0; i<dict_res_restraints.size(); i++) {
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
       v.push_back(dict_res_restraints[i].residue_info.comp_id);
    }
    return v;
@@ -3435,7 +3435,7 @@ coot::protein_geometry::get_residue(const std::string &comp_id, bool idealised_f
 
 
    std::vector<mmdb::Atom *> atoms;
-   for (int i=0; i<dict_res_restraints.size(); i++) {
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
       if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
 
 	 const std::vector<coot::dict_atom> &atom_info = dict_res_restraints[i].atom_info;
