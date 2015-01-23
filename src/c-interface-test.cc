@@ -167,7 +167,7 @@ int test_function(int i, int j) {
 	    v.push_back(coot::residue_spec_t("G", 160, ""));
 	    v.push_back(coot::residue_spec_t("G", 847, ""));
 
-	    int n_rounds = 10;
+	    unsigned int n_rounds = 10;
 	    for (unsigned int iround=0; iround<n_rounds; iround++) { 
    
 	       mmdb::Manager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
@@ -242,7 +242,7 @@ int test_function(int i, int j) {
 	 mmdb::Manager *mol = graphics_info_t::molecules[0].atom_sel.mol;
 	 std::vector<std::string> h;
 	 mmdb::TitleContainer *tc_p = mol->GetRemarks();
-	 int l = tc_p->Length();
+	 unsigned int l = tc_p->Length();
 	 for (unsigned int i=0; i<l; i++) { 
 	    mmdb::Remark *cr = static_cast<mmdb::Remark *> (tc_p->GetContainerClass(i));
 	    std::cout << "container: " << cr->remark << std::endl;
@@ -530,7 +530,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	 } else { 
 	    std::vector<coot::residue_spec_t> v;
 	    v.push_back(coot::residue_spec_t(spec));
-	    int n_rounds = 10;
+	    unsigned int n_rounds = 10;
 	    mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
 	    const clipper::Xmap<float> &xmap = g.molecules[j].xmap;
 	    for (unsigned int iround=0; iround<n_rounds; iround++) {
@@ -584,7 +584,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
        } else { 
          std::vector<coot::residue_spec_t> v;
          v.push_back(coot::residue_spec_t(spec));
-         int n_rounds = 10;
+         unsigned int n_rounds = 10;
          mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
          const clipper::Xmap<float> &xmap = g.molecules[j].xmap;
          for (unsigned int iround=0; iround<n_rounds; iround++) {
