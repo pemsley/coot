@@ -166,6 +166,26 @@ namespace coot {
       }
    };
 
+   // to capture ISOR and CONN info (we need to know the ranges of HETATMs)
+   // 
+   class hetatom_range {
+   public:
+      mmdb::Atom *range_first;
+      mmdb::Atom *range_last;
+      int resno_offset;
+      hetatom_range(mmdb::Atom *range_first_in, mmdb::Atom *range_last_in,
+		    int resno_offset_in) {
+	 range_first = range_first_in;
+	 range_last  = range_last_in;
+	 resno_offset = resno_offset_in;
+      }
+      hetatom_range() {
+	 range_first = 0;
+	 range_last  = 0;
+	 resno_offset = 0;
+      }
+   };
+
    class ShelxIns {
       std::string title;
       short int filled_flag; 

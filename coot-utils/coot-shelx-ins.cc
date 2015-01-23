@@ -1223,16 +1223,8 @@ coot::ShelxIns::write_synthetic_pre_atom_lines(mmdb::Manager *mol,
 	       latt = 6;
 	    if (lat_char == 'C')
 	       latt = 7;
-	    std::cout << "----------- debug:: cell_sg.second.is_null() " << cell_sg.second.is_null() << std::endl;
+
 	    if (! cell_sg.second.is_null()) {
-	       std::cout << "----------- debug:: cell_sg.second.num_inversion_symops() " << cell_sg.second.num_inversion_symops()
-			 << std::endl;
-		  std::cout << "Here are the inversion symops: " << std::endl;
-		  for (int ii=0; ii<cell_sg.second.num_inversion_symops(); ii++) {
-		     std::cout << "---------------- " << ii << " "
-			       << util::Upper(cell_sg.second.inversion_symop(ii).format()) << std::endl;
-		  }
-	       
                // P31 (and others presumably) has 1 inversion symop, it seems.
                //
                // make the latt negative if non-centrosymmetric.
@@ -1275,8 +1267,80 @@ coot::ShelxIns::write_synthetic_pre_atom_lines(mmdb::Manager *mol,
  
    f << "DELU $C_* $N_* $O_* $S_*\n";
    f << "SIMU 0.1 $C_* $N_* $O_* $S_*\n";
-   f << "ISOR 0.1 O_3001 > LAST\n";
-   f << "CONN 0 O_3001 > LAST\n";
+   
+   // f << "ISOR 0.1 O_3001 > LAST\n";
+   // f << "CONN 0 O_3001 > LAST\n";
+
+   // --- ISOR and CONN ------
+   //
+   std::vector<hetatom_range> hetatom_ranges;
+
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   mmdb::Chain *chain_p;
+   int n_chains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<n_chains; ichain++) {
+      int resno_offset = 0;
+      resno_offset = ichain * 1000;
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      mmdb::Residue *residue_p = 0;
+      mmdb::Atom *at = 0;
+      mmdb::Atom *running_hetatm = 0;
+      hetatom_range current_range;
+      for (int ires=0; ires<nres; ires++) { 
+	 residue_p = chain_p->GetResidue(ires);
+	 int n_atoms = residue_p->GetNumberOfAtoms();
+	 for (int iat=0; iat<n_atoms; iat++) {
+	    at = residue_p->GetAtom(iat);
+	    if (! at->isTer()) {
+	       if (at->Het) {
+		  running_hetatm = at;
+		  if (current_range.range_first == 0) {
+		     current_range.range_first = at;
+		     current_range.resno_offset = resno_offset;
+		  }
+	       } else {
+		  if (current_range.range_first) {
+		     // Bizarro-world
+		     current_range.range_last = running_hetatm;
+		     hetatom_ranges.push_back(current_range);
+		  }
+	       } 
+	    }
+	 }
+      }
+      if (residue_p) {
+	 if (running_hetatm) {
+	    // this is the last residue in the chain, so set last value
+	    // if it has not been set.
+	    if (! current_range.range_last) {
+	       current_range.range_last = running_hetatm;
+	       hetatom_ranges.push_back(current_range);
+	    }
+	 }
+      }
+   }
+
+   for (unsigned int ir=0; ir<hetatom_ranges.size(); ir++) {
+      const hetatom_range &hr = hetatom_ranges[ir];
+      f << "ISOR 0.1 "
+	<< util::remove_leading_spaces(hr.range_first->element) << "_"
+	<< hr.range_first->GetSeqNum() + hr.resno_offset << " > " 
+	<< util::remove_leading_spaces(hr.range_last->element) << "_" 
+	<< hr.range_last->GetSeqNum() + hr.resno_offset << "\n";
+   }
+   for (unsigned int ir=0; ir<hetatom_ranges.size(); ir++) {
+      const hetatom_range &hr = hetatom_ranges[ir];
+      f << "CONN 0 "
+	<< util::remove_leading_spaces(hr.range_first->element) << "_"
+	<< hr.range_first->GetSeqNum() + hr.resno_offset << " > " 
+	<< util::remove_leading_spaces(hr.range_last->element) << "_" 
+	<< hr.range_last->GetSeqNum() + hr.resno_offset << "\n";
+	// << " > LAST\n";
+   }
+   
+   
    f << "BUMP\n";
 
 } 
