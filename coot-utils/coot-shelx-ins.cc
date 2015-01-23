@@ -1252,7 +1252,7 @@ coot::ShelxIns::write_synthetic_pre_atom_lines(mmdb::Manager *mol,
 	 if (atomic_contents.size()) {
 	    f << "SFAC ";
 	    for (it=atomic_contents.begin(); it!=atomic_contents.end(); it++)
-	       f << it->first << " ";
+	       f << " " << it->first << " ";
 	    f << "\n";
 	    f << "UNIT " ;
 	    for (it=atomic_contents.begin(); it!=atomic_contents.end(); it++)
@@ -1303,8 +1303,12 @@ coot::ShelxIns::get_atomic_contents(mmdb::Manager *mol) const {
 	 int n_atoms = residue_p->GetNumberOfAtoms();
 	 for (int iat=0; iat<n_atoms; iat++) {
 	    at = residue_p->GetAtom(iat);
-	    std::string ele(at->element);
-	    m[ele]++; // initial/default value is 0.
+	    if (! at->isTer()) { 
+	       std::string ele(at->element);
+	       if (! ele.empty())  // now we added the isTer() test this probably
+				   //  won't catch anything.
+		  m[ele]++; // initial/default value is 0.
+	    }
 	 }
       }
    }
