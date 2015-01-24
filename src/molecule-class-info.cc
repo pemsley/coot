@@ -7486,7 +7486,8 @@ molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
 
    make_backup();
 
-   bool reverse = false;
+   bool reverse = false; // reverse the moving dog<->tail fragment?
+
    if (invert_selection)
       reverse = true;
 
@@ -7503,7 +7504,7 @@ molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
    if (period > 1) { 
 
       double angle = 360/double(period);
-      std::pair<unsigned int, unsigned int> p = tree.fragment_sizes(atn_1, atn_2, reverse);
+      std::pair<unsigned int, unsigned int> p = tree.fragment_sizes(atn_1, atn_2, false);
 
       if (false) {  // debug
 	 std::cout << "flip this torsion: " << torsion << std::endl;
@@ -7517,8 +7518,8 @@ molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,
       tree.rotate_about(atn_1, atn_2, angle, reverse);
       have_unsaved_changes_flag = 1;
    } else {
-      problem_string = "Torsion had a period of ";
-      problem_string += clipper::String(period).c_str();
+      problem_string = "Selected torsion had a periodicity of ";
+      problem_string += clipper::String(period);
    }
    return problem_string;
 } 
