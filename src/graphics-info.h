@@ -2949,7 +2949,8 @@ public:
    void rotate_baton(const double &x, const double &y);
    void toggle_baton_mode();  // on a "b" button press
 
-   void baton_try_another();
+   void baton_tip_try_another();
+   void baton_tip_previous();
    void shorten_baton();
    void lengthen_baton();
    void baton_build_delete_last_residue(); 

@@ -10574,6 +10574,7 @@ create_baton_dialog (void)
   GtkWidget *vbox72;
   GtkWidget *baton_accept_button;
   GtkWidget *baton_try_again_button;
+  GtkWidget *baton_tip_previous_button;
   GtkWidget *baton_undo_button;
   GtkWidget *label732;
   GtkWidget *frame290;
@@ -10630,6 +10631,11 @@ create_baton_dialog (void)
   gtk_box_pack_start (GTK_BOX (vbox72), baton_try_again_button, FALSE, FALSE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (baton_try_again_button), 4);
   gtk_tooltips_set_tip (tooltips, baton_try_again_button, _("Try Another Autoplacement Baton Position.  Cycles back to beginning"), NULL);
+
+  baton_tip_previous_button = gtk_button_new_with_mnemonic (_("Previous Tip Position"));
+  gtk_widget_show (baton_tip_previous_button);
+  gtk_box_pack_start (GTK_BOX (vbox72), baton_tip_previous_button, FALSE, FALSE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (baton_tip_previous_button), 4);
 
   baton_undo_button = gtk_button_new_with_mnemonic (_("Undo"));
   gtk_widget_show (baton_undo_button);
@@ -10709,6 +10715,9 @@ create_baton_dialog (void)
   g_signal_connect ((gpointer) baton_try_again_button, "clicked",
                     G_CALLBACK (on_baton_try_again_button_clicked),
                     NULL);
+  g_signal_connect ((gpointer) baton_tip_previous_button, "clicked",
+                    G_CALLBACK (on_baton_tip_previous_button_clicked),
+                    NULL);
   g_signal_connect ((gpointer) baton_undo_button, "clicked",
                     G_CALLBACK (on_baton_undo_button_clicked),
                     NULL);
@@ -10734,6 +10743,7 @@ create_baton_dialog (void)
   GLADE_HOOKUP_OBJECT (baton_dialog, vbox72, "vbox72");
   GLADE_HOOKUP_OBJECT (baton_dialog, baton_accept_button, "baton_accept_button");
   GLADE_HOOKUP_OBJECT (baton_dialog, baton_try_again_button, "baton_try_again_button");
+  GLADE_HOOKUP_OBJECT (baton_dialog, baton_tip_previous_button, "baton_tip_previous_button");
   GLADE_HOOKUP_OBJECT (baton_dialog, baton_undo_button, "baton_undo_button");
   GLADE_HOOKUP_OBJECT (baton_dialog, label732, "label732");
   GLADE_HOOKUP_OBJECT (baton_dialog, frame290, "frame290");

@@ -23,6 +23,7 @@
 #include "utils/coot-utils.hh"
 #include "rdkit-interface.hh"
 #include "coot-utils/coot-coord-utils.hh" // after rdkit-interface.hh to avoid ::strchr problems
+#include "neighbour-sorter.hh"
 
 
 // This can throw an runtime_error exception (residue not in
@@ -723,7 +724,7 @@ coot::convert_bond_type(const std::string &t) {
    return bt;
 }
 
-// used in the rdkit_mol() "constructor".
+// used in the rdkit_mol() "constructor", e.g. in thumbnails
 // 
 RDKit::Atom::ChiralType
 coot::get_chiral_tag(mmdb::Residue *residue_p,
@@ -736,6 +737,15 @@ coot::get_chiral_tag(mmdb::Residue *residue_p,
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    std::string atom_name = atom_p->name;
+
+   // To make RDKit/SMILES chiral tags, we consider the order of the 3
+   // atoms in the atom list that are after the chiral centre.
+   // 
+   // But, the order of atoms from a residue in a PDB is can be
+   // arbitrary, so maybe chiral atom appears after all of the atoms
+   // to which it is bonded... What to do?  Let's take the last
+   // 3. That makes sense, the first-appearing atom is the "from" atom
+   // in SMILES encoding of chiralilty.
    
    // does the order of the restraints match the order of the atoms?
    //
@@ -828,6 +838,183 @@ coot::get_chiral_tag(mmdb::Residue *residue_p,
    // CHI_OTHER:           3
    // std::cout << "returning chiral_tag " << chiral_tag << std::endl;
    return chiral_tag;
+}
+
+
+// used in the rdkit_mol() "constructor", e.g. in thumbnails
+// 
+RDKit::Atom::ChiralType
+coot::get_chiral_tag_v2(mmdb::Residue *residue_p,
+			const dictionary_residue_restraints_t &restraints,
+			mmdb::Atom *atom_p) {
+
+   RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_UNSPECIFIED; // as yet
+   
+   mmdb::PPAtom residue_atoms = 0;
+   int n_residue_atoms;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   std::string atom_name = atom_p->name;
+
+   std::cout << "Called get_chiral_tag_v2() whti atom name " << atom_name << std::endl;
+
+   // do we have 4 atoms bonded to the chiral centre atom?
+
+   for (unsigned int ich=0; ich<restraints.chiral_restraint.size(); ich++) { 
+      const dict_chiral_restraint_t &cr = restraints.chiral_restraint[ich];
+
+      if (cr.atom_id_c_4c() == atom_name) { 
+	 std::vector<chiral_neighbour_info_t> neighbs;
+
+	 // loop over residue atoms to find chiral centre atom
+	 //
+	 for (int iat=0; iat<n_residue_atoms; iat++) {
+	    mmdb::Atom *at = residue_atoms[iat];
+	    if (! at->isTer()) {
+	       mmdb::Atom *chiral_atom = 0;
+	       std::string atom_name_local(at->name);
+	       if (atom_name_local == cr.atom_id_c_4c()) {
+		  chiral_atom = at;
+	       }
+
+	       if (atom_name_local == cr.atom_id_1_4c()) neighbs.push_back(chiral_neighbour_info_t(at, iat, 1));
+	       if (atom_name_local == cr.atom_id_2_4c()) neighbs.push_back(chiral_neighbour_info_t(at, iat, 2));
+	       if (atom_name_local == cr.atom_id_3_4c()) neighbs.push_back(chiral_neighbour_info_t(at, iat, 3));
+	    }
+	 }
+
+	 if (neighbs.size() != 3) {
+	    std::cout << "Errg.  Not all chiral neighbours found " << neighbs.size() << " "
+		      << atom_name << std::endl;
+	 } else {
+	    // now we get the 4th atom by looking at the atoms bonded to atom_p
+	    // (the we don't aleady have)
+
+	    for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
+	       std::string other_atom;
+	       const dict_bond_restraint_t &br = restraints.bond_restraint[ib];
+	       if (br.atom_id_1_4c() == atom_name)
+		  other_atom = br.atom_id_2_4c();
+	       if (br.atom_id_2_4c() == atom_name)
+		  other_atom = br.atom_id_1_4c();
+	    
+	       if (! other_atom.empty()) {
+		  for (int iat=0; iat<n_residue_atoms; iat++) { 
+		     mmdb::Atom *at = residue_atoms[iat];
+		     std::string atom_name_local(at->name);
+		     if (0) 
+			std::cout << iat << " comparing :" << atom_name_local << ": :"
+				  << other_atom << ":" << std::endl;
+		     
+		     if (atom_name_local == other_atom) {
+
+			// is at in the neighbs already?
+			std::vector<chiral_neighbour_info_t>::const_iterator nit;
+			bool found = false;
+			for (nit=neighbs.begin(); nit!=neighbs.end(); nit++) {
+			   if (nit->at == at) {
+			      found = true;
+			      break;
+			   }
+			}
+
+			if (!found) {
+			   std::cout << atom_name_local << " was not found in neighbs vec" << std::endl;
+			   chiral_neighbour_info_t cni(at, iat, 0);
+			   neighbs.push_back(cni);
+			   std::cout << "neighbs now of size() " << neighbs.size() << std::endl;
+			   break;
+			} else {
+			   std::cout << atom_name_local << " was already in in neighbs vec" << std::endl;
+			} 
+		     }
+		  }
+	       }
+	    }
+
+	    if (neighbs.size() != 4) {
+	       std::cout << "WARNING:: Errgh.  Not we don't have 4 chiral-centre neighbours "
+			 << neighbs.size() << std::endl;
+	    } else {
+
+	       
+	       std::sort(neighbs.begin(), neighbs.end(), chiral_neighbour_info_t::neighbour_sorter);
+	       std::vector<chiral_neighbour_info_t> back_neighbs;
+
+	       back_neighbs.push_back(neighbs[1]);
+	       back_neighbs.push_back(neighbs[2]);
+	       back_neighbs.push_back(neighbs[3]);
+
+	       std::cout << "back_neighbs: (sorted) "
+			 << back_neighbs[0].idx_mmcif << " "
+			 << back_neighbs[1].idx_mmcif << " "
+			 << back_neighbs[2].idx_mmcif << " "
+			 << std::endl;
+	       std::cout << "back_neighbs:          "
+			 << back_neighbs[0].idx_atom_list << " "
+			 << back_neighbs[1].idx_atom_list << " "
+			 << back_neighbs[2].idx_atom_list << " "
+			 << std::endl;
+
+	       // 	       // 3 2 1
+	       // 	       if ((ni[3] > ni[2]) && (ni[2] > ni[1])) { 
+	       // 		  atom_orders_match = true;
+	       // 		  // std::cout << "match by method A " << std::endl;
+	       // 	       } 
+	       // 	       // circular permutation, 1 3 2 
+	       // 	       if ((ni[1] > ni[3]) && (ni[3] > ni[2])) { 
+	       // 		  atom_orders_match = true;
+	       // 		  // std::cout << "match by method B " << std::endl;
+	       // 	       } 
+	       // 	       // circular permutation, 2 1 3
+	       // 	       if ((ni[2] > ni[1]) && (ni[1] > ni[3])) {
+	       // 		  // std::cout << "match by method C " << std::endl;
+	       // 		  atom_orders_match = true;
+	       // 	       } 
+	       
+	       
+	       bool atom_orders_match = false;
+	       // 2 1 0
+	       if ((back_neighbs[2].idx_atom_list > back_neighbs[1].idx_atom_list) &&
+		   (back_neighbs[1].idx_atom_list > back_neighbs[0].idx_atom_list)) {
+		  atom_orders_match = true;
+	       }
+	       // 0 2 1 
+	       if ((back_neighbs[0].idx_atom_list > back_neighbs[2].idx_atom_list) &&
+		   (back_neighbs[2].idx_atom_list > back_neighbs[1].idx_atom_list)) {
+		  atom_orders_match = true;
+	       }
+	       // 1 0 2
+	       if ((back_neighbs[1].idx_atom_list > back_neighbs[0].idx_atom_list) &&
+		   (back_neighbs[0].idx_atom_list > back_neighbs[2].idx_atom_list)) {
+		  atom_orders_match = true;
+	       }
+
+	       if (atom_orders_match) {
+		  if (cr.volume_sign == 1)
+		     chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CW;
+		  else 
+		     chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
+	       } else {
+		  if (cr.volume_sign == -1)
+		     chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CW;
+		  else 
+		     chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
+	       } 
+	    }
+	 }
+      } 
+   }
+
+   return chiral_tag;
+
+} 
+
+// static
+bool
+coot::chiral_neighbour_info_t::neighbour_sorter(const coot::chiral_neighbour_info_t &v1,
+						const coot::chiral_neighbour_info_t &v2) {
+
+   return (v1.idx_mmcif < v2.idx_mmcif);
 }
 
 

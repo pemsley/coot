@@ -20,7 +20,7 @@ namespace coot {
       float bin_start;
       float bin_end;
       float bin_width;
-      int n_bins;
+      unsigned int n_bins;
       std::vector<int> counts;
    };
 

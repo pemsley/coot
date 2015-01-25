@@ -262,7 +262,7 @@ coot::mogul_distribution::mogul_distribution(const std::vector<std::string> &bit
       }
       
       for (unsigned int ibin=0; ibin<n_bins; ibin++) {
-	 int ibit = ibin + 4;
+	 unsigned int ibit = ibin + 4;
 	 if (ibit < bits.size()) {
 	    int v = coot::util::string_to_int(bits[ibit]);
 	    counts.push_back(v);
@@ -409,8 +409,8 @@ coot::mogul::make_restraints(const std::string &comp_id,
 	 if (items[i].type == mogul_item::BOND) {
 	    int idx_1 = items[i].idx_1 - 1;
 	    int idx_2 = items[i].idx_2 - 1;
-	    if (idx_1 >= 0 && idx_1 < atom_names.size()) { 
-	       if (idx_2 >= 0 && idx_2 < atom_names.size()) {
+	    if (idx_1 >= 0 && idx_1 < int(atom_names.size())) { 
+	       if (idx_2 >= 0 && idx_2 < int(atom_names.size())) {
 		  std::string name_1 = atom_names[idx_1];
 		  std::string name_2 = atom_names[idx_2];
 		  // bt is "" if not found.
@@ -428,9 +428,9 @@ coot::mogul::make_restraints(const std::string &comp_id,
 	    int idx_1 = items[i].idx_1 - 1;
 	    int idx_2 = items[i].idx_2 - 1;
 	    int idx_3 = items[i].idx_3 - 1;
-	    if (idx_1 >= 0 && idx_1 < atom_names.size()) { 
-	       if (idx_2 >= 0 && idx_2 < atom_names.size()) {
-		  if (idx_3 >= 0 && idx_3 < atom_names.size()) {
+	    if (idx_1 >= 0 && idx_1 < int(atom_names.size())) { 
+	       if (idx_2 >= 0 && idx_2 < int(atom_names.size())) {
+		  if (idx_3 >= 0 && idx_3 < int(atom_names.size())) {
 		     std::string name_1 = atom_names[idx_1];
 		     std::string name_2 = atom_names[idx_2];
 		     std::string name_3 = atom_names[idx_3];

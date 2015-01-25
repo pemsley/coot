@@ -1782,7 +1782,7 @@ graphics_info_t::environment_graphics_object_internal_tubes(const graphical_bond
 	       for (int j=0; j< env_bonds_box.bonds_[i].num_lines; j++) {
 		  const coot::CartesianPair &pair = ll.pair_list[j].positions;
 
-		  int n_parts = 15;
+		  unsigned int n_parts = 15;
 		  for (unsigned int ipart=0; ipart<n_parts; ipart++) {
 		     if (coot::util::even_p(ipart)) { 
 			environment_graphics_object_internal_tube(pair, ipart, n_parts);
@@ -2916,18 +2916,24 @@ int
 graphics_info_t::baton_build_atoms_molecule() const {
 
    int imol = -1;
-   
+
+   /////////////////////////////////////////////////// FIXME ////////////////////////
    for (int im=0; im<n_molecules(); im++) {
       if (molecules[im].name_ == "Baton Atoms") {
 	 return im;
       }
    }
 
+   if (0) { 
+      std::cout << "------------- existing molecule names: " << std::endl;
+      for (int im=0; im<n_molecules(); im++)
+	 std::cout << im << " " << molecules[im].name_ << std::endl;
+   }
    
+
    std::cout << "INFO:: Creating a molecule for Baton Atoms" << std::endl;
    // not found, let's create one:
    mmdb::Manager *MMDBManager = new mmdb::Manager();
-   
 
    // do we attach a model, chain etc here?
    // Yes.
@@ -2953,13 +2959,13 @@ graphics_info_t::baton_build_atoms_molecule() const {
 
       std::string spacegroup = molecules[imol_for_skel].xskel_cowtan.spacegroup().symbol_hm();
 
-      std::cout << "setting spacegroup of Baton Atoms to be: " << spacegroup << std::endl;
-      std::cout << "setting cell of Baton Atoms to be: "
+      std::cout << "INFO:: setting spacegroup of Baton Atoms to be: " << spacegroup << std::endl;
+      std::cout << "INFO:: setting cell of Baton Atoms to be: "
 		<< molecules[imol_for_skel].xskel_cowtan.cell().format() << std::endl;
       
-      int istat_spgr = MMDBManager->SetSpaceGroup((char *)spacegroup.c_str()); // bleugh!
+      int istat_spgr = MMDBManager->SetSpaceGroup(spacegroup.c_str());
       if (istat_spgr != 0) {
-	 std::cout << "Problem:: mmdb does not understand space group: " << spacegroup << std::endl;
+	 std::cout << "WARNING:: Problem:: mmdb does not understand space group: " << spacegroup << std::endl;
       }  
       
    } else {
@@ -2970,9 +2976,8 @@ graphics_info_t::baton_build_atoms_molecule() const {
    asc.SelectionHandle = -1;
    imol = create_molecule();
    molecules[imol].install_model(imol, asc, "Baton Atoms", 1);
-   std::cout << "INFO:: Baton Build molecule has SelectionHandle: " 
-	     << molecules[imol].atom_sel.SelectionHandle << " " 
-	     <<  asc.SelectionHandle << std::endl;
+
+   std::cout << "INFO:: returning baton atom molecule " << imol << std::endl;
    return imol;
 } 
 
@@ -2986,12 +2991,31 @@ graphics_info_t::accept_baton_position() {
    //
    mmdb::Atom *baton_atom = NULL; // for baton_next_directions() usage?
    int imol = baton_build_atoms_molecule();
+
+   std::cout << "--------------------- in accept_baton_position() imol is " << imol << std::endl;
    if (imol >= 0) {
       baton_atom = molecules[imol].add_baton_atom(baton_tip, 
 						  baton_build_start_resno,
 						  baton_build_chain_id,
 						  baton_build_params_active,
 						  baton_build_direction_flag);
+
+      if (baton_atom == 0) {
+	 // we didn't add one (because there were no chains?)
+	 mmdb::Model *model_p = molecules[imol].atom_sel.mol->GetModel(1);
+	 if (! model_p) {
+	    std::cout << "in accept_baton_position fallback: no model " << std::endl;
+	 } else {
+	    mmdb::Chain *chain_p = new mmdb::Chain;
+	    chain_p->SetChainID("A");
+	    model_p->AddChain(chain_p);
+	    baton_atom = molecules[imol].add_baton_atom(baton_tip, 
+							baton_build_start_resno,
+							baton_build_chain_id,
+							baton_build_params_active,
+							baton_build_direction_flag);
+	 }
+      }
       baton_build_params_active = 0; // This flag was set after
 				     // set_baton_build_params.  We
 				     // clear it now so that we don't
@@ -3136,7 +3160,7 @@ graphics_info_t::toggle_baton_mode() {
 }
 
 void
-graphics_info_t::baton_try_another() {
+graphics_info_t::baton_tip_try_another() {
 
    baton_next_ca_options_index++;
    
@@ -3148,6 +3172,22 @@ graphics_info_t::baton_try_another() {
    baton_tip = baton_tip_by_ca_option(baton_next_ca_options_index);
    graphics_draw();
 }
+
+
+
+void
+graphics_info_t::baton_tip_previous() {
+
+   if (baton_next_ca_options_index == 0) {
+      baton_next_ca_options_index = int(baton_next_ca_options->size()-1);
+   } else {
+      baton_next_ca_options_index--;
+   } 
+   baton_tip = baton_tip_by_ca_option(baton_next_ca_options_index);
+   graphics_draw();
+}
+
+
 
 void
 graphics_info_t::shorten_baton() {
@@ -3177,13 +3217,13 @@ void
 graphics_info_t::baton_build_delete_last_residue() {
 
    int imol = baton_build_atoms_molecule();
-   if (imol > -1) {
+   if (is_valid_model_molecule(imol)) {
       std::pair<short int, mmdb::Atom *> new_centre
 	 = molecules[imol].baton_build_delete_last_residue();
       if (new_centre.first) {
 	 coot::Cartesian new_centre_cart(new_centre.second->x,
-				   new_centre.second->y,
-				   new_centre.second->z);
+					 new_centre.second->y,
+					 new_centre.second->z);
 	 setRotationCentre(new_centre_cart);
 	 baton_root = new_centre_cart;
 	 int imol_for_skel = imol_for_skeleton();
@@ -3200,9 +3240,9 @@ graphics_info_t::baton_build_delete_last_residue() {
 	 baton_next_ca_options_index = 0;
 	 baton_length = 3.8;
 	 baton_tip = baton_tip_by_ca_option(baton_next_ca_options_index);
-	 graphics_draw();
       }
    } 
+   graphics_draw();
 } 
 
 
@@ -3909,7 +3949,7 @@ graphics_info_t::setup_flash_bond_internal(int i_torsion_index) {
 		     std::vector <coot::dict_torsion_restraint_t> torsion_restraints =
 			r.second.get_non_const_torsions(find_hydrogen_torsions_flag);
 
-		     if (i_torsion_index >= 0 && i_torsion_index < torsion_restraints.size()) {
+		     if (i_torsion_index >= 0 && i_torsion_index < int(torsion_restraints.size())) {
 
 			atom_names.first  = torsion_restraints[i_torsion_index].atom_id_2_4c();
 			atom_names.second = torsion_restraints[i_torsion_index].atom_id_3_4c();

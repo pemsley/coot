@@ -500,7 +500,7 @@ main(int argc, char **argv) {
 
 	    int n_new_ligand = 0;
 	    coot::minimol::molecule m;
-	    for (unsigned int iclust=0; iclust<n_clusters; iclust++) {
+	    for (int iclust=0; iclust<n_clusters; iclust++) {
 
 	       // frac_lim is the fraction of the score of the best solutions
 	       // that we should consider as solutions. 0.5 is generous, I

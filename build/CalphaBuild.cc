@@ -294,8 +294,9 @@ coot::CalphaBuild::score_position_by_angles(const std::vector<clipper::Coord_ort
 // 		<< " torsion: " << this_torsion << " score: " << score << std::endl;
    } else {
 
-      std::cout << "WARNING: default low geometry score because Previous_ca_positions.size()" 
-		<< " is " << Previous_ca_positions.size() << std::endl;
+      if (0) 
+	 std::cout << "WARNING: default low geometry score because Previous_ca_positions.size()" 
+		   << " is " << Previous_ca_positions.size() << std::endl;
 
    } 
       

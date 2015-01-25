@@ -141,6 +141,10 @@ namespace coot {
    RDKit::Atom::ChiralType get_chiral_tag(mmdb::Residue *residue_p,
 					  const dictionary_residue_restraints_t &restraints,
 					  mmdb::Atom *atom_p);
+   
+   RDKit::Atom::ChiralType get_chiral_tag_v2(mmdb::Residue *residue_p,
+					     const dictionary_residue_restraints_t &restraints,
+					     mmdb::Atom *atom_p);
 
    // update the atom positions of the rdkit_molecule from residue_p
    // 

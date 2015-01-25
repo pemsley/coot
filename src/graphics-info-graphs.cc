@@ -334,7 +334,7 @@ graphics_info_t::delete_residue_from_geometry_graphs(int imol,
    graph_types.push_back(coot::GEOMETRY_GRAPH_ROTAMER);
    graph_types.push_back(coot::GEOMETRY_GRAPH_NCS_DIFFS);
 
-   for (int igt=0; igt<graph_types.size(); igt++) { 
+   for (unsigned int igt=0; igt<graph_types.size(); igt++) { 
       GtkWidget *graph =
 	 coot::get_validation_graph(imol_moving_atoms, graph_types[igt]);
       if (graph) {

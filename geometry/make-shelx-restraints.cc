@@ -10,7 +10,7 @@ void output_flats(const coot::dictionary_residue_restraints_t &rest,
    for (unsigned int i=0; i<rest.plane_restraint.size(); i++) { 
       const coot::dict_plane_restraint_t &pr= rest.plane_restraint[i];
       f << "FLAT_" << rest.residue_info.comp_id;
-      for (unsigned int iat=0; iat<pr.n_atoms(); iat++)
+      for (int iat=0; iat<pr.n_atoms(); iat++)
 	 f << " " << coot::util::remove_whitespace(pr.atom_id(iat));
       f << "\n";
    }

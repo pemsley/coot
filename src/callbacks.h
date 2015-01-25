@@ -1108,6 +1108,10 @@ on_baton_try_again_button_clicked      (GtkButton       *button,
                                         gpointer         user_data);
 
 void
+on_baton_tip_previous_button_clicked      (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
 on_baton_shorten_button_clicked        (GtkButton       *button,
                                         gpointer         user_data);
 

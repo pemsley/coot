@@ -4103,11 +4103,6 @@ void multi_residue_torsion_scm(int imol, SCM residues_specs_scm);
 
 #endif  /* USE_GUILE */
 
-void setup_multi_residue_torsion();  /* show the pick dialog */
-void show_multi_residue_torsion_dialog(); /* show the rotatable bonds dialog */
-void clear_multi_residue_torsion_mode();
-void set_multi_residue_torsion_reverse_mode(short int mode);
-
 
 #ifdef USE_PYTHON
 PyObject *get_torsion_py(int imol, PyObject *atom_spec_1, PyObject *atom_spec_2, PyObject *atom_spec_3, PyObject *atom_spec_4);
@@ -4127,6 +4122,14 @@ void multi_residue_torsion_py(int imol, PyObject *residues_specs_py);
 
 
 #endif /* __cplusplus  */
+
+/* These functions are called from callbacks.c */
+void clear_multi_residue_torsion_mode();
+void set_multi_residue_torsion_reverse_mode(short int mode);
+void show_multi_residue_torsion_dialog(); /* show the rotatable bonds dialog */
+void setup_multi_residue_torsion();  /* show the pick dialog */
+
+
 
 /* \} */
 
@@ -5479,7 +5482,9 @@ int try_set_draw_baton(short int i); /* draw the baton or not */
 /*! \brief accept the baton tip position - a prime candidate for a key binding */
 void accept_baton_position();	/* put an atom at the tip */
 /*! \brief move the baton tip position - another prime candidate for a key binding */
-void baton_try_another();
+void baton_tip_try_another();
+/*! \brief move the baton tip to the previous position*/
+void baton_tip_previous();
 /*! \brief shorten the baton length */
 void shorten_baton();
 /*! \brief lengthen the baton */

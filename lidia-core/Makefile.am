@@ -18,7 +18,7 @@
 lib_LTLIBRARIES=libcoot-lidia-core.la
 
 pkginclude_HEADERS = lbg-shared.hh lbg-molfile.hh lig-build.hh \
-	rdkit-interface.hh use-rdkit.hh cod-types.hh
+	rdkit-interface.hh use-rdkit.hh cod-types.hh neighbour-sorter.hh
 pkgincludedir = $(includedir)/coot/lidia-core
 
 
