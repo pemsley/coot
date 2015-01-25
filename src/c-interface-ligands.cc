@@ -847,7 +847,7 @@ execute_ligand_search_internal() {
 
    int n_new_ligand = 0;
    coot::minimol::molecule m;
-   for (unsigned int iclust=0; iclust<n_clusters; iclust++) {
+   for (int iclust=0; iclust<n_clusters; iclust++) {
 
       // frac_lim is the fraction of the score of the best solutions
       // that we should consider as solutions. 0.5 is generous, I
@@ -1507,7 +1507,7 @@ PyObject *add_dipole_for_residues_py(int imol, PyObject *residue_specs) {
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
       std::vector<coot::residue_spec_t> res_specs;
-      int l = PyObject_Length(residue_specs);
+      unsigned int l = PyObject_Length(residue_specs);
       for (unsigned int ispec=0; ispec<l; ispec++) {
 	 PyObject *residue_spec_py = PyList_GetItem(residue_specs, ispec);
 	 coot::residue_spec_t rs = residue_spec_from_py(residue_spec_py);
@@ -2571,8 +2571,8 @@ double kolmogorov_smirnov_scm(SCM l1, SCM l2) {
    if (scm_list_p(l1) && scm_list_p(l2)) {
       SCM length_scm_1 = scm_length(l1);
       SCM length_scm_2 = scm_length(l2);
-      int len_l1 = scm_to_int(length_scm_1);
-      int len_l2 = scm_to_int(length_scm_2);
+      unsigned int len_l1 = scm_to_int(length_scm_1);
+      unsigned int len_l2 = scm_to_int(length_scm_2);
       std::vector<double> v1;
       std::vector<double> v2;
       for (unsigned int i=0; i<len_l1; i++) {
@@ -2598,8 +2598,8 @@ SCM kullback_liebler_scm(SCM l1, SCM l2) {
    if (scm_list_p(l1) && scm_list_p(l2)) {
       SCM length_scm_1 = scm_length(l1);
       SCM length_scm_2 = scm_length(l2);
-      int len_l1 = scm_to_int(length_scm_1);
-      int len_l2 = scm_to_int(length_scm_2);
+      unsigned int len_l1 = scm_to_int(length_scm_1);
+      unsigned int len_l2 = scm_to_int(length_scm_2);
       std::vector<double> v1;
       std::vector<double> v2;
       for (unsigned int i=0; i<len_l1; i++) {
@@ -2625,8 +2625,8 @@ double kolmogorov_smirnov_py(PyObject *l1, PyObject *l2) {
 
    double result = -1;
    if (PyList_Check(l1) && PyList_Check(l2)) {
-      int len_l1 = PyList_Size(l1);
-      int len_l2 = PyList_Size(l2);
+      unsigned int len_l1 = PyList_Size(l1);
+      unsigned int len_l2 = PyList_Size(l2);
       std::vector<double> v1;
       std::vector<double> v2;
       for (unsigned int i=0; i<len_l1; i++) {
@@ -2650,8 +2650,8 @@ PyObject *kullback_liebler_py(PyObject *l1, PyObject *l2) {
 
    PyObject *result_py = Py_False;
    if (PyList_Check(l1) && PyList_Check(l2)) {
-      int len_l1 = PyList_Size(l1);
-      int len_l2 = PyList_Size(l2);
+      unsigned int len_l1 = PyList_Size(l1);
+      unsigned int len_l2 = PyList_Size(l2);
       std::vector<double> v1;
       std::vector<double> v2;
       for (unsigned int i=0; i<len_l1; i++) {
@@ -2721,7 +2721,7 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 		     + std::string(" penalty-score:  ") + coot::util::float_to_string(pen_score);
 		  penalty_string_bonds.push_back(std::pair<std::string,double> (s, pen_score));
 		  sum_penalties_bonds += pen_score;
-	       } 
+	       }
 	    }
 
 	    if (rest.restraint_type == coot::ANGLE_RESTRAINT) {
@@ -2767,6 +2767,26 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 			       << std::endl;
 		  }
 	       }
+	    }
+
+	    if (rest.restraint_type == coot::PLANE_RESTRAINT) {
+	       std::vector<mmdb::Atom *> plane_atoms;
+	       for (unsigned int iat=0; iat<rest.plane_atom_index.size(); iat++) { 
+		  mmdb::Atom *at = residue_p->GetAtom(rest.plane_atom_index[iat].first);
+		  if (at)
+		     plane_atoms.push_back(at);
+	       }
+	       std::string penalty_string("   plane ");
+	       for (unsigned int iat=0; iat<plane_atoms.size(); iat++) { 
+		  penalty_string += plane_atoms[iat]->name;
+		  penalty_string += " ";
+	       }
+	       std::size_t len = penalty_string.length();
+	       if (len < 88) // to match bonds
+		  penalty_string += std::string(88-len, ' ');
+	       double pen_score = gdc.geometry_distortion[i].distortion_score;
+	       penalty_string += std::string(" penalty-score:  ") + coot::util::float_to_string(pen_score);
+	       std::cout << penalty_string << std::endl;
 	    }
 	 }
 	 
@@ -3033,7 +3053,7 @@ void display_residue_hydrogen_bond_atom_status_using_dictionary(int imol, std::s
 	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
 	    mol->GetSelIndex(SelHnd_lig, residue_atoms, n_residue_atoms);
-	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	    for (int iat=0; iat<n_residue_atoms; iat++) { 
 	       mmdb::Atom *at = residue_atoms[iat];
 	       int hb_type = coot::energy_lib_atom::HB_UNASSIGNED;
 	       at->GetUDData(status.second, hb_type);

@@ -245,14 +245,13 @@ coot::rama_plot::big_square(int model_number,
 
    coot::residue_spec_t res_spec(chain_id, resno, ins_code);
    if (model_number >= 1) { 
-      if (model_number < phi_psi_model_sets.size()) {
+      if (model_number < int(phi_psi_model_sets.size())) {
 	 coot::util::phi_psi_t pp = phi_psi_model_sets[model_number][res_spec];
 	 if (pp.is_filled()) {
 	    draw_phi_psi_point_internal(pp, 0, 4);
 	 }
       }
    }
-   
 }
 
 void

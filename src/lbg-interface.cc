@@ -58,7 +58,7 @@ residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char
 	    if (0) {  // debugging
 	       // what are the bond types after sanitization/kekulization?
 	       std::cout << "after sanitization/kekulization:: " << std::endl;
-	       int n_bonds = rdkm.getNumBonds();
+	       unsigned int n_bonds = rdkm.getNumBonds();
 	       for (unsigned int ib=0; ib<n_bonds; ib++) {
 		  const RDKit::Bond *bond_p = rdk_mol_with_no_Hs.getBondWithIdx(ib);
 		  std::cout << ib << "bond:  " << *bond_p << std::endl;
