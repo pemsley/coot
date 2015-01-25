@@ -3419,7 +3419,7 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
    double weight_for_3d_distances = 0.4;
 
    int n_confs = m->getNumConformers();
-   std::cout << "rdkit_mol_post_read_handling() n_confs is " << n_confs << std::endl;
+   // std::cout << "rdkit_mol_post_read_handling() n_confs is " << n_confs << std::endl;
    
    if (n_confs > 0) {
       int iconf = 0;

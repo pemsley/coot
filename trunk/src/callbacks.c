@@ -58,6 +58,8 @@
 #include "c-interface.h"
 #include "positioned-widgets.h"
 
+#include "generic-display-objects-c.h"
+
 /* This is our data identification string to store
  * data in list items
  */
@@ -3642,8 +3644,16 @@ void
 on_baton_try_again_button_clicked      (GtkButton       *button,
                                         gpointer         user_data)
 {
-  baton_try_another();
+  baton_tip_try_another();
 }
+
+void
+on_baton_tip_previous_button_clicked      (GtkButton       *button,
+					   gpointer         user_data) { 
+
+   baton_tip_previous();
+} 
+
 
 
 void

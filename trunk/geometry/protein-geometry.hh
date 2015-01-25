@@ -487,7 +487,9 @@ namespace coot {
       }
       dict_atom() {}; // for resize(0);
       void add_pos(int pos_type, const std::pair<bool, clipper::Coord_orth> &model_pos_ideal);
+      friend std::ostream& operator<<(std::ostream &s, const dict_atom &at);
    };
+   std::ostream& operator<<(std::ostream &s, const dict_atom &at);
 
    // ------------------------------------------------------------------------
    // class dict_chem_comp_tree_t

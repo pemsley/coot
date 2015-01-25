@@ -2475,9 +2475,15 @@ void accept_baton_position() { 	/* put an atom at the tip and move baton */
    add_to_history_simple("accept-baton-position");
 }
 
-void baton_try_another() {
+void baton_tip_try_another() {
    graphics_info_t g;
-   g.baton_try_another();
+   g.baton_tip_try_another();
+   add_to_history_simple("baton-try-another");
+}
+
+void baton_tip_previous() {
+   graphics_info_t g;
+   g.baton_tip_previous();
    add_to_history_simple("baton-try-another");
 }
 

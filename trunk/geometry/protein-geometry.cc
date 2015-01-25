@@ -1068,6 +1068,23 @@ coot::protein_geometry::make_chiral_volume_string(int chiral_sign) {
 }
 
 std::ostream&
+coot::operator<<(std::ostream &s, const dict_atom &at) {
+
+   s << "dict_atom: "
+     << "atom_id :" << at.atom_id << ":  "
+     << "atom-id-4c :" << at.atom_id_4c << ":  "
+     << "type-symbol :" << at.type_symbol << ":  "
+     << "model-pos " << at.model_Cartn.first << " ";
+   if (at.model_Cartn.first)
+      s << at.model_Cartn.second.format() << " ";
+   s << "ideal-pos " << at.pdbx_model_Cartn_ideal.first << " ";
+   if (at.pdbx_model_Cartn_ideal.first)
+      s << at.pdbx_model_Cartn_ideal.second.format();
+   return s;
+} 
+
+
+std::ostream&
 coot::operator<<(std::ostream &s, const dict_bond_restraint_t &rest) {
 
    s << "[bond-restraint: " 

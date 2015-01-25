@@ -1294,6 +1294,9 @@ void restraints_editor_save_restraint_by_widget(GtkWidget *w) {
 }
 
 void save_monomer_restraints_by_widget(GtkDialog *chooser) {
+
+   // recall the restraints come from reading the entries in the dialog
+   // 
    const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(chooser));
    coot::dictionary_residue_restraints_t *t =
       (coot::dictionary_residue_restraints_t *) g_object_get_data (G_OBJECT (chooser), "restraints");

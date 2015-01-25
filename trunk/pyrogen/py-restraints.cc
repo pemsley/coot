@@ -260,7 +260,7 @@ monomer_restraints_from_python(PyObject *restraints) {
 			std::string plane_id = PyString_AsString(plane_id_py);
 			int n_atoms = PyObject_Length(atom_esd_pair_list);
 			std::vector<std::pair<std::string, double> > atom_name_esd_pair_vec;
-			for (unsigned int iat=0; iat<n_atoms; iat++) {
+			for (int iat=0; iat<n_atoms; iat++) {
 			   PyObject *nep = PyList_GetItem(atom_esd_pair_list, iat);
 			   if (PyList_Check(nep)) { 
 			      PyObject *atom_name_py = PyList_GetItem(nep, 0);

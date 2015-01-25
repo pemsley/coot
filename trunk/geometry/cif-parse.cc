@@ -614,15 +614,29 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
    
    if (debug) { 
       std::cout << "   mon_lib_add_atom  " << comp_id << " atom-id:" << atom_id << ": :"
-		<< atom_id_4c << ": " << type_symbol << " " << type_energy << " ("
-		<< partial_charge.first << "," << partial_charge.second << ")" << std::endl;
+		<< atom_id_4c << ": " << type_symbol << " " << type_energy << " ( "
+		<< partial_charge.first << "," << partial_charge.second << ")";
+      std::cout << " model-pos: " << model_pos.first << " ";
+      if (model_pos.first)
+	 std::cout << "( "
+		   << model_pos.second.x() << " "
+		   << model_pos.second.y() << " "
+		   << model_pos.second.z() << " ) ";
+      std::cout << "model-pos-ideal: " << model_pos_ideal.first << " ";
+      if (model_pos_ideal.first)
+	 std::cout << "( "
+		   << model_pos_ideal.second.x() << " "
+		   << model_pos_ideal.second.y() << " "
+		   << model_pos_ideal.second.z() << " ) ";
+      std::cout << std::endl;
    } 
 
    coot::dict_atom at_info(atom_id, atom_id_4c, type_symbol, type_energy, partial_charge);
+   
    if (debug) { 
-      std::cout << "mon_lib_add_atom " << model_pos.first << " "
+      std::cout << "   mon_lib_add_atom model_pos       " << model_pos.first << " "
 		<< model_pos.second.format() << std::endl;
-      std::cout << "mon_lib_add_atom " << model_pos_ideal.first << " "
+      std::cout << "   mon_lib_add_atom model_pos_ideal " << model_pos_ideal.first << " "
 		<< model_pos_ideal.second.format() << std::endl;
    }
    
@@ -678,8 +692,9 @@ coot::dict_atom::add_pos(int pos_type,
 
    if (pos_type == coot::dict_atom::IDEAL_MODEL_POS)
       pdbx_model_Cartn_ideal = model_pos;
-   if (pos_type == coot::dict_atom::REAL_MODEL_POS)
+   if (pos_type == coot::dict_atom::REAL_MODEL_POS) {
       model_Cartn = model_pos;
+   }
 
 }
 
@@ -1245,13 +1260,14 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop) {
 	       }
 	    }
 
-	    if (0) 
+	    if (false) 
 	       std::cout << "debug:: calling mon_lib_add_atom: "
 			 << ":" << comp_id << ":  "
 			 << ":" << atom_id << ":  "
 			 << ":" << padded_name << ":  "
 			 << ":" << type_symbol << ":  "
-			 << model_Cartn.second.format() << " "
+			 << "model-pos " << model_Cartn.first << " " << model_Cartn.second.format() << " "
+			 << "ideal-pos " << pdbx_model_Cartn_ideal.first << " "
 			 << pdbx_model_Cartn_ideal.second.format()
 			 << std::endl;
 	    mon_lib_add_atom(comp_id, atom_id, padded_name, type_symbol, type_energy,
@@ -2916,25 +2932,26 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       // atom loop
 
       std::string comp_monomer_name = "comp_";
-      comp_monomer_name += residue_info.comp_id.c_str(); 
+      comp_monomer_name += residue_info.comp_id; 
       rc = mmCIFFile->AddCIFData(comp_monomer_name.c_str());
       mmCIFData = mmCIFFile->GetCIFData(comp_monomer_name.c_str());
 
       // shall we add coordinates too?
       //
-      bool add_coordinates = false; // if all atoms have coords, add this
+      bool add_coordinates = true; // if no atoms have coords, change this.
       int n_atoms_with_coords = 0;
-      for (int i=0; i<atom_info.size(); i++) {
+      for (unsigned int i=0; i<atom_info.size(); i++) {
 	 if (atom_info[i].model_Cartn.first)
 	    n_atoms_with_coords++;
       }
-      if (n_atoms_with_coords == atom_info.size())
-	 add_coordinates = true;
+      
+      if (n_atoms_with_coords == 0)
+	 add_coordinates = false;
       
       if (atom_info.size()) { 
 	 rc = mmCIFData->AddLoop("_chem_comp_atom", mmCIFLoop);
 	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
-	    for (int i=0; i<atom_info.size(); i++) {
+	    for (unsigned int i=0; i<atom_info.size(); i++) {
 	       const dict_atom &ai = atom_info[i];
 	       const char *ss =  residue_info.comp_id.c_str();
 	       mmCIFLoop->PutString(ss, "comp_id", i);
@@ -2950,12 +2967,14 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 		  mmCIFLoop->PutReal(v, "partial_charge", i, 4);
 	       }
 	       if (add_coordinates) {
-		  float x = atom_info[i].model_Cartn.second.x();
-		  float y = atom_info[i].model_Cartn.second.y();
-		  float z = atom_info[i].model_Cartn.second.z();
-		  mmCIFLoop->PutReal(x, "x", i, 6);
-		  mmCIFLoop->PutReal(y, "y", i, 6);
-		  mmCIFLoop->PutReal(z, "z", i, 6);
+		  if (atom_info[i].model_Cartn.first) { 
+		     float x = atom_info[i].model_Cartn.second.x();
+		     float y = atom_info[i].model_Cartn.second.y();
+		     float z = atom_info[i].model_Cartn.second.z();
+		     mmCIFLoop->PutReal(x, "x", i, 6);
+		     mmCIFLoop->PutReal(y, "y", i, 6);
+		     mmCIFLoop->PutReal(z, "z", i, 6);
+		  }
 	       } 
 	    }
 	 }
@@ -2967,7 +2986,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	 rc = mmCIFData->AddLoop("_chem_comp_bond", mmCIFLoop);
 	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
 	    // std::cout << " number of bonds: " << bond_restraint.size() << std::endl;
-	    for (int i=0; i<bond_restraint.size(); i++) {
+	    for (unsigned int i=0; i<bond_restraint.size(); i++) {
 	       // std::cout << "ading bond number " << i << std::endl;
 	       const char *ss = residue_info.comp_id.c_str();
 	       mmCIFLoop->PutString(ss, "comp_id", i);
@@ -3002,7 +3021,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	 rc = mmCIFData->AddLoop("_chem_comp_angle", mmCIFLoop);
 	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
 	    // std::cout << " number of angles: " << angle_restraint.size() << std::endl;
-	    for (int i=0; i<angle_restraint.size(); i++) {
+	    for (unsigned int i=0; i<angle_restraint.size(); i++) {
 	       // std::cout << "ading angle number " << i << std::endl;
 	       std::string id_1 = util::remove_whitespace(angle_restraint[i].atom_id_1_4c());
 	       std::string id_2 = util::remove_whitespace(angle_restraint[i].atom_id_2_4c());
@@ -3036,7 +3055,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	 rc = mmCIFData->AddLoop("_chem_comp_tor", mmCIFLoop);
 	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
 	    // std::cout << " number of torsions: " << torsion_restraint.size() << std::endl;
-	    for (int i=0; i<torsion_restraint.size(); i++) {
+	    for (unsigned int i=0; i<torsion_restraint.size(); i++) {
 	       // std::cout << "ading torsion number " << i << std::endl;
 	       std::string id_1 = util::remove_whitespace(torsion_restraint[i].atom_id_1_4c());
 	       std::string id_2 = util::remove_whitespace(torsion_restraint[i].atom_id_2_4c());
@@ -3074,7 +3093,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	 rc = mmCIFData->AddLoop("_chem_comp_chir", mmCIFLoop);
 	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
 	    // std::cout << " number of chirals: " << chiral_restraint.size() << std::endl;
-	    for (int i=0; i<chiral_restraint.size(); i++) {
+	    for (unsigned int i=0; i<chiral_restraint.size(); i++) {
 	       // std::cout << "ading chiral number " << i << std::endl;
 	       const char *ss = residue_info.comp_id.c_str();
 	       std::string id_c = util::remove_whitespace(chiral_restraint[i].atom_id_c_4c());
@@ -3113,7 +3132,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	 if (rc == mmdb::mmcif::CIFRC_Ok || rc == mmdb::mmcif::CIFRC_Created) {
 	    // std::cout << " number of planes: " << plane_restraint.size() << std::endl;
 	    int icount = 0;
-	    for (int i=0; i<plane_restraint.size(); i++) {
+	    for (unsigned int i=0; i<plane_restraint.size(); i++) {
 	       // std::cout << "DEBUG:: adding plane number " << i << std::endl;
 	       for (int iat=0; iat<plane_restraint[i].n_atoms(); iat++) {
 		  const char *ss = residue_info.comp_id.c_str();

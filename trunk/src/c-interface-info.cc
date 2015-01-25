@@ -4650,10 +4650,15 @@ void write_restraints_cif_dictionary(const char *monomer_type, const char *file_
    graphics_info_t g;
    std::pair<short int, coot::dictionary_residue_restraints_t> r = 
       g.Geom_p()->get_monomer_restraints(monomer_type);
-   if (!r.first)
-      std::cout << "Failed to find " << monomer_type << " in dictionary" << std::endl;
-   else
+   if (!r.first) {
+      std::string s =  "Failed to find ";
+      s += monomer_type;
+      s += " in dictionary";
+      add_status_bar_text(s.c_str());
+      std::cout << s << std::endl;
+   } else {
       r.second.write_cif(file_name);
+   }
 } 
 
 /*  ----------------------------------------------------------------------- */
