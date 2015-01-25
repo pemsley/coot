@@ -154,7 +154,7 @@ lbg_info_t::display_search_results(const std::vector<coot::match_results_t> &v) 
       glist = glist->next;
    }
 
-   for (int i=0; i<v.size(); i++) {
+   for (unsigned int i=0; i<v.size(); i++) {
       std::string lab = v[i].comp_id;
       lab += ":  ";
       lab += v[i].name;
