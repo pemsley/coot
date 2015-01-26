@@ -115,65 +115,85 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
 
    }
 
+
+   bool match_to_reference_dictionaries_flag = true;
+
+   if (match_to_reference_dictionaries_flag) {
+      matching_dict_t matched_restraints = match_restraints_to_amino_acids(restraints, NULL);
+      if (matched_restraints.filled()) {
+	 restraints = matched_restraints.dict;
+      } 
+   } 
    restraints.write_cif(mmcif_out_file_name);
-
-   if (0) { // testing.
-      std::pair<mmdb::Residue *, dictionary_residue_restraints_t> matched_restraints =
-	 match_restraints_to_amino_acids(restraints, NULL);
-
-      if (matched_restraints.first) {
-	 std::cout << "......... about to write matched.cif" << std::endl;
-	 matched_restraints.second.write_cif("matched.cif");
-      }
-   }
 
    return monomer_restraints_to_python(restraints);
       
 }
 
-std::pair<mmdb::Residue *, coot::dictionary_residue_restraints_t>
+// and sugars
+coot::matching_dict_t
 coot::match_restraints_to_amino_acids(const coot::dictionary_residue_restraints_t &restraints,
 				      mmdb::Residue *residue_p) {
-
+   
    mmdb::Residue *returned_res = NULL;
-   dictionary_residue_restraints_t returned_dict;
+   matching_dict_t dict;
 
-   unsigned int n_comp_ids = 19;
+   unsigned int n_comp_ids = 21;
    std::string comp_ids[] = { "CYS", "ASP", "GLU",        "HIS", "ILE", "LYS", "LEU", "MET",
 			      "ASN", "PRO", "GLN", "ARG", "SER", "THR", "VAL", "TRP", "TYR",
-			      "G", "C"};
+			      "G",   "C",   "GLC", "MAN"};
+
+   std::vector<std::string> v(n_comp_ids);
+   for (unsigned int i=0; i<n_comp_ids; i++) {
+      v[i] = comp_ids[i];
+   }
+
+   return match_restraints_to_reference_dictionaries(restraints, residue_p, v);
+
+}
+
+
+
+coot::matching_dict_t
+coot::match_restraints_to_reference_dictionaries(const coot::dictionary_residue_restraints_t &restraints,
+						 mmdb::Residue *residue_p,
+						 const std::vector<std::string> &test_comp_ids) {
+   matching_dict_t dict;
    protein_geometry pg;
+   pg.set_verbose(false);
    int read_number = 0;
-   for (unsigned int i=0; i<n_comp_ids; i++) { 
-      pg.try_dynamic_add(comp_ids[i], i);
+   for (unsigned int i=0; i<test_comp_ids.size(); i++) { 
+      pg.try_dynamic_add(test_comp_ids[i], i);
    }
 
    std::string out_comp_id = restraints.residue_info.comp_id;
-   int best_n_matches = 0;
+   unsigned int best_n_matches = 0;
    std::string best_comp_id;
    
-   for (unsigned int i=0; i<n_comp_ids; i++) {
-      std::pair<bool, dictionary_residue_restraints_t> rest = pg.get_monomer_restraints(comp_ids[i]);
+   for (unsigned int i=0; i<test_comp_ids.size(); i++) {
+      std::pair<bool, dictionary_residue_restraints_t> rest = pg.get_monomer_restraints(test_comp_ids[i]);
       if (rest.first) {
 	 std::pair<unsigned int, dictionary_residue_restraints_t> r_new =
 	    restraints.match_to_reference(rest.second, NULL, out_comp_id, out_comp_id);
-	 std::cout << "Using " << comp_ids[i] << " found " << r_new.first << " matches" << std::endl;
+	 // std::cout << "Using " << test_comp_ids[i] << " found " << r_new.first << " matches"
+	 //           << std::endl;
 	 if (r_new.first > best_n_matches) {
 	    best_n_matches = r_new.first;
-	    best_comp_id = comp_ids[i];
+	    best_comp_id = test_comp_ids[i];
 	 }
       }
    }
 
    if (! best_comp_id.empty()) {
-      returned_res = util::deep_copy_this_residue(residue_p);
+      std::cout << "INFO:: Matched to reference dictionary: " << best_comp_id << std::endl;
+      mmdb::Residue *returned_res = util::deep_copy_this_residue(residue_p);
       std::pair<bool, dictionary_residue_restraints_t> rest = pg.get_monomer_restraints(best_comp_id);
       std::pair<unsigned int, dictionary_residue_restraints_t> r_new =
 	 restraints.match_to_reference(rest.second, returned_res, out_comp_id, out_comp_id);
-      returned_dict = r_new.second;
-   } 
-   return std::pair<mmdb::Residue *, coot::dictionary_residue_restraints_t> (returned_res, returned_dict);
-
+      dict = matching_dict_t(returned_res, r_new.second);
+   }
+   
+   return dict;
 }
 
 
