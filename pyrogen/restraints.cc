@@ -34,11 +34,22 @@ coot::mogul_out_to_mmcif_dict(const std::string &mogul_file_name,
 									    n_atoms_non_hydrogen,
 									    bond_order_restraints);
    restraints.write_cif(cif_file_name);
+}
+
+void
+coot::write_restraints(PyObject *restraints_py, const std::string &file_name) {
+
+   coot::dictionary_residue_restraints_t restraints = monomer_restraints_from_python(restraints_py);
+   if (restraints.is_filled()) {
+      restraints.write_cif(file_name);
+   } else {
+      std::cout << "No restraints in write_restraints()" << std::endl;
+   } 
 
 }
 
 // replace_with_mmff_b_a_restraints is an optional arg, default true
-// 
+//
 PyObject *
 coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
 				     const std::string &comp_id,
@@ -107,30 +118,70 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
       dictionary_residue_restraints_t energy_lib_restraints =
 	 mmcif_dict_from_mol_using_energy_lib(comp_id, compound_name, rdkit_mol_py,
 					      quartet_planes, quartet_hydrogen_planes);
-      int n_angles = restraints.angle_restraint.size();
-      if (n_angles > 10) n_angles = 10;
-      
       restraints = energy_lib_restraints;
       restraints.conservatively_replace_with(mogul_restraints);
 
    }
 
-
-   bool match_to_reference_dictionaries_flag = true;
-
-   if (match_to_reference_dictionaries_flag) {
-      matching_dict_t matched_restraints = match_restraints_to_amino_acids(restraints, NULL);
-      if (matched_restraints.filled()) {
-	 restraints = matched_restraints.dict;
-      } 
-   } 
-   restraints.write_cif(mmcif_out_file_name);
-
    return monomer_restraints_to_python(restraints);
       
 }
 
-// and sugars
+// return a 3-value tuple:
+// 0: success-bool
+// 1: new-restraints
+// 2: atom-name transformation (from-name, to-name)
+// 
+PyObject *
+coot::match_restraints_to_dictionaries(PyObject *restraints_py,
+				       PyObject *template_comp_id_list,
+				       PyObject *template_cif_dict_file_names) {
+
+   // default return value (failure)
+   PyObject *o = PyTuple_New(3);
+   PyTuple_SetItem(o, 0, PyBool_FromLong(0));
+   PyTuple_SetItem(o, 1, PyInt_FromLong(-1));
+   PyTuple_SetItem(o, 2, PyString_FromString(""));
+
+   coot::dictionary_residue_restraints_t restraints = monomer_restraints_from_python(restraints_py);
+   std::vector<std::string> comp_ids;
+   std::vector<std::string> dictionary_file_names;
+   
+   if (PyList_Check(template_comp_id_list)) {
+      Py_ssize_t len = PyObject_Length(template_comp_id_list);
+      for (Py_ssize_t i=0; i<len; i++) {
+	 std::string s = PyString_AsString(PyList_GetItem(template_comp_id_list, i));
+	 comp_ids.push_back(s);
+      }
+   }
+
+   if (PyList_Check(template_cif_dict_file_names)) {
+      Py_ssize_t len = PyObject_Length(template_cif_dict_file_names);
+      for (Py_ssize_t i=0; i<len; i++) {
+	 std::string s = PyString_AsString(PyList_GetItem(template_cif_dict_file_names, i));
+	 dictionary_file_names.push_back(s);
+      }
+   }
+
+   mmdb::Residue *dummy_residue_p = NULL;
+   matching_dict_t md = match_restraints_to_reference_dictionaries(restraints, dummy_residue_p,
+								   comp_ids, dictionary_file_names);
+
+   if (md.filled()) {
+      PyObject *name_list_py = PyList_New(md.dict.atom_info.size());
+      for (unsigned int i=0; i<md.dict.atom_info.size(); i++)
+	 PyList_SetItem(name_list_py, i, PyString_FromString(md.dict.atom_info[i].atom_id_4c.c_str()));
+      PyTuple_SetItem(o, 0, PyBool_FromLong(true));
+      PyTuple_SetItem(o, 1, monomer_restraints_to_python(md.dict));
+      PyTuple_SetItem(o, 2, name_list_py); 
+   } 
+   
+   return o;
+} 
+
+// Old function
+// 
+// (and sugars)
 coot::matching_dict_t
 coot::match_restraints_to_amino_acids(const coot::dictionary_residue_restraints_t &restraints,
 				      mmdb::Residue *residue_p) {
@@ -148,7 +199,8 @@ coot::match_restraints_to_amino_acids(const coot::dictionary_residue_restraints_
       v[i] = comp_ids[i];
    }
 
-   return match_restraints_to_reference_dictionaries(restraints, residue_p, v);
+   std::vector<std::string> blank;
+   return match_restraints_to_reference_dictionaries(restraints, residue_p, v, blank);
 
 }
 
@@ -157,13 +209,17 @@ coot::match_restraints_to_amino_acids(const coot::dictionary_residue_restraints_
 coot::matching_dict_t
 coot::match_restraints_to_reference_dictionaries(const coot::dictionary_residue_restraints_t &restraints,
 						 mmdb::Residue *residue_p,
-						 const std::vector<std::string> &test_comp_ids) {
+						 const std::vector<std::string> &test_comp_ids,
+						 const std::vector<std::string> &test_mmcif_file_names) {
    matching_dict_t dict;
    protein_geometry pg;
    pg.set_verbose(false);
    int read_number = 0;
    for (unsigned int i=0; i<test_comp_ids.size(); i++) { 
       pg.try_dynamic_add(test_comp_ids[i], i);
+   }
+   for (unsigned int i=0; i<test_mmcif_file_names.size(); i++) { 
+      pg.init_refmac_mon_lib(test_mmcif_file_names[i], read_number++);
    }
 
    std::string out_comp_id = restraints.residue_info.comp_id;
@@ -195,6 +251,16 @@ coot::match_restraints_to_reference_dictionaries(const coot::dictionary_residue_
    
    return dict;
 }
+
+PyObject *
+coot::test_tuple() {
+
+   PyObject *o = PyTuple_New(2);
+   PyTuple_SetItem(o, 0, PyInt_FromLong(-19));
+   PyTuple_SetItem(o, 1, PyString_FromString("this-is-part-of-a-tuple"));
+
+   return o;
+} 
 
 
 PyObject *
@@ -1404,7 +1470,7 @@ coot::assign_chirals_mmcif_tags(const RDKit::ROMol &mol,
    return n_chirals;
 }
  
-// alter restraints.
+// alter restraints: RDKit/SMILES -> mmCIF chiral conversion
 int 
 coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 				coot::dictionary_residue_restraints_t *restraints) {
@@ -1419,9 +1485,9 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
       RDKit::Atom::ChiralType chiral_tag = at_p->getChiralTag();
       // std::cout << "atom " << iat << " chiral tag: " << chiral_tag << std::endl;
 
-      if (chiral_tag == RDKit::Atom::CHI_TETRAHEDRAL_CCW)
-	 vol_sign = dict_chiral_restraint_t::CHIRAL_RESTRAINT_NEGATIVE;
       if (chiral_tag == RDKit::Atom::CHI_TETRAHEDRAL_CW)
+	 vol_sign = dict_chiral_restraint_t::CHIRAL_RESTRAINT_NEGATIVE;
+      if (chiral_tag == RDKit::Atom::CHI_TETRAHEDRAL_CCW)
 	 vol_sign = dict_chiral_restraint_t::CHIRAL_RESTRAINT_POSITIVE;
 
       if (chiral_tag != RDKit::Atom::CHI_UNSPECIFIED) {
@@ -1439,6 +1505,7 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 	    // So we need to find the 4 neighbours of B: B should have
 	    // an index below A, (similar reason for the others).
 	    //
+	    // pairs of: RDKit-atom-idx,RDKit-atom-name
 	    std::vector<std::pair<int, string> > neighbours;
 
 	    unsigned int n_bonds = mol.getNumBonds();
@@ -1457,7 +1524,7 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 
 	    std::sort(neighbours.begin(), neighbours.end()); // how does this work? :-)
 
-	    // it sorts of the first index first, and if that is a
+	    // it sorts on the first index first, and if that is a
 	    // match, sorts on the second, I think, neighbours is now
 	    // sorted so that the low indices are first.
 
@@ -1471,12 +1538,39 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 		  neighbours[in].second = name;
 	       }
 
+	       std::cout << "Here with chiral neighbours: "
+			 << "(" << neighbours[0].first << " " << neighbours[0].second << ") "
+			 << "(" << neighbours[1].first << " " << neighbours[1].second << ") "
+			 << "(" << neighbours[2].first << " " << neighbours[2].second << ") "
+			 << "(" << neighbours[3].first << " " << neighbours[3].second << ")"
+			 << std::endl;
+
+	       std::vector<int> n_idx(3);
+	       n_idx[0] = 0;
+	       n_idx[1] = 2;
+	       n_idx[2] = 3;
+
+	       // if neighbours[1] was not the hydrogen, we need to shuffle.
+	       if (mol[neighbours[1].first]->getAtomicNum() != 1) {
+		  if (mol[neighbours[0].first]->getAtomicNum() == 1) {
+		     n_idx[0] = 1;
+		  }
+		  if (mol[neighbours[2].first]->getAtomicNum() == 1) {
+		     n_idx[1] = 1;
+		     n_idx[2] = 3;
+		  }
+		  if (mol[neighbours[3].first]->getAtomicNum() == 1) {
+		     n_idx[1] = 1;
+		     n_idx[2] = 2;
+		  }
+	       }
+
 	       std::string chiral_id = "chiral_" + util::int_to_string(n_chirals+1);
 	       // Neighbour[1] is the hydrogen, we presume. 
 	       if (!chiral_centre.empty() &&
-		   !neighbours[0].second.empty() &&
-		   !neighbours[2].second.empty() &&
-		   !neighbours[3].second.empty()) {
+		   !neighbours[n_idx[0]].second.empty() &&
+		   !neighbours[n_idx[1]].second.empty() &&
+		   !neighbours[n_idx[2]].second.empty()) {
 		  if (1) {
 		     coot::dict_chiral_restraint_t chiral(chiral_id,
 							  chiral_centre,
@@ -1485,6 +1579,7 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 							  neighbours[3].second, vol_sign);
 		     restraints->chiral_restraint.push_back(chiral);
 		     n_chirals++;
+		     // std::cout << ".............. made a chiral " << chiral << std::endl;
 		  }
 	       }
 

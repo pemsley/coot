@@ -86,5 +86,11 @@ namespace coot {
 
    PyObject *types_from_mmcif_dictionary(const std::string &file_name);
 
+   PyObject *test_tuple();
+   PyObject *match_restraints_to_dictionaries(PyObject *restraints_in,
+					      PyObject *template_comp_id_list,
+					      PyObject *template_cif_dict_file_names);
+   void write_restraints(PyObject *restraints_py, const std::string &file_name);
+
 }
 

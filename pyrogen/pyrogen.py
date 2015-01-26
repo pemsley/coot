@@ -705,18 +705,41 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
          #
          restraints = pysw.mogul_out_to_mmcif_dict_by_mol(mogul_out_file_name, comp_id,
                                                           compound_name, sane_H_mol, bor,
-							  mmcif_dict_name,
+							  mmcif_dict_name, # not used
                                                           quartet_planes,
 							  quartet_hydrogen_planes,
 							  replace_with_mmff_b_a_restraints)
-         
-         if len(restraints['_chem_comp_atom']) == sane_H_mol.GetNumAtoms():
-            n = len(sane_H_mol.GetAtoms())
-            for iat in range(n):
-               sane_H_mol.GetAtomWithIdx(iat).SetProp('name', restraints['_chem_comp_atom'][iat][0]);
 
+
+         test_file_name = "35G-pyrogen.cif"
+         template_cif_dict_files_names = []
+         template_cif_dict_files_names.append(test_file_name)
+         template_comp_ids = ["CYS", "ASP", "GLU",        "HIS", "ILE", "LYS", "LEU", "MET",
+			      "ASN", "PRO", "GLN", "ARG", "SER", "THR", "VAL", "TRP", "TYR",
+			      "G",   "C",   "GLC", "MAN"]
+         
+         success,new_restraints,at_name_list = pysw.match_restraints_to_dictionaries(restraints,
+                                                                                     template_comp_ids,
+                                                                                     template_cif_dict_files_names)
+
+         # success = False
+         
+         if success:
+
+             print "--------------------- success (new restraints) ------------------------------"
+             n = len(sane_H_mol.GetAtoms())
+             if len(restraints['_chem_comp_atom']) == n:
+                 restraints = new_restraints
+                 print "--------------------- success (atom numbers) ", n, '------------------------------'
+                 for iat in range(n):
+                     name = sane_H_mol.GetAtomWithIdx(iat).GetProp('name')
+                     print "changing name from", name, "to",restraints['_chem_comp_atom'][iat][0]
+                     sane_H_mol.GetAtomWithIdx(iat).SetProp('name', restraints['_chem_comp_atom'][iat][0]);
+         
+         
          # this will fail if restraints are matched but the (number of) atoms do not.
          #
+         pysw.write_restraints(restraints, mmcif_dict_name)
          pysw.regularize_and_write_pdb(sane_H_mol, restraints, comp_id, pdb_out_file_name)
 
       else:

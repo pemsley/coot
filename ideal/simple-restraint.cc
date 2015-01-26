@@ -280,7 +280,7 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
    mol->GetSelIndex(SelHnd_atom, atom, n_atoms);
 
    if (0) // debugging
-      for (unsigned int iat=0; iat<n_atoms; iat++)
+      for (int iat=0; iat<n_atoms; iat++)
 	 std::cout << "   " << iat << "  "  << coot::atom_spec_t(atom[iat]) << "  with altloc :"
 		   << altloc << ":" << std::endl;
 
@@ -584,7 +584,7 @@ coot::restraints_container_t::add_fixed_atoms_from_flanking_residues(const coot:
       mmdb::PPAtom residue_atoms = 0;
       int n_res_atoms;
       residues_for_fixed_atoms[i]->GetAtomTable(residue_atoms, n_res_atoms);
-      for (unsigned int iat=0; iat<n_res_atoms; iat++) { 
+      for (int iat=0; iat<n_res_atoms; iat++) { 
 	 mmdb::Atom *at = residue_atoms[iat];
 	 if (! (at->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok)) {
 	    std::cout << "ERROR:: bad UDD for atom " << iat << std::endl;
@@ -673,16 +673,6 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 
    s = gsl_multimin_fdfminimizer_alloc (T, n_variables());
 
-   // x and multimin_func are class variables
-   // 
-   // if (print_initial_chi_sq_flag) 
-      // std::cout << "sizes: n_variables() " << n_variables() 
-		// << " s: " << s->x->size 
-		// << " x: " << x->size
-		// << " and fdf->n: " << multimin_func.n << std::endl;
-   
-   // info(); 
-   
    // restraints_usage_flag = BONDS; 
    // restraints_usage_flag = BONDS_AND_ANGLES; 
    // restraints_usage_flag = BONDS_ANGLES_AND_TORSIONS;
@@ -694,17 +684,13 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
    // restraints_usage_flag = TORSIONS_MASK;
    // restraints_usage_flag = PLANES_MASK;
    
-   
-   // std::cout << "DEBUG:: in minimize, restraints_usage_flag is " 
-   // << restraints_usage_flag << std::endl;
-
    // We get ~1ms/residue with bond and angle terms and no density terms.
    // 
    // for (int i=0; i<100; i++) { // time testing
 
    float tolerance = 0.035;
    if (! include_map_terms())
-      tolerance = 0.15;
+      tolerance = 0.18;
    
    gsl_multimin_fdfminimizer_set (s, &multimin_func, x, 0.015, tolerance);
 
@@ -732,6 +718,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
    size_t iter = 0; 
    int status;
    std::vector<coot::refinement_lights_info_t> lights_vec;
+   bool done_final_chi_squares = false;
    do
       {
 	 iter++;
@@ -762,6 +749,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 	    std::vector <coot::refinement_lights_info_t> results = 
 	       chi_squareds("Final Estimated RMS Z Scores:", s->x);
 	    lights_vec = results;
+	    done_final_chi_squares = true;
 	 }
 
 	 if (verbose_geometry_reporting)
@@ -769,6 +757,10 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 
       }
    while ((status == GSL_CONTINUE) && (int(iter) < nsteps_max));
+
+   if (! done_final_chi_squares)
+      chi_squareds("Final Estimated RMS Z Scores:", s->x);
+      
 
    // std::cout << "Post refinement fixing\n";
    // fix_chiral_atoms_maybe(s->x);
@@ -1922,7 +1914,7 @@ coot::distortion_score_2_planes(const std::vector<std::pair<int, double> > &atom
 
       clipper::Matrix<double> mat(3,3);
       
-      for (int i=0; i<atom_index_set_1.size(); i++) {
+      for (unsigned int i=0; i<atom_index_set_1.size(); i++) {
 	 idx = 3*(atom_index_set_1[i].first);
 	 if (atom_index_set_1[i].first < 0) {
 	 } else { 
@@ -1934,7 +1926,7 @@ coot::distortion_score_2_planes(const std::vector<std::pair<int, double> > &atom
 	    mat(1,2) += (gsl_vector_get(v,idx+1) - y_cen_1) * (gsl_vector_get(v,idx+2) - z_cen_1);
 	 }
       }
-      for (int i=0; i<atom_index_set_2.size(); i++) {
+      for (unsigned int i=0; i<atom_index_set_2.size(); i++) {
 	 idx = 3*(atom_index_set_2[i].first);
 	 if (atom_index_set_2[i].first < 0) {
 	 } else { 
@@ -1996,7 +1988,7 @@ coot::distortion_score_2_planes(const std::vector<std::pair<int, double> > &atom
       info.abcd = abcd;
 
       double val;
-      for (int i=0; i<atom_index_set_1.size(); i++) {
+      for (unsigned int i=0; i<atom_index_set_1.size(); i++) {
 	 idx = 3*(atom_index_set_1[i].first);
 	 if (idx < 0) {
 	 } else { 
@@ -2007,7 +1999,7 @@ coot::distortion_score_2_planes(const std::vector<std::pair<int, double> > &atom
 	    sum_devi += val * val;
 	 }
       }
-      for (int i=0; i<atom_index_set_2.size(); i++) {
+      for (unsigned int i=0; i<atom_index_set_2.size(); i++) {
 	 idx = 3*(atom_index_set_2[i].first);
 	 if (idx < 0) {
 	 } else { 
@@ -3614,7 +3606,7 @@ coot::my_df_parallel_planes(const gsl_vector *v,
 	    // first plane
 	    unsigned int n_plane_atoms = ppr.plane_atom_index.size();
 	    double weight = 1/(ppr.sigma * ppr.sigma);
-	    for (int j=0; j<n_plane_atoms; j++) {
+	    for (unsigned int j=0; j<n_plane_atoms; j++) {
 	       if (! ppr.fixed_atom_flags[j] ) { 
 		  idx = 3*ppr.plane_atom_index[j].first;
 		  devi_len =
@@ -3638,7 +3630,7 @@ coot::my_df_parallel_planes(const gsl_vector *v,
 
 	    // second plane
 	    n_plane_atoms = ppr.atom_index_other_plane.size();
-	    for (int j=0; j<n_plane_atoms; j++) {
+	    for (unsigned int j=0; j<n_plane_atoms; j++) {
 	       if (! ppr.fixed_atom_flags_other_plane[j] ) {
 		  idx = 3*ppr.atom_index_other_plane[j].first;
 		  devi_len =
@@ -4635,9 +4627,9 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
       std::cout << "  debug:: residues_vec.size() " << residues_vec.size() << std::endl;
 
    int nres = residues_vec.size();
-   for (int ii=0; ii<residues_vec.size(); ii++) {
+   for (unsigned int ii=0; ii<residues_vec.size(); ii++) {
       mmdb::Residue *res_f = residues_vec[ii].second;
-      for (int jj=ii+1; jj<residues_vec.size(); jj++) {
+      for (unsigned int jj=ii+1; jj<residues_vec.size(); jj++) {
 	 mmdb::Residue *res_s = residues_vec[jj].second;
 	 std::pair<bool, float> d = closest_approach(res_f, res_s);
 
@@ -5113,7 +5105,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
 
    if (0) { 
       std::cout << "--------- the atom array: " << std::endl;
-      for (unsigned int iat=0; iat<n_atoms; iat++)
+      for (int iat=0; iat<n_atoms; iat++)
 	 std::cout << "------- " << iat << " " << atom_spec_t(atom[iat]) << std::endl;
    }
 
@@ -5141,7 +5133,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
 	       if (is_hydrogen(at_2))
 		  add_it = false;
 
-   	 if (filtered_non_bonded_atom_indices[i][j] < i)
+   	 if (filtered_non_bonded_atom_indices[i][j] < int(i))
   	    add_it = false;
 	 
 	 if (add_it) { 
@@ -5389,8 +5381,8 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
    const double dist_crit = 8.0;
    filtered_non_bonded_atom_indices.resize(bonded_atom_indices.size());
 
-   for (int i=0; i<bonded_atom_indices.size(); i++) {
-      for (int j=0; j<bonded_atom_indices.size(); j++) {
+   for (unsigned int i=0; i<bonded_atom_indices.size(); i++) {
+      for (unsigned int j=0; j<bonded_atom_indices.size(); j++) {
 
 	 if (i != j) {
 	    
@@ -5421,10 +5413,10 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
    // now add NBC restraints between atoms that are moving and atoms
    // of the neighbour residues.
    // 
-   for (unsigned int iat=0; iat<n_atoms; iat++) {
+   for (int iat=0; iat<n_atoms; iat++) {
       if (bonded_atom_indices[iat].size()) { 
 	 mmdb::Residue *bonded_atom_residue = atom[iat]->residue;
-	 for (unsigned int jat=0; jat<n_atoms; jat++) {
+	 for (int jat=0; jat<n_atoms; jat++) {
 
 	    if (iat != jat) {
 		     
@@ -6336,7 +6328,7 @@ coot::restraints_container_t::mod_plane_add(const coot::chem_mod_plane &mod_plan
    std::map<std::string, std::vector <int> > pos; // we worry about alt confs.
    
    for (unsigned int i=0; i<mod_plane.atom_id_esd.size(); i++) {
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+      for (int iat=0; iat<n_residue_atoms; iat++) { 
 	 std::string atom_name(residue_atoms[iat]->name);
 	 if (atom_name == mod_plane.atom_id_esd[i].first) {
 	    int atom_index;
@@ -6379,7 +6371,7 @@ coot::restraints_container_t::mod_plane_delete(const coot::chem_mod_plane &mod_p
    for (it=restraints_vec.begin(); it!=restraints_vec.end(); it++) { 
       if (it->restraint_type == coot::PLANE_RESTRAINT) {
 	 bool in_same_residue = 1;
-	 int n_found = 0;
+	 unsigned int n_found = 0;
 	 // do the atoms of the mod_plane match the atoms of the restraint?
 	 for (unsigned int iat=0; iat<it->plane_atom_index.size(); iat++) { 
 	    for (unsigned int iat_mod=0; iat_mod<mod_plane.atom_id_esd.size(); iat_mod++) {
@@ -6902,7 +6894,7 @@ coot::simple_refine(mmdb::Residue *residue_p,
       if (mol) {
    
 	 protein_geometry geom;
-	 geom.replace_monomer_restraints("LIG", dict_restraints);
+	 geom.replace_monomer_restraints(residue_p->GetResName(), dict_restraints);
    
 	 short int have_flanking_residue_at_start = 0;
 	 short int have_flanking_residue_at_end = 0;
