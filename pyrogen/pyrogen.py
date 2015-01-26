@@ -464,7 +464,7 @@ def make_picture_to_file(mol, conf_id, output_file_name):
    except ValueError as e:
       print 'ValueError in make_picture():', e
 
-def make_restraints_from_smiles(smiles_string, comp_id, compound_name, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes, use_mmff):
+def make_restraints_from_smiles(smiles_string, comp_id, compound_name, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes, use_mmff, match_atom_names_to_dict_flag, comp_id_list_for_names_match, dict_file_for_names_match):
 
    if not test_for_mogul():
       # return False
@@ -472,11 +472,11 @@ def make_restraints_from_smiles(smiles_string, comp_id, compound_name, mogul_dir
    m = Chem.MolFromSmiles(smiles_string)
    if compound_name:
        m.SetProp('_Name', compound_name)
-   return make_restraints(m, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes, use_mmff)
+   return make_restraints(m, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes, use_mmff, match_atom_names_to_dict_flag, comp_id_list_for_names_match, dict_file_for_names_match)
 
 # return the molecule and return value from make_restraints
 # 
-def make_restraints_from_mdl(mol_file_name, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes, use_mmff):
+def make_restraints_from_mdl(mol_file_name, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes, use_mmff, match_atom_names_to_dict_flag, comp_id_list_for_names_match, dict_files_for_names_match):
 
    if (not (test_for_mogul())):
       # return False, False
@@ -489,7 +489,8 @@ def make_restraints_from_mdl(mol_file_name, comp_id, mogul_dir, name_stub, pdb_o
    compound_name = '.'
    m = Chem.MolFromMolFile(mol_file_name)
    return m, make_restraints(m, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name,
-			     quartet_planes, quartet_hydrogen_planes, use_mmff)
+			     quartet_planes, quartet_hydrogen_planes, use_mmff,
+                             match_atom_names_to_dict_flag, comp_id_list_for_names_match, dict_files_for_names_match)
 
 
 # return a list of (mol, comp_id) pairs for every ligand in the cif
@@ -569,8 +570,7 @@ def make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir,
 
 	  return make_restraints(m, comp_id, mogul_dir, file_name_stub,
 				 pdb_out_file_name, cif_restraints_file_name,
-				 quartet_planes, quartet_hydrogen_planes, use_mmff)
-
+				 quartet_planes, quartet_hydrogen_planes, use_mmff, False, False, False)
 
 
 def n_hydrogens(mol):
@@ -584,7 +584,10 @@ def n_hydrogens(mol):
 # return sane_H_mol
 # 
 def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mmcif_dict_name,
-                    quartet_planes, quartet_hydrogen_planes, use_mmff):
+                    quartet_planes, quartet_hydrogen_planes, use_mmff,
+                    match_atom_names_to_dict_flag,
+                    comp_id_list_for_names_match,
+                    dict_files_for_names_match):
 
    # pH-dependent protonation or deprotonation
    #
@@ -710,35 +713,34 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
 							  quartet_hydrogen_planes,
 							  replace_with_mmff_b_a_restraints)
 
+         # match_atom_names_to_dict_flag, comp_id_list_for_names_match, dict_file_for_names_match
+         if match_atom_names_to_dict_flag:
 
-         test_file_name = "35G-pyrogen.cif"
-         template_cif_dict_files_names = []
-         template_cif_dict_files_names.append(test_file_name)
-         template_comp_ids = ["CYS", "ASP", "GLU",        "HIS", "ILE", "LYS", "LEU", "MET",
-			      "ASN", "PRO", "GLN", "ARG", "SER", "THR", "VAL", "TRP", "TYR",
-			      "G",   "C",   "GLC", "MAN"]
+             template_comp_ids = ["CYS", "ASP", "GLU",        "HIS", "ILE", "LYS", "LEU", "MET",
+                                  "ASN", "PRO", "GLN", "ARG", "SER", "THR", "VAL", "TRP", "TYR",
+                                  "G",   "C",   "GLC", "MAN"]
+             
+             if isinstance(comp_id_list_for_names_match, basestring):
+                 template_comp_ids = comp_id_list_for_names_match.split(',')
          
-         success,new_restraints,at_name_list = pysw.match_restraints_to_dictionaries(restraints,
-                                                                                     template_comp_ids,
-                                                                                     template_cif_dict_files_names)
-
-         # success = False
+             template_cif_dict_files_names = []
+             if isinstance(dict_files_for_names_match, basestring):
+                 template_cif_dict_files_names = dict_files_for_names_match.split(',')
+                 # don't use my set of comp_ids then
+                 template_comp_ids = []
+             
+             success,new_restraints,at_name_list = pysw.match_restraints_to_dictionaries(restraints,
+                                                                                         template_comp_ids,
+                                                                                         template_cif_dict_files_names)
+             if success:
+                 n = len(sane_H_mol.GetAtoms())
+                 if len(restraints['_chem_comp_atom']) == n:
+                     restraints = new_restraints
+                     for iat in range(n):
+                         name = sane_H_mol.GetAtomWithIdx(iat).GetProp('name')
+                         print "changing name from", name, "to",restraints['_chem_comp_atom'][iat][0]
+                         sane_H_mol.GetAtomWithIdx(iat).SetProp('name', restraints['_chem_comp_atom'][iat][0]);
          
-         if success:
-
-             print "--------------------- success (new restraints) ------------------------------"
-             n = len(sane_H_mol.GetAtoms())
-             if len(restraints['_chem_comp_atom']) == n:
-                 restraints = new_restraints
-                 print "--------------------- success (atom numbers) ", n, '------------------------------'
-                 for iat in range(n):
-                     name = sane_H_mol.GetAtomWithIdx(iat).GetProp('name')
-                     print "changing name from", name, "to",restraints['_chem_comp_atom'][iat][0]
-                     sane_H_mol.GetAtomWithIdx(iat).SetProp('name', restraints['_chem_comp_atom'][iat][0]);
-         
-         
-         # this will fail if restraints are matched but the (number of) atoms do not.
-         #
          pysw.write_restraints(restraints, mmcif_dict_name)
          pysw.regularize_and_write_pdb(sane_H_mol, restraints, comp_id, pdb_out_file_name)
 
@@ -835,7 +837,7 @@ if __name__ == "__main__":
     parser.add_option("-N", '--name', dest='compound_name', default=False,
 		      help='Compound name')
     parser.add_option('-S', '--smiles', dest="show_smiles",
-                      default=False, action="store_true")
+                      default=False, action="store_true", help="Write the SMILES for the input molecule")
     parser.add_option("-t", "--tautomers", dest="show_tautomers",
 		      default=False, action="store_true",
                       help='Show SMILES for tautomers, don\'t generate restraints')
@@ -852,9 +854,19 @@ if __name__ == "__main__":
                       action='store_true', help='Print version information')
     parser.add_option('-M', '--MMFF', dest='use_mmcif', default=False,
                       action='store_true', help='Use MMFF fallbacks for bonds and angles')
+    parser.add_option('-a', '--no-match-vs-reference-dictionaries', default=False,
+                      action='store_true', dest='no_match_names_flag',
+                      help="Don't match atom names vs. dictionary molecules")
+    parser.add_option('-R', '--reference-dictionary-files', dest='dict_files_for_names_match',
+                      help='Try to match the atom names of the output molecule '+
+                      'to this dictionary in these files (comma-separated list)', default=False)
+    parser.add_option('-C', '--reference-dictionary-comp-ids', dest='comp_id_list_for_names_match',
+                      help='Try to match the atom names of the output molecule to these comp-ids' +
+                      ' (comma-separated list)',
+                      default=False)
     parser.add_option("-q", "--quiet",
-                  action="store_false", dest="verbose", default=True,
-                  help="print less messages")
+                      action="store_false", dest="verbose", default=True,
+                      help="print less messages")
 
     (options, args) = parser.parse_args()
     # print 'DEBUG:: options:', options
@@ -911,11 +923,23 @@ if __name__ == "__main__":
 
     else:
 
+        # ------------------------ dict-build-mode ---------------------------------------------------
+
+        # JED mode for hydrogen planes
+        #
+        quartet_hydrogen_planes = options.quartet_hydrogen_planes
+        if options.quartet_planes:
+            quartet_hydrogen_planes = True
+
+        match_names_flag = True
+        if options.no_match_names_flag:
+            match_names_flag = False
+
 	if options.mmcif_file:
 	    mol_pairs = make_restraints_from_mmcif_dict(options.mmcif_file, comp_id, options.mogul_dir,
 							options.output_postfix,
 							options.quartet_planes,
-							options.quartet_hydrogen_planes,
+							quartet_hydrogen_planes,
 							options.use_mmcif)
 
 	    # this needs to be in a try block, I suppose, for example if the mmcif file
@@ -942,8 +966,11 @@ if __name__ == "__main__":
 							  options.mogul_dir, file_name_stub,
 							  pdb_out_file_name, cif_restraints_file_name,
 							  options.quartet_planes,
-							  options.quartet_hydrogen_planes,
-							  options.use_mmcif)
+							  quartet_hydrogen_planes,
+							  options.use_mmcif,
+                                                          match_names_flag,
+                                                          options.comp_id_list_for_names_match,
+                                                          options.dict_files_for_names_match)
 		if options.drawing:
 		    make_picture(mol, -1, comp_id, options.output_postfix)
 
@@ -962,8 +989,11 @@ if __name__ == "__main__":
 							 pdb_out_file_name,
 							 cif_restraints_file_name,
 							 options.quartet_planes,
-							 options.quartet_hydrogen_planes,
-							 options.use_mmcif)
+							 quartet_hydrogen_planes,
+							 options.use_mmcif,
+                                                         match_names_flag,
+                                                         options.comp_id_list_for_names_match,
+                                                         options.dict_files_for_names_match)
 		    if options.drawing:
 			mol = Chem.MolFromSmiles(smiles)
 			make_picture(mol, -1, comp_id, options.output_postfix)
