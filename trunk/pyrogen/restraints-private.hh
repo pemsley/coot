@@ -94,10 +94,38 @@ namespace coot {
    int assign_chirals_rdkit_tags(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints);
    int assign_chirals_mmcif_tags(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints);
 
+   // for returning best graph-match data (for dictionary atom name map to reference)
+   // 
+   class matching_dict_t {
+      mmdb::Residue *residue;
+      bool filled_flag;
+   public:
+      dictionary_residue_restraints_t dict;
+      matching_dict_t() {
+	 residue = NULL;
+	 filled_flag = false;
+      }
+      matching_dict_t(mmdb::Residue *res, const dictionary_residue_restraints_t &d) {
+	 residue = res;
+	 dict = d;
+	 filled_flag = true;
+      }
+      bool filled() const { return filled_flag; }
+   };
+
+   
+
    // Use the pointer to test if the match was successful.
-   std::pair<mmdb::Residue *, dictionary_residue_restraints_t>
+   matching_dict_t
    match_restraints_to_amino_acids(const dictionary_residue_restraints_t &restraints,
 				   mmdb::Residue *residue_p);
+
+   // and sugars
+   matching_dict_t
+   match_restraints_to_reference_dictionaries(const coot::dictionary_residue_restraints_t &restraints,
+					      mmdb::Residue *residue_p,
+					      const std::vector<std::string> &test_comp_ids);
+
 
 }
 

@@ -709,6 +709,14 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
                                                           quartet_planes,
 							  quartet_hydrogen_planes,
 							  replace_with_mmff_b_a_restraints)
+         
+         if len(restraints['_chem_comp_atom']) == sane_H_mol.GetNumAtoms():
+            n = len(sane_H_mol.GetAtoms())
+            for iat in range(n):
+               sane_H_mol.GetAtomWithIdx(iat).SetProp('name', restraints['_chem_comp_atom'][iat][0]);
+
+         # this will fail if restraints are matched but the (number of) atoms do not.
+         #
          pysw.regularize_and_write_pdb(sane_H_mol, restraints, comp_id, pdb_out_file_name)
 
       else:

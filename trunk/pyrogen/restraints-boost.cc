@@ -295,7 +295,7 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
       bool updateLabel=true;
       bool takeOwnership=true;
       r->addAtom(new_h_at, updateLabel, takeOwnership);
-      int h_idx = new_h_at->getIdx();
+      unsigned int h_idx = new_h_at->getIdx();
       if (h_idx != n_idx) { 
 	 r->addBond(n_idx, h_idx, RDKit::Bond::SINGLE);
       } else {

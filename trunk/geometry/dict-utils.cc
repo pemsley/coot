@@ -601,8 +601,6 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    std::vector<std::string> same_name;
 
 
-   std::cout << "--------------- in match_to_reference with new_comp_id_in " << new_comp_id_in << std::endl;
-
    std::string new_comp_id = new_comp_id_in;
    if (new_comp_id == "auto")
       new_comp_id = suggest_new_comp_id(residue_info.comp_id);
