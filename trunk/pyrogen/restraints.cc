@@ -151,7 +151,8 @@ coot::match_restraints_to_dictionaries(PyObject *restraints_py,
       Py_ssize_t len = PyObject_Length(template_comp_id_list);
       for (Py_ssize_t i=0; i<len; i++) {
 	 std::string s = PyString_AsString(PyList_GetItem(template_comp_id_list, i));
-	 comp_ids.push_back(s);
+	 if (! s.empty())
+	    comp_ids.push_back(s);
       }
    }
 
@@ -1538,12 +1539,15 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 		  neighbours[in].second = name;
 	       }
 
-	       std::cout << "Here with chiral neighbours: "
-			 << "(" << neighbours[0].first << " " << neighbours[0].second << ") "
-			 << "(" << neighbours[1].first << " " << neighbours[1].second << ") "
-			 << "(" << neighbours[2].first << " " << neighbours[2].second << ") "
-			 << "(" << neighbours[3].first << " " << neighbours[3].second << ")"
-			 << std::endl;
+	       // This will still need testing.
+	       // 
+	       if (false)
+		  std::cout << "Here with chiral neighbours: "
+			    << "(" << neighbours[0].first << " " << neighbours[0].second << ") "
+			    << "(" << neighbours[1].first << " " << neighbours[1].second << ") "
+			    << "(" << neighbours[2].first << " " << neighbours[2].second << ") "
+			    << "(" << neighbours[3].first << " " << neighbours[3].second << ")"
+			    << std::endl;
 
 	       std::vector<int> n_idx(3);
 	       n_idx[0] = 0;
