@@ -116,15 +116,16 @@ namespace coot {
    
 
    // Use the pointer to test if the match was successful.
+   // Old-style embedded list of test compounds
    matching_dict_t
    match_restraints_to_amino_acids(const dictionary_residue_restraints_t &restraints,
 				   mmdb::Residue *residue_p);
 
-   // and sugars
    matching_dict_t
    match_restraints_to_reference_dictionaries(const coot::dictionary_residue_restraints_t &restraints,
 					      mmdb::Residue *residue_p,
-					      const std::vector<std::string> &test_comp_ids);
+					      const std::vector<std::string> &test_comp_ids,
+					      const std::vector<std::string> &test_mmcif_file_names);
 
 
 }

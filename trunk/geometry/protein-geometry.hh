@@ -454,7 +454,9 @@ namespace coot {
 	 }
 	 return false;
       }
+      friend std::ostream& operator<<(std::ostream &s, const dict_chiral_restraint_t &rest);
    };
+   std::ostream& operator<<(std::ostream &s, const dict_chiral_restraint_t &rest);
 
 
    // ------------------------------------------------------------------------

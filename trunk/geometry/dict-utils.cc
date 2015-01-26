@@ -763,6 +763,7 @@ coot::dictionary_residue_restraints_t::change_names(mmdb::Residue *residue_p,
 	       // 4 chars?
 	       at->SetAtomName(change_name[j].second.c_str());
 	       changed_something = true;
+	       break;
 	    }
 	 }
       }

@@ -1104,6 +1104,19 @@ std::ostream& coot::operator<<(std::ostream &s, const coot::dict_chem_comp_t &re
    return s;
 }
 
+std::ostream&
+coot::operator<<(std::ostream &s, const dict_chiral_restraint_t &rest) {
+
+   s << "[chiral: " << rest.Chiral_Id() << " "
+     << rest.atom_id_c_4c() << " "
+     << rest.atom_id_1_4c() << " "
+     << rest.atom_id_2_4c() << " "
+     << rest.atom_id_3_4c() << " "
+     << rest.volume_sign << "]";
+   return s;
+}
+
+
 std::ostream& coot::operator<<(std::ostream&s, coot::dict_plane_restraint_t rest) {
 
    s << "[plane-restraint: " << rest.plane_id << " " << " {"
