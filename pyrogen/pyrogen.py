@@ -437,10 +437,13 @@ def read_smiles_tab(file_name):
 # return a pair, the smiles string and the molecule name (which might be blank)
 #
 def get_smiles_from_file(file_name):
-    f = open(file_name)
-    smi_line = f.readline()
-    parts = smi_line.split()
-    return parts[0], ' '.join(parts[1:])
+    if not os.path.exists(file_name):
+	return False,False
+    else:
+	f = open(file_name)
+	smi_line = f.readline()
+	parts = smi_line.split()
+	return parts[0], ' '.join(parts[1:])
 
 def make_picture(mol, conf_id, comp_id, output_postfix):
 
@@ -825,7 +828,11 @@ if __name__ == "__main__":
        smiles_string = ''
        name=''
        if extension == '.smi' or extension == '.smiles':
-          smiles_string,name = get_smiles_from_file(smi_raw)
+	   if not os.path.exists(smi_raw):
+	       print "File not found:", smi_raw
+	       exit(1)
+	   else: 
+	       smiles_string,name = get_smiles_from_file(smi_raw)
        else:
          smiles_string = smi_raw
        return smiles_string,name
