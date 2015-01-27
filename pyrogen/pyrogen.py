@@ -713,34 +713,14 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
 							  quartet_hydrogen_planes,
 							  replace_with_mmff_b_a_restraints)
 
+
          # match_atom_names_to_dict_flag, comp_id_list_for_names_match, dict_file_for_names_match
          if match_atom_names_to_dict_flag:
 
-             template_comp_ids = ["CYS", "ASP", "GLU",        "HIS", "ILE", "LYS", "LEU", "MET",
-                                  "ASN", "PRO", "GLN", "ARG", "SER", "THR", "VAL", "TRP", "TYR",
-                                  "G",   "C",   "GLC", "MAN"]
-             
-             if isinstance(comp_id_list_for_names_match, basestring):
-                 template_comp_ids = comp_id_list_for_names_match.split(',')
-         
-             template_cif_dict_files_names = []
-             if isinstance(dict_files_for_names_match, basestring):
-                 template_cif_dict_files_names = dict_files_for_names_match.split(',')
-                 # don't use my set of comp_ids then
-                 template_comp_ids = []
-             
-             success,new_restraints,at_name_list = pysw.match_restraints_to_dictionaries(restraints,
-                                                                                         template_comp_ids,
-                                                                                         template_cif_dict_files_names)
-             if success:
-                 n = len(sane_H_mol.GetAtoms())
-                 if len(restraints['_chem_comp_atom']) == n:
-                     restraints = new_restraints
-                     for iat in range(n):
-                         name = sane_H_mol.GetAtomWithIdx(iat).GetProp('name')
-                         print "changing name from", name, "to",restraints['_chem_comp_atom'][iat][0]
-                         sane_H_mol.GetAtomWithIdx(iat).SetProp('name', restraints['_chem_comp_atom'][iat][0]);
-         
+             restraints = atom_match_dictionary(restraints, sane_H_mol,
+                                                comp_id_list_for_names_match,
+                                                dict_files_for_names_match)
+
          pysw.write_restraints(restraints, mmcif_dict_name)
          pysw.regularize_and_write_pdb(sane_H_mol, restraints, comp_id, pdb_out_file_name)
 
@@ -760,6 +740,12 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
 		  print "No restraints"
 		  return True # hacked in value
 
+              if match_atom_names_to_dict_flag:
+                  
+                  restraints = atom_match_dictionary(restraints, sane_H_mol,
+                                                     comp_id_list_for_names_match,
+                                                     dict_files_for_names_match)
+
 	      pysw.write_pdb_from_mol(sane_H_mol, comp_id, pdb_out_file_name)
 
 	  else:
@@ -768,6 +754,36 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
 	      exit(1)
 	  
       return sane_H_mol
+
+def atom_match_dictionary(restraints, sane_H_mol, comp_id_list_for_names_match, dict_files_for_names_match):
+
+    template_comp_ids = ['CYS', 'ASP', 'GLU',        'HIS', 'ILE', 'LYS', 'LEU', 'MET',
+                         'ASN', 'PRO', 'GLN', 'ARG', 'SER', 'THR', 'VAL', 'TRP', 'TYR',
+                         'G',   'C',   'GLC', 'MAN']
+
+    if isinstance(comp_id_list_for_names_match, basestring):
+        template_comp_ids = comp_id_list_for_names_match.split(',')
+
+    template_cif_dict_files_names = []
+    if isinstance(dict_files_for_names_match, basestring):
+        template_cif_dict_files_names = dict_files_for_names_match.split(',')
+        # don't use my set of comp_ids then
+        template_comp_ids = []
+
+    success,new_restraints,at_name_list = pysw.match_restraints_to_dictionaries(restraints,
+                                                                                template_comp_ids,
+                                                                                template_cif_dict_files_names)
+    if success:
+        n = len(sane_H_mol.GetAtoms())
+        if len(restraints['_chem_comp_atom']) == n:
+            restraints = new_restraints
+            for iat in range(n):
+                name = sane_H_mol.GetAtomWithIdx(iat).GetProp('name')
+                print "changing name from", name, "to",restraints['_chem_comp_atom'][iat][0]
+                sane_H_mol.GetAtomWithIdx(iat).SetProp('name', restraints['_chem_comp_atom'][iat][0]);
+
+    return restraints
+
 
 
 def score_and_print_tautomers(mol, comp_id, output_postfix, do_drawings):
@@ -856,7 +872,7 @@ if __name__ == "__main__":
                       action='store_true', help='Use MMFF fallbacks for bonds and angles')
     parser.add_option('-a', '--no-match-vs-reference-dictionaries', default=False,
                       action='store_true', dest='no_match_names_flag',
-                      help="Don't match atom names vs. dictionary molecules")
+                      help="Don't match atom names vs. dictionary molecules (default False)")
     parser.add_option('-R', '--reference-dictionary-files', dest='dict_files_for_names_match',
                       help='Try to match the atom names of the output molecule '+
                       'to this dictionary in these files (comma-separated list)', default=False)
