@@ -156,12 +156,14 @@ namespace coot {
       bool have_target_values; 
    
    public:
+      enum aromaticity_t { NON_AROMATIC, AROMATIC, UNASSIGNED };
       // dict_bond_restraint_t() {};
       dict_bond_restraint_t(std::string atom_id_1_in,
 			    std::string atom_id_2_in,
 			    std::string type,
 			    double dist_in,
-			    double dist_esd_in) :
+			    double dist_esd_in,
+			    aromaticity_t arom_in=UNASSIGNED) :
       basic_dict_restraint_t(atom_id_1_in, atom_id_2_in) {
 
 	 dist_ = dist_in;
@@ -468,11 +470,13 @@ namespace coot {
    // 
    class dict_atom {
    public:
+      enum aromaticity_t { NON_AROMATIC, AROMATIC, UNASSIGNED };
       enum { IDEAL_MODEL_POS, REAL_MODEL_POS}; 
       std::string atom_id;
       std::string atom_id_4c;
       std::string type_symbol;
       std::string type_energy;
+      aromaticity_t aromaticity;
       std::pair<bool, float> partial_charge;
       std::pair<bool, clipper::Coord_orth> pdbx_model_Cartn_ideal;
       std::pair<bool, clipper::Coord_orth> model_Cartn;
@@ -486,6 +490,7 @@ namespace coot {
 	 type_symbol = type_symbol_in;
 	 type_energy = type_energy_in;
 	 partial_charge = partial_charge_in;
+	 aromaticity = UNASSIGNED;
       }
       dict_atom() {}; // for resize(0);
       void add_pos(int pos_type, const std::pair<bool, clipper::Coord_orth> &model_pos_ideal);
@@ -1667,6 +1672,7 @@ namespace coot {
 			    const std::string &type_symbol,
 			    const std::string &type_energy,
 			    const std::pair<bool, mmdb::realtype> &partial_charge,
+			    dict_atom::aromaticity_t arom_in,
 			    const std::pair<bool, clipper::Coord_orth> &model_pos,
 			    const std::pair<bool, clipper::Coord_orth> &model_pos_ideal);
 
@@ -1682,7 +1688,8 @@ namespace coot {
       void mon_lib_add_bond(std::string comp_id,
 			    std::string atom_id_1, std::string atom_id_2,
 			    std::string type,
-			    mmdb::realtype value_dist, mmdb::realtype value_dist_esd);
+			    mmdb::realtype value_dist, mmdb::realtype value_dist_esd,
+			    dict_bond_restraint_t::aromaticity_t arom_in);
 
       void mon_lib_add_bond_no_target_geom(std::string comp_id,
 					   std::string atom_id_1, std::string atom_id_2,

@@ -606,6 +606,7 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 					 const std::string &type_symbol,
 					 const std::string &type_energy,
 					 const std::pair<bool, mmdb::realtype> &partial_charge,
+					 dict_atom::aromaticity_t arom_in,
 					 const std::pair<bool, clipper::Coord_orth> &model_pos,
 					 const std::pair<bool, clipper::Coord_orth> &model_pos_ideal) { 
 
@@ -632,6 +633,7 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
    } 
 
    coot::dict_atom at_info(atom_id, atom_id_4c, type_symbol, type_energy, partial_charge);
+   at_info.aromaticity = arom_in;
    
    if (debug) { 
       std::cout << "   mon_lib_add_atom model_pos       " << model_pos.first << " "
@@ -718,10 +720,12 @@ coot::protein_geometry::mon_lib_add_tree(std::string comp_id,
 
 void
 coot::protein_geometry::mon_lib_add_bond(std::string comp_id,
-				   std::string atom_id_1,
-				   std::string atom_id_2,
-				   std::string type,
-				   mmdb::realtype value_dist, mmdb::realtype value_dist_esd) {
+					 std::string atom_id_1,
+					 std::string atom_id_2,
+					 std::string type,
+					 mmdb::realtype value_dist,
+					 mmdb::realtype value_dist_esd,
+					 dict_bond_restraint_t::aromaticity_t arom_in) {
 
 //     std::cout << "adding bond for " << comp_id << " " << atom_id_1
 // 	      << " " << atom_id_2 << " " << type << " " << value_dist
@@ -734,7 +738,8 @@ coot::protein_geometry::mon_lib_add_bond(std::string comp_id,
 						atom_id_2,
 						type,
 						value_dist,
-						value_dist_esd));
+						value_dist_esd,
+						arom_in));
 }
 
 void
@@ -1137,11 +1142,11 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop) {
       int xalign;
       int ierr_optional;
       
-      std::pair<bool, std::string> pdbx_aromatic_flag(0,"");
       std::pair<bool, std::string> pdbx_leaving_atom_flag(0,"");
       std::pair<bool, std::string> pdbx_stereo_config_flag(0,"");
       std::pair<bool, clipper::Coord_orth> pdbx_model_Cartn_ideal;
       std::pair<bool, clipper::Coord_orth> model_Cartn;
+      dict_atom::aromaticity_t aromaticity = dict_atom::UNASSIGNED;
 
       if (ierr == 0) {
 	 int ierr_tot = 0;
@@ -1172,10 +1177,25 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop) {
 
 	 s = mmCIFLoop->GetString("pdbx_aromatic_flag", j, ierr_optional);
 	 if (s) {
-	    if (! ierr_optional) 
-	       pdbx_aromatic_flag = std::pair<bool, std::string> (1, s);
-	 } 
+	    if (! ierr_optional) {
+	       std::string ss(s);
+	       if (ss == "Y" || ss == "y")
+		  aromaticity = dict_atom::AROMATIC;
+	       if (ss == "N" || ss == "n")
+		  aromaticity = dict_atom::NON_AROMATIC;
+	    }
+	 }
 
+	 // just in case someone marks their aromatic atoms in this way.
+	 s = mmCIFLoop->GetString("aromaticity", j, ierr_optional);
+	 if (s) {
+	    if (! ierr_optional) {
+	       std::string ss(s);
+	       if (ss == "Y" || ss == "y")
+		  aromaticity = dict_atom::AROMATIC;
+	    }
+	 }
+	 
 	 s = mmCIFLoop->GetString("pdbx_leaving_atom_flag", j, ierr_optional);
 	 if (s) {
 	    if (! ierr_optional) 
@@ -1270,8 +1290,10 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop) {
 			 << "ideal-pos " << pdbx_model_Cartn_ideal.first << " "
 			 << pdbx_model_Cartn_ideal.second.format()
 			 << std::endl;
+	    
 	    mon_lib_add_atom(comp_id, atom_id, padded_name, type_symbol, type_energy,
-			     partial_charge, model_Cartn, pdbx_model_Cartn_ideal);
+			     partial_charge, aromaticity,
+			     model_Cartn, pdbx_model_Cartn_ideal);
 
 	 } else {
 	    std::cout << " error on read " << ierr_tot << std::endl;
@@ -1395,12 +1417,14 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop) {
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) { 
 
       int ierr;
-      int ierr_tot = 0; 
+      int ierr_tot = 0;
+      int ierr_optional = 0;
       int ierr_tot_for_ccd = 0;  // CCD comp_bond entries don't have
 			         // target geometry (dist and esd) but we
 			         // want to be able to read them in
 			         // anyway (to get the bond orders for
 			         // drawing).
+      dict_bond_restraint_t::aromaticity_t aromaticity(dict_bond_restraint_t::UNASSIGNED);
 
    
       // modify a reference (ierr)
@@ -1445,6 +1469,20 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop) {
 	 if (ierr) {
 	    s = mmCIFLoop->GetString("value_order", j, ierr);
 	 }
+
+	 // Feilib marks aromatic bonds in this way.
+	 // 
+	 s = mmCIFLoop->GetString("aromaticity", j, ierr_optional);
+	 if (s) {
+	    if (! ierr_optional) {
+	       std::string ss(s);
+	       if (ss == "Y" || ss == "y")
+		  aromaticity = dict_bond_restraint_t::AROMATIC;
+	       if (ss == "N" || ss == "n")
+		  aromaticity = dict_bond_restraint_t::NON_AROMATIC;
+	    }
+	 }
+	 
 	 if (! ierr) {
 	    if (s) { // just in case (should not be needed).
 	       std::string ss(s);
@@ -1487,7 +1525,7 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop) {
 	 if (ierr_tot == 0) {
 
 	    mon_lib_add_bond(comp_id, atom_id_1, atom_id_2,
-			     type, value_dist, value_dist_esd); 
+			     type, value_dist, value_dist_esd, aromaticity); 
 	    nbond++;
 	 } else {
 
