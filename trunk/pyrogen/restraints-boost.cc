@@ -233,14 +233,16 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
 		<< "\n    number of NH2  matches: " << matches_n.size()
 		<< "\n";
 
-   for (unsigned int imatch_cooh=0; imatch_cooh<matches_cooh.size(); imatch_cooh++) {
-      std::cout << "INFO:: hydrogen exchanges matches_cooh: ";
-      for (unsigned int i=0; i<matches_cooh[imatch_cooh].size(); i++) { 
-	 std::cout << " [" << matches_cooh[imatch_cooh][i].first 
-		   << ": "  << matches_cooh[imatch_cooh][i].second
-		   << "]";
+   if (false) {  // debugging
+      for (unsigned int imatch_cooh=0; imatch_cooh<matches_cooh.size(); imatch_cooh++) {
+	 std::cout << "INFO:: hydrogen exchanges matches_cooh: ";
+	 for (unsigned int i=0; i<matches_cooh[imatch_cooh].size(); i++) { 
+	    std::cout << " [" << matches_cooh[imatch_cooh][i].first 
+		      << ": "  << matches_cooh[imatch_cooh][i].second
+		      << "]";
+	 }
+	 std::cout << std::endl;
       }
-      std::cout << std::endl;
    }
 	 
    for (unsigned int imatch_cooh=0; imatch_cooh<matches_cooh.size(); imatch_cooh++) {
