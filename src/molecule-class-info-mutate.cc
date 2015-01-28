@@ -1609,7 +1609,7 @@ molecule_class_info_t::sequence_comparison_to_chains(const std::string &target_s
       mmdb::Model *model_p = atom_sel.mol->GetModel(1);
       if (model_p) {
 	 int n_chains = model_p->GetNumberOfChains();
-	 for (unsigned int ich=0; ich<n_chains; ich++) {
+	 for (int ich=0; ich<n_chains; ich++) {
 	    mmdb::Chain *chain_p = model_p->GetChain(ich);
 	    std::string chain_id = chain_p->GetChainID();
 	    mmdb::realtype wgap   =  0.0;    //defaults
@@ -1652,7 +1652,7 @@ molecule_class_info_t::nudge_residue_sequence(const std::string &chain_id,
       // first get the sequence of the residues as they currently are.
       bool status = true;
       std::vector<std::string> current_types;
-      for (unsigned int i=0; i<=range; i++) {
+      for (int i=0; i<=range; i++) {
 	 mmdb::Residue *r = get_residue(chain_id, res_no_range_start+i, "");
 	 if (! r) {
 	    status = false;
@@ -1662,15 +1662,15 @@ molecule_class_info_t::nudge_residue_sequence(const std::string &chain_id,
 	 }
       }
 
-      if (status && current_types.size() == (range+1)) {
+      if (status && int(current_types.size()) == (range+1)) {
 
 	 make_backup();
 
-	 for (unsigned int i_offset=0; i_offset<=range; i_offset++) {
+	 for (int i_offset=0; i_offset<=range; i_offset++) {
 	    int i_serial_no = residue_serial_number(chain_id, res_no_range_start+i_offset, "");
 	    if (i_serial_no != -1) {
 	       int new_type_idx = i_offset - nudge_by;
-	       if (new_type_idx >= 0 && new_type_idx < current_types.size()) {
+	       if (new_type_idx >= 0 && new_type_idx < int(current_types.size())) {
 		  std::string new_res_type = current_types[new_type_idx];
 		  mutate_single_multipart(i_serial_no, chain_id, new_res_type);
 	       }
@@ -1684,11 +1684,11 @@ molecule_class_info_t::nudge_residue_sequence(const std::string &chain_id,
 	 if (nudge_residue_numbers_also) {
 	    
 	    std::vector<mmdb::Residue *> delete_these; // due to overlapping numbers
-	    for (unsigned int i_offset=0; i_offset<=range; i_offset++) {
+	    for (int i_offset=0; i_offset<=range; i_offset++) {
 	       
 	    }
 	 
-	    for (unsigned int i_offset=0; i_offset<=range; i_offset++) {
+	    for (int i_offset=0; i_offset<=range; i_offset++) {
 	       mmdb::Residue *r = get_residue(chain_id, res_no_range_start+i_offset, "");
 	       if (r) {
 		  r->seqNum -= nudge_by;

@@ -382,8 +382,8 @@ namespace lig_build {
 			 DELOC_ONE_AND_A_HALF=8,
 			 BOND_ANY=9 };
    protected: // atom_1 and atom_2 get swapped when turning an IN_BOND to an OUT_BOND;
-      int atom_1;
-      int atom_2;
+      unsigned int atom_1;
+      unsigned int atom_2;
    private:
       bond_type_t bond_type;
       pos_t centre_pos_; // the position of the polygen of
@@ -417,10 +417,10 @@ namespace lig_build {
       bool over_bond(double x, double y,
 		     const atom_t &atom_1_at, const atom_t &atom_2_at) const;
       friend std::ostream& operator<<(std::ostream &s, bond_t);
-      int get_atom_1_index() const {
+      unsigned int get_atom_1_index() const {
 	 return atom_1;
       }
-      int get_atom_2_index() const {
+      unsigned int get_atom_2_index() const {
 	 return atom_2;
       }
       bond_type_t get_bond_type() const { return bond_type; }
@@ -1015,10 +1015,10 @@ namespace lig_build {
       std::vector<int> get_unconnected_atoms() const {
 
 	 std::vector<int> v;
-	 for (int iat=0; iat<atoms.size(); iat++) {
+	 for (unsigned int iat=0; iat<atoms.size(); iat++) {
 	    if (! atoms[iat].is_closed()) { 
 	       bool in_a_bond = 0;
-	       for (int ib=0; ib<bonds.size(); ib++) { 
+	       for (unsigned int ib=0; ib<bonds.size(); ib++) { 
 		  if (! bonds[ib].is_closed()) {
 		     if (bonds[ib].get_atom_1_index() == iat)
 			in_a_bond = 1;
