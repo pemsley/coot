@@ -134,14 +134,18 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
       non_const_non_ring_torsions = non_const_torsions;
    } 
 
-   std::cout << "This residues has " << m_torsions.size() << " defined non-H torsions "
+   std::cout << "This residue has " << m_torsions.size() << " defined non-H torsions "
 	     << "of which " << n_non_const_torsionable << " are (non-const) rotatable and "
 	     << non_const_non_ring_torsions.size() << " are non-const and non-ring torsions"
 	     << std::endl;
    
    if (debug_wiggly_ligands) {
       for (unsigned int itor=0; itor<m_torsions.size(); itor++) { 
-	 std::cout << "   " << itor << " " << m_torsions[itor] << "\n";
+	 std::cout << " non-H torsion:   " << itor << " " << m_torsions[itor] << "\n";
+      }
+      for (unsigned int itor=0; itor<non_const_non_ring_torsions.size(); itor++) { 
+	 std::cout << " non-H-non-ring-non-const torsion:   " << itor << " "
+		   << non_const_non_ring_torsions[itor] << "\n";
       }
    }
    
@@ -204,6 +208,16 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
       }
 
       std::vector<float> torsion_set = get_torsions_by_random(non_const_non_ring_torsions);
+
+      if (debug_wiggly_ligands) { 
+	 for (unsigned int itor=0; itor<torsion_set.size(); itor++) { 
+	    std::cout << "   non-cont-non-ring-tors: " << itor << " "
+		      << non_const_non_ring_torsions[itor] << " " << torsion_set[itor]
+		      << std::endl;
+	 }
+      } 
+
+      
       std::vector<coot::atom_name_quad> atom_name_quads =
 	 get_torsion_bonds_atom_quads(monomer_type, non_const_non_ring_torsions);
       // the vector of rotation torsions. 
@@ -227,10 +241,10 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 								     isample, optimize_geometry_flag,
 								     fill_returned_molecules_vector_flag));
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 try { 
 	    mmdb::Residue *r = coot::GetResidue(ligand_residue);
-	    bool add_reverse_contacts = 1;
+	    bool add_reverse_contacts = true;
 	    std::vector<std::vector<int> > contact_indices =
 	       coot::util::get_contact_indices_from_restraints(r, pg, 1, add_reverse_contacts);
 
@@ -255,7 +269,7 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 									fill_returned_molecules_vector_flag));
 	    delete r;
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    std::cout << "ERROR: in install_simple_wiggly_ligands() " << rte.what() << std::endl;
 	 }
       }
