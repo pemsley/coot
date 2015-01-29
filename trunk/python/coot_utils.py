@@ -3860,8 +3860,8 @@ def get_windows_drives():
         # poor man's version but simple
         #print "BL INFO:: couldnt import ctypes, using simple version to get drives."
         drives = []
-        for letter in string.lower:
-            if os.path.isdir(c + ":"):
+        for letter in string.lowercase:
+            if os.path.isdir(letter + ":"):
                 drives.append(letter + ":\\")
         
     return drives
