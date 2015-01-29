@@ -746,9 +746,10 @@ void
 coot::protein_geometry::mon_lib_add_bond_no_target_geom(std::string comp_id,
 							std::string atom_id_1,
 							std::string atom_id_2,
-							std::string type) { 
+							std::string type,
+							dict_bond_restraint_t::aromaticity_t arom_in) { 
 
-   add_restraint(comp_id, dict_bond_restraint_t(atom_id_1, atom_id_2, type));
+   add_restraint(comp_id, dict_bond_restraint_t(atom_id_1, atom_id_2, type, arom_in));
 }
 
 
@@ -1470,19 +1471,6 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop) {
 	    s = mmCIFLoop->GetString("value_order", j, ierr);
 	 }
 
-	 // Feilib marks aromatic bonds in this way.
-	 // 
-	 s = mmCIFLoop->GetString("aromaticity", j, ierr_optional);
-	 if (s) {
-	    if (! ierr_optional) {
-	       std::string ss(s);
-	       if (ss == "Y" || ss == "y")
-		  aromaticity = dict_bond_restraint_t::AROMATIC;
-	       if (ss == "N" || ss == "n")
-		  aromaticity = dict_bond_restraint_t::NON_AROMATIC;
-	    }
-	 }
-	 
 	 if (! ierr) {
 	    if (s) { // just in case (should not be needed).
 	       std::string ss(s);
@@ -1513,6 +1501,34 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop) {
 	       // bonds).
 	    }
 	 }
+
+	 // Feilib marks aromatic bonds in this way.
+	 // 
+	 s = mmCIFLoop->GetString("aromaticity", j, ierr_optional);
+	 if (s) {
+	    if (! ierr_optional) {
+	       std::string ss(s);
+	       if (ss == "Y" || ss == "y")
+		  aromaticity = dict_bond_restraint_t::AROMATIC;
+	       if (ss == "N" || ss == "n")
+		  aromaticity = dict_bond_restraint_t::NON_AROMATIC;
+	    }
+	 }
+
+	 // PDB marks aromaticity this way:
+	 // 
+	 s = mmCIFLoop->GetString("pdbx_aromatic_flag", j, ierr_optional);
+	 if (s) {
+	    if (! ierr_optional) {
+	       std::string ss(s);
+	       if (ss == "Y" || ss == "y")
+		  aromaticity = dict_bond_restraint_t::AROMATIC;
+	       if (ss == "N" || ss == "n")
+		  aromaticity = dict_bond_restraint_t::NON_AROMATIC;
+	    }
+	 }
+
+	 
 	 ierr_tot += ierr;
 	 ierr_tot_for_ccd += ierr;
 
@@ -1531,7 +1547,7 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop) {
 
 	    if (! ierr_tot_for_ccd) {
 
-	       mon_lib_add_bond_no_target_geom(comp_id, atom_id_1, atom_id_2, type);
+	       mon_lib_add_bond_no_target_geom(comp_id, atom_id_1, atom_id_2, type, aromaticity);
 	    
 	    } else {
 	       // Hopeless - nothing worked...

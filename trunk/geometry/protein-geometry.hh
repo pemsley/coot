@@ -157,6 +157,7 @@ namespace coot {
    
    public:
       enum aromaticity_t { NON_AROMATIC, AROMATIC, UNASSIGNED };
+      aromaticity_t aromaticity;
       // dict_bond_restraint_t() {};
       dict_bond_restraint_t(std::string atom_id_1_in,
 			    std::string atom_id_2_in,
@@ -170,14 +171,17 @@ namespace coot {
 	 dist_esd_ = dist_esd_in;
 	 type_ = type;
 	 have_target_values = 1;
+	 aromaticity = arom_in;
       }
 
       dict_bond_restraint_t(std::string atom_id_1_in,
 			    std::string atom_id_2_in,
-			    std::string type) :
+			    std::string type,
+			    aromaticity_t arom_in=UNASSIGNED) :
 	 basic_dict_restraint_t(atom_id_1_in, atom_id_2_in) {
 	 have_target_values = 0;
 	 type_ = type;
+	 aromaticity = arom_in;
       }
       dict_bond_restraint_t() {} // boost::python needs this
       
@@ -1693,7 +1697,8 @@ namespace coot {
 
       void mon_lib_add_bond_no_target_geom(std::string comp_id,
 					   std::string atom_id_1, std::string atom_id_2,
-					   std::string type);
+					   std::string type,
+					   dict_bond_restraint_t::aromaticity_t arom_in);
       
       void mon_lib_add_angle(std::string comp_id,
 			     std::string atom_id_1,
