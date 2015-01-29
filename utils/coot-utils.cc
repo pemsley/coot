@@ -192,6 +192,18 @@ coot::util::intelligent_debackslash(const std::string &s) {
   return filename_str;
 }
 
+std::string
+coot::util::remove_trailing_slash(const std::string &s) {
+
+   std::string scratch = s;
+   if (scratch.substr(scratch.length()-1) == "/")
+      scratch.replace(scratch.end()-1, scratch.end(), '/', '\0');
+   if (scratch.substr(scratch.length()-1) == "\\")
+      scratch.replace(scratch.end()-1, scratch.end(), '\\', '\0');   
+
+   return scratch;
+}
+
 bool
 coot::util::is_number(char c) {
 

@@ -125,6 +125,7 @@ namespace coot {
       // return a long int between 0 and RAND_MAX
       long int random();
       std::string intelligent_debackslash(const std::string &s);
+      std::string remove_trailing_slash(const std::string &s);
 
       // remove the first bit from long
       std::string remove_string(const std::string &long_string, const std::string &bit);
