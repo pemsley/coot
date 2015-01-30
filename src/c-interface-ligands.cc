@@ -784,7 +784,7 @@ execute_ligand_search_internal() {
 					       g.ligand_wiggly_ligand_n_samples,
 					       optim_geom, fill_vec);
 	 }
-	 catch (std::runtime_error mess) {
+	 catch (const std::runtime_error &mess) {
 	    std::cout << "Error in flexible ligand definition.\n";
 	    std::cout << mess.what() << std::endl;
 	    if (graphics_info_t::use_graphics_interface_flag) { 

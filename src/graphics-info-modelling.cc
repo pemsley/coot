@@ -1828,11 +1828,11 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) {
 		  // a vector of atoms that should be deleted from the
 		  // reference mol so that the density where the
 		  // moving atoms are is not deleted.
-		  std::vector<int> from_ref_delete_atom_indices;
+		  std::vector<unsigned int> from_ref_delete_atom_indices;
 
 		  // a vector of atoms that should be deleted from the
 		  // moving mol, because they don't match the altconf
-		  std::vector<int> from_mov_delete_atom_indices;
+		  std::vector<unsigned int> from_mov_delete_atom_indices;
 
 		  try { // (yes, belt and braces in this case)
 		     if (! mol[ifrag][ires].is_undefined()) { 

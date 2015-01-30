@@ -198,7 +198,7 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 	 std::cout << "DEBUG:: ligand input has " << ligand.fragments.size() << " fragments "
 		   << std::endl;
 	 for (unsigned int ifrag=0; ifrag<ligand.fragments.size(); ifrag++) {
-	    for (unsigned int ires=ligand.fragments[ifrag].min_res_no();
+	    for (int ires=ligand.fragments[ifrag].min_res_no();
 		 ires<=ligand.fragments[ifrag].max_residue_number();
 		 ires++) {
 	       std::cout << "DEBUG:: fragment: " << ifrag << " " << ires << " "
@@ -211,7 +211,7 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 
       if (debug_wiggly_ligands) { 
 	 for (unsigned int itor=0; itor<torsion_set.size(); itor++) { 
-	    std::cout << "   non-cont-non-ring-tors: " << itor << " "
+	    std::cout << "   non-const-non-ring-tors: " << itor << " "
 		      << non_const_non_ring_torsions[itor] << " " << torsion_set[itor]
 		      << std::endl;
 	 }
@@ -231,15 +231,18 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 
 
       try { 
-	 coot::atom_tree_t tree(monomer_restraints.second, ligand_residue, alt_conf);
+	 atom_tree_t tree(monomer_restraints.second, ligand_residue, alt_conf);
 	 // angles in degrees.
 	 tree.set_dihedral_multi(v);
-	 coot::minimol::residue wiggled_ligand_residue = tree.GetResidue();
-	 returned_tors_molecules_info.push_back(optimize_and_install(wiggled_ligand_residue,
-								     pg, non_const_non_ring_torsions,
-								     torsion_set, ligand_chain_id,
-								     isample, optimize_geometry_flag,
-								     fill_returned_molecules_vector_flag));
+	 minimol::residue wiggled_ligand_residue = tree.GetResidue();
+	 installed_wiggly_ligand_info_t wl =
+	    optimize_and_install_if_unique(wiggled_ligand_residue,
+					   pg, non_const_non_ring_torsions,
+					   torsion_set, ligand_chain_id,
+					   isample, optimize_geometry_flag,
+					   fill_returned_molecules_vector_flag);
+	 if (!wl.mol.is_empty())
+	    returned_tors_molecules_info.push_back(wl);
       }
       catch (const std::runtime_error &rte) {
 	 try { 
@@ -258,15 +261,19 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 	       }
 	    
 	    int base_atom_index = 0; // hopefully this will work
-	    coot::atom_tree_t tree(monomer_restraints.second,
+	    atom_tree_t tree(monomer_restraints.second,
 				   contact_indices, base_atom_index, ligand_residue, alt_conf);
 	    tree.set_dihedral_multi(v);
-	    coot::minimol::residue wiggled_ligand_residue = tree.GetResidue();
-	    returned_tors_molecules_info.push_back(optimize_and_install(wiggled_ligand_residue,
-									pg, non_const_non_ring_torsions,
-									torsion_set, ligand_chain_id,
-									isample, optimize_geometry_flag,
-									fill_returned_molecules_vector_flag));
+	    minimol::residue wiggled_ligand_residue = tree.GetResidue();
+
+	    installed_wiggly_ligand_info_t wl = 
+	       optimize_and_install_if_unique(wiggled_ligand_residue,
+					      pg, non_const_non_ring_torsions,
+					      torsion_set, ligand_chain_id,
+					      isample, optimize_geometry_flag,
+					      fill_returned_molecules_vector_flag);
+	    if (! wl.mol.is_empty())
+	       returned_tors_molecules_info.push_back(wl);
 	    delete r;
 	 }
 	 catch (const std::runtime_error &rte) {
@@ -279,15 +286,15 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 }
 
 coot::installed_wiggly_ligand_info_t
-coot::wligand::optimize_and_install(const coot::minimol::residue &wiggled_ligand_residue,
-				    coot::protein_geometry *pg,
-				    const std::vector <dict_torsion_restraint_t> &non_const_torsions,
-				    const std::vector<float> &torsion_set,
-				    const std::string &ligand_chain_id,
-				    int isample,
-				    bool optimize_geometry_flag,
-				    bool fill_returned_molecules_vector_flag) {
-
+coot::wligand::optimize_and_install_if_unique(const coot::minimol::residue &wiggled_ligand_residue,
+					      coot::protein_geometry *pg,
+					      const std::vector <dict_torsion_restraint_t> &non_const_torsions,
+					      const std::vector<float> &torsion_set,
+					      const std::string &ligand_chain_id,
+					      int isample,
+					      bool optimize_geometry_flag,
+					      bool fill_returned_molecules_vector_flag) {
+   
    coot::installed_wiggly_ligand_info_t l;  // returned object
    
    // now make a molecule of that (my son)
@@ -306,17 +313,21 @@ coot::wligand::optimize_and_install(const coot::minimol::residue &wiggled_ligand
 #ifdef HAVE_GSL
       if (optimize_geometry_flag) { 
 	 coot::minimol::molecule reg_ligand = coot::regularize_minimol_molecule(wiggled_ligand, *pg);
-	 install_ligand(reg_ligand);
-	 if (fill_returned_molecules_vector_flag) {
-	    l.mol = reg_ligand;
-	    l.add_torsions(non_const_torsions, torsion_set);
-	 } 
+	 if (is_unique_conformer(reg_ligand)) { 
+	    install_ligand(reg_ligand);
+	    if (fill_returned_molecules_vector_flag) {
+	       l.mol = reg_ligand;
+	       l.add_torsions(non_const_torsions, torsion_set);
+	    } 
+	 }
       } else {
-	 install_ligand(wiggled_ligand);
-	 if (fill_returned_molecules_vector_flag) { 
-	    l.mol = wiggled_ligand;
-	    l.add_torsions(non_const_torsions, torsion_set);
-	 } 
+	 if (is_unique_conformer(wiggled_ligand)) { 
+	    install_ligand(wiggled_ligand);
+	    if (fill_returned_molecules_vector_flag) { 
+	       l.mol = wiggled_ligand;
+	       l.add_torsions(non_const_torsions, torsion_set);
+	    }
+	 }
       }
 #else
       install_ligand(wiggled_ligand);
@@ -326,11 +337,45 @@ coot::wligand::optimize_and_install(const coot::minimol::residue &wiggled_ligand
       }
 #endif
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "ERROR:: optimize_and_install() " << rte.what() << std::endl;
    } 
-
    return l;
+}
+
+bool
+coot::wligand::is_unique_conformer(const coot::minimol::molecule &mol) const {
+
+   bool unique = true;
+
+   double rmsd_crit = 0.25; // less than this means that the the mol
+			    // conformer was already included.  This is a semi-guess
+   
+   // does this need protection?
+   const minimol::residue &res_in = mol[0].residues[1];
+   unsigned int n_in = res_in.atoms.size();
+   if (n_in < 3) {
+      if (initial_ligand.size() > 0) 
+	 unique = false;
+   } else {
+      for (unsigned int i=0; i<initial_ligand.size(); i++) { 
+	 const minimol::residue &res_ref = initial_ligand[i][0].residues[1];
+	 bool include_hydrogens = false; // not used
+	 double rmsd = res_ref.lsq_overlay_rmsd(res_in);
+	 //std::cout << "rmsd to  ref " << i << " is " << rmsd << std::endl;
+	 if (rmsd < 0) {
+	    // problem
+	 } else {
+	    // we found something like this already
+	    if (rmsd < rmsd_crit) { 
+	       unique = false;
+	       break;
+	    }
+	 } 
+      }
+   }
+
+   return unique;
 }
 
 
@@ -462,6 +507,8 @@ coot::wligand::get_torsions_by_random(const std::vector <coot::dict_torsion_rest
 	       double v = get_random_normal_value();
 	       sample_tors[itor] += v*m_torsions[itor].esd();
 	    }
+
+	    if (sample_tors[itor] > 360) sample_tors[itor] -= 360;
 	 }
       }
    }
@@ -764,7 +811,7 @@ coot::installed_wiggly_ligand_info_t::get_set_and_ideal_torsions(int i) const {
 
    std::pair<float, float> p;
    if (i >= 0) { 
-      if (i < n_torsions()) {
+      if (i < int(n_torsions())) {
 	 p.first = torsioned_atoms[i].torsion;
 	 p.second = torsioned_atoms[i].torsion_from_restraint;
       } else {
@@ -786,7 +833,7 @@ coot::installed_wiggly_ligand_info_t::get_set_and_real_torsions(int i) const {
 
    std::pair<float, float> p = get_set_and_ideal_torsions(i);
    if (i >= 0) { 
-      if (i < n_torsions()) {
+      if (i < int(n_torsions())) {
 	 coot::atom_name_quad quad = torsioned_atoms[i].quad;
 	 coot::minimol::residue res = mol[0][1];
 	 p.second = res.get_torsion(quad);

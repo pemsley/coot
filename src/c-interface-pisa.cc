@@ -124,7 +124,7 @@ SCM handle_pisa_interfaces_scm(SCM interfaces_description_scm) {
 							   // end of this function.
    
    SCM interfaces_description_length_scm = scm_length(interfaces_description_scm);
-   int interfaces_description_length = scm_to_int(interfaces_description_length_scm);
+   unsigned int interfaces_description_length = scm_to_int(interfaces_description_length_scm);
    std::cout << "INFO:: found " << interfaces_description_length << " interfaces"
 	     << std::endl;
 

@@ -360,7 +360,7 @@ int test_minimol() {
       // test for baddies
 
       bool found_bad = false;
-      for(int ifrag=0; ifrag<m.fragments.size(); ifrag++) {
+      for(unsigned int ifrag=0; ifrag<m.fragments.size(); ifrag++) {
 	 for(int ires=m[ifrag].min_res_no(); ires<=m[ifrag].max_residue_number(); ires++) {
 	    if (m[ifrag][ires].seqnum < -100) {
 	       std::cout << "  Baddie! res-idx " << ires << " "
@@ -510,7 +510,7 @@ int test_wiggly_ligands () {
    coot::wligand wlig;
    coot::minimol::molecule mmol;
    mmol.read_file(greg_test("monomer-BUA.pdb"));
-   int wiggly_ligand_n_samples = 10;
+   unsigned int wiggly_ligand_n_samples = 10;
    try { 
       bool optim_geom = 0;
       bool fill_vec = 1;
@@ -670,7 +670,7 @@ int test_ramachandran_probabilities() {
    coot::protein_geometry geom;
    geom.init_standard();
    int n_correct = 0; 
-   for (int i=0; i<resnos.size(); i++) { 
+   for (unsigned int i=0; i<resnos.size(); i++) { 
       int selHnd = atom_sel.mol->NewSelection();
       int nSelResidues; 
       mmdb::PResidue *SelResidues = NULL;
@@ -799,7 +799,7 @@ int kdc_torsion_test() {
 
 	// calculate torsion and derivs numerically
 	std::vector<clipper::Coord_orth> co(4);
-	for ( int i = 0; i < dparams.size(); i++ ) {
+	for (unsigned int i = 0; i < dparams.size(); i++ ) {
 	   const std::vector<double>& param = dparams[i];
 	   // convert parameter list to coord orths
 	   for (int j=0;j<4;j++)
@@ -816,7 +816,7 @@ int kdc_torsion_test() {
 	// push the perturbation the other way
 	for ( int i = 0; i < 12; i++ )
 	   dparams[i][i] -= 2*dx; 
-	for ( int i = 0; i < dparams.size(); i++ ) {
+	for (unsigned int i = 0; i < dparams.size(); i++ ) {
 	   const std::vector<double>& param = dparams[i];
 	   // convert parameter list to coord orths
 	   for (int j=0;j<4;j++)
@@ -2535,14 +2535,14 @@ int test_residue_atom_renaming() {
       res_mov->GetAtomTable(residue_atoms, n_residue_atoms);
       orig_atom_names.resize(n_residue_atoms);
       curr_atom_names.resize(n_residue_atoms);
-      for (unsigned int i=0; i<n_residue_atoms; i++)
+      for (int i=0; i<n_residue_atoms; i++)
 	 orig_atom_names[i] = residue_atoms[i]->name;
 
       bool match_hydrogens_also = 1;
       coot::graph_match_info_t gm = coot::graph_match(res_mov, res_ref, 0, match_hydrogens_also);
       gm.match_names(res_mov);
 
-      for (unsigned int i=0; i<n_residue_atoms; i++)
+      for (int i=0; i<n_residue_atoms; i++)
 	 curr_atom_names[i] = residue_atoms[i]->name;
 
       //  CAL ->  CAD
@@ -2552,14 +2552,14 @@ int test_residue_atom_renaming() {
       //  CAI ->  CAA
       //  HAA ->  HAL
       
-      for (unsigned int i=0; i<n_residue_atoms; i++)
+      for (int i=0; i<n_residue_atoms; i++)
 	 std::cout << " test ---  was :" << orig_atom_names[i] << ":  now :"
 		   << curr_atom_names[i] << ":" << std::endl;
 
       // Test that there are no atoms in the residue that occur more
       // than once.
       std::map<std::string, int> atom_name_map;
-      for (unsigned int i=0; i<n_residue_atoms; i++) {
+      for (int i=0; i<n_residue_atoms; i++) {
 	 atom_name_map[residue_atoms[i]->name]++;
 	 if (atom_name_map[residue_atoms[i]->name] != 1) {
 	    std::string m = "   fail - more than 1 of :";

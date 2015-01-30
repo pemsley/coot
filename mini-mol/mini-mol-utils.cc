@@ -41,7 +41,7 @@ coot::cbeta_position(const coot::minimol::residue &res) {
    clipper::Coord_orth c_pos;
    clipper::Coord_orth n_pos;
 
-   for (int iat=0; iat<res.atoms.size(); iat++) {
+   for (unsigned int iat=0; iat<res.atoms.size(); iat++) {
       if (res.atoms[iat].name == " CA ") {
 	 found_ca = 1;
 	 ca_pos = res.atoms[iat].pos;
@@ -130,7 +130,7 @@ coot::o_position(const coot::minimol::residue &res_with_CA_C,
    clipper::Coord_orth c_pos(0,0,0);
    clipper::Coord_orth n_pos(0,0,0);
 
-   for (int iat=0; iat<res_with_N.atoms.size(); iat++) {
+   for (unsigned int iat=0; iat<res_with_N.atoms.size(); iat++) {
       if (res_with_N.atoms[iat].name == " N  ") {
 	 found_n = 1;
 	 n_pos = res_with_N.atoms[iat].pos;
@@ -138,7 +138,7 @@ coot::o_position(const coot::minimol::residue &res_with_CA_C,
       }
    }
 
-   for (int iat=0; iat<res_with_CA_C.atoms.size(); iat++) {
+   for (unsigned int iat=0; iat<res_with_CA_C.atoms.size(); iat++) {
       if (res_with_CA_C.atoms[iat].name == " CA ") {
 	 found_ca = 1;
 	 ca_pos = res_with_CA_C.atoms[iat].pos;

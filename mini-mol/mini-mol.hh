@@ -93,13 +93,15 @@ namespace coot {
 		      const clipper::Coord_orth &pos, const std::string &altloc, float bf, float occupancy);
 	 void addatom(const atom &at); 
 	 friend std::ostream&  operator<<(std::ostream&, residue);
-	 int n_atoms() const { return atoms.size(); }
+	 unsigned int n_atoms() const { return atoms.size(); }
 	 std::vector<atom *> select_atoms_serial() const;
-	 void delete_atom_indices(const std::vector<int> &atom_indices);
+	 void delete_atom_indices(const std::vector<unsigned int> &atom_indices);
 	 // throw an exception if atoms not found
 	 double get_torsion(coot::atom_name_quad &quad) const;
 	 bool is_undefined() const { if (seqnum == mmdb::MinInt4) return 1; else return 0; };
 	 void write_file(const std::string &file_name) const;
+	 // return a negative on a problem
+	 double lsq_overlay_rmsd(const residue &r) const;
       };
 
       class fragment {
