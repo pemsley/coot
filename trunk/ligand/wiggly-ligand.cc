@@ -412,7 +412,7 @@ coot::wligand::get_torsions_by_random(const std::vector <coot::dict_torsion_rest
    
    std::vector <float> sample_tors(m_torsions.size(), 0.0);
 
-   float non_rotating_torsion_cut_off = 11.0;
+   float non_rotating_torsion_cut_off = 2.0;
 
    if (0) {
       for(unsigned int itor=0; itor<m_torsions.size(); itor++) {
