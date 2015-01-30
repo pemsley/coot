@@ -75,10 +75,11 @@ coot::minimol::molecule::molecule(const coot::minimol::fragment &frag) {
 // to set the positions of the atoms.  Used in rigid body
 // fitting of atoms moved with an atom selection (jiggle_fit)
 // 
-coot::minimol::molecule::molecule(mmdb::PPAtom atom_selection, int n_atoms,
+coot::minimol::molecule::molecule(mmdb::PPAtom atom_selection,
+				  int n_atoms,
 				  const std::vector<mmdb::Atom> &atoms) {
 
-   if (atoms.size() != n_atoms) {
+   if (int(atoms.size()) != n_atoms) {
       std::cout << "ERROR:: inconsistence size in minimol molecule constructor"
 		<< std::endl;
       return;
@@ -585,6 +586,39 @@ coot::minimol::residue::operator[](const std::string &atname) const {
    return atoms[0]; 
 }
 
+// return a negative on a problem
+double
+coot::minimol::residue::lsq_overlay_rmsd(const residue &r) const {
+
+   // atom names are not check.  We just presume that these are the
+   // same residue with atoms in different positions
+
+   double rmsd = -1;
+
+   unsigned int n_in = r.atoms.size();
+   std::vector<clipper::Coord_orth> pos_in(n_in);
+   for (unsigned int iat=0; iat<r.n_atoms(); iat++) { 
+      pos_in[iat] = r[iat].pos;
+      unsigned int n_ref = atoms.size();
+      if (n_in == n_ref) {
+	 std::vector<clipper::Coord_orth> pos_ref(n_ref);
+	 for (unsigned int iat=0; iat<atoms.size(); iat++)
+	    pos_ref[iat] = atoms[iat].pos;
+	 // args: (source, target) i.e. apply to source to match to target
+	 clipper::RTop_orth rtop(pos_in, pos_ref);
+	 double sum = 0;
+	 for (unsigned int iat=0; iat<atoms.size(); iat++) {
+	    double d_sq = (pos_ref[iat]-pos_in[iat].transform(rtop)).lengthsq();
+	    sum += d_sq;
+	 }
+	 rmsd = sqrt(sum/double(n_in));
+      }
+   }
+   // std::cout << "returning rmsd: " << rmsd << std::endl;
+   return rmsd;
+}
+
+
 void
 coot::minimol::residue::write_file(const std::string &file_name) const {
 
@@ -687,7 +721,7 @@ coot::minimol::fragment::operator[](int i) {
 
 
 void
-coot::minimol::residue::delete_atom_indices(const std::vector<int> &atom_indices) {
+coot::minimol::residue::delete_atom_indices(const std::vector<unsigned int> &atom_indices) {
    
    std::vector<coot::minimol::atom> new_atoms;
    for (unsigned int iat=0; iat<atoms.size(); iat++) {
@@ -750,7 +784,7 @@ coot::minimol::residue::addatom(std::string atom_name, std::string element,
 std::vector<coot::minimol::atom*>
 coot::minimol::residue::select_atoms_serial() const {
    std::vector<coot::minimol::atom*> a;
-   int natoms = atoms.size();
+   unsigned int natoms = atoms.size();
    for (unsigned int iatom=0; iatom<natoms; iatom++) {
       a.push_back((coot::minimol::atom *) &(atoms[iatom]));
    }
@@ -961,7 +995,7 @@ coot::minimol::molecule::molecule_of_atom_types(std::string at_type) const {
       a.fragments.push_back(minimol::fragment(fragments[ifr].fragment_id));
       //       std::cout << "fragment id: "
       // 		<< (*this)[ifrag].fragment_id << std::endl; 
-      for (unsigned int ires=fragments[ifr].min_res_no(); ires<=fragments[ifr].max_residue_number(); ires++)
+      for (int ires=fragments[ifr].min_res_no(); ires<=fragments[ifr].max_residue_number(); ires++)
 	 for (unsigned int iatom=0; iatom<fragments[ifr][ires].atoms.size(); iatom++)
 	    if (fragments[ifr][ires][iatom].name == at_type)
 	       a[ifr][ires].addatom(fragments[ifr][ires][iatom]);
@@ -1266,7 +1300,7 @@ coot::minimol::molecule::set_atom_occ(const std::string &atom_name, float occ) {
 
    int natoms = 0;
    for (unsigned int ifr=0; ifr<fragments.size(); ifr++) {
-      for (unsigned int ires=fragments[ifr].min_res_no(); ires<=fragments[ifr].max_residue_number(); ires++)
+      for (int ires=fragments[ifr].min_res_no(); ires<=fragments[ifr].max_residue_number(); ires++)
 	 for (unsigned int iatom=0; iatom<fragments[ifr][ires].atoms.size(); iatom++)
 	    if (fragments[ifr][ires][iatom].name == atom_name) { 
 	       fragments[ifr][ires][iatom].occupancy = occ;
@@ -1350,7 +1384,7 @@ coot::minimol::molecule::get_pos() const {
    
    for (unsigned int ifrag=0; ifrag<fragments.size(); ifrag++) {
       for (int ires=(*this)[ifrag].min_res_no(); ires<=(*this)[ifrag].max_residue_number(); ires++) {
-	 for (int iat=0; iat<(*this)[ifrag][ires].n_atoms(); iat++) {
+	 for (unsigned int iat=0; iat<(*this)[ifrag][ires].n_atoms(); iat++) {
 	    
 	    running_pos += (*this)[ifrag][ires][iat].pos;
 	    n_atom += 1.0;
@@ -1366,7 +1400,7 @@ coot::minimol::molecule::get_pos() const {
       double devi;
       for (unsigned int ifrag=0; ifrag<fragments.size(); ifrag++) {
 	 for (int ires=(*this)[ifrag].min_res_no(); ires<=(*this)[ifrag].max_residue_number(); ires++) {
-	    for (int iat=0; iat<(*this)[ifrag][ires].n_atoms(); iat++) {
+	    for (unsigned int iat=0; iat<(*this)[ifrag][ires].n_atoms(); iat++) {
 	       devi = clipper::Coord_orth::length((*this)[ifrag][ires][iat].pos, residue_centre);
 	       if (devi > max_dev_residue_pos) {
 		  max_dev_residue_pos = devi;
@@ -1400,12 +1434,12 @@ coot::minimol::molecule::get_rtop(const molecule &mol_ref) const {
    
    for (unsigned int ifrag=0; ifrag<fragments.size(); ifrag++)
       for (int ires=(*this)[ifrag].min_res_no(); ires<=(*this)[ifrag].max_residue_number(); ires++)
-	 for (int iat=0; iat<(*this)[ifrag][ires].n_atoms(); iat++)
+	 for (unsigned int iat=0; iat<(*this)[ifrag][ires].n_atoms(); iat++)
 	    p_b.push_back((*this)[ifrag][ires][iat].pos);
    
    for (unsigned int ifrag=0; ifrag<mol_ref.fragments.size(); ifrag++)
       for (int ires=mol_ref[ifrag].min_res_no(); ires<=mol_ref[ifrag].max_residue_number(); ires++)
-	 for (int iat=0; iat<mol_ref[ifrag][ires].n_atoms(); iat++)
+	 for (unsigned int iat=0; iat<mol_ref[ifrag][ires].n_atoms(); iat++)
 	    p_e.push_back(mol_ref[ifrag][ires][iat].pos);
    
    if (p_b.size() == 0 ) {

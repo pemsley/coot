@@ -119,15 +119,17 @@ namespace coot {
 	 //}
       }
 
+      bool is_unique_conformer(const coot::minimol::molecule &mol) const;
+
       installed_wiggly_ligand_info_t
-      optimize_and_install(const minimol::residue &wiggled_ligand_residue,
-			   coot::protein_geometry *pg,
-			   const std::vector <dict_torsion_restraint_t> &non_const_torsions, 
-			   const std::vector<float> &torsion_set,
-			   const std::string &chain_id,
-			   int isample,
-			   bool optimize_geometry_flag,
-			   bool fill_returned_molecules_vector_flag);
+      optimize_and_install_if_unique(const minimol::residue &wiggled_ligand_residue,
+				     coot::protein_geometry *pg,
+				     const std::vector <dict_torsion_restraint_t> &non_const_torsions, 
+				     const std::vector<float> &torsion_set,
+				     const std::string &chain_id,
+				     int isample,
+				     bool optimize_geometry_flag,
+				     bool fill_returned_molecules_vector_flag);
       
    public:
 
