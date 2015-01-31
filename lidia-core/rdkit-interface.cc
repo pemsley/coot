@@ -737,6 +737,7 @@ coot::get_chiral_tag(mmdb::Residue *residue_p,
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    std::string atom_name = atom_p->name;
+   bool debug = false;
 
    // To make RDKit/SMILES chiral tags, we consider the order of the 3
    // atoms in the atom list that are after the chiral centre.
@@ -794,7 +795,7 @@ coot::get_chiral_tag(mmdb::Residue *residue_p,
 	    // This bit needs checking
 	    // 
 	    if (atom_orders_match) {
-	       if (true) 
+	       if (debug) 
 		  std::cout << "atom orders match:     true, vol sign "
 			    << std::setw(2) << chiral_restraint.volume_sign
 			    << " -> CCW "
@@ -811,7 +812,7 @@ coot::get_chiral_tag(mmdb::Residue *residue_p,
 	       if (chiral_restraint.volume_sign == -1)
 		  chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CW;
 	    } else {
-	       if (true) 
+	       if (debug) 
 		  std::cout << "atom orders NOT match: true, vol sign "
 			    << std::setw(2) << chiral_restraint.volume_sign
 			    << " ->  CW "

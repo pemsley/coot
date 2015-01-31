@@ -3,6 +3,10 @@
 
   o Fix output format of external restraints [Richard Bunker]
 
+  o Torsion-based ligand fitting improvements
+
+  o Fix occassional graph data range anomaly.
+
 -----
 
   Release 0.8.1
