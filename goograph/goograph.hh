@@ -167,7 +167,7 @@ namespace coot {
       void draw_axis_label(int axis);
       void draw_annotation_lines();
       void draw_annotation_texts();
-      void set_data_scales();
+      void set_data_scales(int axis);
    public:
       enum {X_AXIS, Y_AXIS};
       enum {MAJOR_TICK, MINOR_TICK};

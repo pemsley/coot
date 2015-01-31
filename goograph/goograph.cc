@@ -182,7 +182,7 @@ coot::goograph::draw_axes() {
    lig_build::pos_t wBy = world_to_canvas(B_yaxis);
    lig_build::pos_t A_xaxis(extents_min_x, extents_min_y);
    lig_build::pos_t B_xaxis(extents_min_x + x_range()*1.1, extents_min_y);
-   if (0) {
+   if (false) {
       std::cout << "in draw_axes() X: extents " << extents_min_x << " "
 		<< extents_max_x << " data_scale_x " << data_scale_x << std::endl;
       std::cout << "in draw_axes() Y: extents " << extents_min_y << " "
@@ -273,8 +273,10 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
    }
 
    // extents not set, no data yet.
-   if (extents_min_x > extents_max_x)
-      return; 
+   if (extents_min_x > extents_max_x) {
+      std::cout << "no extents path - returning" << std::endl;
+      return;
+   } 
 
    if (axis == Y_AXIS) {
       data_extents_min = extents_min_y;
@@ -286,7 +288,14 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
       data_extents_min = extents_min_x;
       extents_min = extents_min_x;
       // extents_max = extents_max_x * 1.05;  // why did I have this?
-      extents_max = extents_max_x * 1.005;
+      extents_max = extents_max_x; //  * 1.005;
+      if (false) 
+	 std::cout << "X_AXIS path"
+		   << " extents_min_x"  << extents_min_x
+		   << " extents_max_x " << extents_max_x
+		   << " extents_min " << extents_min
+		   << " extents_max " << extents_max
+		   << std::endl;
    }
 
    // what is the tick that is a multiple of tick_major_step, that is
@@ -299,7 +308,7 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 	 int n = int(extents_min/tick_major_step);
 	 double diff = double(n)*tick_major_step - extents_min;
 	 tick_major_start = extents_min + diff;
-	 if (0)
+	 if (false) // debug
 	    std::cout << "   extents_min: " << extents_min
 		      << "  tick_major_step " << tick_major_step
 		      << " n " << n
@@ -418,41 +427,47 @@ coot::goograph::set_extents(int axis, double min, double max) {
    // std::cout << "set_extents() " << axis << " " << min << " " << max << std::endl;
 
    if (axis == X_AXIS) {
-      if (min < extents_min_x)
-	 extents_min_x = min;
-      if (max > extents_max_x)
-	 extents_max_x = max;
+      extents_min_x = min;
+      extents_max_x = max;
       double x_major_tick = calc_tick(x_range());
       set_ticks(X_AXIS, x_major_tick, x_major_tick*0.2);
    }
    if (axis == Y_AXIS) {
-      if (min < extents_min_y) 
-	 extents_min_y = min;
-      if (max > extents_max_y)
-	 extents_max_y = max;
+      extents_min_y = min;
+      extents_max_y = max;
       double y_major_tick = calc_tick(y_range());
       set_ticks(Y_AXIS, y_major_tick, y_major_tick*0.2);
    }
-   
-   set_data_scales();
+
+   set_data_scales(axis);
 }
 
 void
-coot::goograph::set_data_scales() {
+coot::goograph::set_data_scales(int axis) {
 
    double dsx = data_scale_x;
    double dsy = data_scale_y;
 
-   double delta_x = extents_max_x - extents_min_x;
-   if (delta_x > 0.1) 
-      data_scale_x = double(dialog_width)/double(dialog_width_orig) * 400.0/delta_x;
-   double delta_y = extents_max_y - extents_min_y;
-   if (delta_y > 0.1)
-      data_scale_y = double(dialog_height)/double(dialog_height_orig) * 300.0/delta_y;
-
-   if (0)
-      std::cout << "x was " << dsx << " now  " << data_scale_x << " "
-		<< "y was " << dsy << " now  " << data_scale_y << std::endl;
+   if (axis == X_AXIS) { 
+      double delta_x = extents_max_x - extents_min_x;
+      if (delta_x > 0)
+	 data_scale_x = double(dialog_width)/double(dialog_width_orig) * 400.0/delta_x;
+      else 
+	 data_scale_x = 0.1; // who knows what a sane fall-back is.
+      
+      if (false)
+	 std::cout << "DEBUG:: "
+		   << "delta_x " << delta_x << " "
+		   << "data_scale_x was " << dsx << " now  " << data_scale_x << std::endl;
+   }
+   
+   if (axis == Y_AXIS) { 
+      double delta_y = extents_max_y - extents_min_y;
+      if (delta_y > 0.0)
+	 data_scale_y = double(dialog_height)/double(dialog_height_orig) * 300.0/delta_y;
+      else 
+	 data_scale_y = 1;
+   }
 } 
 
 void
