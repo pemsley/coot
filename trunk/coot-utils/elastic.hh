@@ -31,7 +31,7 @@ namespace coot {
       elastic_network_model_t(mmdb::Manager *mol, int atom_selection_handle,
 			      mmdb::realtype min_dist,
 			      mmdb::realtype max_dist,
-			      int max_n_distances);
+			      unsigned int max_n_distances);
    };
 
    void test_elastic();

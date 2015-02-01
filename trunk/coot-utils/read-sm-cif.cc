@@ -138,7 +138,7 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
 	 char *disorder_group = NULL;
 	 std::string alt_loc;
 	    
-	 for (unsigned int il=0; il<ll; il++) {
+	 for (int il=0; il<ll; il++) {
 
 	    label  = loop->GetString(loopTagsAtom[0], il, ierr);
 	    ierr_tot += ierr;
@@ -216,7 +216,7 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
       char *label  = NULL;
       mmdb::realtype u11, u22, u33, u12, u13, u23;
       int ierr_tot = 0;
-      for (unsigned int il=0; il<ll; il++) {
+      for (int il=0; il<ll; il++) {
 	 label  = loop->GetString(loopTagsAniso[0], il, ierr);
 	 ierr_tot += ierr;
 	 loop->GetReal(u11, "_atom_site_aniso_U_11", il, ierr);
@@ -331,7 +331,7 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
 	    int ll = loop->GetLoopLength();
 	    // std::cout << "loop length: " << ll << std::endl;
 	    if (ll > 0) { 
-	       for (unsigned int il=0; il<ll; il++) {
+	       for (int il=0; il<ll; il++) {
 
 		  S = loop->GetString(loopTag1[0], il, ierr);
 		  if (! ierr) {
@@ -424,7 +424,7 @@ coot::smcif::get_resolution(const clipper::Cell &cell,
       if (loop) {
 	 int ll = loop->GetLoopLength();
 	 if (ll > 0) {
-	    for (unsigned int il=0; il<ll; il++) {
+	    for (int il=0; il<ll; il++) {
  	       ierr = loop->GetInteger(h, loopTag_data[0], il);
  	       if (! ierr) {
  		  ierr = loop->GetInteger(k, loopTag_data[1], il);
@@ -500,7 +500,7 @@ coot::smcif::setup_hkls(const std::string &file_name) {
 	 
 	 clipper::xtype x1[2]; 
 	 if (ll > 0) {
-	    for (unsigned int il=0; il<ll; il++) {
+	    for (int il=0; il<ll; il++) {
 	       ierr = loop->GetInteger(h, loopTag_data[0], il);
 	       if (! ierr) {
 		  ierr = loop->GetInteger(k, loopTag_data[1], il);
@@ -583,7 +583,7 @@ coot::smcif::read_data_sm_cif(const std::string &file_name) {
 		  mmdb::realtype fpc_f, fpc_p;
 		  clipper::xtype x1[2]; 
 		  if (ll > 0) {
-		     for (unsigned int il=0; il<ll; il++) {
+		     for (int il=0; il<ll; il++) {
 			ierr = loop->GetInteger(h, "_refln_index_h", il);
 			if (! ierr) {
 			   ierr = loop->GetInteger(k, "_refln_index_k", il);
@@ -754,8 +754,8 @@ coot::smcif::get_space_group(mmdb::mmcif::PData data, const std::string &symm_ta
       int ll = loop->GetLoopLength();
       // std::cout << "   ll: " << ll << std::endl;
       if (ll > 0) { 
-	 for (unsigned int il=0; il<ll; il++) {
-	    for (unsigned int itag=0; itag<n_tags; itag++) { 
+	 for (int il=0; il<ll; il++) {
+	    for (int itag=0; itag<n_tags; itag++) { 
 	       S = loop->GetString(loopTag1[itag], il, ierr);
 	       if (! ierr) {
 		  symm_strings.push_back(S);
