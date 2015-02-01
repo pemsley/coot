@@ -1098,6 +1098,14 @@
   (let ((rx (make-regexp (glob->regexp pat))))
     (filter (lambda (x) (regexp-exec rx x)) (directory-files dir))))
 
+;; prepend the files with the directory dir
+;; 
+;; (note that the args are reversed to "natural" order (which is the
+;; reverse of glob args)
+;; 
+(define (useful-glob dir pat)
+   (map (lambda (x) (append-dir-file dir x)) (glob pat dir)))
+
 
 ;; return the view matrix (useful for molscript, perhaps).
 ;; 
