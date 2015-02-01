@@ -9,7 +9,7 @@ coot::elastic_network_model_t::elastic_network_model_t(mmdb::Manager *mol,
 						       int SelectionHandle,
 						       mmdb::realtype min_dist,
 						       mmdb::realtype max_dist,
-						       int max_n_distances) {
+						       unsigned int max_n_distances) {
 
    if (mol) { 
       mmdb::PPAtom atom_selection = NULL;
@@ -37,9 +37,9 @@ coot::elastic_network_model_t::elastic_network_model_t(mmdb::Manager *mol,
       if (pscontact) {
 	 // std::cout << " Found " << n_contacts  << " contacts " << std::endl;
 	 if (n_contacts > 0) { 
-	    if (n_contacts <= max_n_distances) {
+	    if (n_contacts <= int(max_n_distances)) {
 	       // all the contacts
-	       for (unsigned int i=0; i<n_contacts; i++) { 
+	       for (int i=0; i<n_contacts; i++) { 
 		  elastic_network_item_t item(atom_selection[pscontact[i].id1],
 					      atom_selection[pscontact[i].id2],
 					      0.1);

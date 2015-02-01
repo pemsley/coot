@@ -138,7 +138,7 @@ coot::atom_quad::setup_chiral_quad(mmdb::Residue *residue_with_O, mmdb::Residue 
       mmdb::PPAtom residue_atoms = NULL;
       int n_residue_atoms;
       residue_with_O->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+      for (int iat=0; iat<n_residue_atoms; iat++) {
 	 std::string atom_name(residue_atoms[iat]->name);
 	 if (atom_name == O_name) {
 	    // the O atom name comes from the residue_with_O
@@ -151,7 +151,7 @@ coot::atom_quad::setup_chiral_quad(mmdb::Residue *residue_with_O, mmdb::Residue 
       // atoms 2 and 3 and the chiral centre atom come from the residue_with_chiral_centre residue.
       residue_atoms = NULL;
       residue_with_chiral_centre->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+      for (int iat=0; iat<n_residue_atoms; iat++) {
 	 mmdb::Atom *at = residue_atoms[iat];
 	 std::string atom_name(at->name);
 	 if (atom_name == atom_4_name) {
@@ -218,7 +218,7 @@ double
 coot::atom_index_quad::torsion(mmdb::PPAtom atom_selection, int n_selected_atoms) const {
 
    double angle = 0;
-   for (unsigned int i=0; i<n_selected_atoms; i++) {
+   for (int i=0; i<n_selected_atoms; i++) {
       bool good_indexing = 0;
       if ((index1 >= 0) && (index1 < n_selected_atoms)) { 
 	 if ((index2 >= 0) && (index2 < n_selected_atoms)) { 
