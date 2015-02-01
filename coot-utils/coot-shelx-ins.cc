@@ -1264,10 +1264,9 @@ coot::ShelxIns::write_synthetic_pre_atom_lines(mmdb::Manager *mol,
    f << "PLAN 200 2.3\n";
    f << "LIST 6\n";
    f << "WPDB 2\n";
- 
-   f << "DELU $C_* $N_* $O_* $S_*\n";
-   f << "SIMU 0.1 $C_* $N_* $O_* $S_*\n";
-   
+
+   bool is_aniso = mol_is_anisotropic(mol);
+
    // f << "ISOR 0.1 O_3001 > LAST\n";
    // f << "CONN 0 O_3001 > LAST\n";
 
@@ -1322,13 +1321,15 @@ coot::ShelxIns::write_synthetic_pre_atom_lines(mmdb::Manager *mol,
       }
    }
 
-   for (unsigned int ir=0; ir<hetatom_ranges.size(); ir++) {
-      const hetatom_range &hr = hetatom_ranges[ir];
-      f << "ISOR 0.1 "
-	<< util::remove_leading_spaces(hr.range_first->element) << "_"
-	<< hr.range_first->GetSeqNum() + hr.resno_offset << " > " 
-	<< util::remove_leading_spaces(hr.range_last->element) << "_" 
-	<< hr.range_last->GetSeqNum() + hr.resno_offset << "\n";
+   if (is_aniso) {
+      for (unsigned int ir=0; ir<hetatom_ranges.size(); ir++) {
+	 const hetatom_range &hr = hetatom_ranges[ir];
+	 f << "ISOR 0.1 "
+	   << util::remove_leading_spaces(hr.range_first->element) << "_"
+	   << hr.range_first->GetSeqNum() + hr.resno_offset << " > " 
+	   << util::remove_leading_spaces(hr.range_last->element) << "_" 
+	   << hr.range_last->GetSeqNum() + hr.resno_offset << "\n";
+      }
    }
    for (unsigned int ir=0; ir<hetatom_ranges.size(); ir++) {
       const hetatom_range &hr = hetatom_ranges[ir];
@@ -1339,7 +1340,17 @@ coot::ShelxIns::write_synthetic_pre_atom_lines(mmdb::Manager *mol,
 	<< hr.range_last->GetSeqNum() + hr.resno_offset << "\n";
 	// << " > LAST\n";
    }
-   
+   if (is_aniso) {
+      std::map<std::string, unsigned int> atomic_contents = get_atomic_contents(mol);
+      std::map<std::string, unsigned int>::const_iterator it;
+      if (atomic_contents.size()) {
+	 f << "DELU ";
+	 for (it=atomic_contents.begin(); it!=atomic_contents.end(); it++)
+	    f << " %" << it->first << "_* ";
+	 f << "\n";
+      }
+      f << "RIGU\n";
+   }
    
    f << "BUMP\n";
 
