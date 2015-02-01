@@ -24,6 +24,23 @@
 
 coot::util::water_coordination_t::water_coordination_t(mmdb::Manager *mol, mmdb::realtype radius) {
 
+   init_internal(mol, radius, false);
+}
+
+
+coot::util::water_coordination_t::water_coordination_t(mmdb::Manager *mol,
+						       mmdb::realtype radius,
+						       bool do_metals_only_flag) {
+
+   init_internal(mol, radius, do_metals_only_flag);
+
+}
+
+void
+coot::util::water_coordination_t::init_internal(mmdb::Manager *mol,
+						mmdb::realtype radius,
+						bool do_metals_only_flag) {
+
    if (! mol)
       return; 
 
@@ -42,19 +59,20 @@ coot::util::water_coordination_t::water_coordination_t(mmdb::Manager *mol, mmdb:
    int n_water_atoms;
    mmdb::PAtom *atom_selection = NULL;
    int n_selected_atoms;
-   int SelHnd = mol->NewSelection();
-   int SelHnd_waters = mol->NewSelection();
+   int SelHnd =        mol->NewSelection(); // d
+   int SelHnd_waters = mol->NewSelection(); // d
 
-   mol->SelectAtoms (SelHnd_waters, 0, "*",
-		     mmdb::ANY_RES, // starting resno, an int
-		     "*", // any insertion code
-		     mmdb::ANY_RES, // ending resno
-		     "*", // ending insertion code
-		     "HOH", // residue name
-		     "*",   // atname
-		     "*",   // elements
-		     "*"    // alt loc.
-		     );
+   if (! do_metals_only_flag) 
+      mol->SelectAtoms (SelHnd_waters, 0, "*",
+			mmdb::ANY_RES, // starting resno, an int
+			"*", // any insertion code
+			mmdb::ANY_RES, // ending resno
+			"*", // ending insertion code
+			"HOH", // residue name
+			"*",   // atname
+			"*",   // elements
+			"*"    // alt loc.
+			);
 
    mol->SelectAtoms (SelHnd_waters, 0, "*",
 		     mmdb::ANY_RES, // starting resno, an int
@@ -63,7 +81,7 @@ coot::util::water_coordination_t::water_coordination_t(mmdb::Manager *mol, mmdb:
 		     "*", // ending insertion code
 		     "*", // residue name
 		     "*",   // atname
-		     "MG,CA,K,NA,LI,RB,BE,BA,FR,CS,SR",   // metals
+		     "MG,CA,K,NA,LI,RB,BE,BA,FR,CS,SR,RA,SC.TI,V,CR,MN,FE,CO,NI,CU,ZN,ZR,NB,MO,RU,RH,Ag,Cd,W,OS,IR,PT,AU,HG",   // metals
 		     "*" ,   // alt loc.
 		     mmdb::SKEY_OR);
    
@@ -105,7 +123,10 @@ coot::util::water_coordination_t::water_coordination_t(mmdb::Manager *mol, mmdb:
    }
    mol->DeleteSelection(SelHnd);
    mol->DeleteSelection(SelHnd_waters);
-}
+   
+
+} 
+
 
 
 coot::util::contact_atoms_info_t::contact_atom_t::contact_atom_t(mmdb::Atom *contactor, mmdb::Atom *central_atom) {
@@ -114,12 +135,34 @@ coot::util::contact_atoms_info_t::contact_atom_t::contact_atom_t(mmdb::Atom *con
    clipper::Coord_orth co_2(central_atom->x, central_atom->y, central_atom->z);
    dist = clipper::Coord_orth::length(co_1, co_2);
    at = contactor;
+   for (int i=0; i<4; i++) 
+      for (int j=0; j<4; j++)
+	 mat[i][j] = 0;
+   for (int i=0; i<4; i++) 
+	 mat[i][i] = 1;
 }
+
+
+coot::util::contact_atoms_info_t::contact_atom_t::contact_atom_t(mmdb::Atom *contactor,
+								 mmdb::Atom *central_atom,
+								 const mmdb::mat44 &m) {
+
+   clipper::Coord_orth co_1(   contactor->x,    contactor->y,    contactor->z);
+   clipper::Coord_orth co_2(central_atom->x, central_atom->y, central_atom->z);
+   dist = clipper::Coord_orth::length(co_1, co_2);
+   at = contactor;
+   for (int i=0; i<4; i++) 
+      for (int j=0; j<4; j++)
+	 mat[i][j] = m[i][j];
+}
+
 
 // But don't add them if they are not matching alt confs
 // 
 void
-coot::util::water_coordination_t::add_contact(mmdb::Atom *atom_central, mmdb::Atom *atom_contactor) {
+coot::util::water_coordination_t::add_contact(mmdb::Atom *atom_central,
+					      mmdb::Atom *atom_contactor,
+					      const mmdb::mat44 &mat) {
 
    std::string alt_conf_1 = atom_contactor->altLoc;
    std::string alt_conf_2 = atom_central->altLoc;
@@ -129,7 +172,7 @@ coot::util::water_coordination_t::add_contact(mmdb::Atom *atom_central, mmdb::At
       // filter out H water contacts.
       std::string ele(atom_contactor->element);
       if (ele != " H") { 
-	 coot::util::contact_atoms_info_t::contact_atom_t con_at(atom_contactor, atom_central);
+	 coot::util::contact_atoms_info_t::contact_atom_t con_at(atom_contactor, atom_central, mat);
 	 //
 	 // Now where does con_at go?
 	 // is atom_central already in atom_contacts?
@@ -150,6 +193,7 @@ coot::util::water_coordination_t::add_contact(mmdb::Atom *atom_central, mmdb::At
       }
    }
 }
+
 
 
 std::vector<coot::util::contact_atoms_info_t>
@@ -251,7 +295,7 @@ coot::util::water_coordination_t::add_contacts(mmdb::Manager *mol,
 	 // e.g. the NE2 in atom_selection contacts O in an HOH in the water_selection
 	 // (the test for matching altconfs id done in add_contact().
 	 //
-	 add_contact(water_selection[pscontact[i].id1], atom_selection[pscontact[i].id2]);
+	 add_contact(water_selection[pscontact[i].id1], atom_selection[pscontact[i].id2], other_mat);
       }
    } 
 }

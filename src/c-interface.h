@@ -5678,6 +5678,8 @@ void set_check_waters_by_difference_map_sigma_level(float f);
   otherwise a list of atoms and neighbours.  Can return scheme false
   if imol is not a valid molecule. */
 SCM highly_coordinated_waters_scm(int imol, int coordination_number, float dist_max);
+
+SCM metal_coordination_scm(int imol, float dist_max);
 #endif
 #ifdef USE_PYTHON
 /*! \brief return a list of waters that are coordinated with at least

@@ -186,7 +186,7 @@ coot::pucker_analysis_info_t::assign_base_atom_coords(mmdb::Residue *residue_p) 
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 
    // Assign N1_or_9 and C1_prime
-   for (unsigned int i=0; i<n_residue_atoms; i++) { 
+   for (int i=0; i<n_residue_atoms; i++) { 
       std::string atom_name(residue_atoms[i]->name);
       std::string alt_name(residue_atoms[i]->altLoc);
       if (alt_name == altconf) { 

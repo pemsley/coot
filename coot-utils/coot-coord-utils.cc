@@ -487,12 +487,12 @@ coot::filter_residues_by_solvent_contact(mmdb::Residue *res_ref,
 	 int n_residue_atoms;
 	 residues[i]->GetAtomTable(residue_atoms, n_residue_atoms);
 	 bool i_added = 0;
-	 for (unsigned int jat=0; jat<n_lig_residue_atoms; jat++) {
+	 for (int jat=0; jat<n_lig_residue_atoms; jat++) {
 	    clipper::Coord_orth lig_pt(lig_residue_atoms[jat]->x,
 				       lig_residue_atoms[jat]->y,
 				       lig_residue_atoms[jat]->z);
 	    std::string ligand_atom_ele = lig_residue_atoms[jat]->element;
-	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	    for (int iat=0; iat<n_residue_atoms; iat++) {
 	       if (ligand_atom_ele != " C" && ligand_atom_ele != " H") { 
 		  clipper::Coord_orth pt(residue_atoms[iat]->x,
 					 residue_atoms[iat]->y,
@@ -1424,7 +1424,7 @@ coot::util::get_residue_centre(mmdb::Residue *residue_p) {
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    if (n_residue_atoms>0) {
       status = 1;
-      for (unsigned int i=0; i<n_residue_atoms; i++) {
+      for (int i=0; i<n_residue_atoms; i++) {
 	 clipper::Coord_orth pt(residue_atoms[i]->x,
 				residue_atoms[i]->y,
 				residue_atoms[i]->z);
@@ -2215,7 +2215,7 @@ coot::graph_match_info_t::match_names(mmdb::Residue *res_with_moving_names) {
       mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       res_with_moving_names->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+      for (int iat=0; iat<n_residue_atoms; iat++) {
 	 std::string atom_name(residue_atoms[iat]->name);
 	 // add the name if is not already there.
 	 if (std::find(residue_atom_names.begin(), residue_atom_names.end(), atom_name)
@@ -2273,7 +2273,7 @@ coot::graph_match_info_t::match_names(mmdb::Residue *res_with_moving_names) {
 	 }
       }
 
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+      for (int iat=0; iat<n_residue_atoms; iat++) {
 
 	 // check for a collision.  Is the reference name in existing
 	 // atom names that are not due to be replaced?
@@ -2488,7 +2488,7 @@ coot::util::delete_alt_confs_except(mmdb::Residue *residue_p, const std::string 
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-   for (unsigned int i=0; i<n_residue_atoms; i++) { 
+   for (int i=0; i<n_residue_atoms; i++) { 
       std::string atom_alt_conf(residue_atoms[i]->altLoc);
       if (atom_alt_conf != alt_conf) {
 	 atoms_to_be_deleted.push_back(residue_atoms[i]);
@@ -2716,7 +2716,7 @@ coot::util::get_atom(const atom_spec_t &spec, mmdb::Manager *mol) {
       mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       res->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+      for (int iat=0; iat<n_residue_atoms; iat++) { 
 	 mmdb::Atom *test_at = residue_atoms[iat];
 	 std::string at_name = test_at->name;
 	 std::string at_alt_conf = test_at->altLoc;
@@ -3105,7 +3105,7 @@ bool
 coot::mol_has_symmetry(mmdb::Manager *mol) {
    mmdb::mat44 test_mat;
    int i_symm_err = mol->GetTMatrix(test_mat, 0, 0, 0, 0);
-   return i_symm_err;
+   return (i_symm_err == 0); // 0 is OK
 } 
 
 
@@ -3570,7 +3570,7 @@ coot::util::transform_selection(mmdb::Manager *mol, int SelHnd, const clipper::R
    int n_selected_atoms;
    double sum_dist = 0.0l;
    mol->GetSelIndex(SelHnd, atoms, n_selected_atoms);
-   for (unsigned int iat=0; iat<n_selected_atoms; iat++) {
+   for (int iat=0; iat<n_selected_atoms; iat++) {
       mmdb::Atom *at = atoms[iat];
       clipper::Coord_orth co(at->x, at->y, at->z);
       clipper::Coord_orth trans_pos = co.transform(rtop);
@@ -3917,7 +3917,7 @@ coot::util::extents(mmdb::Manager *mol,
 	 mmdb::PPAtom residue_atoms = 0;
 	 int n_residue_atoms;
 	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	 for (int iat=0; iat<n_residue_atoms; iat++) { 
 	    mmdb::Atom *at = residue_atoms[iat];
 	    if (at->x < least_x) least_x = at->x;
 	    if (at->y < least_y) least_y = at->y;
@@ -3948,11 +3948,11 @@ coot::util::get_ori_to_this_res(mmdb::Residue *residue_p) {
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    std::map<std::string, std::vector<mmdb::Atom *> > atoms;
    // first size up the vectors in the atom map
-   for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+   for (int iat=0; iat<n_residue_atoms; iat++) { 
       std::string alt_conf  = residue_atoms[iat]->altLoc;
       atoms[alt_conf].resize(3,0);
    }
-   for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+   for (int iat=0; iat<n_residue_atoms; iat++) { 
       std::string alt_conf  = residue_atoms[iat]->altLoc;
       std::string atom_name = residue_atoms[iat]->name;
       int name_index = -1; 
@@ -5588,7 +5588,7 @@ coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
 		  residue->GetAtomTable(residue_atoms, n_residue_atoms);
 		  have_deleted = 0; // reset for Ter tests.
 
-		  for (unsigned int i=0; i<n_residue_atoms; i++) { 
+		  for (int i=0; i<n_residue_atoms; i++) { 
 		     if (residue_atoms[i]->isTer()) {
 			if (debug)
 			   std::cout << "..... atom " << i << " is a Ter" << std::endl;
@@ -5913,7 +5913,7 @@ coot::util::rotate_residue(mmdb::Residue *residue_p,
       mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+      for (int iat=0; iat<n_residue_atoms; iat++) { 
 	 mmdb::Atom *at = residue_atoms[iat];
 	 if (at) {
 	    clipper::Coord_orth pt(at->x, at->y, at->z);
@@ -6520,7 +6520,7 @@ coot::util::move_hetgroups_around_protein(mmdb::Manager *mol) {
 				 mmdb::PPAtom residue_atoms = 0;
 				 int n_residue_atoms;
 				 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-				 for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+				 for (int iat=0; iat<n_residue_atoms; iat++) {
 				    clipper::Coord_orth co(residue_atoms[iat]->x,
 							   residue_atoms[iat]->y,
 							   residue_atoms[iat]->z);
@@ -6733,7 +6733,7 @@ coot::util::residue_orientation(mmdb::Residue *residue_p, const clipper::Mat33<d
    
    if (residue_p) { 
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int i=0; i<n_residue_atoms; i++) {
+      for (int i=0; i<n_residue_atoms; i++) {
 	 if (!is_main_chain_p(residue_atoms[i])) {
 	    pts.push_back(clipper::Coord_orth(residue_atoms[i]->x,
 					      residue_atoms[i]->y,
@@ -7086,7 +7086,7 @@ coot::centre_of_residues(const std::vector<mmdb::Residue *> &residues) {
       mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       residues[ires]->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+      for (int iat=0; iat<n_residue_atoms; iat++) { 
 	 xs += residue_atoms[iat]->x;
 	 ys += residue_atoms[iat]->y;
 	 zs += residue_atoms[iat]->z;
@@ -7255,7 +7255,7 @@ coot::position_residue_by_internal_coordinates::get_atom(mmdb::Residue *res_1,
       mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+      for (int iat=0; iat<n_residue_atoms; iat++) {
 	 mmdb::Atom *atom = residue_atoms[iat];
 	 std::string atom_name(atom->name);
 	 if (atom_name == torsion_atom_name) {
@@ -7326,7 +7326,7 @@ coot::chiral_4th_atom(mmdb::Residue *residue_p, mmdb::Atom *at_centre,
    clipper::Coord_orth p_c = co(at_centre);
    std::string alt_conf = at_centre->altLoc;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-   for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+   for (int iat=0; iat<n_residue_atoms; iat++) { 
       mmdb::Atom *at = residue_atoms[iat];
       if (at != at_centre && at != at_1 && at != at_2 && at != at_3) { 
 	 clipper::Coord_orth pt = co(at);

@@ -87,7 +87,7 @@ coot::GetResidue(const minimol::residue &res_in) {
       at->SetElementName(mat.element.c_str());
       at->SetCoordinates(mat.pos.x(), mat.pos.y(), mat.pos.z(),
 			 mat.occupancy, mat.temperature_factor);
-      int new_length = mat.altLoc.length() +1;
+      unsigned int new_length = mat.altLoc.length() +1;
       char *new_alt_loc = new char [new_length];
       // reset new_alt_loc
       for (unsigned int ic=0; ic<new_length; ic++)
@@ -577,7 +577,7 @@ coot::match_torsions::apply_torsion_by_contacts(const coot::atom_name_quad &movi
       int n_residue_atoms;
       int n_transfered = 0;
       res_moving->GetAtomTable(residue_atoms, n_residue_atoms);
-      if (wiggled_ligand_residue.atoms.size() <= n_residue_atoms) { 
+      if (int(wiggled_ligand_residue.atoms.size()) <= n_residue_atoms) { 
 	 for (unsigned int iat=0; iat<wiggled_ligand_residue.atoms.size(); iat++) { 
 	    mmdb::Atom *at = res_moving->GetAtom(wiggled_ligand_residue.atoms[iat].name.c_str(), NULL, alt_conf.c_str());
 	    if (at) {
@@ -633,10 +633,10 @@ coot::torsionable_bonds_monomer_internal(mmdb::Residue *residue_p,
 	    std::string tr_atom_name_2 = tors_restraints[itor].atom_id_2_4c();
 	    std::string tr_atom_name_3 = tors_restraints[itor].atom_id_3_4c();
 
-	    for (unsigned int iat1=0; iat1<n_selected_atoms; iat1++) {
+	    for (int iat1=0; iat1<n_selected_atoms; iat1++) {
 	       mmdb::Residue *res_1 = atom_selection[iat1]->residue;
 	       std::string atom_name_1 = atom_selection[iat1]->name;
-	       for (unsigned int iat2=0; iat2<n_selected_atoms; iat2++) {
+	       for (int iat2=0; iat2<n_selected_atoms; iat2++) {
 		  if (iat1 != iat2) { 
 		     mmdb::Residue *res_2 = atom_selection[iat2]->residue;
 		     if (res_1 == res_2) {
@@ -696,7 +696,7 @@ coot::torsionable_bonds_monomer_internal_quads(mmdb::Residue *residue_p,
 	     (is_pyranose && !tors_restraints[itor].is_pyranose_ring_torsion()) ||
 	     (! is_pyranose)) { 
 	    for (unsigned int ialt=0; ialt<residue_alt_confs.size(); ialt++) { 
-	       for (unsigned int iat=0; iat<n_selected_atoms; iat++) {
+	       for (int iat=0; iat<n_selected_atoms; iat++) {
 		  std::string atom_name = atom_selection[iat]->name;
 		  std::string alt_conf  = atom_selection[iat]->altLoc;
 		  if (alt_conf == residue_alt_confs[ialt]) { 
@@ -733,7 +733,7 @@ coot::linkrs_in_atom_selection(mmdb::Manager *mol, mmdb::PPAtom atom_selection, 
 #else
    // normal case
    std::vector<mmdb::Residue *> residues;
-   for (unsigned int i=0; i<n_selected_atoms; i++) {
+   for (int i=0; i<n_selected_atoms; i++) {
       mmdb::Residue *r = atom_selection[i]->residue;
       if (std::find(residues.begin(), residues.end(), r) == residues.end())
 	 residues.push_back(r);
@@ -745,7 +745,7 @@ coot::linkrs_in_atom_selection(mmdb::Manager *mol, mmdb::PPAtom atom_selection, 
    std::cout << "model has " << n_linkrs << " LINKR records"
 	     << " and " << model_p->GetNumberOfLinks() << " LINK records"
 	     << std::endl;
-   for (unsigned int ilink=0; ilink<n_linkrs; ilink++) { 
+   for (int ilink=0; ilink<n_linkrs; ilink++) { 
       mmdb::PLinkR linkr = model_p->GetLinkR(ilink);
       coot::residue_spec_t link_spec_1(linkr->chainID1,
 				       linkr->seqNum1,

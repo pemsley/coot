@@ -828,7 +828,7 @@ coot::util::segment_map::segment_emsley_flood(const clipper::Xmap<float> &xmap, 
 	    clipper::Coord_grid c_g_start = q.front(); // new local centre
 	    v = xmap.get_data(c_g_start);  
 	    q.pop();
-	    for (unsigned int i_n=0; i_n<neighb.size(); i_n++) {
+	    for (int i_n=0; i_n<neighb.size(); i_n++) {
 	       c_g = c_g_start + neighb[i_n];
 	       if (xmap_int.get_data(c_g) == UNASSIGNED) {
 		  if (xmap.get_data(c_g) <= v) {
@@ -840,7 +840,7 @@ coot::util::segment_map::segment_emsley_flood(const clipper::Xmap<float> &xmap, 
 
 		     clipper::Coord_grid steepest_neighb(0,0,0);
 		     float biggest = -1.0;
-		     for (unsigned int i_nn=0; i_nn<neighb.size(); i_nn++) {
+		     for (int i_nn=0; i_nn<neighb.size(); i_nn++) {
 			float tv = xmap.get_data(c_g + neighb[i_nn]);
 			if (tv > biggest) {
 			   biggest = tv;
@@ -999,7 +999,7 @@ coot::util::segment_map::resegment_watershed_points(clipper::Xmap<int> *xmap_int
       is = xmap_int[ix];
       if (is >= 0) {
 	 std::map<int, int> segment_id_map;
-	 for (unsigned int i_n=0; i_n<neighb.size(); i_n++) {
+	 for (int i_n=0; i_n<neighb.size(); i_n++) {
 	    c_g = ix.coord() + neighb[i_n];
 	    ns = xmap_int.get_data(c_g);
 	    if (ns >= 0) 
@@ -1012,7 +1012,7 @@ coot::util::segment_map::resegment_watershed_points(clipper::Xmap<int> *xmap_int
 	    float vn;
 	    float best_vn = -1;
 	    clipper::Coord_grid best_n;
-	    for (unsigned int i_n=0; i_n<neighb.size(); i_n++) {
+	    for (int i_n=0; i_n<neighb.size(); i_n++) {
 	       c_g = ix.coord() + neighb[i_n];
 	       vn = xmap.get_data(c_g);
 	       if (v > best_vn) { 
@@ -1227,7 +1227,7 @@ coot::util::segment_map::segment(const clipper::Xmap<float> &xmap_in,
 
    // create a vector for sorting.
    std::vector<std::pair<int, int> > segment_vec(segment_id_map.size());
-   for (int icount=0; icount<segment_vec.size(); icount++) {
+   for (unsigned int icount=0; icount<segment_vec.size(); icount++) {
       segment_vec[icount] = std::pair<int, int> (segment_id_map[icount], icount);
    }
    std::sort(segment_vec.begin(), segment_vec.end(), sort_segment_vec);
@@ -1336,7 +1336,7 @@ coot::util::segment_map::flood_fill_segmented_map(clipper::Xmap<std::pair<bool, 
    while (q.size()) {
       clipper::Coord_grid c_g_start = q.front(); // new local centre
       q.pop();
-      for (unsigned int i_n=0; i_n<neighb.size(); i_n++) {
+      for (int i_n=0; i_n<neighb.size(); i_n++) {
 	 c_g = c_g_start + neighb[i_n];
 	 if (segmented_map->get_data(c_g).second == from_val) {
 	    segmented_map->set_data(c_g, std::pair<bool,int> (1, to_val));
@@ -1358,7 +1358,7 @@ coot::util::segment_map::flood_fill_segmented_map(clipper::Xmap<std::pair<bool, 
    if (n_converted == 0) {
       std::cout << "diagnose 0 conversions: " << seed_point.format() << " "
 		<< segmented_map->get_data(seed_point).second << " with neighbours: " << std::endl;
-      for (unsigned int i_n=0; i_n<neighb.size(); i_n++) {
+      for (int i_n=0; i_n<neighb.size(); i_n++) {
 	 std::cout << "diagnose 0 conversions:    "
 		   << i_n << " " << neighb[i_n].format() << " "
 		   << segmented_map->get_data(seed_point + neighb[i_n]).second
@@ -1390,7 +1390,7 @@ coot::util::segment_map::path_to_peak(const clipper::Coord_grid &start_point,
       bool found_bigger = 0;
       clipper::Coord_grid biggest_neighbour;
       float biggest = -1;
-      for (unsigned int i_n=0; i_n<neighb.size(); i_n++) {
+      for (int i_n=0; i_n<neighb.size(); i_n++) {
 	 float v = xmap.get_data(current_point + neighb[i_n]);
 	 if (0) 
 	    std::cout << "current: " << current_point.format() << " " << current_val
@@ -1450,7 +1450,7 @@ coot::util::calc_atom_map(mmdb::Manager *mol,
 //       l.push_back(atom);
 //    }
 
-   for (unsigned int iat=0; iat<n_atoms; iat++) {
+   for (int iat=0; iat<n_atoms; iat++) {
       float rescale_b_u = 1/(8*M_PI*M_PI);
       mmdb::Atom *at = sel_atoms[iat];
       clipper::Coord_orth pt(at->x, at->y, at->z);
@@ -1582,7 +1582,7 @@ coot::util::map_to_model_correlation(mmdb::Manager *mol,
       // debugging atom selection
       if (debug) {
 	 std::cout << "debug:: selected " << n_atoms << " atoms " << std::endl;
-	 for (unsigned int iat=0; iat<n_atoms; iat++)
+	 for (int iat=0; iat<n_atoms; iat++)
 	    std::cout << "    " << iat << ": " << atom_selection[iat]->name << " "
 		      << atom_spec_t(atom_selection[iat]) << std::endl;
       }
@@ -1613,7 +1613,7 @@ coot::util::map_to_model_correlation(mmdb::Manager *mol,
 	 std::cout << "INFO:: Selection grid: " << selection_grid.format() << std::endl;
       } 
       
-      for (unsigned int iat=0; iat<n_atoms; iat++) {
+      for (int iat=0; iat<n_atoms; iat++) {
 	 clipper::Coord_orth co(atom_selection[iat]->x,
 				atom_selection[iat]->y,
 				atom_selection[iat]->z);
@@ -1666,7 +1666,7 @@ coot::util::map_to_model_correlation(mmdb::Manager *mol,
 	 int n_residue_atoms;
 	 mmdb::Residue *residue_p = neighb_residues[ir];
 	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	 for (int iat=0; iat<n_residue_atoms; iat++) { 
 	    mmdb::Atom *at = residue_atoms[iat];
 	    clipper::Coord_orth pt = co(at);
 
@@ -1882,7 +1882,7 @@ coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
 
 	 std::cout << "selected n_atoms " << n_atoms << " where specs[0] is " << specs[0]
 		   << " for mask mode " << atom_mask_mode << std::endl;
-	 for (unsigned int iat=0; iat<n_atoms; iat++)
+	 for (int iat=0; iat<n_atoms; iat++)
 	    std::cout << "    " << iat << " " << atom_spec_t(atom_selection[iat]) << std::endl;
       }
    }
@@ -1911,7 +1911,7 @@ coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
       many_contributors.int_user_data = MANY_CONTRIBUTORS; 
 
 
-      for (unsigned int iat=0; iat<n_atoms; iat++) {
+      for (int iat=0; iat<n_atoms; iat++) {
 	 residue_spec_t res_spec(atom_selection[iat]);
 	 clipper::Coord_orth co(atom_selection[iat]->x,
 				atom_selection[iat]->y,
@@ -2039,7 +2039,7 @@ coot::util::qq_plot_for_map_over_model(mmdb::Manager *mol,
       mask[inx] = 0;
 
    int n_points_masked = 0;
-   for (unsigned int iat=0; iat<n_atoms; iat++) { 
+   for (int iat=0; iat<n_atoms; iat++) { 
       mmdb::Atom *at = sel_atoms[iat];
       clipper::Coord_orth c_o = co(at);
       float radius = 1.5 + at->tempFactor*1.5/80.0; // should be some function of tempFactor;

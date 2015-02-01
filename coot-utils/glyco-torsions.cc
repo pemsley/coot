@@ -54,7 +54,7 @@ coot::atom_by_torsion_t::pos(mmdb::Residue *base_residue_p, mmdb::Residue *ext_r
       mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       base_residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+      for (int iat=0; iat<n_residue_atoms; iat++) { 
 	 mmdb::Atom *at = residue_atoms[iat];
 	 std::cout << "   " << coot::atom_spec_t(at) << " vs "
 		   << prior_atom_1.first << " " << prior_atom_1.second << std::endl;
@@ -188,7 +188,7 @@ coot::atom_by_torsion_t::atom_by_torsion_t(const atom_by_torsion_base_t &names,
       mmdb::Atom *p_3 = NULL;
 
       // I could just GetAtom() here.
-      for (unsigned int iat=0; iat<n_residue_atoms_1; iat++) { 
+      for (int iat=0; iat<n_residue_atoms_1; iat++) { 
 	 mmdb::Atom *at = residue_atoms_1[iat];
 	 std::string nb_name = coot::util::remove_whitespace(at->name);
 	 if (names.prior_atom_1.first)
@@ -201,7 +201,7 @@ coot::atom_by_torsion_t::atom_by_torsion_t(const atom_by_torsion_base_t &names,
 	    if (names.prior_atom_3.second == nb_name)
 	       p_3 = at;
       }
-      for (unsigned int iat=0; iat<n_residue_atoms_2; iat++) { 
+      for (int iat=0; iat<n_residue_atoms_2; iat++) { 
 	 mmdb::Atom *at = residue_atoms_2[iat];
 	 std::string nb_name = coot::util::remove_whitespace(at->name);
 	 if (! names.prior_atom_1.first)
