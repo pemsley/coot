@@ -372,7 +372,7 @@ graphics_info_t::print_horizontal_ssm_sequence_alignment(std::pair<std::string, 
    int n_lines = 1 + l/chars_per_line;
    // std::cout << "DEUBG:: n_lines: " << n_lines << " " << lf << " " << ls << std::endl;
 
-   for (unsigned int i=0; i<n_lines; i++) {
+   for (int i=0; i<n_lines; i++) {
       int f_start = i*chars_per_line;
       int f_end = chars_per_line;
       if (f_end > lf)
@@ -413,18 +413,18 @@ graphics_info_t::get_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
    //
    if (debug) {
       std::cout << "DEBUG:: t_indexes: ";
-      for (unsigned int i1=0; i1<SSMAlign->nsel1; i1++) {
+      for (int i1=0; i1<SSMAlign->nsel1; i1++) {
 	 std::cout << "[" << i1 << " " << SSMAlign->Ca1[i1] << "] " ;
       }
       std::cout << std::endl;
       std::cout << "DEBUG:: s_indexes: ";
-      for (unsigned int i2=0; i2<SSMAlign->nsel2; i2++) {
+      for (int i2=0; i2<SSMAlign->nsel2; i2++) {
 	 std::cout << "[" << i2 << " " << SSMAlign->Ca2[i2] << "] " ;
       }
       std::cout << std::endl;
    }
 
-   for (unsigned int i1=0; i1<SSMAlign->nsel1; i1++) {
+   for (int i1=0; i1<SSMAlign->nsel1; i1++) {
       if (debug)
 	 std::cout << "getting t_indexes from Ca1 index i1 " << i1 << " range " << SSMAlign->nsel1
 		   << std::endl;
