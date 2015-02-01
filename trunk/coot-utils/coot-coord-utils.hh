@@ -477,6 +477,9 @@ namespace coot {
    //
    bool mol_has_symmetry(mmdb::Manager *mol);
 
+   // (if it has any atom that is anisotropic, return true)
+   bool mol_is_anisotropic(mmdb::Manager *mol);
+
 
    // This class doesn't work with alt confs - it just finds the first
    // atom names that matches the strings in the given quad.

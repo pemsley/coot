@@ -3106,7 +3106,42 @@ coot::mol_has_symmetry(mmdb::Manager *mol) {
    mmdb::mat44 test_mat;
    int i_symm_err = mol->GetTMatrix(test_mat, 0, 0, 0, 0);
    return (i_symm_err == 0); // 0 is OK
+}
+
+// (if it has any atom that is anisotropic, return true)
+bool
+coot::mol_is_anisotropic(mmdb::Manager *mol) {
+
+   bool is_aniso = false;
+   
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   mmdb::Chain *chain_p;
+   int n_chains = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<n_chains; ichain++) {
+      chain_p = model_p->GetChain(ichain);
+      int nres = chain_p->GetNumberOfResidues();
+      mmdb::Residue *residue_p;
+      mmdb::Atom *at;
+      for (int ires=0; ires<nres; ires++) { 
+	 residue_p = chain_p->GetResidue(ires);
+	 int n_atoms = residue_p->GetNumberOfAtoms();
+	 for (int iat=0; iat<n_atoms; iat++) {
+	    at = residue_p->GetAtom(iat);
+	    if (at->WhatIsSet & mmdb::ASET_Anis_tFac) { 
+	       is_aniso;
+	       break;
+	    }
+	 }
+	 if (is_aniso)
+	    break;
+      }
+      if (is_aniso)
+	 break;
+   }
+   return is_aniso;
 } 
+
 
 
 
