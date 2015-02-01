@@ -76,7 +76,8 @@ libpyrogen_boost_la_LIBDFLAGS = -no-undefined
 
 dist_bin_SCRIPTS = pyrogen
 
-dist_pkgpython_SCRIPTS = pyrogen.py jay_util.py tautomer.py pyrogen_swig.py coot_svn_repo_revision.py
+dist_pkgpython_SCRIPTS = pyrogen.py atom_types.py jay_util.py tautomer.py pyrogen_swig.py \
+	coot_svn_repo_revision.py
 
 # Something here is broken, I think.
 # on $ bash autogen.sh, I get:
