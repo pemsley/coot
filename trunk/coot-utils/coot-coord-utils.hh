@@ -836,7 +836,9 @@ namespace coot {
 	 public:
 	    double dist;
 	    mmdb::Atom *at;
+	    mmdb::mat44 mat;
 	    contact_atom_t(mmdb::Atom *contactor, mmdb::Atom *central_atom);
+	    contact_atom_t(mmdb::Atom *contactor, mmdb::Atom *central_atom, const mmdb::mat44 &m);
 	 };
       private:
 	 std::vector<contact_atom_t> contact_atoms;
@@ -847,7 +849,8 @@ namespace coot {
 	    at = NULL;
 	    metal_type = ELE_UNASSIGNED;
 	 }
-	 contact_atoms_info_t(mmdb::Atom *at_central_in, const contact_atom_t &con_at) {
+	 contact_atoms_info_t(mmdb::Atom *at_central_in,
+			      const contact_atom_t &con_at) { 
 	    at = at_central_in;
 	    contact_atoms.push_back(con_at);
 	 }
@@ -908,14 +911,16 @@ namespace coot {
 	 }
       };
 
-      // This does nieve symmetry expansion, if the mol has symmetry
+      // This does naive symmetry expansion, if the mol has symmetry
       // then this class should be used with (typically) a copy of the
       // molecule that has been moved as close as possible to the
       // origin.
       // 
       class water_coordination_t {
 	 std::vector<contact_atoms_info_t> atom_contacts;
-	 void add_contact(mmdb::Atom *atom_contactor, mmdb::Atom *atom_central);
+	 void add_contact(mmdb::Atom *atom_contactor,
+			  mmdb::Atom *atom_central,
+			  const mmdb::mat44 &m);
 	 
 	 void add_contacts(mmdb::Manager *mol,
 			   mmdb::PAtom *water_selection, int n_water_atoms, 
@@ -925,7 +930,11 @@ namespace coot {
 	 void sort_contacts(std::vector<contact_atoms_info_t> *v) const;
 	 static bool sort_contacts_func(const contact_atoms_info_t &first,
 					const contact_atoms_info_t &second);
+	 void init_internal(mmdb::Manager *mol,
+			    mmdb::realtype radius_limit,
+			    bool do_metals_only_flag);
       public:
+	 water_coordination_t(mmdb::Manager *mol, mmdb::realtype radius_limit, bool do_metals_only_flag);
 	 water_coordination_t(mmdb::Manager *mol, mmdb::realtype radius_limit);
 	 water_coordination_t() {}; 
 
@@ -936,10 +945,12 @@ namespace coot {
 	 get_highly_coordinated_waters(int n_contacts,  // at least n_contacts
 				       double dist_max) const; // within dist_max
 
-	 // This checks against build-in values from the literature
+	 // This checks against built-in values from the literature
 	 //
 	 std::vector<std::pair<util::contact_atoms_info_t,
 			       util::contact_atoms_info_t::ele_index_t> > metals() const;
+
+	 std::vector<contact_atoms_info_t> get_contacts() const { return atom_contacts; }
 	 
       };
 

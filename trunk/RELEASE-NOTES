@@ -1,11 +1,26 @@
 
   Pre-Release 0.8.2
 
-  o Fix output format of external restraints [Richard Bunker]
+  o FEATURE: Add dictionary-based atom name matching in pyrogen [EJD]
 
-  o Torsion-based ligand fitting improvements
+  o FEATURE: Add ligand fragment flipping [JED]
 
-  o Fix occassional graph data range anomaly.
+  o FEATURE: SMILES drag and drop added to LBG
+
+  o FEATURE: Use pyrogen by default if mogul available [JED]
+
+  o BUG-FIX: Improvement in PDB->SHELXL ins output [Andrea Thorn]
+
+  o BUG-FIX: Fix problem of deleting all atoms in Baton Build atoms
+             molecule
+
+  o BUG-FIX: Fix output format of external restraints [Richard Bunker]
+
+  o BUG-FIX: Torsion-based ligand fitting improvements [Rob Nicholls]
+
+  o BUG-FIX: Fix occassional graph data range anomaly [Rob Nicholls]
+
+  o BUG-FIX: Add missing plane distortions in print_residue_distortions()
 
 -----
 

@@ -126,7 +126,7 @@ coot::flips_container::parse_no_adj(const std::string &line) {
 void
 coot::flips_container::store(const std::vector<std::string> &lines) {
 
-   for(int iline=0; iline<lines.size(); iline++) {
+   for(unsigned int iline=0; iline<lines.size(); iline++) {
       // std::cout << "parsing line: " << lines[iline] << std::endl;
       if (lines[iline].length() > 17) { 
 	 if (lines[iline].substr(0,6) == "ATOM  ")

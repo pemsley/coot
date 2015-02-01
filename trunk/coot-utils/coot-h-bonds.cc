@@ -606,7 +606,7 @@ coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, mmdb::Manag
    mol->GetSelIndex   (selHnd_2, sel_2_atoms, n_sel_2_atoms);
    int udd_h_bond_type_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "hb_type");
 
-   for (unsigned int i=0; i<n_sel_1_atoms; i++) { 
+   for (int i=0; i<n_sel_1_atoms; i++) { 
       std::string name = sel_1_atoms[i]->name;
       std::string res_name = sel_1_atoms[i]->GetResName();
       int h_bond_type = geom.get_h_bond_type(name, res_name);
@@ -620,7 +620,7 @@ coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, mmdb::Manag
    }
 
    if (selHnd_1 != selHnd_2) {
-      for (unsigned int i=0; i<n_sel_2_atoms; i++) { 
+      for (int i=0; i<n_sel_2_atoms; i++) { 
 	 std::string name = sel_2_atoms[i]->name;
 	 std::string res_name = sel_2_atoms[i]->GetResName();
 	 int h_bond_type = geom.get_h_bond_type(name, res_name);
@@ -783,7 +783,7 @@ coot::h_bonds::check_hb_status(int selhnd, mmdb::Manager *mol, const protein_geo
    int hb_type_udd_handle = mark_donors_and_acceptors(selhnd, -1, mol, geom); // using UDD data
 
    mol->GetSelIndex(selhnd, residue_atoms, n_residue_atoms);
-   for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+   for (int iat=0; iat<n_residue_atoms; iat++) { 
       mmdb::Atom *at = residue_atoms[iat];
       at->GetUDData(hb_type_udd_handle, hb_type);
       if (0)

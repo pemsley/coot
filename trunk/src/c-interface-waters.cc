@@ -28,6 +28,7 @@
 
 #include <stdlib.h>
 #include <iostream>
+#include <iomanip>
 
 #if defined _MSC_VER
 #include <windows.h>
@@ -364,6 +365,50 @@ SCM highly_coordinated_waters_scm(int imol, int coordination_number, float dist_
 
 }
 #endif
+
+#ifdef USE_GUILE
+SCM metal_coordination_scm(int imol, float dist_max) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      bool do_metals_only = true;
+
+      bool mol_has_symmetry = coot::mol_has_symmetry(mol);
+
+      if (mol_has_symmetry) {
+	 mmdb::Manager *new_mol = coot::util::copy_molecule(mol);
+	 coot::util::water_coordination_t c =
+	    coot::util::water_coordination_t(new_mol, dist_max, do_metals_only);
+	 std::vector<coot::util::contact_atoms_info_t> contacts = c.get_contacts();
+	 for (unsigned int i=0; i<contacts.size(); i++) { 
+	    clipper::Coord_orth central_at_pos = coot::co(contacts[i].central_atom());
+	    for (unsigned int j=0; j<contacts[i].size(); j++) {
+	       clipper::Coord_orth save_pos = coot::co(contacts[i][j].at);
+	       contacts[i][j].at->Transform(contacts[i][j].mat);
+	       clipper::Coord_orth at_j_pos = coot::co(contacts[i][j].at);
+	       contacts[i][j].at->x = save_pos.x();
+	       contacts[i][j].at->y = save_pos.y();
+	       contacts[i][j].at->z = save_pos.z();
+	       double d2 = (central_at_pos - at_j_pos).lengthsq();
+	       double d = sqrt(d2);
+	       std::cout << "metal-dist " << imol << " " << i << "  "
+			 << contacts[i].central_atom()->element << "  "
+			 << contacts[i][j].at->element << " "
+			 << std::setw(5) << std::fixed << d << " "
+			 << coot::atom_spec_t(contacts[i].central_atom()) << " "
+			 << coot::atom_spec_t(contacts[i][j].at) << " "
+			 << std::endl;
+	    }
+	 }
+	 delete new_mol;
+      }
+   }
+   return r;
+}
+#endif
+   
+
 
 
 #ifdef USE_PYTHON

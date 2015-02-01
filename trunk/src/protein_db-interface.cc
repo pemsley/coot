@@ -41,7 +41,7 @@ add_chain_to_molecule(const ProteinDB::Chain &chain, const std::string &chain_id
    mol->AddModel(model_p);
    model_p->AddChain(chain_p);
    chain_p->SetChainID(chain_id.c_str());
-   for (unsigned int ires=0; ires<chain.size(); ires++) { 
+   for (int ires=0; ires<chain.size(); ires++) { 
       if (chain[ires].flag() == ProteinDB::Residue::NONE) {
 	 // do nothing
       } else {
