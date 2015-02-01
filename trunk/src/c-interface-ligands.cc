@@ -929,7 +929,7 @@ execute_ligand_search_internal() {
 }
 
 
-std::vector<int> ligand_search_make_conformers_internal() { 
+std::vector<int> ligand_search_make_conformers_internal() {
 
    std::vector<int> mol_list;
    graphics_info_t g;
