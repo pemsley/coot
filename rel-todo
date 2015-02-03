@@ -1,6 +1,11 @@
  
  0.8.2
 
+   o is coot-crash-catcher doing the right thing when the process is
+     killed/dies?
+
+   o Fix the NCS master chain problem - Airlie McCoy
+
    o Does PISA interface work? 6.4, 6.5?
 
    o Put Export map and map fragment under File.

@@ -284,7 +284,15 @@
 	      ""
 	      r)))))
 
+;; return the file component of file-name
+;; "x/y" -> "y" 
+;; "x" -> "x"
+(define (file-name-file file-name)
 
+  (if (not (string? file-name))
+      #f
+      (let ((ls (split-after-char-last #\/ file-name list)))
+	(car (reverse ls)))))
 
 
 

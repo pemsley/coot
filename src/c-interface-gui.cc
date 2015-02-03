@@ -415,7 +415,7 @@ void handle_column_label_make_fourier(GtkWidget *column_label_window) {
 	std::cout << " Making map from " << f_label << " " << phi_label << " and "
 		  << w_label << std::endl;
 	icol = saved_f_phi_columns->selected_weight_col;
-	if (icol < saved_f_phi_columns->weight_cols.size())
+	if (icol < int(saved_f_phi_columns->weight_cols.size()))
 	   w_label = saved_f_phi_columns->weight_cols[icol].column_label;
      } else { 
 	std::cout << " Making map from " << f_label << " and " << phi_label << std::endl;
@@ -1363,7 +1363,7 @@ coot_save_state_and_exit(int retval, int save_state_flag) {
    // Py_Finalize();
    // #endif
 
-   for (unsigned int imol=0; imol<graphics_n_molecules(); imol++)
+   for (int imol=0; imol<graphics_n_molecules(); imol++)
       graphics_info_t::molecules[imol].close_yourself();
 
    // why is this windows-only?
@@ -2697,7 +2697,7 @@ show_model_toolbar_all_icons() {
   GtkWidget *toolbar_radiobutton = lookup_widget(graphics_info_t::glarea,
 						 "model_toolbar_all_icons");
     
-  for (int i=0; i<(*graphics_info_t::model_toolbar_icons).size(); i++) {
+  for (unsigned int i=0; i<(*graphics_info_t::model_toolbar_icons).size(); i++) {
     show_model_toolbar_icon(i);
   }
   gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(toolbar_radiobutton), TRUE);
@@ -2727,7 +2727,7 @@ show_model_toolbar_main_icons() {
   GtkWidget *toolbar_radiobutton = lookup_widget(graphics_info_t::glarea,
 						 "model_toolbar_main_icons");
   
-  for (int i=0; i<(*graphics_info_t::model_toolbar_icons).size(); i++) {
+  for (unsigned int i=0; i<(*graphics_info_t::model_toolbar_icons).size(); i++) {
     if ((*graphics_info_t::model_toolbar_icons)[i].default_show_flag == 1) {
       show_model_toolbar_icon(i);
     } else {
@@ -2796,7 +2796,7 @@ update_toolbar_icons_menu(int toolbar_index) {
   int activate = 1;   // 0 is user defined, 1 all icons, 2 main/default icons
 
   //g_print("BL DEBUG:: update size %i \n", (toolbar_icons).size());
-  for (int i=0; i<(toolbar_icons).size(); i++) {
+  for (unsigned int i=0; i<(toolbar_icons).size(); i++) {
       //g_print("BL DEBUG:: sho_hide %i, default %i\n", (toolbar_icons)[i].show_hide_flag,(toolbar_icons)[i].default_show_flag);  
     if ((toolbar_icons)[i].show_hide_flag == 0) {
       if ((toolbar_icons)[i].show_hide_flag == (toolbar_icons)[i].default_show_flag) {
@@ -3406,9 +3406,18 @@ int valid_labels(const char *mtz_file_name, const char *f_col, const char *phi_c
    if (! have_f) { 
       if (r.d_cols.size() > 0) { 
 	 for (unsigned int i=0; i< r.d_cols.size(); i++) {
+	    std::cout << "comparing " << f_col_str << " " << r.d_cols[i].column_label << std::endl;
 	    if (f_col_str == r.d_cols[i].column_label) { 
 	       have_f = 1;
 	       break;
+	    }
+	    std::pair<std::string, std::string> p =
+	       coot::util::split_string_on_last_slash(r.d_cols[i].column_label);
+	    if (p.second.length() > 0) {
+	       if (f_col_str == p.second) {
+		  have_f = 1;
+		  break;
+	       }
 	    }
 	 }
       }
@@ -3440,24 +3449,13 @@ int valid_labels(const char *mtz_file_name, const char *f_col, const char *phi_c
       }
    }
 
-   
-   // deallocate (free) f_cols, phi_cols, weight_cols here
-   //    for (int i=0; i<n_f; i++)
-      //  free(f_cols[i]);
-      // free(f_cols);
-      //    for (int i=0; i<n_phi; i++)
-      // free(phi_cols[i]);
-      // free(phi_cols);
-      //    for (int i=0; i<n_weight; i++)
-      // free(weight_cols[i]);
-      // free(weight_cols);
-
    if (have_f && have_phi && have_weight) 
       valid = 1;
 
-//     std::cout << "INFO:: done checking for valid column labels... "
-//  	     << valid << " " << have_f << " " << have_phi << " "
-//  	     << have_weight << std::endl;
+   if (false)  // debug
+      std::cout << "DEBUG:: done checking for valid column labels... returning "
+		<< valid << " have-f: " << have_f << " have_phi: " << have_phi << " "
+		<< "have_weight: " << have_weight << std::endl;
    return valid;
 }
 
@@ -5488,7 +5486,7 @@ void show_restraints_editor_by_index(int menu_item_index) {
    
    graphics_info_t g;
    std::vector<std::string> v = g.Geom_p()->monomer_types();
-   for (unsigned int i=0; i<v.size(); i++) {
+   for (int i=0; i<v.size(); i++) {
       if (i==menu_item_index)
 	 show_restraints_editor(v[i].c_str());
    }
