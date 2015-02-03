@@ -346,13 +346,12 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
 	 }
 	 graphics_draw();
       } else {
-	 std::cout << "WARNING:: label(s) not found in MTZ file " 
-		   << mtz_file_name << " " << f_col << " " 
-		   <<  phi_col << " ";
+	 std::cout << "WARNING:: label(s) not found in MTZ file \"" 
+		   << mtz_file_name << "\" \"" << f_col << "\" \""
+		   <<  phi_col << "\" ";
 	 if (use_weights)
-	    std::cout << weight_col << std::endl;
-	 else 
-	    std::cout << std::endl;
+	    std::cout << "\"" << weight_col << "\"";
+	 std::cout << std::endl;
       }
    }
    if (imol != -1) {
@@ -585,7 +584,7 @@ int auto_read_make_and_draw_maps_old(const char *mtz_file_name) {
 
       // try each set of columns in turn
       std::vector<int> imols;
-      for ( int ic = 0; ic < cols_f.size(); ic++ ) {
+      for (unsigned int ic = 0; ic < cols_f.size(); ic++ ) {
 	 int imol = -1;
 	 int w = (cols_w[ic] != "" ) ? 1 : 0;
 	 int d = (cols_d[ic] != "+") ? 1 : 0;
@@ -1133,7 +1132,7 @@ PyObject *get_map_colour_py(int imol) {
     std::vector<float> colour_v = graphics_info_t::molecules[imol].map_colours();
     if (colour_v.size() > 2) {
       r = PyList_New(colour_v.size());
-      for (int i=0; i<colour_v.size(); i++) {
+      for (unsigned int i=0; i<colour_v.size(); i++) {
         PyList_SetItem(r, i, PyFloat_FromDouble(colour_v[i]));
       }
     }
@@ -1444,7 +1443,7 @@ int average_map_scm(SCM map_number_and_scales) {
    SCM n_scm = scm_length(map_number_and_scales);
    int n = scm_to_int(n_scm);
    std::vector<std::pair<clipper::Xmap<float>, float> > maps_and_scales_vec;
-   for (unsigned int i=0; i<n; i++) {
+   for (int i=0; i<n; i++) {
       SCM number_and_scale = scm_list_ref(map_number_and_scales, SCM_MAKINUM(i));
       SCM ns_scm = scm_length(number_and_scale);
       int ns = scm_to_int(ns_scm);
@@ -1496,7 +1495,7 @@ int average_map_py(PyObject *map_number_and_scales) {
    int r = -1;
    int n = PyObject_Length(map_number_and_scales);
    std::vector<std::pair<clipper::Xmap<float>, float> > maps_and_scales_vec;
-   for (unsigned int i=0; i<n; i++) {
+   for (int i=0; i<n; i++) {
       PyObject *number_and_scale = PyList_GetItem(map_number_and_scales, i);
       int ns = PyObject_Length(number_and_scale);
       if (ns == 2) {
@@ -1577,7 +1576,7 @@ int make_variance_map_scm(SCM map_molecule_number_list) {
    std::vector<int> v;
    SCM n_scm = scm_length(map_molecule_number_list);
    int n = scm_to_int(n_scm);
-   for (unsigned int i=0; i<n; i++) { 
+   for (int i=0; i<n; i++) { 
       SCM mol_number_scm = scm_list_ref(map_molecule_number_list, SCM_MAKINUM(i));
       if (scm_is_true(scm_integer_p(mol_number_scm))) {
 	 int map_number = scm_to_int(mol_number_scm);
@@ -1595,7 +1594,7 @@ int make_variance_map_py(PyObject *map_molecule_number_list) {
    std::vector<int> v;
    if (PyList_Check(map_molecule_number_list)) { 
       int n = PyObject_Length(map_molecule_number_list);
-      for (unsigned int i=0; i<n; i++) { 
+      for (int i=0; i<n; i++) { 
 	 PyObject *mol_number_py = PyList_GetItem(map_molecule_number_list, i);
 	 if (PyInt_Check(mol_number_py)) {
 	    int map_number = PyInt_AsLong(mol_number_py);
