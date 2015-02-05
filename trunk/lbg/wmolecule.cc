@@ -962,7 +962,21 @@ widgeted_molecule_t::write_mdl_molfile(const std::string &file_name) const {
       
       // next the counts line:
       of.width(3);
-      bool chiral = 0;
+
+      // is this a chiral molecule?
+      bool chiral = false;
+      // yes, if any of the bonds are stereo
+      for (unsigned int ib=0; ib<bonds.size(); ib++) {
+	 const widgeted_bond_t &bond = bonds[ib];
+	 if (! bond.is_closed()) {
+	    if (bond.get_bond_type() == lig_build::bond_t::IN_BOND || 
+		bond.get_bond_type() == lig_build::bond_t::OUT_BOND) { 
+	       chiral = true;
+	       break;
+	    }
+	 }
+      }
+     
       of << n_non_closed_atoms;
       of.width(3);
       of << n_non_closed_bonds;
@@ -1068,7 +1082,7 @@ widgeted_molecule_t::write_mdl_molfile(const std::string &file_name) const {
       // bond table
       for (unsigned int ib=0; ib<bonds.size(); ib++) {
 	 const widgeted_bond_t &bond = bonds[ib];
-	 if (! bonds[ib].is_closed()) {
+	 if (! bond.is_closed()) {
 
 	    // bond stereo, for wedge bonds. 0=Not-Stereo, 1=Up, 6=Down,
 	    // 3=Cis ot trans (either).
