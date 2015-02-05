@@ -947,7 +947,7 @@ coot::db_main::match_targets_for_pepflip(const minimol::fragment &target_ca_coor
       
       assign_eigen_similarity_scores(target_eigens);
       sort_mainchain_fragments_by_eigens(target_eigens);
-      const int max_frag_count = 100;
+      const unsigned int max_frag_count = 100;
       int frag_count = 0;
       
       for (unsigned int i=0; (i<mainchain_frag_db.size() && i<max_frag_count); i++) { // several 1000s.

@@ -65,7 +65,7 @@ coot::db_strands::get_reference_strands(int n_strands, int strand_length) {
    std::vector<std::string> v = get_reference_pdb_list();
 
    for (unsigned int ipdb=0; ipdb<v.size(); ipdb++) {
-      if (mv.size() >= n_strands) {
+      if (int(mv.size()) >= n_strands) {
 	 break;
       } else { 
 	 std::string filename = v[ipdb];

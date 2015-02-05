@@ -94,7 +94,7 @@ coot::pepflip_standard(mmdb::Manager *mol,
 	 int n_second_residue_atoms;
 	 first_res->GetAtomTable(first_residue_atoms, n_first_residue_atoms);
 	 second_res->GetAtomTable(second_residue_atoms, n_second_residue_atoms);
-	 for (unsigned int iat=0; iat<n_first_residue_atoms; iat++) {
+	 for (int iat=0; iat<n_first_residue_atoms; iat++) {
 	    std::string atom_name(first_residue_atoms[iat]->name);
 	    std::string alt_conf_atom(first_residue_atoms[iat]->altLoc);
 	    if (alt_conf_atom == altconf || alt_conf_atom == "") {
@@ -108,7 +108,7 @@ coot::pepflip_standard(mmdb::Manager *mol,
 	       }
 	    } 
 	 }
-	 for (unsigned int iat=0; iat<n_second_residue_atoms; iat++) {
+	 for (int iat=0; iat<n_second_residue_atoms; iat++) {
 	    std::string atom_name(second_residue_atoms[iat]->name);
 	    std::string alt_conf_atom(second_residue_atoms[iat]->altLoc);
 	    if (alt_conf_atom == altconf || alt_conf_atom == "") {
@@ -164,7 +164,7 @@ coot::pepflip_internal_to_residue(mmdb::Manager *mol,
       mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+      for (int iat=0; iat<n_residue_atoms; iat++) {
 	 mmdb::Atom *at = residue_atoms[iat];
 	 std::string atom_name(at->name);
 	 std::string atom_alt_conf(at->altLoc);
@@ -244,7 +244,7 @@ coot::flip_internal(const std::vector<clipper::Coord_orth> &ca_in,
 
    clipper::RTop_orth rtop(r, clipper::Coord_orth(0,0,0));
 
-   for (int i=0;i<atoms_orth.size(); i++) { 
+   for (unsigned int i=0;i<atoms_orth.size(); i++) { 
       atoms_orth[i] = atoms_orth[i].transform(rtop);
       atoms_orth[i] += trans;
    }
