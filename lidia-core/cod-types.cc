@@ -14,7 +14,7 @@ cod::get_cod_atom_types(RDKit::ROMol &rdkm, bool add_name_as_property) {
    std::vector<std::string> v;
 
    RDKit::RingInfo* ring_info_p = rdkm.getRingInfo();
-   int n_rings = ring_info_p->numRings();
+   unsigned int n_rings = ring_info_p->numRings();
 
    // Maybe add a vector of ring sizes to the atoms (most atoms will
    // not have a vector added (because they are not part of rings)).
@@ -22,7 +22,7 @@ cod::get_cod_atom_types(RDKit::ROMol &rdkm, bool add_name_as_property) {
    std::vector<std::vector<int> > atomRings = ring_info_p->atomRings();
    for (unsigned int i_ring=0; i_ring<n_rings; i_ring++) {
       std::vector<int> ring_atom_indices = atomRings[i_ring];
-      int n_ring_atoms = ring_atom_indices.size();
+      unsigned int n_ring_atoms = ring_atom_indices.size();
 
       // don't include macrocycle ring info (and the like (like cycloheptane))
       if (n_ring_atoms <= 6) { 
@@ -43,7 +43,7 @@ cod::get_cod_atom_types(RDKit::ROMol &rdkm, bool add_name_as_property) {
    }
 
    boost::dynamic_bitset<> fusDone(n_rings);
-   int curr = 0;
+   unsigned int curr = 0;
    RDKit::INT_INT_VECT_MAP neighMap; // std::map<int, std::vector<int> >
    RingUtils::makeRingNeighborMap(atomRings, neighMap);
    RDKit::INT_VECT fused;
@@ -175,8 +175,9 @@ cod::handle_bigger_rings_from_fused_rings(RDKit::ROMol &rdkm,
 }
 
 bool
-cod::is_ring_member(unsigned int iat,   const std::vector<std::vector<int> > &fused_rings) {
+cod::is_ring_member(unsigned int iat_ui,   const std::vector<std::vector<int> > &fused_rings) {
 
+   int iat = iat_ui;
    for (unsigned int ir=0; ir<fused_rings.size(); ir++) { 
       for (unsigned int ii=0; ii<fused_rings[ir].size(); ii++) {
 	 if (fused_rings[ir][ii] == iat)
@@ -209,12 +210,12 @@ cod::trace_path(unsigned int idx,
 
       in_path_indices.push_back(idx);
       std::map<int, std::vector<int> >::const_iterator it_1 = bond_map.find(idx);
-      std::vector<int> neighbs = it_1->second;
+      const std::vector<int> &neighbs = it_1->second;
       for (unsigned int in=0; in<neighbs.size(); in++) {
 
 	 bool do_recursion = false; // clumsy setting of "shall we look deeper"
 
-	 if (neighbs[in] == target_idx) {
+	 if (neighbs[in] == int(target_idx)) {
 	    if (in_path_indices.size() > 2) { // not just out and back
 	       vr.push_back(in_path_indices);
 	       return vr;
