@@ -384,7 +384,7 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
 
    if (r.first) {
       std::map<std::string, coot::map_index_t> name_map;
-      for (unsigned int i=0; i<asc.n_selected_atoms; i++) {
+      for (int i=0; i<asc.n_selected_atoms; i++) {
 	 std::string atom_name(asc.atom_selection[i]->name);
 	 name_map[atom_name] = i;
       }
@@ -414,7 +414,7 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
    std::map<mmdb::Residue *, std::vector<int> > atoms_in_residue;
 
    // fill residues and atoms_in_residue
-   for (unsigned int i=0; i<asc.n_selected_atoms; i++) {
+   for (int i=0; i<asc.n_selected_atoms; i++) {
       mmdb::Residue *r = asc.atom_selection[i]->residue;
       if (std::find(residues.begin(), residues.end(), r) == residues.end())
 	 residues.push_back(r);
@@ -506,10 +506,10 @@ coot::contact_info::contacts_from_monomer_restraints(const atom_selection_contai
    
    // make contacts from monomer restraints
    // 
-   for (unsigned int iat=0; iat<asc.n_selected_atoms; iat++) {
+   for (int iat=0; iat<asc.n_selected_atoms; iat++) {
       mmdb::Atom *at_1 = asc.atom_selection[iat];
       std::string atom_name_1 = at_1->name;
-      for (unsigned int jat=0; jat<asc.n_selected_atoms; jat++) {
+      for (int jat=0; jat<asc.n_selected_atoms; jat++) {
 	 // if they are in the same residue...
 	 mmdb::Atom *at_2 = asc.atom_selection[jat];
 	 if (at_1->residue == at_2->residue) { 
@@ -548,7 +548,7 @@ coot::contact_info::setup_from_monomer_restraints(const atom_selection_container
    std::map<mmdb::Residue *, std::vector<int> > atoms_in_residue;
 
    // fill residues and atoms_in_residue
-   for (unsigned int i=0; i<asc.n_selected_atoms; i++) {
+   for (int i=0; i<asc.n_selected_atoms; i++) {
       mmdb::Residue *r = asc.atom_selection[i]->residue;
       if (std::find(residues.begin(), residues.end(), r) == residues.end())
 	 residues.push_back(r);
@@ -579,9 +579,9 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
    // now the link bond restraints
    for (unsigned int ilb=0; ilb<link_bond_atoms.size(); ilb++) {
       bool ifound = 0;
-      for (unsigned int i=0; i<asc.n_selected_atoms; i++) {
+      for (int i=0; i<asc.n_selected_atoms; i++) {
 	 if (asc.atom_selection[i] == link_bond_atoms[ilb].first) {
-	    for (unsigned int j=0; j<asc.n_selected_atoms; j++) {
+	    for (int j=0; j<asc.n_selected_atoms; j++) {
 	       if (asc.atom_selection[j] == link_bond_atoms[ilb].second) {
 		  contacts_pair p(j, i);
 		  // std::cout << "---- added link bond contact " << i << " " << j << std::endl;
@@ -610,9 +610,9 @@ coot::contact_info::contact_info(mmdb::Manager *mol, int selhnd,
       mmdb::Residue *r1 = link_torsions[itor].atom_2->residue;
       mmdb::Residue *r2 = link_torsions[itor].atom_3->residue;
       if (r1 != r2) {
-	 for (unsigned int i=0; i<asc.n_selected_atoms; i++) {
+	 for (int i=0; i<asc.n_selected_atoms; i++) {
 	    if (asc.atom_selection[i] == link_torsions[itor].atom_2) {
-	       for (unsigned int j=0; j<asc.n_selected_atoms; j++) {
+	       for (int j=0; j<asc.n_selected_atoms; j++) {
 		  if (asc.atom_selection[j] == link_torsions[itor].atom_3) {
 		     contacts_pair p(j, i);
 		     std::cout << "---- contact_info() constructor added link bond contact "

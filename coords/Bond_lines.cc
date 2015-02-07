@@ -717,7 +717,7 @@ Bond_lines_container::get_neighb_normal(int iat_1, int iat_2, mmdb::PPAtom atoms
       if (neighbours.size() > 2) {
 	 std::vector<mmdb::Atom *> neighb_atoms;
 	 for (unsigned int i=0; i<neighbours.size(); i++) { 
-	    for (unsigned int j=0; j<n_atoms; j++) {
+	    for (int j=0; j<n_atoms; j++) {
 	       std::string atom_name = atoms[j]->name;
 	       if (neighbours[i] == atom_name) {
 		  std::string alt_conf_atom = atoms[j]->altLoc;
@@ -783,7 +783,7 @@ Bond_lines_container::invert_deloc_bond_displacement_vector(const clipper::Coord
    std::string atom_name_jat = residue_atoms[iat_2]->name;
 
    std::map<std::string, int> atom_name_map;
-   for (unsigned int iat=0; iat<n_atoms; iat++)
+   for (int iat=0; iat<n_atoms; iat++)
       atom_name_map[residue_atoms[iat]->name] = iat;
 
    for (unsigned int ib=0; ib<bond_restraints.size(); ib++) { 
@@ -1050,7 +1050,7 @@ Bond_lines_container::add_aromatic_ring_bond_lines(const std::vector<std::string
    
 	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 	 for (unsigned int i=0; i<ring_atom_names.size(); i++) {
-	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	    for (int iat=0; iat<n_residue_atoms; iat++) {
 	       std::string atom_name(residue_atoms[iat]->name);
 	       std::string atom_alt_conf(residue_atoms[iat]->altLoc);
 	       if (atom_alt_conf == alt_confs[i_alt_conf]) {
@@ -1085,7 +1085,7 @@ Bond_lines_container::add_aromatic_ring_bond_lines(const std::vector<std::string
 	    clipper::Coord_orth first_pt = c + radius * cr;
 
 	    if (! for_GL_solid_model_rendering) { 
-	       for (unsigned int istep=0; istep<n_steps; istep++) {
+	       for (int istep=0; istep<n_steps; istep++) {
 		  double angle_1 = step_frac * 2.0 * M_PI * istep;
 		  double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
 		  clipper::Coord_orth pt_1 = coot::util::rotate_round_vector(n, first_pt, c, angle_1);
@@ -1290,7 +1290,7 @@ mmdb::PPAtom
 coot::model_bond_atom_info_t::Hydrogen_atoms() const {
 
    mmdb::PPAtom H_atoms = new mmdb::PAtom[hydrogen_atoms_.size()];
-   for (int i=0; i<hydrogen_atoms_.size(); i++) {
+   for (unsigned int i=0; i<hydrogen_atoms_.size(); i++) {
       H_atoms[i] = hydrogen_atoms_[i];
    }
    return H_atoms;
@@ -1300,7 +1300,7 @@ mmdb::PPAtom
 coot::model_bond_atom_info_t::non_Hydrogen_atoms() const {
 
    mmdb::PPAtom non_H_atoms = new mmdb::PAtom[non_hydrogen_atoms_.size()];
-   for (int i=0; i<non_hydrogen_atoms_.size(); i++) {
+   for (unsigned int i=0; i<non_hydrogen_atoms_.size(); i++) {
       non_H_atoms[i] = non_hydrogen_atoms_[i];
    }
    return non_H_atoms;
@@ -2521,9 +2521,9 @@ Bond_lines_container::addSymmetry_calphas(const atom_selection_container_t &SelA
 	       // 
 	       if (ca_this.size() > 0) {
 		  if (ca_next.size() > 0) {
-		     for (int iat=0; iat<ca_this.size(); iat++) { 
+		     for (unsigned int iat=0; iat<ca_this.size(); iat++) { 
 			std::string altconf1 = ca_this[iat]->altLoc;
-			for (int jat=0; jat<ca_next.size(); jat++) { 
+			for (unsigned int jat=0; jat<ca_next.size(); jat++) { 
 			   std::string altconf2 = ca_next[jat]->altLoc;
 
 			   if ((altconf1 == altconf2) ||
@@ -3345,7 +3345,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
 	       if (residue_p) { 
 		  int n_atoms = residue_p->GetNumberOfAtoms();
-		  for (unsigned int iat=0; iat<n_atoms; iat++) { 
+		  for (int iat=0; iat<n_atoms; iat++) { 
 		     mmdb::Atom *at = residue_p->GetAtom(iat);
 		     std::string atom_name(at->GetAtomName());
 		     if (atom_name == " CA " || atom_name == " P  ") {
@@ -3604,7 +3604,7 @@ Bond_lines_container::set_rainbow_colours(mmdb::Manager *mol) {
 			if (chain_pos > 1)
 			   chain_pos = 1;
 			int n_atoms = residue_p->GetNumberOfAtoms();
-			for (unsigned int iat=0; iat<n_atoms; iat++) { 
+			for (int iat=0; iat<n_atoms; iat++) { 
 			   mmdb::Atom *atom_p = residue_p->GetAtom(iat);
 			   atom_p->PutUDData(udd_handle, chain_pos);
 			}
@@ -3949,7 +3949,7 @@ Bond_lines_container::do_colour_sec_struct_bonds(const atom_selection_container_
 
    if (asc.n_selected_atoms > 0) { 
       int n_models = asc.mol->GetNumberOfModels();
-      for (unsigned int imodel=0; imodel<n_models; imodel++) { 
+      for (int imodel=0; imodel<n_models; imodel++) { 
 	 mmdb::Model *model_p = asc.mol->GetModel(1);
 	 if (model_p)
 	    model_p->CalcSecStructure(imodel);
