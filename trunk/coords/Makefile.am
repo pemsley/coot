@@ -22,7 +22,7 @@ lib_LTLIBRARIES=libcoot-coords.la
 
 pkginclude_HEADERS =  Bond_lines.h Cartesian.h cos-sin.h \
 	mmdb.h mmdb-extras.h utils.h mmdb-crystal.h Bond_lines_ext.h \
-	coot-close.hh
+	coot-close.hh phenix-geo.hh
 pkgincludedir = $(includedir)/coot/coords
 
 INCLUDES = \
@@ -38,7 +38,7 @@ AM_CXXFLAGS = \
 
 libcoot_coords_la_SOURCES =  Bond_lines.cc Cartesian.cc cos-sin.cc \
 		 mmdb-extras.cc utils.cc mmdb.cc mmdb-crystal.cc \
-		 Bond_lines_ext.cc coot-close.cc
+		 Bond_lines_ext.cc coot-close.cc phenix-geo.cc
 
 libcoot_coords_la_LIBADD = \
    $(top_builddir)/geometry/libcoot-geometry.la      \
@@ -49,3 +49,9 @@ libcoot_coords_la_LIBADD = \
    $(top_builddir)/utils/libcoot-utils.la            \
    $(RDKIT_LIBS)	        \
    $(MMDB_LIBS)
+
+check_PROGRAMS = test-phenix-geo
+
+test_phenix_geo_SOURCES = test-phenix-geo.cc
+
+test_phenix_geo_LDADD = libcoot-coords.la
