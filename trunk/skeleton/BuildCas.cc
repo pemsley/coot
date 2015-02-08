@@ -2087,7 +2087,7 @@ BuildCas::isSmallTriangle_new(const clipper::Xmap<int> &l1,
 
 	    i_n_neighbours = 0; 
 	    
-	    for (unsigned int i_n_n = 0; i_n_n < fd_neighb.size(); i_n_n++ ) {
+	    for (int i_n_n = 0; i_n_n < fd_neighb.size(); i_n_n++ ) {
 
 	       c_g_n = c_g + fd_neighb[i_n_n]; 
 
@@ -2246,13 +2246,13 @@ BuildCas::depth_search_skeleton_testing_2() {
    cout << "initially here are the neighbours of " << ca_g_1.format()
 	<< endl; 
 
-   for (int i=0; i<treenodemap.get_data(ca_g_1).neighbs.size(); i++) {
+   for (unsigned int i=0; i<treenodemap.get_data(ca_g_1).neighbs.size(); i++) {
       cout << "      " << treenodemap.get_data(ca_g_1).neighbs[i].format() << endl; 
    }
    cout << "initially here are the neighbours of " << ca_g_2.format()
 	<< endl; 
 
-   for (int i=0; i<treenodemap.get_data(ca_g_2).neighbs.size(); i++) {
+   for (unsigned int i=0; i<treenodemap.get_data(ca_g_2).neighbs.size(); i++) {
       cout << "      " << treenodemap.get_data(ca_g_2).neighbs[i].format() << endl; 
    }
 
@@ -2452,7 +2452,7 @@ BuildCas::SmallTriangle_to_branch_point(const clipper::Xmap<int> &l1,
    
    vc.push_back(coot::Cartesian(pos_o.x(), pos_o.y(), pos_o.z()));
    
-   for (unsigned int in = 0; in < fd_neighb.size(); in++ ) {
+   for (int in = 0; in < fd_neighb.size(); in++ ) {
       //
       clipper::Coord_grid c_g = pos + fd_neighb[in];
       
