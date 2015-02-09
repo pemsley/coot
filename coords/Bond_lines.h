@@ -39,6 +39,8 @@
 #include <string>
 
 #include "geometry/protein-geometry.hh"
+#include "Cartesian.h"
+#include "phenix-geo.hh"
 
 namespace coot { 
 
@@ -142,7 +144,7 @@ class Lines_list {
  public:   
    // contain a number of elements
    int num_lines;
-   // coot::CartesianPair *pair_list;
+   // CartesianPair *pair_list;
    graphics_line_t *pair_list;
    bool thin_lines_flag;
    
@@ -303,9 +305,9 @@ class Bond_lines {
 
    // return the coordinates of the start and finish points of the i'th bond.
    //
-   coot::Cartesian GetStart(int i) const;
-   coot::Cartesian GetFinish(int i) const;
-   graphics_line_t operator[](int i) const;
+   const coot::Cartesian &GetStart(unsigned int i) const;
+   const coot::Cartesian &GetFinish(unsigned int i) const;
+   const graphics_line_t &operator[](unsigned int i) const;
 };
 
 // 
@@ -545,7 +547,9 @@ public:
       }
    }
 
-   
+   // Phenix Geo
+   // 
+   Bond_lines_container(mmdb::Manager *mol, const coot::phenix_geo_bonds &gb);
 
    // initial constructor, added to by  addSymmetry_vector_symms from update_symmetry()
    // 
@@ -561,6 +565,9 @@ public:
 	 }
       }
    }
+   // used by above:
+   void stars_for_unbonded_atoms(mmdb::Manager *mol, int UddHandle);
+   void set_udd_unbonded(mmdb::Manager *mol, int UddHandle);
    
    // arguments as above.
    // 

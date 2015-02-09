@@ -5,6 +5,15 @@
 #include "utils/coot-utils.hh"
 #include "phenix-geo.hh"
 
+std::ostream&
+coot::operator<<(std::ostream &s, phenix_geo_bond gb) {
+
+   std::cout << "[phenix geo: " << gb.atom_1 << " " << gb.atom_2 << " ]";
+   return s;
+
+} 
+
+
 coot::atom_spec_t
 coot::phenix_geo_bonds::parse_line_for_atom_spec(const std::string &l) const {
 
@@ -42,7 +51,10 @@ coot::phenix_geo_bonds::parse_line_for_atom_spec(const std::string &l) const {
 
 coot::phenix_geo_bonds::phenix_geo_bonds(const std::string &file_name) {
 
-   if (file_exists(file_name)) {
+   if (! file_exists(file_name)) {
+
+      std::cout << "File not found: " << file_name << std::endl;
+   } else { 
 
       std::ifstream f(file_name.c_str());
 
@@ -89,7 +101,7 @@ coot::phenix_geo_bonds::phenix_geo_bonds(const std::string &file_name) {
 	 } 
       }
    }
-   std::cout << "found " << bonds.size() << " bonds" << std::endl;
+   // std::cout << "found " << bonds.size() << " bonds" << std::endl;
 }
 
 // 	    

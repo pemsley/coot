@@ -2871,6 +2871,17 @@ molecule_class_info_t::make_bonds_type_checked() {
    update_extra_restraints_representation();
 }
 
+void
+molecule_class_info_t::update_bonds_using_phenix_geo(const coot::phenix_geo_bonds &b) {
+
+   Bond_lines_container bonds(atom_sel.mol, b);
+   bonds_box.clear_up();
+   bonds_box = bonds.make_graphical_bonds();
+   
+
+}
+
+
 // n-models
 int
 molecule_class_info_t::n_models() const {

@@ -1,4 +1,7 @@
 
+#ifndef PHENIX_GEO_HH
+#define PHENIX_GEO_HH
+
 #include <vector>
 #include "coot-utils/residue-and-atom-specs.hh"
 
@@ -30,7 +33,9 @@ namespace coot {
 	 weight = weight_in;
 	 residual = residual_in;
       }
+      friend std::ostream &operator<<(std::ostream &s, phenix_geo_bond bg);
    };
+   std::ostream &operator<<(std::ostream &s, phenix_geo_bond bg);
 
    class phenix_geo_bonds {
       atom_spec_t parse_line_for_atom_spec(const std::string &l) const;
@@ -39,5 +44,9 @@ namespace coot {
       std::vector<phenix_geo_bond> bonds;
       phenix_geo_bonds() {}
       phenix_geo_bonds(const std::string &file_name);
+      unsigned int size() const { return bonds.size(); }
+      const phenix_geo_bond &operator[](const unsigned int &idx) const { return bonds[idx]; }
    };
 }
+
+#endif // PHENIX_GEO_HH

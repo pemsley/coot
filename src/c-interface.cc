@@ -4637,6 +4637,24 @@ set_b_factor_bonds_scale_factor(int imol, float f) {
    return r;
 }
 
+void graphics_to_phenix_geo_representation(int imol, int mode, const coot::phenix_geo_bonds &g) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].update_bonds_using_phenix_geo(g);
+      graphics_draw();
+   } 
+} 
+
+
+void graphics_to_phenix_geo_representation(int imol, int mode,
+					   const std::string &geo_file_name) {
+
+   coot::phenix_geo_bonds pgb(geo_file_name);
+   graphics_to_phenix_geo_representation(imol, mode, pgb);
+
+} 
+
+
 
 
 // -------------------------------------------------------------------------

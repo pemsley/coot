@@ -1525,16 +1525,16 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 	 // 
 	 for (int i=0; i<n_non_H; i++) {
 	    if (non_Hydrogen_atoms[i]->GetUDData(uddHnd, ic) == mmdb::UDDATA_Ok) {
-	       if (ic == 0) {
+	       if (ic == NO_BOND) {
 		  // no contact found
 		  col = atom_colour(non_Hydrogen_atoms[i], atom_colour_type);
-		  coot::Cartesian atom(non_Hydrogen_atoms[i]->x,
-				       non_Hydrogen_atoms[i]->y,
-				       non_Hydrogen_atoms[i]->z);
+		  coot::Cartesian atom_pos(non_Hydrogen_atoms[i]->x,
+					   non_Hydrogen_atoms[i]->y,
+					   non_Hydrogen_atoms[i]->z);
 		  
-		  addBond(col, atom+small_vec_x, atom-small_vec_x);
-		  addBond(col, atom+small_vec_y, atom-small_vec_y);
-		  addBond(col, atom+small_vec_z, atom-small_vec_z);
+		  addBond(col, atom_pos+small_vec_x, atom_pos-small_vec_x);
+		  addBond(col, atom_pos+small_vec_y, atom_pos-small_vec_y);
+		  addBond(col, atom_pos+small_vec_z, atom_pos-small_vec_z);
 	       }
 	    }
 	 }
@@ -3076,21 +3076,21 @@ Bond_lines_container::write(std::string filename) const {
    }
 }
 
-graphics_line_t
-Bond_lines::operator[](int i) const {
+const graphics_line_t &
+Bond_lines::operator[](unsigned int i) const {
 
    return points[i];
 }
 
 
-coot::Cartesian
-Bond_lines::GetStart(int i) const {
+const coot::Cartesian &
+Bond_lines::GetStart(unsigned int i) const {
 
    return points[i].positions.getStart();
 }
 
-coot::Cartesian
-Bond_lines::GetFinish(int i) const {
+const coot::Cartesian &
+Bond_lines::GetFinish(unsigned int i) const {
 
    return points[i].positions.getFinish();
 } 
@@ -4869,5 +4869,4 @@ graphical_bonds_container::add_atom_centres(const std::vector<std::pair<bool,coo
       atom_centres_colour_[i] = colours[i];
    }
 }
-
 
