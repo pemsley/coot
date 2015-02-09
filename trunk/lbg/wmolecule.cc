@@ -1779,7 +1779,7 @@ topological_equivalence_t::assign_invariant_sequence_number(const std::vector<lo
    for (it_topo=start_it_topo; it_topo!=end_it_topo; it_topo++) { 
 
       const std::vector<int> &atom_index_deepest = it_topo->second;
-      int first_atom_index = atom_index_deepest[0];
+      unsigned int first_atom_index(atom_index_deepest[0]);
    
       if (atom_index_deepest.size() == 1) {
 
