@@ -327,8 +327,8 @@ coot::rama_plot::setup_internal(float level_prefered, float level_allowed) {
    tooltip_item = NULL;
    tooltip_item_text = NULL;
 
-   rama.init(clipper::Ramachandran::All);
-   displayed_rama_type = clipper::Ramachandran::All;
+   rama.init(clipper::Ramachandran::All5);
+   displayed_rama_type = clipper::Ramachandran::All5;
 
    // cliper defaults: 
    rama_threshold_preferred = 0.01; 
@@ -358,13 +358,13 @@ coot::rama_plot::setup_internal(float level_prefered, float level_allowed) {
 
    rama.set_thresholds(level_prefered, level_allowed);
    //
-   r_gly.init(clipper::Ramachandran::Gly);
+   r_gly.init(clipper::Ramachandran::Gly5);
    r_gly.set_thresholds(level_prefered, level_allowed);
    //
-   r_pro.init(clipper::Ramachandran::Pro);
+   r_pro.init(clipper::Ramachandran::Pro5);
    r_pro.set_thresholds(level_prefered, level_allowed);
    // 
-   r_non_gly_pro.init(clipper::Ramachandran::NonGlyPro);
+   r_non_gly_pro.init(clipper::Ramachandran::NonGlyPro5);
    r_non_gly_pro.set_thresholds(level_prefered, level_allowed);
 }
 
@@ -1281,20 +1281,20 @@ void
 coot::rama_plot::residue_type_background_as(std::string res) {
 
    if (res == "GLY" &&
-       (displayed_rama_type != clipper::Ramachandran::Gly)) {
-      all_plot(clipper::Ramachandran::Gly);
+       (displayed_rama_type != clipper::Ramachandran::Gly5)) {
+      all_plot(clipper::Ramachandran::Gly5);
    }
    if (res == "PRO" &&
-       (displayed_rama_type != clipper::Ramachandran::Pro)) {
-      all_plot(clipper::Ramachandran::Pro);
+       (displayed_rama_type != clipper::Ramachandran::Pro5)) {
+      all_plot(clipper::Ramachandran::Pro5);
    }
    if ( res != "GLY"  ) {
       if (res != "PRO") {
 
 	 // PRE-PRO fix up needed here.
 	 
-	 if (displayed_rama_type != clipper::Ramachandran::NonGlyPro) {
-	    all_plot(clipper::Ramachandran::NonGlyPro);
+	 if (displayed_rama_type != clipper::Ramachandran::NonGlyPro5) {
+	    all_plot(clipper::Ramachandran::NonGlyPro5);
 	 }
       }
    }
