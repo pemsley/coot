@@ -414,10 +414,9 @@ Coot is not:
 @section Hardware Requirements
 
 The code is designed to be portable to any Unix-like operating system.
-Coot certainly runs on SGI IRIX64, RedHat Linux of various sorts, SuSe
-Linux@footnote{so far only 8.2 verified.}  and MacOS X (10.2).  The sgi
-Coot binaries should also work on IRIX.
-
+Coot certainly runs on RedHat Linux of various sorts, Fedora, Ubuntu,
+Debian, SuSe Linux and MacOS X.  There is also a Window port (called
+WinCoot).
 
 @c @footnote{including Cygwin, but currently coot is ``unstable'' on a Cygwin system.}.  
 
