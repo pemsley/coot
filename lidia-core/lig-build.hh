@@ -741,8 +741,8 @@ namespace lig_build {
       // We dont want a copy of the bond, we want a reference to the
       // bond (so that it can be manipulated).
       // 
-      std::vector<int> bond_indices_with_atom_index(int test_atom_index) const {
-	 std::vector<int> rv;
+      std::vector<unsigned int> bond_indices_with_atom_index(int test_atom_index) const {
+	 std::vector<unsigned int> rv;
 	 if (!atoms[test_atom_index].is_closed()) { 
 	    for (unsigned int i=0; i<bonds.size(); i++) {
 	       if (bonds[i].get_atom_1_index() == test_atom_index) { 
@@ -997,10 +997,10 @@ namespace lig_build {
 	 }
       }
 
-      std::vector<int> bonds_having_atom_with_atom_index(int test_atom_index) const {
+      std::vector<int> bonds_having_atom_with_atom_index(unsigned int test_atom_index) const {
 
 	 std::vector<int> v;
-	 std::vector<int> vb =  bond_indices_with_atom_index(test_atom_index);
+	 std::vector<unsigned int> vb =  bond_indices_with_atom_index(test_atom_index);
 	 
 	 for (unsigned int iv=0; iv<vb.size(); iv++) {
 	    if (! bonds[vb[iv]].is_closed())
