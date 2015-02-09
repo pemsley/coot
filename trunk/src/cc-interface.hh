@@ -36,6 +36,8 @@
 #include "lbg/flev-annotations.hh" // animated ligand interactions
 #include "named-rotamer-score.hh"
 
+#include "coords/phenix-geo.hh"
+
 namespace coot {
 
    class alias_path_t {
@@ -1291,6 +1293,15 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
 // gui nuts and bolts
 void on_simple_text_dialog_close_button_pressed( GtkWidget *button,
 						 GtkWidget *dialog);
+
+
+/*  ----------------------------------------------------------------------- */
+/*                  Phenix Functions                                        */
+/*  ----------------------------------------------------------------------- */
+void graphics_to_phenix_geo_representation(int imol, int mode,
+					   const coot::phenix_geo_bonds &g);
+void graphics_to_phenix_geo_representation(int imol, int mode,
+					   const std::string &geo_file_name);
 
 
 /*  ----------------------------------------------------------------------- */

@@ -185,8 +185,8 @@ namespace coot {
       // Cartesian, CartesianPair and Bond_lines get merged - and I 
       // don't want to do that.
       // 
-      Cartesian getStart()  const { return start; }
-      Cartesian getFinish() const { return finish;}
+      const Cartesian &getStart()  const { return start; }
+      const Cartesian &getFinish() const { return finish;}
    };
 
    short int is_an_in_triangle(surface_face_data face,  const Cartesian &b,

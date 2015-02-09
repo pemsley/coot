@@ -2722,14 +2722,44 @@ coot::util::get_atom(const atom_spec_t &spec, mmdb::Manager *mol) {
 	 std::string at_alt_conf = test_at->altLoc;
 	 if (spec.atom_name == at_name) {
 	    if (spec.alt_conf == at_alt_conf) {
-	       at = test_at;
-	       break;
+	       if (! test_at->isTer()) { 
+		  at = test_at;
+		  break;
+	       }
+	    }
+	 } 
+      }
+   } 
+   return at;
+}
+
+// Return NULL on atom not found in this residue
+// 
+mmdb::Atom*
+coot::util::get_atom(const atom_spec_t &spec, mmdb::Residue *res) {
+
+   mmdb::Atom *at = 0;
+   if (res) {
+      mmdb::PPAtom residue_atoms = 0;
+      int n_residue_atoms;
+      res->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) { 
+	 mmdb::Atom *test_at = residue_atoms[iat];
+	 std::string at_name = test_at->name;
+	 std::string at_alt_conf = test_at->altLoc;
+	 if (spec.atom_name == at_name) {
+	    if (spec.alt_conf == at_alt_conf) {
+	       if (! test_at->isTer()) { 
+		  at = test_at;
+		  break;
+	       }
 	    }
 	 } 
       }
    } 
    return at;
 } 
+
 
 
 // can throw an exception if atom_p is NULL
@@ -3631,16 +3661,20 @@ mmdb::Residue *
 coot::util::previous_residue(mmdb::Residue *this_residue) {
 
    mmdb::Residue *prev_res = NULL;
-   mmdb::Chain *chain_p = this_residue->GetChain();
-   int nres = chain_p->GetNumberOfResidues();
-   mmdb::Residue *residue_p;
-   for (int ires=0; ires<nres; ires++) { 
-      residue_p = chain_p->GetResidue(ires);
-      if (this_residue == residue_p) {
-	 if (ires>0)
-	    prev_res = chain_p->GetResidue(ires-1);
-	 break;
-      } 
+   if (this_residue) { 
+      mmdb::Chain *chain_p = this_residue->GetChain();
+      if (chain_p) { 
+	 int nres = chain_p->GetNumberOfResidues();
+	 mmdb::Residue *residue_p;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    if (this_residue == residue_p) {
+	       if (ires>0)
+		  prev_res = chain_p->GetResidue(ires-1);
+	       break;
+	    }
+	 }
+      }
    }
    return prev_res;
 }
@@ -3653,16 +3687,20 @@ mmdb::Residue *
 coot::util::next_residue(mmdb::Residue *this_residue) {
 
    mmdb::Residue *prev_res = NULL;
-   mmdb::Chain *chain_p = this_residue->GetChain();
-   int nres = chain_p->GetNumberOfResidues();
-   mmdb::Residue *residue_p;
-   for (int ires=0; ires<nres; ires++) { 
-      residue_p = chain_p->GetResidue(ires);
-      if (this_residue == residue_p) {
-	 if (ires < (nres-1))
-	    prev_res = chain_p->GetResidue(ires+1);
-	 break;
-      } 
+   if (this_residue) { 
+      mmdb::Chain *chain_p = this_residue->GetChain();
+      if (chain_p) { 
+	 int nres = chain_p->GetNumberOfResidues();
+	 mmdb::Residue *residue_p;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    if (this_residue == residue_p) {
+	       if (ires < (nres-1))
+		  prev_res = chain_p->GetResidue(ires+1);
+	       break;
+	    } 
+	 }
+      }
    }
    return prev_res;
 }

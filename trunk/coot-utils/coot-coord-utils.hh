@@ -760,6 +760,10 @@ namespace coot {
       //
       mmdb::Atom *get_atom(const atom_spec_t &spec, mmdb::Manager *mol);
 
+      // Return NULL on atom not found in this residue
+      // 
+      mmdb::Atom *get_atom(const atom_spec_t &spec, mmdb::Residue *residue_p);
+
       // can throw an exception if atom_p is NULL
       clipper::Coord_orth get_coords(mmdb::Atom *at);
 

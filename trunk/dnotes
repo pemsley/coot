@@ -7289,8 +7289,18 @@ http://www.youtube.com/watch?v=aMSPwFvlICM
 
 
 
+----
+    
+   How to do file -> string vector
 
-
+   std::ifstream f(file_name.c_str());
+   if (f) {
+      std::vector<std::string> lines;
+      std::string line;
+      while (std::getline(f, line)) { 
+	 lines.push_back(line);
+      }
+    }
 
 
 ------

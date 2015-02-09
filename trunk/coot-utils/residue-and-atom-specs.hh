@@ -1,4 +1,11 @@
+
+#ifndef RESIDUE_AND_ATOM_SPEC_HH
+#define RESIDUE_AND_ATOM_SPEC_HH
+
 #include <sstream>
+#ifndef __MMDB_Defs__
+#include <mmdb2/mmdb_manager.h>
+#endif
 
 namespace coot {
    
@@ -295,3 +302,5 @@ namespace coot {
    };
 
 }
+
+#endif // RESIDUE_AND_ATOM_SPEC_HH

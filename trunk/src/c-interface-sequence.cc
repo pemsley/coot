@@ -36,7 +36,7 @@ assign_sequence_to_best_matching_chain(std::string sequence) {
    // the lower the dissimilarity_score the better
    double best_match_score = -1;
    
-   for (unsigned int imol=0; imol<graphics_n_molecules(); imol++) { 
+   for (int imol=0; imol<graphics_n_molecules(); imol++) { 
       if (is_valid_model_molecule(imol)) {
 	 std::vector<coot::chain_mutation_info_container_t> matches =
 	    g.molecules[imol].sequence_comparison_to_chains(sequence);

@@ -3481,6 +3481,9 @@ public:        //                      public
 			const std::string &ins_code,
 			const std::string &atom_name,
 			const coot::protein_geometry &geom);
+
+
+   void update_bonds_using_phenix_geo(const coot::phenix_geo_bonds &b); 
    
 };
 
