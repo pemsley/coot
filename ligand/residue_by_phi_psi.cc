@@ -557,12 +557,12 @@ void
 coot::residue_by_phi_psi::init_phi_psi_plot() { 
 
    if (residue_type == "GLY") {
-      rama.init(clipper::Ramachandran::Gly);
+      rama.init(clipper::Ramachandran::Gly5);
    } else { 
       if (residue_type == "PRO") {
-	 rama.init(clipper::Ramachandran::Pro);
+	 rama.init(clipper::Ramachandran::Pro5);
       } else { 
-	 rama.init(clipper::Ramachandran::NonGlyPro);
+	 rama.init(clipper::Ramachandran::NonGlyPro5);
       }
    }
    

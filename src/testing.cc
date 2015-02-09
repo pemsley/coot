@@ -689,11 +689,11 @@ int test_ramachandran_probabilities() {
       // get the probability
       std::string residue_type = SelResidues[1]->GetResName();
 
-      clipper::Ramachandran::TYPE rama_type = clipper::Ramachandran::NonGlyPro;
+      clipper::Ramachandran::TYPE rama_type = clipper::Ramachandran::NonGlyPro5;
       if (residue_type == "GLY")
-	 rama_type = clipper::Ramachandran::Gly;
+	 rama_type = clipper::Ramachandran::Gly5;
       if (residue_type == "PRO")
-	 rama_type = clipper::Ramachandran::Pro;
+	 rama_type = clipper::Ramachandran::Pro5;
       clipper::Ramachandran rama(rama_type);
 
       double prob = 0;
