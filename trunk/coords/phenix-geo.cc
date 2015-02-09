@@ -18,7 +18,6 @@ coot::atom_spec_t
 coot::phenix_geo_bonds::parse_line_for_atom_spec(const std::string &l) const {
 
    atom_spec_t atom_spec;
-   // std::cout << "---" << l << std::endl;
    std::string atom_name_1(l.substr(10,4));
    std::string chain_id(l.substr(19,1));
    unsigned int post_chain_id_char_idx = 20;
@@ -28,11 +27,14 @@ coot::phenix_geo_bonds::parse_line_for_atom_spec(const std::string &l) const {
    unsigned int llen = l.length();
    unsigned int residue_number_str_idx = post_chain_id_char_idx + 1; // start
    std::string residue_number_str;
+   std::string ins_code;
    while (residue_number_str_idx < llen) {
       char c = l[residue_number_str_idx];
       if (c >= '0' && c <= '9') { 
 	 residue_number_str += c;
       } else {
+	 if (c != ' ')
+	    ins_code = c;
 	 if (residue_number_str.length())
 	    break;
       }
@@ -40,7 +42,7 @@ coot::phenix_geo_bonds::parse_line_for_atom_spec(const std::string &l) const {
    }
    try {
       int res_no = util::string_to_int(residue_number_str);
-      atom_spec = atom_spec_t(chain_id, res_no, "", atom_name_1, "");
+      atom_spec = atom_spec_t(chain_id, res_no, ins_code, atom_name_1, "");
    }
    catch (const std::runtime_error &rte) {
       // parse fail. Heyho.
@@ -51,8 +53,9 @@ coot::phenix_geo_bonds::parse_line_for_atom_spec(const std::string &l) const {
 
 coot::phenix_geo_bonds::phenix_geo_bonds(const std::string &file_name) {
 
-   if (! file_exists(file_name)) {
+   bool debug = false;
 
+   if (! file_exists(file_name)) {
       std::cout << "File not found: " << file_name << std::endl;
    } else { 
 
@@ -101,7 +104,14 @@ coot::phenix_geo_bonds::phenix_geo_bonds(const std::string &file_name) {
 	 } 
       }
    }
-   // std::cout << "found " << bonds.size() << " bonds" << std::endl;
+
+   if (debug) { 
+      std::cout << "found " << bonds.size() << " bonds" << std::endl;
+      
+      for (unsigned int ibond=0; ibond<bonds.size(); ibond++) { 
+	 std::cout << "   " << bonds[ibond].atom_1 << " "<< bonds[ibond].atom_2 << std::endl;
+      }
+   }
 }
 
 // 	    
