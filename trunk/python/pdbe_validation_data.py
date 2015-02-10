@@ -575,7 +575,21 @@ class validation_entry_to_canvas:
 	n_sliders = self.draw_sliders(da, gc)
 	self.draw_top_labels(da, gc)
 	self.draw_bottom_labels(da, gc, n_sliders) # Worse, Better
-	self.draw_key(da, gc, n_sliders) # percentile box descriptions
+        self.draw_key(da, gc, n_sliders) # percentile box descriptions
+        self.draw_eds_resolution_text(da, gc, n_sliders)
+
+
+    def draw_eds_resolution_text(self, da, gc, n_sliders):
+        if (self.entry_validation_info.EDS_resolution):
+            pangolayout = da.create_pango_layout("")
+            font_desc = pango.FontDescription('Sans 8')
+            pangolayout.set_font_description(font_desc)
+            s = 'EDS Resolution: ' + self.entry_validation_info.EDS_resolution
+            pangolayout.set_text(s)
+            y_level  = self.y_bar_offset + self.y_pixels_bar_spacing * n_sliders + 90
+            print "drawing pango layout ", s, " at ", y_level
+            da.window.draw_layout(gc, 10, y_level, pangolayout)
+        
 
     def draw_rgb_image(self, da, gc, x, y):
 
