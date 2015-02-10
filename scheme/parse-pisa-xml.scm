@@ -656,7 +656,7 @@
       (cond 
        ((eof-object? line) #f)
        ((> count 10) #f)
-       ((string-match "^ v.* .*/.*/.*" line)
+       ((string-match "^ v.* .*[-/].*[-/].*" line)
 	(let ((s-bits (string->list-of-strings line)))
 	  (string>=? (car s-bits) "v1.06")))
        (else 
