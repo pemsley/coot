@@ -19,10 +19,14 @@
 	       (prep-for-pisa 'assemblies imol)
 	       
 	       (begin
-		 (let ((status-1 (goosh-command "pisa" (list "pisa" "-analyse" pdb-file-name)
-						'() "pisa.log" #f)))
+		 (format #t ":::::::::::::::::::; here with pdb-file-name: ~s~%" pdb-file-name)
+		 
+		 (let* ((args (list "pisa" "-analyse" pdb-file-name))
+			(status-1 (goosh-command "pisa" args '() "pisa.log" #f)))
 		   
-		   (if (ok-goosh-status? status-1)
+		   (if (not (ok-goosh-status? status-1))
+		       (let ((s (format #f "Problem running pisa: args ~s" args)))
+			 (info-dialog s))
 		       (let ((status-2 (goosh-command *pisa-command* (list "pisa" "-xml" "assemblies")
 						      '() 
 						      pisa-xml-file-name #f)))
