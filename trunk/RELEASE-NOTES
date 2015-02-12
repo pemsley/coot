@@ -22,6 +22,10 @@
 
   o BUG-FIX: Add missing plane distortions in print_residue_distortions()
 
+  o BUG-FIX: PISA interface works with newer version of pisa 
+             [Maria José Sanchez Barrena]
+
+
 -----
 
   Release 0.8.1
