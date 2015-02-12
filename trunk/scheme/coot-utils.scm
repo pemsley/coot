@@ -124,6 +124,34 @@
    (else #f)))
 
 
+;; make the directory and return the directory name.  If you cant make
+;; it directly in this directory try to make it in $HOME.  Return #f if
+;; complete failure.  e.g. coot-ccp4 or coot-backup
+;; 
+(define (get-directory dir-name)
+
+  (if (file-exists? dir-name)
+
+      (if (is-directory? dir-name)
+	  dir-name
+	  #f)
+
+      (let ((status (make-directory-maybe dir-name)))
+
+	(if (= status 0)
+	    dir-name
+
+	    (let ((h (getenv "HOME")))
+	      (if (not (string? h))
+		  #f ;; couldnt find home.  Baah.
+		  (begin
+		    (let ((new-dir (append-dir-dir h dir-name)))
+		      (let ((status (make-directory-maybe new-dir)))
+			(if (= status 0)
+			    new-dir
+			    #f))))))))))
+      
+
 ;; schemify function
 ;; 
 (define (molecule-has-hydrogens? imol)
@@ -1054,7 +1082,9 @@
   (eq? (stat:type (stat file-name)) 'directory))
 
 
-;; return #f if dir-name is a file or we can't do the mkdir
+;; return the dir-name on success.
+;; 
+;; return #f if dir-name is a file or we can't do the mkdir.
 ;; 
 (define (coot-mkdir dir-name)
 

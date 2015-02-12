@@ -223,9 +223,12 @@
 	(let* ((dir-prefix 
 	       (cond
 		((null? ccp4i-project-dir)
-		 (let ((dir-name "coot-ccp4"))
-		   (make-directory-maybe dir-name)
+
+		 (let* ((target-dir-name "coot-ccp4")
+			(dir-name (get-directory target-dir-name)))
+
 		   (string-append dir-name "/")))
+
 		(else 
 		 (string-append 
 		  (car ccp4i-project-dir) "/"))))
@@ -242,6 +245,7 @@
 	       (post-refmac-pdb-file-name (string-append dir-prefix 
 							 "monomer-"
 							 code-str ".pdb")))
+
 
 	  (if (and (file-exists? post-refmac-pdb-file-name)
 		   (file-exists? cif-file-name))
