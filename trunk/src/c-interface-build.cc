@@ -4980,7 +4980,7 @@ mmdb::Manager *new_molecule_by_symmetry_matrix_from_molecule(mmdb::Manager *mol,
       }
       new_mol = coot::mol_by_symmetry(mol, cell_info.first, rtop_frac, pre_shift);
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << rte.what() << std::endl;
    } 
    return new_mol;
