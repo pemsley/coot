@@ -31,7 +31,7 @@ pkginclude_HEADERS =  test-indexing.hh simple-restraint.hh pepflip.hh regularize
 	parallel-planes.hh
 pkgincludedir = $(includedir)/coot/ideal
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(CLIPPER_CXXFLAGS)        \
 	$(MMDB_CXXFLAGS)

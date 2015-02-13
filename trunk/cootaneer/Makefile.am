@@ -20,7 +20,7 @@
 EXTRA_DIST = 		\
 	cootaneer-llk-2.40.dat
 
-INCLUDES = 	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) 
+AM_CPPFLAGS = $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) 
 
 cootaneer_demo_SOURCES = cootaneer-demo.cpp
 

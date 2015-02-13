@@ -1,6 +1,10 @@
  
  0.8.2
 
+
+   o Get monomer -> get PDBe ligand (and run dictionary generator?)
+     or on failure,  get a useful error meesage/text dialog
+
    o Fix the NCS master chain problem - Airlie McCoy
 
    o 6BP is badly modelled.  Wrong partial charges on Restraints

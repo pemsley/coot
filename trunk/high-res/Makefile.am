@@ -27,7 +27,7 @@ pkgincludedir = $(includedir)/coot/high-res
 
 AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(GSL_CFLAGS)
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir)   \
 	$(MMDB_CXXFLAGS)  \
 	$(CLIPPER_CXXFLAGS)

@@ -25,7 +25,7 @@
 AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"'
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	$(GTKCANVAS_CFLAGS)  \
 	$(GTK_CFLAGS)	     \
 	$(OGG_VORBIS_CFLAGS) \

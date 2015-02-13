@@ -19,7 +19,7 @@
 # 02110-1301, USA
 
 
-INCLUDES = -I$(top_srcdir) \
+AM_CPPFLAGS = -I$(top_srcdir) \
      $(GOOCANVAS_CFLAGS) $(GTK_CFLAGS)        
 
 lib_LTLIBRARIES=libcoot-goograph.la 

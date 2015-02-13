@@ -1,5 +1,5 @@
 
-INCLUDES = -I$(top_srcdir) $(GLIB_CFLAGS) $(GTK_CFLAGS)
+AM_CPPFLAGS = -I$(top_srcdir) $(GLIB_CFLAGS) $(GTK_CFLAGS)
 
 lib_LTLIBRARIES=libcoot-gtkgraph.la
 

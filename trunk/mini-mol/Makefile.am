@@ -23,7 +23,7 @@ lib_LTLIBRARIES=libcoot-mini-mol.la
 pkginclude_HEADERS =  mini-mol.hh mini-mol-utils.hh atom-quads.hh
 pkgincludedir = $(includedir)/coot/mini-mol
 
-INCLUDES =  \
+AM_CPPFLAGS =  \
 	-I$(top_srcdir) \
 	$(CLIPPER_CXXFLAGS)    \
 	$(MMDB_CXXFLAGS)

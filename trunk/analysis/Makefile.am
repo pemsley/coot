@@ -6,7 +6,7 @@ pkgincludedir = $(includedir)/coot/analysis
 
 # CXXFLAGS = 	$(COOT_GSL_FLAGS)
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(CLIPPER_CXXFLAGS)		\
 	$(MMDB_CXXFLAGS)

@@ -1,7 +1,7 @@
 
 EXTRA_DIST = Makefile.simple fit-rama.scm run.scm test-arr.scm
 
-INCLUDES =  $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
+AM_CPPFLAGS =  $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
 
 
 check_PROGRAMS = rama-data rama-doughnut 

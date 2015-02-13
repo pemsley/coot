@@ -25,7 +25,7 @@ pkginclude_HEADERS =  Bond_lines.h Cartesian.h cos-sin.h \
 	coot-close.hh phenix-geo.hh
 pkgincludedir = $(includedir)/coot/coords
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(ENHANCED_LIGAND_TOOLS_CFLAGS)      \
 	$(RDKIT_CXXFLAGS) 		\

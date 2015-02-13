@@ -26,7 +26,7 @@ pkgincludedir = $(includedir)/coot/lidia-core
 # simple
 #INCLUDES = $(CLIPPER_CXXFLAGS)
 #
-INCLUDES = \
+AM_CPPFLAGS = \
 	 -I$(top_srcdir) \
 	$(ENHANCED_LIGAND_TOOLS_CFLAGS)      \
 	$(RDKIT_CXXFLAGS) 		\

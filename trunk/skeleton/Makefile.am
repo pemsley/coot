@@ -21,7 +21,7 @@
 
 lib_LTLIBRARIES=libcoot-skeleton.la
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	  -I$(top_srcdir) \
 	 $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) 
 

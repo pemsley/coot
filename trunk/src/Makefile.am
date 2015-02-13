@@ -179,10 +179,10 @@ AM_CXXFLAGS = \
 # correct callbacks in both GTK1 and GTK2 regimes.
 #
 #
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(RDKIT_CXXFLAGS) 		\
-	$(ENHANCED_LIGAND_TOOLS_CFLAGS)      \
+	$(ENHANCED_LIGAND_TOOLS_CFLAGS) \
 	$(WITH_GUILE_CFLAGS)		\
 	$(USE_GUILE_GTK) 		\
 	$(GUILE_GTK_CFLAGS)		\

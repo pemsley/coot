@@ -20,7 +20,7 @@
 EXTRA_DIST = 		\
 	nautilus_lib.pdb
 
-INCLUDES = 	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) 
+AM_CPPFLAGS = 	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) 
 
 cootilus_demo_SOURCES = cootilus-demo.cpp
 

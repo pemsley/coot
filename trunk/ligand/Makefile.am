@@ -23,7 +23,7 @@ lib_LTLIBRARIES=libcoot-ligand.la
 
 EXTRA_DIST = Makefile.simple read-dunbrack.awk
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(COOT_GSL_FLAGS)		\
 	$(GSL_CFLAGS)			\

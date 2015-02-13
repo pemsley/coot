@@ -2,7 +2,7 @@
 EXTRA_DIST = Makefile.simple strand-analysis.cc
 
 
-INCLUDES = -I$(top_srcdir)/auxil/sec-str \
+AM_CPPFLAGS = -I$(top_srcdir)/auxil/sec-str \
 	$(MMDB_CXXFLAGS) 	         \
 	$(CLIPPER_CXXFLAGS) 		
 

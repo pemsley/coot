@@ -1,6 +1,6 @@
 
 EXTRA_DIST = Makefile.simple diff-vec.cc
-INCLUDES = $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS)
+AM_CPPFLAGS = $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS)
 check_PROGRAMS = 
 
 #diff_vec_SOURCES = diff-vec.cc
