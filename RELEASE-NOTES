@@ -9,6 +9,8 @@
 
   o FEATURE: Use pyrogen by default if mogul available [JED]
 
+  o CHANGE:  EDS Resolution addeded to PDB Validation dialog [Frank von Delft]
+
   o BUG-FIX: Improvement in PDB->SHELXL ins output [Andrea Thorn]
 
   o BUG-FIX: Fix problem of deleting all atoms in Baton Build atoms

@@ -1,7 +1,7 @@
 
 lib_LTLIBRARIES=libcoot-lidia.la
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir) \
         $(GSL_CFLAGS) \
         $(GOOCANVAS_CFLAGS) \

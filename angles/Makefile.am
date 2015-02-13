@@ -7,7 +7,7 @@ EXTRA_DIST = \
 pkginclude_HEADERS = AngleInfo.h ncube.h wrapped-ncube.h
 pkgincludedir = $(includedir)/coot/angles
 
-INCLUDES = $(CLIPPER_CXXFLAGS)
+AM_CPPFLAGS = $(CLIPPER_CXXFLAGS)
 
 libcoot_AngleInfo_a_sources = AngleInfo.cc AngleInfo.h  \
 	AngleInfo-angle-torsions-autogen.cc AngleInfo-theta_2-autogen.cc

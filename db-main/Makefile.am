@@ -5,7 +5,7 @@ AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	-DDATADIR='"$(datadir)"'
 
-INCLUDES = -I$(top_srcdir) \
+AM_CPPFLAGS = -I$(top_srcdir) \
    $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS)
 
 pkginclude_HEADERS = db-main.hh db-strands.hh

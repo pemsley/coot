@@ -25,7 +25,7 @@ pkgincludedir = $(includedir)/coot/ccp4mg-utils
 
 EXTRA_DIST = convert.sh get-new-utils.sh
 
-INCLUDES =  \
+AM_CPPFLAGS =  \
 	$(MMDB_CXXFLAGS) \
 	$(LIBPNG_CFLAGS)
 
