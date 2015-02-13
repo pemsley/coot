@@ -279,6 +279,7 @@ coot_bin_SOURCES = \
 	cmtz-interface.cc	 \
 	command-arg.hh           \
 	command-line.cc		 \
+	command-line-extern.cc   \
 	command-line.hh		 \
 	coot-database.hh	 \
 	coot-colour.hh	 	 \
@@ -299,6 +300,7 @@ coot_bin_SOURCES = \
 	coot-references.h        \
 	coot-setup-python.cc     \
 	coot-setup-python.hh     \
+	coot-version.hh          \
 	coot_wrap_guile_gtk2.cc  \
         dots-representation.hh   \
 	drag-and-drop.hh         \

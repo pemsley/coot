@@ -24,6 +24,7 @@
 #include "sdf-interface.hh"
 #include "probe-clash-score.hh"
 #include "cmtz-interface.hh"
+#include "coot-version.hh"
 %}
 
 
@@ -55,6 +56,7 @@
 %include "sdf-interface.hh"
 %include "coot-utils/residue-and-atom-specs.hh" // for atom_spec_t
 %include "probe-clash-score.hh"
+%include "coot-version.hh"
 
 %template(vector_atom_spec)      std::vector<coot::atom_spec_t>;
 %template(vector_mtz_type_label) std::vector<coot::mtz_type_label>;
