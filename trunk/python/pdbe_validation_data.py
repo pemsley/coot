@@ -587,7 +587,6 @@ class validation_entry_to_canvas:
             s = 'EDS Resolution: ' + self.entry_validation_info.EDS_resolution
             pangolayout.set_text(s)
             y_level  = self.y_bar_offset + self.y_pixels_bar_spacing * n_sliders + 90
-            print "drawing pango layout ", s, " at ", y_level
             da.window.draw_layout(gc, 10, y_level, pangolayout)
         
 
