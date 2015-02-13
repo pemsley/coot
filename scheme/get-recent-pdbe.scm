@@ -22,9 +22,6 @@
 	     (ice-9 format)
 	     (ice-9 q))
 
-(load-by-search "weeky-ligand-check.scm")
-
-
 (define *coot-pdbe-image-cache-dir* "coot-pdbe-images") ;; can be shared (dir should
                                                         ;; be writable by sharers).
 
