@@ -119,6 +119,8 @@
 #include "cc-interface.hh"
 #include "c-interface-ligands.hh"
 
+#include "coot-version.hh"
+
 #include "nsv.hh"
 
 #include "testing.hh"

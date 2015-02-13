@@ -563,16 +563,6 @@ void remarks_browswer_molecule_item_select(GtkWidget *item, GtkPositionType pos)
 
 #ifdef __cplusplus
 
-
-/*! \brief the coot version string 
-
-   @return something like "coot-0.1.3".  New versions of coot will
-   always be lexographically greater than previous versions. */
-std::string coot_version();
-
-std::string coot_version_extra_info();
-
-
 #ifdef USE_GUILE
 SCM coot_sys_build_type_scm();
 #endif

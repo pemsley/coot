@@ -288,7 +288,7 @@ c_inner_main(void *closure, int argc, char** argv) {
      }
      
      // now handle the command line data
-     handle_command_line_data(closure);
+     handle_command_line_data_argc_argv(argc, argv);
 
      run_command_line_scripts();	/* this may turn off run-state-file */
 
