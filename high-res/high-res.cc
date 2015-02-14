@@ -156,7 +156,7 @@ coot::high_res::fill_globular_protein(const coot::minimol::molecule &mol,
 				     "ALA");
       for (int ires=mol[ifrag].min_res_no(); ires<=mol[ifrag].max_residue_number();
 	   ires++) {
-	 for (int iat=0; iat<mol[ifrag][ires].n_atoms(); iat++) {
+	 for (unsigned int iat=0; iat<mol[ifrag][ires].n_atoms(); iat++) {
 
 	    t = ::closest_approach(mol[ifrag][ires][iat].pos, 
 				   target_pos, mmdb_mol);

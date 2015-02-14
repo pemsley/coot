@@ -114,7 +114,7 @@ coot::atom_graph::sort() {
 //    for (int inode=0; inode<ic; inode++)
 //       std::cout << "  " << inode << "       " << connectedness[inode] << "\n";
 
-   for (int itip=0; itip<tips.size(); itip++) {
+   for (unsigned int itip=0; itip<tips.size(); itip++) {
       for (int i=0; i<ic; i++)
 	 connectedness[i] = 0;
       trace_along(tips[itip].first, 1);
@@ -156,8 +156,8 @@ coot::atom_graph::sort() {
    }
 
    std::cout << " Atom info in sort:\n";
-   for(int iat=0; iat<atom_info.size(); iat++) {
-      for (int j=0; j<atom_info[iat].size(); j++) { 
+   for(unsigned int iat=0; iat<atom_info.size(); iat++) {
+      for (unsigned int j=0; j<atom_info[iat].size(); j++) { 
 	 std::cout << " atom: " << iat << " info node: " << j << " chain_number:"
 		   << atom_info[iat][j].chain_number << " residue_number:" 
 		   << atom_info[iat][j].residue_number << " " 
@@ -171,7 +171,7 @@ coot::atom_graph::sort() {
 
    sort_tips(&tips);
    std::cout << "---- tips:----" << std::endl;
-   for (int itip=0; itip<tips.size(); itip++)
+   for (unsigned int itip=0; itip<tips.size(); itip++)
       std::cout << itip << "   " <<  tips[itip].second << "\n";
 
    // amusing debugging:
