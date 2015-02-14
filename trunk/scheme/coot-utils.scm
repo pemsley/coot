@@ -3705,48 +3705,65 @@
       (let ((s (SMILES-for-comp-id comp-id)))
 	(if (string? s)
 	    s
-	    (let ((cif-file-name (append-dir-file "coot-download"
-						  (string-append "PDBe-" comp-id ".cif")))
-		  (url (string-append 
-			"ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/"
-			comp-id
-			".cif")))
-	      (make-directory-maybe "coot-download")
-	      (if (file-exists? cif-file-name)
-		  ;; try the file system cache
+	    (let ((file-name (get-pdbe-cif-for-comp-id comp-id)))
+	      (if (string? file-name)
 		  (begin
-		    (let* ((stat-data (stat cif-file-name))
-			   (l (stat:size stat-data)))
-		      (if (> l 0)
-			  (begin
-			    (read-cif-dictionary cif-file-name)
-			    (let ((s2 (SMILES-for-comp-id comp-id)))
-			      (if (string? s2)
-				  s2)))
-			  ;; give a dialog, saying that the file will not be
-			  ;; overwritten
-			  (begin
-			    (let ((s (apply string-append (list cif-file-name
-								" exists but is empty."
-								"\nNot overwriting."))))
-			      (info-dialog s)
-			      #f)))))
-		  ;; use the network then
-		  (let ((nov (format #t "getting url: ~s~%" url))
-			(state (coot-get-url url cif-file-name)))
-		    (if (not (= state 0))
-			(begin
-			  (let ((s (apply string-append (list "Problem downloading\n"
-							      url "\n to file \n"
-							      cif-file-name
-							      "."
-							      ))))
-			    (info-dialog s)
-			    #f))
-			(begin
-			  (read-cif-dictionary cif-file-name)
-			  (let ((s (SMILES-for-comp-id comp-id)))
-			    s))))))))))
+		    (read-cif-dictionary cif-file-name)
+		    (let ((s (SMILES-for-comp-id comp-id)))
+		      s))))))))
+
+
+;; return #f or a file-name
+;;
+(define (get-pdbe-cif-for-comp-id comp-id)
+
+  (let ((download-dir (get-directory "coot-download")))
+    (let ((cif-file-name (append-dir-file download-dir
+					(string-append "PDBe-" comp-id ".cif")))
+	(url (string-append 
+	      "ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/"
+	      comp-id
+	      ".cif")))
+
+    (if (file-exists? cif-file-name)
+	;; try the file system cache
+	(begin
+	  (let* ((stat-data (stat cif-file-name))
+		 (l (stat:size stat-data)))
+	    (if (> l 0)
+		(begin
+		  (read-cif-dictionary cif-file-name)
+		  (let ((s2 (SMILES-for-comp-id comp-id)))
+		    (if (string? s2)
+			s2)))
+		;; give a dialog, saying that the file will not be
+		;; overwritten
+		(begin
+		  (let ((s (apply string-append (list cif-file-name
+						      " exists but is empty."
+						      "\nNot overwriting."))))
+		    (info-dialog s)
+		    #f)))))
+
+	;; use the network then 
+	(let ((nov (format #t "getting url: ~s~%" url))
+	      (state (coot-get-url url cif-file-name)))
+	  (if (not (= state 0))
+	      (begin
+		(let ((s (apply string-append (list "Problem downloading\n"
+						    url "\n to file \n"
+						    cif-file-name
+						    "."
+						    ))))
+		  (info-dialog s)
+		  #f))
+	      
+	      ;; it worked
+	      cif-file-name))))))
+		
+
+
+
 
 (define (template-keybindings-to-preferences)
 
