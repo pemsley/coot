@@ -1,6 +1,6 @@
 
 EXTRA_DIST = Makefile.simple sec-str-dist-check.cc sec-str-dist-check.hh
-INCLUDES = $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) 
+AM_CPPFLAGS = $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) 
 
 #check_PROGRAMS = sec-str-dist-check
 

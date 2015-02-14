@@ -38,7 +38,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 pkgincludedir = $(includedir)/coot/coot-utils
 
 
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir)	\
 	$(CLIPPER_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\
