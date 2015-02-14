@@ -75,8 +75,6 @@ coot::Cartesian::by_scalar(float scale) {
 
 void
 coot::Cartesian::invert_z(void) {
-  x_ = x_;
-  y_ = y_;
   z_ = -z_;
 }
 
