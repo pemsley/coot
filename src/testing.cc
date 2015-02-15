@@ -1073,7 +1073,7 @@ test_add_atom() {
 	    // normal case
 	    coot::chi_angles chi(residue_p, 0);
 	    std::vector<std::pair<int, float> > chi_angles = chi.get_chi_angles();
-	    if (!chi_angles.size() > 0) {
+	    if (chi_angles.size() == 0) {
 	       std::cout << "   Failed to find chi angles in residue "
 			 << coot::residue_spec_t(residue_p) << std::endl;
 	    } else {
