@@ -357,7 +357,8 @@
 # 5.22 20141210 More LD_LIBRARY_PATH hacking for debian
 # 5.23 20141210 libreadline needs to be linked with -lcurses (on Debian)
 # 5.25 20141212
-script_version=5.25
+# 5.26 20150215 Use /opt/X11 and COOT_CCP4_PACKAGES for dependences on Darwin.
+script_version=5.26
 
 
 
@@ -1291,6 +1292,10 @@ if make --version ; then
          fi
       fi
    fi
+   if [ $OS = Darwin ] ; then 
+      np=$(system_profiler SPHardwareDataType | awk '/Total Number/ { print $NF }')
+      MAKE="make -j$np"
+   fi
 else 
    # definately not GNU make
    # Try gmake then....
@@ -1677,6 +1682,7 @@ else
    build_curl=1
 fi
 
+# ---- test system libidn -------------------------------
 if [ -e /usr/lib/libidn.so ] ; then
    if [ -e /usr/lib/libidn.la ] ; then
       echo system has libidn devel
@@ -1690,15 +1696,16 @@ if [ -e /usr/lib/libidn.so ] ; then
       fi
    fi
 else
-   if [ -e $install_top_dir/lib/libidn.so ] ; then
+   # ---- test installation libidn -------------------------------
+   if [ -e $install_top_dir/include/idna.h ] ; then
       echo installation has libidn devel
    else
       # set it up for building then
-      echo system does not have libidn.so, libcurl should be built also
-      if [ -e $install_top_dir/lib/libidn.so ] ; then 
-         echo installation has libidn.so
+      echo system does not have libidn
+      if [ -e $install_top_dir/include/idna.h ] ; then 
+         echo installation has libidn
       else 
-         echo installation does not have libidn.so, libcurl should be built also
+         echo installation does not have libidn, libcurl should be built also
          build_libidn=1
          build_curl=1
       fi
@@ -1740,6 +1747,18 @@ if [ -z "$PKG_CONFIG_PATH" ] ; then
 else 
   PKG_CONFIG_PATH=$install_top_dir/lib/pkgconfig:$PKG_CONFIG_PATH:$STD_PKGCONFIG_DIR
 fi
+
+if [ -e /opt/X11/lib/pkgconfig ] ; then
+    PKG_CONFIG_PATH=/opt/X11/lib/pkgconfig:$PKG_CONFIG_PATH
+fi
+
+
+echo "COOT_CCP4_PACKAGES" "$COOT_CCP4_PACKAGES"
+if [ -n "$COOT_CCP4_PACKAGES" ] ; then
+    # PKG_CONFIG_PATH=$COOT_CCP4_PACKAGES/lib/pkgconfig:$PKG_CONFIG_PATH
+    PKG_CONFIG_PATH=$PKG_CONFIG_PATH:$COOT_CCP4_PACKAGES/lib/pkgconfig
+fi
+
 export PKG_CONFIG_PATH
 echo  PKG_CONFIG_PATH is now $PKG_CONFIG_PATH
 
@@ -1793,12 +1812,18 @@ fi
 
 # freeglut
 # for dir in ${dir_list} ; do
+if [ "$OS" = Darwin ] ; then 
+   if [ -e /opt/X11/lib/libglut.dylib ] ; then 
+      build_freeglut=
+   fi
+fi 
 if test -e ${install_top_dir}/include/GL/freeglut_std.h ; then
    echo installation has Freeglut
    build_freeglut=
    glut_prefix="--with-glut-prefix=${install_top_dir}"
 fi
 # done
+
 if test -n "$build_freeglut" ; then
    echo freeglut should be built
    build_freeglut=1
@@ -2038,14 +2063,18 @@ fi
 # ##############################################################
 
 build_gtkglext=1
-if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.so ; then
-   echo INFO:: found ${install_top_dir}/lib/libgtkglext-x11-1.0.so
+if test -e ${install_top_dir}/include/gtkglext-1.0/gdk/glext/glext.h ; then
+   echo INFO:: found ${install_top_dir}/include/gtkglext-1.0/gdk/glext/glext.h
    build_gtkglext=
 fi
-if test -e ${install_top_dir}/lib/libgtkglext-x11-1.0.la ; then
-   echo INFO:: found ${install_top_dir}/lib/libgtkglext-x11-1.0.la
-   build_gtkglext=
+if [ -n "$COOT_CCP4_PACKAGES" ] ; then 
+   if test -e ${COOT_CCP4_PACKAGES}/include/gtkglext-1.0/gdk/glext/glext.h ; then
+      echo INFO:: found ${COOT_CCP4_PACKAGES}/include/gtkglext-1.0/gdk/glext/glext.h
+      build_gtkglext=
+   fi
 fi
+
+
 if test -z "$build_gtkglext" ; then
    echo installation has gtkglext
 else 
@@ -2537,8 +2566,17 @@ if [ "$build_gtkglext" = 1 ] ; then
      else 
         echo version of gtk is old, no need to patch gtkglext.
      fi
+   
+     if [ $OS = Darwin ] ; then
+        if [ -e /opt/X11 ] ; then 
+           extra_gtkglext_args="CPPFLAGS=-I/opt/X11/include LDFLAGS=-L/opt/X11/lib"
+        fi
+     fi
 
-     if ./configure $generic_prefix ; then 
+     echo PKG_CONFIG_PATH: $PKG_CONFIG_PATH
+
+     echo ./configure $generic_prefix $extra_gtkglext_args
+     if ./configure $generic_prefix $extra_gtkglext_args ; then 
         if [ "$update_libtool" = 1 ] ; then
            cp $install_top_dir/bin/libtool .
         fi
@@ -2553,13 +2591,19 @@ if [ "$build_gtkglext" = 1 ] ; then
            $MAKE install
         fi
      else 
+        echo : ----------------------------------------------------------------
         echo gtkglext configure failed
-        echo here is config.log
+        echo : ----------------------------------------------------------------
+        echo here is config.log:
+        echo " " 
         cat config.log
+        status=2
      fi
+     exit $status
      ) > $HOSTLOGDIR/06-pre-gtkglext.txt 2>&1
     # capture the status from the subshell, if an error, exit the main shell too.
     status=$?
+    echo status from gtkglext build was $status
     if [ $status = 2 ] ; then 
        my_exit 2
     fi
@@ -3347,8 +3391,10 @@ fi
 #      CXXFLAGS="-g -O"
 # consider getting rid of $shared_static_flag, which does a --disable-shared.
 # i.e. we should keep and use shared libs
+
+#     $architecture is not set for Mac OS X.
 coot_optim_args=
-if [ $architecture = x86_64 ] ; then 
+if [ "$architecture" = x86_64 ] ; then 
    # This could well be too general a test, certainly on 64 bit CentOS 5 we need this, 
    # and possibly on 64 bit Gutsy.
 
@@ -3373,8 +3419,19 @@ fi
 # We no longer need this because clipper is found using pkg-config
 #     --with-clipper-prefix=$install_top_dir 
 
+if [ $OS = Darwin ] ; then
+   if [ -d /opt/X11 ] ; then
+      export CPPFLAGS=-I/opt/X11/include
+      
+   fi
+fi
+
 echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 echo building in: $PWD
+echo CFLAGS: $CFLAGS
+echo CXXFLAGS: $CXXFLAGS
+echo CPPFLAGS: $CPPFLAGS
+echo LDFLAGS: $LDFLAGS
 echo ./configure $coot_prefix \
        --with-fftw-prefix=$install_top_dir  \
       $goocanvas_args     \
