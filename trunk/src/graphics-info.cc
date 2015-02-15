@@ -89,6 +89,7 @@
 #ifdef USE_PYTHON
 // #include "Python.h" included above now.
 #include "cc-interface.hh"
+#include "cc-interface-scripting.hh"
 #endif
 
 // A few non-class members - should be somewhere else, I guess.

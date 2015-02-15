@@ -2834,7 +2834,7 @@ int test_multi_residue_torsion() {
 	 asc.n_selected_atoms = n_selected_atoms;
 	 asc.SelectionHandle = selhnd;
 
-	 for (unsigned int i=0; i<n_selected_atoms; i++) { 
+	 for (int i=0; i<n_selected_atoms; i++) { 
 	    std::cout << "selected atom: " << atom_selection[i] << std::endl;
 	 }
 	 coot::contact_info contacts(asc, &t.geom, bpc);

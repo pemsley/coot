@@ -216,7 +216,7 @@ coot::peak_search::peak_search_0(const clipper::Xmap<float> &xmap,
 	       while (q.size()) {
 		  clipper::Coord_grid c_g_start = q.front();
 		  q.pop();
-		  for (unsigned int i=0; i<neighb.size(); i++) {
+		  for (int i=0; i<neighb.size(); i++) {
 		     c_g = c_g_start + neighb[i];
 		     if (marked_map_p->get_data(c_g) == 0) { 
 			marked_map_p->set_data(c_g, IN_CLUSTER);

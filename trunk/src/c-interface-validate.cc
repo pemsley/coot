@@ -74,6 +74,7 @@
 
 #include "c-interface.h"
 #include "cc-interface.hh"
+#include "cc-interface-scripting.hh"
 #include "ligand/ligand.hh"
 
 #include "coot-utils/peak-search.hh"

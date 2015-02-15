@@ -7303,4 +7303,22 @@ http://www.youtube.com/watch?v=aMSPwFvlICM
     }
 
 
+------------
+
+    How to use prefer_python
+
+	 if (graphics_info_t::prefer_python) { 
+#if defined USE_PYTHON
+	    std::string python_command("xxx()");
+	    safe_python_command(python_command);
+#endif // USE_PYTHON
+	 } else { 
+#if defined USE_GUILE
+	    std::string scheme_command("(xxx)");
+	    safe_scheme_command(scheme_command);
+#endif // USE_GUILE
+          }
+
+-----
+
 ------

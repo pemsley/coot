@@ -359,7 +359,7 @@ void start_command_line_python_maybe(char **argv) {
 
 #ifdef USE_GUILE
 
-void c_wrapper_scm_boot_guile(int argc, char** argv, struct command_line_data* pcld) { 
+void c_wrapper_scm_boot_guile(int argc, char** argv) { 
 
 /* From libguile/init.h:  */
 /* extern void scm_boot_guile (int argc, char **argv, */
@@ -368,7 +368,7 @@ void c_wrapper_scm_boot_guile(int argc, char** argv, struct command_line_data* p
 /*                                                char **argv), */
 /*                             void *closure); */
   
-  scm_boot_guile(argc, argv, c_inner_main, pcld);
+  scm_boot_guile(argc, argv, c_inner_main, NULL);
 
   printf("you should not see this, c_inner_main should have called exit(0)\n"); 
 

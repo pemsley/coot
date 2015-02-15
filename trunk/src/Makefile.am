@@ -314,6 +314,8 @@ coot_bin_SOURCES = \
 	geometry-graphs.hh	 \
 	get-residue.hh           \
 	get-residue.cc           \
+	get-monomer.hh           \
+	get-monomer.cc           \
 	gl-bits.hh		 \
 	globjects.cc 		 \
 	globjects.h gl-matrix.h  \

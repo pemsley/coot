@@ -94,6 +94,7 @@
 
 #include "c-interface.h"
 #include "cc-interface.hh"
+#include "cc-interface-scripting.hh"
 
 #include "ligand/ligand.hh" // for rigid body fit by atom selection.
 
@@ -2114,6 +2115,7 @@ show_fix_nomenclature_errors_gui(int imol,
 }
 
 
+#include "get-monomer.hh"
 
 /*  ----------------------------------------------------------------------- */
 /*                  get molecule by libcheck/refmac code                    */
@@ -2123,18 +2125,44 @@ show_fix_nomenclature_errors_gui(int imol,
 void 
 handle_get_libcheck_monomer_code(GtkWidget *widget) { 
 
+   GtkWidget *frame = lookup_widget(widget, "get_monomer_no_entry_frame");
    const gchar *text = gtk_entry_get_text(GTK_ENTRY(widget));
-   std::cout << "Refmac monomer Code: " << text << std::endl;
-   get_monomer(text);
 
-   // and kill the libcheck code window
-   GtkWidget *window = lookup_widget(GTK_WIDGET(widget), "libcheck_monomer_dialog");
-   if (window)
-      gtk_widget_destroy(window);
-   else 
-      std::cout << "failed to lookup window in handle_get_libcheck_monomer_code" 
-		<< std::endl;
+   int no_entry_frame_shown = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(frame), "shown"));
+
+   if (! no_entry_frame_shown) { 
+
+      int imol = get_monomer(text);
+
+      if (is_valid_model_molecule(imol)) { 
+
+	 GtkWidget *window = lookup_widget(GTK_WIDGET(widget), "libcheck_monomer_dialog");
+	 if (window)
+	    gtk_widget_destroy(window);
+	 else 
+	    std::cout << "failed to lookup window in handle_get_libcheck_monomer_code" 
+		      << std::endl;
+      } else {
+
+	 gtk_widget_show(frame);
+	 g_object_set_data(G_OBJECT(frame), "shown", GINT_TO_POINTER(1));
+      }
+
+   } else {
+
+      std::cout << "Get-by-network method" << std::endl;
+
+      int imol = get_monomer_molecule_by_network_and_dict_gen(text);
+      if (! is_valid_model_molecule(imol)) {
+	 info_dialog("Failed to import molecule");
+      }
+
+      GtkWidget *window = lookup_widget(GTK_WIDGET(widget), "libcheck_monomer_dialog");
+      if (window)
+	 gtk_widget_destroy(window);
+   }
 }
+
 
 /* ------------------------------------------------------------------------ */
 /* ------------------------------------------------------------------------ */

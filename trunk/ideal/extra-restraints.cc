@@ -254,7 +254,7 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
 	    r_1->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
 	    r_2->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
 
-	    for (unsigned int iat=0; iat<n_residue_atoms_1; iat++) { 
+	    for (int iat=0; iat<n_residue_atoms_1; iat++) { 
 	       std::string atom_name_1(residue_atoms_1[iat]->name);
 	       if (atom_name_1 == extra_restraints.bond_restraints[i].atom_1.atom_name) {
 		  std::string alt_loc_1(residue_atoms_1[iat]->altLoc);
@@ -264,7 +264,7 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
 		  }
 	       }
 	    }
-	    for (unsigned int iat=0; iat<n_residue_atoms_2; iat++) { 
+	    for (int iat=0; iat<n_residue_atoms_2; iat++) { 
 	       std::string atom_name_2(residue_atoms_2[iat]->name);
 	       if (atom_name_2 == extra_restraints.bond_restraints[i].atom_2.atom_name) {
 		  std::string alt_loc_2(residue_atoms_2[iat]->altLoc);
@@ -513,7 +513,7 @@ coot::restraints_container_t::add_extra_parallel_plane_restraints(const extra_re
 	    for (unsigned int i_rest_at=0; i_rest_at<r.plane_1_atoms.atom_names.size(); i_rest_at++) {
 	       std::string plane_atom_expanded_name =
 		  dri_1.second.atom_name_for_tree_4c(r.plane_1_atoms.atom_names[i_rest_at]);
-	       for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	       for (int iat=0; iat<n_residue_atoms; iat++) {
 		  mmdb::Atom *at = residue_atoms[iat];
 		  std::string atom_name(at->name);
 		  std::string alt_conf(at->altLoc);
@@ -541,7 +541,7 @@ coot::restraints_container_t::add_extra_parallel_plane_restraints(const extra_re
 	    for (unsigned int i_rest_at=0; i_rest_at<r.plane_2_atoms.atom_names.size(); i_rest_at++) {
 	       std::string plane_atom_expanded_name =
 		  dri_2.second.atom_name_for_tree_4c(r.plane_2_atoms.atom_names[i_rest_at]);
-	       for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	       for (int iat=0; iat<n_residue_atoms; iat++) {
 		  mmdb::Atom *at = residue_atoms[iat];
 		  std::string atom_name(at->name);
 		  std::string alt_conf(at->altLoc);

@@ -1210,7 +1210,7 @@ graphics_info_t::load_needed_monomers(const std::vector<std::string> &pdb_residu
 
    for (unsigned int ipdb=0; ipdb<pdb_residue_types.size(); ipdb++) { 
       short int ifound = 0;
-      for (int igeom=0; igeom<geom_p->size(); igeom++) {
+      for (unsigned int igeom=0; igeom<geom_p->size(); igeom++) {
 	 if (pdb_residue_types[ipdb] == (*geom_p)[igeom].comp_id()) { 
 	    ifound = 1;
 	    break;
@@ -1393,7 +1393,7 @@ graphics_info_t::refinement_results_to_py(coot::refinement_results_t &rr) {
       PyObject *info_py = PyString_FromString(rr.info.c_str());
       if (rr.lights.size())
 	lights_py = PyList_New(rr.lights.size());
-      for (int il=0; il<rr.lights.size(); il++) {
+      for (unsigned int il=0; il<rr.lights.size(); il++) {
 	PyObject *light_py = PyList_New(3);
 	PyObject *value_py = PyFloat_FromDouble(rr.lights[il].value);
 	PyObject *label_py = PyString_FromString(rr.lights[il].label.c_str());
@@ -2303,7 +2303,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	       } else {
 
 		  if (molecules[imol].is_from_shelx_ins()) { 
-		     for (unsigned int i=0; i<tmp_asc.n_selected_atoms; i++) {
+		     for (int i=0; i<tmp_asc.n_selected_atoms; i++) {
 			tmp_asc.atom_selection[i]->occupancy = 11.0;
 		     }
 		  } 
@@ -3778,7 +3778,7 @@ graphics_info_t::rotate_multi_residue_torsion(double x, double y) {
    } else { 
 
       std::vector<mmdb::Residue *> residues;
-      for (unsigned int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
+      for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
 	 mmdb::Residue *r = moving_atoms_asc->atom_selection[i]->residue;
 	 if (std::find(residues.begin(), residues.end(), r) == residues.end())
 	    residues.push_back(r);

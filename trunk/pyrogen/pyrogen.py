@@ -273,7 +273,8 @@ def make_restraints_from_mdl(mol_file_name, comp_id, mogul_dir, name_stub, pdb_o
 # file.  Often only one of course.
 #
 def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir, output_postfix,
-				    quartet_planes, quartet_hydrogen_planes, use_mmff):
+				    quartet_planes, quartet_hydrogen_planes, use_mmff,
+                                    pdb_out_file_name, mmcif_restraints_out_file_name):
 
    if not test_for_mogul():
        return [(None, None)]
@@ -281,17 +282,25 @@ def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir, output
    if comp_id == "TRY_ALL_COMP_IDS":
       types = pysw.types_from_mmcif_dictionary(cif_file_name_in)
       l = []
-      for type in types:
-	    t_mol = make_restraints_from_mmcif_dict_single(cif_file_name_in, type, mogul_dir,
-							   output_postfix,
-							   quartet_planes,
-							   quartet_hydrogen_planes, use_mmff)
-	    l.append((t_mol, type))
+      for r_type in types:
+
+         # we need access to options.output_dir here
+         pdb_out_file_name_local = r_type + output_postfix + ".pdb"
+         mmcif_restraints_out_file_name_local = r_type + output_postfix + ".cif"
+         #
+         t_mol = make_restraints_from_mmcif_dict_single(cif_file_name_in, r_type, mogul_dir,
+                                                        output_postfix,
+                                                        quartet_planes,
+                                                        quartet_hydrogen_planes, use_mmff,
+                                                        pdb_out_file_name_local,
+                                                        mmcif_restraints_out_file_name_local)
+         l.append((t_mol, r_type))
       return l
    else:
        # just the one
        m = make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir, output_postfix,
-						  quartet_planes, quartet_hydrogen_planes, use_mmff)
+						  quartet_planes, quartet_hydrogen_planes, use_mmff,
+                                                  pdb_out_file_name, mmcif_restraints_out_file_name)
        return [(m, comp_id)]
 
 # return a mol, given a sensible comp_id.
@@ -299,7 +308,8 @@ def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir, output
 # Return None on failure
 #
 def make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir, output_postfix,
-					   quartet_planes, quartet_hydrogen_planes, use_mmff):
+					   quartet_planes, quartet_hydrogen_planes, use_mmff,
+                                           pdb_out_file_name, mmcif_restraints_out_file_name):
 
    # print 'in make_restraints_from_mmcif_dict() comp_id is ', comp_id
    # print 'in make_restraints_from_mmcif_dict() cif_file_name_in is ', cif_file_name_in
@@ -316,9 +326,8 @@ def make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir,
 	    l.append((t_mol, type))
       return l
    else:
-      file_name_stub           = comp_id + '-' + output_postfix 
-      pdb_out_file_name        = file_name_stub + '.pdb'
-      cif_restraints_file_name = file_name_stub + '.cif'
+      mogul_file_name_stub           = comp_id + '-' + output_postfix # files within mogul_dir
+
       m = pyrogen_boost.rdkit_mol_chem_comp_pdbx(cif_file_name_in, comp_id)
 
       if False:  # debugging
@@ -344,8 +353,8 @@ def make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir,
 	  except KeyError:
 	      print 'caught KeyError in make_restraints_from_mmcif_dict() trying GetProp _Name'
 
-	  return make_restraints(m, comp_id, mogul_dir, file_name_stub,
-				 pdb_out_file_name, cif_restraints_file_name,
+	  return make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub,
+				 pdb_out_file_name, mmcif_restraints_out_file_name,
 				 quartet_planes, quartet_hydrogen_planes, use_mmff, False, False, False)
 
 
@@ -359,7 +368,7 @@ def n_hydrogens(mol):
 
 # return sane_H_mol
 # 
-def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mmcif_dict_name,
+def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_name, mmcif_dict_name,
                     quartet_planes, quartet_hydrogen_planes, use_mmff,
                     match_atom_names_to_dict_flag,
                     comp_id_list_for_names_match,
@@ -427,10 +436,10 @@ def make_restraints(m, comp_id, mogul_dir, file_name_stub, pdb_out_file_name, mm
       sane_H_mol.SetProp('comp_id', comp_id)
       sane_H_mol.SetProp('name', compound_name)
       
-      sd_local = file_name_stub + ".sdf"
-      sdf_file_name       = os.path.join(mogul_dir, file_name_stub + '-mogul.sdf')
-      mogul_ins_file_name = os.path.join(mogul_dir, file_name_stub + '-mogul.ins')
-      mogul_out_file_name = os.path.join(mogul_dir, file_name_stub + '-mogul.out')
+      sd_local = mogul_file_name_stub + ".sdf"
+      sdf_file_name       = os.path.join(mogul_dir, mogul_file_name_stub + '-mogul.sdf')
+      mogul_ins_file_name = os.path.join(mogul_dir, mogul_file_name_stub + '-mogul.ins')
+      mogul_out_file_name = os.path.join(mogul_dir, mogul_file_name_stub + '-mogul.out')
       Chem.AllChem.ComputeGasteigerCharges(sane_H_mol)
 
       moguled_mol = pyrogen_boost.mogulify(sane_H_mol) # Nitro bond orders (and other things?)
@@ -638,9 +647,12 @@ if __name__ == "__main__":
     parser.add_option("-t", "--tautomers", dest="show_tautomers",
 		      default=False, action="store_true",
                       help='Show SMILES for tautomers, don\'t generate restraints')
-    parser.add_option("-d", '--directory', dest='mogul_dir',
+    parser.add_option("-T", '--tmp-directory', dest='mogul_dir',
                       help='Directory into which the tmp files (e.g. for mogul) are written',
                       default='pyrogen-mogul')
+    parser.add_option("-d", '--directory', dest='output_dir',
+                      help='Directory into which the output files (e.g. mmCIF and PDB) are written',
+                      default='.')
     parser.add_option('-o', '--output-postfix', default='pyrogen',
                       dest='output_postfix',
                       help='string to add to output file names, default is "pyrogen"')
@@ -678,9 +690,13 @@ if __name__ == "__main__":
 	if options.comp_id == 'default':
 	    comp_id = 'TRY_ALL_COMP_IDS'
 
-    pdb_out_file_name        = comp_id + '-' + options.output_postfix + '.pdb'
-    cif_restraints_file_name = comp_id + '-' + options.output_postfix + '.cif'
     file_name_stub           = comp_id + '-' + options.output_postfix
+    
+    if options.output_dir != ".":
+       file_name_stub = os.path.join(options.output_dir, file_name_stub)
+       
+    pdb_out_file_name            = file_name_stub + '.pdb'
+    mmcif_restraints_out_file_name = file_name_stub + '.cif'
 
     # this is a bit ugly, perhaps.  this value is inspected inside
     # the following functions
@@ -737,7 +753,9 @@ if __name__ == "__main__":
 							options.output_postfix,
 							options.quartet_planes,
 							quartet_hydrogen_planes,
-							options.use_mmcif)
+							options.use_mmcif,
+                                                        pdb_out_file_name,
+                                                        mmcif_restraints_out_file_name)
 
 	    # this needs to be in a try block, I suppose, for example if the mmcif file
 	    # does not exist.
@@ -761,7 +779,8 @@ if __name__ == "__main__":
 	    if options.sdf_file != None:
 		(mol, results) = make_restraints_from_mdl(options.sdf_file, comp_id,
 							  options.mogul_dir, file_name_stub,
-							  pdb_out_file_name, cif_restraints_file_name,
+							  pdb_out_file_name,
+                                                          mmcif_restraints_out_file_name,
 							  options.quartet_planes,
 							  quartet_hydrogen_planes,
 							  options.use_mmcif,
@@ -784,7 +803,7 @@ if __name__ == "__main__":
 		    status = make_restraints_from_smiles(smiles, comp_id, compound_name,
 							 options.mogul_dir, file_name_stub,
 							 pdb_out_file_name,
-							 cif_restraints_file_name,
+							 mmcif_restraints_out_file_name,
 							 options.quartet_planes,
 							 quartet_hydrogen_planes,
 							 options.use_mmcif,

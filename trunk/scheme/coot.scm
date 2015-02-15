@@ -83,6 +83,7 @@
 			   "clear-backup.scm"
 			   "tips.scm"
 			   "prodrg-import.scm"
+			   "dictionary-generators.scm"
 			   "jligand.scm"
 			   "americanisms.scm"
 			   "group-settings.scm")))

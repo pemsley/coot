@@ -358,7 +358,7 @@ align_to_closest_chain(std::string target_seq_in, float match_fraction_crit) {
    int imol_best = -1;
    std::string target(target_seq_in);
    
-   for (unsigned int imol=0; imol<graphics_n_molecules(); imol++) {
+   for (int imol=0; imol<graphics_n_molecules(); imol++) {
       if (is_valid_model_molecule(imol)) {
 	 if (target.length() > 0) {
 	    std::pair<bool, std::pair<std::string, coot::chain_mutation_info_container_t> > r = 

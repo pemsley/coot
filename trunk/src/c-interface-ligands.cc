@@ -54,6 +54,7 @@
 #include "graphics-info.h"
 #include "c-interface.h"
 #include "cc-interface.hh"
+#include "cc-interface-scripting.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/peak-search.hh"
 #include "coot-utils/coot-h-bonds.hh"
