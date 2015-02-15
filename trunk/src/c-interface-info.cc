@@ -3279,8 +3279,9 @@ void edit_text(int text_handle, const char *str) {
    graphics_info_t g;
    if (str) { 
       if (text_handle >= 0) {
-	 if (text_handle < g.generic_texts_p->size()) {
-	    (*g.generic_texts_p)[text_handle].s = str;
+	 unsigned int ui_text_handle = text_handle;
+	 if (ui_text_handle < g.generic_texts_p->size()) {
+	    (*g.generic_texts_p)[ui_text_handle].s = str;
 	 }
       }
    }
@@ -4402,7 +4403,7 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 				 float esd = PyFloat_AsDouble(esd_py);
 				 if (atoms.size() > 0) { 
 				    coot::dict_plane_restraint_t rest(plane_id, atoms[0], esd);
-				    for (int i=1; i<atoms.size(); i++) {
+				    for (unsigned int i=1; i<atoms.size(); i++) {
 				       double esd = 0.02;
 				       rest.push_back_atom(atoms[i], esd);
 				    }
@@ -4774,7 +4775,7 @@ SCM remarks_scm(int imol) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       mmdb::TitleContainer *tc_p = mol->GetRemarks();
       int l = tc_p->Length();
-      for (unsigned int i=0; i<l; i++) { 
+      for (int i=0; i<l; i++) { 
 	 mmdb::Remark *cr = static_cast<mmdb::Remark *> (tc_p->GetContainerClass(i));
 	 SCM a_scm = SCM_MAKINUM(cr->remarkNum);
 	 SCM b_scm = scm_makfrom0str(cr->remark);
@@ -4799,7 +4800,7 @@ PyObject *remarks_py(int imol) {
       mmdb::TitleContainer *tc_p = mol->GetRemarks();
       int n_records = tc_p->Length();
       o = PyList_New(n_records);
-      for (unsigned int i=0; i<n_records; i++) {
+      for (int i=0; i<n_records; i++) {
 	 mmdb::Remark *cr = static_cast<mmdb::Remark *> (tc_p->GetContainerClass(i));
 	 PyObject *l = PyList_New(2);
 	 PyList_SetItem(l, 0, PyInt_FromLong(cr->remarkNum));

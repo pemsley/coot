@@ -204,9 +204,10 @@ graphics_info_t::fill_option_menu_with_map_options_internal(GtkWidget *option_me
    menu = gtk_menu_new();
    int menu_index = 0;
    
-   for (int imap=0; imap<map_molecule_numbers.size(); imap++) {
+   for (unsigned int imap=0; imap<map_molecule_numbers.size(); imap++) {
+      int imap_int = imap;
       int i = map_molecule_numbers[imap];
-     if (is_valid_map_molecule(i)) { // NXMAP-FIXME
+     if (is_valid_map_molecule(i)) {
 	 char s[200];
 	 snprintf(s,199,"%d", i);
 	 std::string ss(s);
@@ -218,7 +219,7 @@ graphics_info_t::fill_option_menu_with_map_options_internal(GtkWidget *option_me
 			    GINT_TO_POINTER(i));
 	 gtk_menu_append(GTK_MENU(menu), menuitem);
 	 gtk_widget_show(menuitem);
-	 if (imap == imol_active_position)
+	 if (imap_int == imol_active_position)
 	    gtk_menu_set_active(GTK_MENU(menu), menu_index);
 	 menu_index++; // setup for next round
       }
@@ -289,7 +290,7 @@ graphics_info_t::fill_option_menu_with_refmac_methods_options(GtkWidget *option_
   v.push_back("rigid body refinement ");
   v.push_back("TLS & restrained refinement ");
 
-  for (int i=0; i<v.size(); i++) {
+  for (unsigned int i=0; i<v.size(); i++) {
     menuitem = gtk_menu_item_new_with_label((char *) v[i].c_str());
     gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
     		       GTK_SIGNAL_FUNC(graphics_info_t::refmac_change_refinement_method),
@@ -321,7 +322,7 @@ graphics_info_t::fill_option_menu_with_refmac_phase_input_options(GtkWidget *opt
   v.push_back("Hendrickson-Lattman coefficients");
   v.push_back("SAD data directly");
   
-  for (int i=0; i<v.size(); i++) {
+  for (unsigned int i=0; i<v.size(); i++) {
     menuitem = gtk_menu_item_new_with_label((char *) v[i].c_str());
     gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
     		       GTK_SIGNAL_FUNC(graphics_info_t::refmac_change_phase_input),
@@ -525,7 +526,7 @@ graphics_info_t::fill_option_menu_with_refmac_ncycle_options(GtkWidget *option_m
    
   std::vector<int> v = *preset_number_refmac_cycles;
 
-  for (int i=0; i<v.size(); i++) {
+  for (unsigned int i=0; i<v.size(); i++) {
     menuitem = gtk_menu_item_new_with_label((char *) int_to_string(v[i]).c_str());
     gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
     		       GTK_SIGNAL_FUNC(graphics_info_t::refmac_change_ncycles),
@@ -537,7 +538,7 @@ graphics_info_t::fill_option_menu_with_refmac_ncycle_options(GtkWidget *option_m
   // activate the correct setting:
   int found = 0;
   int target_cycle = refmac_ncycles;
-  for (int i=0; i<v.size(); i++) {
+  for (unsigned int i=0; i<v.size(); i++) {
     if (v[i] == target_cycle) {
       gtk_menu_set_active(GTK_MENU(menu), i);
       found = 1;
@@ -811,7 +812,7 @@ graphics_info_t::add_refmac_sad_atom(const char *atom_name, float fp, float fpp,
 
   coot::refmac::sad_atom_info_t refmac_sad_atom_info(atom_name, fp, fpp, lambda);
   int replaced = 0;
-  for (int i=0; i<graphics_info_t::refmac_sad_atoms.size(); i++) {
+  for (unsigned int i=0; i<graphics_info_t::refmac_sad_atoms.size(); i++) {
     // check for existing name
     if (graphics_info_t::refmac_sad_atoms[i].atom_name == atom_name) {
       graphics_info_t::refmac_sad_atoms[i] = refmac_sad_atom_info;
@@ -901,9 +902,9 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
     int fobs_sigfobs_pair = 0;
     int f_col_pos;
     bool break_flag = false;
-    for (int i=0; i<saved_f_phi_columns->f_cols.size(); i++) {
+    for (unsigned int i=0; i<saved_f_phi_columns->f_cols.size(); i++) {
       f_col_pos = saved_f_phi_columns->f_cols[i].column_position;
-      for (int j=0; j<saved_f_phi_columns->sigf_cols.size(); j++) {
+      for (unsigned int j=0; j<saved_f_phi_columns->sigf_cols.size(); j++) {
 	if (saved_f_phi_columns->sigf_cols[j].column_position == f_col_pos + 1) {
 	  if (saved_f_phi_columns->f_cols[i].column_label == fobs_string) {
 	    saved_f_phi_columns->selected_refmac_fobs_col = i;
@@ -920,7 +921,7 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
       }
     }
       
-    for (int i=0; i<saved_f_phi_columns->r_free_cols.size(); i++) {
+    for (unsigned int i=0; i<saved_f_phi_columns->r_free_cols.size(); i++) {
       if (saved_f_phi_columns->r_free_cols[i].column_label == r_free_string) {
 	gtk_menu_set_active(GTK_MENU(r_free_menu), i);
 	saved_f_phi_columns->selected_refmac_r_free_col = i;
@@ -985,7 +986,7 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
       std::string fom_string  = molecules[imol_map_refmac].Refmac_fom_col();
       // now find 'em
       // phase and FOM
-      for (int i=0; i<saved_f_phi_columns->phi_cols.size(); i++) {
+      for (unsigned int i=0; i<saved_f_phi_columns->phi_cols.size(); i++) {
 	if (saved_f_phi_columns->phi_cols[i].column_label == phib_string) {
 	  gtk_menu_set_active(GTK_MENU(phases_menu), i);
 	  saved_f_phi_columns->selected_refmac_phi_col = i;
@@ -994,7 +995,7 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
       }
       optionmenu = lookup_widget(map_optionmenu, "refmac_dialog_fom_optionmenu");
       menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu));
-      for (int i=0; i<saved_f_phi_columns->weight_cols.size(); i++) {
+      for (unsigned int i=0; i<saved_f_phi_columns->weight_cols.size(); i++) {
 	if (saved_f_phi_columns->weight_cols[i].column_label == fom_string) {
 	  gtk_menu_set_active(GTK_MENU(fom_menu), i);
 	  saved_f_phi_columns->selected_refmac_fom_col = i;
@@ -1008,7 +1009,7 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
     int hl_set_pos = 0;
     int hla_pos;
     if (molecules[imol_map_refmac].Have_refmac_phase_params() && hla_string != "") {
-      for (int i=0; i<saved_f_phi_columns->hl_cols.size(); i++) {
+      for (unsigned int i=0; i<saved_f_phi_columns->hl_cols.size(); i++) {
 	hla_pos = saved_f_phi_columns->hl_cols[i].column_position;
 	//check if we have a consecutive set of 4 HLs
 	if (saved_f_phi_columns->hl_cols[i+1].column_position == hla_pos + 1 &&

@@ -1437,7 +1437,7 @@ std::vector<coot::residue_spec_t> scm_to_residue_specs(SCM r) {
    std::vector<coot::residue_spec_t> residue_specs;
    SCM r_length_scm = scm_length(r);
    int r_length = scm_to_int(r_length_scm);
-   for (unsigned int i=0; i<r_length; i++) {
+   for (int i=0; i<r_length; i++) {
       SCM res_spec_scm = scm_list_ref(r, SCM_MAKINUM(i));
       std::pair<bool, coot::residue_spec_t> res_spec =
 	 make_residue_spec(res_spec_scm);
@@ -1548,7 +1548,7 @@ PyObject *regularize_residues_with_alt_conf_py(int imol, PyObject *r, const char
 std::vector<coot::residue_spec_t> py_to_residue_specs(PyObject *r) {
   std::vector<coot::residue_spec_t> residue_specs;
   int r_length = PyObject_Length(r);
-  for (unsigned int i=0; i<r_length; i++) {
+  for (int i=0; i<r_length; i++) {
     PyObject *res_spec_py = PyList_GetItem(r, i);
     std::pair<bool, coot::residue_spec_t> res_spec =
       make_residue_spec_py(res_spec_py);
@@ -3275,7 +3275,7 @@ int quick_save() {
 
    // std::cout << "Quick save..." << std::endl;
    graphics_info_t g;
-   for (unsigned int imol=0; imol<graphics_n_molecules(); imol++) {
+   for (int imol=0; imol<graphics_n_molecules(); imol++) {
       g.molecules[imol].quick_save();
    }
 
@@ -3621,7 +3621,7 @@ SCM get_refmac_sad_atom_info_scm() {
 
   SCM r = SCM_EOL;
   std::vector<coot::refmac::sad_atom_info_t> sad_atoms = graphics_info_t::refmac_sad_atoms;
-  for (int i=0; i<sad_atoms.size(); i++) {
+  for (unsigned int i=0; i<sad_atoms.size(); i++) {
     SCM ls = SCM_EOL;
     std::string atom_name = sad_atoms[i].atom_name;
     float fp = sad_atoms[i].fp;
@@ -3658,7 +3658,7 @@ PyObject *get_refmac_sad_atom_info_py() {
   PyObject *r = PyList_New(0);
 
   std::vector<coot::refmac::sad_atom_info_t> sad_atoms = graphics_info_t::refmac_sad_atoms;
-  for (int i=0; i<sad_atoms.size(); i++) {
+  for (unsigned int i=0; i<sad_atoms.size(); i++) {
     PyObject *ls = PyList_New(0);
     std::string atom_name = sad_atoms[i].atom_name;
     float fp = sad_atoms[i].fp;
@@ -6124,7 +6124,7 @@ rigid_body_refine_by_residue_ranges_scm(int imol, SCM residue_ranges) {
       SCM rr_length_scm = scm_length(residue_ranges);
       int rr_length = scm_to_int(rr_length_scm);
       if (rr_length > 0) {
-	 for (unsigned int irange=0; irange<rr_length; irange++) {
+	 for (int irange=0; irange<rr_length; irange++) {
 	    SCM range_scm = scm_list_ref(residue_ranges, SCM_MAKINUM(irange));
 	    if (scm_is_true(scm_list_p(range_scm))) {
 	       SCM range_length_scm = scm_length(range_scm);
@@ -6181,7 +6181,7 @@ rigid_body_refine_by_residue_ranges_py(int imol, PyObject *residue_ranges) {
    if (PyList_Check(residue_ranges)) { 
       int rr_length = PyObject_Length(residue_ranges);
       if (rr_length > 0) {
-	 for (unsigned int irange=0; irange<rr_length; irange++) {
+	 for (int irange=0; irange<rr_length; irange++) {
 	   PyObject *range_py = PyList_GetItem(residue_ranges, irange);
 	   if (PyList_Check(range_py)) {
 	     int range_length = PyObject_Length(range_py);
@@ -7534,7 +7534,7 @@ protein_db_loops_py(int imol_coords, PyObject *residue_specs_py, int imol_map, i
       std::pair<std::pair<int, int>, std::vector<int> > p = 
 	 protein_db_loops(imol_coords, specs, imol_map, nfrags, preserve_residue_names);
       PyObject *mol_list_py = PyList_New(p.second.size());
-      for (int i=0; i< p.second.size(); i++)
+      for (unsigned int i=0; i< p.second.size(); i++)
         PyList_SetItem(mol_list_py, i, PyInt_FromLong(p.second[i]));
       r = PyList_New(2);
       PyObject *loop_molecules = PyList_New(2);
