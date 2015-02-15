@@ -1818,13 +1818,13 @@ void gln_asn_b_factor_outliers(int imol) {
 	 if (v.size() > 0) {
 	    // c-interface-preferences unformatted dots reader had
 	    // interesting code to make an interesting-places gui:
-	    for (int i=0; i<v.size(); i++) {
+	    for (unsigned int i=0; i<v.size(); i++) {
 	       std::cout << v[i].second << std::endl;
 	    }
 #if defined USE_GUILE && !defined WINDOWS_MINGW
 	    graphics_info_t g;
 	    std::vector<coot::util::atom_spec_and_button_info_t> outlier_atoms;
-	    for (int i=0; i<v.size(); i++) {
+	    for (unsigned int i=0; i<v.size(); i++) {
 	       std::string callback_func = "(lambda() (do-180-degree-side-chain-flip ";
 	       callback_func += coot::util::int_to_string(imol);
 	       callback_func += " ";
@@ -1902,13 +1902,13 @@ void gln_asn_b_factor_outliers_py(int imol) {
 	 if (v.size() > 0) {
 	    // c-interface-preferences unformatted dots reader had
 	    // interesting code to make an interesting-places gui:
-	    for (int i=0; i<v.size(); i++) {
+	    for (unsigned int i=0; i<v.size(); i++) {
 	       std::cout << v[i].second << std::endl;
 	    }
 #ifdef USE_PYGTK
             graphics_info_t g;
             std::vector<coot::util::atom_spec_and_button_info_t> outlier_atoms;
-            for (int i=0; i<v.size(); i++) {
+            for (unsigned int i=0; i<v.size(); i++) {
                std::string callback_func = "[do_180_degree_side_chain_flip,";
                callback_func += coot::util::int_to_string(imol);
                callback_func += ",";

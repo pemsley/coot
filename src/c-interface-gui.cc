@@ -5481,28 +5481,27 @@ GtkWidget *wrapped_create_residue_editor_select_monomer_type_dialog() {
 #endif
 
 
-#if (GTK_MAJOR_VERSION > 1) 
 void show_restraints_editor_by_index(int menu_item_index) {
    
    graphics_info_t g;
    std::vector<std::string> v = g.Geom_p()->monomer_types();
-   for (int i=0; i<v.size(); i++) {
-      if (i==menu_item_index)
-	 show_restraints_editor(v[i].c_str());
+   for (unsigned int i=0; i<v.size(); i++) {
+      int i_int = i;
+      if (i_int==menu_item_index)
+	 show_restraints_editor(v[i_int].c_str());
    }
 } 
-#endif
 
-#if (GTK_MAJOR_VERSION > 1) 
+
 void clear_restraints_editor_by_dialog(GtkWidget *dialog) { /* close button pressed */
    graphics_info_t g;
    g.clear_restraints_editor_by_dialog(dialog);
 }
-#endif
 
 
 
-#if (GTK_MAJOR_VERSION > 1) 
+
+
 void show_restraints_editor(const char *monomer_type) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
@@ -5526,7 +5525,6 @@ void show_restraints_editor(const char *monomer_type) {
    }
 }
 
-#endif
 
 
 // ===================================================================
@@ -6067,7 +6065,7 @@ GtkWidget *wrapped_create_generic_objects_dialog() {
 
    if (generic_objects_dialog_table) {
 
-      int n_objs = g.generic_objects_p->size();
+      unsigned int n_objs = g.generic_objects_p->size();
 
       gtk_table_resize(GTK_TABLE(generic_objects_dialog_table), n_objs, 2);
       for (unsigned int io=0; io<n_objs; io++) {

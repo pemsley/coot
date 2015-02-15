@@ -133,7 +133,7 @@ scm_symop_strings_to_space_group(SCM symop_string_list) {
       SCM n_scm = scm_length(symop_string_list);
       int n = scm_to_int(n_scm);
       std::string sgo;
-      for (unsigned int i=0; i<n; i++) {
+      for (int i=0; i<n; i++) {
 	 SCM s = scm_list_ref(symop_string_list, SCM_MAKINUM(i));
 	 std::string se = scm_to_locale_string(s);
 	 sgo += se;

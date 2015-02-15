@@ -280,12 +280,12 @@ molecule_class_info_t::delete_any_link_containing_residue(const coot::residue_sp
 
    if (atom_sel.mol) {
       int n_models = atom_sel.mol->GetNumberOfModels();
-      for (unsigned int imod=1; imod<=n_models; imod++) {
+      for (int imod=1; imod<=n_models; imod++) {
 	 mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
 	 if ((res_spec.model_number == imod) || (res_spec.model_number == mmdb::MinInt4)) {
 	    mmdb::LinkContainer *links = model_p->GetLinks();
 	    int n_links = model_p->GetNumberOfLinks();
-	    for (unsigned int ilink=1; ilink<=n_links; ilink++) { 
+	    for (int ilink=1; ilink<=n_links; ilink++) { 
 	       mmdb::Link *link_p = model_p->GetLink(ilink);
 	       // mmdb::Link *link = static_cast<mmdb::Link *>(links->GetContainerClass(ilink));
 
@@ -318,7 +318,7 @@ molecule_class_info_t::delete_link(mmdb::Link *link, mmdb::Model *model_p) {
    
    std::vector<mmdb::Link *> saved_links;
    int n_links = model_p->GetNumberOfLinks();
-   for (unsigned int ilink=1; ilink<=n_links; ilink++) {
+   for (int ilink=1; ilink<=n_links; ilink++) {
       mmdb::Link *model_link = model_p->GetLink(ilink);
       if (model_link != link) { 
 	 mmdb::Link *copy_link = new mmdb::Link(*model_link);
@@ -356,7 +356,7 @@ molecule_class_info_t::move_reference_chain_to_symm_chain_position(coot::Symm_At
       if (err_1 == 0) { 
 	 if (err_2 == 0) {
 	    mmdb::Chain *moving_chain = atom_sel.atom_selection[naii.atom_index]->residue->chain;
-	    for (unsigned int iat=0; iat<atom_sel.n_selected_atoms; iat++) {
+	    for (int iat=0; iat<atom_sel.n_selected_atoms; iat++) {
 	       mmdb::Atom *at = atom_sel.atom_selection[iat];
 	       if (at->residue->chain == moving_chain) { 
 		  at->Transform(pre_shift_matt);

@@ -558,7 +558,7 @@ PyObject *list_extra_restraints_py(int imol) {
       graphics_info_t g;
       if (graphics_info_t::molecules[imol].extra_restraints.has_restraints()) {
 	 r = PyList_New(0);
-	 for (int ib=0; ib<g.molecules[imol].extra_restraints.bond_restraints.size(); ib++) {
+	 for (unsigned int ib=0; ib<g.molecules[imol].extra_restraints.bond_restraints.size(); ib++) {
 	    coot::atom_spec_t spec_1 = g.molecules[imol].extra_restraints.bond_restraints[ib].atom_1;
 	    coot::atom_spec_t spec_2 = g.molecules[imol].extra_restraints.bond_restraints[ib].atom_2;
 	    double d = g.molecules[imol].extra_restraints.bond_restraints[ib].bond_dist;
@@ -574,7 +574,7 @@ PyObject *list_extra_restraints_py(int imol) {
 	    PyList_Append(r, l);
 	 }
 	 
-	 for (int it=0; it<g.molecules[imol].extra_restraints.angle_restraints.size(); it++) {
+	 for (unsigned int it=0; it<g.molecules[imol].extra_restraints.angle_restraints.size(); it++) {
 	    coot::atom_spec_t spec_1 = g.molecules[imol].extra_restraints.angle_restraints[it].atom_1;
 	    coot::atom_spec_t spec_2 = g.molecules[imol].extra_restraints.angle_restraints[it].atom_2;
 	    coot::atom_spec_t spec_3 = g.molecules[imol].extra_restraints.angle_restraints[it].atom_3;
@@ -593,7 +593,7 @@ PyObject *list_extra_restraints_py(int imol) {
 	    PyList_Append(r, l);
 	 }
 	 
-	 for (int it=0; it<g.molecules[imol].extra_restraints.torsion_restraints.size(); it++) {
+	 for (unsigned int it=0; it<g.molecules[imol].extra_restraints.torsion_restraints.size(); it++) {
 	    coot::atom_spec_t spec_1 = g.molecules[imol].extra_restraints.torsion_restraints[it].atom_1;
 	    coot::atom_spec_t spec_2 = g.molecules[imol].extra_restraints.torsion_restraints[it].atom_2;
 	    coot::atom_spec_t spec_3 = g.molecules[imol].extra_restraints.torsion_restraints[it].atom_3;
@@ -617,7 +617,7 @@ PyObject *list_extra_restraints_py(int imol) {
 	    PyList_Append(r, l);
 	 }
 	 
-	 for (int is=0; is<g.molecules[imol].extra_restraints.start_pos_restraints.size(); is++) {
+	 for (unsigned int is=0; is<g.molecules[imol].extra_restraints.start_pos_restraints.size(); is++) {
 	    coot::atom_spec_t spec_1 = g.molecules[imol].extra_restraints.start_pos_restraints[is].atom_1;
 	    double esd = g.molecules[imol].extra_restraints.start_pos_restraints[is].esd;
 	    PyObject *spec_1_py = atom_spec_to_py(spec_1);
@@ -819,7 +819,7 @@ add_initial_position_restraints(int imol, const std::vector<coot::residue_spec_t
 	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
 	    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	    for (int iat=0; iat<n_residue_atoms; iat++) {
 	       mmdb::Atom *at = residue_atoms[iat];
 	       add_extra_start_pos_restraint(imol,
 					     at->GetChainID(), 
