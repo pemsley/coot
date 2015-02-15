@@ -101,6 +101,7 @@
 
 #include "c-interface.h" // for toggle idle function
 #include "cc-interface.hh"
+#include "cc-interface-scripting.hh"
 #include "globjects.h"  // string
 
 #include "coot-database.hh"

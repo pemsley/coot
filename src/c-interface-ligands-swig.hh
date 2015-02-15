@@ -11,6 +11,10 @@ std::pair<mmdb::Residue *, int>
 new_molecule_sans_biggest_ligand(int imol);
 
 
+// return a new molecule number
+int get_monomer_molecule_by_network_and_dict_gen(const std::string &text);
+
+
 #ifdef USE_GUILE
 // Create a new molecule, which is a copy of this molecule without the
 // biggest hetgroup.

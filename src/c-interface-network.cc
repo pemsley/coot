@@ -42,6 +42,7 @@
 
 #include "guile-fixups.h"
 #include "cc-interface.hh"
+#include "cc-interface-scripting.hh"
 #include "cc-interface-network.hh"
 
 // #include "c-interface.h" // for coot_version().  Do we really need all of that..?

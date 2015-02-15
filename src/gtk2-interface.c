@@ -14418,13 +14418,17 @@ create_libcheck_monomer_dialog (void)
   GtkWidget *label151;
   GtkWidget *libcheck_monomer_entry;
   GtkWidget *label152;
+  GtkWidget *get_monomer_no_entry_frame;
+  GtkWidget *alignment160;
+  GtkWidget *label785;
+  GtkWidget *label784;
   GtkWidget *dialog_action_area43;
   GtkWidget *hbox81;
   GtkWidget *libcheck_monomer_ok_button;
   GtkWidget *libcheck_monomer_cancel_button;
 
   libcheck_monomer_dialog = gtk_dialog_new ();
-  gtk_window_set_title (GTK_WINDOW (libcheck_monomer_dialog), _("Get monomer molecule from libcheck"));
+  gtk_window_set_title (GTK_WINDOW (libcheck_monomer_dialog), _("Get monomer molecule"));
   gtk_window_set_type_hint (GTK_WINDOW (libcheck_monomer_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
   dialog_vbox43 = GTK_DIALOG (libcheck_monomer_dialog)->vbox;
@@ -14473,6 +14477,24 @@ create_libcheck_monomer_dialog (void)
   gtk_label_set_justify (GTK_LABEL (label152), GTK_JUSTIFY_CENTER);
   gtk_misc_set_padding (GTK_MISC (label152), 10, 2);
 
+  get_monomer_no_entry_frame = gtk_frame_new (NULL);
+  gtk_box_pack_start (GTK_BOX (vbox105), get_monomer_no_entry_frame, TRUE, TRUE, 2);
+  gtk_container_set_border_width (GTK_CONTAINER (get_monomer_no_entry_frame), 6);
+
+  alignment160 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_show (alignment160);
+  gtk_container_add (GTK_CONTAINER (get_monomer_no_entry_frame), alignment160);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment160), 0, 0, 12, 0);
+
+  label785 = gtk_label_new (_("\n\nWe don't have the entry for this.\n\nShall I go and get it?\n\n"));
+  gtk_widget_show (label785);
+  gtk_container_add (GTK_CONTAINER (alignment160), label785);
+
+  label784 = gtk_label_new (_("<b>It isn't here</b>"));
+  gtk_widget_show (label784);
+  gtk_frame_set_label_widget (GTK_FRAME (get_monomer_no_entry_frame), label784);
+  gtk_label_set_use_markup (GTK_LABEL (label784), TRUE);
+
   dialog_action_area43 = GTK_DIALOG (libcheck_monomer_dialog)->action_area;
   gtk_widget_show (dialog_action_area43);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area43), GTK_BUTTONBOX_END);
@@ -14513,6 +14535,10 @@ create_libcheck_monomer_dialog (void)
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, label151, "label151");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, libcheck_monomer_entry, "libcheck_monomer_entry");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, label152, "label152");
+  GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, get_monomer_no_entry_frame, "get_monomer_no_entry_frame");
+  GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, alignment160, "alignment160");
+  GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, label785, "label785");
+  GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, label784, "label784");
   GLADE_HOOKUP_OBJECT_NO_REF (libcheck_monomer_dialog, dialog_action_area43, "dialog_action_area43");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, hbox81, "hbox81");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, libcheck_monomer_ok_button, "libcheck_monomer_ok_button");

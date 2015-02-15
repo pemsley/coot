@@ -35,6 +35,7 @@
 
 #include "c-interface.h"
 #include "cc-interface.hh"
+#include "cc-interface-scripting.hh"
 #include "graphics-info.h"
 
 /*  ----------------------------------------------------------------------- */

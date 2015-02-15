@@ -98,6 +98,7 @@
 #endif // USE_PYTHON
 
 #include "cc-interface.hh"
+#include "cc-interface-scripting.hh"
 #include "c-interface-python.hh"
 
 

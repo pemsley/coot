@@ -18,6 +18,7 @@ check-for-updates.scm  prodrg-import.scm  gui-hole.scm	  gui-prosmart.scm \
 get-recent-pdbe.scm  json-reader.scm      jligand.scm      jligand-gui.scm \
 redefine-functions.scm user-define-restraints.scm template-key-bindings.scm \
 gui-add-linked-cho.scm ligand-check.scm   run-mogul.scm  \
-contact-score-isolated-ligand.scm enhanced-ligand.scm
+contact-score-isolated-ligand.scm enhanced-ligand.scm \
+dictionary-generators.scm
 
 # scheme_TEXINFOS = ... something generated?  More reading needed.

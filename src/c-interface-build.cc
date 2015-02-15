@@ -85,6 +85,7 @@
 
 #include "c-interface.h"
 #include "cc-interface.hh"
+#include "cc-interface-scripting.hh"
 
 #include "ligand/ligand.hh" // for rigid body fit by atom selection.
 
@@ -7068,6 +7069,8 @@ int get_monomer(const char *three_letter_code) {
 
    return imol;
 }
+
+
 
 /* Use the protein geometry dictionary to retrieve a set of
    coordinates quickly.  There are no restraints from this method

@@ -7,6 +7,7 @@
 
 #include "graphics-info.h"
 #include "cc-interface.hh" // for pythonize_command_name()
+#include "cc-interface-scripting.hh"
 #include "c-interface-scm.hh"
 
 coot::command_arg_t

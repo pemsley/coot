@@ -3731,11 +3731,8 @@
 	  (let* ((stat-data (stat cif-file-name))
 		 (l (stat:size stat-data)))
 	    (if (> l 0)
-		(begin
-		  (read-cif-dictionary cif-file-name)
-		  (let ((s2 (SMILES-for-comp-id comp-id)))
-		    (if (string? s2)
-			s2)))
+		cif-file-name
+
 		;; give a dialog, saying that the file will not be
 		;; overwritten
 		(begin

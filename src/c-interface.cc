@@ -117,6 +117,7 @@
 
 #include "c-interface.h"
 #include "cc-interface.hh"
+#include "cc-interface-scripting.hh"
 #include "c-interface-ligands.hh"
 
 #include "coot-version.hh"
