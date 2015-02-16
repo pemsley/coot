@@ -26,7 +26,7 @@ dnl
 dnl Process this file with autoconf to produce a configure script.
 
 # AC_INIT package-name version-number
-AC_INIT(configure.in)
+AC_INIT(configure.ac)
 
 AM_INIT_AUTOMAKE(coot, 0.8.2-pre)
 # for old versions of automake
