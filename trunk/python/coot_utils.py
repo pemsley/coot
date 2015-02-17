@@ -2548,106 +2548,115 @@ def pukka_puckers_qm(imol):
 #
 def new_molecule_by_smiles_string(tlc_text, smiles_text):
 
-#     if enhanced_ligand_coot_p():
-#         return new_molecule_by_smiles_string_by_pyrogen(tlc_text, smiles_text)
+    def use_libcheck(three_letter_code):
 
-   return new_molecule_by_smiles_string_by_libcheck(tlc_text, smiles_text)
+        import shutil
+        
+        smiles_file = "coot-" + three_letter_code + ".smi"
+        libcheck_data_lines = ["N",
+                               "MON " + three_letter_code,
+                               "FILE_SMILE " + smiles_file,
+                               ""]
+        log_file_name = "libcheck-" + three_letter_code + ".log"
+        pdb_file_name = "libcheck_" + three_letter_code + ".pdb"
+        cif_file_name = "libcheck_" + three_letter_code + ".cif"
 
-    
-def new_molecule_by_smiles_string_by_libcheck(tlc_text, smiles_text):
-    import shutil
+        # write the smiles string to a file
+        smiles_input = file(smiles_file,'w')
+        smiles_input.write(smiles_text)
+        smiles_input.close()
+        
+        libcheck_exe_file = find_exe(libcheck_exe, "CCP4_BIN", "PATH")
+        
+        if (not libcheck_exe_file):
+            print " BL WARNING:: libcheck not found!"
+        else:
+            status = popen_command(libcheck_exe_file, [], libcheck_data_lines,
+                                   log_file_name, True)
+            # the output of libcheck goes to libcheck.lib, we want it in
+            # (i.e. overwrite the minimal description in cif_file_name
+            if isNumber(status):
+                if (status == 0):
+                    if (os.path.isfile("libcheck.lib")):
+                        # copy rather than rename file to avoid accession issues
+                        shutil.copy("libcheck.lib", cif_file_name)
+                        sc = rotation_centre()
+                        imol = handle_read_draw_molecule_with_recentre(pdb_file_name, 0)
+                        if (is_valid_model_molecule(imol)):
+                            mc = molecule_centre(imol)
+                            sc_mc = [sc[i]-mc[i] for i in range(len(mc))]
+                            translate_molecule_by(imol, *sc_mc)
+                        read_cif_dictionary(cif_file_name)
+            else:
+                print "OOPs.. libcheck returned exit status", status
+
+    def use_pyrogen(three_letter_code):
+        
+        global use_mogul
+        
+        # OK let's run pyrogen
+        log_file_name = "pyrogen.log"
+
+        # Embed a test for mogul
+        #
+        if use_mogul:
+            args = ["--residue-type", tlc_text, smiles_text]
+        else:
+            if command_in_path_qm("mogul"):
+                args = ["--residue-type", tlc_text, smiles_text]
+            else:
+                args = ["--no-mogul", "-M", "--residue-type", tlc_text, smiles_text]
+
+        # BL says:: may have to find pyrogen first?!
+        status = popen_command("pyrogen", args, [], log_file_name, True)
+        if (status == 0):
+            pdb_file_name = tlc_text + "-pyrogen.pdb"
+            cif_file_name = tlc_text + "-pyrogen.cif"
+            sc = rotation_centre()
+            imol = handle_read_draw_molecule_with_recentre(pdb_file_name, 0)
+            if (is_valid_model_molecule(imol)):
+                mc = molecule_centre(imol)
+                sc_mc = [sc[i]-mc[i] for i in range(len(mc))]
+                translate_molecule_by(imol, *sc_mc)
+            read_cif_dictionary(cif_file_name)
+
     if len(smiles_text) > 0:
-
+        
         if ((len(tlc_text) > 0) and (len(tlc_text) < 4)):
             three_letter_code = tlc_text
         elif (len(tlc_text) > 0):
             three_letter_code = tlc_text[0:3]
         else:
             three_letter_code = "DUM"
-            
-        if enhanced_ligand_coot_p():
-            return new_molecule_by_smiles_string_by_pyrogen(three_letter_code,
-                                                            smiles_text)
+
+        if not enhanced_ligand_coot_p():
+            use_libcheck(three_letter_code)
         else:
-            return new_molecule_by_smiles_string_by_libcheck(three_letter_code,
-                                                             smiles_text)
+            use_pyrogen(three_letter_code)
     else:
         # invalid smiles length
         print "BL WARNING:: no smiles text found. Bailing out."
         return False
     
-def new_molecule_by_smiles_string_by_libcheck(tlc_text, smiles_text):
-    import shutil
-
-    # ok let's run libcheck
-    smiles_file = "coot-" + three_letter_code + ".smi"
-    libcheck_data_lines = ["N",
-                           "MON " + three_letter_code,
-                           "FILE_SMILE " + smiles_file,
-                           ""]
-    log_file_name = "libcheck-" + three_letter_code + ".log"
-    pdb_file_name = "libcheck_" + three_letter_code + ".pdb"
-    cif_file_name = "libcheck_" + three_letter_code + ".cif"
-
-    smiles_input = file(smiles_file,'w')
-    smiles_input.write(smiles_text)
-    smiles_input.close()
-    # now let's run libcheck (based on libcheck.py)
-    libcheck_exe_file = find_exe(libcheck_exe, "CCP4_BIN", "PATH")
-
-    if (not libcheck_exe_file):
-        print " BL WARNING:: libcheck not found!"
-    else:
-        status = popen_command(libcheck_exe_file, [], libcheck_data_lines, log_file_name, True)
-        # the output of libcheck goes to libcheck.lib, we want it in
-        # (i.e. overwrite the minimal description in cif_file_name
-        if (status == 0):
-            if (os.path.isfile("libcheck.lib")):
-                # copy rather than rename file to avoid accession issues
-                shutil.copy("libcheck.lib", cif_file_name)
-                sc = rotation_centre()
-                imol = handle_read_draw_molecule_with_recentre(pdb_file_name, 0)
-                if (is_valid_model_molecule(imol)):
-                    mc = molecule_centre(imol)
-                    sc_mc = [sc[i]-mc[i] for i in range(len(mc))]
-                    translate_molecule_by(imol, *sc_mc)
-                read_cif_dictionary(cif_file_name)
-        else:
-            print "OOPs.. libcheck returned exit status", status
-
-def new_molecule_by_smiles_string_by_pyrogen(comp_id, smiles_string):
-
-   if len(comp_id) > 0:
-      if len(smiles_string) > 0:
-         if command_in_path_qm('pyrogen'):
-            stub = comp_id + "-pyrogen-from-coot" 
-            log_file_name = stub + ".log"
-            pdb_file_name = stub + ".pdb"
-            cif_file_name = stub + ".cif"
-            args=['-M', '-n', '-r', comp_id, '-o', 'pyrogen-from-coot', smiles_string]
-            if command_in_path_qm('mogul'):
-               args=['-M', '-r', comp_id, '-o', 'pyrogen-from-coot', smiles_string]
-            status = popen_command('pyrogen', args, [], log_file_name, True)
-            if (status == 0):
-               handle_read_draw_molecule_and_move_molecule_here(pdb_file_name)
-               read_cif_dictionary(cif_file_name)
-         else:
-            print 'Ooops - pyrogen not in path'
-                
 
 # new for ace_drg (not test as BL not running yet), scheme has error...
 # stud is a stub until acedrg is running. Scheme code doesnt make sense
 # this one currently neither.
-def new_molecule_by_smiles_string_by_acedrg(comp_id, smiles_str):
+def new_molecule_by_smiles_string_by_acedrg(tlc_str, smiles_str):
 
     smi_file = "acedrg-in.smi"
+    
+    # dump the smiles string to a file
+    smiles_input = file(smi_file,'w')
+    smiles_input.write(smiles_str)
+    smiles_input.close()
     
     stub = "acedrg-" + comp_id 
     pdb_out_file_name = stub + ".pdb"
     cif_out_file_name = stub + ".cif"
 
-    args = ["-i", smi_file, "-r", smiles_str, "-o", stub]
-    log_file_name = "acedrg-" + smiles_str + ".log"
+    args = ["-i", smi_file, "-r", tlc_str, "-o", stub]
+    log_file_name = "acedrg-" + tlc_str + ".log"
     if command_in_path_qm("acedrg"):
         status = popen_command("acedrg", args, [], log_file_name, True)
         if (status == 0):
