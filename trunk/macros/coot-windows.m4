@@ -26,6 +26,7 @@ AC_MSG_CHECKING([if this is MINGW on Windows])
 
  COOT_WINDOWS_CFLAGS=
  COOT_WINDOWS_LDFLAGS=
+ SHARED_LDFLAGS=
  have_windows_mingw=no
  windows=false
 
@@ -38,6 +39,9 @@ AC_MSG_CHECKING([if this is MINGW on Windows])
     COOT_WINDOWS_CFLAGS="-DWINDOWS_MINGW -DUSE_GNOME_CANVAS"
     # BL says:: may need rethink for shared compilation of course!!
     COOT_WINDOWS_LDFLAGS="-static -lstdc++"
+    if test $enable_shared = yes ; then
+       SHARED_LDFLAGS="-no-undefined"
+    fi
     have_windows_mingw=yes
     windows=true
     ;;
@@ -47,6 +51,7 @@ AM_CONDITIONAL([OS_WIN32], [test x$windows = xtrue])
 AC_MSG_RESULT([$have_windows_mingw])
 AC_SUBST(COOT_WINDOWS_CFLAGS)
 AC_SUBST(COOT_WINDOWS_LDFLAGS)
+AC_SUBST(SHARED_LDFLAGS)
 
 ])
 
