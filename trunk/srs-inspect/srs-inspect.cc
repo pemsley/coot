@@ -15,10 +15,10 @@ file_exists(const std::string &filename) {
 
    struct stat s;
    int fstat = stat(filename.c_str(), &s);
-   if ( fstat == -1 ) { // file not exist
-      return 0;
+   if (fstat == -1) { // file not exist
+      return false;
    } else {
-      return 1;
+      return true;
    }
 }
 
@@ -58,8 +58,13 @@ int main(int argc, char **argv) {
    if (argc > 1)
       refmac_monomer_dir = argv[1];
 
-   if (argc > 1)
-      srs_dir = argv[1];
+   if (argc > 2)
+      srs_dir = argv[2];
+
+   if (argc == 1) {
+      std::cout << "usage " << argv[0] << " refmac-monomers-dir srs-dir " << std::endl;
+      std::cout << "      " << " defaults monomers . " << std::endl;
+   }
 
    ccp4srs::Manager *srs = new ccp4srs::Manager();
    int rc = srs->loadIndex(srs_dir.c_str());
@@ -70,12 +75,11 @@ int main(int argc, char **argv) {
    } else {
 
       int l = srs->n_entries();
+      std::cout << "found " << l << " entries in SRS" << std::endl;
       for (int i=0; i<l ;i++)  {
 	 ccp4srs::Monomer  *Monomer = srs->getMonomer(i, NULL);
 	 if (Monomer)  {
-	    // std::cout << "   " << Monomer->ID() << std::endl;
 	    std::string id = Monomer->ID();
-
 	    if (id.length()) { 
 
 	       if (! exists_in_refmac(id, refmac_monomer_dir)) {
