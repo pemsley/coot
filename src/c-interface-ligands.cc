@@ -66,6 +66,9 @@
 #include "c-interface-ligands-swig.hh"
 #include "guile-fixups.h"
 
+#include "get-monomer.hh"
+
+
 #ifdef HAVE_GOOCANVAS
 #include <goocanvas.h>
 #include "lbg/wmolecule.hh"

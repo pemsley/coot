@@ -104,7 +104,7 @@ void hole(int imol, float start_x, float start_y, float start_z, float end_x, fl
       }
 
       std::pair<int, int> geom(160, 400);
-      simple_text_dialog("Probe radius data", text, geom);
+      simple_text_dialog("Probe radius data", text, geom.first, geom.second);
 
       if (show_probe_radius_graph_flag)
 	 show_hole_probe_radius_graph(hole_path_and_surface.first, path_length);
