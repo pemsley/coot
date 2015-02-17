@@ -244,6 +244,54 @@ class UsingActiveAtom:
             return True
         pass
 
+def coot_home():
+    """Return the normalized HOME directory (or COOT_HOME on Windows).
+    If not available, return False"""
+    import os
+    global have_mingw
+    
+    home = os.getenv('HOME')
+    if (os.name == 'nt' and not have_mingw):
+        home = os.getenv('COOT_HOME')
+    if not home:
+        # no home!? Poor you.
+        return False
+    else:
+        return os.path.normpath(home)
+
+    
+    
+# make the directory and return the directory name. If you cant make
+# it directly in this directory try to make it in $HOME. Return False
+# if complete failure. e.g. coot-ccp4 or coot-backup
+#
+def get_directory(dir_name):
+    """make the directory and return the directory name. If you cant make
+    it directly in this directory try to make it in $HOME. Return False
+    if complete failure. e.g. coot-ccp4 or coot-backup"""
+
+    import os
+    if os.path.isdir(dir_name):
+        return dir_name
+    if os.path.isfile(dir_name):
+        return False
+    else:
+        status = make_directory_maybe(dir_name)
+        if (status == 0):
+            return dir_name
+        else:
+            h = coot_home()
+            if not h:
+                # failed to get home!? Mmmh
+                return False
+            else:
+                new_dir = os.path.join(h, dir_name)
+                status = make_directory_maybe(new_dir)
+                if (status == 0):
+                    return new_dir
+                else:
+                    return False
+            
 
 # Pythonize function: return a python boolean.
 #
@@ -898,18 +946,30 @@ def read_pdb_all():
         read_pdb(file)
     set_recentre_on_read_pdb(recentre_status)
 
-# return False if dir_name is a file or we can't do the mkdir
+# return the dir-name on success.
+#
+# return False if dir_name is a file or we can't do the mkdir.
+#
 def coot_mkdir(dir_name):
-  import os
-  if (os.path.isfile(dir_name)):
-     return False
-  else:
-     if (os.path.isdir(dir_name)):
-       return True
-     else:
-       os.mkdir(dir_name)
-       return True
-
+    """return the dir-name on success.
+    
+    return False if dir_name is a file or we can't do the mkdir."""
+    import os
+  
+    if (os.path.isfile(dir_name)):
+        return False
+    else:
+        if (os.path.isdir(dir_name)):
+            return dir_name
+        else:
+            try:
+                os.mkdir(dir_name)
+                return dir_name 
+            except:
+                # failed to do a mkdir
+                # better to return false
+                return False
+            
 # return the view matrix (useful for molscript, perhaps).
 # BL says: like all matrices is a python list [...]
 #
@@ -3269,45 +3329,54 @@ def get_SMILES_for_comp_id_from_pdbe(comp_id):
         if isinstance(s, str):
             return s
         else:
-            cif_file_name = os.path.join("coot-download",
-                                         "PDBe-" + comp_id + ".cif")
-            url = "ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/" + \
-                  comp_id + \
-                  ".cif"
-            make_directory_maybe("coot-download")
-            if os.path.isfile(cif_file_name):
-                # try the filesystem cache
-                l = os.stat(cif_file_name).st_size
-                if (l > 0):
-                    read_cif_dictionary(cif_file_name)
-                    s2 = SMILES_for_comp_id(comp_id)
-                    if isinstance(s2, str):
-                        return s2
-                else:
-                    # give a dialog, saying that the file will not be
-                    # overwritten
-                    msg = cif_file_name + \
-                          " exists but is empty." + \
-                          "\nNot overwriting."
-                    info_dialog(msg)
-                    return False
-            # use network then
-            print "BL INFO:: getting url:", url
-            state = coot_get_url(url, cif_file_name)
-            if (state != 0):
-                msg = "Problem downloading\n" + \
-                      url + "\n to file \n" + \
-                      cif_file_name + \
-                      "."
-                info_dialog(msg)
-                return False
-            else:
+            cif_file_name = get_pdbe_cif_for_comp_id(comp_id)
+            if isinstance(cif_file_name, str):
                 read_cif_dictionary(cif_file_name)
                 s = SMILES_for_comp_id(comp_id)
-                if isinstance(s, str):
-                    return s
-        # something probably went wrong if we got to here
+                return s
+            
+# return False or a file_name
+#
+def get_pdbe_cif_for_comp_id(comp_id):
+    """return False or a file_name"""
+
+    download_dir = get_directory("coot-download")
+    cif_file_name = os.path.join(download_dir,
+                                 "PDBe-" + comp_id + ".cif")
+    url = "ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/" + \
+          comp_id + \
+          ".cif"
+    
+    if os.path.isfile(cif_file_name):
+        # try the filesystem cache
+        stat_data = os.stat(cif_file_name)
+        l = stat_data.st_size
+        if (l > 0):
+            return cif_file_name
+        else:
+            # give a dialog, saying that the file will not be
+            # overwritten
+            msg = cif_file_name + \
+                  " exists but is empty." + \
+                  "\nNot overwriting."
+            info_dialog(msg)
+            return False
+    # use network then
+    print "BL INFO:: getting url:", url
+    state = coot_get_url(url, cif_file_name)
+    if (state != 0):
+        msg = "Problem downloading\n" + \
+              url + "\n to file \n" + \
+              cif_file_name + \
+              "."
+        info_dialog(msg)
         return False
+    else:
+        # it worked!?!
+        return cif_file_name
+
+    # something probably went wrong if we got to here
+    return False
 
 # # load the redefining functions
 # try:

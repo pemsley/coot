@@ -90,14 +90,24 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
   # the exe and log_file_name (and command_lines_args perhaps)
   # relative to dir (not the calling dir)
   # BL says:: maybe this should be in coot_utils.py
-  def run_command_in_dir(run_dir, exe_name, command_line_args, data_lines, log_file_name, to_screen_flag):
+  def run_command_in_dir(run_dir, exe_name, command_line_args,
+                         data_lines, log_file_name, to_screen_flag):
     import os
+
+    print ("BL INFO:: run_command_in_dir dir:"
+           "%s exe: %s cl_args: %s data_lines: %s log_file: %s"
+           %(run_dir, exe_name, command_line_args, data_lines, log_file_name))
     current = os.getcwd()
     norm_dir = os.path.normpath(run_dir)
     os.chdir(norm_dir)
-    status = popen_command(exe_name, command_line_args, data_lines, log_file_name, to_screen_flag)
+    status = popen_command(exe_name, command_line_args, data_lines,
+                           log_file_name, to_screen_flag)
     os.chdir(current)
     return status
+
+  def log_file2text(log_file_name, dir):
+    f = os.path.join(dir, log_file_name)
+    return file2string(f)
 
   # This gets called in non-graphics mode too.
   #
@@ -134,9 +144,19 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
       print "BL INFO:: libcheck status:", libstatus
 
       if (not isNumber(libstatus)):
-        return -3
+
+        log_text = log_file2text(log_file_name, dir_prefix)
+        if (isinstance(log_text, str)):
+          simple_text_dialog("Libcheck log", log_text, 200, 400)
+          return -1
       else:
-        if (libstatus == 0):
+        if (libstatus != 0):
+
+          log_text = log_file2text(log_file_name, dir_prefix)
+          if isinstance(log_text, str):
+            simple_text_dialog("Libcheck log", log_text, 400, 400)
+            return -1
+            
           # we assume libcheck run ok
           #
           # But I now find that libcheck can run OK, but
@@ -148,6 +168,9 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
           # 
           if (not os.path.isfile(cif_file_name)):
             print "libcheck failed to write the output cif file", cif_file_name
+            log_text = log_file2text(log_file_name, dir_prefix)
+            if isinstance(log_text, str):
+              simple_text_dialog("Libcheck log", log_text, 400, 400)
             return False
           else:
             # OK, now let's run refmac:
@@ -200,8 +223,8 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
 
     # do the files exist already?  If so, just read them in.
     if (ccp4i_project_dir == ""):
-      dir_name = "coot-ccp4"
-      make_directory_maybe(dir_name)
+      target_dir_name = "coot-ccp4"
+      dir_name = get_directory(target_dir_name)
       dir_prefix = os.path.normpath(dir_name)
     else:
       dir_prefix = os.path.normpath(ccp4i_project_dir)
