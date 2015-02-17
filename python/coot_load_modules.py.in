@@ -73,6 +73,7 @@ pre_list = ["redefine_functions.py",
             "clear_backup.py",
             "tips.py",
             "prodrg_import.py",
+            "dictionary_generators.py",
             "jligand.py",
             "americanisms.py",
             "group_settings.py"]

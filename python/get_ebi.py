@@ -24,7 +24,7 @@ pdbe_file_name_tail = "ent"
 # sf example http://www.ebi.ac.uk/pdbe-srv/view/files/r4hrhsf.ent
 
 global coot_tmp_dir
-coot_tmp_dir = "coot-download"
+coot_tmp_dir = get_directory("coot-download")
 
 # e.g. (ebi-get-pdb "1crn")
 # 
@@ -181,9 +181,10 @@ def get_eds_pdb_and_mtz(id):
 
     def get_cached_eds_files(accession_code):
         down_code = string.lower(accession_code)
-        pdb_file_name = os.path.join("coot-download",
+        dir_name = get_directory("coot-download")
+        pdb_file_name = os.path.join(dir_name,
                                      "pdb" + down_code + ".ent")
-        mtz_file_name = os.path.join("coot-download",
+        mtz_file_name = os.path.join(dir_name,
                                      down_code + "_sigmaa.mtz")
 
         if not os.path.isfile(pdb_file_name):

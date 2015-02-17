@@ -313,8 +313,8 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
     global download_thread_status
     download_thread_status = None     # start
 
-    status = make_directory_maybe("coot-download")
-    if (not status == 0):
+    status = get_directory("coot-download")
+    if (not status):
         info_dialog("Failed to make download directory")
     else:
         # do it!
@@ -371,7 +371,8 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                         download_thread_status = "done"  #??
 
             # main line get_sfs_run_refmac
-            print "in get_sfs_run_refmac", sfs_cif_file_name, sfs_mtz_file_name, pdb_file_name, refmac_out_mtz_file_name
+            print "in get_sfs_run_refmac", sfs_cif_file_name,
+            sfs_mtz_file_name, pdb_file_name, refmac_out_mtz_file_name
 
             # check for cached results: only run refmac if
             # output file does not exist or is empty
