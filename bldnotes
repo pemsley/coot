@@ -1,6 +1,6 @@
  -*-text-*-
 
-scripts      rev 5476 (some prodrg stuff needs testing) generic objects, update running of jligand?! (r4782, need to use gtk.gdk.pixbuf_new_from_file() then)
+scripts      rev 5582 (some prodrg stuff needs testing) generic objects, update running of jligand?! (r4782, need to use gtk.gdk.pixbuf_new_from_file() then)
 tests        rev 5460 update
 build-it-win rev 4739 (check 0.8 pre builder, add publishing?!)
 missing script:
@@ -36,6 +36,13 @@ Windows:
  o check if    clipper::ClipperInstantiator::instance().destroy(); is still needed in c-interface-gui.cc
 
 ---- FINISH URGENT ----
+
+Tsukuba 2014:
+- toolbuttons (or such) to switch on/off helix/strand restraints
+- DB loop for guile
+- merge solvent mols in active molecule
+- Alignment vs PIR: change to use all sequences and use "all chains"
+- BUG (?):dock sequence window stuck at ~ 7 sequences
 
 ESMAX 2012:
 - add terminal residue (after assos. sequence) does not mutate automatically
@@ -408,7 +415,7 @@ low importance
 
 **** Python ****
 
-   o dont run python references if scm run.
+   o make coot_gui into a method?! Maybe resolves some issue, e.g. loosing entry
 
    o (toggle)toolbuttons for secondary structure restraints
 
@@ -975,3 +982,7 @@ Osaka 2010
 
 * Done
  
+   o dont run python references if scm run.
+
+* Done
+
