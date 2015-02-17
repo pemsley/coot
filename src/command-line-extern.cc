@@ -19,7 +19,7 @@
  */
 
 
-#if defined USE_PYTHON && !defined WINDOWS_MINGW
+#if defined USE_PYTHON 
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 // BL says:: need to exclude in Windows as conflicting getopt definitions.
 //           do we need python here at all?!
