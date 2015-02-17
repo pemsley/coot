@@ -5661,10 +5661,13 @@ SCM highly_coordinated_waters_scm(int imol, int coordination_number, float dist_
 SCM metal_coordination_scm(int imol, float dist_max);
 #endif
 #ifdef USE_PYTHON
-/*! \brief return a list of waters that are coordinated with at least
-  coordination_number of other atoms at distances less than or equal
-  to dist_max */
+/*! \brief return a list first of waters, second metals that are 
+  coordinated with at least coordination_number of other atoms at 
+  distances less than or equal to dist_max. Return Python false on 
+  not able to make a list, otherwise a list of atoms and neighours.
+  can return Python False if imol is not a valid molecule.  */
 PyObject *highly_coordinated_waters_py(int imol, int coordination_number, float dist_max);
+PyObject *metal_coordination_py(int imol, float dist_max);
 #endif
 #endif
 

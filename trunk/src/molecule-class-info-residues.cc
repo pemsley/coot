@@ -548,16 +548,16 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
    
    //clipper defaults: 0.01 0.0005
 
-   r_gly.init(clipper::Ramachandran::Gly);
+   r_gly.init(clipper::Ramachandran::Gly5);
    r_gly.set_thresholds(level_prefered, level_allowed);
    //
-   r_pro.init(clipper::Ramachandran::Pro);
+   r_pro.init(clipper::Ramachandran::Pro5);
    r_pro.set_thresholds(level_prefered, level_allowed);
    // 
-   r_non_gly_pro.init(clipper::Ramachandran::NonGlyPro);
+   r_non_gly_pro.init(clipper::Ramachandran::NonGlyPro5);
    r_non_gly_pro.set_thresholds(level_prefered, level_allowed);
 
-   r_all.init(clipper::Ramachandran::All);
+   r_all.init(clipper::Ramachandran::All5);
    r_all.set_thresholds(level_prefered, level_allowed);
 
    double zero_cut_off = 1e-6;
