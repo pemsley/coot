@@ -1263,7 +1263,7 @@ SCM align_to_closest_chain_scm(std::string target_seq, float match_fraction);
 /*                  GUIL Utility Functions                                  */
 /*  ----------------------------------------------------------------------- */
 void simple_text_dialog(const std::string &dialog_title, const std::string &text,
-			std::pair<int, int> geom);
+			int geom_x, int geom_y);
 
 // gui nuts and bolts
 void on_simple_text_dialog_close_button_pressed( GtkWidget *button,

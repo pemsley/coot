@@ -48,6 +48,8 @@
 #include "cc-interface.hh"
 #include "coot-version.hh"
 #include "command-line.hh"
+#include "get-monomer.hh"
+
 
 
 extern "C"

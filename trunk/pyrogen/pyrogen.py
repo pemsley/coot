@@ -272,7 +272,8 @@ def make_restraints_from_mdl(mol_file_name, comp_id, mogul_dir, name_stub, pdb_o
 # return a list of (mol, comp_id) pairs for every ligand in the cif
 # file.  Often only one of course.
 #
-def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir, output_postfix,
+def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir,
+                                    output_dir, output_postfix,
 				    quartet_planes, quartet_hydrogen_planes, use_mmff,
                                     pdb_out_file_name, mmcif_restraints_out_file_name):
 
@@ -284,9 +285,12 @@ def make_restraints_from_mmcif_dict(cif_file_name_in, comp_id, mogul_dir, output
       l = []
       for r_type in types:
 
-         # we need access to options.output_dir here
-         pdb_out_file_name_local = r_type + output_postfix + ".pdb"
-         mmcif_restraints_out_file_name_local = r_type + output_postfix + ".cif"
+         file_name_stub = r_type + "-" + output_postfix
+         if options.output_dir != ".":
+            file_name_stub = os.path.join(options.output_dir, file_name_stub)
+            
+         pdb_out_file_name_local              = file_name_stub + ".pdb"
+         mmcif_restraints_out_file_name_local = file_name_stub + ".cif"
          #
          t_mol = make_restraints_from_mmcif_dict_single(cif_file_name_in, r_type, mogul_dir,
                                                         output_postfix,
@@ -311,51 +315,42 @@ def make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir,
 					   quartet_planes, quartet_hydrogen_planes, use_mmff,
                                            pdb_out_file_name, mmcif_restraints_out_file_name):
 
-   # print 'in make_restraints_from_mmcif_dict() comp_id is ', comp_id
-   # print 'in make_restraints_from_mmcif_dict() cif_file_name_in is ', cif_file_name_in
+   # print 'in make_restraints_from_mmcif_dict_single() comp_id is ', comp_id
+   # print 'in make_restraints_from_mmcif_dict_single() cif_file_name_in is ', cif_file_name_in
 
    if not test_for_mogul():
        return [(None, None)]
+    
+   mogul_file_name_stub = comp_id + '-' + output_postfix # file component of files within mogul_dir
 
-   if comp_id == "TRY_ALL_COMP_IDS":
-      types = pysw.types_from_mmcif_dictionary(cif_file_name_in)
-      l = []
-      for type in types:
-	    t_mol = make_restraints_from_mmcif_dict(cif_file_name_in, type, mogul_dir, output_postfix,
-						    quartet_planes, quartet_hydrogen_planes)
-	    l.append((t_mol, type))
-      return l
-   else:
-      mogul_file_name_stub           = comp_id + '-' + output_postfix # files within mogul_dir
+   m = pyrogen_boost.rdkit_mol_chem_comp_pdbx(cif_file_name_in, comp_id)
 
-      m = pyrogen_boost.rdkit_mol_chem_comp_pdbx(cif_file_name_in, comp_id)
-
-      if False:  # debugging
-	  for atom in m.GetAtoms():
-	      try:
-		  name   = atom.GetProp('name')
-		  chir   = atom.GetProp('_CIPCode')
-		  print ' atom', atom, 'name', name, 'chir', chir
-	      except KeyError as e:
-		  print 'pyrogen.py:: atom', atom, " with name ", name, ' has no _CIPCode property'
-		  pass
+   if False:  # debugging
+      for atom in m.GetAtoms():
+         try:
+            name   = atom.GetProp('name')
+            chir   = atom.GetProp('_CIPCode')
+            print ' atom', atom, 'name', name, 'chir', chir
+         except KeyError as e:
+            print 'pyrogen.py:: atom', atom, " with name ", name, ' has no _CIPCode property'
+            pass
 
 
-      # maybe user didn't select the correct comp_id for the given dictionary mmcif
-      if m.GetNumAtoms() == 0:
-	  print 'No atoms for comp_id', comp_id
-	  return False
-      else :
+   # maybe user didn't select the correct comp_id for the given dictionary mmcif
+   if m.GetNumAtoms() == 0:
+      print 'No atoms for comp_id', comp_id
+      return False
+   else :
 
-	  name = ''
-	  try:
-	      name = m.GetProp('_Name')
-	  except KeyError:
-	      print 'caught KeyError in make_restraints_from_mmcif_dict() trying GetProp _Name'
+      name = ''
+      try:
+         name = m.GetProp('_Name')
+      except KeyError:
+         print 'caught KeyError in make_restraints_from_mmcif_dict_single() trying GetProp _Name'
 
-	  return make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub,
-				 pdb_out_file_name, mmcif_restraints_out_file_name,
-				 quartet_planes, quartet_hydrogen_planes, use_mmff, False, False, False)
+      return make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub,
+                             pdb_out_file_name, mmcif_restraints_out_file_name,
+                             quartet_planes, quartet_hydrogen_planes, use_mmff, False, False, False)
 
 
 def n_hydrogens(mol):
@@ -694,8 +689,8 @@ if __name__ == "__main__":
     
     if options.output_dir != ".":
        file_name_stub = os.path.join(options.output_dir, file_name_stub)
-       
-    pdb_out_file_name            = file_name_stub + '.pdb'
+
+    pdb_out_file_name              = file_name_stub + '.pdb'
     mmcif_restraints_out_file_name = file_name_stub + '.cif'
 
     # this is a bit ugly, perhaps.  this value is inspected inside
@@ -749,7 +744,9 @@ if __name__ == "__main__":
             match_names_flag = False
 
 	if options.mmcif_file:
-	    mol_pairs = make_restraints_from_mmcif_dict(options.mmcif_file, comp_id, options.mogul_dir,
+	    mol_pairs = make_restraints_from_mmcif_dict(options.mmcif_file, comp_id,
+                                                        options.mogul_dir,
+                                                        options.output_dir,
 							options.output_postfix,
 							options.quartet_planes,
 							quartet_hydrogen_planes,

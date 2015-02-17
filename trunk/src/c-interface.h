@@ -3269,17 +3269,6 @@ GtkWidget *wrapped_create_libcheck_monomer_dialog();
 /* Libcheck monomer code */
 void handle_get_libcheck_monomer_code(GtkWidget *widget); 
 
-/*! \brief import libcheck monomer give the 3-letter code. 
-
-@return the new molecule number, if not -1 (error). */
-int get_monomer(const char *three_letter_code);
-
-/* Use the protein geometry dictionary to retrieve a set of
-   coordinates quickly from cif data read in from the RCSB's Chemical
-   Component Library.  There are no restraints from this method
-   though. */
-int get_monomer_from_dictionary(const char *three_letter_code, int idealised_flag);
-
 
 int
 handle_make_monomer_search(const char *text, GtkWidget *viewport);

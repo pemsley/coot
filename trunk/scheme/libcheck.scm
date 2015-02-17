@@ -100,7 +100,7 @@
 
   (define (run-command-in-dir dir exe-name command-lines-args data-lines log-file-name to-screen-flag)
 
-    (format #t "run-command-in-dir args: ~s ~s ~s ~s ~s ~s~%" 
+    (format #t "run-command-in-dir dir: ~s exe: ~s cl-args: ~s data-lines: ~s log-file-name: ~s ~s~%" 
 	    dir exe-name command-lines-args data-lines log-file-name to-screen-flag)
 
     (let ((current (getcwd)))
@@ -109,6 +109,12 @@
 	     (goosh-command exe-name command-lines-args data-lines log-file-name to-screen-flag)))
 	(chdir current)
 	status)))
+
+
+  (define (log-file->text log-file-name dir)
+    (let ((f (append-dir-file dir log-file-name)))
+      (file->string f)))
+   
 
   ;; This gets called in non-graphics mode too.
   ;; 
@@ -154,8 +160,19 @@
 	(format #t "INFO:: libcheck status: ~s~%" libstatus)
 	
 	(if (not (number? libstatus))
-	    -3
-	    (if (= libstatus 0)
+
+	    (let ((log-text (log-file->text log-file-name dir-prefix)))
+	      (if (string? log-text)
+		  (simple-text-dialog "Libcheck log" log-text 200 400))
+	      -1)
+
+	    (if (not (= libstatus 0))
+
+		(let ((log-text (log-file->text log-file-name dir-prefix)))
+		  (if (string? log-text)
+		      (simple-text-dialog "Libcheck log" log-text 400 400))
+		  -1)
+
 		;; libcheck ran OK, 
 		;; 
 		;; But I now find that libcheck can run OK, but
@@ -170,6 +187,9 @@
 		    (begin
 		      (format #t "libcheck failed to write the output cif file ~s .~%"
 			      cif-file-name)
+		      (let ((log-text (log-file->text log-file-name dir-prefix)))
+			(if (string? log-text)
+			    (simple-text-dialog "Libcheck log" log-text 400 400)))
 		      #f)
 
 		    ;; OK, now let's run refmac:

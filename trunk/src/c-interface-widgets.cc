@@ -123,7 +123,7 @@ void remarks_dialog(int imol) {
 	    mmdb::TitleContainer *tc_p = mol->GetRemarks();
 	    int l = tc_p->Length();
 	    std::map<int, std::vector<std::string> > remarks;
-	    for (unsigned int i=0; i<l; i++) { 
+	    for (int i=0; i<l; i++) { 
 	       mmdb::Remark *cr = static_cast<mmdb::Remark *> (tc_p->GetContainerClass(i));
 	       int rn = cr->remarkNum;
 	       std::string s = cr->remark;
@@ -133,6 +133,7 @@ void remarks_dialog(int imol) {
 	       info_dialog("No REMARKS");
 	    } else { 
 	       GtkWidget *d = gtk_dialog_new();
+	       gtk_window_set_title(GTK_WINDOW(d), "Coot Remarks Browser");
 	       gtk_object_set_data(GTK_OBJECT(d), "remarks_dialog", d);
 	       GtkWidget *vbox = GTK_DIALOG(d)->vbox;
 	       GtkWidget *vbox_inner = gtk_vbox_new(FALSE, 2);
@@ -238,7 +239,7 @@ void on_simple_text_dialog_close_button_pressed( GtkWidget *button,
 
 
 void simple_text_dialog(const std::string &dialog_title, const std::string &text,
-			std::pair<int, int> geom) {
+			int geom_x, int geom_y) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
 
@@ -261,7 +262,7 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
       gtk_text_view_set_wrap_mode (GTK_TEXT_VIEW (text_widget), GTK_WRAP_WORD);
       gtk_text_buffer_set_text (gtk_text_view_get_buffer(GTK_TEXT_VIEW (text_widget)),
 				text.c_str(), -1);
-      gtk_window_set_default_size(GTK_WINDOW(d), geom.first, geom.second);
+      gtk_window_set_default_size(GTK_WINDOW(d), geom_x, geom_y);
 
       GtkWidget *close_button = gtk_dialog_add_button(GTK_DIALOG(d), "Close", 2);
       gtk_widget_show(close_button);
