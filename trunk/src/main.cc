@@ -126,6 +126,8 @@
 
 #include "rotate-translate-modes.hh"
 
+#include "change-dir.hh"
+
 void show_citation_request();
 void load_gtk_resources();
 void setup_splash_screen();
@@ -136,6 +138,7 @@ void setup_rgb_reps();
 void check_reference_structures_dir();
 void create_rot_trans_menutoolbutton_menu(GtkWidget *window1);
 void start_command_line_python_maybe(char **argv);
+
 #ifdef USE_MYSQL_DATABASE
 #include "mysql/mysql.h"
 int setup_database();
@@ -347,6 +350,10 @@ main (int argc, char *argv[]) {
 		   << "  \"Thousands of Colors\" and supports GLX.)" << std::endl;
       }
    }
+
+   // Mac users often start somewhere where thy can't write files
+   // 
+   change_directory_maybe();
 
   
    // allocate some memory for the molecules

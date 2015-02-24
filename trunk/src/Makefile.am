@@ -275,6 +275,8 @@ coot_bin_SOURCES = \
 	cc-interface-mogul.hh    \
 	callbacks.c callbacks.h	 \
         canvas-fixes.hh          \
+	change-dir.cc		 \
+	change-dir.hh		 \
 	cmtz-interface-gui.hh	 \
 	cmtz-interface.hh	 \
 	cmtz-interface.cc	 \
