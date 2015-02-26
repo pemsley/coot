@@ -49,6 +49,7 @@ libcheck_exe = "libcheck"
 # libraries can produce coords using "Get Monomer".
 # 
 # might not do all above mentioned things in python, yet
+#
 def monomer_molecule_from_3_let_code(code, dict_cif_libin,
                                      ccp4i_project_dir = ""):
 
@@ -156,7 +157,8 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
           if isinstance(log_text, str):
             simple_text_dialog("Libcheck log", log_text, 400, 400)
             return -1
-            
+
+        else:
           # we assume libcheck run ok
           #
           # But I now find that libcheck can run OK, but
@@ -171,7 +173,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
             log_text = log_file2text(log_file_name, dir_prefix)
             if isinstance(log_text, str):
               simple_text_dialog("Libcheck log", log_text, 400, 400)
-            return False
+            return -1
           else:
             # OK, now let's run refmac:
             #
@@ -238,7 +240,8 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
 
     if (os.path.isfile(post_refmac_pdb_file_name) and
         os.path.isfile(cif_file_name)):
-      return handle_libcheck_cif_and_pdb(cif_file_name, pdb_file_name, post_refmac_pdb_file_name)
+      return handle_libcheck_cif_and_pdb(cif_file_name, pdb_file_name,
+                                         post_refmac_pdb_file_name)
       
     else:
       libcheck_exe_file = find_exe(libcheck_exe, "CCP4_BIN", "PATH")
@@ -248,6 +251,9 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
       else:
         v = libcheck_monomer_gui(dir_prefix, code_str, cif_file_name,
                                  pdb_file_name, post_refmac_pdb_file_name)
+        # somehow this can be none?! shouldnt
+        if (not isNumber(v)):
+          v = -1
         return v
       
 #monomer_molecule_from_3_let_code("3GP","")
