@@ -2546,7 +2546,7 @@ def pukka_puckers_qm(imol):
 
 # Run libcheck to convert from SMILES string
 #
-def new_molecule_by_smiles_string(tlc_text, smiles_text):
+def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
 
     def use_libcheck(three_letter_code):
 
@@ -2629,7 +2629,7 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text):
         else:
             three_letter_code = "DUM"
 
-        if not enhanced_ligand_coot_p():
+        if (not enhanced_ligand_coot_p() or force_libcheck):
             use_libcheck(three_letter_code)
         else:
             use_pyrogen(three_letter_code)
