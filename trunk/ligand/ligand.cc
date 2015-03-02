@@ -1532,6 +1532,20 @@ coot::ligand::move_ligand_site_close_to_protein_using_shape (int iclust,
 
   
    int n_sampled = sampled_protein_coords.size();
+
+////BEGIN NEW CODE RESOLVES ISSUE WITH DISAPERING LIGANDS AND WATERS
+   clipper::Vec3<double>  vcrd(0.0,0.0,0.0),resvec;
+   clipper::Mat33<double> imat;
+   int nn=0,mm=0,kk=0;
+   for(unsigned int i=0;i<n_sampled;i++){
+	vcrd+=sampled_protein_coords[i];
+   }
+   vcrd = 1.0/((float)sampled_protein_coords.size())*vcrd;
+   imat	  = (xmap_pristine.cell()).matrix_frac();
+   resvec = imat*vcrd;
+   nn = floor(resvec[0]); mm = floor(resvec[1]); kk = floor(resvec[2]); //GEOM-CENTER INDICES
+////END CODE
+
    if (n_sampled > 0) { 
       int n = xmap_pristine.spacegroup().num_symops();
       clipper::Coord_frac cell_shift; 
@@ -1539,7 +1553,7 @@ coot::ligand::move_ligand_site_close_to_protein_using_shape (int iclust,
 	 for (int x_shift = -1; x_shift<2; x_shift++) { 
 	    for (int y_shift = -1; y_shift<2; y_shift++) { 
 	       for (int z_shift = -1; z_shift<2; z_shift++) {
-		  cell_shift = clipper::Coord_frac(x_shift, y_shift, z_shift); 
+		  cell_shift = clipper::Coord_frac(x_shift+nn, y_shift+mm, z_shift+kk); 
 		  clipper::RTop_orth orthop = clipper::RTop_frac(xmap_pristine.spacegroup().symop(isym).rot(), xmap_pristine.spacegroup().symop(isym).trn() + cell_shift).rtop_orth(xmap_pristine.cell());
 	       
 		  t_point = point.transform(orthop); 
