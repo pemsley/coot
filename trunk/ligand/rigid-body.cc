@@ -54,7 +54,7 @@ coot::rigid_body_fit(coot::minimol::molecule *m, const clipper::Xmap<float> &xma
 	    std::cout << "             fragment ifrag " << ifrag << " loop limits " << (*m)[ifrag].min_res_no()
 		      << " " << (*m)[ifrag].max_residue_number() << " " << std::endl;
 	 }
-	 for (unsigned int ires=(*m)[ifrag].min_res_no();
+	 for (int ires=(*m)[ifrag].min_res_no();
 	      ires<(*m)[ifrag].max_residue_number(); ires++) {
 	    if (debug)
 	       std::cout << "          residue ires " << ires << " n atoms: "
@@ -76,7 +76,7 @@ coot::rigid_body_fit(coot::minimol::molecule *m, const clipper::Xmap<float> &xma
 	 std::vector<minimol::atom *> atoms = m->select_atoms_serial();
 	 std::vector<double> atom_z_weights(atoms.size());
 	 std::vector<std::pair<std::string, int> > atom_list = coot::util::atomic_number_atom_list();
-	 for (int i=0; i<atoms.size(); i++) {
+	 for (unsigned int i=0; i<atoms.size(); i++) {
 	    double z = coot::util::atomic_number(atoms[i]->element, atom_list);
 	    if (z < 0.0) {
 	       std::cout << "Unknown Z for element :" << atoms[i]->element << ": for atom name :"
@@ -96,7 +96,7 @@ coot::rigid_body_fit(coot::minimol::molecule *m, const clipper::Xmap<float> &xma
 	 float sum_occ_fac = 0.0;
 	 std::vector<clipper::Grad_orth<float> > grad_vec(atoms.size());
 	 // only apply shifts for atoms with non-zero occupancy
-	 for (int ii=0; ii<atoms.size(); ii++) {
+	 for (unsigned int ii=0; ii<atoms.size(); ii++) {
 	    if (fabs(atoms[ii]->occupancy) > 0.001) {
 	       float occ_fac = atoms[ii]->occupancy;
 	       if (occ_fac > 10.0)
@@ -139,7 +139,7 @@ coot::rigid_body_fit(coot::minimol::molecule *m, const clipper::Xmap<float> &xma
 	 mean_pos += moved_by;
 	 
 	 for (unsigned int ifrag=0; ifrag<m->fragments.size(); ifrag++) {
-	    for (unsigned int ires=(*m)[ifrag].min_res_no();
+	    for (int ires=(*m)[ifrag].min_res_no();
 		 ires<=(*m)[ifrag].max_residue_number();
 		 ires++) {
 	       for (unsigned int iat=0; iat<(*m)[ifrag][ires].atoms.size(); iat++) {
@@ -286,7 +286,7 @@ coot::score_molecule(const coot::minimol::molecule &m,
 
    float score = 0.0;
    for (unsigned int ifrag=0; ifrag<m.fragments.size(); ifrag++) {
-      for (unsigned int ires=m[ifrag].min_res_no(); ires<m[ifrag].max_residue_number();
+      for (int ires=m[ifrag].min_res_no(); ires<m[ifrag].max_residue_number();
 	   ires++) {
 	 for (unsigned int iat=0; iat<m[ifrag][ires].atoms.size(); iat++) {
 	    score += coot::util::density_at_point(xmap, m[ifrag][ires][iat].pos);

@@ -41,7 +41,7 @@ coot::backrub::search(const coot::dictionary_residue_restraints_t &rest) {
    coot::minimol::fragment best_frag;
    coot::richardson_rotamer r_rotamer(orig_this_residue, alt_conf, stored_mol, 0.1, 0);
    std::vector<float> pr = r_rotamer.probabilities();
-   int n_rotatmers = pr.size();
+   unsigned int n_rotatmers = pr.size();
 
 
    // First, where about in space is this residue centred?  Let's use
@@ -161,7 +161,7 @@ coot::backrub::make_test_fragment(mmdb::Residue *r, double rotation_angle) const
    // now rotate fragment around the ca_prev -> ca_next vector
    clipper::Coord_orth dir = ca_next - ca_prev;
 
-   for (unsigned int ires=f.min_res_no(); ires<=f.max_residue_number(); ires++) {
+   for (int ires=f.min_res_no(); ires<=f.max_residue_number(); ires++) {
       for (unsigned int iat=0; iat<f[ires].n_atoms(); iat++) {
 	 clipper::Coord_orth pt(f[ires][iat].pos);
 	 // rotate pt
@@ -239,7 +239,7 @@ float
 coot::backrub::score_fragment(minimol::fragment &frag) const {
 
    float d_score = 0;
-   for (unsigned int ires=frag.min_res_no(); ires<=frag.max_residue_number(); ires++) {
+   for (int ires=frag.min_res_no(); ires<=frag.max_residue_number(); ires++) {
       for (unsigned int iat=0; iat<frag[ires].n_atoms(); iat++) {
 	 float d = coot::util::density_at_point(xmap, frag[ires][iat].pos);
 	 d_score += d;
@@ -444,7 +444,7 @@ coot::backrub::sample_individual_peptide(mmdb::Residue *r, double rotation_angle
 	   sample_rotation_angle<=rar;
 	   sample_rotation_angle += (rar*0.02 + 0.0001)) {
 	 double sum_dist = 0.0;
-	 for (unsigned int ires=(f->max_residue_number()-res_offset);
+	 for (int ires=(f->max_residue_number()-res_offset);
 	      ires<=(f->max_residue_number()+1-res_offset);
 	      ires++) {
 	    for (unsigned int iat=0; iat<(*f)[ires].n_atoms(); iat++) {
@@ -523,7 +523,7 @@ coot::backrub::apply_back_rotation(coot::minimol::fragment *f,
       resno_for_N  = this_resno;
    }
    
-   for (unsigned int ires=(f->max_residue_number()-res_offset);
+   for (int ires=(f->max_residue_number()-res_offset);
 	ires<=(f->max_residue_number()+1-res_offset);
 	ires++) {
       for (unsigned int iat=0; iat<(*f)[ires].n_atoms(); iat++) {
@@ -599,7 +599,7 @@ coot::get_clash_score(const coot::minimol::molecule &a_rotamer,
 	 if (d < (max_dev_residue_pos + dist_crit)) {
 	    for (unsigned int ifrag=0; ifrag<a_rotamer.fragments.size(); ifrag++) {
 	       for (int ires=a_rotamer[ifrag].min_res_no(); ires<=a_rotamer[ifrag].max_residue_number(); ires++) {
-		  for (int iat=0; iat<a_rotamer[ifrag][ires].n_atoms(); iat++) {
+		  for (unsigned int iat=0; iat<a_rotamer[ifrag][ires].n_atoms(); iat++) {
 		     d_atom = clipper::Coord_orth::length(a_rotamer[ifrag][ires][iat].pos,atom_sel_atom);
 		     std::cout << "  d_atom " << d_atom << "\n";
 		     if (d_atom < dist_crit) {
@@ -682,7 +682,7 @@ coot::backrub::get_clash_score(const coot::minimol::molecule &a_rotamer,
 	 if (count_it) {
 	    for (unsigned int ifrag=0; ifrag<a_rotamer.fragments.size(); ifrag++) {
 	       for (int ires=a_rotamer[ifrag].min_res_no(); ires<=a_rotamer[ifrag].max_residue_number(); ires++) {
-		  for (int iat=0; iat<a_rotamer[ifrag][ires].n_atoms(); iat++) {
+		  for (unsigned int iat=0; iat<a_rotamer[ifrag][ires].n_atoms(); iat++) {
 		     double dlsq = (a_rotamer[ifrag][ires][iat].pos-atom_sel_atom_pos).lengthsq();
 		     if (dlsq <= 0.001)
 			dlsq = 0.001; 

@@ -866,7 +866,7 @@ coot::ligand::find_clusters_internal(float z_cut_off_in,
 	    while (q.size()) { 
 	       c_g_start = q.front();
 	       q.pop();
-	       for (unsigned int i=0; i<neighb.size(); i++) {
+	       for (int i=0; i<neighb.size(); i++) {
 		  c_g = c_g_start + neighb[i];
 		  if (xmap_cluster.get_data(c_g) > cut_off) {
 		     if (! cluster_map.get_data(c_g)) {
@@ -995,7 +995,7 @@ coot::ligand::cluster_from_point(clipper::Coord_orth pt,
    while (q2.size()) {
       c_g_start = q2.front();
       q2.pop();
-      for (unsigned int i=0; i<neighb.size(); i++) {
+      for (int i=0; i<neighb.size(); i++) {
 	 c_g = c_g_start + neighb[i];
 	 if (xmap_cluster.get_data(c_g) > density_crit) {
 	    if (! cluster_map.get_data(c_g)) {
@@ -2005,7 +2005,7 @@ coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned i
 //       std::cout << "   parallel i " << i << std::endl;
 //    }
 
-   int n_ligs = final_ligand[iclust].size();
+   unsigned int n_ligs = final_ligand[iclust].size();
 
    
    if (0) 
