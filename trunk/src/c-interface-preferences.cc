@@ -99,7 +99,7 @@ void show_preferences(){
   fonts.push_back("Times Roman 24");
   fonts.push_back("Fixed 8/13");
   fonts.push_back("Fixed 9/15");
-  for (int j=0; j<fonts.size(); j++) {
+  for (unsigned int j=0; j<fonts.size(); j++) {
     gtk_combo_box_append_text(combobox, fonts[j].c_str());
   }
 #endif
@@ -149,7 +149,7 @@ void show_hide_preferences_tabs(GtkToggleToolButton *toggletoolbutton, int prefe
     preferences_tabs = *graphics_info_t::preferences_other_tabs;
   }
 
-  for (int i=0; i<preferences_tabs.size(); i++) {
+  for (unsigned int i=0; i<preferences_tabs.size(); i++) {
     frame = lookup_widget(GTK_WIDGET(toggletoolbutton), preferences_tabs[i].c_str());
     if (gtk_toggle_tool_button_get_active(toggletoolbutton)){
 	  gtk_widget_show(frame);
@@ -207,7 +207,7 @@ void update_preference_gui() {
   
   dialog = g.preferences_widget;
 
-  for (int i=0; i<g.preferences_internal.size(); i++) {
+  for (unsigned int i=0; i<g.preferences_internal.size(); i++) {
     preference_type = g.preferences_internal[i].preference_type;
     //std::cout <<"BL DEBUG:: type "<< preference_type<<" int " <<g.preferences_internal[i].ivalue << " int default " << g.preferences_internal[i].ivalue<<std::endl;
 

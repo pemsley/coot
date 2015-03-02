@@ -161,7 +161,7 @@ void
 coot::setup_refmac_parameters(GtkWidget *window, 
 			      const coot::mtz_column_types_info_t &col_labs) {
   
-  int i;
+  unsigned int i;
   GtkWidget *fobs_option_menu    = lookup_widget(window, "refmac_fobs_optionmenu");
   GtkWidget *sigfobs_option_menu = lookup_widget(window, "refmac_sigfobs_optionmenu");
   GtkWidget *r_free_option_menu  = lookup_widget(window, "refmac_rfree_optionmenu");
@@ -301,7 +301,7 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
    GtkWidget *refmac_dialog = lookup_widget(window, "run_refmac_dialog");
    gtk_object_set_user_data(GTK_OBJECT(refmac_dialog), f_phi_columns);
 
-   int i;
+   unsigned int i;
 
    GtkWidget *fobs_option_menu    = lookup_widget(window, "refmac_dialog_fobs_optionmenu");
    GtkWidget *fpm_option_menu     = lookup_widget(window, "refmac_dialog_fpm_optionmenu");
@@ -360,10 +360,10 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
   std::string label;
   std::string tmp;
   coot::mtz_column_types_info_t a;
-  for (i=0; i<col_labs.f_cols.size(); i++) {
+  for (unsigned i=0; i<col_labs.f_cols.size(); i++) {
      fobs_pos = col_labs.f_cols[i].column_position;
      /* Sig Fobs */
-     for (int j=0; j<col_labs.sigf_cols.size(); j++) {
+     for (unsigned int j=0; j<col_labs.sigf_cols.size(); j++) {
        sigfobs_pos = col_labs.sigf_cols[j].column_position;
        if ((fobs_pos + 1) == sigfobs_pos) {
 	 // matching f sigf pair
@@ -402,12 +402,12 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
     std::cout << "WARNING:: inconsistent number of F+/F- and or sigF+/sigF-, i.e. not multiple of 2.\n" << std::endl;
     std::cout << "Detection of F+/F- and associated sigmas may be screwed!" << std::endl;
   }
-  for (i=0; i<col_labs.fpm_cols.size(); i++) {
+  for (unsigned i=0; i<col_labs.fpm_cols.size(); i++) {
      fp_pos = col_labs.fpm_cols[i].column_position;
      if (i+1 < col_labs.fpm_cols.size()) {
        fm_pos = col_labs.fpm_cols[i+1].column_position;
        /* Sig F+/- */
-       for (int j=0; j<col_labs.sigfpm_cols.size(); j++) {
+       for (unsigned int j=0; j<col_labs.sigfpm_cols.size(); j++) {
 	 sigfp_pos = col_labs.sigfpm_cols[j].column_position;
 	 if (j+1 < col_labs.sigfpm_cols.size()) {
 	   sigfm_pos = col_labs.sigfpm_cols[i+1].column_position;
@@ -448,7 +448,7 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
   for (i=0; i<col_labs.i_cols.size(); i++) {
      fobs_pos = col_labs.i_cols[i].column_position;
      /* Sig Iobs */
-     for (int j=0; j<col_labs.sigf_cols.size(); j++) {
+     for (unsigned int j=0; j<col_labs.sigf_cols.size(); j++) {
        sigiobs_pos = col_labs.sigf_cols[j].column_position;
        if ((iobs_pos + 1) == sigiobs_pos) {
 	 // matching i sigi pair
@@ -488,7 +488,7 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
      if (i+1 < col_labs.ipm_cols.size()) {
        im_pos = col_labs.ipm_cols[i+1].column_position;
        /* Sig I+/- */
-       for (int j=0; j<col_labs.sigipm_cols.size(); j++) {
+       for (unsigned int j=0; j<col_labs.sigipm_cols.size(); j++) {
 	 sigip_pos = col_labs.sigipm_cols[j].column_position;
 	 if (j+1 < col_labs.sigipm_cols.size()) {
 	   sigim_pos = col_labs.sigipm_cols[i+1].column_position;
@@ -565,7 +565,7 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
     hl_pos = col_labs.hl_cols[i].column_position;
     label = col_labs.hl_cols[i].column_label;
     if (i+1 < col_labs.hl_cols.size()) {
-      for (int j=i+1; j<i+4; j++) {
+       for (unsigned int j=i+1; j<i+4; j++) {
 	// check if next position is HL too
 	hl_next_pos = col_labs.hl_cols[j].column_position;
 	if (hl_next_pos == (hl_pos + 1)) {
@@ -819,7 +819,7 @@ refmac_dialog_f_button_select(GtkWidget *item, GtkPositionType pos) {
   // get the corresponding Sig Fobs
   int sigfobs_pos;
   int fobs_pos = save_f_phi_columns->f_cols[pos].column_position;
-  for (int i=0; i<save_f_phi_columns->sigf_cols.size(); i++) {
+  for (unsigned int i=0; i<save_f_phi_columns->sigf_cols.size(); i++) {
     sigfobs_pos = save_f_phi_columns->sigf_cols[i].column_position;
     if (sigfobs_pos == (fobs_pos + 1)) {
       save_f_phi_columns->selected_refmac_sigfobs_col = i;
@@ -852,7 +852,7 @@ refmac_dialog_fpm_button_select(GtkWidget *item, GtkPositionType pos) {
   int sigfm_pos;
   int fp_pos = save_f_phi_columns->fpm_cols[pos].column_position;
   int fm_pos = save_f_phi_columns->fpm_cols[pos+1].column_position;
-  for (int i=0; i<save_f_phi_columns->sigfpm_cols.size()-1; i++) {
+  for (unsigned int i=0; i<save_f_phi_columns->sigfpm_cols.size()-1; i++) {
     sigfp_pos = save_f_phi_columns->sigfpm_cols[i].column_position;
     sigfm_pos = save_f_phi_columns->sigfpm_cols[i+1].column_position;
     if ((fm_pos == fp_pos+2 && sigfp_pos == fp_pos+1 && sigfm_pos == fm_pos+1) ||
@@ -875,7 +875,7 @@ refmac_dialog_i_button_select(GtkWidget *item, GtkPositionType pos) {
   // get the corresponding Sig Fobs
   int sigiobs_pos;
   int iobs_pos = save_f_phi_columns->i_cols[pos].column_position;
-  for (int i=0; i<save_f_phi_columns->sigf_cols.size(); i++) {
+  for (unsigned int i=0; i<save_f_phi_columns->sigf_cols.size(); i++) {
     sigiobs_pos = save_f_phi_columns->sigf_cols[i].column_position;
     if (sigiobs_pos == (iobs_pos + 1)) {
       save_f_phi_columns->selected_refmac_sigiobs_col = i;
@@ -898,7 +898,7 @@ refmac_dialog_ipm_button_select(GtkWidget *item, GtkPositionType pos) {
   int sigim_pos;
   int ip_pos = save_f_phi_columns->ipm_cols[pos].column_position;
   int im_pos = save_f_phi_columns->ipm_cols[pos+1].column_position;
-  for (int i=0; i<save_f_phi_columns->sigipm_cols.size()-1; i++) {
+  for (unsigned int i=0; i<save_f_phi_columns->sigipm_cols.size()-1; i++) {
     sigip_pos = save_f_phi_columns->sigf_cols[i].column_position;
     sigim_pos = save_f_phi_columns->sigf_cols[i+1].column_position;
     if ((im_pos == ip_pos+2 && sigip_pos == ip_pos+1 && sigim_pos == im_pos+1) ||
@@ -964,7 +964,7 @@ coot::fill_f_optionmenu(GtkWidget *optionmenu_f, short int is_expert_mode_flag) 
     labels will be added to this menu as menuitems*/
   GtkWidget *optionmenu1_menu;
   GtkWidget *menuitem;
-  int i;
+  unsigned int i;
   int n_lab = 0;
 
   optionmenu1_menu = gtk_menu_new();
@@ -1026,7 +1026,7 @@ coot::fill_f_optionmenu(GtkWidget *optionmenu_f, short int is_expert_mode_flag) 
 GtkWidget *
 coot::column_selector_using_cmtz(const std::string &filename) { 
    
-   int i;
+   unsigned int i;
    GtkWidget *column_label_window;
    GtkWidget *optionmenu2_menu, *optionmenu3_menu;
    GtkWidget *menuitem;
