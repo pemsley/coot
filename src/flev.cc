@@ -89,7 +89,7 @@ bool flev_check_for_hydrogens(mmdb::Residue *ligand_res,
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    ligand_res->GetAtomTable(residue_atoms, n_residue_atoms);
-   for (unsigned int i=0; i<n_residue_atoms; i++) { 
+   for (int i=0; i<n_residue_atoms; i++) { 
       std::string ele = residue_atoms[i]->element;
       if (ele == " H") { // needs PDBv3 update
 	 n_hydrogens_ligand++;
@@ -99,7 +99,7 @@ bool flev_check_for_hydrogens(mmdb::Residue *ligand_res,
       residue_atoms = 0;
       n_residue_atoms = 0;
       env_residues[ires]->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+      for (int iat=0; iat<n_residue_atoms; iat++) { 
 	 std::string ele = residue_atoms[iat]->element;
 	 if (ele == " H") { // needs PDBv3 update
 	    n_hydrogens_others++;
@@ -933,7 +933,7 @@ coot::write_ligand_atom_accessibilities(const std::vector<std::pair<coot::atom_s
       mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       reference_residue->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int i=0; i<n_residue_atoms; i++) {
+      for (int i=0; i<n_residue_atoms; i++) {
 	 mmdb::Atom *at = residue_atoms[i];
 	 std::string atom_name(at->GetAtomName());
 	 for (unsigned int j=0; j<sav.size(); j++) {
@@ -1346,8 +1346,8 @@ coot::get_metal_bonds(mmdb::Residue *ligand_residue, const std::vector<mmdb::Res
 	 mmdb::PPAtom residue_atoms = 0;
 	 int n_residue_atoms;
 	 residues[i]->GetAtomTable(residue_atoms, n_residue_atoms);
-	 for (unsigned int irat=0; irat<n_residue_atoms; irat++) {
-	    for (unsigned int ilat=0; ilat<n_residue_atoms; ilat++) {
+	 for (int irat=0; irat<n_residue_atoms; irat++) {
+	    for (int ilat=0; ilat<n_residue_atoms; ilat++) {
 	       std::string ele(residue_atoms[irat]->element);
 	       if ((ele == " H") || (ele == " C")) { 
 		  clipper::Coord_orth pt_1(ligand_residue_atoms[ilat]->x,
@@ -1453,8 +1453,8 @@ coot::find_water_protein_length(mmdb::Residue *ligand_residue, mmdb::Manager *mo
 	       mmdb::PPAtom residue_atoms = 0;
 	       int n_residue_atoms;
 	       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-	       for (unsigned int il=0; il<n_ligand_residue_atoms; il++) {
-		  for (unsigned int irat=0; irat<n_residue_atoms; irat++) {
+	       for (int il=0; il<n_ligand_residue_atoms; il++) {
+		  for (int irat=0; irat<n_residue_atoms; irat++) {
 		     std::string ele(residue_atoms[irat]->element);
 		     if ((ele == " O") || (ele == " N")) { 
 			clipper::Coord_orth pt_1(ligand_residue_atoms[il]->x,
@@ -2072,7 +2072,7 @@ coot::flev_attached_hydrogens_t::distances_to_protein(mmdb::Residue *residue_ref
 	    std::pair<clipper::Coord_orth, clipper::Coord_orth> pt_base_and_H =
 	       hydrogen_pos(named_torsions[i], residue_reference);
 	    std::vector<mmdb::Atom *> atoms = close_atoms(pt_base_and_H.second, env_residues);
-	    for (unsigned int itor=0; itor<n_torsion_samples; itor++) {
+	    for (int itor=0; itor<n_torsion_samples; itor++) {
 
 	       coot::named_torsion_t tmp_tor = named_torsions[i];
 	       tmp_tor.torsion += double(itor) * 360.0/double(n_torsion_samples);
@@ -2126,7 +2126,7 @@ coot::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(mmdb::Res
    for (unsigned int irh=0; irh<atoms_with_riding_hydrogens.size(); irh++) { 
       mmdb::Atom *lig_at = NULL;
       mmdb::Atom *H_at = NULL;
-      for (unsigned int iat=0; iat<n_ligand_atoms; iat++) { 
+      for (int iat=0; iat<n_ligand_atoms; iat++) { 
 	 std::string atom_name(residue_atoms[iat]->name);
 	 if (atom_name == atoms_with_riding_hydrogens[irh].first)
 	    lig_at = residue_atoms[iat];
@@ -2156,7 +2156,7 @@ coot::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(mmdb::Res
    for (unsigned int irh=0; irh<atoms_with_rotating_hydrogens.size(); irh++) { 
       mmdb::Atom *lig_at = NULL;
       mmdb::Atom *H_at = NULL;
-      for (unsigned int iat=0; iat<n_ligand_atoms; iat++) { 
+      for (int iat=0; iat<n_ligand_atoms; iat++) { 
 	 std::string atom_name(residue_atoms[iat]->name);
 	 if (atom_name == atoms_with_rotating_hydrogens[irh].first)
 	    lig_at = residue_atoms[iat];
@@ -2180,7 +2180,7 @@ coot::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(mmdb::Res
 	    double angle = clipper::Coord_orth::angle(vector_pt, lig_atom_pt, H_pt);
 
 	    int n_torsion_samples = 8;
-	    for (unsigned int itor=0; itor<n_torsion_samples; itor++) {
+	    for (int itor=0; itor<n_torsion_samples; itor++) {
 
 	       double tmp_tor_d =  double(itor) * 360.0/double(n_torsion_samples);
 	       double tmp_tor = clipper::Util::d2rad(tmp_tor_d);
@@ -2218,7 +2218,7 @@ coot::flev_attached_hydrogens_t::hydrogen_pos(const coot::named_torsion_t &named
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-   for (unsigned int i=0; i<n_residue_atoms; i++) {
+   for (int i=0; i<n_residue_atoms; i++) {
       std::string atom_name(residue_atoms[i]->name);
       if (atom_name == named_tor.base_atom_name)
 	 at_1 = residue_atoms[i];
@@ -2295,7 +2295,7 @@ coot::flev_attached_hydrogens_t::get_atom_pos_bonded_to_atom(mmdb::Atom *lig_at,
 	 mmdb::PPAtom residue_atoms = 0;
 	 int n_residue_atoms;
 	 ligand_residue->GetAtomTable(residue_atoms, n_residue_atoms);
-	 for (unsigned int iat=0; iat<n_residue_atoms ; iat++) {
+	 for (int iat=0; iat<n_residue_atoms ; iat++) {
 	    std::string atom_name = residue_atoms[iat]->name;
 	    if (atom_name == bonded_atom_name) {
 	       bonded_atom = residue_atoms[iat];
@@ -2336,7 +2336,7 @@ coot::flev_attached_hydrogens_t::close_atoms(const clipper::Coord_orth &pt,
       mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+      for (int iat=0; iat<n_residue_atoms; iat++) {
 	 clipper::Coord_orth atom_pos(residue_atoms[iat]->x, residue_atoms[iat]->y, residue_atoms[iat]->z);
 	 double d_squared = (pt - atom_pos).lengthsq();
 	 if (d_squared < dist_crit_squared) { 
