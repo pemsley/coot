@@ -6711,6 +6711,9 @@ int scale_cell(int imol_map, float fac_u, float fac_v, float fac_w);
 void segment_map(int imol_map, float low_level);
 
 void segment_map_multi_scale(int imol_map, float low_level, float b_factor_inc, int n_rounds);
+
+void map_histogram(int imol_map); 
+
 /* \} */
 
 

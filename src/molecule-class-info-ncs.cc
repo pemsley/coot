@@ -2455,3 +2455,69 @@ molecule_class_info_t::add_strict_ncs_from_mtrix_from_self_file() {
    }
 }
 
+
+
+// if we are are the centre of a given chain_id, how big a radius
+// do we need to encompass all atoms of that chain?
+// 
+std::pair<clipper::Coord_orth, double>
+molecule_class_info_t::chain_centre_and_radius(const std::string &chain_id) const {
+
+   clipper::Coord_orth pos;
+   double radius = -1;
+
+   mmdb::Manager *mol = atom_sel.mol;
+   
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      mmdb::Chain *chain_p;
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 std::string chain_id_this = chain_p->GetChainID();
+	 if (chain_id_this == chain_id) {
+	    std::vector<clipper::Coord_orth> chain_atoms_positions;
+	    int nres = chain_p->GetNumberOfResidues();
+	    mmdb::Residue *residue_p;
+	    mmdb::Atom *at;
+	    for (int ires=0; ires<nres; ires++) { 
+	       residue_p = chain_p->GetResidue(ires);
+	       int n_atoms = residue_p->GetNumberOfAtoms();
+	       for (int iat=0; iat<n_atoms; iat++) {
+		  at = residue_p->GetAtom(iat);
+		  chain_atoms_positions.push_back(coot::co(at));
+	       }
+	    }
+
+	    unsigned int n_atoms_in_chain = chain_atoms_positions.size();
+	    if (n_atoms_in_chain > 0) {
+	       double sum_x = 0;
+	       double sum_y = 0;
+	       double sum_z = 0;
+	       for (unsigned int i=0; i<chain_atoms_positions.size(); i++) { 
+		  sum_x += chain_atoms_positions[i].x();
+		  sum_y += chain_atoms_positions[i].y();
+		  sum_z += chain_atoms_positions[i].z();
+	       }
+	       
+	       pos = clipper::Coord_orth(sum_x/double(n_atoms_in_chain),
+					 sum_y/double(n_atoms_in_chain),
+					 sum_z/double(n_atoms_in_chain));
+
+	       double max_d_sqrd = 0.0;
+	       
+	       for (unsigned int i=0; i<chain_atoms_positions.size(); i++) {
+		  double d = (chain_atoms_positions[i] - pos).lengthsq();
+		  if (d > max_d_sqrd) {
+		     max_d_sqrd = d;
+		  } 
+	       }
+	       radius = sqrt(max_d_sqrd);
+	    } 
+	 }
+      }
+   }
+
+   return std::pair<clipper::Coord_orth, double> (pos, radius);
+}
+

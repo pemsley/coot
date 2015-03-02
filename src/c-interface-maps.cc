@@ -1256,7 +1256,92 @@ int export_map_fragment_with_origin_shift(int imol, float x, float y, float z, f
       rv = 1;
    } 
    return rv;
-} 
+}
+
+void map_histogram(int imol_map) {
+
+#if HAVE_GOOCANVAS      
+   if (graphics_info_t::use_graphics_interface_flag) { 
+      if (is_valid_map_molecule(imol_map)) {
+
+	 bool ignore_pseudo_zeros = false; 
+
+	 if (graphics_info_t::molecules[imol_map].is_EM_map())
+	    ignore_pseudo_zeros = true;
+
+	 const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+	 unsigned int n_bins = 100;
+	 if (ignore_pseudo_zeros) { 
+	    n_bins = 400;
+	 }
+	 mean_and_variance<float> mv = map_density_distribution(xmap, n_bins, false, ignore_pseudo_zeros);
+
+
+	 if (mv.bins.size() > 0) { 
+	    std::vector<std::pair<double, double> > data(mv.bins.size());
+	    for (unsigned int ibin=0; ibin<mv.bins.size(); ibin++) {
+	       double x = (ibin+0.5)*mv.bin_width + mv.min_density;
+	       double y = mv.bins[ibin];
+	       data[ibin] = std::pair<double, double> (x, y);
+	    }
+
+	    coot::goograph* g = new coot::goograph;
+	    int trace = g->trace_new();
+	 
+	    g->set_plot_title("Density Histogram");
+	    g->set_data(trace, data);
+	    g->set_axis_label(coot::goograph::X_AXIS, "Density Value");
+	    g->set_axis_label(coot::goograph::Y_AXIS, "Counts");
+	    g->set_trace_type(trace, coot::graph_trace_info_t::PLOT_TYPE_BAR);
+	    if (ignore_pseudo_zeros) {
+
+	       std::cout << "::::::::: data.size() is " << data.size() << std::endl;
+	       if (data.size() == 0) {
+		  std::cout << "::::::::::::::::: no data!?" << std::endl;
+	       } else { 
+		  // find y_max ignoring the peak
+		  double y_max           = -1e100;
+		  double y_max_secondary = -1e100;
+		  unsigned int idata_peak = 0;
+		  for (unsigned int idata=0; idata<data.size(); idata++) {
+		     if (data[idata].second > y_max) {
+			y_max = data[idata].second;
+			idata_peak = idata;
+		     }
+		  }
+		  for (unsigned int idata=0; idata<data.size(); idata++) {
+		     if (idata != idata_peak)
+			if (data[idata].second > y_max_secondary)
+			   y_max_secondary = data[idata].second;
+		  }
+
+		  std::cout << ":::::::::: y_max_secondary " << y_max_secondary << std::endl;
+	    
+		  g->set_extents(coot::goograph::X_AXIS,
+				 mv.mean-8*sqrt(mv.variance),
+				 mv.mean+8*sqrt(mv.variance)
+				 );
+		  std::cout << "::::: set_extents() X: "
+			    << mv.mean-4*sqrt(mv.variance) << " " 
+			    << mv.mean+4*sqrt(mv.variance) << "\n";
+	    
+		  if (y_max_secondary > 0) {
+		     double y_max_graph = y_max_secondary * 1.4;
+		     g->set_extents(coot::goograph::Y_AXIS,
+				    0,
+				    y_max_graph
+				    );
+		     std::cout << "::::: set_extents() Y: "
+			       << 0 << " " << y_max_graph << std::endl;
+		  }
+	       }
+	    } 
+	    g->show_dialog();
+	 }
+      }
+   }
+# endif // HAVE_GOOCANVAS
+}
 
 
 
@@ -1268,12 +1353,13 @@ void segment_map(int imol_map, float low_level) {
    int max_segments = 300;
    
    if (is_valid_map_molecule(imol_map)) {
-      clipper::Xmap<float> &xmap_in = graphics_info_t::molecules[imol_map].xmap;
+      const clipper::Xmap<float> &xmap_in = graphics_info_t::molecules[imol_map].xmap;
       coot::util::segment_map s;
       std::pair<int, clipper::Xmap<int> > segmented_map = s.segment(xmap_in, low_level);
       float contour_level = graphics_info_t::molecules[imol_map].get_contour_level();
 
       for (int iseg=0; (iseg<segmented_map.first) && iseg<max_segments; iseg++) {
+	 // std::cout << "iseg: " << iseg << std::endl;
 	 clipper::Xmap<float> xmap;
 	 xmap.init(segmented_map.second.spacegroup(),
 		   segmented_map.second.cell(),
@@ -1372,7 +1458,7 @@ int transform_map_raw(int imol,
       const coot::ghost_molecule_display_t ghost_info;
       // int is_diff_map_flag = graphics_info_t::molecules[imol].is_difference_map_p();
       // int swap_colours_flag = graphics_info_t::swap_difference_map_colours;
-      mean_and_variance<float> mv = map_density_distribution(new_map, 0);
+      mean_and_variance<float> mv = map_density_distribution(new_map, 40, 0);
       std::string name = "Transformed map";
       imol_new = graphics_info_t::create_molecule();
       graphics_info_t::molecules[imol_new].new_map(new_map, name);

@@ -971,10 +971,6 @@ class molecule_class_info_t {
    std::vector<coot::ghost_molecule_display_t> strict_ncs_info;
    std::vector<coot::coot_mat44> strict_ncs_matrices;
 
-   // void set_show_ghosts(short int istate); public
-   // void set_ghost_bond_thickness(float f); public
-   // float ghost_bond_thickness() const {return int(ghost_bond_width);} // public
-
    std::vector <coot::atom_spec_t>
    find_water_baddies_AND(float b_factor_lim, const clipper::Xmap<float> &xmap_in,
 			  float map_sigma,
@@ -1074,7 +1070,6 @@ class molecule_class_info_t {
    // NXmap, not the xmap)
    // 
    bool is_em_map(const clipper::CCP4MAPfile &file) const;
-
 
    // for quads/triangle strip for the bond representation (rather
    // than gl_lines).
@@ -2863,6 +2858,12 @@ public:        //                      public
    coot::ncs_differences_t ncs_chain_differences(std::string master_chain_id, 
 						 float main_chain_weight);
 
+   // if we are are the centre of a given chain_id, how big a radius
+   // do we need to encompass all atoms of that chain?
+   std::pair<clipper::Coord_orth, double> chain_centre_and_radius(const std::string &chain_id) const;
+
+   
+
 
    // ====================== SHELX stuff ======================================
    std::pair<int, std::string> write_shelx_ins_file(const std::string &filename);
@@ -3483,7 +3484,9 @@ public:        //                      public
 			const coot::protein_geometry &geom);
 
 
-   void update_bonds_using_phenix_geo(const coot::phenix_geo_bonds &b); 
+   void update_bonds_using_phenix_geo(const coot::phenix_geo_bonds &b);
+
+   bool is_EM_map() const;
    
 };
 

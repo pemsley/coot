@@ -251,7 +251,7 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
    A_map.fft_from(A_data);
    
    // mean_and_variance<float> mv =
-   float v = map_density_distribution(A_map, false).variance;
+   float v = map_density_distribution(A_map, 40, false).variance;
    float rmsd = sqrt(v);
    peak_search ps(A_map);
    float n_sigma = 3;
@@ -332,7 +332,7 @@ coot::util::emma::overlap_simple(const clipper::Xmap<float> &xmap) const {
    clipper::Xmap<float> A_map(xmap.spacegroup(), xmap.cell(), xmap.grid_sampling());
    A_map.fft_from(A_data);
    // mean_and_variance<float> mv =
-   float v = map_density_distribution(A_map, false).variance;
+   float v = map_density_distribution(A_map, 40, false).variance;
    float rmsd = sqrt(v);
    peak_search ps(A_map);
    float n_sigma = 3;

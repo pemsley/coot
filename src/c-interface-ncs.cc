@@ -908,3 +908,81 @@ void apply_ncs_to_view_orientation_and_screen_centre(int imol,
       graphics_draw();
    } 
 }
+
+#include "cc-interface-ncs.hh"
+
+std::vector<int>
+make_ncs_maps(int imol_model, int imol_map) {
+
+   double border = 2.5; // A: the additional distance between the centre of the atom
+			// and the most-extented atom (so that we capture the
+			// density of the most-extented atom.
+   std::vector<int> new_map_molecule_numbers;
+   
+   int status = -1;
+
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+	 
+	 // get_model_ncs_info(): returns ghost info.
+
+	 if (graphics_info_t::molecules[imol_model].ncs_ghosts_have_rtops_p() == 0) {
+	    graphics_info_t::molecules[imol_model].fill_ghost_info(1, graphics_info_t::ncs_homology_level);
+	 }
+
+	 std::vector<coot::ghost_molecule_display_t> ncs_ghosts =
+	    graphics_info_t::molecules[imol_model].NCS_ghosts();
+
+	 if (! ncs_ghosts.empty()) {
+
+	    // get the middle of and target chain_id
+
+	    for (unsigned int ighst=0; ighst<ncs_ghosts.size(); ighst++) {
+	       	       
+	       std::pair<clipper::Coord_orth, double> ccr =
+		  graphics_info_t::molecules[imol_model].chain_centre_and_radius(ncs_ghosts[ighst].target_chain_id);
+
+	       const clipper::Coord_orth chain_centre = ccr.first;
+	       double ncs_chain_radius = ccr.second + border; // if we are are the
+							      // centre of a given
+							      // chain_id, how big a
+							      // radius do we need
+							      // to encompass all
+							      // atoms of that chain?
+	       clipper::RTop_orth rt = ncs_ghosts[ighst].rtop;
+
+	       std::cout << "rtop for ghost is \n" << rt.format() << std::endl;
+	       const clipper::Cell &map_cell =
+		  graphics_info_t::molecules[imol_map].xmap.cell();
+	       const clipper::Spacegroup &space_group =
+		  graphics_info_t::molecules[imol_map].xmap.spacegroup();
+	       std::string space_group_name = space_group.symbol_xhm();
+
+	       int imol_new = transform_map_raw(imol_map,
+						rt.rot()(0,0), rt.rot()(0,1), rt.rot()(0,2),
+						rt.rot()(1,0), rt.rot()(1,1), rt.rot()(1,2),
+						rt.rot()(2,0), rt.rot()(2,1), rt.rot()(2,2),
+						rt.trn()[0], 
+						rt.trn()[1], 
+						rt.trn()[2],
+						chain_centre.x(),
+						chain_centre.y(),
+						chain_centre.z(),
+						ncs_chain_radius,
+						space_group_name.c_str(),
+						map_cell.descr().a(),
+						map_cell.descr().b(),
+						map_cell.descr().c(),
+						clipper::Util::rad2d(map_cell.descr().alpha()),
+						clipper::Util::rad2d(map_cell.descr().beta()),
+						clipper::Util::rad2d(map_cell.descr().gamma()));
+
+	       new_map_molecule_numbers.push_back(imol_new);
+	       
+	    }
+	 } 
+      }
+   } 
+
+   return new_map_molecule_numbers;
+}
