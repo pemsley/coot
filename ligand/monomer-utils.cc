@@ -108,7 +108,7 @@ coot::monomer_utils::get_atom_index_pairs(const std::vector<coot::atom_name_pair
    int i_store_index;
    std::vector<coot::atom_index_pair> index_pairs;
 
-   for (int ipair=0; ipair<atom_name_pairs_in.size(); ipair++) {
+   for (unsigned int ipair=0; ipair<atom_name_pairs_in.size(); ipair++) {
       int ifound = 0;
       i_store_index = -1;
       for(int i=0; i<nresatoms; i++) {
@@ -144,7 +144,7 @@ coot::monomer_utils::get_atom_index_quads(const std::vector<coot::atom_name_quad
 					  const mmdb::PPAtom atoms, int nresatoms) const {
 
    std::vector<coot::atom_index_quad> v;
-   for (int iquad=0; iquad<atom_name_quads_in.size(); iquad++) {
+   for (unsigned int iquad=0; iquad<atom_name_quads_in.size(); iquad++) {
       int ifound = 0;
       for (int i1=0; i1<nresatoms; i1++) {
 	 std::string atom_name = atoms[i1]->name;
@@ -170,7 +170,7 @@ coot::monomer_utils::get_atom_index_quads(const std::vector<coot::atom_name_quad
    }
    if (v.size() < atom_name_quads_in.size()) {
       std::cout << "Monomer utils: Failure to find correct atom quads in residue atoms\n" ;
-      for (int iquad=0; iquad<atom_name_quads_in.size(); iquad++) {
+      for (unsigned int iquad=0; iquad<atom_name_quads_in.size(); iquad++) {
 	 std::cout << "  quad needed: :"
 		   << atom_name_quads_in[iquad].atom_name(0) << ":  :"
 		   << atom_name_quads_in[iquad].atom_name(1) << ":  :"

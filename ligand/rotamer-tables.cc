@@ -519,7 +519,7 @@ coot::rotamer_probability_tables::probability_this_rotamer(unsigned int i_table,
    if (bins.size() != chi_angles.size()) {
       throw std::runtime_error("ERROR:: bin size and chi_angles size do not match");
    }
-   int n = tables[i_table].n_chis;
+   unsigned int n = tables[i_table].n_chis;
    if (bins.size() != n) {
       std::string mess = "ERROR:: not enough chi angles found. bin.size() (";
       mess += coot::util::int_to_string(bins.size());

@@ -92,7 +92,7 @@ coot::ideal_rna::make_molecule() {
       mmdb::Residue *antisense_ref = coot::util::deep_copy_this_residue(ur);
       // now transform antisense base to the right place:
       coot::util::transform_atoms(antisense_ref, antisense_base_rtop);
-      for(int iseq=0; iseq<seq.length(); iseq++) {
+      for(unsigned int iseq=0; iseq<seq.length(); iseq++) {
 	 if (is_valid_base(seq[iseq])) {
 	    // sense residue
 	    mmdb::Residue *res = coot::util::deep_copy_this_residue(ur);
@@ -123,7 +123,7 @@ coot::ideal_rna::make_molecule() {
 	 antisense_chain_p->SetChainID("B");
 
 	 model_p->AddChain(antisense_chain_p);
-	 for(int iseq=0; iseq<seq.length(); iseq++) {
+	 for(unsigned int iseq=0; iseq<seq.length(); iseq++) {
 	    if (is_valid_base(seq[iseq])) { 
 
 	       // antisense residue
@@ -175,7 +175,7 @@ coot::ideal_rna::fix_up_residue_and_atom_names(mmdb::Residue *residue_p, bool is
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-   for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+   for (int iat=0; iat<n_residue_atoms; iat++) {
       mmdb::Atom *at = residue_atoms[iat];
       std::string atom_name = at->name;
       if (atom_name.length() > 3) {
@@ -193,7 +193,7 @@ coot::ideal_rna::fix_up_residue_and_atom_names(mmdb::Residue *residue_p, bool is
 
    // fix the atom name C5M->C7 on a T in DNA [Grr, !@#$!@#$% PDB...]
    if (new_name == "DT") {
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+      for (int iat=0; iat<n_residue_atoms; iat++) {
 	 mmdb::Atom *at = residue_atoms[iat];
 	 std::string atom_name = at->name;
 	 if (atom_name == " C5M") {

@@ -583,6 +583,7 @@ mmdb::Residue *
 coot::rotamer::GetResidue(const coot::dictionary_residue_restraints_t &rest,
 			   int i_rot) const {
 
+   unsigned int ui_rot = i_rot;
    bool debug = 0;
    // std::cout << "rotamer::GetResidue alt_conf is :" << alt_conf << ":" << std::endl;
    mmdb::Residue *rres = deep_copy_residue(Residue()); 
@@ -600,11 +601,10 @@ coot::rotamer::GetResidue(const coot::dictionary_residue_restraints_t &rest,
       }
    } 
 
-   if ((rots.size() == 0) ||
-       (i_rot >= rots.size())) { 
+   if ((rots.size() == 0) || (ui_rot >= rots.size())) { 
       return rres; // or should this be null? 
    }
-   coot::simple_rotamer this_rot = rots[i_rot];
+   coot::simple_rotamer this_rot = rots[ui_rot];
    set_dihedrals(rres, rest, this_rot);
    
    return rres;
@@ -680,6 +680,7 @@ mmdb::Residue *
 coot::rotamer::GetResidue_old(int i_rot) const {
 
    mmdb::Residue *rres = deep_copy_residue(Residue());
+   unsigned int ui_rot = i_rot;
 
 //    std::cout << "debug:: deep_copy_residue of "
 // 	     << Residue()->GetSeqNum() << Residue()->GetInsCode()
@@ -692,12 +693,11 @@ coot::rotamer::GetResidue_old(int i_rot) const {
       rt = "MET";
    std::vector<coot::simple_rotamer> rots = rotamers(rt, probability_limit);
 
-   if ((rots.size() == 0) ||
-       (i_rot >= rots.size())) { 
+   if ((rots.size() == 0) || (ui_rot >= rots.size())) { 
       return rres; // or should this be null? 
    }
 
-   coot::simple_rotamer this_rot = rots[i_rot];
+   coot::simple_rotamer this_rot = rots[ui_rot];
    
    mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
@@ -796,15 +796,15 @@ coot::rotamer::GetResidue_old(int i_rot) const {
 	 // debugging
 	 if (0) { 
 	    std::cout << " -----------  coords ---------------- " << std::endl;
-	    for(int i=0; i<coords.size(); i++)
+	    for(unsigned int i=0; i<coords.size(); i++)
 	       std::cout << i << " " << ordered_residue_atoms_ppcatom[i]->GetAtomName()
 			 << " " << coords[i] << std::endl;
 	 
 	    // display contact indices here:
 	    //
 	    std::cout << " ---------------- contact indices ----------------------\n" ;
-	    for (int ic=0; ic<contact_indices.size(); ic++) {
-	       for (int jc=0; jc<contact_indices[ic].size(); jc++) {
+	    for (unsigned int ic=0; ic<contact_indices.size(); ic++) {
+	       for (unsigned int jc=0; jc<contact_indices[ic].size(); jc++) {
 		  std::cout << " contact " << ic << " "
 			    << contact_indices[ic][jc] << std::endl;
 	       }
@@ -1074,30 +1074,30 @@ coot::rotamer::ordered_residue_atoms(mmdb::Residue *residue_p) const {
 	    // residue atoms twice.  Once to pick up the atoms and the
 	    // second to order them.
 	    std::vector<mmdb::Atom *> other_atoms;
-	    for (int ian=0; ian<atom_order.size(); ian++) {
-	       short int marked_atom = 0;
+	    for (unsigned int ian=0; ian<atom_order.size(); ian++) {
+	       bool marked_atom = false;
 	       for(int i=0; i<nResidueAtoms; i++) {
 		  atom_name = std::string(residue_atoms[i]->GetAtomName());
 		  if (atom_name == atom_order[ian]) {
 		     atom_vec.push_back(residue_atoms[i]);
-		     marked_atom = 1;
+		     marked_atom = true;
 		  }
 	       }
 	    }
 	    
 	    for(int i=0; i<nResidueAtoms; i++) {
-	       short int found = 0; 
-	       for (int in_atom=0; in_atom<atom_vec.size(); in_atom++) {
+	       bool found = false; 
+	       for (unsigned int in_atom=0; in_atom<atom_vec.size(); in_atom++) {
 		  if (atom_vec[in_atom] == residue_atoms[i]) {
-		     found = 1;
+		     found = true;
 		     break;
 		  }
 	       }
-	       if (found == 0)
+	       if (found == false)
 		  other_atoms.push_back(residue_atoms[i]);
 	    }
 	    // now merge other_atoms onto the end of atom_vec
-	    for (int i=0; i<other_atoms.size(); i++)
+	    for (unsigned int i=0; i<other_atoms.size(); i++)
 	       atom_vec.push_back(other_atoms[i]);
 	 } 
       }
