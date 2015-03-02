@@ -78,8 +78,9 @@ void
 coot::goograph::init_widgets() {
 
    dialog = NULL;
-   if (! canvas)
+   if (! canvas) {
       canvas = GOO_CANVAS(goo_canvas_new());
+   } 
    set_bounds(1000, 1000);
 }
 
@@ -217,11 +218,22 @@ coot::goograph::draw_axes() {
 void
 coot::goograph::clear() {
 
-   GooCanvasItem *root = goo_canvas_get_root_item(canvas);
-   for (unsigned int i=0; i<items.size(); i++) { 
-      gint child_index = goo_canvas_item_find_child(root, items[i]);
-      if (child_index != -1) {
-	 goo_canvas_item_remove_child(root, child_index);
+   // If you are looking at this.... first check that your goograph is
+   // still in scope! i.e. use a new pointer.
+   // 
+   if (canvas) {
+      if (GOO_IS_CANVAS(canvas)) {
+	 GooCanvasItem *root = goo_canvas_get_root_item(canvas);
+	 if (root) { 
+	    for (unsigned int i=0; i<items.size(); i++) {
+	       gint child_index = goo_canvas_item_find_child(root, items[i]);
+	       if (child_index != -1) {
+		  goo_canvas_item_remove_child(root, child_index);
+	       }
+	    }
+	 }
+      } else {
+	 std::cout << "ERROR:: canvas is not a GOOCANVAS " << canvas << std::endl;
       }
    }
    items.clear();
@@ -255,7 +267,23 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 				   double tick_step,
 				   double tick_length_multiplier) {
 
+   if (! canvas) {
+      std::cout << "ERROR:: in draw_ticks_generic() canvas is null " << std::endl;
+      return;
+   }
+
+   if (! GOO_IS_CANVAS(canvas)) {
+      std::cout << "ERROR:: in draw_ticks_generic() canvas is not a goocanvas " << canvas << std::endl;
+   }
+
    GooCanvasItem *root = goo_canvas_get_root_item(canvas);
+
+   if (! root) {
+      std::cout << "ERROR:: in draw_ticks_generic() root is null " << std::endl;
+      return;
+   }
+      
+   
    double extents_min = 0.0;
    double data_extents_min = 0.0;
    double extents_max = 0.0;
@@ -285,6 +313,7 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
    }
    
    if (axis == X_AXIS) {
+
       data_extents_min = extents_min_x;
       extents_min = extents_min_x;
       // extents_max = extents_max_x * 1.05;  // why did I have this?
@@ -293,8 +322,8 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 	 std::cout << "X_AXIS path"
 		   << " extents_min_x"  << extents_min_x
 		   << " extents_max_x " << extents_max_x
-		   << " extents_min " << extents_min
-		   << " extents_max " << extents_max
+		   << " extents_min "   << extents_min
+		   << " extents_max "   << extents_max
 		   << std::endl;
    }
 
@@ -423,8 +452,6 @@ coot::goograph::draw_ticks_generic(int axis, int tick_type,
 
 void
 coot::goograph::set_extents(int axis, double min, double max) {
-
-   // std::cout << "set_extents() " << axis << " " << min << " " << max << std::endl;
 
    if (axis == X_AXIS) {
       extents_min_x = min;
@@ -582,7 +609,7 @@ coot::goograph::set_data(int trace_id, const std::vector<std::pair<double, doubl
 	    if (data_in[i].second > max_y)
 	       max_y = data_in[i].second;
 	 }
-	 if (0) {
+	 if (false) {
 	    std::cout << "   in set_data() setting X exents "
 		      << min_x << " " << max_x << std::endl;
 	    std::cout << "   in set_data() setting Y exents "

@@ -3708,7 +3708,7 @@
 	    (let ((file-name (get-pdbe-cif-for-comp-id comp-id)))
 	      (if (string? file-name)
 		  (begin
-		    (read-cif-dictionary cif-file-name)
+		    (read-cif-dictionary file-name)
 		    (let ((s (SMILES-for-comp-id comp-id)))
 		      s))))))))
 

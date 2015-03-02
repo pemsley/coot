@@ -12,13 +12,14 @@
 #include "globjects.h"  //includes gtk/gtk.h
 #include "coot-utils/coot-coord-utils.hh"
 #include "c-interface.h"
-#include "cc-interface.hh"
-#include "cc-interface-scripting.hh"
 #include "c-interface-database.hh"
 #include "c-interface-python.hh"
 #include "c-interface-ligands-swig.hh"
 #include "c-interface-mogul.hh"
 #include "c-interface-sequence.hh"
+#include "cc-interface.hh"
+#include "cc-interface-scripting.hh"
+#include "cc-interface-ncs.hh"
 #include "manipulation-modes.hh"
 #include "rotamer-search-modes.hh"
 #include "lbg-interface.hh"
@@ -45,6 +46,7 @@
 %ignore list_nomenclature_errors(int);
 
 %include "c-interface.h"
+%include "cc-interface-ncs.hh"
 %include "cc-interface.hh"
 %include "cc-interface-scripting.hh"
 %include "c-interface-database.hh"

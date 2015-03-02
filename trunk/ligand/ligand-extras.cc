@@ -392,7 +392,7 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
 
       std::list<coot::map_point_cluster> cluster_list;
       // convert from a vector to a list:
-      for (int ic=0; ic<cluster.size(); ic++) {
+      for (unsigned int ic=0; ic<cluster.size(); ic++) {
 	 cluster_list.push_back(cluster[ic]);
       }
       
@@ -440,7 +440,7 @@ coot::ligand::water_fit_internal(float sigma_cutoff, int n_cycle) {
 	       }
 	    }
 	 }
-	 for (int irl=0; irl<iterator_remove_list.size(); irl++)
+	 for (unsigned int irl=0; irl<iterator_remove_list.size(); irl++)
 	    // cluster_list.remove(*(iterator_remove_list[irl]));
 	    cluster_list.erase(iterator_remove_list[irl]);
       }
@@ -598,12 +598,12 @@ coot::ligand::flood2(float n_sigma) {
 
    std::vector<clipper::Coord_orth> water_list;
 
-   mean_and_variance<float> mv_start = map_density_distribution(xmap_masked,0);
+   mean_and_variance<float> mv_start = map_density_distribution(xmap_masked, 40, 0);
 
    int n_added_waters=0;
    for (int iround=0; iround<n_rounds; iround++) {
 
-      mean_and_variance<float> mv_this = map_density_distribution(xmap_masked,0);
+      mean_and_variance<float> mv_this = map_density_distribution(xmap_masked, 40, 0);
 
       float n_sigma_crit = n_sigma * sqrt(mv_start.variance/mv_this.variance);
       
@@ -780,7 +780,8 @@ coot::minimol::molecule
 coot::ligand::get_solution(unsigned int isolution, unsigned int iclust) const {
 
    coot::minimol::molecule empty;
-   if (iclust < int(final_ligand.size())) {
+   unsigned int n_final_ligands = final_ligand.size();
+   if (iclust < n_final_ligands) {
       if (isolution >=0 && isolution < final_ligand[iclust].size())
 	 return final_ligand[iclust][isolution].first;
    } else {

@@ -386,7 +386,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
    // ------------------------ spherical density overlap -------------------------
    // 
-   if (1) {
+   if (0) {
       int imol = scm_to_int(i_scm); // map molecule
       int imol_map = scm_to_int(j_scm); // map molecule
 
@@ -508,10 +508,28 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       }
    } 
 
-   if (0) {
+   if (1) {
 #if HAVE_GOOCANVAS      
-      coot::goograph g;
-      g.show_dialog();
+      coot::goograph *g = new coot::goograph;
+      std::vector<std::pair<double, double> > data;
+      data.push_back(std::pair<double, double> ( 104.5,  4));
+      data.push_back(std::pair<double, double> ( 104.75, 1));
+      data.push_back(std::pair<double, double> ( 105,    2));
+      data.push_back(std::pair<double, double> ( 105.25, 1));
+      data.push_back(std::pair<double, double> ( 105.5,  0));
+      data.push_back(std::pair<double, double> ( 105.75, 0));
+      data.push_back(std::pair<double, double> ( 106,    0));
+      data.push_back(std::pair<double, double> ( 106.25, 0));
+      data.push_back(std::pair<double, double> ( 106.5,  0));
+      data.push_back(std::pair<double, double> ( 106.75, 0));
+      data.push_back(std::pair<double, double> ( 107,    0));
+      data.push_back(std::pair<double, double> ( 107.25, 3));
+      data.push_back(std::pair<double, double> ( 107.5,  6));
+      data.push_back(std::pair<double, double> ( 107.75, 9));
+      int trace = g->trace_new();
+      g->set_plot_title("Density Histogram");
+      g->set_data(trace, data);
+      g->show_dialog();
 #endif       
    } 
 

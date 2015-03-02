@@ -14,6 +14,7 @@ public:
    T range; 
    T max_density;
    T min_density;
+   T bin_width;
    std::vector<int> bins;
    
    // Fix this in a spare moment: 
@@ -25,6 +26,7 @@ public:
 template<class T>
 mean_and_variance<T>
 map_density_distribution(const clipper::Xmap<T> &map,
+			 unsigned int hist_n_bins=40,
 			 bool write_output_flag=false,
 			 bool ignore_pseude_zeros=false);
 
