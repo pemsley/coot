@@ -316,7 +316,7 @@ PyObject *handle_pisa_interfaces_py(PyObject *interfaces_description_py) {
 		    // construction of bonds
    int imol_2 = -1;
    
-   for (unsigned int i=0; i<interfaces_description_length; i++) {
+   for (int i=0; i<interfaces_description_length; i++) {
       PyObject *interface_py = PyList_GetItem(interfaces_description_py, i);
       int interface_length = PyObject_Length(interface_py);
       // interfaces contain a molecule pair pair.  a molecule pair is
@@ -488,7 +488,7 @@ coot::get_pisa_interface_bond_info_scm(SCM bonds_info_scm) {
 
    SCM bonds_info_length_scm = scm_length(bonds_info_scm);
    int bonds_info_length = scm_to_int(bonds_info_length_scm);
-   for (unsigned int ib=0; ib<bonds_info_length; ib++) {
+   for (int ib=0; ib<bonds_info_length; ib++) {
       SCM bond_info_scm = scm_list_ref(bonds_info_scm, SCM_MAKINUM(ib));
       SCM bond_info_scm_length_scm = scm_length(bond_info_scm);
       int bond_info_scm_length = scm_to_int(bond_info_scm_length_scm);
@@ -520,7 +520,7 @@ coot::get_pisa_interface_bond_info_py(PyObject *bonds_info_py) {
    coot::pisa_interface_bond_info_t pibi;
 
    int bonds_info_length = PyObject_Length(bonds_info_py);
-   for (unsigned int ib=0; ib<bonds_info_length; ib++) {
+   for (int ib=0; ib<bonds_info_length; ib++) {
        PyObject *bond_info_py = PyList_GetItem(bonds_info_py, ib);
        int bond_info_py_length = PyObject_Length(bond_info_py);
        if (bond_info_py_length == 3) {
@@ -975,7 +975,7 @@ make_complementary_dotted_surfaces(int imol_1, int imol_2,
 void
 pisa_interfaces_display_only(int imol_1, int imol_2, clipper::Coord_orth centre_pt) {
 
-   for (unsigned int imol=0; imol<graphics_n_molecules(); imol++) {
+   for (int imol=0; imol<graphics_n_molecules(); imol++) {
       if (is_valid_model_molecule(imol)) {
 	 if ((imol != imol_1) && (imol != imol_2)) {
 	    set_mol_displayed(imol, 0);
