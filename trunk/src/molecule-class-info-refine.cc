@@ -631,7 +631,7 @@ molecule_class_info_t::morph_residue_atoms_by_average_rtops(mmdb::Residue *resid
    int n_residue_atoms;
    if (rtops.size()) { 
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+      for (int iat=0; iat<n_residue_atoms; iat++) {
 	 mmdb::Atom *at = residue_atoms[iat];
 	 clipper::Coord_orth pt(at->x, at->y, at->z);
 	 clipper::Coord_orth sum_transformed_pts(0,0,0);
@@ -897,7 +897,7 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 		  int n_residue_atoms;
 		  residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 		  clipper::Coord_orth centre = it_ss->second.first;
-		  for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+		  for (int iat=0; iat<n_residue_atoms; iat++) {
 		     mmdb::Atom *at = residue_atoms[iat];
 		     clipper::Coord_orth pt_1 = coot::co(at);
 		     clipper::Coord_orth pt_2 = pt_1 - centre;
