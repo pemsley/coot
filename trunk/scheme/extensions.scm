@@ -1548,8 +1548,10 @@
   (add-simple-coot-menu-menuitem
    menu "Alignment vs PIR..."
    (lambda ()
-     (molecule-chooser-gui "Alignment vs PIR info for molecule:"
-			   (lambda (imol)
-			     (wrapper-alignment-mismatches-gui imol))))))
+     ;; (molecule-chooser-gui "Alignment vs PIR info for molecule:"
+     ;; (lambda (imol)
+     ;; (wrapper-alignment-mismatches-gui imol))))))
 
+     (let ((do-alignment? #t))
+     (associate-pir-with-molecule-gui do-alignment?)))))
 
