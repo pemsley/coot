@@ -677,7 +677,30 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 
 	 int res_idx = selindex[iseq_indx];
 
-	 if (res_idx != -1) {
+	 if (res_idx == -1) {
+
+	    // the model is missing residues at the C-terminus 
+	    
+	    if (s[iseq_indx] == '-') { 
+	       if (t[iseq_indx] != '-') {
+		  
+		  coot::residue_spec_t res_spec(res_no_running + 1);
+		  res_no_running++; // for next insertion
+	       
+		  std::string target_type(1, t[iseq_indx]);
+
+		  if (! is_nucleic_acid_flag)
+		     target_type = coot::util::single_letter_to_3_letter_code(t[iseq_indx]);
+	       
+		  ch_info.add_insertion(res_spec, target_type);
+		  if (false) 
+		     std::cout << "DEBUG:: Insert residue  " << res_spec << " " << target_type
+			       << " " << iseq_indx << " " << t[iseq_indx]
+			       << " with ires " << ires << std::endl;
+	       }
+	    }
+
+	 } else { 
 
 	    // sane res_index
 	    
@@ -688,6 +711,10 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 			    << " of " << nSelResidues << " selected residues" << std::endl;
 	       res_no_running = SelResidues[res_idx]->GetSeqNum();
 	    }
+
+	    std::cout << "iseq_indx " << iseq_indx << " "
+		      << s[iseq_indx] << " vs " << t[iseq_indx] << std::endl;
+	       
 	 
 	    if (s[iseq_indx] != t[iseq_indx]) {
 

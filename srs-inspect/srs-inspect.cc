@@ -42,12 +42,10 @@ exists_in_refmac(const std::string &id,
 	 exists = true;
       } else { 
 	 // std::cout << "         " << full_path << " does not exist"  << std::endl;
-      } 
-      
-   } 
+      }
+   }
    return exists;
-
-} 
+}
 
 int main(int argc, char **argv) {
 
