@@ -505,7 +505,7 @@ void handle_read_draw_probe_dots(const char *dots_file) {
 	 deletable_names.push_back("small overlap");
 	 deletable_names.push_back("bad overlap");
 	 deletable_names.push_back("H-bonds");
-	 int nobjs = graphics_info_t::generic_objects_p->size();
+	 unsigned int nobjs = graphics_info_t::generic_objects_p->size();
 	 for (unsigned int i=0; i< nobjs; i++) {
 	    for (unsigned int d=0; d<deletable_names.size(); d++) { 
 	       if ((*graphics_info_t::generic_objects_p)[i].name == deletable_names[d]) {
