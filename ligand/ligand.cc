@@ -1537,8 +1537,8 @@ coot::ligand::move_ligand_site_close_to_protein_using_shape (int iclust,
    clipper::Vec3<double>  vcrd(0.0,0.0,0.0),resvec;
    clipper::Mat33<double> imat;
    int nn=0,mm=0,kk=0;
-   for(unsigned int i=0;i<n_sampled;i++){
-	vcrd+=sampled_protein_coords[i];
+   for(int i=0;i<n_sampled;i++) {
+      vcrd+=sampled_protein_coords[i];
    }
    vcrd = 1.0/((float)sampled_protein_coords.size())*vcrd;
    imat	  = (xmap_pristine.cell()).matrix_frac();
