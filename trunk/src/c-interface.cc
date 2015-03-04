@@ -1501,7 +1501,7 @@ float density_score_residue_scm(int imol, SCM residue_spec_scm, int imol_map) {
 	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
 	    r->GetAtomTable(residue_atoms, n_residue_atoms);
-	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	    for (int iat=0; iat<n_residue_atoms; iat++) { 
 	       mmdb::Atom *at = residue_atoms[iat];
 	       float d_at = density_at_point(imol_map, at->x, at->y, at->z);
 	       v += d_at * at->occupancy;
@@ -1526,7 +1526,7 @@ float density_score_residue_py(int imol, PyObject *residue_spec_py, int imol_map
 	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
 	    r->GetAtomTable(residue_atoms, n_residue_atoms);
-	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	    for (int iat=0; iat<n_residue_atoms; iat++) { 
 	       mmdb::Atom *at = residue_atoms[iat];
 	       float d_at = density_at_point(imol_map, at->x, at->y, at->z);
 	       v += d_at * at->occupancy;
@@ -1551,7 +1551,7 @@ float density_score_residue(int imol, const char *chain_id, int res_no, const ch
 	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
 	    r->GetAtomTable(residue_atoms, n_residue_atoms);
-	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	    for (int iat=0; iat<n_residue_atoms; iat++) { 
 	       mmdb::Atom *at = residue_atoms[iat];
 	       float d_at = density_at_point(imol_map, at->x, at->y, at->z);
 	       v += d_at * at->occupancy;
@@ -2670,7 +2670,7 @@ SCM additional_representation_info_scm(int imol) {
    SCM r = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
       r = SCM_EOL;
-      for (int ir=0; ir<graphics_info_t::molecules[imol].add_reps.size(); ir++) {
+      for (unsigned int ir=0; ir<graphics_info_t::molecules[imol].add_reps.size(); ir++) {
 	 SCM l = SCM_EOL;
 	 std::string s = graphics_info_t::molecules[imol].add_reps[ir].info_string();
 	 SCM is_show_flag_scm = SCM_BOOL_F;
@@ -2717,7 +2717,7 @@ PyObject *additional_representation_info_py(int imol) {
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
       r = PyList_New(0);
-      for (int ir=0; ir<graphics_info_t::molecules[imol].add_reps.size(); ir++) {
+      for (unsigned int ir=0; ir<graphics_info_t::molecules[imol].add_reps.size(); ir++) {
 	 PyObject *l = PyList_New(4);
 	 std::string s = graphics_info_t::molecules[imol].add_reps[ir].info_string();
 	 PyObject *is_show_flag_py = Py_False;
@@ -4874,7 +4874,7 @@ void display_maps_scm(SCM maps_list_scm) {
    if (scm_is_true(s_test)) {
       SCM n_scm = scm_length(maps_list_scm);
       int n = scm_to_int(n_scm);
-      for (unsigned int i=0; i<n; i++) {
+      for (int i=0; i<n; i++) {
 	 SCM item_scm = scm_list_ref(maps_list_scm, SCM_MAKINUM(i));
 	 if (scm_is_true(scm_integer_p(item_scm))) {
 	    int imol = scm_to_int(item_scm);
@@ -4885,7 +4885,7 @@ void display_maps_scm(SCM maps_list_scm) {
       }
    }
 
-   for (unsigned int imol=0; imol<n_mol; imol++) { 
+   for (int imol=0; imol<n_mol; imol++) { 
       if (is_valid_map_molecule(imol)) {
 	 if (map_on[imol])
 	    g.molecules[imol].set_map_is_displayed(1);
@@ -4906,7 +4906,7 @@ void display_maps_py(PyObject *pyo) {
    std::vector<bool> map_on(n_mol, false);
    if (PyList_Check(pyo)) {
       int n = PyObject_Length(pyo);
-      for (unsigned int i=0; i<n; i++) {
+      for (int i=0; i<n; i++) {
 	 PyObject *item_py = PyList_GetItem(pyo, i);
 	 if (PyInt_Check(item_py)) {
 	    int imol = PyInt_AsLong(item_py);
@@ -4916,7 +4916,7 @@ void display_maps_py(PyObject *pyo) {
 	 } 
       }
    }
-   for (unsigned int imol=0; imol<n_mol; imol++) { 
+   for (int imol=0; imol<n_mol; imol++) { 
       if (is_valid_map_molecule(imol)) {
 	 if (map_on[imol])
 	    g.molecules[imol].set_map_is_displayed(1);
@@ -5792,10 +5792,16 @@ void post_python_scripting_window() {
 /* called from c-inner-main */
 // If you edit this again, move it to graphics_info_t.
 // 
-void run_command_line_scripts() {
+void
+run_command_line_scripts() {
 
-//     std::cout << "There are " << graphics_info_t::command_line_scripts->size() 
-//  	     << " command line scripts to run\n";
+   if (graphics_info_t::command_line_scripts->size()) {
+      std::cout << "INFO:: There are " << graphics_info_t::command_line_scripts->size() 
+		<< " command line scripts to run\n";
+      for (unsigned int i=0; i<graphics_info_t::command_line_scripts->size(); i++)
+	 std::cout << "    " << (*graphics_info_t::command_line_scripts)[i].c_str()
+		   << std::endl;
+   }
 
     for (unsigned int i=0; i<graphics_info_t::command_line_scripts->size(); i++)
        run_script((*graphics_info_t::command_line_scripts)[i].c_str());
@@ -5907,17 +5913,18 @@ run_script(const char *filename) {
    std::string fn(filename);
    if (status == 0) {
 
-      short int is_python = 0;
+      bool is_python = false;
 
       std::string::size_type ipy = fn.rfind(".py");
       if (ipy != std::string::npos) {
 	 if (fn.substr(ipy) == ".py")
-	    is_python = 1;
+	    is_python = true;
       }
 	 
       if (is_python) { 
 	 run_python_script(filename);
-      } else { 
+      } else {
+	 // std::cout << "DEBUG:: calling run_guile_script() " << filename << std::endl;
 	 run_guile_script(filename);
       }
    } else { 

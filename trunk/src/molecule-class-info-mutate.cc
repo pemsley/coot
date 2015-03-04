@@ -712,10 +712,10 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 	       res_no_running = SelResidues[res_idx]->GetSeqNum();
 	    }
 
-	    std::cout << "iseq_indx " << iseq_indx << " "
-		      << s[iseq_indx] << " vs " << t[iseq_indx] << std::endl;
+	    if (false) 
+	       std::cout << "iseq_indx " << iseq_indx << " "
+			 << s[iseq_indx] << " vs " << t[iseq_indx] << std::endl;
 	       
-	 
 	    if (s[iseq_indx] != t[iseq_indx]) {
 
 	       // These only make sense when the aligned residue (in s) was not "-"
