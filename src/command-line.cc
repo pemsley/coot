@@ -74,7 +74,10 @@
 command_line_data
 parse_command_line(int argc, char ** argv ) { 
 
-   command_line_data cld; 
+   command_line_data cld;
+
+   optind = 0; // reset the (global) extern because
+	       // parse_command_line() is/can be called more once.
 
 #ifdef _GETOPT_H    
    int ch; 
@@ -118,17 +121,17 @@ parse_command_line(int argc, char ** argv ) {
       {"help",       0, 0, 0},
       {"python",     0, 0, 0},
       {"splash-screen", 1, 0, 0}, // alternate splash screen
-      {"self-test",     0, 0, 0},
-      {"no-state-script",    0, 0, 0},
-      {"no-graphics",        0, 0, 0},
-      {"no-splash-screen",        0, 0, 0},
-      {"stereo",     0, 0, 0},       // no arguments 
-      {"side-by-side",     0, 0, 0}, // no arguments 
+      {"self-test",        0, 0, 0},
+      {"no-state-script",  0, 0, 0},
+      {"no-graphics",      0, 0, 0},
+      {"no-splash-screen", 0, 0, 0},
+      {"stereo",     0, 0, 0},        // no arguments 
+      {"side-by-side",     0, 0, 0},  // no arguments 
       {"zalman-stereo",     0, 0, 0}, // no arguments 
-      {"version",    0, 0, 0},       // no arguments 
-      {"version-full",  0, 0, 0},       // no arguments 
-      {"no-guano",   0, 0, 0},       // no arguments
-      {"small-screen", 0, 0, 0},       // no arguments (setting for EEE PC and other small screens)
+      {"version",    0, 0, 0},        // no arguments 
+      {"version-full",  0, 0, 0},     // no arguments 
+      {"no-guano",   0, 0, 0},        // no arguments
+      {"small-screen", 0, 0, 0},      // no arguments (setting for small screens)
       {"update-self", 0, 0, 0},  
       {0, 0, 0, 0}	       // must have blanks at end
    };
@@ -140,9 +143,8 @@ parse_command_line(int argc, char ** argv ) {
 
       switch(ch) {
 	 
-	 // a long option
+      case 0:
 	 
-      case 0: 
 	 if (optarg) {
 
 	    // options that need an argument:

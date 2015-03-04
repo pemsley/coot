@@ -151,7 +151,9 @@ void setup_python(int argc, char **argv) {
      // we only want to run one state file if using both scripting
      // languages.  Let that be the guile one.
      
-#ifndef USE_GUILE     
+#ifndef USE_GUILE
+
+     std::cout << "----- debug:: calling parse_command_line() from setup_python()" << std::endl;
      command_line_data cld = parse_command_line(argc, argv);
      handle_command_line_data(cld);
 

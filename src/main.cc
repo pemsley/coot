@@ -165,9 +165,7 @@ main (int argc, char *argv[]) {
    curl_global_init(CURL_GLOBAL_NOTHING); // nothing extra (e.g. ssl or WIN32)
 #endif  
 
-   // command line
    command_line_data cld = parse_command_line(argc, argv);
-
    cld.handle_immediate_settings();
 
    if (cld.run_internal_tests_and_exit) {
