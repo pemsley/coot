@@ -602,8 +602,13 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 		     // e.g. a single CLs residues in a chain.
 		     std::vector<std::string> res_types = coot::util::residue_types_in_chain(chain_p);
 		     if (!geom_p->have_dictionary_for_residue_types(res_types)) {
-			GtkWidget *widget = create_no_restraints_info_dialog();
-			gtk_widget_show(widget);
+
+			if (use_graphics_interface_flag) { 
+			   GtkWidget *widget = create_no_restraints_info_dialog();
+			   gtk_widget_show(widget);
+			} else {
+			   std::cout << "WARNING:: No dictionary for some residue types " << std::endl;
+			} 
 		     }
 		  }
 	       }
