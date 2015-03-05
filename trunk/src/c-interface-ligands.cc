@@ -2684,9 +2684,11 @@ PyObject *kullback_liebler_py(PyObject *l1, PyObject *l2) {
 // Returning void ATM.  We should return an interesting object at some
 // stage. Perhaps a coot::geometry_distortion_info_container_t?
 //
-void
+double
 print_residue_distortions(int imol, std::string chain_id, int res_no, std::string ins_code) {
 
+   double total_distortion = 0.0;
+   
    if (! is_valid_model_molecule(imol)) {
       std::cout << "Not a valid model molecule " << imol << std::endl;
    } else {
@@ -2697,10 +2699,16 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 		   << coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
       } else { 
 	 coot::geometry_distortion_info_container_t gdc = g.geometric_distortions(residue_p);
-	 int n_restraints_bonds = 0;
-	 int n_restraints_angles = 0;
-	 double sum_penalties_bonds  = 0;
-	 double sum_penalties_angles = 0;
+	 int n_restraints_bonds   = 0;
+	 int n_restraints_angles  = 0;
+	 int n_restraints_chirals = 0;
+	 int n_restraints_planes  = 0;
+	 int n_restraints_torsions= 0;
+	 double sum_penalties_bonds    = 0;
+	 double sum_penalties_angles   = 0;
+	 double sum_penalties_planes   = 0;
+	 double sum_penalties_chirals  = 0;
+	 double sum_penalties_torsions = 0;
 	 std::vector<std::pair<std::string,double> > penalty_string_bonds;
 	 std::vector<std::pair<std::string,double> > penalty_string_angles;
 	 std::cout << "Residue Distortion List: \n";
@@ -2756,6 +2764,7 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 	    }
 
 	    if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
+	       n_restraints_chirals++;
 	       if (gdc.geometry_distortion[i].distortion_score > 10) { // arbitrons
 		  mmdb::Atom *at_c = residue_p->GetAtom(rest.atom_index_centre);
 		  mmdb::Atom *at_1 = residue_p->GetAtom(rest.atom_index_1);
@@ -2771,9 +2780,12 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 			       << std::endl;
 		  }
 	       }
+	       double pen_score = gdc.geometry_distortion[i].distortion_score;
+	       sum_penalties_chirals += pen_score;
 	    }
 
 	    if (rest.restraint_type == coot::PLANE_RESTRAINT) {
+	       n_restraints_planes++;
 	       std::vector<mmdb::Atom *> plane_atoms;
 	       for (unsigned int iat=0; iat<rest.plane_atom_index.size(); iat++) { 
 		  mmdb::Atom *at = residue_p->GetAtom(rest.plane_atom_index[iat].first);
@@ -2789,6 +2801,7 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 	       if (len < 88) // to match bonds
 		  penalty_string += std::string(88-len, ' ');
 	       double pen_score = gdc.geometry_distortion[i].distortion_score;
+	       sum_penalties_planes += pen_score;
 	       penalty_string += std::string(" penalty-score:  ") + coot::util::float_to_string(pen_score);
 	       std::cout << penalty_string << std::endl;
 	    }
@@ -2815,8 +2828,16 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 	    av_penalty_bond = sum_penalties_bonds/double(n_restraints_bonds);
 	 if (n_restraints_angles > 0)
 	    av_penalty_angle = sum_penalties_angles/double(n_restraints_angles);
-	 if ((n_restraints_bonds+n_restraints_angles) > 0)
+	 if ((n_restraints_bonds+n_restraints_angles) > 0) { 
 	    av_penalty_total = (sum_penalties_bonds+sum_penalties_angles)/(n_restraints_bonds+n_restraints_angles);
+	 }
+	 total_distortion =
+	    sum_penalties_bonds  +
+	    sum_penalties_angles +
+	    sum_penalties_torsions +
+	    sum_penalties_chirals  + 
+	    sum_penalties_planes;
+	 
 	 std::cout << "Residue Distortion Summary: \n   "
 		   << n_restraints_bonds  << " bond restraints\n   "
 		   << n_restraints_angles << " angle restraints\n"
@@ -2824,12 +2845,14 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 		   << "   sum of angle distortions penalties:  " << sum_penalties_angles << "\n"
 		   << "   average bond  distortion penalty:    " << av_penalty_bond  << "\n"
 		   << "   average angle distortion penalty:    " << av_penalty_angle << "\n"
-		   << "   total distortion penalty:            " << sum_penalties_bonds+sum_penalties_angles
+		   << "   total distortion penalty:            " << total_distortion
 		   << "\n"
 		   << "   average distortion penalty:          " << av_penalty_total
 		   << std::endl;
       }
    }
+   return total_distortion;
+   
 }
 
 // Returning void ATM.  We should return an interesting object at some
