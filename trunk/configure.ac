@@ -25,13 +25,9 @@ dnl implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 dnl
 dnl Process this file with autoconf to produce a configure script.
 
-# AC_INIT package-name version-number
-AC_INIT(configure.ac)
-
-AM_INIT_AUTOMAKE(coot, 0.8.2-pre)
-# for old versions of automake
-# AM_CONFIG_HEADER(config.h)
-
+AC_INIT(coot, 0.8.2)
+AC_CONFIG_SRCDIR(src/main.cc)
+AM_INIT_AUTOMAKE
 
 dnl Pick up the macros.
 AM_ACLOCAL_INCLUDE(macros)
