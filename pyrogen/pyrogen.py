@@ -266,7 +266,8 @@ def make_restraints_from_mdl(mol_file_name, comp_id, mogul_dir, name_stub, pdb_o
    m = Chem.MolFromMolFile(mol_file_name)
    return m, make_restraints(m, comp_id, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name,
 			     quartet_planes, quartet_hydrogen_planes, use_mmff,
-                             match_atom_names_to_dict_flag, comp_id_list_for_names_match, dict_files_for_names_match)
+                             match_atom_names_to_dict_flag, comp_id_list_for_names_match,
+                             dict_files_for_names_match)
 
 
 # return a list of (mol, comp_id) pairs for every ligand in the cif
@@ -706,6 +707,9 @@ if __name__ == "__main__":
           checked_mkdir(options.mogul_dir)
 
     if options.show_tautomers or options.show_smiles:
+
+        # ------------------------ Tautomers and SMILES  ---------------------------------------------
+
 	mol = False
 	if len(args) > 0:
 	    smi_raw = args[0]
