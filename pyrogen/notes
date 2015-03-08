@@ -91,4 +91,10 @@ pyrogen -n -M -o DB00225 drugbank/DB00225.smiles
 
 * Done.
 
+
+---
+
+   CBQ plane restraint? of 0BU in 4mtz - should be flat but isn't.
+
+
 ------
