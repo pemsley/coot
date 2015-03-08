@@ -15,6 +15,8 @@ from optparse import OptionParser
 
 import tautomer
 
+import urllib
+
 from jay_util import *
 
 global pyrogen_version
@@ -144,6 +146,21 @@ def is_mdl_file(file_name):
 def read_file(file_name):
     f = open(file_name)
     return f.read()
+
+
+# return False or a file_name
+#
+def get_pdbe_cif_for_comp_id(comp_id):
+
+   try:
+      file_name = "PDBe-" + comp_id + ".cif"
+      url = 'ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/' + comp_id + '.cif'
+      status = urllib.urlretrieve(url, file_name)
+      return file_name
+   except IOError as e:
+      print e
+      print "Can't write file", file_name
+      exit(2)
 
         
 def make_restraints_for_bond_orders(mol):
@@ -595,7 +612,7 @@ if __name__ == "__main__":
 
     def checked_mkdir(dirname):
         if not os.path.exists(dirname):
-	    os.makedirs(dirname)
+           os.makedirs(dirname)
 	else:
 	   if os.path.isdir(dirname):
 	       pass # this happens most of the time, I imagine
@@ -619,7 +636,7 @@ if __name__ == "__main__":
     parser = OptionParser(usage='pyrogen [options] file-or-SMILES'+
                           '\n       if file-or-SMILES has extension ".smi" or ".smiles" ' +
                           'then it is treated as a file')
-    parser.add_option("-c", "--mmcif", dest="mmcif_file",
+    parser.add_option("-c", "--mmcif", dest="mmcif_file_name",
 		      help="Make restraints from input mmcif FILE", metavar="FILE")
     parser.add_option("-m", "--mol", dest="sdf_file",
 		      help="Make restraints from input sdf/mol FILE", metavar="FILE")
@@ -669,6 +686,8 @@ if __name__ == "__main__":
                       help='Try to match the atom names of the output molecule to these comp-ids' +
                       ' (comma-separated list)',
                       default=False)
+    parser.add_option('-w', '--wwPDB', default=False, dest="wwPDB", action="store_true",
+                      help='Fetch the wwPDB ligand definition and use that')
     parser.add_option("-q", "--quiet",
                       action="store_false", dest="verbose", default=True,
                       help="print less messages")
@@ -682,7 +701,7 @@ if __name__ == "__main__":
     comp_id = options.comp_id
     if options.comp_id == 'default':
 	comp_id = 'LIG'
-    if options.mmcif_file != None:
+    if options.mmcif_file_name != None:
 	if options.comp_id == 'default':
 	    comp_id = 'TRY_ALL_COMP_IDS'
 
@@ -719,11 +738,11 @@ if __name__ == "__main__":
 	    if options.sdf_file != None:
 		mol = Chem.MolFromMolFile(options.sdf_file)
 	    else:
-		if options.mmcif_file != None:
-		    types = pysw.types_from_mmcif_dictionary(options.mmcif_file)
+		if options.mmcif_file_name != None:
+		    types = pysw.types_from_mmcif_dictionary(options.mmcif_file_name)
 		    print '-- tautomer mode: mmcif file types:', types
 		    for type in types:
-			mol_local = pyrogen_boost.rdkit_mol_chem_comp_pdbx(options.mmcif_file, type)
+			mol_local = pyrogen_boost.rdkit_mol_chem_comp_pdbx(options.mmcif_file_name, type)
 			score_and_print_tautomers(mol_local, type, options.output_postfix, options.drawing)
 
 	if mol:
@@ -737,6 +756,16 @@ if __name__ == "__main__":
 
         # ------------------------ dict-build-mode ---------------------------------------------------
 
+        mmcif_file_name = options.mmcif_file_name
+        # shall we go get the dictionary?
+        if options.wwPDB:
+           mmcif_file_name = get_pdbe_cif_for_comp_id(comp_id)
+           if os.path.isfile(mmcif_file_name):
+              pass # good
+           else:
+              print "Missing downloaded file for comp-id:",  comp_id
+              exit(2)
+
         # JED mode for hydrogen planes
         #
         quartet_hydrogen_planes = options.quartet_hydrogen_planes
@@ -747,8 +776,9 @@ if __name__ == "__main__":
         if options.no_match_names_flag:
             match_names_flag = False
 
-	if options.mmcif_file:
-	    mol_pairs = make_restraints_from_mmcif_dict(options.mmcif_file, comp_id,
+	if mmcif_file_name:
+	    mol_pairs = make_restraints_from_mmcif_dict(mmcif_file_name,
+                                                        comp_id,
                                                         options.mogul_dir,
                                                         options.output_dir,
 							options.output_postfix,
