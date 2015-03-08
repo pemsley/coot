@@ -1302,10 +1302,12 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
    patterns.push_back(d_pat("*C(=N)[N^2;H2]([H])[A,H]",    0.02));  // amidine
    patterns.push_back(d_pat("CNC(=[NH])N([H])[H]",         0.02));  // guanidinium with H - testing
    patterns.push_back(d_pat("CNC(=[NH])N",                 0.02));  // guanidinium sans Hs
+   patterns.push_back(d_pat("*[C;X3;^2](=O)[N;X3;^2;H1]([H])*", 0.02));  // amino
+   
 
    // Martin's pattern, these should be weaker (than standard 0.02) though, I think
    patterns.push_back(d_pat("[*^2]=[*^2]-[*^2]=[*;X1;^2]", 0.04));
-   patterns.push_back(d_pat("[a^2]:[a^2]-[*^2]=[*;X1;^2]", 0.04));
+   // patterns.push_back(d_pat("[a^2]:[a^2]-[*^2]=[*;X1;^2]", 0.04)); // no. bad match for OAC,CBG in 0BU
    
    int n_planes = 1; 
    for (unsigned int ipat=0; ipat<patterns.size(); ipat++) {
@@ -1317,8 +1319,26 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
       int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
       for (unsigned int imatch=0; imatch<matches.size(); imatch++) { 
 	 if (matches[imatch].size() > 0) {
-	    if (0) // debug
-	       std::cout << "matched deloc plane pattern: " << patterns[ipat].first << std::endl;
+	    
+	    if (true) { // debug
+	       std::cout << "INFO:: matched deloc plane: " << patterns[ipat].first << " ";
+	       std::cout << " ("; 
+	       for (unsigned int iat=0; iat<matches[imatch].size(); iat++) { 
+		  unsigned int atom_idx = matches[imatch][iat].second;
+		  try {
+		     RDKit::ATOM_SPTR at_p = mol[atom_idx];
+		     std::string atom_name;
+		     at_p->getProp("name", atom_name);
+		     std::cout << " " << atom_name;
+		  }
+		  catch (const KeyErrorException &kee) {
+		     std::cout << " " << atom_idx;
+		  } 
+	       }
+	       std::cout << " )";
+	       std::cout << std::endl;
+	    }
+
 	    std::vector<std::string> atom_names;
 	    std::string plane_id = "plane-deloc-";
 	    char s[100];
