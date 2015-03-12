@@ -559,8 +559,8 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
 	 geom_local.get_monomer_restraints(reference_comp_id);
       if (rp_1.first) {
 	 coot::protein_geometry geom_matcher;
-	 int n_bonds = geom_matcher.init_refmac_mon_lib(cif_dict_in, 0);
-	 if (n_bonds == 0) {
+	 coot::read_refmac_mon_lib_info_t rmit = geom_matcher.init_refmac_mon_lib(cif_dict_in, 0);
+	 if (rmit.n_bonds == 0) {
 	    std::cout << "No bonds from " << cif_dict_in << std::endl;
 	 } else { 
 	    std::pair<short int, coot::dictionary_residue_restraints_t> rp_2 =

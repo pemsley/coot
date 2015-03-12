@@ -48,14 +48,17 @@
 #include "compat/coot-sysdep.h"
 
 #include "lbg-graph.hh"
+
 // return the number of atoms read (not the number of bonds (because
 // that is not a good measure of having read the file properly for
 // (for example) CL)).
 // 
-int
+coot::read_refmac_mon_lib_info_t
 coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_number_in) {
 
-   int ret_val = 0; 
+
+   read_refmac_mon_lib_info_t rmit;
+   
    mmdb::mmcif::File ciffile;
 
    // Here we would want to check through dict_res_restraints for the
@@ -75,10 +78,13 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
    // Thanks Ezra Peisach for this this bug report
 
    if (istat != 0) {
-      std::cout << "WARNING: in init_refmac_mon_lib file \"" << ciffilename
-		<< "\" not found."
-		<< "\n";
-      return 0; // failure
+      std::string s = "WARNING: in init_refmac_mon_lib file \"";
+      s += ciffilename;
+      s += " not found.";
+      std::cout <<  s << "\n";
+      rmit.error_messages.push_back(s);
+      rmit.success = false;
+      return rmit;
    }
 
    if (! S_ISREG(buf.st_mode)) {
@@ -91,7 +97,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
       std::string comp_id_2;  // initially unset
    
       if (ierr!=mmdb::mmcif::CIFRC_Ok) {
-	 std::cout << "dirty mmCIF file? " << ciffilename.c_str() << std::endl;
+	 std::cout << "dirty mmCIF file? " << ciffilename << std::endl;
 	 std::cout << "    Bad mmdb::mmcif::CIFRC_Ok on ReadMMCIFFile" << std::endl;
 
 	 std::cout << "    " << mmdb::GetErrorDescription(mmdb::ERROR_CODE(ierr))
@@ -100,6 +106,21 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
  	 char        err_buff[1000];
  	 std::cout <<  "CIF error rc=" << ierr << " reason:" << 
  	    mmdb::mmcif::GetCIFMessage (err_buff, ierr) << std::endl;
+
+	 rmit.success = false;
+	 std::string s = "Dirty mmCIF file? ";
+	 s += ciffilename;
+	 rmit.error_messages.push_back(s);
+	 s = "Bad mmdb::mmcif::CIFRC_Ok on ReadMMCIFFile";
+	 rmit.error_messages.push_back(s);
+	 s = mmdb::GetErrorDescription(mmdb::ERROR_CODE(ierr));
+	 rmit.error_messages.push_back(s);
+	 clipper::String cs = "CIF error rc=";
+	 cs += ierr;
+	 cs += " reason:";
+	 cs += mmdb::mmcif::GetCIFMessage (err_buff, ierr);
+	 rmit.error_messages.push_back(cs);
+	 
 
       } else {
 	 if (verbose_mode)
@@ -113,13 +134,13 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	    // note that chem_link goes here to:
 	    // 
 	    if (std::string(data->GetDataName()).substr(0,5) == "link_") {
-	       ret_val += init_links(data);
+	       rmit.n_links += init_links(data);
 	    }
 
 	    if (std::string(data->GetDataName()).length() > 7) {
 	       if (std::string(data->GetDataName()).substr(0,8) == "mod_list") {
 		  // this handles all "list_chem_mod"s in the file (just one call)
-		  ret_val += add_chem_mods(data);
+		  rmit.n_links += add_chem_mods(data); // check this
 
 		  if (0) // debug
 		     for (unsigned int i=0; i<chem_mod_vec.size(); i++)
@@ -130,7 +151,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	    if (std::string(data->GetDataName()).length() > 4) {
 	       // e.g. mod_NH3 ? 
 	       if (std::string(data->GetDataName()).substr(0,4) == "mod_") {
-		  ret_val += add_mod(data);
+		  rmit.n_links += add_mod(data);
 	       }
 	    }
 	       
@@ -203,7 +224,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		  
 		  // monomer info, name, number of atoms etc.
 		  if (cat_name == "_chem_comp_atom")
-		     ret_val += comp_atom(mmCIFLoop); // and at the end pad up the atom names
+		     rmit.n_atoms += comp_atom(mmCIFLoop); // and at the end pad up the atom names
 
 		  // tree
 		  if (cat_name == "_chem_comp_tree")
@@ -251,7 +272,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
    // debug_mods();
    
-   return ret_val; // the number of atoms read.
+   return rmit;
 }
 
 

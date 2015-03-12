@@ -501,8 +501,8 @@ int test_wiggly_ligands () {
    int r = 1;
    std::string cif_file_name = greg_test("libcheck_BUA.cif");
    coot::protein_geometry geom;
-   int geom_stat = geom.init_refmac_mon_lib(cif_file_name, 0);
-   if (geom_stat == 0) {
+   coot::read_refmac_mon_lib_info_t rmit = geom.init_refmac_mon_lib(cif_file_name, 0);
+   if (rmit.n_bonds == 0) {
       std::string m = "Critical cif dictionary reading failure.";
       std::cout << m << std::endl;
       throw std::runtime_error(m);
@@ -1333,8 +1333,8 @@ int test_ligand_fit_from_given_point() {
    testing_data t;
 
    std::string cif_file_name = "libcheck_3GP-torsion-filtered.cif";
-   int geom_stat = t.geom.init_refmac_mon_lib(greg_test(cif_file_name), 0);
-   if (geom_stat == 0) {
+   coot::read_refmac_mon_lib_info_t rmit = t.geom.init_refmac_mon_lib(greg_test(cif_file_name), 0);
+   if (rmit.n_bonds == 0) {
       std::string m = "Critical cif dictionary reading failure.";
       std::cout << m << std::endl;
       throw std::runtime_error(m);
@@ -1406,8 +1406,8 @@ int test_ligand_conformer_torsion_angles() {
    testing_data t;
 
    std::string cif_file_name = "libcheck_3GP-torsion-filtered.cif";
-   int geom_stat = t.geom.init_refmac_mon_lib(greg_test(cif_file_name), 0);
-   if (geom_stat == 0) {
+   coot::read_refmac_mon_lib_info_t rmit = t.geom.init_refmac_mon_lib(greg_test(cif_file_name), 0);
+   if (rmit.n_bonds == 0) {
       std::string m = "Critical cif dictionary reading failure.";
       std::cout << m << std::endl;
       throw std::runtime_error(m);
@@ -1571,7 +1571,7 @@ int test_coot_atom_tree() {
    
    std::string cif_file_name = "libcheck_ASP.cif";
    coot::protein_geometry geom;
-   int geom_stat = geom.init_refmac_mon_lib(greg_test(cif_file_name), 0);
+   coot::read_refmac_mon_lib_info_t rmit = geom.init_refmac_mon_lib(greg_test(cif_file_name), 0);
    std::pair<short int, coot::dictionary_residue_restraints_t> p = 
       geom.get_monomer_restraints("ASP");
 
@@ -1608,7 +1608,8 @@ int test_coot_atom_tree() {
 	 } else { 
 	    mmdb::Residue *res = test_get_residue(atom_sel.mol, "A", 1);
 	    if (res) {
-          geom_stat = geom.init_refmac_mon_lib(greg_test("libcheck_3GP.cif"), 0);
+	       coot::read_refmac_mon_lib_info_t rmit =
+		  geom.init_refmac_mon_lib(greg_test("libcheck_3GP.cif"), 0);
 	       std::pair<short int, coot::dictionary_residue_restraints_t> p = 
 		  geom.get_monomer_restraints("3GP");
 	       if (p.first) { 
@@ -1624,7 +1625,7 @@ int test_coot_atom_tree() {
 	    }
 	 }
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << rte.what() << std::endl;
 	 r = 0; 
       }
@@ -2141,8 +2142,8 @@ int test_OXT_in_restraints() {
    coot::protein_geometry geom;
    geom.init_standard();
    std::string cif_file_name = greg_test("libcheck_BCS.cif");
-   int geom_stat = geom.init_refmac_mon_lib(cif_file_name, 0);
-   if (! geom_stat) {
+   coot::read_refmac_mon_lib_info_t rmit = geom.init_refmac_mon_lib(cif_file_name, 0);
+   if (! rmit.success) {
       std::cout << "Fail to get good status from reading " << cif_file_name << std::endl;
    } else { 
       bool v1 = geom.OXT_in_residue_restraints_p("TRP");
