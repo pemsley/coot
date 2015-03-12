@@ -445,6 +445,12 @@ int handle_read_draw_molecule(const char *filename) {
    return handle_read_draw_molecule_with_recentre(filename, r);
 }
 
+void allow_duplicate_sequence_numbers() {
+
+   graphics_info_t::allow_duplseqnum = true;
+} 
+
+
 void set_convert_to_v2_atom_names(short int state) {
    graphics_info_t::convert_to_v2_atom_names_flag = state;
 }
@@ -502,6 +508,7 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
       istat = g.molecules[imol].handle_read_draw_molecule(imol, f,
 							  coot::util::current_working_dir(),
 							  recentre_on_read_pdb_flag, 0,
+							  g.allow_duplseqnum,
 							  g.convert_to_v2_atom_names_flag,
 							  bw, bonds_box_type);
 
@@ -631,7 +638,7 @@ int clear_and_update_model_molecule_from_file(int molecule_number,
 					      const char *file_name) {
    int imol = -1;
    if (is_valid_model_molecule(molecule_number)) {
-      atom_selection_container_t asc = get_atom_selection(file_name, 1);
+      atom_selection_container_t asc = get_atom_selection(file_name, graphics_info_t::allow_duplseqnum, true);
       mmdb::Manager *mol = asc.mol;
       graphics_info_t::molecules[molecule_number].replace_molecule(mol);
       imol = molecule_number;

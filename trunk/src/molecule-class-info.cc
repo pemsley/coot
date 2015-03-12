@@ -106,6 +106,7 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 						 std::string cwd,
 						 short int reset_rotation_centre,
 						 short int is_undo_or_redo,
+						 bool allow_duplseqnum,
 						 bool convert_to_v2_atom_names_flag,
 						 float bond_width_in,
 						 int bonds_box_type_in) {
@@ -140,7 +141,7 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 				    
    // Read in pdb, [shelx files use the read_shelx_ins_file method]
    //
-   atom_sel = get_atom_selection(filename, convert_to_v2_atom_names_flag);
+   atom_sel = get_atom_selection(filename, allow_duplseqnum, convert_to_v2_atom_names_flag);
 
    if (atom_sel.read_success == 1) {
 
@@ -2422,6 +2423,8 @@ molecule_class_info_t::add_additional_representation(int representation_type,
    return n_rep;
 }
 
+
+// representation_number should be an unsigned int.
 int
 molecule_class_info_t::adjust_additional_representation(int represenation_number, 
 							const int &bonds_box_type_in, 
@@ -6130,7 +6133,8 @@ molecule_class_info_t::restore_from_backup(int history_offset,
 					   const std::string &cwd) {
 
    // consider passing this:
-   bool convert_flag = graphics_info_t::convert_to_v2_atom_names_flag;
+   bool v2_convert_flag = graphics_info_t::convert_to_v2_atom_names_flag;
+   bool allow_duplseqnum = graphics_info_t::allow_duplseqnum;
 
    int hist_vec_index = history_index + history_offset;
    if (int(history_filename_vec.size()) > hist_vec_index) {
@@ -6153,7 +6157,8 @@ molecule_class_info_t::restore_from_backup(int history_offset,
 	 handle_read_draw_molecule(imol_no, filename, cwd,
 				   reset_rotation_centre,
 				   is_undo_or_redo,
-				   convert_flag,
+				   allow_duplseqnum,
+				   v2_convert_flag,
 				   bond_width,
 				   Bonds_box_type());
 	 save_state_command_strings_ = save_save_state;

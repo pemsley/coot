@@ -1314,6 +1314,7 @@ public:        //                      public
 				 std::string cwd,
 				 short int recentre_rotation_centre,
 				 short int is_undo_or_redo,
+				 bool allow_duplseqnum,
 				 bool convert_to_v2_atom_names_flag,
 				 float bond_width_in,
 				 int bonds_box_type);

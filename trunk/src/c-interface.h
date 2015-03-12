@@ -734,6 +734,9 @@ float idle_function_rotate_angle();
   filename (can be pdb, cif or shelx format)  */
 int handle_read_draw_molecule(const char *filename);
 
+/*! \brief enable reading PDB/pdbx files with duplicate sequence numbers */
+void allow_duplicate_sequence_numbers();
+
 /*! \brief shall we convert nucleotides to match the dictionary
   names?
 

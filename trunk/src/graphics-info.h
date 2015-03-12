@@ -3939,6 +3939,8 @@ string   static std::string sessionid;
 
    static bool linked_residue_fit_and_refine_state;
 
+   static bool allow_duplseqnum;
+
 };
 
 
