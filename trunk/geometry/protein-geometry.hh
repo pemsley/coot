@@ -1577,7 +1577,21 @@ namespace coot {
       }
    };
       
-   
+
+   class read_refmac_mon_lib_info_t {
+   public:
+      unsigned int n_atoms;
+      unsigned int n_bonds;
+      unsigned int n_links;
+      std::vector<std::string> error_messages;
+      bool success;
+      read_refmac_mon_lib_info_t() {
+	 n_atoms = 0;
+	 n_bonds = 0;
+	 n_links = 0;
+	 success = true;
+      }
+   };
 
    // ------------------------------------------------------------------------
    // ------------------------------------------------------------------------
@@ -1899,9 +1913,6 @@ namespace coot {
 								  const std::string &group_2,
 								  bool allow_peptide_link_flag) const;
 
-      int init_refmac_mon_lib_inner(std::string filename, int read_number_in);
-
-
       energy_lib_t energy_lib;
 
       std::pair<bool, dictionary_residue_restraints_t>
@@ -2004,8 +2015,9 @@ namespace coot {
       // Refmac monomer lib things
       // 
       // Return the number of bond restraints
-      // 
-      int init_refmac_mon_lib(std::string filename, int read_number_in);
+      //
+      read_refmac_mon_lib_info_t
+      init_refmac_mon_lib(std::string filename, int read_number_in);
 
       unsigned int size() const { return dict_res_restraints.size(); }
       const dictionary_residue_restraints_t & operator[](int i) const {

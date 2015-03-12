@@ -1712,7 +1712,8 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	 int istat = stat(filename.c_str(), &buf);
 	 if (istat == 0) { 
 	    if (S_ISREG(buf.st_mode)) {
-	       success = init_refmac_mon_lib(filename, read_number);
+	       coot::read_refmac_mon_lib_info_t rmit = init_refmac_mon_lib(filename, read_number);
+	       success = rmit.success;
 	    } else {
 	       
 	       // continue with regular file code
@@ -1743,27 +1744,32 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	    // 
 	    istat = stat(upcased_resname_filename.c_str(), &buf);
 	    if (istat == 0) {
-		  success = init_refmac_mon_lib(upcased_resname_filename, read_number);
+	       read_refmac_mon_lib_info_t rmit = init_refmac_mon_lib(upcased_resname_filename, read_number);
+	       success = rmit.success;
 	    } else { 
 
 	       // try the beta anomer version
 	       istat = stat(beta_anomer_name.c_str(), &buf);
 	       if (istat == 0) {
-		  success = init_refmac_mon_lib(beta_anomer_name, read_number);
+		  read_refmac_mon_lib_info_t rmit = init_refmac_mon_lib(beta_anomer_name, read_number);
+		  success = rmit.success;
 	       } else {
 		  // try the upcased file name e.g. xxx/NAG-B-D.cif
 		  istat = stat(alt_beta_anomer_name.c_str(), &buf);
 		  if (istat == 0) {
-		     success = init_refmac_mon_lib(alt_beta_anomer_name, read_number);
+		     read_refmac_mon_lib_info_t rmit = init_refmac_mon_lib(alt_beta_anomer_name, read_number);
+		     success = rmit.success;
 		  } else {
 		     // alpha?
 		     istat = stat(alpha_anomer_name.c_str(), &buf);
 		     if (istat == 0) {
-			success = init_refmac_mon_lib(alpha_anomer_name, read_number);
+			read_refmac_mon_lib_info_t rmit = init_refmac_mon_lib(alpha_anomer_name, read_number);
+			success = rmit.success;
 		     } else {
 			istat = stat(alt_alpha_anomer_name.c_str(), &buf);
 			if (istat == 0) {
-			   success = init_refmac_mon_lib(alt_alpha_anomer_name, read_number);
+			   read_refmac_mon_lib_info_t rmit = init_refmac_mon_lib(alt_alpha_anomer_name, read_number);
+			   success = rmit.success;
 			}
 		     }
 		  }

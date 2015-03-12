@@ -325,6 +325,8 @@ coot_bin_SOURCES = \
 	gl-bits.hh		 \
 	globjects.cc 		 \
 	globjects.h gl-matrix.h  \
+	globularize.cc           \
+	globularize.hh           \
 	graphics-info.cc	 \
 	graphics-info-defines.cc \
 	graphics-info-graphs.cc	 \

@@ -38,7 +38,7 @@ exists_in_refmac(const std::string &id,
       full_path +=  ".cif";
 
       if (file_exists(full_path)) { 
-	 // std::cout << "checking " << full_path << " exists "  << std::endl;
+	 // std::cout << "checked " << full_path << " exists "  << std::endl;
 	 exists = true;
       } else { 
 	 // std::cout << "         " << full_path << " does not exist"  << std::endl;

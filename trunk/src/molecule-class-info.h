@@ -3485,7 +3485,10 @@ public:        //                      public
 			const coot::protein_geometry &geom);
 
 
+
    void update_bonds_using_phenix_geo(const coot::phenix_geo_bonds &b);
+
+   void globularize();
 
    bool is_EM_map() const;
    

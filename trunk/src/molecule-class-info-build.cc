@@ -373,3 +373,31 @@ molecule_class_info_t::move_reference_chain_to_symm_chain_position(coot::Symm_At
       }
    } 
 }
+
+#include "cootaneer/buccaneer-prot.h"
+
+void
+molecule_class_info_t::globularize() {
+
+
+   mmdb::Manager *mol = atom_sel.mol;
+
+   if (mol) { 
+      make_backup();
+
+      clipper::MiniMol mm;
+
+      clipper::MMDBfile* mmdbfile = static_cast<clipper::MMDBfile*>(mol);
+      mmdbfile->import_minimol(mm);
+      bool r = ProteinTools::globularise(mm);
+
+      mmdbfile->export_minimol(mm);
+
+      have_unsaved_changes_flag = 1; // because we do a backup whatever...
+      atom_sel.mol->FinishStructEdit();
+      update_molecule_after_additions();
+      update_symmetry();
+
+   }
+
+} 

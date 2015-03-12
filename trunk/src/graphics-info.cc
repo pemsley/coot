@@ -310,16 +310,18 @@ int
 graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 				    short int show_no_bonds_dialog_maybe_flag) {
 
-   int nbonds = geom_p->init_refmac_mon_lib(cif_dictionary_filename,
-					    cif_dictionary_read_number);
+   coot::read_refmac_mon_lib_info_t rmit = 
+   geom_p->init_refmac_mon_lib(cif_dictionary_filename,
+			       cif_dictionary_read_number);
+   
    cif_dictionary_read_number++; 
-   if (nbonds > 0) { 
+   if (rmit.success > 0) { 
       cif_dictionary_filename_vec->push_back(cif_dictionary_filename);
       if (show_no_bonds_dialog_maybe_flag) {
 	 display_density_level_this_image = 1;
 	 std::string s;
 	 s = "Read ";
-	 s += int_to_string(nbonds);
+	 s += int_to_string(rmit.n_bonds);
 	 s += " atoms/links in restraints from ";
 	 s += cif_dictionary_filename;
 	 display_density_level_screen_string = s;
@@ -336,6 +338,13 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 	    gtk_widget_show(widget);
 	 }
       }
+
+      std::string s;
+      for (unsigned int i=0; i<rmit.error_messages.size(); i++) { 
+	 s += rmit.error_messages[i];
+	 s += "\n";
+      }
+      info_dialog(s);
    }
 
    for (unsigned int i=0; i<molecules.size(); i++) {
@@ -343,7 +352,7 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 	 molecules[i].make_bonds_type_checked();
       }
    }
-   return nbonds;
+   return rmit.n_bonds;
 }
 
 

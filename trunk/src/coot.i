@@ -28,6 +28,7 @@
 #include "cmtz-interface.hh"
 #include "coot-version.hh"
 #include "get-monomer.hh"
+#include "globularize.hh"
 %}
 
 
@@ -63,6 +64,7 @@
 %include "probe-clash-score.hh"
 %include "coot-version.hh"
 %include "get-monomer.hh"
+%include "globularize.hh"
 
 %template(vector_atom_spec)      std::vector<coot::atom_spec_t>;
 %template(vector_mtz_type_label) std::vector<coot::mtz_type_label>;

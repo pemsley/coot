@@ -599,8 +599,8 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
 
 	    // debugging: save just to view them
 	    simple_shifts[this_residue] = it->second; 
-	    smooth_shifts[this_residue] = morph_rtop_triple(it->second.co,
-							    std::pair<bool, clipper::RTop_orth>(true, rtop));
+	    smooth_shifts[this_residue] =
+                  morph_rtop_triple(it->second.co, std::pair<bool, clipper::RTop_orth>(true, rtop));
 	    
 	 } else {
 	    std::cout << "no RTop for " << coot::residue_spec_t(it->first) << std::endl;

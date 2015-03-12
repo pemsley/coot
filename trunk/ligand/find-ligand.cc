@@ -420,8 +420,8 @@ main(int argc, char **argv) {
 		  std::cout << "No cif dictionary file given\n";
 	       } else { 
 		  // geom.init_standard();
-		  int geom_stat = geom.init_refmac_mon_lib(cif_file_name, 10);
-		  if (geom_stat == 0) {
+		  coot::read_refmac_mon_lib_info_t rmit = geom.init_refmac_mon_lib(cif_file_name, 10);
+		  if (rmit.n_bonds == 0) {
 		     std::cout << "Critical cif dictionary reading failure." << std::endl;
 		  } else { 
 		     short int map_stat = wlig.map_fill_from_mtz(mtz_filename, f_col, phi_col, "", 
