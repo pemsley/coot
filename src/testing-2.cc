@@ -19,7 +19,7 @@ int test_dreiding_torsion_energy() {
 
    int r = 0;
    std::string filename = greg_test("tutorial-modern.pdb");
-   atom_selection_container_t atom_sel = get_atom_selection(filename, 1);
+   atom_selection_container_t atom_sel = get_atom_selection(filename, true, true);
    bool ifound = 0;
    testing_data t;
 

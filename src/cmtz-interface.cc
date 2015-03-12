@@ -704,10 +704,7 @@ f_button_select(GtkWidget *item, GtkPositionType pos) {
       = (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
    
    save_f_phi_columns->selected_f_col = pos;
-//    std::cout << "debug:: pos " << pos << " f_cols size "
-// 	     << save_f_phi_columns->f_cols.size() << std::endl;
-   if (pos >= save_f_phi_columns->f_cols.size()) {
-      //       printf("%d was an anomalous label\n", pos);
+   if (pos >= int(save_f_phi_columns->f_cols.size())) {
       make_diff_map_flag = 1;
       lab = save_f_phi_columns->d_cols[pos-save_f_phi_columns->f_cols.size()].column_label;
    } else {

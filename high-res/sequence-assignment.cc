@@ -380,7 +380,7 @@ coot::sequence_assignment::scored_chain_info_t::outstanding_slider_position(cons
       
       std::vector<float> r;
       for (unsigned int i=0; i<s.size(); i++) {
-	 if (i != best_val_idx) { 
+	 if (int(i) != best_val_idx) { 
 	    r.push_back(s[i]);
 	 }
       }
@@ -877,7 +877,7 @@ std::vector<coot::sequence_assignment::sequence_range_t>
 coot::sequence_assignment::side_chain_score_t::find_unassigned_sequence(const coot::residue_range_t &a_residue_range) const {
    
    float v_crit = 0.1;
-   int required_range_size = a_residue_range.length();
+   unsigned int required_range_size = a_residue_range.length();
    std::vector<coot::sequence_assignment::sequence_range_t> v;
 
    // well, we often don't know what the real chain is the want to
@@ -946,8 +946,8 @@ coot::sequence_assignment::side_chain_score_t::test_residue_range_marking() {
    // assign some sequence: that is apply some high proproability to
    // some sequence_infos data.
 
-   int start_ass = 20;
-   int end_ass = 40;
+   unsigned int start_ass = 20;
+   unsigned int end_ass = 40;
    for (unsigned int i=start_ass; i<end_ass && i<sequence_infos[0].residue_info.size(); i++) {
       sequence_infos[0].residue_info[i].second = 1.0;
    }

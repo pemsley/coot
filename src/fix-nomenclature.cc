@@ -37,7 +37,7 @@ main(int argc, char **argv) {
    } else {
       coot::protein_geometry geom;
       std::string filename = argv[1];
-      atom_selection_container_t asc = get_atom_selection(filename, 1);
+      atom_selection_container_t asc = get_atom_selection(filename, true, true);
       coot::nomenclature n(asc.mol);
       asc.mol->WritePDBASCII(argv[2]);
       n.fix(&geom);

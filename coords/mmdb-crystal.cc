@@ -1125,10 +1125,10 @@ atom_selection_container_t read_standard_residues() {
 	 // empty" << std::endl;
       } else { 
 	 // stat success:
-	 standard_residues_asc = get_atom_selection(standard_file_name, 1);
+	 standard_residues_asc = get_atom_selection(standard_file_name, false, true);
       }
    } else { 
-      standard_residues_asc = get_atom_selection(filename, 1);
+      standard_residues_asc = get_atom_selection(filename, false, true);
    }
 
    return standard_residues_asc;

@@ -1842,14 +1842,14 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget 
    if (0) {  // debug
       std::cout << "fill_option_menu_with_coordinates_options_internal_3 with these: "
 		<< std::endl;
-      for (int idx=0; idx<fill_with_these_molecules.size(); idx++) {
+      for (unsigned int idx=0; idx<fill_with_these_molecules.size(); idx++) {
 	 std::cout << fill_with_these_molecules[idx] << " ";
       }
       std::cout << std::endl;
    }
 
    int menu_index = 0; // for setting of imol_active as active mol in go to atom
-   for (int idx=0; idx<fill_with_these_molecules.size(); idx++) {
+   for (unsigned int idx=0; idx<fill_with_these_molecules.size(); idx++) {
 
       int jmol = fill_with_these_molecules[idx];
       
@@ -3957,7 +3957,7 @@ graphics_info_t::on_multi_residue_torsion_button_clicked(GtkButton *button,
 	 if (moving_atoms_asc->mol) {
 	    int index_1 = -1; // unset
 	    int index_2 = -1; // unset
-	    for (unsigned int i=0; i<g.moving_atoms_asc->n_selected_atoms; i++) { 
+	    for (int i=0; i<g.moving_atoms_asc->n_selected_atoms; i++) { 
 	       coot::atom_spec_t moving_spec_1(moving_atoms_asc->atom_selection[i]);
 	       if (moving_spec_1 == atom_spec_pair->first)
 		  index_1 = i;

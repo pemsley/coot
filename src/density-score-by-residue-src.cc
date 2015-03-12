@@ -164,7 +164,7 @@ void density_score_molecule(std::string pdb_filename,
 			    float cut_level) {
 
 
-   atom_selection_container_t asc = get_atom_selection(pdb_filename, 1);
+   atom_selection_container_t asc = get_atom_selection(pdb_filename, true, true);
    if (asc.n_selected_atoms > 0) {
 
       std::vector<scored_chain_t> density_score_results;

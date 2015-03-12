@@ -64,6 +64,8 @@
      are still displayed on the ligand: 
       -- Alex Wlodawer
 
+   o An O in 0BU thumbnail falls off the screen (4mtz)
+
    o CSHL:
 
        * Scaling of density fit analysis with very fine grid

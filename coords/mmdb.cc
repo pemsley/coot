@@ -57,7 +57,9 @@ mmdb_utils::is_hydrogen(const std::string &ele) {
 // generally so useful).
 //
 atom_selection_container_t
-get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
+get_atom_selection(std::string pdb_name, 
+		   bool allow_duplseqnum,
+		   bool convert_to_v2_name_flag) {
 
    mmdb::ERROR_CODE err;
    mmdb::Manager* MMDBManager;
@@ -112,35 +114,21 @@ get_atom_selection(std::string pdb_name, bool convert_to_v2_name_flag) {
 
 	  MMDBManager = new mmdb::Manager;
 
-	  // For mmdb version 1.0.3:
-	  //    MMDBManager->SetFlag ( MMDBF_IgnoreBlankLines |
-	  // 			  mmdb::MMDBF_IgnoreDuplSeqNum |
-	  // 			  mmdb::MMDBF_IgnoreNonCoorPDBErrors);
-	  //
-	  // From mmdb versions 1.0.4 to 1.0.7:
-	  // 
-	  //    MMDBManager->SetFlag ( MMDBF_IgnoreBlankLines |
-	  // 			      mmdb::MMDBF_IgnoreDuplSeqNum |
-	  // 			      mmdb::MMDBF_IgnoreNonCoorPDBErrors |
-	  // 			      mmdb::MMDBF_IgnoreRemarks);
-	  // 
 	  // For mmdb version 1.0.8 and beyond:
 
-#ifdef HAVE_MMDB_IGNORE_HASH
+	  if (allow_duplseqnum)
+	     MMDBManager->SetFlag ( mmdb::MMDBF_IgnoreBlankLines |
+				    mmdb::MMDBF_IgnoreDuplSeqNum |
+				    mmdb::MMDBF_IgnoreNonCoorPDBErrors |
+				    mmdb::MMDBF_IgnoreHash |
+				    mmdb::MMDBF_IgnoreRemarks);
+	  else 
+	     MMDBManager->SetFlag ( mmdb::MMDBF_IgnoreBlankLines |
+				    mmdb::MMDBF_IgnoreNonCoorPDBErrors |
+				    mmdb::MMDBF_IgnoreHash |
+				    mmdb::MMDBF_IgnoreRemarks);
        
-	  MMDBManager->SetFlag ( mmdb::MMDBF_IgnoreBlankLines |
-// 				 mmdb::MMDBF_IgnoreDuplSeqNum |
-				 mmdb::MMDBF_IgnoreNonCoorPDBErrors |
-				 mmdb::MMDBF_IgnoreHash |
-				 mmdb::MMDBF_IgnoreRemarks);
-#else
-	  MMDBManager->SetFlag ( mmdb::MMDBF_IgnoreBlankLines |
-//				 mmdb::mmdb::MMDBF_IgnoreDuplSeqNum |
-				 mmdb::MMDBF_IgnoreNonCoorPDBErrors |
-				 mmdb::MMDBF_IgnoreRemarks);
-#endif // HAVE_MMDB_IGNORE_HASH       
-       
-	  std::cout << "Reading coordinate file: " << pdb_name.c_str() << "\n";
+	  std::cout << "INFO:: Reading coordinate file: " << pdb_name.c_str() << "\n";
 	  err = MMDBManager->ReadCoorFile(pdb_name.c_str());
 
 	  if (err) {

@@ -1832,7 +1832,7 @@ molecule_class_info_t::make_map_from_phs(std::string pdb_filename,
    std::cout << "INFO:: Make a map from " << phs_filename << " using "
 	     << pdb_filename << " for the cell and symmetry information " << std::endl; 
 
-   atom_selection_container_t SelAtom = get_atom_selection(pdb_filename, 1);
+   atom_selection_container_t SelAtom = get_atom_selection(pdb_filename, true, true);
 
    if (SelAtom.read_success == 1) { // success
       try {

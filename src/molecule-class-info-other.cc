@@ -3414,6 +3414,7 @@ molecule_class_info_t::execute_restore_from_recent_backup(std::string backup_fil
 
    // consider passing this:
    bool convert_flag = graphics_info_t::convert_to_v2_atom_names_flag;
+   bool allow_duplseqnum = graphics_info_t::allow_duplseqnum;
    
    // std::cout << "Recovering from file: " << backup_file_name << std::endl;
 
@@ -3428,6 +3429,7 @@ molecule_class_info_t::execute_restore_from_recent_backup(std::string backup_fil
 			     cwd, 
 			     reset_rotation_centre_flag,
 			     is_undo_or_redo,
+			     allow_duplseqnum,
 			     convert_flag,
 			     bond_width, Bonds_box_type());
    save_state_command_strings_ = save_save_state;
