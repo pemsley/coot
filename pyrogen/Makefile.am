@@ -8,7 +8,9 @@
 #
 pyexec_LTLIBRARIES = 
 
-AM_CPPFLAGS = $(RDKIT_CXXFLAGS) $(PYTHON_CFLAGS) -I$(top_srcdir)
+# rdkit includes are in the rdkit directory, boost includes are the (normal) prefix above that
+#
+AM_CPPFLAGS = $(BOOST_CPPFLAGS) $(RDKIT_CXXFLAGS) $(PYTHON_CFLAGS) -I$(top_srcdir)
 
 AM_CXXFLAGS = -DPKGDATADIR='"$(pkgdatadir)"'
 
