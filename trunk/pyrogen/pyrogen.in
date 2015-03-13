@@ -9,19 +9,15 @@ systype=$(uname)
 
 if [ $systype = Darwin ] ; then 
    prfx=$(dirname "$current_exe_dir")
-else
-   prfx=$(readlink -f $(dirname "$current_exe_dir"))
-fi
-
-if [ $systype = Darwin ] ; then 
    if [ -z "$DYLD_FALLBACK_LIBRARY_PATH" ] ;  then
 	DYLD_FALLBACK_LIBRARY_PATH=$prfx/lib
    else 
 	DYLD_FALLBACK_LIBRARY_PATH=$prfx/lib:${DYLD_FALLBACK_LIBRARY_PATH}
    fi
+else
+   prfx=$(readlink -f $(dirname "$current_exe_dir"))
 fi
 
-if [ $systype = IRIX ] ; then 
 export LD_LIBRARY_PATH=$prfx/lib
 export PATH=$prfx/bin:$PATH
 
