@@ -1582,9 +1582,13 @@ better) to use @code{(handle-read-draw-molecule-with-recentre
 And that affects just the reading of @code{@emph{filename}} and not
 subsequent files.
 
-Note that as of version 0.6.2 Coot can read MDL mol/mol2 files (the
-atom names are not unique (of course), but at least you can see the
-coordinates).
+By default coot does not allow reading coordinates with duplicated
+sequence numbers.  To enable the reading of files with duplicated
+sequence numbers use the function:
+
+@code{(allow-duplicate-sequence-numbers)}
+
+Coot can read MDL mol files.
 
 @subsection A Note on Space Groups Names
 @cindex space group names
