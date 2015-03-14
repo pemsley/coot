@@ -32,4 +32,6 @@ libcoot_surface_la_SOURCES = \
 #
 libcoot_surface_la_LIBADD = \
 	$(top_builddir)/surface/libccp4mg-surface.la \
-	$(GLUT_LIBS) $(CLIPPER_LIBS) $(MMDB_LIBS) $(COOT_OPENGL_LIBS)
+	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GLUT_LIBS) $(COOT_OPENGL_LIBS)
+
+libcoot_surface_la_LDFLAGS = $(SHARED_LDFLAGS)

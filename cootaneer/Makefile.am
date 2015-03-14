@@ -37,5 +37,7 @@ libcootaneer_la_SOURCES =  buccaneer-lib.cpp buccaneer-prot.cpp \
 
 libcootaneer_la_LIBADD = $(CLIPPER_LIBS)
 
+libcootaneer_la_LDFLAGS = $(SHARED_LDFLAGS)
+
 subpkgdatadir = $(pkgdatadir)
 subpkgdata_DATA = cootaneer-llk-2.40.dat 

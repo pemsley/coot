@@ -33,6 +33,8 @@ libcoot_lidia_la_LIBADD = \
 	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) \
 	$(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(L_BOOST_PYTHON) $(GOOCANVAS_LIBS) $(GTK_LIBS)
 
+libcoot_lidia_la_LDFLAGS = $(SHARED_LDFLAGS)
+
 lidia_SOURCES = lidia-main.cc lbg-callbacks-outer.cc 
 
 pkginclude_HEADERS = lbg.hh wmolecule.hh  flev-annotations.hh graphics-c-interface-functions.hh \

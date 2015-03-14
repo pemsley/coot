@@ -43,5 +43,7 @@ libcoot_mini_mol_la_SOURCES =  mini-mol.cc mini-mol-utils.cc atom-quads.cc
 libcoot_mini_mol_la_LIBADD = \
  $(MMDB_LIBS) $(CLIPPER_LIBS) 
 
+libcoot_mini_mol_la_LDFLAGS = $(SHARED_LDFLAGS)
+
 testminimol_LDADD = libcoot-mini-mol.la \
 	$(CLIPPER_LIBS) $(MMDB_LIBS)

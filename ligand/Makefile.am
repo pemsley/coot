@@ -59,6 +59,8 @@ libcoot_ligand_la_LIBADD = \
    $(top_builddir)/utils/libcoot-utils.la             \
    $(CLIPPER_LIBS) $(MMDB_LIBS)
 
+libcoot_ligand_la_LDFLAGS = $(SHARED_LDFLAGS)
+
 AM_CXXFLAGS = \
          $(OPENMP_CFLAGS) \
 	-DPKGDATADIR='"$(pkgdatadir)"' \

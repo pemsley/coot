@@ -38,5 +38,7 @@ libcootilus_la_SOURCES = \
 
 libcootilus_la_LIBADD = $(CLIPPER_LIBS)
 
+libcootilus_la_LDFLAGS = $(SHARED_LDFLAGS)
+
 subpkgdatadir = $(pkgdatadir)
 subpkgdata_DATA = nautilus_lib.pdb
