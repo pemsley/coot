@@ -40,7 +40,7 @@ AC_MSG_CHECKING([if this is MINGW on Windows])
     # BL says:: may need rethink for shared compilation of course!!
     COOT_WINDOWS_LDFLAGS="-static -lstdc++"
     if test $enable_shared = yes ; then
-       SHARED_LDFLAGS="-no-undefined"
+       SHARED_LDFLAGS="-no-undefined -Wl,--export-all-symbols"
     fi
     have_windows_mingw=yes
     windows=true

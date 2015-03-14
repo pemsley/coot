@@ -17,6 +17,8 @@ libcoot_AngleInfo_la_SOURCES = $(libcoot_AngleInfo_a_sources)
 # needed to get past (some) g++ compilers.  Details forgotten.
 libcoot_AngleInfo_la_CXXFLAGS = -g -O1
 
+libcoot_AngleInfo_la_LDFLAGS = $(SHARED_LDFLAGS)
+
 # bin_PROGRAMS = test_angle
 # test_angle_SOURCES = test-angle.cc
 # test_angle_LDADD = -L. -lmapview-AngleInfo

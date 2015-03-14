@@ -31,6 +31,8 @@ libcoot_goograph_la_LIBADD = $(top_builddir)/lidia-core/libcoot-lidia-core.la \
 			     $(top_builddir)/utils/libcoot-utils.la \
 			     $(GOOCANVAS_LIBS) $(GTK_LIBS)
 
+libcoot_goograph_la_LDFLAGS = $(SHARED_LDFLAGS)
+
 check_PROGRAMS = test-goograph
 
 test_goograph_SOURCES = test-goograph.cc

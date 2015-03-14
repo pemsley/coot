@@ -38,6 +38,8 @@ libcoot_cabuild_la_LIBADD =  \
 	$(top_builddir)/angles/libcoot-AngleInfo.la \
         $(CLIPPER_LIBS)
 
+libcoot_cabuild_la_LDFLAGS = $(SHARED_LDFLAGS)
+
 testcabuild_LDADD = \
 	./libcoot-cabuild.la \
 	$(top_builddir)/angles/libcoot-AngleInfo.la \

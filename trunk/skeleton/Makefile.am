@@ -41,6 +41,8 @@ libcoot_skeleton_la_LIBADD = \
    $(top_builddir)/coords/libcoot-coords.la \
    $(CLIPPER_LIBS) $(MMDB_LIBS)
 
+libcoot_skeleton_la_LDFLAGS = $(SHARED_LDFLAGS)
+
 
 
 # bin_PROGRAMS = ncssearch test_various test_torsion test_theta_2

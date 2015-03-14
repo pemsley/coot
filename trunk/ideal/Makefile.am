@@ -38,7 +38,7 @@ AM_CPPFLAGS = \
 
 AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(GSL_CFLAGS) $(COOT_WINDOWS_CFLAGS) \
      $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) $(COOT_GSL_FLAGS) 
-AM_LDFLAGS = $(GSL_LIBS) $(MMDB_LIBS) $(CLIPPER_LIBS)
+AM_LDFLAGS = $(MMDB_LIBS) $(CLIPPER_LIBS) $(GLS_LIBS)
 
 
 #libcoot_ideal_la_LIBADD = ../coot-utils/libcoot-utils.la                       \
@@ -66,13 +66,15 @@ libcoot_ideal_la_LIBADD =                 \
    $(top_builddir)/utils/libcoot-utils.la              \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la        \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la    \
-   $(GSL_LIBS) $(MMDB_LIBS) $(CLIPPER_LIBS)
+   $(MMDB_LIBS) $(CLIPPER_LIBS) $(GSL_LIBS)
 
 
 libcoot_ideal_la_SOURCES = simple-restraint.cc chirals.cc  extra-restraints.cc \
 	pepflip.cc regularize-minimol.cc lograma.cpp \
         extra-restraints-kk.cc simple-restraint-kk.cc torsion-bonds.cc \
 	coot-compare-residues.hh coot-compare-residues.cc link-restraints.cc parallel-planes.cc
+
+libcoot_ideal_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 check_PROGRAMS =  with-geometry logramatest
 bin_PROGRAMS = mini-rsr

@@ -41,6 +41,8 @@ libcoot_lidia_core_la_LIBADD =                        \
    $(top_builddir)/utils/libcoot-utils.la             \
    $(RDKIT_LIBS)
 
+libcoot_lidia_core_la_LDFLAGS = $(SHARED_LDFLAGS)
+
 # noinst_PROGRAMS = test-molfile
 
 # test_molfile_SOURCES: test-molfile.cc

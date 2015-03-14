@@ -50,6 +50,8 @@ libcoot_coords_la_LIBADD = \
    $(RDKIT_LIBS)	        \
    $(MMDB_LIBS)
 
+libcoot_coords_la_LDFLAGS = $(SHARED_LDFLAGS)
+
 check_PROGRAMS = test-phenix-geo
 
 test_phenix_geo_SOURCES = test-phenix-geo.cc

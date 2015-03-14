@@ -1039,6 +1039,7 @@ release_server_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/re
 release_server_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/releases/
 #
 extras_place=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/dependencies
+win_extras_place=http://www.ysbl.york.ac.uk/~lohkamp/software/extras
 
 
 ${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir
@@ -2062,6 +2063,9 @@ if test -n "$build_fftw" ; then
 #${WGET} http://www.ysbl.york.ac.uk/~emsley/software/fftw-2.1.5.tar.gz
 #${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/fftw-configure-stuff.tar.gz
 ${WGET} $extras_place/fftw-2.1.5.tar.gz
+${WGET} $win_extras_place/fftw-2.1.5_shared.patch
+${WGET} $win_extras_place/fix_shared_makefiles.sh
+${WGTE} $win_extras_placefix_libfftw.la.sh
 #${WGET} $extras_place/fftw-configure-stuff.tar.gz
 (
 date
@@ -2071,8 +2075,21 @@ gzip -dc ${AUTOBUILD_SOURCES}/fftw-2.1.5.tar.gz | tar xf -
 # FIXME:: needs some post-processing for dlls
 cd fftw-2.1.5
 ./configure $generic_prefix $shared_flag --enable-float
+if [ -n "$shared_flag" ] ; then
+  ${AUTOBUIILD_SOURCES}/fix_shared_makefiles.sh
+  patch -p0 <${AUTOBUIILD_SOURCES}/fftw-2.1.5_shared.patch
+fi
 $MAKE
 $MAKE install
+if [ -n "$shared_flag" ] ; then
+  cp $install_top_dir/lib/libfftw-2.dll $install_top_dir/bin
+  cp $install_top_dir/lib/librfftw-2.dll $install_top_dir/bin
+  cp fftw/.libs/libfftw.dll.a $install_top_dir/lib
+  cp rfftw/.libs/librfftw.dll.a $install_top_dir/lib
+  FIXME
+  # Need to remove -lm to stop clipper complaining
+  ${AUTOBUILD_SOURCES}/fix_libfftw.la.sh
+fi
 )  > $HOSTLOGDIR/03-fftw.txt 2>&1
 else
     echo not building fftw:
@@ -2156,8 +2173,9 @@ if test -n "$build_clipper" ; then
     # we don't want to make the clipper executables, so let's cd in to the clipper libs and 
     # make (just) those.
     # not any more!!! make all!!!
-    # cd clipper
-    # it seems that examples do not compile on windows (hope it has no ill effect
+    if [ -n "$shared_flag" ] ; then 
+      ${AUTOBUILD_SOURCES}/fix_shared_makefiles.sh
+    fi
     $MAKE
     status=$?
     clipper_status=$status

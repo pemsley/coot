@@ -4031,7 +4031,7 @@ def wrapper_alignment_mismatches_gui(imol):
    if seq_info:
       alignment_mismatches_gui(imol)
    else:
-      associate_sequence_with_molecule_gui(True)
+      associate_sequence_with_chain_gui(do_alignment=True)
 
 
 # Multiple residue ranges gui

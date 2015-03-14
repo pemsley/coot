@@ -46,6 +46,8 @@ libcoot_geometry_la_LIBADD = \
         $(top_builddir)/utils/libcoot-utils.la       \
         $(CLIPPER_LIBS) $(CCP4SRS_LIBS) $(MMDB_LIBS)
 
+libcoot_geometry_la_LDFLAGS = $(SHARED_LDFLAGS)
+
 # libcoot_geometry_la_CXXFLAGS = -g -O1
 
 check_PROGRAMS = test-geometry test-read-components dictionary-bond-distributions 
