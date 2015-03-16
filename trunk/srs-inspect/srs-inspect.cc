@@ -50,7 +50,7 @@ exists_in_refmac(const std::string &id,
 int main(int argc, char **argv) {
 
    int status = 0;
-   std::string srs_dir;
+   std::string srs_dir = ".";
    std::string refmac_monomer_dir = "monomers";
 
    if (argc > 1)
@@ -60,7 +60,7 @@ int main(int argc, char **argv) {
       srs_dir = argv[2];
 
    if (argc == 1) {
-      std::cout << "usage " << argv[0] << " refmac-monomers-dir srs-dir " << std::endl;
+      std::cout << "Usage: " << argv[0] << " refmac-monomers-dir srs-dir " << std::endl;
       std::cout << "      " << " defaults monomers . " << std::endl;
    }
 
