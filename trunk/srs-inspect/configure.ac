@@ -1,8 +1,9 @@
 
 
-AC_INIT(configure.ac)
+AC_INIT(srs-inspect, 0.0-pre)
+AC_CONFIG_SRCDIR(configure.ac)
 
-AM_INIT_AUTOMAKE(srs-inspect, 0.0)
+AM_INIT_AUTOMAKE
 
 AC_PROG_CXX
 
