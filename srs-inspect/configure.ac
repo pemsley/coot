@@ -3,6 +3,8 @@
 AC_INIT(srs-inspect, 0.0-pre)
 AC_CONFIG_SRCDIR(configure.ac)
 
+AC_CONFIG_MACRO_DIRS([m4])
+
 AM_INIT_AUTOMAKE
 
 AC_PROG_CXX
