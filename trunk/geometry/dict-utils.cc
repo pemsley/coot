@@ -819,8 +819,10 @@ coot::dictionary_residue_restraints_t::extra_name_swaps_from_name_clash(const st
 	       }
 	       
 	       std::string invented_name = invent_new_name(ele, invented_names);
-	       std::cout << "extra_name_swaps_from_name_clash() " << i << " " << j
-			 << " invented name: " << invented_name << std::endl;
+
+	       if (0) 
+		  std::cout << "extra_name_swaps_from_name_clash() " << i << " " << j
+			    << " invented name: " << invented_name << std::endl;
 	       invented_names.push_back(invented_name);
 	       SP p(to_name, invented_name);
 	       r.push_back(p);
