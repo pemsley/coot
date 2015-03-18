@@ -580,7 +580,7 @@ def atom_match_dictionary(restraints, sane_H_mol, comp_id_list_for_names_match, 
             for iat in range(n):
                 name = sane_H_mol.GetAtomWithIdx(iat).GetProp('name')
 		if name != restraints['_chem_comp_atom'][iat][0]:
-		    print "changing name from", name, "to",restraints['_chem_comp_atom'][iat][0]
+		    # print "   changing name from", name, "to", restraints['_chem_comp_atom'][iat][0]
 		    sane_H_mol.GetAtomWithIdx(iat).SetProp('name', restraints['_chem_comp_atom'][iat][0]);
 
     return restraints
