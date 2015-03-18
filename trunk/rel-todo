@@ -1,6 +1,8 @@
  
  0.8.2
 
+   o Boaz S.: crash catcher in binary-Linux-x86_64-rhel-6-python-gtk2  5619
+
    o missing cis-pep - Evzen Boura 
 
    o Get monomer -> get PDBe ligand (and run dictionary generator?)

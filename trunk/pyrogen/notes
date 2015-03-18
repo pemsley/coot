@@ -1,4 +1,21 @@
 
+---
+
+   CBQ plane restraint? of 0BU in 4mtz - should be flat but isn't.
+
+----
+
+ Single quotes around the name is a bad idea:
+
+ LCM LCM 'N,N'-butane-1,4-diylbis(2,3-dihydroxybenzamide)' non-polymer 46 26 "."
+
+ wwPDB uses double quote.  pyrogen should do that too.
+
+----
+
+   where are the coordinates in output when a PDBe cif file is input?  or even a mol!
+
+----
 
 
    pyrogen 2XS in 4oa7 is fails
@@ -71,6 +88,7 @@ Sun Sep  7 03:04:50 BST 2014
     What is coot::regularize() doing?  Creating a molecule but not returning it?
 
 -------------------------------------------------
+
 -----
 
    The fallback bond lookup should harmonic average the permissive
@@ -91,10 +109,3 @@ pyrogen -n -M -o DB00225 drugbank/DB00225.smiles
 
 * Done.
 
-
----
-
-   CBQ plane restraint? of 0BU in 4mtz - should be flat but isn't.
-
-
-------

@@ -584,6 +584,8 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
    return status;
 }
 
+// Return the number of matched atoms in first.
+// 
 // return a dictionary that is a copy of this dictionary, but
 // trying to match the names of the atoms of ref.  Do graph
 // matching to find the set of atom names that match/need to be
@@ -711,6 +713,11 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 		  std::cout << i << "  " << change_name[i].first << " -> "
 			    << change_name[i].second << std::endl;
 	       }
+	       std::cout << "--- these matched and were the same atom name" << std::endl;
+	       for (unsigned int i=0; i<same_name.size(); i++) { 
+		  std::cout << i << "  " << same_name[i] << std::endl;
+	       }
+	       
 	    }
 	    // also header info.
 	    dict.residue_info.comp_id           = new_comp_id;
@@ -742,7 +749,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    delete g_1;
    delete g_2;
    
-   return std::pair<unsigned int, dictionary_residue_restraints_t> (change_name.size(), dict);
+   return std::pair<unsigned int, dictionary_residue_restraints_t> (change_name.size() + same_name.size(), dict);
 }
 
 bool
@@ -784,6 +791,8 @@ coot::dictionary_residue_restraints_t::extra_name_swaps_from_name_clash(const st
 
    typedef std::pair<std::string, std::string> SP;
    std::vector<SP> r;
+
+   std::vector<std::string> invented_names;
    for (unsigned int i=0; i<change_name.size(); i++) {
       for (unsigned int j=0; j<atom_info.size(); j++) {
 	 const std::string &to_name = change_name[i].second;
@@ -809,7 +818,10 @@ coot::dictionary_residue_restraints_t::extra_name_swaps_from_name_clash(const st
 		  } 
 	       }
 	       
-	       std::string invented_name = invent_new_name(ele);
+	       std::string invented_name = invent_new_name(ele, invented_names);
+	       std::cout << "extra_name_swaps_from_name_clash() " << i << " " << j
+			 << " invented name: " << invented_name << std::endl;
+	       invented_names.push_back(invented_name);
 	       SP p(to_name, invented_name);
 	       r.push_back(p);
 	    } 
@@ -821,7 +833,8 @@ coot::dictionary_residue_restraints_t::extra_name_swaps_from_name_clash(const st
 }
 
 std::string
-coot::dictionary_residue_restraints_t::invent_new_name(const std::string &ele) const {
+coot::dictionary_residue_restraints_t::invent_new_name(const std::string &ele,
+						       const std::vector<std::string> &other_invented_names) const {
 
    std::string new_name("XXX");
    std::string a("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
@@ -830,6 +843,10 @@ coot::dictionary_residue_restraints_t::invent_new_name(const std::string &ele) c
    std::vector<std::string> monomer_atom_names(atom_info.size());
    for (unsigned int iat=0; iat<atom_info.size(); iat++)
       monomer_atom_names[iat] = atom_info[iat].atom_id;
+
+   std::vector<std::string> existing_atom_names = monomer_atom_names;
+   for (unsigned int i=0; i<other_invented_names.size(); i++)
+      existing_atom_names.push_back(other_invented_names[i]);
    
    for (unsigned int i=0; i<a.size(); i++) { 
       for (unsigned int j=0; j<a.size(); j++) {
@@ -842,8 +859,8 @@ coot::dictionary_residue_restraints_t::invent_new_name(const std::string &ele) c
 	 }
 	 test_atom_name += a[i];
 	 test_atom_name += a[j];
-	 if (std::find(monomer_atom_names.begin(), monomer_atom_names.end(), test_atom_name)
-	     == monomer_atom_names.end()) {
+	 if (std::find(existing_atom_names.begin(), existing_atom_names.end(), test_atom_name)
+	     == existing_atom_names.end()) {
 	    found = true;
 	    new_name = test_atom_name;
 	 }

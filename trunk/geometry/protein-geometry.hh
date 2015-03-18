@@ -582,7 +582,8 @@ namespace coot {
 					// names.
       std::vector<std::pair<std::string, std::string> >
       extra_name_swaps_from_name_clash(const std::vector<std::pair<std::string, std::string> > &change_name) const;
-      std::string invent_new_name(const std::string &ele) const;
+      std::string invent_new_name(const std::string &ele,
+				  const std::vector<std::string> &other_invented_names) const;
 
 
       // change the atom names and the residue type of the passed residue.

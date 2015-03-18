@@ -3136,7 +3136,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    std::vector<std::pair<clipper::RTop_orth, float> > post_fit_trial_results = trial_results;
    //
    float best_score_so_far = -999999;
-   for (unsigned int i_trial=0; i_trial<n_for_rigid; i_trial++) {
+   for (int i_trial=0; i_trial<n_for_rigid; i_trial++) {
       coot::minimol::molecule  trial_mol = direct_mol;
 
       trial_mol.transform(trial_results[i_trial].first, centre_pt);
