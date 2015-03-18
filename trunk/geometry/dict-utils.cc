@@ -629,6 +629,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    g_2->MakeVertexIDs();
 
    bool use_bond_order = false;
+   use_bond_order = true;
 
    g_1->MakeSymmetryRelief(false);
    g_2->MakeSymmetryRelief(false);
@@ -646,7 +647,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
       std::cout << "INFO:: Matching Graphs with minMatch " << minMatch << " with "
 		<< n_atoms << s << " atoms" << std::endl;
    
-   int build_result_1 = g_1->Build(false);
+   int build_result_1 = g_1->Build(use_bond_order);
 
    if (build_result_1 != 0) {
       std::cout << "Bad graph build result_1" << std::endl;
