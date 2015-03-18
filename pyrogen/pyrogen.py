@@ -387,6 +387,8 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
                     comp_id_list_for_names_match,
                     dict_files_for_names_match):
 
+   numConfs = 100
+
    # pH-dependent protonation or deprotonation
    #
    do_hydrogen_atoms_shift = True
