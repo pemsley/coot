@@ -1,14 +1,17 @@
  
  0.8.2
 
-   o Boaz S.: crash catcher in binary-Linux-x86_64-rhel-6-python-gtk2  5619
+   o Put Export map and map fragment under File.
+            -- Andrea T
 
-   o missing cis-pep - Evzen Boura 
+   o Fix the NCS master chain problem - Airlie McCoy
+
+   o Add a user function to return mean, median, min, max, skew, kurtosis
+     and optionally histogram of map density values.
+      --- Alejandro Virrueta
 
    o Get monomer -> get PDBe ligand (and run dictionary generator?)
      or on failure,  get a useful error meesage/text dialog
-
-   o Fix the NCS master chain problem - Airlie McCoy
 
    o 6BP is badly modelled.  Wrong partial charges on Restraints
      editor on reading the PDBe ligand cif.
@@ -16,20 +19,14 @@
    o is coot-crash-catcher doing the right thing when the process is
      killed/dies?
 
-   o Put Export map and map fragment under File.
-            -- Andrea T
+   o Boaz S.: crash catcher in binary-Linux-x86_64-rhel-6-python-gtk2  5619
 
    o Improve the colours for density fit analysis - and note FEM map
      usage - Emilia Arturo
 
-   o Add a user function to return mean, median, min, max, skew, kurtosis
-     and optionally histogram of map density values.
-      --- Alejandro Virrueta
-
    o Can coot generate PDB annotated assemblies that are provided in
      the pdbx_struct_assembly* categories in the mmCIF file. -- Sameer V.
      (needs mmdb support).
-
 
    o I noticed when adjusting the 'bond colours' using the slider in
      'Edit/Bond Colours...' when an molecule (>1 chain) is 'coloured
@@ -41,10 +38,7 @@
         - Christoph Parthier
 
    o I've noticed that disulfide bonds are not drawn when color by
-     chain is activated in the Display Manager window. Changing
-     back to color by atoms restored disulfide bonds drawing. Probably a
-     bug or feature not sure. Just wanted to let you know.
-
+     chain is activated in the Display Manager window. 
 	- Donald Damian
 
    o in Jones' Rainbow hetgroups should be yellow (or grey?)
@@ -126,3 +120,6 @@ Punt.
 
 * It does now
 
+   o missing cis-pep - Evzen Boura 
+
+* Done.  Very esoteric.
