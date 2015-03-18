@@ -6032,10 +6032,10 @@ coot::util::cis_peptides_info_from_coords(mmdb::Manager *mol) {
       // << " chain_p " << chain_p << std::endl;
       if (chain_p) { 
 	 int nres = chain_p->GetNumberOfResidues();
-	 mmdb::PResidue residue_p_1;
-	 mmdb::PResidue residue_p_2;
-	 mmdb::Atom *at_1;
-	 mmdb::Atom *at_2;
+	 mmdb::Residue *residue_p_1 = 0;
+	 mmdb::Residue *residue_p_2 = 0;
+	 mmdb::Atom *at_1 = 0;
+	 mmdb::Atom *at_2 = 0;
 	 for (int ires=0; ires<(nres-1); ires++) { 
    
 	    mmdb::Atom *ca_first = NULL, *c_first = NULL, *n_next = NULL, *ca_next = NULL;
@@ -6044,7 +6044,8 @@ coot::util::cis_peptides_info_from_coords(mmdb::Manager *mol) {
 	    residue_p_2 = chain_p->GetResidue(ires+1);
 	    int n_atoms_2 = residue_p_2->GetNumberOfAtoms();
 
-	    if (residue_p_2->GetSeqNum() == (residue_p_1->GetSeqNum() + 1)) { 
+	    // if (residue_p_2->GetSeqNum() == (residue_p_1->GetSeqNum() + 1)) { 
+	    if (residue_p_1 && residue_p_2) { 
 	 
 	       for (int iat=0; iat<n_atoms_1; iat++) {
 		  at_1 = residue_p_1->GetAtom(iat);
@@ -6064,19 +6065,36 @@ coot::util::cis_peptides_info_from_coords(mmdb::Manager *mol) {
 	    }
 	 
 	    if (ca_first && c_first && n_next && ca_next) {
-	       clipper::Coord_orth caf(ca_first->x, ca_first->y, ca_first->z);
-	       clipper::Coord_orth  cf( c_first->x,  c_first->y,  c_first->z);
-	       clipper::Coord_orth can( ca_next->x,  ca_next->y,  ca_next->z);
-	       clipper::Coord_orth  nn(  n_next->x,   n_next->y,   n_next->z);
-	       double tors = clipper::Coord_orth::torsion(caf, cf, nn, can);
-	       double torsion = clipper::Util::rad2d(tors);
-	       double pos_torsion = (torsion > 0.0) ? torsion : 360.0 + torsion;
-	       double distortion = fabs(180.0 - pos_torsion);
-	       if (distortion > 90.0) {
-		  coot::residue_spec_t rs1(residue_p_1);
-		  coot::residue_spec_t rs2(residue_p_2); 
-		  v.push_back(coot::util::cis_peptide_info_t(chain_p->GetChainID(),
-							     rs1, rs2, imod, torsion));
+
+	       // we don't want to include CISPEPs for residues that
+	       // have a TER card between them.
+	       // 
+	       bool is_ter = false;
+	       for (int iat=0; iat<n_atoms_1; iat++) { 
+		  mmdb::Atom *at = residue_p_1->GetAtom(iat);
+		  if (at->isTer()) {
+		     is_ter = true;
+		     break;
+		  }
+	       }
+	       if (! is_ter) {
+		     clipper::Coord_orth caf(ca_first->x, ca_first->y, ca_first->z);
+		  clipper::Coord_orth  cf( c_first->x,  c_first->y,  c_first->z);
+		  clipper::Coord_orth can( ca_next->x,  ca_next->y,  ca_next->z);
+		  clipper::Coord_orth  nn(  n_next->x,   n_next->y,   n_next->z);
+		  double tors = clipper::Coord_orth::torsion(caf, cf, nn, can);
+		  double torsion = clipper::Util::rad2d(tors);
+		  double pos_torsion = (torsion > 0.0) ? torsion : 360.0 + torsion;
+		  double distortion = fabs(180.0 - pos_torsion);
+		  double d = sqrt((cf - nn).lengthsq());
+		  if (d<3.0) { // the residues were close in space, not just close in sequence
+		     if (distortion > 90.0) {
+			coot::residue_spec_t rs1(residue_p_1);
+			coot::residue_spec_t rs2(residue_p_2); 
+			v.push_back(coot::util::cis_peptide_info_t(chain_p->GetChainID(),
+								   rs1, rs2, imod, torsion));
+		     }
+		  }
 	       }
 	    }
 	 } 
@@ -6090,8 +6108,7 @@ coot::util::cis_peptides_info_from_coords(mmdb::Manager *mol) {
 void
 coot::util::remove_wrong_cis_peptides(mmdb::Manager *mol) {
 
-   std::vector<coot::util::cis_peptide_info_t> v_coords = 
-      coot::util::cis_peptides_info_from_coords(mol);
+   std::vector<cis_peptide_info_t> v_coords = cis_peptides_info_from_coords(mol);
 
    mmdb::PCisPep CisPep;
    int n_models = mol->GetNumberOfModels();
