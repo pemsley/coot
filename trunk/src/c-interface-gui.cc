@@ -5194,7 +5194,6 @@ GtkWidget *wrapped_create_display_control_window() {
 }
 
 // BL things for file_chooser
-#ifdef COOT_USE_GTK2_INTERFACE
 void set_file_chooser_selector(int istate) {
    graphics_info_t::gtk2_file_chooser_selector_flag = istate;
 }
@@ -5211,7 +5210,62 @@ int file_chooser_overwrite_state(){
    return graphics_info_t::gtk2_chooser_overwrite_flag;
 }
 
-#endif
+
+void export_map_gui(short int export_map_fragment) {
+
+   GtkWidget *w = create_export_map_dialog();
+
+   if (! export_map_fragment) {
+      GtkWidget *hbox = lookup_widget(w, "export_map_fragment_hbox");
+      gtk_widget_hide(hbox);
+   }
+
+   GtkWidget *option_menu = lookup_widget(w, "export_map_map_optionmenu");
+   graphics_info_t g;
+   g.fill_option_menu_with_map_options(option_menu, NULL); // we don't want to do anything when the menu is
+                                                        // pressed. We do want to know what the active
+                                                        // item was.
+
+   g_object_set_data(G_OBJECT(w), "is_map_fragment", GINT_TO_POINTER(export_map_fragment));
+
+   gtk_widget_show(w);
+
+}
+
+void on_export_map_dialog_ok_button_clicked_cc(GtkButton *button) {
+
+   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "export_map_dialog");
+
+   GtkWidget *option_menu = lookup_widget(GTK_WIDGET(button), "export_map_map_optionmenu");
+   GtkWidget *text_entry  = lookup_widget(GTK_WIDGET(button), "export_map_radius_entry");
+   int is_map_fragment = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), "is_map_fragment"));
+   int imol_map = -1;
+   GtkWidget *file_selection_dialog;
+   const gchar *entry_text = gtk_entry_get_text(GTK_ENTRY(text_entry));
+
+   GtkWidget *active_menu_item =
+      gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu))));
+
+
+   if (active_menu_item) { 
+      imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(active_menu_item), "map_molecule_number"));
+      file_selection_dialog = create_export_map_filechooserdialog();
+      unsigned int l = std::string(entry_text).length();
+      char *c = new char [l + 1];
+      strncpy(c, entry_text, l+1);
+      g_object_set_data(G_OBJECT(file_selection_dialog), "is_map_fragment",  GINT_TO_POINTER(is_map_fragment));
+      // std::cout << "here in on_export_map_dialog_ok_button_clicked_cc() c is :" << c << ":" << std::endl;
+      g_object_set_data(G_OBJECT(file_selection_dialog), "export_map_radius_entry_text",  c);
+      g_object_set_data(G_OBJECT(file_selection_dialog), "map_molecule_number",  GINT_TO_POINTER(imol_map));
+      gtk_widget_show(file_selection_dialog);
+   }
+  
+   gtk_widget_destroy(w);
+}
+
+
+
+
 
 // we add a universal function to set the file names
 // in file chooser or selector
@@ -5220,13 +5274,12 @@ void set_filename_for_filechooserselection(GtkWidget *fileselection,
 					   const gchar *filename) {
 
    bool chooser = 0;
-#if (GTK_MAJOR_VERSION > 1)
+
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
       chooser = 1;
       gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(fileselection),
 					filename);     
    }
-#endif
 
    if (chooser) {
 	// dont do anything, as already done

@@ -1479,7 +1479,7 @@ coot::util::calc_atom_map(mmdb::Manager *mol,
       clipper::EDcalc_iso<float> e;
       e(xmap, al);
    }
-   catch (clipper::Message_generic &e) {
+   catch (const clipper::Message_generic &e) {
       std::cout << "ERROR:: some sort of clipper map problem" << std::endl;
       std::cout << e.text() << std::endl;
    }

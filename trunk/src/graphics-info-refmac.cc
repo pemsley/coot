@@ -118,9 +118,11 @@ graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
 
 	 
 	 menuitem = gtk_menu_item_new_with_label(label.c_str());
-	 gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
-			    GTK_SIGNAL_FUNC(signal_func),
-			    GINT_TO_POINTER(i));
+	 if (signal_func)
+	    gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
+			       GTK_SIGNAL_FUNC(signal_func),
+			       GINT_TO_POINTER(i));
+	 g_object_set_data(G_OBJECT(menuitem), "map_molecule_number", GINT_TO_POINTER(i));
 	 gtk_menu_append(GTK_MENU(menu), menuitem);
 	 gtk_widget_show(menuitem);
 	 if (active_map_mol_no == -1) { 

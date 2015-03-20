@@ -6773,7 +6773,7 @@ coot::util::get_cell_symm(mmdb::Manager *mol) {
 	    std::cout << "Null clipper cell  " << std::endl;
 	 return std::pair<clipper::Cell, clipper::Spacegroup> (cell, spacegroup);
       }
-      catch (const clipper::Message_base &except) {
+      catch (const clipper::Message_generic &except) {
 	 std::string message = "Fail to make clipper::Spacegroup from ";
 	 message += mol->GetSpaceGroup();
 	 throw std::runtime_error(message);
