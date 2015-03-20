@@ -4454,3 +4454,33 @@ void
 on_generic_objects_close_all_button_clicked
                                         (GtkButton       *button,
 					 gpointer         user_data);
+void
+on_export_map1_activate                (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_export_map_fragment1_activate       (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
+on_export_map_dialog_ok_button_clicked (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_export_map_dialog_cancel_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+/* void */
+/* on_export_map_filechooserdialog_cancel_button_clicked */
+/*                                         (GtkButton       *button, */
+/*                                         gpointer         user_data); */
+
+/* void */
+/* on_export_map_filechooserdialog_save_button_clicked */
+/*                                         (GtkButton       *button, */
+/*                                         gpointer         user_data); */
+void
+on_export_map_filechooserdialog_response
+                                        (GtkDialog       *dialog,
+                                        gint             response_id,
+                                        gpointer         user_data);

@@ -145,7 +145,6 @@ GtkWidget* create_run_refmac_nolabels_help_dialog (void);
 GtkWidget* create_map_sharpening_dialog (void);
 GtkWidget* create_fix_nomenclature_errors_dialog (void);
 
-#if (GTK_MAJOR_VERSION > 1)
 char* coot_revision(void);
 GtkWidget* create_aboutdialog (void);
 GtkWidget* create_coords_filechooserdialog1(void);
@@ -183,8 +182,9 @@ GtkWidget* create_mogul_geometry_results_table_dialog();
 GtkWidget* create_build_na_dialog (void);
 GtkWidget* create_ligand_check_dialog (void);
 GtkWidget* create_generic_objects_dialog (void);
+GtkWidget* create_export_map_dialog (void);
+GtkWidget* create_export_map_filechooserdialog (void);
 
-#endif /* GTK_MAJOR_VERSION */ 
 
 END_C_DECLS
 

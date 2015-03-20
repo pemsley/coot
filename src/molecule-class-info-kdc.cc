@@ -68,10 +68,15 @@ molecule_class_info_t::export_map_fragment(float radius,
 	 ix.set_coord(inx.coord() + offset);
 	 nxmap[inx] = xmap[ix];
       }
-      clipper::CCP4MAPfile mapout;
-      mapout.open_write(file_name);
-      mapout.set_cell(cell);
-      mapout.export_nxmap(nxmap);
-      mapout.close_write();
+      try { 
+	 clipper::CCP4MAPfile mapout;
+	 mapout.open_write(file_name);
+	 mapout.set_cell(cell);
+	 mapout.export_nxmap(nxmap);
+	 mapout.close_write();
+      }
+      catch (const clipper::Message_base &except) {
+	 std::cout << "WARNING:: Failed to write " << file_name  << std::endl;
+      } 
    }
 } 

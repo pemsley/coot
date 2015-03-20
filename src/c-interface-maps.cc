@@ -1245,6 +1245,16 @@ int export_map_fragment(int imol, float x, float y, float z, float radius, const
    return rv;
 }
 
+/*! convenience function, called from callbacks.c */
+void export_map_fragment_with_text_radius(int imol, const char *radius_text, const char *filename) {
+
+   graphics_info_t g;
+   coot::Cartesian rc = g.RotationCentre();
+   float radius = coot::util::string_to_int(radius_text);
+   export_map_fragment(imol, rc.x(), rc.y(), rc.z(), radius, filename);
+} 
+
+
 /*! \brief export a fragment of the map about (x,y,z)  */
 int export_map_fragment_with_origin_shift(int imol, float x, float y, float z, float radius, const char *filename) {
 

@@ -123,10 +123,6 @@ on_open_dataset1_activate              (GtkMenuItem     *menuitem,
   sort_button = add_sort_button_fileselection(dataset_fileselection1); 
   /* add_filename_filter_button needs the sort button to be in place (for now) */
   set_directory_for_fileselection(dataset_fileselection1);
-#if (GTK_MAJOR_VERSION == 1)
-  push_the_buttons_on_fileselection(file_filter_button, sort_button, 
-				    dataset_fileselection1);
-#endif
 
   /* stuff in user data saying if this is autoread or not... */
   is = is_auto_read_fileselection;
@@ -135,11 +131,9 @@ on_open_dataset1_activate              (GtkMenuItem     *menuitem,
 
   set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_fileselection1);
   gtk_widget_show (dataset_fileselection1);
-#if (GTK_MAJOR_VERSION > 1)
   /* in gtk2 we have to push the buttons after we show the selection */
   push_the_buttons_on_fileselection(file_filter_button, sort_button, 
 				    dataset_fileselection1);
-#endif
 
 }
 
@@ -157,10 +151,6 @@ on_auto_open_mtz_activate              (GtkMenuItem     *menuitem,
 						  COOT_DATASET_FILE_SELECTION);
   sort_button = add_sort_button_fileselection(dataset_fileselection1); 
   set_directory_for_fileselection(dataset_fileselection1);
-# if (GTK_MAJOR_VERSION == 1)
-  push_the_buttons_on_fileselection(file_filter_button, sort_button, 
-				    dataset_fileselection1);
-#endif
 
   /* stuff in user data saying if this is autoread or not... */
   is = is_auto_read_fileselection;
@@ -169,10 +159,8 @@ on_auto_open_mtz_activate              (GtkMenuItem     *menuitem,
 
   set_transient_and_position(COOT_UNDEFINED_WINDOW, dataset_fileselection1);
   gtk_widget_show (dataset_fileselection1);
-# if (GTK_MAJOR_VERSION > 1)
   push_the_buttons_on_fileselection(file_filter_button, sort_button, 
 				    dataset_fileselection1);
-#endif
 }
 
 
@@ -207,7 +195,6 @@ void
 on_ok_button_coordinates_clicked       (GtkButton       *button,
                                         gpointer         user_data)
 {
-  const gchar *filename; 
   GtkWidget *coords_fileselection1;
   GtkWidget *checkbutton;
   int recentre_on_read_pdb_flag = 0;
@@ -304,7 +291,6 @@ on_ok_button_dataset_clicked           (GtkButton       *button,
   const gchar *filename; 
   gchar *copied_filename;
   int auto_read_flag = 0, ismtz = 0, ismtzauto = 0, iscnsauto = 0;
-  int itmp = -1;
 
   GtkWidget *dataset_fileselection1;
 
@@ -394,17 +380,8 @@ void
 on_about1_activate                     (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-   GtkWidget *about_window;
-   GtkWidget *text_widget;
-
-#if (GTK_MAJOR_VERSION == 1) || ((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION < 5))
-   about_window = create_about_window();
-   fill_about_window(about_window);
-#else 
-   about_window = create_aboutdialog();
+   GtkWidget *about_window = create_aboutdialog();
    add_coot_references_button(about_window);
-#endif
-
    gtk_widget_show(about_window);   
 }
 
@@ -684,7 +661,6 @@ on_show_symmetry_ok_button_clicked     (GtkButton       *button,
    GtkEntry      *entry; 
    GtkWidget     *checkbutton;
    const char *text;
-   int imol = 0;		/* FIXME */
 
 /* Show Symmetry Radiobuttons */
    if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
@@ -773,7 +749,6 @@ on_show_symmetry_apply_button_clicked  (GtkButton       *button,
    GtkEntry      *entry; 
    GtkWidget     *checkbutton;
    const char *text;
-   int imol = 0;		/* FIXME */
 
 /* Show Symmetry Radiobuttons */
    if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button),
@@ -888,7 +863,6 @@ on_anisotropic_atoms1_activate         (GtkMenuItem     *menuitem,
    GtkScale *hscale;
    GtkAdjustment *adjustment;
    float hscale_initial;
-   int imol = 0;		/* FIXME */
  
    aniso_window = create_aniso_window();   
 
@@ -951,7 +925,6 @@ on_show_aniso_ok_button_clicked        (GtkButton       *button,
 {
    GtkEntry      *entry; 
    const char *text;
-   int imol = 0; /* FIXME */
 
 /* Limit Display Atoms? */
 
@@ -3840,8 +3813,6 @@ on_pointer_atom_type_ok_button_clicked (GtkButton       *button,
 				    "pointer_atom_type_dialog");
   GtkToggleButton *tbut;
 
-  char *type;
-
   GtkWidget *entry = lookup_widget(GTK_WIDGET(button), "pointer_atom_type_other_entry");
   const char *entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
 
@@ -4009,7 +3980,6 @@ on_run_refmac_phase_input_optionmenu_changed
   GtkWidget *phases_hbox;
   GtkWidget *hl_hbox;
   GtkWidget *no_labels_checkbutton;
-  GtkWidget *sad_checkbutton;
   GtkWidget *twin_checkbutton;
   GtkWidget *sad_extras;
   GtkWidget *fobs_hbox;
@@ -4090,7 +4060,6 @@ on_run_refmac_twin_checkbutton_toggled (GtkToggleButton *togglebutton,
   GtkWidget *mtz_button      = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_mtz_radiobutton");
   GtkWidget *mtz_frame       = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_mtz_hbox");
   GtkWidget *mtz_file_radiobutton = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_mtz_file_radiobutton");
-  GtkWidget *mtz_file_frame  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_mtz_file_hbox");
   GtkWidget *fobs_hbox       = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_fobs_hbox");
   GtkWidget *fiobs_hbox      = lookup_widget(GTK_WIDGET(togglebutton), "refmac_dialog_fiobs_hbox");
   if (togglebutton->active) {
@@ -4188,37 +4157,26 @@ on_run_refmac_mtz_filechooserdialog_response
                                         gint             response_id,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
   GtkWidget *mtz_fileselection;
+  GtkWidget *mtz_label;
+  GtkWidget *refmac_dialog;
+  const gchar *filename;
+
   mtz_fileselection = lookup_widget(GTK_WIDGET(dialog),
 				    "run_refmac_mtz_filechooserdialog");
- if (response_id == GTK_RESPONSE_OK) {
-  const gchar *filename;
-  save_directory_from_filechooser(mtz_fileselection);
+  if (response_id == GTK_RESPONSE_OK) {
+    save_directory_from_filechooser(mtz_fileselection);
 
-  filename = gtk_file_chooser_get_filename 
-    (GTK_FILE_CHOOSER(mtz_fileselection));
+    filename = gtk_file_chooser_get_filename 
+      (GTK_FILE_CHOOSER(mtz_fileselection));
  
-  /* do something with the filename */
-  g_print("INFO:: Selected filename %s\n", filename);
-
-  /* save the label name */
-  GtkWidget *mtz_label = get_refmac_mtz_file_label();
-  //mtz_file_label = lookup_widget(GTK_WIDGET(button), "run_refmac_mtz_file_label");
-  //mtz_filename = get_saved_refmac_twin_filename();
-  //g_print("BL DEBUG:: mtz twin filename is %s", mtz_filename);
-  //if (mtz_filename) {
-  //  g_print("BL DEBUG:: have filename set");
-  //  gtk_label_set_text(GTK_LABEL(mtz_file_label), mtz_filename);
-  //}
-  
-  gtk_label_set_text(GTK_LABEL(mtz_label), filename);
-  GtkWidget *refmac_dialog = lookup_widget(mtz_label, "run_refmac_dialog");
-  manage_refmac_column_selection(refmac_dialog);
- } 
- gtk_widget_destroy(mtz_fileselection);
-#endif
-
+    /* save the label name */
+    mtz_label = get_refmac_mtz_file_label();
+    gtk_label_set_text(GTK_LABEL(mtz_label), filename);
+    refmac_dialog = lookup_widget(mtz_label, "run_refmac_dialog");
+    manage_refmac_column_selection(refmac_dialog);
+  } 
+  gtk_widget_destroy(mtz_fileselection);
 }
 
 
@@ -4227,12 +4185,11 @@ on_run_refmac_mtz_filechooserdialog_destroy
                                         (GtkObject       *object,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
+
   GtkWidget *mtz_fileselection = lookup_widget(GTK_WIDGET(object),
 					       "run_refmac_mtz_filechooserdialog");
 
   gtk_widget_destroy(mtz_fileselection);
-#endif
 
 }
 
@@ -4242,16 +4199,13 @@ on_run_refmac_mtz_filechooser_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
+
   GtkWidget *mtz_file_chooser;
-  GtkWidget *mtz_file_label;
-  const gchar *mtz_filename;
   mtz_file_chooser = create_run_refmac_mtz_filechooserdialog();
   /* add file filter to filechooserbutton */
   add_filechooser_filter_button(mtz_file_chooser, COOT_DATASET_FILE_SELECTION);
   add_ccp4i_project_optionmenu(mtz_file_chooser, COOT_DATASET_FILE_SELECTION);
   gtk_widget_show(mtz_file_chooser);
-#endif
 
 }
 
@@ -4260,10 +4214,9 @@ void
 on_run_refmac_file_help_button_clicked (GtkButton       *button,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
   GtkWidget *widget = create_run_refmac_file_help_dialog();
   gtk_widget_show(widget);
-#endif
+
 
 }
 
@@ -4282,10 +4235,8 @@ void
 on_run_refmac_sad_help_button_clicked  (GtkButton       *button,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
   GtkWidget *widget = create_run_refmac_sad_help_dialog();
   gtk_widget_show(widget);
-#endif
 
 }
 
@@ -5446,7 +5397,6 @@ on_centre_atom_label_ok_button_clicked (GtkButton       *button,
 {
   GtkWidget *dialog = lookup_widget(GTK_WIDGET(button), "centre_atom_label_dialog");
   GtkWidget *on  = lookup_widget(dialog, "centre_atom_label_radiobutton_on");
-  GtkWidget *off = lookup_widget(dialog, "centre_atom_label_radiobutton_off");
 
   if (GTK_TOGGLE_BUTTON(on)->active) {
     set_label_on_recentre_flag(1);
@@ -5685,7 +5635,6 @@ on_column_label_expert_mode_button_clicked
 				   "column_labels_resolution_limit_frame");
   GtkWidget *f_optionmenu = lookup_widget(GTK_WIDGET(button),
 					  "optionmenu1");
-  short int is_expert_mode_flag; 
 
   /* we also need to redo the F column label chooser to include anomalous option  */
 
@@ -6523,7 +6472,6 @@ void
 on_preferences_destroy                 (GtkObject       *object,
                                         gpointer         user_data)
 {
-  GtkWidget *w = lookup_widget(GTK_WIDGET(object), "preferences");
   clear_preferences();
 }
 
@@ -7703,7 +7651,6 @@ on_preferences_model_toolbar_right_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  GtkWidget *show = lookup_widget(GTK_WIDGET(togglebutton), "preferences_model_toolbar_show_radiobutton");
   if (togglebutton->active) {
     set_model_toolbar_docked_position(0);
     preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_POSITION, 0);
@@ -7717,7 +7664,6 @@ on_preferences_model_toolbar_left_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  GtkWidget *show = lookup_widget(GTK_WIDGET(togglebutton), "preferences_model_toolbar_show_radiobutton");
   if (togglebutton->active) {
     set_model_toolbar_docked_position(1);
     preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_POSITION, 1);
@@ -7731,12 +7677,10 @@ on_preferences_model_toolbar_top_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  GtkWidget *show = lookup_widget(GTK_WIDGET(togglebutton), "preferences_model_toolbar_show_radiobutton");
   if (togglebutton->active) {
     set_model_toolbar_docked_position(2);
     preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_POSITION, 2);
   }
-
 }
 
 
@@ -7745,12 +7689,10 @@ on_preferences_model_toolbar_bottom_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  GtkWidget *show = lookup_widget(GTK_WIDGET(togglebutton), "preferences_model_toolbar_show_radiobutton");
   if (togglebutton->active) {
     set_model_toolbar_docked_position(3);
     preferences_internal_change_value_int(PREFERENCES_MODEL_TOOLBAR_POSITION, 3);
   }
-
 }
 
 
@@ -8094,7 +8036,6 @@ on_pointer_distances_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-   GtkWidget *dialog = lookup_widget(GTK_WIDGET(togglebutton), "pointer_distances_dialog");
    if (togglebutton->active) { 
       printf("pointer distances toggle button toggled on\n");
    } else { 
@@ -8279,10 +8220,6 @@ on_delete_item_dialog_destroy          (GtkObject       *object,
                                         gpointer         user_data)
 {
 
-   GtkWidget *w = GTK_WIDGET(object);
-/*    printf("delete item destroy object: %ld w: %ld\n", object, w); */
-/*    store_window_position(COOT_DELETE_WINDOW, w); - not here, w does
-                                                    not have a ->window */
    clear_pending_delete_item();
    clear_pending_picks(); 
    normal_cursor();
@@ -9098,7 +9035,6 @@ on_ncs_controller_molecule_n_display_chain_ich_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-   GtkWidget *w = lookup_widget(GTK_WIDGET(togglebutton), "ncs_control_dialog"); 
    int imol_chain = GPOINTER_TO_INT(user_data);
    int imol = imol_chain/1000;
    int ich = imol_chain - imol*1000;
@@ -9650,14 +9586,7 @@ on_least_squares_ok_button_clicked     (GtkButton       *button,
 {
 
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "least_squares_dialog");
-  int status = apply_lsq_matches_by_widget(w);
-
-  /* Don't close on pressing the fit button - make users explicitly
-     click the Close button */
-
-/*   if (status == 1) { */
-/*     gtk_widget_destroy(w); */
-/*   } */
+  apply_lsq_matches_by_widget(w);
 
 }
 
@@ -10608,7 +10537,6 @@ on_coords_filechooserdialog1_response  (GtkDialog       *dialog,
                                         gint             response_id,
                                         gpointer         user_data){
 
-#if (GTK_MAJOR_VERSION > 1)
  if (response_id == GTK_RESPONSE_OK) {
   const gchar *filename; 
   GtkWidget *coords_fileselection1;
@@ -10684,7 +10612,6 @@ on_coords_filechooserdialog1_response  (GtkDialog       *dialog,
   gtk_widget_destroy(coords_fileselection1);
 
  }
-#endif /* GTK_MAJOR_VERSION  */
 }
 
 void
@@ -10720,12 +10647,10 @@ on_dataset_filechooserdialog1_response (GtkDialog       *dialog,
                                         gpointer         user_data)
 {
 
-#if (GTK_MAJOR_VERSION > 1)
  if (response_id == GTK_RESPONSE_OK) {
   const gchar *filename; 
   gchar *copied_filename;
   int auto_read_flag = 0, ismtz = 0, ismtzauto = 0, iscnsauto = 0;
-  int itmp = -1;
 
   GtkWidget *dataset_fileselection1;
 
@@ -10771,7 +10696,7 @@ on_dataset_filechooserdialog1_response (GtkDialog       *dialog,
   gtk_widget_destroy(dataset_fileselection1);
    
  }
-#endif /* GTK_MAJOR_VERSION  */
+
 }
 
 
@@ -12091,7 +12016,6 @@ void
 on_map_opacity_hscale_value_changed    (GtkRange        *range,
                                         gpointer         user_data) { 
 
-#if (GTK_MAJOR_VERSION > 1)
   GtkAdjustment *adjustment;
   float fvalue;
   GtkWidget *window = lookup_widget(GTK_WIDGET(range),
@@ -12100,9 +12024,7 @@ on_map_opacity_hscale_value_changed    (GtkRange        *range,
 
   adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
   fvalue = 0.01 * gtk_adjustment_get_value(adjustment);
-/*   printf("opacity for %d: %f\n", imol, fvalue); */
   set_solid_density_surface_opacity(imol, fvalue);
-#endif /* GTK2 */
 
 }
 
@@ -12115,9 +12037,7 @@ on_refine_params_weight_matrix_entry_changed
 
   GtkWidget *entry = lookup_widget(GTK_WIDGET(editable), 
 				   "refine_params_weight_matrix_entry");
-  const gchar *text = gtk_entry_get_text(GTK_ENTRY(entry));
   struct entry_info_t ei = coot_entry_to_val(GTK_ENTRY(entry));
-/*   printf("got text: %s\n", text); */
   if (ei.float_is_set)
     set_matrix(ei.val_as_float);
   
@@ -12379,3 +12299,99 @@ on_generic_objects_close_all_button_clicked
 }
 
 
+
+void
+on_export_map1_activate                (GtkMenuItem     *menuitem,
+                                        gpointer         user_data) { 
+
+  short int is_fragment = 0;
+  export_map_gui(is_fragment);
+
+} 
+
+void
+on_export_map_fragment1_activate       (GtkMenuItem     *menuitem,
+                                        gpointer         user_data) { 
+
+  short int is_fragment = 1;
+  export_map_gui(is_fragment);
+}
+
+void
+on_export_map_dialog_ok_button_clicked (GtkButton       *button,
+                                        gpointer         user_data) {
+
+  on_export_map_dialog_ok_button_clicked_cc(button);
+} 
+
+void
+on_export_map_dialog_cancel_button_clicked
+                                        (GtkButton       *button,
+					 gpointer         user_data) { 
+
+  GtkWidget *w = lookup_widget(GTK_WIDGET(button), "export_map_dialog");
+  gtk_widget_destroy(w);
+} 
+
+/* void */
+/* on_export_map_filechooserdialog_cancel_button_clicked */
+/*                                         (GtkButton       *button, */
+/*                                         gpointer         user_data) */
+/* { */
+
+/*   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "export_map_filechooserdialog"); */
+/*   gtk_widget_destroy(w); */
+  
+
+/* } */
+
+/* void */
+/* on_export_map_filechooserdialog_save_button_clicked */
+/*                                         (GtkButton       *button, */
+/*                                         gpointer         user_data) */
+/* { */
+
+/*   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "export_map_filechooserdialog"); */
+/*   int imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), "map_molecule_number")); */
+/*   short int is_map_fragment = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), "is_map_fragment")); */
+/*   char *txt = (char *) g_object_get_data(G_OBJECT(w), "export_map_radius_entry_text"); */
+/*   const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(w)); */
+
+/*   printf("got text: %s\n", txt); */
+/*   printf("is_map_fragment: %d\n", is_map_fragment); */
+/*   printf("imol_map: %d\n", imol_map); */
+
+/*   if (is_map_fragment) {  */
+/*     export_map_fragment_with_text_radius(imol_map, txt, filename); */
+/*   } else {  */
+/*     export_map(imol_map, filename); */
+/*   }  */
+/*   gtk_widget_destroy(w); */
+
+/* } */
+
+void
+on_export_map_filechooserdialog_response
+                                        (GtkDialog       *dialog,
+                                        gint             response_id,
+					 gpointer         user_data) { 
+
+  int imol_map;
+  int is_map_fragment;
+  char *txt;
+  const char *filename;
+
+  if (response_id == GTK_RESPONSE_OK) {
+    imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "map_molecule_number")); 
+    is_map_fragment = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "is_map_fragment")); 
+    txt = g_object_get_data(G_OBJECT(dialog), "export_map_radius_entry_text");
+    filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(dialog)); 
+
+    if (is_map_fragment) { 
+      export_map_fragment_with_text_radius(imol_map, txt, filename);
+    } else { 
+      export_map(imol_map, filename);
+    } 
+  }
+  gtk_widget_destroy(GTK_WIDGET(dialog));
+} 

@@ -4,6 +4,9 @@
    o Put Export map and map fragment under File.
             -- Andrea T
 
+   o Add "What's this?" to the function that updates the thumbnail
+     - Dave Brown.
+
    o Fix the NCS master chain problem - Airlie McCoy
 
    o Add a user function to return mean, median, min, max, skew, kurtosis

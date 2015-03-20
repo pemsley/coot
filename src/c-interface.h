@@ -217,13 +217,9 @@ short int file_type_coords(const char *file_name);
 /*! \brief display the open coordinates dialog */
 void open_coords_dialog();
 
-#ifdef COOT_USE_GTK2_INTERFACE
 void on_filename_filter_toggle_button_toggled (GtkButton       *button,
 					      gpointer         user_data);
-#else
-void on_filename_filter_toggle_button_toggled_gtk1 (GtkButton       *button,
-						    gpointer         user_data);
-#endif 
+
 void add_file_dialog_action_area_vbox(GtkWidget *fileselection);
 void add_filename_filter(GtkWidget *fileselection);
 void add_save_coordinates_include_hydrogens_and_aniso_checkbutton(GtkWidget *fileselection);
@@ -239,14 +235,12 @@ void add_save_coordinates_include_hydrogens_and_aniso_checkbutton(GtkWidget *fil
 GtkWidget *add_filename_filter_button(GtkWidget *fileselection, 
 				      short int type);
 
-#ifdef COOT_USE_GTK2_INTERFACE
 void add_filechooser_filter_button(GtkWidget *fileselection, 
 				      short int data_type);
 
 void add_filechooser_extra_filter_button(GtkWidget *fileselection, 
 				      const gchar *name,
                                       const gchar *name2);
-#endif /* GTK2 */
 
 gboolean on_filename_filter_key_press_event (GtkWidget       *widget,
 					     GdkEventKey     *event,
@@ -287,13 +281,18 @@ void set_filename_for_filechooserselection(GtkWidget *widget, const gchar *name)
 
 /*! \brief this flag set chooser as default for windows, otherwise use
   selector 0 is selector 1 is chooser */
-#ifdef COOT_USE_GTK2_INTERFACE
+
 void set_file_chooser_selector(int istate);
 int file_chooser_selector_state();
 
 void set_file_chooser_overwrite(int istate);
 int file_chooser_overwrite_state();
-#endif
+
+/* export map GUI */
+void export_map_gui(short int export_map_fragment);
+
+void on_export_map_dialog_ok_button_clicked_cc(GtkButton *button);
+
 /* \} */
 
 
@@ -1306,6 +1305,9 @@ float model_resolution(int imol);
 int export_map(int imol, const char *filename);	
 /*! \brief export a fragment of the map about (x,y,z)  */
 int export_map_fragment(int imol, float x, float y, float z, float radius, const char *filename);
+
+/*! convenience function, called from callbacks.c */
+void export_map_fragment_with_text_radius(int imol, const char *radius_text, const char *filename);
 
 /*! \brief export a fragment of the map about (x,y,z)  */
 int export_map_fragment_with_origin_shift(int imol, float x, float y, float z, float radius, const char *filename);
