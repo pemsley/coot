@@ -522,10 +522,13 @@ namespace coot {
       dict_chem_comp_tree_t() {}
    };
 
+
    // ------------------------------------------------------------------------
    // class dictionary_residue_restraints_t
    // ------------------------------------------------------------------------
-   // 
+   //
+   class dictionary_match_info_t;       // forward for matching
+   
    class dictionary_residue_restraints_t {
 
       class atom_pair_t {
@@ -586,10 +589,6 @@ namespace coot {
 				  const std::vector<std::string> &other_invented_names) const;
 
 
-      // change the atom names and the residue type of the passed residue.
-      bool change_names(mmdb::Residue *residue_p, const std::vector<std::pair<std::string, std::string> > &change_name,
-			const std::string &new_comp_id) const;
-
       
    public:
       dictionary_residue_restraints_t(std::string comp_id_in,
@@ -616,7 +615,7 @@ namespace coot {
       // esds.
       dictionary_residue_restraints_t(mmdb::Residue *residue_p);
       dictionary_residue_restraints_t(mmdb::Manager *mol); // mol contains one residue in a hierarchy
-      
+
       std::string cif_file_name;
       void clear_dictionary_residue();
       bool is_filled() const {
@@ -720,11 +719,16 @@ namespace coot {
       // If new_comp_id is "auto", suggest_new_comp_id() is called to
       // generate a comp_id string.
       //
-      std::pair<unsigned int, dictionary_residue_restraints_t>
+      dictionary_match_info_t
       match_to_reference(const dictionary_residue_restraints_t &ref,
 			 mmdb::Residue *residue_p,
 			 const std::string &new_comp_id,
 			 const std::string &new_compound_name) const;
+
+      // change the atom names and the residue type of the passed residue.
+      bool change_names(mmdb::Residue *residue_p,
+			const std::vector<std::pair<std::string, std::string> > &change_name,
+			const std::string &new_comp_id) const;
 
       // make a mmdb::math::Graph from the atom_info and bond restraints.
       //
@@ -732,6 +736,21 @@ namespace coot {
       mmdb::math::Graph *make_graph(bool use_hydrogen) const;
       
    };
+
+
+   class dictionary_match_info_t {
+   public:
+      unsigned int n_matches;
+      dictionary_residue_restraints_t dict;
+      std::vector<std::pair<std::string, std::string> > name_swaps;
+      std::string new_comp_id;
+      dictionary_match_info_t() {
+	 n_matches = 0;
+      }
+   };
+      
+      
+   
 
    // ------------------------------------------------------------------------
    // class dict_link_bond_restraint_t

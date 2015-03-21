@@ -126,7 +126,7 @@ coot::bonded_pair_t::delete_atom(mmdb::Residue *res, const std::string &atom_nam
    int n_residue_atoms;
    bool deleted = false;
    res->GetAtomTable(residue_atoms, n_residue_atoms);
-   for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+   for (int iat=0; iat<n_residue_atoms; iat++) {
       mmdb::Atom *at = residue_atoms[iat];
       if (at) {  // unneeded precaution?
 	 std::string at_name(at->name);
