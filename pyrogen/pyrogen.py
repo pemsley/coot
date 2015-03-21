@@ -530,8 +530,6 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
 	  
 	  if run_mogul == False:
 
-              print 'run_mogul == False', match_atom_names_to_dict_flag
-
 	      # ... but that's OK if we told pyrogen to run without mogul
 
               # sane_H_mol:
