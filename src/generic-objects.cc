@@ -96,7 +96,7 @@ void to_generic_object_add_dashed_line(int object_number,
    int n_dashes = int(dash_density * ll);
    bool visible = 1;
    
-   for (unsigned int idash=0; idash<(n_dashes-1); idash++) {
+   for (int idash=0; idash<(n_dashes-1); idash++) {
       if (visible) { 
 	 float fracs = float(idash)/float(n_dashes);
 	 float fracn = float(idash+1)/float(n_dashes);
@@ -130,7 +130,7 @@ void to_generic_object_add_point(int object_number,
 //    std::cout << "debug:: colour input " << c << " gave colour "
 // 	     << colour << std::endl;
 
-   if (object_number >=0 && object_number < g.generic_objects_p->size()) { 
+   if (object_number >=0 && object_number < int(g.generic_objects_p->size())) { 
 
       (*g.generic_objects_p)[object_number].add_point(colour,
 						      c,
@@ -189,7 +189,7 @@ void to_generic_object_add_arc(int object_number,
 void to_generic_object_add_display_list_handle(int object_number, int display_list_id) { 
 
    graphics_info_t g;
-   if (object_number >=0 && object_number < g.generic_objects_p->size()) { 
+   if (object_number >=0 && object_number < int(g.generic_objects_p->size())) { 
       (*g.generic_objects_p)[object_number].GL_display_list_handles.push_back(display_list_id);
    } else {
       std::cout << "BAD object_number in to_generic_object_add_point: "
@@ -203,7 +203,7 @@ void to_generic_object_add_display_list_handle(int object_number, int display_li
 void set_display_generic_object(int object_number, short int istate) {
 
    graphics_info_t g;
-   if (object_number >=0  && object_number < g.generic_objects_p->size()) {
+   if (object_number >=0  && object_number < int(g.generic_objects_p->size())) {
       (*g.generic_objects_p)[object_number].is_displayed_flag = istate;
    } else {
       std::cout << "BAD object_number in to_generic_object_add_point: "
@@ -245,7 +245,7 @@ int generic_object_is_displayed_p(int object_number) {
 
    int is_displayed = 0;
    graphics_info_t g;
-   if (object_number >=0  && object_number < g.generic_objects_p->size()) {
+   if (object_number >=0  && object_number < int(g.generic_objects_p->size())) {
       is_displayed = (*g.generic_objects_p)[object_number].is_displayed_flag;
    }
    return is_displayed;
@@ -424,7 +424,7 @@ void close_all_generic_objects() {
 
    graphics_info_t g;
    int n_objs = g.generic_objects_p->size();
-   for (unsigned int i=0; i<n_objs; i++) {
+   for (int i=0; i<n_objs; i++) {
       if (! is_closed_generic_object_p(i))
 	 close_generic_object(i);
    }
@@ -445,7 +445,7 @@ void generic_object_info() {
    unsigned int n_obs = g.generic_objects_p->size();
    std::cout << "There are " << n_obs << " generic objects\n";
    if (n_obs) {
-      for (int i=0; i<n_obs; i++) {
+      for (unsigned int i=0; i<n_obs; i++) {
 	 std::string display_str(":Displayed:");
 	 if ((*g.generic_objects_p)[i].is_displayed_flag == 0)
 	    display_str = ":Not Displayed:";
@@ -609,7 +609,7 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 	 deletable_names.push_back("bad overlap");
 	 deletable_names.push_back("H-bonds");
 	 int nobjs = graphics_info_t::generic_objects_p->size();
-	 for (unsigned int i=0; i< nobjs; i++) {
+	 for (int i=0; i< nobjs; i++) {
 	    for (unsigned int d=0; d<deletable_names.size(); d++) { 
 	       if ((*graphics_info_t::generic_objects_p)[i].name == deletable_names[d]) {
 		  close_generic_object(i); // empty it, really

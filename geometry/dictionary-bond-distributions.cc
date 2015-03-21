@@ -147,7 +147,7 @@ int main(int argc, char **argv) {
       std::cout << "Examining the bonds in the " << geom.size() << " entries."<< std::endl;
    
    for (unsigned int i=0; i<geom.size(); i++) {
-      const coot::dictionary_residue_restraints_t r = geom.get_monomer_restraints(i);
+      const coot::dictionary_residue_restraints_t &r = geom.get_monomer_restraints(i);
       std::cout << "adding to map bonds in " << r.residue_info.comp_id << std::endl;
       for (unsigned int ibond=0; ibond<r.bond_restraint.size(); ibond++) { 
 	 const coot::dict_bond_restraint_t &br = r.bond_restraint[ibond];

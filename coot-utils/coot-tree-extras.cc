@@ -1511,7 +1511,7 @@ coot::atom_tree_t::get_index(mmdb::Atom *atom) const {
       mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       residue->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+      for (int iat=0; iat<n_residue_atoms; iat++) {
 	 if (residue_atoms[iat] == atom) {
 	    idx = iat;
 	    break;
@@ -1519,7 +1519,7 @@ coot::atom_tree_t::get_index(mmdb::Atom *atom) const {
       }
    }
    if (atom_selection) {
-      for (unsigned int iat=0; iat<n_selected_atoms; iat++) {
+      for (int iat=0; iat<n_selected_atoms; iat++) {
 	 if (atom_selection[iat] == atom) {
 	    idx = iat;
 	    break;

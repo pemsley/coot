@@ -528,14 +528,20 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
 
 	  # mogul failed or was not in the path:
 	  
-	  if run_mogul == False:  
+	  if run_mogul == False:
+
+              print 'run_mogul == False', match_atom_names_to_dict_flag
 
 	      # ... but that's OK if we told pyrogen to run without mogul
+
+              # sane_H_mol:
+              # print >>file('debug_sane_H.mol','w+'),Chem.MolToMolBlock(sane_H_mol)
 	      
 	      restraints = pysw.mmcif_dict_from_mol(comp_id, compound_name, sane_H_mol,
 						    mmcif_dict_name,
 						    quartet_planes, quartet_hydrogen_planes,
 						    replace_with_mmff_b_a_restraints)
+              
 	      if restraints == None:
 		  print "No restraints"
 		  return True # hacked in value
@@ -546,6 +552,7 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
                                                      comp_id_list_for_names_match,
                                                      dict_files_for_names_match)
 
+              pysw.write_restraints(restraints, mmcif_dict_name)
 	      pysw.write_pdb_from_mol(sane_H_mol, comp_id, pdb_out_file_name)
 
 	  else:

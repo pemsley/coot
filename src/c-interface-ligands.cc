@@ -570,13 +570,13 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
 	       // std::cout << "------ about to match "
 	       // << rp_2.second.residue_info.comp_id << " to "
 	       // << rp_1.second.residue_info.comp_id << " names" << std::endl;
-	       std::pair<unsigned int, coot::dictionary_residue_restraints_t> new_dict =
+	       coot::dictionary_match_info_t dmi = 
 		  rp_2.second.match_to_reference(rp_1.second, residue_p, output_comp_id,
 						 output_compound_name);
-	       if (new_dict.first > 0) {
-		  new_dict.second.residue_info.comp_id = output_comp_id;
-		  new_dict.second.residue_info.name = output_compound_name;
-		  new_dict.second.write_cif(cif_dict_out);
+	       if (dmi.n_matches > 0) {
+		  dmi.dict.residue_info.comp_id = output_comp_id;
+		  dmi.dict.residue_info.name = output_compound_name;
+		  dmi.dict.write_cif(cif_dict_out);
 	       } else {
 		  std::cout << "INFO:: not similar enough" << std::endl;
 	       }
@@ -618,14 +618,15 @@ match_this_residue_and_dictionary(int imol, std::string chain_id, int res_no, st
 	       g.Geom_p()->get_monomer_restraints(reference_comp_id);
 	    
 	    if (dict_2.first) {
-	       
-	       std::pair<unsigned int, coot::dictionary_residue_restraints_t> new_dict =
+
+	       coot::dictionary_match_info_t dmi = 
+		  // std::pair<unsigned int, coot::dictionary_residue_restraints_t> new_dict =
 		  dict_1.second.match_to_reference(dict_2.second, this_residue,
 						   output_comp_id, output_comp_id); // placeholder for name
-	       if (new_dict.first > 0) { 
-		  new_dict.second.residue_info.comp_id = output_comp_id;
-		  new_dict.second.residue_info.name =  ".";
-		  new_dict.second.write_cif(cif_dict_out);
+	       if (dmi.n_matches > 0) { 
+		  dmi.dict.residue_info.comp_id = output_comp_id;
+		  dmi.dict.residue_info.name =  ".";
+		  dmi.dict.write_cif(cif_dict_out);
 	       }
 	       
 	    } else {

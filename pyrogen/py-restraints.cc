@@ -80,7 +80,17 @@ monomer_restraints_from_python(PyObject *restraints) {
 	    int n_atoms = PyObject_Length(chem_comp_atom_list);
 	    for (int iat=0; iat<n_atoms; iat++) {
 	       PyObject *chem_comp_atom = PyList_GetItem(chem_comp_atom_list, iat);
-	       if (PyObject_Length(chem_comp_atom) == 5) {
+	       bool have_coords = false;
+	       bool OK_length = false;
+	       if ((PyObject_Length(chem_comp_atom) == 5)) {
+		  OK_length = true;
+		  have_coords = false;
+	       }
+	       if ((PyObject_Length(chem_comp_atom) == 6)) {
+		  OK_length = true;
+		  have_coords = true;
+	       }
+	       if (OK_length) {
 		  std::string atom_id  = PyString_AsString(PyList_GetItem(chem_comp_atom, 0));
 		  std::string element  = PyString_AsString(PyList_GetItem(chem_comp_atom, 1));
 		  std::string energy_t = PyString_AsString(PyList_GetItem(chem_comp_atom, 2));
@@ -91,6 +101,22 @@ monomer_restraints_from_python(PyObject *restraints) {
 		  }
 		  std::pair<bool, float> part_charge_info(flag, part_chr);
 		  coot::dict_atom at(atom_id, atom_id, element, energy_t, part_charge_info);
+		  if (have_coords) {
+		     PyObject *coords = PyList_GetItem(chem_comp_atom, 5);
+		     if (PyList_Check(coords)) {
+			int n_coords = PyObject_Length(coords);
+			if (n_coords == 3) {
+			   PyObject *x_py = PyList_GetItem(coords, 0);
+			   PyObject *y_py = PyList_GetItem(coords, 1);
+			   PyObject *z_py = PyList_GetItem(coords, 2);
+			   float x = PyFloat_AsDouble(x_py);
+			   float y = PyFloat_AsDouble(y_py);
+			   float z = PyFloat_AsDouble(z_py);
+			   clipper::Coord_orth co(x,y,z);
+			   at.model_Cartn = std::pair<bool, clipper::Coord_orth> (true, co);
+			}
+		     } 
+		  } 
 		  atoms.push_back(at);
 	       }
 	    }
@@ -340,7 +366,9 @@ PyObject *coot::monomer_restraints_to_python(const dictionary_residue_restraints
       r = PyDict_New();
 	 
       // ------------------ chem_comp -------------------------
-      coot::dict_chem_comp_t info = restraints.residue_info;
+      const coot::dict_chem_comp_t &info = restraints.residue_info;
+      std::vector<dict_atom> atom_info = restraints.atom_info;
+      unsigned int n_atoms = atom_info.size();
       
       PyObject *chem_comp_py = PyList_New(7);
       PyList_SetItem(chem_comp_py, 0, PyString_FromString(info.comp_id.c_str()));
@@ -356,20 +384,42 @@ PyObject *coot::monomer_restraints_to_python(const dictionary_residue_restraints
 
       
       // ------------------ chem_comp_atom -------------------------
-      std::vector<coot::dict_atom> atom_info = restraints.atom_info;
-      int n_atoms = atom_info.size();
+      bool have_atom_coords = false;
+      unsigned int n_with_coords = 0;
+      for (unsigned int iat=0; iat<n_atoms; iat++) {
+	 const dict_atom &atom = atom_info[iat];
+	 if (atom.model_Cartn.first)
+	    n_with_coords++;
+      }
+      if (n_with_coords == n_atoms)
+	 have_atom_coords = true;
+
       PyObject *atom_info_list = PyList_New(n_atoms);
-      for (int iat=0; iat<n_atoms; iat++) { 
-	 PyObject *atom_attributes_list = PyList_New(5);
-	 PyList_SetItem(atom_attributes_list, 0, PyString_FromString(atom_info[iat].atom_id_4c.c_str()));
-	 PyList_SetItem(atom_attributes_list, 1, PyString_FromString(atom_info[iat].type_symbol.c_str()));
-	 PyList_SetItem(atom_attributes_list, 2, PyString_FromString(atom_info[iat].type_energy.c_str()));
-	 PyList_SetItem(atom_attributes_list, 3, PyFloat_FromDouble(atom_info[iat].partial_charge.second));
+      for (unsigned int iat=0; iat<n_atoms; iat++) {
+	 PyObject *atom_attributes_list = NULL;
+	 if (! have_atom_coords) { 
+	    atom_attributes_list = PyList_New(5);
+	 } else {
+	    atom_attributes_list = PyList_New(6); // additional coordinates list
+	 }
+
+	 const dict_atom &atom = atom_info[iat];
+	 PyList_SetItem(atom_attributes_list, 0, PyString_FromString(atom.atom_id_4c.c_str()));
+	 PyList_SetItem(atom_attributes_list, 1, PyString_FromString(atom.type_symbol.c_str()));
+	 PyList_SetItem(atom_attributes_list, 2, PyString_FromString(atom.type_energy.c_str()));
+	 PyList_SetItem(atom_attributes_list, 3, PyFloat_FromDouble(atom.partial_charge.second));
 	 PyObject *flag = Py_False;
 	 if (atom_info[iat].partial_charge.first)
 	    flag = Py_True;
 	 Py_INCREF(flag);
 	 PyList_SetItem(atom_attributes_list, 4, flag);
+	 if (have_atom_coords) {
+	    PyObject *coords = PyList_New(3);
+	    PyList_SetItem(coords, 0, PyFloat_FromDouble(atom.model_Cartn.second.x()));
+	    PyList_SetItem(coords, 1, PyFloat_FromDouble(atom.model_Cartn.second.y()));
+	    PyList_SetItem(coords, 2, PyFloat_FromDouble(atom.model_Cartn.second.z()));
+	    PyList_SetItem(atom_attributes_list, 5, coords);
+	 }
 	 PyList_SetItem(atom_info_list, iat, atom_attributes_list);
       }
 

@@ -58,6 +58,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
 
    read_refmac_mon_lib_info_t rmit;
+   std::string comp_ids;
    
    mmdb::mmcif::File ciffile;
 

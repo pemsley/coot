@@ -216,6 +216,7 @@ coot::match_restraints_to_reference_dictionaries(const coot::dictionary_residue_
    protein_geometry pg;
    pg.set_verbose(false);
    int read_number = 0;
+
    for (unsigned int i=0; i<test_comp_ids.size(); i++) { 
       pg.try_dynamic_add(test_comp_ids[i], i);
    }
@@ -224,30 +225,29 @@ coot::match_restraints_to_reference_dictionaries(const coot::dictionary_residue_
    }
 
    std::string out_comp_id = restraints.residue_info.comp_id;
-   unsigned int best_n_matches = 0;
-   std::string best_comp_id;
-   
-   for (unsigned int i=0; i<test_comp_ids.size(); i++) {
-      std::pair<bool, dictionary_residue_restraints_t> rest = pg.get_monomer_restraints(test_comp_ids[i]);
-      if (rest.first) {
-	 std::pair<unsigned int, dictionary_residue_restraints_t> r_new =
-	    restraints.match_to_reference(rest.second, NULL, out_comp_id, out_comp_id);
-	 // std::cout << "Using " << test_comp_ids[i] << " found " << r_new.first << " matches"
-	 //           << std::endl;
-	 if (r_new.first > best_n_matches) {
-	    best_n_matches = r_new.first;
-	    best_comp_id = test_comp_ids[i];
-	 }
+   dictionary_residue_restraints_t empty_dict;
+   dictionary_match_info_t best_match;
+   int best_idx = -1;
+
+   for (unsigned int idx=0; idx<pg.size(); idx++) { 
+      const dictionary_residue_restraints_t &rest = pg.get_monomer_restraints(idx);
+      dictionary_match_info_t dmi = 
+	 restraints.match_to_reference(rest, NULL, out_comp_id, out_comp_id);
+      if (dmi.n_matches > best_match.n_matches) {
+	 best_match = dmi;
+	 best_idx = idx;
       }
    }
 
-   if (! best_comp_id.empty()) {
-      std::cout << "INFO:: Matched to reference dictionary: " << best_comp_id << std::endl;
+   if (best_idx >= 0) {
+      std::string best_comp_id = pg.get_monomer_restraints(best_idx).residue_info.comp_id;
+      std::cout << "INFO:: Matched to reference dictionary of comp-id: " << best_comp_id << std::endl;
       mmdb::Residue *returned_res = util::deep_copy_this_residue(residue_p);
       std::pair<bool, dictionary_residue_restraints_t> rest = pg.get_monomer_restraints(best_comp_id);
-      std::pair<unsigned int, dictionary_residue_restraints_t> r_new =
-	 restraints.match_to_reference(rest.second, returned_res, out_comp_id, out_comp_id);
-      dict = matching_dict_t(returned_res, r_new.second);
+      // dictionary_match_info_t dmi = 
+      // restraints.match_to_reference(rest.second, returned_res, out_comp_id, out_comp_id);
+      restraints.change_names(returned_res, best_match.name_swaps, best_match.new_comp_id);
+      dict = matching_dict_t(returned_res, best_match.dict);
    }
    
    return dict;
@@ -297,6 +297,7 @@ coot::mmcif_dict_from_mol(const std::string &comp_id,
    coot::dictionary_residue_restraints_t restraints =
       mmcif_dict_from_mol_using_energy_lib(comp_id, compound_name, rdkit_mol_py,
 					   quartet_planes, quartet_hydrogen_planes);
+
    if (replace_with_mmff_b_a_restraints) {
       RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
       RDKit::ROMol mol_for_mmff(mol);
@@ -305,7 +306,8 @@ coot::mmcif_dict_from_mol(const std::string &comp_id,
       restraints.conservatively_replace_with(mmff_restraints);
    } 
    if (restraints.is_filled()) {
-      restraints.write_cif(mmcif_out_file_name);
+      
+      restraints.write_cif(mmcif_out_file_name);  // this gets overwritten if dictionary matching is enabled.
       return monomer_restraints_to_python(restraints);
    } else {
       PyObject *o = new PyObject;
@@ -378,6 +380,7 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
 
       coot::add_chem_comp_planes(mol, &restraints, quartet_planes, quartet_hydrogen_planes);
    }
+
    return restraints;
 }
 
@@ -832,16 +835,11 @@ coot::add_chem_comp_atoms(const RDKit::ROMol &mol, coot::dictionary_residue_rest
 	 at_p->getProp("atom_type", atom_type);
 	 at_p->getProp("_GasteigerCharge", charge);
 	 std::pair<bool, float> charge_pair(have_charge, charge);
-
-	 // std::cout << "in add_chem_comp_atoms() charge of " << iat << " " << charge << std::endl;
-
 	 dict_atom atom(name, name, at_p->getSymbol(), atom_type, charge_pair);
-
  	 RDKit::Conformer conf = mol.getConformer(iconf);
  	 RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
  	 clipper::Coord_orth pos(r_pos.x, r_pos.y, r_pos.z);
-	 atom.model_Cartn = std::pair<bool, clipper::Coord_orth> (true, pos);
-	 
+	 atom.model_Cartn = std::pair<bool, clipper::Coord_orth> (true, pos);	 
 	 restraints->atom_info.push_back(atom);
       }
       catch (const KeyErrorException &kee) {
