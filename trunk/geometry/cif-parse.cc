@@ -2995,7 +2995,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       s = residue_info.three_letter_code.c_str();
       mmCIFLoop->PutString(s, "three_letter_code", i);
       std::string raw_name = residue_info.name.c_str();
-      std::string quoted_name = util::single_quote(raw_name, "'");
+      std::string quoted_name = util::single_quote(raw_name, "\"");
       mmCIFLoop->PutString(quoted_name.c_str(), "name", i);
       s =  residue_info.group.c_str();
       mmCIFLoop->PutString(s, "group", i);

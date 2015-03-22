@@ -3,6 +3,8 @@
 
    CBQ plane restraint? of 0BU in 4mtz - should be flat but isn't.
 
+* Fixed.
+
 ----
 
  Single quotes around the name is a bad idea:

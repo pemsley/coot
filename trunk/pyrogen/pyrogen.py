@@ -534,7 +534,7 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
 
               # sane_H_mol:
               # print >>file('debug_sane_H.mol','w+'),Chem.MolToMolBlock(sane_H_mol)
-	      
+
 	      restraints = pysw.mmcif_dict_from_mol(comp_id, compound_name, sane_H_mol,
 						    mmcif_dict_name,
 						    quartet_planes, quartet_hydrogen_planes,
@@ -549,8 +549,8 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
                   restraints = atom_match_dictionary(restraints, sane_H_mol,
                                                      comp_id_list_for_names_match,
                                                      dict_files_for_names_match)
-
-              pysw.write_restraints(restraints, mmcif_dict_name)
+                  pysw.write_restraints(restraints, mmcif_dict_name)
+                  
 	      pysw.write_pdb_from_mol(sane_H_mol, comp_id, pdb_out_file_name)
 
 	  else:
