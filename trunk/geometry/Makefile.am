@@ -63,13 +63,13 @@ dictionary_bond_distributions_SOURCES = dictionary-bond-distributions.cc
 test_geometry_LDADD = ./libcoot-geometry.la    \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
         $(top_builddir)/utils/libcoot-utils.la       \
-	$(GLOB_LIBS) $(CLIPPER_LIBS) $(CCP4SRS_LIBS) $(MMDB_LIBS)
+	$(GLOB_LIBS) $(CLIPPER_LIBS) $(MMDB_LIBS)
 
 test_read_components_LDADD =  \
 	./libcoot-geometry.la \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
         $(top_builddir)/utils/libcoot-utils.la       \
-	$(GLOB_LIBS) $(CLIPPER_LIBS) $(CCP4SRS_LIBS) $(MMDB_LIBS)
+	$(GLOB_LIBS) $(CLIPPER_LIBS) $(MMDB_LIBS)
 
 dictionary_bond_distributions_LDADD = ./libcoot-geometry.la
 
