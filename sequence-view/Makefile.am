@@ -32,7 +32,7 @@ GTKGL_CONTEXT_CFLAGS = $(GTKGL_CFLAGS) $(GTKGLEXT_CFLAGS)
 # recentering callback - we don't use c-interface because we dont 
 # want the function that returns a sequence_view object to be included
 # into c-interface.h (mmdb poisoning).
-INCLUDES = \
+AM_CPPFLAGS = \
 	-I$(top_srcdir)/compat 		\
 	-I$(top_srcdir)/coords 		\
 	-I$(top_srcdir)/ccp4mg-utils	\
