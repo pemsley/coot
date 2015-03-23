@@ -281,7 +281,7 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
 				 std::vector<bool> other_fixed_flags = make_fixed_flags(index1,
 											index2,
 											index3);
-				 for (int ii=0; ii<other_fixed_flags.size(); ii++)
+				 for (unsigned int ii=0; ii<other_fixed_flags.size(); ii++)
 				    if (other_fixed_flags[ii])
 				       fixed_flag[ii] = 1;
 
@@ -776,13 +776,13 @@ coot::restraints_container_t::find_link_type(mmdb::Residue *first, mmdb::Residue
    std::string t1="";
    std::string t2="";
 
-   for (int idr=0; idr<geom.size(); idr++) {
+   for (unsigned int idr=0; idr<geom.size(); idr++) {
       if (dictionary_name_matches_coords_resname(geom.three_letter_code(idr), residue_type_1)) {
 	 t1 = geom[idr].residue_info.group;
 	 break;
       }
    }
-   for (int idr=0; idr<geom.size(); idr++) {
+   for (unsigned int idr=0; idr<geom.size(); idr++) {
       if (dictionary_name_matches_coords_resname(geom.three_letter_code(idr), residue_type_2)) {
 	 t2 = geom[idr].residue_info.group;
 	 break;
@@ -1092,14 +1092,14 @@ coot::restraints_container_t::general_link_find_close_link_inner(std::vector<std
 		     mmdb::PPAtom residue_atoms = 0;
 		     int n_residue_atoms;
 		     r1->GetAtomTable(residue_atoms, n_residue_atoms);
-		     for (unsigned int i=0; i<n_residue_atoms; i++) { 
+		     for (int i=0; i<n_residue_atoms; i++) { 
 			std::cout << "   " << r1->GetResName() << " "
 				  << i << " :"  << residue_atoms[i]->name
 				  << ":" << std::endl;
 		     }
 		     residue_atoms = 0;
 		     r2->GetAtomTable(residue_atoms, n_residue_atoms);
-		     for (unsigned int i=0; i<n_residue_atoms; i++) { 
+		     for (int i=0; i<n_residue_atoms; i++) { 
 			std::cout << "   " << r2->GetResName() << " "
 				  << i << " :"  << residue_atoms[i]->name
 				  << ":" << std::endl;
@@ -1156,7 +1156,7 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
    // mapping between the alt conf and the plane restraint's vector of atom indices.
    //
    std::map<std::string, std::vector<int> > atom_indices_map;
-   for (unsigned int iat=0; iat<n_first_res_atoms; iat++) {
+   for (int iat=0; iat<n_first_res_atoms; iat++) {
       std::string alt_loc(first_sel[iat]->altLoc);
       std::map<std::string, std::vector<int> >::const_iterator it = atom_indices_map.find(alt_loc);
       if (it == atom_indices_map.end()) {
@@ -1164,7 +1164,7 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 	 atom_indices_map[alt_loc] = v;
       }
    }
-   for (unsigned int iat=0; iat<n_second_res_atoms; iat++) {
+   for (int iat=0; iat<n_second_res_atoms; iat++) {
       std::string alt_loc(second_sel[iat]->altLoc);
       std::map<std::string, std::vector<int> >::const_iterator it = atom_indices_map.find(alt_loc);
       if (it == atom_indices_map.end()) {
@@ -1225,17 +1225,17 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 		  if (0) {  // debugging.
 		     std::cout << "  atom indices: for plane restraint :" << it->first
 			       << ":" << std::endl;
-		     for (int indx=0; indx<it->second.size(); indx++) {
+		     for (unsigned int indx=0; indx<it->second.size(); indx++) {
 			std::cout << "           " << it->second[indx] << std::endl;
 		     }
-		     for (int ind=0; ind<it->second.size(); ind++) {
+		     for (unsigned int ind=0; ind<it->second.size(); ind++) {
 			std::cout << ind << " " << atom[it->second[ind]]->GetChainID() << " "
 				  << atom[it->second[ind]]->GetSeqNum() << " :"
 				  << atom[it->second[ind]]->name << ": :"
 				  << atom[it->second[ind]]->altLoc << ":\n";
 		     }
 		     std::cout << "DEBUG:: adding link plane with pos indexes ";
-		     for (int ipos=0; ipos<it->second.size(); ipos++)
+		     for (unsigned int ipos=0; ipos<it->second.size(); ipos++)
 			std::cout << " " << it->second[ipos];
 		     std::cout << "\n";
 		  }

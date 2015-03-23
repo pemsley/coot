@@ -17,7 +17,7 @@ coot::torsionable_bonds(mmdb::Manager *mol, mmdb::PPAtom atom_selection,
    std::vector<mmdb::Residue *> residues;
    std::map<mmdb::Residue *, std::vector<int> > atoms_in_residue;
    // fill residues and atoms_in_residue
-   for (unsigned int i=0; i<n_selected_atoms; i++) {
+   for (int i=0; i<n_selected_atoms; i++) {
       mmdb::Residue *r = atom_selection[i]->residue;
       if (std::find(residues.begin(), residues.end(), r) == residues.end())
 	 residues.push_back(r);
@@ -171,7 +171,7 @@ coot::torsionable_quads(mmdb::Manager *mol, mmdb::PPAtom atom_selection,
    bool pyranose_ring_torsion_flag = false; // no thanks
    std::vector<coot::torsion_atom_quad> quads;
    std::vector<mmdb::Residue *> residues;
-   for (unsigned int i=0; i<n_selected_atoms; i++) { 
+   for (int i=0; i<n_selected_atoms; i++) { 
       mmdb::Residue *r = atom_selection[i]->residue;
       if (std::find(residues.begin(), residues.end(), r) == residues.end())
 	 residues.push_back(r);
@@ -347,7 +347,7 @@ coot::multi_residue_torsion_fit_map(mmdb::Manager *mol,
 		       "*", "*", "*", "*"); 
       mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
       std::vector<std::pair<mmdb::Atom *, float> > atoms(n_selected_atoms); // for density fitting
-      for (unsigned int iat=0; iat<n_selected_atoms; iat++) {
+      for (int iat=0; iat<n_selected_atoms; iat++) {
 	 int atomic_number = coot::util::atomic_number(atom_selection[iat]->element, atom_numbers);
 	 float z = atomic_number;
 	 if (atomic_number == -1)
@@ -386,17 +386,17 @@ coot::multi_residue_torsion_fit_map(mmdb::Manager *mol,
 	 coot::map_index_t fixed_index(0);
 
 	 // save the current
-	 for (unsigned int iquad=0; iquad<n_quads; iquad++)
+	 for (int iquad=0; iquad<n_quads; iquad++)
 	    best_quads[iquad] = quads[iquad].torsion();
       
-	 for (unsigned int itrial=0; itrial<n_trials; itrial++) {
+	 for (int itrial=0; itrial<n_trials; itrial++) {
 
 	    if (0)
 	       std::cout << "Round " << itrial << " of " << n_trials << " for " << n_quads << " quads "
 			 << std::endl;
 	    
 	    std::vector<atom_tree_t::tree_dihedral_quad_info_t> torsion_quads;
-	    for (unsigned int iquad=0; iquad<n_quads; iquad++) {
+	    for (int iquad=0; iquad<n_quads; iquad++) {
 	       // quads[iquad] is passed for debugging
                double rand_angle = get_rand_angle(best_quads[iquad], quads[iquad], itrial, n_trials);
 	       atom_tree_t::tree_dihedral_quad_info_t tor(quads[iquad], rand_angle, fixed_index);
@@ -416,7 +416,7 @@ coot::multi_residue_torsion_fit_map(mmdb::Manager *mol,
 	    if (this_score > best_score) {
 	       // save best torsion angles
 	       best_score = this_score;
-	       for (unsigned int iquad=0; iquad<n_quads; iquad++)
+	       for (int iquad=0; iquad<n_quads; iquad++)
 		  best_quads[iquad] = quads[iquad].torsion();
 	       best_tree_dihedral_quads = torsion_quads;
 	    }
