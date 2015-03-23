@@ -43,7 +43,7 @@ coot::protein_geometry::read_ccp4srs_residues() {
       local_residue_codes.push_back("ASN");
       local_residue_codes.push_back("TRP");
 
-      for (int i=0; i<local_residue_codes.size(); i++) {
+      for (unsigned int i=0; i<local_residue_codes.size(); i++) {
 	 monomer_p = SBase->getMonomer(local_residue_codes[i].c_str());
 	 if (monomer_p) { 
 	    std::cout << monomer_p->ID() << " " << monomer_p->chem_name() << std::endl;
@@ -125,7 +125,7 @@ coot::protein_geometry::matching_ccp4srs_residues_names(const std::string &compo
       
       // std::pair<std::string,std::string> p(monomer_p->ID(), monomer_p->name());
 
-      for (unsigned int i=0; i<n_entries; i++) { 
+      for (int i=0; i<n_entries; i++) { 
 	 // ccp4srs::Monomer *mon = SBase->getMonomer(i);
 	 
       }
@@ -368,7 +368,7 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 	    std::string id = plane->id();
 	    std::vector<std::string> atom_names;
 	    std::vector<double> esds;
-	    for (unsigned int iat=0; iat<plane->size(); iat++) {
+	    for (int iat=0; iat<plane->size(); iat++) { 
 	       std::string atom_name = monomer_p->atom(plane->atom(iat))->name();
 	       atom_names.push_back(atom_name);
 	    }
