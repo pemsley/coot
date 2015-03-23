@@ -33,7 +33,8 @@ AC_MSG_CHECKING([for CCP4SRS])
 if test x$with_ccp4srs_prefix != x; then
 
    CCP4SRS_CXXFLAGS="-DHAVE_CCP4SRS"
-   CCP4SRS_LIBS="-L$with_ccp4srs_prefix/$acl_libdirstem -lccp4srs"
+   # CCP4SRS_LIBS="-L$with_ccp4srs_prefix/$acl_libdirstem -lccp4srs"
+   CCP4SRS_LIBS="-L$with_ccp4srs_prefix/lib -lccp4srs"
 
    if test -r "$with_ccp4srs_prefix/include/ccp4srs/ccp4srs_types.h"; then
       ac_CCP4SRS_CXXFLAGS="-I$with_ccp4srs_prefix/include"
