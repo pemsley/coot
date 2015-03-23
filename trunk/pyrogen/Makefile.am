@@ -19,7 +19,7 @@ pyrogen_swig.py: pyrogen-swig.cc
 EXTRA_DIST = pyrogen-swig.i
 
 pyrogen-swig.cc: $(top_srcdir)/pyrogen/pyrogen-swig.i $(top_srcdir)/pyrogen/restraints.hh
-	swig $(INCLUDES) -o pyrogen-swig.cc -python -shadow -c++ $(top_srcdir)/pyrogen/pyrogen-swig.i
+	swig $(AM_CPPFLAGS) -o pyrogen-swig.cc -python -shadow -c++ $(top_srcdir)/pyrogen/pyrogen-swig.i
 
 
 if COOT_USE_PYTHON

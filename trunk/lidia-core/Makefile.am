@@ -22,10 +22,6 @@ pkginclude_HEADERS = lbg-shared.hh lbg-molfile.hh lig-build.hh \
 pkgincludedir = $(includedir)/coot/lidia-core
 
 
-#  20110408 I add a CResidue,dictionary_residue_restraints_t constructor to molfile_molecule_t
-# simple
-#INCLUDES = $(CLIPPER_CXXFLAGS)
-#
 AM_CPPFLAGS = \
 	 -I$(top_srcdir) \
 	$(ENHANCED_LIGAND_TOOLS_CFLAGS)      \
