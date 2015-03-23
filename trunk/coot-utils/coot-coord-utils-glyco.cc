@@ -336,7 +336,7 @@ coot::beam_in_linked_residue::get_residue() const {
 	    mmdb::PPAtom residue_atoms = 0;
 	    int n_residue_atoms;
 	    r->GetAtomTable(residue_atoms, n_residue_atoms);
-	    for (unsigned int i=0; i<n_residue_atoms; i++) {
+	    for (int i=0; i<n_residue_atoms; i++) {
 	       mmdb::Atom *at = residue_atoms[i];
 	       clipper::Coord_orth p(at->x, at->y, at->z);
 	       clipper::Coord_orth n =
@@ -519,7 +519,7 @@ coot::beam_in_linked_residue::delete_atom(mmdb::Residue *res, const std::string 
    int n_residue_atoms;
    bool deleted = false;
    res->GetAtomTable(residue_atoms, n_residue_atoms);
-   for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+   for (int iat=0; iat<n_residue_atoms; iat++) {
       mmdb::Atom *at = residue_atoms[iat];
       if (at) {  // unneeded precaution?
 	 std::string at_name(at->name);
@@ -536,7 +536,7 @@ coot::beam_in_linked_residue::delete_atom(mmdb::Residue *res, const std::string 
    residue_atoms = NULL;
    res->GetAtomTable(residue_atoms, n_residue_atoms);
    std::string rn = res->GetResName();
-   for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+   for (int iat=0; iat<n_residue_atoms; iat++) { 
       mmdb::Atom *at = residue_atoms[iat];
    }
    
@@ -563,7 +563,7 @@ coot::beam_in_linked_residue::get_atoms(mmdb::Residue *residue_p,
    int n_residue_atoms;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (unsigned int iname=0; iname<names.size(); iname++) {
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+      for (int iat=0; iat<n_residue_atoms; iat++) {
 	 std::string atom_name(residue_atoms[iat]->GetAtomName());
 	 if (atom_name == names[iname]) {
 	    v.push_back(residue_atoms[iat]);

@@ -310,7 +310,7 @@ coot::lsq_improve::get_new_matches(const std::map<coot::residue_spec_t, std::vec
 	       mov_running = mov_running.next();
 	    } else {
 	       // we will fail out of the while next time it is tested
-	       if (contiguous_frag_spec.size() >= n_res_for_frag) {
+	       if (int(contiguous_frag_spec.size()) >= n_res_for_frag) {
 		  for (unsigned int ipair=0; ipair<contiguous_frag_spec.size(); ipair++) { 
 		     residue_done[contiguous_frag_spec[ipair].first] = 1;
 		  }
