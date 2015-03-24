@@ -331,7 +331,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 			is_neighbour = true;
 		     if (! is_neighbour)
 			if (labs(atom_p_1->residue->index - atom_p_2->residue->index) < 2)
-			   is_neighbour == true;
+			   is_neighbour = true;
 
 		     // Maybe DUM-DUM needs it's own bonding selection and drawing function
 		     
