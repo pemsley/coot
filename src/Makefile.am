@@ -475,6 +475,7 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 		$(GUILE_LDFLAGS)	\
 		$(CLIPPER_LIBS) 	\
 		$(LIBSSM_LIBS)		\
+		$(CCP4SRS_LIBS) 	\
 		$(MMDB_LIBS)		\
 		$(PYTHON_LIBS)		\
 		$(GLOB_LIBS)		\
