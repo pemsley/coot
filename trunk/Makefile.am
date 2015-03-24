@@ -46,6 +46,7 @@ EXTRA_DIST = 		\
 	make-scheme-tar \
 	mapview.glade 	\
 	cootrc.template	\
+	py-compile      \
 	standard-residues.pdb \
 	BUGS		\
 	depcomp 	\

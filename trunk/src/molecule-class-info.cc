@@ -6141,7 +6141,7 @@ molecule_class_info_t::restore_from_backup(int history_offset,
       std::cout << "restoring from backup " << history_filename_vec.size()
 		<< " " << history_index << std::endl;
       std::string save_name = name_;
-      if (hist_vec_index < history_filename_vec.size() &&
+      if (hist_vec_index < int(history_filename_vec.size()) &&
 	  hist_vec_index >= 0) { 
 	 std::string filename = history_filename_vec[hist_vec_index];
 	 //      history_index = hist_index;

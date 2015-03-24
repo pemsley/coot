@@ -99,7 +99,7 @@ coot::dots_representation_info_t::add_dots(int SelHnd, mmdb::Manager *mol,
    std::vector<double> radius(n_atoms);
    std::vector<double> radius_exclude;
    std::vector<coot::colour_t> colour(n_atoms);
-   for (unsigned int iat=0; iat<n_atoms; iat++) {
+   for (int iat=0; iat<n_atoms; iat++) {
       std::string ele(atoms[iat]->element);
       radius[iat] = get_radius(ele);
       if (use_single_colour)
@@ -117,7 +117,7 @@ coot::dots_representation_info_t::add_dots(int SelHnd, mmdb::Manager *mol,
       mol_exclude->SelectAtoms(SelHnd_exclude, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
       mol_exclude->GetSelIndex(SelHnd_exclude, atoms_exclude, n_atoms_exclude);
       radius_exclude.resize(n_atoms_exclude);
-      for (unsigned int iat=0; iat<n_atoms_exclude; iat++) {
+      for (int iat=0; iat<n_atoms_exclude; iat++) {
 	 std::string ele(atoms_exclude[iat]->element);
 	 radius_exclude[iat] = get_radius(ele);
       }
