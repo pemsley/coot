@@ -143,10 +143,11 @@ lbg_info_t::handle_lbg_drag_and_drop_single_item(const std::string &uri) {
 
 		     if (! handled)
 			handled = handle_lbg_drag_and_drop_chemspider_structure(uri_clean);
-
 		  }
 	       }
-	    }
+	    } else {
+	       std::cout << "OOPs:: no URL getting function " << std::endl;
+	    } 
 	 } else {
 	    
 	    // maybe it's a SMILES string?
@@ -366,13 +367,17 @@ lbg_info_t::handle_lbg_drag_and_drop_drugbank(const std::string &uri_clean,
 	 if (ss.second.find("DB") != std::string::npos) {
 	    std::string local_file = ss.second;
 	    local_file += ".mol";
-	    std::string drugbank_mol_url = "http://drugbank.ca/drugs/";
+	    std::string drugbank_mol_url = "http://www.drugbank.ca/structures/structures/";
+	    drugbank_mol_url += "small_molecule_drugs/";
 	    drugbank_mol_url += local_file;
 	    std::string file_name =
 	       coot::util::append_dir_file("coot-download", local_file);
+	    // std::cout << "getting drugbank mol url :" << drugbank_mol_url << ":" << std::endl;
 	    get_url_func_ptr(drugbank_mol_url.c_str(), file_name.c_str());
 	    import_mol_from_file(file_name);
 	    handled = TRUE;
+	 } else {
+	    std::cout << "WARNING:: handle_lbg_drag_and_drop_drugbank() No DB " << std::endl;
 	 } 
       }
    }
