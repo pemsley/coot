@@ -217,10 +217,7 @@
 (define core-file
   (lambda ()
 
-    (let* ((glob-pattern "core.*")
-	   (dir ".")
-	   (files (glob glob-pattern dir)))
-
+    (define (find-the-latest files)
       (let f ((files files)
 	      (latest-core #f)
 	      (mtime-latest 0))
@@ -232,7 +229,18 @@
 		 (mtime (stat:mtime info)))
 	    (if (> mtime mtime-latest)
 		(f (cdr files) (car files) mtime)
-		(f (cdr files) latest-core mtime-latest)))))))))
+		(f (cdr files) latest-core mtime-latest)))))))
+
+    (let* ((glob-pattern "core.*")
+	   (dir ".")
+	   (files (glob glob-pattern dir)))
+
+      (if (not (null? files))
+	  (find-the-latest files)
+	  (let ((files (glob "core" ".")))
+	    (find-the-latest files))))))
+
+
 
 ;; 
 (define make-gdb-script
