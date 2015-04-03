@@ -19,6 +19,12 @@
    o 6BP is badly modelled.  Wrong partial charges on Restraints
      editor on reading the PDBe ligand cif.
 
+   o I don’t want to see the hydrogens, so I opened it in coot and hide the hydrogen. 
+     But when I generate symmetry coordinate (my protein is tetramer with monomer in 
+     each ASU), all the symmetry mates (with in 8A) have hydrogens and I can not hide 
+     them. How can I hide the hydrogen in symmetry-related coordinates. 
+                 -- Zhenwei Su.
+
    o is coot-crash-catcher doing the right thing when the process is
      killed/dies?
 
