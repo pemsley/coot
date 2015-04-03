@@ -41,9 +41,11 @@
 #include <mmdb2/mmdb_utils.h>
 #include <mmdb2/mmdb_math_graph.h>
 
+#include <ccp4srs/ccp4srs_manager.h>
+
 #ifdef HAVE_CCP4SRS
 #ifndef CCP4SRS_BASE_H
-#include <ccp4srs/ccp4srs_base.h>
+#include <ccp4srs/ccp4srs_manager.h>
 #endif
 #endif
 
@@ -604,7 +606,7 @@ namespace coot {
 	 has_partial_charges_flag = 0;
 	 read_number = -1;
       }
-      dictionary_residue_restraints_t(bool constructor_for_sbase_restraints) {
+      dictionary_residue_restraints_t(bool constructor_for_srs_restraints) {
 	 // comp_id = ""; /* things are unset */
 	 filled_with_bond_order_data_only_flag = 1;
 	 has_partial_charges_flag = 0;
@@ -1577,7 +1579,7 @@ namespace coot {
    };
    
 
-   // a container for the results of the comparison vs SBase graph matching.
+   // a container for the results of the comparison vs CCP4SRS graph matching.
    //
    class match_results_t {
    public:
@@ -1621,10 +1623,6 @@ namespace coot {
    // 
    // consider molecule_geometry
    class protein_geometry {
-
-#ifdef HAVE_CCP4SRS      
-      ccp4srs::Base *SBase;
-#endif      
 
       enum { MON_LIB_LIST_CIF = -999}; // A negative number special
 				       // flag to tell the reader that
@@ -1950,6 +1948,10 @@ namespace coot {
       // return empty file name on failure.
       std::string comp_id_to_file_name(const std::string &comp_id) const;
 
+#ifdef HAVE_CCP4SRS      
+      ccp4srs::Manager *ccp4srs;
+#endif      
+
 
    public:
 
@@ -1957,16 +1959,14 @@ namespace coot {
 	 read_number = 0;
 	 set_verbose(1);
 #if HAVE_CCP4SRS	 
-	 SBase = NULL;
+	 ccp4srs = NULL;
 #endif	 
 	 fill_default_non_auto_load_residue_names();
       }
       
-      // SBase things
+      // CCP4 SRS things
 
-      // init_sbase() should return SBase_OK.  If not, trouble.
-      // 
-      int init_ccp4srs(const std::string &sbase_monomer_dir); // inits CCP4SRS
+      int init_ccp4srs(const std::string &ccp4srs_dir); // inits CCP4SRS
       void read_ccp4srs_residues();
       // return NULL on unable to make residue
       mmdb::Residue *get_ccp4srs_residue(const std::string &res_name) const;
@@ -2112,7 +2112,7 @@ namespace coot {
       // an atom is a hydrogen.
       //
       // the dictionary_residue_restraints_t is returned even we have
-      // a minimal restraints description (e.g. from sbase).
+      // a minimal restraints description (e.g. from ccp4srs).
       // 
       std::pair<bool, dictionary_residue_restraints_t>
       get_monomer_restraints_at_least_minimal(const std::string &monomer_type) const;
@@ -2123,16 +2123,16 @@ namespace coot {
 	 return dict_res_restraints[idx];
       } 
 
-      // non-const because we try to read in stuff from SBase when
-      // it's not in the dictionary yet.  SBase gives us bond orders.
+      // non-const because we try to read in stuff from ccp4srs when
+      // it's not in the dictionary yet.  ccp4srs gives us bond orders.
       //
-      // This relies on SBase being setup before we get to make this
-      // call (init_sbase()).
+      // This relies on ccp4srs being setup before we get to make this
+      // call (init_ccp4srs()).
       // 
       std::pair<bool, dictionary_residue_restraints_t>
       get_bond_orders(const std::string &monomer_type);
 
-      // used to created data from sbase to put into protein_geometry
+      // used to created data from ccp4srs to put into protein_geometry
       // object.
       //
       // return a flag to signify success.
@@ -2171,13 +2171,13 @@ namespace coot {
 
       // this is const because there is no dynamic add.
       //
-      // if there is just an sbase entry, then this returns false.
+      // if there is just an ccp4srs entry, then this returns false.
       // 
       bool have_dictionary_for_residue_type_no_dynamic_add(const std::string &monomer_type) const;
       
       // this is const because there is no dynamic add.
       //
-      // if there is (even ) an sbase entry, then this returns true.
+      // if there is (even) a ccp4srs entry, then this returns true.
       // 
       bool have_at_least_minimal_dictionary_for_residue_type(const std::string &monomer_type) const;
       
@@ -2320,10 +2320,10 @@ namespace coot {
       // a new pdb file has been read in (say).  The residue types
       // have been compared to the dictionary.  These (comp_ids) are
       // the types that are not in the dictionary.  Try to load an
-      // sbase description at least so that we can draw their bonds
-      // correctly.  Use fill_using_sbase().
+      // ccp4srs description at least so that we can draw their bonds
+      // correctly.  Use fill_using_ccp4srs().
       // 
-      bool try_load_sbase_description(const std::vector<std::string> &comp_ids);
+      bool try_load_ccp4srs_description(const std::vector<std::string> &comp_ids);
 
       // expand to 4c, the atom_id, give that it should match an atom of the type comp_id.
       // Used in chem mods, when we don't know the comp_id until residue modification time.

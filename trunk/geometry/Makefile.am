@@ -50,26 +50,23 @@ libcoot_geometry_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # libcoot_geometry_la_CXXFLAGS = -g -O1
 
-check_PROGRAMS = test-geometry test-read-components dictionary-bond-distributions 
+check_PROGRAMS = test-geometry test-read-components test-ccp4srs 
 
-bin_PROGRAMS = compare-dictionaries make-shelx-restraints
+bin_PROGRAMS = compare-dictionaries make-shelx-restraints dictionary-bond-distributions
 
 test_geometry_SOURCES = test-geometry.cc
+
+test_ccp4srs_SOURCES = test-ccp4srs.cc
 
 test_read_components_SOURCES = test-read-components.cc test-read-components.hh
 
 dictionary_bond_distributions_SOURCES = dictionary-bond-distributions.cc
 
-test_geometry_LDADD = ./libcoot-geometry.la    \
-        $(top_builddir)/mini-mol/libcoot-mini-mol.la \
-        $(top_builddir)/utils/libcoot-utils.la       \
-	$(GLOB_LIBS) $(CLIPPER_LIBS) $(MMDB_LIBS)
+test_ccp4srs_LDADD = ./libcoot-geometry.la    
 
-test_read_components_LDADD =  \
-	./libcoot-geometry.la \
-        $(top_builddir)/mini-mol/libcoot-mini-mol.la \
-        $(top_builddir)/utils/libcoot-utils.la       \
-	$(GLOB_LIBS) $(CLIPPER_LIBS) $(MMDB_LIBS)
+test_geometry_LDADD = ./libcoot-geometry.la
+
+test_read_components_LDADD = ./libcoot-geometry.la
 
 dictionary_bond_distributions_LDADD = ./libcoot-geometry.la
 

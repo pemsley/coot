@@ -127,6 +127,9 @@ namespace coot {
 					      const std::vector<std::string> &test_comp_ids,
 					      const std::vector<std::string> &test_mmcif_file_names);
 
+   void test_ccp4srs_usage(const coot::dictionary_residue_restraints_t &restraints);
+
+
 
 }
 

@@ -21,30 +21,28 @@
 
 #include <algorithm>
 #include <stdlib.h>
+#include <string.h> // strlen, strcpy for interface to CCP4SRS.
 
 #include "utils/coot-utils.hh"
 #include "geometry/protein-geometry.hh"
 
 #ifdef HAVE_CCP4SRS
-#include "ccp4srs/ccp4srs_defs.h"
 #include "srs-interface.hh"
 #endif 
-
-#include <string.h> // strlen, strcpy for interface to sbase.
 
 void
 coot::protein_geometry::read_ccp4srs_residues() {
 
 #ifdef HAVE_CCP4SRS
 
-   if (SBase) { 
+   if (ccp4srs) { 
       ccp4srs::Monomer *monomer_p = NULL;
       std::vector<std::string> local_residue_codes;
       local_residue_codes.push_back("ASN");
       local_residue_codes.push_back("TRP");
 
       for (unsigned int i=0; i<local_residue_codes.size(); i++) {
-	 monomer_p = SBase->getMonomer(local_residue_codes[i].c_str());
+	 monomer_p = ccp4srs->getMonomer(local_residue_codes[i].c_str());
 	 if (monomer_p) { 
 	    std::cout << monomer_p->ID() << " " << monomer_p->chem_name() << std::endl;
 	    for (int iat=0; iat<monomer_p->n_atoms(); iat++) {
@@ -55,7 +53,7 @@ coot::protein_geometry::read_ccp4srs_residues() {
 	    } 
 	 } else {
 	    std::cout << "WARNING:: structure " << local_residue_codes[i]
-		      << " not found in SBase " << std::endl;
+		      << " not found in CCP4SRS " << std::endl;
 	 } 
       }
    } else {
@@ -72,8 +70,8 @@ coot::protein_geometry::get_ccp4srs_residue(const std::string &res_name) const {
    mmdb::Residue *residue_p = NULL;
 
 #ifdef HAVE_CCP4SRS   
-   if (SBase) {
-      ccp4srs::Monomer *monomer_p = SBase->getMonomer(res_name.c_str());
+   if (ccp4srs) {
+      ccp4srs::Monomer *monomer_p = ccp4srs->getMonomer(res_name.c_str());
       if (monomer_p) {
 	 residue_p = new mmdb::Residue;
 	 for (int iat=0; iat<monomer_p->n_atoms(); iat++) {
@@ -102,7 +100,7 @@ coot::protein_geometry::get_ccp4srs_residue(const std::string &res_name) const {
 	       new_atom->Het = true; 
 	       residue_p->AddAtom(new_atom);
 	    } else {
-	       std::cout << "WARNING:: rejecting " << res_name << " SBase atom :" << new_atom_name
+	       std::cout << "WARNING:: rejecting " << res_name << " ccp4srs atom :" << new_atom_name
 			 << ": at (" << at->x() << " " << at->y() << " " << at->z() << ")" << std::endl;
 	    }
 	 }
@@ -120,27 +118,20 @@ coot::protein_geometry::matching_ccp4srs_residues_names(const std::string &compo
    std::vector<std::pair<std::string,std::string> > v;
 #ifdef HAVE_CCP4SRS   
    std::string compound_name = coot::util::upcase(compound_name_frag);
-   if (SBase) {
-      int n_entries = SBase->n_entries();
-      
-      // std::pair<std::string,std::string> p(monomer_p->ID(), monomer_p->name());
-
-      for (int i=0; i<n_entries; i++) { 
-	 // ccp4srs::Monomer *mon = SBase->getMonomer(i);
-	 
-      }
+   if (ccp4srs) {
+      int n_entries = ccp4srs->n_entries();
    } else {
-      std::cout << "WARNING:: Null SBase" << std::endl;
+      std::cout << "WARNING:: Null CCP4SRS" << std::endl;
    } 
 #endif // HAVE_CCP4SRS   
    return v;
 }
 
 
-// return mmdb sbase return codes
+// return mmdb ccp4srs return codes
 //
-// Try to use the MONOMER_DIR_STR, ie. COOT_SBASE_DIR first, if that
-// fails then use the fallback directory sbase_monomer_dir_in
+// Try to use the MONOMER_DIR_STR, ie. COOT_CCP4SRS_DIR first, if that
+// fails then use the fallback directory ccp4srs_monomer_dir_in
 // 
 int
 coot::protein_geometry::init_ccp4srs(const std::string &ccp4srs_monomer_dir_in) {
@@ -169,15 +160,17 @@ coot::protein_geometry::init_ccp4srs(const std::string &ccp4srs_monomer_dir_in) 
    }
    
    if (dir.length()) {
-      std::cout << "about to loadIndex with dir " << dir << std::endl;
-      SBase = new ccp4srs::Base;
-      RC = SBase->loadIndex(dir.c_str());
+      std::cout << "INFO:: CCP4SRS::loadIndex: " << dir << std::endl;
+      ccp4srs = new ccp4srs::Manager;
+      RC = ccp4srs->loadIndex(dir.c_str());
       std::cout << "... loadIndex() returned " << RC << std::endl;
       if (RC != ccp4srs::CCP4SRS_Ok) {
          std::cout << "CCP4SRS init problem." << std::endl;
-	 delete SBase;
-	 SBase = NULL;
+	 delete ccp4srs;
+	 ccp4srs = NULL;
       }
+   } else {
+      std::cout << "no dir" << std::endl;
    } 
    return RC;
 #else
@@ -186,12 +179,12 @@ coot::protein_geometry::init_ccp4srs(const std::string &ccp4srs_monomer_dir_in) 
 }
 
 
-// used to created data from sbase to put into protein_geometry
+// used to created data from ccp4srs to put into protein_geometry
 // object.
 //
 // return a flag to signify success.
 //
-// This relies on SBase being setup before we get to make this
+// This relies on CCP4SRS being setup before we get to make this
 // call.
 // 
 bool
@@ -200,11 +193,11 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 #ifdef HAVE_CCP4SRS
 
    bool success = false;
-   coot::dictionary_residue_restraints_t rest(true); // constructor for SBase
+   coot::dictionary_residue_restraints_t rest(true); // constructor for CCP4SRS
    rest.residue_info.comp_id = monomer_type;
    
-   if (SBase) {
-      ccp4srs::Monomer *monomer_p = SBase->getMonomer(monomer_type.c_str());
+   if (ccp4srs) {
+      ccp4srs::Monomer *monomer_p = ccp4srs->getMonomer(monomer_type.c_str());
       if (monomer_p) {
 
 	 // molecule info
@@ -396,11 +389,11 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 // A new pdb file has been read in (say).  The residue types
 // have been compared to the dictionary.  These (comp_ids) are
 // the types that are not in the dictionary.  Try to load an
-// sbase description at least so that we can draw their bonds
-// correctly.  Use fill_using_sbase().
+// ccp4srs description at least so that we can draw their bonds
+// correctly.  Use fill_using_ccp4srs().
 // 
 bool
-coot::protein_geometry::try_load_sbase_description(const std::vector<std::string> &comp_ids_with_duplicates) {
+coot::protein_geometry::try_load_ccp4srs_description(const std::vector<std::string> &comp_ids_with_duplicates) {
 
 #ifdef HAVE_CCP4SRS   
    bool status = false; // none added initially.
@@ -413,16 +406,16 @@ coot::protein_geometry::try_load_sbase_description(const std::vector<std::string
    }
 
    
-   if (SBase) {
+   if (ccp4srs) {
       for (unsigned int i=0; i<uniques.size(); i++) {
 	 std::cout << i << " " << uniques[i] << std::endl;
 	 const std::string &comp_id = uniques[i];
 	 if (is_non_auto_load_ligand(comp_id)) {
-	    std::cout << "INFO:: sbase-descriptions: comp-id: " << comp_id
+	    std::cout << "INFO:: ccp4srs-descriptions: comp-id: " << comp_id
 		      << " is marked for non-autoloading - ignore " << std::endl;
 	 } else { 
 	    bool s = fill_using_ccp4srs(comp_id);
-	    std::cout << "DEBUG:: sbase dictionary for " << comp_id << " successfully loaded "
+	    std::cout << "DEBUG:: ccp4srs dictionary for " << comp_id << " successfully loaded "
 		      << std::endl;
 	    if (s)
 	       status = true;
@@ -483,89 +476,19 @@ coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float sim
 
    std::vector<coot::match_results_t> v;
 
-   if (! SBase) {
+   if (! ccp4srs) {
       std::cout << "CCP4SRS is not initialized" << std::endl;
    } else {
-      //  4.  Run the query through all databsae
-
-      //  There are several methods for retrieving graphs
-      //  from the sbase, here we use one most convenient
-      //  for serial extractions.
-      mmdb::io::File *graphFile = SBase->getGraphFile();
-      if (!graphFile)  {
-	 printf ( "\n CCP4SRS graph file not found.\n" );
-      }
-  
-      int exclude_H_flag = 1;  // neglect hydrogens
-      mmdb::math::Graph *graph_2 = NULL;
-      int min_match = coot::get_min_match(n_vertices, similarity);
-
-      if (0) // debug
-	 std::cout << "min_match " << min_match
-		   << " n_vertices: " << n_vertices << " "
-		   <<     (similarity * float(n_vertices)) << " " 
-		   << int (similarity * float(n_vertices)) << " " 
-		   << std::endl;
-
-      std::cout << "INFO:: Close fragments must match " << min_match << " atoms of "
-		<< n_vertices << std::endl;
-      
-
-      int nStructures = SBase->n_entries();
-      int n_match = 0;
-      std::cout << "INFO:: Searching " << nStructures << " CCP4SRS structures\n";
-      for (int is=0; is<nStructures; is++)  {
-	 int rc = SBase->getGraph(graphFile, graph_2, exclude_H_flag);
-	 if (graph_2 == NULL) {
-	    std::cout << "bad status on get graph " << is << std::endl;
-	 } else {
-
-	    int n2 = graph_2->GetNofVertices();
-	    if ((n2 >= int (double(similarity) * double(n_vertices))) &&
-		(n2 < (2.0 - double(similarity)) * double(n_vertices))) { 
-
-	       graph_2->MakeVertexIDs();
-
-	       // 20131008: We can't make the arg True, because that
-	       // removes ~90% of the "hits" and returns molecules
-	       // with the wrong bond orders.
-	       // 
-	       graph_2->Build(false); // 20100608 was True
-
-	       mmdb::math::GraphMatch *match  = new mmdb::math::GraphMatch();
-	       if (min_match > 0) { 
-
-		  match->MatchGraphs(graph_1, graph_2, min_match);
-		  int nMatches = match->GetNofMatches();
-		  if (nMatches > 0) {
-		     if (1)
-			std::cout << "found " << nMatches << " match(es) for query in structure "
-				  << is << " " << graph_1->GetName() << " vs " << graph_2->GetName()
-				  << std::endl;
-		     mmdb::io::File *sf = SBase->getStructFile();
-		     ccp4srs::Monomer *monomer_p = SBase->getMonomer(is, sf);
-		     if (monomer_p) {
-			if (monomer_p->chem_name()) {
-			   std::cout << "    " << n_match << " " << graph_2->GetName() << " : "
-				     << monomer_p->chem_name() << "\n";
-			   coot::match_results_t res =
-			      residue_from_best_match(*graph_1, *graph_2, *match, nMatches, monomer_p);
-			   v.push_back(res);
-			   n_match++;
-			}
-		     }
-		  }
-	       }
-	       delete match;
+      int l = ccp4srs->n_entries();
+      std::cout << "found " << l << " entries in CCP4 SRS" << std::endl;
+      for (int i=0; i<l ;i++)  {
+	 ccp4srs::Monomer  *Monomer = ccp4srs->getMonomer(i, NULL);
+	 if (Monomer)  {
+	    std::string id = Monomer->ID();
+	    if (id.length()) {
 	    }
 	 }
       }
-      std::cout << "Search complete" << std::endl;
-  
-      graphFile->shut();
-      delete graphFile;
-
-      delete graph_2;
    }
    return v;
 }
