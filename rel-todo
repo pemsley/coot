@@ -1,17 +1,11 @@
  
  0.8.2
 
-   o Put Export map and map fragment under File.
-            -- Andrea T
-
-   o Add "What's this?" to the function that updates the thumbnail
-     - Dave Brown.
-
-   o Fix the NCS master chain problem - Airlie McCoy
-
    o Add a user function to return mean, median, min, max, skew, kurtosis
      and optionally histogram of map density values.
       --- Alejandro Virrueta
+
+   o Fix the NCS master chain problem - Airlie McCoy
 
    o Get monomer -> get PDBe ligand (and run dictionary generator?)
      or on failure,  get a useful error meesage/text dialog
@@ -19,14 +13,11 @@
    o 6BP is badly modelled.  Wrong partial charges on Restraints
      editor on reading the PDBe ligand cif.
 
-   o I don’t want to see the hydrogens, so I opened it in coot and hide the hydrogen. 
+   o I don't want to see the hydrogens, so I opened it in coot and hide the hydrogen. 
      But when I generate symmetry coordinate (my protein is tetramer with monomer in 
      each ASU), all the symmetry mates (with in 8A) have hydrogens and I can not hide 
      them. How can I hide the hydrogen in symmetry-related coordinates. 
                  -- Zhenwei Su.
-
-   o is coot-crash-catcher doing the right thing when the process is
-     killed/dies?
 
    o Boaz S.: crash catcher in binary-Linux-x86_64-rhel-6-python-gtk2  5619
 
@@ -132,3 +123,17 @@ Punt.
    o missing cis-pep - Evzen Boura 
 
 * Done.  Very esoteric.
+
+   o is coot-crash-catcher doing the right thing when the process is
+     killed/dies?
+
+* No.  Fixed nown
+
+   o Put Export map and map fragment under File.
+            -- Andrea T
+
+   o Add "What's this?" to the function that updates the thumbnail
+     - Dave Brown.
+
+* Done.
+

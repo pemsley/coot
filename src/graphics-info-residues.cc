@@ -152,6 +152,16 @@ graphics_info_t::setup_graphics_ligand_view(int imol, mmdb::Residue *residue_p, 
 		  graphics_ligand_view_flag =
 		     graphics_ligand_mol.setup_from(residue_p, alt_conf, Geom_p(), background_is_black_p());
 		  graphics_ligand_mol.imol = imol;
+
+		  std::string res_name = residue_p->GetResName();
+		  std::pair<bool, coot::dictionary_residue_restraints_t> p = 
+		     Geom_p()->get_monomer_restraints_at_least_minimal(res_name);
+		  if (! p.first) {
+		     // 
+		  } else {
+		     const coot::dictionary_residue_restraints_t &restraints = p.second;
+		     add_status_bar_text(restraints.residue_info.name);
+		  }
 	       }
 	    }
 	 }
