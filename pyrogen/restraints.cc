@@ -205,6 +205,32 @@ coot::match_restraints_to_amino_acids(const coot::dictionary_residue_restraints_
 
 }
 
+void
+coot::test_ccp4srs_usage(const coot::dictionary_residue_restraints_t &restraints) {
+
+#ifdef HAVE_CCP4SRS
+   if (false) {
+
+      // don't do this bit for production - it's a test crash for the
+      // coot libs
+      
+      double local_search_similarity = 0.96;
+      int n_atoms = 10;
+      int status = pg.init_ccp4srs("nothing");
+      std::cout << "INFO:: CCP4SRS init status: " << status << std::endl;
+      if (status == ccp4srs::CCP4SRS_Ok) { 
+	 mmdb::math::Graph *graph = restraints.make_graph(true);
+	 if (! graph) {
+	    std::cout << "Null graph " << std::endl;
+	 } else { 
+	    std::vector<coot::match_results_t> v =
+	       pg.compare_vs_ccp4srs(graph, local_search_similarity, n_atoms);
+	    std::cout << "got " << v.size() << " SRS matches " << std::endl;
+	 } 
+      }
+   }
+#endif // HAVE_CCP4SRS
+} 
 
 
 coot::matching_dict_t
@@ -212,8 +238,14 @@ coot::match_restraints_to_reference_dictionaries(const coot::dictionary_residue_
 						 mmdb::Residue *residue_p,
 						 const std::vector<std::string> &test_comp_ids,
 						 const std::vector<std::string> &test_mmcif_file_names) {
+
    matching_dict_t dict;
    protein_geometry pg;
+
+#ifdef HAVE_CCP4SRS
+   test_ccp4srs_usage(restraints);
+#endif
+
    pg.set_verbose(false);
    int read_number = 0;
 

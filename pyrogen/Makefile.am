@@ -10,7 +10,7 @@ pyexec_LTLIBRARIES =
 
 # rdkit includes are in the rdkit directory, boost includes are the (normal) prefix above that
 #
-AM_CPPFLAGS = $(BOOST_CPPFLAGS) $(RDKIT_CXXFLAGS) $(PYTHON_CFLAGS) -I$(top_srcdir)
+AM_CPPFLAGS = $(CCP4SRS_CXXFLAGS) $(BOOST_CPPFLAGS) $(RDKIT_CXXFLAGS) $(PYTHON_CFLAGS) -I$(top_srcdir)
 
 AM_CXXFLAGS = -DPKGDATADIR='"$(pkgdatadir)"'
 
@@ -91,10 +91,6 @@ dist_pkgpython_PYTHON = pyrogen.py atom_types.py jay_util.py tautomer.py pyrogen
 # install-exec-hook:
 # 	mv $(pyexecdir)/_pyrogen_swig.dll $(pyexecdir)/_pyrogen_swig.pyd
 # endif
-
-
-# old
-# pyrogendir=$(pkgdatadir)/python
 
 # clean needs to remove _pyrogen_swig.so
 #

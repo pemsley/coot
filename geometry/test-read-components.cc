@@ -20,7 +20,7 @@ int main(int argc, char ** argv) {
 void read_components_file(std::string cif_dictionary_filename) {
 
    mmdb::mmcif::File ciffile;
-   int ierr = ciffile.ReadMMCIFFile((char *)cif_dictionary_filename.c_str());
+   int ierr = ciffile.ReadMMCIFFile(cif_dictionary_filename.c_str());
    
    if (ierr!=mmdb::mmcif::CIFRC_Ok) {
       std::cout << "dirty mmCIF file? " << cif_dictionary_filename.c_str()

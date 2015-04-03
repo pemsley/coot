@@ -547,7 +547,7 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 	 types_with_no_dictionary = g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
 
 	 if (types_with_no_dictionary.size()) {
-	    if (g.Geom_p()->try_load_sbase_description(types_with_no_dictionary))
+	    if (g.Geom_p()->try_load_ccp4srs_description(types_with_no_dictionary))
 	       g.molecules[imol].make_bonds_type_checked();
 	 } else {
 	    // perhaps we have read dictionaries for everything (but
