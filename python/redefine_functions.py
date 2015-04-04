@@ -173,6 +173,7 @@ morph_fit_residues     = morph_fit_residues_py
 density_score_residue  = density_score_residue_py
 align_to_closest_chain = align_to_closest_chain_py
 active_atom_spec       = active_atom_spec_py
+map_statistics         = map_statistics_py
 
 # probe-clash-score.hh
 probe_clash_score      = probe_clash_score_py

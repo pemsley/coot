@@ -97,6 +97,8 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 
 #include "c-interface-sequence.hh"
 
+#include "map-statistics.hh"
+
 namespace molecule_map_type {
    enum { TYPE_SIGMAA=0, TYPE_2FO_FC=1, TYPE_FO_FC=2, TYPE_FO_ALPHA_CALC=3,
 	  TYPE_DIFF_SIGMAA=4 };
@@ -1917,6 +1919,9 @@ public:        //                      public
 
    //
    float map_sigma() const { return map_sigma_; }
+
+   map_statistics_t map_statistics() const;
+
 
    //
    float sharpen_b_factor() const { return sharpen_b_factor_; }

@@ -19,8 +19,6 @@
      them. How can I hide the hydrogen in symmetry-related coordinates. 
                  -- Zhenwei Su.
 
-   o Boaz S.: crash catcher in binary-Linux-x86_64-rhel-6-python-gtk2  5619
-
    o Improve the colours for density fit analysis - and note FEM map
      usage - Emilia Arturo
 
@@ -137,3 +135,6 @@ Punt.
 
 * Done.
 
+   o Boaz S.: crash catcher in binary-Linux-x86_64-rhel-6-python-gtk2  5619
+
+* Done.

@@ -1,6 +1,9 @@
 
   Pre-Release 0.8.2
 
+  o FEATURE: Added function map-statistics to return map statistics 
+             [Alejandro Virrueta]
+
   o FEATURE: Add dictionary-based atom name matching in pyrogen [EJD]
 
   o FEATURE: Add ligand fragment flipping [JED]

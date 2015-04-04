@@ -1600,6 +1600,42 @@ PyObject *map_sigma_py(int imol) {
 #endif
 
 
+#ifdef USE_GUILE
+/*! \brief return either scheme false on non-a-map or list (mean, standard-deviation, skew, kurtosis) */
+SCM map_statistics_scm(int imol) {
+
+  SCM r = SCM_BOOL_F;
+  if (is_valid_map_molecule(imol)) { 
+     map_statistics_t ms = graphics_info_t::molecules[imol].map_statistics();
+     r = scm_list_4(scm_double2num(ms.mean),
+		    scm_double2num(ms.sd),
+		    scm_double2num(ms.skew),
+		    scm_double2num(ms.kurtosis));
+  }
+  return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+/*! \brief return either scheme false on non-a-map or list (mean, standard-deviation, skew, kurtosis) */
+PyObject *map_statistics_py(int imol) {
+
+   PyObject *r = Py_False;
+  if (is_valid_map_molecule(imol)) { 
+     map_statistics_t ms = graphics_info_t::molecules[imol].map_statistics();
+     r = PyList_New(4);
+     PyList_SetItem(r, 0, PyFloat_FromDouble(ms.mean)); 
+     PyList_SetItem(r, 1, PyFloat_FromDouble(ms.sd)); 
+     PyList_SetItem(r, 2, PyFloat_FromDouble(ms.skew)); 
+     PyList_SetItem(r, 3, PyFloat_FromDouble(ms.kurtosis)); 
+  }
+  if (PyBool_Check(r))
+    Py_INCREF(r);
+  return r;
+}
+#endif
+
+
 
 
 void set_density_size_from_widget(const char *text) {
