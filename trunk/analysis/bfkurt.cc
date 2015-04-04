@@ -16,7 +16,7 @@ coot_extras::b_factor_analysis::b_factor_analysis(const mmdb::Manager *mol_in, b
    
    // recall kurtosis, $k$ of $N$ observations:
    // k = \frac{\Sigma(x_i - \mu)^4} {N \sigma^4} - 3    
-   // (x_i - \mu)^4 = x_i^4 + 4x_i^3\mu + 6x_i^2\mu^2 + 4x_i\mu^3 + \mu^4
+   // (x_i - \mu)^4 = x_i^4 - 4x_i^3\mu + 6x_i^2\mu^2 - 4x_i\mu^3 + \mu^4
 
 
    if (mol) { 

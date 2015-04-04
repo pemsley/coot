@@ -1632,11 +1632,14 @@ float density_score_residue(int imol, const char *chain_id, int res_no, const ch
 /*! \brief return sigma for the given map.  Return scheme False if not
   a valid map molecule number. */
 SCM map_sigma_scm(int imol);
+/*! \brief return either scheme false on non-a-map or list (mean, standard-deviation, skew, kurtosis) */
+SCM map_statistics_scm(int imol);
 #endif
 #ifdef USE_PYTHON
 /*! \brief return sigma for the given map.  Return Python False if not
   a valid map molecule number. */
 PyObject *map_sigma_py(int imol);
+PyObject *map_statistics_py(int imol);
 #endif /*USE_PYTHON */
 #endif  /* c++ */
 

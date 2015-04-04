@@ -3246,3 +3246,56 @@ molecule_class_info_t::map_is_too_blue_p() const {
    return state;
 }
 
+
+
+map_statistics_t
+molecule_class_info_t::map_statistics() const {
+
+   double mean = 0;
+   double sd   = 0;
+   double skew     = 0;
+   double kurtosis = 0;
+   long   n = 0;
+
+   double sum = 0;
+   double sum_sq = 0;
+   double sum_cubed = 0;
+   double sum_4rd   = 0;
+
+   // recall kurtosis, $k$ of $N$ observations:
+   // k = \frac{\Sigma(x_i - \mu)^4} {N \sigma^4} - 3    
+   // (x_i - \mu)^4 = x_i^4 - 4x_i^3\mu + 6x_i^2\mu^2 - 4x_i\mu^3 + \mu^4
+   
+   
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix=xmap.first(); !ix.last(); ix.next()) {
+      const float &rho = xmap[ix];
+      if (! clipper::Util::is_nan(rho)) {
+	 n++;
+	 sum       += rho;
+	 sum_sq    += rho * rho;
+	 sum_cubed += rho * rho * rho;
+	 sum_4rd   += rho * rho * rho * rho;
+      }
+   }
+
+   if (n > 0) {
+      double dn = double(n);
+      mean = sum/dn;
+      double v = sum_sq/dn - mean * mean;
+      if (v < 0)
+	 v = 0;
+      sd = sqrt(v);
+      skew = sum_cubed/dn - 3 * mean * v - mean * mean * mean;
+      double kt =
+	 sum_4rd
+	 - 4 * sum_cubed * mean
+	 + 6 * sum_sq    * mean * mean
+	 - 4 * sum       * mean * mean * mean
+	 + mean * mean * mean * mean * dn;
+      kurtosis = kt/(dn * v * v);
+   }
+   map_statistics_t mp(mean, sd, skew, kurtosis);
+   return mp;
+
+} 
