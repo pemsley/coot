@@ -9366,12 +9366,12 @@ on_validate1_activate                  (GtkMenuItem     *menuitem,
 {
   GtkWidget *menu_item = 0;
 
-  if (!probe_available_p()) { 
+  if (probe_available_p() == 0) { /* no */
     menu_item = lookup_widget(GTK_WIDGET(menuitem), "probe_clashes1");
     if (!menu_item) { 
       printf("Failed to get probe_clashes1 menu item :-(\n");
     } else { 
-      /* go! (desensitize it) */
+      /* desensitize it */
       gtk_widget_set_sensitive(menu_item, FALSE);
     }
   } 

@@ -1,14 +1,7 @@
  
  0.8.2
 
-   o Add a user function to return mean, median, min, max, skew, kurtosis
-     and optionally histogram of map density values.
-      --- Alejandro Virrueta
-
    o Fix the NCS master chain problem - Airlie McCoy
-
-   o Get monomer -> get PDBe ligand (and run dictionary generator?)
-     or on failure,  get a useful error meesage/text dialog
 
    o 6BP is badly modelled.  Wrong partial charges on Restraints
      editor on reading the PDBe ligand cif.
@@ -43,8 +36,6 @@
 
    o in Jones' Rainbow for 2hvs, why can't I pick D125? (because it
      doesn't have a P)
-
-   o Validate menu checking for probe/reduce. Do it only once.
 
    o a nice function - for ligand presentation (and rendering) is to
      find the screen centre and view quaternion that orients the ligand
@@ -136,5 +127,20 @@ Punt.
 * Done.
 
    o Boaz S.: crash catcher in binary-Linux-x86_64-rhel-6-python-gtk2  5619
+
+* Done.
+
+   o Add a user function to return mean, median, min, max, skew, kurtosis
+     and optionally histogram of map density values.
+      --- Alejandro Virrueta
+
+* Done.
+
+   o Get monomer -> get PDBe ligand (and run dictionary generator?)
+     or on failure,  get a useful error meesage/text dialog
+
+* Done.
+
+   o Validate menu checking for probe/reduce. Do it only once.
 
 * Done.

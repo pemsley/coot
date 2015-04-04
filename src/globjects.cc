@@ -1234,6 +1234,7 @@ std::string graphics_info_t::save_state_file_name = "0-coot.state.py";
 
 std::vector<coot::mtz_column_trials_info_t> graphics_info_t::user_defined_auto_mtz_pairs;
 
+short int graphics_info_t::probe_available = -1; // don't know yet
 
 // fffearing
 float graphics_info_t::fffear_angular_resolution = 15.0; // degrees

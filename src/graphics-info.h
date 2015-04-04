@@ -3941,6 +3941,8 @@ string   static std::string sessionid;
 
    static bool allow_duplseqnum;
 
+   static short int probe_available; // need no, yes, don't-know-yet
+
 };
 
 

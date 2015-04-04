@@ -903,40 +903,50 @@ void probe_mol_selector_activate (GtkMenuItem     *menuitem,
 // 1 for yes, 0 for no.
 // 
 int probe_available_p() {
-   int r=0;
+   short int r = graphics_info_t::probe_available;
+
+   if (r == -1) { // initial value: don't know yet
 
 #if defined(USE_GUILE) && !defined(WINDOWS_MINGW)
 
-   std::string command("(command-in-path-or-absolute? *probe-command*)");
+      std::string command("(command-in-path-or-absolute? *probe-command*)");
 
-   SCM scm_thunk = safe_scheme_command(command); 
+      SCM scm_thunk = safe_scheme_command(command); 
 
-   int was_boolean_flag = scm_is_true(scm_boolean_p(scm_thunk));
+      int was_boolean_flag = scm_is_true(scm_boolean_p(scm_thunk));
 
-   if (was_boolean_flag)
-      if (scm_is_true(scm_thunk) == 1)
-	 r = 1;
+      if (was_boolean_flag) { 
+	 if (scm_is_true(scm_thunk) == 1) {
+	    r = 1;
+	 } else {
+	    r = 0;
+	 }
+      } else { 
+	 r = 0;
+      }
 
 #else
-// BL says:: here comes some (experimental) code to do the same thing in python
-// it's a bit longer and uses compiled python code but dont see another option
-// currently (and there might be none..)
+      
+      // BL says:: here comes some (experimental) code to do the same thing in python
+      // it's a bit longer and uses compiled python code but dont see another option
+      // currently (and there might be none..)
 #ifdef USE_PYTHON
 
-    PyObject *result;
-    result = safe_python_command_with_return("command_in_path_qm(probe_command)");
+      PyObject *result;
+      result = safe_python_command_with_return("command_in_path_qm(probe_command)");
 
-    int was_boolean_flag = PyInt_AsLong(result);
-    if (was_boolean_flag) {
-              r = 1;
-//	      std::cout << "BL DEBUG:: flag here " << was_boolean_flag << std::endl;
-    }
+      int was_boolean_flag = PyInt_AsLong(result);
+      if (was_boolean_flag) {
+	 r = 1;
+      } else {
+	 r = 0;
+      }
 
-//    std::cout << "BL DEBUG:: r here " << r << std::endl;
 
 #endif // USE_PYTHON
-#endif // USE_GUILE   
-
+#endif // USE_GUILE
+      graphics_info_t::probe_available = r;
+   }
    return r;
 } 
 
