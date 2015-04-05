@@ -672,21 +672,25 @@ coot::rdkit_mol_sanitize(RDKit::RWMol &mol) {
 void
 coot::set_3d_conformer_state(RDKit::RWMol *mol) {
 
-   for (unsigned int iconf=0; iconf<mol->getNumConformers(); iconf++) { 
-      RDKit::Conformer &conf = mol->getConformer(iconf);
-      int n_atoms = conf.getNumAtoms();
-      bool zero_z = true;
-      for (int iat=0; iat<n_atoms; iat++) { 
-	 RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
-	 if ((r_pos.z < -0.01) || (r_pos.z > 0.01)) {
-	    zero_z = false;
-	    break;
+   if (mol) { 
+      for (unsigned int iconf=0; iconf<mol->getNumConformers(); iconf++) { 
+	 RDKit::Conformer &conf = mol->getConformer(iconf);
+	 int n_atoms = conf.getNumAtoms();
+	 bool zero_z = true;
+	 for (int iat=0; iat<n_atoms; iat++) { 
+	    RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
+	    if ((r_pos.z < -0.01) || (r_pos.z > 0.01)) {
+	       zero_z = false;
+	       break;
+	    }
+	    if (zero_z) {
+	       conf.set3D(false);
+	    } 
 	 }
-	 if (zero_z) {
-	    conf.set3D(false);
-	 } 
       }
-   }
+   } else {
+      std::cout << "WARNING:: in set_3d_conformer_state() null mol " << std::endl;
+   } 
 } 
 
 

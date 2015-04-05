@@ -1066,6 +1066,8 @@ public:
    widgeted_molecule_t  import_mol_file(const lig_build::molfile_molecule_t &mol_in,
 					const std::string &filename,
 					mmdb::Manager *pdb_mol);
+
+   void import_mol_from_smiles_file(const std::string &file_name);
    static gboolean on_highlight_key_press_event (GooCanvasItem *item,
 						 GooCanvasItem *target,
 						 GdkEventKey *event,

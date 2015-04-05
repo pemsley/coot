@@ -3424,7 +3424,8 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
    if (n_confs > 0) {
       int iconf = 0;
       if (m->getConformer(iconf).is3D()) {
-	 iconf = coot::add_2d_conformer(m, weight_for_3d_distances);
+	 iconf = coot::add_2d_conformer(m, weight_for_3d_distances); // 3d -> 2d
+	                                                             // (if not 3d, do nothing)
 	 std::cout << "rdkit_mol_post_read_handling() add_2d_conformer returned "
 		   << iconf << std::endl;
 	 if (iconf == -1) 
@@ -3447,7 +3448,7 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
       render_from_molecule(wmol);
       update_descriptor_attributes();
    } else {
-      std::cout << "WARNING:: molecule from " << file_name << " had no conformers " << std::endl;
+      std::cout << "WARNING:: molecule from " << file_name << " had 0 conformers " << std::endl;
    }
 }
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
@@ -3466,6 +3467,43 @@ lbg_info_t::import_mol_file(const lig_build::molfile_molecule_t &mol_in,
    save_molecule();
    return new_mol;
 }
+
+void
+lbg_info_t::import_mol_from_smiles_file(const std::string &file_name) {
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
+   if (coot::file_exists(file_name)) {
+
+      std::string file_contents = file_to_string(file_name);
+      std::string::size_type isplit = file_contents.find_first_of(' ');
+      if (isplit != std::string::npos)
+	 file_contents = file_contents.substr(0, isplit);
+      isplit = file_contents.find_first_of('\n');
+      if (isplit != std::string::npos)
+	 file_contents = file_contents.substr(0, isplit);
+      
+      try {
+	 RDKit::RWMol *m = RDKit::SmilesToMol(file_contents);
+	 if (m) {
+	    RDDepict::compute2DCoords(*m, NULL, true);
+	    coot::set_3d_conformer_state(m); // checks for null
+	    rdkit_mol_post_read_handling(m, file_name);
+	 } else {
+	    // should throw an exception before getting here, I think.
+	    std::cout << "Null m in import_mol_from_file() " << std::endl;
+	 } 
+      }
+      catch (const RDKit::FileParseException &rte) {
+	 std::cout << "something bad ------------ " << rte.what() << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: No file: " << file_name << std::endl;
+   }
+
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
+} 
+
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS 
 widgeted_molecule_t
