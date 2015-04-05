@@ -1,8 +1,6 @@
  
  0.8.2
 
-   o Fix the NCS master chain problem - Airlie McCoy
-
    o 6BP is badly modelled.  Wrong partial charges on Restraints
      editor on reading the PDBe ligand cif.
 
@@ -32,10 +30,6 @@
 
    o in Jones' Rainbow for 2hvs, why can't I pick D125? (because it
      doesn't have a P)
-
-   o a nice function - for ligand presentation (and rendering) is to
-     find the screen centre and view quaternion that orients the ligand
-     nicely. Puntable.
 
    o draw_generic_text() should have a user-setable font size.
 
@@ -140,3 +134,14 @@ Punt.
    o Validate menu checking for probe/reduce. Do it only once.
 
 * Done.
+
+   o a nice function - for ligand presentation (and rendering) is to
+     find the screen centre and view quaternion that orients the ligand
+     nicely. Puntable.
+
+* Done.
+
+   o Fix the NCS master chain problem - Airlie McCoy
+
+* Done.
+
