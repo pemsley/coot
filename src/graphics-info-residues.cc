@@ -24,9 +24,12 @@
 #include "compat/coot-sysdep.h"
 
 #include <algorithm>
+#include <iomanip>
 
 #include "graphics-info.h"
 #include "interface.h" // for create_multi_residue_torsion_dialog()
+
+#include "trackball.h"
 
 void
 graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residue_spec_t> &v) {
@@ -300,3 +303,131 @@ graphics_info_t::graphics_ligand_view() {
    }
 } 
 
+
+void
+graphics_info_t::perpendicular_ligand_view(int imol, const coot::residue_spec_t &residue_spec) {
+
+   mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(residue_spec);
+   if (residue_p) {
+
+      mmdb::PPAtom residue_atoms = 0;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+
+      if (n_residue_atoms == 0) {
+	 std::cout << "ERROR: Residue " << residue_spec << "has 0 atoms " << std::endl;
+      } else { 
+	 clipper::Coord_orth running_centre(0.0, 0.0, 0.0); 
+	 for (int iat=0; iat<n_residue_atoms; iat++) {
+	    mmdb::Atom *at = residue_atoms[iat];
+	    running_centre += coot::co(at);
+	 }
+	 double scale = 1/double(n_residue_atoms);
+	 clipper::Coord_orth mean_pos(running_centre.x() * scale,
+				      running_centre.y() * scale,
+				      running_centre.z() * scale);
+	 clipper::Matrix<double> mat(3,3);
+	 for (int ii=0; ii<3; ii++) 
+	    for (int jj=0; jj<3; jj++) 
+	       mat(ii,jj) = 0.0; 
+
+	 for (int iat=0; iat<n_residue_atoms; iat++) { 
+	    mmdb::Atom *at = residue_atoms[iat];
+	    clipper::Coord_orth co = coot::co(at);
+	    mat(0,0) += (co.x() - mean_pos.x()) * (co.x() - mean_pos.x()); 
+	    mat(0,1) += (co.x() - mean_pos.x()) * (co.y() - mean_pos.y()); 
+	    mat(0,2) += (co.x() - mean_pos.x()) * (co.z() - mean_pos.z()); 
+	    mat(1,0) += (co.y() - mean_pos.y()) * (co.x() - mean_pos.x()); 
+	    mat(1,1) += (co.y() - mean_pos.y()) * (co.y() - mean_pos.y()); 
+	    mat(1,2) += (co.y() - mean_pos.y()) * (co.z() - mean_pos.z()); 
+	    mat(2,0) += (co.z() - mean_pos.z()) * (co.x() - mean_pos.x()); 
+	    mat(2,1) += (co.z() - mean_pos.z()) * (co.y() - mean_pos.y()); 
+	    mat(2,2) += (co.z() - mean_pos.z()) * (co.z() - mean_pos.z());
+	 }
+
+	 graphics_info_t g;
+	 std::pair<bool, clipper::Coord_orth> residue_centre = g.molecules[imol].residue_centre(residue_p);
+	 if (residue_centre.first) {
+			
+	    g.setRotationCentre(residue_centre.second);
+
+	    if (false) { // debug matrices/eigen
+
+	       std::cout << "raw mat" << std::endl;
+	       for (int ii=0; ii<3; ii++) { 
+		  std::cout << "(";
+		  for (int jj=0; jj<3; jj++) {
+		     std::cout <<  "  " << mat(ii,jj);
+		  }
+		  std::cout << ")\n";
+	       }
+	    }
+			
+	    std::vector<double> eigens = mat.eigen(false);
+
+	    if (false) { // debug matrices
+	       std::cout << "eigens:\n     " << sqrt(eigens[0]) << " " << sqrt(eigens[1]) << " "
+			 << sqrt(eigens[2]) << std::endl;
+	       std::cout << "post mat" << std::endl;
+	       for (int ii=0; ii<3; ii++) { 
+		  std::cout << "(";
+		  for (int jj=0; jj<3; jj++) {
+		     std::cout << std::right << std::setprecision(4) << std::fixed <<  "   " << mat(ii,jj);
+		  }
+		  std::cout << ")\n";
+	       }
+	       std::cout.setf(std::ios::fixed, std::ios::floatfield);
+	    }
+
+	    clipper::Mat33<double> md(mat(0,0), mat(0,1), mat(0,2),
+				      mat(1,0), mat(1,1), mat(1,2),
+				      mat(2,0), mat(2,1), mat(2,2));
+
+	    bool need_x_rotate = false;
+	    bool need_y_rotate = false;
+	    bool need_z_rotate = false;
+			
+	    if (eigens[0] < eigens[1]) { 
+	       if (eigens[0] < eigens[2]) {
+		  // shortest is along x.  Needs rotation arounds screen x
+		  need_y_rotate = true;
+		  if (eigens[1] < eigens[2])
+		     need_z_rotate = true;
+	       }
+	    }
+		  
+	    if (eigens[1] < eigens[0]) { 
+	       if (eigens[1] < eigens[2]) {
+		  need_x_rotate = true;
+		  if (eigens[0] < eigens[2])
+		     need_z_rotate = true;
+	       }
+	    }
+
+	    coot::util::quaternion vq(md);
+	    g.quat[0] = vq.q0;
+	    g.quat[1] = vq.q1;
+	    g.quat[2] = vq.q2;
+	    g.quat[3] = vq.q3;
+
+	    if (need_x_rotate) {
+	       float spin_quat[4];
+	       trackball(spin_quat, 0, 0, 0.0, 0.0174533*45, 0.8);
+	       add_quats(spin_quat, g.quat, g.quat);
+	    } 
+
+	    if (need_y_rotate) { 
+	       float spin_quat[4];
+	       trackball(spin_quat, 0, 0, 0.0174533*45, 0.000, 0.8);
+	       add_quats(spin_quat, g.quat, g.quat);
+	    }
+	    if (need_z_rotate) { 
+	       float spin_quat[4];
+	       trackball(spin_quat, 1.0, 1.0, 1.0, 1.0 + 0.0174533*180, 0.4);
+	       add_quats(spin_quat, g.quat, g.quat);
+	    }
+	    g.update_things_on_move_and_redraw();
+	 }
+      }
+   }
+} 

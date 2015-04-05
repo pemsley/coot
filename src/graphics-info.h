@@ -3943,6 +3943,9 @@ string   static std::string sessionid;
 
    static short int probe_available; // need no, yes, don't-know-yet
 
+   void perpendicular_ligand_view(int imol, const coot::residue_spec_t &residue_spec);
+
+
 };
 
 

@@ -1280,6 +1280,11 @@ Punted from 0.6:
 
    o Remove hydrogens from refinement.  Punt for 0.9
 
+
+   o Can coot generate PDB annotated assemblies that are provided in
+     the pdbx_struct_assembly* categories in the mmCIF file. -- Sameer V.
+     (needs mmdb support).  Punted.
+
    o Make it easy to "accept current mode" early in a big sphere
      refine - Oliver Clarke
 
