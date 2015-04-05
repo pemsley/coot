@@ -366,6 +366,7 @@ coot_bin_SOURCES = \
 	lbg-callbacks-outer.cc 	 \
 	lbg-interface.cc 	 \
 	ligand-check.hh          \
+        map-statistics.hh        \
 	molecule-class-info.cc 	 \
 	molecule-class-info-maps.cc 	\
 	molecule-class-info-maps-2.cc 	\
