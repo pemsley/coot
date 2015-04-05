@@ -315,7 +315,7 @@ lbg_info_t::handle_lbg_drag_and_drop_filesystem_file(const std::string &uri) {
    int handled = FALSE;
    if (uri.length() > 7) {
       if (uri.substr(0,7)== "file://") {
-	 std::cout << "---:" << uri << ": was a file:// string " << std::endl;
+	 // std::cout << "---:" << uri << ": was a file:// string " << std::endl;
 	 std::string file_name;
 
 	 // Why this?
@@ -329,6 +329,10 @@ lbg_info_t::handle_lbg_drag_and_drop_filesystem_file(const std::string &uri) {
 	 if (ext == ".mdl" || ext == ".mol" || ext == ".mol2") { 
 	    import_mol_from_file(file_name);
 	 }
+
+	 if (ext == ".smi") {
+	    import_mol_from_smiles_file(file_name);
+	 } 
 	 handled = TRUE;
       }
    }
