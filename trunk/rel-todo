@@ -15,10 +15,6 @@
    o Improve the colours for density fit analysis - and note FEM map
      usage - Emilia Arturo
 
-   o Can coot generate PDB annotated assemblies that are provided in
-     the pdbx_struct_assembly* categories in the mmCIF file. -- Sameer V.
-     (needs mmdb support).
-
    o I noticed when adjusting the 'bond colours' using the slider in
      'Edit/Bond Colours...' when an molecule (>1 chain) is 'coloured
      by chain') with activated check mark 'Change colours for Carbons

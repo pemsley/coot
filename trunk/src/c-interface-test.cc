@@ -36,6 +36,7 @@
 
 #include <stdlib.h>
 #include <iostream>
+#include <iomanip> 
 #include <fstream>
 
 #if !defined(_MSC_VER)
@@ -377,12 +378,27 @@ int test_function(int i, int j) {
 
 #include "c-interface-widgets.h" // for wrapped_create_generic_objects_dialog();
 
+
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
    graphics_info_t g;
    SCM r = SCM_BOOL_F;
+
+   if (1) {
+
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+      if (pp.first) {
+	 if (is_valid_model_molecule(pp.second.first)) {
+
+	    coot::residue_spec_t residue_spec(pp.second.second);
+	    int imol = pp.second.first;
+	    g.perpendicular_ligand_view(imol, residue_spec);
+	 }
+      }
+   }
+      
 
    // ------------------------ spherical density overlap -------------------------
    // 
@@ -508,7 +524,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       }
    } 
 
-   if (1) {
+   if (0) {
 #if HAVE_GOOCANVAS      
       coot::goograph *g = new coot::goograph;
       std::vector<std::pair<double, double> > data;

@@ -82,14 +82,16 @@ void go_to_ligand() {
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
    if (pp.first) {
       if (is_valid_model_molecule(pp.second.first)) {
+	 graphics_info_t g;
 	 clipper::Coord_orth rc(graphics_info_t::RotationCentre_x(),
 				graphics_info_t::RotationCentre_y(),
 				graphics_info_t::RotationCentre_z());
 	 coot::new_centre_info_t new_centre =
 	    graphics_info_t::molecules[pp.second.first].new_ligand_centre(rc, graphics_info_t::go_to_ligand_n_atoms_limit);
 	 if (new_centre.type == coot::NORMAL_CASE) {
-	    graphics_info_t g;
-	    g.setRotationCentre(new_centre.position);
+	    // g.setRotationCentre(new_centre.position);
+	    g.perpendicular_ligand_view(pp.second.first, new_centre.residue_spec);
+	    
 	    g.update_things_on_move_and_redraw();
 	    std::string s = "Centred on residue ";
 	    // s += new_centre.residue_spec;
@@ -109,6 +111,7 @@ void go_to_ligand() {
 	       add_status_bar_text(s.c_str());
 	    }
 	    if (new_centre.type == coot::SINGLE_LIGAND_NO_MOVEMENT) { 
+	       g.perpendicular_ligand_view(pp.second.first, new_centre.residue_spec);
 	       std::string s = "This ligand (";
 	       s += coot::util::int_to_string(new_centre.residue_spec.resno);
 	       s += new_centre.residue_spec.insertion_code;
