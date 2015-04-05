@@ -272,7 +272,7 @@ GtkWidget *wrapped_create_ncs_control_dialog() {
 
 void ncs_control_change_ncs_master_to_chain(int imol, int ichain) {
 
-   std::cout << "DEBUG ncs_control_change_ncs_master_to_chain imol: " << imol
+   std::cout << "DEBUG:: ncs_control_change_ncs_master_to_chain imol: " << imol
 	     << " and ichain: " << ichain << std::endl;
    if (is_valid_model_molecule(imol)) {
       std::vector<std::string> chain_ids =

@@ -542,25 +542,27 @@ molecule_class_info_t::ncs_control_change_ncs_master_to_chain_update_widget(GtkW
 
    // First find imaster
    std::vector<std::string> chain_ids = coot::util::chains_in_molecule(atom_sel.mol);
-   
-   if (imaster != -1) {
-      GtkWidget *vbox = lookup_widget(w, "ncs_controller_molecule_n_display_chain_vbox");
-      std::string imol_str = coot::util::int_to_string(imol_no);
-      for (unsigned int i=0; i<chain_ids.size(); i++) {
-	 std::string name = "ncs_controller_molecule_";
-	 name += imol_str;
-	 name += "_display_chain_";
-	 name += coot::util::int_to_string(i);
-	 name += "_checkbutton";
-	 GtkWidget *checkbutton = lookup_widget(vbox, name.c_str());
-	 if (checkbutton) {
-	    if (int(i) == imaster) {
-	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), FALSE);
-	       gtk_widget_set_sensitive(checkbutton, FALSE);
-	    } else { 
-	       gtk_widget_set_sensitive(checkbutton, TRUE);
-	       // ncs control turns on all chains when we change the master
-	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+
+   if (w) { 
+      if (imaster != -1) {
+	 GtkWidget *vbox = lookup_widget(w, "ncs_controller_molecule_n_display_chain_vbox");
+	 std::string imol_str = coot::util::int_to_string(imol_no);
+	 for (unsigned int i=0; i<chain_ids.size(); i++) {
+	    std::string name = "ncs_controller_molecule_";
+	    name += imol_str;
+	    name += "_display_chain_";
+	    name += coot::util::int_to_string(i);
+	    name += "_checkbutton";
+	    GtkWidget *checkbutton = lookup_widget(vbox, name.c_str());
+	    if (checkbutton) {
+	       if (int(i) == imaster) {
+		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), FALSE);
+		  gtk_widget_set_sensitive(checkbutton, FALSE);
+	       } else { 
+		  gtk_widget_set_sensitive(checkbutton, TRUE);
+		  // ncs control turns on all chains when we change the master
+		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+	       }
 	    }
 	 }
       }

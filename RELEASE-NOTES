@@ -19,6 +19,9 @@
   o BUG-FIX: Fix problem of deleting all atoms in Baton Build atoms
              molecule
 
+  o BUG-FIX: The NCS master chain in Copy NCS Residue Range now works
+             [Airlie McCoy]
+
   o BUG-FIX: Fix output format of external restraints [Richard Bunker]
 
   o BUG-FIX: Torsion-based ligand fitting improvements [Rob Nicholls]
@@ -28,7 +31,7 @@
   o BUG-FIX: Add missing plane distortions in print_residue_distortions()
 
   o BUG-FIX: PISA interface works with newer version of pisa 
-             [Maria José Sanchez Barrena]
+             [Maria Jose Sanchez Barrena]
 
 
 -----
