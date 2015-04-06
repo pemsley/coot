@@ -27,8 +27,6 @@
 
 #include <gtk/gtk.h>
 
-#if (GTK_MAJOR_VERSION > 1)
-
 #include <pygobject.h>
 #include <pygtk/pygtk.h>
 
@@ -157,7 +155,5 @@ initcoot_python() {
    }
 }
 
-
-#endif // GTK2
 
 #endif // USE_PYGTK

@@ -1,6 +1,8 @@
  
  0.8.2
 
+   o with enhanced-ligand, do you get a sane code-path if you do File -> SMILES?
+
    o 6BP is badly modelled.  Wrong partial charges on Restraints
      editor on reading the PDBe ligand cif.
 
@@ -12,6 +14,8 @@
 
    o Improve the colours for density fit analysis - and note FEM map
      usage - Emilia Arturo
+
+   o Dave Lodowski alt-conf H problem.
 
    o I noticed when adjusting the 'bond colours' using the slider in
      'Edit/Bond Colours...' when an molecule (>1 chain) is 'coloured

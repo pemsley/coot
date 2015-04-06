@@ -788,6 +788,65 @@ on_lbg_view_flip_around_y_button_clicked(GtkButton *button, gpointer user_data) 
    } 
 }
 
+extern "C" G_MODULE_EXPORT void
+on_lbg_import_from_smiles_dialog_close(GtkDialog       *dialog,
+				       gpointer         user_data) {
+
+   gtk_widget_hide(GTK_WIDGET(dialog));
+}
+
+extern "C" G_MODULE_EXPORT void
+lbg_import_from_smiles_dialog_response_cb (GtkDialog       *dialog,
+					   gint             response_id,
+					   gpointer         user_data) {
+   if (response_id == GTK_RESPONSE_OK) { // -5
+      GtkWidget *canvas = GTK_WIDGET(user_data);
+      lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+      if (l) {
+	 GtkWidget *entry = l->lbg_import_from_smiles_entry;
+	 if (entry) {
+	    std::string txt = gtk_entry_get_text(GTK_ENTRY(entry));
+	    l->import_mol_from_smiles_string(txt);
+	    gtk_widget_hide(GTK_WIDGET(dialog));
+	 } 
+      } 
+   }
+
+   if (response_id == GTK_RESPONSE_CANCEL) { // -6
+      gtk_widget_hide(GTK_WIDGET(dialog));
+   } 
+}
+
+
+
+extern "C" G_MODULE_EXPORT void
+on_lbg_import_from_comp_id_dialog_close(GtkDialog       *dialog,
+					gpointer         user_data) {
+   gtk_widget_hide(GTK_WIDGET(dialog));
+}
+
+extern "C" G_MODULE_EXPORT void
+on_lbg_import_from_comp_id_dialog_response (GtkDialog       *dialog,
+					    gint             response_id,
+					    gpointer         user_data) {
+   if (response_id == GTK_RESPONSE_OK) { // -5
+      GtkWidget *canvas = GTK_WIDGET(user_data);
+      lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+      if (l) {
+	 GtkWidget *entry = l->lbg_import_from_comp_id_entry;
+	 if (entry) {
+	    std::string txt = gtk_entry_get_text(GTK_ENTRY(entry));
+	    l->import_mol_from_comp_id(txt);
+	    gtk_widget_hide(GTK_WIDGET(dialog));
+	 } 
+      } 
+   }
+
+   if (response_id == GTK_RESPONSE_CANCEL) { // -6
+      gtk_widget_hide(GTK_WIDGET(dialog));
+   } 
+}
+
 
 extern "C" G_MODULE_EXPORT void
 on_lbg_clean_up_2d_toolbutton_clicked(GtkToolButton *button, gpointer user_data) {
@@ -795,6 +854,25 @@ on_lbg_clean_up_2d_toolbutton_clicked(GtkToolButton *button, gpointer user_data)
    lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (l)
       l->clean_up_2d_representation();
+}
+
+extern "C" G_MODULE_EXPORT void
+on_lbg_import_smiles_menuitem_activate(GtkMenuItem *button, gpointer user_data) {
+
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (l)
+      gtk_widget_show(l->lbg_import_from_smiles_dialog);
+}
+
+extern "C" G_MODULE_EXPORT void
+on_lbg_import_comp_id_menuitem_activate(GtkMenuItem *button, gpointer user_data) {
+
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (l)
+      gtk_widget_show(l->lbg_import_from_comp_id_dialog);
+   
 }
 
 #endif // HAVE_GOOCANVAS

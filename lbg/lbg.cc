@@ -2587,6 +2587,8 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_atom_x_entry = NULL;
 	 lbg_clean_up_2d_toolbutton = NULL;
 	 lbg_search_database_frame = NULL;
+	 lbg_import_from_smiles_dialog = NULL;
+	 lbg_import_from_smiles_entry = NULL;
 	 canvas = NULL;
 	 return false; // boo.
 
@@ -2602,6 +2604,10 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_export_as_png_dialog =      GTK_WIDGET (gtk_builder_get_object (builder, "lbg_export_as_png_filechooserdialog"));
 	 lbg_smiles_dialog =             GTK_WIDGET(gtk_builder_get_object(builder, "lbg_smiles_dialog"));
 	 lbg_smiles_entry =              GTK_WIDGET(gtk_builder_get_object(builder, "lbg_smiles_entry"));
+	 lbg_import_from_smiles_dialog = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_import_from_smiles_dialog"));
+	 lbg_import_from_smiles_entry  = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_import_from_smiles_entry"));
+	 lbg_import_from_comp_id_dialog = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_import_from_comp_id_dialog"));
+	 lbg_import_from_comp_id_entry  = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_import_from_comp_id_entry"));
 	 lbg_search_combobox =           GTK_WIDGET(gtk_builder_get_object(builder, "lbg_search_combobox"));
 	 lbg_statusbar =                 GTK_WIDGET(gtk_builder_get_object(builder, "lbg_statusbar"));
 	 lbg_toolbar_layout_info_label = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_toolbar_layout_info_label"));
@@ -3495,14 +3501,74 @@ lbg_info_t::import_mol_from_smiles_file(const std::string &file_name) {
 	 } 
       }
       catch (const RDKit::FileParseException &rte) {
-	 std::cout << "something bad ------------ " << rte.what() << std::endl;
+	 std::cout << "WARNING:: something bad in import_mol_from_file() " << rte.what() << std::endl;
       }
    } else {
       std::cout << "WARNING:: No file: " << file_name << std::endl;
    }
 
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
+}
+
+void
+lbg_info_t::import_mol_from_smiles_string(const std::string &smiles) {
+   
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
+   try {
+      RDKit::RWMol *m = RDKit::SmilesToMol(smiles);
+      if (m) {
+	 RDDepict::compute2DCoords(*m, NULL, true);
+	 coot::set_3d_conformer_state(m); // checks for null
+	 rdkit_mol_post_read_handling(m, "from-SMILES-string");
+      } else {
+	 // should throw an exception before getting here, I think.
+	 std::cout << "Null m in import_mol_from_smiles_string() " << std::endl;
+      } 
+   }
+   catch (const RDKit::FileParseException &rte) {
+      std::cout << "WARNING:: something bad in import_mol_from_smiles_string() " << rte.what() << std::endl;
+   }
+   
+
+#else
+   std::cout << "You need enhanced ligand tools version" << std::endl;
+   
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
+}
+
+void
+lbg_info_t::import_mol_from_comp_id(const std::string &comp_id) {
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
+   coot::protein_geometry pg;
+   int dynamic_add_status = pg.try_dynamic_add(comp_id, 1);
+   std::pair<bool, coot::dictionary_residue_restraints_t> p = pg.get_monomer_restraints(comp_id);
+   if (p.first) {
+      try {
+	 RDKit::RWMol m = coot::rdkit_mol(p.second);
+	 unsigned int n_mol_atoms = m.getNumAtoms();   
+	 for (unsigned int iat=0; iat<n_mol_atoms; iat++)
+	    m[iat]->calcImplicitValence(true);
+	 RDDepict::compute2DCoords(m, NULL, true);
+	 rdkit_mol_post_read_handling(&m, "from-comp-id");
+      }
+      catch (const RDKit::MolSanitizeException &e) {
+	 // calcImplicitValence() can make this happend
+	 std::cout << "ERROR:: on Sanitize" << e.what() << std::endl;
+      }
+      catch (const std::runtime_error &rte) {
+	 std::cout << "ERROR:: " << rte.what() << std::endl;
+      }
+   } 
+#else
+   std::cout << "You need enhanced ligand tools version" << std::endl;
+#endif  // MAKE_ENHANCED_LIGAND_TOOLS
+
 } 
+
+
 
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS 
