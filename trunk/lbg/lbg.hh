@@ -984,6 +984,10 @@ public:
    GtkWidget *lbg_sbase_search_results_vbox;
    GtkWidget *lbg_smiles_dialog;
    GtkWidget *lbg_smiles_entry;
+   GtkWidget *lbg_import_from_smiles_dialog;
+   GtkWidget *lbg_import_from_smiles_entry;
+   GtkWidget *lbg_import_from_comp_id_dialog;
+   GtkWidget *lbg_import_from_comp_id_entry;
    GtkWidget *lbg_statusbar;
    GtkWidget *lbg_toolbar_layout_info_label;
    GtkWidget *lbg_atom_x_dialog;
@@ -1068,6 +1072,9 @@ public:
 					mmdb::Manager *pdb_mol);
 
    void import_mol_from_smiles_file(const std::string &file_name);
+   void import_mol_from_smiles_string(const std::string &smiles);
+   void import_mol_from_comp_id(const std::string &comp_id);
+   
    static gboolean on_highlight_key_press_event (GooCanvasItem *item,
 						 GooCanvasItem *target,
 						 GdkEventKey *event,

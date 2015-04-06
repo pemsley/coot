@@ -344,13 +344,8 @@ lbg_info_t::handle_lbg_drag_and_drop_smiles(const std::string &smiles) {
 
    int handled = FALSE;
 
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS   
-   RDKit::RWMol *rdk_mol = RDKit::SmilesToMol(smiles);
-   if (rdk_mol) {
-      RDDepict::compute2DCoords(*rdk_mol, NULL, true);
-      rdkit_mol_post_read_handling(rdk_mol, "from-SMILES-string");
-      handled = TRUE;
-   }
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+   import_mol_from_smiles_string(smiles);
 #endif
    return handled;
 } 

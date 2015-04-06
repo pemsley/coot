@@ -33,6 +33,12 @@ namespace coot {
    //
    RDKit::RWMol rdkit_mol_sanitized(mmdb::Residue *residue_p, const protein_geometry &geom);
    RDKit::RWMol rdkit_mol(mmdb::Residue *residue_p, const protein_geometry &geom);
+
+   // For this function, should we do this at end?
+   // 
+   // for (unsigned int iat=0; iat<m.getNumAtoms(); iat++)
+   //     m[iat]->calcImplicitValence(true);
+   // 
    RDKit::RWMol rdkit_mol(const dictionary_residue_restraints_t &restraints); // fill the coord from
                                                                               // the dictionary if
                                                                               // you can.
