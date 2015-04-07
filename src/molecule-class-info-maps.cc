@@ -2577,11 +2577,11 @@ molecule_class_info_t::make_map_from_cif_nfofc(int imol_no_in,
 
 	 int nrefl = 0;
 	 int nmissing = 0;
-	 for (clipper::HKL_info::HKL_reference_index ih=myfsigf.first();
+	 for (clipper::HKL_info::HKL_reference_index ih=fsigf.first();
 	      !ih.last(); ih.next()) {
 	    nrefl++;
-	    if (!myfsigf[ih].missing()) {
-	       fphidata[ih].f() = fo_multiplier * myfsigf[ih].f() -
+	    if (!fsigf[ih].missing()) {
+	       fphidata[ih].f() = fo_multiplier * fsigf[ih].f() -
 		  fc_multiplier * fphidata[ih].f() * sqrt(fscale.f(ih));
 	       // std::cout << "scale: " << sqrt(fscale.f(ih)) << std::endl;
 	    } else {
