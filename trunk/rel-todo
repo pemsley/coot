@@ -1,7 +1,13 @@
  
  0.8.2
 
-   o with enhanced-ligand, do you get a sane code-path if you do File -> SMILES?
+   o with enhanced-ligand, do you get a sane code-path if you do 
+     File -> SMILES?
+
+   o Add the residue where a CIS peptide has been introduced.
+     - Dave Brown
+
+   o Change the drag so that I can drag a loop in a 3A data.
 
    o 6BP is badly modelled.  Wrong partial charges on Restraints
      editor on reading the PDBe ligand cif.
