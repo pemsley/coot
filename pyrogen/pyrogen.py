@@ -387,7 +387,13 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
                     comp_id_list_for_names_match,
                     dict_files_for_names_match):
 
-   numConfs = 100
+   # test here (or in calling functions) if m is sane (i.e. is an rdkit molecule)
+
+   if not isinstance(m, Chem.rdchem.Mol):
+      print 'ERROR:: not a molecule'
+      return False
+
+   n_attempts = 20 * m.GetNumAtoms() # default is 10 * number of atoms.
 
    # pH-dependent protonation or deprotonation
    #
@@ -416,7 +422,7 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
       sane_H_mol = m_H
 
    # This makes UFF types, which can fail sometimes.
-   conf_id = AllChem.EmbedMolecule(sane_H_mol)
+   conf_id = AllChem.EmbedMolecule(sane_H_mol, maxAttempts=n_attempts)
 
    if use_mmff:
       AllChem.MMFFOptimizeMolecule(sane_H_mol, confId=conf_id)
