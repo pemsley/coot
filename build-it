@@ -2429,7 +2429,7 @@ if test -n "$build_clipper" ; then
     # now clipper has all the bits.
     ${WGET} $extras_place/clipper-$clipper_version.tar.gz
 
-    ( 
+    (
     gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
 
     cd clipper-$clipper_dir_version

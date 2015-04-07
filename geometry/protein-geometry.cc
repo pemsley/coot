@@ -3396,7 +3396,27 @@ coot::dictionary_residue_restraints_t::conservatively_replace_with_angles(const 
 	 }
       }
    }
+}
+
+void
+coot::dictionary_residue_restraints_t::replace_coordinates(const dictionary_residue_restraints_t &mon_res_in) {
+
+   for (unsigned int iat=0; iat<atom_info.size(); iat++) { 
+      dict_atom &at = atom_info[iat];
+      
+      for (unsigned int iat=0; iat<mon_res_in.atom_info.size(); iat++) { 
+	 const dict_atom &at_ref = mon_res_in.atom_info[iat];
+
+	 if (at_ref.atom_id_4c == at.atom_id_4c) {
+	    at.pdbx_model_Cartn_ideal = at_ref.pdbx_model_Cartn_ideal;
+	    at.model_Cartn            = at_ref.model_Cartn;
+	 } 
+      }
+   }
 } 
+
+
+
 
 std::vector<std::string>
 coot::protein_geometry::monomer_types() const {

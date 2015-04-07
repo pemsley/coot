@@ -694,6 +694,7 @@ namespace coot {
       void conservatively_replace_with(const dictionary_residue_restraints_t &new_restraints);
       void conservatively_replace_with_bonds (const dictionary_residue_restraints_t &new_restraints);
       void conservatively_replace_with_angles(const dictionary_residue_restraints_t &new_restraints);
+      void replace_coordinates(const dictionary_residue_restraints_t &mon_res_in);
 
       //
       void remove_redundant_plane_restraints();
@@ -2162,7 +2163,7 @@ namespace coot {
       void replace_monomer_restraints_conservatively_angles(int irest,
 							    const dictionary_residue_restraints_t &mon_res);
 
-
+      
       // this function is no longer const because it can run try_dynamic_add
       //
       bool have_dictionary_for_residue_type(const std::string &monomer_type,

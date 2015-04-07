@@ -2493,12 +2493,12 @@ molecule_class_info_t::make_map_from_cif_nfofc(int imol_no_in,
    clipper::HKL_info mydata;
    clipper::CIFfile cif; 
       
-   cif.open_read ( cif_file_name );
+   cif.open_read(cif_file_name);
    cif.import_hkl_info(mydata); // set spacegroup, cell and get hkl list. 
-   clipper::HKL_data< clipper::datatypes::F_sigF<float> > myfsigf(mydata);
+   clipper::HKL_data< clipper::datatypes::F_sigF<float> >   fsigf(mydata);
    clipper::HKL_data< clipper::datatypes::F_phi<float> > fphidata(mydata);
 
-   cif.import_hkl_data(myfsigf);
+   cif.import_hkl_data(fsigf);
    cif.import_hkl_data(fphidata); 
 
    cif.close_read(); 
@@ -2572,8 +2572,8 @@ molecule_class_info_t::make_map_from_cif_nfofc(int imol_no_in,
 	 clipper::BasisFn_spline basis_f1f2( mydata, nprm, 2.0 );
 	 clipper::TargetFn_scaleF1F2<clipper::datatypes::F_phi<float>,
 	    clipper::datatypes::F_sigF<float> >
-	    target_f1f2( fphidata, myfsigf );
-	 clipper::ResolutionFn fscale( mydata, basis_f1f2, target_f1f2, params_init );
+	    target_f1f2(fphidata, fsigf);
+	 clipper::ResolutionFn fscale(mydata, basis_f1f2, target_f1f2, params_init);
 
 	 int nrefl = 0;
 	 int nmissing = 0;
