@@ -21,6 +21,7 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include <iomanip> 
 #include "compat/coot-sysdep.h"
 
 #include "libgtkgraph/gtkgraph.h"
@@ -41,9 +42,13 @@
 /*                      HOLE                                                 */
 /* ------------------------------------------------------------------------- */
 /*! \name Coot's Hole implementation */
-void hole(int imol, float start_x, float start_y, float start_z, float end_x, float end_y, float end_z,
+// if export_dots_file_name string length is zero, then don't try to
+// export the surface dots.
+void hole(int imol, float start_x, float start_y, float start_z,
+	  float end_x, float end_y, float end_z,
 	  float colour_map_multiplier, float colour_map_offset,
-	  int n_runs, bool show_probe_radius_graph_flag) {
+	  int n_runs, bool show_probe_radius_graph_flag,
+	  std::string export_dots_file_name ) {
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
@@ -53,7 +58,8 @@ void hole(int imol, float start_x, float start_y, float start_z, float end_x, fl
 
       coot::hole hole(mol, p_1, p_2, *g.Geom_p());
       hole.set_colour_shift(colour_map_multiplier, colour_map_offset);
-      std::pair<std::vector<std::pair<clipper::Coord_orth, double> >, std::vector<coot::hole_surface_point_t> >
+      std::pair<std::vector<std::pair<clipper::Coord_orth, double> >,
+		std::vector<coot::hole_surface_point_t> >
 	 hole_path_and_surface = hole.generate();
 
       int obj_path    = new_generic_object_number("Probe path");
@@ -102,6 +108,32 @@ void hole(int imol, float start_x, float start_y, float start_z, float end_x, fl
 			  << "\n";
 	 }
       }
+
+      if (! export_dots_file_name.empty()) {
+	 std::ofstream f(export_dots_file_name.c_str());
+	 if (!f) {
+	    std::cout << "WARNING:: Failed to open " << export_dots_file_name << std::endl;
+	 } else {
+	    unsigned int n = hole_path_and_surface.second.size();
+	    for (unsigned int i=0; i<n; i++) {
+	       f << "    "
+		 << std::fixed << std::setprecision(5) << std::setw(10)
+		 << hole_path_and_surface.second[i].position.x() << " " 
+		 << std::fixed << std::setprecision(5) << std::setw(10)
+		 << hole_path_and_surface.second[i].position.y() << " " 
+		 << std::fixed << std::setprecision(5) << std::setw(10)
+		 << hole_path_and_surface.second[i].position.z() << "    "
+		 << std::fixed << std::setprecision(5) << std::setw(10)
+		 << hole_path_and_surface.second[i].colour.red   << " " 
+		 << std::fixed << std::setprecision(5) << std::setw(10)
+		 << hole_path_and_surface.second[i].colour.green << " " 
+		 << std::fixed << std::setprecision(5) << std::setw(10)
+		 << hole_path_and_surface.second[i].colour.blue  << "  "
+		 << hole_path_and_surface.second[i].colour.hex()
+		 << "\n";
+	    }
+	 } 
+      } 
 
       std::pair<int, int> geom(160, 400);
       simple_text_dialog("Probe radius data", text, geom.first, geom.second);

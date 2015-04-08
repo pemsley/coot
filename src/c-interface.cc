@@ -4435,7 +4435,7 @@ void graphics_to_ca_representation(int imol) {
 void graphics_to_ca_plus_ligands_representation   (int imol) { 
    if (is_valid_model_molecule(imol)) { 
       graphics_info_t g;
-      g.molecules[imol].ca_plus_ligands_representation();
+      g.molecules[imol].ca_plus_ligands_representation(g.Geom_p());
       graphics_draw();
    }
    std::vector<std::string> command_strings;
@@ -4497,7 +4497,7 @@ void graphics_to_sec_struct_bonds_representation(int imol) {
 void graphics_to_ca_plus_ligands_sec_struct_representation(int imol) { 
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) { 
-      g.molecules[imol].ca_plus_ligands_sec_struct_representation();
+      g.molecules[imol].ca_plus_ligands_sec_struct_representation(g.Geom_p());
       std::vector<std::string> command_strings;
       command_strings.push_back("graphics-to-ca-plus-ligands-sec-struct-representation");
       command_strings.push_back(graphics_info_t::int_to_string(imol));
@@ -4512,8 +4512,9 @@ void graphics_to_ca_plus_ligands_sec_struct_representation(int imol) {
 
 void graphics_to_rainbow_representation(int imol) {
 
-   if (is_valid_model_molecule(imol)) { 
-      graphics_info_t::molecules[imol].ca_plus_ligands_rainbow_representation();
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      g.molecules[imol].ca_plus_ligands_rainbow_representation(g.Geom_p());
       std::vector<std::string> command_strings;
       // BL says:: or maybe we want to keep the following name and change above
       //command_strings.push_back("graphics-to-ca-plus-ligands-rainbow-representation");

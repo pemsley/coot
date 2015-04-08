@@ -5997,7 +5997,31 @@ coot::util::rotate_residue(mmdb::Residue *residue_p,
 	 }
       }
    } 
-} 
+}
+
+
+std::string
+coot::util::cis_peptide_info_t::string() const {
+
+   std::string s;
+   s += chain_id_1;
+   s += " ";
+   s += int_to_string(resno_1);
+   if (! ins_code_1.empty()) { 
+      s += " ";
+      s += ins_code_1;
+   }
+   s += " - ";
+   s += chain_id_2;
+   s += " ";
+   s += int_to_string(resno_2);
+   if (! ins_code_2.empty()) { 
+      s += " ";
+      s += ins_code_2;
+   }
+   return s;
+}
+
 
 
 // We ignore the issue of alt confs because from refinement/reg we

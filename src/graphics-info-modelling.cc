@@ -2910,7 +2910,7 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
        molecules[imol_moving_atoms].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS) {
       
       Bond_lines_container bonds;
-      bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, 1.0, 4.7);
+      bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, Geom_p(), 1.0, 4.7);
       regularize_object_bonds_box.clear_up();
       regularize_object_bonds_box = bonds.make_graphical_bonds();
    } else {
@@ -4100,18 +4100,34 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 
 	    // Cis peptides:
 
-	    int n_cis = coot::util::count_cis_peptides(moving_atoms_asc->mol);
+
+	    std::vector<coot::util::cis_peptide_info_t> cis_pep_info_vec =
+	       coot::util::cis_peptides_info_from_coords(moving_atoms_asc->mol);
+
+	    int n_cis = cis_pep_info_vec.size();
+	    
 	    // std::cout << "DEBUG:: End ref: have " << n_cis << " CIS peptides "
 	    // << std::endl;
 
 	    if (n_cis > graphics_info_t::moving_atoms_n_cis_peptides) {
 	       if (n_cis == 1) {
-		  s += "\nWARNING: A CIS peptide has been introduced\n";
+		  s += "\nWARNING: A CIS peptide ";
+		  s += cis_pep_info_vec[0].string();
+		  s += " has been introduced\n";
 	       } else {
 		  if ((n_cis - graphics_info_t::moving_atoms_n_cis_peptides) > 1) {
-		     s += "\nWARNING: An extra CIS peptide has been introduced\n";
-		  } else { 
 		     s += "\nWARNING: Extra CIS peptides have been introduced\n";
+		     s += "\nWARNING: We now have thse CIS peptides:\n";
+		     for (unsigned int i=0; i<cis_pep_info_vec.size(); i++) { 
+			s += cis_pep_info_vec[i].string();
+			s += "\n";
+		     }
+		  } else { 
+		     s += "\nWARNING: We now have thse CIS peptides:\n";
+		     for (unsigned int i=0; i<cis_pep_info_vec.size(); i++) { 
+			s += cis_pep_info_vec[i].string();
+			s += "\n";
+		     }
 		  }
 	       }
 	    }

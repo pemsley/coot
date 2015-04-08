@@ -1058,10 +1058,8 @@ short int graphics_info_t::state_language = 1; // scheme
 // directory saving:
 std::string graphics_info_t::directory_for_fileselection = ""; 
 std::string graphics_info_t::directory_for_saving_for_fileselection = ""; 
-#if (GTK_MAJOR_VERSION > 1)
 std::string graphics_info_t::directory_for_filechooser = "";
 std::string graphics_info_t::directory_for_saving_for_filechooser = "";
-#endif // GTK_MAJOR_VERSION
 
 
 // Residue info
@@ -1086,7 +1084,7 @@ short int graphics_info_t::show_citation_notice = 0; // on by default :)
 short int graphics_info_t::have_fixed_points_sheared_drag_flag = 0;
 int       graphics_info_t::dragged_refinement_steps_per_frame = 80;
 short int graphics_info_t::dragged_refinement_refine_per_frame_flag = 0;
-double    graphics_info_t::refinement_drag_elasticity = 0.1;
+double    graphics_info_t::refinement_drag_elasticity = 0.25;
 
 // save the restraints:
 //
@@ -1588,18 +1586,6 @@ init(GtkWidget *widget)
    // now that we have run this
    cos_sin cos_sin_table(1000);
 
-#if (GTK_MAJOR_VERSION == 1)
-   
-   /* Check if OpenGL (GLX extension) is supported. */
-   if (gdk_gl_query() == FALSE) {
-      g_print("OpenGL not supported\n");
-    return 0;
-   }
-  /* OpenGL functions can be called only if make_current returns true */
-   if (gtk_gl_area_make_current(GTK_GL_AREA(widget)))
-      init_gl_widget(widget);
-#else
-
    // 
    // what about glXMakeCurrent(dpy, Drawable, Context) here?
    // Bool glXMakeCurrent(Display * dpy,
@@ -1608,7 +1594,6 @@ init(GtkWidget *widget)
 
    init_gl_widget(widget);
 
-#endif
    return GL_TRUE;
 }
 
@@ -1822,12 +1807,8 @@ gint draw_hardware_stereo(GtkWidget *widget, GdkEventExpose *event) {
    add_quats(spin_quat, graphics_info_t::quat, graphics_info_t::quat);
 
    // draw it
-#if (GTK_MAJOR_VERSION == 1)
-   gtk_gl_area_swapbuffers(GTK_GL_AREA(widget));
-#else
    GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
    gdk_gl_drawable_swap_buffers(gldrawable);
-#endif
    return TRUE;
 }
 
@@ -1921,11 +1902,8 @@ gint draw_zalman_stereo(GtkWidget *widget, GdkEventExpose *event) {
 void gdkglext_finish_frame(GtkWidget *widget) {
 
    // should not even be called by GTK.
-#if (GTK_MAJOR_VERSION == 1)
-#else   
   GdkGLDrawable *gldrawable = gtk_widget_get_gl_drawable (widget);
   gdk_gl_drawable_gl_end (gldrawable);
-#endif
   
 } 
 
@@ -3462,7 +3440,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    // bindings.
 
    if (handled == 0) { // initial value
-      if (event->keyval == graphics_info_t::ncs_next_chain_skip_key) {
+      if (int(event->keyval) == graphics_info_t::ncs_next_chain_skip_key) {
 	 if (graphics_info_t::prefer_python) { 
 #if defined USE_PYTHON
 	    std::string python_command("skip_to_next_ncs_chain('forward')");
@@ -3477,7 +3455,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	 handled = TRUE;
       }
 
-      if (event->keyval == graphics_info_t::ncs_prev_chain_skip_key) {
+      if (int(event->keyval) == graphics_info_t::ncs_prev_chain_skip_key) {
 	 if (graphics_info_t::prefer_python) { 
 #if defined USE_PYTHON
 	    std::string python_command("skip_to_next_ncs_chain('backward')");
@@ -3493,7 +3471,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       }
 
       
-      if (event->keyval == graphics_info_t::update_go_to_atom_from_current_residue_key) {
+      if (int(event->keyval) == graphics_info_t::update_go_to_atom_from_current_residue_key) {
 	 update_go_to_atom_from_current_position();
 	 handled = TRUE;
       }
@@ -4244,7 +4222,6 @@ gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 // #endif
 
 
-#if (GTK_MAJOR_VERSION > 1)
 gint glarea_scroll_event(GtkWidget *widget, GdkEventScroll *event) {
 
    graphics_info_t info;
@@ -4271,7 +4248,6 @@ gint glarea_scroll_event(GtkWidget *widget, GdkEventScroll *event) {
    } 
    return TRUE;
 }
-#endif
 
 void handle_scroll_density_level_event(int scroll_up_down_flag) {
 

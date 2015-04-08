@@ -1,13 +1,10 @@
  
  0.8.2
 
+   o Own font colour changes on using Preferences
+
    o with enhanced-ligand, do you get a sane code-path if you do 
      File -> SMILES?
-
-   o Add the residue where a CIS peptide has been introduced.
-     - Dave Brown
-
-   o Change the drag so that I can drag a loop in a 3A data.
 
    o 6BP is badly modelled.  Wrong partial charges on Restraints
      editor on reading the PDBe ligand cif.
@@ -22,24 +19,6 @@
      usage - Emilia Arturo
 
    o Dave Lodowski alt-conf H problem.
-
-   o I noticed when adjusting the 'bond colours' using the slider in
-     'Edit/Bond Colours...' when an molecule (>1 chain) is 'coloured
-     by chain') with activated check mark 'Change colours for Carbons
-     only' only the colours of the first chain (chain A) can be
-     adjusted, the remaining chain(s) remain unchanged. In contrast,
-     this is not observed when 'Change colours for Carbons only' is
-     not ticked. I can't believe this is intentional?
-        - Christoph Parthier
-
-   o I've noticed that disulfide bonds are not drawn when color by
-     chain is activated in the Display Manager window. 
-	- Donald Damian
-
-   o in Jones' Rainbow hetgroups should be yellow (or grey?)
-
-   o in Jones' Rainbow for 2hvs, why can't I pick D125? (because it
-     doesn't have a P)
 
    o draw_generic_text() should have a user-setable font size.
 
@@ -154,4 +133,43 @@ Punt.
    o Fix the NCS master chain problem - Airlie McCoy
 
 * Done.
+
+   o Export the dots from HOLE.
+
+* Done.
+
+   o Add the residue where a CIS peptide has been introduced.
+     - Dave Brown
+
+* Done.
+
+   o Change the drag so that I can drag a loop in a 3A data.
+
+* Done.
+
+   o I noticed when adjusting the 'bond colours' using the slider in
+     'Edit/Bond Colours...' when an molecule (>1 chain) is 'coloured
+     by chain') with activated check mark 'Change colours for Carbons
+     only' only the colours of the first chain (chain A) can be
+     adjusted, the remaining chain(s) remain unchanged. In contrast,
+     this is not observed when 'Change colours for Carbons only' is
+     not ticked. I can't believe this is intentional?
+        - Christoph Parthier
+
+* "Feature", not a bug.
+
+   o I've noticed that disulfide bonds are not drawn when color by
+     chain is activated in the Display Manager window. 
+	- Donald Damian
+
+* Done.
+
+   o in Jones' Rainbow hetgroups should be yellow (or grey?)
+
+* Done.
+
+   o in Jones' Rainbow for 2hvs, why can't I pick D125? (because it
+     doesn't have a P)
+
+* Punt.
 

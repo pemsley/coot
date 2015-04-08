@@ -1562,7 +1562,7 @@ graphics_info_t::make_moving_atoms_graphics_object(const atom_selection_containe
 
       if (molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS) { 
 	 Bond_lines_container bonds;
-	 bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, 1.0, 4.7);
+	 bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, Geom_p(), 1.0, 4.7);
 	 // std::cout << "done CA bonds" << std::endl;
 	 regularize_object_bonds_box.clear_up();
 	 regularize_object_bonds_box = bonds.make_graphical_bonds();

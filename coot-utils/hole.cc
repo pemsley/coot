@@ -587,7 +587,7 @@ coot::hole::carve_a_map(const std::vector<std::pair<clipper::Coord_orth, double>
       clipper::Coord_grid cg = cm.coord_grid();
       // xmap.set_data(cg, 2);
       mask_around_coord(pt, r, &xmap);
-      std::cout << "info::" << cg.format() << " set to 2"  << std::endl;
+      // std::cout << "info::" << cg.format() << " set to 2"  << std::endl;
    }
 
    clipper::CCP4MAPfile mapout;
@@ -645,7 +645,7 @@ coot::hole::mask_around_coord(const clipper::Coord_orth &co, float atom_radius,
 	 }
       }
    }
-   std::cout << "nhit " << nhit << " nmiss " << nmiss << std::endl;
+   // std::cout << "nhit " << nhit << " nmiss " << nmiss << std::endl;
 }
 
 
@@ -707,7 +707,7 @@ coot::hole::carve_a_map(const std::vector<std::pair<clipper::Coord_orth, double>
       clipper::Coord_map  cm = cf.coord_map(grid);
       clipper::Coord_grid cg = cm.coord_grid();
       nxmap.set_data(cg, 0);
-      std::cout << "info::" << cg.format() << " set to 0"  << std::endl;
+      // std::cout << "info::" << cg.format() << " set to 0"  << std::endl;
    }
 
    clipper::CCP4MAPfile mapout;
