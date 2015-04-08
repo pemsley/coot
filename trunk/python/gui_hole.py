@@ -65,10 +65,12 @@ def hole_ify():
                 else:
                     # main?
                     print "hole", imol, start_pos, end_pos
+		    # get this from an entry ideally.
+		    export_dots_file_name = "hole_surface_dots.dat"
                     colour_map_multiplier = 1
                     colour_map_offset = 0
                     hole_args = [imol] + start_pos + end_pos + \
-                                [colour_map_multiplier, colour_map_offset, 1, True]
+                                [colour_map_multiplier, colour_map_offset, 1, True, export_dots_file_name]
                     print "BL DEBUG:: hole_args", hole_args
                     hole(*hole_args)
                     delete_event()

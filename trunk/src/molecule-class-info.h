@@ -1560,13 +1560,15 @@ public:        //                      public
    void makebonds(float min_dist, float max_dist); 
    void make_ca_bonds(float min_dist, float max_dist); 
    void make_ca_bonds();
-   void make_ca_plus_ligands_bonds();
+   void make_ca_plus_ligands_bonds(coot::protein_geometry *pg);
    void make_colour_by_chain_bonds(short int c_only_flag);
    void make_colour_by_molecule_bonds();
    void bonds_no_waters_representation();
    void bonds_sec_struct_representation();
-   void ca_plus_ligands_sec_struct_representation();
-   void ca_plus_ligands_rainbow_representation();
+   void ca_plus_ligands_sec_struct_representation(coot::protein_geometry *pg);
+   void ca_plus_ligands_rainbow_representation(coot::protein_geometry *pg);
+   void ca_representation();
+   void ca_plus_ligands_representation(coot::protein_geometry *pg);
    void b_factor_representation();
    void b_factor_representation_as_cas();
    void occupancy_representation();
@@ -2038,8 +2040,6 @@ public:        //                      public
    // 
    void bond_representation();
    //
-   void ca_representation();
-   void ca_plus_ligands_representation();
 
    float bonds_colour_map_rotation;
    short int bonds_rotate_colour_map_flag;

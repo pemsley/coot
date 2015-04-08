@@ -604,7 +604,7 @@ namespace coot {
 	    chain_id_1 = chain_id_1_in;
 	    residue_name_1 = residue_name_1_in;
 	    resno_1 = resno_1_in;
-	    ins_code_2 = ins_code_1_in;
+	    ins_code_1 = ins_code_1_in;
 	    chain_id_2 = chain_id_2_in;
 	    residue_name_2 = residue_name_2_in;
 	    resno_2 = resno_2_in;
@@ -627,6 +627,8 @@ namespace coot {
 	    model_number = cis->modNum;
 	    omega_torsion_angle = cis->measure;
 	 }
+
+	 std::string string() const;
 
 	 bool operator==(const cis_peptide_info_t &a) {
 	    bool r = 0;

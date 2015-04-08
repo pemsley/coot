@@ -774,7 +774,7 @@ graphics_info_t::activate_scroll_radio_button_in_display_manager(int imol) {
 	    wname += graphics_info_t::int_to_string(i);
 	    GtkWidget *w = lookup_widget(g.display_control_window(), wname.c_str());
 	    if (w) {
-	       if (i == g.scroll_wheel_map) {
+	       if (int(i) == g.scroll_wheel_map) {
 		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
 	       } else {
 		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), FALSE);

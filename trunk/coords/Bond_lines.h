@@ -49,9 +49,12 @@ namespace coot {
    enum bond_colour_t { COLOUR_BY_CHAIN=0,
 			COLOUR_BY_CHAIN_C_ONLY=20,
 			COLOUR_BY_ATOM_TYPE=1, 
-		       COLOUR_BY_SEC_STRUCT=2, DISULFIDE_COLOUR=3,
-                       COLOUR_BY_MOLECULE=4, COLOUR_BY_RAINBOW=5, 
-		       COLOUR_BY_OCCUPANCY=6, COLOUR_BY_B_FACTOR=7};
+			COLOUR_BY_SEC_STRUCT=2,
+			DISULFIDE_COLOUR=3,
+			COLOUR_BY_MOLECULE=4,
+			COLOUR_BY_RAINBOW=5, 
+			COLOUR_BY_OCCUPANCY=6,
+			COLOUR_BY_B_FACTOR=7 };
 
   class my_atom_colour_map_t { 
 
@@ -674,9 +677,11 @@ public:
 							coot::my_atom_colour_map_t acm,
 							float min_dist, float max_dist,
 							int bond_colour_type); 
-   void do_Ca_plus_ligands_bonds(atom_selection_container_t SelAtom, 
+   void do_Ca_plus_ligands_bonds(atom_selection_container_t SelAtom,
+				 coot::protein_geometry *pg,
 				 float min_dist, float max_dist);
    void do_Ca_plus_ligands_bonds(atom_selection_container_t SelAtom, 
+				 coot::protein_geometry *pg,
 				 float min_dist, float max_dist,
 				 int atom_colour_type); 
    void do_colour_by_chain_bonds(const atom_selection_container_t &asc,
@@ -689,6 +694,7 @@ public:
    void do_colour_sec_struct_bonds(const atom_selection_container_t &asc,
 				   float min_dist, float max_dist); 
    void do_Ca_plus_ligands_colour_sec_struct_bonds(const atom_selection_container_t &asc,
+						   coot::protein_geometry *pg,
 						   float min_dist, float max_dist); 
 
    atom_selection_container_t

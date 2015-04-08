@@ -2792,10 +2792,10 @@ molecule_class_info_t::make_ca_bonds() {
 }
 
 void
-molecule_class_info_t::make_ca_plus_ligands_bonds() { 
+molecule_class_info_t::make_ca_plus_ligands_bonds(coot::protein_geometry *geom_p) { 
 
-   Bond_lines_container bonds(graphics_info_t::Geom_p());
-   bonds.do_Ca_plus_ligands_bonds(atom_sel, 2.4, 4.7);
+   Bond_lines_container bonds(geom_p);
+   bonds.do_Ca_plus_ligands_bonds(atom_sel, geom_p, 2.4, 4.7);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
    
@@ -2834,6 +2834,8 @@ molecule_class_info_t::make_colour_by_molecule_bonds() {
 void 
 molecule_class_info_t::make_bonds_type_checked() {
 
+   graphics_info_t g; // urgh!  (But the best solution?)
+   
    if (bonds_box_type == coot::NORMAL_BONDS)
       makebonds();
    if (bonds_box_type == coot::BONDS_NO_HYDROGENS)
@@ -2847,15 +2849,15 @@ molecule_class_info_t::make_bonds_type_checked() {
    if (bonds_box_type == coot::COLOUR_BY_MOLECULE_BONDS)
       make_colour_by_molecule_bonds();
    if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS)
-      make_ca_plus_ligands_bonds();
+      make_ca_plus_ligands_bonds(g.Geom_p());
    if (bonds_box_type == coot::BONDS_NO_WATERS)
       bonds_no_waters_representation();
    if (bonds_box_type == coot::BONDS_SEC_STRUCT_COLOUR)
       bonds_sec_struct_representation();
    if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR)
-      ca_plus_ligands_sec_struct_representation();
+      ca_plus_ligands_sec_struct_representation(g.Geom_p());
    if (bonds_box_type == coot::COLOUR_BY_RAINBOW_BONDS)
-      ca_plus_ligands_rainbow_representation();
+      ca_plus_ligands_rainbow_representation(g.Geom_p());
    if (bonds_box_type == coot::COLOUR_BY_OCCUPANCY_BONDS)
       occupancy_representation();
    if (bonds_box_type == coot::COLOUR_BY_B_FACTOR_BONDS)
@@ -2866,7 +2868,6 @@ molecule_class_info_t::make_bonds_type_checked() {
    // That is called from many places....
    // 
    gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
-   graphics_info_t g; // urgh!  (But the best solution?)
    
    update_additional_representations(glci, g.Geom_p());
    update_fixed_atom_positions();

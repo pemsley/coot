@@ -1098,12 +1098,18 @@ PyObject *protein_db_loops_py(int imol_coords, PyObject *residues_specs, int imo
 /*! \name Coot's Hole implementation */
 
 /*! \brief starting piont and end point, colour map multiplier and
-  shall the probe radius graph be shown (dummy value currently). */
+  shall the probe radius graph be shown (dummy value currently).
+
+if export_dots_file_name string length is zero, then don't try to
+export the surface dots.
+
+*/
 void hole(int imol,
 	  float start_x, float start_y, float start_z,
 	  float   end_x, float   end_y, float   end_z, 
 	  float colour_map_multiplier, float colour_map_offset,
-	  int n_runs, bool show_probe_radius_graph_flag);
+	  int n_runs, bool show_probe_radius_graph_flag,
+	  std::string export_surface_dots_file_name);
 
 
 // GUI stuff

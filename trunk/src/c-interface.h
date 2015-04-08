@@ -3536,7 +3536,7 @@ int refinement_refine_per_frame_state();
 
 /*! \brief - the elasticity of the dragged atom in refinement mode.
 
-Default 0.1
+Default 0.33
 
  Bigger numbers mean bigger movement of the other atoms.*/
 void set_refinement_drag_elasticity(float e);

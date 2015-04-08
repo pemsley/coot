@@ -403,10 +403,10 @@ molecule_class_info_t::ca_representation() {
 }
 
 void
-molecule_class_info_t::ca_plus_ligands_representation() { 
+molecule_class_info_t::ca_plus_ligands_representation(coot::protein_geometry *geom) { 
 
    bonds_box.clear_up();
-   make_ca_plus_ligands_bonds();
+   make_ca_plus_ligands_bonds(geom);
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
 }
 
@@ -432,21 +432,22 @@ molecule_class_info_t::bonds_sec_struct_representation() {
   
 
 void 
-molecule_class_info_t::ca_plus_ligands_sec_struct_representation() { 
+molecule_class_info_t::ca_plus_ligands_sec_struct_representation(coot::protein_geometry *pg) { 
 
    // 
    Bond_lines_container bonds;
-   bonds.do_Ca_plus_ligands_colour_sec_struct_bonds(atom_sel, 2.4, 4.7);
+   bonds.do_Ca_plus_ligands_colour_sec_struct_bonds(atom_sel, pg, 2.4, 4.7);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR;
 }
 
 void
-molecule_class_info_t::ca_plus_ligands_rainbow_representation() {
+molecule_class_info_t::ca_plus_ligands_rainbow_representation(coot::protein_geometry *pg) {
 
    // 
    Bond_lines_container bonds;
-   bonds.do_Ca_plus_ligands_bonds(atom_sel, 2.4, 4.7,
+   bonds.do_Ca_plus_ligands_bonds(atom_sel, pg,
+				  2.4, 4.7,
 				  coot::COLOUR_BY_RAINBOW); // not COLOUR_BY_RAINBOW_BONDS
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::COLOUR_BY_RAINBOW_BONDS;
@@ -471,7 +472,7 @@ molecule_class_info_t::b_factor_representation_as_cas() {
    std::cout << "molecule_class_info_t::b_factor_representation_as_cas with "
 	     << "bond type " << bond_type << std::endl;
    Bond_lines_container bonds;
-   bonds.do_Ca_plus_ligands_bonds(atom_sel, 2.4, 4.7, bond_type);
+   bonds.do_Ca_plus_ligands_bonds(atom_sel, NULL, 2.4, 4.7, bond_type); // pass a dictionary
    bonds_box = bonds.make_graphical_bonds();
    // bonds_box_type = coot::COLOUR_BY_B_FACTOR_BONDS;
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR;
