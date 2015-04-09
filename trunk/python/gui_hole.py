@@ -16,21 +16,31 @@ def hole_ify():
     hbox = gtk.VBox(False, 0)
     hbox_pos_buttons = gtk.HBox(False, 0)
     hbox_calc_cancel_buttons = gtk.HBox(False, 0)
-    start_button = gtk.Button("Set Start Point")
-    end_button   = gtk.Button("Set End Point")
+    start_button = gtk.Button("  Set Start Point  ")
+    end_button   = gtk.Button("  Set End Point  ")
+    h_sep = gtk.HSeparator()
     calculate_button = gtk.Button("Calculate")
     cancel_button = gtk.Button("Cancel")
+    hole_export_entry = gtk.Entry()
+    export_text = gtk.Label("Export surface dots to File: ")
+    export_hbox = gtk.HBox(False, 0)
     option_menu_and_model_mol_list = generic_molecule_chooser(hbox,
                                                               "HOLE-ify molecule: ")
 
     window.add(vbox)
-    hbox_pos_buttons.pack_start(start_button, True, True, 6)
-    hbox_pos_buttons.pack_start(end_button, True, True, 6)
-    hbox_calc_cancel_buttons.pack_start(calculate_button, True, True, 6)
-    hbox_calc_cancel_buttons.pack_start(cancel_button, True, True, 6)
+    hbox_pos_buttons.pack_start(start_button, False, False, 6)
+    hbox_pos_buttons.pack_start(end_button, False, False, 6)
+    hbox_calc_cancel_buttons.pack_start(calculate_button, False, False, 6)
+    hbox_calc_cancel_buttons.pack_start(cancel_button, False, False, 6)
+    export_hbox.pack_start(export_text, False, False, 6)
+    export_hbox.pack_start(hole_export_entry, False, False, 6)
     vbox.pack_start(hbox, True, True, 6)
     vbox.pack_start(hbox_pos_buttons, True, True, 6)
+    vbox.pack_start(export_hbox, True, True, 6)
+    vbox.pack_start(h_sep)
     vbox.pack_start(hbox_calc_cancel_buttons, True, True, 6)
+
+    hole_export_entry.set_text("hole_surface_dots.dat")
 
     def start_button_cb(*args):
         global start_pos
@@ -65,12 +75,13 @@ def hole_ify():
                 else:
                     # main?
                     print "hole", imol, start_pos, end_pos
-		    # get this from an entry ideally.
-		    export_dots_file_name = "hole_surface_dots.dat"
+                    # get this from an entry ideally.
+                    export_dots_file_name = hole_export_entry.get_text()
                     colour_map_multiplier = 1
                     colour_map_offset = 0
                     hole_args = [imol] + start_pos + end_pos + \
-                                [colour_map_multiplier, colour_map_offset, 1, True, export_dots_file_name]
+                                [colour_map_multiplier, colour_map_offset, 1,
+                                 True, export_dots_file_name]
                     print "BL DEBUG:: hole_args", hole_args
                     hole(*hole_args)
                     delete_event()
