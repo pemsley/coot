@@ -12,7 +12,21 @@
 
   o FEATURE: Use pyrogen by default if mogul available [JED]
 
+  o FEATURE: Surface points are now exported from HOLE.
+
+  o FEATURE: Clicking on a Het-group now reports the name in the status bar
+             [Dave Brown]
+
+  o CHANGE:  Refinement drag elasticity increased.
+
   o CHANGE:  EDS Resolution addeded to PDB Validation dialog [Frank von Delft]
+
+  o CHANGE:  The Residue numbers are reported in the refinement dialog
+             when creating a cis-peptide [Dave Brown]
+
+  o CHANGE:  Ligands in Rainbow mode are no longer blue
+
+  o CHANGE:  Colour-by-chain now shows disulphide bonds
 
   o BUG-FIX: Improvement in PDB->SHELXL ins output [Andrea Thorn]
 
@@ -32,6 +46,11 @@
 
   o BUG-FIX: PISA interface works with newer version of pisa 
              [Maria Jose Sanchez Barrena]
+
+  o BUG-FIX: Only check once for probe when showing the Validation menu.
+  
+  o BUG-FIX: Resetting of Own font colour on opening the preferences
+             dialog fixed.
 
 
 -----

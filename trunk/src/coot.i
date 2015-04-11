@@ -12,6 +12,7 @@
 #include "globjects.h"  //includes gtk/gtk.h
 #include "coot-utils/coot-coord-utils.hh"
 #include "c-interface.h"
+#include "c-interface-preferences.h"
 #include "c-interface-database.hh"
 #include "c-interface-python.hh"
 #include "c-interface-ligands-swig.hh"
@@ -47,6 +48,7 @@
 %ignore list_nomenclature_errors(int);
 
 %include "c-interface.h"
+%include "c-interface-preferences.h"
 %include "cc-interface-ncs.hh"
 %include "cc-interface.hh"
 %include "cc-interface-scripting.hh"

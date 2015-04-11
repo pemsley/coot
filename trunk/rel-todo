@@ -1,8 +1,6 @@
  
  0.8.2
 
-   o Own font colour changes on using Preferences
-
    o with enhanced-ligand, do you get a sane code-path if you do 
      File -> SMILES?
 
@@ -173,3 +171,6 @@ Punt.
 
 * Punt.
 
+   o Own font colour changes on using Preferences
+
+* Done.

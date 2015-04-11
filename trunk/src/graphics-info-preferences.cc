@@ -34,6 +34,7 @@
 #include "interface.h"
 #include "graphics-info.h"
 #include "c-interface.h"
+#include "c-interface-preferences.h"
 #include "cc-interface.hh"
 #include "c-interface-scm.hh"
 #include "c-inner-main.h"
@@ -223,8 +224,10 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
 	 // white
 	 commands.push_back(state_command("set-background-colour", 1, 1, 1, il));
        } else {
-	 // other colour
-	 commands.push_back(state_command("set-background-colour", fval1, fval2, fval3, il));
+	  // other colour
+	  std::cout << "on save other colour: " << fval1 << " " << fval2 << " " << fval3
+		    << std::endl;
+	  commands.push_back(state_command("set-background-colour", fval1, fval2, fval3, il));
        }
        break;
 
@@ -614,6 +617,10 @@ graphics_info_t::make_preferences_internal() {
   p.fvalue1 = graphics_info_t::font_colour.red;
   p.fvalue2 = graphics_info_t::font_colour.green;
   p.fvalue3 = graphics_info_t::font_colour.blue;
+  ret.push_back(p);
+
+  p.preference_type = PREFERENCES_FONT_OWN_COLOUR_FLAG;
+  p.ivalue1 = -1; // unset
   ret.push_back(p);
 
   // Pink pointer size

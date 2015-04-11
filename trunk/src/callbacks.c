@@ -56,6 +56,7 @@
 
 
 #include "c-interface.h"
+#include "c-interface-preferences.h"
 #include "positioned-widgets.h"
 
 #include "generic-display-objects-c.h"
@@ -1434,10 +1435,9 @@ on_go_to_atom_cancel_button_clicked    (GtkButton       *button,
                                         gpointer         user_data)
 {
   GtkWidget *widget; 
-  GtkWidget *optionmenu; 
   
   widget     = lookup_widget(GTK_WIDGET(button), "goto_atom_window");
-  optionmenu = lookup_widget(GTK_WIDGET(button), "go_to_atom_molecule_optionmenu");
+  lookup_widget(GTK_WIDGET(button), "go_to_atom_molecule_optionmenu");
 /*   save_go_to_atom_mol_menu_ative_position(optionmenu);  no longer 20050526 */
 
 /*   printf("go to atom_window: %ld\n", widget ); */
@@ -2174,8 +2174,7 @@ on_save_coords_dialog_save_button_clicked (GtkButton       *button,
   GtkWidget *dialog;
   GtkWidget *widget;
   GtkWidget *menu;
-  GtkWidget *active_menu;
-  GtkWidget *option_menu; 
+  GtkWidget *option_menu;
   char *imol_str;
   int imol_of_save_active_menu_item = 0; 
   int *itmp_p;
@@ -2187,7 +2186,7 @@ on_save_coords_dialog_save_button_clicked (GtkButton       *button,
 			      "save_coords_optionmenu");
 
   menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
-  active_menu = gtk_menu_get_active(GTK_MENU(menu));
+  gtk_menu_get_active(GTK_MENU(menu));
 
   /* we need to know the molecule number of the active menu item.  Now
      that the save molecule options use the standard coordinate option
@@ -2195,7 +2194,7 @@ on_save_coords_dialog_save_button_clicked (GtkButton       *button,
      graphics_info_t static.  We provide a c-interface access to that
      varible in the case (where we need access to it from the C
      interface) */
-/*   imol_str = gtk_object_get_user_data(GTK_OBJECT(active_menu));  old way*/
+
   imol_of_save_active_menu_item = save_molecule_number_from_option_menu();
   if (imol_of_save_active_menu_item == -1) { 
      info_dialog("No molecules available to save.");
@@ -6385,7 +6384,6 @@ on_preferences1_activate               (GtkMenuItem     *menuitem,
 }
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_preferences_general_radiotoolbutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -6393,10 +6391,8 @@ on_preferences_general_radiotoolbutton_toggled
 {
   show_hide_preferences_tabs(toggletoolbutton, COOT_GENERAL_PREFERENCES);
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_preferences_bond_radiotoolbutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -6404,10 +6400,8 @@ on_preferences_bond_radiotoolbutton_toggled
 {
   show_hide_preferences_tabs(toggletoolbutton, COOT_BOND_PREFERENCES);
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
 void
 on_preferences_map_radiotoolbutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -6415,10 +6409,9 @@ on_preferences_map_radiotoolbutton_toggled
 {
   show_hide_preferences_tabs(toggletoolbutton, COOT_MAP_PREFERENCES);
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
+
 void
 on_preferences_geometry_radiotoolbutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -6426,10 +6419,10 @@ on_preferences_geometry_radiotoolbutton_toggled
 {
   show_hide_preferences_tabs(toggletoolbutton, COOT_GEOMETRY_PREFERENCES);
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
+
+
 void
 on_preferences_colour_radiotoolbutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -6437,10 +6430,10 @@ on_preferences_colour_radiotoolbutton_toggled
 {
   show_hide_preferences_tabs(toggletoolbutton, COOT_COLOUR_PREFERENCES);
 }
-#endif /* GTK_MAJOR_VERSION */
 
 
-#if (GTK_MAJOR_VERSION >1)
+
+
 void
 on_preferences_other_radiotoolbutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -6448,7 +6441,7 @@ on_preferences_other_radiotoolbutton_toggled
 {
   show_hide_preferences_tabs(toggletoolbutton, COOT_OTHER_PREFERENCES);
 }
-#endif /* GTK_MAJOR_VERSION */
+
 
 void
 on_preferences_ok_button_clicked       (GtkButton       *button,
@@ -7472,7 +7465,7 @@ on_preferences_font_size_others_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
+
   if (togglebutton->active) {
     GtkWidget *w;
     w = lookup_widget(GTK_WIDGET(togglebutton), "preferences_font_size_combobox");
@@ -7481,11 +7474,8 @@ on_preferences_font_size_others_radiobutton_toggled
     preferences_internal_change_value_int(PREFERENCES_FONT_SIZE, ival);
     set_font_size(ival);
   }
-#endif
-
 }
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_preferences_font_size_combobox_changed
                                         (GtkComboBox     *combobox,
@@ -7500,7 +7490,6 @@ on_preferences_font_size_combobox_changed
   set_font_size(ival);
 
 }
-#endif /* GTK_MAJOR_VERSION */
 
 void
 on_preferences_font_colour_default_radiobutton_toggled
@@ -7519,43 +7508,53 @@ on_preferences_font_colour_own_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
   GtkWidget *w;
   GdkColor font_colour;
   float fval1;
   float fval2;
   float fval3;
-  w = lookup_widget(GTK_WIDGET(togglebutton), "preferences_font_colorbutton");
-  gtk_color_button_get_color(GTK_COLOR_BUTTON(w), &font_colour);
-  fval1 = (float)font_colour.red / 65535;
-  fval2 = (float)font_colour.green / 65535;
-  fval3 = (float)font_colour.blue / 65535;
+  int previous_state;
+
+  if (togglebutton->active) {
+
+    previous_state = preferences_internal_font_own_colour_flag();
+
+    if (previous_state != -1) { 	/* not unset */
+      w = lookup_widget(GTK_WIDGET(togglebutton), "preferences_font_colorbutton");
+      gtk_color_button_get_color(GTK_COLOR_BUTTON(w), &font_colour);
+      fval1 = (float) font_colour.red   / (float) 65535;
+      fval2 = (float) font_colour.green / (float) 65535;
+      fval3 = (float) font_colour.blue  / (float) 65535;
     
-  preferences_internal_change_value_float3(PREFERENCES_FONT_COLOUR, fval1, fval2, fval3);
-  set_font_colour(fval1, fval2, fval3);
-#endif /* GTK_MAJOR_VERSION */
+      preferences_internal_change_value_float3(PREFERENCES_FONT_COLOUR, fval1, fval2, fval3);
+      printf("     set_font_colour() - path B\n");
+      set_font_colour(fval1, fval2, fval3);
+      preferences_internal_change_value_int(PREFERENCES_FONT_OWN_COLOUR_FLAG, 1);
+    }
+  }
 }
 
 
-#if (GTK_MAJOR_VERSION > 1)
+
 void
 on_preferences_font_colorbutton_color_set
                                         (GtkColorButton  *colorbutton,
                                         gpointer         user_data)
 {
+
   GdkColor font_colour;
   GtkWidget *w;
   float fval1;
   float fval2;
   float fval3;
   gtk_color_button_get_color(colorbutton, &font_colour);
-  fval1 = (float)font_colour.red / 65535;
-  fval2 = (float)font_colour.green / 65535;
-  fval3 = (float)font_colour.blue / 65535;
+  fval1 = (float) font_colour.red   / (float) 65535;
+  fval2 = (float) font_colour.green / (float) 65535;
+  fval3 = (float) font_colour.blue  / (float) 65535;
     
   preferences_internal_change_value_float3(PREFERENCES_FONT_COLOUR, fval1, fval2, fval3);
   set_font_colour(fval1, fval2, fval3);
-  // should set own colour button active (if colours away from default)
+  /* should set own colour button active (if colours away from default) */
   if (fval1  >= 0.999 && 
       fval2 >= 0.799 && fval2 <= 0.801 &&
       fval3 >= 0.799 && fval3 <= 0.801) {
@@ -7564,13 +7563,11 @@ on_preferences_font_colorbutton_color_set
                        "preferences_font_colour_default_radiobutton");
      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
   } else {
-     // set own button active
-     w = lookup_widget(GTK_WIDGET(colorbutton),
-                       "preferences_font_colour_own_radiobutton");
-     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
+    /* set own font colour button active */
+    w = lookup_widget(GTK_WIDGET(colorbutton), "preferences_font_colour_own_radiobutton");
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
   }
 }
-#endif
 
 void
 on_preferences_font_colorbutton_clicked
