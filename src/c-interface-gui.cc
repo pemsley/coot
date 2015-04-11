@@ -71,6 +71,7 @@
 #include "graphics-info.h"
 #include "interface.h"
 #include "c-interface.h"
+#include "c-interface-preferences.h"
 #include "cc-interface.hh"
 #include "cc-interface-scripting.hh"
 #include "cmtz-interface.hh"

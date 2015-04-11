@@ -48,6 +48,9 @@
 #define PREFERENCES_MAIN_TOOLBAR_ICONS            39
 #define PREFERENCES_ACCEPT_DIALOG_DOCKED_SHOW     40
 #define PREFERENCES_MAP_COLOURS_MAP_ROTATION      41
+#define PREFERENCES_FONT_OWN_COLOUR_FLAG          42 // values -1: unset
+                                                     //         0: no
+                                                     //         1: yes
 
 #define MODEL_TOOLBAR                              0
 #define MAIN_TOOLBAR                               1

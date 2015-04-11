@@ -109,6 +109,7 @@
 
 #include "c-interface.h"
 #include "cc-interface.hh"
+#include "c-interface-preferences.h"
 
 #include "coot-surface/rgbreps.h"
 

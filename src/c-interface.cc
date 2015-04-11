@@ -3021,6 +3021,11 @@ int get_font_size() {
 /*! \brief set the colour of the atom label font - the arguments are
   in the range 0->1 */
 void set_font_colour(float red, float green, float blue) {
+
+   if (0) 
+      std::cout << "--------------- set_font_colour called "
+		<< red << " " << green << " " << blue << std::endl;
+   
    graphics_info_t::font_colour = coot::colour_holder(red, green, blue);
    graphics_draw();
 }

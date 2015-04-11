@@ -62,6 +62,7 @@
 #include "graphics-info.h"
 #include "interface.h"
 #include "c-interface.h"
+#include "c-interface-preferences.h"
 #include "cc-interface.hh"
 #include "coot-preferences.h"
 
@@ -77,32 +78,34 @@ void preferences() {
 void show_preferences(){
 
   GtkWidget *w = create_preferences();
-  GtkWidget *scrolled_win_model_toolbar = lookup_widget(w, "preferences_model_toolbar_icons_scrolledwindow");
-  fill_preferences_model_toolbar_icons(w, scrolled_win_model_toolbar);
-  GtkWidget *scrolled_win_main_toolbar = lookup_widget(w, "preferences_main_toolbar_icons_scrolledwindow");
-  fill_preferences_main_toolbar_icons(w, scrolled_win_main_toolbar);
-  gtk_widget_show(w);
   graphics_info_t::preferences_widget = w;
 
-#if (GTK_MAJOR_VERSION > 1)
-  GtkComboBox *combobox;
-  // fill the bond combobox
-  combobox = GTK_COMBO_BOX(lookup_widget(w, "preferences_bond_width_combobox"));
-  for (int j=1; j<21; j++) {
-    std::string s = graphics_info_t::int_to_string(j);
-    gtk_combo_box_append_text(combobox, s.c_str());
+  if (0) { 
+     GtkWidget *scrolled_win_model_toolbar = lookup_widget(w, "preferences_model_toolbar_icons_scrolledwindow");
+     fill_preferences_model_toolbar_icons(w, scrolled_win_model_toolbar);
+     GtkWidget *scrolled_win_main_toolbar = lookup_widget(w, "preferences_main_toolbar_icons_scrolledwindow");
+     fill_preferences_main_toolbar_icons(w, scrolled_win_main_toolbar);
+
+     GtkComboBox *combobox;
+     // fill the bond combobox
+     combobox = GTK_COMBO_BOX(lookup_widget(w, "preferences_bond_width_combobox"));
+     for (int j=1; j<21; j++) {
+	std::string s = graphics_info_t::int_to_string(j);
+	gtk_combo_box_append_text(combobox, s.c_str());
+     }
+     // fill the font combobox
+     combobox = GTK_COMBO_BOX(lookup_widget(w, "preferences_font_size_combobox"));
+     std::vector<std::string> fonts;  
+     fonts.push_back("Times Roman 10");
+     fonts.push_back("Times Roman 24");
+     fonts.push_back("Fixed 8/13");
+     fonts.push_back("Fixed 9/15");
+     for (unsigned int j=0; j<fonts.size(); j++) {
+	gtk_combo_box_append_text(combobox, fonts[j].c_str());
+     }
   }
-  // fill the font combobox
-  combobox = GTK_COMBO_BOX(lookup_widget(w, "preferences_font_size_combobox"));
-  std::vector<std::string> fonts;  
-  fonts.push_back("Times Roman 10");
-  fonts.push_back("Times Roman 24");
-  fonts.push_back("Fixed 8/13");
-  fonts.push_back("Fixed 9/15");
-  for (unsigned int j=0; j<fonts.size(); j++) {
-    gtk_combo_box_append_text(combobox, fonts[j].c_str());
-  }
-#endif
+
+  gtk_widget_show(w);
 
 }
 
@@ -123,7 +126,6 @@ int show_mark_cis_peptides_as_bad_state() {
 
 }
 
-#if (GTK_MAJOR_VERSION > 1)
 void show_hide_preferences_tabs(GtkToggleToolButton *toggletoolbutton, int preference_type) {
 
   GtkWidget *frame;
@@ -159,7 +161,7 @@ void show_hide_preferences_tabs(GtkToggleToolButton *toggletoolbutton, int prefe
   }
 
 }
-#endif // GTK_MAJOR_VERSION
+
 
 void make_preferences_internal() {
   
@@ -540,10 +542,8 @@ void update_preference_gui() {
 	w = lookup_widget(dialog, "preferences_font_size_others_radiobutton");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
 	ivalue -= 4;      // offset
-#if (GTK_MAJOR_VERSION > 1)
 	GtkComboBox *combobox = GTK_COMBO_BOX(lookup_widget(w, "preferences_font_size_combobox"));
 	gtk_combo_box_set_active(combobox, ivalue);
-#endif
       }
       break;
 
@@ -562,19 +562,18 @@ void update_preference_gui() {
 	font_colour.red   = (guint)(1.0 * 65535);
 	font_colour.green = (guint)(0.8 * 65535);
 	font_colour.blue  = (guint)(0.8 * 65535);
+
       } else {
 	// other colour
-#if (GTK_MAJOR_VERSION > 1)
+
 	w = lookup_widget(dialog, "preferences_font_colour_own_radiobutton");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(w), TRUE);
 	font_colour.red   = (guint)(fval1 * 65535);
 	font_colour.green = (guint)(fval2 * 65535);
 	font_colour.blue  = (guint)(fval3 * 65535);
-#endif
       }
-#if (GTK_MAJOR_VERSION > 1)
       gtk_color_button_set_color(GTK_COLOR_BUTTON(colour_button), &font_colour);
-#endif
+
       break;
 
     case PREFERENCES_PINK_POINTER:
@@ -1543,3 +1542,18 @@ void try_load_python_extras_dir() {
 void set_button_label_for_external_refinement(const char *button_label) {
    graphics_info_t::external_refinement_program_button_label = button_label;
 }
+
+
+int preferences_internal_font_own_colour_flag() {
+
+   int r = -1; 
+   graphics_info_t g;
+   for (int i=0; i<g.preferences_internal.size(); i++) {
+      if (g.preferences_internal[i].preference_type == PREFERENCES_FONT_OWN_COLOUR_FLAG) {
+	 r = g.preferences_internal[i].ivalue1;
+	 break;
+      }
+   }
+
+   return r;
+} 
