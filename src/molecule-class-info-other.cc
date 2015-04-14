@@ -5817,7 +5817,7 @@ molecule_class_info_t::find_water_baddies_AND(float b_factor_lim, const clipper:
 					atom_sel.atom_selection[i]->z);
 	       den = coot::util::density_at_point(xmap_in, a);
 	       
-	       if (den > outlier_sigma_level*map_sigma) {
+	       if (den > outlier_sigma_level*map_sigma || map_sigma < 0 || outlier_sigma_level < 0) {
 		  idx.push_back(i);
 	       }
 	    }
@@ -5836,6 +5836,10 @@ molecule_class_info_t::find_water_baddies_AND(float b_factor_lim, const clipper:
 			    atom_sel.atom_selection[idx[i]]->z);
       double dist_to_atoms_min =  99999;
       double dist_to_atoms_max = -99999;
+
+	if( min_dist < 0 || max_dist < 0)
+		continue;
+
       for (int iat=0; iat<atom_sel.n_selected_atoms; iat++) {
 	 if (atom_sel.atom_selection[idx[i]] != atom_sel.atom_selection[iat]) {
 	    bool is_H = false;
