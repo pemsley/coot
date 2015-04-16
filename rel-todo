@@ -13,6 +13,8 @@
      them. How can I hide the hydrogen in symmetry-related coordinates. 
                  -- Zhenwei Su.
 
+* Looks OK to me.  Email him.
+
    o Improve the colours for density fit analysis - and note FEM map
      usage - Emilia Arturo
 
@@ -20,22 +22,9 @@
 
    o draw_generic_text() should have a user-setable font size.
 
-   o Does Acedrg get A3D correct?  (libcheck does not)  A3D in 4ND2
-
-   o in CA + Ligands mode with Hydrogen atoms off: the hydrogen atoms
-     are still displayed on the ligand: 
-      -- Alex Wlodawer
-
-   o An O in 0BU thumbnail falls off the screen (4mtz)
-
    o CSHL:
 
        * Scaling of density fit analysis with very fine grid
-
-       * Return should accept in Rotamer mode
-    
-       * Try Ramachandran restraints with hydrogen atoms, look at
-         clash score, low resolution maps
 
 
    o compile a coot without python
@@ -49,6 +38,8 @@
 * Nasty - and interesting.
 
    o reading a pdbfile that is a directory causes mmdb2 to hang?
+
+* Reported.  Check it at the user-level - makes sense.
 
    o jiggle fit leaves behind atoms that have zero occupancy? 
      e.g. jiggle-fit the acedrg output of Acedrg on I79.cif in 3rvb
@@ -174,3 +165,31 @@ Punt.
    o Own font colour changes on using Preferences
 
 * Done.
+
+
+   o Does Acedrg get A3D correct?  (libcheck does not)  A3D in 4ND2
+
+* Looks fine to me
+
+   o An O in 0BU thumbnail falls off the screen (4mtz)
+
+* Done.
+
+   o in CA + Ligands mode with Hydrogen atoms off: the hydrogen atoms
+     are still displayed on the ligand: 
+      -- Alex Wlodawer
+
+* Done.
+
+       * Return should accept in Rotamer mode
+    
+* Too hard for too trivial a gain. (rotamer_dialog needs to be used
+  cleanly - i.e. clear the pointer when the dialog is destroyed)
+
+
+       * Try Ramachandran restraints with hydrogen atoms, look at
+         clash score, low resolution maps
+
+* Punt
+
+

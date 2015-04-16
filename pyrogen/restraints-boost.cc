@@ -141,9 +141,11 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
    mmdb::Residue *r = geom.get_residue(comp_id, idealized, try_autoload_if_needed);
 
    std::pair<bool, dictionary_residue_restraints_t> rest = geom.get_monomer_restraints(comp_id);
+
    if (rest.first) {
 
       if (r) {
+
 	 // makes a 3d conformer
 
 	 // 20140618: This was false - now try true so that it processes 110 (i.e. no more
@@ -151,36 +153,44 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	 
 	 // 20141115: But if this is true, then 313 fails to find C-OC single or
 	 //           double bonds (it should be deloc - it's a carboxylate)
-	 // 
-	 bool undelocalize = true;
-	 RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest.second, "", undelocalize);
-
-	 RDKit::MolOps::assignStereochemistry(mol_rw);
-	 RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
-
-	 // Here test that the propety mmcif_chiral_volume_sign has
-	 // been set on atoms of mol_rw and m
 	 //
-	 if (0) { 
-	    for (unsigned int iat=0; iat<m->getNumAtoms(); iat++) { 
-	       RDKit::ATOM_SPTR at_p = (*m)[iat];
-	       try {
-		  std::string name;
-		  std::string cv;
-		  at_p->getProp("name", name);
-		  at_p->getProp("mmcif_chiral_volume_sign", cv);
-		  std::cout << "m: name " << name << " " << cv << std::endl;
-	       }
-	       catch (const KeyErrorException &err) {
-		  std::cout << "m: no name or cv " << std::endl;
+
+	 try { 
+	    bool undelocalize = true;
+	    RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest.second, "", undelocalize);
+
+	    RDKit::MolOps::assignStereochemistry(mol_rw);
+	    RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
+
+	    // Here test that the propety mmcif_chiral_volume_sign has
+	    // been set on atoms of mol_rw and m
+	    //
+	    if (false) { 
+	       for (unsigned int iat=0; iat<m->getNumAtoms(); iat++) { 
+		  RDKit::ATOM_SPTR at_p = (*m)[iat];
+		  try {
+		     std::string name;
+		     std::string cv;
+		     at_p->getProp("name", name);
+		     at_p->getProp("mmcif_chiral_volume_sign", cv);
+		     std::cout << "m: name " << name << " " << cv << std::endl;
+		  }
+		  catch (const KeyErrorException &err) {
+		     std::cout << "m: no name or cv " << std::endl;
+		  }
 	       }
 	    }
+
+	    // debug.  OK, so the bond orders are undelocalized here.
+	    // debug_rdkit_molecule(&mol_rw);
+      
+	    return m;
 	 }
 
-	 // debug.  OK, so the bond orders are undelocalized here.
-	 // debug_rdkit_molecule(&mol_rw);
-      
-	 return m;
+	 catch (const std::runtime_error &rte) {
+	    std::cout << "ERROR:: " << rte.what() << std::endl;
+	 }
+	 
       } else {
 
 	 // Are you here unexpectedly?  That's because the input cif dictionary doesn't have

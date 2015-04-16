@@ -76,7 +76,8 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
    bool debug = false;
    
    if (debug)
-      std::cout << "==================== here in rdkit_mol() with restraints that have "
+      std::cout << "=========== in rdkit_mol() with restraints that have "
+		<< restraints.atom_info.size() << " atoms, "
 		<< restraints.bond_restraint.size() << " bond restraints with do_undelocalize "
 		<< do_undelocalize << std::endl;
    
@@ -113,8 +114,8 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
       if (! at_1->Ter) {
 	 std::string atom_name_1(at_1->name);
 	 if (debug)
-	    std::cout << "rdkit_mol() handling atom " << iat_1 << " with mmdb::Residue atom name "
-		      << atom_name_1 << std::endl;
+	    std::cout << "rdkit_mol() handling atom " << iat_1 << " of " << n_residue_atoms
+		      << " with mmdb::Residue atom name " << atom_name_1 << std::endl;
 	 std::string atom_alt_conf(at_1->altLoc);
 	 if (atom_alt_conf == alt_conf) { 
 	    bool found_a_bonded_atom = false;
@@ -281,6 +282,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 
       // this block sets idx_1 and idx_2
       //
+      if (debug)
+	 std::cout << "------- in rdkit_mol() with added_atom_names.size() "
+		   << added_atom_names.size() << std::endl;
       for (unsigned int iat=0; iat<added_atom_names.size(); iat++) {
 	 if (added_atom_names[iat] == atom_name_1) { 
 	    idx_1 = iat;
@@ -378,7 +382,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	       if (name == atom_name_2)
 		  idx_2 = iat;
 	    }
-	    catch (KeyErrorException &err) {
+	    catch (const KeyErrorException &err) {
 	       // this happens for alt conf
 	       // std::cout << "caught no-name exception in rdkit_mol H-block" << std::endl;
 	    }

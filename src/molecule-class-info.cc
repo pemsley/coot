@@ -2795,7 +2795,7 @@ void
 molecule_class_info_t::make_ca_plus_ligands_bonds(coot::protein_geometry *geom_p) { 
 
    Bond_lines_container bonds(geom_p);
-   bonds.do_Ca_plus_ligands_bonds(atom_sel, geom_p, 2.4, 4.7);
+   bonds.do_Ca_plus_ligands_bonds(atom_sel, geom_p, 2.4, 4.7, draw_hydrogens_flag);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
    
