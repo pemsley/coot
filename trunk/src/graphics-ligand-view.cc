@@ -44,6 +44,7 @@ graphics_ligand_molecule::generate_display_list(bool dark_background) {
       glDeleteLists(display_list_tag, 1);
    }
    display_list_tag = glGenLists(1); // range of 1.
+
    glNewList(display_list_tag, GL_COMPILE);
    gl_bonds(dark_background);
    glEndList();
@@ -208,8 +209,8 @@ graphics_ligand_bond::gl_bond(const lig_build::pos_t &pos_1_raw, const lig_build
 	       glVertex3d(vp[i].first.x,  vp[i].first.y,  screen_z);
 	       glVertex3d(vp[i].second.x, vp[i].second.y, screen_z);
 	    }
+	    glEnd();
 	 }
-	 glEnd();
       }
       break;
    case OUT_BOND:
@@ -287,8 +288,9 @@ graphics_ligand_atom::make_text_item(const lig_build::atom_id_info_t &atom_id_in
 	    y_pos -= 0.3;
 	 if (atom_id_info_in.offsets[i].superscript)
 	    y_pos += 0.3;
-	    
-	 glRasterPos3d(x_pos, y_pos, 0);
+
+	 double screen_z = -1.5;
+	 glRasterPos3d(x_pos, y_pos, screen_z);
 
 	 if (0) {  // Yes the 0,0 position is bottom left of the letter
 	    double screen_z = 0.0;
@@ -317,10 +319,15 @@ graphics_ligand_atom::bitmap_text(const std::string &s) const {
 
 void 
 graphics_ligand_molecule::render() {
-
-//    std::cout << "graphics_ligand_molecule::render() draw the stored graphics here"
-// 	     << std::endl;
+   
+   // Draw the stored graphics here.
+   // 
+   // (no fog so that it doesn't fad out on zoom in, and fixes slow due to
+   //  rendering bitmaps in fog mode?)
+   // 
+   glDisable(GL_FOG);
    glCallList(display_list_tag);
+   glEnable(GL_FOG);
 } 
 
 bool
@@ -348,6 +355,22 @@ graphics_ligand_molecule::setup_from(mmdb::Residue *residue_p,
 	    double weight_for_3d_distances = 0.005;
 	    int mol_2d_depict_conformer =
 	       coot::add_2d_conformer(&rdk_mol_with_no_Hs, weight_for_3d_distances);
+
+	    if (false) {  // debug screen positioning
+	       for (unsigned int iconf=0; iconf<rdkm.getNumConformers(); iconf++) { 
+		  RDKit::Conformer &conf = rdkm.getConformer(iconf);
+		  int n_atoms = conf.getNumAtoms();
+		  for (int iat=0; iat<n_atoms; iat++) { 
+		     RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
+		     std::cout << iconf << " " << iat << "  "
+			       << std::setw(8) << std::fixed
+			       << std::right << std::setprecision(3) << r_pos.x << "  "
+			       << std::right << std::setprecision(3) << r_pos.y << "  "
+			       << std::right << std::setprecision(3) << r_pos.z
+			       << std::endl;
+		  }
+	       }
+	    }
 
 	    // why is there no connection between a lig_build molecule_t
 	    // and a rdkit molecule conformer?
@@ -383,9 +406,13 @@ graphics_ligand_molecule::init_from_molfile_molecule(const lig_build::molfile_mo
 
    atoms.clear();
    bonds.clear();
+
+   double x_offset_fiddle = 1; // we need a tiny tweak so that  we don't get atom letters falling
+                               // of the screen (on the left) - e.g. 0BU in 4mtz.
    for (unsigned int iat=0; iat<mol_in.atoms.size(); iat++) {
       const lig_build::molfile_atom_t &at_in = mol_in.atoms[iat];
-      graphics_ligand_atom at(lig_build::pos_t(at_in.atom_position.x(), at_in.atom_position.y()),
+      graphics_ligand_atom at(lig_build::pos_t(at_in.atom_position.x() + x_offset_fiddle,
+					       at_in.atom_position.y()),
 			      at_in.element, at_in.formal_charge);
       at.atom_name = at_in.name;
       at.aromatic = at_in.aromatic;
@@ -399,6 +426,6 @@ graphics_ligand_molecule::init_from_molfile_molecule(const lig_build::molfile_mo
       bonds.push_back(b);
    }
    assign_ring_centres();
-   scale_correction = mol_in.get_scale_correction();
+   scale_correction = mol_in.get_scale_correction(); // so that the median bond length is 1.0
    generate_display_list(dark_background_flag);
 } 

@@ -1371,6 +1371,9 @@ Punted from 0.6:
    o in FLEV the carboxylate of ligand Q31 doesn't make a H-bond to
      the mainchain.  Why not?
 
+   o Try Ramachandran restraints with hydrogen atoms, look at
+     clash score, low resolution maps
+
    o new molecule from atom selection (Copy Fragment) should generate
      a PDB file that has a CRYST1 card.
 

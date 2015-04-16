@@ -1562,7 +1562,10 @@ graphics_info_t::make_moving_atoms_graphics_object(const atom_selection_containe
 
       if (molecules[imol_moving_atoms].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS) { 
 	 Bond_lines_container bonds;
-	 bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, Geom_p(), 1.0, 4.7);
+	 bool draw_hydrogens_flag = false;
+	 if (molecules[imol_moving_atoms].draw_hydrogens())
+	    draw_hydrogens_flag = true;
+	 bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, Geom_p(), 1.0, 4.7, draw_hydrogens_flag);
 	 // std::cout << "done CA bonds" << std::endl;
 	 regularize_object_bonds_box.clear_up();
 	 regularize_object_bonds_box = bonds.make_graphical_bonds();
@@ -4702,12 +4705,14 @@ graphics_info_t::draw_generic_text() {
       glPushAttrib (GL_LIST_BIT);
       void *font = graphics_info_t::atom_label_font;
       font = GLUT_BITMAP_TIMES_ROMAN_24;
+      glDisable(GL_FOG); 
       for (unsigned int i=0; i<generic_texts_p->size(); i++) {
-	 
-	 glRasterPos3f((*generic_texts_p)[i].x, (*generic_texts_p)[i].y, (*generic_texts_p)[i].z);
-	 for (unsigned int is = 0; is < (*generic_texts_p)[i].s.length(); is++)
-	    glutBitmapCharacter (font, (*generic_texts_p)[i].s[is]);
+	 const coot::generic_text_object_t &gto = (*generic_texts_p)[i];
+	 glRasterPos3f(gto.x, gto.y, gto.z);
+	 for (unsigned int is = 0; is < gto.s.length(); is++)
+	    glutBitmapCharacter (font, gto.s[is]);
       }
+      glEnable(GL_FOG); 
       glPopAttrib ();
    }
 }

@@ -3117,7 +3117,17 @@ Bond_lines_container::addBond(int col,
 			      bool add_end_end_cap) {
 
    coot::CartesianPair pair(start,end);
-   bonds[col].add_bond(pair, add_begin_end_cap, add_end_end_cap);
+   if (col >= int(bonds.size())) { 
+      if (bonds.empty()) {
+	 std::cout << "empty bonds" << std::endl; // should never happen
+      } else { 
+	 col = 0;
+	 bonds[col].add_bond(pair, add_begin_end_cap, add_end_end_cap);
+      }
+   } else {
+      // normal path
+      bonds[col].add_bond(pair, add_begin_end_cap, add_end_end_cap);
+   } 
 }
 
 
@@ -3141,7 +3151,16 @@ Bond_lines_container::add_dashed_bond(int col,
       coot::Cartesian this_start(start + (end-start).by_scalar(frac_1));
       coot::Cartesian this_end(  start + (end-start).by_scalar(frac_2));
       coot::CartesianPair pair(this_start,this_end);
-      bonds[col].add_bond(pair, true, true);
+      if (col < int(bonds.size())) { 
+	 bonds[col].add_bond(pair, true, true);
+      } else {
+	 if (bonds.empty()) {
+	    std::cout << "empty bonds" << std::endl; // should never happen
+	 } else { 
+	    col = 0;
+	    bonds[col].add_bond(pair, true, true);
+	 }
+      } 
    }
 }
 
@@ -3808,25 +3827,29 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 void
 Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAtom,
 					       coot::protein_geometry *pg,
-					       float min_dist, float max_dist) {
+					       float min_dist, float max_dist,
+					       bool do_bonds_to_hydrogens_in) {
 
+   do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
    if (pg) { 
       geom = pg;
       have_dictionary = true;
    }
    //do_Ca_plus_ligands_bonds(SelAtom, min_dist, max_dist, coot::COLOUR_BY_ATOM_TYPE);
-   do_Ca_plus_ligands_bonds(SelAtom, pg, min_dist, max_dist, coot::COLOUR_BY_CHAIN);
+   do_Ca_plus_ligands_bonds(SelAtom, pg, min_dist, max_dist, coot::COLOUR_BY_CHAIN, do_bonds_to_hydrogens);
 }
 
 void
 Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAtom,
 					       coot::protein_geometry *pg,
 					       float min_dist, float max_dist, 
-					       int atom_colour_type) {
+					       int atom_colour_type,
+					       bool do_bonds_to_hydrogens_in) {
 
 //    std::cout << "do_Ca_plus_ligands_bonds with atom_colour_type "
 // 	     << atom_colour_type << std::endl;
    
+   do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
    mmdb::Model *model_p = SelAtom.mol->GetModel(1);
    if (pg) { 
       geom = pg;
@@ -3994,7 +4017,9 @@ Bond_lines_container::do_colour_sec_struct_bonds(const atom_selection_container_
 void 
 Bond_lines_container::do_Ca_plus_ligands_colour_sec_struct_bonds(const atom_selection_container_t &asc,
 								 coot::protein_geometry *pg,
-								 float min_dist, float max_dist) { 
+								 float min_dist, float max_dist,
+								 bool do_bonds_to_hydrogens_in) {
+   do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
    if (asc.n_selected_atoms > 0) { 
       mmdb::Model *model_p = asc.mol->GetModel(1);
       int aminoSelHnd = -1;

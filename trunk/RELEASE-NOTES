@@ -1,9 +1,6 @@
 
   Pre-Release 0.8.2
 
-  o FEATURE: Added function map-statistics to return map statistics 
-             [Alejandro Virrueta]
-
   o FEATURE: Add dictionary-based atom name matching in pyrogen [EJD]
 
   o FEATURE: Add ligand fragment flipping [JED]
@@ -17,7 +14,8 @@
   o FEATURE: Clicking on a Het-group now reports the name in the status bar
              [Dave Brown]
 
-  o CHANGE:  Refinement drag elasticity increased.
+  o FEATURE: Added function map-statistics to return map statistics 
+             [Alejandro Virrueta]
 
   o CHANGE:  EDS Resolution addeded to PDB Validation dialog [Frank von Delft]
 
@@ -27,6 +25,9 @@
   o CHANGE:  Ligands in Rainbow mode are no longer blue
 
   o CHANGE:  Colour-by-chain now shows disulphide bonds
+
+  o CHANGE:  Refinement drag elasticity increased
+             [Everyone who tried to use it in 0.8.1 :-(]
 
   o BUG-FIX: Improvement in PDB->SHELXL ins output [Andrea Thorn]
 
@@ -39,6 +40,10 @@
   o BUG-FIX: Fix output format of external restraints [Richard Bunker]
 
   o BUG-FIX: Torsion-based ligand fitting improvements [Rob Nicholls]
+
+  o BUG-FIX: A model with hydrogens displayed in CA+Ligands mode used
+             to show the hydrogens even if hydrogens were off - Fixed now.
+             [Alex Wlodawer]
 
   o BUG-FIX: Fix occassional graph data range anomaly [Rob Nicholls]
 
