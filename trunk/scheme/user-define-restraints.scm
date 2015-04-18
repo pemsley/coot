@@ -451,6 +451,13 @@
           (lambda (imol file-name)
             (add-refmac-extra-restraints imol file-name)))))
 
+      (add-simple-coot-menu-menuitem
+       menu "Delete Extra Restraints..."
+       (lambda ()
+	 (molecule-chooser-gui "Delete Extra Restraints for molecule:"
+			       (lambda (imol) 
+				 (delete-all-extra-restraints imol)))))
+
       (add-simple-coot-menu-menuitem 
        menu "ProSMART restraints interesting limit to 0.5"
        (lambda ()

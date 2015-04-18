@@ -44,7 +44,7 @@ coot::atom_graph::atom_graph(mmdb::Manager *mol,
       coot::minimol::atom dummy_atom(dum_atom_name, dum_atom_ele, 
 				     clipper::Coord_orth(0.0, 0.0, 0.0), altloc, 30.0);
       atoms.resize(ic, dummy_atom);
-      for (int iat=0; iat<coords.size(); iat++)
+      for (unsigned int iat=0; iat<coords.size(); iat++)
       	 atoms[iat] = coot::minimol::atom(dum_atom_name, dum_atom_ele, coords[iat], altloc, 30.0);
       mol_internal_ptr_copy = mol;
 
@@ -191,7 +191,7 @@ coot::atom_graph::trace_along(int ic, int connection_number) {
 
    connectedness[ic] = connection_number;
 
-   for (int i=0; i<nodes[ic].size(); i++) {
+   for (unsigned int i=0; i<nodes[ic].size(); i++) {
 //       std::cout << "node " << nodes[ic][i] << " of parent node "
 // 			<< ic << " has connectedness " 
 // 			<< connectedness[nodes[ic][i]] << std::endl;
@@ -235,7 +235,7 @@ coot::atom_graph::get_trace(int i_start_node) const {
 
    // what's con_local?  Is it useful in digraph_trace_along?
    // 
-   for (int i=0; i<con_local.size(); i++) 
+   for (unsigned int i=0; i<con_local.size(); i++) 
       con_local[i] = 0;
 
 //    std::cout << "INFO:: getting digraph_trace from node " << i_start_node 
@@ -258,7 +258,7 @@ coot::atom_graph::digraph_trace_along(int inode,
 //    std::cout << "Node " << inode << " has connectedness " << connectedness[inode]
 // 	     << " and connection_number is " << connection_number << "\n";
 
-   for (int i=0; i<nodes[inode].size(); i++) {
+   for (unsigned int i=0; i<nodes[inode].size(); i++) {
       if (connectedness[nodes[inode][i].index] == (connection_number - 1)) {
 	 (*trace)[inode].push_back(nodes[inode][i]);
 	 digraph_trace_along(nodes[inode][i].index, 
@@ -271,11 +271,11 @@ coot::atom_graph::digraph_trace_along(int inode,
 void
 coot::atom_graph::assign_c_betas() {
 
-   for (int index=0; index<atoms.size(); index++) {
+   for (unsigned int index=0; index<atoms.size(); index++) {
       // first find a c-alpha:
       if (is_c_alpha_p(index)) {
 	 if (nodes[index].size() == 3) { 
-	    for (int j=0; j<nodes[index].size(); j++) {
+	    for (unsigned int j=0; j<nodes[index].size(); j++) {
 	       if (atom_info[nodes[index][j].index].size() == 0) {
 		  if (atom_info[index].size() > 0) { 
 		     int resno =        atom_info[index][0].residue_number;
@@ -308,7 +308,7 @@ short int
 coot::atom_graph::is_c_alpha_p(int index) const {
 
    short int istat = 0;
-   if (index < atoms.size() && index >= 0) { 
+   if (index < int(atoms.size()) && index >= 0) { 
       if (atom_info[index].size() > 0) {
 	 if (atom_info[index][0].atom.name == " CA ")
 	    istat = 1;
@@ -324,7 +324,7 @@ coot::atom_graph::assign_waters() {
 
    int chain_number = 22; // W
    int resno = 1;
-   for (int i=0; i<nodes.size(); i++) {
+   for (unsigned int i=0; i<nodes.size(); i++) {
       if (nodes[i].size() == 0) { 
 	 // it has no neigbours.  A water then?
 	 //
@@ -400,15 +400,15 @@ coot::atom_graph::peptide_search(const std::vector<std::vector<coot::node_info> 
 
       peptide_atom_counter = 0;
 
-      for (int ip1 = 0; ip1<t[i_node_peptide_start].size(); ip1++) {
+      for (unsigned int ip1 = 0; ip1<t[i_node_peptide_start].size(); ip1++) {
 	 t_index_2 = t[i_node_peptide_start][ip1].index;
 	 t_node_2  = t[i_node_peptide_start][ip1];
 
-	 for (int ip2 = 0; ip2<t[t_index_2].size(); ip2++) {
+	 for (unsigned int ip2 = 0; ip2<t[t_index_2].size(); ip2++) {
 	    t_index_3 = t[t_index_2][ip2].index;
 	    t_node_3  = t[t_index_2][ip2];
 
-	    for (int ip3 = 0; ip3<t[t_index_3].size(); ip3++) {
+	    for (unsigned int ip3 = 0; ip3<t[t_index_3].size(); ip3++) {
 	       t_index_4 = t[t_index_3][ip3].index;
 	       t_node_4  = t[t_index_3][ip3];
 			   
@@ -423,13 +423,13 @@ coot::atom_graph::peptide_search(const std::vector<std::vector<coot::node_info> 
 		  
 		  int t_index_5, t_index_6, t_index_7;
 
-		  for (int ip4=0; ip4<t[t_index_4].size(); ip4++) { 
+		  for (unsigned int ip4=0; ip4<t[t_index_4].size(); ip4++) { 
 		     t_index_5 = t[t_index_4][ip4].index;
 		     t_node_5 = t[t_index_4][ip4];
-		     for (int ip5=0; ip5<t[t_index_5].size(); ip5++) { 
+		     for (unsigned int ip5=0; ip5<t[t_index_5].size(); ip5++) { 
 			t_index_6 = t[t_index_5][ip5].index;
 			t_node_6 = t[t_index_5][ip5];
-			for (int ip6=0; ip6<t[t_index_6].size(); ip6++) { 
+			for (unsigned int ip6=0; ip6<t[t_index_6].size(); ip6++) { 
 			   t_index_7 = t[t_index_6][ip6].index;
 			   t_node_7 = t[t_index_6][ip6];
 
@@ -803,8 +803,9 @@ coot::atom_graph::get_transformed_atom(const clipper::Coord_orth &a,
 
    clipper::Coord_orth a_copy = a;
 
-   for (int i=transformations.size()-1; i>=0; i--) 
-      a_copy = a_copy.transform(transformations[i]);
+   if (transformations.size() > 0) 
+      for (unsigned int i=transformations.size()-1; i>=0; i--) 
+	 a_copy = a_copy.transform(transformations[i]);
 
 //     std::cout << "Untransformed atom:     " << a.format() << "\n" 
 // 	      << "  transformationed atom " << a_copy.format() << "\n"
@@ -949,14 +950,14 @@ coot::atom_graph::write_molecule_from_atom_info(const std::string &file_name) co
    int fragment_no;
 
    int i_ass_atoms = 0;
-   for (int i=0; i<atom_info.size(); i++) {
+   for (unsigned int i=0; i<atom_info.size(); i++) {
       if (atom_info[i].size() > 0)
 	 i_ass_atoms++;
    }
    std::cout << "INFO:: " << i_ass_atoms << " out of " << atom_info.size()
 	     << " atoms have type assignments\n";
    
-   for (int i=0; i<atom_info.size(); i++) {
+   for (unsigned int i=0; i<atom_info.size(); i++) {
       if (atom_info[i].size() > 0) {
 	 chain_id_local = chain_id(atom_info[i][0].chain_number);
 	 if (atom_info[i][0].residue_number > 0 ) {
@@ -973,7 +974,7 @@ coot::atom_graph::write_molecule_from_atom_info(const std::string &file_name) co
       if (atom_info[i].size() > 1) {
 	 std::cout << "We have " << atom_info[i].size() << " infos for atom at "
 		   << atoms[i].pos.format() << std::endl;
-	 for (int j=0; j<atom_info[i].size(); j++) {
+	 for (unsigned int j=0; j<atom_info[i].size(); j++) {
 	    std::cout << j << " " << chain_id(atom_info[i][j].chain_number) << " "
 		      << atom_info[i][j].weight << " "
 		      << atom_info[i][j].residue_number << " "
@@ -1045,8 +1046,8 @@ coot::atom_graph::sidechains_search() {
    // Run through the graph_atom_info vector (atom_info) looking for C-alphas.
    // When we find one, we need to find the side chain atoms.
    // 
-   for (int i=0; i<atom_info.size(); i++) { 
-      for (int j=0; j<atom_info[i].size(); j++) { 
+   for (unsigned int i=0; i<atom_info.size(); i++) { 
+      for (unsigned int j=0; j<atom_info[i].size(); j++) { 
       
 	 if (atom_info[i][j].atom.name == " CA ") { 
 	    // we've got a C-alpha
@@ -1085,14 +1086,14 @@ coot::atom_graph::get_side_chain_nodes(int i_node_ca,
 
 	 // i.e. this Ca seem to have a side chain (not a GLY)
 	 
-	 for (int j=0; j<nodes[i_node_ca].size(); j++) {
+	 for (unsigned int j=0; j<nodes[i_node_ca].size(); j++) {
 	    
 	    // OK, so what are the unassigned atoms?
 	    // We start off at the CBeta, which (currently) has been assigned
 
 	    // We want an atom that is not assigned as mainchain (C or N)
 	    // 
-	    for (int ati=0; ati<nodes[i_node_ca].size(); ati++) {
+	    for (unsigned int ati=0; ati<nodes[i_node_ca].size(); ati++) {
 	       if (atom_info[i_node_ca][ati].atom.name != " C  " &&
 		   atom_info[i_node_ca][ati].atom.name != " N  ") { 
 		  std::cout << "AAAARRRRGGGHHH too complicated!\n";
