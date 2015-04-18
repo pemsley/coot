@@ -43,7 +43,7 @@ coot::atom_graph::score_all_side_chain_types(int i_node_ca,
    if (atom_info[i_node_ca].size() > 0) { 
       side_chain_pos[0] = atom_info[i_node_ca][0].atom.pos;
 
-      for (int i=0; i<sc_nodes.size(); i++) {
+      for (unsigned int i=0; i<sc_nodes.size(); i++) {
 	 side_chain_pos[i+1] = atoms[sc_nodes[i].index].pos;
 	 if (sc_nodes[i].symm_trans_needed_flag) {
 	    transformations.push_back(sc_nodes[i].rtop);
@@ -87,7 +87,7 @@ coot::atom_graph::distortion_score_side_chain_old(int i_node_ca,
    if (atom_info[i_node_ca].size() > 0) { 
       side_chain_pos[0] = atom_info[i_node_ca][0].atom.pos;
 
-      for (int i=0; i<sc_nodes.size(); i++) {
+      for (unsigned int i=0; i<sc_nodes.size(); i++) {
 	 side_chain_pos[i+1] = atoms[sc_nodes[i].index].pos;
 	 if (sc_nodes[i].symm_trans_needed_flag) {
 	    transformations.push_back(sc_nodes[i].rtop);

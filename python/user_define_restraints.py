@@ -489,6 +489,15 @@ if (have_coot_python):
                                         lambda imol, file_name:
                                         add_refmac_extra_restraints(imol, file_name)))
 
+    add_simple_coot_menu_menuitem(
+      menu,
+      "Delete Extra Restraints...",
+      lambda func:
+      molecule_chooser_gui("Delete Extra Restraints for Molecule:",
+                           lambda imol:
+                           delete_all_extra_restraints(imol)))
+      
+
     
     def set_prosmart_sigma_limit_func(low, high):
       with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,

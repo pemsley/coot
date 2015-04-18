@@ -480,7 +480,10 @@ molecule_class_info_t::morph_fit_residues(const std::vector<coot::residue_spec_t
 	 moving_residues.push_back(p);
       }
    }
-   return morph_fit_residues(moving_residues, xmap_in, transformation_average_radius);
+   int r = 0;
+   if (! moving_residues.empty())
+      r = morph_fit_residues(moving_residues, xmap_in, transformation_average_radius);
+   return r;
 } 
 
 

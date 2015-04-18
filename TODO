@@ -1306,6 +1306,12 @@ Punted from 0.6:
    > for rigid body fitting (and I dont see an obvious reason for the
    > inconsistency in behaviour between the two functions).
 
+   o Torsion fit this residue pyrogen-I79.pdb in 3rvb.
+
+   o in Jones' Rainbow for 2hvs, why can't I pick D125? (because it
+     doesn't have a P)
+
+     - punted.
 
    o November project: 
 
