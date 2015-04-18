@@ -782,7 +782,7 @@ coot::ligand::get_solution(unsigned int isolution, unsigned int iclust) const {
    coot::minimol::molecule empty;
    unsigned int n_final_ligands = final_ligand.size();
    if (iclust < n_final_ligands) {
-      if (isolution >=0 && isolution < final_ligand[iclust].size())
+      if (isolution < final_ligand[iclust].size())
 	 return final_ligand[iclust][isolution].first;
    } else {
       std::cout << "Error in get_solution: iclust is " << iclust
