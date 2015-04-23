@@ -463,7 +463,7 @@ on_canvas_button_press(GooCanvasItem  *item,
    
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS      
       if (spec_p) { 
-	 std::cout << "on_canvas_button_press(): clicked on " << *spec_p << std::endl;
+	 // std::cout << "on_canvas_button_press(): clicked on " << *spec_p << std::endl;
 	 if (event->type==GDK_2BUTTON_PRESS) { // double click
 	    int imol = spec_p->int_user_data;
 	    if (! l) {
@@ -474,14 +474,14 @@ on_canvas_button_press(GooCanvasItem  *item,
 	       if (ligand_spec_pair.first) {
 		  // std::cout << " ligand_spec: " << ligand_spec_pair.second << std::endl;
 		  // std::cout << "residue_spec: " << *spec_p << std::endl;
-		  orient_view(imol,  ligand_spec_pair.second, *spec_p);
+		  l->orient_view(imol,  ligand_spec_pair.second, *spec_p);
 	       }
 	    }
 	 } 
       }
 
       if (pos_p) {
-	 set_rotation_centre(*pos_p);  // see graphics-c-interface-functions.hh
+	 l->set_rotation_centre(*pos_p);  // see graphics-c-interface-functions.hh
       } 
 
 #endif       
@@ -593,6 +593,8 @@ on_canvas_motion_new(GooCanvasItem  *item,
    } else {
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
+      lbg_info_t *l =
+	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
       coot::residue_spec_t *spec_p =
 	 static_cast<coot::residue_spec_t *> (g_object_get_data (G_OBJECT (target_item), "spec"));
       int *add_rep_handle_p =
@@ -605,8 +607,8 @@ on_canvas_motion_new(GooCanvasItem  *item,
 	    int imol = spec_p->int_user_data;
 	    // std::cout << "show add_rep_handle: " << add_rep_handle << " for "
 	    // << *spec_p << std::endl;
-	    set_show_additional_representation(imol, add_rep_handle, 1);
-	    all_additional_representations_off_except(imol, add_rep_handle, 0);
+	    l->set_show_additional_representation(imol, add_rep_handle, 1);
+	    l->all_additional_representations_off_except(imol, add_rep_handle, 0);
 	 } 
       }
 #endif      
@@ -3904,7 +3906,8 @@ lbg_info_t::recentre_considering_residue_centres() {
 
    std::pair<bool,lig_build::pos_t> tl = get_residue_circles_top_left();
 
-   std::cout << "----------------------- top left correction " << tl.first << " " << tl.second << std::endl;
+   // std::cout << "----------------------- top left correction " << tl.first << " "
+   // << tl.second << std::endl;
   
     if (tl.first) { 
        top_left_correction = lig_build::pos_t(-tl.second.x+40, -tl.second.y+30);

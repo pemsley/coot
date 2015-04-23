@@ -733,6 +733,12 @@ private:
       prodrg_import_func_ptr = NULL;
       sbase_import_func_ptr = NULL;
       get_drug_mdl_file_function_pointer = NULL;
+
+      orient_view_func                               = NULL;
+      set_rotation_centre_func                       = NULL;
+      set_show_additional_representation_func        = NULL;
+      all_additional_representations_off_except_func = NULL;
+      
       draw_flev_annotations_flag = false;
 //       lbg_nitrogen_toggle_toolbutton = NULL;
 //       lbg_carbon_toggle_toolbutton   = NULL;
@@ -1240,6 +1246,62 @@ public:
    void clean_up_2d_representation(); // using rdkit
 
    void pe_test_function();
+
+   // ----------------------------------------------------- functions from src ----------------------
+private:
+
+   void (*orient_view_func) (int imol,
+			     const coot::residue_spec_t &central_residue_spec,
+			     const coot::residue_spec_t &neighbour_residue_spec);
+   void (*set_rotation_centre_func) (const clipper::Coord_orth &pos);
+   void (*set_show_additional_representation_func) (int imol, int representation_number, int on_off_flag);
+   void (*all_additional_representations_off_except_func) (int imol, int representation_number,
+							   short int ball_and_sticks_off_too_flag);
+   
+public:
+   void set_orient_view_func(void (*f)(int imol,
+				       const coot::residue_spec_t &central_residue_spec,
+				       const coot::residue_spec_t &neighbour_residue_spec)) {
+      orient_view_func = f;
+   }
+   void set_set_rotation_centre_func(void (*f) (const clipper::Coord_orth &pos)) {
+      set_rotation_centre_func = f;
+   }
+   void set_set_show_additional_representation_func(void (*f) (int imol, int representation_number, int on_off_flag)) {
+      set_show_additional_representation_func = f;
+   }
+   void set_all_additional_representations_off_except_func(void (*f) (int imol,
+								      int representation_number,
+								      short int ball_and_sticks_off_too_flag)) {
+      all_additional_representations_off_except_func = f;
+   }
+
+
+   // -- actually run the functions if they were set:
+   void orient_view(int imol,
+		    const coot::residue_spec_t &central_residue_spec,
+		    const coot::residue_spec_t &neighbour_residue_spec) {
+      if (orient_view_func) {
+	 (*orient_view_func)(imol, central_residue_spec, neighbour_residue_spec);
+      } 
+   } 
+   void set_rotation_centre(const clipper::Coord_orth &pos) {
+      if (set_rotation_centre_func) {
+	 (*set_rotation_centre_func)(pos);
+      } 
+   } 
+   void set_show_additional_representation(int imol, int representation_number, int on_off_flag) {
+      if (set_show_additional_representation_func) {
+	 (*set_show_additional_representation_func)(imol, representation_number, on_off_flag);
+      }
+   } 
+   void all_additional_representations_off_except(int imol, int representation_number,
+						  short int ball_and_sticks_off_too_flag) {
+      if (all_additional_representations_off_except_func) {
+	 (*all_additional_representations_off_except_func) (imol, representation_number, ball_and_sticks_off_too_flag);
+      }
+   }
+   
 };
 
 // return pointer to an lbg_info_t.  Caller deletes.

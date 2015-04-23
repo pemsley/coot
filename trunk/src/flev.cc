@@ -396,6 +396,11 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 						   get_drug_mdl_via_wikipedia_and_drugbank);
 		     lbg_local_p->annotate(s_a_v, res_centres, add_reps_vec, bonds_to_ligand, sed,
 					   ah, pi_stack_info, p.second);
+
+		     lbg_local_p->set_orient_view_func(orient_view);
+		     lbg_local_p->set_set_rotation_centre_func(set_rotation_centre);
+		     lbg_local_p->set_set_show_additional_representation_func(set_show_additional_representation);
+		     lbg_local_p->set_all_additional_representations_off_except_func(all_additional_representations_off_except);
 		     
 		     if (! use_graphics_flag) { 
 			lbg_local_p->set_draw_flev_annotations(true);
@@ -528,6 +533,11 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 						prodrg_import_function,
 						sbase_import_function,
 						get_drug_mdl_via_wikipedia_and_drugbank);
+
+		  lbg_local_p->set_orient_view_func(orient_view);
+		  lbg_local_p->set_set_rotation_centre_func(set_rotation_centre);
+		  lbg_local_p->set_set_show_additional_representation_func(set_show_additional_representation);
+		  lbg_local_p->set_all_additional_representations_off_except_func(all_additional_representations_off_except);
 
  		  std::map<std::string, std::string> name_map =
  		     coot::make_flat_ligand_name_map(res_ref);
@@ -708,10 +718,12 @@ coot::get_flev_residue_centres(mmdb::Residue *residue_ligand_3d,
 	 delete res_copy;
       }
    }
-   for (unsigned int ic=0; ic<centres.size(); ic++) { 
-      std::cout << "centre " << ic << " has TR_centre "
-		<< centres[ic].transformed_relative_centre.format() << std::endl;
-   }
+   if (0) 
+      for (unsigned int ic=0; ic<centres.size(); ic++) { 
+	 std::cout << "centre " << ic << " has TR_centre "
+		   << centres[ic].transformed_relative_centre.format() << std::endl;
+      }
+}
    return centres;
 } 
 
