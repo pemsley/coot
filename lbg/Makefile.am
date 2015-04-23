@@ -33,6 +33,8 @@ libcoot_lidia_la_LIBADD = \
 	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) \
 	$(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(L_BOOST_PYTHON) $(GOOCANVAS_LIBS) $(GTK_LIBS)
 
+# Bernie-mode: libcoot_lidia_la_LDFLAGS = $(SHARED_LDFLAGS)  -Wl,--no-undefined
+# 
 libcoot_lidia_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 lidia_SOURCES = lidia-main.cc lbg-callbacks-outer.cc 
