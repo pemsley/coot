@@ -218,8 +218,8 @@ int handle_drag_and_drop_single_item(const std::string &file_name) {
       } else { 
 	 std::string ext = coot::util::file_name_extension(file_name);
 	 if (ext == ".mtz") {
-	    int imol_map = auto_read_make_and_draw_maps(file_name.c_str());
-	    if (is_valid_map_molecule(imol_map))
+	    std::vector<int> imol_map = auto_read_make_and_draw_maps(file_name.c_str());
+	    if (is_valid_map_molecule(imol_map.front()))
 	       handled = TRUE;
 	 }
       }

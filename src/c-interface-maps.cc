@@ -402,24 +402,26 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
 
 #include "cmtz-interface.hh"
 
-int auto_read_make_and_draw_maps(const char *mtz_file_name) {
+std::vector<int> auto_read_make_and_draw_maps(const char *mtz_file_name) {
 
+   std::vector<int> imol_vec;
    int imol = -1;
    
    if (! coot::file_exists(mtz_file_name)) {
       std::cout << "WARNING:: file " << mtz_file_name << " does not exist" << std::endl;
    } else { 
       if ( is_mtz_file_p(mtz_file_name) ) {
-	 imol = auto_read_make_and_draw_maps_from_mtz(mtz_file_name);
+	 imol_vec = auto_read_make_and_draw_maps_from_mtz(mtz_file_name);
       } else {
-	 imol = auto_read_make_and_draw_maps_from_cns(mtz_file_name);
+	 imol_vec = auto_read_make_and_draw_maps_from_cns(mtz_file_name);
       }
    }
-   return imol;
+   return imol_vec;
 } 
 
-int auto_read_make_and_draw_maps_from_cns(const char *mtz_file_name) {
+std::vector<int> auto_read_make_and_draw_maps_from_cns(const char *mtz_file_name) {
 
+   std::vector<int> imol_vec;
    int imol1 = -1;
    int imol2 = -1;
    if (coot::util::file_name_extension(mtz_file_name) != ".mtz") { 
@@ -430,23 +432,25 @@ int auto_read_make_and_draw_maps_from_cns(const char *mtz_file_name) {
       imol1 = g.create_molecule();
       bool success;
       success = g.molecules[imol1].map_fill_from_cns_hkl( mtz_file_name, "F2", 0, msr );
-      if (success) { 
-	 imol2 = g.create_molecule();
-	 success = g.molecules[imol2].map_fill_from_cns_hkl( mtz_file_name, "F1", 1, msr );
-	 if (success) { 
-	    g.scroll_wheel_map = imol1;
-	    g.activate_scroll_radio_button_in_display_manager(imol1);
-	 } else {
-	    g.erase_last_molecule();
-	 } 
+      if (success) {
+         imol_vec.push_back(imol1);
+         imol2 = g.create_molecule();
+         success = g.molecules[imol2].map_fill_from_cns_hkl( mtz_file_name, "F1", 1, msr );
+         if (success) {
+            imol_vec.push_back(imol2);
+            g.scroll_wheel_map = imol1;
+            g.activate_scroll_radio_button_in_display_manager(imol1);
+         } else {
+            g.erase_last_molecule();
+         } 
       } else {
-	 g.erase_last_molecule();
+         g.erase_last_molecule();
       }
    }
-   return imol2;
+   return imol_vec;
 }
 
-int auto_read_make_and_draw_maps_from_mtz(const char *mtz_file_name) {
+std::vector<int> auto_read_make_and_draw_maps_from_mtz(const char *mtz_file_name) {
 
    int imol1 = -1;
    int imol2 = -1;
@@ -485,7 +489,7 @@ int auto_read_make_and_draw_maps_from_mtz(const char *mtz_file_name) {
 								   0,     //   short int use_reso_limits,
 								   0,     //   float low_reso_limit,
 								   0);    //   float high_reso_limit
-	 if (is_valid_model_molecule(imol))
+	 if (is_valid_map_molecule(imol))
 	    imols.push_back(imol);
       }
    }
@@ -515,16 +519,22 @@ int auto_read_make_and_draw_maps_from_mtz(const char *mtz_file_name) {
 									 0,     //   short int is_anomalous_flag,
 									 0,     //   short int use_reso_limits,
 									 0,     //   float low_reso_limit,
-									 0);    //   float high_reso_limit
+                                                                     0);    //   float high_reso_limit
+           if (is_valid_map_molecule(imol))
+              imols.push_back(imol);
 	    }
 	 }
       }
    }
-
-   
-   return imol2;
+  
+   return imols;
 }
 
+void wrapped_auto_read_make_and_draw_maps(const char *filename) {
+   
+   auto_read_make_and_draw_maps(filename);
+   
+}
 
 int auto_read_make_and_draw_maps_old(const char *mtz_file_name) {
 

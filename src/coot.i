@@ -1,13 +1,6 @@
 
 %module coot
-%include "std_string.i"
-%include "std_vector.i"
-%include "std_pair.i"
-
-
-
 %{
-
 #include <cstdio>
 #include "globjects.h"  //includes gtk/gtk.h
 #include "coot-utils/coot-coord-utils.hh"
@@ -33,8 +26,17 @@
 %}
 
 
-%template(vector_string) std::vector<std::string>;
-%template(pairbf) std::pair<bool, float>;
+%include "std_string.i"
+%include "std_vector.i"
+%include "std_pair.i"
+
+namespace std {
+%template(vector_string) vector<std::string>;
+%template(pairbf) pair<bool, float>;
+%template(IntVector) vector<int>;
+%template(vector_atom_spec)      vector<coot::atom_spec_t>;
+%template(vector_mtz_type_label) vector<coot::mtz_type_label>;
+}
 
 
 #include "globjects.h"  //includes gtk/gtk.h
@@ -68,5 +70,3 @@
 %include "get-monomer.hh"
 %include "globularize.hh"
 
-%template(vector_atom_spec)      std::vector<coot::atom_spec_t>;
-%template(vector_mtz_type_label) std::vector<coot::mtz_type_label>;

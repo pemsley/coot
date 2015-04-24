@@ -156,8 +156,9 @@ class LigandTestFunctions(unittest.TestCase):
             set_mol_displayed(imol_copy, 0)
 
         imol_protein = read_pdb(pdb43ca_pdb)
-        imol_map_2 = auto_read_make_and_draw_maps(pdb43ca_mtz)
-        imol_map_1 = imol_map_2 - 1
+        imol_map = auto_read_make_and_draw_maps(pdb43ca_mtz)
+        imol_map_1 = imol_map[0]
+        imol_map_2 = imol_map[1]
 
         add_ligand_clear_ligands()
         set_ligand_search_protein_molecule(imol_protein)
