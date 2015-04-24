@@ -723,7 +723,6 @@ coot::get_flev_residue_centres(mmdb::Residue *residue_ligand_3d,
 	 std::cout << "centre " << ic << " has TR_centre "
 		   << centres[ic].transformed_relative_centre.format() << std::endl;
       }
-}
    return centres;
 } 
 
