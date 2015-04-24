@@ -1,6 +1,6 @@
  -*-text-*-
 
-scripts      rev 5582 (some prodrg stuff needs testing) generic objects, update running of jligand?! (r4782, need to use gtk.gdk.pixbuf_new_from_file() then)
+scripts      rev 5660 (some prodrg stuff needs testing) generic objects, update running of jligand?! (r4782, need to use gtk.gdk.pixbuf_new_from_file() then)
 tests        rev 5460 update
 build-it-win rev 4739 (check 0.8 pre builder, add publishing?!)
 missing script:
@@ -986,3 +986,7 @@ Osaka 2010
 
 * Done
 
+   o directory_for_filechooser could be set to cwd rather than being empty
+	and usually going for recent files then?! Maybe even savein session?!
+
+* Done 
