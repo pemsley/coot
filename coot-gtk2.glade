@@ -11706,7 +11706,7 @@ just the cell and symmetry)
 	    <widget class="GtkVBox" id="vbox45">
 	      <property name="border_width">5</property>
 	      <property name="visible">True</property>
-	      <property name="homogeneous">False</property>
+	      <property name="homogeneous">True</property>
 	      <property name="spacing">0</property>
 
 	      <child>
