@@ -168,8 +168,9 @@
 		 (loop (+ count 1)))))
 
 	     (let* ((imol-protein (read-pdb 43ca-pdb))
-		    (imol-map-2 (auto-read-make-and-draw-maps 43ca-mtz))
-		    (imol-map-1 (- imol-map-2 1)))
+		    (imol-map (auto-read-make-and-draw-maps 43ca-mtz))
+		    (imol-map-1 (car imol-map))
+		    (imol-map-2 (car (cdr imol-map))))
 	     
 	       (add-ligand-clear-ligands)
 	       (set-ligand-search-protein-molecule imol-protein)

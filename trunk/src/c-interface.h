@@ -1525,17 +1525,7 @@ int is_mtz_file_p(const char *filename);
 
 int cns_file_has_phases_p(const char *cns_file_name); 
 
-/*! \brief read MTZ file filename and from it try to make maps
-
-Useful for reading the output of refmac.  The default labels (FWT/PHWT
-and DELFWT/PHDELFWT) can be changed using ...[something] 
-
- @return the molecule number for the new map 
-*/
-int auto_read_make_and_draw_maps(const char *filename); 
-/*! \brief set the flag to do a difference map (too) on auto-read MTZ */
-int auto_read_make_and_draw_maps_from_mtz(const char *filename); 
-int auto_read_make_and_draw_maps_from_cns(const char *filename); 
+void wrapped_auto_read_make_and_draw_maps(const char *filename);
 
 void set_auto_read_do_difference_map_too(int i);
 /*! \brief return the flag to do a difference map (too) on auto-read MTZ 

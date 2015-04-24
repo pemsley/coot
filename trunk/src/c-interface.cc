@@ -1617,7 +1617,7 @@ SCM map_statistics_scm(int imol) {
 #endif
 
 #ifdef USE_PYTHON
-/*! \brief return either scheme false on non-a-map or list (mean, standard-deviation, skew, kurtosis) */
+/*! \brief return either python False on not-a-map or list [mean, standard-deviation, skew, kurtosis] */
 PyObject *map_statistics_py(int imol) {
 
    PyObject *r = Py_False;

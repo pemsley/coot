@@ -313,7 +313,7 @@ on_ok_button_dataset_clicked           (GtkButton       *button,
    if (ismtzauto || iscnsauto) {
 
      if (auto_read_flag) { 
-       auto_read_make_and_draw_maps(filename);
+       wrapped_auto_read_make_and_draw_maps(filename);
      } else {
        /* this does a create_column_label_window, fills and displays it. */
        manage_column_selector(copied_filename);
@@ -10671,7 +10671,7 @@ on_dataset_filechooserdialog1_response (GtkDialog       *dialog,
    if ( ismtzauto || iscnsauto ) {
 
      if (auto_read_flag) 
-       auto_read_make_and_draw_maps(filename);
+       wrapped_auto_read_make_and_draw_maps(filename);
      else 
        /* this does a create_column_label_window, fills and displays it. */
        manage_column_selector(copied_filename);

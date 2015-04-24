@@ -183,6 +183,19 @@ PyObject *get_symmetry_py(int imol);
 //! \name Extra Map Functions
 //! \{
 
+/*! \brief read MTZ file filename and from it try to make maps
+
+Useful for reading the output of refmac.  The default labels (FWT/PHWT
+and DELFWT/PHDELFWT) can be changed using ...[something] 
+
+ @return a list of molecule numbers for the new maps 
+*/
+std::vector<int> auto_read_make_and_draw_maps(const char *filename);
+/*! \brief set the flag to do a difference map (too) on auto-read MTZ */
+std::vector<int> auto_read_make_and_draw_maps_from_mtz(const char *filename);
+std::vector<int> auto_read_make_and_draw_maps_from_cns(const char *filename);
+
+
 void add_map_colour_mol_menu_item(int imol, const std::string &name,
 				  GtkWidget *sub_menu, GtkSignalFunc callback);
 /* Actually this function is generic and could be renamed so. */
