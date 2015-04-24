@@ -688,6 +688,11 @@ graphics_info_t::set_directory_for_filechooser(GtkWidget *fileselection) const {
       gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fileselection),
                                       directory_for_filechooser.c_str());
    } else {
+      // set to cwd!?
+      std::string cwd = coot::util::current_working_dir();
+      std::cout << "set directory_for_filechooser to cwd " << std::endl;
+      gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fileselection),
+                                          cwd.c_str());
       // std::cout << "not setting directory_for_fileselection" << std::endl;
    }
 
