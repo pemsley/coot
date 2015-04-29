@@ -4,45 +4,14 @@
    o with enhanced-ligand, do you get a sane code-path if you do 
      File -> SMILES?
 
-   o 6BP is badly modelled.  Wrong partial charges on Restraints
-     editor on reading the PDBe ligand cif.
+   o Ligand Check
 
-   o I don't want to see the hydrogens, so I opened it in coot and hide the hydrogen. 
-     But when I generate symmetry coordinate (my protein is tetramer with monomer in 
-     each ASU), all the symmetry mates (with in 8A) have hydrogens and I can not hide 
-     them. How can I hide the hydrogen in symmetry-related coordinates. 
-                 -- Zhenwei Su.
+   o Uncrunch
 
-* Looks OK to me.  Email him.
+   o Oliver Clarke Rigid Body bug
 
-   o Improve the colours for density fit analysis - and note FEM map
-     usage - Emilia Arturo
-
-   o Dave Lodowski alt-conf H problem.
-
-   o draw_generic_text() should have a user-setable font size.
-
-   o CSHL:
-
-       * Scaling of density fit analysis with very fine grid
-
-
-   o compile a coot without python
-
-   o Torsion fit this residue pyrogen-I79.pdb in 3rvb
-
-   o Try glyco tree builder 528 on 4lxr. 
-
-   o build NAG-NAG on 3bt1 on 172U ASN.
-
-* Nasty - and interesting.
-
-   o reading a pdbfile that is a directory causes mmdb2 to hang?
-
-* Reported.  Check it at the user-level - makes sense.
-
-   o jiggle fit leaves behind atoms that have zero occupancy? 
-     e.g. jiggle-fit the acedrg output of Acedrg on I79.cif in 3rvb
+   o read in libg restraints, delete them, read in filtered
+     restraints.  Display should update properly.
 
 
 ------
