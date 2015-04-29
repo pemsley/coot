@@ -12,7 +12,7 @@ coot::parallel_planes_t::parallel_planes_t(const std::string &line) {
    target_angle  = 0;
    sigma_angle = 5;
    sigma_distance = 0.2;
-   sigma_combined_planes = 0.2;
+   sigma_combined_planes = 0.5;
    
    std::vector<std::string> words = coot::util::split_string_no_blanks(line, " ");
    std::vector<std::string> u(words.size());
