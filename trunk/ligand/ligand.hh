@@ -37,9 +37,10 @@
 
 namespace coot {
 
-   // return a molecule of atoms in the selection and a molecule of
-   // atoms to be used to mask the map (i.e. those not in the
-   // selection).
+   // return a molecule of atoms (first) used to mask the map
+   // (i.e. those not in the selection) and (second) a molecule of
+   // atoms in the selection [strange but true]
+   // 
    std::pair<minimol::molecule, minimol::molecule>
       make_mols_from_atom_selection_string(mmdb::Manager *mol,
 					   std::string atom_selection_string,

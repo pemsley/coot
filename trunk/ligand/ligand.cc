@@ -2341,9 +2341,6 @@ coot::ligand::fit_ligand_copy(int iclust, int ilig, int ior, const clipper::RTop
 
    std::vector<minimol::atom *> atoms_p = fitted_ligand_vec[ilig][iclust].select_atoms_serial();
 
-//    std::cout << "DEBUG:: There are "<< atoms_p.size() << " atoms in " 
-// 	     << "atoms_p in fit_ligand_copy" << std::endl;
-   
    // First move the ligand to the site of the cluster:
    for(unsigned int ii=0; ii<atoms_p.size(); ii++) {
       atoms_p[ii]->pos = transform_ligand_atom(atoms_p[ii]->pos,ilig,iclust,ior, eigen_ori);
@@ -2359,6 +2356,7 @@ coot::ligand::fit_ligand_copy(int iclust, int ilig, int ior, const clipper::RTop
    // output.
    // ligand_score_card s = score_orientation(atoms_p, xmap_pristine); // JB says try masked map
    ligand_score_card s = score_orientation(atoms_p, xmap_masked);
+   // std::cout << "  ligand_score_card: " << s << std::endl;
    s.set_ligand_number(ilig);
    return s; 
 }
@@ -2477,23 +2475,29 @@ coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
    int iround = 0;
    double move_by_length = 1.0; // just to past test initially
    double angle_sum = 1.0;      // as above
+   bool debug = false;
 
    while ((iround < round_max) &&
-	  ((move_by_length > 0.0005) || (angle_sum > 0.01))) {
+	  ((move_by_length > 0.002) || (angle_sum > 0.002))) {
 
       clipper::Coord_orth midpoint(0,0,0);
-//       std::cout << " at the start of the rigid body round " << iround
-// 		<< ", score is "
-// 		<< score_orientation(*atoms_p).score << std::endl;
+
+      if (debug)
+	 std::cout << "---------------------  start of the rigid body round " << iround << "\n"
+		   << "   score is " << score_orientation(*atoms_p, xmap_fitting) << std::endl;
+      
       for (unsigned int ii=0; ii<atoms_p->size(); ii++) { 
 	 midpoint += (*atoms_p)[ii]->pos;
       }
+      
       double scale = 1.0/double(atoms_p->size());
       clipper::Coord_orth mean_pos = clipper::Coord_orth(midpoint.x() * scale,
 							 midpoint.y() * scale,
 							 midpoint.z() * scale);
-      // std::cout << "real mean pos mid point in rigid_body: point 0" 
-      // << mean_pos.format() << std::endl;
+
+      if (debug)
+	 std::cout << "   iround " << iround << " real mean pos mid point in rigid_body: point 0" 
+		   << mean_pos.format() << std::endl;
 
       // Get the average gradient in orthogonal x, y, z directions:
       //
@@ -2503,7 +2507,7 @@ coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
       std::vector<clipper::Grad_orth<float> > grad_vec(n_atoms);
       float dv, sum_dx = 0, sum_dy = 0, sum_dz = 0;
       for (int ii=0; ii<n_atoms; ii++) {
-	 clipper::Coord_orth atom_pos = (*atoms_p)[ii]->pos;
+	 const clipper::Coord_orth &atom_pos = (*atoms_p)[ii]->pos;
 	 clipper::Coord_frac atom_pos_frc = atom_pos.coord_frac(xmap_pristine.cell());
 	 clipper::Coord_map  atom_pos_map = atom_pos_frc.coord_map(xmap_pristine.grid_sampling());
 	 clipper::Interp_cubic::interp_grad(xmap_fitting, atom_pos_map, dv, grad);
@@ -2520,30 +2524,31 @@ coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
 					sum_dy * datfrac,
 					sum_dz * datfrac);
 
-//       std::cout << "translating by "
-// 		<< sum_dx/(double (n_atoms)) << " "
-// 		<< sum_dy/(double (n_atoms)) << " "
-// 		<< sum_dz/(double (n_atoms)) << " "
-// 		<< std::endl;
-
       clipper::Coord_orth moved_by = clipper::Coord_orth(gradient_scale*av_grad.dx(),
 							 gradient_scale*av_grad.dy(),
 							 gradient_scale*av_grad.dz());
+
+      if (debug)
+	 std::cout << "   iround " << iround << " moving by " << moved_by.format() << std::endl;
+      
       clipper::Vec3<double> angles; 
       if (atoms_p->size() > 1)
-	 angles = get_rigid_body_angle_components(*atoms_p, mean_pos,grad_vec);
+	 angles = get_rigid_body_angle_components(*atoms_p, mean_pos, grad_vec);
 
 
       move_by_length = sqrt(moved_by.lengthsq());
-//       std::cout << iround << " " <<  move_by_length << " " 
-// 		<< moved_by.x() << "  "  
-// 		<< moved_by.y() << "   " << moved_by.z() << "\n";
 
-//       std::cout << "mean pos in rigid body refine ligand: point 1 "
-// 		<< mean_pos.format() << std::endl; 
-//       std::cout << "moved by: " <<  moved_by.format() << std::endl; 
-//       std::cout << "mean by function: "
-// 		<< mean_ligand_position(*atoms_p).format() << std::endl;
+      if (debug) { 
+	 std::cout << "   iround " << iround << " " << move_by_length
+		   << " " << moved_by.x()
+		   << " " << moved_by.y()
+		   << " " << moved_by.z() << "\n";
+	 std::cout << "      mean pos in rigid body refine ligand: point 1 "
+		   << mean_pos.format() << std::endl; 
+	 std::cout << "      moved by: " <<  moved_by.format() << std::endl; 
+	 std::cout << "      mean by function: "
+		   << mean_ligand_position(*atoms_p).format() << std::endl;
+      }
       
       mean_pos += moved_by;
       for (int ii=0; ii<n_atoms; ii++)
@@ -2552,8 +2557,8 @@ coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
       // Consider moving the generation (not application) of the
       // angles above the application of the translations.
       //
-      if (0) 
-	 std::cout << "Now to apply the angles: "
+      if (debug) 
+	 std::cout << "   iround " << iround << " Now to apply the angles: "
 		   << clipper::Util::rad2d(angles[0]) << " "
 		   << clipper::Util::rad2d(angles[1]) << " "
 		   << clipper::Util::rad2d(angles[2]) << std::endl;
@@ -2565,13 +2570,14 @@ coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
       angle_sum += fabs(clipper::Util::rad2d(angles[0]));
       angle_sum += fabs(clipper::Util::rad2d(angles[1]));
       angle_sum += fabs(clipper::Util::rad2d(angles[2]));
-      if (0) 
-	 std::cout << "       round " << iround << " moved: " << move_by_length
+      if (debug) 
+	 std::cout << "   iround " << iround << " moved: " << move_by_length
 		   << " angle_sum: " << angle_sum << std::endl;
       
       iround++;
+      
    } // irounds
-   // std::cout << "done rigid body refining ligand. " << std::endl;
+
 }
 
 clipper::Coord_orth 
@@ -2600,6 +2606,12 @@ coot::ligand::get_rigid_body_angle_components(const std::vector<minimol::atom *>
 					      const clipper::Coord_orth &mean_pos,
 					      const std::vector<clipper::Grad_orth<float> > &grad_vec) const {
 
+   clipper::Vec3<double> a;  // return this
+   bool debug = false;
+
+   if (debug)
+      std::cout << "DEBUG:: rigid_body: gradient_scale is " << gradient_scale << std::endl;
+
    // For each atom, we multiply the vector between the atom position
    // and the centre of rotation (V) by rotation_component to get the
    // vector pependicular to this vector in the appropriate plane
@@ -2618,10 +2630,10 @@ coot::ligand::get_rigid_body_angle_components(const std::vector<minimol::atom *>
    double Vp_rms_sum[3];
 
    for (int ir=0; ir<3; ir++) { 
-      sum_grad[ir] = 0.0;
-      sum_alpha[ir] = 0.0;
+      sum_grad[ir]      = 0.0;
+      sum_alpha[ir]     = 0.0;
+      Vp_rms_sum[ir]    = 0.0;
       sum_cos_theta[ir] = 0.0; // debugging
-      Vp_rms_sum[ir] = 0.0;
    }
 
    clipper::Coord_orth V, Vp[3];
@@ -2635,6 +2647,9 @@ coot::ligand::get_rigid_body_angle_components(const std::vector<minimol::atom *>
 	 Vp[ir] = V.transform(rotation_component[ir]);
 	 Vp_rms_sum[ir] += Vp[ir].lengthsq();
 	 dot_prod[ir] = clipper::Coord_orth::dot(grad,Vp[ir]);
+	 if (0)
+	    std::cout << "   iat: " << ii <<  " " << grad.format() << " * " << Vp[ir].format() << " is "
+		      << dot_prod[ir] << std::endl;
 	 sum_grad[ir] += dot_prod[ir];
       }
    }
@@ -2644,12 +2659,20 @@ coot::ligand::get_rigid_body_angle_components(const std::vector<minimol::atom *>
       Vp_av_len[ir] = sqrt(Vp_rms_sum[ir]/double(atoms.size()));
    }
 
-   clipper::Vec3<double> a;
    for (int ir=0; ir<3; ir++) {
-      // to 0.01 is a bug fix.
-      a[ir] = gradient_scale * 0.01 * sum_grad[ir]/Vp_av_len[ir];
-//       std::cout << "Vp_av_len[" << ir << "] is " << Vp_av_len[ir];
-//       std::cout << "  a[" << ir << "] is " << a[ir]*57.3 << " degrees " << std::endl;
+
+      // a[ir] = gradient_scale * sum_grad[ir]/Vp_av_len[ir];
+      a[ir] = gradient_scale * 0.1 * sum_grad[ir]/(Vp_av_len[ir] * sqrt(double(atoms.size())));
+
+      if (debug) {
+
+	 std::cout << "  a[" << ir << "] is " << sum_grad[ir] << "/" << Vp_av_len[ir] << "/sqrt("
+		   << atoms.size() << ") = " << a[ir] << "     " << a[ir] * 57.3 << " degrees " << std::endl;
+
+// 	 std::cout << "Vp_av_len[" << ir << "] is " << Vp_av_len[ir] << "    and sum_grad["
+// 		   << ir << "] is " << sum_grad[ir] << "  ";
+// 	 std::cout << "  a[" << ir << "] is " << a[ir]*57.3 << " degrees " << std::endl;
+      }
    }
    
    return a;
