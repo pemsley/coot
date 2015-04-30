@@ -1,6 +1,8 @@
  
  0.8.2
 
+   o set_b_factor_bonds_scale_factor() doesn't work (e.g. 4wl1)
+
    o with enhanced-ligand, do you get a sane code-path if you do 
      File -> SMILES?
 
