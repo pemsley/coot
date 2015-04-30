@@ -6111,12 +6111,11 @@ rigid_body_refine_by_atom_selection(int imol,
 	 //
 	 // Let's make a (ligand) utility function for this.
 	 //
-	 bool fill_mask = 1;
+	 bool fill_mask = true;
 	 mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
 	 std::string atom_selection_str(atom_selection_string);
 	 std::pair<coot::minimol::molecule, coot::minimol::molecule> p = 
 	    coot::make_mols_from_atom_selection_string(mol, atom_selection_str, fill_mask);
-
 	 g.imol_rigid_body_refine = imol;
 	 g.rigid_body_fit(p.first,   // without selected region.
 			  p.second,  // selected region.

@@ -1905,7 +1905,7 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
    
    lig.install_ligand(range_mol);
    lig.find_centre_by_ligand(0); // don't test ligand size
-   lig.set_map_atom_mask_radius(0.5);
+   // lig.set_map_atom_mask_radius(0.5);  // why did I have this?
    lig.mask_map(mol_without_moving_zone, mask_water_flag);
    if (debug)
       lig.output_map("rigid-body.map");
