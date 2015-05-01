@@ -3168,7 +3168,7 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
 		     double dash_density = 4.0;
 		     int n_dashes = int(dash_density * d);
 		     bool visible = true;
-		     for (unsigned int idash=0; idash<(n_dashes-1); idash++) {
+		     for (int idash=0; idash<(n_dashes-1); idash++) {
 			if (0)
 			   std::cout << "idash " << idash << " n_dashes " << n_dashes << " visible "
 				     << visible << std::endl;
@@ -3226,7 +3226,7 @@ molecule_class_info_t::update_extra_restraints_representation_parallel_planes() 
 	 for (unsigned int i_rest_at=0; i_rest_at<pp.plane_1_atoms.atom_names.size(); i_rest_at++) {
 	    std::string plane_atom_expanded_name =
 	       dri_1.second.atom_name_for_tree_4c(pp.plane_1_atoms.atom_names[i_rest_at]);
-	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	    for (int iat=0; iat<n_residue_atoms; iat++) {
 	       mmdb::Atom *at = residue_atoms[iat];
 	       std::string atom_name(at->name);
 	       std::string alt_conf(at->altLoc);
@@ -3243,7 +3243,7 @@ molecule_class_info_t::update_extra_restraints_representation_parallel_planes() 
 	 for (unsigned int i_rest_at=0; i_rest_at<pp.plane_2_atoms.atom_names.size(); i_rest_at++) {
 	    std::string plane_atom_expanded_name =
 	       dri_2.second.atom_name_for_tree_4c(pp.plane_2_atoms.atom_names[i_rest_at]);
-	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	    for (int iat=0; iat<n_residue_atoms; iat++) {
 	       mmdb::Atom *at = residue_atoms[iat];
 	       std::string atom_name(at->name);
 	       std::string alt_conf(at->altLoc);
@@ -4368,7 +4368,7 @@ molecule_class_info_t::add_terminal_residue_using_phi_psi(const std::string &cha
 	    int found_atoms_count = 0;
 	    clipper::Coord_orth previous_ca, previous_c, previous_n;
 	    mmdb::Atom *C_terminal_this_residue_O = NULL;
-	    for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+	    for (int iat=0; iat<n_residue_atoms; iat++) { 
 	       std::string atom_name = residue_atoms[iat]->name;
 
 	       // PDBv3 FIXME.
@@ -5136,7 +5136,7 @@ molecule_class_info_t::close_to_residue(mmdb::Residue *residue_p, coot::Cartesia
 	 mmdb::PPAtom residue_atoms = 0;
 	 int n_residue_atoms;
 	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	 for (int iat=0; iat<n_residue_atoms; iat++) {
 	    coot::Cartesian atom_pt(residue_atoms[iat]->x,
 				    residue_atoms[iat]->y,
 				    residue_atoms[iat]->z);
@@ -7375,7 +7375,7 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
       mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       residue->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+      for (int iat=0; iat<n_residue_atoms; iat++) { 
 	 std::string an(residue_atoms[iat]->name);
 	 if (an == atom_name) {
 	    std::string ac(residue_atoms[iat]->altLoc);
@@ -7567,7 +7567,7 @@ molecule_class_info_t::translate_by_internal(const clipper::Coord_orth &co, mmdb
       mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+      for (int iat=0; iat<n_residue_atoms; iat++) {
 	 mmdb::Atom *at = residue_atoms[iat];
 	 at->x += co.x();
 	 at->y += co.y();
