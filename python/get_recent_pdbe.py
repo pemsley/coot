@@ -721,7 +721,8 @@ def recent_structure_browser(t):
     def get_dic_all_entries(js):
         # simple minded, we know where the entries are,
         # so return the dictionary of these
-        return js["ResultSet"]["Result"]
+        # print "extract something from ", js
+        return js["grouped"]["pdb_id"]["groups"]
 
     n_atoms_limit_small_ligands = 6
     
@@ -743,57 +744,18 @@ def recent_structure_browser(t):
             return name[0:70] + "..."
 
     #
-    def make_ligands_string(ligand_dic):
+    def make_ligands_string(ligand_string_list):
 
-        if not ligand_dic:
+        if not ligand_string_list:
             return ""
         else:
-            ligand_string_list = []
-            for ligand in ligand_dic:
-                name = ligand["Name"]
-                code = ligand["Code"]
-                n_atoms = ligand["NumberOfAtoms"]
+            ligand_string = ""
+            for ligand in ligand_string_list:
+                ligand_string += " "
+                ligand_string += ligand
+            return ligand_string
 
-                if not name:
-                    ligand_string_list.append("")
-                    continue
-                if not n_atoms:
-                    ligand_string_list.append(pad_and_truncate_name(name))
-                    continue
-                if n_atoms > n_atoms_limit_small_ligands:
-                    if code:
-                        name = code + ": " + name
-                    ligand_string_list.append(pad_and_truncate_name(name))
-                else:
-                    ligand_string_list.append("")  # too small to be interesting
-            ligand_string = string.join(ligand_string_list, "")
-            if (len(ligand_string) > 0):
-                return "\nLigands:" + ligand_string
-            else:
-                return ""
 
-    # return a list (possibly empty) of the three-letter-codes of the
-    # ligands in the entry.  The tlc are strings -  (if some
-    # problem ocurred on dehashing or it was a small/uninteresting
-    # ligand), it wont be added to the list
-    #
-    def make_ligands_tlc_list(ligand_dic):
-        if not ligand_dic:
-            return []
-        else:
-            ligand_list = []
-            for ligand in ligand_dic:
-                code = ligand["Code"]
-                n_atoms = ligand["NumberOfAtoms"]
-                if not code:
-                    continue
-                if not n_atoms:
-                    ligand_list.append(code)
-                    continue
-                else:
-                    if n_atoms > n_atoms_limit_small_ligands:
-                        ligand_list.append(code)
-            return ligand_list
 
     # The idea here is that we have a list of ligand tlcs.  From that,
     # we make a function, which, when passed a button-hbox (you can put
@@ -816,42 +778,59 @@ def recent_structure_browser(t):
 
     # dic is a dictionary with keys: "Title", "Resolution", "EntryID", etc.
     #
-    def handle_pdb_entry_entity(dic):
+    def handle_pdb_entry_entity(dic_wrapper):
 
         # return a string. Return "" on failure
-        def make_authors_string(citation_dic):
+        def make_authors_string(author_list):
+            
             citation = ""
-            if not citation_dic:
+            if not author_list:
                 citation = "No Authors listed"
             else:
-                citation_js = citation_dic[0]
-                if not citation_js:
-                    citation = "No Citation table"
-                else:
-                    citation = string_append_with_spaces(citation_js["Authors"])
+                citation = string_append_with_spaces(author_list)
             return citation
 
         #global coot_pdbe_image_cache_dir
         make_directory_maybe(coot_pdbe_image_cache_dir)
 
         # now make a button list (a label and what to do)
-        entry_id = str(dic["EntryID"])
+        # entry_id = str(dic["EntryID"])
+        dic = dic_wrapper["doclist"]["docs"][0]
+        entry_id = str(dic["pdb_id"])
+        
         entry_label = entry_id if entry_id else "missing entry id"  # should not happen, the latter!?
-        method_item = dic["Method"]
-        resolution_item = dic["Resolution"]
-        title_item = dic["Title"]
-        authors_string = make_authors_string(dic["Citation"])
-        method_label = method_item if method_item else "Unknown method"  # should not happen, the latter!?
+        method_item = dic["experimental_method"]
+        try:
+            resolution_item = dic["resolution"]
+        except KeyError:
+            resolution_item = False
+        title_item = dic["title"]
+        try: 
+            authors_string = make_authors_string(dic["pubmed_author_list"])
+        except KeyError:
+            authors_string = ""
+        # method_label = method_item if method_item else "Unknown method"  # should not happen, the latter!?
+        method_label = method_item[0]
         title_label = truncate_name(title_item) if title_item else ""
-        authors_label = pad_and_truncate_name(authors_string) \
-                        if (isinstance(authors_string, str))  else ""
-        ligands = dic["ContainsLigands"]
+        authors_label = authors_string
+        try: 
+            ligands = dic["compound_id"]
+        except KeyError:
+            ligands = []
         ligands_string = make_ligands_string(ligands)
-        ligand_tlc_list = make_ligands_tlc_list(ligands)
-        resolution_string = ("     Resolution: " + resolution_item) \
+        ligand_tlc_list = ligands
+        resolution_string = ("     Resolution: " + str(resolution_item)) \
                             if resolution_item else ""
-        label = title_label + "\n" + entry_id + ": " + method_label + \
-                resolution_string + authors_label + ligands_string
+
+        if False:
+            print "   title_label:", title_label
+            print "   entry_id:", entry_id
+            print "   method_label:", method_label
+            print "   resolution_string:", resolution_string
+            print "   authors_label:", authors_label
+            print "   ligands_string:", ligands_string
+        label = entry_id + "\n" + title_label + "\n" + method_label + \
+                resolution_string + "\n" + authors_label + ligands_string
 
         if (method_label == "x-ray diffraction"):
             return[label,
@@ -877,7 +856,8 @@ def recent_structure_browser(t):
         return map(handle_pdb_entry_entity, dic)
                     
     # main line!?
-    button_list = handle_pdb_entry_entities(get_dic_all_entries(t))
+    aa = get_dic_all_entries(t)
+    button_list = handle_pdb_entry_entities(aa)
     dialog_box_of_buttons_with_async_ligands("Recent Entries", [700, 500],
                                              button_list, " Close ")
     
@@ -907,8 +887,11 @@ def pdbe_latest_releases_gui():
     import threading
     import urllib
 
-    url = "http://www.ebi.ac.uk/pdbe-apps/jsonizer/latest/released/"
-    #url = "http://www.ebi.ac.uk/xxxxxxxxxxxxxxxxx"
+
+    url = "http://www.ebi.ac.uk/pdbe/search/latest/select?facet=true&q=*%3A*&group=true&group.field=pdb_id&group.ngroups=true&&json.nl=map&fq=document_type%3Alatest_pdb&fq=entry_type:%28new%20OR%20revised%29&wt=json&fl=pdb_id,release_date,resolution,number_of_bound_molecules,experimental_method,citation_title,citation_doi,pubmed_author_list,journal,title,entry_type&rows=-1"
+    url = "http://www.ebi.ac.uk/pdbe/search/latest/select?facet=true&q=*%3A*&group=true&group.field=pdb_id&group.ngroups=true&&json.nl=map&fq=document_type%3Alatest_pdb&fq=entry_type:%28new%20OR%20revised%29&wt=json&fl=pdb_id,compound_id,release_date,resolution,number_of_bound_molecules,experimental_method,citation_title,citation_doi,pubmed_author_list,journal,title,entry_type&rows=-1"
+
+    # url = "http://www.ebi.ac.uk/pdbe-apps/jsonizer/latest/released/"
     json_file_name = "latest-releases.json"
 
     add_status_bar_text("Retrieving list of latest releases...")

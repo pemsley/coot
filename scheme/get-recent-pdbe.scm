@@ -132,10 +132,20 @@
 	#f)
       
       (begin
-	(call-with-input-file file-name
-	  (lambda (port)
-	    (let ((s (json:read-value port)))
-	      s))))))
+
+	(catch #t
+	       (lambda () 
+		 (call-with-input-file file-name
+		   (lambda (port)
+		     (let ((s (json:read-value port)))
+		       s))))
+	       (lambda (key . parameters)
+		 (let ((s (format #f "Uncaught throw to '~a: ~a\n" key parameters)))
+		   (info-dialog s)
+		   (format (current-error-port) "Uncaught throw to '~a: ~a\n" key parameters)
+		   #f))))))
+
+
 
 ;; geometry is an improper list of ints.
 ;; 
@@ -820,7 +830,6 @@
 					   sfs-mtz-file-name 
 					   pdb-file-name 
 					   refmac-out-mtz-file-name)
-
 		       ;; OK, the files exist already.
 		       ;; 
 		       (begin
@@ -891,36 +900,38 @@
   ;; 
   (define (make-ligands-string ligand-ht-list)
 
-    (if (null? ligand-ht-list)
+    (if (not ligand-ht-list)
 	""
-	(let ((ligand-string-list
-	       (map (lambda(lht)
-		      (let ((name (hash-ref lht "Name"))
-			    (code (hash-ref lht "Code"))
-			    (n-atoms (hash-ref lht "NumberOfAtoms")))
+	(if (null? ligand-ht-list)
+	    ""
+	    (let ((ligand-string-list
+		   (map (lambda(lht)
+			  (let ((name (hash-ref lht "Name"))
+				(code (hash-ref lht "Code"))
+				(n-atoms (hash-ref lht "NumberOfAtoms")))
 
-			(if (not (string? name))
-			    (begin
-			      "")
-			    (if (not (number? n-atoms))
+			    (if (not (string? name))
 				(begin
-				  (pad-and-truncate-name name))
+				  "")
+				(if (not (number? n-atoms))
+				    (begin
+				      (pad-and-truncate-name name))
 
-				(begin
-				  (if (> n-atoms n-atoms-limit-small-ligands)
-				      (begin
-					(if (string? code)
-					    (let ((code+name (string-append code ": " name)))
-					      (pad-and-truncate-name code+name))
-					    (pad-and-truncate-name name)))
-				      (begin
-					""))))))) ;; too small to be interesting
-			   ligand-ht-list)))
-	  
-	  (let ((ligand-string (apply string-append ligand-string-list)))
-	    (if (> (string-length ligand-string) 0)
-		(string-append "\nLigands:" ligand-string)
-		"")))))
+				    (begin
+				      (if (> n-atoms n-atoms-limit-small-ligands)
+					  (begin
+					    (if (string? code)
+						(let ((code+name (string-append code ": " name)))
+						  (pad-and-truncate-name code+name))
+						(pad-and-truncate-name name)))
+					  (begin
+					    ""))))))) ;; too small to be interesting
+			ligand-ht-list)))
+	      
+	      (let ((ligand-string (apply string-append ligand-string-list)))
+		(if (> (string-length ligand-string) 0)
+		    (string-append "\nLigands:" ligand-string)
+		    ""))))))
 
   ;; return a list (possibly empty) of the three-letter-codes of the
   ;; ligands in the entry.  The tlc are strings -  (if some
@@ -929,20 +940,22 @@
   ;; 
   (define (make-ligand-tlc-list ligand-ht-list)
 
-    (if (null? ligand-ht-list)
+    (if (not ligand-ht-list)
 	'()
-	(filter string? 
-		(map (lambda (lht)
-		       (let ((code (hash-ref lht "Code"))
-			     (n-atoms (hash-ref lht "NumberOfAtoms")))
-			 (if (not (string? code))
-			     #f
-			     (if (not (number? n-atoms))
-				 code
-				 (if (> n-atoms n-atoms-limit-small-ligands)
+	(if (null? ligand-ht-list)
+	    '()
+	    (filter string? 
+		    (map (lambda (lht)
+			   (let ((code (hash-ref lht "Code"))
+				 (n-atoms (hash-ref lht "NumberOfAtoms")))
+			     (if (not (string? code))
+				 #f
+				 (if (not (number? n-atoms))
 				     code
-				     #f)))))
-		     ligand-ht-list))))
+				     (if (> n-atoms n-atoms-limit-small-ligands)
+					 code
+					 #f)))))
+			 ligand-ht-list)))))
 
   ;; The idea here is that we have a list of ligand tlcs.  From that,
   ;; we make a function, which, when passed a button-hbox (you can put
@@ -967,6 +980,7 @@
 	(let ((curl-status 'start)  ;; what does this do?
 	      (pack-image-func
 	       (lambda ()
+		 ;; (format #t "gtk-pixmap-new-from-file image-name: ~s ~s~%" image-name (stat image-name))
 		 (let ((pixmap (gtk-pixmap-new-from-file image-name button-hbox)))
 		   (if pixmap
 		       (begin
@@ -980,10 +994,14 @@
       (for-each (lambda (tlc)
 
 		  (let* ((image-size 100)
+;			 (image-url (string-append
+;				     "http://www.ebi.ac.uk/pdbe-srv/pdbechem/image/showNew?code=" 
+;				     tlc
+;				     "&size=" (number->string image-size)))
 			 (image-url (string-append
-				     "http://www.ebi.ac.uk/pdbe-srv/pdbechem/image/showNew?code=" 
-				     tlc 
-				     "&size=" (number->string image-size)))
+				     "http://www.ebi.ac.uk/pdbe-srv/pdbe/static/chem-files/" 
+				     tlc "-"
+				     (number->string image-size) ".gif"))
 			 (image-name (append-dir-file 
 				      *coot-pdbe-image-cache-dir*
 				      (string-append tlc "-" (number->string image-size) ".gif"))))
@@ -1021,45 +1039,46 @@
     (make-directory-maybe *coot-pdbe-image-cache-dir*)
 
     ;; now make a button list (a label and what to do)
-    ;; 
-    (let* ((entry-id (hash-ref hm "EntryID"))
-	   (entry-label (if (string? entry-id)
-			    entry-id
-			    "missing-entry-id"))) ;; should never happen
-      (let ((method-item (hash-ref hm "Method"))
-	    (resolution-item (hash-ref hm "Resolution"))
-	    (title-item (hash-ref hm "Title"))
-	    (authors-string (make-authors-string (hash-ref hm "Citation"))))
-	(let* ((method-label 
-		(if (not (string? method-item))
-		    "Unknown method" ;; should never happen
-		    method-item))
-	       (title-label
-		(if (not (string? title-item)) "" (truncate-name title-item)))
-	       (authors-label (if (= (string-length authors-string) 0) "" (pad-and-truncate-name authors-string)))
-	       (ligands (hash-ref hm "ContainsLigands"))
-	       (ligands-string (make-ligands-string ligands))
-	       (ligand-tlc-list (make-ligand-tlc-list ligands))
-	       (resolution-string
-		(if (not (string? resolution-item)) ;; (yes, really.)
-		    ""
-		    (string-append "     Resolution: " resolution-item)))
-	       (label (string-append title-label "\n" entry-id ": " method-label resolution-string authors-label ligands-string)))
+    (let ((groupValue (hash-ref hm "groupValue")))
+      (if (not (string? groupValue))
+	  (begin
+	    (format #t "failed to get groupValue\n"))
+	  (begin
+	    (let ((doclist (hash-ref hm "doclist")))
+	      (let ((docs (car (hash-ref doclist "docs")))) ;; hash-ref on docs returns a list of 
+		                                            ;; hash-refs (length 1 item?)
+		(let ((pdb-id  (hash-ref docs "pdb_id"))
+		      (method  (hash-ref docs "experimental_method"))
+		      (resol   (hash-ref docs "resolution"))
+		      (title   (hash-ref docs "citation_title"))
+		      (authors (hash-ref docs "pubmed_author_list"))
+		      (ligands (hash-ref docs "contains_ligands")))
+		  
+		  (let ((ligand-tlc-list (make-ligand-tlc-list ligands)))
+;		    (format #t "title: ~s~%" title)
+;		    (format #t "method: ~s~%" method)
+;		    (format #t "resol: ~s~%" resol)
+;		    (format #t "authors: ~s~%" authors)
+		    (let ((label (string-append 
+				  (if (string? pdb-id)
+				      (string-append pdb-id "\n") "")
+				  (if (string? title)
+				      title "")
+				  "\n"
+				  (if (list? method)
+				      (apply string-append method) "")
+				  (if (number? resol)
+				      (string-append " Resolution " (number->string resol)) "")
+				  "\n"
+				  (if (list? authors)
+				      (string-append "Authors: " (apply string-append authors)) "")
+				  "\n"
+ 				  (make-ligands-string ligands))))
+		      (list label
+			    (lambda () (pdbe-get-pdb-and-sfs-cif 'include-sfs pdb-id))
+			    (make-active-ligand-button-func pdb-id ligand-tlc-list)))))))))))
 
-	  (if (string=? method-label "x-ray diffraction")
-	      (list label
-		    (lambda () 
-		      (pdbe-get-pdb-and-sfs-cif 'include-sfs entry-id))
-		    (make-active-ligand-button-func entry-id ligand-tlc-list))
-		    
-	      ;; I am not interested in the ligands in NMR structures.  (Not yet).
-	      (list label
-		    (lambda () 
-		      (pdbe-get-pdb-and-sfs-cif 'no-sfs      entry-id))
-		    (make-active-ligand-button-func entry-id ligand-tlc-list)))))))
-		    
-    
-       
+		  
   ;; return a list of button
   ;; 
   (define (handle-pdb-entry-entities hash-table-list)
@@ -1069,27 +1088,63 @@
   ;; main line of recent-structure-browser
   (if (not (hash-table? t))
       (begin
-	;; (format #t "Not hash table\n"))
+	(format #t "Not top-level hash table\n")
 	#f ;; in silence please
 	)
 
-      (begin
-	(let ((a (hash-ref t "ResultSet")))
-	  (if (not (hash-table? a))
-	      #f
-	      (let ((b (hash-ref a "Result")))
-		(if (not (list? b))
-		    #f
-		    (let ((button-list (handle-pdb-entry-entities b)))
-		      ;; (format #t "button-list: ~s\n" button-list)
-		      (dialog-box-of-buttons-with-async-ligands 
-		       "Recent Entries"
-		       (cons 700 500)
-		       button-list ;; cleverness here.  The third part of a 
-		       ;; button is a function (to add the 
-		       ;; ligands icon to the button).  The button
-		       ;; is passed as an argument.
-		       "Close")))))))))
+;      (begin
+;	(let ((a (hash-ref t "ResultSet")))
+;	  (if (not (hash-table? a))
+;	      (begin
+;		(format #t "Not hash table- B\n")
+;		#f)
+;	      (let ((b (hash-ref a "Result")))
+;		(if (not (list? b))
+;		    (begin 
+;		      (format #t "Not hash table- C\n")
+;		      #f)
+;		    (let ((button-list (handle-pdb-entry-entities b)))
+;		      ;; (format #t "button-list: ~s\n" button-list)
+;		      (dialog-box-of-buttons-with-async-ligands 
+;		       "Recent Entries"
+;		       (cons 700 500)
+;		       button-list ;; cleverness here.  The third part of a 
+;		                   ;; button is a function (to add the 
+;		                   ;; ligands icon to the button).  The button
+;		                   ;; is passed as an argument.
+;		       "Close")))))))
+
+      (let ((a (hash-ref t "grouped")))
+	(if (not (hash-table? a))
+	    (begin
+	      (format #t "Not hash table - a\n")
+	      #f)
+
+	    ;; OK
+	    (begin
+	      (format #t "---- was a hashtable: a: ~s~%" a)
+	      (let ((b (hash-ref a "pdb_id")))
+		(if (not (hash-table? b))
+		    (begin
+		      (format #t "Not hash table - b\n")
+		      (format #t "b: ~s\n" b)
+		      #f)
+
+		    ;; OK
+		    (begin
+		      (format #t "---- was a hashtable: b: ~s~%" b)
+		      (let ((c (hash-ref b "groups")))
+			;; (format #t "got groups hash-ref: ~s~%" c)
+			(if (list? c)
+			    (let ((button-list (handle-pdb-entry-entities c)))
+			      (dialog-box-of-buttons-with-async-ligands 
+			       "Recent Entries"
+			       (cons 700 500)
+			       button-list ;; cleverness here.  The third part of a 
+			       ;; button is a function (to add the 
+			       ;; ligands icon to the button).  The button
+			       ;; is passed as an argument.
+			       "Close"))))))))))))
       
 
 (define (recent-entries-progress-dialog)
@@ -1117,8 +1172,12 @@
 ;; 
 (define (pdbe-latest-releases-gui)
 
-  (let ((url "http://www.ebi.ac.uk/pdbe-apps/jsonizer/latest/released/")
-	(json-file-name "latest-releases.json")
+;  (let ((url "http://www.ebi.ac.uk/pdbe-apps/jsonizer/latest/released/")
+;	(json-file-name "latest-releases.json")
+;	(curl-status 'start))
+
+
+  (let ((url "http://www.ebi.ac.uk/pdbe/search/latest/select?facet=true&q=*%3A*&group=true&group.field=pdb_id&group.ngroups=true&&json.nl=map&fq=document_type%3Alatest_pdb&fq=entry_type:%28new%20OR%20revised%29&wt=json&fl=pdb_id,compound_id,release_date,resolution,number_of_bound_molecules,experimental_method,citation_title,citation_doi,pubmed_author_list,journal,title,entry_type&rows=-1")
 	(curl-status 'start))
 
     (add-status-bar-text "Retrieving list of latest releases...")
