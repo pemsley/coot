@@ -253,6 +253,7 @@ coot_bin_SOURCES = \
 	c-interface-pisa.cc	 \
 	c-interface-pisa-gui.cc	 \
 	c-interface-preferences.cc \
+	c-interface-preferences.h  \
 	c-interface-python.hh	 \
 	c-interface-refine.hh	 \
 	c-interface-refine.cc	 \
