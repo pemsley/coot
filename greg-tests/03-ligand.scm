@@ -168,9 +168,9 @@
 		 (loop (+ count 1)))))
 
 	     (let* ((imol-protein (read-pdb 43ca-pdb))
-		    (imol-map (auto-read-make-and-draw-maps 43ca-mtz))
-		    (imol-map-1 (car imol-map))
-		    (imol-map-2 (car (cdr imol-map))))
+		    (imol-maps (auto-read-make-and-draw-maps 43ca-mtz))
+		    (imol-map-1 (vector-ref imol-maps 0))
+		    (imol-map-2 (vector-ref imol-maps 1)))
 	     
 	       (add-ligand-clear-ligands)
 	       (set-ligand-search-protein-molecule imol-protein)
@@ -184,6 +184,8 @@
 		 (set-mol-displayed imol-protein 0)
 		 (set-mol-displayed imol-npo 0)
 		 #t)))))))
+
+
 
 
 (greg-testcase "flip residue (around eigen vectors)" #t 
