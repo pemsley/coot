@@ -746,7 +746,9 @@ graphics_info_t::save_state() {
       
 #ifdef USE_PYTHON
       il = coot::PYTHON_SCRIPT;
-      if (state_file_was_run_flag) 
+      // BL says:: grrr. This was a baddy using state_file_was_run_flag 
+      // here. No idea what writing a state file has to do with running one.
+      if (1) 
 	 r = save_state_file("0-coot.state.py", il);
 #endif // USE_PYTHON   
       return r;
