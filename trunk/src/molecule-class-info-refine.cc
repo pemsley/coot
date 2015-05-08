@@ -596,10 +596,6 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
 	    bool robust_filter = true;
 	    clipper::RTop_orth rtop = q.centroid_rtop(rtops, robust_filter);
 
-	    translate_by_internal(-it->second.co, it->first);
-	    transform_by_internal(rtop,           it->first);
-	    translate_by_internal(it->second.co,  it->first);
-
 	    // debugging: save just to view them
 	    simple_shifts[this_residue] = it->second; 
 	    smooth_shifts[this_residue] =
@@ -609,17 +605,77 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
 	    std::cout << "no RTop for " << coot::residue_spec_t(it->first) << std::endl;
 	 } 
       }
+
+      // morph_fit_crunch_analysis(smooth_shifts);
+      
+      for (it=smooth_shifts.begin(); it!=smooth_shifts.end(); it++) {
+
+	 mmdb::Residue *this_residue = it->first;
+	 if (it->second.valid) {
+ 	    translate_by_internal(-it->second.co,  it->first);
+ 	    transform_by_internal(it->second.rtop, it->first);
+ 	    translate_by_internal(it->second.co,   it->first);
+	 }
+      }
       std::cout << std::endl;
       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
       have_unsaved_changes_flag = 1;
       make_bonds_type_checked();
 
+
       // morph_show_shifts(simple_shifts, smooth_shifts);
       
    }
    return success;
 }
+
+void
+molecule_class_info_t::morph_fit_crunch_analysis(const std::map<mmdb::Residue *, morph_rtop_triple> &residue_shifts) const {
+
+   std::vector<clipper::Coord_orth> centres;
+   std::map<mmdb::Residue *, morph_rtop_triple>::const_iterator it;
+   for (it=residue_shifts.begin(); it!=residue_shifts.end(); it++) {
+      mmdb::Residue *residue_p = it->first;
+      if (residue_p) {
+	 if (it->second.valid) {
+	    std::pair<bool, clipper::Coord_orth> rc = residue_centre(residue_p);
+	    if (rc.first) {
+	       centres.push_back(rc.second);
+	    }
+	 }
+      }
+   }
+
+   std::vector<std::pair<double, double> > data;
+   clipper::Coord_orth sum_pos(0,0,0);
+   for (unsigned int i=0; i<centres.size(); i++)
+      sum_pos += centres[i];
+   double d = 1.0/double(centres.size());
+   clipper::Coord_orth centre_pos(sum_pos[0]*d, sum_pos[1]*d, sum_pos[2]*d);
+   for (it=residue_shifts.begin(); it!=residue_shifts.end(); it++) {
+      mmdb::Residue *residue_p = it->first;
+      if (residue_p) {
+	 if (it->second.valid) {
+	    std::pair<bool, clipper::Coord_orth> rc = residue_centre(residue_p);
+	    if (rc.first) {
+	       clipper::Coord_orth local_vec = rc.second-centre_pos;
+	       clipper::Coord_orth local_vec_unit(local_vec.unit());
+	       double d = sqrt(local_vec.clipper::Coord_orth::lengthsq());
+	       clipper::Coord_orth trn(it->second.rtop.trn());
+	       double dp = clipper::Coord_orth::dot(local_vec_unit, trn);
+	       // data.push_back(std::pair<double, double> (d, sqrt(trn.lengthsq())));
+	       data.push_back(std::pair<double, double> (d, dp));
+	    }
+	 }
+      }
+   }
+
+   for (unsigned int idata=0; idata<data.size(); idata++)
+      std::cout << idata << "   " << data[idata].first << " " << data[idata].second << "\n";
+
+} 
+
 
 // I fail to make a function that does a good "average" of RTops,
 // so do it long-hand by generating sets of coordinates by applying

@@ -372,7 +372,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 		  }
 		  if (molecules[i].Bonds_box_type() == coot::COLOUR_BY_B_FACTOR_BONDS) {
 		     active_strings.clear();
-		     active_strings.push_back("graphics_to_b_factor_representation");
+		     active_strings.push_back("graphics-to-b-factor-representation");
 		     active_strings.push_back(int_to_string(molecule_count));
 		     commands.push_back(state_command(active_strings, il));
 		  }

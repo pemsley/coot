@@ -2463,7 +2463,7 @@ molecule_class_info_t::add_strict_ncs_from_mtrix_from_self_file() {
 std::pair<clipper::Coord_orth, double>
 molecule_class_info_t::chain_centre_and_radius(const std::string &chain_id) const {
 
-   clipper::Coord_orth pos;
+   clipper::Coord_orth pos(0,0,0);
    double radius = -1;
 
    mmdb::Manager *mol = atom_sel.mol;
