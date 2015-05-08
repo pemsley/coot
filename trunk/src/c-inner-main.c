@@ -54,6 +54,7 @@
 #include  <gtk/gtk.h> /* needed for c-interface.h */
 #include "c-interface.h" /* needed for set_guile_gui_loaded_flag() and run_command_line_scripts() */
 #include "c-inner-main.h"
+#include "c-interface-preferences.h"
 
 #include <glob.h>
 
@@ -116,7 +117,6 @@ c_inner_main(void *closure, int argc, char** argv) {
   int istat = 1; // fail initially (fake a stat() results). 
   short int use_graphics_flag = use_graphics_interface_state();
   short int python_at_prompt_flag = python_at_prompt_at_startup_state();
-  int preferences_dir_status;
   glob_t myglob;
   int flags = 0;
   char *glob_file;
