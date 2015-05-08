@@ -473,13 +473,13 @@ coot_bin_LDFLAGS =
 #
 coot_bin_LDADD = $(OPENMP_CFLAGS)       \
                 $(COOT_EXTRA_LIBS)      \
-		$(GUILE_GTK_LIBS)       \
-		$(GUILE_LDFLAGS)	\
 		$(CLIPPER_LIBS) 	\
 		$(LIBSSM_LIBS)		\
 		$(CCP4SRS_LIBS) 	\
 		$(MMDB_LIBS)		\
 		$(PYTHON_LIBS)		\
+		$(GUILE_GTK_LIBS)       \
+		$(GUILE_LDFLAGS)	\
 		$(GLOB_LIBS)		\
 		$(GTKGL_CONTEXT_LIBS) 	\
 		$(GLUT_LIBS)		\
