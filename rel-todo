@@ -1,20 +1,16 @@
  
  0.8.2
 
-   o set_b_factor_bonds_scale_factor() doesn't work (e.g. 4wl1)
-
    o with enhanced-ligand, do you get a sane code-path if you do 
      File -> SMILES?
+
+   o allow non-auto glyo link determination in sphere refine.
 
    o Ligand Check
 
    o Uncrunch
 
-   o Oliver Clarke Rigid Body bug
-
-   o read in libg restraints, delete them, read in filtered
-     restraints.  Display should update properly.
-
+   o pyrogen -M default
 
 ------
 
@@ -163,4 +159,22 @@ Punt.
 
 * Punt
 
+
+   o Oliver Clarke Rigid Body bug
+
+* Done
+
+   o PDBe new releases changes
+
+* Done.
+
+
+   o read in libg restraints, delete them, read in filtered
+     restraints.  Display should update properly.
+
+* Done
+
+   o set_b_factor_bonds_scale_factor() doesn't work (e.g. 4wl1)
+
+* Yes it does - PEBCAK.
 

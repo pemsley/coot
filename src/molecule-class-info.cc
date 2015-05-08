@@ -7986,7 +7986,7 @@ molecule_class_info_t::next_residue_in_chain(mmdb::Chain *w) const {
 void
 molecule_class_info_t::set_b_factor_bonds_scale_factor(float f) {
 
-   std::cout << "Here Adding b-factor scale " << f << std::endl;
+   // std::cout << "Here Adding b-factor scale " << f << std::endl;
    if (atom_sel.mol) {
       // bleugh, casting.
       int udd_handle =

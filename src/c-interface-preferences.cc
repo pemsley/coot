@@ -162,6 +162,7 @@ void show_hide_preferences_tabs(GtkToggleToolButton *toggletoolbutton, int prefe
 
 }
 
+#include "c-interface-preferences.h"
 
 void make_preferences_internal() {
   

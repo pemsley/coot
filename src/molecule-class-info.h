@@ -3459,6 +3459,8 @@ public:        //                      public
 		       const clipper::Xmap<float> &xmap_in, float transformation_average_radius);
    void morph_show_shifts(const std::map<mmdb::Residue *, morph_rtop_triple> &simple_shifts,
 			  const std::map<mmdb::Residue *, morph_rtop_triple> &smooth_shifts) const;
+   void morph_fit_crunch_analysis(const std::map<mmdb::Residue *, morph_rtop_triple> &smooth_shifts) const;
+   
    // I fail to make a function that does a good "average" of RTops,
    // so do it long-hand by generating sets of coordinates by applying
    // each rtop to each atom - weights are transfered in the second part of the pair
