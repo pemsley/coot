@@ -1636,8 +1636,9 @@ namespace coot {
       enum { UNSET_NUMBER = -1 };  // An unset number, for example the
       // number of atoms.
 
-      bool close_float_p (const mmdb::realtype &f1, const mmdb::realtype &f2) { //testing func
-	 float d = fabsf(f1-f2);
+      //testing func
+      bool close_float_p(const mmdb::realtype &f1, const mmdb::realtype &f2) const {
+	 float d = fabs(f1-f2);
 	 if (d < 0.001)
 	    return true;
 	 else
