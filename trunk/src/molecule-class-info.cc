@@ -1781,7 +1781,9 @@ molecule_class_info_t::zero_occupancy_spots() const {
 
       glColor3f(0.8, 0.7, 0.7);
       float zsc = graphics_info_t::zoom;
-      glPointSize(145.0/zsc);
+      //glPointSize(145.0/zsc);
+      // scale the pointer with the bond width
+      glPointSize(30.0/std::min(zsc,(float)20)*std::max(bond_width, (float)4));
       glBegin(GL_POINTS); 
       for (int i=0; i<bonds_box.n_zero_occ_spots; i++) { 
 	 glVertex3f(bonds_box.zero_occ_spots_ptr[i].x(),
