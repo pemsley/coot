@@ -80,7 +80,7 @@ void show_preferences(){
   GtkWidget *w = create_preferences();
   graphics_info_t::preferences_widget = w;
 
-  if (0) { 
+  if (1) { 
      GtkWidget *scrolled_win_model_toolbar = lookup_widget(w, "preferences_model_toolbar_icons_scrolledwindow");
      fill_preferences_model_toolbar_icons(w, scrolled_win_model_toolbar);
      GtkWidget *scrolled_win_main_toolbar = lookup_widget(w, "preferences_main_toolbar_icons_scrolledwindow");
