@@ -1353,12 +1353,18 @@ void
 set_main_window_title(const char *s) {
 
    graphics_info_t g;
-   if (g.use_graphics_interface_flag){
-      if (g.glarea) { 
-      	 GtkWidget *win = lookup_widget(g.glarea, "window1");
-	 if (win) { 
-	    GtkWindow *window = GTK_WINDOW(win);
-	    gtk_window_set_title(window, s);
+   if (s) { 
+      if (g.use_graphics_interface_flag){
+	 if (g.glarea) {
+	    GtkWidget *win = lookup_widget(g.glarea, "window1");
+	    if (win) {
+	       std::string ss(s);
+	       if (! ss.empty()) { 
+		  g.main_window_title = ss;
+		  GtkWindow *window = GTK_WINDOW(win);
+		  gtk_window_set_title(window, s);
+	       }
+	    }
 	 }
       }
    }
