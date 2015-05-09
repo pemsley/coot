@@ -95,6 +95,11 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    }
    commands.push_back(state_command("set-graphics-window-position",
 				    graphics_x_position, graphics_y_position, il));
+
+   if (! main_window_title.empty())
+      commands.push_back(state_command("set-main-window-title", single_quote(main_window_title), il));
+
+   
    // now the positions of all the major dialogs:
    if (graphics_info_t::model_fit_refine_x_position > -1)
       commands.push_back(state_command("set-model-fit-refine-dialog-position",

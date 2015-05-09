@@ -1353,6 +1353,7 @@ public:
    static GtkWidget *statusbar;
    static guint statusbar_context_id;
    static short int model_fit_refine_dialog_was_sucked;
+   static std::string main_window_title;
    void add_status_bar_text(const std::string &text) const;
 
    static void statusbar_ctrl_key_info(); // Ctrl to rotate or pick?

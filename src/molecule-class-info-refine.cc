@@ -528,7 +528,7 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
 	    
 	    // debugging block
 	    //
-	    if (0) { 
+	    if (true) { 
 	       coot::rigid_body_fit(&m_copy, xmap_in);
 	       std::string file_name = "morph-" + coot::util::int_to_string(ires);
 	       file_name += ".pdb";
@@ -606,7 +606,7 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
 	 } 
       }
 
-      // morph_fit_crunch_analysis(smooth_shifts);
+      morph_fit_crunch_analysis(smooth_shifts);
       
       for (it=smooth_shifts.begin(); it!=smooth_shifts.end(); it++) {
 
@@ -624,7 +624,7 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
       make_bonds_type_checked();
 
 
-      // morph_show_shifts(simple_shifts, smooth_shifts);
+      morph_show_shifts(simple_shifts, smooth_shifts);
       
    }
    return success;
