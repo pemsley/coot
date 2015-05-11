@@ -1469,7 +1469,6 @@ coot::assign_chirals(const RDKit::ROMol &mol, coot::dictionary_residue_restraint
    return n_chirals;
 }
 
-#include "rdkit/RDBoost/Exceptions.h"
    
 // alter restraints.
 int 
