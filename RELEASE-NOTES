@@ -37,6 +37,8 @@
   o BUG-FIX: The NCS master chain in Copy NCS Residue Range now works
              [Airlie McCoy]
 
+  o BUG-FIX: "Clear Latest Distance" crashes coot. Fixed [Emily Arturo]
+
   o BUG-FIX: Fix output format of external restraints [Richard Bunker]
 
   o BUG-FIX: Torsion-based ligand fitting improvements [Rob Nicholls]
