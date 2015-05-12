@@ -107,7 +107,19 @@ pick_atom(const atom_selection_container_t &SelAtom, int imol,
 			   if ((atom_name != " CA ") && (atom_name != " P  "))
 			      allow_pick = 0;
 		     }
-			
+
+             if (pick_mode == PICK_ATOM_CA_OR_SIDECHAIN_OR_LIGAND) {
+			std::string res_name = SelAtom.atom_selection[i]->GetResName();
+			std::string atom_name(SelAtom.atom_selection[i]->name);
+			// std::cout << "res_name: " << res_name << std::endl;
+			if (coot::util::is_standard_residue_name(res_name))
+			   // no CAs in RNA/DNA and no Ps in protein.
+               // Ignoring NA at the moment
+			   if ((atom_name == " C  ") && (atom_name == " O  ") &&
+                   (atom_name == " N  "))
+			      allow_pick = 0;
+		     }
+
 
 		     if (allow_pick) { 
 			min_dist = dist;
@@ -211,6 +223,8 @@ atom_pick(GdkEventButton *event) {
 		  pick_mode = PICK_ATOM_NON_HYDROGEN;
 	       if (graphics_info_t::molecules[ii].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS)
 		  pick_mode = PICK_ATOM_CA_OR_LIGAND;
+	       if (graphics_info_t::molecules[ii].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS)
+		  pick_mode = PICK_ATOM_CA_OR_SIDECHAIN_OR_LIGAND;
 	       if (graphics_info_t::molecules[ii].Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS)
 		  pick_mode = PICK_ATOM_CA_OR_LIGAND; // yes, this mode shows ligands
 

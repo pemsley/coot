@@ -112,6 +112,7 @@ namespace coot {
 	  BONDS_NO_HYDROGENS=15,
 	  CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR=7,
 	  CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR=14,
+	  CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS=15,
 	  COLOUR_BY_MOLECULE_BONDS=8,
 	  COLOUR_BY_RAINBOW_BONDS=9, COLOUR_BY_B_FACTOR_BONDS=10,
 	  COLOUR_BY_OCCUPANCY_BONDS=11};
@@ -1562,6 +1563,7 @@ public:        //                      public
    void make_ca_bonds(float min_dist, float max_dist); 
    void make_ca_bonds();
    void make_ca_plus_ligands_bonds(coot::protein_geometry *pg);
+   void make_ca_plus_ligands_and_sidechains_bonds(coot::protein_geometry *pg);
    void make_colour_by_chain_bonds(short int c_only_flag);
    void make_colour_by_molecule_bonds();
    void bonds_no_waters_representation();
@@ -1570,6 +1572,7 @@ public:        //                      public
    void ca_plus_ligands_rainbow_representation(coot::protein_geometry *pg);
    void ca_representation();
    void ca_plus_ligands_representation(coot::protein_geometry *pg);
+   void ca_plus_ligands_and_sidechains_representation(coot::protein_geometry *pg);
    void b_factor_representation();
    void b_factor_representation_as_cas();
    void occupancy_representation();
