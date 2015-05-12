@@ -4340,11 +4340,10 @@ graphics_info_t::clear_last_simple_distance() {
 
    int n = distance_object_vec->size();
    if (n > 0) {
-      // distance_object_vec->resize(n-1); old style.  Can't do with
-      // with new simple_distance_object_t
-      std::vector<coot::simple_distance_object_t>::iterator it;
-      it = distance_object_vec->end();
-      distance_object_vec->erase(it);
+
+      std::vector<coot::simple_distance_object_t>::reverse_iterator it;
+      it = distance_object_vec->rbegin();
+      distance_object_vec->pop_back();
       graphics_draw();
    }
 }
