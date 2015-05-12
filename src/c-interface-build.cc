@@ -5675,8 +5675,9 @@ int place_helix_here() {
    clipper::Coord_orth pt(g.RotationCentre_x(),
 			  g.RotationCentre_y(),
 			  g.RotationCentre_z());
+
    int imol_map = g.Imol_Refinement_Map();
-   if (imol_map != -1) {
+   if (is_valid_map_molecule(imol_map)) {
       // perhaps we should add to the constructor the user-setable
       // g.helix_placement_cb_density_descrimination_ratio
       // defaults to 1.0.
@@ -5699,12 +5700,13 @@ int place_helix_here() {
       std::cout << "DEBUG:: choosing map min_density limit: " << min_density_limit << std::endl;
       std::cout << "DEBUG:: choosing map high_density_turning_point limit: " << high_density_turning_point
 		<< std::endl;
-      
+
+      float map_rmsd = g.molecules[imol_map].map_sigma();
       float bf = g.default_new_atoms_b_factor;
       coot::helix_placement_info_t n =
-	 p.place_alpha_helix_near_kc_version(pt, 20, min_density_limit, high_density_turning_point, bf);
+	 p.place_alpha_helix_near_kc_version(pt, 20, min_density_limit, high_density_turning_point, bf, map_rmsd);
        if (! n.success) {
-	  n = p.place_alpha_helix_near_kc_version(pt, 9, min_density_limit, high_density_turning_point, bf);
+	  n = p.place_alpha_helix_near_kc_version(pt, 9, min_density_limit, high_density_turning_point, bf, map_rmsd);
        }
 
        if (n.success) {
@@ -6366,7 +6368,7 @@ int morph_fit_residues(int imol, const std::vector<coot::residue_spec_t> &residu
    return success;
 }
 
-int fit_by_secondary_structure_elements(int imol, const std::string &chain_id) {
+int morph_fit_by_secondary_structure_elements(int imol, const std::string &chain_id) {
 
    graphics_info_t g;
    int success = 0;
@@ -6375,7 +6377,8 @@ int fit_by_secondary_structure_elements(int imol, const std::string &chain_id) {
       if (is_valid_model_molecule(imol)) {
 	 graphics_info_t g;
 	 const clipper::Xmap<float> &xmap = g.molecules[imol_ref_map].xmap;
-	 success = g.molecules[imol].fit_by_secondary_structure_elements(chain_id, xmap);
+	 float map_rmsd                   = g.molecules[imol_ref_map].map_sigma();
+	 success = g.molecules[imol].morph_fit_by_secondary_structure_elements(chain_id, xmap, map_rmsd);
 	 graphics_draw();
       } else {
 	 std::cout << "WARNING:: no valid map. Stopping now" << std::endl;

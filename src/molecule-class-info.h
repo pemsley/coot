@@ -71,6 +71,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "select-atom-info.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-coord-extras.hh"
+#include "crunch-model.hh"
 
 #include "geometry/protein-geometry.hh"
 
@@ -3459,7 +3460,10 @@ public:        //                      public
 		       const clipper::Xmap<float> &xmap_in, float transformation_average_radius);
    void morph_show_shifts(const std::map<mmdb::Residue *, morph_rtop_triple> &simple_shifts,
 			  const std::map<mmdb::Residue *, morph_rtop_triple> &smooth_shifts) const;
-   void morph_fit_crunch_analysis(const std::map<mmdb::Residue *, morph_rtop_triple> &smooth_shifts) const;
+   
+   crunch_model_t morph_fit_crunch_analysis(const std::map<mmdb::Residue *, morph_rtop_triple> &smooth_shifts) const;
+   void morph_fit_uncrunch(std::map<mmdb::Residue *, morph_rtop_triple> *shifts, // modify the shifts
+			   crunch_model_t crunch_model);
    
    // I fail to make a function that does a good "average" of RTops,
    // so do it long-hand by generating sets of coordinates by applying
@@ -3467,8 +3471,9 @@ public:        //                      public
    void morph_residue_atoms_by_average_rtops(mmdb::Residue *this_residue,
 					     const std::vector<std::pair<clipper::RTop_orth, float> > &rtops);
 
-   int fit_by_secondary_structure_elements(const std::string &chain_id,
-					   const clipper::Xmap<float> &xmap_in);
+   int morph_fit_by_secondary_structure_elements(const std::string &chain_id,
+						 const clipper::Xmap<float> &xmap_in,
+						 float map_rmsd);
    
    // Return a map of RTops for the residues in the fragment (and the
    // local fragment centre by which we need to move atoms when
@@ -3476,10 +3481,11 @@ public:        //                      public
    // after of course).
    // 
    std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >
-   fit_by_secondary_structure_fragment(mmdb::Chain *chain_p, const std::string &chain_id,
-				       int initSeqNum, int endSeqNum,
-				       const clipper::Xmap<float> &xmap_in,
-				       bool simple_move);
+   morph_fit_by_secondary_structure_fragment(mmdb::Chain *chain_p, const std::string &chain_id,
+					     int initSeqNum, int endSeqNum,
+					     const clipper::Xmap<float> &xmap_in,
+					     float map_rmsd,
+					     bool simple_move);
 
 
    // fragment info for Alan:

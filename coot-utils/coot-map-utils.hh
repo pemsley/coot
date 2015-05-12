@@ -419,6 +419,8 @@ namespace coot {
 						     int n_rounds);
       };
 
+      bool is_EM_map(const clipper::Xmap<float> &xmap);
+
       
    }
 }

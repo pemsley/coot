@@ -54,7 +54,8 @@ coot::helix_placement_info_t
 coot::helix_placement::place_alpha_helix_near(const clipper::Coord_orth &pt,
 					      int n_residues,
 					      float density_level_for_trim,
-					      float b_factor) const {
+					      float b_factor,
+					      float map_rmsd) const {
 
    clipper::Coord_orth ptc = pt;
    for (int i=0; i<10; i++) { 
@@ -180,8 +181,8 @@ coot::helix_placement::place_alpha_helix_near(const clipper::Coord_orth &pt,
 	 // score = score_helix_position(scored_helices[1].mol);
 	 // std::cout << "Score 1 pre rigid body fitting: " << score << std::endl;
 
-	 coot::rigid_body_fit(&this_eigen_scored_helices[0].mol, xmap);
-	 coot::rigid_body_fit(&this_eigen_scored_helices[1].mol, xmap);
+	 coot::rigid_body_fit(&this_eigen_scored_helices[0].mol, xmap, map_rmsd);
+	 coot::rigid_body_fit(&this_eigen_scored_helices[1].mol, xmap, map_rmsd);
 
 	 score = score_helix_position(this_eigen_scored_helices[0].mol);
 	 this_eigen_scored_helices[0].score = score;
@@ -273,7 +274,8 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
 							 int n_residues,
 							 float min_density_limit,
 							 float high_density_turning_point,
-							 float b_factor) const {
+							 float b_factor,
+							 float map_rmsd) const {
 
    clipper::Coord_orth ptc = pt;
    for (int i=0; i<10; i++) {
@@ -391,7 +393,7 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
 	    mr[iofm].set_spacegroup(spacegroup_str_hm);
 	    // here set occupancies of CBetas to 0 so that they are not fitted.
 	    mr[iofm].set_atom_occ(" CB ", 0.0);
-	    coot::rigid_body_fit(&mr[iofm], xmap);
+	    coot::rigid_body_fit(&mr[iofm], xmap, map_rmsd);
 	    // restore the occupancies of CBetas
 	    mr[iofm].set_atom_occ(" CB ", 1.0);
 	    success = 1;
@@ -1285,6 +1287,7 @@ coot::helix_placement_info_t
 coot::helix_placement::place_strand(const clipper::Coord_orth &pt, int strand_length,
 				    int n_strand_samples, float sigma_level) {
 
+   float map_rmsd = sigma_level / 3; // hack (used in rigid body fitting shift scaling).
    coot::minimol::molecule rm;
    coot::helix_placement_info_t r(rm, 0, "Not Done");
 
@@ -1312,7 +1315,7 @@ coot::helix_placement::place_strand(const clipper::Coord_orth &pt, int strand_le
    coot::minimol::molecule best_mol;
    for (unsigned int imol=0; imol<strands.size(); imol++) {
       std::cout << "Scoring fragment " << imol+1 << " of " << strands.size() << std::endl;
-      coot::scored_helix_info_t info = fit_strand(strands[imol], op_plus_trans, imol);
+      coot::scored_helix_info_t info = fit_strand(strands[imol], op_plus_trans, imol, map_rmsd);
       if (info.score > best_score) {
 	 std::cout << "   better score: " << info.score << std::endl;
 	 best_score = info.score;
@@ -1342,7 +1345,8 @@ coot::helix_placement::place_strand(const clipper::Coord_orth &pt, int strand_le
 coot::scored_helix_info_t
 coot::helix_placement::fit_strand(const coot::minimol::molecule &mol,
 				  const clipper::RTop_orth &rtop,
-				  int imol) const {
+				  int imol,
+				  float map_rmsd) const {
 
    coot::scored_helix_info_t sir;
    float best_score = -9999.9;
@@ -1357,7 +1361,7 @@ coot::helix_placement::fit_strand(const coot::minimol::molecule &mol,
 // 	 std::cout << "Reject - too far " << v[iv].score << " but refined to "
 // 		   << score << std::endl;
       } else { 
-	 coot::rigid_body_fit(&v[iv].mol, xmap);
+	 coot::rigid_body_fit(&v[iv].mol, xmap, map_rmsd);
 	 float score = score_helix_position(v[iv].mol);
 	 if (score > best_score) {
 	    best_score = score;

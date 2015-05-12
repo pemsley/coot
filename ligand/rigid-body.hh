@@ -26,7 +26,9 @@
 
 // move the atoms of mol
 namespace coot { 
-   void rigid_body_fit(minimol::molecule *mol, const clipper::Xmap<float> &xmap);
+   void rigid_body_fit(minimol::molecule *mol,
+		       const clipper::Xmap<float> &xmap,
+		       float map_rmsd);
    clipper::Vec3<double>
    get_rigid_body_angle_components(const std::vector<minimol::atom *> &atoms_p,
 				   const clipper::Coord_orth &mean_pos,
@@ -40,13 +42,15 @@ namespace coot {
 
    std::pair<bool, clipper::RTop_orth>
    get_rigid_body_fit_rtop(minimol::molecule *mol,
-			   const clipper::Xmap<float> &xmap);
+			   const clipper::Xmap<float> &xmap,
+			   float map_rmsd);
    // as above but make a local RTop, that is, remove local_centre
    // from coordinates before calculating the RTop.
    std::pair<bool, clipper::RTop_orth>
    get_rigid_body_fit_rtop(minimol::molecule *mol,
 			   const clipper::Coord_orth &local_centre,
-			   const clipper::Xmap<float> &xmap);
+			   const clipper::Xmap<float> &xmap,
+			   float map_rmsd);
 
 }
 
