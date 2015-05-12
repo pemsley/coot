@@ -121,7 +121,8 @@ namespace coot {
 
       scored_helix_info_t fit_strand(const coot::minimol::molecule &mol,
 				     const clipper::RTop_orth &rtop,
-				     int imol) const;
+				     int imol,
+				     float map_rmsd) const;
       
       std::vector<coot::scored_helix_info_t>
       find_strand_candidates_by_shift_sampling(const coot::minimol::molecule &mol,
@@ -139,7 +140,8 @@ namespace coot {
       helix_placement_info_t place_alpha_helix_near(const clipper::Coord_orth &pt,
 						    int n_helix_residues_start,
 						    float density_level_for_trim,
-						    float b_factor) const;
+						    float b_factor,
+						    float map_rmsd) const;
       
       // Kevin's engine: do MR-like search on the surface of a
       // cylinder, not just the eigen vectors
@@ -157,7 +159,8 @@ namespace coot {
 							       int n_helix_residues_start,
 							       float density_level_for_trim,
 							       float high_density_turning_point,
-							       float b_factor) const;
+							       float b_factor,
+							       float map_rmds) const;
 
       // and now for strands, we use much of the same code, including
       // the perhaps mis-leading helper class names

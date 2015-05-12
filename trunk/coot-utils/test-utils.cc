@@ -346,6 +346,23 @@ int test_qq_plot() {
    return status;
 }
 
+#include "coot-least-squares.hh"
+int test_least_squares_fit() {
+
+   int status = 0;
+   std::vector<std::pair<double, double> > data(3);
+   data[0] = std::pair<double, double> (0,-0.1);
+   data[1] = std::pair<double, double> (1,2);
+   data[2] = std::pair<double, double> (2,4);
+   
+   coot::least_squares_fit lsq(data);
+
+   std::cout << "  lsq m " << lsq.m() << std::endl;
+   std::cout << "  lsq c " << lsq.c() << std::endl;
+
+   return status;
+} 
+
 
 int main(int argv, char **argc) {
 
@@ -368,8 +385,11 @@ int main(int argv, char **argc) {
    if (0)
       test_helix_analysis();
 
-   if (1)
+   if (0)
       test_qq_plot();
+
+   if (1)
+      test_least_squares_fit();
    
    return 0;
 }

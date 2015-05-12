@@ -30,7 +30,9 @@
 // calculation of shifts.
 //
 void
-coot::rigid_body_fit(coot::minimol::molecule *m, const clipper::Xmap<float> &xmap) {
+coot::rigid_body_fit(coot::minimol::molecule *m,
+		     const clipper::Xmap<float> &xmap,
+		     float map_rmsd) {
 
    int round_max = 100;
    int iround = 0;
@@ -42,7 +44,9 @@ coot::rigid_body_fit(coot::minimol::molecule *m, const clipper::Xmap<float> &xma
 	       xmap.cell().c()/xmap.grid_sampling().nv() +
 	       xmap.cell().b()/xmap.grid_sampling().nw())/3.0;
 
-   double gradient_scale = 0.3*t*t;  // somewhat arbitrary.
+   double gradient_scale = 0.2 / map_rmsd * 0.3*t*t;  // somewhat arbitrary.
+
+   // std::cout << "gradient scale is " << gradient_scale << " with map_rmsd " << map_rmsd << std::endl;
 
    while ( (iround < round_max) && (move_by_length > 0.0002) ) {
       clipper::Coord_orth midpoint(0,0,0);
@@ -299,10 +303,11 @@ coot::score_molecule(const coot::minimol::molecule &m,
 
 std::pair<bool, clipper::RTop_orth>
 coot::get_rigid_body_fit_rtop(coot::minimol::molecule *mol_in,
-			      const clipper::Xmap<float> &xmap) {
+			      const clipper::Xmap<float> &xmap,
+			      float map_rmsd) {
 
    minimol::molecule moving_copy = *mol_in;
-   rigid_body_fit(&moving_copy, xmap);
+   rigid_body_fit(&moving_copy, xmap, map_rmsd);
 
    return moving_copy.get_rtop(*mol_in);
 
@@ -315,12 +320,17 @@ coot::get_rigid_body_fit_rtop(coot::minimol::molecule *mol_in,
 std::pair<bool, clipper::RTop_orth>
 coot::get_rigid_body_fit_rtop(coot::minimol::molecule *mol_in,
 			      const clipper::Coord_orth &local_centre,
-			      const clipper::Xmap<float> &xmap) {
+			      const clipper::Xmap<float> &xmap,
+			      float map_rmsd) {
 
    minimol::molecule moving_copy = *mol_in;
-   rigid_body_fit(&moving_copy, xmap);
+   rigid_body_fit(&moving_copy, xmap, map_rmsd);
 
    std::pair<bool, clipper::RTop_orth> unshifted_rtop = moving_copy.get_rtop(*mol_in);
+
+   if (false)
+      std::cout << "---- unshifted_rtop " << unshifted_rtop.first << "\n"
+		<< unshifted_rtop.second.format() << std::endl;
 
    // This is heavyweight.  We want really to call moving_copy.translate() (it doesn't exist).
    // 

@@ -1653,7 +1653,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
    if (map_file_type == CNS)
       std::cout << "INFO:: map file type was determined to be CNS type\n";
 
-   short int bad_read = 0;
+   bool bad_read = false; // so far
    bool em = false;
 
    if ( map_file_type == CCP4 ) {
@@ -1673,7 +1673,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 	   catch (const clipper::Message_generic &exc) {
 	      std::cout << "WARNING:: failed to read " << filename
 			<< " Bad ASU (inconsistant gridding?)." << std::endl;
-	      bad_read = 1;
+	      bad_read = true;
 	   }
 	} else {
 
@@ -1685,7 +1685,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 	} 
      } catch (const clipper::Message_base &exc) {
 	std::cout << "WARNING:: failed to open " << filename << std::endl;
-	bad_read = 1;
+	bad_read = true;
      }
      std::cout << "closing CCP4 map: " << filename << std::endl;
      file.close_read();
@@ -1698,12 +1698,12 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
      }
      catch (clipper::Message_base exc) {
        std::cout << "WARNING:: failed to read " << filename << std::endl;
-       bad_read = 1;
+       bad_read = true;
      }
      file.close_read();
    }
 
-   if (bad_read == 0) {
+   if (bad_read == false) {
 
       initialize_map_things_on_read_molecule(filename, is_diff_map_flag, 
 					     graphics_info_t::swap_difference_map_colours);

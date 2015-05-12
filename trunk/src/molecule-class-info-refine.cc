@@ -12,6 +12,8 @@
 
 // morphing
 #include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/coot-map-utils.hh"
+#include "coot-utils/xmap-stats.hh"
 #include "ligand/rigid-body.hh"
 
 #include "molecule-class-info.h"
@@ -486,14 +488,19 @@ molecule_class_info_t::morph_fit_residues(const std::vector<coot::residue_spec_t
    return r;
 } 
 
-
 int
 molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *, std::vector<mmdb::Residue *> > > moving_residues,
-					  const clipper::Xmap<float> &xmap_in, float transformation_average_radius) {
+					  const clipper::Xmap<float> &xmap_in,
+					  float transformation_average_radius) {
 
    int success = 0;
 
-   // construct minimol fragments 
+   // construct minimol fragments
+   bool ignore_pseudo_zeros = coot::util::is_EM_map(xmap_in);
+   int n_bins = 40; 
+   mean_and_variance<float> mv = map_density_distribution(xmap_in, n_bins, false, ignore_pseudo_zeros);
+   float map_rmsd = sqrt(mv.variance);
+   
 
    // store the local origin too.
    std::map<mmdb::Residue *, morph_rtop_triple> rtop_map;
@@ -521,15 +528,15 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
 	 coot::minimol::molecule m_copy = m; // for debugging
 	 
 	 // returns the local rtop (relative to local centre) to move m into map.
-	 std::pair<bool, clipper::RTop_orth> rtop = coot::get_rigid_body_fit_rtop(&m, local_centre.second, xmap_in);
+	 std::pair<bool, clipper::RTop_orth> rtop = coot::get_rigid_body_fit_rtop(&m, local_centre.second, xmap_in, map_rmsd);
 	 if (rtop.first) { 
 	    morph_rtop_triple rt(local_centre.second, rtop);
 	    rtop_map[residue_p] = rt;
 	    
-	    // debugging block
+	    // debugging
 	    //
-	    if (true) { 
-	       coot::rigid_body_fit(&m_copy, xmap_in);
+	    if (false) { 
+	       coot::rigid_body_fit(&m_copy, xmap_in, map_rmsd);
 	       std::string file_name = "morph-" + coot::util::int_to_string(ires);
 	       file_name += ".pdb";
 	       m_copy.write_file(file_name, 10);
@@ -606,7 +613,8 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
 	 } 
       }
 
-      morph_fit_crunch_analysis(smooth_shifts);
+      crunch_model_t crunch_model = morph_fit_crunch_analysis(smooth_shifts);
+      morph_fit_uncrunch(&smooth_shifts, crunch_model); // alter smooth shifts
       
       for (it=smooth_shifts.begin(); it!=smooth_shifts.end(); it++) {
 
@@ -617,6 +625,8 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
  	    translate_by_internal(it->second.co,   it->first);
 	 }
       }
+
+      
       std::cout << std::endl;
       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
@@ -630,9 +640,12 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
    return success;
 }
 
-void
+
+crunch_model_t
 molecule_class_info_t::morph_fit_crunch_analysis(const std::map<mmdb::Residue *, morph_rtop_triple> &residue_shifts) const {
 
+   // Fill centres
+   // 
    std::vector<clipper::Coord_orth> centres;
    std::map<mmdb::Residue *, morph_rtop_triple>::const_iterator it;
    for (it=residue_shifts.begin(); it!=residue_shifts.end(); it++) {
@@ -647,12 +660,17 @@ molecule_class_info_t::morph_fit_crunch_analysis(const std::map<mmdb::Residue *,
       }
    }
 
-   std::vector<std::pair<double, double> > data;
+   // get centre_pos from centres
+   // 
    clipper::Coord_orth sum_pos(0,0,0);
    for (unsigned int i=0; i<centres.size(); i++)
       sum_pos += centres[i];
    double d = 1.0/double(centres.size());
    clipper::Coord_orth centre_pos(sum_pos[0]*d, sum_pos[1]*d, sum_pos[2]*d);
+
+   // fill data
+   // 
+   std::vector<std::pair<double, double> > data;
    for (it=residue_shifts.begin(); it!=residue_shifts.end(); it++) {
       mmdb::Residue *residue_p = it->first;
       if (residue_p) {
@@ -661,20 +679,61 @@ molecule_class_info_t::morph_fit_crunch_analysis(const std::map<mmdb::Residue *,
 	    if (rc.first) {
 	       clipper::Coord_orth local_vec = rc.second-centre_pos;
 	       clipper::Coord_orth local_vec_unit(local_vec.unit());
-	       double d = sqrt(local_vec.clipper::Coord_orth::lengthsq());
+	       double d_c = sqrt(local_vec.clipper::Coord_orth::lengthsq());
 	       clipper::Coord_orth trn(it->second.rtop.trn());
 	       double dp = clipper::Coord_orth::dot(local_vec_unit, trn);
 	       // data.push_back(std::pair<double, double> (d, sqrt(trn.lengthsq())));
-	       data.push_back(std::pair<double, double> (d, dp));
+	       data.push_back(std::pair<double, double> (d_c, dp));
 	    }
 	 }
       }
    }
 
-   for (unsigned int idata=0; idata<data.size(); idata++)
-      std::cout << idata << "   " << data[idata].first << " " << data[idata].second << "\n";
 
-} 
+   coot::least_squares_fit lsq(data);
+   
+   if (true) { // debug
+      std::cout << "data: m " << lsq.m() <<  "  c: " << lsq.c() << std::endl;
+      std::ofstream f("morph.tab");
+      for (unsigned int idata=0; idata<data.size(); idata++)
+	 f << idata << "   " << data[idata].first << " " << data[idata].second << "\n";
+      std::ofstream fm("model.tab");
+      for (unsigned int r=0; r<40; r++)
+	 fm << r << " " << lsq.m() * r + lsq.c() <<  "\n";
+   }
+
+   crunch_model_t crunch_model(lsq, centre_pos);
+   return crunch_model;
+
+}
+
+// alter shifts
+void
+molecule_class_info_t::morph_fit_uncrunch(std::map<mmdb::Residue *, morph_rtop_triple> *shifts,
+					  crunch_model_t crunch_model) {
+
+   std::map<mmdb::Residue *, morph_rtop_triple>::iterator it;
+   for (it=shifts->begin(); it!=shifts->end(); it++) {
+      mmdb::Residue *residue_p = it->first;
+      if (residue_p) {
+	 if (it->second.valid) {
+	    std::pair<bool, clipper::Coord_orth> rc = residue_centre(residue_p);
+	    if (rc.first) {
+	       clipper::Coord_orth local_vec = rc.second-crunch_model.centre;
+	       clipper::Coord_orth local_vec_unit(local_vec.unit());
+	       double d_c = sqrt(local_vec.clipper::Coord_orth::lengthsq()); // distance from centre
+	       double uncrunch_ampl = crunch_model.lsq.m() * d_c + crunch_model.lsq.c();
+	       clipper::Coord_orth uncrunch_vec(- uncrunch_ampl * local_vec_unit);
+	       clipper::Coord_orth new_vec(it->second.rtop.trn() + uncrunch_vec);
+	       clipper::RTop_orth new_rtop(it->second.rtop.rot(), new_vec);
+	       it->second.rtop = new_rtop;
+	    }
+	 }
+      }
+   }
+}
+
+
 
 
 // I fail to make a function that does a good "average" of RTops,
@@ -849,8 +908,9 @@ molecule_class_info_t::morph_show_shifts(const std::map<mmdb::Residue *, morph_r
 }
 
 int
-molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &chain_id,
-							   const clipper::Xmap<float> &xmap_in) {
+molecule_class_info_t::morph_fit_by_secondary_structure_elements(const std::string &chain_id,
+								 const clipper::Xmap<float> &xmap_in,
+								 float map_rmsd) {
 
    int status = 0;
    float local_radius = 16;
@@ -887,8 +947,10 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 	       if (helix_p) {
 
 		  std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtops_fragment = 
-		     fit_by_secondary_structure_fragment(chain_p, chain_id, helix_p->initSeqNum, helix_p->endSeqNum,
-							 xmap_in, simple_move);
+		     morph_fit_by_secondary_structure_fragment(chain_p, chain_id,
+							       helix_p->initSeqNum, helix_p->endSeqNum,
+							       xmap_in, map_rmsd,
+							       simple_move);
 		  // add rtops_fragment bits to overall rtops_map;
 		  std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >::const_iterator it;
 		  for (it=rtops_fragment.begin(); it!=rtops_fragment.end(); it++)
@@ -916,10 +978,10 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 		     if (std::string(strand_p->initChainID) == chain_id) {
 			if (std::string(strand_p->endChainID) == chain_id) {
 			   std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtops_fragment = 
-			      fit_by_secondary_structure_fragment(chain_p, chain_id,
-								  strand_p->initSeqNum,
-								  strand_p->endSeqNum,
-								  xmap_in, simple_move);
+			      morph_fit_by_secondary_structure_fragment(chain_p, chain_id,
+									strand_p->initSeqNum, strand_p->endSeqNum,
+									xmap_in, map_rmsd,
+									simple_move);
 
 			   // add rtops_fragment bits to overall rtops_map;
 			   std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >::const_iterator it;
@@ -1057,12 +1119,13 @@ molecule_class_info_t::fit_by_secondary_structure_elements(const std::string &ch
 }
 
 std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> >
-molecule_class_info_t::fit_by_secondary_structure_fragment(mmdb::Chain *chain_p,
-							   const std::string &chain_id,
-							   int initSeqNum,
-							   int endSeqNum,
-							   const clipper::Xmap<float> &xmap_in,
-							   bool simple_move) {
+molecule_class_info_t::morph_fit_by_secondary_structure_fragment(mmdb::Chain *chain_p,
+								 const std::string &chain_id,
+								 int initSeqNum,
+								 int endSeqNum,
+								 const clipper::Xmap<float> &xmap_in,
+								 float map_rmsd,
+								 bool simple_move) {
 
    
    std::map<mmdb::Residue *, std::pair<clipper::Coord_orth, clipper::RTop_orth> > rtop_map;
@@ -1090,7 +1153,7 @@ molecule_class_info_t::fit_by_secondary_structure_fragment(mmdb::Chain *chain_p,
 	 // returns the local rtop (relative to local centre) to move m into map.
 	 //
 	 std::pair<bool, clipper::RTop_orth> rtop =
-	    coot::get_rigid_body_fit_rtop(&m, sse_centre.second, xmap_in);
+	    coot::get_rigid_body_fit_rtop(&m, sse_centre.second, xmap_in, map_rmsd);
 	 
 	 if (rtop.first) {
 	    if (0)

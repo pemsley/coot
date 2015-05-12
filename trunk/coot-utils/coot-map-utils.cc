@@ -2355,3 +2355,20 @@ coot::util::map_fragment_info_t::init_making_map_centred_at_origin(const clipper
    xmap = new_xmap;
 }
 
+
+bool
+coot::util::is_EM_map(const clipper::Xmap<float> &xmap) {
+
+   bool is_em = false;
+   if (xmap.spacegroup().num_symops() == 1) { // P1
+      if (((xmap.cell().descr().alpha() - M_PI/2) <  0.0001) && 
+	  ((xmap.cell().descr().alpha() - M_PI/2) > -0.0001) &&
+	  ((xmap.cell().descr().beta()  - M_PI/2) > -0.0001) &&
+	  ((xmap.cell().descr().beta()  - M_PI/2) <  0.0001) &&
+	  ((xmap.cell().descr().gamma() - M_PI/2) > -0.0001) &&
+	  ((xmap.cell().descr().gamma() - M_PI/2) <  0.0001)) {
+	 is_em = true;
+      }
+   }
+   return is_em;
+} 
