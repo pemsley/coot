@@ -75,7 +75,7 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
    float fval3;
    std::vector<int> ivector;
    graphics_info_t g;
-   for (int i=0; i<g.preferences_internal.size(); i++) {
+   for (unsigned int i=0; i<g.preferences_internal.size(); i++) {
      preference_type = g.preferences_internal[i].preference_type;
      switch (preference_type) {
 
@@ -438,7 +438,7 @@ graphics_info_t::make_preferences_internal() {
 
   // refinement toolbar icons
   std::vector<coot::preferences_icon_info_t> all_items =*model_toolbar_icons;
-  for (int i=0; i<all_items.size(); i++) {
+  for (unsigned int i=0; i<all_items.size(); i++) {
     coot::preferences_icon_info_t item = all_items[i];
     p.preference_type = PREFERENCES_MODEL_TOOLBAR_ICONS;
     // ivalue1 is icon_pos
@@ -470,7 +470,7 @@ graphics_info_t::make_preferences_internal() {
 
   // refinement toolbar icons
   all_items =*main_toolbar_icons;
-  for (int i=0; i<all_items.size(); i++) {
+  for (unsigned int i=0; i<all_items.size(); i++) {
       coot::preferences_icon_info_t item = all_items[i];
       p.preference_type = PREFERENCES_MAIN_TOOLBAR_ICONS;
       // ivalue1 is icon_pos
@@ -637,7 +637,7 @@ graphics_info_t::make_preferences_internal() {
 void
 graphics_info_t::preferences_internal_change_value(int preference_type, int ivalue){
 
-  for (int i=0; i<preferences_internal.size(); i++) {
+  for (unsigned int i=0; i<preferences_internal.size(); i++) {
     if (preferences_internal[i].preference_type == preference_type) {
       preferences_internal[i].ivalue1 = ivalue;
       break;
@@ -648,7 +648,7 @@ graphics_info_t::preferences_internal_change_value(int preference_type, int ival
 void
 graphics_info_t::preferences_internal_change_value(int preference_type, int ivalue1, int ivalue2){
 
-  for (int i=0; i<preferences_internal.size(); i++) {
+  for (unsigned int i=0; i<preferences_internal.size(); i++) {
     if (preferences_internal[i].preference_type == preference_type) {
       if (preferences_internal[i].ivalue1 == ivalue1) {
 	preferences_internal[i].ivalue2 = ivalue2;
@@ -661,7 +661,7 @@ graphics_info_t::preferences_internal_change_value(int preference_type, int ival
 void
 graphics_info_t::preferences_internal_change_value(int preference_type, float fvalue){
 
-  for (int i=0; i<preferences_internal.size(); i++) {
+  for (unsigned int i=0; i<preferences_internal.size(); i++) {
     if (preferences_internal[i].preference_type == preference_type) {
       preferences_internal[i].fvalue1 = fvalue;
       break;
@@ -673,7 +673,7 @@ void
 graphics_info_t::preferences_internal_change_value(int preference_type, 
 						   float fvalue1, float fvalue2, float fvalue3){
 
-  for (int i=0; i<preferences_internal.size(); i++) {
+  for (unsigned int i=0; i<preferences_internal.size(); i++) {
     if (preferences_internal[i].preference_type == preference_type) {
       preferences_internal[i].fvalue1 = fvalue1;
       preferences_internal[i].fvalue2 = fvalue2;
