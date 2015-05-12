@@ -3236,7 +3236,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
    // 
    float dist_max_CA_CA = 5.0;
    float dist_max_P_P   = 8.5; // seems reasonable.
-   
+
 
    if (bond_colour_type == coot::COLOUR_BY_RAINBOW)
       atom_colours_udd = set_rainbow_colours(SelAtom.mol);
@@ -3288,7 +3288,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 				 if ((atom_name_1 == " CA ") && (atom_name_2 == " CA ")) { 
 				    Calpha_pair = 1;
 				 }
-			      
+
 				 if (Calpha_pair || phosphate_pair) { 
 				    if (alt_conf_prev == alt_conf_this || alt_conf_this == "" || alt_conf_prev == "") {
 				       int col = 0; // overridden.
@@ -3302,8 +3302,12 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 					     col = atom_colour(at_2, coot::COLOUR_BY_B_FACTOR);
 					     addBond(col, bond_mid_point, ca_2);
 					  } else {
-					     if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) { 
-						col = atom_colour(at_1, bond_colour_type);
+					     if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) {
+					     coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
+					     col = atom_colour(at_1, coot::COLOUR_BY_SEC_STRUCT);
+					     addBond(col, ca_1, bond_mid_point);
+					     col = atom_colour(at_2, coot::COLOUR_BY_SEC_STRUCT);
+					     addBond(col, bond_mid_point, ca_2);
 					     } else {
 						if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
 						   if (atom_colours_udd > 0) {
@@ -3319,13 +3323,12 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 						} else {
 						   col = atom_colour_map.index_for_chain(chain_p->GetChainID());
 						}
-					     }
 					     bonds_size_colour_check(col);
 					     addBond(col, ca_1, ca_2);
-					     at_1->PutUDData(udd_has_bond_handle, 1);
-					     at_2->PutUDData(udd_has_bond_handle, 1);
-					  
+                         }
 					  }
+                      at_1->PutUDData(udd_has_bond_handle, 1);
+                      at_2->PutUDData(udd_has_bond_handle, 1);
 					  // for use with Ca+ligand mode
 					  residue_this->PutUDData(udd_has_ca_handle, BONDED_WITH_STANDARD_ATOM_BOND);
 					  residue_prev->PutUDData(udd_has_ca_handle, BONDED_WITH_STANDARD_ATOM_BOND);
@@ -3658,7 +3661,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
    if (bond_colour_type == coot::COLOUR_BY_CHAIN) {
       if (atom_colour_map_p) { 
 	 col = atom_colour_map_p->index_for_chain(std::string(at->GetChainID()));
-	 if (0)
+	 if (1)
 	    std::cout << " atom_colour_map->index_for_chain(\"" << at->GetChainID()
 		      << "\") returns " << col << std::endl;
       }
@@ -3840,6 +3843,23 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
 }
 
 void
+Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_container_t SelAtom,
+					       coot::protein_geometry *pg,
+					       float min_dist_ca, float max_dist_ca,
+					       float min_dist, float max_dist,
+					       bool do_bonds_to_hydrogens_in) {
+
+   do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
+   if (pg) { 
+      geom = pg;
+      have_dictionary = true;
+   }
+   //do_Ca_plus_ligands_bonds(SelAtom, min_dist, max_dist, coot::COLOUR_BY_ATOM_TYPE);
+   do_Ca_plus_ligands_and_sidechains_bonds(SelAtom, pg, min_dist_ca, max_dist_ca, min_dist, max_dist,
+                                           coot::COLOUR_BY_CHAIN, do_bonds_to_hydrogens);
+}
+
+void
 Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAtom,
 					       coot::protein_geometry *pg,
 					       float min_dist, float max_dist, 
@@ -3947,6 +3967,57 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
 
 }
 
+void
+Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_container_t SelAtom,
+					       coot::protein_geometry *pg,
+					       float min_dist_ca, float max_dist_ca, 
+					       float min_dist, float max_dist, 
+					       int atom_colour_type,
+					       bool do_bonds_to_hydrogens_in) {
+
+   
+   // first do Ca plus ligand
+   do_Ca_plus_ligands_bonds(SelAtom, pg, min_dist_ca, max_dist_ca, atom_colour_type, do_bonds_to_hydrogens_in);
+
+   // now do normal bonds for CA+sidechain
+   // mmmh are the distances correct!?
+   // first select all atoms excluding MC (N,C,O)
+   atom_selection_container_t asc = SelAtom;
+
+   // Now make a new atom selection that excludes N,C,O by using mmdb::SKEY_XOR
+   int newSelectionHandle = asc.mol->NewSelection();
+   asc.SelectionHandle = newSelectionHandle;
+   std::string solvent_res = "WAT,HOH";
+   
+   // We need to select all atoms here first, or crash when going back to all-atom view.
+   // Mmmh!?
+   asc.mol->SelectAtoms(asc.SelectionHandle, 0, "*",
+			mmdb::ANY_RES, "*",
+			mmdb::ANY_RES, "*",
+			"*", "*", "*", "*");
+
+   asc.mol->Select(asc.SelectionHandle, mmdb::STYPE_ATOM, 0, "*",
+                   mmdb::ANY_RES, "*",
+                   mmdb::ANY_RES, "*",
+                   solvent_res.c_str(), "*", "*", "*",
+                   mmdb::SKEY_XOR);
+
+   asc.mol->Select(asc.SelectionHandle, mmdb::STYPE_ATOM, 0, "*",
+                   mmdb::ANY_RES, "*",
+                   mmdb::ANY_RES, "*",
+                   "!GLY", "[ C  ],[ N  ],[ O  ]", "*", "*",
+                   mmdb::SKEY_XOR);
+
+   asc.mol->GetSelIndex(asc.SelectionHandle, asc.atom_selection, asc.n_selected_atoms);
+   // std::cout << "after water selection: n_selected_atoms: " << asc.n_selected_atoms << std::endl;
+   // BL says:: may need to min max, but just go for fixed one now. FIXME
+   //   do_normal_bonds_no_water(asc, min_dist, max_dist);
+   int model_number = 0; // all models
+   construct_from_asc(asc, min_dist, max_dist, atom_colour_type, 0, model_number);
+   asc.mol->DeleteSelection(asc.SelectionHandle);
+
+}
+
 void 
 Bond_lines_container::do_normal_bonds_no_water(const atom_selection_container_t &asc_in,
 					       float min_dist, 
@@ -4024,7 +4095,7 @@ Bond_lines_container::do_Ca_plus_ligands_colour_sec_struct_bonds(const atom_sele
       mmdb::Model *model_p = asc.mol->GetModel(1);
       int aminoSelHnd = -1;
       model_p->CalcSecStructure(1, aminoSelHnd);
-      do_Ca_plus_ligands_bonds(asc, pg, min_dist, max_dist, coot::COLOUR_BY_SEC_STRUCT);
+      do_Ca_plus_ligands_bonds(asc, pg, min_dist, max_dist, coot::COLOUR_BY_SEC_STRUCT, do_bonds_to_hydrogens_in);
    }
 }
 

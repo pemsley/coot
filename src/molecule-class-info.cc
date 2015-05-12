@@ -2805,6 +2805,18 @@ molecule_class_info_t::make_ca_plus_ligands_bonds(coot::protein_geometry *geom_p
 }
 
 void
+molecule_class_info_t::make_ca_plus_ligands_and_sidechains_bonds(coot::protein_geometry *geom_p) { 
+
+   Bond_lines_container bonds(geom_p);
+   bonds.do_Ca_plus_ligands_and_sidechains_bonds(atom_sel, geom_p, 2.4, 4.7,
+                                                 0.01, 1.9, draw_hydrogens_flag);
+   bonds_box = bonds.make_graphical_bonds_no_thinning();
+   bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS;
+   
+   // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
+}
+
+void
 molecule_class_info_t::make_colour_by_chain_bonds(short int change_c_only_flag) {
    // 
    Bond_lines_container bonds(graphics_info_t::Geom_p());
@@ -2852,6 +2864,8 @@ molecule_class_info_t::make_bonds_type_checked() {
       make_colour_by_molecule_bonds();
    if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS)
       make_ca_plus_ligands_bonds(g.Geom_p());
+   if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS)
+      make_ca_plus_ligands_and_sidechains_bonds(g.Geom_p());
    if (bonds_box_type == coot::BONDS_NO_WATERS)
       bonds_no_waters_representation();
    if (bonds_box_type == coot::BONDS_SEC_STRUCT_COLOUR)

@@ -410,6 +410,14 @@ molecule_class_info_t::ca_plus_ligands_representation(coot::protein_geometry *ge
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
 }
 
+void
+molecule_class_info_t::ca_plus_ligands_and_sidechains_representation(coot::protein_geometry *geom) { 
+
+   bonds_box.clear_up();
+   make_ca_plus_ligands_and_sidechains_bonds(geom);
+   bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS;
+}
+
 void 
 molecule_class_info_t::bonds_no_waters_representation() { 
 

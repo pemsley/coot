@@ -686,6 +686,17 @@ public:
 				 float min_dist, float max_dist,
 				 int atom_colour_type,
 				 bool do_bonds_to_hydrogens_in); 
+   void do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_container_t SelAtom, 
+				 coot::protein_geometry *pg,
+				 float min_dist_ca, float max_dist_ca,
+				 float min_dist, float max_dist,
+				 bool do_bonds_to_hydrogens_in); 
+   void do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_container_t SelAtom, 
+				 coot::protein_geometry *pg,
+				 float min_dist_ca, float max_dist_ca,
+				 float min_dist, float max_dist,
+				 int atom_colour_type,
+				 bool do_bonds_to_hydrogens_in); 
    void do_colour_by_chain_bonds(const atom_selection_container_t &asc,
 				 int draw_hydrogens_flag,
 				 short int change_c_only_flag);

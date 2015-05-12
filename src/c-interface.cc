@@ -4455,6 +4455,18 @@ void graphics_to_ca_plus_ligands_representation   (int imol) {
    add_to_history(command_strings);
 }
 
+void graphics_to_ca_plus_ligands_and_sidechains_representation   (int imol) { 
+   if (is_valid_model_molecule(imol)) { 
+      graphics_info_t g;
+      g.molecules[imol].ca_plus_ligands_and_sidechains_representation(g.Geom_p());
+      graphics_draw();
+   }
+   std::vector<std::string> command_strings;
+   command_strings.push_back("graphics-to-ca-plus-ligands-and-sidechains-representation");
+   command_strings.push_back(graphics_info_t::int_to_string(imol));
+   add_to_history(command_strings);
+}
+
 
 void graphics_to_bonds_representation(int imol) {
    graphics_info_t g;

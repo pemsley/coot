@@ -345,6 +345,12 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 		     active_strings.push_back(int_to_string(molecule_count));
 		     commands.push_back(state_command(active_strings, il));
 		  }
+		  if (molecules[i].Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS) {
+		     active_strings.clear();
+		     active_strings.push_back("graphics-to-ca-plus-ligands-and-sidechains-representation");
+		     active_strings.push_back(int_to_string(molecule_count));
+		     commands.push_back(state_command(active_strings, il));
+		  }
 		  if (molecules[i].Bonds_box_type() == coot::BONDS_NO_WATERS) {
 		     active_strings.clear();
 		     active_strings.push_back("graphics-to-bonds-no-waters-representation");

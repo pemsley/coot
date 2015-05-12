@@ -4728,6 +4728,8 @@ int draw_hydrogens_state(int imol);
 void graphics_to_ca_representation   (int imol);
 /*! \brief draw molecule number imol as CA + ligands */
 void graphics_to_ca_plus_ligands_representation   (int imol);
+/*! \brief draw molecule number imol as CA + ligands + sidechains*/
+void graphics_to_ca_plus_ligands_and_sidechains_representation   (int imol);
 /*! \brief draw molecule number imol with no waters */
 void graphics_to_bonds_no_waters_representation(int imol);
 /*! \brief draw molecule number imol with normal bonds */
