@@ -31,7 +31,7 @@ libcoot_lidia_la_LIBADD = \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) \
-	$(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(L_BOOST_PYTHON) $(GOOCANVAS_LIBS) $(GTK_LIBS)
+	$(MMDB_LIBS) $(GSL_LIBS) $(RDKIT_LIBS) $(L_BOOST_PYTHON) $(GOOCANVAS_LIBS) $(GTK_LIBS) $(PYTHON_LIBS)
 
 # Bernie-mode: libcoot_lidia_la_LDFLAGS = $(SHARED_LDFLAGS)  -Wl,--no-undefined
 # 

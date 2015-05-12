@@ -3424,7 +3424,9 @@ if [ $architecture = x86_64 ] ; then
    export CXXFLAGS="-g -O"
 fi
 
-cbis_n=$(cmd /c "net user $USERNAME | FIND 'Full Name'")
+# This is not working, need a better way (if any)
+# cbis_n=$(cmd /c "net user $USERNAME | FIND 'Full Name'")
+cbis_n=
 if [ -z $cbis_n ] ; then
   cbis_n=$USERNAME
 fi
@@ -3433,6 +3435,12 @@ coot_build_info_string="built by: $cbis_n build-host: $HOST on: $cbis_d"
 
 # this is a quick fix, and should be done properly at some point
 coot_optim_args="-build=i686-pc-mingw32 --with-glob-prefix=/usr"
+
+# should rm libtool to make sure we use OS one
+if [ -e libtool ] ; then
+  echo rm libtool for clean build
+  rm libtool
+fi
 
 echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 echo building in: $PWD
