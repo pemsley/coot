@@ -10,13 +10,7 @@ echo "#ifdef USE_PYTHON"     >> $post
 echo "#include \"Python.h\"" >> $post
 echo "#endif"                >> $post
 
-if [ "$gtk2" = gtk2 ] ; then
-   echo "#ifdef COOT_USE_GTK2_INTERFACE"  >> $post
-else 
-   echo "#ifndef COOT_USE_GTK2_INTERFACE"  >> $post
-fi    
 cat $pre_tmp >> $post
-echo "#endif // COOT_USE_GTK2_INTERFACE" >> $post
 echo "#endif // USE_GUILE" >> $post
 
 }
@@ -70,12 +64,14 @@ else
                -e 's/SCM_STRINGP/scm_is_string/'              \
                -e 's/SCM_STRING_LENGTH/scm_c_string_length/'  \
                -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' \
+               -e 's/static char .gswig_const_COOT_PYTHON_DIR/static const char *gswig_const_COOT_PYTHON_DIR/' \
                -e '/.libguile.h./{x;s/.*/#include <cstdio>/;G;}' \
                $pre ..to.. $pre.tmp
            sed -e 's/SCM_STRING_CHARS/scm_to_locale_string/'      \
                -e 's/SCM_STRINGP/scm_is_string/'                  \
                -e 's/SCM_STRING_LENGTH/scm_c_string_length/'      \
                -e 's/static char .gswig_const_COOT_SCHEME_DIR/static const char *gswig_const_COOT_SCHEME_DIR/' \
+               -e 's/static char .gswig_const_COOT_PYTHON_DIR/static const char *gswig_const_COOT_PYTHON_DIR/' \
                -e '/.libguile.h./{x;s/.*/#include <cstdio>/;G;}' \
                $pre > $pre.tmp
       add_ifdefs $pre.tmp $post
