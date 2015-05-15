@@ -208,6 +208,7 @@ AM_CPPFLAGS = \
 
 #	$(WITH_SCRIPT_CFLAGS) 
 
+pkginclude_HEADERS = crunch-model.hh
 
 libexec_PROGRAMS = coot-bin
 bin_PROGRAMS = density-score-by-residue-real fix-nomenclature-errors
