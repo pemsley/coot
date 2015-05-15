@@ -190,7 +190,11 @@ main (int argc, char *argv[]) {
       gtk_init (&argc, &argv);
       // activate to force icons in menus; cannot get it to work with 
       // cootrc. Bug?
-      //gtk_settings_set_long_property(gtk_settings_get_default (), "gtk-menu-images", TRUE, NULL);
+      // seems to be neccessary to make sure the type is realized 
+      // and we use newer g_object_set instead of deprecated (gtk3)
+      // gtk_settings_set_long_property
+      g_type_class_unref (g_type_class_ref (GTK_TYPE_IMAGE_MENU_ITEM));
+      g_object_set (gtk_settings_get_default (), "gtk-menu-images", TRUE, NULL);
       glutInit(&argc, argv);
    } else {
       g_type_init(); // for lbg command-line mode, so that
