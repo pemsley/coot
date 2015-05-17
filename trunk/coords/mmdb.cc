@@ -758,9 +758,15 @@ coot::mol_to_asc_rdkit(const std::string &file_name) {
 }
 #endif 
 
-
 atom_selection_container_t
 coot::mdl_mol_to_asc(const lig_build::molfile_molecule_t &m) {
+
+   return mdl_mol_to_asc(m, 20.0);
+}
+
+
+atom_selection_container_t
+coot::mdl_mol_to_asc(const lig_build::molfile_molecule_t &m, float b_factor) {
 
    atom_selection_container_t asc;
 
@@ -775,7 +781,7 @@ coot::mdl_mol_to_asc(const lig_build::molfile_molecule_t &m) {
 	 at->SetCoordinates(m.atoms[iat].atom_position.x(),
 			    m.atoms[iat].atom_position.y(),
 			    m.atoms[iat].atom_position.z(),
-			    1.0, 20.0);
+			    1.0, b_factor);
 	 at->SetAtomName(m.atoms[iat].name.c_str());
 	 at->SetElementName(m.atoms[iat].element.c_str());
 	 residue_p->AddAtom(at);

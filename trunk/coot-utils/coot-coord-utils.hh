@@ -1024,7 +1024,7 @@ namespace coot {
 
       // a new residue for each point.  Caller deletes.
       // 
-      mmdb::Manager *create_mmdbmanager_from_points(const std::vector<clipper::Coord_orth> &pts);
+      mmdb::Manager *create_mmdbmanager_from_points(const std::vector<clipper::Coord_orth> &pts, float b_factor=20.0);
 
       // calling function deletes
       // 
@@ -1212,18 +1212,20 @@ namespace coot {
       // Return mutated state.
       // 
       int mutate(mmdb::Residue *res, mmdb::Residue *std_res_unoriented, const std::string &alt_conf,
-		 short int shelx_flag);
+		 short int shelx_flag, float b_factor=20.0);
 
       // given a std residue oriented over residue, make the mutation
       // to std_residue
       void mutate_internal(mmdb::Residue *residue,
 			   mmdb::Residue * std_residue_oriented,
 			   const std::string &alt_conf,
-			   short int is_from_shelx_ins_flag);
+			   short int is_from_shelx_ins_flag,
+			   float b_factor=20.);
       
       void mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
 		       bool use_old_style_naming,
-		       bool print_match_stats=false);
+		       bool print_match_stats=false,
+		       float b_factor=20.0);
       // which calls
       std::string convert_base_name(const std::string &std_base_name, bool use_old_style_naming);
       

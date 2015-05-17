@@ -1090,6 +1090,7 @@ coot::is_main_chain_p(const std::string &mol_atom_name) {
        mol_atom_name == " C  " ||
        mol_atom_name == " H  " ||
        mol_atom_name == " CA " ||
+       mol_atom_name == " CB " ||
        mol_atom_name == " HA " || // CA hydrogen
        mol_atom_name == " O  ") {
       return 1;
@@ -3072,7 +3073,7 @@ coot::util::create_mmdbmanager_from_residue_specs(const std::vector<coot::residu
 
 
 // a new residue for each point
-mmdb::Manager *coot::util::create_mmdbmanager_from_points(const std::vector<clipper::Coord_orth> &pts) {
+mmdb::Manager *coot::util::create_mmdbmanager_from_points(const std::vector<clipper::Coord_orth> &pts, float b_factor) {
 
    mmdb::Manager *new_mol = new mmdb::Manager;
    mmdb::Model *model_p = new mmdb::Model;
@@ -3081,7 +3082,7 @@ mmdb::Manager *coot::util::create_mmdbmanager_from_points(const std::vector<clip
 
    for (unsigned int i=0; i<pts.size(); i++) {
       mmdb::Atom *at = new mmdb::Atom;
-      at->SetCoordinates(pts[i].x(), pts[i].y(), pts[i].z(), 1.0, 20.0);
+      at->SetCoordinates(pts[i].x(), pts[i].y(), pts[i].z(), 1.0, b_factor);
       at->SetAtomName(" CA ");
       at->SetElementName(" C");
       mmdb::Residue *residue_p = new mmdb::Residue;
@@ -5164,7 +5165,8 @@ void
 coot::util::mutate_internal(mmdb::Residue *residue,
 			    mmdb::Residue *std_residue,
 			    const std::string &alt_conf,
-			    short int is_from_shelx_ins_flag) {
+                            short int is_from_shelx_ins_flag,
+                            float b_factor) {
 
    mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
@@ -5214,6 +5216,7 @@ coot::util::mutate_internal(mmdb::Residue *residue,
       if (! coot::is_main_chain_p(std_residue_atoms[i])) {
 	 if (is_from_shelx_ins_flag)
 	    std_residue_atoms[i]->occupancy = 11.0;
+     std_residue_atoms[i]->tempFactor = b_factor;
 	 mmdb::Atom *copy_at = new mmdb::Atom;
 	 copy_at->Copy(std_residue_atoms[i]);
 	 residue->AddAtom(copy_at);
@@ -5233,7 +5236,7 @@ coot::util::mutate_internal(mmdb::Residue *residue,
 // 
 int
 coot::util::mutate(mmdb::Residue *res, mmdb::Residue *std_res_unoriented, const std::string &alt_conf,
-		   short int shelx_flag) {
+                   short int shelx_flag, float b_factor) {
 
    int istate = 0; 
    std::map<std::string, clipper::RTop_orth> rtops = 
@@ -5261,7 +5264,7 @@ coot::util::mutate(mmdb::Residue *res, mmdb::Residue *std_res_unoriented, const 
 	    residue_atoms[iat]->z = rotted.z();
 	 }
       }
-      coot::util::mutate_internal(res, std_res_unoriented, alt_conf, shelx_flag); // it's oriented now.
+      coot::util::mutate_internal(res, std_res_unoriented, alt_conf, shelx_flag, b_factor); // it's oriented now.
       istate = 1;
    }
    return istate;
@@ -5282,7 +5285,8 @@ coot::util::mutate(mmdb::Residue *res, mmdb::Residue *std_res_unoriented, const 
 void
 coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
 			bool use_old_style_naming,
-			bool print_match_stats_flag) {
+			bool print_match_stats_flag,
+			float b_factor) {
 
 
    bool debug = false;
@@ -5686,7 +5690,7 @@ coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
 			   if (debug)
 			      std::cout << ".... Adding Atom " << std_base_atoms[i]->name
 					<< std::endl;
-			   at->SetCoordinates(pt.x(), pt.y(), pt.z(), 1.0, 20.0);
+			   at->SetCoordinates(pt.x(), pt.y(), pt.z(), 1.0, b_factor);
 			   std::string new_atom_name = std_base_atoms[i]->name;
 			   if (std_base_name == "Td")
 			      if (new_atom_name == " C5M")

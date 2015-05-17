@@ -3479,9 +3479,10 @@ coot::protein_geometry::get_group(const std::string &res_name_in) const {
 }
 
 // optional arg: bool try_autoload_if_needed=true.
+// optional arg: float b_factor.
 mmdb::Residue *
 coot::protein_geometry::get_residue(const std::string &comp_id, bool idealised_flag,
-				    bool try_autoload_if_needed) {
+				    bool try_autoload_if_needed, float b_factor) {
 
    mmdb::Residue *residue_p = NULL;
 
@@ -3522,7 +3523,7 @@ coot::protein_geometry::get_residue(const std::string &comp_id, bool idealised_f
 	    if (flag_and_have_coords) { 
 	       mmdb::Atom *atom = new mmdb::Atom;
 	       mmdb::realtype occ = 1.0;
-	       mmdb::realtype b = 20.0;
+	       mmdb::realtype b = b_factor;
 	       std::string ele = atom_info[iat].type_symbol; // element
 	       atom->SetCoordinates(p.x(), p.y(), p.z(), occ, b);
 	       atom->SetAtomName(atom_info[iat].atom_id_4c.c_str());
