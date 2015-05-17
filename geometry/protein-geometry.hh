@@ -2250,7 +2250,7 @@ namespace coot {
       // in...?
       // 
       mmdb::Residue *get_residue(const std::string &comp_id, bool idealised_flag,
-			    bool try_autoload_if_needed=true);
+			    bool try_autoload_if_needed=true, float b_factor=20.0);
 
       // Thow a std::runtime_error exception if we can't get the group of r
       std::string get_group(mmdb::Residue *r) const;

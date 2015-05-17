@@ -111,6 +111,11 @@ molecule_class_info_t::mutate(int atom_index, const std::string &residue_type,
 	 int resno = res->GetSeqNum();
 	 std::string chain_id(res->GetChainID());
 	 std::string inscode(res->GetInsCode());
+     // BL says:: we made a new CB with a new B-factor
+     // we should either not delete it (pass do stub_flag) or
+     // save the b_factor and apply again. Not sure whats preferred,
+     // so leave it for now (shouldnt do stubbing anyway...?!)
+     // FIXME
 	 delete_residue_sidechain(chain_id, resno, inscode);
       }
    }
@@ -241,7 +246,8 @@ molecule_class_info_t::mutate_internal(mmdb::Residue *residue, mmdb::Residue *st
    atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
    delete_ghost_selections();
 
-   coot::util::mutate_internal(residue, std_residue, alt_conf, is_from_shelx_ins_flag);
+   coot::util::mutate_internal(residue, std_residue, alt_conf, is_from_shelx_ins_flag,
+                               graphics_info_t::default_new_atoms_b_factor);
 
    atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    atom_sel.mol->FinishStructEdit();

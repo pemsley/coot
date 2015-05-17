@@ -3099,10 +3099,11 @@ graphics_info_t::execute_db_main(int imol,
 				       iresno_end,
 				       ilength);
 
+      float bf = default_new_atoms_b_factor;
       main_chain.merge_fragments();
       coot::minimol::molecule mol;
       mol.fragments.push_back(main_chain.mainchain_fragment());
-      mol.write_file("db-mainchain.pdb", 20.0);
+      mol.write_file("db-mainchain.pdb", bf);
 
       // std::cout << "DEBUG:: mol.is_empty() returns " << mol.is_empty() << std::endl;
       std::vector<coot::minimol::atom *> serial_atoms = mol.select_atoms_serial();
@@ -3111,7 +3112,6 @@ graphics_info_t::execute_db_main(int imol,
       if (serial_atoms.size() > 0) {
 	 std::pair<std::vector<float>, std::string> cell_spgr = 
 	    molecules[imol].get_cell_and_symm();
-	 float bf = default_new_atoms_b_factor;
 	 atom_selection_container_t asc = make_asc(mol.pcmmdbmanager());
 	 set_mmdb_cell_and_symm(asc, cell_spgr); // tinker with asc. 
 	                                         // Consider asc as an object.

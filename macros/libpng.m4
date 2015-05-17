@@ -57,7 +57,6 @@ main ()
      AC_MSG_RESULT([yes])
      CFLAGS="$ac_save_CFLAGS"
      LIBS="$ac_save_LIBS"
-     break;;
   esac
 
   AC_SUBST(LIBPNG_CFLAGS)
