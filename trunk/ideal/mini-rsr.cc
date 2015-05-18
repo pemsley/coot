@@ -294,7 +294,10 @@ main(int argc, char **argv) {
 	    // 						 asc.mol,
 	    // 						 fixed_atom_specs);
 
-	    coot::restraints_container_t restraints(local_residues, geom,
+	    std::vector<mmdb::Link> links;
+	    coot::restraints_container_t restraints(local_residues,
+						    links,
+						    geom,
 						    asc.mol,
 						    fixed_atom_specs);
       

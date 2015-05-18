@@ -1455,12 +1455,12 @@ namespace coot {
       //
       // return "" as first if no close link found.
       // 
-      std::pair<std::string, bool> general_link_find_close_link(std::vector<std::pair<coot::chem_link, bool> > &li,
+      std::pair<std::string, bool> general_link_find_close_link(const std::vector<std::pair<coot::chem_link, bool> > &li,
 								mmdb::Residue *r1, mmdb::Residue *r2,
 								bool order_switch_flag,
 								const coot::protein_geometry &geom) const;
 
-      std::string general_link_find_close_link_inner(std::vector<std::pair<coot::chem_link, bool> > &li,
+      std::string general_link_find_close_link_inner(const std::vector<std::pair<coot::chem_link, bool> > &li,
 						     mmdb::Residue *r1, mmdb::Residue *r2,
 						     bool order_switch_flag,
 						     const coot::protein_geometry &geom) const; 
@@ -1705,8 +1705,13 @@ namespace coot {
       // 
       // 20100210 that is what we have now, we use add_map() for the
       // restraints that fit to a map.
+      //
+      // if you need linkrs too, change links to a coot container
+      // class for LINKs and LINKRs
+      // const &coot::link_container &links
       // 
       restraints_container_t(const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
+			     const std::vector<mmdb::Link> &links,
 			     const coot::protein_geometry &geom,			     
 			     mmdb::Manager *mol,
 			     const std::vector<atom_spec_t> &fixed_atom_specs);
@@ -1923,8 +1928,8 @@ namespace coot {
       // Return the link type and a residue order switch flag.
       // Return link_type as "" if not found.
       // 
-      std::pair<std::string, bool> find_link_type_rigourous(mmdb::Residue *first, mmdb::Residue *second,
-							    const protein_geometry &geom) const;
+      std::pair<std::string, bool> find_link_type_by_distance(mmdb::Residue *first, mmdb::Residue *second,
+							      const protein_geometry &geom) const;
 
       // Allow public access to this - we need it to find the links
       // between residues when all we have to go on is the refmac

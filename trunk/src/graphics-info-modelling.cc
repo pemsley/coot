@@ -765,8 +765,9 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	       for (unsigned int i=0; i<residues_mol_and_res_vec.second.size(); i++)
 		  local_residues.push_back(std::pair<bool, mmdb::Residue *>(0, residues_mol_and_res_vec.second[i]));
 
-
-	       coot::restraints_container_t restraints(local_residues, *Geom_p(),
+	       coot::restraints_container_t restraints(local_residues,
+						       local_moving_atoms_asc.links,
+						       *Geom_p(),
 						       residues_mol_and_res_vec.first,
 						       fixed_atom_specs);
 
@@ -832,28 +833,31 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 				       int resno_2) const {
 
    atom_selection_container_t local_moving_atoms_asc;
-   local_moving_atoms_asc.mol = residues_mol;
-   local_moving_atoms_asc.UDDOldAtomIndexHandle = -1;  // true?
-   local_moving_atoms_asc.UDDAtomIndexHandle = -1;
-   if (residues_mol)
-      local_moving_atoms_asc.read_success = 1;
+   if (residues_mol->GetNumberOfModels() > 0) { 
+      local_moving_atoms_asc.mol = residues_mol;
+      local_moving_atoms_asc.UDDOldAtomIndexHandle = -1;  // true?
+      local_moving_atoms_asc.UDDAtomIndexHandle = -1;
+      if (residues_mol)
+	 local_moving_atoms_asc.read_success = 1;
 
-   local_moving_atoms_asc.SelectionHandle = residues_mol->NewSelection();
-   residues_mol->SelectAtoms (local_moving_atoms_asc.SelectionHandle, 0, "*",
-			      resno_1, // starting resno, an int
-			      "*", // any insertion code
-			      resno_2, // ending resno
-			      "*", // ending insertion code
-			      "*", // any residue name
-			      "*", // atom name
-			      "*", // elements
-			      "*"  // alt loc.
-			      );
+      local_moving_atoms_asc.SelectionHandle = residues_mol->NewSelection();
+      residues_mol->SelectAtoms (local_moving_atoms_asc.SelectionHandle, 0, "*",
+				 resno_1, // starting resno, an int
+				 "*", // any insertion code
+				 resno_2, // ending resno
+				 "*", // ending insertion code
+				 "*", // any residue name
+				 "*", // atom name
+				 "*", // elements
+				 "*"  // alt loc.
+				 );
 
-   residues_mol->GetSelIndex(local_moving_atoms_asc.SelectionHandle,
-			     local_moving_atoms_asc.atom_selection,
-			     local_moving_atoms_asc.n_selected_atoms);
+      residues_mol->GetSelIndex(local_moving_atoms_asc.SelectionHandle,
+				local_moving_atoms_asc.atom_selection,
+				local_moving_atoms_asc.n_selected_atoms);
 
+      local_moving_atoms_asc.fill_links_using_mol(residues_mol);
+   }
    return local_moving_atoms_asc;
 }
 
@@ -3654,7 +3658,7 @@ graphics_info_t::get_chi_atom_names(mmdb::Residue *residue,
    std::vector <coot::dict_torsion_restraint_t> torsion_restraints =
       rest.get_non_const_torsions(find_hydrogen_torsions_flag);
    
-   if ((torsion_index >=0) && (torsion_index < torsion_restraints.size())) {
+   if ((torsion_index >=0) && (torsion_index < int(torsion_restraints.size()))) {
       r = std::pair<std::string, std::string> (torsion_restraints[torsion_index].atom_id_2(),
 					       torsion_restraints[torsion_index].atom_id_3());
    } else {

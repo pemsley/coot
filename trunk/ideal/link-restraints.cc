@@ -841,8 +841,8 @@ coot::restraints_container_t::link_infos_are_glycosidic_p(const std::vector<std:
 // Return link_type as "" if not found.
 // 
 std::pair<std::string, bool>
-coot::restraints_container_t::find_link_type_rigourous(mmdb::Residue *first, mmdb::Residue *second,
-						       const coot::protein_geometry &geom) const {
+coot::restraints_container_t::find_link_type_by_distance(mmdb::Residue *first, mmdb::Residue *second,
+							 const coot::protein_geometry &geom) const {
 
    bool debug = false;
    std::string link_type = "";
@@ -854,7 +854,7 @@ coot::restraints_container_t::find_link_type_rigourous(mmdb::Residue *first, mmd
       std::string group_1 = geom.get_group(first);
       std::string group_2 = geom.get_group(second);
       if (debug)
-	 std::cout << "====== DEBUG:: find_link_type_rigourous() from "
+	 std::cout << "====== DEBUG:: find_link_type_by_distance() from "
 		   << first->GetChainID() << " " << first->GetSeqNum() << " " << first->GetResName()
 		   << " <--> " 
 		   << second->GetChainID() << " " << second->GetSeqNum() << " " << second->GetResName()
@@ -864,11 +864,11 @@ coot::restraints_container_t::find_link_type_rigourous(mmdb::Residue *first, mmd
 	    geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
 
 	 if (debug) { 
-	    std::cout << "     DEBUG:: find_link_type_rigourous: "
+	    std::cout << "     DEBUG:: find_link_type_by_distance: "
 		      << link_infos.size() 
 		      << " possible links: (link_infos):\n";
 	    for (unsigned int il=0; il<link_infos.size(); il++)
-	       std::cout << "            find_link_type_rigourous() possible links: (link_infos): "
+	       std::cout << "            find_link_type_by_distance() possible links: (link_infos): "
 			 << il << " " << link_infos[il].first << " "
 			 << link_infos[il].second << " "
 			 << std::endl;
@@ -932,7 +932,7 @@ coot::restraints_container_t::find_link_type_rigourous(mmdb::Residue *first, mmd
 	    } else {
 
 	       if (debug)
-		  std::cout << "DEBUG::   find_link_type_rigourous() not a peptide link... " << std::endl;
+		  std::cout << "DEBUG::   find_link_type_by_distance() not a peptide link... " << std::endl;
 	       //
 	       order_switch_flag = link_infos[ilink].second;
 	    
@@ -946,7 +946,7 @@ coot::restraints_container_t::find_link_type_rigourous(mmdb::Residue *first, mmd
 	       } else {
 
 		  if (debug)
-		     std::cout << "DEBUG::   find_link_type_rigourous() not a glycosidic_linkage... "
+		     std::cout << "DEBUG::   find_link_type_by_distance() not a glycosidic_linkage... "
 			       << std::endl;
 
 		  std::vector<std::pair<coot::chem_link, bool> > link_infos_non_peptide =
@@ -973,26 +973,26 @@ coot::restraints_container_t::find_link_type_rigourous(mmdb::Residue *first, mmd
 	    }
 	 } 
       }
-      catch (std::runtime_error mess_in) {
+      catch (const std::runtime_error &mess_in) {
 	 if (debug) { 
 	    // didn't find a chem_link for this pair, that's OK sometimes.
-	    std::cout << "CAUGHT exception in find_link_type_rigourous(): "
+	    std::cout << "CAUGHT exception in find_link_type_by_distance(): "
 		      << mess_in.what() << std::endl;
 	    geom.print_chem_links();
 	 }
       } 
    }
-   catch (std::runtime_error mess) {
+   catch (const std::runtime_error &mess) {
       // Failed to get group.  We don't want to hear about not getting
       // the group of thousands of HOHs.
       // std::cout << mess.what() << std::endl;
    }
 
    if (debug)
-      std::cout << "   DEBUG:: find_link_type_rigourous() given "
+      std::cout << "   DEBUG:: find_link_type_by_distance() given "
 		<< coot::residue_spec_t(first) << " and "
 		<< coot::residue_spec_t(second)
-		<< " find_link_type_rigourous returns link type :"
+		<< " find_link_type_by_distance returns link type :"
 		<< link_type << ": and order-switch flag " << order_switch_flag << std::endl;
    return std::pair<std::string, bool> (link_type, order_switch_flag);
 }
@@ -1008,7 +1008,7 @@ coot::restraints_container_t::find_link_type_rigourous(mmdb::Residue *first, mmd
 // not have them).
 // 
 std::pair<std::string, bool>
-coot::restraints_container_t::general_link_find_close_link(std::vector<std::pair<coot::chem_link, bool> > &li,
+coot::restraints_container_t::general_link_find_close_link(const std::vector<std::pair<coot::chem_link, bool> > &li,
 							   mmdb::Residue *r1, mmdb::Residue *r2,
 							   bool order_switch_flag,
 							   const coot::protein_geometry &geom) const {
@@ -1031,7 +1031,7 @@ coot::restraints_container_t::general_link_find_close_link(std::vector<std::pair
 }
 
 std::string
-coot::restraints_container_t::general_link_find_close_link_inner(std::vector<std::pair<coot::chem_link, bool> > &li,
+coot::restraints_container_t::general_link_find_close_link_inner(const std::vector<std::pair<coot::chem_link, bool> > &li,
 								 mmdb::Residue *r1, mmdb::Residue *r2,
 								 bool order_switch_flag,
 								 const coot::protein_geometry &geom) const {

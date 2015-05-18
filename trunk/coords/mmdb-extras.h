@@ -57,7 +57,11 @@ using namespace std;  // ugh.  This should not be here.  FIXME
 
 // 
 //
-class atom_selection_container_t { 
+class atom_selection_container_t {
+
+   void fill_links(mmdb::Manager *mol_other);
+   void fill_links() { fill_links(mol); } 
+   
 public:
    mmdb::Manager *mol;
    int n_selected_atoms; 
@@ -68,6 +72,8 @@ public:
    int UDDAtomIndexHandle; // no negative is OK.
    int UDDOldAtomIndexHandle; // ditto. // set initially to -1 in make_asc
 
+   std::vector<mmdb::Link> links;
+
    atom_selection_container_t(mmdb::Manager *mol_in, int selhnd) {
 
      mol = mol_in;
@@ -77,6 +83,7 @@ public:
      UDDAtomIndexHandle = -1;
      UDDOldAtomIndexHandle = -1;
      read_success = 1;
+     fill_links();
    }
 
    atom_selection_container_t() {
@@ -86,6 +93,10 @@ public:
       UDDAtomIndexHandle = -1;
       UDDOldAtomIndexHandle = -1;
       read_success = 0;
+   }
+
+   void fill_links_using_mol(mmdb::Manager *mol_other) {
+      fill_links(mol_other);
    } 
   
    void clear_up() { 
@@ -95,12 +106,14 @@ public:
       delete mol;
       atom_selection = 0;
       mol = 0; 
-   } 
+   }
+   
    void delete_atom_selection() { 
       mol->DeleteSelection(SelectionHandle);
       n_selected_atoms = 0;
       atom_selection = 0;
    }
+   
    void apply_shift(float x_shift, float y_shift, float z_shift) {
       for (int i=0; i<n_selected_atoms; i++) { 
 	 atom_selection[i]->x -= x_shift;
@@ -116,6 +129,9 @@ debug_atom_selection_container(atom_selection_container_t asc);
 
 // create this struct:
 atom_selection_container_t make_asc(mmdb::Manager *mol); 
+
+mmdb::LinkContainer empty_links_container();
+
 
 // Bond things
 //

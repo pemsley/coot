@@ -80,7 +80,8 @@ coot::torsionable_link_bonds(std::vector<mmdb::Residue *> residues_in,
       residues[i] = std::pair<bool, mmdb::Residue *> (0, residues_in[i]);
 
    std::vector<coot::atom_spec_t> dummy_fixed_atom_specs;
-   coot::restraints_container_t restraints(residues, *geom_p, mol, dummy_fixed_atom_specs);
+   std::vector<mmdb::Link> links;
+   coot::restraints_container_t restraints(residues, links, *geom_p, mol, dummy_fixed_atom_specs);
    coot::bonded_pair_container_t bpc = restraints.bonded_residues_from_res_vec(*geom_p);
 
    // add in the torsion: CB-CG-ND2-C1 (Psi-N)
@@ -223,7 +224,8 @@ coot::torsionable_link_quads(std::vector<mmdb::Residue *> residues_in,
    }
 
    std::vector<coot::atom_spec_t> dummy_fixed_atom_specs;
-   coot::restraints_container_t restraints(residues, *geom_p, mol, dummy_fixed_atom_specs);
+   std::vector<mmdb::Link> links;
+   coot::restraints_container_t restraints(residues, links, *geom_p, mol, dummy_fixed_atom_specs);
    coot::bonded_pair_container_t bpc = restraints.bonded_residues_from_res_vec(*geom_p);
    for (unsigned int i=0; i<bpc.bonded_residues.size(); i++) { 
       coot::dictionary_residue_link_restraints_t link = geom_p->link(bpc[i].link_type);

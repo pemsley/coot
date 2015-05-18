@@ -6481,7 +6481,7 @@ valgrind:
 
  valgrind --leak-check=full --suppressions=../../coot/trunk/guile.supp --suppressions=../../coot/trunk/valgrind-python.supp --error-limit=no --log-file=valgrind.log .libs/lt-coot-real 
 
- valgrind --leak-check=full --suppressions=../../coot/trunk/guile.supp --error-limit=no --log-file=valgrind.log .libs/lt-coot-real 
+ valgrind --leak-check=full --suppressions=../../coot/trunk/guile.supp --error-limit=no --log-file=valgrind.log .libs/lt-coot-bin 
 
 
   Where are the python suppressions?
@@ -6739,6 +6739,8 @@ int main(int argc, char **argv) {
       std::cout << "   " << i << " " << v[i] << std::endl;
    return 0;
 }
+
+   // also see erase/remove_if usage in morph_fit_uncrunch().
 
 
 ---

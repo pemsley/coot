@@ -29,6 +29,9 @@
   o CHANGE:  Refinement drag elasticity increased
              [Everyone who tried to use it in 0.8.1 :-(]
 
+  o CHANGE:  Global translations towards the molecule centre removed on
+             model morphing
+
   o BUG-FIX: Improvement in PDB->SHELXL ins output [Andrea Thorn]
 
   o BUG-FIX: Fix problem of deleting all atoms in Baton Build atoms
