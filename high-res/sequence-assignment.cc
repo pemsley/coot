@@ -905,7 +905,7 @@ coot::sequence_assignment::side_chain_score_t::find_unassigned_sequence(const co
 	       if (in_unass_range_flag) {
 		  in_unass_range_flag = 0; 
 		  end_resno = ir - 1; // is it?  Checkme.
-		  if ( (end_resno - start_resno + 1) >= required_range_size) { 
+		  if ( (end_resno - start_resno + 1) >= int(required_range_size)) { 
 		     v.push_back(coot::sequence_assignment::sequence_range_t(is,
 									     start_resno, end_resno));
 		  }

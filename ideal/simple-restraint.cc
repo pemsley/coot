@@ -210,6 +210,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 // residue (it would be set, for example in the case of flanking
 // residues).
 coot::restraints_container_t::restraints_container_t(const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
+						     const std::vector<mmdb::Link> &links,
 						     const coot::protein_geometry &geom,
 						     mmdb::Manager *mol,
 						     const std::vector<atom_spec_t> &fixed_atom_specs) {
@@ -3899,7 +3900,7 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
       if (do_link_restraints)
 	 iret += make_link_restraints(geom, do_rama_plot_restraints);
       
-      //  don't do torsions, ramas maybe.   
+      // don't do torsions, ramas maybe.   
       coot::bonded_pair_container_t bpc;
 
       if (do_flank_restraints)
@@ -4525,7 +4526,7 @@ coot::restraints_container_t::bonded_residues_conventional(int selHnd,
 		  if (d.first) {
 		     if (d.second < dist_crit) {
 			std::pair<std::string, bool> l =
-			   find_link_type_rigourous(SelResidue[ii], SelResidue[jj], geom);
+			   find_link_type_by_distance(SelResidue[ii], SelResidue[jj], geom);
 			if (l.first != "") {
 
 			   // Eeek!  Fill me? [for 0.7]
@@ -4588,7 +4589,7 @@ coot::restraints_container_t::bonded_residues_by_linear(int SelResHnd,
 	    if (abs(SelResidue[i]->index - SelResidue[i+1]->index) <= 1) {
 	       // link_type = find_link_type(SelResidue[i], SelResidue[i+1], geom);
 	       std::pair<std::string, bool> link_info =
-		  find_link_type_rigourous(SelResidue[i], SelResidue[i+1], geom);
+		  find_link_type_by_distance(SelResidue[i], SelResidue[i+1], geom);
 	       if (false) 
 		  std::cout << "DEBUG ------------ in bonded_residues_by_linear() link_info is :"
 			    << link_info.first << " " << link_info.second << ":" << std::endl;
@@ -4640,7 +4641,7 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	 } 
 	 if (d.first) {
 	    if (d.second < dist_crit) {
-	       std::pair<std::string, bool> l = find_link_type_rigourous(res_f, res_s, geom);
+	       std::pair<std::string, bool> l = find_link_type_by_distance(res_f, res_s, geom);
 	       std::string link_type = l.first;
 	       if (link_type != "") {
 
@@ -4665,7 +4666,7 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 		  }
 	       } else {
 		  if (debug)
-		     std::cout << "DEBUG:: find_link_type_rigourous() returns \"" << l.first << "\" "
+		     std::cout << "DEBUG:: find_link_type_by_distance() returns \"" << l.first << "\" "
 			       << l.second << std::endl;
 	       } 
 	    }
@@ -4967,7 +4968,7 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const c
 	    if (d.first) {
 	       if (d.second < dist_crit) {
 		  std::pair<std::string, bool> l =
-		     find_link_type_rigourous(neighbours[ineighb], residues_vec[ir].second, geom);
+		     find_link_type_by_distance(neighbours[ineighb], residues_vec[ir].second, geom);
 		  std::string link_type = l.first;
 		  if (link_type != "") {
 		     bool order_switch_flag = l.second;

@@ -1132,7 +1132,12 @@ Bond_lines_container::construct_from_model_links(mmdb::Model *model_p,
       int n_links = model_p->GetNumberOfLinks();
       if (n_links > 0) { 
 	 for (int i_link=1; i_link<=n_links; i_link++) {
-	    mmdb::PLink link = model_p->GetLink(i_link);
+	    mmdb::Link *link = model_p->GetLink(i_link);
+
+	    std::cout << "link " << i_link << " of " << n_links << " ";
+	    std::cout.flush();
+	    std::cout << link << std::endl;
+	    std::cout.flush();
 	 
 	    // For the moment, don't make Link dashed bonds to
 	    // symmetry-related molecules.
@@ -1144,16 +1149,13 @@ Bond_lines_container::construct_from_model_links(mmdb::Model *model_p,
 	 }
       }
    
-#ifdef MMDB_WITHOUT_LINKR
-#else
       int n_linkrs = model_p->GetNumberOfLinkRs();
       if (n_linkrs > 0) { 
 	 for (int i_link=1; i_link<=n_linkrs; i_link++) {
-	    mmdb::PLinkR link = model_p->GetLinkR(i_link);
+	    mmdb::LinkR *link = model_p->GetLinkR(i_link);
 	    add_link_bond(model_p, atom_colour_type, link);
 	 }
       }
-#endif   
    }
 }
 
@@ -1458,7 +1460,9 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 				       1, have_udd_atoms, uddHnd);
       }
 
-      construct_from_model_links(SelAtom.mol->GetModel(imodel), atom_colour_type);
+      mmdb::Model *model_p = SelAtom.mol->GetModel(imodel);
+      if (model_p)
+	 construct_from_model_links(model_p, atom_colour_type);
       
       // std::cout << "DEBUG:: (post) SelAtom: mol, n_selected_atoms "
       // << SelAtom.mol << " " << SelAtom.n_selected_atoms << std::endl;

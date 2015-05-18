@@ -952,8 +952,8 @@ int test_peptide_link() {
       clipper::Xmap<float> xmap;
       float weight = 1.0;
       std::vector<coot::atom_spec_t> fixed_atom_specs;
-      coot::restraints_container_t
-	 restraints(residues, geom, mol, fixed_atom_specs);
+      std::vector<mmdb::Link> links;
+      coot::restraints_container_t restraints(residues, links, geom, mol, fixed_atom_specs);
       restraints.add_map(xmap, weight);
       std::string link_type = "";
       // restraints.find_link_type(residues[0].second,
@@ -971,7 +971,7 @@ int test_peptide_link() {
       } 
    }
 
-   catch (std::runtime_error mess) {
+   catch (const std::runtime_error &mess) {
       std::cout << "in test_peptide_link() matching_chem_link fails" << std::endl;
    }
 
@@ -1029,8 +1029,9 @@ restr_res_vector() {
       coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
       coot::protein_geometry geom;
       geom.init_standard();
+      std::vector<mmdb::Link> links;
       coot::restraints_container_t
-	 restraints(residues, geom, mol, fixed_atom_specs);
+	 restraints(residues, links, geom, mol, fixed_atom_specs);
       restraints.add_map(xmap, weight);
       restraints.make_restraints(geom, flags, 0, 0.0, 0, coot::NO_PSEUDO_BONDS);
       restraints.minimize(flags);

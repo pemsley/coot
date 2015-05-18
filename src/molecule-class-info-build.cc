@@ -264,7 +264,17 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 	    residues[0] = std::pair<bool, mmdb::Residue *> (0, at_1->residue);
 	    residues[1] = std::pair<bool, mmdb::Residue *> (0, at_2->residue);
 	    std::vector<coot::atom_spec_t> dummy_fixed_atom_specs;
-	    coot::restraints_container_t restraints(residues, geom, mol, dummy_fixed_atom_specs);
+
+	    // convert to restraints_container_t interface
+	    mmdb::Link local_link;
+	    local_link.Copy(link);
+	    std::vector<mmdb::Link> links(1);
+	    links[0] = local_link;
+	    
+
+	    coot::restraints_container_t restraints(residues,
+						    links,
+						    geom, mol, dummy_fixed_atom_specs);
 	    coot::bonded_pair_container_t bpc = restraints.bonded_residues_from_res_vec(geom);
 	    bpc.apply_chem_mods(geom);
 	    atom_sel.mol->FinishStructEdit();

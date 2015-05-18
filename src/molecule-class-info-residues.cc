@@ -248,7 +248,10 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 		  std::vector<std::pair<bool,mmdb::Residue *> > residues;
 		  std::pair<bool, mmdb::Residue *> p(0, residue_cp_p);
 		  residues.push_back(p);
-		  coot::restraints_container_t restraints(residues, geom, residue_mol, fixed_atoms);
+
+		  coot::restraints_container_t restraints(residues,
+							  atom_sel.links,
+							  geom, residue_mol, fixed_atoms);
 		  bool do_torsions = 0;
 
 		  coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
@@ -261,10 +264,13 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 		  bool needs_more = sprout_hydrogens_correct_chirals_maybe(residue_cp_p, alt_conf, rp.second);
 
 		  if (needs_more) {
-		     coot::restraints_container_t restraints_2(residues, geom, residue_mol, fixed_atoms);
+		     coot::restraints_container_t restraints_2(residues,
+							       atom_sel.links,
+							       geom, residue_mol, fixed_atoms);
 		     flags = coot::CHIRAL_VOLUMES;
 		     flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-		     n_restraints = restraints_2.make_restraints(geom, flags, do_torsions,
+		     n_restraints = restraints_2.make_restraints(geom,
+								 flags, do_torsions,
 								 0, 0, coot::NO_PSEUDO_BONDS);
 		     restraints_2.minimize(flags);
 		  }

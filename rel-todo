@@ -3,6 +3,8 @@
 
    o allow non-auto glyo link determination in sphere refine.
 
+   o LINK info (distances on output) - new mmdb
+
    o with enhanced-ligand, do you get a sane code-path if you do 
      File -> SMILES?
 

@@ -555,8 +555,11 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 		  std::vector<std::pair<bool,mmdb::Residue *> > residue_vec;
 		  for (int ires=0; ires<nSelResidues; ires++)
 		     residue_vec.push_back(std::pair<bool, mmdb::Residue *> (0, SelResidues[ires]));
+
+		  std::vector<mmdb::Link> links;
 		  
 		  coot::restraints_container_t restraints(residue_vec,
+							  links,
 							  *Geom_p(),
 							  asc.mol,
 							  fixed_atom_specs);
