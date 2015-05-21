@@ -40,9 +40,10 @@ else:
 	povray_command_name = "povray"
 
 # args not including the output filename
-def povray_args():
-    return " +FN16 +A"
+#def povray_args():
+#    return " +FN16 +A"
 # BL says: dont know how usefull this function is/will be....
+# BL says:: this is actually defined in raster3d.py
 
 # Run provray using current displayed image and write .pov file to
 # default filename
