@@ -31,7 +31,7 @@ coot::cablam::cablam(mmdb::PResidue *residues, int n_sel_residues) {
 
    std::map<mmdb::Residue *, torsion_atom_quad> residue_quads;
 
-   for (unsigned int ires=1; ires<n_sel_residues; ires++) {
+   for (int ires=1; ires<n_sel_residues; ires++) {
 
       if (ires < n_sel_residues) { 
 	 mmdb::Residue *res_p = residues[ires-1];
@@ -61,7 +61,7 @@ coot::cablam::cablam(mmdb::PResidue *residues, int n_sel_residues) {
       }
    }
 
-   for (unsigned int ires=1; ires<n_sel_residues; ires++) {
+   for (int ires=1; ires<n_sel_residues; ires++) {
       std::map<mmdb::Residue *, torsion_atom_quad>::const_iterator it_this;
       std::map<mmdb::Residue *, torsion_atom_quad>::const_iterator it_prev;
 
