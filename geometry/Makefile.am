@@ -72,15 +72,9 @@ dictionary_bond_distributions_LDADD = ./libcoot-geometry.la
 
 compare_dictionaries_SOURCES = compare-dictionaries.cc
 
-# why is $(top_builddir)/utils/libcoot-utils.la needed? 
-# libcoot_geometry_la_LIBADD should handle this for us... I don't
-# understand.
-compare_dictionaries_LDADD = ./libcoot-geometry.la \
-         $(top_builddir)/utils/libcoot-utils.la    
+compare_dictionaries_LDADD = ./libcoot-geometry.la 
 
 make_shelx_restraints_SOURCES = make-shelx-restraints.cc
 
-# why is coot-utils.la needed? I don't understand.
-make_shelx_restraints_LDADD = ./libcoot-geometry.la \
-	        $(top_builddir)/utils/libcoot-utils.la 
+make_shelx_restraints_LDADD = ./libcoot-geometry.la 
 
