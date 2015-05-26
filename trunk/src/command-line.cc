@@ -371,9 +371,9 @@ void
 command_line_data::handle_immediate_settings() {
 
    // start the graphics?
-   if (do_graphics == 1) 
+   if (do_graphics == 1) {
       graphics_info_t::use_graphics_interface_flag = 1;
-   else {
+   } else {
       graphics_info_t::use_graphics_interface_flag = 0; 
    }
 
