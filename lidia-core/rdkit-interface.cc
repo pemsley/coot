@@ -21,8 +21,8 @@
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 #include "utils/coot-utils.hh"
-#include "rdkit-interface.hh"
 #include "coot-utils/coot-coord-utils.hh" // after rdkit-interface.hh to avoid ::strchr problems
+#include "rdkit-interface.hh"
 #include "neighbour-sorter.hh"
 
 
