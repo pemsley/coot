@@ -297,10 +297,10 @@ def refmac_calc_sfs_make_mtz_with_columns(pdb_in_file_name, mtz_file_name,
 def refmac_calc_sfs_make_mtz(pdb_in_file_name, mtz_file_name,
                              mtz_refmaced_file_name):
 
-    refmac_calc_sfs_make_mtz_with_columns(pdb_in_file_name, mtz_file_name,
-                                          mtz_refmaced_file_name,
-                                          "F.F_sigF.F", "F.F_sigF.sigF",
-                                          "Rfree.Flag.flag")
+    return refmac_calc_sfs_make_mtz_with_columns(pdb_in_file_name, mtz_file_name,
+                                                 mtz_refmaced_file_name,
+                                                 "F.F_sigF.F", "F.F_sigF.sigF",
+                                                 "Rfree.Flag.flag")
 
 # include_get_sfs_flag is either "no-sfs" or "include-sfs"
 #
@@ -312,6 +312,9 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
 
     global download_thread_status
     download_thread_status = None     # start
+
+    # At the moment PDBe wants lower case entry ids?! So we make them
+    entry_id = entry_id.lower()
 
     status = get_directory("coot-download")
     if (not status):
@@ -392,7 +395,7 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                     if (os.path.isfile(sfs_cif_file_name) and
                         os.stat(sfs_cif_file_name).st_size > 0):
                         # we have sfs_cif_file_name already
-                        download_thread_status = "convert" # instruct to?
+                        download_thread_status = "done-download" # instruct to?
                         # needed
                     else:
                         # need to get sfs_mtz_file_name
@@ -667,7 +670,9 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
         # function
 
         # Get the PDB file if we don't have it already.
-        if not os.path.isfile(pdb_file_name):
+        if os.path.isfile(pdb_file_name):
+            download_thread_status = "done-download"
+        else:
             download_thread_status = "downloading-pdb"
             pdb_thread = thread.start_new_thread(download_file_and_update_widget,
                                                  (pdb_url, pdb_file_name, pdb_progress_bar,
@@ -681,6 +686,7 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
             if not valid_model_molecule_qm(imol):
                 s = "Oops - failed to correctly read " + pdb_file_name
                 info_dialog(s)
+                download_thread_status = "fail"
             if (include_get_sfs_flag != "include-sfs"):
                 # an NMR structure
                 #
@@ -706,7 +712,7 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                     #
                     # FIXME:: again for later
                     # read_pdb(pdb_file_name)
-                    # make_and_draw_map_local(refmac_out_mtz_file_name)
+                    auto_read_make_and_draw_maps(refmac_out_mtz_file_name)
                     download_thread_status = "done"
 
     

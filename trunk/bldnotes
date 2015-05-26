@@ -13,12 +13,6 @@ enhanced_ligand.py      test it
 * THINGS TO DO BEFORE 0.8.1 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
 
--revert serval delete commit froms Paul
-  o need test for opengl32
-  o --no-undefined
-  o renumber residues (incl insertion code) AND make sure we cannot dublicate
-    a residue number!!!
-
 check up to dateness of supplied manuals
 
 Fix installer guile warning for windows feel.
