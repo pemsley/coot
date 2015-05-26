@@ -116,6 +116,13 @@ scripting exercise
 
 **** General ****
 
+   o add atom info to HETATM info in status bar!?
+
+   o increase resolution/size of svg for newer screens.
+
+   o revisit B-factor setting for new atoms. Still CB wrong when stubbing.
+	maybe set new B to overall B from mol (rather than default!?)
+
    o renumber residue should not allow doublication of residue numbers
 
    o keyboard shortcut letters for mutate?!

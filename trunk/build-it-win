@@ -2065,7 +2065,7 @@ if test -n "$build_fftw" ; then
 ${WGET} $extras_place/fftw-2.1.5.tar.gz
 ${WGET} $win_extras_place/fftw-2.1.5_shared.patch
 ${WGET} $win_extras_place/fix_shared_makefiles.sh
-${WGTE} $win_extras_placefix_libfftw.la.sh
+${WGTE} $win_extras_place/fix_libfftw.la.sh
 #${WGET} $extras_place/fftw-configure-stuff.tar.gz
 (
 date
@@ -2074,6 +2074,10 @@ gzip -dc ${AUTOBUILD_SOURCES}/fftw-2.1.5.tar.gz | tar xf -
 #gzip -dc ${AUTOBUILD_SOURCES}/fftw-configure-stuff.tar.gz | tar xf -
 # FIXME:: needs some post-processing for dlls
 cd fftw-2.1.5
+if [ -n "$shared_flag" ] ; then
+  ./bootstrap.sh
+  libtoolize -c -f
+fi
 ./configure $generic_prefix $shared_flag --enable-float
 if [ -n "$shared_flag" ] ; then
   ${AUTOBUIILD_SOURCES}/fix_shared_makefiles.sh
@@ -2081,15 +2085,6 @@ if [ -n "$shared_flag" ] ; then
 fi
 $MAKE
 $MAKE install
-if [ -n "$shared_flag" ] ; then
-  cp $install_top_dir/lib/libfftw-2.dll $install_top_dir/bin
-  cp $install_top_dir/lib/librfftw-2.dll $install_top_dir/bin
-  cp fftw/.libs/libfftw.dll.a $install_top_dir/lib
-  cp rfftw/.libs/librfftw.dll.a $install_top_dir/lib
-  FIXME
-  # Need to remove -lm to stop clipper complaining
-  ${AUTOBUILD_SOURCES}/fix_libfftw.la.sh
-fi
 )  > $HOSTLOGDIR/03-fftw.txt 2>&1
 else
     echo not building fftw:
@@ -2776,16 +2771,14 @@ if test -n "$copy_python" ; then
        cp $dll_name ${install_top_dir}/bin
        # pygobject
        echo copy pygobject things
-       mkdir $install_top_dir/include/pygtk-2.0
-       cp    ${global_py_inst_dir}/include/pygtk-2.0/pygobject.h $install_top_dir/include/pygtk-2.0/
+       cp -r ${global_py_inst_dir}/include/pygtk-2.0/ $install_top_dir/include/
        cp    ${global_py_inst_dir}/Lib/pkgconfig/pygobject-2.0.pc $install_top_dir/lib/pkgconfig/
        # pycairo
        echo copy pycairo things
-       cp -r ${global_py_inst_dir}/include/pycairo $install_top_dir/include/
+       cp -r ${global_py_inst_dir}/include/pycairo/ $install_top_dir/include/
        cp    ${global_py_inst_dir}/Lib/pkgconfig/pycairo.pc $install_top_dir/lib/pkgconfig/
        # pygtk
        echo copy pygtk things
-       cp -r ${global_py_inst_dir}/include/pygtk-2.0/pygtk $install_top_dir/include/pygtk-2.0/
        cp    ${global_py_inst_dir}/Lib/pkgconfig/pygtk-2.0.pc $install_top_dir/lib/pkgconfig/
        copy_python=2
 fi
@@ -3225,14 +3218,36 @@ if test -n "$build_gsl" ; then
 gsl_version=1.8
 # not yet
 # gsl_version=1.12
-${WGET} http://downloads.sourceforge.net/gnuwin32/gsl-$gsl_version-bin.zip
-${WGET} http://downloads.sourceforge.net/gnuwin32/gsl-$gsl_version-lib.zip
-${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/gsl-config
-${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/gsl.m4
+if [ -n "$shared_flag" ] ; then
+  gsl_version=1.16
+  ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
+else
+  ${WGET} http://downloads.sourceforge.net/gnuwin32/gsl-$gsl_version-bin.zip
+  ${WGET} http://downloads.sourceforge.net/gnuwin32/gsl-$gsl_version-lib.zip
+  ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/gsl-config
+  ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/gsl.m4
+fi
+
 ( 
-cd $install_top_dir
 date
 pwd
+if [ -n "$shared_flag" ] ; then
+gzip -dc ${AUTOBUILD_SOURCES}/gsl-$gsl_version.tar.gz | tar xf -
+cd gsl-$gsl_version
+./configure $generic_prefix $shared_flag
+$MAKE
+status=$?
+if [ "$status" != 0 ] ; then 
+    echo ERROR:: GSL make failed.
+    exit 2
+else
+   echo 1 ---------------------------------------------------------------
+   echo '                                ' make install
+   echo 1 ----------------------------------------------------------------
+   $MAKE install
+fi  
+else
+cd $install_top_dir
 7z x -y ${AUTOBUILD_SOURCES}/gsl-$gsl_version-bin.zip
 7z x -y ${AUTOBUILD_SOURCES}/gsl-$gsl_version-lib.zip
 # gsl binaries dont have gsl-config, so we have to make our own
@@ -3254,6 +3269,7 @@ else
    echo '                                ' make install
    echo 1 ----------------------------------------------------------------
 fi    
+fi
 ) > $HOSTLOGDIR/15-gsl.txt
 else
     echo not building gsl:
