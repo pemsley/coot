@@ -1,14 +1,14 @@
 
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS
-#include "lidia-core/rdkit-interface.hh"
-#endif
- 
 #include <iostream> // fixes undefined strchr, strchrr problems
 #include <mmdb2/mmdb_manager.h>
 
 #include "geometry/protein-geometry.hh"
 #include "coot-hydrogens.hh"
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include "lidia-core/rdkit-interface.hh"
+#endif
+ 
 
 std::pair<bool, std::string>
 coot::add_hydrogens(mmdb::Residue *residue_p,

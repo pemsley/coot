@@ -24,11 +24,6 @@
 
 #include "compat/coot-sysdep.h"
 
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS
-#include "lidia-core/use-rdkit.hh"
-#endif 
-
-
 #include "testing.hh"
 
 #ifdef BUILT_IN_TESTING
@@ -78,7 +73,12 @@
 #include <ccp4srs/ccp4srs_defs.h>
 #endif
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include "lidia-core/use-rdkit.hh"
+#endif 
+
 #include "lbg/pi-stacking.hh"
+
 
 
 bool close_float_p(float f1, float f2) {

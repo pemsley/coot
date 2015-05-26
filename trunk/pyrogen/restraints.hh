@@ -4,14 +4,14 @@
 #include <iostream>
 #include <vector>
 
-#include <GraphMol/GraphMol.h>
-#include <GraphMol/MolOps.h>
-#include <GraphMol/Bond.h>
-
 #include <geometry/protein-geometry.hh>
 #include <analysis/mogul-interface.hh>
 
+#include <GraphMol/GraphMol.h>
+#include <GraphMol/MolOps.h>
+#include <GraphMol/Bond.h>
 #include "restraints-private.hh"
+
 
 
 namespace coot {

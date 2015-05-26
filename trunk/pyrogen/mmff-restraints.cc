@@ -1,13 +1,16 @@
 
+
+#include "mmff-restraints.hh"
+#include "restraints-private.hh" // for bond-order conversion
+
 #include "lidia-core/use-rdkit.hh"
+
 #include <GraphMol/ForceFieldHelpers/MMFF/AtomTyper.h>
 #include <GraphMol/ForceFieldHelpers/MMFF/Builder.h>
 #include <ForceField/ForceField.h>
 #include <ForceField/MMFF/BondStretch.h>
 #include <ForceField/MMFF/AngleBend.h>
 
-#include "mmff-restraints.hh"
-#include "restraints-private.hh" // for bond-order conversion
 
 // This function can potentially alter the aromaticity of the atoms of mol
 // 

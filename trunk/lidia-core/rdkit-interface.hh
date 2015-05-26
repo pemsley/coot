@@ -21,11 +21,11 @@
 #ifndef RDKIT_INTERFACE_HH
 #define RDKIT_INTERFACE_HH
 
-#include "use-rdkit.hh"
-
 #include <mmdb2/mmdb_manager.h>
 #include "geometry/protein-geometry.hh"
 #include "lbg-molfile.hh"
+
+#include "use-rdkit.hh"
 
 namespace coot { 
 
