@@ -340,6 +340,9 @@ main (int argc, char *argv[]) {
 	 create_initial_validation_graph_submenu_generic(window1 , "geometry_analysis1", "geometry_submenu");
 	 create_initial_validation_graph_submenu_generic(window1 , "temp_fact_variance_analysis1",
 							 "temp_factor_variance_submenu");
+////ADDITION B FACTOR GRAPH
+	create_initial_validation_graph_submenu_generic(window1 , "temp_fact_analysis1", "temp_factor_submenu");
+//// END ADD B FACTOR GRAPH
 	 create_initial_validation_graph_submenu_generic(window1 , "rotamer_analysis1", "rotamer_submenu");
 	 create_initial_validation_graph_submenu_generic(window1 , "density_fit_analysis1", "density_fit_submenu");
 	 create_initial_validation_graph_submenu_generic(window1 , "probe_clashes1", "probe_submenu");

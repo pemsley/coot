@@ -47,7 +47,10 @@ namespace coot {
 			     GEOMETRY_GRAPH_ROTAMER,
 			     GEOMETRY_GRAPH_NCS_DIFFS,
 			     SEQUENCE_VIEW,
-			     RAMACHANDRAN_PLOT
+			     RAMACHANDRAN_PLOT,
+////B
+			     GEOMETRY_GRAPH_CALC_B_FACTOR
+////E
    };
 
    gint on_geometry_graph_block_clicked(GtkCanvasItem *item, 

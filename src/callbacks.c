@@ -6223,6 +6223,22 @@ on_ncs_differences1_activate           (GtkMenuItem     *menuitem,
   }
 }
 
+////B B FACTOR
+void
+on_temp_fact_analysis1_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+  char *type = "calc b factor";
+  GtkWidget *menu = lookup_widget(GTK_WIDGET(menuitem), "temp_fact_analysis1");
+  if (menu) { 
+    add_on_validation_graph_mol_options(menu, type);
+  } else { 
+    printf("failed to get menu in on_temp_fact_analysis1_activate\n");
+  }
+
+}
+////E B FACTOR
 
 void
 on_temp_fact_variance_analysis1_activate

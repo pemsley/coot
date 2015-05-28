@@ -3988,6 +3988,10 @@ void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in);
 void my_delete_validaton_graph_mol_option(GtkWidget *widget, void *);
 void validation_graph_b_factor_mol_selector_activate (GtkMenuItem     *menuitem,
 						      gpointer         user_data);
+////B 
+void validation_graph_calc_b_factor_mol_selector_activate (GtkMenuItem     *menuitem,
+						      gpointer         user_data);
+////E 
 void validation_graph_geometry_mol_selector_activate (GtkMenuItem     *menuitem,
 						      gpointer         user_data);
 void validation_graph_omega_mol_selector_activate (GtkMenuItem     *menuitem,

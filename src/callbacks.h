@@ -2142,7 +2142,12 @@ void
 on_temp_fact_variance_analysis1_activate
                                         (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
-
+////B 
+void
+on_temp_fact_analysis1_activate
+                                        (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+////E 
 void
 on_rotamer_analysis1_activate          (GtkMenuItem     *menuitem,
                                         gpointer         user_data);

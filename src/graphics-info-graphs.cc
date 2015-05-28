@@ -101,6 +101,12 @@ coot::set_validation_graph(int imol, coot::geometry_graph_type type, GtkWidget *
 	 found = 1;
 	 graphics_info_t::molecules[imol].validation_graphs.b_factor_variance_graph = dialog;
       }
+////B
+      if (type == coot::GEOMETRY_GRAPH_CALC_B_FACTOR) {
+	 found = 1;
+	 graphics_info_t::molecules[imol].validation_graphs.b_factor_graph = dialog;
+      }
+////E
       if (type == coot::GEOMETRY_GRAPH_DENSITY_FIT) {
 	 found = 1;
 	 graphics_info_t::molecules[imol].validation_graphs.residue_density_fit_graph = dialog;
@@ -146,39 +152,40 @@ coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
 
    GtkWidget *w = 0;
    if (graphics_info_t::is_valid_model_molecule(imol)) {
-      bool found = 0; 
-      if (type == coot::GEOMETRY_GRAPH_GEOMETRY) {
-	 found = 1;
-	 w = graphics_info_t::molecules[imol].validation_graphs.geometry_graph;
-      }
-      if (type == coot::GEOMETRY_GRAPH_B_FACTOR) {
-	 found = 1;
-	 w = graphics_info_t::molecules[imol].validation_graphs.b_factor_variance_graph;
-      }
-      if (type == coot::GEOMETRY_GRAPH_DENSITY_FIT) {
-	 found = 1;
-	 w = graphics_info_t::molecules[imol].validation_graphs.residue_density_fit_graph;
-      }
-      if (type == coot::GEOMETRY_GRAPH_OMEGA_DISTORTION) {
-	 found = 1;
-	 w = graphics_info_t::molecules[imol].validation_graphs.omega_distortion_graph;
-      }
-      if (type == coot::GEOMETRY_GRAPH_ROTAMER) {
-	 found = 1;
-	 w = graphics_info_t::molecules[imol].validation_graphs.rotamer_graph ;
-      }
-      if (type == coot::GEOMETRY_GRAPH_NCS_DIFFS) {
-	 found = 1;
-	 w = graphics_info_t::molecules[imol].validation_graphs.ncs_diffs_graph;
-      }
-      if (type == coot::SEQUENCE_VIEW) {
-	 found = 1;
-	 w = graphics_info_t::molecules[imol].validation_graphs.sequence_view_is_displayed;
-      }
-      if (type == coot::RAMACHANDRAN_PLOT) {
-	 found = 1;
-	 w = graphics_info_t::molecules[imol].validation_graphs.dynarama_is_displayed;
-      }
+      bool found = 1; 
+	switch(type){
+		case coot::GEOMETRY_GRAPH_GEOMETRY:
+			w = graphics_info_t::molecules[imol].validation_graphs.geometry_graph;
+			break;
+		case coot::GEOMETRY_GRAPH_B_FACTOR:
+			w = graphics_info_t::molecules[imol].validation_graphs.b_factor_variance_graph;
+			break;
+		case coot::GEOMETRY_GRAPH_CALC_B_FACTOR:
+			w = graphics_info_t::molecules[imol].validation_graphs.b_factor_graph;
+			break;
+		case coot::GEOMETRY_GRAPH_DENSITY_FIT:
+			w = graphics_info_t::molecules[imol].validation_graphs.residue_density_fit_graph;
+			break;
+		case coot::GEOMETRY_GRAPH_OMEGA_DISTORTION:
+			w = graphics_info_t::molecules[imol].validation_graphs.omega_distortion_graph;
+			break;
+		case coot::GEOMETRY_GRAPH_ROTAMER:
+			w = graphics_info_t::molecules[imol].validation_graphs.rotamer_graph;
+			break;
+		case coot::GEOMETRY_GRAPH_NCS_DIFFS:
+			w = graphics_info_t::molecules[imol].validation_graphs.ncs_diffs_graph;
+			break;
+		case coot::SEQUENCE_VIEW:
+			w = graphics_info_t::molecules[imol].validation_graphs.sequence_view_is_displayed;
+			break;
+		case coot::RAMACHANDRAN_PLOT:
+			w = graphics_info_t::molecules[imol].validation_graphs.dynarama_is_displayed;
+			break;
+		default:
+			found=0;
+			break;
+	}
+
    }
    return w;
 } 
@@ -637,6 +644,134 @@ graphics_info_t::print_geometry_distortion(const std::vector<coot::geometry_dist
 #endif // HAVE_GSL
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
+
+////B
+void
+graphics_info_t::calc_b_factor_graphs(int imol) {
+
+#ifdef HAVE_GSL
+#if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+   
+   if (imol<n_molecules())
+      if (imol >= 0)
+	 if (molecules[imol].has_model()) {
+	    mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+	    bool is_shelx_mol = molecules[imol].is_from_shelx_ins();
+
+	    coot_extras::b_factor_analysis bfa(mol, is_shelx_mol);
+	    std::vector<coot_extras::my_chain_of_stats_t> bfa_chain_info =
+	       bfa.chain_details();
+
+	    int n_models = mol->GetNumberOfModels();
+	    int max_chain_length = coot::util::max_min_max_residue_range(mol);
+	    if (max_chain_length <= 0) {
+	       std::cout << "WARNING:: Funny coords - no graphs for this molecule"
+			 << std::endl;
+	    } else { 
+	       for (int imodel = 1; imodel <= n_models; imodel++) { 
+		  mmdb::Model *model_p = mol->GetModel(imodel);
+		  mmdb::Chain *chain_p;
+		  unsigned int n_chains = model_p->GetNumberOfChains();
+		  coot::geometry_graphs *graphs =
+		     new coot::geometry_graphs(coot::GEOMETRY_GRAPH_CALC_B_FACTOR,
+					       imol,
+					       graphics_info_t::molecules[imol].name_for_display_manager(), 
+					       n_chains, max_chain_length);
+		  // b_factor_variance_graph[imol] = graphs->dialog();
+		  set_validation_graph(imol, coot::GEOMETRY_GRAPH_CALC_B_FACTOR, graphs->dialog());
+
+		  coot::b_factor_block_info_t bfi[3];
+		  float std_dev;
+		  int offset;
+
+		  for (unsigned int ich=0; ich<n_chains; ich++) {
+
+		     if (ich < bfa_chain_info.size()) { 
+			chain_p = model_p->GetChain(ich);
+			std::pair<short int, int> m = coot::util::min_resno_in_chain(chain_p);
+			
+			if (m.first) { 
+			   std::vector<coot::b_factor_block_info_t> bfiv;
+			   offset = m.second - 1; 
+			  for (unsigned int ires=0; ires<bfa_chain_info[ich].residue_properties.size(); ires++) {
+
+				double variance[2]={0.0,0.0};
+////	B FACTOR CALC FOR MAIN AND SIDECHAIN
+				mmdb::PPAtom residue_atoms;
+				mmdb::PResidue residue_p = chain_p->GetResidue(ires);
+   				int nResidueAtoms=0;
+				double running_sum[4]	= {0.0,0.0,0.0,0.0}; 
+ 				double mean[3]		= {0.0,0.0,0.0};
+				double std_dev[2]	= {0.0,0.0};
+				double bf  	= 0.0;
+				double occ 	= 0.0;
+				double bfo 	= 0.0;
+ 				double div[2] 	= {0.0,0.0};
+   				int    bMC 	= 0;
+
+				residue_p->GetAtomTable(residue_atoms, nResidueAtoms); 
+				if (nResidueAtoms > 0) { 
+					for (int i=0; i<nResidueAtoms; i++) {
+						bMC = ( coot::is_main_chain_p(residue_atoms[i]) )?1:0;
+						std::string ele = residue_atoms[i]->element;
+						if ((ele != " H") && (ele != " D")) {
+							bf  = residue_atoms[i]->tempFactor;
+							occ = residue_atoms[i]->occupancy;
+							if ( ((bf > 0.0) && (occ >= 0.0) && (occ <= 1.0)) ||
+							(is_shelx_mol && (occ < 11.001) && (occ > 10.999))) {
+								if (is_shelx_mol)
+									occ = 1.0; 
+								div[bMC] 		+= occ;
+								bfo			 = bf*occ;
+								running_sum[0+2*bMC] 	+= bfo;
+								running_sum[1+2*bMC] 	+= bfo*bfo;
+							}
+						}
+					}
+					if ( div[0] > 0 || div[1] > 0 ) { 
+						mean[0]     = (div[0]>0)?(running_sum[0]/div[0]):(0.0);		// notMC
+						mean[1]     = (running_sum[0]+running_sum[2])/(div[0]+div[1]);
+					}
+				}else{ //SO THIS SHOULD NEVER HAPPEN WILL JUST YIELD ZERO PLOTS
+					std::cout << "ERROR::  IN B FACTOR CALCULATION, EMPTY RESIDUE" << std::endl;
+				}
+////	END AVERAGE B FACTOR
+////	SIDECHAIN <B>_sc
+			      bfi[0].resno = bfa_chain_info[ich].residue_properties[ires].resno;
+			      bfi[0].b_factor_var = mean[0]+mean[1]; // IN ORDER TO PLOT SC ON THE TOP
+			      bfi[0].info_string  = int_to_string(bfi[0].resno);
+			      bfi[0].info_string += chain_p->GetChainID();
+			      bfi[0].info_string += " ";
+			      bfi[0].info_string += bfa_chain_info[ich].residue_properties[ires].resname;
+			      bfi[0].info_string += ":SC: ";
+			      bfi[0].info_string += float_to_string(bfi[0].b_factor_var - mean[1]); // USER SEES AVERAGE SC B FACTOR
+			      bfi[0].atom_name = bfa_chain_info[ich].residue_properties[ires].atom_name;
+////	TOTAL <B>_tot
+		 	      bfi[1].resno = bfa_chain_info[ich].residue_properties[ires].resno;
+			      bfi[1].b_factor_var = mean[1];
+			      bfi[1].info_string  = int_to_string(bfi[1].resno);
+			      bfi[1].info_string += chain_p->GetChainID();
+			      bfi[1].info_string += " ";
+			      bfi[1].info_string += bfa_chain_info[ich].residue_properties[ires].resname;
+			      bfi[1].info_string += ":TOT: ";
+			      bfi[1].info_string += float_to_string(bfi[1].b_factor_var); // USER SEES THE ACTUAL VALUE SINCE IT IS IN THE FRONT
+			      bfi[1].atom_name = bfa_chain_info[ich].residue_properties[ires].atom_name;
+
+			      bfiv.push_back(bfi[0]); //SC
+			      bfiv.push_back(bfi[1]); //TOT
+			 }
+			 graphs->render_b_factor_blocks(imol, ich, bfa_chain_info[ich].chain_id,
+							  offset, bfiv);
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+#endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+#endif // HAVE_GSL  
+}
+////E
 
 void
 graphics_info_t::b_factor_graphs(int imol) {
