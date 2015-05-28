@@ -234,7 +234,7 @@
 			  <child internal-child="image">
 			    <widget class="GtkImage" id="image10781">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">smiles.png</property>
+			      <property name="pixbuf">smiles.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -659,7 +659,7 @@
 			  <child internal-child="image">
 			    <widget class="GtkImage" id="image10797">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">residue-info.png</property>
+			      <property name="pixbuf">residue-info.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -697,7 +697,7 @@
 			  <child internal-child="image">
 			    <widget class="GtkImage" id="image10799">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">pink-pointer.png</property>
+			      <property name="pixbuf">pink-pointer.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -1158,7 +1158,7 @@
 			  <child internal-child="image">
 			    <widget class="GtkImage" id="image10813">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">display-manager.png</property>
+			      <property name="pixbuf">display-manager.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -1221,7 +1221,7 @@
 			  <child internal-child="image">
 			    <widget class="GtkImage" id="image10816">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">sequence-view.png</property>
+			      <property name="pixbuf">sequence-view.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -1241,7 +1241,7 @@
 			  <child internal-child="image">
 			    <widget class="GtkImage" id="image10817">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">aniso-atom.png</property>
+			      <property name="pixbuf">aniso-atom.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -1261,7 +1261,7 @@
 			  <child internal-child="image">
 			    <widget class="GtkImage" id="image10818">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">cell+symm.png</property>
+			      <property name="pixbuf">cell+symm.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -1291,7 +1291,7 @@
 			  <child internal-child="image">
 			    <widget class="GtkImage" id="image10819">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">ghosts.png</property>
+			      <property name="pixbuf">ghosts.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -1311,7 +1311,7 @@
 			  <child internal-child="image">
 			    <widget class="GtkImage" id="image10820">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">spin-view.png</property>
+			      <property name="pixbuf">spin-view.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -1459,7 +1459,7 @@
 			  <child internal-child="image">
 			    <widget class="GtkImage" id="image10825">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">crosshairs.png</property>
+			      <property name="pixbuf">crosshairs.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -1538,7 +1538,7 @@
 			  <child internal-child="image">
 			    <widget class="GtkImage" id="image10827">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">residue-info.png</property>
+			      <property name="pixbuf">residue-info.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -1579,7 +1579,7 @@
 			  <child internal-child="image">
 			    <widget class="GtkImage" id="image10829">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">env-distances.png</property>
+			      <property name="pixbuf">env-distances.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -1599,7 +1599,7 @@
 			  <child internal-child="image">
 			    <widget class="GtkImage" id="image10830">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">plane-distances.png</property>
+			      <property name="pixbuf">plane-distances.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -1619,7 +1619,7 @@
 			  <child internal-child="image">
 			    <widget class="GtkImage" id="image10831">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">pointer-distances.png</property>
+			      <property name="pixbuf">pointer-distances.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -1715,7 +1715,7 @@
 			  <child internal-child="image">
 			    <widget class="GtkImage" id="image10835">
 			      <property name="visible">True</property>
-			      <property name="pixbuf">chiral.png</property>
+			      <property name="pixbuf">chiral.svg</property>
 			      <property name="xalign">0.5</property>
 			      <property name="yalign">0.5</property>
 			      <property name="xpad">0</property>
@@ -2209,7 +2209,7 @@
 		  <property name="tooltip" translatable="yes">Display the dialog for displaying and undisplaying molecules and changing their representation (F7)</property>
 		  <property name="label" translatable="yes"> Display Manager</property>
 		  <property name="use_underline">True</property>
-		  <property name="icon">display-manager.png</property>
+		  <property name="icon">display-manager.svg</property>
 		  <property name="visible_horizontal">True</property>
 		  <property name="visible_vertical">True</property>
 		  <property name="is_important">True</property>
@@ -2227,7 +2227,7 @@
 		  <property name="tooltip" translatable="yes">Go To Atom... (F6)</property>
 		  <property name="label" translatable="yes">Go To Atom...</property>
 		  <property name="use_underline">True</property>
-		  <property name="icon">go-to-atom.png</property>
+		  <property name="icon">go-to-atom.svg</property>
 		  <property name="visible_horizontal">True</property>
 		  <property name="visible_vertical">True</property>
 		  <property name="is_important">False</property>
@@ -2246,7 +2246,7 @@
 		  <property name="tooltip" translatable="yes">Go To (Next) Ligand</property>
 		  <property name="label" translatable="yes">Go To Ligand</property>
 		  <property name="use_underline">True</property>
-		  <property name="icon">go-to-ligand.png</property>
+		  <property name="icon">go-to-ligand.svg</property>
 		  <property name="visible_horizontal">True</property>
 		  <property name="visible_vertical">True</property>
 		  <property name="is_important">False</property>
@@ -3315,7 +3315,7 @@
 		      <property name="tooltip" translatable="yes">Real Space Refine Zone</property>
 		      <property name="label" translatable="yes">Real Space Refine Zone</property>
 		      <property name="use_underline">True</property>
-		      <property name="icon">refine-1.png</property>
+		      <property name="icon">refine-1.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">True</property>
@@ -3334,7 +3334,7 @@
 		      <property name="tooltip" translatable="yes">Send in the Bond Angels!    Ahem, I mean &quot;Regularize Zone (click 2 atoms)&quot;</property>
 		      <property name="label" translatable="yes">Regularize Zone</property>
 		      <property name="use_underline">True</property>
-		      <property name="icon">regularize-1.png</property>
+		      <property name="icon">regularize-1.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">True</property>
@@ -3353,7 +3353,7 @@
 		      <property name="tooltip" translatable="yes">Fix Atoms in Refinement and Regularization...</property>
 		      <property name="label" translatable="yes">Fixed Atoms...</property>
 		      <property name="use_underline">True</property>
-		      <property name="icon">anchor.png</property>
+		      <property name="icon">anchor.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">False</property>
@@ -3371,7 +3371,7 @@
 		      <property name="tooltip" translatable="yes">Rigid Body Fit Zone (click on 2 atoms)</property>
 		      <property name="label" translatable="yes">Rigid Body Fit Zone</property>
 		      <property name="use_underline">True</property>
-		      <property name="icon">rigid-body.png</property>
+		      <property name="icon">rigid-body.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">False</property>
@@ -3390,7 +3390,7 @@
 		      <property name="tooltip" translatable="yes">Rotate Translate Zone/Chain/Molecule</property>
 		      <property name="label" translatable="yes">Rotate Translate</property>
 		      <property name="use_underline">True</property>
-		      <property name="icon">rtz.png</property>
+		      <property name="icon">rtz.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">False</property>
@@ -3409,7 +3409,7 @@
 		      <property name="tooltip" translatable="yes">Auto Fit Rotamer (click on an atom)</property>
 		      <property name="label" translatable="yes">Auto Fit Rotamer</property>
 		      <property name="use_underline">True</property>
-		      <property name="icon">auto-fit-rotamer.png</property>
+		      <property name="icon">auto-fit-rotamer.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">False</property>
@@ -3428,7 +3428,7 @@
 		      <property name="tooltip" translatable="yes">Rotamers... (click on an atom)</property>
 		      <property name="label" translatable="yes">Rotamers...</property>
 		      <property name="use_underline">True</property>
-		      <property name="icon">rotamers.png</property>
+		      <property name="icon">rotamers.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">False</property>
@@ -3447,7 +3447,7 @@
 		      <property name="tooltip" translatable="yes">Edit Chi Angles (click on an atom)</property>
 		      <property name="label" translatable="yes">Edit Chi Angles</property>
 		      <property name="use_underline">True</property>
-		      <property name="icon">edit-chi.png</property>
+		      <property name="icon">edit-chi.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">False</property>
@@ -3466,7 +3466,7 @@
 		      <property name="tooltip" translatable="yes">Torsion General</property>
 		      <property name="label" translatable="yes">Torsion General</property>
 		      <property name="use_underline">True</property>
-		      <property name="icon">torsion-general.png</property>
+		      <property name="icon">torsion-general.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">False</property>
@@ -3485,7 +3485,7 @@
 		      <property name="tooltip" translatable="yes">Flip peptide... (click on an atom)</property>
 		      <property name="label" translatable="yes">Flip Peptide</property>
 		      <property name="use_underline">True</property>
-		      <property name="icon">flip-peptide.png</property>
+		      <property name="icon">flip-peptide.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">False</property>
@@ -3504,7 +3504,7 @@
 		      <property name="tooltip" translatable="yes">Flip sidechain 180° (click on an atom)</property>
 		      <property name="label" translatable="yes"> Sidechain 180° Flip</property>
 		      <property name="use_underline">True</property>
-		      <property name="icon">side-chain-180.png</property>
+		      <property name="icon">side-chain-180.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">False</property>
@@ -3523,7 +3523,7 @@
 		      <property name="tooltip" translatable="yes">Change Residue's Phi and Psi</property>
 		      <property name="label" translatable="yes">Edit Backbone Torsions</property>
 		      <property name="use_underline">True</property>
-		      <property name="icon">edit-backbone.png</property>
+		      <property name="icon">edit-backbone.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">False</property>
@@ -3580,7 +3580,7 @@
 		      <property name="tooltip" translatable="yes">Mutate &amp; AutoFit... (click on an atom)</property>
 		      <property name="label" translatable="yes">Mutate &amp; Auto Fit...</property>
 		      <property name="use_underline">True</property>
-		      <property name="icon">mutate-auto-fit.png</property>
+		      <property name="icon">mutate-auto-fit.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">False</property>
@@ -3599,7 +3599,7 @@
 		      <property name="tooltip" translatable="yes">Simple Mutate (mutates amino acid residues and nucleic acids) A simple modelling tool - no map fitting happens</property>
 		      <property name="label" translatable="yes">Simple Mutate...</property>
 		      <property name="use_underline">True</property>
-		      <property name="icon">mutate.png</property>
+		      <property name="icon">mutate.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">False</property>
@@ -3617,7 +3617,7 @@
 		      <property name="tooltip" translatable="yes">Solvate...</property>
 		      <property name="label" translatable="yes">Find Waters...</property>
 		      <property name="use_underline">True</property>
-		      <property name="icon">add-water.png</property>
+		      <property name="icon">add-water.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">True</property>
@@ -3635,7 +3635,7 @@
 		      <property name="tooltip" translatable="yes">Add Residue...</property>
 		      <property name="label" translatable="yes">Add Terminal Residue...</property>
 		      <property name="use_underline">True</property>
-		      <property name="icon">add-peptide-1.png</property>
+		      <property name="icon">add-peptide-1.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">False</property>
@@ -3654,7 +3654,7 @@
 		      <property name="tooltip" translatable="yes">Add Alternate (Alternative) Conformation to a Residue</property>
 		      <property name="label" translatable="yes">Add Alt Conf...</property>
 		      <property name="use_underline">True</property>
-		      <property name="icon">add-alt-conf.png</property>
+		      <property name="icon">add-alt-conf.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">True</property>
@@ -3672,7 +3672,7 @@
 		      <property name="tooltip" translatable="yes">Place Atom at Pointer...</property>
 		      <property name="label" translatable="yes">Place Atom At Pointer</property>
 		      <property name="use_underline">True</property>
-		      <property name="icon">atom-at-pointer.png</property>
+		      <property name="icon">atom-at-pointer.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">False</property>
@@ -3800,7 +3800,7 @@
 		      <property name="tooltip" translatable="yes">Press to run Refmac</property>
 		      <property name="label" translatable="yes">Run Refmac...</property>
 		      <property name="use_underline">True</property>
-		      <property name="icon">azerbaijan.png</property>
+		      <property name="icon">azerbaijan.svg</property>
 		      <property name="visible_horizontal">True</property>
 		      <property name="visible_vertical">True</property>
 		      <property name="is_important">False</property>

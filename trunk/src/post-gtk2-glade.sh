@@ -56,7 +56,7 @@ sed -e 's/#include "callbacks.h.gtk2"/#include "callbacks.h"/' \
         /png/s/create_pixmap (preferences, /gtk_image_new_from_stock (/
         /png/s/);/, GTK_ICON_SIZE_BUTTON);/
         }' \
-    -e 's/tmp_image = .*rtz.png/#ifdef GTK_TYPE_MENU_TOOL_BUTTON\n  &/' \
+    -e 's/tmp_image = .*rtz.svg/#ifdef GTK_TYPE_MENU_TOOL_BUTTON\n  &/' \
     -e 's/set_tooltip .*model_toolbar_rot_trans_toolbutton.*;/&\n#endif\n/' \
     -e 's/ *GLADE_HOOKUP_OBJECT .*model_toolbar_rot_trans_toolbutton.*/#ifdef GTK_TYPE_MENU_TOOL_BUTTON\n  &\n#endif/' \
     gtk2-interface.c > gtk2-interface.tmp
