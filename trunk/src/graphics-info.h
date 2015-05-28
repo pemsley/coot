@@ -129,7 +129,10 @@ namespace coot {
                              GEOMETRY_GRAPH_ROTAMER,
                              GEOMETRY_GRAPH_NCS_DIFFS,
                              SEQUENCE_VIEW,
-                             RAMACHANDRAN_PLOT
+                             RAMACHANDRAN_PLOT,
+////BEGIN RICHARD
+			     GEOMETRY_GRAPH_CALC_B_FACTOR
+////  END RICHARD
    };
 }
 #endif // HAVE_GSL
@@ -3508,6 +3511,7 @@ public:
    // pretty graphs on a canvas: (not const because geom_p may be added to)
    void geometric_distortion(int imol);
    void b_factor_graphs(int imol);
+   void calc_b_factor_graphs(int imol); //// NEW ADDITION BY RICHARD
    void omega_graphs(int imol);
    coot::rotamer_graphs_info_t rotamer_graphs(int imol); // give results back to scripting layer
    void density_fit_graphs(int imol);

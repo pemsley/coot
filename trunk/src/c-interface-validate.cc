@@ -743,6 +743,13 @@ void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in) {
       found_validation_type = 1;
       sub_menu_name = "temp_factor_variance_submenu";
    }
+////B B GRAPH
+   if (validation_type == "calc b factor") {
+      callback = GTK_SIGNAL_FUNC(validation_graph_calc_b_factor_mol_selector_activate);
+      found_validation_type = 1;
+      sub_menu_name = "temp_factor_submenu";
+   }
+////E B GRAPH
    if (validation_type == "geometry") {
       callback = GTK_SIGNAL_FUNC(validation_graph_geometry_mol_selector_activate);
       found_validation_type = 1;
@@ -831,6 +838,21 @@ void validation_graph_b_factor_mol_selector_activate (GtkMenuItem     *menuitem,
 #endif /* HAVE_GTK_CANVAS */
 
 }
+
+////B B GRAPH
+void validation_graph_calc_b_factor_mol_selector_activate (GtkMenuItem     *menuitem,
+						      gpointer         user_data) {
+
+   int imol = GPOINTER_TO_INT(user_data);
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+      graphics_info_t g;
+      g.calc_b_factor_graphs(imol);
+#else
+      printf("not compiled with HAVE_GTK_CANVAS/GNOME_CANVAS - remake\n"); 
+#endif
+
+}
+////E B GRAPH
 
 void validation_graph_geometry_mol_selector_activate (GtkMenuItem     *menuitem,
 						      gpointer         user_data) {

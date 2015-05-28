@@ -160,18 +160,33 @@ coot::geometry_graphs::geometry_graphs(coot::geometry_graph_type graph_type_in,
 
    // set the window title:
    std::string title("Graph");
-   if (graph_type == coot::GEOMETRY_GRAPH_GEOMETRY)
-      title = _("Geometry Graphs");
-   if (graph_type == coot::GEOMETRY_GRAPH_B_FACTOR)
-      title = _("B Factor Variance Graphs");
-   if (graph_type == coot::GEOMETRY_GRAPH_DENSITY_FIT)
-      title = _("Density Fit Graphs");
-   if (graph_type == coot::GEOMETRY_GRAPH_OMEGA_DISTORTION)
-      title = _("Peptide Omega Distortion Graphs");
-   if (graph_type == coot::GEOMETRY_GRAPH_ROTAMER)
-      title = _("Unusual Rotamer Graphs");
-   if (graph_type == coot::GEOMETRY_GRAPH_NCS_DIFFS)
-      title = _("NCS Differences");
+   switch(graph_type) {
+	case coot::GEOMETRY_GRAPH_GEOMETRY:
+		title = _("Geometry Graphs");
+		break;
+////B
+	case coot::GEOMETRY_GRAPH_CALC_B_FACTOR:
+		title = _(" < B > Factor Graphs ");
+		break;
+////E
+	case coot::GEOMETRY_GRAPH_B_FACTOR:
+		title = _(" B Factor Variance Graphs ");
+		break;
+	case coot::GEOMETRY_GRAPH_DENSITY_FIT:
+		title = _("Density Fit Graphs");
+		break;
+	case coot::GEOMETRY_GRAPH_OMEGA_DISTORTION:
+		title = _("Peptide Omega Distortion Graphs");
+		break;
+	case coot::GEOMETRY_GRAPH_ROTAMER:
+		title = _("Unusual Rotamer Graphs");
+		break;
+	case coot::GEOMETRY_GRAPH_NCS_DIFFS:
+		title = _("NCS Differences");
+		break;
+	default:
+		break;
+   }
 
    // adjust distortion_max depending on graph type
    if (graph_type == coot::GEOMETRY_GRAPH_OMEGA_DISTORTION)
