@@ -8770,6 +8770,7 @@ on_simple1_activate                    (GtkMenuItem     *menuitem,
 {
    GtkWidget *fileselection = coot_screendump_chooser();
    gtk_object_set_user_data(GTK_OBJECT(fileselection), GINT_TO_POINTER(COOT_SCREENDUMP_SIMPLE));
+   set_directory_for_fileselection(fileselection);
    set_filename_for_filechooserselection(fileselection,
 					 "coot.png");
    set_file_selection_dialog_size(fileselection);
@@ -8789,6 +8790,7 @@ on_povray1_activate                    (GtkMenuItem     *menuitem,
 
    GtkWidget *fileselection = coot_screendump_chooser();
    gtk_object_set_user_data(GTK_OBJECT(fileselection), GINT_TO_POINTER(COOT_SCREENDUMP_POVRAY));
+   set_directory_for_fileselection(fileselection);
    set_filename_for_filechooserselection(fileselection,
 				   "coot-povray");
    set_file_selection_dialog_size(fileselection);
@@ -8805,6 +8807,7 @@ on_raster3d1_activate                  (GtkMenuItem     *menuitem,
 
    GtkWidget *fileselection = coot_screendump_chooser();
    gtk_object_set_user_data(GTK_OBJECT(fileselection), GINT_TO_POINTER(COOT_SCREENDUMP_RASTER3D));
+   set_directory_for_fileselection(fileselection);
    set_filename_for_filechooserselection(fileselection, 
 				   "coot.png");
    set_file_selection_dialog_size(fileselection);
