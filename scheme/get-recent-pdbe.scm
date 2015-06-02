@@ -906,31 +906,12 @@
 	    ""
 	    (let ((ligand-string-list
 		   (map (lambda(lht)
-			  (let ((name (hash-ref lht "Name"))
-				(code (hash-ref lht "Code"))
-				(n-atoms (hash-ref lht "NumberOfAtoms")))
-
-			    (if (not (string? name))
-				(begin
-				  "")
-				(if (not (number? n-atoms))
-				    (begin
-				      (pad-and-truncate-name name))
-
-				    (begin
-				      (if (> n-atoms n-atoms-limit-small-ligands)
-					  (begin
-					    (if (string? code)
-						(let ((code+name (string-append code ": " name)))
-						  (pad-and-truncate-name code+name))
-						(pad-and-truncate-name name)))
-					  (begin
-					    ""))))))) ;; too small to be interesting
+			  (string-append "   " lht "\n"))
 			ligand-ht-list)))
 	      
 	      (let ((ligand-string (apply string-append ligand-string-list)))
 		(if (> (string-length ligand-string) 0)
-		    (string-append "\nLigands:" ligand-string)
+		    (string-append "\nLigands:\n" ligand-string)
 		    ""))))))
 
   ;; return a list (possibly empty) of the three-letter-codes of the
@@ -938,24 +919,21 @@
   ;; problem ocurred on dehashing or it was a small/uninteresting
   ;; ligand), that gives a #f, which is filtered out before returning
   ;; 
-  (define (make-ligand-tlc-list ligand-ht-list)
+  (define (make-ligand-tlc-list ligand-list)
 
-    (if (not ligand-ht-list)
+    (format #t "----- make-ligand-tlc-list: ligand-ht-list: ~s~%" ligand-list)
+
+    (if (not ligand-list)
 	'()
-	(if (null? ligand-ht-list)
+	(if (null? ligand-list)
 	    '()
-	    (filter string? 
-		    (map (lambda (lht)
-			   (let ((code (hash-ref lht "Code"))
-				 (n-atoms (hash-ref lht "NumberOfAtoms")))
-			     (if (not (string? code))
-				 #f
-				 (if (not (number? n-atoms))
-				     code
-				     (if (> n-atoms n-atoms-limit-small-ligands)
-					 code
-					 #f)))))
-			 ligand-ht-list)))))
+	    (map (lambda (ligand-string)
+		   (let ((sm (string-match " : " ligand-string)))
+		     (if (not sm)
+			 ""
+			 (substring ligand-string 0 (car (vector-ref sm 1))))))
+		 ligand-list))))
+		   
 
   ;; The idea here is that we have a list of ligand tlcs.  From that,
   ;; we make a function, which, when passed a button-hbox (you can put
@@ -999,7 +977,7 @@
 ;				     tlc
 ;				     "&size=" (number->string image-size)))
 			 (image-url (string-append
-				     "http://www.ebi.ac.uk/pdbe-srv/pdbe/static/chem-files/" 
+				     "http://www.ebi.ac.uk/pdbe/static/chem-files/" 
 				     tlc "-"
 				     (number->string image-size) ".gif"))
 			 (image-name (append-dir-file 
@@ -1052,13 +1030,15 @@
 		      (resol   (hash-ref docs "resolution"))
 		      (title   (hash-ref docs "citation_title"))
 		      (authors (hash-ref docs "pubmed_author_list"))
-		      (ligands (hash-ref docs "contains_ligands")))
+		      (ligands (hash-ref docs "compound_name")))
 		  
 		  (let ((ligand-tlc-list (make-ligand-tlc-list ligands)))
 ;		    (format #t "title: ~s~%" title)
 ;		    (format #t "method: ~s~%" method)
 ;		    (format #t "resol: ~s~%" resol)
 ;		    (format #t "authors: ~s~%" authors)
+		    
+		    ;; (format #t "::::::::::::::::::::::::::::: ligand-tlc-list: ~s~%" ligand-tlc-list)
 		    (let ((label (string-append 
 				  (if (string? pdb-id)
 				      (string-append pdb-id "\n") "")
@@ -1072,7 +1052,6 @@
 				  "\n"
 				  (if (list? authors)
 				      (string-append "Authors: " (apply string-append authors)) "")
-				  "\n"
  				  (make-ligands-string ligands))))
 		      (list label
 			    (lambda () (pdbe-get-pdb-and-sfs-cif 'include-sfs pdb-id))
@@ -1122,7 +1101,7 @@
 
 	    ;; OK
 	    (begin
-	      (format #t "---- was a hashtable: a: ~s~%" a)
+	      ;; (format #t "---- was a hashtable: a: ~s~%" a)
 	      (let ((b (hash-ref a "pdb_id")))
 		(if (not (hash-table? b))
 		    (begin
@@ -1132,7 +1111,7 @@
 
 		    ;; OK
 		    (begin
-		      (format #t "---- was a hashtable: b: ~s~%" b)
+		      ;; (format #t "---- was a hashtable: b: ~s~%" b)
 		      (let ((c (hash-ref b "groups")))
 			;; (format #t "got groups hash-ref: ~s~%" c)
 			(if (list? c)
@@ -1177,7 +1156,8 @@
 ;	(curl-status 'start))
 
 
-  (let ((url "http://www.ebi.ac.uk/pdbe/search/latest/select?facet=true&q=*%3A*&group=true&group.field=pdb_id&group.ngroups=true&&json.nl=map&fq=document_type%3Alatest_pdb&fq=entry_type:%28new%20OR%20revised%29&wt=json&fl=pdb_id,compound_id,release_date,resolution,number_of_bound_molecules,experimental_method,citation_title,citation_doi,pubmed_author_list,journal,title,entry_type&rows=-1")
+  (let ((url "http://www.ebi.ac.uk/pdbe/search/latest/select?facet=true&q=*%3A*&group=true&group.field=pdb_id&group.ngroups=true&&json.nl=map&fq=document_type%3Alatest_pdb&fq=entry_type:%28new%20OR%20revised%29&wt=json&fl=pdb_id,compound_name,release_date,resolution,number_of_bound_molecules,experimental_method,citation_title,citation_doi,pubmed_author_list,journal,title,entry_type&rows=-1")
+	(json-file-name "latest-releases.json")
 	(curl-status 'start))
 
     (add-status-bar-text "Retrieving list of latest releases...")
