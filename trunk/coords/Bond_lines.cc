@@ -1134,11 +1134,6 @@ Bond_lines_container::construct_from_model_links(mmdb::Model *model_p,
 	 for (int i_link=1; i_link<=n_links; i_link++) {
 	    mmdb::Link *link = model_p->GetLink(i_link);
 
-	    std::cout << "link " << i_link << " of " << n_links << " ";
-	    std::cout.flush();
-	    std::cout << link << std::endl;
-	    std::cout.flush();
-	 
 	    // For the moment, don't make Link dashed bonds to
 	    // symmetry-related molecules.
 	    // 
