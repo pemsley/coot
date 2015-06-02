@@ -33,14 +33,6 @@
 #include <iomanip>
 #include <algorithm>
 
-#include <cairo.h>
-#if CAIRO_HAS_PDF_SURFACE
-#include <cairo-pdf.h>
-#endif
-#include "lbg.hh"
-#include "lbg-drag-and-drop.hh"
-#include "qed-interface.hh" // interface to silicos-it biscu-it python function
-
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include <RDGeneral/versions.h>
 #include <RDGeneral/FileParseException.h>
@@ -50,6 +42,14 @@
 #include <boost/python.hpp>
 #endif
 #endif
+
+#include <cairo.h>
+#if CAIRO_HAS_PDF_SURFACE
+#include <cairo-pdf.h>
+#endif
+#include "lbg.hh"
+#include "lbg-drag-and-drop.hh"
+#include "qed-interface.hh" // interface to silicos-it biscu-it python function
 
 #include <gdk/gdkkeysyms.h> // for keyboarding.
 

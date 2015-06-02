@@ -22,8 +22,8 @@
 
 #include <cstring>  // Fixes ::strchr complaints on 4.4.7 (hal)
 #include "utils/coot-utils.hh"
-#include "coot-utils/coot-coord-utils.hh" // after rdkit-interface.hh to avoid ::strchr problems
 #include "rdkit-interface.hh"
+#include "coot-utils/coot-coord-utils.hh" // after rdkit-interface.hh to avoid ::strchr problems
 #include "neighbour-sorter.hh"
 
 

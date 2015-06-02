@@ -1,11 +1,11 @@
 
 #include <cstring> // Fix strchr problems on using RDKit includes.
 
-#include <coot-utils/coot-coord-utils.hh>
-#include "py-restraints.hh"
-#include "restraints.hh"
 #include <boost/python.hpp>
+#include "restraints.hh"
+#include "py-restraints.hh"
 #include <lidia-core/rdkit-interface.hh>
+#include <coot-utils/coot-coord-utils.hh>
 
 std::string
 coot::convert_to_energy_lib_bond_type(RDKit::Bond::BondType bt) {

@@ -4173,6 +4173,9 @@ Fri May 15 14:37:13 BST 2009
 http://whynotwiki.com/How_I_moved_my_code_repository_to_Google_Code
 
 
+   how to revert a particular revision (just this one) 
+   $ svn merge -c -5702 . 
+
 --
 Sun 17 May 2009 13:01:52 BST
 

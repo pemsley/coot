@@ -27,6 +27,13 @@
 #include "string.h"
 
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include <RDGeneral/FileParseException.h>
+#include <RDGeneral/BadFileException.h>
+#include <GraphMol/FileParsers/FileParsers.h>
+#include "lidia-core/rdkit-interface.hh"
+#endif
+
 #include <mmdb2/mmdb_manager.h>
 #include "mmdb-extras.h"
 #include "Cartesian.h"
@@ -35,13 +42,6 @@
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-shelx.hh"
-
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS
-#include <RDGeneral/FileParseException.h>
-#include <RDGeneral/BadFileException.h>
-#include <GraphMol/FileParsers/FileParsers.h>
-#include "lidia-core/rdkit-interface.hh"
-#endif
 
 
 bool

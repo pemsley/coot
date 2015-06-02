@@ -33,6 +33,10 @@
 #endif 
 
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include "lidia-core/rdkit-interface.hh"
+#endif 
+
 #include <iostream>
 #include <map>
 #include <queue>
@@ -47,20 +51,19 @@
 #define MONOMER_DIR_STR "COOT_CCP4SRS_DIR"
 #endif 
 
-#include "utils/coot-utils.hh"
-#include "coot-utils/coot-coord-utils.hh"
 #include "lidia-core/lig-build.hh"
 #include "lidia-core/lbg-molfile.hh"
+#include "utils/coot-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
 
 #include "wmolecule.hh"
 
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS
-#include "lidia-core/rdkit-interface.hh"
-#include "graphics-c-interface-functions.hh"
-#endif 
-
 #include "flev-annotations.hh"
 #include "pi-stacking.hh"
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include "graphics-c-interface-functions.hh"
+#endif 
 
 #ifdef WINDOWS_MINGW
 #undef small

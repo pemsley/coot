@@ -23,11 +23,11 @@
 #include <iostream>
 #include <stdexcept>
 
-#include "geometry/protein-geometry.hh"
-#include "coot-utils/coot-coord-extras.hh"
-
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
+
+#include "geometry/protein-geometry.hh"
+#include "coot-utils/coot-coord-extras.hh"
 
 
 #define BUILT_IN_TESTING
