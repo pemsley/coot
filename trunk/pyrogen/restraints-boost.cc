@@ -1,5 +1,8 @@
 
+#include <GraphMol/GraphMol.h>
+
 #include <boost/python.hpp>
+using namespace boost::python;
 
 #define HAVE_GSL
 #include <ideal/simple-restraint.hh>
@@ -10,9 +13,6 @@
 #include "restraints-private.hh" // for bond-order conversion
 
 #include "mmff-restraints.hh"
-#include <GraphMol/GraphMol.h>
-
-using namespace boost::python;
 
 namespace coot {
 
