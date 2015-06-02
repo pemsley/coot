@@ -787,7 +787,7 @@ coot::geometry_graphs::update_omega_blocks(const coot::omega_distortion_info_con
 	    // sensible for blocks[chain_index].
 
 	    if (offsetted_residue_number >=0 &&
-		offsetted_residue_number < blocks[chain_index].size()) { 
+		offsetted_residue_number < int(blocks[chain_index].size())) { 
 	       if (blocks[chain_index][offsetted_residue_number]) {
 		  if (0) // debug
 		     std::cout << ":::: in update_omega_blocks() blocks[" << chain_index
