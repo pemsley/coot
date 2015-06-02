@@ -160,7 +160,7 @@ void to_generic_object_add_arc(int object_number,
 			       float normal_y, 
 			       float normal_z) {
    graphics_info_t g;
-   if (object_number >=0 && object_number < g.generic_objects_p->size()) {
+   if (object_number >=0 && object_number < int(g.generic_objects_p->size())) {
       coot::generic_display_object_t::arc_t arc(from_angle, to_angle,
 						clipper::Coord_orth(start_point_x,
 								    start_point_y,
@@ -467,7 +467,7 @@ short int generic_object_has_objects_p(int object_number) {
 
    short int r = 0;
    graphics_info_t g;
-   if ((object_number >=0) && (object_number < g.generic_objects_p->size())) {
+   if ((object_number >=0) && (object_number < int(g.generic_objects_p->size()))) {
       if ((*g.generic_objects_p)[object_number].lines_set.size() > 0)
 	 r = 1;
       if ((*g.generic_objects_p)[object_number].points_set.size() > 0)

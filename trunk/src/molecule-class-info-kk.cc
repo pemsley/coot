@@ -30,7 +30,7 @@ void molecule_class_info_t::remove_extra_start_pos_restraint(coot::atom_spec_t a
    for (it=extra_restraints.start_pos_restraints.begin(); it != extra_restraints.start_pos_restraints.end(); it++) { 
       if (it->atom_1 == atom_1) {
 	 extra_restraints.start_pos_restraints.erase(it);
-	 std::cout << "deleted extra start_pos restraint " << atom_1 << std::endl;
+	 // std::cout << "deleted extra start_pos restraint " << atom_1 << std::endl;
 	 break;
       }
    }
@@ -49,7 +49,7 @@ void molecule_class_info_t::remove_extra_torsion_restraint(coot::atom_spec_t ato
 	  (it->atom_3 == atom_3) &&
 	  (it->atom_4 == atom_4)) {
 	 extra_restraints.torsion_restraints.erase(it);
-	 std::cout << "deleted extra torsion restraint " << atom_1 << " to " << atom_2 << " to " << atom_3 << " to " << atom_4 << std::endl;
+	 // std::cout << "deleted extra torsion restraint " << atom_1 << " to " << atom_2 << " to " << atom_3 << " to " << atom_4 << std::endl;
 	 break;
       }
    }

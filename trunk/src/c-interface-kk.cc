@@ -44,7 +44,7 @@ PyObject *map_peaks_near_point_from_list_py(int imol_map, PyObject *peak_list, f
       // convert *peak_list into a C++ vector
       std::vector<clipper::Coord_orth> peaks;
       int l = PyObject_Length(peak_list);
-      for (unsigned int peak_num=0; peak_num<l; peak_num++) {
+      for (int peak_num=0; peak_num<l; peak_num++) {
 	 PyObject *cur_peak_py = PyList_GetItem(peak_list, peak_num);
              
 	 double peak_x = PyFloat_AsDouble(PyList_GetItem(cur_peak_py, 0));
@@ -125,12 +125,9 @@ PyObject *screen_vectors_py() {
 
 void
 clear_extra_restraints(int imol) {
-    if (is_valid_model_molecule(imol)) {
-        graphics_info_t::molecules[imol].extra_restraints.bond_restraints.clear();
-        graphics_info_t::molecules[imol].extra_restraints.angle_restraints.clear();
-        graphics_info_t::molecules[imol].extra_restraints.torsion_restraints.clear();
-        graphics_info_t::molecules[imol].extra_restraints.start_pos_restraints.clear();
-    }
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].clear_extra_restraints(); 
+   }
 }
 
 #ifdef USE_PYTHON
