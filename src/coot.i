@@ -69,4 +69,4 @@ namespace std {
 %include "coot-version.hh"
 %include "get-monomer.hh"
 %include "globularize.hh"
-
+%include "../coords/phenix-geo.hh"
