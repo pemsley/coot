@@ -379,17 +379,17 @@ molecule_class_info_t::show_spacegroup() const {
 coot::at_dist_info_t
 molecule_class_info_t::closest_atom(const coot::Cartesian &pt) const {
 
-   coot::at_dist_info_t at_info = closest_atom(pt, 1);
+   coot::at_dist_info_t at_info = closest_atom(pt, true);
    if (at_info.atom)
       return at_info;
    else
-      return closest_atom(pt, 0);
+      return closest_atom(pt, false);
 
 }
 
 coot::at_dist_info_t
 molecule_class_info_t::closest_atom(const coot::Cartesian &pt, bool ca_check_flag) const {
-   return closest_atom(pt, ca_check_flag, "", 0); // don't use chain-id
+   return closest_atom(pt, ca_check_flag, "", false); // don't use chain-id
 }
 
 coot::at_dist_info_t
