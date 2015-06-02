@@ -1,4 +1,5 @@
 
+#include <cstring> // Fix strchr problems on using RDKit includes.
 
 #include <coot-utils/coot-coord-utils.hh>
 #include "py-restraints.hh"
