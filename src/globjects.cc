@@ -41,12 +41,8 @@
 #include <gtk/gtk.h>
 #include <gdk/gdkkeysyms.h> // for keyboarding.
 
-#if (GTK_MAJOR_VERSION == 1)
-#include <gtkgl/gtkglarea.h>
-#else
 #include <gdk/gdkglconfig.h>
 #include <gtk/gtkgl.h>
-#endif // (GTK_MAJOR_VERSION == 1)
 
 #if __APPLE__
 #   include <OpenGL/gl.h>
