@@ -777,10 +777,10 @@ delete_extra_restraint_py(int imol, PyObject *restraint_spec) {
 void
 delete_all_extra_restraints(int imol) {
 
+   // c.f. clear_extra_restraints()
    if (is_valid_model_molecule(imol)) {
-      graphics_info_t::molecules[imol].extra_restraints.clear();
+      graphics_info_t::molecules[imol].clear_extra_restraints(); 
    }
-   graphics_draw();
 }
 
 
