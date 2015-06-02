@@ -892,7 +892,7 @@
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-release"
 	       #t #t)
 
-	 (list "binary-Linux-x86_64-scientific-linux-6.4-python-gtk2"
+	 (list "binary-Linux-x86_64-scientific-linux-6.6-python-gtk2"
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-hal.lmb.internal/gtk2" 
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-release"
 	       #t #t)
@@ -918,14 +918,14 @@
 ;                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/squeeze/binaries/nightlies/pre-release/"
 ;                #t #t)
 
-          (list "binary-Linux-x86_64-debian-gnu-linux-jessie-sid-python-gtk2"
-                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/jessie/build-logs/Linux-shelx11/gtk2"
+          (list "binary-Linux-x86_64-debian-gnu-linux-jessie-python-gtk2"
+                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/jessie/build-logs/Linux-shelx10/gtk2"
                 "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/jessie/binaries/nightlies/pre-release"
                 #t #t)
 
           (list "binary-Linux-x86_64-debian-gnu-linux-7-python-gtk2"
-                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/wheezy/build-logs/Linux-shelx10/gtk2"
-                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/wheezy/binaries/nightlies/pre-release"
+                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/stretch/build-logs/Linux-shelx11/gtk2"
+                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/stretch/binaries/nightlies/pre-release"
                 #t #t)
 
 	 (list "WinCoot" 
