@@ -46,6 +46,9 @@ namespace coot {
       phenix_geo_bonds(const std::string &file_name);
       unsigned int size() const { return bonds.size(); }
       const phenix_geo_bond &operator[](const unsigned int &idx) const { return bonds[idx]; }
+      void add_bond(const phenix_geo_bond &b) {
+	 bonds.push_back(b);
+      } 
    };
 }
 
