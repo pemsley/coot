@@ -1,6 +1,7 @@
 
 #include <cstring> // Fix strchr problems on using RDKit includes.
 
+#include "compat/coot-sysdep.h"
 #include <boost/python.hpp>
 #include "restraints.hh"
 #include "py-restraints.hh"

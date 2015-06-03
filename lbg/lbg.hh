@@ -65,10 +65,6 @@
 #include "graphics-c-interface-functions.hh"
 #endif 
 
-#ifdef WINDOWS_MINGW
-#undef small
-#endif
-
 // static double LIGAND_TO_CANVAS_SCALE_FACTOR = 23;
 static double LIGAND_TO_CANVAS_SCALE_FACTOR = 17;
 static double SINGLE_BOND_CANVAS_LENGTH= LIGAND_TO_CANVAS_SCALE_FACTOR * 1.54;

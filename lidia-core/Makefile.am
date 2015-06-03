@@ -26,7 +26,7 @@ AM_CPPFLAGS = \
 	 -I$(top_srcdir) \
 	$(ENHANCED_LIGAND_TOOLS_CFLAGS)      \
 	$(RDKIT_CXXFLAGS) 		\
-        $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS)
+        $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) $(COOT_WINDOWS_CFLAGS)
 
 libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc rdkit-interface.cc \
 	cod-types.cc

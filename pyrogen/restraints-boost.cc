@@ -1,4 +1,5 @@
 
+#include "compat/coot-sysdep.h"
 #include <GraphMol/GraphMol.h>
 
 #include <boost/python.hpp>
