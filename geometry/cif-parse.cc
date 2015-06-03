@@ -233,7 +233,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
 		  // bond
 		  if (cat_name == "_chem_comp_bond")
-		     comp_bond(mmCIFLoop);
+		     rmit.n_bonds += comp_bond(mmCIFLoop);
 
 		  // angle
 		  if (cat_name == "_chem_comp_angle")
