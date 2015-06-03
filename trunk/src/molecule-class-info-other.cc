@@ -1472,13 +1472,9 @@ molecule_class_info_t::unalt_conf_residue_atoms(mmdb::Residue *residue_p) {
 	 int n_match = 0;
 	 for (int j=0; j<n_atoms; j++) {
 	    if (atoms[j]) {
-	       if (atoms[j]->name) {
-		  std::string inner_name(atoms[j]->name);
-		  if (inner_name == this_atom_name) { 
-		     n_match++;
-		  }
-	       } else {
-		  std::cout << "ERROR:: null atom name in unalt_conf" << std::endl;
+	       std::string inner_name(atoms[j]->name);
+	       if (inner_name == this_atom_name) { 
+	          n_match++;
 	       }
 	    } else {
 	       std::cout << "ERROR:: null atom in unalt_conf" << std::endl;
