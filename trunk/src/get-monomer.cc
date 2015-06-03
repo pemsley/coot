@@ -30,7 +30,7 @@ int get_monomer_molecule_by_network_and_dict_gen(const std::string &text) {
       args.clear();
       args.push_back(coot::util::single_quote(text));
       args.push_back(coot::util::single_quote(file_name));
-      retval = coot::scripting_function("generate-molecule-from-cif", args);
+      retval = coot::scripting_function("generate-molecule-from-mmcif", args);
       if (retval.type == coot::command_arg_t::INT) {
 	 imol = retval.type;
       }

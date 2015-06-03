@@ -321,7 +321,7 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 	 display_density_level_this_image = 1;
 	 std::string s;
 	 s = "Read ";
-	 s += int_to_string(rmit.n_bonds);
+	 s += int_to_string(rmit.n_atoms);
 	 s += " atoms/links in restraints from ";
 	 s += cif_dictionary_filename;
 	 display_density_level_screen_string = s;
@@ -352,7 +352,7 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 	 molecules[i].make_bonds_type_checked();
       }
    }
-   return rmit.n_bonds;
+   return rmit.n_atoms;
 }
 
 
