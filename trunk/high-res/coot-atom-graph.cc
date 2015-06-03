@@ -804,7 +804,7 @@ coot::atom_graph::get_transformed_atom(const clipper::Coord_orth &a,
    clipper::Coord_orth a_copy = a;
 
    if (transformations.size() > 0) 
-      for (unsigned int i=transformations.size()-1; i>=0; i--) 
+      for (int i=int(transformations.size())-1; i>=0; i--) 
 	 a_copy = a_copy.transform(transformations[i]);
 
 //     std::cout << "Untransformed atom:     " << a.format() << "\n" 
