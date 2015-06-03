@@ -2,6 +2,7 @@
 %module coot
 %{
 #include <cstdio>
+#include <cstddef>
 #include "globjects.h"  //includes gtk/gtk.h
 #include "coot-utils/coot-coord-utils.hh"
 #include "c-interface.h"

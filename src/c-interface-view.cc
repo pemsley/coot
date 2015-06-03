@@ -26,6 +26,7 @@
 #include "compat/coot-sysdep.h"
 
 #ifdef USE_GUILE
+#include <cstddef> // define std::ptrdiff_t for clang
 #include <libguile.h>
 #endif
 

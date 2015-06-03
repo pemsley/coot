@@ -2077,7 +2077,8 @@ on_find_ligand_many_atoms_continue_button_clicked (GtkButton       *button,
    execute_ligand_search();
 #else
 #ifdef USE_PYTHON
-   execute_ligand_search_py();
+   // execute_ligand_search_py();
+   execute_ligand_search();
 #endif // USE_PYTHON
 #endif // USE_GUILE
    gtk_widget_destroy(window);
