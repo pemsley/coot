@@ -28,10 +28,10 @@
 
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include "lidia-core/rdkit-interface.hh"
 #include <RDGeneral/FileParseException.h>
 #include <RDGeneral/BadFileException.h>
 #include <GraphMol/FileParsers/FileParsers.h>
-#include "lidia-core/rdkit-interface.hh"
 #endif
 
 #include <mmdb2/mmdb_manager.h>

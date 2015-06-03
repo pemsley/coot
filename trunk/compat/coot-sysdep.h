@@ -24,6 +24,11 @@
 #ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
 #endif
+
+#define HKL HKL_RENAMED
+#include <windows.h>
+#undef HKL
+
 #define AddAtomA AddAtom
 #define GetAtomNameA GetAtomName
 #undef V_UNKNOWN

@@ -12,7 +12,7 @@ pyexec_LTLIBRARIES =
 #
 AM_CPPFLAGS = $(CCP4SRS_CXXFLAGS) $(BOOST_CPPFLAGS) $(RDKIT_CXXFLAGS) $(PYTHON_CFLAGS) -I$(top_srcdir)
 
-AM_CXXFLAGS = -DPKGDATADIR='"$(pkgdatadir)"'
+AM_CXXFLAGS = -DPKGDATADIR='"$(pkgdatadir)"' $(COOT_WINDOWS_CFLAGS)
 
 pyrogen_swig.py: pyrogen-swig.cc
 
