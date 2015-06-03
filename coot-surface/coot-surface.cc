@@ -302,25 +302,25 @@ coot::CColourScheme::~CColourScheme() {
 int
 coot::surface::interpolateIntoMap(const std::string &coordinateType, const std::string &scalarType, const clipper::NXmap<double> &aMap) {
    
-  cout << "In interpolateIntoMap\n"; cout.flush();
-  int coordHandle = theSurface->getReadVectorHandle(coordinateType);
-  if (coordHandle<0) return 1;
-  else {
-    double *scalarBuffer = new double[theSurface->numberOfVertices()];
-    double coords[4];
-    for (int i=0; i<theSurface->numberOfVertices(); i++){
-      //Use the colour if it has been assigned
-      if (theSurface->getCoord(coordHandle, i, coords)){
-	cout << "Bizarely no vertices for coordinate "<< i << endl;
+   // cout << "In interpolateIntoMap\n"; cout.flush();
+   int coordHandle = theSurface->getReadVectorHandle(coordinateType);
+   if (coordHandle<0) return 1;
+   else {
+      double *scalarBuffer = new double[theSurface->numberOfVertices()];
+      double coords[4];
+      for (int i=0; i<theSurface->numberOfVertices(); i++){
+	 //Use the colour if it has been assigned
+	 if (theSurface->getCoord(coordHandle, i, coords)){
+	    cout << "Bizarely no vertices for coordinate "<< i << endl;
+	 }
+	 clipper::Coord_orth orthogonals(coords[0], coords[1], coords[2]);
+	 const clipper::Coord_map mapUnits(aMap.coord_map(orthogonals));
+	 scalarBuffer[i] = aMap.interp<clipper::Interp_cubic>( mapUnits );
       }
-      clipper::Coord_orth orthogonals(coords[0], coords[1], coords[2]);
-      const clipper::Coord_map mapUnits(aMap.coord_map(orthogonals));
-      scalarBuffer[i] = aMap.interp<clipper::Interp_cubic>( mapUnits );
-    }
-    theSurface->addPerVertexScalar (scalarType, scalarBuffer);
-    delete scalarBuffer;
-  }
-  return 0;
+      theSurface->addPerVertexScalar (scalarType, scalarBuffer);
+      delete [] scalarBuffer;
+   }
+   return 0;
 }
 
 
