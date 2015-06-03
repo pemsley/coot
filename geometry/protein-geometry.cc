@@ -411,23 +411,29 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
 		  if (at_3 == shared_atom)
 		     at_3 = bond_pairs[jbp].at_2;
 
-		  clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
-		  clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
-		  clipper::Coord_orth pt_3(at_3->x, at_3->y, at_3->z);
-		  // doesn't exist (mmdb problem)?
-		  // double angle = BondAngle(at_1, at_2, at_3);
-		  double angle = clipper::Util::rad2d(clipper::Coord_orth::angle(pt_1, pt_2, pt_3));
-		  // std::cout << "angle: " << angle << std::endl;
-		  if (angle > 0.001) {
-		     std::string at_name_1(at_1->name);
-		     std::string at_name_2(at_2->name);
-		     std::string at_name_3(at_3->name);
-		     double angle_esd = 3;
-		     dict_angle_restraint_t ar(at_name_1, at_name_2, at_name_3, angle, angle_esd);
-		     angle_restraint.push_back(ar);
-		     if (0)
-			std::cout << "found an angle restraint "
-				  << at_name_1 << " " << at_name_2 << " " << at_name_3 << std::endl;
+		  // this test should not be needed (because bond_pairs vector is only made
+		  // of atoms that are non-null) - but is here to keep the static analyzer quiet.
+		  // 
+		  if (at_1 && at_2 && at_3) { 
+
+		     clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
+		     clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
+		     clipper::Coord_orth pt_3(at_3->x, at_3->y, at_3->z);
+		     // doesn't exist (mmdb problem)?
+		     // double angle = BondAngle(at_1, at_2, at_3);
+		     double angle = clipper::Util::rad2d(clipper::Coord_orth::angle(pt_1, pt_2, pt_3));
+		     // std::cout << "angle: " << angle << std::endl;
+		     if (angle > 0.001) {
+			std::string at_name_1(at_1->name);
+			std::string at_name_2(at_2->name);
+			std::string at_name_3(at_3->name);
+			double angle_esd = 3;
+			dict_angle_restraint_t ar(at_name_1, at_name_2, at_name_3, angle, angle_esd);
+			angle_restraint.push_back(ar);
+			if (0)
+			   std::cout << "found an angle restraint "
+				     << at_name_1 << " " << at_name_2 << " " << at_name_3 << std::endl;
+		     }
 		  }
 	       }
 	    }

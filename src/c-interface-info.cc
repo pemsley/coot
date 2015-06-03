@@ -443,7 +443,7 @@ void output_residue_info_as_text(int atom_index, int imol) {
 			picked_atom->altLoc,
 			picked_atom->residue->GetChainID());
 
-      mmdb::PPAtom atoms;
+      mmdb::PPAtom atoms = NULL;
       int n_atoms;
 
       picked_atom->residue->GetAtomTable(atoms,n_atoms);
