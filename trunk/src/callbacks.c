@@ -289,18 +289,18 @@ void
 on_ok_button_dataset_clicked           (GtkButton       *button,
                                         gpointer         user_data)
 {
-  const gchar *filename; 
-  gchar *copied_filename;
-  int auto_read_flag = 0, ismtz = 0, ismtzauto = 0, iscnsauto = 0;
+   const gchar *filename; 
+   gchar *copied_filename;
+   int auto_read_flag = 0, ismtz = 0, ismtzauto = 0, iscnsauto = 0;
 
-  GtkWidget *dataset_fileselection1;
+   GtkWidget *dataset_fileselection1;
 
-  dataset_fileselection1 = lookup_widget(GTK_WIDGET(button),
-					 "dataset_fileselection1");
+   dataset_fileselection1 = lookup_widget(GTK_WIDGET(button),
+					  "dataset_fileselection1");
 
    save_directory_from_fileselection(dataset_fileselection1);
    filename = gtk_file_selection_get_filename 
-     (GTK_FILE_SELECTION(dataset_fileselection1));
+      (GTK_FILE_SELECTION(dataset_fileselection1));
    
    copied_filename = (char *) malloc(strlen(filename) + 1);
    strcpy(copied_filename, filename);
@@ -312,24 +312,25 @@ on_ok_button_dataset_clicked           (GtkButton       *button,
 
    if (ismtzauto || iscnsauto) {
 
-     if (auto_read_flag) { 
-       wrapped_auto_read_make_and_draw_maps(filename);
-     } else {
-       /* this does a create_column_label_window, fills and displays it. */
-       manage_column_selector(copied_filename);
-     }
+      if (auto_read_flag) { 
+	 wrapped_auto_read_make_and_draw_maps(filename);
+      } else {
+	 /* this does a create_column_label_window, fills and displays it. */
+	 manage_column_selector(copied_filename);
+      }
 
    } else { 
 
-     /* no phases path */
-     if (auto_read_flag) printf ("INFO:: This file is not a map coefficient file. Coot can auto-read\nINFO::  - MTZ files from refmac, phenix.refine, phaser, parrot, dm.\nINFO::  - CNS files (new 2009 format only) with cell, symops, F1, F2.\n");
-     if (ismtz) { 
-       calc_phases_generic(filename);
-     } else { 
-       /* try to read as a phs, cif, fcf etc... */
-       manage_column_selector(copied_filename);
-     } 
+      /* no phases path */
+      if (auto_read_flag) printf ("INFO:: This file is not a map coefficient file. Coot can auto-read\nINFO::  - MTZ files from refmac, phenix.refine, phaser, parrot, dm.\nINFO::  - CNS files (new 2009 format only) with cell, symops, F1, F2.\n");
+      if (ismtz) { 
+	 calc_phases_generic(filename);
+      } else { 
+	 /* try to read as a phs, cif, fcf etc... */
+	 manage_column_selector(copied_filename);
+      }
    }
+   free(copied_filename);
    gtk_widget_destroy(dataset_fileselection1); 
 }
 
@@ -1301,6 +1302,7 @@ on_ok_button_map_name_clicked          (GtkButton       *button,
 						   scribbles over
 						   filename. */
    handle_read_ccp4_map(sfile, is_diff_map_flag); 
+   free(sfile);
 }
 
 
@@ -1774,42 +1776,43 @@ void
 on_phs_cell_choice_ok_button_clicked   (GtkButton       *button,
                                         gpointer         user_data)
 {
-  GtkWidget *window; 
-  GtkWidget *info_window; 
-  int i; 
+   GtkWidget *window; 
+   GtkWidget *info_window; 
+   int i; 
 
-/* messing about with string variables */
-  gchar *widget_name; 
-  gchar *tmp_name; 
+   /* messing about with string variables */
+   gchar *widget_name; 
+   gchar *tmp_name; 
 
-  widget_name = (gchar *) malloc(25); 
+   widget_name = (gchar *) malloc(25); /* freed */
 
-  window = lookup_widget(GTK_WIDGET(button), "phs_cell_choice_window");
+   window = lookup_widget(GTK_WIDGET(button), "phs_cell_choice_window");
 
-  for (i=0; i< graphics_n_molecules(); i++) {
+   for (i=0; i< graphics_n_molecules(); i++) {
 
-    if (has_unit_cell_state(i)) { 
+      if (has_unit_cell_state(i)) { 
 
-      strcpy(widget_name, "phs_cell_radiobutton_"); 
-      tmp_name = widget_name + strlen(widget_name); 
-      snprintf(tmp_name, 3, "%-d", i); 
+	 strcpy(widget_name, "phs_cell_radiobutton_"); 
+	 tmp_name = widget_name + strlen(widget_name); 
+	 snprintf(tmp_name, 3, "%-d", i); 
 
-      if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), widget_name))->active) { 
-	printf("proceeding with phs reading using cell from molecule %d.\n", i);
+	 if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), widget_name))->active) { 
+	    printf("proceeding with phs reading using cell from molecule %d.\n", i);
 	
-	read_phs_and_make_map_using_cell_symm_from_mol_using_implicit_phs_filename(i); 
-	break; 
+	    read_phs_and_make_map_using_cell_symm_from_mol_using_implicit_phs_filename(i); 
+	    break; 
+	 }
       }
-    }
-  } 
+   }
+   free(widget_name);
 
-  if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), 
-				      "phs_cell_none_radiobutton"))->active) { 
-    printf("special value for none for phs_cell radiobuton active\n");
-    info_window = create_phs_info_box();
-    gtk_widget_show(info_window); 
-  } 
-  gtk_widget_destroy(window); 
+   if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(button), 
+				       "phs_cell_none_radiobutton"))->active) { 
+      printf("special value for none for phs_cell radiobuton active\n");
+      info_window = create_phs_info_box();
+      gtk_widget_show(info_window); 
+   } 
+   gtk_widget_destroy(window); 
 }
 
 
@@ -10595,11 +10598,6 @@ on_coords_filechooserdialog1_response  (GtkDialog       *dialog,
 
   while (sel_files) { 
 
-/* xxx_get_files() method returns a list of GFiles */
-/*     gfile = G_FILE(sel_files->data); */
-
-/*     filename = g_file_get_path(gfile); */
-
     filename = (char *) sel_files->data;
 
     printf("DEBUG:: filename: %s\n", filename);
@@ -10663,55 +10661,56 @@ on_dataset_filechooserdialog1_response (GtkDialog       *dialog,
                                         gpointer         user_data)
 {
 
- if (response_id == GTK_RESPONSE_OK) {
-  const gchar *filename; 
-  gchar *copied_filename;
-  int auto_read_flag = 0, ismtz = 0, ismtzauto = 0, iscnsauto = 0;
+   if (response_id == GTK_RESPONSE_OK) {
+      const gchar *filename; 
+      gchar *copied_filename;
+      int auto_read_flag = 0, ismtz = 0, ismtzauto = 0, iscnsauto = 0;
 
-  GtkWidget *dataset_fileselection1;
+      GtkWidget *dataset_fileselection1;
 
-  dataset_fileselection1 = lookup_widget(GTK_WIDGET(dialog),
-					 "dataset_filechooserdialog1");
+      dataset_fileselection1 = lookup_widget(GTK_WIDGET(dialog),
+					     "dataset_filechooserdialog1");
 
-   save_directory_from_filechooser(dataset_fileselection1);
-   filename = gtk_file_chooser_get_filename 
-     (GTK_FILE_CHOOSER(dataset_fileselection1));
+      save_directory_from_filechooser(dataset_fileselection1);
+      filename = gtk_file_chooser_get_filename 
+	 (GTK_FILE_CHOOSER(dataset_fileselection1));
    
-/*    printf("dataset filename: %s\n", filename); */
+      /*    printf("dataset filename: %s\n", filename); */
 
-   copied_filename = (char *) malloc(strlen(filename) + 1);
-   strcpy(copied_filename, filename);
+      copied_filename = (char *) malloc(strlen(filename) + 1);
+      strcpy(copied_filename, filename);
 
-   auto_read_flag = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(dataset_fileselection1)));
-   ismtz = is_mtz_file_p(filename);
-   if (ismtz) ismtzauto = mtz_file_has_phases_p(filename);
-   else       iscnsauto = cns_file_has_phases_p(filename);
+      auto_read_flag = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(dataset_fileselection1)));
+      ismtz = is_mtz_file_p(filename);
+      if (ismtz) ismtzauto = mtz_file_has_phases_p(filename);
+      else       iscnsauto = cns_file_has_phases_p(filename);
 
-   if ( ismtzauto || iscnsauto ) {
+      if ( ismtzauto || iscnsauto ) {
 
-     if (auto_read_flag) 
-       wrapped_auto_read_make_and_draw_maps(filename);
-     else 
-       /* this does a create_column_label_window, fills and displays it. */
-       manage_column_selector(copied_filename);
-   } else { 
+	 if (auto_read_flag) 
+	    wrapped_auto_read_make_and_draw_maps(filename);
+	 else 
+	    /* this does a create_column_label_window, fills and displays it. */
+	    manage_column_selector(copied_filename);
+      
+      } else { 
 
-     /* no phases path */
-     if (auto_read_flag) printf ("INFO:: This file is not a map coefficient file. Coot can auto-read\nINFO::  - MTZ files from refmac, phenix.refine, phaser, parrot, dm.\nINFO::  - CNS files (new 2009 format only) with cell, symops, F1, F2.\n");
-     if ( ismtz )
-       calc_phases_generic(filename);
-     else 
-       /* try to read as a phs, cif etc... */
-       manage_column_selector(copied_filename);
+	 /* no phases path */
+	 if (auto_read_flag) printf ("INFO:: This file is not a map coefficient file. Coot can auto-read\nINFO::  - MTZ files from refmac, phenix.refine, phaser, parrot, dm.\nINFO::  - CNS files (new 2009 format only) with cell, symops, F1, F2.\n");
+	 if ( ismtz )
+	    calc_phases_generic(filename);
+	 else 
+	    /* try to read as a phs, cif etc... */
+	    manage_column_selector(copied_filename);
+      }
+      gtk_widget_destroy(dataset_fileselection1);
+      free(copied_filename);
+   } else {
+      GtkWidget *dataset_fileselection1 = lookup_widget(GTK_WIDGET(dialog),
+							"dataset_filechooserdialog1");
+
+      gtk_widget_destroy(dataset_fileselection1);
    }
-   gtk_widget_destroy(dataset_fileselection1);
- } else {
-  GtkWidget *dataset_fileselection1 = lookup_widget(GTK_WIDGET(dialog),
-                                                "dataset_filechooserdialog1");
-
-  gtk_widget_destroy(dataset_fileselection1);
-   
- }
 
 }
 
@@ -10735,46 +10734,48 @@ on_map_name_filechooserdialog1_response
                                         gint             response_id,
                                         gpointer         user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
-  if (response_id == GTK_RESPONSE_OK) { 
-   const char* filename; 
-   char *sfile; 
-   GtkWidget* map_name_fileselection1; 
-   GtkWidget *checkbutton;
-   short int is_diff_map_flag = 0;
+
+   if (response_id == GTK_RESPONSE_OK) { 
+      const char* filename; 
+      char *sfile; 
+      GtkWidget* map_name_fileselection1; 
+      GtkWidget *checkbutton;
+      short int is_diff_map_flag = 0;
    
-   map_name_fileselection1 = GTK_WIDGET(lookup_widget(GTK_WIDGET(dialog), 
-						      "map_name_filechooserdialog1"));
-   save_directory_from_filechooser(map_name_fileselection1);
+      map_name_fileselection1 = GTK_WIDGET(lookup_widget(GTK_WIDGET(dialog), 
+							 "map_name_filechooserdialog1"));
+      save_directory_from_filechooser(map_name_fileselection1);
 
-   /* I don't think that we need to malloc this. */
+      /* I don't think that we need to malloc this. */
 
-   checkbutton = lookup_widget(GTK_WIDGET(dialog), 
-			       "map_filechooser_is_difference_map_button");
+      checkbutton = lookup_widget(GTK_WIDGET(dialog), 
+				  "map_filechooser_is_difference_map_button");
 
-   if (checkbutton)
-     if (GTK_TOGGLE_BUTTON(checkbutton)->active) 
-       is_diff_map_flag = 1;
+      if (checkbutton)
+	 if (GTK_TOGGLE_BUTTON(checkbutton)->active) 
+	    is_diff_map_flag = 1;
 
-   filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(map_name_fileselection1)); 
+      filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(map_name_fileselection1)); 
    
 
-   printf("CCP4 map filename: %s\n", filename); 
-   sfile = (char *) malloc (1001); 
-   strncpy(sfile, filename, 1000); 
+      printf("CCP4 map filename: %s\n", filename); 
+      sfile = (char *) malloc (1001); 
+      strncpy(sfile, filename, 1000); 
 
-   gtk_widget_destroy(map_name_fileselection1); /* the file browser,
-						   when destroyed,
-						   scribbles over
-						   filename. */
-   handle_read_ccp4_map(sfile, is_diff_map_flag);
-  } else {
-    GtkWidget *map_name_fileselection1 = lookup_widget(GTK_WIDGET(dialog),
-                                                "map_name_filechooserdialog1");
+      gtk_widget_destroy(map_name_fileselection1); /* the file browser,
+						      when destroyed,
+						      scribbles over
+						      filename. */
+      handle_read_ccp4_map(sfile, is_diff_map_flag);
+      free(sfile);
 
-    gtk_widget_destroy(map_name_fileselection1);
-  }
-#endif /* GTK_MAJOR_VERSION  */
+   } else {
+      GtkWidget *map_name_fileselection1 = lookup_widget(GTK_WIDGET(dialog),
+							 "map_name_filechooserdialog1");
+
+      gtk_widget_destroy(map_name_fileselection1);
+   }
+
 }
 
 
