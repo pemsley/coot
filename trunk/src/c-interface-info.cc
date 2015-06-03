@@ -443,31 +443,39 @@ void output_residue_info_as_text(int atom_index, int imol) {
 			picked_atom->altLoc,
 			picked_atom->residue->GetChainID());
 
-      mmdb::PPAtom atoms = NULL;
-      int n_atoms;
-
-      picked_atom->residue->GetAtomTable(atoms,n_atoms);
-      for (int i=0; i<n_atoms; i++) { 
-	 std::string segid = atoms[i]->segID;
-	 std::cout << "(" << imol << ") \"" 
-		   << atoms[i]->name << "\"/"
-		   << atoms[i]->GetModelNum()
-		   << "/\""
-		   << atoms[i]->GetChainID()  << "\"/"
-		   << atoms[i]->GetSeqNum()   << "/\""
-		   << atoms[i]->GetResName()
-		   << "\", \""
-		   << segid
-		   << "\" occ: " 
-		   << atoms[i]->occupancy 
-		   << " with B-factor: "
-		   << atoms[i]->tempFactor
-		   << " element: \""
-		   << atoms[i]->element
-		   << "\""
-		   << " at " << "("
-		   << atoms[i]->x << "," << atoms[i]->y << "," 
-		   << atoms[i]->z << ")" << std::endl;
+      mmdb::PAtom *atoms = NULL;
+      int n_atoms = 0;
+      mmdb::Residue *residue_p = picked_atom->residue;
+      if (residue_p) { 
+         residue_p->GetAtomTable(atoms,n_atoms);
+         if (atoms) { 
+            for (int i=0; i<n_atoms; i++) { 
+               mmdb::Atom *at = atoms[i];
+               if (at) { 
+	          std::string segid = atoms[i]->segID;
+	          std::cout << "(" << imol << ") \"" 
+		            << at->name << "\"/"
+		            << at->GetModelNum()
+		            << "/\""
+		            << at->GetChainID()  << "\"/"
+		            << at->GetSeqNum()   << "/\""
+		            << at->GetResName()
+		            << "\", \""
+		            << segid
+		            << "\" occ: " 
+		            << at->occupancy 
+		            << " with B-factor: "
+		            << at->tempFactor
+		            << " element: \""
+		            << at->element
+		            << "\""
+		            << " at " << "("
+		            << at->x << "," 
+                            << at->y << "," 
+		            << at->z << ")" << std::endl;
+               }
+            }
+         }
       }
 
       // chi angles:
