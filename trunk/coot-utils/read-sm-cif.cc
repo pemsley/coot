@@ -214,7 +214,7 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
    if (loop) {
       int ll = loop->GetLoopLength();
       char *label  = NULL;
-      mmdb::realtype u11, u22, u33, u12, u13, u23;
+      mmdb::realtype u11=-1, u22=-1, u33=-1, u12=-1, u13=-1, u23=-1;
       int ierr_tot = 0;
       for (int il=0; il<ll; il++) {
 	 label  = loop->GetString(loopTagsAniso[0], il, ierr);
@@ -234,8 +234,10 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
 
 	 if (! ierr_tot) {
 	    // label -> atom name conversion here?
-	    coot::simple_sm_u smu(label, u11, u22, u33, u12, u13, u23);
-	    u_aniso_vec.push_back(smu);
+            if ((u11>0) && (u22>0) && (u33>0) && (u12>0) && (u13>0) && (u23>0)) {
+	       coot::simple_sm_u smu(label, u11, u22, u33, u12, u13, u23);
+	       u_aniso_vec.push_back(smu);
+            }
 	 }
       }
 
