@@ -490,7 +490,6 @@ coot::helix_placement::find_best_tube_orientation(clipper::Coord_orth ptc, doubl
    float beta1 =90.0;   // beta search half range for mirror sym
    float alpha1=360.0;  // no gamma search for cyl sym
    // do a uniformly sampled search of orientation space
-   float anglim = alpha1;
    for ( float bdeg=step/2; bdeg < beta1; bdeg += step ) {
       float beta = clipper::Util::d2rad(bdeg);
       // float s = anglim/clipper::Util::intf(sin(beta)*anglim/step+1);

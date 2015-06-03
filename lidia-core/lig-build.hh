@@ -111,8 +111,6 @@ namespace lig_build {
 	 double theta = angle * DEG_TO_RAD;
 	 double sin_theta = sin(theta);
 	 double cos_theta = cos(theta);
-	 double delta_x = x - x_cen;
-	 double delta_y = y - y_cen;
 	 double new_x = x_cen + (x - x_cen) * cos_theta - (y - y_cen) * sin_theta;
 	 double new_y = y_cen + (x - x_cen) * sin_theta + (y - y_cen) * cos_theta;
 	 return pos_t(new_x, new_y);

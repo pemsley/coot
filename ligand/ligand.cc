@@ -2090,7 +2090,6 @@ coot::ligand::limit_solutions(unsigned int iclust,
 			      bool filter_by_torsion_match) { // false
 
    bool debug = false;
-   unsigned int pre_erase_size = final_ligand[iclust].size();
    if (final_ligand[iclust].size()) {
       float min_correl = final_ligand[iclust][0].second.correlation.second * frac_max_correl_lim;
       if (debug)
