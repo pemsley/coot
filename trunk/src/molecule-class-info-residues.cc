@@ -1102,22 +1102,24 @@ molecule_class_info_t::watson_crick_pair_for_residue_range(const std::string &ch
       } 
    }
 
-   if (new_residues.size()) {
-      make_backup();
-      mmdb::Chain *chain_p = new mmdb::Chain;
-      // set the chain id
-      std::pair<short int, std::string> u = unused_chain_id();
-      if (u.first) { 
-	 chain_p->SetChainID(u.second.c_str());
-	 for (unsigned int ires=0; ires<new_residues.size(); ires++) { 
-	    chain_p->AddResidue(new_residues[ires]);
-	    new_residues[ires]->seqNum = new_residues.size() - ires;
-	    status = 1;
-	 }
-	 model_p->AddChain(chain_p);
+   if (model_p) { 
+      if (new_residues.size()) {
+	 make_backup();
+	 mmdb::Chain *chain_p = new mmdb::Chain;
+	 // set the chain id
+	 std::pair<short int, std::string> u = unused_chain_id();
+	 if (u.first) { 
+	    chain_p->SetChainID(u.second.c_str());
+	    for (unsigned int ires=0; ires<new_residues.size(); ires++) { 
+	       chain_p->AddResidue(new_residues[ires]);
+	       new_residues[ires]->seqNum = new_residues.size() - ires;
+	       status = 1;
+	    }
+	    model_p->AddChain(chain_p);
 	 
-	 atom_sel.mol->FinishStructEdit();
-	 update_molecule_after_additions();
+	    atom_sel.mol->FinishStructEdit();
+	    update_molecule_after_additions();
+	 }
       }
    } 
    return status;
