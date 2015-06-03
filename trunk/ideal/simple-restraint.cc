@@ -4277,7 +4277,7 @@ coot::restraints_container_t::make_strand_pseudo_bond_restraints() {
 					  std::vector<bool> fixed_flag =
 					     make_fixed_flags(index1, index2, index3);
 					  res_1_atoms[iat1]->GetUDData(udd_atom_index_handle, index1);
-					  res_2_atoms[iat3]->GetUDData(udd_atom_index_handle, index2);
+					  res_2_atoms[iat2]->GetUDData(udd_atom_index_handle, index2);
 					  res_3_atoms[iat3]->GetUDData(udd_atom_index_handle, index3);
 					  add(ANGLE_RESTRAINT, index2, index1, index3,
 					      fixed_flag, 120.0, 0.5, 1.2);
