@@ -4200,98 +4200,104 @@ coot::restraints_container_t::make_strand_pseudo_bond_restraints() {
          // nO -> (n-1)O 4.64  // symmetric.  No need to specify both forwards
 	 // Angle nO-(n+1)O-(n+2)O: 
 	 SelResidue[i]->GetAtomTable(res_1_atoms, n_res_1_atoms);
-	 for (int iat1=0; iat1<n_res_1_atoms; iat1++) {
-	    std::string at_1_name(res_1_atoms[iat1]->name);
-	    // O Pseudo bonds and angles
-	    if (at_1_name == " O  ") {
-	       mmdb::Residue *contact_res = SelResidue[i-1];
-	       if (SelResidue[i]->GetSeqNum() == (contact_res->GetSeqNum() + 1)) {
-		  contact_res->GetAtomTable(res_2_atoms, n_res_2_atoms);
-		  for (int iat2=0; iat2<n_res_2_atoms; iat2++) {
-		     std::string at_2_name(res_2_atoms[iat2]->name);
-		     if (at_2_name == " O  ") {
-			std::vector<bool> fixed_flags = make_fixed_flags(index1, index2);
-			res_1_atoms[iat1]->GetUDData(udd_atom_index_handle, index1);
-			res_2_atoms[iat2]->GetUDData(udd_atom_index_handle, index2);
-			add(BOND_RESTRAINT, index1, index2, fixed_flags,
-			    4.64, pseudo_bond_esd, 1.2);
-			std::cout << "Strand Bond restraint ("
-				  << res_1_atoms[iat1]->name << " "
-				  << res_1_atoms[iat1]->GetSeqNum() << ") to ("
-				  << res_2_atoms[iat2]->name << " "
-				  << res_2_atoms[iat2]->GetSeqNum() << ") 4.64" << std::endl;
+	 if (res_1_atoms) { 
+	    for (int iat1=0; iat1<n_res_1_atoms; iat1++) {
+	       std::string at_1_name(res_1_atoms[iat1]->name);
+	       // O Pseudo bonds and angles
+	       if (at_1_name == " O  ") {
+		  mmdb::Residue *contact_res = SelResidue[i-1];
+		  if (SelResidue[i]->GetSeqNum() == (contact_res->GetSeqNum() + 1)) {
+		     contact_res->GetAtomTable(res_2_atoms, n_res_2_atoms);
+		     if (res_2_atoms) { 
+			for (int iat2=0; iat2<n_res_2_atoms; iat2++) {
+			   std::string at_2_name(res_2_atoms[iat2]->name);
+			   if (at_2_name == " O  ") {
+			      std::vector<bool> fixed_flags = make_fixed_flags(index1, index2);
+			      res_1_atoms[iat1]->GetUDData(udd_atom_index_handle, index1);
+			      res_2_atoms[iat2]->GetUDData(udd_atom_index_handle, index2);
+			      add(BOND_RESTRAINT, index1, index2, fixed_flags,
+				  4.64, pseudo_bond_esd, 1.2);
+			      std::cout << "Strand Bond restraint ("
+					<< res_1_atoms[iat1]->name << " "
+					<< res_1_atoms[iat1]->GetSeqNum() << ") to ("
+					<< res_2_atoms[iat2]->name << " "
+					<< res_2_atoms[iat2]->GetSeqNum() << ") 4.64" << std::endl;
 
-			// now the pseudo angle
-			if (i<(nSelResidues-1)) { 
-			   mmdb::Residue *contact_res_2 = SelResidue[i+1];
-			   if (SelResidue[i]->GetSeqNum() == (contact_res_2->GetSeqNum() - 1)) {
-			      contact_res_2->GetAtomTable(res_3_atoms, n_res_3_atoms);
-			      for (int iat3=0; iat3<n_res_3_atoms; iat3++) {
-				 std::string at_3_name(res_3_atoms[iat3]->name);
-				 if (at_3_name == " O  ") {
-				    std::vector<bool> fixed_flag =
-				       make_fixed_flags(index2, index1, index3);
-				    res_3_atoms[iat3]->GetUDData(udd_atom_index_handle, index3);
-				    // 98.0 degrees
-				    add(ANGLE_RESTRAINT, index2, index1, index3,
-					fixed_flag, 98.0, 0.5, 1.2);
-				    std::cout << "Strand Angle restraint ("
-					      << res_1_atoms[iat1]->name << " "
-					      << res_1_atoms[iat1]->GetSeqNum() << ") to ("
-					      << res_2_atoms[iat2]->name << " "
-					      << res_2_atoms[iat2]->GetSeqNum()
-					      << ") to ("
-					      << res_3_atoms[iat3]->name << " "
-					      << res_3_atoms[iat3]->GetSeqNum()
-					      << ") 98.0 " << std::endl;
-				    break;
+			      // now the pseudo angle
+			      if (i<(nSelResidues-1)) { 
+				 mmdb::Residue *contact_res_2 = SelResidue[i+1];
+				 if (SelResidue[i]->GetSeqNum() == (contact_res_2->GetSeqNum() - 1)) {
+				    contact_res_2->GetAtomTable(res_3_atoms, n_res_3_atoms);
+				    for (int iat3=0; iat3<n_res_3_atoms; iat3++) {
+				       std::string at_3_name(res_3_atoms[iat3]->name);
+				       if (at_3_name == " O  ") {
+					  std::vector<bool> fixed_flag =
+					     make_fixed_flags(index2, index1, index3);
+					  res_3_atoms[iat3]->GetUDData(udd_atom_index_handle, index3);
+					  // 98.0 degrees
+					  add(ANGLE_RESTRAINT, index2, index1, index3,
+					      fixed_flag, 98.0, 0.5, 1.2);
+					  std::cout << "Strand Angle restraint ("
+						    << res_1_atoms[iat1]->name << " "
+						    << res_1_atoms[iat1]->GetSeqNum() << ") to ("
+						    << res_2_atoms[iat2]->name << " "
+						    << res_2_atoms[iat2]->GetSeqNum()
+						    << ") to ("
+						    << res_3_atoms[iat3]->name << " "
+						    << res_3_atoms[iat3]->GetSeqNum()
+						    << ") 98.0 " << std::endl;
+					  break;
+				       }
+				    }
 				 }
 			      }
+			      break;
 			   }
 			}
-			break;
 		     }
 		  }
-	       }
-	    } // end of O
+	       } // end of O
 
-	    // Now make a CA-CA-CA pseudo angle of 120 degrees
-	    if (at_1_name == " CA ") {
-	       mmdb::Residue *contact_res_2 = SelResidue[i-1];
-	       if (SelResidue[i]->GetSeqNum() == (contact_res_2->GetSeqNum() + 1)) {
-		  contact_res_2->GetAtomTable(res_2_atoms, n_res_2_atoms);
-		  for (int iat2=0; iat2<n_res_2_atoms; iat2++) {
-		     std::string at_2_name(res_2_atoms[iat2]->name);
-		     if (at_2_name == " CA ") {
-			if (i<(nSelResidues-1)) {
-			   mmdb::Residue *contact_res_3 = SelResidue[i+1];
-			   if (SelResidue[i]->GetSeqNum() == (contact_res_3->GetSeqNum() - 1)) {
-			      contact_res_3->GetAtomTable(res_3_atoms, n_res_3_atoms);
-			      for (int iat3=0; iat3<n_res_3_atoms; iat3++) {
-				 std::string at_3_name(res_3_atoms[iat3]->name);
-				 if (at_3_name == " CA ") {
-				    std::vector<bool> fixed_flag =
-				       make_fixed_flags(index1, index2, index3);
-				    res_1_atoms[iat1]->GetUDData(udd_atom_index_handle, index1);
-				    res_2_atoms[iat3]->GetUDData(udd_atom_index_handle, index2);
-				    res_3_atoms[iat3]->GetUDData(udd_atom_index_handle, index3);
-				    add(ANGLE_RESTRAINT, index2, index1, index3,
-					fixed_flag, 120.0, 0.5, 1.2);
-				    std::cout << "Strand Angle restraint ("
-					      << res_1_atoms[iat1]->name << " "
-					      << res_1_atoms[iat1]->GetSeqNum() << ") to ("
-					      << res_2_atoms[iat2]->name << " "
-					      << res_2_atoms[iat2]->GetSeqNum()
-					      << ") to ("
-					      << res_3_atoms[iat3]->name << " "
-					      << res_3_atoms[iat3]->GetSeqNum()
-					      << ") 120.0 " << std::endl;
-				    break;
+	       // Now make a CA-CA-CA pseudo angle of 120 degrees
+	       if (at_1_name == " CA ") {
+		  mmdb::Residue *contact_res_2 = SelResidue[i-1];
+		  if (SelResidue[i]->GetSeqNum() == (contact_res_2->GetSeqNum() + 1)) {
+		     contact_res_2->GetAtomTable(res_2_atoms, n_res_2_atoms);
+		     if (res_2_atoms) { 
+			for (int iat2=0; iat2<n_res_2_atoms; iat2++) {
+			   std::string at_2_name(res_2_atoms[iat2]->name);
+			   if (at_2_name == " CA ") {
+			      if (i<(nSelResidues-1)) {
+				 mmdb::Residue *contact_res_3 = SelResidue[i+1];
+				 if (SelResidue[i]->GetSeqNum() == (contact_res_3->GetSeqNum() - 1)) {
+				    contact_res_3->GetAtomTable(res_3_atoms, n_res_3_atoms);
+				    for (int iat3=0; iat3<n_res_3_atoms; iat3++) {
+				       std::string at_3_name(res_3_atoms[iat3]->name);
+				       if (at_3_name == " CA ") {
+					  std::vector<bool> fixed_flag =
+					     make_fixed_flags(index1, index2, index3);
+					  res_1_atoms[iat1]->GetUDData(udd_atom_index_handle, index1);
+					  res_2_atoms[iat3]->GetUDData(udd_atom_index_handle, index2);
+					  res_3_atoms[iat3]->GetUDData(udd_atom_index_handle, index3);
+					  add(ANGLE_RESTRAINT, index2, index1, index3,
+					      fixed_flag, 120.0, 0.5, 1.2);
+					  std::cout << "Strand Angle restraint ("
+						    << res_1_atoms[iat1]->name << " "
+						    << res_1_atoms[iat1]->GetSeqNum() << ") to ("
+						    << res_2_atoms[iat2]->name << " "
+						    << res_2_atoms[iat2]->GetSeqNum()
+						    << ") to ("
+						    << res_3_atoms[iat3]->name << " "
+						    << res_3_atoms[iat3]->GetSeqNum()
+						    << ") 120.0 " << std::endl;
+					  break;
+				       }
+				    }
 				 }
 			      }
+			      break;
 			   }
 			}
-			break;
 		     }
 		  }
 	       }
