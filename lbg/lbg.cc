@@ -482,8 +482,10 @@ on_canvas_button_press(GooCanvasItem  *item,
 	 } 
       }
 
-      if (pos_p) {
-	 l->set_rotation_centre(*pos_p);  // see graphics-c-interface-functions.hh
+      if (l) { 
+	 if (pos_p) {
+	    l->set_rotation_centre(*pos_p);  // see graphics-c-interface-functions.hh
+	 }
       } 
 
 #endif       

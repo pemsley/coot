@@ -1250,7 +1250,7 @@ coot::atom_tree_t::complementary_indices(const std::vector<coot::map_index_t> &m
 					 const coot::map_index_t &index3) const {
 
    std::vector<coot::map_index_t> v;
-   for (unsigned int ivert=0; ivert<atom_vertex_vec.size(); ivert++) {
+   for (int ivert=0; ivert<int(atom_vertex_vec.size()); ivert++) {
       bool ifound = 0;
       for (unsigned int im=0; im<moving_atom_indices.size(); im++) {
 	 if (moving_atom_indices[im].index() == ivert) {

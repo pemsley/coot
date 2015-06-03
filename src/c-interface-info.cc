@@ -431,63 +431,66 @@ void output_residue_info_as_text(int atom_index, int imol) {
    // (heh - it is).
    // 
    graphics_info_t g;
-   mmdb::PAtom picked_atom = g.molecules[imol].atom_sel.atom_selection[atom_index];
+   mmdb::Atom *picked_atom = g.molecules[imol].atom_sel.atom_selection[atom_index];
+
+   if (picked_atom) { 
    
-   g.flash_selection(imol, 
-		     picked_atom->residue->seqNum,
-		     picked_atom->GetInsCode(),
-		     picked_atom->residue->seqNum,
-		     picked_atom->GetInsCode(),
-		     picked_atom->altLoc,
-		     picked_atom->residue->GetChainID());
+      g.flash_selection(imol, 
+			picked_atom->residue->seqNum,
+			picked_atom->GetInsCode(),
+			picked_atom->residue->seqNum,
+			picked_atom->GetInsCode(),
+			picked_atom->altLoc,
+			picked_atom->residue->GetChainID());
 
-   mmdb::PPAtom atoms;
-   int n_atoms;
+      mmdb::PPAtom atoms;
+      int n_atoms;
 
-   picked_atom->residue->GetAtomTable(atoms,n_atoms);
-   for (int i=0; i<n_atoms; i++) { 
-      std::string segid = atoms[i]->segID;
-      std::cout << "(" << imol << ") \"" 
-		<< atoms[i]->name << "\"/"
-		<< atoms[i]->GetModelNum()
-		<< "/\""
-		<< atoms[i]->GetChainID()  << "\"/"
-		<< atoms[i]->GetSeqNum()   << "/\""
-		<< atoms[i]->GetResName()
-		<< "\", \""
-		<< segid
-		<< "\" occ: " 
-		<< atoms[i]->occupancy 
-		<< " with B-factor: "
-		<< atoms[i]->tempFactor
-		<< " element: \""
-		<< atoms[i]->element
-		<< "\""
-		<< " at " << "("
-		<< atoms[i]->x << "," << atoms[i]->y << "," 
-		<< atoms[i]->z << ")" << std::endl;
-   }
-
-   // chi angles:
-   coot::primitive_chi_angles chi_angles(picked_atom->residue);
-   try { 
-      std::vector<coot::alt_confed_chi_angles> chis = chi_angles.get_chi_angles();
-      if (chis.size() > 0) {
-	 unsigned int i_chi_set = 0;
-	 std::cout << "   Chi Angles:" << std::endl;
-	 for (unsigned int ich=0; ich<chis[i_chi_set].chi_angles.size(); ich++) {
-	    std::cout << "     chi "<< chis[i_chi_set].chi_angles[ich].first << ": "
-		      << chis[i_chi_set].chi_angles[ich].second
-		      << " degrees" << std::endl;
-	 }
-      } else {
-	 std::cout << "No Chi Angles for this residue" << std::endl;
+      picked_atom->residue->GetAtomTable(atoms,n_atoms);
+      for (int i=0; i<n_atoms; i++) { 
+	 std::string segid = atoms[i]->segID;
+	 std::cout << "(" << imol << ") \"" 
+		   << atoms[i]->name << "\"/"
+		   << atoms[i]->GetModelNum()
+		   << "/\""
+		   << atoms[i]->GetChainID()  << "\"/"
+		   << atoms[i]->GetSeqNum()   << "/\""
+		   << atoms[i]->GetResName()
+		   << "\", \""
+		   << segid
+		   << "\" occ: " 
+		   << atoms[i]->occupancy 
+		   << " with B-factor: "
+		   << atoms[i]->tempFactor
+		   << " element: \""
+		   << atoms[i]->element
+		   << "\""
+		   << " at " << "("
+		   << atoms[i]->x << "," << atoms[i]->y << "," 
+		   << atoms[i]->z << ")" << std::endl;
       }
+
+      // chi angles:
+      coot::primitive_chi_angles chi_angles(picked_atom->residue);
+      try { 
+	 std::vector<coot::alt_confed_chi_angles> chis = chi_angles.get_chi_angles();
+	 if (chis.size() > 0) {
+	    unsigned int i_chi_set = 0;
+	    std::cout << "   Chi Angles:" << std::endl;
+	    for (unsigned int ich=0; ich<chis[i_chi_set].chi_angles.size(); ich++) {
+	       std::cout << "     chi "<< chis[i_chi_set].chi_angles[ich].first << ": "
+			 << chis[i_chi_set].chi_angles[ich].second
+			 << " degrees" << std::endl;
+	    }
+	 } else {
+	    std::cout << "No Chi Angles for this residue" << std::endl;
+	 }
+      }
+      catch (const std::runtime_error &mess) {
+	 std::cout << mess.what() << std::endl;
+      } 
+
    }
-   catch (std::runtime_error mess) {
-      std::cout << mess.what() << std::endl;
-   } 
-   
    std::string cmd = "output-residue-info-as-text";
    std::vector<coot::command_arg_t> args;
    args.push_back(atom_index);

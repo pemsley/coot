@@ -1327,6 +1327,8 @@ Think about:
 
    o Remove hydrogens from refinement.  Punt for 0.9
 
+   o Add a residue selection for the ramachandran plot: Eleanor, Olvier Clarke
+
 
    o Can coot generate PDB annotated assemblies that are provided in
      the pdbx_struct_assembly* categories in the mmCIF file. -- Sameer V.
