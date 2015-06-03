@@ -364,27 +364,31 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
       std::vector<atom_pair_t> bond_pairs;
       for (int iat=0; iat<nResidueAtoms; iat++) { 
 	 mmdb::Atom *at_1 = residue_atoms[iat];
-	 int n_bonds_1 = at_1->GetNBonds();
-	 mmdb::AtomBond *AtomBonds = NULL;
-	 int n_bonds_2; 
-	 at_1->GetBonds(AtomBonds, n_bonds_2);
-	 for (int ibond=0; ibond<n_bonds_2; ibond++) { 
-	    mmdb::Atom *at_2 = AtomBonds[ibond].atom;
-	    if (at_1 < at_2) { // pointer comparison
-	       std::string at_name_1(at_1->name);
-	       std::string at_name_2(at_2->name);
-	       std::string type = "single";
-	       if (AtomBonds[ibond].order == 2)
-		  type = "double";
-	       if (AtomBonds[ibond].order == 3)
-		  type = "triple";
-	       clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
-	       clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
-	       double dist = sqrt((pt_1-pt_2).lengthsq());
-	       double dist_esd = 0.02;
-	       dict_bond_restraint_t br(at_name_1, at_name_2, type, dist, dist_esd);
-	       bond_restraint.push_back(br);
-	       bond_pairs.push_back(atom_pair_t(at_1, at_2));
+	 if (at_1) { 
+	    int n_bonds_1 = at_1->GetNBonds();
+	    mmdb::AtomBond *AtomBonds = NULL;
+	    int n_bonds_2; 
+	    at_1->GetBonds(AtomBonds, n_bonds_2);
+	    for (int ibond=0; ibond<n_bonds_2; ibond++) { 
+	       mmdb::Atom *at_2 = AtomBonds[ibond].atom;
+	       if (at_2) { 
+		  if (at_1 < at_2) { // pointer comparison
+		     std::string at_name_1(at_1->name);
+		     std::string at_name_2(at_2->name);
+		     std::string type = "single";
+		     if (AtomBonds[ibond].order == 2)
+			type = "double";
+		     if (AtomBonds[ibond].order == 3)
+			type = "triple";
+		     clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
+		     clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
+		     double dist = sqrt((pt_1-pt_2).lengthsq());
+		     double dist_esd = 0.02;
+		     dict_bond_restraint_t br(at_name_1, at_name_2, type, dist, dist_esd);
+		     bond_restraint.push_back(br);
+		     bond_pairs.push_back(atom_pair_t(at_1, at_2));
+		  }
+	       }
 	    }
 	 }
       }

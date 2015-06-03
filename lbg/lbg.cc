@@ -628,19 +628,20 @@ on_canvas_motion_new(GooCanvasItem  *item,
       if (!l) {
 	 // std::cout << "canvas_motion: null lbg-info from item!" << std::endl;
       } else {
-	 // std::cout << "Yay - got an lbg_info_t pointer " << l << std::endl;
-	 guint state = event->state;
-	 GdkModifierType g_state = static_cast<GdkModifierType> (state);
-	 int x_as_int = int(event->x);
-	 int y_as_int = int(event->y);
+	 if (event) { 
+	    guint state = event->state;
+	    GdkModifierType g_state = static_cast<GdkModifierType> (state);
+	    int x_as_int = int(event->x);
+	    int y_as_int = int(event->y);
 
-	 if (0) 
-	    std::cout << ":::::::::::: on_canvas_motion_new() state: " << state 
-		      << " " << (state & GDK_BUTTON1_MASK)
-		      << " button_down_bond_addition " << l->button_down_bond_addition_state()
-		      << std::endl;
+	    if (0) 
+	       std::cout << ":::::::::::: on_canvas_motion_new() state: " << state 
+			 << " " << (state & GDK_BUTTON1_MASK)
+			 << " button_down_bond_addition " << l->button_down_bond_addition_state()
+			 << std::endl;
 	 
-	 l->handle_drag(g_state, x_as_int, y_as_int);
+	    l->handle_drag(g_state, x_as_int, y_as_int);
+	 }
       }
    }
    return TRUE;
