@@ -1072,35 +1072,33 @@ coot::rama_plot::mouse_motion_notify_editphipsi(GdkEventMotion *event, double x,
 
    GdkModifierType state;
    int x_as_int, y_as_int;
-   // int x, y;
 
    if (event->is_hint) {
       gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
-   }
-    
 
-   if ( state & GDK_BUTTON1_MASK ) {
-      double worldx, worldy;
-      gtk_canvas_window_to_world(canvas, x,y, &worldx, &worldy);
-      // std::cout << "drag! " << worldx << " " << worldy << std::endl;
+      if (state & GDK_BUTTON1_MASK) {
+	 double worldx, worldy;
+	 gtk_canvas_window_to_world(canvas, x,y, &worldx, &worldy);
       
-      // so worldx is phi and worldy is -psi.
-      // 
-      // clamp the vaules to -180 to + 180:
-      worldx = worldx >  180.0 ?  180.0 : worldx;
-      worldx = worldx < -180.0 ? -180.0 : worldx;
-      worldy = worldy >  180.0 ?  180.0 : worldy;
-      worldy = worldy < -180.0 ? -180.0 : worldy;
+	 // so worldx is phi and worldy is -psi.
+	 // 
+	 // clamp the vaules to -180 to + 180:
+	 worldx = worldx >  180.0 ?  180.0 : worldx;
+	 worldx = worldx < -180.0 ? -180.0 : worldx;
+	 worldy = worldy >  180.0 ?  180.0 : worldy;
+	 worldy = worldy < -180.0 ? -180.0 : worldy;
 
-      // set the point to new values:
-      phi_psi_model_sets[1].phi_psi[0] = coot::util::phi_psi_t(worldx, -worldy, "dum",
-							 "moving", 0, "", "");
-      clear_last_canvas_item();
-      draw_phi_psi_points();
+	 // set the point to new values:
+	 phi_psi_model_sets[1].phi_psi[0] = coot::util::phi_psi_t(worldx, -worldy, "dum",
+								  "moving", 0, "", "");
+	 clear_last_canvas_item();
+	 draw_phi_psi_points();
 
-      set_moving_atoms(worldx, -worldy);
-   
-   }
+	 set_moving_atoms(worldx, -worldy);
+      }
+   } else {
+      std::cout << "ooppps = event was not a hint - state not set" << std::endl;
+   } 
 } 
 
 gint

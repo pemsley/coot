@@ -256,30 +256,33 @@ coot::apply_angles_to_molecule(const clipper::Vec3<double> &angles ,
    double sin_t;
    double cos_t;
 
-   sin_t = sin(-angles[0]);
-   cos_t = cos(-angles[0]);
-   clipper::Mat33<double> x_mat(1,0,0, 0,cos_t,-sin_t, 0,sin_t,cos_t);
+   if (! angles.is_null()) { 
 
-   sin_t = sin(-angles[1]);
-   cos_t = cos(-angles[1]);
-   clipper::Mat33<double> y_mat(cos_t,0,sin_t, 0,1,0, -sin_t,0,cos_t);
+      sin_t = sin(-angles[0]);
+      cos_t = cos(-angles[0]);
+      clipper::Mat33<double> x_mat(1,0,0, 0,cos_t,-sin_t, 0,sin_t,cos_t);
 
-   sin_t = sin(-angles[2]);
-   cos_t = cos(-angles[2]);
-   clipper::Mat33<double> z_mat(cos_t,-sin_t,0, sin_t,cos_t,0, 0,0,1);
+      sin_t = sin(-angles[1]);
+      cos_t = cos(-angles[1]);
+      clipper::Mat33<double> y_mat(cos_t,0,sin_t, 0,1,0, -sin_t,0,cos_t);
 
-   clipper::Mat33<double> angle_mat = x_mat * y_mat * z_mat;
-   clipper::RTop_orth angle_op(angle_mat, clipper::Coord_frac(0,0,0));
+      sin_t = sin(-angles[2]);
+      cos_t = cos(-angles[2]);
+      clipper::Mat33<double> z_mat(cos_t,-sin_t,0, sin_t,cos_t,0, 0,0,1);
 
-   // std::cout << angle_op.format() << std::endl;
-   // std::cout << "mean pos in apply_angles: " << mean_pos.format() << std::endl; 
-   // std::cout << (*atoms_p)[0]->pos.format() << std::endl;
-   for (unsigned int ii=0; ii<atoms_p->size(); ii++) {
-      (*atoms_p)[ii]->pos -= mean_pos;
-      (*atoms_p)[ii]->pos = (*atoms_p)[ii]->pos.transform(angle_op);
-      (*atoms_p)[ii]->pos += mean_pos;
+      clipper::Mat33<double> angle_mat = x_mat * y_mat * z_mat;
+      clipper::RTop_orth angle_op(angle_mat, clipper::Coord_frac(0,0,0));
+
+      // std::cout << angle_op.format() << std::endl;
+      // std::cout << "mean pos in apply_angles: " << mean_pos.format() << std::endl; 
+      // std::cout << (*atoms_p)[0]->pos.format() << std::endl;
+      for (unsigned int ii=0; ii<atoms_p->size(); ii++) {
+	 (*atoms_p)[ii]->pos -= mean_pos;
+	 (*atoms_p)[ii]->pos = (*atoms_p)[ii]->pos.transform(angle_op);
+	 (*atoms_p)[ii]->pos += mean_pos;
+      }
+      // std::cout << (*atoms_p)[0]->pos.format() << std::endl;
    }
-   // std::cout << (*atoms_p)[0]->pos.format() << std::endl;
 
 }
 

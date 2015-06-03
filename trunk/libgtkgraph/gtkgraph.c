@@ -859,7 +859,7 @@ graph->subtitle = g_strdup(subtitle);
 
 static void gtk_graph_plot_legend (GtkGraph *graph)                  
 {
-gint text_height, text_width;	
+gint text_height = 10, text_width = 10;	
 PangoFontDescription *fontdesc = NULL;
 PangoLayout *layout = NULL;
 
