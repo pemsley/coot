@@ -176,9 +176,9 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
 	    } 
 	    
 	 } else {
-	    std::cout << "Null atom_1 - Path Z " << atom_1_spec << " " << mol 
+	    std::cout << "Null atom_1 - Path Z " << atom_1_spec << " mol: " << mol 
 		      << " - this should not happen" << std::endl;
-	 } 
+	 }
       }
       
       // for next round 
@@ -259,11 +259,11 @@ Bond_lines_container::stars_for_unbonded_atoms(mmdb::Manager *mol, int uddHnd) {
 
    float star_size = 0.2;
 
-   coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
-   coot::Cartesian small_vec_y(0.0, star_size, 0.0);
-   coot::Cartesian small_vec_z(0.0, 0.0, star_size);
+   coot::Cartesian small_vec_x(star_size, 0.1, 0.1);
+   coot::Cartesian small_vec_y(0.1, star_size, 0.1);
+   coot::Cartesian small_vec_z(0.1, 0.1, star_size);
    int ic;
-   int col = 1;
+   int col = 2;
 
    // set all atoms to unbonded initially
    for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
