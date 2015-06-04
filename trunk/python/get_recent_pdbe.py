@@ -122,8 +122,10 @@ def dialog_box_of_buttons_with_async_ligands(window_name, geometry,
         # main line
         image_size = 100
         for tlc in ligand_tlc_list:
-            image_url = "http://www.ebi.ac.uk/pdbe-srv/pdbechem/image/showNew?code=" + \
-                        tlc + "&size=" + str(image_size)
+            # image_url = "http://www.ebi.ac.uk/pdbe-srv/pdbechem/image/showNew?code=" + \
+            #             tlc + "&size=" + str(image_size)
+            image_url = "http://www.ebi.ac.uk/pdbe/static/chem-files/" + \
+                        tlc + "-" + str(image_size) + ".gif"
             image_name = os.path.join(coot_pdbe_image_cache_dir,
                                       (tlc + "-" + str(image_size) + ".gif"))
             cache_or_net_get_image(image_url, image_name, ligands_hbox)
@@ -156,10 +158,11 @@ def dialog_box_of_buttons_with_async_ligands(window_name, geometry,
     outside_vbox.pack_start(scrolled_win, True, True, 0) # expand, fill, padding
     scrolled_win.add_with_viewport(inside_vbox)
     scrolled_win.set_policy(gtk.POLICY_AUTOMATIC,gtk.POLICY_ALWAYS)
-    map(lambda button_info:
-        add_button_info_to_box_of_buttons_vbox_for_ligand_images(button_info,
-                                                                 inside_vbox),
-        buttons)
+    if buttons:
+        map(lambda button_info:
+            add_button_info_to_box_of_buttons_vbox_for_ligand_images(button_info,
+                                                                     inside_vbox),
+            buttons)
 
     outside_vbox.set_border_width(2)
     outside_vbox.pack_start(h_sep, False, False, 2)
@@ -757,11 +760,11 @@ def recent_structure_browser(t):
         else:
             ligand_string = ""
             for ligand in ligand_string_list:
-                ligand_string += " "
-                ligand_string += ligand
-            return ligand_string
-
-
+                ligand_string = ligand_string + "   " + ligand + "\n"
+            if len(ligand_string) > 0:
+                return "\nLigands:\n" + ligand_string
+            else:
+                return ""
 
     # The idea here is that we have a list of ligand tlcs.  From that,
     # we make a function, which, when passed a button-hbox (you can put
@@ -801,60 +804,65 @@ def recent_structure_browser(t):
 
         # now make a button list (a label and what to do)
         # entry_id = str(dic["EntryID"])
-        dic = dic_wrapper["doclist"]["docs"][0]
-        entry_id = str(dic["pdb_id"])
-        
-        entry_label = entry_id if entry_id else "missing entry id"  # should not happen, the latter!?
-        method_item = dic["experimental_method"]
-        try:
-            resolution_item = dic["resolution"]
-        except KeyError:
-            resolution_item = False
-        title_item = dic["title"]
-        try: 
-            authors_string = make_authors_string(dic["pubmed_author_list"])
-        except KeyError:
-            authors_string = ""
-        # method_label = method_item if method_item else "Unknown method"  # should not happen, the latter!?
-        method_label = method_item[0]
-        title_label = truncate_name(title_item) if title_item else ""
-        authors_label = authors_string
-        try: 
-            ligands = dic["compound_id"]
-        except KeyError:
-            ligands = []
-        ligands_string = make_ligands_string(ligands)
-        ligand_tlc_list = ligands
-        resolution_string = ("     Resolution: " + str(resolution_item)) \
-                            if resolution_item else ""
-
-        if False:
-            print "   title_label:", title_label
-            print "   entry_id:", entry_id
-            print "   method_label:", method_label
-            print "   resolution_string:", resolution_string
-            print "   authors_label:", authors_label
-            print "   ligands_string:", ligands_string
-        label = entry_id + "\n" + title_label + "\n" + method_label + \
-                resolution_string + "\n" + authors_label + ligands_string
-
-        if (method_label == "x-ray diffraction"):
-            return[label,
-                   lambda func: pdbe_get_pdb_and_sfs_cif("include-sfs",
-                                                         entry_id,
-                                                         method_label),
-                   # we dont do a funtion here, but use the args
-                   # when we construct the button!?
-                   [entry_id, ligand_tlc_list]]
+        groupValue = dic_wrapper["groupValue"]
+        if not isinstance(groupValue, basestring):
+            print "failed to get groupValue"
         else:
-            return[label,
-                   lambda func: pdbe_get_pdb_and_sfs_cif("no-sfs",
-                                                         entry_id,
-                                                         method_label),
-                   [entry_id, ligand_tlc_list]]
-                   # this one (may) has to be lambda func too
-                   #lambda func2:
-                   #make_active_ligand_button_func(entry_id, ligand_tlc_list)]
+            dic = dic_wrapper["doclist"]["docs"][0]
+            entry_id = str(dic["pdb_id"])
+
+            entry_label = entry_id if entry_id else "missing entry id"  # should not happen, the latter!?
+            method_item = dic["experimental_method"]
+            try:
+                resolution_item = dic["resolution"]
+            except KeyError:
+                resolution_item = False
+            title_item = dic["title"]
+            try: 
+                authors_string = make_authors_string(dic["pubmed_author_list"])
+            except KeyError:
+                authors_string = ""
+            # method_label = method_item if method_item else "Unknown method"
+            # should not happen, the latter!?
+            method_label = method_item[0]
+            title_label = truncate_name(title_item) if title_item else ""
+            authors_label = authors_string
+            try: 
+                ligands = dic["compound_id"]
+            except KeyError:
+                ligands = []
+            ligands_string = make_ligands_string(ligands)
+            ligand_tlc_list = ligands
+            resolution_string = ("     Resolution: " + str(resolution_item)) \
+                                if resolution_item else ""
+
+            if False:
+                print "   title_label:", title_label
+                print "   entry_id:", entry_id
+                print "   method_label:", method_label
+                print "   resolution_string:", resolution_string
+                print "   authors_label:", authors_label
+                print "   ligands_string:", ligands_string
+            label = entry_id + "\n" + title_label + "\n" + method_label + \
+                    resolution_string + "\n" + authors_label + ligands_string
+
+            if (method_label == "x-ray diffraction"):
+                return[label,
+                       lambda func: pdbe_get_pdb_and_sfs_cif("include-sfs",
+                                                             entry_id,
+                                                             method_label),
+                       # we dont do a funtion here, but use the args
+                       # when we construct the button!?
+                       [entry_id, ligand_tlc_list]]
+            else:
+                return[label,
+                       lambda func: pdbe_get_pdb_and_sfs_cif("no-sfs",
+                                                             entry_id,
+                                                             method_label),
+                       [entry_id, ligand_tlc_list]]
+                    # this one (may) has to be lambda func too
+                    #lambda func2:
+                    #make_active_ligand_button_func(entry_id, ligand_tlc_list)]
 
     # return a list of buttons
     #
