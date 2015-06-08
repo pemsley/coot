@@ -5128,41 +5128,45 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
 	 mmdb::Atom *at_1 = atom[i];
 	 mmdb::Atom *at_2 = atom[filtered_non_bonded_atom_indices[i][j]];
 
-	 // no bumps from hydrogens in the same residue
-	 //
-	 // [20131212: Why not?  I suppose that there was a reason, it
-	 // is not clear to me what it is now].
-	 //
-	 bool add_it = true;
 
-	 if (at_2->residue == at_1->residue)
-	    if (is_hydrogen(at_1))
-	       if (is_hydrogen(at_2))
-		  add_it = false;
+         if (at_1 && at_2) { 
 
-   	 if (filtered_non_bonded_atom_indices[i][j] < int(i))
-  	    add_it = false;
+	    // no bumps from hydrogens in the same residue
+	    //
+	    // [20131212: Why not?  I suppose that there was a reason, it
+	    // is not clear to me what it is now].
+	    //
+	    bool add_it = true;
+
+	    if (at_2->residue == at_1->residue)
+	       if (is_hydrogen(at_1))
+	          if (is_hydrogen(at_2))
+		     add_it = false;
+
+   	    if (filtered_non_bonded_atom_indices[i][j] < int(i))
+  	       add_it = false;
 	 
-	 if (add_it) { 
+	    if (add_it) { 
 	 
-	    if (0) { // debug.
-	       clipper::Coord_orth pt1(atom[i]->x, atom[i]->y, atom[i]->z);
-	       clipper::Coord_orth pt2(at_2->x,   at_2->y, at_2->z);
-	       double d = sqrt((pt1-pt2).lengthsq());
+	       if (0) { // debug.
+	          clipper::Coord_orth pt1(atom[i]->x, atom[i]->y, atom[i]->z);
+	          clipper::Coord_orth pt2(at_2->x,   at_2->y, at_2->z);
+	          double d = sqrt((pt1-pt2).lengthsq());
 		     
-	       std::cout << "adding non-bonded contact restraint index " 
-			 << i << " to index " << filtered_non_bonded_atom_indices[i][j]
-			 << " "
-			 << atom_spec_t(atom[i]) << " to " 
-			 << atom_spec_t(atom[filtered_non_bonded_atom_indices[i][j]])
-			 << "  types: " << type_1 <<  " " << type_2 <<  " fixed: "
-			 << fixed_atom_flags[0] << " " << fixed_atom_flags[1] << "   " << d
-			 << std::endl;
-	    }
+	          std::cout << "adding non-bonded contact restraint index " 
+			    << i << " to index " << filtered_non_bonded_atom_indices[i][j]
+			    << " "
+			    << atom_spec_t(atom[i]) << " to " 
+			    << atom_spec_t(atom[filtered_non_bonded_atom_indices[i][j]])
+			    << "  types: " << type_1 <<  " " << type_2 <<  " fixed: "
+			    << fixed_atom_flags[0] << " " << fixed_atom_flags[1] << "   " << d
+			    << std::endl;
+	       }
 
-	    add_non_bonded(i, filtered_non_bonded_atom_indices[i][j], type_1, type_2,
-			   fixed_atom_flags, geom);
-	    n_nbc_r++;
+	       add_non_bonded(i, filtered_non_bonded_atom_indices[i][j], type_1, type_2,
+			      fixed_atom_flags, geom);
+	       n_nbc_r++;
+	    }
 	 }
       }
    }
