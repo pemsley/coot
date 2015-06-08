@@ -1,5 +1,5 @@
 
-if [ $(uname -a) = Darwin ] ; then 
+if [ $(uname) = Darwin ] ; then 
    libtoolize=glibtoolize
 else 
    libtoolize=libtoolize
