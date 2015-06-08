@@ -116,7 +116,7 @@ lbg_info_t::get_search_similarity() const {
       try { 
 	 r = lig_build::string_to_float(txt);
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 std::cout << "WARNING:: Bad number " << txt << " " << rte.what() << std::endl;
 	 std::cout << "WARNING:: Using " << r << std::endl;
       }
