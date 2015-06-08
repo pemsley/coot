@@ -215,6 +215,7 @@ coot::test_ccp4srs_usage(const coot::dictionary_residue_restraints_t &restraints
       // don't do this bit for production - it's a test crash for the
       // coot libs
       
+      protein_geometry pg;
       double local_search_similarity = 0.96;
       int n_atoms = 10;
       int status = pg.init_ccp4srs("nothing");
