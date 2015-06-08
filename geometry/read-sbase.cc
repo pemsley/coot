@@ -138,19 +138,21 @@ coot::protein_geometry::init_ccp4srs(const std::string &ccp4srs_monomer_dir_in) 
 
 #ifdef HAVE_CCP4SRS
 
+   // if srs-dir is not given, then the default should be $CCP4_MASTER/share/ccp4srs
+   
    int RC = ccp4srs::CCP4SRS_FileNotFound; // initial status.
    // std::cout << "init_ccp4srs() with " << ccp4srs_monomer_dir_in << std::endl;
    std::string dir;
-   const char *d1 = getenv(MONOMER_DIR_STR);
-   const char *d2 = getenv("CCP4_LIB");
+   const char *d1 = getenv(MONOMER_DIR_STR); // "COOT_CCP4SRS_DIR"
+   const char *d2 = getenv("CCP4");
 
    if (d1) {
       if (file_exists(d1))
 	 dir = d1;
    } else {
       if (d2) {
-	 std::string dir_a = util::append_dir_dir(d2, "ccp4srs");
-	 std::string dir_b = util::append_dir_dir(dir_a, "srsdata");
+	 std::string dir_a = util::append_dir_dir(d2, "share");
+	 std::string dir_b = util::append_dir_dir(dir_a, "ccp4srs");
 	 if (file_exists(dir_b))
 	    dir = dir_b;
       } else {
@@ -163,14 +165,14 @@ coot::protein_geometry::init_ccp4srs(const std::string &ccp4srs_monomer_dir_in) 
       std::cout << "INFO:: CCP4SRS::loadIndex: " << dir << std::endl;
       ccp4srs = new ccp4srs::Manager;
       RC = ccp4srs->loadIndex(dir.c_str());
-      std::cout << "... loadIndex() returned " << RC << std::endl;
+      std::cout << "init_ccprsrs() ... loadIndex() returned " << RC << std::endl;
       if (RC != ccp4srs::CCP4SRS_Ok) {
          std::cout << "CCP4SRS init problem." << std::endl;
 	 delete ccp4srs;
 	 ccp4srs = NULL;
       }
    } else {
-      std::cout << "no dir" << std::endl;
+      std::cout << "WARNING:: init_ccp4srs() no dir" << std::endl;
    } 
    return RC;
 #else
@@ -223,7 +225,6 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 			    number_atoms_nh,
 			    description_level);
 	 rest.residue_info = d;
-      
 	 
 
 	 // atoms
@@ -243,131 +244,131 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 	    // std::cout << "pushing back an atom with name :" << atom_id_4c << ":" << std::endl;
 	    rest.atom_info.push_back(dict_at);
 	 }
-      }
 
-      if (rest.atom_info.size() > 1) {
+	 if (rest.atom_info.size() > 1) {
 
-	 // bonds
+	    // bonds
 	 
-	 for (int ib=0; ib<monomer_p->n_bonds(); ib++) {
-	    ccp4srs::Bond *bond = monomer_p->bond(ib);
-	    int ind_1 = bond->atom1();
-	    int ind_2 = bond->atom2();
-	    int order = bond->order();
-	    double dist = bond->length();
-	    double esd = bond->length_esd();
-	    if (1)
-	       std::cout << "... "<< monomer_type << " atom index " << ind_1 << " " << ind_2
-			 << " order " << order << std::endl;
-	    std::string type = "single";
-	    switch (order) {
-	    case ccp4srs::Bond::noOrder:
-	       type = "single";
-	       break;
-	    case ccp4srs::Bond::Single:
-	       type = "single";
-	       break;
-	    case ccp4srs::Bond::Aromatic:
-	       type = "aromatic";
-	       break;
-	    case ccp4srs::Bond::Double:
-	       type = "double";
-	       break;
-	    case ccp4srs::Bond::Triple:
-	       type = "triple";
-	       break;
-	    case ccp4srs::Bond::Deloc:
-	       type = "deloc";
-	       break;
-	    case ccp4srs::Bond::Covalent:
-	       type = "covalent";
-	       break;
-	    case ccp4srs::Bond::Metal:
-	       type = "metal";
-	       break;
-	    default:
-	       type = "single";
-	    } 
-	    std::string atom_name_1 = monomer_p->atom(ind_1)->name();
-	    std::string atom_name_2 = monomer_p->atom(ind_2)->name();
-	    std::cout << "adding bond between " << atom_name_1 << " and " << atom_name_2 << " type " << type << std::endl;
-	    coot::dict_bond_restraint_t dict_bond(atom_name_1, atom_name_2, type, dist, esd);
-	    success = true;
-	    rest.bond_restraint.push_back(dict_bond);
-	 }
-
-	 // angles
-	 
-	 for (int ia=0; ia<monomer_p->n_angles(); ia++) {
-	    ccp4srs::Angle *angle = monomer_p->angle(ia);
-	    int ind_1 = angle->atom1();
-	    int ind_2 = angle->atom2();
-	    int ind_3 = angle->atom3();
-	    double value = angle->value();
-	    double esd = angle->esd();
-	    std::string atom_name_1 = monomer_p->atom(ind_1)->name();
-	    std::string atom_name_2 = monomer_p->atom(ind_2)->name();
-	    std::string atom_name_3 = monomer_p->atom(ind_3)->name();
-	    coot::dict_angle_restraint_t dict_angle(atom_name_1, atom_name_2, atom_name_3,
-						    value, esd);
-	    rest.angle_restraint.push_back(dict_angle);
-	 }
-
-	 // torsions
-	 for (int ia=0; ia<monomer_p->n_torsions(); ia++) {
-	    ccp4srs::Torsion *torsion = monomer_p->torsion(ia);
-	    int ind_1 = torsion->atom1();
-	    int ind_2 = torsion->atom2();
-	    int ind_3 = torsion->atom3();
-	    int ind_4 = torsion->atom4();
-	    double value =   torsion->value();
-	    double esd =     torsion->esd();
-	    double period =  torsion->esd();
-	    std::string id = torsion->id();
-	    std::string atom_name_1 = monomer_p->atom(ind_1)->name();
-	    std::string atom_name_2 = monomer_p->atom(ind_2)->name();
-	    std::string atom_name_3 = monomer_p->atom(ind_3)->name();
-	    std::string atom_name_4 = monomer_p->atom(ind_4)->name();
-	    coot::dict_torsion_restraint_t dict_torsion(id,
-							atom_name_1, atom_name_2, atom_name_3, atom_name_4,
-							value, esd, period);
-	    rest.torsion_restraint.push_back(dict_torsion);
-	 }
-
-	 // chirals
-	 
-	 for (int ic=0; ic<monomer_p->n_chicenters(); ic++) {
-	    ccp4srs::ChiCenter *chiral = monomer_p->chicenter(ic);
-	    int ind_c = chiral->center();
-	    int ind_1 = chiral->atom1();
-	    int ind_2 = chiral->atom2();
-	    int ind_3 = chiral->atom3();
-	    int sign  = chiral->sign();
-	    std::string id = chiral->id();
-	    std::string atom_name_c = monomer_p->atom(ind_c)->name();
-	    std::string atom_name_1 = monomer_p->atom(ind_1)->name();
-	    std::string atom_name_2 = monomer_p->atom(ind_2)->name();
-	    std::string atom_name_3 = monomer_p->atom(ind_3)->name();
-	    coot::dict_chiral_restraint_t dict_chiral(id,
-						      atom_name_c, atom_name_1, atom_name_2, atom_name_3, 
-						      sign);
-	    rest.chiral_restraint.push_back(dict_chiral);
-	 }
-
-	 // planes
-
-	 for (int ip=0; ip<monomer_p->n_planes(); ip++) {
-	    ccp4srs::Plane *plane = monomer_p->plane(ip);
-	    std::string id = plane->id();
-	    std::vector<std::string> atom_names;
-	    std::vector<double> esds;
-	    for (int iat=0; iat<plane->size(); iat++) { 
-	       std::string atom_name = monomer_p->atom(plane->atom(iat))->name();
-	       atom_names.push_back(atom_name);
+	    for (int ib=0; ib<monomer_p->n_bonds(); ib++) {
+	       ccp4srs::Bond *bond = monomer_p->bond(ib);
+	       int ind_1 = bond->atom1();
+	       int ind_2 = bond->atom2();
+	       int order = bond->order();
+	       double dist = bond->length();
+	       double esd = bond->length_esd();
+	       if (1)
+		  std::cout << "... "<< monomer_type << " atom index " << ind_1 << " " << ind_2
+			    << " order " << order << std::endl;
+	       std::string type = "single";
+	       switch (order) {
+	       case ccp4srs::Bond::noOrder:
+		  type = "single";
+		  break;
+	       case ccp4srs::Bond::Single:
+		  type = "single";
+		  break;
+	       case ccp4srs::Bond::Aromatic:
+		  type = "aromatic";
+		  break;
+	       case ccp4srs::Bond::Double:
+		  type = "double";
+		  break;
+	       case ccp4srs::Bond::Triple:
+		  type = "triple";
+		  break;
+	       case ccp4srs::Bond::Deloc:
+		  type = "deloc";
+		  break;
+	       case ccp4srs::Bond::Covalent:
+		  type = "covalent";
+		  break;
+	       case ccp4srs::Bond::Metal:
+		  type = "metal";
+		  break;
+	       default:
+		  type = "single";
+	       } 
+	       std::string atom_name_1 = monomer_p->atom(ind_1)->name();
+	       std::string atom_name_2 = monomer_p->atom(ind_2)->name();
+	       std::cout << "adding bond between " << atom_name_1 << " and " << atom_name_2 << " type " << type << std::endl;
+	       coot::dict_bond_restraint_t dict_bond(atom_name_1, atom_name_2, type, dist, esd);
+	       success = true;
+	       rest.bond_restraint.push_back(dict_bond);
 	    }
-	    double esd = plane->esds()[0];
-	    coot::dict_plane_restraint_t dict_plane(id, atom_names, esd);
-	    rest.plane_restraint.push_back(dict_plane);
+
+	    // angles
+	 
+	    for (int ia=0; ia<monomer_p->n_angles(); ia++) {
+	       ccp4srs::Angle *angle = monomer_p->angle(ia);
+	       int ind_1 = angle->atom1();
+	       int ind_2 = angle->atom2();
+	       int ind_3 = angle->atom3();
+	       double value = angle->value();
+	       double esd = angle->esd();
+	       std::string atom_name_1 = monomer_p->atom(ind_1)->name();
+	       std::string atom_name_2 = monomer_p->atom(ind_2)->name();
+	       std::string atom_name_3 = monomer_p->atom(ind_3)->name();
+	       coot::dict_angle_restraint_t dict_angle(atom_name_1, atom_name_2, atom_name_3,
+						       value, esd);
+	       rest.angle_restraint.push_back(dict_angle);
+	    }
+
+	    // torsions
+	    for (int ia=0; ia<monomer_p->n_torsions(); ia++) {
+	       ccp4srs::Torsion *torsion = monomer_p->torsion(ia);
+	       int ind_1 = torsion->atom1();
+	       int ind_2 = torsion->atom2();
+	       int ind_3 = torsion->atom3();
+	       int ind_4 = torsion->atom4();
+	       double value =   torsion->value();
+	       double esd =     torsion->esd();
+	       double period =  torsion->esd();
+	       std::string id = torsion->id();
+	       std::string atom_name_1 = monomer_p->atom(ind_1)->name();
+	       std::string atom_name_2 = monomer_p->atom(ind_2)->name();
+	       std::string atom_name_3 = monomer_p->atom(ind_3)->name();
+	       std::string atom_name_4 = monomer_p->atom(ind_4)->name();
+	       coot::dict_torsion_restraint_t dict_torsion(id,
+							   atom_name_1, atom_name_2, atom_name_3, atom_name_4,
+							   value, esd, period);
+	       rest.torsion_restraint.push_back(dict_torsion);
+	    }
+
+	    // chirals
+	 
+	    for (int ic=0; ic<monomer_p->n_chicenters(); ic++) {
+	       ccp4srs::ChiCenter *chiral = monomer_p->chicenter(ic);
+	       int ind_c = chiral->center();
+	       int ind_1 = chiral->atom1();
+	       int ind_2 = chiral->atom2();
+	       int ind_3 = chiral->atom3();
+	       int sign  = chiral->sign();
+	       std::string id = chiral->id();
+	       std::string atom_name_c = monomer_p->atom(ind_c)->name();
+	       std::string atom_name_1 = monomer_p->atom(ind_1)->name();
+	       std::string atom_name_2 = monomer_p->atom(ind_2)->name();
+	       std::string atom_name_3 = monomer_p->atom(ind_3)->name();
+	       coot::dict_chiral_restraint_t dict_chiral(id,
+							 atom_name_c, atom_name_1, atom_name_2, atom_name_3, 
+							 sign);
+	       rest.chiral_restraint.push_back(dict_chiral);
+	    }
+
+	    // planes
+
+	    for (int ip=0; ip<monomer_p->n_planes(); ip++) {
+	       ccp4srs::Plane *plane = monomer_p->plane(ip);
+	       std::string id = plane->id();
+	       std::vector<std::string> atom_names;
+	       std::vector<double> esds;
+	       for (int iat=0; iat<plane->size(); iat++) { 
+		  std::string atom_name = monomer_p->atom(plane->atom(iat))->name();
+		  atom_names.push_back(atom_name);
+	       }
+	       double esd = plane->esds()[0];
+	       coot::dict_plane_restraint_t dict_plane(id, atom_names, esd);
+	       rest.plane_restraint.push_back(dict_plane);
+	    }
 	 }
       }
    }
@@ -477,22 +478,165 @@ coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float sim
    std::vector<coot::match_results_t> v;
 
    if (! ccp4srs) {
-      std::cout << "CCP4SRS is not initialized" << std::endl;
+      std::cout << "WARNING:: CCP4SRS is not initialized" << std::endl;
    } else {
       int l = ccp4srs->n_entries();
-      std::cout << "found " << l << " entries in CCP4 SRS" << std::endl;
+      std::cout << "INFO:: compare_vs_ccp4srs(): found " << l << " entries in CCP4 SRS" << std::endl;
+      mmdb::math::Graph  *graph_2;
+      int rc = 0;
       for (int i=0; i<l ;i++)  {
-	 ccp4srs::Monomer  *Monomer = ccp4srs->getMonomer(i, NULL);
+	 ccp4srs::Monomer *Monomer = ccp4srs->getMonomer(i, NULL);
 	 if (Monomer)  {
 	    std::string id = Monomer->ID();
+	    std::cout << "i " << i <<  " monomer id  " << id << std::endl;
 	    if (id.length()) {
+	       graph_2 = Monomer->getGraph(&rc);
+
+	       if (rc < 10000) { 
+		  mmdb::math::GraphMatch match;
+		  int minMatch = 6;
+
+		  std::cout << "INFO:: match.MatchGraphs must match at least "
+			    << minMatch << " atoms."
+			    << std::endl;
+		  mmdb::math::VERTEX_EXT_TYPE vertex_ext=mmdb::math::EXTTYPE_Ignore; // mmdb default
+		  bool vertext_type = true;
+		  match.MatchGraphs(graph_1, graph_2, minMatch, vertext_type, vertex_ext);
+		  int n_match = match.GetNofMatches();
+		  std::cout << "INFO:: match NumberofMatches (potentially similar graphs) "
+			    << n_match << std::endl;
+	       }
 	    }
 	 }
       }
    }
    return v;
 }
-#endif // HAVE_CCP4SRS   
+#endif // HAVE_CCP4SRS
+
+#ifdef HAVE_CCP4SRS
+std::vector<std::string>
+coot::protein_geometry::get_available_ligand_comp_id(const std::string &hoped_for_head,
+						     unsigned int n_top) const {
+
+   std::string r;
+   std::vector<std::string> available_comp_ids;
+   
+   if (! ccp4srs) {
+      std::cout << "WARNING:: CCP4SRS is not initialized" << std::endl;
+   } else {
+      std::string next_letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      std::string::size_type l_head = hoped_for_head.length();
+      std::vector<std::string> matching_codes;
+      int l = ccp4srs->n_entries();
+      for (int i=0; i<l ;i++)  {
+	 ccp4srs::Monomer *Monomer = ccp4srs->getMonomer(i, NULL);
+	 std::string id = Monomer->ID();
+	 std::string::size_type l_monomer = id.length();
+	 if (l_monomer > l_head) {
+
+	    bool matched = true;
+	    for (std::string::size_type ii=0; ii<l_head; ii++) { 
+	       if (hoped_for_head[ii] != id[ii]) {
+		  matched = false;
+		  break;
+	       }
+	    }
+	    if (matched) {
+	       matching_codes.push_back(id);
+	    }
+	 } 
+      }
+
+      // debug::
+      if (false) { 
+	 std::cout << "matching codes:" << std::endl;
+	 for (unsigned int i=0; i<matching_codes.size(); i++) {
+	    if (i>0)
+	       if (i%10 == 0) 
+		  std::cout << std::endl;
+	    std::cout << "    " << matching_codes[i];
+	 }
+	 std::cout << std::endl;
+      }
+
+      //
+      if (hoped_for_head.length() == 2) {
+	 std::vector<std::string>::const_iterator it;
+	 int nli = 0;
+	 for (std::string::size_type idx=0; idx<next_letter.length(); idx++) { 
+	    std::string test_code = hoped_for_head;
+	    test_code += next_letter[idx];
+	    it = std::find(matching_codes.begin(),
+			   matching_codes.end(),
+			   test_code);
+	    if (it == matching_codes.end()) {
+	       available_comp_ids.push_back(test_code);
+	       if (available_comp_ids.size() >= n_top)
+		  break;
+	    } 
+	 }
+      }
+
+      if (hoped_for_head.length() == 1) {
+	 std::vector<std::string>::const_iterator it;
+	 unsigned int nli = 0;
+	 bool done = false;
+	 for (std::string::size_type idx_1=0; idx_1<next_letter.length(); idx_1++) { 
+	    for (std::string::size_type idx_2=0; idx_2<next_letter.length(); idx_2++) { 
+	       std::string test_code = hoped_for_head;
+	       test_code += next_letter[idx_1];
+	       test_code += next_letter[idx_2];
+	       it = std::find(matching_codes.begin(),
+			      matching_codes.end(),
+			      test_code);
+	       if (it == matching_codes.end()) {
+		  available_comp_ids.push_back(test_code);
+		  if (available_comp_ids.size() >= n_top)
+		     done = true;
+	       }
+	       if (done)
+		  break;
+	    }
+	    if (done)
+	       break;
+	 }
+      }
+
+      if (hoped_for_head.length() == 0) {
+	 std::vector<std::string>::const_iterator it;
+	 unsigned int nli = 0;
+	 bool done = false;
+	 for (std::string::size_type idx_1=0; idx_1<next_letter.length(); idx_1++) { 
+	    for (std::string::size_type idx_2=0; idx_2<next_letter.length(); idx_2++) { 
+	       for (std::string::size_type idx_3=0; idx_3<next_letter.length(); idx_3++) { 
+		  std::string test_code;
+		  test_code += next_letter[idx_1];
+		  test_code += next_letter[idx_2];
+		  test_code += next_letter[idx_3];
+		  it = std::find(matching_codes.begin(),
+				 matching_codes.end(),
+				 test_code);
+		  if (it == matching_codes.end()) {
+		     available_comp_ids.push_back(test_code);
+		     if (available_comp_ids.size() >= n_top)
+			done = true;
+		  }
+		  if (done)
+		     break;
+	       }
+	       if (done)
+		  break;
+	    }
+	    if (done)
+	       break;
+	 }
+      }
+   }
+   return available_comp_ids;
+}
+#endif  // HAVE_CCP4SRS
+
 
 
 #ifdef HAVE_CCP4SRS
