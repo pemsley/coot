@@ -499,12 +499,18 @@ coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float sim
 		  std::cout << "INFO:: match.MatchGraphs must match at least "
 			    << minMatch << " atoms."
 			    << std::endl;
-		  mmdb::math::VERTEX_EXT_TYPE vertex_ext=mmdb::math::EXTTYPE_Ignore; // mmdb default
-		  bool vertext_type = true;
-		  match.MatchGraphs(graph_1, graph_2, minMatch, vertext_type, vertex_ext);
-		  int n_match = match.GetNofMatches();
-		  std::cout << "INFO:: match NumberofMatches (potentially similar graphs) "
-			    << n_match << std::endl;
+
+		  if (false) {
+
+		     // crashes at the momentn
+		     mmdb::math::VERTEX_EXT_TYPE vertex_ext=mmdb::math::EXTTYPE_Ignore; // mmdb default
+		     bool vertext_type = true;
+		     match.MatchGraphs(graph_1, graph_2, minMatch, vertext_type, vertex_ext);
+		     int n_match = match.GetNofMatches();
+		     std::cout << "INFO:: match NumberofMatches (potentially similar graphs) "
+			       << n_match << std::endl;
+
+		  }
 	       }
 	    }
 	 }
