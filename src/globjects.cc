@@ -4003,7 +4003,7 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 
    GdkModifierType my_button1_mask = info.gdk_button1_mask();
    GdkModifierType my_button2_mask = info.gdk_button2_mask();
-   GdkModifierType my_button3_mask = info.gdk_button3_mask();
+   // GdkModifierType my_button3_mask = info.gdk_button3_mask();
 
 //    std::cout << "debug:: mouse button " << event->button << " was pressed at ("
 // 	     << event->x << "," << event->y << ")" << std::endl;
