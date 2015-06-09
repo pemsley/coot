@@ -73,7 +73,6 @@ namespace coot {
 	       double var = variance();
 
 	       if (var > 0) {
-		  double s = sqrt(var);
 		  for (unsigned int i=0; i<v.size(); i++) { 
 		     double t = v[i] - m;
 		     sum_to_the_4 += t * t * t * t;

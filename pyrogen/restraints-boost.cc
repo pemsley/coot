@@ -209,7 +209,7 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	 RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
 	 bool canon_orient = false;
 	 bool clear_confs  = false;
-	 int iconf = RDDepict::compute2DCoords(*m, NULL, canon_orient, clear_confs, 10, 20);
+	 RDDepict::compute2DCoords(*m, NULL, canon_orient, clear_confs, 10, 20);
 	 delete mol;
 	 return m;
       }

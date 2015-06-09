@@ -145,7 +145,6 @@ coot::high_res::fill_globular_protein(const coot::minimol::molecule &mol,
 				   20.0*target_pos.y(), 
 				   20.0*target_pos.z());
    double n_atoms = 20;
-   double one_over_n_atoms; 
 
    clipper::Coord_orth t;
    globular_molecule.set_cell_symm(mol);
@@ -166,16 +165,9 @@ coot::high_res::fill_globular_protein(const coot::minimol::molecule &mol,
 // 		      << mol[ifrag][ires][iat].pos.y() << " " 
 // 		      << mol[ifrag][ires][iat].pos.z() << "\n";
 
-// 	    std::cout << "CLOSEST pos      " <<  t.x() << " " << t.y() << " " << t.z() << "\n";
 	    sum_atoms += t;
 	    n_atoms += 1.0;
 
-	    one_over_n_atoms = 1.0/n_atoms;
-// 	    target_pos = clipper::Coord_orth(one_over_n_atoms * sum_atoms.x(),
-// 					     one_over_n_atoms * sum_atoms.y(),
-// 					     one_over_n_atoms * sum_atoms.z());
-//  	    std::cout << "TARGET pos       " <<  target_pos.x() << " "
-//  		      << target_pos.y() << " " << target_pos.z() << "\n";
 	    residue.addatom(" C  ", " C", t, "", 1.0, 30.0);
 	 }
       }

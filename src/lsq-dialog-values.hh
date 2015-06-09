@@ -21,8 +21,10 @@ public:
    }
    void update(GtkWidget *dialog) {
       if (dialog) {
-	 GtkWidget *mov_option_menu = lookup_widget(dialog, "least_squares_moving_molecule_optionmenu");
-	 GtkWidget *ref_option_menu = lookup_widget(dialog, "least_squares_reference_molecule_optionmenu");
+	 
+	 // GtkWidget *mov_option_menu = lookup_widget(dialog, "least_squares_moving_molecule_optionmenu");
+	 // GtkWidget *ref_option_menu = lookup_widget(dialog, "least_squares_reference_molecule_optionmenu");
+	 
 	 GtkWidget *ref_res_range_1 = lookup_widget(dialog, "least_squares_reference_range_1_entry");
 	 GtkWidget *ref_res_range_2 = lookup_widget(dialog, "least_squares_reference_range_2_entry");
 	 GtkWidget *mov_res_range_1 = lookup_widget(dialog, "least_squares_moving_range_1_entry");
