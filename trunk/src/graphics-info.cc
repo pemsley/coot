@@ -773,9 +773,7 @@ graphics_info_t::smooth_scroll_maybe_stepped_acceleration(float x, float y, floa
 
 	 // -6x^2 +6x parametric function
 	 if (smooth_scroll_steps > 0) {
-	    int n_steps = smooth_scroll_steps;
-	    if (do_zoom_and_move_flag)
-	       n_steps *= 3;
+	    
 	    float rotation_centre_x_start = rotation_centre_x;
 	    float rotation_centre_y_start = rotation_centre_y;
 	    float rotation_centre_z_start = rotation_centre_z;

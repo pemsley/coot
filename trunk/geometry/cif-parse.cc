@@ -728,12 +728,9 @@ coot::protein_geometry::mon_lib_add_tree(std::string comp_id,
 					 std::string atom_back,
 					 std::string atom_forward,
 					 std::string connect_type) {
-   bool ifound = 0;
    coot::dict_chem_comp_tree_t ac(atom_id, atom_back, atom_forward, connect_type);
-   // std::cout << "mon_lib_add_tree atom :" << atom_id << ":" << std::endl;
    for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
       if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
-	 ifound = 1;
 	 dict_res_restraints[i].tree.push_back(ac);
 	 break;
       }
