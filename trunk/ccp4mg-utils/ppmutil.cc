@@ -3024,11 +3024,13 @@ std::vector<std::vector<unsigned char> > image_info::GetColourMap(int ncol) cons
           npixel++;
         }
       }
-      average_cols.push_back(std::vector<unsigned char>());
-      //printf("Average R:%d G:%d B:%d\n",R/npixel,G/npixel,B/npixel);
-      average_cols.back().push_back((unsigned char)(R/npixel));
-      average_cols.back().push_back((unsigned char)(G/npixel));
-      average_cols.back().push_back((unsigned char)(B/npixel));
+      if (npixel > 0) { 
+	 average_cols.push_back(std::vector<unsigned char>());
+	 //printf("Average R:%d G:%d B:%d\n",R/npixel,G/npixel,B/npixel);
+	 average_cols.back().push_back((unsigned char)(R/npixel));
+	 average_cols.back().push_back((unsigned char)(G/npixel));
+	 average_cols.back().push_back((unsigned char)(B/npixel));
+      }
     }
   }
   /* Of course, the colourmap may be over sized as we
