@@ -3880,12 +3880,11 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
       std::cout << "    geom ref pointer " << &geom << std::endl;
    }
    
-   int iret = 0;
    restraints_usage_flag = flags_in; // also set in minimize() and geometric_distortions()
 
    if (n_atoms) { 
       mark_OXT(geom);
-      iret += make_monomer_restraints(geom, do_residue_internal_torsions);
+      make_monomer_restraints(geom, do_residue_internal_torsions);
 
       bool do_link_restraints = true;
       bool do_flank_restraints = true;
@@ -3898,14 +3897,14 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
       }
 
       if (do_link_restraints)
-	 iret += make_link_restraints(geom, do_rama_plot_restraints);
+	 make_link_restraints(geom, do_rama_plot_restraints);
       
       // don't do torsions, ramas maybe.   
       coot::bonded_pair_container_t bpc;
 
       if (do_flank_restraints)
 	 bpc = make_flanking_atoms_restraints(geom, do_rama_plot_restraints);
-      iret += bpc.size();
+      bpc.size();
       int iret_prev = restraints_vec.size();
 
       if (sec_struct_pseudo_bonds == coot::HELIX_PSEUDO_BONDS) {
@@ -5120,21 +5119,21 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
    for (unsigned int i=0; i<filtered_non_bonded_atom_indices.size(); i++) { 
       for (unsigned int j=0; j<filtered_non_bonded_atom_indices[i].size(); j++) {
 
-	 std::vector<bool> fixed_atom_flags =
-	    make_non_bonded_fixed_flags(i, filtered_non_bonded_atom_indices[i][j]);
-	 std::string type_1 = get_type_energy(atom[i], geom);
-	 std::string type_2 = get_type_energy(atom[filtered_non_bonded_atom_indices[i][j]], geom);
-
 	 mmdb::Atom *at_1 = atom[i];
 	 mmdb::Atom *at_2 = atom[filtered_non_bonded_atom_indices[i][j]];
 
+	 std::vector<bool> fixed_atom_flags =
+	    make_non_bonded_fixed_flags(i, filtered_non_bonded_atom_indices[i][j]);
+	 std::string type_1 = get_type_energy(at_1, geom);
+	 std::string type_2 = get_type_energy(at_2, geom);
 
          if (at_1 && at_2) { 
 
 	    // no bumps from hydrogens in the same residue
 	    //
-	    // [20131212: Why not?  I suppose that there was a reason, it
-	    // is not clear to me what it is now].
+	    // [20131212: Why not?  I suppose that there was a reason,
+	    // it is not clear to me what it is now].  This needs to
+	    // be investigated/fixed.
 	    //
 	    bool add_it = true;
 
@@ -5391,6 +5390,11 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
    
    const double dist_crit = 8.0;
    filtered_non_bonded_atom_indices.resize(bonded_atom_indices.size());
+   if (false) { 
+      std::cout << "--------------- debug:: bonded_atom_indices size "
+		<< bonded_atom_indices.size() << std::endl;
+      std::cout << "--------------- debug:: n_atoms " << n_atoms << std::endl;
+   }
 
    for (unsigned int i=0; i<bonded_atom_indices.size(); i++) {
       for (unsigned int j=0; j<bonded_atom_indices.size(); j++) {

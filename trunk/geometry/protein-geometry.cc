@@ -1268,13 +1268,13 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
    bool debug = false;
    if (debug) { 
       std::cout << "   ------ DEBUG:: in matches_comp_ids_and_groups "
-		<< id << " " << chem_link_name << ": input comp_ids "
-		<< comp_id_1 << " and " << comp_id_2 << " vs :"
-		<< chem_link_comp_id_1 << ": :"
+		<< id << " chem_link_name " << chem_link_name << ": input comp_ids "
+		<< comp_id_1 << " and " << comp_id_2 << " vs ref link-comp_id-1 :"
+		<< chem_link_comp_id_1 << ": ref link-comp_id-2:"
 		<< chem_link_comp_id_2 << ":" << std::endl; 
-      std::cout << "      " << chem_link_name << ": input groups "
-		<< group_1 << " and " << group_2 << " vs :"
-		<< chem_link_group_comp_1 << ": :"
+      std::cout << "     for chem_link_comp_name " << chem_link_name << ": input groups "
+		<< group_1 << " and " << group_2 << " vs ref link-group-1 :"
+		<< chem_link_group_comp_1 << ": ref link-group-2 :"
 		<< chem_link_group_comp_2 << ":" << std::endl;
    }
 
@@ -1310,7 +1310,8 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 
    if (debug) 
       std::cout << "    matches_comp_ids_and_groups given comp_id_1: \""
-		<< comp_id_1 << "\" and group_1: \"" << group_1 << "\" and comp_id_2: \"" 
+		<< comp_id_1 << "\" and group_1: \"" << group_1
+		<< "\" and comp_id_2: \"" 
 		<< comp_id_2 << "\" and group_2: \"" << group_2 
 		<< "\" returns " << match << std::endl;
 	
