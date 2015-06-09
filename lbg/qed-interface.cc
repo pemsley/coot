@@ -41,6 +41,8 @@ lbg_info_t::setup_silicos_it_qed_default_func() {
 	 }
       }
    }
+   Py_DECREF(pName);
+   Py_XDECREF(pModule);
 }
 
 // needs a properly initialized (say, via rdkit_mol_sanitize()) molecule.

@@ -463,7 +463,7 @@ on_canvas_button_press(GooCanvasItem  *item,
 	 l = static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
 
    
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS      
+//#ifdef MAKE_ENHANCED_LIGAND_TOOLS      
       if (spec_p) { 
 	 // std::cout << "on_canvas_button_press(): clicked on " << *spec_p << std::endl;
 	 if (event->type==GDK_2BUTTON_PRESS) { // double click
@@ -488,7 +488,7 @@ on_canvas_button_press(GooCanvasItem  *item,
 	 }
       } 
 
-#endif       
+//#endif       
 
       if (!l) {
 	 std::cout << "null lbg-info from target_item" << std::endl;
@@ -596,7 +596,7 @@ on_canvas_motion_new(GooCanvasItem  *item,
       }
    } else {
 
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+//#ifdef MAKE_ENHANCED_LIGAND_TOOLS
       lbg_info_t *l =
 	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
       coot::residue_spec_t *spec_p =
@@ -615,7 +615,7 @@ on_canvas_motion_new(GooCanvasItem  *item,
 	    l->all_additional_representations_off_except(imol, add_rep_handle, 0);
 	 } 
       }
-#endif      
+//#endif      
    }
 
    

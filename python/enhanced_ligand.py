@@ -20,8 +20,11 @@ def ligand_check_refmac_columns(f_list, sigf_list, rfree_list):
 if enhanced_ligand_coot_p():
 
 
-    def import_from_3d_generator_from_mdl():
-        pass
+    global use_mogul
+    if use_mogul:
+        def import_from_3d_generator_from_mdl(dummy1, dummy2):
+            # here we could have something... to redefine and use mogul
+            pass
     
     if (use_gui_qm != 2):
         menu = coot_menubar_menu("Ligand")
