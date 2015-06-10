@@ -32,12 +32,10 @@ if test x$with_ccp4srs_prefix != x; then
 
    if test -r "$with_ccp4srs_prefix/include/ccp4srs/ccp4srs_types.h"; then
       AC_LANG_PUSH(C++)
-      CCP4SRS_CXXFLAGS="-DHAVE_CCP4SRS"
-      # CCP4SRS_LIBS="-L$with_ccp4srs_prefix/$acl_libdirstem -lccp4srs"
+      CCP4SRS_CXXFLAGS="-DHAVE_CCP4SRS -I$with_ccp4srs_prefix/include"
       CCP4SRS_LIBS="-L$with_ccp4srs_prefix/lib -lccp4srs"
-      ac_CCP4SRS_CXXFLAGS="-I$with_ccp4srs_prefix/include"
       save_CPPFLAGS="$CPPFLAGS"
-      CPPFLAGS="$CPPFLAGS $ac_CCP4SRS_CXXFLAGS"
+      CPPFLAGS="$CPPFLAGS $CCP4SRS_CXXFLAGS"
       AC_CHECK_HEADER([ccp4srs/ccp4srs_types.h])
       CPPFLAGS="$save_CPPFLAGS"
       AC_LANG_POP(C++)
