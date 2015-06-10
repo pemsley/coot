@@ -31,8 +31,12 @@
 std::vector<std::string>
 get_new_code(const coot::protein_geometry &pg, const std::string &code_start, unsigned int n_top) {
 
-   std::vector<std::string> r = pg.get_available_ligand_comp_id(code_start, n_top);
+   std::vector<std::string> r;
+#ifdef HAVE_CCP4SRS   
+   r = pg.get_available_ligand_comp_id(code_start, n_top);
+#endif // HAVE_CCP4SRS
    return r;
+
 } 
 
 int
@@ -84,6 +88,8 @@ main(int argc, char **argv) {
    }
    std::cout << std::endl;
    
+#else
+   std::cout << "This build does not include CCP4 SRS" << std::endl;
 #endif // HAVE_CCP4SRS   
    return 0; 
 }
