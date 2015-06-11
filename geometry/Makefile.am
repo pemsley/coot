@@ -52,7 +52,11 @@ libcoot_geometry_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 check_PROGRAMS = test-geometry test-read-components test-ccp4srs 
 
-bin_PROGRAMS = compare-dictionaries make-shelx-restraints dictionary-bond-distributions
+bin_PROGRAMS = \
+	coot.compare-dictionaries          \
+	coot.make-shelx-restraints         \
+	coot.dictionary-bond-distributions \
+	coot.available-comp-id
 
 test_geometry_SOURCES = test-geometry.cc
 
@@ -60,21 +64,25 @@ test_ccp4srs_SOURCES = test-ccp4srs.cc
 
 test_read_components_SOURCES = test-read-components.cc test-read-components.hh
 
-dictionary_bond_distributions_SOURCES = dictionary-bond-distributions.cc
-
 test_ccp4srs_LDADD = ./libcoot-geometry.la    
 
 test_geometry_LDADD = ./libcoot-geometry.la
 
 test_read_components_LDADD = ./libcoot-geometry.la
 
-dictionary_bond_distributions_LDADD = ./libcoot-geometry.la
+coot_dictionary_bond_distributions_SOURCES = dictionary-bond-distributions.cc
 
-compare_dictionaries_SOURCES = compare-dictionaries.cc
+coot_dictionary_bond_distributions_LDADD = ./libcoot-geometry.la
 
-compare_dictionaries_LDADD = ./libcoot-geometry.la 
+coot_compare_dictionaries_SOURCES = compare-dictionaries.cc
 
-make_shelx_restraints_SOURCES = make-shelx-restraints.cc
+coot_compare_dictionaries_LDADD = ./libcoot-geometry.la 
 
-make_shelx_restraints_LDADD = ./libcoot-geometry.la 
+coot_make_shelx_restraints_SOURCES = make-shelx-restraints.cc
+
+coot_make_shelx_restraints_LDADD = ./libcoot-geometry.la 
+
+coot_available_comp_id_SOURCES = available-comp-id.cc
+
+coot_available_comp_id_LDADD = ./libcoot-geometry.la 
 
