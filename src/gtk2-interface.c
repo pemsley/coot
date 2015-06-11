@@ -27254,6 +27254,17 @@ create_map_sharpening_dialog (void)
   GtkWidget *map_sharpening_optionmenu;
   GtkWidget *alignment141;
   GtkWidget *map_sharpening_hscale;
+  GtkWidget *hbuttonbox7;
+  GtkWidget *map_sharpening_optimize_button;
+  GtkWidget *alignment161;
+  GtkWidget *hbox435;
+  GtkWidget *image10852;
+  GtkWidget *label788;
+  GtkWidget *map_sharpening_reset_button;
+  GtkWidget *alignment162;
+  GtkWidget *hbox436;
+  GtkWidget *image10853;
+  GtkWidget *label789;
   GtkWidget *dialog_action_area120;
   GtkWidget *map_sharpening_ok_button;
   GtkWidget *alignment139;
@@ -27265,6 +27276,9 @@ create_map_sharpening_dialog (void)
   GtkWidget *hbox403;
   GtkWidget *image6894;
   GtkWidget *label730;
+  GtkTooltips *tooltips;
+
+  tooltips = gtk_tooltips_new ();
 
   map_sharpening_dialog = gtk_dialog_new ();
   gtk_widget_set_size_request (map_sharpening_dialog, 385, -1);
@@ -27294,6 +27308,55 @@ create_map_sharpening_dialog (void)
   map_sharpening_hscale = gtk_hscale_new (GTK_ADJUSTMENT (gtk_adjustment_new (0.9, -30, 30, 0, 0, 0)));
   gtk_widget_show (map_sharpening_hscale);
   gtk_container_add (GTK_CONTAINER (alignment141), map_sharpening_hscale);
+
+  hbuttonbox7 = gtk_hbutton_box_new ();
+  gtk_widget_show (hbuttonbox7);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox121), hbuttonbox7, TRUE, TRUE, 0);
+  gtk_button_box_set_layout (GTK_BUTTON_BOX (hbuttonbox7), GTK_BUTTONBOX_START);
+
+  map_sharpening_optimize_button = gtk_button_new ();
+  gtk_widget_show (map_sharpening_optimize_button);
+  gtk_container_add (GTK_CONTAINER (hbuttonbox7), map_sharpening_optimize_button);
+  GTK_WIDGET_SET_FLAGS (map_sharpening_optimize_button, GTK_CAN_DEFAULT);
+  gtk_tooltips_set_tip (tooltips, map_sharpening_optimize_button, _("Optimize the sharpening B-factor based on map kurtosis."), NULL);
+
+  alignment161 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment161);
+  gtk_container_add (GTK_CONTAINER (map_sharpening_optimize_button), alignment161);
+
+  hbox435 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox435);
+  gtk_container_add (GTK_CONTAINER (alignment161), hbox435);
+
+  image10852 = gtk_image_new_from_stock ("gtk-apply", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image10852);
+  gtk_box_pack_start (GTK_BOX (hbox435), image10852, FALSE, FALSE, 0);
+
+  label788 = gtk_label_new_with_mnemonic (_("Optimize B"));
+  gtk_widget_show (label788);
+  gtk_box_pack_start (GTK_BOX (hbox435), label788, FALSE, FALSE, 0);
+
+  map_sharpening_reset_button = gtk_button_new ();
+  gtk_widget_show (map_sharpening_reset_button);
+  gtk_container_add (GTK_CONTAINER (hbuttonbox7), map_sharpening_reset_button);
+  GTK_WIDGET_SET_FLAGS (map_sharpening_reset_button, GTK_CAN_DEFAULT);
+  gtk_tooltips_set_tip (tooltips, map_sharpening_reset_button, _("Set back to zero."), NULL);
+
+  alignment162 = gtk_alignment_new (0.5, 0.5, 0, 0);
+  gtk_widget_show (alignment162);
+  gtk_container_add (GTK_CONTAINER (map_sharpening_reset_button), alignment162);
+
+  hbox436 = gtk_hbox_new (FALSE, 2);
+  gtk_widget_show (hbox436);
+  gtk_container_add (GTK_CONTAINER (alignment162), hbox436);
+
+  image10853 = gtk_image_new_from_stock ("gtk-undo", GTK_ICON_SIZE_BUTTON);
+  gtk_widget_show (image10853);
+  gtk_box_pack_start (GTK_BOX (hbox436), image10853, FALSE, FALSE, 0);
+
+  label789 = gtk_label_new_with_mnemonic (_("Reset"));
+  gtk_widget_show (label789);
+  gtk_box_pack_start (GTK_BOX (hbox436), label789, FALSE, FALSE, 0);
 
   dialog_action_area120 = GTK_DIALOG (map_sharpening_dialog)->action_area;
   gtk_widget_show (dialog_action_area120);
@@ -27341,6 +27404,12 @@ create_map_sharpening_dialog (void)
   gtk_widget_show (label730);
   gtk_box_pack_start (GTK_BOX (hbox403), label730, FALSE, FALSE, 0);
 
+  g_signal_connect ((gpointer) map_sharpening_optimize_button, "clicked",
+                    G_CALLBACK (on_map_sharpening_optimize_button_clicked),
+                    NULL);
+  g_signal_connect ((gpointer) map_sharpening_reset_button, "clicked",
+                    G_CALLBACK (on_map_sharpening_reset_button_clicked),
+                    NULL);
   g_signal_connect ((gpointer) map_sharpening_ok_button, "clicked",
                     G_CALLBACK (on_map_sharpening_ok_button_clicked),
                     NULL);
@@ -27356,6 +27425,17 @@ create_map_sharpening_dialog (void)
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, map_sharpening_optionmenu, "map_sharpening_optionmenu");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, alignment141, "alignment141");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, map_sharpening_hscale, "map_sharpening_hscale");
+  GLADE_HOOKUP_OBJECT (map_sharpening_dialog, hbuttonbox7, "hbuttonbox7");
+  GLADE_HOOKUP_OBJECT (map_sharpening_dialog, map_sharpening_optimize_button, "map_sharpening_optimize_button");
+  GLADE_HOOKUP_OBJECT (map_sharpening_dialog, alignment161, "alignment161");
+  GLADE_HOOKUP_OBJECT (map_sharpening_dialog, hbox435, "hbox435");
+  GLADE_HOOKUP_OBJECT (map_sharpening_dialog, image10852, "image10852");
+  GLADE_HOOKUP_OBJECT (map_sharpening_dialog, label788, "label788");
+  GLADE_HOOKUP_OBJECT (map_sharpening_dialog, map_sharpening_reset_button, "map_sharpening_reset_button");
+  GLADE_HOOKUP_OBJECT (map_sharpening_dialog, alignment162, "alignment162");
+  GLADE_HOOKUP_OBJECT (map_sharpening_dialog, hbox436, "hbox436");
+  GLADE_HOOKUP_OBJECT (map_sharpening_dialog, image10853, "image10853");
+  GLADE_HOOKUP_OBJECT (map_sharpening_dialog, label789, "label789");
   GLADE_HOOKUP_OBJECT_NO_REF (map_sharpening_dialog, dialog_action_area120, "dialog_action_area120");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, map_sharpening_ok_button, "map_sharpening_ok_button");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, alignment139, "alignment139");
@@ -27367,6 +27447,7 @@ create_map_sharpening_dialog (void)
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, hbox403, "hbox403");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, image6894, "image6894");
   GLADE_HOOKUP_OBJECT (map_sharpening_dialog, label730, "label730");
+  GLADE_HOOKUP_OBJECT_NO_REF (map_sharpening_dialog, tooltips, "tooltips");
 
   return map_sharpening_dialog;
 }

@@ -6608,6 +6608,11 @@ int fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc sign
 /*! \brief set the limit of the b-factor map sharpening slider (default 30) */
 void set_map_sharpening_scale_limit(float f);
 /*! \} */
+/* ---------------------------------------------------------------------------- */
+/*	Density Map Kurtosis							*/
+/* ----------------------------------------------------------------------------	*/
+void calc_and_set_optimal_b_factor ( GtkWidget *w ) ;
+float optimal_B_kurtosis(int imol);
 
 
 /*  ----------------------------------------------------------------------- */

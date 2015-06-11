@@ -791,6 +791,7 @@ class molecule_class_info_t {
    float map_max_;
    float map_min_;
    float sharpen_b_factor_;
+   float sharpen_b_factor_kurtosis_optimised_;
    short int is_dynamically_transformed_map_flag;
    coot::ghost_molecule_display_t map_ghost_info;
 
@@ -1230,6 +1231,7 @@ public:        //                      public
       map_max_ = 100.0;
       map_min_ = -100.0;
       sharpen_b_factor_ = 0.0;
+      sharpen_b_factor_kurtosis_optimised_ = -999999.0;
 
       // fourier (for phase recombination (potentially) in refmac:
       fourier_weight_label = ""; // unset initially.
@@ -1931,6 +1933,10 @@ public:        //                      public
 
    //
    float sharpen_b_factor() const { return sharpen_b_factor_; }
+   float sharpen_b_factor_kurtosis_optimised() const { return sharpen_b_factor_kurtosis_optimised_; }
+   void set_sharpen_b_factor_kurtosis_optimised(float b_factor_in) {
+      sharpen_b_factor_kurtosis_optimised_ = b_factor_in;
+   }
 
    // for debugging.
    int test_function();

@@ -4282,6 +4282,14 @@ on_map_sharpening_ok_button_clicked    (GtkButton       *button,
                                         gpointer         user_data);
 
 void
+on_map_sharpening_optimize_button_clicked    (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
+on_map_sharpening_reset_button_clicked (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
 on_map_sharpening_cancel_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
