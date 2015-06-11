@@ -139,7 +139,8 @@ coot::protein_geometry::init_ccp4srs(const std::string &ccp4srs_monomer_dir_in) 
 #ifdef HAVE_CCP4SRS
 
    // if srs-dir is not given, then the default should be $CCP4_MASTER/share/ccp4srs
-   
+
+   bool debug = false;
    int RC = ccp4srs::CCP4SRS_FileNotFound; // initial status.
    // std::cout << "init_ccp4srs() with " << ccp4srs_monomer_dir_in << std::endl;
    std::string dir;
@@ -162,10 +163,11 @@ coot::protein_geometry::init_ccp4srs(const std::string &ccp4srs_monomer_dir_in) 
    }
    
    if (dir.length()) {
-      std::cout << "INFO:: CCP4SRS::loadIndex: " << dir << std::endl;
+      std::cout << "INFO:: CCP4SRS::loadIndex from dir: " << dir << std::endl;
       ccp4srs = new ccp4srs::Manager;
       RC = ccp4srs->loadIndex(dir.c_str());
-      std::cout << "init_ccprsrs() ... loadIndex() returned " << RC << std::endl;
+      if (debug)
+	 std::cout << "init_ccprsrs() ... loadIndex() returned " << RC << std::endl;
       if (RC != ccp4srs::CCP4SRS_Ok) {
          std::cout << "CCP4SRS init problem." << std::endl;
 	 delete ccp4srs;
@@ -535,11 +537,14 @@ coot::protein_geometry::get_available_ligand_comp_id(const std::string &hoped_fo
       std::string::size_type l_head = hoped_for_head.length();
       std::vector<std::string> matching_codes;
       int l = ccp4srs->n_entries();
+
+      // find comp_ids that match the letters of hoped_for_head
+      // 
       for (int i=0; i<l ;i++)  {
 	 ccp4srs::Monomer *Monomer = ccp4srs->getMonomer(i, NULL);
 	 std::string id = Monomer->ID();
 	 std::string::size_type l_monomer = id.length();
-	 if (l_monomer > l_head) {
+	 if (l_monomer >= l_head) {
 
 	    bool matched = true;
 	    for (std::string::size_type ii=0; ii<l_head; ii++) { 
@@ -555,8 +560,8 @@ coot::protein_geometry::get_available_ligand_comp_id(const std::string &hoped_fo
       }
 
       // debug::
-      if (false) { 
-	 std::cout << "matching codes:" << std::endl;
+      if (false) {
+	 std::cout << "dictionary matching codes:" << std::endl;
 	 for (unsigned int i=0; i<matching_codes.size(); i++) {
 	    if (i>0)
 	       if (i%10 == 0) 
@@ -564,7 +569,20 @@ coot::protein_geometry::get_available_ligand_comp_id(const std::string &hoped_fo
 	    std::cout << "    " << matching_codes[i];
 	 }
 	 std::cout << std::endl;
+	 std::cout << "-----" << std::endl;
       }
+
+      if (hoped_for_head.length() == 3) {
+	 // simply check if hoped_for_head is in matching_codes.  If
+	 // it is then the user can't have it.
+	 std::vector<std::string>::const_iterator it;
+	 it = std::find(matching_codes.begin(),
+			matching_codes.end(),
+			hoped_for_head);
+	 if (it == matching_codes.end())
+	    available_comp_ids.push_back(hoped_for_head);
+      }
+
 
       //
       if (hoped_for_head.length() == 2) {
