@@ -5965,6 +5965,16 @@ GtkWidget *wrapped_create_map_shapening_dialog() {
    return w;
 }
 
+void 
+calc_and_set_optimal_b_factor ( GtkWidget *w ) {
+	float sharpening_limit = graphics_info_t::map_sharpening_scale_limit;
+	int imol = graphics_info_t::imol_map_sharpening;
+	float Bopt = optimal_B_kurtosis(imol);
+	GtkWidget *h_scale = lookup_widget(w, "map_sharpening_hscale");
+	GtkAdjustment *adj = GTK_RANGE(h_scale)->adjustment;
+        gtk_adjustment_set_value(adj, Bopt);
+}
+
 void
 map_sharpening_map_select(GtkWidget *item, GtkPositionType pos) {
 

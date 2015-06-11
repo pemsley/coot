@@ -11830,6 +11830,25 @@ on_map_sharpening_ok_button_clicked    (GtkButton       *button,
 
 }
 
+void
+on_map_sharpening_optimize_button_clicked    ( GtkButton       *button,
+                                        	gpointer         user_data)
+{
+	GtkWidget *w = lookup_widget(GTK_WIDGET(button), "map_sharpening_dialog");
+	calc_and_set_optimal_b_factor(w);
+}
+
+void
+on_map_sharpening_reset_button_clicked (GtkButton       *button,
+                                        gpointer         user_data)
+{
+    // reset to zero!?
+    GtkWidget *h_scale = lookup_widget(GTK_WIDGET(button), "map_sharpening_hscale");
+    GtkAdjustment *adj = GTK_RANGE(h_scale)->adjustment;
+    gtk_adjustment_set_value(adj, 0.);
+
+}
+
 
 void
 on_map_sharpening_cancel_button_clicked
