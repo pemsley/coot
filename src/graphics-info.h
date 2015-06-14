@@ -2683,6 +2683,8 @@ public:
    int fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signal_func); 
    void fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signal_func,
 					  int imol_active_position);
+   int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc signal_func); 
+   int fill_option_menu_with_map_options_generic(GtkWidget *option_menu, GtkSignalFunc signal_func, int mtz_only=0); 
    void fill_option_menu_with_difference_map_options(GtkWidget *option_menu, 
 						     GtkSignalFunc signal_func,
 						     int imol_active_position);

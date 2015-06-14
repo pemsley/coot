@@ -6601,10 +6601,11 @@ PyObject *user_mods_py(const char *file_name);
 void sharpen(int imol, float b_factor);
 void sharpen_with_gompertz_scaling(int imol, float b_factor, short int try_gompertz, float gompertz_factor);
 
-GtkWidget *wrapped_create_map_shapening_dialog();
+GtkWidget *wrapped_create_map_sharpening_dialog();
 void map_sharpening_map_select(GtkWidget *item, GtkPositionType pos);
 void map_sharpening_value_changed (GtkAdjustment *adj, GtkWidget *window);
 int fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signalfunc);
+int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc signalfunc);
 /*! \brief set the limit of the b-factor map sharpening slider (default 30) */
 void set_map_sharpening_scale_limit(float f);
 /*! \} */

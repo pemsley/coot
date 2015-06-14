@@ -2017,6 +2017,14 @@ int fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc sign
    return g.fill_option_menu_with_map_options(option_menu, signalfunc);
 }
 
+// This is for maps which come from mtz (i.e. have SFs)
+int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc signalfunc) {
+
+   graphics_info_t g;
+
+   return g.fill_option_menu_with_map_mtz_options(option_menu, signalfunc);
+}
+
 
 void set_on_off_single_map_skeleton_radio_buttons(GtkWidget *skeleton_frame, 
 						  int imol) { 
@@ -5916,7 +5924,7 @@ void toolbar_multi_refine_button_set_sensitive(const char *button_type, short in
 //        Map Sharpening dialog
 // ---------------------------------------------
 
-GtkWidget *wrapped_create_map_shapening_dialog() {
+GtkWidget *wrapped_create_map_sharpening_dialog() {
 
    float sharpening_limit = graphics_info_t::map_sharpening_scale_limit;
    GtkWidget *w = create_map_sharpening_dialog();
@@ -5924,7 +5932,7 @@ GtkWidget *wrapped_create_map_shapening_dialog() {
 
    GtkWidget *option_menu = lookup_widget(w, "map_sharpening_optionmenu");
 
-   int imol = fill_option_menu_with_map_options(option_menu, signal_func);
+   int imol = fill_option_menu_with_map_mtz_options(option_menu, signal_func);
    graphics_info_t::imol_map_sharpening = imol;
 
    std::cout << "DEBUG:: imol from fill_option_menu_with_map_options() "

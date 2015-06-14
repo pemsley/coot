@@ -4354,7 +4354,7 @@ def solvent_ligands_gui():
    h_sep = gtk.HSeparator()
    close_button = gtk.Button("  Close  ")
 
-   window.set_default_size(200, 360)
+   window.set_default_size(250, 400)
    window.set_title("Solvent Ligands")
    window.set_border_width(8)
    window.add(outside_vbox)

@@ -11815,7 +11815,7 @@ void
 on_map_sharpening1_activate            (GtkMenuItem     *menuitem,
                                         gpointer         user_data)
 {
-   GtkWidget *w = wrapped_create_map_shapening_dialog();
+   GtkWidget *w = wrapped_create_map_sharpening_dialog();
    gtk_widget_show(w);
 }
 
