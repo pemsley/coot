@@ -100,6 +100,21 @@ int
 graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu, 
 						   GtkSignalFunc signal_func) {
 
+   return fill_option_menu_with_map_options_generic(option_menu, signal_func);
+}
+
+int
+graphics_info_t::fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, 
+						   GtkSignalFunc signal_func) {
+
+   return fill_option_menu_with_map_options_generic(option_menu, signal_func, 1);
+}
+
+int
+graphics_info_t::fill_option_menu_with_map_options_generic(GtkWidget *option_menu, 
+                                                           GtkSignalFunc signal_func,
+                                                           int mtz_only) {
+
    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
    GtkWidget *menuitem;
    int active_map_mol_no = -1;
@@ -111,24 +126,26 @@ graphics_info_t::fill_option_menu_with_map_options(GtkWidget *option_menu,
    
    for (int i=0; i<n_molecules(); i++) {
       if (is_valid_map_molecule(i)) {
-
-	 std::string label = clipper::String(i);
-	 label += " ";
-	 label += molecules[i].name_for_display_manager();
+         if (not mtz_only ||
+             (molecules[i].Refmac_mtz_filename().size() > 0 && mtz_only)) {
+                std::string label = clipper::String(i);
+                label += " ";
+                label += molecules[i].name_for_display_manager();
 
 	 
-	 menuitem = gtk_menu_item_new_with_label(label.c_str());
-	 if (signal_func)
-	    gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
-			       GTK_SIGNAL_FUNC(signal_func),
-			       GINT_TO_POINTER(i));
-	 g_object_set_data(G_OBJECT(menuitem), "map_molecule_number", GINT_TO_POINTER(i));
-	 gtk_menu_append(GTK_MENU(menu), menuitem);
-	 gtk_widget_show(menuitem);
-	 if (active_map_mol_no == -1) { 
-	    active_map_mol_no = i;
-	    gtk_menu_set_active(GTK_MENU(menu), menu_index);
-	 }
+                menuitem = gtk_menu_item_new_with_label(label.c_str());
+                if (signal_func)
+                   gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
+                                      GTK_SIGNAL_FUNC(signal_func),
+                                      GINT_TO_POINTER(i));
+                g_object_set_data(G_OBJECT(menuitem), "map_molecule_number", GINT_TO_POINTER(i));
+                gtk_menu_append(GTK_MENU(menu), menuitem);
+                gtk_widget_show(menuitem);
+                if (active_map_mol_no == -1) { 
+                   active_map_mol_no = i;
+                   gtk_menu_set_active(GTK_MENU(menu), menu_index);
+                }
+             }
       }
       menu_index++;
    }
