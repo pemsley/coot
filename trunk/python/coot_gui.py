@@ -1100,7 +1100,8 @@ def map_molecule_chooser_gui(chooser_label, callback_function):
 # callback_function is a function that takes a molecule number and a
 # text string.
 #
-def generic_chooser_and_entry(chooser_label,entry_hint_text,default_entry_text,callback_function):
+def generic_chooser_and_entry(chooser_label, entry_hint_text,
+                              default_entry_text, callback_function):
 
     import operator
 
@@ -1161,12 +1162,14 @@ def generic_chooser_and_entry(chooser_label,entry_hint_text,default_entry_text,c
 #
 # chooser_filter is typically valid_map_molecule_qm or valid_model_molecule_qm
 #
-def generic_chooser_entry_and_file_selector(chooser_label,
-                                            chooser_filter,
-                                            entry_hint_text,
-                                            default_entry_text,
-                                            file_selector_hint,
-                                            callback_function):
+# Add option to add a checkbutton
+#
+def generic_chooser_entry_and_file_selector(chooser_label, chooser_filter,
+                                            entry_hint_text, default_entry_text,
+                                            file_selector_hint, callback_function,
+                                            use_check_button=False,
+                                            check_button_label="",
+                                            alternative_callback_function=None):
 
     import operator
 
@@ -1177,12 +1180,17 @@ def generic_chooser_entry_and_file_selector(chooser_label,
     def on_ok_button_clicked(*args):
         # what is the molecule number of the option menu?
         active_mol_no = get_option_menu_active_molecule(option_menu, model_mol_list)
-
+        
         try:
            active_mol_no = int(active_mol_no)
            text = entry.get_text()
            file_sel_text = file_sel_entry.get_text()
-           callback_function(active_mol_no, text, file_sel_text)
+           if (c_button and c_button.get_active()):
+              # use alt function
+              alternative_callback_function(active_mol_no,
+                                            text, file_sel_text)
+           else:
+              callback_function(active_mol_no, text, file_sel_text)
            delete_event()
         except:
            print "Failed to get a (molecule) number"
@@ -1211,13 +1219,21 @@ def generic_chooser_entry_and_file_selector(chooser_label,
     hbox_for_entry.pack_start(entry, True, True, 4)
     entry.set_text(default_entry_text)
 
+    c_button = None
+    if use_check_button:
+       # now add a check button
+       c_button = gtk.CheckButton(check_button_label)
+       vbox.pack_start(c_button, False, False, 2)
+
     file_sel_entry = file_selector_entry(vbox, file_selector_hint)
     vbox.pack_start(h_sep, True, False, 2)
     vbox.pack_start(hbox_buttons, False, False, 5)
     
 
     # button callbacks
-    ok_button.connect("clicked",on_ok_button_clicked, entry, option_menu, callback_function)
+    ok_button.connect("clicked", on_ok_button_clicked, entry, option_menu,
+                      callback_function,
+                      c_button, alternative_callback_function)
     cancel_button.connect("clicked", delete_event)
 
     window.show_all()
@@ -3894,21 +3910,29 @@ def map_sharpening_gui(imol):
 # Select file from a GUI.
 # File format can be Fasta (default) or PIR
 #
+# added checkbox to assign for all protein chains
+#
 def associate_sequence_with_chain_gui(sequence_format="FASTA",
                                       do_alignment=False):
 
-   def associate_func(imol, chain_id, pir_file_name):
+   def associate_func(imol, chain_id_in, pir_file_name,
+                      use_all_chains=False):
       #print "assoc seq:", imol, chain_id, pir_file_name
-      if (sequence_format == "FASTA"):
-         associate_fasta_file(imol, chain_id, pir_file_name)
-      elif (sequence_format == "PIR"):
-         associate_pir_file(imol, chain_id, pir_file_name)
-      else:
-         info_dialog("BL INFO:: wrong sequence input format.")
-         return
+      all_chains = chain_id_in
+      if use_all_chains:
+         all_chains = filter(lambda chain: is_protein_chain_qm (imol, chain),
+                             chain_ids(imol))
+      for chain_id in all_chains:
+         if (sequence_format == "FASTA"):
+            associate_fasta_file(imol, chain_id, pir_file_name)
+         elif (sequence_format == "PIR"):
+            associate_pir_file(imol, chain_id, pir_file_name)
+         else:
+            info_dialog("BL INFO:: wrong sequence input format.")
+            return
       if do_alignment:
          alignment_mismatches_gui(imol)
-      
+
    generic_chooser_entry_and_file_selector(
       "Associate Sequence with Chain: ",
       valid_model_molecule_qm,
@@ -3916,7 +3940,12 @@ def associate_sequence_with_chain_gui(sequence_format="FASTA",
       "",
       "Select " + sequence_format +" file",
       lambda imol, chain_id, pir_file_name:
-      associate_func(imol, chain_id, pir_file_name))
+      associate_func(imol, chain_id, pir_file_name),
+      use_check_button=True,
+      check_button_label="Assign all protein chains (ignoring chain above)",
+      alternative_callback_function=(lambda imol, chain_id, pir_file_name:
+                                     associate_func(imol, chain_id, pir_file_name,
+                                                    use_all_chains=True)))
 
 
 # Make a box-of-buttons GUI for the various modifications that need
