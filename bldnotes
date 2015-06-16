@@ -16,7 +16,6 @@ enhanced_ligand.py      test it
 check up to dateness of supplied manuals
 
 Fix installer guile warning for windows feel.
-Test spider drag and drop
 
 FIX COOT_REFMAC_DIR for x86 windows with spaces (and/or umlauts)!
 
@@ -33,10 +32,8 @@ Windows:
 
 Tsukuba 2014:
 - toolbuttons (or such) to switch on/off helix/strand restraints
-- DB loop for guile
-- merge solvent mols in active molecule
-- Alignment vs PIR: change to use all sequences and use "all chains"
-- BUG (?):dock sequence window stuck at ~ 7 sequences
+- DB loop for guile -> activate?!
+- BUG (?):dock sequence window stuck at ~ 7 sequences - maybe not, but not scrollable
 
 ESMAX 2012:
 - add terminal residue (after assos. sequence) does not mutate automatically
@@ -573,6 +570,8 @@ low importance
    o optionally include reduce/probe (via download?)
 
    o update gtk!?
+ 
+   o Test spider drag and drop (not working on windows - broken gtk)
 
    o distribute srces!!
 
@@ -991,3 +990,7 @@ Osaka 2010
 	and usually going for recent files then?! Maybe even savein session?!
 
 * Done 
+
+   o Alignment vs PIR: change to use all sequences and use "all chains"
+
+* Done
