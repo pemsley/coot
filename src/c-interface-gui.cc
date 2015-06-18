@@ -2992,9 +2992,15 @@ set_model_toolbar_docked_position(int state) {
 				  GTK_ORIENTATION_VERTICAL);
       gtk_handle_box_set_handle_position(GTK_HANDLE_BOX(handle),
 					 GTK_POS_TOP);
+      // insert snippet before reparenting
+      g_object_ref(handle);
+      gtk_container_remove(GTK_CONTAINER(handle->parent), handle);
+      gtk_container_add(GTK_CONTAINER(right_frame), handle);
+      g_object_unref(handle);
+      // end      
       gtk_widget_reparent(handle, right_frame);
       if (graphics_info_t::model_toolbar_show_hide_state) {
-	gtk_widget_show(right_frame);
+         gtk_widget_show(right_frame);
       }
       gtk_widget_hide(left_frame);
       graphics_info_t::model_toolbar_position_state = 0;
@@ -3009,9 +3015,15 @@ set_model_toolbar_docked_position(int state) {
 				  GTK_ORIENTATION_VERTICAL);
       gtk_handle_box_set_handle_position(GTK_HANDLE_BOX(handle),
 					 GTK_POS_TOP);
+      // insert snippet before reparenting
+      g_object_ref(handle);
+      gtk_container_remove(GTK_CONTAINER(handle->parent), handle);
+      gtk_container_add(GTK_CONTAINER(left_frame), handle);
+      g_object_unref(handle);
+      // end
       gtk_widget_reparent(handle, left_frame);
       if (graphics_info_t::model_toolbar_show_hide_state) {
-	gtk_widget_show(left_frame);
+         gtk_widget_show(left_frame);
       }
       gtk_widget_hide(right_frame);
       graphics_info_t::model_toolbar_position_state = 1;
@@ -3026,6 +3038,12 @@ set_model_toolbar_docked_position(int state) {
 				  GTK_ORIENTATION_HORIZONTAL);
       gtk_handle_box_set_handle_position(GTK_HANDLE_BOX(handle),
 					 GTK_POS_LEFT);
+      // insert snippet before reparenting
+      g_object_ref(handle);
+      gtk_container_remove(GTK_CONTAINER(handle->parent), handle);
+      gtk_container_add(GTK_CONTAINER(vbox), handle);
+      g_object_unref(handle);
+      // end
       gtk_widget_reparent(handle, vbox);
       gtk_box_set_child_packing(GTK_BOX(vbox), handle,
 				FALSE, FALSE, 0, GTK_PACK_START);
@@ -3045,6 +3063,12 @@ set_model_toolbar_docked_position(int state) {
 				  GTK_ORIENTATION_HORIZONTAL);
       gtk_handle_box_set_handle_position(GTK_HANDLE_BOX(handle),
 					 GTK_POS_LEFT);
+      // insert snippet before reparenting
+      g_object_ref(handle);
+      gtk_container_remove(GTK_CONTAINER(handle->parent), handle);
+      gtk_container_add(GTK_CONTAINER(vbox), handle);
+      g_object_unref(handle);
+      // end
       gtk_widget_reparent(handle, vbox);
       gtk_box_set_child_packing(GTK_BOX(vbox), handle,
 				FALSE, FALSE, 0, GTK_PACK_START);

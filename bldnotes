@@ -31,13 +31,9 @@ Windows:
 ---- FINISH URGENT ----
 
 Tsukuba 2014:
-- toolbuttons (or such) to switch on/off helix/strand restraints
+- toolbuttons (or such - combobox/menu?) to switch on/off helix/strand restraints
 - DB loop for guile -> activate?!
 - BUG (?):dock sequence window stuck at ~ 7 sequences - maybe not, but not scrollable
-
-ESMAX 2012:
-- add terminal residue (after assos. sequence) does not mutate automatically
-- toolbar disappears when playing around (disable) in preferences
 
 BioCrys 2012:
 - sequencing GUI: give more approriate error messages, e.g. if chain 
@@ -994,3 +990,8 @@ Osaka 2010
    o Alignment vs PIR: change to use all sequences and use "all chains"
 
 * Done
+
+   o toolbar disappears when playing around (disable) in preferences
+
+* Done
+
