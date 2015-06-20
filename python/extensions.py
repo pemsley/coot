@@ -441,10 +441,11 @@ if (have_coot_python):
 
      # --- D ---
 
-     add_simple_coot_menu_menuitem(
-       submenu_models,
-       "DB Loop...",
-       lambda func: click_protein_db_loop_gui())
+     # now in main menu
+##     add_simple_coot_menu_menuitem(
+##       submenu_models,
+##       "DB Loop...",
+##       lambda func: click_protein_db_loop_gui())
 
      
      # errr... move this...(??)

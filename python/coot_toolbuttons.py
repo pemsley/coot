@@ -648,4 +648,6 @@ def list_of_toolbar_functions():
         ["Sidechains/Alignment",[]]]
   return ls
 
+# to make combobox
+#coot_toolbar_combobox("MC restraints", ["no","aH","bS"], [set_secondary_structure_restraints_type], tooltip="Change refinement restraints for secondary structure")
   
