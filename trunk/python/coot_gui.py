@@ -1520,6 +1520,87 @@ def coot_toolbar_button(button_label, cb_function,
 
    return toolbutton
 
+# If a combobox with name is not found in the coot main
+# toolbar, then create it and return it. If it is there give a warning
+#
+# return False if we cannot create the button and/or wrong no of arguments
+#
+# we accept 3 arguments:
+#   label               name of the tool item (to keep track)
+#   entry_list          labels for all entries of the box
+#   callback_function   (can be a string or callable function, or list
+#                        with first element fucntion, then args, i.e.
+#                        [function, arg1, arg2, ...])
+#   tooltip             a text to present as tooltip
+#  
+def coot_toolbar_combobox(label, entry_list, cb_function, tooltip=""):
+
+   try:
+      import coot_python
+   except:
+      print """BL WARNING:: could not import coot_python module!!
+      So we cannot make a toolbar combobox!"""
+      return False
+   
+   coot_main_toolbar = coot_python.main_toolbar()
+
+   # main body
+   #
+   found_combobox = False
+   for f in toolbar_label_list():
+      if label in f: 
+         found_combobox = f[1]
+   if found_combobox:
+      s = "BL WARNING:: already have a comboxbox with name %s. Please " +\
+          "try again!" %found_combobox
+      info_dialog(s)
+      return False
+   else:
+      toolitem = gtk.ToolItem()
+      toolitem.set_name(label)
+      combobox = gtk.combo_box_new_text()
+      for text in entry_list:
+         combobox.append_text(text)
+      combobox.set_active(0)
+
+      # tooltips?
+      if tooltip:
+         if gtk.pygtk_version >= (2,12):
+            combobox.set_tooltip_text(tooltip)
+         else:
+            coot_tooltips.set_tip(combobox, tooltip)
+
+      def cb_wrapper(widget, callback_function):
+         pos = widget.get_active()
+         if (type(callback_function) is types.StringType):
+            # old style with string as function
+            # does not take into account the positions pos! Or how?
+            # FIXME? Maybe
+            eval(callback_function)
+         else:
+            # have function as callable and maybe extra args (all in one list)
+            args = []
+            function = callback_function
+            # if there is a list, then we add the pos as last arg
+            if (isinstance(callback_function, list)):
+               function = callback_function[0]
+               args = callback_function[1:]
+               args.append(pos)
+            # pass the widget/button as well? Maybe the cb function can
+            # make use of it
+            if callable(function):
+               function(*args)
+            else:
+               print "BL ERROR:: cannot evaluate or call function", function
+
+      combobox.connect("changed", cb_wrapper, cb_function)
+      toolitem.add(combobox)
+      coot_main_toolbar.insert(toolitem, -1)
+      toolitem.show_all()
+
+   return toolitem
+   
+
 # returns a list of existing toolbar buttons
 # [[label, toolbutton],[]...]
 # or False if coot_python is not available
@@ -1535,17 +1616,25 @@ def toolbar_label_list():
    for toolbar_child in coot_main_toolbar.get_children():
       ls = []
       try:
-        label = toolbar_child.get_label()
+         label = toolbar_child.get_label()
+         ls.append(label)
+         ls.append(toolbar_child)
+         button_label_ls.append(ls)
       except:
         # some toolitems we have from GTK2 cannot be accessed here
         # so we pass it and dont add it to the list.
         # nothing we can do about it. Probably good as we dont want to
         # play with the GTK2 toolitems only with the PYGTK ones.
-        pass
-      else:
-        ls.append(toolbar_child.get_label())
-        ls.append(toolbar_child)
-        button_label_ls.append(ls)
+        #
+        # try if it has a name instead, e.g. toolitem
+        try:
+           label = toolbar_child.get_name()
+           ls.append(label)
+           ls.append(toolbar_child)
+           button_label_ls.append(ls)
+        except:
+           pass
+
    return button_label_ls
 
 
