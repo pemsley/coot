@@ -5952,7 +5952,7 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
 
    float sharpening_limit = graphics_info_t::map_sharpening_scale_limit;
    GtkWidget *w = create_map_sharpening_dialog();
-   GtkSignalFunc signal_func = GTK_SIGNAL_FUNC(map_sharpening_map_select);
+   GtkSignalFunc signal_func = G_CALLBACK(map_sharpening_map_select);
 
    GtkWidget *option_menu = lookup_widget(w, "map_sharpening_optionmenu");
 
@@ -5968,14 +5968,16 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
    GtkObject *adj = gtk_adjustment_new(0.0, -sharpening_limit, 2*sharpening_limit,
 				       0.05, 0.2, (sharpening_limit+0.1));
    gtk_range_set_adjustment(GTK_RANGE(h_scale), GTK_ADJUSTMENT(adj));
+   g_object_set_data_full(G_OBJECT (w), "map_sharpening_adjustment",
+                          g_object_ref (adj),
+                          (GDestroyNotify) g_object_unref);
 
    gtk_signal_connect(GTK_OBJECT(adj), "value_changed",
-		      GTK_SIGNAL_FUNC(map_sharpening_value_changed), NULL);
-
+                      GTK_SIGNAL_FUNC(map_sharpening_value_changed), NULL);
+   
    // set to sharpening value
    gtk_adjustment_set_value(GTK_ADJUSTMENT(adj), graphics_info_t::molecules[imol].sharpen_b_factor());
    
-#if (GTK_MAJOR_VERSION > 1)
 #if (GTK_MAJOR_VERSION > 2) || (GTK_MINOR_VERSION > 14)
    int ticks = 3;  // number of ticks on the (one) side (not including centre tick)
    for (int i=0; i<=2*ticks; i++) {
@@ -5988,7 +5990,6 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
    gtk_scale_add_mark(GTK_SCALE(h_scale), -sharpening_limit, GTK_POS_BOTTOM, "\nSharpen");
    gtk_scale_add_mark(GTK_SCALE(h_scale),  sharpening_limit, GTK_POS_BOTTOM, "\nBlur");
 #endif   
-#endif
 
    // Don't display the cancel button.
    GtkWidget *c = lookup_widget(w, "map_sharpening_cancel_button");
@@ -6011,6 +6012,10 @@ void
 map_sharpening_map_select(GtkWidget *item, GtkPositionType pos) {
 
    graphics_info_t::imol_map_sharpening = pos;
+
+   GtkWidget *adj = lookup_widget(item, "map_sharpening_adjustment");
+   gtk_adjustment_set_value(GTK_ADJUSTMENT(adj), graphics_info_t::molecules[pos].sharpen_b_factor());
+
 }
 
 void map_sharpening_value_changed (GtkAdjustment *adj, 

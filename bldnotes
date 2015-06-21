@@ -31,7 +31,9 @@ Windows:
 ---- FINISH URGENT ----
 
 Tsukuba 2014:
-- toolbuttons (or such - combobox/menu?) to switch on/off helix/strand restraints
+- toolbuttons (or such - combobox/menu?) to switch on/off helix/strand restraints 
+
+ * Done, but missing integration
 - DB loop for guile -> activate?!
 - BUG (?):dock sequence window stuck at ~ 7 sequences - maybe not, but not scrollable
 
