@@ -454,14 +454,39 @@ std::pair<bool, double>
 coot::protein_geometry::get_nbc_dist(const std::string &energy_type_1,
 				     const std::string &energy_type_2) const {
 
+   float radius_1;
+   float radius_2;
+   //mmdb::Atom at_1 = mmdb::Atom();
+   //mmdb::Atom at_2 = mmdb::Atom();
+   mmdb::Atom *at_1 = new mmdb::Atom();
+   mmdb::Atom *at_2 = new mmdb::Atom();
+   
    std::pair<bool, double> r(false, 0);
    std::map<std::string, coot::energy_lib_atom>::const_iterator it_1 = energy_lib.atom_map.find(energy_type_1);
    std::map<std::string, coot::energy_lib_atom>::const_iterator it_2 = energy_lib.atom_map.find(energy_type_2);
 
    if (it_1 != energy_lib.atom_map.end()) { 
       if (it_2 != energy_lib.atom_map.end()) {
-	 r.first = true;
-	 r.second = it_1->second.vdw_radius + it_2->second.vdw_radius;
+         r.first = true;
+         // make a pseudo atom to check if it is a metal
+         // via mmdb (rather than making a new function 
+         // if it is then use ionic radius rather than vdw
+         at_1->SetAtomName((it_1->second.type).c_str());
+         at_1->SetElementName((it_1->second.element).c_str());
+         if (at_1->isMetal()) {
+            radius_1 = it_1->second.ion_radius;
+         } else {
+            radius_1 = it_1->second.vdw_radius;
+         }
+         at_2->SetAtomName((it_2->second.type).c_str());
+         at_2->SetElementName((it_2->second.element).c_str());
+         if (at_2->isMetal()) {
+            radius_2 = it_2->second.ion_radius;
+         } else {
+            radius_2 = it_2->second.vdw_radius;
+         }
+         
+         r.second = radius_1 + radius_2;
 
 	 // hack in a correction factor - that makes atoms fit into density  :-/
 	 // 
@@ -521,6 +546,8 @@ coot::protein_geometry::get_nbc_dist(const std::string &energy_type_1,
 	 }
       }
    }
+   delete at_1;
+   delete at_2;
    return r;
 } 
 
