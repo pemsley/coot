@@ -1849,7 +1849,7 @@ void delete_residue_by_atom_index(int imol, int index, short int do_delete_dialo
       g.delete_residue_from_geometry_graphs(imol, spec);
    }
 
-   if ((altloc == "") && (imodel == 1))
+   if ((altloc == "") && (g.molecules[imol].atom_sel.mol->GetNumberOfModels() == 1))
       delete_residue(imol, chain_id.c_str(), resno, inscode.c_str());
    else
       delete_residue_with_full_spec(imol, imodel, chain_id.c_str(), resno,

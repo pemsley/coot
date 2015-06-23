@@ -1252,6 +1252,11 @@ molecule_class_info_t::delete_residue_with_full_spec(int imodel,
 				    res->DeleteAtom(i);
 				    was_deleted = 1;
 				 }
+                 // delete pointer if all atoms were deleted
+                 // should probably delete res too!?
+                 if (deleted_atom.size() == n_atoms) {
+                    residue_for_deletion = NULL;
+                 }
 			      }
 			   }
 			}
