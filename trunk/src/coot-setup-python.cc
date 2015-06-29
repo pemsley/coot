@@ -120,14 +120,24 @@ void setup_python(int argc, char **argv) {
        glob_file += "/*.py";
        glob(glob_file.c_str(), flags, 0, &myglob);
        size_t count;
-       
+       // dont load the coot_toolbuttons.py if no graphics
+       // same for key_bindings (and potentially others)
+       std::vector<std::string> exclude_py_files;
+       exclude_py_files.push_back("coot_toolbuttons.py");
+       exclude_py_files.push_back("template_key_bindings.py");
+       std::size_t found_substr;
+
        char **p;
        for (p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) { 
          char *preferences_file(*p);
-         // dont load the coot_toolbuttons.py if no graphics
-         char *found = strstr(preferences_file, "coot_toolbuttons.py");
+         found_substr = std::string::npos;
+         for (unsigned int i=0; i<exclude_py_files.size(); i++) {
+            found_substr = ((std::string)preferences_file).find(exclude_py_files[i]);
+            if (found_substr != std::string::npos)
+               break;
+         }
          char *found2 = strstr(preferences_file, "coot_preferences.py");
-         if (((!found) || (use_graphics_flag)) && 
+         if (((found_substr == std::string::npos) || (use_graphics_flag)) && 
              ((!found2) || (prefer_python()))) {
             std::cout << "INFO:: loading preferences file " << preferences_file
                       << std::endl;

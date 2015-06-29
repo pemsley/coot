@@ -37,6 +37,7 @@ have_mingw = False
 if  os.getenv("MSYSTEM"):
     have_mingw = True
 
+global use_gui_qm
 
 global user_defined_alert_smarts
 # example: user_defined_alert_smarts = [['C', 'my-user-defined alert for carbon']]
@@ -1676,34 +1677,36 @@ def decode_key(key_val_name):
 # (a thunk) when that key is pressed.
 #
 def add_key_binding(name, key, thunk):
-    from types import IntType, StringType
-    global key_bindings, std_key_bindings
-    std_keys = []
+
     if (use_gui_qm):
+
+        from types import IntType, StringType
+        
+        global key_bindings, std_key_bindings
         std_keys = [elem[1] for elem in std_key_bindings]
-    keys     = [elem[1] for elem in key_bindings]
-    codes    = [elem[0] for elem in key_bindings]
-    if (key in std_keys):
-        print "INFO:: you shall not overwrite a standard key binding (%s)" %key
-    else:
-        if (type(key) is IntType):
-            if (key in keys):
-                print "INFO:: you are overwriting existing key", key
-                key_bindings.pop(keys.index(key))
-            key_bindings.append([key, key, name, thunk])
-        elif (type(key) is StringType):
-            code = decode_key(key)
-            if (code in codes):
-                print "INFO:: you are overwriting existing key (from code)", key
-                key_bindings.pop(codes.index(code))
-            if "Control_" in key:
-                code = decode_key(key[-1])
-            if (("Control_" in key) or not (code == -1)):
-                key_bindings.append([code, key, name, thunk])
-            else:
-                print "INFO:: key %s not found in code table" %key
+        keys     = [elem[1] for elem in key_bindings]
+        codes    = [elem[0] for elem in key_bindings]
+        if (key in std_keys):
+            print "INFO:: you shall not overwrite a standard key binding (%s)" %key
         else:
-            print "BL WARNING:: invalid key", key
+            if (type(key) is IntType):
+                if (key in keys):
+                    print "INFO:: you are overwriting existing key", key
+                    key_bindings.pop(keys.index(key))
+                key_bindings.append([key, key, name, thunk])
+            elif (type(key) is StringType):
+                code = decode_key(key)
+                if (code in codes):
+                    print "INFO:: you are overwriting existing key (from code)", key
+                    key_bindings.pop(codes.index(code))
+                if "Control_" in key:
+                    code = decode_key(key[-1])
+                if (("Control_" in key) or not (code == -1)):
+                    key_bindings.append([code, key, name, thunk])
+                else:
+                    print "INFO:: key %s not found in code table" %key
+            else:
+                print "BL WARNING:: invalid key", key
                 
 
 # general key press hook, not for public use!!
@@ -3968,7 +3971,6 @@ def clean_pdb(imol):
 merge_water_chains = merge_solvent_chains
 
 # the python run_thread function if no graphics
-global use_gui_qm
 if not use_gui_qm:
     import threading
     # this has locked, so that no one else can use it
