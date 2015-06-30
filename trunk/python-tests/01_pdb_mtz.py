@@ -2262,4 +2262,14 @@ class PdbMtzTestFunctions(unittest.TestCase):
         gz_imol = handle_read_draw_molecule("rnase_zip_test.pdb.gz")
         self.failUnless(valid_model_molecule_qm(gz_imol))
 
-    
+
+    def test999_0(self):
+        """Renumber residue range without overwriting coordinates."""
+
+        # This tests that we
+        imol = unittest_pdb("tutorial-modern.pdb")
+        self.failUnless(renumber_residue_range(0, "A", 10, 20, -55) == 1)
+        self.failUnless(renumber_residue_range(0, "A", 90, 93, 10) == 1)
+        self.failUnless(renumber_residue_range(0, "A", 89, 91, 1) == 1)
+        self.failUnless(renumber_residue_range(0, "A", 80, 91, 12) == 0)
+        
