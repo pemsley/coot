@@ -486,7 +486,7 @@ coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float sim
       std::cout << "INFO:: compare_vs_ccp4srs(): found " << l << " entries in CCP4 SRS" << std::endl;
       mmdb::math::Graph  *graph_2;
       int rc = 0;
-      for (int i=0; i<l ;i++)  {
+      for (int i=1; i<l ;i++)  {
 	 ccp4srs::Monomer *Monomer = ccp4srs->getMonomer(i, NULL);
 	 if (Monomer)  {
 	    std::string id = Monomer->ID();
@@ -496,18 +496,20 @@ coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float sim
 
 	       if (rc < 10000) { 
 		  mmdb::math::GraphMatch match;
+		  match.SetTimeLimit(2); // seconds
 		  int minMatch = 6;
 
 		  std::cout << "INFO:: match.MatchGraphs must match at least "
 			    << minMatch << " atoms."
 			    << std::endl;
 
-		  if (false) {
+		  if (true) {
 
-		     // crashes at the momentn
+		     // hangs if you open the wrong (old) SRS.
+		     
 		     mmdb::math::VERTEX_EXT_TYPE vertex_ext=mmdb::math::EXTTYPE_Ignore; // mmdb default
 		     bool vertext_type = true;
-		     match.MatchGraphs(graph_1, graph_2, minMatch, vertext_type, vertex_ext);
+		     match.MatchGraphs(graph_2, graph_2, minMatch, vertext_type, vertex_ext);
 		     int n_match = match.GetNofMatches();
 		     std::cout << "INFO:: match NumberofMatches (potentially similar graphs) "
 			       << n_match << std::endl;

@@ -210,7 +210,7 @@ void
 coot::test_ccp4srs_usage(const coot::dictionary_residue_restraints_t &restraints) {
 
 #ifdef HAVE_CCP4SRS
-   if (false) {
+   if (true) {
 
       // don't do this bit for production - it's a test crash for the
       // coot libs
@@ -245,7 +245,7 @@ coot::match_restraints_to_reference_dictionaries(const coot::dictionary_residue_
    protein_geometry pg;
 
 #ifdef HAVE_CCP4SRS
-   test_ccp4srs_usage(restraints);
+   // test_ccp4srs_usage(restraints);
 #endif
 
    pg.set_verbose(false);

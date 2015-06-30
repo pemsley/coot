@@ -864,11 +864,14 @@ coot::restraints_container_t::find_link_type_by_distance(mmdb::Residue *first, m
 	    geom.matching_chem_link(comp_id_1, group_1, comp_id_2, group_2);
 
 	 if (debug) { 
-	    std::cout << "     DEBUG:: find_link_type_by_distance: "
-		      << link_infos.size() 
+	    std::cout << "DEBUG:: find_link_type_by_distance:: first  " << coot::residue_spec_t(first)
+		      << std::endl;
+	    std::cout << "DEBUG:: find_link_type_by_distance:: second " << coot::residue_spec_t(second)
+		      << std::endl;
+	    std::cout << "DEBUG:: find_link_type_by_distance: " << link_infos.size() 
 		      << " possible links: (link_infos):\n";
 	    for (unsigned int il=0; il<link_infos.size(); il++)
-	       std::cout << "            find_link_type_by_distance() possible links: (link_infos): "
+	       std::cout << "    find_link_type_by_distance() link_info "
 			 << il << " " << link_infos[il].first << " "
 			 << link_infos[il].second << " "
 			 << std::endl;
@@ -908,7 +911,7 @@ coot::restraints_container_t::find_link_type_by_distance(mmdb::Residue *first, m
 		  // debug::
 		  if (debug)
 		     for (unsigned int il=0; il<link_infos_non_peptide.size(); il++)
-			std::cout << "   DEBUG:: non-peptide link: "
+			std::cout << "   DEBUG:: find_link_type_by_distance() non-peptide link: "
 				  << link_infos_non_peptide[il].first.Id() << std::endl;
 	       
 		  // 20100330 eh?  is something missing here?  What
@@ -1041,6 +1044,11 @@ coot::restraints_container_t::general_link_find_close_link_inner(const std::vect
 
    if (order_switch_flag)
       std::swap(r1, r2);
+
+   if (debug) { 
+      std::cout << "DEBUG:: general_link_find_close_link_inner() 1: " << coot::residue_spec_t(r1) << std::endl;
+      std::cout << "DEBUG:: general_link_find_close_link_inner() 2: " << coot::residue_spec_t(r2) << std::endl;
+   }
    
    std::string r("");
    std::pair<bool,float> close = closest_approach(r1, r2);
