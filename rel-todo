@@ -12,6 +12,8 @@
 
    o pyrogen -M default
 
+   o review simple-restraints.cc:5131 H-bumps
+
 ------
 
    o compile rdkit with inchi support. Test. Write to restriants. 

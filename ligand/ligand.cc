@@ -2008,7 +2008,7 @@ coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned i
    unsigned int n_ligs = final_ligand[iclust].size();
 
    
-   if (0) 
+   if (debug) 
       std::cout << "score_and_resort_using_correlation iclust: " << iclust << " n_ligs " << n_ligs
 		<< " n_sol " << n_sol << std::endl;
    
@@ -2030,10 +2030,11 @@ coot::ligand::score_and_resort_using_correlation(unsigned int iclust, unsigned i
 	                                                
 	 double c = util::map_to_model_correlation(mol, specs, neighb_specs,
 						   mode, 1.5, xmap_pristine);
-
-	 std::cout << "----- in get_correl() constructed spec for i "
-		   << i << " " << spec
-		   << " which has correlation " << c << std::endl;
+	 if (debug)
+	    std::cout << "----- in get_correl() constructed spec for i "
+		      << i << " " << spec
+		      << " which has correlation " << c << std::endl;
+	 
 	 std::pair<bool, double> p(true, c);
 	 final_ligand[iclust][i].second.correlation = p;
 	 delete mol;
