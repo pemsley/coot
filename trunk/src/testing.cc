@@ -304,7 +304,9 @@ int test_internal_single() {
       // status = test_dreiding_torsion_energy();
       // status = test_parallel_plane_restraints();
       // status = test_map_tools();
-      status = test_minimol();
+      // status = test_minimol();
+      // status = test_monomer_organic_set();
+      status = test_COO_mod();
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -377,6 +379,32 @@ int test_minimol() {
    }
 
    std::cout << "print test_minimol returns " << status << std::endl;
+   return status;
+}
+
+int test_monomer_organic_set() {
+
+   int status = 0;
+   testing_data t;
+   std::string types[4] = { "TYR", "CYS", "ATP", "OS4" };
+   int read_number = 40;
+   for (int i=0; i<4; i++) { 
+      std::string res_type = types[i];
+      std::pair<bool, coot::dictionary_residue_restraints_t> rp = 
+         t.geom.get_monomer_restraints(res_type);
+      if (! rp.first) { 
+         t.geom.try_dynamic_add(res_type,read_number++);
+      }
+      if (t.geom.have_dictionary_for_residue_type(res_type, read_number++)) { 
+         bool f = rp.second.comprised_of_organic_set();
+         if (f) 
+            std::cout << "test: " << res_type << " is IN organic set" << std::endl;
+         else
+            std::cout << "test: " << res_type << " is NOT in organic set" << std::endl;
+      } else { 
+         std::cout << "test: " << res_type << " -- no dictionary " << std::endl;
+      } 
+   }
    return status;
 }
 

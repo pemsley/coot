@@ -164,7 +164,6 @@ void setup_python(int argc, char **argv) {
      
 #ifndef USE_GUILE
 
-     std::cout << "----- debug:: calling parse_command_line() from setup_python()" << std::endl;
      command_line_data cld = parse_command_line(argc, argv);
      handle_command_line_data(cld);
 

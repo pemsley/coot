@@ -194,14 +194,14 @@ namespace coot {
 	 if (have_target_values)
 	    return dist_;
 	 else
-	    throw std::runtime_error("unset target distance geometry");
+	    throw std::runtime_error("value_dist(): unset target distance");
       }
       // can throw a std::runtime_error exception
       double value_esd () const {
 	 if (have_target_values)
 	    return dist_esd_;
 	 else
-	    throw std::runtime_error("unset target distance geometry");
+	    throw std::runtime_error("value_esd(): unset target-distance");
       }
       bool matches_names(const dict_bond_restraint_t &r) const {
 	 if (atom_id_1() == r.atom_id_1())
@@ -484,6 +484,7 @@ namespace coot {
       std::string type_energy;
       aromaticity_t aromaticity;
       std::pair<bool, float> partial_charge;
+      std::pair<bool, int> formal_charge;
       std::pair<bool, clipper::Coord_orth> pdbx_model_Cartn_ideal;
       std::pair<bool, clipper::Coord_orth> model_Cartn;
       dict_atom(const std::string &atom_id_in,
@@ -738,6 +739,8 @@ namespace coot {
       // Caller disposes of the memory with a delete().
       mmdb::math::Graph *make_graph(bool use_hydrogen) const;
       
+      // Are the atoms only of elements C,N.O,H,F,Cl,I,Br,P,S?
+      bool comprised_of_organic_set() const;
    };
 
 
@@ -1710,6 +1713,7 @@ namespace coot {
 			    const std::string &type_symbol,
 			    const std::string &type_energy,
 			    const std::pair<bool, mmdb::realtype> &partial_charge,
+			    const std::pair<bool, int> &formal_charge,
 			    dict_atom::aromaticity_t arom_in,
 			    const std::pair<bool, clipper::Coord_orth> &model_pos,
 			    const std::pair<bool, clipper::Coord_orth> &model_pos_ideal);

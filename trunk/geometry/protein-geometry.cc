@@ -2927,7 +2927,7 @@ coot::protein_geometry::three_letter_code(const unsigned int &i) const {
 void
 coot::protein_geometry::add_planar_peptide_restraint() {
 
-   std::string link_id = "TRANS";
+   std::string link_id = "TRANS-5-atoms";
    std::string plane_id = "plane3";
    mmdb::realtype dist_esd = 0.05;
 
@@ -2940,8 +2940,7 @@ coot::protein_geometry::add_planar_peptide_restraint() {
    v.push_back(std::pair<int, std::string> (2, "CA"));
 
    for (unsigned int i=0; i<v.size(); i++) 
-      // link_add_plane(link_id, atom_id,     plane_id, atom_comp_id, dist_esd); 
-         link_add_plane(link_id, v[i].second, plane_id, v[i].first,   dist_esd); 
+      link_add_plane(link_id, v[i].second, plane_id, v[i].first,   dist_esd); 
 }
 
 

@@ -43,10 +43,11 @@ namespace coot {
    RDKit::RWMol rdkit_mol(const dictionary_residue_restraints_t &restraints); // fill the coord from
                                                                               // the dictionary if
                                                                               // you can.
-   RDKit::RWMol rdkit_mol(mmdb::Residue *residue_p, const dictionary_residue_restraints_t &restraints,
+   RDKit::RWMol rdkit_mol(mmdb::Residue *residue_p,
+			  const dictionary_residue_restraints_t &restraints,
 			  const std::string &alt_conf="",
 			  bool undelocalise=true);
-   RDKit::RWMol remove_Hs_and_clean(const RDKit::ROMol m, bool set_aromaticity=false);
+   RDKit::RWMol remove_Hs_and_clean(const RDKit::ROMol &m, bool set_aromaticity=false);
    // tinker with mol
    void set_3d_conformer_state(RDKit::RWMol *mol); // hack the setting of 3D state, seems not to
                                                    // be done for mdl files when zs are 0.
@@ -137,6 +138,16 @@ namespace coot {
    // deloc bonds (e.g. on a phosphate)
    // valence on P: (1 1/2) * 3 + 1 -> 6 => problem
    void charge_phosphates(RDKit::RWMol *rdkm);
+
+   // These work on the valence model of sulphate and phospates: i.e. those
+   // that have single bonds and a double bond to their oxygens from the P/S.
+   // 
+   void remove_phosphate_hydrogens(RDKit::RWMol *m, bool deloc_bonds); 
+   void remove_sulphate_hydrogens (RDKit::RWMol *m, bool deloc_bonds); 
+   // which are wrappers for the non-user function
+   void remove_PO4_SO4_hydrogens(RDKit::RWMol *m, 
+                                 unsigned int atomic_num, 
+                                 bool deloc_bonds);
 
    // account for Ns with "too many" hydrogens by assigning deleting a
    // hydrogen.

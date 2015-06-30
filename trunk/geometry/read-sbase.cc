@@ -20,6 +20,7 @@
 
 
 #include <algorithm>
+#include <iomanip>
 #include <stdlib.h>
 #include <string.h> // strlen, strcpy for interface to CCP4SRS.
 
@@ -30,6 +31,9 @@
 #include "srs-interface.hh"
 #endif 
 
+
+// This is a toy/test function.
+// 
 void
 coot::protein_geometry::read_ccp4srs_residues() {
 
@@ -200,9 +204,13 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
    coot::dictionary_residue_restraints_t rest(true); // constructor for CCP4SRS
    rest.residue_info.comp_id = monomer_type;
    
-   if (ccp4srs) {
+   if (! ccp4srs) {
+     std::cout << "WARNING:: Null CCP4SRS database " << std::endl;
+   } else { 
       ccp4srs::Monomer *monomer_p = ccp4srs->getMonomer(monomer_type.c_str());
-      if (monomer_p) {
+      if (! monomer_p) {
+	std::cout << "WARNING:: Null monomer ccp4srs::getMonomer()" << std::endl;
+      } else { 
 
 	 // molecule info
 	 std::string comp_id = monomer_type;
@@ -243,7 +251,28 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 				    type_symbol,
 				    type_energy,
 				    pc);
-	    // std::cout << "pushing back an atom with name :" << atom_id_4c << ":" << std::endl;
+
+	    // we need to add a sanity check on the position of the
+	    // atoms (e.g. S in SO4 is at (-1.7976e+308 -1.7976e+308
+	    // -1.7976e+308)).
+            // 
+	    bool add_atom_coords_ok = false;
+	    if (fabs(at->x()) < 2000) { 
+	       if (fabs(at->y()) < 2000) { 
+		  if (fabs(at->z()) < 2000) {
+		     add_atom_coords_ok = true;
+		  }
+               }
+            }
+            if (add_atom_coords_ok) { 
+               clipper::Coord_orth pos(at->x(), at->y(), at->z());
+               std::pair<bool, clipper::Coord_orth> p(true, pos);
+               // write_cif only looks for real model coords! This needs fixing there. 
+               // not this hack.
+               // dict_at.add_pos(dict_atom::IDEAL_MODEL_POS, p);
+               dict_at.add_pos(dict_atom::REAL_MODEL_POS, p);
+            }
+
 	    rest.atom_info.push_back(dict_at);
 	 }
 
@@ -258,9 +287,6 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 	       int order = bond->order();
 	       double dist = bond->length();
 	       double esd = bond->length_esd();
-	       if (1)
-		  std::cout << "... "<< monomer_type << " atom index " << ind_1 << " " << ind_2
-			    << " order " << order << std::endl;
 	       std::string type = "single";
 	       switch (order) {
 	       case ccp4srs::Bond::noOrder:
@@ -290,9 +316,18 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 	       default:
 		  type = "single";
 	       } 
+
+
 	       std::string atom_name_1 = monomer_p->atom(ind_1)->name();
 	       std::string atom_name_2 = monomer_p->atom(ind_2)->name();
-	       std::cout << "adding bond between " << atom_name_1 << " and " << atom_name_2 << " type " << type << std::endl;
+
+	       if (false) // debug
+		  std::cout << "SRS monomer bond: " << monomer_type 
+                            << " atom index " 
+                            << std::setw(3) << ind_1 << " " << std::setw(3) << ind_2 
+                            << " atom names: " << atom_name_1 << " and " << atom_name_2 
+			    << " order " << order << " type: " << type << std::endl;
+
 	       coot::dict_bond_restraint_t dict_bond(atom_name_1, atom_name_2, type, dist, esd);
 	       success = true;
 	       rest.bond_restraint.push_back(dict_bond);
@@ -375,10 +410,12 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
       }
    }
    if (success) {
-      std::cout << "adding restraint " << rest.atom_info.size() << " atoms and "
-		<< rest.bond_restraint.size() << " " << rest.angle_restraint.size()
-		<< " " << rest.torsion_restraint.size() << " " << rest.chiral_restraint.size()
-		<< " " << rest.plane_restraint.size() << std::endl;
+      std::cout << "INFO:: adding restraint " << rest.atom_info.size() << " atoms and "
+		<< rest.bond_restraint.size() << " bonds, " 
+                << rest.angle_restraint.size() << " angles, " 
+                << rest.torsion_restraint.size() << " torsions," 
+                << rest.chiral_restraint.size() << " chirals " 
+                << rest.plane_restraint.size() << std::endl;
       add(rest);
    }
 

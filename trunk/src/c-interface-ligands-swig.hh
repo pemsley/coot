@@ -109,6 +109,9 @@ match_this_residue_and_dictionary(int imol, std::string chain_id, int res_no, st
 				  std::string reference_comp_id,
 				  std::string output_comp_id);
 				  
+// return False if unknown
+bool comprised_of_organic_set_p(const std::string &rn);
+
 bool
 enhanced_ligand_coot_p();
 

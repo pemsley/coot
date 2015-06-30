@@ -6160,8 +6160,7 @@ run_python_script(const char *filename_in) {
    simple += single_quote(s);
    simple += ")";
    std::cout << "Running python script " << s  << std::endl;
-   // not a const argument?  Dear oh dear....
-   PyRun_SimpleString((char *)simple.c_str());
+   PyRun_SimpleString(simple.c_str());
 
 #endif // USE_PYTHON
 }

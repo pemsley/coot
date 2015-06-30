@@ -1202,10 +1202,14 @@ namespace lig_build {
 	 // with simple_gl_render, it does not.
 	 
 	 std::string atom_id = ele;
+	 int charge = atoms[atom_index].charge;
    
 	 // Have we added an NH2, an NH or an N (for example)
 	 //
 	 int sum_neigb_bond_order = 0;
+
+	 sum_neigb_bond_order += charge;
+	 
 	 for (unsigned int ib=0; ib<bond_indices.size(); ib++) {
 	    if (bonds[bond_indices[ib]].get_bond_type() == bond_t::SINGLE_BOND)
 	       sum_neigb_bond_order += 1;
@@ -1225,18 +1229,18 @@ namespace lig_build {
 		      << sum_neigb_bond_order << " " << std::endl;
 
 	 if (ele == "N") {
-	    if (sum_neigb_bond_order == 5)
-	       atom_id = "N+2";
-	    if (sum_neigb_bond_order == 4)
-	       atom_id = "N+";
-	    if (sum_neigb_bond_order == 3)
-	       atom_id = "N";
-	    if (sum_neigb_bond_order == 2)
-	       atom_id = "NH";
-	    if (sum_neigb_bond_order == 1)
-	       atom_id = "NH2";
-	    if (sum_neigb_bond_order == 0)
-	       atom_id = "NH3";
+	   if (sum_neigb_bond_order == 5)
+	     atom_id = "N+2";
+	   if (sum_neigb_bond_order == 4)
+	     atom_id = "N+";
+	   if (sum_neigb_bond_order == 3)
+	     atom_id = "N";
+	   if (sum_neigb_bond_order == 2)
+	     atom_id = "NH";
+	   if (sum_neigb_bond_order == 1)
+	     atom_id = "NH2";
+	   if (sum_neigb_bond_order == 0)
+	     atom_id = "NH3";
 	 }
 							   
 	 if (ele == "O") {

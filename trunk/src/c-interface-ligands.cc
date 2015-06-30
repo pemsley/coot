@@ -3151,6 +3151,21 @@ invert_chiral_centre(int imol,
    }
 }
 
+bool    
+comprised_of_organic_set_p(const std::string &comp_id) { 
+   
+   bool r = false;
+   graphics_info_t g;
+   if (g.Geom_p()->have_dictionary_for_residue_type(comp_id, g.cif_dictionary_read_number++)) {
+      std::pair<bool, coot::dictionary_residue_restraints_t> rp = 
+            g.Geom_p()->get_monomer_restraints(comp_id);
+      if (rp.first) { 
+         r = rp.second.comprised_of_organic_set();
+      }
+   }
+   return r;
+} 
+
 bool
 enhanced_ligand_coot_p() {
 
@@ -3161,5 +3176,5 @@ enhanced_ligand_coot_p() {
 #endif
       
    return r;
-
 } 
+

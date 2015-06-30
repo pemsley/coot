@@ -153,9 +153,10 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
       }
    }
 
-   if (debug)
+   if (debug) { 
       std::cout << "DEBUG:: number of bonded atoms with alt conf \"" << alt_conf << "\" found: "
 		<< bonded_atoms.size() << std::endl;
+   } 
 
 
    for (unsigned int iat=0; iat<bonded_atoms.size(); iat++) {
@@ -164,7 +165,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
       std::string atom_name(at->name);
       if (debug)
 	 std::cout << "   handling atom " << iat << " of " << n_residue_atoms << " bonded_atoms " 
-		   << atom_name << std::endl;
+		   << atom_name << " ";
 	 
       // only add the atom if the atom_name is not in the list of
       // already-added atom names.
@@ -235,9 +236,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    m.addAtom(rdkit_at);
 	       
 	    if (debug) 
-	       std::cout << "      about to add atom with name \"" << atom_name
+	       std::cout << "      adding atom with name \"" << atom_name
 			 << "\" to added_atom_names which is currently of size "
-			 << added_atom_names.size() << std::endl;
+			 << added_atom_names.size();
 	       
 	    added_atom_names.push_back(atom_name);
 	    added_atoms.push_back(residue_atoms[iat]);
@@ -248,12 +249,12 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    std::cout << rte.what() << std::endl;
 	 }
       }
+      if (debug)
+         std::cout << std::endl;
    }
 
    if (debug) {
-      std::cout << "DEBUG::number of atoms in rdkit mol: " << m.getNumAtoms() << std::endl;
-      std::cout << "DEBG:: number of bond restraints: " << restraints.bond_restraint.size()
-		<< std::endl;
+      std::cout << "DEBUG:: number of atoms in rdkit mol: " << m.getNumAtoms() << std::endl;
    } 
    
    for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
@@ -261,6 +262,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	 std::cout << "   handling bond " << ib << " of " << restraints.bond_restraint.size()
 		   << " :" << restraints.bond_restraint[ib].atom_id_1_4c() << ": " 
 		   << " :" << restraints.bond_restraint[ib].atom_id_2_4c() << ": " 
+                   << restraints.bond_restraint[ib].type()
 		   << std::endl;
       RDKit::Bond::BondType type = convert_bond_type(restraints.bond_restraint[ib].type());
       RDKit::Bond *bond = new RDKit::Bond(type);
@@ -283,9 +285,6 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 
       // this block sets idx_1 and idx_2
       //
-      if (debug)
-	 std::cout << "------- in rdkit_mol() with added_atom_names.size() "
-		   << added_atom_names.size() << std::endl;
       for (unsigned int iat=0; iat<added_atom_names.size(); iat++) {
 	 if (added_atom_names[iat] == atom_name_1) { 
 	    idx_1 = iat;
@@ -326,6 +325,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	       std::cout << "WARNING:: oops, bonding in rdkit_mol() "
 			 << "failed to get atom index idx_2 for atom name: "
 			 << atom_name_2 << " ele :" << ele_2 << ":" << std::endl;
+               std::cout << "Here's the atoms we have:\n";
+               for (unsigned int iat=0; iat<added_atom_names.size(); iat++) 
+	          std::cout << std::setw(2) << iat << " :" << added_atom_names[iat] << ":\n";
 	       // give up trying to construct this thing then.
 	       std::string message = "Failed to get atom index for atom name \"";
 	       message += atom_name_2;
@@ -338,6 +340,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    std::cout << "WARNING:: oops, bonding in rdkit_mol() "
 		      << "failed to get atom index idx_1 for atom name: \""
 		      << atom_name_1 << "\" ele :" << ele_1 << ":" << std::endl;
+            std::cout << "Here's the atoms we have:\n";
+            for (unsigned int iat=0; iat<added_atom_names.size(); iat++) 
+	       std::cout << std::setw(2) << iat << " :" << added_atom_names[iat] << ":\n";
 	    // give up trying to construct this thing then.
 	    std::string message = "Failed to get atom index for atom name \"";
 	    message += atom_name_1;
@@ -345,6 +350,13 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    throw std::runtime_error(message);
 	 }
       }
+   }
+ 
+   if (debug) { 
+      std::cout << "DEBUG:: number of bond restraints:    " << restraints.bond_restraint.size()
+		<< std::endl;
+      std::cout << "------- post construction of atoms ------" << std::endl;
+      debug_rdkit_molecule(&m);
    }
 
    // Now all the bonds are in place.  We can now try to add an extra H to the ring N that
@@ -425,8 +437,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	 }
       }
    }
-
-   // debug_rdkit_molecule(&m);
+   
+   if (debug)
+      debug_rdkit_molecule(&m);
 
 
    if (do_undelocalize) { 
@@ -457,7 +470,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	 try {
 	    at_p->getProp("name", name);
 	 }
-	 catch (KeyErrorException kee) {
+	 catch (const KeyErrorException &kee) {
 	    std::cout << "caught no-name for atom exception in rdkit_mol(): "
 		      <<  kee.what() << std::endl;
 	 }
@@ -469,9 +482,13 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
       std::cout << "DEBUG:: sanitizeMol() " << std::endl;
    RDKit::MolOps::sanitizeMol(m);
 
-   if (debug)
-      std::cout << "in constructing rdk molecule now adding a conf" << std::endl;
-   RDKit::Conformer *conf = new RDKit::Conformer(added_atom_names.size());
+   if (false)
+      std::cout << "DEBUG:: in constructing rdkit molecule, now adding a conf " 
+                << "number of atoms comparison added_atom names size: " 
+                << added_atom_names.size() << " vs m.getNumAtoms() " 
+	        << m.getNumAtoms() << std::endl;
+   // RDKit::Conformer *conf = new RDKit::Conformer(added_atom_names.size());
+   RDKit::Conformer *conf = new RDKit::Conformer(m.getNumAtoms());
    conf->set3D(true);
       
    // Add positions to the conformer (only the first instance of an
@@ -1741,7 +1758,7 @@ coot::infer_H_name(int iat,
 	       }
 	    }
 	 }
-	 catch (KeyErrorException kee) {
+	 catch (const KeyErrorException &kee) {
 	    // this should not happen, there should be no way we get
 	    // here where we have a hydrogen (check in calling
 	    // function) with no name attached to another atom with no
@@ -1757,7 +1774,7 @@ coot::infer_H_name(int iat,
 }
 
 RDKit::RWMol
-coot::remove_Hs_and_clean(const RDKit::ROMol rdkm, bool set_aromaticity) {
+coot::remove_Hs_and_clean(const RDKit::ROMol &rdkm, bool set_aromaticity) {
 
    RDKit::ROMol *rdk_mol_with_no_Hs_ro = RDKit::MolOps::removeHs(rdkm);
    RDKit::RWMol rdk_mol_with_no_Hs = *rdk_mol_with_no_Hs_ro;
@@ -2467,6 +2484,142 @@ coot::charge_phosphates(RDKit::RWMol *rdkm) {
       }
    }
 }
+
+void 
+coot::remove_phosphate_hydrogens(RDKit::RWMol *m, bool deloc_bonds) { 
+ 
+   remove_PO4_SO4_hydrogens(m, 15, deloc_bonds);
+
+}
+
+void coot::remove_sulphate_hydrogens(RDKit::RWMol *m, bool deloc_bonds) {
+
+   remove_PO4_SO4_hydrogens(m, 16, deloc_bonds);
+
+}
+
+
+void 
+coot::remove_PO4_SO4_hydrogens(RDKit::RWMol *m, 
+                               unsigned int atomic_num, 
+                               bool deloc_bonds) {
+
+   bool debug = false;
+   RDKit::ROMol::AtomIterator ai;
+   std::vector<RDKit::Atom *> H_atoms_to_be_deleted;
+   for(ai=m->beginAtoms(); ai!=m->endAtoms(); ai++) {
+
+      unsigned int this_atomic_num = (*ai)->getAtomicNum(); // convert int to unsigned int
+      if (this_atomic_num == atomic_num) {
+	 RDKit::Atom *P_at = *ai;
+	 int idx_1 = P_at->getIdx();
+	 std::vector<RDKit::Bond *> single_PO_bonds;
+	 std::vector<RDKit::Bond *> double_PO_bonds;
+         std::vector<RDKit::Atom *> O_atoms_for_charging;
+         std::vector<RDKit::Atom *> probable_phosphate_hydrogens;
+	 
+	 RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
+	 boost::tie(nbrIdx, endNbrs) = m->getAtomNeighbors(P_at);
+	 while(nbrIdx != endNbrs) {
+	    const RDKit::ATOM_SPTR at = (*m)[*nbrIdx];
+	    RDKit::Bond *bond = m->getBondBetweenAtoms(idx_1, *nbrIdx);
+	    if (bond) {
+
+               if (at->getAtomicNum() == 8) { 
+
+	          if (bond->getBondType() == RDKit::Bond::SINGLE) { 
+                     const int &idx_O = *nbrIdx;
+                     const RDKit::ATOM_SPTR O_at = at;
+
+                     // Is the other atom of the O a hydrogen?
+	             RDKit::ROMol::OEDGE_ITER current, end;
+	             boost::tie(current, end) = m->getAtomBonds(O_at.get());
+	             while (current != end) {
+	                RDKit::BOND_SPTR o_bond=(*m)[*current];
+	                // is this a bond to a hydrogen?
+	                int idx_H = o_bond->getOtherAtomIdx(idx_O);
+	                RDKit::ATOM_SPTR at_other_p = (*m)[idx_H];
+	                if (at_other_p->getAtomicNum() == 1) {
+		           single_PO_bonds.push_back(bond);
+                           O_atoms_for_charging.push_back(at.get());
+                           probable_phosphate_hydrogens.push_back(at_other_p.get());
+                        }
+	                current++;
+	             }
+
+                  }
+	          if (bond->getBondType() == RDKit::Bond::DOUBLE) {
+		     double_PO_bonds.push_back(bond);
+                     O_atoms_for_charging.push_back(at.get());
+                  }
+               }
+	    } 
+	    ++nbrIdx;
+	 }
+
+         if (debug) { 
+            std::string ele = (atomic_num == 15) ? "P" : "S";
+            std::cout << "DEBUG:: atom_idx: " << idx_1 << " Found " 
+                      << single_PO_bonds.size() << " single " << ele << "O bonds and " 
+                      << double_PO_bonds.size() << " double " << ele << "O bonds " 
+                      << std::endl;
+         }
+
+         if (single_PO_bonds.size() == 2) { 
+            if (double_PO_bonds.size() == 1) { 
+     
+               if (debug) { 
+                  std::string thingate = (atomic_num== 16) ? "sulphate" : "phosphate";
+                  std::cout << " :::::: found a " << thingate << " :::::::::::::" << std::endl;
+               }
+
+               for (unsigned int ip=0; ip<probable_phosphate_hydrogens.size(); ip++)
+                  H_atoms_to_be_deleted.push_back(probable_phosphate_hydrogens[ip]);
+               
+               // 20150622-PE
+               // If we charge the Os, then (for AMP from PDBe-AMP.cif) we end up 
+               // with 
+               // "Explicit valence for atom # 1 O, 3, is greater than permitted"
+               // when we call sanitizeMol() from hydrogen_transformations()
+               // (directly after this function is called).
+               // 
+               // for (unsigned int ii=0; ii<O_atoms_for_charging.size(); ii++)
+               //    O_atoms_for_charging[ii]->setFormalCharge(-1);
+
+               if (deloc_bonds) { 
+         
+                  if (O_atoms_for_charging.size() == 3) { 
+
+                     single_PO_bonds[0]->setBondType(RDKit::Bond::ONEANDAHALF);
+                     single_PO_bonds[1]->setBondType(RDKit::Bond::ONEANDAHALF);
+                     double_PO_bonds[0]->setBondType(RDKit::Bond::ONEANDAHALF);
+                     P_at->setFormalCharge(+1);
+                  
+                  }
+	       }
+            }
+         }
+      }
+   }
+   for (unsigned int idel=0; idel<H_atoms_to_be_deleted.size(); idel++) { 
+
+      if (debug) {
+         std::string atom_name;
+         H_atoms_to_be_deleted[idel]->getProp("name", atom_name);
+         std::cout << "----------- delete " << H_atoms_to_be_deleted[idel]
+                                    << " " << atom_name << std::endl;
+      }
+      m->removeAtom(H_atoms_to_be_deleted[idel]);
+   }  
+   if (H_atoms_to_be_deleted.size() > 0) { 
+
+      std::string s = (H_atoms_to_be_deleted.size() > 1) ? "s" : ""; 
+      std::string thingate = (atomic_num== 16) ? "sulphate" : "phosphate";
+      std::cout << "INFO:: Deleted " << H_atoms_to_be_deleted.size()
+	        << " " << thingate << " hydrogen atom" << s  << std::endl;
+   }
+}
+
 
 
 
