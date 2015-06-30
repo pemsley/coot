@@ -22,9 +22,16 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+// We need this high so that dcgettext() so we don't get expected unqualified-id before 'const'
+// errors when we read libintl from rdkit-interface.hh
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include <libintl.h>
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
+
 #include "compat/coot-sysdep.h"
 
 #include <cstring>
+
 #define ENABLE_NLS // fix dcgettext() header problems on including
 		   // libintl.h (via RDKitBase.h etc (including boost
 		   // stuff).

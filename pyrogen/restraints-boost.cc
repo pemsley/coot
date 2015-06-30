@@ -137,6 +137,7 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
    int read_number = 0;
    geom.init_refmac_mon_lib(chem_comp_dict_file_name, read_number);
    bool idealized = false;
+   idealized = true; // 20150622 - so that we pick up the coords of OXT in 01Y
    bool try_autoload_if_needed = false;
    
    mmdb::Residue *r = geom.get_residue(comp_id, idealized, try_autoload_if_needed);
@@ -157,7 +158,12 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	 //
 
 	 try { 
+           
+            // experimental value - for Friday.
+	    // bool undelocalize = false;
+            // 
 	    bool undelocalize = true;
+
 	    RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest.second, "", undelocalize);
 
 	    RDKit::MolOps::assignStereochemistry(mol_rw);
@@ -222,8 +228,6 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
 
    RDKit::RWMol *r = new RDKit::RWMol(mol);
 
-   // debug_rdkit_molecule(r);
-   
    RDKit::ROMol *query_cooh = RDKit::SmartsToMol("[C^2](=O)O[H]");
    RDKit::ROMol *query_n    = RDKit::SmartsToMol("[N^3;H2]");
    std::vector<RDKit::MatchVectType>  matches_cooh;
@@ -238,15 +242,19 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
    int matched_cooh = RDKit::SubstructMatch(mol,*query_cooh,matches_cooh,uniquify,recursionPossible, useChirality);
    int matched_n    = RDKit::SubstructMatch(mol,*query_n,   matches_n,   uniquify,recursionPossible, useChirality);
 
-   if (1) // this is useful info (at the moment at least)
+   // delete atoms after they have all been identified otherwise the indexing goes haywire.
+   // 
+   std::vector<RDKit::Atom *> atoms_to_be_deleted;
+
+   if (true) // this is useful info (at the moment at least)
       std::cout << "Hydrogen_transformations:"
 		<< "\n    number of COOH matches: " << matches_cooh.size()
 		<< "\n    number of NH2  matches: " << matches_n.size()
 		<< "\n";
 
-   if (false) {  // debugging
+   if (true) {  // debugging
       for (unsigned int imatch_cooh=0; imatch_cooh<matches_cooh.size(); imatch_cooh++) {
-	 std::cout << "INFO:: hydrogen exchanges matches_cooh: ";
+	 std::cout << "INFO:: Removable hydrogen COOH matches: ";
 	 for (unsigned int i=0; i<matches_cooh[imatch_cooh].size(); i++) { 
 	    std::cout << " [" << matches_cooh[imatch_cooh][i].first 
 		      << ": "  << matches_cooh[imatch_cooh][i].second
@@ -262,6 +270,8 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
       RDKit::ATOM_SPTR at_o1 = (*r)[matches_cooh[imatch_cooh][1].second];
       RDKit::ATOM_SPTR at_o2 = (*r)[matches_cooh[imatch_cooh][2].second];
       RDKit::ATOM_SPTR at_h  = (*r)[matches_cooh[imatch_cooh][3].second];
+
+      std::string at_c_name, at_o1_name, at_o2_name, at_h_name;
 
       at_c->setProp( "atom_type", "C");
       at_o1->setProp("atom_type", "OC");
@@ -288,43 +298,71 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
       if (bond_3)
 	 r->removeBond(at_o2.get()->getIdx(), at_h.get()->getIdx());
       else
-	 std::cout << "no bond_3 found!" << std::endl;
-      r->removeAtom(at_h.get());
+	 std::cout << "DEBUG:: hydrogen_transformations(): no bond_3 (O-H bond) found!" << std::endl;
+      atoms_to_be_deleted.push_back(at_h.get());
    }
 
    for (unsigned int imatch_n=0; imatch_n<matches_n.size(); imatch_n++) {
       unsigned int n_idx = matches_n[imatch_n][0].second;
       RDKit::ATOM_SPTR at_n  = (*r)[n_idx];
+      unsigned int degree = at_n->getDegree();
       at_n->setFormalCharge(+1);
-      at_n->setProp("atom_type", "NT3"); // also set to NT3 by SMARTS match in pyrogen.py
 
-      // add a hydrogen atom and a bond to the nitrogen.
-      // 
-      RDKit::Atom *new_h_at = new RDKit::Atom(1);
-      // we want to find the idx of this added H, so we do that by
-      // keeping hold of the pointer (otherwise the atom gets copied
-      // on addAtom() and we lose the handle on the new H atom in the
-      // molecule).
-      bool updateLabel=true;
-      bool takeOwnership=true;
-      r->addAtom(new_h_at, updateLabel, takeOwnership);
-      unsigned int h_idx = new_h_at->getIdx();
-      if (h_idx != n_idx) { 
-	 r->addBond(n_idx, h_idx, RDKit::Bond::SINGLE);
-      } else {
-	 std::cout << "OOOPs: bad indexing on adding an amine H " << h_idx << std::endl;
-      } 
+      if (false) {  // debugging
+         std::string name;
+         at_n->getProp("name", name);
+         std::cout << "debug:: N-atom idx " << n_idx << " " << name << " has degree " << degree
+                   << std::endl;
+      }
+
+      if (degree == 4) { 
+         // it has its 2 hydrogens already
+         at_n->setProp("atom_type", "NT2"); // also set to NT3 by SMARTS match in pyrogen.py
+      }
+
+      if (degree == 3) { 
+         at_n->setProp("atom_type", "NT3"); // also set to NT3 by SMARTS match in pyrogen.py
+         // add a hydrogen atom and a bond to the nitrogen.
+         // 
+         RDKit::Atom *new_h_at = new RDKit::Atom(1);
+         // we want to find the idx of this added H, so we do that by
+         // keeping hold of the pointer (otherwise the atom gets copied
+         // on addAtom() and we lose the handle on the new H atom in the
+         // molecule).
+         bool updateLabel=true;
+         bool takeOwnership=true;
+         r->addAtom(new_h_at, updateLabel, takeOwnership);
+         unsigned int h_idx = new_h_at->getIdx();
+         if (h_idx != n_idx) { 
+	    r->addBond(n_idx, h_idx, RDKit::Bond::SINGLE);
+         } else {
+	    std::cout << "OOOPs: bad indexing on adding an amine H " << h_idx << std::endl;
+         } 
+      }
    }
 
+   for(unsigned int idel=0; idel<atoms_to_be_deleted.size(); idel++)
+      r->removeAtom(atoms_to_be_deleted[idel]);
 
+   remove_phosphate_hydrogens(r, true);
+   remove_sulphate_hydrogens (r, true);
+
+   // debug
+   if (false)
+       std::cout << "DEBUG:: hydrogen_transformations calling sanitizeMol() " 
+                 << std::endl;
    // do we neet to sanitize? Yes, we do because we go on to minimize this molecule
    RDKit::MolOps::sanitizeMol(*r);
+   if (false)
+       std::cout << "DEBUG:: hydrogen_transformations back from sanitizeMol() " 
+                 << std::endl;
 
    // delocalize_guanidinos(r); // not yet.
    
    RDKit::ROMol *ro_mol = new RDKit::ROMol(*r);
    if (0)
-      std::cout << "hydrogen_transformations returns mol: " << RDKit::MolToSmiles(*ro_mol) << std::endl;
+      std::cout << "hydrogen_transformations returns mol: " << RDKit::MolToSmiles(*ro_mol) 
+                << std::endl;
    delete r;
    return ro_mol;
 

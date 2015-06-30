@@ -966,6 +966,41 @@ coot::dictionary_residue_restraints_t::make_graph(bool use_hydrogens) const {
 }
 
 
+bool
+coot::dictionary_residue_restraints_t::comprised_of_organic_set() const { 
+
+   bool r = true;
+   if (atom_info.size() == 0) { 
+     r = false;
+   } else { 
+     std::vector<std::string> e;
+     // e.push_back(" H"); e.push_back(" C"); e.push_back(" N"); e.push_back(" O"); 
+     // e.push_back(" I"); e.push_back("BR"); e.push_back("CL"); e.push_back(" F"); 
+     // e.push_back(" S"); e.push_back(" P"); 
+     e.push_back("H"); e.push_back("C"); e.push_back("N"); e.push_back("O"); 
+     e.push_back("I"); e.push_back("BR"); e.push_back("CL"); e.push_back("F"); 
+     e.push_back("S"); e.push_back("P"); 
+     for (unsigned int i=0; i<atom_info.size(); i++) { 
+        bool found_this = false;
+        for (unsigned int j=0; j<e.size(); j++) { 
+           if (atom_info[i].type_symbol == e[j]) { 
+              found_this = true;
+              break;
+           }
+        }
+        if (! found_this) { 
+           std::cout << "INFO::organic_set_test: " << i << " " << atom_info[i] 
+                     << " \"" << atom_info[i].type_symbol << "\""
+                     << " is not in the organic set" << std::endl;
+           r = false;
+           break;
+        }
+     }
+   }
+   return r;
+
+}
+
 
 
 // 1mzt

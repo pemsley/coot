@@ -1071,7 +1071,6 @@ lbg_info_t::handle_item_add(GdkEventButton *event) {
    gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
    if (state & GDK_BUTTON1_MASK)
       button_1_is_pressed = true;
-   
 
    gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
    if (canvas_addition_mode == lbg_info_t::PENTAGON)
@@ -1097,6 +1096,10 @@ lbg_info_t::handle_item_add(GdkEventButton *event) {
       changed_status = try_add_or_modify_bond(canvas_addition_mode, x_as_int, y_as_int,
 					      button_1_is_pressed);
    }
+
+   if (canvas_addition_mode == lbg_info_t::CHARGE) {
+     changed_status = handle_charge_change(); 
+   } 
 
    if (changed_status) {
       save_molecule();
@@ -1306,8 +1309,11 @@ lbg_info_t::change_atom_id_maybe(int atom_index) {
 
 } 
 
+
 bool
-lbg_info_t::change_atom_element(int atom_index, std::string new_ele, std::string fc) {
+lbg_info_t::change_atom_element(int atom_index,
+				std::string new_ele,
+				std::string font_colour) {
 
    bool changed_status = 0;
    std::vector<int> local_bonds = mol.bonds_having_atom_with_atom_index(atom_index);
@@ -1321,7 +1327,8 @@ lbg_info_t::change_atom_element(int atom_index, std::string new_ele, std::string
       mol.make_atom_id_by_using_bonds(atom_index, new_ele, local_bonds, gl_flag);
    GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS(canvas));
 
-   changed_status = mol.atoms[atom_index].update_atom_id_maybe(atom_id_info, fc, root);
+   changed_status = mol.atoms[atom_index].update_atom_id_maybe(atom_id_info,
+							       font_colour, root);
 
    if (changed_status) { 
       for (unsigned int ib=0; ib<local_bonds.size(); ib++) {
@@ -1340,7 +1347,8 @@ lbg_info_t::change_atom_element(int atom_index, std::string new_ele, std::string
 
 
 bool
-lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode, int x_mouse, int y_mouse,
+lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode,
+				   int x_mouse, int y_mouse,
 				   bool button_1_is_pressed) {
 
 
@@ -2169,6 +2177,34 @@ lbg_info_t::try_stamp_bond_anywhere(int canvas_addition_mode, int x_mouse, int y
     penultimate_atom_index = new_atom_index;
 }
 
+bool 
+lbg_info_t::handle_charge_change() {
+
+  bool changed_status = false;
+  if (highlight_data.has_contents()) {
+    if (highlight_data.single_atom()) {
+      int atom_index = highlight_data.get_atom_index();
+      if (atom_index != UNASSIGNED_INDEX) {
+	int charge = mol.atoms[atom_index].charge;
+	int pre_charge = charge;
+	if (charge >= 2) {
+	  charge = -2;
+	} else {
+	  charge += 1;
+	}
+	mol.atoms[atom_index].charge = charge;
+	std::cout << "change charge on " << mol.atoms[atom_index]
+		  << " from " << pre_charge << " to " << charge
+		  << std::endl;
+	std::cout << "calling change_atom_id_maybe() " << atom_index
+		  << std::endl;
+	change_atom_id_maybe(atom_index);
+      }
+    }
+  }
+  return changed_status;
+} 
+
 
 double
 lbg_info_t::radius(int n_edges) const {
@@ -2615,6 +2651,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_import_from_smiles_entry  = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_import_from_smiles_entry"));
 	 lbg_import_from_comp_id_dialog = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_import_from_comp_id_dialog"));
 	 lbg_import_from_comp_id_entry  = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_import_from_comp_id_entry"));
+	 lbg_import_from_comp_id_hydrogens_checkbutton  = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_import_from_comp_id_hydrogens_checkbutton"));
 	 lbg_search_combobox =           GTK_WIDGET(gtk_builder_get_object(builder, "lbg_search_combobox"));
 	 lbg_statusbar =                 GTK_WIDGET(gtk_builder_get_object(builder, "lbg_statusbar"));
 	 lbg_toolbar_layout_info_label = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_toolbar_layout_info_label"));
@@ -3143,8 +3180,10 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 	 
 	 if (0)
 	    if (! s.first)
-	       std::cout << "render_from_molecule() atom " << iat << " was close to atom " << s.second
-			 << " " << mol_in.atoms[iat].atom_position << "  vs.  " << mol.atoms[s.second].atom_position
+	       std::cout << "render_from_molecule() atom " << iat
+			 << " was close to atom " << s.second << " "
+			 << mol_in.atoms[iat].atom_position << "  vs.  "
+			 << mol.atoms[s.second].atom_position
 			 << std::endl;
 	 
 	 if (0)
@@ -3545,19 +3584,46 @@ lbg_info_t::import_mol_from_smiles_string(const std::string &smiles) {
 }
 
 void
-lbg_info_t::import_mol_from_comp_id(const std::string &comp_id) {
+lbg_info_t::import_mol_from_comp_id(const std::string &comp_id,
+				    bool show_hydrogens_status) {
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
    coot::protein_geometry pg;
    int dynamic_add_status = pg.try_dynamic_add(comp_id, 1);
+   coot::dictionary_residue_restraints_t dict;
    std::pair<bool, coot::dictionary_residue_restraints_t> p = pg.get_monomer_restraints(comp_id);
+   bool have_dict = true;
    if (p.first) {
+     have_dict = true;
+     dict = p.second;
+   } else {
+#ifdef HAVE_CCP4SRS
+     std::cout << "Trying to load " << comp_id << " from CCP4 SRS" << std::endl;
+     pg.init_ccp4srs(".");
+     bool status = pg.fill_using_ccp4srs(comp_id);
+     if (status) {
+       p = pg.get_monomer_restraints(comp_id);
+       if (p.first) {
+	 dict = p.second;
+       } 
+     } else {
+       std::cout << "Failed to load " << comp_id << " using SRS " << std::endl;
+     } 
+#endif // HAVE_CCP4SRS     
+   } 
+
+   if (have_dict) { 
+    
       try {
-	 RDKit::RWMol m = coot::rdkit_mol(p.second);
+	 RDKit::RWMol m = coot::rdkit_mol(dict);
+	 coot::undelocalise(&m);
+	 if (! show_hydrogens_status) 
+	   coot::remove_non_polar_Hs(&m);
 	 unsigned int n_mol_atoms = m.getNumAtoms();   
 	 for (unsigned int iat=0; iat<n_mol_atoms; iat++)
 	    m[iat]->calcImplicitValence(true);
+	 
 	 RDDepict::compute2DCoords(m, NULL, true);
 	 rdkit_mol_post_read_handling(&m, "from-comp-id");
       }
@@ -3568,7 +3634,7 @@ lbg_info_t::import_mol_from_comp_id(const std::string &comp_id) {
       catch (const std::runtime_error &rte) {
 	 std::cout << "ERROR:: " << rte.what() << std::endl;
       }
-   } 
+   }
 #else
    std::cout << "You need enhanced ligand tools version" << std::endl;
 #endif  // MAKE_ENHANCED_LIGAND_TOOLS

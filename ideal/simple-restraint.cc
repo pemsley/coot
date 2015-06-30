@@ -2081,6 +2081,25 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	 if ( (*this)[i].restraint_type == coot::PLANE_RESTRAINT) {
 	    n_plane_restraints++;
 	    plane_distortion += coot::distortion_score_plane((*this)[i], v); 
+            if (false) {  // debugging plane restraints.
+                std::cout << " plane distortion " << i << " " 
+                          << coot::distortion_score_plane((*this)[i], v) << " " 
+                          << (*this)[i];
+                for (unsigned int jj = 0; jj<(*this)[i].plane_atom_index.size(); jj+=3) { 
+                    std::cout << "\n                                ";
+		    unsigned int idx = (*this)[i].plane_atom_index[jj].first;
+                    std::cout << idx << " " << coot::atom_spec_t(atom[idx]);
+                    if ((jj+1) < (*this)[i].plane_atom_index.size()) { 
+		       unsigned int idx_1 = (*this)[i].plane_atom_index[jj+1].first;
+                       std::cout << " " << idx_1 << " " << coot::atom_spec_t(atom[idx_1]);
+                    }
+                    if ((jj+2) < (*this)[i].plane_atom_index.size()) { 
+		       unsigned int idx_2 = (*this)[i].plane_atom_index[jj+1].first;
+                       std::cout << " " << idx_2 << " " << coot::atom_spec_t(atom[idx_2]);
+                    }
+                }
+                std::cout << std::endl;
+            }
 	 }
       }
 
@@ -6045,9 +6064,18 @@ coot::restraints_container_t::apply_mod(const std::string &mod_name,
 					int idr,
 					mmdb::PResidue residue_p) {
 
+   // We crash here when linked with CCP4srs, geom.mods has been corrupted.
+   //
+   if (false) {
+      std::map<std::string, coot::protein_geometry::chem_mod>::const_iterator iit;
+      std::cout << "------ Here are the current mods: " << geom.mods.size() << std::endl;
+      for (iit=geom.mods.begin(); iit!=geom.mods.end(); iit++) 
+	 std::cout << "  " << iit->first << std::endl;
+   }
+
    std::map<std::string, coot::protein_geometry::chem_mod>::const_iterator it = 
       geom.mods.find(mod_name);
-   
+
    if (it != geom.mods.end()) {
       for (unsigned int i=0; i<it->second.bond_mods.size(); i++) { 
 	 apply_mod_bond(it->second.bond_mods[i], residue_p);

@@ -39,8 +39,6 @@ lbg_info_t::search() const {
 
    double local_search_similarity = get_search_similarity();
 
-   // mol.debug();
-
    mmdb::Residue *res = 0;
    
    mmdb::math::Graph *graph = new mmdb::math::Graph;

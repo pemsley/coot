@@ -36,26 +36,26 @@ protein_monomers() {
 
    std::vector <std::string> s;
 
-   s.push_back("/data/monomers/a/ALA.cif");
-   s.push_back("/data/monomers/c/CYS.cif");
-   s.push_back("/data/monomers/a/ASP.cif");
-   s.push_back("/data/monomers/a/ASN.cif");
-   s.push_back("/data/monomers/g/GLN.cif");
-   s.push_back("/data/monomers/g/GLY.cif");
-   s.push_back("/data/monomers/g/GLU.cif");
-   s.push_back("/data/monomers/p/PHE.cif");
-   s.push_back("/data/monomers/h/HIS.cif");
-   s.push_back("/data/monomers/i/ILE.cif");
-   s.push_back("/data/monomers/l/LYS.cif");
-   s.push_back("/data/monomers/l/LEU.cif");
-   s.push_back("/data/monomers/m/MET.cif");
-   s.push_back("/data/monomers/p/PRO.cif");
-   s.push_back("/data/monomers/a/ARG.cif");
-   s.push_back("/data/monomers/s/SER.cif");
-   s.push_back("/data/monomers/t/THR.cif");
-   s.push_back("/data/monomers/v/VAL.cif");
-   s.push_back("/data/monomers/t/TRP.cif");
-   s.push_back("/data/monomers/t/TYR.cif");   
+   s.push_back("/lib/data/monomers/a/ALA.cif");
+   s.push_back("/lib/data/monomers/c/CYS.cif");
+   s.push_back("/lib/data/monomers/a/ASP.cif");
+   s.push_back("/lib/data/monomers/a/ASN.cif");
+   s.push_back("/lib/data/monomers/g/GLN.cif");
+   s.push_back("/lib/data/monomers/g/GLY.cif");
+   s.push_back("/lib/data/monomers/g/GLU.cif");
+   s.push_back("/lib/data/monomers/p/PHE.cif");
+   s.push_back("/lib/data/monomers/h/HIS.cif");
+   s.push_back("/lib/data/monomers/i/ILE.cif");
+   s.push_back("/lib/data/monomers/l/LYS.cif");
+   s.push_back("/lib/data/monomers/l/LEU.cif");
+   s.push_back("/lib/data/monomers/m/MET.cif");
+   s.push_back("/lib/data/monomers/p/PRO.cif");
+   s.push_back("/lib/data/monomers/a/ARG.cif");
+   s.push_back("/lib/data/monomers/s/SER.cif");
+   s.push_back("/lib/data/monomers/t/THR.cif");
+   s.push_back("/lib/data/monomers/v/VAL.cif");
+   s.push_back("/lib/data/monomers/t/TRP.cif");
+   s.push_back("/lib/data/monomers/t/TYR.cif");   
 
    return s;
 }
@@ -68,12 +68,11 @@ main(int argc, char **argv) {
 
    if (argc <= 1) {
       
-      char *s = getenv("CCP4_LIB");
-      // s = ".";
+      char *s = getenv("CCP4");
       if (s) {
 	 filename = s;
 	 // contains the linkages:
-	 filename += "/data/monomers/list/mon_lib_list.cif";
+	 filename += "/lib/data/monomers/list/mon_lib_list.cif";
 	 // now check that that file is there:
 	 struct stat buf;
 	 stat(filename.c_str(), &buf);

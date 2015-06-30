@@ -190,15 +190,6 @@ on_clear_toolbutton_clicked(GtkToolButton *button, gpointer user_data) {
 }
 
 extern "C" G_MODULE_EXPORT void
-on_charge_toggle_toolbutton_toggled (GtkToggleToolButton *togglebutton,
-			       gpointer         user_data) {
-
-   // lbg_info_t::canvas_addition_mode = lbg_info_t::CHARGE;
-   std::cout << "Somehow set canvas_addition_mode it CHARGE - Fixme "
-	     << std::endl;
-} 
-
-extern "C" G_MODULE_EXPORT void
 on_single_toggle_toolbutton_toggled (GtkToggleToolButton *togglebutton,
 			       gpointer         user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
@@ -836,10 +827,15 @@ on_lbg_import_from_comp_id_dialog_response (GtkDialog       *dialog,
 	 GtkWidget *entry = l->lbg_import_from_comp_id_entry;
 	 if (entry) {
 	    std::string txt = gtk_entry_get_text(GTK_ENTRY(entry));
-	    l->import_mol_from_comp_id(txt);
+	    bool show_hydrogens = false;
+	    // check the status of the checkbutton and set show_hydrogens
+	    // to true if on.
+	    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(l->lbg_import_from_comp_id_hydrogens_checkbutton)))
+	      show_hydrogens = true;
+	    l->import_mol_from_comp_id(txt, show_hydrogens);
 	    gtk_widget_hide(GTK_WIDGET(dialog));
-	 } 
-      } 
+	 }
+      }
    }
 
    if (response_id == GTK_RESPONSE_CANCEL) { // -6

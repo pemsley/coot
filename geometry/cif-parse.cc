@@ -628,6 +628,7 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 					 const std::string &type_symbol,
 					 const std::string &type_energy,
 					 const std::pair<bool, mmdb::realtype> &partial_charge,
+					 const std::pair<bool, int> &formal_charge,
 					 dict_atom::aromaticity_t arom_in,
 					 const std::pair<bool, clipper::Coord_orth> &model_pos,
 					 const std::pair<bool, clipper::Coord_orth> &model_pos_ideal) { 
@@ -656,6 +657,7 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 
    coot::dict_atom at_info(atom_id, atom_id_4c, type_symbol, type_energy, partial_charge);
    at_info.aromaticity = arom_in;
+   at_info.formal_charge = formal_charge;
    
    if (debug) { 
       std::cout << "   mon_lib_add_atom model_pos       " << model_pos.first << " "
@@ -910,7 +912,7 @@ coot::protein_geometry::mon_lib_add_chiral(std::string comp_id,
        if (volume_sign_int != coot::dict_chiral_restraint_t::CHIRAL_VOLUME_RESTRAINT_VOLUME_SIGN_UNASSIGNED)
 	  add_restraint(comp_id, dict_chiral_restraint_t(id, atom_id_centre,
 							 atom_id_1,
-						      atom_id_2,
+						         atom_id_2,
 							 atom_id_3,
 							 volume_sign_int));
     
@@ -1161,10 +1163,12 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop) {
 
       std::pair<bool, int> pdbx_align(0, 0);
       int xalign;
+      int pdbx_charge;
       int ierr_optional;
       
-      std::pair<bool, std::string> pdbx_leaving_atom_flag(0,"");
-      std::pair<bool, std::string> pdbx_stereo_config_flag(0,"");
+      std::pair<bool, std::string> pdbx_leaving_atom_flag(false, "");
+      std::pair<bool, std::string> pdbx_stereo_config_flag(false, "");
+      std::pair<bool, int> formal_charge(false, 0); // read from PDB cif _chem_comp_atom.charge
       std::pair<bool, clipper::Coord_orth> pdbx_model_Cartn_ideal;
       std::pair<bool, clipper::Coord_orth> model_Cartn;
       dict_atom::aromaticity_t aromaticity = dict_atom::UNASSIGNED;
@@ -1191,6 +1195,10 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop) {
 	 if (s) {
 	    type_energy = s; 
 	 }
+
+	 ierr_optional = mmCIFLoop->GetInteger(pdbx_charge, "charge", j);
+	 if (! ierr_optional)
+	    formal_charge = std::pair<bool, int> (true, pdbx_charge);
 
 	 ierr_optional = mmCIFLoop->GetInteger(xalign, "pdbx_align", j);
 	 if (! ierr_optional)
@@ -1313,7 +1321,7 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop) {
 			 << std::endl;
 	    
 	    mon_lib_add_atom(comp_id, atom_id, padded_name, type_symbol, type_energy,
-			     partial_charge, aromaticity,
+			     partial_charge, formal_charge, aromaticity,
 			     model_Cartn, pdbx_model_Cartn_ideal);
 
 	 } else {
@@ -3015,7 +3023,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
       // shall we add coordinates too?
       //
-      bool add_coordinates = true; // if no atoms have coords, change this.
+      bool add_coordinates = true; // if no atoms have coords, this gets set to false.
       int n_atoms_with_coords = 0;
       for (unsigned int i=0; i<atom_info.size(); i++) {
 	 if (atom_info[i].model_Cartn.first)
@@ -3077,8 +3085,8 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       mmCIFLoop->PutString(ss, "atom_id_2", i);
 	       ss = bond_restraint[i].type().c_str();
 	       mmCIFLoop->PutString(ss, "type", i);
-	       float v = bond_restraint[i].value_dist();
 	       try {
+	          float v = bond_restraint[i].value_dist();
 		  mmCIFLoop->PutReal(v, "value_dist", i, 5);
 		  v = bond_restraint[i].value_esd();
 		  mmCIFLoop->PutReal(v, "value_dist_esd", i, 3);

@@ -1,9 +1,21 @@
  
  0.8.2
 
-   o allow non-auto glyo link determination in sphere refine.
+   o Fun: mmcif -> lbg
+
+* It was already there.  We needed to load from CCP4 SRS (and init the
+  protein_geometry).  The Import comp-id dialog needs to have a hydrogens
+  button (which is off by defaut).  We still need to set charges on reading
+  ATP, etc.  Question: how do I show deloc bonds from refmac dictionaries?
+
+   o compile without guile and run with --no-graphics (crashes on mac).
+
+* No longer, but there's a problem (crash) reading template_key_bindings.py
+  Need to test this on home/work computer.
 
    o LINK info (distances on output) - new mmdb
+
+   o allow non-auto glyco link determination in sphere refine.
 
    o with enhanced-ligand, do you get a sane code-path if you do 
      File -> SMILES?
@@ -11,7 +23,9 @@
    o Ligand Check
 
    o pyrogen -M default
-
+ 
+   o add test for carbohydrate building.
+ 
    o review simple-restraints.cc:5131 H-bumps
 
 ------
@@ -183,3 +197,22 @@ Punt.
    o Uncrunch
 
 * Done.
+
+   o read in PDBe-01Y.cif write_cif_dictionary('01Y', 'my-01Y.cif')
+       -> crash
+
+* Done.  Needed to protect bond length lookup too.
+
+   o make c-interface.cc:6264 pyrun_simplestring() arg be a real 
+     (const?) char *.
+
+* It is now a string.c_str() - that should do, I think.
+ 
+   o Get 1MK sdf from RSCB.  Read it int LBG -> crash.
+
+* Fixed!  Was trying to get a bond distance from a wwPDB mmcif restraints
+  container.
+ 
+   o Add chirals to Tabulate/Show Residue distortions
+
+*It's already there.
