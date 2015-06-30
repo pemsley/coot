@@ -424,9 +424,22 @@ void renumber_residues_from_widget(GtkWidget *window) {
 	 if (imol < graphics_info_t::n_molecules()) {
 	    if (graphics_info_t::molecules[imol].has_model()) {
 	       std::string chain = graphics_info_t::renumber_residue_range_chain;
-	       
-	       renumber_residue_range(imol, chain.c_str(),
-				      start_res, last_res, offset);
+
+
+           // renumber_residue_range returns 0 upon fail
+           // including overlap, so test for this here?!
+           int status;
+           status = renumber_residue_range(imol, chain.c_str(),
+                                           start_res, last_res, offset);
+           if (!status) {
+              // error of sorts
+              std::string s = "WARNING:: could not renumber residue range.\n";
+              s += "Maybe your selection overlaps with existing residues.\n";
+              s += "Please revise your selection.";
+              info_dialog(s.c_str());
+                 
+           }
+
 	    }
 	 }
       }

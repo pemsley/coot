@@ -5347,13 +5347,17 @@ molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
    // BL says:: I dont belive it, so lets try...
    // OK, seems to be the case, so just add a SortResidues and
    // Bob is your uncle.
+   // BL says (30/6/15):: should check if we get overlapping residues,
+   // if so then dont do it.
    
    if (start_resno > last_resno) {
       int tmp = start_resno;
       start_resno = last_resno;
       last_resno = tmp;
    }
-   
+
+   // check existing residues (except moving ones) in range we want to move to
+   int residue_exists = 0;
    if (atom_sel.n_selected_atoms > 0) {
       mmdb::Model *model_p = atom_sel.mol->GetModel(1);
       mmdb::Chain *chain_p;
@@ -5362,32 +5366,67 @@ molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
          chain_p = model_p->GetChain(i_chain);
          std::string mol_chain(chain_p->GetChainID());
          if (mol_chain == chain_id) {
-
-            make_backup();
             int nres = chain_p->GetNumberOfResidues();
             mmdb::Residue *residue_p;
             for (int ires=0; ires<nres; ires++) { // ires is a serial number
                residue_p = chain_p->GetResidue(ires);
-               if (residue_p->seqNum >= start_resno) {
-                  if (residue_p->seqNum <= last_resno) {		     
-                     residue_p->seqNum += offset;
-                     status = 1; // found one residue at least.
+               int res_no = residue_p->seqNum;
+               if (res_no >= start_resno) {
+                  if (res_no <= last_resno) {
+                     int new_res_no = res_no + offset;
+                     // moving range, so check for overlap in non-moving range
+                     if ((new_res_no < start_resno) || (new_res_no > last_resno)) {
+                        residue_exists = does_residue_exist_p(chain_p->GetChainID(), new_res_no, "");
+                        if (residue_exists)
+                           break;
+                     }
                   }
                }
             }
          }
-         if (status)
-            chain_p->SortResidues();
       }
    }
-   if (status) {
-      have_unsaved_changes_flag = 1;
-      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-      atom_sel.mol->FinishStructEdit();
-      update_molecule_after_additions();
-      // need to redraw the bonds:
-      make_bonds_type_checked();
-   } 
+   
+
+   if (!residue_exists) {
+      if (atom_sel.n_selected_atoms > 0) {
+         mmdb::Model *model_p = atom_sel.mol->GetModel(1);
+         mmdb::Chain *chain_p;
+         int n_chains = model_p->GetNumberOfChains(); 
+         for (int i_chain=0; i_chain<n_chains; i_chain++) {
+            chain_p = model_p->GetChain(i_chain);
+            std::string mol_chain(chain_p->GetChainID());
+            if (mol_chain == chain_id) {
+
+               make_backup();
+               int nres = chain_p->GetNumberOfResidues();
+               mmdb::Residue *residue_p;
+               for (int ires=0; ires<nres; ires++) { // ires is a serial number
+                  residue_p = chain_p->GetResidue(ires);
+                  if (residue_p->seqNum >= start_resno) {
+                     if (residue_p->seqNum <= last_resno) {		     
+                        residue_p->seqNum += offset;
+                        status = 1; // found one residue at least.
+                     }
+                  }
+               }
+            }
+            if (status)
+               chain_p->SortResidues();
+         }
+      }
+      if (status) {
+         have_unsaved_changes_flag = 1;
+         atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+         atom_sel.mol->FinishStructEdit();
+         update_molecule_after_additions();
+         // need to redraw the bonds:
+         make_bonds_type_checked();
+      }
+   } else {
+      std::cout << "WARNING:: the new residue range overlaps with original one. "
+         << "Please change the range. Nothing has been done." << std::endl;
+   }
    return status;
    
 }
