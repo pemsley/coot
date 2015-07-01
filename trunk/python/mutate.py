@@ -20,7 +20,7 @@
 #
 # The number of residues in chain-id must match the length of sequence.
 #
-def mutate_chain(imol,chain_id,sequence):
+def mutate_chain(imol, chain_id, sequence):
 
    if (len(sequence) != chain_n_iresidues(chain_id, imol)) :
        print "sequence mismatch: molecule", chain_n_residues(chain_id, imol), "new sequences:", len(sequence)
@@ -30,7 +30,7 @@ def mutate_chain(imol,chain_id,sequence):
        # turn off backup for imol
        turn_off_backup(imol)
        baddies = 0
-       for ires in sequence : 
+       for ires in sequence.upper(): 
            res = mutate_single_residue_by_serial_number(ires, chain_id, imol, sequence_list[ires])
            if (res != 1) :
                baddies += 1
@@ -43,12 +43,13 @@ def mutate_chain(imol,chain_id,sequence):
        graphics_draw()
 
 # an internal function of mutate, This presumes a protein sequence
-def multi_mutate(mutate_function,imol,start_res_no,chain_id,sequence):
+def multi_mutate(mutate_function, imol, start_res_no, chain_id, sequence):
 
    if (len(sequence) > 0):
       baddies = 0
       for ires in range(len(sequence)) :
-          result = mutate_function(start_res_no+ires,"",chain_id,imol,sequence[ires])
+          result = mutate_function(start_res_no+ires, "", chain_id,
+                                   imol, sequence[ires].upper())
           if (result != 1) :
               # add a baddy if result was 0 (fail)
               baddies += 1
@@ -59,7 +60,7 @@ def multi_mutate(mutate_function,imol,start_res_no,chain_id,sequence):
 # mutate_resiude_range(0,"A",1,2,"AC")
 #
 # This presumes a protein sequence (not nucleic acid).
-def mutate_residue_range(imol,chain_id,start_res_no,stop_res_no,sequence):
+def mutate_residue_range(imol, chain_id, start_res_no, stop_res_no, sequence):
 
    print "backing up molecule number ", imol
    make_backup(imol)
@@ -70,7 +71,7 @@ def mutate_residue_range(imol,chain_id,start_res_no,stop_res_no,sequence):
        backup_mode = backup_state(imol)
        turn_off_backup(imol)
        multi_mutate(mutate_single_residue_by_seqno, imol,
-                    start_res_no, chain_id, sequence)
+                    start_res_no, chain_id, sequence.upper())
        set_have_unsaved_changes(imol)
        if (backup_mode == 1) :
            turn_on_backup(imol)
@@ -83,9 +84,11 @@ def mutate_residue_range(imol,chain_id,start_res_no,stop_res_no,sequence):
 #
 # The sequence is a string of one letter codes
 #
-def mutate_and_autofit_residue_range(imol,chain_id,start_res_no,stop_res_no,sequence):
+def mutate_and_autofit_residue_range(imol, chain_id, start_res_no, stop_res_no,
+                                     sequence):
 
-   mutate_residue_range(imol,chain_id,start_res_no,stop_res_no,sequence)
+   mutate_residue_range(imol, chain_id, start_res_no, stop_res_no,
+                        sequence.upper())
    mol_for_map = imol_refinement_map()
    if (mol_for_map >= 0) :
        backup_mode = backup_state(imol)
@@ -95,9 +98,11 @@ def mutate_and_autofit_residue_range(imol,chain_id,start_res_no,stop_res_no,sequ
           altloc = ""
           inscode = ""
           resno = ires + start_res_no
-          print "auto-fit-best-rotamer ",resno,altloc,inscode,chain_id,imol,mol_for_map,clash
-          score = auto_fit_best_rotamer(resno,altloc,inscode,chain_id,imol,mol_for_map,clash,0.5)
-          print "   Best score: ",score
+          print "auto-fit-best-rotamer ", resno, altloc, inscode, chain_id, \
+                imol, mol_for_map, clash
+          score = auto_fit_best_rotamer(resno, altloc, inscode, chain_id,
+                                        imol, mol_for_map, clash, 0.5)
+          print "   Best score: ", score
 #          number_list(start_res_no,stop_res_no)
        if (backup_mode == 1) :
            turn_on_backup(imol)
@@ -167,8 +172,11 @@ def mutate_nucleotide_range(imol, chain_id, resno_start, resno_end, sequence):
          info_dialog(s)
          print s
       else:
-         residue_types = map(nucleotide_letter2three_letter_code, sequence)
-         for res_no, res_type in map(None, range(resno_start, resno_end + 1), residue_types):
+         residue_types = map(nucleotide_letter2three_letter_code,
+                             sequence.upper())
+         for res_no, res_type in map(None,
+                                     range(resno_start, resno_end + 1),
+                                     residue_types):
             if res_type:
                mutate_base(imol, chain_id, res_no, "", res_type)
 
