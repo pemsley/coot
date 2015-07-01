@@ -375,6 +375,12 @@
       #f
       (cadr (car ra))))
 
+;; residue-info atom
+(define (residue-atom->occupancy ra)
+  (if (not (list? ra))
+      #f
+      (car (cadr ra))))
+
 ;; residue spec (e.g. from residue-near-residue)
 (define (residue-spec->chain-id rs)
   (if (not (list? rs))
