@@ -5371,12 +5371,13 @@ molecule_class_info_t::renumber_residue_range(const std::string &chain_id,
             for (int ires=0; ires<nres; ires++) { // ires is a serial number
                residue_p = chain_p->GetResidue(ires);
                int res_no = residue_p->seqNum;
+               char *ins_code = residue_p->GetInsCode();
                if (res_no >= start_resno) {
                   if (res_no <= last_resno) {
                      int new_res_no = res_no + offset;
                      // moving range, so check for overlap in non-moving range
                      if ((new_res_no < start_resno) || (new_res_no > last_resno)) {
-                        residue_exists = does_residue_exist_p(chain_p->GetChainID(), new_res_no, "");
+                        residue_exists = does_residue_exist_p(chain_p->GetChainID(), new_res_no, ins_code);
                         if (residue_exists)
                            break;
                      }

@@ -23,6 +23,7 @@ FIX COOT_REFMAC_DIR for x86 windows with spaces (and/or umlauts)!
 -- before 0.8
 
 Windows:
+ o check installer on win 8 (hangs after finished)
  o distribute src code!!!
  o change runwincoot.bat to (win)coot.bat
  o write things to WINDIR (rather than HOME)
@@ -106,8 +107,6 @@ scripting exercise
 **** General ****
 
    o add atom info to HETATM info in status bar!?
-
-   o increase resolution/size of svg for newer screens.
 
    o revisit B-factor setting for new atoms. Still CB wrong when stubbing.
 	maybe set new B to overall B from mol (rather than default!?)
@@ -367,8 +366,6 @@ from Osaka 2010
 
    o cootaneering (more testing, make documentation?)
 
-   o alternatives for loop building (wait for Kevin's implementation/sloopy)
-
    o add terminal residue (if Gly, Pro) use different target ramachandran
 	 function for placement of term residue;
 	 maybe we want to try general rama first, then Pro, then Gly (if we 
@@ -423,6 +420,8 @@ low importance
 
    o residue type selection convert to upper case (maybe best a combobox)
 
+   o db loop fit does not delete residues if going back to original loop. Not 
+     trivial, since replace coords or copying keeps the last added ones.
    o find_exe/command_in_path
 	- more generic with respect to extensions (Win mainly)
 	- take all drive letters (Win only)
@@ -994,6 +993,14 @@ Osaka 2010
 * Done
 
    o toolbar disappears when playing around (disable) in preferences
+
+* Done
+
+   o increase resolution/size of svg for newer screens.
+
+* Done (well not increased res, but use svg)
+
+   o alternatives for loop building (wait for Kevin's implementation/sloopy)
 
 * Done
 

@@ -2272,4 +2272,6 @@ class PdbMtzTestFunctions(unittest.TestCase):
         self.failUnless(renumber_residue_range(0, "A", 90, 93, 10) == 1)
         self.failUnless(renumber_residue_range(0, "A", 89, 91, 1) == 1)
         self.failUnless(renumber_residue_range(0, "A", 80, 91, 12) == 0)
+        self.failUnless(renumber_residue_range(0, "A", -100, 200, 9) == 1)
+        
         
