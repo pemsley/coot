@@ -73,6 +73,8 @@
 #include "support.h"  // for lookup
 
 #include "c-interface.h" // for the coot graphics callbacks in button_press()
+#include "cc-interface.hh"
+#include "graphics-info.h"
 
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
@@ -839,6 +841,12 @@ coot::geometry_graphs::render_omega_blocks(const coot::omega_distortion_info_con
       for (unsigned int i=0; i<om_dist.omega_distortions.size(); i++) {
 	 this_resno = om_dist.omega_distortions[i].resno;
 	 coot::atom_spec_t atom_spec(chain_id, this_resno, inscode, at_name, altconf);
+     if (om_dist.omega_distortions[i].info_string.find("Cis") != std::string::npos) {
+        if (residue_name(imol, chain_id, this_resno, inscode) == "PRO")
+           atom_spec.string_user_data = "Cis Peptide Pro";           
+        else
+           atom_spec.string_user_data = "Cis Peptide";
+     }
 	 geometry_graph_block_info block_info(imol,
 					      om_dist.omega_distortions[i].resno,
 					      atom_spec,
@@ -998,7 +1006,11 @@ coot::geometry_graphs::plot_block(const coot::geometry_graph_block_info &block_i
    //
       
    if (block_info.atom_spec.string_user_data == "Missing Atoms")
-      colour = "slate blue"; 
+      colour = "slate blue";
+
+   if (block_info.atom_spec.string_user_data == "Cis Peptide Pro"
+       && graphics_info_t::mark_cis_peptides_as_bad_flag)
+      colour = "slate blue";
 
    // std::cout << " distortion: " << distortion << std::endl;
    // std::cout << " block: " << x1 << " " << x2 << " " << y1 << " " << y2 << std::endl;

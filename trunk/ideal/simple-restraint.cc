@@ -972,6 +972,10 @@ coot::restraints_container_t::omega_trans_distortions(int mark_cis_peptides_as_b
 	       double distortion = fabs(180.0 - torsion);
 	       // distortion = (distortion < 60.0) ? distortion : 60.0;
 
+           // Add comment on Cis peptide, if it is:
+           if (torsion < 90.0 || torsion > 270.0) 
+              info += "  (Cis)";
+
 	       if (!mark_cis_peptides_as_bad_flag)
 		  // consider the cases: torsion=1 and torsion=359
 		  if (distortion > 90.0) {

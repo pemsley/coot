@@ -98,6 +98,7 @@
 (define link-info link-info-scm)
 (define kolmogorov-smirnov     kolmogorov-smirnov-scm)
 (define kullback-liebler       kullback-liebler-scm)
+(define residue-name           residue-name-scm)
 (define chain-fragments        chain-fragments-scm)
 (define find-blobs             find-blobs-scm)
 (define morph-fit-residues     morph-fit-residues-scm)

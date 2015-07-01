@@ -491,6 +491,8 @@ SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
 #endif // USE_GUILE
 
 
+std::string residue_name(int imol, const std::string &chain_id, int resno, const std::string &ins_code);
+
 #ifdef USE_GUILE
 //! \brief Return a list of atom info for each atom in the specified residue.
 //! 
@@ -504,7 +506,7 @@ SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
 //! the isotropic B.
 //! 
 SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code);
-SCM residue_name(int imol, const char* chain_id, int resno, const char *ins_code);
+SCM residue_name_scm(int imol, const char* chain_id, int resno, const char *ins_code);
 
 SCM chain_fragments_scm(int imol, short int screen_output_also); 
 
