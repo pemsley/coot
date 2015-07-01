@@ -1323,11 +1323,12 @@ SCM residue_name_scm(int imol, const char* chain_id, int resno, const char *ins_
    SCM r = SCM_BOOL(0);
    std::string res_name = residue_name(imol, chain_id, resno, ins_code);
    if (res_name.size() > 0) {
-      r = scm_makfrom0str(res_name);
+      r = scm_makfrom0str(res_name.c_str());
    }
    return r;
 }
 #endif // USE_GUILE
+
 #ifdef USE_PYTHON
 PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char *ins_code) {
 
