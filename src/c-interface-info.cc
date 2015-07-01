@@ -1278,50 +1278,10 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
 
 #endif //PYTHON
 
+std::string residue_name(int imol, const std::string &chain_id, int resno,
+                         const std::string &ins_code) {
 
-#ifdef USE_GUILE
-SCM residue_name(int imol, const char* chain_id, int resno, const char *ins_code) {
-
-   SCM r = SCM_BOOL(0);
-   if (is_valid_model_molecule(imol)) {
-      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-      int imod = 1;
-      bool have_resname_flag = 0;
-      
-      mmdb::Model *model_p = mol->GetModel(imod);
-      mmdb::Chain *chain_p;
-      // run over chains of the existing mol
-      int nchains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<nchains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
-	 std::string chain_id_mol(chain_p->GetChainID());
-	 if (chain_id_mol == std::string(chain_id)) { 
-	    int nres = chain_p->GetNumberOfResidues();
-	    mmdb::PResidue residue_p;
-	    for (int ires=0; ires<nres; ires++) { 
-	       residue_p = chain_p->GetResidue(ires);
-	       if (residue_p->GetSeqNum() == resno) { 
-		  std::string ins = residue_p->GetInsCode();
-		  if (ins == ins_code) {
-		     r = scm_makfrom0str(residue_p->GetResName());
-		     have_resname_flag = 1;
-		     break;
-		  }
-	       }
-	    }
-	 }
-	 if (have_resname_flag)
-	    break;
-      }
-   }
-   return r;
-}
-#endif // USE_GUILE
-#ifdef USE_PYTHON
-PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char *ins_code) {
-
-   PyObject *r;
-   r = Py_False;
+   std::string r = "";
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
       int imod = 1;
@@ -1342,7 +1302,7 @@ PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char 
                if (residue_p->GetSeqNum() == resno) { 
                   std::string ins = residue_p->GetInsCode();
                   if (ins == ins_code) {
-                     r = PyString_FromString(residue_p->GetResName());
+                     r = residue_p->GetResName();
                      have_resname_flag = 1;
                      break;
                   }
@@ -1353,6 +1313,31 @@ PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char 
             break;
       }
    }
+   return r;
+}
+
+
+#ifdef USE_GUILE
+SCM residue_name_scm(int imol, const char* chain_id, int resno, const char *ins_code) {
+
+   SCM r = SCM_BOOL(0);
+   std::string res_name = residue_name(imol, chain_id, resno, ins_code);
+   if (res_name.size() > 0) {
+      r = scm_makfrom0str(res_name);
+   }
+   return r;
+}
+#endif // USE_GUILE
+#ifdef USE_PYTHON
+PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char *ins_code) {
+
+   PyObject *r;
+   r = Py_False;
+   std::string res_name = residue_name(imol, chain_id, resno, ins_code);
+   if (res_name.size() > 0) {
+      r = PyString_FromString(res_name.c_str());
+   }
+
    if (PyBool_Check(r)) {
      Py_INCREF(r);
    }
