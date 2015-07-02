@@ -387,8 +387,25 @@ def run_one_test(no_of_test):
 # function to run one test set
 def run_test_set(no_of_test_set):
     print "BL DEBUG:: should run ", test_list[no_of_test_set]
+    if (no_of_test_set > 0):
+        read_imol_rnase_and_map()
     set = unittest.TestSuite()
     set.addTests(unittest.TestLoader().loadTestsFromTestCase(test_list[no_of_test_set]))
     result = unittest.TextTestRunner(verbosity=2).run(set)
     return result
 
+# read imol_rnase and map if not there?!
+def read_imol_rnase_and_map():
+    global imol_rnase
+    global imol_rnase_map
+
+    if (imol_rnase < 0):
+        # not set up-> read, i.e. run test02 from 01
+        imol = read_pdb(rnase_pdb())
+        imol_rnase = imol
+
+    if (imol_rnase_map < 0):
+        imol_map = make_and_draw_map(rnase_mtz(), "FWT","PHWT","",0,0)
+        set_imol_refinement_map(imol_map)
+        imol_rnase_map = imol_map
+  

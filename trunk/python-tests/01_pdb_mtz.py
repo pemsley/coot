@@ -104,6 +104,8 @@ class PdbMtzTestFunctions(unittest.TestCase):
         
     def test04_0(self):
         """New molecule from bogus atom selection"""
+
+        global imol_rnase
         pre_n_molecules = graphics_n_molecules()
         new_molecule = new_molecule_by_atom_selection(imol_rnase, "//A/100")
         post_n_molecules = graphics_n_molecules()
@@ -2268,10 +2270,11 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
         # This tests that we
         imol = unittest_pdb("tutorial-modern.pdb")
-        self.failUnless(renumber_residue_range(0, "A", 10, 20, -55) == 1)
-        self.failUnless(renumber_residue_range(0, "A", 90, 93, 10) == 1)
-        self.failUnless(renumber_residue_range(0, "A", 89, 91, 1) == 1)
-        self.failUnless(renumber_residue_range(0, "A", 80, 91, 12) == 0)
-        self.failUnless(renumber_residue_range(0, "A", -100, 200, 9) == 1)
+        self.failUnless(valid_model_molecule_qm(imol))
+        self.failUnless(renumber_residue_range(imol, "A", 10, 20, -55) == 1)
+        self.failUnless(renumber_residue_range(imol, "A", 90, 93, 10) == 1)
+        self.failUnless(renumber_residue_range(imol, "A", 89, 91, 1) == 1)
+        self.failUnless(renumber_residue_range(imol, "A", 80, 91, 12) == 0)
+        self.failUnless(renumber_residue_range(imol, "A", -100, 200, 9) == 1)
         
         
