@@ -29,10 +29,12 @@ def imol_insulin():
 
 class NcsTestFunctions(unittest.TestCase):
 
+      
     def test01_1(self):
 	    """NCS maps test"""
 
 	    global imol_rnase_map
+	    global imol_rnase
 	    self.failUnless(valid_model_molecule_qm(imol_rnase),
 			    "imol_rnase not valid")
 
