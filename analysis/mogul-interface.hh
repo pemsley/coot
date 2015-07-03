@@ -143,11 +143,16 @@ namespace coot {
 				const std::string &name_2) const;
       
       std::vector<int> get_indices(const std::string &indices_string) const;
+      bool apply_minimum_sigma_cap;
 
    public:
-      mogul() { max_z_badness = 5.0; }
+      mogul() {
+	 max_z_badness = 5.0;
+	 apply_minimum_sigma_cap = true;
+      }
       mogul(const std::string &file_name) {
 	 max_z_badness = 5.0;
+	 apply_minimum_sigma_cap = true;
 	 parse(file_name);
       }
       void parse(const std::string &file_name);
@@ -160,6 +165,9 @@ namespace coot {
 	 for (unsigned int ii=0; ii<items.size(); ii++)
 	    items[ii].set_max_z_badness(b);
       }
+      void set_minimum_sigma_cap(bool state) {
+	 apply_minimum_sigma_cap = state;
+      } 
 
       coot::dictionary_residue_restraints_t make_restraints(mmdb::Residue *residue_p,
 						      const std::string &comp_id,

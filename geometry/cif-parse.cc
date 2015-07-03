@@ -1511,6 +1511,8 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop) {
 		  type = "double";
 	       if (ss == "TRIP")
 		  type = "triple";
+	       if (ss == "trip") // acedrg
+		  type = "triple";
 	       if (ss == "TRIPLE")
 		  type = "triple";
 

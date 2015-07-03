@@ -675,9 +675,11 @@ coot::mogul::get_max_z_badness(mogul_item::type_t t) const {
 	 if (item.type == mogul_item::BOND) { 
 	    if (t == mogul_item::BOND || t == mogul_item::BOND_OR_ANGLE) {
 	       float s = item.std_dev;
-	       // cap sigma
-	       // if (s < 0.021)
-	       // s = 0.021;
+
+	       // capped sigma?
+	       if (apply_minimum_sigma_cap) 
+		  if (s < 0.015) // where does this number come from?
+		     s = 0.015;
 	       float n_z =  fabsf(item.value-item.median)/s;
 	       if (n_z > r) { 
 		  r = n_z;
@@ -688,8 +690,10 @@ coot::mogul::get_max_z_badness(mogul_item::type_t t) const {
 	 if (item.type == mogul_item::ANGLE) { 
 	    if (t == mogul_item::ANGLE || t == mogul_item::BOND_OR_ANGLE) {
 	       float s = item.std_dev;
-	       // if (s < 2.1)
-	       // s = 2.1;
+	       // cap sigma?
+	       if (apply_minimum_sigma_cap) 
+		  if (s < 1.0) // where does this number come from?  It seems sane.
+		     s = 1.0;
 	       float n_z =  fabsf(item.value-item.median)/s;
 	       if (n_z > r) { 
 		  r = n_z;
