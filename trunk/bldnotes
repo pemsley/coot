@@ -56,8 +56,6 @@ CCP4 SW:
 - powerpoint plug in
 
 - add nomenclature error check to preferences
-- focus on button of nomenclature error dialog
-- bind arrow keys to translation!?
 - show all bond distances (angles etc?) for ligand/residue
 - update WIKI (key bindings)
 
@@ -1004,3 +1002,10 @@ Osaka 2010
 
 * Done
 
+  o focus on button of nomenclature error dialog
+
+* Done (not necessary any more?!)
+
+  o bind arrow keys to translation!?
+
+* Done

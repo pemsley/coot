@@ -842,7 +842,7 @@ coot::geometry_graphs::render_omega_blocks(const coot::omega_distortion_info_con
 	 this_resno = om_dist.omega_distortions[i].resno;
 	 coot::atom_spec_t atom_spec(chain_id, this_resno, inscode, at_name, altconf);
      if (om_dist.omega_distortions[i].info_string.find("Cis") != std::string::npos) {
-        if (residue_name(imol, chain_id, this_resno, inscode) == "PRO")
+        if (residue_name(imol, chain_id, this_resno+1, inscode) == "PRO")
            atom_spec.string_user_data = "Cis Peptide Pro";           
         else
            atom_spec.string_user_data = "Cis Peptide";
