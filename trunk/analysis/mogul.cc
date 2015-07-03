@@ -110,6 +110,9 @@ coot::mogul::parse_item_line(const std::vector<std::string> &bits, int n_idx) co
    mogul_item r;
    bool debug = false;
 
+   float min_acceptable_sigma_bond = 0.013;
+   float min_acceptable_sigma_angle = 1.0; // degrees
+
    if (bits.size() > 6) {
       std::string indices_string = bits[1];
       std::vector<int> indices = get_indices(indices_string);
@@ -188,13 +191,25 @@ coot::mogul::parse_item_line(const std::vector<std::string> &bits, int n_idx) co
 			 << n_idx << std::endl;
 	    
 	    if (n_idx == 2) {
-	       if (indices.size() == 2) { 
+	       if (indices.size() == 2) {
+		  if (apply_minimum_sigma_cap) { 
+		     if (std_dev < min_acceptable_sigma_bond) { 
+			std_dev = min_acceptable_sigma_bond;
+			z = fabsf(model_value - median)/std_dev;			
+		     }
+		  }
 		  r = mogul_item(indices[0], indices[1], model_value,
 				 counts, mean, median, std_dev, z);
 	       }
 	    }
 	    if (n_idx == 3) {
 	       if (indices.size() == 3) { 
+		  if (apply_minimum_sigma_cap) { 
+		     if (std_dev < min_acceptable_sigma_angle) { 
+			std_dev = min_acceptable_sigma_angle;
+			z = fabsf(model_value - median)/std_dev;
+		     }
+		  }
 		  r = mogul_item(indices[0], indices[1], indices[2],
 				 model_value, counts, mean, median, std_dev, z);
 	       }
@@ -614,8 +629,8 @@ coot::mogul_item::ft_model_torsion_distribution() {
    
    for (i = 0; i < 14; i++) {
       std::complex<double> c(REAL(data,i), IMAG(data,i));
-      double r = abs(c);
-      double phi = arg(c);
+      double r = std::abs(c);
+      double phi = std::arg(c);
       std::cout << "r: " << r << "  phi " << phi << " from " << c << std::endl;
       for (unsigned int j=0; j<n; j++) { 
 	 model[j] += 2/double(n)*r*cos(phi + 2*M_PI*double(i*j)/double(n));
@@ -680,7 +695,7 @@ coot::mogul::get_max_z_badness(mogul_item::type_t t) const {
 	       if (apply_minimum_sigma_cap) 
 		  if (s < 0.015) // where does this number come from?
 		     s = 0.015;
-	       float n_z =  fabsf(item.value-item.median)/s;
+	       float n_z = fabsf(item.value-item.median)/s;
 	       if (n_z > r) { 
 		  r = n_z;
 		  worst_item = item;
