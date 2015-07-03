@@ -18,8 +18,6 @@ mogul_results_scm(const char *mogul_out_file_name) {
       r = SCM_EOL;
       for (unsigned int i=0; i<m.n_items(); i++) { 
 	 const coot::mogul_item &item = m[i];
-	 // SCM scm_item = scm_list_2(scm_double2num(item.z),
-	 // scm_double2num(item.z));
 	 SCM scm_item = scm_double2num(item.z);
 	 r = scm_cons(scm_item, r);
       }

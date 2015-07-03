@@ -2565,39 +2565,49 @@ coot::remove_PO4_SO4_hydrogens(RDKit::RWMol *m,
                       << std::endl;
          }
 
-         if (single_PO_bonds.size() == 2) { 
-            if (double_PO_bonds.size() == 1) { 
-     
-               if (debug) { 
-                  std::string thingate = (atomic_num== 16) ? "sulphate" : "phosphate";
-                  std::cout << " :::::: found a " << thingate << " :::::::::::::" << std::endl;
-               }
+	 bool do_strip = false;
+	 if (atomic_num == 15)
+	    if (single_PO_bonds.size() == 2)
+	       if (double_PO_bonds.size() == 1)
+		  do_strip = true;
+	 
+	 if (atomic_num == 16)
+	    if (single_PO_bonds.size() == 1)  // SO bonds of course in this case
+	       if (double_PO_bonds.size() == 2)
+		  do_strip = true;
 
-               for (unsigned int ip=0; ip<probable_phosphate_hydrogens.size(); ip++)
-                  H_atoms_to_be_deleted.push_back(probable_phosphate_hydrogens[ip]);
+	 if (do_strip) {
+	    
+	    if (debug) { 
+	       std::string thingate = (atomic_num== 16) ? "sulphate" : "phosphate";
+	       std::cout << " :::::: found a " << thingate << " :::::::::::::" << std::endl;
+	    }
+
+	    for (unsigned int ip=0; ip<probable_phosphate_hydrogens.size(); ip++)
+	       H_atoms_to_be_deleted.push_back(probable_phosphate_hydrogens[ip]);
                
-               // 20150622-PE
-               // If we charge the Os, then (for AMP from PDBe-AMP.cif) we end up 
-               // with 
-               // "Explicit valence for atom # 1 O, 3, is greater than permitted"
-               // when we call sanitizeMol() from hydrogen_transformations()
-               // (directly after this function is called).
-               // 
-               // for (unsigned int ii=0; ii<O_atoms_for_charging.size(); ii++)
-               //    O_atoms_for_charging[ii]->setFormalCharge(-1);
+	    // 20150622-PE
+	    // If we charge the Os, then (for AMP from PDBe-AMP.cif) we end up 
+	    // with 
+	    // "Explicit valence for atom # 1 O, 3, is greater than permitted"
+	    // when we call sanitizeMol() from hydrogen_transformations()
+	    // (directly after this function is called).
+	    // 
+	    // for (unsigned int ii=0; ii<O_atoms_for_charging.size(); ii++)
+	    //    O_atoms_for_charging[ii]->setFormalCharge(-1);
 
-               if (deloc_bonds) { 
+	    if (deloc_bonds) { 
          
-                  if (O_atoms_for_charging.size() == 3) { 
+	       if (O_atoms_for_charging.size() == 3) {
 
-                     single_PO_bonds[0]->setBondType(RDKit::Bond::ONEANDAHALF);
-                     single_PO_bonds[1]->setBondType(RDKit::Bond::ONEANDAHALF);
-                     double_PO_bonds[0]->setBondType(RDKit::Bond::ONEANDAHALF);
-                     P_at->setFormalCharge(+1);
+		  for (unsigned int ii=0; ii<single_PO_bonds.size(); ii++)
+		     single_PO_bonds[ii]->setBondType(RDKit::Bond::ONEANDAHALF);
+		  for (unsigned int ii=0; ii<double_PO_bonds.size(); ii++)
+		     double_PO_bonds[ii]->setBondType(RDKit::Bond::ONEANDAHALF);
+		  P_at->setFormalCharge(+1);
                   
-                  }
 	       }
-            }
+	    }
          }
       }
    }
