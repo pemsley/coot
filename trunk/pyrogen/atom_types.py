@@ -185,13 +185,14 @@ def set_atom_types(mol):
         ('BR',    '[Br]',  0),
 
         # Sulfur
-        ('SH1',  '[SH1]', 0),  # SG of CYS
-        ('ST',   '[SX4]', 0), # tetrahedral (2 single bonds, 2 double)
+        ('SH1',  '[SX2H1]', 0),  # SG of CYS
+        ('ST',   '[SX4]', 0),  # tetrahedral (2 single bonds, 2 double)
         ('S1',   '[S]=*', 0),
         ('S2',   '[SX2,sX2]', 0),
         ('S3',   '[SX3,sX3]', 0),
         ('S',    '[S,s]', 0),
 
+        # Silicon
         ('SI1',  '[Si;X4]', 0), # tetragonal Si
         ('SI',   '[Si]',    0)  # Si any other
 
@@ -207,7 +208,7 @@ def set_atom_types(mol):
         pattern = Chem.MolFromSmarts(smarts)
         if mol.HasSubstructMatch(pattern):
             matches = mol.GetSubstructMatches(pattern)
-	    if False:
+	    if True:
 		print "SMARTS ", smarts
 		print "  ", atom_type, ": ", matches
             for match in matches:

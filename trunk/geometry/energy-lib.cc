@@ -569,7 +569,8 @@ coot::energy_lib_t::get_bond(const std::string &energy_type_1,
       catch (const std::runtime_error &rte2) {
 
 	 if (1)
-	    std::cout << "INFO:: falling back to permissive search for bond "
+	    std::cout << "WARNING:: energy-lib search: falling back to "
+		      << "permissive search for bond "
 		      << energy_type_1 << " " << energy_type_2 << " "
 		      << bond_type << "\n";
 

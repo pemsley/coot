@@ -2352,20 +2352,26 @@ coot::undelocalise_sulphates(RDKit::ROMol *rdkm) {
 	    ++nbrIdx;
 	 }
 	 
-	 if (deloc_O_bonds.size() == 4) {
+	 if (deloc_O_bonds.size() >= 3) {
 	    // SO4 monomer, SO4(-2)
-	    // make 1 single, one double. 
+	    // make 1 single, two double. 
 	    deloc_O_bonds[0]->setBondType(RDKit::Bond::DOUBLE);
 	    deloc_O_bonds[1]->setBondType(RDKit::Bond::DOUBLE);
 	    deloc_O_bonds[2]->setBondType(RDKit::Bond::SINGLE);
-	    deloc_O_bonds[3]->setBondType(RDKit::Bond::SINGLE);
-	    // Handle formal charge too.
-	    int idx_o_2 = deloc_O_bonds[2]->getOtherAtomIdx(idx_1);
-	    int idx_o_3 = deloc_O_bonds[3]->getOtherAtomIdx(idx_1);
-	    RDKit::ATOM_SPTR at_p_2 = (*rdkm)[idx_o_2];
-	    RDKit::ATOM_SPTR at_p_3 = (*rdkm)[idx_o_3];
-	    at_p_2->setFormalCharge(-1);
-	    at_p_3->setFormalCharge(-1);
+	    if (deloc_O_bonds.size() == 4) { 
+	       deloc_O_bonds[3]->setBondType(RDKit::Bond::SINGLE);
+	       // Handle formal charge too.
+	       int idx_o_2 = deloc_O_bonds[2]->getOtherAtomIdx(idx_1);
+	       int idx_o_3 = deloc_O_bonds[3]->getOtherAtomIdx(idx_1);
+	       RDKit::ATOM_SPTR at_p_2 = (*rdkm)[idx_o_2];
+	       RDKit::ATOM_SPTR at_p_3 = (*rdkm)[idx_o_3];
+	       at_p_2->setFormalCharge(-1);
+	       at_p_3->setFormalCharge(-1);
+	    } else {
+	       int idx_o_2 = deloc_O_bonds[2]->getOtherAtomIdx(idx_1); // this single-bonded O
+	       RDKit::ATOM_SPTR at_p_2 = (*rdkm)[idx_o_2];
+	       at_p_2->setFormalCharge(-1);
+	    } 
 	 }
       }
    }

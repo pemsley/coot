@@ -63,7 +63,7 @@ namespace coot {
 		       bool replace_with_mmff_b_a_restraints=true);
    
    // which is a wrapper for:
-   coot::dictionary_residue_restraints_t
+   std::pair<bool, coot::dictionary_residue_restraints_t>
    mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
 					const std::string &compound_name,
 					PyObject *rdkit_mol,

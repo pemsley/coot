@@ -32,7 +32,7 @@ namespace coot {
    // alter restraints
    void add_chem_comp_atoms(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints);
    // alter restraints
-   void add_chem_comp_planes(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints,
+   bool add_chem_comp_planes(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints,
 			     bool quartet_planes, bool quartet_hydrogen_planes);
    // alter restraints
    void add_chem_comp_aromatic_planes(const RDKit::ROMol &mol,
@@ -63,7 +63,7 @@ namespace coot {
 
 
    // alter restraints
-   void fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
+   bool fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 				   const energy_lib_t &energy_lib,
 				   dictionary_residue_restraints_t *restraints);
    // which calls
@@ -79,12 +79,12 @@ namespace coot {
 
 
    // alter restraints
-   void fill_with_energy_lib_angles(const RDKit::ROMol &mol,
+   bool fill_with_energy_lib_angles(const RDKit::ROMol &mol,
 				    const energy_lib_t &energy_lib,
 				    dictionary_residue_restraints_t *restraints);
 
    // alter restraints
-   void fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
+   bool fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 				      const energy_lib_t &energy_lib,
 				      dictionary_residue_restraints_t *restraints);
 
