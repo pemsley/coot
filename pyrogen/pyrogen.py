@@ -450,6 +450,12 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
    atom_names = add_atom_names(sane_H_mol) 
    all_set = atom_types.set_atom_types(sane_H_mol)  # has deloc bonds now, potentially
 
+   # debug sane_H_mol
+   if True:
+      molblock = Chem.MolToMolBlock(sane_H_mol)
+      print >> file("sane_H_mol.mol",'w'), molblock
+
+
    if (all_set != True):
       return False
    else:

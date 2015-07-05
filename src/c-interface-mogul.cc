@@ -267,28 +267,32 @@ coot::fill_mogul_bonds_tab(GtkTreeView *mogul_bonds_treeview,
       if (item.type == coot::mogul_item::BOND) {
 	 int idx_1 = m[i].idx_1-1;
 	 int idx_2 = m[i].idx_2-1;
-	 mmdb::Atom *at_1 = residue_atoms[idx_1];
-	 mmdb::Atom *at_2 = residue_atoms[idx_2];
-	 std::string atom_name_1 = at_1->name;
-	 std::string atom_name_2 = at_2->name;
+	 if ((idx_1 >= 0) && (idx_1 < n_residue_atoms)) { 
+	    if ((idx_2 >= 0) && (idx_2 < n_residue_atoms)) { 
+	       mmdb::Atom *at_1 = residue_atoms[idx_1];
+	       mmdb::Atom *at_2 = residue_atoms[idx_2];
+	       std::string atom_name_1 = at_1->name;
+	       std::string atom_name_2 = at_2->name;
 
-	 std::string m_value   = coot::util::float_to_string_using_dec_pl(m[i].value,   3);
-	 std::string m_mean    = coot::util::float_to_string_using_dec_pl(m[i].mean,    3);
-	 std::string m_median  = coot::util::float_to_string_using_dec_pl(m[i].median,  3);
-	 std::string m_std_dev = coot::util::float_to_string_using_dec_pl(m[i].std_dev, 3);
-	 std::string m_z       = coot::util::float_to_string_using_dec_pl(m[i].z,       3);
+	       std::string m_value   = coot::util::float_to_string_using_dec_pl(m[i].value,   3);
+	       std::string m_mean    = coot::util::float_to_string_using_dec_pl(m[i].mean,    3);
+	       std::string m_median  = coot::util::float_to_string_using_dec_pl(m[i].median,  3);
+	       std::string m_std_dev = coot::util::float_to_string_using_dec_pl(m[i].std_dev, 3);
+	       std::string m_z       = coot::util::float_to_string_using_dec_pl(m[i].z,       3);
 	 
-	 gtk_tree_store_append(tree_store_bonds, &toplevel, NULL);
-	 gtk_tree_store_set(tree_store_bonds, &toplevel,
-			    0, atom_name_1.c_str(),
-			    1, atom_name_2.c_str(),
-			    2, m[i].counts,
-			    3, m_value.c_str(),
-			    4, m_mean.c_str(),
-			    5, m_median.c_str(),
-			    6, m_std_dev.c_str(),
-			    7, m[i].z,
-			    -1);
+	       gtk_tree_store_append(tree_store_bonds, &toplevel, NULL);
+	       gtk_tree_store_set(tree_store_bonds, &toplevel,
+				  0, atom_name_1.c_str(),
+				  1, atom_name_2.c_str(),
+				  2, m[i].counts,
+				  3, m_value.c_str(),
+				  4, m_mean.c_str(),
+				  5, m_median.c_str(),
+				  6, m_std_dev.c_str(),
+				  7, m[i].z,
+				  -1);
+	    }
+	 }
       }
    }
 
@@ -403,31 +407,37 @@ coot::fill_mogul_angles_tab(GtkTreeView *mogul_angles_treeview, GtkWidget *dialo
 	 int idx_1 = m[i].idx_1-1;
 	 int idx_2 = m[i].idx_2-1;
 	 int idx_3 = m[i].idx_3-1;
-	 mmdb::Atom *at_1 = residue_atoms[idx_1];
-	 mmdb::Atom *at_2 = residue_atoms[idx_2];
-	 mmdb::Atom *at_3 = residue_atoms[idx_3];
-	 std::string atom_name_1 = at_1->name;
-	 std::string atom_name_2 = at_2->name;
-	 std::string atom_name_3 = at_3->name;
+	 if ((idx_1 >= 0) && (idx_1 < n_residue_atoms)) { 
+	    if ((idx_2 >= 0) && (idx_2 < n_residue_atoms)) { 
+	       if ((idx_3 >= 0) && (idx_3 < n_residue_atoms)) { 
+		  mmdb::Atom *at_1 = residue_atoms[idx_1];
+		  mmdb::Atom *at_2 = residue_atoms[idx_2];
+		  mmdb::Atom *at_3 = residue_atoms[idx_3];
+		  std::string atom_name_1 = at_1->name;
+		  std::string atom_name_2 = at_2->name;
+		  std::string atom_name_3 = at_3->name;
 
-	 std::string m_value   = coot::util::float_to_string_using_dec_pl(m[i].value,   3);
-	 std::string m_mean    = coot::util::float_to_string_using_dec_pl(m[i].mean,    3);
-	 std::string m_median  = coot::util::float_to_string_using_dec_pl(m[i].median,  3);
-	 std::string m_std_dev = coot::util::float_to_string_using_dec_pl(m[i].std_dev, 3);
-	 std::string m_z       = coot::util::float_to_string_using_dec_pl(m[i].z,       3);
+		  std::string m_value   = coot::util::float_to_string_using_dec_pl(m[i].value,   3);
+		  std::string m_mean    = coot::util::float_to_string_using_dec_pl(m[i].mean,    3);
+		  std::string m_median  = coot::util::float_to_string_using_dec_pl(m[i].median,  3);
+		  std::string m_std_dev = coot::util::float_to_string_using_dec_pl(m[i].std_dev, 3);
+		  std::string m_z       = coot::util::float_to_string_using_dec_pl(m[i].z,       3);
 	 
-	 gtk_tree_store_append(tree_store_angles, &toplevel, NULL);
-	 gtk_tree_store_set(tree_store_angles, &toplevel,
-			    0, atom_name_1.c_str(),
-			    1, atom_name_2.c_str(),
-			    2, atom_name_3.c_str(),
-			    3, m[i].counts,
-			    4, m_value.c_str(),
-			    5, m_mean.c_str(),
-			    6, m_median.c_str(),
-			    7, m_std_dev.c_str(),
-			    8, m[i].z,
-			    -1);
+		  gtk_tree_store_append(tree_store_angles, &toplevel, NULL);
+		  gtk_tree_store_set(tree_store_angles, &toplevel,
+				     0, atom_name_1.c_str(),
+				     1, atom_name_2.c_str(),
+				     2, atom_name_3.c_str(),
+				     3, m[i].counts,
+				     4, m_value.c_str(),
+				     5, m_mean.c_str(),
+				     6, m_median.c_str(),
+				     7, m_std_dev.c_str(),
+				     8, m[i].z,
+				     -1);
+	       }
+	    }
+	 }
       }
    }
 

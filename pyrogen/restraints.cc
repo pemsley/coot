@@ -105,25 +105,41 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
       
       // bonds and angles 
       dictionary_residue_restraints_t mmff_restraints = make_mmff_restraints(mol_for_mmff);
-   
-      restraints = mmcif_dict_from_mol_using_energy_lib(comp_id, compound_name, rdkit_mol_py,
-							quartet_planes, quartet_hydrogen_planes);
 
-      restraints.conservatively_replace_with( mmff_restraints);
-      restraints.conservatively_replace_with(mogul_restraints);
+      // when status is false, we can return with a partially filled
+      // restraints, this is worse than empty (silent failure), so if
+      // that's the case replace with empty restraints holder.
+      
+      std::pair<bool, dictionary_residue_restraints_t> restraints_local =
+	 mmcif_dict_from_mol_using_energy_lib(comp_id, compound_name, rdkit_mol_py,
+					      quartet_planes, quartet_hydrogen_planes);
+
+      if (restraints_local.first) {
+
+	 restraints = restraints_local.second;
+	 restraints.conservatively_replace_with( mmff_restraints);
+	 restraints.conservatively_replace_with(mogul_restraints);
+	 
+      } else {
+	 std::cout << "ERROR:: faliure in mmcif_dict_from_mol_using_energy_lib() "
+		   << std::endl;
+      } 
 
    } else {
 
       // dont use MMFF.
 
-      dictionary_residue_restraints_t energy_lib_restraints =
+      std::pair<bool, dictionary_residue_restraints_t>
+	 energy_lib_restraints =
 	 mmcif_dict_from_mol_using_energy_lib(comp_id, compound_name, rdkit_mol_py,
 					      quartet_planes, quartet_hydrogen_planes);
-      restraints = energy_lib_restraints;
-      restraints.conservatively_replace_with(mogul_restraints);
 
+      if (energy_lib_restraints.first) {
+	 restraints = energy_lib_restraints.second;
+	 if (replace_with_mmff_b_a_restraints)
+	    restraints.conservatively_replace_with(mogul_restraints);
+      }
    }
-
    return monomer_restraints_to_python(restraints);
       
 }
@@ -328,21 +344,29 @@ coot::mmcif_dict_from_mol(const std::string &comp_id,
 			  bool quartet_planes, bool quartet_hydrogen_planes,
 			  bool replace_with_mmff_b_a_restraints) {
 
-   coot::dictionary_residue_restraints_t restraints =
+   std::pair<bool, coot::dictionary_residue_restraints_t> restraints =
       mmcif_dict_from_mol_using_energy_lib(comp_id, compound_name, rdkit_mol_py,
 					   quartet_planes, quartet_hydrogen_planes);
 
-   if (replace_with_mmff_b_a_restraints) {
-      RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
-      RDKit::ROMol mol_for_mmff(mol);
-      // bonds and angles 
-      dictionary_residue_restraints_t mmff_restraints = make_mmff_restraints(mol_for_mmff);
-      restraints.conservatively_replace_with(mmff_restraints);
-   } 
-   if (restraints.is_filled()) {
-      
-      restraints.write_cif(mmcif_out_file_name);  // this gets overwritten if dictionary matching is enabled.
-      return monomer_restraints_to_python(restraints);
+   if (restraints.first) { 
+      if (replace_with_mmff_b_a_restraints) {
+	 RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
+	 RDKit::ROMol mol_for_mmff(mol);
+	 // bonds and angles 
+	 dictionary_residue_restraints_t mmff_restraints = make_mmff_restraints(mol_for_mmff);
+	 restraints.second.conservatively_replace_with(mmff_restraints);
+      }
+   }
+
+   bool success = restraints.first;
+   if (success)
+      if (! restraints.second.is_filled())
+	 success = false;
+
+   if (success) { 
+      restraints.second.write_cif(mmcif_out_file_name);  // this gets overwritten if dictionary
+                                                         // matching is enabled.
+      return monomer_restraints_to_python(restraints.second);
    } else {
       PyObject *o = new PyObject;
       o = Py_None;
@@ -351,12 +375,15 @@ coot::mmcif_dict_from_mol(const std::string &comp_id,
    } 
 } 
 
-coot::dictionary_residue_restraints_t
+// return also success status, true is good
+// 
+std::pair<bool, coot::dictionary_residue_restraints_t>
 coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
 					   const std::string &compound_name,
 					   PyObject *rdkit_mol_py,
 					   bool quartet_planes, bool quartet_hydrogen_planes) {
 
+   bool status = true;
    coot::dictionary_residue_restraints_t restraints (comp_id, 1);
    
    RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
@@ -404,21 +431,28 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
       restraints.residue_info.description_level = "."; // default is full <smiley>
       
       coot::add_chem_comp_atoms(mol, &restraints); // alter restraints
-      coot::fill_with_energy_lib_bonds(mol, energy_lib, &restraints); // alter restraints
-      coot::fill_with_energy_lib_angles(mol, energy_lib, &restraints); // alter restraints
-      coot::fill_with_energy_lib_torsions(mol, energy_lib, &restraints); // alter restraints
+      bool status_b = coot::fill_with_energy_lib_bonds(mol, energy_lib, &restraints); // alter restraints
+      bool status_a = coot::fill_with_energy_lib_angles(mol, energy_lib, &restraints); // alter restraints
+      bool status_t = coot::fill_with_energy_lib_torsions(mol, energy_lib, &restraints); // alter restraints
 
       int n_chirals = coot::assign_chirals(mol, &restraints); // alter restraints
       if (n_chirals) 
 	 restraints.assign_chiral_volume_targets();
 
-      coot::add_chem_comp_planes(mol, &restraints, quartet_planes, quartet_hydrogen_planes);
+      bool status_p = coot::add_chem_comp_planes(mol, &restraints, quartet_planes, quartet_hydrogen_planes);
+
+      if (! status_b) status = false;
+      if (! status_a) status = false;
    }
 
-   return restraints;
+   std::pair<bool, coot::dictionary_residue_restraints_t> p(status, restraints);
+   return p;
 }
 
-void
+// return success status - did we find something for all the bonds?
+// (executable should fall over if this fails).
+// 
+bool
 coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 				 const coot::energy_lib_t &energy_lib,
 				 coot::dictionary_residue_restraints_t *restraints) {
@@ -456,20 +490,23 @@ coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 	       restraints->bond_restraint.push_back(bondr);
 	    }
 	    catch (const std::runtime_error &rte) {
-	       std::cout << "WARNING:: error in adding bond restraint for bond number "
-			 << ib << " " << rte.what() << std::endl;
+	       std::cout << "ERROR::   runtime_error when adding bond restraint for bond number "
+			 << ib << " atom-names: " << atom_name_1 << " " << atom_name_2 << " "
+			 << rte.what() << std::endl;
 	    } 
 	 
 	 }
 	 catch (const KeyErrorException &kee) {
-	    std::cout << "WARNING:: caugh KeyErrorException in fill_with_energy_lib_bonds() "
-		      << std::endl;
+	    std::cout << "ERROR:: caugh KeyErrorException in fill_with_energy_lib_bonds() - "
+		      << "atom types and names for bond number " << ib << std::endl;
 	 }
       }
    }
+   return (n_bonds == restraints->bond_restraint.size());
 }
 
-void
+// return success status (executable should fall over if this fails).
+bool
 coot::fill_with_energy_lib_angles(const RDKit::ROMol &mol,
 				  const coot::energy_lib_t &energy_lib,
 				  coot::dictionary_residue_restraints_t *restraints) {
@@ -544,13 +581,17 @@ coot::fill_with_energy_lib_angles(const RDKit::ROMol &mol,
 	 ++nbr_idx_1;
       }
    }
+   return true; // placeholder
 }
 
-void
+
+// return success status (executable should fall over if this fails).
+bool
 coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 				    const coot::energy_lib_t &energy_lib,
 				    coot::dictionary_residue_restraints_t *restraints) {
-   
+
+   bool status = true;
    unsigned int n_atoms = mol.getNumAtoms();
    unsigned int tors_no = 1; // incremented on addition
    unsigned int const_no = 1; // incremented on addition.  When const_no is incremented, tors_no is not.
@@ -657,6 +698,7 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 	 ++nbr_idx_1;
       }
    }
+   return status;
 }
 
 
@@ -885,15 +927,17 @@ coot::add_chem_comp_atoms(const RDKit::ROMol &mol, coot::dictionary_residue_rest
 
 // what fun!
 // C++ smarts
-void
+bool
 coot::add_chem_comp_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints,
 			   bool quartet_planes, bool quartet_hydrogen_planes) {
 
+   bool status = true;
    add_chem_comp_aromatic_planes(mol, restraints, quartet_planes, quartet_hydrogen_planes);
    add_chem_comp_deloc_planes(mol, restraints);
    restraints->remove_redundant_plane_restraints();
    restraints->reweight_subplanes();
    add_chem_comp_sp2_N_planes(mol, restraints);
+   return status;
 }
 
 // what fun!
