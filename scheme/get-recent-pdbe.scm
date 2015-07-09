@@ -331,11 +331,11 @@
     (let ((save-refmac-extra-params refmac-extra-params))
       
       (if (list? refmac-extra-params)
-	  (set! refmac-extra-params (cons (list "MAKE NEWLIGAND CONTINUE") refmac-extra-params))
+	  (set! refmac-extra-params (cons "MAKE NEWLIGAND CONTINUE" refmac-extra-params))
 	  (set! refmac-extra-params (list "MAKE NEWLIGAND CONTINUE")))
 
-      ;; (format #t "########################### save-refmac-extra-params: ~s~%" save-refmac-extra-params)
-      ;; (format #t "########################### refmac-extra-params: ~s~%" refmac-extra-params)
+      (format #t "########################### save-refmac-extra-params: ~s~%" save-refmac-extra-params)
+      (format #t "########################### refmac-extra-params:      ~s~%" refmac-extra-params)
 
       (let ((refmac-result
 	     (run-refmac-by-filename pdb-in-file-name 
