@@ -191,7 +191,7 @@
 			       ))
 			     (extra-params (get-refmac-extra-params))
 			     (extra-rigid-params (refmac-rigid-params))
-			     (noval (format #t "PE DEBUG:: extra params ~s~%" extra-params))
+			     (noval (format #t "PE-DEBUG:: extra params ~s~%" extra-params))
 			     (extra-ncs-params   (refmac-ncs-params))
 			     (extra-sad-params   (refmac-sad-params))
 			     )
