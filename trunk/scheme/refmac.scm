@@ -447,25 +447,28 @@
 (define refmac-ncs-params
   (lambda()
     (if (= (refmac-use-ncs-state) 1)
-	(let* ((imol-coords (refmac-imol-coords))
-	       (chain-ids-from-ncs (ncs-chain-ids imol-coords)))
-	  (if (list? chain-ids-from-ncs)
-	      (let ((ret-list '())
-		    (ret-string ""))
-		(for-each (lambda (ncs-chain-set)
-			    (if (> (length ncs-chain-set) 1)
-				(let ((ret-string (string-append "NCSRestraints NCHAins " 
-								 (number->string (length ncs-chain-set))
-								 " CHAIns ")))
-				  (for-each (lambda (ncs-chain-id)
-					      (set! ret-string (string-append ret-string " " ncs-chain-id)))
-					    ncs-chain-set)
-				  (set! ret-list (append ret-list (list ret-string))))
-				(set! ret-list ret-list)))
-			  chain-ids-from-ncs)
-		ret-list)
-	      '()))
-	'())))
+        (if (>= (list-ref (get-refmac-version) 1) 5)
+            (let ((ret-list (list "NCSR LOCAL")))
+              ret-list)
+            (let* ((imol-coords (refmac-imol-coords))
+                   (chain-ids-from-ncs (ncs-chain-ids imol-coords)))
+              (if (list? chain-ids-from-ncs)
+                  (let ((ret-list '())
+                        (ret-string ""))
+                    (for-each (lambda (ncs-chain-set)
+                                (if (> (length ncs-chain-set) 1)
+                                    (let ((ret-string (string-append "NCSRestraints NCHAins " 
+                                                                     (number->string (length ncs-chain-set))
+                                                                     " CHAIns ")))
+                                      (for-each (lambda (ncs-chain-id)
+                                                  (set! ret-string (string-append ret-string " " ncs-chain-id)))
+                                                ncs-chain-set)
+                                      (set! ret-list (append ret-list (list ret-string))))
+                                    (set! ret-list ret-list)))
+                              chain-ids-from-ncs)
+                    ret-list)
+                  '())))
+        '())))
 	
 
 (define refmac-sad-params
@@ -544,7 +547,7 @@
       (if cached-result
 	  cached-result
 	  (let ((log-file-name "refmac-version-tmp.log"))
-	    (goosh-command "refmac5" '("-i") '() log-file-name #f)
+	    (goosh-command refmac-exe '("-i") '() log-file-name #f)
 	    (call-with-input-file log-file-name
 	      (lambda (port)
 		(let loop ((line (read-line port)))

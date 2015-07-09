@@ -264,15 +264,18 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
             
     # NCS?
     if(refmac_use_ncs_state()):
-        chain_ids_from_ncs = ncs_chain_ids(imol_coords)
-        if chain_ids_from_ncs:
-            for ncs_set in chain_ids_from_ncs:
-                no_ncs_chains = len(ncs_set)
-                if (no_ncs_chains > 1):
-                    ncs_string = "NCSRestraints NCHAins " + str(no_ncs_chains) + " CHAIns "
-                    for chain in ncs_set:
-                        ncs_string += " " + chain
-                    std_lines.append(ncs_string)
+        if (get_refmac_version()[1] >= 5):
+            std_lines.append("NCSR LOCAL")
+        else:
+            chain_ids_from_ncs = ncs_chain_ids(imol_coords)
+            if chain_ids_from_ncs:
+                for ncs_set in chain_ids_from_ncs:
+                    no_ncs_chains = len(ncs_set)
+                    if (no_ncs_chains > 1):
+                        ncs_string = "NCSRestraints NCHAins " + str(no_ncs_chains) + " CHAIns "
+                        for chain in ncs_set:
+                            ncs_string += " " + chain
+                        std_lines.append(ncs_string)
 
     data_lines = add_refmac_extra_params(std_lines, force_n_cycles)
 
@@ -1418,27 +1421,36 @@ def read_refmac_log(imol, refmac_log_file):
 #read_refmac_log(0, "25_refmac5.log")
 #read_refmac_log(0, "refmac-from-coot-0.log")
 
+global refmac_version_cached
+refmac_version_cached = False
 # returns the major refmac version, i.e. [5, 3] (for 5.3) or False if no refmac found
 #
 def get_refmac_version():
 
-    refmac_execfile = find_exe("refmac5","CCP4_BIN","PATH")
-
-    if (refmac_execfile):
-        log_file = "refmac_version_tmp.log"
-        status = popen_command(refmac_execfile, ["-i"], [], log_file)
-        if (status == 0):
-            fin = open(log_file, 'r')
-            lines = fin.readlines()
-            fin.close()
-            os.remove(log_file)
-            for line in lines:
-                if ("Program" in line):
-                    version = line.split()[-1]
-                    major, minor, micro = version.split(".")
-                    return [int(major), int(minor)]
-        else:
-            os.remove(log_file)
-            print "INFO:: problem to get refmac version"
+    global refmac_version_cached
+    if refmac_version_cached:
+        return refmac_version_cached
     else:
-        return False
+
+        # maybe want to cache these too!?
+        refmac_execfile = find_exe("refmac5","CCP4_BIN","PATH")
+
+        if (refmac_execfile):
+            log_file = "refmac_version_tmp.log"
+            status = popen_command(refmac_execfile, ["-i"], [], log_file)
+            if (status == 0):
+                fin = open(log_file, 'r')
+                lines = fin.readlines()
+                fin.close()
+                os.remove(log_file)
+                for line in lines:
+                    if ("Program" in line):
+                        version = line.split()[-1]
+                        ret = map(int, version.split("."))
+                        refmac_version_cached = ret
+                        return ret
+            else:
+                os.remove(log_file)
+                print "INFO:: problem to get refmac version"
+        else:
+            return False

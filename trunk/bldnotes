@@ -104,6 +104,8 @@ scripting exercise
 
 **** General ****
 
+   o button/menu to hide hydrogens?!
+
    o add atom info to HETATM info in status bar!?
 
    o revisit B-factor setting for new atoms. Still CB wrong when stubbing.
@@ -448,8 +450,6 @@ low importance
 
    o cootaneer shows 2 sequences after only 1 has been assigned before?!
 	no map selection possible
-
-   o Refmac use local NCS
 
    o find below occ 1 atoms (not just zero).
 
@@ -1002,10 +1002,14 @@ Osaka 2010
 
 * Done
 
-  o focus on button of nomenclature error dialog
+   o focus on button of nomenclature error dialog
 
 * Done (not necessary any more?!)
 
-  o bind arrow keys to translation!?
+   o bind arrow keys to translation!?
+
+* Done
+
+   o Refmac use local NCS
 
 * Done
