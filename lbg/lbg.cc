@@ -49,6 +49,7 @@
 #if CAIRO_HAS_PDF_SURFACE
 #include <cairo-pdf.h>
 #endif
+#include <cairo-svg.h>
 #include "lbg.hh"
 #include "lbg-drag-and-drop.hh"
 #include "qed-interface.hh" // interface to silicos-it biscu-it python function
@@ -2620,6 +2621,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 save_as_dialog = NULL;
 	 lbg_export_as_pdf_dialog = NULL;
 	 lbg_export_as_png_dialog = NULL;
+	 lbg_export_as_svg_dialog = NULL;
 	 lbg_sbase_search_results_dialog = NULL;
 	 lbg_sbase_search_results_vbox = NULL;
 	 lbg_smiles_dialog = NULL;
@@ -2645,6 +2647,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_sbase_search_results_vbox = GTK_WIDGET (gtk_builder_get_object (builder, "lbg_sbase_search_results_vbox"));
 	 lbg_export_as_pdf_dialog =      GTK_WIDGET (gtk_builder_get_object (builder, "lbg_export_as_pdf_filechooserdialog"));
 	 lbg_export_as_png_dialog =      GTK_WIDGET (gtk_builder_get_object (builder, "lbg_export_as_png_filechooserdialog"));
+	 lbg_export_as_svg_dialog =      GTK_WIDGET (gtk_builder_get_object (builder, "lbg_export_as_svg_filechooserdialog"));
 	 lbg_smiles_dialog =             GTK_WIDGET(gtk_builder_get_object(builder, "lbg_smiles_dialog"));
 	 lbg_smiles_entry =              GTK_WIDGET(gtk_builder_get_object(builder, "lbg_smiles_entry"));
 	 lbg_import_from_smiles_dialog = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_import_from_smiles_dialog"));
@@ -3299,16 +3302,44 @@ lbg_info_t::write_pdf(const std::string &file_name) const {
 
    /* Place it in the middle of our 9x10 page. */
    // cairo_translate (cr, 20, 130);
-   cairo_translate (cr, 2, 13);
+   cairo_translate(cr, 2, 13);
 
-   goo_canvas_render (GOO_CANVAS(canvas), cr, NULL, 1.0);
-   cairo_show_page (cr);
-   cairo_surface_destroy (surface);
-   cairo_destroy (cr);
+   goo_canvas_render(GOO_CANVAS(canvas), cr, NULL, 1.0);
+   cairo_show_page(cr);
+   cairo_surface_destroy(surface);
+   cairo_destroy(cr);
 
 #else
    std::cout << "No PDF (no PDF Surface in Cairo)" << std::endl;
-#endif    
+#endif
+
+}
+
+void
+lbg_info_t::write_svg(const std::string &file_name) const {
+   
+#if CAIRO_HAS_SVG_SURFACE
+
+   std::pair<lig_build::pos_t, lig_build::pos_t> extents = mol.ligand_extents();
+   double pos_x = (extents.second.x + 220.0);
+   double pos_y = (extents.second.y + 220.0);
+
+   if (key_group) {
+      pos_y += 240;
+      pos_x += 50;
+   } 
+
+   cairo_surface_t *surface = cairo_svg_surface_create(file_name.c_str(), pos_x, pos_y);
+   cairo_t *cr = cairo_create(surface);
+
+   /* Place it in the middle of our 9x10 page. */
+   cairo_translate(cr, 2, 13);
+
+   goo_canvas_render(GOO_CANVAS(canvas), cr, NULL, 1.0);
+   cairo_show_page(cr);
+   cairo_surface_destroy(surface);
+   cairo_destroy(cr);
+#endif   
 
 }
 
@@ -5823,14 +5854,18 @@ lbg_info_t::draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, doub
       int n_circles = int(sa*40) + 1;    // needs fiddling?
       if (n_circles> 10) n_circles = 10; // needs fiddling?
       
+      GooCanvasItem *group = goo_canvas_group_new (root, NULL);
+      
       for (int i=0; i<n_circles; i++) { 
 	 double rad =  LIGAND_TO_CANVAS_SCALE_FACTOR/23.0 * 3.0 * double(i+1); // needs fiddling?
-	 GooCanvasItem *circle = goo_canvas_ellipse_new(root,
+	 GooCanvasItem *circle = goo_canvas_ellipse_new(group,
 							pos.x, pos.y,
 							rad, rad,
 							"line_width", 0.0,
 							"fill-color-rgba", 0x5555cc30,
 							NULL);
+
+	 goo_canvas_item_lower(group, NULL); // to the bottom
       }
    }
 }
