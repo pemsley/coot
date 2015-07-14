@@ -983,6 +983,7 @@ public:
    GtkWidget *save_as_dialog;
    GtkWidget *lbg_export_as_pdf_dialog;
    GtkWidget *lbg_export_as_png_dialog;
+   GtkWidget *lbg_export_as_svg_dialog;
    GtkWidget *lbg_sbase_search_results_dialog;
    GtkWidget *lbg_sbase_search_results_vbox;
    GtkWidget *lbg_smiles_dialog;
@@ -1058,6 +1059,7 @@ public:
    void drag_canvas(int mouse_x, int mouse_y);
    void write_pdf(const std::string &file_name) const;
    void write_png(const std::string &file_name);
+   void write_svg(const std::string &file_name) const;
    void set_mouse_pos_at_click(int xpos, int ypos) {
       mouse_at_click = lig_build::pos_t(double(xpos), double(ypos));
    }

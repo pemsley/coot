@@ -286,7 +286,8 @@ on_print_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (l) {
-      gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(l->lbg_export_as_pdf_dialog), "coot.pdf");
+      std::string file_name = "coot-lidia.pdf";
+      gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(l->lbg_export_as_pdf_dialog), file_name.c_str());
       gtk_widget_show(l->lbg_export_as_pdf_dialog);
    }
 }
@@ -297,10 +298,24 @@ on_export_as_png_menuitem_activate (GtkMenuItem *item, gpointer         user_dat
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (l) {
-      gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(l->lbg_export_as_png_dialog), "coot.png");
-     gtk_widget_show(l->lbg_export_as_png_dialog);
+      std::string file_name = "coot-lidia.png";
+      gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(l->lbg_export_as_png_dialog), file_name.c_str());
+      gtk_widget_show(l->lbg_export_as_png_dialog);
    }
 }
+
+extern "C" G_MODULE_EXPORT void
+on_export_as_svg_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
+
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (l) {
+      std::string file_name = "coot-lidia.svg";
+      gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(l->lbg_export_as_svg_dialog), file_name.c_str());
+      gtk_widget_show(l->lbg_export_as_svg_dialog);
+   }
+}
+
 
 extern "C" G_MODULE_EXPORT void
 on_lbg_aboutdialog_response (GtkDialog       *dialog,
@@ -446,8 +461,8 @@ on_lbg_export_as_pdf_filechooserdialog_close(GtkDialog       *dialog,
 
 extern "C" G_MODULE_EXPORT void
 on_lbg_export_as_pdf_filechooserdialog_response(GtkDialog       *dialog,
-					  gint             response_id,
-					  gpointer         user_data){
+						gint             response_id,
+						gpointer         user_data) {
 
    if (response_id == GTK_RESPONSE_OK) { 
       GtkWidget *canvas = GTK_WIDGET(user_data);
@@ -500,16 +515,45 @@ on_lbg_export_as_png_filechooserdialog_close(GtkDialog       *dialog,
 
 extern "C" G_MODULE_EXPORT void
 on_lbg_export_as_png_filechooserdialog_response(GtkDialog       *dialog,
-					  gint             response_id,
-					  gpointer         user_data){
+						gint             response_id,
+						gpointer         user_data){
 
-   std::cout << "response " << response_id << std::endl;
    if (response_id == GTK_RESPONSE_OK) { 
       GtkWidget *canvas = GTK_WIDGET(user_data);
       lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
       if (l) {
 	 std::string file_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(l->lbg_export_as_png_dialog));
 	 l->write_png(file_name);
+      }
+   } else {
+      // std::cout << "not an OK response" << std::endl;
+   } 
+   gtk_widget_hide(GTK_WIDGET(dialog));
+}
+
+
+extern "C" G_MODULE_EXPORT void
+on_lbg_export_as_svg_filechooserdialog_close(GtkDialog       *dialog,
+					     gpointer         user_data){
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (l) {
+      gtk_widget_hide(GTK_WIDGET(dialog));
+   }
+}
+
+
+extern "C" G_MODULE_EXPORT void
+on_lbg_export_as_svg_filechooserdialog_response(GtkDialog       *dialog,
+					  gint             response_id,
+					  gpointer         user_data){
+
+   if (response_id == GTK_RESPONSE_OK) { 
+      GtkWidget *canvas = GTK_WIDGET(user_data);
+      lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+      if (l) {
+	 std::string file_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(l->lbg_export_as_svg_dialog));
+	 l->write_svg(file_name);
       }
    } else {
       // std::cout << "not an OK response" << std::endl;
