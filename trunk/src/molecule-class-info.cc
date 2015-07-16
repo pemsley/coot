@@ -2878,7 +2878,9 @@ molecule_class_info_t::make_bonds_type_checked() {
       occupancy_representation();
    if (bonds_box_type == coot::COLOUR_BY_B_FACTOR_BONDS)
       b_factor_representation();
-
+   if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR)
+      b_factor_representation_as_cas();
+   
    // bleugh. But if we don't do this here, where *do* we do it?
    // Should the glci be passed to make_bonds_type_checked()?  Urgh.
    // That is called from many places....
@@ -8000,23 +8002,17 @@ molecule_class_info_t::next_residue_in_chain(mmdb::Chain *w) const {
 void
 molecule_class_info_t::set_b_factor_bonds_scale_factor(float f) {
 
-   // std::cout << "Here Adding b-factor scale " << f << std::endl;
    if (atom_sel.mol) {
-      // bleugh, casting.
       int udd_handle =
 	 atom_sel.mol->RegisterUDReal(mmdb::UDR_HIERARCHY,
 				      coot::b_factor_bonds_scale_handle_name.c_str());
       if (udd_handle > 0) {
-// 	 std::cout << "Adding b-factor scale " << f << " with handle "
-// 		   << udd_handle << std::endl;
 	 atom_sel.mol->PutUDData(udd_handle, f);
 
 	 // test getting the uddata:
 	 int udd_b_factor_handle =
 	    atom_sel.mol->GetUDDHandle(mmdb::UDR_HIERARCHY,
 				       coot::b_factor_bonds_scale_handle_name.c_str());
-// 	 std::cout << "debug:: test Got b factor udd handle: "
-// 		   << udd_b_factor_handle << std::endl;
 	 if (udd_b_factor_handle > 0) {
 	    mmdb::realtype scale;
 	    if (atom_sel.mol->GetUDData(udd_b_factor_handle, scale) == mmdb::UDDATA_Ok) {
