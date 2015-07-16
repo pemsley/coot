@@ -1801,6 +1801,20 @@ coot::torsion::matching_atoms(mmdb::Residue *residue) {
    return v;
 }
 
+// Are these residue one after the other (e.g. ("B" 17 "") and ("B" 18 ""))?
+// Have a go at testing for insertion codes too (although
+// testing 17 and 18 from a 17-17A-18 will give the incorrect
+// answer).  Insertion codes not a problem in reality though
+// because this is used to test carbohydrates.
+//
+// The first is tandem? The second is order-switch-needed? (in
+// the case that second is in front of first)
+// 
+// std::pair<bool, bool>
+// coot::tandem_residues_p(const residue_spec_t &first,
+// 			const residue_spec_t &second) {
+
+
 
 std::vector<std::string>
 coot::util::chains_in_molecule(mmdb::Manager *mol) { 

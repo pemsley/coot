@@ -210,7 +210,7 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 				 const std::string &link_name, float length,
 				 const coot::protein_geometry &geom) {
 
-   // I don't see how link_name and length are part of a mmdb::Link.
+   // 2014: link_name and length are not part curently of a mmdb::Link.
    // Perhaps they should not be passed then?
    
    mmdb::Atom *at_1 = get_atom(spec_1);

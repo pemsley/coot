@@ -759,8 +759,17 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
       }
    while ((status == GSL_CONTINUE) && (int(iter) < nsteps_max));
 
+   if (false)
+      std::cout << " in minimize() done_final_chi_squares " << done_final_chi_squares
+		<< " and status " << status
+		<< " c.f GSL_SUCCESS " << GSL_SUCCESS
+		<< " c.f GSL_CONTINUE " << GSL_CONTINUE
+		<< " c.f GSL_ENOPROG " << GSL_ENOPROG
+		<< std::endl;
+   
    if (! done_final_chi_squares)
-      chi_squareds("Final Estimated RMS Z Scores:", s->x);
+      if (status != GSL_CONTINUE)
+	 chi_squareds("Final Estimated RMS Z Scores:", s->x);
       
 
    // std::cout << "Post refinement fixing\n";
@@ -4554,7 +4563,7 @@ coot::restraints_container_t::bonded_residues_conventional(int selHnd,
 		  if (d.first) {
 		     if (d.second < dist_crit) {
 			std::pair<std::string, bool> l =
-			   find_link_type_by_distance(SelResidue[ii], SelResidue[jj], geom);
+			   find_link_type_complicado(SelResidue[ii], SelResidue[jj], geom);
 			if (l.first != "") {
 
 			   // Eeek!  Fill me? [for 0.7]
@@ -4617,9 +4626,9 @@ coot::restraints_container_t::bonded_residues_by_linear(int SelResHnd,
 	    if (abs(SelResidue[i]->index - SelResidue[i+1]->index) <= 1) {
 	       // link_type = find_link_type(SelResidue[i], SelResidue[i+1], geom);
 	       std::pair<std::string, bool> link_info =
-		  find_link_type_by_distance(SelResidue[i], SelResidue[i+1], geom);
+		  find_link_type_complicado(SelResidue[i], SelResidue[i+1], geom);
 	       if (false) 
-		  std::cout << "DEBUG ------------ in bonded_residues_by_linear() link_info is :"
+		  std::cout << "DEBUG:: ---------- in bonded_residues_by_linear() link_info is :"
 			    << link_info.first << " " << link_info.second << ":" << std::endl;
 	       
 	       if (link_info.first != "") {
@@ -4669,7 +4678,7 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	 } 
 	 if (d.first) {
 	    if (d.second < dist_crit) {
-	       std::pair<std::string, bool> l = find_link_type_by_distance(res_f, res_s, geom);
+	       std::pair<std::string, bool> l  = find_link_type_complicado(res_f, res_s, geom);
 	       std::string link_type = l.first;
 	       if (link_type != "") {
 
@@ -4694,7 +4703,7 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 		  }
 	       } else {
 		  if (debug)
-		     std::cout << "DEBUG:: find_link_type_by_distance() returns \"" << l.first << "\" "
+		     std::cout << "DEBUG:: find_link_type_complicado() returns \"" << l.first << "\" "
 			       << l.second << std::endl;
 	       } 
 	    }
@@ -4705,17 +4714,23 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 }
 
 
+
 // a pair, first is if C and N are close and second if and order
 // switch is needed to make it so.
 std::pair<bool, bool>
 coot::restraints_container_t::peptide_C_and_N_are_close_p(mmdb::Residue *r1, mmdb::Residue *r2) const {
 
    // needs PDBv3 fixup.
-   
-   float dist_crit = 2.0; // 2.0 A for a peptide link - so that we
+   float dist_crit = 2.8; // 20150714: this used to be 2.0.  That is too long, I think.
+                          //           Try 2.8.
+                          // 
+                          // 2.0 A for a peptide link - so that we
 			  // don't find unintentional peptides - which
 			  // would be a disaster.
 
+   std::string C_atom_name = " C  ";
+   std::string N_atom_name = " N  ";
+   
    mmdb::Atom *at_c_1 = NULL;
    mmdb::Atom *at_n_1 = NULL;
    mmdb::Atom *at_c_2 = NULL;
@@ -4730,20 +4745,20 @@ coot::restraints_container_t::peptide_C_and_N_are_close_p(mmdb::Residue *r1, mmd
 
    for (int iat=0; iat<n_residue_atoms_1; iat++) {
       std::string atom_name(residue_atoms_1[iat]->name);
-      if (atom_name == " C  ") {
+      if (atom_name == C_atom_name) {
 	 at_c_1 = residue_atoms_1[iat];
       } 
-      if (atom_name == " N  ") {
+      if (atom_name == N_atom_name) {
 	 at_n_1 = residue_atoms_1[iat];
       } 
    }
 
    for (int iat=0; iat<n_residue_atoms_2; iat++) {
       std::string atom_name(residue_atoms_2[iat]->name);
-      if (atom_name == " C  ") {
+      if (atom_name == C_atom_name) {
 	 at_c_2 = residue_atoms_2[iat];
       } 
-      if (atom_name == " N  ") {
+      if (atom_name == N_atom_name) {
 	 at_n_2 = residue_atoms_2[iat];
       } 
    }
@@ -4996,7 +5011,7 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const c
 	    if (d.first) {
 	       if (d.second < dist_crit) {
 		  std::pair<std::string, bool> l =
-		     find_link_type_by_distance(neighbours[ineighb], residues_vec[ir].second, geom);
+		     find_link_type_complicado(neighbours[ineighb], residues_vec[ir].second, geom);
 		  std::string link_type = l.first;
 		  if (link_type != "") {
 		     bool order_switch_flag = l.second;

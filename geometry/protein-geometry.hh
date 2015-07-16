@@ -2279,11 +2279,25 @@ namespace coot {
 				     const std::string &group_1,
 				     const std::string &comp_id_2,
 				     const std::string &group_2) const;
+      // In this version the mol is passed so that we can find links
+      // that match header LINKs or SSBonds
+      std::vector<std::pair<chem_link, bool> >
+      matching_chem_link_non_peptide(const std::string &comp_id_1,
+				     const std::string &group_1,
+				     const std::string &comp_id_2,
+				     const std::string &group_2,
+				     mmdb::Manager *mol) const;
 
       // return "" on failure.
       // no order switch is considered.
       // 
       std::string find_glycosidic_linkage_type(mmdb::Residue *first, mmdb::Residue *second) const;
+      std::string find_glycosidic_linkage_type(mmdb::Residue *first, mmdb::Residue *second,
+					       mmdb::Manager *mol) const;
+      bool are_linked_in_order(mmdb::Residue *first,
+			       mmdb::Residue *second,
+			       mmdb::Link *link) const;
+      
 
       std::pair<std::string, bool>
       find_glycosidic_linkage_type_with_order_switch(mmdb::Residue *first, mmdb::Residue *second) const;

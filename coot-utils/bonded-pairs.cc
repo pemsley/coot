@@ -83,9 +83,6 @@ coot::bonded_pair_t::apply_chem_mods(const coot::protein_geometry &geom) {
 	 std::string res_1_name = res_1->GetResName();
 	 std::string res_2_name = res_2->GetResName();
 	 for (unsigned int i=0; i<mods.first.atom_mods.size(); i++) {
-	    if (0)
-	       std::cout << "  ====== applying chem_mod " << i << " of "
-			 << mods.first.atom_mods.size() << std::endl;
 	    if (mods.first.atom_mods[i].function == CHEM_MOD_FUNCTION_DELETE) {
 	       std::string atom_name = mods.first.atom_mods[i].atom_id;
 	       std::string at_name = geom.atom_id_expand(atom_name, res_1_name);
@@ -93,9 +90,6 @@ coot::bonded_pair_t::apply_chem_mods(const coot::protein_geometry &geom) {
 	    }
 	 }
 	 for (unsigned int i=0; i<mods.second.atom_mods.size(); i++) {
-	    if (0)
-	       std::cout << "  ====== applying chem_mod " << i << " of "
-			 << mods.second.atom_mods.size() << std::endl;
 	    if (mods.second.atom_mods[i].function == CHEM_MOD_FUNCTION_DELETE) {
 	       std::string atom_name = mods.second.atom_mods[i].atom_id;
 	       std::string at_name = geom.atom_id_expand(atom_name, res_2_name);
@@ -103,7 +97,7 @@ coot::bonded_pair_t::apply_chem_mods(const coot::protein_geometry &geom) {
 	    }
 	 }
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
 	 // it's OK if we don't find a chem mod for this link
       }
    }
@@ -128,7 +122,7 @@ coot::bonded_pair_t::delete_atom(mmdb::Residue *res, const std::string &atom_nam
    res->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) {
       mmdb::Atom *at = residue_atoms[iat];
-      if (at) {  // unneeded precaution?
+      if (at) {
 	 std::string at_name(at->name);
 	 if (at_name == atom_name) {
 	    delete at;

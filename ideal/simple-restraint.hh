@@ -1441,7 +1441,8 @@ namespace coot {
       // find simple (tandem residue) links (based on residue-name and
       // restraints group type).
       // 
-      std::string find_link_type(mmdb::Residue *first, mmdb::Residue *second,
+      std::string find_link_type(mmdb::Residue *first,
+				 mmdb::Residue *second,
 				 const protein_geometry &geom) const;
 
       // a pair, first is if C and N are close and second if and order
@@ -1473,7 +1474,8 @@ namespace coot {
 
       // return "" on failure to find link
       std::string find_glycosidic_linkage_type(mmdb::Residue *first, mmdb::Residue *second,
-					       const protein_geometry &geom) const;
+					       const protein_geometry &geom,
+					       bool use_links_in_molecule) const;
    
       int add_link_bond(std::string link_type,
 			mmdb::PResidue first, mmdb::PResidue second,
@@ -1928,8 +1930,12 @@ namespace coot {
       // Return the link type and a residue order switch flag.
       // Return link_type as "" if not found.
       // 
-      std::pair<std::string, bool> find_link_type_by_distance(mmdb::Residue *first, mmdb::Residue *second,
-							      const protein_geometry &geom) const;
+      // and with a flag, using CLinks and SSBond, rather than
+      // guessing (carbohydrates and disulfides):
+      // 
+      std::pair<std::string, bool> find_link_type_complicado(mmdb::Residue *first,
+							     mmdb::Residue *second,
+							     const protein_geometry &geom) const;
 
       // Allow public access to this - we need it to find the links
       // between residues when all we have to go on is the refmac

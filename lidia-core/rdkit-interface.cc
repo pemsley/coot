@@ -321,13 +321,19 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    m.addBond(bond); // worry about ownership or memory leak.
 	    
 	 } else {
-	    if (ele_2 != " H") { 
-	       std::cout << "WARNING:: oops, bonding in rdkit_mol() "
-			 << "failed to get atom index idx_2 for atom name: "
-			 << atom_name_2 << " ele :" << ele_2 << ":" << std::endl;
-               std::cout << "Here's the atoms we have:\n";
-               for (unsigned int iat=0; iat<added_atom_names.size(); iat++) 
-	          std::cout << std::setw(2) << iat << " :" << added_atom_names[iat] << ":\n";
+	    if (ele_2 != " H") {
+
+	       if (atom_name_2 == " OXT" ||
+		   atom_name_1 == " O1 ") {
+		  // shut up about linked carbohdyrates and modified residues
+	       } else { 
+		  std::cout << "WARNING:: oops, bonding in rdkit_mol() "
+			    << "failed to get atom index idx_2 for atom name: "
+			    << atom_name_2 << " ele :" << ele_2 << ":" << std::endl;
+		  std::cout << "Here's the atoms we have:\n";
+		  for (unsigned int iat=0; iat<added_atom_names.size(); iat++) 
+		     std::cout << std::setw(2) << iat << " :" << added_atom_names[iat] << ":\n";
+	       }
 	       // give up trying to construct this thing then.
 	       std::string message = "Failed to get atom index for atom name \"";
 	       message += atom_name_2;
@@ -337,13 +343,18 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	 }
       } else {
 	 if (ele_1 != " H") { 
-	    std::cout << "WARNING:: oops, bonding in rdkit_mol() "
-		      << "failed to get atom index idx_1 for atom name: \""
-		      << atom_name_1 << "\" ele :" << ele_1 << ":" << std::endl;
-            std::cout << "Here's the atoms we have:\n";
-            for (unsigned int iat=0; iat<added_atom_names.size(); iat++) 
-	       std::cout << std::setw(2) << iat << " :" << added_atom_names[iat] << ":\n";
-	    // give up trying to construct this thing then.
+	    if (atom_name_2 == " OXT" ||
+		atom_name_1 == " O1 ") {
+	       // shut up about linked carbohdyrates and modified residues
+	    } else { 
+	       std::cout << "WARNING:: oops, bonding in rdkit_mol() "
+			 << "failed to get atom index idx_1 for atom name: \""
+			 << atom_name_1 << "\" ele :" << ele_1 << ":" << std::endl;
+	       std::cout << "Here's the atoms we have:\n";
+	       for (unsigned int iat=0; iat<added_atom_names.size(); iat++) 
+		  std::cout << std::setw(2) << iat << " :" << added_atom_names[iat] << ":\n";
+	       // give up trying to construct this thing then.
+	    }
 	    std::string message = "Failed to get atom index for atom name \"";
 	    message += atom_name_1;
 	    message += "\"";

@@ -591,18 +591,19 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
       graphics_info_t::moving_atoms_n_cis_peptides = n_cis;
       // std::cout << "DEBUG:: start of ref have: " << n_cis << " cis peptides"
       // << std::endl;
-      short int continue_flag = 1;
+      bool continue_flag = true;
       int step_count = 0; 
       print_initial_chi_squareds_flag = 1; // unset by drag_refine_idle_function
       while ((step_count < 10000) && continue_flag) {
+
 	 int retval = drag_refine_idle_function(NULL);
 	 step_count += dragged_refinement_steps_per_frame;
 	 if (retval == GSL_SUCCESS) { 
-	    continue_flag = 0;
+	    continue_flag = false;
 	    rr = graphics_info_t::saved_dragged_refinement_results;
 	 }
 	 if (retval == GSL_ENOPROG) {
-	    continue_flag = 0;
+	    continue_flag = false;
 	    rr = graphics_info_t::saved_dragged_refinement_results;
 	 }
       }
@@ -612,7 +613,7 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
       // of steps before convergence.  We still want to give
       // the use a dialog though.
       //
-      if (continue_flag == 1) {
+      if (continue_flag) {
 	 rr = graphics_info_t::saved_dragged_refinement_results;
 	 rr.info = "Time's up...";
       }
@@ -4067,95 +4068,93 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 	  moving_atoms_asc_type == coot::NEW_COORDS_REPLACE_CHANGE_ALTCONF) { // needed?
 	 if (moving_atoms_asc->mol) {
 
-	    std::string s = "Unset";
+	    std::string message_string = "Unset";
 
-	    // Chirals:
+	    // ================= chirals ================================
+	    
 	    std::pair<std::vector<std::string> , std::vector <coot::atom_spec_t> >
-	       bv = coot::inverted_chiral_volumes(moving_atoms_asc->mol,
-						  geom_p,
+	       bv = coot::inverted_chiral_volumes(moving_atoms_asc->mol, geom_p,
 						  cif_dictionary_read_number);
 	    if (bv.second.size() > 0) {
 	       if (bv.second.size() == 1) {
 		  int i = 0;
-		  s = "There is one residue with an\n";
-		  s += "incorrect chiral volume\n";
-		  s += bv.second[i].chain;
-		  s += " ";
-		  s += coot::util::int_to_string(bv.second[i].resno);
-		  s += bv.second[i].insertion_code;
-		  s += " ";
-		  s += bv.second[i].atom_name;
-		  s += " ";
-		  s += bv.second[i].alt_conf;
-		  s += "\n";
+		  message_string = "There is one residue with an\n";
+		  message_string += "incorrect chiral volume\n";
+		  message_string += bv.second[i].chain;
+		  message_string += " ";
+		  message_string += coot::util::int_to_string(bv.second[i].resno);
+		  message_string += bv.second[i].insertion_code;
+		  message_string += " ";
+		  message_string += bv.second[i].atom_name;
+		  message_string += " ";
+		  message_string += bv.second[i].alt_conf;
+		  message_string += "\n";
 	       } else {
-		  s = "There are ";
-		  s += coot::util::int_to_string(bv.second.size());
-		  s += " residues with \n";
-		  s += "incorrect chiral volumes\n";
+		  message_string = "There are ";
+		  message_string += coot::util::int_to_string(bv.second.size());
+		  message_string += " residues with \n";
+		  message_string += "incorrect chiral volumes\n";
 		  for (unsigned int i=0; i<bv.second.size(); i++) { 
-		     s += bv.second[i].chain;
-		     s += " ";
-		     s += coot::util::int_to_string(bv.second[i].resno);
-		     s += bv.second[i].insertion_code;
-		     s += " ";
-		     s += bv.second[i].atom_name;
-		     s += " ";
-		     s += bv.second[i].alt_conf;
-		     s += "\n";
+		     message_string += bv.second[i].chain;
+		     message_string += " ";
+		     message_string += coot::util::int_to_string(bv.second[i].resno);
+		     message_string += bv.second[i].insertion_code;
+		     message_string += " ";
+		     message_string += bv.second[i].atom_name;
+		     message_string += " ";
+		     message_string += bv.second[i].alt_conf;
+		     message_string += "\n";
 		  }
 	       }
 	    }
 
-	    // Cis peptides:
-
+	    // ================== cis peptides ==========================
 
 	    std::vector<coot::util::cis_peptide_info_t> cis_pep_info_vec =
 	       coot::util::cis_peptides_info_from_coords(moving_atoms_asc->mol);
 
-	    int n_cis = cis_pep_info_vec.size();
+	    unsigned int n_cis = cis_pep_info_vec.size();
 	    
-	    // std::cout << "DEBUG:: End ref: have " << n_cis << " CIS peptides "
-	    // << std::endl;
-
 	    if (n_cis > graphics_info_t::moving_atoms_n_cis_peptides) {
 	       if (n_cis == 1) {
-		  s += "\nWARNING: A CIS peptide ";
-		  s += cis_pep_info_vec[0].string();
-		  s += " has been introduced\n";
+		  message_string += "\nWARNING: A CIS peptide ";
+		  message_string += cis_pep_info_vec[0].string();
+		  message_string += " has been introduced\n";
 	       } else {
 		  if ((n_cis - graphics_info_t::moving_atoms_n_cis_peptides) > 1) {
-		     s += "\nWARNING: Extra CIS peptides have been introduced\n";
-		     s += "\nWARNING: We now have thse CIS peptides:\n";
+		     message_string += "\nWARNING: Extra CIS peptides have been introduced\n";
+		     message_string += "\nWARNING: We now have these CIS peptides:\n";
 		     for (unsigned int i=0; i<cis_pep_info_vec.size(); i++) { 
-			s += cis_pep_info_vec[i].string();
-			s += "\n";
+			message_string += cis_pep_info_vec[i].string();
+			message_string += "\n";
 		     }
 		  } else { 
-		     s += "\nWARNING: We now have thse CIS peptides:\n";
+		     message_string += "\nWARNING: We now have thse CIS peptides:\n";
 		     for (unsigned int i=0; i<cis_pep_info_vec.size(); i++) { 
-			s += cis_pep_info_vec[i].string();
-			s += "\n";
+			message_string += cis_pep_info_vec[i].string();
+			message_string += "\n";
 		     }
 		  }
 	       }
 	    }
+
+	    // ===================== show it? ==============================
 	    
 	    if (show_chiral_volume_errors_dialog_flag) {
 	       if (accept_reject_dialog) { 
 		  // info_dialog(s);
-		  if (s != "Unset") {
+		  if (message_string != "Unset") {
 		     update_accept_reject_dialog_with_results(accept_reject_dialog,
 							      coot::CHIRAL_CENTRES,
-							      s);
+							      message_string);
 		  } else { 
 		     update_accept_reject_dialog_with_results(accept_reject_dialog,
 							      coot::CHIRAL_CENTRES,
 							      coot::refinement_results_t(" "));
 		  }
 	       }
-	       if (s != "Unset") {
-		  std::cout << s << std::endl;
+	       if (message_string != "Unset") {
+		  std::cout << message_string << std::endl;
 	       }
 	    } 
 	 }

@@ -2646,7 +2646,6 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
 
    bool switch_order_flag = 0;
    bool found = false;
-
    bool debug = false;
    
 //    if (debug) { 
@@ -2665,10 +2664,12 @@ coot::protein_geometry::matching_chem_link(const std::string &comp_id_1,
       std::pair<bool, bool> match_res =
 	 chem_link_vec[i_chem_link].matches_comp_ids_and_groups(comp_id_1, group_1,
 								comp_id_2, group_2);
+      
       if (match_res.first) {
 
 	 if (debug)
-	    std::cout << "... matching link " << comp_id_1 << " " << comp_id_2 << " " 
+	    std::cout << "... matching_chem_link: found matching link "
+		      << comp_id_1 << " " << comp_id_2 << " " 
 		      << chem_link_vec[i_chem_link] << std::endl;
 	 
 	 // make sure that this link id is not a (currently) useless one.
@@ -2726,6 +2727,19 @@ coot::protein_geometry::matching_chem_link_non_peptide(const std::string &comp_i
 						       const std::string &group_2) const {
    return matching_chem_link(comp_id_1, group_1, comp_id_2, group_2, 0);
 }
+
+// throw an error on no such chem_link
+// 
+std::vector<std::pair<coot::chem_link, bool> >
+coot::protein_geometry::matching_chem_link_non_peptide(const std::string &comp_id_1,
+						       const std::string &group_1,
+						       const std::string &comp_id_2,
+						       const std::string &group_2,
+						       mmdb::Manager *mol) const {
+   // HACK FIXME 20150714
+   return matching_chem_link(comp_id_1, group_1, comp_id_2, group_2, 0);
+}
+
 int 
 coot::protein_geometry::init_standard() {
 

@@ -88,6 +88,12 @@ Program terminated with signal 11, Segmentation fault.
    o Colour by chain: ligand 607A 3CJ in 4qyq has a triple bond to the S.  Why?
      Ligand drawn twice?
 
+   o stroke characters for HUD thumbnails?
+
+   o given a SMILES string, is it in the PBD (SRS)?
+
+   o launch coot from / and try to use pyrogen to build from a SMILES string
+
 ------
 
    o compile rdkit with inchi support. Test. Write to restriants. 
