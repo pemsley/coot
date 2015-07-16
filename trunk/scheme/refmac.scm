@@ -212,6 +212,10 @@
 				    (list labin-string)))))
 
 	  (nov (format #t "DEBUG:: refmac-extra-params returns ~s~%" (get-refmac-extra-params)))
+	  
+	  ;; 
+	  (log-file-name-disambiguator (strip-path (file-name-sans-extension pdb-in-filename)))
+	  ;; 
 	  ;; this should be a database filename:
 	  ;; 
 	  (refmac-log-file-name (string-append 
@@ -219,9 +223,11 @@
 				     ccp4i-project-dir ;; is this string terminated with a slash?
 				     "")
 				 "refmac-from-coot-" 
+				 log-file-name-disambiguator
+				 "-"
 				 (number->string refmac-count) ".log")))
 
-      (set! refmac-count (+ imol-refmac-count 1))
+      (set! refmac-count (+ refmac-count imol-refmac-count 1))
       (format #t "INFO:: Running refmac with these command line args: ~s~%"
 	      command-line-args)
       (format #t "INFO:: Running refmac with these data lines: ~s~%" data-lines)

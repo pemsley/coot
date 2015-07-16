@@ -47,48 +47,53 @@
 	     (n-ligand-atoms (het-group-n-atoms rn)))
 
 	(if (not (number? n-ligand-atoms))
-	    'n-ligand-atoms-not-a-number
+	    'fail-n-ligand-atoms-not-a-number
 
 	    ;; 
-	    (let ((imol-new (copy-molecule imol)))
-	      (delete-residue imol-new chain-id res-no ins-code)
+	    (begin
+	      (delete-residue imol chain-id res-no ins-code)
 	      (let ((refmac-out-sfs-file-name (append-dir-file
 					       refmac-dir
 					       (string-append
 						stub-name
-						"-sans-ligand-refmac.mtz")))
-		    (sans-ligand-pdb-file-name (append-dir-file
+						"-with-ligand-refmac.mtz")))
+		    (with-ligand-pdb-file-name (append-dir-file
 						refmac-dir
 						(string-append
-						 stub-name "-sans-ligand.pdb"))))
+						 stub-name "-with-ligand.pdb"))))
 
 		(make-directory-maybe refmac-dir)
 		(write-pdb-file imol-new sans-ligand-pdb-file-name)
-		(let ((r (refmac-calc-sfs-make-mtz-with-columns sans-ligand-pdb-file-name
+		(let ((r (refmac-calc-sfs-make-mtz-with-columns with-ligand-pdb-file-name
 								refmac-input-mtz-file-name
 								refmac-out-sfs-file-name
 								fobs-col sig-fobs-col rfree-col)))
 		  (if (eq? r #f)
 
-		      'problem-calculating-sfs-using-refmac
+		      'fail-problem-calculating-sfs-using-refmac
 
 		      ;; happy path
 		      (let ((imol-map (make-and-draw-map refmac-out-sfs-file-name
 							 "FWT" "PHWT" "" 0 0)))
-			(map-to-model-correlation
-			 imol 
-			 (list ligand-spec)
-			 neighbs
-			 0 imol-map))))))))))
+			(let ((c (map-to-model-correlation imol (list ligand-spec)
+							   neighbs 0 imol-map)))
+			  (close-molecule imol-map)
+			  c))))))))))
   
 
   (define (get-mogul-score use-cache?)
+
     ;; if run-result is a string, then it is the mogul-output file name
     ;; if it is a symbol something went wrong.
+    ;; 
     (let ((run-result (run-mogul 'bonds-and-angles imol chain-id res-no ins-code "ligand-check" use-cache?)))
-      (format #t "run-result (mogul)::::::::::::: ~s~%" run-result)
+      (format #t "run-result (mogul)::::::::::::: ~s ~s ~s~%" chain-id res-no run-result)
+
       (if (not (string? run-result))
+
 	  run-result
+
+	  ;; happy path
 	  (let* ((mogul-results-list (mogul-results run-result))
 		 (mogul-score (if (not (list? mogul-results-list))
 				  mogul-results-list
@@ -116,9 +121,9 @@
 		(let ((bmp (get-bump-score)))
 		  (if (number? bmp)
 		      (list cor mog bmp)
-		      #f))
-		#f))
-	  #f))))
+		      bmp)) ;; error symbol/string
+		mog)) ;; error symbol/string
+	  cor)))) ;; error symbol/string
 
 
 ;; only look at ligands in maps with resolution worse than this:
