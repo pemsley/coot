@@ -1267,12 +1267,12 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 
    bool debug = false;
    if (debug) { 
-      std::cout << "   ------ DEBUG:: in matches_comp_ids_and_groups "
+      std::cout << "   ------ DEBUG:: in matches_comp_ids_and_groups() "
 		<< id << " chem_link_name " << chem_link_name << ": input comp_ids "
 		<< comp_id_1 << " and " << comp_id_2 << " vs ref link-comp_id-1 :"
 		<< chem_link_comp_id_1 << ": ref link-comp_id-2:"
 		<< chem_link_comp_id_2 << ":" << std::endl; 
-      std::cout << "     for chem_link_comp_name " << chem_link_name << ": input groups "
+      std::cout << "         for chem_link_comp_name " << chem_link_name << ": input groups "
 		<< group_1 << " and " << group_2 << " vs ref link-group-1 :"
 		<< chem_link_group_comp_1 << ": ref link-group-2 :"
 		<< chem_link_group_comp_2 << ":" << std::endl;
@@ -1297,8 +1297,9 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
    if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == local_group_1)) &&
        ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == local_group_2)))
       if (((chem_link_comp_id_1 == "") || (chem_link_comp_id_1 == comp_id_1)) &&
-	  ((chem_link_comp_id_2 == "") || (chem_link_comp_id_2 == comp_id_2)))
+	  ((chem_link_comp_id_2 == "") || (chem_link_comp_id_2 == comp_id_2))) {
 	 match = true;
+      }
 
    if (((chem_link_group_comp_1 == "DNA/RNA") && (local_group_1 == "RNA") && 
 	(chem_link_group_comp_1 == "DNA/RNA") && (local_group_2 == "RNA")))
@@ -1308,28 +1309,36 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 	(chem_link_group_comp_1 == "DNA/RNA") && (local_group_2 == "DNA")))
       match = true;
 
-   if (debug) 
-      std::cout << "    matches_comp_ids_and_groups given comp_id_1: \""
-		<< comp_id_1 << "\" and group_1: \"" << group_1
-		<< "\" and comp_id_2: \"" 
-		<< comp_id_2 << "\" and group_2: \"" << group_2 
-		<< "\" returns " << match << std::endl;
-	
-   if (match)
-      return std::pair<bool, bool>(match, order_switch);
+   if (match) {
       
-   // And what about if the residues come here backward? We should
-   // report a match and that they should be reversed to the calling
-   // function?  
+      // OK, nothing more to do
+      
+   } else { 
+      
+      // And what about if the residues come here backward? We should
+      // report a match and that they should be reversed to the calling
+      // function?  
 
-   // reverse index 
-   if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == local_group_2)) &&
-       ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == local_group_1)))
-      if (((chem_link_comp_id_1 == "") || (chem_link_comp_id_1 == comp_id_2)) &&
-	  ((chem_link_comp_id_2 == "") || (chem_link_comp_id_2 == comp_id_1))) { 
-	 match = true;
-	 order_switch = true;
+      // reverse index 
+      if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == local_group_2)) &&
+	  ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == local_group_1))) { 
+	 if (((chem_link_comp_id_1 == "") || (chem_link_comp_id_1 == comp_id_2)) &&
+	     ((chem_link_comp_id_2 == "") || (chem_link_comp_id_2 == comp_id_1))) {
+	    std::cout << "debug:: matched with order switch " << std::endl;
+	    match = true;
+	    order_switch = true;
+	 }
       }
+   }
+   
+   if (debug)
+      if (match)
+	 std::cout << "!!! matches_comp_ids_and_groups() passed comp_id_1: \""
+		   << comp_id_1 << "\" and group_1: \"" << group_1
+		   << "\" and comp_id_2: \"" 
+		   << comp_id_2 << "\" and group_2: \"" << group_2
+		   << "\" and this: " << *this
+		   << "\" returns " << match << std::endl;
    
    return std::pair<bool, bool>(match, order_switch);
 }
@@ -1337,10 +1346,10 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 std::ostream& coot::operator<<(std::ostream &s, coot::chem_link lnk) {
 
    s << "[chem_link: id: " << lnk.id
-     << " [comp: " << lnk.chem_link_comp_id_1 << " group: " << lnk.chem_link_group_comp_1
-     << " mod: " << lnk.chem_link_mod_id_1 << "] to "
-     << " [comp: " << lnk.chem_link_comp_id_2 << " group: " << lnk.chem_link_group_comp_2
-     << " mod: " << lnk.chem_link_mod_id_2 << "] " << lnk.chem_link_name << "]";
+     << " [comp_id1: \"" << lnk.chem_link_comp_id_1 << "\" group_1: " << lnk.chem_link_group_comp_1
+     << " mod_1: " << lnk.chem_link_mod_id_1 << "] to "
+     << " [comp_id2: \"" << lnk.chem_link_comp_id_2 << "\" group_2: " << lnk.chem_link_group_comp_2
+     << " mod_2: " << lnk.chem_link_mod_id_2 << "] " << lnk.chem_link_name << "]";
    return s; 
 }
 
@@ -1399,7 +1408,7 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
    // of the residues involved: the "residue 1" should have the O4 and
    // the "residue 2" (+1 residue number) should have the C1.
    // 
-   if (0) { 
+   if (false) { 
       std::cout << "DEBUG:: number of sorted distances in glycosidic_linkage: "
 		<< close.size() << std::endl;
       for (unsigned int i=0; i<close.size(); i++) {
@@ -1553,11 +1562,11 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 	       }
       }
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "WARNING::" << rte.what() << std::endl;
    }
 
-   if (0) 
+   if (false) 
       std::cout << "   debug:: find_glycosidic_linkage_type() for "
 		<< first->GetChainID() << " " << first->GetSeqNum() << " " << first->GetInsCode()
 		<< first->GetResName() << ","
@@ -1568,6 +1577,97 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
    
    return link_type;
 }
+
+std::string
+coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first,
+						     mmdb::Residue *second,
+						     mmdb::Manager *mol) const {
+   
+   // First check that the residues are LINK - or are sequential.
+   // If so, then we can find the link as above.
+   
+   std::string link_type;
+   bool are_linked = false;
+   bool are_sequential = false;
+
+   // Test for sequential/tandem
+   //
+   std::string chain_id_1 =  first->GetChainID();
+   std::string chain_id_2 = second->GetChainID();
+   int resno_1 =  first->GetSeqNum();
+   int resno_2 = second->GetSeqNum();
+   if (chain_id_1 == chain_id_2) {
+      if (resno_1 == (resno_2+1)) are_sequential = true;
+      if (resno_2 == (resno_1+1)) are_sequential = true;
+   } 
+
+   if (! are_sequential) {
+      // Test for link in molecule
+      std::string ins_code_1 =  first->GetInsCode();
+      std::string ins_code_2 = second->GetInsCode();
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) { 
+	 mmdb::LinkContainer *links = model_p->GetLinks();
+	 int n_links = model_p->GetNumberOfLinks();
+	 for (int ilink=1; ilink<=n_links; ilink++) { 
+	    mmdb::Link *link = model_p->GetLink(ilink);
+	    if (link) {
+	       are_linked = are_linked_in_order(first, second, link);
+	       if (! are_linked)
+		  are_linked = are_linked_in_order(first, second, link);
+	       if (are_linked)
+		  break;
+	    }
+	 }
+      }
+   } 
+
+
+   if (are_linked || are_sequential)
+      link_type = find_glycosidic_linkage_type(first, second);
+
+   return link_type;
+}
+
+
+bool
+coot::protein_geometry::are_linked_in_order(mmdb::Residue *first,
+					    mmdb::Residue *second,
+					    mmdb::Link *link) const {
+
+   bool linked = false;
+   // c.f link_atoms() - but we can't use that because that's a
+   // coot-utils function and geometry is more primitive.
+   std::string link_chain_id_1(link->chainID1);
+   std::string link_chain_id_2(link->chainID2);
+   std::string chain_id_1 =  first->GetChainID();
+   std::string chain_id_2 = second->GetChainID();
+   int resno_1 =  first->GetSeqNum();
+   int resno_2 = second->GetSeqNum();
+   if (link_chain_id_1 == chain_id_1) { 
+      if (link_chain_id_2 == chain_id_2) {
+	 int link_reso_1 = link->seqNum1;
+	 int link_reso_2 = link->seqNum2;
+	 if (link_reso_1 == resno_1) { 
+	    if (link_reso_2 == resno_2) {
+	       std::string link_ins_code_1 = link->insCode1;
+	       std::string link_ins_code_2 = link->insCode2;
+	       std::string ins_code_1 =  first->GetInsCode();
+	       std::string ins_code_2 = second->GetInsCode();
+	       if (link_ins_code_1 == ins_code_1) { 
+		  if (link_ins_code_2 == ins_code_2) {
+		     linked = true;
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   return linked;
+} 
+					    
 
 std::pair<std::string, bool>
 coot::protein_geometry::find_glycosidic_linkage_type_with_order_switch(mmdb::Residue *first, mmdb::Residue *second) const {

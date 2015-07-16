@@ -2707,6 +2707,40 @@
 (define (new-molecule-by-smiles-string tlc-text smiles-text)
 
 
+  ;; generator is "pyrogen" or "acedrg"
+  ;; 
+  (define (dict-gen generator comp-id args working-dir)
+
+    (let* ((stub (string-append comp-id "-" generator))
+	   (log-file-name (append-dir-file working-dir (string-append stub ".log"))))
+
+      (format #t ":::::::::::::::::: args: ~s~%" args)
+      (let ((status (goosh-command generator args '() log-file-name #t)))
+	(if (not (ok-goosh-status? status))
+	    -1 ;; bad mol
+
+	    (let ((pdb-name (append-dir-file working-dir (string-append stub ".pdb")))
+		  (cif-name (append-dir-file working-dir (string-append stub ".cif"))))
+	      
+	      (let ((imol (read-pdb pdb-name)))
+		(read-cif-dictionary cif-name)
+		imol))))))
+
+  (define (use-acedrg three-letter-code)
+    (let* ((working-dir (get-directory "coot-acedrg"))
+	   (stub (string-append three-letter-code "-acedrg")))
+      (let ((smi-file-name (append-dir-file working-dir 
+					    (string-append three-letter-code "-acedrg-from-coot.smi"))))
+	(call-with-output-file smi-file-name
+	  (lambda (port)
+	    (display smiles-text port)
+	    (newline port)))
+	(dict-gen "acedrg" 
+		  three-letter-code
+		  (list "-r" three-letter-code "-i" smi-file-name "-o" (append-dir-file working-dir stub))
+		  working-dir))))
+    
+
   (define (use-libcheck three-letter-code)
 
     (let* ((smiles-file (string-append "coot-" three-letter-code ".smi"))
@@ -2740,36 +2774,43 @@
 		  (read-cif-dictionary cif-file-name)))
 	    (format #t "OOPs.. libcheck returned exit status ~s~%" status)))))
 
-
   (define (use-pyrogen three-letter-code)
 
     ;; OK, let's run pyrogen
-    (let ((log-file-name "pyrogen.log"))
+    (let* ((working-dir (get-directory "coot-pyrogen"))
+	   (log-file-name "pyrogen.log")) ;; in working-dir
 
-      ;; Embed a test for mogul
-      ;;
+      ;; Embed a test for mogul.
+
+      ;; needs with-working-directory macro
       ;; 
-      (let ((goosh-status
-	     (goosh-command
-	      "pyrogen"
-	      (if *use-mogul* 
-		  (list "--residue-type" tlc-text smiles-text)
-		  (if (command-in-path? "mogul")
-		      (list              "--residue-type" tlc-text smiles-text)
-		      (list "--no-mogul" "-M" "--residue-type" tlc-text smiles-text)))
-	      '() log-file-name #t)))
-	(if (ok-goosh-status? goosh-status)
-	    (begin
-	      (let* ((pdb-file-name (string-append tlc-text "-pyrogen.pdb"))
-		     (cif-file-name (string-append tlc-text "-pyrogen.cif"))
-		     (sc (rotation-centre))
-		     (imol (handle-read-draw-molecule-with-recentre pdb-file-name 0)))
-		(if (valid-model-molecule? imol)
-		    (let ((mc (molecule-centre imol)))
-		      (apply translate-molecule-by (cons imol (map - sc mc)))))
-		(read-cif-dictionary cif-file-name)))))))
+      (let ((current-dir (getcwd)))
+	(chdir working-dir)
+	(let ((goosh-status
+	       (goosh-command
+		"pyrogen"
+		(if *use-mogul* 
+		    (list "--residue-type" tlc-text smiles-text)
+		    (if (command-in-path? "mogul")
+			(list              "--residue-type" tlc-text smiles-text)
+			(list "--no-mogul" "-M" "--residue-type" tlc-text smiles-text)))
+		'() log-file-name #t)))
+	  (if (ok-goosh-status? goosh-status)
+	      (begin
+		(let* ((pdb-file-name (string-append tlc-text "-pyrogen.pdb"))
+		       (cif-file-name (string-append tlc-text "-pyrogen.cif"))
+		       (sc (rotation-centre))
+		       (imol (handle-read-draw-molecule-with-recentre pdb-file-name 0)))
+		  (if (valid-model-molecule? imol)
+		      (let ((mc (molecule-centre imol)))
+			(apply translate-molecule-by (cons imol (map - sc mc)))))
+		  (read-cif-dictionary cif-file-name)))))
+	(chdir current-dir))))
 
 
+
+  ;; main line
+  ;; 
   (if (> (string-length smiles-text) 0)
 
       (let ((three-letter-code 
@@ -2779,11 +2820,11 @@
 	       tlc-text)
 	      ((> (string-length tlc-text) 0)
 	       (substring tlc-text 0 3))
-	      (else "DUM"))))
+	      (else "XXX"))))
 	
 	(if (not (enhanced-ligand-coot?))
 
-	    (use-libcheck three-letter-code)
+	    (use-acedrg  three-letter-code)
 	    (use-pyrogen three-letter-code)))))
 	    
 
