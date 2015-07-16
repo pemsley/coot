@@ -483,7 +483,6 @@ molecule_class_info_t::b_factor_representation_as_cas() {
    Bond_lines_container bonds;
    bonds.do_Ca_plus_ligands_bonds(atom_sel, NULL, 2.4, 4.7, bond_type, draw_hydrogens_flag); // pass a dictionary
    bonds_box = bonds.make_graphical_bonds();
-   // bonds_box_type = coot::COLOUR_BY_B_FACTOR_BONDS;
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR;
 } 
 

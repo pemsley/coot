@@ -428,6 +428,11 @@ void fle_view_with_rdkit(int imol, const char *chain_id, int res_no,
 void fle_view_with_rdkit_to_png(int imol, const char *chain_id, int res_no, const char *ins_code, float residues_near_radius, const char *png_file_name) {
 
    fle_view_with_rdkit_internal(imol, chain_id, res_no, ins_code, residues_near_radius, "png", png_file_name);
+}
+
+void fle_view_with_rdkit_to_svg(int imol, const char *chain_id, int res_no, const char *ins_code, float residues_near_radius, const char *png_file_name) {
+
+   fle_view_with_rdkit_internal(imol, chain_id, res_no, ins_code, residues_near_radius, "svg", png_file_name);
 } 
 
 
@@ -441,6 +446,7 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
    
    graphics_info_t g;
    coot::protein_geometry *geom_p = g.Geom_p();
+   std::string output_format = file_format;
 
    if (is_valid_model_molecule(imol)) { 
       mmdb::Residue  *res_ref = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
@@ -586,7 +592,10 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 		  if (! use_graphics_flag) { 
 		     lbg_local_p->set_draw_flev_annotations(true);
 		     lbg_local_p->draw_all_flev_annotations();
-		     lbg_local_p->write_png(output_image_file_name);
+		     if (output_format == "png")
+			lbg_local_p->write_png(output_image_file_name);
+		     if (output_format == "svg")
+			lbg_local_p->write_svg(output_image_file_name);
 		  } 
 		  delete mol_for_flat_residue;
 	       }
