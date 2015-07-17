@@ -1855,7 +1855,7 @@ requests too.
  o Add optional atom-based scoring for residue-density-fit
 
  o new scheme function: fit-protein which does rotamer search and
-   refinement for each residue in the molecule.  Sit back with feet and
+   refinement for each residue in the molecule.  Sit back with feet up and
    and watch the fun job.
 
  o Use the masked map to score ligand positions rather than the
