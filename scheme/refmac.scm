@@ -104,7 +104,7 @@
 	    phib-fom-pair
 	    force-n-cycles
 	    f-col sig-f-col r-free-col)
-    (format #t "########################### in run-refmac-by-filename refmac-extra-params: ~s~%" 
+    (format #t "#### run-refmac-by-filename refmac-extra-params: ~s~%" 
 	    refmac-extra-params)
 
 	

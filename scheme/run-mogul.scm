@@ -58,30 +58,35 @@
 ;; 
 (define (run-mogul mode imol chain-id res-no ins-code prefix-str use-cache?)
 
-  (let* ((rn (residue-name imol chain-id res-no ins-code))
-	 (stub (string-append (mogul-file-name-stub  (molecule-name-stub imol 0)
-						     prefix-str rn chain-id res-no ins-code)))
-	 (mogul-ins-file-name (string-append stub ".ins"))
-	 (mogul-out-file-name (string-append stub ".out"))
-	 (mogul-log-file-name (string-append stub ".log"))
-	 (sdf-out-file-name   (string-append stub ".sdf")))
-    (write-mogul-ins mogul-ins-file-name mogul-out-file-name sdf-out-file-name mode)
-    ;; residue-to-sdf-file only works if all of the non-hydrogen atoms
-    ;; in the dictionary are present in the coordinates. So, this will
-    ;; often fail, for example, with covalently-attached ligands (that
-    ;; lose an atom in the attachment).
-    (if (and use-cache? (file-exists? mogul-out-file-name))
-	;; do this for testing
-	mogul-out-file-name
+  (let* ((rn (residue-name imol chain-id res-no ins-code)))
 
-	;; usual happy path
-	(if (not (residue-to-mdl-file-for-mogul imol chain-id res-no ins-code sdf-out-file-name))
-	    'bad-sdf-file
-	    (let ((args (list "-ins" mogul-ins-file-name)))
-	      (let ((status (goosh-command "mogul" args '() mogul-log-file-name #f)))
-		(if (not (ok-goosh-status? status))
-		    'bad-run-mogul-status
-		    mogul-out-file-name)))))))
+    (if (not (string? rn))
+	
+	'no-residue-ligand-name
+
+	(let* ((stub (string-append (mogul-file-name-stub  (molecule-name-stub imol 0)
+							   prefix-str rn chain-id res-no ins-code)))
+	       (mogul-ins-file-name (string-append stub ".ins"))
+	       (mogul-out-file-name (string-append stub ".out"))
+	       (mogul-log-file-name (string-append stub ".log"))
+	       (sdf-out-file-name   (string-append stub ".sdf")))
+	  (write-mogul-ins mogul-ins-file-name mogul-out-file-name sdf-out-file-name mode)
+	  ;; residue-to-sdf-file only works if all of the non-hydrogen atoms
+	  ;; in the dictionary are present in the coordinates. So, this will
+	  ;; often fail, for example, with covalently-attached ligands (that
+	  ;; lose an atom in the attachment).
+	  (if (and use-cache? (file-exists? mogul-out-file-name))
+	      ;; do this for testing
+	      mogul-out-file-name
+
+	      ;; usual happy path
+	      (if (not (residue-to-mdl-file-for-mogul imol chain-id res-no ins-code sdf-out-file-name))
+		  'bad-sdf-file
+		  (let ((args (list "-ins" mogul-ins-file-name)))
+		    (let ((status (goosh-command "mogul" args '() mogul-log-file-name #f)))
+		      (if (not (ok-goosh-status? status))
+			  'bad-run-mogul-status
+			  mogul-out-file-name)))))))))
 	
 
 ;; return a string that is the mogul results file name that gets

@@ -51,7 +51,7 @@
 
 	    ;; 
 	    (begin
-	      (delete-residue imol chain-id res-no ins-code)
+	      ;; (delete-residue imol chain-id res-no ins-code)
 	      (let ((refmac-out-sfs-file-name (append-dir-file
 					       refmac-dir
 					       (string-append
@@ -61,9 +61,10 @@
 						refmac-dir
 						(string-append
 						 stub-name "-with-ligand.pdb"))))
-
+		
 		(make-directory-maybe refmac-dir)
-		(write-pdb-file imol-new sans-ligand-pdb-file-name)
+		(make-directory-maybe "coot-refmac") ;; XYZOUT goes here
+		(write-pdb-file imol with-ligand-pdb-file-name)
 		(let ((r (refmac-calc-sfs-make-mtz-with-columns with-ligand-pdb-file-name
 								refmac-input-mtz-file-name
 								refmac-out-sfs-file-name
@@ -87,7 +88,7 @@
     ;; if it is a symbol something went wrong.
     ;; 
     (let ((run-result (run-mogul 'bonds-and-angles imol chain-id res-no ins-code "ligand-check" use-cache?)))
-      (format #t "run-result (mogul)::::::::::::: ~s ~s ~s~%" chain-id res-no run-result)
+      (format #t "run-result (mogul): ~s ~s ~s~%" chain-id res-no run-result)
 
       (if (not (string? run-result))
 
