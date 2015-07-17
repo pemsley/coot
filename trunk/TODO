@@ -1326,6 +1326,9 @@ Think about:
 ----
 
    Release 0.9, Facelift-release [May 2015]
+  
+
+   o enum-type the bonds in the geometry dictionary.
 
    o Remove hydrogens from refinement.  Punt for 0.9
 
@@ -1625,7 +1628,6 @@ Think about:
 
    o check that refmac can run before starting PDBe (note that you
      need to handle the cached case) ::: 1
-* 
 
 
 -----

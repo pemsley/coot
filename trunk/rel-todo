@@ -77,6 +77,9 @@ Program terminated with signal 11, Segmentation fault.
    o pyrogen -M default
  
    o add test for carbohydrate building.
+  
+   o Hydrogenate region when reduce is not found - give me a dialog.
+     Or grey-out the function if it is not in the path.
  
    o review simple-restraints.cc:5131 H-bumps
 

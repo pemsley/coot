@@ -7337,5 +7337,30 @@ http://www.youtube.com/watch?v=aMSPwFvlICM
    4bie (Ask1/Compound4).
 
    http://onlinelibrary.wiley.com/enhanced/doi/10.1002/pro.2298
+ 
+
+---
+
+   Libs on a Mac:
+
+   https://blogs.oracle.com/dipol/entry/dynamic_libraries_rpath_and_mac
+
+
+---- 
+
+   librsvg gdk-pixbuf-query-loaders:
+
+   https://www.guiguan.net/fix-python-graph-tool-couldnt-recognise-svg-problem/
+
+ 
+----
+   
+   using lldb:
+
+   lldb .libs/coot-bin 
+   process launch -- --no-graphics
+
+   http://lldb.llvm.org/lldb-gdb.html
+
 
 ------
