@@ -7349,7 +7349,6 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
 	       std::vector<coot::residue_spec_t> residue_specs;
 	       residue_specs.push_back(res_spec);
 	       residue_specs.push_back(new_res_spec);
-	       int n_trials = 1000;
 
 	       // 2 rounds of fit then refine
 	       for (int ii=0; ii<2; ii++) { 
