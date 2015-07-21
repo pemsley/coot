@@ -21,6 +21,8 @@
 
    o LINK info (distances on output) - new mmdb
 
+   o Sphere refine on a water fails.
+
    o with enhanced-ligand, do you get a sane code-path if you do 
      File -> SMILES?
 
