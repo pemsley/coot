@@ -337,7 +337,10 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	       // give up trying to construct this thing then.
 	       std::string message = "Failed to get atom index for atom name \"";
 	       message += atom_name_2;
-	       message += "\"";
+	       message += "\" in residue of type ";
+	       message += residue_p->GetResName();
+	       message += " ";
+	       message += residue_spec_t(residue_p).format();
 	       throw std::runtime_error(message);
 	    }
 	 }
@@ -358,6 +361,10 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    std::string message = "Failed to get atom index for atom name \"";
 	    message += atom_name_1;
 	    message += "\"";
+	    message += "\" in residue of type ";
+	    message += residue_p->GetResName();
+	    message += " ";
+	    message += residue_spec_t(residue_p).format();
 	    throw std::runtime_error(message);
 	 }
       }
