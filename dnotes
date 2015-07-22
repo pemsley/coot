@@ -7362,5 +7362,10 @@ http://www.youtube.com/watch?v=aMSPwFvlICM
 
    http://lldb.llvm.org/lldb-gdb.html
 
+---
+  
+   torsion fit this residue should do a rigid body refinement after each modification, 
+   or perhaps store the best torsion set and RBR the best ones.
+
 
 ------

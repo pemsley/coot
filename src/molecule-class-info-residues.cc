@@ -52,6 +52,7 @@
 #include "ligand/rotamer.hh" // in ligand
 
 #include "ligand/base-pairing.hh"
+#include "ideal/torsion-bonds.hh"
 
 #include "molecule-class-info.h"
 #include "utils/coot-utils.hh"
@@ -1206,12 +1207,14 @@ coot::residue_spec_t
 molecule_class_info_t::add_linked_residue_by_atom_torsions(const coot::residue_spec_t &spec_in,
 							   const std::string &new_residue_comp_id,
 							   const std::string &link_type,
-							   coot::protein_geometry *geom_p) {
+							   coot::protein_geometry *geom_p,
+							   float default_b_factor_new_atoms) {
    coot::residue_spec_t new_residue_spec;   
    mmdb::Residue *residue_ref = get_residue(spec_in);
    if (residue_ref) {
       try {
 	 coot::link_by_torsion_t l(link_type, new_residue_comp_id);
+	 l.set_temperature_factor(default_b_factor_new_atoms);
 	 mmdb::Residue *result = l.make_residue(residue_ref);
 	 atom_sel.mol->FinishStructEdit();
 	 std::pair<bool, mmdb::Residue *> status_pair = add_residue(result, spec_in.chain);

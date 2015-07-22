@@ -5,7 +5,7 @@
 #include "simple-restraint.hh"
 #include "coot-compare-residues.hh"
 #include "compat/coot-sysdep.h"
-
+#include "torsion-bonds.hh"
 
 bool
 coot::compare_residue_torsions(mmdb::Manager *mol1, mmdb::Residue *res_1,

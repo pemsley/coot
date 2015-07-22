@@ -83,6 +83,7 @@ namespace coot {
       void init(mmdb::Residue *ref_res_p, mmdb::Residue *ext_res_p);
       std::string link_type_to_file_name(const std::string &link_type) const;
       std::string comp_id_to_decoration_file_name(const std::string &link_type) const;
+      float b_factor;
    public:
       std::string new_residue_type;
       int new_res_no;
@@ -103,6 +104,8 @@ namespace coot {
       bool filled() const { return (geom_atom_torsions.size()); }
       // caller deletes
       mmdb::Residue *make_residue(mmdb::Residue *base_residue_p) const;
+      // set default temperature factor for new atoms
+      void set_temperature_factor(float b); 
       // add new atom if it is not there already
       void add(const atom_by_torsion_t &at) {
 	 std::vector<atom_by_torsion_t>::iterator it;

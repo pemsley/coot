@@ -143,6 +143,7 @@
 #endif
 
 #include "ideal/simple-restraint.hh"  // for multi-residue torsion map fitting.
+#include "ideal/torsion-bonds.hh"     // for multi-residue torsion map fitting.
 
 #include "cc-interface-network.hh"
 #include "c-interface-ligands-swig.hh"

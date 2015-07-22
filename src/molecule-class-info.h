@@ -3383,7 +3383,8 @@ public:        //                      public
    add_linked_residue_by_atom_torsions(const coot::residue_spec_t &spec_in,
 				       const std::string &new_residue_comp_id,
 				       const std::string &link_type,
-				       coot::protein_geometry *geom_p);
+				       coot::protein_geometry *geom_p,
+				       float b_factor_new_atoms);
 
    // n-models
    int n_models() const;

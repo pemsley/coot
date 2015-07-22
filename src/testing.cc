@@ -47,6 +47,7 @@
 
 #include "ligand/wligand.hh"
 #include "ideal/simple-restraint.hh"
+#include "ideal/torsion-bonds.hh"
 #include "ligand/ligand.hh"
 #include "ligand/chi-angles.hh"
 

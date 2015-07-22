@@ -72,17 +72,12 @@
 		  (let ((new-res  (car new-res-pair))
 			(new-link (cdr new-res-pair)))
 
-		    (format #t "xxxxxxxxxxxxxxxxxxxxxxxxxxx calling add-linked-residue xxxxxxxxxxx~%")
-
 		    (let ((new-res-spec (add-linked-residue imol 
 							    (res-spec->chain-id current-res-spec)
 							    (res-spec->res-no   current-res-spec)
 							    (res-spec->ins-code current-res-spec)
 							    new-res
 							    new-link)))
-
-		      (format #t "############################ add-linked-residue returns: ~s~% " 
-			      new-res-spec)
 
 		      ;; residues-near-residue takes a 3-part spec and makes 3-part specs.
 		      (let* ((ls (residues-near-residue imol current-res-spec 1.9)))
@@ -132,8 +127,20 @@
 
 ;; (set-add-linked-residue-do-fit-and-refine 0)
 
+;; now users can set this
+(define *add-linked-residue-tree-correlation-cut-off* 0.6)
 
 (define (add-linked-residue-tree imol parent tree)
+
+  (define (centre-view-on-residue-centre res-spec)
+    (let ((res-centre (residue-centre imol 
+				      (residue-spec->chain-id res-spec)
+				      (residue-spec->res-no res-spec)
+				      (residue-spec->ins-code res-spec))))
+      (if (list? res-centre)
+	  (apply set-rotation-centre res-centre))))
+	  
+  
   
   (define func-test
     (let ((count 10))
@@ -150,7 +157,7 @@
 	 (format #t "############# new residue ~s density correlation: ~s~%" res-spec c)
 	 (if (not (number? c))
 	     #f
-	     (> c 0.5))))))
+	     (> c *add-linked-residue-tree-correlation-cut-off*))))))
 
   (define (delete-residue-by-spec spec)
     (delete-residue imol
@@ -162,7 +169,7 @@
   (define (func parent res-pair)
     (if (not (list? parent))
         (begin
-          (format #t "OOps not a proper res-spec ~s with residues-to-add: ~s~%"
+          (format #t "WARNING:: Oops not a proper res-spec ~s with residues-to-add: ~s~%"
                   parent res-pair)
 	  #f)
 	(if (not (pair? res-pair))
@@ -173,7 +180,8 @@
 	    (let ((new-link     (car res-pair))
 		  (new-res-type (cdr res-pair)))
 
-	      (set-go-to-atom-from-res-spec parent)
+	      ;; (set-go-to-atom-from-res-spec parent)
+	      (centre-view-on-residue-centre parent)
 
 ;	      (format #t "================= calling add-linked-residue with args ~s ~s ~s ~s ~s ~s~%"
 ;		      imol 
@@ -207,8 +215,6 @@
 		      #f))))))) ;; oops, something bad...
 
   (define (process-tree parent tree proc-func)
-    
-    ;; (format #t "::::::::::::::::::::::::::: process-tree with parent ~s and tree: ~s~%" parent tree)
     (cond 
      ((null? tree) '())
      ((list? (car tree))
@@ -220,10 +226,21 @@
 	(cons new-res
 	      (process-tree new-res (cdr tree) proc-func))))))
 
-  ;; main linle of add-linked-residue
-  ;; (add-synthetic-carbohydrate-planes)
+  ;; main line of add-linked-residue
+  ;; 
+  (add-synthetic-carbohydrate-planes)
+  (set-residue-selection-flash-frames-number 1)
   (set-go-to-atom-molecule imol)
-  (process-tree parent tree func))
+  (let* ((previous-m (default-new-atoms-b-factor))
+	(m (median-temperature-factor imol))
+	(new-m (* m 1.55)))
+
+    (if (number? m)
+	(set-default-temperature-factor-for-new-atoms new-m))
+
+    (process-tree parent tree func)
+    (set-default-temperature-factor-for-new-atoms previous-m)))
+
   
 
 (define (add-module-carbohydrate) 

@@ -87,6 +87,7 @@
 
 #include "graphics-info.h"
 #include "rotate-translate-modes.hh"
+#include "ideal/torsion-bonds.hh"
 
 // Including python needs to come after graphics-info.h, because
 // something in Python.h (2.4 - chihiro) is redefining FF1 (in

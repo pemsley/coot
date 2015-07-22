@@ -226,6 +226,8 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 RDKit::ROMol *
 coot::hydrogen_transformations(const RDKit::ROMol &mol) {
 
+
+   debug_rdkit_molecule(&mol);
    RDKit::RWMol *r = new RDKit::RWMol(mol);
 
    RDKit::ROMol *query_cooh = RDKit::SmartsToMol("[C^2](=O)O[H]");

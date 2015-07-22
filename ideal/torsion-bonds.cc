@@ -4,6 +4,9 @@
 #include "coot-utils/coot-map-heavy.hh"
 #include "simple-restraint.hh"
 
+#include "torsion-bonds.hh"
+
+
 // this can throw an exception
 // 
 std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> >
@@ -245,6 +248,31 @@ coot::torsionable_link_quads(std::vector<mmdb::Residue *> residues_in,
 	       const coot::dict_link_torsion_restraint_t &rest = link.link_torsion_restraint[il];
 	       if (rest.is_pyranose_ring_torsion()) {
 		  // pass
+		  std::cout << "   link # " << il << " is pyranose ring torsion # PASS" << std::endl;
+
+		  if (true) { // debug
+		     mmdb::Residue *r_1 = bpc[i].res_1;
+		     mmdb::Residue *r_2 = bpc[i].res_1;
+		     mmdb::Residue *r_3 = bpc[i].res_1;
+		     mmdb::Residue *r_4 = bpc[i].res_1;
+		     if (rest.atom_1_comp_id == 2)
+			r_1 = bpc[i].res_2;
+		     if (rest.atom_2_comp_id == 2)
+			r_2 = bpc[i].res_2;
+		     if (rest.atom_3_comp_id == 2)
+			r_3 = bpc[i].res_2;
+		     if (rest.atom_4_comp_id == 2)
+			r_4 = bpc[i].res_2;
+		     mmdb::Atom *link_atom_1 = r_1->GetAtom(rest.atom_id_1_4c().c_str());
+		     mmdb::Atom *link_atom_2 = r_2->GetAtom(rest.atom_id_2_4c().c_str());
+		     mmdb::Atom *link_atom_3 = r_3->GetAtom(rest.atom_id_3_4c().c_str());
+		     mmdb::Atom *link_atom_4 = r_4->GetAtom(rest.atom_id_4_4c().c_str());
+		     std::cout << "   link # " << il << " has link_atoms: "
+			       << coot::atom_spec_t(link_atom_1) << " " << coot::atom_spec_t(link_atom_2) << " "
+			       << coot::atom_spec_t(link_atom_3) << " " << coot::atom_spec_t(link_atom_4) << " "
+			       << std::endl;
+		     
+		  } 
 	       } else { 
 		  mmdb::Residue *r_1 = bpc[i].res_1;
 		  mmdb::Residue *r_2 = bpc[i].res_1;
@@ -263,11 +291,12 @@ coot::torsionable_link_quads(std::vector<mmdb::Residue *> residues_in,
 		  mmdb::Atom *link_atom_3 = r_3->GetAtom(rest.atom_id_3_4c().c_str());
 		  mmdb::Atom *link_atom_4 = r_4->GetAtom(rest.atom_id_4_4c().c_str());
 	    
-		  std::cout << "   link residues "
-			    << coot::residue_spec_t(r_1) << " " << coot::residue_spec_t(r_2) << " "
-			    << coot::residue_spec_t(r_3) << " " << coot::residue_spec_t(r_4)
+		  std::cout << "   link # " << il << " has residues    "
+			    << coot::residue_spec_t(r_1) << "         " << coot::residue_spec_t(r_2)
+			    << "         "
+			    << coot::residue_spec_t(r_3) << "         " << coot::residue_spec_t(r_4)
 			    << std::endl;
-		  std::cout << "   link_atoms: "
+		  std::cout << "   link # " << il << " has link_atoms: "
 			    << coot::atom_spec_t(link_atom_1) << " " << coot::atom_spec_t(link_atom_2) << " "
 			    << coot::atom_spec_t(link_atom_3) << " " << coot::atom_spec_t(link_atom_4) << " "
 			    << std::endl;
@@ -284,7 +313,7 @@ coot::torsionable_link_quads(std::vector<mmdb::Residue *> residues_in,
 
 	 } else {
 
-	    std::cout << "torsion made from bond restraint"  << std::endl;
+	    std::cout << "INFO:: link torsion generated from link bond restraint"  << std::endl;
 
 	    // bleugh... OK, no torsion restraints.
 	    // So use a bond restaint to make one torsion (around the link bond).
@@ -336,10 +365,21 @@ coot::multi_residue_torsion_fit_map(mmdb::Manager *mol,
 				    int n_trials,
 				    coot::protein_geometry *geom_p) {
 
+   // First fill the atoms vector: all the atoms in the input mol
+   // Get the torsionable quads atom names
+   // Get the contact info and use that to make torsions
+   // For n_trials,
+   //     make a model using set_dihedral_multi
+   //     get self_clash_score
+   //     if self_clash_score < 6
+   //        get density fit score
+   //        if its better than the best score so far
+   //           update best_quads and best_tree_dihedral_quads
+   // update model so that it uses best_tree_dihedral_quads
 
    std::vector<std::pair<std::string, int> > atom_numbers = coot::util::atomic_number_atom_list();
    
-   try { 
+   try {
       mmdb::PPAtom atom_selection = 0;
       int n_selected_atoms;
       int selhnd = mol->NewSelection(); // d
@@ -361,7 +401,10 @@ coot::multi_residue_torsion_fit_map(mmdb::Manager *mol,
 	 std::vector<coot::torsion_atom_quad> quads = 
 	    coot::torsionable_quads(mol, atom_selection, n_selected_atoms, geom_p);
 
-	 if (0) 
+	 // FIXME for future, calculate link_angle_atom_triples, using something analoguous to
+	 // torsionable_link_quads()
+
+	 if (false)
 	    for (unsigned int iquad=0; iquad<quads.size(); iquad++)
 	       std::cout << "   " << iquad << " "
 			 << coot::atom_spec_t(quads[iquad].atom_1) << " " 
@@ -390,44 +433,96 @@ coot::multi_residue_torsion_fit_map(mmdb::Manager *mol,
 	 // save the current
 	 for (int iquad=0; iquad<n_quads; iquad++)
 	    best_quads[iquad] = quads[iquad].torsion();
-      
+
+	 // Make the first few shifts small, because we could be close
+	 // to the correct solution by initial placement. At a guess,
+	 // the first 15% should be small.
+	 //
+	 int itrial_n_small_lim(0.15*n_trials);
+	 // 
 	 for (int itrial=0; itrial<n_trials; itrial++) {
 
+	    bool allow_conformer_switch = true;
+	    bool small_torsion_changes = false;
+	    if (itrial < itrial_n_small_lim) {
+	       allow_conformer_switch = false;
+	       small_torsion_changes = true;
+	    } 
+	       
 	    if (0)
 	       std::cout << "Round " << itrial << " of " << n_trials << " for " << n_quads << " quads "
 			 << std::endl;
-	    
+
 	    std::vector<atom_tree_t::tree_dihedral_quad_info_t> torsion_quads;
 	    for (int iquad=0; iquad<n_quads; iquad++) {
 	       // quads[iquad] is passed for debugging
-               double rand_angle = get_rand_angle(best_quads[iquad], quads[iquad], itrial, n_trials);
+               double rand_angle = get_rand_angle(best_quads[iquad], quads[iquad], itrial,
+						  n_trials, allow_conformer_switch, small_torsion_changes);
 	       atom_tree_t::tree_dihedral_quad_info_t tor(quads[iquad], rand_angle, fixed_index);
 	       torsion_quads.push_back(tor);
 	    }
 	    tree.set_dihedral_multi(torsion_quads);
-	    double this_score = coot::util::z_weighted_density_score_new(atoms, xmap);
+	    // FIXME for futures, also include link_angle_atom_triples (for excluding of bumps)
+	    double self_clash_score = get_self_clash_score(mol, atom_selection, n_selected_atoms, quads);
 
-	    // debugging of scores
-	    if (0) { 
-	       std::cout << "this_score: " << this_score;
-	       for (unsigned int iquad=0; iquad<quads.size(); iquad++)
-		  std::cout << "   " << quads[iquad].torsion();
-	       std::cout << std::endl;
-	    }
+	    // self-clash scores have mean 7.5, median 3.3 and sd 14, IRQ 0.66
+	    // 
+	    if (self_clash_score > 6 ) {
+
+	       // crash and bangs into itself (between residues)
+	       
+	    } else {
+
+	       // happy path
 	    
-	    if (this_score > best_score) {
-	       // save best torsion angles
-	       best_score = this_score;
-	       for (int iquad=0; iquad<n_quads; iquad++)
-		  best_quads[iquad] = quads[iquad].torsion();
-	       best_tree_dihedral_quads = torsion_quads;
-	    }
+	       double this_score = coot::util::z_weighted_density_score_new(atoms, xmap);
 
-	    // std::string file_name = "trial-" + util::int_to_string(itrial) + ".pdb";
-	    // mol->WritePDBASCII(file_name.c_str());
+	       // debugging of scores
+	       if (false) { 
+		  std::cout << "debug trial " << itrial << " fit-score: " << this_score
+			    << " clash-score " << self_clash_score 
+			    << " for quads "; 
+		  for (unsigned int iquad=0; iquad<quads.size(); iquad++)
+		     std::cout << "   " << quads[iquad].torsion();
+		  std::cout << std::endl;
+	       }
+	    
+	       if (this_score > best_score) {
+		  // save best torsion angles
+		  best_score = this_score;
+		  for (int iquad=0; iquad<n_quads; iquad++)
+		     best_quads[iquad] = quads[iquad].torsion();
+		  best_tree_dihedral_quads = torsion_quads;
+	       }
+
+	       if (false) {  // debugging.
+
+		  // set the b-factor of the atoms to the score
+		  int imod = 1;
+		  mmdb::Model *model_p = mol->GetModel(imod);
+		  mmdb::Chain *chain_p;
+		  int n_chains = model_p->GetNumberOfChains();
+		  for (int ichain=0; ichain<n_chains; ichain++) {
+		     chain_p = model_p->GetChain(ichain);
+		     int nres = chain_p->GetNumberOfResidues();
+		     mmdb::Residue *residue_p;
+		     mmdb::Atom *at;
+		     for (int ires=0; ires<nres; ires++) { 
+			residue_p = chain_p->GetResidue(ires);
+			int n_atoms = residue_p->GetNumberOfAtoms();
+			for (int iat=0; iat<n_atoms; iat++) {
+			   at = residue_p->GetAtom(iat);
+			   at->tempFactor = this_score * 0.4;
+			   at->tempFactor = self_clash_score;
+			}
+		     }
+		  }
+		  std::string file_name = "trial-" + util::int_to_string(itrial) + ".pdb";
+		  mol->WritePDBASCII(file_name.c_str());
+	       }
+	    }
 	 }
 	 tree.set_dihedral_multi(best_tree_dihedral_quads);
-      
 	 mol->DeleteSelection(selhnd);
       }
    }
@@ -440,29 +535,137 @@ coot::multi_residue_torsion_fit_map(mmdb::Manager *mol,
 double 
 coot::get_rand_angle(double current_angle, 
                      const coot::torsion_atom_quad &quad, 
-                     int itrial, int n_trials) { 
+                     int itrial, int n_trials,
+		     bool allow_conformer_switch,
+		     bool small_torsion_changes) { 
 
    double r = current_angle;
    double minus_one_to_one = -1 + 2 * double(coot::util::random())/double(RAND_MAX);
+   // trial_factor goes from 0 (start) to 1 (end)
    double trial_factor = double(itrial)/double(n_trials);
    // double angle_scale_factor = 0.2 + 0.8*(1-trial_factor);
    double angle_scale_factor = 0.2 + 0.8 - trial_factor;
    
-   r += 30 * minus_one_to_one * angle_scale_factor;
 
-   // allow gauche+/gauche-/trans
-   double rn = float(coot::util::random())/float(RAND_MAX);
-   if (rn < (0.3 - 0.25*trial_factor)) {
-      double rn_2 = float(coot::util::random())/float(RAND_MAX);
-      double step = floor(6 * rn_2) * 60.0;
-      // std::cout << "      step " << step << std::endl;
-      r += step;
+   if (small_torsion_changes) {
+      r += 5.0 * minus_one_to_one;
+   } else {
+      r += 30 * minus_one_to_one * angle_scale_factor;
    } 
 
-   if (0)
+   // allow gauche+/gauche-/trans
+   if (allow_conformer_switch) { 
+      double rn = float(coot::util::random())/float(RAND_MAX);
+      double tf = 1 - trial_factor; // tf goes from 1 (start) to 0 (end)
+      if (rn < (0.02 + 0.25 * tf)) {
+	 double rn_2 = float(coot::util::random())/float(RAND_MAX);
+	 double step = floor(6 * rn_2) * 60.0;
+	 // std::cout << "      step " << step << std::endl;
+	 r += step;
+      }
+   }
+
+   // for making graphs of torsions, grep varying
+   //
+   if (false)
       std::cout << "   varying " << quad.name << " was " << current_angle << " now "
 		<< r << " delta: " << r - current_angle << std::endl;
    
    return r; 
 } 
 
+
+double
+coot::get_self_clash_score(mmdb::Manager *mol,
+			   mmdb::PPAtom atom_selection,
+			   int n_selected_atoms,
+			   const std::vector<coot::torsion_atom_quad> &quads) {
+
+   // Score is
+   // sum of (d-bump_max)^2 for atom pairs i,j where j<i where d < bump_max
+
+   mmdb::realtype bump_max = 3.6; // find distances between atoms that are less than this.
+   double clash_score = 0;
+
+   // setup for SeekContacts():
+   // 
+   mmdb::Contact *pscontact = NULL;
+   int n_contacts;
+   long i_contact_group = 1;
+   mmdb::mat44 my_matt;
+   for (int i=0; i<4; i++) 
+      for (int j=0; j<4; j++) 
+         my_matt[i][j] = 0.0;      
+   for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
+
+   mol->SeekContacts(atom_selection, n_selected_atoms,
+		     atom_selection, n_selected_atoms,
+		     0.001, bump_max,
+		     0, // seqDist: 1 means in different residues,
+		        // but if I set that, then no contacts are found
+		        // even for atoms that are in different residues:
+		        // mmdb bug.
+		     pscontact, n_contacts,
+		     0, &my_matt, i_contact_group);
+   
+   if (n_contacts > 0) {
+      if (pscontact) {
+         for (int i=0; i<n_contacts; i++) {
+	    if (pscontact[i].id1 < pscontact[i].id2) { 
+	       mmdb::Atom *at_1 = atom_selection[pscontact[i].id1];
+	       mmdb::Atom *at_2 = atom_selection[pscontact[i].id2];
+	       if (at_1->residue != at_2->residue) {
+		  std::string e1 = at_1->element;
+		  std::string e2 = at_2->element;
+
+		  if ((e1 != " H") && (e2 != " H")) {  // PDB vs 3 FIXME
+		     double d_sqd =
+			(at_1->x-at_2->x) * (at_1->x-at_2->x) +
+			(at_1->y-at_2->y) * (at_1->y-at_2->y) + 
+			(at_1->z-at_2->z) * (at_1->z-at_2->z);
+
+		     // are they either in a bond, angle or torsion of any of quads?
+		     // 
+		     bool in_a_tors = both_in_a_torsion_p(at_1, at_2, quads);
+		     if (! in_a_tors) {
+			double delta = bump_max - sqrt(d_sqd);
+			clash_score += delta * delta;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return clash_score;
+}
+
+
+bool
+coot::both_in_a_torsion_p(mmdb::Atom *at_1,
+			  mmdb::Atom *at_2,
+			  const std::vector<coot::torsion_atom_quad> &quads) {
+
+   // this doesn't check angles and (non-dictionary) torsion that are
+   // made as a results of the link but not in a torsion.
+
+   bool in_a_tors = false;
+   for (unsigned int i=0; i<quads.size(); i++) {
+      bool found_at_1 = false;
+      bool found_at_2 = false;
+      const torsion_atom_quad &q = quads[i];
+      if (q.atom_1 == at_1) found_at_1 = true;
+      if (q.atom_2 == at_1) found_at_1 = true;
+      if (q.atom_3 == at_1) found_at_1 = true;
+      if (q.atom_4 == at_1) found_at_1 = true;
+      if (q.atom_1 == at_2) found_at_2 = true;
+      if (q.atom_2 == at_2) found_at_2 = true;
+      if (q.atom_3 == at_2) found_at_2 = true;
+      if (q.atom_4 == at_2) found_at_2 = true;
+      if (found_at_1 && found_at_2) {
+	 in_a_tors = true;
+	 break;
+      } 
+   }
+   return in_a_tors;
+} 
