@@ -28,9 +28,9 @@
 
 #include "graphics-info.h"
 #include "interface.h" // for create_multi_residue_torsion_dialog()
+#include "ideal/torsion-bonds.hh"
 
 #include "trackball.h"
-
 void
 graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residue_spec_t> &v) {
 
@@ -156,14 +156,19 @@ graphics_info_t::setup_graphics_ligand_view(int imol, mmdb::Residue *residue_p, 
 		     graphics_ligand_mol.setup_from(residue_p, alt_conf, Geom_p(), background_is_black_p());
 		  graphics_ligand_mol.imol = imol;
 
-		  std::string res_name = residue_p->GetResName();
-		  std::pair<bool, coot::dictionary_residue_restraints_t> p = 
-		     Geom_p()->get_monomer_restraints_at_least_minimal(res_name);
-		  if (! p.first) {
-		     // 
-		  } else {
-		     const coot::dictionary_residue_restraints_t &restraints = p.second;
-		     add_status_bar_text(restraints.residue_info.name);
+		  // This overwrites the atom info in the status bar - I don't like that.
+		  // There needs to be a different mechanism to report the residue type.
+		  // 
+		  if (false) {
+		     std::string res_name = residue_p->GetResName();
+		     std::pair<bool, coot::dictionary_residue_restraints_t> p = 
+			Geom_p()->get_monomer_restraints_at_least_minimal(res_name);
+		     if (! p.first) {
+			// 
+		     } else {
+			const coot::dictionary_residue_restraints_t &restraints = p.second;
+			add_status_bar_text(restraints.residue_info.name);
+		     }
 		  }
 	       }
 	    }

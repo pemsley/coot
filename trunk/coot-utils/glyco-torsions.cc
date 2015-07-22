@@ -153,7 +153,7 @@ coot::link_by_torsion_t::make_residue(mmdb::Residue *base_residue_p) const {
 	 std::string f = gat.filled_atom_name(); // FIXME PDBv3 the function call is not needed
 	 atom->SetAtomName(f.c_str());
 	 atom->SetElementName(gat.element.c_str());
-	 atom->SetCoordinates(p.x(), p.y(), p.z(), 1.0, 30);
+	 atom->SetCoordinates(p.x(), p.y(), p.z(), 1.0, b_factor);
 	 atom->Het = 1;
 	 if (0) 
 	    std::cout << "   " << gat.atom_name << " " << p.format()  << std::endl;
@@ -491,6 +491,7 @@ coot::link_by_torsion_t::get_residue_pair(mmdb::Manager *mol) {
 void
 coot::link_by_torsion_t::init(mmdb::Residue *ref_res_p, mmdb::Residue *ext_res_p) {
 
+   b_factor = 31; // default
    if (0) 
       std::cout << "in link_by_torsion_t::init() have " << atom_torsions.size()
 		<< "  atom torsions" << std::endl;
@@ -505,10 +506,14 @@ coot::link_by_torsion_t::init(mmdb::Residue *ref_res_p, mmdb::Residue *ext_res_p
 }
 
 void
+coot::link_by_torsion_t::set_temperature_factor(float b) {
+   b_factor = b;
+} 
+
+
+void
 coot::link_by_torsion_t::print() const {
 
-   std::cout << "--- link_by_torsion_t " << geom_atom_torsions.size()
-	     << " atom torsions" << std::endl;
    for (unsigned int i=0; i<geom_atom_torsions.size(); i++)
       std::cout << "   " << std::setw(2) << i << " " << geom_atom_torsions[i] << std::endl;
 } 
