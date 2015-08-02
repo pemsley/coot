@@ -1264,6 +1264,13 @@ namespace coot {
       // remove wrong cis_peptides
       void remove_wrong_cis_peptides(mmdb::Manager *mol);
 
+      // remove 1555 links between atoms that are more than dist_min
+      void remove_long_links(mmdb::Manager *mol, mmdb::realtype dist_min);
+
+      // LINKs now have distances - let's make sure that they are correct
+      // 
+      void correct_link_distances(mmdb::Manager *mol);
+
       // move hetgroups round protein.  Find the centres of each
       // hetgroup and move it to the protein.  Waters are handled individually.
       // Fiddle with mol.

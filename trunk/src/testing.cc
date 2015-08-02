@@ -307,7 +307,8 @@ int test_internal_single() {
       // status = test_map_tools();
       // status = test_minimol();
       // status = test_monomer_organic_set();
-      status = test_COO_mod();
+      // status = test_COO_mod();
+      status = test_output_link_distances_are_correct();
    }
    catch (std::runtime_error mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -408,6 +409,70 @@ int test_monomer_organic_set() {
    }
    return status;
 }
+
+int test_output_link_distances_are_correct() {
+
+   int status = 1;
+
+#ifdef MMDB_HAS_LINK_DISTANCE
+
+   status = 0;
+
+   std::string filename = greg_test("pdb4rdq.ent");
+   if (coot::file_exists("pdb4rdq.ent")) {
+      atom_selection_container_t atom_sel = get_atom_selection(filename, true, true);
+      if (atom_sel.mol) {
+	 mmdb::Residue *r = test_get_residue(atom_sel.mol, "E", 502);
+	 if (! r) {
+	    std::cout << "test_output_link_distances_are_correct():::: No residue!!! " << std::endl;
+	 } else { 
+	    int n_atoms = r->GetNumberOfAtoms();
+	    for (int iat=0; iat<n_atoms; iat++) {
+	       mmdb::Atom *at = r->GetAtom(iat);
+	       at->x += 3;
+	       at->z += 3;
+	       // std::cout << "moving " << at << std::endl;
+	    }
+	    atom_sel.mol->FinishStructEdit();
+	    filename = "pdb4rqd-with-moved-CA.pdb";
+	    coot::write_coords_pdb(atom_sel.mol, filename);
+	    if (coot::file_exists(filename)) {
+	       atom_selection_container_t atom_sel = get_atom_selection(filename, true, true);
+	       if (atom_sel.mol) {
+		  mmdb::Model *model_p = atom_sel.mol->GetModel(1);
+		  int n_links = model_p->GetNumberOfLinks();
+		  if (n_links > 0) {
+		     status = 1; // all OK so far
+		     for (int i_link=1; i_link<=n_links; i_link++) {
+			mmdb::Link *link = model_p->GetLink(i_link);
+			std::pair<coot::atom_spec_t, coot::atom_spec_t> lp = coot::link_atoms(link);
+			mmdb::Atom *at_1 = coot::util::get_atom(lp.first,  atom_sel.mol);
+			mmdb::Atom *at_2 = coot::util::get_atom(lp.second, atom_sel.mol);
+			if (at_1) {
+			   if (at_2) {
+			      double link_dist = link->dist;
+			      double atom_dist = coot::distance(at_1, at_2);
+			      // std::cout << "LINK " << i_link << " check read " << link_dist << std::endl;
+			      double d = fabs(link_dist - atom_dist);
+			      if (d > 0.01) {
+				 status = 0; // a bad LINK distance!
+				 std::cout << i_link << " LINK " << link << "  dist " << link_dist
+					   << " but atom dist " << atom_dist << std::endl;
+				 
+				 break;
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      } 
+   }
+#endif
+   return status;
+} 
 
 
       
