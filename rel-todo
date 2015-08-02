@@ -59,6 +59,9 @@
 
    o Give me a rotamer score in the refinement accept dialog. John Spurlino
 
+   o refinement should refine CYS disulfides only when theres a DISU
+     (or whatever) record.  Add a function to add a DISU.
+
    o when you write out the PDB file, add a checkbox that asks to
      Rationalize Links? - which throws away links that are more than
      3A. Bob Nolte.

@@ -96,6 +96,7 @@ int test_parallel_plane_restraints();
 int test_map_tools();
 int test_minimol();
 int test_monomer_organic_set();
+int test_output_link_distances_are_correct();
 
 // uses greg data test data
 int test_phi_psi_values();

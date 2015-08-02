@@ -6153,61 +6153,116 @@ coot::util::remove_wrong_cis_peptides(mmdb::Manager *mol) {
    std::vector<cis_peptide_info_t> v_coords = cis_peptides_info_from_coords(mol);
 
    mmdb::PCisPep CisPep;
-   int n_models = mol->GetNumberOfModels();
-   for (int imod=1; imod<=n_models; imod++) { 
-      std::vector<mmdb::CisPep> bad_cis_peptides;
-      std::vector<mmdb::CisPep> good_cis_peptides;
-      mmdb::Model *model_p = mol->GetModel(imod);
-      int ncp = model_p->GetNumberOfCisPeps();
-      for (int icp=1; icp<=ncp; icp++) {
-	 CisPep = model_p->GetCisPep(icp);
-	 if (CisPep)  {
-	    // 	    std::cout << "mmdb:: " << " :" << CisPep->chainID1 << ": "
-	    // << CisPep->seqNum1 << " :" 
-	    // << CisPep->chainID2 << ": " << CisPep->seqNum2 << std::endl;
-	    coot::util::cis_peptide_info_t cph(CisPep);
+   if (mol) { 
+      int n_models = mol->GetNumberOfModels();
+      for (int imod=1; imod<=n_models; imod++) { 
+	 std::vector<mmdb::CisPep> bad_cis_peptides;
+	 std::vector<mmdb::CisPep> good_cis_peptides;
+	 mmdb::Model *model_p = mol->GetModel(imod);
+	 int ncp = model_p->GetNumberOfCisPeps();
+	 for (int icp=1; icp<=ncp; icp++) {
+	    CisPep = model_p->GetCisPep(icp);
+	    if (CisPep)  {
+	       // 	    std::cout << "mmdb:: " << " :" << CisPep->chainID1 << ": "
+	       // << CisPep->seqNum1 << " :" 
+	       // << CisPep->chainID2 << ": " << CisPep->seqNum2 << std::endl;
+	       coot::util::cis_peptide_info_t cph(CisPep);
 
-	    // Does that match any of the coordinates cispeps?
-	    short int ifound = 0;
-	    for (unsigned int iccp=0; iccp<v_coords.size(); iccp++) {
-	       if (cph == v_coords[iccp]) {
-		  // std::cout << " ......header matches" << std::endl;
-		  ifound = 1;
-		  break;
-	       } else {
-		  // std::cout << "       header not the same" << std::endl;
+	       // Does that match any of the coordinates cispeps?
+	       short int ifound = 0;
+	       for (unsigned int iccp=0; iccp<v_coords.size(); iccp++) {
+		  if (cph == v_coords[iccp]) {
+		     // std::cout << " ......header matches" << std::endl;
+		     ifound = 1;
+		     break;
+		  } else {
+		     // std::cout << "       header not the same" << std::endl;
+		  }
 	       }
+	       if (ifound == 0) {
+		  // needs to be removed
+		  std::cout << "INFO:: Removing CIS peptide from PDB header: " 
+			    << cph.chain_id_1 << " "
+			    << cph.resno_1 << " "
+			    << cph.chain_id_2 << " "
+			    << cph.resno_2 << " "
+			    << std::endl;
+		  bad_cis_peptides.push_back(*CisPep);
+	       } else {
+		  good_cis_peptides.push_back(*CisPep);
+		  // 	       std::cout << "This CIS peptide was real: " 
+		  // 			 << cph.chain_id_1 << " "
+		  // 			 << cph.resno_1 << " "
+		  // 			 << cph.chain_id_2 << " "
+		  // 			 << cph.resno_2 << " "
+		  // 			 << std::endl;
+	       } 
 	    }
-	    if (ifound == 0) {
-	       // needs to be removed
-	       std::cout << "INFO:: Removing CIS peptide from PDB header: " 
-			 << cph.chain_id_1 << " "
-			 << cph.resno_1 << " "
-			 << cph.chain_id_2 << " "
-			 << cph.resno_2 << " "
-			 << std::endl;
-	       bad_cis_peptides.push_back(*CisPep);
-	    } else {
-	       good_cis_peptides.push_back(*CisPep);
-// 	       std::cout << "This CIS peptide was real: " 
-// 			 << cph.chain_id_1 << " "
-// 			 << cph.resno_1 << " "
-// 			 << cph.chain_id_2 << " "
-// 			 << cph.resno_2 << " "
-// 			 << std::endl;
-	    } 
+	 }
+	 if (bad_cis_peptides.size() > 0) {
+	    // delete all CISPEPs and add back the good ones
+	    model_p->RemoveCisPeps();
+	    for (unsigned int igood=0; igood<good_cis_peptides.size(); igood++) {
+	       mmdb::CisPep *good = new mmdb::CisPep;
+	       *good = good_cis_peptides[igood];
+	       model_p->AddCisPep(good);
+	    }
 	 }
       }
-      if (bad_cis_peptides.size() > 0) {
-	 // delete all CISPEPs and add back the good ones
-	 model_p->RemoveCisPeps();
-	 for (unsigned int igood=0; igood<good_cis_peptides.size(); igood++) {
-	    mmdb::CisPep *good = new mmdb::CisPep;
-	    *good = good_cis_peptides[igood];
-	    model_p->AddCisPep(good);
-	 }
-      } 
    }
+}
+
+void
+coot::util::correct_link_distances(mmdb::Manager *mol) {
+
+#ifdef MMDB_HAS_LINK_DISTANCE
+   if (mol) {
+      int n_models = mol->GetNumberOfModels();
+      for (int imod=1; imod<=n_models; imod++) {
+	 mmdb::Model *model_p = mol->GetModel(imod);
+	 int n_links = model_p->GetNumberOfLinks();
+	 if (n_links > 0) { 
+	    for (int i_link=1; i_link<=n_links; i_link++) {
+	       mmdb::Link *link = model_p->GetLink(i_link);
+	       std::pair<atom_spec_t, atom_spec_t> lp = link_atoms(link);
+	       mmdb::Atom *at_1 = get_atom(lp.first,  mol);
+	       mmdb::Atom *at_2 = get_atom(lp.second, mol);
+	       if (at_1) {
+		  if (at_2) {
+		     double link_dist = link->dist;
+		     double atom_dist = distance(at_1, at_2);
+		     double d = fabs(link_dist - atom_dist);
+		     if (d < 0.01) {
+			// std::cout << i_link << " link is fine " << link_dist << " " << atom_dist
+			// << std::endl;
+		     } else {
+			if (0)
+			   std::cout << "link " << i_link << " needs adjusting to "
+				     << atom_dist << std::endl;
+			link->dist = atom_dist;
+		     } 
+		  } else {
+		     std::cout << "WARNING:: Missing link atom " << lp.second << std::endl;
+		  }
+	       } else {
+		  std::cout << "WARNING:: Missing link atom " << lp.first << std::endl;
+	       }
+	    }
+	 }
+      }
+   }
+#endif // MMDB_HAS_LINK_DISTANCE   
+}
+
+void
+coot::util::remove_long_links(mmdb::Manager *mol, mmdb::realtype dist_min) {
+
+   // Bob Nolte want to remove links to atoms that have moved far away
+   // 
+   if (mol) {
+
+   }
+
 } 
 
 
@@ -6286,6 +6341,7 @@ int
 coot::write_coords_pdb(mmdb::Manager *mol, const std::string &file_name) {
 
    util::remove_wrong_cis_peptides(mol);
+   util::correct_link_distances(mol);
    int r = mol->WritePDBASCII(file_name.c_str());
    return r;
 }

@@ -237,8 +237,7 @@ namespace coot {
       clipper::Coord_orth p3;
    };
 
-   // was:
-   // std::pair<clipper::Coord_orth, clipper::Coord_orth> 
+
    class simple_distance_object_t {
    public:
      clipper::Coord_orth start_pos;
