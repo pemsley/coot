@@ -49,11 +49,19 @@
    o Colour by chain: ligand 607A 3CJ in 4qyq has a triple bond to the S.  Why?
      Ligand drawn twice?
 
+   o bundle raster3d.
+
    o stroke characters for HUD thumbnails?
 
    o given a SMILES string, is it in the PBD (SRS)?
 
    o launch coot from / and try to use pyrogen to build from a SMILES string
+
+   o Give me a rotamer score in the refinement accept dialog. John Spurlino
+
+   o when you write out the PDB file, add a checkbox that asks to
+     Rationalize Links? - which throws away links that are more than
+     3A. Bob Nolte.
 
 ------
 
