@@ -8,7 +8,7 @@
 # the Free Software Foundation; either version 3 of the License, or (at
 # your option) any later version.
 # 
-# This program is distributed in the hope that it will be useful, but
+# This program is distributed in the hope qthat it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
@@ -38,6 +38,19 @@ AC_MSG_RESULT($coot_found_mmdb2)
 
 if test $coot_found_mmdb2 = no ; then
    AC_MSG_FAILURE([mmdb2 not found])
+else
+   save_CXXFLAGS="$CXXFLAGS"
+   CXXFLAGS="$CXXFLAGS $MMDB_CXXFLAGS"
+   # do we have a verison of mmdb2 that has distances in links?
+   AC_LANG_PUSH(C++)
+   AC_TRY_COMPILE([#include <mmdb2/mmdb_manager.h>] ,[ ], have_link_distance=yes, have_link_distance=no)
+   echo ========================= have_link_distance is $have_link_distance
+   if test $have_link_distance = yes ; then
+      echo ================ adding to MMDB_CXXFLAGS
+      MMDB_CXXFLAGS="$MMDB_CXXFLAGS -DMMDB_HAS_LINK_DISTANCE"
+   fi
+   CXXFLAGS=$save_CXXFLAGS
+   AC_LANG_POP(C++)
 fi
 
 AC_SUBST(MMDB_CXXFLAGS)
