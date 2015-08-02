@@ -338,10 +338,26 @@ coot::torsionable_link_quads(std::vector<mmdb::Residue *> residues_in,
 		     mmdb::Atom *n_at_2 = bpc[i].res_2->GetAtom(neigbhour_2_name.c_str());
 		     if (n_at_1 && n_at_2) {
  			coot::torsion_atom_quad q(n_at_1, link_atom_1, link_atom_2, n_at_2,
-						  180.0, 40, 3); // synthetic values
-			q.name = "Bond-derived synthetic torsion";
+						  -84, 40, 3); // synthetic values
+			// If link is NAG-ASN then this torsion is phi (C1-ND2)
+			q.name = "Bond-derived synthetic torsion-phi-" + util::int_to_string(ib);
 			quads.push_back(q);
-		     } 
+
+			// also we need psi, CB, CG, ND2, C1 (of NAG)
+			//
+			std::vector<std::string> n3;
+			n3 = res_restraints[link_atom_2->residue].neighbours(atom_name_2, H_flag);
+			if (n3.size()) {
+			   mmdb::Atom *n_at_3 = bpc[i].res_2->GetAtom(n3[0].c_str());
+			   if (n_at_3) {
+			      coot::torsion_atom_quad q(link_atom_1, link_atom_2, n_at_2, n_at_3,
+							185.1, 40, 3); // synthetic values
+			      // If link is NAG-ASN then this torsion is phi (C1-ND2)
+			      q.name = "Bond-derived synthetic torsion-psi-" + util::int_to_string(ib);
+			      // quads.push_back(q);
+			   }
+			}
+		     }
 		  } 
 	       } else {
 		  std::cout << "WARNING:: oops missing link atoms " << std::endl;
@@ -565,6 +581,9 @@ coot::get_rand_angle(double current_angle,
       }
    }
 
+   if (r > 360)
+      r -= 360;
+   
    // for making graphs of torsions, grep varying
    //
    if (false)
