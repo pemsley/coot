@@ -39,6 +39,22 @@
 				refmac-input-mtz-file-name fobs-col sig-fobs-col rfree-col
 				refmac-dir)
 
+  ;; get-correlation and get-ligand-difference-map-stats are very similar
+  ;; Let's factor out the similarities.
+  ;; 
+  ;; success-function takes args: refmac-out-sfs-file-name
+  ;;                              f-col phi-col
+  ;;                              is-difference-map-flag
+  ;;                              ligand-spec
+  ;;                              neighbs
+  ;; is that true?
+  ;; 
+  (define (local-refmac stub-name refmac-out-sfs-file-name success-function)
+    #f)
+
+
+  ;; get-correlation at the ligand for the direct (FWT) map 
+  ;;
   (define (get-correlation stub-name)
     (let* ((ligand-spec (list chain-id res-no ins-code))
 	   (neighbs (residues-near-residue imol ligand-spec 4)))
@@ -80,7 +96,6 @@
 							   neighbs 0 imol-map)))
 			  (close-molecule imol-map)
 			  c))))))))))
-  
 
   (define (get-mogul-score use-cache?)
 

@@ -481,7 +481,7 @@ public:
    // display only the given model_number (if possible, of course).
    // 
    Bond_lines_container(const atom_selection_container_t &asc,
-			coot::protein_geometry *geom_in,
+			const coot::protein_geometry *geom_in,
 			int include_disulphides,
 			int include_hydrogens,
 			int model_number);

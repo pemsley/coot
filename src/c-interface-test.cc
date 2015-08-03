@@ -187,7 +187,7 @@ int test_function(int i, int j) {
 	       std::string name = "test-" + coot::util::int_to_string(iround);
 	       bool shelx_flag = 0;
 	       int imol_new = g.create_molecule();
-	       g.molecules[imol_new].install_model(imol_new, asc_new, name, 1, shelx_flag);
+	       g.molecules[imol_new].install_model(imol_new, asc_new, g.Geom_p(), name, 1, shelx_flag);
 
 	       // Don't update - not at the moment at least.
 	       // 
@@ -580,7 +580,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	       std::string name = "test-" + coot::util::int_to_string(iround);
 	       bool shelx_flag = 0;
 	       int imol_new = g.create_molecule();
-	       g.molecules[imol_new].install_model(imol_new, asc_new, name, 1, shelx_flag);
+	       g.molecules[imol_new].install_model(imol_new, asc_new, g.Geom_p(), name, 1, shelx_flag);
 	       add_linked_residue(imol_new,
 				  active_atom.second.second.chain.c_str(),
 				  active_atom.second.second.resno,
@@ -634,7 +634,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 	       std::string name = "test-" + coot::util::int_to_string(iround);
 	       bool shelx_flag = 0;
 	       int imol_new = g.create_molecule();
-	       g.molecules[imol_new].install_model(imol_new, asc_new, name, 1, shelx_flag);
+	       g.molecules[imol_new].install_model(imol_new, asc_new, g.Geom_p(), name, 1, shelx_flag);
 	       add_linked_residue(imol_new,
 				  active_atom.second.second.chain.c_str(),
 				  active_atom.second.second.resno,

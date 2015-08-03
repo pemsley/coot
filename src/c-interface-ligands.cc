@@ -891,7 +891,7 @@ execute_ligand_search_internal() {
 	    label += g.int_to_string(iclust);
 	    label += "-";
 	    label += g.int_to_string(isol);
-	    g.molecules[g_mol].install_model(g_mol, asc, label, 1);
+	    g.molecules[g_mol].install_model(g_mol, asc, g.Geom_p(), label, 1);
 	    g.molecules[g_mol].assign_hetatms();
 	    solutions.push_back(g_mol);
 	    n_new_ligand++;
@@ -972,7 +972,7 @@ std::vector<int> ligand_search_make_conformers_internal() {
       int g_mol = graphics_info_t::create_molecule();
       std::string label = "conformer-";
       label+= coot::util::int_to_string(iconf);
-      graphics_info_t::molecules[g_mol].install_model(g_mol, asc, label, 1);
+      graphics_info_t::molecules[g_mol].install_model(g_mol, asc, g.Geom_p(), label, 1);
       mol_list.push_back(g_mol);
    }
 
@@ -1067,7 +1067,8 @@ void flip_ligand(int imol, const char *chain_id, int resno) {
 	 atom_selection_container_t asc = make_asc(m.pcmmdbmanager());
 	 int g_mol = graphics_info_t::create_molecule();
 	 std::string label = "flipping residue";
-	 graphics_info_t::molecules[g_mol].install_model(g_mol, asc, label, 1);
+	 graphics_info_t g;
+	 g.molecules[g_mol].install_model(g_mol, asc, g.Geom_p(), label, 1);
       }
    }
    graphics_draw();
@@ -1919,7 +1920,7 @@ int get_ccp4srs_monomer_and_dictionary(const char *comp_id) {
       imol = g.create_molecule();
       std::string name = "Monomer ";
       name += coot::util::upcase(comp_id);
-      graphics_info_t::molecules[imol].install_model(imol, make_asc(mol), name, 1, 0);
+      graphics_info_t::molecules[imol].install_model(imol, make_asc(mol), g.Geom_p(), name, 1, 0);
       move_molecule_to_screen_centre_internal(imol);
       g.Geom_p()->fill_using_ccp4srs(comp_id); // if you can (should be able to)
       graphics_draw();
@@ -2081,7 +2082,7 @@ int read_small_molecule_cif(const char *file_name) {
    if (mol) {
       graphics_info_t g;
       imol = g.create_molecule();
-      g.molecules[imol].install_model(imol, mol, file_name, 0, 1);
+      g.molecules[imol].install_model(imol, mol, g.Geom_p(), file_name, 0, 1);
       update_go_to_atom_window_on_new_mol();
       graphics_draw();
    } 
@@ -2496,7 +2497,8 @@ new_molecule_sans_biggest_ligand(int imol) {
 	 std::string label = "Copy_of_";
 	 label += graphics_info_t::molecules[imol].name_;
 	 imol_new = graphics_info_t::create_molecule();
-	 graphics_info_t::molecules[imol_new].install_model(imol_new, asc, label, 1);
+	 graphics_info_t g;
+	 g.molecules[imol_new].install_model(imol_new, asc, g.Geom_p(), label, 1);
 	 update_go_to_atom_window_on_new_mol();
       }
    }
@@ -3145,7 +3147,7 @@ invert_chiral_centre(int imol,
 	 int g_mol = g.create_molecule();
 	 atom_selection_container_t asc = make_asc(mol);
 	 std::string label = "New Residue " + new_type;
-	 g.molecules[g_mol].install_model(g_mol, asc, label, 1);
+	 g.molecules[g_mol].install_model(g_mol, asc, g.Geom_p(), label, 1);
 	 graphics_draw();
       } 
    }

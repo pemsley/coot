@@ -83,7 +83,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 // display only the given model_number (if possible, of course).
 // 
 Bond_lines_container::Bond_lines_container(const atom_selection_container_t &SelAtom,
-					   coot::protein_geometry *geom_in,
+					   const coot::protein_geometry *geom_in,
 					   int do_disulphide_bonds_in, 
 					   int do_bonds_to_hydrogens_in,
 					   int model_number)

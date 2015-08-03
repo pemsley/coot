@@ -6,6 +6,9 @@
 
    o Does the Refmac mtz file selection work?
 
+   o 1nlt: A351: there's a tangle at the Zinc.  Do disulfide if
+     there's a LINK to a ZN on this CYS.
+
    o Fun: mmcif -> lbg
 
 * It was already there.  We needed to load from CCP4 SRS (and init the
@@ -20,6 +23,8 @@
   Need to test this on home/work computer.
 
    o LINK info (distances on output) - new mmdb
+
+   o bonds to hydrogens should be thin in Colour by Chain mode
 
    o Sphere refine on a water fails.
 

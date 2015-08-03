@@ -561,7 +561,8 @@ graphics_info_t::copy_model_molecule(int imol) {
       atom_selection_container_t asc = make_asc(n);
       std::string label = "Copy_of_";
       label += graphics_info_t::molecules[imol].name_;
-      graphics_info_t::molecules[new_mol_number].install_model(new_mol_number, asc, label, 1);
+      graphics_info_t g;
+      g.molecules[new_mol_number].install_model(new_mol_number, asc, g.Geom_p(), label, 1);
       update_go_to_atom_window_on_new_mol();
       iret = new_mol_number;
    }
@@ -3122,7 +3123,8 @@ graphics_info_t::execute_db_main(int imol,
 	 set_mmdb_cell_and_symm(asc, cell_spgr); // tinker with asc. 
 	                                         // Consider asc as an object.
 	 int imol_new = create_molecule();
-	 molecules[imol_new].install_model(imol_new, asc, "mainchain", 1);
+	 graphics_info_t g;
+	 molecules[imol_new].install_model(imol_new, asc, g.Geom_p(), "mainchain", 1);
 	 graphics_draw();
       } else {
 	 std::string s("Sorry, failed to convert that residue range.\nToo short, perhaps?");

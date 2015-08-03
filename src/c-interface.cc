@@ -4471,7 +4471,7 @@ void graphics_to_ca_plus_ligands_and_sidechains_representation   (int imol) {
 void graphics_to_bonds_representation(int imol) {
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) { 
-      g.molecules[imol].bond_representation();
+      g.molecules[imol].bond_representation(g.Geom_p());
       std::vector<std::string> command_strings;
       command_strings.push_back("graphics-to-bonds-representation");
       command_strings.push_back(graphics_info_t::int_to_string(imol));

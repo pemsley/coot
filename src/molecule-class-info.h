@@ -112,7 +112,7 @@ namespace coot {
 	  BONDS_NO_HYDROGENS=15,
 	  CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR=7,
 	  CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR=14,
-	  CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS=15,
+	  CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS=17,
 	  COLOUR_BY_MOLECULE_BONDS=8,
 	  COLOUR_BY_RAINBOW_BONDS=9, COLOUR_BY_B_FACTOR_BONDS=10,
 	  COLOUR_BY_OCCUPANCY_BONDS=11};
@@ -1559,9 +1559,9 @@ public:        //                      public
       return draw_hydrogens_flag;
    }
 
-   void makebonds();
-   void makebonds(float max_dist); // maximum distance for bond (search)
-   void makebonds(float min_dist, float max_dist); 
+   void makebonds(const coot::protein_geometry *geom_p);
+   void makebonds(float max_dist, const coot::protein_geometry *geom_p); // maximum distance for bond (search)
+   void makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p); 
    void make_ca_bonds(float min_dist, float max_dist); 
    void make_ca_bonds();
    void make_ca_plus_ligands_bonds(coot::protein_geometry *pg);
@@ -1621,12 +1621,16 @@ public:        //                      public
    void initialize_coordinate_things_on_read_molecule_internal(std::string name,
 							       short int is_undo_or_redo);
    void install_model(int imol_no_in, 
-		      atom_selection_container_t asc, const std::string &mol_name,
+		      atom_selection_container_t asc,
+		      const coot::protein_geometry *geom_p,
+		      const std::string &mol_name,
 		      short int display_in_display_control_widget_status,
 		      bool is_from_shelx_ins=0);
 
    void install_model(int imol_no_in, 
-		      mmdb::Manager *mol, const std::string &mol_name,
+		      mmdb::Manager *mol,
+		      const coot::protein_geometry *geom_p,
+		      const std::string &mol_name,
 		      short int display_in_display_control_widget_status,
 		      bool is_from_shelx_ins=0);
 
@@ -2048,7 +2052,7 @@ public:        //                      public
 
    // for the "Render As: " menu items:
    // 
-   void bond_representation();
+   void bond_representation(const coot::protein_geometry *geom_p);
    //
 
    float bonds_colour_map_rotation;

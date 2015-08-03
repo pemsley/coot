@@ -61,7 +61,8 @@ int pisa_interaction(int imol_1, int imol_2) {
 	 coot::close_residues_from_different_molecules_t cr;
 	 std::pair<std::vector<mmdb::Residue *>, std::vector<mmdb::Residue *> > res_pair = 
 	    cr.close_residues(mol1, mol2, dist);
-
+	 graphics_info_t g;
+	 
 	 if (res_pair.first.size() > 0) { 
 	    std::pair<bool, mmdb::Manager *> nm =
 	       coot::util::create_mmdbmanager_from_residue_vector(res_pair.first);
@@ -70,7 +71,7 @@ int pisa_interaction(int imol_1, int imol_2) {
 	       atom_selection_container_t asc = make_asc(nm.second);
 	       std::string name = "interacting residues from ";
 	       name += coot::util::int_to_string(imol_1);
-	       graphics_info_t::molecules[imol].install_model(imol, asc, name, 1);
+	       graphics_info_t::molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1);
 	       imodel_new = imol;
 	    } else {
 	       std::cout << "WARNING:: no molecule from create_mmdbmanager_from_residue_vector"
@@ -86,7 +87,7 @@ int pisa_interaction(int imol_1, int imol_2) {
 	       atom_selection_container_t asc = make_asc(nm.second);
 	       std::string name = "interacting residues from ";
 	       name += coot::util::int_to_string(imol_2);
-	       graphics_info_t::molecules[imol].install_model(imol, asc, name, 1);
+	       graphics_info_t::molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1);
 	    } else {
 	       std::cout << "WARNING:: no molecule from create_mmdbmanager_from_residue_vector"
 			 << std::endl;

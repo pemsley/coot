@@ -5742,8 +5742,20 @@ on_draw_hydrogens_no_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
+
+  /* 
+
+    20150803-PE:
+    We don't need to do this - because this is a radiobutton with 2
+    options, if we turn on the no, then the yes is turned off so we
+    run the above on_draw_hydrogens_no_radiobutton_toggled().
+
+    If this code is activated, then we call apply_bond_parameters()
+    and thus set_draw_hydrogens() twice.
+
   GtkWidget *w = lookup_widget(GTK_WIDGET(togglebutton), "bond_parameters_dialog");
   apply_bond_parameters(w);
+  */
 }
 
 
