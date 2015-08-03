@@ -7368,4 +7368,26 @@ http://www.youtube.com/watch?v=aMSPwFvlICM
    or perhaps store the best torsion set and RBR the best ones.
 
 
+--- 
+
+Thu Jul 23 12:31:24 BST 2015
+
+   Student/paper project:
+   Find low points in map: Look at many mannoses say LSQ plane of
+   pyranose, projection of C1-C4 onto the LSQ plane and Plane->O2 for
+   "up" - the cross of these will give the other dimension.  Make a
+   grid.  Sample map around NAGs, BMA and MANs. Use low points
+   (convert to internal coordinates) (making dummy atoms?) to assist 
+   score from z_weighted_density_score_new() in multi_residue_torsion_fit_map().
+   Low points may be resolution dependent.
+
+---- 
+
+   Student/paper project:
+
+   Where mbf is median b factor 
+   What's is the mbf(res)/mbf(protein) for each of the residues in an N-linked tree?
+   Is this resolution dependent?
+
+
 ------

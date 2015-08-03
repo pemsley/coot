@@ -247,6 +247,7 @@ int ideal_nucleic_acid(const char *RNA_or_DNA, const char *form,
 
 	    if (mol) {
 	       std::pair<bool, clipper::Coord_orth> cm = coot::centre_of_molecule(mol);
+	       graphics_info_t g;
 	       if (cm.first) { 
 		  clipper::Coord_orth mc = cm.second; // just for alias
 		  int imol = graphics_info_t::create_molecule();
@@ -255,11 +256,10 @@ int ideal_nucleic_acid(const char *RNA_or_DNA, const char *form,
 		  label += "-form-";
 		  label += RNA_or_DNA_str;
 		  atom_selection_container_t asc = make_asc(mol);
-		  graphics_info_t::molecules[imol].install_model(imol, asc, label, 1);
+		  graphics_info_t::molecules[imol].install_model(imol, asc, g.Geom_p(), label, 1);
 		  graphics_info_t::molecules[imol].translate_by(here_x-mc.x(), here_y-mc.y(), here_z-mc.z());
 		  graphics_draw();
 		  if (graphics_info_t::go_to_atom_window) {
-		     graphics_info_t g;
 		     g.update_go_to_atom_window_on_new_mol();
 		     g.update_go_to_atom_window_on_changed_mol(imol);
 		  }
@@ -308,7 +308,7 @@ int watson_crick_pair(int imol, const char *chain_id, int resno) {
 	       graphics_info_t g;
 	       int imol_new = g.create_molecule();
 	       atom_selection_container_t asc_wc = make_asc(mol);
-	       g.molecules[imol_new].install_model(imol_new, asc_wc, "WC partner", 1);
+	       g.molecules[imol_new].install_model(imol_new, asc_wc, g.Geom_p(), "WC partner", 1);
 	       graphics_draw();
 	    }
 	 }

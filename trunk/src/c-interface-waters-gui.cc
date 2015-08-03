@@ -513,7 +513,7 @@ void find_waters(int imol_for_map,
 	       for (int iat=0; iat<asc.n_selected_atoms; iat++)
 		  asc.atom_selection[iat]->Het = 1;
 	       int g_mol_for_waters = graphics_info_t::create_molecule();
-	       g.molecules[g_mol_for_waters].install_model(g_mol_for_waters, asc, "waters", 1);
+	       g.molecules[g_mol_for_waters].install_model(g_mol_for_waters, asc, g.Geom_p(), "waters", 1);
 	       if (g.go_to_atom_window){
 		  g.update_go_to_atom_window_on_new_mol();
 		  g.update_go_to_atom_window_on_changed_mol(g_mol_for_waters);

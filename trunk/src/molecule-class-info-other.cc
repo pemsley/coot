@@ -390,8 +390,8 @@ molecule_class_info_t::molecule_is_all_c_alphas() const {
 } 
 
 void
-molecule_class_info_t::bond_representation() {
-   makebonds();
+molecule_class_info_t::bond_representation(const coot::protein_geometry *geom_p) {
+   makebonds(geom_p);
 }
 
 void
@@ -2579,6 +2579,10 @@ molecule_class_info_t::add_OXT_to_residue(int reso, const std::string &insertion
 short int
 molecule_class_info_t::add_OXT_to_residue(mmdb::Residue *residue) {
 
+   // 20150803-PE FIXME - pass Geom_p().
+   graphics_info_t g;
+   coot::protein_geometry *geom_p = g.Geom_p(); 
+
    mmdb::PPAtom residue_atoms;
    int nResidueAtoms;
    short int istatus = 0; // fail
@@ -2679,11 +2683,10 @@ molecule_class_info_t::add_OXT_to_residue(mmdb::Residue *residue) {
 	       residue->AddAtom(new_ter_atom);
 	    }
 	    atom_sel.mol->FinishStructEdit();
-
 	    
 	    atom_sel = make_asc(atom_sel.mol);
 	    have_unsaved_changes_flag = 1;
-	    makebonds(); // not type checked, so that we can see the atom.
+	    makebonds(geom_p); // not type checked, so that we can see the atom.
 	    istatus = 1;
 	    std::cout << "Added OXT at " << new_oxt_atom << std::endl;
 	 } 
@@ -3978,6 +3981,9 @@ molecule_class_info_t::is_pir_aa(const std::string &a) const {
 coot::ray_trace_molecule_info
 molecule_class_info_t::fill_raster_model_info(bool against_a_dark_background) {
 
+   // 20150803-PE FIXME - pass Geom_p().
+   graphics_info_t g;
+   coot::protein_geometry *geom_p = g.Geom_p(); 
 
    coot::ray_trace_molecule_info rtmi;
    if (has_model()) {
@@ -4004,7 +4010,7 @@ molecule_class_info_t::fill_raster_model_info(bool against_a_dark_background) {
 	 // restore bond_box_type
 	 if (restore_bonds) {
 	    bonds_box_type = coot::NORMAL_BONDS;
-	    makebonds();
+	    makebonds(geom_p);
 	 }
 
 	 std::cout << " There are " << bonds_box.n_atom_centres_

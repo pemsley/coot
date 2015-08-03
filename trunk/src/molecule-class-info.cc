@@ -454,12 +454,13 @@ molecule_class_info_t::single_quote(const std::string &s) const {
 void
 molecule_class_info_t::install_model(int imol_no_in,
 				     atom_selection_container_t asc,
+				     const coot::protein_geometry *geom_p,
 				     const std::string &name, 
 				     short int display_in_display_control_widget_status,
 				     bool is_from_shelx_ins) {
 
    imol_no = imol_no_in;
-   graphics_info_t g; 
+   graphics_info_t g;  // pass g.Geom_p()
    bond_width = g.default_bond_width; // bleugh, perhaps this should
 				      // be a passed parameter?
    is_from_shelx_ins_flag = is_from_shelx_ins;
@@ -478,7 +479,7 @@ molecule_class_info_t::install_model(int imol_no_in,
    }
    set_have_unit_cell_flag_maybe();
 
-   makebonds();
+   makebonds(geom_p);
    if (g.show_symmetry == 1)
       if (show_symmetry) 
 	 update_symmetry();
@@ -497,13 +498,15 @@ molecule_class_info_t::install_model(int imol_no_in,
 }
 
 void
-molecule_class_info_t::install_model(int imol_no_in, 
-				     mmdb::Manager *mol, const std::string &mol_name,
+molecule_class_info_t::install_model(int imol_no_in,
+				     mmdb::Manager *mol,
+				     const coot::protein_geometry *geom_p,
+				     const std::string &mol_name,
 				     short int display_in_display_control_widget_status,
 				     bool is_from_shelx_ins) {
 
    atom_selection_container_t asc = make_asc(mol);
-   install_model(imol_no_in, asc, mol_name, display_in_display_control_widget_status, is_from_shelx_ins);
+   install_model(imol_no_in, asc, geom_p, mol_name, display_in_display_control_widget_status, is_from_shelx_ins);
 } 
 
 
@@ -2730,7 +2733,7 @@ check_static_vecs_extents() {
 
 
 void
-molecule_class_info_t::makebonds(float min_dist, float max_dist) {
+molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p) {
 
    Bond_lines_container bonds(atom_sel, min_dist, max_dist);
    bonds_box.clear_up();
@@ -2742,11 +2745,9 @@ molecule_class_info_t::makebonds(float min_dist, float max_dist) {
 }
 
 void
-molecule_class_info_t::makebonds(float max_dist) {
+molecule_class_info_t::makebonds(float max_dist, const coot::protein_geometry *geom_p) {
    
    Bond_lines_container bonds(atom_sel, max_dist);
-
-   // bonds.check(); 
 
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
@@ -2758,16 +2759,15 @@ molecule_class_info_t::makebonds(float max_dist) {
 // I think that graphics_info_t::Geom_p() should be passed to this function.
 // 
 void
-molecule_class_info_t::makebonds() {
+molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p) {
 
-   graphics_info_t g;
    int do_disulphide_flag = 1;
    int model_number = 0; // flag for all models
 
    if (single_model_view_current_model_number != 0)
       model_number = single_model_view_current_model_number;
    
-   Bond_lines_container bonds(atom_sel, g.Geom_p(), do_disulphide_flag, draw_hydrogens_flag,
+   Bond_lines_container bonds(atom_sel, geom_p, do_disulphide_flag, draw_hydrogens_flag,
 			      model_number);
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
@@ -2848,12 +2848,26 @@ molecule_class_info_t::make_colour_by_molecule_bonds() {
 void 
 molecule_class_info_t::make_bonds_type_checked() {
 
+   bool debug = false;
+   if (debug) 
+      std::cout << "--- make_bonds_type_checked() called  with bonds_box_type "
+		<< bonds_box_type << " vs " 
+		<< "NORMAL_BONDS " << coot::NORMAL_BONDS << " "
+		<< "BONDS_NO_HYDROGENS " << coot::BONDS_NO_HYDROGENS << " "
+		<< "COLOUR_BY_CHAIN_BONDS " << coot::COLOUR_BY_CHAIN_BONDS << " "
+		<< "COLOUR_BY_MOLECULE_BONDS " << coot::COLOUR_BY_MOLECULE_BONDS << " "
+		<< "CA_BONDS " << coot::CA_BONDS << " "
+		<< "CA_BONDS_PLUS_LIGANDS " << coot::CA_BONDS_PLUS_LIGANDS << " "
+		<< std::endl;
+
+   // Delete this in due course
    graphics_info_t g; // urgh!  (But the best solution?)
+   coot::protein_geometry *geom_p = g.Geom_p();
    
    if (bonds_box_type == coot::NORMAL_BONDS)
-      makebonds();
+      makebonds(geom_p);
    if (bonds_box_type == coot::BONDS_NO_HYDROGENS)
-      makebonds();
+      makebonds(geom_p);
    if (bonds_box_type == coot::CA_BONDS)
       make_ca_bonds();
    if (bonds_box_type == coot::COLOUR_BY_CHAIN_BONDS)
@@ -2891,6 +2905,9 @@ molecule_class_info_t::make_bonds_type_checked() {
    update_fixed_atom_positions();
    update_ghosts();
    update_extra_restraints_representation();
+
+   if (debug)
+      std::cout << "--- make_bonds_type_checked() done " << std::endl;
 }
 
 void
@@ -5850,6 +5867,10 @@ molecule_class_info_t::next_ca_by_skel(const std::vector<clipper::Coord_orth> &p
 void
 molecule_class_info_t::add_dummy_atom(coot::Cartesian pos) {
 
+   // 20150803-PE FIXME - pass Geom_p().
+   graphics_info_t g;
+   coot::protein_geometry *geom_p = g.Geom_p(); 
+
    int nchains = atom_sel.mol->GetNumberOfChains(1);
 
    if (nchains != 1) {
@@ -5882,7 +5903,7 @@ molecule_class_info_t::add_dummy_atom(coot::Cartesian pos) {
    // std::cout << atom_p << " added to molecule" << std::endl;
 
    have_unsaved_changes_flag = 1; 
-   makebonds(0.0, 0.0);
+   makebonds(0.0, 0.0, geom_p);
 
 }
 
@@ -7130,6 +7151,10 @@ molecule_class_info_t::add_multiple_dummies(mmdb::Chain *chain_p,
 					    const std::vector<coot::scored_skel_coord> &pos_position) {
 
 
+   // 20150803-PE FIXME - pass Geom_p().
+   graphics_info_t g;
+   coot::protein_geometry *geom_p = g.Geom_p(); 
+
    if (pos_position.size() > 0) {
       make_backup(); // maybe
    }
@@ -7164,12 +7189,16 @@ molecule_class_info_t::add_multiple_dummies(mmdb::Chain *chain_p,
       atom_sel.mol->FinishStructEdit();
       atom_sel = make_asc(atom_sel.mol);
       have_unsaved_changes_flag = 1; 
-      makebonds(0.0, 0.0);
+      makebonds(0.0, 0.0, geom_p);
       // }
 } 
 
 void
 molecule_class_info_t::add_multiple_dummies(const std::vector<coot::Cartesian> &pos_position) {
+
+   // 20150803-PE FIXME - pass Geom_p().
+   graphics_info_t g;
+   coot::protein_geometry *geom_p = g.Geom_p(); 
 
    if (atom_sel.mol) {
       mmdb::Model *model_p = atom_sel.mol->GetModel(1);
@@ -7198,7 +7227,7 @@ molecule_class_info_t::add_multiple_dummies(const std::vector<coot::Cartesian> &
 	    atom_sel.mol->FinishStructEdit();
 	    atom_sel = make_asc(atom_sel.mol);
 	    have_unsaved_changes_flag = 1; 
-	    makebonds(0.0, 0.0);
+	    makebonds(0.0, 0.0, geom_p);
 	 }
       }
    }

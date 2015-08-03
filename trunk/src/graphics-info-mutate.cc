@@ -79,7 +79,7 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
    int istat;
    molecule_class_info_t molci;
    short int display_in_display_control_widget_status = 0;
-   molci.install_model(0, asc, "terminal residue", display_in_display_control_widget_status);
+   molci.install_model(0, asc, Geom_p(), "terminal residue", display_in_display_control_widget_status);
 
    // every (usually 1, occasionally 2) residue in the molecule
    mmdb::Model *model_p = asc.mol->GetModel(1);

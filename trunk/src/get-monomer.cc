@@ -111,7 +111,7 @@ int get_monomer_from_dictionary(const char *three_letter_code,
       atom_selection_container_t asc = make_asc(mol);
       std::string name = three_letter_code;
       name += "_from_dict";
-      graphics_info_t::molecules[imol].install_model(imol, asc, name, 1);
+      graphics_info_t::molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1);
       move_molecule_to_screen_centre_internal(imol);
       graphics_draw();
       istat = imol;

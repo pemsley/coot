@@ -355,7 +355,7 @@ add_ligand_delete_residue_copy_molecule(int imol_ligand_new,
 			label += chain_id_ligand_current;
 			label += coot::util::int_to_string(res_no_ligand_current);
 			label += "_replaced";
-			g.molecules[r].install_model(r, asc, label, 1);
+			g.molecules[r].install_model(r, asc, g.Geom_p(), label, 1);
 			created_flag = 1;
 			break;
 		     }
@@ -4630,7 +4630,8 @@ int add_molecule(SCM molecule_expression, const char *name) {
    if (mol) {
       imol = graphics_info_t::create_molecule();
       atom_selection_container_t asc = make_asc(mol);
-      graphics_info_t::molecules[imol].install_model(imol, asc, name, 1);
+      graphics_info_t g;
+      g.molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1);
       graphics_draw();
    } else {
       std::cout << "WARNING:: bad format, no molecule created"
@@ -4650,7 +4651,8 @@ int add_molecule_py(PyObject *molecule_expression, const char *name) {
    if (mol) {
       imol = graphics_info_t::create_molecule();
       atom_selection_container_t asc = make_asc(mol);
-      graphics_info_t::molecules[imol].install_model(imol, asc, name, 1);
+      graphics_info_t g;
+      g.molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1);
       graphics_draw();
    } else {
       std::cout << "WARNING:: bad format, no molecule created"
@@ -4829,7 +4831,8 @@ int new_molecule_by_symmetry(int imol,
       if (mol_symm) { 
 	 int imol_new = graphics_info_t::create_molecule(); 
 	 atom_selection_container_t asc = make_asc(mol_symm);
-	 graphics_info_t::molecules[imol_new].install_model(imol_new, asc, name, 1);
+	 graphics_info_t g;
+	 g.molecules[imol_new].install_model(imol_new, asc, g.Geom_p(), name, 1);
 	 update_go_to_atom_window_on_new_mol();
 	 graphics_draw();
 	 istate = imol_new;
@@ -4941,7 +4944,8 @@ new_molecule_by_symmetry_with_atom_selection(int imol,
       if (new_mol) {
 	 imol_new = graphics_info_t::create_molecule();
 	 atom_selection_container_t asc = make_asc(new_mol);
-	 graphics_info_t::molecules[imol_new].install_model(imol_new, asc, name, 1);
+	 graphics_info_t g;
+	 g.molecules[imol_new].install_model(imol_new, asc, g.Geom_p(), name, 1);
 	 update_go_to_atom_window_on_new_mol();
 	 graphics_draw();
       }
@@ -5712,12 +5716,12 @@ int place_helix_here() {
        if (n.success) {
 	  atom_selection_container_t asc = make_asc(n.mol[0].pcmmdbmanager());
 	  imol = g.create_molecule();
-	  graphics_info_t::molecules[imol].install_model(imol, asc, "Helix", 1);
+	  graphics_info_t::molecules[imol].install_model(imol, asc, g.Geom_p(), "Helix", 1);
 	  
 	  if (n.mol.size() > 1) { 
 	     atom_selection_container_t asc2 = make_asc(n.mol[1].pcmmdbmanager());
 	     imol = g.create_molecule();
-	     graphics_info_t::molecules[imol].install_model(imol, asc2, "Reverse Helix", 1);
+	     graphics_info_t::molecules[imol].install_model(imol, asc2, g.Geom_p(), "Reverse Helix", 1);
 	  }
 	  
 	  if (g.go_to_atom_window) {
@@ -5775,7 +5779,7 @@ int place_strand_here(int n_residues, int n_sample_strands) {
 	 // molecule has been accepted.
 	 atom_selection_container_t asc = make_asc(si.mol[0].pcmmdbmanager());
 	 imol = g.create_molecule();
-	 graphics_info_t::molecules[imol].install_model(imol, asc, "Strand", 1);
+	 graphics_info_t::molecules[imol].install_model(imol, asc, g.Geom_p(), "Strand", 1);
 	 g.add_status_bar_text("Strand added");
 
 	 // Now refine.
@@ -5899,7 +5903,7 @@ int find_secondary_structure_local(
       if (ssfind.success) {
 	 atom_selection_container_t asc = make_asc(ssfind.mol.pcmmdbmanager());
 	 imol = g.create_molecule();
-	 graphics_info_t::molecules[imol].install_model(imol,asc,"SecStruc",1);
+	 graphics_info_t::molecules[imol].install_model(imol,asc,g.Geom_p(),"SecStruc",1);
 	 g.molecules[imol].ca_representation();
 	 if (g.go_to_atom_window) {
 	    g.set_go_to_atom_molecule(imol);
@@ -5970,7 +5974,7 @@ int find_nucleic_acids_local( float radius )
    if ( imol < 0 ) {
      imol = g.create_molecule();
      mol = new mmdb::Manager;
-     graphics_info_t::molecules[imol].install_model( imol, mol, "NuclAcid", 1 );
+     graphics_info_t::molecules[imol].install_model( imol, mol, g.Geom_p(), "NuclAcid", 1 );
    }
 
    // build the model
@@ -6479,7 +6483,8 @@ int new_molecule_by_residue_type_selection(int imol_orig, const char *residue_ty
 	    bool shelx_flag = 0;
 	    if (graphics_info_t::molecules[imol_orig].is_from_shelx_ins())
 	       shelx_flag = 1;
-	    graphics_info_t::molecules[imol].install_model(imol, asc, name, 1, shelx_flag);
+	    graphics_info_t g;
+	    g.molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1, shelx_flag);
 	 } else {
             std::cout << "in new_molecule_by_residue_type_selection "
                       << "Something bad happened - No residues selected"
@@ -6532,7 +6537,8 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 	    bool shelx_flag = 0;
 	    if (graphics_info_t::molecules[imol_orig].is_from_shelx_ins())
 	       shelx_flag = 1;
-	    graphics_info_t::molecules[imol].install_model(imol, asc, name, 1, shelx_flag);
+	    graphics_info_t g;
+	    g.molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1, shelx_flag);
 	    update_go_to_atom_window_on_new_mol();
 	 } else {
 	    std::cout << "in new_molecule_by_atom_selection "
@@ -6616,7 +6622,8 @@ int new_molecule_by_sphere_selection(int imol_orig, float x, float y, float z, f
 	    bool shelx_flag = 0;
 	    if (graphics_info_t::molecules[imol_orig].is_from_shelx_ins())
 	       shelx_flag = 1;
-	    graphics_info_t::molecules[imol].install_model(imol, asc, name, 1, shelx_flag);
+	    graphics_info_t g;
+	    g.molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1, shelx_flag);
 	 } else {
 	    graphics_info_t::erase_last_molecule();
 	    std::cout << "in new_molecule_by_atom_selection "
@@ -7540,6 +7547,7 @@ protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &resid
 	    std::vector<ProteinDB::Chain> chains =
 	       graphics_info_t::molecules[imol_coords].protein_db_loops(residue_specs, nfrags, xmap);
 
+	    graphics_info_t g;
 	    if (chains.size()) {
 
 	       // a molecule for each chain
@@ -7548,7 +7556,7 @@ protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &resid
 		  int imol = graphics_info_t::create_molecule();
 		  std::string name = "Loop candidate #"; 
 		  name += coot::util::int_to_string(ich+1);
-		  graphics_info_t::molecules[imol].install_model(imol, mol, name, 1);
+		  g.molecules[imol].install_model(imol, mol, g.Geom_p(), name, 1);
 		  vec_chain_mols.push_back(imol);
 		  set_mol_displayed(imol, 0);
 		  set_mol_active(imol, 0);
@@ -7559,7 +7567,7 @@ protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &resid
 	       mmdb::Manager *mol = make_mol(chains, chain_id, first_res_no, preserve_residue_names);
 	       std::string name = "All Loop candidates "; 
 	       graphics_info_t::molecules[imol_consolodated].install_model(imol_consolodated, 
-									   mol, name, 1);
+									   mol, g.Geom_p(), name, 1);
 	       graphics_info_t::molecules[imol_consolodated].set_bond_thickness(2);
 	       graphics_info_t::molecules[imol_consolodated].bonds_colour_map_rotation = 260; // purple
 

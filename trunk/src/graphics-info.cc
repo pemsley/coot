@@ -2773,7 +2773,8 @@ graphics_info_t::create_pointer_atom_molecule_maybe() const {
    
       atom_selection_container_t asc = make_asc(MMDBManager);
       int imol = create_molecule();
-      molecules[imol].install_model(imol, asc, "Pointer Atoms", 1);
+      graphics_info_t g;
+      molecules[imol].install_model(imol, asc, g.Geom_p(), "Pointer Atoms", 1);
       return imol;
    }
    return i;
@@ -2987,7 +2988,7 @@ graphics_info_t::baton_build_atoms_molecule() const {
    atom_selection_container_t asc = make_asc(MMDBManager);
    asc.SelectionHandle = -1;
    imol = create_molecule();
-   molecules[imol].install_model(imol, asc, "Baton Atoms", 1);
+   molecules[imol].install_model(imol, asc, graphics_info_t::Geom_p(), "Baton Atoms", 1);
 
    std::cout << "INFO:: returning baton atom molecule " << imol << std::endl;
    return imol;
@@ -3360,7 +3361,7 @@ graphics_info_t::create_empty_molecule(const std::string &molname) {
    
    atom_selection_container_t asc = make_asc(MMDBManager);
    int imol = create_molecule();
-   molecules[imol].install_model(imol, asc, molname, 1);
+   molecules[imol].install_model(imol, asc, graphics_info_t::Geom_p(), molname, 1);
    asc.read_error_message = "No error";
    asc.read_success = 1;
    return imol;
