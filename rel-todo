@@ -1,28 +1,15 @@
  
  0.8.2
 
-   o Undisplay hydrogens in All Atom mode -> some crazy CA+sidechain mode.
-     Mark Saper
-
    o Does the Refmac mtz file selection work?
 
    o 1nlt: A351: there's a tangle at the Zinc.  Do disulfide if
      there's a LINK to a ZN on this CYS.
 
-   o Fun: mmcif -> lbg
-
-* It was already there.  We needed to load from CCP4 SRS (and init the
-  protein_geometry).  The Import comp-id dialog needs to have a hydrogens
-  button (which is off by defaut).  We still need to set charges on reading
-  ATP, etc.  Question: how do I show deloc bonds from refmac dictionaries?
-  Don't.
-
    o compile without guile and run with --no-graphics (crashes on mac).
 
 * No longer, but there's a problem (crash) reading template_key_bindings.py
   Need to test this on home/work computer.
-
-   o LINK info (distances on output) - new mmdb
 
    o bonds to hydrogens should be thin in Colour by Chain mode
 
@@ -281,3 +268,20 @@ Program terminated with signal 11, Segmentation fault.
 
 * Done.
 
+
+   o Fun: mmcif -> lbg
+
+* It was already there.  We needed to load from CCP4 SRS (and init the
+  protein_geometry).  The Import comp-id dialog needs to have a hydrogens
+  button (which is off by defaut).  We still need to set charges on reading
+  ATP, etc.  Question: how do I show deloc bonds from refmac dictionaries?
+  Don't.
+
+   o LINK info (distances on output) - new mmdb
+
+* Done.
+
+   o Undisplay hydrogens in All Atom mode -> some crazy CA+sidechain mode.
+     Mark Saper
+
+* Done.
