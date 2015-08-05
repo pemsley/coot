@@ -124,7 +124,7 @@
 ;;
 (define (listen-coot-listener-socket-v3 soc)
 
-  (define end-transmition-string ; "; end transmission\n" (where "\n"
+  (define end-transmission-string ; "; end transmission\n" (where "\n"
 				 ; is a newline character, not 2
 				 ; chars)
     (string-append "; end transmission" (list->string (list #\newline))))
@@ -154,13 +154,13 @@
 	      )))))
 	      
 
-  ;; remove end-transmition-string from read-bits
+  ;; remove end-transmission-string from read-bits
   ;; 
   (define strip-tail 
     (lambda (read-bits)
 
       (let ((l (length read-bits))
-	    (etsl (string-length end-transmition-string)))
+	    (etsl (string-length end-transmission-string)))
 	(if (> l etsl)
 	  (list-head read-bits (- l etsl))
 	  '()))))
@@ -170,13 +170,13 @@
   ;; read-bits are passed in reverse order (i.e. with the newline (if
   ;; it exits) at the the beginning)
   ;; 
-  (define (hit-end-transmit-inner? read-bits end-transmition-string)
+  (define (hit-end-transmit-inner? read-bits end-transmission-string)
     (if (< (length read-bits)
-	   (string-length end-transmition-string))
+	   (string-length end-transmission-string))
 	(begin
 	  #f)
 	(begin
-	  (let* ((char-list-ref (reverse (string->list end-transmition-string)))
+	  (let* ((char-list-ref (reverse (string->list end-transmission-string)))
 		 (n-chars (length char-list-ref))
 		 (char-list-test (list-head read-bits n-chars)))
 	    (let ((ls-1 char-list-ref)
@@ -185,8 +185,8 @@
 	      (equal? ls-1 ls-2))))))
 	    
   ;; 
-  (define (hit-end-transmit? read-bits end-transmition-string)
-    (let ((var (hit-end-transmit-inner? read-bits end-transmition-string)))
+  (define (hit-end-transmit? read-bits end-transmission-string)
+    (let ((var (hit-end-transmit-inner? read-bits end-transmission-string)))
       ;; (format #t "hit-end-transmit? on ~s returns ~s~%" read-bits var)
       var))
 
@@ -209,9 +209,9 @@
 	  (cond
 	   ((eof-object? c) (format #t "server gone\n") #f)
 	   ((hit-end-transmit? (cons c read-bits)
-			       end-transmition-string)
+			       end-transmission-string)
 	    (format #t "  ~s found in ~s~%" 
-		    end-transmition-string
+		    end-transmission-string
 		    (list->string (reverse (cons c read-bits))))
 	    (let* ((chars (reverse (cons c read-bits)))
 		   (tail-stripped (strip-tail chars)))
