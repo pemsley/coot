@@ -2578,7 +2578,7 @@ residues_torsions_match_py(int imol_1, PyObject *res_1,
 double kolmogorov_smirnov_scm(SCM l1, SCM l2) {
 
    double result = -1;
-   if (scm_list_p(l1) && scm_list_p(l2)) {
+   if (scm_is_true(scm_list_p(l1)) && scm_is_true(scm_list_p(l2))) {
       SCM length_scm_1 = scm_length(l1);
       SCM length_scm_2 = scm_length(l2);
       unsigned int len_l1 = scm_to_int(length_scm_1);
@@ -2605,7 +2605,7 @@ double kolmogorov_smirnov_scm(SCM l1, SCM l2) {
 SCM kullback_liebler_scm(SCM l1, SCM l2) {
 
    SCM result_scm = SCM_BOOL_F;
-   if (scm_list_p(l1) && scm_list_p(l2)) {
+   if (scm_is_true(scm_list_p(l1)) && scm_is_true(scm_list_p(l2))) {
       SCM length_scm_1 = scm_length(l1);
       SCM length_scm_2 = scm_length(l2);
       unsigned int len_l1 = scm_to_int(length_scm_1);
