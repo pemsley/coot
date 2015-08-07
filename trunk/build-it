@@ -536,9 +536,19 @@ function post_install_slim {
        keep_lib_archs="$lib_sos"
     fi
 
-    file_list="etc info man share libexec bin/coot libexec/coot-bin \
-        bin/findwaters bin/findwaters-real bin/findligand bin/findligand-real \
-	bin/guile bin/density-score-by-residue bin/density-score-by-residue-real \
+    file_list="etc info man share libexec  \
+	libexec/coot-bin                   \
+	bin/coot                           \
+        bin/findwaters                     \
+	bin/findwaters-real                \
+	bin/findligand bin/findligand-real \
+	bin/guile                          \
+	bin/density-score-by-residue       \
+	bin/density-score-by-residue-real  \
+	bin/coot.available-comp-id         \
+	bin/coot.compare-dictionaries      \
+	bin/coot.dictionary-bond-distributions \
+	bin/coot.make-shelx-restraints \
         bin/curl $keep_lib_archs"
 
     if [ "$ENABLE_PYTHON_COOT" = yes ] ; then
