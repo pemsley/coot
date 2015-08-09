@@ -150,14 +150,13 @@
 
 #include "coot-utils/emma.hh"
 
+#include "c-interface-widgets.h" // for wrapped_create_generic_objects_dialog();
+
 int test_function(int i, int j) {
 
    graphics_info_t g;
 
    // Is this the function you are really looking for (these days)?
-
-
-
 
    if (0) {
 
@@ -377,17 +376,39 @@ int test_function(int i, int j) {
 }
 
 
-#include "c-interface-widgets.h" // for wrapped_create_generic_objects_dialog();
+#include "analysis/kolmogorov.hh"
+#include "analysis/stats.hh"
 
-
-#ifdef __cplusplus
 #ifdef USE_GUILE
 SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
    graphics_info_t g;
    SCM r = SCM_BOOL_F;
 
-   if (1) {
+   if (true) {
+
+      std::ifstream f("normal-data-0-1.tab");
+      std::vector<double> data;
+      if (f) {
+	 double v;
+	 std::string line;
+	 while (std::getline(f, line)) { 
+	    try {
+	       v = coot::util::string_to_float(line);
+	       data.push_back(v);
+	    }
+	    catch (const std::exception &e) {
+	       std::cout << e.what() << " failed to read " << line << std::endl;
+	    } 
+	 }
+      }
+      double mean = 0;
+      double variance = 1;
+      double d = coot::stats::get_kolmogorov_smirnov_vs_normal(data, mean, variance);
+      std::cout << "D: " << d << std::endl;
+   } 
+
+   if (0) {
 
       std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
       if (pp.first) {
@@ -654,7 +675,6 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 }
 
 #endif // PYTHON
-#endif //C_PLUS_PLUS
 
 
 /* glyco tools test  */

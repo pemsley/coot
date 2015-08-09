@@ -7595,3 +7595,19 @@ coot::mtrix_info(const std::string &file_name) {
    return r;
 
 } 
+
+double
+coot::util::refmac_atom_radius(mmdb::Atom *at) {
+
+   double u = at->tempFactor / (8 * M_PI * M_PI);
+   double v = 2 * u;
+   v = std::max(v, 0.38); // don't have tiny atoms
+
+   // I want small atoms than refmac has.
+   // 	    v += 0.7;
+   // 	    v *= 5;
+   v += 0.6;
+   v *= 4;
+   return sqrt(v);
+}
+

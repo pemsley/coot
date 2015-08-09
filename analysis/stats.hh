@@ -1,28 +1,34 @@
 
+#ifndef INCLUDE_STATS_HH
+#define INCLUDE_STATS_HH
+
+#include <vector>
+#include <math.h>
 
 namespace coot {
 
    namespace stats {
 
-      double cached_kurtosis;
-      bool have_cached_kurtosis;
-
       // 1-d data
       class single {
+	 
+	 // double cached_kurtosis;
+	 // bool have_cached_kurtosis;
+
       public:
 	 std::vector<double> v;
 
 	 single() {
-	    have_cached_kurtosis = false;
+	    // have_cached_kurtosis = false;
 	 }
 	 single(const std::vector<double> &v_in) {
 	    v = v_in;
-	    have_cached_kurtosis = false;
+	    // have_cached_kurtosis = false;
 	 }
 	 unsigned int size() const { return v.size(); }
 	 void add(const double &a) {
 	    v.push_back(a);
-	    have_cached_kurtosis = false;
+	    // have_cached_kurtosis = false;
 	 }
 	 
 	 double mean() const {
@@ -78,14 +84,34 @@ namespace coot {
 		     sum_to_the_4 += t * t * t * t;
 		  }
 		  k = sum_to_the_4/(double(v.size()) * var * var);
-		  cached_kurtosis = k;
-		  have_cached_kurtosis = true;
+		  // cached_kurtosis = k;
+		  // have_cached_kurtosis = true;
 	       }
 	    }
 	    return k;
 	 }
       };
+
+      class pnorm {
+
+	 // return a cumulative probability for this number of standard deviations from the mean
+	 // e.g. return for 0, return 0.5 and -1 return 0.1586
+
+	 void init() { }
+	 double erf(const double &z) const;
+      public:
+	 pnorm() { init(); }
+	 double get(const double &x) const {
+	    return 0.5 * (1 + erf(x/sqrt(2.0)));
+	 } 
+      };
+
+      // 20150807-PE
+      //
+      double get_kolmogorov_smirnov_vs_normal(const std::vector<double> &v1,
+					      const double &reference_mean,
+					      const double &reference_sd); 
    }
 }
 
-
+#endif // INCLUDE_STATS_HH

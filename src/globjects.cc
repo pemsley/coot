@@ -771,6 +771,8 @@ bool  graphics_info_t::find_ligand_multiple_solutions_per_cluster_flag = false;
 float graphics_info_t::find_ligand_score_by_correl_frac_limit = 0.7;
 float graphics_info_t::find_ligand_score_correl_frac_interesting_limit = 0.9;
 
+double graphics_info_t::map_to_model_correlation_atom_radius = 1.5;
+
 short int graphics_info_t::find_ligand_mask_waters_flag = 0;
 float graphics_info_t::map_mask_atom_radius = -99; // unset
 // std::vector<int> *mol_tmp;

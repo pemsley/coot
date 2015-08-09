@@ -724,7 +724,10 @@ namespace coot {
 	 static bool residues_sort_func(mmdb::Residue *first, mmdb::Residue *second);
 	 bool operator<(const chain_id_residue_vec_helper_t &c) const;
       };
-	 
+
+
+      double refmac_atom_radius(mmdb::Atom *at);
+      
       std::string single_letter_to_3_letter_code(char code);
 
       short int is_nucleotide(mmdb::Residue *r); // by refmac restraint naming

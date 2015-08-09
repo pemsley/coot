@@ -28,6 +28,7 @@
 #include "clipper/core/hkl_data.h"
 #include "clipper/contrib/sfcalc_obs.h"
 #include "coot-coord-utils.hh"
+#include "coot-density-stats.hh"
 #include <mmdb2/mmdb_manager.h>
 
 namespace coot {
@@ -42,40 +43,6 @@ namespace coot {
       float density_at_map_point(const clipper::Xmap<float> &map_in,
 				 const clipper::Coord_map &cg);
 
-      class density_stats_info_t {
-      public:
-	 float n;
-	 float sum_sq; // sum of squared elements
-	 float sum;
-	 float sum_weight;
-	 density_stats_info_t() {
-	    n = 0.0;
-	    sum = 0.0;
-	    sum_sq = 0.0;
-	    sum_weight = 0.0;
-	 }
-	 void add(float v) {
-	    n += 1.0;
-	    sum += v;
-	    sum_sq += v*v;
-	    sum_weight += 1.0;
-	 } 
-	 void add(float v, float weight) {
-	    n += weight;
-	    sum += weight*v;
-	    sum_sq += weight*v*v;
-	    sum_weight += 1.0;
-	 }
-	 std::pair<float, float> mean_and_variance() const {
-	    float mean = -1;
-	    float var  = -1;
-	    if (n > 0) {
-	       mean = sum/sum_weight;
-	       var = sum_sq/sum_weight - mean*mean;
-	    }
-	    return std::pair<float, float> (mean, var);
-	 }
-      };
 
       // return a variance of -1 on error.
       std::pair<float, float> mean_and_variance(const clipper::Xmap<float> &xmap);
@@ -176,6 +143,14 @@ namespace coot {
 				     float atom_radius, // for masking 
 				     const clipper::Xmap<float> &xmap_from_sfs);
 
+      density_correlation_stats_info_t
+      map_to_model_correlation_stats(mmdb::Manager *mol,
+				     const std::vector<residue_spec_t> &specs_for_correl,
+				     const std::vector<residue_spec_t> &specs_for_masking_neighbs,
+				     unsigned short int atom_mask_mode,
+				     float atom_radius, // for masking 
+				     const clipper::Xmap<float> &xmap_from_sfs,
+				     map_stats_t map_stats_flag);
 
       // the first of the pair contains the correlation for the given residue spec.
       // 

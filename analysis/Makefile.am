@@ -11,7 +11,8 @@ AM_CPPFLAGS = \
 	$(CLIPPER_CXXFLAGS)		\
 	$(MMDB_CXXFLAGS)
 
-libcoot_analysis_la_SOURCES = bfkurt.cc mogul.cc kolmogorov.hh kolmogorov.cc cablam.hh cablam.cc
+libcoot_analysis_la_SOURCES = bfkurt.cc mogul.cc kolmogorov.hh kolmogorov.cc stats.cc \
+	cablam.hh cablam.cc
 
 libcoot_analysis_la_LIBADD = \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la    \

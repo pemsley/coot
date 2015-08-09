@@ -3951,6 +3951,8 @@ string   static std::string sessionid;
 
    void perpendicular_ligand_view(int imol, const coot::residue_spec_t &residue_spec);
 
+   static double map_to_model_correlation_atom_radius;
+
 
 };
 
