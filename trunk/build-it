@@ -1,4 +1,4 @@
-
+ 
 # -*-shell-script-*-s
 #
 #
@@ -549,7 +549,8 @@ function post_install_slim {
 	bin/coot.compare-dictionaries      \
 	bin/coot.dictionary-bond-distributions \
 	bin/coot.make-shelx-restraints \
-        bin/curl $keep_lib_archs"
+        bin/curl \
+	$keep_lib_archs"
 
     if [ "$ENABLE_PYTHON_COOT" = yes ] ; then
         # 20090427 remove python and python config from bin dir (as it
@@ -1912,13 +1913,11 @@ fi
 # fi
 
 echo atempting to run installed guile-config \(this may fail, that\'s OK\).
-$install_top_dir/bin/guile-config --version
-if test $? != 0 ; then
-   echo guile should be built
-   build_guile=1
-else 
+if $install_top_dir/bin/guile-config --version ; then 
+
     # We have a seen a situation somehow where bin/guile-config is installed 
     # but include/libguile.h is not.  Strange.  Let's test for libguile.h too.
+    # 
     if test -e $install_top_dir/include/libguile.h ; then
 	echo installation has guile
 	build_guile=
@@ -1928,6 +1927,9 @@ else
        build_guile_gtk=1
        build_guile=1
     fi
+else
+   echo guile should be built
+   build_guile=1
 fi
 
 # guile-gui
@@ -2018,6 +2020,7 @@ if [ $ENABLE_PYTHON_COOT = yes ] ; then
       fi      
    fi
 fi
+
 
 # test for pygtk
 if [ $ENABLE_PYTHON_COOT = yes ] ; then 
@@ -2629,10 +2632,18 @@ if [ "$build_goocanvas" != "no" ] ; then
     echo BUILDING goocanvas 
     ${WGET} http://ftp.gnome.org/pub/GNOME/sources/goocanvas/1.0/goocanvas-1.0.0.tar.gz
     (date
+     echo building in: $PWD
+     echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
+     echo CFLAGS: $CFLAGS
+     echo CXXFLAGS: $CXXFLAGS
+     echo CPPFLAGS: $CPPFLAGS
+     echo LDFLAGS: $LDFLAGS
      pwd
      gzip -dc ${AUTOBUILD_SOURCES}/goocanvas-1.0.0.tar.gz | tar xf -
      cd goocanvas-1.0.0
-     if ./configure $generic_prefix ; then
+     # on my Mac, glib depends on libintl.h and that is installed by the ccp4 dir
+     # but that is not added by pkg-config glib-2.0 --cflags. glib bug?
+     if ./configure $generic_prefix $EXTRA_GOOCANVAS_CFLAGS ; then
         if ! $MAKE ; then
            echo make of goocanvas failed
         else 
@@ -2725,6 +2736,8 @@ else
     echo not building python:
 fi
 
+
+
 if test -n "$build_pygobject" ; then 
    echo BUILDING pygobject:
    #
@@ -2736,10 +2749,19 @@ if test -n "$build_pygobject" ; then
 
    if pkg-config --atleast-pkgconfig-version 0.16 ; then
       echo INFO:: pkg-config is new enough to build pygobject
+      pygobject_major_minor_version=2.8
+      pygobject_version=2.8.0
+      echo path 1 ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pygobject/$pygobject_major_minor_version/pygobject-$pygobject_version.tar.gz
+      if ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pygobject/$pygobject_major_minor_version/pygobject-$pygobject_version.tar.gz ; then 
+         echo OK got pygobject-$pygobject_version.tar.gz
+      else
+         echo PROBLEM:: wget for pygobject-$pygobject_version.tar.gz
+      fi
    else 
       if pkg-config --atleast-pkgconfig-version 0.15.1 ; then
          pygobject_major_minor_version=2.8
          pygobject_version=2.8.0
+         echo path 2 ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pygobject/$pygobject_major_minor_version/pygobject-$pygobject_version.tar.gz
          if ${WGET} http://ftp.gnome.org/pub/GNOME/sources/pygobject/$pygobject_major_minor_version/pygobject-$pygobject_version.tar.gz ; then 
 	     echo OK got pygobject-$pygobject_version.tar.gz
 	 else
@@ -2750,8 +2772,8 @@ if test -n "$build_pygobject" ; then
          # centos4 pkg-config version is 0.15.0
          pygobject_major_minor_version=2.4
          pygobject_version=2.4.0
-         # ftp.gnome.org does not distribute 2.4.x Baah. Get it from York
-         ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/pygobject-2.4.0.tar.gz
+         # ftp.gnome.org does not distribute 2.4.x Baah. Get it from extras
+         ${WGET} $extras_place/pygobject-2.4.0.tar.gz
       fi
       echo INFO:: pkg-config is NOT new enough to build pygobject 2.14
       echo downgrading pygobject to $pygobject_version
@@ -2760,21 +2782,33 @@ if test -n "$build_pygobject" ; then
 
    (
    date
-   echo untarring ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.tar.gz 
-   gzip -dc ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.tar.gz | tar xf -
-   cd pygobject-$pygobject_version
-   # typename is a variable name to a function in the pygobject header.
-   # it causes the compiler on CentOS4 to fail with a syntax error. 
-   # so substitute the name.
-   sed -e 's/typename/s_typename/' gobject/pygobject.h >  gobject/pygobject.h.tmp
-   mv  gobject/pygobject.h.tmp  gobject/pygobject.h
-   ./configure $generic_prefix
-   $MAKE
-   pygobject_status=$?
-   if [ "$pygobject_status" != 0 ] ; then
-      echo make of pygobject failed
+   echo trying to untar ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.tar.gz 
+   if [ -e ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.tar.gz ] ; then 
+      gzip -dc ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.tar.gz | tar xf -
+      cd pygobject-$pygobject_version
+      # typename is a variable name to a function in the pygobject header.
+      # it causes the compiler on CentOS4 to fail with a syntax error. 
+      # so substitute the name.
+      echo about to sed
+      sed -e 's/typename/s_typename/' gobject/pygobject.h >  gobject/pygobject.h.tmp
+      echo about to mv gobject/pygobject.h.tmp  gobject/pygobject.h
+      mv gobject/pygobject.h.tmp  gobject/pygobject.h
+      save_dllp=$DYLD_LIBRARY_PATH
+      unset DYLD_LIBRARY_PATH
+      echo about to bash configure ./configure $generic_prefix
+      # on MacOSX we need to bash this or some sort of crappy apple crash in configure here.
+      bash ./configure $generic_prefix
+      echo about to make
+      $MAKE
+      pygobject_status=$?
+      if [ "$pygobject_status" != 0 ] ; then
+         echo make of pygobject failed
+      else
+         $MAKE install
+      fi
+      export DYLD_LIBRARY_PATH=$save_dllp
    else
-      $MAKE install
+      echo ERROR:: ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.tar.gz file not found.
    fi
 ) > $HOSTLOGDIR/07-pygobject.txt 2>&1
 else 
@@ -2808,6 +2842,12 @@ if test -n "$build_pygtk" ; then
    date
    gzip -dc ${AUTOBUILD_SOURCES}/pygtk-$pygtk_version.tar.gz | tar xf -
    cd pygtk-$pygtk_version
+   if [ ! -z "$libintl_cflags" ] ; then
+      export CFLAGS=$libintl_cflags
+      export CPPFLAGS="$CPPFLAGS $libintl_cflags"
+   fi
+   save_dllp=$DYLD_LIBRARY_PATH
+   unset DYLD_LIBRARY_PATH
    ./configure $generic_prefix --with-pango --with-pangocairo PYGOBJECT_CFLAGS=-I$install_top_dir/include/pygtk-2.0 PYGOBJECT_LIBS=-L$install_top_dir/lib
    $MAKE
    pygtk_status=$?
@@ -2816,6 +2856,7 @@ if test -n "$build_pygtk" ; then
    else
       $MAKE install
    fi
+   export DYLD_LIBRARY_PATH=$save_dllp
 ) > $HOSTLOGDIR/07-pygtk.txt 2>&1
 else 
    echo not building pytgtk
@@ -2838,7 +2879,8 @@ fi
 if test -n "$build_gmp" ; then
     echo BUILDING gmp:
     # gmp_version=4.2.4
-    gmp_version=5.1.2
+    # gmp_version=5.1.2
+    gmp_version=6.0.0a
     ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gmp/gmp-$gmp_version.tar.bz2
     (date
      pwd
@@ -2953,12 +2995,17 @@ fi
 if test -n "$build_guile" ; then 
     echo BUILDING guile:
 #
+
 guile_version=1.8.8
+guile_version_dir=$guile_version
+if test "$OS" = "Darwin" ; then
+   guile_version=1.8.8-marcin-fix
+fi
+
 # mirror has gone/moved.
 # ${WGET} http://mirror.ac.uk/mirror/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
 # ${WGET} http://ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
 ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
-#${WGET} http://lmb.bioch.ox.ac.uk/coot/extras/guile-1.8.7-updated.patch
 ${WGET} $extras_place/guile-1.8.7-updated.patch
 
  
@@ -2973,7 +3020,7 @@ fi
 date
 pwd
 gzip -dc ${AUTOBUILD_SOURCES}/guile-${guile_version}.tar.gz | tar xf -
-cd guile-${guile_version}
+cd guile-${guile_version_dir}
 # we need to pass CFLAGS and LDFLAGS because there is no --with-readline-prefix
 
 # note that for guile's guile-readline module to compile correctly,
@@ -3437,16 +3484,25 @@ if [ $OS = Darwin ] ; then
    fi
 fi
 
+if [ ! -z "$libintl_cflags" ] ; then
+   CFLAGS=$libintl_cflags
+   CPPFLAGS="$CPPFLAGS $libintl_cflags"
+fi
+
 echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 echo building in: $PWD
 echo CFLAGS: $CFLAGS
 echo CXXFLAGS: $CXXFLAGS
 echo CPPFLAGS: $CPPFLAGS
 echo LDFLAGS: $LDFLAGS
+echo using this guile:
+which guile
+
 echo ./configure $coot_prefix \
        --with-fftw-prefix=$install_top_dir  \
       $goocanvas_args     \
-       $glut_prefix       \
+      $glut_prefix        \
+      COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       $guile_scripting    \
       $python_scripting   \
       $shared_static_flag \
