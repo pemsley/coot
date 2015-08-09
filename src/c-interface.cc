@@ -8074,8 +8074,8 @@ void set_socket_string_waiting(const char *s) {
    graphics_info_t::socket_string_waiting = s;
    graphics_info_t::have_socket_string_waiting_flag = 1;
 
-   std::cout << "DEBUG:: set_socket_string_waiting() socket_string_waiting set to " 
-	     << graphics_info_t::socket_string_waiting << std::endl;
+   std::cout << "DEBUG:: set_socket_string_waiting() socket_string_waiting set to \""
+	     << graphics_info_t::socket_string_waiting << "\"" << std::endl;
 
    GSourceFunc f = graphics_info_t::process_socket_string_waiting_bool;
    g_idle_add(f, NULL); // if f returns FALSE then f is not called again.

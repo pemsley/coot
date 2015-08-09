@@ -1,19 +1,27 @@
  
  0.8.2
 
+   o bonds to hydrogens should be thin in Colour by Chain mode
+
    o Does the Refmac mtz file selection work?
 
-   o 1nlt: A351: there's a tangle at the Zinc.  Do disulfide if
-     there's a LINK to a ZN on this CYS.
+   o Do we get the correct hydrogen bonds with Acedrg dictionary (and
+     pyrogen dictionary) for 824?
+
+   o 1nlt: A351: there's a tangle at the Zinc.  Don't make a disulfide bond
+     if there's a LINK to a ZN on this CYS.
 
    o compile without guile and run with --no-graphics (crashes on mac).
 
 * No longer, but there's a problem (crash) reading template_key_bindings.py
   Need to test this on home/work computer.
 
-   o bonds to hydrogens should be thin in Colour by Chain mode
-
    o Sphere refine on a water fails.
+
+   o Default for add waters should be something other than Pointer
+     Atoms if possible.
+
+   o Find overlapping atoms (on top of each others)
 
    o with enhanced-ligand, do you get a sane code-path if you do 
      File -> SMILES?
@@ -268,6 +276,10 @@ Program terminated with signal 11, Segmentation fault.
 
 * Done.
 
+   o Undisplay hydrogens in All Atom mode -> some crazy CA+sidechain mode.
+     Mark Saper
+
+* Done.
 
    o Fun: mmcif -> lbg
 
