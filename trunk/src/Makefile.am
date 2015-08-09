@@ -125,6 +125,7 @@ coot_wrap_guile_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h    \
 	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(WITH_GUILE_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -I$(top_srcdir) -guile -c++  $(top_srcdir)/src/coot.i
 
 # For GOOPS support: -proxy -Linkage module (or passive), however, doing that makes SWIG_init() go away.
+# -proxy  exports the GOOPS wrapper definitions into module.scm
 
 coot_wrap_guile_gtk2.cc: coot_wrap_guile_pre_gtk2.cc
 	$(MAKE_COOT_WRAP_GUILE) gtk2 $^ $@

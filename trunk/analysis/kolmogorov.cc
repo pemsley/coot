@@ -22,6 +22,7 @@
 #include <algorithm>
 #include <iostream>
 #include "math.h"
+#include "stats.hh"
 
 #include "kolmogorov.hh"
 
@@ -216,3 +217,4 @@ nicholls::get_KL(const std::vector<double> &v1, const std::vector<double> &v2) {
    }
    return std::pair<double, double> (KLdiv1, KLdiv2);
 }
+

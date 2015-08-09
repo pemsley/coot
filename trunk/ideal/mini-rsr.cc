@@ -235,7 +235,7 @@ main(int argc, char **argv) {
 	    if (inputs.is_debug_mode) { 
 	       clipper::Coord_orth pt(51.148,   8.121,  -1.418);
 	       coot::util::density_stats_info_t ds =
-	       coot::util::density_around_point(pt, xmap, 10.0);
+		  coot::util::density_around_point(pt, xmap, 10.0);
 	       
 	       std::pair<float, float> mv = ds.mean_and_variance();
 	       std::cout << "INFO:: density stats: N:" << ds.n << " sum: " << ds.sum

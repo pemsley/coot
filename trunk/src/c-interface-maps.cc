@@ -1719,30 +1719,56 @@ int make_variance_map_py(PyObject *map_molecule_number_list) {
 /*                      correllation maps                                    */
 /* ------------------------------------------------------------------------- */
 
+// The atom radius is not passed as a parameter to correlation
+// functions, let's set it here (default is 1.5A)
+void set_map_correlation_atom_radius(float r) {
+   graphics_info_t::map_to_model_correlation_atom_radius = r;
+} 
+
 // 0: all-atoms
 // 1: main-chain atoms if is standard amino-acid, else all atoms
 // 2: side-chain atoms if is standard amino-acid, else all atoms
 // 3: side-chain atoms-exclusing CB if is standard amino-acid, else all atoms
 // 
-float map_to_model_correlation(int imol,
-			       const std::vector<coot::residue_spec_t> &specs,
-			       const std::vector<coot::residue_spec_t> &neighb_specs,
-			       unsigned short int atom_mask_mode,
-			       int imol_map) {
+float
+map_to_model_correlation(int imol,
+			 const std::vector<coot::residue_spec_t> &specs,
+			 const std::vector<coot::residue_spec_t> &neighb_specs,
+			 unsigned short int atom_mask_mode,
+			 int imol_map) {
 
+   coot::util::density_correlation_stats_info_t dcs =
+      map_to_model_correlation_stats(imol, specs, neighb_specs, atom_mask_mode, imol_map);
+   return dcs.correlation();
+}
+
+// 0: all-atoms
+// 1: main-chain atoms if is standard amino-acid, else all atoms
+// 2: side-chain atoms if is standard amino-acid, else all atoms
+// 3: side-chain atoms-exclusing CB if is standard amino-acid, else all atoms
+// 
+coot::util::density_correlation_stats_info_t
+map_to_model_correlation_stats(int imol,
+			 const std::vector<coot::residue_spec_t> &specs,
+			 const std::vector<coot::residue_spec_t> &neighb_specs,
+			 unsigned short int atom_mask_mode,
+			 int imol_map) {
+
+   coot::util::density_correlation_stats_info_t dcs;
    float ret_val = -2;
-   float atom_radius = 1.5;
+   float atom_radius = graphics_info_t::map_to_model_correlation_atom_radius;
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
 	 mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
 	 clipper::Xmap<float> xmap_reference = graphics_info_t::molecules[imol_map].xmap;
-	 ret_val = coot::util::map_to_model_correlation(mol, specs, neighb_specs,
-							atom_mask_mode,
-							atom_radius, xmap_reference);
+	 coot::map_stats_t map_stat_flag = coot::WITH_KOLMOGOROV_SMIRNOV_DIFFERENCE_MAP_TEST;
+	 dcs = coot::util::map_to_model_correlation_stats(mol, specs, neighb_specs,
+							  atom_mask_mode,
+							  atom_radius, xmap_reference,
+							  map_stat_flag);
       }
    }
-
-   return ret_val;
+   return dcs;
 }
    
 
@@ -1759,7 +1785,45 @@ SCM map_to_model_correlation_scm(int imol,
    SCM ret_val = scm_double2num(c);
    return ret_val;
 }
+#endif
+
+#include "analysis/kolmogorov.hh"
+#include "analysis/stats.hh"
+
+#ifdef USE_GUILE
+SCM map_to_model_correlation_stats_scm(int imol,
+				       SCM residue_specs,
+				       SCM neighb_residue_specs,
+				       unsigned short int atom_mask_mode,
+				       int imol_map) {
+   
+   std::vector<coot::residue_spec_t> residues    = scm_to_residue_specs(residue_specs);
+   std::vector<coot::residue_spec_t> nb_residues = scm_to_residue_specs(neighb_residue_specs);
+   coot::util::density_correlation_stats_info_t dcs
+      = map_to_model_correlation_stats(imol, residues, nb_residues, atom_mask_mode, imol_map);
+
+   double map_mean = 0.0;
+   double map_sd   = 1.0;
+   if (is_valid_map_molecule(imol_map)) {
+      map_mean = graphics_info_t::molecules[imol_map].map_mean();
+      map_sd   = graphics_info_t::molecules[imol_map].map_sigma();
+   } 
+   double D = coot::stats::get_kolmogorov_smirnov_vs_normal(dcs.density_values,
+							    map_mean,
+							    map_sd);
+   SCM ret_val = scm_list_n(scm_double2num(dcs.correlation()),
+			    scm_double2num(dcs.var_x()),
+			    scm_double2num(dcs.var_y()),
+			    scm_double2num(dcs.n),
+			    scm_double2num(dcs.sum_x),
+			    scm_double2num(dcs.sum_y),
+			    scm_double2num(D),
+			    SCM_UNDEFINED);
+   
+   return ret_val;
+}
 #endif 
+
 
 #ifdef USE_PYTHON
 PyObject *map_to_model_correlation_py(int imol,
@@ -1776,6 +1840,27 @@ PyObject *map_to_model_correlation_py(int imol,
 }
 #endif 
 
+#ifdef USE_PYTHON
+PyObject *map_to_model_correlation_stats_py(int imol,
+					    PyObject *residue_specs,
+					    PyObject *neighb_residue_specs,
+					    unsigned short int atom_mask_mode,
+					    int imol_map) {
+   
+   std::vector<coot::residue_spec_t> residues    = py_to_residue_specs(residue_specs);
+   std::vector<coot::residue_spec_t> nb_residues = py_to_residue_specs(neighb_residue_specs);
+   coot::util::density_correlation_stats_info_t dcs =
+      map_to_model_correlation_stats(imol, residues, nb_residues, atom_mask_mode, imol_map);
+   PyObject *r = PyList_New(6);
+   PyList_SetItem(r, 0, PyFloat_FromDouble(dcs.correlation()));
+   PyList_SetItem(r, 1, PyFloat_FromDouble(dcs.var_x()));
+   PyList_SetItem(r, 2, PyFloat_FromDouble(dcs.var_y()));
+   PyList_SetItem(r, 3, PyFloat_FromDouble(dcs.n));
+   PyList_SetItem(r, 4, PyFloat_FromDouble(dcs.sum_x));
+   PyList_SetItem(r, 5, PyFloat_FromDouble(dcs.sum_y));
+   return r;
+}
+#endif 
 
 std::vector<std::pair<coot::residue_spec_t,float> >
 map_to_model_correlation_per_residue(int imol, const std::vector<coot::residue_spec_t> &specs,

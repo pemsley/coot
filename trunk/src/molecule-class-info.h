@@ -1930,10 +1930,10 @@ public:        //                      public
    void update_mol_in_simple_display_control_menu(GtkWidget *model_menu, int map_coords_mol_flag);
 
    //
+   float map_mean()  const { return map_mean_;  }
    float map_sigma() const { return map_sigma_; }
 
    map_statistics_t map_statistics() const;
-
 
    //
    float sharpen_b_factor() const { return sharpen_b_factor_; }

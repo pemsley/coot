@@ -1578,6 +1578,18 @@ float density_score_residue(int imol, const char *chain_id, int res_no, const ch
 
 
 #ifdef USE_GUILE
+SCM map_mean_scm(int imol) {
+  
+  SCM r = SCM_BOOL_F;
+  if (is_valid_map_molecule(imol)) { 
+    float s = graphics_info_t::molecules[imol].map_mean();
+    r = scm_double2num(s);
+  }
+  return r;
+}
+#endif
+
+#ifdef USE_GUILE
 SCM map_sigma_scm(int imol) {
   
   SCM r = SCM_BOOL_F;
@@ -1595,6 +1607,21 @@ PyObject *map_sigma_py(int imol) {
   PyObject *r = Py_False;
   if (is_valid_map_molecule(imol)) { 
     float s = graphics_info_t::molecules[imol].map_sigma();
+    r = PyFloat_FromDouble(s);
+  }
+
+  if (PyBool_Check(r)) {
+    Py_INCREF(r);
+  }
+  return r;
+}
+#endif
+#ifdef USE_PYTHON
+PyObject *map_mean_py(int imol) { 
+
+  PyObject *r = Py_False;
+  if (is_valid_map_molecule(imol)) { 
+    float s = graphics_info_t::molecules[imol].map_mean();
     r = PyFloat_FromDouble(s);
   }
 

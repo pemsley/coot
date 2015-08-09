@@ -26,6 +26,7 @@
 
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/coot-density-stats.hh"
 
 #include "ligand/dipole.hh"
 #include "high-res/sequence-assignment.hh" // for residue_range_t
@@ -1170,6 +1171,12 @@ int handle_drag_and_drop_string(const std::string &uri);
 //! \name Map to Model Correlation
 //! \{
 
+
+//! \brief The atom radius is not passed as a parameter to correlation
+//         functions, let's set it here (default is 1.5A)
+// 
+void set_map_correlation_atom_radius(float r);
+
 // Don't count the grid points of residues_specs that are in grid
 // points of (potentially overlapping) neighbour_residue_spec.
 // 
@@ -1179,9 +1186,20 @@ SCM map_to_model_correlation_scm(int imol,
 				 SCM neighb_residue_specs,
 				 unsigned short int atom_mask_mode,
 				 int imol_map);
+SCM map_to_model_correlation_stats_scm(int imol,
+				       SCM residue_specs,
+				       SCM neighb_residue_specs,
+				       unsigned short int atom_mask_mode,
+				       int imol_map);
 #endif
+
 #ifdef USE_PYTHON
 PyObject *map_to_model_correlation_py(int imol,
+				      PyObject *residue_specs,
+				      PyObject *neighb_residue_specs,
+				      unsigned short int atom_mask_mode,
+				      int imol_map);
+PyObject *map_to_model_correlation_stats_py(int imol,
 				      PyObject *residue_specs,
 				      PyObject *neighb_residue_specs,
 				      unsigned short int atom_mask_mode,
@@ -1195,8 +1213,16 @@ PyObject *map_to_model_correlation_py(int imol,
 // 3: side-chain atoms-excluding CB if is standard amino-acid, else all atoms
 // 4: main-chain atoms if is standard amino-acid, else nothing
 // 5: side-chain atoms if is standard amino-acid, else nothing
-// 
-float map_to_model_correlation(int imol, 
+//
+float
+map_to_model_correlation(int imol, 
+			 const std::vector<coot::residue_spec_t> &residue_specs,
+			 const std::vector<coot::residue_spec_t> &neigh_residue_specs,
+			 unsigned short int atom_mask_mode,
+			 int imol_map);
+
+coot::util::density_correlation_stats_info_t
+map_to_model_correlation_stats(int imol, 
 			       const std::vector<coot::residue_spec_t> &residue_specs,
 			       const std::vector<coot::residue_spec_t> &neigh_residue_specs,
 			       unsigned short int atom_mask_mode,

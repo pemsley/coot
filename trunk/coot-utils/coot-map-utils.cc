@@ -1493,7 +1493,7 @@ coot::util::calc_atom_map(mmdb::Manager *mol,
 // 3: side-chain atoms-exclusing CB if is standard amino-acid, else all atoms
 // 4: main-chain atoms if is standard amino-acid, else nothing
 // 5: side-chain atoms if is standard amino-acid, else nothing
-// 
+// 10: all-atom with b-factor-dependent radius
 float
 coot::util::map_to_model_correlation(mmdb::Manager *mol,
 				     const std::vector<residue_spec_t> &specs,
@@ -1502,6 +1502,39 @@ coot::util::map_to_model_correlation(mmdb::Manager *mol,
 				     float atom_radius,
 				     const clipper::Xmap<float> &reference_map) {
 
+   map_stats_t map_stats = coot::SIMPLE;
+   density_correlation_stats_info_t dcs =
+      map_to_model_correlation_stats(mol, specs, specs_for_masking_neighbs,
+				     atom_mask_mode, atom_radius, reference_map, map_stats);
+   return dcs.correlation();
+
+}
+
+
+// 0: all-atoms
+// 1: main-chain atoms if is standard amino-acid, else all atoms
+// 2: side-chain atoms if is standard amino-acid, else all atoms
+// 3: side-chain atoms-exclusing CB if is standard amino-acid, else all atoms
+// 4: main-chain atoms if is standard amino-acid, else nothing
+// 5: side-chain atoms if is standard amino-acid, else nothing
+// 10: all-atom with b-factor-dependent radius
+coot::util::density_correlation_stats_info_t
+coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
+					   const std::vector<residue_spec_t> &specs,
+					   const std::vector<residue_spec_t> &specs_for_masking_neighbs,
+					   unsigned short int atom_mask_mode,
+					   float atom_radius_in,
+					   const clipper::Xmap<float> &reference_map,
+					   coot::map_stats_t map_stats_flag) {
+
+   int ATOM_MASK_MAINCHAIN = 1;
+   int ATOM_MASK_NOT_MAINCHAIN = 2;
+   int ATOM_MASK_NOT_MAINCHAIN_OR_CB = 3;
+   int ATOM_MASK_ALL_ATOM_B_FACTOR = 10;
+
+   density_correlation_stats_info_t stats; // returned variable
+
+   float atom_radius = atom_radius_in;
    float ret_val = -2;
    int SelHnd = mol->NewSelection(); // d
    bool debug = false;
@@ -1526,11 +1559,11 @@ coot::util::map_to_model_correlation(mmdb::Manager *mol,
 
 	       // PDBv3 FIXME
 	       // 
-	       if (atom_mask_mode == 1)
+	       if (atom_mask_mode == ATOM_MASK_MAINCHAIN)
 		  atom_name_selection = " N  , H  , HA , CA , C  , O  ";
-	       if (atom_mask_mode == 2)
+	       if (atom_mask_mode == ATOM_MASK_NOT_MAINCHAIN)
 		  atom_name_selection = "!( N  , H  , HA , CA , C  , O  )";
-	       if (atom_mask_mode == 3)
+	       if (atom_mask_mode == ATOM_MASK_NOT_MAINCHAIN_OR_CB)
 		  atom_name_selection = "!( N  , H  , HA , CA , C  , O  , CB )";
 	    } else {
 	       if (atom_mask_mode == 4)
@@ -1597,7 +1630,8 @@ coot::util::map_to_model_correlation(mmdb::Manager *mol,
 		   << selection_extents.second.format() << std::endl;
 
       // double border = 4.1;
-      double border = 3;
+      double border = 3; // border is used to create selection_grid.
+                         // the grid that we check at the end is +/-3 A of the X,Y,Z extends of the ligand
       
       clipper::Coord_frac ex_pt_1_fc = clipper::Coord_orth(selection_extents.first.x()-border,
 							   selection_extents.first.y()-border,
@@ -1617,6 +1651,10 @@ coot::util::map_to_model_correlation(mmdb::Manager *mol,
 	 clipper::Coord_orth co(atom_selection[iat]->x,
 				atom_selection[iat]->y,
 				atom_selection[iat]->z);
+
+	 if (atom_mask_mode == ATOM_MASK_ALL_ATOM_B_FACTOR)
+	    atom_radius = refmac_atom_radius(atom_selection[iat]);
+	 
 	 clipper::Coord_frac cf = co.coord_frac(masked_map.cell());
 	 clipper::Coord_frac box0(
 				  cf.u() - atom_radius/masked_map.cell().descr().a(),
@@ -1670,6 +1708,11 @@ coot::util::map_to_model_correlation(mmdb::Manager *mol,
 	    mmdb::Atom *at = residue_atoms[iat];
 	    clipper::Coord_orth pt = co(at);
 
+	    if (atom_mask_mode == ATOM_MASK_ALL_ATOM_B_FACTOR)
+	       atom_radius = refmac_atom_radius(at);
+	    else
+	       atom_radius = atom_radius_in;
+	    
 	    clipper::Coord_frac cf = pt.coord_frac(masked_map.cell());
 	    clipper::Coord_frac box0(
 				     cf.u() - atom_radius/masked_map.cell().descr().a(),
@@ -1718,6 +1761,7 @@ coot::util::map_to_model_correlation(mmdb::Manager *mol,
       int n = 0;
       
 
+      std::vector<double> map_samples; // for KS-test of flatness of difference map
       bool debug_grid_points = true;
 
 //       std::ofstream gp;
@@ -1746,6 +1790,8 @@ coot::util::map_to_model_correlation(mmdb::Manager *mol,
 			sum_xy += x * y;
 			sum_x_sqd += x*x;
 			sum_y_sqd += y*y;
+			if (map_stats_flag == WITH_KOLMOGOROV_SMIRNOV_DIFFERENCE_MAP_TEST)
+			   map_samples.push_back(y);
 			n++;
 		     } else {
 			// std::cout << "null reference map data point at " << iw.coord().format() << std::endl;
@@ -1774,6 +1820,13 @@ coot::util::map_to_model_correlation(mmdb::Manager *mol,
 	 mapout_mask.close_write();
       }
 
+      stats = density_correlation_stats_info_t(double(n), sum_xy,
+					       sum_x_sqd, sum_y_sqd,
+					       sum_x, sum_y);
+
+      if (map_stats_flag == WITH_KOLMOGOROV_SMIRNOV_DIFFERENCE_MAP_TEST)
+	 stats.density_values = map_samples;
+      
       double top = double(n) * sum_xy - sum_x * sum_y;
       double b_1 = double(n) * sum_x_sqd - sum_x * sum_x;
       double b_2 = double(n) * sum_y_sqd - sum_y * sum_y;
@@ -1792,11 +1845,13 @@ coot::util::map_to_model_correlation(mmdb::Manager *mol,
 
       double c = top/(sqrt(b_1) * sqrt(b_2));
       if (debug)
-	 std::cout << "INFO:: map vs model correlation: " << c << std::endl;
+	 std::cout << "INFO:: map vs model correlation: "
+		   << c << " vs " << stats.correlation() << std::endl;
       ret_val = c;
    }
    mol->DeleteSelection(SelHnd);
-   return ret_val;
+
+   return stats;
 }
 
 // the first of the pair contains the correlation for the given residue spec.

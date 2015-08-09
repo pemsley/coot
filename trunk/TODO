@@ -1374,6 +1374,8 @@ Think about:
      there should be a details button/something in the refinement
      results where you can see individual distortions - sorted.
 
+   o consolidate map_statistics_t and density_correlation_stats_info_t
+
    o make it easier to learn key-bindings.  
 
        Consolidate built-ins with custom?
