@@ -1204,9 +1204,14 @@ int graphics_info_t::coot_socket_listener_idle_function_token = -1; //  default 
 // Did we get a good socket when we tried to open it?  If so, set
 // something non-zero here (which is done as a scheme command).
 int graphics_info_t::listener_socket_have_good_socket_state = 0;
+
+// I don't think that we need the mutex stuff when using waiting strings
+// - so python version doesn't have them (at the moment).
 std::string graphics_info_t::socket_string_waiting = "";
-volatile bool graphics_info_t::have_socket_string_waiting_flag = 0;
-volatile bool graphics_info_t::socket_string_waiting_mutex_lock = 0;
+std::string graphics_info_t::socket_python_string_waiting = "";
+volatile bool graphics_info_t::have_socket_string_waiting_flag = false;
+volatile bool graphics_info_t::have_socket_python_string_waiting_flag = false;
+volatile bool graphics_info_t::socket_string_waiting_mutex_lock = false;
 
 
 // validation

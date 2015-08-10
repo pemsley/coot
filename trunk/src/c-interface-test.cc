@@ -406,6 +406,17 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       double variance = 1;
       double d = coot::stats::get_kolmogorov_smirnov_vs_normal(data, mean, variance);
       std::cout << "D: " << d << std::endl;
+
+      // Compare my (Taylor expansion of the error function) with the GSL version.
+      if (false) {
+	 coot::stats::pnorm pn;
+	 for (double v = -5; v<=5; v += 0.2) {
+	    double v1 = pn.erf(v);
+	    double v2 = gsl_sf_erf(v);
+	    std::cout << "v " << std::setw(4) << v << " " << std::setw(10) << v1 << " " << v2 << std::endl;
+	    // OK, so they are pretty close
+	 }
+      } 
    } 
 
    if (0) {
