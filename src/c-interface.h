@@ -6359,7 +6359,10 @@ void make_socket_listener_maybe();
 int coot_socket_listener_idle_func(GtkWidget *w);
 void set_coot_listener_socket_state_internal(int sock_state);
 
+/*! \brief feed the main thread a scheme script to evaluate */
 void set_socket_string_waiting(const char *s);
+/*! \brief feed the main thread a python script to evaluate */
+void set_socket_python_string_waiting(const char *s);
 
 void set_remote_control_port(int port_number);
 int get_remote_control_port_number();

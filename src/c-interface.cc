@@ -5414,8 +5414,8 @@ void safe_scheme_command(const std::string &scheme_command) { /* do nothing */
 void safe_python_command(const std::string &python_cmd) {
 
 #ifdef USE_PYTHON
-   PyRun_SimpleString((char *)python_cmd.c_str());
-#endif   
+   PyRun_SimpleString(python_cmd.c_str());
+#endif
 }
 
 
@@ -8066,7 +8066,7 @@ void set_socket_string_waiting(const char *s) {
       usleep(1000000);
    }
    
-   std::cout << " =============== setting mutex lock =========" << std::endl;
+   std::cout << " =============== setting mutex lock (scheme version) =========" << std::endl;
    // 
    // (This mutex lock *and* waiting flag may be overly complex now
    // that we simply use g_idle_add())
@@ -8099,6 +8099,20 @@ void set_socket_string_waiting(const char *s) {
    // 			   &event, &return_val);
    
 }
+
+
+/*! \brief feed the main thread a python script to evaluate */
+void set_socket_python_string_waiting(const char *s) {
+
+   graphics_info_t::socket_python_string_waiting = s;
+   graphics_info_t::have_socket_python_string_waiting_flag = 1;
+
+   GSourceFunc f = graphics_info_t::process_socket_python_string_waiting_bool;
+   g_idle_add(f, NULL); // if f returns FALSE then f is not called again.
+
+   
+}
+
 
 
 // should be in c-interface-maps?

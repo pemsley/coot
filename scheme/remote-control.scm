@@ -141,9 +141,9 @@
 	    ;; python script
 	    (begin
 	      (format #t "this python string will be evaluated: ~s~%" s)
-	      (pyrun-simple-string s)
-	      (set-socket-string-waiting "")
-	      (format #t "======== done setting socket string waiting (py)...~%"))
+	      (set-socket-python-string-waiting s)
+	      (format #t "======== done setting socket string waiting (py)...~%")
+	      )
 	      
 	    ;; not python
 	    (begin 

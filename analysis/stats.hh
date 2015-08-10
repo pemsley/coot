@@ -5,6 +5,8 @@
 #include <vector>
 #include <math.h>
 
+#include <gsl/gsl_sf_erf.h>
+
 namespace coot {
 
    namespace stats {
@@ -98,11 +100,12 @@ namespace coot {
 	 // e.g. return for 0, return 0.5 and -1 return 0.1586
 
 	 void init() { }
-	 double erf(const double &z) const;
       public:
 	 pnorm() { init(); }
+	 double erf(const double &z) const; // public for testing.
 	 double get(const double &x) const {
-	    return 0.5 * (1 + erf(x/sqrt(2.0)));
+	    // return 0.5 * (1 + erf(x/sqrt(2.0)));
+	    return 0.5 * (1 + gsl_sf_erf(x/sqrt(2.0)));
 	 } 
       };
 

@@ -5384,21 +5384,29 @@ graphics_info_t::process_socket_string_waiting_bool(gpointer user_data) {
 	 safe_scheme_command(s);
       }
    }
-   std::cout << " =============== unsetting mutex lock =========" << std::endl;
+   std::cout << " =============== unsetting mutex lock (scheme version) =========" << std::endl;
    graphics_info_t::socket_string_waiting_mutex_lock = 0; // we're done.  release lock.
-   return FALSE; // don't call this function again, idly.
 
-#else // USE_GUILE
+#endif // USE_GUILE
+   
+   return FALSE; 
+}
+
+
+// static 
+gboolean
+graphics_info_t::process_socket_python_string_waiting_bool(gpointer user_data) {
 
 #ifdef USE_PYTHON
 
-   // Bernhard to fill this part.
-
-#endif // USE_PYTHON   
-   
-   return FALSE; 
-#endif
-}
+   if (graphics_info_t::have_socket_python_string_waiting_flag) {
+      graphics_info_t::have_socket_python_string_waiting_flag = false; // draw() looks here
+      std::string ss = graphics_info_t::socket_python_string_waiting;
+      safe_python_command(ss);
+   }
+#endif // USE_PYTHON
+   return FALSE;
+} 
 
 
 // static
