@@ -6,8 +6,7 @@ namespace coot {
 
    enum map_stats_t {
       SIMPLE,
-      WITH_KOLMOGOROV_SMIRNOV_DIFFERENCE_MAP_TEST
-   };
+      WITH_KOLMOGOROV_SMIRNOV_DIFFERENCE_MAP_TEST};
 
    namespace util {
 

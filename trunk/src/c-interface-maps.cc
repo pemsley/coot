@@ -45,6 +45,9 @@
 #include "cc-interface.hh"
 #include "c-interface.h"
 
+#include "analysis/kolmogorov.hh"
+#include "analysis/stats.hh"
+
 /*  ----------------------------------------------------------------------- */
 /*                  Display lists                                           */
 /*  ----------------------------------------------------------------------- */
@@ -1755,7 +1758,6 @@ map_to_model_correlation_stats(int imol,
 			 int imol_map) {
 
    coot::util::density_correlation_stats_info_t dcs;
-   float ret_val = -2;
    float atom_radius = graphics_info_t::map_to_model_correlation_atom_radius;
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
@@ -1787,9 +1789,6 @@ SCM map_to_model_correlation_scm(int imol,
 }
 #endif
 
-#include "analysis/kolmogorov.hh"
-#include "analysis/stats.hh"
-
 #ifdef USE_GUILE
 SCM map_to_model_correlation_stats_scm(int imol,
 				       SCM residue_specs,
@@ -1802,15 +1801,24 @@ SCM map_to_model_correlation_stats_scm(int imol,
    coot::util::density_correlation_stats_info_t dcs
       = map_to_model_correlation_stats(imol, residues, nb_residues, atom_mask_mode, imol_map);
 
-   double map_mean = 0.0;
-   double map_sd   = 1.0;
+   double map_mean = -999.0;
+   double map_sd   =    1.0;
    if (is_valid_map_molecule(imol_map)) {
       map_mean = graphics_info_t::molecules[imol_map].map_mean();
       map_sd   = graphics_info_t::molecules[imol_map].map_sigma();
-   } 
+   }
    double D = coot::stats::get_kolmogorov_smirnov_vs_normal(dcs.density_values,
 							    map_mean,
 							    map_sd);
+
+   // Compare with the difference map at the ligand
+   //
+   coot::stats::single stats(dcs.density_values);
+   double map_mean_at_ligand = stats.mean();
+   double map_sd_at_ligand   = sqrt(stats.variance());
+   double D2 = coot::stats::get_kolmogorov_smirnov_vs_normal(dcs.density_values,
+							     map_mean_at_ligand, map_sd_at_ligand);
+   
    SCM ret_val = scm_list_n(scm_double2num(dcs.correlation()),
 			    scm_double2num(dcs.var_x()),
 			    scm_double2num(dcs.var_y()),
@@ -1818,6 +1826,11 @@ SCM map_to_model_correlation_stats_scm(int imol,
 			    scm_double2num(dcs.sum_x),
 			    scm_double2num(dcs.sum_y),
 			    scm_double2num(D),
+			    scm_double2num(D2),
+			    scm_double2num(map_mean),
+			    scm_double2num(map_mean_at_ligand),
+			    scm_double2num(map_sd),
+			    scm_double2num(map_sd_at_ligand),
 			    SCM_UNDEFINED);
    
    return ret_val;

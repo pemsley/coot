@@ -49,13 +49,8 @@
   ;;                              neighbs
   ;; is that true?
   ;; 
-  (define (local-refmac stub-name refmac-out-sfs-file-name success-function)
-    #f)
+  (define (local-refmac stub-name)
 
-
-  ;; get-correlation at the ligand for the direct (FWT) map 
-  ;;
-  (define (get-correlation stub-name)
     (let* ((ligand-spec (list chain-id res-no ins-code))
 	   (neighbs (residues-near-residue imol ligand-spec 4)))
 
@@ -90,12 +85,65 @@
 		      'fail-problem-calculating-sfs-using-refmac
 
 		      ;; happy path
-		      (let ((imol-map (make-and-draw-map refmac-out-sfs-file-name
-							 "FWT" "PHWT" "" 0 0)))
-			(let ((c (map-to-model-correlation imol (list ligand-spec)
-							   neighbs 0 imol-map)))
-			  (close-molecule imol-map)
-			  c))))))))))
+		      refmac-out-sfs-file-name))))))))
+
+  ;; get-correlation at the ligand for the direct (FWT) map 
+  ;;
+  (define (get-correlation stub-name)
+
+    (set! refmac-extra-params (list (string-append
+				     "refine exclude all from " 
+				     (number->string res-no)
+				     " " 
+				     chain-id
+				     " to " 
+				     (number->string res-no)
+				     " " 
+				     chain-id
+				     )))
+
+    (format #t "in get-correlation(): refmac-extra-params: ~s~%" refmac-extra-params)
+
+    (let ((ligand-spec (list chain-id res-no ins-code))
+          (refmac-out-sfs-file-name (local-refmac stub-name)))
+
+      (if (not (string? refmac-out-sfs-file-name))
+
+	  refmac-out-sfs-file-name
+
+	  ;; happy path
+	  (let ((imol-map (make-and-draw-map refmac-out-sfs-file-name
+					     "FWT" "PHWT" "" 0 0))
+	        (neighbs (residues-near-residue imol ligand-spec 4)))
+          
+	    (let ((c (map-to-model-correlation imol (list ligand-spec)
+					       neighbs 0 imol-map)))
+	      (close-molecule imol-map)
+	      c)))))
+
+  ;; return a failure symbol of a list of stats.
+  ;; 
+  (define (get-ligand-difference-map-stats stub-name)
+    (set! refmac-extra-params #f) ;; reset - no ligand exclusion
+    
+    (let* ((refmac-out-sfs-file-name 
+            (local-refmac (string-append stub-name "-for-ligand-diff-map")))
+           (ligand-spec (list chain-id res-no ins-code))
+           (neighbs (residues-near-residue imol ligand-spec 4)))
+
+      (if (not (string? refmac-out-sfs-file-name))
+
+	  refmac-out-sfs-file-name
+
+	  ;; happy path
+	  (let ((imol-map (make-and-draw-map refmac-out-sfs-file-name
+					     "DELFWT" "PHDELWT" "" 0 1)))
+	    ;; now do some stats on the map at the ligand site
+
+            (let ((c (map-to-model-correlation-stats-scm imol (list ligand-spec) neighbs 10 imol-map)))
+                (format #t "### residue ~s density statistics ~s~%~!" ligand-spec c)
+                c)
+	    ))))
 
   (define (get-mogul-score use-cache?)
 
@@ -126,20 +174,39 @@
       (if (list? cs)
 	  (car cs)
 	  cs)))
-  
+
+;   pre-20150803-PE  
+;   ;; main line of get-metrics-for-ligand
+;   ;; 
+;   (let* ((stub-name (molecule-name-stub imol 0)))
+;     (let ((cor (get-correlation stub-name)))
+;       (if (number? cor)
+; 	  (let ((mog (get-mogul-score #f))) ;; use the cache for the ligand? - testing only!
+; 	    (if (number? mog)
+; 		(let ((bmp (get-bump-score)))
+; 		  (if (number? bmp)
+; 		      (list cor mog bmp)
+; 		      bmp)) ;; error symbol/string
+; 		mog)) ;; error symbol/string
+; 	  cor)))) ;; error symbol/string
+
+
   ;; main line of get-metrics-for-ligand
   ;; 
   (let* ((stub-name (molecule-name-stub imol 0)))
     (let ((cor (get-correlation stub-name)))
       (if (number? cor)
-	  (let ((mog (get-mogul-score #f))) ;; use the cache for the ligand? - testing only!
-	    (if (number? mog)
-		(let ((bmp (get-bump-score)))
-		  (if (number? bmp)
-		      (list cor mog bmp)
-		      bmp)) ;; error symbol/string
-		mog)) ;; error symbol/string
-	  cor)))) ;; error symbol/string
+	  (let ((dms (get-ligand-difference-map-stats stub-name)))
+	    (if (not (list? dms))
+		dms ;; error symbol
+		(let ((mog (get-mogul-score #f))) ;; use the cache for the ligand? - testing only!
+		  (if (number? mog)
+		      (let ((bmp (get-bump-score)))
+			(if (number? bmp)
+			    (list cor mog bmp dms)
+			    bmp)) ;; error symbol/string
+		      mog)))) ;; error symbol/string
+           cor)))) ;; error symbol/string
 
 
 ;; only look at ligands in maps with resolution worse than this:
