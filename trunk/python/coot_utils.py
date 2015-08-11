@@ -3711,23 +3711,32 @@ def run_concurrently(cmd, args=[], data_list=None, logfile=None, screen_flag=Fal
             log = logfile
             if (logfile):
                 log = open(logfile, 'w')
-            process = subprocess.Popen(cmd_args, stdin=subprocess.PIPE, stdout=log)
+            try:
+                process = subprocess.Popen(cmd_args, stdin=subprocess.PIPE,
+                                           stdout=log)
+                if (data_list):
+                    for data in data_list:
+                        process.stdin.write(data + "\n")
 
-            if (data_list):
-                for data in data_list:
-                    process.stdin.write(data + "\n")
+                pid = process.pid            
 
-            pid = process.pid            
-
-            if log:
-                return (process, log)
-            else:
-                return pid
+                if log:
+                    return (process, log)
+                else:
+                    return pid
+            except:
+                print "BL WARNING:: could not run process with args", cmd_args
+                return False
         
         else:
             # spawn (old)
-            pid = os.spawnv(os.P_NOWAIT, cmd_execfile, [cmd_execfile] + args)
-            return pid
+            try:
+                pid = os.spawnv(os.P_NOWAIT, cmd_execfile, [cmd_execfile] + args)
+                return pid
+            except:
+                print "BL WARNING:: could not run program %s with args %s" \
+                      %(cmd_execfile, args)
+                return False
     else:
         print "WARNING:: could not find %s, so not running this program" %cmd
         return False
