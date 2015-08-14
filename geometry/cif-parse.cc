@@ -3357,7 +3357,7 @@ coot::simple_cif_reader::simple_cif_reader(const std::string &cif_dictionary_fil
       std::cout << "WARNIG:: cif dictionary " << cif_dictionary_file_name
 		<< " not found" << std::endl;
    } else {
-      int ierr = ciffile.ReadMMCIFFile((char *)cif_dictionary_file_name.c_str());
+      int ierr = ciffile.ReadMMCIFFile(cif_dictionary_file_name.c_str());
       if (ierr != mmdb::mmcif::CIFRC_Ok) {
 	 std::cout << "Dirty mmCIF file? " << cif_dictionary_file_name
 		   << std::endl;

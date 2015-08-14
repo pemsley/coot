@@ -2311,7 +2311,7 @@ molecule_class_info_t::make_map_from_cif_sigmaa(int imol_no_in,
 
 
    try { 
-      cif.open_read ( cif_file_name );
+      cif.open_read (cif_file_name);
       cif.import_hkl_info(mydata); // set spacegroup, cell and get hkl list. 
       clipper::HKL_data< clipper::datatypes::F_sigF<float> > myfsigf(mydata); // Fobs
       clipper::HKL_data< clipper::datatypes::F_phi<float> > fc(mydata); // FC PHIC
@@ -2348,14 +2348,7 @@ molecule_class_info_t::make_map_from_cif_sigmaa(int imol_no_in,
 		      << ") contains calculated structure factors?" << std::endl;
 	    std::cout << "WARNING:: No map calculated." << std::endl;
 	    std::cout << "INFO:: if you want to calculate structure factors from a"
-		      << " set of coordinates, " << std::endl
-#ifdef USE_GUILE
-		      << "       consider the function (read-cif-data cif-file imol)"
-#else
-#ifdef USE_PYTHON
-		      << "       consider the function read_cif_data(cif-file, imol)"
-#endif // USE_PYTHON
-#endif // USE_GUILE
+		      << " set of coordinates,  consider the function read_cif_data()"
 		      << std::endl;
 	 } else {
 	    
@@ -2380,9 +2373,9 @@ molecule_class_info_t::make_map_from_cif_sigmaa(int imol_no_in,
 	    const clipper::HKL_info& hkls = mydata;
 
 	    // now do sigmaa calc
-	    clipper::HKL_data<clipper::datatypes::F_phi<float> >   fb( hkls, cxtl ), fd( hkls, cxtl );
-	    clipper::HKL_data<clipper::datatypes::Phi_fom<float> > phiw( hkls, cxtl );
-	    clipper::HKL_data<clipper::datatypes::Flag>    flag( hkls, cxtl );
+	    clipper::HKL_data<clipper::datatypes::F_phi<float> >   fb(hkls, cxtl), fd(hkls, cxtl);
+	    clipper::HKL_data<clipper::datatypes::Phi_fom<float> > phiw(hkls, cxtl);
+	    clipper::HKL_data<clipper::datatypes::Flag>    flag(hkls, cxtl);
 	    typedef clipper::HKL_data_base::HKL_reference_index HRI;
 	    // If no free flag is available, then use all reflections..
 	    for (HRI ih = flag.first(); !ih.last(); ih.next() )
@@ -2399,7 +2392,7 @@ molecule_class_info_t::make_map_from_cif_sigmaa(int imol_no_in,
 	    // do sigmaa calc
 	    int n_refln = 1000;
 	    int n_param = 20;
-	    clipper::SFweight_spline<float> sfw( n_refln, n_param );
+	    clipper::SFweight_spline<float> sfw(n_refln, n_param);
 	    sfw( fb, fd, phiw, fo, fc, flag );
 	    // fb is F+phi for "Best"
 	    // fd is F+phi for difference map

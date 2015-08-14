@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <stdexcept>
+#include <algorithm> // for remove_if
 #include <string.h> // for strncpy
 
 #include <mmdb2/mmdb_manager.h>
@@ -111,25 +112,27 @@ std::vector<mmdb::Atom *>
 coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell, const clipper::Spacegroup &spg) const {
 
    std::vector<mmdb::Atom *> atom_vec;
-   const char *loopTagsAtom[8] = { "_atom_site_label",
-				   "_atom_site_type_symbol",
+   const char *loopTagsAtom[6] = { "_atom_site_label",
 				   "_atom_site_fract_x",
 				   "_atom_site_fract_y",
 				   "_atom_site_fract_z",
-				   "_atom_site_disorder_assembly",
-				   "_atom_site_disorder_group",
+			// 	   "_atom_site_type_symbol",
+			// 	   "_atom_site_disorder_assembly",
+			// 	   "_atom_site_disorder_group",
 				   ""};
    const char *loopTagsAniso[2] = { "_atom_site_aniso_label", ""};
 
 
    int ierr = 0;
    mmdb::pstr S = NULL;
-   mmdb::mmcif::PLoop loop = data->FindLoop(loopTagsAtom);
+   mmdb::mmcif::Loop *loop = data->FindLoop(loopTagsAtom);
+
+   std::cout << "read_coordinates() we got loop " << loop << std::endl;
+   
    if (loop) {
       int ll = loop->GetLoopLength();
       if (ll >= 0) {
 
-	 char *symbol = NULL;
 	 char *label  = NULL;
 	 mmdb::realtype xf,yf,zf, occ, tf;
 	 mmdb::realtype x,y,z;
@@ -137,23 +140,52 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
 	 char *disorder_assembly = NULL;
 	 char *disorder_group = NULL;
 	 std::string alt_loc;
+
+	 std::cout << "read_coordinates() loop length " << ll << std::endl;
 	    
 	 for (int il=0; il<ll; il++) {
 
 	    label  = loop->GetString(loopTagsAtom[0], il, ierr);
 	    ierr_tot += ierr;
-	    symbol = loop->GetString(loopTagsAtom[1], il, ierr);
+	    loop->GetReal(xf, loopTagsAtom[1], il, ierr);
 	    ierr_tot += ierr;
-	    loop->GetReal(xf, loopTagsAtom[2], il, ierr);
+	    loop->GetReal(yf, loopTagsAtom[2], il, ierr);
 	    ierr_tot += ierr;
-	    loop->GetReal(yf, loopTagsAtom[3], il, ierr);
-	    ierr_tot += ierr;
-	    loop->GetReal(zf, loopTagsAtom[4], il, ierr);
+	    loop->GetReal(zf, loopTagsAtom[3], il, ierr);
 	    ierr_tot += ierr;
 
+	    // This (the element specifier e.g "Mg+2") may not exist
+	    // (strangely enough)
+	    //
+	    int ierr_symbol = 0;
+	    std::string symbol;
+	    char *symbol_c = NULL;
+	    symbol_c = loop->GetString("_atom_site_type_symbol", il, ierr_symbol);
+
+	    if (! symbol_c) {
+	       // symbol_c was not set
+	       
+	       if (ierr_symbol) {
+		  // this can happen: 4313232.cif
+		  
+		  // strip numbers from the label and use that as a symbol
+		  std::string s = label;
+		  s.erase(std::remove_if(s.begin(), s.end(), (int(*)(int))std::isdigit), s.end());
+		  symbol = s;
+
+	       } else {
+		  // something strange
+		  symbol = "UNK";
+	       }
+	    } else {
+	       // normal path
+	       symbol = symbol_c;
+	    }
+
 	    // this may not exist
+	    //
 	    alt_loc.clear();
-	    disorder_group  = loop->GetString(loopTagsAtom[6], il, ierr);
+	    disorder_group  = loop->GetString("_atom_site_disorder_assembly", il, ierr);
 	    if (! ierr) {
 	       if (disorder_group == NULL) { 
 		  // std::cout << "disorder_group NULL" << std::endl;
@@ -161,22 +193,21 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
 		  std::cout << "disorder_group " << disorder_group << std::endl;
 		  alt_loc = disorder_group;
 	       }
-	    } 
+	    }
 	    
-
 	    occ = 1; // hack
 	    tf = 10.0;
 
-	    // can we get a real value for occ?
+	    // can we get a real value for tf?
 	    int ierr_tf = 0;
 	    loop->GetReal(tf, "_atom_site_U_iso_or_equiv", il, ierr_tf);
 	    if (! ierr_tf) {
 	       tf *= 8 * M_PI * M_PI; // PDB-scaled
-	    } 
-
+	    }
+	    
+	    // real value for occ?
 	    int ierr_occ = 0;
 	    loop->GetReal(occ, "_atom_site_occupancy", il, ierr_occ);
-
 	    
 	    if (ierr_tot == 0) {
 	       mmdb::Atom *at = new mmdb::Atom;
@@ -190,7 +221,7 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
 	       if (alt_loc.length())
 		  strncpy(at->altLoc, alt_loc.c_str(), (alt_loc.size()+1)); // shove.
 
-	       if (1)
+	       if (false)
 		  std::cout << " found atom: \"" << label << "\" symbol: \"" << symbol
 			    << "\" ele: \"" << ele.first << "\" " << ele.second << " alt-loc \""
 			    << alt_loc << "\" " << cf.format() << std::endl;
@@ -198,8 +229,8 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
 	       at->Het = 1; // all SM cifs atoms are HETATMs :)
 	       atom_vec.push_back(at);
 	    } else {
-	       if (0) 
-		  std::cout << "reject atom at loop count " << il << std::endl;
+	       if (true)
+		  std::cout << "WARNING:: reject atom at loop count " << il << std::endl;
 	    } 
 	 }
       }
@@ -321,17 +352,16 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
 
       try { 
 	 clipper::Cell cell = get_cell(data);
-	 std::cout << "got cell: " << cell.format() << std::endl;
+	 std::cout << "INFO:: got cell from cif: " << cell.format() << std::endl;
 
 	 std::vector<std::string> symm_strings;
 	 const char *loopTag1[2] = { "_symmetry_equiv_pos_as_xyz",
 				     ""};
 
-	 // mmdb::mmcif::PLoop loop = data->FindLoop((pstr *) loopTag1);
 	 mmdb::mmcif::PLoop loop = data->FindLoop(loopTag1);
 	 if (loop) {
 	    int ll = loop->GetLoopLength();
-	    // std::cout << "loop length: " << ll << std::endl;
+	    std::cout << "INFO:: read_sm_cif() loop length: " << ll << std::endl;
 	    if (ll > 0) { 
 	       for (int il=0; il<ll; il++) {
 
@@ -350,7 +380,8 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
 		  if (spg_pair.first == true) { 
 
 		     std::vector<mmdb::Atom *> atoms = read_coordinates(data, cell, spg_pair.second);
-		     std::cout << "read " << atoms.size() << " atoms" << std::endl;
+		     std::cout << "INFO:: from cif we read " << atoms.size() << " atoms"
+			       << std::endl;
 
 		     if (atoms.size()) {
 
@@ -397,7 +428,7 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
    // delete S;
    data = NULL;
    S = NULL;
-   
+
    return mol;
 }
 
@@ -421,18 +452,33 @@ coot::smcif::get_resolution(const clipper::Cell &cell,
 				      "_refln_index_k",
 				      "_refln_index_l",
 				      ""};
+      std::string h_tag = "_refln_index_h";
+      std::string k_tag = "_refln_index_k";
+      std::string l_tag = "_refln_index_l";
       
       mmdb::mmcif::PLoop loop = data->FindLoop(loopTag_data);
+      if (! loop) {
+	 const char *loopTag_data_pd[4] = { "_pd_refln_index_h",
+					    "_pd_refln_index_k",
+					    "_pd_refln_index_l",
+					    ""};
+	 loop = data->FindLoop(loopTag_data_pd);
+	 if (loop) {
+	    h_tag = "_pd_refln_index_h";
+	    k_tag = "_pd_refln_index_k";
+	    l_tag = "_pd_refln_index_l";
+	 } 
+      } 
       if (loop) {
 	 int ll = loop->GetLoopLength();
 	 if (ll > 0) {
 	    for (int il=0; il<ll; il++) {
- 	       ierr = loop->GetInteger(h, loopTag_data[0], il);
+ 	       ierr = loop->GetInteger(h, h_tag.c_str(), il);
  	       if (! ierr) {
- 		  ierr = loop->GetInteger(k, loopTag_data[1], il);
+ 		  ierr = loop->GetInteger(k, k_tag.c_str(), il);
  	       }
  	       if (! ierr) {
- 		  ierr = loop->GetInteger(l, loopTag_data[2], il);
+ 		  ierr = loop->GetInteger(l, l_tag.c_str(), il);
  	       }
 	       hkl = clipper::HKL(h,k,l);
 	       slim = clipper::Util::max(slim, hkl.invresolsq(cell));
@@ -450,13 +496,34 @@ coot::smcif::get_space_group(const std::string &file_name) const {
 
    std::pair<bool,clipper::Spacegroup> s;
    mmdb::mmcif::Data *data = new mmdb::mmcif::Data();
-   data->SetFlag (mmdb::mmcif::CIFFL_SuggestCategories);
-   int ierr = data->ReadMMCIFData (file_name.c_str());
+   data->SetFlag(mmdb::mmcif::CIFFL_SuggestCategories);
+   int ierr = data->ReadMMCIFData(file_name.c_str());
    if (! ierr) {
       s  = get_space_group(data);
+
+      if (!s.first) {
+	 int spg_int = 0;
+	 ierr = data->GetInteger(spg_int, "", "_space_group_IT_number", 1);
+	 if (! ierr) {
+	    clipper::Spgr_descr spgd(spg_int);
+	    s.first = true;
+	    s.second = clipper::Spacegroup(spgd);
+	 }
+      }
+
+      if (!s.first) {
+	 mmdb::pstr S = NULL;
+	 ierr = data->GetString(S, "", "_symmetry_space_group_name_H-Mxx");
+	 if (! ierr) { 
+	    std::string space_group_symbol = S;
+	    clipper::Spgr_descr spgd(space_group_symbol);
+	    s.first = true;
+	    s.second = clipper::Spacegroup(spgd);
+	 }
+      }
    } else {
-      std::cout << "WARNING:: get_space_group() error reading " << file_name << std::endl;
-   } 
+      std::cout << "WARNING:: get_space_group():: error reading " << file_name << std::endl;
+   }
    delete data;
    return s;
 }
@@ -483,17 +550,33 @@ coot::smcif::setup_hkls(const std::string &file_name) {
    mmdb::mmcif::Data *data = new mmdb::mmcif::Data();
    data->SetFlag (mmdb::mmcif::CIFFL_SuggestCategories);
 
-   int ierr = data->ReadMMCIFData (file_name.c_str());
+   int ierr = data->ReadMMCIFData(file_name.c_str());
    if (ierr) {
       std::cout << "WARNING:: Error reading small-molecule cif \"" << file_name
 		<< "\"" << std::endl;
    } else {
-      const char *loopTag_data[8] = { "_refln_index_h",
+      std::string h_tag = "_refln_index_h";
+      std::string k_tag = "_refln_index_k";
+      std::string l_tag = "_refln_index_l";
+      const char *loopTag_data[4] = { "_refln_index_h",
 				      "_refln_index_k",
 				      "_refln_index_l",
 				      ""};
       
-      mmdb::mmcif::PLoop loop = data->FindLoop(loopTag_data);
+      mmdb::mmcif::Loop *loop = data->FindLoop(loopTag_data);
+      if (! loop) {
+	 const char *loopTag_data_pd[4] = { "_pd_refln_index_h",
+					    "_pd_refln_index_k",
+					    "_pd_refln_index_l",
+					    ""};
+	 loop = data->FindLoop(loopTag_data_pd);
+	 if (loop) {
+	    h_tag = "_pd_refln_index_h";
+	    k_tag = "_pd_refln_index_k";
+	    l_tag = "_pd_refln_index_l";
+	 } 
+
+      } 
       if (loop) {
 	 clipper::HKL_data_base* f_sigf_input;
 	 int ll = loop->GetLoopLength();
@@ -503,12 +586,12 @@ coot::smcif::setup_hkls(const std::string &file_name) {
 	 clipper::xtype x1[2]; 
 	 if (ll > 0) {
 	    for (int il=0; il<ll; il++) {
-	       ierr = loop->GetInteger(h, loopTag_data[0], il);
+	       ierr = loop->GetInteger(h, h_tag.c_str(), il);
 	       if (! ierr) {
-		  ierr = loop->GetInteger(k, loopTag_data[1], il);
+		  ierr = loop->GetInteger(k, k_tag.c_str(), il);
 	       }
 	       if (! ierr) {
-		  ierr = loop->GetInteger(l, loopTag_data[2], il);
+		  ierr = loop->GetInteger(l, l_tag.c_str(), il);
 	       }
 
 	       if (! ierr) {
@@ -535,9 +618,16 @@ coot::smcif::read_data_sm_cif(const std::string &file_name) {
    std::pair<bool,clipper::Spacegroup> spg_pair = get_space_group(file_name);
    clipper::Resolution reso = get_resolution(cell_local, file_name);
 
-   if (! cell_local.is_null()) { // cell is good
-      if (! spg_pair.second.is_null()) { // space group is good
-	 if (! reso.is_null()) { // resolution is good
+   std::cout << "in read_data_sm_cif() cell is " << cell_local.format() << std::endl;
+   std::cout << "in read_data_sm_cif() spg is  " << spg_pair.second.descr().symbol_hm() << std::endl;
+   std::cout << "in read_data_sm_cif() reso is  " << reso.invresolsq_limit() << std::endl;
+
+   if (! cell_local.is_null()) {
+      // cell is good
+      if (! spg_pair.second.is_null()) {
+	 // space group is good
+	 if (! reso.is_null()) {
+	    // resolution is good
 
 	    data_spacegroup = spg_pair.second;
 	    data_cell = cell_local;
@@ -549,8 +639,8 @@ coot::smcif::read_data_sm_cif(const std::string &file_name) {
 	    setup_hkls(file_name);
 
 	    // ??
-	    myfsigf.init(mydata, data_cell);
-	    my_fphi.init(mydata, data_cell);
+	    my_fsigf.init(mydata, data_cell);
+	    my_fphi.init( mydata, data_cell);
 
 	    mmdb::mmcif::Data *data = new mmdb::mmcif::Data();
 	    data->SetFlag (mmdb::mmcif::CIFFL_SuggestCategories);
@@ -561,10 +651,9 @@ coot::smcif::read_data_sm_cif(const std::string &file_name) {
 			 << "\"" << std::endl;
 	    } else {
 
-   
 	       const char *loopTag_data[4] = { "_refln_index_h",
-						"_refln_index_k",
-						"_refln_index_l",
+					       "_refln_index_k",
+					       "_refln_index_l",
 // 						"_refln_F_meas",
 // 						"_refln_F_sigma",
 // 						"_refln_F_squared_meas",
@@ -574,8 +663,25 @@ coot::smcif::read_data_sm_cif(const std::string &file_name) {
 // 						"_refln_A_calc",
 // 						"_refln_B_calc",
 					       ""};
+	       std::string h_tag = "_refln_index_h";
+	       std::string k_tag = "_refln_index_k";
+	       std::string l_tag = "_refln_index_l";
       
-	       mmdb::mmcif::PLoop loop = data->FindLoop(loopTag_data);
+	       mmdb::mmcif::Loop *loop = data->FindLoop(loopTag_data);
+	       if (!loop) {
+
+		  // Do these mean Powder?
+		  const char *loopTag_data_pd[4] = { "_pd_refln_index_h",
+						     "_pd_refln_index_k",
+						     "_pd_refln_index_l",
+						     ""};
+		  loop = data->FindLoop(loopTag_data_pd);
+		  if (loop) {
+		     h_tag = "_pd_refln_index_h";
+		     k_tag = "_pd_refln_index_k";
+		     l_tag = "_pd_refln_index_l";
+		  } 
+	       }
 	       if (loop) {
 		  clipper::HKL_data_base* f_sigf_input;
 		  int ll = loop->GetLoopLength();
@@ -586,34 +692,49 @@ coot::smcif::read_data_sm_cif(const std::string &file_name) {
 		  clipper::xtype x1[2]; 
 		  if (ll > 0) {
 		     for (int il=0; il<ll; il++) {
-			ierr = loop->GetInteger(h, "_refln_index_h", il);
+			ierr = loop->GetInteger(h, h_tag.c_str(), il);
 			if (! ierr) {
-			   ierr = loop->GetInteger(k, "_refln_index_k", il);
+			   ierr = loop->GetInteger(k, k_tag.c_str(), il);
 			}
 			if (! ierr) {
-			   ierr = loop->GetInteger(l, "_refln_index_l", il);
+			   ierr = loop->GetInteger(l, l_tag.c_str(), il);
 			}
 
 			int ierr_fsigf = 0;
+			ierr_fsigf = loop->GetReal(F, "_refln_F_meas", il);
 			if (! ierr_fsigf) {
-			   loop->GetReal(F, "_refln_F_meas", il, ierr);
+			   ierr_fsigf = loop->GetReal(sigF, "_refln_F_sigma", il);
 			}
-			if (! ierr_fsigf) {
-			   loop->GetReal(sigF, "_refln_F_sigma", il, ierr);
-			}
-	       
+
 			if (! ierr && ! ierr_fsigf) {
 			   x1[0] = F;
 			   x1[1] = sigF;
 			   clipper::HKL hkl(h,k,l);
-			   myfsigf.data_import(hkl, x1);
-// 			   std::cout << "import data " << hkl.format() << " " << x1[0]
-// 				     << " " << std::endl;
+			   my_fsigf.data_import(hkl, x1);
 			   status = true;
 			}
 
-			int ierr_AB_A = loop->GetReal(A, "_refln_A_calc", il, ierr);
-			int ierr_AB_B = loop->GetReal(B, "_refln_B_calc", il, ierr);
+			int ierr_f2_1 = loop->GetReal(Fsqm, "_refln_F_squared_meas",  il);
+			int ierr_f2_2 = loop->GetReal(Fsqs, "_refln_F_squared_sigma", il);
+
+			if (! ierr && ! ierr_f2_1) {
+			   clipper::xtype fsigf[2];
+			   if (Fsqm < 0) Fsqm = 0;
+			   fsigf[0] = sqrt(Fsqm);
+			   if (! ierr_f2_2) {
+			      fsigf[1] = 0.5 * Fsqs / fsigf[0];
+			   } else {
+			      // missing sigma. hack in a value
+			      fsigf[1] = 0.5 * (0.01* Fsqm) / fsigf[0];
+			   } 
+			   clipper::HKL hkl(h,k,l);
+			   my_fsigf.data_import(hkl, fsigf);
+			   status = true;
+			}
+			
+
+			int ierr_AB_A = loop->GetReal(A, "_refln_A_calc", il);
+			int ierr_AB_B = loop->GetReal(B, "_refln_B_calc", il);
 
 			if (! ierr && ! ierr_AB_A && ! ierr_AB_B) {
 			   clipper::xtype fphi[2];
@@ -626,9 +747,15 @@ coot::smcif::read_data_sm_cif(const std::string &file_name) {
 			   status = true;
 			}
 
-			int ierr_f_phi_calc_1 = loop->GetReal(fpc_f, "_refln_F_calc",     il, ierr);
-			int ierr_f_phi_calc_2 = loop->GetReal(fpc_p, "_refln_phase_calc", il, ierr);
+			int ierr_f_phi_calc_1 = loop->GetReal(fpc_f, "_refln_F_calc",     il);
+			int ierr_f_phi_calc_2 = loop->GetReal(fpc_p, "_refln_phase_calc", il);
 
+			if (false) { 
+			   std::cout << "ierr " << ierr << " ";
+			   std::cout << "ierr_f_phi_calc_1 " << ierr_f_phi_calc_1 << " ";
+			   std::cout << "ierr_f_phi_calc_2 " << ierr_f_phi_calc_2 << std::endl;
+			}
+			   
 			if (! ierr && ! ierr_f_phi_calc_1 && ! ierr_f_phi_calc_2) {
 			   clipper::xtype fphi[2];
 			   fphi[0] = fpc_f;
@@ -638,16 +765,16 @@ coot::smcif::read_data_sm_cif(const std::string &file_name) {
 			   status = true;
 			}
 
-
-			int ierr_f2_1 = loop->GetReal(Fsqm, "_refln_F_squared_meas",  il, ierr);
-			int ierr_f2_2 = loop->GetReal(Fsqs, "_refln_F_squared_sigma", il, ierr);
-
-			if (! ierr && ! ierr_f2_1 && ! ierr_f2_2) {
-			   clipper::xtype fsigf[2];
-			   fsigf[0] = sqrt(Fsqm);
-			   fsigf[1] = 0.5 * Fsqs / fsigf[0];
+			ierr_f_phi_calc_1 = loop->GetReal(fpc_f, "_refln_F_squared_calc",     il);
+			ierr_f_phi_calc_2 = loop->GetReal(fpc_p, "_refln_phase_calc", il);
+			
+			if (! ierr && ! ierr_f_phi_calc_1 && ! ierr_f_phi_calc_2) {
+			   clipper::xtype fphi[2];
+			   if (fpc_f < 0) fpc_f = 0;
+			   fphi[0] = sqrt(fpc_f);
+			   fphi[1] = clipper::Util::d2rad(fpc_p);
 			   clipper::HKL hkl(h,k,l);
-			   myfsigf.data_import(hkl, fsigf);
+			   my_fphi.data_import(hkl, fphi);
 			   status = true;
 			}
 		     }
@@ -657,6 +784,14 @@ coot::smcif::read_data_sm_cif(const std::string &file_name) {
 	 }
       }
    }
+
+   if (false) { // debugging.
+      for (clipper::HKL_info::HKL_reference_index hri = my_fsigf.first();
+	   !hri.last(); hri.next()) {
+	 std::cout << "read_data_sm_cif():: obs " << my_fsigf[hri].f() << std::endl;
+      }
+   }
+   
    return status;
 }
 
@@ -721,24 +856,38 @@ coot::smcif::get_cell_for_data(mmdb::mmcif::PData data) const {
 
 
 std::pair<bool,clipper::Spacegroup> 
-coot::smcif::get_space_group(mmdb::mmcif::PData data) const {
+coot::smcif::get_space_group(mmdb::mmcif::Data *data) const {
 
    // George is going to update shelxl (or may already have done so) to
    // output _space_group_symop_operation_xyz instead of
    // _symmetry_equiv_pos_as_xyz (in the fcf-file created with "LIST 6")
 
-   std::string old_style = "_symmetry_equiv_pos_as_xyz";
-   std::string new_style = "_space_group_symop_operation_xyz";
+   std::string    shelxl_style = "_space_group_symop_operation_xyz";
+   std::string       old_style = "_symmetry_equiv_pos_as_xyz";
    
-   std::pair<bool,clipper::Spacegroup> s = get_space_group(data, old_style);
-   if (! s.first)
-      return get_space_group(data, new_style);
-   else
-      return s;
+   std::pair<bool,clipper::Spacegroup> s = get_space_group_from_loop(data, old_style);
+   if (! s.first) 
+      s = get_space_group_from_loop(data, shelxl_style);
+   return s;
+}
+
+std::pair<bool, clipper::Spacegroup> 
+coot::smcif::get_space_group(mmdb::mmcif::Data *data, const std::string &symm_tag) const {
+   
+   bool state = false;
+   clipper::Spacegroup spg;
+   mmdb::mmcif::Struct *structure = data->GetStructure(symm_tag.c_str());
+   if (structure) {
+      std::cout << "Hoooray! " << symm_tag << std::endl;
+   } else {
+      std::cout << "Failed to get structure from " << symm_tag << std::endl;
+   } 
+   
+   return std::pair<bool, clipper::Spacegroup> (state, spg);
 }
 
 std::pair<bool,clipper::Spacegroup> 
-coot::smcif::get_space_group(mmdb::mmcif::PData data, const std::string &symm_tag) const {
+coot::smcif::get_space_group_from_loop(mmdb::mmcif::Data *data, const std::string &symm_tag) const {
 
    bool state = false;
    clipper::Spacegroup spg;
@@ -751,15 +900,16 @@ coot::smcif::get_space_group(mmdb::mmcif::PData data, const std::string &symm_ta
    int n_tags = 1;
 
    mmdb::mmcif::PLoop loop = data->FindLoop(loopTag1);
-   // std::cout << "loop: " << loop << std::endl;
+
    if (loop) {
       int ll = loop->GetLoopLength();
-      // std::cout << "   ll: " << ll << std::endl;
+      std::cout << "   ll: " << ll << std::endl;
       if (ll > 0) { 
 	 for (int il=0; il<ll; il++) {
 	    for (int itag=0; itag<n_tags; itag++) { 
 	       S = loop->GetString(loopTag1[itag], il, ierr);
 	       if (! ierr) {
+		  // std::cout << "-------- found S " << S << std::endl;
 		  symm_strings.push_back(S);
 	       } else {
 		  std::cout << "error in " << loopTag1[itag] << " string.\n";
@@ -804,6 +954,7 @@ coot::smcif::map() const {
 std::pair<clipper::Xmap<float>, clipper::Xmap<float> >
 coot::smcif::sigmaa_maps() const {
 
+   bool debug = false; 
    clipper::Xmap<float> xmap;
    clipper::Xmap<float> xmap_diff;
    
@@ -813,27 +964,69 @@ coot::smcif::sigmaa_maps() const {
 
 	    typedef clipper::HKL_data_base::HKL_reference_index HRI;
 	    clipper::Grid_sampling gs(data_spacegroup, data_cell, data_resolution);
-	    const clipper::HKL_info& hkls = mydata;
+	    const clipper::HKL_info &hkls = mydata;
 
 	    clipper::HKL_data<clipper::datatypes::Phi_fom<float> > phiw(hkls, data_cell);
 	    clipper::HKL_data<clipper::datatypes::F_phi<float> >     fb(hkls, data_cell);
 	    clipper::HKL_data<clipper::datatypes::F_phi<float> >     fd(hkls, data_cell);
 	    clipper::HKL_data<clipper::datatypes::Flag>           flags(hkls, data_cell);
 
-	    for (HRI ih = flags.first(); !ih.last(); ih.next() )
-	       flags[ih].flag() = clipper::SFweight_spline<float>::BOTH;
+	    clipper::HKL_info::HKL_reference_index hri;
+	    for (hri = flags.first(); !hri.last(); hri.next() )
+	       flags[hri].flag() = clipper::SFweight_spline<float>::BOTH;
+	    for (hri = phiw.first(); !hri.last(); hri.next() ) {
+	       phiw[hri].phi() = my_fphi[hri].phi();
+	       phiw[hri].fom() = 1;
+	    }
+
+	    if (debug) { 
+	       std::cout << "---------------- filling sigmaa_maps ... " << std::endl;
+	       std::cout << "spacegroup" << data_spacegroup.descr().symbol_hm()<< std::endl;
+
+	       for (hri = my_fsigf.first(); !hri.last(); hri.next()) {
+		  std::cout << hri.hkl().format() << "my_fsigf f "
+			    << my_fsigf[hri].f() << std::endl;
+	       }
+	       for (hri = my_fphi.first(); !hri.last(); hri.next() ) {
+		  std::cout << hri.hkl().format()  << " my_fphi f "
+			    << my_fphi[hri].f() << " phi " << my_fphi[hri].phi()
+			    << std::endl;
+	       }
+
+	       for (hri = phiw.first(); !hri.last(); hri.next() ) {
+		  std::cout << "   " << hri.hkl().format() << " "
+			    << phiw[hri].phi() << " "
+			    << phiw[hri].fom() << std::endl;
+	       }
+	    }
 
 	    int n_refln = 1000;
 	    int n_param = 20;
-	    clipper::SFweight_spline<float> sfw( n_refln, n_param );
-	    sfw(fb, fd, phiw, myfsigf, my_fphi, flags);
+	    clipper::SFweight_spline<float> sfw(n_refln, n_param);
+	    // fb returns with f() full of -nans.  I don't understand why.
+	    sfw(fb, fd, phiw, my_fsigf, my_fphi, flags);
 
-	    xmap.init(data_spacegroup, data_cell, gs);
-	    xmap_diff.init(data_spacegroup, data_cell, gs);
-
-	    xmap.fft_from(fb);
-	    xmap_diff.fft_from(fd);
+	    if (debug)
+	       for (hri = fb.first(); !hri.last(); hri.next())
+		  std::cout << "   " << hri.hkl().format() << " " 
+			    << "fb f " << fb[hri].f() << " phi " << fb[hri].phi() << "\n";
 	    
+	    xmap.init(data_spacegroup, data_cell, gs);
+	    xmap.fft_from(fb);
+
+	    xmap_diff.init(data_spacegroup, data_cell, gs);
+	    xmap_diff.fft_from(fd);
+
+	    int n_points = 0;
+	    clipper::Xmap_base::Map_reference_index ix;
+
+	    if (debug) { 
+	       for (ix = xmap.first(); !ix.last(); ix.next() ) {
+		  n_points++;
+		  std::cout << xmap[ix] << " ";
+		  if (n_points%60 == 0) std::cout << "\n";
+	       }
+	    }
 	 }
       }
    }

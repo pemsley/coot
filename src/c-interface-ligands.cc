@@ -2112,8 +2112,10 @@ int read_small_molecule_data_cif(const char *file_name) {
 	 g.molecules[imol_diff].new_map(maps.second, file_name);
 	 g.molecules[imol_diff].set_map_is_difference_map();
       } else { 
-	 clipper::Xmap<float> xmap = smcif.map();
-	 g.molecules[imol].new_map(xmap, file_name);
+	 // clipper::Xmap<float> xmap = smcif.map();
+	 // g.molecules[imol].new_map(xmap, file_name);
+	 std::pair<clipper::Xmap<float>, clipper::Xmap<float> > xmaps = smcif.sigmaa_maps();
+	 g.molecules[imol].new_map(xmaps.first, file_name);
       }
       graphics_draw();
    } 

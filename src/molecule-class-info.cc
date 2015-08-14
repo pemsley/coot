@@ -131,7 +131,7 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
    // link itself.
    // 
    if (status != 0 || !S_ISREG (s.st_mode)) {
-      std::cout << "Error reading " << filename << std::endl;
+      std::cout << "WARNING:: Error reading " << filename << std::endl;
       if (S_ISDIR(s.st_mode)) {
 	 std::cout << filename << " is a directory." << endl;
       }
@@ -144,7 +144,6 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
    atom_sel = get_atom_selection(filename, allow_duplseqnum, convert_to_v2_atom_names_flag);
 
    if (atom_sel.read_success == 1) {
-
 
       // LINK info:
       int n_models = atom_sel.mol->GetNumberOfModels();
