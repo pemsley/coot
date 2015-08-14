@@ -43,6 +43,7 @@
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-shelx.hh"
 
+#include "coot-utils/read-sm-cif.hh"
 
 bool
 mmdb_utils::is_hydrogen(const std::string &ele) {
@@ -132,24 +133,42 @@ get_atom_selection(std::string pdb_name,
 	  err = MMDBManager->ReadCoorFile(pdb_name.c_str());
 
 	  if (err) {
-	     // does_file_exist(pdb_name.c_str());
-	     cout << "There was an error reading " << pdb_name.c_str() << ". \n";
-	     cout << "ERROR " << err << " READ: "
-		  << mmdb::GetErrorDescription(err) << endl;
-	     //
-	     MMDBManager->GetInputBuffer(error_buf, error_count);
-	     if (error_count >= 0) { 
-		cout << "         LINE #" << error_count << "\n     "
-		     << error_buf << endl << endl;
+
+	     // try Small-molecule cif
+	     coot::smcif sm;
+	     mmdb::Manager *mol = sm.read_sm_cif(pdb_name);
+
+	     if (mol) {
+
+		delete MMDBManager;
+		MMDBManager = mol;
+		err = mmdb::ERROR_CODE(0); // success
+
 	     } else {
-		if (error_count == -1) { 
-		   cout << "       CIF ITEM: " << error_buf << endl << endl;
+
+		// We also failed to read a small molecule cif, but 
+		// write the mmCIF error message.
+	     
+		std::cout << "There was an error reading " << pdb_name.c_str() << ". \n";
+		std::cout << "ERROR " << err << " READ: "
+			  << mmdb::GetErrorDescription(err) << std::endl;
+		//
+		MMDBManager->GetInputBuffer(error_buf, error_count);
+		if (error_count >= 0) { 
+		   cout << "         LINE #" << error_count << "\n     "
+			<< error_buf << endl << endl;
+		} else {
+		   if (error_count == -1) { 
+		      cout << "       CIF ITEM: " << error_buf << endl << endl;
+		   }
 		}
+		asc.read_success = 0; // FAIL
+		asc.read_error_message = error_buf;
 	     }
-	     asc.read_success = 0; // FAIL
-	     asc.read_error_message = error_buf; 
-	     //
-	  } else {
+
+	  }
+
+	  if (! err) {
 	     // we read the coordinate file OK.
 	     //
 	     switch (MMDBManager->GetFileType())  {
@@ -160,7 +179,7 @@ get_atom_selection(std::string pdb_name,
 	     case mmdb::MMDB_FILE_Binary :  cout << " MMDB binary" ;
 		break;
 	     default:
-		cout << " Unknown (report as a bug!)\n";
+		std::cout << " Unknown\n";
 	     }
 
 	     MMDBManager->PDBCleanup(mmdb::PDBCLEAN_ELEMENT);

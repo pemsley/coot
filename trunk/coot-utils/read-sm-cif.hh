@@ -9,8 +9,9 @@ namespace coot {
       clipper::Cell get_cell_for_data(mmdb::mmcif::PData data) const;
       std::pair<bool,clipper::Spacegroup> get_space_group(const std::vector<std::string> &symm_strings) const;
       std::vector<mmdb::Atom *> read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell, const clipper::Spacegroup &spg) const;
-      std::pair<bool,clipper::Spacegroup> get_space_group(mmdb::mmcif::PData data) const;
-      std::pair<bool,clipper::Spacegroup> get_space_group(mmdb::mmcif::PData data, const std::string &symm_tag) const;
+      std::pair<bool,clipper::Spacegroup> get_space_group(mmdb::mmcif::Data *data) const;
+      std::pair<bool,clipper::Spacegroup> get_space_group(mmdb::mmcif::Data *data, const std::string &symm_tag) const;
+      std::pair<bool,clipper::Spacegroup> get_space_group_from_loop(mmdb::mmcif::Data *data, const std::string &symm_tag) const;
 
 
       // e.g. "O"    -> " O"
@@ -26,7 +27,7 @@ namespace coot {
       clipper::Resolution data_resolution;
 
       // fill this
-      clipper::HKL_data<clipper::datatypes::F_sigF<float> > myfsigf;
+      clipper::HKL_data<clipper::datatypes::F_sigF<float> > my_fsigf;
       // and this (from the real and imaginary components)
       clipper::HKL_data<clipper::datatypes::F_phi<float> >  my_fphi;
       
@@ -39,6 +40,9 @@ namespace coot {
 					 const std::string &file_name) const;
       void setup_hkls(const std::string &file_name);
 
+      // various ways in which the symmetry can be specified 
+      //
+      
 
    public:
       smcif() {};
