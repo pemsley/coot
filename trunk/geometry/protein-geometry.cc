@@ -1324,7 +1324,7 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
 	  ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == local_group_1))) { 
 	 if (((chem_link_comp_id_1 == "") || (chem_link_comp_id_1 == comp_id_2)) &&
 	     ((chem_link_comp_id_2 == "") || (chem_link_comp_id_2 == comp_id_1))) {
-	    std::cout << "debug:: matched with order switch " << std::endl;
+	    // std::cout << "debug:: matched with order switch " << std::endl;
 	    match = true;
 	    order_switch = true;
 	 }
@@ -3027,8 +3027,8 @@ coot::protein_geometry::three_letter_code(const unsigned int &i) const {
 void
 coot::protein_geometry::add_planar_peptide_restraint() {
 
-   std::string link_id = "TRANS-5-atoms";
-   std::string plane_id = "plane3";
+   std::string link_id = "TRANS";
+   std::string plane_id = "plane-5-atoms";
    mmdb::realtype dist_esd = 0.05;
 
    std::string atom_id; 
@@ -3048,7 +3048,7 @@ void
 coot::protein_geometry::remove_planar_peptide_restraint() {
 
    std::string link_id = "TRANS";
-   std::string plane_id = "plane3";
+   std::string plane_id = "plane-5-atoms";
    bool ifound = 0;
 
    for (unsigned int i=0; i<dict_link_res_restraints.size(); i++) {
@@ -3085,8 +3085,8 @@ bool
 coot::protein_geometry::planar_peptide_restraint_state() const {
 
    std::string link_id = "TRANS";
-   std::string plane_id = "plane3";
-   bool ifound = 0;
+   std::string plane_id = "plane-5-atoms";
+   bool ifound = false;
 
    for (unsigned int i=0; i<dict_link_res_restraints.size(); i++) {
       if (dict_link_res_restraints[i].link_id == link_id) { // e.g "TRANS"
@@ -3094,13 +3094,18 @@ coot::protein_geometry::planar_peptide_restraint_state() const {
 	 std::vector<coot::dict_link_plane_restraint_t>::const_iterator it;
 	 for (it = dict_link_res_restraints[i].link_plane_restraint.begin();
 	      it != dict_link_res_restraints[i].link_plane_restraint.end(); it++) {
+	    std::cout << "DEBUG:: planar_peptide_restraint_state() found link_id "
+		      << link_id << std::endl;
+	    std::cout << "        has plane_id " << it->plane_id << std::endl;
 	    if (it->plane_id == plane_id) {
-	       ifound = 1;
+	       ifound = true;
 	       break;
 	    }
 	 }
       }
    }
+   std::cout << "DEBUG:: planar_peptide_restraint_state():: returning ifound "
+	     << ifound << std::endl;
    return ifound;
 } 
 

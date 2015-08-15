@@ -4168,3 +4168,68 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 
 
 
+void
+graphics_info_t::tabulate_geometric_distortions(const coot::restraints_container_t &restraints) const {
+
+   coot::restraints_container_t rr = restraints;;
+   coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
+   coot::geometry_distortion_info_container_t gdic = rr.geometric_distortions(flags);
+
+   std::cout << "------------ geometric distortions size: " << gdic.geometry_distortion.size()
+	     << std::endl;
+   
+   for (unsigned int ii=0; ii<gdic.geometry_distortion.size(); ii++) { 
+      const coot::geometry_distortion_info_t &gd = gdic.geometry_distortion[ii];
+      const coot::simple_restraint &rest = gd.restraint;
+       if (rest.restraint_type == coot::BOND_RESTRAINT) {
+	  std::cout << ii << " bond  " << gd.distortion_score << std::endl;
+	  for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
+	     std::cout << "       " << rr.get_atom_spec(gd.atom_indices[iat]) << std::endl;
+       }
+       if (rest.restraint_type == coot::ANGLE_RESTRAINT) {
+	  std::cout << ii << " angle " << gd.distortion_score <<  std::endl;
+	  for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
+	     std::cout << "       " << rr.get_atom_spec(gd.atom_indices[iat]) << std::endl;
+       }
+       if (rest.restraint_type == coot::TORSION_RESTRAINT) {
+	  std::cout << ii << " torsion " << gd.distortion_score <<  std::endl;
+	  for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
+	     std::cout << "       " << rr.get_atom_spec(gd.atom_indices[iat]) << std::endl;
+       }
+       if (rest.restraint_type == coot::PLANE_RESTRAINT) {
+	  std::cout << ii << " plane " << gd.distortion_score << std::endl;
+	  for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
+	     std::cout << "       " << rr.get_atom_spec(gd.atom_indices[iat]) << std::endl;
+       }
+       if (rest.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+ 	    std::cout << ii << " nbc   " << gd.distortion_score << std::endl;
+	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
+	       std::cout << "       " << rr.get_atom_spec(gd.atom_indices[iat]) << std::endl;
+       }
+       if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
+ 	    std::cout << ii << " chiral " << gd.distortion_score << std::endl;
+	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
+	       std::cout << "       " << rr.get_atom_spec(gd.atom_indices[iat]) << std::endl;
+       }
+       if (rest.restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
+	  std::cout << ii << " rama   " << gd.distortion_score << std::endl;
+	  for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
+	     std::cout << "       " << rr.get_atom_spec(gd.atom_indices[iat]) << std::endl;
+       }
+       if (rest.restraint_type == coot::START_POS_RESTRAINT) {
+	  std::cout << ii << " start-pos " << gd.distortion_score << std::endl;
+	  for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
+	     std::cout << "       " << rr.get_atom_spec(gd.atom_indices[iat]) << std::endl;
+       }
+       if (rest.restraint_type == coot::PARALLEL_PLANES_RESTRAINT) {
+	  std::cout << ii << " parallel-plane " << gd.distortion_score << std::endl;
+	  for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
+	     std::cout << "       " << rr.get_atom_spec(gd.atom_indices[iat]) << std::endl;
+       }
+       if (rest.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+	  std::cout << ii << " geman-mcclure " << gd.distortion_score << std::endl;
+	  for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
+	     std::cout << "       " << rr.get_atom_spec(gd.atom_indices[iat]) << std::endl;
+       }
+   }
+} 

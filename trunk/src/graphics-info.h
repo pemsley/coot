@@ -3946,6 +3946,8 @@ string   static std::string sessionid;
 
    coot::geometry_distortion_info_container_t geometric_distortions(mmdb::Residue *residue_p);
 
+   void tabulate_geometric_distortions(const coot::restraints_container_t &restraints) const;
+
    static bool linked_residue_fit_and_refine_state;
 
    static bool allow_duplseqnum;

@@ -2707,11 +2707,11 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 		   << coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
       } else { 
 	 coot::geometry_distortion_info_container_t gdc = g.geometric_distortions(residue_p);
-	 int n_restraints_bonds   = 0;
-	 int n_restraints_angles  = 0;
-	 int n_restraints_chirals = 0;
-	 int n_restraints_planes  = 0;
-	 int n_restraints_torsions= 0;
+	 int n_restraints_bonds    = 0;
+	 int n_restraints_angles   = 0;
+	 int n_restraints_torsions = 0;
+	 int n_restraints_chirals  = 0;
+	 int n_restraints_planes   = 0;
 	 double sum_penalties_bonds    = 0;
 	 double sum_penalties_angles   = 0;
 	 double sum_penalties_planes   = 0;
@@ -2771,6 +2771,36 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 	       }
 	    }
 
+	    if (rest.restraint_type == coot::TORSION_RESTRAINT) {
+	       n_restraints_torsions++;
+	       mmdb::Atom *at_1 = residue_p->GetAtom(rest.atom_index_1);
+	       mmdb::Atom *at_2 = residue_p->GetAtom(rest.atom_index_2);
+	       mmdb::Atom *at_3 = residue_p->GetAtom(rest.atom_index_3);
+	       mmdb::Atom *at_4 = residue_p->GetAtom(rest.atom_index_4);
+	       if (at_1 && at_2 && at_3 && at_4) {
+		  clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+		  clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+		  clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
+		  clipper::Coord_orth p4(at_3->x, at_3->y, at_3->z);
+		  double torsion_rad = clipper::Coord_orth::torsion(p1, p2, p3, p4);
+		  double torsion = clipper::Util::rad2d(torsion_rad);
+		  double distortion = rest.torsion_distortion(torsion);
+		  double pen_score = distortion*distortion/(rest.sigma*rest.sigma);
+		  std::string s = std::string("torsion ")
+		     + std::string(at_1->name) + std::string(" - ")
+		     + std::string(at_2->name) + std::string(" - ")
+		     + std::string(at_3->name) + std::string(" - ")
+		     + std::string(at_4->name)
+		     + std::string("  target: ") + coot::util::float_to_string(rest.target_value)
+		     + std::string(" model_torsion: ") + coot::util::float_to_string(torsion)
+		     + std::string(" sigma: ") + coot::util::float_to_string(rest.sigma)
+		     + std::string(" torsion-devi ") + coot::util::float_to_string(distortion)
+		     + std::string(" penalty-score:  ") + coot::util::float_to_string(pen_score);
+		  penalty_string_angles.push_back(std::pair<std::string,double> (s, pen_score));
+		  sum_penalties_angles += pen_score;
+	       }
+	    }
+	    
 	    if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
 	       n_restraints_chirals++;
 	       if (gdc.geometry_distortion[i].distortion_score > 10) { // arbitrons
