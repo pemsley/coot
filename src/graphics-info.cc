@@ -1457,6 +1457,8 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 	 update_accept_reject_dialog_with_results(accept_reject_dialog,
 						  coot::CHI_SQUAREDS,
 						  saved_dragged_refinement_results);
+
+	 // g.tabulate_geometric_distortions(last_restraints);
       }
    }
    

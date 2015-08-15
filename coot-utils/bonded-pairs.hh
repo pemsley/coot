@@ -84,6 +84,7 @@ namespace coot {
    };
 	 
    class bonded_pair_container_t {
+      void reorder();
    public:
       std::vector<bonded_pair_t> bonded_residues;
       bool try_add(const bonded_pair_t &bp); // check for null residues too.
@@ -117,6 +118,8 @@ namespace coot {
 	 }
 	 return mi;
       }
+      void filter(); // remove residue X 1-3 bonds if residue X 1-2 or 2-3 bonds exist.
+      bool closer_exists_p(const bonded_pair_t &bp) const;
       void apply_chem_mods(const protein_geometry &geom);
    };
    std::ostream& operator<<(std::ostream &s, bonded_pair_container_t bpc);

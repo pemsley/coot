@@ -343,8 +343,7 @@ namespace coot {
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 is_user_defined_restraint = 0;
 	 if (rest_type != ANGLE_RESTRAINT) { 
-	    std::cout << "ANGLE ERROR" << std::endl; 
-	    exit(1); 
+	    std::cout << "ERROR::::: PROGRAM ERROR - ANGLE ERROR" << std::endl; 
 	 }
       };
 
@@ -367,8 +366,7 @@ namespace coot {
 	 periodicity = periodicity_in; 
 	 is_user_defined_restraint = 0;
 	 if (rest_type != TORSION_RESTRAINT) { 
-	    std::cout << "TORSION ERROR" << std::endl; 
-	    exit(1); 
+	    std::cout << "ERROR::::: PROGRAM ERROR - TORSION ERROR" << std::endl; 
 	 }
       }
 
@@ -536,11 +534,13 @@ namespace coot {
 	    std::cout << "START POS ERROR" << std::endl; 
 	    exit(1); 
 	 }
-      };
+      }
 
       std::pair<bool, double> get_nbc_dist(const std::string &atom_1_type,
 					   const std::string &atom_2_type, 
-					   const protein_geometry &geom);       
+					   const protein_geometry &geom);
+
+      double torsion_distortion(double model_torsion) const; 
       
       friend std::ostream &operator<<(std::ostream &s, const simple_restraint &r);
    };
@@ -585,6 +585,7 @@ namespace coot {
       bool set;
       double distortion_score;
       simple_restraint restraint;
+      std::vector<int> atom_indices;
       residue_spec_t residue_spec;
       friend std::ostream &operator<<(std::ostream &s, geometry_distortion_info_t);
 
@@ -684,7 +685,7 @@ namespace coot {
    double distortion_score_rama(const simple_restraint &chiral_restraint,
 				const gsl_vector *v,
 				const LogRamachandran &lograma);
-   double distortion_score_start_pos(const coot::simple_restraint &start_pos_restraint,
+   double distortion_score_start_pos(const simple_restraint &start_pos_restraint,
 			    void *params,
 			    const gsl_vector *v);
    double distortion_score_non_bonded_contact(const simple_restraint &plane_restraint,
@@ -765,11 +766,11 @@ namespace coot {
    // part is the good/bad flag the second tells us what the altconf
    // of the (bad) chiral atom was.
    // 
-   std::vector<std::pair<short int, coot::atom_spec_t> >
-   is_inverted_chiral_atom_p(const coot::dict_chiral_restraint_t &chiral_restraint,
+   std::vector<std::pair<short int, atom_spec_t> >
+   is_inverted_chiral_atom_p(const dict_chiral_restraint_t &chiral_restraint,
 			mmdb::Residue *res);
 
-   std::pair<std::vector<std::string> , std::vector <coot::atom_spec_t> >
+   std::pair<std::vector<std::string> , std::vector <atom_spec_t> >
    inverted_chiral_volumes(mmdb::Manager *mol, protein_geometry *geom_p,
 			   int cif_dictionary_read_number);
       
@@ -810,13 +811,13 @@ namespace coot {
 	 double n_sigma_lim;
 	 
 	 std::map<std::pair<atom_spec_t, atom_spec_t>, double,
-		  bool(*)(const std::pair<coot::atom_spec_t, coot::atom_spec_t> &,
-			  const std::pair<coot::atom_spec_t, coot::atom_spec_t> &) > dist_map;
+		  bool(*)(const std::pair<atom_spec_t, atom_spec_t> &,
+			  const std::pair<atom_spec_t, atom_spec_t> &) > dist_map;
 	 
 	 
  	 bond_eraser(const std::map<std::pair<atom_spec_t, atom_spec_t>, double,
- 		     bool(*)(const std::pair<coot::atom_spec_t, coot::atom_spec_t> &,
- 		             const std::pair<coot::atom_spec_t, coot::atom_spec_t> &)
+ 		     bool(*)(const std::pair<atom_spec_t, atom_spec_t> &,
+ 		             const std::pair<atom_spec_t, atom_spec_t> &)
 		     > &dist_map_in, double nsi) {
  	    n_sigma_lim = nsi;
  	    dist_map = dist_map_in;
@@ -931,7 +932,7 @@ namespace coot {
       }
       void delete_restraints_for_residue(const residue_spec_t &rs);
       // updates restraint on atom if it can, else adds
-      void add_start_pos_restraint(const coot::atom_spec_t &atom_1_in, double esd_in) {
+      void add_start_pos_restraint(const atom_spec_t &atom_1_in, double esd_in) {
 	 bool already_exists = false;
 	 for (unsigned int i=0; i<start_pos_restraints.size(); i++) {
 	    if (start_pos_restraints[i].atom_1 == atom_1_in) {
@@ -1021,12 +1022,12 @@ namespace coot {
       void filter_non_bonded_by_distance(const std::vector<std::vector<int> > &non_bonded_atom_indices, double dist);
       // don't include bonds which are make to flanking atoms/residues
       void construct_non_bonded_contact_list(const bonded_pair_container_t &bpc,
-					     const coot::protein_geometry &geom); // fills filtered_non_bonded_atom_indices;
+					     const protein_geometry &geom); // fills filtered_non_bonded_atom_indices;
       // which uses
       void construct_non_bonded_contact_list_by_res_vec(const bonded_pair_container_t &bpc,
-							const coot::protein_geometry &geom);
+							const protein_geometry &geom);
       // and
-      void construct_nbc_for_moving_non_moving_bonded(unsigned int i, unsigned int j, const std::string &link_type, const coot::protein_geometry &geom);
+      void construct_nbc_for_moving_non_moving_bonded(unsigned int i, unsigned int j, const std::string &link_type, const protein_geometry &geom);
       // (which modifies (adds to) filtered_non_bonded_atom_indices).
 
       // or 
@@ -1113,7 +1114,7 @@ namespace coot {
 			 const std::vector<atom_spec_t> &fixed_atom_specs);
 
       void init_from_residue_vec(const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
-				 const coot::protein_geometry &geom,
+				 const protein_geometry &geom,
 				 mmdb::Manager *mol_in,
 				 const std::vector<atom_spec_t> &fixed_atom_specs);
 
@@ -1121,7 +1122,7 @@ namespace coot {
 
       void init_shared_post(const std::vector<atom_spec_t> &fixed_atom_specs);
       // neighbour residues already are fixed.
-      void add_fixed_atoms_from_flanking_residues(const coot::bonded_pair_container_t &bpc);
+      void add_fixed_atoms_from_flanking_residues(const bonded_pair_container_t &bpc);
 
    
       // 
@@ -1289,76 +1290,76 @@ namespace coot {
 			const char *ins_code,
 			const char *chain_id) const;
 
-      int get_asc_index(const coot::atom_spec_t &spec) const;      
+      int get_asc_index(const atom_spec_t &spec) const;
 
       int add_bonds(int idr, mmdb::PPAtom res_selection,
 		    int i_no_res_atoms,
 		    mmdb::PResidue SelRes,
-		    const coot::protein_geometry &geom); 
+		    const protein_geometry &geom); 
 
       int add_angles(int idr, mmdb::PPAtom res_selection,
 		     int i_no_res_atoms,
 		     mmdb::PResidue SelRes,
-		     const coot::protein_geometry &geom); 
+		     const protein_geometry &geom); 
    
       int add_torsions(int idr, mmdb::PPAtom res_selection,
 		       int i_no_res_atoms,
 		       mmdb::PResidue SelRes,
-		       const coot::protein_geometry &geom);
+		       const protein_geometry &geom);
 
       int add_chirals(int idr, mmdb::PPAtom res_selection,
 		      int i_no_res_atoms,
 		      mmdb::PResidue SelRes,
-		      const coot::protein_geometry &geom);
+		      const protein_geometry &geom);
 
       int add_planes  (int idr, mmdb::PPAtom res_selection,
 		       int i_no_res_atoms,
 		       mmdb::PResidue SelRes,
-		       const coot::protein_geometry &geom);
+		       const protein_geometry &geom);
 
       restraint_counts_t 
       apply_mods(int idr, mmdb::PPAtom res_selection,
 		 int i_no_res_atoms,
 		 mmdb::PResidue SelRes,
-		 const coot::protein_geometry &geom);
+		 const protein_geometry &geom);
 
       void
       apply_mod(const std::string &mod_name,
-		const coot::protein_geometry &geom,
+		const protein_geometry &geom,
 		int idr,
 		mmdb::PResidue residue_p);
 
-      void apply_mod_bond(const coot::chem_mod_bond &mod_bond,
+      void apply_mod_bond(const chem_mod_bond &mod_bond,
 			  mmdb::PResidue residue_p);
 
-      void apply_mod_angle(const coot::chem_mod_angle &mod_angle,
+      void apply_mod_angle(const chem_mod_angle &mod_angle,
 			  mmdb::PResidue residue_p);
 
-      void apply_mod_plane(const coot::chem_mod_plane &mod_plane,
+      void apply_mod_plane(const chem_mod_plane &mod_plane,
 			   mmdb::PResidue residue_p);
 
-      void mod_bond_add(const coot::chem_mod_bond &mod_bond,
+      void mod_bond_add(const chem_mod_bond &mod_bond,
 			mmdb::PResidue residue_p);
 
-      void mod_bond_change(const coot::chem_mod_bond &mod_bond,
+      void mod_bond_change(const chem_mod_bond &mod_bond,
 			   mmdb::PResidue residue_p);
 
-      void mod_bond_delete(const coot::chem_mod_bond &mod_bond,
+      void mod_bond_delete(const chem_mod_bond &mod_bond,
 			   mmdb::PResidue residue_p);
 
-      void mod_angle_add(const coot::chem_mod_angle &mod_angle,
+      void mod_angle_add(const chem_mod_angle &mod_angle,
 			mmdb::PResidue residue_p);
 
-      void mod_angle_change(const coot::chem_mod_angle &mod_angle,
+      void mod_angle_change(const chem_mod_angle &mod_angle,
 			   mmdb::PResidue residue_p);
 
-      void mod_angle_delete(const coot::chem_mod_angle &mod_angle,
+      void mod_angle_delete(const chem_mod_angle &mod_angle,
 			   mmdb::PResidue residue_p);
 
-      void mod_plane_add(const coot::chem_mod_plane &mod_plane,
+      void mod_plane_add(const chem_mod_plane &mod_plane,
 			 mmdb::PResidue residue_p);
 
-      void mod_plane_delete(const coot::chem_mod_plane &mod_plane,
+      void mod_plane_delete(const chem_mod_plane &mod_plane,
 			    mmdb::PResidue residue_p);
       
       bool dictionary_name_matches_coords_resname(const std::string &comp_id,
@@ -1374,21 +1375,21 @@ namespace coot {
 					 bool do_rama_plot_retraints);
 
       // which uses either:
-      int make_link_restraints_by_linear(const coot::protein_geometry &geom,
+      int make_link_restraints_by_linear(const protein_geometry &geom,
 					 bool do_rama_plot_retraints);
 
       bonded_pair_container_t
-      make_link_restraints_from_res_vec(const coot::protein_geometry &geom,
+      make_link_restraints_from_res_vec(const protein_geometry &geom,
 					    bool do_rama_plot_retraints);
       // both of which use:
-      int make_link_restraints_by_pairs(const coot::protein_geometry &geom,
-					const coot::bonded_pair_container_t &bonded_residue_pairs,
+      int make_link_restraints_by_pairs(const protein_geometry &geom,
+					const bonded_pair_container_t &bonded_residue_pairs,
 					std::string link_or_flanking_link_string);
 
-      void add_rama_links(int SelHnd, const coot::protein_geometry &geom);
+      void add_rama_links(int SelHnd, const protein_geometry &geom);
 					
-      void add_rama_links_from_res_vec(const coot::bonded_pair_container_t &bonded_residue_pairs,
-				       const coot::protein_geometry &geom);
+      void add_rama_links_from_res_vec(const bonded_pair_container_t &bonded_residue_pairs,
+				       const protein_geometry &geom);
 					
 
       int make_monomer_restraints       (const protein_geometry &geom,
@@ -1408,12 +1409,12 @@ namespace coot {
 				     bool do_rama_plot_retraints); // no torsions
       // uses the following
       bonded_pair_container_t
-      bonded_flanking_residues(const coot::protein_geometry &geom) const;
+      bonded_flanking_residues(const protein_geometry &geom) const;
    
       // new flanking residue search
       bonded_pair_container_t bonded_flanking_residues_by_residue_vector(const protein_geometry &geom) const;
       // old style linear search (n +/- 1) selection for flanking residues
-      coot::bonded_pair_container_t bonded_flanking_residues_by_linear(const protein_geometry &geom) const;
+      bonded_pair_container_t bonded_flanking_residues_by_linear(const protein_geometry &geom) const;
       // find residues in the neighbourhood that are not in the refining set
       // and are not already marked as bonded flankers.
       // 
@@ -1427,15 +1428,15 @@ namespace coot {
       // return a container of all the bonded residues (as pairs) from
       // the given atom selection
       bonded_pair_container_t bonded_residues_conventional(int SelResHnd,
-							    const coot::protein_geometry &geom) const;
+							    const protein_geometry &geom) const;
 
       // this is to make the make_link_restraints work as it used to,
       // simply by bonding residues that are next to each other by
       // seqNum or residue index.
       bonded_pair_container_t bonded_residues_by_linear(int SelResHnd,
-							 const coot::protein_geometry &geom) const;
+							 const protein_geometry &geom) const;
       std::vector<rama_triple_t> make_rama_triples(int SelResHnd,
-						   const coot::protein_geometry &geom) const;
+						   const protein_geometry &geom) const;
       std::pair<bool,float> closest_approach(mmdb::Residue *r1, mmdb::Residue *r2) const;
 
       // find simple (tandem residue) links (based on residue-name and
@@ -1456,21 +1457,21 @@ namespace coot {
       //
       // return "" as first if no close link found.
       // 
-      std::pair<std::string, bool> general_link_find_close_link(const std::vector<std::pair<coot::chem_link, bool> > &li,
+      std::pair<std::string, bool> general_link_find_close_link(const std::vector<std::pair<chem_link, bool> > &li,
 								mmdb::Residue *r1, mmdb::Residue *r2,
 								bool order_switch_flag,
-								const coot::protein_geometry &geom) const;
+								const protein_geometry &geom) const;
 
-      std::string general_link_find_close_link_inner(const std::vector<std::pair<coot::chem_link, bool> > &li,
+      std::string general_link_find_close_link_inner(const std::vector<std::pair<chem_link, bool> > &li,
 						     mmdb::Residue *r1, mmdb::Residue *r2,
 						     bool order_switch_flag,
-						     const coot::protein_geometry &geom) const; 
+						     const protein_geometry &geom) const; 
       
       
       void make_helix_pseudo_bond_restraints();
       void make_strand_pseudo_bond_restraints();
 
-      bool link_infos_are_glycosidic_p(const std::vector<std::pair<coot::chem_link, bool> > &link_infos) const;
+      bool link_infos_are_glycosidic_p(const std::vector<std::pair<chem_link, bool> > &link_infos) const;
 
       // return "" on failure to find link
       std::string find_glycosidic_linkage_type(mmdb::Residue *first, mmdb::Residue *second,
@@ -1481,19 +1482,19 @@ namespace coot {
 			mmdb::PResidue first, mmdb::PResidue second,
 			short int is_fixed_first_res,
 			short int is_fixed_second_res,
-			const coot::protein_geometry &geom);
+			const protein_geometry &geom);
 
       int add_link_angle(std::string link_type,
 			 mmdb::PResidue first, mmdb::PResidue second,
 			 short int is_fixed_first_res,
 			 short int is_fixed_second_res,
-			 const coot::protein_geometry &geom);
+			 const protein_geometry &geom);
 
       int add_link_torsion(std::string link_type,
 			   int phi_psi_restraints_type,
 			   mmdb::PResidue first, mmdb::PResidue second,
 			   short int is_fixed_first, short int is_fixed_second,
-			   const coot::protein_geometry &geom);
+			   const protein_geometry &geom);
 
       int add_rama(std::string link_type,
 		   mmdb::PResidue prev,
@@ -1502,24 +1503,24 @@ namespace coot {
 		   bool is_fixed_first_res,
 		   bool is_fixed_second_res,
 		   bool is_fixed_third_res,
-		   const coot::protein_geometry &geom);
+		   const protein_geometry &geom);
 
       int add_link_plane(std::string link_type,
 			 mmdb::PResidue first, mmdb::PResidue second,
 			 short int is_fixed_first_res,
 			 short int is_fixed_second_res,
-			 const coot::protein_geometry &geom);
+			 const protein_geometry &geom);
 
       int add_parallel_planes(mmdb::Residue *first, mmdb::Residue *second,
 			      short int is_fixed_first_res,
 			      short int is_fixed_second_res,
-			      const coot::protein_geometry &geom);
+			      const protein_geometry &geom);
 
       int add_link_plane_tmp(std::string link_type,
 			 mmdb::PResidue first, mmdb::PResidue second,
 			 short int is_fixed_first_res,
 			 short int is_fixed_second_res,
-			 const coot::protein_geometry &geom);
+			 const protein_geometry &geom);
 
       int make_non_bonded_contact_restraints(const bonded_pair_container_t &bpc, const protein_geometry &geom);
       void symmetry_non_bonded_contacts(bool p);
@@ -1527,7 +1528,7 @@ namespace coot {
 
       //! Set a flag that we have an OXT and we need to position it
       //after the refinement.
-      void mark_OXT(const coot::protein_geometry &geom);
+      void mark_OXT(const protein_geometry &geom);
       void position_OXT(); // called from update atoms if we have an OXT.
       bool have_oxt_flag;
       int oxt_index;
@@ -1538,7 +1539,7 @@ namespace coot {
       bool do_numerical_gradients_flag;
 
       // validation:
-      coot::geometry_distortion_info_container_t
+      geometry_distortion_info_container_t
       distortion_vector(const gsl_vector *v) const;
 
       std::vector<bool>  make_fixed_flags(int index1, int index2) const;
@@ -1570,7 +1571,7 @@ namespace coot {
 				      const gsl_vector *v) const;
       bool has_tiny_chiral_centre_volume(const simple_restraint &chiral_restraint,
 					 const gsl_vector *v) const;
-      bool bond_is_very_long(const coot::simple_restraint &bond_restraint,
+      bool bond_is_very_long(const simple_restraint &bond_restraint,
 			     const gsl_vector *v) const;
 
       bool is_hydrogen(mmdb::Atom *at_p) const {
@@ -1710,11 +1711,11 @@ namespace coot {
       //
       // if you need linkrs too, change links to a coot container
       // class for LINKs and LINKRs
-      // const &coot::link_container &links
+      // const &link_container &links
       // 
       restraints_container_t(const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
 			     const std::vector<mmdb::Link> &links,
-			     const coot::protein_geometry &geom,			     
+			     const protein_geometry &geom,			     
 			     mmdb::Manager *mol,
 			     const std::vector<atom_spec_t> &fixed_atom_specs);
 
@@ -1722,10 +1723,14 @@ namespace coot {
       // geometric_distortions not const because we set restraints_usage_flag:
       //
       // return data useful for making the graphs:
-      coot::geometry_distortion_info_container_t
-      geometric_distortions(coot::restraint_usage_Flags flags);
+      geometry_distortion_info_container_t
+      geometric_distortions(restraint_usage_Flags flags);
 
-      coot::omega_distortion_info_container_t
+      // Here we use the internal flags.  Causes crash currently (no inital atom positions?)
+      geometry_distortion_info_container_t
+      geometric_distortions() const;
+
+      omega_distortion_info_container_t
       omega_trans_distortions(int mark_cis_peptides_as_bad_flag);
       
 
@@ -1785,6 +1790,8 @@ namespace coot {
 	 else
 	    return NULL;
       }
+
+      atom_spec_t get_atom_spec(int atom_index) const;
 
       void set_verbose_geometry_reporting() { 
 	 verbose_geometry_reporting = 1; 
@@ -1862,20 +1869,20 @@ namespace coot {
       // We need to fill restraints_vec (which is a vector of
       // simple_restraint) using the coordinates () and the dictionary of
       // restraints, protein_geometry geom.
-      int make_restraints(const coot::protein_geometry &geom,
-			  coot::restraint_usage_Flags flags,
+      int make_restraints(const protein_geometry &geom,
+			  restraint_usage_Flags flags,
 			  bool do_residue_internal_torsions,
 			  float rama_plot_target_weight,
 			  bool do_rama_plot_retraints, 
 			  pseudo_restraint_bond_type sec_struct_pseudo_bonds);
 
-      unsigned int test_function(const coot::protein_geometry &geom);
-      unsigned int inline_const_test_function(const coot::protein_geometry &geom) const {
+      unsigned int test_function(const protein_geometry &geom);
+      unsigned int inline_const_test_function(const protein_geometry &geom) const {
 	 std::cout << "----- inline_const_test_function() with geom of size : " << geom.size() << std::endl;
 	 std::cout << "    geom ref pointer " << &geom << std::endl;
 	 return geom.size();
       } 
-      unsigned int const_test_function(const coot::protein_geometry &geom) const;
+      unsigned int const_test_function(const protein_geometry &geom) const;
 
       void add_extra_restraints(const extra_restraints_t &extra_restraints,
 				const protein_geometry &geom);
@@ -1940,7 +1947,7 @@ namespace coot {
       // Allow public access to this - we need it to find the links
       // between residues when all we have to go on is the refmac
       // dictionary - no LINKRs and no user input.
-      bonded_pair_container_t bonded_residues_from_res_vec(const coot::protein_geometry &geom) const;
+      bonded_pair_container_t bonded_residues_from_res_vec(const protein_geometry &geom) const;
 
       // Using bonded pairs internal copy, modify residues as needed
       // by deleting atoms in chem mods.

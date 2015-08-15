@@ -1,5 +1,8 @@
 
+#include <algorithm>
+#include <stdlib.h> // for abs()
 
+#include "residue-and-atom-specs.hh"
 #include "bonded-pairs.hh"
 
 bool
@@ -134,5 +137,125 @@ coot::bonded_pair_t::delete_atom(mmdb::Residue *res, const std::string &atom_nam
 
    if (deleted)
       res->TrimAtomTable();
-
 }
+
+void
+coot::bonded_pair_container_t::reorder() {
+
+   for (unsigned int i=0; i<bonded_residues.size(); i++) {
+      const bonded_pair_t &bp_i = bonded_residues[i];
+      if (bp_i.res_2->GetSeqNum() < bp_i.res_1->GetSeqNum()) {
+	 std::string chain_id_1_i = bp_i.res_1->GetChainID();
+	 std::string chain_id_2_i = bp_i.res_1->GetChainID();
+	 if (chain_id_1_i == chain_id_2_i) {
+	    mmdb::Residue *r = bp_i.res_1;
+	    bonded_residues[i].res_1 = bp_i.res_2;
+	    bonded_residues[i].res_2 = r;
+	 }
+      }
+      // check here for ins code ordering
+   }
+}
+
+
+// remove residue 1-3 bonds if residue 1-2 or 2-3 bonds exist.
+void
+coot::bonded_pair_container_t::filter() {
+
+   reorder();
+   std::vector<bonded_pair_t> new_bonded_residues;
+   bool debug = false;
+
+   if (debug) { 
+      std::cout << ":::: we have these bonded pairs" << std::endl;
+      for (unsigned int i=0; i<bonded_residues.size(); i++) {
+	 const bonded_pair_t &bp_i = bonded_residues[i];
+	 std::cout << i << "   "
+		   << residue_spec_t(bp_i.res_1) << " - to - "
+		   << residue_spec_t(bp_i.res_2) << std::endl;
+      }
+   }
+
+   for (unsigned int i=0; i<bonded_residues.size(); i++) {
+      bool keep_this = true;
+      const bonded_pair_t &bp_i = bonded_residues[i];
+      if (bp_i.res_1 && bp_i.res_2) { 
+	 int resno_delta_i = bp_i.res_2->GetSeqNum() - bp_i.res_1->GetSeqNum();
+	 if (abs(resno_delta_i) > 1) { 
+	    std::string chain_id_1_i = bp_i.res_1->GetChainID();
+	    std::string chain_id_2_i = bp_i.res_2->GetChainID();
+	    if (chain_id_1_i == chain_id_2_i) {
+	       for (unsigned int j=0; j<bonded_residues.size(); j++) {
+		  if (j!=i) {
+		     const bonded_pair_t &bp_j = bonded_residues[j];
+		     int resno_delta_j = bp_j.res_2->GetSeqNum() - bp_j.res_1->GetSeqNum();
+
+		     if (((resno_delta_i > 0) && (bp_i.res_1 == bp_j.res_1)) ||
+			 ((resno_delta_i < 0) && (bp_i.res_2 == bp_j.res_2))) {
+		     
+			if (abs(resno_delta_j) < resno_delta_i) {
+			   std::string chain_id_1_j = bp_j.res_1->GetChainID();
+			   std::string chain_id_2_j = bp_j.res_2->GetChainID();
+			   if (chain_id_1_j == chain_id_2_j) {
+			      if (chain_id_1_j == chain_id_1_i) {
+				 keep_this = false;
+				 if (debug)
+				    std::cout << ":::::::::::::::::::::: delete bonded pair "
+					      << residue_spec_t(bp_i.res_1) << " - to = "
+					      << residue_spec_t(bp_i.res_2) << " because "
+					      << residue_spec_t(bp_j.res_1) << " - to - "
+					      << residue_spec_t(bp_j.res_2) << " is closer " << std::endl;
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+      if (keep_this)
+	 new_bonded_residues.push_back(bp_i);
+   }
+
+   bonded_residues = new_bonded_residues;
+
+   // We can't do this because closer_exists_p() is not static
+   //bonded_residues.erase(std::remove_if(bonded_residues.begin(), bonded_residues.end(), closer_exists_p),
+   // bonded_residues.end());
+   
+}
+
+bool
+coot::bonded_pair_container_t::closer_exists_p(const coot::bonded_pair_t &bp_in) const {
+
+   bool e = false;
+
+   if (bp_in.res_1 && bp_in.res_2) { 
+      int resno_delta_i = bp_in.res_2->GetSeqNum() - bp_in.res_1->GetSeqNum();
+      if (abs(resno_delta_i) > 1) { // needs more sophisticated test for ins-code linked residues
+	 std::string chain_id_1_i = bp_in.res_1->GetChainID();
+	 std::string chain_id_2_i = bp_in.res_1->GetChainID();
+	 if (chain_id_1_i == chain_id_2_i) {
+	    for (unsigned int j=0; j<bonded_residues.size(); j++) {
+	       const bonded_pair_t &bp_j = bonded_residues[j];
+	       int resno_delta_j = bp_j.res_2->GetSeqNum() - bp_j.res_1->GetSeqNum();
+	       if (abs(resno_delta_j) < resno_delta_i) {
+		  std::string chain_id_1_j = bp_j.res_1->GetChainID();
+		  std::string chain_id_2_j = bp_j.res_1->GetChainID();
+		  if (chain_id_1_j == chain_id_2_j) {
+		     if (chain_id_1_i == chain_id_1_j) {
+			e = true;
+		     }
+		  }
+	       }
+	       if (e)
+		  break;
+	    }
+	 }
+      }
+   }
+
+   return e;
+
+} 
