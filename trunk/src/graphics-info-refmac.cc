@@ -357,7 +357,7 @@ graphics_info_t::fill_option_menu_with_refmac_phase_input_options(GtkWidget *opt
 
 }
 
-// These are mtz files actually.
+// These are mtz files actually.  Change the name of this function
 void
 graphics_info_t::fill_option_menu_with_refmac_labels_options(GtkWidget *option_menu) {
 
@@ -366,74 +366,64 @@ graphics_info_t::fill_option_menu_with_refmac_labels_options(GtkWidget *option_m
       gtk_widget_destroy(menu);
    menu = gtk_menu_new();
 
-   
    GtkWidget *menuitem;
-   
    std::vector<std::pair<int, std::string> > mtz_files;
    for (int i=0; i<n_molecules(); i++) {
-      // first make a list with all mtz files and at the same time filter out dublicates
-      if (molecules[i].Refmac_mtz_filename().size() > 0) {
+      if (is_valid_map_molecule(i)) { 
+
+	 // first make a list with all mtz files and at the same time filter out duplicates
+	 // 
 	 std::string mtz_filename = molecules[i].Refmac_mtz_filename();
-	 char s[200];
-	 snprintf(s, 199, "%d", i);
-	 std::string ss(s);
-	 ss += " ";
-	 ss += molecules[i].name_;
-	 ss += "";
-	 ss += mtz_filename;
-	 int exists = 0;
-	 for (unsigned int k=0; k<mtz_files.size(); k++) {
-	   if (mtz_filename == mtz_files[k].second) {
-	     exists = 1;
-	     break;
-	   }
-	 }
-	 if (!exists) {
-	   mtz_files.push_back(std::pair<int, std::string> (i, mtz_filename));
+	 if (! mtz_filename.empty()) {
+	    bool already_in_list = false;
+	    for (unsigned int k=0; k<mtz_files.size(); k++) {
+	       if (mtz_filename == mtz_files[k].second) {
+		  already_in_list = true;
+		  break;
+	       }
+	    }
+	    if (! already_in_list) {
+	       mtz_files.push_back(std::pair<int, std::string> (i, mtz_filename));
+	    }
 	 }
       }
    }
 
-   // now fill the menu and connect signals
+   // now, using mtz_files, fill the menu and connect signals
+   // 
    for (unsigned int j=0; j<mtz_files.size(); j++) {
-     int i = mtz_files[j].first;
-     std::string mtz_filename = mtz_files[j].second;
+      int i = mtz_files[j].first;
+      std::string mtz_filename = mtz_files[j].second;
      
-     menuitem = gtk_menu_item_new_with_label(mtz_filename.c_str());
+      menuitem = gtk_menu_item_new_with_label(mtz_filename.c_str());
 
-     // We do a menu_get_active in
-     // save_go_to_atom_mol_menu_active_position.  Hmmm... Does
-     // that function exist?  I don't see it!
-     // 
-     // we set user data on the menu item, so that when this goto
-     // Atom widget is cancelled, we can whatever was the molecule
-     // number corresponding to the active position of the menu
-     //
-     // Should be freed in on_go_to_atom_cancel_button_clicked
-     // (callbacks.c)
-     // 
-     gtk_object_set_user_data(GTK_OBJECT(menuitem), GINT_TO_POINTER(i));
+      // We do a menu_get_active in
+      // save_go_to_atom_mol_menu_active_position.  Hmmm... Does
+      // that function exist?  I don't see it!
+      // 
+      // we set user data on the menu item, so that when this goto
+      // Atom widget is cancelled, we can whatever was the molecule
+      // number corresponding to the active position of the menu
+      //
+      // Should be freed in on_go_to_atom_cancel_button_clicked
+      // (callbacks.c)
+      // 
+      gtk_object_set_user_data(GTK_OBJECT(menuitem), GINT_TO_POINTER(i));
 
-#if (GTK_MAJOR_VERSION > 1)     
-     gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
-			GTK_SIGNAL_FUNC(graphics_info_t::refinement_map_select_add_columns),
-			GINT_TO_POINTER(i));
-#else
-     gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
-			GTK_SIGNAL_FUNC(graphics_info_t::refinement_map_select),
-			GINT_TO_POINTER(i));
-#endif
-     gtk_menu_append(GTK_MENU(menu), menuitem);
-     gtk_widget_show(menuitem);
+      gtk_signal_connect(GTK_OBJECT(menuitem), "activate",
+			 GTK_SIGNAL_FUNC(graphics_info_t::refinement_map_select_add_columns),
+			 GINT_TO_POINTER(i));
+      gtk_menu_append(GTK_MENU(menu), menuitem);
+      gtk_widget_show(menuitem);
    }
 
    // set the first one active if there is at least one
    if (mtz_files.size() > 0) {
-     gtk_menu_set_active(GTK_MENU(menu), 0);
+      gtk_menu_set_active(GTK_MENU(menu), 0);
    }
+   
    /* Link the new menu to the optionmenu widget */
-   gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu),
-			    menu);
+   gtk_option_menu_set_menu(GTK_OPTION_MENU(option_menu), menu);
 
 }
 
@@ -441,7 +431,6 @@ graphics_info_t::fill_option_menu_with_refmac_labels_options(GtkWidget *option_m
 void
 graphics_info_t::fill_option_menu_with_refmac_file_labels_options(GtkWidget *option_menu) {
 
-#if (GTK_MAJOR_VERSION > 1)
   GtkWidget *mtz_file_label = lookup_widget(option_menu, "run_refmac_mtz_file_label");
 
   std::string file_mtz_filename;
@@ -529,8 +518,6 @@ graphics_info_t::fill_option_menu_with_refmac_file_labels_options(GtkWidget *opt
 
     }
   }
-
-#endif // GTK2
 }
 
 void
