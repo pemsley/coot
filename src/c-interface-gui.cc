@@ -514,134 +514,6 @@ void fill_f_optionmenu_with_expert_options(GtkWidget *f_optionmenu) {
 
 }
 
-void
-wrapped_create_run_refmac_dialog() {
-  GtkWidget *window = create_run_refmac_dialog();
-  GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(refmac_molecule_button_select);
-  GtkWidget *diff_map_button = lookup_widget(window, "run_refmac_diff_map_checkbutton");
-  GtkWidget *optionmenu;
-  int imol_coords = first_coords_imol();
-  int have_file = 0;
-  /* only GTK 2!? */
-#if (GTK_MAJOR_VERSION > 1)
-  GtkWidget *labels = lookup_widget(window, "run_refmac_column_labels_frame");
-  GtkWidget *ncs_button = lookup_widget(window, "run_refmac_ncs_checkbutton");
-  GtkWidget *mtz_file_radiobutton = lookup_widget(window, "run_refmac_mtz_file_radiobutton");
-  optionmenu = lookup_widget(window, "run_refmac_method_optionmenu");
-  fill_option_menu_with_refmac_methods_options(optionmenu);
-
-  optionmenu = lookup_widget(window, "run_refmac_phase_input_optionmenu");
-  fill_option_menu_with_refmac_phase_input_options(optionmenu);
-  if (GTK_TOGGLE_BUTTON(mtz_file_radiobutton)->active) have_file = 1;
-#endif
-
-  set_refmac_molecule(imol_coords);
-
-  optionmenu = lookup_widget(window, "run_refmac_coords_optionmenu");
-  fill_option_menu_with_coordinates_options(optionmenu, callback_func, imol_coords);
-
-  optionmenu = lookup_widget(window, "run_refmac_map_optionmenu");
-  /*  fill_option_menu_with_refmac_options(optionmenu); */
-  fill_option_menu_with_refmac_labels_options(optionmenu);
-
-  /* to set the labels set the active item; only if not twin and
-     if we really want the labels from map mtz*/
-  if (refmac_use_twin_state() == 0 && have_file == 0) {
-    GtkWidget *active_menu_item = gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu))));
-    if (active_menu_item) {
-      gtk_menu_item_activate(GTK_MENU_ITEM(active_menu_item));
-    }
-  }
-
-  /* fill optionmenu for no label refmac and show if refmac version is new enough */
-  /* only GTK 2!? */
-#if (GTK_MAJOR_VERSION > 1)
-  if (refmac_runs_with_nolabels()) {
-    GtkWidget *checkbutton = lookup_widget(window, "run_refmac_nolabels_checkbutton");
-    gtk_widget_show(checkbutton);
-    if (get_refmac_phase_input()) {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), FALSE);
-      gtk_widget_show(labels);
-    } else {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-      gtk_widget_hide(labels);
-    }
-    GtkWidget *extra_options = lookup_widget(window, "run_refmac_extra_refinement_options_frame");
-    GtkWidget *twin_check_button = lookup_widget(window, "run_refmac_twin_checkbutton");
-    GtkWidget *sad_extras = lookup_widget(window, "run_refmac_sad_extra_hbox");
-    gtk_widget_show(extra_options);
-    gtk_widget_hide(twin_check_button);
-
-    if (refmac_runs_with_nolabels() >= 2) {
-      /* add the tls, twin and sad buttons */
-       gtk_widget_show(twin_check_button);
-      /* update the check buttons */
-      GtkWidget *mtz_file_label = lookup_widget(window, "run_refmac_mtz_file_label");
-      store_refmac_mtz_file_label(mtz_file_label);
-      /* set the filename if there */
-      const gchar *mtz_filename = get_saved_refmac_file_filename();
-      if (mtz_filename) {
-	gtk_label_set_text(GTK_LABEL(mtz_file_label), mtz_filename);
-	fill_option_menu_with_refmac_file_labels_options(optionmenu);
-      }
-      if (refmac_use_twin_state()) {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), TRUE);
-	gtk_widget_hide(sad_extras);
-      } else {
-	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), FALSE);
-      }
-      if (get_refmac_phase_input() == 3) {
-	gtk_widget_set_sensitive(twin_check_button, FALSE);
-	gtk_widget_show(sad_extras);
-	/* fill the entry with 1st existing atom */
-	fill_refmac_sad_atom_entry(window);
-      } else {
-	gtk_widget_set_sensitive(twin_check_button, TRUE);
-	gtk_widget_hide(sad_extras);
-      }
-
-    }
-  } else {
-    gtk_widget_show(labels);
-  }
-
-  optionmenu = lookup_widget(window, "run_refmac_ncycle_optionmenu");
-  fill_option_menu_with_refmac_ncycle_options(optionmenu);
-  //#endif
-
-  /* set the ncs button depending on state */
-  if (refmac_use_ncs_state()) {
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ncs_button), TRUE);
-  } else {
-    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ncs_button), FALSE);
-  }
-#endif
-
-  optionmenu = lookup_widget(window, "run_refmac_ccp4i_optionmenu");
-  clear_refmac_ccp4i_project();
-  add_ccp4i_projects_to_optionmenu(optionmenu, 
-				   COOT_COORDS_FILE_SELECTION,
-				   GTK_SIGNAL_FUNC(run_refmac_ccp4i_option_menu_signal_func));
-
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(diff_map_button), TRUE);
-
-  gtk_widget_show(window);
-}
-
-
-// Not needed? because we look at the active menu item at OK button-press time?
-//
-// Well, that was indeeed the way that we used to do it, now (WDW)
-// that we rationalize the coordinates molecules option menu filling
-// we have to set the the active molecule in this callback.
-// 
-void
-refmac_molecule_button_select(GtkWidget *item, GtkPositionType pos) {
-
-   graphics_info_t::refmac_molecule = pos;
-
-}
-
 void fill_about_window(GtkWidget *widget) {
 
    GtkWidget *text_widget;
@@ -3615,53 +3487,6 @@ void fill_option_menu_with_coordinates_options_unsaved_first(GtkWidget *option_m
 
 // } 
 
-void free_memory_run_refmac(GtkWidget *window) {
-
-   GtkWidget *option_menu = lookup_widget(window,
-					  "run_refmac_coords_optionmenu");
-   void *imol_ptr;
-   GtkWidget *menu;
-   GtkWidget *active_item;
-
-   if (option_menu) {
-      menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
-      active_item = gtk_menu_get_active(GTK_MENU(menu));
-      if (active_item) { 
-	 imol_ptr = gtk_object_get_user_data(GTK_OBJECT(active_item));
-      } else { 
-	 std::cout << "no active item in coords option_menu\n";
-      } 
-
-      // free each of the menu items in menu
-      
-      // run over items in menu somehow:
-   } else { 
-      std::cout << "ERROR:: can't find coords option_menu in free_memory_run_refmac\n";
-   } 
-
-
-   option_menu = lookup_widget(window, "run_refmac_map_optionmenu");
-   if (refmac_use_twin_state() == 0) {
-     if (option_menu) { 
-       menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
-       active_item = gtk_menu_get_active(GTK_MENU(menu));
-       if (active_item) { 
-	 imol_ptr = gtk_object_get_user_data(GTK_OBJECT(active_item));
-       } else { 
-	 std::cout << "no active item in maps option_menu\n";
-       }
-
-       // free each of the menu items in menu
-      
-       // run over items in menu somehow:
-     } else { 
-       std::cout << "ERROR:: can't find map option_menu in free_memory_run_refmac\n";
-     }
-   }
-//    std::cout << "debugging bad window got to end of free_memory_run_refmac"
-// 	     << std::endl;
-} 
-
 /*  ----------------------------------------------------------------------- */
 /*              new close molecule                                          */
 /*  ----------------------------------------------------------------------- */
@@ -3876,7 +3701,6 @@ void close_molecule(int imol) {
 
 void fill_close_option_menu_with_all_molecule_options(GtkWidget *optionmenu) {
 
-   
    graphics_info_t g;
    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu));
    
@@ -3925,13 +3749,12 @@ void fill_close_option_menu_with_all_molecule_options(GtkWidget *optionmenu) {
 void
 close_molecule_item_select(GtkWidget *item, GtkPositionType pos) {
 
-   std::cout << "activating closing position/imol " << pos << std::endl;
+   std::cout << "DEBUG:: activating closing position/imol " << pos << std::endl;
    
 }
 
 void add_ccp4i_project_shortcut(GtkWidget *fileselection) {
 
-#if (GTK_MAJOR_VERSION > 1)
    // Paul likes to have a current dir shortcut, here we go then:
    gchar *current_dir = g_get_current_dir();
    gtk_file_chooser_add_shortcut_folder(GTK_FILE_CHOOSER(fileselection),
@@ -3957,18 +3780,15 @@ void add_ccp4i_project_shortcut(GtkWidget *fileselection) {
 					      NULL);
       }
    }
-#endif   // GTK_MAJOR_VERSION
 }
 
 void add_ccp4i_project_optionmenu(GtkWidget *fileselection, int file_selection_type) {
 
    bool add_shortcut = 0;
 
-#if (GTK_MAJOR_VERSION > 1)
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
       add_shortcut = 1;
    }
-#endif
 
    if (add_shortcut) {
 //       std::cout << "in add_ccp4i_project_optionmenu widget is fileselection "
@@ -4101,14 +3921,13 @@ void clear_refmac_ccp4i_project() {
 void add_filename_filter(GtkWidget *fileselection) { 
 
   bool add_filter = 1;
-#if (GTK_MAJOR_VERSION > 1)
   if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
       add_filter = 0;
       // maybe we use it to set the scripting filter for now!
       // not general enough but may do for now!
       add_filechooser_filter_button(fileselection, COOT_SCRIPTS_FILE_SELECTION);
   }
-#endif
+
   if (add_filter) {
    GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
 

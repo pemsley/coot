@@ -98,6 +98,7 @@
 
 #include "ligand/ligand.hh" // for rigid body fit by atom selection.
 
+#include "coot-fileselections.h"
 #include "cmtz-interface.hh" // for valid columns mtz_column_types_info_t
 #include "c-interface-mmdb.hh"
 #include "c-interface-scm.hh"
@@ -107,23 +108,28 @@
 /*                         refmac stuff                                      */
 /*  ------------------------------------------------------------------------ */
 
-void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
+void execute_refmac(GtkWidget *window) { 
 
    // The passed window, is the refmac dialog, where one selects the
    // coords molecule and the map molecule.
 
+   graphics_info_t g;
    GtkWidget *option_menu = lookup_widget(window, "run_refmac_coords_optionmenu");
    GtkWidget *menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
    GtkWidget *active_item = gtk_menu_get_active(GTK_MENU(menu));
 
-   int imol_coords = graphics_info_t::refmac_molecule; 
-   if (imol_coords < 0) {
-      std::cout << "No coordinates selected for refmac\n";
-   } else { 
+   int imol_coords = graphics_info_t::refmac_molecule;
+
+   std::cout << "------------------ in execute_refmac: imol_coords is " << imol_coords << std::endl;
+   
+   if (! is_valid_model_molecule(imol_coords)) {
+
+      std::cout << "INFO:: No coordinates molecule selected for running refmac\n";
+
+   } else {
 
       option_menu = lookup_widget(window, "run_refmac_map_optionmenu");
-      GtkWidget *mtz_file_radiobutton;
-      mtz_file_radiobutton = lookup_widget(window, "run_refmac_mtz_file_radiobutton");
+      GtkWidget *mtz_file_radiobutton = lookup_widget(window, "run_refmac_mtz_file_radiobutton");
       menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
       active_item = gtk_menu_get_active(GTK_MENU(menu));
       int imol_map_refmac = -1;
@@ -138,19 +144,24 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
       if ((active_item == 0) && (have_mtz_file == false)) {
 	 add_status_bar_text("No map has associated Refmac Parameters - no REFMAC!");
       } else {
+	 std::cout << "DEBUG:: Happy-path 1 active_item: " << active_item
+		   << " and have_mtz_file " << have_mtz_file << std::endl;
 	 int imol_window = -1;
 	 std::string mtz_in_filename = "";
-	 if (!have_mtz_file) {
+	 if (! have_mtz_file) {
 	    // we get imol from a map mtz file
+	    // get imol_window from active item of run_refmac_map_optionmenu.
+	    //
 	    imol_window = GPOINTER_TO_INT(gtk_object_get_user_data(GTK_OBJECT(active_item)));
 	 } else {
 	    // check the filename of the button
 	    GtkWidget *button_mtz_label = lookup_widget(window, "run_refmac_mtz_file_label");
 	    const gchar *mtz_filename = gtk_label_get_text(GTK_LABEL(button_mtz_label));
+	    std::cout << "DEBUG:: set mtz_in_filename to " << mtz_in_filename << std::endl;
 	    mtz_in_filename = mtz_filename;
 	    if (mtz_in_filename == "(None)") {
 	       have_mtz_file = false;
-	       std::cout << "WARNING:: no mtz file given" <<std::endl;
+	       std::cout << "WARNING:: [A] no mtz file given" <<std::endl;
 	    } else {
 	       if (! coot::file_exists(mtz_in_filename)) {
 		  have_mtz_file = false;
@@ -161,20 +172,19 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 
 	 std::cout << "DEBUG:: imol_window: " << imol_window << std::endl;
 
-	 // if ((imol_window < 0) && (have_mtz_file == false)) { // do you mean || here?
-	 if ((imol_window < 0) || (have_mtz_file == false)) { // do you mean || here?
+	 if ((imol_window < 0) && (have_mtz_file == false)) { // do you mean || here?
 	    if (have_mtz_file == false) {
 	       std::cout << "INFO:: No mtz file selected for refmac\n";
 	    } else {
 	       std::cout << "INFO:: No map data selected for refmac\n";
 	    }
-	 } else { 
+	 } else {
+	    std::cout << "Happy-path-2 with imol_window " << imol_window << std::endl;
 	    imol_map_refmac = imol_window;
 	    if (! is_valid_map_molecule(imol_map_refmac) && (! have_mtz_file)) {
 	       std::string s = "Invalid molecule number: ";
 	       s += graphics_info_t::int_to_string(imol_map_refmac);
 	       std::cout << s << std::endl;
-	       graphics_info_t g;
 	       g.add_status_bar_text(s);
 	    } else {
 	       // normal path
@@ -188,8 +198,6 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 		  } else {
 		     std::cout << " Running refmac from mtz file " << mtz_in_filename << "(not map)" << std::endl;
 		  }
-
-		  graphics_info_t g;
 
 		  std::string refmac_dir("coot-refmac");
 		  short int have_ccp4i_project = 0;
@@ -227,15 +235,12 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 		     std::string pdb_in_filename  = refmac_dir;
 		     std::string pdb_out_filename = refmac_dir;
 		     std::string mtz_out_filename = refmac_dir;
-		     std::cout << "DEBUG:: pdb_in_filename is now 1 " <<  pdb_in_filename << std::endl;
 		     if (! have_ccp4i_project) { 
 			pdb_in_filename  += "/";
 			pdb_out_filename += "/";
 			mtz_out_filename += "/";
 		     }
-		     std::cout << "DEBUG:: pdb_in_filename is now 2 " <<  pdb_in_filename << std::endl;
 		     pdb_in_filename += g.molecules[imol_coords].Refmac_in_name();
-		     std::cout << "DEBUG:: pdb_in_filename is now 3 " <<  pdb_in_filename << std::endl;
 
 		     // cleverness happens in Refmac_out_name:
 		     pdb_out_filename += g.molecules[imol_coords].Refmac_out_name();
@@ -630,24 +635,16 @@ void execute_refmac(GtkWidget *window) {  /* lookup stuff here. */
 
 void set_refmac_phase_input(int phase_flag) {
 
-  graphics_info_t g;
-#if (GTK_MAJOR_VERSION > 1)
-  g.set_refmac_phase_input(phase_flag);
-#else
-  std::cout<<"BL INFO:: cannot use phase recombination in GTK1 (yet), so wont change flag!\n"<<std::endl;;
-  g.set_refmac_phase_input(0);
-#endif // GTK2
+   graphics_info_t g;
+   g.set_refmac_phase_input(phase_flag);
+
 }
 
 void set_refmac_use_sad(int state) {
 
-  graphics_info_t g;
-#if (GTK_MAJOR_VERSION > 1)
-  g.set_refmac_use_sad(state);
-#else
-  std::cout<<"BL INFO:: cannot use SAD refinement in GTK1 (yet), so wont change flag!\n"<<std::endl;;
-  g.set_refmac_use_sad(0);
-#endif // GTK2
+   graphics_info_t g;
+   g.set_refmac_use_sad(state);
+
 }
 
 
@@ -735,3 +732,174 @@ fill_refmac_sad_atom_entry(GtkWidget *w) {
     gtk_entry_set_text(GTK_ENTRY(lambda_entry), lambda_str.c_str());
   }
 }
+
+void
+wrapped_create_run_refmac_dialog() {
+   
+   GtkWidget *window = create_run_refmac_dialog();
+   GtkSignalFunc callback_func = GTK_SIGNAL_FUNC(refmac_molecule_button_select);
+   GtkWidget *diff_map_button = lookup_widget(window, "run_refmac_diff_map_checkbutton");
+   GtkWidget *optionmenu;
+   int imol_coords = first_coords_imol();
+   int have_file = 0;
+
+   GtkWidget *labels = lookup_widget(window, "run_refmac_column_labels_frame");
+   GtkWidget *ncs_button = lookup_widget(window, "run_refmac_ncs_checkbutton");
+   GtkWidget *mtz_file_radiobutton = lookup_widget(window, "run_refmac_mtz_file_radiobutton");
+   optionmenu = lookup_widget(window, "run_refmac_method_optionmenu");
+   fill_option_menu_with_refmac_methods_options(optionmenu);
+
+   optionmenu = lookup_widget(window, "run_refmac_phase_input_optionmenu");
+   fill_option_menu_with_refmac_phase_input_options(optionmenu);
+   if (GTK_TOGGLE_BUTTON(mtz_file_radiobutton)->active) have_file = 1;
+
+   set_refmac_molecule(imol_coords);
+
+   optionmenu = lookup_widget(window, "run_refmac_coords_optionmenu");
+   fill_option_menu_with_coordinates_options(optionmenu, callback_func, imol_coords);
+
+   optionmenu = lookup_widget(window, "run_refmac_map_optionmenu");
+   
+   /*  fill_option_menu_with_refmac_options(optionmenu); */
+   fill_option_menu_with_refmac_labels_options(optionmenu); // change the name of this function -
+                                                            // they are molecules with refmac mtz files.
+
+   /* to set the labels set the active item; only if not twin and
+      if we really want the labels from map mtz*/
+   if (refmac_use_twin_state() == 0 && have_file == 0) {
+      GtkWidget *active_menu_item =
+	 gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(optionmenu))));
+      if (active_menu_item) {
+	 gtk_menu_item_activate(GTK_MENU_ITEM(active_menu_item));
+      }
+   }
+
+   if (refmac_runs_with_nolabels()) {
+      GtkWidget *checkbutton = lookup_widget(window, "run_refmac_nolabels_checkbutton");
+      gtk_widget_show(checkbutton);
+      if (get_refmac_phase_input()) {
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), FALSE);
+	 gtk_widget_show(labels);
+      } else {
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+	 gtk_widget_hide(labels);
+      }
+      GtkWidget *extra_options = lookup_widget(window, "run_refmac_extra_refinement_options_frame");
+      GtkWidget *twin_check_button = lookup_widget(window, "run_refmac_twin_checkbutton");
+      GtkWidget *sad_extras = lookup_widget(window, "run_refmac_sad_extra_hbox");
+      gtk_widget_show(extra_options);
+      gtk_widget_hide(twin_check_button);
+
+      if (refmac_runs_with_nolabels() >= 2) {
+	 /* add the tls, twin and sad buttons */
+	 gtk_widget_show(twin_check_button);
+	 /* update the check buttons */
+	 GtkWidget *mtz_file_label = lookup_widget(window, "run_refmac_mtz_file_label");
+	 store_refmac_mtz_file_label(mtz_file_label);
+	 /* set the filename if there */
+	 const gchar *mtz_filename = get_saved_refmac_file_filename();
+	 if (mtz_filename) {
+	    gtk_label_set_text(GTK_LABEL(mtz_file_label), mtz_filename);
+	    fill_option_menu_with_refmac_file_labels_options(optionmenu);
+	 }
+	 if (refmac_use_twin_state()) {
+	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), TRUE);
+	    gtk_widget_hide(sad_extras);
+	 } else {
+	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(twin_check_button), FALSE);
+	 }
+	 if (get_refmac_phase_input() == 3) {
+	    gtk_widget_set_sensitive(twin_check_button, FALSE);
+	    gtk_widget_show(sad_extras);
+	    /* fill the entry with 1st existing atom */
+	    fill_refmac_sad_atom_entry(window);
+	 } else {
+	    gtk_widget_set_sensitive(twin_check_button, TRUE);
+	    gtk_widget_hide(sad_extras);
+	 }
+
+      }
+   } else {
+      gtk_widget_show(labels);
+   }
+
+   optionmenu = lookup_widget(window, "run_refmac_ncycle_optionmenu");
+   fill_option_menu_with_refmac_ncycle_options(optionmenu);
+
+   /* set the ncs button depending on state */
+   if (refmac_use_ncs_state()) {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ncs_button), TRUE);
+   } else {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ncs_button), FALSE);
+   }
+
+   optionmenu = lookup_widget(window, "run_refmac_ccp4i_optionmenu");
+   clear_refmac_ccp4i_project();
+   add_ccp4i_projects_to_optionmenu(optionmenu, 
+				    COOT_COORDS_FILE_SELECTION,
+				    GTK_SIGNAL_FUNC(run_refmac_ccp4i_option_menu_signal_func));
+
+   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(diff_map_button), TRUE);
+
+   gtk_widget_show(window);
+}
+
+
+// Not needed? because we look at the active menu item at OK button-press time?
+//
+// Well, that was indeeed the way that we used to do it, now (WDW)
+// that we rationalize the coordinates molecules option menu filling
+// we have to set the the active molecule in this callback.
+// 
+void
+refmac_molecule_button_select(GtkWidget *item, GtkPositionType pos) {
+
+   graphics_info_t::refmac_molecule = pos;
+}
+
+
+void free_memory_run_refmac(GtkWidget *window) {
+
+   GtkWidget *option_menu = lookup_widget(window,
+					  "run_refmac_coords_optionmenu");
+   void *imol_ptr;
+   GtkWidget *menu;
+   GtkWidget *active_item;
+
+   if (option_menu) {
+      menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
+      active_item = gtk_menu_get_active(GTK_MENU(menu));
+      if (active_item) { 
+	 imol_ptr = gtk_object_get_user_data(GTK_OBJECT(active_item));
+      } else { 
+	 std::cout << "no active item in coords option_menu\n";
+      } 
+
+      // free each of the menu items in menu
+      
+      // run over items in menu somehow:
+   } else { 
+      std::cout << "ERROR:: can't find coords option_menu in free_memory_run_refmac\n";
+   } 
+
+   option_menu = lookup_widget(window, "run_refmac_map_optionmenu");
+   if (refmac_use_twin_state() == 0) {
+     if (option_menu) { 
+       menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(option_menu));
+       active_item = gtk_menu_get_active(GTK_MENU(menu));
+       if (active_item) { 
+	 imol_ptr = gtk_object_get_user_data(GTK_OBJECT(active_item));
+       } else { 
+	 std::cout << "no active item in maps option_menu\n";
+       }
+
+       // free each of the menu items in menu
+      
+       // run over items in menu somehow:
+     } else { 
+       std::cout << "ERROR:: can't find map option_menu in free_memory_run_refmac\n";
+     }
+   }
+//    std::cout << "debugging bad window got to end of free_memory_run_refmac"
+// 	     << std::endl;
+} 
