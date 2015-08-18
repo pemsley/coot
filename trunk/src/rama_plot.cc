@@ -1023,9 +1023,9 @@ coot::rama_plot::map_mouse_pos(double x, double y) {
 	 // not found in the map - and that should happed at the end
 	 // of every fragment/chain)).
 	 //
-	 coot::residue_spec_t next_res_spec(t.spec.chain,
-					    t.spec.resno+1,
-					    t.spec.insertion_code);
+	 coot::residue_spec_t next_res_spec(t.spec.chain_id,
+					    t.spec.res_no+1,
+					    t.spec.ins_code);
 
 	 std::map<residue_spec_t, util::phi_psi_t>::const_iterator it = 
 	    phi_psi_model_sets[t.model_number].phi_psi.find(next_res_spec);
@@ -1164,7 +1164,7 @@ coot::rama_plot::recentre_graphics_maybe(mouse_util_t t) {
       } else {
 	 set_go_to_atom_molecule(molecule_numbers_.first);
       }
-      set_go_to_atom_chain_residue_atom_name(t.spec.chain.c_str(), t.spec.resno, " CA ");
+      set_go_to_atom_chain_residue_atom_name(t.spec.chain_id.c_str(), t.spec.res_no, " CA ");
    }
 
 }
@@ -1812,8 +1812,9 @@ coot::rama_plot::find_phi_psi_differences_internal(const std::string &chain_id1,
 
    diff_sq.clear();
    for (unsigned int imod=1; imod<phi_psi_model_sets.size(); imod++) {
-      std::cout << "in find_phi_psi_differences_internal with model number " << imod
-		<< " primary size " << phi_psi_model_sets[imod].size() << std::endl;
+      if (false)
+	 std::cout << "in find_phi_psi_differences_internal with model number " << imod
+		   << " primary size " << phi_psi_model_sets[imod].size() << std::endl;
       for (it=phi_psi_model_sets[imod].phi_psi.begin();
 	   it!=phi_psi_model_sets[imod].phi_psi.end(); it++) {
 	 coot::residue_spec_t spec_1 = it->first;
@@ -1821,7 +1822,7 @@ coot::rama_plot::find_phi_psi_differences_internal(const std::string &chain_id1,
 	 // now (re)set chain_id of spec_2
 	 // FIXME
 	 if (use_chain_ids) {
-	    spec_2.chain = chain_id2;
+	    spec_2.chain_id = chain_id2;
 	 }
 	 coot::util::phi_psi_t pp_1 = it->second;
 	 coot::util::phi_psi_t pp_2 = secondary_phi_psi_model_sets[imod][spec_2];
@@ -1835,8 +1836,8 @@ coot::rama_plot::find_phi_psi_differences_internal(const std::string &chain_id1,
 	    diff_sq_t ds(pp_1, pp_2, spec_1, spec_2, v); // something
 	    diff_sq.push_back(ds);
 	 } else {
-	    std::cout << "Not found " << spec_2 << " from ref spec " << spec_1
-		      << " in " << secondary_phi_psi_model_sets[imod].size()
+	    std::cout << "WARNING:: Not found " << spec_2 << " from ref spec "
+		      << spec_1 << " in " << secondary_phi_psi_model_sets[imod].size()
 		      << " residue in secondary set" << std::endl;
 	 } 
       }

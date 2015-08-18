@@ -2974,10 +2974,10 @@ graphics_info_t::nudge_active_residue(guint direction) {
       // all constructed.  Apply it
       clipper::RTop_orth rtop(mat, shift);
       int imol = active_atom.second.first;
-      graphics_info_t::molecules[imol].transform_zone_by(active_atom.second.second.chain,
-							 active_atom.second.second.resno,
-							 active_atom.second.second.resno,
-							 active_atom.second.second.insertion_code,
+      graphics_info_t::molecules[imol].transform_zone_by(active_atom.second.second.chain_id,
+							 active_atom.second.second.res_no,
+							 active_atom.second.second.res_no,
+							 active_atom.second.second.ins_code,
 							 rtop, 1);
       graphics_info_t g;
 
@@ -4083,10 +4083,10 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 		  int i = 0;
 		  message_string = "There is one residue with an\n";
 		  message_string += "incorrect chiral volume\n";
-		  message_string += bv.second[i].chain;
+		  message_string += bv.second[i].chain_id;
 		  message_string += " ";
-		  message_string += coot::util::int_to_string(bv.second[i].resno);
-		  message_string += bv.second[i].insertion_code;
+		  message_string += coot::util::int_to_string(bv.second[i].res_no);
+		  message_string += bv.second[i].ins_code;
 		  message_string += " ";
 		  message_string += bv.second[i].atom_name;
 		  message_string += " ";
@@ -4098,10 +4098,10 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 		  message_string += " residues with \n";
 		  message_string += "incorrect chiral volumes\n";
 		  for (unsigned int i=0; i<bv.second.size(); i++) { 
-		     message_string += bv.second[i].chain;
+		     message_string += bv.second[i].chain_id;
 		     message_string += " ";
-		     message_string += coot::util::int_to_string(bv.second[i].resno);
-		     message_string += bv.second[i].insertion_code;
+		     message_string += coot::util::int_to_string(bv.second[i].res_no);
+		     message_string += bv.second[i].ins_code;
 		     message_string += " ";
 		     message_string += bv.second[i].atom_name;
 		     message_string += " ";

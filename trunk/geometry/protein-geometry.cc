@@ -3094,9 +3094,6 @@ coot::protein_geometry::planar_peptide_restraint_state() const {
 	 std::vector<coot::dict_link_plane_restraint_t>::const_iterator it;
 	 for (it = dict_link_res_restraints[i].link_plane_restraint.begin();
 	      it != dict_link_res_restraints[i].link_plane_restraint.end(); it++) {
-	    std::cout << "DEBUG:: planar_peptide_restraint_state() found link_id "
-		      << link_id << std::endl;
-	    std::cout << "        has plane_id " << it->plane_id << std::endl;
 	    if (it->plane_id == plane_id) {
 	       ifound = true;
 	       break;

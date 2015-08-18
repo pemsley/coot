@@ -6784,8 +6784,8 @@ coot::restraints_container_t::get_atom_spec(int atom_index) const {
 int
 coot::restraints_container_t::get_asc_index(const coot::atom_spec_t &spec) const {
 
-   return get_asc_index_new(spec.atom_name.c_str(), spec.alt_conf.c_str(), spec.resno,
-			    spec.insertion_code.c_str(), spec.chain.c_str());
+   return get_asc_index_new(spec.atom_name.c_str(), spec.alt_conf.c_str(), spec.res_no,
+			    spec.ins_code.c_str(), spec.chain_id.c_str());
 }
 
 

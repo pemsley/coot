@@ -196,7 +196,7 @@ int cootaneer_internal(int imol_map, int imol_model, coot::atom_spec_t &atom_spe
 
 	 } else { 
 
-	    std::string chain_id = atom_spec.chain;
+	    std::string chain_id = atom_spec.chain_id;
 
 	    mmdb::Manager *mol = graphics_info_t::molecules[imol_model].atom_sel.mol;
 	    std::pair<mmdb::Manager *, std::vector<coot::residue_spec_t> > mmdb_info =

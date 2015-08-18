@@ -484,9 +484,9 @@ coot::pi_stacking_container_t::get_ring_pi_centre_points(const std::vector<std::
    if (aromatic_plane_points.size() != ring_atom_names.size()) {
       coot::residue_spec_t spec(res_ref);
       std::string mess = "Not all aromatic atoms were found in residue ";
-      mess += spec.chain; 
+      mess += spec.chain_id; 
       mess += " "; 
-      mess += spec.resno; 
+      mess += spec.res_no; 
       throw std::runtime_error(mess);
    } else {
       // can throw an exception

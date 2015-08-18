@@ -455,16 +455,16 @@ molecule_class_info_t::get_vector(const coot::residue_spec_t &central_residue_sp
 
    if (! central_residue) {
       std::string message = "Missing residue ";
-      message += central_residue_spec.chain;
+      message += central_residue_spec.chain_id;
       message += " "; 
-      message += central_residue_spec.resno;
+      message += central_residue_spec.res_no;
       throw std::runtime_error(message);
    } else { 
       if (! neighbour_residue) {
 	 std::string message = "Missing residue ";
-	 message += neighbour_residue_spec.chain;
+	 message += neighbour_residue_spec.chain_id;
 	 message += " ";
-	 message += neighbour_residue_spec.resno;
+	 message += neighbour_residue_spec.res_no;
 	 throw std::runtime_error(message);
       } else {
 	 // OK! go.
@@ -1179,7 +1179,7 @@ molecule_class_info_t::add_linked_residue_by_beam_in(const coot::residue_spec_t 
 	 // deleting a link mod atom, for example). So we need a FinishStructEdit() here
 	 atom_sel.mol->FinishStructEdit();
 
-	 std::pair<bool, mmdb::Residue *> status_pair = add_residue(result, spec_in.chain);
+	 std::pair<bool, mmdb::Residue *> status_pair = add_residue(result, spec_in.chain_id);
 
 	 if (status_pair.first) {
 	    new_residue_spec = coot::residue_spec_t(status_pair.second);
@@ -1217,7 +1217,7 @@ molecule_class_info_t::add_linked_residue_by_atom_torsions(const coot::residue_s
 	 l.set_temperature_factor(default_b_factor_new_atoms);
 	 mmdb::Residue *result = l.make_residue(residue_ref);
 	 atom_sel.mol->FinishStructEdit();
-	 std::pair<bool, mmdb::Residue *> status_pair = add_residue(result, spec_in.chain);
+	 std::pair<bool, mmdb::Residue *> status_pair = add_residue(result, spec_in.chain_id);
 	 if (status_pair.first) {
 	    new_residue_spec = coot::residue_spec_t(status_pair.second);
 	    coot::dict_link_info_t link_info(residue_ref, status_pair.second,
@@ -1291,13 +1291,13 @@ coot::dict_link_info_t::dict_link_info_t(mmdb::Residue *residue_ref,
 			std::string atom_name_2(residue_atoms_2[iat2]->name);
 			if (atom_name_2 == rr.link_bond_restraint[ibond].atom_id_2_4c()) {
 			   ifound = 1;
-			   spec_ref = coot::atom_spec_t(res_spec_ref.chain,
-							res_spec_ref.resno,
-							res_spec_ref.insertion_code,
+			   spec_ref = coot::atom_spec_t(res_spec_ref.chain_id,
+							res_spec_ref.res_no,
+							res_spec_ref.ins_code,
 							atom_name_1, "");
-			   spec_new = coot::atom_spec_t(res_spec_new.chain,
-							res_spec_new.resno,
-							res_spec_new.insertion_code,
+			   spec_new = coot::atom_spec_t(res_spec_new.chain_id,
+							res_spec_new.res_no,
+							res_spec_new.ins_code,
 							atom_name_2, "");
 			   dist = coot::distance(residue_atoms_1[iat1],
 						 residue_atoms_2[iat2]);
@@ -1661,8 +1661,8 @@ molecule_class_info_t::get_fragment_info(bool screen_output_also) const {
 	 std::cout << "   chain-id: " << v[i].chain_id << std::endl;
 	 for (unsigned int j=0; j<v[i].ranges.size(); j++) { 
 	    std::cout << "      "
-		      << v[i].ranges[j].start_res.resno << " "
-		      << v[i].ranges[j].end_res.resno << std::endl;
+		      << v[i].ranges[j].start_res.res_no << " "
+		      << v[i].ranges[j].end_res.res_no << std::endl;
 	 }
       }
       std::cout << "------------------" << std::endl;

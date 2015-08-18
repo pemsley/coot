@@ -25,10 +25,10 @@ coot::chain_mutation_info_container_t::rationalize_insertions() {
       for (unsigned int i=0; i<single_insertions.size(); i++) {
 // 	 std::cout << "single insertion residue number: "
 // 		   << single_insertions[i].first.resno << std::endl;
-	 if (single_insertions[i].first.resno < min_resno)
-	    min_resno = single_insertions[i].first.resno;
-	 if (single_insertions[i].first.resno > max_resno)
-	    max_resno = single_insertions[i].first.resno;
+	 if (single_insertions[i].first.res_no < min_resno)
+	    min_resno = single_insertions[i].first.res_no;
+	 if (single_insertions[i].first.res_no > max_resno)
+	    max_resno = single_insertions[i].first.res_no;
       }
 
 //       std::cout << "DEBUG:: rational insertion min and max: "
@@ -36,8 +36,8 @@ coot::chain_mutation_info_container_t::rationalize_insertions() {
 
       std::vector<std::pair<int, std::string> > ins((max_resno - min_resno + 1), (std::pair<int, std::string>(0, "")));
       for (unsigned int i=0; i<single_insertions.size(); i++) {
-	 ins[single_insertions[i].first.resno-min_resno].first++;
-	 ins[single_insertions[i].first.resno-min_resno].second =
+	 ins[single_insertions[i].first.res_no-min_resno].first++;
+	 ins[single_insertions[i].first.res_no-min_resno].second =
 	    single_insertions[i].second;
       }
       short int in_insertion_range = 0;

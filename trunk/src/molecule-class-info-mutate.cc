@@ -326,8 +326,8 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 	 int local_n_selected_residues;
 	 atom_sel.mol->Select(SelectionHandle, mmdb::STYPE_RESIDUE, 0,
 			      chain_id.c_str(),
-			      rs.resno, rs.insertion_code.c_str(),
-			      rs.resno, rs.insertion_code.c_str(),
+			      rs.res_no, rs.ins_code.c_str(),
+			      rs.res_no, rs.ins_code.c_str(),
 			      "*", "*", "*", "*",
 			      mmdb::SKEY_NEW
 			      );
@@ -347,7 +347,7 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 	    n_mutations++;
 	 } else {
 	    std::cout << "ERROR:: No residue selected for  mutation " << chain_id
-		      << " " << rs.resno << " " << rs.insertion_code << " -> "
+		      << " " << rs.res_no << " " << rs.ins_code << " -> "
 		      << target_type << std::endl;
 	    n_mutations_failed++;
 	 }
@@ -409,8 +409,8 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 	 int local_n_selected_residues;
 	 atom_sel.mol->Select(SelectionHandle, mmdb::STYPE_RESIDUE, 0,
 			      chain_id.c_str(),
-			      rs.resno, rs.insertion_code.c_str(),
-			      rs.resno, rs.insertion_code.c_str(),
+			      rs.res_no, rs.ins_code.c_str(),
+			      rs.res_no, rs.ins_code.c_str(),
 			      "*", "*", "*", "*",
 			      mmdb::SKEY_NEW
 			      );
@@ -426,7 +426,7 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 // 		      << local_residues[0]->GetSeqNum()  << " "
 // 		      << local_residues[0]->GetResName() << "\n";
 	    n_deletions++;
-	    residues_for_deletion.push_back(std::pair<mmdb::Residue *, int> (local_residues[0], rs.resno));
+	    residues_for_deletion.push_back(std::pair<mmdb::Residue *, int> (local_residues[0], rs.res_no));
 	 }
 	 atom_sel.mol->DeleteSelection(SelectionHandle);
       }
@@ -1023,13 +1023,13 @@ molecule_class_info_t::mutate_base(const coot::residue_spec_t &res_spec, std::st
 	       chain_p = model_p->GetChain(ichain);
 	       if (chain_p != NULL) {  
 		  std::string mol_chain_id = chain_p->GetChainID();
-		  if (mol_chain_id == res_spec.chain) { 
+		  if (mol_chain_id == res_spec.chain_id) { 
 		     int nres = chain_p->GetNumberOfResidues();
 		     mmdb::PResidue residue_p;
 		     for (int ires=0; ires<nres; ires++) { 
 			residue_p = chain_p->GetResidue(ires);
-			if (residue_p->GetSeqNum() == res_spec.resno) {
-			   if (res_spec.insertion_code == residue_p->GetInsCode()) {
+			if (residue_p->GetSeqNum() == res_spec.res_no) {
+			   if (res_spec.ins_code == residue_p->GetInsCode()) {
 
 			      // Found the residue (nucleotide in this case):
 
@@ -1382,9 +1382,9 @@ molecule_class_info_t::apply_sequence(int imol_map, mmdb::Manager *poly_ala_mol,
 
 	 int model_number_ANY = mmdb::MinInt4;
 	 delete_residue(model_number_ANY,
-			r_del[ird].chain,
-			r_del[ird].resno,
-			r_del[ird].insertion_code);
+			r_del[ird].chain_id,
+			r_del[ird].res_no,
+			r_del[ird].ins_code);
       }
 
       insert_coords_internal(make_asc(poly_ala_mol));
@@ -1595,11 +1595,11 @@ molecule_class_info_t::remove_ter_atoms(const coot::residue_spec_t &spec) {  // 
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
-	 if (spec.chain == chain_p->GetChainID()) { 
+	 if (spec.chain_id == chain_p->GetChainID()) { 
 	    int nres = chain_p->GetNumberOfResidues();
 	    if (nres > 0) { 
 	       mmdb::Residue *residue_p = chain_p->GetResidue(nres-1);
-	       if (spec.resno == residue_p->GetSeqNum()) { 
+	       if (spec.res_no == residue_p->GetSeqNum()) { 
 		  has_ter = residue_has_TER_atom(residue_p);
 	       }
 	    }
@@ -1616,11 +1616,11 @@ molecule_class_info_t::remove_ter_atoms(const coot::residue_spec_t &spec) {  // 
 	 int nchains = model_p->GetNumberOfChains();
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    chain_p = model_p->GetChain(ichain);
-	    if (spec.chain == chain_p->GetChainID()) { 
+	    if (spec.chain_id == chain_p->GetChainID()) { 
 	       int nres = chain_p->GetNumberOfResidues();
 	       if (nres > 0) { 
 		  mmdb::Residue *residue_p = chain_p->GetResidue(nres-1);
-		  if (spec.resno == residue_p->GetSeqNum()) {
+		  if (spec.res_no == residue_p->GetSeqNum()) {
 		     remove_TER_internal(residue_p);
 		  }
 	       }

@@ -62,7 +62,7 @@ molecule_class_info_t::make_fragment_chain(const std::vector<coot::residue_spec_
 
    std::vector<coot::residue_spec_t>::const_iterator it;
    for (it=local_specs.begin(); it!= local_specs.end(); it++)
-      chain_id_map[it->chain]++;
+      chain_id_map[it->chain_id]++;
 
    if (chain_id_map.size() != 1) {
       std::cout << "WARNING:: all residues need to be in the same chain. Aborted loop selection"
@@ -72,12 +72,12 @@ molecule_class_info_t::make_fragment_chain(const std::vector<coot::residue_spec_
       std::sort(local_specs.begin(), local_specs.end());
 
       int i_loop_res=0;
-      int n_loop_residues = local_specs.back().resno - local_specs.begin()->resno + 1;
+      int n_loop_residues = local_specs.back().res_no - local_specs.begin()->res_no + 1;
       
       for (int i_loop_res=0; i_loop_res<n_loop_residues; i_loop_res++) {
 
 	 coot::residue_spec_t test_spec(*local_specs.begin());
-	 test_spec.resno += i_loop_res;
+	 test_spec.res_no += i_loop_res;
 
 	 if (std::find(local_specs.begin(), local_specs.end(), test_spec) == local_specs.end()) {
 	    // Add a null residue

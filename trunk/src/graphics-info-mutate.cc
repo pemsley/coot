@@ -346,19 +346,19 @@ graphics_info_t::mutate_chain(int imol, const std::string &chain_id,
 			   float lowest_probability = 0.01;
 			   std::string altloc = "";
 			   molecules[imol].auto_fit_best_rotamer(mode,
-								 res_spec.resno,
+								 res_spec.res_no,
 								 altloc,
-								 res_spec.insertion_code,
-								 res_spec.chain,
+								 res_spec.ins_code,
+								 res_spec.chain_id,
 								 imol_map,
 								 clash_flag,
 								 lowest_probability,
 								 *Geom_p());
 			   short int auto_range = 1;
 			   refine_residue_range(imol,
-						res_spec.chain, res_spec.chain,
-						res_spec.resno, res_spec.insertion_code,
-						res_spec.resno, res_spec.insertion_code,
+						res_spec.chain_id, res_spec.chain_id,
+						res_spec.res_no, res_spec.ins_code,
+						res_spec.res_no, res_spec.ins_code,
 						altloc, 0);
 		  
 			}

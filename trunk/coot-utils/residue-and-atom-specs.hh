@@ -11,9 +11,9 @@ namespace coot {
    
    class atom_spec_t {
    public:
-      std::string chain;
-      int resno;
-      std::string insertion_code;
+      std::string chain_id;
+      int res_no;
+      std::string ins_code;
       std::string atom_name;
       std::string alt_conf;
       int int_user_data;
@@ -21,9 +21,9 @@ namespace coot {
       std::string string_user_data;
       int model_number;
       atom_spec_t() {
-	 chain = "unset";
-	 resno = mmdb::MinInt4;
-	 insertion_code = "";
+	 chain_id = "unset";
+	 res_no = mmdb::MinInt4;
+	 ins_code = "";
 	 model_number = -1;
 	 int_user_data = -1;
       }
@@ -32,9 +32,9 @@ namespace coot {
 		  const std::string &insertion_code_in,
 		  const std::string &atom_name_in,
 		  const std::string &alt_conf_in) {
-	 chain = chain_in;
-	 resno = resno_in;
-	 insertion_code = insertion_code_in;
+	 chain_id = chain_in;
+	 res_no = resno_in;
+	 ins_code = insertion_code_in;
 	 atom_name = atom_name_in;
 	 alt_conf = alt_conf_in;
 	 model_number = 1;
@@ -43,16 +43,16 @@ namespace coot {
       // This presumes at is a member of a coordinate hierarchy.
       atom_spec_t(mmdb::Atom *at) {
 	 if (at) { 
-	    chain          = at->GetChainID();
-	    resno          = at->GetSeqNum();
-	    insertion_code = at->GetInsCode();
+	    chain_id       = at->GetChainID();
+	    res_no         = at->GetSeqNum();
+	    ins_code       = at->GetInsCode();
 	    model_number   = at->GetModelNum();
 	    atom_name      = at->name;
 	    alt_conf       = at->altLoc;
 	 } else {
-	    chain = "unset";
-	    resno = mmdb::MinInt4;
-	    insertion_code = "";
+	    chain_id = "unset";
+	    res_no = mmdb::MinInt4;
+	    ins_code = "";
 	    model_number = -1;
 	    int_user_data = -1;
 	 }
@@ -61,28 +61,28 @@ namespace coot {
       // This presumes at is a member of a coordinate hierarchy.
       atom_spec_t(mmdb::Atom *at, const std::string &user_data_string) {
 	 model_number = at->GetModelNum();
-	 chain = at->GetChainID();
-	 resno = at->GetSeqNum();
-	 insertion_code = at->GetInsCode();
+	 chain_id = at->GetChainID();
+	 res_no = at->GetSeqNum();
+	 ins_code = at->GetInsCode();
 	 atom_name = at->name;
 	 alt_conf = at->altLoc;
 	 string_user_data = user_data_string;
       }
 
       bool empty() const {
-	 if (resno == mmdb::MinInt4)
+	 if (res_no == mmdb::MinInt4)
 	    return true;
 	 else
 	    return false;
       }
 
       void selectatoms(mmdb::Manager *mol, int SelHnd) {
-	 const char *chainid = chain.c_str();
-	 const char *inscode = insertion_code.c_str();
+	 const char *chainid = chain_id.c_str();
+	 const char *inscode = ins_code.c_str();
 	 const char *atname  = atom_name.c_str(); // atom name
 	 const char *altconf = alt_conf.c_str();
 	 
-	 mol->SelectAtoms(SelHnd, 0, chainid, resno, inscode, resno, inscode,
+	 mol->SelectAtoms(SelHnd, 0, chainid, res_no, inscode, res_no, inscode,
 			  "*", atname, "*", altconf);
       }
 
@@ -94,9 +94,9 @@ namespace coot {
       bool operator==(const atom_spec_t &matcher) const {
 	 bool r = false;
 	 if (matcher.model_number == model_number) { 
-	    if (matcher.chain == chain) {
-	       if (matcher.resno == resno) {
-		  if (matcher.insertion_code == insertion_code) {
+	    if (matcher.chain_id == chain_id) {
+	       if (matcher.res_no == res_no) {
+		  if (matcher.ins_code == ins_code) {
 		     if (matcher.atom_name == atom_name) {
 			if (matcher.alt_conf == alt_conf) {
 			   r = true;
@@ -120,13 +120,13 @@ namespace coot {
 	 if (matcher.model_number < model_number) {
 	    return true;
 	 } else {
-	    if (matcher.chain < chain) {
+	    if (matcher.chain_id < chain_id) {
 	       return true;
 	    } else { 
-	       if (matcher.resno < resno) {
+	       if (matcher.res_no < res_no) {
 		  return true;
 	       } else { 
-		  if (matcher.insertion_code < insertion_code) {
+		  if (matcher.ins_code < ins_code) {
 		     return true;
 		  } else { 
 		     if (matcher.atom_name < atom_name) {
@@ -158,92 +158,92 @@ namespace coot {
    class residue_spec_t {
    public:
       int model_number;
-      std::string chain;
-      int resno;
-      std::string insertion_code;
+      std::string chain_id;
+      int res_no;
+      std::string ins_code;
       int int_user_data;
       residue_spec_t(int r) {
-	 resno = r;
-	 chain = "";
-	 insertion_code = "";
+	 res_no = r;
+	 chain_id = "";
+	 ins_code = "";
 	 int_user_data = -1;
       }
       residue_spec_t(const std::string &chain_in, int r) {
 	 model_number = mmdb::MinInt4;
-	 resno = r;
-	 chain = chain_in;
-	 insertion_code = "";
+	 res_no = r;
+	 chain_id = chain_in;
+	 ins_code = "";
 	 int_user_data = -1;
       }
       residue_spec_t(int model_number_in,
 		     const std::string &chain_in, int r,
 		     const std::string &ins_code_in) {
 	 model_number = model_number_in;
-	 resno = r;
-	 chain = chain_in;
-	 insertion_code = ins_code_in;
+	 res_no = r;
+	 chain_id = chain_in;
+	 ins_code = ins_code_in;
 	 int_user_data = -1;
       }
       residue_spec_t(const std::string &chain_in, int r,
 		     const std::string &ins_code_in) {
 	 model_number = mmdb::MinInt4;
-	 resno = r;
-	 chain = chain_in;
-	 insertion_code = ins_code_in;
+	 res_no = r;
+	 chain_id = chain_in;
+	 ins_code = ins_code_in;
 	 int_user_data = -1;
       }
       residue_spec_t(mmdb::Residue *res) {
 	 if (! res) {
-	    chain = "";
+	    chain_id = "";
 	    model_number = mmdb::MinInt4;
-	    resno = mmdb::MinInt4;
-	    insertion_code = "";
+	    res_no = mmdb::MinInt4;
+	    ins_code = "";
 	 } else { 
-	    chain = res->GetChainID();
+	    chain_id = res->GetChainID();
 	    model_number = res->GetModelNum();
-	    resno = res->GetSeqNum();
-	    insertion_code = res->GetInsCode();
+	    res_no = res->GetSeqNum();
+	    ins_code = res->GetInsCode();
 	 }
 	 int_user_data = -1;
       } 
       residue_spec_t(const atom_spec_t &atom_spec) { 
 	 model_number = mmdb::MinInt4;
-         chain = atom_spec.chain;
-         resno = atom_spec.resno;
-         insertion_code = atom_spec.insertion_code;
+         chain_id = atom_spec.chain_id;
+         res_no = atom_spec.res_no;
+         ins_code = atom_spec.ins_code;
 	 int_user_data = -1;
       }
       // This one for coot_wrap_guile
       residue_spec_t() {
 	 model_number = mmdb::MinInt4;
-	 resno = mmdb::MinInt4;
-	 chain = "";
-	 insertion_code = "";
+	 res_no = mmdb::MinInt4;
+	 chain_id = "";
+	 ins_code = "";
 	 int_user_data = -1;
       }
       bool unset_p() const {
 	 bool u = true;
-	 if (resno != mmdb::MinInt4)
+	 if (res_no != mmdb::MinInt4)
 	    u = false;
 	 return u;
       }
       residue_spec_t next() const {
 	 residue_spec_t r = *this;
-	 if (resno != mmdb::MinInt4)
-	    r.resno += 1;
+	 if (res_no != mmdb::MinInt4)
+	    r.res_no += 1;
 	 return r;
       }
       residue_spec_t previous() const {
 	 residue_spec_t r = *this;
-	 if (resno != mmdb::MinInt4)
-	    r.resno -= 1;
+	 if (res_no != mmdb::MinInt4)
+	    r.res_no -= 1;
 	 return r;
       }
 #ifndef SWIG
       bool operator==(const residue_spec_t &matcher) const {
-	 if (matcher.chain == chain) {
-	    if (matcher.resno == resno) {
-	       if (matcher.insertion_code == insertion_code) {
+	 if (matcher.chain_id == chain_id) {
+	    if (matcher.res_no == res_no) {
+	       if (matcher.ins_code == ins_code) {
 		  return 1; 
 	       }
 	    }
@@ -254,24 +254,24 @@ namespace coot {
       
 #ifndef SWIG
       bool operator<(const residue_spec_t &matcher) const{
-	 if (matcher.chain == chain) {
-	    if (matcher.resno == resno) {
-	       if (matcher.insertion_code == insertion_code) {
+	 if (matcher.chain_id == chain_id) {
+	    if (matcher.res_no == res_no) {
+	       if (matcher.ins_code == ins_code) {
 		  return 0; 
 	       } else {
-		  if (matcher.insertion_code < insertion_code)
+		  if (matcher.ins_code < ins_code)
 		     return 0;
 		  else
 		     return 1;
 	       }
 	    } else {
-	       if (matcher.resno < resno)
+	       if (matcher.res_no < res_no)
 		  return 0;
 	       else
 		  return 1;
 	    } 
 	 } else {
-	    if (matcher.chain < chain)
+	    if (matcher.chain_id < chain_id)
 	       return 0;
 	    else
 	       return 1;

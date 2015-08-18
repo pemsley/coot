@@ -590,9 +590,9 @@ molecule_class_info_t::set_atom_attributes(const std::vector<coot::atom_attribut
 	 for (unsigned int iv=0; iv<v.size(); iv++) {
 	    int SelectionHandle = atom_sel.mol->NewSelection();
 	    atom_sel.mol->SelectAtoms(SelectionHandle, 0,
-				      v[iv].atom_spec.chain.c_str(),
-				      v[iv].atom_spec.resno, v[iv].atom_spec.insertion_code.c_str(),
-				      v[iv].atom_spec.resno, v[iv].atom_spec.insertion_code.c_str(),
+				      v[iv].atom_spec.chain_id.c_str(),
+				      v[iv].atom_spec.res_no, v[iv].atom_spec.ins_code.c_str(),
+				      v[iv].atom_spec.res_no, v[iv].atom_spec.ins_code.c_str(),
 				      "*",
 				      v[iv].atom_spec.atom_name.c_str(),
 				      "*",
@@ -1413,8 +1413,8 @@ int
 molecule_class_info_t::delete_zone(const coot::residue_spec_t &res1,
 				   const coot::residue_spec_t &res2) {
 
-   int first_res = res1.resno;
-   int last_res  = res2.resno;
+   int first_res = res1.res_no;
+   int last_res  = res2.res_no;
    // std::string alt_conf = res1.altconf;  // FIXME
    std::string alt_conf = "";
    std::string inscode = ""; // FIXME, more cleverness required.   
@@ -1449,7 +1449,7 @@ molecule_class_info_t::delete_zone(const coot::residue_spec_t &res1,
    
    for (int i=first_res; i<=last_res; i++)
       // delete_residue_with_altconf(res1.chain, i, inscode, alt_conf);
-      delete_residue(model_number_ANY, res1.chain, i, inscode);
+      delete_residue(model_number_ANY, res1.chain_id, i, inscode);
    backup_this_molecule = tmp_backup_this_molecule; // restore state
 
    // bonds, have_unsaved_changes_flag etc dealt with by
@@ -1632,9 +1632,9 @@ molecule_class_info_t::delete_atoms(const std::vector<coot::atom_spec_t> &atom_s
 	 //
 	 mmdb::PAtom *atoms = NULL;
 	 int n_atoms;
-	 atom_sel.mol->SelectAtoms(SelHnd, 0, atom_specs[i].chain.c_str(),
-				   atom_specs[i].resno, atom_specs[i].insertion_code.c_str(),
-				   atom_specs[i].resno, atom_specs[i].insertion_code.c_str(),
+	 atom_sel.mol->SelectAtoms(SelHnd, 0, atom_specs[i].chain_id.c_str(),
+				   atom_specs[i].res_no, atom_specs[i].ins_code.c_str(),
+				   atom_specs[i].res_no, atom_specs[i].ins_code.c_str(),
 				   "*",
 				   atom_specs[i].atom_name.c_str(),
 				   "*",
@@ -2286,9 +2286,9 @@ molecule_class_info_t::get_residue(const std::string &chain_id,
 mmdb::Residue *
 molecule_class_info_t::get_residue(const coot::residue_spec_t &residue_spec) const { 
    
-   mmdb::Residue *res = get_residue(residue_spec.chain,
-			       residue_spec.resno,
-			       residue_spec.insertion_code);
+   mmdb::Residue *res = get_residue(residue_spec.chain_id,
+				    residue_spec.res_no,
+				    residue_spec.ins_code);
    return res;
 }
 
@@ -2332,7 +2332,7 @@ molecule_class_info_t::get_following_residue(const coot::residue_spec_t &rs) con
       res = coot::util::get_following_residue(rs, atom_sel.mol);
       if (res) { 
 	 int new_res_res_number = res->GetSeqNum();
-	 if (new_res_res_number < rs.resno) {
+	 if (new_res_res_number < rs.res_no) {
 	    res = NULL;
 	 }
       }
@@ -2375,7 +2375,7 @@ molecule_class_info_t::get_atom(const std::string &go_to_residue_string,
    } else {
       // use the chain_id from the active_atom_spec.chain then
       if (si.res_no_is_set) {
-	 mmdb::Residue *res_p = get_residue(active_atom_spec.chain, si.res_no, "");
+	 mmdb::Residue *res_p = get_residue(active_atom_spec.chain_id, si.res_no, "");
 	 if (res_p) { 
 	    mmdb::Atom *int_at = intelligent_this_residue_mmdb_atom(res_p);
 	    if (int_at) {
@@ -2392,7 +2392,7 @@ molecule_class_info_t::get_atom(const std::string &go_to_residue_string,
 mmdb::Atom *
 molecule_class_info_t::get_atom(const coot::atom_spec_t &atom_spec) const {
 
-   mmdb::Residue *res = get_residue(atom_spec.chain, atom_spec.resno, atom_spec.insertion_code);
+   mmdb::Residue *res = get_residue(atom_spec.chain_id, atom_spec.res_no, atom_spec.ins_code);
    mmdb::Atom *at = NULL;
    
    if (res) {
@@ -3852,7 +3852,7 @@ molecule_class_info_t::residue_type_next_residue_by_alignment(const coot::residu
    std::pair<bool, std::string> p(0, "");
 
    if (input_sequence.size() > 0) {
-      std::string chain_id = clicked_residue.chain;
+      std::string chain_id = clicked_residue.chain_id;
       for (unsigned int ich=0; ich<input_sequence.size(); ich++) {
 
 	 if (input_sequence[ich].first == chain_id) {
@@ -3889,8 +3889,8 @@ molecule_class_info_t::residue_type_next_residue_by_alignment(const coot::residu
 		  bool found = 0;
 		  int frag_seqnum;
 		  for (unsigned int ires=0; ires<input_sequence[ich].second.length(); ires++) {
-		     if (SelResidues[ires]->GetSeqNum() == clicked_residue.resno) {
-			if (clicked_residue.chain == SelResidues[ires]->GetChainID()) {
+		     if (SelResidues[ires]->GetSeqNum() == clicked_residue.res_no) {
+			if (clicked_residue.chain_id == SelResidues[ires]->GetChainID()) {
 			   // found clicked_residue
 			   found = 1;
 			   frag_seqnum = ires;
@@ -8021,9 +8021,9 @@ molecule_class_info_t::fill_partial_residue(coot::residue_spec_t &residue_spec,
 					    coot::protein_geometry *geom_p,
 					    int refinement_map_number) {
 
-   int resno = residue_spec.resno;
-   std::string chain_id = residue_spec.chain;
-   std::string inscode = residue_spec.insertion_code;
+   int resno = residue_spec.res_no;
+   std::string chain_id = residue_spec.chain_id;
+   std::string inscode = residue_spec.ins_code;
    std::string altloc = "";
    float lowest_probability = 0.8;
    int clash_flag = 1;

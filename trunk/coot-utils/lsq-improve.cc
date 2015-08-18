@@ -314,12 +314,12 @@ coot::lsq_improve::get_new_matches(const std::map<coot::residue_spec_t, std::vec
 		  for (unsigned int ipair=0; ipair<contiguous_frag_spec.size(); ipair++) { 
 		     residue_done[contiguous_frag_spec[ipair].first] = 1;
 		  }
-		  coot::lsq_range_match_info_t range(contiguous_frag_spec.begin()->first.resno,
-						     contiguous_frag_spec.back().first.resno,
-						     contiguous_frag_spec.begin()->first.chain,
-						     contiguous_frag_spec.begin()->second.resno,
-						     contiguous_frag_spec.back().second.resno,
-						     contiguous_frag_spec.begin()->second.chain,
+		  coot::lsq_range_match_info_t range(contiguous_frag_spec.begin()->first.res_no,
+						     contiguous_frag_spec.back().first.res_no,
+						     contiguous_frag_spec.begin()->first.chain_id,
+						     contiguous_frag_spec.begin()->second.res_no,
+						     contiguous_frag_spec.back().second.res_no,
+						     contiguous_frag_spec.begin()->second.chain_id,
 						     COOT_LSQ_CA);
 		  range.set_model_number_reference(1);
 		  range.set_model_number_matcher(2);

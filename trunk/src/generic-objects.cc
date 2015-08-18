@@ -783,10 +783,10 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 
 			   short int ifound = 0;
 			   for (unsigned int ic=0; ic<clash_atoms.size(); ic++) {
-			      if (resno == clash_atoms[ic].resno) {
-				 if (insertion_code == clash_atoms[ic].insertion_code) {
+			      if (resno == clash_atoms[ic].res_no) {
+				 if (insertion_code == clash_atoms[ic].ins_code) {
 				    if (altconf == clash_atoms[ic].alt_conf) {
-				       if (chain_id == clash_atoms[ic].chain) {
+				       if (chain_id == clash_atoms[ic].chain_id) {
 				 
 					  // we are intested in bad (low) gaps
 					  if (gap2 < clash_atoms[ic].float_user_data)

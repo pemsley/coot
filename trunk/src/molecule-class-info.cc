@@ -3518,9 +3518,9 @@ molecule_class_info_t::atom_to_atom_index(mmdb::Atom *at) const {
 int
 molecule_class_info_t::full_atom_spec_to_atom_index(const coot::atom_spec_t &atom_spec) const {
 
-   return full_atom_spec_to_atom_index(atom_spec.chain,
-				       atom_spec.resno,
-				       atom_spec.insertion_code,
+   return full_atom_spec_to_atom_index(atom_spec.chain_id,
+				       atom_spec.res_no,
+				       atom_spec.ins_code,
 				       atom_spec.atom_name,
 				       atom_spec.alt_conf);
 
@@ -5200,12 +5200,12 @@ molecule_class_info_t::next_residue_missing_residue(const coot::residue_spec_t &
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
       std::string chain_id = chain_p->GetChainID();
-      if (chain_id == spec.chain) {
+      if (chain_id == spec.chain_id) {
 	 found_chain = true;
 	 mmdb::Residue *residue_p;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
-	    if (residue_p->GetSeqNum() > spec.resno) {
+	    if (residue_p->GetSeqNum() > spec.res_no) {
 	       r = residue_p;
 	       break;
 	    }
@@ -8129,14 +8129,14 @@ molecule_class_info_t::mark_atom_as_fixed(const coot::atom_spec_t &atom_spec, bo
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 std::string chain_id_model = chain_p->GetChainID();
-	 if (atom_spec.chain == chain_id_model) { 
+	 if (atom_spec.chain_id == chain_id_model) { 
 	    int nres = chain_p->GetNumberOfResidues();
 	    mmdb::PResidue residue_p;
 	    mmdb::Atom *at;
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = chain_p->GetResidue(ires);
 	       int resno_model = residue_p->GetSeqNum();
-	       if (resno_model == atom_spec.resno) { 
+	       if (resno_model == atom_spec.res_no) { 
 		  int n_atoms = residue_p->GetNumberOfAtoms();
 		  
 		  for (int iat=0; iat<n_atoms; iat++) {

@@ -347,7 +347,7 @@ graphics_info_t::delete_residue_from_geometry_graphs(int imol,
       if (graph) {
 	 coot::geometry_graphs *gr = geometry_graph_dialog_to_object(graph);
 	 if (gr) {
-	    gr->delete_block(res_spec.chain, res_spec.resno);
+	    gr->delete_block(res_spec.chain_id, res_spec.res_no);
 	 }
       }
    }
@@ -448,7 +448,7 @@ graphics_info_t::geometric_distortions(mmdb::Residue *residue_p) {
 	    }
 	 } 
 	 asc.clear_up();
-      } 
+      }
    }
    return gdc;
 }

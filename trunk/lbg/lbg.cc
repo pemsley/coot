@@ -6755,8 +6755,8 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
       for (unsigned int ib=0; ib<bonds_to_ligand.size(); ib++) { 
 	 std::cout << "  =============== lbg::annotate() bond to ligand " << ib << " "
 		   << bonds_to_ligand[ib].ligand_atom_spec.atom_name
-		   << " by residue " << bonds_to_ligand[ib].res_spec.chain << " "
-		   << bonds_to_ligand[ib].res_spec.resno << " type: "
+		   << " by residue " << bonds_to_ligand[ib].res_spec.chain_id << " "
+		   << bonds_to_ligand[ib].res_spec.res_no << " type: "
 		   << bonds_to_ligand[ib].bond_type
 		   << std::endl;
       }
@@ -6790,9 +6790,9 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
 	 std::cout << "debugg:: in lbg_info_t::annotate() handling circle " << i << " of "
 		   << centres.size() << std::endl;
       
-      std::string label = centres[i].spec.chain;
-      label += coot::util::int_to_string(centres[i].spec.resno);
-      label += centres[i].spec.insertion_code;
+      std::string label = centres[i].spec.chain_id;
+      label += coot::util::int_to_string(centres[i].spec.res_no);
+      label += centres[i].spec.ins_code;
       
       clipper::Coord_orth cp(centres[i].transformed_relative_centre.x(),
 			     centres[i].transformed_relative_centre.y(),
