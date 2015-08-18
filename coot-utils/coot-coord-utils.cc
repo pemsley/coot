@@ -179,9 +179,9 @@ coot::residue_spec_t::select_atoms(mmdb::Manager *mol, int selhnd,
 				   mmdb::SELECTION_KEY selection_key) {
 
    if (mol) { 
-      mol->SelectAtoms(selhnd, 0, chain.c_str(),
-		       resno, insertion_code.c_str(),
-		       resno, insertion_code.c_str(),
+      mol->SelectAtoms(selhnd, 0, chain_id.c_str(),
+		       res_no, ins_code.c_str(),
+		       res_no, ins_code.c_str(),
 		       "*", "*", "*", "*", selection_key);
    }
    return selhnd;
@@ -317,7 +317,7 @@ coot::residues_near_residue(const coot::residue_spec_t &rs,
    std::vector<coot::residue_spec_t> r;
 
    if (mol) { 
-      mmdb::Residue *res_p = coot::util::get_residue(rs.chain, rs.resno, rs.insertion_code, mol);
+      mmdb::Residue *res_p = coot::util::get_residue(rs.chain_id, rs.res_no, rs.ins_code, mol);
       if (!res_p) {
 	 std::cout << "OOps failed to find " << rs << " in molecule\n";
       } else {
@@ -1473,14 +1473,14 @@ coot::get_selection_handle(mmdb::Manager *mol, const coot::atom_spec_t &at) {
    int SelHnd = -1;
    if (mol) { 
       SelHnd = mol->NewSelection();
-      const char *chain   =  at.chain.c_str();
-      const char *inscode =  at.insertion_code.c_str();
+      const char *chain   =  at.chain_id.c_str();
+      const char *inscode =  at.ins_code.c_str();
       const char *atname  =  at.atom_name.c_str(); // atom name
       const char *altconf =  at.alt_conf.c_str();
       mol->SelectAtoms (SelHnd, 0, chain,
-			at.resno, // starting resno, an int
+			at.res_no, // starting resno, an int
 			inscode, // any insertion code
-			at.resno, // ending resno
+			at.res_no, // ending resno
 			inscode, // ending insertion code
 			"*", // any residue name
 			atname,
@@ -1495,12 +1495,12 @@ std::ostream& coot::operator<< (std::ostream& s, const coot::atom_spec_t &spec) 
 
    s << "[spec: ";
    s << "\"";
-   s << spec.chain;
+   s << spec.chain_id;
    s << "\" ";
-   s << spec.resno;
+   s << spec.res_no;
    s << " ";
    s << "\"";
-   s << spec.insertion_code;
+   s << spec.ins_code;
    s << "\"";
    s << " ";
    s << "\"";
@@ -1527,12 +1527,12 @@ std::ostream& coot::operator<< (std::ostream& s, const coot::residue_spec_t &spe
 	 s << spec.model_number;
       
       s << " \"";
-      s << spec.chain;
+      s << spec.chain_id;
       s << "\" ";
-      s << spec.resno;
+      s << spec.res_no;
       s << " ";
       s << "\"";
-      s << spec.insertion_code;
+      s << spec.ins_code;
       s << "\"]";
    } else {
       s << "{residue-spec-not-set}";
@@ -1581,13 +1581,13 @@ coot::util::get_fragment_from_atom_spec(const coot::atom_spec_t &atom_spec,
    for (int ichain=0; ichain<nchains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       std::string mol_chain_id = chain_p->GetChainID();
-      if (mol_chain_id == atom_spec.chain) {
+      if (mol_chain_id == atom_spec.chain_id) {
 	 int nres = chain_p->GetNumberOfResidues();
 	 mmdb::PResidue residue_p;
 	 mmdb::Atom *at;
 	 for (int ires=0; ires<nres; ires++) { 
 	    residue_p = chain_p->GetResidue(ires);
-	    if (residue_p->GetSeqNum() == atom_spec.resno) {
+	    if (residue_p->GetSeqNum() == atom_spec.res_no) {
 	       int n_atoms = residue_p->GetNumberOfAtoms();
 	    
 	       for (int iat=0; iat<n_atoms; iat++) {
@@ -1667,7 +1667,7 @@ coot::util::get_fragment_from_atom_spec(const coot::atom_spec_t &atom_spec,
       int selHnd = mol_in->NewSelection();
 
       mol_in->Select(selHnd, mmdb::STYPE_RESIDUE, 1,
-		     atom_spec.chain.c_str(),
+		     atom_spec.chain_id.c_str(),
 		     resno_bot, "",
 		     resno_top, "",
 		     "*",  // residue name
@@ -1681,7 +1681,7 @@ coot::util::get_fragment_from_atom_spec(const coot::atom_spec_t &atom_spec,
       std::pair<mmdb::Manager *, int> mol_info = 
 	 create_mmdbmanager_from_res_selection(mol_in, 
 					       SelResidues, 
-					       nSelResidues, 0, 0, "", atom_spec.chain, 0);
+					       nSelResidues, 0, 0, "", atom_spec.chain_id, 0);
       if (mol_info.second) { 
 	 mol = mol_info.first;
 	 for (int ires=0; ires<nSelResidues; ires++) {
@@ -1714,13 +1714,13 @@ coot::atom_spec_t::matches_spec(mmdb::Atom *atom) const {
 	 
 	 if (residue_p) { 
 	    
-	    if (resno == atom->GetSeqNum()) {
+	    if (res_no == atom->GetSeqNum()) {
 	       
-	       if (insertion_code == std::string(atom->GetInsCode())) { 
+	       if (ins_code == std::string(atom->GetInsCode())) { 
 		  
 		  mmdb::Chain *chain_p= atom->GetChain();
 		  if (chain_p) {
-		     if (chain == chain_p->GetChainID()) {
+		     if (chain_id == chain_p->GetChainID()) {
 			// std::cout << atom_name << "a complete match " << std::endl;
 			return 1;
 		     } else {
@@ -2560,7 +2560,7 @@ coot::util::get_residue(const std::string &chain_id,
 
 mmdb::Residue *
 coot::util::get_residue(const residue_spec_t &rs, mmdb::Manager *mol) {
-   return get_residue(rs.chain, rs.resno, rs.insertion_code, mol);
+   return get_residue(rs.chain_id, rs.res_no, rs.ins_code, mol);
 }
   
 
@@ -2581,15 +2581,15 @@ coot::util::get_following_residue(const residue_spec_t &rs,
       for (int i_chain=0; i_chain<n_chains; i_chain++) {
 	 chain_p = model_p->GetChain(i_chain);
 	 std::string mol_chain_id(chain_p->GetChainID());
-	 if (mol_chain_id == rs.chain) {
+	 if (mol_chain_id == rs.chain_id) {
 	    int nres = chain_p->GetNumberOfResidues();
 	    mmdb::Residue *residue_p;
 	    for (int ires=0; ires<nres; ires++) {
 	       residue_p = chain_p->GetResidue(ires);
 	       if (found_this_res == 0) { 
-		  if (rs.resno == residue_p->GetSeqNum()) {
+		  if (rs.res_no == residue_p->GetSeqNum()) {
 		     std::string ins_code = residue_p->GetInsCode();
-		     if (ins_code == rs.insertion_code) {
+		     if (ins_code == rs.ins_code) {
 			found_this_res = 1;
 			chain_this_res = chain_p;
 		     }
@@ -4518,11 +4518,11 @@ coot::util::interesting_things_list(const std::vector<atom_spec_t> &v) {
    for (unsigned int i=0; i<v.size(); i++) {
 
       std::string atom_str("\"");
-      atom_str += v[i].chain;
+      atom_str += v[i].chain_id;
       atom_str += "\" ";
-      atom_str += int_to_string(v[i].resno);
+      atom_str += int_to_string(v[i].res_no);
       atom_str += " \"";
-      atom_str += v[i].insertion_code;
+      atom_str += v[i].ins_code;
       atom_str += "\" \"";
       atom_str += v[i].atom_name;
       atom_str += "\" \"";
@@ -4532,12 +4532,12 @@ coot::util::interesting_things_list(const std::vector<atom_spec_t> &v) {
       std::string button_label("Clash gap: ");
       button_label += float_to_string(v[i].float_user_data);
       button_label += " : ";
-      button_label += v[i].chain;
+      button_label += v[i].chain_id;
       button_label += " ";
-      button_label += int_to_string(v[i].resno);
+      button_label += int_to_string(v[i].res_no);
       button_label += " ";
-      if (v[i].insertion_code != "") {
-	 button_label += v[i].insertion_code;
+      if (v[i].ins_code != "") {
+	 button_label += v[i].ins_code;
  	 button_label += " ";
       }
       button_label += v[i].atom_name;
@@ -4638,11 +4638,11 @@ coot::util::interesting_things_list_py(const std::vector<atom_spec_t> &v) {
    for (unsigned int i=0; i<v.size(); i++) {
 
       std::string atom_str("\"");
-      atom_str += v[i].chain;
+      atom_str += v[i].chain_id;
       atom_str += "\",";
-      atom_str += int_to_string(v[i].resno);
+      atom_str += int_to_string(v[i].res_no);
       atom_str += ",\"";
-      atom_str += v[i].insertion_code;
+      atom_str += v[i].ins_code;
       atom_str += "\",\"";
       atom_str += v[i].atom_name;
       atom_str += "\",\"";
@@ -4652,12 +4652,12 @@ coot::util::interesting_things_list_py(const std::vector<atom_spec_t> &v) {
       std::string button_label("Clash gap: ");
       button_label += float_to_string(v[i].float_user_data);
       button_label += " : ";
-      button_label += v[i].chain;
+      button_label += v[i].chain_id;
       button_label += " ";
-      button_label += int_to_string(v[i].resno);
+      button_label += int_to_string(v[i].res_no);
       button_label += " ";
-      if (v[i].insertion_code != "") {
-         button_label += v[i].insertion_code;
+      if (v[i].ins_code != "") {
+         button_label += v[i].ins_code;
          button_label += " ";
       }
       button_label += v[i].atom_name;
@@ -4711,11 +4711,11 @@ coot::util::interesting_things_list_with_fix(const std::vector<coot::util::atom_
    for (unsigned int i=0; i<v.size(); i++) {
 
       std::string atom_str("\"");
-      atom_str += v[i].as.chain;
+      atom_str += v[i].as.chain_id;
       atom_str += "\" ";
-      atom_str += int_to_string(v[i].as.resno);
+      atom_str += int_to_string(v[i].as.res_no);
       atom_str += " \"";
-      atom_str += v[i].as.insertion_code;
+      atom_str += v[i].as.ins_code;
       atom_str += "\" \"";
       atom_str += v[i].as.atom_name;
       atom_str += "\" \"";
@@ -4804,11 +4804,11 @@ coot::util::interesting_things_list_with_fix_py(const std::vector<coot::util::at
    for (unsigned int i=0; i<v.size(); i++) {
 
       std::string atom_str("\"");
-      atom_str += v[i].as.chain;
+      atom_str += v[i].as.chain_id;
       atom_str += "\",";
-      atom_str += int_to_string(v[i].as.resno);
+      atom_str += int_to_string(v[i].as.res_no);
       atom_str += ",\"";
-      atom_str += v[i].as.insertion_code;
+      atom_str += v[i].as.ins_code;
       atom_str += "\",\"";
       atom_str += v[i].as.atom_name;
       atom_str += "\",\"";
@@ -7306,14 +7306,14 @@ coot::nearest_residue_by_sequence(mmdb::Manager *mol,
       for (int ichain=0; ichain<nchains; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 std::string chain_id = chain_p->GetChainID();
-	 if (chain_id == spec.chain) { 
+	 if (chain_id == spec.chain_id) { 
 	    int nres = chain_p->GetNumberOfResidues();
 	    mmdb::Residue *residue_p;
 	    for (int ires=0; ires<nres; ires++) { 
 	       residue_p = chain_p->GetResidue(ires);
 	       int this_resno = residue_p->GetSeqNum();
-	       if (labs(spec.resno - this_resno)
-		   < (labs(spec.resno - resno_closest_high))) {
+	       if (labs(spec.res_no - this_resno)
+		   < (labs(spec.res_no - resno_closest_high))) {
 		  resno_closest_high = this_resno;
 		  r = residue_p;
 	       }

@@ -973,7 +973,7 @@ coot::ligand_check_percentiles_dialog(coot::residue_spec_t spec,
       std::cout << "lr.probe_clash_percentile         "
 		<< lr.probe_clash_percentile << std::endl;
 
-      std::string l = "Residue: " + spec.chain + " " + util::int_to_string(spec.resno);
+      std::string l = "Residue: " + spec.chain_id + " " + util::int_to_string(spec.res_no);
       gtk_label_set_text(GTK_LABEL(spec_label), l.c_str());
 
       if (lr.mogul_percentile < percentile_limit) {

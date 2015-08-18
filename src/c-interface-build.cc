@@ -7536,11 +7536,11 @@ protein_db_loops(int imol_coords, const std::vector<coot::residue_spec_t> &resid
       } else { 
 	 
 	 if (residue_specs.size()) { 
-	    std::string chain_id = residue_specs[0].chain;
+	    std::string chain_id = residue_specs[0].chain_id;
 	    // what is the first resno?
 	    std::vector<coot::residue_spec_t> rs = residue_specs;
 	    std::sort(rs.begin(), rs.end());
-	    int first_res_no = rs[0].resno;
+	    int first_res_no = rs[0].res_no;
 	    
 	    clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
 
@@ -7601,17 +7601,17 @@ protein_db_loop_specs_to_atom_selection_string(const std::vector<coot::residue_s
    // then continue.
    std::map<std::string, int> chain_ids;
    for (unsigned int i=0; i<specs.size(); i++)
-      chain_ids[specs[i].chain]++;
+      chain_ids[specs[i].chain_id]++;
    if (chain_ids.size() == 1) { 
       std::map<std::string, int>::const_iterator it = chain_ids.begin();
       std::string chain_id = it->first;
       int lowest_resno = 9999;
       int highest_resno = -999;
       for (unsigned int i=0; i<specs.size(); i++) { 
-	 if (specs[i].resno < lowest_resno)
-	    lowest_resno = specs[i].resno;
-	 if (specs[i].resno > highest_resno)
-	    highest_resno = specs[i].resno;
+	 if (specs[i].res_no < lowest_resno)
+	    lowest_resno = specs[i].res_no;
+	 if (specs[i].res_no > highest_resno)
+	    highest_resno = specs[i].res_no;
       }
       r = "//";
       r += chain_id;

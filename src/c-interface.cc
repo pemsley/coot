@@ -5675,9 +5675,9 @@ SCM scm_residue(const coot::residue_spec_t &res) {
 
 //    std::cout <<  "scm_residue on: " << res.chain << " " << res.resno << " "
 // 	     << res.insertion_code  << std::endl;
-   r = scm_cons(scm_makfrom0str(res.insertion_code.c_str()), r);
-   r = scm_cons(SCM_MAKINUM(res.resno), r);
-   r = scm_cons(scm_makfrom0str(res.chain.c_str()), r);
+   r = scm_cons(scm_makfrom0str(res.ins_code.c_str()), r);
+   r = scm_cons(SCM_MAKINUM(res.res_no), r);
+   r = scm_cons(scm_makfrom0str(res.chain_id.c_str()), r);
    r = scm_cons(SCM_BOOL_T, r);
    return r;
 }
@@ -5697,9 +5697,9 @@ PyObject *py_residue(const coot::residue_spec_t &res) {
 // 	     << res.insertion_code  << std::endl;
    Py_XINCREF(Py_True);
    PyList_SetItem(r, 0, Py_True);
-   PyList_SetItem(r, 1, PyString_FromString(res.chain.c_str()));
-   PyList_SetItem(r, 2, PyInt_FromLong(res.resno));
-   PyList_SetItem(r, 3, PyString_FromString(res.insertion_code.c_str()));
+   PyList_SetItem(r, 1, PyString_FromString(res.chain_id.c_str()));
+   PyList_SetItem(r, 2, PyInt_FromLong(res.res_no));
+   PyList_SetItem(r, 3, PyString_FromString(res.ins_code.c_str()));
 
    return r;
 }

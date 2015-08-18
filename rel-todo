@@ -5,6 +5,8 @@
 
    o Does the Refmac mtz file selection work?
 
+* It does now.
+
    o Do we get the correct hydrogen bonds with Acedrg dictionary (and
      pyrogen dictionary) for 824?
 

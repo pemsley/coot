@@ -580,10 +580,10 @@ namespace coot {
 	    serial_number = -1; // unset
 	    chain_id_1 = chain_id;
 	    chain_id_2 = chain_id;
-	    resno_1 = res1.resno;
-	    resno_2 = res2.resno;
-	    ins_code_1 = res1.insertion_code;
-	    ins_code_2 = res2.insertion_code;
+	    resno_1 = res1.res_no;
+	    resno_2 = res2.res_no;
+	    ins_code_1 = res1.ins_code;
+	    ins_code_2 = res2.ins_code;
 	    omega_torsion_angle = tors_in;
 	 } 
 

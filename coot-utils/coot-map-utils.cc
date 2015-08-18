@@ -1575,11 +1575,11 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
       }
       
       mol->SelectAtoms(SelHnd, 1,
-		       specs[ilocal].chain.c_str(),
-		       specs[ilocal].resno,
-		       specs[ilocal].insertion_code.c_str(),
-		       specs[ilocal].resno,
-		       specs[ilocal].insertion_code.c_str(),
+		       specs[ilocal].chain_id.c_str(),
+		       specs[ilocal].res_no,
+		       specs[ilocal].ins_code.c_str(),
+		       specs[ilocal].res_no,
+		       specs[ilocal].ins_code.c_str(),
 		       res_name_selection.c_str(),
 		       atom_name_selection.c_str(), 
 		       "*", // elements
@@ -1919,11 +1919,11 @@ coot::util::map_to_model_correlation_per_residue(mmdb::Manager *mol,
       }
       
       mol->SelectAtoms(SelHnd, 1,
-		       specs[ispec].chain.c_str(),
-		       specs[ispec].resno,
-		       specs[ispec].insertion_code.c_str(),
-		       specs[ispec].resno,
-		       specs[ispec].insertion_code.c_str(),
+		       specs[ispec].chain_id.c_str(),
+		       specs[ispec].res_no,
+		       specs[ispec].ins_code.c_str(),
+		       specs[ispec].res_no,
+		       specs[ispec].ins_code.c_str(),
 		       res_name_selection.c_str(),
 		       atom_name_selection.c_str(), 
 		       "*", // elements
@@ -2181,11 +2181,11 @@ coot::util::specs_to_atom_selection(const std::vector<coot::residue_spec_t> &spe
 	 }
 
 	 mol->SelectAtoms(SelHnd, 1,
-			  specs[ilocal].chain.c_str(),
-			  specs[ilocal].resno,
-			  specs[ilocal].insertion_code.c_str(),
-			  specs[ilocal].resno,
-			  specs[ilocal].insertion_code.c_str(),
+			  specs[ilocal].chain_id.c_str(),
+			  specs[ilocal].res_no,
+			  specs[ilocal].ins_code.c_str(),
+			  specs[ilocal].res_no,
+			  specs[ilocal].ins_code.c_str(),
 			  res_name_selection.c_str(),
 			  atom_name_selection.c_str(), 
 			  "*", // elements

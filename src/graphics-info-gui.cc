@@ -3138,14 +3138,14 @@ graphics_info_t::wrapped_create_checked_waters_by_variance_dialog(const std::vec
 	 std::cout << "Suspicious water: "
 		   << v[i].atom_name
 		   << v[i].alt_conf << " "
-		   << v[i].resno << " "
-		   << v[i].insertion_code << " "
-		   << v[i].chain << "\n";
+		   << v[i].res_no << " "
+		   << v[i].ins_code << " "
+		   << v[i].chain_id << "\n";
 
 	 std::string button_label(" ");
-	 button_label += v[i].chain;
+	 button_label += v[i].chain_id;
 	 button_label += " " ;
-	 button_label += int_to_string(v[i].resno);
+	 button_label += int_to_string(v[i].res_no);
 	 button_label += " " ;
 	 button_label += v[i].atom_name;
 	 button_label += " " ;
@@ -3192,8 +3192,8 @@ graphics_info_t::on_generic_atom_spec_button_clicked (GtkButton *button,
 // 		<< std::endl;
    
       g.set_go_to_atom_molecule(atom_spec->int_user_data);
-      g.set_go_to_atom_chain_residue_atom_name(atom_spec->chain.c_str(),
-					       atom_spec->resno,
+      g.set_go_to_atom_chain_residue_atom_name(atom_spec->chain_id.c_str(),
+					       atom_spec->res_no,
 					       atom_spec->atom_name.c_str(),
 					       atom_spec->alt_conf.c_str());
       g.try_centre_from_new_go_to_atom();
@@ -3236,17 +3236,17 @@ graphics_info_t::wrapped_check_chiral_volumes_dialog(const std::vector <coot::at
       coot::atom_spec_t *atom_spec;
       for (unsigned int i=0; i<v.size(); i++) { 
 	 std::cout << "  "
-		   << v[i].chain << " " 
-		   << v[i].resno << " " 
+		   << v[i].chain_id << " " 
+		   << v[i].res_no << " " 
 		   << v[i].atom_name << " " 
 		   << v[i].alt_conf << " " 
 		   << "\n";
 
 	 // c.f. how we add rotamers: (fill_rotamer_selection_buttons)
 	 std::string button_label(" ");
-	 button_label += v[i].chain;
+	 button_label += v[i].chain_id;
 	 button_label += " " ;
-	 button_label += int_to_string(v[i].resno);
+	 button_label += int_to_string(v[i].res_no);
 	 button_label += " " ;
 	 button_label += v[i].atom_name;
 	 button_label += " " ;
@@ -3294,8 +3294,8 @@ graphics_info_t::on_inverted_chiral_volume_button_clicked (GtkButton       *butt
 // 	     << std::endl;
    
    g.set_go_to_atom_molecule(atom_spec->int_user_data);
-   g.set_go_to_atom_chain_residue_atom_name(atom_spec->chain.c_str(),
-					    atom_spec->resno,
+   g.set_go_to_atom_chain_residue_atom_name(atom_spec->chain_id.c_str(),
+					    atom_spec->res_no,
 					    atom_spec->atom_name.c_str(),
 					    atom_spec->alt_conf.c_str());
    g.try_centre_from_new_go_to_atom();

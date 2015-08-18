@@ -506,10 +506,10 @@ exptl::nsv::get_residue_counts(mmdb::Manager *mol) const {
       std::sort(specs.begin(), specs.end());
       int prev_resno = lowest_resno - 1;
       for (unsigned int i=0; i<specs.size(); i++) {
-	 if (specs[i].resno > (prev_resno + 1)) {
+	 if (specs[i].res_no > (prev_resno + 1)) {
 	    n_residue_count++; // add a spacer for a gap
 	 }
-	 prev_resno = specs[i].resno; // for next round
+	 prev_resno = specs[i].res_no; // for next round
 	 n_residue_count++;
       }
       std::cout << "   Chain " << chain_p->GetChainID() << " "

@@ -550,7 +550,7 @@ graphics_info_t::update_ramachandran_plot_point_maybe(int imol, const coot::resi
       coot::rama_plot *plot = static_cast<coot::rama_plot *>
 	 (gtk_object_get_user_data(GTK_OBJECT(w)));
 
-      plot->big_square(res_spec.chain, res_spec.resno, res_spec.insertion_code);
+      plot->big_square(res_spec.chain_id, res_spec.res_no, res_spec.ins_code);
    } 
 #endif // HAVE_GTK_CANVAS      
 
@@ -5300,9 +5300,9 @@ graphics_info_t::atom_spec_to_scm(const coot::atom_spec_t &spec) const {
    SCM r = SCM_EOL;
    r = scm_cons(scm_makfrom0str(spec.alt_conf.c_str()), r);
    r = scm_cons(scm_makfrom0str(spec.atom_name.c_str()), r);
-   r = scm_cons(scm_makfrom0str(spec.insertion_code.c_str()), r);
-   r = scm_cons(SCM_MAKINUM(spec.resno), r);
-   r = scm_cons(scm_makfrom0str(spec.chain.c_str()), r);
+   r = scm_cons(scm_makfrom0str(spec.ins_code.c_str()), r);
+   r = scm_cons(SCM_MAKINUM(spec.res_no), r);
+   r = scm_cons(scm_makfrom0str(spec.chain_id.c_str()), r);
    r = scm_cons(SCM_MAKINUM(spec.int_user_data), r);
 
    return r;
@@ -5317,9 +5317,9 @@ graphics_info_t::atom_spec_to_py(const coot::atom_spec_t &spec) const {
   //  PyObject *r = PyTuple_New(6);
   PyObject *r = PyList_New(6);
   PyList_SetItem(r, 0, PyInt_FromLong(spec.int_user_data));
-  PyList_SetItem(r, 1, PyString_FromString(spec.chain.c_str()));
-  PyList_SetItem(r, 2, PyInt_FromLong(spec.resno));
-  PyList_SetItem(r, 3, PyString_FromString(spec.insertion_code.c_str()));
+  PyList_SetItem(r, 1, PyString_FromString(spec.chain_id.c_str()));
+  PyList_SetItem(r, 2, PyInt_FromLong(spec.res_no));
+  PyList_SetItem(r, 3, PyString_FromString(spec.ins_code.c_str()));
   PyList_SetItem(r, 4, PyString_FromString(spec.atom_name.c_str()));
   PyList_SetItem(r, 5, PyString_FromString(spec.alt_conf.c_str()));
 

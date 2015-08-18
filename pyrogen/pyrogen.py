@@ -159,7 +159,7 @@ def get_pdbe_cif_for_comp_id(comp_id):
       return file_name
    except IOError as e:
       print e
-      print "Can't write file", file_name
+      print "Failed: Can't ftp fr", url, "and write file", file_name
       exit(2)
 
         

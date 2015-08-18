@@ -118,11 +118,11 @@ molecule_class_info_t::fill_residue_selection(int SelHnd_selection,
    
    for (unsigned int ir=0; ir<res_specs_vec.size(); ir++) {
       atom_sel.mol->SelectAtoms(SelHnd_selection, 0,
-				res_specs_vec[ir].chain.c_str(),
-				res_specs_vec[ir].resno,
-				res_specs_vec[ir].insertion_code.c_str(), 
-				res_specs_vec[ir].resno,
-				res_specs_vec[ir].insertion_code.c_str(),
+				res_specs_vec[ir].chain_id.c_str(),
+				res_specs_vec[ir].res_no,
+				res_specs_vec[ir].ins_code.c_str(), 
+				res_specs_vec[ir].res_no,
+				res_specs_vec[ir].ins_code.c_str(),
 				no_waters.c_str(),
 				"*", "*", "*", mmdb::SKEY_OR);
    }

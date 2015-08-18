@@ -111,13 +111,13 @@ void
 coot::geometry_graphs::button_press(GtkCanvasItem *item, GdkEvent *event, 
 				    const coot::geometry_graph_block_info &binfo) {
 
-   std::cout << "INFO:: trying to centre on: " << binfo.atom_spec.chain << " "
-	     << binfo.atom_spec.resno << " "
+   std::cout << "INFO:: trying to centre on: " << binfo.atom_spec.chain_id << " "
+	     << binfo.atom_spec.res_no << " "
 	     << binfo.atom_spec.atom_name << std::endl;
 
    set_go_to_atom_molecule(binfo.imol);
-   set_go_to_atom_chain_residue_atom_name(binfo.atom_spec.chain.c_str(),
-					  binfo.atom_spec.resno,
+   set_go_to_atom_chain_residue_atom_name(binfo.atom_spec.chain_id.c_str(),
+					  binfo.atom_spec.res_no,
 					  binfo.atom_spec.atom_name.c_str());
 
 }
@@ -441,11 +441,11 @@ coot::geometry_graphs::plot_blocks(const std::map<coot::residue_spec_t, std::pai
 
       // make an atom spec (graphics_info is not allowed here (well, not included anyway)).
       // 
-      coot::atom_spec_t try_atom_spec(it->first.chain, it->first.resno, it->first.insertion_code,
+      coot::atom_spec_t try_atom_spec(it->first.chain_id, it->first.res_no, it->first.ins_code,
 				      " CA ", "");
 
       geometry_graph_block_info block_info(imol,
-					   it->first.resno,
+					   it->first.res_no,
 					   try_atom_spec,
 					   magic_scale * it->second.first,
 					   it->second.second, canvas);
@@ -752,7 +752,7 @@ coot::geometry_graphs::update_residue_blocks(const std::vector<coot::geometry_gr
    // std::cout << "DEBUG:: dv[" << ires << "] has resno " << dv[ires].resno << std::endl;
    // }
    for (unsigned int ires=0; ires<dv.size(); ires++) {
-      int chain_number = chain_id_to_chain_index(dv[ires].atom_spec.chain);
+      int chain_number = chain_id_to_chain_index(dv[ires].atom_spec.chain_id);
       int resno = dv[ires].resno;
       // std::cout << "DEBUG:: deleting block: " << dv[ires].atom_spec.resno << " "
       // << dv[ires].atom_spec.chain << std::endl;
@@ -761,7 +761,7 @@ coot::geometry_graphs::update_residue_blocks(const std::vector<coot::geometry_gr
 
    // render generic blocks
    for(unsigned int i=0; i<dv.size(); i++) {
-      int chain_number = chain_id_to_chain_index(dv[i].atom_spec.chain);
+      int chain_number = chain_id_to_chain_index(dv[i].atom_spec.chain_id);
       geometry_graph_block_info block_info(imol, dv[i].resno,
 					   dv[i].atom_spec,
 					   dv[i].distortion,
@@ -865,7 +865,7 @@ coot::geometry_graphs::render_omega_blocks(const coot::omega_distortion_info_con
 void
 coot::geometry_graphs::delete_block(int chain_number, const coot::residue_spec_t &rs) {
 
-   delete_block(chain_number, rs.resno);
+   delete_block(chain_number, rs.res_no);
 
 }
 

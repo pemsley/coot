@@ -26,11 +26,11 @@ namespace coot {
 	       int resno_local = util::string_to_int(res_no_str);
 	       if (chain_local[0] == ' ') { 
 		  if (chain_local.length() > 1)
-		     chain = std::string(chain_local.substr(1));
+		     chain_id = std::string(chain_local.substr(1));
 	       } else { 
-		  chain = chain_local;
+		  chain_id = chain_local;
 	       }
-	       resno = resno_local;
+	       res_no = resno_local;
 	       atom_name = atom_name_local;
 	    }
 	    catch (const std::exception &e) {

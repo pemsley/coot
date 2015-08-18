@@ -414,9 +414,9 @@ GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, f
 		  // 			 << baddies[i].chain << "\n";
 		  
 		  std::string button_label(" ");
-		  button_label += baddies[i].chain;
+		  button_label += baddies[i].chain_id;
 		  button_label += " " ;
-		  button_label += graphics_info_t::int_to_string(baddies[i].resno);
+		  button_label += graphics_info_t::int_to_string(baddies[i].res_no);
 		  button_label += " " ;
 		  button_label += baddies[i].atom_name;
 		  button_label += " " ;
@@ -1861,11 +1861,11 @@ void gln_asn_b_factor_outliers(int imol) {
 	       std::string callback_func = "(lambda() (do-180-degree-side-chain-flip ";
 	       callback_func += coot::util::int_to_string(imol);
 	       callback_func += " ";
-	       callback_func += single_quote(v[i].first.chain);
+	       callback_func += single_quote(v[i].first.chain_id);
 	       callback_func += " ";
-	       callback_func += coot::util::int_to_string(v[i].first.resno);
+	       callback_func += coot::util::int_to_string(v[i].first.res_no);
 	       callback_func += " ";
-	       callback_func += single_quote(v[i].first.insertion_code);
+	       callback_func += single_quote(v[i].first.ins_code);
 	       callback_func += " ";
 	       callback_func += single_quote(v[i].first.alt_conf);
 	       callback_func += "))";
@@ -1945,11 +1945,11 @@ void gln_asn_b_factor_outliers_py(int imol) {
                std::string callback_func = "[do_180_degree_side_chain_flip,";
                callback_func += coot::util::int_to_string(imol);
                callback_func += ",";
-               callback_func += single_quote(v[i].first.chain);
+               callback_func += single_quote(v[i].first.chain_id);
                callback_func += ",";
-               callback_func += coot::util::int_to_string(v[i].first.resno);
+               callback_func += coot::util::int_to_string(v[i].first.res_no);
                callback_func += ",";
-               callback_func += single_quote(v[i].first.insertion_code);
+               callback_func += single_quote(v[i].first.ins_code);
                callback_func += ",";
                callback_func += single_quote(v[i].first.alt_conf);
                callback_func += "]";

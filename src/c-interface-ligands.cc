@@ -95,10 +95,10 @@ void go_to_ligand() {
 	    g.update_things_on_move_and_redraw();
 	    std::string s = "Centred on residue ";
 	    // s += new_centre.residue_spec;
-	    s += coot::util::int_to_string(new_centre.residue_spec.resno);
-	    s += new_centre.residue_spec.insertion_code;
+	    s += coot::util::int_to_string(new_centre.residue_spec.res_no);
+	    s += new_centre.residue_spec.ins_code;
 	    s+= " ";
-	    s += new_centre.residue_spec.chain;
+	    s += new_centre.residue_spec.chain_id;
 	    s += " in molecule #";
 	    s += coot::util::int_to_string(pp.second.first);
 	    s += ".";
@@ -113,9 +113,9 @@ void go_to_ligand() {
 	    if (new_centre.type == coot::SINGLE_LIGAND_NO_MOVEMENT) { 
 	       g.perpendicular_ligand_view(pp.second.first, new_centre.residue_spec);
 	       std::string s = "This ligand (";
-	       s += coot::util::int_to_string(new_centre.residue_spec.resno);
-	       s += new_centre.residue_spec.insertion_code;
-	       s += new_centre.residue_spec.chain;
+	       s += coot::util::int_to_string(new_centre.residue_spec.res_no);
+	       s += new_centre.residue_spec.ins_code;
+	       s += new_centre.residue_spec.chain_id;
 	       s += ") ";
 	       s += " is the only ligand in this molecule (#";
 	       s += coot::util::int_to_string(pp.second.first);

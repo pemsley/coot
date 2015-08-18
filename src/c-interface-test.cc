@@ -614,9 +614,9 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	       int imol_new = g.create_molecule();
 	       g.molecules[imol_new].install_model(imol_new, asc_new, g.Geom_p(), name, 1, shelx_flag);
 	       add_linked_residue(imol_new,
-				  active_atom.second.second.chain.c_str(),
-				  active_atom.second.second.resno,
-				  active_atom.second.second.insertion_code.c_str(),
+				  active_atom.second.second.chain_id.c_str(),
+				  active_atom.second.second.res_no,
+				  active_atom.second.second.ins_code.c_str(),
 				  "NAG", "ASN-NAG", 400);
 	       
 	       delete moving_mol;
@@ -668,9 +668,9 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 	       int imol_new = g.create_molecule();
 	       g.molecules[imol_new].install_model(imol_new, asc_new, g.Geom_p(), name, 1, shelx_flag);
 	       add_linked_residue(imol_new,
-				  active_atom.second.second.chain.c_str(),
-				  active_atom.second.second.resno,
-				  active_atom.second.second.insertion_code.c_str(),
+				  active_atom.second.second.chain_id.c_str(),
+				  active_atom.second.second.res_no,
+				  active_atom.second.second.ins_code.c_str(),
 				  "NAG", "ASN-NAG", 400);
 	       
 	       delete moving_mol;

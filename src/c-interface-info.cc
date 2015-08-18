@@ -870,9 +870,9 @@ SCM residues_near_residue(int imol, SCM residue_in, float radius) {
 	 graphics_info_t::molecules[imol].residues_near_residue(rspec, radius);
       for (unsigned int i=0; i<v.size(); i++) {
 	 SCM res_spec = SCM_EOL;
-	 res_spec = scm_cons(scm_makfrom0str(v[i].insertion_code.c_str()), res_spec);
-	 res_spec = scm_cons(scm_int2num(v[i].resno), res_spec);
-	 res_spec = scm_cons(scm_makfrom0str(v[i].chain.c_str()), res_spec);
+	 res_spec = scm_cons(scm_makfrom0str(v[i].ins_code.c_str()), res_spec);
+	 res_spec = scm_cons(scm_int2num(v[i].res_no), res_spec);
+	 res_spec = scm_cons(scm_makfrom0str(v[i].chain_id.c_str()), res_spec);
 	 r = scm_cons(res_spec, r);
       }
    } 
@@ -900,9 +900,9 @@ PyObject *residues_near_residue_py(int imol, PyObject *residue_in, float radius)
 	 graphics_info_t::molecules[imol].residues_near_residue(rspec, radius);
       for (unsigned int i=0; i<v.size(); i++) {
 	 PyObject *res_spec = PyList_New(3);
-	 PyList_SetItem(res_spec, 0, PyString_FromString(v[i].chain.c_str()));
-	 PyList_SetItem(res_spec, 1, PyInt_FromLong(v[i].resno));
-	 PyList_SetItem(res_spec, 2, PyString_FromString(v[i].insertion_code.c_str()));
+	 PyList_SetItem(res_spec, 0, PyString_FromString(v[i].chain_id.c_str()));
+	 PyList_SetItem(res_spec, 1, PyInt_FromLong(v[i].res_no));
+	 PyList_SetItem(res_spec, 2, PyString_FromString(v[i].ins_code.c_str()));
 	 PyList_Append(r, res_spec);
 	 Py_XDECREF(res_spec);
       }
@@ -1542,9 +1542,9 @@ int set_go_to_atom_from_spec(const coot::atom_spec_t &atom_spec) {
    graphics_info_t g;
 
    if (! atom_spec.empty()) { 
-      g.set_go_to_atom_chain_residue_atom_name(atom_spec.chain.c_str(), 
-					       atom_spec.resno,
-					       atom_spec.insertion_code.c_str(), 
+      g.set_go_to_atom_chain_residue_atom_name(atom_spec.chain_id.c_str(), 
+					       atom_spec.res_no,
+					       atom_spec.ins_code.c_str(), 
 					       atom_spec.atom_name.c_str(),
 					       atom_spec.alt_conf.c_str());
       
@@ -1641,9 +1641,9 @@ SCM active_residue() {
       s = SCM_EOL;
       s = scm_cons(scm_makfrom0str(pp.second.second.alt_conf.c_str()) , s);
       s = scm_cons(scm_makfrom0str(pp.second.second.atom_name.c_str()) , s);
-      s = scm_cons(scm_makfrom0str(pp.second.second.insertion_code.c_str()) , s);
-      s = scm_cons(scm_int2num(pp.second.second.resno) , s);
-      s = scm_cons(scm_makfrom0str(pp.second.second.chain.c_str()) , s);
+      s = scm_cons(scm_makfrom0str(pp.second.second.ins_code.c_str()) , s);
+      s = scm_cons(scm_int2num(pp.second.second.res_no) , s);
+      s = scm_cons(scm_makfrom0str(pp.second.second.chain_id.c_str()) , s);
       s = scm_cons(scm_int2num(pp.second.first) ,s);
    } 
    return s;
@@ -1660,9 +1660,9 @@ PyObject *active_residue_py() {
    if (pp.first) {
       s = PyList_New(6);
       PyList_SetItem(s, 0, PyInt_FromLong(pp.second.first));
-      PyList_SetItem(s, 1, PyString_FromString(pp.second.second.chain.c_str()));
-      PyList_SetItem(s, 2, PyInt_FromLong(pp.second.second.resno));
-      PyList_SetItem(s, 3, PyString_FromString(pp.second.second.insertion_code.c_str()));
+      PyList_SetItem(s, 1, PyString_FromString(pp.second.second.chain_id.c_str()));
+      PyList_SetItem(s, 2, PyInt_FromLong(pp.second.second.res_no));
+      PyList_SetItem(s, 3, PyString_FromString(pp.second.second.ins_code.c_str()));
       PyList_SetItem(s, 4, PyString_FromString(pp.second.second.atom_name.c_str()));
       PyList_SetItem(s, 5, PyString_FromString(pp.second.second.alt_conf.c_str()));
    }
@@ -1734,8 +1734,8 @@ void update_go_to_atom_from_current_position() {
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
    if (pp.first) {
       set_go_to_atom_molecule(pp.second.first);
-      set_go_to_atom_chain_residue_atom_name(pp.second.second.chain.c_str(),
-					     pp.second.second.resno,
+      set_go_to_atom_chain_residue_atom_name(pp.second.second.chain_id.c_str(),
+					     pp.second.second.res_no,
 					     pp.second.second.atom_name.c_str());
       update_go_to_atom_window_on_other_molecule_chosen(pp.second.first);
    }

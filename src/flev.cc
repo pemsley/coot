@@ -806,7 +806,7 @@ coot::write_fle_centres(const std::vector<fle_residues_helper_t> &v,
 	 if (v[i].is_set) { 
 	    of << "RES " << v[i].centre.x() << " " << v[i].centre.y() << " "
 	       << v[i].centre.z() << " "
-	       << v[i].residue_name << " " << v[i].spec.chain << v[i].spec.resno;
+	       << v[i].residue_name << " " << v[i].spec.chain << v[i].spec.res_no;
 
 	    // Add the qualifying distance to protein if this is a water atom.
 	    // 
@@ -895,8 +895,8 @@ coot::write_fle_centres(const std::vector<fle_residues_helper_t> &v,
 		  type = "pi-cation";
 	       if (0) // debug
 		  of << "# Best stacking for RES " 
-		     << v[i].residue_name << " " << v[i].spec.chain
-		     << v[i].spec.resno << " is " << best_stacking.type << " "
+		     << v[i].residue_name << " " << v[i].spec.chain_id
+		     << v[i].spec.res_no << " is " << best_stacking.type << " "
 		     << best_stacking_score << std::endl;
 	       of << "STACKING " << type << " ";
 	       switch (best_stacking.type) {
@@ -1017,9 +1017,9 @@ coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
       int SelHnd_all = m.second->NewSelection(); // d
       int SelHnd_lig = m.second->NewSelection(); // d
       m.second->SelectAtoms(SelHnd_all, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
-      m.second->SelectAtoms(SelHnd_lig, 0, ligand_spec.chain.c_str(),
-			    ligand_spec.resno, ligand_spec.insertion_code.c_str(),
-			    ligand_spec.resno, ligand_spec.insertion_code.c_str(),
+      m.second->SelectAtoms(SelHnd_lig, 0, ligand_spec.chain_id.c_str(),
+			    ligand_spec.res_no, ligand_spec.ins_code.c_str(),
+			    ligand_spec.res_no, ligand_spec.ins_code.c_str(),
 			    "*", "*", "*", "*");
 
       // -----------------------
@@ -1193,9 +1193,9 @@ coot::get_covalent_bonds_by_distance(mmdb::Manager *mol,
    std::vector<coot::fle_ligand_bond_t> v;
    int SelHnd_local = mol->NewSelection();
    mol->SelectAtoms(SelHnd_local, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
-   mol->Select(SelHnd_local, mmdb::STYPE_ATOM, 0, ligand_spec.chain.c_str(),
-	       ligand_spec.resno, ligand_spec.insertion_code.c_str(),
-	       ligand_spec.resno, ligand_spec.insertion_code.c_str(),
+   mol->Select(SelHnd_local, mmdb::STYPE_ATOM, 0, ligand_spec.chain_id.c_str(),
+	       ligand_spec.res_no, ligand_spec.ins_code.c_str(),
+	       ligand_spec.res_no, ligand_spec.ins_code.c_str(),
 	       "*", "*", "*", "*", mmdb::SKEY_XOR);
 
    // now find contacts:

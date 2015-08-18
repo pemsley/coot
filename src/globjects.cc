@@ -3287,6 +3287,19 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       handled = TRUE; 
       break;
 
+   case GDK_x: // delete active residue
+
+      if (graphics_info_t::control_is_pressed) {
+	 std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
+	 if (aa.first) {
+	    delete_residue(aa.second.first, aa.second.second.chain_id.c_str(),
+			   aa.second.second.res_no,
+			   aa.second.second.ins_code.c_str());
+	 }
+	 handled = TRUE;
+      }
+      break;
+
    case GDK_z:
       graphics_info_t::z_is_pressed = 1;
       if (graphics_info_t::control_is_pressed) { 
@@ -3721,8 +3734,8 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 	 std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
 	 if (pp.first) {
 	    const coot::atom_spec_t &spec = pp.second.second;
-	    residue_info_dialog(pp.second.first, spec.chain.c_str(), spec.resno,
-				spec.insertion_code.c_str());
+	    residue_info_dialog(pp.second.first, spec.chain_id.c_str(), spec.res_no,
+				spec.ins_code.c_str());
 	 }
       } 
       break; 

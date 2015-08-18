@@ -5311,10 +5311,10 @@ void add_additional_representation_by_widget(GtkWidget *w) {
       std::pair<bool, std::pair<int, coot::atom_spec_t> > aas = active_atom_spec();
       if (aas.first) {
 	 int imol_active = aas.second.first;
-	 coot::atom_selection_info_t asi(aas.second.second.chain,
-					 aas.second.second.resno,
-					 aas.second.second.resno,
-					 aas.second.second.insertion_code);
+	 coot::atom_selection_info_t asi(aas.second.second.chain_id,
+					 aas.second.second.res_no,
+					 aas.second.second.res_no,
+					 aas.second.second.ins_code);
 	 gl_context_info_t glci(graphics_info_t::glarea, graphics_info_t::glarea_2);
 	 g.molecules[imol_active].add_additional_representation(representation_type,
 								bonds_box_type,
