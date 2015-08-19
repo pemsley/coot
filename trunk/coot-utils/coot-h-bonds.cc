@@ -100,8 +100,8 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::p
 
 	    // are they donor and acceptor?
 	    //
-	    int hb_type_1 = coot::energy_lib_atom::HB_UNASSIGNED;
-	    int hb_type_2 = coot::energy_lib_atom::HB_UNASSIGNED;
+	    int hb_type_1 = coot::HB_UNASSIGNED;
+	    int hb_type_2 = coot::HB_UNASSIGNED;
 
 	    at_1->GetUDData(hb_type_udd_handle, hb_type_1);
 	    at_2->GetUDData(hb_type_udd_handle, hb_type_2);
@@ -110,17 +110,17 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::p
 	    bool swap = 0;
 	    bool ligand_atom_is_donor = 1;
 
-	    if ((hb_type_1 == coot::energy_lib_atom::HB_DONOR ||
-		 hb_type_1 == coot::energy_lib_atom::HB_BOTH) &&
-		(hb_type_2 == coot::energy_lib_atom::HB_ACCEPTOR ||
-		 hb_type_2 == coot::energy_lib_atom::HB_BOTH)) {
+	    if ((hb_type_1 == coot::HB_DONOR ||
+		 hb_type_1 == coot::HB_BOTH) &&
+		(hb_type_2 == coot::HB_ACCEPTOR ||
+		 hb_type_2 == coot::HB_BOTH)) {
 	       match = 1;
 	    }
 
-	    if ((hb_type_1 == coot::energy_lib_atom::HB_ACCEPTOR ||
-		 hb_type_1 == coot::energy_lib_atom::HB_BOTH) &&
-		(hb_type_2 == coot::energy_lib_atom::HB_DONOR ||
-		 hb_type_2 == coot::energy_lib_atom::HB_BOTH)) {
+	    if ((hb_type_1 == coot::HB_ACCEPTOR ||
+		 hb_type_1 == coot::HB_BOTH) &&
+		(hb_type_2 == coot::HB_DONOR ||
+		 hb_type_2 == coot::HB_BOTH)) {
 	       match = 1;
 	       swap = 1;
 	       ligand_atom_is_donor = 0;
@@ -346,8 +346,8 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manag
 
 	       // are they HB_HYDROGEN and HB_ACCEPTOR?
 	       //
-	       int hb_type_1 = coot::energy_lib_atom::HB_UNASSIGNED;
-	       int hb_type_2 = coot::energy_lib_atom::HB_UNASSIGNED;
+	       int hb_type_1 = coot::HB_UNASSIGNED;
+	       int hb_type_2 = coot::HB_UNASSIGNED;
 
 	       at_1->GetUDData(hb_type_udd_handle, hb_type_1);
 	       at_2->GetUDData(hb_type_udd_handle, hb_type_2);
@@ -361,9 +361,9 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manag
 
 	       // hydrogen on ligand
 	       // 
-	       if (hb_type_1 == coot::energy_lib_atom::HB_HYDROGEN) { 
-		  if (hb_type_2 == coot::energy_lib_atom::HB_ACCEPTOR ||
-		      hb_type_2 == coot::energy_lib_atom::HB_BOTH) {
+	       if (hb_type_1 == coot::HB_HYDROGEN) { 
+		  if (hb_type_2 == coot::HB_ACCEPTOR ||
+		      hb_type_2 == coot::HB_BOTH) {
 
 		     std::vector<std::pair<mmdb::Atom *, float> > nb_1 = neighbour_map[at_1];
 		     std::vector<std::pair<mmdb::Atom *, float> > nb_2 = neighbour_map[at_2];
@@ -382,9 +382,9 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manag
 	       // is on the ligand and the donor is a water (because
 	       // waters may not (probably do not) have hydrogens.
 	       // 
-	       if (hb_type_1 == coot::energy_lib_atom::HB_ACCEPTOR ||
-		   hb_type_1 == coot::energy_lib_atom::HB_BOTH) {
-		  if (hb_type_2 == coot::energy_lib_atom::HB_HYDROGEN ||
+	       if (hb_type_1 == coot::HB_ACCEPTOR ||
+		   hb_type_1 == coot::HB_BOTH) {
+		  if (hb_type_2 == coot::HB_HYDROGEN ||
 		      std::string(at_2->GetResName()) == "HOH") {
 
 		     std::vector<std::pair<mmdb::Atom *, float> > nb_1 = neighbour_map[at_1];
@@ -779,7 +779,7 @@ coot::h_bonds::check_hb_status(int selhnd, mmdb::Manager *mol, const protein_geo
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
 
-   int hb_type = energy_lib_atom::HB_UNASSIGNED;
+   int hb_type = HB_UNASSIGNED;
    int hb_type_udd_handle = mark_donors_and_acceptors(selhnd, -1, mol, geom); // using UDD data
 
    mol->GetSelIndex(selhnd, residue_atoms, n_residue_atoms);
@@ -788,7 +788,7 @@ coot::h_bonds::check_hb_status(int selhnd, mmdb::Manager *mol, const protein_geo
       at->GetUDData(hb_type_udd_handle, hb_type);
       if (0)
 	 std::cout << "   " << atom_spec_t(at) << " " << hb_type << std::endl;
-      if (hb_type != energy_lib_atom::HB_UNASSIGNED)
+      if (hb_type != HB_UNASSIGNED)
 	 status = true;
    }
    return std::pair<bool, int> (status, hb_type_udd_handle);

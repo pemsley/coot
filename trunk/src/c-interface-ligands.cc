@@ -3120,27 +3120,27 @@ void display_residue_hydrogen_bond_atom_status_using_dictionary(int imol, std::s
 	    mol->GetSelIndex(SelHnd_lig, residue_atoms, n_residue_atoms);
 	    for (int iat=0; iat<n_residue_atoms; iat++) { 
 	       mmdb::Atom *at = residue_atoms[iat];
-	       int hb_type = coot::energy_lib_atom::HB_UNASSIGNED;
+	       int hb_type = coot::HB_UNASSIGNED;
 	       at->GetUDData(status.second, hb_type);
-	       if (hb_type != coot::energy_lib_atom::HB_UNASSIGNED) { 
+	       if (hb_type != coot::HB_UNASSIGNED) { 
 		  clipper::Coord_orth centre = coot::co(at);
 		  coot::generic_display_object_t::sphere_t sphere(centre, 0.5);
-		  if (hb_type == coot::energy_lib_atom::HB_DONOR) {
+		  if (hb_type == coot::HB_DONOR) {
 		     sphere.col = coot::colour_t(0.2, 0.6, 0.7);
 		  } 
-		  if (hb_type == coot::energy_lib_atom::HB_ACCEPTOR) {
+		  if (hb_type == coot::HB_ACCEPTOR) {
 		     sphere.col = coot::colour_t(0.8, 0.2, 0.2);
 		  } 
-		  if (hb_type == coot::energy_lib_atom::HB_BOTH) {
+		  if (hb_type == coot::HB_BOTH) {
 		     sphere.col = coot::colour_t(0.8, 0.2, 0.8);
 		  } 
-		  if (hb_type == coot::energy_lib_atom::HB_HYDROGEN) {
+		  if (hb_type == coot::HB_HYDROGEN) {
 		     sphere.radius = 0.35;
 		  }
-		  if (hb_type == coot::energy_lib_atom::HB_DONOR    ||
-		      hb_type == coot::energy_lib_atom::HB_ACCEPTOR ||
-		      hb_type == coot::energy_lib_atom::HB_BOTH     ||
-		      hb_type == coot::energy_lib_atom::HB_HYDROGEN) { 
+		  if (hb_type == coot::HB_DONOR    ||
+		      hb_type == coot::HB_ACCEPTOR ||
+		      hb_type == coot::HB_BOTH     ||
+		      hb_type == coot::HB_HYDROGEN) { 
 		     features_obj.spheres.push_back(sphere);
 		  }
 	       }

@@ -926,7 +926,7 @@ coot::dictionary_residue_restraints_t::type_energy(const std::string &atom_name)
 	 std::cout << "type_energy() for comp-id " << residue_info.comp_id
 		   << " comparing \"" << atom_name << "\" with \"" << atom_info[iat].atom_id_4c
 		   << "\"" << std::endl;
-      if (atom_info[iat].atom_id_4c == atom_name) {
+      if (atom_info[iat].atom_id_4c == atom_name) { // PDBv3 FIXME
 	 r = atom_info[iat].type_energy;
 	 break;
       }
@@ -4076,3 +4076,19 @@ coot::protein_geometry::n_non_hydrogen_atoms(const std::string &residue_type) {
    }
    return n_atoms;
 } 
+
+
+coot::energy_lib_atom
+coot::protein_geometry::get_energy_lib_atom(const std::string &ener_type) const {
+
+   coot::energy_lib_atom at;
+   
+   std::map<std::string, energy_lib_atom>::const_iterator it =
+      energy_lib.atom_map.find(ener_type);
+
+   if (it != energy_lib.atom_map.end())
+      at = it->second;
+   
+   return at;
+   
+}

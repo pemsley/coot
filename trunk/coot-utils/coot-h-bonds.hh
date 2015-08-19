@@ -95,10 +95,7 @@ namespace coot {
 
 
    class h_bonds {
-      // return the udd handle (donor, acceptors and HB hydrogens, that is)
-      int  mark_donors_and_acceptors(int donor_selHnd, int acceptor_selHnd, mmdb::Manager *mol,
-				     const protein_geometry &geom);
-      
+
       // What is the nearest neighbour of the atoms in mol?
       // 
       std::map<mmdb::Atom *,  std::vector<std::pair<mmdb::Atom *, float> > >
@@ -133,6 +130,10 @@ namespace coot {
       // 
       std::pair<bool, int>
       check_hb_status(int selhnd, mmdb::Manager *mol, const protein_geometry &geom); 
+      
+      // return the udd handle (donor, acceptors and HB hydrogens, that is)
+      int  mark_donors_and_acceptors(int donor_selHnd, int acceptor_selHnd, mmdb::Manager *mol,
+				     const protein_geometry &geom);
       
       class atom_sorter {
 	 mmdb::Atom *at;

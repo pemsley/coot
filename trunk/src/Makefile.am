@@ -224,6 +224,7 @@ fix_nomenclature_errors_SOURCES = \
 
 coot_bin_SOURCES = \
 	main.cc 		 \
+	atom-overlaps.cc         \
 	svn-revision.cc 	 \
 	c-inner-main.c		 \
 	c-inner-main.h		 \

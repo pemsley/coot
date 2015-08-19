@@ -361,7 +361,35 @@ int test_least_squares_fit() {
    std::cout << "  lsq c " << lsq.c() << std::endl;
 
    return status;
-} 
+}
+
+#include "atom-overlaps.hh"
+
+int test_atom_overlaps() {
+
+   int status = 0;
+   testing_data t;
+   t.geom.try_dynamic_add("MG",  1);
+
+   // t.geom.try_dynamic_add("824", 1);
+   t.geom.init_refmac_mon_lib("../src/824-pyrogen.cif", 1);
+
+   mmdb::Manager *mol = new mmdb::Manager;
+   std::string file_name = "1x8b-H.pdb";
+   coot::residue_spec_t spec("A", 901, "");
+
+   mol->ReadCoorFile(file_name.c_str());
+
+   mmdb::Residue *residue_p = coot::util::get_residue(spec, mol);
+   if (residue_p) {
+      std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
+      coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, &t.geom);
+      overlaps.make_overlaps();
+   } else {
+      std::cout << "Can't find residue" << spec << std::endl;
+   } 
+   return status;
+}
 
 
 int main(int argv, char **argc) {
@@ -388,8 +416,11 @@ int main(int argv, char **argc) {
    if (0)
       test_qq_plot();
 
-   if (1)
+   if (0)
       test_least_squares_fit();
+   
+   if (1)
+      test_atom_overlaps();
    
    return 0;
 }

@@ -52,6 +52,7 @@
 
 #include "clipper/core/coords.h"
 
+#include "hb-types.hh"
 #include "mini-mol/atom-quads.hh"
 
 namespace coot {
@@ -1257,10 +1258,9 @@ namespace coot {
    
    class energy_lib_atom {
    public:
-      enum hb_t { HB_UNASSIGNED=-1, HB_NEITHER, HB_DONOR, HB_ACCEPTOR, HB_BOTH, HB_HYDROGEN };
       std::string type;
       mmdb::realtype weight;
-      int hb_type;
+      hb_t hb_type;
       // radii are negative if not assigned.
       mmdb::realtype vdw_radius;
       mmdb::realtype vdwh_radius;
@@ -1269,7 +1269,7 @@ namespace coot {
       int valency; // negative if unset
       int sp_hybridisation; // negative if unset
       energy_lib_atom(const std::string &type_in,
-		      int hb_type_in,
+		      hb_t hb_type_in,
 		      float weight_in,
 		      float vdw_radius_in,
 		      float vdwh_radius_in,
@@ -2318,7 +2318,7 @@ namespace coot {
 
       // return HB_UNASSIGNED when not found
       // 
-      int get_h_bond_type(const std::string &atom_name, const std::string &monomer_name) const;
+      hb_t get_h_bond_type(const std::string &atom_name, const std::string &monomer_name) const;
 
       // Find the bonded neighbours of the given atoms - throw an
       // exception if residue name is not in dictionary.
@@ -2370,6 +2370,8 @@ namespace coot {
       std::pair<bool, double> get_nbc_dist(const std::string &energy_type_1,
 					   const std::string &energy_type_2) const;
 
+      energy_lib_atom get_energy_lib_atom(const std::string &ener_type) const;
+      
       // Return -1 if residue type not found.
       // 
       int n_non_hydrogen_atoms(const std::string &residue_type);

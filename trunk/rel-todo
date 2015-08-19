@@ -20,6 +20,8 @@
 
    o Sphere refine on a water fails.
 
+* Not for me.
+
    o Default for add waters should be something other than Pointer
      Atoms if possible.
 
