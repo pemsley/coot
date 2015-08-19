@@ -36,6 +36,17 @@ void gui_ligand_metrics_py(PyObject *ligand_spec, PyObject *ligand_metrics, doub
 coot::probe_clash_score_t
 probe_clash_score(const std::string &dots_file_name);
 
+#ifdef USE_GUILE
+// internal bumps scoring, sphere overlap
+SCM ligand_atom_overlaps_scm(int imol, SCM ligand_spec, double neighb_radius);
+#endif
+
+#ifdef USE_PYTHON
+// internal bumps scoring, sphere overlap
+PyObject *ligand_atom_overlaps_py(int imol, PyObject *ligand_spec, double neighb_radius);
+#endif
+
+
 
 #ifdef USE_GUILE
 bool

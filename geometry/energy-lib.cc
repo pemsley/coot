@@ -112,7 +112,7 @@ coot::energy_lib_t::add_energy_lib_atoms(mmdb::mmcif::PLoop mmCIFLoop) {
    for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
       std::string type;
       mmdb::realtype weight = -1;
-      int hb_type = coot::energy_lib_atom::HB_UNASSIGNED;
+      hb_t hb_type = coot::HB_UNASSIGNED;
       mmdb::realtype vdw_radius = -1;
       mmdb::realtype vdwh_radius = -1; // with implicit hydrogen, I presume
       mmdb::realtype ion_radius = -1;
@@ -140,15 +140,15 @@ coot::energy_lib_t::add_energy_lib_atoms(mmdb::mmcif::PLoop mmCIFLoop) {
       if (s) {
 	 std::string ss(s);
 	 if (ss == "D")
-	    hb_type = coot::energy_lib_atom::HB_DONOR;
+	    hb_type = coot::HB_DONOR;
 	 if (ss == "A")
-	    hb_type = coot::energy_lib_atom::HB_ACCEPTOR;
+	    hb_type = coot::HB_ACCEPTOR;
 	 if (ss == "B")
-	    hb_type = coot::energy_lib_atom::HB_BOTH;
+	    hb_type = coot::HB_BOTH;
 	 if (ss == "N")
-	    hb_type = coot::energy_lib_atom::HB_NEITHER;
+	    hb_type = coot::HB_NEITHER;
 	 if (ss == "H")
-	    hb_type = coot::energy_lib_atom::HB_HYDROGEN;
+	    hb_type = coot::HB_HYDROGEN;
       }
 
       // This can fail (to set vdw_radius - we still have a useful atom description).
@@ -400,7 +400,7 @@ coot::energy_lib_t::add_energy_lib_torsions(mmdb::mmcif::PLoop mmCIFLoop) {
 
 
 
-int
+coot::hb_t
 coot::protein_geometry::get_h_bond_type(const std::string &atom_name, const std::string &monomer_name) const {
 
    bool debug = 0;  // before debugging this, is ener_lib.cif being
@@ -411,7 +411,7 @@ coot::protein_geometry::get_h_bond_type(const std::string &atom_name, const std:
    std::pair<bool, coot::dictionary_residue_restraints_t> r =
       get_monomer_restraints(monomer_name);
 
-   int hb_type = coot::energy_lib_atom::HB_UNASSIGNED;
+   hb_t hb_type = HB_UNASSIGNED;
 
    if (! r.first) {
       std::string m = "No dictionary for monomer_type: ";
@@ -437,7 +437,7 @@ coot::protein_geometry::get_h_bond_type(const std::string &atom_name, const std:
    } 
 
    if (debug)
-      if (hb_type == coot::energy_lib_atom::HB_UNASSIGNED)
+      if (hb_type == HB_UNASSIGNED)
 	 std::cout << " failed to get_h_bond_type for " << atom_name << " in " << monomer_name
 		   << std::endl;
 	 
@@ -523,25 +523,25 @@ coot::protein_geometry::get_nbc_dist(const std::string &energy_type_1,
 
 	 // hydrogen bonds can be closer
 	 // 
-	 if ((it_1->second.hb_type == coot::energy_lib_atom::HB_DONOR ||
-	      it_1->second.hb_type == coot::energy_lib_atom::HB_BOTH  ||
-	      it_1->second.hb_type == coot::energy_lib_atom::HB_HYDROGEN) &&
-	     (it_2->second.hb_type == coot::energy_lib_atom::HB_ACCEPTOR ||
-	      it_2->second.hb_type == coot::energy_lib_atom::HB_BOTH)) { 
+	 if ((it_1->second.hb_type == coot::HB_DONOR ||
+	      it_1->second.hb_type == coot::HB_BOTH  ||
+	      it_1->second.hb_type == coot::HB_HYDROGEN) &&
+	     (it_2->second.hb_type == coot::HB_ACCEPTOR ||
+	      it_2->second.hb_type == coot::HB_BOTH)) { 
 	    r.second -= 0.7;
 	    // actual hydrogens to aceptors can be shorter still 
-	    if (it_1->second.hb_type == coot::energy_lib_atom::HB_HYDROGEN)
+	    if (it_1->second.hb_type == coot::HB_HYDROGEN)
 	       r.second -=0.3;
 	 } 
 
-	 if ((it_2->second.hb_type == coot::energy_lib_atom::HB_DONOR ||
-	      it_2->second.hb_type == coot::energy_lib_atom::HB_BOTH  ||
-	      it_2->second.hb_type == coot::energy_lib_atom::HB_HYDROGEN) &&
-	     (it_1->second.hb_type == coot::energy_lib_atom::HB_ACCEPTOR ||
-	      it_1->second.hb_type == coot::energy_lib_atom::HB_BOTH)) { 
+	 if ((it_2->second.hb_type == coot::HB_DONOR ||
+	      it_2->second.hb_type == coot::HB_BOTH  ||
+	      it_2->second.hb_type == coot::HB_HYDROGEN) &&
+	     (it_1->second.hb_type == coot::HB_ACCEPTOR ||
+	      it_1->second.hb_type == coot::HB_BOTH)) { 
 	    r.second -= 0.7;
 	    // as above
-	    if (it_1->second.hb_type == coot::energy_lib_atom::HB_HYDROGEN)
+	    if (it_1->second.hb_type == coot::HB_HYDROGEN)
 	       r.second -=0.3;
 	 }
       }
