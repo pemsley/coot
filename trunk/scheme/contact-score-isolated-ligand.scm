@@ -4,10 +4,8 @@
   (for-each (lambda (i)
 	      (if (not (= i imol))
 		  (begin
-		    ;; (format #t " ---------------------- deactivating mol ~s~%" i)
 		    (set-mol-active i 0))))
 	    (model-molecule-list)))
-
 
 
 ;; This will hydrogenate the active residue, not imol
@@ -21,13 +19,14 @@
 	 (ins-code (res-spec->ins-code res-spec))
 	 (ss (string-append "//" chain-id "/" (number->string res-no)))
 	 (imol-selection (new-molecule-by-atom-selection imol ss))
-	 (ligand-selection-pdb  (append-dir-file "coot-molprobity" (string-append "tmp-selected-ligand-for-probe-" 
+	 (coot-molprobity-dir (get-directory "coot-molprobity"))
+	 (ligand-selection-pdb  (append-dir-file coot-molprobity-dir (string-append "tmp-selected-ligand-for-probe-" 
 										  (number->string imol)
 										  ".pdb")))
-	 (protein-selection-pdb (append-dir-file "coot-molprobity" (string-append "tmp-protein-for-probe-" 
+	 (protein-selection-pdb (append-dir-file coot-molprobity-dir (string-append "tmp-protein-for-probe-" 
 										  (number->string imol)
 										  ".pdb")))
-	 (dots-file-name (append-dir-file "coot-molprobity"
+	 (dots-file-name (append-dir-file coot-molprobity-dir
 					  (string-append "probe"
 							 "-"
 							 chain-id
