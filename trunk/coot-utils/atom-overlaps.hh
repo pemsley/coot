@@ -5,6 +5,7 @@
 // #include <mmdb2/mmdb_manager.h>
 // #include <vector>
 
+#include "compat/coot-sysdep.h"
 #include "geometry/protein-geometry.hh"
 
 namespace coot {
