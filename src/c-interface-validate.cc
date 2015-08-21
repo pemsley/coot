@@ -1890,11 +1890,11 @@ void gln_asn_b_factor_outliers(int imol) {
                std::string callback_func = "[do_180_degree_side_chain_flip,";
                callback_func += coot::util::int_to_string(imol);
                callback_func += ",";
-               callback_func += single_quote(v[i].first.chain);
+               callback_func += single_quote(v[i].first.chain_id);
                callback_func += ",";
-               callback_func += coot::util::int_to_string(v[i].first.resno);
+               callback_func += coot::util::int_to_string(v[i].first.res_no);
                callback_func += ",";
-               callback_func += single_quote(v[i].first.insertion_code);
+               callback_func += single_quote(v[i].first.ins_code);
                callback_func += ",";
                callback_func += single_quote(v[i].first.alt_conf);
                callback_func += "]";

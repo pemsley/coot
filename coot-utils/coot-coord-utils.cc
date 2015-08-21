@@ -4543,7 +4543,7 @@ coot::util::interesting_things_list(const std::vector<atom_spec_t> &v) {
       button_label += v[i].atom_name;
       if (v[i].alt_conf != "") {
 	 button_label += ",";
-	 button_label += v[i].alt_conf;
+    button_label += v[i].alt_conf;
 	 button_label += " ";
       }
 
@@ -4573,11 +4573,11 @@ coot::util::interesting_things_list(const std::vector<atom_spec_t> &v) {
    for (unsigned int i=0; i<v.size(); i++) {
 
       std::string atom_str("\"");
-      atom_str += v[i].chain;
+      atom_str += v[i].chain_id;
       atom_str += "\",";
-      atom_str += int_to_string(v[i].resno);
+      atom_str += int_to_string(v[i].res_no);
       atom_str += ",\"";
-      atom_str += v[i].insertion_code;
+      atom_str += v[i].ins_code;
       atom_str += "\",\"";
       atom_str += v[i].atom_name;
       atom_str += "\",\"";
@@ -4587,12 +4587,12 @@ coot::util::interesting_things_list(const std::vector<atom_spec_t> &v) {
       std::string button_label("Clash gap: ");
       button_label += float_to_string(v[i].float_user_data);
       button_label += " : ";
-      button_label += v[i].chain;
+      button_label += v[i].chain_id;
       button_label += " ";
-      button_label += int_to_string(v[i].resno);
+      button_label += int_to_string(v[i].res_no);
       button_label += " ";
-      if (v[i].insertion_code != "") {
-         button_label += v[i].insertion_code;
+      if (v[i].ins_code != "") {
+         button_label += v[i].ins_code;
          button_label += " ";
       }
       button_label += v[i].atom_name;
@@ -4751,11 +4751,11 @@ coot::util::interesting_things_list_with_fix(const std::vector<coot::util::atom_
    for (unsigned int i=0; i<v.size(); i++) {
 
       std::string atom_str("\"");
-      atom_str += v[i].as.chain;
+      atom_str += v[i].as.chain_id;
       atom_str += "\",";
-      atom_str += int_to_string(v[i].as.resno);
+      atom_str += int_to_string(v[i].as.res_no);
       atom_str += ",\"";
-      atom_str += v[i].as.insertion_code;
+      atom_str += v[i].as.ins_code;
       atom_str += "\",\"";
       atom_str += v[i].as.atom_name;
       atom_str += "\",\"";
