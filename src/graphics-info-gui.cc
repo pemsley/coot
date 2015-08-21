@@ -2123,7 +2123,7 @@ graphics_info_t::wrapped_create_edit_chi_angles_dialog(const std::string &res_ty
    int NCHAR = 100;
    char *s = new char[NCHAR];
    for (int i=0; i<NCHAR; i++) s[i] = 0;
-   strncpy(s, res_type.c_str(), NCHAR);
+   strncpy(s, res_type.c_str(), NCHAR-1);
    gtk_object_set_user_data(GTK_OBJECT(vbox), s);
    // we get this in c-interface-gui.cc's fill_chi_angles_vbox();
 
@@ -2185,7 +2185,10 @@ graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string monomer_type)
 	    label += torsion_restraints[i].atom_id_2_4c();
 	    label += " <--> ";
 	    label += torsion_restraints[i].atom_id_3_4c();
-	    label += "  ";
+	    label += "  ref: ";
+	    label += coot::util::float_to_string(torsion_restraints[i].angle());
+	    label += "  per: ";
+	    label += coot::util::int_to_string(torsion_restraints[i].periodicity());
 	    GtkWidget *button = gtk_button_new_with_label(label.c_str());
 	    gtk_widget_set_events(GTK_WIDGET(button),
 				  GDK_EXPOSURE_MASK      |
