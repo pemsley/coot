@@ -13539,7 +13539,7 @@ create_edit_chi_angles_dialog (void)
   scrolledwindow9 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_show (scrolledwindow9);
   gtk_box_pack_start (GTK_BOX (vbox98), scrolledwindow9, TRUE, TRUE, 0);
-  gtk_widget_set_size_request (scrolledwindow9, 180, 160);
+  gtk_widget_set_size_request (scrolledwindow9, 256, 160);
   gtk_container_set_border_width (GTK_CONTAINER (scrolledwindow9), 4);
   GTK_WIDGET_UNSET_FLAGS (scrolledwindow9, GTK_CAN_FOCUS);
 
