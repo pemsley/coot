@@ -2331,6 +2331,16 @@
 	 #t))))
 
 
+;; Wolfram Tempel bug
+;; 
+(greg-testcase "resname from serial number doesnt crash on silly input" #t 
+   (lambda ()
+     (resname-from-serial-number 0 "DNA" 1)
+     (resname-from-serial-number 0 "A"  -1)
+     (resname-from-serial-number imol-rnase "A"  -1)
+     (resname-from-serial-number imol-rnase "A"  65)
+     #t))
+
 
 
 (greg-testcase "DNA bases are the correct residue type after mutation" #t  
