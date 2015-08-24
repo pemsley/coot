@@ -2734,6 +2734,33 @@ molecule_class_info_t::residue_serial_number(const std::string &chain_id,
    return iserial;
 }
 
+std::string
+molecule_class_info_t::res_name_from_serial_number(std::string chain_id, unsigned int serial_number) const {
+
+   std::string r;
+   if (atom_sel.mol) {
+      int nchains = atom_sel.mol->GetNumberOfChains(1);
+      for (int ichain=0; ichain<nchains; ichain++) {
+	 mmdb::Chain *chain_p = atom_sel.mol->GetChain(1,ichain);
+	 std::string mol_chain_id(chain_p->GetChainID());
+	 if (mol_chain_id == std::string(chain_id)) {
+	    int nres = chain_p->GetNumberOfResidues();
+	    if (serial_number < nres) {
+	       if (serial_number >= 0) {
+		  int ch_n_res;
+		  mmdb::PResidue *residues;
+		  chain_p->GetResidueTable(residues, ch_n_res);
+		  mmdb::Residue *this_res = residues[serial_number];
+		  r = this_res->GetResName();
+	       }
+	    }
+	 }
+      }
+   } 
+   return r;
+} 
+
+
 
 void
 molecule_class_info_t::apply_atom_edit(const coot::select_atom_info &sai) { 

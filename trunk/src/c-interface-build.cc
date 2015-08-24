@@ -2711,27 +2711,15 @@ int chain_n_residues(const char *chain_id, int imol) {
    
 }
 
-// Return NULL (#f) on failure.
+// Return "" on failure.
 // 
-char *resname_from_serial_number(int imol, const char *chain_id, int serial_num) {
+std::string resname_from_serial_number(int imol, const char *chain_id, int serial_num) {
 
-   char *r = NULL;
+   std::string r;
    if (is_valid_model_molecule(imol)) {
-      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-      int nchains = mol->GetNumberOfChains(1);
-      for (int ichain=0; ichain<nchains; ichain++) {
-	 mmdb::Chain *chain_p = mol->GetChain(1,ichain);
-	 std::string mol_chain_id(chain_p->GetChainID());
-	 if (mol_chain_id == std::string(chain_id)) {
-	    int nres = chain_p->GetNumberOfResidues();
-	    if (serial_num < nres) {
-	       int ch_n_res;
-	       mmdb::PResidue *residues;
-	       chain_p->GetResidueTable(residues, ch_n_res);
-	       mmdb::Residue *this_res = residues[serial_num];
-	       r = this_res->GetResName();
-	    }
-	 }
+      if (serial_num >= 0) {
+	 unsigned int uisn = serial_num;
+	 r = graphics_info_t::molecules[imol].res_name_from_serial_number(chain_id, uisn);
       }
    }
    std::string cmd = "resname-from-serial-number";
