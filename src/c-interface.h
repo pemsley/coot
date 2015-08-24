@@ -369,12 +369,6 @@ void wrapped_create_run_refmac_dialog();
 int chain_n_residues(const char *chain_id, int imol); 
 /* @return status, less than -9999 is for failure (eg. bad imol); */
 float molecule_centre_internal(int imol, int iaxis);
-/*! \brief return the rename from a residue serial number
-
-   @return NULL (scheme False) on failure. */
-char *resname_from_serial_number(int imol, const char *chain_id, 
-				 int serial_num);
-
 /*! \brief a residue seqnum (normal residue number) from a residue
   serial number
 

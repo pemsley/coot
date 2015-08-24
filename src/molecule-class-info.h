@@ -2555,6 +2555,8 @@ public:        //                      public
    // 
    int residue_serial_number(const std::string &chain_id, int reso, const std::string &insertion_code) const;
 
+   std::string res_name_from_serial_number(std::string chain_id, unsigned int serial_number) const; 
+
    // cell and symmetry swapping
    // 
    // return an empty vector on failure, a vector of size 6 on success:

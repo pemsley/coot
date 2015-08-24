@@ -491,6 +491,11 @@ SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
 			 const char *altconf);
 #endif // USE_GUILE
 
+/*! \brief return the rename from a residue serial number
+
+   @return blank ("") on failure. */
+std::string resname_from_serial_number(int imol, const char *chain_id, int serial_num);
+
 
 std::string residue_name(int imol, const std::string &chain_id, int resno, const std::string &ins_code);
 
