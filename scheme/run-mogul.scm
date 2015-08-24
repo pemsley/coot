@@ -125,6 +125,7 @@
 	  ;; in the dictionary are present in the coordinates. So, this will
 	  ;; often fail, for example, with covalently-attached ligands (that
 	  ;; lose an atom in the attachment).
+	  ;; 
 	  (if (not (residue-to-mdl-file-for-mogul imol chain-id res-no ins-code sdf-out-file-name))
 	   
 	   'bad-sdf-file

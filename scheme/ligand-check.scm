@@ -166,14 +166,104 @@
 				      (apply max mogul-results-list)))))
 	    mogul-score))))
 
+  ;; return a list: n_bad_overlaps n_hydrogen_bonds n_small_overlaps n_close_contacts n_wide_contacts
+  ;; 
   (define (get-bump-score)
     (let* ((ligand-spec (list chain-id res-no ins-code))
 	   (cs (contact-score-ligand imol ligand-spec)))
       (format #t "debug:: contact score cs: ~s~%" cs)
       (graphics-draw)
-      (if (list? cs)
-	  (car cs)
-	  cs)))
+      cs))
+
+  ;; return a list of (median-ratio median-ligand median-env ks-test-result)
+  ;; stub-name is only passed so that we can write diagnostics to standard-out.
+  ;; 
+  (define (get-b-factor-distribution-metrics stub-name)
+
+    (define (median-ratio ligand-b-factors env-b-factors)
+      (/ (median ligand-b-factors) (median (apply append env-b-factors))))
+
+    (define (filter-out-waters imol env-residues)
+      (filter (lambda (residue-item)
+		(let ((rn (residue-name imol
+					(residue-spec->chain-id residue-item)
+					(residue-spec->res-no   residue-item)
+					(residue-spec->ins-code residue-item))))
+		  (not (or (string-match "HOH" rn)
+			   (string-match "WAT" rn)))))
+	      env-residues))
+
+    (define (median number-list)
+      (let ((numbers 
+	     (let loop ((number-list number-list)
+			(nums '()))
+	       (cond
+		((null? number-list) nums)
+		((not (number? (car number-list)))
+		 (loop (cdr number-list) nums))
+		(else 
+		 (loop (cdr number-list) (cons (car number-list) nums)))))))
+	(let* ((sorted-nums (sort-list numbers >))
+	       (n (length sorted-nums))
+	       (mid (/ n 2))
+	       (median (if (= (remainder n 2) 0)
+			   (begin
+			     ;; (format #t "averaging mid: ~s  n: ~s ~%" mid n)
+			     ;; (format #t "idx: ~s  idx: ~s ~%" (/ n 2) (- (/ n 2) 1))
+			     (/ (+ (list-ref sorted-nums (/ n 2))
+				   (list-ref sorted-nums (- (/ n 2) 1))) 2))
+			   (begin
+			     ;; (format #t "simple take: ~s~%" mid)
+			     (list-ref sorted-nums (/ (- n 1) 2))))))
+	  median)))
+
+
+    ;; Return a list of length 2: 
+    ;; The car is a list of atoms for the residue specified by ligand-spec
+    ;; The car may be #f, in which case this function failed to return a result
+    ;; If the car is not #f, the cdr is a list list of atom b-factors
+    ;; 
+    (define (ligand-environment-temperature-factors imol ligand-spec radius)
+      (let ((atoms (residue-info imol
+				 (residue-spec->chain-id ligand-spec)
+				 (residue-spec->res-no   ligand-spec)
+				 (residue-spec->ins-code ligand-spec))))
+	(let* ((env-residues (residues-near-residue imol ligand-spec radius))
+	       (non-water-env-residues (filter-out-waters imol env-residues))
+	       (env-atoms (map (lambda (res-spec)
+				 (residue-info imol 
+					       (residue-spec->chain-id res-spec)
+					       (residue-spec->res-no   res-spec)
+					       (residue-spec->ins-code res-spec))) non-water-env-residues)))
+	  (list (if (list? atoms)
+		    (map (lambda (atom)
+			   (let* ((occ (cadr (cadr atom))))
+			     (if (list? occ) (car occ) occ)))
+			 atoms)
+		    #f)
+		(map (lambda (atom-list)
+		       (map (lambda (atom)
+			      (let* ((occ (cadr (cadr atom))))
+				(if (list? occ) (car occ) occ)))
+			    atom-list))
+		     env-atoms)))))
+
+    ;; main line of get-b-factor-distribution-metrics
+    ;;
+    (let ((ligand-spec (list chain-id res-no ins-code)))
+      (let* ((lig-env-temp-factors (ligand-environment-temperature-factors imol ligand-spec 5))
+	     (temp-factor-median-ratio (apply median-ratio lig-env-temp-factors)))
+	
+	(let ((v1 (car lig-env-temp-factors))
+	      (v2 (cadr lig-env-temp-factors)))
+	  (format #t "b-factor kolmogorov-smirnov lig: ~s ~s ~s~%~!" stub-name ligand-spec (car lig-env-temp-factors))
+	  (format #t "b-factor kolmogorov-smirnov env: ~s ~s ~s~%~!" stub-name ligand-spec (cadr lig-env-temp-factors))
+	  (let ((kolmogorov-smirnov-result (kolmogorov-smirnov v1 (apply append v2))))
+	    (list temp-factor-median-ratio 
+		  (median (car lig-env-temp-factors))
+		  (median (apply append (cadr lig-env-temp-factors)))
+		  kolmogorov-smirnov-result))))))
+
 
 ;   pre-20150803-PE  
 ;   ;; main line of get-metrics-for-ligand
@@ -194,19 +284,22 @@
   ;; main line of get-metrics-for-ligand
   ;; 
   (let* ((stub-name (molecule-name-stub imol 0)))
-    (let ((cor (get-correlation stub-name)))
-      (if (number? cor)
-	  (let ((dms (get-ligand-difference-map-stats stub-name)))
-	    (if (not (list? dms))
-		dms ;; error symbol
-		(let ((mog (get-mogul-score #f))) ;; use the cache for the ligand? - testing only!
-		  (if (number? mog)
-		      (let ((bmp (get-bump-score)))
-			(if (number? bmp)
-			    (list cor mog bmp dms)
-			    bmp)) ;; error symbol/string
-		      mog)))) ;; error symbol/string
-           cor)))) ;; error symbol/string
+
+    (let ((b-factor-info (get-b-factor-distribution-metrics stub-name)))
+
+      (let ((cor (get-correlation stub-name)))
+	(if (number? cor)
+	    (let ((dms (get-ligand-difference-map-stats stub-name)))
+	      (if (not (list? dms))
+		  dms ;; error symbol
+		  (let ((mog (get-mogul-score #f))) ;; use the cache for the ligand? - testing only!
+		    (if (number? mog)
+			(let ((bmp (get-bump-score)))
+			  (if (list? bmp)
+			      (list cor mog bmp dms b-factor-info)
+			      bmp)) ;; error symbol/string
+			mog)))) ;; error symbol/string
+	    cor))))) ;; error symbol/string
 
 
 ;; only look at ligands in maps with resolution worse than this:
@@ -225,5 +318,3 @@
 	      (not (or (string-match "HOH" rn)
 		       (string-match "WAT" rn)))))
 	  env-residues))
-
-
