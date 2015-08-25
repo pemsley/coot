@@ -33,7 +33,7 @@
 #endif 
 
 void 
-graphics_ligand_molecule::generate_display_list(bool dark_background) {
+graphics_ligand_molecule::generate_display_list(bool dark_background_flag) {
 
    if (0)
       std::cout << "graphics_ligand_molecule::store() molecule graphics based on "
@@ -46,7 +46,7 @@ graphics_ligand_molecule::generate_display_list(bool dark_background) {
    display_list_tag = glGenLists(1); // range of 1.
 
    glNewList(display_list_tag, GL_COMPILE);
-   gl_bonds(dark_background);
+   gl_bonds(dark_background_flag);
    glEndList();
 }
 
@@ -387,10 +387,10 @@ graphics_ligand_molecule::setup_from(mmdb::Residue *residue_p,
 	    status = true; // OK, if we got to here...
 	 }
       }
-      catch (std::runtime_error coot_error) {
+      catch (const std::runtime_error &coot_error) {
 	 std::cout << coot_error.what() << std::endl;
       }
-      catch (std::exception rdkit_error) {
+      catch (const std::exception &rdkit_error) {
 	 std::cout << rdkit_error.what() << std::endl;
       }
    }
@@ -407,8 +407,8 @@ graphics_ligand_molecule::init_from_molfile_molecule(const lig_build::molfile_mo
    atoms.clear();
    bonds.clear();
 
-   double x_offset_fiddle = 1; // we need a tiny tweak so that  we don't get atom letters falling
-                               // of the screen (on the left) - e.g. 0BU in 4mtz.
+   double x_offset_fiddle = 13; // we need a tiny tweak so that  we don't get atom letters falling
+                                // of the screen (on the left) - e.g. 0BU in 4mtz, and A03
    for (unsigned int iat=0; iat<mol_in.atoms.size(); iat++) {
       const lig_build::molfile_atom_t &at_in = mol_in.atoms[iat];
       graphics_ligand_atom at(lig_build::pos_t(at_in.atom_position.x() + x_offset_fiddle,
