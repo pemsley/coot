@@ -536,10 +536,23 @@
 ;	    (morph-fit-chain aa-imol aa-chain-id 4.2))))
 	 
 	(add-simple-coot-menu-menuitem
-	 submenu-models "Morph Fit Chain (Radius 7)"
+	 submenu-models "Morph Fit Chain (Averaging Radius 7)"
 	 (lambda ()
 	   (using-active-atom
 	    (morph-fit-chain aa-imol aa-chain-id 7))))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Morph Fit Chain (Averaging Radius 11)"
+	 (lambda ()
+	   (using-active-atom
+	    (morph-fit-chain aa-imol aa-chain-id 11))))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-models "Morph Fit Chain based on Secondary Structure"
+	 (lambda ()
+	   (using-active-atom
+	    (morph-fit-by-secondary-structure-elements aa-imol aa-chain-id))))
+
 
 ;	(add-simple-coot-menu-menuitem
 ;	 submenu-models "Morph Fit Chain (Radius 11)"

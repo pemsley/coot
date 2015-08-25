@@ -520,7 +520,16 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
 	 }
 	 coot::minimol::fragment f;
 	 for (unsigned int ifr=0; ifr<fragment_residues.size(); ifr++) {
-	    f.addresidue(coot::minimol::residue(fragment_residues[ifr]), false);
+	    coot::minimol::residue fr(fragment_residues[ifr]->GetSeqNum());
+	    mmdb::PAtom *residue_atoms = 0;
+	    int n_residue_atoms;
+	    fragment_residues[ifr]->GetAtomTable(residue_atoms, n_residue_atoms);
+	    for (int iat=0; iat<n_residue_atoms; iat++) { 
+	       if (coot::is_main_chain_p(residue_atoms[iat])) {
+		  fr.addatom(residue_atoms[iat]);
+	       }
+	    }
+	    f.addresidue(fr, false);
 	 } 
 	 coot::minimol::molecule m(f);
 	 

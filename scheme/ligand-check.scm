@@ -82,7 +82,9 @@
 								fobs-col sig-fobs-col rfree-col)))
 		  (if (eq? r #f)
 
-		      'fail-problem-calculating-sfs-using-refmac
+		      (begin 
+			;; test if refmac-input-mtz-file-name has intensites
+			'fail-problem-calculating-sfs-using-refmac)
 
 		      ;; happy path
 		      refmac-out-sfs-file-name))))))))
