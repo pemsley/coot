@@ -3,12 +3,13 @@
 
    o bonds to hydrogens should be thin in Colour by Chain mode
 
-   o Does the Refmac mtz file selection work?
-
-* It does now.
-
    o Do we get the correct hydrogen bonds with Acedrg dictionary (and
      pyrogen dictionary) for 824?
+
+   o with enhanced-ligand, do you get a sane code-path if you do 
+     File -> SMILES?
+
+   o Ligand Check
 
    o 1nlt: A351: there's a tangle at the Zinc.  Don't make a disulfide bond
      if there's a LINK to a ZN on this CYS.
@@ -18,19 +19,10 @@
 * No longer, but there's a problem (crash) reading template_key_bindings.py
   Need to test this on home/work computer.
 
-   o Sphere refine on a water fails.
-
-* Not for me.
-
    o Default for add waters should be something other than Pointer
      Atoms if possible.
 
    o Find overlapping atoms (on top of each others)
-
-   o with enhanced-ligand, do you get a sane code-path if you do 
-     File -> SMILES?
-
-   o Ligand Check
 
    o thumbnail for O 5463 in 3e5r is too close to left hand edge.
      Also the N in the nicotinamide is N+2: incorrect!
@@ -301,3 +293,12 @@ Program terminated with signal 11, Segmentation fault.
      Mark Saper
 
 * Done.
+
+   o Does the Refmac mtz file selection work?
+
+* It does now.
+
+   o Sphere refine on a water fails.
+
+* Not for me.
+
