@@ -860,6 +860,30 @@ void set_contour_level_in_sigma(int imol_map, float level) {
    add_to_history_typed(cmd, args);
 }
 
+/* \brief get the contour level */
+float get_contour_level_absolute(int imol) {
+
+   float r = 0;
+
+   if (is_valid_map_molecule(imol)) {
+      r = graphics_info_t::molecules[imol].contour_level;
+   }
+   return r;
+}
+
+/* \brief get the contour level in rmd above 0. */
+float get_contour_level_in_sigma(int imol) {
+
+   float r = 0;
+
+   if (is_valid_map_molecule(imol)) {
+      double s = graphics_info_t::molecules[imol].map_sigma();
+      r = graphics_info_t::molecules[imol].contour_level/s;
+   }
+   return r;
+}
+
+
 
 void set_last_map_contour_level(float level) {
 
