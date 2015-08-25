@@ -5,6 +5,8 @@
      File -> SMILES?
 
    o pyrogen -M default
+
+   o Add a test: if pyrogen is built - does it run correctly? 
  
    o bonds to hydrogens should be thin in Colour by Chain mode
 

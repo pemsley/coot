@@ -564,9 +564,10 @@ PyObject *coot_sys_build_type_py();
 #endif /* USE_PYTHON */
 #endif /* c++ */
 
-/*! \brief return the subversion revision number of this build.
- 
-Used in finding updates.  */
+/*! \brief return the git revision for for this build.
+  */
+int git_revision_count(); 
+/*! \brief an alias to git_revision_count() for backwards compatibility  */
 int svn_revision(); 
 
 
