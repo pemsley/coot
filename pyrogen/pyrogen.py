@@ -6,7 +6,7 @@ from subprocess import call
 from rdkit import Chem
 from rdkit.Chem import AllChem
 
-import coot_svn_repo_revision
+import coot_git
 import pyrogen_swig as pysw
 import pyrogen_boost
 import atom_types
@@ -715,7 +715,7 @@ if __name__ == "__main__":
     # print 'DEBUG:: options:', options
 
     if options.show_version:
-       print 'pyrogen-' + pyrogen_version, "revision", coot_svn_repo_revision.revision_number()
+       print 'pyrogen-' + pyrogen_version, "revision", coot_git.revision_count()
 
     comp_id = options.comp_id
     if options.comp_id == 'default':

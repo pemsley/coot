@@ -166,8 +166,9 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 
 	    RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest.second, "", undelocalize);
 
-	    RDKit::MolOps::assignStereochemistry(mol_rw);
 	    RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
+
+	    RDKit::MolOps::assignStereochemistry(*m, false, true, true);
 
 	    // Here test that the propety mmcif_chiral_volume_sign has
 	    // been set on atoms of mol_rw and m
@@ -184,6 +185,13 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 		  }
 		  catch (const KeyErrorException &err) {
 		     std::cout << "m: no name or cv " << std::endl;
+		  }
+		  try {
+		     std::string cip;
+		     at_p->getProp("_CIPCode", cip);
+		     std::cout << "m: cip-code " << cip << std::endl;
+		  }
+		  catch (const KeyErrorException &err) {
 		  }
 	       }
 	    }
