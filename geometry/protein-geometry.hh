@@ -593,6 +593,7 @@ namespace coot {
 				  const std::vector<std::string> &other_invented_names) const;
 
 
+      void write_cif_pdbx_chem_comp_descriptor(mmdb::mmcif::Data *data) const;
       
    public:
       dictionary_residue_restraints_t(std::string comp_id_in,

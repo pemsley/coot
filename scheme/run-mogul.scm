@@ -30,7 +30,7 @@
       (newline port)
       (display "config distribution bond  bin_width 0.01" port)
       (newline port)
-      (display "config distribution angle bin_width 0.2" port)
+      (display "config distribution angle bin_width 0.4" port)
       (newline port)
       (display "config search all filter exclude_solvents" port)
       (newline port)

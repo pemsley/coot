@@ -693,7 +693,7 @@ if __name__ == "__main__":
                       action='store_true', default=False)
     parser.add_option('-v', '--version', dest='show_version', default=False,
                       action='store_true', help='Print version information')
-    parser.add_option('-M', '--MMFF', dest='use_mmcif', default=False,
+    parser.add_option('-M', '--MMFF', dest='use_mmff', default=False,
                       action='store_true', help='Use MMFF fallbacks for bonds and angles')
     parser.add_option('-a', '--no-match-vs-reference-dictionaries', default=False,
                       action='store_true', dest='no_match_names_flag',
@@ -803,7 +803,7 @@ if __name__ == "__main__":
 							options.output_postfix,
 							options.quartet_planes,
 							quartet_hydrogen_planes,
-							options.use_mmcif,
+							options.use_mmff,
                                                         pdb_out_file_name,
                                                         mmcif_restraints_out_file_name)
 
@@ -833,7 +833,7 @@ if __name__ == "__main__":
                                                           mmcif_restraints_out_file_name,
 							  options.quartet_planes,
 							  quartet_hydrogen_planes,
-							  options.use_mmcif,
+							  options.use_mmff,
                                                           match_names_flag,
                                                           options.comp_id_list_for_names_match,
                                                           options.dict_files_for_names_match)
@@ -856,7 +856,7 @@ if __name__ == "__main__":
 							 mmcif_restraints_out_file_name,
 							 options.quartet_planes,
 							 quartet_hydrogen_planes,
-							 options.use_mmcif,
+							 options.use_mmff,
                                                          match_names_flag,
                                                          options.comp_id_list_for_names_match,
                                                          options.dict_files_for_names_match)

@@ -1,15 +1,15 @@
  
  0.8.2
 
+   o with enhanced-ligand, do you get a sane code-path if you do 
+     File -> SMILES?
+
+   o pyrogen -M default
+ 
    o bonds to hydrogens should be thin in Colour by Chain mode
 
    o Do we get the correct hydrogen bonds with Acedrg dictionary (and
      pyrogen dictionary) for 824?
-
-   o with enhanced-ligand, do you get a sane code-path if you do 
-     File -> SMILES?
-
-   o Ligand Check
 
    o 1nlt: A351: there's a tangle at the Zinc.  Don't make a disulfide bond
      if there's a LINK to a ZN on this CYS.
@@ -28,8 +28,8 @@
      Also the N in the nicotinamide is N+2: incorrect!
      Also the Oxygens have charges and Hs.
 
-   o pyrogen -M default
- 
+   o Ligand Check
+
    o add test for carbohydrate building.
   
    o Hydrogenate region when reduce is not found - give me a dialog.

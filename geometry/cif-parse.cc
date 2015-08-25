@@ -2979,8 +2979,8 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 
    mmdb::mmcif::File *mmCIFFile = new mmdb::mmcif::File(); // d
       
-   mmdb::mmcif::PData   mmCIFData = NULL;
-   mmdb::mmcif::PStruct mmCIFStruct;
+   mmdb::mmcif::Data   *mmCIFData = NULL;
+   mmdb::mmcif::Struct *mmCIFStruct;
    char S[2000];
    
    //  2.1  Example 1: add a structure into mmCIF object
@@ -3254,6 +3254,9 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	 }
       }
 
+
+      write_cif_pdbx_chem_comp_descriptor(mmCIFData);
+
       // delete mmCIFLoop; // crashed when enabled?
       
       int status = mmCIFFile->WriteMMCIFFile(filename.c_str());
@@ -3266,6 +3269,12 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
    delete mmCIFFile; // deletes all its attributes too.
 }
 
+void
+coot::dictionary_residue_restraints_t::write_cif_pdbx_chem_comp_descriptor(mmdb::mmcif::Data *mmCIFData) const {
+
+   
+
+} 
 
 
 // make a connect file specifying the bonds to Hydrogens
