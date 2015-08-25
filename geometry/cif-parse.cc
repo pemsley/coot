@@ -315,7 +315,7 @@ coot::protein_geometry::chem_comp_component(mmdb::mmcif::PStruct structure) {
    int n_tags = structure->GetNofTags();
    std::string cat_name = structure->GetCategoryName();
 
-   if (0) 
+   if (false)
       std::cout << "DEBUG: ================= chem_comp_component() by structure: in category "
 		<< cat_name << " there are "
 		<< n_tags << " tags" << std::endl;
@@ -365,7 +365,7 @@ coot::protein_geometry::chem_comp_component(mmdb::mmcif::PStruct structure) {
       }
    }
 
-   if (0) 
+   if (false) 
       std::cout
 	 << "chem_comp_component() comp_id :" << comp_id.first << " :" << comp_id.second << ": "
 	 << "three_letter_code :" << three_letter_code.first << " :" << three_letter_code.second
@@ -1043,12 +1043,12 @@ coot::protein_geometry::chem_comp(mmdb::mmcif::PLoop mmCIFLoop) {
 	 std::cout << "oops:: ierr_tot was " << ierr_tot << std::endl;
       } else { 
 
-	 if (0) {
-	    std::cout << "in chem_comp, adding chem_comp, description_level is :"
+	 if (false) {
+	    std::cout << "in chem_comp(), adding chem_comp, description_level is :"
 		      << description_level << ":" << std::endl;
 
-	    std::cout << "Adding :" << id << ": :" << three_letter_code << ": :" << name << ": :"
-		      << group << ": " << number_atoms_all << " "
+	    std::cout << "Adding :" << id << ":\n :" << three_letter_code << ":\n name:" << name
+		      << ":\n group:" << group << ": " << number_atoms_all << " "
 		      << number_atoms_nh << " :" << description_level << ":" << std::endl;
 	 }
 

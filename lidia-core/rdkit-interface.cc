@@ -2685,7 +2685,19 @@ coot::debug_rdkit_molecule(const RDKit::ROMol *rdkm) {
 	 std::cout << " name :" << name << ":";
       std::cout << " degree: " << degree;
       std::cout << " formal-charge: " << f_c << " ";
-      std::cout << " hybridization: " << ht << std::endl;
+      std::cout << " hybridization: " << ht;
+
+      // chirality
+      std::string cip;
+      try {
+	 at_p->getProp("_CIPCode", cip);
+	 std::cout << " CIP-Code " << cip;
+      }
+      catch (const KeyErrorException &err) {
+	 // Not an error
+	 // std::cout << "KeyErrorException " << err.what() << " for _CIPCode" << std::endl;
+      }
+      std::cout << std::endl;
    }
 
    unsigned int n_bonds = rdkm->getNumBonds();
