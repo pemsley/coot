@@ -1,7 +1,11 @@
 # -*-shell-script-mode-*-
 
 
-rev_no=$(git rev-list --count HEAD)
+rev_no=$(git rev-list --count HEAD 2> /dev/null)
+
+if [ -z "$rev_no" ] ; then 
+   rev_no=$(git rev-list HEAD | wc -l)
+fi
 
 awk -v rev_no=$rev_no '
 BEGIN {git_revision_count_cc = "src/git-revision-count.cc"
