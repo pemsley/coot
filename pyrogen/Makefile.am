@@ -79,7 +79,7 @@ libpyrogen_boost_la_LIBDFLAGS = -no-undefined
 dist_bin_SCRIPTS = pyrogen
 
 dist_pkgpython_PYTHON = pyrogen.py atom_types.py jay_util.py tautomer.py pyrogen_swig.py \
-	coot_svn_repo_revision.py
+	coot_git.py
 
 # Something here is broken, I think.
 # on $ bash autogen.sh, I get:
