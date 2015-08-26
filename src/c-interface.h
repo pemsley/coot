@@ -1336,8 +1336,15 @@ int transform_map_raw(int imol,
 int difference_map(int imol1, int imol2, float map_scale);
 
 /*! \brief make a new map (a copy of map_no) that is in the cell,
-  spacegroup and gridding of the map in reference_map_no */
+  spacegroup and gridding of the map in reference_map_no.
+
+Return the new map molecule number - return -1 on failure */
 int reinterp_map(int map_no, int reference_map_no);
+
+/*! \brief make a new map (a copy of map_no) that is in the cell,
+  spacegroup and a multiple of the sampling of the input map (a
+  sampling factor of more than 1 makes the output maps smoother) */
+int smooth_map(int map_no, float sampling_multiplier);
 
 #ifdef __cplusplus
 #ifdef USE_GUILE

@@ -179,6 +179,28 @@ coot::util::reinterp_map_fine_gridding(const clipper::Xmap<float> &xmap) {
    }
 }
 
+clipper::Xmap<float>
+   coot::util::reinterp_map(const clipper::Xmap<float> &xmap_in, float sampling_multiplier) {
+   
+   clipper::Grid_sampling gs_old = xmap_in.grid_sampling();
+   clipper::Grid_sampling gs(xmap_in.grid_sampling().nu()*sampling_multiplier, 
+			     xmap_in.grid_sampling().nv()*sampling_multiplier, 
+			     xmap_in.grid_sampling().nw()*sampling_multiplier);
+   
+   clipper::Xmap<float> xmap_new(xmap_in.spacegroup(), xmap_in.cell(), gs);
+   
+   float dv;
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = xmap_new.first(); !ix.last(); ix.next() )  { // iterator index.
+      clipper::Coord_grid cg = ix.coord();
+      clipper::Coord_frac cf = cg.coord_frac(gs);
+      clipper::Coord_grid cg_old = cf.coord_grid(gs_old);
+      dv = xmap_in.interp<clipper::Interp_cubic>(cf);
+      xmap_new[ix] = dv;
+   }
+   return xmap_new;
+}
+
 // Note density_at_point in molecule-class-info looks as if its
 // returning grid values, not interpollated values.  Is that bad?
 //

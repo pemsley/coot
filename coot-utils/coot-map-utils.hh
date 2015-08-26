@@ -230,6 +230,12 @@ namespace coot {
       // 
       clipper::Xmap<float> reinterp_map_fine_gridding(const clipper::Xmap<float> &xmap);
 
+      // return a map that is a copy of the given map with interpolation
+      // e.g. a sampling_multiplier of 2 will double the number of grid points (in each direction).
+      // 
+      clipper::Xmap<float> reinterp_map(const clipper::Xmap<float> &xmap_in, float sampling_multiplier);
+      
+
       // make a copy of map_in, but in the cell, spacegroup and gridding of reference_map
       clipper::Xmap<float> reinterp_map(const clipper::Xmap<float> &xmap_in,
 					const clipper::Xmap<float> &reference_xmap);

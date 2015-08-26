@@ -1564,7 +1564,31 @@ int reinterp_map(int map_no, int reference_map_no) {
       }
    }
    return r;
+}
+
+/*! \brief make a new map (a copy of map_no) that is in the cell,
+  spacegroup and a multiple of the sampling of the input map (a
+  sampling factor of more than 1 makes the output maps smoother) */
+int smooth_map(int map_no, float sampling_multiplier) {
+
+   int r = -1;
+
+   if (is_valid_map_molecule(map_no)) {
+      graphics_info_t g;
+      clipper::Xmap<float> new_map =
+	 coot::util::reinterp_map(g.molecules[map_no].xmap, sampling_multiplier);
+      int imol = graphics_info_t::create_molecule();
+      std::string name = "map ";
+      name += coot::util::int_to_string(map_no);
+      name += " re-interprolated by factor ";
+      name += coot::util::float_to_string(sampling_multiplier);
+      graphics_info_t::molecules[imol].new_map(new_map, name);
+      r = imol;
+      graphics_draw();
+   } 
+   return r;
 } 
+
 
 #ifdef USE_GUILE
 /*! \brief make an average map from the map_number_and_scales (which

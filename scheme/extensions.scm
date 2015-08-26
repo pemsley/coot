@@ -276,6 +276,13 @@
 				       (copy-molecule imol)))))
 
 	(add-simple-coot-menu-menuitem
+	 submenu-maps "Make a Smooth Copy..."
+	 (lambda ()
+	   (map-molecule-chooser-gui "Map Molecule to Smoothenize"
+				     (lambda(imol)
+				       (smooth-map imol 2)))))
+	   
+	(add-simple-coot-menu-menuitem
 	 submenu-maps "Make a Difference Map..."
 	 (lambda () (make-difference-map-gui)))
 
@@ -318,6 +325,12 @@
 ;		    (apply export-map-fragment (append (cons imol (rotation-centre)) 
 ;						       (list radius file-name)))))))))
 
+	(add-simple-coot-menu-menuitem
+	 submenu-maps "Map Density Histogram..."
+	 (lambda () 
+	   (map-molecule-chooser-gui "Choose the map"
+				     (lambda (imol)
+				       (map-histogram imol)))))
 
 	(add-simple-coot-menu-menuitem
 	 submenu-maps "Brighten Maps"
