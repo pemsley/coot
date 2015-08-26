@@ -387,13 +387,13 @@
 
 ;; return the revision number or #f
 ; ;
-(define (get-svn-revision)
-  (let ((coot-dir (string-append (getenv "HOME") "/Projects/coot/trunk"))
+(define (get-git-revision-count)
+  (let ((coot-dir (string-append (getenv "HOME") "/Projects/coot/git/coot"))
 	(current-dir (getcwd)))
     ; (format #t "coot-dir: ~s~%" coot-dir)
     ; (format #t "curr-dir: ~s~%" current-dir)
     (chdir coot-dir)
-    (let ((s (shell-command-to-string "svn -qu status")))
+    (let ((s (shell-command-to-string "git rev-list HEAD | wc")))
       (chdir current-dir)
       (string->number
        (car (reverse (string-split (car (cdr (reverse (string-split s #\newline)))) #\space)))))))
@@ -575,13 +575,10 @@
 
 ;; 
 (define (svn-details) 
-  `(p ("SVN " 
-       (a (@ href "http://coot.googlecode.com/svn/") "Repository")
+  `(p ("Git " 
+       (a (@ href "https://github.com/pemsley/coot") "Repository")
        " "
-       (a (@ href "https://code.google.com/p/coot/source/list") "Source list")
-       " Revision: " ,(get-svn-revision) 
-       " "
-       (a (@ href ,svn-log-page) "svn log"))))
+       " Revision Count: " ,(get-git-revision-count))))
 
 
 ;; Return values: the source code url, a file-name (for the link) and
