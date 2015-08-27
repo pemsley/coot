@@ -218,22 +218,26 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 	       std::cout << " *** structures are too remote.\n";
 	       ws = "structures are too remote";
 	       break;
+
+            // It seems to me that these error codes from SSM are the wrong 
+            // way round.  This code is adjusted to compensate.
+
 	    case ssm::RC_NoGraph :
-	       std::cout << " *** can't make graph for " << name1 << "\n";
-	       ws = "can't make graph for " + name1;
+	       std::cout << " *** can't make graph for " << name2 << "\n";
+	       ws = "can't make graph for " + name2;
 	       ws += " structure";
 	       break;
 	    case ssm::RC_NoVertices :
-	       std::cout << " *** empty graph for " << name1 << "\n";
-	       ws = "empty graph for " + name1;
-	       break;
-	    case ssm::RC_NoGraph2 :
-	       std::cout << " *** can't make graph for " << name2 << "\n";
-	       ws = "can't make graph for " + name2;
-	       break;
-	    case ssm::RC_NoVertices2 :
 	       std::cout << " *** empty graph for " << name2 << "\n";
 	       ws = "empty graph for " + name2;
+	       break;
+	    case ssm::RC_NoGraph2 :
+	       std::cout << " *** can't make graph for " << name1 << "\n";
+	       ws = "can't make graph for " + name1;
+	       break;
+	    case ssm::RC_NoVertices2 :
+	       std::cout << " *** empty graph for " << name1 << "\n";
+	       ws = "empty graph for " + name1;
 	       break;
 	    default :
 	       std::cout << " *** undocumented return code: " << rc << "\n";
