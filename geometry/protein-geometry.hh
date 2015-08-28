@@ -649,6 +649,8 @@ namespace coot {
       bool is_hydrogen(const std::string &atom_name) const;
       bool is_hydrogen(unsigned int ) const; // the index of an atom in atom_info is passed.
       int assign_chiral_volume_targets(); // return the number of targets made.
+      // only call the following when passing an H
+      std::string get_bonded_atom(const std::string &H_atom_name) const;
       bool has_unassigned_chiral_volumes() const;
       bool has_partial_charges() const;
       void set_has_partial_charges(bool state) {
