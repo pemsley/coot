@@ -3975,15 +3975,14 @@ INFO::
    o New entry in ChangeLog
    o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top
      Make sure the release is called Release, not pre-release
-   o change the version in configure.in
+   o change the version in configure.ac
    o artists acknowledged in glade/aboutdialog?
    o change the splash screen
         Use glade-2
         To correct the transparency, duplicate layer, bucket fill with white 
         the bottom layer, merge and bevel 6.
-   o svn add the new splash screen pixmap
+   o git add the new splash screen pixmap
    o Change the pixmaps/Makefile.am for the current splash screen image
-   o No longer: (Fix the old-coot timer in scheme/coot-gui.scm)
    o Fix the release name in the About dialog (aboutdialog)
          and copyright years.
    o commit
