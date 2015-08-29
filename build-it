@@ -3337,7 +3337,7 @@ fi
 # http://skuld.bmsc.washington.edu/raster3d/Raster3D_3.0-3.tar.gz
 
 ${WGET} http://skuld.bmsc.washington.edu/raster3d/Raster3D_3.0-3.tar.gz
-tar xf Raster3D_3.0-3.tar.gz
+gzip -dc ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz | tar xf -
 # now build it.
 
 ###############################################################################
