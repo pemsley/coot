@@ -211,7 +211,7 @@
 				    extra-sad-params
 				    (list labin-string)))))
 
-	  (nov (format #t "DEBUG:: refmac-extra-params returns ~s~%" (get-refmac-extra-params)))
+	  (nov (format #t "DEBUG:: run-refmac-by-filename refmac-extra-params: ~s~%" (get-refmac-extra-params)))
 	  
 	  ;; 
 	  (log-file-name-disambiguator (strip-path (file-name-sans-extension pdb-in-filename)))
@@ -252,7 +252,8 @@
 		;; problem finding refmac executable
 		(begin 
 		  (local-format #t "refmac failed (no executable)")
-		  (local-format #t " - no new map and molecule available~%"))
+		  (local-format #t " - no new map and molecule available~%")
+		  test-refmac-status)
 
 		;; OK, we found the executable, this should be OK then...
 		(let* ((to-screen-flag (if (= make-molecules-flag 0)

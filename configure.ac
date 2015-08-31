@@ -53,6 +53,12 @@ m4_ifset([LT_INIT],
 GNOME_COMPILE_WARNINGS
 GNOME_CXX_WARNINGS
 
+m4_define([v_git_revision_count], m4_esyscmd([(git rev-list --count HEAD 2>/dev/null || echo 0) | tr -d '\n']))
+# old gits can't use count with HEAD.
+AC_DEFINE_UNQUOTED(GIT_REVISION_COUNT, [git_revision_count], [GitRevisonCount])
+echo 'extern "C" { int git_revision_count() { return v_git_revision_count ; } }' > src/git-revision-count.cc
+
+
 AC_CHECK_HEADERS([sys/stdtypes.h], [COOT_STDTYPES="-DHAVE_SYS_STDTYPES_H=1"], [COOT_STDTYPES="-DHAVE_SYS_STDTYPES_H=0"])
 
 dnl AC_OPENMP

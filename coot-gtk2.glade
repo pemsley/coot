@@ -3253,7 +3253,7 @@
 		  <property name="orientation">GTK_ORIENTATION_VERTICAL</property>
 		  <property name="toolbar_style">GTK_TOOLBAR_ICONS</property>
 		  <property name="tooltips">True</property>
-		  <property name="show_arrow">False</property>
+		  <property name="show_arrow">True</property>
 		  <signal name="style_changed" handler="on_model_toolbar_style_changed" last_modification_time="Thu, 17 Jan 2008 13:08:49 GMT"/>
 		  <signal name="button_press_event" handler="on_model_toolbar_button_press_event" last_modification_time="Wed, 17 Sep 2008 18:14:29 GMT"/>
 
