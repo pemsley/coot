@@ -273,19 +273,20 @@
   (define (line->binary-tar-file line binary-match python? gtk2?)
 
     (let ((line-bits (string-split line #\")))
-      ;;(format #t "    ----- binary-match: ~s line-bits: ~s~%" binary-match line-bits)
+      ;; (format #t "    ----- binary-match: ~s line-bits: ~s~%" binary-match line-bits)
 
       (if (> (length line-bits) 6)
 	  (let* ((tim-server (string-match "top" (list-ref line-bits 1)))
 		 (tar-file-idx (if tim-server 7 6))
 		 (binary-file-name-bit (list-ref line-bits tar-file-idx)))
 	    
-	    ;; (format #t "      ---- binary-file-name-bit: idx: ~s string: ~s~%" tar-file-idx binary-file-name-bit)
+	    ;;(format #t "      ---- tim-server check binary-file-name-bit: idx: ~s string: ~s~%" 
+            ;;       tar-file-idx binary-file-name-bit)
 	    (if tim-server
 
 		;; tim server
 		(let ((smr-1 (string-match "debian-gnu-linux-" binary-file-name-bit)))
-		  ;; (format #t "tim-server smr-1 ~s~%" smr-1)
+
 		  (if (not smr-1)
 		      #f 
 		      (begin
@@ -297,8 +298,10 @@
 			      binary-file-name-bit)))))
 
 		;; oxford/york (-like) then
-		;; 
-		(oxford-string->binary-tar-file binary-file-name-bit binary-match python? gtk2?)))
+		;;
+		(begin  
+                   ;; (format #t "oxford/york-like~%")
+		   (oxford-string->binary-tar-file binary-file-name-bit binary-match python? gtk2?))))
 
 	  ;; it seems that the York server for WinCoot has changed.  Now file names are quoted with 's.
 	  (if (not (string-match binary-match line))
@@ -393,7 +396,7 @@
     ; (format #t "coot-dir: ~s~%" coot-dir)
     ; (format #t "curr-dir: ~s~%" current-dir)
     (chdir coot-dir)
-    (let ((s (shell-command-to-string "git rev-list HEAD | wc")))
+    (let ((s (shell-command-to-string "git rev-list HEAD | wc -l")))
       (chdir current-dir)
       (string->number
        (car (reverse (string-split (car (cdr (reverse (string-split s #\newline)))) #\space)))))))
@@ -881,32 +884,32 @@
 	 
 	 (list "binary-Linux-x86_64-centos-5-python-gtk2"
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-pcterm37.lmb.internal/gtk2" 
-	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-release"
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
 
 	 (list "binary-Linux-x86_64-rhel-6-python-gtk2"
 	       (string-append "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-" this-host "/gtk2")
-	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-release"
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
 
 	 (list "binary-Linux-x86_64-scientific-linux-6.6-python-gtk2"
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-hal.lmb.internal/gtk2" 
-	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-release"
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
 
 	 (list "binary-Linux-x86_64-ubuntu-12.04.3-python-gtk2"
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-ubuntu-server/gtk2" 
-	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-release"
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
 
 	 (list "binary-Linux-x86_64-ubuntu-14.04-python-gtk2"
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-ubuntu1404/gtk2"
-	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-release"
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
 
 	 (list "binary-Linux-x86_64-openSUSE-12.3-python-gtk2"
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-emsley-vm-suse/gtk2" 
-	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-release"
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
 
 ; this machine got upgraded.
