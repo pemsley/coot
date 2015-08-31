@@ -1,6 +1,11 @@
  
  0.8.2
 
+   o Draw -> Additional Representation -> Ball and Stick - balls are
+     too big.
+
+   o Sphere refine doesn't use alpha helical restraints. It should
+
    o with enhanced-ligand, do you get a sane code-path if you do 
      File -> SMILES?
 
