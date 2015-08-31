@@ -1671,7 +1671,6 @@ create_window1 (void)
   gtk_container_set_border_width (GTK_CONTAINER (model_toolbar), 3);
   gtk_toolbar_set_style (GTK_TOOLBAR (model_toolbar), GTK_TOOLBAR_ICONS);
   gtk_toolbar_set_orientation (GTK_TOOLBAR (model_toolbar), GTK_ORIENTATION_VERTICAL);
-  gtk_toolbar_set_show_arrow (GTK_TOOLBAR (model_toolbar), FALSE);
   tmp_toolbar_icon_size = gtk_toolbar_get_icon_size (GTK_TOOLBAR (model_toolbar));
 
   toolitem4 = (GtkWidget*) gtk_tool_item_new ();
