@@ -57,7 +57,8 @@ m4_define([v_git_revision_count], m4_esyscmd([(git rev-list --count HEAD 2>/dev/
 # old gits can't use count with HEAD.
 AC_DEFINE_UNQUOTED(GIT_REVISION_COUNT, [git_revision_count], [GitRevisonCount])
 echo 'extern "C" { int git_revision_count() { return v_git_revision_count ; } }' > src/git-revision-count.cc
-
+echo 'def revision_count():'             > pyrogen/coot_git.py
+echo '    return ' v_git_revision_count >> pyrogen/coot_git.py
 
 AC_CHECK_HEADERS([sys/stdtypes.h], [COOT_STDTYPES="-DHAVE_SYS_STDTYPES_H=1"], [COOT_STDTYPES="-DHAVE_SYS_STDTYPES_H=0"])
 
