@@ -44,6 +44,7 @@
 #include "graphics-info.h"
 #include "cc-interface.hh"
 #include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
 
 #include "analysis/kolmogorov.hh"
 #include "analysis/stats.hh"

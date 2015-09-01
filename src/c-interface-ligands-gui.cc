@@ -57,6 +57,7 @@
 
 #include "graphics-info.h"
 #include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
 #include "cc-interface-scripting.hh"
 #include "coot-utils/coot-coord-utils.hh"

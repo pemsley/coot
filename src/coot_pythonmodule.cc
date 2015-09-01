@@ -30,7 +30,8 @@
 #include <pygobject.h>
 #include <pygtk/pygtk.h>
 
-#include <c-interface.h>
+#include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
 #include "coot-glue.hh"
 
 PyObject * _wrap_main_menubar(PyObject *self);

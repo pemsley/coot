@@ -46,9 +46,7 @@
 
 #include "coot-fileselections.h"
 #include "c-interface.h"
-
-// #define PACKAGE restraints-editor
-
+#include "c-interface-gtk-widgets.h"
 
 #include "restraints-editor.hh"
 #include "restraints-editor-c.h"

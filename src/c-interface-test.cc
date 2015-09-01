@@ -115,6 +115,7 @@
 
 
 #include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
 #include "c-interface-ligands.hh"
 
@@ -150,7 +151,7 @@
 
 #include "coot-utils/emma.hh"
 
-#include "c-interface-widgets.h" // for wrapped_create_generic_objects_dialog();
+#include "c-interface-widgets.hh" // for wrapped_create_generic_objects_dialog();
 
 int test_function(int i, int j) {
 

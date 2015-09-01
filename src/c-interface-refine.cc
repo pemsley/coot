@@ -49,6 +49,7 @@
 // #endif // USE_PYTHON
 
 #include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
 #include "c-interface-scm.hh" // for display_scm
 

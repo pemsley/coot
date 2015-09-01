@@ -96,6 +96,7 @@
 #include "trackball.h"
 
 #include "c-interface.h" // for toggle idle function
+#include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
 #include "cc-interface-scripting.hh"
 #include "globjects.h"  // string

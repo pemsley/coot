@@ -496,7 +496,7 @@ SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
    @return blank ("") on failure. */
 std::string resname_from_serial_number(int imol, const char *chain_id, int serial_num);
 
-
+//! \brief return the residue name of the specified residue
 std::string residue_name(int imol, const std::string &chain_id, int resno, const std::string &ins_code);
 
 #ifdef USE_GUILE
@@ -514,6 +514,7 @@ std::string residue_name(int imol, const std::string &chain_id, int resno, const
 SCM residue_info(int imol, const char* chain_id, int resno, const char *ins_code);
 SCM residue_name_scm(int imol, const char* chain_id, int resno, const char *ins_code);
 
+//! chain fragments
 SCM chain_fragments_scm(int imol, short int screen_output_also); 
 
 //! \brief generate a molecule from an s-expression
@@ -559,7 +560,9 @@ SCM closest_atom(int imol);
 //! 
 SCM residues_near_residue(int imol, SCM residue_in, float radius);
 
-//! return residues within radius of pos (x,y,z) position
+//! \brief resdiues near residue
+//!
+//! @return residues within radius of pos (x,y,z) position
 //! 
 //! Return a list of pairs of (imol, residue_spec).
 //! pos is a list of 3 numbers.  (get imol from active-atom)
@@ -568,12 +571,12 @@ SCM residues_near_position_scm(int imol, SCM pos, float radius);
 
 #endif	/* USE_GUILE */
 
-//! find the active residue, find the near residues (within radius) 
+//! \brief find the active residue, find the near residues (within radius) 
 //! create a new molecule, run reduce on that, import hydrogens from
 //! the result and apply them to the molecule of the active residue.
 void hydrogenate_region(float radius);
 
-//! Add hydrogens to imol from the given pdb file
+//! \brief Add hydrogens to imol from the given pdb file
 void add_hydrogens_from_file(int imol, std::string pdb_with_Hs_file_name);
 
 /* Here the Python code for ATOM INFO */
@@ -634,11 +637,16 @@ PyObject *active_residue_py();
 // 
 PyObject *closest_atom_py(int imol);
 
+//! \brief
 // Return residue specs for residues that have atoms that are
 // closer than radius Angstroems to any atom in the residue
 // specified by res_in.
 // 
 PyObject *residues_near_residue_py(int imol, PyObject *residue_in, float radius);
+//! \brief
+//! Return residue specs for residues that have atoms that are
+//! closer than radius Angstroems to the given position.
+//!
 PyObject *residues_near_position_py(int imol, PyObject *pos_in, float radius);
 
 #endif // USE_PYTHON
@@ -661,7 +669,9 @@ std::string atom_info_as_text_for_statusbar(int atom_index, int imol,
 //! \name Refinement with specs
 //! \{
 
-
+//! \brief
+//! regularize the given residues
+//!
 void regularize_residues(int imol, const std::vector<coot::residue_spec_t> &residues);
 
 
@@ -671,7 +681,11 @@ void regularize_residues(int imol, const std::vector<coot::residue_spec_t> &resi
 //! 
 //! presumes that imol_Refinement_Map has been set
 #ifdef USE_GUILE
-std::string mtz_file_name(int imol); 
+std::string mtz_file_name(int imol);
+
+//! \brief
+//! Refine the given residue range
+//!
 SCM refine_zone_with_full_residue_spec_scm(int imol, const char *chain_id,
 					   int resno1,
 					   const char*inscode_1,
@@ -696,8 +710,9 @@ PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
 /*                  rigid body fitting (multiple residue ranges)            */
 /*  ----------------------------------------------------------------------- */
 
-// return 0 on fail to refine (no sensible place to put atoms) and 1
-// on fitting happened.
+//! \brief
+//! return 0 on fail to refine (no sensible place to put atoms) and 1
+//! on fitting happened.
 int rigid_body_fit_with_residue_ranges(int imol, const std::vector<coot::residue_range_t> &ranges);
 
 // Model morphing (average the atom shift by using shifts of the
@@ -706,6 +721,8 @@ int rigid_body_fit_with_residue_ranges(int imol, const std::vector<coot::residue
 // return 0 on fail to move atoms and 1 on fitting happened.
 // 
 int morph_fit_all(int imol, float transformation_averaging_radius);
+
+//! \brief Morph the given chain
 int morph_fit_chain(int imol, std::string chain_id, float transformation_averaging_radius);
 #ifdef USE_GUILE
 int morph_fit_residues_scm(int imol, SCM residue_specs,       float transformation_averaging_radius);
@@ -713,9 +730,12 @@ int morph_fit_residues_scm(int imol, SCM residue_specs,       float transformati
 #ifdef USE_PYTHON
 int morph_fit_residues_py( int imol, PyObject *residue_specs, float transformation_averaging_radius);
 #endif
+//! \brief morph the given residues.
 int morph_fit_residues(int imol, const std::vector<coot::residue_spec_t> &residue_specs,
 		       float transformation_averaging_radius);
 
+//! \brief morph transformation are based primarily on rigid body refinement
+//! of the secondary structure elements.
 int morph_fit_by_secondary_structure_elements(int imol, const std::string &chain_id);
 
 
@@ -732,6 +752,7 @@ std::vector<std::pair<clipper::Coord_orth, double> >
 find_blobs(int imol_model, int imol_map, float cut_off_density_level);
 
 #ifdef USE_GUILE
+//! \brief find blobs
 SCM find_blobs_scm(int imol_model, int imol_map, float cut_off_density_level);
 #endif 
 #ifdef USE_PYTHON
@@ -759,7 +780,7 @@ SCM water_chain_scm(int imol);
 
 Return False if no chain or bad imol*/
 PyObject *water_chain_from_shelx_ins_py(int imol); 
-/* return the chain id of the water chain. Raw interface */
+/*! \brief return the chain id of the water chain. Raw interface */
 PyObject *water_chain_py(int imol);
 #endif 
 
@@ -772,6 +793,7 @@ PyObject *water_chain_py(int imol);
 //! \name Glyco Tools
 //! \{
 
+//! \brief print the glycosylation tree that contains the specified residue
 void
 print_glyco_tree(int imol, const std::string &chain_id, int resno, const std::string &ins_code);
 
@@ -994,7 +1016,7 @@ void orient_view(int imol,
 		 const coot::residue_spec_t &neighbour_residue_spec);
 
 
-/*  return a list of chiral centre ids as determined from topological
+/*  \brief return a list of chiral centre ids as determined from topological
     equivalence analysis based on the bond info (and element names). */
 std::vector<std::string>
 topological_equivalence_chiral_centres(const std::string &residue_type); 
@@ -1144,6 +1166,8 @@ void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper:
 /* ------------------------------------------------------------------------- */
 /*                      LINKs                                                */
 /* ------------------------------------------------------------------------- */
+
+//! \brief make a link between the specified atoms
 void
 make_link(int imol, coot::atom_spec_t &spec_1, coot::atom_spec_t &spec_2,
 	  const std::string &link_name, float length);
@@ -1162,6 +1186,10 @@ void make_link_py(int imol, PyObject *spec_1, PyObject *spec_2, const std::strin
 PyObject *link_info_py(int imol);
 #endif
 
+
+/* ------------------------------------------------------------------------- */
+/*                      Drag and drop                                        */
+/* ------------------------------------------------------------------------- */
 
 /*! \name  Drag and Drop Functions */
 // \{
@@ -1218,7 +1246,7 @@ PyObject *map_to_model_correlation_stats_py(int imol,
 // 3: side-chain atoms-excluding CB if is standard amino-acid, else all atoms
 // 4: main-chain atoms if is standard amino-acid, else nothing
 // 5: side-chain atoms if is standard amino-acid, else nothing
-//
+// 10: atom radius is dependent atom atom B-factor
 float
 map_to_model_correlation(int imol, 
 			 const std::vector<coot::residue_spec_t> &residue_specs,
@@ -1226,6 +1254,16 @@ map_to_model_correlation(int imol,
 			 unsigned short int atom_mask_mode,
 			 int imol_map);
 
+//! \brief map to model density correlation stats
+//! 
+//! \brief atom-mask-mode is as follows:
+// 0: all-atoms
+// 1: main-chain atoms if is standard amino-acid, else all atoms
+// 2: side-chain atoms if is standard amino-acid, else all atoms
+// 3: side-chain atoms-excluding CB if is standard amino-acid, else all atoms
+// 4: main-chain atoms if is standard amino-acid, else nothing
+// 5: side-chain atoms if is standard amino-acid, else nothing
+//
 coot::util::density_correlation_stats_info_t
 map_to_model_correlation_stats(int imol, 
 			       const std::vector<coot::residue_spec_t> &residue_specs,
@@ -1233,6 +1271,16 @@ map_to_model_correlation_stats(int imol,
 			       unsigned short int atom_mask_mode,
 			       int imol_map);
 
+//! \brief map to model density correlation, reported per residue
+//! 
+//! \brief atom-mask-mode is as follows:
+// 0: all-atoms
+// 1: main-chain atoms if is standard amino-acid, else all atoms
+// 2: side-chain atoms if is standard amino-acid, else all atoms
+// 3: side-chain atoms-excluding CB if is standard amino-acid, else all atoms
+// 4: main-chain atoms if is standard amino-acid, else nothing
+// 5: side-chain atoms if is standard amino-acid, else nothing
+//
 std::vector<std::pair<coot::residue_spec_t,float> >
 map_to_model_correlation_per_residue(int imol, const std::vector<coot::residue_spec_t> &specs,
 				     unsigned short int atom_mask_mode,
@@ -1243,6 +1291,17 @@ SCM
 map_to_model_correlation_per_residue_scm(int imol, SCM residue_specs,
 					 unsigned short int atom_mask_mode,
 					 int imol_map);
+
+//! \brief QQ pllot of the model density correlation, reported per residue
+//! 
+//! \brief atom-mask-mode is as follows:
+// 0: all-atoms
+// 1: main-chain atoms if is standard amino-acid, else all atoms
+// 2: side-chain atoms if is standard amino-acid, else all atoms
+// 3: side-chain atoms-excluding CB if is standard amino-acid, else all atoms
+// 4: main-chain atoms if is standard amino-acid, else nothing
+// 5: side-chain atoms if is standard amino-acid, else nothing
+//
 SCM qq_plot_map_and_model_scm(int imol, 
 			      SCM residue_specs_scm,
 			      SCM neigh_residue_specs_scm,
@@ -1267,9 +1326,12 @@ PyObject *qq_plot_map_and_model_py(int imol,
 /* ------------------------------------------------------------------------- */
 /*                      prodrg import function                               */
 /* ------------------------------------------------------------------------- */
-// the function passed to lbg, so that it calls it when a new
-// prodrg-in.mdl file has been made.  We no longer have a timeout
-// function waiting for prodrg-in.mdl to be updated/written.
+//
+//! \brief import given mdl file into prodrg or other 3d generation program
+//!
+//! the function passed to lbg, so that it calls it when a new
+//! prodrg-in.mdl file has been made.  We no longer have a timeout
+//! function waiting for prodrg-in.mdl to be updated/written.
 // 
 void prodrg_import_function(std::string file_name, std::string comp_id);
 
@@ -1278,9 +1340,12 @@ void prodrg_import_function(std::string file_name, std::string comp_id);
 /* ------------------------------------------------------------------------- */
 /*                       SBase import function                               */
 /* ------------------------------------------------------------------------- */
-// the function passed to lbg, so that it calls it when a new
-// SBase comp_id is required.  We no longer have a timeout
-// function waiting for prodrg-in.mdl to be updated/written.
+//
+//! \brief import molecule from CCP4 SRS (or SBase, as it used to be called).
+//! 
+//! the function passed to lbg, so that it calls it when a new
+//! SBase comp_id is required.  We no longer have a timeout
+//! function waiting for prodrg-in.mdl to be updated/written.
 // 
 void sbase_import_function(std::string comp_id);
 
@@ -1314,6 +1379,7 @@ SCM align_to_closest_chain_scm(std::string target_seq, float match_fraction);
 /*  ----------------------------------------------------------------------- */
 /*                  GUIL Utility Functions                                  */
 /*  ----------------------------------------------------------------------- */
+//! \brief make a simple text dialog.
 void simple_text_dialog(const std::string &dialog_title, const std::string &text,
 			int geom_x, int geom_y);
 
@@ -1325,8 +1391,10 @@ void on_simple_text_dialog_close_button_pressed( GtkWidget *button,
 /*  ----------------------------------------------------------------------- */
 /*                  Phenix Functions                                        */
 /*  ----------------------------------------------------------------------- */
+//! \brief phenix GEO bonds representation
 void graphics_to_phenix_geo_representation(int imol, int mode,
 					   const coot::phenix_geo_bonds &g);
+//! \brief phenix GEO bonds representation, read from file
 void graphics_to_phenix_geo_representation(int imol, int mode,
 					   const std::string &geo_file_name);
 
@@ -1334,11 +1402,15 @@ void graphics_to_phenix_geo_representation(int imol, int mode,
 /*  ----------------------------------------------------------------------- */
 /*                  Utility Functions                                       */
 /*  ----------------------------------------------------------------------- */
+
+//! \brief encoding of ints
+//! 
 // These functions are for storing the molecule number and (some other
 // number) as an int and used with GPOINTER_TO_INT and GINT_TO_POINTER.
 int encode_ints(int i1, int i2);
 std::pair<int, int> decode_ints(int i);
 
+//! \brief store username and password for the database.
 void store_keyed_user_name(std::string key, std::string user_name, std::string passwd);
 
 #ifdef USE_GUILE

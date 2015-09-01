@@ -93,6 +93,8 @@
 
 
 #include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
+#include "c-interface-refmac.h"
 #include "cc-interface.hh"
 #include "cc-interface-scripting.hh"
 
@@ -120,8 +122,6 @@ void execute_refmac(GtkWidget *window) {
 
    int imol_coords = graphics_info_t::refmac_molecule;
 
-   std::cout << "------------------ in execute_refmac: imol_coords is " << imol_coords << std::endl;
-   
    if (! is_valid_model_molecule(imol_coords)) {
 
       std::cout << "INFO:: No coordinates molecule selected for running refmac\n";

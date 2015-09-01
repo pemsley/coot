@@ -55,6 +55,7 @@
 #include "graphics-info.h"
 
 #include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
 
 #include "guile-fixups.h"

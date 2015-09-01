@@ -195,7 +195,7 @@ bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code
 // ------------------------------------------------------------------------------------------
 
 #include "c-interface.h" // for set_display_generic_object()
-#include "c-interface-widgets.h" // for add_generic_display_object
+#include "c-interface-widgets.hh" // for add_generic_display_object
 
 // internal - no public access
 // 

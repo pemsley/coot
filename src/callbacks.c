@@ -56,6 +56,8 @@
 
 
 #include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
+#include "c-interface-refmac.h"
 #include "c-interface-preferences.h"
 #include "positioned-widgets.h"
 

@@ -76,40 +76,57 @@ coot::atom_overlaps_container_t::init() {
 	    std::string atom_name(at->name);
 	    std::string ele = at->element;
 	    if (ele == " H") {
-	      // Hydrogens have energy type "H" from Refmac and acedrg, that doesn't
-	      // tell us if this atom is a donor hydrogen.
-	      // So, find the atom to which the H is attached and if that is a donor then this
-	      // is a hydrogen bond hydrogen.
-	      std::string heavy_neighb_of_H_atom =
-		central_residue_dictionary.get_bonded_atom(atom_name);
-	      if (! heavy_neighb_of_H_atom.empty()) {
-		std::string neigh_energy_type = central_residue_dictionary.type_energy(heavy_neighb_of_H_atom);
-		energy_lib_atom neighb_ela = geom_p->get_energy_lib_atom(neigh_energy_type);
-		hb_t neighb_hb_type = neighb_ela.hb_type;
-		if (neighb_hb_type == coot::HB_DONOR) {
-		  std::cout << "----- adding HB_HYDROGEN udd " << atom_name << std::endl;
-		  at->PutUDData(udd_h_bond_type_handle, coot::HB_HYDROGEN); // hb_t -> int
-		}
-	      }
+	       // Hydrogens have energy type "H" from Refmac and acedrg, that doesn't
+	       // tell us if this atom is a donor hydrogen.
+	       // So, find the atom to which the H is attached and if that is a donor then this
+	       // is a hydrogen bond hydrogen.
+	       std::string heavy_neighb_of_H_atom =
+		  central_residue_dictionary.get_bonded_atom(atom_name);
+	       if (! heavy_neighb_of_H_atom.empty()) {
+		  std::string neigh_energy_type = central_residue_dictionary.type_energy(heavy_neighb_of_H_atom);
+		  energy_lib_atom neighb_ela = geom_p->get_energy_lib_atom(neigh_energy_type);
+		  hb_t neighb_hb_type = neighb_ela.hb_type;
+		  if (neighb_hb_type == coot::HB_DONOR) {
+		     std::cout << "----- adding ligand HB_HYDROGEN udd " << atom_spec_t(at) << std::endl;
+		     at->PutUDData(udd_h_bond_type_handle, coot::HB_HYDROGEN); // hb_t -> int
+		  }
+	       }
 	    } else {
-	      std::string energy_type = central_residue_dictionary.type_energy(atom_name);
-	      energy_lib_atom ela = geom_p->get_energy_lib_atom(energy_type);
-	      hb_t hb_type = ela.hb_type;
-	      at->PutUDData(udd_h_bond_type_handle, hb_type); // hb_t -> int
+	       std::string energy_type = central_residue_dictionary.type_energy(atom_name);
+	       energy_lib_atom ela = geom_p->get_energy_lib_atom(energy_type);
+	       hb_t hb_type = ela.hb_type;
+	       at->PutUDData(udd_h_bond_type_handle, hb_type); // hb_t -> int
 	    }
 	 }
 
-	 for (unsigned int i=0; i<neighbours.size(); i++) { 
+	 for (unsigned int i=0; i<neighbours.size(); i++) {
+  	    const dictionary_residue_restraints_t &dict = neighb_dictionaries[i];
 	    mmdb::PAtom *residue_atoms = 0;
 	    int n_residue_atoms;
 	    neighbours[i]->GetAtomTable(residue_atoms, n_residue_atoms);
 	    for (int iat=0; iat<n_residue_atoms; iat++) { 
 	       mmdb::Atom *n_at = residue_atoms[iat];
 	       std::string atom_name(n_at->name);
-	       std::string energy_type = neighb_dictionaries[i].type_energy(atom_name);
-	       energy_lib_atom ela = geom_p->get_energy_lib_atom(energy_type);
-	       hb_t hb_type = ela.hb_type;
-	       n_at->PutUDData(udd_h_bond_type_handle, hb_type); // hb_t -> int
+	       std::string ele = n_at->element;
+	       if (ele == " H") {
+		  // as above
+		  std::string heavy_neighb_of_H_atom = dict.get_bonded_atom(atom_name);
+		  if (! heavy_neighb_of_H_atom.empty()) {
+		     std::string neigh_energy_type = dict.type_energy(heavy_neighb_of_H_atom);
+		     energy_lib_atom neighb_ela = geom_p->get_energy_lib_atom(neigh_energy_type);
+		     hb_t neighb_hb_type = neighb_ela.hb_type;
+		     if (neighb_hb_type == coot::HB_DONOR) {
+			std::cout << "----- adding env HB_HYDROGEN udd " << atom_spec_t(n_at) << std::endl;
+			n_at->PutUDData(udd_h_bond_type_handle, coot::HB_HYDROGEN); // hb_t -> int
+		     }
+		  }
+	       } else {
+		  std::string atom_name(n_at->name);
+		  std::string energy_type = neighb_dictionaries[i].type_energy(atom_name);
+		  energy_lib_atom ela = geom_p->get_energy_lib_atom(energy_type);
+		  hb_t hb_type = ela.hb_type;
+		  n_at->PutUDData(udd_h_bond_type_handle, hb_type); // hb_t -> int
+	       }
 	    }
 	 }
       }

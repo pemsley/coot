@@ -35,6 +35,7 @@
 
 #include "graphics-info.h"
 #include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
 #include "interface.h"
 
 #include "rotate-translate-modes.hh"

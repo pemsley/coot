@@ -262,6 +262,7 @@ coot_bin_SOURCES = \
 	c-interface-refine.cc	 \
 	c-interface-residues.cc	 \
 	c-interface-refmac.cc	 \
+	c-interface-refmac.h	 \
 	c-interface-scm.hh	 \
 	c-interface-scm.cc	 \
 	c-interface-sequence.cc  \

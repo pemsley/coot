@@ -39,6 +39,7 @@
 // BL says:: and (2.3 - dewinter), i.e. is a Mac - Python issue
 // since the follwing two include python graphics-info.h is moved up
 #include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
 
 #include "generic-display-objects-c.h"
 
