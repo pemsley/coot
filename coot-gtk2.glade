@@ -2165,7 +2165,7 @@
 	      <property name="orientation">GTK_ORIENTATION_HORIZONTAL</property>
 	      <property name="toolbar_style">GTK_TOOLBAR_BOTH_HORIZ</property>
 	      <property name="tooltips">True</property>
-	      <property name="show_arrow">False</property>
+	      <property name="show_arrow">True</property>
 
 	      <child>
 		<widget class="GtkToolButton" id="coords_toolbutton">
