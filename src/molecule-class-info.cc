@@ -1731,7 +1731,7 @@ int molecule_class_info_t::add_atom_label(char *chain_id, int iresno, char *atom
    int i = atom_spec_to_atom_index(std::string(chain_id),
 				   iresno,
 				   std::string(atom_id));
-   if (i > 0) 
+   if (i >= 0) // thanks Gabriele Balducci
       add_to_labelled_atom_list(i);
    else
       std::cout << atom_id << "/" << iresno << "/" << chain_id
