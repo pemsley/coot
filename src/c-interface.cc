@@ -141,7 +141,9 @@
 #include "Python.h"
 #endif // USE_PYTHON
 
-int svn_revision();
+int svn_revision() {
+   return git_revision_count();
+}
 
 std::string coot_version() {
 
@@ -153,8 +155,8 @@ std::string coot_version_extra_info() {
 
    std::string version_string; //  was = VERSION;
 
-   version_string += "(revision ";
-   version_string += coot::util::int_to_string(svn_revision());
+   version_string += "(revision-count ";
+   version_string += coot::util::int_to_string(git_revision_count());
    version_string += ")\n";
    
 #ifdef USE_GUILE
