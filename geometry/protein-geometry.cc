@@ -2781,6 +2781,25 @@ coot::dictionary_residue_restraints_t::number_of_non_hydrogen_atoms() const {
    return r;
 }
 
+std::string
+coot::dictionary_residue_restraints_t::get_bonded_atom(const std::string &H_atom_name) const {
+
+  std::string r;
+
+  for (unsigned int i=0; i<bond_restraint.size(); i++) {
+    if (bond_restraint[i].atom_id_1_4c() == H_atom_name) {
+      r = bond_restraint[i].atom_id_2_4c();
+      break;
+    }
+    if (bond_restraint[i].atom_id_2_4c() == H_atom_name) {
+      r = bond_restraint[i].atom_id_1_4c();
+      break;
+    }
+  }
+  return r;
+}
+
+
 
 // c.f. dict_torsion_restraint_t::is_ring_torsion()
 bool

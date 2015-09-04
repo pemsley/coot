@@ -371,23 +371,27 @@ int test_atom_overlaps() {
    testing_data t;
    t.geom.try_dynamic_add("MG",  1);
 
-   // t.geom.try_dynamic_add("824", 1);
-   t.geom.init_refmac_mon_lib("../src/824-pyrogen.cif", 1);
+   t.geom.try_dynamic_add("824", 1);
+   // t.geom.init_refmac_mon_lib("824-acedrg.cif", 1);
 
    mmdb::Manager *mol = new mmdb::Manager;
    std::string file_name = "1x8b-H.pdb";
    coot::residue_spec_t spec("A", 901, "");
 
-   mol->ReadCoorFile(file_name.c_str());
+   int read_status = mol->ReadCoorFile(file_name.c_str());
 
-   mmdb::Residue *residue_p = coot::util::get_residue(spec, mol);
-   if (residue_p) {
-      std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
-      coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, &t.geom);
-      overlaps.make_overlaps();
+   if (read_status == mmdb::Error_NoError) {
+     mmdb::Residue *residue_p = coot::util::get_residue(spec, mol);
+     if (residue_p) {
+       std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
+       coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, &t.geom);
+       overlaps.make_overlaps();
+     } else {
+       std::cout << "Can't find residue" << spec << std::endl;
+     }
    } else {
-      std::cout << "Can't find residue" << spec << std::endl;
-   } 
+     std::cout << "Failed to read " << file_name << std::endl;
+   }
    return status;
 }
 
