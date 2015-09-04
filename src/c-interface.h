@@ -2333,8 +2333,11 @@ int atom_index_first_atom_in_residue_with_altconf(int imol,
 						  int iresno, 
 						  const char *ins_code, 
 						  const char *alt_conf);
+/*! \brief return the median temperature factor for imol */
 float median_temperature_factor(int imol);
+/*! \brief return the average temperature factor for the atoms in imol */
 float average_temperature_factor(int imol);
+/*! \brief return the standard deviation of the atom temperature factors for imol */
 float standard_deviation_temperature_factor(int imol);
 
 /*! \brief clear pending picks (stop coot thinking that the user is about to pick an atom).  */
@@ -2377,6 +2380,7 @@ int set_atom_attributes_py(PyObject *attribute_expression_list);
 #endif 
 #endif /* __cplusplus */
 
+/*! \brief set the residue name of the specified residue */
 void set_residue_name(int imol, const char *chain_id, int res_no, const char *ins_code, const char *new_residue_name);
 
 /* \} */
@@ -2415,12 +2419,16 @@ void set_max_skeleton_search_depth(int v); /* for high resolution
 /*                  skeletonization level widgets                           */
 /*  ----------------------------------------------------------------------- */
 
+/* MOVE-ME to c-interface-gtk-widgets.h */
 gchar *get_text_for_skeletonization_level_entry(); 
 
+/* MOVE-ME to c-interface-gtk-widgets.h */
 void set_skeletonization_level_from_widget(const char *txt); 
 
+/* MOVE-ME to c-interface-gtk-widgets.h */
 gchar *get_text_for_skeleton_box_size_entry(); 
 
+/* MOVE-ME to c-interface-gtk-widgets.h */
 void set_skeleton_box_size_from_widget(const char *txt); 
 
 /*! \brief the box size (in Angstroms) for which the skeleton is displayed */
@@ -2434,9 +2442,12 @@ void set_skeleton_box_size(float f);
 /* section Skeleton Colour */
 /*! \name  Skeleton Colour */
 /* \{ */
+/* MOVE-ME to c-interface-gtk-widgets.h */
 void handle_skeleton_colour_change(int mol, gdouble* map_col);
+/*! \brief set the skeleton colour */
 void set_skeleton_colour(int imol, float r, float g, float b);
 
+/* MOVE-ME to c-interface-gtk-widgets.h */
 gdouble* get_skeleton_colour(); 
 
 /* \} */
@@ -2465,6 +2476,7 @@ int handle_read_ccp4_map(const char* filename, int is_diff_map_flag);
   @return status 1 is good (success), 0 is fail. */
 int save_coordinates(int imol, const char *filename);
 
+/*! \brief set save coordinates in the starting directory */
 void set_save_coordinates_in_original_directory(int i);
 
 /* access to graphics_info_t::save_imol for use in callback.c */
@@ -2542,6 +2554,7 @@ const char* graphics_get_phs_filename();
 
 short int possible_cell_symm_for_phs_file(); 
 
+/* MOVE-ME to c-interface-gtk-widgets.h */ 
 gchar *get_text_for_phs_cell_chooser(int imol, char *field); 
 
 /* \} */
@@ -2566,6 +2579,8 @@ void transform_molecule_by(int imol,
 			   float m31, float m32, float m33,
 			   float x, float y, float z);
 
+/*! \brief transform fragment of molecule number imol by the given rotation
+  matrix, then translate by (x,y,z) in Angstroms  */
 void transform_zone(int imol, const char *chain_id, int resno_start, int resno_end, const char *ins_code,
 		    float m11, float m12, float m13,
 		    float m21, float m22, float m23,
@@ -2584,11 +2599,17 @@ void transform_zone(int imol, const char *chain_id, int resno_start, int resno_e
 /*! \brief Post the Go To Atom Window */
 void post_go_to_atom_window();
 
+/*! \brief the go-to-atom molecule number */
 int go_to_atom_molecule_number();
+/*! \brief the go-to-atom chain-id */
 char *go_to_atom_chain_id();
+/*! \brief the go-to-atom atom name */
 char *go_to_atom_atom_name();
+/*! \brief the go-to-atom residue number */
 int go_to_atom_residue_number();
+/*! \brief the go-to-atom insertion code */
 char *go_to_atom_ins_code();
+/*! \brief the go-to-atom alt conf */
 char *go_to_atom_alt_conf();
 
 
@@ -2602,12 +2623,21 @@ char *go_to_atom_alt_conf();
 */
 int set_go_to_atom_chain_residue_atom_name(const char *t1_chain_id, int iresno, 
 					   const char *t3_atom_name);
+ 
+/*! \brief set the go to (full) atom specification
+
+   It seems important for swig that the char * arguments are const
+   char *, not const gchar * (or else we get wrong type of argument
+   error on (say) "A"
+
+@return the success status of the go to.  0 for fail, 1 for success.
+*/
 int set_go_to_atom_chain_residue_atom_name_full(const char *chain_id, 
 						int resno,
 						const char *ins_code,
 						const char *atom_name,
 						const char *alt_conf);
-
+/*! \brief set go to atom but don't redraw */
 int set_go_to_atom_chain_residue_atom_name_no_redraw(const char *t1, int iresno, const char *t3, 
 						     short int make_the_move_flag);
 
@@ -2665,6 +2695,7 @@ void update_go_to_atom_window_on_other_molecule_chosen(int imol);
 */
 void set_go_to_atom_molecule(int imol); 
 
+/* MOVE-ME to c-interface-gtk-widgets.h */ 
 void unset_go_to_atom_widget(); /* unstore the static go_to_atom_window */
 
 
@@ -2946,8 +2977,11 @@ void get_coords_for_accession_code(const char *code);
 
 /*! \brief run script file */
 void run_script       (const char *filename);
+/*! \brief guile run script file */
 void run_guile_script (const char *filename);
+/*! \brief run python script file */
 void run_python_script(const char *filename);
+/*! \brief import python module */
 int import_python_module(const char *module_name, int use_namespace);
 
 #ifdef __cplusplus
@@ -3317,7 +3351,9 @@ PyObject *list_extra_restraints_py(int imol);
 #endif /* USE_PYTHON */
 #endif /*  __cplusplus */
 
+/*! \brief set use only extra torsion restraints for torsions */
 void set_use_only_extra_torsion_restraints_for_torsions(short int state);
+/*! \brief return only-use-extra-torsion-restraints-for-torsions state */
 int use_only_extra_torsion_restraints_for_torsions_state();
 
 
@@ -3325,11 +3361,12 @@ int use_only_extra_torsion_restraints_for_torsions_state();
 /*                  Restraints editor                                       */
 /*  ----------------------------------------------------------------------- */
 
-
+/*! \brief show restraints editor */
 void show_restraints_editor(const char *monomer_type);
+/*! \brief show restraints editor using residue type index */
 void show_restraints_editor_by_index(int menu_item_index);
 
-
+/*! \brief write cif restraints for monomer */
 void write_restraints_cif_dictionary(const char *monomer_type, const char *file_name);
 
 /* \} */
@@ -3392,8 +3429,11 @@ output_atom_info_as_text(int imol, const char *chain_id, int resno,
 /* \{ */
 /* Similar to above, we need only one click though. */
 void do_residue_info_dialog();
-void output_residue_info_dialog    (int imol, int atom_index); /* widget version */
+
+/* MOVE-ME to c-interface-gtk-widgets.h */
+ void output_residue_info_dialog    (int imol, int atom_index); /* widget version */
 /* scripting version */
+ /*! \brief show residue info dialog for given residue */
 void residue_info_dialog(int imol, const char *chain_id, int resno, const char *ins_code); 
 int residue_info_dialog_is_displayed();
 void output_residue_info_as_text(int atom_index, int imol); /* text version */
