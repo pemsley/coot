@@ -1314,7 +1314,6 @@ create_window1 (void)
   gtk_widget_show (main_toolbar);
   gtk_box_pack_start (GTK_BOX (vbox1), main_toolbar, FALSE, FALSE, 0);
   gtk_toolbar_set_style (GTK_TOOLBAR (main_toolbar), GTK_TOOLBAR_BOTH_HORIZ);
-  gtk_toolbar_set_show_arrow (GTK_TOOLBAR (main_toolbar), FALSE);
   tmp_toolbar_icon_size = gtk_toolbar_get_icon_size (GTK_TOOLBAR (main_toolbar));
 
   tmp_image = gtk_image_new_from_stock ("gtk-open", tmp_toolbar_icon_size);
@@ -1671,7 +1670,6 @@ create_window1 (void)
   gtk_container_set_border_width (GTK_CONTAINER (model_toolbar), 3);
   gtk_toolbar_set_style (GTK_TOOLBAR (model_toolbar), GTK_TOOLBAR_ICONS);
   gtk_toolbar_set_orientation (GTK_TOOLBAR (model_toolbar), GTK_ORIENTATION_VERTICAL);
-  gtk_toolbar_set_show_arrow (GTK_TOOLBAR (model_toolbar), FALSE);
   tmp_toolbar_icon_size = gtk_toolbar_get_icon_size (GTK_TOOLBAR (model_toolbar));
 
   toolitem4 = (GtkWidget*) gtk_tool_item_new ();

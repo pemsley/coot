@@ -521,13 +521,24 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
 	 coot::minimol::fragment f;
 	 for (unsigned int ifr=0; ifr<fragment_residues.size(); ifr++) {
 	    coot::minimol::residue fr(fragment_residues[ifr]->GetSeqNum());
+
+	    bool add_all_residue = true; // change this if the residue is an amino acid
+	    if (fragment_residues[ifr]->isAminoacid())
+	       add_all_residue = false; // because we want only the main_chain
+	    
 	    mmdb::PAtom *residue_atoms = 0;
 	    int n_residue_atoms;
 	    fragment_residues[ifr]->GetAtomTable(residue_atoms, n_residue_atoms);
-	    for (int iat=0; iat<n_residue_atoms; iat++) { 
-	       if (coot::is_main_chain_p(residue_atoms[iat])) {
+	    for (int iat=0; iat<n_residue_atoms; iat++) {
+
+	       if (! add_all_residue) { 
+		  if (coot::is_main_chain_p(residue_atoms[iat])) {
+		     fr.addatom(residue_atoms[iat]);
+		  }
+	       } else {
+		  // add all atoms of this residue
 		  fr.addatom(residue_atoms[iat]);
-	       }
+	       } 
 	    }
 	    f.addresidue(fr, false);
 	 } 

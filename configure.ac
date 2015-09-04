@@ -25,7 +25,7 @@ dnl implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 dnl
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(coot, 0.8.2)
+AC_INIT(coot, 0.8.3-pre)
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -52,6 +52,13 @@ m4_ifset([LT_INIT],
 
 GNOME_COMPILE_WARNINGS
 GNOME_CXX_WARNINGS
+
+m4_define([v_git_revision_count], m4_esyscmd([(git rev-list --count HEAD 2>/dev/null || echo 0) | tr -d '\n']))
+# old gits can't use count with HEAD.
+AC_DEFINE_UNQUOTED(GIT_REVISION_COUNT, [git_revision_count], [GitRevisonCount])
+echo 'extern "C" { int git_revision_count() { return v_git_revision_count ; } }' > src/git-revision-count.cc
+echo 'def revision_count():'             > pyrogen/coot_git.py
+echo '    return ' v_git_revision_count >> pyrogen/coot_git.py
 
 AC_CHECK_HEADERS([sys/stdtypes.h], [COOT_STDTYPES="-DHAVE_SYS_STDTYPES_H=1"], [COOT_STDTYPES="-DHAVE_SYS_STDTYPES_H=0"])
 

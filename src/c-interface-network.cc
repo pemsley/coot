@@ -65,7 +65,7 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
    // this is called in a guile thread, then that is bad because it
    // stops the syncing of guile threads (1.8 behavour). See "Blocking
    // in Guile Mode" in the Guile Reference Manual.  Apparently 1.9
-   // does not have this issue.  Anyway, with 1.8 we need to not run a
+   // does not have this issue.  Anyway, with 1.8 we should not run a
    // long lived thread in guile-mode, i.e. we need to exit guile-mode
    // and that is done with scm_without_guile(), and we pass the
    // long-lived function to that.
@@ -75,7 +75,10 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
    // write binary
    FILE *f = fopen(file_name, "wb");
 
-   if (f) { 
+   if (f) {
+      // If you see a crash in curl_easy_init() then the problem is
+      // somewhere else.  Curl_open() doesn't do anything except a bit
+      // of mallocing.  So the memory is messed up elsewhere and beforehand.
       CURL *c = curl_easy_init();
       long int no_signal = 1;
       std::pair<FILE *, CURL *> p_for_write(f,c);
@@ -119,7 +122,7 @@ int coot_get_url_and_activate_curl_hook(const char *url, const char *file_name,
       return success;
    } else {
       return 2; // file not opened.
-   } 
+   }
 }
 #endif /* USE_LIBCURL */
 

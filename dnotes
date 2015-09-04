@@ -6483,7 +6483,8 @@ valgrind:
 
  valgrind --leak-check=full --suppressions=../../coot/trunk/guile.supp --suppressions=../../coot/trunk/valgrind-python.supp --error-limit=no --log-file=valgrind.log .libs/lt-coot-real 
 
- valgrind --leak-check=full --suppressions=../../coot/trunk/guile.supp --error-limit=no --log-file=valgrind.log .libs/lt-coot-bin 
+# valgrind --leak-check=full --suppressions=../../coot/trunk/guile.supp --error-limit=no --log-file=valgrind.log .libs/lt-coot-bin 
+ valgrind --leak-check=full --suppressions=../../coot/git/coot/guile.supp --error-limit=no --log-file=valgrind.log .libs/lt-coot-bin 
 
 
   Where are the python suppressions?
