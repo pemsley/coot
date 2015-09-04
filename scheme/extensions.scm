@@ -276,7 +276,14 @@
 				       (copy-molecule imol)))))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-maps "Make a Smooth Copy..."
+	 submenu-maps "Make a Smoother Copy..."
+	 (lambda ()
+	   (map-molecule-chooser-gui "Map Molecule to Smoothenize"
+				     (lambda(imol)
+				       (smooth-map imol 1.25)))))
+	   
+	(add-simple-coot-menu-menuitem
+	 submenu-maps "Make a Very Smooth Copy..."
 	 (lambda ()
 	   (map-molecule-chooser-gui "Map Molecule to Smoothenize"
 				     (lambda(imol)
