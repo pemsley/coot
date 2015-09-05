@@ -1,11 +1,15 @@
+2015-08-27  Paul Emsley  <pemsley at mrc dash lmb dot ac dot uk>
+
+	* Release 0.8.2
+
 2013-12-10  Paul Emsley  <pemsley at mrc dash lmb dot ac dot uk>
 
 	* Release 0.8.1
-	
+
 2013-05-14  Paul Emsley  <pemsley at mrc dash lmb dot ac dot uk>
 
 	* Release 0.8
-	
+
 2013-05-14  Paul Emsley  <emsley@ysbl.york.ac.uk>
 
 	* Release 0.7.1
@@ -252,7 +256,7 @@
 2006-08-23  Paul Emsley  <paulemsley@ysbl.york.ac.uk>
 
 	* Release 0.1.2.
-	
+
 2006-08-24  Paul Emsley  <paulemsley@ysbl.york.ac.uk>
 
 	* src/callbacks.c (on_auto_open_mtz_activate): correctly set the
@@ -295,7 +299,7 @@
 
 	* src/c-interface-build.cc: (on_merge_molecules_check_button_toggled): 
 	  Use GPOINTER_TO_INT to type user data. LTE bug.
-	  
+
 	* src/c-interface-build.cc (execute_refmac): Use GPOINTER_TO_INT
 	to get user data from active item. LTE bug.
 
@@ -427,7 +431,7 @@
 
 	(set_file_selection_pre_filtered): function created.  To satisfy
 	Phil, I think.
-	
+
 	* coot-utils/coot-shelx-ins.cc: (write_ins_file): use precision(9)
 	when outputting coords - stops [unreadable] accidental exponential
 	output formatting.
