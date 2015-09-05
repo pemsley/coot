@@ -24,10 +24,6 @@
 ;; (define devel-dir  "http://lmb.bioch.ox.ac.uk/coot/devel")
 (define devel-dir  "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/devel")
 
-;;
-;; (define svn-log-page  "http://lmb.bioch.ox.ac.uk/coot/devel/svn.log")
-
-(define svn-log-page  "http://www2.mrc-lmb.cam.ac.uk/personal/pemsleycoot/devel/svn.log")
 
 ; no longer used.  Now we get source info from the web server, not the file system.
 ;
@@ -577,9 +573,8 @@
 
 
 ;; 
-(define (svn-details) 
-  `(p ("Git " 
-       (a (@ href "https://github.com/pemsley/coot") "Repository")
+(define (git-revision-count-details) 
+  `(p ((a (@ href "https://github.com/pemsley/coot") "Git Repository")
        " "
        " Revision Count: " ,(get-git-revision-count))))
 
@@ -839,10 +834,10 @@
 			      (type "image/png")
 			      (href "../coot-favicon.png")))
 		     (body 
-		      (h2 "Coot SVN and Build Summary")
+		      (h2 "Coot Pre-Release Build Summary")
 		      (p ("Generated " ,(strftime "%a %d %b %H:%M:%S %G %Z" (localtime (current-time)))))
 		      "\n"
-		      ,(svn-details)
+		      ,(git-revision-count-details)
 		      ,(source-code-details)
 		      ;; ,(burn-up-chart)  ;; not at the moment.
 		      (h3 "Latest Binary Tars")
@@ -903,7 +898,7 @@
 	       #t #t)
 
 	 (list "binary-Linux-x86_64-ubuntu-14.04-python-gtk2"
-	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-ubuntu1404/gtk2"
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-emsley-vm-ubuntu1404/gtk2"
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
 
