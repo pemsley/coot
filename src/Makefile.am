@@ -272,7 +272,7 @@ coot_bin_SOURCES = \
 	c-interface-validate.cc	 \
 	c-interface-view.cc	 \
 	c-interface-widgets.cc   \
-	c-interface-widgets.h    \
+	c-interface-widgets.hh   \
 	c-interface-waters.cc	 \
 	c-interface-waters-gui.cc\
 	c-interface.cc		 \
