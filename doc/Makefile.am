@@ -16,12 +16,15 @@ coot-user-manual.pdf: coot-user-manual.ps
 	ps2pdf $^
 
 coot-user-manual.html: $(top_srcdir)/doc/coot-user-manual.texi
-	texi2html $^
-	splitstr='-split_chapter' ; \
-	texi2html --version ; \
-	if [ $$? = 0 ] ; then splitstr='-split=chapter' ; fi ; \
-	texi2html $$splitstr $^ ; \
-	cd ..
+	texi2any --html $^
+	texi2any --html --no-split $^
+
+
+# splitstr='-split_chapter' ; \
+# texi2any --html --version ; \
+# if [ $$? = 0 ] ; then splitstr='-split=chapter' ; fi ; \
+# texi2any --html $$splitstr $^ ; \
+# cd ..
 
 coot.html: $(top_srcdir)/doc/coot-user-manual.texi
 	makeinfo --html --no-split --force $^
@@ -40,6 +43,19 @@ coot.dvi: $(top_srcdir)/doc/coot.tex
 booklet.ps: coot-user-manual.dvi
 	dvips $^ -f | psbook | psnup -2 | psset -t > $@
 
+
+# these files are included by coot-user-manual.texi
+#
+# we need doxygen to have been run in the $(top_srcdir)/src directory
+#
+c-interface_8h.texi: $(top_srcdir)/src/doxygen/xml/c-interface_8h.xml
+	xsltproc xml2texi.xml $< > $@
+
+cc-interface_8hh.texi: $(top_srcdir)/src/doxygen/xml/cc-interface_8hh.xml
+	xsltproc xml2texi.xml $< > $@
+
+
+
 functions.tex: $(top_srcdir)/src/c-interface.h
 # scsh -s $(top_srcdir)/doc/function-filter.scsh $^ > $@
 	echo passing on making function.tex
@@ -56,7 +72,7 @@ coot-reference-manual.dvi: $(top_srcdir)/doc/coot-reference-manual.texi function
 	texi2dvi $<
 
 coot-reference-manual.html: $(top_srcdir)/doc/coot-reference-manual.texi functions.texi
-	texi2html $<
+	texi2any --html $<
 
 reference-booklet.ps: reference.dvi
 	dvips $^ -f | psbook | psnup -2 | psset -t > $@

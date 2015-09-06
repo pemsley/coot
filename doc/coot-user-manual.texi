@@ -536,7 +536,7 @@ So, for example, one might use:
 Coot has a web page:
 
 @itemize
-@item @url{http://www.biop.ox.ac.uk/coot}
+@item @url{http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/}
 @end itemize
 
 There you can read more about the CCP4 molecular graphics project in
@@ -864,8 +864,7 @@ OpenGL.  It is considerably smoother (i.e. more frames/sec) when using a
 The view is orthographic (@emph{i.e.} the back is the same size as the
 front).  The default clipping is about right for viewing coordinate
 data, but is often a little too ``thick'' for viewing electron
-density.  It is easily changed (see Section @ref{Clipping
- Manipulation}).
+density.  It is easily changed (see Section @ref{Clipping Manipulation}).
 
 Depth-cueing
 @cindex depth-cueing 
@@ -1919,7 +1918,7 @@ Coot generates symmetry related atoms by moving the current set close to
 the origin by a translation, performing the symmetry expansion around
 the origin and moving the the symmetry coordinates back by applying the
 inverse of the origin translation.  The origin translation is also
-displayed in curly braces, e.g. ``{1 -1 0}''.
+displayed in curly braces, e.g. ``@{1 -1 0@}''.
 
 By default symmetry atoms are not displayed.  
 
@@ -4997,10 +4996,10 @@ are given at the end of the command line.
 @c note that texi2html (and makeinfo) requires that this c-interface texi file be in the 
 @c same directory as this file (user-manual.texi) NOT the directory that 
 @c texi2html is run in.
-@include c-interface.h.texi
+@include c-interface_8h.texi
 @node    More Scripting Functions
 @chapter More Scripting Functions
-@include cc-interface.hh.texi
+@include cc-interface_8hh.texi
 
 
 

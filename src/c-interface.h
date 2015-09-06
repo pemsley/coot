@@ -4222,7 +4222,7 @@ void execute_find_blobs(int imol_model, int imol_for_map, float cut_off, short i
 /* there is also a c++ interface to find blobs, which returns a vector
    of pairs (currently) */
 
-/*! \begin split the given water and fit to map.
+/*! \brief split the given water and fit to map.
 
 If refinement map is not defined, don't do anything.
 
