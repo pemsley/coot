@@ -1,5 +1,7 @@
  
- 0.8.2
+ 0.8.3
+
+   o permissions on Ubuntu 14.04
 
    o Draw -> Additional Representation -> Ball and Stick - balls are
      too big.

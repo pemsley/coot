@@ -1,4 +1,11 @@
 
+  Pre-Release 0.8.3
+
+  o BUG-FIX: fix atom index check in add_atom_label() [Gabriele Balducci]
+
+  o BUG-FIX: Toolbars are now resizable
+
+
 -----
 
   Release 0.8.2

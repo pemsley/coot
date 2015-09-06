@@ -6356,7 +6356,7 @@ int morph_fit_residues(int imol, const std::vector<coot::residue_spec_t> &residu
 	 std::cout << "WARNING:: no valid map. Stopping now" << std::endl;
       }
    } else {
-      std::cout << "WARNING:: " << imol << " is not a valid model molecule " << std::endl;
+      std::cout << "WARNING:: " << imol << " is not a valid map molecule " << std::endl;
    }
    return success;
 }
@@ -6377,7 +6377,7 @@ int morph_fit_by_secondary_structure_elements(int imol, const std::string &chain
 	 std::cout << "WARNING:: no valid map. Stopping now" << std::endl;
       }
    } else {
-      std::cout << "WARNING:: " << imol << " is not a valid model molecule " << std::endl;
+      std::cout << "WARNING:: " << imol << " is not a valid map molecule " << std::endl;
    } 
    return success;
 } 
