@@ -28,25 +28,28 @@ coot::mmff_bonds_and_angles(RDKit::ROMol &mol) {
       // 
       ForceFields::MMFF::MMFFBondCollection *mmff_bonds =
 	 ForceFields::MMFF::MMFFBondCollection::getMMFFBond();
+      
       RDKit::ROMol::BondIterator bondIt;
-      for (bondIt=mol.beginBonds(); bondIt!=mol.endBonds(); bondIt++) {
-	 unsigned int idx_1 = (*bondIt)->getBeginAtomIdx();
-	 unsigned int idx_2 = (*bondIt)->getEndAtomIdx();
-	 unsigned int iAtomType_1 = mmffMolProperties->getMMFFAtomType(idx_1);
-	 unsigned int iAtomType_2 = mmffMolProperties->getMMFFAtomType(idx_2);
-	 unsigned int bondType  = mmffMolProperties->getMMFFBondType(*bondIt);
-	 const ForceFields::MMFF::MMFFBond *mmffBondParams =
-	    (*mmff_bonds)(bondType, iAtomType_1, iAtomType_2);
-	 if (mmffBondParams) { 
-	    double r0 = ForceFields::MMFF::Utils::calcBondRestLength(mmffBondParams);
-	    double kb = ForceFields::MMFF::Utils::calcBondForceConstant(mmffBondParams);
-	    double sigma = 0.04/sqrt(kb);
-	    std::string order = convert_to_energy_lib_bond_type((*bondIt)->getBondType());
-	    mmff_bond_restraint_info_t br(idx_1, idx_2, order, r0, sigma);
-	    r->bonds.push_back(br);
-	 }
-      }
+      RDKit::ROMol::BondIterator start;
+      RDKit::ROMol::BondIterator end;
 
+      for (bondIt=mol.beginBonds(); bondIt!=mol.endBonds(); bondIt++) {
+      	 unsigned int idx_1 = (*bondIt)->getBeginAtomIdx();
+      	 unsigned int idx_2 = (*bondIt)->getEndAtomIdx();
+      	 unsigned int iAtomType_1 = mmffMolProperties->getMMFFAtomType(idx_1);
+      	 unsigned int iAtomType_2 = mmffMolProperties->getMMFFAtomType(idx_2);
+      	 unsigned int bondType  = mmffMolProperties->getMMFFBondType(*bondIt);
+      	 const ForceFields::MMFF::MMFFBond *mmffBondParams =
+      	    (*mmff_bonds)(bondType, iAtomType_1, iAtomType_2);
+      	 if (mmffBondParams) { 
+      	    double r0 = ForceFields::MMFF::Utils::calcBondRestLength(mmffBondParams);
+      	    double kb = ForceFields::MMFF::Utils::calcBondForceConstant(mmffBondParams);
+      	    double sigma = 0.04/sqrt(kb);
+      	    std::string order = convert_to_energy_lib_bond_type((*bondIt)->getBondType());
+      	    mmff_bond_restraint_info_t br(idx_1, idx_2, order, r0, sigma);
+      	    r->bonds.push_back(br);
+      	 }
+      }
       
       // iterate over angles
       // 
