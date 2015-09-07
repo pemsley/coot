@@ -250,7 +250,8 @@
 			       )))
 		      (else
 		       (begin
-			 (format #t "+++++++++ fail 3 ~%")
+; 			 (format #t "+++++++++ oxford-string->binary-tar-file: fail 3 given: ~s~%~!" 
+; 				 binary-file-name-bit)
 			 #f)
 
 		       )))
@@ -266,9 +267,11 @@
 	#f))
   
   ;; return a string or #f
+  ;; 
   (define (line->binary-tar-file line binary-match python? gtk2?)
 
     (let ((line-bits (string-split line #\")))
+
       ;; (format #t "    ----- binary-match: ~s line-bits: ~s~%" binary-match line-bits)
 
       (if (> (length line-bits) 6)
@@ -327,6 +330,7 @@
                        	(reverse binary-tar-file-names))
        (else 
 	(let ((binary-file-name (line->binary-tar-file (car s-lines) binary-match python? gtk2?)))
+	  ;; (format #t "debug:: in get-binary-tar-file-names: binary-file-name: ~s~%" binary-file-name)
 	  (if (string? binary-file-name)
 	      (loop (cdr s-lines)
 		    (cons binary-file-name binary-tar-file-names))
@@ -342,6 +346,7 @@
 	(gtk2?   (list-ref build-info 4)))
     
     ;; (format #t "  ----- in get-binary-tar-file-names s-lines: ~s ~s lines~%" s-lines (length s-lines))
+    ;; (format #t " in get-binary-tar-file-names binary-match is ~s ~%" binary-match)
 
     (let ((file-ls (get-binary-tar-file-names s-lines binary-match python? gtk2?)))
       ;; (format #t "  ----- in get-binary-tar-file-names file-ls: ~s ~%" file-ls)
@@ -355,13 +360,13 @@
 	      (values latest-tar-file latest-revision)
 	      (values #f #f)))
 	 (else 
-	  (let ((revision-number (get-revision-from-tar (car file-ls))))
-	    (if (not (number? revision-number))
+	  (let ((revision-count (get-revision-from-tar (car file-ls))))
+	    (if (not (number? revision-count))
 		(loop (cdr file-ls) latest-revision latest-tar-file)
 		(if (not (number? latest-revision))
-		    (loop (cdr file-ls) revision-number (car file-ls))
-		    (if (> revision-number latest-revision)
-			(loop (cdr file-ls) revision-number (car file-ls))
+		    (loop (cdr file-ls) revision-count (car file-ls))
+		    (if (> revision-count latest-revision)
+			(loop (cdr file-ls) revision-count (car file-ls))
 			(loop (cdr file-ls) latest-revision latest-tar-file)))))))))))
 
 		
@@ -428,10 +433,10 @@
 
 
 ;; return a table
-(define (make-binary-table-from-records records source-code-revision-number)
+(define (make-binary-table-from-records records source-code-revision-count)
 
   ;; 
-  (define (colour-from-revision-number bin-rev source-rev)
+  (define (colour-from-revision-count bin-rev source-rev)
     (if (= bin-rev source-rev)
 	"#057705" ;; dark green
 	(let* ((diff-1 (- source-rev bin-rev))
@@ -469,14 +474,14 @@
 	      (*ENTITY* "nbsp")
 	      (*ENTITY* "nbsp")
 	      ,(let ((binary-revision ((record-accessor rec-type 'latest-binary-revision) binary-record)))
-		 (if (not (number? source-code-revision-number))
+		 (if (not (number? source-code-revision-count))
 		     (if (not (number? binary-revision))
 			 "No-source-rev,no-bin-rev"
 			 binary-revision)
 		     (if (not (number? binary-revision))
 			 "Missing-bin-rev"
-			 (let ((font-colour (colour-from-revision-number 
-					     binary-revision source-code-revision-number)))
+			 (let ((font-colour (colour-from-revision-count 
+					     binary-revision source-code-revision-count)))
 			     `(b (font (@ color ,font-colour)) ,binary-revision)))))))))
 			   
 		     
@@ -520,7 +525,7 @@
     `(b ,text))))
 
 
-(define (make-builds-table-from-records records source-code-revision-number)
+(define (make-builds-table-from-records records source-code-revision-count)
 	
   ;; 
   (define (format-binary-cell binary-record now-time)
@@ -593,33 +598,33 @@
   (let ((files (directory-files source-tar-dir)))
     (let loop ((files files)
 	       (latest-file #f)
-	       (latest-revision-number #f)
+	       (latest-revision-count #f)
 	       (tar-file-date #f))
 
       (cond
        ((null? files)
-	(format #t "debug:: source-code-url-info returns using ~s ~s~%" latest-file latest-revision-number)
+	(format #t "debug:: source-code-url-info returns using ~s ~s~%" latest-file latest-revision-count)
 	(if (not latest-file)
 	    (values #f #f #f #f)
 	    (values (string-append web-source-tar-dir latest-file)
 		    latest-file
-		    latest-revision-number
+		    latest-revision-count
 		    tar-file-date)))
        ((string-match "md5sum" (car files))
-	(loop (cdr files) latest-file latest-revision-number tar-file-date))
+	(loop (cdr files) latest-file latest-revision-count tar-file-date))
        ((string-match "coot" (car files))
 	(if (not (string-match ".tar.gz" (car files)))
-	    (loop (cdr files) latest-file latest-revision-number tar-file-date)
+	    (loop (cdr files) latest-file latest-revision-count tar-file-date)
 	    (let ((rev (get-revision-from-tar (car files))))
 	      (if (not (number? rev))
-		  (loop (cdr files) latest-file latest-revision-number tar-file-date)
-		  (if (or (not (number? latest-revision-number))
-			  (> rev latest-revision-number))
+		  (loop (cdr files) latest-file latest-revision-count tar-file-date)
+		  (if (or (not (number? latest-revision-count))
+			  (> rev latest-revision-count))
 		      (let ((date (get-date-from-tar (car files))))
 			(loop (cdr files) (car files) rev date))
-		      (loop (cdr files) latest-file latest-revision-number tar-file-date))))))
+		      (loop (cdr files) latest-file latest-revision-count tar-file-date))))))
        (else 
-	(loop (cdr files) latest-file latest-revision-number tar-file-date))))))
+	(loop (cdr files) latest-file latest-revision-count tar-file-date))))))
 
 
 ;; Return values: the source code url, a file-name (for the link) and
@@ -699,7 +704,7 @@
   
   ;; main line of source-code-details
   `(p 
-    ,(receive (source-code-url source-code-file-name revision-number source-tar-date)
+    ,(receive (source-code-url source-code-file-name revision-count source-tar-date)
  	      (source-code-url-info)
 	      `("Source code: "
 		(a (@ href ,source-code-url) ,source-code-file-name)
@@ -711,7 +716,7 @@
 		       (colourize s)
 		       ""))
 		" "
-		,revision-number
+		,revision-count
 		(br)
 		,(if (string? source-tar-date)
 		     source-tar-date
@@ -743,7 +748,7 @@
 
   ;; main line of fill-record
   ;; 
-  (receive (tar-file revision-number)
+  (receive (tar-file revision-count)
 	   (get-latest-binary-url-info build-info)
 
 	   (let* ((binary-type      (car build-info))
@@ -759,15 +764,14 @@
 					       "-python")
 					   ""))
 		  (build-status-link (string-append build-log-prefix 
-						    python-status-extra
-						    "-build-status"))
+						    "build-status"))
 		  (test-status-link (string-append build-log-prefix 
-						   python-status-extra
-						   "-test-status")))
+						   "test-status")))
 
-	     ;; (format #t "debug:: test-status-link: ~s~%"  test-status-link)
-	     ;; (format #t "debug:: build-status-link: ~s~%" build-status-link)
-	     (format #t "---- in fill-record debug:: tar-file ~s revision-number: ~s~%" tar-file revision-number)
+	     (format #t "debug:: build-log-prefix: ~s~%"  build-log-prefix)
+	     (format #t "debug:: test-status-link: ~s~%"  test-status-link)
+	     (format #t "debug:: build-status-link: ~s~%" build-status-link)
+	     ;; (format #t "---- in fill-record debug:: tar-file ~s revision-count: ~s~%" tar-file revision-count)
 
 	     (let* ((build-status-pre (vector-ref (get-url build-status-link) 4))
 		    ( test-status-pre (vector-ref (get-url  test-status-link) 4))
@@ -779,7 +783,7 @@
 	       ;; (format #t "============== build-status for ~s is ~s~%" build-status-link build-status)
 		     
 	       (if (not (and (string? tar-file)
-			     (number? revision-number)))
+			     (number? revision-count)))
 
 		   ;; make a dummy record then
 		   (begin
@@ -795,7 +799,7 @@
 		     ;;  test-status is e.g. "passed test" or #f
 		     ;; 
 		     (apply make-build-record (append build-info
-						      (list revision-number
+						      (list revision-count
 							    binary-url
 							    build-status
 							    test-status)))))))))
@@ -825,14 +829,14 @@
     
     (format #t "records: ~s~%" records)
     (format #t "getting source code info...~%")
-    (receive (source-code-url source-code-file-name source-code-revision-number source-code-date)
+    (receive (source-code-url source-code-file-name source-code-revision-count source-code-date)
 	     (source-code-url-info)    
 	     (write-sxml
 	      `(html (head (title "Coot Build Summary Page")
 			   (meta (@ (http-equiv refresh) (content 600))))
 		     (link (@ (rel "icon")
 			      (type "image/png")
-			      (href "../coot-favicon.png")))
+			      (href "../web/coot-favicon.png")))
 		     (body 
 		      (h2 "Coot Pre-Release Build Summary")
 		      (p ("Generated " ,(strftime "%a %d %b %H:%M:%S %G %Z" (localtime (current-time)))))
@@ -848,10 +852,10 @@
 		      ;;we want the souce code revision number so that we can
 		      ;;colour the binary revision numbers in the binaries
 		      ;;table.
-		      ,(make-binary-table-from-records records source-code-revision-number))
+		      ,(make-binary-table-from-records records source-code-revision-count))
 		     
 		     (h3 "Development Build Logs")
-		     ,(make-builds-table-from-records records source-code-revision-number))
+		     ,(make-builds-table-from-records records source-code-revision-count))
 	      html-file-name))))
     
     
@@ -878,32 +882,32 @@
 	(list 
 	 
 	 (list "binary-Linux-x86_64-centos-5-python-gtk2"
-	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-pcterm37.lmb.internal/gtk2" 
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-pcterm37.lmb.internal/" 
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
 
 	 (list "binary-Linux-x86_64-rhel-6-python-gtk2"
-	       (string-append "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-" this-host "/gtk2")
+	       (string-append "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-" this-host "/")
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
 
 	 (list "binary-Linux-x86_64-scientific-linux-6.6-python-gtk2"
-	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-hal.lmb.internal/gtk2" 
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-hal.lmb.internal/"
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
 
 	 (list "binary-Linux-x86_64-ubuntu-12.04.3-python-gtk2"
-	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-ubuntu-server/gtk2" 
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-ubuntu-server/" 
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
 
 	 (list "binary-Linux-x86_64-ubuntu-14.04-python-gtk2"
-	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-emsley-vm-ubuntu1404/gtk2"
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-emsley-vm-ubuntu1404/"
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
 
 	 (list "binary-Linux-x86_64-openSUSE-12.3-python-gtk2"
-	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-emsley-vm-suse/gtk2" 
+	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-emsley-vm-suse/" 
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
 
@@ -914,12 +918,12 @@
 ;                #t #t)
 
           (list "binary-Linux-x86_64-debian-gnu-linux-jessie-python-gtk2"
-                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/jessie/build-logs/Linux-shelx10/gtk2"
+                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/jessie/build-logs/Linux-shelx10/"
                 "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/jessie/binaries/nightlies/pre-release"
                 #t #t)
 
           (list "binary-Linux-x86_64-debian-gnu-linux-7-python-gtk2"
-                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/stretch/build-logs/Linux-shelx11/gtk2"
+                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/stretch/build-logs/Linux-shelx11/"
                 "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/stretch/binaries/nightlies/pre-release"
                 #t #t)
 
