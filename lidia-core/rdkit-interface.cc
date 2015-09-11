@@ -207,9 +207,11 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    // set the chirality
 	    // (if this atom is chiral)
 	    //
+	    bool done_chiral = false;
 	    for (unsigned int ichi=0; ichi<restraints.chiral_restraint.size(); ichi++) {
 	       const dict_chiral_restraint_t &cr = restraints.chiral_restraint[ichi];
 	       if (cr.atom_id_c_4c() == atom_name) {
+		  done_chiral = true;
 		  if (!cr.has_unassigned_chiral_volume()) {
 		     rdkit_at->setProp("mmcif_chiral_N1", util::remove_whitespace(cr.atom_id_1_4c()));
 		     rdkit_at->setProp("mmcif_chiral_N2", util::remove_whitespace(cr.atom_id_2_4c()));
@@ -232,6 +234,22 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		     } 
 		  }
 	       } 
+	    }
+
+	    // OK, perhaps the atom was marked as a chiral atom using pdbx_stereo_config
+	    if (! done_chiral) {
+	       for (unsigned int ii=0; ii<restraints.atom_info.size(); ii++) { 
+		  if (atom_name == restraints.atom_info[ii].atom_id_4c) {
+		     if (restraints.atom_info[ii].pdbx_stereo_config_flag.first) {
+			if (restraints.atom_info[ii].pdbx_stereo_config_flag.second == "S") {
+			   std::cout << "------------------- found an S" << std::endl;
+			}
+			if (restraints.atom_info[ii].pdbx_stereo_config_flag.second == "R") {
+			   std::cout << "------------------- found an R" << std::endl;
+			}
+		     }
+		  }
+	       }
 	    }
 	    
 	    m.addAtom(rdkit_at);
@@ -506,7 +524,6 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
                 << "number of atoms comparison added_atom names size: " 
                 << added_atom_names.size() << " vs m.getNumAtoms() " 
 	        << m.getNumAtoms() << std::endl;
-   // RDKit::Conformer *conf = new RDKit::Conformer(added_atom_names.size());
    RDKit::Conformer *conf = new RDKit::Conformer(m.getNumAtoms());
    conf->set3D(true);
       
@@ -530,7 +547,11 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	 }
       }
    }
-   m.addConformer(conf);
+   int iconf = m.addConformer(conf);
+
+   RDKit::MolOps::assignChiralTypesFrom3D(m, iconf);
+   RDKit::MolOps::assignStereochemistry(m, false, true, true);
+
    if (debug) 
       std::cout << "ending construction of rdkit mol: n_atoms " << m.getNumAtoms()
 		<< std::endl;
@@ -2698,7 +2719,7 @@ coot::debug_rdkit_molecule(const RDKit::ROMol *rdkm) {
       }
       catch (const KeyErrorException &err) {
 	 // Not an error
-	 // std::cout << "KeyErrorException " << err.what() << " for _CIPCode" << std::endl;
+	 std::cout << " CIP-Code - ";
       }
       std::cout << std::endl;
    }

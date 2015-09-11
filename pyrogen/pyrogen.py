@@ -63,9 +63,9 @@ def execute_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name):
    else:
       return False
 
-def atom_name_from_atomic_number_and_count(element, count):
+def atom_name_from_atomic_number_and_count(element, count, inc):
     name = element
-    name += str(count)
+    name += str(count+inc)
     return name
 
 def add_atom_names(mol):
@@ -76,14 +76,30 @@ def add_atom_names(mol):
           n = atom.GetProp('name')
           atom_names.append(n)
        except KeyError:
+
+          # we want to generate a name that is not already in the atom_names list
+          
           z = atom.GetAtomicNum()
           if z in nz:
              nz[z]  = nz[z] + 1
           else:
              nz[z] = 1;
           ele = atom.GetSymbol().upper()
-          name = atom_name_from_atomic_number_and_count(ele, nz[z])
+          # we add inc argument, which gets added to count (nz[z]) in case that we
+          # already have a name that matches (previous) return from call to 
+          # atom_name_from_atomic_number_and_count()
+          #
+          inc = 0
+          name = atom_name_from_atomic_number_and_count(ele, nz[z], inc)
           p_name = pad_atom_name(name, ele)
+          print 'c.f.', name, " atom names", atom_names
+          while p_name in atom_names :
+             print 'in while'
+             inc += 1
+             name = atom_name_from_atomic_number_and_count(ele, nz[z], inc)
+             p_name = pad_atom_name(name, ele)
+          print atom, 'made-name', p_name, ":"
+
           atom.SetProp("name", p_name)
           atom_names.append(p_name)
     return atom_names

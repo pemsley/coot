@@ -9,6 +9,7 @@
 
 #include "mmff-restraints.hh" // needed?
 
+
 // for minimization
 #define HAVE_GSL
 #include <ideal/simple-restraint.hh>
@@ -35,6 +36,7 @@ coot::mogul_out_to_mmcif_dict(const std::string &mogul_file_name,
 									    n_atoms_non_hydrogen,
 									    bond_order_restraints);
    restraints.write_cif(cif_file_name);
+
 }
 
 void
@@ -46,7 +48,6 @@ coot::write_restraints(PyObject *restraints_py, const std::string &file_name) {
    } else {
       std::cout << "No restraints in write_restraints()" << std::endl;
    } 
-
 }
 
 // replace_with_mmff_b_a_restraints is an optional arg, default true

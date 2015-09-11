@@ -34,6 +34,7 @@ namespace coot {
 
    // fiddle with mol
    void delocalize_guanidinos(RDKit::RWMol *mol);
+
    
 }
 
@@ -98,6 +99,7 @@ coot::regularize(RDKit::ROMol &mol_in) {
 
    RDKit::ROMol *m = new RDKit::ROMol(mol_in);
    return m;
+
 }
 
 RDKit::ROMol *
@@ -105,6 +107,7 @@ coot::regularize_with_dict(RDKit::ROMol &mol_in, PyObject *restraints_py, const 
 
    coot::dictionary_residue_restraints_t dict_restraints = 
       monomer_restraints_from_python(restraints_py);
+
    RDKit::RWMol *m = new RDKit::RWMol(mol_in);
    mmdb::Residue *residue_p = make_residue(mol_in, 0, comp_id);
    if (! residue_p) {
@@ -139,10 +142,15 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
    bool idealized = false;
    idealized = true; // 20150622 - so that we pick up the coords of OXT in 01Y
    bool try_autoload_if_needed = false;
+
+   // We use this (mmdb::Restraints-using) interface to rdkit_mol()
+   // because it allows a code path fall-back when there are no
+   // coordinates for the atoms of the molecule
    
    mmdb::Residue *r = geom.get_residue(comp_id, idealized, try_autoload_if_needed);
 
-   std::pair<bool, dictionary_residue_restraints_t> rest = geom.get_monomer_restraints(comp_id);
+   std::pair<bool, dictionary_residue_restraints_t> rest =
+     geom.get_monomer_restraints(comp_id);
 
    if (rest.first) {
 
@@ -163,35 +171,48 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	    // bool undelocalize = false;
             // 
 	    bool undelocalize = true;
+	    int iconf = 0;
 
 	    RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest.second, "", undelocalize);
-
 	    RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
-
-	    RDKit::MolOps::assignStereochemistry(*m, false, true, true);
 
 	    // Here test that the propety mmcif_chiral_volume_sign has
 	    // been set on atoms of mol_rw and m
 	    //
-	    if (false) { 
+	    if (false) {
+
+	       // std::cout << "Post-assignStereochemistry()" << std::endl;
 	       for (unsigned int iat=0; iat<m->getNumAtoms(); iat++) { 
 		  RDKit::ATOM_SPTR at_p = (*m)[iat];
+		  std::string name;
 		  try {
-		     std::string name;
 		     std::string cv;
 		     at_p->getProp("name", name);
 		     at_p->getProp("mmcif_chiral_volume_sign", cv);
 		     std::cout << "m: name " << name << " " << cv << std::endl;
 		  }
 		  catch (const KeyErrorException &err) {
-		     std::cout << "m: no name or cv " << std::endl;
+		     // std::cout << "m: no name or cv " << std::endl;
 		  }
 		  try {
 		     std::string cip;
 		     at_p->getProp("_CIPCode", cip);
-		     std::cout << "m: cip-code " << cip << std::endl;
+		     std::cout << name << " cip-code " << cip << std::endl;
 		  }
 		  catch (const KeyErrorException &err) {
+		     std::cout << name << " cip-code - " << std::endl;
+		  }
+		  try {
+		     int cip_rank;
+		     at_p->getProp("_CIPRank", cip_rank);
+		     std::cout << "m: cip-rank " << cip_rank << std::endl;
+		  }
+		  catch (const KeyErrorException &err) {
+		     std::cout << "no cip-rank" << std::endl;
+		  }
+		  catch (const boost::bad_any_cast &err) {
+		     // std::cout << iat << " caught a boost::bad_any_cast on extracting CIP Rank"
+		     // << std::endl;
 		  }
 	       }
 	    }

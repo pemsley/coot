@@ -620,6 +620,34 @@ coot::protein_geometry::simple_mon_lib_add_chem_comp(const std::string &comp_id,
 
 }
 
+void
+coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
+					 const coot::dict_atom &atom) {
+
+   bool ifound = 0;
+   int this_index = -1; // unset
+
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+      if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
+	 if (dict_res_restraints[i].read_number == read_number) { 
+	    ifound = true;
+	    this_index = i;
+	    dict_res_restraints[i].atom_info.push_back(atom);
+	    break;
+	 } else {
+	    // trash the old one then
+	    dict_res_restraints[i].clear_dictionary_residue();
+	 }
+      }
+   }
+
+   if (! ifound) {
+      dict_res_restraints.push_back(dictionary_residue_restraints_t(comp_id, read_number));
+      dictionary_residue_restraints_t &b = dict_res_restraints.back();
+      b.atom_info.push_back(atom);
+   }
+
+}
 
 void
 coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
@@ -1165,6 +1193,7 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop) {
       int xalign;
       int pdbx_charge;
       int ierr_optional;
+      int ierr_stereo_config;
       
       std::pair<bool, std::string> pdbx_leaving_atom_flag(false, "");
       std::pair<bool, std::string> pdbx_stereo_config_flag(false, "");
@@ -1228,13 +1257,13 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop) {
 	 s = mmCIFLoop->GetString("pdbx_leaving_atom_flag", j, ierr_optional);
 	 if (s) {
 	    if (! ierr_optional) 
-	       pdbx_leaving_atom_flag = std::pair<bool, std::string> (1, s);
-	 } 
+	       pdbx_leaving_atom_flag = std::pair<bool, std::string> (true, s);
+	 }
 
-	 s = mmCIFLoop->GetString("pdbx_stereo_config_flag", j, ierr_optional);
+	 s = mmCIFLoop->GetString("pdbx_stereo_config", j, ierr_stereo_config);
 	 if (s) {
-	    if (! ierr_optional) 
-	       pdbx_stereo_config_flag = std::pair<bool, std::string> (1, s);
+	    if (! ierr_stereo_config)
+	       pdbx_stereo_config_flag = std::pair<bool, std::string> (true, s);
 	 }
 
 	 mmdb::realtype x,y,z;
@@ -1319,10 +1348,21 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop) {
 			 << "ideal-pos " << pdbx_model_Cartn_ideal.first << " "
 			 << pdbx_model_Cartn_ideal.second.format()
 			 << std::endl;
+
+	    dict_atom atom(atom_id, padded_name, type_symbol, type_energy, partial_charge);
+	    atom.aromaticity = aromaticity;
+	    atom.formal_charge = formal_charge;
+	    atom.pdbx_stereo_config_flag = pdbx_stereo_config_flag;
+	    if (model_Cartn.first)
+	       atom.add_pos(dict_atom::REAL_MODEL_POS, model_Cartn);
+	    if (pdbx_model_Cartn_ideal.first)
+	       atom.add_pos(dict_atom::IDEAL_MODEL_POS, pdbx_model_Cartn_ideal);
 	    
-	    mon_lib_add_atom(comp_id, atom_id, padded_name, type_symbol, type_energy,
-			     partial_charge, formal_charge, aromaticity,
-			     model_Cartn, pdbx_model_Cartn_ideal);
+	    mon_lib_add_atom(comp_id, atom);
+	    
+	    // mon_lib_add_atom(comp_id, atom_id, padded_name, type_symbol, type_energy,
+	    // 		     partial_charge, formal_charge, aromaticity,
+	    // 		     model_Cartn, pdbx_model_Cartn_ideal);
 
 	 } else {
 	    std::cout << " error on read " << ierr_tot << std::endl;
