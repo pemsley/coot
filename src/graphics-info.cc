@@ -92,6 +92,8 @@
 #include "cc-interface-scripting.hh"
 #endif
 
+#include <libguile.h>
+
 // A few non-class members - should be somewhere else, I guess.
 // 
 void initialize_graphics_molecules() { 

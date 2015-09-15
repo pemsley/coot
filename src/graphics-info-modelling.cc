@@ -102,6 +102,7 @@
 
 #include "utils/coot-utils.hh"
 
+#include <libguile.h>
 
 // Idealize the geometry without considering the map.
 //
