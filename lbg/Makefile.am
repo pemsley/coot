@@ -43,17 +43,6 @@ pkginclude_HEADERS = lbg.hh wmolecule.hh  flev-annotations.hh graphics-c-interfa
 	lbg-drag-and-drop.hh qed-interface.hh alerts.hh pi-stacking.hh
 pkgincludedir = $(includedir)/coot/lbg
 
-# 20140521
-# lidia_LDFLAGS = -Wl,--export-dynamic
-# 
-# Now we use EXPORT_DYNAMIC_FLAG_SPEC which usually evaluates to ${wl}--export-dynamic
-# (but not for MacOSX, where it Does The Right Thing (hopefully)).
-# We manually set the value of wl here, but maybe the Right Thing To Do for that is 
-# run (eval) $($LIBTOOL --config | grep ^wl).  How do I do that here though?  
-# I don't understand.  Maybe the setting of wl should be done in configure?  But then
-# I have to force the output of libtool.  Bleugh.  Hmm...
-# Anyway, thankyou Gary Vaughan.
-wl=-Wl,
 lidia_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 
 # res spec output operator means we include libcoot-coord-utils
