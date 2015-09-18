@@ -608,6 +608,10 @@ coot::chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2,
 RDKit::RWMol
 coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 
+
+   std::cout << "------------------- plain rdkit_mol() called " << r.residue_info.comp_id
+	     << std::endl;
+
    RDKit::RWMol m;
    const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
 
@@ -685,6 +689,40 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	 }
       }
    }
+
+   coot::undelocalise(&m);
+   unsigned int n_mol_atoms = m.getNumAtoms();
+   for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
+      RDKit::ATOM_SPTR at_p = m[iat];
+      at_p->calcImplicitValence(true);
+   }
+
+   // ------------------------------------ Conformer -----------------------------
+   
+   RDKit::Conformer *conf = new RDKit::Conformer(m.getNumAtoms());
+   conf->set3D(true);
+   unsigned int n_added = 0;
+   for (unsigned int iat=0; iat<r.atom_info.size(); iat++) {
+      // const std::pair<bool, clipper::Coord_orth> &pos = r.atom_info[iat].pdbx_model_Cartn_ideal;
+      const std::pair<bool, clipper::Coord_orth> &pos = r.atom_info[iat].model_Cartn;
+      if (pos.first) {
+	 RDGeom::Point3D pos3d(pos.second.x(),
+			       pos.second.y(),
+			       pos.second.z());
+	 conf->setAtomPos(iat, pos3d);
+	 n_added++;
+      }
+   }
+
+   if (n_added == r.atom_info.size()) { 
+      int iconf = m.addConformer(conf);
+      std::cout << "debug:: rdkit_mol(r) added a conformer for "
+		<< r.residue_info.comp_id << std::endl;
+   } else {
+      delete conf;
+      std::cout << "Conformer not added because there were " << n_added
+		<< " added atoms and we need " << r.atom_info.size() << std::endl;
+   } 
    return m;
 } 
 
