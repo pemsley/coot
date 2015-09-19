@@ -220,6 +220,21 @@ else
 fi
 AC_SUBST(L_BOOST_PYTHON)
 
+# was RDKIT used and if it was does it have Cairo support (if it does
+# have cairo support, we can use it to generate molecular (chemical)
+# depictions.
+#
+if test -n "$RDKIT_LIBS" ; then
+
+   case "$RDKIT_LIBS" in
+
+     *MolDraw2D*)
+          RDKIT_CXXFLAGS="$RDKIT_CXXFLAGS -DRDKIT_HAS_CAIRO_SUPPORT"
+          ;;
+   esac
+fi
+
+
 dnl =========================== GLADE ================================
 
 # libglade:

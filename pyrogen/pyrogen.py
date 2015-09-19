@@ -267,6 +267,20 @@ def make_picture_to_file(mol, conf_id, output_file_name):
       # img = Draw.MolToImage(mol, fitImage=True, size=(900,900))
       # img2 = img.resize((300, 300), Image.ANTIALIAS)
       # img2.save(output_file_name + "resampled.png")
+
+      # testing MolDraw2D code (squiggly mess)
+      if True:
+         conf_id = AllChem.Compute2DCoords(mol)
+         drawer = Draw.MolDraw2DCairo(300,300)
+         drawer.DrawMolecule(mol, confId=conf_id)
+         drawer.FinishDrawing()
+         c = drawer.GetDrawingText()
+
+      cairo_file_name = 'cairo.png'
+      f = open(cairo_file_name, 'w')
+      f.write(c)
+      f.close()
+
       
    except ImportError as e:
       print 'ImportError:', e

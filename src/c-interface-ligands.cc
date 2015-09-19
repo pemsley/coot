@@ -1231,6 +1231,7 @@ std::vector<std::pair<std::string, std::string> > monomer_lib_3_letter_codes_mat
    return v;
 } 
 
+#include "c-interface-image-widget.hh"
 
 // we allocate new memory here, without ever giving it back.  The
 // memory should be freed when the dialog is destroyed.
@@ -1289,17 +1290,35 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
    // add new buttons
    for (unsigned int i=0; i<v.size(); i++) {
       // std::cout << i << " " << v[i].first << std::endl;
-      std::string l = v[i].first;
+      std::string l = "  ";
+      l += v[i].first;
       l += " : ";
       l += v[i].second;
       // std::cout << "Giving the button the label :" << l << ":" << std::endl;
-      GtkWidget *button = gtk_button_new_with_label(l.c_str());
-      // std::cout << "Adding button: " << button << std::endl;
-      std::string button_name = "monomer_button_";
+      // GtkWidget *button = gtk_button_new_with_label(l.c_str());
+      GtkWidget *button = gtk_button_new();
+      GtkWidget *label  = gtk_label_new(l.c_str());
 
+      GtkWidget *button_hbox = gtk_hbox_new(FALSE, 0);
+      gtk_container_add(GTK_CONTAINER(button), button_hbox);
+
+      GtkWidget *wp = get_image_widget_for_comp_id(v[i].first);
+
+      // gtk_image_new_from_file("test.png");
+
+      if (wp) { 
+	 gtk_widget_show(wp);
+	 gtk_box_pack_start(GTK_BOX(button_hbox), wp, FALSE, FALSE, 0);
+      } 
+      gtk_box_pack_start(GTK_BOX(button_hbox), label, FALSE, FALSE, 0);
+      gtk_widget_show(label);
+      gtk_widget_show(button_hbox);
+      
+      std::string button_name = "monomer_button_";
       // gets embedded as user data (hmm).
       string *s = new string(v[i].first); // the 3-letter-code/comp_id (for user data).
       button_name += v[i].first;
+      std::cout << "Adding button: " << button << " " << button_name << std::endl;
       gtk_widget_ref (button);
       gtk_object_set_data_full (GTK_OBJECT (dialog), 
 				button_name.c_str(), button,
@@ -1329,7 +1348,8 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
    gtk_widget_show (vbox);
    return stat;
 
-} 
+}
+
 
 void
 on_monomer_lib_sbase_molecule_button_press (GtkButton *button,

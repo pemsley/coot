@@ -238,6 +238,8 @@ coot_bin_SOURCES = \
 	c-interface-gtk2.cc	 \
 	c-interface-info.cc	 \
 	c-interface-kk.cc	 \
+	c-interface-image.cc     \
+	c-interface-image-widget.hh \
 	c-interface-ligands.hh   \
 	c-interface-ligands-swig.hh   \
 	c-interface-ligands.cc   \
