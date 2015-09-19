@@ -5,17 +5,21 @@
    o experiment: use Rdkit with pdb perception to generate molecules and 
      compare them with molecules generated from reading the cif.
 
+   o Does LPC work in thumbnailing?
+
+   o Look at 15S in 4hhz: is the NH correctly positioned in the lbg view?
+
    o permissions on Ubuntu 14.04
 
    o Draw -> Additional Representation -> Ball and Stick - balls are
      too big.
 
-   o Sphere refine doesn't use alpha helical restraints. It should
+   o Sphere refine doesn't use alpha helical restraints. It should.
 
    o with enhanced-ligand, do you get a sane code-path if you do 
      File -> SMILES?
 
-   o pyrogen -M default
+   o pyrogen -M default.  Needs testing.
 
    o Add a test: if pyrogen is built - does it run correctly? 
  
