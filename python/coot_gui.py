@@ -4430,7 +4430,13 @@ def solvent_ligands_gui():
             aa_res_no   = active_atom[2]
             fit_to_map_by_random_jiggle(imol, aa_chain_id, aa_res_no, "",
                                         random_jiggle_n_trials, 1.0)
-            with_auto_accept([refine_zone, imol, aa_chain_id, aa_res_no, 1, ""])
+
+            # if we use refine_residues, that will take note of residues
+            # near this residue and make non-bonded contacts
+            # (whereas refine_zone will not).
+            #
+            # with_auto_accept([refine_zone, imol, aa_chain_id, aa_res_no, 1, ""])
+            with_auto_accept([refine_residues, imol, [[aa_chain_id, aa_res_no, ""]]])
 
          else:
             print "======== not jiggling - no map ======== "
