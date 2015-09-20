@@ -3867,6 +3867,11 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
 
 //    std::cout << "do_Ca_plus_ligands_bonds with atom_colour_type "
 // 	     << atom_colour_type << std::endl;
+
+  if (! AtomSel.mol) {
+    std::cout << "ERROR:: Caught null mol in do_Ca_plus_ligands_bonds()" << std::endl;
+    return;
+  }
    
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
    mmdb::Model *model_p = SelAtom.mol->GetModel(1);
@@ -3974,7 +3979,12 @@ Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_con
 					       int atom_colour_type,
 					       bool do_bonds_to_hydrogens_in) {
 
-   
+  if (! AtomSel.mol) {
+    std::cout << "ERROR:: Caught null mol in do_Ca_plus_ligands_and_sidechains_bonds()"
+	      << std::endl;
+    return;
+  }
+
    // first do Ca plus ligand
    do_Ca_plus_ligands_bonds(SelAtom, pg, min_dist_ca, max_dist_ca, atom_colour_type, do_bonds_to_hydrogens_in);
 

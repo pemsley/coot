@@ -193,6 +193,11 @@ main(int argc, char **argv) {
       geom.set_verbose(0);
       geom.init_standard();
 
+      // 20150919: Request from Robbie Joosten: add in the planar peptide restraints.
+      //           (this should be user-configurable).
+      // 
+      geom.add_planar_peptide_restraint();
+
       //coot::restraints_container_t restraints(asc);
 
       // So, we provide easy(?) access to the atoms of next and
