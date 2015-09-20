@@ -9,6 +9,8 @@
 
    o OH of IGP in thumbnailing.
 
+   o make_rtop_orth_for_jiggle_atoms() needs SO3 sampling.
+
    o Look at 15S in 4hhz: is the NH correctly positioned in the lbg view?
 
    o permissions on Ubuntu 14.04

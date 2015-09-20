@@ -75,6 +75,7 @@
 // #include "coords/mmdb.h"
 
 // for jiggle_fit
+#include "coot-utils/coot-map-utils.hh"
 #include "coot-utils/coot-map-heavy.hh"
 #include "ligand/ligand.hh"
 
@@ -3040,7 +3041,11 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 						   int n_trials,
 						   float jiggle_scale_factor,
 						   bool use_biased_density_scoring) {
+
    float v = 0;
+
+   if (! atom_sel.mol) return v;
+      
    std::vector<std::pair<std::string, int> > atom_numbers = coot::util::atomic_number_atom_list();
    if (n_trials <= 0)
       n_trials = 1;
@@ -3067,11 +3072,47 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 
    if (use_biased_density_scoring)
       density_scoring_function = coot::util::biased_z_weighted_density_score;
+
+
+   // what residues are near to but not in atom_selection?
+   //
+   std::vector<mmdb::Residue *> neighbs;  // fill this
+   //
+   // we want to use residues_near_position(), so we want a list of residue that will be each of
+   // the target residues for residues_near_residue().
+   // 
+   std::vector<mmdb::Residue *> central_residues;
+   for (unsigned int iat=0; iat<n_atoms; iat++) {
+      mmdb::Atom *at = atom_selection[iat];
+      mmdb::Residue *r = at->GetResidue();
+      if (std::find(central_residues.begin(), central_residues.end(), r) == central_residues.end()) {
+	 central_residues.push_back(r);
+      }
+   }
+
+   for (unsigned int ii=0; ii<central_residues.size(); ii++) { 
+      std::cout << "            central residue: " << coot::residue_spec_t(central_residues[ii]) << std::endl;
+   }
+   float radius = 4.0; 
+   for (unsigned int ires=0; ires<central_residues.size(); ires++) {
+      mmdb::Residue *res_ref = central_residues[ires];
+      std::pair<bool, clipper::Coord_orth> pt = residue_centre(res_ref);
+      if (pt.first) { 
+	 std::vector<mmdb::Residue *> r_residues =
+	    coot::residues_near_position(pt.second, atom_sel.mol, radius);
+	 for (unsigned int ii=0; ii<r_residues.size(); ii++) {
+	    if (std::find(neighbs.begin(), neighbs.end(), r_residues[ii]) == neighbs.end())
+	       if (std::find(central_residues.begin(), central_residues.end(), r_residues[ii]) == central_residues.end())
+		  neighbs.push_back(r_residues[ii]);
+	 }
+      }
+   }
    
+   clipper::Xmap<float> xmap_masked = coot::util::mask_map(xmap, neighbs);
    
    // best score is the inital score (without the atoms being jiggled) (could be a good score!)
    // 
-   float initial_score = density_scoring_function(direct_mol, atom_numbers, xmap);
+   float initial_score = density_scoring_function(direct_mol, atom_numbers, xmap_masked);
    // float initial_score = coot::util::z_weighted_density_score(direct_mol, atom_numbers, xmap);
    // initial_score = coot::util::biased_z_weighted_density_score(direct_mol, atom_numbers, xmap);
    
@@ -3083,7 +3124,6 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    coot::minimol::molecule best_molecule;
    clipper::RTop_orth best_rtop;
    
-
    // first, find the centre point.  We do that because otherwise we
    // do it lots of times in jiggle_atoms.  Inefficient.
    std::vector<double> p(3, 0.0);
@@ -3104,7 +3144,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> > jiggled_atoms =
 	 coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_scale_factor);
       coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms.second);
-      float this_score = density_scoring_function(jiggled_mol, atom_numbers, xmap);
+      float this_score = density_scoring_function(jiggled_mol, atom_numbers, xmap_masked);
       std::pair<clipper::RTop_orth, float> p(jiggled_atoms.first, this_score);
       trial_results[itrial] = p;
    }
@@ -3133,8 +3173,8 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       coot::minimol::molecule  trial_mol = direct_mol;
 
       trial_mol.transform(trial_results[i_trial].first, centre_pt);
-      coot::minimol::molecule fitted_mol = rigid_body_fit(trial_mol, xmap, map_sigma);
-      float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap);
+      coot::minimol::molecule fitted_mol = rigid_body_fit(trial_mol, xmap_masked, map_sigma);
+      float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
       std::cout << "INFO:: Jiggle-fit: optimizing trial "
 		<< std::setw(2) << i_trial << ": prelim-score was "
 		<< std::setw(5) << trial_results[i_trial].second << " post-fit "
@@ -3157,10 +3197,10 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
        bested = true;
        coot::minimol::molecule  post_fit_mol = direct_mol;
        post_fit_mol.transform(post_fit_trial_results[0].first, centre_pt);
-       coot::minimol::molecule fitted_mol = rigid_body_fit(post_fit_mol, xmap, map_sigma);
+       coot::minimol::molecule fitted_mol = rigid_body_fit(post_fit_mol, xmap_masked, map_sigma);
        best_molecule = fitted_mol;
 
-       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap);
+       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
        std::cout << "INFO:: chose new molecule with score " << this_score << std::endl;
        best_score = this_score;
     } 

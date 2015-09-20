@@ -1533,6 +1533,68 @@ coot::util::map_to_model_correlation(mmdb::Manager *mol,
 }
 
 
+clipper::Xmap<float>
+coot::util::mask_map(const clipper::Xmap<float> &xmap_in,
+		    const std::vector<mmdb::Residue *> &neighb_residues) {
+
+   clipper::Xmap<float> masked_map = xmap_in;
+
+   for (unsigned int ir=0; ir<neighb_residues.size(); ir++) { 
+      mmdb::PPAtom residue_atoms = 0;
+      int n_residue_atoms;
+      mmdb::Residue *residue_p = neighb_residues[ir];
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) { 
+	 mmdb::Atom *at = residue_atoms[iat];
+	 clipper::Coord_orth pt = co(at);
+	 // float atom_radius = refmac_atom_radius(at);
+	 float atom_radius = 1.4;
+	    
+	 clipper::Coord_frac cf = pt.coord_frac(masked_map.cell());
+	 clipper::Coord_frac box0(
+				  cf.u() - atom_radius/masked_map.cell().descr().a(),
+				  cf.v() - atom_radius/masked_map.cell().descr().b(),
+				  cf.w() - atom_radius/masked_map.cell().descr().c());
+
+	 clipper::Coord_frac box1(
+				  cf.u() + atom_radius/masked_map.cell().descr().a(),
+				  cf.v() + atom_radius/masked_map.cell().descr().b(),
+				  cf.w() + atom_radius/masked_map.cell().descr().c());
+
+	 clipper::Grid_map grid(box0.coord_grid(masked_map.grid_sampling()),
+				box1.coord_grid(masked_map.grid_sampling()));
+
+	 float atom_radius_sq = atom_radius * atom_radius;
+
+	 clipper::Xmap_base::Map_reference_coord ix(masked_map, grid.min() ), iu, iv, iw;
+	 for (iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) { 
+	    for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) { 
+	       for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+		  if ( (iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()) - pt).lengthsq() < atom_radius_sq) {
+		     masked_map[iw] = -10;
+		     if (false)
+			std::cout << "cutting into map at point " 
+				  << iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()).format()
+				  << " for neighb atom at: " << pt.format() << " " 
+				  << (iw.coord().coord_frac(masked_map.grid_sampling()).coord_orth(masked_map.cell()) - pt).lengthsq() 
+				  << std::endl;
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   clipper::CCP4MAPfile mapout;
+   mapout.open_write("masked.map");
+   mapout.export_xmap(masked_map);
+   mapout.close_write();
+   
+   return masked_map;
+}
+
+
+
 // 0: all-atoms
 // 1: main-chain atoms if is standard amino-acid, else all atoms
 // 2: side-chain atoms if is standard amino-acid, else all atoms
