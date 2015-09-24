@@ -3868,7 +3868,7 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
 //    std::cout << "do_Ca_plus_ligands_bonds with atom_colour_type "
 // 	     << atom_colour_type << std::endl;
 
-  if (! AtomSel.mol) {
+  if (! SelAtom.mol) {
     std::cout << "ERROR:: Caught null mol in do_Ca_plus_ligands_bonds()" << std::endl;
     return;
   }
@@ -3979,7 +3979,7 @@ Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_con
 					       int atom_colour_type,
 					       bool do_bonds_to_hydrogens_in) {
 
-  if (! AtomSel.mol) {
+  if (! SelAtom.mol) {
     std::cout << "ERROR:: Caught null mol in do_Ca_plus_ligands_and_sidechains_bonds()"
 	      << std::endl;
     return;

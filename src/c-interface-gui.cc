@@ -5341,7 +5341,7 @@ void add_additional_representation_by_widget(GtkWidget *w) {
 									draw_H_flag,
 									asi, dcw, glci, g.Geom_p());
       } 
-   } 
+   }
    if (GTK_TOGGLE_BUTTON(selection_string_radiobutton)->active) {
       // std::cout << "By selection string" << std::endl;
       std::string s = gtk_entry_get_text(GTK_ENTRY(string_selection_entry));
@@ -5357,31 +5357,22 @@ void add_additional_representation_by_widget(GtkWidget *w) {
 } 
 
 
-#if (GTK_MAJOR_VERSION > 1) 
 GtkWidget *wrapped_create_residue_editor_select_monomer_type_dialog() {
    GtkWidget *w = create_residue_editor_select_monomer_type_dialog();
    GtkWidget *combo_box = lookup_widget(w, "residue_editor_select_monomer_type_combobox");
    graphics_info_t g;
    std::vector<std::string> v = g.Geom_p()->monomer_types();
 
-   if (0) // debug
-      for (unsigned int i=0; i<v.size(); i++) 
-	 std::cout << "debug:: monomer types :" << i << ": " << v[i] << std::endl;
-
    // remove the 2 items that are already there from the glade interface (I suppose).
    gtk_combo_box_remove_text(GTK_COMBO_BOX(combo_box), 0);
    gtk_combo_box_remove_text(GTK_COMBO_BOX(combo_box), 0);
    for (unsigned int i=0; i<v.size(); i++) {
-      // std::string s = coot::util::int_to_string(i);
-      // s += " ";
-      // s += v[i];
       std::string s = v[i];
       gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), s.c_str());
       gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), i);
    }
    return w;
 }
-#endif
 
 
 void show_restraints_editor_by_index(int menu_item_index) {
