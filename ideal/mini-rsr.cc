@@ -210,7 +210,7 @@ main(int argc, char **argv) {
       std::vector<coot::atom_spec_t> fixed_atom_specs;
 
       // This interface has been withdrawn because we need the whole
-      // molecule (acutally, a pointer to it) to do some atom selection.
+      // molecule (actually, a pointer to it) to do some atom selection.
       // 
 //       coot::restraints_container_t restraints(asc.atom_selection, // moving_residue_atoms,
 // 					      asc.n_selected_atoms,
