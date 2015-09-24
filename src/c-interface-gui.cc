@@ -4445,7 +4445,7 @@ skeletonize_map_single_map_maybe(GtkWidget *window, int imol) {
       lookup_widget(window, "single_map_skeleton_on_radiobutton");
 
    if (GTK_TOGGLE_BUTTON(on_radio_button)->active) { 
-      graphics_info_t::skeletonize_map(0, imol);
+      graphics_info_t::skeletonize_map(imol, 0);
       if (graphics_info_t::map_for_skeletonize < 0) {
 	 // it was unset, so set it...
 	 graphics_info_t::map_for_skeletonize = imol;
@@ -4458,15 +4458,8 @@ skeletonize_map_single_map_maybe(GtkWidget *window, int imol) {
 void set_file_for_save_fileselection(GtkWidget *fileselection) { 
 
    graphics_info_t g;
-   bool no_chooser = 1;
-#if (GTK_MAJOR_VERSION > 1)
    if (g.gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
-      no_chooser = 0;
       g.set_file_for_save_filechooser(fileselection);
-   }
-#endif
-   if (no_chooser) {
-      g.set_file_for_save_fileselection(fileselection);
    }
 }
 
