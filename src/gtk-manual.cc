@@ -34,6 +34,7 @@
 // NOTE:: The order of these 6 include files seems fragile
 #include <gtk/gtk.h>
 #include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
 
 #include "gtk-manual.h"

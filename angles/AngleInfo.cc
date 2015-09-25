@@ -135,8 +135,8 @@ AngleInfo::setup_angle_torsion_table(float step_torsion_in,
 //    std::cout << "torsion resize size: " << torsion_resize_size << endl;
 
 
-   std::cout << "angle_resize_size:  " << angle_resize_size << std::endl; 
-   std::cout << "torsion_resize_size " << torsion_resize_size << std::endl; 
+   // std::cout << "angle_resize_size:  " << angle_resize_size << std::endl; 
+   // std::cout << "torsion_resize_size " << torsion_resize_size << std::endl; 
 
    if ( ! (angle_resize_size == torsion_resize_size) ) { 
 

@@ -84,6 +84,7 @@
 
 
 #include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
 #include "cc-interface-scripting.hh"
 

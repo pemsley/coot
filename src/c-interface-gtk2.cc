@@ -61,6 +61,7 @@
 
 #include "support.h"  // for lookup_widget
 #include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh" // for str_mtime
 #include "graphics-info.h"  // for go to atom callabacks
 

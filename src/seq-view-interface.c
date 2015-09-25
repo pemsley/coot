@@ -22,6 +22,7 @@
 
 #include "seq-view-interface.h"
 #include "c-interface.h"  // for set_sequence_view_is_displayed (thank you FR)
+#include "c-interface-gtk-widgets.h"
 
 GtkWidget*
 seq_lookup_widget(GtkWidget       *widget,

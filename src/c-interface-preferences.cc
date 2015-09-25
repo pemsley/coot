@@ -62,7 +62,9 @@
 #include "graphics-info.h"
 #include "interface.h"
 #include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
 #include "c-interface-preferences.h"
+#include "c-interface-widgets.hh"
 #include "cc-interface.hh"
 #include "coot-preferences.h"
 
@@ -1075,8 +1077,6 @@ int number_of_generic_objects() {
    graphics_info_t g;
    return g.generic_objects_p->size();
 }
-
-#include "c-interface-widgets.h"
 
 void generic_objects_gui_wrapper() {
 

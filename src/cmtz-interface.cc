@@ -57,8 +57,9 @@
 #include "cmtz-interface-gui.hh"
 #include "utils/coot-utils.hh"
 
-//tmp?
 #include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
+#include "c-interface-refmac.h"
 #include "graphics-info.h"
 
 

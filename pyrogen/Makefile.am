@@ -63,7 +63,8 @@ libcoot_py_restraints_la_LIBADD =  \
                                 $(top_builddir)/geometry/libcoot-geometry.la \
                                 $(RDKIT_LIBS) $(PYTHON_LIBS)
 
-libcoot_py_restraints_la_LDFLAGS = -no-undefined 
+# -no-undefined causes strange/interesting link errors with clang/Mac OS X 10.10.3
+# libcoot_py_restraints_la_LDFLAGS = -no-undefined 
 
 # The name of this starts with lib so it fits with boost::python wrapper
 pyrogen_boost_la_SOURCES = restraints-boost.cc restraints.hh

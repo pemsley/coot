@@ -73,6 +73,7 @@
 // #endif // USE_PYTHON
 
 #include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
 #include "cc-interface-scripting.hh"
 #include "ligand/ligand.hh"

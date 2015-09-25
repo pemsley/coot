@@ -108,6 +108,7 @@
 #include "compat/sleep-fixups.h"
 
 #include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
 #include "c-interface-preferences.h"
 
@@ -666,14 +667,14 @@ void setup_application_icon(GtkWindow *window) {
 
 void add_ligand_builder_menu_item_maybe() {
 
-   
    if (graphics_info_t::use_graphics_interface_flag) {
 
       GtkWidget *w;
       GtkWidget *p = main_window();
       w = lookup_widget(p, "ligand_builder1");
       if (! w) {
-	 std::cout << "oops failed to look up ligand_builder menu item" << std::endl;
+	 std::cout << "oops failed to look up ligand_builder menu item"
+		   << std::endl;
       } else { 
 #ifdef HAVE_GOOCANVAS
 	 // all is hunky dory, it's OK to see the menu item

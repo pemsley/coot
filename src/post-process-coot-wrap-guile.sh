@@ -31,10 +31,17 @@ post="$4"
 guile_config=$1
 gtk2=$2 
 
+
+echo ::::::::::::::::::::: post-process-coot-wrap-guile 1 $1 
+echo ::::::::::::::::::::: post-process-coot-wrap-guile 2 $2 
+echo ::::::::::::::::::::: post-process-coot-wrap-guile 3 $3 
+echo ::::::::::::::::::::: post-process-coot-wrap-guile 4 $4 
+
 guile_version=`$guile_config --version 2>&1`
 
-echo guile_config:  $guile_config
-echo guile_version: $guile_version
+# these can be blank (see below)
+echo post-process-coot-wrap-guile: guile_config:  $guile_config
+echo post-process-coot-wrap-guile: guile_version: $guile_version
 
 # if guile_config was blank (as can be the case when we compile
 # without guile, then we want a new blank file for $post.

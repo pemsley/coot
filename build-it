@@ -688,9 +688,9 @@ function my_exit {
    exit_arg=$1
    shift
    extra_args=$*
-   echo fail-build $extra_args > $LOGS/$build_type-build-status
-   if [ -e $LOGS/$build_type-test-status ] ; then
-      rm $LOGS/$build_type-test-status
+   echo fail-build $extra_args > $LOGS/$build-status
+   if [ -e $LOGS/$test-status ] ; then
+      rm $LOGS/$test-status
    fi
    exit $exit_arg
 }
@@ -908,9 +908,8 @@ fi
 # exec 2>&1 > $LOGS/$HOST.log
 # Try not to redirect standard out so that it goes to
 # the sub-shell log?  (testing)
-echo INFO:: redirecting std output to $LOGS/$build_type-build.log
-exec > $LOGS/$build_type-build.log
-echo This is script version $script_version for Gtk2 
+echo INFO:: redirecting std output to $LOGS/build.log
+exec > $LOGS/build.log
 
 # local tinkering because our sgi runs out of room on /tmp on compiling
 if [ $HOST = batman ] ; then
@@ -1616,8 +1615,8 @@ echo ccp4_system_type $ccp4_system_type
 
 
 # clean up old test status:
-echo build-in-progress @`date +"%a_%d_%b_%H:%M"` > $LOGS/$build_type-build-status
-echo waiting > $LOGS/$build_type-test-status
+echo build-in-progress @`date +"%a_%d_%b_%H:%M"` > $LOGS/build-status
+echo waiting > $LOGS/test-status
 
 
 
@@ -1976,7 +1975,7 @@ fi #  ENABLE_GUILE_COOT
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python2.7
-pver=2.7.8
+pver=2.7.10
 
 if [ $ENABLE_PYTHON_COOT = yes ] ; then 
    $install_top_dir/bin/python -V
@@ -3335,10 +3334,22 @@ fi
 #################################################################
 # Raster3D
 #################################################################
-# http://skuld.bmsc.washington.edu/raster3d/Raster3D_3.0-3.tar.gz
+# 
 
-gzip -dc ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz | tar xf -
-# now build it.
+raster3d_version=3.0-3
+${WGET} http://skuld.bmsc.washington.edu/raster3d/Raster3D_$raster3d_version.tar.gz
+
+if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then 
+    if [ ! -e $install_top_dir/bin/render ] ; then 
+       # now build it.
+       gzip -dc ${AUTOBUILD_SOURCES}/Raster3D_$raster3d_version.tar.gz | tar xf -
+       cd Raster3D_$raster3d_version
+       make linux
+       $MAKE
+       make prefix=$install_top_dir install
+    fi
+fi
+
 
 ###############################################################################
 ##########         get Coot                                       #############
@@ -3574,11 +3585,11 @@ fi
 coot_build_status=$?
 if [ $coot_build_status != 0 ] ; then
     echo coot build failed, exiting.
-    echo fail-build $coot_revision > $LOGS/$build_type-build-status
+    echo fail-build $coot_revision > $LOGS/build-status
     my_exit 2 $coot_revision
 else 
     echo coot build was good.
-    echo pass-build $coot_revision > $LOGS/$build_type-build-status
+    echo pass-build $coot_revision > $LOGS/build-status
 fi
 echo done coot build.
 
@@ -3650,8 +3661,8 @@ if [ $clear_up_type != "" ] ; then
 fi
 
 # clean up old status:
-if [ -e $LOGS/$build_type-test-status ] ; then
-   rm $LOGS/$build_type-test-status
+if [ -e $LOGS/test-status ] ; then
+   rm $LOGS/test-status
 fi
 
 
@@ -3661,7 +3672,7 @@ if [ "$run_tests" = true ] ; then
    echo running tests: >&2
    if [ "$ENABLE_GUILE_COOT" = "yes" ] ; then 
        echo running first test... >&2
-      test_coot > $LOGS/$build_type-test.log 2>&1
+      test_coot > $LOGS/test.log 2>&1
        r=$?
    else
        r=0
@@ -3670,7 +3681,7 @@ if [ "$run_tests" = true ] ; then
    # run python tests too, maybe (i.e. if we build with python)
    if [ "$ENABLE_PYTHON_COOT" = "yes" ] ; then 
        echo running python test... >&2
-       test_coot_python > $LOGS/$build_type-test-python.log 2>&1
+       test_coot_python > $LOGS/test-python.log 2>&1
        rp=$?
    else
        rp=0
@@ -3683,7 +3694,7 @@ if [ "$run_tests" = true ] ; then
       echo '   ' first coot test passed
       echo '   ' first coot test passed >&2
       echo ========----============
-      echo pass-test > $LOGS/$build_type-test-status
+      echo pass-test > $LOGS/test-status
       if test "$do_nightlies" = "1" ; then 
          if [ -d $BINARY_TAR_DEST_DIR ] ; then 
 
@@ -3714,14 +3725,14 @@ if [ "$run_tests" = true ] ; then
 	       ln -s ../../$coot_dir_name/greg-tests .
                echo second coot test...
                echo running second test... >&2
-	       test_coot bin/coot > $LOGS/$build_type-test-2.log 2>&1
+	       test_coot bin/coot > $LOGS/test-2.log 2>&1
                test2_status=$?
                if [ $test2_status = 0 ] ; then
                   echo ========================
                   echo second coot test passed
                   echo second coot test passed >&2
                   echo ========================
-                  echo pass-2nd-test > $LOGS/$build_type-test-status
+                  echo pass-2nd-test > $LOGS/test-status
 
 	          mv $holding_tar_file $bin_tar_file
 	          mv $holding_tar_file.md5sum $bin_tar_file.md5sum
@@ -3751,8 +3762,8 @@ if [ "$run_tests" = true ] ; then
 	          $publish $bin_tar_file
 	          echo $publish $bin_tar_file.md5sum
 	          $publish $bin_tar_file.md5sum
-	          echo $publish $binary_type_latest
-	          $publish $binary_type_latest
+	          # echo $publish $binary_type_latest
+	          # publish $binary_type_latest
 	          echo $publish --no-server-check ChangeLog
 	          $publish --no-server-check ChangeLog
 	          echo $publish --no-server-check coot-README
@@ -3770,7 +3781,7 @@ if [ "$run_tests" = true ] ; then
                   echo ========================
                   echo second coot test failed
                   echo ========================
-                  echo fail-2nd-test $date > $LOGS/$build_type-test-status
+                  echo fail-2nd-test $date > $LOGS/test-status
                fi
             fi
 
@@ -3789,13 +3800,13 @@ if [ "$run_tests" = true ] ; then
       echo greg test status: $r
       echo python test status: $rp
       if [ $r = 0 ] ; then 
-         echo fail-test greg $date > $LOGS/$build_type-test-status
+         echo fail-test greg $date > $LOGS/test-status
       else 
          if [ $rp = 0 ] ; then 
-            echo fail-test python $date > $LOGS/$build_type-test-status
+            echo fail-test python $date > $LOGS/test-status
          else 
             # this should not happen, AFAICS.
-            echo fail-test $date > $LOGS/$build_type-test-status
+            echo fail-test $date > $LOGS/test-status
          fi
       fi
    fi

@@ -1,6 +1,10 @@
  
  0.8.3
 
+
+   o experiment: use Rdkit with pdb perception to generate molecules and 
+     compare them with molecules generated from reading the cif.
+
    o permissions on Ubuntu 14.04
 
    o Draw -> Additional Representation -> Ball and Stick - balls are

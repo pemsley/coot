@@ -9,6 +9,7 @@
 #include "cc-interface-scripting.hh"
 
 #include "c-interface.h" // for is_valid_model_molecule()
+#include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh" // for add_to_history()
 
 #include "get-monomer.hh"

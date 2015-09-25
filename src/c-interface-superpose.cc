@@ -41,6 +41,7 @@
 #include <vector>
 #include <gtk/gtk.h> 
 #include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
 
 #include <iostream>

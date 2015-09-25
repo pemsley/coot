@@ -15,7 +15,6 @@ try_read_cif_file(const char *filename) {
 
   int imol_new = -1; // bad
   char *f_pt; 
-  short int is_valid = 0;
   
    f_pt = strrchr(filename, '.');
    if (f_pt != NULL) { 

@@ -180,7 +180,8 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	       coot::util::capitalise(coot::util::remove_leading_spaces(at->element));
 	    int atomic_number = tbl->getAtomicNumber(ele_capped);
 	    rdkit_at->setAtomicNum(atomic_number);
-	    rdkit_at->setMass(tbl->getAtomicWeight(atomic_number));
+	    // rdkit_at->setMass(tbl->getAtomicWeight(atomic_number));
+	    rdkit_at->setIsotope(0);
 	    rdkit_at->setProp("name", atom_name);
 
 	    // set the valence from they type energy.  Abstract?
@@ -597,12 +598,14 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 
       try {
 	 RDKit::Atom *at = new RDKit::Atom;
+	 std::string atom_name = r.atom_info[iat].atom_id;
 	 std::string ele_capped =
 	    coot::util::capitalise(coot::util::remove_leading_spaces(r.atom_info[iat].type_symbol));
 	 int atomic_number = tbl->getAtomicNumber(ele_capped);
 	 at->setAtomicNum(atomic_number);
-	 at->setMass(tbl->getAtomicWeight(atomic_number));
-	 at->setProp("name", r.atom_info[iat].atom_id);
+	 // at->setMass(tbl->getAtomicWeight(atomic_number));
+	 at->setIsotope(0);
+	 at->setProp("name", atom_name);
 
 	 // set the chirality (if this atom is chiral).
 	 //
@@ -2696,6 +2699,7 @@ coot::debug_rdkit_molecule(const RDKit::ROMol *rdkm) {
       catch (const KeyErrorException &err) {
 	 // Not an error
 	 // std::cout << "KeyErrorException " << err.what() << " for _CIPCode" << std::endl;
+	 std::cout << " CIP-Code - ";
       }
       std::cout << std::endl;
    }

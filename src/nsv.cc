@@ -40,6 +40,7 @@
 #include "utils/coot-utils.hh"
 
 #include "c-interface.h" // for sequence_view_is_displayed()
+#include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh" // for set_go_to_atom_from_spec()
 
 #include "get-residue.hh"

@@ -576,14 +576,19 @@ std::string coot::util::file_name_directory(const std::string &file_name) {
 
    int end_char = -1;
    std::string rstring = "";
+
+   if (file_name.length() == 0)
+      return rstring;
    
    for (int i=file_name.length()-1; i>=0; i--) {
       // std::cout << file_name.substr(0, i) << std::endl;
-// BL says:: in windows we should check for \ too. Too much pain to get
-// everything converted to / for file_chooser, e.g. with debackslash!
+
+      // BL says:: in windows we should check for \ too. Too much pain to get
+      // everything converted to / for file_chooser, e.g. with debackslash!
       
-// Windows specific #ifdef removed 20081010, makes indenting lower done
-// this file work again.
+      // Windows specific #ifdef removed 20081010, makes indenting lower done
+      // this file work again.
+      // 
       if (file_name[i] == '/' || file_name[i] == '\\') {
 	 if (i < int(file_name.length())) { 
 	    end_char = i;

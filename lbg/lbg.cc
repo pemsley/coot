@@ -264,7 +264,9 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 	       coot::util::capitalise(coot::util::remove_leading_spaces(mol.atoms[iat].element));
 	    int atomic_number = tbl->getAtomicNumber(ele_capped);
 	    at->setAtomicNum(atomic_number);
-	    at->setMass(tbl->getAtomicWeight(atomic_number));
+	    // at->setMass(tbl->getAtomicWeight(atomic_number));
+	    at->setIsotope(0);
+	    
 	    m.addAtom(at, false, true); // take ownership
 	    std::string dum;
 	    at->setProp("lbg_atom_index", coot::util::int_to_string(iat));

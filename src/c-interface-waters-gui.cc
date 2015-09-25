@@ -69,6 +69,7 @@
 // #endif // USE_PYTHON
 
 #include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
 
 #include "ligand/wligand.hh"
 

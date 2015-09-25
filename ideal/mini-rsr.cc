@@ -193,6 +193,11 @@ main(int argc, char **argv) {
       geom.set_verbose(0);
       geom.init_standard();
 
+      // 20150919: Request from Robbie Joosten: add in the planar peptide restraints.
+      //           (this should be user-configurable).
+      // 
+      geom.add_planar_peptide_restraint();
+
       //coot::restraints_container_t restraints(asc);
 
       // So, we provide easy(?) access to the atoms of next and
@@ -205,7 +210,7 @@ main(int argc, char **argv) {
       std::vector<coot::atom_spec_t> fixed_atom_specs;
 
       // This interface has been withdrawn because we need the whole
-      // molecule (acutally, a pointer to it) to do some atom selection.
+      // molecule (actually, a pointer to it) to do some atom selection.
       // 
 //       coot::restraints_container_t restraints(asc.atom_selection, // moving_residue_atoms,
 // 					      asc.n_selected_atoms,

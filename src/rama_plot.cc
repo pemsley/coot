@@ -80,7 +80,8 @@
 #include "rama_mousey.hh"
 #include "clipper/core/coords.h"
 
-#include "c-interface.h" // for the mapview callback in button_press()
+#include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
 
 
 void

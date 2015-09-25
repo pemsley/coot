@@ -39,6 +39,7 @@
 
 #include "graphics-info.h"
 #include "c-interface.h"
+#include "c-interface-gtk-widgets.h"
 #include "geometry/lbg-graph.hh"
 
 #include "coot-utils/coot-h-bonds.hh"

@@ -54,7 +54,7 @@
   But, we need that function to set the filename in mol_info, which 
   is a c++ class.
  
-  So we need to have this function external for c++ linking.
+p  So we need to have this function external for c++ linking.
  
 */
 
@@ -205,7 +205,6 @@ void unset_sticky_sort_by_date();
 set to 1 to pre-filter, [0 (off, non-pre-filtering) is the default */
 void set_filter_fileselection_filenames(int istate);
 
-void set_file_selection_dialog_size(GtkWidget *w);
 
 /*! \brief, return the state of the above variable */
 int filter_fileselection_filenames_state();
@@ -217,118 +216,25 @@ short int file_type_coords(const char *file_name);
 /*! \brief display the open coordinates dialog */
 void open_coords_dialog();
 
-void on_filename_filter_toggle_button_toggled (GtkButton       *button,
-					      gpointer         user_data);
-
-void add_file_dialog_action_area_vbox(GtkWidget *fileselection);
-void add_filename_filter(GtkWidget *fileselection);
-void add_save_coordinates_include_hydrogens_and_aniso_checkbutton(GtkWidget *fileselection);
-
-
-
-/* where data type:
- 0 coords
- 1 mtz etc
- 2 maps
- (return the button)
-*/
-GtkWidget *add_filename_filter_button(GtkWidget *fileselection, 
-				      short int type);
-
-void add_filechooser_filter_button(GtkWidget *fileselection, 
-				      short int data_type);
-
-void add_filechooser_extra_filter_button(GtkWidget *fileselection, 
-				      const gchar *name,
-                                      const gchar *name2);
-
-gboolean on_filename_filter_key_press_event (GtkWidget       *widget,
-					     GdkEventKey     *event,
-					     gpointer         user_data);
-
-/* a c callable wrapper to the graphics_info_t function */
-void fill_option_menu_with_coordinates_options(GtkWidget *option_menu, 
-					       GtkSignalFunc signal_func,
-					       int imol_active_position);
-void fill_option_menu_with_coordinates_options_unsaved_first(GtkWidget *option_menu, 
-							     GtkSignalFunc signal_func,
-							     int imol_active_position);
-GtkWidget *coot_file_chooser();
-
-GtkWidget *coot_dataset_chooser();
-
-GtkWidget *coot_map_name_chooser();
-
-GtkWidget *coot_save_coords_chooser();
-
-GtkWidget *coot_cif_dictionary_chooser();
-
-GtkWidget *coot_run_script_chooser();
-
-GtkWidget *coot_save_state_chooser();
-
-GtkWidget *coot_save_symmetry_chooser();
-
-GtkWidget *coot_screendump_chooser();
-
-void set_directory_for_coot_file_chooser(GtkWidget *w);
-
-const char *coot_file_chooser_file_name(GtkWidget *widget);
-
-void set_filename_for_filechooserselection(GtkWidget *widget, const gchar *name);
-
-/* some BL functions for gtk2 */
 
 /*! \brief this flag set chooser as default for windows, otherwise use
   selector 0 is selector 1 is chooser */
 
+
+/* --- CHECKME - do these need to be here? --- */
 void set_file_chooser_selector(int istate);
 int file_chooser_selector_state();
-
 void set_file_chooser_overwrite(int istate);
 int file_chooser_overwrite_state();
 
-/* export map GUI */
+/* \brief show the export map GUI */
 void export_map_gui(short int export_map_fragment);
-
-void on_export_map_dialog_ok_button_clicked_cc(GtkButton *button);
 
 /* \} */
 
 
-/*  ---------------------------------------------------------------------- */
-/*                     widget utilities                                    */
-/*  ---------------------------------------------------------------------- */
-/* section Widget Utilities */
 /*! \name Widget Utilities */
 /* \{ */
-/* return negative if fail */
-float get_positive_float_from_entry(GtkEntry *w); 
-
-#ifdef COOT_USE_GTK2_INTERFACE
-void handle_filename_filter_gtk2(GtkWidget *widget);
-#else 
-void handle_filename_filter_gtk1(GtkWidget *widget);
-#endif 
-
-void set_transient_and_position(int window_type, GtkWidget *window);
-
-/*! \brief create a dialog with information
-
-  create a dialog with information string txt.  User has to click to
-  dismiss it, but it is not modal (nothing in coot is modal). */
-void info_dialog(const char *txt); 
-
-/*! \brief create a dialog with information and print to console
-
-  as info_dialog but print to console as well.  */
-void info_dialog_and_text(const char *txt); 
-
-GtkWidget *main_menubar();
-GtkWidget *main_statusbar();
-GtkWidget *main_toolbar();
-
-/* entry_info_t entry_to_number(GtkWidget *entry);  */
 
 /*! \brief set the main window title.
 
@@ -349,10 +255,6 @@ void set_main_window_title(const char *s);
 
    We try as .phs and .cif files first */
 void manage_column_selector(const char *filename);
-void manage_refmac_column_selection(GtkWidget *w);
-void fill_f_optionmenu_with_expert_options(GtkWidget *f_optionmenu);
-void handle_column_label_make_fourier(GtkWidget *column_label_window);
-void wrapped_create_run_refmac_dialog();
 
 /* \} */
 
@@ -367,7 +269,9 @@ void wrapped_create_run_refmac_dialog();
   @return the number of residues 
 */
 int chain_n_residues(const char *chain_id, int imol); 
-/* @return status, less than -9999 is for failure (eg. bad imol); */
+/* \brief internal function for molecule centre
+
+@return status, less than -9999 is for failure (eg. bad imol); */
 float molecule_centre_internal(int imol, int iaxis);
 /*! \brief a residue seqnum (normal residue number) from a residue
   serial number
@@ -464,6 +368,10 @@ return -1 if this is a map or closed.
 int n_residues(int imol);
 
 
+/* Does this work? */
+/*! \brief return a list of the remarks of hte molecule number imol  
+  */
+/* list remarks(int imol); */
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM remarks_scm(int imol);
@@ -488,10 +396,6 @@ void sort_residues(int imol);
 
 /*! \brief a gui dialog showing remarks header info (for a model molecule). */
 void remarks_dialog(int imol);
-void on_remarks_dialog_close_button_clicked     (GtkButton *button,
-						 gpointer         user_data);
-GdkColor remark_number_to_colour(int remark_number); 
-
 
 /*! \brief simply print secondardy structure info to the
   terminal/console.  In future, this could/should return the info.  */
@@ -538,10 +442,8 @@ one char in the chainid, so after we read in a pdb, let's replace the
 chain ids with the segids. Will that help? */
 int exchange_chain_ids_for_seg_ids(int imol);
 
+/*! \brief show the remarks browser */
 void show_remarks_browswer();
-GtkWidget *wrapped_create_remarks_browser_molecule_chooser_dialog();
-void fill_remarks_browswer_chooser(GtkWidget *w);
-void remarks_browswer_molecule_item_select(GtkWidget *item, GtkPositionType pos);
 
 
 /* \} */
@@ -564,7 +466,7 @@ PyObject *coot_sys_build_type_py();
 #endif /* USE_PYTHON */
 #endif /* c++ */
 
-/*! \brief return the git revision for for this build.
+/*! \brief return the git revision count for for this build.
   */
 int git_revision_count(); 
 /*! \brief an alias to git_revision_count() for backwards compatibility  */
@@ -588,18 +490,22 @@ PyObject *molecule_name_stub_py(int imol, int include_path_flag);
 #endif	/* __cplusplus */
 /*! \brief set the molecule name of the imol-th molecule */
 void set_molecule_name(int imol, const char *new_name);
-GtkWidget *main_window(); 
 gboolean coot_checked_exit(int retval); 
 /*! \brief exit from coot, give return value retval back to invoking
   process. */
-void coot_real_exit(int retval); 
+void coot_real_exit(int retval);
+/*! \brief exit without writing a state file */
 void coot_no_state_real_exit(int retval);
+
+/*! \brief exit coot doing clear-backup maybe */
 void coot_clear_backup_or_real_exit(int retval);
+/*! \brief exit coot, write a state file */
 void coot_save_state_and_exit(int retval, int save_state_flag);
 
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
+/*! \brief run clear-backups */
 void run_clear_backups(int retval);
 #endif /* USE_GUILE */
 #ifdef USE_PYTHON
@@ -607,12 +513,6 @@ void run_clear_backups_py(int retval);
 #endif /* USE_PYTHON */
 #endif  /* c++ */
 
-void fill_about_window(GtkWidget *widget);
-void add_coot_references_button(GtkWidget *widget);
-GtkWidget *wrapped_create_coot_references_dialog();
-#ifdef COOT_USE_GTK2_INTERFACE
-void fill_references_notebook(GtkToolButton *toolbutton, int reference_id);
-#endif
  
 /*! \brief What is the molecule number of first coordinates molecule?
 
@@ -667,6 +567,10 @@ int do_GL_lighting_state();
    An interface function for Ralf.
 */
 short int use_graphics_interface_state();
+
+/*! \brief is the python interpreter at the prompt? 
+
+@return 1 for yes, 0 for no.*/
 short int python_at_prompt_at_startup_state();
 
 /*! \brief start Gtk (and graphics) 
@@ -721,6 +625,7 @@ void set_rocking_factors(float width_scale, float frequency_scale);
   computer? set this to 0.1  */
 void set_idle_function_rotate_angle(float f);  /* degrees */
 
+/*! \brief what is the idle function rotation angle? */
 float idle_function_rotate_angle();
 
 /* pass back the newly created molecule number */
@@ -817,26 +722,15 @@ You can use this, in conjunction with spinning and view moving functions to
 make movies */
 void screendump_image(const char *filename);
 
-/* give a warning dialog if density it too dark (blue) */
+/*! \brief give a warning dialog if density it too dark (blue) */
 void check_for_dark_blue_density(); 
-
-void add_is_difference_map_checkbutton(GtkWidget *fileselection); 
-/* the callback for the above: */
-void
-on_read_map_difference_map_toggle_button_toggled (GtkButton       *button,
-						  gpointer         user_data);
-
-void add_recentre_on_read_pdb_checkbutton(GtkWidget *fileselection); 
-/* the callback for the above: */
-void
-on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
-					       gpointer         user_data);
 
 /* is this a good place for this function? */
 
 /*! \brief sets the density map of the given molecule to be drawn as a
   (transparent) solid surface. */
 void set_draw_solid_density_surface(int imol, short int state);
+
 /*! \brief toggle for standard lines representation of map.
 
   This turns off/on standard lines representation of map.  transparent
@@ -848,6 +742,8 @@ void set_draw_solid_density_surface(int imol, short int state);
   */
 void set_draw_map_standard_lines(int imol, short int state);
 
+/*! \brief set the state of the solid surface representation 
+  for molecule imap */
 void solid_surface(int imap, short int on_off_flag);
 
 /*! \brief set the opacity of density surface representation of the
@@ -932,7 +828,9 @@ void apply_ncs_to_view_orientation_and_screen_centre(int imol,
 						     const char *next_ncs_chain, 
 						     short int forward_flag);
 
+/*! \brief set show frame-per-second flag */
 void set_fps_flag(int t);
+/*! \brief set the state of show frames-per-second flag */
 int  get_fps_flag();
 
 /*! \brief set a flag: is the origin marker to be shown? 1 for yes, 0
@@ -958,12 +856,6 @@ void show_model_toolbar_all_icons();
 /*! \brief show only a selection of icons in the modelling toolbar */
 void show_model_toolbar_main_icons();
 
-void toolbar_popup_menu(GtkToolbar *toolbar, 
-		    GdkEventButton *event_button,
-		    gpointer user_data);
-
-void set_model_toolbar_docked_position_callback(GtkWidget *w, gpointer user_data);
-
 /*! \brief reattach the modelling toolbar to the last attached position */
 void reattach_modelling_toolbar();
 
@@ -976,29 +868,26 @@ void set_model_toolbar_docked_position(int state);
 int suck_model_fit_dialog();
 int suck_model_fit_dialog_bl();
 
-/* return the dialog if it exists, else null */
-GtkWidget *close_model_fit_dialog(GtkWidget *dialog_hbox);
-/* use this from the scripting layer to say something to the user (popup). */
-GtkWidget *popup_window(const char *s);
-
 /*! \brief Put text s into the status bar.
 
   use this to put info for the user in the statusbar (less intrusive
   than popup). */
 void add_status_bar_text(const char *s);
 
+/*! \brief model-fit-refine dialog stays on top */
 void set_model_fit_refine_dialog_stays_on_top(int istate);
+/*! \brief return the state model-fit-refine dialog stays on top */
 int model_fit_refine_dialog_stays_on_top_state();
-
-void save_accept_reject_dialog_window_position(GtkWidget *acc_reg_dialog);
-void set_accept_reject_dialog(GtkWidget *w); /* used by callbacks to unset the widget */
 
 /* functions to dock the accept/reject dialog to the toolbar */
 void set_accept_reject_dialog_docked(int state);
+/*! \brief the accept/reject dialog docked state */
 int accept_reject_dialog_docked_state();
 
 /* functions to show/hide i.e. make sensitive the docked accept/reject toolbar */
+/*! \brief set the accept/reject dialog docked show state */
 void set_accept_reject_dialog_docked_show(int state);
+/*! \brief what is the accept/reject dialog docked show state? */
 int accept_reject_dialog_docked_show_state();
 
 /* functions for the refinement toolbar style */
@@ -1018,9 +907,15 @@ int main_toolbar_style_state();
 /*! \name   Mouse Buttons */
 /* \{ */
 
-/* Note, when you have set these, there is no way to turn them of
+/* \brief quanta-like buttons
+
+Note, when you have set these, there is no way to turn them of
    again (other than restarting). */
 void quanta_buttons(); 
+/* \brief quanta-like zoom buttons
+
+Note, when you have set these, there is no way to turn them of
+   again (other than restarting). */
 void quanta_like_zoom();
 
 
@@ -1054,9 +949,13 @@ int blob_under_pointer_to_screen_centre();
 /* section Cursor Function */
 /*! \name Cursor Function */
 /*! \{ */
+/*! \brief normal cursor */
 void normal_cursor();
+/*! \brief fleur cursor */
 void fleur_cursor();
+/*! \brief pick cursor maybe */
 void pick_cursor_maybe();
+/*! \brief rotate cursor */
 void rotate_cursor();
 
 /*! \brief let the user have a different pick cursor
@@ -1076,10 +975,9 @@ void set_pick_cursor_index(int icursor_index);
 /* \{ */
 /*! \brief display the Model/Fit/Refine dialog */
 void post_model_fit_refine_dialog();
-GtkWidget *wrapped_create_model_fit_refine_dialog(); 
-void update_model_fit_refine_dialog_menu(GtkWidget *widget);
-void update_model_fit_refine_dialog_buttons(GtkWidget *widget);
+/*! \brief unset model/fit/refine dialog */
 void unset_model_fit_refine_dialog();
+/*! \brief unset refine params dialog */
 void unset_refine_params_dialog();
 /*! \brief display the Display Manager dialog */
 void show_select_map_dialog();
@@ -1090,19 +988,15 @@ void set_model_fit_refine_rotate_translate_zone_label(const char *txt);
   "Place Atom at Pointer" */
 void set_model_fit_refine_place_atom_at_pointer_label(const char *txt);
 
-/* other tools */
-GtkWidget *wrapped_create_other_model_tools_dialog();
-void unset_other_modelling_tools_dialog();
 
 /*! \brief display the Other Modelling Tools dialog */
 void post_other_modelling_tools_dialog();
 
 /*! \brief shall atoms with zero occupancy be moved when refining? (default 1, yes) */
 void set_refinement_move_atoms_with_zero_occupancy(int state);
-/*! \brief return the state of "shall atoms with zero occupancy be moved when refining?" */
+/*! \brief return the state of "shall atoms with zero occupancy be moved 
+  when refining?" */
 int refinement_move_atoms_with_zero_occupancy_state();
-
-GtkWidget *wrapped_create_fast_ss_search_dialog();
 
 /*! \} */
 
@@ -1125,7 +1019,10 @@ void turn_on_backup(int imol);
 
  return 0 for backups off, 1 for backups on, -1 for unknown */
 int  backup_state(int imol);
+
+/*! \brief apply undo - the "Undo" button callback */
 int apply_undo();		/* "Undo" button callback */
+/*! \brief apply redo - the "Redo" button callback */
 int apply_redo();
 
 /*! \brief set the molecule number imol to be marked as having unsaved changes */
@@ -1143,9 +1040,6 @@ void set_undo_molecule(int imol);
 /*! \brief show the Undo Molecule chooser - i.e. choose the molecule
   to which the "Undo" button applies. */
 void show_set_undo_molecule_chooser();
-
-/* called by above */
-GtkWidget *wrapped_create_undo_molecule_chooser_dialog();
 
 /*! \brief set the state for adding paths to backup file names
 
@@ -1179,7 +1073,6 @@ void  set_backup_compress_files(int state);
    need to remember which files you read in before the crash - should
    be improved.) */
 void recover_session();
-void execute_recover_session(GtkWidget *w);
 /* \} */
    
 /*  ---------------------------------------------------------------------- */
@@ -1224,17 +1117,6 @@ PyObject *get_map_colour_py(int imol);
 #endif
 
 
-void add_on_map_colour_choices(GtkWidget *w);
-
-/* the callback set on the submenu items in the above function */
-void map_colour_mol_selector_activate (GtkMenuItem     *menuitem,
-				       gpointer         user_data);
-void my_delete_menu_items(GtkWidget *widget, void *data);
-
-/* similarly for the scrollwheel */
-void add_on_map_scroll_whell_choices(GtkWidget *menu);
-void map_scroll_wheel_mol_selector_activate (GtkMenuItem     *menuitem,
-					     gpointer         user_data);
 
 /*! \brief set the map that is moved by changing the scroll wheel and
   change_contour_level(). */
@@ -1264,10 +1146,6 @@ void set_last_map_colour(double f1, double f2, double f3);
 /*! \brief set the colour of the imolth map */
 void set_map_colour(int imol, float red, float green, float blue);
 
-void handle_map_colour_change     (int map_no, gdouble[4]);
-void handle_symmetry_colour_change(int mol,    gdouble[4]);
-void fill_single_map_properties_dialog(GtkWidget *window, int imol);
-
 /* \brief set the contour level, direct control */
 void set_contour_level_absolute(int imol_map, float level);
 /* \brief set the contour level, direct control in r.m.s.d. (if you like that sort of thing) */
@@ -1281,8 +1159,6 @@ float get_contour_level_in_sigma(int imol);
 
 /*! \brief set the sigma step of the last map to f sigma */
 void set_last_map_sigma_step(float f);
-void set_contour_sigma_button_and_entry(GtkWidget *window, int imol);
-void set_contour_by_sigma_step_maybe(GtkWidget *window, int imol);
 /*! \brief set the contour level step
 
    set the contour level step of molecule number imol to f and
@@ -1391,13 +1267,16 @@ void set_iso_level_increment_from_text(const char *text, int imol);
 
 The is only activated when scrolling by sigma is turned off */
 void set_diff_map_iso_level_increment(float val);
+
+/*! \brief return difference maps iso-map level increment  */
 float get_diff_map_iso_level_increment();
+/*! \brief set the difference maps iso-map level increment  */
 void set_diff_map_iso_level_increment_from_text(const char *text, int imol);
 
-/*  find the molecule that the single map dialog applies to and set
-    the contour level and redraw */
-void single_map_properties_apply_contour_level_to_map(GtkWidget *w);
+/*! \brief sampling rate
 
+find the molecule for which the single map dialog applies and set
+    the contour level and redraw */
 void set_map_sampling_rate_text(const char *text);
 
 /*! \brief set the map sampling rate (default 1.5)
@@ -1405,6 +1284,8 @@ void set_map_sampling_rate_text(const char *text);
 Set to something like 2.0 or 2.5 for more finely sampled maps.  Useful
 for baton-building low resolution maps. */
 void set_map_sampling_rate(float r);
+
+/* MOVE-ME to c-interface-gtk-widgets.h */
 char* get_text_for_map_sampling_rate_text();
 
 /*! \brief return the map sampling rate */
@@ -1525,12 +1406,15 @@ int valid_labels(const char *mtz_file_name, const char *f_col,
 		 const char *weight_col, 
 		 int use_weights);
 
+/*! \brief does the mtz file have phases? */
 /* We need to know if an mtz file has phases.  If it doesn't then we */
 /*  go down a (new 20060920) different path. */
 int mtz_file_has_phases_p(const char *mtz_file_name); 
 
+/*! \brief is the given filename an mtz file? */
 int is_mtz_file_p(const char *filename);
 
+/*! \brief does the given file have cns phases? */
 int cns_file_has_phases_p(const char *cns_file_name); 
 
 void wrapped_auto_read_make_and_draw_maps(const char *filename);
@@ -1539,6 +1423,7 @@ void set_auto_read_do_difference_map_too(int i);
 /*! \brief return the flag to do a difference map (too) on auto-read MTZ 
 
    @return 0 means no, 1 means yes. */
+ 
 int auto_read_do_difference_map_too_state();
 /*! \brief set the expected MTZ columns for Auto-reading MTZ file. 
 
@@ -1547,9 +1432,11 @@ int auto_read_do_difference_map_too_state();
   coot can "Auto-open" such MTZ files.
 
   e.g. (set-auto-read-column-labels "2FOFCWT" "PH2FOFCWT" 0) */
-void set_auto_read_column_labels(const char *fwt, const char *phwt, 
+ void set_auto_read_column_labels(const char *fwt, const char *phwt, 
 				 int is_for_diff_map_flag);
 
+
+/* MOVE-ME to c-interface-gtk-widgets.h */
 char* get_text_for_density_size_widget(); /* const gchar *text */
 void set_density_size_from_widget(const char *text);
 
@@ -1590,6 +1477,7 @@ int swap_difference_map_colours_state();
   @return success status, 0 -> failure (imol does not have a map) */
 int set_map_is_difference_map(int imol);
 
+/*! \brief map is difference map? */
 int map_is_difference_map(int imol);
 
 /*! \brief Add another contour level for the last added map.  
@@ -1761,25 +1649,6 @@ void set_write_conect_record_state(int state);
 /* section Refmac Functions */
 /*! \name  Refmac Functions */
 /* \{ */
-void execute_refmac(GtkWidget *window); /* lookup stuff here. */
-/*  this is the option menu callback - does nothing. */
-void refmac_molecule_button_select(GtkWidget *item, GtkPositionType pos); 
-int set_refmac_molecule(int imol); /* used by callback.c */
-void fill_option_menu_with_refmac_options(GtkWidget *optionmenu);
-void fill_option_menu_with_refmac_methods_options(GtkWidget *optionmenu);
-void fill_option_menu_with_refmac_phase_input_options(GtkWidget *optionmenu);
-void fill_option_menu_with_refmac_labels_options(GtkWidget *optionmenu);
-void fill_option_menu_with_refmac_file_labels_options(GtkWidget *optionmenu);
-void fill_option_menu_with_refmac_ncycle_options(GtkWidget *optionmenu);
-
-void update_refmac_column_labels_frame(GtkWidget *optionmenu, 
-				       GtkWidget *fobs_menu, GtkWidget *fiobs_menu, GtkWidget *fpm_menu,
-				       GtkWidget *f_free_menu,
-				       GtkWidget *phases_menu, GtkWidget *fom_menu, GtkWidget *hl_menu);
-
-
-void free_memory_run_refmac(GtkWidget *window); 
-
 /*! \brief set counter for runs of refmac so that this can be used to
   construct a unique filename for new output */
 void set_refmac_counter(int imol, int refmac_count);
@@ -1788,49 +1657,6 @@ void set_refmac_counter(int imol, int refmac_count);
  @return a stub name used in the construction of filename for refmac output */
 const char *refmac_name(int imol);
 
-/* some methods to get refmac run parameters */
-int get_refmac_refinement_method(void);
-void set_refmac_refinement_method(int method);
-int get_refmac_phase_input(void);
-void set_refmac_phase_input(int phase_flag);
-void set_refmac_use_tls(int state);
-int refmac_use_tls_state(void);
-void set_refmac_use_twin(int state);
-int refmac_use_twin_state(void);
-void set_refmac_use_sad(int state);
-int refmac_use_sad_state(void);
-int get_refmac_ncycles(void);
-void set_refmac_ncycles(int no_cycles);
-void add_refmac_ncycle_no(int cycle);
-void set_refmac_use_ncs(int state);
-int refmac_use_ncs_state(void);
-void set_refmac_use_intensities(int state);
-int refmac_use_intensities_state(void);
-int refmac_imol_coords(void);
-void add_refmac_sad_atom(const char *atom_name, float fp, float fpp, float lambda);
-void add_refmac_sad_atom_fp(const char *atom_name, float fp, float fpp);
-void add_refmac_sad_atom_lambda(const char *atom_name, float lambda);
-void clear_refmac_sad_atoms();
-void store_refmac_mtz_file_label(GtkWidget *label);
-GtkWidget *get_refmac_mtz_file_label(void);
-void fill_refmac_sad_atom_entry(GtkWidget *widget);
-short int get_refmac_used_mtz_file_state();
-void set_refmac_used_mtz_file(int state);
-const gchar *get_saved_refmac_file_filename(void);
-void set_stored_refmac_file_mtz_filename(int imol, const char *mtz_filename);
-void save_refmac_params_to_map(int imol_map,
-			       const char *mtz_filename,
-			       const char *fobs_col,
-			       const char *sigfobs_col,
-			       const char *r_free_col,
-			       int r_free_flag_sensible);
-void save_refmac_phase_params_to_map(int imol_map,
-			     	     const char *phi,
-				     const char *fom,
-				     const char *hla,
-				     const char *hlb,
-				     const char *hlc,
-				     const char *hld);
 #ifdef __cplusplus
 #ifdef USE_GUILE
 SCM get_refmac_sad_atom_info_scm();
@@ -1868,6 +1694,8 @@ int refmac_runs_with_nolabels(void);
 /*! \name Symmetry Functions */
 /* \{ */
 char* get_text_for_symmetry_size_widget(); /* const gchar *text */
+
+/* MOVE-ME to c-interface-gtk-widgets.h */
 void set_symmetry_size_from_widget(const char *text); 
 /*! \brief set the size of the displayed symmetry */
 void set_symmetry_size(float f); 
@@ -1902,16 +1730,12 @@ void set_symmetry_molecule_rotate_colour_map(int imol, int state);
 */
 int symmetry_molecule_rotate_colour_map_state(int imol);
 
+/*! \brief set symmetry colour by symop mode */
 void set_symmetry_colour_by_symop(int imol, int state);
+/*! \brief set symmetry colour for the chain */
 void set_symmetry_whole_chain(int imol, int state);
+/*! \brief set use expanded symmetry atom labels */
 void set_symmetry_atom_labels_expanded(int state);
-GtkWidget *wrapped_create_show_symmetry_window();
-void symmetry_colour_adjustment_changed (GtkAdjustment *adj, 
-					 GtkWidget *window); 
-GtkWidget *symmetry_molecule_controller_dialog();
-
-/* used by destroy callback, needed because there should only be one of these. */
-void set_symmetry_controller_dialog_widget(GtkWidget *w); 
 
 /*! \brief molecule number imol has a unit cell? 
 
@@ -2026,8 +1850,6 @@ PyObject *origin_pre_shift_py(int imol);
 
 void setup_save_symmetry_coords();
 
-void save_symmetry_coords_from_fileselection(GtkWidget *fileselection);
-
 /*! \brief set the space group for a coordinates molecule
 
  for shelx FA pdb files, there is no space group.  So allow the user
@@ -2055,18 +1877,8 @@ void set_symmetry_shift_search_size(int shift);
 /* so that we can save/set the directory for future fileselections
    (i.e. the new fileselection will open in the directory that the
    last one ended in) */
-void set_directory_for_fileselection(GtkWidget *coords_fileselection1); 
-void save_directory_from_fileselection(const GtkWidget *fileselection);
-void save_directory_for_saving_from_fileselection(const GtkWidget *fileselection);
-void set_file_for_save_fileselection(GtkWidget *fileselection);
 
-/* we include thes functions for the chooser here */
-#ifdef COOT_USE_GTK2_INTERFACE
-void set_directory_for_filechooser(GtkWidget *coords_fileselection1); 
-void save_directory_from_filechooser(const GtkWidget *fileselection);
-void save_directory_for_saving_from_filechooser(const GtkWidget *fileselection);
-#endif
-
+ 
 #ifdef __cplusplus
 #ifdef USE_GUILE
 /* Return the default file name suggestion (that would come up in the
@@ -2081,29 +1893,6 @@ SCM save_coords_name_suggestion_scm(int imol);
 PyObject *save_coords_name_suggestion_py(int imol); 
 #endif /*  USE_PYTHON */
 #endif /*  __cplusplus */
-
-/* Eleanor likes to sort her files by date when selecting a file */
-
-/* return the button. */
-GtkWidget *add_sort_button_fileselection(GtkWidget *fileselection); 
-
-void add_ccp4i_project_optionmenu(GtkWidget *fileselection, int file_selector_type);
-void add_ccp4i_projects_to_optionmenu(GtkWidget *optionmenu, int file_selector_type, GtkSignalFunc func);
-void add_ccp4i_project_shortcut(GtkWidget *fileselection);
-void option_menu_refmac_ccp4i_project_signal_func(GtkWidget *item, GtkPositionType pos);
-void run_refmac_ccp4i_option_menu_signal_func(GtkWidget *item, GtkPositionType pos);
-void clear_refmac_ccp4i_project();
-GtkWidget *lookup_file_selection_widgets(GtkWidget *item, int file_selector_type);
-
-/* We wrote this button/callback by hand, most of the rest are in
-   callbacks.c  */
-
-void fileselection_sort_button_clicked( GtkWidget *sort_button,
-					GtkWidget *file_list); 
-
-void push_the_buttons_on_fileselection(GtkWidget *filter_button, 
-				       GtkWidget *sort_button,
-				       GtkWidget *fileselection);
 
 /* \} */ /* end of file selection functions */
 
@@ -2190,10 +1979,6 @@ void run_state_file_py();		/* just do it */
 /*! \brief run the state file depending on the state variables */
 void run_state_file_maybe();	/* depending on the above state variables */
 
-GtkWidget *wrapped_create_run_state_file_dialog();
-#ifdef USE_PYTHON
-GtkWidget *wrapped_create_run_state_file_dialog_py();
-#endif /* USE_PYTHON */
 
 /* \} */
 
@@ -2224,10 +2009,10 @@ int  vt_surface_status();
 /* section Clipping Functions */
 /*! \name  Clipping Functions */
 /* \{ */
-void do_clipping1_activate();
-void clipping_adjustment_changed (GtkAdjustment *adj, GtkWidget *window);
 
+/*! \brief set clipping plane back */
 void set_clipping_back( float v);
+/*! \brief set clipping plane front */
 void set_clipping_front(float v);
 /* \} */
 
@@ -2301,9 +2086,6 @@ void set_symmetry_colour(float r, float g, float b);
    default: for maps is 14 degrees. */
 void set_colour_map_rotation_for_map(float f); /* "global"/default */
 
-/* widget work */
-GtkWidget *wrapped_create_coords_colour_control_dialog();
-
 /*! \brief set the colour map rotation for molecule number imol
 
 theta is in degrees */
@@ -2321,23 +2103,32 @@ float get_molecule_bonds_colour_map_rotation(int imol);
 /* \{ */
 /*  we use the text interface to this in callback.c rather */
 /*  than getting the float directly. */
- 
+
+/*! \brief get the aniso radius limit */
 float get_limit_aniso();           /* not a function of the molecule */
 
+/*! \brief get show the aniso limit */
 short int get_show_limit_aniso();  /* not a function of the molecule */
 
+/*! \brief return show-aniso-atoms state */
 short int get_show_aniso();       /*  not a function of the molecule */
 
+/*! \brief set the aniso atom limit */ 
 void set_limit_aniso(short int state);
 
+/* MOVE-ME to c-interface-gtk-widgets.h */
 void set_aniso_limit_size_from_widget(const char *text);
 
+/*! \brief set show aniso atoms */
 void set_show_aniso(int state); 
 
+/* MOVE-ME to c-interface-gtk-widgets.h */
 char *get_text_for_aniso_limit_radius_entry();
 
+/*! \brief set aniso probability */
 void set_aniso_probability(float f);
 
+/*! \brief get aniso probability */
 float get_aniso_probability();
 
 /* \} */
@@ -2353,13 +2144,10 @@ float get_aniso_probability();
 
 /*! \brief set the window size */
 void   set_graphics_window_size(int x_size, int y_size);
-/*! \brief set the window position */
+/*! \brief set the graphics window position */
 void   set_graphics_window_position(int x_pos, int y_pos);
+/*! \brief store the graphics window position */
 void store_graphics_window_position(int x_pos, int y_pos); /*  "configure_event" callback */
-
-/* a general purpose version of the above, where we pass a widget flag */
-void store_window_position(int window_type, GtkWidget *w);
-void store_window_size(int window_type, GtkWidget *w);
 
 /*! \brief draw a frame */
 void graphics_draw(); 	/* and wrapper interface to gtk_widget_draw(glarea)  */
@@ -2425,6 +2213,7 @@ void set_smooth_scroll_flag(int v);
 /*! \brief return the smooth scrolling state */
 int  get_smooth_scroll();
 
+/* MOVE-ME to c-interface-gtk-widgets.h */
 void set_smooth_scroll_steps_str(const char * t);
 
 /*  useful exported interface */
@@ -2433,8 +2222,10 @@ void set_smooth_scroll_steps_str(const char * t);
    Set more steps (e.g. 50) for more smoothness (default 10).*/
 void set_smooth_scroll_steps(int i); 
 
+/* MOVE-ME to c-interface-gtk-widgets.h */
 char  *get_text_for_smooth_scroll_steps();
 
+/* MOVE-ME to c-interface-gtk-widgets.h */
 void  set_smooth_scroll_limit_str(const char *t);
 
 /*  useful exported interface */
@@ -2449,8 +2240,8 @@ char *get_text_for_smooth_scroll_limit();
 /*  ---------------------------------------------------------------------- */
 /*                         Font Size */
 /*  ---------------------------------------------------------------------- */
-/* section Font Size */
-/*! \name  Font Size */
+/* section Font Parameters */
+/*! \name  Font Parameters */
 /* \{ */
 
 /*! \brief set the font size
@@ -2467,6 +2258,7 @@ int get_font_size();
   in the range 0->1 */
 void set_font_colour(float red, float green, float blue);
 
+/*! \brief set use stroke characters */
 void set_use_stroke_characters(int state);
 
 /* \} */
@@ -2477,11 +2269,19 @@ void set_use_stroke_characters(int state);
 /* section Rotation Centre */
 /*! \name  Rotation Centre */
 /* \{ */
+/* MOVE-ME to c-interface-gtk-widgets.h */
 void set_rotation_centre_size_from_widget(const gchar *text); /* and redraw */
+/*! \brief set rotoation centre marker size */
 void set_rotation_centre_size(float f); /* and redraw (maybe) */
+/* MOVE-ME to c-interface-gtk-widgets.h */
 gchar *get_text_for_rotation_centre_cube_size(); 
+
+/*! \brief return the recentre-on-pdb state */
 short int recentre_on_read_pdb(); 
+/*! \brief set the recentre-on-pdb state */
 void set_recentre_on_read_pdb(short int);
+
+/*! \brief set the rotation centre */
 void set_rotation_centre(float x, float y, float z);
 /* The redraw happens somewhere else... */
 void set_rotation_centre_internal(float x, float y, float z); 
@@ -2489,6 +2289,7 @@ float rotation_centre_position(int axis); /* only return one value: x=0, y=1, z=
 /*! \brief centre on the ligand of the "active molecule", if we are
   already there, centre on the next hetgroup (etc) */
 void go_to_ligand();
+/*! \brief go to the ligand that has more than n_atom_min atoms */
 void set_go_to_ligand_n_atoms_limit(int n_atom_min);
 /* \} */
 
@@ -2532,8 +2333,11 @@ int atom_index_first_atom_in_residue_with_altconf(int imol,
 						  int iresno, 
 						  const char *ins_code, 
 						  const char *alt_conf);
+/*! \brief return the median temperature factor for imol */
 float median_temperature_factor(int imol);
+/*! \brief return the average temperature factor for the atoms in imol */
 float average_temperature_factor(int imol);
+/*! \brief return the standard deviation of the atom temperature factors for imol */
 float standard_deviation_temperature_factor(int imol);
 
 /*! \brief clear pending picks (stop coot thinking that the user is about to pick an atom).  */
@@ -2576,6 +2380,7 @@ int set_atom_attributes_py(PyObject *attribute_expression_list);
 #endif 
 #endif /* __cplusplus */
 
+/*! \brief set the residue name of the specified residue */
 void set_residue_name(int imol, const char *chain_id, int res_no, const char *ins_code, const char *new_residue_name);
 
 /* \} */
@@ -2589,15 +2394,15 @@ void set_residue_name(int imol, const char *chain_id, int res_no, const char *in
 void skel_greer_on(); 
 void skel_greer_off(); 
 
-void skeletonize_map_by_optionmenu(GtkWidget *optionmenu);
-void skeletonize_map_single_map_maybe(GtkWidget *window, int imol); 
-
-GtkWidget *wrapped_create_skeleton_dialog();
-
 /*! \brief skeletonize molecule number imol
 
-   the prune_flag should almost  always be 0.  */
-int skeletonize_map(int prune_flag, int imol);
+   the prune_flag should almost  always be 0. 
+
+   NOTE:: The arguments to have been reversed for coot 0.8.3 and later
+   (now the molecule number comes first).
+
+    */
+int skeletonize_map(int imol, short int prune_flag);
 
 /*! \brief undisplay the skeleton on molecule number imol */
 int unskeletonize_map(int imol); 
@@ -2613,24 +2418,22 @@ void set_max_skeleton_search_depth(int v); /* for high resolution
 					      maps, change to 20 or
 					      something (default 10). */
 
-/* set the radio buttons in the frame to the be on or off for the map
-   that is displayed in the optionmenu (those menu items "active"
-   callbacks (graphics_info::skeleton_map_select change
-   g.map_for_skeletonize).  */
-void set_on_off_skeleton_radio_buttons(GtkWidget *skeleton_frame);
-void set_on_off_single_map_skeleton_radio_buttons(GtkWidget *skeleton_frame, int imol);
 
 
 /*  ----------------------------------------------------------------------- */
 /*                  skeletonization level widgets                           */
 /*  ----------------------------------------------------------------------- */
 
+/* MOVE-ME to c-interface-gtk-widgets.h */
 gchar *get_text_for_skeletonization_level_entry(); 
 
+/* MOVE-ME to c-interface-gtk-widgets.h */
 void set_skeletonization_level_from_widget(const char *txt); 
 
+/* MOVE-ME to c-interface-gtk-widgets.h */
 gchar *get_text_for_skeleton_box_size_entry(); 
 
+/* MOVE-ME to c-interface-gtk-widgets.h */
 void set_skeleton_box_size_from_widget(const char *txt); 
 
 /*! \brief the box size (in Angstroms) for which the skeleton is displayed */
@@ -2644,9 +2447,12 @@ void set_skeleton_box_size(float f);
 /* section Skeleton Colour */
 /*! \name  Skeleton Colour */
 /* \{ */
+/* MOVE-ME to c-interface-gtk-widgets.h */
 void handle_skeleton_colour_change(int mol, gdouble* map_col);
+/*! \brief set the skeleton colour */
 void set_skeleton_colour(int imol, float r, float g, float b);
 
+/* MOVE-ME to c-interface-gtk-widgets.h */
 gdouble* get_skeleton_colour(); 
 
 /* \} */
@@ -2670,21 +2476,13 @@ int handle_read_ccp4_map(const char* filename, int is_diff_map_flag);
 /* \{ */
 
 
-void save_coordinates_using_widget(GtkWidget *widget); /* do a get_user_data for
-					     the molecule and a lookup
-					     of the entry? to find the
-					     filename in c-interface,
-					     not in the callback.c  */
 /*! \brief save coordinates of molecule number imol in filename
 
   @return status 1 is good (success), 0 is fail. */
 int save_coordinates(int imol, const char *filename);
 
+/*! \brief set save coordinates in the starting directory */
 void set_save_coordinates_in_original_directory(int i);
-
-/* not really a button select, its a menu item select */
-/* not productive */
-void save_molecule_coords_button_select(GtkWidget *item, GtkPositionType pos); 
 
 /* access to graphics_info_t::save_imol for use in callback.c */
 int save_molecule_number_from_option_menu();
@@ -2761,6 +2559,7 @@ const char* graphics_get_phs_filename();
 
 short int possible_cell_symm_for_phs_file(); 
 
+/* MOVE-ME to c-interface-gtk-widgets.h */ 
 gchar *get_text_for_phs_cell_chooser(int imol, char *field); 
 
 /* \} */
@@ -2785,6 +2584,8 @@ void transform_molecule_by(int imol,
 			   float m31, float m32, float m33,
 			   float x, float y, float z);
 
+/*! \brief transform fragment of molecule number imol by the given rotation
+  matrix, then translate by (x,y,z) in Angstroms  */
 void transform_zone(int imol, const char *chain_id, int resno_start, int resno_end, const char *ins_code,
 		    float m11, float m12, float m13,
 		    float m21, float m22, float m23,
@@ -2799,21 +2600,21 @@ void transform_zone(int imol, const char *chain_id, int resno_start, int resno_e
 /* section Go To Atom Widget Functions */
 /*! \name Go To Atom Widget Functions */
 /* \{ */
-GtkWidget *wrapped_create_goto_atom_window();
 
 /*! \brief Post the Go To Atom Window */
 void post_go_to_atom_window();
-void fill_go_to_atom_window(GtkWidget *widget);
 
-/* gchar *get_text_for_go_to_atom_chain_entry();  */
-/* gchar *get_text_for_go_to_atom_residue_entry(); */
-/* gchar *get_text_for_go_to_atom_atom_name_entry(); */
-
+/*! \brief the go-to-atom molecule number */
 int go_to_atom_molecule_number();
+/*! \brief the go-to-atom chain-id */
 char *go_to_atom_chain_id();
+/*! \brief the go-to-atom atom name */
 char *go_to_atom_atom_name();
+/*! \brief the go-to-atom residue number */
 int go_to_atom_residue_number();
+/*! \brief the go-to-atom insertion code */
 char *go_to_atom_ins_code();
+/*! \brief the go-to-atom alt conf */
 char *go_to_atom_alt_conf();
 
 
@@ -2827,12 +2628,21 @@ char *go_to_atom_alt_conf();
 */
 int set_go_to_atom_chain_residue_atom_name(const char *t1_chain_id, int iresno, 
 					   const char *t3_atom_name);
+ 
+/*! \brief set the go to (full) atom specification
+
+   It seems important for swig that the char * arguments are const
+   char *, not const gchar * (or else we get wrong type of argument
+   error on (say) "A"
+
+@return the success status of the go to.  0 for fail, 1 for success.
+*/
 int set_go_to_atom_chain_residue_atom_name_full(const char *chain_id, 
 						int resno,
 						const char *ins_code,
 						const char *atom_name,
 						const char *alt_conf);
-
+/*! \brief set go to atom but don't redraw */
 int set_go_to_atom_chain_residue_atom_name_no_redraw(const char *t1, int iresno, const char *t3, 
 						     short int make_the_move_flag);
 
@@ -2841,18 +2651,9 @@ int set_go_to_atom_chain_residue_atom_name_strings(const gchar *t1,
 						   const gchar *txt); 
 
 
-int goto_next_atom_maybe_new(GtkWidget *window);
-int goto_previous_atom_maybe_new(GtkWidget *window);
-
 /*! \brief update the Go To Atom widget entries to atom closest to
   screen centre. */
 void update_go_to_atom_from_current_position(); 
-
-/* used by keypress (return) callbacks */
-
-/*  read the widget values and apply them to the graphics */
- 
-int apply_go_to_atom_values(GtkWidget * window);
 
 
 /* moving gtk function out of build functions, delete_atom() updates
@@ -2899,45 +2700,10 @@ void update_go_to_atom_window_on_other_molecule_chosen(int imol);
 */
 void set_go_to_atom_molecule(int imol); 
 
-int go_to_atom_molecule_optionmenu_active_molecule(GtkWidget *widget); 
-
-
-void save_go_to_atom_widget(GtkWidget *widget); /* store in a static */
+/* MOVE-ME to c-interface-gtk-widgets.h */ 
 void unset_go_to_atom_widget(); /* unstore the static go_to_atom_window */
 
 
-void clear_atom_list(GtkWidget *atom_gtklist);
-
-void apply_go_to_atom_from_widget(GtkWidget *widget);
-
-void
-on_go_to_atom_residue_list_select_child (GtkList         *list,
-					 GtkWidget       *widget,
-					 gpointer         user_data);
-
-#ifdef COOT_USE_GTK2_INTERFACE
-/* stuff moved into graphics_info_t */
-#else
-void on_go_to_atom_residue_tree_selection_changed_gtk1 (GtkList         *gtktree,
-							gpointer         user_data);
-#endif
-
-/* Nothing calls this? */
-/* void */
-/* on_go_to_atom_residue_list_selection_changed (GtkList         *list, */
-/* 						   gpointer         user_data); */
-
-
-#ifdef COOT_USE_GTK2_INTERFACE
-
-#else
-void on_go_to_atom_atom_list_selection_changed_gtk1 (GtkList         *list,
-						gpointer         user_data);
-void
-on_go_to_atom_residue_list_unselect_child (GtkList         *list,
-					   GtkWidget       *widget,
-					   gpointer         user_data);
-#endif
 /* \} */
 
 
@@ -2976,9 +2742,6 @@ void glyco_tree_test();
 /* section Map and Molecule Control */
 /*! \name Map and Molecule Control */
 /* \{ */
-void save_display_control_widget_in_graphics(GtkWidget *widget); 
-
-GtkWidget *wrapped_create_display_control_window();
 
 /*! \brief display the Display Constrol window  */
 void post_display_control_window(); 
@@ -3078,15 +2841,6 @@ PyObject *symmetry_operators_to_xHM_py(PyObject *symmetry_operators);
 /*                         Merge Molecules                                  */
 /*  ----------------------------------------------------------------------- */
 /* section Merge Molecules */
-GtkWidget *wrapped_create_merge_molecules_dialog();
-void do_merge_molecules_gui();
-void do_merge_molecules(GtkWidget *dialog);
-void fill_vbox_with_coordinates_options(GtkWidget *vbox,
-					GtkSignalFunc checkbox_callback_func);
-void merge_molecules_menu_item_activate(GtkWidget *item, 
-					GtkPositionType pos);
-void on_merge_molecules_check_button_toggled (GtkToggleButton *togglebutton,
-					      gpointer         user_data);
 
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
@@ -3100,43 +2854,11 @@ PyObject *merge_molecules_py(PyObject *add_molecules, int imol);
 
 
 /*  ----------------------------------------------------------------------- */
-/*                         Mutate Sequence and Loops GUI                    */
-/*  ----------------------------------------------------------------------- */
-/* section Mutate Sequence and Loops GUI */
-GtkWidget *wrapped_create_mutate_sequence_dialog();
-void do_mutate_sequence(GtkWidget *dialog); 
-void mutate_sequence_molecule_menu_item_activate(GtkWidget *item, 
-						 GtkPositionType pos);
-/* void fill_chain_option_menu(GtkWidget *chain_option_menu, int imol); */
-/* the generic form of the above - also used by superpose chain optionmenu */
-/* void fill_chain_option_menu_with_callback(GtkWidget *chain_option_menu, 
-					  int imol,
-					  GtkSignalFunc callback); */
-void mutate_sequence_chain_option_menu_item_activate (GtkWidget *item,
-						      GtkPositionType pos);
-
-/* My Rama-Search Loop fit */
-GtkWidget *wrapped_fit_loop_rama_search_dialog();
-void fit_loop_from_widget(GtkWidget *w);
-
-/* wrapper for Kevin's DB Loop (called from callbacks.c) */
-void wrapped_fit_loop_db_loop_dialog();
-
-
-
-/*  ----------------------------------------------------------------------- */
 /*                         Align and Mutate GUI                             */
 /*  ----------------------------------------------------------------------- */
 /* section Align and Mutate */
 /*! \name  Align and Mutate */
 /* \{ */
-GtkWidget *wrapped_create_align_and_mutate_dialog();
-/* return the handled_state, so that we know if we should kill the dialog or not */
-int do_align_mutate_sequence(GtkWidget *w);
-void align_and_mutate_molecule_menu_item_activate(GtkWidget *item, 
-						  GtkPositionType pos);
-void align_and_mutate_chain_option_menu_item_activate (GtkWidget *item,
-						       GtkPositionType pos);
 
 /*! \brief aligand and mutate the given chain to the given sequence  */
 void align_and_mutate(int imol, const char *chain_id, const char *fasta_maybe, short int renumber_residues_flag);
@@ -3173,8 +2895,6 @@ PyObject *nearest_residue_by_sequence_py(int imol, const char* chain_id, int res
 int renumber_residue_range(int imol, const char *chain_id, 
 			   int start_res, int last_res, int offset);
 
-GtkWidget *wrapped_create_renumber_residue_range_dialog();
-void renumber_residues_from_widget(GtkWidget *window);
 
 /*! \brief change chain id, residue number or insertion code for given
   residue  */
@@ -3185,12 +2905,6 @@ int change_residue_number(int imol, const char *chain_id, int current_resno, con
 /*                         Change chain id                                  */
 /*  ----------------------------------------------------------------------- */
 /* section Change Chain ID */
-GtkWidget *wrapped_create_change_chain_id_dialog();
-void change_chain_id_by_widget(GtkWidget *w);
-void change_chain_ids_mol_option_menu_item_activate(GtkWidget *item,
-						    GtkPositionType pos);
-void change_chain_ids_chain_menu_item_activate(GtkWidget *item,
-					       GtkPositionType pos);
 
 /*! \brief change the chain id of the specified residue */
 void  change_chain_id(int imol, const char *from_chain_id, const char *to_chain_id, 
@@ -3235,20 +2949,6 @@ void post_python_scripting_window();
 /* called from c-inner-main */
 void run_command_line_scripts();
 
-void setup_guile_window_entry(GtkWidget *entry); 
-void setup_python_window_entry(GtkWidget *entry); 
-
-/*  Check if this is needed still, I think not. */
-#ifdef USE_GUILE
-void guile_window_enter_callback( GtkWidget *widget,
-				  GtkWidget *entry ); 
-#endif /* USE_GUILE */
-
-#ifdef USE_PYTHON
-void python_window_enter_callback( GtkWidget *widget,
-				   GtkWidget *entry ); 
-#endif /* USE_PYTHON */
-
 void set_guile_gui_loaded_flag(); 
 void set_python_gui_loaded_flag(); 
 void set_found_coot_gui(); 
@@ -3263,25 +2963,12 @@ void set_found_coot_python_gui();
 
 /*! \name Monomer */
 /* \{ */
-/* Accession code */
-void handle_get_accession_code(GtkWidget *widget); 
 
 /*! \brief if possible, read in the new coords getting coords via web.
 
 (no return value because get-url-str does not return one).
  */
 void get_coords_for_accession_code(const char *code);
-
-/* in here we check if libcheck is available (if scripting is available) */
-GtkWidget *wrapped_create_libcheck_monomer_dialog();
-
-/* Libcheck monomer code */
-void handle_get_libcheck_monomer_code(GtkWidget *widget); 
-
-
-int
-handle_make_monomer_search(const char *text, GtkWidget *viewport);
-
 
 
 /*  Don't let this be seen by standard c, since I am using a std::string */
@@ -3295,8 +2982,11 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport);
 
 /*! \brief run script file */
 void run_script       (const char *filename);
+/*! \brief guile run script file */
 void run_guile_script (const char *filename);
+/*! \brief run python script file */
 void run_python_script(const char *filename);
+/*! \brief import python module */
 int import_python_module(const char *module_name, int use_namespace);
 
 #ifdef __cplusplus
@@ -3402,13 +3092,6 @@ void set_residue_selection_flash_frames_number(int i);
 void accept_regularizement();
 void clear_up_moving_atoms();	/* remove the molecule and bonds */
 void clear_moving_atoms_object(); /* just get rid of just the bonds (redraw done here). */
-/* now we use */
-void fill_option_menu_with_refine_options(GtkWidget *option_menu);
-
-GtkWidget *wrapped_create_refine_params_dialog(); 
-
-void do_torsions_toggle(GtkWidget *button);
-
 
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 
@@ -3444,8 +3127,6 @@ PyObject *regularize_residues_with_alt_conf_py(int imol, PyObject *r, const char
 void set_refine_with_torsion_restraints(int istate); 
 /*! \brief return the state of above */
 int refine_with_torsion_restraints_state(); 
-void set_refine_params_toggle_buttons(GtkWidget *button);
-
 
 /*! \brief set the relative weight of the geometric terms to the map terms 
 
@@ -3462,9 +3143,6 @@ void set_matrix(float f);
 
 /*! \brief return the relative weight of the geometric terms to the map terms. */
 float matrix_state();
-
-/* Now the refinement weight can be set from an entry in the refine_params_dialog. */
-void set_refinemenent_weight_from_entry(GtkWidget *entry);
 
 
 /*! \brief change the +/- step for autoranging (default is 1)
@@ -3561,9 +3239,6 @@ void set_fix_chiral_volumes_before_refinement(int istate);
 /*! \brief query the state of the above option */
 void check_chiral_volumes(int imol);
 
-void check_chiral_volumes_from_widget(GtkWidget *window); 
-void fill_chiral_volume_molecule_option_menu(GtkWidget *w);
-void chiral_volume_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos);
 
 /*! \brief For experienced Cooters who don't like Coot nannying about
   chiral volumes during refinement. */
@@ -3681,20 +3356,22 @@ PyObject *list_extra_restraints_py(int imol);
 #endif /* USE_PYTHON */
 #endif /*  __cplusplus */
 
+/*! \brief set use only extra torsion restraints for torsions */
 void set_use_only_extra_torsion_restraints_for_torsions(short int state);
+/*! \brief return only-use-extra-torsion-restraints-for-torsions state */
 int use_only_extra_torsion_restraints_for_torsions_state();
 
 
 /*  ----------------------------------------------------------------------- */
 /*                  Restraints editor                                       */
 /*  ----------------------------------------------------------------------- */
-#if (GTK_MAJOR_VERSION > 1) 
-GtkWidget *wrapped_create_residue_editor_select_monomer_type_dialog();
-void show_restraints_editor(const char *monomer_type);
-void show_restraints_editor_by_index(int menu_item_index);
-void clear_restraints_editor_by_dialog(GtkWidget *dialog); /* close button pressed */
-#endif
 
+/*! \brief show restraints editor */
+void show_restraints_editor(const char *monomer_type);
+/*! \brief show restraints editor using residue type index */
+void show_restraints_editor_by_index(int menu_item_index);
+
+/*! \brief write cif restraints for monomer */
 void write_restraints_cif_dictionary(const char *monomer_type, const char *file_name);
 
 /* \} */
@@ -3734,18 +3411,6 @@ void set_nomenclature_errors_on_read(const char *mode);
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
-/*               Move Molecule Here                                        */
-/*  ----------------------------------------------------------------------- */
-/*! \name move molecule here (wrapper to scheme function) */
-/* { */
-GtkWidget *wrapped_create_move_molecule_here_dialog();
-void move_molecule_here_by_widget(GtkWidget *w);
-int move_molecule_to_screen_centre_internal(int imol);
-void fill_move_molecule_here_dialog(GtkWidget *w);
-
-/* } */
-
-/*  ----------------------------------------------------------------------- */
 /*               Atom info                                                  */
 /*  ----------------------------------------------------------------------- */
 /* section Atom Info Interface */
@@ -3769,28 +3434,26 @@ output_atom_info_as_text(int imol, const char *chain_id, int resno,
 /* \{ */
 /* Similar to above, we need only one click though. */
 void do_residue_info_dialog();
-void output_residue_info_dialog    (int imol, int atom_index); /* widget version */
+
+/* MOVE-ME to c-interface-gtk-widgets.h */
+ void output_residue_info_dialog    (int imol, int atom_index); /* widget version */
 /* scripting version */
+ /*! \brief show residue info dialog for given residue */
 void residue_info_dialog(int imol, const char *chain_id, int resno, const char *ins_code); 
 int residue_info_dialog_is_displayed();
 void output_residue_info_as_text(int atom_index, int imol); /* text version */
 /* functions that uses mmdb_manager functions/data types moved to graphics_info_t */
 
-void apply_residue_info_changes(GtkWidget *widget);
 void do_distance_define();
 void do_angle_define();
 void do_torsion_define();
 void residue_info_apply_all_checkbutton_toggled();
-GtkWidget *wrapped_create_residue_info_dialog();
 void clear_residue_info_edit_list();
 
 /* a graphics_info_t function wrapper: */
-void residue_info_release_memory(GtkWidget *widget); 
 void unset_residue_info_widget(); 
 void clear_simple_distances();
 void clear_last_simple_distance();
-GtkWidget *wrapped_create_geometry_dialog();
-void store_geometry_dialog(GtkWidget *w);
 
 /* \} */
 
@@ -3800,9 +3463,6 @@ void store_geometry_dialog(GtkWidget *w);
 /* section Residue Environment Functions */
 /*! \name Residue Environment Functions */
 /* \{ */
-void fill_environment_widget(GtkWidget *widget);
-void execute_environment_settings(GtkWidget *widget);
-void toggle_environment_show_distances(GtkToggleButton *button); 
 /*! \brief show environment distances.  If state is 0, distances are
   turned off, otherwise distances are turned on. */
 void set_show_environment_distances(int state);
@@ -3841,9 +3501,6 @@ double add_atom_geometry_distance_py(int imol_1, PyObject *atom_spec_1, int imol
 /* section Pointer Functions */
 /*! \name Pointer Functions */
 /* \{ */
-void fill_pointer_distances_widget(GtkWidget *widget);
-void execute_pointer_distances_settings(GtkWidget *widget);
-void toggle_pointer_distances_show_distances(GtkToggleButton *button); 
 /*! \brief turn on (or off) the pointer distance by passing 1 (or 0). */
 void set_show_pointer_distances(int istate);
 /*! \brief show the state of display of the  pointer distances  */
@@ -3874,7 +3531,6 @@ void set_smooth_scroll_do_zoom(int i);
 int      smooth_scroll_do_zoom();   
 float    smooth_scroll_zoom_limit(); 
 void set_smooth_scroll_zoom_limit(float f);
-void set_zoom_adjustment(GtkWidget *w);
 void set_zoom(float f);
 
 /* \} */
@@ -3988,42 +3644,6 @@ void deviant_geometry(int imol);
 short int is_valid_model_molecule(int imol);
 short int is_valid_map_molecule(int imol);
 
-void free_geometry_graph(GtkWidget *dialog); /* free the lines in the widget  */
-void unset_geometry_graph(GtkWidget *dialog); /* set the graphics info
-						 static to NULL, so
-						 that we on longer try
-						 to update the
-						 widget*/
-
-void add_on_validation_graph_mol_options(GtkWidget *menu, const char *type_in);
-void my_delete_validaton_graph_mol_option(GtkWidget *widget, void *);
-void validation_graph_b_factor_mol_selector_activate (GtkMenuItem     *menuitem,
-						      gpointer         user_data);
-////B 
-void validation_graph_calc_b_factor_mol_selector_activate (GtkMenuItem     *menuitem,
-						      gpointer         user_data);
-////E 
-void validation_graph_geometry_mol_selector_activate (GtkMenuItem     *menuitem,
-						      gpointer         user_data);
-void validation_graph_omega_mol_selector_activate (GtkMenuItem     *menuitem,
-						   gpointer         user_data);
-void validation_graph_rotamer_mol_selector_activate (GtkMenuItem     *menuitem,
-						   gpointer         user_data);
-void validation_graph_density_fit_mol_selector_activate (GtkMenuItem     *menuitem,
-						   gpointer         user_data);
-void gln_and_asn_b_factor_outlier_mol_selector_activate (GtkMenuItem     *menuitem,
-							 gpointer         user_data);
-void validation_graph_ncs_diffs_mol_selector_activate (GtkMenuItem     *menuitem,
-						       gpointer         user_data);
-
-void probe_mol_selector_activate (GtkMenuItem     *menuitem,
-				  gpointer         user_data);
-
-/* These are called right at the beginning (main) */
-/* old style not-generic menu initialization */
-/* void create_initial_validation_graph_b_factor_submenu(GtkWidget *window1); */
-/* void create_initial_validation_graph_geometry_submenu(GtkWidget *window1); */
-/* void create_initial_validation_graph_omega_submenu(GtkWidget *window1); */
 
 /*! \brief generate a list of difference map peaks 
 
@@ -4031,9 +3651,6 @@ peaks within max_closeness (2.0 A typically) of a larger peak are not
 listed.
 */
 void difference_map_peaks(int imol, int imol_coords, float level, float max_closeness, int do_positive_level_flag, int do_negative_level_flag); 
-
-void difference_map_peaks_by_widget(GtkWidget *dialog);
-void set_difference_map_peaks_widget(GtkWidget *w);
 
 /* \brief set the max closeness (i.e. no smaller peaks can be within
    max_closeness of a larger peak)
@@ -4044,7 +3661,6 @@ void set_difference_map_peaks_max_closeness(float m);
 float difference_map_peaks_max_closeness();
 
 void clear_diff_map_peaks();
-GtkWidget *wrapped_create_generate_diff_map_peaks_dialog();
 
 /*! \brief Make a gui for GLN adn ASN B-factor outiers, compairing the
   O and N temperatur factors difference to the distribution of
@@ -4156,29 +3772,6 @@ void set_ramachandran_plot_contour_levels(float level_prefered, float level_allo
   360.  Default value is 10. */
 void set_ramachandran_plot_background_block_size(float blocksize) ;
 
-void my_delete_ramachandran_mol_option(GtkWidget *widget, void *);
-
-/* call with value non-zero for on, 0 for off/not. */
-
-/* This should not be used for scripting. */
- 
-/*  If called with 0, it checks to see if it was previously non-zero, */
-/*  if so, then it does a get_user_data to find the pointer to the */
-/*  object and deletes it. */
-void set_dynarama_is_displayed(GtkWidget *dynarama_widget, int imol);
-GtkWidget *dynarama_is_displayed_state(int imol);
-
-/*  return -1 on error. */
-int get_mol_from_dynarama(GtkWidget *window);
-
-
-/* FIXME before release! */
-/* gcc ... -O2 -MT callbacks.o -MD -MP -MF .deps/callbacks.Tpo -c -o callbacks.o ../../coot/src/callbacks.c */
-/* ../../coot/src/callbacks.c: In function ‘on_dynarama_window_configure_event’: */
-/* ../../coot/src/callbacks.c:9682:4: warning: passing argument 2 of ‘resize_rama_canvas’ from incompatible pointer type [enabled by default] */
-/* ../../coot/src/c-interface.h:4083:6: note: expected ‘union GdkEvent *’ but argument is of type ‘struct GdkEventConfigure *’ */
-void resize_rama_canvas(GtkWidget *widget, GdkEventConfigure *event);
-
 void set_moving_atoms(double phi, double psi);
 
 void accept_phi_psi_moving_atoms();
@@ -4196,15 +3789,6 @@ void ramachandran_plot_differences(int imol1, int imol2);
 /*! \brief  A chain-specific Kleywegt Plot. */
 void ramachandran_plot_differences_by_chain(int imol1, int imol2, 
 					    const char *a_chain, const char *b_chain);
-
-GtkWidget *wrapped_ramachandran_plot_differences_dialog();
-int  do_ramachandran_plot_differences_by_widget(GtkWidget *w); /* return status */
-void fill_ramachandran_plot_differences_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
-								       int is_first_mol_flag);
-void ramachandran_plot_differences_mol_option_menu_activate_first(GtkWidget *item, GtkPositionType pos);
-void ramachandran_plot_differences_mol_option_menu_activate_second(GtkWidget *item, GtkPositionType pos);
-void ramachandran_plot_differences_chain_option_menu_activate_first(GtkWidget *item, GtkPositionType pos);
-void ramachandran_plot_differences_chain_option_menu_activate_second(GtkWidget *item, GtkPositionType pos);
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -4215,7 +3799,6 @@ void ramachandran_plot_differences_chain_option_menu_activate_second(GtkWidget *
 /*! \brief display the sequence view dialog for molecule number imol */
 void do_sequence_view(int imol);
 void add_on_sequence_view_choices();
-void set_sequence_view_is_displayed(GtkWidget *widget, int imol); 
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -4469,7 +4052,6 @@ void set_find_ligand_mask_waters(int istate);
 
 /*  extract the sigma level and stick it in */
 /*  graphics_info_t::ligand_cluster_sigma_level */
-void set_ligand_cluster_sigma_level_from_widget(GtkWidget *button);
 
 /*! \brief set the protein molecule for ligand searching */
 void set_ligand_search_protein_molecule(int imol);
@@ -4495,7 +4077,6 @@ SCM execute_ligand_search_scm();
 PyObject *execute_ligand_search_py();  
 #endif /* USE_PYTHON */
 #endif /* __cplusplus */
-void free_ligand_search_user_data(GtkWidget *button); 
 void add_ligand_clear_ligands(); 
 
 /* conformers added to cc-interface because it uses a std::vector internally.  */
@@ -4510,29 +4091,6 @@ void ligand_expert();
    if maps, coords and ligands are available, that is.
 */
 void do_find_ligands_dialog();
-
-/* Widget functions */
-
-int fill_ligands_dialog(GtkWidget *dialog);
-int fill_ligands_dialog_map_bits(GtkWidget *dialog, short int diff_maps_only_flag);	
-int fill_ligands_dialog_protein_bits(GtkWidget *dialog);	
-int fill_ligands_dialog_ligands_bits(GtkWidget *dialog);	
-/*  we need to delete the find_ligand_dialog when we are done, so  */
-/*  add this pointer as user data. */
-void do_find_ligand_many_atoms_in_ligands(GtkWidget *find_ligand_dialog); 
-/* these I factored out, they can be used for the waters dialog too */
-int fill_ligands_dialog_map_bits_by_dialog_name(GtkWidget *find_ligand_dialog,
-						const char *dialog_name, 
-						short int diff_maps_only_flag); 
-int fill_ligands_dialog_protein_bits_by_dialog_name(GtkWidget *find_ligand_dialog,
-						    const char *dialog_name); 
-int fill_vbox_with_coords_options_by_dialog_name(GtkWidget *find_ligand_dialog,
-						 const char *dialog_name,
-						 short int have_ncs_flag);
-
-void fill_ligands_sigma_level_entry(GtkWidget *dialog);
-void fill_ligands_expert_options(GtkWidget *find_ligand_dialog);
-void set_ligand_expert_options_from_widget(GtkWidget *button);
 
 /*! \brief Overlap residue with "template"-based matching.  
 
@@ -4596,12 +4154,6 @@ void match_ligand_atom_names(int imol_ligand, const char *chain_id_ligand, int r
 int exchange_ligand(int imol_lig, const char *chain_id_lig, int resno_lig, const char *ins_code_lig);
 		    
 
-/*  info is stored in graphics_info_t beforehand */
-void execute_get_mols_ligand_search(GtkWidget *button); 
-
-/* This has pointers to Coord_orths poked into it, let's clear them
-   up. */
-void  free_blob_dialog_memory(GtkWidget *w);
 
 /*! \brief flip the ligand (usually active residue) around its eigen vectors
    to the next flip number.  Immediate replacement (like flip
@@ -4622,10 +4174,6 @@ void jed_flip(int imol, const char *chain_id, int res_no, const char *ins_code, 
 
 /*! Renumber the waters of molecule number imol with consecutive numbering */
 void renumber_waters(int imol); 
-void wrapped_create_find_waters_dialog();
-void fill_find_waters_dialog(GtkWidget *find_ligand_dialog);
-/* interface fluff */
-void execute_find_waters(GtkWidget *ok_button);  
 
 /*! \brief find waters */
 void execute_find_waters_real(int imol_for_map,
@@ -4657,12 +4205,6 @@ float max_water_distance(int imol);
 
 char *get_text_for_find_waters_sigma_cut_off();
 void set_value_for_find_waters_sigma_cut_off(float f); 
-/* #ifdef __cplusplus */
-/* Just too painful... */
-/* void wrapped_create_big_blobs_dialog(const std::vector<Cartesian> &blobs); */
-/* #endif */
-void on_big_blob_button_clicked(GtkButton *button,
-				gpointer user_data);
 
 /*! \brief set the limit of interesting variance, above which waters
   are listed (otherwise ignored)
@@ -4682,14 +4224,10 @@ void set_write_peaksearched_waters();
 /*! \brief find blobs  */
 void execute_find_blobs(int imol_model, int imol_for_map, float cut_off, short int interactive_flag);
 
-void execute_find_blobs_from_widget(GtkWidget *dialog);
-
-GtkWidget *wrapped_create_unmodelled_blobs_dialog();
-
 /* there is also a c++ interface to find blobs, which returns a vector
    of pairs (currently) */
 
-/*! \begin split the given water and fit to map.
+/*! \brief split the given water and fit to map.
 
 If refinement map is not defined, don't do anything.
 
@@ -4772,9 +4310,6 @@ int set_b_factor_bonds_scale_factor(int imol, float f);
 void change_model_molecule_representation_mode(int up_or_down);
 
 
-GtkWidget *wrapped_create_bond_parameters_dialog();
-void apply_bond_parameters(GtkWidget *w);
-
 /*! \brief make a ball and stick representation of imol given atom selection
 
 e.g. (make-ball-and-stick 0 "/1" 0.15 0.25 1) */
@@ -4832,10 +4367,6 @@ int additional_representation_by_attributes(int imol,  const char *chain_id,
 					    int bonds_box_type,
 					    float bond_width,
 					    int draw_hydrogens_flag);
-
-GtkWidget *wrapped_create_add_additional_representation_gui();
-void add_additional_representation_by_widget(GtkWidget *w);
-void add_reps_molecule_option_menu_item_select(GtkWidget *item, GtkPositionType pos);
 
 
 #ifdef __cplusplus
@@ -4970,8 +4501,6 @@ void set_rigid_body_fit_acceptable_fit_fraction(float f);
 /* \{ */
 void   toggle_dynamic_map_display_size();
 void   toggle_dynamic_map_sampling();
-void   set_map_dynamic_map_sampling_checkbutton(GtkWidget *checkbutton);
-void   set_map_dynamic_map_display_size_checkbutton(GtkWidget *checkbutton);
 /* scripting interface: */
 void set_dynamic_map_size_display_on();
 void set_dynamic_map_size_display_off();
@@ -5081,16 +4610,12 @@ short int delete_item_mode_is_atom_p(); /* (predicate) a boolean */
 short int delete_item_mode_is_residue_p(); /* predicate again */
 short int delete_item_mode_is_water_p();
 short int delete_item_mode_is_sidechain_p();
-void store_delete_item_widget(GtkWidget *widget);
 void clear_pending_delete_item(); /* for when we cancel with picking an atom */
 void clear_delete_item_widget();
 void store_delete_item_widget_position();
 short int delete_item_widget_is_being_shown();
 short int delete_item_widget_keep_active_on();
 
-/* We need to set the pending delete flag and that can't be done in
-   callback, so this wrapper does it */
-GtkWidget *wrapped_create_delete_item_dialog();
 
 /* utility function, moving widget work out of c-interface-build.cc */
 void delete_object_handle_delete_dialog(short int do_delete_dialog);
@@ -5103,7 +4628,6 @@ void delete_object_handle_delete_dialog(short int do_delete_dialog);
 /* section Rotate/Translate Buttons */
 /*  sets flag for atom selection clicks */
 void do_rot_trans_setup(short int state); 
-void do_rot_trans_adjustments(GtkWidget *dialog);
 void rot_trans_reset_previous();
 void set_rotate_translate_zone_rotates_about_zone_centre(int istate);
 void set_rot_trans_object_type(short int rt_type); /* zone, chain, mol */
@@ -5150,21 +4674,12 @@ void db_mainchain(int imol,
 /*  ----------------------------------------------------------------------- */
 /*                  close molecule                                          */
 /*  ----------------------------------------------------------------------- */
-/* section Close Molecule FUnctions */
-/*! \name Close Molecule FUnctions */
+/* section Close Molecule Functions */
+/*! \name Close Molecule Functions */
 /* \{ */
 
 void close_molecule(int imol);
 
-/* get the molecule to delete from the optionmenu */
-void close_molecule_by_widget(GtkWidget *optionmenu);
-void fill_close_option_menu_with_all_molecule_options(GtkWidget *optionmenu);
-/* The callback for the above menuitems */
-void close_molecule_item_select(GtkWidget *item, GtkPositionType pos); 
-
-/* New version of close molecule */
-void new_close_molecules(GtkWidget *window);
-GtkWidget *wrapped_create_new_close_molecules_dialog();
 
 /* \} */
 
@@ -5268,10 +4783,6 @@ PyObject *missing_atom_info_py(int imol);
 #endif /* USE_PYTHON */
 #endif /* __cplusplus */
 
-
-/* Used for unsetting the rotamer dialog when it gets destroyed. */
-void
-set_graphics_rotamer_dialog(GtkWidget *w);
 
 
 #ifdef __cplusplus	/* need this wrapper, else gmp.h problems in callback.c */
@@ -5421,7 +4932,6 @@ PyObject *add_alt_conf_py(int imol, const char*chain_id, int res_no, const char 
 #endif	/* USE_PYTHON */
 #endif /* __cplusplus */
 
-void setup_alt_conf_with_dialog(GtkWidget *dialog); 
 void unset_add_alt_conf_dialog(); /* set the static dialog holder in
 				     graphics info to NULL */
 void unset_add_alt_conf_define(); /* turn off pending atom pick */
@@ -5450,7 +4960,6 @@ void place_typed_atom_at_pointer(const char *type);
 
 /* ! \brief set pointer atom is a water (HOH) */
 void set_pointer_atom_is_dummy(int i);
-void fill_place_atom_molecule_option_menu(GtkWidget *optionmenu);
 void display_where_is_pointer(); /* print the coordinates of the
 				    pointer to the console */
 /*! \brief Return the current pointer atom molecule, create a pointer
@@ -5488,8 +4997,6 @@ void baton_build_delete_last_residue();
 /*! \brief set the parameters for the start of a new baton-built fragment. direction can either 
      be "forwards" or "backwards" */
 void set_baton_build_params(int istart_resno, const char *chain_id, const char *direction); 
-void set_baton_build_params_from_widget(GtkWidget *params_dialog);
-void baton_mode_calculate_skeleton(GtkWidget *window);
 /*! \} */
 
 
@@ -5518,8 +5025,6 @@ void setup_reverse_direction(short int i);
 /* c-interface-build */
 /*! \{ */
 short int add_OXT_to_residue(int imol, int reso, const char *insertion_code, const char *chain_id);
-GtkWidget *wrapped_create_add_OXT_dialog();
-void apply_add_OXT_from_widget(GtkWidget *w);
 
 /*! \} */
 
@@ -5565,10 +5070,6 @@ int edit_chi_angles(int imol, const char *chain_id, int resno,
 		     const char *ins_code, const char *altconf);
 
 int set_show_chi_angle_bond(int imode);
-
-/* not for user consumption, this finds (from itself) the residue type
-   and calls the graphics_info_t function. */
-void fill_chi_angles_vbox(GtkWidget *vbox);
 
 /* a callback from the callbacks.c, setting the state of
    graphics_info_t::edit_chi_angles_reverse_fragment flag */
@@ -5628,24 +5129,11 @@ float map_mask_atom_radius();
 /*! \name check Waters Interface */
 /* interactive check by b-factor, density level etc. */
 /*! \{ */
-GtkWidget *wrapped_create_check_waters_dialog();
 void set_check_waters_b_factor_limit(float f);
 void set_check_waters_map_sigma_limit(float f);
 void set_check_waters_min_dist_limit(float f);
 void set_check_waters_max_dist_limit(float f);
-void check_waters_molecule_menu_item_activate(GtkWidget *item, 
-					      GtkPositionType pos);
-void check_water_by_difference_maps_option_menu_item_select(GtkWidget *item, 
-							    GtkPositionType pos);
-void do_check_waters_by_widget(GtkWidget *dialog);
-void store_checked_waters_baddies_dialog(GtkWidget *dialog);
 
-GtkWidget *wrapped_checked_waters_baddies_dialog(int imol, float b_factor_lim, 
-						 float map_sigma_lim, 
-						 float min_dist, float max_dist,
-						 short int part_occ_contact_flag,
-						 short int zero_occ_flag,
-						 short int logical_operator_and_or_flag);
 
 /*! \brief Delete waters that are fail to meet the given criteria. */
 void delete_checked_waters_baddies(int imol, float b_factor_lim, 
@@ -5734,21 +5222,9 @@ int apply_lsq_matches_simple(int imol_reference, int imol_moving);
 /* section Least-Squares plane interface */
 void setup_lsq_deviation(int state);
 void setup_lsq_plane_define(int state); 
-GtkWidget *wrapped_create_lsq_plane_dialog();
 void unset_lsq_plane_dialog(); /* callback from destroy of widget */
 void remove_last_lsq_plane_atom();
 
-GtkWidget *wrapped_create_least_squares_dialog();
-int apply_lsq_matches_by_widget(GtkWidget *lsq_dialog); /* return 1 for good fit */
-void lsq_ref_mol_option_menu_changed(GtkWidget *item, GtkPositionType pos);
-void lsq_mov_mol_option_menu_changed(GtkWidget *item, GtkPositionType pos);
-void lsq_reference_chain_option_menu_item_activate(GtkWidget *item,
-						   GtkPositionType pos);
-void lsq_moving_chain_option_menu_item_activate(GtkWidget *item,
-						GtkPositionType pos);
-void fill_lsq_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
-					     int is_reference_structure_flag,
-					     const char *active_chain_id);
 /*! \} */
 
 
@@ -5859,13 +5335,6 @@ int superpose_with_atom_selection(int imol1, int imol2,
 				  const char *mmdb_atom_sel_str_2,
 				  short int move_imol2_copy_flag);
 
-void execute_superpose(GtkWidget *w);
-GtkWidget *wrapped_create_superpose_dialog(); /* used by callback */
-void fill_superpose_option_menu_with_chain_options(GtkWidget *chain_optionmenu, 
- 						   int is_reference_structure_flag);
-void update_lsq_dialog_store_values(GtkWidget *w);
-
- 
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -5888,8 +5357,6 @@ void ncs_update_ghosts(int imol); /* update ghosts */
 /*! \brief make NCS map */
 int make_dynamically_transformed_ncs_maps(int imol_model, int imol_map, 
 					  int overwrite_maps_of_same_name_flag);
-int make_dynamically_transformed_ncs_maps_by_widget(GtkWidget *dialog);
-GtkWidget *wrapped_create_ncs_maps_dialog();
 void make_ncs_ghosts_maybe(int imol);
 /*! \brief Add NCS matrix */
 void add_ncs_matrix(int imol, const char *this_chain_id, const char *target_chain_id,
@@ -5958,12 +5425,10 @@ void copy_from_ncs_master_to_chains_py(int imol, const char *master_chain_id,
 #endif 
 #endif 
 
-GtkWidget *wrapped_create_ncs_control_dialog();	
 /*! \brief change the NCS master chain  (by number)*/
 void ncs_control_change_ncs_master_to_chain(int imol, int ichain); 
 /*! \brief change the NCS master chain  (by chain_id)*/
 void ncs_control_change_ncs_master_to_chain_id(int imol, const char *chain_id); 
-void ncs_control_change_ncs_master_to_chain_update_widget(GtkWidget *w, int imol, int ichain); 
 /*! \brief display the NCS master chain  */
 void ncs_control_display_chain(int imol, int ichain, int state);
 
@@ -6194,9 +5659,6 @@ int ideal_nucleic_acid(const char *RNA_or_DNA, const char *form,
 		       short int single_stranged_flag,
 		       const char *sequence);
 
-GtkWidget *wrapped_nucleotide_builder_dialog();
-void ideal_nucleic_acid_by_widget(GtkWidget *builder_dialog);
-
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
 
@@ -6365,7 +5827,6 @@ float fffear_angular_resolution();
 /* \{ */
 /*! \brief try to make socket listener */
 void make_socket_listener_maybe(); 
-int coot_socket_listener_idle_func(GtkWidget *w);
 void set_coot_listener_socket_state_internal(int sock_state);
 
 /*! \brief feed the main thread a scheme script to evaluate */
@@ -6615,18 +6076,12 @@ PyObject *user_mods_py(const char *file_name);
 void sharpen(int imol, float b_factor);
 void sharpen_with_gompertz_scaling(int imol, float b_factor, short int try_gompertz, float gompertz_factor);
 
-GtkWidget *wrapped_create_map_sharpening_dialog();
-void map_sharpening_map_select(GtkWidget *item, GtkPositionType pos);
-void map_sharpening_value_changed (GtkAdjustment *adj, GtkWidget *window);
-int fill_option_menu_with_map_options(GtkWidget *option_menu, GtkSignalFunc signalfunc);
-int fill_option_menu_with_map_mtz_options(GtkWidget *option_menu, GtkSignalFunc signalfunc);
 /*! \brief set the limit of the b-factor map sharpening slider (default 30) */
 void set_map_sharpening_scale_limit(float f);
 /*! \} */
 /* ---------------------------------------------------------------------------- */
 /*	Density Map Kurtosis							*/
 /* ----------------------------------------------------------------------------	*/
-void calc_and_set_optimal_b_factor ( GtkWidget *w ) ;
 float optimal_B_kurtosis(int imol);
 
 
@@ -6666,8 +6121,6 @@ void setup_fixed_atom_pick(short int ipick, short int is_unpick);
 
 /*! \brief clear all fixed atoms */
 void clear_all_fixed_atoms(int imol);
-void store_fixed_atom_dialog(GtkWidget *w);
-GtkWidget *wrapped_create_fixed_atom_dialog();
 void clear_fixed_atoms_all();
 
 /* produce debugging output from problematic atom picking  */
@@ -7129,8 +6582,6 @@ void sequence_view_old_style(int imol);
 
 void add_ligand_builder_menu_item_maybe();
 
-void start_ligand_builder_gui_internal(GtkMenuItem     *menuitem,
-				       gpointer         user_data);
 void start_ligand_builder_gui();
 
 #ifdef __cplusplus
@@ -7179,5 +6630,6 @@ void full_screen(int mode);
 
 #endif /* C_INTERFACE_H */
 END_C_DECLS
+
 
 
