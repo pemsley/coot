@@ -268,8 +268,8 @@ main (int argc, char *argv[]) {
 #endif 	
       // if this is a pre-release, stick in the revision number too
       if (version_string.find("-pre") != std::string::npos) {
-	 main_title += " (revision ";
-	 main_title += coot::util::int_to_string(svn_revision());
+	 main_title += " (revision count ";
+	 main_title += coot::util::int_to_string(git_revision_count());
 	 main_title += ")";
       }
      
