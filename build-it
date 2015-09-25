@@ -3345,6 +3345,7 @@ if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then
        make linux
        $MAKE
        make prefix=$install_top_dir install
+       cd -
     fi
 fi
 
