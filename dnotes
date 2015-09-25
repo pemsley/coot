@@ -7396,5 +7396,10 @@ Thu Jul 23 12:31:24 BST 2015
 
     https://gist.github.com/jarvist/4570215
 
+------
+ 
+    How to run lldb on a core:
+
+   $ lldb .libs/coot-bin -c /cores/core.18439
 
 ------
