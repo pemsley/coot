@@ -381,7 +381,7 @@ void baton_mode_calculate_skeleton(GtkWidget *window) {
 
    std::cout << "calculating map for molecule " << imol << std::endl;
    if (imol < graphics_info_t::n_molecules() && imol >= 0) { 
-      skeletonize_map(0, imol);
+      skeletonize_map(imol, 0);
    }
 }
 

@@ -2396,8 +2396,13 @@ void skel_greer_off();
 
 /*! \brief skeletonize molecule number imol
 
-   the prune_flag should almost  always be 0.  */
-int skeletonize_map(int prune_flag, int imol);
+   the prune_flag should almost  always be 0. 
+
+   NOTE:: The arguments to have been reversed for coot 0.8.3 and later
+   (now the molecule number comes first).
+
+    */
+int skeletonize_map(int imol, short int prune_flag);
 
 /*! \brief undisplay the skeleton on molecule number imol */
 int unskeletonize_map(int imol); 
