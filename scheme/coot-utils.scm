@@ -2573,7 +2573,7 @@
 						   (cadr centre-residue-spec)
 						   (caddr centre-residue-spec)
 						   BALL_AND_STICK
-						   bb-type 6
+						   bb-type 0.14
 						   draw-hydrogens-flag)
 	  
 	  (map (lambda (spec)
@@ -2583,7 +2583,7 @@
 							  (cadr spec)
 							  (caddr spec)
 							  BALL_AND_STICK
-							  bb-type 6
+							  bb-type 0.14
 							  draw-hydrogens-flag))
 		 
 	       other-residues)))))

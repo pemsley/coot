@@ -5297,11 +5297,13 @@ void add_additional_representation_by_widget(GtkWidget *w) {
       // std::cout << "ERROR:: null bond_width_text, using default of 8" << std::endl;
    } 
       
+   if (representation_type == coot::BALL_AND_STICK)
+      bond_width = 0.15; // not 8
+   
    graphics_info_t g;
    GtkWidget *dcw = g.display_control_window();
    int imol = graphics_info_t::add_reps_molecule_option_menu_item_select_molecule;
    if (GTK_TOGGLE_BUTTON(position_radiobutton)->active) {
-      // std::cout << "By position" << std::endl;
       std::pair<bool, std::pair<int, coot::atom_spec_t> > aas = active_atom_spec();
       if (aas.first) {
 	 int imol_active = aas.second.first;
