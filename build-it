@@ -2679,12 +2679,10 @@ if test -n "$build_python" ; then
    else 
      echo problem getting Python-$pver.tgz
    fi
-   # ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/python251_cci_patches_critical
-   ${WGET} $extras_place/python251_cci_patches_critical
    (
    date
    gzip -dc ${AUTOBUILD_SOURCES}/Python-$pver.tgz | tar xf -
-   patch --strip 1 < ${AUTOBUILD_SOURCES}/python251_cci_patches_critical
+
    cd Python-$pver
 
    echo INFO:: ./configure $generic_prefix $python_spec_flags for python
@@ -3780,6 +3778,7 @@ if [ "$run_tests" = true ] ; then
 	       else 
                   echo ========================
                   echo second coot test failed
+                  echo second coot test failed >& 2
                   echo ========================
                   echo fail-2nd-test $date > $LOGS/test-status
                fi
