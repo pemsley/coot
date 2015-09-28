@@ -5,6 +5,8 @@
    o experiment: use Rdkit with pdb perception to generate molecules and 
      compare them with molecules generated from reading the cif.
 
+   o Does LBG File->Fetch molecule work now? Xamoterol?
+
    o permissions on Ubuntu 14.04
 
    o Draw -> Additional Representation -> Ball and Stick - balls are
