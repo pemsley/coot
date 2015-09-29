@@ -5,9 +5,6 @@
      the N in the nicotinamide is N+2: incorrect!
      Also the Oxygens have charges and Hs.
 
-   o experiment: use Rdkit with pdb perception to generate molecules and 
-     compare them with molecules generated from reading the cif.
-
    o Does LBG File->Fetch molecule work now? Xamoterol?
 
    o Sphere refine doesn't use alpha helical restraints. It should.
@@ -66,6 +63,9 @@
 
    o refinement should refine CYS disulfides only when theres a DISU
      (or whatever) record.  Add a function to add a DISU.
+
+   o experiment: use Rdkit with pdb perception to generate molecules and 
+     compare them with molecules generated from reading the cif.
 
    o when you write out the PDB file, add a checkbox that asks to
      Rationalize Links? - which throws away links that are more than
