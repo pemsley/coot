@@ -1,9 +1,6 @@
  
  0.8.3
 
-   o thumbnail for O 5463 in 3e5r:
-     the N in the nicotinamide is N+2: incorrect!
-     Also the Oxygens have charges and Hs.
 
    o Does LBG File->Fetch molecule work now? Xamoterol?
 
@@ -83,3 +80,8 @@
 * Done.
 
 
+   o thumbnail for O 5463 in 3e5r:
+     the N in the nicotinamide is N+2: incorrect!
+     Also the Oxygens have charges and Hs.
+
+* Done.
