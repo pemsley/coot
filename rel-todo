@@ -5,7 +5,12 @@
      the N in the nicotinamide is N+2: incorrect!
      Also the Oxygens have charges and Hs.
 
-   o Sphere refine doesn't use alpha helical restraints. It should
+   o experiment: use Rdkit with pdb perception to generate molecules and 
+     compare them with molecules generated from reading the cif.
+
+   o Does LBG File->Fetch molecule work now? Xamoterol?
+
+   o Sphere refine doesn't use alpha helical restraints. It should.
 
    o with enhanced-ligand, do you get a sane code-path if you do 
      File -> SMILES?
@@ -76,4 +81,5 @@
      too big.
 
 * Done.
+
 

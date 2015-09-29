@@ -4441,10 +4441,12 @@ void skeletonize_map_by_optionmenu(GtkWidget *optionmenu) {
 
 void
 skeletonize_map_single_map_maybe(GtkWidget *window, int imol) { 
+
    GtkWidget *on_radio_button = 
       lookup_widget(window, "single_map_skeleton_on_radiobutton");
 
-   if (GTK_TOGGLE_BUTTON(on_radio_button)->active) { 
+   if (GTK_TOGGLE_BUTTON(on_radio_button)->active) {
+
       graphics_info_t::skeletonize_map(imol, 0);
       if (graphics_info_t::map_for_skeletonize < 0) {
 	 // it was unset, so set it...
