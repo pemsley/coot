@@ -2,8 +2,6 @@
  0.8.3
 
 
-   o Does LBG File->Fetch molecule work now? Xamoterol?
-
    o Sphere refine doesn't use alpha helical restraints. It should.
 
    o with enhanced-ligand, do you get a sane code-path if you do 
@@ -85,3 +83,8 @@
      Also the Oxygens have charges and Hs.
 
 * Done.
+
+
+   o Does LBG File->Fetch molecule work now? Xamoterol?
+
+* Yes, sort of - it depends in a complex way on libcurl (compilation?) 

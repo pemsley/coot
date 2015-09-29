@@ -3508,8 +3508,8 @@
 
 
   (define (drugbox->drugitem key s) 
-;    (format #t "===== here in drugbox->drugitem : ~s ~s ================== ~%" key s)
-;    (format #t "==========================================================~%" )
+    ;; (format #t "===== here in drugbox->drugitem : ~s ~s ================== ~%" key s)
+    ;; (format #t "==========================================================~%" )
     (let ((n (string-length s)))
       (let ((ls (string-split s #\newline)))
 	(let loop ((ls ls))
@@ -3529,10 +3529,16 @@
     (drugbox->drugitem "DrugBank * =" s))
 
   (define (drugbox->pubchem s)
-    (drugbox->drugitem "PubChem  *=" s))
+    (let ((i (drugbox->drugitem "PubChem  *=" s)))
+      (format #t "in drugbox->pubchem i: ~s~%" i)
+      i))
+      
 	
   (define (drugbox->chemspider s)
-    (drugbox->drugitem "ChemSpiderID  *=" s))
+    (let ((i (drugbox->drugitem "ChemSpiderID  *=" s)))
+      (format #t "in drugbox->chemspider i: ~s~%" i)
+      i))
+
 	
 
   ;; With some clever coding, these handle-***-value functions could
@@ -3572,7 +3578,9 @@
 			      ;; OK, try chemspider extraction
 			      (let ((cs (drugbox->chemspider rev-string)))
 				(if (not (string? cs))
-				    #f
+				    (begin 
+				      (format #t "not a string ~s ~s~%~!" cs)
+				      #f)
 
 				    ;; chemspider extraction worked
 				    (let ((cs-mol-url
@@ -3585,12 +3593,20 @@
 
 			      ;; pubchem extraction worked
 			      (let ((pc-mol-url
-				     (string-append "http://pubchem.ncbi.nlm.nih.gov"
-						    "/summary/summary.cgi?cid=" 
+
+				     ;; Old style
+				     ;; (string-append "http://pubchem.ncbi.nlm.nih.gov"
+				     ;;                 "/summary/summary.cgi?cid=" 
+				     ;;                 pc 
+				     ;;                 "&disopt=DisplaySDF")
+
+				     ;; chasing new style:
+				     (string-append "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/"
 						    pc 
-						    "&disopt=DisplaySDF"))
+						    "/record/SDF/?record_type=2d&response_type=display")
+				     )
 				    (file-name (string-append "pc-" pc ".mol")))
-				;; (format #t "========== pubchem pc-mol-url: ~s~%" pc-mol-url)
+				(format #t "========== pubchem pc-mol-url: ~s~%" pc-mol-url)
 				(coot-get-url pc-mol-url file-name)
 				file-name))))
 
@@ -3728,12 +3744,13 @@
 	  (let* ((drug-name (string-downcase drug-name-in))
 		 (url (string-append 
 		       ;; "http://en.wikipedia.org/wiki/" 
-		       "http://en.wikipedia.org/w/api.php?format=xml&action=query&titles="
+		       "https://en.wikipedia.org/w/api.php?format=xml&action=query&titles="
 		       drug-name
 		       "&prop=revisions&rvprop=content"
-		       ;; "http://scylla/"
 		       ))
 		 (xml (coot-get-url-as-string url)))
+
+	    (format #t ":::::::: url: ~s~%" url)
 
 	    (call-with-output-file (string-append drug-name ".xml")
 	      (lambda (port)
