@@ -7410,6 +7410,13 @@ Thu Jul 23 12:31:24 BST 2015
 
     Clever old Labute.
 
+----
+
+   o experiment: use Rdkit with pdb perception to generate molecules and 
+     compare them with molecules generated from reading the cif.
+
+
+
 ------
 
     Pathology scatter plots: holiday project.  Do we have cairo and cairoplot?

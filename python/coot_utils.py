@@ -3318,9 +3318,15 @@ def get_drug_via_wikipedia(drug_name_in):
                     return get_drug_via_wikipedia(redirected_drug_name)
                     
                 else:
+		    # old style
                     pc_mol_uri = "http://pubchem.ncbi.nlm.nih.gov" + \
                                  "/summary/summary.cgi?cid=" + \
                                  mol_name + "&disopt=DisplaySDF"
+		    # new style
+		    pc_mol_uri = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/" + \
+				 mol_name + \
+				 "/record/SDF/?record_type=2d&response_type=display"
+
                     file_name = "pc-" + mol_name + ".mol"
                     coot_get_url(pc_mol_uri, file_name)
                     
