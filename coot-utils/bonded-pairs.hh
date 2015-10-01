@@ -90,7 +90,7 @@ namespace coot {
       bool try_add(const bonded_pair_t &bp); // check for null residues too.
       unsigned int size() const { return bonded_residues.size(); }
       bonded_pair_t operator[](unsigned int i) { return bonded_residues[i]; }
-      const bonded_pair_t operator[](unsigned int i) const { return bonded_residues[i]; }
+      const bonded_pair_t &operator[](unsigned int i) const { return bonded_residues[i]; }
       bool linked_already_p(mmdb::Residue *r1, mmdb::Residue *r2) const;
       friend std::ostream& operator<<(std::ostream &s, bonded_pair_container_t bpc);
       // test order switch too.
