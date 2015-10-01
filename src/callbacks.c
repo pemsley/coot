@@ -4388,8 +4388,6 @@ void
 on_skeleton_ok_button_clicked          (GtkButton       *button,
                                         gpointer         user_data)
 {
-  printf(":::: on_skeleton_ok_button_clicked() calling skeleton_map_optionmenu() \n");
-
   GtkWidget *window = lookup_widget(GTK_WIDGET(button),
 				    "skeleton_dialog");
   GtkWidget *optionmenu = lookup_widget(window, "skeleton_map_optionmenu");
