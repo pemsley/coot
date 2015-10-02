@@ -5269,8 +5269,6 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
 	       if (res_no_pro == (res_no_other + 1)) {
 		  std::string atom_name = at_1->name;
 		  if (atom_name == " CD ") {  // PDBv3 FIXME
-		     std::cout << "----------------------- AAAA-PATH killing a PRO CD NBC"
-			       << coot::atom_spec_t(at_1) << " " << coot::atom_spec_t(at_2) << std::endl;
 		     add_it = false;
 		  } 
 	       }
@@ -5281,8 +5279,6 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
 	       if (res_no_pro == (res_no_other + 1)) {
 		  std::string atom_name = at_2->name;
 		  if (atom_name == " CD ") {  // PDBv3 FIXME
-		     std::cout << "----------------------- BBBB-PATH killing a PRO CD NBC"
-			       << coot::atom_spec_t(at_1) << " " << coot::atom_spec_t(at_2) << std::endl;
 		     add_it = false;
 		  } 
 	       }
