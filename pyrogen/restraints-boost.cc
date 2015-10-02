@@ -176,18 +176,29 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	    RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest.second, "", undelocalize);
 	    RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
 
+	    std::cout << "----------------------- assignStereochemistry() " << std::endl;
+
+	    // RDKit::MolOps::assignStereochemistry(*m, false, true, true);
+	    RDKit::MolOps::assignStereochemistry(*m, true, true, true);
+
 	    // Here test that the propety mmcif_chiral_volume_sign has
 	    // been set on atoms of mol_rw and m
 	    //
-	    if (false) {
-
-	       // std::cout << "Post-assignStereochemistry()" << std::endl;
-	       for (unsigned int iat=0; iat<m->getNumAtoms(); iat++) { 
-		  RDKit::ATOM_SPTR at_p = (*m)[iat];
+	    if (true) {
+	       for (unsigned int iat=0; iat<m->getNumAtoms(); iat++) {
+		  std::cout << "testing atom " << iat << std::endl;
 		  std::string name;
+
+		  RDKit::ATOM_SPTR at_p = (*m)[iat];
+		  try {
+		     at_p->getProp("name", name);
+		     std::cout << "   name " << name << std::endl;
+		  }
+		  catch (const KeyErrorException &err) {
+		     std::cout << "   no name " << std::endl;
+		  }
 		  try {
 		     std::string cv;
-		     at_p->getProp("name", name);
 		     at_p->getProp("mmcif_chiral_volume_sign", cv);
 		     std::cout << "m: name " << name << " " << cv << std::endl;
 		  }
@@ -204,16 +215,18 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 		  }
 		  try {
 		     int cip_rank;
-		     at_p->getProp("_CIPRank", cip_rank);
-		     std::cout << "m: cip-rank " << cip_rank << std::endl;
+		     std::string cip_code;
+		     // at_p->getProp("_CIPRank", cip_rank);
+		     at_p->getProp(RDKit::common_properties::_CIPCode, cip_code);
+		     std::cout << "m: common-CIP-code " << cip_code << std::endl;
 		  }
 		  catch (const KeyErrorException &err) {
-		     std::cout << "no cip-rank" << std::endl;
+		     std::cout << "no-error: no _CIPCode " << err.what() << std::endl;
 		  }
-		  catch (const boost::bad_any_cast &err) {
-		     // std::cout << iat << " caught a boost::bad_any_cast on extracting CIP Rank"
-		     // << std::endl;
-		  }
+		  catch (const boost::bad_any_cast &bac) {
+		     // Goodness knows why this is thrown... 
+		     std::cout << "   strange - caught bad_any_cast" << std::endl;
+		  } 
 	       }
 	    }
 

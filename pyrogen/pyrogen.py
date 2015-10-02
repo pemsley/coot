@@ -373,12 +373,12 @@ def make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir,
 
    m = pyrogen_boost.rdkit_mol_chem_comp_pdbx(cif_file_name_in, comp_id)
 
-   if False:  # debugging
+   if True:  # debugging
       for atom in m.GetAtoms():
          try:
-            name   = atom.GetProp('name')
-            chir   = atom.GetProp('_CIPCode')
-            print ' atom', atom, 'name', name, 'chir', chir
+            name    = atom.GetProp('name')
+            cipcode = atom.GetProp('_CIPCode')
+            print ' atom', atom, 'name', name, 'cip-code ', cipcode
          except KeyError as e:
             print 'pyrogen.py:: atom', atom, " with name ", name, ' has no _CIPCode property'
             pass

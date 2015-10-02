@@ -1,6 +1,11 @@
  
  0.8.3
 
+   o In Distance and Angles Geometry: "Update" should update the
+     distances between atom sets after I've done a refinement.
+
+   o User-defined distance restraints - say, between O and N in sheet,
+     should be in use when we do sphere refine.
 
    o experiment: use Rdkit with pdb perception to generate molecules and 
      compare them with molecules generated from reading the cif.

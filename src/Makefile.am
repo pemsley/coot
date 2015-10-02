@@ -316,6 +316,7 @@ coot_bin_SOURCES = \
 	coot-setup-python.hh     \
 	coot-version.hh          \
 	coot_wrap_guile_gtk2.cc  \
+	data-pair-remover.hh     \
         dots-representation.hh   \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
@@ -400,6 +401,7 @@ coot_bin_SOURCES = \
 	probe-clash-score.hh     \
 	protein_db-interface.hh  \
 	protein_db-interface.cc  \
+	python-classes.cc	 \
 	read-phs.h		 \
 	read-phs.c		 \
 	read-cif.h		 \

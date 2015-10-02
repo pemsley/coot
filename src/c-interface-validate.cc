@@ -45,6 +45,8 @@
 #include <vector>
 #include <string>
 
+#include "clipper/ccp4/ccp4_mtz_io.h" // pathology plots
+
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
@@ -80,6 +82,8 @@
 
 #include "coot-utils/peak-search.hh"
 #include "user-mods.hh"
+
+#include "data-pair-remover.hh"
 
 /*  ----------------------------------------------------------------------- */
 /*                  check waters interface                                  */
@@ -2249,3 +2253,145 @@ PyObject *all_molecule_ramachandran_region_py(int imol) {
 //    v.push_back(Foo());
 //    return v;
 // } 
+
+#include "python-classes.hh"
+
+/*  ----------------------------------------------------------------------- */
+/*                  Pathology Plots                                         */
+/*  ----------------------------------------------------------------------- */
+#ifdef USE_PYTHON
+PyObject *pathology_data(const std::string &mtz_file_name,
+			 const std::string &fp_col,
+			 const std::string &sigfp_col) {
+
+   PyObject *r = Py_False;
+
+   std::vector<std::pair<double, double> >   fp_vs_reso_data;
+   std::vector<std::pair<double, double> > fosf_vs_reso_data;
+   std::vector<std::pair<double, double> >      sf_vs_f_data;
+   std::vector<std::pair<double, double> >    fosf_vs_f_data;
+   // how about sigF vs resolution also?
+   double invresolsq_max = 0;
+
+   try {
+      clipper::CCP4MTZfile mtz;
+      std::cout << "INFO:: reading mtz file..." << mtz_file_name << std::endl; 
+      mtz.open_read(mtz_file_name);
+      clipper::HKL_data< clipper::datatypes::F_sigF<float> > fsigf;
+      std::string dataname = "/*/*/[" + fp_col + " " + sigfp_col + "]";
+      mtz.import_hkl_data(fsigf, dataname);
+      mtz.close_read();
+
+      int n_reflns = fsigf.num_obs();
+      clipper::HKL_info::HKL_reference_index hri;
+      for (hri=fsigf.first(); !hri.last(); hri.next()) {
+	 if (! clipper::Util::isnan(fsigf[hri].f())) {
+	    double invresolsq = hri.invresolsq();
+	    std::pair<double, double> p(invresolsq, fsigf[hri].f());
+	    fp_vs_reso_data.push_back(p);
+	    const double &f    = fsigf[hri].f();
+	    const double &sigf = fsigf[hri].sigf();
+	    if (! clipper::Util::isnan(sigf)) {
+	       if (sigf != 0) {
+		  std::pair<double, double> p1(invresolsq, f/sigf);
+		  fosf_vs_reso_data.push_back(p1);
+		  std::pair<double, double> p2(f, sigf);
+		  sf_vs_f_data.push_back(p2);
+		  std::pair<double, double> p3(f, f/sigf);
+		  fosf_vs_f_data.push_back(p3);
+		  if (invresolsq > invresolsq_max)
+		     invresolsq_max = invresolsq;
+	       }
+	    }
+	 }
+      }
+   }
+   catch (const clipper::Message_fatal &e) {
+      std::cout << "error: " << e.text() << std::endl;
+   }
+
+   std::cout << "found " << fp_vs_reso_data.size() << " data" << std::endl;
+
+   if (  fp_vs_reso_data.size() > 0 &&
+       fosf_vs_reso_data.size() > 0 && 
+  	    sf_vs_f_data.size() > 0 && 
+          fosf_vs_f_data.size() > 0) {
+
+      if (false) { 
+	 PyTypeObject *type = NULL; // should be something
+	 PyObject *args = NULL;
+	 PyObject *kwds = NULL;
+	 // PyObject *test_object = PathologyData_new(type, args, kwds);
+      }
+
+      unsigned int data_size = fp_vs_reso_data.size();
+      if (data_size > 20000) {
+	 double r = double(20000)/double(data_size);
+	 fp_vs_reso_data.erase(std::remove_if(fp_vs_reso_data.begin(),
+					      fp_vs_reso_data.end(),
+					      data_pair_remover(r)),
+			       fp_vs_reso_data.end());
+	 fosf_vs_reso_data.erase(std::remove_if(fosf_vs_reso_data.begin(),
+					      fosf_vs_reso_data.end(),
+					      data_pair_remover(r)),
+			       fosf_vs_reso_data.end());
+	 sf_vs_f_data.erase(std::remove_if(sf_vs_f_data.begin(),
+					      sf_vs_f_data.end(),
+					      data_pair_remover(r)),
+			       sf_vs_f_data.end());
+	 fosf_vs_f_data.erase(std::remove_if(fosf_vs_f_data.begin(),
+					      fosf_vs_f_data.end(),
+					      data_pair_remover(r)),
+			       fosf_vs_f_data.end());
+
+	 std::cout << "  now data size " << fp_vs_reso_data.size() << "" << std::endl;
+	 std::cout << "  now data size " << fosf_vs_reso_data.size() << "" << std::endl;
+	 std::cout << "  now data size " << sf_vs_f_data.size() << "" << std::endl;
+	 std::cout << "  now data size " << fosf_vs_f_data.size() << "" << std::endl;
+
+      }
+
+      PyObject *r0 = PyList_New(fp_vs_reso_data.size());
+      for (unsigned int i=0; i<fp_vs_reso_data.size(); i++) { 
+	 PyObject *o = PyTuple_New(2);
+	 PyTuple_SetItem(o, 0, PyFloat_FromDouble(fp_vs_reso_data[i].first));
+	 PyTuple_SetItem(o, 1, PyFloat_FromDouble(fp_vs_reso_data[i].second));
+	 PyList_SetItem(r0, i, o);
+      }
+      PyObject *r1 = PyList_New(fosf_vs_reso_data.size());
+      for (unsigned int i=0; i<fosf_vs_reso_data.size(); i++) { 
+	 PyObject *o = PyTuple_New(2);
+	 PyTuple_SetItem(o, 0, PyFloat_FromDouble(fosf_vs_reso_data[i].first));
+	 PyTuple_SetItem(o, 1, PyFloat_FromDouble(fosf_vs_reso_data[i].second));
+	 PyList_SetItem(r1, i, o);
+      }
+      PyObject *r2 = PyList_New(sf_vs_f_data.size());
+      for (unsigned int i=0; i<sf_vs_f_data.size(); i++) { 
+	 PyObject *o = PyTuple_New(2);
+	 PyTuple_SetItem(o, 0, PyFloat_FromDouble(sf_vs_f_data[i].first));
+	 PyTuple_SetItem(o, 1, PyFloat_FromDouble(sf_vs_f_data[i].second));
+	 PyList_SetItem(r2, i, o);
+      }
+      PyObject *r3 = PyList_New(fosf_vs_f_data.size());
+      for (unsigned int i=0; i<fosf_vs_f_data.size(); i++) { 
+	 PyObject *o = PyTuple_New(2);
+	 PyTuple_SetItem(o, 0, PyFloat_FromDouble(fosf_vs_f_data[i].first));
+	 PyTuple_SetItem(o, 1, PyFloat_FromDouble(fosf_vs_f_data[i].second));
+	 PyList_SetItem(r3, i, o);
+      }
+      r = PyList_New(5);
+      PyList_SetItem(r, 0, PyFloat_FromDouble(invresolsq_max));
+      PyList_SetItem(r, 1, r0);
+      PyList_SetItem(r, 2, r1);
+      PyList_SetItem(r, 3, r2);
+      PyList_SetItem(r, 4, r3);
+
+     
+   } 
+
+   if (PyBool_Check(r))
+     Py_INCREF(r);
+   
+   return r;
+}
+#endif // USE_PYTHON

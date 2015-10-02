@@ -242,10 +242,16 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		  if (atom_name == restraints.atom_info[ii].atom_id_4c) {
 		     if (restraints.atom_info[ii].pdbx_stereo_config_flag.first) {
 			if (restraints.atom_info[ii].pdbx_stereo_config_flag.second == "S") {
-			   std::cout << "------------------- found an S" << std::endl;
+			   RDKit::Atom::ChiralType tag = get_chiral_tag_v2(residue_p, restraints, at);
+			   std::cout << "------------------- found an S - and it has tag "
+				     << tag <<  std::endl;
+			   rdkit_at->setChiralTag(tag);
 			}
 			if (restraints.atom_info[ii].pdbx_stereo_config_flag.second == "R") {
-			   std::cout << "------------------- found an R" << std::endl;
+			   RDKit::Atom::ChiralType tag = get_chiral_tag_v2(residue_p, restraints, at);
+			   rdkit_at->setChiralTag(tag);
+			   std::cout << "------------------- found an R - and it has tag "
+				     << tag <<  std::endl;
 			}
 		     }
 		  }
@@ -638,6 +644,7 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	    if (r.chiral_restraint[ichi].atom_id_c_4c() == r.atom_info[iat].atom_id_4c) {
 	       if (!r.chiral_restraint[ichi].has_unassigned_chiral_volume()) {
 		  if (!r.chiral_restraint[ichi].is_a_both_restraint()) {
+		     std::cout << "FIXME  ... check the chirality sign rdkit_mol() " << std::endl;
 		     RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
 		     at->setChiralTag(chiral_tag);
 		  }
