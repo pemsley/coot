@@ -82,7 +82,7 @@
 			   "cns2coot.scm"
 			   "clear-backup.scm"
 			   "tips.scm"
-			   "prodrg-import.scm"
+			   "3d-generator-import.scm"
 			   "dictionary-generators.scm"
 			   "jligand.scm"
 			   "americanisms.scm"
