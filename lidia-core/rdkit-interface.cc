@@ -1452,7 +1452,7 @@ coot::make_residue(const RDKit::ROMol &rdkm, int iconf, const std::string &res_n
       residue_p->seqNum = 1;
       residue_p->SetResName(res_name.c_str());
       mmdb::Chain *chain_p = new mmdb::Chain;
-      chain_p->SetChainID("");
+      chain_p->SetChainID("A");
       chain_p->AddResidue(residue_p);
       for (unsigned int iat=0; iat<mol.atoms.size(); iat++) { 
 	 mmdb::Atom *at = new mmdb::Atom;

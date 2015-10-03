@@ -2834,7 +2834,7 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 			       << at_c->name << " with neighbours "
 			       << at_1->name << " "
 			       << at_2->name << " "
-			       << at_2->name << " "
+			       << at_3->name << " "
 			       << gdc.geometry_distortion[i].distortion_score
 			       << std::endl;
 		  }
