@@ -12411,6 +12411,10 @@ create_skeleton_dialog (void)
                     G_CALLBACK (on_skeleton_cancel_button_clicked),
                     NULL);
 
+  g_signal_connect ((gpointer) skeleton_ok_button, "clicked",
+                    G_CALLBACK (on_skeleton_ok_button_clicked),
+                    NULL);
+
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (skeleton_dialog, skeleton_dialog, "skeleton_dialog");
   GLADE_HOOKUP_OBJECT_NO_REF (skeleton_dialog, dialog_vbox25, "dialog_vbox25");

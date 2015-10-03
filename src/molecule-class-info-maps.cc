@@ -2661,7 +2661,7 @@ molecule_class_info_t::make_map_from_mtz_by_calc_phases(int imol_no_in,
 
    clipper::CCP4MTZfile mtz;
 
-   std::cout << "reading mtz file..." << mtz_file_name << std::endl; 
+   std::cout << "INFO:: reading mtz file..." << mtz_file_name << std::endl; 
    mtz.open_read(mtz_file_name);
 
    // make the data names for import:

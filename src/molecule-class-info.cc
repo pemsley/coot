@@ -2506,8 +2506,8 @@ molecule_class_info_t::make_import_datanames(const std::string &f_col_in,
    std::string weight_col = weight_col_in;
 
 #ifdef WINDOWS_MINGW
-   std::string::size_type islash_f   =      coot::util::intelligent_debackslash(f_col).find_last_of("/");
-   std::string::size_type islash_phi =    coot::util::intelligent_debackslash(phi_col).find_last_of("/");
+   std::string::size_type islash_f   = coot::util::intelligent_debackslash(  f_col).find_last_of("/");
+   std::string::size_type islash_phi = coot::util::intelligent_debackslash(phi_col).find_last_of("/");
 #else
    std::string::size_type islash_f   =      f_col.find_last_of("/");
    std::string::size_type islash_phi =    phi_col.find_last_of("/");

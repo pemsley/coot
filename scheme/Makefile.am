@@ -14,7 +14,7 @@ tips.scm             tips-gui.scm         generic-objects.scm cns2coot.scm \
 extensions.scm       ncs.scm create-server.scsh coot-crash-catcher.scm     \
 snarf-coot-docs.scm  clear-backup.scm     bones-reader.scm matrices.scm    \
 fascinating-things.scm shelx-extensions.scm parse-pisa-xml.scm             \
-check-for-updates.scm  prodrg-import.scm  gui-hole.scm	  gui-prosmart.scm \
+check-for-updates.scm  3d-generator-import.scm  gui-hole.scm	  gui-prosmart.scm \
 get-recent-pdbe.scm  json-reader.scm      jligand.scm      jligand-gui.scm \
 redefine-functions.scm user-define-restraints.scm template-key-bindings.scm \
 gui-add-linked-cho.scm ligand-check.scm   run-mogul.scm  \

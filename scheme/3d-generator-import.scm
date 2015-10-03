@@ -1,7 +1,6 @@
 
 
 (define *cprodrg* "cprodrg")
-;; (define *cprodrg* "/home/paule/ccp4/ccp4-6.1.2/bin/cprodrg")
 
 ;; if there is a prodrg-xyzin set the current-time to its mtime, else #f
 ;; 
@@ -17,11 +16,71 @@
 ;; (define prodrg-xyzin       "/lmb/wear/emsley/Projects/coot/lbg/prodrg-in.mdl")
 ;; (define sbase-to-coot-tlc  "/lmb/wear/emsley/Projects/coot/lbg/.sbase-to-coot-comp-id")
 
+(define (import-from-3d-generator-from-mdl-using-acedrg mdl-file-name comp-id)
+
+  (let* ((pdb-out-file-name (string-append "acedrg-" comp-id ".pdb"))
+	 (cif-out-file-name (string-append "acedrg-" comp-id ".cif"))
+	 (stub (string-append "acedrg-" comp-id)))
+
+    (let ((status (goosh-command 
+		   "acedrg"
+		   (list "-m" mdl-file-name "-r" comp-id "-o" stub)
+		   '() "acedrg.log" #f)))
+      (if (ok-goosh-status? status)
+	  (begin
+	    (handle-read-draw-molecule-and-move-molecule-here pdb-out-file-name)
+	    (read-cif-dictionary cif-out-file-name))
+	  (info-dialog "Bad exit status for Acedrg\n - see pyrogen.log")))))
+
+
+(define (import-from-3d-generator-from-mdl-using-pyrogen mdl-file-name comp-id)
+
+  (if (not (command-in-path? "pyrogen"))
+      
+      (info-dialog "pyrogen not found in path")
+
+      ;; happy path
+      (let ((status
+	     (goosh-command
+	      "pyrogen"
+	      (list "-m" mdl-file-name "--residue-type" comp-id)
+	      '()
+	      "pyrogen.log"
+	      #t)))
+
+	(if (ok-goosh-status? status)
+
+	    (let* ((active-res (active-residue))
+		   (pdb-out-file-name (string-append comp-id "-pyrogen.pdb"))
+		   (cif-out-file-name (string-append comp-id "-pyrogen.cif"))
+		   (imol-ligand (handle-read-draw-molecule-and-move-molecule-here pdb-out-file-name)))
+	      (if (not (valid-model-molecule? imol-ligand))
+		  (begin
+		    (info-dialog "Something bad happened running pyrogen"))
+		  (begin
+		    (read-cif-dictionary cif-out-file-name)
+		    imol-ligand)))
+
+	    ;; fail
+	    (info-dialog "Bad exit status for pyrogen\n - see pyrogen.log")))))
+
+
 
 ;; This function can be overwritten by your favourite 3d conformer and restraints generator.
 ;; 
 (define (import-from-3d-generator-from-mdl mdl-file-name comp-id)
-  (import-from-prodrg "mini-no" comp-id))
+
+  ;; if acedrg is in the path, let's use that.
+  (if (command-in-path? "acedrg")
+      (import-from-3d-generator-from-mdl-using-acedrg mdl-file-name comp-id)
+
+      (if (command-in-path? "pyrogen")
+	  (import-from-3d-generator-from-mdl-using-pyrogen mdl-file-name comp-id)
+      
+      ;; else, fall-back to prodrg for now.
+      ;; 
+      (import-from-prodrg "mini-no" comp-id))))
+
 
 
 (define (import-ligand-with-overlay prodrg-xyzout prodrg-cif)
@@ -207,6 +266,164 @@
 
 		  
 			   
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                        SMILES                                            ;; 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+
+;; Run libcheck to convert from SMILES string
+;; 
+(define (new-molecule-by-smiles-string tlc-text smiles-text)
+
+
+  ;; generator is "pyrogen" or "acedrg"
+  ;; 
+  (define (dict-gen generator comp-id args working-dir)
+
+    (let* ((stub (string-append comp-id "-" generator))
+	   (log-file-name (append-dir-file working-dir (string-append stub ".log"))))
+
+      (format #t ":::::::::::::::::: args: ~s~%" args)
+      (let ((status (goosh-command generator args '() log-file-name #t)))
+	(if (not (ok-goosh-status? status))
+	    -1 ;; bad mol
+
+	    (let ((pdb-name (append-dir-file working-dir (string-append stub ".pdb")))
+		  (cif-name (append-dir-file working-dir (string-append stub ".cif"))))
+	      
+	      (let ((imol (read-pdb pdb-name)))
+		(read-cif-dictionary cif-name)
+		imol))))))
+
+  (define (use-acedrg three-letter-code)
+    (let* ((working-dir (get-directory "coot-acedrg"))
+	   (stub (string-append three-letter-code "-acedrg")))
+      (let ((smi-file-name (append-dir-file working-dir 
+					    (string-append three-letter-code "-acedrg-from-coot.smi"))))
+	(call-with-output-file smi-file-name
+	  (lambda (port)
+	    (display smiles-text port)
+	    (newline port)))
+	(dict-gen "acedrg" 
+		  three-letter-code
+		  (list "-r" three-letter-code "-i" smi-file-name "-o" (append-dir-file working-dir stub))
+		  working-dir))))
+    
+
+  (define (use-libcheck three-letter-code)
+
+    (let* ((smiles-file (string-append "coot-" three-letter-code ".smi"))
+	   (libcheck-data-lines
+	    (list "N"
+		  (string-append "MON " three-letter-code)
+		  (string-append "FILE_SMILE " smiles-file)
+		  ""))
+	   (log-file-name (string-append "libcheck-" three-letter-code))
+	   (pdb-file-name (string-append "libcheck_" three-letter-code ".pdb"))
+	   (cif-file-name (string-append "libcheck_" three-letter-code ".cif")))
+      
+      ;; write the smiles strings to a file
+      (call-with-output-file smiles-file
+	(lambda (port)
+	  (format port "~a~%" smiles-text)))
+      
+      (let ((status (goosh-command libcheck-exe '() libcheck-data-lines log-file-name #t)))
+	;; the output of libcheck goes to libcheck.lib, we want it in
+	;; (i.e. overwrite the minimal description in cif-file-name
+	(if (number? status)
+	    (if (= status 0)
+		(begin
+		  (if (file-exists? "libcheck.lib")
+		      (rename-file "libcheck.lib" cif-file-name))
+		  (let ((sc (rotation-centre))
+			(imol (handle-read-draw-molecule-with-recentre pdb-file-name 0)))
+		    (if (valid-model-molecule? imol)
+			(let ((mc (molecule-centre imol)))
+			  (apply translate-molecule-by (cons imol (map - sc mc))))))
+		  (read-cif-dictionary cif-file-name)))
+	    (format #t "OOPs.. libcheck returned exit status ~s~%" status)))))
+
+  (define (use-pyrogen three-letter-code)
+
+    ;; OK, let's run pyrogen
+    (let* ((working-dir (get-directory "coot-pyrogen"))
+	   (log-file-name "pyrogen.log")) ;; in working-dir
+
+      ;; Embed a test for mogul.
+
+      ;; needs with-working-directory macro
+      ;; 
+      (let ((current-dir (getcwd)))
+	(chdir working-dir)
+	(let ((goosh-status
+	       (goosh-command
+		"pyrogen"
+		(if *use-mogul* 
+		    (list "--residue-type" tlc-text smiles-text)
+		    (if (command-in-path? "mogul")
+			(list                   "--residue-type" tlc-text smiles-text)
+			(list "--no-mogul" "-M" "--residue-type" tlc-text smiles-text)))
+		'() log-file-name #t)))
+	  (if (ok-goosh-status? goosh-status)
+	      (begin
+		(let* ((pdb-file-name (string-append tlc-text "-pyrogen.pdb"))
+		       (cif-file-name (string-append tlc-text "-pyrogen.cif"))
+		       (sc (rotation-centre))
+		       (imol (handle-read-draw-molecule-with-recentre pdb-file-name 0)))
+		  (if (valid-model-molecule? imol)
+		      (let ((mc (molecule-centre imol)))
+			(apply translate-molecule-by (cons imol (map - sc mc)))))
+		  (read-cif-dictionary cif-file-name)))))
+	(chdir current-dir))))
+
+
+
+  ;; main line
+  ;; 
+  (if (> (string-length smiles-text) 0)
+
+      (let ((three-letter-code 
+	     (cond 
+	      ((and (> (string-length tlc-text) 0)
+		    (< (string-length tlc-text) 4))
+	       tlc-text)
+	      ((> (string-length tlc-text) 0)
+	       (substring tlc-text 0 3))
+	      (else "XXX"))))
+	
+	(if (not (enhanced-ligand-coot?))
+
+	    (use-acedrg  three-letter-code)
+	    (use-pyrogen three-letter-code)))))
+	    
+
+(define (new-molecule-by-smiles-string-by-acedrg tlc-str smiles-str)
+  
+  (let ((smi-file "acedrg-in.smi"))
+    (call-with-output-file smi-file
+      (lambda (port)
+	(display tlc-str port)
+	(newline port)))
+	
+  (let* ((stub (string-append "acedrg-" comp-id))
+	 (pdb-out-file-name (string-append stub ".pdb"))
+	 (cif-out-file-name (string-append stub ".cif")))
+    
+    (let ((goosh-status
+	   (goosh-command 
+	    "acedrg" 
+	    (list "-i" smi-file "-r" tlc-str -o stub)
+	    '()
+	    (string-append "acedrg-" tlc-str ".log")
+	    #t)))
+
+      (if (ok-goosh-status? status)
+	  (begin
+	    (handle-read-draw-molecule-and-move-molecule-here pdb-out-file-name)
+	    (read-cif-dictionary cif-out-file-name))
+	  (info-dialog "Bad exit status for Acedrg\n - see acedrg log"))))))
+  
+
 
 
 
@@ -406,3 +623,5 @@
        (let ((imol (get-ccp4srs-monomer-and-dictionary comp-id)))
 	 (overlap-ligands imol aa-imol aa-chain-id aa-res-no)))
       (get-ccp4srs-monomer-and-dictionary comp-id)))
+
+

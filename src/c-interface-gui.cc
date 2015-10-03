@@ -4441,10 +4441,12 @@ void skeletonize_map_by_optionmenu(GtkWidget *optionmenu) {
 
 void
 skeletonize_map_single_map_maybe(GtkWidget *window, int imol) { 
+
    GtkWidget *on_radio_button = 
       lookup_widget(window, "single_map_skeleton_on_radiobutton");
 
-   if (GTK_TOGGLE_BUTTON(on_radio_button)->active) { 
+   if (GTK_TOGGLE_BUTTON(on_radio_button)->active) {
+
       graphics_info_t::skeletonize_map(imol, 0);
       if (graphics_info_t::map_for_skeletonize < 0) {
 	 // it was unset, so set it...
@@ -5297,11 +5299,13 @@ void add_additional_representation_by_widget(GtkWidget *w) {
       // std::cout << "ERROR:: null bond_width_text, using default of 8" << std::endl;
    } 
       
+   if (representation_type == coot::BALL_AND_STICK)
+      bond_width = 0.15; // not 8
+   
    graphics_info_t g;
    GtkWidget *dcw = g.display_control_window();
    int imol = graphics_info_t::add_reps_molecule_option_menu_item_select_molecule;
    if (GTK_TOGGLE_BUTTON(position_radiobutton)->active) {
-      // std::cout << "By position" << std::endl;
       std::pair<bool, std::pair<int, coot::atom_spec_t> > aas = active_atom_spec();
       if (aas.first) {
 	 int imol_active = aas.second.first;

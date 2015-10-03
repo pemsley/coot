@@ -917,12 +917,12 @@ graphics_info_t::on_skeleton_ok_button_dynamic_clicked (GtkButton       *button,
 }
 
 void
-graphics_info_t::skeletonize_map_by_optionmenu(GtkWidget *optionmenu) { 
+graphics_info_t::skeletonize_map_by_optionmenu(GtkWidget *optionmenu) {
 
    GtkWidget *window = lookup_widget(GTK_WIDGET(optionmenu), "skeleton_dialog");
 
-   GtkWidget *on_radio_button;
-   GtkWidget *prune_check_button;
+   GtkWidget *on_radio_button = NULL;
+   GtkWidget *prune_check_button = NULL;
 
    on_radio_button = lookup_widget(window, "skeleton_on_radiobutton");
 
@@ -940,7 +940,7 @@ graphics_info_t::skeletonize_map_by_optionmenu(GtkWidget *optionmenu) {
       }
 
       if (do_it)
-	 graphics_info_t::skeletonize_map(prune_it, graphics_info_t::map_for_skeletonize);
+	 graphics_info_t::skeletonize_map(graphics_info_t::map_for_skeletonize, prune_it);
       else {
 	 std::cout << "INFO:: unskeletonizing map number "
 		   << graphics_info_t::map_for_skeletonize << std::endl;

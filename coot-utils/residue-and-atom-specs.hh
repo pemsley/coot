@@ -90,6 +90,13 @@ namespace coot {
       // tested against a residue not in a hierarchy.
       bool matches_spec(mmdb::Atom *atom) const;
 
+      std::string format() const {
+	 std::ostringstream s;
+	 if (!(s << *this))
+	    return "";
+	 return s.str();
+      }
+      
 #ifndef SWIG
       bool operator==(const atom_spec_t &matcher) const {
 	 bool r = false;

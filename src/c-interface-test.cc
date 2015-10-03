@@ -387,6 +387,10 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    SCM r = SCM_BOOL_F;
 
    if (true) {
+      std::string file_name = scm_to_locale_string(i_scm);
+   } 
+
+   if (false) {
 
       std::ifstream f("normal-data-0-1.tab");
       std::vector<double> data;

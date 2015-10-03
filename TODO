@@ -1327,6 +1327,8 @@ Think about:
 
    Release 0.9, Facelift-release [May 2015]
   
+   o experiment: use Rdkit with pdb perception to generate molecules and 
+     compare them with molecules generated from reading the cif.
 
    o enum-type the bonds in the geometry dictionary.
 
