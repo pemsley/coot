@@ -3121,7 +3121,7 @@ coot::protein_geometry::planar_peptide_restraint_state() const {
       }
    }
    return ifound;
-} 
+}
 
 
 // restraints for omega for both CIS and TRANS links (and

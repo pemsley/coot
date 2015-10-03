@@ -4116,7 +4116,7 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 	    std::vector<coot::util::cis_peptide_info_t> cis_pep_info_vec =
 	       coot::util::cis_peptides_info_from_coords(moving_atoms_asc->mol);
 
-	    unsigned int n_cis = cis_pep_info_vec.size();
+	    int n_cis = cis_pep_info_vec.size();
 	    
 	    if (n_cis > graphics_info_t::moving_atoms_n_cis_peptides) {
 	       if (n_cis == 1) {
@@ -4175,61 +4175,81 @@ graphics_info_t::tabulate_geometric_distortions(const coot::restraints_container
    coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
    coot::geometry_distortion_info_container_t gdic = rr.geometric_distortions(flags);
 
-   std::cout << "------------ geometric distortions size: " << gdic.geometry_distortion.size()
-	     << std::endl;
-   
-   for (unsigned int ii=0; ii<gdic.geometry_distortion.size(); ii++) { 
-      const coot::geometry_distortion_info_t &gd = gdic.geometry_distortion[ii];
-      const coot::simple_restraint &rest = gd.restraint;
-       if (rest.restraint_type == coot::BOND_RESTRAINT) {
-	  std::cout << ii << " bond  " << gd.distortion_score << std::endl;
-	  for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
-	     std::cout << "       " << rr.get_atom_spec(gd.atom_indices[iat]) << std::endl;
-       }
-       if (rest.restraint_type == coot::ANGLE_RESTRAINT) {
-	  std::cout << ii << " angle " << gd.distortion_score <<  std::endl;
-	  for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
-	     std::cout << "       " << rr.get_atom_spec(gd.atom_indices[iat]) << std::endl;
-       }
-       if (rest.restraint_type == coot::TORSION_RESTRAINT) {
-	  std::cout << ii << " torsion " << gd.distortion_score <<  std::endl;
-	  for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
-	     std::cout << "       " << rr.get_atom_spec(gd.atom_indices[iat]) << std::endl;
-       }
-       if (rest.restraint_type == coot::PLANE_RESTRAINT) {
-	  std::cout << ii << " plane " << gd.distortion_score << std::endl;
-	  for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
-	     std::cout << "       " << rr.get_atom_spec(gd.atom_indices[iat]) << std::endl;
-       }
-       if (rest.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
- 	    std::cout << ii << " nbc   " << gd.distortion_score << std::endl;
+   std::ofstream f("coot-refinement-debug.tab");
+
+   if (f) { 
+
+      std::vector<std::pair<double, std::string> > rest_info;
+      for (unsigned int ii=0; ii<gdic.geometry_distortion.size(); ii++) { 
+	 const coot::geometry_distortion_info_t &gd = gdic.geometry_distortion[ii];
+	 const coot::simple_restraint &rest = gd.restraint;
+	 
+	 if (rest.restraint_type == coot::BOND_RESTRAINT) {
+	    std::string s = "bond  " + coot::util::float_to_string(gd.distortion_score);
 	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
-	       std::cout << "       " << rr.get_atom_spec(gd.atom_indices[iat]) << std::endl;
-       }
-       if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
- 	    std::cout << ii << " chiral " << gd.distortion_score << std::endl;
+	       s += " " + rr.get_atom_spec(gd.atom_indices[iat]).format();
+	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
+	 }
+	 if (rest.restraint_type == coot::ANGLE_RESTRAINT) {
+	    std::string s = "angle " + coot::util::float_to_string(gd.distortion_score);
 	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
-	       std::cout << "       " << rr.get_atom_spec(gd.atom_indices[iat]) << std::endl;
-       }
-       if (rest.restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
-	  std::cout << ii << " rama   " << gd.distortion_score << std::endl;
-	  for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
-	     std::cout << "       " << rr.get_atom_spec(gd.atom_indices[iat]) << std::endl;
-       }
-       if (rest.restraint_type == coot::START_POS_RESTRAINT) {
-	  std::cout << ii << " start-pos " << gd.distortion_score << std::endl;
-	  for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
-	     std::cout << "       " << rr.get_atom_spec(gd.atom_indices[iat]) << std::endl;
-       }
-       if (rest.restraint_type == coot::PARALLEL_PLANES_RESTRAINT) {
-	  std::cout << ii << " parallel-plane " << gd.distortion_score << std::endl;
-	  for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
-	     std::cout << "       " << rr.get_atom_spec(gd.atom_indices[iat]) << std::endl;
-       }
-       if (rest.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
-	  std::cout << ii << " geman-mcclure " << gd.distortion_score << std::endl;
-	  for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
-	     std::cout << "       " << rr.get_atom_spec(gd.atom_indices[iat]) << std::endl;
-       }
+	       s += " " + rr.get_atom_spec(gd.atom_indices[iat]).format();
+	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
+	 }
+	 if (rest.restraint_type == coot::TORSION_RESTRAINT) {
+	    std::string s = "torsion " + coot::util::float_to_string(gd.distortion_score);
+	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
+	       s += " " + rr.get_atom_spec(gd.atom_indices[iat]).format();
+	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
+	 }
+	 if (rest.restraint_type == coot::PLANE_RESTRAINT) {
+	    std::string s = "plane " + coot::util::float_to_string(gd.distortion_score);
+	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
+	       s += " " + rr.get_atom_spec(gd.atom_indices[iat]).format();
+	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
+	 }
+	 if (rest.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+	    std::string s = "nbc   " + coot::util::float_to_string(gd.distortion_score);
+	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
+	       s += " " + rr.get_atom_spec(gd.atom_indices[iat]).format();
+	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
+	 }
+	 if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
+	    std::string s = "chiral " + coot::util::float_to_string(gd.distortion_score);
+	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
+	       s +=  " " + rr.get_atom_spec(gd.atom_indices[iat]).format();
+	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
+	 }
+	 if (rest.restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
+	    std::string s = "rama " + coot::util::float_to_string(gd.distortion_score);
+	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
+	       s +=  " " + rr.get_atom_spec(gd.atom_indices[iat]).format();
+	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
+	 }
+	 if (rest.restraint_type == coot::START_POS_RESTRAINT) {
+	    std::string s = "start-pos " + coot::util::float_to_string(gd.distortion_score);
+	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
+	       s += " " + rr.get_atom_spec(gd.atom_indices[iat]).format();
+	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
+	 }
+	 if (rest.restraint_type == coot::PARALLEL_PLANES_RESTRAINT) {
+	    std::string s = "parallel-plane " + coot::util::float_to_string(gd.distortion_score);
+	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
+	       s += " " + rr.get_atom_spec(gd.atom_indices[iat]).format();
+	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
+	 }
+	 if (rest.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+	    std::string s = "geman-mcclure " + coot::util::float_to_string(gd.distortion_score);
+	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
+	       s += " " + rr.get_atom_spec(gd.atom_indices[iat]).format();
+	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
+	 }
+      }
+      std::sort(   rest_info.begin(), rest_info.end());
+      std::reverse(rest_info.begin(), rest_info.end());
+      for (unsigned int i=0; i<rest_info.size(); i++) { 
+	 f << rest_info[i].second + "\n";
+      }
+      f.close();
    }
 } 

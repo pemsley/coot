@@ -4392,7 +4392,7 @@ on_skeleton_ok_button_clicked          (GtkButton       *button,
 				    "skeleton_dialog");
   GtkWidget *optionmenu = lookup_widget(window, "skeleton_map_optionmenu");
   int do_baton_mode = GPOINTER_TO_INT(user_data);
-  
+
   skeletonize_map_by_optionmenu(optionmenu);
   gtk_widget_destroy(window);
   if (do_baton_mode)

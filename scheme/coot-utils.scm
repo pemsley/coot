@@ -2573,7 +2573,7 @@
 						   (cadr centre-residue-spec)
 						   (caddr centre-residue-spec)
 						   BALL_AND_STICK
-						   bb-type 6
+						   bb-type 0.14
 						   draw-hydrogens-flag)
 	  
 	  (map (lambda (spec)
@@ -2583,7 +2583,7 @@
 							  (cadr spec)
 							  (caddr spec)
 							  BALL_AND_STICK
-							  bb-type 6
+							  bb-type 0.14
 							  draw-hydrogens-flag))
 		 
 	       other-residues)))))
@@ -2701,159 +2701,6 @@
 (define *use-mogul* #t)
 (if (not (command-in-path? "mogul"))
     (set! *use-mogul* #f))
-
-;; Run libcheck to convert from SMILES string
-;; 
-(define (new-molecule-by-smiles-string tlc-text smiles-text)
-
-
-  ;; generator is "pyrogen" or "acedrg"
-  ;; 
-  (define (dict-gen generator comp-id args working-dir)
-
-    (let* ((stub (string-append comp-id "-" generator))
-	   (log-file-name (append-dir-file working-dir (string-append stub ".log"))))
-
-      (format #t ":::::::::::::::::: args: ~s~%" args)
-      (let ((status (goosh-command generator args '() log-file-name #t)))
-	(if (not (ok-goosh-status? status))
-	    -1 ;; bad mol
-
-	    (let ((pdb-name (append-dir-file working-dir (string-append stub ".pdb")))
-		  (cif-name (append-dir-file working-dir (string-append stub ".cif"))))
-	      
-	      (let ((imol (read-pdb pdb-name)))
-		(read-cif-dictionary cif-name)
-		imol))))))
-
-  (define (use-acedrg three-letter-code)
-    (let* ((working-dir (get-directory "coot-acedrg"))
-	   (stub (string-append three-letter-code "-acedrg")))
-      (let ((smi-file-name (append-dir-file working-dir 
-					    (string-append three-letter-code "-acedrg-from-coot.smi"))))
-	(call-with-output-file smi-file-name
-	  (lambda (port)
-	    (display smiles-text port)
-	    (newline port)))
-	(dict-gen "acedrg" 
-		  three-letter-code
-		  (list "-r" three-letter-code "-i" smi-file-name "-o" (append-dir-file working-dir stub))
-		  working-dir))))
-    
-
-  (define (use-libcheck three-letter-code)
-
-    (let* ((smiles-file (string-append "coot-" three-letter-code ".smi"))
-	   (libcheck-data-lines
-	    (list "N"
-		  (string-append "MON " three-letter-code)
-		  (string-append "FILE_SMILE " smiles-file)
-		  ""))
-	   (log-file-name (string-append "libcheck-" three-letter-code))
-	   (pdb-file-name (string-append "libcheck_" three-letter-code ".pdb"))
-	   (cif-file-name (string-append "libcheck_" three-letter-code ".cif")))
-      
-      ;; write the smiles strings to a file
-      (call-with-output-file smiles-file
-	(lambda (port)
-	  (format port "~a~%" smiles-text)))
-      
-      (let ((status (goosh-command libcheck-exe '() libcheck-data-lines log-file-name #t)))
-	;; the output of libcheck goes to libcheck.lib, we want it in
-	;; (i.e. overwrite the minimal description in cif-file-name
-	(if (number? status)
-	    (if (= status 0)
-		(begin
-		  (if (file-exists? "libcheck.lib")
-		      (rename-file "libcheck.lib" cif-file-name))
-		  (let ((sc (rotation-centre))
-			(imol (handle-read-draw-molecule-with-recentre pdb-file-name 0)))
-		    (if (valid-model-molecule? imol)
-			(let ((mc (molecule-centre imol)))
-			  (apply translate-molecule-by (cons imol (map - sc mc))))))
-		  (read-cif-dictionary cif-file-name)))
-	    (format #t "OOPs.. libcheck returned exit status ~s~%" status)))))
-
-  (define (use-pyrogen three-letter-code)
-
-    ;; OK, let's run pyrogen
-    (let* ((working-dir (get-directory "coot-pyrogen"))
-	   (log-file-name "pyrogen.log")) ;; in working-dir
-
-      ;; Embed a test for mogul.
-
-      ;; needs with-working-directory macro
-      ;; 
-      (let ((current-dir (getcwd)))
-	(chdir working-dir)
-	(let ((goosh-status
-	       (goosh-command
-		"pyrogen"
-		(if *use-mogul* 
-		    (list "--residue-type" tlc-text smiles-text)
-		    (if (command-in-path? "mogul")
-			(list              "--residue-type" tlc-text smiles-text)
-			(list "--no-mogul" "-M" "--residue-type" tlc-text smiles-text)))
-		'() log-file-name #t)))
-	  (if (ok-goosh-status? goosh-status)
-	      (begin
-		(let* ((pdb-file-name (string-append tlc-text "-pyrogen.pdb"))
-		       (cif-file-name (string-append tlc-text "-pyrogen.cif"))
-		       (sc (rotation-centre))
-		       (imol (handle-read-draw-molecule-with-recentre pdb-file-name 0)))
-		  (if (valid-model-molecule? imol)
-		      (let ((mc (molecule-centre imol)))
-			(apply translate-molecule-by (cons imol (map - sc mc)))))
-		  (read-cif-dictionary cif-file-name)))))
-	(chdir current-dir))))
-
-
-
-  ;; main line
-  ;; 
-  (if (> (string-length smiles-text) 0)
-
-      (let ((three-letter-code 
-	     (cond 
-	      ((and (> (string-length tlc-text) 0)
-		    (< (string-length tlc-text) 4))
-	       tlc-text)
-	      ((> (string-length tlc-text) 0)
-	       (substring tlc-text 0 3))
-	      (else "XXX"))))
-	
-	(if (not (enhanced-ligand-coot?))
-
-	    (use-acedrg  three-letter-code)
-	    (use-pyrogen three-letter-code)))))
-	    
-
-(define (new-molecule-by-smiles-string-by-acedrg tlc-str smiles-str)
-
-  (let ((smi-file "acedrg-in.smi"))
-    (call-with-output-file smi-file
-      (lambda (port)
-	(display tlc-str port)
-	(newline port)))
-	
-  (let* ((stub (string-append "acedrg-" comp-id))
-	 (pdb-out-file-name (string-append stub ".pdb"))
-	 (cif-out-file-name (string-append stub ".cif")))
-    
-    (let ((goosh-status
-	   (goosh-command 
-	    "acedrg" 
-	    (list "-i" smi-file "-r" tlc-str -o stub)
-	    '()
-	    (string-append "acedrg-" tlc-str ".log")
-	    #t)))
-
-      (if (ok-goosh-status? status)
-	  (begin
-	    (handle-read-draw-molecule-and-move-molecule-here pdb-out-file-name)
-	    (read-cif-dictionary cif-out-file-name))
-	  (info-dialog "Bad exit status for Acedrg\n - see acedrg log"))))))
-  
 
 
 ;; Generate restraints from the residue at the centre of the screen
@@ -3508,8 +3355,8 @@
 
 
   (define (drugbox->drugitem key s) 
-;    (format #t "===== here in drugbox->drugitem : ~s ~s ================== ~%" key s)
-;    (format #t "==========================================================~%" )
+    ;; (format #t "===== here in drugbox->drugitem : ~s ~s ================== ~%" key s)
+    ;; (format #t "==========================================================~%" )
     (let ((n (string-length s)))
       (let ((ls (string-split s #\newline)))
 	(let loop ((ls ls))
@@ -3529,10 +3376,16 @@
     (drugbox->drugitem "DrugBank * =" s))
 
   (define (drugbox->pubchem s)
-    (drugbox->drugitem "PubChem  *=" s))
+    (let ((i (drugbox->drugitem "PubChem  *=" s)))
+      (format #t "in drugbox->pubchem i: ~s~%" i)
+      i))
+      
 	
   (define (drugbox->chemspider s)
-    (drugbox->drugitem "ChemSpiderID  *=" s))
+    (let ((i (drugbox->drugitem "ChemSpiderID  *=" s)))
+      (format #t "in drugbox->chemspider i: ~s~%" i)
+      i))
+
 	
 
   ;; With some clever coding, these handle-***-value functions could
@@ -3572,7 +3425,9 @@
 			      ;; OK, try chemspider extraction
 			      (let ((cs (drugbox->chemspider rev-string)))
 				(if (not (string? cs))
-				    #f
+				    (begin 
+				      (format #t "not a string ~s ~s~%~!" cs)
+				      #f)
 
 				    ;; chemspider extraction worked
 				    (let ((cs-mol-url
@@ -3585,12 +3440,20 @@
 
 			      ;; pubchem extraction worked
 			      (let ((pc-mol-url
-				     (string-append "http://pubchem.ncbi.nlm.nih.gov"
-						    "/summary/summary.cgi?cid=" 
+
+				     ;; Old style
+				     ;; (string-append "http://pubchem.ncbi.nlm.nih.gov"
+				     ;;                 "/summary/summary.cgi?cid=" 
+				     ;;                 pc 
+				     ;;                 "&disopt=DisplaySDF")
+
+				     ;; chasing new style:
+				     (string-append "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/cid/"
 						    pc 
-						    "&disopt=DisplaySDF"))
+						    "/record/SDF/?record_type=2d&response_type=display")
+				     )
 				    (file-name (string-append "pc-" pc ".mol")))
-				;; (format #t "========== pubchem pc-mol-url: ~s~%" pc-mol-url)
+				(format #t "========== pubchem pc-mol-url: ~s~%" pc-mol-url)
 				(coot-get-url pc-mol-url file-name)
 				file-name))))
 
@@ -3728,12 +3591,13 @@
 	  (let* ((drug-name (string-downcase drug-name-in))
 		 (url (string-append 
 		       ;; "http://en.wikipedia.org/wiki/" 
-		       "http://en.wikipedia.org/w/api.php?format=xml&action=query&titles="
+		       "https://en.wikipedia.org/w/api.php?format=xml&action=query&titles="
 		       drug-name
 		       "&prop=revisions&rvprop=content"
-		       ;; "http://scylla/"
 		       ))
 		 (xml (coot-get-url-as-string url)))
+
+	    (format #t ":::::::: url: ~s~%" url)
 
 	    (call-with-output-file (string-append drug-name ".xml")
 	      (lambda (port)

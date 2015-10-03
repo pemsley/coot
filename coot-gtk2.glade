@@ -6694,7 +6694,6 @@
 					  <property name="visible">True</property>
 					  <property name="can_focus">True</property>
 					  <property name="use_alpha">False</property>
-					  <property name="title" translatable="yes">Pick a Colour</property>
 					  <property name="focus_on_click">True</property>
 					  <signal name="color_set" handler="on_symmetry_colorbutton_color_set"/>
 					</widget>
@@ -24515,6 +24514,7 @@ programs to which you may be more accustomed.
 		  <property name="use_stock">True</property>
 		  <property name="relief">GTK_RELIEF_NORMAL</property>
 		  <property name="focus_on_click">True</property>
+		  <signal name="clicked" handler="on_skeleton_ok_button_clicked" last_modification_time="Mon, 28 Sep 2015 11:56:08 GMT"/>
 		</widget>
 		<packing>
 		  <property name="padding">3</property>
