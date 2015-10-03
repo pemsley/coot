@@ -221,7 +221,7 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 		     std::cout << "m: CIP-rank " << cip_rank << std::endl;
 		  }
 		  catch (const KeyErrorException &err) {
-		     // std::cout << "no-error: no _CIPRank " << err.what() << std::endl;
+		     std::cout << "no-error: no _CIPRank " << err.what() << std::endl;
 		  }
 		  catch (const boost::bad_any_cast &bac) {
 		     // Goodness knows why this is thrown... 
