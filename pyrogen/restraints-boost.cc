@@ -134,6 +134,9 @@ RDKit::ROMol *
 coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 			       const std::string &comp_id) {
 
+   // This function should not get an mmdb::Residue, it should just use
+   // rdkit_mol(const dictionary_residue_restraints_t &restraints)
+   
    RDKit::ROMol *mol = new RDKit::ROMol;
    coot::protein_geometry geom;
    geom.set_verbose(false);
@@ -170,10 +173,10 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
             // experimental value - for Friday.
 	    // bool undelocalize = false;
             // 
-	    bool undelocalize = true;
+	    bool undelocalize_flag = true;
 	    int iconf = 0;
 
-	    RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest.second, "", undelocalize);
+	    RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest.second, "", undelocalize_flag);
 	    RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
 
 	    std::cout << "----------------------- assignStereochemistry() " << std::endl;
@@ -186,9 +189,8 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	    //
 	    if (true) {
 	       for (unsigned int iat=0; iat<m->getNumAtoms(); iat++) {
-		  std::cout << "testing atom " << iat << std::endl;
+		  std::cout << "testing atom idx: " << iat << std::endl;
 		  std::string name;
-
 		  RDKit::ATOM_SPTR at_p = (*m)[iat];
 		  try {
 		     at_p->getProp("name", name);
@@ -215,17 +217,15 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 		  }
 		  try {
 		     int cip_rank;
-		     std::string cip_code;
-		     // at_p->getProp("_CIPRank", cip_rank);
-		     at_p->getProp(RDKit::common_properties::_CIPCode, cip_code);
-		     std::cout << "m: common-CIP-code " << cip_code << std::endl;
+		     at_p->getProp("_CIPRank", cip_rank);
+		     std::cout << "m: CIP-rank " << cip_rank << std::endl;
 		  }
 		  catch (const KeyErrorException &err) {
-		     std::cout << "no-error: no _CIPCode " << err.what() << std::endl;
+		     // std::cout << "no-error: no _CIPRank " << err.what() << std::endl;
 		  }
 		  catch (const boost::bad_any_cast &bac) {
 		     // Goodness knows why this is thrown... 
-		     std::cout << "   strange - caught bad_any_cast" << std::endl;
+		     std::cout << "strange - caught bad_any_cast on _CIPRank get" << std::endl;
 		  } 
 	       }
 	    }

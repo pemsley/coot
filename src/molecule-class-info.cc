@@ -2419,7 +2419,8 @@ molecule_class_info_t::add_additional_representation(int representation_type,
       int display_list_handle_index = make_ball_and_stick(info.mmdb_string(),
 							  bonds_width, sphere_size, do_spheres,
 							  glci, geom);
-      if ((display_list_handle_index >= 0) && (display_list_handle_index < display_list_tags.size())) {
+      if ((display_list_handle_index >= 0) &&
+	  (display_list_handle_index < display_list_tags.size())) {
 	 add_reps[n_rep].add_display_list_handle(display_list_handle_index);
       } 
    }

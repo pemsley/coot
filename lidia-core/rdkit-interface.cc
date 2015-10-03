@@ -2764,6 +2764,7 @@ coot::debug_rdkit_molecule(const RDKit::ROMol *rdkm) {
       }
       catch (const KeyErrorException &err) {
 	 // Not an error
+	 // std::cout << "KeyErrorException " << err.what() << " for _CIPCode" << std::endl;
 	 std::cout << " CIP-Code - ";
       }
       std::cout << std::endl;

@@ -2719,7 +2719,7 @@ public:
    static void refinement_map_select_add_columns(GtkWidget *item, GtkPositionType pos);
    static void   skeleton_map_select(GtkWidget *item, GtkPositionType pos);
    static int map_for_skeletonize; // used by skeletonize_map; 
-   static void   skeletonize_map(short int prune_it, int imol);
+   static void   skeletonize_map(int imol, short int prune_flag);
    static void unskeletonize_map(int imol);
    static void set_initial_map_for_skeletonize(); 
    static std::string refmac_ccp4i_project_dir;

@@ -3334,10 +3334,22 @@ fi
 #################################################################
 # Raster3D
 #################################################################
-# http://skuld.bmsc.washington.edu/raster3d/Raster3D_3.0-3.tar.gz
+# 
 
-gzip -dc ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz | tar xf -
-# now build it.
+raster3d_version=3.0-3
+${WGET} http://skuld.bmsc.washington.edu/raster3d/Raster3D_$raster3d_version.tar.gz
+
+if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then 
+    if [ ! -e $install_top_dir/bin/render ] ; then 
+       # now build it.
+       gzip -dc ${AUTOBUILD_SOURCES}/Raster3D_$raster3d_version.tar.gz | tar xf -
+       cd Raster3D_$raster3d_version
+       make linux
+       $MAKE
+       make prefix=$install_top_dir install
+    fi
+fi
+
 
 ###############################################################################
 ##########         get Coot                                       #############

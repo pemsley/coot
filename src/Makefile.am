@@ -236,6 +236,7 @@ coot_bin_SOURCES = \
 	c-interface-database.cc  \
 	c-interface-gui.cc	 \
 	c-interface-gtk2.cc	 \
+	c-interface-gtk-widgets.h \
 	c-interface-info.cc	 \
 	c-interface-kk.cc	 \
 	c-interface-image.cc     \
