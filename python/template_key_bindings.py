@@ -151,6 +151,24 @@ add_key_binding("Accept Baton Position", "A", lambda: accept_baton_position())
 add_key_binding("Cootilus here", "N", lambda: find_nucleic_acids_local(6.0))
 
 
+def jed_flip_key_func(dir):
+    active_atom = active_residue()
+    if (not active_atom):
+        print "No active atom"
+    else:
+        imol      = active_atom[0]
+        chain_id  = active_atom[1]
+        res_no    = active_atom[2]
+        ins_code  = active_atom[3]
+        atom_name = active_atom[4]
+        alt_conf  = active_atom[5]
+        jed_flip(imol, chain_id, res_no, ins_code, atom_name, alt_conf, dir)
+
+add_key_binding("JED-Flip", "F", lambda: jed_flip_key_func(0))
+
+add_key_binding("JED-Flip", "G", lambda: jed_flip_key_func(1))
+
+
 # Paul's not sure about this one. I likey!
 # add_key_binding("Delete this water", "D", lambda: delete_atom(*active_residue()))
 
