@@ -2722,7 +2722,7 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 	 std::vector<std::pair<std::string,double> > penalty_string_angles;
 	 std::cout << "Residue Distortion List: \n";
 	 for (unsigned int i=0; i<gdc.geometry_distortion.size(); i++) { 
-	    coot::simple_restraint &rest = gdc.geometry_distortion[i].restraint;
+	    const coot::simple_restraint &rest = gdc.geometry_distortion[i].restraint;
 	    if (rest.restraint_type == coot::BOND_RESTRAINT) {
 	       n_restraints_bonds++;
 	       mmdb::Atom *at_1 = residue_p->GetAtom(rest.atom_index_1);

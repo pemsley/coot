@@ -637,6 +637,7 @@ namespace coot {
 	 max_resno = max_resno_in;
       }
       int size () const { return geometry_distortion.size(); }
+      double print() const;  // return the total distortion
       friend std::ostream &operator<<(std::ostream &s, geometry_distortion_info_container_t);
    };
    std::ostream &operator<<(std::ostream &s, geometry_distortion_info_container_t gdic);

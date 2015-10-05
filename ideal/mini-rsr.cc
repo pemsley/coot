@@ -97,12 +97,18 @@ public:
       resno_end = mmdb::MinInt4;
       f_col = "FWT";
       phi_col = "PHWT";
+      use_rama_targets = false;
+      use_planar_peptide_restraints = true;
+      use_torsion_targets = false;
+      tabulate_distortions_flag = false;
    }
    bool is_good;
    bool is_debug_mode; 
    bool given_map_flag;
    bool use_rama_targets;
    bool use_torsion_targets;
+   bool use_planar_peptide_restraints;
+   bool tabulate_distortions_flag;
    int resno_start;
    int resno_end;
    int residues_around;
@@ -183,6 +189,10 @@ main(int argc, char **argv) {
 		<< "       --weight w (weight of map gradients, default 60)\n"
 		<< "       --radius (default 4.2)\n"
 		<< "       --rama\n"
+		<< "       --torsions\n"
+		<< "       --no-planar-peptide-restraints\n"
+		<< "       --tabulate-distortions\n"
+		<< "       --debug\n"
 		<< "\n"
 		<< "     --mapin ccp4-map-name can be used\n"
 		<< "       instead of --hklin --f --phi\n"
@@ -192,11 +202,6 @@ main(int argc, char **argv) {
 
       geom.set_verbose(0);
       geom.init_standard();
-
-      // 20150919: Request from Robbie Joosten: add in the planar peptide restraints.
-      //           (this should be user-configurable).
-      // 
-      geom.add_planar_peptide_restraint();
 
       //coot::restraints_container_t restraints(asc);
 
@@ -299,6 +304,12 @@ main(int argc, char **argv) {
 	    // 						 asc.mol,
 	    // 						 fixed_atom_specs);
 
+	    // 20150919: Request from Robbie Joosten: add in the planar peptide restraints.
+	    //           (this should be user-configurable).
+	    // 
+	    if (inputs.use_planar_peptide_restraints)
+	       geom.add_planar_peptide_restraint();
+
 	    std::vector<mmdb::Link> links;
 	    coot::restraints_container_t restraints(local_residues,
 						    links,
@@ -335,6 +346,13 @@ main(int argc, char **argv) {
 	    short int print_chi_sq_flag = 1;
 	    restraints.minimize(flags, nsteps_max, print_chi_sq_flag);
 	    restraints.write_new_atoms(inputs.output_pdb_file_name);
+
+	    if (inputs.tabulate_distortions_flag) {
+
+	       std::cout << "----------- tabulate-distortions path ------------------ "  << std::endl;
+	       coot::geometry_distortion_info_container_t gd = restraints.geometric_distortions(flags);
+	       gd.print();
+	    } 
 	 }
       }
    }
@@ -447,6 +465,7 @@ get_input_details(int argc, char **argv) {
    d.map_weight  = UNSET;
    d.use_rama_targets = 0;
    d.use_torsion_targets = 0;
+   d.use_planar_peptide_restraints = true;
    
    int ch;
    int option_index = 0;
@@ -470,6 +489,8 @@ get_input_details(int argc, char **argv) {
       {"rama",      0, 0, 0},
       {"torsions",  0, 0, 0},
       {"torsion",   0, 0, 0},
+      {"no-planar-peptide-restraints", 0, 0, 0},
+      {"tabulate-distortions", 0, 0, 0},
       {"debug",     0, 0, 0},  // developer option
       {0, 0, 0, 0}
    };
@@ -535,10 +556,16 @@ get_input_details(int argc, char **argv) {
 	    if (arg_str == "torsion") {
 	       d.use_torsion_targets = 1;
 	    }
+	    if (arg_str == "no-planar-peptide-restraints") { 
+	       d.use_planar_peptide_restraints = false;
+	    }
+	    if (arg_str == "tabulate-distortions") { 
+	       d.tabulate_distortions_flag = true;
+	    }
 	    if (arg_str == "debug") {
 	       d.is_debug_mode = 1;
 	    }
-	 } 
+	 }
 	 break;
 
       case 'i':
@@ -584,7 +611,10 @@ get_input_details(int argc, char **argv) {
       }
    }
 
-   if (d.input_pdb_file_name != "" && d.output_pdb_file_name != "") { 
+   std::cout << "debug here with  input_pdb_file_name :" <<  d.input_pdb_file_name << ":" << std::endl;
+   std::cout << "debug here with output_pdb_file_name :" << d.output_pdb_file_name << ":" << std::endl;
+
+   if (!d.input_pdb_file_name.empty()  && !d.output_pdb_file_name.empty()) { 
       if ((d.resno_start != UNSET && d.resno_end != UNSET) || (d.residues_around != mmdb::MinInt4)) { 
 	 if (d.chain_id != "") { 
 	    if ( (d.map_file_name != "") || (d.mtz_file_name != "" && d.f_col != "" && d.phi_col != "") ) { 
