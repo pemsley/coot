@@ -2824,17 +2824,19 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 	    
 	    if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
 	       n_restraints_chirals++;
-	       if (gdc.geometry_distortion[i].distortion_score > 10) { // arbitrons
+	       double chiral_volume_distortion_limit = 10; // arbitrons
+	       chiral_volume_distortion_limit = 0;
+	       if (gdc.geometry_distortion[i].distortion_score > chiral_volume_distortion_limit) {
 		  mmdb::Atom *at_c = residue_p->GetAtom(rest.atom_index_centre);
 		  mmdb::Atom *at_1 = residue_p->GetAtom(rest.atom_index_1);
 		  mmdb::Atom *at_2 = residue_p->GetAtom(rest.atom_index_2);
 		  mmdb::Atom *at_3 = residue_p->GetAtom(rest.atom_index_3);
 		  if (at_c && at_1 && at_2 && at_3) {
-		     std::cout << "   chiral volume problem centred at: "
+		     std::cout << "   chiral volume penalty score for chiral vol centred at: "
 			       << at_c->name << " with neighbours "
 			       << at_1->name << " "
 			       << at_2->name << " "
-			       << at_3->name << " "
+			       << at_3->name << " : "
 			       << gdc.geometry_distortion[i].distortion_score
 			       << std::endl;
 		  }

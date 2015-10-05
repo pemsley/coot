@@ -1,6 +1,11 @@
  
  0.8.3
 
+   o pyrogen with no arguments should do a pyrogen --help
+
+   o I want to turn on tortion restraints here:
+     coot::geometry_distortion_info_container_t gdc = g.geometric_distortions(residue_p);
+
    o In Distance and Angles Geometry: "Update" should update the
      distances between atom sets after I've done a refinement.
 

@@ -378,11 +378,18 @@ def make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir,
          try:
             name    = atom.GetProp('name')
             cipcode = atom.GetProp('_CIPCode')
-            print ' atom', atom, 'name', name, 'cip-code ', cipcode
+            print 'DEBUG:: make_restraints_from_mmcif_dict_single atom', \
+               atom, 'name', name, 'cip-code ', cipcode
          except KeyError as e:
-            print 'pyrogen.py:: atom', atom, " with name ", name, ' has no _CIPCode property'
+            print 'DEBUG:: pyrogen.py:: make_restraints_from_mmcif_dict_single atom', \
+               atom, " with name ", name, ' has no _CIPCode property'
+         try:
+            r = atom.GetProp('_CIPRank')
+            print atom, "DEBUG:: pyrogen.py:: make_restraints_from_mmcif_dict_single atom cip rank", r
+         except KeyError as e:
+            print 'DEBUG:: pyrogen.py:: make_restraints_from_mmcif_dict_single atom', \
+               atom, "has no _CIPRank"
             pass
-
 
    # maybe user didn't select the correct comp_id for the given dictionary mmcif
    if m.GetNumAtoms() == 0:
@@ -450,6 +457,8 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
       # print >>file('sane_H.mol','w+'),Chem.MolToMolBlock(sane_H_mol)
    else:
       sane_H_mol = m_H
+
+   AllChem.AssignStereochemistry(sane_H_mol);
 
    # This makes UFF types, which can fail sometimes.
    conf_id = AllChem.EmbedMolecule(sane_H_mol, maxAttempts=n_attempts)
@@ -575,7 +584,17 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
 	      # ... but that's OK if we told pyrogen to run without mogul
 
               # sane_H_mol:
-              # print >>file('debug_sane_H.mol','w+'),Chem.MolToMolBlock(sane_H_mol)
+              print >>file('debug_sane_H.mol','w+'),Chem.MolToMolBlock(sane_H_mol)
+
+              # debug
+              for atom in sane_H_mol.GetAtoms():
+                 try:
+                    r = atom.GetProp('_CIPRank')
+                    print atom, "DEBUG:: pyrogen.py::make_restraints(): atom cip rank", r
+                 except KeyError as e:
+                    print 'DEBUG:: pyrogen.py::make_restraints() atom', \
+                       atom, "has no _CIPRank"
+             
 
 	      restraints = pysw.mmcif_dict_from_mol(comp_id, compound_name, sane_H_mol,
 						    mmcif_dict_name,
