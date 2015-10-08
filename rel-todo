@@ -3,7 +3,14 @@
 
    o pyrogen with no arguments should do a pyrogen --help
 
-   o I want to turn on tortion restraints here:
+   o pyrogen restraints for 1SS: what is happening for the N1? Can
+     RDKit detect that it might be chiral?  If so, and if the
+     pdbx_stereo_config is missing, then make it a both.
+
+   o 4ilh look at ligand A302 1FS: display geometry distortions:
+     chiral tetrahedra are strange (missing 4th atom).
+
+   o I want to turn on torsion restraints here:
      coot::geometry_distortion_info_container_t gdc = g.geometric_distortions(residue_p);
 
    o In Distance and Angles Geometry: "Update" should update the

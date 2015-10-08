@@ -1618,9 +1618,22 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 	       ++nbr_idx_1;
 	    }
 
-	    std::cout << "DEBUG:: in assign_chirals_rdkit_tags() found "
-		      << neighb_names_and_ranks.size() << " neighbours of "
-		      << chiral_centre << std::endl;
+	    if (true) { // debug 
+	       std::sort(neighb_names_and_ranks.begin(),
+			 neighb_names_and_ranks.end());
+	    
+	       std::reverse(neighb_names_and_ranks.begin(),
+			    neighb_names_and_ranks.end());
+
+	       std::cout << "DEBUG:: in assign_chirals_rdkit_tags() for atom "
+			 << chiral_centre << " found "
+			 << neighb_names_and_ranks.size() << "  neighboours: ";
+	       for (unsigned int ii=0; ii<neighb_names_and_ranks.size(); ii++)
+		  std::cout << " "
+			    << coot::util::remove_whitespace(neighb_names_and_ranks[ii].second)
+		     	    << " (rank " << neighb_names_and_ranks[ii].first << ")";
+	       std::cout << std::endl;
+	    }
 
 	    if (neighb_names_and_ranks.size() == 4) {
 
@@ -1629,11 +1642,6 @@ coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 
 	       std::reverse(neighb_names_and_ranks.begin(),
 			    neighb_names_and_ranks.end());
-
-	       for (unsigned int ii=0; ii<neighb_names_and_ranks.size(); ii++) { 
-		  std::cout << "    " << neighb_names_and_ranks[ii].second
-			    << " " << neighb_names_and_ranks[ii].first << std::endl;
-	       }
 	       
 	       std::string chiral_id = "chiral_" + util::int_to_string(n_chirals+1);
 	       std::string n1 = neighb_names_and_ranks[0].second;
