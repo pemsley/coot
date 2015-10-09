@@ -637,7 +637,7 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
       //if ( abs(sel_res_1->GetSeqNum() - sel_res_2->GetSeqNum()) <= 1
       // || abs(sel_res_1->index - sel_res_2->index) <= 1) {
 
-      if (1) { 
+      if (true) { 
 
 	 bool is_fixed_first_residue  = bonded_residue_pairs[ibonded_residue].is_fixed_first;
 	 bool is_fixed_second_residue = bonded_residue_pairs[ibonded_residue].is_fixed_second;
@@ -1243,7 +1243,7 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 	    for (it = atom_indices_map.begin(); it != atom_indices_map.end(); it++)
 	       it->second.clear();
 
-	    for (int irest_at=0; irest_at<geom.link(i).link_plane_restraint[ip].n_atoms(); irest_at++) {
+	    for (unsigned int irest_at=0; irest_at<geom.link(i).link_plane_restraint[ip].n_atoms(); irest_at++) {
 	       if (geom.link(i).link_plane_restraint[ip].atom_comp_ids[irest_at] == 1) {
 		  // std::cout << "comp_id: 1 " << std::endl;
 		  link_res_n_atoms = n_first_res_atoms;

@@ -924,7 +924,7 @@ namespace coot {
       std::string plane_id; 
       std::vector<std::string> atom_ids;
       std::vector<int> atom_comp_ids;
-      int n_atoms() const { return atom_ids.size(); }
+      unsigned int n_atoms() const { return atom_ids.size(); }
       double dist_esd() const { return dist_esd_; }
       std::string atom_id(int i) const { return atom_id_mmdb_expand(atom_ids[i]); }
    };

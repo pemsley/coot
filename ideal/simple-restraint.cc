@@ -1228,6 +1228,7 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 	    atom_index = restraints_vec[i].atom_index_1;
 	    atom_indices.push_back(rest.atom_index_1);
 	    atom_indices.push_back(rest.atom_index_2);
+	    // std::cout << " NBC i " << i << " " << distortion << std::endl;
 	 }
 
       if (restraints_usage_flag & coot::CHIRAL_VOLUME_MASK)
@@ -1726,26 +1727,29 @@ double
 coot::distortion_score_non_bonded_contact(const coot::simple_restraint &bond_restraint,
 					  const gsl_vector *v) {
 
-   int idx = 3*(bond_restraint.atom_index_1 - 0); 
-   clipper::Coord_orth a1(gsl_vector_get(v,idx), 
-			  gsl_vector_get(v,idx+1), 
-			  gsl_vector_get(v,idx+2));
-   idx = 3*(bond_restraint.atom_index_2 - 0); 
-   clipper::Coord_orth a2(gsl_vector_get(v,idx), 
-			  gsl_vector_get(v,idx+1), 
-			  gsl_vector_get(v,idx+2));
+   const int &idx_1 = 3*(bond_restraint.atom_index_1); 
+   const int &idx_2 = 3*(bond_restraint.atom_index_2); 
+   clipper::Coord_orth a1(gsl_vector_get(v, idx_1  ), 
+			  gsl_vector_get(v, idx_1+1), 
+			  gsl_vector_get(v, idx_1+2));
+   clipper::Coord_orth a2(gsl_vector_get(v, idx_2 ),
+			  gsl_vector_get(v, idx_2+1), 
+			  gsl_vector_get(v, idx_2+2));
 
-   double weight = 1/(bond_restraint.sigma * bond_restraint.sigma);
-
-   double dist = clipper::Coord_orth::length(a1,a2);
+   double dist_sq = (a1-a2).lengthsq();
    double bit; 
 
    double r = 0.0;
-   if (dist < bond_restraint.target_value) {
+
+//       std::cout << "in distortion_score_non_bonded_contact: " << idx_1 << " " << idx_2
+// 		<< " comparing " << sqrt(dist_sq) << " " << bond_restraint.target_value  << std::endl;
+   
+   if (dist_sq < bond_restraint.target_value * bond_restraint.target_value) {
+      double weight = 1.0/(bond_restraint.sigma * bond_restraint.sigma);
+      double dist = sqrt(dist_sq);
       bit = dist - bond_restraint.target_value;
       r = weight * bit * bit;
    }
-
    return r;
 }
 
@@ -2102,6 +2106,10 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	 if ( (*this)[i].restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
 	    n_geman_mcclure_distance++;
 	    gm_distortion += coot::distortion_score_geman_mcclure_distance((*this)[i], v, geman_mcclure_alpha);
+
+	    double d = coot::distortion_score_geman_mcclure_distance((*this)[i], v, geman_mcclure_alpha);
+	    std::cout << "............ Geman-McClure " << i << " " << d
+		      << " gm_distortion " << gm_distortion << std::endl;
 	 }
       }
 
@@ -2196,6 +2204,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       std::string s = "Bonds:  ";
       s += coot::util::float_to_string_using_dec_pl(sbd, 3);
       lights_vec.push_back(coot::refinement_lights_info_t("Bonds", s, sbd));
+      std::cout << "bond_distortion " << bd << std::endl;
    } 
    if (n_angle_restraints == 0) {
       std::cout << "angles:     N/A " << std::endl;
@@ -2212,7 +2221,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       std::string s = "Angles: ";
       s += coot::util::float_to_string_using_dec_pl(sad, 3);
       lights_vec.push_back(coot::refinement_lights_info_t("Angles", s, sad));
-
+      std::cout << "angle_distortion " << ad << std::endl;
    } 
    if (n_torsion_restraints == 0) {
       std::cout << "torsions:   N/A " << std::endl;
@@ -2243,6 +2252,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       std::string s = "Planes: ";
       s += coot::util::float_to_string_using_dec_pl(spd, 3);
       lights_vec.push_back(coot::refinement_lights_info_t("Planes", s, spd));
+      std::cout << "plane_distortion " << pd << std::endl;
    }
    if (n_non_bonded_restraints == 0) {
       std::cout << "non-bonded: N/A " << std::endl;
@@ -2259,6 +2269,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       std::string s = "Non-bonded: ";
       s += coot::util::float_to_string_using_dec_pl(snbd, 3);
       lights_vec.push_back(coot::refinement_lights_info_t("Non-bonded", s, snbd));
+      std::cout << "nbc_distortion " << nbd << std::endl;
    }
    if (n_chiral_volumes == 0) { 
       std::cout << "chiral vol: N/A " << std::endl;
@@ -2273,6 +2284,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       std::string s = "Chirals: ";
       s += coot::util::float_to_string_using_dec_pl(scd, 3);
       lights_vec.push_back(coot::refinement_lights_info_t("Chirals", s, scd));
+      std::cout << "chiral_distortion " << cd << std::endl;
    }
    if (n_rama_restraints == 0) { 
       std::cout << "rama plot:  N/A " << std::endl;
@@ -2504,10 +2516,16 @@ void coot::my_df_bonds (const gsl_vector *v,
 	    if (!(*restraints)[i].fixed_atom_flags[0]) { 
 	       idx = 3*((*restraints)[i].atom_index_1 - 0);  
 	       // std::cout << "bond first  non-fixed  idx is " << idx << std::endl; 
-	       // cout << "first  idx is " << idx << endl; 
-	       gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + x_k_contrib); 
-	       gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + y_k_contrib); 
-	       gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + z_k_contrib); 
+	       // cout << "first  idx is " << idx << endl;
+	       
+	       // gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + x_k_contrib); 
+	       // gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + y_k_contrib); 
+	       // gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + z_k_contrib);
+
+	       *gsl_vector_ptr(df, idx  ) += x_k_contrib;
+	       *gsl_vector_ptr(df, idx+1) += y_k_contrib;
+	       *gsl_vector_ptr(df, idx+2) += z_k_contrib;
+	       
 	    } else {
 	       // debug
 	       if (0) { 
@@ -2526,10 +2544,17 @@ void coot::my_df_bonds (const gsl_vector *v,
 	    if (!(*restraints)[i].fixed_atom_flags[1]) { 
 	       idx = 3*((*restraints)[i].atom_index_2 - 0); 
 	       // std::cout << "bond second non-fixed  idx is " << idx << std::endl; 
-	       // cout << "second idx is " << idx << endl; 
-	       gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + x_l_contrib); 
-	       gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + y_l_contrib); 
-	       gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + z_l_contrib); 
+	       // cout << "second idx is " << idx << endl;
+	       
+	       // gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + x_l_contrib); 
+	       // gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + y_l_contrib); 
+	       // gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + z_l_contrib);
+
+	       *gsl_vector_ptr(df, idx  ) += x_l_contrib;
+	       *gsl_vector_ptr(df, idx+1) += y_l_contrib;
+	       *gsl_vector_ptr(df, idx+2) += z_l_contrib;
+
+	       
 	    } else {
 	       // debug
 	       if (0) { 
@@ -2607,7 +2632,7 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 
 	    b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
 
-	    weight = 1/( (*restraints)[i].sigma * (*restraints)[i].sigma );
+	    weight = 1.0/( (*restraints)[i].sigma * (*restraints)[i].sigma );
 
 	    if (b_i_sqrd < (*restraints)[i].target_value * (*restraints)[i].target_value) {
 
@@ -2625,10 +2650,12 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 
 	       if (! (*restraints)[i].fixed_atom_flags[0]) { 
 		  idx = 3*((*restraints)[i].atom_index_1 - 0); 
-		  // std::cout << " nbc  first non-fixed  idx is " << idx << std::endl; 
-		  gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + x_k_contrib); 
-		  gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + y_k_contrib); 
-		  gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + z_k_contrib); 
+		  // std::cout << " nbc  first non-fixed  idx is " << idx << std::endl;
+		  
+		  *gsl_vector_ptr(df, idx  ) += x_k_contrib;
+		  *gsl_vector_ptr(df, idx+1) += y_k_contrib;
+		  *gsl_vector_ptr(df, idx+2) += z_k_contrib;
+		  
 	       } else {
 		  // debug
 		  if (0) { 
@@ -2647,10 +2674,12 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 
 	       if (! (*restraints)[i].fixed_atom_flags[1]) { 
 		  idx = 3*((*restraints)[i].atom_index_2 - 0); 
-		  // std::cout << " nbc  second non-fixed idx is " << idx << std::endl; 
-		  gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + x_l_contrib); 
-		  gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + y_l_contrib); 
-		  gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + z_l_contrib); 
+		  // std::cout << " nbc  second non-fixed idx is " << idx << std::endl;
+		  
+		  *gsl_vector_ptr(df, idx  ) += x_l_contrib;
+		  *gsl_vector_ptr(df, idx+1) += y_l_contrib;
+		  *gsl_vector_ptr(df, idx+2) += z_l_contrib;
+		  
 	       } else {
 		  // debug
 		  if (0) { 
@@ -2718,7 +2747,9 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
 	    b_i_sqrd = (a1-a2).lengthsq();
 	    b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
 
-	    if (b_i_sqrd < rest.target_value * rest.target_value) {
+	    // if (b_i_sqrd < rest.target_value * rest.target_value) {
+	    
+	    if (true) {
 
 	       weight = 1.0/(rest.sigma * rest.sigma);
 	       double b_i = sqrt(b_i_sqrd);
@@ -2745,16 +2776,25 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
 	       
 	       if (! rest.fixed_atom_flags[0]) { 
 		  idx = 3*(rest.atom_index_1 - 0); 
-		  gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + x_k_contrib); 
-		  gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + y_k_contrib); 
-		  gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + z_k_contrib); 
+		  // gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + x_k_contrib); 
+		  // gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + y_k_contrib); 
+		  // gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + z_k_contrib);
+
+		  *gsl_vector_ptr(df, idx  ) += x_k_contrib;
+		  *gsl_vector_ptr(df, idx+1) += y_k_contrib;
+		  *gsl_vector_ptr(df, idx+2) += z_k_contrib;
+		  
 	       }
 
 	       if (! rest.fixed_atom_flags[1]) { 
 		  idx = 3*(rest.atom_index_2 - 0); 
-		  gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + x_l_contrib); 
-		  gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + y_l_contrib); 
-		  gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + z_l_contrib); 
+		  // gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + x_l_contrib); 
+		  // gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + y_l_contrib); 
+		  // gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + z_l_contrib);
+
+		  *gsl_vector_ptr(df, idx  ) += x_l_contrib;
+		  *gsl_vector_ptr(df, idx+1) += y_l_contrib;
+		  *gsl_vector_ptr(df, idx+2) += z_l_contrib;
 	       } 
 	    }
 	 }
@@ -5217,6 +5257,32 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
 
    	    if (filtered_non_bonded_atom_indices[i][j] < int(i))
   	       add_it = false;
+
+	    // Don't make a bump between the CD of a PRO at residue(n) and the atoms of n-1
+	    
+	    std::string res_name_1 = at_1->GetResName();
+	    std::string res_name_2 = at_2->GetResName();
+	    
+	    if (res_name_1 == "PRO") {
+	       int res_no_pro   = at_1->GetSeqNum();
+	       int res_no_other = at_2->GetSeqNum();
+	       if (res_no_pro == (res_no_other + 1)) {
+		  std::string atom_name = at_1->name;
+		  if (atom_name == " CD ") {  // PDBv3 FIXME
+		     add_it = false;
+		  } 
+	       }
+	    }
+	    if (res_name_2 == "PRO") {
+	       int res_no_pro = at_2->GetSeqNum();
+	       int res_no_other = at_1->GetSeqNum();
+	       if (res_no_pro == (res_no_other + 1)) {
+		  std::string atom_name = at_2->name;
+		  if (atom_name == " CD ") {  // PDBv3 FIXME
+		     add_it = false;
+		  } 
+	       }
+	    }
 	 
 	    if (add_it) { 
 	 
