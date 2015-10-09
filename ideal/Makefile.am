@@ -77,13 +77,13 @@ libcoot_ideal_la_SOURCES = simple-restraint.cc chirals.cc  extra-restraints.cc \
 libcoot_ideal_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 check_PROGRAMS =  with-geometry logramatest
-bin_PROGRAMS = mini-rsr
+libexec_PROGRAMS = mini-rsr-bin
 
 logramatest_SOURCES = logramatest.cpp
 
 with_geometry_SOURCES = with-geometry.cc
 
-mini_rsr_SOURCES = mini-rsr.cc
+mini_rsr_bin_SOURCES = mini-rsr.cc
 
 # test_indexing_SOURCES = test-indexing.cc
 
@@ -107,7 +107,7 @@ with_geometry_LDADD = \
         $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
 # add libcoot-map-utils for  the debugging density_around_point function
-mini_rsr_LDADD =  \
+mini_rsr_bin_LDADD =  \
         ./libcoot-ideal.la                                 \
 	$(top_builddir)/coot-utils/libcoot-map-heavy.la    \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
@@ -147,3 +147,5 @@ logramatest_LDADD = \
 	$(top_builddir)/utils/libcoot-utils.la       \
 	$(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) $(GSL_LIBS)
+
+dist_bin_SCRIPTS = coot.mini-rsr
