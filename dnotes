@@ -7415,10 +7415,16 @@ Thu Jul 23 12:31:24 BST 2015
    o experiment: use Rdkit with pdb perception to generate molecules and 
      compare them with molecules generated from reading the cif.
 
+------
 
+	Interesting Ligands:
+
+   TF7 in 3nia: can be remodelled as glycerol? (next to real ligand)
+                dihydoxy sulfanyl is "strange" chemistry (c.f neighbour ligand)
+                not published
 
 ------
 
-    Pathology scatter plots: holiday project.  Do we have cairo and cairoplot?
+    Pathology scatter plots: holiday project.  
 
 ------
