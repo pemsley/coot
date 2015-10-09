@@ -3048,7 +3048,7 @@ coot::protein_geometry::add_planar_peptide_restraint() {
 
    std::string link_id = "TRANS";
    std::string plane_id = "plane-5-atoms";
-   mmdb::realtype dist_esd = 90.09;
+   mmdb::realtype dist_esd = 0.05;
 
    std::string atom_id; 
    std::vector<std::pair<int, std::string> > v;

@@ -1803,8 +1803,8 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 
       for (int i=0; i<n_atoms; i++) {
 	 idx = 3*(plane_restraint.plane_atom_index[i].first);
-	 // std::cout << "plane restraint adding plane deviations for atom index " << plane_restraint.atom_index[i]
-	 // << std::endl;
+	 // std::cout << "plane restraint adding plane deviations for atom index "
+	 // << plane_restraint.atom_index[i] << std::endl;
 	 if (plane_restraint.plane_atom_index[i].first < 0) {
 	 } else { 
 	    mat(0,0) += (gsl_vector_get(v,idx  ) - x_cen) * (gsl_vector_get(v,idx  ) - x_cen);
@@ -1875,17 +1875,20 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 	       abcd[1]*gsl_vector_get(v,idx+1) +
 	       abcd[2]*gsl_vector_get(v,idx+2) -
 	       abcd[3];
-	    sum_devi += val * val;
+	    double r = val/plane_restraint.plane_atom_index[i].second;
+	    sum_devi += r*r;
 	 }
       }
    }
+
+   if (false) 
+      std::cout << "DEBUG:: distortion_score_plane_internal() returning "
+		<< sum_devi << " for " << plane_restraint.plane_atom_index.size() << " atoms"
+		<< std::endl;
    
-//    std::cout << "distortion_score_plane returning "
-//  	     <<  plane_restraint.sigma << "^-2 * "
-//  	     << sum_devi << " = "
-//   	     << pow(plane_restraint.sigma,-2.0) * sum_devi << std::endl;
-   
-   info.distortion_score = sum_devi / (plane_restraint.sigma * plane_restraint.sigma);
+    // info.distortion_score = sum_devi / (plane_restraint.sigma * plane_restraint.sigma);
+    // now individually weighted
+    info.distortion_score = sum_devi;
    
    return info;
 }
@@ -2204,7 +2207,6 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       std::string s = "Bonds:  ";
       s += coot::util::float_to_string_using_dec_pl(sbd, 3);
       lights_vec.push_back(coot::refinement_lights_info_t("Bonds", s, sbd));
-      std::cout << "bond_distortion " << bd << std::endl;
    } 
    if (n_angle_restraints == 0) {
       std::cout << "angles:     N/A " << std::endl;
@@ -2213,15 +2215,13 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       double sad = 0.0;
       if (ad > 0.0)
 	 sad = sqrt(ad);
-      std::cout << "angles:     " << sad
-		<< std::endl;
+      std::cout << "angles:     " << sad << std::endl;
       r += "   angles: ";
       r += coot::util::float_to_string_using_dec_pl(sad, 3);
       r += "\n";
       std::string s = "Angles: ";
       s += coot::util::float_to_string_using_dec_pl(sad, 3);
       lights_vec.push_back(coot::refinement_lights_info_t("Angles", s, sad));
-      std::cout << "angle_distortion " << ad << std::endl;
    } 
    if (n_torsion_restraints == 0) {
       std::cout << "torsions:   N/A " << std::endl;
@@ -2252,7 +2252,6 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       std::string s = "Planes: ";
       s += coot::util::float_to_string_using_dec_pl(spd, 3);
       lights_vec.push_back(coot::refinement_lights_info_t("Planes", s, spd));
-      std::cout << "plane_distortion " << pd << std::endl;
    }
    if (n_non_bonded_restraints == 0) {
       std::cout << "non-bonded: N/A " << std::endl;
@@ -2269,7 +2268,6 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       std::string s = "Non-bonded: ";
       s += coot::util::float_to_string_using_dec_pl(snbd, 3);
       lights_vec.push_back(coot::refinement_lights_info_t("Non-bonded", s, snbd));
-      std::cout << "nbc_distortion " << nbd << std::endl;
    }
    if (n_chiral_volumes == 0) { 
       std::cout << "chiral vol: N/A " << std::endl;
@@ -2284,7 +2282,6 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       std::string s = "Chirals: ";
       s += coot::util::float_to_string_using_dec_pl(scd, 3);
       lights_vec.push_back(coot::refinement_lights_info_t("Chirals", s, scd));
-      std::cout << "chiral_distortion " << cd << std::endl;
    }
    if (n_rama_restraints == 0) { 
       std::cout << "rama plot:  N/A " << std::endl;
@@ -3659,7 +3656,7 @@ coot::my_df_planes(const gsl_vector *v,
 	    const simple_restraint &plane_restraint = (*restraints)[i];
 	    plane_info = distortion_score_plane_internal(plane_restraint, v);
 	    n_plane_atoms = plane_restraint.plane_atom_index.size();
-	    weight = 1/((*restraints)[i].sigma * (*restraints)[i].sigma);
+	    // weight = 1/((*restraints)[i].sigma * (*restraints)[i].sigma);
 	    for (int j=0; j<n_plane_atoms; j++) {
 	       if (! (*restraints)[i].fixed_atom_flags[j] ) { 
 		  idx = 3*plane_restraint.plane_atom_index[j].first;
@@ -3668,6 +3665,9 @@ coot::my_df_planes(const gsl_vector *v,
 		     plane_info.abcd[1]*gsl_vector_get(v,idx+1) +
 		     plane_info.abcd[2]*gsl_vector_get(v,idx+2) -
 		     plane_info.abcd[3];
+
+		  double weight = 1/(plane_restraint.plane_atom_index[j].second *
+				     plane_restraint.plane_atom_index[j].second);
 
 		  clipper::Grad_orth<double> d(2.0 * weight * devi_len * plane_info.abcd[0],
 					       2.0 * weight * devi_len * plane_info.abcd[1],
