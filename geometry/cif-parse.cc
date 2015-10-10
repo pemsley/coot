@@ -2561,13 +2561,17 @@ coot::protein_geometry::link_add_plane(const std::string &link_id,
 				       double dist_esd) {
 
 
-   dict_link_plane_restraint_t lpr(atom_id,plane_id, atom_comp_id, dist_esd);
-   short int ifound = 0;
+   dict_link_plane_restraint_t lpr(atom_id, plane_id, atom_comp_id, dist_esd);
+   bool ifound = 0;
    for (unsigned int i=0; i<dict_link_res_restraints.size(); i++) {
+
+      // std::cout << "comparing  link_ids: " << i << " " << dict_link_res_restraints[i].link_id
+      // << " vs " << link_id << std::endl;
+      
       if (dict_link_res_restraints[i].link_id == link_id) { // e.g "TRANS"
 	 for (unsigned int ip=0; ip<dict_link_res_restraints[i].link_plane_restraint.size(); ip++) {
 	    if (dict_link_res_restraints[i].link_plane_restraint[ip].plane_id == plane_id) {
-	       ifound = 1;
+	       ifound = true;
 
 	       // now check the atom_id and comp_id of that atom are not already in this restraint.
 	       // Only add this atom to the plane restraint if there is not already an atom there.
@@ -2576,18 +2580,18 @@ coot::protein_geometry::link_add_plane(const std::string &link_id,
 	       
 	       int found_atom_index = coot::protein_geometry::UNSET_NUMBER;
 
-	       for (int i_rest_at=0; i_rest_at<dict_link_res_restraints[i].link_plane_restraint[ip].n_atoms(); i_rest_at++) {
+	       for (unsigned int i_rest_at=0; i_rest_at<dict_link_res_restraints[i].link_plane_restraint[ip].n_atoms(); i_rest_at++) {
 		  if (dict_link_res_restraints[i].link_plane_restraint[ip].atom_ids[i_rest_at] == atom_id) { 
 		     if (dict_link_res_restraints[i].link_plane_restraint[ip].atom_comp_ids[i_rest_at] == atom_comp_id) {
 			found_atom_index = i_rest_at;
 			break;
 		     }
-		  } 
+		  }
 	       }
 
 	       if (found_atom_index != coot::protein_geometry::UNSET_NUMBER) {
 		  // replace it then
-		  dict_link_res_restraints[i].link_plane_restraint[ip].atom_ids[found_atom_index] = atom_id;		  
+		  dict_link_res_restraints[i].link_plane_restraint[ip].atom_ids[found_atom_index] = atom_id;
 		  dict_link_res_restraints[i].link_plane_restraint[ip].atom_comp_ids[found_atom_index] = atom_comp_id;
 	       } else {
 
@@ -2602,7 +2606,7 @@ coot::protein_geometry::link_add_plane(const std::string &link_id,
 	    // we have link_id, but no planes of that id
 	    coot::dict_link_plane_restraint_t res(atom_id, plane_id, atom_comp_id, dist_esd);
 	    dict_link_res_restraints[i].link_plane_restraint.push_back(res);
-	    ifound = 1;
+	    ifound = true;
 	 }
       }
    }
@@ -2616,6 +2620,11 @@ coot::protein_geometry::link_add_plane(const std::string &link_id,
       // add the plae to the newly created dictionary_residue_link_restraints_t
       dict_link_res_restraints.push_back(dictionary_residue_link_restraints_t(link_id));
       coot::dict_link_plane_restraint_t res(atom_id, plane_id, atom_comp_id, dist_esd);
+      std::cout << "adding link plane restraint by D " << res.dist_esd() << std::endl;
+      for (unsigned int ii=0; ii<res.n_atoms(); ii++) { 
+	 std::cout << "           " << res.atom_id(ii) << std::endl;
+      }
+      
       dict_link_res_restraints[dict_link_res_restraints.size()-1].link_plane_restraint.push_back(res);
    }
 }

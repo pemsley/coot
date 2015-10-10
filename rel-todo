@@ -3,6 +3,10 @@
 
    o Pro-CD -> CA and C NBC... what to do?
 
+* Done.
+
+   o planar peptide restraints: are the distortions correct?
+
    o Sphere refine doesn't use alpha helical restraints. It should.
 
    o with enhanced-ligand, do you get a sane code-path if you do 

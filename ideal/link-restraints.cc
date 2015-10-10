@@ -1185,15 +1185,17 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 						 short int is_fixed_second_res,
 						 const coot::protein_geometry &geom) {
 
-//    std::cout << "DEBUG:: add_link_plane for " << first->GetChainID() << " " << first->GetSeqNum()
-// 	     << " :" << first->GetInsCode() << ":"
-// 	     << " -> " << second->GetChainID() << " " << second->GetSeqNum()
-// 	     << " :" << second->GetInsCode() << ":" << std::endl;
+   if (false) 
+      std::cout << "DEBUG:: add_link_plane() ::::::::  for type " << link_type << " "
+		<< first->GetChainID() << " " << first->GetSeqNum()
+		<< " :" << first->GetInsCode() << ":"
+		<< " -> " << second->GetChainID() << " " << second->GetSeqNum()
+		<< " :" << second->GetInsCode() << ":" << std::endl;
    
    int n_plane = 0;
 
-   mmdb::PPAtom first_sel;
-   mmdb::PPAtom second_sel;
+   mmdb::PPAtom first_sel = 0;
+   mmdb::PPAtom second_sel = 0;
    mmdb::PPAtom atom_sel;  // gets assigned to either first or second
    int n_first_res_atoms, n_second_res_atoms;
    int link_res_n_atoms; // gets assigned to either n_first_res_atoms, n_second_res_atoms
@@ -1243,7 +1245,7 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 	    for (it = atom_indices_map.begin(); it != atom_indices_map.end(); it++)
 	       it->second.clear();
 
-	    for (int irest_at=0; irest_at<geom.link(i).link_plane_restraint[ip].n_atoms(); irest_at++) {
+	    for (unsigned int irest_at=0; irest_at<geom.link(i).link_plane_restraint[ip].n_atoms(); irest_at++) {
 	       if (geom.link(i).link_plane_restraint[ip].atom_comp_ids[irest_at] == 1) {
 		  // std::cout << "comp_id: 1 " << std::endl;
 		  link_res_n_atoms = n_first_res_atoms;
@@ -1281,9 +1283,9 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 	       
 	       if (it->second.size() > 3) {
 		  
-		  if (0) {  // debugging.
-		     std::cout << "  atom indices: for plane restraint :" << it->first
-			       << ":" << std::endl;
+		  if (false) {  // debugging.
+		     std::cout << "DEBUG:: add_link_plane() atom indices: for plane restraint for"
+			       << " atoms with alt-conf \"" << it->first << "\"" << std::endl;
 		     for (unsigned int indx=0; indx<it->second.size(); indx++) {
 			std::cout << "           " << it->second[indx] << std::endl;
 		     }
@@ -1293,7 +1295,7 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 				  << atom[it->second[ind]]->name << ": :"
 				  << atom[it->second[ind]]->altLoc << ":\n";
 		     }
-		     std::cout << "DEBUG:: adding link plane with pos indexes ";
+		     std::cout << "DEBUG:: add_link_plane() with pos indexes ";
 		     for (unsigned int ipos=0; ipos<it->second.size(); ipos++)
 			std::cout << " " << it->second[ipos];
 		     std::cout << "\n";
@@ -1319,6 +1321,7 @@ int coot::restraints_container_t::add_link_plane(std::string link_type,
 	 }
       }
    }
+
    return n_plane;
 }
 
