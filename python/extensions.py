@@ -298,7 +298,21 @@ if (have_coot_python):
        lambda func: map_molecule_chooser_gui("Map to Copy...", 
 		lambda imol: copy_molecule(imol)))
 
+     
+     add_simple_coot_menu_menuitem(
+       submenu_maps,
+       "Make a Smoother Copy...", 
+       lambda func: map_molecule_chooser_gui("Map Molecule to Smoothenize...", 
+		lambda imol: smooth_map(imol, 1.25)))
 
+     
+     add_simple_coot_menu_menuitem(
+       submenu_maps,
+       "Make a Very Smooth Copy...", 
+       lambda func: map_molecule_chooser_gui("Map Molecule to Smoothenize...", 
+		lambda imol: smooth_map(imol, 2.0)))
+
+     
      add_simple_coot_menu_menuitem(
        submenu_maps,
        "Make a Difference Map...",
@@ -347,6 +361,13 @@ if (have_coot_python):
 #                    export_map_func(imol, radius_string, file_name)
 #                )
 #        )
+
+
+     add_simple_coot_menu_menuitem(
+       submenu_maps,
+       "Map Density Histogram...",
+       lambda func: map_molecule_chooser_gui("Choose the map",
+		lambda imol: map_histogram(imol)))
 
 
      add_simple_coot_menu_menuitem(
@@ -618,16 +639,35 @@ if (have_coot_python):
                               lambda text: mon_dict_func(text)))
                               
 
-     def morph_fit_chain_func(radius=7):
+     def morph_fit_chain_func(radius):
        with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                   aa_ins_code, aa_atom_name, aa_alt_conf]:
          morph_fit_chain(aa_imol, aa_chain_id, radius)
          
      add_simple_coot_menu_menuitem(
        submenu_models,
-       "Morph Fit Chain (Radius 7)",
-       lambda func: morph_fit_chain_func()
+       "Morph Fit Chain (Averaging Radius 7)",
+       lambda func: morph_fit_chain_func(7)
        )
+     
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Morph Fit Chain (Averaging Radius 11)",
+       lambda func: morph_fit_chain_func(11)
+       )
+
+
+     def morph_fit_ss_func(radius):
+       with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                  aa_ins_code, aa_atom_name, aa_alt_conf]:
+         morph_fit_by_secondary_structure_elements(aa_imol, aa_chain_id)
+         
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Morph Fit Chain based on Secondary Structure",
+       lambda func: morph_fit_chain_func(7)
+       )
+     
      
      # -- N --
 
@@ -1491,7 +1531,13 @@ if (have_coot_python):
           ccp4mg_file_exe = find_exe(ccp4mg_exe, "PATH")
           pd_file_name = os.path.abspath(pd_file_name)
           args = [ccp4mg_file_exe, "-pict", pd_file_name]
-          os.spawnv(os.P_NOWAIT, ccp4mg_file_exe, args)
+          try:
+            import subprocess
+            subprocess.Popen(args).pid
+            print "BL DEBUG:: new subprocess"
+          except:
+            # no subprocess, use old style
+            os.spawnv(os.P_NOWAIT, ccp4mg_file_exe, args)
 	else:
           print "BL WARNING:: sorry cannot find %s in $PATH" %ccp4mg_exe
 

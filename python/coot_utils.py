@@ -447,6 +447,12 @@ def residue_atom2alt_conf(ra):
     else:
         return ra[0][1]
 
+def residue_atom2occupancy(ra):
+    if not isinstance(ra, list):
+        return False
+    else:
+        return ra[1][0]
+
 def residue_spec2chain_id(rs):
     if not isinstance(rs, list):
         return False
@@ -3416,7 +3422,9 @@ def file_to_preferences(filename):
         else:
             coot_python_dir = os.path.join(sys.prefix, 'lib', 'python2.7', 'site-packages', 'coot')
 
-    if os.path.isdir(coot_python_dir):
+    if not os.path.isdir(coot_python_dir):
+        add_status_bar_text("Missing COO_PYTHON_DIR")
+    else:
         ref_py = os.path.join(coot_python_dir, filename)
 
         if not os.path.exists(ref_py):
@@ -3430,16 +3438,19 @@ def file_to_preferences(filename):
                 pref_dir = os.path.join(home, ".coot-preferences")
                 if not os.path.isdir(pref_dir):
                     make_directory_maybe(pref_dir)
-                pref_file = os.path.join(pref_dir, filename)
-                # don't install it if it is already in place.
-                if os.path.isfile(pref_file):
-                    s = "keybinding file " + pref_file + \
-                        " already exists. Not overwritten."
-                    add_status_bar_text(s)
+                if not os.path.isdir(pref_dir):
+                    add_status_bar_text("No preferences dir, no keybindings. Sorry")
                 else:
-                    shutil.copyfile(ref_py, pref_file)
+                    pref_file = os.path.join(pref_dir, filename)
+                    # don't install it if it is already in place.
                     if os.path.isfile(pref_file):
-                        execfile(pref_file, globals())
+                        s = "keybinding file " + pref_file + \
+                            " already exists. Not overwritten."
+                        add_status_bar_text(s)
+                    else:
+                        shutil.copyfile(ref_py, pref_file)
+                        if os.path.isfile(pref_file):
+                            execfile(pref_file, globals())
 
 # add terminal residue is the normal thing we do with an aligned
 # sequence, but also we can try ton find the residue type of a

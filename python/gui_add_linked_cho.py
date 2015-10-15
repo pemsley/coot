@@ -58,7 +58,6 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
                     new_res = residue_to_add[0]
                     new_link = residue_to_add[1]
 
-                    print "BL DEBUG:: xxxxxxxxxxxxxxxx calling add_linked_residue xxx"
 
                     new_res_spec = add_linked_residue(imol,
                                                       res_spec2chain_id(current_residue_spec),
@@ -67,7 +66,6 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
                                                       new_res,
                                                       new_link)
 
-                    print "BL DEBUG:: xxxxxxxxxx add_linked_residue returns:", new_res_spec
 
                     # residues_near_residue takes a 3-part spec and makes 3-part specs
                     ls = residues_near_residue(imol, current_residue_spec, 1.9)
@@ -104,9 +102,22 @@ def oligomannose_tree():
            ]
     return ret
 
+# now can be user defined
+global add_linked_residue_tree_correlation_cut_off
+add_linked_residue_tree_correlation_cut_off = 0.6
 
 def add_linked_residue_tree(imol, parent, tree):
 
+    global add_linked_residue_tree_correlation_cut_off
+    
+    def centre_view_on_residue_centre(res_spec):
+        res_centre = residue_centre(imol,
+                                    residue_spec2chain_id(res_spec),
+                                    residue_spec2res_no(res_spec),
+                                    residue_spec2ins_code(res_spec))
+        if (isinstance(res_centre, list)):
+            set_rotation_centre(*res_centre)
+    
     def well_fitting_qm(res_spec):
         with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
@@ -117,7 +128,7 @@ def add_linked_residue_tree(imol, parent, tree):
             if (not isNumber(c)):
                 return False
             else:
-                return c > 0.5
+                return c > add_linked_residue_tree_correlation_cut_off
     
     def delete_residue_by_spec(spec):
         delete_residue(imol,
@@ -127,14 +138,14 @@ def add_linked_residue_tree(imol, parent, tree):
 
     def func(parent, res_pair):
         if (not isinstance(parent, list)):
-            print "OOps not a proper res_spec %s with residue_to_add: %s" %(parent, res_pair)
+            print "WARNING:: OOps not a proper res_spec %s with residue_to_add: %s" %(parent, res_pair)
             return False
         else:
             # OK. go go go
             new_link = res_pair[0]
             new_res_type = res_pair[1]
 
-            set_go_to_atom_from_res_spec(parent)
+            centre_view_on_residue_centre(parent)
 
             print "BL DEBUG:: ============== calling add_linked_residue with args", imol, new_res_type, new_link
 
@@ -181,8 +192,20 @@ def add_linked_residue_tree(imol, parent, tree):
                     process_tree(parent, branch, proc_func)                    
 
     # main line of add_linked_residue_tree
+    #
+    add_synthetic_carbohydrate_planes()
+    set_residue_selection_flash_frames_number(1)
     set_go_to_atom_molecule(imol)
+    previous_m = default_new_atoms_b_factor()
+    m = median_temperature_factor(imol)
+    try:
+        new_m = m * 1.55
+        if new_m > 0:
+            set_default_temperature_factor_for_new_atoms(new_m)
+    except:
+        print "BL INFO:: not changing default B for new carb atoms"
     process_tree(parent, tree, func)
+    set_default_temperature_factor_for_new_atoms(previous_m)
             
 # graphics...
 
