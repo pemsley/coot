@@ -1,8 +1,27 @@
 
+#include <algorithm>
 #include <fstream>
 #include <iomanip>
 #include "utils/coot-utils.hh"
 #include "geometry/protein-geometry.hh"
+
+bool is_circular_permuations(const std::vector<std::string> &s_1,
+			     std::vector<std::string> s_2) {
+
+   bool v = false;
+
+   if (s_1.size() != s_2.size()) return false;
+
+   bool m_1 = std::equal(s_1.begin(), s_1.end(), s_2.begin());
+   if (m_1) return true;
+
+   for (unsigned int i=0; i<s_1.size()-1; i++) {
+      std::rotate(s_2.begin(), s_2.begin()+1, s_2.end());
+      bool m_r = std::equal(s_1.begin(), s_1.end(), s_2.begin());
+      if (m_r) return true;
+   }
+   return v;
+}
 
 void output_flats(const coot::dictionary_residue_restraints_t &rest,
 		  std::ofstream &f) {
@@ -14,18 +33,64 @@ void output_flats(const coot::dictionary_residue_restraints_t &rest,
 	 f << " " << coot::util::remove_whitespace(pr.atom_id(iat));
       f << "\n";
    }
-} 
+}
 
 void output_chivs(const coot::dictionary_residue_restraints_t &rest,
 		  std::ofstream &f) {
 
    if (rest.chiral_restraint.size() > 0) { 
-      f << "CHIV_" << rest.residue_info.comp_id;
-      for (unsigned int i=0; i<rest.chiral_restraint.size(); i++) { 
+      for (unsigned int i=0; i<rest.chiral_restraint.size(); i++) {
 	 const coot::dict_chiral_restraint_t &r= rest.chiral_restraint[i];
-	 f << " " << coot::util::remove_whitespace(r.atom_id_c_4c());
+
+	 // std::cout << "--------------- r: " << r << std::endl;
+
+	 if (r.is_a_both_restraint())
+	    continue;
+	 
+	 // SHELX alphabetically orders the neighbour atom names
+	 // before using the chiral volume - CAs of amino acids have
+	 // chiral volume target of about +2.5A^3
+	 //
+	 // So I need to test if the sorted list is a rotation
+	 // permutation of the neighbour list
+	 
+	 std::vector<std::string> n;
+
+	 if (! rest.is_hydrogen(r.atom_id_1_4c()))
+	    n.push_back(coot::util::remove_whitespace(r.atom_id_1_4c()));
+	 if (! rest.is_hydrogen(r.atom_id_2_4c()))
+	    n.push_back(coot::util::remove_whitespace(r.atom_id_2_4c()));
+	 if (! rest.is_hydrogen(r.atom_id_3_4c()))
+	    n.push_back(coot::util::remove_whitespace(r.atom_id_3_4c()));
+
+
+	 if (n.size() != 3) {
+
+	    std::cout << "oops need 3-non-hydrogen neighbors for CHIV restraints"
+		      << std::endl;
+
+	 } else {
+
+	    std::vector<std::string> n_original = n;
+	    double cv_mult = 1;
+	    std::sort(n.begin(), n.end());
+	    bool cp = is_circular_permuations(n_original, n);
+	    if (! cp) cv_mult = -1;
+
+	    if (r.has_unassigned_chiral_volume()) {
+	       std::cout << "debug:: unassigned chiral volume " << r.atom_id_c_4c()
+			 << std::endl;
+	    } else {
+	       double tv = r.target_volume();
+	       f << "CHIV_" << rest.residue_info.comp_id;
+	       f << " " << tv * cv_mult << " 0.1";
+	       f << " " << coot::util::remove_whitespace(r.atom_id_c_4c());
+	       for (unsigned int ii=0; ii<3; ii++)
+		  f << " " << n[ii];
+	       f << "\n";
+	    }
+	 }
       }
-      f << "\n";
    }
 }
 
@@ -97,26 +162,36 @@ int main(int argc, char **argv) {
 	 std::string file_name = "shelx-restraints.txt";
 	 if (types.size() == 1)
 	    file_name = "shelx-restraints-" + types[0] + ".txt";
-	 std::ofstream f(file_name.c_str());
 
 	 for (unsigned int i=0; i<types.size(); i++) { 
 	    std::pair<bool, coot::dictionary_residue_restraints_t> r =
 	       geom.get_monomer_restraints(types[0]);
-	    if (r.first) {
+	    if (r.first) { // how can it not be?
 
-	       // how can it not be?
-	       const coot::dictionary_residue_restraints_t &rest = r.second;
-	       // FLAT CHIV DFIX DANG
+	       if (! r.second.is_filled()) {
+		  std::cout << "Input file " << mmcif_file_name
+			    << " is not a full description" << std::endl;
+	       } else {
 
-	       f << "\n";
+		  std::ofstream f(file_name.c_str());
+		  const coot::dictionary_residue_restraints_t &rest = r.second;
+		  // FLAT CHIV DFIX DANG
 
-	       output_flats(rest, f);
-	       output_chivs(rest, f);
-	       output_dfixs(rest, f);
-	       output_dangs(rest, f);
+		  f << "\n";
+
+		  output_flats(rest, f);
+		  output_chivs(rest, f);
+		  output_dfixs(rest, f);
+		  output_dangs(rest, f);
+
+		  std::cout << "Output " << file_name << std::endl;
+	       }
 	    }
 	 }
       }
-   }
+   } else {
+      std::cout << "Usage: coot.make-shelx-restraints cif-file-name"
+		<< std::endl;
+   } 
    return status;
 }

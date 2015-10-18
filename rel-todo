@@ -1,11 +1,6 @@
  
  0.8.3
 
-   o Pro-CD -> CA and C NBC... what to do?
-
-* Done.
-
-   o planar peptide restraints: are the distortions correct?
 
    o Sphere refine doesn't use alpha helical restraints. It should.
 
@@ -93,3 +88,15 @@
    o Does LBG File->Fetch molecule work now? Xamoterol?
 
 * Yes, sort of - it depends in a complex way on libcurl (compilation?) 
+
+   o absolutise() needs to be able to handle an empty string. Miguel Ortiz-Lombardia
+
+* Done
+
+   o Pro-CD -> CA and C NBC... what to do?
+
+* Done.
+
+   o planar peptide restraints: are the distortions correct?
+
+* Done.

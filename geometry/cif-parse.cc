@@ -79,9 +79,9 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
    // Thanks Ezra Peisach for this this bug report
 
    if (istat != 0) {
-      std::string s = "WARNING: in init_refmac_mon_lib file \"";
+      std::string s = "WARNING: in init_refmac_mon_lib, file \"";
       s += ciffilename;
-      s += " not found.";
+      s += "\" not found.";
       std::cout <<  s << "\n";
       rmit.error_messages.push_back(s);
       rmit.success = false;
