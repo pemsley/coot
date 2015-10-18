@@ -66,8 +66,8 @@ void output_chivs(const coot::dictionary_residue_restraints_t &rest,
 
 	 if (n.size() != 3) {
 
-	    std::cout << "oops need 3-non-hydrogen neighbors for CHIV restraints"
-		      << std::endl;
+	    std::cout << "Oops, need 3-non-hydrogen neighbors for CHIV restraints "
+		      << "for atom " << r.atom_id_c_4c() << std::endl;
 
 	 } else {
 
