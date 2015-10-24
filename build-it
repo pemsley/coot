@@ -3335,16 +3335,42 @@ fi
 # 
 
 raster3d_version=3.0-3
+# raster3d depends on libgd to make png images
 ${WGET} http://skuld.bmsc.washington.edu/raster3d/Raster3D_$raster3d_version.tar.gz
+${WGET} https://github.com/libgd/libgd/releases/download/gd-2.1.1/libgd-2.1.1.tar.gz
 
-if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then 
+if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then
+
+    # build libgd
+    #
+    if [ ! -e $install_top_dir/some-include ] ; then
+	#
+	gzip -dc ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz | tar xf -
+	cd libgd-2.1.1
+	bash ./configure --prefix=$install_top_dir
+	if $MAKE ; then
+	   make install
+	fi
+    fi
+
+    # build render
+    #
     if [ ! -e $install_top_dir/bin/render ] ; then 
        # now build it.
        gzip -dc ${AUTOBUILD_SOURCES}/Raster3D_$raster3d_version.tar.gz | tar xf -
        cd Raster3D_$raster3d_version
-       make linux
-       if $MAKE ; then 
+       make linux # fixme for Darwin
+       # add the gd support directory
+
+       sed -ibackup \
+          -e "s?=.-lgd?=  -L$prefix/lib -lgd?" \
+          -e "s?=.-DGD_SUPPORT?=  -DGD_SUPPORT -I$prefix/include?" \
+       Makefile.incl
+       
+       if $MAKE render ; then 
   	  make prefix=$install_top_dir install
+	  # did that work?  I doubt it. Let's do it by hand
+	  cp render $install_top_dir/bin/
        fi
        cd -
     fi
