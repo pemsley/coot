@@ -3958,6 +3958,12 @@ string   static std::string sessionid;
 
    static double map_to_model_correlation_atom_radius;
 
+   static std::vector<std::pair<clipper::Coord_orth, std::string> >
+     user_defined_interesting_positions;
+   static unsigned int user_defined_interesting_positions_idx;
+
+   void register_user_defined_interesting_positions(const std::vector<std::pair<clipper::Coord_orth, std::string> > &udip);
+
 
 };
 

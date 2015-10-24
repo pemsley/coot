@@ -159,16 +159,6 @@ void handle_filename_filter_gtk2(GtkWidget *widget);
 
 void set_transient_and_position(int window_type, GtkWidget *window);
 
-/*! \brief create a dialog with information
-
-  create a dialog with information string txt.  User has to click to
-  dismiss it, but it is not modal (nothing in coot is modal). */
-void info_dialog(const char *txt); 
-
-/*! \brief create a dialog with information and print to console
-
-  as info_dialog but print to console as well.  */
-void info_dialog_and_text(const char *txt); 
 
 GtkWidget *main_menubar();
 GtkWidget *main_statusbar();

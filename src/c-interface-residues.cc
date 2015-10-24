@@ -164,3 +164,108 @@ print_glyco_tree(int imol, const std::string &chain_id, int res_no, const std::s
       } 
    } 
 } 
+
+
+/* ------------------------------------------------------------------------- */
+/*                      interesting positions list                           */
+/* ------------------------------------------------------------------------- */
+
+#ifdef USE_GUILE
+// pass a list of (position,string) pairs
+void register_interesting_positions_list_scm(SCM pos_list) {
+
+   std::vector<std::pair<clipper::Coord_orth, std::string> > v;
+   graphics_info_t g;
+
+   if (scm_is_true(scm_list_p(pos_list))) {
+      unsigned int pos_length = scm_to_int(scm_length(pos_list));
+      for (unsigned int i=0; i<pos_length; i++) { 
+	 SCM item = scm_list_ref(pos_list, SCM_MAKINUM(i));
+	 if (scm_is_true(scm_list_p(item))) {
+	    // pos, label pair
+	    unsigned int item_length = scm_to_int(scm_length(item));
+	    if (item_length == 2) {
+	       SCM item_item_0 = scm_list_ref(item, 0);
+	       SCM item_item_1 = scm_list_ref(item, 0);
+
+	       if (scm_is_true(scm_list_p(item_item_0))) {
+		  unsigned int l_p = scm_to_int(scm_length(item_item_0));
+		  if (l_p == 3) {
+		     SCM x = list_ref(item_item_0, SCM_MAKINUM(0));
+		     SCM y = list_ref(item_item_0, SCM_MAKINUM(1));
+		     SCM z = list_ref(item_item_0, SCM_MAKINUM(2));
+		     if (scm_number_p(x)) { 
+			if (scm_number_p(y)) { 
+			   if (scm_number_p(z)) {
+			      clipper::Coord_orth pos(scm_to_double(x),
+						      scm_to_double(y),
+						      scm_to_double(z));
+
+			      if (scm_is_true(scm_string_p(item_item_1))) { 
+				 std::string s = scm_to_locale_string(item_item_1);
+				 std::pair<clipper::Coord_orth, std::string> p(pos,s);
+				 v.push_back(p);
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   } 
+   
+   g.register_user_defined_interesting_positions(v);
+}
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+void register_interesting_positions_list_py(PyObject *pos_list) {
+
+   std::vector<std::pair<clipper::Coord_orth, std::string> > v;
+
+   if (PyList_Check(pos_list)) {
+      unsigned int pos_length = PyObject_Length(pos_list);
+      for (unsigned int i=0; i<pos_length; i++) {
+	 PyObject *item = PyList_GetItem(pos_list, i);
+	 if (PyList_Check(item)) {
+	    unsigned int l_item = PyObject_Length(item);
+	    if (l_item == 2) {
+	       PyObject *item_item_0 = PyList_GetItem(item, 0);
+	       PyObject *item_item_1 = PyList_GetItem(item, 1);
+
+	       if (PyString_Check(item_item_1)) {
+		  if (PyList_Check(item_item_0)) {
+
+		     unsigned int l_item_item = PyObject_Length(item_item_0);
+		     if (l_item_item == 3) {
+			PyObject *x = PyList_GetItem(item_item_0, 0);
+			PyObject *y = PyList_GetItem(item_item_0, 1);
+			PyObject *z = PyList_GetItem(item_item_0, 2);
+
+			if (PyFloat_Check(x)) { 
+			   if (PyFloat_Check(y)) { 
+			      if (PyFloat_Check(z)) {
+
+				 clipper::Coord_orth pos(PyFloat_AsDouble(x),
+							 PyFloat_AsDouble(y),
+							 PyFloat_AsDouble(z));
+				 std::string s = PyString_AsString(item_item_1);
+				 std::pair<clipper::Coord_orth, std::string> p(pos,s);
+				 v.push_back(p);
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   graphics_info_t g;
+   g.register_user_defined_interesting_positions(v);
+}
+#endif // USE_PYTHON 

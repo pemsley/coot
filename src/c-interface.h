@@ -1643,6 +1643,29 @@ int get_write_conect_record_state();
 void set_write_conect_record_state(int state); 
 /*! \} */
 
+
+ 
+/*  ------------------------------------------------------------------------ */
+/*                         Info Dialog                                       */
+/*  ------------------------------------------------------------------------ */
+/* section Info Dialog */
+/*! \name  Info Dialog */
+/* \{ */
+ 
+/*! \brief create a dialog with information
+
+  create a dialog with information string txt.  User has to click to
+  dismiss it, but it is not modal (nothing in coot is modal). */
+void info_dialog(const char *txt); 
+
+/*! \brief create a dialog with information and print to console
+
+  as info_dialog but print to console as well.  */
+void info_dialog_and_text(const char *txt); 
+
+/* \} */
+
+
 /*  ------------------------------------------------------------------------ */
 /*                         refmac stuff                                      */
 /*  ------------------------------------------------------------------------ */
