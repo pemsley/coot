@@ -576,39 +576,44 @@ std::string atom_info_as_text_for_statusbar(int atom_index, int imol) {
 
   std::string ai;
   ai = "";
-  if (is_valid_model_molecule(imol)) {      
-    mmdb::Atom *at = graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
-    std::string alt_conf_bit("");
-    if (strncmp(at->altLoc, "", 1))
-      alt_conf_bit=std::string(",") + std::string(at->altLoc);
-    ai += "(mol. no: ";
-    ai += graphics_info_t::int_to_string(imol);
-    ai += ") ";
-    ai += at->name;
-    ai += alt_conf_bit;
-    ai += "/";
-    ai += graphics_info_t::int_to_string(at->GetModelNum());
-    ai += "/";
-    ai += at->GetChainID();
-    ai += "/";
-    ai += graphics_info_t::int_to_string(at->GetSeqNum());
-    ai += at->GetInsCode();
-    ai += " ";
-    ai += at->GetResName();
-    ai += " occ: ";
-    ai += graphics_info_t::float_to_string(at->occupancy);
-    ai += " bf: ";
-    ai += graphics_info_t::float_to_string(at->tempFactor);
-    ai += " ele: ";
-    ai += at->element;
-    ai += " pos: (";
-    // using atom positions (ignoring symmetry etc)
-    ai += graphics_info_t::float_to_string(at->x);
-    ai += ",";
-    ai += graphics_info_t::float_to_string(at->y);
-    ai += ",";
-    ai += graphics_info_t::float_to_string(at->z);
-    ai += ")";
+  if (is_valid_model_molecule(imol)) {
+     if (atom_index >= 0) { 
+	if (atom_index < graphics_info_t::molecules[imol].atom_sel.n_selected_atoms) { 
+	   mmdb::Atom *at =
+	      graphics_info_t::molecules[imol].atom_sel.atom_selection[atom_index];
+	   std::string alt_conf_bit("");
+	   if (strncmp(at->altLoc, "", 1))
+	      alt_conf_bit=std::string(",") + std::string(at->altLoc);
+	   ai += "(mol. no: ";
+	   ai += graphics_info_t::int_to_string(imol);
+	   ai += ") ";
+	   ai += at->name;
+	   ai += alt_conf_bit;
+	   ai += "/";
+	   ai += graphics_info_t::int_to_string(at->GetModelNum());
+	   ai += "/";
+	   ai += at->GetChainID();
+	   ai += "/";
+	   ai += graphics_info_t::int_to_string(at->GetSeqNum());
+	   ai += at->GetInsCode();
+	   ai += " ";
+	   ai += at->GetResName();
+	   ai += " occ: ";
+	   ai += graphics_info_t::float_to_string(at->occupancy);
+	   ai += " bf: ";
+	   ai += graphics_info_t::float_to_string(at->tempFactor);
+	   ai += " ele: ";
+	   ai += at->element;
+	   ai += " pos: (";
+	   // using atom positions (ignoring symmetry etc)
+	   ai += graphics_info_t::float_to_string(at->x);
+	   ai += ",";
+	   ai += graphics_info_t::float_to_string(at->y);
+	   ai += ",";
+	   ai += graphics_info_t::float_to_string(at->z);
+	   ai += ")";
+	}
+     }
   }
   return ai;
 }

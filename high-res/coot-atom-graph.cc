@@ -949,14 +949,14 @@ coot::atom_graph::write_molecule_from_atom_info(const std::string &file_name) co
    std::string chain_id_local;
    int fragment_no;
 
-   int i_ass_atoms = 0;
+   int n_ass_atoms = 0;
    for (unsigned int i=0; i<atom_info.size(); i++) {
       if (atom_info[i].size() > 0)
-	 i_ass_atoms++;
+	 n_ass_atoms++;
    }
-   std::cout << "INFO:: " << i_ass_atoms << " out of " << atom_info.size()
+   std::cout << "INFO:: " << n_ass_atoms << " out of " << atom_info.size()
 	     << " atoms have type assignments\n";
-   
+
    for (unsigned int i=0; i<atom_info.size(); i++) {
       if (atom_info[i].size() > 0) {
 	 chain_id_local = chain_id(atom_info[i][0].chain_number);
@@ -964,11 +964,15 @@ coot::atom_graph::write_molecule_from_atom_info(const std::string &file_name) co
 	    std::cout << "Adding atom to residue " << atom_info[i][0].residue_number
 		      << chain_id_local << " " << atom_info[i][0].atom.name << " "
 		      << atom_info[i][0].atom.pos.format() << std::endl;
-	    mol.addatom (chain_id_local, atom_info[i][0].residue_number, atom_info[i][0].atom, atom_info[i][0].is_water_flag);
+	    mol.addatom (chain_id_local,
+			 atom_info[i][0].residue_number,
+			 atom_info[i][0].atom,
+			 atom_info[i][0].is_water_flag);
+	    resno_offset ++;
 	 } else {
 	    std::cout << "Ooops! Can't add residue with residue number "
 		      << atom_info[i][0].residue_number << std::endl;
-	 } 
+	 }
       }
       
       if (atom_info[i].size() > 1) {

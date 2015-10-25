@@ -29,18 +29,18 @@
 #endif
 
 #ifdef __GNU_LIBRARY__
-#include "coot-getopt.h"
+#include "compat/coot-getopt.h"
 #else
 #define __GNU_LIBRARY__
-#include "coot-getopt.h"
+#include "compat/coot-getopt.h"
 #undef __GNU_LIBRARY__
 #endif
 
 #include <iostream>
 
 #include "high-res.hh"
-#include "coot-map-utils.hh"
-#include "peak-search.hh"
+#include "coot-utils/coot-map-utils.hh"
+#include "coot-utils/peak-search.hh"
 
 int
 main(int argc, char **argv) { 
@@ -184,10 +184,12 @@ main(int argc, char **argv) {
 	 std::vector<clipper::Coord_orth> ps_peaks = ps.get_peaks(xmap, 4.8);
 	 ps.mask_map(&xmap, ps_peaks); // modify xmap
 	 std::vector<clipper::Coord_orth> smaller_peaks = ps.get_peaks(xmap, sigma_level);
+
 	 std::cout << "INFO:: Found " << ps_peaks.size() << " main peaks and "
 		   << smaller_peaks.size() << " subsiduary peaks\n";
+
 	 ps.add_peak_vectors(&ps_peaks, smaller_peaks);
-	 coot::minimol::molecule ps_mol(ps_peaks, 0, " OW1", std::string("W"));
+	 coot::minimol::molecule ps_mol(ps_peaks, "HOH", " OW1", "W");
 	 std::string spg(xmap.spacegroup().descr().symbol_hm());
 	 ps_mol.set_spacegroup(spg);
 	 ps_mol.set_cell(xmap.cell());
