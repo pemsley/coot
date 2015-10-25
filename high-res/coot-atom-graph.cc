@@ -968,7 +968,6 @@ coot::atom_graph::write_molecule_from_atom_info(const std::string &file_name) co
 			 atom_info[i][0].residue_number,
 			 atom_info[i][0].atom,
 			 atom_info[i][0].is_water_flag);
-	    resno_offset ++;
 	 } else {
 	    std::cout << "Ooops! Can't add residue with residue number "
 		      << atom_info[i][0].residue_number << std::endl;
