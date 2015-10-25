@@ -191,9 +191,9 @@ void register_interesting_positions_list_scm(SCM pos_list) {
 	       if (scm_is_true(scm_list_p(item_item_0))) {
 		  unsigned int l_p = scm_to_int(scm_length(item_item_0));
 		  if (l_p == 3) {
-		     SCM x = list_ref(item_item_0, SCM_MAKINUM(0));
-		     SCM y = list_ref(item_item_0, SCM_MAKINUM(1));
-		     SCM z = list_ref(item_item_0, SCM_MAKINUM(2));
+		     SCM x = scm_list_ref(item_item_0, SCM_MAKINUM(0));
+		     SCM y = scm_list_ref(item_item_0, SCM_MAKINUM(1));
+		     SCM z = scm_list_ref(item_item_0, SCM_MAKINUM(2));
 		     if (scm_number_p(x)) { 
 			if (scm_number_p(y)) { 
 			   if (scm_number_p(z)) {
