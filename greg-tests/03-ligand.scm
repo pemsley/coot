@@ -329,3 +329,35 @@
 	     (format #t "torsions: ~s ~s~%" (length t) t)
 	     (throw 'fail))
 	   #t))))
+
+
+
+(greg-testcase "Pyrogen Runs OK"  #t
+   (lambda ()
+
+     (let ((smiles "C1CNC1")
+	   (tlc-text "XXX")
+	   (log-file-name "pyrogen.log"))
+
+       (if (not (enhanced-ligand-coot?))
+
+	   #t ;; don't test pyrogen
+
+	   (let ((goosh-status
+		  (goosh-command
+		   "pyrogen"
+		   (if *use-mogul*
+		       (list "--residue-type" tlc-text smiles)
+		       (if (command-in-path? "mogul")
+			   (list                   "--residue-type" tlc-text smiles)
+			   (list "--no-mogul" "-M" "--residue-type" tlc-text smiles)))
+		   '() log-file-name #t)))
+	     (if (not (ok-goosh-status? goosh-status))
+		 (begin
+		   #f)
+		 (begin
+		   (let* ((pdb-file-name (string-append tlc-text "-pyrogen.pdb"))
+			  (cif-file-name (string-append tlc-text "-pyrogen.cif"))
+			  (imol (handle-read-draw-molecule-with-recentre pdb-file-name 0)))
+		     (valid-model-molecule? imol)))))))))
+

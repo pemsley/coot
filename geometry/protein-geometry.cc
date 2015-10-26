@@ -3048,7 +3048,7 @@ coot::protein_geometry::add_planar_peptide_restraint() {
 
    std::string link_id = "TRANS";
    std::string plane_id = "plane-5-atoms";
-   mmdb::realtype dist_esd = 0.05;
+   mmdb::realtype dist_esd = 0.11;
 
    std::string atom_id; 
    std::vector<std::pair<int, std::string> > v;
@@ -3059,7 +3059,7 @@ coot::protein_geometry::add_planar_peptide_restraint() {
    v.push_back(std::pair<int, std::string> (2, "CA"));
 
    for (unsigned int i=0; i<v.size(); i++) 
-      link_add_plane(link_id, v[i].second, plane_id, v[i].first,   dist_esd); 
+      link_add_plane(link_id, v[i].second, plane_id, v[i].first, dist_esd); 
 }
 
 
@@ -3121,7 +3121,7 @@ coot::protein_geometry::planar_peptide_restraint_state() const {
       }
    }
    return ifound;
-} 
+}
 
 
 // restraints for omega for both CIS and TRANS links (and

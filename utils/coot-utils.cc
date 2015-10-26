@@ -648,6 +648,9 @@ coot::util::absolutise_file_name(const std::string &file_name) {
    std::string ret = file_name;
    // first check if already absolute file, i.e. starts with '/' or
    // has a ':' in second position (windows)
+
+   if (file_name.empty()) return "";
+   
    if (file_name.substr(0,1) != "/" &&
        file_name.substr(1,1) != ":" ) {
      std::string s = current_working_dir();

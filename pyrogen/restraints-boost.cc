@@ -131,6 +131,9 @@ RDKit::ROMol *
 coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 			       const std::string &comp_id) {
 
+   // This function should not get an mmdb::Residue, it should just use
+   // rdkit_mol(const dictionary_residue_restraints_t &restraints)
+   
    RDKit::ROMol *mol = new RDKit::ROMol;
    coot::protein_geometry geom;
    geom.set_verbose(false);
@@ -139,7 +142,7 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
    bool idealized = false;
    idealized = true; // 20150622 - so that we pick up the coords of OXT in 01Y
    bool try_autoload_if_needed = false;
-   
+
    mmdb::Residue *r = geom.get_residue(comp_id, idealized, try_autoload_if_needed);
 
    std::pair<bool, dictionary_residue_restraints_t> rest = geom.get_monomer_restraints(comp_id);
@@ -162,9 +165,9 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
             // experimental value - for Friday.
 	    // bool undelocalize = false;
             // 
-	    bool undelocalize = true;
+	    bool undelocalize_flag = true;
 
-	    RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest.second, "", undelocalize);
+	    RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest.second, "", undelocalize_flag);
 
 	    RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
 
@@ -173,8 +176,9 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	    // Here test that the propety mmcif_chiral_volume_sign has
 	    // been set on atoms of mol_rw and m
 	    //
-	    if (false) { 
-	       for (unsigned int iat=0; iat<m->getNumAtoms(); iat++) { 
+	    if (true) {
+	       for (unsigned int iat=0; iat<m->getNumAtoms(); iat++) {
+		  std::cout << "testing atom " << iat << std::endl;
 		  RDKit::ATOM_SPTR at_p = (*m)[iat];
 		  try {
 		     std::string name;
@@ -184,15 +188,28 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 		     std::cout << "m: name " << name << " " << cv << std::endl;
 		  }
 		  catch (const KeyErrorException &err) {
-		     std::cout << "m: no name or cv " << std::endl;
+		     // std::cout << "m: no name or cv " << std::endl;
 		  }
 		  try {
 		     std::string cip;
 		     at_p->getProp("_CIPCode", cip);
-		     std::cout << "m: cip-code " << cip << std::endl;
+		     std::cout << "m: CIP-code " << cip << std::endl;
 		  }
 		  catch (const KeyErrorException &err) {
+		     // std::cout << "no-error: no _CIPCode " << err.what() << std::endl;
 		  }
+		  try {
+		     int cip_rank;
+		     at_p->getProp("_CIPRank", cip_rank);
+		     std::cout << "m: CIP-rank " << cip_rank << std::endl;
+		  }
+		  catch (const KeyErrorException &err) {
+		     // std::cout << "no-error: no _CIPRank " << err.what() << std::endl;
+		  }
+		  catch (const boost::bad_any_cast &bac) {
+		     // Goodness knows why this is thrown... 
+		     // std::cout << "strange - caught bad_any_cast" << std::endl;
+		  } 
 	       }
 	    }
 

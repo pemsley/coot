@@ -73,6 +73,7 @@ namespace coot {
 				  const RDKit::ATOM_SPTR at_2,
 				  const RDKit::ATOM_SPTR at_3,
 				  const RDKit::ATOM_SPTR at_4,
+				  const RDKit::Bond *bond, // between atoms 2 and 3
 				  unsigned int *tors_no,
 				  unsigned int *const_no,
 				  const energy_lib_t &energy_lib);

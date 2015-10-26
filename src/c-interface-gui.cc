@@ -4441,11 +4441,13 @@ void skeletonize_map_by_optionmenu(GtkWidget *optionmenu) {
 
 void
 skeletonize_map_single_map_maybe(GtkWidget *window, int imol) { 
+
    GtkWidget *on_radio_button = 
       lookup_widget(window, "single_map_skeleton_on_radiobutton");
 
-   if (GTK_TOGGLE_BUTTON(on_radio_button)->active) { 
-      graphics_info_t::skeletonize_map(0, imol);
+   if (GTK_TOGGLE_BUTTON(on_radio_button)->active) {
+
+      graphics_info_t::skeletonize_map(imol, 0);
       if (graphics_info_t::map_for_skeletonize < 0) {
 	 // it was unset, so set it...
 	 graphics_info_t::map_for_skeletonize = imol;
@@ -4458,15 +4460,8 @@ skeletonize_map_single_map_maybe(GtkWidget *window, int imol) {
 void set_file_for_save_fileselection(GtkWidget *fileselection) { 
 
    graphics_info_t g;
-   bool no_chooser = 1;
-#if (GTK_MAJOR_VERSION > 1)
    if (g.gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
-      no_chooser = 0;
       g.set_file_for_save_filechooser(fileselection);
-   }
-#endif
-   if (no_chooser) {
-      g.set_file_for_save_fileselection(fileselection);
    }
 }
 
@@ -5304,11 +5299,13 @@ void add_additional_representation_by_widget(GtkWidget *w) {
       // std::cout << "ERROR:: null bond_width_text, using default of 8" << std::endl;
    } 
       
+   if (representation_type == coot::BALL_AND_STICK)
+      bond_width = 0.15; // not 8
+   
    graphics_info_t g;
    GtkWidget *dcw = g.display_control_window();
    int imol = graphics_info_t::add_reps_molecule_option_menu_item_select_molecule;
    if (GTK_TOGGLE_BUTTON(position_radiobutton)->active) {
-      // std::cout << "By position" << std::endl;
       std::pair<bool, std::pair<int, coot::atom_spec_t> > aas = active_atom_spec();
       if (aas.first) {
 	 int imol_active = aas.second.first;
@@ -5341,7 +5338,7 @@ void add_additional_representation_by_widget(GtkWidget *w) {
 									draw_H_flag,
 									asi, dcw, glci, g.Geom_p());
       } 
-   } 
+   }
    if (GTK_TOGGLE_BUTTON(selection_string_radiobutton)->active) {
       // std::cout << "By selection string" << std::endl;
       std::string s = gtk_entry_get_text(GTK_ENTRY(string_selection_entry));
@@ -5357,31 +5354,22 @@ void add_additional_representation_by_widget(GtkWidget *w) {
 } 
 
 
-#if (GTK_MAJOR_VERSION > 1) 
 GtkWidget *wrapped_create_residue_editor_select_monomer_type_dialog() {
    GtkWidget *w = create_residue_editor_select_monomer_type_dialog();
    GtkWidget *combo_box = lookup_widget(w, "residue_editor_select_monomer_type_combobox");
    graphics_info_t g;
    std::vector<std::string> v = g.Geom_p()->monomer_types();
 
-   if (0) // debug
-      for (unsigned int i=0; i<v.size(); i++) 
-	 std::cout << "debug:: monomer types :" << i << ": " << v[i] << std::endl;
-
    // remove the 2 items that are already there from the glade interface (I suppose).
    gtk_combo_box_remove_text(GTK_COMBO_BOX(combo_box), 0);
    gtk_combo_box_remove_text(GTK_COMBO_BOX(combo_box), 0);
    for (unsigned int i=0; i<v.size(); i++) {
-      // std::string s = coot::util::int_to_string(i);
-      // s += " ";
-      // s += v[i];
       std::string s = v[i];
       gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), s.c_str());
       gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), i);
    }
    return w;
 }
-#endif
 
 
 void show_restraints_editor_by_index(int menu_item_index) {

@@ -1570,6 +1570,21 @@
 	      
 	      #t))))))))
 
+(greg-testcase "Skeletonize a map" #t
+   (lambda ()
+
+     (let ((imol (read-pdb rnase-pdb))
+	   (imol-map (make-and-draw-map rnase-mtz "FWT" "PHWT" "" 0 0)))
+
+       (skeletonize-map  1 imol-map)
+       (skeletonize-map  0 imol-map)
+       (skeletonize-map -1 -1)
+       (skeletonize-map 0 0)
+       (close-molecule imol)
+       (close-molecule imol-map)
+       #t ;; don't crash
+       )))
+
 
 (greg-testcase "Simple Averaged maps" #t 
    (lambda ()

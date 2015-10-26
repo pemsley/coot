@@ -1657,7 +1657,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
    bool em = false;
 
    if ( map_file_type == CCP4 ) {
-     std::cout << "attempting to read CCP4 map: " << filename << std::endl;
+     std::cout << "INFO:: attempting to read CCP4 map: " << filename << std::endl;
      clipper::CCP4MAPfile file;
      try {
 	file.open_read(filename);
@@ -1687,8 +1687,31 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 	std::cout << "WARNING:: failed to open " << filename << std::endl;
 	bad_read = true;
      }
+
+     std::pair<bool, coot::Cartesian> new_centre(false, coot::Cartesian(0,0,0)); // used only for first EM map
+
+     if (em) {
+
+	// If this was the first map, recentre to the middle of the cell
+	//
+	if (imol_no == 0) {
+	   clipper::Cell c = file.cell();
+	   coot::Cartesian m(0.5*c.descr().a(),
+			     0.5*c.descr().b(),
+			     0.5*c.descr().c());
+	   new_centre.first = true;
+	   new_centre.second = m;
+	}
+     }
+     
      std::cout << "closing CCP4 map: " << filename << std::endl;
      file.close_read();
+
+     if (new_centre.first) {
+	graphics_info_t g;
+	g.setRotationCentre(new_centre.second);
+     } 
+     
    } else {
      std::cout << "attempting to read CNS map: " << filename << std::endl;
      clipper::CNSMAPfile file;
@@ -2637,7 +2660,7 @@ molecule_class_info_t::make_map_from_mtz_by_calc_phases(int imol_no_in,
 
    clipper::CCP4MTZfile mtz;
 
-   std::cout << "reading mtz file..." << mtz_file_name << std::endl; 
+   std::cout << "INFO:: reading mtz file..." << mtz_file_name << std::endl; 
    mtz.open_read(mtz_file_name);
 
    // make the data names for import:

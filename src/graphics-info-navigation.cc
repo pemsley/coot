@@ -1157,3 +1157,9 @@ graphics_info_t::unapply_symmetry_to_view(int imol, const std::vector<std::pair<
    return r;
 } 
 
+
+void graphics_info_t::register_user_defined_interesting_positions(const std::vector<std::pair<clipper::Coord_orth, std::string> > & udip) {
+
+   user_defined_interesting_positions = udip;
+   user_defined_interesting_positions_idx = 0;
+}

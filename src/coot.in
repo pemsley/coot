@@ -254,6 +254,9 @@ fi
 # "Use $@ to stop word splitting" from Ben Eisenbraun.  
 if [ "$1" = --check-libs ] ; then 
    ldd $coot_bin
+   if [ $systype = Darwin ] ; then
+      otool -L $coot_bin
+   fi
 else 
    # normal path
    $coot_bin "$@"

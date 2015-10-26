@@ -16,6 +16,7 @@
 #include "c-interface-refmac.h"
 #include "cc-interface.hh"
 #include "cc-interface-scripting.hh"
+#include "c-interface-refmac.h"
 #include "cc-interface-ncs.hh"
 #include "manipulation-modes.hh"
 #include "rotamer-search-modes.hh"

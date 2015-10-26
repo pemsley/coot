@@ -1000,17 +1000,11 @@ graphics_info_t::set_phs_filename(std::string filename) {
 
 // static
 void
-graphics_info_t::skeletonize_map(short int prune_it, int imol) { 
+graphics_info_t::skeletonize_map(int imol, short int prune_it) { 
 
    graphics_info_t g;
 
-	
-   if (imol < 0) { // i.e. is -1
-
-      std::cout << "INFO:: map for skeletonization was not selected" << std::endl;
-      
-   } else {
-
+   if (is_valid_map_molecule(imol)) {
       // so that we don't do this when the skeleton is on already:
       //
       if (g.molecules[imol].fc_skeleton_draw_on == 0) {
@@ -1021,11 +1015,11 @@ graphics_info_t::skeletonize_map(short int prune_it, int imol) {
 
 	 clipper::Map_stats stats(g.molecules[imol].xmap);
 
-	 std::cout << "Mean and sigma of map: " << stats.mean() << " and " 
-		   << stats.std_dev() << std::endl; 
+	 std::cout << "INFO:: Mean and sigma of map: " << stats.mean() << " and " 
+		   << stats.std_dev() << std::endl;
       
 	 float map_cutoff = stats.mean() + 1.5*stats.std_dev(); 
-	 g.skeleton_level = map_cutoff; 
+	 g.skeleton_level = map_cutoff;
 	    
 	 // derived from sktest:
 	 // 
@@ -1435,7 +1429,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    // print_initial_chi_squareds_flag is 1 the first time then we turn it off.
    int steps_per_frame = dragged_refinement_steps_per_frame;
    if (! g.last_restraints.include_map_terms())
-      steps_per_frame *= 4;
+      steps_per_frame *= 6;
    // std::cout << "steps_per_frame " << steps_per_frame << std::endl;
    graphics_info_t::saved_dragged_refinement_results = 
       g.last_restraints.minimize(flags, steps_per_frame, print_initial_chi_squareds_flag);
@@ -1458,7 +1452,9 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 						  coot::CHI_SQUAREDS,
 						  saved_dragged_refinement_results);
 
-	 // g.tabulate_geometric_distortions(last_restraints);
+	 char *env = getenv("COOT_DEBUG_REFINEMENT");
+	 if (env)
+	    g.tabulate_geometric_distortions(last_restraints);
       }
    }
    

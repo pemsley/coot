@@ -219,6 +219,10 @@ namespace lig_build {
 	    superscript.superscript = true;
 	    superscript.tweak = pos_t(8,0);
 	    offsets.push_back(superscript);
+	 } else {
+	    // as above (simple constructor)
+	    atom_id = atom_id_in;
+	    offsets.push_back(offset_text_t(atom_id_in));
 	 }
       }
 
@@ -1208,7 +1212,7 @@ namespace lig_build {
 	 //
 	 int sum_neigb_bond_order = 0;
 
-	 sum_neigb_bond_order += charge;
+	 // sum_neigb_bond_order += charge;
 	 
 	 for (unsigned int ib=0; ib<bond_indices.size(); ib++) {
 	    if (bonds[bond_indices[ib]].get_bond_type() == bond_t::SINGLE_BOND)
@@ -1229,33 +1233,41 @@ namespace lig_build {
 		      << sum_neigb_bond_order << " " << std::endl;
 
 	 if (ele == "N") {
-	   if (sum_neigb_bond_order == 5)
-	     atom_id = "N+2";
-	   if (sum_neigb_bond_order == 4)
-	     atom_id = "N+";
-	   if (sum_neigb_bond_order == 3)
-	     atom_id = "N";
-	   if (sum_neigb_bond_order == 2)
-	     atom_id = "NH";
-	   if (sum_neigb_bond_order == 1)
-	     atom_id = "NH2";
-	   if (sum_neigb_bond_order == 0)
-	     atom_id = "NH3";
+	    int fc = atoms[atom_index].charge; // formal charge
+	    if (sum_neigb_bond_order == 5)
+	       atom_id = "N+2";
+	    if (sum_neigb_bond_order == 4)
+	       atom_id = "N+";
+	    if (sum_neigb_bond_order == 3)
+	       atom_id = "N";
+	    if (sum_neigb_bond_order == 2)
+	       atom_id = "NH";
+	    if (sum_neigb_bond_order == 1)
+	       atom_id = "NH2";
+	    if (sum_neigb_bond_order == 0)
+	       atom_id = "NH3";
 	 }
 							   
 	 if (ele == "O") {
-	    int fc = atoms[atom_index].charge; // formal charge
-	    sum_neigb_bond_order -= fc;
+
 	    if (sum_neigb_bond_order == 3)
-	       atom_id = "O+";
+	       atom_id = "O";
 	    if (sum_neigb_bond_order == 2)
+	       atom_id = "O";
+	    if (sum_neigb_bond_order == 1) {
+	       if (charge == -1)
 		  atom_id = "O";
-	    if (sum_neigb_bond_order == 1)
-	       atom_id = "OH";
-	    if (sum_neigb_bond_order == 0)
-	       atom_id = "OH2";
-	    if (fc != 0) 
-	       return atom_id_info_t(atom_id, fc);
+	       else
+		  atom_id = "OH";
+	    }
+	    if (sum_neigb_bond_order == 0) {
+	       if (charge == -1)
+		  atom_id = "OH";
+	       else
+		  atom_id = "OH2";
+	    }
+
+	    return atom_id_info_t(atom_id, charge);
 	 }
 
 	 if (ele == "S") {

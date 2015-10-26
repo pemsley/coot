@@ -2679,12 +2679,10 @@ if test -n "$build_python" ; then
    else 
      echo problem getting Python-$pver.tgz
    fi
-   # ${WGET} http://lmb.bioch.ox.ac.uk/coot/software/extras/python251_cci_patches_critical
-   ${WGET} $extras_place/python251_cci_patches_critical
    (
    date
    gzip -dc ${AUTOBUILD_SOURCES}/Python-$pver.tgz | tar xf -
-   patch --strip 1 < ${AUTOBUILD_SOURCES}/python251_cci_patches_critical
+
    cd Python-$pver
 
    echo INFO:: ./configure $generic_prefix $python_spec_flags for python
@@ -3337,16 +3335,53 @@ fi
 # 
 
 raster3d_version=3.0-3
+# raster3d depends on libgd to make png images
 ${WGET} http://skuld.bmsc.washington.edu/raster3d/Raster3D_$raster3d_version.tar.gz
+${WGET} https://github.com/libgd/libgd/releases/download/gd-2.1.1/libgd-2.1.1.tar.gz
 
-if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then 
+if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then
+
+    # build libgd
+    #
+    system_has_libgd=false
+    if [ -e /usr/include/gd.h ] ; then
+       system_has_libgd=true
+    fi
+
+    if [ $system_has_libgd = false ] ; then 
+       if [ ! -e $install_top_dir/include/gd.h ] ; then
+   	   #
+	   gzip -dc ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz | tar xf -
+	   cd libgd-2.1.1
+	   bash ./configure --prefix=$install_top_dir
+	   if $MAKE ; then
+	      make install
+	   fi
+       fi
+    fi
+    
+    # build render
+    #
     if [ ! -e $install_top_dir/bin/render ] ; then 
        # now build it.
        gzip -dc ${AUTOBUILD_SOURCES}/Raster3D_$raster3d_version.tar.gz | tar xf -
        cd Raster3D_$raster3d_version
-       make linux
-       $MAKE
-       make prefix=$install_top_dir install
+       make linux # fixme for Darwin
+       # add the gd support directory
+
+       if [ $system_has_libgd = false ] ; then 
+          sed -ibackup \
+             -e "s?=.-lgd?=  -L$prefix/lib -lgd?" \
+             -e "s?=.-DGD_SUPPORT?=  -DGD_SUPPORT -I$prefix/include?" \
+          Makefile.incl
+       fi
+       
+       if $MAKE render ; then 
+  	  make prefix=$install_top_dir install
+	  # did that work?  I doubt it. Let's do it by hand
+	  cp render $install_top_dir/bin/
+       fi
+       cd -
     fi
 fi
 
@@ -3780,6 +3815,7 @@ if [ "$run_tests" = true ] ; then
 	       else 
                   echo ========================
                   echo second coot test failed
+                  echo second coot test failed >& 2
                   echo ========================
                   echo fail-2nd-test $date > $LOGS/test-status
                fi

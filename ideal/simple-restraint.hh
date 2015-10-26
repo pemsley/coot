@@ -637,6 +637,7 @@ namespace coot {
 	 max_resno = max_resno_in;
       }
       int size () const { return geometry_distortion.size(); }
+      double print() const;  // return the total distortion
       friend std::ostream &operator<<(std::ostream &s, geometry_distortion_info_container_t);
    };
    std::ostream &operator<<(std::ostream &s, geometry_distortion_info_container_t gdic);
@@ -946,6 +947,14 @@ namespace coot {
 	    start_pos_restraints.push_back(e);
 	 }
       }
+
+      // We want to interpolate proSMART restraints from start to final model.
+      // We have proSMART restraints for both models.
+      // 
+      // Let's return a list of extra bond restraint indices that 
+      // 
+      std::vector<std::pair<unsigned int, unsigned int> >
+      find_pair_indices(const extra_restraints_t &final);
    };
 
 

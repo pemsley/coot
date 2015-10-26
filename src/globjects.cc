@@ -1307,6 +1307,8 @@ bool graphics_info_t::allow_duplseqnum = false;
 // 
 std::map<std::string, std::pair<std::string, std::string> > graphics_info_t::user_name_passwd_map;
 
+std::vector<std::pair<clipper::Coord_orth, std::string> > graphics_info_t::user_defined_interesting_positions;
+unsigned int graphics_info_t::user_defined_interesting_positions_idx = 0;
 
 
 // GTK2 code
@@ -3138,8 +3140,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_d:
       
       if (graphics_info_t::clipping_back < 10.0) { 
-	 set_clipping_front(graphics_info_t::clipping_front + 0.2);
-	 set_clipping_back (graphics_info_t::clipping_front + 0.2);
+	 set_clipping_front(graphics_info_t::clipping_front + 0.4);
+	 set_clipping_back (graphics_info_t::clipping_front + 0.4);
 	 // std::cout << graphics_info_t::clipping_front << " " << graphics_info_t::clipping_back << std::endl;
       }
       handled = TRUE; 
@@ -3152,8 +3154,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_f:
       
       if (graphics_info_t::clipping_back > -10.2) { 
-	 set_clipping_front(graphics_info_t::clipping_front - 0.2);
-	 set_clipping_back (graphics_info_t::clipping_front - 0.2);
+	 set_clipping_front(graphics_info_t::clipping_front - 0.4);
+	 set_clipping_back (graphics_info_t::clipping_front - 0.4);
 	 // std::cout << graphics_info_t::clipping_front << " " << graphics_info_t::clipping_back << std::endl;
       }
       handled = TRUE; 

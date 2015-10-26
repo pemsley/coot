@@ -319,7 +319,7 @@ coot::raytrace_info_t::render_ray_trace(std::string filename, int reso_multiplie
       render_stream << mat[8] << " " << mat[9] << " " << mat[10] << " 0\n";
       render_stream << " " << new_centre.x() << " "
 		    << new_centre.y() << " "
-		    << new_centre.z() << " " << zoom*0.42 << "\n";
+		    << new_centre.z() << " " << zoom*0.62 << "\n";
       //		    << new_centre.z() << " " << zoom*0.6 << "\n";
       render_stream << "3         mixed object types\n";
       render_stream << "*\n*\n*\n";

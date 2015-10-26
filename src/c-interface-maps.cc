@@ -1104,20 +1104,17 @@ void set_scrollable_map(int imol) {
      
 }
 
-
 int 
-skeletonize_map(int prune_flag, int imol) {
+skeletonize_map(int imol, short int prune_flag) {
 
-   graphics_info_t::skeletonize_map(prune_flag, imol);
+   graphics_info_t::skeletonize_map(imol, prune_flag);
    return 0;
 }
 
 int unskeletonize_map(int imol) {
    graphics_info_t::unskeletonize_map(imol);
    return imol;
-} 
-
-
+}
 
 
 void

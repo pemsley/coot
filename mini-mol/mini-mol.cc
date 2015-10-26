@@ -636,7 +636,7 @@ coot::minimol::fragment::operator[](int i) {
 
    // if in range that we have, no adjustment required...
 
-   if (0) 
+   if (false) 
       std::cout << "   at start of operator[] residues.size() " << residues.size()
 		<< " and offset: " << residues_offset << " and i: " << i << std::endl;
 
@@ -660,16 +660,18 @@ coot::minimol::fragment::operator[](int i) {
 
 	 // 	 check();
 
-	 // 	 std::cout << "DEBUG:: residues.size() is " << residues.size()
-	 // << " and offset_diff is " << offset_diff
-	 // << " new_offset " << new_offset << " residues_offset " << residues_offset
-	 // << " and passed i " << i << std::endl;
+	 if (false) { 
+	     	 std::cout << "DEBUG:: residues.size() is " << residues.size()
+			   << " and offset_diff is " << offset_diff
+			   << " new_offset " << new_offset << " residues_offset " << residues_offset
+			   << " and passed i " << i << std::endl;
+	 }
 	 
 	 std::vector<residue> new_residues(residues.size() - offset_diff);
 	 
 	 // set the inital residue number of these residues
 	 for (unsigned int ires=0; ires<new_residues.size(); ires++) {
-	    if (0)
+	    if (false)
 	       std::cout << "setting new_residue[" << ires << "] to "
 			 << ires << " + " << offset_diff << std::endl;
 	    new_residues[ires].seqnum = ires + offset_diff;
@@ -697,7 +699,7 @@ coot::minimol::fragment::operator[](int i) {
 	 residues.resize(i+1-residues_offset);
       }
 
-      if (0)
+      if (false)
 	 std::cout << "   at   end of operator[] residues.size() " << residues.size()
 		   << " and offset: " << residues_offset << " and i: " << i << "\n"
 		   << "      returing with residues index " << i-residues_offset
@@ -1279,14 +1281,21 @@ coot::minimol::molecule::set_cell_symm(const coot::minimol::molecule &mol) {
 void
 coot::minimol::molecule::addatom(const std::string &chain_id_in, int resno,
 				 const atom &at, short int is_water_flag) {
+
+   std::cout << "debug:: called addatom() with resno " << resno << std::endl;
    
    int frag = fragment_for_chain(chain_id_in);
+
+   std::cout << "calling fragments[" << frag << "][" << resno << "].addatom(" << at << ")"
+	     << std::endl;
+   
    fragments[frag][resno].addatom(at);
    if (fragments[frag][resno].name == "") {
-      if (is_water_flag) 
+      if (is_water_flag) {
 	 fragments[frag][resno].name = "HOH";
-      else 
+      } else {
 	 fragments[frag][resno].name = "ALA";
+      }
    }
 }
 
