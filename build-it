@@ -3343,16 +3343,23 @@ if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then
 
     # build libgd
     #
-    if [ ! -e $install_top_dir/some-include ] ; then
-	#
-	gzip -dc ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz | tar xf -
-	cd libgd-2.1.1
-	bash ./configure --prefix=$install_top_dir
-	if $MAKE ; then
-	   make install
-	fi
+    system_has_libgd=false
+    if [ -e /usr/include/gd.h ] ; then
+       system_has_libgd=true
     fi
 
+    if [ $system_has_libgd = false ] ; then 
+       if [ ! -e $install_top_dir/include/gd.h ] ; then
+   	   #
+	   gzip -dc ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz | tar xf -
+	   cd libgd-2.1.1
+	   bash ./configure --prefix=$install_top_dir
+	   if $MAKE ; then
+	      make install
+	   fi
+       fi
+    fi
+    
     # build render
     #
     if [ ! -e $install_top_dir/bin/render ] ; then 
@@ -3362,10 +3369,12 @@ if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then
        make linux # fixme for Darwin
        # add the gd support directory
 
-       sed -ibackup \
-          -e "s?=.-lgd?=  -L$prefix/lib -lgd?" \
-          -e "s?=.-DGD_SUPPORT?=  -DGD_SUPPORT -I$prefix/include?" \
-       Makefile.incl
+       if [ $system_has_libgd = false ] ; then 
+          sed -ibackup \
+             -e "s?=.-lgd?=  -L$prefix/lib -lgd?" \
+             -e "s?=.-DGD_SUPPORT?=  -DGD_SUPPORT -I$prefix/include?" \
+          Makefile.incl
+       fi
        
        if $MAKE render ; then 
   	  make prefix=$install_top_dir install
