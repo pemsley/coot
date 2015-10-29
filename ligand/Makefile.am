@@ -33,7 +33,7 @@ pkginclude_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh
 	chi-angles.hh dunbrack.hh helix-placement.hh fast-ss-search.hh        \
 	rigid-body.hh ideal-rna.hh rotamer.hh richardson-rotamer.hh           \
 	torsion-general.hh primitive-chi-angles.hh dipole.hh    \
-	base-pairing.hh backrub-rotamer.hh
+	base-pairing.hh backrub-rotamer.hh trace.hh
 pkgincludedir = $(includedir)/coot/ligand
 
 
