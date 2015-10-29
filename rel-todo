@@ -1,16 +1,47 @@
  
  0.8.3
 
+   o CA Zone -> Mainchain will change the sequence to ALA - this is wrong
+     when the CAs have the right sequence.
+
+   o Alexander B Crash:
+
+#1  0x00002ab3282e541c in __gxx_personality_v0 () from /usr/lib64/libstdc++.so.6
+#2  0x00002ab32853f686 in _Unwind_RaiseException () from /lib64/libgcc_s.so.1
+#3  0x00002ab3282e5d15 in __cxa_throw () from /usr/lib64/libstdc++.so.6
+#4  0x0000000000c8dffc in coot::util::phi_psi_t::phi_psi_t (this=<value optimized out>, prev=<value optimized out>, this_res=<value optimized out>, next=<value optimized out>) at coot-rama.cc:176
+#5  0x00000000008e7573 in coot::rama_plot::generate_phi_psis (this=0x2b9c6110, mol_in=0x2b9db320, is_primary=true) at rama_plot.cc:923
+#6  0x00000000008e7943 in coot::rama_plot::generate_phi_psis (this=<value optimized out>, mol_in=<value optimized out>) at rama_plot.cc:875
+#7  0x00000000008eaa85 in coot::rama_plot::draw_it (this=0x2b9c6110, mol=0x2b9db320) at rama_plot.cc:1519
+#8  0x000000000064bb83 in do_ramachandran_plot (imol=27) at c-interface-validate.cc:1396
+#9  0x00000000007b5359 in rama_plot_mol_selector_activate (menuitem=<value optimized out>, user_data=<value optimized out>) at gtk-manual.cc:405
+#10 0x000000369b40e3de in g_closure_invoke () from /lib64/libgobject-2.0.so.0
+#11 0x000000369b4248d5 in ?? () from /lib64/libgobject-2.0.so.0
+
+   o Sarah's ligand: had tertiary amine with an amino group - it
+     should be sp2 hybridized, but was not (N+) - and rdkit failed.
+
+   o import an elbow dictionary cif as an "MTZ, cif. phs" file. Crash.
+
+   o Can you fit the ligand in 3fw1 (gleevec)?
+
    o in find ligands, the dialog expands the sections incorrectly when
      pulled.  Try making the dialog longer when you have 5 maps.
 
-   o anisotropic refmac from coot interface: REFI BREF ANISO. 
+   o anisotropic refmac from coot interface: REFI BREF ANISO.
+
+   o yellow/brown sulfurs, green for Cl, F, darkbrown Br, I purple, Orange P,
+     purple Na, Li, K, dark green Mg, dark orange Fe.
 
    o Does refmac now work when you start it from a directory for which
      you don't have write permission?
 
+   o consider ignoring waters in the clash score of auto-fit-rotamer
+     and delete them if they bump into the sidechain after fittting.
+
    o Sphere refine doesn't use alpha helical restraints. It should.
 
+   o Flev this: BLD in 4lsa
 
    o add a test for molecule(const std::vector<clipper::Coord_orth> &atom_list,
 		             const std::string &residue_type, std::string atom_name,
@@ -20,6 +51,8 @@
      File -> SMILES?
 
    o pyrogen -M default
+
+   o Do probe dots get updated locally after a sphere refinement?
 
    o Add a test: if pyrogen is built - does it run correctly? 
  

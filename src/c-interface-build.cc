@@ -3756,17 +3756,18 @@ do_db_main(short int state) {
 }
 
 
-void
+int
 db_mainchain(int imol,
 	     const char *chain_id,
 	     int iresno_start,
 	     int iresno_end,
 	     const char *direction_string) {
-   
+
+   int imol_new = -1;
    if (imol < graphics_n_molecules()) {
       graphics_info_t g;
-      g.execute_db_main(imol, std::string(chain_id), iresno_start, iresno_end,
-			std::string(direction_string));
+      imol_new = g.execute_db_main(imol, std::string(chain_id), iresno_start, iresno_end,
+			       std::string(direction_string));
    } else {
       std::cout << "WARNING molecule index error" << std::endl;
    } 
@@ -3778,6 +3779,8 @@ db_mainchain(int imol,
    args.push_back(iresno_end);
    args.push_back(coot::util::single_quote(direction_string));
    add_to_history_typed(cmd, args);
+
+   return imol_new;
 }
 
 /*  ----------------------------------------------------------------------- */

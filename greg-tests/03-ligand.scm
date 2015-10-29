@@ -359,5 +359,6 @@
 		   (let* ((pdb-file-name (string-append tlc-text "-pyrogen.pdb"))
 			  (cif-file-name (string-append tlc-text "-pyrogen.cif"))
 			  (imol (handle-read-draw-molecule-with-recentre pdb-file-name 0)))
+		     ;; add test for chirality in the dictionary here 
 		     (valid-model-molecule? imol)))))))))
 

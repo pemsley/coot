@@ -402,11 +402,20 @@ coot::db_main::match_target_fragment(const coot::minimol::molecule &target,
    iresno_end   = iresno_target_end_in;    // Needed when we merge.
    target_fragment_fragment_id = target[0].fragment_id; // needed for returned fragment
 
+   // for a given residue number (in the the chain), what's the residue name?
+   // 
+   // std::map<int, std::string> sequence;
+   //
+   sequence = get_sequence(target,
+			   target_fragment_fragment_id,
+			   iresno_target_start_in,
+			   iresno_target_end_in);
+
    if (target.fragments.size() > 0) { 
       
       while (1) {
 
-	 std::vector <clipper::Coord_orth> target_ca =
+	 std::vector<clipper::Coord_orth> target_ca =
 	    get_target_ca_coords(iresno, ilength, target);
 
 	 // Typically, the following test fails when we have reached the
@@ -481,6 +490,33 @@ coot::db_main::match_target_fragment(const coot::minimol::molecule &target,
 		<< std::endl;
    }
 }
+
+std::map<int, std::string>
+coot::db_main::get_sequence(const coot::minimol::molecule &target,
+			    std::string target_fragment_fragment_id,
+			    int iresno_target_start,
+			    int iresno_target_end) const {
+
+   std::map<int, std::string> m;
+
+   if (iresno_target_start > iresno_target_end)
+      std::swap(iresno_target_start, iresno_target_end);
+
+   int chain_idx = 0; // is this the same as the calling function?
+ 
+   minimol::fragment f = target[0];
+   for (int ires=iresno_target_start; ires <= iresno_target_end; ires++) {
+      try {
+	 std::string rn = f[ires].name;
+	 m[ires] = rn;
+      }
+      catch (const std::runtime_error &rte) {
+	 std::cout << "ERROR:: " << rte.what() << std::endl;
+      } 
+   } 
+   return m;
+} 
+
 
 std::vector<coot::db_fitting_result>
 coot::db_main::fit_reference_structures(float max_devi,
@@ -766,7 +802,12 @@ coot::db_main::mainchain_fragment() const {
 	    frag.residues[ires].addatom(res.atoms[i]);
 	 }
       }
-      frag.residues[ires].name = "ALA";
+
+      std::string res_name = "ALA";
+      std::map<int, std::string>::const_iterator it = sequence.find(ires);
+      if (it != sequence.end())
+	 res_name = it->second;
+      frag.residues[ires].name = res_name;
       frag.residues[ires].seqnum = ires; 
    }
 

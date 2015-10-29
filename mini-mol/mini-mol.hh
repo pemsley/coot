@@ -27,6 +27,7 @@
 #include <vector>
 #include <stdexcept>
 
+#include "utils/coot-utils.hh"
 #include "atom-quads.hh"
 #include <mmdb2/mmdb_manager.h>
 #include "clipper/core/coords.h"
@@ -123,13 +124,23 @@ namespace coot {
 	 std::string fragment_id;
 	 std::vector<residue> residues;
 	 friend std::ostream&  operator<<(std::ostream&, fragment);
+
+	 // this can throw a std::runtime_error when index is out of range
+	 // 
 	 const residue& operator[](int i) const {
 	    int itmp = residues.size() + residues_offset;
 	    if (i>= itmp) {
-	       std::cout << "ERROR can't resize const residues: request for " << i
+	       std::cout << "ERROR:: can't resize const residues: request for " << i
 			 << " with residues size: " << residues.size()
-			 << " and offset: " << residues_offset << std::endl; 
-	    } 
+			 << " and offset: " << residues_offset << std::endl;
+	       std::string s = "can't resize const residues: request for ";
+	       s += util::int_to_string(i);
+	       s += " with residues size: ";
+	       s += util::int_to_string(residues.size());
+	       s += " and offset: ";
+	       s += util::int_to_string(residues_offset);
+	       throw std::runtime_error(s);
+	    }
 	    return residues[i-residues_offset];
 	 }
 	 residue&       operator[](int i);

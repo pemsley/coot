@@ -4686,12 +4686,16 @@ PyObject *cis_peptides_py(int imol);
 /*! \name Mainchain Building Functions */
 /* \{ */
 void do_db_main(short int state); 
-/*! \brief CA -> mainchain conversion */
-void db_mainchain(int imol,
-		  const char *chain_id,
-		  int iresno_start,
-		  int iresno_end,
-		  const char *direction_string);
+/*! \brief CA -> mainchain conversion
+
+direction is either "forwards" or "backwards"
+
+return the new molecule number */
+int db_mainchain(int imol,
+		 const char *chain_id,
+		 int iresno_start,
+		 int iresno_end,
+		 const char *direction);
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

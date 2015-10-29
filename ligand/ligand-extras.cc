@@ -606,15 +606,9 @@ coot::ligand::flood2(float n_sigma) {
       mean_and_variance<float> mv_this = map_density_distribution(xmap_masked, 40, 0);
 
       float n_sigma_crit = n_sigma * sqrt(mv_start.variance/mv_this.variance);
-      
       coot::peak_search ps(xmap_masked);
-      
       std::vector<clipper::Coord_orth> peaks = ps.get_peaks(xmap_masked, n_sigma_crit);
       
-      std::cout << "INFO:: Round " << iround << " found " << peaks.size()
-		<< " peaks above " << n_sigma_crit
-		<< " rms" << std::endl;
-
       if (debug) {
 	 for (unsigned int ipeak=0; ipeak<peaks.size(); ipeak++) {
 	    float d = density_at_point(peaks[ipeak], xmap_masked);

@@ -272,7 +272,8 @@ main(int argc, char **argv) {
 	    clipper::Xmap<float> fine_xmap =
 	       coot::util::reinterp_map_fine_gridding(xmap);
 	    lig.import_map_from(fine_xmap);
-	    lig.output_map("fine-map.map");
+	    // lig.output_map("fine-map.map");
+	    xmap = fine_xmap;
 	 } else {
 	    clipper::Xmap<float> xmap;
 	    bool stat = coot::util::map_fill_from_mtz(&xmap,

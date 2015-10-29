@@ -56,7 +56,6 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
 			     float n_sigma) {
 
    std::vector<clipper::Coord_orth> r;
-
    clipper::Xmap<short int> marked_map(xmap.spacegroup(), xmap.cell(), xmap.grid_sampling());
    clipper::Xmap_base::Map_reference_index ix;
    for (ix = marked_map.first(); !ix.last(); ix.next() )  { // iterator index.
@@ -71,7 +70,7 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
 	 r.push_back(move_grid_to_peak(xmap, ix.coord()));
 	 // r.push_back(ix.coord().coord_frac(xmap.grid_sampling()).coord_orth(xmap.cell()));
       }
-   } 
+   }
    return r;
 }
 

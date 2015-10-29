@@ -3021,7 +3021,7 @@ graphics_info_t::nudge_active_residue_by_rotate(guint direction) {
 
  
 
-
+// this is for the graphics
 void
 graphics_info_t::execute_db_main() { 
 
@@ -3036,13 +3036,17 @@ graphics_info_t::execute_db_main() {
    execute_db_main(imol, chain_id, iresno_start, iresno_end, direction_string);
 }
 
-// 
-void
+// this is called by interactive function and scripting function
+//
+// return the new molecule number.
+int 
 graphics_info_t::execute_db_main(int imol,
 				 std::string chain_id,
 				 int iresno_start,
 				 int iresno_end,
-				 std::string direction_string) { 
+				 std::string direction_string) {
+
+   int imol_new = -1;
 
    int ilength = 6;
    int idbfrags = 0;
@@ -3122,9 +3126,8 @@ graphics_info_t::execute_db_main(int imol,
 	 atom_selection_container_t asc = make_asc(mol.pcmmdbmanager());
 	 set_mmdb_cell_and_symm(asc, cell_spgr); // tinker with asc. 
 	                                         // Consider asc as an object.
-	 int imol_new = create_molecule();
-	 graphics_info_t g;
-	 molecules[imol_new].install_model(imol_new, asc, g.Geom_p(), "mainchain", 1);
+	 imol_new = create_molecule();
+	 molecules[imol_new].install_model(imol_new, asc, Geom_p(), "mainchain", 1);
 	 graphics_draw();
       } else {
 	 std::string s("Sorry, failed to convert that residue range.\nToo short, perhaps?");
@@ -3133,6 +3136,8 @@ graphics_info_t::execute_db_main(int imol,
       }
       main_chain.clear_results();
    }
+
+   return imol_new;
 }
 
 // --------------------------------------------------------------------------------
@@ -3769,7 +3774,7 @@ graphics_info_t::rotate_chi_torsion_general(double x, double y) {
 	    make_moving_atoms_graphics_object(*moving_atoms_asc);
 	    graphics_draw();
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    std::cout << "INFO:: tree by contacts failed " << rte.what() << std::endl;
 	 } 
       }
