@@ -3357,6 +3357,7 @@ if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then
 	   if $MAKE ; then
 	      make install
 	   fi
+	   cd - 
        fi
     fi
     

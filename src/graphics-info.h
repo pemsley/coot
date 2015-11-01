@@ -2626,8 +2626,9 @@ public:
    void execute_db_main();
    // direction string (flag): "forwards" or "backwards" (actually, if
    // not "backwards", "forwards" is presumed).
-   void execute_db_main(int imol, std::string chain_id,
-			int iresno_start, int iresno_end, std::string direction_string); 
+   // return the new molecule number (can be -1)
+   int execute_db_main(int imol, std::string chain_id,
+		       int iresno_start, int iresno_end, std::string direction_string); 
 
    static float ligand_acceptable_fit_fraction;
    static float ligand_cluster_sigma_level; // was 2.2 default

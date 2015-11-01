@@ -65,212 +65,214 @@ coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool appl
       for (int imod=1; imod<=n_models; imod++) { 
       
 	 mmdb::Model *model_p = mol_->GetModel(imod);
-	 mmdb::Chain *chain_p;
-	 // run over chains of the existing mol
-	 int nchains = model_p->GetNumberOfChains();
-	 if (nchains <= 0) { 
-	    std::cout << "bad nchains in molecule " << nchains
-		      << std::endl;
-	 } else { 
-	    for (int ichain=0; ichain<nchains; ichain++) {
-	       chain_p = model_p->GetChain(ichain);
-	       if (chain_p == NULL) {  
-		  // This should not be necessary. It seem to be a
-		  // result of mmdb corruption elsewhere - possibly
-		  // DeleteChain in update_molecule_to().
-		  std::cout << "NULL chain in fix_nomenclature_errors "
-			    << std::endl;
-	       } else { 
-		  int nres = chain_p->GetNumberOfResidues();
-		  mmdb::PResidue residue_p;
-		  for (int ires=0; ires<nres; ires++) { 
-		     residue_p = chain_p->GetResidue(ires);
-		     std::string residue_name(residue_p->GetResName());
+	 if (model_p) { 
+	    mmdb::Chain *chain_p;
+	    // run over chains of the existing mol
+	    int nchains = model_p->GetNumberOfChains();
+	    if (nchains <= 0) { 
+	       std::cout << "bad nchains in molecule " << nchains
+			 << std::endl;
+	    } else { 
+	       for (int ichain=0; ichain<nchains; ichain++) {
+		  chain_p = model_p->GetChain(ichain);
+		  if (chain_p == NULL) {  
+		     // This should not be necessary. It seem to be a
+		     // result of mmdb corruption elsewhere - possibly
+		     // DeleteChain in update_molecule_to().
+		     std::cout << "NULL chain in fix_nomenclature_errors "
+			       << std::endl;
+		  } else { 
+		     int nres = chain_p->GetNumberOfResidues();
+		     mmdb::PResidue residue_p;
+		     for (int ires=0; ires<nres; ires++) { 
+			residue_p = chain_p->GetResidue(ires);
+			std::string residue_name(residue_p->GetResName());
 
-		     if ((residue_name == "PHE") ||
-			 (residue_name == "TYR")) {
+			if ((residue_name == "PHE") ||
+			    (residue_name == "TYR")) {
 
-			// if apply_swaps is true, apply swaps if they are found - otherwise just
-			// return a flag saying that they should be swapped.
-			int isw = test_and_fix_PHE_TYR_nomenclature_errors(residue_p, apply_swaps);
-			if (isw) {
-			   if (apply_swaps) // don't tell us before swap is made
-			      std::cout << "INFO:: (result) " << residue_name << " swapped atoms in "
-					<< coot::residue_spec_t(residue_p)
-					<< " " << residue_p->GetResName() << std::endl;
-			   vr.push_back(residue_p);
+			   // if apply_swaps is true, apply swaps if they are found - otherwise just
+			   // return a flag saying that they should be swapped.
+			   int isw = test_and_fix_PHE_TYR_nomenclature_errors(residue_p, apply_swaps);
+			   if (isw) {
+			      if (apply_swaps) // don't tell us before swap is made
+				 std::cout << "INFO:: (result) " << residue_name << " swapped atoms in "
+					   << coot::residue_spec_t(residue_p)
+					   << " " << residue_p->GetResName() << std::endl;
+			      vr.push_back(residue_p);
+			   }
 			}
-		     }
 		     
-		     if ((residue_name == "ASP") ||
-			 (residue_name == "GLU")) {
+			if ((residue_name == "ASP") ||
+			    (residue_name == "GLU")) {
 
-			int isw = test_and_fix_ASP_GLU_nomenclature_errors(residue_p, apply_swaps);
-			if (isw) {
-			   if (apply_swaps)
-			      std::cout << "INFO:: (result) " << residue_name << " swapped atoms in "
-					<< coot::residue_spec_t(residue_p)
-					<< " " << residue_p->GetResName() << std::endl;
-			   vr.push_back(residue_p);
+			   int isw = test_and_fix_ASP_GLU_nomenclature_errors(residue_p, apply_swaps);
+			   if (isw) {
+			      if (apply_swaps)
+				 std::cout << "INFO:: (result) " << residue_name << " swapped atoms in "
+					   << coot::residue_spec_t(residue_p)
+					   << " " << residue_p->GetResName() << std::endl;
+			      vr.push_back(residue_p);
+			   }
 			}
-		     }
 
-		     if (residue_name == "THR") { 
+			if (residue_name == "THR") { 
 
-			// This is assigned a sign in the refmac
-			// dictionary, (unlike LEU and VAL).
+			   // This is assigned a sign in the refmac
+			   // dictionary, (unlike LEU and VAL).
 
-			std::vector<coot::dict_chiral_restraint_t> chiral_restraints = 
-			   Geom_p->get_monomer_chiral_volumes(std::string(residue_p->name));
-			coot::dict_chiral_restraint_t chiral_restraint;
-			for (unsigned int irestr=0; irestr<chiral_restraints.size(); irestr++) { 
-			   chiral_restraint = chiral_restraints[irestr];
+			   std::vector<coot::dict_chiral_restraint_t> chiral_restraints = 
+			      Geom_p->get_monomer_chiral_volumes(std::string(residue_p->name));
+			   coot::dict_chiral_restraint_t chiral_restraint;
+			   for (unsigned int irestr=0; irestr<chiral_restraints.size(); irestr++) { 
+			      chiral_restraint = chiral_restraints[irestr];
 			   
-			   // now what is the chiral centre for that restraint?
+			      // now what is the chiral centre for that restraint?
 			    
-			   if (chiral_restraint.atom_id_c_4c() == " CB ") {
+			      if (chiral_restraint.atom_id_c_4c() == " CB ") {
 			      
-			      // make a synthetic restraint from
-			      // chiral_restraint because we want to
-			      // impose a sign on the CB chiral
-			      // centre - in the chiral_restraint the 
+				 // make a synthetic restraint from
+				 // chiral_restraint because we want to
+				 // impose a sign on the CB chiral
+				 // centre - in the chiral_restraint the 
 
-// 			      std::cout << "For residue " << residue_p->GetSeqNum() << " "
-// 					<< residue_p->GetResName() << " chiral centre: "
-// 					<< " for restraint: " << irestr << " :" 
-// 					<<  chiral_restraint.atom_id_c_4c() << ":\n";
+				 // 			      std::cout << "For residue " << residue_p->GetSeqNum() << " "
+				 // 					<< residue_p->GetResName() << " chiral centre: "
+				 // 					<< " for restraint: " << irestr << " :" 
+				 // 					<<  chiral_restraint.atom_id_c_4c() << ":\n";
 
 #ifdef HAVE_GSL			      
-			      std::vector<std::pair<short int, coot::atom_spec_t> > c = 
-				 coot::is_inverted_chiral_atom_p(chiral_restraint, residue_p);
-			      for (unsigned int ibad=0; ibad<c.size(); ibad++) { 
-				 if (c[ibad].first) {
-				    std::cout << "INFO:: found bad THR chiral atom: " 
-					      << chain_p->GetChainID() << " " 
-					      << residue_p->GetSeqNum() << " "
-					      << residue_p->GetInsCode() << " "
-					      << chiral_restraint.atom_id_c_4c() << " "
-					      << c[ibad].second.alt_conf << std::endl;
+				 std::vector<std::pair<short int, coot::atom_spec_t> > c = 
+				    coot::is_inverted_chiral_atom_p(chiral_restraint, residue_p);
+				 for (unsigned int ibad=0; ibad<c.size(); ibad++) { 
+				    if (c[ibad].first) {
+				       std::cout << "INFO:: found bad THR chiral atom: " 
+						 << chain_p->GetChainID() << " " 
+						 << residue_p->GetSeqNum() << " "
+						 << residue_p->GetInsCode() << " "
+						 << chiral_restraint.atom_id_c_4c() << " "
+						 << c[ibad].second.alt_conf << std::endl;
 
-				    // swap the OG1 and CG2 atoms of
-				    // the residue for the given
-				    // alt_conf
-				    std::string alt_conf_bad = c[ibad].second.alt_conf;
-				    mmdb::PPAtom residue_atoms;
-				    int n_residue_atoms;
-				    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-				    mmdb::Atom *og1 = 0;
-				    mmdb::Atom *cg2 = 0;
-				    for (int iat=0; iat<n_residue_atoms; iat++) {
-				       std::string alt_conf = residue_atoms[iat]->altLoc;
-				       std::string atom_name = residue_atoms[iat]->name;
-				       if (atom_name == " OG1" )
-					  if (alt_conf == alt_conf_bad)
-					     og1 = residue_atoms[iat];
-				       if (atom_name == " CG2" )
-					  if (alt_conf == alt_conf_bad)
-					     cg2 = residue_atoms[iat];
-				    }
-				    if (og1 && cg2) {
-
-				       if (apply_swaps) { 
-					  og1->SetAtomName(" CG2");
-					  cg2->SetAtomName(" OG1");
-					  std::cout << "        CG2 and OG1 atoms swapped\n";
-					  std::cout << "INFO:: swapped atoms in "
-						    << coot::residue_spec_t(residue_p)
-						    << " " << residue_p->GetResName() << std::endl;
+				       // swap the OG1 and CG2 atoms of
+				       // the residue for the given
+				       // alt_conf
+				       std::string alt_conf_bad = c[ibad].second.alt_conf;
+				       mmdb::PPAtom residue_atoms;
+				       int n_residue_atoms;
+				       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+				       mmdb::Atom *og1 = 0;
+				       mmdb::Atom *cg2 = 0;
+				       for (int iat=0; iat<n_residue_atoms; iat++) {
+					  std::string alt_conf = residue_atoms[iat]->altLoc;
+					  std::string atom_name = residue_atoms[iat]->name;
+					  if (atom_name == " OG1" )
+					     if (alt_conf == alt_conf_bad)
+						og1 = residue_atoms[iat];
+					  if (atom_name == " CG2" )
+					     if (alt_conf == alt_conf_bad)
+						cg2 = residue_atoms[iat];
 				       }
-				       vr.push_back(residue_p);
-				    } else {
-				       // This can't happen:
-				       std::cout << "ERROR:: Bizarre missing atom scenario "
-						 << "in fix_nomenclature_errors\n";
+				       if (og1 && cg2) {
+
+					  if (apply_swaps) { 
+					     og1->SetAtomName(" CG2");
+					     cg2->SetAtomName(" OG1");
+					     std::cout << "        CG2 and OG1 atoms swapped\n";
+					     std::cout << "INFO:: swapped atoms in "
+						       << coot::residue_spec_t(residue_p)
+						       << " " << residue_p->GetResName() << std::endl;
+					  }
+					  vr.push_back(residue_p);
+				       } else {
+					  // This can't happen:
+					  std::cout << "ERROR:: Bizarre missing atom scenario "
+						    << "in fix_nomenclature_errors\n";
+				       }
 				    }
 				 }
-			      }
 #endif // HAVE_GSL			      
+			      }
 			   }
 			}
-		     }
 		     
-		     if ((residue_name == "LEU") ||
-			 (residue_name == "VAL")) {
+			if ((residue_name == "LEU") ||
+			    (residue_name == "VAL")) {
 			
-			int volume_sign = -1;
-			coot::dict_chiral_restraint_t synthetic_restraint;
+			   int volume_sign = -1;
+			   coot::dict_chiral_restraint_t synthetic_restraint;
 			
-			if (residue_name == "VAL")
-			   synthetic_restraint =
-			      coot::dict_chiral_restraint_t(residue_name,
-							    " CB ", " CA ", " CG1", " CG2",
-							    volume_sign);
-			if (residue_name == "LEU")
-			   synthetic_restraint =
-			      coot::dict_chiral_restraint_t(residue_name,
-							    " CG ", " CB ", " CD1", " CD2",
-							    volume_sign);
+			   if (residue_name == "VAL")
+			      synthetic_restraint =
+				 coot::dict_chiral_restraint_t(residue_name,
+							       " CB ", " CA ", " CG1", " CG2",
+							       volume_sign);
+			   if (residue_name == "LEU")
+			      synthetic_restraint =
+				 coot::dict_chiral_restraint_t(residue_name,
+							       " CG ", " CB ", " CD1", " CD2",
+							       volume_sign);
 			   
 #ifdef HAVE_GSL			
-			std::vector<std::pair<short int, coot::atom_spec_t> > c = 
-			   coot::is_inverted_chiral_atom_p(synthetic_restraint,
-						      residue_p);
+			   std::vector<std::pair<short int, coot::atom_spec_t> > c = 
+			      coot::is_inverted_chiral_atom_p(synthetic_restraint,
+							      residue_p);
 			
-			for (unsigned int ibad=0; ibad<c.size(); ibad++) {
-			   if (c[ibad].first) {
-			      std::cout << "INFO:: found bad " << residue_name
-					<< " chiral atom: " 
-					<< chain_p->GetChainID() << " " 
-					<< residue_p->GetSeqNum() << " "
-					<< residue_p->GetInsCode() << " "
-					<< synthetic_restraint.atom_id_c_4c() << " "
-					<< c[ibad].second.alt_conf << std::endl;
+			   for (unsigned int ibad=0; ibad<c.size(); ibad++) {
+			      if (c[ibad].first) {
+				 std::cout << "INFO:: found bad " << residue_name
+					   << " chiral atom: " 
+					   << chain_p->GetChainID() << " " 
+					   << residue_p->GetSeqNum() << " "
+					   << residue_p->GetInsCode() << " "
+					   << synthetic_restraint.atom_id_c_4c() << " "
+					   << c[ibad].second.alt_conf << std::endl;
 
-			      // swap the CG1 and CG2 atoms of
-			      // the residue for the given
-			      // alt_conf
-			      std::string alt_conf_bad = c[ibad].second.alt_conf;
-			      std::string target_atom_1 = " CG1";
-			      std::string target_atom_2 = " CG2";
-			      if (residue_name == "LEU") {
-				 target_atom_1 = " CD1";
-				 target_atom_2 = " CD2";
-			      }
-			      mmdb::PPAtom residue_atoms;
-			      int n_residue_atoms;
-			      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-			      mmdb::Atom *cg1 = 0; // cd1 and cd2 for LEU of course
-			      mmdb::Atom *cg2 = 0;
-			      for (int iat=0; iat<n_residue_atoms; iat++) {
-				 std::string alt_conf = residue_atoms[iat]->altLoc;
-				 std::string atom_name = residue_atoms[iat]->name;
-				 if (atom_name == target_atom_1 )
-				    if (alt_conf == alt_conf_bad)
-				       cg1 = residue_atoms[iat];
-				 if (atom_name == target_atom_2 )
-				    if (alt_conf == alt_conf_bad)
-				       cg2 = residue_atoms[iat];
-			      }
-			      if (cg1 && cg2) {
-				 if (apply_swaps) { 
-				    cg1->SetAtomName(target_atom_2.c_str());
-				    cg2->SetAtomName(target_atom_1.c_str());
-				    std::cout << "        " << target_atom_1 << " and "
-					      << target_atom_2 << " atoms swapped\n";
-				    std::cout << "INFO:: swapped atoms in "
-					      << coot::residue_spec_t(residue_p)
-					      << " " << residue_p->GetResName() << std::endl;
+				 // swap the CG1 and CG2 atoms of
+				 // the residue for the given
+				 // alt_conf
+				 std::string alt_conf_bad = c[ibad].second.alt_conf;
+				 std::string target_atom_1 = " CG1";
+				 std::string target_atom_2 = " CG2";
+				 if (residue_name == "LEU") {
+				    target_atom_1 = " CD1";
+				    target_atom_2 = " CD2";
 				 }
-				 vr.push_back(residue_p);
-			      } else {
-				 // This can't happen:
-				 std::cout << "ERROR:: Bizarre missing atom scenario "
-					   << "in fix_nomenclature_errors, residue type:"
-					   << residue_name << "\n";
+				 mmdb::PPAtom residue_atoms;
+				 int n_residue_atoms;
+				 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+				 mmdb::Atom *cg1 = 0; // cd1 and cd2 for LEU of course
+				 mmdb::Atom *cg2 = 0;
+				 for (int iat=0; iat<n_residue_atoms; iat++) {
+				    std::string alt_conf = residue_atoms[iat]->altLoc;
+				    std::string atom_name = residue_atoms[iat]->name;
+				    if (atom_name == target_atom_1 )
+				       if (alt_conf == alt_conf_bad)
+					  cg1 = residue_atoms[iat];
+				    if (atom_name == target_atom_2 )
+				       if (alt_conf == alt_conf_bad)
+					  cg2 = residue_atoms[iat];
+				 }
+				 if (cg1 && cg2) {
+				    if (apply_swaps) { 
+				       cg1->SetAtomName(target_atom_2.c_str());
+				       cg2->SetAtomName(target_atom_1.c_str());
+				       std::cout << "        " << target_atom_1 << " and "
+						 << target_atom_2 << " atoms swapped\n";
+				       std::cout << "INFO:: swapped atoms in "
+						 << coot::residue_spec_t(residue_p)
+						 << " " << residue_p->GetResName() << std::endl;
+				    }
+				    vr.push_back(residue_p);
+				 } else {
+				    // This can't happen:
+				    std::cout << "ERROR:: Bizarre missing atom scenario "
+					      << "in fix_nomenclature_errors, residue type:"
+					      << residue_name << "\n";
+				 }
 			      }
 			   }
-			}
 #endif // HAVE_GSL			
+			}
 		     }
 		  }
 	       }
