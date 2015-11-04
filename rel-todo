@@ -1,6 +1,8 @@
  
  0.8.3
 
+   o pyrogen -r "" CCC does nothing and should return a non-zero exit status.
+
    o CA Zone -> Mainchain will change the sequence to ALA - this is wrong
      when the CAs have the right sequence.
 
