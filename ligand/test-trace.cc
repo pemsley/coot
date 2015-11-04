@@ -10,6 +10,9 @@ int main(int argc, char **argv) {
 
    std::string map_file_name = "trace-test.map";
 
+   if (argc > 1)
+      map_file_name = argv[1];
+   
    if (coot::file_exists(map_file_name)) { 
       clipper::CCP4MAPfile file;
       clipper::Xmap<float> xmap;
