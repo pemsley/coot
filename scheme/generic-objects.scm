@@ -355,10 +355,10 @@
 
   ;; if unset, then set it, try to make dir too
   (if (eq? *interactive-probe-is-OK?* 'unset)
-      (if (not (command-in-path? *probe-command*))
+      (if (not (command-in-path-or-absolute? *probe-command*))
 	  (set! *interactive-probe-is-OK?* 'no)
-	  (let ((status (make-directory-maybe "coot-molprobity")))
-	    (if (= 0 status) ;; 0 is good for mkdir()
+	  (let ((dir-name (get-directory "coot-molprobity")))
+	    (if (string? dir-name) ;; OK, we had it or made it
 		(set! *interactive-probe-is-OK?* 'yes)
 		(set! *interactive-probe-is-OK?* 'no)))))
   
@@ -396,6 +396,9 @@
   ;; selection radius and the probe radius are the same, then
   ;; sometimes the middle atom of a bonded angle set is missing
   ;; (outside the sphere) and that leads to bad clashes.
+  ;; There are also bad clashed at the edge when alt-confed atoms 
+  ;; are not selected but non-alt-confs are which leads to missing atoms
+  ;; in a bond angle and therefore clashes.
 
   (let* ((pt (rotation-centre))
 	 (imol-new (apply new-molecule-by-sphere-selection 
