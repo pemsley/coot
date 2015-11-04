@@ -591,5 +591,324 @@ coot::restraints_container_t::add_extra_parallel_plane_restraints(const extra_re
 
 
 
+// We want to interpolate proSMART restraints from start to final model.
+// We have proSMART restraints for both models.
+// 
+// Let's return a list of extra bond restraint indices that are
+// between the bond restraints of this (presumably start) and
+// final.
+// 
+std::vector<std::pair<unsigned int, unsigned int> >
+coot::extra_restraints_t::find_pair_indices(const extra_restraints_t &final) const {
+
+   std::vector<std::pair<unsigned int, unsigned int> > v;
+
+   for (unsigned int ibond=0; ibond<bond_restraints.size(); ibond++) { 
+      const extra_bond_restraint_t &br_i = bond_restraints[ibond];
+      bool found = false;
+      for (unsigned int jbond=0; jbond<final.bond_restraints.size(); jbond++) {
+	 const extra_bond_restraint_t &br_j = final.bond_restraints[jbond];
+
+
+	 // std::cout << "comparing:  " << br_i.atom_1 << "  vs    "
+	 // << br_j.atom_1 << std::endl;
+
+	 if (br_i.atom_1 == br_j.atom_1) {
+	    if (br_i.atom_2 == br_j.atom_2) {
+	       std::pair<unsigned int, unsigned int> p(ibond, jbond);
+	       v.push_back(p);
+	       found = true;
+	       break;
+	    }
+	 }
+	 if (br_i.atom_1 == br_j.atom_2) {
+	    if (br_i.atom_2 == br_j.atom_1) {
+	       std::pair<unsigned int, unsigned int> p(ibond, jbond);
+	       v.push_back(p);
+	       found = true;
+	       break;
+	    }
+	 }
+      }
+   }
+   return v;
+}
+
+void
+coot::extra_restraints_t::write_interpolated_restraints(const extra_restraints_t &final,
+							unsigned int n_path_points,
+							std::string file_name_stub) const {
+
+   if (n_path_points <= 2)
+      return;
+
+   unsigned int i_end = n_path_points - 1;
+
+   // when path i_path = 0 is the start (this)
+   // 
+   // when path i_path = i_end = n_path_points - 1 is final
+   // 
+   std::vector<std::pair<unsigned int, unsigned int> > indices = find_pair_indices(final);
+
+   for (unsigned int i_path=0; i_path<n_path_points; i_path++) {
+      std::string file_name = file_name_stub + util::int_to_string(i_path) + ".rst";
+      std::ofstream f(file_name.c_str());
+      if (f) {
+	 double frac = double(i_path)/double(i_end);
+	 for (unsigned int ii=0; ii<indices.size(); ii++) { 
+	    const std::pair<unsigned int, unsigned int> &pi = indices[ii];
+	    write_interpolated_restraints(f, final.bond_restraints, frac,
+					  pi.first, pi.second);
+	 }
+      }
+      f.close();
+   }
+}
+
+void
+coot::extra_restraints_t::write_interpolated_restraints(std::ofstream &f,
+							const std::vector<coot::extra_restraints_t::extra_bond_restraint_t> &final_bond_restraints,
+							double frac,
+							unsigned int idx_1,
+							unsigned int idx_2) const {
+
+   // extra restraints are also written in user-defined-restraints.scm
+
+   const extra_bond_restraint_t &br_1 = bond_restraints[idx_1];
+   const extra_bond_restraint_t &br_2 = final_bond_restraints[idx_2];
+
+   double delta = (br_2.bond_dist - br_1.bond_dist);
+   double d = br_1.bond_dist + frac * delta;
+   double esd = br_1.esd; // simple
+				
+   f << "EXTE DIST FIRST ";
+   f << "CHAIN ";
+   if (br_1.atom_1.chain_id == " " || br_1.atom_1.chain_id == "")
+      f << ".";
+   else
+      f << br_1.atom_1.chain_id;
+   f << " RESI ";
+   f << util::int_to_string(br_1.atom_1.res_no);
+   f << " INS ";
+   if (br_1.atom_1.ins_code == " " || br_1.atom_1.ins_code == "")
+      f << ".";
+   else
+      f << br_1.atom_1.ins_code;
+   f << " ATOM ";
+   f << br_1.atom_1.atom_name;
+   f << " ";
+
+   f << " SECOND ";
+   
+   f << "CHAIN ";
+   if (br_1.atom_2.chain_id == " " || br_1.atom_2.chain_id == "")
+      f << ".";
+   else
+      f << br_1.atom_2.chain_id;
+   f << " RESI ";
+   f << util::int_to_string(br_1.atom_2.res_no);
+   f << " INS ";
+   if (br_1.atom_2.ins_code == " " || br_1.atom_2.ins_code == "")
+      f << ".";
+   else
+      f << br_1.atom_2.ins_code;
+   f << " ATOM ";
+   f << br_1.atom_2.atom_name;
+   f << " ";
+
+   f << " VALUE ";
+   f << d;
+   f << " SIGMA ";
+   f << esd;
+   f << "\n";
+
+} 
+
+
+void
+coot::extra_restraints_t::write_interpolated_models_and_restraints(const extra_restraints_t &final,
+								   mmdb::Manager *mol_1, // corresponds to this
+								   mmdb::Manager *mol_2, // corresponds to final
+								   unsigned int n_path_points,
+								   std::string file_name_stub) const {
+
+   if (n_path_points <= 2)
+      return;
+
+   // when path i_path = 0 is the start (this)
+   // 
+   // when path i_path = i_end = n_path_points - 1 is final
+   //
+   if (mol_1) { 
+      if (mol_2) {
+
+	 mmdb::Manager *mol_running = new mmdb::Manager;
+	 mol_running->Copy(mol_1, mmdb::MMDBFCM_All);
+	 
+	 std::map<mmdb::Atom *, clipper::Coord_orth> matching_atoms_1 = position_point_map(mol_running, mol_1);
+	 std::map<mmdb::Atom *, clipper::Coord_orth> matching_atoms_2 = position_point_map(mol_running, mol_2);
+	 
+	 std::cout << "INFO:: found " << matching_atoms_1.size() << " (1) matching atoms " << std::endl;
+	 std::cout << "INFO:: found " << matching_atoms_2.size() << " (2) matching atoms " << std::endl;
+
+	 if (matching_atoms_1.size() && matching_atoms_2.size()) {
+	    write_interpolated_restraints(final, n_path_points, file_name_stub);
+	    write_interpolated_models(mol_running, matching_atoms_1, matching_atoms_2, n_path_points, file_name_stub);
+	 }
+      }
+   }
+}
+
+std::map<mmdb::Atom *, clipper::Coord_orth>
+coot::extra_restraints_t::position_point_map(mmdb::Manager *mol_running,
+					     mmdb::Manager *mol_ref) const {
+
+   std::map<mmdb::Atom *, clipper::Coord_orth> matching_atoms;
+   
+   if (mol_running) { 
+      if (mol_ref) { 
+	 
+	 for(int imod = 1; imod<=mol_running->GetNumberOfModels(); imod++) {
+	    mmdb::Model *model_1_p = mol_running->GetModel(imod);
+	    if (model_1_p) {
+
+	       for(int jmod = 1; jmod<=mol_ref->GetNumberOfModels(); jmod++) {
+		  mmdb::Model *model_2_p = mol_ref->GetModel(jmod);
+		  if (model_2_p) {
+
+		     mmdb::Chain *chain_1_p;
+		     int n_chains_1 = model_1_p->GetNumberOfChains();
+		     for (int ichain=0; ichain<n_chains_1; ichain++) {
+			chain_1_p = model_1_p->GetChain(ichain);
+			if (chain_1_p) {
+			   std::string chain_1_id = chain_1_p->GetChainID();
+
+			   mmdb::Chain *chain_2_p;
+			   int n_chains_2 = model_2_p->GetNumberOfChains();
+			   for (int jchain=0; jchain<n_chains_2; jchain++) {
+			      chain_2_p = model_2_p->GetChain(jchain);
+			      if (chain_2_p) {
+				 std::string chain_2_id = chain_2_p->GetChainID();
+				 if (chain_1_id == chain_2_id) { 
+
+				    int nres_1 = chain_1_p->GetNumberOfResidues();
+				    mmdb::Residue *residue_1_p;
+				    mmdb::Atom *at_1_p;
+				    for (int ires=0; ires<nres_1; ires++) {
+				       residue_1_p = chain_1_p->GetResidue(ires);
+				       int res_no_1 = residue_1_p->GetSeqNum();
+				       std::string ins_code_1 = residue_1_p->GetInsCode();
+
+				       int nres_2 = chain_2_p->GetNumberOfResidues();
+				       mmdb::Residue *residue_2_p;
+				       mmdb::Atom *at_2_p;
+				       for (int jres=0; jres<nres_2; jres++) {
+					  residue_2_p = chain_2_p->GetResidue(jres);
+					  int res_no_2 = residue_2_p->GetSeqNum();
+					  std::string ins_code_2 = residue_2_p->GetInsCode();
+
+					  if (res_no_2 == res_no_1) {
+					     if (ins_code_2 == ins_code_1) { 
+
+						int n_atoms_1 = residue_1_p->GetNumberOfAtoms();
+						for (int iat=0; iat<n_atoms_1; iat++) {
+						   at_1_p = residue_1_p->GetAtom(iat);
+						   std::string atom_name_1(at_1_p->name);
+						   std::string alt_conf_1(at_1_p->altLoc);
+
+						   int n_atoms_2 = residue_2_p->GetNumberOfAtoms();
+						   for (int jat=0; jat<n_atoms_2; jat++) {
+						      at_2_p = residue_2_p->GetAtom(jat);
+						      std::string atom_name_2(at_2_p->name);
+						      std::string alt_conf_2(at_2_p->altLoc);
+						      
+						      if (atom_name_2 == atom_name_1) {
+							 if (alt_conf_2 == alt_conf_1) {
+							    
+							    clipper::Coord_orth co = coot::co(at_2_p);
+							    matching_atoms[at_1_p] = co;
+							    break;
+							 }
+						      }
+						   }
+						}
+						break; // there won't be another residue that matches
+					     }
+					  }
+				       }
+				    }
+				 }
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return matching_atoms;
+} 
+
+void
+coot::extra_restraints_t::write_interpolated_models(mmdb::Manager *mol_running,
+						    const std::map<mmdb::Atom *, clipper::Coord_orth> &matching_atoms_1,
+						    const std::map<mmdb::Atom *, clipper::Coord_orth> &matching_atoms_2,
+						    unsigned int n_path_points,
+						    std::string file_name_stub) const {
+
+   unsigned int i_end = n_path_points - 1;
+
+   std::cout << "INFO:: number of interpolation points: " << n_path_points << std::endl;
+   for (unsigned int i_path=0; i_path<n_path_points; i_path++) {
+      std::string file_name = file_name_stub + util::int_to_string(i_path) + ".pdb";
+      double frac = double(i_path)/double(i_end);
+
+      for(int imod = 1; imod<=mol_running->GetNumberOfModels(); imod++) {
+	 mmdb::Model *model_p = mol_running->GetModel(imod);
+	 if (model_p) { 
+	    mmdb::Chain *chain_p;
+	    int n_chains = model_p->GetNumberOfChains();
+	    for (int ichain=0; ichain<n_chains; ichain++) {
+	       chain_p = model_p->GetChain(ichain);
+	       int nres = chain_p->GetNumberOfResidues();
+	       mmdb::Residue *residue_p;
+	       mmdb::Atom *at;
+	       for (int ires=0; ires<nres; ires++) { 
+		  residue_p = chain_p->GetResidue(ires);
+		  int n_atoms = residue_p->GetNumberOfAtoms();
+		  for (int iat=0; iat<n_atoms; iat++) {
+		     at = residue_p->GetAtom(iat);
+		     atom_spec_t spec(at);
+		     std::map<mmdb::Atom *, clipper::Coord_orth>::const_iterator it_1;
+		     std::map<mmdb::Atom *, clipper::Coord_orth>::const_iterator it_2;
+		     it_1 = matching_atoms_1.find(at);
+		     it_2 = matching_atoms_2.find(at);
+		     if (it_1 != matching_atoms_1.end()) {
+			if (it_2 != matching_atoms_2.end()) {
+			   const clipper::Coord_orth &pt_1 = it_1->second;
+			   const clipper::Coord_orth &pt_2 = it_2->second;
+			   clipper::Coord_orth pt(pt_1 + (pt_2 - pt_1) * frac);
+			   at->x = pt.x();
+			   at->y = pt.y();
+			   at->z = pt.z();
+			} else {
+			   std::cout << "failed to find spec for it_2 " << spec << std::endl;
+			} 
+		     } else {
+			std::cout << "failed to find spec for it_1 " << spec << std::endl;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+      mol_running->FinishStructEdit();
+      mol_running->WritePDBASCII(file_name.c_str());
+   }
+}
+
+
 
 #endif // HAVE_GSL
