@@ -24,6 +24,7 @@ coot::trace::action() {
    std::vector<std::pair<unsigned int, unsigned int> > apwd =
       atoms_pairs_within_distance(flood_mol, 3.81, 0.2);
    spin_score_pairs(apwd);
+   trace_graph();
 
 }
 
@@ -130,49 +131,70 @@ coot::trace::atoms_pairs_within_distance(const coot::minimol::molecule &flood_mo
 } 
 
 void
-coot::trace::spin_score_pairs(const std::vector<std::pair<unsigned int, unsigned int> > &apwd) const {
+coot::trace::spin_score_pairs(const std::vector<std::pair<unsigned int, unsigned int> > &apwd) {
 
-   // for (unsigned int i=0; i<apwd.size(); i++) { 
-   //    std::cout << "   " << apwd[i].first << " " << apwd[i].second << std::endl;
-   // }
+   // apwd : atom (index) pairs within distance
+   
+   double good_enough_score = 1.3;
 
-   tree<trace_node> tr;
-   tree<trace_node>::iterator it;
-   tree<trace_node>::iterator top = tr.begin();
-   double good_enough_score = 1.499;
+   std::vector<unsigned int>::const_iterator it; 
    
    for (unsigned int i=0; i<apwd.size(); i++) {
       const double &d_f = spin_score(apwd[i].first,  apwd[i].second);
       const double &d_b = spin_score(apwd[i].second, apwd[i].first);
       std::cout << apwd[i].first << " " << apwd[i].second << " "
 		<< d_f << " " << d_b << std::endl;
-      if (d_f > good_enough_score || d_b > good_enough_score) {
+      if ((d_f > good_enough_score) || (d_b > good_enough_score)) {
 
-	 trace_node n(apwd[i].second, d_f, d_b);
+	 it = std::find(tr[apwd[i].first].begin(),
+			tr[apwd[i].first].end(),
+			apwd[i].second);
+	 if (it == tr[apwd[i].first].end())
+	    tr[apwd[i].first].push_back(apwd[i].second);
 
-	 // is apwd[i].second already in the tree?
-	 //
-	 bool found = false;
-	 unsigned int n_tree = 0;
-	 for (it=tr.begin(); it!=tr.end(); it++) {
-	    n_tree++;
-	    if (it->atom_idx == apwd[i].first) {
-	       // yes it was
-	       found = true;
-	       tr.append_child(it, n);
-	       std::cout << "found" << std::endl;
-	       break;
-	    }
-	 }
-	 if (! found) {
-	    std::cout << "new start for node with idx " << apwd[i].first
-		      << " and " << n_tree << " in tree for index "
-		      << apwd[i].second << std::endl;
-	    tr.insert(tr.begin(), n); 
-	 } 
+	 // and reverse indexing
+	       
+	 it = std::find(tr[apwd[i].second].begin(),
+			tr[apwd[i].second].end(),
+			apwd[i].first);
+	 if (it == tr[apwd[i].second].end())
+	    tr[apwd[i].second].push_back(apwd[i].first);
+
       }
    }
+
+   std::map<unsigned int, std::vector<unsigned int> >::const_iterator itm;
+   for (itm=tr.begin(); itm!=tr.end(); itm++) {
+      std::cout << "map " << itm->first <<  "  [" << itm->second.size() << "]  ";
+      for (unsigned int jj=0; jj<itm->second.size(); jj++) { 
+	 std::cout << "  " << itm->second[jj];
+      }
+      std::cout << std::endl;
+   }
+   
 }
+
+void
+coot::trace::trace_graph() {
+
+   std::map<unsigned int, std::vector<unsigned int> >::const_iterator it;
+
+   std::cout << "in trace_graph tr is of size " << tr.size() << std::endl;
+
+   for(it=tr.begin(); it!=tr.end(); it++) {
+
+      std::vector<unsigned int> path;
+      unsigned int iv=it->first;
+      path = next_vertex(iv, path, 0, iv);
+      std::cout << iv << " path size " << path.size() << " ";
+      for (unsigned int ii=0; ii<path.size(); ii++) { 
+	 std::cout << path[ii] << "  ";
+      }
+      std::cout << std::endl;
+   }
+}
+
+
 
 // We presume that idx_1 and idx_2 are less than the size of sas
 // 
@@ -211,9 +233,19 @@ coot::trace::spin_score(unsigned int idx_1, unsigned int idx_2) const {
    clipper::Coord_orth rel_line_pt_B(diff_p_unit * 1.9  + double_perp_unit * 1.91);
    clipper::Coord_orth rel_line_pt_C(diff_p_unit * 1.9  - double_perp_unit * 1.91);
 
+   // the mid-point between CAs should have density too.
+   clipper::Coord_orth pt_mid(pos_1 *.05 + pos_2 * 0.5);
+   float rho_mid = util::density_at_point(xmap, pt_mid);
+
    int n_steps = 180;
    float best_score = -999;
-   for (unsigned int i=0; i<n_steps; i++) { 
+
+   // these can be optimized with machine learning?
+   float scale_CO   =  1.0;
+   float scale_perp = -0.0;
+   float scale_mid  =  1.0;
+   
+   for (int i=0; i<n_steps; i++) { 
       double alpha = 2 * M_PI * double(i)/double(n_steps);
       clipper::Coord_orth p_1 = util::rotate_round_vector(diff_p_unit,
 							  pos_1 + rel_line_pt_A,
@@ -228,16 +260,22 @@ coot::trace::spin_score(unsigned int idx_1, unsigned int idx_2) const {
       float this_rho_2 = util::density_at_point(xmap, p_2);
       float this_rho_3 = util::density_at_point(xmap, p_3);
 
-      float this_score = this_rho_1 - this_rho_2 - this_rho_3;
+      float this_score = this_rho_1 + scale_perp * this_rho_2 + scale_perp * this_rho_3;
 
-      if (false) 
-	 std::cout << "debug_pos:: " << p_1.x() << " " << p_1.y() << " " << p_1.z()
-		   << " " << this_rho_1 << " " << this_rho_2 << " " << this_rho_3
-		   << std::endl;
+      if (false) { 
+	 std::cout << "debug_pos:: CO     " << p_1.x() << " " << p_1.y() << " " << p_1.z()
+		   << " " << this_rho_1 << std::endl;
+	 std::cout << "debug_pos:: perp-1 " << p_2.x() << " " << p_2.y() << " " << p_2.z()
+		   << " " << this_rho_2 << std::endl;
+	 std::cout << "debug_pos:: perp-2 " << p_3.x() << " " << p_3.y() << " " << p_3.z()
+		   << " " << this_rho_3 << std::endl;
+      } 
       
       if (this_score > best_score) 
 	 best_score = this_score;
    }
+
+   best_score += scale_mid * rho_mid;
 
    return best_score;
    

@@ -28,7 +28,7 @@ lib_LTLIBRARIES=libcoot-ideal.la
 EXTRA_DIST = notes Makefile.simple molmantest.cc test-indexing.hh test-indexing.cc
 
 pkginclude_HEADERS =  test-indexing.hh simple-restraint.hh pepflip.hh regularize-minimol.hh lograma.h \
-	parallel-planes.hh torsion-bonds.hh
+	parallel-planes.hh torsion-bonds.hh extra-restraints.hh
 pkgincludedir = $(includedir)/coot/ideal
 
 AM_CPPFLAGS = \

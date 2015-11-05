@@ -1420,10 +1420,13 @@ std::string
 coot::protein_geometry::atom_name_for_tree_4c(const std::string &comp_id, const std::string &atom_id) const {
 
    std::string r = atom_id;
-   for (int id=(dict_res_restraints.size()-1); id >=0; id--) {
-      if (dict_res_restraints[id].residue_info.comp_id == comp_id) {
-	 r = dict_res_restraints[id].atom_name_for_tree_4c(atom_id);
-	 break;
+
+   if (dict_res_restraints.size() > 0) { 
+      for (int id=(dict_res_restraints.size()-1); id >=0; id--) {
+	 if (dict_res_restraints[id].residue_info.comp_id == comp_id) {
+	    r = dict_res_restraints[id].atom_name_for_tree_4c(atom_id);
+	    break;
+	 }
       }
    }
    return r;

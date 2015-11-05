@@ -42,7 +42,7 @@ libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
 	chi-angles.cc helix-placement.cc fast-ss-search.cc rigid-body.cc      \
 	ideal-rna.cc richardson-rotamers.cc richardson-rotamer.cc rotamer.cc  \
 	torsion-general.cc rotamer-tables.cc primitive-chi-angles.cc dipole.cc\
-        base-pairing.cc backrub-rotamer.cc trace.cc
+        base-pairing.cc backrub-rotamer.cc trace.cc trace-2.cc
 
 # clean
 libcoot_ligand_la_LIBADD = \

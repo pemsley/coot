@@ -353,21 +353,25 @@
 
       ;; needs with-working-directory macro
       ;; 
-      (let ((current-dir (getcwd)))
+      (let ((current-dir (getcwd))
+	    (comp-id (if (string=? tlc-text "") "LIG" tlc-text)))
 	(chdir working-dir)
-	(let ((goosh-status
-	       (goosh-command
-		"pyrogen"
+	(let* ((args 
 		(if *use-mogul* 
-		    (list "--residue-type" tlc-text smiles-text)
+		    (list "--residue-type" comp-id smiles-text)
 		    (if (command-in-path? "mogul")
-			(list                   "--residue-type" tlc-text smiles-text)
-			(list "--no-mogul" "-M" "--residue-type" tlc-text smiles-text)))
+			(list                   "--residue-type" comp-id smiles-text)
+			(list "--no-mogul" "-M" "--residue-type" comp-id smiles-text))))
+	       (nov (format #t "---------- args: ~s~%" args))
+	       (goosh-status
+		(goosh-command
+		"pyrogen"
+		args
 		'() log-file-name #t)))
 	  (if (ok-goosh-status? goosh-status)
 	      (begin
-		(let* ((pdb-file-name (string-append tlc-text "-pyrogen.pdb"))
-		       (cif-file-name (string-append tlc-text "-pyrogen.cif"))
+		(let* ((pdb-file-name (string-append comp-id "-pyrogen.pdb"))
+		       (cif-file-name (string-append comp-id "-pyrogen.cif"))
 		       (sc (rotation-centre))
 		       (imol (handle-read-draw-molecule-with-recentre pdb-file-name 0)))
 		  (if (valid-model-molecule? imol)

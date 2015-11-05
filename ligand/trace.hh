@@ -1,4 +1,9 @@
 
+
+#ifndef LIGAND_TRACE_HH 
+#define LIGAND_TRACE_HH
+
+#include <map>
 #include <clipper/core/xmap.h>
 
 #include "../mini-mol/mini-mol.hh"
@@ -30,9 +35,24 @@ namespace coot {
       atoms_pairs_within_distance(const minimol::molecule &flood_mol,
 				  double trans_dist,
 				  double trans_dist_variation);
-      void spin_score_pairs(const std::vector<std::pair<unsigned int, unsigned int> > &apwd) const;
+      
+      // fill the tr map with scores
+      void spin_score_pairs(const std::vector<std::pair<unsigned int, unsigned int> > &apwd);
       double spin_score(unsigned int idx_1, unsigned int idx_2) const;
       std::vector<minimol::atom *> sas;
+      void trace_graph();
+      std::map<unsigned int, std::vector<unsigned int> > tr; // which atoms are connected to which other atoms
+                                                             // backwards and forwards
+      
+      std::vector<unsigned int>
+      next_vertex(unsigned int start_vertex, const std::vector<unsigned int> &path,
+		  unsigned int depth, unsigned int this_vertex);
+
+      std::vector<unsigned int> get_neighbours_of_vertex_excluding_path(unsigned int this_vertex,
+									const std::vector<unsigned int> &path);
+      void print_tree(const std::vector<unsigned int> &path) const;
+
+
    public:
       trace(const clipper::Xmap<float> &xmap_in);
       void set_atom_mask_radius(float r) { flood_atom_mask_radius = r; }
@@ -40,4 +60,6 @@ namespace coot {
 
    };
 }
+
+#endif // LIGAND_TRACE_HH
 
