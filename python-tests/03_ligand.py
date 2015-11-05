@@ -276,3 +276,32 @@ class LigandTestFunctions(unittest.TestCase):
         #
         self.failUnless(len(t) < 26, "torsions: %s %s" %(len(t), t))
         # 22 in new dictionary, it seems
+
+        
+    def test10_0(self):
+        """Pyrogen Runs OK"""
+
+        smiles = "C1CNC1"
+        tlc_text = "XXX"
+        log_file_name = "pyrogen.log"
+
+        # do we have pass now?
+        if not enhanced_ligand_coot_p():
+            # dont test pyrogen
+            pass
+        else:
+            global use_mogul
+            if use_mogul:
+                arg_list = ["--residue-type", tlc_text, smiles]
+            else:
+                if command_in_path("mogul"):
+                    arg_list = ["--residue-type", tlc_text, smiles]
+                else:
+                    arg_list = ["--no-mogul", "-M", "--residue-type", tlc_text, smiles]
+            popen_status = popen_command("pyrogen", arg_list, [], log_file_name, True)
+            self.fail_unless(popen_status == 0)
+            pdb_file_name = tlc_text + "-pyrogen.pdb"
+            cif_file_name = tlc_text + "-pyrogen.cif"
+            imol = handle_read_draw_molecule_with_recentre(pdb_file_name, 0)
+            # add test for chirality in the dictionary here
+            self.fail_unless(valid_model_molecule_qm(imol))

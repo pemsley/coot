@@ -561,10 +561,21 @@ if (have_coot_python):
                          
      add_simple_coot_menu_menuitem(
        submenu_models,
-       "Fetch PDBe ligand description",
+       "Fetch PDBe description for this ligand",
        lambda func: get_smiles_pdbe_func())
 
-       
+
+     def get_pdbe_ligand_func(comp_id):
+         status = get_SMILES_for_comp_id_from_pdbe(comp_id)
+         get_monomer(comp_id)
+
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Fetch PDBe Ligand Description",
+       lambda func: generic_single_entry("Fetch PDBe Ligand Desciption for comp_id:",
+                                         "", " Fetch ", lambda comp_id: get_pdbe_ligand_func(comp_id)))
+
+
      add_simple_coot_menu_menuitem(
        submenu_models,
        "Fix Nomenclature Errors...",

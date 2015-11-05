@@ -335,7 +335,10 @@ def handle_smiles_go(tlc_entry, smiles_entry):
 
     tlc_text = tlc_entry.get_text()
     smiles_text = smiles_entry.get_text()
-    new_molecule_by_smiles_string(tlc_text, smiles_text)
+    use_libcheck = False
+    if is_windows():
+        use_libcheck = True
+    new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=use_libcheck)
 
 # smiles GUI
 #

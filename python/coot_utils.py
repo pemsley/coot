@@ -789,6 +789,14 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False):
         print "WARNING:: could not find %s, so not running" %cmd
         return False
 
+def ok_popen_status_qm(status):
+
+    if not isNumber(status):
+        return False
+    else:
+        return status == 0
+
+
 # example usage:
 # popen_command("mtzdump",["HKLIN","a.mtz"],["HEAD","END"],"test.log",0)
 
@@ -2439,7 +2447,7 @@ def hilight_binding_site(imol, centre_residue_spec, hilight_colour, radius):
                                                 centre_residue_spec[1],
                                                 centre_residue_spec[2],
                                                 BALL_AND_STICK(),
-                                                bb_type, 6,
+                                                bb_type, 0.14,
                                                 draw_hydrogens_flag)
 
         map(lambda spec: additional_representation_by_attributes(imol,
@@ -2448,7 +2456,7 @@ def hilight_binding_site(imol, centre_residue_spec, hilight_colour, radius):
                                                                  spec[1],
                                                                  spec[2],
                                                                  BALL_AND_STICK(),
-                                                                 bb_type, 6,
+                                                                 bb_type, 0.14,
                                                                  draw_hydrogens_flag),
             other_residues)
 
@@ -2553,127 +2561,6 @@ def pukka_puckers_qm(imol):
                               buttons,
                               "  Close  ")
 
-# Run libcheck to convert from SMILES string
-#
-def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
-
-    def use_libcheck(three_letter_code):
-
-        import shutil
-        
-        smiles_file = "coot-" + three_letter_code + ".smi"
-        libcheck_data_lines = ["N",
-                               "MON " + three_letter_code,
-                               "FILE_SMILE " + smiles_file,
-                               ""]
-        log_file_name = "libcheck-" + three_letter_code + ".log"
-        pdb_file_name = "libcheck_" + three_letter_code + ".pdb"
-        cif_file_name = "libcheck_" + three_letter_code + ".cif"
-
-        # write the smiles string to a file
-        smiles_input = file(smiles_file,'w')
-        smiles_input.write(smiles_text)
-        smiles_input.close()
-        
-        libcheck_exe_file = find_exe(libcheck_exe, "CCP4_BIN", "PATH")
-        
-        if (not libcheck_exe_file):
-            print " BL WARNING:: libcheck not found!"
-        else:
-            status = popen_command(libcheck_exe_file, [], libcheck_data_lines,
-                                   log_file_name, True)
-            # the output of libcheck goes to libcheck.lib, we want it in
-            # (i.e. overwrite the minimal description in cif_file_name
-            if isNumber(status):
-                if (status == 0):
-                    if (os.path.isfile("libcheck.lib")):
-                        # copy rather than rename file to avoid accession issues
-                        shutil.copy("libcheck.lib", cif_file_name)
-                        sc = rotation_centre()
-                        imol = handle_read_draw_molecule_with_recentre(pdb_file_name, 0)
-                        if (is_valid_model_molecule(imol)):
-                            mc = molecule_centre(imol)
-                            sc_mc = [sc[i]-mc[i] for i in range(len(mc))]
-                            translate_molecule_by(imol, *sc_mc)
-                        read_cif_dictionary(cif_file_name)
-            else:
-                print "OOPs.. libcheck returned exit status", status
-
-    def use_pyrogen(three_letter_code):
-        
-        global use_mogul
-        
-        # OK let's run pyrogen
-        log_file_name = "pyrogen.log"
-
-        # Embed a test for mogul
-        #
-        if use_mogul:
-            args = ["--residue-type", tlc_text, smiles_text]
-        else:
-            if command_in_path_qm("mogul"):
-                args = ["--residue-type", tlc_text, smiles_text]
-            else:
-                args = ["--no-mogul", "-M", "--residue-type", tlc_text, smiles_text]
-
-        # BL says:: may have to find pyrogen first?!
-        status = popen_command("pyrogen", args, [], log_file_name, True)
-        if (status == 0):
-            pdb_file_name = tlc_text + "-pyrogen.pdb"
-            cif_file_name = tlc_text + "-pyrogen.cif"
-            sc = rotation_centre()
-            imol = handle_read_draw_molecule_with_recentre(pdb_file_name, 0)
-            if (is_valid_model_molecule(imol)):
-                mc = molecule_centre(imol)
-                sc_mc = [sc[i]-mc[i] for i in range(len(mc))]
-                translate_molecule_by(imol, *sc_mc)
-            read_cif_dictionary(cif_file_name)
-
-    if len(smiles_text) > 0:
-        
-        if ((len(tlc_text) > 0) and (len(tlc_text) < 4)):
-            three_letter_code = tlc_text
-        elif (len(tlc_text) > 0):
-            three_letter_code = tlc_text[0:3]
-        else:
-            three_letter_code = "DUM"
-
-        if (not enhanced_ligand_coot_p() or force_libcheck):
-            use_libcheck(three_letter_code)
-        else:
-            use_pyrogen(three_letter_code)
-    else:
-        # invalid smiles length
-        print "BL WARNING:: no smiles text found. Bailing out."
-        return False
-    
-
-# new for ace_drg (not test as BL not running yet), scheme has error...
-# stud is a stub until acedrg is running. Scheme code doesnt make sense
-# this one currently neither.
-def new_molecule_by_smiles_string_by_acedrg(tlc_str, smiles_str):
-
-    smi_file = "acedrg-in.smi"
-    
-    # dump the smiles string to a file
-    smiles_input = file(smi_file,'w')
-    smiles_input.write(smiles_str)
-    smiles_input.close()
-    
-    stub = "acedrg-" + comp_id 
-    pdb_out_file_name = stub + ".pdb"
-    cif_out_file_name = stub + ".cif"
-
-    args = ["-i", smi_file, "-r", tlc_str, "-o", stub]
-    log_file_name = "acedrg-" + tlc_str + ".log"
-    if command_in_path_qm("acedrg"):
-        status = popen_command("acedrg", args, [], log_file_name, True)
-        if (status == 0):
-            handle_read_draw_molecule_and_move_molecule_here(pdb_out_file_name)
-            read_cif_dictionary(cif_out_file_name)
-        else:
-            info_dialog("Bad exit status for Acedrg\n - see acedrg log")
-    
 
 # Generate restraints from the residue at the centre of the screen
 # using PRODRG. Delete hydrogens from the residue because PRODRG has
@@ -4026,6 +3913,7 @@ if not use_gui_qm:
 
                     MyThread().start()
 
+enhanced_ligand_coot_qm = enhanced_ligand_coot_p
 ####### Back to Paul's scripting.
 ####### This needs to follow find_exe
 

@@ -1290,6 +1290,24 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 
     def test29_1(self):
+        """Skeletonize a map"""
+
+        imol = read_pdb(rnase_pdb())
+        imol_map = make_and_draw_map(rnase_mtz(), "FWT", "PHWT", "", 0, 0)
+        # should check that both are ok.
+        self.failUnless(valid_model_molecule_qm(imol),"failed to get imol")
+        self.failUnless(valid_map_molecule_qm(imol_map), "failed to get imap")
+
+        skeletonize_map(1, imol_map)
+        skeletonize_map(0, imol_map)
+        skeletonize_map(-1, -1)
+        skeletonize_map(0, 0)
+        close_molecule(imol)
+        close_molecule(imol_map)
+        # yeah, no crash
+        
+
+    def test29_2(self):
         """Simple Averaged maps"""
 
         imol_map_1 = make_and_draw_map(rnase_mtz(), "FWT", "PHWT", "", 0, 0)
