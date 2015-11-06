@@ -48,8 +48,8 @@ namespace coot {
       void trace_graph();
       std::map<unsigned int, std::vector<unsigned int> > tr; // which atoms are connected to which other atoms
                                                              // backwards and forwards
-      
-      std::vector<unsigned int>
+
+      void
       next_vertex(const std::vector<unsigned int> &path,
 		  unsigned int depth, unsigned int this_vertex);
 
@@ -75,6 +75,37 @@ namespace coot {
       // testing
       void test_model(mmdb::Manager *mol);
 
+   };
+
+   class trace_path_eraser {
+   public:
+      std::vector<unsigned int> lp;
+      unsigned int crit_for_match;
+      trace_path_eraser(const std::vector<unsigned int> &long_path,
+			unsigned int crit_for_match_in) {
+	 lp = long_path;
+	 crit_for_match = crit_for_match_in;
+      }
+      bool operator() (const std::vector<unsigned int> &interesting_path) const {
+	 bool r = false;
+	 unsigned int n_match = 0;
+	 for (unsigned int i=0; i<interesting_path.size(); i++) {
+	    for (unsigned int j=0; j<lp.size(); j++) { 
+	       if (lp[j] == interesting_path[i]) {
+		  n_match++;
+	       }
+	    }
+	    if (n_match > crit_for_match) {
+	       r = true;
+	       break;
+	    }
+	    if (n_match >= (interesting_path.size() -1)) {
+	       r = true;
+	       break;
+	    }
+	 }
+	 return r;
+      }
    };
 }
 

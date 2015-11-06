@@ -151,7 +151,7 @@ coot::trace::spin_score_pairs(const std::vector<std::pair<unsigned int, unsigned
 
    // apwd : atom (index) pairs within distance
    
-   double good_enough_score = 0.7;
+   double good_enough_score = 2.1;
 
    std::vector<unsigned int>::const_iterator it; 
    
@@ -173,8 +173,9 @@ coot::trace::spin_score_pairs(const std::vector<std::pair<unsigned int, unsigned
       if (sas[at_idx_2]->name == " CA ") ca_2_flag = true;
 
       if (ca_1_flag && ca_2_flag) {
-	 std::cout << "  occs " << sas[at_idx_2]->occupancy
-		   << "       " << sas[at_idx_1]->occupancy << std::endl;
+	 if (0) 
+	    std::cout << "  occs " << sas[at_idx_2]->occupancy
+		      << "       " << sas[at_idx_1]->occupancy << std::endl;
 	 float occ_delta = sas[at_idx_1]->occupancy - sas[at_idx_2]->occupancy;
 	 if (fabsf(occ_delta) < 1.1) {
 	    if (occ_delta < 0)
@@ -182,10 +183,24 @@ coot::trace::spin_score_pairs(const std::vector<std::pair<unsigned int, unsigned
 	 } 
       } 
 
-      std::cout << "spin-scores "
-		<< apwd[i].first << " " << apwd[i].second << " "
-		<< ca_1_flag << " " << ca_2_flag << " " << consecutive_flag << " "
-		<< d_f << " " << d_b << std::endl;
+      if (0) { 
+	 std::cout << "spin-scores "
+		   << at_idx_1 << " " << at_idx_2 << " "
+		   << ca_1_flag << " " << ca_2_flag << " " << consecutive_flag << " "
+		   << d_f << " " << d_b << std::endl;
+      } else {
+	 const std::string &at_name_1 = sas[at_idx_1]->name;
+	 const std::string &at_name_2 = sas[at_idx_2]->name;
+	 int res_no_1 = nearbyint(sas[at_idx_1]->occupancy);
+	 int res_no_2 = nearbyint(sas[at_idx_2]->occupancy);
+
+	 if (0) 
+	    std::cout << "spin-scores "
+		      << at_idx_1 << " " << at_name_1 << " " << res_no_1 << " "
+		      << at_idx_2 << " " << at_name_2 << " " << res_no_2 << " "
+		      << ca_1_flag << " " << ca_2_flag << " " << consecutive_flag << " "
+		      << d_f << " " << d_b << std::endl;
+      } 
 
       
       if ((d_f > good_enough_score) || (d_b > good_enough_score)) {
@@ -209,12 +224,15 @@ coot::trace::spin_score_pairs(const std::vector<std::pair<unsigned int, unsigned
 
    std::map<unsigned int, std::vector<unsigned int> >::const_iterator itm;
    for (itm=tr.begin(); itm!=tr.end(); itm++) {
+      int res_no = nearbyint(sas[itm->first]->occupancy);
       std::cout << "map " << itm->first <<  "  ["
 		<< std::setw(2) << itm->second.size() << "] ";
-      std::cout << sas[itm->first]->name << " ";
+      std::cout << sas[itm->first]->name << " " << res_no << " ";
       std::cout << sas[itm->first]->pos.format() << "  ";
-      for (unsigned int jj=0; jj<itm->second.size(); jj++) { 
-	 std::cout << "  " << itm->second[jj];
+      for (unsigned int jj=0; jj<itm->second.size(); jj++) {
+	 int res_no_n = nearbyint(sas[itm->second[jj]]->occupancy);
+	 std::cout << "  " << itm->second[jj] << " ";
+	 std::cout << sas[itm->second[jj]]->name << " " <<res_no_n << " ";
       }
       std::cout << std::endl;
    }
@@ -226,20 +244,20 @@ coot::trace::trace_graph() {
 
    std::map<unsigned int, std::vector<unsigned int> >::const_iterator it;
 
-   std::cout << "in trace_graph tr is of size " << tr.size() << std::endl;
+   std::cout << "in ---- trace_graph() --- tr is of size "
+	     << tr.size() << std::endl;
 
    for(it=tr.begin(); it!=tr.end(); it++) {
 
       std::vector<unsigned int> path;
       unsigned int iv=it->first;
-      path = next_vertex(path, 0, iv);
 
-      // print the path
-      std::cout << iv << " path size " << path.size() << " ";
-      for (unsigned int ii=0; ii<path.size(); ii++) { 
-	 std::cout << path[ii] << "  ";
+      // check here if iv is a leaf
+
+      if (it->second.size() == 1) { 
+	 // std::cout << "---- trace start with node " << iv << std::endl;
+	 next_vertex(path, 0, iv);
       }
-      std::cout << std::endl;
    }
 }
 
@@ -308,9 +326,11 @@ coot::trace::spin_score(unsigned int idx_1, unsigned int idx_2) const {
 
    // unsigned int idx_test_1 = 1228;
    // unsigned int idx_test_2 = 1238;
+   // unsigned int idx_test_1 = 101;
+   // unsigned int idx_test_2 = 109;
    
-   unsigned int idx_test_1 = 101;
-   unsigned int idx_test_2 = 109;
+   unsigned int idx_test_1 = 0; // stop output
+   unsigned int idx_test_2 = 0;
    
    for (int i=0; i< int(n_steps); i++) { 
       double alpha = 2 * M_PI * double(i)/double(n_steps);
@@ -395,19 +415,18 @@ coot::trace::print_interesting_trees() const {
 
 
    minimol::molecule m;
-   minimol::fragment f("A");
    int offset = 0;
    for (unsigned int itree=0; itree<interesting_trees.size(); itree++) {
+      minimol::fragment f(util::int_to_string(itree));
       for (unsigned int j=0; j<interesting_trees[itree].size(); j++) {
 	 minimol::residue r(j + offset, "HOH");
-	 minimol::atom at(" O  ", "O", sas[interesting_trees[itree][j]]->pos, "", 10);
-	 std::cout << "added atom " << at << std::endl;
+	 minimol::atom at(" CA ", "C", sas[interesting_trees[itree][j]]->pos, "", 10);
 	 r.addatom(at);
 	 f.addresidue(r, false);
       }
       offset += interesting_trees[itree].size();
+      m.fragments.push_back(f);
    }
-   m.fragments.push_back(f);
    std::cout << "writing interesting.pdb " << std::endl;
    m.write_file("interesting.pdb", 20);
    
@@ -440,3 +459,96 @@ coot::trace::test_model(mmdb::Manager *mol) {
    print_interesting_trees();
 
 } 
+
+
+
+void
+coot::trace::print_tree(const std::vector<unsigned int> &path) const {
+
+   std::cout << "path: ";
+   for (unsigned int i=0; i<path.size(); i++) {
+      int res_no = nearbyint(sas[path[i]]->occupancy);
+      std::cout << "  " << path[i] << " (" << sas[path[i]]->name << " " << res_no << ")";
+   }
+   std::cout << std::endl;
+
+   if (false) 
+      for (unsigned int i=0; i<path.size(); i++) {
+	 const clipper::Coord_orth &pt = sas[path[i]]->pos;
+	 std::cout << "long path " << i
+		   << " " << pt.x()
+		   << " " << pt.y()
+		   << " " << pt.z()
+		   << std::endl;
+   }
+}
+
+
+
+double
+coot::trace::path_candidate_angle(const std::vector<unsigned int> &path,
+				  unsigned int candidate_vertex) const {
+
+   unsigned int l = path.size();
+   const clipper::Coord_orth &pt_1 = sas[candidate_vertex]->pos;
+   const clipper::Coord_orth &pt_2 = sas[path[l-1]]->pos;
+   const clipper::Coord_orth &pt_3 = sas[path[l-2]]->pos;
+   double angle = clipper::Coord_orth::angle(pt_1, pt_2, pt_3);
+
+   return angle;
+} 
+
+void
+coot::trace::add_tree_maybe(const std::vector<unsigned int> &path) {
+
+
+   // add this path if there is not already a path that is longer that
+   // contains at least 4 of the same path points.
+
+   bool add_this = true;
+   unsigned int n_match_crit = 4;
+   unsigned int n_match_for_replace = 6; // at least this number of matches to replace an existing tree
+
+   for (unsigned int itree=0; itree<interesting_trees.size(); itree++) {
+      unsigned int n_match = 0;
+
+      // do I already have something that's longer than path and
+      // similar to path already in interesting_trees? (if so, set
+      // add_this to false).
+      
+      if (path.size() < interesting_trees[itree].size()) {
+	 for (unsigned int i=0; i<interesting_trees[itree].size(); i++) {
+	    for (unsigned int j=0; j<path.size(); j++) {
+	       if (path[j] == interesting_trees[itree][i]) {
+		  n_match ++;
+	       }
+	    }
+
+	    if (n_match > n_match_crit) {
+	       add_this = false;
+	       break;
+	    }
+	 }
+      }
+
+      
+   }
+
+   if (0) { 
+      std::cout << "add status " << add_this << " for tree of length " << path.size()
+		<< " because " << interesting_trees.size() << " trees of lengths ";
+      for (unsigned int ii=0; ii<interesting_trees.size(); ii++) { 
+	 std::cout << "  " << interesting_trees[ii].size();
+      }
+      std::cout << std::endl;
+   }
+
+   if (add_this) {
+      interesting_trees.erase(std::remove_if(interesting_trees.begin(),
+					     interesting_trees.end(),
+					     trace_path_eraser(path, n_match_for_replace)),
+			      interesting_trees.end());
+      interesting_trees.push_back(path);
+   } 
+}
+
