@@ -35,28 +35,45 @@ namespace coot {
       atoms_pairs_within_distance(const minimol::molecule &flood_mol,
 				  double trans_dist,
 				  double trans_dist_variation);
+      std::vector<std::pair<unsigned int, unsigned int> >
+      atoms_pairs_within_distance(mmdb::Manager *mol,
+				  double trans_dist,
+				  double trans_dist_variation);
       
       // fill the tr map with scores
       void spin_score_pairs(const std::vector<std::pair<unsigned int, unsigned int> > &apwd);
       double spin_score(unsigned int idx_1, unsigned int idx_2) const;
+      minimol::molecule mol_for_sas;
       std::vector<minimol::atom *> sas;
       void trace_graph();
       std::map<unsigned int, std::vector<unsigned int> > tr; // which atoms are connected to which other atoms
                                                              // backwards and forwards
       
       std::vector<unsigned int>
-      next_vertex(unsigned int start_vertex, const std::vector<unsigned int> &path,
+      next_vertex(const std::vector<unsigned int> &path,
 		  unsigned int depth, unsigned int this_vertex);
 
       std::vector<unsigned int> get_neighbours_of_vertex_excluding_path(unsigned int this_vertex,
 									const std::vector<unsigned int> &path);
       void print_tree(const std::vector<unsigned int> &path) const;
 
+      // accumlate interesting trees here
+      std::vector<std::vector<unsigned int> > interesting_trees;
+      // 
+      void add_tree_maybe(const std::vector<unsigned int> &path);
+      double path_candidate_angle(const std::vector<unsigned int> &path,
+				  unsigned int candidate_vertex) const;
+      void print_interesting_trees() const;
+      
+
 
    public:
       trace(const clipper::Xmap<float> &xmap_in);
       void set_atom_mask_radius(float r) { flood_atom_mask_radius = r; }
       void action();
+
+      // testing
+      void test_model(mmdb::Manager *mol);
 
    };
 }

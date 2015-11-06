@@ -200,8 +200,8 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
 		     }
 		  }
 	       }	 
-	       catch (clipper::Message_base exc) { 
-		  std::cout << "Caught something" << std::endl;
+	       catch (const clipper::Message_base &exc) { 
+		  std::cout << "WARNING:: Caught something in sharpen()" << std::endl;
 	       } 
 	    }
 	    fphis[hri].f() *= exp(-b_factor * irs * 0.25) * gompertz_scale; // 0.25 factor noted
@@ -1181,7 +1181,7 @@ molecule_class_info_t::make_patterson(std::string mtz_file_name,
 	 ret_val = 1;
       }
 
-      catch (clipper::Message_base rte) {
+      catch (const clipper::Message_base &rte) {
 	 std::cout << "WARNING:: bad read of HKL file " << mtz_file_name << std::endl;
       }
    }
@@ -1296,7 +1296,7 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
       std::cout << "INFO:: " << float(T5-T0)/1000.0 << " seconds in total\n";
       return 1;
    }
-   catch (clipper::Message_base rte) {
+   catch (const clipper::Message_base &rte) {
       std::cout << "WARNING:: bad read of CNS HKL file " << cns_file_name << std::endl;
       return 0;
    }
@@ -1719,7 +1719,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
      try {
        file.import_xmap( xmap );
      }
-     catch (clipper::Message_base exc) {
+     catch (const clipper::Message_base &exc) {
        std::cout << "WARNING:: failed to read " << filename << std::endl;
        bad_read = true;
      }
@@ -1862,7 +1862,7 @@ molecule_class_info_t::make_map_from_phs(std::string pdb_filename,
 	 std::pair<clipper::Cell,clipper::Spacegroup> xtal =
 	    coot::util::get_cell_symm( SelAtom.mol );
 	 iret = make_map_from_phs(xtal.second, xtal.first, phs_filename);
-      } catch ( std::runtime_error except ) {
+      } catch (const std::runtime_error &except) {
 	 cout << "!! get_cell_symm() fails in make_map_from_phs"
 	      << endl;
       }
@@ -2486,7 +2486,7 @@ molecule_class_info_t::make_map_from_cif_sigmaa(int imol_no_in,
 	 }
       }
    }
-   catch (clipper::Message_base rte) {
+   catch (const clipper::Message_base &rte) {
       std::cout << "WARNING:: Problem reading " << cif_file_name << std::endl;
    }
    return -1; 
