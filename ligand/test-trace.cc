@@ -24,12 +24,10 @@ int main(int argc, char **argv) {
 
 	 coot::trace t(xmap);
 
-	 // t.action();
 
 	 // test from a pdb file
-      
-	 std::string test_pdb_file_name = "tutorial-modern.pdb";
-
+	 std::string test_pdb_file_name = "test-trace-template.pdbxx";
+	 // test with a null moll or flood mol
 	 if (coot::file_exists(test_pdb_file_name)) {
 
 	    mmdb::Manager *mol = new mmdb::Manager;
@@ -37,7 +35,11 @@ int main(int argc, char **argv) {
 	    if (! err) {
 	       std::cout << "running with test mol: " << std::endl;
 	       t.test_model(mol);
-	    } 
+	    }
+	 } else {
+
+	    t.action();
+
 	 } 
       }
       

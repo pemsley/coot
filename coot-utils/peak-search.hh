@@ -40,6 +40,10 @@ namespace coot {
       void peak_search_0_negative(const clipper::Xmap<float> &xmap,
 				  clipper::Xmap<short int> *marked_map_p,
 				  float n_sigma);
+      // like above but more simple - no clustering.
+      void peak_search_for_flooding(const clipper::Xmap<float> &xmap,
+				    clipper::Xmap<short int> *marked_map_p,
+				    float n_sigma) const;
       // As above, but give us all the peaks, not just the negative
       // ones.  e.g. if mean is 10 and min is 5, then we want to see
       // such minima.
@@ -83,8 +87,8 @@ namespace coot {
 				      const std::pair<clipper::Coord_grid, float> &b);
 
       std::vector<std::pair<clipper::Coord_orth, float> >
-      filter_peaks_by_closeness(const std::vector<std::pair<clipper::Coord_orth, float> > &v,
-				float d) const;
+      filter_peaks_by_closeness(const std::vector<std::pair<clipper::Coord_orth, float> > &v) const;
+
       float max_closeness; // don't allow "smaller" peaks that are
                            // within max_closeness of a larger one.
 
@@ -103,6 +107,9 @@ namespace coot {
       std::vector<clipper::Coord_orth>
       get_peaks(const clipper::Xmap<float> &xmap,
 		float n_sigma);
+      std::vector<clipper::Coord_orth>
+      get_peaks_for_flooding(const clipper::Xmap<float> &xmap,
+			     float n_sigma);
       std::vector<std::pair<clipper::Xmap<float>::Map_reference_index, float> >
       get_peak_map_indices(const clipper::Xmap<float> &xmap,
 			   float n_sigma) const;

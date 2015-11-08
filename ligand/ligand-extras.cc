@@ -587,6 +587,8 @@ coot::ligand::flood() {
    keep_blobs = blobs;
 }
 
+// debugging 
+#include "clipper/ccp4/ccp4_map_io.h"
 
 // find peaks that are in density greater than n_sigma
 void
@@ -596,6 +598,14 @@ coot::ligand::flood2(float n_sigma) {
 
    int n_rounds = 50/map_atom_mask_radius; // 1.4 default.
 
+   if (false) { // debugging hack
+      n_rounds = 1;
+      clipper::CCP4MAPfile mapout;
+      mapout.open_write("flood2-masked.map");
+      mapout.export_xmap(xmap_masked);
+      mapout.close_write(); 
+   }
+
    std::vector<clipper::Coord_orth> water_list;
 
    mean_and_variance<float> mv_start = map_density_distribution(xmap_masked, 40, 0);
@@ -604,16 +614,21 @@ coot::ligand::flood2(float n_sigma) {
    for (int iround=0; iround<n_rounds; iround++) {
 
       mean_and_variance<float> mv_this = map_density_distribution(xmap_masked, 40, 0);
-
       float n_sigma_crit = n_sigma * sqrt(mv_start.variance/mv_this.variance);
+
+      if (debug)
+	 std::cout << "flood2() iround = " << iround << " n_sigma_crit "
+		   << n_sigma_crit << std::endl;
+
       coot::peak_search ps(xmap_masked);
-      std::vector<clipper::Coord_orth> peaks = ps.get_peaks(xmap_masked, n_sigma_crit);
+      ps.set_max_closeness(0);
+      std::vector<clipper::Coord_orth> peaks = ps.get_peaks_for_flooding(xmap_masked, n_sigma_crit);
       
       if (debug) {
 	 for (unsigned int ipeak=0; ipeak<peaks.size(); ipeak++) {
 	    float d = density_at_point(peaks[ipeak], xmap_masked);
-	    std::cout << "peak " << ipeak << " " << peaks[ipeak].format() << " " 
-		      << d << std::endl;
+	    std::cout << "iround = " << iround << " peak " << ipeak << " "
+		      << peaks[ipeak].format() << " " << d << std::endl;
 	 }
       }
       
@@ -636,8 +651,14 @@ coot::ligand::flood2(float n_sigma) {
    // move these waters to around protein:
    // 
    std::vector <clipper::Coord_orth> sampled_protein_coords = make_sample_protein_coords();
-   std::vector<clipper::Coord_orth> moved_waters =
-      move_waters_close_to_protein(water_list, sampled_protein_coords);
+   std::cout << "DEBUG:: in flood2() sampled_protein_coords() size is "
+	     << sampled_protein_coords.size() << std::endl;
+
+   std::vector<clipper::Coord_orth> moved_waters;   
+   if (sampled_protein_coords.size())
+      moved_waters = move_waters_close_to_protein(water_list, sampled_protein_coords);
+   else 
+      moved_waters = water_list; // unomved waters
    
    std::cout << "INFO:: added " << n_added_waters << " waters to molecule\n";
    std::string ch = protein_atoms.unused_chain_id("W");

@@ -45,6 +45,8 @@
 
    o Flev this: BLD in 4lsa
 
+   o is sphericity test being applied for find waters? 
+
    o add a test for molecule(const std::vector<clipper::Coord_orth> &atom_list,
 		             const std::string &residue_type, std::string atom_name,
 		             std::string chain_id) - are the residue numbers correct?
