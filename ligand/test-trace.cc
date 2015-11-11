@@ -26,14 +26,18 @@ int main(int argc, char **argv) {
 
 
 	 // test from a pdb file
-	 std::string test_pdb_file_name = "test-trace-template.pdbxx";
+	 std::string test_pdb_file_name = "test-trace-template.pdb";
 	 // test with a null moll or flood mol
 	 if (coot::file_exists(test_pdb_file_name)) {
 
 	    mmdb::Manager *mol = new mmdb::Manager;
 	    mmdb::ERROR_CODE err = mol->ReadCoorFile(test_pdb_file_name.c_str());
 	    if (! err) {
+	       std::cout << "----------------------------------------------------\n";
+	       std::cout << "----------------------------------------------------\n";
 	       std::cout << "running with test mol: " << std::endl;
+	       std::cout << "----------------------------------------------------\n";
+	       std::cout << "----------------------------------------------------\n";
 	       t.test_model(mol);
 	    }
 	 } else {

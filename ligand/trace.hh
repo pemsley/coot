@@ -54,8 +54,8 @@ namespace coot {
 				 double trans_dist,
 				 double trans_dist_variation);
       
-      // fill the tr map with scores
-      void spin_score_pairs(const std::vector<std::pair<unsigned int, unsigned int> > &apwd);
+      std::vector<std::pair<unsigned int, coot::scored_node_t> > 
+      spin_score_pairs(const std::vector<std::pair<unsigned int, unsigned int> > &apwd);
       
       std::pair<unsigned int, scored_node_t>
 	 spin_score(unsigned int idx_1, unsigned int idx_2) const;
@@ -83,8 +83,26 @@ namespace coot {
       } 
       
       void trace_graph();
-      std::map<unsigned int, std::vector<scored_node_t> > tr; // which atoms are connected to which other atoms
-                                                              // backwards and forwards
+      
+      // which atoms are connected to which other atoms
+      // backwards and forwards
+      std::map<unsigned int, std::vector<scored_node_t> > connection_map;
+
+      // fill the connection_map map with scores
+      void make_connection_map(const std::vector<std::pair<unsigned int, scored_node_t> > &scores);
+
+      // 2 residues, one of which has two atom (CA, N)
+      // 
+      minimol::fragment make_fragment(std::pair<unsigned int, scored_node_t> scored_node,
+				      const std::vector<scored_node_t> &path,
+				      std::string chain_id);
+
+      void output_spin_score(const std::pair<unsigned int, scored_node_t> &score,
+			     unsigned int atom_idx_1,
+			     unsigned int atom_idx_2) const;
+      
+      std::string frag_idx_to_chain_id(unsigned int idx) const;
+
 
       void
       next_vertex(const std::vector<scored_node_t> &path,
@@ -108,7 +126,12 @@ namespace coot {
 	 return (v1.size() > v2.size());
       }
 
-      bool add_atom_names_in_map_output;; 
+      bool add_atom_names_in_map_output;
+
+      bool nice_fit(const minimol::residue &r1, const minimol::residue &r2) const;
+
+      double get_fit_score(const minimol::residue &r1, const minimol::residue &r2) const;
+
 
    public:
       trace(const clipper::Xmap<float> &xmap_in);

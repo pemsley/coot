@@ -1,6 +1,10 @@
  
  0.8.3
 
+   o coot-download is created on starting coot.  It shold not be.  Marcin W.
+
+   o write a store.py wrapper that transfers files to pc:~/store
+
    o pyrogen -r "" CCC does nothing and should return a non-zero exit status.
 
    o CA Zone -> Mainchain will change the sequence to ALA - this is wrong
@@ -24,6 +28,9 @@
      should be sp2 hybridized, but was not (N+) - and rdkit failed.
 
    o import an elbow dictionary cif as an "MTZ, cif. phs" file. Crash.
+
+   o is there anything going wrong with the minimisation of 
+     can-you-minimise-this-qm-ext-frag-3-123.pdb?
 
    o Can you fit the ligand in 3fw1 (gleevec)?
 
