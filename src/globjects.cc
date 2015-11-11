@@ -1646,7 +1646,11 @@ init_gl_widget(GtkWidget *widget) {
    
    if (g.do_anti_aliasing_flag)
       glEnable(GL_LINE_SMOOTH);
-   
+
+   // Mac play
+   // glEnable(GL_LINE_SMOOTH);
+   // glEnable(GL_BLEND);
+   // glBlendFunc(GL_SRC_ALPHA, GL_ZERO);
    
    // Solid model lighting
    //
