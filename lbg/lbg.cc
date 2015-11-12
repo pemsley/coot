@@ -980,7 +980,7 @@ lbg_info_t::handle_key_press_button_toggle(int keyval, bool ctrl_is_pressed) {
       break;
 		  
    default:
-      std::cout << "nothing we know" << std::endl;
+      std::cout << "lbg::handle_key_press_button_toggle():: nothing we know" << std::endl;
    }
 } 
 
@@ -3297,7 +3297,8 @@ lbg_info_t::write_pdf(const std::string &file_name) const {
 
    if (key_group) {
       pos_y += 240;
-      pos_x += 50;
+      // pos_x += 50;
+      pos_x += 150;
    } 
    surface = cairo_pdf_surface_create(file_name.c_str(), pos_x, pos_y);
    cr = cairo_create (surface);
