@@ -640,13 +640,13 @@ coot::minimol::fragment::operator[](int i) {
       std::cout << "   at start of operator[] residues.size() " << residues.size()
 		<< " and offset: " << residues_offset << " and i: " << i << std::endl;
 
-   int itmp = residues.size() + residues_offset;
    // This fails:
    // if ((i > residues_offset) && (i < (residues.size() + residues_offset))) {
    // This works: 
    // if ((i > residues_offset) && (i < itmp)) {
    // Why?  Ghod knows!
    
+   int itmp = residues.size() + residues_offset;
    if ((i > residues_offset) && (i < itmp)) {
       return residues[i-residues_offset];
    } else {
@@ -661,10 +661,11 @@ coot::minimol::fragment::operator[](int i) {
 	 // 	 check();
 
 	 if (false) { 
-	     	 std::cout << "DEBUG:: residues.size() is " << residues.size()
-			   << " and offset_diff is " << offset_diff
-			   << " new_offset " << new_offset << " residues_offset " << residues_offset
-			   << " and passed i " << i << std::endl;
+	    std::cout << "DEBUG:: on N-terminal residue addtion residues.size() is "
+		      << residues.size()
+		      << " and offset_diff is " << offset_diff
+		      << " new_offset " << new_offset << " residues_offset " << residues_offset
+		      << " and passed i " << i << std::endl;
 	 }
 	 
 	 std::vector<residue> new_residues(residues.size() - offset_diff);
@@ -1099,7 +1100,8 @@ std::ostream&
 coot::minimol::operator<<(std::ostream& s, coot::minimol::fragment frag) {
 
    s << frag.fragment_id << " contains " << frag.residues.size()
-     << " residues";
+     << " residues" << " from " << frag.min_res_no() << " to "
+     << frag.max_residue_number();
    return s;
 }
 

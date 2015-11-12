@@ -75,7 +75,7 @@ coot::trace::get_neighbours_of_vertex_excluding_path(unsigned int this_vertex,
 						     const std::vector<scored_node_t> &path) {
 
    std::vector<scored_node_t> v;
-   std::vector<scored_node_t> all_neighbs = connection_map[this_vertex];
+   const std::vector<scored_node_t> &all_neighbs = connection_map[this_vertex];
 
    for (unsigned int ii=0; ii<all_neighbs.size(); ii++) {
       bool add = true;
@@ -85,8 +85,11 @@ coot::trace::get_neighbours_of_vertex_excluding_path(unsigned int this_vertex,
 	    break;
 	 }
       }
-      if (all_neighbs[ii].atom_idx == this_vertex)
+      if (all_neighbs[ii].atom_idx == this_vertex) {
+	 std::cout << "------------------ get_neighbours_of_vertex_excluding_path() "
+		   << "this can't happen" << std::endl;
 	 add = false;
+      }
       if (add)
 	 v.push_back(all_neighbs[ii]);
    }

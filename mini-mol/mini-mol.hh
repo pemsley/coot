@@ -121,6 +121,10 @@ namespace coot {
 	    residues_offset = 0;
 	    residues.resize(1, residue(1));
 	 }
+	 fragment(const std::string &frag_id_in, bool f) {
+	    fragment_id = frag_id_in;
+	    residues_offset = 0;
+	 } 
 	 std::string fragment_id;
 	 std::vector<residue> residues;
 	 friend std::ostream&  operator<<(std::ostream&, fragment);

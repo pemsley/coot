@@ -26,7 +26,11 @@ namespace coot {
 	 spin_score = score_in;
 	 alpha = angle_in;
       }
-      scored_node_t() {}
+      scored_node_t() {
+	 atom_idx = 999999;
+	 spin_score = -9999;
+	 alpha = -1;
+      }
       bool operator==(const scored_node_t &other) const
       { return (other.atom_idx == atom_idx); }
       static bool sort_scores(const scored_node_t &s1, const scored_node_t &s2) {
@@ -132,7 +136,10 @@ namespace coot {
 
       double get_fit_score(const minimol::residue &r1, const minimol::residue &r2) const;
 
+      minimol::fragment merge_fragments(const coot::minimol::fragment &f1,
+					const coot::minimol::fragment &f2) const;
 
+   
    public:
       trace(const clipper::Xmap<float> &xmap_in);
       void set_atom_mask_radius(float r) { flood_atom_mask_radius = r; }
