@@ -1,6 +1,8 @@
  
  0.8.3
 
+   o are the oxygens on a nitro O and O-? (eg ligand in 4CCC).
+
    o coot-download is created on starting coot.  It shold not be.  Marcin W.
 
    o write a store.py wrapper that transfers files to pc:~/store

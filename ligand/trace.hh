@@ -16,20 +16,33 @@ namespace coot {
    
    // This is a node in the map, i.e. there is a vector of these for each atom_index
    // 
+   // For reverse nodes, the atom_idx and the connecting node idx are swapped, so
+   // that on construction of a peptide, this will need to be taken into account.
+   // 
    class scored_node_t {
    public:
       unsigned int atom_idx;
       double spin_score;
       double alpha; // angle at which spin_score is recorded
+      bool reversed_flag;
       scored_node_t(unsigned int idx_in, double score_in, double angle_in) {
 	 atom_idx = idx_in;
 	 spin_score = score_in;
 	 alpha = angle_in;
+	 reversed_flag = false;
+      }
+      scored_node_t(unsigned int idx_in, double score_in, double angle_in,
+		    bool reversed_flag_in) {
+	 atom_idx = idx_in;
+	 spin_score = score_in;
+	 alpha = angle_in;
+	 reversed_flag = reversed_flag_in;
       }
       scored_node_t() {
 	 atom_idx = 999999;
 	 spin_score = -9999;
 	 alpha = -1;
+	 reversed_flag = false;
       }
       bool operator==(const scored_node_t &other) const
       { return (other.atom_idx == atom_idx); }
@@ -39,7 +52,9 @@ namespace coot {
       static bool sort_pair_scores(const std::pair<unsigned int, scored_node_t> &s1, const std::pair<unsigned int, scored_node_t> &s2) {
 	 return (s2.second.spin_score < s1.second.spin_score);
       }
+      friend std::ostream& operator<<(std::ostream& s, scored_node_t sn);
    };
+   std::ostream& operator<<(std::ostream &s, scored_node_t sn);
 
    class indexed_frag_t {
    public:
@@ -119,6 +134,7 @@ namespace coot {
       // 2 residues, one of which has two atom (CA, N)
       // (can't be const because it uses the map connection_map)
       minimol::fragment make_fragment(std::pair<unsigned int, scored_node_t> scored_node,
+				      int res_no_base,
 				      std::string chain_id);
 
       void output_spin_score(const std::pair<unsigned int, scored_node_t> &score,
@@ -166,10 +182,12 @@ namespace coot {
       // find a good next node.
       // 
       std::pair<bool, coot::scored_node_t>
-	 build_2_choose_1(unsigned int atom_idx, const std::vector<scored_node_t> &start_path,
-			  const std::string &chain_id);
+      build_2_choose_1(unsigned int atom_idx, const std::vector<scored_node_t> &start_path,
+		       int resno_base,
+		       const std::string &chain_id);
 
       void follow_fragment (unsigned int atom_idx, const std::vector<scored_node_t> &start_path,
+			    int res_no_base,
 			    const std::string &chain_id);
 
    

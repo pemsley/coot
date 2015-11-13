@@ -27,6 +27,15 @@ coot::trace::trace(const clipper::Xmap<float>& xmap_in) {
 
 }
 
+std::ostream&
+coot::operator<<(std::ostream &s, scored_node_t sn) {
+
+   s << "[" << sn.atom_idx << " " << sn.spin_score << " "
+     << sn.alpha << " " << sn.reversed_flag << "]";
+   return s;
+} 
+
+
 void
 coot::trace::action() {
 
@@ -208,10 +217,11 @@ coot::trace::spin_score_pairs(const std::vector<std::pair<unsigned int, unsigned
 
    // apwd : atom (index) pairs within distance
 
-   unsigned int n_top = 1500; // top-scoring spin-score pairs for tracing
+   unsigned int n_top = 1000; // top-scoring spin-score pairs for tracing
    
    std::vector<std::pair<unsigned int, scored_node_t> > scores(apwd.size()*2);
-   
+
+#pragma omp parallel for shared(scores)   
    for (unsigned int i=0; i<apwd.size(); i++) {
       const unsigned &at_idx_1 = apwd[i].first;
       const unsigned &at_idx_2 = apwd[i].second;
@@ -307,20 +317,18 @@ coot::trace::output_spin_score(const std::pair<unsigned int, scored_node_t> &sco
 void
 coot::trace::make_connection_map(const std::vector<std::pair<unsigned int, scored_node_t> > &scores) {
    
-   unsigned int n_top = 1500; // top-scoring spin-score pairs for tracing
    double good_enough_score = 0.5; // overwritten
 
    if (scores.size() > 0)
-      good_enough_score = scores[n_top-1].second.spin_score;
-   
-   std::cout << "DEBUG:: set good_enough_score to " << good_enough_score << std::endl;
-   
+      good_enough_score = scores.back().second.spin_score;
+   std::cout << "DEBUG:: set good_enough_score to make connection map: "
+	     << good_enough_score << std::endl;
 
    // add them to the connection map:
    // 
    std::vector<scored_node_t>::const_iterator it;
 
-   for (unsigned int i=0; i<n_top; i++) {
+   for (unsigned int i=0; i<scores.size(); i++) {
       if (scores[i].second.spin_score  > good_enough_score) {
 	 it = std::find(fwd_connection_map[scores[i].first].begin(),
 			fwd_connection_map[scores[i].first].end(),
@@ -330,13 +338,24 @@ coot::trace::make_connection_map(const std::vector<std::pair<unsigned int, score
       }
    }
 
+   // make the reverse connection map from that: "a node was (fwd)
+   // connected by these nodes"
+   //
+   std::map<unsigned int, std::vector<scored_node_t> >::const_iterator itm;
+   for (itm = fwd_connection_map.begin(); itm != fwd_connection_map.end(); itm++) {
+      const std::vector<scored_node_t> &v = itm->second;
+      for (it=v.begin(); it!=v.end(); it++) {
+	 scored_node_t reverse_node(itm->first, it->spin_score, it->alpha, true);
+	 bck_connection_map[it->atom_idx].push_back(reverse_node);
+      }
+   } 
+
 
    // debug::
    // 
-   std::map<unsigned int, std::vector<scored_node_t> >::const_iterator itm;
    for (itm=fwd_connection_map.begin(); itm!=fwd_connection_map.end(); itm++) {
       int res_no = atom_selection[itm->first]->GetSeqNum();
-      std::cout << "map " << itm->first <<  "  ["
+      std::cout << "fwd-map " << itm->first <<  "  ["
 		<< std::setw(2) << itm->second.size() << "] ";
       if (add_atom_names_in_map_output)
 	 std::cout << atom_selection[itm->first]->name << " " << res_no << " ";
@@ -350,10 +369,29 @@ coot::trace::make_connection_map(const std::vector<std::pair<unsigned int, score
       }
       std::cout << std::endl;
    }
+
+   for (itm=bck_connection_map.begin(); itm!=bck_connection_map.end(); itm++) {
+      int res_no = atom_selection[itm->first]->GetSeqNum();
+      std::cout << "bck-map " << itm->first <<  "  ["
+		<< std::setw(2) << itm->second.size() << "] ";
+      if (add_atom_names_in_map_output)
+	 std::cout << atom_selection[itm->first]->name << " " << res_no << " ";
+      std::cout << index_to_pos(itm->first).format() << "  ";
+      for (unsigned int jj=0; jj<itm->second.size(); jj++) {
+	 int res_no_n = atom_selection[itm->second[jj].atom_idx]->GetSeqNum();
+	 std::cout << "  " << itm->second[jj].atom_idx << " ";
+	 if (add_atom_names_in_map_output)
+	    std::cout << atom_selection[itm->second[jj].atom_idx]->name << " "
+		      << res_no_n << " ";
+      }
+      std::cout << std::endl;
+   }
+   
 }
 
 coot::minimol::fragment
 coot::trace::make_fragment(std::pair<unsigned int, coot::scored_node_t> scored_node,
+			   int res_no_base,
 			   std::string chain_id) {
 
    std::cout << "make_fragment() called with  node: " << scored_node.first
@@ -361,6 +399,9 @@ coot::trace::make_fragment(std::pair<unsigned int, coot::scored_node_t> scored_n
    
    clipper::Coord_orth pos_1 = index_to_pos(scored_node.first);
    clipper::Coord_orth pos_2 = index_to_pos(scored_node.second.atom_idx);
+
+   if (scored_node.second.reversed_flag)
+      std::swap(pos_1, pos_2);
 
    // as in spin_score():
    // 
@@ -409,12 +450,8 @@ coot::trace::make_fragment(std::pair<unsigned int, coot::scored_node_t> scored_n
 						       pos_1 + rel_line_pt_C,
 						       pos_1, alpha);
 
-   int resno_1 = scored_node.first;
-   std::cout << "make_fragment()... resno_1 set to " << resno_1
-	     << " from scored_node.first" << std::endl;
-
-   minimol::residue r1(resno_1,   "ALA");
-   minimol::residue r2(resno_1+1, "ALA");
+   minimol::residue r1(res_no_base,   "ALA");
+   minimol::residue r2(res_no_base+1, "ALA");
    minimol::atom at_O   (" O  ", "O", p_O,   "", 10);
    minimol::atom at_C   (" C  ", "C", p_C,   "", 10);
    minimol::atom at_N   (" N  ", "N", p_N,   "", 10);
@@ -429,19 +466,17 @@ coot::trace::make_fragment(std::pair<unsigned int, coot::scored_node_t> scored_n
    r2.addatom(at_CA_2);
 
    minimol::fragment f(chain_id, false); // use non-expanding constructor
-   //nstd::cout << "make_fragment() A: calling addresidue() " << r1 << " with seqnum "
-   // << r1.seqnum << std::endl;
    f.addresidue(r1, false);
-   // std::cout << "make_fragment() B: calling addresidue() " << r2 << " with seqnum "
-   // << r2.seqnum << std::endl;
    f.addresidue(r2, false);
 
-   // is f in a good state now
-   minimol::molecule m_debug(f);
-   std::string  node_string_1 = util::int_to_string(scored_node.first);
-   std::string  node_string_2 = util::int_to_string(scored_node.second.atom_idx);
-   std::string fn_ = "just-a-pair-" + node_string_1 + "-" + node_string_2 + ".pdb";
-   m_debug.write_file(fn_, 10);
+   if (false) { // debug
+      // is f in a good state now?
+      minimol::molecule m_debug(f);
+      std::string  node_string_1 = util::int_to_string(scored_node.first);
+      std::string  node_string_2 = util::int_to_string(scored_node.second.atom_idx);
+      std::string fn_ = "just-a-pair-" + node_string_1 + "-" + node_string_2 + ".pdb";
+      m_debug.write_file(fn_, 10);
+   }
    
    return f;
 }
@@ -470,19 +505,22 @@ coot::minimol::fragment
 coot::trace::merge_fragments(const coot::minimol::fragment &f1,
 			     const coot::minimol::fragment &f2) const {
 
+   bool debug = false;
    minimol::fragment merged;
 
-   std::cout << "---- in merge_fragments() f1: " << f1 << std::endl;
-   std::cout << "---- in merge_fragments() f2: " << f2 << std::endl;
+   if (debug) { 
+      std::cout << "---- in merge_fragments() f1: " << f1 << std::endl;
+      std::cout << "---- in merge_fragments() f2: " << f2 << std::endl;
 
-   for (int ires=f1.min_res_no(); ires<=f1.max_residue_number(); ires++)
-      for (unsigned int iat=0; iat<f1[ires].atoms.size(); iat++)
-	 std::cout << "   mol1: res: " << ires << " atom " << f1[ires].atoms[iat]
-		   << std::endl;
-   for (int ires=f2.min_res_no(); ires<=f2.max_residue_number(); ires++)
-      for (unsigned int iat=0; iat<f2[ires].atoms.size(); iat++)
-	 std::cout << "   mol2: res: " << ires << " atom " << f2[ires].atoms[iat]
-		   << std::endl;
+      for (int ires=f1.min_res_no(); ires<=f1.max_residue_number(); ires++)
+	 for (unsigned int iat=0; iat<f1[ires].atoms.size(); iat++)
+	    std::cout << "   mol1: res: " << ires << " atom " << f1[ires].atoms[iat]
+		      << std::endl;
+      for (int ires=f2.min_res_no(); ires<=f2.max_residue_number(); ires++)
+	 for (unsigned int iat=0; iat<f2[ires].atoms.size(); iat++)
+	    std::cout << "   mol2: res: " << ires << " atom " << f2[ires].atoms[iat]
+		      << std::endl;
+   }
 
    merged = f1;
    for (int ires=f2.min_res_no(); ires<=f2.max_residue_number(); ires++) {
@@ -510,9 +548,11 @@ coot::trace::merge_fragments(const coot::minimol::fragment &f1,
 
 	 if (f2[ires].atoms.size()) { 
 	    // atoms to be added or replace existing atoms
-	    std::cout << "atoms to be added or replace existing atoms for ires "
-		      << ires << " and internal seqnum " << f2[ires].seqnum
-		      << std::endl;
+
+	    if (debug)
+	       std::cout << "atoms to be added or replace existing atoms for ires "
+			 << ires << " and internal seqnum " << f2[ires].seqnum
+			 << std::endl;
 
 	    // OK, residue merges[ires] does exist but it's empty
 
@@ -527,14 +567,16 @@ coot::trace::merge_fragments(const coot::minimol::fragment &f1,
 	       
 		  if (merged[ires][iat].name == f2[ires][jat].name) {
 		     merged[ires][iat] = f2[ires][jat];
-		     std::cout << "replaced atom in ires  " << ires << ": "
-			       << merged[ires][iat] << std::endl;
+		     if (debug)
+			std::cout << "replaced atom in ires  " << ires << ": "
+				  << merged[ires][iat] << std::endl;
 		     found = true;
 		     break;
 		  }
 	       }
 	       if (! found) {
-		  std::cout << "add atom " << f2[ires][jat] << std::endl;
+		  if (debug)
+		     std::cout << "add atom " << f2[ires][jat] << std::endl;
 		  merged[ires].addatom(f2[ires][jat]);
 	       }
 	    }
@@ -799,6 +841,7 @@ coot::trace::print_interesting_trees() const {
    }
 } 
 
+
 void
 coot::trace::test_model(mmdb::Manager *mol) {
 
@@ -809,62 +852,104 @@ coot::trace::test_model(mmdb::Manager *mol) {
       atom_pairs_within_distance(mol, 3.81, 1);
 
    std::vector<std::pair<unsigned int, scored_node_t> > scores = spin_score_pairs(apwd);
-   make_connection_map(scores);
 
-   unsigned int n_top = 200; // top-scoring spin-score pairs for tracing
+   unsigned int n_top = 6000; // top-scoring spin-score pairs for tracing
+   
+   std::sort(scores.begin(), scores.end(), scored_node_t::sort_pair_scores);
    if (scores.size() > n_top) {
-      std::sort(scores.begin(), scores.end(), scored_node_t::sort_pair_scores);
       scores.resize(n_top);
    } else {
       n_top = scores.size();
    }
+   
+   make_connection_map(scores);
+   
 
-   int n_top_fragments = 3;
+   int n_top_fragments = 500;
    // 
+
+#pragma omp parallel for // currently we write out the fragments, not store them
+   
    for (int i=0; i<n_top_fragments; i++) {
+
+      // int tid = omp_get_thread_num();
+      // std::cout << "OMP::: " << tid << std::endl;
+
       std::vector<scored_node_t> start_path;
       scored_node_t dummy_first;
       dummy_first.atom_idx = scores[i].first;
       start_path.push_back(dummy_first);
-      start_path.push_back(scores[i].second);
       
       std::string chain_id = frag_idx_to_chain_id(i);
       std::cout << "----------- test_model() starting point number  " << i
 		<< " chain_id " << chain_id << std::endl;
-      minimol::fragment f = make_fragment(scores[i], chain_id);
 
-      if (nice_fit(f)) {
-	 follow_fragment(scores[i].second.atom_idx, start_path, chain_id);
-      }
+      int res_no_base = scores[i].first;
+
+      res_no_base = i;
+
+      // actually, we *have* the first spin pair but it gets thrown
+      // away and "rediscovered" when build_2_choose_1() does just
+      // that (and hopefully picks the idx scores[i].second.atom_ids).
+      // 
+      
+      follow_fragment(scores[i].first, start_path, res_no_base, chain_id);
    }
 }
 
 void
 coot::trace::follow_fragment(unsigned int atom_idx, const std::vector<scored_node_t> &path_in,
+			     int res_no_base,
 			     const std::string &chain_id) {
 
 
    std::vector<scored_node_t> start_path = path_in;
+   minimol::fragment running_fragment;
+   unsigned int atom_idx_in = atom_idx;
+   
    bool status = true;
    
-   while (status) { 
+   while (status) {
       // this function should return the atom_idx of the node that
       // is a best neighbour of atom_idx
       //
-      std::pair<bool, scored_node_t> sn = build_2_choose_1(atom_idx, start_path, chain_id);
+
+      int res_no = res_no_base + start_path.size();
+      std::pair<bool, scored_node_t> sn =
+	 build_2_choose_1(atom_idx, start_path, res_no, chain_id);
       status = sn.first;
-      std::cout << "got next: status: " << sn.first << " " << sn.second.atom_idx << std::endl;
+      std::cout << "From node " << atom_idx << " got next: status: "
+		<< sn.first << " and index: " << sn.second.atom_idx << std::endl;
       if (sn.first) {
+	 std::pair<unsigned int, scored_node_t> p(atom_idx, sn.second);
+
+	 // f needs to get the "right" residue numbers.
+	 minimol::fragment f = make_fragment(p, res_no, chain_id);
+	 
+	 running_fragment = merge_fragments(running_fragment, f);
+
+	 // setup for next round
 	 atom_idx = sn.second.atom_idx;
 	 start_path.push_back(sn.second);
+	 
+      } else {
+	 // what's in running fragment?
+
+	 minimol::molecule m_debug(running_fragment);
+	 std::string  node_string = util::int_to_string(res_no_base);
+	 std::string fn_ = "running-frag-node-" + node_string + ".pdb";
+	 std::cout << ":::::: fragment output: " << fn_ << std::endl;
+	 m_debug.write_file(fn_, 10);
+	 
       }
    }
-
 }
 
 
 std::pair<bool, coot::scored_node_t>
-coot::trace::build_2_choose_1(unsigned int atom_idx, const std::vector<scored_node_t> &start_path,
+coot::trace::build_2_choose_1(unsigned int atom_idx,
+			      const std::vector<scored_node_t> &start_path,
+			      int res_no_base,
 			      const std::string &chain_id) {
 
    bool status = false;
@@ -883,7 +968,7 @@ coot::trace::build_2_choose_1(unsigned int atom_idx, const std::vector<scored_no
 
    for (unsigned int j=0; j<neighbs_1.size(); j++) { 
       std::pair<unsigned int, scored_node_t> p_1(atom_idx, neighbs_1[j]);
-      minimol::fragment f_1 = make_fragment(p_1, chain_id);
+      minimol::fragment f_1 = make_fragment(p_1, res_no_base, chain_id);
 
       if (nice_fit(f_1)) {
 
@@ -910,7 +995,7 @@ coot::trace::build_2_choose_1(unsigned int atom_idx, const std::vector<scored_no
 	    if (ang > 0.8 * M_PI * 0.5) {
 
 	       std::pair<unsigned int, scored_node_t> p_2(neighbs_1[j].atom_idx, neighbs_2[jj]);
-	       minimol::fragment f_2 = make_fragment(p_2, chain_id);
+	       minimol::fragment f_2 = make_fragment(p_2, res_no_base, chain_id);
 
 	       // Now store f1, f2 indexed on neighbs_1[j].atom_idx, neighbs_2[jj].atom_idx
 	       // so that we can pick choose the best fit and continue the fragment starting
