@@ -1741,7 +1741,7 @@ namespace coot {
       // atom selection are OK for atom gradients (i.e. atoms of the
       // flanking residues will have zeroes here).
       //
-      std::vector<short int> use_map_gradient_for_atom;
+      std::vector<bool> use_map_gradient_for_atom;
       std::vector<double> atom_z_weight;  // weight e.d. fit by atomic number
 
       // Make a MMDBManager from the selection and return this new
