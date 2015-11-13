@@ -4103,7 +4103,7 @@ Bond_lines_container::do_Ca_plus_ligands_colour_sec_struct_bonds(const atom_sele
    if (asc.n_selected_atoms > 0) {
 
       for (int imod = 1; imod<=asc.mol->GetNumberOfModels(); imod++) {
-	 mmdb::Model *model_p = mol->GetModel(imod);
+	 mmdb::Model *model_p = asc.mol->GetModel(imod);
 	 if (model_p) { 
 	    int aminoSelHnd = -1;
 	    model_p->CalcSecStructure(1, aminoSelHnd);
