@@ -61,7 +61,9 @@ coot::trace::action() {
       for (unsigned int i=0; i<n_top_spin_pairs_for_tracing_starts; i++) {
 	 std::vector<scored_node_t> start_path;
 	 std::string chain_id = frag_idx_to_chain_id(i);
-	 make_fragment(scores[i], start_path, chain_id);
+
+	 // fix start_path to be like it is in test_model()?
+	 // make_fragment(scores[i], start_path, chain_id);
       }
    }
 }
@@ -206,7 +208,7 @@ coot::trace::spin_score_pairs(const std::vector<std::pair<unsigned int, unsigned
 
    // apwd : atom (index) pairs within distance
 
-   unsigned int n_top = 200; // top-scoring spin-score pairs for tracing
+   unsigned int n_top = 1500; // top-scoring spin-score pairs for tracing
    
    std::vector<std::pair<unsigned int, scored_node_t> > scores(apwd.size()*2);
    
@@ -239,10 +241,10 @@ coot::trace::spin_score_pairs(const std::vector<std::pair<unsigned int, unsigned
       int res_no_1 = atom_selection[scores[i].first          ]->GetSeqNum();
       int res_no_2 = atom_selection[scores[i].second.atom_idx]->GetSeqNum();
       
-      std::cout << "sorted spin scores " << " " << scores[i].first << " "
-		<< " to " << scores[i].second.atom_idx << " "
-		<< at_name_1 << " " << res_no_1 << " " 
-		<< at_name_2 << " " << res_no_2 << " " 
+      std::cout << "sorted spin scores " << " " << std::setw(4) << scores[i].first << " "
+		<< " to " << std::setw(4) << scores[i].second.atom_idx << " "
+		<< at_name_1 << " " << std::setw(3) << res_no_1 << " " 
+		<< at_name_2 << " " << std::setw(3) << res_no_2 << " " 
 		<< index_to_pos(scores[i].first).format() << " "
 		<< index_to_pos(scores[i].second.atom_idx).format() << " "
 		<< scores[i].second.spin_score << std::endl;
@@ -305,7 +307,7 @@ coot::trace::output_spin_score(const std::pair<unsigned int, scored_node_t> &sco
 void
 coot::trace::make_connection_map(const std::vector<std::pair<unsigned int, scored_node_t> > &scores) {
    
-   unsigned int n_top = 500; // top-scoring spin-score pairs for tracing
+   unsigned int n_top = 1500; // top-scoring spin-score pairs for tracing
    double good_enough_score = 0.5; // overwritten
 
    if (scores.size() > 0)
@@ -320,18 +322,19 @@ coot::trace::make_connection_map(const std::vector<std::pair<unsigned int, score
 
    for (unsigned int i=0; i<n_top; i++) {
       if (scores[i].second.spin_score  > good_enough_score) {
-	 it = std::find(connection_map[scores[i].first].begin(),
-			connection_map[scores[i].first].end(),
+	 it = std::find(fwd_connection_map[scores[i].first].begin(),
+			fwd_connection_map[scores[i].first].end(),
 			scores[i].second);
-	 if (it == connection_map[scores[i].first].end())
-	    connection_map[scores[i].first].push_back(scores[i].second);
+	 if (it == fwd_connection_map[scores[i].first].end())
+	    fwd_connection_map[scores[i].first].push_back(scores[i].second);
       }
    }
 
-   
 
+   // debug::
+   // 
    std::map<unsigned int, std::vector<scored_node_t> >::const_iterator itm;
-   for (itm=connection_map.begin(); itm!=connection_map.end(); itm++) {
+   for (itm=fwd_connection_map.begin(); itm!=fwd_connection_map.end(); itm++) {
       int res_no = atom_selection[itm->first]->GetSeqNum();
       std::cout << "map " << itm->first <<  "  ["
 		<< std::setw(2) << itm->second.size() << "] ";
@@ -351,11 +354,10 @@ coot::trace::make_connection_map(const std::vector<std::pair<unsigned int, score
 
 coot::minimol::fragment
 coot::trace::make_fragment(std::pair<unsigned int, coot::scored_node_t> scored_node,
-			   const std::vector<scored_node_t> &path,
 			   std::string chain_id) {
 
    std::cout << "make_fragment() called with  node: " << scored_node.first
-	     << " scored_node.idx:" << scored_node.second.atom_idx << std::endl;
+	     << " scored_node.idx: " << scored_node.second.atom_idx << std::endl;
    
    clipper::Coord_orth pos_1 = index_to_pos(scored_node.first);
    clipper::Coord_orth pos_2 = index_to_pos(scored_node.second.atom_idx);
@@ -408,15 +410,8 @@ coot::trace::make_fragment(std::pair<unsigned int, coot::scored_node_t> scored_n
 						       pos_1, alpha);
 
    int resno_1 = scored_node.first;
-   if (path.size() > 0) {
-      resno_1 = path[0].atom_idx + path.size();
-      std::cout << "make_fragment()... resno_1 set to " << resno_1 << " from "
-		<< path[0].atom_idx << " and " << path.size() << std::endl;
-   } else {
-      std::cout << "make_fragment()... resno_1 set to " << resno_1
-		<< " from scored_node.first" << std::endl;
-   }
-      
+   std::cout << "make_fragment()... resno_1 set to " << resno_1
+	     << " from scored_node.first" << std::endl;
 
    minimol::residue r1(resno_1,   "ALA");
    minimol::residue r2(resno_1+1, "ALA");
@@ -434,71 +429,27 @@ coot::trace::make_fragment(std::pair<unsigned int, coot::scored_node_t> scored_n
    r2.addatom(at_CA_2);
 
    minimol::fragment f(chain_id, false); // use non-expanding constructor
-   std::cout << "make_fragment() A: calling addresidue() " << r1 << " with seqnum "
-	     << r1.seqnum << std::endl;
+   //nstd::cout << "make_fragment() A: calling addresidue() " << r1 << " with seqnum "
+   // << r1.seqnum << std::endl;
    f.addresidue(r1, false);
-   std::cout << "make_fragment() B: calling addresidue() " << r2 << " with seqnum "
-	     << r2.seqnum << std::endl;
+   // std::cout << "make_fragment() B: calling addresidue() " << r2 << " with seqnum "
+   // << r2.seqnum << std::endl;
    f.addresidue(r2, false);
 
    // is f in a good state now
    minimol::molecule m_debug(f);
-   std::string depth_string_ = util::int_to_string(path.size());
-   std::string  node_string_ = util::int_to_string(scored_node.first);
-   std::string fn_ = "just-a-pair-" + depth_string_ + "-" + node_string_ + ".pdb";
+   std::string  node_string_1 = util::int_to_string(scored_node.first);
+   std::string  node_string_2 = util::int_to_string(scored_node.second.atom_idx);
+   std::string fn_ = "just-a-pair-" + node_string_1 + "-" + node_string_2 + ".pdb";
    m_debug.write_file(fn_, 10);
    
-
-   // OK, do I like that fit to density?
-
-   if (nice_fit(r1, r2)) {
-
-      
-      std::vector<scored_node_t> new_path;
-      if (path.size()) { 
-	 new_path = path;
-      } else {
-	 scored_node_t first;
-	 first.atom_idx = scored_node.first;
-	 new_path.push_back(first);
-      }
-      
-      new_path.push_back(scored_node.second);
-
-      // this functions checks that the neighbors don't have to same atom_idx as 
-      std::vector<coot::scored_node_t> neighbs =
-	 get_neighbours_of_vertex_excluding_path(scored_node.second.atom_idx, new_path);
-
-      for (unsigned int i=0; i<neighbs.size(); i++) {
-	 std::pair<unsigned int, scored_node_t> p(scored_node.second.atom_idx, neighbs[i]);
-	 minimol::fragment ext_frag = make_fragment(p, new_path, chain_id);
-
-	 minimol::molecule m_debug(ext_frag);
-	 std::string depth_string_ = util::int_to_string(path.size());
-	 std::string  node_string_ = util::int_to_string(scored_node.first);
-	 std::string fn_ = "ext_frag-" + depth_string_ + "-" + node_string_ + ".pdb";
-	 // m_debug.write_file(fn_, 10);
-
-	 minimol::fragment merged = merge_fragments(f, ext_frag);
-
-	 minimol::molecule mf(merged);
-	 std::string depth_string = util::int_to_string(path.size());
-	 std::string  node_string = util::int_to_string(scored_node.first);
-	 std::string fn = "merged-frag-" + depth_string + "-" + node_string + ".pdb";
-	 mf.write_file(fn, 10);
-
-	 // f = merged;
-	 
-      }
-   }
-
-   minimol::molecule m(f);
-   std::string depth_string = util::int_to_string(path.size());
-   std::string  node_string = util::int_to_string(scored_node.first);
-   std::string fn = "test-peptide-" + depth_string + "-" + node_string + ".pdb";
-   m.write_file(fn, 10);
-   
    return f;
+}
+
+bool
+coot::trace::nice_fit(const minimol::fragment &f) const {
+
+   return true;
 }
 
 bool
@@ -524,17 +475,17 @@ coot::trace::merge_fragments(const coot::minimol::fragment &f1,
    std::cout << "---- in merge_fragments() f1: " << f1 << std::endl;
    std::cout << "---- in merge_fragments() f2: " << f2 << std::endl;
 
-   for (unsigned int ires=f1.min_res_no(); ires<=f1.max_residue_number(); ires++)
+   for (int ires=f1.min_res_no(); ires<=f1.max_residue_number(); ires++)
       for (unsigned int iat=0; iat<f1[ires].atoms.size(); iat++)
 	 std::cout << "   mol1: res: " << ires << " atom " << f1[ires].atoms[iat]
 		   << std::endl;
-   for (unsigned int ires=f2.min_res_no(); ires<=f2.max_residue_number(); ires++)
+   for (int ires=f2.min_res_no(); ires<=f2.max_residue_number(); ires++)
       for (unsigned int iat=0; iat<f2[ires].atoms.size(); iat++)
 	 std::cout << "   mol2: res: " << ires << " atom " << f2[ires].atoms[iat]
 		   << std::endl;
 
    merged = f1;
-   for (unsigned int ires=f2.min_res_no(); ires<=f2.max_residue_number(); ires++) {
+   for (int ires=f2.min_res_no(); ires<=f2.max_residue_number(); ires++) {
 
       // Does this residue exist in merged already?
       // If so, the we want to replace or add to the atoms that are already there
@@ -602,9 +553,9 @@ coot::trace::trace_graph() {
    std::map<unsigned int, std::vector<scored_node_t> >::const_iterator it;
 
    std::cout << "in ---- trace_graph() --- tr is of size "
-	     << connection_map.size() << std::endl;
+	     << fwd_connection_map.size() << std::endl;
 
-   for(it=connection_map.begin(); it!=connection_map.end(); it++) {
+   for(it=fwd_connection_map.begin(); it!=fwd_connection_map.end(); it++) {
 
       std::vector<scored_node_t> path;
       unsigned int iv=it->first;
@@ -868,22 +819,135 @@ coot::trace::test_model(mmdb::Manager *mol) {
       n_top = scores.size();
    }
 
-   int n_top_fragments = 1;
+   int n_top_fragments = 3;
    // 
-   for (unsigned int i=0; i<n_top_fragments; i++) {
+   for (int i=0; i<n_top_fragments; i++) {
       std::vector<scored_node_t> start_path;
+      scored_node_t dummy_first;
+      dummy_first.atom_idx = scores[i].first;
+      start_path.push_back(dummy_first);
+      start_path.push_back(scores[i].second);
+      
       std::string chain_id = frag_idx_to_chain_id(i);
       std::cout << "----------- test_model() starting point number  " << i
 		<< " chain_id " << chain_id << std::endl;
-      make_fragment(scores[i], start_path, chain_id);
-   }
-   
+      minimol::fragment f = make_fragment(scores[i], chain_id);
 
-   // trace_graph();
-   // print_interesting_trees();
+      if (nice_fit(f)) {
+	 follow_fragment(scores[i].second.atom_idx, start_path, chain_id);
+      }
+   }
+}
+
+void
+coot::trace::follow_fragment(unsigned int atom_idx, const std::vector<scored_node_t> &path_in,
+			     const std::string &chain_id) {
+
+
+   std::vector<scored_node_t> start_path = path_in;
+   bool status = true;
+   
+   while (status) { 
+      // this function should return the atom_idx of the node that
+      // is a best neighbour of atom_idx
+      //
+      std::pair<bool, scored_node_t> sn = build_2_choose_1(atom_idx, start_path, chain_id);
+      status = sn.first;
+      std::cout << "got next: status: " << sn.first << " " << sn.second.atom_idx << std::endl;
+      if (sn.first) {
+	 atom_idx = sn.second.atom_idx;
+	 start_path.push_back(sn.second);
+      }
+   }
+
+}
+
+
+std::pair<bool, coot::scored_node_t>
+coot::trace::build_2_choose_1(unsigned int atom_idx, const std::vector<scored_node_t> &start_path,
+			      const std::string &chain_id) {
+
+   bool status = false;
+   
+   // this functions checks that the neighbors don't have to same atom_idx as
+   // those in path 
+   // 
+   std::vector<scored_node_t> neighbs_1 = get_neighbours_of_vertex_excluding_path(atom_idx, start_path);
+
+   std::cout << "INFO:: node-lev-1 " << atom_idx << " has "
+	     << neighbs_1.size() << " neighbours:" << std::endl;
+   for (unsigned int j=0; j<neighbs_1.size(); j++)
+      std::cout << "   " << neighbs_1[j].atom_idx << std::endl;
+   
+   std::vector<indexed_frag_t> frag_store;
+
+   for (unsigned int j=0; j<neighbs_1.size(); j++) { 
+      std::pair<unsigned int, scored_node_t> p_1(atom_idx, neighbs_1[j]);
+      minimol::fragment f_1 = make_fragment(p_1, chain_id);
+
+      if (nice_fit(f_1)) {
+
+	 std::vector<scored_node_t> path = start_path;
+	 path.push_back(neighbs_1[j]);
+
+	 std::vector<scored_node_t> neighbs_2 =
+	    get_neighbours_of_vertex_excluding_path(neighbs_1[j].atom_idx, path);
+
+	 std::cout << "INFO:: node-lev-2 " << neighbs_1[j].atom_idx << " has "
+		   << neighbs_2.size() << " neighbours:" << std::endl;
+	 for (unsigned int jj=0; jj<neighbs_2.size(); jj++)
+	    std::cout << "   " << neighbs_2[jj].atom_idx << std::endl;
+
+	 for (unsigned int jj=0; jj<neighbs_2.size(); jj++) {
+
+	    double ang = path_candidate_angle(path, neighbs_2[jj].atom_idx);
+
+	    if (false) 
+	       std::cout << "   angle from " << path[1].atom_idx << " " << path[2].atom_idx
+			 << " " << neighbs_2[jj].atom_idx << "  " << ang
+			 << " (should be more than " << 0.8 * M_PI * 0.5 << ")" << std::endl;
+		     
+	    if (ang > 0.8 * M_PI * 0.5) {
+
+	       std::pair<unsigned int, scored_node_t> p_2(neighbs_1[j].atom_idx, neighbs_2[jj]);
+	       minimol::fragment f_2 = make_fragment(p_2, chain_id);
+
+	       // Now store f1, f2 indexed on neighbs_1[j].atom_idx, neighbs_2[jj].atom_idx
+	       // so that we can pick choose the best fit and continue the fragment starting
+	       // from neighbs_1[j]
+
+	       indexed_frag_t idx_frag(neighbs_1[j], neighbs_2[jj], f_1, f_2);
+
+	       frag_store.push_back(idx_frag);
+
+	    }
+	 }
+      }
+   }
+
+   // now choose the best frag in frag_store
+
+   std::cout << "I have to choose the best of " << frag_store.size() << " frags " << std::endl;
+
+   double best_score = -9999;
+   scored_node_t best_scored_node;
+   
+   if (frag_store.size() > 0) {
+      for (unsigned int i=0; i<frag_store.size(); i++) { 
+	 if (frag_store[i].get_score() > best_score) {
+	    best_score       = frag_store[i].get_score();
+	    best_scored_node = frag_store[i].node_1;
+	 }
+      }
+   }
+
+   if (best_score > 3) { // hack value
+      status = true;
+   } 
+
+   return std::pair<bool, scored_node_t> (status, best_scored_node);
 
 } 
-
 
 
 void

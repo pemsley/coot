@@ -69,13 +69,14 @@ coot::trace::next_vertex(const std::vector<scored_node_t> &path,
 }
 
 
-// not this_vertex or any of the vertices in path.
+// not this_vertex or any of the vertices in path (can't be const because it uses a member std::map).
+// 
 std::vector<coot::scored_node_t>
 coot::trace::get_neighbours_of_vertex_excluding_path(unsigned int this_vertex,
 						     const std::vector<scored_node_t> &path) {
 
    std::vector<scored_node_t> v;
-   const std::vector<scored_node_t> &all_neighbs = connection_map[this_vertex];
+   const std::vector<scored_node_t> &all_neighbs = fwd_connection_map[this_vertex];
 
    for (unsigned int ii=0; ii<all_neighbs.size(); ii++) {
       bool add = true;

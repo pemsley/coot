@@ -41,6 +41,25 @@ namespace coot {
       }
    };
 
+   class indexed_frag_t {
+   public:
+      scored_node_t node_1;
+      scored_node_t node_2;
+      minimol::fragment f1;
+      minimol::fragment f2;
+      double score;
+      indexed_frag_t(const scored_node_t &n_1,
+		     const scored_node_t &n_2,
+		     const minimol::fragment &frag_1,
+		     const minimol::fragment &frag_2) {
+	 node_1 = n_1;
+	 node_2 = n_2;
+	 f1 = frag_1;
+	 f2 = frag_2;
+      }
+      double get_score() const { return node_1.spin_score + node_2.spin_score; }
+   };
+
    
    class trace {
 
@@ -89,16 +108,17 @@ namespace coot {
       void trace_graph();
       
       // which atoms are connected to which other atoms
-      // backwards and forwards
-      std::map<unsigned int, std::vector<scored_node_t> > connection_map;
+      // (forwards)
+      std::map<unsigned int, std::vector<scored_node_t> > fwd_connection_map;
+      // back
+      std::map<unsigned int, std::vector<scored_node_t> > bck_connection_map;
 
       // fill the connection_map map with scores
       void make_connection_map(const std::vector<std::pair<unsigned int, scored_node_t> > &scores);
 
       // 2 residues, one of which has two atom (CA, N)
-      // 
+      // (can't be const because it uses the map connection_map)
       minimol::fragment make_fragment(std::pair<unsigned int, scored_node_t> scored_node,
-				      const std::vector<scored_node_t> &path,
 				      std::string chain_id);
 
       void output_spin_score(const std::pair<unsigned int, scored_node_t> &score,
@@ -112,8 +132,10 @@ namespace coot {
       next_vertex(const std::vector<scored_node_t> &path,
 		  unsigned int depth, scored_node_t this_scored_vertex);
 
-      std::vector<scored_node_t> get_neighbours_of_vertex_excluding_path(unsigned int this_vertex,
-									const std::vector<scored_node_t> &path);
+      std::vector<scored_node_t>
+      get_neighbours_of_vertex_excluding_path(unsigned int this_vertex,
+					      const std::vector<scored_node_t> &path);
+      
       void print_tree(const std::vector<unsigned int> &path) const;
 
       // accumlate interesting trees here
@@ -133,11 +155,22 @@ namespace coot {
       bool add_atom_names_in_map_output;
 
       bool nice_fit(const minimol::residue &r1, const minimol::residue &r2) const;
+      bool nice_fit(const minimol::fragment &f1) const;
 
       double get_fit_score(const minimol::residue &r1, const minimol::residue &r2) const;
 
       minimol::fragment merge_fragments(const coot::minimol::fragment &f1,
 					const coot::minimol::fragment &f2) const;
+
+      // we return an bool to allow a negative value to let the caller know that we didn't
+      // find a good next node.
+      // 
+      std::pair<bool, coot::scored_node_t>
+	 build_2_choose_1(unsigned int atom_idx, const std::vector<scored_node_t> &start_path,
+			  const std::string &chain_id);
+
+      void follow_fragment (unsigned int atom_idx, const std::vector<scored_node_t> &start_path,
+			    const std::string &chain_id);
 
    
    public:
