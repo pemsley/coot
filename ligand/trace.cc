@@ -853,7 +853,7 @@ coot::trace::test_model(mmdb::Manager *mol) {
 
    std::vector<std::pair<unsigned int, scored_node_t> > scores = spin_score_pairs(apwd);
 
-   unsigned int n_top = 6000; // top-scoring spin-score pairs for tracing
+   unsigned int n_top = 1000; // top-scoring spin-score pairs for tracing
    
    std::sort(scores.begin(), scores.end(), scored_node_t::sort_pair_scores);
    if (scores.size() > n_top) {
@@ -865,7 +865,7 @@ coot::trace::test_model(mmdb::Manager *mol) {
    make_connection_map(scores);
    
 
-   int n_top_fragments = 500;
+   int n_top_fragments = 2;
    // 
 
 #pragma omp parallel for // currently we write out the fragments, not store them
@@ -892,15 +892,17 @@ coot::trace::test_model(mmdb::Manager *mol) {
       // away and "rediscovered" when build_2_choose_1() does just
       // that (and hopefully picks the idx scores[i].second.atom_ids).
       // 
-      
-      follow_fragment(scores[i].first, start_path, res_no_base, chain_id);
+
+      dir_t dir = FORWARDS;
+      follow_fragment(scores[i].first, start_path, res_no_base, chain_id, dir);
    }
 }
 
 void
 coot::trace::follow_fragment(unsigned int atom_idx, const std::vector<scored_node_t> &path_in,
 			     int res_no_base,
-			     const std::string &chain_id) {
+			     const std::string &chain_id,
+			     dir_t dir) {
 
 
    std::vector<scored_node_t> start_path = path_in;
@@ -915,8 +917,11 @@ coot::trace::follow_fragment(unsigned int atom_idx, const std::vector<scored_nod
       //
 
       int res_no = res_no_base + start_path.size();
+      if (dir == BACKWARDS)
+	 res_no = res_no_base - start_path.size();
+      
       std::pair<bool, scored_node_t> sn =
-	 build_2_choose_1(atom_idx, start_path, res_no, chain_id);
+	 build_2_choose_1(atom_idx, start_path, res_no, chain_id, dir);
       status = sn.first;
       std::cout << "From node " << atom_idx << " got next: status: "
 		<< sn.first << " and index: " << sn.second.atom_idx << std::endl;
@@ -950,14 +955,15 @@ std::pair<bool, coot::scored_node_t>
 coot::trace::build_2_choose_1(unsigned int atom_idx,
 			      const std::vector<scored_node_t> &start_path,
 			      int res_no_base,
-			      const std::string &chain_id) {
+			      const std::string &chain_id,
+			      dir_t dir) {
 
    bool status = false;
    
    // this functions checks that the neighbors don't have to same atom_idx as
    // those in path 
    // 
-   std::vector<scored_node_t> neighbs_1 = get_neighbours_of_vertex_excluding_path(atom_idx, start_path);
+   std::vector<scored_node_t> neighbs_1 = get_neighbours_of_vertex_excluding_path(atom_idx, start_path, dir);
 
    std::cout << "INFO:: node-lev-1 " << atom_idx << " has "
 	     << neighbs_1.size() << " neighbours:" << std::endl;
@@ -976,7 +982,7 @@ coot::trace::build_2_choose_1(unsigned int atom_idx,
 	 path.push_back(neighbs_1[j]);
 
 	 std::vector<scored_node_t> neighbs_2 =
-	    get_neighbours_of_vertex_excluding_path(neighbs_1[j].atom_idx, path);
+	    get_neighbours_of_vertex_excluding_path(neighbs_1[j].atom_idx, path, dir);
 
 	 std::cout << "INFO:: node-lev-2 " << neighbs_1[j].atom_idx << " has "
 		   << neighbs_2.size() << " neighbours:" << std::endl;

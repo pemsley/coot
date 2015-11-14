@@ -144,13 +144,16 @@ namespace coot {
       std::string frag_idx_to_chain_id(unsigned int idx) const;
 
 
+      enum dir_t { FORWARDS, BACKWARDS };
+      
       void
       next_vertex(const std::vector<scored_node_t> &path,
 		  unsigned int depth, scored_node_t this_scored_vertex);
 
       std::vector<scored_node_t>
       get_neighbours_of_vertex_excluding_path(unsigned int this_vertex,
-					      const std::vector<scored_node_t> &path);
+					      const std::vector<scored_node_t> &path,
+					      dir_t dir);
       
       void print_tree(const std::vector<unsigned int> &path) const;
 
@@ -184,11 +187,13 @@ namespace coot {
       std::pair<bool, coot::scored_node_t>
       build_2_choose_1(unsigned int atom_idx, const std::vector<scored_node_t> &start_path,
 		       int resno_base,
-		       const std::string &chain_id);
+		       const std::string &chain_id,
+		       dir_t dir);
 
       void follow_fragment (unsigned int atom_idx, const std::vector<scored_node_t> &start_path,
 			    int res_no_base,
-			    const std::string &chain_id);
+			    const std::string &chain_id,
+			    dir_t dir);
 
    
    public:

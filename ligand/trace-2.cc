@@ -6,8 +6,9 @@ void
 coot::trace::next_vertex(const std::vector<scored_node_t> &path,
 			 unsigned int depth, scored_node_t this_scored_vertex) {
 
+   dir_t dir = FORWARDS;
    std::vector<scored_node_t> neighbour_vertices =
-      get_neighbours_of_vertex_excluding_path(this_scored_vertex.atom_idx, path);
+      get_neighbours_of_vertex_excluding_path(this_scored_vertex.atom_idx, path, dir);
 
    if (false) {  // debug;
       std::cout << "next_vertex() depth: "
@@ -73,10 +74,14 @@ coot::trace::next_vertex(const std::vector<scored_node_t> &path,
 // 
 std::vector<coot::scored_node_t>
 coot::trace::get_neighbours_of_vertex_excluding_path(unsigned int this_vertex,
-						     const std::vector<scored_node_t> &path) {
+						     const std::vector<scored_node_t> &path,
+						     dir_t dir) {
 
    std::vector<scored_node_t> v;
-   const std::vector<scored_node_t> &all_neighbs = fwd_connection_map[this_vertex];
+   // const std::vector<scored_node_t> &all_neighbs = fwd_connection_map[this_vertex];
+   std::vector<scored_node_t> all_neighbs = fwd_connection_map[this_vertex];
+   if (dir == BACKWARDS)
+      all_neighbs = bck_connection_map[this_vertex];
 
    for (unsigned int ii=0; ii<all_neighbs.size(); ii++) {
       bool add = true;
