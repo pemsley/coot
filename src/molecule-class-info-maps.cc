@@ -2690,134 +2690,145 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
 
    clipper::PHSfile phs;
 
-   std::cout << "PHS:: reading " << phs_filename << std::endl;
-   phs.open_read(phs_filename);
+   if (! coot::file_exists(phs_filename)) {
+      std::cout << "INFO:: file " << phs_filename << " does not exit " << std::endl;
+      return -1;
+   }
 
-   std::cout << "PHS:: creating resolution" << std::endl;
-   clipper::Resolution resolution = phs.resolution(cell);
-   // mydata.init(sg, cell, resolution);
+   try { 
+      std::cout << "INFO:: reading phs file: " << phs_filename << std::endl;
+      phs.open_read(phs_filename);
 
-   std::cout << "PHS:: creating mydata" << std::endl;
-   clipper::HKL_info mydata(sg, cell, resolution);
-   clipper::HKL_data<clipper::datatypes::F_sigF<float>  >  myfsig(mydata);
-   clipper::HKL_data<clipper::datatypes::Phi_fom<float> >  myphwt(mydata);
-   clipper::HKL_data<clipper::datatypes::F_phi<float>   >  fphidata(mydata); 
+      std::cout << "INFO:: phs: creating resolution" << std::endl;
+      clipper::Resolution resolution = phs.resolution(cell);
+      // mydata.init(sg, cell, resolution);
 
-   std::cout << "PHS:: importing info" << std::endl;
-   phs.import_hkl_info(mydata);
-   std::cout << "PHS:: importing data" << std::endl;
-   phs.import_hkl_data(myfsig); 
-   phs.import_hkl_data(myphwt);
+      std::cout << "PHS:: creating mydata" << std::endl;
+      clipper::HKL_info mydata(sg, cell, resolution);
+      clipper::HKL_data<clipper::datatypes::F_sigF<float>  >  myfsig(mydata);
+      clipper::HKL_data<clipper::datatypes::Phi_fom<float> >  myphwt(mydata);
+      clipper::HKL_data<clipper::datatypes::F_phi<float>   >  fphidata(mydata); 
 
-   phs.close_read();
+      std::cout << "INFO:: phs: importing info" << std::endl;
+      phs.import_hkl_info(mydata);
+      std::cout << "INFO:: phs: importing data" << std::endl;
+      phs.import_hkl_data(myfsig); 
+      phs.import_hkl_data(myphwt);
 
-   std::cout << "PHS:: using cell and symmetry: "
-	     << cell.descr().a() << " "
-	     << cell.descr().b() << " "
-	     << cell.descr().c() << " "
-	     << clipper::Util::rad2d(cell.descr().alpha()) << " "
-	     << clipper::Util::rad2d(cell.descr().beta())  << " "
-	     << clipper::Util::rad2d(cell.descr().gamma()) << " "
-	     << single_quote(sg.symbol_hm()) << std::endl;
+      phs.close_read();
 
-   std::cout << "PHS:: number of reflections: " << mydata.num_reflections()
-	     << "\n";
+      std::cout << "INFO phs: using cell and symmetry: "
+		<< cell.descr().a() << " "
+		<< cell.descr().b() << " "
+		<< cell.descr().c() << " "
+		<< clipper::Util::rad2d(cell.descr().alpha()) << " "
+		<< clipper::Util::rad2d(cell.descr().beta())  << " "
+		<< clipper::Util::rad2d(cell.descr().gamma()) << " "
+		<< single_quote(sg.symbol_hm()) << std::endl;
 
-   fphidata.update();
+      std::cout << "INFO:: phs: number of reflections: " << mydata.num_reflections()
+		<< "\n";
 
-   int ncount = 0; 
-   clipper::HKL_info::HKL_reference_index hri;
-//    for (hri=myfsig.first(); !hri.last(); hri.next()) {
-//       if (ncount < 300) 
-// 	 std::cout << " PHS fsigf: " << hri.hkl().h() << " "
-// 		   << hri.hkl().k() << " "
-// 		   << hri.hkl().l() << " " << myfsig[hri].f() << " "
-// 		   << (myfsig[hri].sigf()) << std::endl;
-//       ncount++;
-//    }
+      fphidata.update();
 
-   ncount = 0; 
-//    for (hri=myphwt.first(); !hri.last(); hri.next()) {
-//       if (ncount < 300) 
-// 	 std::cout << " PHS myphwt: " << hri.hkl().h() << " " << hri.hkl().k() << " "
-// 		   << hri.hkl().l() << " " << myphwt[hri].fom() << " "
-// 		   << clipper::Util::rad2d(myphwt[hri].phi()) << std::endl;
-//       ncount++;
-//    }
+      int ncount = 0; 
+      clipper::HKL_info::HKL_reference_index hri;
+      //    for (hri=myfsig.first(); !hri.last(); hri.next()) {
+      //       if (ncount < 300) 
+      // 	 std::cout << " PHS fsigf: " << hri.hkl().h() << " "
+      // 		   << hri.hkl().k() << " "
+      // 		   << hri.hkl().l() << " " << myfsig[hri].f() << " "
+      // 		   << (myfsig[hri].sigf()) << std::endl;
+      //       ncount++;
+      //    }
 
-  fphidata.compute(myfsig, myphwt, 
- 		    clipper::datatypes::Compute_fphi_from_fsigf_phifom<float>());
+      ncount = 0; 
+      //    for (hri=myphwt.first(); !hri.last(); hri.next()) {
+      //       if (ncount < 300) 
+      // 	 std::cout << " PHS myphwt: " << hri.hkl().h() << " " << hri.hkl().k() << " "
+      // 		   << hri.hkl().l() << " " << myphwt[hri].fom() << " "
+      // 		   << clipper::Util::rad2d(myphwt[hri].phi()) << std::endl;
+      //       ncount++;
+      //    }
 
-//    for (int i=0; i<10; i++) {
-//       std::cout << "checking phi weight: " << i << " " << myphwt[i].phi() << "  "
-//              << myphwt[i].fom() << std::endl;
-//        std::cout << "checking f    sigf: " << i << " " << myfsig[i].f() << "   "
-// 		 << myfsig[i].sigf() << std::endl;
-//        std::cout << "checking missing: " << i << " " << myfsig[i].missing() << " "
-// 		 << myphwt[i].missing() << " " << fphidata[i].missing() << std::endl;
-//        // << " " << fphidata[i].phi() <<
-//    }
+      fphidata.compute(myfsig, myphwt, 
+		       clipper::datatypes::Compute_fphi_from_fsigf_phifom<float>());
 
-  std::string mol_name = phs_filename; 
+      //    for (int i=0; i<10; i++) {
+      //       std::cout << "checking phi weight: " << i << " " << myphwt[i].phi() << "  "
+      //              << myphwt[i].fom() << std::endl;
+      //        std::cout << "checking f    sigf: " << i << " " << myfsig[i].f() << "   "
+      // 		 << myfsig[i].sigf() << std::endl;
+      //        std::cout << "checking missing: " << i << " " << myfsig[i].missing() << " "
+      // 		 << myphwt[i].missing() << " " << fphidata[i].missing() << std::endl;
+      //        // << " " << fphidata[i].phi() <<
+      //    }
 
-  initialize_map_things_on_read_molecule(mol_name, 0, 0); // not diff map
+      std::string mol_name = phs_filename; 
 
-  cout << "initializing map..."; 
-  xmap.init(mydata.spacegroup(), 
-		    mydata.cell(), 
-		    clipper::Grid_sampling(mydata.spacegroup(),
-					   mydata.cell(), 
-					   mydata.resolution(),
-					   graphics_info_t::map_sampling_rate));
-  cout << "done."<< endl;
+      initialize_map_things_on_read_molecule(mol_name, 0, 0); // not diff map
 
-  if (0) { 
-     std::cout << "PHS:: debug:: " << mydata.spacegroup().symbol_hm() << " " 
-	       << mydata.cell().descr().a() << " " 
-	       << mydata.cell().descr().b() << " " 
-	       << mydata.cell().descr().c() << " " 
-	       << clipper::Util::rad2d(mydata.cell().descr().alpha()) << " " 
-	       << clipper::Util::rad2d(mydata.cell().descr().beta ()) << " " 
-	       << clipper::Util::rad2d(mydata.cell().descr().gamma()) << std::endl;
-     std::cout << "PHS:: debug:: n_reflections: " << mydata.num_reflections()
-	       << std::endl;
-  }
+      cout << "initializing map..."; 
+      xmap.init(mydata.spacegroup(), 
+		mydata.cell(), 
+		clipper::Grid_sampling(mydata.spacegroup(),
+				       mydata.cell(), 
+				       mydata.resolution(),
+				       graphics_info_t::map_sampling_rate));
+      cout << "done."<< endl;
 
-  ncount = 0; 
-  // clipper::HKL_info::HKL_reference_index hri;
-//   for (hri=fphidata.first(); !hri.last(); hri.next()) {
-//      if (ncount < 300) 
-// 	std::cout << " PHS fphi: " << hri.hkl().h() << " " << hri.hkl().k() << " "
-// 		  << hri.hkl().l() << " " << fphidata[hri].f() << " "
-// 		  << clipper::Util::rad2d(fphidata[hri].phi()) << std::endl;
-//      ncount++;
-//   } 
+      if (0) { 
+	 std::cout << "PHS:: debug:: " << mydata.spacegroup().symbol_hm() << " " 
+		   << mydata.cell().descr().a() << " " 
+		   << mydata.cell().descr().b() << " " 
+		   << mydata.cell().descr().c() << " " 
+		   << clipper::Util::rad2d(mydata.cell().descr().alpha()) << " " 
+		   << clipper::Util::rad2d(mydata.cell().descr().beta ()) << " " 
+		   << clipper::Util::rad2d(mydata.cell().descr().gamma()) << std::endl;
+	 std::cout << "PHS:: debug:: n_reflections: " << mydata.num_reflections()
+		   << std::endl;
+      }
+
+      ncount = 0; 
+      // clipper::HKL_info::HKL_reference_index hri;
+      //   for (hri=fphidata.first(); !hri.last(); hri.next()) {
+      //      if (ncount < 300) 
+      // 	std::cout << " PHS fphi: " << hri.hkl().h() << " " << hri.hkl().k() << " "
+      // 		  << hri.hkl().l() << " " << fphidata[hri].f() << " "
+      // 		  << clipper::Util::rad2d(fphidata[hri].phi()) << std::endl;
+      //      ncount++;
+      //   } 
 
 
-//   cout << "Map Grid (from phs file)..." 
-//        << xmap.grid_sampling().format()
-//        << endl;  
+      //   cout << "Map Grid (from phs file)..." 
+      //        << xmap.grid_sampling().format()
+      //        << endl;  
 
-  cout << "doing fft..." ; 
-  xmap.fft_from( fphidata );                  // generate map
-  cout << "done." << endl;
+      cout << "doing fft..." ; 
+      xmap.fft_from( fphidata );                  // generate map
+      cout << "done." << endl;
 
-  mean_and_variance<float> mv = map_density_distribution(xmap, 40, false);
+      mean_and_variance<float> mv = map_density_distribution(xmap, 40, false);
 
-  cout << "Mean and sigma of map from PHS file: " << mv.mean 
-       << " and " << sqrt(mv.variance) << endl;
+      cout << "Mean and sigma of map from PHS file: " << mv.mean 
+	   << " and " << sqrt(mv.variance) << endl;
 
-  // fill class variables
-  map_mean_ = mv.mean;
-  map_sigma_ = sqrt(mv.variance);
+      // fill class variables
+      map_mean_ = mv.mean;
+      map_sigma_ = sqrt(mv.variance);
 
-  xmap_is_diff_map = 0; 
-  contour_level = nearest_step(mv.mean + 1.5*sqrt(mv.variance), 0.05);
-  update_map_in_display_control_widget();
+      xmap_is_diff_map = 0; 
+      contour_level = nearest_step(mv.mean + 1.5*sqrt(mv.variance), 0.05);
+      update_map_in_display_control_widget();
   
-  std::cout << "updating map..." << std::endl;
-  update_map();
-  std::cout << "done updating map..." << std::endl;
+      std::cout << "updating map..." << std::endl;
+      update_map();
+      std::cout << "done updating map..." << std::endl;
+   }
+
+   catch (...) {
+      std::cout << "INFO:: problem reading phs file " << phs_filename << std::endl;
+   } 
 
   // as for 'normal' maps
   std::string cwd = coot::util::current_working_dir();
