@@ -38,6 +38,12 @@ namespace coot {
 	 alpha = angle_in;
 	 reversed_flag = reversed_flag_in;
       }
+      scored_node_t(const scored_node_t &sn, bool reversed_flag_in) {
+	 atom_idx   = sn.atom_idx;
+	 spin_score = sn.spin_score;
+	 alpha      = sn.alpha;
+	 reversed_flag = reversed_flag_in;
+      }
       scored_node_t() {
 	 atom_idx = 999999;
 	 spin_score = -9999;
@@ -161,8 +167,8 @@ namespace coot {
       std::vector<std::vector<scored_node_t> > interesting_trees;
       // 
       void add_tree_maybe(const std::vector<scored_node_t> &path);
-      double path_candidate_angle(const std::vector<scored_node_t> &path,
-				  unsigned int candidate_vertex) const;
+      double path_candidate_angle(unsigned int candidate_vertex,
+				  const std::vector<scored_node_t> &path) const;
       void print_interesting_trees() const;
       void sort_filter_interesting_trees(); // long trees to the top
 
@@ -194,6 +200,19 @@ namespace coot {
 			    int res_no_base,
 			    const std::string &chain_id,
 			    dir_t dir);
+
+      std::ostream &format(std::ostream &s, const scored_node_t &sn) const {
+	 s << "[" << sn.atom_idx << " ";
+	 if (add_atom_names_in_map_output)
+	    s << atom_selection[sn.atom_idx]->name << " " 
+	      << atom_selection[sn.atom_idx]->GetSeqNum() << " " 
+	      << atom_selection[sn.atom_idx]->GetChainID() << " ";
+	 s << sn.spin_score << " "
+	   << sn.alpha << " " << sn.reversed_flag << "]";
+	 return s;
+	 
+      }
+       
 
    
    public:

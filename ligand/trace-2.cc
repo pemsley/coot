@@ -41,7 +41,7 @@ coot::trace::next_vertex(const std::vector<scored_node_t> &path,
 	 bool angle_ok = true;
 
 	 if (new_path.size() > 1) {
-	    double angle = path_candidate_angle(new_path, candidate_vertex_idx);
+	    double angle = path_candidate_angle(candidate_vertex_idx, new_path);
 	    if (angle < 0.9 * M_PI * 0.5)
 	       angle_ok = false;
 	 }
