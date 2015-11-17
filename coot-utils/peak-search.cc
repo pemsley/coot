@@ -56,7 +56,6 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
 			     float n_sigma) {
 
    std::vector<clipper::Coord_orth> r;
-
    clipper::Xmap<short int> marked_map(xmap.spacegroup(), xmap.cell(), xmap.grid_sampling());
    clipper::Xmap_base::Map_reference_index ix;
    for (ix = marked_map.first(); !ix.last(); ix.next() )  { // iterator index.
@@ -71,9 +70,31 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
 	 r.push_back(move_grid_to_peak(xmap, ix.coord()));
 	 // r.push_back(ix.coord().coord_frac(xmap.grid_sampling()).coord_orth(xmap.cell()));
       }
-   } 
+   }
    return r;
 }
+
+std::vector<clipper::Coord_orth> 
+coot::peak_search::get_peaks_for_flooding(const clipper::Xmap<float> &xmap,
+					  float n_sigma) {
+
+   std::vector<clipper::Coord_orth> r;
+   clipper::Xmap<short int> marked_map(xmap.spacegroup(), xmap.cell(), xmap.grid_sampling());
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = marked_map.first(); !ix.last(); ix.next() )  { // iterator index.
+      marked_map[ix] = 0;
+   }
+
+   peak_search_for_flooding(xmap, &marked_map, n_sigma);
+
+   for (ix = marked_map.first(); !ix.last(); ix.next())  { 
+      if (marked_map[ix] == 2) {
+	 r.push_back(move_grid_to_peak(xmap, ix.coord()));
+      }
+   }
+   return r;
+}
+
 
 std::vector<std::pair<clipper::Xmap<float>::Map_reference_index, float> >
 coot::peak_search::get_peak_map_indices(const clipper::Xmap<float> &xmap,
@@ -182,7 +203,8 @@ coot::peak_search::peak_search_0(const clipper::Xmap<float> &xmap,
    float cut_off = map_rms * n_sigma;
    short int IN_CLUSTER = 3; 
    
-   // std::cout << "map rms: " << map_rms << ", peak cut-off: " << cut_off << "\n";
+   std::cout << "debug:: peak_search_0():: map rms: " << map_rms << ", peak cut-off: "
+	     << cut_off << "\n";
    
 //    std::cout << "There are " << neighb.size() << " neighbours\n";
 //    for (int i=0; i<neighb.size(); i++) {
@@ -270,6 +292,44 @@ coot::peak_search::peak_search_0_negative(const clipper::Xmap<float> &xmap,
       }
    }
 }
+
+void
+coot::peak_search::peak_search_for_flooding(const clipper::Xmap<float> &xmap,
+					    clipper::Xmap<short int> *marked_map_p,
+					    float n_sigma) const {
+
+   clipper::Xmap_base::Map_reference_index ix;
+   clipper::Skeleton_basic::Neighbours neighb(xmap, 0.25, 1.75); // 3x3x3 cube, not centre
+   clipper::Coord_grid c_g;
+   bool is_peak;
+   float v;
+   float cut_off = map_rms * n_sigma;
+   short int IN_CLUSTER = 3; 
+   
+   std::cout << "debug:: peak_search_for_flooding():: map rms: " << map_rms << ", peak cut-off: "
+	     << cut_off << "\n";
+   
+   for (ix = marked_map_p->first(); !ix.last(); ix.next())  { // iterator index.
+      if ((*marked_map_p)[ix] == 0) { 
+	 v = xmap[ix];
+	 if (v > cut_off) {
+	    is_peak = true;
+	    for (int i=0; i<neighb.size(); i++) {
+	       c_g = ix.coord() + neighb[i];
+	       if (v < xmap.get_data(c_g)) {
+		  is_peak = false;
+		  break;
+	       }
+	    }
+	    if (is_peak) {
+	       // mark this as the peak then.
+	       marked_map_p->set_data(ix.coord(), 2);
+	    }
+	 }
+      }
+   }
+}
+ 
 
 // Find troughs, but no cut-off
 void
@@ -435,7 +495,7 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
    }
    std::sort(r.begin(), r.end(), compare_ps_peaks);
 
-   std::vector<std::pair<clipper::Coord_orth, float> > rf = filter_peaks_by_closeness(r, max_closeness);
+   std::vector<std::pair<clipper::Coord_orth, float> > rf = filter_peaks_by_closeness(r);
    
    return rf;
 }
@@ -506,22 +566,27 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
 }
 
 std::vector<std::pair<clipper::Coord_orth, float> >
-coot::peak_search::filter_peaks_by_closeness(const std::vector<std::pair<clipper::Coord_orth, float> > &v, 
-					     float d) const {
+coot::peak_search::filter_peaks_by_closeness(const std::vector<std::pair<clipper::Coord_orth, float> > &v) const {
 
+   
    std::vector<std::pair<clipper::Coord_orth, float> > nv;
-   for (unsigned int ipeak=0; ipeak<v.size(); ipeak++) {
-      bool found_a_close_one = 0;
-      for (unsigned int jpeak=0; jpeak<nv.size(); jpeak++) {
-	 double d = clipper::Coord_orth::length(v[ipeak].first, nv[jpeak].first);
-	 if (d < max_closeness) { 
-	    found_a_close_one = 1;
-	    break;
+
+   if (max_closeness > 0) { 
+      for (unsigned int ipeak=0; ipeak<v.size(); ipeak++) {
+	 bool found_a_close_one = 0;
+	 for (unsigned int jpeak=0; jpeak<nv.size(); jpeak++) {
+	    double d = clipper::Coord_orth::length(v[ipeak].first, nv[jpeak].first);
+	    if (d < max_closeness) { 
+	       found_a_close_one = 1;
+	       break;
+	    }
 	 }
+	 if (! found_a_close_one)
+	    nv.push_back(v[ipeak]);
       }
-      if (! found_a_close_one)
-	 nv.push_back(v[ipeak]);
-   }
+   } else {
+      nv = v;
+   } 
    std::cout << "INFO:: peak filtering: npeaks: in: " << v.size() << " out: " << nv.size() << std::endl;
    return nv;
 } 

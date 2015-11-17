@@ -8,7 +8,9 @@
 #endif
 
 namespace coot {
-   
+
+   // using an atom spec as the key in a map: strange order/find() failures?
+   // 
    class atom_spec_t {
    public:
       std::string chain_id;

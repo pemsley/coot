@@ -468,11 +468,20 @@
 	  (gtk-widget-show menuitem2)
 
 	  (add-simple-coot-menu-menuitem
-	   submenu-models "Fetch PDBe ligand description"
+	   submenu-models "Fetch PDBe description for this ligand"
 	   (lambda ()
 	     (using-active-atom
 	      (let ((comp-id (residue-name aa-imol aa-chain-id aa-res-no aa-ins-code)))
 		(get-SMILES-for-comp-id-from-pdbe comp-id)))))
+
+	  (add-simple-coot-menu-menuitem
+	   submenu-models "Fetch PDBe Ligand Description"
+	   (lambda ()
+	      (generic-single-entry "Fetch PDBe Ligand Desciption for comp_id:"
+				    "" " Fetch "
+				    (lambda (comp-id) 
+				      (let ((status (get-SMILES-for-comp-id-from-pdbe comp-id)))
+					(get-monomer comp-id))))))
 
 	  (add-simple-coot-menu-menuitem
 	   submenu "Find Helices"
@@ -1090,7 +1099,7 @@
 				 (lambda (text)
 				   ;; fire off something that is controlled by a time-out -
 				   ;; doesn't return a useful value.
-				   (pdbe-get-pdb-and-sfs-cif 'include-sfs text)))))
+				   (pdbe-get-pdb-and-sfs-cif 'include-sfs (string-downcase text))))))
 
 
 	;; ---------------------------------------------------------------------

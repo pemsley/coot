@@ -4100,11 +4100,16 @@ Bond_lines_container::do_Ca_plus_ligands_colour_sec_struct_bonds(const atom_sele
 								 float min_dist, float max_dist,
 								 bool do_bonds_to_hydrogens_in) {
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
-   if (asc.n_selected_atoms > 0) { 
-      mmdb::Model *model_p = asc.mol->GetModel(1);
-      int aminoSelHnd = -1;
-      model_p->CalcSecStructure(1, aminoSelHnd);
-      do_Ca_plus_ligands_bonds(asc, pg, min_dist, max_dist, coot::COLOUR_BY_SEC_STRUCT, do_bonds_to_hydrogens_in);
+   if (asc.n_selected_atoms > 0) {
+
+      for (int imod = 1; imod<=asc.mol->GetNumberOfModels(); imod++) {
+	 mmdb::Model *model_p = asc.mol->GetModel(imod);
+	 if (model_p) { 
+	    int aminoSelHnd = -1;
+	    model_p->CalcSecStructure(1, aminoSelHnd);
+	    do_Ca_plus_ligands_bonds(asc, pg, min_dist, max_dist, coot::COLOUR_BY_SEC_STRUCT, do_bonds_to_hydrogens_in);
+	 }
+      }
    }
 }
 

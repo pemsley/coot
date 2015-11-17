@@ -666,8 +666,8 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 			done_this_already = false;
 
 		     if (debug) { 
-			std::cout << "considering torsion keys \"" << torsion_key_name_23 << "\" and \""
-				  << torsion_key_name_32 << "\"";
+			std::cout << "considering torsion keys \"" << torsion_key_name_23
+				  << "\" and \"" << torsion_key_name_32 << "\"";
 			if (done_this_already)
 			   std::cout << " done already" << std::endl;
 			else
@@ -676,8 +676,10 @@ coot::fill_with_energy_lib_torsions(const RDKit::ROMol &mol,
 
 		     if (! done_this_already) {
 
+			const RDKit::Bond *bond = mol.getBondBetweenAtoms(*nbr_idx_1, *nbr_idx_2);
 			bool success = add_torsion_to_restraints(restraints, mol,
 								 at_1, at_2, at_3, at_4,
+								 bond,
 								 &tors_no, &const_no,
 								 energy_lib);
 			   
@@ -710,6 +712,7 @@ coot::add_torsion_to_restraints(coot::dictionary_residue_restraints_t *restraint
 				const RDKit::ATOM_SPTR at_2,
 				const RDKit::ATOM_SPTR at_3,
 				const RDKit::ATOM_SPTR at_4,
+				const RDKit::Bond *bond, // between atoms 2 and 3
 				unsigned int *tors_no,
 				unsigned int *const_no,
 				const coot::energy_lib_t &energy_lib) {
@@ -819,6 +822,27 @@ coot::add_torsion_to_restraints(coot::dictionary_residue_restraints_t *restraint
 	 if (ht_2 == RDKit::Atom::SP2 && ht_3 == RDKit::Atom::SP2) {
 	    period = 2;
 	    if (is_const) esd = 2;
+
+	    // is this a forced cis or trans bond though?
+	    //
+	    // Note that currently (20151011) wwPDB CCD files do not
+	    // contain stereo information in the bond descriptions, so
+	    // bonds will not be constructed as STEREOE or STEREOZ.
+	    // (SMILES will though).
+
+	    if (bond) {
+	       RDKit::Bond::BondType bt = bond->getBondType();
+	       if (bt == RDKit::Bond::DOUBLE) {
+		  RDKit::Bond::BondStereo st = bond->getStereo();
+		  if (st == RDKit::Bond::STEREOE) { // trans double bond;
+		     period = 1;
+		  }
+		  if (st == RDKit::Bond::STEREOZ) { // cis double bond;
+		     period = 1;
+		     angle = 0;
+		  }
+	       }
+	    }
 	 } 
 
 	 if (ht_2 == RDKit::Atom::SP || ht_3 == RDKit::Atom::SP) {

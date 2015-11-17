@@ -1643,6 +1643,29 @@ int get_write_conect_record_state();
 void set_write_conect_record_state(int state); 
 /*! \} */
 
+
+ 
+/*  ------------------------------------------------------------------------ */
+/*                         Info Dialog                                       */
+/*  ------------------------------------------------------------------------ */
+/* section Info Dialog */
+/*! \name  Info Dialog */
+/* \{ */
+ 
+/*! \brief create a dialog with information
+
+  create a dialog with information string txt.  User has to click to
+  dismiss it, but it is not modal (nothing in coot is modal). */
+void info_dialog(const char *txt); 
+
+/*! \brief create a dialog with information and print to console
+
+  as info_dialog but print to console as well.  */
+void info_dialog_and_text(const char *txt); 
+
+/* \} */
+
+
 /*  ------------------------------------------------------------------------ */
 /*                         refmac stuff                                      */
 /*  ------------------------------------------------------------------------ */
@@ -2757,6 +2780,12 @@ void close_graphics_display_control_window(); /* destroy widget */
 void set_map_displayed(int imol, int state);
 /*! \brief make the coordinates molecule displayed/undisplayed, 0 for off, 1 for on */
 void set_mol_displayed(int imol, int state);
+
+/*! \brief from all the model molecules, display only imol
+
+This stops flashing/delayed animations with many molecules */
+void set_display_only_model_mol(int imol);
+
 /*! \brief make the coordinates molecule active/inactve (clickable), 0
   for off, 1 for on */
 void set_mol_active(int imol, int state);
@@ -3333,6 +3362,16 @@ int extra_restraints_are_shown(int imol);
 void set_extra_restraints_prosmart_sigma_limits(int imol, double limit_high, double limit_low);
 
 void generate_local_self_restraints(int imol, const char *chain_id, float local_dist_max);
+
+/*! \brief proSMART interpolated restraints for model morphing  */
+void write_interpolated_extra_restraints(int imol_1, int imol_2, int n_steps, char *file_name_stub);
+
+/*! \brief proSMART interpolated restraints for model morphing and write interpolated model
+
+interpolation_mode is currently dummy - in due course I will addd torion angle interpolation.
+*/
+void write_interpolated_models_and_extra_restraints(int imol_1, int imol_2, int n_steps, char *file_name_stub,
+						    int interpolation_mode);
 
 void set_show_parallel_plane_restraints(int imol, int state);
 int parallel_plane_restraints_are_shown(int imol);
@@ -4255,6 +4294,16 @@ void set_default_bond_thickness(int t);
 void set_bond_thickness(int imol, float t);
 /*! \brief set the thickness of the bonds of the intermediate atoms to t pixels  */
 void set_bond_thickness_intermediate_atoms(float t);
+
+/*! \brief set bond colour for molecule */
+void set_bond_colour_rotation_for_molecule(int imol, float f);
+
+
+/*! \brief get the bond colour for molecule.
+
+Return -1 on err (bad molecule number) */
+float get_bond_colour_rotation_for_molecule(int imol);
+
 void set_unbonded_atom_star_size(float f);
 
 /*! \brief set the default represenation type (default 1).*/
@@ -4663,12 +4712,16 @@ PyObject *cis_peptides_py(int imol);
 /*! \name Mainchain Building Functions */
 /* \{ */
 void do_db_main(short int state); 
-/*! \brief CA -> mainchain conversion */
-void db_mainchain(int imol,
-		  const char *chain_id,
-		  int iresno_start,
-		  int iresno_end,
-		  const char *direction_string);
+/*! \brief CA -> mainchain conversion
+
+direction is either "forwards" or "backwards"
+
+return the new molecule number */
+int db_mainchain(int imol,
+		 const char *chain_id,
+		 int iresno_start,
+		 int iresno_end,
+		 const char *direction);
 /* \} */
 
 /*  ----------------------------------------------------------------------- */

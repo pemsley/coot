@@ -44,7 +44,11 @@ libcoot_high_res_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 #check_PROGRAMS = testatomgraph tracehighres testseqalign testseqassignment globularize_protein
 
-#testatomgraph_SOURCES = test-atom-graph.cc
+check_PROGRAMS = testatomgraph tracehighres
+
+testatomgraph_SOURCES = test-atom-graph.cc
+
+testatomgraph_LDADD =  libcoot-high-res.la
 
 #testatomgraph_LDADD =  libcoot-high-res.la                \
 #	$(top_builddir)/ligand/libcoot-ligand.la          \
@@ -82,7 +86,10 @@ libcoot_high_res_la_LDFLAGS = $(SHARED_LDFLAGS)
 #	$(CLIPPER_LIBS)
 
 ## tracehighres_LDFLAGS = -static 
-#tracehighres_SOURCES = trace-high-res.cc
+
+tracehighres_SOURCES = trace-high-res.cc
+tracehighres_LDADD = libcoot-high-res.la
+
 #tracehighres_LDADD = libcoot-high-res.la                  \
 #	$(top_builddir)/ligand/libcoot-ligand.la          \
 #	$(top_builddir)/ideal/libcoot-ideal.la            \

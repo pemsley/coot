@@ -97,12 +97,20 @@ public:
       resno_end = mmdb::MinInt4;
       f_col = "FWT";
       phi_col = "PHWT";
+      use_rama_targets = false;
+      use_planar_peptide_restraints = true;
+      use_torsion_targets = false;
+      tabulate_distortions_flag = false;
+      correlations = false;
    }
    bool is_good;
    bool is_debug_mode; 
    bool given_map_flag;
    bool use_rama_targets;
    bool use_torsion_targets;
+   bool use_planar_peptide_restraints;
+   bool tabulate_distortions_flag;
+   bool correlations;
    int resno_start;
    int resno_end;
    int residues_around;
@@ -183,6 +191,11 @@ main(int argc, char **argv) {
 		<< "       --weight w (weight of map gradients, default 60)\n"
 		<< "       --radius (default 4.2)\n"
 		<< "       --rama\n"
+		<< "       --torsions\n"
+		<< "       --no-planar-peptide-restraints\n"
+		<< "       --tabulate-distortions\n"
+		<< "       --correlations\n"
+		<< "       --debug\n"
 		<< "\n"
 		<< "     --mapin ccp4-map-name can be used\n"
 		<< "       instead of --hklin --f --phi\n"
@@ -192,11 +205,6 @@ main(int argc, char **argv) {
 
       geom.set_verbose(0);
       geom.init_standard();
-
-      // 20150919: Request from Robbie Joosten: add in the planar peptide restraints.
-      //           (this should be user-configurable).
-      // 
-      geom.add_planar_peptide_restraint();
 
       //coot::restraints_container_t restraints(asc);
 
@@ -265,6 +273,8 @@ main(int argc, char **argv) {
 	 if (map_is_good) { 
 	    std::string altloc("");
 
+	    // the bool is to annotate for "fixed" residue - here nothing is fixed.
+	    // 
 	    std::vector<std::pair<bool,mmdb::Residue *> > local_residues;
 
 	    if ((inputs.resno_start != mmdb::MinInt4) && inputs.resno_end != mmdb::MinInt4)
@@ -285,6 +295,17 @@ main(int argc, char **argv) {
 	       }
 	    }
 
+	    // now, for the correlations, make the residue specs from
+	    // the local_residues (somewhat convoluted, I agree)
+	    // 
+	    std::vector<coot::residue_spec_t> residue_specs;
+	    for (unsigned int ii=0; ii<local_residues.size(); ii++) { 
+	       if (local_residues[ii].second) {
+		  coot::residue_spec_t spec(local_residues[ii].second);
+		  residue_specs.push_back(spec);
+	       }
+	    }
+
 	    // 	 int have_flanking_residue_at_start = 0;
 	    // 	 int have_flanking_residue_at_end   = 0;
 	    // 	 int have_disulfide_residues        = 0;
@@ -298,6 +319,12 @@ main(int argc, char **argv) {
 	    // 						 chain_id,
 	    // 						 asc.mol,
 	    // 						 fixed_atom_specs);
+
+	    // 20150919: Request from Robbie Joosten: add in the planar peptide restraints.
+	    //           (this should be user-configurable).
+	    // 
+	    if (inputs.use_planar_peptide_restraints)
+	       geom.add_planar_peptide_restraint();
 
 	    std::vector<mmdb::Link> links;
 	    coot::restraints_container_t restraints(local_residues,
@@ -335,6 +362,53 @@ main(int argc, char **argv) {
 	    short int print_chi_sq_flag = 1;
 	    restraints.minimize(flags, nsteps_max, print_chi_sq_flag);
 	    restraints.write_new_atoms(inputs.output_pdb_file_name);
+
+	    if (inputs.tabulate_distortions_flag) {
+	       coot::geometry_distortion_info_container_t gd =
+		  restraints.geometric_distortions(flags);
+	       gd.print();
+	    }
+
+	    if (inputs.correlations) {
+
+	       std::vector<coot::residue_spec_t> neighbours;
+	       int ATOM_MASK_MAINCHAIN           =  1; // hideous hack
+	       int ATOM_MASK_NOT_MAINCHAIN       =  2;
+	       int ATOM_MASK_NOT_MAINCHAIN_OR_CB =  3;
+	       int ATOM_MASK_ALL_ATOM_B_FACTOR   = 10;
+	       unsigned short int atom_mask_mode = ATOM_MASK_ALL_ATOM_B_FACTOR;
+	       coot::map_stats_t map_stats_flag = coot::SIMPLE;
+	       
+	       coot::util::density_correlation_stats_info_t stats =
+		  coot::util::map_to_model_correlation_stats(asc.mol,
+							     residue_specs,
+							     neighbours,
+							     atom_mask_mode,
+							     2.5, // dummy for this mode
+							     xmap,
+							     map_stats_flag);
+
+	       std::vector<std::pair<coot::residue_spec_t, float> > correls = 
+		  coot::util::map_to_model_correlation_per_residue(asc.mol,
+								   residue_specs,
+								   atom_mask_mode,
+								   2.5, // dummy
+								   xmap);
+
+
+	       std::cout << " Residue Correlation Table: " << std::endl;
+	       for (unsigned int j=0; j<correls.size(); j++) {
+		  std::string res_name;
+		  mmdb::Residue *r = coot::util::get_residue(correls[j].first, asc.mol);
+		  if (r) res_name = r->GetResName();
+		  std::cout << "     "
+			    << correls[j].first.chain_id << " "
+			    << correls[j].first.res_no   << " "
+			    << correls[j].first.ins_code << " "
+			    << res_name 
+			    << "  " << correls[j].second << std::endl;
+	       }
+	    } 
 	 }
       }
    }
@@ -447,6 +521,8 @@ get_input_details(int argc, char **argv) {
    d.map_weight  = UNSET;
    d.use_rama_targets = 0;
    d.use_torsion_targets = 0;
+   d.use_planar_peptide_restraints = true;
+   d.correlations = false;
    
    int ch;
    int option_index = 0;
@@ -470,6 +546,9 @@ get_input_details(int argc, char **argv) {
       {"rama",      0, 0, 0},
       {"torsions",  0, 0, 0},
       {"torsion",   0, 0, 0},
+      {"no-planar-peptide-restraints", 0, 0, 0},
+      {"tabulate-distortions", 0, 0, 0},
+      {"correlations", 0, 0, 0},
       {"debug",     0, 0, 0},  // developer option
       {0, 0, 0, 0}
    };
@@ -535,10 +614,19 @@ get_input_details(int argc, char **argv) {
 	    if (arg_str == "torsion") {
 	       d.use_torsion_targets = 1;
 	    }
+	    if (arg_str == "no-planar-peptide-restraints") { 
+	       d.use_planar_peptide_restraints = false;
+	    }
+	    if (arg_str == "tabulate-distortions") { 
+	       d.tabulate_distortions_flag = true;
+	    }
+	    if (arg_str == "correlations") {
+	       d.correlations = true;
+	    }
 	    if (arg_str == "debug") {
 	       d.is_debug_mode = 1;
 	    }
-	 } 
+	 }
 	 break;
 
       case 'i':
@@ -584,7 +672,10 @@ get_input_details(int argc, char **argv) {
       }
    }
 
-   if (d.input_pdb_file_name != "" && d.output_pdb_file_name != "") { 
+   std::cout << "debug here with  input_pdb_file_name :" <<  d.input_pdb_file_name << ":" << std::endl;
+   std::cout << "debug here with output_pdb_file_name :" << d.output_pdb_file_name << ":" << std::endl;
+
+   if (!d.input_pdb_file_name.empty()  && !d.output_pdb_file_name.empty()) { 
       if ((d.resno_start != UNSET && d.resno_end != UNSET) || (d.residues_around != mmdb::MinInt4)) { 
 	 if (d.chain_id != "") { 
 	    if ( (d.map_file_name != "") || (d.mtz_file_name != "" && d.f_col != "" && d.phi_col != "") ) { 

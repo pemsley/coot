@@ -375,6 +375,61 @@ void add_refmac_extra_restraints(int imol, const char *file_name) {
    }
 }
 
+
+void write_interpolated_extra_restraints(int imol_1, int imol_2, int n_steps, char *file_name_stub) {
+
+   if (is_valid_model_molecule(imol_1)) {
+      if (is_valid_model_molecule(imol_2)) {
+	 if (n_steps > 2) {
+	    if (n_steps < 5000) { 
+	       const coot::extra_restraints_t &e_1 = graphics_info_t::molecules[imol_1].extra_restraints;
+	       const coot::extra_restraints_t &e_2 = graphics_info_t::molecules[imol_2].extra_restraints;
+	       e_1.write_interpolated_restraints(e_2, n_steps, file_name_stub);
+	    } else {
+	       std::cout << "too many steps" << std::endl;
+	    } 
+	 } else {
+	    std::cout << "too few steps" << std::endl;
+	 }
+      }
+   }
+}
+
+/*! \brief proSMART interpolated restraints for model morphing and write interpolated model
+
+interpolation_mode is currently dummy - in due course I will addd torion angle interpolation.
+*/
+void write_interpolated_models_and_extra_restraints(int imol_1, int imol_2, int n_steps, char *file_name_stub,
+						    int interpolation_mode) {
+
+   if (is_valid_model_molecule(imol_1)) {
+      if (is_valid_model_molecule(imol_2)) {
+	 if (n_steps > 2) {
+	    if (n_steps < 5000) {
+	       mmdb::Manager *mol_1 = graphics_info_t::molecules[imol_1].atom_sel.mol;
+	       mmdb::Manager *mol_2 = graphics_info_t::molecules[imol_2].atom_sel.mol;
+
+	       if (mol_1 && mol_2) { 
+		  const coot::extra_restraints_t &e_1 = graphics_info_t::molecules[imol_1].extra_restraints;
+		  const coot::extra_restraints_t &e_2 = graphics_info_t::molecules[imol_2].extra_restraints;
+		  e_1.write_interpolated_models_and_restraints(e_2, mol_1, mol_2, n_steps, file_name_stub);
+	       }
+	    } else {
+	       std::cout << "too many steps" << std::endl;
+	    } 
+	 } else {
+	    std::cout << "too few steps" << std::endl;
+	 }
+      } else {
+	 std::cout << "WARNING:: " << imol_2 << " is not a valid model molecule " << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: " << imol_1 << " is not a valid model molecule " << std::endl;
+   }
+}
+
+
+
 void set_show_extra_restraints(int imol, int state) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].set_display_extra_restraints(state);

@@ -26,6 +26,7 @@
 
 #include <vector>
 #include <string>
+#include <map>
 
 #include "clipper/core/coords.h"
 #include "mini-mol/mini-mol.hh"
@@ -202,6 +203,14 @@ namespace coot {
 					    const coot::main_fragment_t &fit_b);
       std::vector<float> tmp_target_eigens;
       void assign_eigen_similarity_scores(const std::vector<float> &target_eigens);
+
+      std::map<int, std::string> sequence;
+      // fill above using
+      std::map<int, std::string> get_sequence(const coot::minimol::molecule &target,
+					      std::string target_fragment_fragment_id,
+					      int iresno_target_start_in,
+					      int iresno_target_end_in) const;
+
 
    public:
       db_main() { max_devi = 2.0; }

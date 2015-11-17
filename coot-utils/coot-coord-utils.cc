@@ -1494,6 +1494,9 @@ coot::get_selection_handle(mmdb::Manager *mol, const coot::atom_spec_t &at) {
 std::ostream& coot::operator<< (std::ostream& s, const coot::atom_spec_t &spec) {
 
    s << "[spec: ";
+   s << "model ";
+   s << spec.model_number;
+   s << " ";
    s << "\"";
    s << spec.chain_id;
    s << "\" ";

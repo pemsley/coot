@@ -2591,18 +2591,30 @@ void set_default_representation_type(int type) {
 
 
 void set_bond_thickness(int imol, float t) {
-
    graphics_info_t g;
    g.set_bond_thickness(imol, t);
-
 }
 
 void set_bond_thickness_intermediate_atoms(float t) { 
-
    graphics_info_t g;
    g.set_bond_thickness_intermediate_atoms(t);
+}
 
+void set_bond_colour_rotation_for_molecule(int imol, float value) {
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].bonds_colour_map_rotation = value;
+   } 
+}
+
+float get_bond_colour_rotation_for_molecule(int imol) {
+
+   float v = -1;
+   if (is_valid_model_molecule(imol)) {
+      v = graphics_info_t::molecules[imol].bonds_colour_map_rotation;
+   }
+   return v;
 } 
+
 
 void set_unbonded_atom_star_size(float f) {
    graphics_info_t g;
@@ -4025,7 +4037,8 @@ read_phs_and_make_map_using_cell_symm_from_mol(const char *phs_filename_str, int
 	    cell = xtal.first;
 	    spacegroup = xtal.second;
 	    got_cell_symm_flag = 1;
-	 } catch ( std::runtime_error except ) {
+	 }
+	 catch (const std::runtime_error &except) {
 	    std::cout << "WARNING:: Cant get spacegroup from coordinates!\n";
 	    // get the cell/symm from a map:
 	    if (g.molecules[imol_ref].has_xmap()) {
@@ -5066,7 +5079,32 @@ void set_mol_displayed(int imol, int state) {
    } else {
       std::cout << "not valid molecule" << std::endl;
    } 
-} 
+}
+
+
+/*! \brief from all the model molecules, display only imol
+
+This stops flashing/delayed animations with many molecules */
+void set_display_only_model_mol(int imol) {
+
+   graphics_info_t g;
+   int n = graphics_n_molecules();
+
+   for (unsigned int i=0; i<n; i++) {
+      int state = 0;
+      if (i == imol)
+	 state = 1;
+      if (is_valid_model_molecule(i)) {
+	 g.molecules[i].set_mol_is_displayed(state);
+	 if (g.display_control_window())
+	    set_display_control_button_state(imol, "Displayed", state);
+      }
+   }
+   graphics_draw();
+}
+
+
+
 /*! \brief make the coordinates molecule active/inactve (clickable), 0
   for off, 1 for on */
 void set_mol_active(int imol, int state) {

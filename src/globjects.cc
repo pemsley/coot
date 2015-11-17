@@ -1307,6 +1307,8 @@ bool graphics_info_t::allow_duplseqnum = false;
 // 
 std::map<std::string, std::pair<std::string, std::string> > graphics_info_t::user_name_passwd_map;
 
+std::vector<std::pair<clipper::Coord_orth, std::string> > graphics_info_t::user_defined_interesting_positions;
+unsigned int graphics_info_t::user_defined_interesting_positions_idx = 0;
 
 
 // GTK2 code
@@ -1644,7 +1646,11 @@ init_gl_widget(GtkWidget *widget) {
    
    if (g.do_anti_aliasing_flag)
       glEnable(GL_LINE_SMOOTH);
-   
+
+   // Mac play
+   // glEnable(GL_LINE_SMOOTH);
+   // glEnable(GL_BLEND);
+   // glBlendFunc(GL_SRC_ALPHA, GL_ZERO);
    
    // Solid model lighting
    //
@@ -3138,8 +3144,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_d:
       
       if (graphics_info_t::clipping_back < 10.0) { 
-	 set_clipping_front(graphics_info_t::clipping_front + 0.2);
-	 set_clipping_back (graphics_info_t::clipping_front + 0.2);
+	 set_clipping_front(graphics_info_t::clipping_front + 0.4);
+	 set_clipping_back (graphics_info_t::clipping_front + 0.4);
 	 // std::cout << graphics_info_t::clipping_front << " " << graphics_info_t::clipping_back << std::endl;
       }
       handled = TRUE; 
@@ -3152,8 +3158,8 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_f:
       
       if (graphics_info_t::clipping_back > -10.2) { 
-	 set_clipping_front(graphics_info_t::clipping_front - 0.2);
-	 set_clipping_back (graphics_info_t::clipping_front - 0.2);
+	 set_clipping_front(graphics_info_t::clipping_front - 0.4);
+	 set_clipping_back (graphics_info_t::clipping_front - 0.4);
 	 // std::cout << graphics_info_t::clipping_front << " " << graphics_info_t::clipping_back << std::endl;
       }
       handled = TRUE; 

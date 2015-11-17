@@ -2036,7 +2036,6 @@ graphics_info_t::model_fit_refine_unactive_togglebutton(const std::string &butto
       // std::cout << "DEBUG:: model_fit_refine_dialog not found" << std::endl;
    }
 
-#if (GTK_MAJOR_VERSION > 1)
 
    std::string toolbar_button_name = "not-found";
    if (button_name == "model_refine_dialog_refine_togglebutton")
@@ -2086,7 +2085,6 @@ graphics_info_t::model_fit_refine_unactive_togglebutton(const std::string &butto
 	  gtk_toggle_tool_button_set_active(GTK_TOGGLE_TOOL_BUTTON(toggle_button), FALSE);
       }
    }
-#endif    // GTK version
    
 } 
 

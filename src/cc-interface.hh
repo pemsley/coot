@@ -1322,6 +1322,15 @@ PyObject *qq_plot_map_and_model_py(int imol,
 
 //! \}
 
+/* ------------------------------------------------------------------------- */
+/*                      interesting positions list                           */
+/* ------------------------------------------------------------------------- */
+#ifdef USE_GUILE
+void register_interesting_positions_list_scm(SCM pos_list);
+#endif // USE_GUILE 
+#ifdef USE_PYTHON
+void register_interesting_positions_list_py(PyObject *pos_list);
+#endif // USE_PYTHON 
 
 /* ------------------------------------------------------------------------- */
 /*                      prodrg import function                               */

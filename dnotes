@@ -7144,6 +7144,11 @@ Sat Jul 19 13:17:01 BST 2014
 	 // std::cout.setf(std::ios::fixed, std::ios::floatfield);
 	 // See dictionary-bond-distributions.cc
 
+   For integers:
+
+   #include <iomanip>
+   std::cout << "map " << itm->first <<  "  [" << std::setw(2) << itm->second.size() << "] ";
+
 
 ---
 Sat Jul 19 13:31:04
@@ -7422,6 +7427,13 @@ http://www.koreascience.or.kr/article/ArticleFullRecord.jsp?cn=CDCHCH_2009_v14n6
    o experiment: use Rdkit with pdb perception to generate molecules and 
      compare them with molecules generated from reading the cif.
 
+------
+
+	Interesting Ligands:
+
+   TF7 in 3nia: can be remodelled as glycerol? (next to real ligand)
+                dihydoxy sulfanyl is "strange" chemistry (c.f neighbour ligand)
+                not published
 
 ------
 
@@ -7433,5 +7445,9 @@ http://www.koreascience.or.kr/article/ArticleFullRecord.jsp?cn=CDCHCH_2009_v14n6
     gtk font size: 
 
     http://stackoverflow.com/questions/1269326/how-can-i-change-the-font-size-in-gtk
+
+------
+
+    investigate stl_tree.h
 
 ------

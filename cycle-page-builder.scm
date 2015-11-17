@@ -891,7 +891,7 @@
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
 
-	 (list "binary-Linux-x86_64-scientific-linux-6.6-python-gtk2"
+	 (list "binary-Linux-x86_64-scientific-linux-6.7-python-gtk2"
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-hal.lmb.internal/"
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
@@ -918,14 +918,15 @@
 ;                #t #t)
 
           (list "binary-Linux-x86_64-debian-gnu-linux-jessie-python-gtk2"
-                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/jessie/build-logs/Linux-shelx10/"
+                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/jessie/build-logs/Linux-shelx8/"
                 "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/jessie/binaries/nightlies/pre-release"
                 #t #t)
 
-          (list "binary-Linux-x86_64-debian-gnu-linux-7-python-gtk2"
-                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/stretch/build-logs/Linux-shelx11/"
-                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/stretch/binaries/nightlies/pre-release"
-                #t #t)
+; gone - perhaps temporarily?
+;           (list "binary-Linux-x86_64-debian-gnu-linux-7-python-gtk2"
+;                 "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/stretch/build-logs/Linux-shelx11/"
+;                 "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/stretch/binaries/nightlies/pre-release"
+;                 #t #t)
 
 	 (list "WinCoot" 
 	       "http://www.ysbl.york.ac.uk/~lohkamp/build-logs/MINGW32_NT-5.1-sarabellum/gtk2" 

@@ -781,9 +781,9 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 			   // << insertion_code << ":" << atom_name << ":"
 			   // << altconf << ":" << "\n";
 			   
-			   coot::atom_spec_t r(chain_id, resno, insertion_code, atom_name, altconf);
+			   coot::atom_spec_t at_spec(chain_id, resno, insertion_code, atom_name, altconf);
 
-			   short int ifound = 0;
+			   bool ifound = false;
 			   for (unsigned int ic=0; ic<clash_atoms.size(); ic++) {
 			      if (resno == clash_atoms[ic].res_no) {
 				 if (insertion_code == clash_atoms[ic].ins_code) {
@@ -794,20 +794,20 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 					  if (gap2 < clash_atoms[ic].float_user_data)
 					     clash_atoms[ic].float_user_data = gap2;
 				 
-					  ifound = 1;
+					  ifound = true;
 					  break;
 				       }
 				    }
 				 }
 			      }
 			   }
-			   if (ifound == 0) {
-			      r.int_user_data = imol;
-			      r.float_user_data = gap2;
-			      r.string_user_data = current_useful_name;
+			   if (ifound == false) {
+			      at_spec.int_user_data = imol;
+			      at_spec.float_user_data = gap2;
+			      at_spec.string_user_data = current_useful_name;
 			      // don't put hydrogen bonds in the bad contact list
 			      if (contact_type != "hb") 
-				 clash_atoms.push_back(r);
+				 clash_atoms.push_back(at_spec);
 			   }
 			} 
 		     }

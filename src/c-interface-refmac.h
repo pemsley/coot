@@ -1,4 +1,4 @@
-/* src/c-interface-gtk-widgets.h
+/* src/c-interface-refmac.h
  * 
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Copyright 2007 by Paul Emsley
@@ -87,22 +87,7 @@ BEGIN_C_DECLS
 #define COOT_PYTHON_DIR "COOT_PYTHON_DIR"
 
 /*  this is the option menu callback - does nothing. */
-void refmac_molecule_button_select(GtkWidget *item, GtkPositionType pos); 
 int set_refmac_molecule(int imol); /* used by callback.c */
-void fill_option_menu_with_refmac_options(GtkWidget *optionmenu);
-void fill_option_menu_with_refmac_methods_options(GtkWidget *optionmenu);
-void fill_option_menu_with_refmac_phase_input_options(GtkWidget *optionmenu);
-void fill_option_menu_with_refmac_labels_options(GtkWidget *optionmenu);
-void fill_option_menu_with_refmac_file_labels_options(GtkWidget *optionmenu);
-void fill_option_menu_with_refmac_ncycle_options(GtkWidget *optionmenu);
-
-void update_refmac_column_labels_frame(GtkWidget *optionmenu, 
-				       GtkWidget *fobs_menu, GtkWidget *fiobs_menu, GtkWidget *fpm_menu,
-				       GtkWidget *f_free_menu,
-				       GtkWidget *phases_menu, GtkWidget *fom_menu, GtkWidget *hl_menu);
-
-
-void free_memory_run_refmac(GtkWidget *window); 
 
 /* some methods to get refmac run parameters */
 int get_refmac_refinement_method(void);
@@ -127,9 +112,6 @@ void add_refmac_sad_atom(const char *atom_name, float fp, float fpp, float lambd
 void add_refmac_sad_atom_fp(const char *atom_name, float fp, float fpp);
 void add_refmac_sad_atom_lambda(const char *atom_name, float lambda);
 void clear_refmac_sad_atoms();
-void store_refmac_mtz_file_label(GtkWidget *label);
-GtkWidget *get_refmac_mtz_file_label(void);
-void fill_refmac_sad_atom_entry(GtkWidget *widget);
 short int get_refmac_used_mtz_file_state();
 void set_refmac_used_mtz_file(int state);
 const gchar *get_saved_refmac_file_filename(void);

@@ -863,14 +863,23 @@ def pdb_validate(accession_code, imol):
             url += '_validation.xml.gz'
             status = coot_get_url(url, gz_file_name)
             # turn the gz_file_name into a string
-            gz = gzip.open(gz_file_name)
-            xml_string = gz.read()
-            vi = parse_wwpdb_validation_xml(xml_string)
+            vi = False
+            try: 
+                gz = gzip.open(gz_file_name)
+                xml_string = gz.read()
+                vi = parse_wwpdb_validation_xml(xml_string)
+            except IOError as e:
+                print e
             if vi:
                 entry_validation_info = vi[0]
                 subgroups = vi[1]
                 ss = sort_subgroups(subgroups)
                 validation_to_gui(entry_validation_info, ss, imol)
+            else:
+                print "something went wrong when getting", url
+                s = "Something went wrong"
+                add_status_bar_text(s)
+            
         else:
             print 'WARNING:: invalid accession code', accession_code
     except KeyError as e:

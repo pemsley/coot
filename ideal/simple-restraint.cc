@@ -40,7 +40,233 @@
 
 #include "compat/coot-sysdep.h"
 
-// #include "mmdb.h"
+
+double
+coot::geometry_distortion_info_container_t::print() const {
+
+   double total_distortion = 0.0;
+   
+   int n_restraints_bonds    = 0;
+   int n_restraints_angles   = 0;
+   int n_restraints_torsions = 0;
+   int n_restraints_chirals  = 0;
+   int n_restraints_planes   = 0;
+   double sum_penalties_bonds    = 0;
+   double sum_penalties_angles   = 0;
+   double sum_penalties_planes   = 0;
+   double sum_penalties_chirals  = 0;
+   double sum_penalties_torsions = 0;
+   std::vector<std::pair<std::string,double> > penalty_string_bonds;
+   std::vector<std::pair<std::string,double> > penalty_string_angles;
+   std::vector<std::pair<std::string,double> > penalty_string_torsions;
+   std::vector<std::pair<std::string,double> > penalty_string_planes;
+   std::cout << "Residue Distortion List: \n";
+   for (unsigned int i=0; i< geometry_distortion.size(); i++) { 
+      const coot::simple_restraint &rest = geometry_distortion[i].restraint;
+      if (rest.restraint_type == coot::BOND_RESTRAINT) {
+	 n_restraints_bonds++;
+	 mmdb::Atom *at_1 = atom[rest.atom_index_1];
+	 mmdb::Atom *at_2 = atom[rest.atom_index_2];
+	 if (at_1 && at_2) {
+	    clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+	    clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+	    double d = sqrt((p2-p1).lengthsq());
+	    double distortion = d - rest.target_value;
+	    double pen_score = distortion*distortion/(rest.sigma*rest.sigma);
+	    std::string chain_res_1 = std::string(at_1->GetChainID()) + " " + coot::util::int_to_string(at_1->GetSeqNum());
+	    std::string chain_res_2 = std::string(at_2->GetChainID()) + " " + coot::util::int_to_string(at_2->GetSeqNum());
+	    std::string s = std::string("bond ")
+	       + chain_res_1 + " "
+	       + std::string(at_1->name) + std::string(" to ")
+	       + chain_res_2 + " "
+	       + std::string(at_2->name)
+	       + std::string(" target_value: ") + coot::util::float_to_string_using_dec_pl(rest.target_value, 3)
+	       + std::string(" d: ") + coot::util::float_to_string_using_dec_pl(d, 3)
+	       + std::string(" sigma: ") + coot::util::float_to_string_using_dec_pl(rest.sigma, 3)
+	       + std::string(" length-devi ") + coot::util::float_to_string_using_dec_pl(distortion, 3)
+	       + std::string(" penalty-score:  ") + coot::util::float_to_string(pen_score);
+	    penalty_string_bonds.push_back(std::pair<std::string,double> (s, pen_score));
+	    sum_penalties_bonds += pen_score;
+	 }
+      }
+
+      if (rest.restraint_type == coot::ANGLE_RESTRAINT) {
+	 n_restraints_angles++;
+	 mmdb::Atom *at_1 = atom[rest.atom_index_1];
+	 mmdb::Atom *at_2 = atom[rest.atom_index_2];
+	 mmdb::Atom *at_3 = atom[rest.atom_index_3];
+	 if (at_1 && at_2 && at_3) {
+	    clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+	    clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+	    clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
+	    double angle_rad = clipper::Coord_orth::angle(p1, p2, p3);
+	    double angle = clipper::Util::rad2d(angle_rad);
+	    double distortion = angle - rest.target_value;
+	    double pen_score = distortion*distortion/(rest.sigma*rest.sigma);
+	    std::string chain_res_1 = std::string(at_1->GetChainID()) + " " + coot::util::int_to_string(at_1->GetSeqNum());
+	    std::string chain_res_2 = std::string(at_2->GetChainID()) + " " + coot::util::int_to_string(at_2->GetSeqNum());
+	    std::string chain_res_3 = std::string(at_3->GetChainID()) + " " + coot::util::int_to_string(at_3->GetSeqNum());
+	    std::string s = std::string("angle ")
+	       + chain_res_1 + " "
+	       + std::string(at_1->name)
+	       + std::string(" - ")
+	       + chain_res_2 + " "
+	       + std::string(at_2->name)
+	       + std::string(" - ")
+	       + chain_res_3 + " "
+	       + std::string(at_3->name)
+	       + std::string("  target: ") + coot::util::float_to_string(rest.target_value)
+	       + std::string(" model_angle: ") + coot::util::float_to_string(angle)
+	       + std::string(" sigma: ") + coot::util::float_to_string(rest.sigma)
+	       + std::string(" angle-devi ") + coot::util::float_to_string(distortion)
+	       + std::string(" penalty-score:  ") + coot::util::float_to_string(pen_score);
+	    penalty_string_angles.push_back(std::pair<std::string,double> (s, pen_score));
+	    sum_penalties_angles += pen_score;
+	 }
+      }
+
+      if (rest.restraint_type == coot::TORSION_RESTRAINT) {
+	 n_restraints_torsions++;
+	 mmdb::Atom *at_1 = atom[rest.atom_index_1];
+	 mmdb::Atom *at_2 = atom[rest.atom_index_2];
+	 mmdb::Atom *at_3 = atom[rest.atom_index_3];
+	 mmdb::Atom *at_4 = atom[rest.atom_index_4];
+	 if (at_1 && at_2 && at_3 && at_4) {
+	    clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+	    clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+	    clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
+	    clipper::Coord_orth p4(at_3->x, at_3->y, at_3->z);
+	    double torsion_rad = clipper::Coord_orth::torsion(p1, p2, p3, p4);
+	    double torsion = clipper::Util::rad2d(torsion_rad);
+	    double distortion = rest.torsion_distortion(torsion);
+	    double pen_score = distortion*distortion/(rest.sigma*rest.sigma);
+	    std::string chain_res_1 = std::string(at_1->GetChainID()) + " " + coot::util::int_to_string(at_1->GetSeqNum());
+	    std::string chain_res_2 = std::string(at_2->GetChainID()) + " " + coot::util::int_to_string(at_2->GetSeqNum());
+	    std::string chain_res_3 = std::string(at_3->GetChainID()) + " " + coot::util::int_to_string(at_3->GetSeqNum());
+	    std::string chain_res_4 = std::string(at_4->GetChainID()) + " " + coot::util::int_to_string(at_4->GetSeqNum());
+	    std::string s = std::string("torsion ")
+	       + chain_res_1 + " "
+	       + std::string(at_1->name) + std::string(" - ")
+	       + chain_res_2 + " "
+	       + std::string(at_2->name) + std::string(" - ")
+	       + chain_res_3 + " "
+	       + std::string(at_3->name) + std::string(" - ")
+	       + chain_res_4 + " "
+	       + std::string(at_4->name)
+	       + std::string("  target: ") + coot::util::float_to_string(rest.target_value)
+	       + std::string(" model_torsion: ") + coot::util::float_to_string(torsion)
+	       + std::string(" sigma: ") + coot::util::float_to_string(rest.sigma)
+	       + std::string(" torsion-devi ") + coot::util::float_to_string(distortion)
+	       + std::string(" penalty-score:  ") + coot::util::float_to_string(pen_score);
+	    penalty_string_torsions.push_back(std::pair<std::string,double> (s, pen_score));
+	    sum_penalties_angles += pen_score;
+	 }
+      }
+	    
+      if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
+	 n_restraints_chirals++;
+	 double chiral_limit = 10.0;  // arbitrons
+	 chiral_limit = 0.0;
+	 if (geometry_distortion[i].distortion_score > chiral_limit) {
+	    mmdb::Atom *at_c = atom[rest.atom_index_centre];
+	    mmdb::Atom *at_1 = atom[rest.atom_index_1];
+	    mmdb::Atom *at_2 = atom[rest.atom_index_2];
+	    mmdb::Atom *at_3 = atom[rest.atom_index_3];
+	    if (at_c && at_1 && at_2 && at_3) {
+	       std::cout << "   chiral volume problem centred at: "
+			 << at_c->name << " with neighbours "
+			 << at_1->name << " "
+			 << at_2->name << " "
+			 << at_3->name << " "
+			 << geometry_distortion[i].distortion_score
+			 << std::endl;
+	    }
+	 }
+	 double pen_score = geometry_distortion[i].distortion_score;
+	 sum_penalties_chirals += pen_score;
+      }
+
+      if (rest.restraint_type == coot::PLANE_RESTRAINT) {
+	 n_restraints_planes++;
+	 std::vector<mmdb::Atom *> plane_atoms;
+	 for (unsigned int iat=0; iat<rest.plane_atom_index.size(); iat++) { 
+	    mmdb::Atom *at = atom[rest.plane_atom_index[iat].first];
+	    if (at)
+	       plane_atoms.push_back(at);
+	 }
+	 std::string penalty_string("plane ");
+	 for (unsigned int iat=0; iat<plane_atoms.size(); iat++) {
+	    penalty_string += std::string(plane_atoms[iat]->GetChainID()) + " ";
+	    penalty_string += coot::util::int_to_string(plane_atoms[iat]->GetSeqNum()) + " ";
+	    penalty_string += plane_atoms[iat]->name;
+	    penalty_string += " ";
+	 }
+	 std::size_t len = penalty_string.length();
+	 if (len < 88) // to match bonds
+	    penalty_string += std::string(88-len, ' ');
+	 double pen_score = geometry_distortion[i].distortion_score;
+	 sum_penalties_planes += pen_score;
+	 penalty_string += std::string(" penalty-score:  ") + coot::util::float_to_string(pen_score);
+	 // std::cout << penalty_string << std::endl;
+	 penalty_string_planes.push_back(std::pair<std::string, double > (penalty_string, pen_score));
+      }
+   }
+	 
+   std::sort(penalty_string_bonds.begin(),    penalty_string_bonds.end(),    coot::util::sd_compare);
+   std::sort(penalty_string_angles.begin(),   penalty_string_angles.end(),   coot::util::sd_compare);
+   std::sort(penalty_string_torsions.begin(), penalty_string_torsions.end(), coot::util::sd_compare);
+   std::sort(penalty_string_planes.begin(),   penalty_string_planes.end(),   coot::util::sd_compare);
+
+   std::reverse(penalty_string_bonds.begin(),    penalty_string_bonds.end());
+   std::reverse(penalty_string_angles.begin(),   penalty_string_angles.end());
+   std::reverse(penalty_string_torsions.begin(), penalty_string_torsions.end());
+   std::reverse(penalty_string_planes.begin(),   penalty_string_planes.end());
+
+   // sorted list, line by line
+   for (unsigned int i=0; i<penalty_string_planes.size(); i++)
+      std::cout << "   " << penalty_string_planes[i].first << std::endl;
+   for (unsigned int i=0; i<penalty_string_bonds.size(); i++)
+      std::cout << "   " << penalty_string_bonds[i].first << std::endl;
+   for (unsigned int i=0; i<penalty_string_angles.size(); i++)
+      std::cout << "   " << penalty_string_angles[i].first << std::endl;
+   for (unsigned int i=0; i<penalty_string_torsions.size(); i++)
+      std::cout << "   " << penalty_string_torsions[i].first << std::endl;
+
+	 
+   // Summary:
+   double av_penalty_bond = 0;
+   double av_penalty_angle = 0;
+   double av_penalty_total = 0;
+   if (n_restraints_bonds > 0)
+      av_penalty_bond = sum_penalties_bonds/double(n_restraints_bonds);
+   if (n_restraints_angles > 0)
+      av_penalty_angle = sum_penalties_angles/double(n_restraints_angles);
+   if ((n_restraints_bonds+n_restraints_angles) > 0) { 
+      av_penalty_total = (sum_penalties_bonds+sum_penalties_angles)/(n_restraints_bonds+n_restraints_angles);
+   }
+   total_distortion =
+      sum_penalties_bonds  +
+      sum_penalties_angles +
+      sum_penalties_torsions +
+      sum_penalties_chirals  + 
+      sum_penalties_planes;
+	 
+   std::cout << "Residue Distortion Summary: \n   "
+	     << n_restraints_bonds  << " bond restraints\n   "
+	     << n_restraints_angles << " angle restraints\n"
+	     << "   sum of bond  distortions penalties:  " << sum_penalties_bonds  << "\n"
+	     << "   sum of angle distortions penalties:  " << sum_penalties_angles << "\n"
+	     << "   average bond  distortion penalty:    " << av_penalty_bond  << "\n"
+	     << "   average angle distortion penalty:    " << av_penalty_angle << "\n"
+	     << "   total distortion penalty:            " << total_distortion
+	     << "\n"
+	     << "   average distortion penalty:          " << av_penalty_total
+	     << std::endl;
+
+   return total_distortion;
+} 
+
+
 
 // iend_res is inclusive, so that 17,17 selects just residue 17.
 //   have_disulfide_residues: other residues are included in the
@@ -378,15 +604,16 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
       }
    }
 
-   use_map_gradient_for_atom.resize(n_atoms,0);
+   use_map_gradient_for_atom.resize(n_atoms, false);
    if (! from_residue_vector) {
       // convential way
       for (int i=0; i<n_atoms; i++) {
 	 if (atom[i]->residue->seqNum >= istart_res &&
 	     atom[i]->residue->seqNum <= iend_res) {
-	    use_map_gradient_for_atom[i] = 1;
+	    if (! is_hydrogen(atom[i]))
+	       use_map_gradient_for_atom[i] = true;
 	 } else {
-	    use_map_gradient_for_atom[i] = 0;
+	    use_map_gradient_for_atom[i] = false;
 	 }
       }
    } else {
@@ -394,9 +621,10 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
       for (int i=0; i<n_atoms; i++) {
 	 mmdb::Residue *res_p = atom[i]->residue;
 	 if (is_a_moving_residue_p(res_p)) {
-	    use_map_gradient_for_atom[i] = 1;
+	    if (! is_hydrogen(atom[i]))
+	       use_map_gradient_for_atom[i] = true;
 	 } else { 
-	    use_map_gradient_for_atom[i] = 0;
+	    use_map_gradient_for_atom[i] = false;
 	 }
       }
    }
@@ -420,7 +648,7 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
 
    // blank out those atoms from seeing electron density map gradients
    for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
-      use_map_gradient_for_atom[fixed_atom_indices[ifixed]] = 0;
+      use_map_gradient_for_atom[fixed_atom_indices[ifixed]] = false;
    } 
    
    if (verbose_geometry_reporting)
@@ -1803,8 +2031,8 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 
       for (int i=0; i<n_atoms; i++) {
 	 idx = 3*(plane_restraint.plane_atom_index[i].first);
-	 // std::cout << "plane restraint adding plane deviations for atom index " << plane_restraint.atom_index[i]
-	 // << std::endl;
+	 // std::cout << "plane restraint adding plane deviations for atom index "
+	 // << plane_restraint.atom_index[i] << std::endl;
 	 if (plane_restraint.plane_atom_index[i].first < 0) {
 	 } else { 
 	    mat(0,0) += (gsl_vector_get(v,idx  ) - x_cen) * (gsl_vector_get(v,idx  ) - x_cen);
@@ -1875,17 +2103,20 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 	       abcd[1]*gsl_vector_get(v,idx+1) +
 	       abcd[2]*gsl_vector_get(v,idx+2) -
 	       abcd[3];
-	    sum_devi += val * val;
+	    double r = val/plane_restraint.plane_atom_index[i].second;
+	    sum_devi += r*r;
 	 }
       }
    }
+
+   if (false) 
+      std::cout << "DEBUG:: distortion_score_plane_internal() returning "
+		<< sum_devi << " for " << plane_restraint.plane_atom_index.size() << " atoms"
+		<< std::endl;
    
-//    std::cout << "distortion_score_plane returning "
-//  	     <<  plane_restraint.sigma << "^-2 * "
-//  	     << sum_devi << " = "
-//   	     << pow(plane_restraint.sigma,-2.0) * sum_devi << std::endl;
-   
-   info.distortion_score = sum_devi / (plane_restraint.sigma * plane_restraint.sigma);
+    // info.distortion_score = sum_devi / (plane_restraint.sigma * plane_restraint.sigma);
+    // now individually weighted
+    info.distortion_score = sum_devi;
    
    return info;
 }
@@ -2204,7 +2435,6 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       std::string s = "Bonds:  ";
       s += coot::util::float_to_string_using_dec_pl(sbd, 3);
       lights_vec.push_back(coot::refinement_lights_info_t("Bonds", s, sbd));
-      std::cout << "bond_distortion " << bd << std::endl;
    } 
    if (n_angle_restraints == 0) {
       std::cout << "angles:     N/A " << std::endl;
@@ -2213,15 +2443,13 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       double sad = 0.0;
       if (ad > 0.0)
 	 sad = sqrt(ad);
-      std::cout << "angles:     " << sad
-		<< std::endl;
+      std::cout << "angles:     " << sad << std::endl;
       r += "   angles: ";
       r += coot::util::float_to_string_using_dec_pl(sad, 3);
       r += "\n";
       std::string s = "Angles: ";
       s += coot::util::float_to_string_using_dec_pl(sad, 3);
       lights_vec.push_back(coot::refinement_lights_info_t("Angles", s, sad));
-      std::cout << "angle_distortion " << ad << std::endl;
    } 
    if (n_torsion_restraints == 0) {
       std::cout << "torsions:   N/A " << std::endl;
@@ -2252,7 +2480,6 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       std::string s = "Planes: ";
       s += coot::util::float_to_string_using_dec_pl(spd, 3);
       lights_vec.push_back(coot::refinement_lights_info_t("Planes", s, spd));
-      std::cout << "plane_distortion " << pd << std::endl;
    }
    if (n_non_bonded_restraints == 0) {
       std::cout << "non-bonded: N/A " << std::endl;
@@ -2269,7 +2496,6 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       std::string s = "Non-bonded: ";
       s += coot::util::float_to_string_using_dec_pl(snbd, 3);
       lights_vec.push_back(coot::refinement_lights_info_t("Non-bonded", s, snbd));
-      std::cout << "nbc_distortion " << nbd << std::endl;
    }
    if (n_chiral_volumes == 0) { 
       std::cout << "chiral vol: N/A " << std::endl;
@@ -2284,7 +2510,6 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       std::string s = "Chirals: ";
       s += coot::util::float_to_string_using_dec_pl(scd, 3);
       lights_vec.push_back(coot::refinement_lights_info_t("Chirals", s, scd));
-      std::cout << "chiral_distortion " << cd << std::endl;
    }
    if (n_rama_restraints == 0) { 
       std::cout << "rama plot:  N/A " << std::endl;
@@ -3659,7 +3884,7 @@ coot::my_df_planes(const gsl_vector *v,
 	    const simple_restraint &plane_restraint = (*restraints)[i];
 	    plane_info = distortion_score_plane_internal(plane_restraint, v);
 	    n_plane_atoms = plane_restraint.plane_atom_index.size();
-	    weight = 1/((*restraints)[i].sigma * (*restraints)[i].sigma);
+	    // weight = 1/((*restraints)[i].sigma * (*restraints)[i].sigma);
 	    for (int j=0; j<n_plane_atoms; j++) {
 	       if (! (*restraints)[i].fixed_atom_flags[j] ) { 
 		  idx = 3*plane_restraint.plane_atom_index[j].first;
@@ -3668,6 +3893,9 @@ coot::my_df_planes(const gsl_vector *v,
 		     plane_info.abcd[1]*gsl_vector_get(v,idx+1) +
 		     plane_info.abcd[2]*gsl_vector_get(v,idx+2) -
 		     plane_info.abcd[3];
+
+		  double weight = 1/(plane_restraint.plane_atom_index[j].second *
+				     plane_restraint.plane_atom_index[j].second);
 
 		  clipper::Grad_orth<double> d(2.0 * weight * devi_len * plane_info.abcd[0],
 					       2.0 * weight * devi_len * plane_info.abcd[1],
@@ -3809,7 +4037,7 @@ coot::electron_density_score(const gsl_vector *v, void *params) {
       
       for (unsigned int i=0; i< v->size; i += 3) { 
 	 int iat = i/3;
-	 if (restraints->use_map_gradient_for_atom[iat] == 1) {
+	 if (restraints->use_map_gradient_for_atom[iat]) {
 	    bool use_it = 1;
 // 	    for (unsigned int ifixed=0; ifixed<restraints->fixed_atom_indices.size(); ifixed++) {
 // 	       if (restraints->fixed_atom_indices[ifixed] == iat) { 
@@ -3865,10 +4093,8 @@ void coot::my_df_electron_density (const gsl_vector *v,
       for (unsigned int i=0; i<v->size; i+=3) {
 
 	 int iat = i/3;
-// 	 std::cout << "restraints->use_map_gradient_for_atom[" << iat << "] == "
-// 		   << restraints->use_map_gradient_for_atom[iat] << "\n";
 	 
-	 if (restraints->use_map_gradient_for_atom[iat] == 1) {
+	 if (restraints->use_map_gradient_for_atom[iat]) {
 
 	    clipper::Coord_orth ao(gsl_vector_get(v,i), 
 				   gsl_vector_get(v,i+1), 
