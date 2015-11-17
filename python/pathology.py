@@ -1,9 +1,50 @@
 
 import os
 import coot
+import math
+import cairo
+import cairoplot
+
 import matplotlib
+matplotlib.use('agg')
+import matplotlib.pyplot as plt
+
+# import matplotlib new
 
 def pathology_plots(mtz, fp, sigfp):
+    try: 
+        print "getting data for", mtz
+        data = coot.pathology_data(mtz, fp, sigfp)
+        # print len(data), data
+        prefix,tail = os.path.splitext(mtz)
+        for i in range(4):
+            png_file_name = prefix + "-" + str(i) + ".png"
+            print "making plot", png_file_name
+            yt = 'I'
+            xt = 'Resolution'
+            if i == 1:
+                yt = 'I/SIGI'
+            if i == 2:
+                yt = 'SIGI'
+            if i == 3:
+                yt = 'I/SIGI'
+                xt = "I"
+            cairoplot.scatter_plot(png_file_name,
+                                   data = data[i+1],
+                                   # series_colors = ['black'],
+                                   series_colors = [[0.2, 0.2, 0.2]],
+                                   width = 600, height = 600, border = 20,
+                                   discrete = True,
+                                   x_title = xt,
+                                   y_title = yt,
+                                   dots = True,
+                                   axis = True)
+
+    except TypeError as e:
+                print "caught TypeError:", e
+
+
+def new_pathology_plots(mtz, fp, sigfp):
     data = coot.pathology_data(mtz, fp, sigfp)
     try: 
         prefix,tail = os.path.splitext(mtz)
@@ -35,6 +76,13 @@ def pathology_plots(mtz, fp, sigfp):
             
             print "making plot", png_file_name
 
+            fig1 = plt.figure()
+            xdata = [x[0] for x in data[i+1]]
+            ydata = [y[1] for y in data[i+1]]
+            # l = plt.scatter(xdata, ydata, 'r-')
+            s = 0.1
+            l = plt.scatter(xdata, ydata, s)
+            plt.savefig(png_file_name)
             
 
     except TypeError as e:
