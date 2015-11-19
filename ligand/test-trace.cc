@@ -13,24 +13,61 @@ int main(int argc, char **argv) {
    if (argc > 1)
       map_file_name = argv[1];
    
-   if (coot::file_exists(map_file_name)) { 
-      clipper::CCP4MAPfile file;
-      clipper::Xmap<float> xmap;
-      file.open_read(map_file_name);
-      file.import_xmap(xmap);
-      file.close_read();
+   if (coot::file_exists(map_file_name)) {
 
-      if (debug) {
-	 clipper::CCP4MAPfile mapout;
-	 mapout.open_write("duplicate.map");
-	 mapout.export_xmap(xmap);
-	 mapout.close_write();
+      try { 
+	 clipper::CCP4MAPfile file;
+	 clipper::Xmap<float> xmap;
+	 file.open_read(map_file_name);
+	 file.import_xmap(xmap);
+	 file.close_read();
+
+	 coot::trace t(xmap);
+
+
+	 // test from a pdb file
+	 std::string test_pdb_file_name = "test-trace-template.pdb";
+
+	 if (argc > 2) {
+	    std::string fn = argv[2];
+	    if (coot::file_exists(fn)) 
+	       test_pdb_file_name = fn;
+	 }
+
+	 
+	 // test with a null moll or flood mol
+	 if (coot::file_exists(test_pdb_file_name)) {
+
+	    mmdb::Manager *mol = new mmdb::Manager;
+	    mmdb::ERROR_CODE err = mol->ReadCoorFile(test_pdb_file_name.c_str());
+	    if (! err) {
+
+	       if (coot::file_exists("test-scales")) {
+		  t.optimize_weights(mol);
+
+		  std::cout << "------------- Done optimize_weights() " << std::endl;
+
+	       } else { 
+		  std::cout << "----------------------------------------------------\n";
+		  std::cout << "----------------------------------------------------\n";
+		  std::cout << "running with test mol: " << std::endl;
+		  std::cout << "----------------------------------------------------\n";
+		  std::cout << "----------------------------------------------------\n";
+		  t.test_model(mol);
+	       }
+	    }
+	 } else {
+
+	    t.action();
+
+	 } 
       }
       
-      coot::trace t(xmap);
-      t.action();
+      // problem reading the map, perhaps?
+      // 
+      catch (const clipper::Message_fatal &mess) {
+	 std::cout << "ERROR:: " << mess.text() << std::endl;
+      } 
    }
-
    return 0;
-
 }

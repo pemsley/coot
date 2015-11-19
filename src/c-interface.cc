@@ -4037,7 +4037,8 @@ read_phs_and_make_map_using_cell_symm_from_mol(const char *phs_filename_str, int
 	    cell = xtal.first;
 	    spacegroup = xtal.second;
 	    got_cell_symm_flag = 1;
-	 } catch ( std::runtime_error except ) {
+	 }
+	 catch (const std::runtime_error &except) {
 	    std::cout << "WARNING:: Cant get spacegroup from coordinates!\n";
 	    // get the cell/symm from a map:
 	    if (g.molecules[imol_ref].has_xmap()) {

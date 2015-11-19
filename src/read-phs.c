@@ -34,6 +34,8 @@
 #include "read-phs.h"
 #include "interface.h"
 
+#include "c-interface-gtk-widgets.h" // for main_window()
+
 #include "coot-fileselections.h" // for file chooser filter button
 
 int
@@ -44,7 +46,7 @@ try_read_phs_file(const char *filename) {
 
    char *f_pt;
    GtkWidget *widget; 
-   int is_pha_extension; 	/* pha is a phs file too (shelx) */
+   /* int is_pha_extension;   pha is a phs file too (shelx) */
 
    f_pt = strrchr(filename, '.'); 
 
@@ -84,7 +86,8 @@ void do_phs_cell_choice_window() {
   gchar *txt; 
   GSList *phs_cell_group = NULL;
   GtkWidget *toggle_button;
-
+  GtkWidget *mw_widget;
+  GtkWindow *mw;
 
 /* messing about with string variables */
   gchar entry_name[100]; 
@@ -102,7 +105,33 @@ void do_phs_cell_choice_window() {
 /*   entry_name = (gchar *) malloc(100); */
 /*   widget_name = (gchar *) malloc(25);  */
 
-  window = create_phs_cell_choice_window(); 
+  window = create_phs_cell_choice_window();
+
+  printf("..... debug:: we got window 0x%p\n", window);
+  fflush(stdout);
+  printf("..... debug:: we got main_window 0x%p\n", main_window());
+  fflush(stdout);
+  if (! window) {
+    printf("ERROR:: failed to get valid window from create_phs_cell_choice_window()\n");
+    return;
+  }
+  if (! main_window()) {
+    printf("ERROR:: failed to get main_window() from create_phs_cell_choice_window()\n");
+    return;
+  }
+  
+  mw_widget = lookup_widget(main_window(), "window1");
+
+  if (! mw_widget) {
+    printf("ERROR:: failed to get valid mw_widget in create_phs_cell_choice_window()\n");
+    return;
+  }
+
+  
+  printf("..... debug:: we got mw_widget 0x%p\n", mw_widget);
+  fflush(stdout);
+
+  mw = GTK_WINDOW(mw_widget);  
 
   for (i=0; i<graphics_n_molecules(); i++) {
 
@@ -187,13 +216,9 @@ void do_phs_cell_choice_window() {
   gtk_widget_show(window); 
   // force to the top? (even on Mac?) 
   // maybe the above show may not be needed any more
-#if (GTK_MAJOR_VERSION > 1)
-   gtk_window_set_transient_for(GTK_WINDOW(window),
-                                GTK_WINDOW(lookup_widget(main_window(),
-                                                         "window1")));
-   gtk_window_present(GTK_WINDOW(window));
-#endif
 
+   gtk_window_set_transient_for(GTK_WINDOW(window), mw);
+   gtk_window_present(GTK_WINDOW(window));
 } 
 
 
@@ -214,7 +239,7 @@ int phs_pdb_cell_symm() {
    GtkWidget *widget; 
 
    imol = graphics_n_molecules();
-#if (GTK_MAJOR_VERSION > 1)
+
    if (file_chooser_selector_state()) {
      GtkWidget *file_filter_button;
      GtkWidget *sort_button;
@@ -230,10 +255,6 @@ int phs_pdb_cell_symm() {
      widget = create_phs_coordinates_fileselection(); 
      set_directory_for_fileselection(widget);
    }
-#else
-   widget = create_phs_coordinates_fileselection(); 
-   set_directory_for_fileselection(widget);
-#endif /* GTK2 */
 
    gtk_widget_show(widget); 
 
@@ -244,7 +265,7 @@ int phs_pdb_cell_symm() {
 
 /* debugging function (that doesn't use C++) (the problem was that I
    was destroying the widget *then* useing the string (which of course
-   had been deallocated) - nothing to do with c/c++ interface. */
+   had been deallocated) - nothing to do with c/c++ interface). */
 void 
 test_read_coords(const gchar *filename) { 
 

@@ -121,6 +121,10 @@ namespace coot {
 	    residues_offset = 0;
 	    residues.resize(1, residue(1));
 	 }
+	 fragment(const std::string &frag_id_in, bool f) {
+	    fragment_id = frag_id_in;
+	    residues_offset = 0;
+	 } 
 	 std::string fragment_id;
 	 std::vector<residue> residues;
 	 friend std::ostream&  operator<<(std::ostream&, fragment);
@@ -240,6 +244,10 @@ namespace coot {
 	 // Can we use fragments[0]?
 	 // 
 	 bool is_empty() const;
+
+	 // Does it have atoms though?
+	 //
+	 bool has_atoms() const; 
 
 	 // Don't use the atomic weight.  I.e. all atoms are equally weighted.
 	 // FIXME

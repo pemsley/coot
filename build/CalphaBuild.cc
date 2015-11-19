@@ -64,7 +64,7 @@ coot::CalphaBuild::next_ca_by_skel(const std::vector<clipper::Coord_orth> &Previ
 
 
    std::vector <coot::scored_skel_coord> ahead_positions;
-   for (int i=0; i<scored_positions.size(); i++) { 
+   for (unsigned int i=0; i<scored_positions.size(); i++) { 
        
       // 3 elements: need 1, 2
       // 2 elements: need 0, 1
@@ -195,7 +195,7 @@ coot::CalphaBuild::next_ca_internal(const std::vector<clipper::Coord_orth> &Prev
 //       }
 //       std::cout << "- " << std::endl;
 
-      for(int i=0; i<ssc.size(); i++) {
+      for(unsigned int i=0; i<ssc.size(); i++) {
 	 float score = score_position_by_angles(Previous_ca_positions,
 						ssc[i].position);
 	 ssc[i].score = score;
@@ -234,7 +234,7 @@ coot::CalphaBuild::next_ca_internal(const std::vector<clipper::Coord_orth> &Prev
 
       // extend to baton length (ca_bond_length)
       // 
-      for(int i=0; i<ssc.size(); i++) {
+      for(unsigned int i=0; i<ssc.size(); i++) {
 	 ssc[i].position = extend_to_ca_bond_length_position(ssc[i].position, centre, ca_bond_length);
       }
    }
@@ -315,11 +315,11 @@ coot::CalphaBuild::cluster(const std::vector<coot::scored_skel_coord> &interesti
    std::vector<coot::scored_skel_coord> sum_centres;
    short int ifound;
 
-   for (int i=0; i<interesting.size(); i++) {
+   for (unsigned int i=0; i<interesting.size(); i++) {
 
       ifound = 0; 
       clipper::Coord_orth vec = interesting[i].position - starting_position;
-      for (int j=0; j<sum_centres.size(); j++) {
+      for (unsigned int j=0; j<sum_centres.size(); j++) {
 
 	 clipper::Coord_orth this_centre_average =
 	    (1/sum_centres[j].score)*sum_centres[j].position;
@@ -338,7 +338,7 @@ coot::CalphaBuild::cluster(const std::vector<coot::scored_skel_coord> &interesti
       }
    }
 
-   for (int j=0; j<sum_centres.size(); j++) {
+   for (unsigned int j=0; j<sum_centres.size(); j++) {
       sum_centres[j].position =
 	 (1.0/sum_centres[j].score) * sum_centres[j].position + starting_position;
    }

@@ -604,15 +604,16 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
       }
    }
 
-   use_map_gradient_for_atom.resize(n_atoms,0);
+   use_map_gradient_for_atom.resize(n_atoms, false);
    if (! from_residue_vector) {
       // convential way
       for (int i=0; i<n_atoms; i++) {
 	 if (atom[i]->residue->seqNum >= istart_res &&
 	     atom[i]->residue->seqNum <= iend_res) {
-	    use_map_gradient_for_atom[i] = 1;
+	    if (! is_hydrogen(atom[i]))
+	       use_map_gradient_for_atom[i] = true;
 	 } else {
-	    use_map_gradient_for_atom[i] = 0;
+	    use_map_gradient_for_atom[i] = false;
 	 }
       }
    } else {
@@ -620,9 +621,10 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
       for (int i=0; i<n_atoms; i++) {
 	 mmdb::Residue *res_p = atom[i]->residue;
 	 if (is_a_moving_residue_p(res_p)) {
-	    use_map_gradient_for_atom[i] = 1;
+	    if (! is_hydrogen(atom[i]))
+	       use_map_gradient_for_atom[i] = true;
 	 } else { 
-	    use_map_gradient_for_atom[i] = 0;
+	    use_map_gradient_for_atom[i] = false;
 	 }
       }
    }
@@ -646,7 +648,7 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
 
    // blank out those atoms from seeing electron density map gradients
    for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
-      use_map_gradient_for_atom[fixed_atom_indices[ifixed]] = 0;
+      use_map_gradient_for_atom[fixed_atom_indices[ifixed]] = false;
    } 
    
    if (verbose_geometry_reporting)
@@ -4035,7 +4037,7 @@ coot::electron_density_score(const gsl_vector *v, void *params) {
       
       for (unsigned int i=0; i< v->size; i += 3) { 
 	 int iat = i/3;
-	 if (restraints->use_map_gradient_for_atom[iat] == 1) {
+	 if (restraints->use_map_gradient_for_atom[iat]) {
 	    bool use_it = 1;
 // 	    for (unsigned int ifixed=0; ifixed<restraints->fixed_atom_indices.size(); ifixed++) {
 // 	       if (restraints->fixed_atom_indices[ifixed] == iat) { 
@@ -4091,10 +4093,8 @@ void coot::my_df_electron_density (const gsl_vector *v,
       for (unsigned int i=0; i<v->size; i+=3) {
 
 	 int iat = i/3;
-// 	 std::cout << "restraints->use_map_gradient_for_atom[" << iat << "] == "
-// 		   << restraints->use_map_gradient_for_atom[iat] << "\n";
 	 
-	 if (restraints->use_map_gradient_for_atom[iat] == 1) {
+	 if (restraints->use_map_gradient_for_atom[iat]) {
 
 	    clipper::Coord_orth ao(gsl_vector_get(v,i), 
 				   gsl_vector_get(v,i+1), 

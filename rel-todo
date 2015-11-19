@@ -1,6 +1,16 @@
  
  0.8.3
 
+
+   o does the phenix PDBe Python gui work as expected when there is no
+     cif file at the url (e.g. the accession code is wrong?).
+   
+   o are the oxygens on a nitro O and O-? (eg ligand in 4CCC).
+
+   o coot-download is created on starting coot.  It shold not be.  Marcin W.
+
+   o write a store.py wrapper that transfers files to pc:~/store
+
    o pyrogen -r "" CCC does nothing and should return a non-zero exit status.
 
    o CA Zone -> Mainchain will change the sequence to ALA - this is wrong
@@ -25,6 +35,9 @@
 
    o import an elbow dictionary cif as an "MTZ, cif. phs" file. Crash.
 
+   o is there anything going wrong with the minimisation of 
+     can-you-minimise-this-qm-ext-frag-3-123.pdb?
+
    o Can you fit the ligand in 3fw1 (gleevec)?
 
    o in find ligands, the dialog expands the sections incorrectly when
@@ -44,6 +57,8 @@
    o Sphere refine doesn't use alpha helical restraints. It should.
 
    o Flev this: BLD in 4lsa
+
+   o is sphericity test being applied for find waters? 
 
    o add a test for molecule(const std::vector<clipper::Coord_orth> &atom_list,
 		             const std::string &residue_type, std::string atom_name,
