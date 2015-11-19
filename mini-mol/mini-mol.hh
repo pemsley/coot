@@ -245,6 +245,10 @@ namespace coot {
 	 // 
 	 bool is_empty() const;
 
+	 // Does it have atoms though?
+	 //
+	 bool has_atoms() const; 
+
 	 // Don't use the atomic weight.  I.e. all atoms are equally weighted.
 	 // FIXME
 	 // 

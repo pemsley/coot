@@ -78,7 +78,9 @@ findwaters_bin_SOURCES = find-waters.cc
 
 test_trace_SOURCES = test-trace.cc
 
-test_trace_LDADD = ./libcoot-ligand.la
+test_trace_LDADD = ./libcoot-ligand.la    \
+	$(top_builddir)/analysis/libcoot-analysis.la
+
 
 # test_rotamer_tables_sql = test-rotamer-tables-sql.cc
 #

@@ -6,8 +6,8 @@
 #include "coot-utils/coot-map-utils.hh"
 #include "trace.hh"
 #include "ligand.hh"
-// #include "coot-utils/tree.hh"
 #include "analysis/stats.hh"
+#include "analysis/kolmogorov.hh" // for testing
 
 // First we will flood the map, then look for atom pair that are 2.8
 // to 4.8A apart and spin a search the density
@@ -23,8 +23,19 @@ coot::trace::trace(const clipper::Xmap<float>& xmap_in) {
    atom_selection = 0;
    n_selected_atoms = 0;
 
-   add_atom_names_in_map_output = false; 
+   using_test_model = false; 
 
+   frag_score_crit = 0;
+
+   std::pair<float, float> mv = util::mean_and_variance(xmap);
+
+   map_mean = mv.first;
+   map_rmsd = sqrt(mv.second);
+
+   // set refinement weight to 20/rmsd
+
+   set_inital_density_scales();
+   
 }
 
 std::ostream&
@@ -48,32 +59,77 @@ coot::trace::action() {
 	 atom_pairs_within_distance(mol, 3.81, 1.0);
       std::vector<std::pair<unsigned int, scored_node_t> > scores = spin_score_pairs(apwd);
 
-      // I abandon this method.  Longer trees have bad connectivity
-      // and wipe out decent smaller polypeptides.
-      // 
-      // trace_graph();
-      // print_interesting_trees();
-
       // Now start from the best peptide and try to put coordinate there
 
-      unsigned int n_top_spin_pairs_for_tracing_starts = 10;
+      unsigned int n_top_spin_pairs_for_tracing_starts = 1000;
       unsigned int n_top_spin_pairs = 1000; // use only the top 1000 for
                                             // potential connections
 
+      std::sort(scores.begin(), scores.end(), scored_node_t::sort_pair_scores);
       if (scores.size() < n_top_spin_pairs)
 	 n_top_spin_pairs = scores.size();
       else
 	 scores.resize(n_top_spin_pairs);
       
       make_connection_map(scores);
+      set_frag_score_crit(scores);
+      if (using_test_model)
+	 ks_test(scores);
+
+      std::vector<std::pair<std::vector<coot::scored_node_t>, coot::minimol::fragment> >
+	 frag_store;
       
       for (unsigned int i=0; i<n_top_spin_pairs_for_tracing_starts; i++) {
-	 std::vector<scored_node_t> start_path;
 	 std::string chain_id = frag_idx_to_chain_id(i);
 
-	 // fix start_path to be like it is in test_model()?
-	 // make_fragment(scores[i], start_path, chain_id);
+	 std::vector<scored_node_t> start_path;
+	 scored_node_t dummy_first;
+	 dummy_first.atom_idx = scores[i].first;
+	 start_path.push_back(dummy_first);
+      
+	 std::cout << "----------- test_model() starting point number  " << i
+		   << " atom_idx: " << scores[i].first << " node: " << scores[i].second 
+		   << " chain_id " << chain_id << std::endl;
+
+	 int res_no_base = scores[i].first;
+
+	 res_no_base = i;
+
+	 // actually, we *have* the first spin pair but it gets thrown
+	 // away and "rediscovered" when build_2_choose_1() does just
+	 // that (and hopefully picks the idx scores[i].second.atom_ids).
+	 // 
+
+	 dir_t dir = FORWARDS;
+      
+	 std::cout << "------------------------------- follow forwards ---------"
+		   << std::endl;
+	 std::pair<std::vector<coot::scored_node_t>, coot::minimol::fragment> ff = 
+	    follow_fragment(scores[i].first, start_path, res_no_base, chain_id, dir);
+
+	 std::cout << "------------------------------- follow backwards --------"
+		   << std::endl;
+	 dir = BACKWARDS;
+	 std::pair<std::vector<coot::scored_node_t>, coot::minimol::fragment> bf = 
+	    follow_fragment(scores[1].second.atom_idx, start_path, 1000+res_no_base, chain_id, dir);
+	 
+	 add_replace_reject(frag_store, ff);
+	 add_replace_reject(frag_store, bf);
+
+	 std::cout << "For i_top_frag " << i << " we have " << frag_store.size()
+		   << " fragment " << std::endl;
+      
       }
+
+      for (unsigned int ifrag=0; ifrag<frag_store.size(); ifrag++) {
+
+      	 minimol::molecule m_debug(frag_store[ifrag].second);
+	 std::string  node_string = util::int_to_string(ifrag);
+	 std::string fn_ = "frag-store-" + node_string + ".pdb";
+	 if (! m_debug.is_empty())
+	    m_debug.write_file(fn_, 10);
+      }
+      
    }
 }
 
@@ -89,8 +145,37 @@ coot::trace::frag_idx_to_chain_id(unsigned int idx) const {
    } else {
       return "Z";
    }
+}
+
+double
+coot::trace::ks_test(const std::vector<std::pair<unsigned int, scored_node_t> > &scores) {
+
+   double ks = 0;
+
+   std::vector<double> t1;
+   std::vector<double> t2;
+   for (unsigned int i=0; i<scores.size(); i++) {
+      if (scores[i].second.udd_flag)
+	 t2.push_back(scores[i].second.spin_score);
+      else 
+	 t1.push_back(scores[i].second.spin_score);
+   }
+   ks = nicholls::get_KS(t1, t2);
+   std::cout << "debug:: ks: t1.size() " << t1.size() << " t2.size() " << t2.size()
+	     << " ks: " << ks << std::endl;
+   return ks;
+}
+
+double
+coot::trace::ks_test() {
+
+   std::vector<std::pair<unsigned int, unsigned int> > apwd =
+      atom_pairs_within_distance(mol, 3.81, 1.0);
+   std::vector<std::pair<unsigned int, scored_node_t> > scores = spin_score_pairs(apwd);
+   return ks_test(scores);
+
 } 
-      
+
 
 
 coot::minimol::molecule
@@ -253,11 +338,13 @@ coot::trace::spin_score_pairs(const std::vector<std::pair<unsigned int, unsigned
       const std::string &at_name_2 = index_to_name(scores[i].second.atom_idx);
       int res_no_1 = atom_selection[scores[i].first          ]->GetSeqNum();
       int res_no_2 = atom_selection[scores[i].second.atom_idx]->GetSeqNum();
+      std::string chain_id_1 = atom_selection[scores[i].first          ]->GetChainID();
+      std::string chain_id_2 = atom_selection[scores[i].second.atom_idx]->GetChainID();
       
       std::cout << "sorted spin scores " << " " << std::setw(4) << scores[i].first << " "
 		<< " to " << std::setw(4) << scores[i].second.atom_idx << " "
-		<< at_name_1 << " " << std::setw(3) << res_no_1 << " " 
-		<< at_name_2 << " " << std::setw(3) << res_no_2 << " " 
+		<< at_name_1 << " " << std::setw(3) << res_no_1 << " " << chain_id_1 << " " 
+		<< at_name_2 << " " << std::setw(3) << res_no_2 << " " << chain_id_2 << " " 
 		<< index_to_pos(scores[i].first).format() << " "
 		<< index_to_pos(scores[i].second.atom_idx).format() << " "
 		<< scores[i].second.spin_score << std::endl;
@@ -290,21 +377,23 @@ coot::trace::output_spin_score(const std::pair<unsigned int, scored_node_t> &sco
 	 consecutive_flag = true;
    } 
    // 
-   const std::string &at_name_1 = index_to_name(at_idx_1);
-   const std::string &at_name_2 = index_to_name(at_idx_2);
+   std::string at_name_1 = index_to_name(at_idx_1);
+   std::string at_name_2 = index_to_name(at_idx_2);
    int res_no_1 = atom_selection[at_idx_1]->GetSeqNum();
    int res_no_2 = atom_selection[at_idx_2]->GetSeqNum();
+   std::string chain_id_1 = atom_selection[at_idx_1]->GetChainID();
+   std::string chain_id_2 = atom_selection[at_idx_2]->GetChainID();
 
    clipper::Coord_orth co_1 = index_to_pos(at_idx_1);
    clipper::Coord_orth co_2 = index_to_pos(at_idx_2);
    double dist = clipper::Coord_orth::length(co_1, co_2);
 
    std::cout << "spin-scores " << std::setw(4) << at_idx_1 << " ";
-   if (add_atom_names_in_map_output)
-      std::cout << at_name_1 << " " << res_no_1 << " "
-		<< std::setw(4) << at_idx_2 << " ";
-   if (add_atom_names_in_map_output)
-      std::cout << at_name_2 << " " << res_no_2 << " ";
+   if (using_test_model)
+      std::cout << at_name_1 << " " << res_no_1 << " " << chain_id_1 << " ";
+   std::cout << std::setw(4) << at_idx_2 << " ";
+   if (using_test_model)
+      std::cout << at_name_2 << " " << res_no_2 << " " << chain_id_2 << " ";
    std::cout // << " dist: " << dist << "    "
       << " score: "
       << std::right << std::setw(8) << std::setprecision(3) << std::fixed
@@ -313,7 +402,6 @@ coot::trace::output_spin_score(const std::pair<unsigned int, scored_node_t> &sco
       << co_2.x() << " " << co_2.y() << " " << co_2.z() << "    "
       << ca_1_flag << " " << ca_2_flag << " " << consecutive_flag
       << std::endl;
-
 }
 
 void
@@ -371,51 +459,50 @@ coot::trace::make_connection_map(const std::vector<std::pair<unsigned int, score
       }
    }
 
-   
-   for (itm=fwd_connection_map.begin(); itm!=fwd_connection_map.end(); itm++) {
-      std::cout << "fwd-map: " << itm->first << " ";
-      if (add_atom_names_in_map_output)
-	 std::cout << atom_selection[itm->first]->name << " " 
-		   << atom_selection[itm->first]->GetSeqNum() << ":  ";
-      for (unsigned int jj=0; jj<itm->second.size(); jj++) { 
-	 std::cout << " " << itm->second[jj].atom_idx;
-	 if (add_atom_names_in_map_output)
-	    std::cout << " "
-		      << atom_selection[itm->second[jj].atom_idx]->name << " "
-		      << atom_selection[itm->second[jj].atom_idx]->GetSeqNum() << " ";
-      }
-      std::cout << std::endl;
+   if (false) { // debugging output
+      for (itm=fwd_connection_map.begin(); itm!=fwd_connection_map.end(); itm++) {
+	 std::cout << "fwd-map: " << itm->first << " ";
+	 if (using_test_model)
+	    std::cout << atom_selection[itm->first]->name << " " 
+		      << atom_selection[itm->first]->GetSeqNum() << ":  ";
+	 for (unsigned int jj=0; jj<itm->second.size(); jj++) { 
+	    std::cout << " " << itm->second[jj].atom_idx;
+	    if (using_test_model)
+	       std::cout << " "
+			 << atom_selection[itm->second[jj].atom_idx]->name << " "
+			 << atom_selection[itm->second[jj].atom_idx]->GetSeqNum() << " ";
+	 }
+	 std::cout << std::endl;
 
-      const std::vector<scored_node_t> &v = bck_connection_map[itm->first];
-      std::cout << "bck-map: " << itm->first << " ";
-      if (add_atom_names_in_map_output)
-	 std::cout << atom_selection[itm->first]->name << " "
-		   << atom_selection[itm->first]->GetSeqNum() << ":  ";
+	 const std::vector<scored_node_t> &v = bck_connection_map[itm->first];
+	 std::cout << "bck-map: " << itm->first << " ";
+	 if (using_test_model)
+	    std::cout << atom_selection[itm->first]->name << " "
+		      << atom_selection[itm->first]->GetSeqNum() << ":  ";
 	 
-      for (unsigned int jj=0; jj<v.size(); jj++) {
-	 std::cout << " " << v[jj].atom_idx;
-	 if (add_atom_names_in_map_output)
-	    std::cout << " " << atom_selection[v[jj].atom_idx]->name
-		      << " " << atom_selection[v[jj].atom_idx]->GetSeqNum() << " ";
+	 for (unsigned int jj=0; jj<v.size(); jj++) {
+	    std::cout << " " << v[jj].atom_idx;
+	    if (using_test_model)
+	       std::cout << " " << atom_selection[v[jj].atom_idx]->name
+			 << " " << atom_selection[v[jj].atom_idx]->GetSeqNum() << " ";
+	 }
+	 std::cout << std::endl;
       }
-      std::cout << std::endl;
    }
    
-
-
    // debug::
    // 
    for (itm=fwd_connection_map.begin(); itm!=fwd_connection_map.end(); itm++) {
       int res_no = atom_selection[itm->first]->GetSeqNum();
       std::cout << "fwd-map " << itm->first <<  "  ["
 		<< std::setw(2) << itm->second.size() << "] ";
-      if (add_atom_names_in_map_output)
+      if (using_test_model)
 	 std::cout << atom_selection[itm->first]->name << " " << res_no << " ";
       std::cout << index_to_pos(itm->first).format() << "  ";
       for (unsigned int jj=0; jj<itm->second.size(); jj++) {
 	 int res_no_n = atom_selection[itm->second[jj].atom_idx]->GetSeqNum();
 	 std::cout << "  " << itm->second[jj].atom_idx << " ";
-	 if (add_atom_names_in_map_output)
+	 if (using_test_model)
 	    std::cout << atom_selection[itm->second[jj].atom_idx]->name << " "
 		      << res_no_n << " ";
       }
@@ -426,28 +513,42 @@ coot::trace::make_connection_map(const std::vector<std::pair<unsigned int, score
       int res_no = atom_selection[itm->first]->GetSeqNum();
       std::cout << "bck-map " << itm->first <<  "  ["
 		<< std::setw(2) << itm->second.size() << "] ";
-      if (add_atom_names_in_map_output)
+      if (using_test_model)
 	 std::cout << atom_selection[itm->first]->name << " " << res_no << " ";
       std::cout << index_to_pos(itm->first).format() << "  ";
       for (unsigned int jj=0; jj<itm->second.size(); jj++) {
 	 int res_no_n = atom_selection[itm->second[jj].atom_idx]->GetSeqNum();
 	 std::cout << "  " << itm->second[jj].atom_idx << " ";
-	 if (add_atom_names_in_map_output)
+	 if (using_test_model)
 	    std::cout << atom_selection[itm->second[jj].atom_idx]->name << " "
 		      << res_no_n << " ";
       }
       std::cout << std::endl;
    }
-   
 }
+
+void
+coot::trace::set_frag_score_crit(const std::vector<std::pair<unsigned int, scored_node_t> > &scores) {
+
+   if (scores.size()) { 
+      double sum = 0;
+      for (unsigned int i=0; i<scores.size(); i++) { 
+	 sum += scores[i].second.spin_score;
+      }
+
+      frag_score_crit = 2 * sum/double(scores.size());
+   }
+}
+
 
 coot::minimol::fragment
 coot::trace::make_fragment(std::pair<unsigned int, coot::scored_node_t> scored_node,
 			   int res_no_base,
 			   std::string chain_id) {
 
-   std::cout << "   make_fragment() called with  node: " << scored_node.first
-	     << " scored_node.idx: " << scored_node.second.atom_idx << std::endl;
+   if (false)
+      std::cout << "   make_fragment() called with  node: " << scored_node.first
+		<< " scored_node.idx: " << scored_node.second.atom_idx << std::endl;
    
    clipper::Coord_orth pos_1 = index_to_pos(scored_node.first);
    clipper::Coord_orth pos_2 = index_to_pos(scored_node.second.atom_idx);
@@ -745,8 +846,18 @@ coot::trace::spin_score(unsigned int idx_1, unsigned int idx_2) const {
    clipper::Coord_orth rel_line_pt_N(      diff_p_unit * f_ca_ca_n - perp_unit * 0.3);
    clipper::Coord_orth rel_line_pt_perp1(diff_p_unit * f_ca_ca_pt_for_perp  + double_perp_unit * 1.85);
    clipper::Coord_orth rel_line_pt_perp2(diff_p_unit * f_ca_ca_pt_for_perp  - double_perp_unit * 1.72);
-   
 
+
+   // Idea from Andrea T (originally from George, I understand)
+   // 
+   // There should be density for a hydrogen bond acceptor in the
+   // extension of the direction to the N from the CA-CA line.
+   // However, we need to spin-search this a bit because it's often somewhat off axis.
+   // 
+   // Currently doesn't work.
+   clipper::Coord_orth rel_line_pt_N_accpt(diff_p_unit * f_ca_ca_n - perp_unit * 3.0);
+   clipper::Coord_orth rel_line_pt_N_accpt_off(diff_p_unit * (f_ca_ca_n + 0.5) - perp_unit * 3.0);
+   
    float rho_at_1 = util::density_at_point(xmap, pos_1);
    float rho_at_2 = util::density_at_point(xmap, pos_2);
 
@@ -763,14 +874,14 @@ coot::trace::spin_score(unsigned int idx_1, unsigned int idx_2) const {
    float rho_3_best  = -999;
    double alpha_best = -1; // negative indicates this was not set - which is a bad thing.
 
-   // these can be optimized with machine learning?
-   float scale_CO       =  0.5;
-   float scale_CO_low   = -0.6;
-   float scale_CO_anti  = -0.1;
-   float scale_perp     = -0.7;
-   float scale_mid      =  1.6;
-   float scale_non_line =  1.0;
-   float scale_N        = -0.0;
+   // // these can be optimized with machine learning?
+   // float scale_CO       =  0.5;
+   // float scale_CO_low   = -0.6;
+   // float scale_CO_anti  = -0.1;
+   // float scale_perp     = -0.7;
+   // float scale_mid      =  1.6;
+   // float scale_non_line =  1.0;
+   // float scale_N        = -0.0;
 
    // unsigned int idx_test_1 = 1228;
    // unsigned int idx_test_2 = 1238;
@@ -807,6 +918,26 @@ coot::trace::spin_score(unsigned int idx_1, unsigned int idx_2) const {
       clipper::Coord_orth p_3 = util::rotate_round_vector(diff_p_unit,
 							  pos_1 + rel_line_pt_perp2,
 							  pos_1, alpha);
+
+      clipper::Coord_orth p_N_acceptor_1 = util::rotate_round_vector(diff_p_unit,
+								     pos_1 + rel_line_pt_N_accpt,
+								     pos_1, alpha);
+      clipper::Coord_orth p_N_acceptor_2 = util::rotate_round_vector(diff_p_unit,
+								     pos_1 + rel_line_pt_N_accpt,
+								     pos_1, (alpha + 0.26));
+      clipper::Coord_orth p_N_acceptor_3 = util::rotate_round_vector(diff_p_unit,
+								     pos_1 + rel_line_pt_N_accpt,
+								     pos_1, (alpha - 0.26));
+      clipper::Coord_orth p_N_acceptor_4 = util::rotate_round_vector(diff_p_unit,
+								     pos_1 + rel_line_pt_N_accpt_off,
+								     pos_1, alpha);
+      clipper::Coord_orth p_N_acceptor_5 = util::rotate_round_vector(diff_p_unit,
+								     pos_1 + rel_line_pt_N_accpt_off,
+								     pos_1, (alpha + 0.26));
+      clipper::Coord_orth p_N_acceptor_6 = util::rotate_round_vector(diff_p_unit,
+								     pos_1 + rel_line_pt_N_accpt_off,
+								     pos_1, (alpha - 0.26));
+      
       
       float rho_CO      = util::density_at_point(xmap, p_CO);
       float rho_CO_low  = util::density_at_point(xmap, p_CO_low);
@@ -815,13 +946,28 @@ coot::trace::spin_score(unsigned int idx_1, unsigned int idx_2) const {
       float rho_2       = util::density_at_point(xmap, p_2);
       float rho_3       = util::density_at_point(xmap, p_3);
 
+      float rho_acceptor_1 = util::density_at_point(xmap, p_N_acceptor_1);
+      float rho_acceptor_2 = util::density_at_point(xmap, p_N_acceptor_2);
+      float rho_acceptor_3 = util::density_at_point(xmap, p_N_acceptor_3);
+      float rho_acceptor_4 = util::density_at_point(xmap, p_N_acceptor_4);
+      float rho_acceptor_5 = util::density_at_point(xmap, p_N_acceptor_5);
+      float rho_acceptor_6 = util::density_at_point(xmap, p_N_acceptor_6);
+
+      float rho_acceptor_best = rho_acceptor_1;
+      if (rho_acceptor_2 > rho_acceptor_best) rho_acceptor_best = rho_acceptor_2;
+      if (rho_acceptor_3 > rho_acceptor_best) rho_acceptor_best = rho_acceptor_3;
+      if (rho_acceptor_4 > rho_acceptor_best) rho_acceptor_best = rho_acceptor_4;
+      if (rho_acceptor_5 > rho_acceptor_best) rho_acceptor_best = rho_acceptor_5;
+      if (rho_acceptor_6 > rho_acceptor_best) rho_acceptor_best = rho_acceptor_6;
+      
       float this_score =
 	 scale_CO      * rho_CO      +
 	 scale_CO_low  * rho_CO_low  + 
 	 scale_CO_anti * rho_CO_anti +
 	 scale_N       * rho_N       +
 	 scale_perp    * rho_2       +
-	 scale_perp    * rho_3;
+	 scale_perp    * rho_3       +
+	 scale_N_accpt * rho_acceptor_best; 
 
       if (idx_1 == idx_test_1 && idx_2 == idx_test_2) {
 	 std::cout << "debug_pos:: CO     " << p_CO.x() << " " << p_CO.y() << " " << p_CO.z()
@@ -848,19 +994,31 @@ coot::trace::spin_score(unsigned int idx_1, unsigned int idx_2) const {
 
    float non_line_equal_density_penalty_1 = rho_at_1 + rho_at_2 - 2 * rho_mid;
    float non_line_equal_density_penalty = 
-      - non_line_equal_density_penalty_1 * non_line_equal_density_penalty_1;
+      - non_line_equal_density_penalty_1 * non_line_equal_density_penalty_1 /
+      map_rmsd;
 
    best_score += scale_mid * rho_mid;
    best_score += scale_non_line * non_line_equal_density_penalty;
 
    if (idx_1 == idx_test_1 && idx_2 == idx_test_2) {
-      std::cout << "debug score-parts: " << rho_at_1 << " " << rho_at_2 << " mid: "
+      std::cout << "score-parts: " << rho_at_1 << " " << rho_at_2 << " mid: "
 		<< rho_mid << " CO " << rho_CO_best
 		<< " perp-1 " << rho_2_best << " perp-2 " << rho_3_best
 		<< " = " << best_score << std::endl;
    }
 
    scored_node_t best_node(idx_2, best_score, alpha_best);
+   // for testing
+   if (using_test_model) {
+      std::string atom_name_1(at_1->name);
+      std::string atom_name_2(at_2->name);
+      if (atom_name_1 == " CA ") {
+	 if (atom_name_2 == " CA ") {
+	    if ((at_1->GetSeqNum() + 1) == at_2->GetSeqNum())
+	       best_node.udd_flag = true;
+	 }
+      }
+   }
    return std::pair<unsigned int, scored_node_t> (idx_1, best_node);
 }
 
@@ -873,7 +1031,7 @@ coot::trace::print_interesting_trees() const {
 	 const unsigned int &idx = interesting_trees[itree][j].atom_idx;
 	 int res_no = atom_selection[idx]->GetSeqNum();
 	 std::cout << "  " << idx;
-	 if (add_atom_names_in_map_output)
+	 if (using_test_model)
 	    std::cout << " (" << atom_selection[idx]->name << " " << res_no << ")";
       }
       std::cout << std::endl;
@@ -899,11 +1057,63 @@ coot::trace::print_interesting_trees() const {
    }
 } 
 
+void
+coot::trace::optimize_weights(mmdb::Manager *mol) {
+
+   using_test_model = true; // makes sense only when use use template pdb
+                            // for atom seeding
+   
+   std::vector<std::pair<unsigned int, unsigned int> > apwd =
+      atom_pairs_within_distance(mol, 3.81, 1);
+
+   double s[8], s_orig[8];
+   s[0] = scale_CO;
+   s[1] = scale_CO_low;
+   s[2] = scale_CO_anti;
+   s[3] = scale_perp;
+   s[4] = scale_mid;
+   s[5] = scale_non_line;
+   s[6] = scale_N;
+   s[7] = scale_N_accpt;
+   for (unsigned int i=0; i<8; i++)
+      s_orig[i] = s[i];
+
+   std::vector<std::pair<unsigned int, scored_node_t> > scores =
+      spin_score_pairs(apwd);
+   set_scales(s);
+   double ks = ks_test(scores);
+   // The unchanged set
+   std::cout << "ks: " << ks << "  ";
+   for (unsigned int i=0; i<8; i++) std::cout << " " << s[i];
+   std::cout << std::endl;
+   
+
+   unsigned int n_factors = 21;
+
+   unsigned int i_scale = 7; // don't forget to set/reset the "moving" scale
+   
+   for (unsigned int ifact=0; ifact<n_factors; ifact++) { 
+      double f_1 = (double(ifact) - double(n_factors-1) * 0.5); // -10 to 10
+      double f_2 = 1 + 0.2 * f_1; // -1 to 3 // -3 to 5
+      std::cout << "f_2: " << f_2 << std::endl;
+      s[i_scale] = s_orig[i_scale] * f_2;
+	 
+      set_scales(s);
+
+      std::vector<std::pair<unsigned int, scored_node_t> > scores =
+	 spin_score_pairs(apwd);
+      double ks = ks_test(scores);
+
+      std::cout << "ks: " << ks << "  ";
+      for (unsigned int i=0; i<8; i++) std::cout << " " << s[i];
+      std::cout << std::endl;
+   }
+}
 
 void
 coot::trace::test_model(mmdb::Manager *mol) {
 
-   add_atom_names_in_map_output = true; // makes sense only when use use template pdb
+   using_test_model = true; // makes sense only when use use template pdb
                                         // for atom seeding
    
    std::vector<std::pair<unsigned int, unsigned int> > apwd =
@@ -911,7 +1121,7 @@ coot::trace::test_model(mmdb::Manager *mol) {
 
    std::vector<std::pair<unsigned int, scored_node_t> > scores = spin_score_pairs(apwd);
 
-   unsigned int n_top = 10000; // top-scoring spin-score pairs for tracing
+   unsigned int n_top = 1000; // top-scoring spin-score pairs for tracing
    
    std::sort(scores.begin(), scores.end(), scored_node_t::sort_pair_scores);
    if (scores.size() > n_top) {
@@ -922,16 +1132,20 @@ coot::trace::test_model(mmdb::Manager *mol) {
    
    make_connection_map(scores);
 
-   int n_top_fragments = 1;
-   // 
+   set_frag_score_crit(scores);
+
+   int n_top_fragments = 100;
+   //
+
+   std::vector<std::pair<std::vector<coot::scored_node_t>, coot::minimol::fragment> >
+      frag_store;
+
 
 #pragma omp parallel for // currently we write out the fragments, not store them
    
-   // for (int i=0; i<n_top_fragments; i++) {
+   for (int i=0; i<n_top_fragments; i++) {
 
-   {
-
-      int i = 2;
+      // int i = 2;
 
       // int tid = omp_get_thread_num();
       // std::cout << "OMP::: " << tid << std::endl;
@@ -959,23 +1173,44 @@ coot::trace::test_model(mmdb::Manager *mol) {
       
       std::cout << "------------------------------- follow forwards ---------"
        		<< std::endl;
-      follow_fragment(scores[i].first, start_path, res_no_base, chain_id, dir);
 
-      // std::cout << "------------------------------- follow backwards --------"
-      // 		<< std::endl;
-      // dir = BACKWARDS;
-      // follow_fragment(scores[1].second.atom_idx, start_path, 1000, chain_id, dir);
+
+      std::pair<std::vector<coot::scored_node_t>, coot::minimol::fragment> ff = 
+	 follow_fragment(scores[i].first, start_path, res_no_base, chain_id, dir);
+
+      std::cout << "------------------------------- follow backwards --------"
+       		<< std::endl;
+      dir = BACKWARDS;
+      std::pair<std::vector<coot::scored_node_t>, coot::minimol::fragment> bf = 
+	 follow_fragment(scores[1].second.atom_idx, start_path, 1000+res_no_base, chain_id, dir);
+
+      add_replace_reject(frag_store, ff);
+      add_replace_reject(frag_store, bf);
+
+      std::cout << "For i_top_frag " << i << " we have " << frag_store.size()
+		<< " fragment " << std::endl;
+      
+   }
+
+   for (unsigned int ifrag=0; ifrag<frag_store.size(); ifrag++) {
+
+      	 minimol::molecule m_debug(frag_store[ifrag].second);
+	 std::string  node_string = util::int_to_string(ifrag);
+	 std::string fn_ = "frag-store-" + node_string + ".pdb";
+	 if (! m_debug.is_empty())
+	    m_debug.write_file(fn_, 10);
    }
 }
 
-void
+// if return.first is more than 1, then we have something interesting
+// 
+std::pair<std::vector<coot::scored_node_t>, coot::minimol::fragment>
 coot::trace::follow_fragment(unsigned int atom_idx, const std::vector<scored_node_t> &path_in,
 			     int res_no_base,
 			     const std::string &chain_id,
 			     dir_t dir) {
 
-
-   std::vector<scored_node_t> start_path = path_in;
+   std::vector<scored_node_t> local_path = path_in;
    minimol::fragment running_fragment;
    unsigned int atom_idx_in = atom_idx;
    
@@ -986,15 +1221,16 @@ coot::trace::follow_fragment(unsigned int atom_idx, const std::vector<scored_nod
       // is a best neighbour of atom_idx
       //
 
-      int res_no = res_no_base + start_path.size();
+      int res_no = res_no_base + local_path.size();
       if (dir == BACKWARDS)
-	 res_no = res_no_base - start_path.size();
+	 res_no = res_no_base - local_path.size();
       
       std::pair<bool, scored_node_t> sn =
-	 build_2_choose_1(atom_idx, start_path, res_no, chain_id, dir);
+	 build_2_choose_1(atom_idx, local_path, res_no, chain_id, dir);
       status = sn.first;
-      std::cout << "From node " << atom_idx << " got next: status: "
-		<< sn.first << " and index: " << sn.second.atom_idx << std::endl;
+      if (false) // debug
+	 std::cout << "From node " << atom_idx << " got next: status: "
+		   << sn.first << " and index: " << sn.second.atom_idx << std::endl;
       if (sn.first) {
 	 std::pair<unsigned int, scored_node_t> p(atom_idx, sn.second);
 
@@ -1005,7 +1241,7 @@ coot::trace::follow_fragment(unsigned int atom_idx, const std::vector<scored_nod
 
 	 // setup for next round
 	 atom_idx = sn.second.atom_idx;
-	 start_path.push_back(sn.second);
+	 local_path.push_back(sn.second);
 	 
       } else {
 	 // what's in running fragment?
@@ -1014,11 +1250,71 @@ coot::trace::follow_fragment(unsigned int atom_idx, const std::vector<scored_nod
 	 std::string  node_string = util::int_to_string(res_no_base);
 	 std::string fn_ = "running-frag-node-" + node_string + ".pdb";
 	 std::cout << ":::::: fragment output: " << fn_ << std::endl;
-	 m_debug.write_file(fn_, 10);
+	 if (! m_debug.is_empty())
+	    m_debug.write_file(fn_, 10);
 	 
       }
    }
+
+   // debug: count the residues of running_fragment
+   unsigned int n_fragment_residues = 0;
+   for (int ires=running_fragment.min_res_no();
+	   ires<=running_fragment.max_residue_number();
+	   ires++) { 
+	 if (running_fragment[ires].atoms.size())
+	    n_fragment_residues++;
+   }
+   
+   std::cout << "debug:: running_fragment: " <<  local_path.size()  << " "
+	     << n_fragment_residues << std::endl;
+
+   
+   std::pair<std::vector<scored_node_t>, minimol::fragment> p(local_path, running_fragment);
+   
+   return p;
 }
+
+
+void
+coot::trace::add_replace_reject(std::vector<std::pair<std::vector<scored_node_t>, minimol::fragment> > &frag_store, const std::pair<std::vector<scored_node_t>, minimol::fragment> &trial) const {
+
+   // is this like anything else?
+   unsigned int n_for_match = 4;
+   unsigned int n_match_for_replace = 4; 
+   bool add_it = true;
+
+   unsigned int n_match = 0;
+   for (unsigned int i=0; i<frag_store.size(); i++) { 
+      for (unsigned int j=0; j<frag_store[i].first.size(); j++) { 
+	 for (unsigned int k=0; k<trial.first.size(); k++) { 
+	    if (trial.first[k] == frag_store[i].first[j]) {
+	       n_match ++;
+	    } 
+	 }
+      }
+      if (n_match >= n_for_match) {
+	 if (trial.first.size() < frag_store[i].first.size()) {
+	    // there is already something like and longer than trial in frag_store
+	    add_it = false;
+	    break;
+	 } 
+      }
+   }
+
+
+
+   if (add_it) {
+
+      // delete things already in frag_store that are like trial
+
+      frag_store.erase(std::remove_if(frag_store.begin(),
+				      frag_store.end(),
+				      frag_store_eraser(trial, &xmap, n_match_for_replace)),
+		       frag_store.end());
+      frag_store.push_back(trial);
+   } 
+
+} 
 
 
 std::pair<bool, coot::scored_node_t>
@@ -1030,10 +1326,10 @@ coot::trace::build_2_choose_1(unsigned int atom_idx,
 
    bool status = false;
 
-   if (true) { // debug
+   if (false) { // debug
 
       std::cout << "build_2_choose_1(): called with atom_idx " << atom_idx;
-      if (add_atom_names_in_map_output)
+      if (using_test_model)
 	 std::cout << " ( "
 		   << atom_selection[atom_idx]->name << " "
 		   << atom_selection[atom_idx]->GetSeqNum() << " "
@@ -1041,7 +1337,7 @@ coot::trace::build_2_choose_1(unsigned int atom_idx,
       std::cout << " start_path: ";
       for (unsigned int jj=0; jj<start_path.size(); jj++) { 
 	 std::cout << " " << start_path[jj];
-	 if (add_atom_names_in_map_output)
+	 if (using_test_model)
 	    std::cout << "( "
 		      << atom_selection[start_path[jj].atom_idx]->name << " "
 		      << atom_selection[start_path[jj].atom_idx]->GetSeqNum() << " "
@@ -1057,8 +1353,10 @@ coot::trace::build_2_choose_1(unsigned int atom_idx,
       for (unsigned int j=0; j<nf.size(); j++)
 	 std::cout << "   " << nf[j].atom_idx;
       std::cout << std::endl;
+
       std::vector<scored_node_t> nb =
 	 get_neighbours_of_vertex_excluding_path(atom_idx, start_path, BACKWARDS);
+
       std::cout << "   INFO:: build_2_choose_1(): node-lev-1 " << atom_idx << " has "
 		<< nb.size() << " backward neighbours:" << std::endl;
       for (unsigned int j=0; j<nb.size(); j++)
@@ -1071,7 +1369,7 @@ coot::trace::build_2_choose_1(unsigned int atom_idx,
    //
    std::vector<scored_node_t> neighbs_1 = get_neighbours_of_vertex_excluding_path(atom_idx, start_path, dir);
 
-   if (true) { 
+   if (false) { 
       std::cout << "   INFO:: node-lev-1 " << atom_idx << " has "
 		<< neighbs_1.size() << " neighbours:" << std::endl;
       for (unsigned int j=0; j<neighbs_1.size(); j++)
@@ -1091,9 +1389,9 @@ coot::trace::build_2_choose_1(unsigned int atom_idx,
 	 if (ang_1 <= 0.8 * M_PI * 0.5)
 	    ang_1_OK = false;
 	
-	 if (true) { // debug
+	 if (false) { // debug
 	    unsigned int l = start_path.size();
-	    if (add_atom_names_in_map_output) 
+	    if (using_test_model) 
 	       std::cout << "   angle_1 from "
 			 << neighbs_1[j].atom_idx << " ( "
 			 << atom_selection[neighbs_1[j].atom_idx]->name         << " " 
@@ -1123,7 +1421,7 @@ coot::trace::build_2_choose_1(unsigned int atom_idx,
 	    std::vector<scored_node_t> neighbs_2 =
 	       get_neighbours_of_vertex_excluding_path(neighbs_1[j].atom_idx, local_path, dir);
 
-	    if (true) {
+	    if (false) {
 	       std::cout << "   INFO:: node-lev-2 " << neighbs_1[j].atom_idx << " has "
 			 << neighbs_2.size() << " neighbours:" << std::endl;
 	       for (unsigned int jj=0; jj<neighbs_2.size(); jj++)
@@ -1135,9 +1433,9 @@ coot::trace::build_2_choose_1(unsigned int atom_idx,
 
 	       double ang_2 = path_candidate_angle(neighbs_2[jj].atom_idx, local_path);
 
-	       if (true) { 
+	       if (false) { 
 		  unsigned int l = local_path.size();
-		  if (add_atom_names_in_map_output) 
+		  if (using_test_model) 
 		     std::cout << "   angle_2 from "
 			       << neighbs_2[jj].atom_idx << " ( "
 			       << atom_selection[neighbs_2[jj].atom_idx]->name         << " " 
@@ -1175,7 +1473,7 @@ coot::trace::build_2_choose_1(unsigned int atom_idx,
 
 		  frag_store.push_back(idx_frag);
 	       } else  {
-		  std::cout << "   reject by angle " << neighbs_2[jj] << std::endl;
+		  // std::cout << "   reject by angle " << neighbs_2[jj] << std::endl;
 	       }
 	    }
 	 } else {
@@ -1200,8 +1498,8 @@ coot::trace::build_2_choose_1(unsigned int atom_idx,
 	    best_scored_node = frag_store[i].node_1;
 	 }
       }
-      double frag_score_crit = 2.0;
-      if (best_score > frag_score_crit) { // hack value
+      // double frag_score_crit = -33.0;  // hack value
+      if (best_score > frag_score_crit) {
 	 status = true;
       } else {
 	 std::cout << "   None of the " << frag_store.size() << " fragments "
@@ -1211,7 +1509,6 @@ coot::trace::build_2_choose_1(unsigned int atom_idx,
       std::cout << "No fragments." << std::endl;
    } 
    
-
    return std::pair<bool, scored_node_t> (status, best_scored_node);
 
 } 
@@ -1295,8 +1592,6 @@ coot::trace::add_tree_maybe(const std::vector<scored_node_t> &path) {
 	    }
 	 }
       }
-
-      
    }
 
    if (0) { 

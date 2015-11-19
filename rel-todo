@@ -1,6 +1,10 @@
  
  0.8.3
 
+
+   o does the phenix PDBe Python gui work as expected when there is no
+     cif file at the url (e.g. the accession code is wrong?).
+   
    o are the oxygens on a nitro O and O-? (eg ligand in 4CCC).
 
    o coot-download is created on starting coot.  It shold not be.  Marcin W.

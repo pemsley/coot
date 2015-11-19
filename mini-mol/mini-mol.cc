@@ -1114,6 +1114,20 @@ coot::minimol::molecule::is_empty() const {
    return ival;
 }
 
+bool
+coot::minimol::molecule::has_atoms() const {
+
+   bool fl = false;
+   for (unsigned int ifrag=0; ifrag<fragments.size(); ifrag++) { 
+      for (int ires=fragments[ifrag].min_res_no(); ires<=fragments[ifrag].max_residue_number(); ires++) { 
+	 if (fragments[ires][ires].atoms.size())
+	    return true;
+      }
+   }
+   return fl;
+
+} 
+
 int
 coot::minimol::molecule::count_atoms() const {
 
