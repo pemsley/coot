@@ -56,6 +56,7 @@ libcoot_ligand_la_LIBADD = \
    $(top_builddir)/coot-utils/libcoot-coord-extras.la \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
    $(top_builddir)/coot-utils/libcoot-map-utils.la    \
+   $(top_builddir)/analysis/libcoot-analysis.la	      \
    $(top_builddir)/utils/libcoot-utils.la             \
    $(CLIPPER_LIBS) $(MMDB_LIBS)
 
@@ -78,8 +79,8 @@ findwaters_bin_SOURCES = find-waters.cc
 
 test_trace_SOURCES = test-trace.cc
 
-test_trace_LDADD = ./libcoot-ligand.la    \
-	$(top_builddir)/analysis/libcoot-analysis.la
+test_trace_LDADD = ./libcoot-ligand.la 
+
 
 
 # test_rotamer_tables_sql = test-rotamer-tables-sql.cc
