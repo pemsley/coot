@@ -35,6 +35,10 @@
 ;; 
 ;; refmac-dir: the dir where input/output refmac files should be written.
 ;; 
+;; return (list correlation mogul bumps difference-map-stats b-factor-info)
+;; difference-map-stats: 
+;;
+;; 
 (define (get-metrics-for-ligand imol chain-id res-no ins-code 
 				refmac-input-mtz-file-name fobs-col sig-fobs-col rfree-col
 				refmac-dir)
