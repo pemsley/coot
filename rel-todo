@@ -1,6 +1,8 @@
  
  0.8.3
 
+   o move all the classes at the top of molecule-class-info.h to their
+     own files.
 
    o does the phenix PDBe Python gui work as expected when there is no
      cif file at the url (e.g. the accession code is wrong?).

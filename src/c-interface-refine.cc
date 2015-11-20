@@ -458,6 +458,20 @@ int parallel_plane_restraints_are_shown(int imol) {
    return r;
 }
 
+void add_parallel_plane_restraint(int imol,
+				  const char *chain_id_1, int res_no_1, const char *ins_code_1,
+				  const char *chain_id_2, int res_no_2, const char *ins_code_2) {
+
+   coot::residue_spec_t spec_1(chain_id_1, res_no_1, ins_code_1);
+   coot::residue_spec_t spec_2(chain_id_2, res_no_2, ins_code_2);
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].add_parallel_plane_restraint(spec_1, spec_2);
+   }
+   graphics_draw();
+
+} 
+
+
 void set_extra_restraints_representation_for_bonds_go_to_CA(int imol, short int state) {
 
    if (is_valid_model_molecule(imol))
