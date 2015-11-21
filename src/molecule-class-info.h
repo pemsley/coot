@@ -114,7 +114,9 @@ namespace molecule_map_type {
 #include "atom-attribute.hh"
 #include "extra-restraints-representation.hh"
 #include "additional-representation.hh"
-
+#include "fragment-info.hh"
+#include "atom-name-bits.hh"
+#include "rama-rota-score.hh"
 
 
 namespace coot {
@@ -222,139 +224,7 @@ namespace coot {
       std::string chain_id;
       goto_residue_string_info_t(const std::string &goto_residue_string, mmdb::Manager *mol);
    }; 
-
-   // ------------ molecule probability scoring ------------
-   class rama_score_t {
-   public:
-      rama_score_t() {
-	 score = 0.0;
-	 score_non_sec_str = 0.0;
-	 n_zeros = 0;
-      }
-      // for all residues
-      std::vector<std::pair<residue_spec_t, double> >  scores;
-      // for non-Secondary structure residues
-      std::vector<std::pair<residue_spec_t, double> >  scores_non_sec_str;
-      double score;
-      double score_non_sec_str;
-      int n_residues() const { return scores.size(); }
-      int n_residues_non_sec_str() const { return scores_non_sec_str.size(); }
-      int n_zeros;
-      std::vector<std::pair<residue_spec_t, int> > region;
-   };
-
-   // ==-------------- all molecule rotamer scoring --------------
-   class rotamer_score_t {
-   public:
-      rotamer_score_t() {
-	 score = 0.0;
-	 n_pass = 0;
-      } 
-      std::vector<std::pair<residue_spec_t, double> > scores;
-      double score;
-      int n_pass; // GLY, PRO, ALA
-      int n_rotamer_residues() const { return scores.size(); }
-      void add (const residue_spec_t &rs, double p) {
-	 std::pair<residue_spec_t, double> pair(rs,p);
-	 scores.push_back(pair);
-      }
-   };
-
-   // e.g. 
-   // "Mg" -> <"  MG", "MG">
-   // "I"  -> <"   I", "IOD">
-   // 
-   class atom_name_bits_t {
-   public:
-      atom_name_bits_t() { filled = false; }
-      bool filled;
-      std::string atom_name;
-      std::string element_name;
-      std::string res_name;
-      atom_name_bits_t(const std::string &type) {
-	 filled = false;
-	 if (type == "Br") {
-	    atom_name = "BR  ";
-	    element_name = "BR";
-	    res_name = "BR";
-	    filled = true;
-	 }
-	 if (type == "Ca") {
-	    atom_name = "CA  ";
-	    element_name = "CA";
-	    res_name = "CA";
-	    filled = true;
-	 }
-	 if (type == "Na") {
-	    atom_name = "NA  ";
-	    element_name = "NA";
-	    res_name = "NA";
-	    filled = true;
-	 }
-	 if (type == "Cl") {
-	    atom_name = "CL  ";
-	    element_name = "CL";
-	    res_name = "CL";
-	    filled = true;
-	 }
-	 if (type == "I") {
-	    atom_name = " I  ";
-	    element_name = "I";
-	    res_name = "IOD";
-	    filled = true;
-	 }
-	 if (type == "Mg") {
-	    atom_name = "MG  ";
-	    element_name = "MG";
-	    res_name = "MG";
-	    filled = true;
-	 }
-	 if (! filled) {
-	    // make up (guess) the residue type and element
-	    std::string at_name = util::upcase(type);
-        atom_name = at_name;
-        res_name = at_name;
-        element_name = at_name;
-	    if (type.length() > 4)
-	       atom_name = at_name.substr(0,4);
-	    if (type.length() > 3)
-	       res_name = at_name.substr(0,3);
-	    if (type.length() > 2)
-	       element_name = at_name.substr(0,2);
-	    filled = true;
-	 }
-      }
-      void SetAtom(mmdb::Atom *at, mmdb::Residue *res) {
-	 if (filled) { 
-	    at->SetAtomName(atom_name.c_str());
-	    at->SetElementName(element_name.c_str());
-	    res->SetResName(res_name.c_str());
-	 }
-      } 
-   };
-
-   class fragment_info_t {
-   public:
-      class fragment_range_t {
-      public:
-	 residue_spec_t start_res;
-	 residue_spec_t end_res;
-	 fragment_range_t(const residue_spec_t &r1, const residue_spec_t &r2) {
-	    start_res = r1;
-	    end_res = r2;
-	 }
-      };
-      std::string chain_id;
-      std::vector<fragment_range_t> ranges;
-      fragment_info_t() {}
-      fragment_info_t(const std::string chain_id_in) { chain_id = chain_id_in; } 
-      void add_range(const fragment_range_t &r) {
-	 ranges.push_back(r);
-      } 
-   };
-
 } // namespace coot
-
 
 bool trial_results_comparer(const std::pair<clipper::RTop_orth, float> &a,
 			    const std::pair<clipper::RTop_orth, float> &b);
