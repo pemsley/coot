@@ -921,24 +921,24 @@ coot::trace::spin_score(unsigned int idx_1, unsigned int idx_2) const {
 							  pos_1 + rel_line_pt_perp2,
 							  pos_1, alpha);
 
-      clipper::Coord_orth p_N_acceptor_1 = util::rotate_round_vector(diff_p_unit,
-								     pos_1 + rel_line_pt_N_accpt,
-								     pos_1, alpha);
-      clipper::Coord_orth p_N_acceptor_2 = util::rotate_round_vector(diff_p_unit,
-								     pos_1 + rel_line_pt_N_accpt,
-								     pos_1, (alpha + 0.26));
-      clipper::Coord_orth p_N_acceptor_3 = util::rotate_round_vector(diff_p_unit,
-								     pos_1 + rel_line_pt_N_accpt,
-								     pos_1, (alpha - 0.26));
-      clipper::Coord_orth p_N_acceptor_4 = util::rotate_round_vector(diff_p_unit,
-								     pos_1 + rel_line_pt_N_accpt_off,
-								     pos_1, alpha);
-      clipper::Coord_orth p_N_acceptor_5 = util::rotate_round_vector(diff_p_unit,
-								     pos_1 + rel_line_pt_N_accpt_off,
-								     pos_1, (alpha + 0.26));
-      clipper::Coord_orth p_N_acceptor_6 = util::rotate_round_vector(diff_p_unit,
-								     pos_1 + rel_line_pt_N_accpt_off,
-								     pos_1, (alpha - 0.26));
+      // clipper::Coord_orth p_N_acceptor_1 = util::rotate_round_vector(diff_p_unit,
+      // 								     pos_1 + rel_line_pt_N_accpt,
+      // 								     pos_1, alpha);
+      // clipper::Coord_orth p_N_acceptor_2 = util::rotate_round_vector(diff_p_unit,
+      // 								     pos_1 + rel_line_pt_N_accpt,
+      // 								     pos_1, (alpha + 0.26));
+      // clipper::Coord_orth p_N_acceptor_3 = util::rotate_round_vector(diff_p_unit,
+      // 								     pos_1 + rel_line_pt_N_accpt,
+      // 								     pos_1, (alpha - 0.26));
+      // clipper::Coord_orth p_N_acceptor_4 = util::rotate_round_vector(diff_p_unit,
+      // 								     pos_1 + rel_line_pt_N_accpt_off,
+      // 								     pos_1, alpha);
+      // clipper::Coord_orth p_N_acceptor_5 = util::rotate_round_vector(diff_p_unit,
+      // 								     pos_1 + rel_line_pt_N_accpt_off,
+      // 								     pos_1, (alpha + 0.26));
+      // clipper::Coord_orth p_N_acceptor_6 = util::rotate_round_vector(diff_p_unit,
+      // 								     pos_1 + rel_line_pt_N_accpt_off,
+      // 								     pos_1, (alpha - 0.26));
       
       
       float rho_CO      = util::density_at_point(xmap, p_CO);
