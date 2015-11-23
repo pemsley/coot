@@ -40,6 +40,8 @@
 
    o import an elbow dictionary cif as an "MTZ, cif. phs" file. Crash.
 
+   o Fix up the map interface of HOLE.
+
    o is there anything going wrong with the minimisation of 
      can-you-minimise-this-qm-ext-frag-3-123.pdb?
 
