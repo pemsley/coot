@@ -868,10 +868,12 @@ coot::trace::spin_score(unsigned int idx_1, unsigned int idx_2) const {
    int n_steps = 36;
    float best_score = -999;
 
-   float rho_CO_best = -999; // for testing scoring
-   float rho_CO_low_best = -999;
-   float rho_2_best  = -999;
-   float rho_3_best  = -999;
+   float rho_CO_best      = -999; // for testing scoring
+   float rho_CO_low_best  = -999;
+   float rho_CO_anti_best = -999;
+   float rho_N_best       = -999;
+   float rho_perp_1_best  = -999;
+   float rho_perp_2_best  = -999;
    double alpha_best = -1; // negative indicates this was not set - which is a bad thing.
 
    // // these can be optimized with machine learning?
@@ -919,79 +921,95 @@ coot::trace::spin_score(unsigned int idx_1, unsigned int idx_2) const {
 							  pos_1 + rel_line_pt_perp2,
 							  pos_1, alpha);
 
-      clipper::Coord_orth p_N_acceptor_1 = util::rotate_round_vector(diff_p_unit,
-								     pos_1 + rel_line_pt_N_accpt,
-								     pos_1, alpha);
-      clipper::Coord_orth p_N_acceptor_2 = util::rotate_round_vector(diff_p_unit,
-								     pos_1 + rel_line_pt_N_accpt,
-								     pos_1, (alpha + 0.26));
-      clipper::Coord_orth p_N_acceptor_3 = util::rotate_round_vector(diff_p_unit,
-								     pos_1 + rel_line_pt_N_accpt,
-								     pos_1, (alpha - 0.26));
-      clipper::Coord_orth p_N_acceptor_4 = util::rotate_round_vector(diff_p_unit,
-								     pos_1 + rel_line_pt_N_accpt_off,
-								     pos_1, alpha);
-      clipper::Coord_orth p_N_acceptor_5 = util::rotate_round_vector(diff_p_unit,
-								     pos_1 + rel_line_pt_N_accpt_off,
-								     pos_1, (alpha + 0.26));
-      clipper::Coord_orth p_N_acceptor_6 = util::rotate_round_vector(diff_p_unit,
-								     pos_1 + rel_line_pt_N_accpt_off,
-								     pos_1, (alpha - 0.26));
+      // clipper::Coord_orth p_N_acceptor_1 = util::rotate_round_vector(diff_p_unit,
+      // 								     pos_1 + rel_line_pt_N_accpt,
+      // 								     pos_1, alpha);
+      // clipper::Coord_orth p_N_acceptor_2 = util::rotate_round_vector(diff_p_unit,
+      // 								     pos_1 + rel_line_pt_N_accpt,
+      // 								     pos_1, (alpha + 0.26));
+      // clipper::Coord_orth p_N_acceptor_3 = util::rotate_round_vector(diff_p_unit,
+      // 								     pos_1 + rel_line_pt_N_accpt,
+      // 								     pos_1, (alpha - 0.26));
+      // clipper::Coord_orth p_N_acceptor_4 = util::rotate_round_vector(diff_p_unit,
+      // 								     pos_1 + rel_line_pt_N_accpt_off,
+      // 								     pos_1, alpha);
+      // clipper::Coord_orth p_N_acceptor_5 = util::rotate_round_vector(diff_p_unit,
+      // 								     pos_1 + rel_line_pt_N_accpt_off,
+      // 								     pos_1, (alpha + 0.26));
+      // clipper::Coord_orth p_N_acceptor_6 = util::rotate_round_vector(diff_p_unit,
+      // 								     pos_1 + rel_line_pt_N_accpt_off,
+      // 								     pos_1, (alpha - 0.26));
       
       
       float rho_CO      = util::density_at_point(xmap, p_CO);
       float rho_CO_low  = util::density_at_point(xmap, p_CO_low);
       float rho_CO_anti = util::density_at_point(xmap, p_CO_anti);
       float rho_N       = util::density_at_point(xmap, p_N);
-      float rho_2       = util::density_at_point(xmap, p_2);
-      float rho_3       = util::density_at_point(xmap, p_3);
+      float rho_perp_1  = util::density_at_point(xmap, p_2);
+      float rho_perp_2  = util::density_at_point(xmap, p_3);
 
-      float rho_acceptor_1 = util::density_at_point(xmap, p_N_acceptor_1);
-      float rho_acceptor_2 = util::density_at_point(xmap, p_N_acceptor_2);
-      float rho_acceptor_3 = util::density_at_point(xmap, p_N_acceptor_3);
-      float rho_acceptor_4 = util::density_at_point(xmap, p_N_acceptor_4);
-      float rho_acceptor_5 = util::density_at_point(xmap, p_N_acceptor_5);
-      float rho_acceptor_6 = util::density_at_point(xmap, p_N_acceptor_6);
+      // float rho_acceptor_1 = util::density_at_point(xmap, p_N_acceptor_1);
+      // float rho_acceptor_2 = util::density_at_point(xmap, p_N_acceptor_2);
+      // float rho_acceptor_3 = util::density_at_point(xmap, p_N_acceptor_3);
+      // float rho_acceptor_4 = util::density_at_point(xmap, p_N_acceptor_4);
+      // float rho_acceptor_5 = util::density_at_point(xmap, p_N_acceptor_5);
+      // float rho_acceptor_6 = util::density_at_point(xmap, p_N_acceptor_6);
 
-      float rho_acceptor_best = rho_acceptor_1;
-      if (rho_acceptor_2 > rho_acceptor_best) rho_acceptor_best = rho_acceptor_2;
-      if (rho_acceptor_3 > rho_acceptor_best) rho_acceptor_best = rho_acceptor_3;
-      if (rho_acceptor_4 > rho_acceptor_best) rho_acceptor_best = rho_acceptor_4;
-      if (rho_acceptor_5 > rho_acceptor_best) rho_acceptor_best = rho_acceptor_5;
-      if (rho_acceptor_6 > rho_acceptor_best) rho_acceptor_best = rho_acceptor_6;
+      // float rho_acceptor_best = rho_acceptor_1;
+      // if (rho_acceptor_2 > rho_acceptor_best) rho_acceptor_best = rho_acceptor_2;
+      // if (rho_acceptor_3 > rho_acceptor_best) rho_acceptor_best = rho_acceptor_3;
+      // if (rho_acceptor_4 > rho_acceptor_best) rho_acceptor_best = rho_acceptor_4;
+      // if (rho_acceptor_5 > rho_acceptor_best) rho_acceptor_best = rho_acceptor_5;
+      // if (rho_acceptor_6 > rho_acceptor_best) rho_acceptor_best = rho_acceptor_6;
       
       float this_score =
 	 scale_CO      * rho_CO      +
 	 scale_CO_low  * rho_CO_low  + 
 	 scale_CO_anti * rho_CO_anti +
 	 scale_N       * rho_N       +
-	 scale_perp    * rho_2       +
-	 scale_perp    * rho_3       +
-	 scale_N_accpt * rho_acceptor_best; 
+	 scale_perp    * rho_perp_1  +
+	 scale_perp    * rho_perp_2;       
+      // scale_N_accpt * rho_acceptor_best
+
 
       if (idx_1 == idx_test_1 && idx_2 == idx_test_2) {
 	 std::cout << "debug_pos:: CO     " << p_CO.x() << " " << p_CO.y() << " " << p_CO.z()
 		   << " " << rho_CO << std::endl;
 	 std::cout << "debug_pos:: CO_low " << p_CO_low.x() << " " << p_CO_low.y()
 		   << " " << p_CO_low.z() << " " << rho_CO_low << std::endl;
+	 std::cout << "debug_pos:: CO_anti " << p_CO_anti.x() << " " << p_CO_anti.y()
+		   << " " << p_CO_anti.z() << " " << rho_CO_anti << std::endl;
 	 std::cout << "debug_pos:: perp-1 " << p_2.x() << " " << p_2.y() << " " << p_2.z()
-		   << " " << rho_2 << std::endl;
+		   << " " << rho_perp_1 << std::endl;
 	 std::cout << "debug_pos:: perp-2 " << p_3.x() << " " << p_3.y() << " " << p_3.z()
-		   << " " << rho_3 << std::endl;
+		   << " " << rho_perp_2 << std::endl;
 	 std::cout << "debug_pos:: N " << p_N.x() << " " << p_N.y() << " " << p_N.z()
 		   << " " << rho_N << std::endl;
       } 
       
       if (this_score > best_score) { 
-	 best_score = this_score;
-	 rho_CO_best = rho_CO;
-	 rho_CO_low_best = rho_CO_low;
-	 rho_2_best = rho_2;
-	 rho_3_best = rho_3;
-	 alpha_best = alpha;
+	 best_score       = this_score;
+	 rho_CO_best      = rho_CO;
+	 rho_CO_low_best  = rho_CO_low;
+	 rho_CO_anti_best = rho_CO_anti;
+	 rho_N_best       = rho_N;
+	 rho_perp_1_best  = rho_perp_1;
+	 rho_perp_2_best  = rho_perp_2;
+	 alpha_best       = alpha;
       }
    }
 
+   bool output_density_values = false;
+   if (output_density_values) {
+      std::cout << "debug-rho:: CO     "  << rho_CO_best      << " "
+		<< "debug-rho:: CO_low "  << rho_CO_low_best  << " "
+		<< "debug-rho:: CO_anti " << rho_CO_anti_best << " "
+		<< "debug-rho:: perp-1 "  << rho_perp_1_best  << " "
+		<< "debug-rho:: perp-2 "  << rho_perp_2_best  << " "
+		<< "debug-rho:: N "       << rho_N_best << std::endl;
+   }
+
+   
    float non_line_equal_density_penalty_1 = rho_at_1 + rho_at_2 - 2 * rho_mid;
    float non_line_equal_density_penalty = 
       - non_line_equal_density_penalty_1 * non_line_equal_density_penalty_1 /
@@ -999,13 +1017,6 @@ coot::trace::spin_score(unsigned int idx_1, unsigned int idx_2) const {
 
    best_score += scale_mid * rho_mid;
    best_score += scale_non_line * non_line_equal_density_penalty;
-
-   if (idx_1 == idx_test_1 && idx_2 == idx_test_2) {
-      std::cout << "score-parts: " << rho_at_1 << " " << rho_at_2 << " mid: "
-		<< rho_mid << " CO " << rho_CO_best
-		<< " perp-1 " << rho_2_best << " perp-2 " << rho_3_best
-		<< " = " << best_score << std::endl;
-   }
 
    scored_node_t best_node(idx_2, best_score, alpha_best);
    // for testing

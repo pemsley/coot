@@ -3375,6 +3375,9 @@ void write_interpolated_models_and_extra_restraints(int imol_1, int imol_2, int 
 
 void set_show_parallel_plane_restraints(int imol, int state);
 int parallel_plane_restraints_are_shown(int imol);
+void add_parallel_plane_restraint(int imol,
+				  const char *chain_id_1, int re_no_1, const char *ins_code_1,
+				  const char *chain_id_2, int re_no_2, const char *ins_code_2);
 void set_extra_restraints_representation_for_bonds_go_to_CA(int imol, short int state);
 
 

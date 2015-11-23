@@ -1,12 +1,18 @@
  
  0.8.3
 
+   o investigate why python doesn't use readline properly on hal
 
    o 4wtb has 2 data sets, they need to be parsed separately (clipper/cif).
 
    o does the phenix PDBe Python gui work as expected when there is no
      cif file at the url (e.g. the accession code is wrong?).
-   
+
+   o move all the classes at the top of molecule-class-info.h to their
+     own files.
+
+   o does the PDBe Python gui work as expected when there is no
+
    o are the oxygens on a nitro O and O-? (eg ligand in 4CCC).
 
    o coot-download is created on starting coot.  It shold not be.  Marcin W.
@@ -34,8 +40,11 @@
 
    o Sarah's ligand: had tertiary amine with an amino group - it
      should be sp2 hybridized, but was not (N+) - and rdkit failed.
+     23H - thank you Sarah. 
 
    o import an elbow dictionary cif as an "MTZ, cif. phs" file. Crash.
+
+   o Fix up the map interface of HOLE.
 
    o is there anything going wrong with the minimisation of 
      can-you-minimise-this-qm-ext-frag-3-123.pdb?
