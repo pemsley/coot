@@ -7325,7 +7325,7 @@ int add_linked_residue(int imol, const char *chain_id, int resno, const char *in
 SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char *ins_code, 
 			   const char *new_residue_comp_id, const char *link_type) {
 
-   int n_trials = 2000;
+   int n_trials = 3000;
    SCM r = SCM_BOOL_F;
    bool do_fit_and_refine = graphics_info_t::linked_residue_fit_and_refine_state;
 
@@ -7335,8 +7335,10 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
       g.cif_dictionary_read_number++;
       coot::residue_spec_t res_spec(chain_id, resno, ins_code);
 
-      std::cout << "::::::::::::: in add_linked_residue_scm() g.default_new_atoms_b_factor is  "
-		<< g.default_new_atoms_b_factor << std::endl;
+      if (false)
+	 std::cout << "::::::::::::: in add_linked_residue_scm() g.default_new_atoms_b_factor is  "
+		   << g.default_new_atoms_b_factor << std::endl;
+      
       float new_b = g.default_new_atoms_b_factor;
       // 20140429
       coot::residue_spec_t new_res_spec =
@@ -7382,7 +7384,7 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
 PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const char *ins_code, 
 				const char *new_residue_comp_id, const char *link_type) {
 
-   int n_trials = 1000;
+   int n_trials = 3000;
    PyObject *r = Py_False;
    bool do_fit_and_refine = graphics_info_t::linked_residue_fit_and_refine_state;
 

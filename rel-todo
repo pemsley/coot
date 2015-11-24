@@ -1,6 +1,11 @@
  
  0.8.3
 
+   o Glyo add NAG with ASN-NAG
+
+   o Refine a bit of of the DNA in 3pt6 and see that the nbc seem to be failing.
+     Also, show bumps between bases in Environment Distances.
+
    o investigate why python doesn't use readline properly on hal
 
    o 4wtb has 2 data sets, they need to be parsed separately (clipper/cif).

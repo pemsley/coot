@@ -4994,17 +4994,18 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 		     coot::bonded_pair_t p(res_f, res_s,
 					   whole_first_residue_is_fixed,
 					   whole_second_residue_is_fixed, link_type);
-		     bpc.try_add(p);
+		     bool added_flag = bpc.try_add(p);
 		  } else {
 		     coot::bonded_pair_t p(res_s, res_f,
 					   whole_first_residue_is_fixed,
-					   whole_second_residue_is_fixed, link_type);
-		     bpc.try_add(p);
+					   whole_second_residue_is_fixed,
+					   link_type);
+		     bool added_flag = bpc.try_add(p);
 		  }
 	       } else {
 		  if (debug)
-		     std::cout << "DEBUG:: find_link_type_complicado() returns \"" << l.first << "\" "
-			       << l.second << std::endl;
+		     std::cout << "DEBUG:: blank link_type find_link_type_complicado() returns \""
+			       << l.first << "\" " << l.second << std::endl;
 	       } 
 	    }
 	 }

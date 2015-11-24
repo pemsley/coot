@@ -48,11 +48,11 @@ coot::operator<<(std::ostream &s, coot::bonded_pair_container_t bpc) {
      << "\n";
 
    for (unsigned int i=0; i<bpc.bonded_residues.size(); i++)
-      s << "   " << i << "  [:"
-	<< bpc[i].link_type << ": "
-	<< bpc[i].res_1->GetChainID() << " " << bpc[i].res_1->GetSeqNum() << " "
+      s << "   " << i << "  [\""
+	<< bpc[i].link_type << "\" "
+	<< bpc[i].res_1->GetChainID() << " "    << bpc[i].res_1->GetSeqNum() << " "
 	<< bpc[i].res_1->GetInsCode() << " to " << bpc[i].res_2->GetChainID() << " "
-	<< bpc[i].res_2->GetSeqNum() << " " << bpc[i].res_2->GetInsCode() << "]"
+	<< bpc[i].res_2->GetSeqNum() << " "     << bpc[i].res_2->GetInsCode() << "]"
 	<< "\n";
 
    return s; 
@@ -146,7 +146,7 @@ coot::bonded_pair_container_t::reorder() {
       const bonded_pair_t &bp_i = bonded_residues[i];
       if (bp_i.res_2->GetSeqNum() < bp_i.res_1->GetSeqNum()) {
 	 std::string chain_id_1_i = bp_i.res_1->GetChainID();
-	 std::string chain_id_2_i = bp_i.res_1->GetChainID();
+	 std::string chain_id_2_i = bp_i.res_2->GetChainID();
 	 if (chain_id_1_i == chain_id_2_i) {
 	    mmdb::Residue *r = bp_i.res_1;
 	    bonded_residues[i].res_1 = bp_i.res_2;
@@ -162,7 +162,10 @@ coot::bonded_pair_container_t::reorder() {
 void
 coot::bonded_pair_container_t::filter() {
 
-   reorder();
+   // reorder(); // 201501123 - don't reorder. Why? because reorder changes the residue order and
+                 // the residues are currently in the correct order (with say, the NAG as res_1
+                 // and the ASN as res_2).  Why did I think I needed this?
+   
    std::vector<bonded_pair_t> new_bonded_residues;
    bool debug = false;
 
