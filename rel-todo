@@ -29,6 +29,11 @@
    o CA Zone -> Mainchain will change the sequence to ALA - this is wrong
      when the CAs have the right sequence.
 
+   o valgrind when using PDBe recent structures.
+
+   o clean up coot-download usage in lbg-drag-and-drop.cc (need get_directory() function 
+     which does the same as the scheme function). std::pair<bool, std::string> 
+
    o Alexander B Crash:
 
 #1  0x00002ab3282e541c in __gxx_personality_v0 () from /usr/lib64/libstdc++.so.6

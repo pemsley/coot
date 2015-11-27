@@ -18,7 +18,10 @@
 
 ;; sf exmaple http://www.ebi.ac.uk/pdbe-srv/view/files/r4hrhsf.ent
 
-(define coot-tmp-dir "coot-download")
+
+;; 20151126-PE No, we can't have coot-download created on coot-startup, it must be
+;;             made only when we need it.
+;; (define coot-tmp-dir (get-directory "coot-download"))
 
 ; e.g. (ebi-get-pdb "1crn")
 ; 
@@ -61,27 +64,28 @@
   (lambda (id url-string data-type . imol-coords-arg-list)
 
     (format #t "DEBUG:: in get-url-str: ~s ~s ~s~%" id url-string data-type)
+    (let ((coot-tmp-dir (get-directory "coot-download")))
 
-    (cond 
-    
-     ((eq? data-type 'pdb)
-      (let ((pdb-file-name (string-append coot-tmp-dir "/" id ".pdb" "."
-					  pdbe-file-name-tail)))
-	(check-dir-and-get-url coot-tmp-dir pdb-file-name url-string)
-	(handle-read-draw-molecule pdb-file-name)))
+      (cond 
+       
+       ((eq? data-type 'pdb)
+	(let ((pdb-file-name (string-append coot-tmp-dir "/" id ".pdb" "."
+					    pdbe-file-name-tail)))
+	  (check-dir-and-get-url coot-tmp-dir pdb-file-name url-string)
+	  (handle-read-draw-molecule pdb-file-name)))
 
-     ((eq? data-type 'sfs)
-      (let ((sfs-file-name (string-append coot-tmp-dir "/" id ".cif"))
-	    (imol (get-ebi-pdb id)))
-	
-	(if (and (number? imol)
-		 (not (= imol -1)))
-	    (begin
-	      (check-dir-and-get-url coot-tmp-dir sfs-file-name url-string)
-	      (read-cif-data sfs-file-name (car imol-coords-arg-list))))))
+       ((eq? data-type 'sfs)
+	(let ((sfs-file-name (string-append coot-tmp-dir "/" id ".cif"))
+	      (imol (get-ebi-pdb id)))
+	  
+	  (if (and (number? imol)
+		   (not (= imol -1)))
+	      (begin
+		(check-dir-and-get-url coot-tmp-dir sfs-file-name url-string)
+		(read-cif-data sfs-file-name (car imol-coords-arg-list))))))
 
-    (else 
-     "unknown"))))
+       (else 
+	"unknown")))))
 
 	    
 
@@ -155,10 +159,11 @@
   ;; 
   (define (get-cached-eds-files accession-code)
     
-    (let* ((down-code (string-downcase accession-code))
-	   (pdb-file-name (append-dir-file "coot-download"
+    (let* ((coot-tmp-dir (get-directory "coot-download"))
+	   (down-code (string-downcase accession-code))
+	   (pdb-file-name (append-dir-file coot-tmp-dir
 					   (string-append "pdb" down-code ".ent")))
-	   (mtz-file-name (append-dir-file "coot-download"
+	   (mtz-file-name (append-dir-file coot-tmp-dir
 					   (string-append down-code "_sigmaa.mtz"))))
       
       (if (not (file-exists? pdb-file-name))
@@ -200,10 +205,10 @@
 
 	cached-status ;; a list of molecules
 
-	(let ((r (coot-mkdir coot-tmp-dir)))
+	(let ((coot-tmp-dir (get-directory "coot-download")))
 
-	  (if (eq? #f r)
-	      (format #t "Can't make directory ~s~%" coot-tmp-dir)
+	  (if (eq? #f coot-tmp-dir)
+	      (format #t "Can't make coot-download directory~%")
 	      
 	      (let* ((down-id (string-downcase id))
 		     (eds-url (string-append eds-site "/dfs/"))
