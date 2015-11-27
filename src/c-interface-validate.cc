@@ -2275,7 +2275,7 @@ PyObject *pathology_data(const std::string &mtz_file_name,
 
    try {
       clipper::CCP4MTZfile mtz;
-      std::cout << "INFO:: reading mtz file..." << mtz_file_name << std::endl; 
+      std::cout << "INFO:: reading mtz file " << mtz_file_name << std::endl; 
       mtz.open_read(mtz_file_name);
       clipper::HKL_data< clipper::datatypes::F_sigF<float> > fsigf;
       std::string dataname = "/*/*/[" + fp_col + " " + sigfp_col + "]";
@@ -2310,7 +2310,8 @@ PyObject *pathology_data(const std::string &mtz_file_name,
       std::cout << "error: " << e.text() << std::endl;
    }
 
-   std::cout << "found " << fp_vs_reso_data.size() << " data" << std::endl;
+   std::cout << "INFO:: pathology_plots() found "
+	     << fp_vs_reso_data.size() << " data" << std::endl;
 
    if (  fp_vs_reso_data.size() > 0 &&
        fosf_vs_reso_data.size() > 0 && 
@@ -2344,10 +2345,12 @@ PyObject *pathology_data(const std::string &mtz_file_name,
 					      data_pair_remover(r)),
 			       fosf_vs_f_data.end());
 
-	 std::cout << "  now data size " << fp_vs_reso_data.size() << "" << std::endl;
-	 std::cout << "  now data size " << fosf_vs_reso_data.size() << "" << std::endl;
-	 std::cout << "  now data size " << sf_vs_f_data.size() << "" << std::endl;
-	 std::cout << "  now data size " << fosf_vs_f_data.size() << "" << std::endl;
+	 if (0) { 
+	    std::cout << "  now data size " << fp_vs_reso_data.size() << "" << std::endl;
+	    std::cout << "  now data size " << fosf_vs_reso_data.size() << "" << std::endl;
+	    std::cout << "  now data size " << sf_vs_f_data.size() << "" << std::endl;
+	    std::cout << "  now data size " << fosf_vs_f_data.size() << "" << std::endl;
+	 }
 
       }
 

@@ -2,16 +2,15 @@
 import os
 import coot
 import math
-import cairo
-import cairoplot
 
 import matplotlib
 matplotlib.use('agg')
 import matplotlib.pyplot as plt
 
-# import matplotlib new
 
-def pathology_plots(mtz, fp, sigfp):
+def cairoplot_pathology_plots(mtz, fp, sigfp):
+    import cairo
+    import cairoplot
     try: 
         print "getting data for", mtz
         data = coot.pathology_data(mtz, fp, sigfp)
@@ -43,15 +42,28 @@ def pathology_plots(mtz, fp, sigfp):
     except TypeError as e:
                 print "caught TypeError:", e
 
+# these can be I, SIGI also
+#
+def pathology_plots(mtz, fp, sigfp):
 
-def new_pathology_plots(mtz, fp, sigfp):
+    # meta data
+    intensity_data = False
+    if fp[0] == 'I':
+        intensity_data = True
+        
     data = coot.pathology_data(mtz, fp, sigfp)
     try: 
         prefix,tail = os.path.splitext(mtz)
-        labels = [("Resolution", "FP"),
-                  ('Resolution', 'FP/SIGFP'),
-                  ('FP', 'SIGFP'),
-                  ('FP', 'FP/SIGFP')]
+        fp_lab = "FP"
+        sigfp_lab = "SIGFP"
+        if (intensity_data):
+            fp_lab = "I"
+            sigfp_lab = "SIGI"
+        
+        labels = [("Resolution", fp_lab),
+                  ('Resolution', fp_lab + '/' + sigfp_lab),
+                  (fp_lab, sigfp_lab),
+                  (fp_lab, fp_lab + '/' + sigfp_lab)]
         z = zip(range(4), labels)
         invresolsq_max = data[0]
         for ii in range(4):
@@ -59,9 +71,8 @@ def new_pathology_plots(mtz, fp, sigfp):
             l_0 = labels[ii][0].replace('/', '_')
             l_1 = labels[ii][1].replace('/', '_')
             png_file_name = prefix + "-" + l_0 + "-vs-" + l_1 + ".png"
-            n_x_labels = 5
-            x_labels = ["low", '.', "medium", '.', "high"]
 
+            n_x_labels = 5
             if l_0 == "Resolution":
                 for j in range(n_x_labels):
                     f = invresolsq_max * j / n_x_labels
@@ -69,22 +80,33 @@ def new_pathology_plots(mtz, fp, sigfp):
                         x_label = "Inf"
                     else:
                         x_label = str(round(math.sqrt(1/f), 3));
-                    print j, x_label
+                    # print j, x_label
                     x_labels[j] = x_label
             else:
                 x_labels = None
             
-            print "making plot", png_file_name
-
             fig1 = plt.figure()
-            xdata = [x[0] for x in data[i+1]]
-            ydata = [y[1] for y in data[i+1]]
-            # l = plt.scatter(xdata, ydata, 'r-')
-            s = 0.1
-            l = plt.scatter(xdata, ydata, s)
+            xdata = [x[0] for x in data[i]]
+            ydata = [y[1] for y in data[i]]
+
+            ymin = 0
+            if (intensity_data):
+                ymin = min(ydata)
+            
+            xmax = max(xdata)
+            ymax = max(ydata)
+            plt.xlim(0, xmax)
+            plt.ylim(ymin, ymax)
+                     
+            s = 8
+            # If this is F data the the y axis min should be 0.
+            # The x-axis min should be 0.
+            print "making plot", png_file_name
+            l = plt.scatter(xdata, ydata, s, alpha=0.2)
             plt.savefig(png_file_name)
             
 
     except TypeError as e:
                 print "caught TypeError:", e
+
 
