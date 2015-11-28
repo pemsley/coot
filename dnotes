@@ -7446,3 +7446,17 @@ Thu Jul 23 12:31:24 BST 2015
 
     http://michaelsuess.net/publications/suess_leopold_common_mistakes_06.pdf
 
+------
+
+    realine:  Add -lcurse to shlib/Makefile:
+
+    SHLIB_XLDFLAGS =  -Wl,-rpath,$(libdir) -Wl,-soname,`basename $@ $(SHLIB_MINOR)` -lcurses
+ 
+    (or change support/shobj-conf which creates this)
+
+    Does this mean I can now use command line editing in coot --no-graphics --python?
+
+    e.g. import readline
+
+
+

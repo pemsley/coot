@@ -23,8 +23,10 @@ pdbe_file_name_tail = "ent"
 
 # sf example http://www.ebi.ac.uk/pdbe-srv/view/files/r4hrhsf.ent
 
-global coot_tmp_dir
-coot_tmp_dir = get_directory("coot-download")
+# 20151126-PE No, we can't have coot-download created on coot-startup, it must be
+#             made only when we need it.
+# global coot_tmp_dir
+# coot_tmp_dir = get_directory("coot-download")
 
 # e.g. (ebi-get-pdb "1crn")
 # 
@@ -100,6 +102,7 @@ def get_url_str(id, url_string, data_type, imol_coords_arg_list):
 
     #print "DEBUG:: in get_url_string:", id, url_string, data_type
 
+    coot_tmp_dir = get_directory("coot-download")	
     if (data_type == "pdb"):
        pdb_file_name = coot_tmp_dir + "/" + id + ".pdb." + pdbe_file_name_tail
        check_dir_and_get_url(coot_tmp_dir,pdb_file_name,url_string)
@@ -225,6 +228,7 @@ def get_eds_pdb_and_mtz(id):
     if isinstance(cached_status, list):
         return cached_status
     else:
+        coot_tmp_dir = get_directory("coot-download")	
         r = coot_mkdir(coot_tmp_dir)
 
         if (r):

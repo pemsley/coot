@@ -216,8 +216,7 @@ coot::torsionable_link_quads(std::vector<mmdb::Residue *> residues_in,
    std::map<mmdb::Residue *, coot::dictionary_residue_restraints_t> res_restraints;
    for (unsigned int ires=0; ires<residues_in.size(); ires++) { 
       std::string rn = residues_in[ires]->GetResName();
-      std::pair<bool, coot::dictionary_residue_restraints_t> rest =
-	 geom_p->get_monomer_restraints(rn);
+      std::pair<bool, coot::dictionary_residue_restraints_t> rest = geom_p->get_monomer_restraints(rn);
       if (! rest.first) {
 	 std::string m = "Restraints not found for type ";
 	 m += rn;
@@ -230,16 +229,21 @@ coot::torsionable_link_quads(std::vector<mmdb::Residue *> residues_in,
    std::vector<mmdb::Link> links;
    coot::restraints_container_t restraints(residues, links, *geom_p, mol, dummy_fixed_atom_specs);
    coot::bonded_pair_container_t bpc = restraints.bonded_residues_from_res_vec(*geom_p);
-   for (unsigned int i=0; i<bpc.bonded_residues.size(); i++) { 
-      coot::dictionary_residue_link_restraints_t link = geom_p->link(bpc[i].link_type);
-      // std::cout << "    " << i << " link_id: \"" << link.link_id << "\'" << std::endl;
-      if (link.link_id != "") {
 
+   for (unsigned int i=0; i<bpc.bonded_residues.size(); i++) {
+
+      const coot::dictionary_residue_link_restraints_t &link = geom_p->link(bpc[i].link_type);
+
+      // In a NAG-ASN link the first residue should be the NAG and residue-2 should be the ASN.
+      // 
+      // std::cout << "DEBUG:: link-idx: " << i << " link_id: \"" << link.link_id << "\"" << std::endl;
+      
+      if (link.link_id != "") {
 
 	 // Don't use bonds - use link torsions if you can.
 	 // 
-	 std::cout << "link " << link.link_id << " has " << link.link_torsion_restraint.size()
-		   << " torsion restraints " << std::endl;
+	 // std::cout << "DEBUG:: link " << link.link_id << " has " << link.link_torsion_restraint.size()
+	 //           << " torsion restraints " << std::endl;
 
 	 if (link.link_torsion_restraint.size() > 0) { 
 	 
@@ -362,9 +366,11 @@ coot::torsionable_link_quads(std::vector<mmdb::Residue *> residues_in,
 	       } else {
 		  std::cout << "WARNING:: oops missing link atoms " << std::endl;
 		  if (! link_atom_1)
-		     std::cout << "   " << link.link_bond_restraint[ib].atom_id_1_4c().c_str() << std::endl;
+		     std::cout << "   " << link.link_bond_restraint[ib].atom_id_1_4c().c_str()
+			       << " is missing from residue " << coot::residue_spec_t(bpc[i].res_1) << std::endl;
 		  if (! link_atom_2)
-		     std::cout << "   " << link.link_bond_restraint[ib].atom_id_2_4c().c_str() << std::endl;
+		     std::cout << "   " << link.link_bond_restraint[ib].atom_id_2_4c().c_str()
+			       << " is missing from residue " << coot::residue_spec_t(bpc[i].res_2) << std::endl;
 	       } 
 	    }
 	 } 
@@ -420,9 +426,9 @@ coot::multi_residue_torsion_fit_map(mmdb::Manager *mol,
 	 // FIXME for future, calculate link_angle_atom_triples, using something analoguous to
 	 // torsionable_link_quads()
 
-	 if (false)
+	 if (true)
 	    for (unsigned int iquad=0; iquad<quads.size(); iquad++)
-	       std::cout << "   " << iquad << " "
+	       std::cout << "DEBUG tosion quads:  " << iquad << " "
 			 << coot::atom_spec_t(quads[iquad].atom_1) << " " 
 			 << coot::atom_spec_t(quads[iquad].atom_2) << " " 
 			 << coot::atom_spec_t(quads[iquad].atom_3) << " " 

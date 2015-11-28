@@ -89,10 +89,71 @@ molecule_class_info_t::add_refmac_extra_restraints(const std::string &file_name)
    coot::extra_restraints_t r;
    r.read_refmac_extra_restraints(file_name);
    extra_restraints.add_restraints(r);
-   std::cout << "INFO:: add_refmac_extra_restraints(): have " << extra_restraints.bond_restraints.size()
-	     << " bond restraints " << std::endl;
+   std::cout << "INFO:: add_refmac_extra_restraints(): have "
+	     << extra_restraints.bond_restraints.size() << " bond restraints " << std::endl;
    update_extra_restraints_representation();
 }
+
+void
+molecule_class_info_t::add_parallel_plane_restraint(coot::residue_spec_t spec_1,
+						    coot::residue_spec_t spec_2) {
+
+   std::vector<std::string> ap_1_names;
+   std::vector<std::string> ap_2_names;
+   std::string alt_conf_1; // only a nutter would want to add parallel plane restraints 
+   std::string alt_conf_2; // to a residue with an alt conf.
+   
+   mmdb::Residue *r_1 = get_residue(spec_1);
+   mmdb::Residue *r_2 = get_residue(spec_1);
+
+   if (r_1) {
+      if (r_2) {
+
+	 std::string rn_1 = r_1->GetResName();
+	 std::string rn_2 = r_2->GetResName();
+
+	 ap_1_names = nucelotide_residue_name_to_base_atom_names(rn_1);
+	 ap_2_names = nucelotide_residue_name_to_base_atom_names(rn_2);
+
+	 coot::parallel_planes_t pp(spec_1, spec_2, ap_1_names, ap_2_names,
+				    alt_conf_1, alt_conf_2);
+
+	 extra_restraints.parallel_plane_restraints.push_back(pp);
+   
+      } else {
+	 std::cout << "INFO:: missing residue 2 " << spec_2 << std::endl;
+      }
+   } else {
+	 std::cout << "INFO:: missing residue 1 " << spec_1 << std::endl;
+   }
+
+   update_extra_restraints_representation_parallel_planes();
+} 
+
+std::vector<std::string>
+molecule_class_info_t::nucelotide_residue_name_to_base_atom_names(const std::string &rn) const {
+
+   std::vector<std::string> names;
+   
+   if (rn == "A" || rn == "G" || rn == "DA" || rn == "DG") {
+      names.push_back("N9"); names.push_back("C8");
+      names.push_back("N7"); names.push_back("C8");
+      names.push_back("C5"); names.push_back("C6");
+      names.push_back("C4"); names.push_back("C6");
+      names.push_back("N3"); names.push_back("C2");
+      names.push_back("N1");
+   }
+
+   if (rn == "C"  || rn == "T" || rn == "U" ||
+       rn == "DC" || rn == "DT") {
+      names.push_back("N1"); names.push_back("C2");
+      names.push_back("C3"); names.push_back("C4");
+      names.push_back("N3"); names.push_back("C5");
+      names.push_back("O2");
+   }
+
+   return names;
+} 
 
 void
 molecule_class_info_t::delete_extra_restraints_for_residue(const coot::residue_spec_t &rs) {
