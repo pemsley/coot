@@ -452,13 +452,18 @@ coot::protein_geometry::get_h_bond_type(const std::string &atom_name, const std:
 // 
 std::pair<bool, double>
 coot::protein_geometry::get_nbc_dist(const std::string &energy_type_1,
-				     const std::string &energy_type_2) const {
+				     const std::string &energy_type_2,
+				     bool in_same_residue_flag,
+				     bool in_same_ring_flag) const {
+
+   if (in_same_ring_flag)
+      std::cout << "::::::::::::::::::::::::::::: nbc of atoms in same ring " << std::endl;
 
    float radius_1;
    float radius_2;
    //mmdb::Atom at_1 = mmdb::Atom();
    //mmdb::Atom at_2 = mmdb::Atom();
-   mmdb::Atom *at_1 = new mmdb::Atom();
+   mmdb::Atom *at_1 = new mmdb::Atom(); // for metal check 
    mmdb::Atom *at_2 = new mmdb::Atom();
    
    std::pair<bool, double> r(false, 0);
@@ -488,35 +493,40 @@ coot::protein_geometry::get_nbc_dist(const std::string &energy_type_1,
          
          r.second = radius_1 + radius_2;
 
-	 // hack in a correction factor - that makes atoms fit into density  :-/
-	 // 
-	 // 0.9 is too much.
+	 if (in_same_residue_flag)
+	    // 
+	    // hack in a correction factor - that makes atoms fit into density  :-/
+	    // 
+	    // 0.9 is too much.
 
-	 // There is an algorithm problem.
-	 // 
-	 // I need to reject atoms that have bond (done), angle and
-	 // torsion interactions from NBC interactions, I think.  Then
-	 // I can set r.second multiplier to 1.0 maybe.
-	 // 
-	 r.second *= 0.84;
+	    // There is an algorithm problem.
+	    // 
+	    // I need to reject atoms that have bond (done), angle and
+	    // torsion interactions from NBC interactions, I think.  Then
+	    // I can set r.second multiplier to 1.0 maybe.
+	    // 
+	    r.second *= 0.84;
 
-	 // ring atoms should not be NBCed to each other.  Not sure
-	 // that 5 atom rings need to be excluded in this manner.
-	 // 
-	 if (it_1->first == "CR15" || it_1->first == "CR16" || it_1->first == "CR1"  ||
-	     it_1->first == "CR6"  || it_1->first == "CR5"  || it_1->first == "CR5"  ||
-	     it_1->first == "CR56" || it_1->first == "CR5"  || it_1->first == "CR66" ||
-	     it_1->first == "NPA"  || it_1->first == "NPB"  || it_1->first == "NRD5" ||
-	     it_1->first == "NRD6" || it_1->first == "NR15" || it_1->first == "NR16" ||
-	     it_1->first == "NR6"  || it_1->first == "NR5") {
+	 if (in_same_ring_flag) { 
 
-	    if (it_2->first == "CR15" || it_2->first == "CR16" || it_2->first == "CR1"  ||
-		it_2->first == "CR6"  || it_2->first == "CR5"  || it_2->first == "CR5"  ||
-		it_2->first == "CR56" || it_2->first == "CR5"  || it_2->first == "CR66" ||
-		it_2->first == "NPA"  || it_2->first == "NPB"  || it_2->first == "NRD5" ||
-		it_2->first == "NRD6" || it_2->first == "NR15" || it_2->first == "NR16" ||
-		it_2->first == "NR6"  || it_2->first == "NR5") {
-	       r.second = 2.2;
+	    // ring atoms should not be NBCed to each other.  Not sure
+	    // that 5 atom rings need to be excluded in this manner.
+	    // 
+	    if (it_1->first == "CR15" || it_1->first == "CR16" || it_1->first == "CR1"  ||
+		it_1->first == "CR6"  || it_1->first == "CR5"  || it_1->first == "CR5"  ||
+		it_1->first == "CR56" || it_1->first == "CR5"  || it_1->first == "CR66" ||
+		it_1->first == "NPA"  || it_1->first == "NPB"  || it_1->first == "NRD5" ||
+		it_1->first == "NRD6" || it_1->first == "NR15" || it_1->first == "NR16" ||
+		it_1->first == "NR6"  || it_1->first == "NR5") {
+
+	       if (it_2->first == "CR15" || it_2->first == "CR16" || it_2->first == "CR1"  ||
+		   it_2->first == "CR6"  || it_2->first == "CR5"  || it_2->first == "CR5"  ||
+		   it_2->first == "CR56" || it_2->first == "CR5"  || it_2->first == "CR66" ||
+		   it_2->first == "NPA"  || it_2->first == "NPB"  || it_2->first == "NRD5" ||
+		   it_2->first == "NRD6" || it_2->first == "NR15" || it_2->first == "NR16" ||
+		   it_2->first == "NR6"  || it_2->first == "NR5") {
+		  r.second = 2.2;
+	       }
 	    }
 	 }
 
@@ -528,8 +538,8 @@ coot::protein_geometry::get_nbc_dist(const std::string &energy_type_1,
 	      it_1->second.hb_type == coot::HB_HYDROGEN) &&
 	     (it_2->second.hb_type == coot::HB_ACCEPTOR ||
 	      it_2->second.hb_type == coot::HB_BOTH)) { 
-	    r.second -= 0.7;
-	    // actual hydrogens to aceptors can be shorter still 
+	    r.second -= 0.5;
+	    // actual hydrogens to acceptors can be shorter still 
 	    if (it_1->second.hb_type == coot::HB_HYDROGEN)
 	       r.second -=0.3;
 	 } 
@@ -539,7 +549,7 @@ coot::protein_geometry::get_nbc_dist(const std::string &energy_type_1,
 	      it_2->second.hb_type == coot::HB_HYDROGEN) &&
 	     (it_1->second.hb_type == coot::HB_ACCEPTOR ||
 	      it_1->second.hb_type == coot::HB_BOTH)) { 
-	    r.second -= 0.7;
+	    r.second -= 0.5;
 	    // as above
 	    if (it_1->second.hb_type == coot::HB_HYDROGEN)
 	       r.second -=0.3;

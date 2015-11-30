@@ -922,10 +922,6 @@ coot::dictionary_residue_restraints_t::type_energy(const std::string &atom_name)
 
    std::string r = "";
    for (unsigned int iat=0; iat<atom_info.size(); iat++) {
-      if (0)
-	 std::cout << "type_energy() for comp-id " << residue_info.comp_id
-		   << " comparing \"" << atom_name << "\" with \"" << atom_info[iat].atom_id_4c
-		   << "\"" << std::endl;
       if (atom_info[iat].atom_id_4c == atom_name) { // PDBv3 FIXME
 	 r = atom_info[iat].type_energy;
 	 break;
@@ -3794,6 +3790,30 @@ coot::dictionary_residue_restraints_t::get_ligand_ring_list() const {
    }
    return ring_list;
 }
+
+bool
+coot::dictionary_residue_restraints_t::in_same_ring(const std::string &atom_name_1, const std::string &atom_name_2) const { 
+
+   bool match = false;
+   std::vector<std::vector<std::string> > ring_list = get_ligand_ring_list();
+
+   for (unsigned int i=0; i<ring_list.size(); i++) {
+      unsigned int n_match = 0;
+      for (unsigned int j=0; j<ring_list[i].size(); j++) {
+	 if (ring_list[i][j] == atom_name_1)
+	    n_match++;
+	 if (ring_list[i][j] == atom_name_2)
+	    n_match++;
+      }
+      if (n_match == 2) {
+	 match = true;
+	 break;
+      }
+   }
+   return match;
+}
+
+
 
 bool
 coot::dictionary_residue_restraints_t::ligand_has_aromatic_bonds_p() const {
