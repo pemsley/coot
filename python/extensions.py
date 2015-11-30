@@ -1075,14 +1075,14 @@ if (have_coot_python):
        submenu,
        "Crocodile Refinement mode", 
        lambda func: (printf("Crock..."),
-                     set_dragged_refinement_steps_per_frame(160)))
+                     set_dragged_refinement_steps_per_frame(220)))
 
 
      add_simple_coot_menu_menuitem(
        submenu,
        "Normal Refinement mode (1 Emsley)", 
        lambda func: (printf("Default Speed (1 Emsley)..."),
-                     set_dragged_refinement_steps_per_frame(80)))
+                     set_dragged_refinement_steps_per_frame(140)))
 
 
      add_simple_coot_menu_menuitem(

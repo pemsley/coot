@@ -1430,9 +1430,11 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    int steps_per_frame = dragged_refinement_steps_per_frame;
    if (! g.last_restraints.include_map_terms())
       steps_per_frame *= 6;
-   // std::cout << "steps_per_frame " << steps_per_frame << std::endl;
-   graphics_info_t::saved_dragged_refinement_results = 
+
+   graphics_info_t::saved_dragged_refinement_results =
       g.last_restraints.minimize(flags, steps_per_frame, print_initial_chi_squareds_flag);
+
+
    retprog = graphics_info_t::saved_dragged_refinement_results.progress;
    print_initial_chi_squareds_flag = 0;
    int do_disulphide_flag = 0;
@@ -1443,6 +1445,9 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    g.regularize_object_bonds_box.clear_up();
    g.regularize_object_bonds_box = bonds.make_graphical_bonds();
 
+   char *env = getenv("COOT_DEBUG_REFINEMENT");
+   if (env)
+      g.tabulate_geometric_distortions(last_restraints);
 
    // Update the Accept/Reject Dialog if it exists (and it should do,
    // if we are doing dragged refinement).
@@ -1451,10 +1456,6 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 	 update_accept_reject_dialog_with_results(accept_reject_dialog,
 						  coot::CHI_SQUAREDS,
 						  saved_dragged_refinement_results);
-
-	 char *env = getenv("COOT_DEBUG_REFINEMENT");
-	 if (env)
-	    g.tabulate_geometric_distortions(last_restraints);
       }
    }
    

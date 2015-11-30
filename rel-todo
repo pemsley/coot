@@ -1,6 +1,57 @@
  
  0.8.3
 
+   o unsigned int
+
+../../coot/git/coot/src/c-interface.cc: In function ‘void set_display_only_model_mol(int)’:
+../../coot/git/coot/src/c-interface.cc:5093:29: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+    for (unsigned int i=0; i<n; i++) {
+                             ^
+../../coot/git/coot/src/c-interface.cc:5095:16: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+       if (i == imol)
+                
+   o Do a better job when getting recent PDBe structures with refmac5 not in the path:
+
+command "refmac5" not found
+Backtrace:
+In unknown file:
+    ...
+   ?:  3  [refmac-inner "coot-download/5awk.ent" "coot-download/r5awksf.mtz" ...]
+In /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/get-recent-pdbe.scm:
+ 456:  4  (let* ((refmac-result #)) (if (not #) (begin #) (begin #)))
+ 457:  5* [refmac-calc-sfs-make-mtz "coot-download/5awk.ent" ...]
+ 367:  6  [refmac-calc-sfs-make-mtz-with-columns "coot-download/5awk.ent" ...]
+    ...
+ 340:  7  (let* (#) (set! refmac-extra-params save-refmac-extra-params) ...)
+ 341:  8* [run-refmac-by-filename "coot-download/5awk.ent" ...]
+In unknown file:
+   ?:  9  (letrec # # # ...)
+In /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/refmac.scm:
+ 111: 10  (let* (# # # ...) (set! refmac-count #) ...)
+ 157: 11* (let* (# # # # ...) (if # # #))
+ 195: 12* [refmac-ncs-params]
+ 456: 13  (if (= (refmac-use-ncs-state) 1) (if (>= # 5) (let # ret-list) ...) ...)
+ 457: 14  (if (>= (list-ref # 1) 5) (let (#) ret-list) (let* (# #) (if # # #)))
+ 457: 15* [>= ...
+ 457: 16*  [list-ref ...
+ 457: 17*   [get-refmac-version]
+ 554: 18    (if cached-result cached-result ...)
+In unknown file:
+      ...
+   ?: 19    [call-with-input-file "refmac-version-tmp.log" #<procedure #f (port)>]
+   ?: 20    (let* ((file #) (ans #)) (close-input-port file) ans)
+   ?: 21*   [open-input-file "refmac-version-tmp.log"]
+   ?: 22    [open-file "refmac-version-tmp.log" "r"]
+
+<unnamed port>: In procedure open-file in expression (open-file str OPEN_READ):
+<unnamed port>: No such file or directory: "refmac-version-tmp.log"
+
+   o 3pt6 looks hideous when using PBDe -> Get From PDBe, but not from
+     EDS.  Why?
+
+   o Glyo add NAG with ASN-NAG
+
+
    o Refine a bit of of the DNA in 3pt6 and see that the nbc seem to be failing.
 
    o show bumps between bases in Environment Distances.
@@ -279,3 +330,8 @@ Program terminated with signal 11, Segmentation fault.
      own files.
 
 * Done.
+
+   o is nsteps_max 80 a good number for refinement? Consider increase.
+
+* Done.
+
