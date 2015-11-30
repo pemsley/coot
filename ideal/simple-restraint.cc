@@ -1981,11 +1981,11 @@ coot::distortion_score_rama(const coot::simple_restraint &rama_restraint,
 
 
 double
-coot::distortion_score_non_bonded_contact(const coot::simple_restraint &bond_restraint,
+coot::distortion_score_non_bonded_contact(const coot::simple_restraint &nbc_restraint,
 					  const gsl_vector *v) {
 
-   const int &idx_1 = 3*(bond_restraint.atom_index_1); 
-   const int &idx_2 = 3*(bond_restraint.atom_index_2); 
+   const int &idx_1 = 3*(nbc_restraint.atom_index_1); 
+   const int &idx_2 = 3*(nbc_restraint.atom_index_2); 
    clipper::Coord_orth a1(gsl_vector_get(v, idx_1  ), 
 			  gsl_vector_get(v, idx_1+1), 
 			  gsl_vector_get(v, idx_1+2));
@@ -1998,13 +1998,16 @@ coot::distortion_score_non_bonded_contact(const coot::simple_restraint &bond_res
 
    double r = 0.0;
 
-//       std::cout << "in distortion_score_non_bonded_contact: " << idx_1 << " " << idx_2
-// 		<< " comparing " << sqrt(dist_sq) << " " << bond_restraint.target_value  << std::endl;
+   std::cout << "in distortion_score_non_bonded_contact: " << idx_1 << " " << idx_2
+	     // << " " << atom_spec_t(atom[nbc_restraint.atom_index_1]) 
+	     // << " " << atom_spec_t(atom[nbc_restraint.atom_index_2]) 
+	     << " comparing model: " << sqrt(dist_sq) << " min_dist: " << nbc_restraint.target_value
+	     << " with sigma " << nbc_restraint.sigma << std::endl;
    
-   if (dist_sq < bond_restraint.target_value * bond_restraint.target_value) {
-      double weight = 1.0/(bond_restraint.sigma * bond_restraint.sigma);
+   if (dist_sq < nbc_restraint.target_value * nbc_restraint.target_value) {
+      double weight = 1.0/(nbc_restraint.sigma * nbc_restraint.sigma);
       double dist = sqrt(dist_sq);
-      bit = dist - bond_restraint.target_value;
+      bit = dist - nbc_restraint.target_value;
       r = weight * bit * bit;
    }
    return r;
@@ -5671,7 +5674,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
 
 	 
 	       if (false) { // debug.
-	          clipper::Coord_orth pt1(atom[i]->x, atom[i]->y, atom[i]->z); 
+
+	          clipper::Coord_orth pt1(atom[i]->x, atom[i]->y, atom[i]->z);
 	          clipper::Coord_orth pt2(at_2->x,    at_2->y,    at_2->z);
 	          double d = sqrt((pt1-pt2).lengthsq());
 		     
