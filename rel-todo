@@ -1,10 +1,9 @@
  
  0.8.3
 
-   o Glyo add NAG with ASN-NAG
-
    o Refine a bit of of the DNA in 3pt6 and see that the nbc seem to be failing.
-     Also, show bumps between bases in Environment Distances.
+
+   o show bumps between bases in Environment Distances.
 
    o investigate why python doesn't use readline properly on hal
 
@@ -13,14 +12,9 @@
    o does the phenix PDBe Python gui work as expected when there is no
      cif file at the url (e.g. the accession code is wrong?).
 
-   o move all the classes at the top of molecule-class-info.h to their
-     own files.
-
-   o does the PDBe Python gui work as expected when there is no
-
    o are the oxygens on a nitro O and O-? (eg ligand in 4CCC).
 
-   o coot-download is created on starting coot.  It shold not be.  Marcin W.
+   o Sarah ligand: comp-id 23H: PDB accession code is 4MDS.
 
    o write a store.py wrapper that transfers files to pc:~/store
 
@@ -30,6 +24,8 @@
      when the CAs have the right sequence.
 
    o valgrind when using PDBe recent structures.
+
+   o does the PDBe Python gui work as expected when there is no refmac?
 
    o clean up coot-download usage in lbg-drag-and-drop.cc (need get_directory() function 
      which does the same as the scheme function). std::pair<bool, std::string> 
@@ -266,5 +262,20 @@ Program terminated with signal 11, Segmentation fault.
 
 
    o Tassos chat: put density correlation into coot.mini-rsr
+
+* Done.
+
+
+   o coot-download is created on starting coot.  It shold not be.  Marcin W.
+
+* Done.
+
+   o Glyo add NAG with ASN-NAG
+
+ * Done.
+
+
+   o move all the classes at the top of molecule-class-info.h to their
+     own files.
 
 * Done.

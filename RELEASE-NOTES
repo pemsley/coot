@@ -8,6 +8,8 @@
 
   o CHANGE: Toolbars are now resizable
 
+  o CHANGE: coot-download directory is no longer created on starting coot [Marcin W.]
+
   o BUG-FIX: fix atom index check in add_atom_label() [Gabriele Balducci]
 
   o BUG-FIX: Chiral volume restraints correctly output from
