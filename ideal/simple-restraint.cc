@@ -1998,11 +1998,12 @@ coot::distortion_score_non_bonded_contact(const coot::simple_restraint &nbc_rest
 
    double r = 0.0;
 
-   std::cout << "in distortion_score_non_bonded_contact: " << idx_1 << " " << idx_2
-	     // << " " << atom_spec_t(atom[nbc_restraint.atom_index_1]) 
-	     // << " " << atom_spec_t(atom[nbc_restraint.atom_index_2]) 
-	     << " comparing model: " << sqrt(dist_sq) << " min_dist: " << nbc_restraint.target_value
-	     << " with sigma " << nbc_restraint.sigma << std::endl;
+   if (false)
+      std::cout << "in distortion_score_non_bonded_contact: " << idx_1 << " " << idx_2
+	 // << " " << atom_spec_t(atom[nbc_restraint.atom_index_1]) 
+	 // << " " << atom_spec_t(atom[nbc_restraint.atom_index_2]) 
+		<< " comparing model: " << sqrt(dist_sq) << " min_dist: " << nbc_restraint.target_value
+		<< " with sigma " << nbc_restraint.sigma << std::endl;
    
    if (dist_sq < nbc_restraint.target_value * nbc_restraint.target_value) {
       double weight = 1.0/(nbc_restraint.sigma * nbc_restraint.sigma);
@@ -5674,7 +5675,6 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
 
 	 
 	       if (false) { // debug.
-
 	          clipper::Coord_orth pt1(atom[i]->x, atom[i]->y, atom[i]->z);
 	          clipper::Coord_orth pt2(at_2->x,    at_2->y,    at_2->z);
 	          double d = sqrt((pt1-pt2).lengthsq());
