@@ -1647,9 +1647,8 @@ init_gl_widget(GtkWidget *widget) {
    if (g.do_anti_aliasing_flag)
       glEnable(GL_LINE_SMOOTH);
 
-   glEnable(GL_POLYGON_SMOOTH);
-   glEnable(GL_MULTISAMPLE_ARB);
-
+   // glEnable(GL_POLYGON_SMOOTH);
+   // glEnable(GL_MULTISAMPLE_ARB);
 
    // Mac play
    // glEnable(GL_LINE_SMOOTH);
