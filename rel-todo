@@ -1,6 +1,8 @@
  
  0.8.3
 
+   o pepflip the N , flip the right one!
+
    o unsigned int
 
 ../../coot/git/coot/src/c-interface.cc: In function ‘void set_display_only_model_mol(int)’:

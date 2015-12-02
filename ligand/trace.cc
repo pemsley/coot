@@ -8,6 +8,7 @@
 #include "ligand.hh"
 #include "analysis/stats.hh"
 #include "analysis/kolmogorov.hh" // for testing
+#include "multi-peptide.hh"
 
 // First we will flood the map, then look for atom pair that are 2.8
 // to 4.8A apart and spin a search the density
@@ -50,6 +51,7 @@ coot::operator<<(std::ostream &s, scored_node_t sn) {
 void
 coot::trace::action() {
 
+   bool do_trace_by_spin_pairs = true;
    minimol::molecule flood_mol = get_flood_molecule();
 
    mmdb::Manager *mol = flood_mol.pcmmdbmanager();
@@ -61,8 +63,8 @@ coot::trace::action() {
 
       // Now start from the best peptide and try to put coordinate there
 
-      unsigned int n_top_spin_pairs_for_tracing_starts = 1000;
-      unsigned int n_top_spin_pairs = 1000; // use only the top 1000 for
+      unsigned int n_top_spin_pairs_for_tracing_starts = 200;
+      unsigned int n_top_spin_pairs = 300; // use only the top 1000 for
                                             // potential connections
 
       std::sort(scores.begin(), scores.end(), scored_node_t::sort_pair_scores);
@@ -78,57 +80,68 @@ coot::trace::action() {
 
       std::vector<std::pair<std::vector<coot::scored_node_t>, coot::minimol::fragment> >
 	 frag_store;
+
+      if (do_trace_by_spin_pairs) {  // fill the frag_store
+	 for (unsigned int i=0; i<n_top_spin_pairs_for_tracing_starts; i++) {
+	    std::string chain_id = frag_idx_to_chain_id(i);
+
+	    std::vector<scored_node_t> start_path;
+	    scored_node_t dummy_first;
+	    dummy_first.atom_idx = scores[i].first;
+	    start_path.push_back(dummy_first);
       
-      for (unsigned int i=0; i<n_top_spin_pairs_for_tracing_starts; i++) {
-	 std::string chain_id = frag_idx_to_chain_id(i);
+	    std::cout << "----------- test_model() starting point number  " << i
+		      << " atom_idx: " << scores[i].first << " node: " << scores[i].second 
+		      << " chain_id " << chain_id << std::endl;
 
-	 std::vector<scored_node_t> start_path;
-	 scored_node_t dummy_first;
-	 dummy_first.atom_idx = scores[i].first;
-	 start_path.push_back(dummy_first);
+	    int res_no_base = scores[i].first;
+
+	    res_no_base = i;
+
+	    // actually, we *have* the first spin pair but it gets thrown
+	    // away and "rediscovered" when build_2_choose_1() does just
+	    // that (and hopefully picks the idx scores[i].second.atom_ids).
+	    // 
+
+	    dir_t dir = FORWARDS;
       
-	 std::cout << "----------- test_model() starting point number  " << i
-		   << " atom_idx: " << scores[i].first << " node: " << scores[i].second 
-		   << " chain_id " << chain_id << std::endl;
+	    std::cout << "------------------------------- follow forwards ---------"
+		      << std::endl;
+	    std::pair<std::vector<coot::scored_node_t>, coot::minimol::fragment> ff = 
+	       follow_fragment(scores[i].first, start_path, res_no_base, chain_id, dir);
 
-	 int res_no_base = scores[i].first;
-
-	 res_no_base = i;
-
-	 // actually, we *have* the first spin pair but it gets thrown
-	 // away and "rediscovered" when build_2_choose_1() does just
-	 // that (and hopefully picks the idx scores[i].second.atom_ids).
-	 // 
-
-	 dir_t dir = FORWARDS;
-      
-	 std::cout << "------------------------------- follow forwards ---------"
-		   << std::endl;
-	 std::pair<std::vector<coot::scored_node_t>, coot::minimol::fragment> ff = 
-	    follow_fragment(scores[i].first, start_path, res_no_base, chain_id, dir);
-
-	 std::cout << "------------------------------- follow backwards --------"
-		   << std::endl;
-	 dir = BACKWARDS;
-	 std::pair<std::vector<coot::scored_node_t>, coot::minimol::fragment> bf = 
-	    follow_fragment(scores[1].second.atom_idx, start_path, 1000+res_no_base, chain_id, dir);
+	    std::cout << "------------------------------- follow backwards --------"
+		      << std::endl;
+	    dir = BACKWARDS;
+	    std::pair<std::vector<coot::scored_node_t>, coot::minimol::fragment> bf = 
+	       follow_fragment(scores[1].second.atom_idx, start_path, 1000+res_no_base, chain_id, dir);
 	 
-	 add_replace_reject(frag_store, ff);
-	 add_replace_reject(frag_store, bf);
+	    add_replace_reject(frag_store, ff);
+	    add_replace_reject(frag_store, bf);
 
-	 std::cout << "For i_top_frag " << i << " we have " << frag_store.size()
-		   << " fragment " << std::endl;
+	    std::cout << "For i_top_frag " << i << " we have " << frag_store.size()
+		      << " fragment " << std::endl;
       
+	 }
+
+	 for (unsigned int ifrag=0; ifrag<frag_store.size(); ifrag++) {
+
+	    minimol::molecule m_debug(frag_store[ifrag].second);
+	    std::string  node_string = util::int_to_string(ifrag);
+	    std::string fn_ = "frag-store-" + node_string + ".pdb";
+	    if (! m_debug.is_empty())
+	       m_debug.write_file(fn_, 10);
+	 }
       }
 
-      for (unsigned int ifrag=0; ifrag<frag_store.size(); ifrag++) {
 
-      	 minimol::molecule m_debug(frag_store[ifrag].second);
-	 std::string  node_string = util::int_to_string(ifrag);
-	 std::string fn_ = "frag-store-" + node_string + ".pdb";
-	 if (! m_debug.is_empty())
-	    m_debug.write_file(fn_, 10);
-      }
+      // Rama terminal addition/refine trace.
+      //
+      std::pair<float, float> mv = util::mean_and_variance(xmap);
+      protein_geometry geom;
+      geom.init_standard();
+      geom.remove_planar_peptide_restraint();
+      multi_peptide(frag_store, geom, mv);
       
    }
 }
@@ -303,7 +316,7 @@ coot::trace::spin_score_pairs(const std::vector<std::pair<unsigned int, unsigned
    // apwd : atom (index) pairs within distance
 
    unsigned int n_top = 5000; // top-scoring spin-score pairs for tracing
-   bool debug = true;
+   bool debug = false;
    
    std::vector<std::pair<unsigned int, scored_node_t> > scores(apwd.size()*2);
 
@@ -330,24 +343,24 @@ coot::trace::spin_score_pairs(const std::vector<std::pair<unsigned int, unsigned
       n_top = scores.size();
    }
 
-   // debugging
-   // 
-   std::cout << "---- sorted scores ----- " << n_top <<  std::endl;
-   for (unsigned int i=0; i<n_top; i++) {
-      const std::string &at_name_1 = index_to_name(scores[i].first);
-      const std::string &at_name_2 = index_to_name(scores[i].second.atom_idx);
-      int res_no_1 = atom_selection[scores[i].first          ]->GetSeqNum();
-      int res_no_2 = atom_selection[scores[i].second.atom_idx]->GetSeqNum();
-      std::string chain_id_1 = atom_selection[scores[i].first          ]->GetChainID();
-      std::string chain_id_2 = atom_selection[scores[i].second.atom_idx]->GetChainID();
+   if (debug) { 
+      std::cout << "---- sorted scores ----- " << n_top <<  std::endl;
+      for (unsigned int i=0; i<n_top; i++) {
+	 const std::string &at_name_1 = index_to_name(scores[i].first);
+	 const std::string &at_name_2 = index_to_name(scores[i].second.atom_idx);
+	 int res_no_1 = atom_selection[scores[i].first          ]->GetSeqNum();
+	 int res_no_2 = atom_selection[scores[i].second.atom_idx]->GetSeqNum();
+	 std::string chain_id_1 = atom_selection[scores[i].first          ]->GetChainID();
+	 std::string chain_id_2 = atom_selection[scores[i].second.atom_idx]->GetChainID();
       
-      std::cout << "sorted spin scores " << " " << std::setw(4) << scores[i].first << " "
-		<< " to " << std::setw(4) << scores[i].second.atom_idx << " "
-		<< at_name_1 << " " << std::setw(3) << res_no_1 << " " << chain_id_1 << " " 
-		<< at_name_2 << " " << std::setw(3) << res_no_2 << " " << chain_id_2 << " " 
-		<< index_to_pos(scores[i].first).format() << " "
-		<< index_to_pos(scores[i].second.atom_idx).format() << " "
-		<< scores[i].second.spin_score << std::endl;
+	 std::cout << "sorted spin scores " << " " << std::setw(4) << scores[i].first << " "
+		   << " to " << std::setw(4) << scores[i].second.atom_idx << " "
+		   << at_name_1 << " " << std::setw(3) << res_no_1 << " " << chain_id_1 << " " 
+		   << at_name_2 << " " << std::setw(3) << res_no_2 << " " << chain_id_2 << " " 
+		   << index_to_pos(scores[i].first).format() << " "
+		   << index_to_pos(scores[i].second.atom_idx).format() << " "
+		   << scores[i].second.spin_score << std::endl;
+      }
    }
    return scores;
    
@@ -489,41 +502,45 @@ coot::trace::make_connection_map(const std::vector<std::pair<unsigned int, score
 	 std::cout << std::endl;
       }
    }
+
+   bool debug = false;
    
    // debug::
-   // 
-   for (itm=fwd_connection_map.begin(); itm!=fwd_connection_map.end(); itm++) {
-      int res_no = atom_selection[itm->first]->GetSeqNum();
-      std::cout << "fwd-map " << itm->first <<  "  ["
-		<< std::setw(2) << itm->second.size() << "] ";
-      if (using_test_model)
-	 std::cout << atom_selection[itm->first]->name << " " << res_no << " ";
-      std::cout << index_to_pos(itm->first).format() << "  ";
-      for (unsigned int jj=0; jj<itm->second.size(); jj++) {
-	 int res_no_n = atom_selection[itm->second[jj].atom_idx]->GetSeqNum();
-	 std::cout << "  " << itm->second[jj].atom_idx << " ";
+   //
+   if (debug) { 
+      for (itm=fwd_connection_map.begin(); itm!=fwd_connection_map.end(); itm++) {
+	 int res_no = atom_selection[itm->first]->GetSeqNum();
+	 std::cout << "fwd-map " << itm->first <<  "  ["
+		   << std::setw(2) << itm->second.size() << "] ";
 	 if (using_test_model)
-	    std::cout << atom_selection[itm->second[jj].atom_idx]->name << " "
-		      << res_no_n << " ";
+	    std::cout << atom_selection[itm->first]->name << " " << res_no << " ";
+	 std::cout << index_to_pos(itm->first).format() << "  ";
+	 for (unsigned int jj=0; jj<itm->second.size(); jj++) {
+	    int res_no_n = atom_selection[itm->second[jj].atom_idx]->GetSeqNum();
+	    std::cout << "  " << itm->second[jj].atom_idx << " ";
+	    if (using_test_model)
+	       std::cout << atom_selection[itm->second[jj].atom_idx]->name << " "
+			 << res_no_n << " ";
+	 }
+	 std::cout << std::endl;
       }
-      std::cout << std::endl;
-   }
 
-   for (itm=bck_connection_map.begin(); itm!=bck_connection_map.end(); itm++) {
-      int res_no = atom_selection[itm->first]->GetSeqNum();
-      std::cout << "bck-map " << itm->first <<  "  ["
-		<< std::setw(2) << itm->second.size() << "] ";
-      if (using_test_model)
-	 std::cout << atom_selection[itm->first]->name << " " << res_no << " ";
-      std::cout << index_to_pos(itm->first).format() << "  ";
-      for (unsigned int jj=0; jj<itm->second.size(); jj++) {
-	 int res_no_n = atom_selection[itm->second[jj].atom_idx]->GetSeqNum();
-	 std::cout << "  " << itm->second[jj].atom_idx << " ";
+      for (itm=bck_connection_map.begin(); itm!=bck_connection_map.end(); itm++) {
+	 int res_no = atom_selection[itm->first]->GetSeqNum();
+	 std::cout << "bck-map " << itm->first <<  "  ["
+		   << std::setw(2) << itm->second.size() << "] ";
 	 if (using_test_model)
-	    std::cout << atom_selection[itm->second[jj].atom_idx]->name << " "
-		      << res_no_n << " ";
+	    std::cout << atom_selection[itm->first]->name << " " << res_no << " ";
+	 std::cout << index_to_pos(itm->first).format() << "  ";
+	 for (unsigned int jj=0; jj<itm->second.size(); jj++) {
+	    int res_no_n = atom_selection[itm->second[jj].atom_idx]->GetSeqNum();
+	    std::cout << "  " << itm->second[jj].atom_idx << " ";
+	    if (using_test_model)
+	       std::cout << atom_selection[itm->second[jj].atom_idx]->name << " "
+			 << res_no_n << " ";
+	 }
+	 std::cout << std::endl;
       }
-      std::cout << std::endl;
    }
 }
 
@@ -1257,13 +1274,14 @@ coot::trace::follow_fragment(unsigned int atom_idx, const std::vector<scored_nod
       } else {
 	 // what's in running fragment?
 
-	 minimol::molecule m_debug(running_fragment);
-	 std::string  node_string = util::int_to_string(res_no_base);
-	 std::string fn_ = "running-frag-node-" + node_string + ".pdb";
-	 std::cout << ":::::: fragment output: " << fn_ << std::endl;
-	 if (! m_debug.is_empty())
-	    m_debug.write_file(fn_, 10);
-	 
+	 if (false) { 
+	    minimol::molecule m_debug(running_fragment);
+	    std::string  node_string = util::int_to_string(res_no_base);
+	    std::string fn_ = "running-frag-node-" + node_string + ".pdb";
+	    std::cout << ":::::: fragment output: " << fn_ << std::endl;
+	    if (! m_debug.is_empty())
+	       m_debug.write_file(fn_, 10);
+	 }
       }
    }
 
@@ -1623,3 +1641,65 @@ coot::trace::add_tree_maybe(const std::vector<scored_node_t> &path) {
    } 
 }
 
+
+
+// Rama terminal addition/refine trace.
+void
+coot::trace::multi_peptide(const std::vector<std::pair<std::vector<coot::scored_node_t>, coot::minimol::fragment> > &frag_store, const coot::protein_geometry &geom, std::pair<float, float> &mv) {
+
+   unsigned int n_top = 40;
+   if (frag_store.size() < n_top) n_top = frag_store.size();
+
+   float b_factor = 20;
+   int n_trials = 1000;
+
+   std::cout << "we have " << frag_store.size() << " fragments in the store " << std::endl;
+
+   for (unsigned int i=0; i<n_top; i++) {
+
+      { 
+	 minimol::molecule m_debug(frag_store[i].second);
+	 std::string  node_string = util::int_to_string(i);
+	 std::string fn_ = "from-multi-peptide:frag-store-" + node_string + ".pdb";
+	 if (! m_debug.is_empty())
+	    m_debug.write_file(fn_, 10);
+      }
+
+      int n_terminal_res = frag_store[i].second.first_residue() + 1;
+
+      try { 
+      
+	 unsigned int n_atoms_in_res = frag_store[i].second[n_terminal_res].atoms.size();
+
+	 std::cout << "fragstore frag index " << i << " n-terminal residue with seqnum "
+		   <<  n_terminal_res << " has " << n_atoms_in_res << " atoms " << std::endl;
+      
+	 if (n_atoms_in_res > 2) { 
+	    mmdb::Residue *res_p = frag_store[i].second[n_terminal_res].make_residue();
+	    minimol::fragment f = multi_build_N_terminal_ALA(res_p,
+							     frag_store[i].second.fragment_id,
+							     b_factor,
+							     n_trials,
+							     geom,
+							     xmap, mv);
+      
+	    std::cout << "multi-build on frag_store fragment index " << i
+		      << " made a fragment of size " << f.n_filled_residues() << std::endl;
+
+	    { 
+	       minimol::molecule m_debug(f);
+	       std::string  node_string = util::int_to_string(i);
+	       std::string fn_ = "from-multi-peptide:multi-build-" + node_string + ".pdb";
+	       if (! m_debug.is_empty())
+		  m_debug.write_file(fn_, 10);
+	    }
+	    
+	 }
+
+      }
+      catch (const std::runtime_error &rte) {
+	 std::cout << "skip " << rte.what() << std::endl;
+      } 
+   }
+
+}

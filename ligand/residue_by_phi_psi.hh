@@ -36,7 +36,6 @@ namespace coot {
 
   class residue_by_phi_psi : public ligand { 
 
-     const mmdb::Manager *mol;
      int ires_terminus;
      std::string chain_id;
      std::string residue_type;
@@ -74,8 +73,9 @@ namespace coot {
 						  const clipper::Coord_orth &next_c) const;
 	
      std::vector<clipper::Coord_orth> get_connecting_residue_atoms() const; 
-     minimol::fragment fit_terminal_residue_generic(int n_trials, int offset, 
-							  short int do_rigid_body_refinement);
+     minimol::fragment fit_terminal_residue_generic(int n_trials,
+						    int offset, 
+						    bool do_rigid_body_refinement);
 
      minimol::fragment
      make_2_res_joining_frag(const std::string &chain_id,
@@ -92,15 +92,18 @@ namespace coot {
 
      
   public:
-     residue_by_phi_psi(const mmdb::Manager *mol_in,
-			const std::string &terminus_type, // "N", or "C"
-			const mmdb::Residue *res_p,
+     residue_by_phi_psi(const std::string &terminus_type, // "N", or "C"
+			mmdb::Residue *res_p,
 			const std::string &chain_id, 
 			const std::string &res_type,
 			float b_factor_in);
 
-     minimol::molecule best_fit_phi_psi(int n_trials, short int do_rigid_body_refinement,
-					int add_other_residue_flag);
+     minimol::molecule best_fit_phi_psi(int n_trials,
+					bool do_rigid_body_refinement,
+					bool add_other_residue_flag);
+
+     // offset: N or C addition (-1 or 1).
+     minimol::fragment best_fit_phi_psi(int n_trials, int offset); 
 
   };
 
@@ -115,7 +118,16 @@ namespace coot {
 			const clipper::Coord_orth &next_n,
 			const clipper::Coord_orth &next_ca,
 			const clipper::Coord_orth &next_c,
-			float b_factor); 
+			float b_factor);
+
+   minimol::fragment
+   multi_build_N_terminal_ALA(const mmdb::Manager *mol_in,
+			      const std::string &terminus_type, // "N", or "C"
+			      mmdb::Residue *res_p,
+			      const std::string &chain_id, 
+			      const std::string &res_type,
+			      float b_factor_in,
+			      int n_trials);
 
 
 } // namespace coot

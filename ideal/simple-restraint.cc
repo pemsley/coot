@@ -302,7 +302,7 @@ coot::restraints_container_t::restraints_container_t(atom_selection_container_t 
    from_residue_vector = 0;
    include_map_terms_flag = 0;
    lograma.init(LogRamachandran::All, 2.0, true);
-   verbose_geometry_reporting = 0;
+   verbose_geometry_reporting = NORMAL;
    mol = asc_in.mol;
    have_oxt_flag = 0;
    do_numerical_gradients_flag = 0;
@@ -551,7 +551,7 @@ void
 coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
 
    do_numerical_gradients_flag = 0;
-   verbose_geometry_reporting = 0;
+   verbose_geometry_reporting = NORMAL;
    have_oxt_flag = 0; // set in mark_OXT()
    geman_mcclure_alpha = 1; // Is this a good value? Talk to Rob. FIXME.
    mol = mol_in;
@@ -653,7 +653,7 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
       use_map_gradient_for_atom[fixed_atom_indices[ifixed]] = false;
    } 
    
-   if (verbose_geometry_reporting)
+   if (verbose_geometry_reporting == VERBOSE)
       for (int i=0; i<n_atoms; i++)
 	 std::cout << atom[i]->name << " " << atom[i]->residue->seqNum << " "
 		   << use_map_gradient_for_atom[i] << std::endl;
@@ -951,8 +951,9 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
    gsl_multimin_fdfminimizer_set (s, &multimin_func, x, step_size, tolerance);
 
    if (print_initial_chi_sq_flag) { 
-      double d = coot::distortion_score(x,(double *)this); 
-      std::cout << "initial distortion_score: " << d << std::endl; 
+      double d = coot::distortion_score(x,(double *)this);
+      if (verbose_geometry_reporting != QUIET)
+	 std::cout << "initial distortion_score: " << d << std::endl; 
       chi_squareds("Initial RMS Z values", s->x);
    }
 
@@ -998,9 +999,11 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 		      << norm << std::endl;
 	 }
 	 
-	 if (status == GSL_SUCCESS) { 
-	    std::cout << "Minimum found (iteration number " << iter << ") at ";
-	    std::cout << s->f << "\n";
+	 if (status == GSL_SUCCESS) {
+	    if (verbose_geometry_reporting != QUIET) { 
+	       std::cout << "Minimum found (iteration number " << iter << ") at ";
+	       std::cout << s->f << "\n";
+	    }
 	 }
 	 
 	 if (status == GSL_SUCCESS || status == GSL_ENOPROG) {
@@ -1012,7 +1015,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 	    done_final_chi_squares = true;
 	 }
 
-	 if (verbose_geometry_reporting)
+	 if (verbose_geometry_reporting == VERBOSE)
 	    cout << "iteration number " << iter << " " << s->f << endl;
 
       }
@@ -2335,6 +2338,9 @@ coot::distortion_score_2_planes(const std::vector<std::pair<int, double> > &atom
 std::vector<coot::refinement_lights_info_t>
 coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *v) const {
 
+   bool print_summary = true;
+   if (verbose_geometry_reporting == QUIET) print_summary = false;
+   
    std::vector<coot::refinement_lights_info_t> lights_vec;
    int n_bond_restraints = 0; 
    int n_angle_restraints = 0; 
@@ -2372,10 +2378,6 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	    gm_distortion += coot::distortion_score_geman_mcclure_distance((*this)[i], v, geman_mcclure_alpha);
 
 	    double d = coot::distortion_score_geman_mcclure_distance((*this)[i], v, geman_mcclure_alpha);
-
-	    if (0) 
-	       std::cout << "............ Geman-McClure " << i << " " << d
-			 << " gm_distortion " << gm_distortion << std::endl;
 	 }
       }
 
@@ -2392,7 +2394,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	       torsion_distortion += coot::distortion_score_torsion((*this)[i], v); 
 	       n_torsion_restraints++;
 	    }
-	    catch (std::runtime_error rte) {
+	    catch (const std::runtime_error &rte) {
 	       std::cout << "WARNING:: caught runtime_error " << rte.what() << std::endl;
 	    } 
 	 }
@@ -2455,15 +2457,18 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 
    r += title;
    r += "\n";
-   std::cout << "    " << title << std::endl;
+   if (print_summary)
+      std::cout << "    " << title << std::endl;
    if (n_bond_restraints == 0) {
-      std::cout << "bonds:      N/A " << std::endl;
+      if (print_summary)
+	 std::cout << "bonds:      N/A " << std::endl;
    } else {
       double bd = bond_distortion/double(n_bond_restraints);
       double sbd = 0.0;
       if (bd > 0)
 	 sbd = sqrt(bd);
-      std::cout << "bonds:      " << sbd << std::endl;
+      if (print_summary)
+	 std::cout << "bonds:      " << sbd << std::endl;
       r += "   bonds:  ";
       r += coot::util::float_to_string_using_dec_pl(sbd, 3);
       r += "\n";
@@ -2472,13 +2477,15 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       lights_vec.push_back(coot::refinement_lights_info_t("Bonds", s, sbd));
    } 
    if (n_angle_restraints == 0) {
-      std::cout << "angles:     N/A " << std::endl;
+      if (print_summary)
+	 std::cout << "angles:     N/A " << std::endl;
    } else {
       double ad = angle_distortion/double(n_angle_restraints);
       double sad = 0.0;
       if (ad > 0.0)
 	 sad = sqrt(ad);
-      std::cout << "angles:     " << sad << std::endl;
+      if (print_summary)
+	 std::cout << "angles:     " << sad << std::endl;
       r += "   angles: ";
       r += coot::util::float_to_string_using_dec_pl(sad, 3);
       r += "\n";
@@ -2487,13 +2494,15 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       lights_vec.push_back(coot::refinement_lights_info_t("Angles", s, sad));
    } 
    if (n_torsion_restraints == 0) {
-      std::cout << "torsions:   N/A " << std::endl;
+      if (print_summary)
+	 std::cout << "torsions:   N/A " << std::endl;
    } else {
       double td = torsion_distortion/double(n_torsion_restraints);
       double std = 0.0;
       if (td > 0.0)
 	 std = sqrt(td);
-      std::cout << "torsions:   " << std << std::endl;
+      if (print_summary)
+	 std::cout << "torsions:   " << std << std::endl;
       r += "   torsions: ";
       r += coot::util::float_to_string_using_dec_pl(std, 3);
       r += "\n";
@@ -2502,13 +2511,15 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       lights_vec.push_back(coot::refinement_lights_info_t("Torsions", s, std));
    } 
    if (n_plane_restraints == 0) {
-      std::cout << "planes:     N/A " << std::endl;
+      if (print_summary)
+	 std::cout << "planes:     N/A " << std::endl;
    } else {
       double pd = plane_distortion/double(n_plane_restraints);
       double spd = 0.0;
       if (pd > 0.0)
 	 spd = sqrt(pd);
-      std::cout << "planes:     " << spd << std::endl;
+      if (print_summary)
+	 std::cout << "planes:     " << spd << std::endl;
       r += "   planes: ";
       r += coot::util::float_to_string_using_dec_pl(spd, 3);
       r += "\n";
@@ -2517,14 +2528,15 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       lights_vec.push_back(coot::refinement_lights_info_t("Planes", s, spd));
    }
    if (n_non_bonded_restraints == 0) {
-      std::cout << "non-bonded: N/A " << std::endl;
+      if (print_summary)
+	 std::cout << "non-bonded: N/A " << std::endl;
    } else {
       double nbd = non_bonded_distortion/double(n_non_bonded_restraints);
       double snbd = 0.0;
       if (nbd > 0.0)
 	 snbd = sqrt(nbd);
-      std::cout << "non-bonded: " << nbd
-		<< std::endl;
+      if (print_summary)
+	 std::cout << "non-bonded: " << nbd << std::endl;
       r += "   non-bonded: ";
       r += coot::util::float_to_string_using_dec_pl(snbd, 3);
       r += "\n";
@@ -2533,13 +2545,15 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       lights_vec.push_back(coot::refinement_lights_info_t("Non-bonded", s, snbd));
    }
    if (n_chiral_volumes == 0) { 
-      std::cout << "chiral vol: N/A " << std::endl;
+      if (print_summary)
+	 std::cout << "chiral vol: N/A " << std::endl;
    } else {
       double cd = chiral_vol_distortion/double(n_chiral_volumes);
       double scd = 0.0;
       if (cd > 0.0)
 	 scd = sqrt(cd);
-      std::cout << "chiral vol: " << scd << std::endl;
+      if (print_summary)
+	 std::cout << "chiral vol: " << scd << std::endl;
       r += "   chirals: ";
       r += coot::util::float_to_string_using_dec_pl(scd, 3);
       std::string s = "Chirals: ";
@@ -2547,10 +2561,12 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       lights_vec.push_back(coot::refinement_lights_info_t("Chirals", s, scd));
    }
    if (n_rama_restraints == 0) { 
-      std::cout << "rama plot:  N/A " << std::endl;
+      if (print_summary)
+	 std::cout << "rama plot:  N/A " << std::endl;
    } else {
       double rd = rama_distortion/double(n_rama_restraints);
-      std::cout << "rama plot:  " << rd << std::endl;
+      if (print_summary)
+	 std::cout << "rama plot:  " << rd << std::endl;
       r += "   rama plot: ";
       r += coot::util::float_to_string_using_dec_pl(rd, 3);
       std::string s = "Rama Plot: ";
@@ -2558,13 +2574,15 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       lights_vec.push_back(coot::refinement_lights_info_t("Rama", s, rd));
    }
    if (n_start_pos_restraints == 0) {
-      std::cout << "start_pos:  N/A " << std::endl;
+      if (print_summary)
+	 std::cout << "start_pos:  N/A " << std::endl;
    } else {
       double spd = start_pos_distortion/double(n_start_pos_restraints);
       double sspd = 0.0;
       if (spd > 0.0)
 	 sspd = sqrt(spd);
-      std::cout << "start_pos:  " << sspd << std::endl;
+      if (print_summary)
+	 std::cout << "start_pos:  " << sspd << std::endl;
       r += "startpos:  ";
       r += coot::util::float_to_string_using_dec_pl(sspd, 3);
       r += "\n";
@@ -2573,13 +2591,15 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       lights_vec.push_back(coot::refinement_lights_info_t("Start_pos", s, sspd));
    } 
    if (n_geman_mcclure_distance == 0) {
-      std::cout << "GemanMcCl:  N/A " << std::endl;
+      if (print_summary)
+	 std::cout << "GemanMcCl:  N/A " << std::endl;
    } else {
       double spd = gm_distortion/double(n_geman_mcclure_distance);
       double sspd = 0.0;
       if (spd > 0.0)
 	 sspd = sqrt(spd);
-      std::cout << "GemanMcCl:  " << sspd << " " << n_geman_mcclure_distance << std::endl;
+      if (print_summary)
+	 std::cout << "GemanMcCl:  " << sspd << " " << n_geman_mcclure_distance << std::endl;
       r += "GemanMcCl:  ";
       r += coot::util::float_to_string_using_dec_pl(sspd, 3);
       r += "\n";
@@ -4285,7 +4305,7 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
 	 if ((iret_prev > 0) || are_all_one_atom_residues) {
 	    reduced_angle_info_container_t ai(restraints_vec);
 	    int n_nbcr = make_non_bonded_contact_restraints(bpc, ai, geom);
-	    if (1) 
+	    if (verbose_geometry_reporting != QUIET)
 	       std::cout << "INFO:: make_restraints(): made " << n_nbcr << " non-bonded restraints\n";
 	 }
       }
@@ -4742,15 +4762,18 @@ coot::restraints_container_t::make_monomer_restraints_by_linear(const coot::prot
    // This should go into the destructor, I guess.
 
    sum.report(do_residue_internal_torsions);
-   std::cout << "created " << restraints_vec.size() << " restraints" << std::endl;
-   std::cout << std::endl; 
+   if (verbose_geometry_reporting != QUIET) {
+      std::cout << "created " << restraints_vec.size() << " restraints" << std::endl;
+      std::cout << std::endl;
+   }
    return iret; // return 1 on success.  Hmm... how is this set? (and subsequently used?)
 }
 
 int
 coot::restraints_container_t::make_monomer_restraints_from_res_vec(const coot::protein_geometry &geom,
 								   bool do_residue_internal_torsions) {
-   
+
+   bool print_summary = false;
    int iret = 0;
 
    coot::restraints_container_t::restraint_counts_t sum;
@@ -4761,9 +4784,13 @@ coot::restraints_container_t::make_monomer_restraints_from_res_vec(const coot::p
 					    do_residue_internal_torsions);
       sum += local;
    } 
-   sum.report(do_residue_internal_torsions);
-   std::cout << "created " << restraints_vec.size() << " restraints" << std::endl;
-   std::cout << std::endl;
+
+   if (print_summary)
+      sum.report(do_residue_internal_torsions);
+   if (verbose_geometry_reporting != QUIET) {
+      std::cout << "INFO:: created " << restraints_vec.size() << " restraints" << std::endl;
+      std::cout << std::endl;
+   }
    return iret;
 } 
 
@@ -7285,7 +7312,7 @@ coot::restraints_container_t::add_planes(int idr, mmdb::PPAtom res_selection,
 	    n_plane_restr++;
 	 }
       } else {
-	 if (verbose_geometry_reporting) {  
+	 if (verbose_geometry_reporting == VERBOSE) {  
 	    std::cout << "in add_planes: sadly not every restraint atom had a match"
 		      << std::endl;
 	    std::cout << "   needed " << geom[idr].plane_restraint[ip].n_atoms()

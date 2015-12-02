@@ -2119,8 +2119,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	 } 
 
 	 float bf = default_new_atoms_b_factor;
-	 coot::residue_by_phi_psi addres(molecules[imol].atom_sel.mol,
-					 terminus_type, res_p, chain_id, res_type, bf);
+	 coot::residue_by_phi_psi addres(terminus_type, res_p, chain_id, res_type, bf);
 
 	 // std::cout << "DEBUG:: term_type: " << terminus_type << std::endl;
 
@@ -2211,9 +2210,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 				    add_terminal_residue_add_other_residue_flag);
 
 	 std::vector<coot::minimol::atom *> mmatoms = mmol.select_atoms_serial();
-	 // std::cout << "---- ----- mmol has " << mmatoms.size() 
-	 // << " atoms" << std::endl;
-	 mmol.check();
+	 // mmol.check();
 
 	 if (mmol.is_empty()) {
 	    
@@ -2226,7 +2223,6 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 
 	    // check that we are adding some atoms:
 	    // 
-	    std::vector<coot::minimol::atom *> mmatoms = mmol.select_atoms_serial();
 	    if (mmatoms.size() == 0) { 
 	       std::cout << "WARNING: failed to find a fit for terminal residue"
 			 << std::endl;

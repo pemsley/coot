@@ -7448,7 +7448,7 @@ Thu Jul 23 12:31:24 BST 2015
 
 ------
 
-    realine:  Add -lcurse to shlib/Makefile:
+    readline:  Add -lcurses to shlib/Makefile:
 
     SHLIB_XLDFLAGS =  -Wl,-rpath,$(libdir) -Wl,-soname,`basename $@ $(SHLIB_MINOR)` -lcurses
  
@@ -7463,3 +7463,14 @@ Thu Jul 23 12:31:24 BST 2015
      to CSHL talk: A front page: accession code, comp-id
 
 
+-----
+
+     Quickly estimate B-factor of atoms:
+
+     Using PDB data, do a plot of density vs radius for atoms at various resolutions so that 
+     rpo(r) -> resolution
+
+     Compare that with what we have in a fragment model.
+
+
+ 

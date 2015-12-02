@@ -622,7 +622,7 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
       mmdb::Residue *sel_res_1 = bonded_residue_pairs[ibonded_residue].res_1;
       mmdb::Residue *sel_res_2 = bonded_residue_pairs[ibonded_residue].res_2;
 
-      if (0) { 
+      if (verbose_geometry_reporting == VERBOSE) { 
 	 std::cout << " ------- looking for link :" << link_type
 		   << ": restraints etc. between residues " 
 		   << sel_res_1->GetChainID() << " " << sel_res_1->seqNum << " - " 
@@ -688,11 +688,13 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
       }
    }
 
-   std::cout << link_flank_link_string << " restraints: " << std::endl;
-   std::cout << "   " << n_link_bond_restr    << " bond    links" << std::endl;
-   std::cout << "   " << n_link_angle_restr   << " angle   links" << std::endl;
-   std::cout << "   " << n_link_plane_restr   << " plane   links" << std::endl;
-   std::cout << "   " << n_link_parallel_plane_restr   << " parallel plane restraints" << std::endl;
+   if (verbose_geometry_reporting != QUIET) { 
+      std::cout << link_flank_link_string << " restraints: " << std::endl;
+      std::cout << "   " << n_link_bond_restr    << " bond    links" << std::endl;
+      std::cout << "   " << n_link_angle_restr   << " angle   links" << std::endl;
+      std::cout << "   " << n_link_plane_restr   << " plane   links" << std::endl;
+      std::cout << "   " << n_link_parallel_plane_restr   << " parallel plane restraints" << std::endl;
+   }
    return iret; 
 }
 

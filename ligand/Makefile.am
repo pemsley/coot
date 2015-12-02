@@ -33,7 +33,7 @@ pkginclude_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh
 	chi-angles.hh dunbrack.hh helix-placement.hh fast-ss-search.hh        \
 	rigid-body.hh ideal-rna.hh rotamer.hh richardson-rotamer.hh           \
 	torsion-general.hh primitive-chi-angles.hh dipole.hh    \
-	base-pairing.hh backrub-rotamer.hh trace.hh
+	base-pairing.hh backrub-rotamer.hh trace.hh multi-peptide.hh
 pkgincludedir = $(includedir)/coot/ligand
 
 
@@ -42,7 +42,7 @@ libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
 	chi-angles.cc helix-placement.cc fast-ss-search.cc rigid-body.cc      \
 	ideal-rna.cc richardson-rotamers.cc richardson-rotamer.cc rotamer.cc  \
 	torsion-general.cc rotamer-tables.cc primitive-chi-angles.cc dipole.cc\
-        base-pairing.cc backrub-rotamer.cc trace.cc trace-2.cc
+        base-pairing.cc backrub-rotamer.cc trace.cc trace-2.cc multi-peptide.cc
 
 # clean
 libcoot_ligand_la_LIBADD = \

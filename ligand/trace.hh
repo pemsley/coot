@@ -6,8 +6,8 @@
 #include <map>
 #include <clipper/core/xmap.h>
 
-#include "../mini-mol/mini-mol.hh"
-
+#include "mini-mol/mini-mol.hh"
+#include "geometry/protein-geometry.hh"
 
 namespace coot {
 
@@ -251,7 +251,10 @@ namespace coot {
 	 
 
       double ks_test(const std::vector<std::pair<unsigned int, scored_node_t> > &scores); 
-   
+
+      // Rama terminal addition/refine trace.
+      void multi_peptide(const std::vector<std::pair<std::vector<coot::scored_node_t>, coot::minimol::fragment> > &frag_store, const protein_geometry &geom, std::pair<float, float> &mv);
+
    public:
       trace(const clipper::Xmap<float> &xmap_in);
       void set_atom_mask_radius(float r) { flood_atom_mask_radius = r; }

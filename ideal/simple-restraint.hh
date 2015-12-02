@@ -810,6 +810,8 @@ namespace coot {
 
    class restraints_container_t {
 
+      enum reporting_level_t { QUIET, NORMAL, VERBOSE };
+
    public:
 
       class restraint_counts_t {
@@ -907,7 +909,7 @@ namespace coot {
       mmdb::PResidue previous_residue;
       mmdb::PResidue next_residue;
       
-      bool verbose_geometry_reporting;
+      reporting_level_t verbose_geometry_reporting;
    
       // we will store in here the initial positions as parameters
       // 
@@ -1518,7 +1520,7 @@ namespace coot {
 //       }
 
       restraints_container_t(atom_selection_container_t asc_in) { 
-	 verbose_geometry_reporting = 0;
+	 verbose_geometry_reporting = NORMAL;
 	 n_atoms = asc_in.n_selected_atoms; 
 	 mol = asc_in.mol;
 	 n_atoms = asc_in.n_selected_atoms;
@@ -1674,7 +1676,11 @@ namespace coot {
       atom_spec_t get_atom_spec(int atom_index) const;
 
       void set_verbose_geometry_reporting() { 
-	 verbose_geometry_reporting = 1; 
+	 verbose_geometry_reporting = VERBOSE;
+      }
+
+      void set_quiet_reporting() {
+	 verbose_geometry_reporting = QUIET;
       } 
 
       void assign_fixed_atom_indices(const std::vector<atom_spec_t> &fixed_atom_specs);
