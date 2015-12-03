@@ -47,8 +47,10 @@ int main(int argc, char **argv) {
 		  geom.init_standard();
 		  geom.remove_planar_peptide_restraint();
 		  std::pair<float, float> mv = coot::util::mean_and_variance(xmap);
-		  coot::minimol::fragment f =
+		  coot::minimol::fragment fN =
 		     coot::multi_build_N_terminal_ALA(r, "A", 20, 5000, geom, xmap, mv);
+		  coot::minimol::fragment fC =
+		     coot::multi_build_C_terminal_ALA(r, "A", 20, 5000, geom, xmap, mv);
 	       }
 	    }
 	 } else {

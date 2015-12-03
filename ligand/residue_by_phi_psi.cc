@@ -67,7 +67,7 @@ coot::residue_by_phi_psi::best_fit_phi_psi(int n_trials,
 	       if (terminus_type == "singleton")
 		  offset = 1;
    
-   
+   std::cout << "--- in best_fit_phi_psi() with offset " << offset << std::endl;
    
    if (offset == 0) {
       std::cout <<  "not a terminal residue\n";
@@ -77,7 +77,9 @@ coot::residue_by_phi_psi::best_fit_phi_psi(int n_trials,
 	 std::cout << " with individual rigid body fitting.\n";
       else 
 	 std::cout << " without individual rigid body fitting.\n";
-      
+
+      std::cout << "--- in best_fit_phi_psi() calling fit_terminal_residue_generic() with n_trials "
+		<< n_trials << std::endl;
       minimol::fragment frag = fit_terminal_residue_generic(n_trials, offset,
 							    do_rigid_body_refinement);
       if (add_other_residue_flag) {
@@ -122,25 +124,32 @@ coot::residue_by_phi_psi::best_fit_phi_psi(int n_trials,
 coot::minimol::fragment
 coot::residue_by_phi_psi::best_fit_phi_psi(int n_trials, int offset) {
 
+   std::cout << "                      called (fragment) best_fit_phi_psi() with offset "
+	     << offset << std::endl;
    minimol::fragment f = fit_terminal_residue_generic(n_trials, offset, false);
-
    return f;
 } 
 
 coot::minimol::fragment
 coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset, 
-						       bool do_rigid_body_refinement) { 
+						       bool do_rigid_body_refinement) {
 
    coot::minimol::fragment best_fragment; // the returned thing
+   bool debug = false; // shall we write out hypothesis di-peptides?
+   
    // float angle;
    // float torsion;
    coot::minimol::residue rres(residue_p->GetSeqNum() + offset);
+   
+   std::cout << "--------------------- called fit_terminal_residue_generic() residue-seqnum: "
+	     << residue_p->GetSeqNum() << " offset: " << offset << std::endl;
 
    std::vector<clipper::Coord_orth> pos = get_connecting_residue_atoms();
 
    if (pos.size() != 3) { 
-      std::cout << "WARNING:: not all atoms of terminal residue found :-("
-		<< " Something strange in coordinates!? " << std::endl;
+      std::cout << "WARNING:: Failed to find atoms of terminal residue, found "
+		<< pos.size() << " atoms" << std::endl;
+      std::cout << "WARNING:: Something strange in coordinates!? " << std::endl;
    } else { 
 
       clipper::Coord_orth next_n  = pos[0];
@@ -215,9 +224,12 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 	       frag_n_plus_1 = frag[neighb_seqnum-2][" N  "].pos;
 	    } 
 
-	    // float phi_real = clipper::Util::rad2d(clipper::Coord_orth::torsion(next_c, frag_n, frag_ca, frag_c));
-	    // float psi_real = clipper::Util::rad2d(clipper::Coord_orth::torsion(frag_n, frag_ca, frag_c, frag_n_plus_1));
-	    // std::cout <<  "0000 " << phi_real << " " << psi_real << std::endl;
+	    if (debug) { 
+	       float phi_real = clipper::Util::rad2d(clipper::Coord_orth::torsion(next_c, frag_n, frag_ca, frag_c));
+	       float psi_real = clipper::Util::rad2d(clipper::Coord_orth::torsion(frag_n, frag_ca, frag_c, frag_n_plus_1));
+	       // std::cout <<  "Rama-values:: 0000 " << phi_real << " " << psi_real << std::endl;
+	    }
+	    
 	 } else {
 	    frag.addresidue(construct_joining_res(get_phi_psi_by_random(),
 						  next_residue_seq_num,
@@ -233,12 +245,14 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 
 	 s = score_orientation(atoms_p, Xmap());
 
+	 // std::cout << "score-trial " << itrial << " " << s << std::endl;
+
 	 if (s.atom_point_score > best_score) {
 	    best_score = s.atom_point_score;
 	    best_fragment = frag;
 	 }
 
-	 if (false) {
+	 if (debug) {
 	    // DEBUGGING:  Let's write a pdb file for this fragment
 	    // Then look at them all.  Are they sensibly placed?
  	    coot::minimol::molecule m_tmp;
@@ -277,13 +291,13 @@ coot::residue_by_phi_psi::make_2_res_joining_frag(const std::string &chain_id,
    clipper::Coord_orth next_n   = next_n_in;
    clipper::Coord_orth next_ca = next_ca_in;
 
-   double rand_lim = 1.0; 
+   double rand_lim = 0.7; 
    next_n += clipper::Coord_orth(rand_lim * (util::random()/float (RAND_MAX) - 0.5),
 				 rand_lim * (util::random()/float (RAND_MAX) - 0.5),
 				 rand_lim * (util::random()/float (RAND_MAX) - 0.5));
-   next_ca += clipper::Coord_orth(0.3 * (util::random()/float (RAND_MAX) - 0.5),
-				  0.3 * (util::random()/float (RAND_MAX) - 0.5),
-				  0.3 * (util::random()/float (RAND_MAX) - 0.5));
+   next_ca += clipper::Coord_orth(0.1 * (util::random()/float (RAND_MAX) - 0.5),
+				  0.1 * (util::random()/float (RAND_MAX) - 0.5),
+				  0.1 * (util::random()/float (RAND_MAX) - 0.5));
    
    // std::cout << "seed N " << next_n.x() << " " << next_n.y() << " " << next_n.z() << std::endl;
 

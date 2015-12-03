@@ -7,6 +7,7 @@
 #include "coot-utils/coot-map-utils.hh"
 #include "analysis/stats.hh"
 
+
 coot::minimol::fragment
 coot::multi_build_N_terminal_ALA(mmdb::Residue *res_p,
 				 const std::string &chain_id,
@@ -16,44 +17,97 @@ coot::multi_build_N_terminal_ALA(mmdb::Residue *res_p,
 				 const clipper::Xmap<float> &xmap,
 				 std::pair<float, float> mv) {
 
+   return multi_build_terminal_ALA(-1, res_p, chain_id, b_factor_in, n_trials, geom, xmap, mv);
+
+}
+
+coot::minimol::fragment
+coot::multi_build_C_terminal_ALA(mmdb::Residue *res_p,
+				 const std::string &chain_id,
+				 float b_factor_in,
+				 int n_trials,
+				 const coot::protein_geometry &geom,
+				 const clipper::Xmap<float> &xmap,
+				 std::pair<float, float> mv) {
+
+   return multi_build_terminal_ALA(1, res_p, chain_id, b_factor_in, n_trials, geom, xmap, mv);
+
+}
+
+
+coot::minimol::fragment
+coot::multi_build_terminal_ALA(int offset, // direction
+			       mmdb::Residue *res_p,
+			       const std::string &chain_id,
+			       float b_factor_in,
+			       int n_trials,
+			       const coot::protein_geometry &geom,
+			       const clipper::Xmap<float> &xmap,
+			       std::pair<float, float> mv) {
+
+
+   
    // res_p might not be a member of hierarchy, so pass the chain id too.
 
    minimol::fragment many_residues;
    // std::string chain_id = res_p->GetChainID();
-   int offset = -1; // N-terminal additions
+
    bool prev_happy_fit = true;
    bool happy_fit = true; // starting
    int icount = 0;
 
    while (happy_fit) {
 
-      residue_by_phi_psi rpp("N", res_p, chain_id, "ALA", 20);
+      std::string dir = "N";
+      if (offset == 1)
+	 dir = "C";
+      residue_by_phi_psi rpp(dir, res_p, chain_id, "ALA", 20);
       rpp.import_map_from(xmap);
 
       // res from f is what we really want
       minimol::residue res;
-      minimol::fragment f = rpp.best_fit_phi_psi(n_trials, offset); 
-      for (int ires=f.max_residue_number(); ires>=f.min_res_no(); ires--) {
-	 if (f[ires].atoms.size() > 0) {
-	    res = f[ires];
-	    break;
+      minimol::fragment f = rpp.best_fit_phi_psi(n_trials, offset);
+      if (offset == -1) { 
+	 for (int ires=f.max_residue_number(); ires>=f.min_res_no(); ires--) {
+	    if (f[ires].atoms.size() > 0) {
+	       res = f[ires];
+	       break;
+	    }
 	 }
-      }
+      } else {
+	 // for C-terminal builds, get the first residue.
+	 for (int ires=f.min_res_no(); ires<=f.max_residue_number(); ires++) {
+	    if (f[ires].atoms.size() > 0) {
+	       res = f[ires];
+	       break;
+	    }
+	 }
+      } 
 
       if (res.is_empty()) {
 	 happy_fit = false;
       } else {
 
+	 std::cout << "debug::multi_build_terminal_ALA() with offset "
+		   << offset << " was passed residue seqnum " << res_p->GetSeqNum()
+		   << " and found res with seqnum " << res.seqnum << std::endl;
+	 
 	 std::pair<bool, clipper::Coord_orth> cbeta_info = cbeta_position(res);
 	 if (cbeta_info.first)
 	    res.addatom(" CB ", " C", cbeta_info.second, "", 1.0, 20.0);
 
-	 res.seqnum = res_p->GetSeqNum() -1;
+	 if (offset == -1)
+	    res.seqnum = res_p->GetSeqNum() -1;
+	 if (offset ==  1)
+	    res.seqnum = res_p->GetSeqNum() + 1;
+	    
 
 	 bool this_happy_fit = does_residue_fit(res, xmap, mv);
 
- 	 if (! this_happy_fit && ! prev_happy_fit)
+ 	 if (! this_happy_fit && ! prev_happy_fit) {
  	    happy_fit = false;
+	    std::cout << "info:: 2 unhappy fits - stopping now " << std::endl;
+	 } 
 
 	 if (happy_fit) { 
 	    icount++;
@@ -200,7 +254,7 @@ coot::does_residue_fit(const coot::minimol::residue &res, const clipper::Xmap<fl
 	 if (res.atoms[iat].name != " CB ") {  // PDBv3 FIXME
 	    std::cout << "low density for atom residue: " << res.seqnum
 		      << " atom: " << res.atoms[iat].name
-		      << rho[iat] << " vs " << mv.first <<  " + " << rmsd << " * " << z_crit
+		      << rho[iat] << " vs " << mv.first <<  " + " << rmsd << " * " << z_crit << " at "
 		      << res.atoms[iat].pos.format()
 		      << std::endl;
 	    r = false;

@@ -1220,14 +1220,26 @@ coot::trace::test_model(mmdb::Manager *mol) {
       
    }
 
-   for (unsigned int ifrag=0; ifrag<frag_store.size(); ifrag++) {
 
+   if (false) { 
+      for (unsigned int ifrag=0; ifrag<frag_store.size(); ifrag++) {
       	 minimol::molecule m_debug(frag_store[ifrag].second);
 	 std::string  node_string = util::int_to_string(ifrag);
 	 std::string fn_ = "frag-store-" + node_string + ".pdb";
 	 if (! m_debug.is_empty())
 	    m_debug.write_file(fn_, 10);
+      }
    }
+
+
+   // Rama terminal addition/refine trace.
+   //
+   std::pair<float, float> mv = util::mean_and_variance(xmap);
+   protein_geometry geom;
+   geom.init_standard();
+   geom.remove_planar_peptide_restraint();
+   multi_peptide(frag_store, geom, mv);
+   
 }
 
 // if return.first is more than 1, then we have something interesting
@@ -1294,8 +1306,8 @@ coot::trace::follow_fragment(unsigned int atom_idx, const std::vector<scored_nod
 	    n_fragment_residues++;
    }
    
-   std::cout << "debug:: running_fragment: " <<  local_path.size()  << " "
-	     << n_fragment_residues << std::endl;
+   std::cout << "debug:: follow_fragment(): returning running_fragment of size: "
+	     <<  local_path.size()  << " " << n_fragment_residues << std::endl;
 
    
    std::pair<std::vector<scored_node_t>, minimol::fragment> p(local_path, running_fragment);
@@ -1535,7 +1547,7 @@ coot::trace::build_2_choose_1(unsigned int atom_idx,
 		   << "have score better than " << frag_score_crit << std::endl;
       } 
    } else {
-      std::cout << "No fragments." << std::endl;
+      std::cout << "No fragments from which to choose in build_2_choose_1()" << std::endl;
    } 
    
    return std::pair<bool, scored_node_t> (status, best_scored_node);
@@ -1647,11 +1659,11 @@ coot::trace::add_tree_maybe(const std::vector<scored_node_t> &path) {
 void
 coot::trace::multi_peptide(const std::vector<std::pair<std::vector<coot::scored_node_t>, coot::minimol::fragment> > &frag_store, const coot::protein_geometry &geom, std::pair<float, float> &mv) {
 
-   unsigned int n_top = 40;
+   unsigned int n_top = 200;
    if (frag_store.size() < n_top) n_top = frag_store.size();
 
    float b_factor = 20;
-   int n_trials = 1000;
+   int n_trials = 3000; // for terminal residue addition
 
    std::cout << "we have " << frag_store.size() << " fragments in the store " << std::endl;
 
@@ -1666,15 +1678,19 @@ coot::trace::multi_peptide(const std::vector<std::pair<std::vector<coot::scored_
       }
 
       int n_terminal_res = frag_store[i].second.first_residue() + 1;
+      int c_terminal_res = frag_store[i].second.max_residue_number() -1; // this should contain C,O, CA and N.
 
-      try { 
+      try {
       
-	 unsigned int n_atoms_in_res = frag_store[i].second[n_terminal_res].atoms.size();
+	 unsigned int n_atoms_in_N_res = frag_store[i].second[n_terminal_res].atoms.size();
+	 unsigned int n_atoms_in_C_res = frag_store[i].second[c_terminal_res].atoms.size();
 
-	 std::cout << "fragstore frag index " << i << " n-terminal residue with seqnum "
-		   <<  n_terminal_res << " has " << n_atoms_in_res << " atoms " << std::endl;
-      
-	 if (n_atoms_in_res > 2) { 
+	 std::cout << "multi_peptide(): fragstore frag[" << i << "] N-terminal residue with seqnum "
+		   <<  n_terminal_res << " has " << n_atoms_in_N_res << " atoms " << std::endl;
+	 std::cout << "multi_peptide(): fragstore frag[" << i << "] C-terminal residue with seqnum "
+		   <<  c_terminal_res << " has " << n_atoms_in_C_res << " atoms " << std::endl;
+
+	 if (n_atoms_in_N_res > 2) {
 	    mmdb::Residue *res_p = frag_store[i].second[n_terminal_res].make_residue();
 	    minimol::fragment f = multi_build_N_terminal_ALA(res_p,
 							     frag_store[i].second.fragment_id,
@@ -1683,23 +1699,45 @@ coot::trace::multi_peptide(const std::vector<std::pair<std::vector<coot::scored_
 							     geom,
 							     xmap, mv);
       
-	    std::cout << "multi-build on frag_store fragment index " << i
+	    std::cout << "multi-build on N on frag_store fragment index " << i
 		      << " made a fragment of size " << f.n_filled_residues() << std::endl;
 
 	    { 
 	       minimol::molecule m_debug(f);
 	       std::string  node_string = util::int_to_string(i);
-	       std::string fn_ = "from-multi-peptide:multi-build-" + node_string + ".pdb";
+	       std::string fn_ = "from-multi-peptide:multi-build-from-N-" + node_string + ".pdb";
+	       if (! m_debug.is_empty())
+		  m_debug.write_file(fn_, 10);
+	    }
+	    
+	 }
+	 if (n_atoms_in_C_res > 2) { 
+	    mmdb::Residue *res_p = frag_store[i].second[c_terminal_res].make_residue();
+	    minimol::fragment f = multi_build_C_terminal_ALA(res_p,
+							     frag_store[i].second.fragment_id,
+							     b_factor,
+							     n_trials,
+							     geom,
+							     xmap, mv);
+      
+	    std::cout << "multi-build on C on frag_store fragment index " << i
+		      << " made a fragment of size " << f.n_filled_residues() << std::endl;
+
+	    {
+	       minimol::molecule m_debug(f);
+	       std::string  node_string = util::int_to_string(i);
+	       std::string fn_ = "from-multi-peptide:multi-build-from-C-" + node_string + ".pdb";
 	       if (! m_debug.is_empty())
 		  m_debug.write_file(fn_, 10);
 	    }
 	    
 	 }
 
+	 
+
       }
       catch (const std::runtime_error &rte) {
 	 std::cout << "skip " << rte.what() << std::endl;
       } 
    }
-
 }
