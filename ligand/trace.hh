@@ -204,6 +204,9 @@ namespace coot {
 
       double get_fit_score(const minimol::residue &r1, const minimol::residue &r2) const;
 
+      void frag_to_pdb(const minimol::fragment &frag, const std::string &fn) const;
+      
+
       minimol::fragment merge_fragments(const minimol::fragment &f1,
 					const minimol::fragment &f2) const;
 
@@ -221,6 +224,7 @@ namespace coot {
 		       int res_no_base,
 		       const std::string &chain_id,
 		       dir_t dir);
+      void add_cbetas(minimol::fragment *frag); // modify frag
 
       // potentially modify frag_store
       // 

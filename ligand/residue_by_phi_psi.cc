@@ -141,7 +141,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
    // float torsion;
    coot::minimol::residue rres(residue_p->GetSeqNum() + offset);
    
-   std::cout << "--------------------- called fit_terminal_residue_generic() residue-seqnum: "
+   std::cout << "                     called fit_terminal_residue_generic() residue-seqnum: "
 	     << residue_p->GetSeqNum() << " offset: " << offset << std::endl;
 
    std::vector<clipper::Coord_orth> pos = get_connecting_residue_atoms();

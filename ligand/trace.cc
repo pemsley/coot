@@ -9,6 +9,7 @@
 #include "analysis/stats.hh"
 #include "analysis/kolmogorov.hh" // for testing
 #include "multi-peptide.hh"
+#include "mini-mol/mini-mol-utils.hh"
 
 // First we will flood the map, then look for atom pair that are 2.8
 // to 4.8A apart and spin a search the density
@@ -119,18 +120,16 @@ coot::trace::action() {
 	    add_replace_reject(frag_store, ff);
 	    add_replace_reject(frag_store, bf);
 
-	    std::cout << "For i_top_frag " << i << " we have " << frag_store.size()
+	    std::cout << "For spin-pair " << i << " we have " << frag_store.size()
 		      << " fragment " << std::endl;
-      
 	 }
 
-	 for (unsigned int ifrag=0; ifrag<frag_store.size(); ifrag++) {
-
-	    minimol::molecule m_debug(frag_store[ifrag].second);
-	    std::string  node_string = util::int_to_string(ifrag);
-	    std::string fn_ = "frag-store-" + node_string + ".pdb";
-	    if (! m_debug.is_empty())
-	       m_debug.write_file(fn_, 10);
+	 if (false) { 
+	    for (unsigned int ifrag=0; ifrag<frag_store.size(); ifrag++) {
+	       std::string  node_string = util::int_to_string(ifrag);
+	       std::string fn_ = "frag-store-" + node_string + ".pdb";
+	       frag_to_pdb(frag_store[ifrag].second, fn_);
+	    }
 	 }
       }
 
@@ -143,6 +142,17 @@ coot::trace::action() {
       geom.remove_planar_peptide_restraint();
       multi_peptide(frag_store, geom, mv);
       
+   }
+}
+
+void
+coot::trace::frag_to_pdb(const minimol::fragment &frag, const std::string &fn) const {
+   
+   minimol::molecule m(frag);
+   if (! m.is_empty()) {
+      m.set_cell(xmap.cell());
+      m.set_spacegroup(xmap.spacegroup().symbol_hm());
+      m.write_file(fn, 10);
    }
 }
 
@@ -1223,11 +1233,8 @@ coot::trace::test_model(mmdb::Manager *mol) {
 
    if (false) { 
       for (unsigned int ifrag=0; ifrag<frag_store.size(); ifrag++) {
-      	 minimol::molecule m_debug(frag_store[ifrag].second);
-	 std::string  node_string = util::int_to_string(ifrag);
-	 std::string fn_ = "frag-store-" + node_string + ".pdb";
-	 if (! m_debug.is_empty())
-	    m_debug.write_file(fn_, 10);
+	 std::string  fn = "frag-store-" + util::int_to_string(ifrag) + ".pdb";
+	 frag_to_pdb(frag_store[ifrag].second, fn);
       }
    }
 
@@ -1309,11 +1316,26 @@ coot::trace::follow_fragment(unsigned int atom_idx, const std::vector<scored_nod
    std::cout << "debug:: follow_fragment(): returning running_fragment of size: "
 	     <<  local_path.size()  << " " << n_fragment_residues << std::endl;
 
-   
+   add_cbetas(&running_fragment);
    std::pair<std::vector<scored_node_t>, minimol::fragment> p(local_path, running_fragment);
    
    return p;
 }
+
+// modify frag
+void
+coot::trace::add_cbetas(minimol::fragment *frag) {
+
+   for (int ires=frag->first_residue(); ires<=frag->max_residue_number(); ires++) {
+      if ((*frag)[ires].atoms.size() > 2) {
+	 std::pair<bool, clipper::Coord_orth> cbeta_info = cbeta_position((*frag)[ires]);
+	 if (cbeta_info.first) {
+	    (*frag)[ires].addatom(" CB ", " C", cbeta_info.second, "", 1.0, 20);
+	 }
+      }
+   }
+}
+
 
 
 void
@@ -1665,79 +1687,82 @@ coot::trace::multi_peptide(const std::vector<std::pair<std::vector<coot::scored_
    float b_factor = 20;
    int n_trials = 3000; // for terminal residue addition
 
-   std::cout << "we have " << frag_store.size() << " fragments in the store " << std::endl;
+   std::cout << "multi_peptide(): we have " << frag_store.size() << " fragments in the store " << std::endl;
 
    for (unsigned int i=0; i<n_top; i++) {
 
       { 
-	 minimol::molecule m_debug(frag_store[i].second);
-	 std::string  node_string = util::int_to_string(i);
+	 std::string node_string = util::int_to_string(i);
 	 std::string fn_ = "from-multi-peptide:frag-store-" + node_string + ".pdb";
-	 if (! m_debug.is_empty())
-	    m_debug.write_file(fn_, 10);
+	 frag_to_pdb(frag_store[i].second, fn_);
       }
 
+      int min_res_no     = frag_store[i].second.first_residue();
+      int max_res_no     = frag_store[i].second.max_residue_number();
       int n_terminal_res = frag_store[i].second.first_residue() + 1;
       int c_terminal_res = frag_store[i].second.max_residue_number() -1; // this should contain C,O, CA and N.
 
-      try {
+      bool in_range = false;
+      if (n_terminal_res <= max_res_no)
+	 if (n_terminal_res >= min_res_no)
+	    if (c_terminal_res <= max_res_no)
+	       if (c_terminal_res >= min_res_no)
+		  if (n_terminal_res < c_terminal_res) 
+		     in_range = true;
+
+      if (in_range) { 
+
+	 try {
       
-	 unsigned int n_atoms_in_N_res = frag_store[i].second[n_terminal_res].atoms.size();
-	 unsigned int n_atoms_in_C_res = frag_store[i].second[c_terminal_res].atoms.size();
+	    unsigned int n_atoms_in_N_res = frag_store[i].second[n_terminal_res].atoms.size();
+	    unsigned int n_atoms_in_C_res = frag_store[i].second[c_terminal_res].atoms.size();
 
-	 std::cout << "multi_peptide(): fragstore frag[" << i << "] N-terminal residue with seqnum "
-		   <<  n_terminal_res << " has " << n_atoms_in_N_res << " atoms " << std::endl;
-	 std::cout << "multi_peptide(): fragstore frag[" << i << "] C-terminal residue with seqnum "
-		   <<  c_terminal_res << " has " << n_atoms_in_C_res << " atoms " << std::endl;
+	    std::cout << "   multi_peptide(): fragstore frag[" << i << "] N-terminal residue with seqnum "
+		      <<  n_terminal_res << " has " << n_atoms_in_N_res << " atoms " << std::endl;
+	    std::cout << "   multi_peptide(): fragstore frag[" << i << "] C-terminal residue with seqnum "
+		      <<  c_terminal_res << " has " << n_atoms_in_C_res << " atoms " << std::endl;
 
-	 if (n_atoms_in_N_res > 2) {
-	    mmdb::Residue *res_p = frag_store[i].second[n_terminal_res].make_residue();
-	    minimol::fragment f = multi_build_N_terminal_ALA(res_p,
-							     frag_store[i].second.fragment_id,
-							     b_factor,
-							     n_trials,
-							     geom,
-							     xmap, mv);
+	    if (n_atoms_in_N_res > 2) {
+	       mmdb::Residue *res_p = frag_store[i].second[n_terminal_res].make_residue();
+	       minimol::fragment f = multi_build_N_terminal_ALA(res_p,
+								frag_store[i].second.fragment_id,
+								b_factor,
+								n_trials,
+								geom,
+								xmap, mv);
       
-	    std::cout << "multi-build on N on frag_store fragment index " << i
-		      << " made a fragment of size " << f.n_filled_residues() << std::endl;
+	       std::cout << "multi-build on N on frag_store fragment index " << i
+			 << " made a fragment of size " << f.n_filled_residues() << std::endl;
 
-	    { 
-	       minimol::molecule m_debug(f);
-	       std::string  node_string = util::int_to_string(i);
-	       std::string fn_ = "from-multi-peptide:multi-build-from-N-" + node_string + ".pdb";
-	       if (! m_debug.is_empty())
-		  m_debug.write_file(fn_, 10);
-	    }
+	       { 
+		  std::string  node_string = util::int_to_string(i);
+		  std::string fn_ = "from-multi-peptide:multi-build-from-N-" + node_string + ".pdb";
+		  frag_to_pdb(f, fn_);
+	       }
 	    
-	 }
-	 if (n_atoms_in_C_res > 2) { 
-	    mmdb::Residue *res_p = frag_store[i].second[c_terminal_res].make_residue();
-	    minimol::fragment f = multi_build_C_terminal_ALA(res_p,
-							     frag_store[i].second.fragment_id,
-							     b_factor,
-							     n_trials,
-							     geom,
-							     xmap, mv);
-      
-	    std::cout << "multi-build on C on frag_store fragment index " << i
-		      << " made a fragment of size " << f.n_filled_residues() << std::endl;
-
-	    {
-	       minimol::molecule m_debug(f);
-	       std::string  node_string = util::int_to_string(i);
-	       std::string fn_ = "from-multi-peptide:multi-build-from-C-" + node_string + ".pdb";
-	       if (! m_debug.is_empty())
-		  m_debug.write_file(fn_, 10);
 	    }
-	    
+	    if (n_atoms_in_C_res > 2) { 
+	       mmdb::Residue *res_p = frag_store[i].second[c_terminal_res].make_residue();
+	       minimol::fragment f = multi_build_C_terminal_ALA(res_p,
+								frag_store[i].second.fragment_id,
+								b_factor,
+								n_trials,
+								geom,
+								xmap, mv);
+      
+	       std::cout << "multi-build on C on frag_store fragment index " << i
+			 << " made a fragment of size " << f.n_filled_residues() << std::endl;
+
+	       {
+		  std::string  node_string = util::int_to_string(i);
+		  std::string fn_ = "from-multi-peptide:multi-build-from-C-" + node_string + ".pdb";
+		  frag_to_pdb(f, fn_);
+	       }
+	    }
 	 }
-
-	 
-
+	 catch (const std::runtime_error &rte) {
+	    std::cout << "skip " << rte.what() << std::endl;
+	 }
       }
-      catch (const std::runtime_error &rte) {
-	 std::cout << "skip " << rte.what() << std::endl;
-      } 
    }
 }

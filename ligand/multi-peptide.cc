@@ -88,7 +88,7 @@ coot::multi_build_terminal_ALA(int offset, // direction
 	 happy_fit = false;
       } else {
 
-	 std::cout << "debug::multi_build_terminal_ALA() with offset "
+	 std::cout << "   debug::multi_build_terminal_ALA() with offset "
 		   << offset << " was passed residue seqnum " << res_p->GetSeqNum()
 		   << " and found res with seqnum " << res.seqnum << std::endl;
 	 
@@ -106,7 +106,7 @@ coot::multi_build_terminal_ALA(int offset, // direction
 
  	 if (! this_happy_fit && ! prev_happy_fit) {
  	    happy_fit = false;
-	    std::cout << "info:: 2 unhappy fits - stopping now " << std::endl;
+	    std::cout << "   info:: 2 unhappy fits - stopping now " << std::endl;
 	 } 
 
 	 if (happy_fit) { 
@@ -252,7 +252,7 @@ coot::does_residue_fit(const coot::minimol::residue &res, const clipper::Xmap<fl
       if (rho[iat] < (mv.first + rmsd * z_crit)) {
 
 	 if (res.atoms[iat].name != " CB ") {  // PDBv3 FIXME
-	    std::cout << "low density for atom residue: " << res.seqnum
+	    std::cout << "   low density for atom residue: " << res.seqnum
 		      << " atom: " << res.atoms[iat].name
 		      << rho[iat] << " vs " << mv.first <<  " + " << rmsd << " * " << z_crit << " at "
 		      << res.atoms[iat].pos.format()
