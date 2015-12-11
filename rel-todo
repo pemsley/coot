@@ -1,6 +1,10 @@
  
  0.8.3
 
+   o the coot page should say "reference"
+
+   o TRS in thumbnail view - e.g. in 3h6d.
+
    o unsigned int
 
 ../../coot/git/coot/src/c-interface.cc: In function ‘void set_display_only_model_mol(int)’:
@@ -336,6 +340,10 @@ Program terminated with signal 11, Segmentation fault.
 * Done.
 
    o pepflip the N , flip the right one! (merely a keybinding thing)
+
+* Done.
+
+   o is nsteps_max 80 a good number for refinement? Consider increase.
 
 * Done.
 

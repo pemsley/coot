@@ -1636,7 +1636,7 @@ if (have_coot_python):
 
 
      add_simple_coot_menu_menuitem(
-       submenu_settings, "Add Template Keybindings",
+       submenu_settings, "Install Template Keybindings",
        lambda func:
           file_to_preferences("template_key_bindings.py")) # copy and evaluate
 

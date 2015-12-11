@@ -1305,7 +1305,7 @@ public:        //                      public
    // 
    int greer_skeleton_draw_on; 
    int fc_skeleton_draw_on; 
-   void draw_skeleton();
+   void draw_skeleton(bool is_dark_background);
    // void update_skeleton();  bye. use update_clipper_skeleton instead
    graphical_bonds_container greer_skel_box;
    graphical_bonds_container fc_skel_box;

@@ -2169,7 +2169,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 graphics_info_t::molecules[ii].draw_map_unit_cell(graphics_info_t::cell_colour);
 
 	 //
-	 graphics_info_t::molecules[ii].draw_skeleton();
+	 graphics_info_t::molecules[ii].draw_skeleton(is_bb);
       }
 
 

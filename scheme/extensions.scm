@@ -1556,7 +1556,7 @@
 	   (key-bindings-gui)))
 
 	(add-simple-coot-menu-menuitem
-	 submenu-settings "Add Template Keybindings"
+	 submenu-settings "Install Template Keybindings"
 	 (lambda ()
 	   (template-keybindings-to-preferences))) ;; copy and evaluate
 	
