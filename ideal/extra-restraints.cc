@@ -909,6 +909,4 @@ coot::extra_restraints_t::write_interpolated_models(mmdb::Manager *mol_running,
    }
 }
 
-
-
 #endif // HAVE_GSL

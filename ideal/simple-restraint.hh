@@ -186,8 +186,10 @@ namespace coot {
    // 
    enum {BOND_RESTRAINT=1, ANGLE_RESTRAINT=2, TORSION_RESTRAINT=4, PLANE_RESTRAINT=8,
          NON_BONDED_CONTACT_RESTRAINT=16, CHIRAL_VOLUME_RESTRAINT=32, RAMACHANDRAN_RESTRAINT=64,
-         START_POS_RESTRAINT=128, PARALLEL_PLANES_RESTRAINT=256,
-	 GEMAN_MCCLURE_DISTANCE_RESTRAINT=512};
+         START_POS_RESTRAINT=128,
+	 TARGET_POS_RESTRANT=256, // restraint to make an atom be at a position
+	 PARALLEL_PLANES_RESTRAINT=512,
+	 GEMAN_MCCLURE_DISTANCE_RESTRAINT=1024};
 
    enum pseudo_restraint_bond_type {NO_PSEUDO_BONDS, HELIX_PSEUDO_BONDS,
 				    STRAND_PSEUDO_BONDS};
@@ -280,6 +282,9 @@ namespace coot {
       std::vector<bool> fixed_atom_flags;
       std::vector<bool> fixed_atom_flags_other_plane;
       bool is_user_defined_restraint;
+      // for mouse pull on an atom: this is where the user wants the atom to be
+      //
+      clipper::Coord_orth atom_pull_target_pos;
 
       // allocator for geometry_distortion_info_t
       simple_restraint() { is_user_defined_restraint = 0; }
@@ -557,7 +562,16 @@ namespace coot {
 	 
 	 if (rest_type != START_POS_RESTRAINT) { 
 	    std::cout << "START POS ERROR" << std::endl; 
-	    exit(1); 
+	 }
+      }
+
+      // target_pos
+      simple_restraint(short int rest_type, int atom_idx, const clipper::Coord_orth &pos) {
+	 restraint_type = rest_type;
+	 atom_index_1 = atom_idx;
+	 atom_pull_target_pos = pos;
+	 if (rest_type != TARGET_POS_RESTRANT) {
+	    std::cout << "TARGET POS ERROR" << std::endl; 
 	 }
       }
 
@@ -714,6 +728,9 @@ namespace coot {
    double distortion_score_start_pos(const simple_restraint &start_pos_restraint,
 			    void *params,
 			    const gsl_vector *v);
+   double distortion_score_target_pos(const simple_restraint &start_pos_restraint,
+				      void *params,
+				      const gsl_vector *v);
    double distortion_score_non_bonded_contact(const simple_restraint &plane_restraint,
 					      const gsl_vector *v);
    double distortion_score_parallel_planes(const simple_restraint &plane_restraint,
@@ -759,6 +776,8 @@ namespace coot {
    void my_df_chiral_vol(const gsl_vector *v, void *params, gsl_vector *df); 
    //  the deviation from starting point terms:
    void my_df_start_pos(const gsl_vector *v, void *params, gsl_vector *df); 
+   //  the deviation from atom pull point 
+   void my_df_target_pos(const gsl_vector *v, void *params, gsl_vector *df); 
    //  20131012 the parallel plane deviation from terms:
    void my_df_parallel_planes(const gsl_vector *v, void *params, gsl_vector *df); 
    // Compute both f and df together.
@@ -1089,7 +1108,12 @@ namespace coot {
 						   index1, index2,
 						   atom_type_1, atom_type_2,
 						   fixed_atom_flag, dist_min));
-      } 
+      }
+
+      void add_target_position_restraint(int idx, clipper::Coord_orth &target_pos) {
+	 simple_restraint r(TARGET_POS_RESTRANT, idx, target_pos);
+	 restraints_vec.push_back(r);
+      }
 
 
       // construct a restraint and add it to restraints_vec
@@ -1764,11 +1788,14 @@ namespace coot {
 
       unsigned int test_function(const protein_geometry &geom);
       unsigned int inline_const_test_function(const protein_geometry &geom) const {
-	 std::cout << "----- inline_const_test_function() with geom of size : " << geom.size() << std::endl;
+	 std::cout << "----- inline_const_test_function() with geom of size : " << geom.size()
+		   << std::endl;
 	 std::cout << "    geom ref pointer " << &geom << std::endl;
 	 return geom.size();
       } 
       unsigned int const_test_function(const protein_geometry &geom) const;
+
+      mmdb::Atom *add_atom_pull_restraint(atom_spec_t spec, clipper::Coord_orth pos);
 
       void add_extra_restraints(const extra_restraints_t &extra_restraints,
 				const protein_geometry &geom);

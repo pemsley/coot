@@ -793,6 +793,10 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 							     rama_plot_restraint_weight,
 							     do_rama_restraints,
 							     pseudo_bonds_type);
+
+	       coot::atom_spec_t atom_spec("A", 41, "", " O  ", "");
+	       clipper::Coord_orth mtp(44.4, 12.8, 15.9);
+	       restraints.add_atom_pull_restraint(atom_spec, mtp); // mouse target position
 	       
 	       std::string dummy_chain = ""; // not used
 		   

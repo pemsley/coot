@@ -1412,6 +1412,11 @@ coot::distortion_score(const gsl_vector *v, void *params) {
       if ( (*restraints)[i].restraint_type == coot::START_POS_RESTRAINT) {
          distortion += coot::distortion_score_start_pos((*restraints)[i], params, v);
       }
+
+      if ( (*restraints)[i].restraint_type == coot::TARGET_POS_RESTRANT) {
+         distortion += coot::distortion_score_target_pos((*restraints)[i], params, v);
+      }
+      
    }
 
 //     std::cout << "nbc_diff   distortion: " << nbc_diff << std::endl;
@@ -2683,6 +2688,7 @@ void coot::my_df(const gsl_vector *v,
    my_df_non_bonded(v, params, df);
    my_df_chiral_vol(v, params, df);
    my_df_start_pos (v, params, df);
+   my_df_target_pos(v, params, df);
    my_df_parallel_planes(v, params, df);
 
    
@@ -4343,10 +4349,10 @@ coot::restraints_container_t::mark_OXT(const coot::protein_geometry &geom) {
 bool
 coot::restraints_container_t::fixed_check(int index_1) const {
 
-   bool r = 0;
+   bool r = false;
    for (unsigned int ifixed=0; ifixed<fixed_atom_indices.size(); ifixed++) {
       if (index_1 == fixed_atom_indices[ifixed]) {
-	 r = 1;
+	 r = true;
 	 break;
       }
    }
