@@ -2610,9 +2610,11 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 // 		  std::cout << "Moving single atom " << x_as_int << " " 
 // 				<< y_as_int << " " << x << " " << y << std::endl;
 
-		  info.move_single_atom_of_moving_atoms(x_as_int, y_as_int);
-
-
+		  if (info.shift_is_pressed) {
+		     info.move_single_atom_of_moving_atoms(x_as_int, y_as_int);
+		  } else {
+		     info.move_atom_pull_target_position(x_as_int ,y_as_int);
+		  }
 	       } else {
 
 		  // multi atom move

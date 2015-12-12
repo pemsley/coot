@@ -586,6 +586,19 @@ graphics_info_t::move_single_atom_of_moving_atoms(int screenx, int screeny) {
 
 }
 
+void
+graphics_info_t::move_atom_pull_target_position(int screen_x, int screen_y) {
+
+   coot::Cartesian current_mouse_real_world = unproject_xyz(screen_x, screen_y, 0.5);
+
+   mmdb::Atom *at = moving_atoms_asc->atom_selection[moving_atoms_dragged_atom_index];
+   std::cout << "draw line from atom " << moving_atoms_dragged_atom_index
+	     << coot::co(at).format() << " to " << current_mouse_real_world
+	     << std::endl;
+
+}
+
+
 // diff_std is the difference in position of the moving atoms, the
 // other atoms of the moving_atoms_asc are moved relative to it by
 // different amounts...

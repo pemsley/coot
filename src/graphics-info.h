@@ -3208,6 +3208,7 @@ public:
 					    short int squared_flag);
    void move_moving_atoms_by_simple_translation(int screenx, int screeny); // for rot/trans
    void move_single_atom_of_moving_atoms(int screenx, int screeny);
+   void move_atom_pull_target_position(int screenx, int screeny);
    short int rotate_intermediate_atoms_maybe(short int axis, double angle); 
                                                  // do it if have intermediate atoms
                                                  // and ctrl is pressed.
