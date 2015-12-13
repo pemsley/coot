@@ -3403,6 +3403,8 @@ void set_use_only_extra_torsion_restraints_for_torsions(short int state);
 /*! \brief return only-use-extra-torsion-restraints-for-torsions state */
 int use_only_extra_torsion_restraints_for_torsions_state();
 
+void clear_atom_pull_restraint();
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  Restraints editor                                       */

@@ -428,6 +428,15 @@ void write_interpolated_models_and_extra_restraints(int imol_1, int imol_2, int 
    }
 }
 
+void clear_atom_pull_restraint() {
+
+   graphics_info_t g;
+   g.clear_atom_pull_restraint();
+   graphics_draw();
+
+} 
+
+
 
 
 void set_show_extra_restraints(int imol, int state) {

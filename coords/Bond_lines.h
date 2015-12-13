@@ -282,8 +282,8 @@ class graphical_bonds_container {
    void add_deuterium_spots(const std::vector<coot::Cartesian> &spots);
    void add_atom_centres(const std::vector<std::pair<bool,coot::Cartesian> > &centres,
 			 const std::vector<int> &colours);
-   bool have_rings() const { return rings.size();
-   }
+   bool have_rings() const { return rings.size(); }
+   bool empty() const { return (bonds_ == NULL); }
 };
 
 

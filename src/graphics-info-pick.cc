@@ -589,13 +589,42 @@ graphics_info_t::move_single_atom_of_moving_atoms(int screenx, int screeny) {
 void
 graphics_info_t::move_atom_pull_target_position(int screen_x, int screen_y) {
 
-   coot::Cartesian current_mouse_real_world = unproject_xyz(screen_x, screen_y, 0.5);
-
+   coot::Cartesian front = unproject_xyz(screen_x, screen_y, 0);
+   coot::Cartesian back  = unproject_xyz(screen_x, screen_y, 1);
+   
    mmdb::Atom *at = moving_atoms_asc->atom_selection[moving_atoms_dragged_atom_index];
-   std::cout << "draw line from atom " << moving_atoms_dragged_atom_index
-	     << coot::co(at).format() << " to " << current_mouse_real_world
-	     << std::endl;
+   coot::Cartesian c_at(at->x, at->y, at->z);
+   coot::Cartesian fb = back - front;
+   coot::Cartesian  h = c_at - front;
 
+   float d_fb = fb.length();
+   float d_h  =  h.length();
+
+   double cos_theta = coot::dot_product(fb, h)/(d_fb*d_h);
+
+   double d = d_h * cos_theta;
+   std::cout << "cos_theta " << cos_theta << " d: " << d << std::endl;
+
+   float z_depth = d/d_fb;
+
+   if (z_depth > 1.0) z_depth = 1.0;
+   if (z_depth < 0.0) z_depth = 0.0;
+
+   coot::Cartesian current_mouse_real_world = unproject_xyz(screen_x, screen_y, z_depth);
+   clipper::Coord_orth c_pos(current_mouse_real_world.x(),
+			     current_mouse_real_world.y(),
+			     current_mouse_real_world.z());
+
+   atom_pull = atom_pull_info_t(coot::atom_spec_t(at), c_pos);
+
+   if (false)
+      std::cout << "graphics_info_t::move_atom_pull_target_position() atom_pull.status: "
+		<< graphics_info_t::atom_pull.status << " " 
+		<< " atom pull:: idx " << moving_atoms_dragged_atom_index << " "
+		<< coot::co(at).format() << " to " << current_mouse_real_world
+		<< std::endl;
+   last_restraints.add_atom_pull_restraint(atom_pull.spec, c_pos);
+   graphics_draw();
 }
 
 

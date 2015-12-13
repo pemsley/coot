@@ -184,12 +184,12 @@ namespace coot {
    
    // restraint types:
    // 
-   enum {BOND_RESTRAINT=1, ANGLE_RESTRAINT=2, TORSION_RESTRAINT=4, PLANE_RESTRAINT=8,
-         NON_BONDED_CONTACT_RESTRAINT=16, CHIRAL_VOLUME_RESTRAINT=32, RAMACHANDRAN_RESTRAINT=64,
-         START_POS_RESTRAINT=128,
-	 TARGET_POS_RESTRANT=256, // restraint to make an atom be at a position
-	 PARALLEL_PLANES_RESTRAINT=512,
-	 GEMAN_MCCLURE_DISTANCE_RESTRAINT=1024};
+   enum restraint_type_t {BOND_RESTRAINT=1, ANGLE_RESTRAINT=2, TORSION_RESTRAINT=4, PLANE_RESTRAINT=8,
+			  NON_BONDED_CONTACT_RESTRAINT=16, CHIRAL_VOLUME_RESTRAINT=32, RAMACHANDRAN_RESTRAINT=64,
+			  START_POS_RESTRAINT=128,
+			  TARGET_POS_RESTRANT=256, // restraint to make an atom be at a position
+			  PARALLEL_PLANES_RESTRAINT=512,
+			  GEMAN_MCCLURE_DISTANCE_RESTRAINT=1024};
 
    enum pseudo_restraint_bond_type {NO_PSEUDO_BONDS, HELIX_PSEUDO_BONDS,
 				    STRAND_PSEUDO_BONDS};
@@ -225,10 +225,10 @@ namespace coot {
 				BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES = 187,
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES = 191,
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES = 255,
-				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_GEMAN_MCCLURE_DISTANCES = 63+512,
-				TYPICAL_RESTRAINTS               = 1+2+  8+16+32+128+256+512,
-				TYPICAL_RESTRAINTS_WITH_TORSIONS = 1+2+4+8+16+32+128+256+512,
-				ALL_RESTRAINTS = 1+2+4+8+16+32+64+128+256+512
+				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_GEMAN_MCCLURE_DISTANCES = 63+1024,
+				TYPICAL_RESTRAINTS               = 1+2+  8+16+32+128+512,
+				TYPICAL_RESTRAINTS_WITH_TORSIONS = 1+2+4+8+16+32+128+512,
+				ALL_RESTRAINTS = 1+2+4+8+16+32+64+128+256+512+1024
 				
    };
 
@@ -272,7 +272,7 @@ namespace coot {
       double target_value; 
       double sigma; 
       float observed_value;    
-      short int restraint_type;
+      restraint_type_t restraint_type;
       int periodicity; 
       int chiral_volume_sign;
       double target_chiral_volume;
@@ -290,7 +290,7 @@ namespace coot {
       simple_restraint() { is_user_defined_restraint = 0; }
       
       // Bond
-      simple_restraint(short int rest_type, int atom_1, int atom_2, 
+      simple_restraint(restraint_type_t rest_type, int atom_1, int atom_2, 
 		       const std::vector<bool> &fixed_atom_flags_in,
 		       float tar, 
 		       float sig, float obs){
@@ -312,7 +312,7 @@ namespace coot {
       };
 
       // Geman-McClure distance (no obs)
-      simple_restraint(short int rest_type, int atom_1, int atom_2, 
+      simple_restraint(restraint_type_t rest_type, int atom_1, int atom_2, 
 		       const std::vector<bool> &fixed_atom_flags_in,
 		       float tar, float sig){
 	 
@@ -326,7 +326,7 @@ namespace coot {
 	 is_user_defined_restraint = true;
 
 	 // This finds a coding error
-	 if (rest_type != GEMAN_MCCLURE_DISTANCE_MASK) { 
+	 if (rest_type != restraint_type_t(GEMAN_MCCLURE_DISTANCE_MASK)) { 
 	    std::cout << "BOND ERROR" << std::endl; 
 	    exit(1); 
 	 }
@@ -334,7 +334,7 @@ namespace coot {
       
     
       // Angle
-      simple_restraint(short int rest_type, int atom_1, int atom_2, 
+      simple_restraint(restraint_type_t rest_type, int atom_1, int atom_2, 
 		       int atom_3, 
 		       const std::vector<bool> &fixed_atom_flags_in,
 		       float tar, 
@@ -355,7 +355,7 @@ namespace coot {
       };
 
       // Torsion
-      simple_restraint(short int rest_type, int atom_1, int atom_2, 
+      simple_restraint(restraint_type_t rest_type, int atom_1, int atom_2, 
 		       int atom_3, int atom_4, 
 		       const std::vector<bool> &fixed_atom_flags_in,
 		       float tar, 
@@ -378,7 +378,7 @@ namespace coot {
       }
 
       // Rama
-      simple_restraint(short int rest_type, int atom_1, int atom_2, 
+      simple_restraint(restraint_type_t rest_type, int atom_1, int atom_2, 
 		       int atom_3, int atom_4, int atom_5, 
 		       const std::vector<bool> &fixed_atom_flags_in) { 
 
@@ -397,7 +397,7 @@ namespace coot {
       }
       
       // Old Plane
-      simple_restraint(short int restraint_type_in,
+      simple_restraint(restraint_type_t restraint_type_in,
 		       const std::vector<int> &atom_index_in,
 		       const std::vector<bool> &fixed_atom_flags_in,
 		       float sig) {
@@ -421,7 +421,7 @@ namespace coot {
 
       // modern (atoms individually weighted) Plane
       // 
-      simple_restraint(short int restraint_type_in,
+      simple_restraint(restraint_type_t restraint_type_in,
 		       const std::vector<std::pair<int, double> > &atom_index_sigma_in,
 		       const std::vector<bool> &fixed_atom_flags_in) {
 
@@ -444,7 +444,7 @@ namespace coot {
       
 
       // Parallel planes (actually angle-between-planes,typically-zero)
-      simple_restraint(short int restraint_type_in,
+      simple_restraint(restraint_type_t restraint_type_in,
 		       const std::vector<int> &atom_index_plane_1_in,
 		       const std::vector<int> &atom_index_plane_2_in,
 		       const std::vector<bool> &fixed_atom_flags_plane_1_in,
@@ -469,7 +469,7 @@ namespace coot {
       } 
 
       // Non-bonded
-      simple_restraint(short int restraint_type_in, 
+      simple_restraint(restraint_type_t restraint_type_in, 
 		       int index_1, 
 		       int index_2,
 		       const std::string &atom_1_type,
@@ -499,7 +499,7 @@ namespace coot {
       }
 
       // Non-bonded v2 
-      simple_restraint(short int restraint_type_in, 
+      simple_restraint(restraint_type_t restraint_type_in, 
 		       int index_1, 
 		       int index_2,
 		       const std::string &atom_1_type,
@@ -522,7 +522,7 @@ namespace coot {
       }
 
       // Chiral
-      simple_restraint(short int restraint_type_in, 
+      simple_restraint(restraint_type_t restraint_type_in, 
 		       int atom_centre_idx_in,
 		       int atom_idx_1_in,
 		       int atom_idx_2_in, 
@@ -549,7 +549,7 @@ namespace coot {
       }
       
       //start pos
-      simple_restraint(short int rest_type, int atom_1,
+      simple_restraint(restraint_type_t rest_type, int atom_1,
 		       bool fixed_atom_flag_in,
 		       float sig, float obs){
 	 
@@ -566,7 +566,7 @@ namespace coot {
       }
 
       // target_pos
-      simple_restraint(short int rest_type, int atom_idx, const clipper::Coord_orth &pos) {
+      simple_restraint(restraint_type_t rest_type, int atom_idx, const clipper::Coord_orth &pos) {
 	 restraint_type = rest_type;
 	 atom_index_1 = atom_idx;
 	 atom_pull_target_pos = pos;
@@ -584,6 +584,7 @@ namespace coot {
       friend std::ostream &operator<<(std::ostream &s, const simple_restraint &r);
    };
    std::ostream &operator<<(std::ostream &s, const simple_restraint &r);
+   bool target_position_eraser(const simple_restraint &r);
 
    // We need something to quickly convert between atom name,
    // sequence number, chain id to index into the atom selection
@@ -1003,7 +1004,7 @@ namespace coot {
       clipper::Xmap<float> map; 
       double map_weight; 
 
-      void add(short int rest_type, int atom_1, int atom_2, 
+      void add(restraint_type_t rest_type, int atom_1, int atom_2, 
 	       const std::vector<bool> &fixed_atom_flags,
 	       float tar, 
 	       float sig, float obs){
@@ -1014,7 +1015,7 @@ namespace coot {
 	 }
       }
 
-      bool add(short int rest_type, int atom_1, int atom_2, int atom_3, 
+      bool add(restraint_type_t rest_type, int atom_1, int atom_2, int atom_3, 
 	       const std::vector<bool> &fixed_atom_flags,
 	       float tar, 
 	       float sig, float obs){
@@ -1030,7 +1031,7 @@ namespace coot {
 	 return r;
       }
 
-      bool add(short int rest_type, int atom_1, int atom_2, 
+      bool add(restraint_type_t rest_type, int atom_1, int atom_2, 
 	       int atom_3, int atom_4,
 	       const std::vector<bool> &fixed_atom_flags,
 	       float tar, 
@@ -1047,7 +1048,7 @@ namespace coot {
 	 return r;
       }
 
-      void add_user_defined_torsion_restraint(short int rest_type, int atom_1, int atom_2, 
+      void add_user_defined_torsion_restraint(restraint_type_t rest_type, int atom_1, int atom_2, 
 					      int atom_3, int atom_4,
 					      const std::vector<bool> &fixed_atom_flags,
 					      float tar, 
@@ -1060,11 +1061,11 @@ namespace coot {
 	 }
       }
       
-      void add_user_defined_angle_restraint(short int rest_type, int atom_1, int atom_2, 
-					      int atom_3,
-					      const std::vector<bool> &fixed_atom_flags,
-					      float tar, 
-					      float sig, float obs) {
+      void add_user_defined_angle_restraint(restraint_type_t rest_type, int atom_1, int atom_2, 
+					    int atom_3,
+					    const std::vector<bool> &fixed_atom_flags,
+					    float tar, 
+					    float sig, float obs) {
 	 bool r = add(rest_type, atom_1, atom_2, atom_3,
 		      fixed_atom_flags, tar, sig, obs);
 	 if (r) {
@@ -1076,7 +1077,7 @@ namespace coot {
       
 
       // used for Ramachandran restraint
-      void add(short int rest_type,
+      void add(restraint_type_t rest_type,
 	       int atom_1, int atom_2, int atom_3, 
 	       int atom_4, int atom_5, 
 	       const std::vector<bool> &fixed_atom_flag){
@@ -1128,7 +1129,7 @@ namespace coot {
       }
       
       //used for start pos restraints
-      bool add(short int rest_type, int atom_1,
+      bool add(restraint_type_t rest_type, int atom_1,
 	       bool fixed_atom_flag,
 	       float sig, float obs){
 
@@ -1142,15 +1143,16 @@ namespace coot {
 	 return r;
       }
       
-      void add_user_defined_start_pos_restraint(short int rest_type, int atom_1,
-	       bool fixed_atom_flag, float sig, float obs){
+      void add_user_defined_start_pos_restraint(restraint_type_t rest_type, int atom_1,
+						bool fixed_atom_flag, float sig, float obs) {
 	 bool r = add(rest_type, atom_1, fixed_atom_flag, sig, obs);
 	 if (r) {
 	    restraints_vec.back().is_user_defined_restraint = 1;
 	 }
       }
       
-      void add_geman_mcclure_distance(short int rest_type, int atom_1, int atom_2, 
+      void add_geman_mcclure_distance(restraint_type_t rest_type,
+				      int atom_1, int atom_2, 
 				      const std::vector<bool> &fixed_atom_flags,
 				      float tar, float sig) { 
 
@@ -1796,7 +1798,8 @@ namespace coot {
       unsigned int const_test_function(const protein_geometry &geom) const;
 
       mmdb::Atom *add_atom_pull_restraint(atom_spec_t spec, clipper::Coord_orth pos);
-
+      void clear_atom_pull_restraint();
+      
       void add_extra_restraints(const extra_restraints_t &extra_restraints,
 				const protein_geometry &geom);
       // and that calls:
@@ -1870,8 +1873,16 @@ namespace coot {
       void apply_link_chem_mods(const protein_geometry &geom);
       
       double geman_mcclure_alpha; // = 0.02 or something set in init_shared_pre(). // needed for derivative calculation
-                                                                                   // (which is not done in this class)
-      
+                                  // (which is not done in this class)
+
+
+//       class target_position_eraser {
+// 	 target_position_eraser();
+// 	 bool operator() (const simple_restraint &r) const {
+// 	    return (r.restraint_type == restraint_type_t(TARGET_POS_RESTRANT));
+// 	 }
+//       };
+
       // more debugging interface:
       //
       void set_do_numerical_gradients() { do_numerical_gradients_flag = 1;}

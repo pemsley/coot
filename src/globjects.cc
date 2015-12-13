@@ -1310,6 +1310,9 @@ std::map<std::string, std::pair<std::string, std::string> > graphics_info_t::use
 std::vector<std::pair<clipper::Coord_orth, std::string> > graphics_info_t::user_defined_interesting_positions;
 unsigned int graphics_info_t::user_defined_interesting_positions_idx = 0;
 
+// atom pull
+atom_pull_info_t graphics_info_t::atom_pull = atom_pull_info_t();
+
 
 // GTK2 code
 // 
@@ -2197,6 +2200,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 g.render_lsq_plane_atoms();
       }
 
+      // atom pull restraint
+      graphics_info_t::draw_atom_pull_restraint();
+
       // ligand flash bond
       graphics_info_t::draw_chi_angles_flash_bond();
 	 
@@ -2610,11 +2616,9 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 // 		  std::cout << "Moving single atom " << x_as_int << " " 
 // 				<< y_as_int << " " << x << " " << y << std::endl;
 
-		  if (info.shift_is_pressed) {
-		     info.move_single_atom_of_moving_atoms(x_as_int, y_as_int);
-		  } else {
-		     info.move_atom_pull_target_position(x_as_int ,y_as_int);
-		  }
+		  info.move_single_atom_of_moving_atoms(x_as_int, y_as_int);
+		  // info.move_atom_pull_target_position(x_as_int ,y_as_int);
+		  
 	       } else {
 
 		  // multi atom move
@@ -2633,7 +2637,10 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 			   info.drag_refine_refine_intermediate_atoms();
 			}
 		     } else {
-			info.move_moving_atoms_by_shear(x_as_int, y_as_int, 0);
+
+			// info.move_moving_atoms_by_shear(x_as_int, y_as_int, 0); // pre 0.8.3
+			info.move_atom_pull_target_position(x_as_int ,y_as_int);
+			
 			if (graphics_info_t::dragged_refinement_refine_per_frame_flag) {
 			   info.drag_refine_refine_intermediate_atoms();
 			}

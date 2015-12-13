@@ -41,14 +41,9 @@
 #   include <GL/gl.h>
 #endif
 
-
-#if (GTK_MAJOR_VERSION == 1)
-#include <gtkgl/gtkglarea.h>
-#else  // GTK2 build then:
 #include <gdk/gdkglconfig.h>
 #include <gdk/gdkgldrawable.h>
 #include <gtk/gtkgl.h>
-#endif // (GTK_MAJOR_VERSION == 1)
 
 // #ifndef WII_INTERFACE
 // #define WII_INTERFACE 1 // FIXME WII
@@ -99,6 +94,8 @@
 #include "coot-database.hh"
 
 #include "mtz-column-auto-read.hh"
+
+#include "atom-pull.hh"
 
 #ifdef USE_LIBCURL
 #ifndef HAVE_CURL_H
@@ -3966,6 +3963,10 @@ string   static std::string sessionid;
 
    void register_user_defined_interesting_positions(const std::vector<std::pair<clipper::Coord_orth, std::string> > &udip);
 
+   // atom pull restraint
+   static atom_pull_info_t atom_pull;
+   static void draw_atom_pull_restraint();
+   void clear_atom_pull_restraint();
 
 };
 

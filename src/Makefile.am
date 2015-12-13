@@ -224,6 +224,7 @@ fix_nomenclature_errors_SOURCES = \
 
 coot_bin_SOURCES = \
 	main.cc 		 \
+	atom_pull.hh		 \
 	atom-overlaps.cc         \
 	git-revision-count.cc 	 \
 	c-inner-main.c		 \

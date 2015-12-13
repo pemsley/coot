@@ -98,7 +98,7 @@ namespace coot {
 	    return "";
 	 return s.str();
       }
-      
+
 #ifndef SWIG
       bool operator==(const atom_spec_t &matcher) const {
 	 bool r = false;
@@ -151,7 +151,26 @@ namespace coot {
 	 }
 	 return false;
       }
-#endif // SWIG      
+#endif // SWIG
+
+
+      // like operator==() but we don't test the model
+      bool is_same(const atom_spec_t &matcher) const {
+	 bool r = false;
+	 if (matcher.chain_id == chain_id) {
+	    if (matcher.res_no == res_no) {
+	       if (matcher.ins_code == ins_code) {
+		  if (matcher.atom_name == atom_name) {
+		     if (matcher.alt_conf == alt_conf) {
+			r = true;
+		     }
+		  }
+	       }
+	    }
+	 }
+	 return r;
+      }
+      
       
 #ifndef SWIG      
       friend std::ostream& operator<< (std::ostream& s, const atom_spec_t &spec);

@@ -491,7 +491,9 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	    std::cout << "------------------- copy_mol_and_refine_inner() const test_function n_test: "
 		      << n_test << std::endl;
 	 } 
-	 
+
+	 // this residue range function: copy_mol_and_refine_inner()
+	 // 
 	 int nrestraints = 
 	    restraints.make_restraints(geom, flags,
 				       do_residue_internal_torsions,
@@ -581,11 +583,19 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
 					 int imol,
 					 std::string chain_id_1) {
 
+   std::cout << "------------------------------ update_refinement_atoms() "  << std::endl;
+
    coot::refinement_results_t rr = rr_in;
    
    if (n_restraints > 0) {
       moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
       last_restraints = restraints;
+
+      if (atom_pull.status) {
+	 std::cout << "update_refinement_atoms() adding atom_pull_restraint "
+		   << atom_pull.spec << std::endl;
+	 last_restraints.add_atom_pull_restraint(atom_pull.spec, atom_pull.pos); // mouse target position
+      } 
 
       regularize_object_bonds_box.clear_up();
       make_moving_atoms_graphics_object(local_moving_atoms_asc); // sets moving_atoms_asc
@@ -596,7 +606,7 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
       bool continue_flag = true;
       int step_count = 0; 
       print_initial_chi_squareds_flag = 1; // unset by drag_refine_idle_function
-      while ((step_count < 10000) && continue_flag) {
+      while ((step_count < 8000) && continue_flag) {
 
 	 int retval = drag_refine_idle_function(NULL);
 	 step_count += dragged_refinement_steps_per_frame;
@@ -788,15 +798,16 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	       if (molecules[imol].extra_restraints.has_restraints())
 		  restraints.add_extra_restraints(molecules[imol].extra_restraints, *Geom_p());
 
+	       // this is generate_molecule_and_refine (residue vector)
+
 	       int n_restraints = restraints.make_restraints(*Geom_p(), flags,
 							     do_residue_internal_torsions,
 							     rama_plot_restraint_weight,
 							     do_rama_restraints,
 							     pseudo_bonds_type);
 
-	       coot::atom_spec_t atom_spec("A", 41, "", " O  ", "");
-	       clipper::Coord_orth mtp(44.4, 12.8, 15.9);
-	       restraints.add_atom_pull_restraint(atom_spec, mtp); // mouse target position
+	       if (atom_pull.status)
+		  restraints.add_atom_pull_restraint(atom_pull.spec, atom_pull.pos); // mouse target position
 	       
 	       std::string dummy_chain = ""; // not used
 		   

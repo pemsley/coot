@@ -7,7 +7,8 @@ coot::restraints_container_t::add_atom_pull_restraint(atom_spec_t spec, clipper:
 
    mmdb::Atom *at = 0;
 
-   for (unsigned int iat=0; iat<n_atoms; iat++) { 
+   clear_atom_pull_restraint();  // clear old ones
+   for (int iat=0; iat<n_atoms; iat++) { 
       atom_spec_t atom_spec(atom[iat]);
       if (atom_spec == spec) {
 	 if (! fixed_check(iat)) { 
@@ -18,7 +19,29 @@ coot::restraints_container_t::add_atom_pull_restraint(atom_spec_t spec, clipper:
       }
    }
    return at;
-} 
+}
+
+#include <algorithm>
+
+
+// clear them all - but at the moment the user can only set one of them.
+void
+coot::restraints_container_t::clear_atom_pull_restraint() {
+
+   unsigned int pre_size = restraints_vec.size();
+   restraints_vec.erase(std::remove_if(restraints_vec.begin(),
+				       restraints_vec.end(),
+				       target_position_eraser),
+			restraints_vec.end());
+   unsigned int post_size = restraints_vec.size();
+   std::cout << "debug:: clear_atom_pull_restraint() pre size: " << pre_size << " post size: "
+	     << post_size << std::endl;
+}
+
+bool coot::target_position_eraser(const simple_restraint &r) {
+   return (r.restraint_type == restraint_type_t(TARGET_POS_RESTRANT));
+}
+
 
 
 double
