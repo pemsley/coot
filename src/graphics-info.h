@@ -3967,6 +3967,7 @@ string   static std::string sessionid;
    static atom_pull_info_t atom_pull;
    static void draw_atom_pull_restraint();
    void clear_atom_pull_restraint();
+   static bool auto_clear_atom_pull_restraint_flag;
 
 };
 

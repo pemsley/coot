@@ -601,10 +601,7 @@ graphics_info_t::move_atom_pull_target_position(int screen_x, int screen_y) {
    float d_h  =  h.length();
 
    double cos_theta = coot::dot_product(fb, h)/(d_fb*d_h);
-
    double d = d_h * cos_theta;
-   std::cout << "cos_theta " << cos_theta << " d: " << d << std::endl;
-
    float z_depth = d/d_fb;
 
    if (z_depth > 1.0) z_depth = 1.0;

@@ -899,7 +899,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
       if (restraints_usage_flag != NO_GEOMETRY_RESTRAINTS) {
       std::cout << "SPECIFICATION ERROR:  There are no restraints. ";
       std::cout << "No minimization will happen" << std::endl;
-      return coot::refinement_results_t(0, 0, "No Restraints!");
+      return refinement_results_t(0, 0, "No Restraints!");
       }
    } 
    
@@ -1053,9 +1053,9 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
    // (we don't get here unless restraints were found)
    coot::refinement_results_t rr(1, status, lights_vec);
 
-   if (false)
+   if (true)
       std::cout << "DEBUG:: returning from minimize() with progress/status " << rr.progress
-		<< ":" << std::endl;
+		<< ": and info \"" << rr.info << "\"" << std::endl;
    
    return rr;
 }
@@ -1240,6 +1240,7 @@ coot::restraints_container_t::omega_trans_distortions(int mark_cis_peptides_as_b
 	       double torsion = clipper::Util::rad2d(tors);
 	       torsion = (torsion > 0.0) ? torsion : 360.0 + torsion;
 	       std::string info = coot::util::int_to_string(i);
+	       info += " ";
 	       info += chain_id;
 	       info += " ";
 	       info += first[0]->name;
@@ -1247,10 +1248,10 @@ coot::restraints_container_t::omega_trans_distortions(int mark_cis_peptides_as_b
 	       info += coot::util::float_to_string(torsion);
 	       double distortion = fabs(180.0 - torsion);
 	       // distortion = (distortion < 60.0) ? distortion : 60.0;
-
-           // Add comment on Cis peptide, if it is:
-           if (torsion < 90.0 || torsion > 270.0) 
-              info += "  (Cis)";
+	       
+	       // Add comment on Cis peptide, if it is:
+	       if (torsion < 90.0 || torsion > 270.0) 
+		  info += "  (Cis)";
 
 	       if (!mark_cis_peptides_as_bad_flag)
 		  // consider the cases: torsion=1 and torsion=359

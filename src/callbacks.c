@@ -11199,6 +11199,28 @@ on_accept_reject_reverse_button_clicked
   toggle_torsion_general_reverse();
 }
 
+void
+on_accept_reject_refinement_atom_pull_autoclear_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data) { 
+
+   int state = get_auto_clear_atom_pull_restraint_state();
+   if (state) {
+     set_auto_clear_atom_pull_restraint_state(0);
+   } else { 
+     set_auto_clear_atom_pull_restraint_state(1);
+   }
+
+}
+
+void
+on_accept_reject_atom_pull_clear_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data) { 
+   clear_atom_pull_restraint();
+} 
+
+
 
 void
 on_geometry_dynamic_distance_togglebutton_toggled

@@ -1311,7 +1311,8 @@ std::vector<std::pair<clipper::Coord_orth, std::string> > graphics_info_t::user_
 unsigned int graphics_info_t::user_defined_interesting_positions_idx = 0;
 
 // atom pull
-atom_pull_info_t graphics_info_t::atom_pull = atom_pull_info_t();
+atom_pull_info_t graphics_info_t:: atom_pull = atom_pull_info_t();
+bool graphics_info_t::auto_clear_atom_pull_restraint_flag = true;
 
 
 // GTK2 code

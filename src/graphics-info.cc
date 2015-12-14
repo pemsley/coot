@@ -1424,6 +1424,14 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 
       flags = coot::ALL_RESTRAINTS;
    }
+
+   bool status = g.last_restraints.turn_off_when_close_target_position_restraint();
+   std::cout << "status from turn_off_when_close_target_position_restraint" << status << std::endl;
+   if (status) {
+      atom_pull.off();
+      g.clear_atom_pull_restraint();
+   }
+   
 	    
 
    // print_initial_chi_squareds_flag is 1 the first time then we turn it off.
@@ -1452,7 +1460,11 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    // Update the Accept/Reject Dialog if it exists (and it should do,
    // if we are doing dragged refinement).
    if (accept_reject_dialog) {
-      if (saved_dragged_refinement_results.lights.size() > 0) { 
+      if (saved_dragged_refinement_results.lights.size() > 0) {
+
+	 std::cout << "from drag_refine_refine_intermediate_atoms calling update_accept_reject_dialog_with_results() with info \""
+		   << saved_dragged_refinement_results.info << "\"" << std::endl;
+	 
 	 update_accept_reject_dialog_with_results(accept_reject_dialog,
 						  coot::CHI_SQUAREDS,
 						  saved_dragged_refinement_results);
@@ -4069,7 +4081,7 @@ graphics_info_t::draw_atom_pull_restraint() {
 		  int slices  = 12;
 		  int stacks  = 2;
 
-		  GLfloat  mat_specular[]  = {0.3, 0.8, 0.4, 0.5};
+		  GLfloat  mat_specular[]  = {0.7, 0.2, 0.7, 0.5};
 		  GLfloat  mat_shininess[] = {15};
 		  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
 		  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);

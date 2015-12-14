@@ -595,7 +595,7 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
 	 std::cout << "update_refinement_atoms() adding atom_pull_restraint "
 		   << atom_pull.spec << std::endl;
 	 last_restraints.add_atom_pull_restraint(atom_pull.spec, atom_pull.pos); // mouse target position
-      } 
+      }
 
       regularize_object_bonds_box.clear_up();
       make_moving_atoms_graphics_object(local_moving_atoms_asc); // sets moving_atoms_asc
@@ -4161,15 +4161,17 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 	    
 	    if (show_chiral_volume_errors_dialog_flag) {
 	       if (accept_reject_dialog) { 
-		  // info_dialog(s);
+
 		  if (message_string != "Unset") {
 		     update_accept_reject_dialog_with_results(accept_reject_dialog,
 							      coot::CHIRAL_CENTRES,
 							      message_string);
-		  } else { 
+		  } else {
+		     // coot::refinement_results_t rr(" ");
+		     coot::refinement_results_t rr("");
 		     update_accept_reject_dialog_with_results(accept_reject_dialog,
 							      coot::CHIRAL_CENTRES,
-							      coot::refinement_results_t(" "));
+							      rr);
 		  }
 	       }
 	       if (message_string != "Unset") {

@@ -3404,6 +3404,8 @@ void set_use_only_extra_torsion_restraints_for_torsions(short int state);
 int use_only_extra_torsion_restraints_for_torsions_state();
 
 void clear_atom_pull_restraint();
+void set_auto_clear_atom_pull_restraint_state(int state);
+int  get_auto_clear_atom_pull_restraint_state();
 
 
 /*  ----------------------------------------------------------------------- */

@@ -110,6 +110,7 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
 
    }
    
+   std::cout << "here in do_accept_reject_dialog calling update_accept_reject_dialog_with_results() with rr.info \"" << rr.info << "\"" << std::endl;
    update_accept_reject_dialog_with_results(window, coot::CHI_SQUAREDS, rr);
    if (rr.lights.size() > 0){
       if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){
@@ -272,83 +273,96 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 					 coot::accept_reject_text_type text_type,
 					 const coot::refinement_results_t &rr) {
 
-    std::string extra_text = rr.info;
-    if (extra_text != "") {
+   std::cout << "Here in update_accept_reject_dialog_with_results() with info \""
+	     << rr.info << "\"" << std::endl;
+
+   std::string extra_text = rr.info;
+	 // now look up the label in window and change it.
+	 GtkWidget *extra_label = lookup_widget(GTK_WIDGET(accept_reject_dialog),
+						"extra_text_label");
+      
+   if (extra_text != "") {
       if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG){
+
+	 std::cout << "code path A " << std::endl;
       
-	// now look up the label in window and change it.
-	GtkWidget *extra_label = lookup_widget(GTK_WIDGET(accept_reject_dialog),
-					       "extra_text_label");
-      
-	if (text_type == coot::CHIRAL_CENTRES) { 
-	   extra_label = lookup_widget(GTK_WIDGET(accept_reject_dialog), "chiral_centre_text_label");
-	}
-	
-	gtk_widget_show(extra_label);
-	gtk_label_set_text(GTK_LABEL(extra_label), extra_text.c_str());
+	 if (text_type == coot::CHIRAL_CENTRES) { 
+	    extra_label = lookup_widget(GTK_WIDGET(accept_reject_dialog), "chiral_centre_text_label");
+	 }
+
+	 std::cout << "here with extra_text \"" << extra_text << "\"" << std::endl;
+	 gtk_widget_show(extra_label);
+	 gtk_label_set_text(GTK_LABEL(extra_label), extra_text.c_str());
 	
       } else {
 
-	// we have a docked accept/reject dialog
-	GtkWidget *window = lookup_widget(accept_reject_dialog, "window1");
-	GtkTooltips *tooltips;
-	GtkTooltipsData *td;
-	tooltips = GTK_TOOLTIPS(lookup_widget(GTK_WIDGET(window), "tooltips"));
+	 std::cout << "code path B " << std::endl;
+	 
+	 // we have a docked accept/reject dialog
+	 GtkWidget *window = lookup_widget(accept_reject_dialog, "window1");
+	 GtkTooltips *tooltips;
+	 GtkTooltipsData *td;
+	 tooltips = GTK_TOOLTIPS(lookup_widget(GTK_WIDGET(window), "tooltips"));
 
-	int cis_pep_warn = extra_text.find("CIS");
-	int chirals_warn = extra_text.find("chiral");
+	 int cis_pep_warn = extra_text.find("CIS");
+	 int chirals_warn = extra_text.find("chiral");
 
-	GtkWidget *cis_eventbox = lookup_widget(GTK_WIDGET(accept_reject_dialog),
-						       "cis_peptides_eventbox_docked");
-	GtkWidget *p = cis_eventbox->parent;
-	GtkWidget *chirals_eventbox = lookup_widget(GTK_WIDGET(accept_reject_dialog),"chirals_eventbox_docked");
+	 GtkWidget *cis_eventbox = lookup_widget(GTK_WIDGET(accept_reject_dialog),
+						 "cis_peptides_eventbox_docked");
+	 GtkWidget *p = cis_eventbox->parent;
+	 GtkWidget *chirals_eventbox = lookup_widget(GTK_WIDGET(accept_reject_dialog),"chirals_eventbox_docked");
 
-	td = gtk_tooltips_data_get(chirals_eventbox);
-	std::string old_tip = td->tip_text;
+	 td = gtk_tooltips_data_get(chirals_eventbox);
+	 std::string old_tip = td->tip_text;
 
-	std::string tips_info_chirals;
-        std::string tips_info_cis;
+	 std::string tips_info_chirals;
+	 std::string tips_info_cis;
 	
-	if (cis_pep_warn > -1) {
-	  // we have extra cis peptides
+	 if (cis_pep_warn > -1) {
+	    // we have extra cis peptides
 
-	  if (chirals_warn > -1) {
-	    // remove the chirals warn text
-	    string::size_type start_warn = extra_text.find("WARN");
-	    string::size_type end_warn = extra_text.size();
-	    tips_info_cis = extra_text.substr(start_warn, end_warn); // list the extra cis peptides here?
-	  } else {
-	    tips_info_cis = extra_text; // list the extra cis peptides?
-	  }
+	    if (chirals_warn > -1) {
+	       // remove the chirals warn text
+	       string::size_type start_warn = extra_text.find("WARN");
+	       string::size_type end_warn = extra_text.size();
+	       tips_info_cis = extra_text.substr(start_warn, end_warn); // list the extra cis peptides here?
+	    } else {
+	       tips_info_cis = extra_text; // list the extra cis peptides?
+	    }
 
-	  gtk_tooltips_set_tip(tooltips, cis_eventbox, tips_info_cis.c_str(), NULL);
-	  GdkColor red = colour_by_distortion(1000.0);	// red
-	  set_colour_accept_reject_event_box(cis_eventbox, &red);
-	  gtk_widget_show(p);
+	    gtk_tooltips_set_tip(tooltips, cis_eventbox, tips_info_cis.c_str(), NULL);
+	    GdkColor red = colour_by_distortion(1000.0);	// red
+	    set_colour_accept_reject_event_box(cis_eventbox, &red);
+	    gtk_widget_show(p);
 
-	}
-	if (chirals_warn > -1) {
-	  // we may have some extra chiral text
+	 }
+	 if (chirals_warn > -1) {
+	    // we may have some extra chiral text
 
-	  if (cis_pep_warn > -1) {
-	    // remove the cis warn text
-	    string::size_type start_warn = extra_text.find("WARN");
-	    tips_info_chirals = extra_text.substr(0,start_warn) + old_tip;
-	  } else {
-	    tips_info_chirals = extra_text + old_tip;
-	  }
+	    if (cis_pep_warn > -1) {
+	       // remove the cis warn text
+	       string::size_type start_warn = extra_text.find("WARN");
+	       tips_info_chirals = extra_text.substr(0,start_warn) + old_tip;
+	    } else {
+	       tips_info_chirals = extra_text + old_tip;
+	    }
 
-	  gtk_tooltips_set_tip(tooltips, chirals_eventbox, tips_info_chirals.c_str(), NULL);
+	    gtk_tooltips_set_tip(tooltips, chirals_eventbox, tips_info_chirals.c_str(), NULL);
 
-	}
-	if (extra_text == " "){
-	// reset the tips
-	  gtk_widget_hide(p);
-	  gtk_tooltips_set_tip(tooltips, chirals_eventbox, old_tip.c_str(), NULL);
-	}
-      }		   
-    }
-    if (rr.lights.size() > 0)
+	 }
+	 if (extra_text == " "){
+	    // reset the tips
+	    gtk_widget_hide(p);
+	    gtk_tooltips_set_tip(tooltips, chirals_eventbox, old_tip.c_str(), NULL);
+	 }
+
+	 std::cout << "update_accept_reject_dialog_with_results() extra text is "
+		   << extra_text << std::endl;
+      }
+   } else {
+      gtk_widget_hide(extra_label);
+   } 
+   if (rr.lights.size() > 0)
       add_accept_reject_lights(accept_reject_dialog, rr);
 }
 

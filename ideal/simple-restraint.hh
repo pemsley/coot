@@ -586,6 +586,31 @@ namespace coot {
    std::ostream &operator<<(std::ostream &s, const simple_restraint &r);
    bool target_position_eraser(const simple_restraint &r);
 
+   class turn_off_when_close_target_position_restraint_eraser {
+      int n_atoms;
+      mmdb::PAtom *atoms;
+      double close_dist;
+   public:
+      turn_off_when_close_target_position_restraint_eraser(mmdb::PAtom *atoms_in, int n_atoms_in) {
+	 atoms = atoms_in;
+	 n_atoms = n_atoms_in;
+	 close_dist = 0.4;
+      }
+      bool operator() (const simple_restraint &r) const {
+	 bool v = false;
+	 if (r.restraint_type == restraint_type_t(TARGET_POS_RESTRANT)) { 
+	    clipper::Coord_orth p_1 = co(atoms[r.atom_index_1]);
+	    double d = sqrt((p_1-r.atom_pull_target_pos).lengthsq());
+	    std::cout << "turn_off_when_close_target_position_restraint_eraser: dist " << d
+		      << std::endl;
+	    if (d < close_dist) v = true;
+	 }
+	 return v;
+      }
+   };
+
+   
+
    // We need something to quickly convert between atom name,
    // sequence number, chain id to index into the atom selection
    // array (get_asc_index)
@@ -1115,7 +1140,6 @@ namespace coot {
 	 simple_restraint r(TARGET_POS_RESTRANT, idx, target_pos);
 	 restraints_vec.push_back(r);
       }
-
 
       // construct a restraint and add it to restraints_vec
       //
@@ -1875,13 +1899,8 @@ namespace coot {
       double geman_mcclure_alpha; // = 0.02 or something set in init_shared_pre(). // needed for derivative calculation
                                   // (which is not done in this class)
 
-
-//       class target_position_eraser {
-// 	 target_position_eraser();
-// 	 bool operator() (const simple_restraint &r) const {
-// 	    return (r.restraint_type == restraint_type_t(TARGET_POS_RESTRANT));
-// 	 }
-//       };
+      // return true when turned off
+      bool turn_off_when_close_target_position_restraint();
 
       // more debugging interface:
       //

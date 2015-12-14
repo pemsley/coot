@@ -743,6 +743,16 @@ on_accept_reject_dialog_frame_docked_hide
                                         gpointer         user_data);
 
 void
+on_accept_reject_refinement_atom_pull_autoclear_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
+on_accept_reject_atom_pull_clear_button_clicked
+                                        (GtkButton       *button,
+                                        gpointer         user_data);
+
+void
 on_model_refine_dialog_find_waters_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
