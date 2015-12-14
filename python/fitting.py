@@ -799,7 +799,7 @@ def pepflip_active_residue():
        atom_name  = active_atom[4]
        alt_conf   = active_atom[5]
 
-       if (atom_name == " N  "): // PDBv3 fixme
+       if (atom_name == " N  "): # PDBv3 fixme
 	   res_no -= 1;
        pepflip(imol, chain_id, res_no, ins_code, alt_conf)
     
