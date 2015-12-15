@@ -1,6 +1,9 @@
  
  0.8.3
 
+   o use refinement to make an cis-peptide - then relieve it - the
+     refinement gui should track this - does it?
+
    o the coot page should say "reference"
 
    o TRS in thumbnail view - e.g. in 3h6d.
