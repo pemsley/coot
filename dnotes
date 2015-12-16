@@ -7451,3 +7451,45 @@ http://www.koreascience.or.kr/article/ArticleFullRecord.jsp?cn=CDCHCH_2009_v14n6
     investigate stl_tree.h
 
 ------
+
+    openmp notes: 
+
+    http://www.compunity.org/events/pastevents/parco07/parco_cpp_openmp.pdf
+
+    http://www.viva64.com/en/a/0054/
+
+    http://michaelsuess.net/publications/suess_leopold_common_mistakes_06.pdf
+
+------
+
+    readline:  Add -lcurses to shlib/Makefile:
+
+    SHLIB_XLDFLAGS =  -Wl,-rpath,$(libdir) -Wl,-soname,`basename $@ $(SHLIB_MINOR)` -lcurses
+ 
+    (or change support/shobj-conf which creates this)
+
+    Does this mean I can now use command line editing in coot --no-graphics --python?
+
+    e.g. import readline
+
+-----
+
+     to CSHL talk: A front page: accession code, comp-id
+
+
+-----
+
+     Quickly estimate B-factor of atoms:
+
+
+     Using PDB data, do a plot of density vs radius for atoms at various resolutions so that 
+     rpo(r) -> resolution
+
+     Compare that with what we have in a fragment model.
+
+----
+
+   http://www.opengl-tutorial.org/beginners-tutorials/tutorial-1-opening-a-window/
+
+
+ 

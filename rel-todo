@@ -1,6 +1,62 @@
  
  0.8.3
 
+   o the coot page should say "reference"
+
+   o TRS in thumbnail view - e.g. in 3h6d.
+
+   o unsigned int
+
+../../coot/git/coot/src/c-interface.cc: In function ‘void set_display_only_model_mol(int)’:
+../../coot/git/coot/src/c-interface.cc:5093:29: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+    for (unsigned int i=0; i<n; i++) {
+                             ^
+../../coot/git/coot/src/c-interface.cc:5095:16: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+       if (i == imol)
+                
+   o Do a better job when getting recent PDBe structures with refmac5 not in the path:
+
+command "refmac5" not found
+Backtrace:
+In unknown file:
+    ...
+   ?:  3  [refmac-inner "coot-download/5awk.ent" "coot-download/r5awksf.mtz" ...]
+In /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/get-recent-pdbe.scm:
+ 456:  4  (let* ((refmac-result #)) (if (not #) (begin #) (begin #)))
+ 457:  5* [refmac-calc-sfs-make-mtz "coot-download/5awk.ent" ...]
+ 367:  6  [refmac-calc-sfs-make-mtz-with-columns "coot-download/5awk.ent" ...]
+    ...
+ 340:  7  (let* (#) (set! refmac-extra-params save-refmac-extra-params) ...)
+ 341:  8* [run-refmac-by-filename "coot-download/5awk.ent" ...]
+In unknown file:
+   ?:  9  (letrec # # # ...)
+In /home/paule/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/coot/scheme/refmac.scm:
+ 111: 10  (let* (# # # ...) (set! refmac-count #) ...)
+ 157: 11* (let* (# # # # ...) (if # # #))
+ 195: 12* [refmac-ncs-params]
+ 456: 13  (if (= (refmac-use-ncs-state) 1) (if (>= # 5) (let # ret-list) ...) ...)
+ 457: 14  (if (>= (list-ref # 1) 5) (let (#) ret-list) (let* (# #) (if # # #)))
+ 457: 15* [>= ...
+ 457: 16*  [list-ref ...
+ 457: 17*   [get-refmac-version]
+ 554: 18    (if cached-result cached-result ...)
+In unknown file:
+      ...
+   ?: 19    [call-with-input-file "refmac-version-tmp.log" #<procedure #f (port)>]
+   ?: 20    (let* ((file #) (ans #)) (close-input-port file) ans)
+   ?: 21*   [open-input-file "refmac-version-tmp.log"]
+   ?: 22    [open-file "refmac-version-tmp.log" "r"]
+
+<unnamed port>: In procedure open-file in expression (open-file str OPEN_READ):
+<unnamed port>: No such file or directory: "refmac-version-tmp.log"
+
+   o 3pt6 looks hideous when using PBDe -> Get From PDBe, but not from
+     EDS.  Why?
+
+   o Glyo add NAG with ASN-NAG
+
+* Fixed
+
    o pyrogen with no arguments should do a pyrogen --help
 
    o pyrogen restraints for 1SS: what is happening for the N1? Can
@@ -34,9 +90,20 @@
 
    o Pro-CD -> CA and C NBC... what to do?
 
+   o Refine a bit of of the DNA in 3pt6 and see that the nbc seem to be failing.
+
+   o show bumps between bases in Environment Distances.
+
+   o investigate why python doesn't use readline properly on hal
+
+   o 4wtb has 2 data sets, they need to be parsed separately (clipper/cif).
+
+   o does the phenix PDBe Python gui work as expected when there is no
+     cif file at the url (e.g. the accession code is wrong?).
+
    o are the oxygens on a nitro O and O-? (eg ligand in 4CCC).
 
-   o coot-download is created on starting coot.  It shold not be.  Marcin W.
+   o Sarah ligand: comp-id 23H: PDB accession code is 4MDS.
 
    o write a store.py wrapper that transfers files to pc:~/store
 
@@ -44,6 +111,13 @@
 
    o CA Zone -> Mainchain will change the sequence to ALA - this is wrong
      when the CAs have the right sequence.
+
+   o valgrind when using PDBe recent structures.
+
+   o does the PDBe Python gui work as expected when there is no refmac?
+
+   o clean up coot-download usage in lbg-drag-and-drop.cc (need get_directory() function 
+     which does the same as the scheme function). std::pair<bool, std::string> 
 
    o Alexander B Crash:
 
@@ -61,8 +135,11 @@
 
    o Sarah's ligand: had tertiary amine with an amino group - it
      should be sp2 hybridized, but was not (N+) - and rdkit failed.
+     23H - thank you Sarah. 
 
    o import an elbow dictionary cif as an "MTZ, cif. phs" file. Crash.
+
+   o Fix up the map interface of HOLE.
 
    o is there anything going wrong with the minimisation of 
      can-you-minimise-this-qm-ext-frag-3-123.pdb?
@@ -276,3 +353,31 @@ Program terminated with signal 11, Segmentation fault.
    o Tassos chat: put density correlation into coot.mini-rsr
 
 * Done.
+
+
+   o coot-download is created on starting coot.  It shold not be.  Marcin W.
+
+* Done.
+
+   o Glyo add NAG with ASN-NAG
+
+ * Done.
+
+
+   o move all the classes at the top of molecule-class-info.h to their
+     own files.
+
+* Done.
+
+   o is nsteps_max 80 a good number for refinement? Consider increase.
+
+* Done.
+
+   o pepflip the N , flip the right one! (merely a keybinding thing)
+
+* Done.
+
+   o is nsteps_max 80 a good number for refinement? Consider increase.
+
+* Done.
+

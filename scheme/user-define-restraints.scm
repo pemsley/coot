@@ -540,7 +540,6 @@
 					(rs-0 (atom-spec->residue-spec atom-0))
 					(rs-1 (atom-spec->residue-spec atom-1))
 					(imol (atom-spec->imol atom-0)))
-				   
 
 				   (let ((rn-0 (residue-name imol
 							     (residue-spec->chain-id (atom-spec->residue-spec atom-0))

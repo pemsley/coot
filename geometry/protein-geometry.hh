@@ -681,6 +681,8 @@ namespace coot {
 
       std::vector<std::vector<std::string> > get_ligand_ring_list() const;
 
+      bool in_same_ring(const std::string &atom_name_1, const std::string &atom_name_2) const;
+
       bool ligand_has_aromatic_bonds_p() const;
 
       std::vector<std::vector<std::string> > get_ligand_aromatic_ring_list() const;
@@ -2374,8 +2376,19 @@ namespace coot {
       // 
       // Return a pair, if not found the first is 0.  Look up in the energy_lib.
       // 
+      // 20151126 We need to know more than just the energy types. We need to know 
+      //          if the atoms are in the same ring (if so then we apply 1-4 distance 
+      //          corrections). 
+      //
+      //          We pass in_same_residue_flag because 1-4 nbc-distance shortening can
+      //          be applied within a residue, but we leave them full between
+      //          residues.  This is a bit of a hack currently. We really need to find
+      //          if the atoms are 1-4 related.
+      //
       std::pair<bool, double> get_nbc_dist(const std::string &energy_type_1,
-					   const std::string &energy_type_2) const;
+					   const std::string &energy_type_2,
+					   bool in_same_residue_flag = true,
+					   bool in_same_ring_flag = true) const;
 
       energy_lib_atom get_energy_lib_atom(const std::string &ener_type) const;
       

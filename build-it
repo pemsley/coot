@@ -1428,6 +1428,7 @@ coot_prerelease_exists=
 
 if test "$build_coot_prerelease" = 1 ; then 
 
+   echo debug:: ${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir/
    ${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $pre_release_server_dir/
    coot_version_pre=$(awk  ' /a href=.*.tar.gz/ {f=$6; split($6, arr, "\""); file=arr[2]; gsub(".tar.gz", "", file); print file}' \
        ${AUTOBUILD_SOURCES}/index.html | tail -1)
@@ -3341,6 +3342,9 @@ ${WGET} https://github.com/libgd/libgd/releases/download/gd-2.1.1/libgd-2.1.1.ta
 
 if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then
 
+   ( 
+    date
+    pwd
     # build libgd
     #
     system_has_libgd=false
@@ -3360,7 +3364,12 @@ if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then
 	   cd - 
        fi
     fi
+
+   ) > $HOSTLOGDIR/15-libgd.log
     
+   ( 
+    date
+    pwd
     # build render
     #
     if [ ! -e $install_top_dir/bin/render ] ; then 
@@ -3384,6 +3393,7 @@ if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then
        fi
        cd -
     fi
+    ) > $HOSTLOGDIR/raster3d.log
 fi
 
 

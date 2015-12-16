@@ -2235,7 +2235,7 @@ coot::rama_plot::rama_get_mmdb_manager(std::string pdb_name) {
    MMDBManager = new mmdb::Manager;
 
    std::cout << "Reading coordinate file: " << pdb_name.c_str() << "\n";
-   err = MMDBManager->ReadCoorFile((char *)pdb_name.c_str());
+   err = MMDBManager->ReadCoorFile(pdb_name.c_str());
    
    if (err) {
       // does_file_exist(pdb_name.c_str());

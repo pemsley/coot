@@ -6,8 +6,8 @@
 #include <map>
 #include <clipper/core/xmap.h>
 
-#include "../mini-mol/mini-mol.hh"
-
+#include "mini-mol/mini-mol.hh"
+#include "geometry/protein-geometry.hh"
 
 namespace coot {
 
@@ -25,11 +25,13 @@ namespace coot {
       double spin_score;
       double alpha; // angle at which spin_score is recorded
       bool reversed_flag;
+      bool udd_flag;
       scored_node_t(unsigned int idx_in, double score_in, double angle_in) {
 	 atom_idx = idx_in;
 	 spin_score = score_in;
 	 alpha = angle_in;
 	 reversed_flag = false;
+	 udd_flag = false;
       }
       scored_node_t(unsigned int idx_in, double score_in, double angle_in,
 		    bool reversed_flag_in) {
@@ -37,18 +39,21 @@ namespace coot {
 	 spin_score = score_in;
 	 alpha = angle_in;
 	 reversed_flag = reversed_flag_in;
+	 udd_flag = false;
       }
       scored_node_t(const scored_node_t &sn, bool reversed_flag_in) {
 	 atom_idx   = sn.atom_idx;
 	 spin_score = sn.spin_score;
 	 alpha      = sn.alpha;
 	 reversed_flag = reversed_flag_in;
+	 udd_flag = false;
       }
       scored_node_t() {
 	 atom_idx = 999999;
 	 spin_score = -9999;
 	 alpha = -1;
 	 reversed_flag = false;
+	 udd_flag = false;
       }
       bool operator==(const scored_node_t &other) const
       { return (other.atom_idx == atom_idx); }
@@ -87,6 +92,18 @@ namespace coot {
       clipper::Xmap<float> xmap; // a copy
       float rmsd_cut_off;
       float flood_atom_mask_radius;
+      float map_mean;
+      float map_rmsd;
+
+      float scale_CO;
+      float scale_CO_low;
+      float scale_CO_anti;
+      float scale_perp;
+      float scale_mid;
+      float scale_non_line;
+      float scale_N;
+      float scale_N_accpt;
+      
       coot::minimol::molecule get_flood_molecule() const;
       std::vector<std::pair<unsigned int, unsigned int> >
       atom_pairs_within_distance(const minimol::molecule &flood_mol,
@@ -137,6 +154,9 @@ namespace coot {
       // fill the connection_map map with scores
       void make_connection_map(const std::vector<std::pair<unsigned int, scored_node_t> > &scores);
 
+      double frag_score_crit;
+      void set_frag_score_crit(const std::vector<std::pair<unsigned int, scored_node_t> > &scores);
+
       // 2 residues, one of which has two atom (CA, N)
       // (can't be const because it uses the map connection_map)
       minimol::fragment make_fragment(std::pair<unsigned int, scored_node_t> scored_node,
@@ -177,44 +197,68 @@ namespace coot {
 	 return (v1.size() > v2.size());
       }
 
-      bool add_atom_names_in_map_output;
+      bool using_test_model;
 
       bool nice_fit(const minimol::residue &r1, const minimol::residue &r2) const;
       bool nice_fit(const minimol::fragment &f1) const;
 
       double get_fit_score(const minimol::residue &r1, const minimol::residue &r2) const;
 
-      minimol::fragment merge_fragments(const coot::minimol::fragment &f1,
-					const coot::minimol::fragment &f2) const;
+      void frag_to_pdb(const minimol::fragment &frag, const std::string &fn) const;
+      
+
+      minimol::fragment merge_fragments(const minimol::fragment &f1,
+					const minimol::fragment &f2) const;
 
       // we return an bool to allow a negative value to let the caller know that we didn't
       // find a good next node.
       // 
-      std::pair<bool, coot::scored_node_t>
+      std::pair<bool, scored_node_t>
       build_2_choose_1(unsigned int atom_idx, const std::vector<scored_node_t> &start_path,
 		       int resno_base,
 		       const std::string &chain_id,
 		       dir_t dir);
 
-      void follow_fragment (unsigned int atom_idx, const std::vector<scored_node_t> &start_path,
-			    int res_no_base,
-			    const std::string &chain_id,
-			    dir_t dir);
+      std::pair<std::vector<scored_node_t>, minimol::fragment>
+      follow_fragment (unsigned int atom_idx, const std::vector<scored_node_t> &start_path,
+		       int res_no_base,
+		       const std::string &chain_id,
+		       dir_t dir);
+      void add_cbetas(minimol::fragment *frag); // modify frag
 
-      std::ostream &format(std::ostream &s, const scored_node_t &sn) const {
-	 s << "[" << sn.atom_idx << " ";
-	 if (add_atom_names_in_map_output)
-	    s << atom_selection[sn.atom_idx]->name << " " 
-	      << atom_selection[sn.atom_idx]->GetSeqNum() << " " 
-	      << atom_selection[sn.atom_idx]->GetChainID() << " ";
-	 s << sn.spin_score << " "
-	   << sn.alpha << " " << sn.reversed_flag << "]";
-	 return s;
-	 
+      // potentially modify frag_store
+      // 
+      void add_replace_reject(std::vector<std::pair<std::vector<scored_node_t>, minimol::fragment> > &frag_store, const std::pair<std::vector<scored_node_t>, minimol::fragment> &trial) const;
+
+      void set_inital_density_scales() {
+	 scale_CO       =  1.95;
+	 scale_CO_low   = -0.6;
+	 scale_CO_anti  = -0.15; // weak
+	 scale_perp     = -0.8;
+	 scale_mid      =  1.6;  // anything more than 1.5
+	 scale_non_line =  0.4;
+	 scale_N        =  1.2;
+	 scale_N_accpt  =  0.0;
       }
-       
 
-   
+      void set_scales(double s[8]) {
+	 scale_CO       = s[0];
+	 scale_CO_low   = s[1];
+	 scale_CO_anti  = s[2];
+	 scale_perp     = s[3];
+	 scale_mid      = s[4];
+	 scale_non_line = s[5];
+	 scale_N        = s[6];
+	 scale_N_accpt  = s[7];
+      }
+
+	 
+
+      double ks_test(const std::vector<std::pair<unsigned int, scored_node_t> > &scores); 
+
+      // Rama terminal addition/refine trace.
+      void multi_peptide(const std::vector<std::pair<std::vector<coot::scored_node_t>, coot::minimol::fragment> > &frag_store, const protein_geometry &geom, std::pair<float, float> &mv);
+
    public:
       trace(const clipper::Xmap<float> &xmap_in);
       void set_atom_mask_radius(float r) { flood_atom_mask_radius = r; }
@@ -229,6 +273,9 @@ namespace coot {
 	 // mol->DeleteSelection(selhnd);
       }
 
+      double ks_test(); 
+      void optimize_weights(mmdb::Manager *mol);
+      
    };
 
    class trace_path_eraser {
@@ -260,6 +307,35 @@ namespace coot {
 	 }
 	 return r;
       }
+   };
+
+   class frag_store_eraser {
+   public:
+      unsigned int crit_for_match;
+      std::pair<std::vector<scored_node_t>, minimol::fragment> trial;      
+      const clipper::Xmap<float> *xmap;
+      frag_store_eraser(const std::pair<std::vector<scored_node_t>, minimol::fragment> &trial_in,
+			const clipper::Xmap<float> *xmap_in,
+			unsigned int crit_for_match_in) {
+	 xmap = xmap_in;
+	 crit_for_match = crit_for_match_in;
+	 trial = trial_in;
+      }
+      bool operator() (const std::pair<std::vector<scored_node_t>, minimol::fragment> &member) const {
+	 bool r = false;
+	 unsigned int n_match = 0;
+	 for (unsigned int i=0; i<member.first.size(); i++) { 
+	    for (unsigned int j=0; j<trial.first.size(); j++) { 
+	       if (member.first[i] == trial.first[j]) {
+		  n_match++;
+	       } 
+	    }
+	 }
+	 if (n_match >= crit_for_match)
+	    r = true;
+	 return r;
+      } 
+
    };
 }
 

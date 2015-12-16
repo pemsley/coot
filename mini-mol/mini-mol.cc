@@ -558,6 +558,53 @@ coot::minimol::residue::residue(mmdb::Residue *residue_p,
    }
 }
 
+// caller disposes of memory
+mmdb::Residue *
+coot::minimol::residue::make_residue() const {
+
+   mmdb::Residue *residue_p = new mmdb::Residue();
+   residue_p->SetResID(name.c_str(), seqnum, ins_code.c_str());
+   
+   for (unsigned int iat=0; iat<atoms.size(); iat++) { 
+      mmdb::Atom *atom_p = new mmdb::Atom; 
+      atom_p->SetCoordinates(atoms[iat].pos.x(),
+			     atoms[iat].pos.y(),
+			     atoms[iat].pos.z(),
+			     atoms[iat].occupancy,
+			     atoms[iat].temperature_factor);
+      atom_p->SetAtomName(atoms[iat].name.c_str());
+      strncpy(atom_p->element, atoms[iat].element.c_str(),3);
+      strncpy(atom_p->altLoc, atoms[iat].altLoc.c_str(), 2);
+      int i_add = residue_p->AddAtom(atom_p);
+      if (i_add < 0) 
+	 std::cout << "addatom addition error" << std::endl;
+   }
+
+   return residue_p;
+}
+
+void
+coot::minimol::residue::update_positions_from(mmdb::Residue *residue_p) {
+
+   int n_atoms = residue_p->GetNumberOfAtoms();
+   // presuming the same atom order (don't check atom names) - funny
+   // things will happen if this is not true.
+   if (int(atoms.size()) == n_atoms) {
+      mmdb::PPAtom residue_atoms = 0;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_atoms; iat++) {
+	 mmdb::Atom *at = residue_atoms[iat];
+	 // std::cout << "   " << seqnum <<  " " << atoms[iat].name << " from " << atoms[iat].pos.format()
+	 // << " to " << at->x << " " << at->y << " " << at->z << std::endl;
+	 clipper::Coord_orth p(residue_atoms[iat]->x, residue_atoms[iat]->y, residue_atoms[iat]->z);
+	 atoms[iat].pos = p;
+      }
+   }
+}
+
+
+
 
 bool
 coot::minimol::atom::is_hydrogen_p() const {
@@ -891,7 +938,7 @@ coot::minimol::molecule::pcmmdbmanager() const {
 //       std::cout << "   writing out " << n_residues
 // 		<< " residues for " << fragments[ifrag].fragment_id << std::endl; 
       chain_p = new mmdb::Chain;
-      chain_p->SetChainID((char *)fragments[ifrag].fragment_id.c_str());
+      chain_p->SetChainID(fragments[ifrag].fragment_id.c_str());
       model_p->AddChain(chain_p);
       // see that residues are not zero index (fragments and atoms *are*).
       for (int ires=fragments[ifrag].min_res_no(); ires<=fragments[ifrag].max_residue_number(); ires++) {
@@ -954,12 +1001,13 @@ coot::minimol::molecule::pcmmdbmanager() const {
    if (have_spacegroup) { 
 //       std::cout << "DEBUG:: pcmmdbmanager: spacegroup for this molecule: " 
 // 		<< mmdb_spacegroup << "\n";
-      mol->SetSpaceGroup((char *)mmdb_spacegroup.c_str());
+      mol->SetSpaceGroup(mmdb_spacegroup.c_str());
 //    } else {
 //       std::cout << "DEBUG:: pcmmdbmanager: no spacegroup for this molecule\n";
    }
 
    mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+   mol->FinishStructEdit();
    return mol;
 }
 
@@ -1026,6 +1074,21 @@ coot::minimol::fragment::addresidue(const coot::minimol::residue &res,
    }
 }
 
+int
+coot::minimol::fragment::first_residue() const {
+
+   int i = 0;
+
+   for (int ires=min_res_no(); ires<=max_residue_number(); ires++) {
+      if ((*this)[ires].atoms.size() > 0) {
+	 i = ires;
+	 break;
+      } 
+   } 
+   return i;
+}
+
+
 void
 coot::minimol::fragment::transform(const clipper::RTop_orth &rtop) {
 
@@ -1075,7 +1138,23 @@ coot::minimol::fragment::select_atoms_serial() const {
 //        std::cout << "select_atoms_serial: " << iat << " " << a[iat]->pos.format() << std::endl;
 
    return a;
+}
+
+// chain without model.
+// 
+mmdb::Chain *
+coot::minimol::fragment::make_chain() const {
+
+   mmdb::Chain *chain_p = new mmdb::Chain;
+
+   chain_p->SetChainID(fragment_id.c_str());
+   for (int ires=min_res_no(); ires<=max_residue_number(); ires++) { 
+      mmdb::Residue *residue_p = (*this)[ires].make_residue();
+      chain_p->AddResidue(residue_p);
+   }
+   return chain_p;
 } 
+
 
 
 
@@ -1108,11 +1187,35 @@ coot::minimol::operator<<(std::ostream& s, coot::minimol::fragment frag) {
 bool
 coot::minimol::molecule::is_empty() const {
 
-   bool ival = 1;
-   if (fragments.size() != 0)
-      ival = 0;
+   bool ival = true;
+   if (fragments.size() != 0) {
+      for (unsigned int ifrag=0; ifrag<fragments.size(); ifrag++) { 
+	 for (int ires=fragments[ifrag].min_res_no(); ires<=fragments[ifrag].max_residue_number(); ires++) { 
+	    if (fragments[ifrag][ires].atoms.size() > 0) {
+	       ival = false;
+	       break;
+	    } 
+	 }
+	 if (ival)
+	    break;
+      }
+   } 
    return ival;
 }
+
+bool
+coot::minimol::molecule::has_atoms() const {
+
+   bool fl = false;
+   for (unsigned int ifrag=0; ifrag<fragments.size(); ifrag++) { 
+      for (int ires=fragments[ifrag].min_res_no(); ires<=fragments[ifrag].max_residue_number(); ires++) { 
+	 if (fragments[ires][ires].atoms.size())
+	    return true;
+      }
+   }
+   return fl;
+
+} 
 
 int
 coot::minimol::molecule::count_atoms() const {

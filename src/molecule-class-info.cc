@@ -3240,9 +3240,11 @@ molecule_class_info_t::update_extra_restraints_representation_parallel_planes() 
    const coot::protein_geometry &geom = *graphics_info_t::Geom_p();  // pass this?
 
    for (unsigned int i=0; i<extra_restraints.parallel_plane_restraints.size(); i++) {
+
       const coot::parallel_planes_t &pp = extra_restraints.parallel_plane_restraints[i];
       mmdb::Residue *r_1 = get_residue(pp.plane_1_atoms.res_spec);
       mmdb::Residue *r_2 = get_residue(pp.plane_2_atoms.res_spec);
+
       if (r_1 && r_2) {
 	
 	 std::string res_type_1 = r_1->GetResName();
@@ -3294,7 +3296,6 @@ molecule_class_info_t::update_extra_restraints_representation_parallel_planes() 
 	    if (p_2_positions.size() > 2) { 
 	       coot::lsq_plane_info_t pi_1(p_1_positions);
 	       coot::lsq_plane_info_t pi_2(p_2_positions);
-
 	       extra_restraints_representation.add_parallel_plane(pi_1, pi_2);
 	    }
 	 }

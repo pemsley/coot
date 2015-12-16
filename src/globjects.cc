@@ -938,7 +938,7 @@ short int graphics_info_t::guile_history  = 1; // on
 coot::history_list_t graphics_info_t::history_list;
 
 // build one residue, n trials:
-int graphics_info_t::add_terminal_residue_n_phi_psi_trials = 100;
+int graphics_info_t::add_terminal_residue_n_phi_psi_trials = 1000;
 int graphics_info_t::add_terminal_residue_add_other_residue_flag = 0; // no.
 std::string graphics_info_t::add_terminal_residue_type = "auto"; // was "ALA" before 20080601
 short int graphics_info_t::terminal_residue_do_rigid_body_refine = 0; // off by default
@@ -1082,7 +1082,7 @@ short int graphics_info_t::show_citation_notice = 0; // on by default :)
 
 // we have dragged shear fixed points?
 short int graphics_info_t::have_fixed_points_sheared_drag_flag = 0;
-int       graphics_info_t::dragged_refinement_steps_per_frame = 80;
+int       graphics_info_t::dragged_refinement_steps_per_frame = 140;
 short int graphics_info_t::dragged_refinement_refine_per_frame_flag = 0;
 double    graphics_info_t::refinement_drag_elasticity = 0.25;
 
@@ -1647,6 +1647,9 @@ init_gl_widget(GtkWidget *widget) {
    if (g.do_anti_aliasing_flag)
       glEnable(GL_LINE_SMOOTH);
 
+   // glEnable(GL_POLYGON_SMOOTH);
+   // glEnable(GL_MULTISAMPLE_ARB);
+
    // Mac play
    // glEnable(GL_LINE_SMOOTH);
    // glEnable(GL_BLEND);
@@ -2166,7 +2169,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 graphics_info_t::molecules[ii].draw_map_unit_cell(graphics_info_t::cell_colour);
 
 	 //
-	 graphics_info_t::molecules[ii].draw_skeleton();
+	 graphics_info_t::molecules[ii].draw_skeleton(is_bb);
       }
 
 

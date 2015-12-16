@@ -434,7 +434,18 @@ coot_bin_SOURCES = \
 	user-mods.hh user-mods.cc\
 	validation-graphs.hh	 \
 	xmap-utils.cc 		 \
-	xmap-utils.h		 
+	xmap-utils.h             \
+	rama-rota-score.hh 	 \
+	fragment-info.hh 	 \
+	atom-name-bits.hh 	 \
+	additional-representation.hh 	   \
+	extra-restraints-representation.hh \
+	atom-attribute.hh 	 \
+	animated-ligand.hh 	 \
+	atom-selection.hh 	 \
+	ncs.hh 		         \
+	model-view.hh 		 \
+	new-centre.hh
 
 if COOT_USE_PYTHON
    coot_bin_SOURCES += coot_wrap_python_gtk2.cc

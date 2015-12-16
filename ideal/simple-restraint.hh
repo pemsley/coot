@@ -482,8 +482,31 @@ namespace coot {
 	       target_value = nbc_dist.second;
 	    } else {
 	       // short/standard value
-	       target_value = 2.3;
+	       target_value = 2.5;
 	    } 
+	    sigma = 0.02;
+	    fixed_atom_flags = fixed_atom_flags_in;
+	    is_user_defined_restraint = 0;
+	 } else { 
+	    std::cout << "ERROR:: bad simple_restraint constructor usage "
+		      << "- should be non-bonded\n";
+	 } 
+      }
+
+      // Non-bonded v2 
+      simple_restraint(short int restraint_type_in, 
+		       int index_1, 
+		       int index_2,
+		       const std::string &atom_1_type,
+		       const std::string &atom_2_type,
+		       const std::vector<bool> &fixed_atom_flags_in,
+		       double dist_min) { 
+	 
+	 if (restraint_type_in == NON_BONDED_CONTACT_RESTRAINT) { 
+	    restraint_type = restraint_type_in;
+	    atom_index_1 = index_1;
+	    atom_index_2 = index_2;
+	    target_value = dist_min;
 	    sigma = 0.02;
 	    fixed_atom_flags = fixed_atom_flags_in;
 	    is_user_defined_restraint = 0;
@@ -787,6 +810,8 @@ namespace coot {
 
    class restraints_container_t {
 
+      enum reporting_level_t { QUIET, NORMAL, VERBOSE };
+
    public:
 
       class restraint_counts_t {
@@ -884,7 +909,7 @@ namespace coot {
       mmdb::PResidue previous_residue;
       mmdb::PResidue next_residue;
       
-      bool verbose_geometry_reporting;
+      reporting_level_t verbose_geometry_reporting;
    
       // we will store in here the initial positions as parameters
       // 
@@ -1054,6 +1079,18 @@ namespace coot {
 						   atom_type_1, atom_type_2,
 						   fixed_atom_flag, geom));
       } 
+
+      void add_non_bonded(int index1, int index2,
+			  const std::string &atom_type_1, 
+			  const std::string &atom_type_2, 
+			  const std::vector<bool> &fixed_atom_flag,
+			  double dist_min) { 
+	 restraints_vec.push_back(simple_restraint(NON_BONDED_CONTACT_RESTRAINT,
+						   index1, index2,
+						   atom_type_1, atom_type_2,
+						   fixed_atom_flag, dist_min));
+      } 
+
 
       // construct a restraint and add it to restraints_vec
       //
@@ -1351,11 +1388,26 @@ namespace coot {
 			 short int is_fixed_first_res,
 			 short int is_fixed_second_res,
 			 const protein_geometry &geom);
-
-      int make_non_bonded_contact_restraints(const bonded_pair_container_t &bpc, const protein_geometry &geom);
       void symmetry_non_bonded_contacts(bool p);
       std::vector<std::vector<int> > bonded_atom_indices;
 
+      class reduced_angle_info_container_t {
+      public:
+	 reduced_angle_info_container_t(const std::vector<simple_restraint> &r);
+	 std::map<int, std::vector<std::pair<int, int> > > angles;
+	 bool is_1_4(int i, int j) const;
+	 void write_angles_map(const std::string &file_name) const;
+      };
+      bool check_for_1_4_relation(int i, int j) const;
+      bool check_for_1_4_relation(int i, int j, const reduced_angle_info_container_t &ai) const;
+      bool check_for_O_C_1_5_relation(mmdb::Atom *at_1, mmdb::Atom *at_2) const;  // check either way round
+
+
+      int make_non_bonded_contact_restraints(const bonded_pair_container_t &bpc, const protein_geometry &geom);
+      int make_non_bonded_contact_restraints(const bonded_pair_container_t &bpc,
+					     const reduced_angle_info_container_t &ai,
+					     const protein_geometry &geom);
+      
       //! Set a flag that we have an OXT and we need to position it
       //after the refinement.
       void mark_OXT(const protein_geometry &geom);
@@ -1468,7 +1520,7 @@ namespace coot {
 //       }
 
       restraints_container_t(atom_selection_container_t asc_in) { 
-	 verbose_geometry_reporting = 0;
+	 verbose_geometry_reporting = NORMAL;
 	 n_atoms = asc_in.n_selected_atoms; 
 	 mol = asc_in.mol;
 	 n_atoms = asc_in.n_selected_atoms;
@@ -1624,7 +1676,11 @@ namespace coot {
       atom_spec_t get_atom_spec(int atom_index) const;
 
       void set_verbose_geometry_reporting() { 
-	 verbose_geometry_reporting = 1; 
+	 verbose_geometry_reporting = VERBOSE;
+      }
+
+      void set_quiet_reporting() {
+	 verbose_geometry_reporting = QUIET;
       } 
 
       void assign_fixed_atom_indices(const std::vector<atom_spec_t> &fixed_atom_specs);

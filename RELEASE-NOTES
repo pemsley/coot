@@ -1,12 +1,23 @@
 
   Pre-Release 0.8.3
 
+  o FEATURE: Residue correlations and distortion scores added to
+             cooot.mini-rsr output
+
+  o CHANGE:  Hydrogen atoms are not longer fit to density
+
+  o CHANGE: Toolbars are now resizable
+
+  o CHANGE: coot-download directory is no longer created on starting coot [Marcin W.]
+
   o BUG-FIX: fix atom index check in add_atom_label() [Gabriele Balducci]
 
-  o BUG-FIX: Toolbars are now resizable
+  o BUG-FIX: Chiral volume restraints correctly output from
+             coot.make-shelx-restraints
 
 
 -----
+
 
   Release 0.8.2
 

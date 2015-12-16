@@ -412,8 +412,8 @@
 ;; 
 (define (pdbe-get-pdb-and-sfs-cif include-get-sfs-flag entry-id)
 
-  (let ((status (make-directory-maybe "coot-download")))
-    (if (not (= status 0))
+  (let ((coot-download-dir (get-directory "coot-download")))
+    (if (not (string? coot-download-dir))
 	(info-dialog "Failed to make download directory")
 
 	;; do it!
@@ -671,13 +671,13 @@
 		 (sfs-cif-url (string-append
 			       "http://www.ebi.ac.uk/pdbe/entry-files/r"
 			       entry-id "sf.ent"))
-		 (pdb-file-name (append-dir-file "coot-download" (string-append entry-id coords-type)))
-		 (sfs-cif-file-name (append-dir-file "coot-download" 
+		 (pdb-file-name (append-dir-file coot-download-dir (string-append entry-id coords-type)))
+		 (sfs-cif-file-name (append-dir-file coot-download-dir
 						     (string-append "r" entry-id "sf.cif")))
-		 (sfs-mtz-file-name (append-dir-file "coot-download" 
+		 (sfs-mtz-file-name (append-dir-file coot-download-dir
 						     (string-append "r" entry-id "sf.mtz")))
 		 (refmac-out-mtz-file-name 
-		  (append-dir-file "coot-download" (string-append "r" entry-id "-refmac.mtz")))
+		  (append-dir-file coot-download-dir (string-append "r" entry-id "-refmac.mtz")))
 		 (refmac-log-file-name (string-append "refmac-from-coot-" 
 						      (number->string refmac-count)
 						      ".log")) ;; set in run-refmac-by-filename
@@ -953,17 +953,42 @@
 
     (lambda (button-hbox ligands-hbox protein-ribbon-hbox) ;; returning a function
 
+      (define (is-png-or-gif? file-name)
+	
+	(if (not (file-exists? file-name))
+	    #f
+	    (if (not (> (stat:size (stat file-name)) 4))
+		#f
+		(call-with-input-file file-name
+		  (lambda (port)
+		    (let ((c-0 (read-char port))
+			  (c-1 (read-char port))
+			  (c-2 (read-char port))
+			  (c-3 (read-char port)))
+		      (cond 
+		       ((all-true? (list (char=? c-1 #\P)
+					 (char=? c-2 #\N)
+					 (char=? c-3 #\G))) #t)
+
+		       ((all-true? (list (char=? c-0 #\G)
+					 (char=? c-1 #\I)
+					 (char=? c-2 #\F))) #t)
+		       (else #f))))))))
+	
+
       (define (cached-or-net-get-image-func image-url image-name hbox)
 
 	(let ((curl-status 'start)  ;; what does this do?
 	      (pack-image-func
 	       (lambda ()
-		 ;; (format #t "gtk-pixmap-new-from-file image-name: ~s ~s~%" image-name (stat image-name))
-		 (let ((pixmap (gtk-pixmap-new-from-file image-name button-hbox)))
-		   (if pixmap
-		       (begin
-			 (gtk-box-pack-start hbox pixmap #f #f 1)
-			 (gtk-widget-show pixmap)))))))
+		 ;; (format #t "debug:: gtk-pixmap-new-from-file image-name: ~s ~s~%" image-name (stat image-name))
+		 ;; gtk-pixmap-new-from-file collapses in a heap if image-name is not a png
+		 (if (is-png-or-gif? image-name)
+		     (let ((pixmap (gtk-pixmap-new-from-file image-name button-hbox)))
+		       (if pixmap
+			   (begin
+			     (gtk-box-pack-start hbox pixmap #f #f 1)
+			     (gtk-widget-show pixmap))))))))
 
 	  (cache-or-net-get-image image-url image-name pack-image-func)))
 	  

@@ -100,10 +100,24 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 
 #include "map-statistics.hh"
 
+#include "animated-ligand.hh"
+
 namespace molecule_map_type {
    enum { TYPE_SIGMAA=0, TYPE_2FO_FC=1, TYPE_FO_FC=2, TYPE_FO_ALPHA_CALC=3,
 	  TYPE_DIFF_SIGMAA=4 };
 }
+
+#include "new-centre.hh"
+#include "model-view.hh"
+#include "ncs.hh"
+#include "atom-selection.hh"
+#include "atom-attribute.hh"
+#include "extra-restraints-representation.hh"
+#include "additional-representation.hh"
+#include "fragment-info.hh"
+#include "atom-name-bits.hh"
+#include "rama-rota-score.hh"
+
 
 namespace coot {
 
@@ -117,81 +131,7 @@ namespace coot {
 	  COLOUR_BY_RAINBOW_BONDS=9, COLOUR_BY_B_FACTOR_BONDS=10,
 	  COLOUR_BY_OCCUPANCY_BONDS=11};
 
-   // representation_types
-   enum { SIMPLE_LINES, STICKS, BALL_AND_STICK, LIQUORICE, SURFACE };
-
    enum { RESIDUE_NUMBER_UNSET = -1111};
-
-   typedef enum { NO_LIGANDS=0, NORMAL_CASE=1, SINGLE_LIGAND_NO_MOVEMENT } new_ligand_position_type;
-
-   class new_centre_info_t {
-   public:
-      new_ligand_position_type type;
-      clipper::Coord_orth position;
-      std::string info_string;
-      residue_spec_t residue_spec;
-      new_centre_info_t(new_ligand_position_type pt,
-			const clipper::Coord_orth &pos,
-			const residue_spec_t &res_spec_in) {
-	 type = pt;
-	 position = pos;
-	 residue_spec = res_spec_in;
-      } 
-   };
-
-
-   class model_view_residue_button_info_t {
-   public:
-      model_view_residue_button_info_t(){} // for new allocator
-
-      model_view_residue_button_info_t(const std::string &lab,
-				       mmdb::Residue *res) {
-	 button_label = lab;
-	 residue_spec = res;
-      } 
-      std::string button_label;
-      // mmdb::Residue *residue; No. This can go out of date.
-      residue_spec_t residue_spec;
-   };
-
-   class model_view_atom_tree_item_info_t {
-   public:
-      // model_view_atom_tree_item_info_t() {}  // not needed?
-      model_view_atom_tree_item_info_t(const std::string &label,
-				       mmdb::Residue *res) {
-	 button_label = label;
-	 residue_spec = res;
-      }
-      std::string button_label;
-      // mmdb::Residue *residue;
-      residue_spec_t residue_spec;
-   };
-
-   class model_view_atom_tree_chain_t {
-   public:
-      model_view_atom_tree_chain_t() {} // for new allocator
-      model_view_atom_tree_chain_t(const std::string &chain_id_in) {
-	 chain_id = chain_id_in;
-      }
-      void add_residue(const model_view_atom_tree_item_info_t &res) {
-	 tree_residue.push_back(res);
-      } 
-      std::vector<model_view_atom_tree_item_info_t> tree_residue;
-      std::string chain_id;
-   };
-
-   // old 
-   class model_view_atom_button_info_t {
-   public:
-      model_view_atom_button_info_t() {} // for new allocator
-      model_view_atom_button_info_t(const std::string &label,
-				    mmdb::Atom *atom_in) {
-	 button_label = label;
-	 atom = atom_in;
-      }
-      std::string button_label;
-      mmdb::Atom *atom;
-   };
 
 
    // a helper class - provide filenames and status for dialog widget
@@ -205,77 +145,6 @@ namespace coot {
       backup_file_info() { 
 	 status = 0; // initially no backup reported
       }
-   };
-
-   // Maybe we want a mainchain/side chain split here...
-   class ncs_residue_info_t {
-   public:
-     float mean_diff;
-     float n_weighted_atoms;
-     int resno; 
-     bool filled;
-     std::string inscode;
-     int serial_number;
-     int target_resno; 
-     int target_serial_number;
-     std::string target_inscode;
-     ncs_residue_info_t() {
-       mean_diff = -1;
-       n_weighted_atoms = 0;
-       filled = 0;
-     }
-     ncs_residue_info_t(int resno_in, const std::string &ins_code_in, int serial_number_in,
-			int target_resno_in, const std::string &target_ins_code_in, int target_serial_number_in) {
-       filled = 1;
-       resno = resno_in;
-       inscode = ins_code_in;
-       serial_number = serial_number_in;
-       target_resno = target_resno_in;
-       target_inscode = target_ins_code_in;
-       target_serial_number = target_serial_number_in;
-     }
-   };
-
-   class ncs_chain_difference_t {
-   public:
-     std::string peer_chain_id;
-     std::vector<ncs_residue_info_t> residue_info;
-     ncs_chain_difference_t() {
-     }
-     ncs_chain_difference_t(const std::string &peer_chain_id_in,
-			    const std::vector<ncs_residue_info_t> &residue_info_in) {
-       peer_chain_id = peer_chain_id_in;
-       residue_info = residue_info_in;
-     }
-   };
-
-   class ncs_differences_t {
-   public:
-     std::string target_chain_id;
-     std::vector<ncs_chain_difference_t> diffs;
-     unsigned int size() const { return diffs.size(); }
-     ncs_differences_t() {}
-     ncs_differences_t(const std::string &target_chain_id_in, 
-		       std::vector<ncs_chain_difference_t> diffs_in) {
-       target_chain_id = target_chain_id_in;
-       diffs = diffs_in;
-     }
-   };
-
-   class ncs_matrix_info_t {
-   public: 
-     bool state; 
-     clipper::RTop_orth rtop;
-     std::vector<int> residue_matches;
-     ncs_matrix_info_t() {
-       state = 0;
-     }
-     ncs_matrix_info_t(bool state_in, clipper::RTop_orth rtop_in, 
-		       std::vector<int> residue_matches_in) {
-       state = state_in;
-       rtop = rtop_in;
-       residue_matches = residue_matches_in;
-     }
    };
 
    class ghost_molecule_display_t {
@@ -345,33 +214,6 @@ namespace coot {
       }
    };
 
-   class animated_ligand_interactions_t : public fle_ligand_bond_t { 
-   public:
-      animated_ligand_interactions_t(const fle_ligand_bond_t &lb) :
-	 fle_ligand_bond_t(lb) { }
-      void draw(mmdb::Manager *mol,
-		const gl_context_info_t &gl_info,
-		const long &start_time) const;
-   };
-
-   // encapsulate this into molecule_class_info_t?
-   //
-   // trivial helper class to get specs and distance for atoms when a
-   // link is made.
-   // 
-   class dict_link_info_t {
-      bool check_for_order_switch(mmdb::Residue *residue_ref,
-				  mmdb::Residue *residue_new,
-				  const std::string &link_type,
-				  const protein_geometry &geom) const;
-   public:
-      // this can throw a std::runtime_error
-      dict_link_info_t (mmdb::Residue *residue_ref, mmdb::Residue *residue_new,
-			const std::string &link_type, const protein_geometry &geom);
-      atom_spec_t spec_ref;
-      atom_spec_t spec_new;
-      double dist;
-   };
 
 
    class goto_residue_string_info_t {
@@ -382,375 +224,7 @@ namespace coot {
       std::string chain_id;
       goto_residue_string_info_t(const std::string &goto_residue_string, mmdb::Manager *mol);
    }; 
-
-   class atom_attribute_setting_help_t {
-   public:
-     enum { UNSET, IS_FLOAT, IS_STRING, IS_INT};
-      short int type;
-      int i;
-      float val;
-      std::string s;
-      atom_attribute_setting_help_t(const std::string &s_in) {
-	 s = s_in;
-	 type = IS_STRING;
-      }
-      atom_attribute_setting_help_t(float v) {
-	 val = v;
-	 type = IS_FLOAT;
-      }
-      atom_attribute_setting_help_t(int iin) {
-	i = iin;
-	type = IS_INT;
-      }
-      atom_attribute_setting_help_t() {
-	 type = UNSET;
-      }
-   };
-
-   class atom_attribute_setting_t {
-   public: 
-     atom_spec_t atom_spec;
-     std::string attribute_name;
-     atom_attribute_setting_help_t attribute_value;
-     atom_attribute_setting_t(const std::string &chain_id_in, 
-			      int resno_in, 
-			      const std::string &inscode_in, 
-			      const std::string &atom_name_in, 
-			      const std::string &alt_conf_in, 
-			      const std::string &attribute_name_in, 
-			      const atom_attribute_setting_help_t &att_val) {
-       atom_spec = atom_spec_t(chain_id_in, resno_in, inscode_in, atom_name_in, alt_conf_in);
-       attribute_name = attribute_name_in;
-       attribute_value = att_val;
-     } 
-   };
-
-   class atom_selection_info_t { 
-   public:
-      enum { UNSET, BY_STRING, BY_ATTRIBUTES }; 
-      int type;
-      std::string chain_id;
-      int resno_start;
-      int resno_end;
-      std::string ins_code;
-      std::string altconf;
-      bool alt_conf_is_set;
-      // or:
-      std::string atom_selection_str;
-      atom_selection_info_t(const std::string &s) { 
-	 atom_selection_str = s;
-	 type = BY_STRING;
-	 alt_conf_is_set = 0;
-      }
-      atom_selection_info_t(const std::string &chain_id_in, 
-			    int resno_start_in, 
-			    int resno_end_in,
-			    const std::string &ins_code_in) { 
-	 chain_id = chain_id_in;
-	 resno_start = resno_start_in;
-	 resno_end = resno_end_in;
-	 ins_code = ins_code_in;
-	 type = BY_ATTRIBUTES;
-	 alt_conf_is_set = 0;
-      }
-      atom_selection_info_t(const std::string &chain_id_in, 
-			    int resno_start_in, 
-			    int resno_end_in,
-			    const std::string &ins_code_in,
-			    const std::string &alt_conf_in) { 
-	 chain_id = chain_id_in;
-	 resno_start = resno_start_in;
-	 resno_end = resno_end_in;
-	 ins_code = ins_code_in;
-	 type = BY_ATTRIBUTES;
-	 altconf = alt_conf_in;
-	 alt_conf_is_set = 1;
-      }
-      atom_selection_info_t() { 
-	 type = UNSET;
-	 alt_conf_is_set = 0;
-      }
-
-      // Return the selection handle.  It is up to the caller to
-      // dispose of the atom selection, with a DeleteSelection().
-      int select_atoms(mmdb::Manager *mol) const;
-      void using_altconf(const std::string &altconf_in) {
-	 altconf = altconf_in;
-	 alt_conf_is_set = 1;
-      }
-      std::string name() const;
-      std::string mmdb_string() const;
-   };
-
-   class additional_representations_t { 
-   public:
-      bool show_it;
-      int bonds_box_type;
-      int representation_type;
-      float bond_width;
-      float sphere_radius;
-      bool draw_atom_spheres_flag;
-      bool draw_hydrogens_flag;
-      graphical_bonds_container bonds_box;
-      atom_selection_info_t atom_sel_info;
-      mmdb::Manager *mol;
-      int display_list_handle;
-      void update_self() {
-	 if (representation_type != BALL_AND_STICK || representation_type != LIQUORICE) {
-	    fill_bonds_box();
-	 }
-      }
-      void update_self_display_list_entity(int handle_in) {
-	 display_list_handle = handle_in;
-      }
-      void fill_bonds_box();
-      void core (mmdb::Manager *mol_in,
-		 int representation_type_in,
-		 int bonds_box_type_in,
-		 float bond_width_in,
-		 bool draw_hydrogens_flag_in,
-		 const atom_selection_info_t &atom_sel_info_in) {
-	 show_it = true;
-	 mol = mol_in;
-	 bond_width = bond_width_in;
-	 representation_type = representation_type_in;
-	 bonds_box_type = bonds_box_type_in;
-	 draw_hydrogens_flag = draw_hydrogens_flag_in;
-	 // draw_atom_spheres_flag = draw_atom_spheres_flag_in;
-	 atom_sel_info = atom_sel_info_in;
-	 fill_bonds_box();
-      }
-      additional_representations_t(mmdb::Manager *mol_in,
-				   int representation_type_in,
-				   int bonds_box_type_in,
-				   float bond_width_in,
-				   float sphere_radius_in,
-				   bool draw_spheres_flag_in,
-				   bool draw_hydrogens_flag_in,
-				   const atom_selection_info_t &atom_sel_info_in) {
-	 core(mol_in, representation_type_in, bonds_box_type_in, bond_width_in,
-	      draw_hydrogens_flag_in, atom_sel_info_in);
-	 sphere_radius = sphere_radius_in;
-	 draw_atom_spheres_flag = draw_spheres_flag_in;
-      }
-      
-      // on changind the outside (molecule_class_info_t's mol) we need
-     // to change that of the additional_representations too.
-     void change_mol(mmdb::Manager *mol_in) { 
-       mol = mol_in;
-     } 
-     void clear() { 
-       show_it = 0;
-     } 
-     std::string info_string() const;
-     void add_display_list_handle(int handle) { 
-       display_list_handle = handle;
-     } 
-   };
-
-   // ------------ extra restraints (e.g. user-defined) ------------
-   //
-   class extra_restraints_representation_t {
-   public:
-
-      class extra_bond_restraints_respresentation_t {
-      public:
-	 clipper::Coord_orth first;
-	 clipper::Coord_orth second;
-	 double target_dist;
-	 double esd;
-	 extra_bond_restraints_respresentation_t(const clipper::Coord_orth &f,
-						 const clipper::Coord_orth &s,
-						 double d,
-						 double e) {
-	    first = f;
-	    second = s;
-	    target_dist = d;
-	    esd = e;
-	 }
-      };
-
-      class extra_parallel_planes_restraints_representation_t {
-      public:
-	 clipper::Coord_orth ring_centre;
-	 clipper::Coord_orth plane_projection_point;
-	 clipper::Coord_orth normal; // for the ring plane
-	 double ring_radius;
-	 double pp_radius; // projection point
-	 extra_parallel_planes_restraints_representation_t(const clipper::Coord_orth &rc,
-							   const clipper::Coord_orth &ppp,
-							   const clipper::Coord_orth &norm,
-							   double r1, double r2) {
-	    ring_centre = rc;
-	    plane_projection_point = ppp;
-	    normal = norm;
-	    ring_radius = r1;
-	    pp_radius = r2;
-	 }
-      };
-
-      extra_restraints_representation_t() {
-	 prosmart_restraint_display_limit_high = 0;
-	 prosmart_restraint_display_limit_low  = 0;
-      }
-      
-      std::vector<extra_bond_restraints_respresentation_t> bonds;
-      double prosmart_restraint_display_limit_high; // show only those below this
-      double prosmart_restraint_display_limit_low;  // and above this (n-sigma)
-      std::vector<extra_parallel_planes_restraints_representation_t> parallel_planes;
-      
-      void clear() {
-	 bonds.clear();
-	 parallel_planes.clear();
-      }
-      void add_bond(const clipper::Coord_orth &pt1, const clipper::Coord_orth &pt2) {
-	 extra_bond_restraints_respresentation_t br(pt1, pt2, -1, -1);
-	 bonds.push_back(br);
-
-      }
-      void add_bond(const clipper::Coord_orth &pt1, const clipper::Coord_orth &pt2,
-		    const double &d, const double &e) {
-	 extra_bond_restraints_respresentation_t br(pt1, pt2, d, e);
-	 bonds.push_back(br);
-      }
-
-      // maybe extra parameters are needed here (e.g. for colouring later, perhaps).
-      void add_parallel_plane(const lsq_plane_info_t &pi_1,
-			      const lsq_plane_info_t &pi_2);
-   };
-
-   // ------------ molecule probability scoring ------------
-   class rama_score_t {
-   public:
-      rama_score_t() {
-	 score = 0.0;
-	 score_non_sec_str = 0.0;
-	 n_zeros = 0;
-      }
-      // for all residues
-      std::vector<std::pair<residue_spec_t, double> >  scores;
-      // for non-Secondary structure residues
-      std::vector<std::pair<residue_spec_t, double> >  scores_non_sec_str;
-      double score;
-      double score_non_sec_str;
-      int n_residues() const { return scores.size(); }
-      int n_residues_non_sec_str() const { return scores_non_sec_str.size(); }
-      int n_zeros;
-      std::vector<std::pair<residue_spec_t, int> > region;
-   };
-
-   // ==-------------- all molecule rotamer scoring --------------
-   class rotamer_score_t {
-   public:
-      rotamer_score_t() {
-	 score = 0.0;
-	 n_pass = 0;
-      } 
-      std::vector<std::pair<residue_spec_t, double> > scores;
-      double score;
-      int n_pass; // GLY, PRO, ALA
-      int n_rotamer_residues() const { return scores.size(); }
-      void add (const residue_spec_t &rs, double p) {
-	 std::pair<residue_spec_t, double> pair(rs,p);
-	 scores.push_back(pair);
-      }
-   };
-
-   // e.g. 
-   // "Mg" -> <"  MG", "MG">
-   // "I"  -> <"   I", "IOD">
-   // 
-   class atom_name_bits_t {
-   public:
-      atom_name_bits_t() { filled = false; }
-      bool filled;
-      std::string atom_name;
-      std::string element_name;
-      std::string res_name;
-      atom_name_bits_t(const std::string &type) {
-	 filled = false;
-	 if (type == "Br") {
-	    atom_name = "BR  ";
-	    element_name = "BR";
-	    res_name = "BR";
-	    filled = true;
-	 }
-	 if (type == "Ca") {
-	    atom_name = "CA  ";
-	    element_name = "CA";
-	    res_name = "CA";
-	    filled = true;
-	 }
-	 if (type == "Na") {
-	    atom_name = "NA  ";
-	    element_name = "NA";
-	    res_name = "NA";
-	    filled = true;
-	 }
-	 if (type == "Cl") {
-	    atom_name = "CL  ";
-	    element_name = "CL";
-	    res_name = "CL";
-	    filled = true;
-	 }
-	 if (type == "I") {
-	    atom_name = " I  ";
-	    element_name = "I";
-	    res_name = "IOD";
-	    filled = true;
-	 }
-	 if (type == "Mg") {
-	    atom_name = "MG  ";
-	    element_name = "MG";
-	    res_name = "MG";
-	    filled = true;
-	 }
-	 if (! filled) {
-	    // make up (guess) the residue type and element
-	    std::string at_name = util::upcase(type);
-        atom_name = at_name;
-        res_name = at_name;
-        element_name = at_name;
-	    if (type.length() > 4)
-	       atom_name = at_name.substr(0,4);
-	    if (type.length() > 3)
-	       res_name = at_name.substr(0,3);
-	    if (type.length() > 2)
-	       element_name = at_name.substr(0,2);
-	    filled = true;
-	 }
-      }
-      void SetAtom(mmdb::Atom *at, mmdb::Residue *res) {
-	 if (filled) { 
-	    at->SetAtomName(atom_name.c_str());
-	    at->SetElementName(element_name.c_str());
-	    res->SetResName(res_name.c_str());
-	 }
-      } 
-   };
-
-   class fragment_info_t {
-   public:
-      class fragment_range_t {
-      public:
-	 residue_spec_t start_res;
-	 residue_spec_t end_res;
-	 fragment_range_t(const residue_spec_t &r1, const residue_spec_t &r2) {
-	    start_res = r1;
-	    end_res = r2;
-	 }
-      };
-      std::string chain_id;
-      std::vector<fragment_range_t> ranges;
-      fragment_info_t() {}
-      fragment_info_t(const std::string chain_id_in) { chain_id = chain_id_in; } 
-      void add_range(const fragment_range_t &r) {
-	 ranges.push_back(r);
-      } 
-   };
-
 } // namespace coot
-
 
 bool trial_results_comparer(const std::pair<clipper::RTop_orth, float> &a,
 			    const std::pair<clipper::RTop_orth, float> &b);
@@ -1831,7 +1305,7 @@ public:        //                      public
    // 
    int greer_skeleton_draw_on; 
    int fc_skeleton_draw_on; 
-   void draw_skeleton();
+   void draw_skeleton(bool is_dark_background);
    // void update_skeleton();  bye. use update_clipper_skeleton instead
    graphical_bonds_container greer_skel_box;
    graphical_bonds_container fc_skel_box;
@@ -3249,6 +2723,12 @@ public:        //                      public
    void generate_local_self_restraints(float local_dist_max,
 				       const std::string &chain_id,
 				       const coot::protein_geometry &geom);
+
+   void add_parallel_plane_restraint(coot::residue_spec_t spec_1,
+				     coot::residue_spec_t spec_2);
+   // which uses:
+   std::vector<std::string> nucelotide_residue_name_to_base_atom_names(const std::string &rn) const;
+   
    void clear_extra_restraints();
 
    // --------- (transparent) solid rendering of density ------------------

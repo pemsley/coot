@@ -69,13 +69,23 @@ make_atom_spec_py(PyObject *spec) {
       PyObject  *ins_code_py = PyList_GetItem(spec, 2);
       PyObject *atom_name_py = PyList_GetItem(spec, 3);
       PyObject  *alt_conf_py = PyList_GetItem(spec, 4);
-      std::string chain_id = PyString_AsString(chain_id_py);
-      int resno = PyInt_AsLong(resno_py);
-      std::string ins_code  = PyString_AsString(ins_code_py);
-      std::string atom_name = PyString_AsString(atom_name_py);
-      std::string alt_conf  = PyString_AsString(alt_conf_py);
-      as = coot::atom_spec_t(chain_id, resno, ins_code, atom_name, alt_conf);
-      good_spec = 1;
+      if (PyString_Check(chain_id_py)  &&
+	  PyString_Check(ins_code_py)  &&
+	  PyString_Check(atom_name_py) &&
+	  PyString_Check(alt_conf_py)  &&
+	  PyInt_Check(resno_py)) { 
+	 std::string chain_id = PyString_AsString(chain_id_py);
+	 int resno = PyInt_AsLong(resno_py);
+	 std::string ins_code  = PyString_AsString(ins_code_py);
+	 std::string atom_name = PyString_AsString(atom_name_py);
+	 std::string alt_conf  = PyString_AsString(alt_conf_py);
+	 as = coot::atom_spec_t(chain_id, resno, ins_code, atom_name, alt_conf);
+	 good_spec = 1;
+      } else {
+	 std::cout << "WARNING:: badly formated atom spec: "
+		   << PyString_AsString(display_python(spec))
+		   << std::endl;
+      } 
    }
    return std::pair<bool, coot::atom_spec_t> (good_spec, as);
 }

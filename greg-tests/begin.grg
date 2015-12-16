@@ -95,10 +95,12 @@
 (define (bond-length-within-tolerance? atom-1 atom-2 ideal-length tolerance)
 
   (if (not atom-1)
-      #f
+      (throw 'missing-atom-1)
       (if (not atom-2)
-	  #f
+	  (throw 'missing-atom-2)
 	  (let ((b (bond-length-from-atoms atom-1 atom-2)))
+	    (format #t "bond-length-within-tolerance? bond-length ~s with target ~s and tolerance ~s for atom ~s is ~s~%~!" 
+		    b ideal-length tolerance atom-1 atom-2)
 	    (< (abs (- b ideal-length)) tolerance)))))
 
 
