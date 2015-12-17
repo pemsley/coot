@@ -1,6 +1,11 @@
  
  0.8.3
 
+   o read in ejd/BLG.pdb, look at the terminal - we only want/need one such warning:
+
+WARNING:: failed to find dictionary entry index for GLB
+
+
    o the coot page should say "reference"
 
    o TRS in thumbnail view - e.g. in 3h6d.

@@ -1198,7 +1198,7 @@ coot::protein_geometry::get_padded_name(const std::string &atom_id,
    std::string s;
    if (comp_id_index < 0) {
       std::cout << "ERROR:: disaster in get_padded_name for comp_id_index "
-		<< comp_id_index << " and atom name " << atom_id << std::endl;
+		<< comp_id_index << " and atom name \"" << atom_id << "\"" << std::endl;
       return s;
    } else {
       for (unsigned int iat=0; iat<dict_res_restraints[comp_id_index].atom_info.size(); iat++) {
