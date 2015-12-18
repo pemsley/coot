@@ -1443,7 +1443,9 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
       draw_hydrogens_flag = 1;
    Bond_lines_container bonds(*(g.moving_atoms_asc), do_disulphide_flag, draw_hydrogens_flag);
    g.regularize_object_bonds_box.clear_up();
-   g.regularize_object_bonds_box = bonds.make_graphical_bonds();
+   bool do_markup = true;
+   g.regularize_object_bonds_box = bonds.make_graphical_bonds(g.ramachandrans_container,
+							      do_markup);
 
    char *env = getenv("COOT_DEBUG_REFINEMENT");
    if (env)

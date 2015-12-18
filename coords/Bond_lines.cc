@@ -81,6 +81,8 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 //
 // if model_number is 0, display all models. If it is not 0 then
 // display only the given model_number (if possible, of course).
+//
+// This one for intermediate atoms too
 // 
 Bond_lines_container::Bond_lines_container(const atom_selection_container_t &SelAtom,
 					   const coot::protein_geometry *geom_in,
@@ -1567,6 +1569,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 
    add_zero_occ_spots(SelAtom);
    add_deuterium_spots(SelAtom);
+   add_ramachandran_goodness_spots(SelAtom);
    add_atom_centres(SelAtom, atom_colour_type);
 }
 
@@ -2946,7 +2949,7 @@ Bond_lines_container::make_graphical_bonds() const {
 graphical_bonds_container 
 Bond_lines_container::make_graphical_bonds_no_thinning() const {
    return make_graphical_bonds(false); // no thinning
-} 
+}
 
 graphical_bonds_container 
 Bond_lines_container::make_graphical_bonds(bool thinning_flag) const {
@@ -2972,6 +2975,41 @@ Bond_lines_container::make_graphical_bonds(bool thinning_flag) const {
    }
    box.add_zero_occ_spots(zero_occ_spots);
    box.add_deuterium_spots(deuterium_spots);
+   box.add_ramachandran_goodness_spots(ramachandran_goodness_spots);
+   box.add_atom_centres(atom_centres, atom_centres_colour);
+   box.rings = rings;
+   return box;
+}
+
+graphical_bonds_container
+Bond_lines_container::make_graphical_bonds(const ramachandrans_container_t &rc,
+					   bool do_rama_markup) const {
+
+
+   graphical_bonds_container box;
+   bool thinning_flag = true;
+
+   int ibs = bonds.size();
+   box.num_colours = bonds.size();
+   box.bonds_ = new Lines_list[ibs];
+
+   // i is the colour index
+   for (int i=0; i<ibs; i++) {
+
+      box.bonds_[i].num_lines = bonds[i].size();
+      // box.bonds_[i].pair_list = new coot::CartesianPair[bonds[i].size()];
+      box.bonds_[i].pair_list = new graphics_line_t[bonds[i].size()];
+      for (int j=0; j<bonds[i].size(); j++)
+	 box.bonds_[i].pair_list[j] = bonds[i][j];
+      if (thinning_flag)
+	 if (i == HYDROGEN_GREY_BOND) {
+	    box.bonds_[i].thin_lines_flag = 1;
+	 }
+   }
+   box.add_zero_occ_spots(zero_occ_spots);
+   box.add_deuterium_spots(deuterium_spots);
+   if (do_rama_markup)
+      box.add_ramachandran_goodness_spots(ramachandran_goodness_spots);
    box.add_atom_centres(atom_centres, atom_centres_colour);
    box.rings = rings;
    return box;
@@ -4944,6 +4982,18 @@ Bond_lines_container::add_deuterium_spots(const atom_selection_container_t &SelA
 
 
 void
+Bond_lines_container::add_ramachandran_goodness_spots(const atom_selection_container_t &SelAtom) {
+
+   ramachandran_goodness_spots.clear();
+
+   for (int i=0; i<SelAtom.n_selected_atoms; i++) { 
+   }
+}
+
+
+
+
+void
 Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom,
 				       int atom_colour_type) {
 
@@ -4995,6 +5045,17 @@ graphical_bonds_container::add_deuterium_spots(const std::vector<coot::Cartesian
    }
 }
 
+void
+graphical_bonds_container::add_ramachandran_goodness_spots(const std::vector<std::pair<coot::Cartesian, float > > &spots) { 
+
+   n_ramachandran_goodness_spots = spots.size();
+
+   if (n_deuterium_spots > 0) {
+      ramachandran_goodness_spots_ptr = new std::pair<coot::Cartesian, float>[n_ramachandran_goodness_spots];
+      for (int j=0; j<n_ramachandran_goodness_spots; j++)
+	 ramachandran_goodness_spots_ptr[j] = spots[j];
+   }
+}
 
 void
 graphical_bonds_container::add_atom_centres(const std::vector<std::pair<bool,coot::Cartesian> > &centres,
