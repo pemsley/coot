@@ -1599,8 +1599,6 @@ graphics_info_t::moving_atoms_graphics_object() {
 
       // now we want to draw out our bonds in white, 
       glColor3f (0.9, 0.9, 0.9);
-      coot::CartesianPair pair;
-      Lines_list ll;
       
       glLineWidth(graphics_info_t::bond_thickness_intermediate_atoms);
       for (int i=0; i< graphics_info_t::regularize_object_bonds_box.num_colours; i++) {
@@ -1615,12 +1613,12 @@ graphics_info_t::moving_atoms_graphics_object() {
 	 default:
 	    glColor3f (0.8, 0.8, 0.8);
 	 }
-	 ll = graphics_info_t::regularize_object_bonds_box.bonds_[i];
+	 Lines_list &ll = graphics_info_t::regularize_object_bonds_box.bonds_[i];
 
 	 glBegin(GL_LINES); 
 	 for (int j=0; j< graphics_info_t::regularize_object_bonds_box.bonds_[i].num_lines; j++) {
 	   
-	    pair = ll.pair_list[j].positions;
+	    coot::CartesianPair &pair = ll.pair_list[j].positions;
 	    
 	    glVertex3f(pair.getStart().get_x(),
 		       pair.getStart().get_y(),
@@ -1631,6 +1629,24 @@ graphics_info_t::moving_atoms_graphics_object() {
 	 }
 	 glEnd();
       }
+
+      if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
+	 for (int i=0; i<graphics_info_t::regularize_object_bonds_box.n_ramachandran_goodness_spots; i++) {
+	    const coot::Cartesian &pos = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].first;
+	    const float &size          = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].second;
+	    // std::cout << "    rama " << pos << " " << size<< std::endl;
+
+	    if (false) { 
+	       double base = size * 0.3;
+	       int slices = 10;
+	       GLUquadric* quad = gluNewQuadric();
+	       glPushMatrix();
+	       glTranslatef(pos.x(), pos.y(), pos.z());
+	       gluDisk(quad, 0, base, slices, 2);
+	       glPopMatrix();
+	    }
+	 }
+      } 
    }
 }
 
