@@ -42,6 +42,7 @@
 #include "Cartesian.h"
 #include "phenix-geo.hh"
 
+#include "coot-utils/coot-rama.hh" // for ramachandran scoring of intermediate atoms
 #include "ramachandran-container.hh"
 
 namespace coot { 
@@ -289,7 +290,8 @@ class graphical_bonds_container {
 
    void add_zero_occ_spots(const std::vector<coot::Cartesian> &spots);
    void add_deuterium_spots(const std::vector<coot::Cartesian> &spots);
-   void add_ramachandran_goodness_spots(const std::vector<std::pair<coot::Cartesian, float> > &spots);
+   void add_ramachandran_goodness_spots(const std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > &spots,
+					const ramachandrans_container_t &rc);
    void add_atom_centres(const std::vector<std::pair<bool,coot::Cartesian> > &centres,
 			 const std::vector<int> &colours);
    bool have_rings() const { return rings.size();
@@ -432,7 +434,7 @@ class Bond_lines_container {
    std::vector<Bond_lines> bonds; 
    std::vector<coot::Cartesian>  zero_occ_spots;
    std::vector<coot::Cartesian>  deuterium_spots;
-   std::vector<std::pair<coot::Cartesian, float> >  ramachandran_goodness_spots;
+   std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> >  ramachandran_goodness_spots;
    std::vector<std::pair<bool, coot::Cartesian> >  atom_centres;
    std::vector<int>        atom_centres_colour;
    void addBond(int colour, const coot::Cartesian &first, const coot::Cartesian &second,
