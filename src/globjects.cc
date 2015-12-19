@@ -1025,6 +1025,9 @@ float graphics_info_t::rama_level_prefered = 0.02;
 float graphics_info_t::rama_level_allowed = 0.002;
 float graphics_info_t::rama_plot_background_block_size = 10; // divisible into 360 preferably.
 coot::ramachandran_points_container_t graphics_info_t::rama_points = coot::ramachandran_points_container_t();
+
+ramachandrans_container_t graphics_info_t::ramachandrans_container = ramachandrans_container_t();
+
 // edit chi
 short int graphics_info_t::in_edit_chi_angles_define = 0;
 int       graphics_info_t::edit_chi_current_chi = 0; // real values start at 1.

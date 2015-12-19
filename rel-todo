@@ -4,6 +4,10 @@
    o use refinement to make an cis-peptide - then relieve it - the
      refinement gui should track this - does it?
 
+   o read in ejd/BLG.pdb, look at the terminal - we only want/need one such warning:
+
+WARNING:: failed to find dictionary entry index for GLB
+
    o the coot page should say "reference"
 
    o TRS in thumbnail view - e.g. in 3h6d.

@@ -45,10 +45,6 @@
 #include <gdk/gdkgldrawable.h>
 #include <gtk/gtkgl.h>
 
-// #ifndef WII_INTERFACE
-// #define WII_INTERFACE 1 // FIXME WII
-// #endif
-
 #ifdef WII_INTERFACE_WIIUSE
 #include "wiiuse.h"
 #endif // WII_INTERFACE_WIIUSE
@@ -755,6 +751,11 @@ class graphics_info_t {
    static int backbone_torsion_peptide_button_start_pos_y;
    static int backbone_torsion_carbonyl_button_start_pos_x;
    static int backbone_torsion_carbonyl_button_start_pos_y;
+
+   // We use this ramachandran_points_container to pass ramachan plots
+   // to the bond (and markup atom) generator (Bond-lines).
+   //
+   static ramachandrans_container_t ramachandrans_container;
 
    clipper::Coord_orth moving_atoms_centre() const;
 
@@ -3963,12 +3964,15 @@ string   static std::string sessionid;
 
    void register_user_defined_interesting_positions(const std::vector<std::pair<clipper::Coord_orth, std::string> > &udip);
 
+<<<<<<< HEAD
    // atom pull restraint
    static atom_pull_info_t atom_pull;
    static void draw_atom_pull_restraint();
    void clear_atom_pull_restraint();
    static bool auto_clear_atom_pull_restraint_flag;
 
+=======
+>>>>>>> master
 };
 
 
