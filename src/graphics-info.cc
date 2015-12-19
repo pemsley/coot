@@ -1426,7 +1426,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    }
 
    bool status = g.last_restraints.turn_off_when_close_target_position_restraint();
-   std::cout << "status from turn_off_when_close_target_position_restraint" << status << std::endl;
+
    if (status) {
       atom_pull.off();
       g.clear_atom_pull_restraint();
@@ -1603,7 +1603,7 @@ graphics_info_t::make_moving_atoms_graphics_object(const atom_selection_containe
 // Display the graphical object of the regularization.
 // static
 void 
-graphics_info_t::moving_atoms_graphics_object() { 
+graphics_info_t::draw_moving_atoms_graphics_object() { 
    
    // very much most of the time, this will be zero
    // 
@@ -1612,20 +1612,26 @@ graphics_info_t::moving_atoms_graphics_object() {
       // now we want to draw out our bonds in white, 
       glColor3f (0.9, 0.9, 0.9);
       
-      glLineWidth(graphics_info_t::bond_thickness_intermediate_atoms);
+      float bw = graphics_info_t::bond_thickness_intermediate_atoms;
       for (int i=0; i< graphics_info_t::regularize_object_bonds_box.num_colours; i++) {
 
 	 switch(i) {
 	 case BLUE_BOND:
-	    glColor3f (0.60, 0.6, 0.99);
+	    glColor3f (0.40, 0.4, 0.79);
 	    break;
 	 case RED_BOND:
-	    glColor3f (0.95, 0.65, 0.65);
+	    glColor3f (0.79, 0.40, 0.640);
 	    break;
 	 default:
-	    glColor3f (0.8, 0.8, 0.8);
+	    glColor3f (0.6, 0.6, 0.6);
 	 }
 	 Lines_list &ll = graphics_info_t::regularize_object_bonds_box.bonds_[i];
+	 
+	 if (ll.thin_lines_flag)
+	    glLineWidth(bw * 0.5);
+	 else 
+	    glLineWidth(bw); // is this slow?
+
 
 	 glBegin(GL_LINES); 
 	 for (int j=0; j< graphics_info_t::regularize_object_bonds_box.bonds_[i].num_lines; j++) {
@@ -1645,17 +1651,36 @@ graphics_info_t::moving_atoms_graphics_object() {
       if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
 	 for (int i=0; i<graphics_info_t::regularize_object_bonds_box.n_ramachandran_goodness_spots; i++) {
 	    const coot::Cartesian &pos = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].first;
-	    const float &size          = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].second;
-	    // std::cout << "    rama " << pos << " " << size<< std::endl;
+	    const float &prob          = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].second;
+	    // std::cout << "    rama " << pos << " prob: " << prob << std::endl;
 
-	    if (false) { 
-	       double base = size * 0.3;
-	       int slices = 10;
-	       GLUquadric* quad = gluNewQuadric();
-	       glPushMatrix();
-	       glTranslatef(pos.x(), pos.y(), pos.z());
-	       gluDisk(quad, 0, base, slices, 2);
-	       glPopMatrix();
+	    if (true) {
+
+	       if (prob < 0.9) { 
+		  double radius = (1 - prob);
+		  radius = radius * radius; // so that medium probabilities seems small
+		  int slices = 20;
+		  GLUquadric* quad = gluNewQuadric();
+
+		  GLfloat  mat_specular[]  = {0.6, 0.8, 0.6, 0.6};
+		  GLfloat  mat_shininess[] = {15};
+		  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+		  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+		  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
+		  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
+		  glEnable(GL_LIGHTING);
+		  glEnable(GL_LIGHT1);
+		  glEnable(GL_LIGHT0);
+		  glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
+		  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	       
+		  glPushMatrix();
+		  glTranslatef(pos.x(), pos.y(), pos.z());
+		  // gluDisk(quad, 0, base, slices, 2);
+		  gluSphere(quad, radius, 10, 10);
+		  glPopMatrix();
+		  glDisable(GL_LIGHTING);
+	       }
 	    }
 	 }
       } 

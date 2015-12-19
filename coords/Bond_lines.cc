@@ -5030,7 +5030,8 @@ Bond_lines_container::add_ramachandran_goodness_spots(const atom_selection_conta
 
 		     try { 
 			coot::util::phi_psi_t pp(prev_res, this_res, next_res);
-			// std::cout << "   " << coot::residue_spec_t(this_res) << " " << pp << std::endl;
+			// std::cout << "   " << coot::residue_spec_t(this_res)
+			//           << " " << pp << std::endl;
 			mmdb::Atom *at = this_res->GetAtom(" CA "); // PDBv3 FIXME
 			if (at) {
 			   coot::Cartesian pos(at->x, at->y, at->z);
@@ -5040,7 +5041,8 @@ Bond_lines_container::add_ramachandran_goodness_spots(const atom_selection_conta
 		     }
 		     catch (const std::runtime_error &rte) {
 			if (false)
-			   std::cout << "WARNING:: in failed to get phi,psi " << rte.what() << " for "
+			   std::cout << "WARNING:: in failed to get phi,psi " << rte.what()
+				     << " for "
 				     << coot::residue_spec_t(prev_res) << " " 
 				     << coot::residue_spec_t(this_res) << " " 
 				     << coot::residue_spec_t(next_res) << std::endl;
@@ -5137,6 +5139,10 @@ graphical_bonds_container::add_ramachandran_goodness_spots(const std::vector<std
 	 if (rama->favored(clipper::Util::d2rad(spots[i].second.phi()),
 			   clipper::Util::d2rad(spots[i].second.psi())))
 	    rama_score = 1;
+
+	 // ----- now lets do the size by probability
+	 rama_score = rama->probability(clipper::Util::d2rad(spots[i].second.phi()),
+					clipper::Util::d2rad(spots[i].second.psi()));
 	 
 	 std::pair<coot::Cartesian, float> p(spots[i].first, rama_score);
 	 ramachandran_goodness_spots_ptr[i] = p;

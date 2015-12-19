@@ -2181,7 +2181,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 
       // regularize object 
-      graphics_info_t::moving_atoms_graphics_object();
+      graphics_info_t::draw_moving_atoms_graphics_object();
 
       // environment object
       graphics_info_t::environment_graphics_object();

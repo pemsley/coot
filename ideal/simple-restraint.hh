@@ -601,8 +601,6 @@ namespace coot {
 	 if (r.restraint_type == restraint_type_t(TARGET_POS_RESTRANT)) { 
 	    clipper::Coord_orth p_1 = co(atoms[r.atom_index_1]);
 	    double d = sqrt((p_1-r.atom_pull_target_pos).lengthsq());
-	    std::cout << "turn_off_when_close_target_position_restraint_eraser: dist " << d
-		      << std::endl;
 	    if (d < close_dist) v = true;
 	 }
 	 return v;

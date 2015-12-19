@@ -2263,7 +2263,7 @@ public:
 
 
    // Display the graphical object of the regularization
-   static void moving_atoms_graphics_object(); // filled by flash_selection
+   static void draw_moving_atoms_graphics_object();
 
    static int mol_no_for_environment_distances;
    static bool display_environment_graphics_object_as_solid_flag;
@@ -3964,15 +3964,12 @@ string   static std::string sessionid;
 
    void register_user_defined_interesting_positions(const std::vector<std::pair<clipper::Coord_orth, std::string> > &udip);
 
-<<<<<<< HEAD
    // atom pull restraint
    static atom_pull_info_t atom_pull;
    static void draw_atom_pull_restraint();
    void clear_atom_pull_restraint();
    static bool auto_clear_atom_pull_restraint_flag;
 
-=======
->>>>>>> master
 };
 
 

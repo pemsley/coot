@@ -7460,8 +7460,18 @@ Thu Jul 23 12:31:24 BST 2015
 
 -----
 
+    New Presentation slides
+
      to CSHL talk: A front page: accession code, comp-id
 
+     why is cis-Pro so much more common than non-cis Pro?
+
+     trans-restraints: what's trans, cis, arrows to mid-line.  Why is
+     this restraint necessary (because user can create non-local
+     changes that have large energy difference (and accidentally
+     create a peptide with and omega of 89 degress)).
+
+     how does this help refinement?  Before and after video?
 
 -----
 

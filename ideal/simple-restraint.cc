@@ -1053,7 +1053,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
    // (we don't get here unless restraints were found)
    coot::refinement_results_t rr(1, status, lights_vec);
 
-   if (true)
+   if (false)
       std::cout << "DEBUG:: returning from minimize() with progress/status " << rr.progress
 		<< ": and info \"" << rr.info << "\"" << std::endl;
    
