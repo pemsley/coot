@@ -2532,6 +2532,11 @@ public:
    //
    void pepflip();
 
+   // return true if moving_atoms_asc was not null (more or less if
+   // the pepflip was made)
+   // 
+   bool pepflip_intermediate_atoms();
+
    // we need this in c-interface.cc for the rigid body refinement
    // which refines against a map
    //

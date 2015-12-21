@@ -55,73 +55,7 @@ using namespace std;  // ugh.  This should not be here.  FIXME
 // and atom quads
 #include "mini-mol/atom-quads.hh"
 
-// 
-//
-class atom_selection_container_t {
-
-   void fill_links(mmdb::Manager *mol_other);
-   void fill_links() { fill_links(mol); } 
-   
-public:
-   mmdb::Manager *mol;
-   int n_selected_atoms; 
-   mmdb::PPAtom atom_selection; 
-   std::string read_error_message;
-   int read_success;
-   int SelectionHandle;
-   int UDDAtomIndexHandle; // no negative is OK.
-   int UDDOldAtomIndexHandle; // ditto. // set initially to -1 in make_asc
-
-   std::vector<mmdb::Link> links;
-
-   atom_selection_container_t(mmdb::Manager *mol_in, int selhnd) {
-
-     mol = mol_in;
-     atom_selection = NULL;
-     mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
-     SelectionHandle = selhnd;
-     UDDAtomIndexHandle = -1;
-     UDDOldAtomIndexHandle = -1;
-     read_success = 1;
-     fill_links();
-   }
-
-   atom_selection_container_t() {
-      mol = NULL;
-      atom_selection = NULL;
-      SelectionHandle = -1;
-      UDDAtomIndexHandle = -1;
-      UDDOldAtomIndexHandle = -1;
-      read_success = 0;
-   }
-
-   void fill_links_using_mol(mmdb::Manager *mol_other) {
-      fill_links(mol_other);
-   } 
-  
-   void clear_up() { 
-      if (read_success) 
-	 if (SelectionHandle)
-	    mol->DeleteSelection(SelectionHandle);
-      delete mol;
-      atom_selection = 0;
-      mol = 0; 
-   }
-   
-   void delete_atom_selection() { 
-      mol->DeleteSelection(SelectionHandle);
-      n_selected_atoms = 0;
-      atom_selection = 0;
-   }
-   
-   void apply_shift(float x_shift, float y_shift, float z_shift) {
-      for (int i=0; i<n_selected_atoms; i++) { 
-	 atom_selection[i]->x -= x_shift;
-	 atom_selection[i]->y -= y_shift;
-	 atom_selection[i]->z -= z_shift;
-      }
-   }
-};
+#include "atom-selection-container.hh"
 
 // debug this struct
 void

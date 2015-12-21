@@ -583,8 +583,6 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
 					 int imol,
 					 std::string chain_id_1) {
 
-   std::cout << "------------------------------ update_refinement_atoms() "  << std::endl;
-
    coot::refinement_results_t rr = rr_in;
    
    if (n_restraints > 0) {
@@ -4133,22 +4131,26 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 	       coot::util::cis_peptides_info_from_coords(moving_atoms_asc->mol);
 
 	    int n_cis = cis_pep_info_vec.size();
+
+	    if (false)
+	       std::cout << "here with n_cis " << n_cis << " and g.moving_atoms_n_cis_peptides"
+			 << graphics_info_t::moving_atoms_n_cis_peptides << std::endl;
 	    
 	    if (n_cis > graphics_info_t::moving_atoms_n_cis_peptides) {
 	       if (n_cis == 1) {
-		  message_string += "\nWARNING: A CIS peptide ";
+		  message_string += "\nWARNING: A cis-peptide ";
 		  message_string += cis_pep_info_vec[0].string();
 		  message_string += " has been introduced\n";
 	       } else {
 		  if ((n_cis - graphics_info_t::moving_atoms_n_cis_peptides) > 1) {
-		     message_string += "\nWARNING: Extra CIS peptides have been introduced\n";
-		     message_string += "\nWARNING: We now have these CIS peptides:\n";
+		     message_string += "\nWARNING: Extra cis-peptides have been introduced\n";
+		     message_string += "\nWARNING: We now have these cis-peptides:\n";
 		     for (unsigned int i=0; i<cis_pep_info_vec.size(); i++) { 
 			message_string += cis_pep_info_vec[i].string();
 			message_string += "\n";
 		     }
 		  } else { 
-		     message_string += "\nWARNING: We now have thse CIS peptides:\n";
+		     message_string += "\nWARNING: We now have these cis-peptides:\n";
 		     for (unsigned int i=0; i<cis_pep_info_vec.size(); i++) { 
 			message_string += cis_pep_info_vec[i].string();
 			message_string += "\n";

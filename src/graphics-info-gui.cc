@@ -95,7 +95,7 @@
 // 
 void do_accept_reject_dialog(std::string fit_type, const coot::refinement_results_t &rr) {
 
-   bool debug = 0; 
+   bool debug = false;
    GtkWidget *window = wrapped_create_accept_reject_refinement_dialog();
    GtkWindow *main_window = GTK_WINDOW(lookup_widget(graphics_info_t::glarea, 
 						     "window1"));
@@ -109,8 +109,11 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
       label = lookup_widget(GTK_WIDGET(window), "accept_dialog_accept_label_string");
 
    }
-   
-   std::cout << "here in do_accept_reject_dialog calling update_accept_reject_dialog_with_results() with rr.info \"" << rr.info << "\"" << std::endl;
+
+   if (debug)
+      std::cout << "here in do_accept_reject_dialog calling "
+		<< "update_accept_reject_dialog_with_results() with rr.info \""
+		<< rr.info << "\"" << std::endl;
    update_accept_reject_dialog_with_results(window, coot::CHI_SQUAREDS, rr);
    if (rr.lights.size() > 0){
       if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG_DOCKED){

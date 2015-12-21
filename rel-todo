@@ -4,6 +4,8 @@
    o use refinement to make an cis-peptide - then relieve it - the
      refinement gui should track this - does it?
 
+     graphics-info-modellings "cis peptides"
+
    o read in ejd/BLG.pdb, look at the terminal - we only want/need one such warning:
 
 WARNING:: failed to find dictionary entry index for GLB

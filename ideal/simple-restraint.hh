@@ -306,8 +306,8 @@ namespace coot {
 	 
 	 // This finds a coding error
 	 if (rest_type != BOND_RESTRAINT) { 
-	    std::cout << "BOND ERROR" << std::endl; 
-	    exit(1); 
+	    std::cout << "BOND ERROR in simple_restraint()" << std::endl; 
+	    exit(1);
 	 }
       };
 
@@ -327,7 +327,8 @@ namespace coot {
 
 	 // This finds a coding error
 	 if (rest_type != restraint_type_t(GEMAN_MCCLURE_DISTANCE_MASK)) { 
-	    std::cout << "BOND ERROR" << std::endl; 
+	    std::cout << "BOND ERROR (Geman McClure) in simple_restraint()"
+		      << std::endl; 
 	    exit(1); 
 	 }
       };

@@ -6857,7 +6857,14 @@ void pepflip(int imol, const char *chain_id, int resno,
       g.molecules[imol].pepflip_residue(chain_id, resno, inscode, alt_conf);
       graphics_draw();
    } 
+}
+
+int pepflip_intermediate_atoms() {
+
+   graphics_info_t g;
+   return g.pepflip_intermediate_atoms();
 } 
+
 
 void set_residue_density_fit_scale_factor(float f) {
 

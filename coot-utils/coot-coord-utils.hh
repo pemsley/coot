@@ -1110,6 +1110,12 @@ namespace coot {
 			  const clipper::Coord_orth &origin_shift,
 			  double angle);
 
+      // move the coordinates of at:
+      // angle in radians
+      void rotate_atom_about(const clipper::Coord_orth &direction,
+			     const clipper::Coord_orth &origin_shift,
+			     double angle, mmdb::Atom *at);
+
       // This presumes that a_residue_p and b_residue_p are valid.
       std::vector<std::pair<int, int> > pair_residue_atoms(mmdb::Residue *a_residue_p,
 							   mmdb::Residue *b_residue_p);

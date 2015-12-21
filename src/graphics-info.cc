@@ -1372,112 +1372,6 @@ graphics_info_t::clear_up_moving_atoms() {
 }
 
 
-// static 
-gint
-graphics_info_t::drag_refine_refine_intermediate_atoms() {
-
-   int retprog = -1;
-#ifdef HAVE_GSL
-
-   graphics_info_t g;
-
-   // While the results of the refinement are a conventional result
-   // (unrefined), let's continue.  However, there are return values
-   // that we will stop refining and remove the idle function is on a
-   // GSL_ENOPROG(RESS) and GSL_SUCCESS.... actually, we will remove
-   // it on anything other than a GSL_CONTINUE
-   //
-
-   // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
-   // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-   // coot::restraint_usage_Flags flags = coot::BONDS_AND_PLANES;
-   // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES;
-   coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
-   
-   if (do_torsion_restraints) {
-      if (use_only_extra_torsion_restraints_for_torsions_flag) { 
-	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-	 flags = coot::TYPICAL_RESTRAINTS;
-      } else {
-	 flags = coot::TYPICAL_RESTRAINTS_WITH_TORSIONS;
-      }
-   }
-
-   if (do_rama_restraints)
-      // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
-      // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
-      flags = coot::ALL_RESTRAINTS;
-   
-   
-   if (do_torsion_restraints && do_rama_restraints) {
-
-      // Do we really need this fine control?
-      
-//       if (use_only_extra_torsion_restraints_for_torsions_flag) { 
-// 	 // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
-// 	 // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
-//       } else {
-// 	 // This changes the function to using torsions (for non-peptide torsions)
-// 	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
-// 	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
-//       }
-
-      flags = coot::ALL_RESTRAINTS;
-   }
-
-   bool status = g.last_restraints.turn_off_when_close_target_position_restraint();
-
-   if (status) {
-      atom_pull.off();
-      g.clear_atom_pull_restraint();
-   }
-   
-	    
-
-   // print_initial_chi_squareds_flag is 1 the first time then we turn it off.
-   int steps_per_frame = dragged_refinement_steps_per_frame;
-   if (! g.last_restraints.include_map_terms())
-      steps_per_frame *= 6;
-
-   graphics_info_t::saved_dragged_refinement_results =
-      g.last_restraints.minimize(flags, steps_per_frame, print_initial_chi_squareds_flag);
-
-
-   retprog = graphics_info_t::saved_dragged_refinement_results.progress;
-   print_initial_chi_squareds_flag = 0;
-   int do_disulphide_flag = 0;
-   int draw_hydrogens_flag = 0;
-   if (molecules[imol_moving_atoms].draw_hydrogens())
-      draw_hydrogens_flag = 1;
-   Bond_lines_container bonds(*(g.moving_atoms_asc), do_disulphide_flag, draw_hydrogens_flag);
-   g.regularize_object_bonds_box.clear_up();
-   bool do_markup = true;
-   g.regularize_object_bonds_box = bonds.make_graphical_bonds(g.ramachandrans_container,
-							      do_markup);
-
-   char *env = getenv("COOT_DEBUG_REFINEMENT");
-   if (env)
-      g.tabulate_geometric_distortions(last_restraints);
-
-   // Update the Accept/Reject Dialog if it exists (and it should do,
-   // if we are doing dragged refinement).
-   if (accept_reject_dialog) {
-      if (saved_dragged_refinement_results.lights.size() > 0) {
-
-	 std::cout << "from drag_refine_refine_intermediate_atoms calling update_accept_reject_dialog_with_results() with info \""
-		   << saved_dragged_refinement_results.info << "\"" << std::endl;
-	 
-	 update_accept_reject_dialog_with_results(accept_reject_dialog,
-						  coot::CHI_SQUAREDS,
-						  saved_dragged_refinement_results);
-      }
-   }
-   
-#endif // HAVE_GSL
-
-   return retprog;
-}
-
 
 void
 graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
@@ -1649,16 +1543,31 @@ graphics_info_t::draw_moving_atoms_graphics_object() {
       }
 
       if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
+	 float ball_scale_factor = 1.2;
 	 for (int i=0; i<graphics_info_t::regularize_object_bonds_box.n_ramachandran_goodness_spots; i++) {
 	    const coot::Cartesian &pos = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].first;
-	    const float &prob          = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].second;
-	    // std::cout << "    rama " << pos << " prob: " << prob << std::endl;
-
+	    const float &prob_raw      = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].second;
+	    // std::cout << "    rama " << pos << " prob_raw: " << prob_raw << std::endl;
+	    // prob values are between 0 and 1.66 (ish)
+	    float prob = prob_raw;
+	    if (prob > 1.0) prob = 1.0;
+	    
 	    if (true) {
+	       
+	       if (true) { 
+		  double q = (1 - prob);
+		  // Lovell et al. 2003, 50, 437 Protein Structure, Function
+		  // and Genetics values: 0.02 and 0.002 - so for a typical
+		  // user, if prob = 0.1 (q=0.9), say then they are fine with
+		  // that and the ball should be small - fn(0.9) -> small
+		  // 
+		  float radius = pow(q, 25); // so that medium probabilities seems smaller
 
-	       if (prob < 0.9) { 
-		  double radius = (1 - prob);
-		  radius = radius * radius; // so that medium probabilities seems small
+		  // currently radius is 0-1;
+
+		  // now map to aesthetically pleasing ball size
+		  radius = 0.15 + ball_scale_factor * radius;
+		  
 		  int slices = 20;
 		  GLUquadric* quad = gluNewQuadric();
 
@@ -2626,10 +2535,7 @@ graphics_info_t::get_geometry_torsion() const {
 	     << std::endl;
 
    return torsion;
-
 }
-
-
 
 
 void
@@ -2639,6 +2545,7 @@ graphics_info_t::pepflip() {
    normal_cursor();
    model_fit_refine_unactive_togglebutton("model_refine_dialog_pepflip_togglebutton");
 }
+
  
 // ----------------------------------------------------------
 //                     some utilities:
@@ -4116,7 +4023,7 @@ graphics_info_t::draw_atom_pull_restraint() {
 
 	       if (do_arrow) {
 
-		  double radius = 0.05;
+		  double radius = 0.1;
 		  double fraction_head_size = 0.1;
 		  
 		  double top =  radius;
@@ -4124,7 +4031,7 @@ graphics_info_t::draw_atom_pull_restraint() {
 		  int slices  = 12;
 		  int stacks  = 2;
 
-		  GLfloat  mat_specular[]  = {0.7, 0.2, 0.7, 0.5};
+		  GLfloat  mat_specular[]  = {0.7, 0.2, 0.7, 0.6};
 		  GLfloat  mat_shininess[] = {15};
 		  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
 		  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
@@ -4143,9 +4050,6 @@ graphics_info_t::draw_atom_pull_restraint() {
 
 		  glTranslatef(pt_start.x(), pt_start.y(), pt_start.z());
 
-
-		  // 	    This code from ccp4mg's cprimitive.cc (but modified)
-		  //  	    ----- 
 		  double ax;
 		  double rx = 0; 
 		  double ry = 0;
@@ -4185,14 +4089,11 @@ graphics_info_t::draw_atom_pull_restraint() {
 		  glScalef(1.0, 1.0, -1.0);
 		  gluDisk(quad_3, 0, base, slices, 2);
 
-
 		  gluDeleteQuadric(quad_1);
 		  gluDeleteQuadric(quad_2);
 		  gluDeleteQuadric(quad_3);
 		  glPopMatrix();
 		  glDisable(GL_LIGHTING);
-
-		  
 
 	       } 
 	    } else {

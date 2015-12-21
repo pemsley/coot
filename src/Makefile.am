@@ -339,6 +339,7 @@ coot_bin_SOURCES = \
 	graphics-info-defines.cc \
 	graphics-info-graphs.cc	 \
 	graphics-info-gui.cc	 \
+	graphics-info-intermediate.cc	 \
 	graphics-info-modelling.cc \
 	graphics-info-navigation.cc	\
 	graphics-info-navigation-gtk1.cc\

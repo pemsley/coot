@@ -5128,13 +5128,14 @@ graphical_bonds_container::add_ramachandran_goodness_spots(const std::vector<std
 	 
 	 if (spots[i].second.residue_name() == "GLY")
 	    rama = &rc.rama_gly;
-
-	 // phi_psi_t needs to contain the next residue type to use rama.pre_pro at some stage
+	 
+	 // phi_psi_t needs to contain the next residue type to use
+	 // rama.pre_pro at some stage
 
 	 float rama_score = 10;
 	 
 	 if (rama->allowed(clipper::Util::d2rad(spots[i].second.phi()),
-			  clipper::Util::d2rad(spots[i].second.psi())))
+			   clipper::Util::d2rad(spots[i].second.psi())))
 	    rama_score = 3;
 	 if (rama->favored(clipper::Util::d2rad(spots[i].second.phi()),
 			   clipper::Util::d2rad(spots[i].second.psi())))

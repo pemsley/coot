@@ -2180,6 +2180,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       }
 
 
+      // atom pull restraint
+      graphics_info_t::draw_atom_pull_restraint();
+
       // regularize object 
       graphics_info_t::draw_moving_atoms_graphics_object();
 
@@ -2203,9 +2206,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 graphics_info_t g;
 	 g.render_lsq_plane_atoms();
       }
-
-      // atom pull restraint
-      graphics_info_t::draw_atom_pull_restraint();
 
       // ligand flash bond
       graphics_info_t::draw_chi_angles_flash_bond();

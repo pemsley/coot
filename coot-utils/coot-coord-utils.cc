@@ -6007,7 +6007,7 @@ coot::util::rotate_residue(mmdb::Residue *residue_p,
       mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (int iat=0; iat<n_residue_atoms; iat++) { 
+      for (int iat=0; iat<n_residue_atoms; iat++) {
 	 mmdb::Atom *at = residue_atoms[iat];
 	 if (at) {
 	    clipper::Coord_orth pt(at->x, at->y, at->z);
@@ -6017,8 +6017,27 @@ coot::util::rotate_residue(mmdb::Residue *residue_p,
 	    at->z = pt_new.z();
 	 }
       }
-   } 
+   }
 }
+
+// move the coordinates of at:
+// angle in radians
+void
+coot::util::rotate_atom_about(const clipper::Coord_orth &direction,
+			      const clipper::Coord_orth &origin_shift,
+			      double angle, mmdb::Atom *at) {
+
+   if (at) {
+      clipper::Coord_orth pos(at->x, at->y, at->z);
+      clipper::Coord_orth new_pos = rotate_round_vector(direction, pos, origin_shift, angle);
+      at->x = new_pos.x();
+      at->y = new_pos.y();
+      at->z = new_pos.z();
+   }
+} 
+
+
+
 
 
 std::string
