@@ -2423,6 +2423,7 @@ on_accept_reject_refinement_dialog_destroy
  */
   set_accept_reject_dialog(NULL);
   clear_up_moving_atoms();
+  clear_atom_pull_restraint();
 }
 
 

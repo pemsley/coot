@@ -1,6 +1,12 @@
  
  0.8.3
 
+   o hilight interesting site (in python mode at least) gives big ball
+
+   o Fix sphere-refine-here-breaks-SS-bond.py (on atg)
+
+   o on accept or reject moving atoms, clear the pull restraint.
+
    o use refinement to make an cis-peptide - then relieve it - the
      refinement gui should track this - does it?
 

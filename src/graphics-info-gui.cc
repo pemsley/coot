@@ -105,9 +105,7 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
       label = lookup_widget(GTK_WIDGET(window),
 			    "accept_dialog_accept_docked_label_string");
    } else {
-      
       label = lookup_widget(GTK_WIDGET(window), "accept_dialog_accept_label_string");
-
    }
 
    if (debug)
@@ -129,6 +127,21 @@ void do_accept_reject_dialog(std::string fit_type, const coot::refinement_result
    txt += "?";
 
    gtk_label_set_text(GTK_LABEL(label), txt.c_str());
+
+   // atom pull autoclear state
+   GtkWidget *auto_clear_atom_pull_restraint_checkbutton =
+      lookup_widget(window, "accept_reject_refinement_atom_pull_autoclear_checkbutton");
+
+   if (auto_clear_atom_pull_restraint_checkbutton) {
+      // it's on by default, should we turn it off?
+      if (! graphics_info_t::auto_clear_atom_pull_restraint_flag) {
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(auto_clear_atom_pull_restraint_checkbutton), FALSE);
+      }
+   } else {
+      std::cout << "::::::::::::::::::::: missing widget :::::::::::::::::::::::"
+		<< std::endl;
+   } 
+   
 
    // Was this a torsion general, in which we need to active the reverse button?
    GtkWidget *reverse_button;
@@ -276,8 +289,9 @@ update_accept_reject_dialog_with_results(GtkWidget *accept_reject_dialog,
 					 coot::accept_reject_text_type text_type,
 					 const coot::refinement_results_t &rr) {
 
-   std::cout << "Here in update_accept_reject_dialog_with_results() with info \""
-	     << rr.info << "\"" << std::endl;
+   if (false)
+      std::cout << "Here in update_accept_reject_dialog_with_results() with info \""
+		<< rr.info << "\"" << std::endl;
 
    std::string extra_text = rr.info;
 	 // now look up the label in window and change it.
