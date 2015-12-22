@@ -1338,12 +1338,27 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 //        /* 2x FSAA */
 //        (2 << GDK_GL_MODE_SAMPLES_SHIFT)       );
 
-   GdkGLConfigMode mode = static_cast<GdkGLConfigMode>
+   GdkGLConfigMode mode;
+
+#ifdef GDKGLEXT_HAVE_MODE_SAMPLES_SHIFT
+   
+   mode = static_cast<GdkGLConfigMode>
       (GDK_GL_MODE_RGB    |
        GDK_GL_MODE_DEPTH  |
        GDK_GL_MODE_MULTISAMPLE |
        (4 << GDK_GL_MODE_SAMPLES_SHIFT) |
        GDK_GL_MODE_DOUBLE);
+
+#else
+   
+   mode = static_cast<GdkGLConfigMode>
+      (GDK_GL_MODE_RGB    |
+       GDK_GL_MODE_DEPTH  |
+       GDK_GL_MODE_MULTISAMPLE |
+       GDK_GL_MODE_DOUBLE);
+   
+#endif   
+   
 
    if (try_stereo_flag == coot::HARDWARE_STEREO_MODE) {
       mode = static_cast<GdkGLConfigMode>
