@@ -1571,46 +1571,13 @@ graphics_info_t::draw_moving_atoms_graphics_object() {
 		  int slices = 20;
 		  GLUquadric* quad = gluNewQuadric();
 
-
-		  if (false) {
-		     glPushMatrix();
-		     glLoadIdentity();
-		     GLfloat  light_0_position[] = { 1.0,  1.0, 0.0, 0.0};
-		     GLfloat  light_1_position[] = { 1.0, -1.0, 0.0, 0.0};
-      
-		     glClearColor(0.0, 0.0, 0.0, 0.0);
-		     glShadeModel(GL_SMOOTH);
-
-		     // glLightfv(GL_LIGHT0,   GL_POSITION, light_0_position);
-		     // glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
-		     // glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
-
-		     GLfloat light_ambient[] =  { 0.0, 0.0, 0.0, 1.0 };
-		     GLfloat light_diffuse[] =  { 1.0, 1.0, 1.0, 1.0 };
-		     GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
-		     GLfloat light_position[] = { 1.0, 1.0, 1.0, 0.0 };
-
-		     glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
-		     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-		     glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-		     glLightfv(GL_LIGHT0, GL_POSITION, light_position);      
-
-		     glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient);
-		     glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
-		     glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
-		     glLightfv(GL_LIGHT1, GL_POSITION, light_position);
-		     glPopMatrix();
-		  } 
-
 		  GLfloat  mat_specular[]  = {0.6, 0.8, 0.6, 0.4};
-		  GLfloat  mat_shininess[] = {22};
+		  GLfloat  mat_shininess[] = {25};
 		  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
 		  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
 		  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
 		  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
 		  glEnable(GL_LIGHTING);
-		  glEnable(GL_LIGHT1);
-		  glEnable(GL_LIGHT0);
 		  glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
 		  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	       
@@ -4025,7 +3992,7 @@ graphics_info_t::draw_atom_pull_restraint() {
 	       clipper::Coord_orth pt_end = atom_pull.pos;
 	 
 	       bool do_gl_lines = false;
-	       bool do_arrow = true;
+	       bool do_arrow    = true;
 
 	       if (do_gl_lines) { 
 		  float ll = clipper::Coord_orth::length(pt_start, pt_end);

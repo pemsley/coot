@@ -1,7 +1,15 @@
  
  0.8.3
 
-   o hilight interesting site (in python mode at least) gives big ball
+
+   o get rid of this debugging:
+
+%%%%%%%%% calling fill_ghost_info() from c-interface.cc make_ncs_ghosts_maybe()
+
+   o Look at gtk-demo for how to set the colour patch of button that makes a colour
+     selection. Use it in map preferences. 
+
+   o hilight interesting site (in python mode at least) gives big balls
 
    o Fix sphere-refine-here-breaks-SS-bond.py (on atg)
 

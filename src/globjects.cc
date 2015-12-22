@@ -1341,6 +1341,8 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
    GdkGLConfigMode mode = static_cast<GdkGLConfigMode>
       (GDK_GL_MODE_RGB    |
        GDK_GL_MODE_DEPTH  |
+       GDK_GL_MODE_MULTISAMPLE |
+       (4 << GDK_GL_MODE_SAMPLES_SHIFT) |
        GDK_GL_MODE_DOUBLE);
 
    if (try_stereo_flag == coot::HARDWARE_STEREO_MODE) {
@@ -1655,7 +1657,8 @@ init_gl_widget(GtkWidget *widget) {
       glEnable(GL_LINE_SMOOTH);
 
    // glEnable(GL_POLYGON_SMOOTH);
-   // glEnable(GL_MULTISAMPLE_ARB);
+
+   glEnable(GL_MULTISAMPLE_ARB);
 
    // Mac play
    // glEnable(GL_LINE_SMOOTH);
@@ -1714,8 +1717,8 @@ setup_lighting(short int do_lighting_flag) {
       // glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
       // glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
 
-      GLfloat light_ambient[] =  { 0.0, 0.0, 0.0, 0.6 };
-      GLfloat light_diffuse[] =  { 0.6, 0.6, 0.6, 0.6 };
+      GLfloat light_ambient[]  = { 0.7, 0.7, 0.7, 0.6 };
+      GLfloat light_diffuse[]  = { 0.6, 0.6, 0.6, 0.6 };
       GLfloat light_specular[] = { 0.6, 0.6, 0.6, 0.6 };
       GLfloat light_position[] = { 0.6, 0.6, 0.6, 0.0 };
 
@@ -1745,7 +1748,11 @@ setup_lighting(short int do_lighting_flag) {
 
 void show_lighting() {
 
-   if (true) { 
+   if (true) {
+
+      glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
+      glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      
       glPushMatrix();
       glLoadIdentity();
 
@@ -1756,7 +1763,7 @@ void show_lighting() {
       glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);
       glPopMatrix();
    }
-} 
+}
 
 
 /* When glarea widget size changes, viewport size is set to match the
@@ -2157,6 +2164,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 // draw display list objects
 	 if (graphics_info_t::molecules[ii].has_display_list_objects()) {
 	    glEnable(GL_LIGHTING);
+	    glEnable(GL_LIGHT0);
+	    glEnable(GL_LIGHT1);
 	    glDisable(GL_LIGHT2);
  	    n_display_list_objects +=
  	       graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
@@ -2165,6 +2174,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 	 if (graphics_info_t::molecules[ii].draw_animated_ligand_interactions_flag) { 
 	    glEnable(GL_LIGHTING);
+	    glEnable(GL_LIGHT0);
+	    glEnable(GL_LIGHT1);
 	    glDisable(GL_LIGHT2);
 	    graphics_info_t::molecules[ii].draw_animated_ligand_interactions(gl_info,
 									     graphics_info_t::time_holder_for_ligand_interactions);
@@ -2316,7 +2327,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       if (graphics_info_t::display_mode == coot::ZALMAN_STEREO)
 	 glDisable(GL_STENCIL_TEST);
 
-      show_lighting();
+      // show_lighting();
   
    } // gtkgl make area current test
 
