@@ -452,7 +452,6 @@ void handle_get_libcheck_monomer_code(GtkWidget *widget);
 int
 handle_make_monomer_search(const char *text, GtkWidget *viewport);
 
-
 /* now we use */
 void fill_option_menu_with_refine_options(GtkWidget *option_menu);
 

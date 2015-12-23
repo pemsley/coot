@@ -1409,6 +1409,15 @@ void graphics_to_phenix_geo_representation(int imol, int mode,
 
 
 /*  ----------------------------------------------------------------------- */
+/*                  Pathology Plots                                         */
+/*  ----------------------------------------------------------------------- */
+#ifdef USE_PYTHON
+PyObject *pathology_data(const std::string &mtz_file_name,
+			 const std::string &fp_col,
+			 const std::string &sigfp_col);
+#endif // USE_PYTHON
+
+/*  ----------------------------------------------------------------------- */
 /*                  Utility Functions                                       */
 /*  ----------------------------------------------------------------------- */
 

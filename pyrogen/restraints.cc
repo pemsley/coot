@@ -9,6 +9,7 @@
 
 #include "mmff-restraints.hh" // needed?
 
+
 // for minimization
 #define HAVE_GSL
 #include <ideal/simple-restraint.hh>
@@ -35,6 +36,7 @@ coot::mogul_out_to_mmcif_dict(const std::string &mogul_file_name,
 									    n_atoms_non_hydrogen,
 									    bond_order_restraints);
    restraints.write_cif(cif_file_name);
+
 }
 
 void
@@ -46,7 +48,6 @@ coot::write_restraints(PyObject *restraints_py, const std::string &file_name) {
    } else {
       std::cout << "No restraints in write_restraints()" << std::endl;
    } 
-
 }
 
 // replace_with_mmff_b_a_restraints is an optional arg, default true
@@ -1594,131 +1595,119 @@ coot::assign_chirals_mmcif_tags(const RDKit::ROMol &mol,
 int 
 coot::assign_chirals_rdkit_tags(const RDKit::ROMol &mol,
 				coot::dictionary_residue_restraints_t *restraints) {
-   
-   int vol_sign = coot::dict_chiral_restraint_t::CHIRAL_VOLUME_RESTRAINT_VOLUME_SIGN_UNASSIGNED;
 
+   std::cout << "DEBUG:: in assign_chirals_rdkit_tags(): " << std::endl;
+
+   debug_cip_ranks(mol);
+   
    int n_chirals = 0;
 
    unsigned int n_atoms = mol.getNumAtoms();
    for (unsigned int iat=0; iat<n_atoms; iat++) { 
+      int vol_sign = coot::dict_chiral_restraint_t::CHIRAL_VOLUME_RESTRAINT_VOLUME_SIGN_UNASSIGNED;
       RDKit::ATOM_SPTR at_p = mol[iat];
       RDKit::Atom::ChiralType chiral_tag = at_p->getChiralTag();
-      // std::cout << "atom " << iat << " chiral tag: " << chiral_tag << std::endl;
+      std::cout << "DEBUG:: in assign_chirals_rdkit_tags() atom " << iat
+		<< " chiral tag: " << chiral_tag << std::endl;
 
+      // I think that these are round the wrong way.
       if (chiral_tag == RDKit::Atom::CHI_TETRAHEDRAL_CW)
 	 vol_sign = dict_chiral_restraint_t::CHIRAL_RESTRAINT_NEGATIVE;
       if (chiral_tag == RDKit::Atom::CHI_TETRAHEDRAL_CCW)
 	 vol_sign = dict_chiral_restraint_t::CHIRAL_RESTRAINT_POSITIVE;
 
       if (chiral_tag != RDKit::Atom::CHI_UNSPECIFIED) {
-	 try { 
+	 try {
+
+	    std::cout << "DEBUG:: in assign_chirals_rdkit_tags(): considering chiral for atom idx "
+		      << iat << std::endl;
+	    
 	    std::string chiral_centre;
 	    at_p->getProp("name", chiral_centre);
 	    std::string n1, n2, n3; // these need setting, c.f. get_chiral_tag() in rdkit-interface.cc?
 
-	    // The refmac monomer library and the rdkit (SMILES-based)
-	    // representation of chirality is quite different.
-
-	    // in SMILES the chiral centre has 4 substituents A[B@C](D)E
-	    // Looking down the AB bond, C, D, and E are ordered clockwise (@).
+	    // What are the neighbours of at_p and what are their ranks?
 	    //
-	    // So we need to find the 4 neighbours of B: B should have
-	    // an index below A, (similar reason for the others).
-	    //
-	    // pairs of: RDKit-atom-idx,RDKit-atom-name
-	    std::vector<std::pair<int, string> > neighbours;
-
-	    unsigned int n_bonds = mol.getNumBonds();
-	    for (unsigned int ib=0; ib<n_bonds; ib++) {
-	       const RDKit::Bond *bond_p = mol.getBondWithIdx(ib);
-	       unsigned int idx_1 = bond_p->getBeginAtomIdx();
-	       unsigned int idx_2 = bond_p->getEndAtomIdx();
-
-	       if (idx_1 == iat)
-		  neighbours.push_back(std::pair<int, string> (idx_2, ""));
-	       if (idx_2 == iat)
-		  neighbours.push_back(std::pair<int, string> (idx_1, ""));
+	    std::vector<std::pair<unsigned int, std::string> > neighb_names_and_ranks;
+	    RDKit::ROMol::ADJ_ITER nbr_idx_1, end_nbrs_1;
+	    boost::tie(nbr_idx_1, end_nbrs_1) = mol.getAtomNeighbors(at_p);
+	    while(nbr_idx_1 != end_nbrs_1){
+	       const RDKit::ATOM_SPTR at_neighb = mol[*nbr_idx_1];
+	       unsigned int cip_rank;
+	       std::string neighb_name;
+	       at_neighb->getProp(RDKit::common_properties::_CIPRank,cip_rank);
+	       at_neighb->getProp("name", neighb_name);
+	       std::pair<unsigned int, std::string> p(cip_rank, neighb_name);
+	       neighb_names_and_ranks.push_back(p);
+	       ++nbr_idx_1;
 	    }
 
-	    // std::cout << "centre idx " << iat << " neighbours size: " << neighbours.size() << std::endl;
+	    if (true) { // debug 
+	       std::sort(neighb_names_and_ranks.begin(),
+			 neighb_names_and_ranks.end());
+	    
+	       std::reverse(neighb_names_and_ranks.begin(),
+			    neighb_names_and_ranks.end());
 
-	    std::sort(neighbours.begin(), neighbours.end()); // how does this work? :-)
+	       std::cout << "DEBUG:: in assign_chirals_rdkit_tags() for atom "
+			 << chiral_centre << " found "
+			 << neighb_names_and_ranks.size() << "  neighboours: ";
+	       for (unsigned int ii=0; ii<neighb_names_and_ranks.size(); ii++)
+		  std::cout << " "
+			    << coot::util::remove_whitespace(neighb_names_and_ranks[ii].second)
+		     	    << " (rank " << neighb_names_and_ranks[ii].first << ")";
+	       std::cout << std::endl;
+	    }
 
-	    // it sorts on the first index first, and if that is a
-	    // match, sorts on the second, I think, neighbours is now
-	    // sorted so that the low indices are first.
+	    if (neighb_names_and_ranks.size() == 4) {
 
-	    if (neighbours.size() == 4) {
+	       std::sort(neighb_names_and_ranks.begin(),
+			 neighb_names_and_ranks.end());
 
-	       for (unsigned int in=0; in<neighbours.size(); in++) {
-		  std::string name;
-		  mol[neighbours[in].first]->getProp("name", name); // already inside a try
-		  // std::cout << "got name " << name << " for atom index "
-		  // << neighbours[in].first << std::endl;
-		  neighbours[in].second = name;
-	       }
-
-	       // This will still need testing.
-	       // 
-	       if (false)
-		  std::cout << "Here with chiral neighbours: "
-			    << "(" << neighbours[0].first << " " << neighbours[0].second << ") "
-			    << "(" << neighbours[1].first << " " << neighbours[1].second << ") "
-			    << "(" << neighbours[2].first << " " << neighbours[2].second << ") "
-			    << "(" << neighbours[3].first << " " << neighbours[3].second << ")"
-			    << std::endl;
-
-	       std::vector<int> n_idx(3);
-	       n_idx[0] = 0;
-	       n_idx[1] = 2;
-	       n_idx[2] = 3;
-
-	       // if neighbours[1] was not the hydrogen, we need to shuffle.
-	       if (mol[neighbours[1].first]->getAtomicNum() != 1) {
-		  if (mol[neighbours[0].first]->getAtomicNum() == 1) {
-		     n_idx[0] = 1;
-		  }
-		  if (mol[neighbours[2].first]->getAtomicNum() == 1) {
-		     n_idx[1] = 1;
-		     n_idx[2] = 3;
-		  }
-		  if (mol[neighbours[3].first]->getAtomicNum() == 1) {
-		     n_idx[1] = 1;
-		     n_idx[2] = 2;
-		  }
-	       }
-
+	       std::reverse(neighb_names_and_ranks.begin(),
+			    neighb_names_and_ranks.end());
+	       
 	       std::string chiral_id = "chiral_" + util::int_to_string(n_chirals+1);
-	       // Neighbour[1] is the hydrogen, we presume. 
-	       if (!chiral_centre.empty() &&
-		   !neighbours[n_idx[0]].second.empty() &&
-		   !neighbours[n_idx[1]].second.empty() &&
-		   !neighbours[n_idx[2]].second.empty()) {
-		  if (1) {
-		     coot::dict_chiral_restraint_t chiral(chiral_id,
-							  chiral_centre,
-							  neighbours[0].second,
-							  neighbours[2].second,
-							  neighbours[3].second, vol_sign);
-		     restraints->chiral_restraint.push_back(chiral);
-		     n_chirals++;
-		     // std::cout << ".............. made a chiral " << chiral << std::endl;
-		  }
-	       }
+	       std::string n1 = neighb_names_and_ranks[0].second;
+	       std::string n2 = neighb_names_and_ranks[1].second;
+	       std::string n3 = neighb_names_and_ranks[2].second;
+	       
+	       dict_chiral_restraint_t cr(chiral_id, chiral_centre, n1, n2, n3, vol_sign);
+	       restraints->chiral_restraint.push_back(cr);
 
-	    } else {
-	       std::cout << "oops - found " << neighbours.size() << " neighbours" << std::endl;
-	    } 
+	       n_chirals++;
+	    }
 	 }
-	 catch (const KeyErrorException &kee) {
-	    std::cout << "caught no-name for atom exception in chiral assignment(): "
-		      <<  kee.what() << std::endl;
-	 }
+
+	 catch (KeyErrorException &kee) {
+	    std::cout << "assign_chirals_rdkit_tags(): no prop name " << iat << std::endl;
+	 } 
       } 
    }
    return n_chirals;
 }
 
+void
+coot::debug_cip_ranks(const RDKit::ROMol &mol) {
+
+   unsigned int n_atoms = mol.getNumAtoms();
+   for (unsigned int iat=0; iat<n_atoms; iat++) { 
+      int vol_sign = coot::dict_chiral_restraint_t::CHIRAL_VOLUME_RESTRAINT_VOLUME_SIGN_UNASSIGNED;
+      RDKit::ATOM_SPTR at_p = mol[iat];
+      RDKit::Atom::ChiralType chiral_tag = at_p->getChiralTag();
+
+      try { 
+	 unsigned int cip_rank;
+	 at_p->getProp(RDKit::common_properties::_CIPRank,cip_rank);
+	 std::cout << "DEBUG:: debug_cip_ranks() " << iat << " " << cip_rank << std::endl;
+      }
+      catch (const KeyErrorException &kee) {
+	    std::cout << "caught no-cip_rank for atom exception in debug_cip_ranks(): "
+		      <<  kee.what() << std::endl;
+      } 
+   }
+
+}
 
 
 
@@ -1799,13 +1788,18 @@ std::pair<mmdb::Manager *, mmdb::Residue *>
 coot::regularize_inner(RDKit::ROMol &mol,
 		       PyObject *restraints_py,
 		       const std::string &res_name) {
-   
+
+   bool bypass_refinement = true; // usually false (true for debugging):
+
    coot::dictionary_residue_restraints_t dict_restraints = 
       monomer_restraints_from_python(restraints_py);
    mmdb::Residue *residue_p = coot::make_residue(mol, 0, res_name);
    // remove this NULL at some stage (soon)
    mmdb::Manager *cmmdbmanager = coot::util::create_mmdbmanager_from_residue(residue_p);
-   simple_refine(residue_p, cmmdbmanager, dict_restraints);
+
+   if (! bypass_refinement) 
+      simple_refine(residue_p, cmmdbmanager, dict_restraints);
+   
    return std::pair<mmdb::Manager *, mmdb::Residue *> (cmmdbmanager, residue_p);
 } 
 

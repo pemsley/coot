@@ -20,6 +20,7 @@
  */
 
 #include "coot-setup-python.hh"
+#include "python-classes.hh"
 
 #include "compat/coot-sysdep.h"
 
@@ -404,6 +405,7 @@ main (int argc, char *argv[]) {
 
 
    setup_python(argc, argv);
+   setup_python_classes();
      
 #ifdef USE_GUILE
      

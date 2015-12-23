@@ -63,9 +63,9 @@ def execute_mogul(sdf_file_name, mogul_ins_file_name, mogul_out_file_name):
    else:
       return False
 
-def atom_name_from_atomic_number_and_count(element, count):
+def atom_name_from_atomic_number_and_count(element, count, inc):
     name = element
-    name += str(count)
+    name += str(count+inc)
     return name
 
 def add_atom_names(mol):
@@ -76,14 +76,30 @@ def add_atom_names(mol):
           n = atom.GetProp('name')
           atom_names.append(n)
        except KeyError:
+
+          # we want to generate a name that is not already in the atom_names list
+          
           z = atom.GetAtomicNum()
           if z in nz:
              nz[z]  = nz[z] + 1
           else:
              nz[z] = 1;
           ele = atom.GetSymbol().upper()
-          name = atom_name_from_atomic_number_and_count(ele, nz[z])
+          # we add inc argument, which gets added to count (nz[z]) in case that we
+          # already have a name that matches (previous) return from call to 
+          # atom_name_from_atomic_number_and_count()
+          #
+          inc = 0
+          name = atom_name_from_atomic_number_and_count(ele, nz[z], inc)
           p_name = pad_atom_name(name, ele)
+          print 'c.f.', name, " atom names", atom_names
+          while p_name in atom_names :
+             print 'in while'
+             inc += 1
+             name = atom_name_from_atomic_number_and_count(ele, nz[z], inc)
+             p_name = pad_atom_name(name, ele)
+          print atom, 'made-name', p_name, ":"
+
           atom.SetProp("name", p_name)
           atom_names.append(p_name)
     return atom_names
@@ -251,6 +267,20 @@ def make_picture_to_file(mol, conf_id, output_file_name):
       # img = Draw.MolToImage(mol, fitImage=True, size=(900,900))
       # img2 = img.resize((300, 300), Image.ANTIALIAS)
       # img2.save(output_file_name + "resampled.png")
+
+      # testing MolDraw2D code (squiggly mess)
+      if True:
+         conf_id = AllChem.Compute2DCoords(mol)
+         drawer = Draw.MolDraw2DCairo(300,300)
+         drawer.DrawMolecule(mol, confId=conf_id)
+         drawer.FinishDrawing()
+         c = drawer.GetDrawingText()
+
+      cairo_file_name = 'cairo.png'
+      f = open(cairo_file_name, 'w')
+      f.write(c)
+      f.close()
+
       
    except ImportError as e:
       print 'ImportError:', e
@@ -343,16 +373,23 @@ def make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir,
 
    m = pyrogen_boost.rdkit_mol_chem_comp_pdbx(cif_file_name_in, comp_id)
 
-   if False:  # debugging
+   if True:  # debugging
       for atom in m.GetAtoms():
          try:
-            name   = atom.GetProp('name')
-            chir   = atom.GetProp('_CIPCode')
-            print ' atom', atom, 'name', name, 'chir', chir
+            name    = atom.GetProp('name')
+            cipcode = atom.GetProp('_CIPCode')
+            print 'DEBUG:: make_restraints_from_mmcif_dict_single atom', \
+               atom, 'name', name, 'cip-code ', cipcode
          except KeyError as e:
-            print 'pyrogen.py:: atom', atom, " with name ", name, ' has no _CIPCode property'
+            print 'DEBUG:: pyrogen.py:: make_restraints_from_mmcif_dict_single atom', \
+               atom, " with name ", name, ' has no _CIPCode property'
+         try:
+            r = atom.GetProp('_CIPRank')
+            print atom, "DEBUG:: pyrogen.py:: make_restraints_from_mmcif_dict_single atom cip rank", r
+         except KeyError as e:
+            print 'DEBUG:: pyrogen.py:: make_restraints_from_mmcif_dict_single atom', \
+               atom, "has no _CIPRank"
             pass
-
 
    # maybe user didn't select the correct comp_id for the given dictionary mmcif
    if m.GetNumAtoms() == 0:
@@ -420,6 +457,8 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
       # print >>file('sane_H.mol','w+'),Chem.MolToMolBlock(sane_H_mol)
    else:
       sane_H_mol = m_H
+
+   AllChem.AssignStereochemistry(sane_H_mol);
 
    # This makes UFF types, which can fail sometimes.
    # n_conformers is n_attempts
@@ -546,7 +585,17 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
 	      # ... but that's OK if we told pyrogen to run without mogul
 
               # sane_H_mol:
-              # print >>file('debug_sane_H.mol','w+'),Chem.MolToMolBlock(sane_H_mol)
+              print >>file('debug_sane_H.mol','w+'),Chem.MolToMolBlock(sane_H_mol)
+
+              # debug
+              for atom in sane_H_mol.GetAtoms():
+                 try:
+                    r = atom.GetProp('_CIPRank')
+                    print atom, "DEBUG:: pyrogen.py::make_restraints(): atom cip rank", r
+                 except KeyError as e:
+                    print 'DEBUG:: pyrogen.py::make_restraints() atom', \
+                       atom, "has no _CIPRank"
+             
 
 	      restraints = pysw.mmcif_dict_from_mol(comp_id, compound_name, sane_H_mol,
 						    mmcif_dict_name,

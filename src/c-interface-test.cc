@@ -636,46 +636,14 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 #endif
 
 
-// Testing headless png output 
-// #include <cairo.h>
-// #include <MolDraw2DCairo.h>
-// #include "lidia-core/rdkit-interface.hh"
-// #include "utils/coot-utils.hh"
-// #include "graphics-info.h"
-// #include "globjects.h" //includes gtk/gtk.h
-// #include "c-interface-image-widget.hh"
-
-
 #ifdef USE_PYTHON
 PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
    graphics_info_t g;
    PyObject *r = Py_False;
 
+   
    if (0) {
-
-//       std::string comp_id = "GOL"; 
-//       std::string smiles="CO[C@@H](O)C1=C(O[C@H](F)Cl)C(C#N)=C1ONNC[NH3+]";
-//       RDKit::ROMol *m_local = RDKit::SmilesToMol(smiles);
-//       TEST_ASSERT(m_local);
-//       RDDepict::compute2DCoords(*m_local);
-//       WedgeMolBonds(*m_local,&(m_local->getConformer()));
-//       std::string png_file_name = "image-" + comp_id + ".png";
-
-//       { 
-// 	 RDKit::MolDraw2DCairo drawer(300,300);
-// 	 drawer.drawMolecule(*m_local);
-// 	 drawer.finishDrawing();
-// 	 std::string dt = drawer.getDrawingText();
-// 	 // std::cout << "PE-debug drawing-text :" << dt << ":" << std::endl;
-// 	 std::cout << "drawingtext is of length " << dt.length() << std::endl;
-// 	 drawer.writeDrawingText(png_file_name.c_str());
-//       }
-
-   } 
-
-   if (0) {
-
      int i = PyInt_AsLong(i_py); // map molecule
      int j = PyInt_AsLong(j_py);
 

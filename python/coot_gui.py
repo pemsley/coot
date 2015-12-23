@@ -4410,13 +4410,37 @@ def solvent_ligands_gui():
                delete_residue_hydrogens(imol_ligand, "A", 1, "", "")
          if (valid_map_molecule_qm(imol_refinement_map())):
             print "========  jiggling!  ======== "
-            fit_to_map_by_random_jiggle(imol_ligand, "A", 1, "",
+
+            merge_molecules([imol_ligand], imol)
+
+            # We no longer do this: because we now mask the map by the neighbours
+            # of the jiggling ligand and for that we need to use molecule imol
+            #
+            # fit_to_map_by_random_jiggle(imol_ligand, "A", 1, "",
+            #                             random_jiggle_n_trials, 1.0)
+            # with_auto_accept([refine_zone, imol_ligand, "A", 1, 1, ""])
+
+
+            # we presume that the active residue is the jiggling residue!
+            # (we'd like to know what imol_ligand: "A" 1 moves to on merging
+            # but we don't)
+            #
+            active_atom = active_residue()
+            aa_chain_id = active_atom[1]
+            aa_res_no   = active_atom[2]
+            fit_to_map_by_random_jiggle(imol, aa_chain_id, aa_res_no, "",
                                         random_jiggle_n_trials, 1.0)
-            with_auto_accept([refine_zone, imol_ligand, "A", 1, 1, ""])
+
+            # if we use refine_residues, that will take note of residues
+            # near this residue and make non-bonded contacts
+            # (whereas refine_zone will not).
+            #
+            # with_auto_accept([refine_zone, imol, aa_chain_id, aa_res_no, 1, ""])
+            with_auto_accept([refine_residues, imol, [[aa_chain_id, aa_res_no, ""]]])
+
          else:
             print "======== not jiggling - no map ======== "
          if valid_model_molecule_qm(imol):
-            merge_molecules([imol_ligand], imol)
             set_mol_active(imol_ligand, 0)
             set_mol_displayed(imol_ligand, 0)
    
