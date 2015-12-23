@@ -571,9 +571,10 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
 	       geom_matcher.get_monomer_restraints(cif_dict_comp_id);
 	    if (rp_2.first) {
 	       mmdb::Residue *residue_p = NULL; // for the moment
-	       // std::cout << "------ about to match "
-	       // << rp_2.second.residue_info.comp_id << " to "
-	       // << rp_1.second.residue_info.comp_id << " names" << std::endl;
+
+	       std::cout << "DEBUG:: ------ about to match "
+			 << rp_2.second.residue_info.comp_id << " to "
+			 << rp_1.second.residue_info.comp_id << " names" << std::endl;
 	       coot::dictionary_match_info_t dmi = 
 		  rp_2.second.match_to_reference(rp_1.second, residue_p, output_comp_id,
 						 output_compound_name);
@@ -582,10 +583,12 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
 		  dmi.dict.residue_info.name = output_compound_name;
 		  dmi.dict.write_cif(cif_dict_out);
 	       } else {
-		  std::cout << "INFO:: not similar enough" << std::endl;
+		  std::cout << "WARNING:: not similar enough, n_matches = "
+			    << dmi.n_matches << std::endl;
 	       }
 	    } else {
-	       std::cout << " not bonds from " << cif_dict_in << std::endl;
+	       std::cout << "WARNING:: no monomer restraints for " << cif_dict_comp_id
+			 << " in " << cif_dict_in << std::endl;
 	    }
 	 }
       } else {
