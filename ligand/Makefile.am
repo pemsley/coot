@@ -65,6 +65,7 @@ libcoot_ligand_la_LDFLAGS = $(SHARED_LDFLAGS)
 AM_CXXFLAGS = \
          $(OPENMP_CFLAGS) \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
+	$(SQLITE3_CFLAGS) \
 	$(COOT_WINDOWS_CFLAGS)
 
 bin_PROGRAMS = findligand-bin findwaters-bin
@@ -72,15 +73,19 @@ bin_PROGRAMS = findligand-bin findwaters-bin
 # check_PROGRAMS = test-helix-placement test-fffear-in-coot testdunbrack 
 #                  test-random test-ligand test-rotamer-tables-sql
 
-check_PROGRAMS = test-fffear-in-coot test-trace
+check_PROGRAMS = test-fffear-in-coot test-trace make-ligands-db ligand-percentiles
 
 findligand_bin_SOURCES = find-ligand.cc
 findwaters_bin_SOURCES = find-waters.cc
 
 test_trace_SOURCES = test-trace.cc
+test_trace_LDADD = ./libcoot-ligand.la
 
-test_trace_LDADD = ./libcoot-ligand.la 
+make_ligands_db_SOURCES = make-ligands-db.cc ligands-db.cc
+make_ligands_db_LDADD = ./libcoot-ligand.la $(SQLITE3_LIBS)
 
+ligand_percentiles_SOURCES = ligand-percentiles.cc ligands-db.cc
+ligand_percentiles_LDADD = ./libcoot-ligand.la $(SQLITE3_LIBS)
 
 
 # test_rotamer_tables_sql = test-rotamer-tables-sql.cc

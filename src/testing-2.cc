@@ -95,3 +95,30 @@ int test_parallel_plane_restraints() {
    delete mol;
    return status;
 } 
+
+int test_string_splitting() {
+
+   int status = 1;
+
+   std::string s_1 = "HEADER    DNA-RNA HYBRID                          05-DEC-94   100D              ";
+   std::string s_2 = "/xx/pemsley/ligand-analysis/output/5c/coot-ligand-analysis.log:metrics-for-ligand: \"/net/nfs5/gmssd/share/databases/pdb_data/pdb/5c/35c8.pdb\" \"L\" 212 \"\" \"NOX\" corr: 0.842709898948669 mogul: 3.51116991043091 bumps: 3 2 35.0000000  67 118 diff-map-stats: -0.0315599167321964 0.257134500774758 0.0189810063062419 1834.0 693.190333617851 23.9969999967143 0.0478254141277309 0.0379304815326336 -4.4906369112141e-6 0.0130845147201278 0.119391269981861 0.137771572925048 b-factor-metrics: 1.2905129105334 14.2150001525879 11.0150003433228 0.428217821782178 ";
+
+   std::vector<std::string> bits_1 = coot::util::split_string_no_blanks(s_1);
+   std::vector<std::string> bits_2 = coot::util::split_string_no_blanks(s_2);
+
+   for (unsigned int i=0; i<bits_1.size(); i++) { 
+      if (bits_1[i] == "" || bits_1[i] == " ") {
+	 status = 0;
+	 std::cout << "Fail on split_string_no_blanks() test-1" << std::endl;
+	 break;
+      }
+   }
+   for (unsigned int i=0; i<bits_2.size(); i++) { 
+      if (bits_2[i] == "" || bits_2[i] == " ") {
+	 status = 0;
+	 std::cout << "Fail on split_string_no_blanks() test-2" << std::endl;
+	 break;
+      }
+   }
+   return status;
+}

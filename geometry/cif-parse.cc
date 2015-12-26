@@ -3074,7 +3074,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       mmCIFLoop->PutString(s, "group", i);
       int nat = residue_info.number_atoms_all;
       mmCIFLoop->PutInteger(nat, "number_atoms_all", i);
-      nat = residue_info.number_atoms_nh;
+      nat = number_of_non_hydrogen_atoms();
       mmCIFLoop->PutInteger(nat, "number_atoms_nh", i);
       s = residue_info.description_level.c_str();
       mmCIFLoop->PutString(s, "desc_level", i);
@@ -3111,9 +3111,13 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       ss = util::remove_whitespace(ai.atom_id).c_str();
 	       std::string qan = quoted_atom_name(ss);
 	       mmCIFLoop->PutString(qan.c_str(), "atom_id", i);
-	       ss = atom_info[i].type_symbol.c_str();
+	       std::string up_type_symbol = util::upcase(atom_info[i].type_symbol);
+	       ss = up_type_symbol.c_str();
 	       mmCIFLoop->PutString(ss, "type_symbol", i);
-	       ss = atom_info[i].type_energy.c_str();
+	       // std::cout << "up_type_symbol: " << up_type_symbol << std::endl;
+	       std::string up_type_energy = util::upcase(atom_info[i].type_energy);
+	       // std::cout << "up_type_energy: " << up_type_energy << std::endl;
+	       ss = up_type_energy.c_str();
 	       mmCIFLoop->PutString(ss, "type_energy", i);
 	       if (atom_info[i].partial_charge.first) {
 		  float v = atom_info[i].partial_charge.second;

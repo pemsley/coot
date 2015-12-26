@@ -3395,18 +3395,22 @@ coot::util::create_mmdbmanager_from_inverted_atom_selection(mmdb::Manager *orig_
 mmdb::Manager *
 coot::util::create_mmdbmanager_from_residue(mmdb::Residue *res) {
 
-   mmdb::Residue *r = coot::util::deep_copy_this_residue(res);
-   mmdb::Manager *mol = new mmdb::Manager;
-   mmdb::Model *model_p = new mmdb::Model;
-   mmdb::Chain *chain_p = new mmdb::Chain;
-   chain_p->AddResidue(r);
-   model_p->AddChain(chain_p);
-   mol->AddModel(model_p);
-   if (mol) {
-      chain_p->SetChainID(res->GetChainID());
-   } else {
-      chain_p->SetChainID("");
-   } 
+   mmdb::Manager *mol = NULL;
+
+   if (res) { 
+      mol = new mmdb::Manager;
+      mmdb::Residue *r = coot::util::deep_copy_this_residue(res);
+      mmdb::Model *model_p = new mmdb::Model;
+      mmdb::Chain *chain_p = new mmdb::Chain;
+      chain_p->AddResidue(r);
+      model_p->AddChain(chain_p);
+      mol->AddModel(model_p);
+      if (mol) {
+	 chain_p->SetChainID(res->GetChainID());
+      } else {
+	 chain_p->SetChainID("");
+      }
+   }
    return mol;
 }
 
