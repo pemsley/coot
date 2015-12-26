@@ -880,8 +880,10 @@ coot::util::split_string(const std::string &string_in,
 	    break;
 	 }
       } else {
-	 v.push_back(s);
-	 break;
+	 if (! s.empty()) {
+	    v.push_back(s);
+	    break;
+	 }
       } 
    }
    return v;
@@ -892,7 +894,6 @@ std::vector<std::string>
 coot::util::split_string_no_blanks(const std::string &string_in,
 				   const std::string &splitter) {
 
-  
    std::vector<std::string> v;
    std::string s=string_in;
 
@@ -900,17 +901,20 @@ coot::util::split_string_no_blanks(const std::string &string_in,
       std::string::size_type isplit=s.find_first_of(splitter);
       if (isplit != std::string::npos) {
          std::string f = s.substr(0, isplit);
-	 if (f.length() > 0)
+	 if (f.length() > 0) {
 	    v.push_back(f);
+	 }
          if (s.length() >= (isplit+splitter.length())) { 
             s = s.substr(isplit+splitter.length());
          } else {
             break;
          }
       } else {
-         v.push_back(s);
+	 if (! s.empty()) {
+	    v.push_back(s);
+	 } 
          break;
-      } 
+      }
    }
    return v;
 }
