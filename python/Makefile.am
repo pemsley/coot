@@ -51,6 +51,6 @@ dist_pkgpython_PYTHON = \
    contact_score_isolated_ligand.py          enhanced_ligand.py		      \
    dictionary_generators.py    \
    coot_toolbuttons.py  rcrane_loader.py \
-   pdbe_validation_data.py  pathology.py \
+   pdbe_validation_data.py  pathology_plots.py \
    $(TEXI_FILE)
 

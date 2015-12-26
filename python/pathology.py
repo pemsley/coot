@@ -46,13 +46,18 @@ def cairoplot_pathology_plots(mtz, fp, sigfp):
 #
 def pathology_plots(mtz, fp, sigfp):
 
+# these can be I, SIGI also
+#
+def plots(mtz, fp, sigfp):
+
     # meta data
     intensity_data = False
     if fp[0] == 'I':
         intensity_data = True
         
-    data = coot.pathology_data(mtz, fp, sigfp)
-    try: 
+    data = pathology.PathologyData(mtz, fp, sigfp)
+    # try: 
+    if True:
         prefix,tail = os.path.splitext(mtz)
         fp_lab = "FP"
         sigfp_lab = "SIGFP"
@@ -65,17 +70,17 @@ def pathology_plots(mtz, fp, sigfp):
                   (fp_lab, sigfp_lab),
                   (fp_lab, fp_lab + '/' + sigfp_lab)]
         z = zip(range(4), labels)
-        invresolsq_max = data[0]
-        for ii in range(4):
-            i = ii+1 # data and labels are indexed differently
+        if True:
+            ii = 0 # label indexing hack
             l_0 = labels[ii][0].replace('/', '_')
             l_1 = labels[ii][1].replace('/', '_')
             png_file_name = prefix + "-" + l_0 + "-vs-" + l_1 + ".png"
 
             n_x_labels = 5
+            """
             if l_0 == "Resolution":
                 for j in range(n_x_labels):
-                    f = invresolsq_max * j / n_x_labels
+                    f = data.invresolsq_max() * j / n_x_labels
                     if f == 0:
                         x_label = "Inf"
                     else:
@@ -84,10 +89,11 @@ def pathology_plots(mtz, fp, sigfp):
                     x_labels[j] = x_label
             else:
                 x_labels = None
+            """
             
             fig1 = plt.figure()
-            xdata = [x[0] for x in data[i]]
-            ydata = [y[1] for y in data[i]]
+            xdata = [x[0] for x in data.fp_vs_reso()]
+            ydata = [y[1] for y in data.fp_vs_reso()]
 
             ymin = 0
             if (intensity_data):
@@ -106,7 +112,5 @@ def pathology_plots(mtz, fp, sigfp):
             plt.savefig(png_file_name)
             
 
-    except TypeError as e:
-                print "caught TypeError:", e
-
-
+    # except TypeError as e:
+    #            print "caught TypeError:", e
