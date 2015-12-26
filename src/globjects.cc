@@ -1317,6 +1317,8 @@ unsigned int graphics_info_t::user_defined_interesting_positions_idx = 0;
 atom_pull_info_t graphics_info_t:: atom_pull = atom_pull_info_t();
 bool graphics_info_t::auto_clear_atom_pull_restraint_flag = true;
 
+#define GDKGLEXT_HAVE_MODE_SAMPLES_SHIFT true
+
 
 // GTK2 code
 // 
@@ -4487,8 +4489,22 @@ void test_object() {
 void
 set_bond_colour(int i) {
 
+   if (false)
+      std::cout << "set_bond_colour() idx: " << i << " vs "
+		<< " green "   << GREEN_BOND << " "
+		<< " blue "    << BLUE_BOND << " "
+		<< " red "     << RED_BOND << " "
+		<< " yellow "  << YELLOW_BOND << " "
+		<< " grey "    << GREY_BOND << " "
+		<< " H-grey "  << HYDROGEN_GREY_BOND << " "
+		<< " magenta " << MAGENTA_BOND << " "
+		<< std::endl;
+
    if (background_is_black_p()) { 
       switch (i) {
+      case CARBON_BOND:
+	 glColor3f (0.2, 0.7, 0.1);
+	 break;
       case GREEN_BOND:
 	 glColor3f (0.1, 0.8, 0.1);
 	 break;
@@ -4508,7 +4524,7 @@ set_bond_colour(int i) {
 	 glColor3f (0.6, 0.6, 0.6);
 	 break;
       case MAGENTA_BOND: 
-	 glColor3f (0.99, 0.2, 0.99);
+	 glColor3f (0.8, 0.1, 0.8);
 	 break;
       default:
 	 glColor3f (0.7, 0.8, 0.8);
@@ -4517,6 +4533,9 @@ set_bond_colour(int i) {
       // Are you sure that this is begin executed (and the colour-state not overwritten?)
       // How about set_bond_colour_by_mol_no()?
       switch (i) {
+      case CARBON_BOND:
+	 glColor3f (0.2, 0.6, 0.0);
+	 break;
       case GREEN_BOND:
 	 glColor3f (0.05, 0.6, 0.05);
 	 break;

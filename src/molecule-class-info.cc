@@ -685,10 +685,25 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i, bool against_a_dark_back
       while (rotation_size > 1.0) { // no more black bonds?
 	 rotation_size -= 1.0;
       }
-      if (against_a_dark_background) { 
+      if (against_a_dark_background) {
+
+	 if (false)
+	    std::cout << "set_bond_colour_by_mol_no() idx: " << i << " vs "
+		      << " green "   << GREEN_BOND << " "
+		      << " blue "    << BLUE_BOND << " "
+		      << " red "     << RED_BOND << " "
+		      << " yellow "  << YELLOW_BOND << " "
+		      << " grey "    << GREY_BOND << " "
+		      << " H-grey "  << HYDROGEN_GREY_BOND << " "
+		      << " magenta " << MAGENTA_BOND << " "
+		      << std::endl;
+	 
 	 switch (i) {
+	 case CARBON_BOND: 
+	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
+	    break;
 	 case YELLOW_BOND: 
-	    rgb[0] = 0.8; rgb[1] =  0.8; rgb[2] =  0.3;
+	    rgb[0] = 0.6; rgb[1] =  0.9; rgb[2] =  0.3;
 	    break;
 	 case BLUE_BOND: 
 	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  1.0;
@@ -769,7 +784,7 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i, bool against_a_dark_back
       rgb = rotate_rgb(rgb, float(1.0 - 21.0/360.0));
 
       if (graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag) {
-	 if (i == YELLOW_BOND) { 
+	 if (i == CARBON_BOND) { 
 	    std::vector<float> rgb_new = rotate_rgb(rgb, rotation_size);
 	    bond_colour_internal = rgb_new;
 	    if (graphics_info_t::use_graphics_interface_flag)

@@ -3703,7 +3703,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 	    std::cout << " atom_colour_map->index_for_chain(\"" << at->GetChainID()
 		      << "\") returns " << col << std::endl;
       }
-   } else { 
+   } else {
       if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) { 
 	 int sse = at->residue->SSE;
 	 switch (sse)  {
@@ -3736,7 +3736,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 	    std::string element = at->element;
 
 	    if (element == " C") {
-	       return YELLOW_BOND;
+	       return CARBON_BOND;
 	    } else {
 	       if (element == " N") {
 		  return BLUE_BOND;
@@ -3745,7 +3745,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 		     return RED_BOND;
 		  } else {
 		     if (element == " S") {
-			return GREEN_BOND;
+			return YELLOW_BOND;
 		     } else {
 			// if (element == " H") {
 			if (is_hydrogen(element)) {
@@ -3778,7 +3778,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 			return RED_BOND;
 		     } else {
 			if (element == " S") {
-			   return GREEN_BOND;
+			   return YELLOW_BOND;
 			} else {
 			   // if (element == " H") {
 			   if (is_hydrogen(element)) {
@@ -3790,10 +3790,10 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 	       }
 	       return GREY_BOND;	       
 
-	    } else { 
+	    } else {
 
 	       if (bond_colour_type == coot::DISULFIDE_COLOUR) {
-		  return GREEN_BOND;
+		  return YELLOW_BOND;
 	       } else {
 		  if (bond_colour_type == coot::COLOUR_BY_OCCUPANCY) {
 		     if (at->occupancy > 0.95) {
