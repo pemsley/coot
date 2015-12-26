@@ -8,6 +8,30 @@
 
 #include "utils/coot-utils.hh"
 #include "protein-geometry.hh"
+// remember that coot-utils headers are not allowed here
+
+
+mmdb::Manager *
+create_mmdbmanager_from_residue(mmdb::Residue *res) {
+
+   mmdb::Manager *mol = NULL;
+
+   if (res) {
+      mol = new mmdb::Manager;
+      mmdb::Model *model_p = new mmdb::Model;
+      mmdb::Chain *chain_p = new mmdb::Chain;
+      chain_p->AddResidue(res);
+      model_p->AddChain(chain_p);
+      mol->AddModel(model_p);
+      if (mol) {
+	 chain_p->SetChainID(res->GetChainID());
+      } else {
+	 chain_p->SetChainID("");
+      }
+   }
+   return mol;
+}
+
 
 int
 compare_dictionaries(const std::string &type,
@@ -23,6 +47,8 @@ compare_dictionaries(const std::string &type,
 
    int status = 0;
    std::string dir = ".";
+   bool found_type_in_dictionary_1 = true;
+   bool found_type_in_dictionary_2 = true;
 
    coot::protein_geometry pg_1;
    coot::protein_geometry pg_2;
@@ -38,14 +64,18 @@ compare_dictionaries(const std::string &type,
    std::pair<bool, coot::dictionary_residue_restraints_t> r2 = 
       pg_2.get_monomer_restraints(type);
 
+   
+
    if (!r1.first) { 
       std::cout << "Failed to find restraints for type " << type << " in "
 		<< file_name_1 << std::endl;
+      found_type_in_dictionary_1 = false;
       status = 1;
    } else {
       if (!r2.first) { 
 	 std::cout << "Failed to find restraints for type " << type << " in "
 		   << file_name_2 << std::endl;
+	 found_type_in_dictionary_2 = false;
 	 status = 1;
       } else {
 	 // Happy path
@@ -75,6 +105,44 @@ compare_dictionaries(const std::string &type,
 	 status = !compare_status; // invert for unix return value (0 happy)
       }
    }
+
+   if (! found_type_in_dictionary_2) {
+      std::cout << "There are " << pg_1.size() << " types in pg_1" << std::endl;
+
+      std::cout << "Trying Graph matching..." << std::endl;
+
+      if (pg_2.size() == 1) {
+	 int zeroth = 0;
+	 std::string ref_type = pg_2[0].comp_id();
+	 std::cout << "getting dictionary for " << ref_type << " from " << file_name_2 << std::endl;
+	 r2 = pg_2.get_monomer_restraints(ref_type);
+	 if (r2.first) { // should be!
+	    mmdb::Residue *residue_p = NULL; // for the moment.
+	    std::string new_comp_id = type;
+	    std::string new_compound_name = "some-new-name-here";
+
+	    std::cout << "calling match_to_reference " << r2.second.comp_id() << " vs "
+		      << r1.second.comp_id() << std::endl;
+	    coot::dictionary_match_info_t dmi =
+	       r2.second.match_to_reference(r1.second, residue_p,
+					    new_comp_id, new_compound_name);
+
+	    std::cout << "got " << dmi.n_matches << " matches and had "
+		      << r1.second.number_of_non_hydrogen_atoms() << " non-H atoms" << std::endl;
+
+	    if (dmi.n_matches == r1.second.number_of_non_hydrogen_atoms()) {
+	       std::string cif_dict_out = "new-dict.cif";
+	       dmi.dict.write_cif(cif_dict_out);
+	       bool get_idealized = true;
+	       float b_factor = 30;
+	       mmdb::Residue *residue_p = dmi.dict.GetResidue(get_idealized, b_factor);
+	       mmdb::Manager *m = create_mmdbmanager_from_residue(residue_p);
+	       m->WritePDBASCII("new-dict.pdb");
+	    }
+	 }
+      }
+   }
+   
    return status;
 }
 
