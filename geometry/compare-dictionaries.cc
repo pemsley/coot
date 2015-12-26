@@ -131,7 +131,7 @@ compare_dictionaries(const std::string &type,
 		      << r1.second.number_of_non_hydrogen_atoms() << " non-H atoms" << std::endl;
 
 	    if (dmi.n_matches == r1.second.number_of_non_hydrogen_atoms()) {
-	       std::string cif_dict_out = "new-dict.cif";
+	       std::string cif_dict_out = "matching-dictionary.cif";
 	       dmi.dict.write_cif(cif_dict_out);
 	       bool get_idealized = true;
 	       float b_factor = 30;
