@@ -95,6 +95,8 @@ namespace coot {
    int assign_chirals_rdkit_tags(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints);
    int assign_chirals_mmcif_tags(const RDKit::ROMol &mol, dictionary_residue_restraints_t *restraints);
 
+   void debug_cip_ranks(const RDKit::ROMol &mol);
+
    // for returning best graph-match data (for dictionary atom name map to reference)
    // 
    class matching_dict_t {

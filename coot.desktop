@@ -1,10 +1,9 @@
 [Desktop Entry]
 Type=Application
-Encoding=UTF-8
 Name=Coot
 Comment=Macromolecular model builder
 Exec=coot
-Icon=coot.png
+Icon=coot
 Terminal=true
-Categories=Science;Graphics
-MimeType=chemical/x-pdb;chemical/x-mmcif;chemical/x-mdl-molfile
+Categories=Science
+MimeType=chemical/x-pdb;chemical/x-mmcif;chemical/x-mdl-molfile;

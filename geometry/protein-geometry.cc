@@ -3613,65 +3613,11 @@ coot::protein_geometry::get_residue(const std::string &comp_id, bool idealised_f
 
    // might use try_dynamic_add (if needed).
    bool r = have_dictionary_for_residue_type(comp_id, 42, try_autoload_if_needed);
-
-   bool make_hetatoms = ! coot::util::is_standard_residue_name(comp_id);
-
-
-   std::vector<mmdb::Atom *> atoms;
    for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
       if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
-
-	 const std::vector<coot::dict_atom> &atom_info = dict_res_restraints[i].atom_info;
-	 
-	 int atom_index = 0;
-	 for (unsigned int iat=0; iat<atom_info.size(); iat++) {
-	    
-
-	    clipper::Coord_orth p(0,0,0);
-	    bool flag_and_have_coords = false;
-
-	    if (idealised_flag && atom_info[iat].pdbx_model_Cartn_ideal.first) {
-	       p = atom_info[iat].pdbx_model_Cartn_ideal.second;
-	       flag_and_have_coords = true;
-	    }
-
-	    if (! flag_and_have_coords) { 
-	       // OK, try model_Cartn (and that is idealised if the dictionary was refmac)
-	       // (better than nothing).
-	       // 
-	       if (atom_info[iat].model_Cartn.first) {
-		  p = atom_info[iat].model_Cartn.second;
-		  flag_and_have_coords = true;
-	       }
-	    }
-
-	    if (flag_and_have_coords) { 
-	       mmdb::Atom *atom = new mmdb::Atom;
-	       mmdb::realtype occ = 1.0;
-	       mmdb::realtype b = b_factor;
-	       std::string ele = atom_info[iat].type_symbol; // element
-	       atom->SetCoordinates(p.x(), p.y(), p.z(), occ, b);
-	       atom->SetAtomName(atom_info[iat].atom_id_4c.c_str());
-
-//	       Strange things happen when I use this...
-// 	       atom->SetAtomName(atom_index, -1,
-// 				 atom_info[iat].atom_id_4c.c_str(),
-// 				 "", "", ele.c_str());
-	       
-	       atom->SetElementName(ele.c_str());
-	       if (make_hetatoms)
-		  atom->Het = 1;
-	       atoms.push_back(atom);
-	       atom_index++; // for next round
-	    }
-	 }
+	 residue_p = dict_res_restraints[i].GetResidue(idealised_flag, b_factor);
+	 break;
       }
-   }
-   if (atoms.size() > 0) {
-      residue_p = new mmdb::Residue;
-      residue_p->SetResID(comp_id.c_str(), 1, "");
-      for (unsigned int iat=0; iat<atoms.size(); iat++) 
-	 residue_p->AddAtom(atoms[iat]);
    }
    return residue_p;
 } 
@@ -3761,6 +3707,63 @@ coot::protein_geometry::OXT_in_residue_restraints_p(const std::string &residue_t
    return r;
 }
 
+mmdb::Residue *
+coot::dictionary_residue_restraints_t::GetResidue(bool idealised_flag, float b_factor) const {
+
+   mmdb::Residue *residue_p = NULL;
+   std::vector<mmdb::Atom *> atoms;
+
+   bool make_hetatoms = ! coot::util::is_standard_residue_name(residue_info.comp_id);
+   int atom_index = 0;
+   for (unsigned int iat=0; iat<atom_info.size(); iat++) {
+
+      clipper::Coord_orth p(0,0,0);
+      bool flag_and_have_coords = false;
+
+      if (idealised_flag && atom_info[iat].pdbx_model_Cartn_ideal.first) {
+	 p = atom_info[iat].pdbx_model_Cartn_ideal.second;
+	 flag_and_have_coords = true;
+      }
+
+      if (! flag_and_have_coords) { 
+	 // OK, try model_Cartn (and that is idealised if the dictionary was refmac)
+	 // (better than nothing).
+	 // 
+	 if (atom_info[iat].model_Cartn.first) {
+	    p = atom_info[iat].model_Cartn.second;
+	    flag_and_have_coords = true;
+	 }
+      }
+
+      if (flag_and_have_coords) { 
+	 mmdb::Atom *atom = new mmdb::Atom;
+	 mmdb::realtype occ = 1.0;
+	 mmdb::realtype b = b_factor;
+	 std::string ele = atom_info[iat].type_symbol; // element
+	 atom->SetCoordinates(p.x(), p.y(), p.z(), occ, b);
+	 atom->SetAtomName(atom_info[iat].atom_id_4c.c_str());
+
+	 //	       Strange things happen when I use this...
+	 // 	       atom->SetAtomName(atom_index, -1,
+	 // 				 atom_info[iat].atom_id_4c.c_str(),
+	 // 				 "", "", ele.c_str());
+	       
+	 atom->SetElementName(ele.c_str());
+	 if (make_hetatoms)
+	    atom->Het = 1;
+	 atoms.push_back(atom);
+	 atom_index++; // for next round
+      }
+   }
+
+   if (atoms.size() > 0) {
+      residue_p = new mmdb::Residue;
+      residue_p->SetResID(residue_info.comp_id.c_str(), 1, "");
+      for (unsigned int iat=0; iat<atoms.size(); iat++) 
+	 residue_p->AddAtom(atoms[iat]);
+   } 
+   return residue_p; 
+} 
 
 std::vector<std::vector<std::string> >
 coot::dictionary_residue_restraints_t::get_ligand_ring_list() const {

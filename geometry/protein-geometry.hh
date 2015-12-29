@@ -488,6 +488,7 @@ namespace coot {
       std::pair<bool, int> formal_charge;
       std::pair<bool, clipper::Coord_orth> pdbx_model_Cartn_ideal;
       std::pair<bool, clipper::Coord_orth> model_Cartn;
+      std::pair<bool, std::string> pdbx_stereo_config_flag;
       dict_atom(const std::string &atom_id_in,
 		const std::string &atom_id_4c_in,
 		const std::string &type_symbol_in,
@@ -528,11 +529,17 @@ namespace coot {
 
 
    // ------------------------------------------------------------------------
+   // class dictionary_match_info_t
+   // ------------------------------------------------------------------------
+   //
+
+   class dictionary_match_info_t; // yes.
+   
+   // ------------------------------------------------------------------------
    // class dictionary_residue_restraints_t
    // ------------------------------------------------------------------------
    //
-   class dictionary_match_info_t;       // forward for matching
-   
+
    class dictionary_residue_restraints_t {
 
       class atom_pair_t {
@@ -680,6 +687,9 @@ namespace coot {
 
       std::vector<std::vector<std::string> > get_ligand_ring_list() const;
 
+      // return null on failure
+      mmdb::Residue *GetResidue(bool idealize_flag, float b_factor) const;
+
       bool in_same_ring(const std::string &atom_name_1, const std::string &atom_name_2) const;
 
       bool ligand_has_aromatic_bonds_p() const;
@@ -747,22 +757,25 @@ namespace coot {
       
       // Are the atoms only of elements C,N.O,H,F,Cl,I,Br,P,S?
       bool comprised_of_organic_set() const;
-   };
 
+      // are the number of atoms of each element the same ie. they have the same chemical formula?
+      // 
+      bool composition_matches(const dictionary_residue_restraints_t &other) const;
+      
+   };
 
    class dictionary_match_info_t {
    public:
       unsigned int n_matches;
       dictionary_residue_restraints_t dict;
       std::vector<std::pair<std::string, std::string> > name_swaps;
+      std::vector<std::string> same_names;
       std::string new_comp_id;
       dictionary_match_info_t() {
 	 n_matches = 0;
       }
    };
-      
-      
-   
+
 
    // ------------------------------------------------------------------------
    // class dict_link_bond_restraint_t
@@ -1722,6 +1735,9 @@ namespace coot {
 			    dict_atom::aromaticity_t arom_in,
 			    const std::pair<bool, clipper::Coord_orth> &model_pos,
 			    const std::pair<bool, clipper::Coord_orth> &model_pos_ideal);
+
+      void mon_lib_add_atom(const std::string &comp_id,
+			    const dict_atom &atom);
 
       // called because they were all at origin, for example.
       void delete_atom_positions(const std::string &comp_id, int pos_type);

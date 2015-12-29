@@ -1,6 +1,7 @@
  
  0.8.3
 
+   o fix match-acedrg-dict-to-grade-dict-fails-to-write-dictionary.py (mac)
 
    o get rid of this debugging:
 
@@ -80,6 +81,40 @@ In unknown file:
 
    o Glyo add NAG with ASN-NAG
 
+* Fixed
+
+   o pyrogen with no arguments should do a pyrogen --help
+
+   o pyrogen restraints for 1SS: what is happening for the N1? Can
+     RDKit detect that it might be chiral?  If so, and if the
+     pdbx_stereo_config is missing, then make it a both.
+
+   o 4ilh look at ligand A302 1FS: display geometry distortions:
+     chiral tetrahedra are strange (missing 4th atom).
+
+   o I want to turn on torsion restraints here:
+     coot::geometry_distortion_info_container_t gdc = g.geometric_distortions(residue_p);
+
+   o In Distance and Angles Geometry: "Update" should update the
+     distances between atom sets after I've done a refinement.
+
+   o User-defined distance restraints - say, between O and N in sheet,
+     should be in use when we do sphere refine.
+
+   o Does LPC work in thumbnailing?
+
+   o OH of IGP in thumbnailing.
+
+   o make_rtop_orth_for_jiggle_atoms() needs SO3 sampling.
+
+   o Look at 15S in 4hhz: is the NH correctly positioned in the lbg view?
+
+   o permissions on Ubuntu 14.04
+
+   o Draw -> Additional Representation -> Ball and Stick - balls are
+     too big.
+
+   o Pro-CD -> CA and C NBC... what to do?
 
    o Refine a bit of of the DNA in 3pt6 and see that the nbc seem to be failing.
 
@@ -164,7 +199,7 @@ In unknown file:
    o with enhanced-ligand, do you get a sane code-path if you do 
      File -> SMILES?
 
-   o pyrogen -M default
+   o pyrogen -M default.  Needs testing.
 
    o Do probe dots get updated locally after a sphere refinement?
 

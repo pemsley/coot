@@ -605,7 +605,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    bool debug = false;
    typedef std::pair<std::string, std::string> SP;
    std::vector<SP> change_name;
-   std::vector<std::string> same_name;
+   std::vector<std::string> same_names;
 
 
    std::string new_comp_id = new_comp_id_in;
@@ -615,13 +615,13 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    int n_atoms = atom_info.size();
    if (use_hydrogens == false)
       n_atoms = number_of_non_hydrogen_atoms();
-   
+
    mmdb::math::Graph *g_1 = make_graph(use_hydrogens);
    mmdb::math::Graph *g_2 = ref.make_graph(use_hydrogens);
 
    if (debug) {
-      std::cout << "this-name :::::::::::::::::::" << residue_info.comp_id << std::endl;
-      std::cout << " ref-name :::::::::::::::::::" << ref.residue_info.comp_id << std::endl;
+      std::cout << "this-name ::::::::::::::::::: " << residue_info.comp_id << std::endl;
+      std::cout << " ref-name ::::::::::::::::::: " << ref.residue_info.comp_id << std::endl;
       g_1->Print();
       g_2->Print();
    }
@@ -692,6 +692,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 	       mmdb::ivector FV1, FV2;
 	       int nv;
 	       match.GetMatch(imatch_best, FV1, FV2, nv, p1, p2); // n p1 p2 set
+
 	       int n_type_match = 0;
 	       for (int ipair=1; ipair<=nv; ipair++) {
 		  mmdb::math::Vertex *V1 = g_1->GetVertex ( FV1[ipair] );
@@ -704,14 +705,14 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 		     if (type_1 == type_2) {
 			std::string v1_name(V1->GetName());
 			std::string v2_name(V2->GetName());
-			if (false)
+			if (debug)
 			   std::cout << " atom " << V1->GetName()
 				     << " in graph_1 (this-res) matches atom "
 				     << V2->GetName() << " in graph_2 (ref comp-id)" << std::endl;
 			if (v1_name != v2_name) {
 			   change_name.push_back(SP(v1_name, v2_name));
 			} else {
-			   same_name.push_back(v1_name);
+			   same_names.push_back(v1_name);
 			}
 		     } else {
 			std::cout << "ERROR:: excluding match between "
@@ -723,9 +724,9 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 	       }
 	    }
 
-	    if (false) {
+	    if (debug) {
 	       std::cout << "----- accumulated ------ " << change_name.size()
-			 << " name changes " << "(and " << same_name.size()
+			 << " name changes " << "(and " << same_names.size()
 			 << " matches of atoms with the same name)"
 			 << " for " << n_atoms << " atoms"
 			 << " --------- " << std::endl;
@@ -734,11 +735,13 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 			    << change_name[i].second << std::endl;
 	       }
 	       std::cout << "--- these matched and were the same atom name" << std::endl;
-	       for (unsigned int i=0; i<same_name.size(); i++) { 
-		  std::cout << i << "  " << same_name[i] << std::endl;
+	       for (unsigned int i=0; i<same_names.size(); i++) {
+		  std::cout << i << "  " << same_names[i] << std::endl;
 	       }
-	       
+	       std::cout << "DEBUG:: in total: " << change_name.size() + same_names.size()
+			 << " name matches" << std::endl;
 	    }
+	    
 	    // also header info.
 	    dict.residue_info.comp_id           = new_comp_id;
 	    dict.residue_info.three_letter_code = new_comp_id;
@@ -756,7 +759,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 	    dict.atom_id_swap(change_name);
 
 	    // change the residue atom names too (if non-NULL).
-	    if (residue_p) { 
+	    if (residue_p) {
 	       bool something_changed = change_names(residue_p, change_name, new_comp_id);
 	       if (something_changed) {
 		  mmdb::Manager *m = residue_p->chain->GetCoordHierarchy();
@@ -772,9 +775,10 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    delete g_2;
 
    dictionary_match_info_t dmi;
-   dmi.n_matches = change_name.size() + same_name.size();
+   dmi.n_matches = change_name.size() + same_names.size();
    dmi.dict = dict;
    dmi.name_swaps = change_name;
+   dmi.same_names = same_names;
    dmi.new_comp_id = new_comp_id;
    
    return dmi;
@@ -936,6 +940,7 @@ coot::dictionary_residue_restraints_t::make_graph(bool use_hydrogens) const {
    for (unsigned int ib=0; ib<bond_restraint.size(); ib++) {
       const dict_bond_restraint_t &br = bond_restraint[ib];
       int mmdb_bond_type = br.mmdb_bond_type();
+      // std::cout << "br: " << br << " mmdb_bond_type: " << mmdb_bond_type << std::endl;
       if (mmdb_bond_type != -1) {
 	 std::map<std::string, unsigned int>::const_iterator it_1;
 	 std::map<std::string, unsigned int>::const_iterator it_2;
@@ -954,8 +959,8 @@ coot::dictionary_residue_restraints_t::make_graph(bool use_hydrogens) const {
 	       if (use_hydrogens || (!is_hydrogen(br.atom_id_1_4c()) &&
 				     !is_hydrogen(br.atom_id_2_4c()))) {
 		  mmdb::math::Edge *e = new mmdb::math::Edge(it_1->second + 1,  // 1-indexed
-				       it_2->second + 1,
-				       mmdb_bond_type);
+							     it_2->second + 1,
+							     mmdb_bond_type);
 		  graph->AddEdge(e);
 	       }
 	    }
@@ -970,36 +975,69 @@ bool
 coot::dictionary_residue_restraints_t::comprised_of_organic_set() const { 
 
    bool r = true;
-   if (atom_info.size() == 0) { 
-     r = false;
-   } else { 
-     std::vector<std::string> e;
-     // e.push_back(" H"); e.push_back(" C"); e.push_back(" N"); e.push_back(" O"); 
-     // e.push_back(" I"); e.push_back("BR"); e.push_back("CL"); e.push_back(" F"); 
-     // e.push_back(" S"); e.push_back(" P"); 
-     e.push_back("H"); e.push_back("C"); e.push_back("N"); e.push_back("O"); 
-     e.push_back("I"); e.push_back("BR"); e.push_back("CL"); e.push_back("F"); 
-     e.push_back("S"); e.push_back("P"); 
-     for (unsigned int i=0; i<atom_info.size(); i++) { 
-        bool found_this = false;
-        for (unsigned int j=0; j<e.size(); j++) { 
-           if (atom_info[i].type_symbol == e[j]) { 
-              found_this = true;
-              break;
-           }
-        }
-        if (! found_this) { 
-           std::cout << "INFO::organic_set_test: " << i << " " << atom_info[i] 
-                     << " \"" << atom_info[i].type_symbol << "\""
-                     << " is not in the organic set" << std::endl;
-           r = false;
-           break;
-        }
-     }
+   if (atom_info.size() == 0) {
+      r = false;
+   } else {
+      std::vector<std::string> e;
+      // e.push_back(" H"); e.push_back(" C"); e.push_back(" N"); e.push_back(" O");
+      // e.push_back(" I"); e.push_back("BR"); e.push_back("CL"); e.push_back(" F");
+      // e.push_back(" S"); e.push_back(" P");
+      e.push_back("H"); e.push_back("C"); e.push_back("N"); e.push_back("O");
+      e.push_back("I"); e.push_back("BR"); e.push_back("CL"); e.push_back("F");
+      e.push_back("S"); e.push_back("P");
+      for (unsigned int i=0; i<atom_info.size(); i++) {
+	 bool found_this = false;
+	 for (unsigned int j=0; j<e.size(); j++) {
+	    if (atom_info[i].type_symbol == e[j]) {
+	       found_this = true;
+	       break;
+	    }
+	 }
+	 if (! found_this) {
+	    std::cout << "INFO::organic_set_test: " << i << " " << atom_info[i]
+		      << " \"" << atom_info[i].type_symbol << "\""
+		      << " is not in the organic set" << std::endl;
+	    r = false;
+	    break;
+	 }
+      }
    }
    return r;
-
 }
+
+
+// are the number of atoms of each element the same ie. they have the same chemical formula?
+//
+bool coot::dictionary_residue_restraints_t::composition_matches(const dictionary_residue_restraints_t &refr) const {
+
+   // Needs testing.
+
+   bool r = true;
+
+   std::map<std::string, int> this_atom_count;
+   std::map<std::string, int> refr_atom_count;
+   for (unsigned int i=0; i<atom_info.size(); i++)
+      this_atom_count[atom_info[i].type_symbol]++;
+   for (unsigned int i=0; i<refr.atom_info.size(); i++)
+      refr_atom_count[refr.atom_info[i].type_symbol]++;
+
+   std::map<std::string, int>::const_iterator it;
+   std::map<std::string, int>::const_iterator it_refr;
+   for (it=this_atom_count.begin(); it!=this_atom_count.end(); it++) {
+      it_refr = refr_atom_count.find(it->first);
+      if (it_refr == refr_atom_count.end()) {
+	 r = false;
+	 break;
+      } else {
+	 if (it->second != it_refr->second) {
+	    r = false;
+	    break;
+	 }
+      }
+   }
+   return r;
+}
+
 
 
 

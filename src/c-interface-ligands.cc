@@ -571,9 +571,10 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
 	       geom_matcher.get_monomer_restraints(cif_dict_comp_id);
 	    if (rp_2.first) {
 	       mmdb::Residue *residue_p = NULL; // for the moment
-	       // std::cout << "------ about to match "
-	       // << rp_2.second.residue_info.comp_id << " to "
-	       // << rp_1.second.residue_info.comp_id << " names" << std::endl;
+
+	       std::cout << "DEBUG:: ------ about to match "
+			 << rp_2.second.residue_info.comp_id << " to "
+			 << rp_1.second.residue_info.comp_id << " names" << std::endl;
 	       coot::dictionary_match_info_t dmi = 
 		  rp_2.second.match_to_reference(rp_1.second, residue_p, output_comp_id,
 						 output_compound_name);
@@ -582,10 +583,12 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
 		  dmi.dict.residue_info.name = output_compound_name;
 		  dmi.dict.write_cif(cif_dict_out);
 	       } else {
-		  std::cout << "INFO:: not similar enough" << std::endl;
+		  std::cout << "WARNING:: not similar enough, n_matches = "
+			    << dmi.n_matches << std::endl;
 	       }
 	    } else {
-	       std::cout << " not bonds from " << cif_dict_in << std::endl;
+	       std::cout << "WARNING:: no monomer restraints for " << cif_dict_comp_id
+			 << " in " << cif_dict_in << std::endl;
 	    }
 	 }
       } else {
@@ -1231,6 +1234,7 @@ std::vector<std::pair<std::string, std::string> > monomer_lib_3_letter_codes_mat
    return v;
 } 
 
+#include "c-interface-image-widget.hh"
 
 // we allocate new memory here, without ever giving it back.  The
 // memory should be freed when the dialog is destroyed.
@@ -1289,17 +1293,35 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
    // add new buttons
    for (unsigned int i=0; i<v.size(); i++) {
       // std::cout << i << " " << v[i].first << std::endl;
-      std::string l = v[i].first;
+      std::string l = "  ";
+      l += v[i].first;
       l += " : ";
       l += v[i].second;
       // std::cout << "Giving the button the label :" << l << ":" << std::endl;
-      GtkWidget *button = gtk_button_new_with_label(l.c_str());
-      // std::cout << "Adding button: " << button << std::endl;
-      std::string button_name = "monomer_button_";
+      // GtkWidget *button = gtk_button_new_with_label(l.c_str());
+      GtkWidget *button = gtk_button_new();
+      GtkWidget *label  = gtk_label_new(l.c_str());
 
+      GtkWidget *button_hbox = gtk_hbox_new(FALSE, 0);
+      gtk_container_add(GTK_CONTAINER(button), button_hbox);
+
+      GtkWidget *wp = get_image_widget_for_comp_id(v[i].first);
+
+      // gtk_image_new_from_file("test.png");
+
+      if (wp) { 
+	 gtk_widget_show(wp);
+	 gtk_box_pack_start(GTK_BOX(button_hbox), wp, FALSE, FALSE, 0);
+      } 
+      gtk_box_pack_start(GTK_BOX(button_hbox), label, FALSE, FALSE, 0);
+      gtk_widget_show(label);
+      gtk_widget_show(button_hbox);
+      
+      std::string button_name = "monomer_button_";
       // gets embedded as user data (hmm).
       string *s = new string(v[i].first); // the 3-letter-code/comp_id (for user data).
       button_name += v[i].first;
+      std::cout << "Adding button: " << button << " " << button_name << std::endl;
       gtk_widget_ref (button);
       gtk_object_set_data_full (GTK_OBJECT (dialog), 
 				button_name.c_str(), button,
@@ -1329,7 +1351,8 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
    gtk_widget_show (vbox);
    return stat;
 
-} 
+}
+
 
 void
 on_monomer_lib_sbase_molecule_button_press (GtkButton *button,
@@ -2804,17 +2827,19 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 	    
 	    if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
 	       n_restraints_chirals++;
-	       if (gdc.geometry_distortion[i].distortion_score > 10) { // arbitrons
+	       double chiral_volume_distortion_limit = 10; // arbitrons
+	       chiral_volume_distortion_limit = 0;
+	       if (gdc.geometry_distortion[i].distortion_score > chiral_volume_distortion_limit) {
 		  mmdb::Atom *at_c = residue_p->GetAtom(rest.atom_index_centre);
 		  mmdb::Atom *at_1 = residue_p->GetAtom(rest.atom_index_1);
 		  mmdb::Atom *at_2 = residue_p->GetAtom(rest.atom_index_2);
 		  mmdb::Atom *at_3 = residue_p->GetAtom(rest.atom_index_3);
 		  if (at_c && at_1 && at_2 && at_3) {
-		     std::cout << "   chiral volume problem centred at: "
+		     std::cout << "   chiral volume penalty score for chiral vol centred at: "
 			       << at_c->name << " with neighbours "
 			       << at_1->name << " "
 			       << at_2->name << " "
-			       << at_2->name << " "
+			       << at_3->name << " : "
 			       << gdc.geometry_distortion[i].distortion_score
 			       << std::endl;
 		  }

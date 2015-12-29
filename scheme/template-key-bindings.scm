@@ -110,11 +110,11 @@
 
 (add-key-binding "Cootilus here" "N" (lambda () (find-nucleic-acids-local 6.0)))
 
-(add-key-binding "JED-flip" "F"
+(add-key-binding "JED-Flip" "F"
    (lambda () (using-active-atom
 	       (jed-flip aa-imol aa-chain-id aa-res-no aa-ins-code aa-atom-name aa-alt-conf 0))))
 
-(add-key-binding "JED-flip" "G"
+(add-key-binding "Reverse JED-Flip" "G"
    (lambda () (using-active-atom
 	       (jed-flip aa-imol aa-chain-id aa-res-no aa-ins-code aa-atom-name aa-alt-conf 1))))
 

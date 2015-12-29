@@ -204,12 +204,19 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		  
 	    }
 
-	    // set the chirality
-	    // (if this atom is chiral)
+	    // set the chirality (if this atom is chiral)
 	    //
+	    // If we are using PDBe restraints, then we can't convert
+	    // pdbx_stereo_config_flag info rdkit::Atom::ChiralType here because
+	    // we don't have chiral restraint neighbour info from the restraints.
+	    // We need to make chiral info like RDKit does.  First, let's set them
+	    // to undefined.
+	    //
+	    bool done_chiral = false;
 	    for (unsigned int ichi=0; ichi<restraints.chiral_restraint.size(); ichi++) {
 	       const dict_chiral_restraint_t &cr = restraints.chiral_restraint[ichi];
 	       if (cr.atom_id_c_4c() == atom_name) {
+		  done_chiral = true;
 		  if (!cr.has_unassigned_chiral_volume()) {
 		     rdkit_at->setProp("mmcif_chiral_N1", util::remove_whitespace(cr.atom_id_1_4c()));
 		     rdkit_at->setProp("mmcif_chiral_N2", util::remove_whitespace(cr.atom_id_2_4c()));
@@ -231,9 +238,37 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 			rdkit_at->setProp("mmcif_chiral_volume_sign", bc);
 		     } 
 		  }
-	       } 
+	       }
+	    }
+
+
+	    // OK, perhaps the atom was marked as a chiral atom using pdbx_stereo_config
+	    // 
+	    if (! done_chiral) {
+	       for (unsigned int ii=0; ii<restraints.atom_info.size(); ii++) { 
+		  if (atom_name == restraints.atom_info[ii].atom_id_4c) {
+		     if (restraints.atom_info[ii].pdbx_stereo_config_flag.first) {
+			if (restraints.atom_info[ii].pdbx_stereo_config_flag.second == "S") {
+			   RDKit::Atom::ChiralType tag = RDKit::Atom::CHI_UNSPECIFIED;
+			   tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
+			   std::cout << "------------------- found an S - and set tag "
+				     << tag <<  std::endl;
+			   rdkit_at->setChiralTag(tag);
+			}
+			if (restraints.atom_info[ii].pdbx_stereo_config_flag.second == "R") {
+			   RDKit::Atom::ChiralType tag = RDKit::Atom::CHI_UNSPECIFIED;
+			   tag = RDKit::Atom::CHI_TETRAHEDRAL_CW;
+			   rdkit_at->setChiralTag(tag);
+			   std::cout << "------------------- found an R - and set tag "
+				     << tag <<  std::endl;
+			}
+		     }
+		  }
+	       }
 	    }
 	    
+	    
+
 	    m.addAtom(rdkit_at);
 	       
 	    if (debug) 
@@ -506,7 +541,6 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
                 << "number of atoms comparison added_atom names size: " 
                 << added_atom_names.size() << " vs m.getNumAtoms() " 
 	        << m.getNumAtoms() << std::endl;
-   // RDKit::Conformer *conf = new RDKit::Conformer(added_atom_names.size());
    RDKit::Conformer *conf = new RDKit::Conformer(m.getNumAtoms());
    conf->set3D(true);
       
@@ -530,9 +564,24 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	 }
       }
    }
-   m.addConformer(conf);
+   int iconf = m.addConformer(conf);
+
+   if (debug)
+      std::cout << "DEBUG:: in rdkit_mol() assignStereochemistry() " << std::endl;
+
+   std::cout << "DEBUG:: in rdkit_mol() call pre-chirality" << std::endl;
+   m.debugMol(std::cout);
+   
+   // std::cout << "DEBUG:: in rdkit_mol() call assignChiralTypesFrom3D() :::::::" << std::endl;
+   // RDKit::MolOps::assignChiralTypesFrom3D(m, iconf);
+   // m.debugMol(std::cout);
+   
+   std::cout << "DEBUG:: in rdkit_mol() call assignStereochemistry() :::::::" << std::endl;
+   RDKit::MolOps::assignStereochemistry(m, true, true, true);
+   m.debugMol(std::cout);
+
    if (debug) 
-      std::cout << "ending construction of rdkit mol: n_atoms " << m.getNumAtoms()
+      std::cout << "DEBUG:: in rdkit_mol() ending rdkit mol: n_atoms " << m.getNumAtoms()
 		<< std::endl;
 
    // debugging
@@ -587,6 +636,10 @@ coot::chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2,
 RDKit::RWMol
 coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 
+
+   std::cout << "------------------- plain rdkit_mol() called " << r.residue_info.comp_id
+	     << std::endl;
+
    RDKit::RWMol m;
    const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
 
@@ -613,6 +666,7 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	    if (r.chiral_restraint[ichi].atom_id_c_4c() == r.atom_info[iat].atom_id_4c) {
 	       if (!r.chiral_restraint[ichi].has_unassigned_chiral_volume()) {
 		  if (!r.chiral_restraint[ichi].is_a_both_restraint()) {
+		     std::cout << "FIXME  ... check the chirality sign rdkit_mol() " << std::endl;
 		     RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
 		     at->setChiralTag(chiral_tag);
 		  }
@@ -664,6 +718,40 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	 }
       }
    }
+
+   coot::undelocalise(&m);
+   unsigned int n_mol_atoms = m.getNumAtoms();
+   for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
+      RDKit::ATOM_SPTR at_p = m[iat];
+      at_p->calcImplicitValence(true);
+   }
+
+   // ------------------------------------ Conformer -----------------------------
+   
+   RDKit::Conformer *conf = new RDKit::Conformer(m.getNumAtoms());
+   conf->set3D(true);
+   unsigned int n_added = 0;
+   for (unsigned int iat=0; iat<r.atom_info.size(); iat++) {
+      // const std::pair<bool, clipper::Coord_orth> &pos = r.atom_info[iat].pdbx_model_Cartn_ideal;
+      const std::pair<bool, clipper::Coord_orth> &pos = r.atom_info[iat].model_Cartn;
+      if (pos.first) {
+	 RDGeom::Point3D pos3d(pos.second.x(),
+			       pos.second.y(),
+			       pos.second.z());
+	 conf->setAtomPos(iat, pos3d);
+	 n_added++;
+      }
+   }
+
+   if (n_added == r.atom_info.size()) { 
+      int iconf = m.addConformer(conf);
+      std::cout << "debug:: rdkit_mol(r) added a conformer for "
+		<< r.residue_info.comp_id << std::endl;
+   } else {
+      delete conf;
+      std::cout << "Conformer not added because there were " << n_added
+		<< " added atoms and we need " << r.atom_info.size() << std::endl;
+   } 
    return m;
 } 
 
@@ -903,9 +991,12 @@ coot::get_chiral_tag_v2(mmdb::Residue *residue_p,
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    std::string atom_name = atom_p->name;
 
-   std::cout << "Called get_chiral_tag_v2() whti atom name " << atom_name << std::endl;
+   std::cout << "DEBUG:: in get_chiral_tag_v2() with atom name " << atom_name << std::endl;
 
    // do we have 4 atoms bonded to the chiral centre atom?
+
+   std::cout << "DEBUG:: in get_chiral_tag_v2() n chiral restraints: "
+	     << restraints.chiral_restraint.size() << std::endl; 
 
    for (unsigned int ich=0; ich<restraints.chiral_restraint.size(); ich++) { 
       const dict_chiral_restraint_t &cr = restraints.chiral_restraint[ich];
@@ -937,6 +1028,8 @@ coot::get_chiral_tag_v2(mmdb::Residue *residue_p,
 	    // now we get the 4th atom by looking at the atoms bonded to atom_p
 	    // (the we don't aleady have)
 
+	    std::cout << "DEBUG:: in get_chiral_tag_v2() OK we have the 3 neighbs" << std::endl;
+	    
 	    for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
 	       std::string other_atom;
 	       const dict_bond_restraint_t &br = restraints.bond_restraint[ib];
@@ -984,7 +1077,8 @@ coot::get_chiral_tag_v2(mmdb::Residue *residue_p,
 			 << neighbs.size() << std::endl;
 	    } else {
 
-	       
+	       std::cout << "DEBUG:: in get_chiral_tag_v2() OK we have the 4 neighbs" << std::endl;
+
 	       std::sort(neighbs.begin(), neighbs.end(), chiral_neighbour_info_t::neighbour_sorter);
 	       std::vector<chiral_neighbour_info_t> back_neighbs;
 
@@ -1019,6 +1113,8 @@ coot::get_chiral_tag_v2(mmdb::Residue *residue_p,
 	       // 		  atom_orders_match = true;
 	       // 	       } 
 	       
+
+	       std::cout << "in get_chiral_tag_v2() Here 4" << std::endl;
 	       
 	       bool atom_orders_match = false;
 	       // 2 1 0
@@ -1386,7 +1482,7 @@ coot::make_residue(const RDKit::ROMol &rdkm, int iconf, const std::string &res_n
       residue_p->seqNum = 1;
       residue_p->SetResName(res_name.c_str());
       mmdb::Chain *chain_p = new mmdb::Chain;
-      chain_p->SetChainID("");
+      chain_p->SetChainID("A");
       chain_p->AddResidue(residue_p);
       for (unsigned int iat=0; iat<mol.atoms.size(); iat++) { 
 	 mmdb::Atom *at = new mmdb::Atom;
