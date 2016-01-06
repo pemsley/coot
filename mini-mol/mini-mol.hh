@@ -103,6 +103,9 @@ namespace coot {
 	 void write_file(const std::string &file_name) const;
 	 // return a negative on a problem
 	 double lsq_overlay_rmsd(const residue &r) const;
+	 bool is_empty() const { return (atoms.size() == 0); }
+	 mmdb::Residue *make_residue() const; // caller disposes of memory
+	 void update_positions_from(mmdb::Residue *residue_p);
       };
 
       class fragment {
@@ -154,6 +157,8 @@ namespace coot {
 	 std::vector<atom *> select_atoms_serial() const;
 	 int max_residue_number() const { return (residues.size() + residues_offset -1); }
 	 int min_res_no() const { return residues_offset + 1; }
+ 	 // return the first residue with atoms
+	 int first_residue() const;
 	 int n_filled_residues() const;
 	 int resize_for(int nres, int min_resno);
 	 void check() const;
@@ -163,6 +168,7 @@ namespace coot {
 	 bool operator<(const fragment &f1) const {
 	    return (fragment_id < f1.fragment_id);
 	 }
+	 mmdb::Chain *make_chain() const;
       };
 
       class molecule {

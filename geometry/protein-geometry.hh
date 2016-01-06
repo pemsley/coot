@@ -528,11 +528,17 @@ namespace coot {
 
 
    // ------------------------------------------------------------------------
+   // class dictionary_match_info_t
+   // ------------------------------------------------------------------------
+   //
+
+   class dictionary_match_info_t; // yes.
+   
+   // ------------------------------------------------------------------------
    // class dictionary_residue_restraints_t
    // ------------------------------------------------------------------------
    //
-   class dictionary_match_info_t;       // forward for matching
-   
+
    class dictionary_residue_restraints_t {
 
       class atom_pair_t {
@@ -680,6 +686,11 @@ namespace coot {
 
       std::vector<std::vector<std::string> > get_ligand_ring_list() const;
 
+      // return null on failure
+      mmdb::Residue *GetResidue(bool idealize_flag, float b_factor) const;
+
+      bool in_same_ring(const std::string &atom_name_1, const std::string &atom_name_2) const;
+
       bool ligand_has_aromatic_bonds_p() const;
 
       std::vector<std::vector<std::string> > get_ligand_aromatic_ring_list() const;
@@ -745,22 +756,25 @@ namespace coot {
       
       // Are the atoms only of elements C,N.O,H,F,Cl,I,Br,P,S?
       bool comprised_of_organic_set() const;
-   };
 
+      // are the number of atoms of each element the same ie. they have the same chemical formula?
+      // 
+      bool composition_matches(const dictionary_residue_restraints_t &other) const;
+      
+   };
 
    class dictionary_match_info_t {
    public:
       unsigned int n_matches;
       dictionary_residue_restraints_t dict;
       std::vector<std::pair<std::string, std::string> > name_swaps;
+      std::vector<std::string> same_names;
       std::string new_comp_id;
       dictionary_match_info_t() {
 	 n_matches = 0;
       }
    };
-      
-      
-   
+
 
    // ------------------------------------------------------------------------
    // class dict_link_bond_restraint_t
@@ -2370,8 +2384,19 @@ namespace coot {
       // 
       // Return a pair, if not found the first is 0.  Look up in the energy_lib.
       // 
+      // 20151126 We need to know more than just the energy types. We need to know 
+      //          if the atoms are in the same ring (if so then we apply 1-4 distance 
+      //          corrections). 
+      //
+      //          We pass in_same_residue_flag because 1-4 nbc-distance shortening can
+      //          be applied within a residue, but we leave them full between
+      //          residues.  This is a bit of a hack currently. We really need to find
+      //          if the atoms are 1-4 related.
+      //
       std::pair<bool, double> get_nbc_dist(const std::string &energy_type_1,
-					   const std::string &energy_type_2) const;
+					   const std::string &energy_type_2,
+					   bool in_same_residue_flag = true,
+					   bool in_same_ring_flag = true) const;
 
       energy_lib_atom get_energy_lib_atom(const std::string &ener_type) const;
       

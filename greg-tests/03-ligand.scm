@@ -209,6 +209,10 @@
 	     (format #t "not valid molecule for copy of monomer-3GP.pdb~%")
 	     (throw 'fail)))
 
+       ;; we need this, otherwise active-atom is (accidentally) the wrong molecule
+       (set-go-to-atom-molecule imol-copy)
+       (set-go-to-atom-chain-residue-atom-name "A" 1 " C8 ")
+
        (let ((active-atom (active-residue)))
 	 (if (not active-atom)
 	     (begin

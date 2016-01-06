@@ -852,7 +852,7 @@ coot::ligand_report_absolute_t::make_percentiles() const {
       rc = sqlite3_exec(db, "SELECT * FROM ligands ;",
 			ligands_db_sql_callback,
 			this_ptr, &zErrMsg);
-      if( rc!=SQLITE_OK ) {
+      if (rc!=SQLITE_OK) {
 	 fprintf(stderr, "SQL error: %s\n", zErrMsg);
 	 sqlite3_free(zErrMsg);
       }

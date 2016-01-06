@@ -42,17 +42,9 @@
 #endif
 
 
-#if (GTK_MAJOR_VERSION == 1)
-#include <gtkgl/gtkglarea.h>
-#else  // GTK2 build then:
 #include <gdk/gdkglconfig.h>
 #include <gdk/gdkgldrawable.h>
 #include <gtk/gtkgl.h>
-#endif // (GTK_MAJOR_VERSION == 1)
-
-// #ifndef WII_INTERFACE
-// #define WII_INTERFACE 1 // FIXME WII
-// #endif
 
 #ifdef WII_INTERFACE_WIIUSE
 #include "wiiuse.h"
@@ -758,6 +750,11 @@ class graphics_info_t {
    static int backbone_torsion_peptide_button_start_pos_y;
    static int backbone_torsion_carbonyl_button_start_pos_x;
    static int backbone_torsion_carbonyl_button_start_pos_y;
+
+   // We use this ramachandran_points_container to pass ramachan plots
+   // to the bond (and markup atom) generator (Bond-lines).
+   //
+   static ramachandrans_container_t ramachandrans_container;
 
    clipper::Coord_orth moving_atoms_centre() const;
 
@@ -3964,7 +3961,6 @@ string   static std::string sessionid;
    static unsigned int user_defined_interesting_positions_idx;
 
    void register_user_defined_interesting_positions(const std::vector<std::pair<clipper::Coord_orth, std::string> > &udip);
-
 
 };
 

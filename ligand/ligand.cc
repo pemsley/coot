@@ -1797,12 +1797,6 @@ coot::ligand::install_ligand(const coot::minimol::molecule &ligand) {
 std::ostream&
 coot::operator<<(std::ostream &s, const coot::ligand_score_card &lsc) {
 
-   int n_ligand_atoms; // non-H.
-   int ligand_no;
-   short int many_atoms_fit;
-   double score;
-   double score_per_atom;
-
    s << "[ligand-score: #" << lsc.ligand_no << " at-score: " <<  lsc.atom_point_score
      << " r-state: [" << lsc.correlation.first;
 

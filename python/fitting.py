@@ -799,7 +799,9 @@ def pepflip_active_residue():
        atom_name  = active_atom[4]
        alt_conf   = active_atom[5]
 
-    pepflip(imol, chain_id, res_no, ins_code, alt_conf)
+       if (atom_name == " N  "): # PDBv3 fixme
+	   res_no -= 1;
+       pepflip(imol, chain_id, res_no, ins_code, alt_conf)
     
 
 # Another cool function that needs a key binding

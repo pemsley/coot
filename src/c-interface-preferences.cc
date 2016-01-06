@@ -1549,7 +1549,7 @@ int preferences_internal_font_own_colour_flag() {
 
    int r = -1; 
    graphics_info_t g;
-   for (int i=0; i<g.preferences_internal.size(); i++) {
+   for (unsigned int i=0; i<g.preferences_internal.size(); i++) {
       if (g.preferences_internal[i].preference_type == PREFERENCES_FONT_OWN_COLOUR_FLAG) {
 	 r = g.preferences_internal[i].ivalue1;
 	 break;

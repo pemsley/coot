@@ -1430,9 +1430,11 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    int steps_per_frame = dragged_refinement_steps_per_frame;
    if (! g.last_restraints.include_map_terms())
       steps_per_frame *= 6;
-   // std::cout << "steps_per_frame " << steps_per_frame << std::endl;
-   graphics_info_t::saved_dragged_refinement_results = 
+
+   graphics_info_t::saved_dragged_refinement_results =
       g.last_restraints.minimize(flags, steps_per_frame, print_initial_chi_squareds_flag);
+
+
    retprog = graphics_info_t::saved_dragged_refinement_results.progress;
    print_initial_chi_squareds_flag = 0;
    int do_disulphide_flag = 0;
@@ -1441,8 +1443,13 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
       draw_hydrogens_flag = 1;
    Bond_lines_container bonds(*(g.moving_atoms_asc), do_disulphide_flag, draw_hydrogens_flag);
    g.regularize_object_bonds_box.clear_up();
-   g.regularize_object_bonds_box = bonds.make_graphical_bonds();
+   bool do_markup = true;
+   g.regularize_object_bonds_box = bonds.make_graphical_bonds(g.ramachandrans_container,
+							      do_markup);
 
+   char *env = getenv("COOT_DEBUG_REFINEMENT");
+   if (env)
+      g.tabulate_geometric_distortions(last_restraints);
 
    // Update the Accept/Reject Dialog if it exists (and it should do,
    // if we are doing dragged refinement).
@@ -1451,10 +1458,6 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 	 update_accept_reject_dialog_with_results(accept_reject_dialog,
 						  coot::CHI_SQUAREDS,
 						  saved_dragged_refinement_results);
-
-	 char *env = getenv("COOT_DEBUG_REFINEMENT");
-	 if (env)
-	    g.tabulate_geometric_distortions(last_restraints);
       }
    }
    
@@ -1596,8 +1599,6 @@ graphics_info_t::moving_atoms_graphics_object() {
 
       // now we want to draw out our bonds in white, 
       glColor3f (0.9, 0.9, 0.9);
-      coot::CartesianPair pair;
-      Lines_list ll;
       
       glLineWidth(graphics_info_t::bond_thickness_intermediate_atoms);
       for (int i=0; i< graphics_info_t::regularize_object_bonds_box.num_colours; i++) {
@@ -1612,12 +1613,12 @@ graphics_info_t::moving_atoms_graphics_object() {
 	 default:
 	    glColor3f (0.8, 0.8, 0.8);
 	 }
-	 ll = graphics_info_t::regularize_object_bonds_box.bonds_[i];
+	 Lines_list &ll = graphics_info_t::regularize_object_bonds_box.bonds_[i];
 
 	 glBegin(GL_LINES); 
 	 for (int j=0; j< graphics_info_t::regularize_object_bonds_box.bonds_[i].num_lines; j++) {
 	   
-	    pair = ll.pair_list[j].positions;
+	    coot::CartesianPair &pair = ll.pair_list[j].positions;
 	    
 	    glVertex3f(pair.getStart().get_x(),
 		       pair.getStart().get_y(),
@@ -1628,6 +1629,24 @@ graphics_info_t::moving_atoms_graphics_object() {
 	 }
 	 glEnd();
       }
+
+      if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
+	 for (int i=0; i<graphics_info_t::regularize_object_bonds_box.n_ramachandran_goodness_spots; i++) {
+	    const coot::Cartesian &pos = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].first;
+	    const float &size          = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].second;
+	    // std::cout << "    rama " << pos << " " << size<< std::endl;
+
+	    if (false) { 
+	       double base = size * 0.3;
+	       int slices = 10;
+	       GLUquadric* quad = gluNewQuadric();
+	       glPushMatrix();
+	       glTranslatef(pos.x(), pos.y(), pos.z());
+	       gluDisk(quad, 0, base, slices, 2);
+	       glPopMatrix();
+	    }
+	 }
+      } 
    }
 }
 

@@ -33,7 +33,7 @@ pkginclude_HEADERS = ligand.hh residue_by_phi_psi.hh wligand.hh monomer-utils.hh
 	chi-angles.hh dunbrack.hh helix-placement.hh fast-ss-search.hh        \
 	rigid-body.hh ideal-rna.hh rotamer.hh richardson-rotamer.hh           \
 	torsion-general.hh primitive-chi-angles.hh dipole.hh    \
-	base-pairing.hh backrub-rotamer.hh trace.hh
+	base-pairing.hh backrub-rotamer.hh trace.hh multi-peptide.hh
 pkgincludedir = $(includedir)/coot/ligand
 
 
@@ -42,7 +42,7 @@ libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
 	chi-angles.cc helix-placement.cc fast-ss-search.cc rigid-body.cc      \
 	ideal-rna.cc richardson-rotamers.cc richardson-rotamer.cc rotamer.cc  \
 	torsion-general.cc rotamer-tables.cc primitive-chi-angles.cc dipole.cc\
-        base-pairing.cc backrub-rotamer.cc trace.cc trace-2.cc
+        base-pairing.cc backrub-rotamer.cc trace.cc trace-2.cc multi-peptide.cc
 
 # clean
 libcoot_ligand_la_LIBADD = \
@@ -65,6 +65,7 @@ libcoot_ligand_la_LDFLAGS = $(SHARED_LDFLAGS)
 AM_CXXFLAGS = \
          $(OPENMP_CFLAGS) \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
+	$(SQLITE3_CFLAGS) \
 	$(COOT_WINDOWS_CFLAGS)
 
 bin_PROGRAMS = findligand-bin findwaters-bin
@@ -72,15 +73,19 @@ bin_PROGRAMS = findligand-bin findwaters-bin
 # check_PROGRAMS = test-helix-placement test-fffear-in-coot testdunbrack 
 #                  test-random test-ligand test-rotamer-tables-sql
 
-check_PROGRAMS = test-fffear-in-coot test-trace
+check_PROGRAMS = test-fffear-in-coot test-trace make-ligands-db ligand-percentiles
 
 findligand_bin_SOURCES = find-ligand.cc
 findwaters_bin_SOURCES = find-waters.cc
 
 test_trace_SOURCES = test-trace.cc
+test_trace_LDADD = ./libcoot-ligand.la
 
-test_trace_LDADD = ./libcoot-ligand.la 
+make_ligands_db_SOURCES = make-ligands-db.cc ligands-db.cc
+make_ligands_db_LDADD = ./libcoot-ligand.la $(SQLITE3_LIBS)
 
+ligand_percentiles_SOURCES = ligand-percentiles.cc ligands-db.cc
+ligand_percentiles_LDADD = ./libcoot-ligand.la $(SQLITE3_LIBS)
 
 
 # test_rotamer_tables_sql = test-rotamer-tables-sql.cc

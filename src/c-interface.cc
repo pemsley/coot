@@ -141,8 +141,11 @@
 #include "Python.h"
 #endif // USE_PYTHON
 
+
+// This is (already) in git-revision-count.cc
+//
 int svn_revision() {
-   return git_revision_count();
+    return git_revision_count();
 }
 
 std::string coot_version() {
@@ -5090,7 +5093,7 @@ void set_display_only_model_mol(int imol) {
    graphics_info_t g;
    int n = graphics_n_molecules();
 
-   for (unsigned int i=0; i<n; i++) {
+   for (int i=0; i<n; i++) {
       int state = 0;
       if (i == imol)
 	 state = 1;

@@ -1419,8 +1419,7 @@ molecule_class_info_t::set_initial_contour_level() {
 
 // 
 void
-molecule_class_info_t::draw_skeleton() {
-
+molecule_class_info_t::draw_skeleton(bool is_dark_background) {
 
    if (has_xmap()) { 
 

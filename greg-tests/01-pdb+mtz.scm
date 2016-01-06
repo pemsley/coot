@@ -1664,7 +1664,6 @@
      (let ((imol (greg-pdb "pdb2qc1-sans-cho.pdb"))
 	   (imol-map (make-and-draw-map rnase-mtz "FWT" "PHWT" "" 0 0)))
 
-
        (if (not (valid-model-molecule? imol))
 	   (throw 'failed-to-find-pdb2qc1-sans-cho))
        
@@ -1675,7 +1674,7 @@
 	 (let ((atom-1 (get-atom imol "B" 141 "" " ND2"))
 	       (atom-2 (get-atom imol "B" 464 "" " C1 ")))
 
-	   (bond-length-within-tolerance? atom-1 atom-2 1.43 0.1))))))
+	   (bond-length-within-tolerance? atom-1 atom-2 1.43 0.2))))))
 
 
 

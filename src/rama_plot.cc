@@ -907,7 +907,7 @@ coot::rama_plot::generate_phi_psis(mmdb::Manager *mol_in, bool is_primary) {
 	    chain_p = model_p->GetChain(ichain);
 	    int nres = chain_p->GetNumberOfResidues();
 	    mmdb::Residue *residue_p;
-	    if (nres > 2) { 
+	    if (nres > 2) {
 	       for (int ires=1; ires<(nres-1); ires++) { 
 		  residue_p = chain_p->GetResidue(ires);
 
@@ -923,7 +923,7 @@ coot::rama_plot::generate_phi_psis(mmdb::Manager *mol_in, bool is_primary) {
 			coot::util::phi_psi_t pp(res_prev, residue_p, res_next);
 			model_phi_psis.add_phi_psi(spec, pp);
 		     }
-		     catch (std::runtime_error rte) {
+		     catch (const std::runtime_error &rte) {
 			// nothing too bad, just don't add that residue
 			// to the plot
 		     }
@@ -2235,7 +2235,7 @@ coot::rama_plot::rama_get_mmdb_manager(std::string pdb_name) {
    MMDBManager = new mmdb::Manager;
 
    std::cout << "Reading coordinate file: " << pdb_name.c_str() << "\n";
-   err = MMDBManager->ReadCoorFile((char *)pdb_name.c_str());
+   err = MMDBManager->ReadCoorFile(pdb_name.c_str());
    
    if (err) {
       // does_file_exist(pdb_name.c_str());
