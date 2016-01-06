@@ -1,5 +1,6 @@
 
 #ifdef USE_SQLITE3
+#include <math.h> 
 #include <sqlite3.h>
 #include "ligands-db.hh"
 
@@ -15,7 +16,9 @@ coot::ligand_metrics::ligand_metrics(const std::string &db_file_name) {
    init();
    if (file_exists(db_file_name)) {
       int rc = sqlite3_open(db_file_name.c_str(), &db_);
-   }
+   } else {
+      std::cout << "WARNING:: File not found " << db_file_name << std::endl;
+   } 
 }
 
 void
@@ -52,22 +55,41 @@ coot::ligand_metrics::get_values(const std::string &col_name) const {
    return v;
 }
 
+// return high idx for good ligands
+//
+// return second of 0 on failure
+// 
 std::pair<int, int>
-coot::ligand_metrics::get_index(double val, const std::string &col_name) const {
+coot::ligand_metrics::get_index(double val, const std::string &col_name, bool low_is_good) const {
 
    int len = 0;
    int idx = 0;
    std::vector<double> v = get_values(col_name);
-   std::sort(v.begin(), v.end());
 
-   for (unsigned int i=0; i<v.size(); i++) { 
-      if (val < v[i]) {
-	 idx = i;
-	 len = v.size();
-	 break;
+   if (col_name == "coot_diff_map_correlation")
+      for (unsigned int i=0; i<v.size(); i++)
+	 v[i] = fabs(v[i]);
+
+   std::sort(v.begin(), v.end()); // sorted low to high
+
+   if (low_is_good) { 
+      for (unsigned int i=0; i<v.size(); i++) { 
+	 if (val <= v[i]) {
+	    len = v.size();
+	    idx = len -i;
+	    break;
+	 }
+      }
+   } else {
+      for (unsigned int i=0; i<v.size(); i++) { 
+	 if (val < v[i]) {
+	    idx = i;
+	    len = v.size();
+	    break;
+	 }
       }
    }
-   
+
    return std::pair<int, int>(idx, len);
 }
 
@@ -391,6 +413,21 @@ static int coot::db_select_callback(void *data_store, int argc, char **argv, cha
    return status;
 }
 
+// fill data_store with as a std::vector<double>
+// 
+static int coot::db_select_primary_key_callback(void *data_store, int argc, char **argv, char **azColName) {
+   int status = 0;
+   std::vector<std::string> *v = static_cast<std::vector<std::string> *>(data_store);
+   for(int i=0; i<argc; i++){
+      if (argv[i] != NULL)
+	 v->push_back(argv[i]);
+      else
+	 std::cout << "null argv " << i << "!" << std::endl;
+   }
+   return status;
+}
+
+
 bool
 coot::ligand_metrics::update_resolutions_by_line(const std::string &line) {
 
@@ -697,6 +734,70 @@ coot::ligand_metrics::update_edstats_results_by_line(const std::string &line) {
    return status;
 }
 
+
+double
+coot::ligand_metrics::get_value(const std::string &accession_code,
+				const std::string &metric_name,
+				bool from_int) const {
+
+   double val = -1;
+   std::vector<double> v;
+
+   if (db_) { 
+      std::string cmd = "select " + metric_name + " from " + table_name +
+	 " where accession_code = '" + accession_code + "' ;";
+      char *zErrMsg = 0;
+
+      void *data_pointer = static_cast<void *>(&v);
+
+      // std::cout << "processing " << cmd << std::endl;
+
+      int rc = sqlite3_exec(db_, cmd.c_str(), db_select_callback, data_pointer, &zErrMsg);
+      if (rc !=  SQLITE_OK) {
+	 if (zErrMsg) {
+	    std::cout << "ERROR: processing command " << cmd << " " << zErrMsg << std::endl;
+	 } else { 
+	    std::cout << "ERROR: processing command " << cmd << std::endl;
+	    sqlite3_free(zErrMsg);
+	 }
+      }
+   } else {
+      std::cout << "invalid database" << std::endl;
+   }
+
+   if (v.size() == 1)
+      val = v[0];
+
+   return val;
+} 
+
+std::vector<std::string>
+coot::ligand_metrics::get_primary_keys() const {
+
+   std::vector<std::string> v;
+
+   if (db_) { 
+      std::string cmd = "select accession_code from " + table_name + " ;";
+      char *zErrMsg = 0;
+
+      void *data_pointer = static_cast<void *>(&v);
+
+      int rc = sqlite3_exec(db_, cmd.c_str(), db_select_primary_key_callback, data_pointer, &zErrMsg);
+      if (rc !=  SQLITE_OK) {
+	 if (zErrMsg) { 
+	    std::cout << "ERROR: processing command " << cmd << " " << zErrMsg << std::endl;
+	 } else { 
+	    std::cout << "ERROR: processing command " << cmd << std::endl;
+	    sqlite3_free(zErrMsg);
+	 }
+      }
+   } else {
+      std::cout << "invalid database" << std::endl;
+   } 
+   
+
+   return v;
+} 
 
 
 // this file is only compiled if we have configured with sqlite3

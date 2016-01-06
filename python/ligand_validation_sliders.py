@@ -69,7 +69,10 @@ class ligand_validation_metrics_gui:
         for idx in range(len(ligand_validation_specs.metrics)):
             m = ligand_validation_specs.metrics[idx]
             # print 'render metric', m.metric_name, m.percentile_abs
-            self.draw_slider(m.metric_name, 0, m.percentile_abs, m.percentile_rel, m.value, idx, da, gc)
+            self.draw_slider(m.metric_name, 0, m.percentile_abs, m.percentile_rel, '{0:.3f}'.format(m.value), idx, da, gc)
+
+	values = [m.percentile_abs for m in ligand_validation_specs.metrics]
+	self.draw_connecting_lines(values, da, gc)
 
         # perhaps we should check that the ligand metrics were (each good)?
         return len(ligand_validation_specs.metrics)
@@ -97,13 +100,14 @@ class ligand_validation_metrics_gui:
 	pangolayout.set_alignment(pango.ALIGN_RIGHT)
         pangolayout.set_text(name)
 	pangolayout.context_changed()
-        da.window.draw_layout(gc, 4+x_for_rj, y-6, pangolayout)
+	print "pangolayout for ", name
+        da.window.draw_layout(gc, 4+x_for_rj, y-3, pangolayout)
 
 	# Values text
 	if isinstance(value_str, types.StringType):
 	    x_for_value = self.x_bar_offset + self.bar_length + 12
 	    pangolayout.set_text(value_str)
-	    # print "value", x_for_value, y
+	    # print "Drawing Value value", x_for_value, y, value_str
 	    da.window.draw_layout(gc, x_for_value, y-6, pangolayout)
 
 	# Bars for percentile scores
@@ -123,6 +127,24 @@ class ligand_validation_metrics_gui:
 	# hopefully we don't get here.
 	return False
 
+    # pass abs values
+    def draw_connecting_lines(self, pc_ranks, da, gc):
+
+	if len(pc_ranks) > 1:
+	    for slider_no in range(len(pc_ranks)-1):
+		y_min_1 = 20 + 30*(slider_no+1)
+		y_min_2 = 20 + 30*(slider_no+2)
+		abs_1 = float(pc_ranks[slider_no])
+		abs_2 = float(pc_ranks[slider_no+1])
+		
+		x_1 = int(self.x_bar_offset + 0.01 * abs_1 * self.bar_length)
+		y_1 = int(y_min_1 + self.bar_height + 1)
+		
+		x_2 = int(self.x_bar_offset + 0.01 * abs_2 * self.bar_length)
+		y_2 = int(y_min_2 - self.bar_height * 0.25)
+		
+		da.window.draw_line(gc, x_1, y_1, x_2, y_2)
+	
     def on_drawing_area_expose(self, drawing_area, event):
         style = drawing_area.get_style()
 	gc = style.fg_gc[gtk.STATE_NORMAL]
@@ -155,7 +177,7 @@ class ligand_validation_metrics_gui:
 	
         pangolayout.set_text('Metric')
 	y_level = 15
-        da.window.draw_layout(gc, 100, y_level, pangolayout)
+        da.window.draw_layout(gc, 80, y_level, pangolayout)
         pangolayout.set_text('Percentile Ranks')
         da.window.draw_layout(gc, 245, y_level, pangolayout)
         pangolayout.set_text('Value')
@@ -164,7 +186,7 @@ class ligand_validation_metrics_gui:
     # Worse, Better
     def draw_bottom_labels(self, da, gc, n_sliders): 
 	x_worse  = self.x_bar_offset
-	y_worse  = self.y_bar_offset + self.y_pixels_bar_spacing * n_sliders + 15
+	y_worse  = self.y_bar_offset + self.y_pixels_bar_spacing * n_sliders + 18
 	x_better = self.x_bar_offset + self.bar_length - 32
 	y_better = y_worse
 
@@ -195,17 +217,18 @@ class ligand_validation_metrics_gui:
 
 	da.window.draw_rectangle(gc, True, x_key_box_abs, y_key_box_abs,
 				 self.abs_bar_width, self.abs_bar_height)
-	da.window.draw_rectangle(gc, False, x_key_box_rel, y_key_box_rel,
-				 self.abs_bar_width, self.abs_bar_height)
-
+	
         pl = da.create_pango_layout("")
         font_desc = pango.FontDescription('Sans 9')
 	pl.set_font_description(font_desc)
 	
         pl.set_text('Percentile relative to all x-ray structures')
         da.window.draw_layout(gc, x_key_1, y_key_1, pl)
-        pl.set_text('Percentile relative to x-ray structures of similar resolution')
-        da.window.draw_layout(gc, x_key_2, y_key_2, pl)
+	
+	#da.window.draw_rectangle(gc, False, x_key_box_rel, y_key_box_rel,
+	#			 self.abs_bar_width, self.abs_bar_height)
+        # pl.set_text('Percentile relative to x-ray structures of similar resolution')
+        # da.window.draw_layout(gc, x_key_2, y_key_2, pl)
 
 class ligand_stats:
 
@@ -224,14 +247,34 @@ class ligand_stats:
     def add_metric(self, metric_name, pc_value_abs, pc_value_rel, value):
         s = self.stat_t(metric_name, pc_value_abs, pc_value_rel, value)
         self.metrics.append(s)
-    
-if __name__ == '__main__':
+
+    # ligand stats are not very resolution dependent, so a
+    # ligand_stats metric can be generated without
+    # resolution-dependent (relative) percentiles
+    #
+    def add_metric(self, metric_name, pc_value_abs, value):
+        s = self.stat_t(metric_name, pc_value_abs, False, value)
+        self.metrics.append(s)
+
+# we want to be able to call this function from scheme.  So pass a list of stats
+#
+def ligand_validation_metrics_gui_list_wrapper(stats_list):
 
     ls = ligand_stats()
-    ls.add_metric("metric-name-1", 33, 45, '0.78')
-    ls.add_metric("other-metric",  30, 66, '0.93')
-    ls.add_metric("metric-name-3", 53, 45, '22.78')
-    ls.add_metric("metric-name-4", 23, 25, '1.78')
+    for metric in stats_list:
+	metric_name = metric[0]
+	percentile  = metric[1]
+	value       = metric[2]
+	ls.add_metric(metric_name, percentile, value)
     ligand_validation_metrics_gui(ls)
 
-    gtk.main()
+# if __name__ == '__main__':
+
+#     ls = ligand_stats()
+#     ls.add_metric("metric-name-1", 33, 45, '0.78')
+#     ls.add_metric("metric-name-2", 30, 66, '0.93')
+#     ls.add_metric("metric-name-3", 53, 45, '22.78')
+#     ls.add_metric("metric-name-4", 23, 25, '1.78')
+#     ligand_validation_metrics_gui(ls)
+
+#     gtk.main()

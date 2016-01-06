@@ -36,8 +36,12 @@
 ;; refmac-dir: the dir where input/output refmac files should be written.
 ;; 
 ;; return (list correlation mogul bumps difference-map-stats b-factor-info)
-;; difference-map-stats: 
-;;
+;; where difference-map-stats: 
+;;       the output of map-to-model-correlation-stats-scm
+;;       (list correlation var_x var_y n sum_x sum_y D D2 (based on mean/sd of the map at the ligand) 
+;;             map_mean map_mean_at_ligand map_sd map_sd_at_ligand SCM_UNDEFINED)
+;; and b-factor-info
+;;       list of (median-ratio median-ligand median-env ks-test-result)
 ;; 
 (define (get-metrics-for-ligand imol chain-id res-no ins-code 
 				refmac-input-mtz-file-name fobs-col sig-fobs-col rfree-col
@@ -127,7 +131,7 @@
 	      (close-molecule imol-map)
 	      c)))))
 
-  ;; return a failure symbol of a list of stats.
+  ;; return a failure symbol or a list of stats.
   ;; 
   (define (get-ligand-difference-map-stats stub-name)
     (set! refmac-extra-params #f) ;; reset - no ligand exclusion
