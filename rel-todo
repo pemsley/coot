@@ -1,6 +1,10 @@
  
  0.8.3
 
+   o why doesn't Get Monomer -> MPD give me a thumbnail?
+
+   o ligands validation paper: check the isolated dots for A 2748 in 3hmj
+
    o Fix the python version of the JLigand interface.
 
    o duplicate or create a fragment from a molecule, now quick-save-as.  The
