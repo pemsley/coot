@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <map>
 #include <algorithm>
+#include <iomanip>
 #include <math.h>
 #include <sqlite3.h>
 #include "ligands-db.hh"
@@ -21,37 +22,31 @@
 
 #ifdef USE_SQLITE3
 
-std::pair<int, int> get_index(double val, const std::vector<double> &v, bool low_is_good) {
-
-   int len = 0;
-   int idx = 0;
-
-   if (low_is_good) { 
-      for (unsigned int i=0; i<v.size(); i++) { 
-	 if (val <= v[i]) {
-	    len = v.size();
-	    idx = len -i;
-	    break;
-	 }
-      }
-   } else {
-      for (unsigned int i=0; i<v.size(); i++) { 
-	 if (val < v[i]) {
-	    idx = i;
-	    len = v.size();
-	    break;
-	 }
-      }
-   }
-   return std::pair<int, int>(idx, len);
-}
-
 bool string_double_sorter(const std::pair<std::string, double> &p1,
 			  const std::pair<std::string, double> &p2) {
 
    bool r = false;
    return (p1.second<p2.second);
-} 
+}
+
+class ligand_index_score_t {
+
+public:
+   ligand_index_score_t(int idx_1_in, int idx_2_in, int idx_3_in, int idx_4_in, double score_in) {
+      idx_1 = idx_1_in;
+      idx_2 = idx_2_in;
+      idx_3 = idx_3_in;
+      idx_4 = idx_4_in;
+      score = score_in;
+   }
+   int idx_1, idx_2, idx_3, idx_4;
+   double score;
+   static bool sort_compare_fn(const std::pair<std::string, ligand_index_score_t> & lis_1,
+			       const std::pair<std::string, ligand_index_score_t> & lis_2) { 
+      return (lis_1.second.score < lis_2.second.score);
+   }
+};
+
 
 void ranks(const std::string &database_name) { 
 
@@ -66,9 +61,9 @@ void ranks(const std::string &database_name) {
 
    std::vector<std::string> primary_keys = lm.get_primary_keys();
 
-   std::cout << "got " << primary_keys.size() << " primary keys" << std::endl;
+   std::cout << "Found " << primary_keys.size() << " primary keys" << std::endl;
 
-   std::vector<std::pair<std::string, double> > tri_ranks;
+   std::vector<std::pair<std::string, ligand_index_score_t> > tri_ranks;
    std::map<std::string, std::vector<double> > values_store;
 
    for (unsigned int i=0; i<metric_names.size(); i++) {
@@ -90,20 +85,25 @@ void ranks(const std::string &database_name) {
 	 bool from_int = false;
 	 if (metric_name == "bumps_1") from_int = true;
 	 double value = lm.get_value(code, metric_name, from_int);
+	 if (metric_name == "coot_diff_map_correlation")
+	    value = fabs(value);
+	     
 	 
 	 bool reverse_order = false;
 	 if (metric_name == "coot_diff_map_correlation") reverse_order = true;
 	 if (metric_name == "bumps_1") reverse_order = true;
 	 if (metric_name == "mogul_z_worst") reverse_order = true;
-	 std::pair<int, int> idx_pair = get_index(value, values_store[metric_name], reverse_order);
+	 std::pair<int, int> idx_pair = lm.get_index(value, values_store[metric_name], reverse_order);
 
-	 std::cout << code << " " << metric_name << " " << value << "   "
-		   << idx_pair.first << " / " << idx_pair.second << std::endl;
+	 if (false)
+	    std::cout << "DEBUG:: ranks() " << code << " " << metric_name << " " << value << "   "
+		      << idx_pair.first << " / " << idx_pair.second << std::endl;
 
 	 if (idx_pair.second != 0) {
 	    rank_indices.push_back(idx_pair.first);
 	 } else {
-	    std::cout << "bad idx " << code << " " << metric_name << std::endl;
+	    std::cout << "bad idx " << code << " " << metric_name << " has data size() "
+		      << values_store[metric_name].size() << std::endl;
 	 } 
       }
 
@@ -112,15 +112,28 @@ void ranks(const std::string &database_name) {
  	 for (unsigned int i=0; i<metric_names.size(); i++) {
  	    vi += rank_indices[i] * rank_indices[i];
  	 }
- 	 tri_ranks.push_back(std::pair<std::string, double> (code, vi));
+	 ligand_index_score_t lis(rank_indices[0], rank_indices[1], rank_indices[2], rank_indices[3], vi);
+ 	 tri_ranks.push_back(std::pair<std::string, ligand_index_score_t> (code, lis));
       }
    }
 
-   std::sort(tri_ranks.begin(), tri_ranks.end(), coot::util::sd_compare);
-      
-   std::vector<std::pair<std::string, double> >::const_iterator it;
+   std::sort(tri_ranks.begin(), tri_ranks.end(), ligand_index_score_t::sort_compare_fn);
+
+   int n = primary_keys.size();
+   double m = metric_names.size() * n * n;
+   double rm = 1.0/m;
+   std::vector<std::pair<std::string, ligand_index_score_t> >::const_iterator it;
    for (it = tri_ranks.begin(); it != tri_ranks.end(); it++) {
-      std::cout << it->first << " " << it->second << std::endl;
+      std::pair<coot::residue_spec_t, std::string> residue_spec_and_type = lm.get_spec_and_type(it->first);
+      std::cout << it->first << "  "
+		<< std::setw(12) << rm * it->second.score << " "
+		<< std::setw(5) << it->second.idx_1 << " "
+		<< std::setw(5) << it->second.idx_2 << " "
+		<< std::setw(5) << it->second.idx_3 << " "
+		<< std::setw(5) << it->second.idx_4 << " "
+		<< residue_spec_and_type.second << " "
+		<< residue_spec_and_type.first.chain_id << " "
+		<< residue_spec_and_type.first.res_no << std::endl;
    }
    
 }
@@ -220,6 +233,7 @@ int main(int argc, char **argv) {
 		   << "               e.g density_correlation, bumps_1, mogul_z_worst, diff_map_stat_1\n"
 		   << "     --value <value>\n"
 		   << "     --update-database <resolutions-table-file-name>\n"
+		   << "     --rank   rank PDB ligands\n"
 		   << "     --help   this output\n";
 	 
       } else {

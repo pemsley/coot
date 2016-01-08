@@ -81,6 +81,7 @@ coot::ligand_metrics::get_index(double val, const std::string &col_name, bool lo
 	 }
       }
    } else {
+      bool found = false;
       for (unsigned int i=0; i<v.size(); i++) { 
 	 if (val < v[i]) {
 	    idx = i;
@@ -88,10 +89,82 @@ coot::ligand_metrics::get_index(double val, const std::string &col_name, bool lo
 	    break;
 	 }
       }
+
+      if (! found) { 
+	 // OK! was it the top ranked item?
+	 //
+	 if (val == v.back()) {
+	    len = v.size();
+	    idx = len;
+	 } 
+      }
    }
 
    return std::pair<int, int>(idx, len);
 }
+
+std::pair<int, int>
+coot::ligand_metrics::get_index(double val, const std::vector<double> &v, bool low_is_good) const {
+
+   int len = 0;
+   int idx = 0;
+
+   if (low_is_good) { 
+      for (unsigned int i=0; i<v.size(); i++) { 
+	 if (val <= v[i]) {
+	    len = v.size();
+	    idx = len -i;
+	    break;
+	 }
+      }
+   } else {
+      bool found = false;
+      for (unsigned int i=0; i<v.size(); i++) { 
+	 if (val < v[i]) {
+	    idx = i;
+	    len = v.size();
+	    found = true;
+	    break;
+	 }
+      }
+
+      if (! found) { 
+	 // OK! was it the top ranked item?
+	 //
+	 if (val == v.back()) {
+	    len = v.size();
+	    idx = len;
+	 } 
+      }
+   }
+   return std::pair<int, int>(idx, len);
+}
+
+
+std::pair<coot::residue_spec_t, std::string>
+coot::ligand_metrics::get_spec_and_type(const std::string &accession_code) const {
+
+   std::string table_name = "LIGANDS";
+   std::string cmd = "SELECT chain_id,res_no,comp_id from " + table_name +
+      " where accession_code = '" + accession_code + "' ;" ;
+
+   std::pair<residue_spec_t, std::string> p;
+   void *data_pointer = static_cast<void *>(&p);
+   char *zErrMsg = 0;
+   int rc = sqlite3_exec(db_, cmd.c_str(), db_select_spec_callback, data_pointer, &zErrMsg);
+   if (rc !=  SQLITE_OK) {
+      if (zErrMsg) { 
+	 std::cout << "ERROR: processing command: " << cmd << " " << zErrMsg << std::endl;
+      } else { 
+	 std::cout << "ERROR when processing command: " << cmd << std::endl;
+	 sqlite3_free(zErrMsg);
+      }
+   }
+
+   return p;
+
+}
+
 
 
 void
@@ -169,14 +242,20 @@ coot::ligand_metrics::process_ligand_metrics_tab_line(const std::string &line,
 	       // 9: map_mean
 	       // 10: map_mean_at_ligand
 	       // 11: map_sd
-	       // 12: map_sd_at_ligand 
+	       // 12: map_sd_at_ligand
+	       // 13: "b-factor-metrics:"
+	       // 14: median-ratio
+	       // 15: median-ligand
+	       // 16: median-env
+	       // 17: ks-test-D
 
 	       std::string cmd = "INSERT INTO " + table_name +
 		  std::string("(accession_code, chain_id, res_no, comp_id, density_correlation, ") +
 		  std::string("mogul_z_worst, bumps_1, coot_diff_map_correlation, coot_diff_map_n_grid, ") +
 		  std::string("coot_diff_map_KS_1, coot_diff_map_KS_2, ") + 
 		  std::string("coot_diff_map_mean, coot_diff_map_mean_at_ligand, ") + 
-		  std::string("coot_diff_map_sd, coot_diff_map_sd_at_ligand") + 
+		  std::string("coot_diff_map_sd, coot_diff_map_sd_at_ligand,") +
+		  std::string("b_factor_median_ratio, b_factor_median_ligand, b_factor_median_env, b_factor_KS_D") +
 		  std::string(") ") +
 		  std::string(" VALUES ") + 
 		  std::string(" ( ") +
@@ -188,14 +267,18 @@ coot::ligand_metrics::process_ligand_metrics_tab_line(const std::string &line,
 		  util::single_quote(mogul_z_worst_str, "'") + ", " +
 		  util::single_quote(bumps_1_str, "'")       + ", " +
 		  //util::single_quote(diff_map_stat_1_str, "'") +
-		  diff_map_stat_1_str + ", " + 
-		  diff_map_stat_4_str + ", " + 
-		  diff_map_stat_7_str + ", " + 
-		  diff_map_stat_8_str + ", " + 
-		  diff_map_stat_9_str + ", " + 
+		  diff_map_stat_1_str  + ", " + 
+		  diff_map_stat_4_str  + ", " + 
+		  diff_map_stat_7_str  + ", " + 
+		  diff_map_stat_8_str  + ", " + 
+		  diff_map_stat_9_str  + ", " + 
 		  diff_map_stat_10_str + ", " + 
 		  diff_map_stat_11_str + ", " + 
-		  diff_map_stat_12_str +
+		  diff_map_stat_12_str + ", " +
+		  bfactor_stat_1_str   + ", " +
+		  bfactor_stat_2_str   + ", " +
+		  bfactor_stat_3_str   + ", " +
+		  bfactor_stat_4_str   + 
 		  std::string(");");
 	 
 	       char *zErrMsg = 0;
@@ -296,10 +379,10 @@ coot::ligand_metrics::make_db(const std::string &db_file_name) const {
 	    std::string("coot_diff_map_mean_at_ligand  REAL, ") +
 	    std::string("coot_diff_map_sd  REAL, ") +
 	    std::string("coot_diff_map_sd_at_ligand  REAL, ") +
-	    std::string("bfactor_stat_1 REAL,") +
-	    std::string("bfactor_stat_2 REAL,") +
-	    std::string("bfactor_stat_3 REAL,") +
-	    std::string("bfactor_stat_4 REAL,") +
+	    std::string("b_factor_median_ratio REAL,") +
+	    std::string("b_factor_median_ligand REAL,") +
+	    std::string("b_factor_median_env REAL,") +
+	    std::string("b_factor_KS_D REAL,") +
 	    edstats_columns() + 
 	    ");";
 
@@ -426,6 +509,40 @@ static int coot::db_select_primary_key_callback(void *data_store, int argc, char
    }
    return status;
 }
+
+// fill data_store with as a std::vector<double>
+// 
+static int coot::db_select_spec_callback(void *data_store, int argc, char **argv, char **azColName) {
+
+   int status = 0;
+   std::pair<coot::residue_spec_t, std::string> *p =
+      static_cast<std::pair<coot::residue_spec_t, std::string> *>(data_store);
+   std::string comp_id;
+   residue_spec_t spec;
+
+   if (argc == 3) { 
+      if (argv[0] != NULL) {
+	 std::string chain_id = argv[0];
+	 if (argv[1] != NULL) {
+	    // an int?
+	    std::string res_no_str = argv[1];
+	    if (argv[2] != NULL) {
+	       std::string comp_id = argv[2];
+	       try {
+		  int res_no = coot::util::string_to_int(res_no_str);
+		  spec = residue_spec_t(chain_id, res_no, "");
+		  *p = std::pair<residue_spec_t, std::string> (spec, comp_id);
+	       }
+	       catch (const std::exception &e) {
+		  std::cout << "ERROR:: " << e.what() << std::endl;
+	       } 
+	    }
+	 }
+      }
+   }
+   return status;
+}
+
 
 
 bool
