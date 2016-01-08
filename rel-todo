@@ -5,6 +5,8 @@
 
    o ligands validation paper: check the isolated dots for A 2748 in 3hmj
 
+   o investigate Steven Sheriff save dialog thing.
+
    o Fix the python version of the JLigand interface.
 
    o duplicate or create a fragment from a molecule, now quick-save-as.  The
@@ -44,7 +46,7 @@
    o use refinement to make an cis-peptide - then relieve it - the
      refinement gui should track this - does it?
 
-     graphics-info-modellings "cis peptides"
+     graphics-info-modelling's "cis peptides"
 
    o read in ejd/BLG.pdb, look at the terminal - we only want/need one such warning:
 
