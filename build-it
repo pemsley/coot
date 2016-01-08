@@ -1138,6 +1138,15 @@ if [ "$systype" = x86_64-rhel-4 ] ; then
     export PATH
 fi
 
+# Do we link with sqlite (for the ligands database)?
+# We allow the calling script to set use_sqlite=yes
+use_sqlite=${use_sqlite:=no}
+
+if [ "$use_sqlite" = "yes" ] ; then
+    sqlite_configure_args=--with-sqlite3
+else
+    sqlite_configure_args=
+fi
 
 # We want to add some compiler info in the directory name.
 # If CC is set, use that,
@@ -3588,6 +3597,7 @@ echo ./configure $coot_prefix \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       $guile_scripting    \
       $python_scripting   \
+      $sqlite_config_args \
       $shared_static_flag \
       $coot_optim_args    \
       $coot_extra_args
@@ -3599,6 +3609,7 @@ echo ./configure $coot_prefix \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       $guile_scripting    \
       $python_scripting   \
+      $sqlite_config_args \
       $shared_static_flag \
       $coot_optim_args    \
       $coot_extra_args
