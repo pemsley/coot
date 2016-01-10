@@ -2,7 +2,7 @@
 def deactivate_molecules_except(imol):
     for i in model_molecule_list():
         if (i != imol):
-            set_molecule_active(i, 0)
+            set_mol_active(i, 0)
 
 
 # This will hydrogenate the active residue, not imol

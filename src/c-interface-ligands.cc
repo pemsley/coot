@@ -3238,3 +3238,35 @@ enhanced_ligand_coot_p() {
    return r;
 } 
 
+
+
+#ifdef USE_SQLITE3
+#include <stdexcept>
+#include <sqlite3.h>
+#include "ligand/ligands-db.hh"
+
+// we want to read in the built-in database to convert these scores to percentiles
+// return -1 (test for negative) on failure
+// metric_name examples: density_correlation coot_diff_map_KS_2 mogul_z_worst bumps_1
+// range 0->100 or -1
+// 
+// reverse order for mogul and bumps (for example) because low-is-good
+// 
+double get_ligand_percentile(std::string metric_name, double metric_value, short int reverse_order) {
+
+   double pc = -1; 
+   std::string database_name = std::string(PKGDATADIR) + "/data/ligands-2016.db";
+   bool low_is_good = reverse_order;
+
+   coot::ligand_metrics lm(database_name);
+   std::pair<int, int> idx_pair = lm.get_index(metric_value, metric_name, low_is_good);
+   if (idx_pair.second != 0) {
+      pc = 100.0 * double(idx_pair.first)/double(idx_pair.second);
+      std::cout << metric_name << "DEBUG:: percentile for " << metric_value << " is " << pc << "%"
+		<< std::endl;
+   }
+   return pc;
+}
+
+
+#endif // USE_SQLITE3
