@@ -1143,9 +1143,9 @@ fi
 use_sqlite=${use_sqlite:=no}
 
 if [ "$use_sqlite" = "yes" ] ; then
-    sqlite_configure_args=--with-sqlite3
+    sqlite_config_args=--with-sqlite3
 else
-    sqlite_configure_args=
+    sqlite_config_args=
 fi
 
 # We want to add some compiler info in the directory name.
@@ -1379,6 +1379,7 @@ build_dir=`pwd`
 echo checking wget
 echo which wget
 which wget
+# use -P for timestamping
 WGET="wget -N -P ${AUTOBUILD_SOURCES}"
 WGETO="wget   -P ${AUTOBUILD_SOURCES}"
 
