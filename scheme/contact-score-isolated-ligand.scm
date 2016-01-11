@@ -62,7 +62,8 @@
       ;; debugging
       (handle-read-draw-probe-dots-unformatted dots-file-name imol 0)
       
-      (probe-clash-score-scm dots-file-name))))
+      (probe-clash-score-scm dots-file-name)
+      (graphics-draw))))
 
 (if (defined? 'coot-main-menubar)
     (let ((menu (coot-menubar-menu "Ligand")))
