@@ -33,6 +33,8 @@ void gui_ligand_metrics_py(PyObject *ligand_spec, PyObject *ligand_metrics, doub
 #endif
 
 
+// This don't call graphics_draw(), so the caller needs to do so.
+//
 coot::probe_clash_score_t
 probe_clash_score(const std::string &dots_file_name);
 
