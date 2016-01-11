@@ -45,6 +45,7 @@ def contact_score_ligand(imol, res_spec):
     handle_read_draw_probe_dots_unformatted(dots_file_name, imol, 0)
 
     probe_clash_score(dots_file_name)
+    graphics_draw()
 
 
 menu = coot_menubar_menu("Ligand")
