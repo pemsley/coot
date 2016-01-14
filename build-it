@@ -2468,8 +2468,12 @@ if test -n "$build_clipper" ; then
     export      LDFLAGS=-L$install_top_dir/lib
     echo CPPFLAGS $CPPFLAGS
     echo LDFLAGS  $LDFLAGS
-
     echo PKG_CONFIG_PATH  $PKG_CONFIG_PATH
+
+    # if /usr/lib64/lib(r)fftw.so exists, clipper will link to them
+    # despite our having build fftw for ourselves - I need to stop
+    # that (because of clipper's m4/fftw.m4)
+    
     ./configure --prefix=$install_top_dir \
 	--enable-mmdb=$install_top_dir \
 	--enable-ccp4=$install_top_dir \
