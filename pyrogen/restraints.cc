@@ -959,6 +959,7 @@ coot::add_chem_comp_planes(const RDKit::ROMol &mol, coot::dictionary_residue_res
    bool status = true;
    add_chem_comp_aromatic_planes(mol, restraints, quartet_planes, quartet_hydrogen_planes);
    add_chem_comp_deloc_planes(mol, restraints);
+   add_chem_comp_sp2_C_planes(mol, restraints);
    restraints->remove_redundant_plane_restraints();
    restraints->reweight_subplanes();
    add_chem_comp_sp2_N_planes(mol, restraints);
@@ -1404,7 +1405,6 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
    patterns.push_back(d_pat("CNC(=[NH])N([H])[H]",         0.02));  // guanidinium with H - testing
    patterns.push_back(d_pat("CNC(=[NH])N",                 0.02));  // guanidinium sans Hs
    patterns.push_back(d_pat("*[C;X3;^2](=O)[N;X3;^2;H1]([H])*", 0.02));  // amino
-   
 
    // Martin's pattern, these should be weaker (than standard 0.02) though, I think
    patterns.push_back(d_pat("[*^2]=[*^2]-[*^2]=[*;X1;^2]", 0.04));
@@ -1476,6 +1476,58 @@ coot::add_chem_comp_deloc_planes(const RDKit::ROMol &mol, coot::dictionary_resid
    }
 } 
 
+
+void
+coot::add_chem_comp_sp2_C_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
+
+   typedef std::pair<std::string, double> d_pat;
+   std::vector<d_pat> patterns;
+
+   patterns.push_back(d_pat("AC(=O)C",                 0.02));  // ketone, A is usually C, maybe S.
+
+   int n_planes = 1; // counter for output text
+   for (unsigned int ipat=0; ipat<patterns.size(); ipat++) {
+      RDKit::ROMol *query = RDKit::SmartsToMol(patterns[ipat].first);
+      std::vector<RDKit::MatchVectType>  matches;
+      bool recursionPossible = true;
+      bool useChirality = true;
+      bool uniquify = true;
+      int matched = RDKit::SubstructMatch(mol,*query,matches,uniquify,recursionPossible, useChirality);
+      if (0) // debug
+	 std::cout << "Matched " << matched << " sp2 N planes" << std::endl;
+      for (unsigned int imatch=0; imatch<matches.size(); imatch++) {
+	 if (matches[imatch].size() > 0) {
+	    std::cout << "matched sp2 N plane pattern: " << patterns[ipat].first << std::endl;
+	    std::string plane_id = "plane-sp2-N-";
+	    char s[100];
+	    snprintf(s,99,"%d", n_planes);
+	    plane_id += std::string(s);
+	    try {
+	       std::vector<std::string> atom_names;
+	       for (unsigned int ii=0; ii<matches[imatch].size(); ii++) {
+		  RDKit::ATOM_SPTR at_p = mol[matches[imatch][ii].second];
+
+		  // Unlike aromatics, the atoms of this type of plane
+		  // can be in more than one plane.
+
+		  std::string name = "";
+		  at_p->getProp("name", name);
+		  at_p->setProp("plane_id", plane_id);
+		  atom_names.push_back(name);
+	       }
+	       if (atom_names.size() > 3) {
+		  mmdb::realtype dist_esd = patterns[ipat].second;
+		  coot::dict_plane_restraint_t res(plane_id, atom_names, dist_esd);
+		  restraints->plane_restraint.push_back(res);
+	       }
+	    }
+	    catch (const KeyErrorException &kee) {
+	    }
+	    n_planes++;
+	 }
+      }
+   }
+}
 
 void
 coot::add_chem_comp_sp2_N_planes(const RDKit::ROMol &mol, coot::dictionary_residue_restraints_t *restraints) {
