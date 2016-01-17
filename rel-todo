@@ -1,7 +1,12 @@
  
  0.8.3
 
+
    o Does "Phosphorylate this residue" work in Python mode?
+
+   o change the monomer library to the CCP4 bzr repo version
+
+   o if coot-download/PDBe-XXX.cif is empty, it's OK to silently overwrite it.
 
    o why doesn't Get Monomer -> MPD give me a thumbnail?
 
@@ -12,7 +17,8 @@
    o Fix the python version of the JLigand interface.
 
    o duplicate or create a fragment from a molecule, now quick-save-as.  The
-     new molecules are not saved and are not in the state file - they should be.
+     new molecules are not saved and are not in the state file - they
+     should be.
 
    o carbohdrate: Does it work in Python mode?
 
