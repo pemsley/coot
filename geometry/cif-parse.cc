@@ -622,35 +622,6 @@ coot::protein_geometry::simple_mon_lib_add_chem_comp(const std::string &comp_id,
 
 void
 coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
-					 const coot::dict_atom &atom) {
-
-   bool ifound = 0;
-   int this_index = -1; // unset
-
-   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
-      if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
-	 if (dict_res_restraints[i].read_number == read_number) { 
-	    ifound = true;
-	    this_index = i;
-	    dict_res_restraints[i].atom_info.push_back(atom);
-	    break;
-	 } else {
-	    // trash the old one then
-	    dict_res_restraints[i].clear_dictionary_residue();
-	 }
-      }
-   }
-
-   if (! ifound) {
-      dict_res_restraints.push_back(dictionary_residue_restraints_t(comp_id, read_number));
-      dictionary_residue_restraints_t &b = dict_res_restraints.back();
-      b.atom_info.push_back(atom);
-   }
-
-}
-
-void
-coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 					 const std::string &atom_id,
 					 const std::string &atom_id_4c,
 					 const std::string &type_symbol,
