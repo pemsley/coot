@@ -178,7 +178,7 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	    //
 	    if (true) {
 	       for (unsigned int iat=0; iat<m->getNumAtoms(); iat++) {
-		  std::cout << "testing atom " << iat << std::endl;
+		  // std::cout << "DEBUG:: rdkit_mol_chem_comp_pdbx(): testing atom " << iat << std::endl;
 		  RDKit::ATOM_SPTR at_p = (*m)[iat];
 		  try {
 		     std::string name;
