@@ -2,7 +2,7 @@
 def deactivate_molecules_except(imol):
     for i in model_molecule_list():
         if (i != imol):
-            set_molecule_active(i, 0)
+            set_mol_active(i, 0)
 
 
 # This will hydrogenate the active residue, not imol
@@ -45,6 +45,7 @@ def contact_score_ligand(imol, res_spec):
     handle_read_draw_probe_dots_unformatted(dots_file_name, imol, 0)
 
     probe_clash_score(dots_file_name)
+    graphics_draw()
 
 
 menu = coot_menubar_menu("Ligand")

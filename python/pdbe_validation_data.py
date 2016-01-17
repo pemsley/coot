@@ -884,7 +884,6 @@ def pdb_validate(accession_code, imol):
     except KeyError as e:
         print "Failure to get validation for ", accession_code
     
-
     
 # xml_list = ["3NPQ.xml", "1FV2.xml", "2PE5.xml", "1HAK.xml", "2FGG.xml", "1CBS.xml"]
 

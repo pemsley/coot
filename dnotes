@@ -7468,7 +7468,8 @@ http://www.koreascience.or.kr/article/ArticleFullRecord.jsp?cn=CDCHCH_2009_v14n6
  
     (or change support/shobj-conf which creates this)
 
-    Does this mean I can now use command line editing in coot --no-graphics --python?
+    Does this mean I can now use command line editing in coot --no-graphics
+    --python?
 
     e.g. import readline
 
@@ -7491,8 +7492,9 @@ http://www.koreascience.or.kr/article/ArticleFullRecord.jsp?cn=CDCHCH_2009_v14n6
 
      Quickly estimate B-factor of atoms:
 
+     Using PDB data, do a plot of density vs radius for atoms at various 
+     resolutions so that 
 
-     Using PDB data, do a plot of density vs radius for atoms at various resolutions so that 
      rpo(r) -> resolution
 
      Compare that with what we have in a fragment model.
@@ -7501,5 +7503,33 @@ http://www.koreascience.or.kr/article/ArticleFullRecord.jsp?cn=CDCHCH_2009_v14n6
 
    http://www.opengl-tutorial.org/beginners-tutorials/tutorial-1-opening-a-window/
 
+----
 
+   GLSL cylinders and more:
+
+   http://stackoverflow.com/questions/9595300/cylinder-impostor-in-glsl
  
+----
+
+   Modeling Local Structural Rearrangements Using FEP/REST: Application to 
+   Relative Binding Affinity Predictions of CDK2 Inhibitors
+
+   http://pubs.acs.org/doi/abs/10.1021/ct300911a?journalCode=jctcce
+
+PDB: 1h1q
+PDB: 1h1r
+PDB: 1h1s
+PDB: 1oiu
+PDB: 1oi9
+PDB: 1oiy
+PDB: 1ioy
+
+   Also: 
+
+   Accurate Binding Free Energy Predictions in Fragment Optimization
+   Thomas B. Steinbrecher, Markus Dahlgren, Daniel Cappel, Teng Lin, 
+   Lingle Wang, Goran Krilov, Robert Abel, Richard Friesner, and Woody Sherman
+
+   Journal of Chemical Information and Modeling2015 55 (11), 2411-2420
+
+---

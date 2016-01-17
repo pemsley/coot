@@ -622,35 +622,6 @@ coot::protein_geometry::simple_mon_lib_add_chem_comp(const std::string &comp_id,
 
 void
 coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
-					 const coot::dict_atom &atom) {
-
-   bool ifound = 0;
-   int this_index = -1; // unset
-
-   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
-      if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
-	 if (dict_res_restraints[i].read_number == read_number) { 
-	    ifound = true;
-	    this_index = i;
-	    dict_res_restraints[i].atom_info.push_back(atom);
-	    break;
-	 } else {
-	    // trash the old one then
-	    dict_res_restraints[i].clear_dictionary_residue();
-	 }
-      }
-   }
-
-   if (! ifound) {
-      dict_res_restraints.push_back(dictionary_residue_restraints_t(comp_id, read_number));
-      dictionary_residue_restraints_t &b = dict_res_restraints.back();
-      b.atom_info.push_back(atom);
-   }
-
-}
-
-void
-coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 					 const std::string &atom_id,
 					 const std::string &atom_id_4c,
 					 const std::string &type_symbol,
@@ -740,6 +711,40 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
       }
    }
 }
+
+
+void
+coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
+					 const coot::dict_atom &atom_info) {
+
+   // debugging
+   bool debug = false;
+   
+   bool ifound = 0;
+   int this_index = -1; // unset
+
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+      if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
+	 if (dict_res_restraints[i].read_number == read_number) { 
+	    ifound = true;
+	    this_index = i;
+	    dict_res_restraints[i].atom_info.push_back(atom_info);
+	    break;
+	 } else {
+	    // trash the old one then
+	    dict_res_restraints[i].clear_dictionary_residue();
+	 }
+      }
+   }
+
+   if (! ifound) {
+      dict_res_restraints.push_back(dictionary_residue_restraints_t(comp_id, read_number));
+      this_index = dict_res_restraints.size()-1;
+      dict_res_restraints[this_index].atom_info.push_back(atom_info);
+   }
+}
+
+
 void
 coot::dict_atom::add_pos(int pos_type,
 			 const std::pair<bool, clipper::Coord_orth> &model_pos) {
@@ -1260,6 +1265,7 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop) {
 	       pdbx_leaving_atom_flag = std::pair<bool, std::string> (true, s);
 	 }
 
+
 	 s = mmCIFLoop->GetString("pdbx_stereo_config", j, ierr_stereo_config);
 	 if (s) {
 	    if (! ierr_stereo_config)
@@ -1359,10 +1365,6 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop) {
 	       atom.add_pos(dict_atom::IDEAL_MODEL_POS, pdbx_model_Cartn_ideal);
 	    
 	    mon_lib_add_atom(comp_id, atom);
-	    
-	    // mon_lib_add_atom(comp_id, atom_id, padded_name, type_symbol, type_energy,
-	    // 		     partial_charge, formal_charge, aromaticity,
-	    // 		     model_Cartn, pdbx_model_Cartn_ideal);
 
 	 } else {
 	    std::cout << " error on read " << ierr_tot << std::endl;

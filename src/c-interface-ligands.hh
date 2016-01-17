@@ -93,12 +93,13 @@ namespace coot {
 					  const coot::flev_attached_hydrogens_t &attached_hydrogens,
 					  mmdb::Residue *reference_residue);
 
-   void ligand_check_dialog(residue_spec_t spec,
-			    const ligand_report_absolute_t &lr,
-			    double percentile_limit);
    void ligand_check_percentiles_dialog(residue_spec_t spec,
 					const ligand_report_percentiles_t &lr,
 					double percentile_limit);
+   // this is a wrapper for the above.
+   void ligand_check_dialog(residue_spec_t spec,
+			    const ligand_report_absolute_t &lr,
+			    double percentile_limit);
 
 } // namespace coot
 

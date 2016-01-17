@@ -486,6 +486,7 @@ namespace coot {
       aromaticity_t aromaticity;
       std::pair<bool, float> partial_charge;
       std::pair<bool, int> formal_charge;
+      std::pair<bool, std::string> pdbx_stereo_config;
       std::pair<bool, clipper::Coord_orth> pdbx_model_Cartn_ideal;
       std::pair<bool, clipper::Coord_orth> model_Cartn;
       std::pair<bool, std::string> pdbx_stereo_config_flag;
@@ -1725,6 +1726,7 @@ namespace coot {
 				 int number_atoms_all, int number_atoms_nh,
 				 const std::string &description_level);
 
+      // old
       void mon_lib_add_atom(const std::string &comp_id,
 			    const std::string &atom_id,
 			    const std::string &atom_id_4c,
@@ -1736,8 +1738,7 @@ namespace coot {
 			    const std::pair<bool, clipper::Coord_orth> &model_pos,
 			    const std::pair<bool, clipper::Coord_orth> &model_pos_ideal);
 
-      void mon_lib_add_atom(const std::string &comp_id,
-			    const dict_atom &atom);
+      void mon_lib_add_atom(const std::string &comp_id, const dict_atom &atom_info);
 
       // called because they were all at origin, for example.
       void delete_atom_positions(const std::string &comp_id, int pos_type);

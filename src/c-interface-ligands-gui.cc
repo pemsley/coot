@@ -737,8 +737,9 @@ void gui_ligand_metrics_scm(SCM ligand_spec, SCM ligand_metrics, double percenti
       if (lm_len == 3) {  // currently 3
 	 double d = scm_to_double(scm_list_ref(ligand_metrics, SCM_MAKINUM(0)));
 	 double m = scm_to_double(scm_list_ref(ligand_metrics, SCM_MAKINUM(1)));
-	 int    n_bumps = scm_to_int(scm_list_ref(ligand_metrics, SCM_MAKINUM(2)));
-	 // coot::probe_clash_score_t cs = probe_clash_score_from_scm(scm_list_ref(ligand_metrics, SCM_MAKINUM(2)));
+	 int n_bumps = scm_to_int(scm_list_ref(ligand_metrics, SCM_MAKINUM(2)));
+	 // coot::probe_clash_score_t cs =
+	 //    probe_clash_score_from_scm(scm_list_ref(ligand_metrics, SCM_MAKINUM(2)));
 	 coot::probe_clash_score_t cs(n_bumps, -1, -1, -1, -1);
 	 coot::ligand_report_absolute_t lr(d, m, cs);
 
