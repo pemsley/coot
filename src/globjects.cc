@@ -1334,10 +1334,26 @@ gl_extras(GtkWidget* vbox1, short int try_stereo_flag) {
 //        /* 2x FSAA */
 //        (2 << GDK_GL_MODE_SAMPLES_SHIFT)       );
 
-   GdkGLConfigMode mode = static_cast<GdkGLConfigMode>
+   GdkGLConfigMode mode;
+
+#ifdef GDKGLEXT_HAVE_MODE_SAMPLES_SHIFT
+   
+   mode = static_cast<GdkGLConfigMode>
       (GDK_GL_MODE_RGB    |
        GDK_GL_MODE_DEPTH  |
+       GDK_GL_MODE_MULTISAMPLE |
+       (4 << GDK_GL_MODE_SAMPLES_SHIFT) |
        GDK_GL_MODE_DOUBLE);
+
+#else
+   
+   mode = static_cast<GdkGLConfigMode>
+      (GDK_GL_MODE_RGB    |
+       GDK_GL_MODE_DEPTH  |
+       GDK_GL_MODE_MULTISAMPLE |
+       GDK_GL_MODE_DOUBLE);
+   
+#endif   
 
    if (try_stereo_flag == coot::HARDWARE_STEREO_MODE) {
       mode = static_cast<GdkGLConfigMode>
@@ -2207,8 +2223,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       //
       if (graphics_info_t::show_origin_marker_flag) { 
 	 glLineWidth(1.0);
-	 glColor3f(0.8,0.8,0.2);
-	 myWireCube (1.0);
+	 glColor3f(0.7,0.7,0.2);
+	 myWireCube (0.6);
       }
 
       graphics_info_t::draw_generic_objects();

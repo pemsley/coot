@@ -712,6 +712,40 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
       }
    }
 }
+
+
+void
+coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
+					 const coot::dict_atom &atom_info) {
+
+   // debugging
+   bool debug = false;
+   
+   bool ifound = 0;
+   int this_index = -1; // unset
+
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+      if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
+	 if (dict_res_restraints[i].read_number == read_number) { 
+	    ifound = true;
+	    this_index = i;
+	    dict_res_restraints[i].atom_info.push_back(atom_info);
+	    break;
+	 } else {
+	    // trash the old one then
+	    dict_res_restraints[i].clear_dictionary_residue();
+	 }
+      }
+   }
+
+   if (! ifound) {
+      dict_res_restraints.push_back(dictionary_residue_restraints_t(comp_id, read_number));
+      this_index = dict_res_restraints.size()-1;
+      dict_res_restraints[this_index].atom_info.push_back(atom_info);
+   }
+}
+
+
 void
 coot::dict_atom::add_pos(int pos_type,
 			 const std::pair<bool, clipper::Coord_orth> &model_pos) {
@@ -1231,10 +1265,10 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop) {
 	       pdbx_leaving_atom_flag = std::pair<bool, std::string> (1, s);
 	 } 
 
-	 s = mmCIFLoop->GetString("pdbx_stereo_config_flag", j, ierr_optional);
+	 s = mmCIFLoop->GetString("pdbx_stereo_config", j, ierr_optional);
 	 if (s) {
 	    if (! ierr_optional) 
-	       pdbx_stereo_config_flag = std::pair<bool, std::string> (1, s);
+	       pdbx_stereo_config_flag = std::pair<bool, std::string> (true, s);
 	 }
 
 	 mmdb::realtype x,y,z;
@@ -1320,9 +1354,25 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop) {
 			 << pdbx_model_Cartn_ideal.second.format()
 			 << std::endl;
 	    
-	    mon_lib_add_atom(comp_id, atom_id, padded_name, type_symbol, type_energy,
-			     partial_charge, formal_charge, aromaticity,
-			     model_Cartn, pdbx_model_Cartn_ideal);
+	    // mon_lib_add_atom(comp_id, atom_id, padded_name, type_symbol, type_energy,
+	    // partial_charge, formal_charge, aromaticity,
+	    // model_Cartn, pdbx_model_Cartn_ideal);
+
+	    dict_atom atom_info(atom_id, padded_name, type_symbol, type_energy, partial_charge);
+
+	    // add formal_charge, aromaticity,
+	    
+	    if (model_Cartn.first)
+	       atom_info.add_pos(dict_atom::REAL_MODEL_POS, model_Cartn);
+	    
+	    if (pdbx_model_Cartn_ideal.first)
+	       atom_info.add_pos(dict_atom::IDEAL_MODEL_POS, pdbx_model_Cartn_ideal);
+
+	    atom_info.formal_charge = formal_charge;
+	    atom_info.aromaticity = aromaticity;
+	    atom_info.pdbx_stereo_config = pdbx_stereo_config_flag;
+
+	    mon_lib_add_atom(comp_id, atom_info);
 
 	 } else {
 	    std::cout << " error on read " << ierr_tot << std::endl;

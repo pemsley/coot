@@ -1138,6 +1138,15 @@ if [ "$systype" = x86_64-rhel-4 ] ; then
     export PATH
 fi
 
+# Do we link with sqlite (for the ligands database)?
+# We allow the calling script to set use_sqlite=yes
+use_sqlite=${use_sqlite:=no}
+
+if [ "$use_sqlite" = "yes" ] ; then
+    sqlite_config_args=--with-sqlite3
+else
+    sqlite_config_args=
+fi
 
 # We want to add some compiler info in the directory name.
 # If CC is set, use that,
@@ -1370,6 +1379,7 @@ build_dir=`pwd`
 echo checking wget
 echo which wget
 which wget
+# use -P for timestamping
 WGET="wget -N -P ${AUTOBUILD_SOURCES}"
 WGETO="wget   -P ${AUTOBUILD_SOURCES}"
 
@@ -2458,8 +2468,12 @@ if test -n "$build_clipper" ; then
     export      LDFLAGS=-L$install_top_dir/lib
     echo CPPFLAGS $CPPFLAGS
     echo LDFLAGS  $LDFLAGS
-
     echo PKG_CONFIG_PATH  $PKG_CONFIG_PATH
+
+    # if /usr/lib64/lib(r)fftw.so exists, clipper will link to them
+    # despite our having build fftw for ourselves - I need to stop
+    # that (because of clipper's m4/fftw.m4)
+    
     ./configure --prefix=$install_top_dir \
 	--enable-mmdb=$install_top_dir \
 	--enable-ccp4=$install_top_dir \
@@ -3355,7 +3369,6 @@ fi
 raster3d_version=3.0-3
 # raster3d depends on libgd to make png images
 ${WGET} http://skuld.bmsc.washington.edu/raster3d/Raster3D_$raster3d_version.tar.gz
-${WGET} https://github.com/libgd/libgd/releases/download/gd-2.1.1/libgd-2.1.1.tar.gz
 
 if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then
 
@@ -3368,10 +3381,13 @@ if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then
     if [ -e /usr/include/gd.h ] ; then
        system_has_libgd=true
     fi
+    
+    echo system_has_libgd: $system_has_libgd
 
     if [ $system_has_libgd = false ] ; then 
        if [ ! -e $install_top_dir/include/gd.h ] ; then
-   	   #
+   	   # Amazon file names too long, so force output name with -O
+           ${WGET} https://github.com/libgd/libgd/releases/download/gd-2.1.1/libgd-2.1.1.tar.gz -O ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz
 	   gzip -dc ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz | tar xf -
 	   cd libgd-2.1.1
 	   bash ./configure --prefix=$install_top_dir
@@ -3380,6 +3396,8 @@ if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then
 	   fi
 	   cd - 
        fi
+    else 
+       echo skip libgd build
     fi
 
    ) > $HOSTLOGDIR/15-libgd.log
@@ -3409,8 +3427,10 @@ if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then
 	  cp render $install_top_dir/bin/
        fi
        cd -
+    else 
+      echo $install_top_dir/bin/render already exists, no build
     fi
-    ) > $HOSTLOGDIR/raster3d.log
+    ) > $HOSTLOGDIR/15-raster3d.log
 fi
 
 
@@ -3588,6 +3608,7 @@ echo ./configure $coot_prefix \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       $guile_scripting    \
       $python_scripting   \
+      $sqlite_config_args \
       $shared_static_flag \
       $coot_optim_args    \
       $coot_extra_args
@@ -3599,6 +3620,7 @@ echo ./configure $coot_prefix \
       COOT_BUILD_INFO_STRING="$coot_build_info_string" \
       $guile_scripting    \
       $python_scripting   \
+      $sqlite_config_args \
       $shared_static_flag \
       $coot_optim_args    \
       $coot_extra_args

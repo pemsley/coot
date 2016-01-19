@@ -2118,22 +2118,37 @@ def mutate_by_overlap(imol, chain_id_in, resno, tlc):
 #
 def phosphorylate_active_residue():
 
-	active_atom = active_residue()
-	imol       = active_atom[0]
-	chain_id   = active_atom[1]
-	resno      = active_atom[2]
-	inscode    = active_atom[3]
-	res_name = residue_name(imol, chain_id, resno, inscode)
+        def n_active_models():
+            n = 0
+            for i in model_molecule_list():
+                if (mol_is_active(i)):
+                    n += 1
+            return n
 
-	if res_name == 'TYR':
-		mutate_by_overlap(imol, chain_id, resno, "PTR")
-	elif res_name == 'SER':
-		mutate_by_overlap(imol, chain_id, resno, "SEP")
-	elif res_name == 'THR':
-		mutate_by_overlap(imol, chain_id, resno, "TPO")
-	else:
-		s = "Can't Phosphorylate residue of type " + res_name
-		info_dialog(s)
+	active_atom = active_residue()
+        try: 
+	    imol       = active_atom[0]
+	    chain_id   = active_atom[1]
+	    resno      = active_atom[2]
+	    inscode    = active_atom[3]
+	    res_name = residue_name(imol, chain_id, resno, inscode)
+
+	    if res_name == 'TYR':
+	        mutate_by_overlap(imol, chain_id, resno, "PTR")
+	    elif res_name == 'SER':
+	        mutate_by_overlap(imol, chain_id, resno, "SEP")
+	    elif res_name == 'THR':
+	        mutate_by_overlap(imol, chain_id, resno, "TPO")
+	    else:
+	        s = "Can't Phosphorylate residue of type " + res_name
+	        info_dialog(s)
+        except TypeError as e:
+            print e
+            n_active = n_active_models()
+            s = 'WARNING:: unable to get active atom\n'
+            s += 'Is your molecule active?                  \n'
+            s += 'There are ' + str(n_active) + ' active model molecules.'
+            info_dialog(s)
 
 # A function for Overlaying ligands.  The transformation is applied
 # to all the atoms of the molecule that contains the moving ligand.

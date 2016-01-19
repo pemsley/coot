@@ -676,7 +676,7 @@
 	      (atom-name (list-ref active-atom 4))
 	      (alt-conf  (list-ref active-atom 5)))
 
-	  (if (string=? atom-name " N " (set! res-no (- res-no 1))))
+	  (if (string=? atom-name " N ") (set! res-no (- res-no 1)))
 	  
 	  (pepflip imol chain-id res-no ins-code alt-conf)))))
 

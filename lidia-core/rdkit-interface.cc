@@ -122,7 +122,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    bool found_a_bonded_atom = false;
 	    for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
 	       if (restraints.bond_restraint[ib].atom_id_1_4c() == atom_name_1) {
-		  // is the atom to wich atom_name_1 is bonded in the
+		  // is the atom to which atom_name_1 is bonded in the
 		  // atoms of the residue?
 		  for (int iat_2=0; iat_2<n_residue_atoms; iat_2++) {
 		     mmdb::Atom *at_2 = residue_atoms[iat_2];
@@ -205,11 +205,14 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    }
 
 	    // set the chirality
-	    // (if this atom is chiral)
+	    // (if this atom is has restraints-style chiral info)
 	    //
+	    bool done_chiral = false;
+	    
 	    for (unsigned int ichi=0; ichi<restraints.chiral_restraint.size(); ichi++) {
 	       const dict_chiral_restraint_t &cr = restraints.chiral_restraint[ichi];
 	       if (cr.atom_id_c_4c() == atom_name) {
+		  done_chiral = true;
 		  if (!cr.has_unassigned_chiral_volume()) {
 		     rdkit_at->setProp("mmcif_chiral_N1", util::remove_whitespace(cr.atom_id_1_4c()));
 		     rdkit_at->setProp("mmcif_chiral_N2", util::remove_whitespace(cr.atom_id_2_4c()));
@@ -233,6 +236,28 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		  }
 	       } 
 	    }
+
+	    // set chirality
+	    // (if this atom has Chemical Component Dictionary style chirality (R/S pdbx_stereo_config_flag)
+	    //
+	    if (! done_chiral) { 
+	       for (unsigned int i=0; i<restraints.atom_info.size(); i++) { 
+		  if (restraints.atom_info[i].atom_id_4c == atom_name) {
+		     if (restraints.atom_info[i].pdbx_stereo_config.first) {
+			if (restraints.atom_info[i].pdbx_stereo_config.second == "R") {
+			   std::cout << "  pdbx_stereo_config: " << atom_name << " R " << std::endl;
+			   RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_UNSPECIFIED;
+			   rdkit_at->setChiralTag(chiral_tag);
+			}
+			if (restraints.atom_info[i].pdbx_stereo_config.second == "S") {
+			   RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_UNSPECIFIED;
+			   std::cout << "        " << atom_name << " S " << std::endl;
+			}
+		     } 
+		  }
+	       }
+	    }
+	    
 	    
 	    m.addAtom(rdkit_at);
 	       
@@ -497,6 +522,11 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
       }
    }
 
+   // 2016014-PE needs investigating.
+   // 
+   // do we need to do this to fix up chirality?
+   // rdkit_mol_sanitize(m);
+   
    if (debug)
       std::cout << "DEBUG:: sanitizeMol() " << std::endl;
    RDKit::MolOps::sanitizeMol(m);
@@ -582,7 +612,7 @@ coot::chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2,
    return status;
 }
 
-// fill the coord from the dictionary if you can.
+// fill the coords from the dictionary if you can.
 // 
 RDKit::RWMol
 coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
@@ -619,6 +649,9 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	       } 
 	    } 
 	 }
+
+	 // need to try to get chiral info using atom_info[iat].pdbx_stereo_config
+	 
 	 int idx = m.addAtom(at);
 	 added_atoms[r.atom_info[iat].atom_id_4c] = idx; // for making bonds.
       }

@@ -33,6 +33,8 @@ void gui_ligand_metrics_py(PyObject *ligand_spec, PyObject *ligand_metrics, doub
 #endif
 
 
+// This don't call graphics_draw(), so the caller needs to do so.
+//
 coot::probe_clash_score_t
 probe_clash_score(const std::string &dots_file_name);
 
@@ -122,6 +124,18 @@ match_this_residue_and_dictionary(int imol, std::string chain_id, int res_no, st
 				  
 // return False if unknown
 bool comprised_of_organic_set_p(const std::string &rn);
+
+
+// we want to read in the built-in database to convert these scores to percentiles
+// return -1 (test for negative) on failure
+// metric_name examples: density_correlation coot_diff_map_KS_2 mogul_z_worst bumps_1
+// range: 0->100
+// 
+// reverse order for mogul and bumps (for example) because low-is-good
+// 
+double get_ligand_percentile(std::string metric_name, double metric_value, short int reverse_order);
+
+
 
 bool
 enhanced_ligand_coot_p();

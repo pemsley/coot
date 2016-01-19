@@ -44,7 +44,9 @@ coot::mmff_bonds_and_angles(RDKit::ROMol &mol) {
       	 if (mmffBondParams) { 
       	    double r0 = ForceFields::MMFF::Utils::calcBondRestLength(mmffBondParams);
       	    double kb = ForceFields::MMFF::Utils::calcBondForceConstant(mmffBondParams);
-      	    double sigma = 0.04/sqrt(kb);
+	    double sigma = 0.02;
+	    if (kb != 0.0) // the usual case, I hope!
+	       sigma = 0.04/sqrt(kb);
       	    std::string order = convert_to_energy_lib_bond_type((*bondIt)->getBondType());
       	    mmff_bond_restraint_info_t br(idx_1, idx_2, order, r0, sigma);
       	    r->bonds.push_back(br);
@@ -96,10 +98,14 @@ coot::mmff_bonds_and_angles(RDKit::ROMol &mol) {
 		     if (mmffAngleParams) {
 			double a = ForceFields::MMFF::Utils::calcAngleRestValue(mmffAngleParams);
 			double k = ForceFields::MMFF::Utils::calcAngleForceConstant(mmffAngleParams);
-			double esd = 3.0/sqrt(k);
-			if (0)
-			   std::cout << idx_1 << " " << idx_2 << " " << idx_3 << "    "
-				     << a << " " << k << std::endl;
+
+			double esd = 4.0;
+			if (k != 0) // the usual case, I hope.
+			   esd = 3.0/sqrt(k);
+
+			if (false)
+			   std::cout << "mmff angle restraint " << idx_1 << " " << idx_2 << " " << idx_3 << "    "
+				     << a << " k: " << k << " esd: " << esd << std::endl;
 			mmff_angle_restraint_info_t angle(idx_1, idx_2, idx_3, a, esd);
 			r->angles.push_back(angle);
 		     }

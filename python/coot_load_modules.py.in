@@ -91,6 +91,8 @@ post_list = ["coot_gui.py",
             "enhanced_ligand.py",
             "coot_toolbuttons.py",
 	    "pdbe_validation_data.py",
+            "contact_score_isolated_ligand.py",
+            "ligand_validation_sliders.py",
             "rcrane_loader.py"]
 
 # list of modules not available on Windows

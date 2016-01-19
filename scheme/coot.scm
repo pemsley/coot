@@ -102,6 +102,7 @@
 								      "shelx-extensions.scm"
 								      "ligand-check.scm"
 								      "enhanced-ligand.scm"
+								      "gui-ligand-sliders.scm"
 								      )))
 	      (else 
 	       (append pre-list post-list)))))
