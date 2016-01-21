@@ -1740,8 +1740,10 @@ gint reshape(GtkWidget *widget, GdkEventConfigure *event) {
    if (graphics_info_t::make_current_gl_context(widget)) {
       glViewport(0,0, widget->allocation.width, widget->allocation.height);
       graphics_info_t g;
-      g.graphics_x_size = widget->allocation.width;
-      g.graphics_y_size = widget->allocation.height;
+      // BL says:: shouldnt widget be window1?!
+      GtkWidget *win = lookup_widget(widget, "window1");
+      g.graphics_x_size = win->allocation.width;
+      g.graphics_y_size = win->allocation.height;
    } 
    graphics_info_t::graphics_draw(); // Added 20080408, needed?
    return TRUE;
