@@ -7475,18 +7475,53 @@ http://www.koreascience.or.kr/article/ArticleFullRecord.jsp?cn=CDCHCH_2009_v14n6
 
 -----
 
-    New Presentation slides
+   New Presentation slides
 
      to CSHL talk: A front page: accession code, comp-id
 
+   non-Pro cis-peptides
+
      why is cis-Pro so much more common than non-cis Pro?
 
-     trans-restraints: what's trans, cis, arrows to mid-line.  Why is
-     this restraint necessary (because user can create non-local
-     changes that have large energy difference (and accidentally
-     create a peptide with and omega of 89 degress)).
+   non-Pro cis-peptides in structures
+
+     1) "if you don't know what a cis-peptide is and don't care to
+        find out when Coot tells you that you've introduced one, then on
+        your own head be it - there is a validation tool that will navigate
+	you to all the cis-peptides in your structure should you care to
+	press the button. Validations tests won't help you if you choose
+	not to run them."
+
+     2) ... but there was a bug ... as I was writing the code and
+     testing it, I could see that there was a danger of flipping the N
+     to the same (of the CA-CA vector) side as the CO and then coot
+     would happily use plane restraint minimization to create a
+     cis-peptide... so I tried to make this less probable by
+     introducing a non-linearity term so that the atoms further from
+     the pull point are pulled less than their linearn fraction (by
+     raising a fraction to a power). Unfortunately I made an
+     arithmetic error which meant that I had made such pull
+     transformations *more* likely than less.
+
+     October 2014 I heard Jane Richardson discuss the problem and
+     reviewed, fixed the problem that afternoon.
+
+     Given that several papers have recently (now) been published about
+     non-Pro cis-peptides in the PDB, it seems that my expectation of
+     skill had not been met in large part and it necessary for me to
+     rework the interface to remove the possibility unitentional
+     creation of non-Pro cis-peptides during refinement.
+
+  trans-restraints:
+
+     what's trans, cis? draw arrows to mid-line.  Why is this
+     restraint necessary (because user can create non-local changes
+     that have large energy difference (and accidentally create a
+     peptide with and omega of 89 degress)).
 
      how does this help refinement?  Before and after video?
+
+
 
 -----
 

@@ -1,6 +1,8 @@
  
  0.8.3
 
+   o "pepflip" (not exactly) for when add-terminal residue puts the CO
+     the wrong way round.... also the CB and the N.
 
    o Does "Phosphorylate this residue" work in Python mode?
 
