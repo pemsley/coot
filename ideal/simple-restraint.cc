@@ -4262,7 +4262,7 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
 					      coot::pseudo_restraint_bond_type sec_struct_pseudo_bonds) {
 
    // debugging SRS inclusion.
-   if (0) { 
+   if (false) {
       std::cout << "----- make restraints() called with geom of size : " << geom.size() << std::endl;
       std::cout << "    geom ref pointer " << &geom << std::endl;
    }
