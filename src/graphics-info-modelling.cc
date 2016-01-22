@@ -748,7 +748,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	 // We only want to act on these new residues and molecule, if
 	 // there is something there.
 	 // 
-	 if (residues_mol_and_res_vec.first) {
+	 if (residues_mol_and_res_vec.first > 0) {
 
 	    // Now we want to do an atom name check.  This stops exploding residues.
 	    //
@@ -1061,67 +1061,37 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 						    mmdb::Manager *mol_in,
 						    std::string alt_conf) {
    
+   float dist_crit = 3.0;
    mmdb::Manager *new_mol = 0;
-   std::vector<mmdb::Residue *> rv;
+   std::vector<mmdb::Residue *> rv; // gets checked 
+   
    int n_flanker = 0; // a info/debugging counter
 
    if (residues.size() > 0) { 
 
-      new mmdb::Manager;
-      mmdb::Model *model_p = new mmdb::Model;
-      mmdb::Chain *chain_p = new mmdb::Chain;
-   
-      float dist_crit = 3.0;
+      std::pair<bool, mmdb::Manager *> n_mol_1 =
+	 coot::util::create_mmdbmanager_from_residue_vector(residues);
+      
+      new_mol = n_mol_1.second;
+      mmdb::Model *model_p = new_mol->GetModel(1);
 
-      // First add new versions of the passed residues:
-      // 
-      std::string chain_id_1 = residues[0]->GetChainID();
+      // how many (free) residues were added to that model? (add them to rv)
+      //
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 for (int ires=0; ires<nres; ires++) { 
+	    mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	    rv.push_back(residue_p);
+	 }
+      }
+      
+      
+
+
       short int whole_res_flag = 0;
       int atom_index_udd = molecules[imol].atom_sel.UDDAtomIndexHandle;
-
-      // FIXME, we need to check that we are adding r to the right
-      // chain, now residues can be in many different chains.
-      //
-      
-      for (unsigned int ires=0; ires<residues.size(); ires++) {
-	 mmdb::Residue *r;
-
-	 std::string ref_res_chain_id = residues[ires]->GetChainID();
-
-	 mmdb::Chain *chain_p = NULL;
-	 int n_new_mol_chains = model_p->GetNumberOfChains();
-	 for (int ich=0; ich<n_new_mol_chains; ich++) {
-	    if (ref_res_chain_id == model_p->GetChain(ich)->GetChainID()) {
-	       chain_p = model_p->GetChain(ich);
-	       break;
-	    }
-	 }
-
-	 // Add a new one then.
-	 if (! chain_p) {
-	    chain_p = new mmdb::Chain;
-	    chain_p->SetChainID(ref_res_chain_id.c_str());
-	    model_p->AddChain(chain_p);
-	 }
-
-	 // found in mmdb-extras
-	 r = coot::deep_copy_this_residue(residues[ires], alt_conf, whole_res_flag, 
-					  atom_index_udd);
-	 if (r) { 
-	    chain_p->AddResidue(r);
-	    r->seqNum = residues[ires]->GetSeqNum();
-	    r->SetResName(residues[ires]->GetResName());
-	    // 	 std::cout << " adding moving residue " << " " << coot::residue_spec_t(r)
-	    // 		   << std::endl;
-	    rv.push_back(r);
-	 } 
-      }
-
-      new_mol = new mmdb::Manager;
-      new_mol->AddModel(model_p);
-      new_mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-      new_mol->FinishStructEdit();
-
       
       // Now the flanking residues:
       //
@@ -1187,8 +1157,13 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 	 r = coot::deep_copy_this_residue(flankers_in_reference_mol[ires],
 					  alt_conf, whole_res_flag, 
 					  atom_index_udd);
-	 if (r) { 
-	    chain_p->AddResidue(r);
+	 if (r) {
+
+	    int sni = find_serial_number_for_insert(flankers_in_reference_mol[ires]->GetSeqNum(), chain_p);
+	    if (sni == -1)
+	       chain_p->AddResidue(r); // at the end
+	    else
+	       chain_p->InsResidue(r, sni);
 	    r->seqNum = flankers_in_reference_mol[ires]->GetSeqNum();
 	    r->SetResName(flankers_in_reference_mol[ires]->GetResName());
 	    // 	 std::cout << " adding flanking residue " << " " << coot::residue_spec_t(r)
@@ -1197,9 +1172,34 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
 	 }
       }
    }
-//    std::cout << "DEBUG:: in create_mmdbmanager_from_res_vector: " << rv.size()
-// 	     << " free residues and " << n_flanker << " flankers" << std::endl;
+
+   std::cout << "DEBUG:: in create_mmdbmanager_from_res_vector: " << rv.size()
+ 	     << " free residues and " << n_flanker << " flankers" << std::endl;
    return std::pair <mmdb::Manager *, std::vector<mmdb::Residue *> > (new_mol, rv);
+}
+
+// return -1 on failure to find a residue for insertion index
+// 
+int 
+graphics_info_t::find_serial_number_for_insert(int seqnum_new, mmdb::Chain *chain_p) const {
+
+   int iserial_no = -1;
+   int current_diff = 999999;
+   if (chain_p) {
+      int nres = chain_p->GetNumberOfResidues();
+      for (int ires=0; ires<nres; ires++) { // ires is a serial number
+	 mmdb::Residue *residue = chain_p->GetResidue(ires);
+
+	 // we are looking for the smallest negative diff:
+	 // 
+	 int diff = residue->GetSeqNum() - seqnum_new;
+	 if ( (diff > 0) && (diff < current_diff) ) {
+	    iserial_no = ires;
+	    current_diff = diff;
+	 }
+      }
+   }
+   return iserial_no;
 }
 
 
@@ -4067,7 +4067,7 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 
 #ifdef HAVE_GSL
 
-   if (moving_atoms_asc) { 
+   if (moving_atoms_asc) {
       if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE ||
 	  moving_atoms_asc_type == coot::NEW_COORDS_REPLACE_CHANGE_ALTCONF) { // needed?
 	 if (moving_atoms_asc->mol) {
@@ -4118,8 +4118,10 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 	       coot::util::cis_peptides_info_from_coords(moving_atoms_asc->mol);
 
 	    int n_cis = cis_pep_info_vec.size();
-	    
+
 	    if (n_cis > graphics_info_t::moving_atoms_n_cis_peptides) {
+	       if (message_string == "Unset")
+		  message_string.clear();
 	       if (n_cis == 1) {
 		  message_string += "\nWARNING: A CIS peptide ";
 		  message_string += cis_pep_info_vec[0].string();
@@ -4132,7 +4134,7 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 			message_string += cis_pep_info_vec[i].string();
 			message_string += "\n";
 		     }
-		  } else { 
+		  } else {
 		     message_string += "\nWARNING: We now have thse CIS peptides:\n";
 		     for (unsigned int i=0; i<cis_pep_info_vec.size(); i++) { 
 			message_string += cis_pep_info_vec[i].string();
@@ -4143,15 +4145,17 @@ graphics_info_t::check_and_warn_inverted_chirals_and_cis_peptides() const {
 	    }
 
 	    // ===================== show it? ==============================
-	    
+
 	    if (show_chiral_volume_errors_dialog_flag) {
-	       if (accept_reject_dialog) { 
+	       
+	       if (accept_reject_dialog) {
 		  // info_dialog(s);
+
 		  if (message_string != "Unset") {
 		     update_accept_reject_dialog_with_results(accept_reject_dialog,
 							      coot::CHIRAL_CENTRES,
 							      message_string);
-		  } else { 
+		  } else {
 		     update_accept_reject_dialog_with_results(accept_reject_dialog,
 							      coot::CHIRAL_CENTRES,
 							      coot::refinement_results_t(" "));

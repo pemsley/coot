@@ -1,6 +1,9 @@
  
  0.8.3
 
+   o pdb redo script updates
+
+   o sphere refine on 2bmd 71: Where is the trans -> cis warning?
 
    o change the monomer library to the CCP4 bzr repo version
 

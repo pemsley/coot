@@ -2231,6 +2231,8 @@ public:
 				      int imol, // for uddatom index.
 				      mmdb::Manager *mol,
 				      std::string alt_conf);
+   // which uses
+   int find_serial_number_for_insert(int seqnum_new, mmdb::Chain *chain_p) const;
 
    // simple mmdb::Residue * interface to refinement.  20081216
    coot::refinement_results_t
