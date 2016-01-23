@@ -3693,14 +3693,18 @@ unset PKG_CONFIG_PATH
 #refmac_mon_lib=refmac-monomer-library-20090929.tar.gz
 #refmac_mon_lib=refmac-monomer-library-20091203.tar.gz
 # mon_lib_dir=http://www.ysbl.york.ac.uk/~garib/refmac/data/refmac_experimental
-mon_lib_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/content/refmac/Dictionary
+# mon_lib_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/content/refmac/Dictionary
 
-refmac_mon_lib=refmac_dictionary_v5.28.tar.gz
-refmac_mon_lib=refmac_dictionary_v5.29.tar.gz
-refmac_mon_lib=refmac_dictionary_v5.37.tar.gz
-refmac_mon_lib=refmac_dictionary_v5.38.tar.gz
-refmac_mon_lib=refmac_dictionary_v5.39.tar.gz
-refmac_mon_lib=refmac_dictionary_v5.41.tar.gz
+# refmac_mon_lib=refmac_dictionary_v5.28.tar.gz
+# refmac_mon_lib=refmac_dictionary_v5.29.tar.gz
+# refmac_mon_lib=refmac_dictionary_v5.37.tar.gz
+# refmac_mon_lib=refmac_dictionary_v5.38.tar.gz
+# refmac_mon_lib=refmac_dictionary_v5.39.tar.gz
+# refmac_mon_lib=refmac_dictionary_v5.41.tar.gz
+
+# new style
+mon_lib_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files
+refmac_mon_lib=refmac_monomer_library.tar.gz
 
 if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
     echo INFO:: installation has refmac monomer library
