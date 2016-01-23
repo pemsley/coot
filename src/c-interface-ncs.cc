@@ -341,8 +341,6 @@ make_ncs_ghosts_maybe(int imol) {
    if (is_valid_model_molecule(imol)) {  // it should be!
       if (graphics_info_t::molecules[imol].has_ncs_p()) {
 	 if (graphics_info_t::molecules[imol].ncs_ghosts_have_rtops_p() == 0) {
-	    std::cout << "%%%%%%%%% calling fill_ghost_info() from c-interface.cc make_ncs_ghosts_maybe()"
-		      << std::endl;
 	    graphics_info_t::molecules[imol].fill_ghost_info(1, graphics_info_t::ncs_homology_level);
 	 }
       }
