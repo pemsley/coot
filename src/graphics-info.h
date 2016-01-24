@@ -2134,7 +2134,8 @@ public:
    //
    static short int do_torsion_restraints; // all, including side chains
    static short int do_peptide_omega_torsion_restraints;
-   static bool do_rama_restraints; 
+   static bool do_rama_restraints;
+   static bool do_trans_peptide_restraints;
    static bool do_numerical_gradients; // for debugging
 
    coot::refinement_results_t regularize(int imol, short int auto_range_flag, int i_atom_start, int i_atom_end); 

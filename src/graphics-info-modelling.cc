@@ -491,10 +491,11 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	    std::cout << "------------------- copy_mol_and_refine_inner() const test_function n_test: "
 		      << n_test << std::endl;
 	 } 
-	 
+
 	 int nrestraints = 
 	    restraints.make_restraints(geom, flags,
 				       do_residue_internal_torsions,
+				       do_trans_peptide_restraints,
 				       rama_plot_restraint_weight,
 				       do_rama_restraints,
 				       pseudo_bonds_type);
@@ -790,6 +791,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 
 	       int n_restraints = restraints.make_restraints(*Geom_p(), flags,
 							     do_residue_internal_torsions,
+							     do_trans_peptide_restraints,
 							     rama_plot_restraint_weight,
 							     do_rama_restraints,
 							     pseudo_bonds_type);
@@ -4210,8 +4212,14 @@ graphics_info_t::tabulate_geometric_distortions(const coot::restraints_container
 	 }
 	 if (rest.restraint_type == coot::TORSION_RESTRAINT) {
 	    std::string s = "torsion " + coot::util::float_to_string(gd.distortion_score);
-	    for (unsigned int iat=0; iat<gd.atom_indices.size(); iat++)
-	       s += " " + rr.get_atom_spec(gd.atom_indices[iat]).format();
+	    // s += " " + rr.get_atom_spec(gd.atom_index_2).format();
+	    // s += " " + rr.get_atom_spec(gd.atom_index_3).format();
+	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
+	 }
+	 if (rest.restraint_type == coot::TRANS_PEPTIDE_RESTRAINT) {
+	    std::string s = "trans " + coot::util::float_to_string(gd.distortion_score);
+	    s += " " + rr.get_atom_spec(rest.atom_index_2).format();
+	    s += " " + rr.get_atom_spec(rest.atom_index_3).format();
 	    rest_info.push_back(std::pair<double, std::string> (gd.distortion_score, s));
 	 }
 	 if (rest.restraint_type == coot::PLANE_RESTRAINT) {

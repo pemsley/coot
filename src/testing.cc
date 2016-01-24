@@ -706,9 +706,11 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
    } 
 
    coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+   bool do_trans_peptide_restraints = false;
    int nrestraints = 
       restraints.make_restraints(geom, flags,
 				 do_residue_internal_torsions,
+				 do_trans_peptide_restraints,
 				 rama_plot_restraint_weight,
 				 do_rama_restraints,
 				 pseudos);
@@ -1130,7 +1132,8 @@ restr_res_vector() {
       coot::restraints_container_t
 	 restraints(residues, links, geom, mol, fixed_atom_specs);
       restraints.add_map(xmap, weight);
-      restraints.make_restraints(geom, flags, 0, 0.0, 0, coot::NO_PSEUDO_BONDS);
+      bool do_trans_peptide_restraints = true;      
+      restraints.make_restraints(geom, flags, 0, do_trans_peptide_restraints, 0.0, 0, coot::NO_PSEUDO_BONDS);
       restraints.minimize(flags);
       restraints.write_new_atoms("ss-test.pdb");
    }

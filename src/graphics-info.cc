@@ -1454,7 +1454,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    // Update the Accept/Reject Dialog if it exists (and it should do,
    // if we are doing dragged refinement).
    if (accept_reject_dialog) {
-      if (saved_dragged_refinement_results.lights.size() > 0) { 
+      if (saved_dragged_refinement_results.lights.size() > 0) {
 	 update_accept_reject_dialog_with_results(accept_reject_dialog,
 						  coot::CHI_SQUAREDS,
 						  saved_dragged_refinement_results);
