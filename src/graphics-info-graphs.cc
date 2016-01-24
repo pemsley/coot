@@ -591,10 +591,12 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 		  // 		  do_link_torsions = 1;
 	       
 		  coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+		  bool do_trans_peptide_restraints = false;
 		  int nrestraints = 
 		     restraints.make_restraints(*geom_p,
 						flags,
 						do_residue_internal_torsions,
+						do_trans_peptide_restraints,
 						0.0, 0,
 						pseudos);
 	       

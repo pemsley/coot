@@ -428,10 +428,17 @@ void write_interpolated_models_and_extra_restraints(int imol_1, int imol_2, int 
    }
 }
 
+void clear_atom_pull_restraint_on_accept_reject_destroy() {
+
+   graphics_info_t g;
+   g.clear_atom_pull_restraint(false);
+   graphics_draw();
+}
+
 void clear_atom_pull_restraint() {
 
    graphics_info_t g;
-   g.clear_atom_pull_restraint();
+   g.clear_atom_pull_restraint(true);
    graphics_draw();
 }
 

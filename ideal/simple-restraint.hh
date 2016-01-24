@@ -189,7 +189,9 @@ namespace coot {
 			  START_POS_RESTRAINT=128,
 			  TARGET_POS_RESTRANT=256, // restraint to make an atom be at a position
 			  PARALLEL_PLANES_RESTRAINT=512,
-			  GEMAN_MCCLURE_DISTANCE_RESTRAINT=1024};
+			  GEMAN_MCCLURE_DISTANCE_RESTRAINT=1024,
+			  TRANS_PEPTIDE_RESTRAINT=2048
+   };
 
    enum pseudo_restraint_bond_type {NO_PSEUDO_BONDS, HELIX_PSEUDO_BONDS,
 				    STRAND_PSEUDO_BONDS};
@@ -225,10 +227,12 @@ namespace coot {
 				BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES = 187,
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES = 191,
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES = 255,
+
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_GEMAN_MCCLURE_DISTANCES = 63+1024,
-				TYPICAL_RESTRAINTS               = 1+2+  8+16+32+128+512,
-				TYPICAL_RESTRAINTS_WITH_TORSIONS = 1+2+4+8+16+32+128+512,
-				ALL_RESTRAINTS = 1+2+4+8+16+32+64+128+256+512+1024
+				// typical restriants add trans peptide restraints
+				TYPICAL_RESTRAINTS               = 1+2+  8+16+32+128+512+2048,
+				TYPICAL_RESTRAINTS_WITH_TORSIONS = 1+2+4+8+16+32+128+512+2048,
+				ALL_RESTRAINTS = 1+2+4+8+16+32+64+128+256+512+1024+2048
 				
    };
 
@@ -239,8 +243,10 @@ namespace coot {
           NON_BONDED_MASK = 16,
 	  CHIRAL_VOLUME_MASK = 32,
 	  RAMA_PLOT_MASK = 64,
-	  PARALLEL_PLANES_MASK = 256,
-	  GEMAN_MCCLURE_DISTANCE_MASK = 512 };
+	  PARALLEL_PLANES_MASK = 512,
+	  GEMAN_MCCLURE_DISTANCE_MASK = 1024,
+	  TRANS_PEPTIDE_MASK = 2048
+   };
 
 
    class ramachandran_restraint_flanking_residues_helper_t {
@@ -373,8 +379,8 @@ namespace coot {
 	 fixed_atom_flags = fixed_atom_flags_in;
 	 periodicity = periodicity_in; 
 	 is_user_defined_restraint = 0;
-	 if (rest_type != TORSION_RESTRAINT) { 
-	    std::cout << "ERROR::::: PROGRAM ERROR - TORSION ERROR" << std::endl; 
+	 if ((rest_type != TORSION_RESTRAINT) && (rest_type != TRANS_PEPTIDE_RESTRAINT)) {
+	    std::cout << "ERROR::::: PROGRAM ERROR - TORSION/TRANSP-PEP ERROR" << std::endl; 
 	 }
       }
 
@@ -743,6 +749,8 @@ namespace coot {
    // torsion score can throw a std::runtime_error if there is a problem calculating the torsion.
    double distortion_score_torsion(const simple_restraint &torsion_restraint,
 				    const gsl_vector *v); 
+   double distortion_score_trans_peptide(const simple_restraint &torsion_restraint,
+					 const gsl_vector *v); 
    double distortion_score_plane(const simple_restraint &plane_restraint,
 				  const gsl_vector *v); 
    double distortion_score_chiral_volume(const simple_restraint &chiral_restraint,
@@ -791,6 +799,7 @@ namespace coot {
    //  just the torsion terms:
    void my_df_torsions(const gsl_vector *v, void *params, gsl_vector *df);
    void my_df_torsions_internal(const gsl_vector *v, void *params, gsl_vector *df, bool do_rama_torsions);
+   void my_df_trans_peptides(const gsl_vector *v, void *params, gsl_vector *df);
    //  just the ramachandran plot gradient terms:
    void my_df_rama(const gsl_vector *v, void *params, gsl_vector *df); 
    //  the plane deviation from terms:
@@ -1288,15 +1297,18 @@ namespace coot {
       }
 
       int make_link_restraints          (const protein_geometry &geom,
-					 bool do_rama_plot_retraints);
+					 bool do_rama_plot_retraints,
+					 bool do_trans_peptide_restraints);
 
       // which uses either:
       int make_link_restraints_by_linear(const protein_geometry &geom,
-					 bool do_rama_plot_retraints);
+					 bool do_rama_plot_retraints,
+					 bool do_trans_peptide_restraints);
 
       bonded_pair_container_t
       make_link_restraints_from_res_vec(const protein_geometry &geom,
-					    bool do_rama_plot_retraints);
+					bool do_rama_plot_retraints,
+					bool do_trans_peptide_restraints);
       // both of which use:
       int make_link_restraints_by_pairs(const protein_geometry &geom,
 					const bonded_pair_container_t &bonded_residue_pairs,
@@ -1322,7 +1334,8 @@ namespace coot {
       
       bonded_pair_container_t
       make_flanking_atoms_restraints(const protein_geometry &geom,
-				     bool do_rama_plot_retraints); // no torsions
+				     bool do_rama_plot_retraints,
+				     bool do_trans_peptide_restraints); // no torsions
       // uses the following
       bonded_pair_container_t
       bonded_flanking_residues(const protein_geometry &geom) const;
@@ -1408,10 +1421,20 @@ namespace coot {
 
       int add_link_torsion(std::string link_type,
 			   int phi_psi_restraints_type,
-			   mmdb::PResidue first, mmdb::PResidue second,
-			   short int is_fixed_first, short int is_fixed_second,
+			   mmdb::Residue *first,
+			   mmdb::Residue *second,
+			   short int is_fixed_first,
+			   short int is_fixed_second,
 			   const protein_geometry &geom);
 
+      // a strong restraint on w to make it 180, period 1.
+      // 
+      int add_link_trans_peptide(mmdb::Residue *first,
+				 mmdb::Residue *second,
+				 short int is_fixed_first,
+				 short int is_fixed_second,
+				 const protein_geometry &geom);
+      
       int add_rama(std::string link_type,
 		   mmdb::PResidue prev,
 		   mmdb::PResidue this_res,
@@ -1807,6 +1830,7 @@ namespace coot {
       int make_restraints(const protein_geometry &geom,
 			  restraint_usage_Flags flags,
 			  bool do_residue_internal_torsions,
+			  bool do_trans_peptide_restraints,
 			  float rama_plot_target_weight,
 			  bool do_rama_plot_retraints, 
 			  pseudo_restraint_bond_type sec_struct_pseudo_bonds);

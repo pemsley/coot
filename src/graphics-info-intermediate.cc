@@ -59,7 +59,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
       bool status = g.last_restraints.turn_off_when_close_target_position_restraint();
       if (status) {
 	 atom_pull.off();
-	 g.clear_atom_pull_restraint();
+	 g.clear_atom_pull_restraint(true);
       }
    }
    
@@ -86,18 +86,20 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    g.regularize_object_bonds_box = bonds.make_graphical_bonds(g.ramachandrans_container,
 							      do_markup);
 
+   // debug
+   coot::geometry_distortion_info_container_t gdic = last_restraints.geometric_distortions(flags);
+
    char *env = getenv("COOT_DEBUG_REFINEMENT");
    if (env)
       g.tabulate_geometric_distortions(last_restraints);
+
+   
 
    // Update the Accept/Reject Dialog if it exists (and it should do,
    // if we are doing dragged refinement).
    if (accept_reject_dialog) {
       if (saved_dragged_refinement_results.lights.size() > 0) {
 
-	 std::cout << "from drag_refine_refine_intermediate_atoms calling update_accept_reject_dialog_with_results() with info \""
-		   << saved_dragged_refinement_results.info << "\"" << std::endl;
-	 
 	 update_accept_reject_dialog_with_results(accept_reject_dialog,
 						  coot::CHI_SQUAREDS,
 						  saved_dragged_refinement_results);

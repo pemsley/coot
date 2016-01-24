@@ -29,13 +29,15 @@ void
 coot::restraints_container_t::clear_atom_pull_restraint() {
 
    unsigned int pre_size = restraints_vec.size();
-   restraints_vec.erase(std::remove_if(restraints_vec.begin(),
-				       restraints_vec.end(),
-				       target_position_eraser),
-			restraints_vec.end());
-   unsigned int post_size = restraints_vec.size();
-   // std::cout << "debug:: clear_atom_pull_restraint() pre size: " << pre_size << " post size: "
-   // << post_size << std::endl;
+   if (pre_size > 0) {
+      restraints_vec.erase(std::remove_if(restraints_vec.begin(),
+					  restraints_vec.end(),
+					  target_position_eraser),
+			   restraints_vec.end());
+      unsigned int post_size = restraints_vec.size();
+      // std::cout << "debug:: clear_atom_pull_restraint() pre size: " << pre_size << " post size: "
+      // << post_size << std::endl;
+   }
 }
 
 bool coot::target_position_eraser(const simple_restraint &r) {

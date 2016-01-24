@@ -1372,7 +1372,6 @@ graphics_info_t::clear_up_moving_atoms() {
 }
 
 
-
 void
 graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 
@@ -4109,10 +4108,11 @@ graphics_info_t::draw_atom_pull_restraint() {
 }
 
 void
-graphics_info_t::clear_atom_pull_restraint() {
+graphics_info_t::clear_atom_pull_restraint(bool refine_again_flag) {
    last_restraints.clear_atom_pull_restraint();
    atom_pull.off();
-   drag_refine_refine_intermediate_atoms();
+   if (refine_again_flag)
+      drag_refine_refine_intermediate_atoms();
 }
 
 

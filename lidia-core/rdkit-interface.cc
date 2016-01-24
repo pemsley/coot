@@ -407,8 +407,8 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
    }
  
    if (debug) { 
-      std::cout << "DEBUG:: number of bond restraints:    " << restraints.bond_restraint.size()
-		<< std::endl;
+      std::cout << "DEBUG:: number of bond restraints:    "
+		<< restraints.bond_restraint.size() << std::endl;
       std::cout << "------- post construction of atoms ------" << std::endl;
       debug_rdkit_molecule(&m);
    }
@@ -491,10 +491,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	 }
       }
    }
-   
+
    if (debug)
       debug_rdkit_molecule(&m);
-
 
    if (do_undelocalize) { 
        if (debug)
@@ -506,6 +505,20 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
        std::cout << "---------------------- calling assign_formal_charges() -----------"
 		 << std::endl;
     coot::assign_formal_charges(&m);
+
+    if (debug)
+       std::cout << "---------------------- getting ring info findSSSR() -----------"
+		 << std::endl;
+    std::vector<std::vector<int> > ring_info;
+    RDKit::MolOps::findSSSR(m, ring_info);
+
+    
+    if (debug) {
+       // what's the ring info then?
+       RDKit::RingInfo* ring_info_p = m.getRingInfo();
+       unsigned int n_rings = ring_info_p->numRings();
+       std::cout << "found " << n_rings << " rings" << std::endl;
+    }
    
     if (debug)
        std::cout << "---------------------- calling cleanUp() -----------" << std::endl;
@@ -1923,6 +1936,8 @@ coot::remove_Hs_and_clean(const RDKit::ROMol &rdkm, bool set_aromaticity) {
 
    // remove bogus chirality specs:
    RDKit::MolOps::cleanupChirality(rdk_mol_with_no_Hs);
+
+   RDKit::MolOps::sanitizeMol(rdk_mol_with_no_Hs); //sets ringinfo
 
    return rdk_mol_with_no_Hs;
 } 

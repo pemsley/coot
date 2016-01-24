@@ -356,7 +356,10 @@ main(int argc, char **argv) {
 	    bool do_rama_plot_restraints = 0;
 	    if (inputs.use_rama_targets)
 	       do_rama_plot_restraints = 1;
-	    restraints.make_restraints(geom, flags, 1, 1.0, do_rama_plot_restraints, pseudos);
+	    // this should be a user-settable parameter. 
+	    bool do_trans_peptide_restraints = false;
+	    restraints.make_restraints(geom, flags, 1, do_trans_peptide_restraints,
+				       1.0, do_rama_plot_restraints, pseudos);
 
 	    int nsteps_max = 4000;
 	    short int print_chi_sq_flag = 1;

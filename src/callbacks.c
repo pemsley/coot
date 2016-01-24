@@ -2422,8 +2422,9 @@ on_accept_reject_refinement_dialog_destroy
      the intermediate atoms too.
  */
   set_accept_reject_dialog(NULL);
+  /* I want to merely clear the stick restraint, not refine again after I did that */
+  clear_atom_pull_restraint_on_accept_reject_destroy();
   clear_up_moving_atoms();
-  clear_atom_pull_restraint();
 }
 
 
@@ -11219,7 +11220,7 @@ on_accept_reject_atom_pull_clear_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data) { 
    clear_atom_pull_restraint();
-} 
+}
 
 
 

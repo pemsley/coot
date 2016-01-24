@@ -3628,31 +3628,7 @@
 ;;
 (define (get-pdbe-cif-for-comp-id comp-id)
 
-  (let ((download-dir (get-directory "coot-download")))
-    (let ((cif-file-name (append-dir-file download-dir
-					(string-append "PDBe-" comp-id ".cif")))
-	(url (string-append 
-	      "ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/"
-	      comp-id
-	      ".cif")))
-
-    (if (file-exists? cif-file-name)
-	;; try the file system cache
-	(begin
-	  (let* ((stat-data (stat cif-file-name))
-		 (l (stat:size stat-data)))
-	    (if (> l 0)
-		cif-file-name
-
-		;; give a dialog, saying that the file will not be
-		;; overwritten
-		(begin
-		  (let ((s (apply string-append (list cif-file-name
-						      " exists but is empty."
-						      "\nNot overwriting."))))
-		    (info-dialog s)
-		    #f)))))
-
+  (define (wrapped-fetch url cif-file-name)
 	;; use the network then 
 	(let ((nov (format #t "getting url: ~s~%" url))
 	      (state (coot-get-url url cif-file-name)))
@@ -3667,9 +3643,31 @@
 		  #f))
 	      
 	      ;; it worked
-	      cif-file-name))))))
+	      cif-file-name)))
 		
 
+  ;; main line of get-pdbe-cif-for-comp-id
+  ;;
+  (let ((download-dir (get-directory "coot-download")))
+    (let ((cif-file-name (append-dir-file download-dir
+					(string-append "PDBe-" comp-id ".cif")))
+	(url (string-append
+	      "ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/"
+	      comp-id
+	      ".cif")))
+
+    (if (file-exists? cif-file-name)
+	;; try the file system cache
+	(begin
+	  (let* ((stat-data (stat cif-file-name))
+		 (l (stat:size stat-data)))
+	    (if (> l 0)
+		cif-file-name
+		;; overwrite the empty file
+		(wrapped-fetch url cif-file-name))))
+
+	;; go get it then
+	(wrapped-fetch url cif-file-name)))))
 
 
 

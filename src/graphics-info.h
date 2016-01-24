@@ -2135,7 +2135,8 @@ public:
    //
    static short int do_torsion_restraints; // all, including side chains
    static short int do_peptide_omega_torsion_restraints;
-   static bool do_rama_restraints; 
+   static bool do_rama_restraints;
+   static bool do_trans_peptide_restraints;
    static bool do_numerical_gradients; // for debugging
 
    coot::refinement_results_t regularize(int imol, short int auto_range_flag, int i_atom_start, int i_atom_end); 
@@ -2232,6 +2233,8 @@ public:
 				      int imol, // for uddatom index.
 				      mmdb::Manager *mol,
 				      std::string alt_conf);
+   // which uses
+   int find_serial_number_for_insert(int seqnum_new, mmdb::Chain *chain_p) const;
 
    // simple mmdb::Residue * interface to refinement.  20081216
    coot::refinement_results_t
@@ -3972,7 +3975,9 @@ string   static std::string sessionid;
    // atom pull restraint
    static atom_pull_info_t atom_pull;
    static void draw_atom_pull_restraint();
-   void clear_atom_pull_restraint();
+   // we don't want to refine_again if the accept/reject dialog "Accept" button was clicked
+   // (not least because now the refined atoms have gone out of scope)
+   void clear_atom_pull_restraint(bool refine_again_flag);
    static bool auto_clear_atom_pull_restraint_flag;
 
 };

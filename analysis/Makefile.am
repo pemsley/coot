@@ -26,7 +26,7 @@ libcoot_analysis_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 bin_PROGRAMS = bfactan
 
-check_PROGRAMS = test-mogul test-cablam
+check_PROGRAMS = test-mogul test-cablam peptide-projection
 
 bfactan_SOURCES = bfactan.cc
 
@@ -38,6 +38,10 @@ test_cablam_SOURCES = test-cablam.cc
 
 test_cablam_LDADD =    $(top_builddir)/coords/libcoot-coords.la    \
                        libcoot-analysis.la
+
+peptide_projection_SOURCES  = peptide-projection.cc
+
+peptide_projection_LDADD = libcoot-analysis.la
 
 bfactan_LDADD = \
 	libcoot-analysis.la 					\

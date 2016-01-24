@@ -7367,7 +7367,11 @@ http://www.youtube.com/watch?v=aMSPwFvlICM
 
    http://lldb.llvm.org/lldb-gdb.html
 
----
+    How to run lldb on a core:
+
+   $ lldb .libs/coot-bin -c /cores/core.18439
+
+----
   
    torsion fit this residue should do a rigid body refinement after each modification, 
    or perhaps store the best torsion set and RBR the best ones.
@@ -7403,12 +7407,6 @@ Thu Jul 23 12:31:24 BST 2015
 
 ------
  
-    How to run lldb on a core:
-
-   $ lldb .libs/coot-bin -c /cores/core.18439
-
-----
-
     Topological RS Chirality
 
     http://www.chemcomp.com/journal/chiral.htm
@@ -7565,6 +7563,12 @@ PDB: 1ioy
    Thomas B. Steinbrecher, Markus Dahlgren, Daniel Cappel, Teng Lin, 
    Lingle Wang, Goran Krilov, Robert Abel, Richard Friesner, and Woody Sherman
 
-   Journal of Chemical Information and Modeling2015 55 (11), 2411-2420
+   Journal of Chemical Information and Modeling 2015 55 (11), 2411-2420
+
+
+----
+
+     2bmd resdiue 72 is good for trans peptide restraints testing. 
+     kw5124 Touw et al (2015): Trans-cis and peptide plane flips 
 
 ---

@@ -799,6 +799,12 @@ void save_refmac_phase_params_to_map(int imol_map,
 				     const char *hlc,
 				     const char *hld);
 
+/*  ----------------------------------------------------------------------- */
+/*                      Atom pull restraint                                 */
+/*  ----------------------------------------------------------------------- */
+/* called when the use destroys the Accept/Reject window.  No need for user access  */
+void clear_atom_pull_restraint_on_accept_reject_destroy();
+
 
 #endif /* C_INTERFACE_GTK_WIDGETS_H */
 END_C_DECLS
