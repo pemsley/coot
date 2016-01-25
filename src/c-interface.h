@@ -636,11 +636,12 @@ int handle_read_draw_molecule(const char *filename);
 /*! \brief enable reading PDB/pdbx files with duplicate sequence numbers */
 void allow_duplicate_sequence_numbers();
 
-/*! \brief shall we convert nucleotides to match the dictionary
+/*! \brief shall we convert nucleotides to match the old dictionary
   names?
 
-Usually we do not want to do this (give current Coot architecture).  Most
-often not, though.  Coot should handle the residue synonyms transparently.
+Usually (after 2006 or so) we do not want to do this (given current
+Coot architecture).  Coot should handle the residue synonyms
+transparently.
 
 default off (0).
 
@@ -4332,6 +4333,13 @@ void set_draw_hydrogens(int imol, int istat);
 
 return -1 on bad imol.  */
 int draw_hydrogens_state(int imol);
+
+/*! \brief draw little coloured balls on atoms
+
+turn off with state = 0
+
+turn on with state = 1 */
+void set_draw_stick_mode_atoms(int imol, short int state);
 
 /*! \brief draw molecule number imol as CAs */
 void graphics_to_ca_representation   (int imol);

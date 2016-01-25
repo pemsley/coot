@@ -1518,13 +1518,13 @@ graphics_info_t::draw_moving_atoms_graphics_object() {
 	 default:
 	    glColor3f (0.6, 0.6, 0.6);
 	 }
-	 Lines_list &ll = graphics_info_t::regularize_object_bonds_box.bonds_[i];
+
 	 
+	 graphical_bonds_lines_list &ll = graphics_info_t::regularize_object_bonds_box.bonds_[i];
 	 if (ll.thin_lines_flag)
 	    glLineWidth(bw * 0.5);
 	 else 
 	    glLineWidth(bw); // is this slow?
-
 
 	 glBegin(GL_LINES); 
 	 for (int j=0; j< graphics_info_t::regularize_object_bonds_box.bonds_[i].num_lines; j++) {
@@ -1653,7 +1653,7 @@ graphics_info_t::environment_graphics_object_internal_lines(const graphical_bond
 
       if (env_bonds_box.num_colours > 0) {
 
-	 Lines_list ll;
+	 graphical_bonds_lines_list ll;
 	 coot::Cartesian text_pos;
 	 float dist;
 
@@ -1741,7 +1741,7 @@ graphics_info_t::environment_graphics_object_internal_tubes(const graphical_bond
 		  display_these_distances_flag = 0;
 
 	    if (display_these_distances_flag) { 
-	       Lines_list ll = env_bonds_box.bonds_[i]; // lightweight
+	       graphical_bonds_lines_list ll = env_bonds_box.bonds_[i]; // lightweight
 	       float it = float(i);
 	       if (it > 1.0) 
 		  it = 1.0;

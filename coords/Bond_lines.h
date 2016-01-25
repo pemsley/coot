@@ -145,7 +145,7 @@ public:
  
 // A poor man's vector.  For use when we can't use vectors
 // 
-class Lines_list { 
+class graphical_bonds_lines_list { 
 
  public:   
    // contain a number of elements
@@ -154,13 +154,40 @@ class Lines_list {
    graphics_line_t *pair_list;
    bool thin_lines_flag;
    
-   Lines_list() { 
+   graphical_bonds_lines_list() { 
       pair_list = NULL;
       thin_lines_flag = 0;
    }
 };
 
-// Uses Lines_list
+class graphical_bonds_points_list {
+
+public:
+   unsigned int num_points;
+   unsigned int current_count;
+
+   // use a is-H-atom-flag for first
+   std::pair<bool, coot::Cartesian> *points;
+   
+   graphical_bonds_points_list() {
+      current_count = 0;
+      num_points = 0;
+      points = NULL;
+   }
+
+   graphical_bonds_points_list(unsigned int size) {
+      current_count = 0;
+      num_points = size;
+      points = new std::pair<bool, coot::Cartesian>[size];
+   }
+
+   void add_point(const std::pair<bool, coot::Cartesian> &pt) {
+      points[current_count] = pt;
+      current_count++;
+   } 
+}; 
+
+// Uses graphical_bonds_lines_list
 // 
 // a graphical_bonds_container is used by draw_molecule() and are
 // created from a Bond_lines_container (which uses a vector).
@@ -170,10 +197,10 @@ class graphical_bonds_container {
  public:
    
    int num_colours;
-   Lines_list *bonds_; 
+   graphical_bonds_lines_list *bonds_; 
 
    int symmetry_has_been_created;
-   Lines_list *symmetry_bonds_;
+   graphical_bonds_lines_list *symmetry_bonds_;
 
    coot::Cartesian *zero_occ_spots_ptr;
    coot::Cartesian *deuterium_spots_ptr;
@@ -182,11 +209,14 @@ class graphical_bonds_container {
    int n_deuterium_spots;
    int n_ramachandran_goodness_spots;
 
+   // first is is-H-atom-flag
    std::pair<bool,coot::Cartesian> *atom_centres_;
    int n_atom_centres_;
    int *atom_centres_colour_;
    std::vector<coot::torus_description_t> rings;
-
+   int n_consolidated_atom_centres;
+   graphical_bonds_points_list *consolidated_atom_centres;
+   
    graphical_bonds_container() { 
       num_colours = 0; 
       bonds_ = NULL;
@@ -201,6 +231,8 @@ class graphical_bonds_container {
       n_atom_centres_ = 0;
       n_ramachandran_goodness_spots = 0;
       ramachandran_goodness_spots_ptr = NULL;
+      consolidated_atom_centres = NULL;
+      n_consolidated_atom_centres = 0;
    }
 
    void clear_up() { 
@@ -235,6 +267,11 @@ class graphical_bonds_container {
       n_deuterium_spots = 0;
       n_ramachandran_goodness_spots = 0;
       n_atom_centres_ = 0;
+      if (consolidated_atom_centres) {
+	 for (int i=0; i<n_consolidated_atom_centres; i++)
+	    delete [] consolidated_atom_centres[i].points;
+	 delete [] consolidated_atom_centres;
+      }
    }
 
    graphical_bonds_container(const std::vector<graphics_line_t> &a) { 
@@ -244,7 +281,7 @@ class graphical_bonds_container {
 
       num_colours = 1;
       
-      bonds_ = new Lines_list[1]; // only 1 Lines_list needed
+      bonds_ = new graphical_bonds_lines_list[1]; // only 1 graphical_bonds_lines_list needed
       bonds_[0].pair_list = new graphics_line_t[(a.size())];
       bonds_[0].num_lines = a.size();
 
@@ -268,7 +305,7 @@ class graphical_bonds_container {
  /*       cout << "filling a graphical_bonds_container from a vector "  */
 /* 	   << "of size " << a.size() << endl; */
 
-     Lines_list *new_bonds_ = new Lines_list[num_colours+1];
+     graphical_bonds_lines_list *new_bonds_ = new graphical_bonds_lines_list[num_colours+1];
      if ( bonds_ != NULL ) {
        for (int i = 0; i < num_colours; i++ ) new_bonds_[i] = bonds_[i];
        delete[] bonds_;

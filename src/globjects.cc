@@ -1319,7 +1319,8 @@ unsigned int graphics_info_t::user_defined_interesting_positions_idx = 0;
 atom_pull_info_t graphics_info_t:: atom_pull = atom_pull_info_t();
 bool graphics_info_t::auto_clear_atom_pull_restraint_flag = true;
 
-#define GDKGLEXT_HAVE_MODE_SAMPLES_SHIFT true
+// need to configure for this!
+// #define GDKGLEXT_HAVE_MODE_SAMPLES_SHIFT true
 
 
 // GTK2 code

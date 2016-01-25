@@ -6418,7 +6418,6 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       
       Bond_lines_container bonds(asc, geom);
       graphical_bonds_container bonds_box_local = bonds.make_graphical_bonds();
-      Lines_list ll;
 
       // start display list object
       GLuint bonds_tag = glGenLists(1);
@@ -6458,7 +6457,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       glEnable(GL_NORMALIZE);
       
       for (int ii=0; ii<bonds_box_local.num_colours; ii++) {
-	 ll = bonds_box_local.bonds_[ii];
+	 graphical_bonds_lines_list &ll = bonds_box_local.bonds_[ii];
 	 set_bond_colour_by_mol_no(ii, against_a_dark_background);
 
 	 GLfloat bgcolor[4]={bond_colour_internal[0],
