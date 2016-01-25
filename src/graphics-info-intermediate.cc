@@ -124,7 +124,7 @@ bool graphics_info_t::pepflip_intermediate_atoms() {
 
       coot::Cartesian pt(graphics_info_t::RotationCentre());
 
-      for (unsigned int i=0; i<moving_atoms_asc->n_selected_atoms; i++) { 
+      for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) { 
 	 mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
 	 coot::Cartesian atom_pos(at->x, at->y, at->z);
 	 coot::Cartesian diff = atom_pos - pt;
