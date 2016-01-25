@@ -5196,4 +5196,3 @@ graphical_bonds_container::add_atom_centres(const std::vector<std::pair<bool,coo
 		   << std::endl;
 
 }
-
