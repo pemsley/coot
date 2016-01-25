@@ -2959,7 +2959,7 @@ Bond_lines_container::make_graphical_bonds(bool thinning_flag) const {
 
    int ibs = bonds.size();
    box.num_colours = bonds.size();
-   box.bonds_ = new Lines_list[ibs];
+   box.bonds_ = new graphical_bonds_lines_list[ibs];
 
    // i is the colour index
    for (int i=0; i<ibs; i++) {
@@ -2992,7 +2992,7 @@ Bond_lines_container::make_graphical_bonds(const ramachandrans_container_t &rc,
 
    int ibs = bonds.size();
    box.num_colours = bonds.size();
-   box.bonds_ = new Lines_list[ibs];
+   box.bonds_ = new graphical_bonds_lines_list[ibs];
 
    // i is the colour index
    for (int i=0; i<ibs; i++) {
@@ -3022,7 +3022,7 @@ Bond_lines_container::make_graphical_symmetry_bonds() const {
    graphical_bonds_container box;
    box.num_colours = bonds.size();
    box.bonds_ = NULL;
-   // box.bonds_ = new Lines_list[bonds.size()]; // surely not!
+   // box.bonds_ = new graphical_bonds_lines_list[bonds.size()]; // surely not!
    box.symmetry_has_been_created = 1;
 
    // This block can never happen!  box is created here and the
@@ -3043,7 +3043,7 @@ Bond_lines_container::make_graphical_symmetry_bonds() const {
       }
    }
       
-   box.symmetry_bonds_ = new Lines_list[bonds.size()];
+   box.symmetry_bonds_ = new graphical_bonds_lines_list[bonds.size()];
 //    std::cout << "allocating symmetry bonds " << box.symmetry_bonds_
 // 	     << " for " << bonds.size() << " symmetry bonds" << std::endl;
 
@@ -5158,5 +5158,42 @@ graphical_bonds_container::add_atom_centres(const std::vector<std::pair<bool,coo
       atom_centres_[i] = centres[i];
       atom_centres_colour_[i] = colours[i];
    }
+
+   // now consolidate those to batches of each colour - orders of
+   // magnitude faster without colour changing per atom.
+   // 
+   int col_idx_max = 1;
+   for (int i=0; i<n_atom_centres_; i++) {
+      if (colours[i] > col_idx_max) {
+	 col_idx_max = colours[i];
+      }
+   }
+   col_idx_max += 1;
+
+   unsigned int counts[col_idx_max]; // is this allowed?
+   for (unsigned int i=0; i<col_idx_max; i++) {
+      counts[i] = 0;
+   }
+
+   for (int i=0; i<n_atom_centres_; i++)
+      counts[colours[i]]++;
+
+   consolidated_atom_centres = new graphical_bonds_points_list[col_idx_max];
+   n_consolidated_atom_centres = col_idx_max;
+   
+   for (unsigned int i=0; i<col_idx_max; i++) {
+      // std::cout << "sizing consolidated_atoms_centres " << i << " to " << counts[i] << std::endl;
+      consolidated_atom_centres[i] = graphical_bonds_points_list(counts[i]);
+   }
+   
+   for (int i=0; i<n_atom_centres_; i++) {
+      consolidated_atom_centres[colours[i]].add_point(atom_centres_[i]);
+   }
+
+   if (false) // debug
+      for (unsigned int i=0; i<col_idx_max; i++)
+	 std::cout << "    col " << i << " has " << consolidated_atom_centres[i].num_points
+		   << std::endl;
+
 }
 

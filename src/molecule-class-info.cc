@@ -1891,7 +1891,7 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 
    for (int i=0; i<bonds_box.num_colours; i++) {
 
-      Lines_list &ll = bonds_box.bonds_[i];
+      graphical_bonds_lines_list &ll = bonds_box.bonds_[i];
 
       if (bonds_box.bonds_[i].thin_lines_flag)
  	 glLineWidth(p_bond_width * 0.5);
@@ -1964,7 +1964,38 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 	    
 	 }
 	 glEnd();
-      } 
+      }
+   }
+
+   if (display_stick_mode_atoms_flag) {
+
+      if (bonds_box.atom_centres_) { 
+
+	 // std::cout << "draw " << bonds_box.n_atom_centres_ << " atom centres "
+	 // << std::endl;
+
+	 float zsc = graphics_info_t::zoom;
+	 glPointSize(260.0/zsc);
+	    
+	 glBegin(GL_POINTS);
+	 // for a big molecule, it's a factor of 10 or more slower
+	 // to put glColor3f in the middle of the loop.
+	 //
+	 // Hence we use sets of atoms consolidated by their colour index
+
+	 for (unsigned int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
+	    set_bond_colour_by_mol_no(icol, against_a_dark_background);
+	    for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) { 
+	       // no points for hydrogens
+	       if (! bonds_box.consolidated_atom_centres[icol].points[i].first) {
+		  glVertex3f(bonds_box.consolidated_atom_centres[icol].points[i].second.x(),
+			     bonds_box.consolidated_atom_centres[icol].points[i].second.y(),
+			     bonds_box.consolidated_atom_centres[icol].points[i].second.z());
+	       }
+	    }
+	 }
+	 glEnd();
+      }
    }
 }
 
@@ -2011,7 +2042,7 @@ molecule_class_info_t::display_symmetry_bonds() {
 	       set_symm_bond_colour_mol_and_symop(icol, isymop);
 	       int linesdrawn = 0;
 	    
-	       Lines_list &ll = symmetry_bonds_box[isym].first.symmetry_bonds_[icol];
+	       graphical_bonds_lines_list &ll = symmetry_bonds_box[isym].first.symmetry_bonds_[icol];
 	 
 	       glBegin(GL_LINES); 
 	       for (int j=0; j< symmetry_bonds_box[isym].first.symmetry_bonds_[icol].num_lines; j++) {
@@ -2062,7 +2093,7 @@ molecule_class_info_t::display_symmetry_bonds() {
 		  set_symm_bond_colour_mol_and_symop(icol, isn);
 		  int linesdrawn = 0;
 	    
-		  Lines_list &ll = gbc.symmetry_bonds_[icol];
+		  graphical_bonds_lines_list &ll = gbc.symmetry_bonds_[icol];
 	 
 		  glBegin(GL_LINES); 
 		  for (int j=0; j< gbc.symmetry_bonds_[icol].num_lines; j++) {
@@ -2756,7 +2787,7 @@ molecule_class_info_t::makebonds(float max_dist, const coot::protein_geometry *g
    // << bonds_box.num_colours << endl;
 }
 
-// I think that graphics_info_t::Geom_p() should be passed to this function.
+// 
 // 
 void
 molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p) {
