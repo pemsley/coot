@@ -294,7 +294,7 @@ class LigandTestFunctions(unittest.TestCase):
             if use_mogul:
                 arg_list = ["--residue-type", tlc_text, smiles]
             else:
-                if command_in_path("mogul"):
+                if command_in_path_qm("mogul"):
                     arg_list = ["--residue-type", tlc_text, smiles]
                 else:
                     arg_list = ["--no-mogul", "-M", "--residue-type", tlc_text, smiles]

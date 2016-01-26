@@ -379,21 +379,23 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
         #
         current_dir = os.getcwd()
         os.chdir(working_dir)
+        comp_id = tlc_text if tlc_text else "LIG"
 
         if use_mogul:
-            args = ["--residue-type", tlc_text, smiles_text]
+            args = ["--residue-type", comp_id, smiles_text]
         else:
             if command_in_path_qm("mogul"):
-                args = ["--residue-type", tlc_text, smiles_text]
+                args = ["--residue-type", comp_id, smiles_text]
             else:
-                args = ["--no-mogul", "-M", "--residue-type", tlc_text, smiles_text]
+                args = ["--no-mogul", "-M", "--residue-type", comp_id, smiles_text]
 
-        # BL says:: may have to find pyrogen first?!
+        print "---------- args:", args
+        # BL says:: may have to find pyrogen first?! FIXME
         status = popen_command("pyrogen", args, [], log_file_name, True)
 
         if (ok_popen_status_qm(status)):
-            pdb_file_name = tlc_text + "-pyrogen.pdb"
-            cif_file_name = tlc_text + "-pyrogen.cif"
+            pdb_file_name = comp_id + "-pyrogen.pdb"
+            cif_file_name = comp_id + "-pyrogen.cif"
             sc = rotation_centre()
             imol = handle_read_draw_molecule_with_recentre(pdb_file_name, 0)
             if (is_valid_model_molecule(imol)):

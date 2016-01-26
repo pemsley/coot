@@ -16,6 +16,8 @@ enhanced_ligand.py      test it
 
 check up to dateness of supplied manuals
 
+refinement selection with insertion code not working
+
 Fix installer guile warning for windows feel.
 
 FIX COOT_REFMAC_DIR for x86 windows with spaces (and/or umlauts)!
