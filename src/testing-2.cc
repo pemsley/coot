@@ -77,9 +77,11 @@ int test_parallel_plane_restraints() {
    coot::restraint_usage_Flags flags =
       coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES;
    coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
+   bool do_trans_peptide_restraints = false;
    int nrestraints = 
       restraints.make_restraints(t.geom, flags,
 				 do_residue_internal_torsions,
+				 do_trans_peptide_restraints,
 				 rama_plot_restraint_weight,
 				 do_rama_restraints,
 				 pseudos);

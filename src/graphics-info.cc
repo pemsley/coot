@@ -1454,7 +1454,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    // Update the Accept/Reject Dialog if it exists (and it should do,
    // if we are doing dragged refinement).
    if (accept_reject_dialog) {
-      if (saved_dragged_refinement_results.lights.size() > 0) { 
+      if (saved_dragged_refinement_results.lights.size() > 0) {
 	 update_accept_reject_dialog_with_results(accept_reject_dialog,
 						  coot::CHI_SQUAREDS,
 						  saved_dragged_refinement_results);
@@ -1613,7 +1613,8 @@ graphics_info_t::moving_atoms_graphics_object() {
 	 default:
 	    glColor3f (0.8, 0.8, 0.8);
 	 }
-	 Lines_list &ll = graphics_info_t::regularize_object_bonds_box.bonds_[i];
+
+	 graphical_bonds_lines_list &ll = graphics_info_t::regularize_object_bonds_box.bonds_[i];
 
 	 glBegin(GL_LINES); 
 	 for (int j=0; j< graphics_info_t::regularize_object_bonds_box.bonds_[i].num_lines; j++) {
@@ -1710,7 +1711,7 @@ graphics_info_t::environment_graphics_object_internal_lines(const graphical_bond
 
       if (env_bonds_box.num_colours > 0) {
 
-	 Lines_list ll;
+	 graphical_bonds_lines_list ll;
 	 coot::Cartesian text_pos;
 	 float dist;
 
@@ -1798,7 +1799,7 @@ graphics_info_t::environment_graphics_object_internal_tubes(const graphical_bond
 		  display_these_distances_flag = 0;
 
 	    if (display_these_distances_flag) { 
-	       Lines_list ll = env_bonds_box.bonds_[i]; // lightweight
+	       graphical_bonds_lines_list ll = env_bonds_box.bonds_[i]; // lightweight
 	       float it = float(i);
 	       if (it > 1.0) 
 		  it = 1.0;

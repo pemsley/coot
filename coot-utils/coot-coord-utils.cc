@@ -3011,8 +3011,8 @@ coot::util::create_mmdbmanager_from_res_selection(mmdb::Manager *orig_mol,
 // The returned mol has the same chain ids as do the input residues.
 // 
 std::pair<bool, mmdb::Manager *>
-coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec) { 
-  
+coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec) {
+
    // So, first make a vector of residue sets, one residue set for each chain.
    std::vector<coot::util::chain_id_residue_vec_helper_t> residues_of_chain;
    
@@ -3050,7 +3050,30 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
       residues_of_chain[ich].sort_residues();
    }
 
+   if (false) {  // debug sorting
+      for (unsigned int ich=0; ich<residues_of_chain.size(); ich++) { 
+	 std::cout << "chain idx: " << ich << " create_mmdbmanager_from_residue_vector() "
+		   << residues_of_chain[ich].chain_id << std::endl;
+	 for (unsigned int ii=0; ii<residues_of_chain[ich].residues.size(); ii++) { 
+	    std::cout << "   " << ii << " " << residues_of_chain[ich].residues[ii]->GetSeqNum()
+		      << std::endl;
+	 }
+      }
+   }
+
    std::sort(residues_of_chain.begin(), residues_of_chain.end());
+
+   if (false) {  // debug sorting
+      for (unsigned int ich=0; ich<residues_of_chain.size(); ich++) { 
+	 std::cout << "chain idx: " << ich << " create_mmdbmanager_from_residue_vector() "
+		   << residues_of_chain[ich].chain_id << std::endl;
+	 for (unsigned int ii=0; ii<residues_of_chain[ich].residues.size(); ii++) { 
+	    std::cout << "   post sort " << ii << " "
+		      << residues_of_chain[ich].residues[ii]->GetSeqNum()
+		      << std::endl;
+	 }
+      }
+   }
 
    mmdb::Model *model_p = new mmdb::Model;
    for (unsigned int ich=0; ich<residues_of_chain.size(); ich++) { 
@@ -3132,20 +3155,20 @@ bool
 coot::util::chain_id_residue_vec_helper_t::residues_sort_func(mmdb::Residue *first, mmdb::Residue *second) { 
    
    if (first->GetSeqNum() < second->GetSeqNum()) { 
-      return 1;
+      return true;
    } else { 
       if (first->GetSeqNum() > second->GetSeqNum()) { 
-	 return 0; 
+	 return false; 
       } else { 
 	 std::string inscode_1 = first->GetInsCode();
 	 std::string inscode_2 = second->GetInsCode(); 
 	 if (inscode_1 < inscode_2) 
-	    return 1; 
+	    return true; 
 	 else 
-	    return 0;
+	    return false;
       }
    }
-   return 0; // not reached.
+   return false; // not reached.
 }
 
 
@@ -6074,12 +6097,10 @@ coot::util::cis_peptides_info_from_coords(mmdb::Manager *mol) {
    mmdb::Chain *chain_p;
    int nchains = model_p->GetNumberOfChains();
    for (int ichain=0; ichain<nchains; ichain++) {
-      //       std::cout << "DEBUGG:: in cis_peptides_info_from_coords ichain " << ichain
-      // 		<< " of " << nchains << " chains " << std::endl;
       chain_p = model_p->GetChain(ichain);
-      //       std::cout << "DEBUGG:: in cis_peptides_info_from_coords ichain " << ichain
-      // << " chain_p " << chain_p << std::endl;
       if (chain_p) { 
+	 // std::cout << "DEBUGG:: in cis_peptides_info_from_coords ichain " << ichain
+	 // << " chain id " << chain_p->GetChainID() << std::endl;
 	 int nres = chain_p->GetNumberOfResidues();
 	 mmdb::Residue *residue_p_1 = 0;
 	 mmdb::Residue *residue_p_2 = 0;

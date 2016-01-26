@@ -1891,7 +1891,7 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 
    for (int i=0; i<bonds_box.num_colours; i++) {
 
-      Lines_list &ll = bonds_box.bonds_[i];
+      graphical_bonds_lines_list &ll = bonds_box.bonds_[i];
 
       if (bonds_box.bonds_[i].thin_lines_flag)
  	 glLineWidth(p_bond_width * 0.5);
@@ -1964,7 +1964,126 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 	    
 	 }
 	 glEnd();
-      } 
+      }
+   }
+
+   display_bonds_stick_mode_atoms(bonds_box, front, back, against_a_dark_background);
+
+}
+
+
+void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds_container &bonds_box,
+							   const coot::Cartesian &front,
+							   const coot::Cartesian &back,
+							   bool against_a_dark_background) {
+
+   if (display_stick_mode_atoms_flag) {
+
+      if (bonds_box.atom_centres_) { 
+
+	 // std::cout << "draw " << bonds_box.n_atom_centres_ << " atom centres "
+	 // << std::endl;
+
+	 float zsc = graphics_info_t::zoom;
+	 glPointSize(280.0/zsc);
+	    
+	 glBegin(GL_POINTS);
+	 // for a big molecule, it's a factor of 10 or more slower
+	 // to put glColor3f in the middle of the loop.
+	 //
+	 // Hence we use sets of atoms consolidated by their colour index
+
+	 // colour by chain atom have atoms of a single colour currently
+
+	 // if we have hydrogens, we want the balls to be placed slightly in front of the atom so that
+	 // the hydrogen sticks don't appear and disappear behind the atom circle as the molecule is rotated
+	 // Note that this delta for atom interacts with the highlight.
+	 // 
+	 coot::Cartesian z_delta = (front - back) * 0.001;
+	 for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
+	    set_bond_colour_by_mol_no(icol, against_a_dark_background);
+	    for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) { 
+	       // no points for hydrogens
+	       if (! bonds_box.consolidated_atom_centres[icol].points[i].first) {
+		  coot::Cartesian fake_pt = bonds_box.consolidated_atom_centres[icol].points[i].second;
+		  fake_pt += z_delta;
+		  glVertex3f(fake_pt.x(), fake_pt.y(), fake_pt.z());
+	       }
+	    }
+	 }
+	 glEnd();
+
+
+	 // highlights? (they currently don't scale/translate correctly)
+	 // 
+	 if (true) {
+
+	    zsc = graphics_info_t::zoom;
+
+	    if (zsc < 40) { // only draw highlights if we are close enough (zoomed in) to see them
+	    
+	       coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
+	       coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
+	       coot::Cartesian right  = unproject_xyz(1, 0, 0.5);
+	       coot::Cartesian top    = unproject_xyz(0, 1, 0.5);
+
+	       coot::Cartesian screen_x = (right - centre);
+	       coot::Cartesian screen_y = (top   - centre);
+	       coot::Cartesian screen_z = (front - centre);
+
+	       screen_x.unit_vector_yourself();
+	       screen_y.unit_vector_yourself();
+	       screen_z.unit_vector_yourself();
+
+	       // std::cout << "got point size range " << point_data[0] << " " << point_data[1]
+	       // << zsc << std::endl;  -> 1 and 63.375
+	       //
+
+	       float hlit_point_size =  40.0/zsc;
+	       float ball_point_size = 280.0/zsc;
+
+	       // the position offset should be clamped between point_size_data[0] and point_size_data[1]
+	       //
+	       // 
+	       GLdouble point_size_data[2];
+	       glGetDoublev(GL_POINT_SIZE_RANGE, point_size_data);
+
+	       if (ball_point_size > point_size_data[1]) { 
+		  ball_point_size = point_size_data[1];
+		  hlit_point_size = (40.0/280.0) * point_size_data[1];
+	       }
+
+	       float off = 0.055;
+
+	       coot::Cartesian offset = screen_x * off;
+	       offset += screen_y * (-off * 1.25);
+	       offset += z_delta * 2.0;
+
+	       if (false)
+		  std::cout << "got point size range " << point_size_data[0] << " "
+			    << point_size_data[1] << " " << zsc << " "
+			    << hlit_point_size << std::endl;
+	       // point_size_data on pc:  -> 1 and  63.375
+	       // point_size_data on mbp: -> 1 and 255.875
+
+	       glPointSize(hlit_point_size);
+	       glBegin(GL_POINTS);
+	       glColor3f(0.8, 0.8, 0.8);
+	       for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
+		  for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) { 
+		     // no points for hydrogens
+		     if (! bonds_box.consolidated_atom_centres[icol].points[i].first) {
+			const coot::Cartesian &pos = bonds_box.consolidated_atom_centres[icol].points[i].second;
+			coot::Cartesian pt = pos + offset;
+		  
+			glVertex3f(pt.x(), pt.y(), pt.z());
+		     }
+		  }
+	       }
+	       glEnd();
+	    }
+	 }
+      }
    }
 }
 
@@ -2011,7 +2130,7 @@ molecule_class_info_t::display_symmetry_bonds() {
 	       set_symm_bond_colour_mol_and_symop(icol, isymop);
 	       int linesdrawn = 0;
 	    
-	       Lines_list &ll = symmetry_bonds_box[isym].first.symmetry_bonds_[icol];
+	       graphical_bonds_lines_list &ll = symmetry_bonds_box[isym].first.symmetry_bonds_[icol];
 	 
 	       glBegin(GL_LINES); 
 	       for (int j=0; j< symmetry_bonds_box[isym].first.symmetry_bonds_[icol].num_lines; j++) {
@@ -2062,7 +2181,7 @@ molecule_class_info_t::display_symmetry_bonds() {
 		  set_symm_bond_colour_mol_and_symop(icol, isn);
 		  int linesdrawn = 0;
 	    
-		  Lines_list &ll = gbc.symmetry_bonds_[icol];
+		  graphical_bonds_lines_list &ll = gbc.symmetry_bonds_[icol];
 	 
 		  glBegin(GL_LINES); 
 		  for (int j=0; j< gbc.symmetry_bonds_[icol].num_lines; j++) {
@@ -2756,7 +2875,7 @@ molecule_class_info_t::makebonds(float max_dist, const coot::protein_geometry *g
    // << bonds_box.num_colours << endl;
 }
 
-// I think that graphics_info_t::Geom_p() should be passed to this function.
+// 
 // 
 void
 molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p) {

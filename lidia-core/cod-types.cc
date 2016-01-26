@@ -33,7 +33,7 @@ cod::get_cod_atom_types(RDKit::ROMol &rdkm, bool add_name_as_property) {
 	       ring_size_vec.push_back(n_ring_atoms);
 	       rdkm[ring_atom_indices[iat]]->setProp("ring", ring_size_vec);
 	    }
-	    catch (KeyErrorException) {
+	    catch (const KeyErrorException &err) {
 	       std::vector<int> ring_size_vec(1);
 	       ring_size_vec[0] = n_ring_atoms;
 	       rdkm[ring_atom_indices[iat]]->setProp("ring", ring_size_vec);

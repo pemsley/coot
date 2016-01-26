@@ -1,43 +1,17 @@
  
  0.8.3
 
-
-   o change the monomer library to the CCP4 bzr repo version
-
-   o if coot-download/PDBe-XXX.cif is empty, it's OK to silently overwrite it.
-
-   o why doesn't Get Monomer -> MPD give me a thumbnail?
-
-   o ligands validation paper: check the isolated dots for A 2748 in 3hmj
-
-   o investigate Steven Sheriff save dialog thing.
+   o duplicate or create a fragment from a molecule, now quick-save-as.  The
+     new molecules are not saved and are not in the state file - they should be.
+     Frank von Delft.
 
    o Fix the python version of the JLigand interface.
 
-   o duplicate or create a fragment from a molecule, now quick-save-as.  The
-     new molecules are not saved and are not in the state file - they should be.
-
-   o carbohdrate: Does it work in Python mode?
+   o carbohydrate: Does it work in Python mode?
 
      A 310 in 3u0p
 
    o fix match-acedrg-dict-to-grade-dict-fails-to-write-dictionary.py (mac)
-
-   o get rid of this debugging:
-
-%%%%%%%%% calling fill_ghost_info() from c-interface.cc make_ncs_ghosts_maybe()
-
-   o test20_1 cycles without convergene on Ubuntu:
-   INFO:: setting refinement weight to 17.8833168985  from  60.0 / ( 1.83168837428 * 1.83168837428 )
-   INFO:: setting refinement weight to 37.5948982093  from  17.88331604 / ( 0.689698956907 * 0.689698956907 )
-   INFO:: setting refinement weight to 19.5870376348  from  37.5948982239 / ( 1.38541561365 * 1.38541561365 )
-   INFO:: setting refinement weight to 38.6635915601  from  19.5870380402 / ( 0.711759522557 * 0.711759522557 )
-   INFO:: setting refinement weight to 19.647185749  from  38.6635932922 / ( 1.40281671286 * 1.40281671286 )
-   INFO:: setting refinement weight to 38.6972409143  from  19.6471862793 / ( 0.712541528046 * 0.712541528046 )
-   INFO:: setting refinement weight to 19.6500545748  from  38.6972427368 / ( 1.40332457423 * 1.40332457423 )
-   INFO:: setting refinement weight to 38.6947564113  from  19.6500549316 / ( 0.712616421282 * 0.712616421282 )
-   INFO:: setting refinement weight to 19.6482399766  from  38.6947555542 / ( 1.40334427357 * 1.40334427357 )
-   INFO:: setting refinement weight to 38.7039726093  from  19.6482391357 / ( 0.712498649955 * 0.712498649955 )
 
    o Look at gtk-demo for how to set the colour patch of button that makes a colour
      selection. Use it in map preferences. 
@@ -48,10 +22,14 @@
 
    o on accept or reject moving atoms, clear the pull restraint.
 
+* Done.
+
    o use refinement to make an cis-peptide - then relieve it - the
      refinement gui should track this - does it?
 
      graphics-info-modelling's "cis peptides"
+
+   o ligands validation paper: check the isolated dots for A 2748 in 3hmj
 
    o read in ejd/BLG.pdb, look at the terminal - we only want/need one such warning:
 
@@ -108,9 +86,6 @@ In unknown file:
 
    o 3pt6 looks hideous when using PBDe -> Get From PDBe, but not from
      EDS.  Why?
-
-   o Glyo add NAG with ASN-NAG
-
 
    o Refine a bit of of the DNA in 3pt6 and see that the nbc seem to be failing.
 
@@ -403,3 +378,43 @@ Program terminated with signal 11, Segmentation fault.
 
 * Done.
 
+
+   o pdb redo script updates
+
+* Done.
+
+   o sphere refine on 2bmd 71: Where is the trans -> cis warning?
+
+* Done.
+
+   o change the monomer library to the CCP4 bzr repo version Robbie Joosten
+
+* Done.
+
+   o if coot-download/PDBe-XXX.cif is empty, it's OK to silently overwrite it.
+
+* Done.
+
+   o why doesn't Get Monomer -> MPD give me a thumbnail?
+
+* Done - need sanitizeMol (for findSSSR) after removal of hydrogens
+
+   o get rid of this debugging:
+
+%%%%%%%%% calling fill_ghost_info() from c-interface.cc make_ncs_ghosts_maybe()
+
+* Done.
+
+   o test20_1 cycles without convergene on Ubuntu:
+   INFO:: setting refinement weight to 17.8833168985  from  60.0 / ( 1.83168837428 * 1.83168837428 )
+   INFO:: setting refinement weight to 37.5948982093  from  17.88331604 / ( 0.689698956907 * 0.689698956907 )
+   INFO:: setting refinement weight to 19.5870376348  from  37.5948982239 / ( 1.38541561365 * 1.38541561365 )
+   INFO:: setting refinement weight to 38.6635915601  from  19.5870380402 / ( 0.711759522557 * 0.711759522557 )
+   INFO:: setting refinement weight to 19.647185749  from  38.6635932922 / ( 1.40281671286 * 1.40281671286 )
+   INFO:: setting refinement weight to 38.6972409143  from  19.6471862793 / ( 0.712541528046 * 0.712541528046 )
+   INFO:: setting refinement weight to 19.6500545748  from  38.6972427368 / ( 1.40332457423 * 1.40332457423 )
+   INFO:: setting refinement weight to 38.6947564113  from  19.6500549316 / ( 0.712616421282 * 0.712616421282 )
+   INFO:: setting refinement weight to 19.6482399766  from  38.6947555542 / ( 1.40334427357 * 1.40334427357 )
+   INFO:: setting refinement weight to 38.7039726093  from  19.6482391357 / ( 0.712498649955 * 0.712498649955 )
+
+* kludged.  Maybe worth a look another time

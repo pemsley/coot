@@ -1941,6 +1941,20 @@ void set_draw_hydrogens(int imol, int istate) {
    add_to_history_typed(cmd, args);
 }
 
+/*! \brief draw little coloured balls on atoms
+
+turn off with state = 0
+
+turn on with state = 1 */
+void set_draw_stick_mode_atoms(int imol, short int state) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_display_stick_mode_atoms(state);
+   }
+   graphics_draw();
+}
+
+
 /*! \brief the state of draw hydrogens for molecule number imol.  
 
 return -1 on bad imol.  */

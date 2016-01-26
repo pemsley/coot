@@ -1319,7 +1319,7 @@ coot::distortion_score(const gsl_vector *v, void *params) {
    coot::restraints_container_t *restraints =
       (coot::restraints_container_t *)params;
 
-   double distortion = 0; 
+   double distortion = 0;
 
 
    // distortion += starting_structure_diff_score(v, params); 
@@ -1346,6 +1346,16 @@ coot::distortion_score(const gsl_vector *v, void *params) {
   	    // cout << "adding an angle restraint " << i << endl;
 	    d = coot::distortion_score_angle((*restraints)[i], v);
 	    // std::cout << "DEBUG:: distortion for angle: " << d << std::endl;
+	    distortion += d;
+	 }
+      }
+
+      if (restraints->restraints_usage_flag & TRANS_PEPTIDE_MASK) {
+	 if ( (*restraints)[i].restraint_type == TRANS_PEPTIDE_RESTRAINT) {
+	    // std::cout << "adding an trans-peptide restraint: number " << i << std::endl;  
+	    // std::cout << "   distortion sum pre-adding a trans-peptide: " << distortion
+	    double d =  coot::distortion_score_trans_peptide((*restraints)[i], v);
+	    // std::cout << "   DEBUG:: distortion for trans-peptide: " << d << std::endl;
 	    distortion += d;
 	 }
       }
@@ -1725,7 +1735,7 @@ coot::distortion_score_torsion(const coot::simple_restraint &torsion_restraint,
       tdiff = theta - trial_target;
       if (tdiff < -180) tdiff += 360;
       if (tdiff >  180) tdiff -= 360;
-      if (abs(tdiff) < abs(diff)) { 
+      if (abs(tdiff) < abs(diff)) {
 	 diff = tdiff;
       }
    }
@@ -1749,14 +1759,17 @@ coot::distortion_score_torsion(const coot::simple_restraint &torsion_restraint,
 //    std::cout << "distortion score torsion "
 // 	     << diff*diff/(torsion_restraint.sigma * torsion_restraint.sigma) << " ";
 
-//      cout << "distortion_torsion theta (calc): " << theta 
-//   	<< " periodicity " << torsion_restraint.periodicity
-//   	<< " target "      << torsion_restraint.target_value
-//   	<< " diff: " << diff << endl ;
 
-//     std::cout << "in distortion_torsion: sigma = " << torsion_restraint.sigma
-//  	     << ", weight=" << pow(torsion_restraint.sigma,-2.0)
-//  	     << " and diff is " << diff << std::endl;
+   if (true) { // debug 
+      double pen = diff*diff/(torsion_restraint.sigma * torsion_restraint.sigma);
+	 std::cout << "distortion_torsion theta (calc): " << theta 
+		   << " periodicity " << torsion_restraint.periodicity
+		   << " target "      << torsion_restraint.target_value
+		   << " diff: " << diff << endl ;
+      std::cout << "in distortion_torsion: sigma = " << torsion_restraint.sigma
+		<< ", weight=" << pow(torsion_restraint.sigma,-2.0)
+		<< " and diff is " << diff << std::endl;
+   }
    
       
    return diff*diff/(torsion_restraint.sigma * torsion_restraint.sigma);
@@ -2678,6 +2691,7 @@ void coot::my_df(const gsl_vector *v,
    my_df_bonds     (v, params, df); 
    my_df_angles    (v, params, df);
    my_df_torsions  (v, params, df);
+   my_df_trans_peptides(v, params, df);
    my_df_rama      (v, params, df);
    my_df_planes    (v, params, df);
    my_df_non_bonded(v, params, df);
@@ -3541,34 +3555,34 @@ void coot::my_df_torsions_internal(const gsl_vector *v,
 	    
 		  if (! (*restraints)[i].fixed_atom_flags[0]) { 
 		     idx = 3*((*restraints)[i].atom_index_1);
-		     gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + xP1_contrib);
-		     gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + yP1_contrib);
-		     gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + zP1_contrib);
+		     *gsl_vector_ptr(df, idx  ) += xP1_contrib;
+		     *gsl_vector_ptr(df, idx+1) += yP1_contrib;
+		     *gsl_vector_ptr(df, idx+2) += zP1_contrib;
 		  }
 
 		  if (! (*restraints)[i].fixed_atom_flags[1]) { 
 		     idx = 3*((*restraints)[i].atom_index_2);
-		     gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + xP2_contrib);
-		     gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + yP2_contrib);
-		     gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + zP2_contrib);
+		     *gsl_vector_ptr(df, idx  ) += xP2_contrib;
+		     *gsl_vector_ptr(df, idx+1) += yP2_contrib;
+		     *gsl_vector_ptr(df, idx+2) += zP2_contrib;
 		  }
 
 		  if (! (*restraints)[i].fixed_atom_flags[2]) { 
 		     idx = 3*((*restraints)[i].atom_index_3);
-		     gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + xP3_contrib);
-		     gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + yP3_contrib);
-		     gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + zP3_contrib);
+		     *gsl_vector_ptr(df, idx  ) += xP3_contrib;
+		     *gsl_vector_ptr(df, idx+1) += yP3_contrib;
+		     *gsl_vector_ptr(df, idx+2) += zP3_contrib;
 		  }
 
 		  if (! (*restraints)[i].fixed_atom_flags[3]) { 
 		     idx = 3*((*restraints)[i].atom_index_4);
-		     gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + xP4_contrib);
-		     gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + yP4_contrib);
-		     gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + zP4_contrib);
+		     *gsl_vector_ptr(df, idx  ) += xP4_contrib;
+		     *gsl_vector_ptr(df, idx+1) += yP4_contrib;
+		     *gsl_vector_ptr(df, idx+2) += zP4_contrib;
 		  }
 	       }
 	    }
-	    catch (std::runtime_error rte) {
+	    catch (const std::runtime_error &rte) {
 	       std::cout << "Caught runtime_error" << rte.what() << std::endl;
 	    } 
 	 } 
@@ -4257,12 +4271,17 @@ int
 coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom,
 					      coot::restraint_usage_Flags flags_in, 
 					      bool do_residue_internal_torsions,
+					      bool do_trans_peptide_restraints,
 					      float rama_plot_target_weight,
 					      bool do_rama_plot_restraints, 
 					      coot::pseudo_restraint_bond_type sec_struct_pseudo_bonds) {
 
+   // if a peptider is trans, add a restraint to penalize non-trans configuration
+   // (currently a torsion restraint on peptide w of 180)
+   // 
+
    // debugging SRS inclusion.
-   if (0) { 
+   if (false) {
       std::cout << "----- make restraints() called with geom of size : " << geom.size() << std::endl;
       std::cout << "    geom ref pointer " << &geom << std::endl;
    }
@@ -4284,13 +4303,15 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
       }
 
       if (do_link_restraints)
-	 make_link_restraints(geom, do_rama_plot_restraints);
+	 make_link_restraints(geom, do_rama_plot_restraints, do_trans_peptide_restraints);
       
       // don't do torsions, ramas maybe.   
       coot::bonded_pair_container_t bpc;
 
       if (do_flank_restraints)
-	 bpc = make_flanking_atoms_restraints(geom, do_rama_plot_restraints);
+	 bpc = make_flanking_atoms_restraints(geom,
+					      do_rama_plot_restraints,
+					      do_trans_peptide_restraints);
       bpc.size();
       int iret_prev = restraints_vec.size();
 
@@ -5161,7 +5182,8 @@ coot::restraints_container_t::closest_approach(mmdb::Residue *r1, mmdb::Residue 
 
 coot::bonded_pair_container_t
 coot::restraints_container_t::make_flanking_atoms_restraints(const coot::protein_geometry &geom,
-							     bool do_rama_plot_restraints) {
+							     bool do_rama_plot_restraints,
+							     bool do_trans_peptide_restraints) {
 
    coot::bonded_pair_container_t bonded_residue_pairs = bonded_flanking_residues(geom);
    int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, "Flanking residue");
@@ -7733,7 +7755,9 @@ coot::simple_refine(mmdb::Residue *residue_p,
 	 restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
 	 pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 	 bool do_internal_torsions = true;
-	 restraints.make_restraints(geom, flags, do_internal_torsions, 0, 0, pseudos);
+	 bool do_trans_peptide_restraints = true;
+	 restraints.make_restraints(geom, flags, do_internal_torsions,
+				    do_trans_peptide_restraints, 0, 0, pseudos);
 	 restraints.minimize(flags, 3000, 1);
       }
    }

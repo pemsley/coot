@@ -1,0 +1,157 @@
+
+#include <string>
+
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+#include "coot-utils/coot-coord-utils.hh"
+
+
+mmdb::Manager *get_manager(const std::string &file_name) {
+
+   mmdb::ERROR_CODE err;
+   mmdb::Manager *mol = new mmdb::Manager;
+   err = mol->ReadCoorFile(file_name.c_str());
+   
+   if (err) {
+      std::cout << "There was an error reading " << file_name << ". \n";
+      std::cout << "ERROR " << err << " READ: "
+		<< mmdb::GetErrorDescription(err) << std::endl;
+      int  error_count;
+      char error_buf[500];
+      mol->GetInputBuffer(error_buf, error_count);
+      if (error_count >= 0) { 
+	 std::cout << "         LINE #" << error_count << "\n     "
+		   << error_buf << std::endl << std::endl;
+      } else {
+	 if (error_count == -1) { 
+	    std::cout << "       CIF ITEM: " << error_buf
+		      << std::endl << std::endl;
+	 }
+      }
+      delete mol;
+      mol = NULL;
+   }
+
+   return mol;
+}
+
+bool
+is_trans_peptide_by_distance(const clipper::Coord_orth &p1,
+			     const clipper::Coord_orth &p2) {
+
+   double d = clipper::Coord_orth::length(p1, p2);
+
+   bool r = false;
+   if (d < 3.9) {
+      if (d > 3.6) {
+	 r = true;
+      }
+   }
+   return r;
+}
+			     
+
+std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> >
+get_trans_CAs(mmdb::Manager *mol) {
+
+   std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > v;
+
+   // for(int imod = 1; imod<=asc.mol->GetNumberOfModels(); imod++) {
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) { 
+      mmdb::Chain *chain_p;
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 mmdb::Residue *residue_this;
+	 mmdb::Residue *residue_next;
+	 mmdb::Atom *at_this;
+	 mmdb::Atom *at_next;
+	 for (int ires=0; ires<(nres-1); ires++) { 
+	    residue_this = chain_p->GetResidue(ires);
+	    residue_next = chain_p->GetResidue(ires+1);
+	    int n_atoms_this = residue_this->GetNumberOfAtoms();
+
+	    // PDBv3 FIXME
+	    at_this = residue_this->GetAtom(" CA ");
+	    at_next = residue_next->GetAtom(" CA ");
+
+	    if (at_this) { 
+	       if (at_next) {
+		  std::string alt_conf_a = at_this->altLoc;
+		  std::string alt_conf_b = at_next->altLoc;
+		  if (alt_conf_a == "") { 
+		     if (alt_conf_b == "") {
+			if ((at_this->GetSeqNum() +1) == at_next->GetSeqNum()) { 
+			   clipper::Coord_orth pos_1 = coot::co(at_this);
+			   clipper::Coord_orth pos_2 = coot::co(at_next);
+			   if (is_trans_peptide_by_distance(pos_1, pos_2)) {
+			      std::pair<mmdb::Atom *, mmdb::Atom *> p(at_this, at_next);
+			      v.push_back(p);
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   
+   return v;
+}
+
+void analyse_distances(const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &v) {
+
+   std::cout << "# analyse_distances() " << v.size() << std::endl;
+   for (unsigned int i=0; i<v.size(); i++) { 
+      clipper::Coord_orth ca_1_pos = coot::co(v[i].first);
+      clipper::Coord_orth ca_2_pos = coot::co(v[i].second);
+      mmdb::Atom *c_1 = v[i].first->residue->GetAtom(" C  ");
+      mmdb::Atom *o_1 = v[i].first->residue->GetAtom(" O  ");
+      mmdb::Atom *n_2 = v[i].second->residue->GetAtom(" N  ");
+
+      if (c_1) {
+	 if (o_1) {
+	    if (n_2) {
+	       clipper::Coord_orth c_1_pos = coot::co(c_1);
+	       clipper::Coord_orth o_1_pos = coot::co(o_1);
+	       clipper::Coord_orth n_2_pos = coot::co(n_2);
+	       double ca_ca_dist = clipper::Coord_orth::length(ca_1_pos, ca_2_pos);
+	       clipper::Coord_orth ca_vec = ca_2_pos - ca_1_pos;
+	       clipper::Coord_orth ca_c_vec = c_1_pos - ca_1_pos;
+	       clipper::Coord_orth ca_n_vec = n_2_pos - ca_1_pos;
+	       clipper::Coord_orth ca_2_n_vec = n_2_pos - ca_2_pos;
+	       double dp_c = clipper::Coord_orth::dot(ca_vec, ca_c_vec);
+	       double dp_n = clipper::Coord_orth::dot(ca_vec, ca_n_vec);
+	       double dp_n_2 = clipper::Coord_orth::dot(ca_vec, ca_2_n_vec);
+	       double projection_length_c = dp_c/ca_ca_dist;
+	       double projection_length_n = dp_n/ca_ca_dist;
+	       double projection_length_n_2 = dp_n_2/ca_ca_dist;
+	       std::cout << "   "
+			 << projection_length_c << " " 
+			 << projection_length_n << " " 
+			 << projection_length_n_2 << " " 
+			 << "\n";
+	    }
+	 }
+      }
+   }
+}
+
+int main(int argc, char **argv) {
+
+   int status = 0;
+
+   if (argc > 1) {
+      std::string file_name = argv[1];
+      mmdb::Manager *mol = get_manager(file_name);
+      if(mol) {
+	 std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > v = get_trans_CAs(mol);
+	 analyse_distances(v);
+      }
+   }
+   return status;
+}
