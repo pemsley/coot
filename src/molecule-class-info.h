@@ -725,7 +725,7 @@ public:        //                      public
 
       //  bond width (now changeable).
       bond_width = 3.0;
-      display_stick_mode_atoms_flag = false;
+      display_stick_mode_atoms_flag = true;
 
       // 
       rotate_colour_map_for_difference_map = 240.0; // degrees
