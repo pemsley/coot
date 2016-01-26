@@ -1997,8 +1997,9 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 
 	 // if we have hydrogens, we want the balls to be placed slightly in front of the atom so that
 	 // the hydrogen sticks don't appear and disappear behind the atom circle as the molecule is rotated
+	 // Note that this delta for atom interacts with the highlight.
 	 // 
-	 coot::Cartesian z_delta = (front - back) * 0.01;
+	 coot::Cartesian z_delta = (front - back) * 0.001;
 	 for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
 	    set_bond_colour_by_mol_no(icol, against_a_dark_background);
 	    for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) { 
@@ -2015,11 +2016,11 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 
 	 // highlights? (they currently don't scale/translate correctly)
 	 // 
-	 if (false) {
+	 if (true) {
 
 	    zsc = graphics_info_t::zoom;
 
-	    if (zsc < 30) { // only draw highlights if we are close enough (zoomed in) to see them
+	    if (zsc < 40) { // only draw highlights if we are close enough (zoomed in) to see them
 	    
 	       coot::Cartesian centre = unproject_xyz(0, 0, 0.5);
 	       coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
@@ -2039,7 +2040,7 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 	       //
 
 	       float hlit_point_size =  40.0/zsc;
-	       float ball_point_size = 260.0/zsc;
+	       float ball_point_size = 280.0/zsc;
 
 	       // the position offset should be clamped between point_size_data[0] and point_size_data[1]
 	       //
@@ -2047,19 +2048,23 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 	       GLdouble point_size_data[2];
 	       glGetDoublev(GL_POINT_SIZE_RANGE, point_size_data);
 
-	       // std::cout << "got point size range " << point_size_data[0] << " " << point_size_data[1]
-	       // << " " << zsc << std::endl;  // -> 1 and 63.375
-	 
-	 
-	       float off = 0.01 * hlit_point_size;
 	       if (ball_point_size > point_size_data[1]) { 
-		  off = 0.01 * point_size_data[1];
-		  hlit_point_size = (40.0/260.0) * point_size_data[1];
+		  ball_point_size = point_size_data[1];
+		  hlit_point_size = (40.0/280.0) * point_size_data[1];
 	       }
-	 
+
+	       float off = 0.055;
+
 	       coot::Cartesian offset = screen_x * off;
-	       offset += screen_y * -off;
-	       offset += screen_z * (off * 0.5);
+	       offset += screen_y * (-off * 1.25);
+	       offset += z_delta * 2.0;
+
+	       if (false)
+		  std::cout << "got point size range " << point_size_data[0] << " "
+			    << point_size_data[1] << " " << zsc << " "
+			    << hlit_point_size << std::endl;
+	       // point_size_data on pc:  -> 1 and  63.375
+	       // point_size_data on mbp: -> 1 and 255.875
 
 	       glPointSize(hlit_point_size);
 	       glBegin(GL_POINTS);
