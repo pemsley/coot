@@ -1191,6 +1191,11 @@
 					  (format #t "handle: ~s~%" handle))))))
 
 	(add-simple-coot-menu-menuitem
+	 submenu-representation "Simple Sticks (No Balls)"
+	 (lambda () 
+	   (map (lambda (imol) (set-draw-stick-mode-atoms imol 0)) (molecule-number-list))))
+
+	(add-simple-coot-menu-menuitem
 	 submenu-representation "Clear Ball & Stick..."
 	 (lambda () 
 	   (molecule-chooser-gui "Choose a molecule from which to clear Ball&Stick objects"
