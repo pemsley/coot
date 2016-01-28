@@ -5,7 +5,8 @@ pre_tmp=$1
 post=$2
     
 echo adding gtk2 and guile ifdefs from $pre_tmp $post
-echo "#ifdef USE_GUILE"  > $post
+echo "#ifdef USE_GUILE"       > $post
+echo "#include <cstddef> "   >> $post
 echo "#ifdef USE_PYTHON"     >> $post
 echo "#include \"Python.h\"" >> $post
 echo "#endif"                >> $post
