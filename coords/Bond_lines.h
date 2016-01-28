@@ -271,6 +271,7 @@ class graphical_bonds_container {
 	 for (int i=0; i<n_consolidated_atom_centres; i++)
 	    delete [] consolidated_atom_centres[i].points;
 	 delete [] consolidated_atom_centres;
+	 consolidated_atom_centres = NULL;
       }
    }
 
