@@ -106,10 +106,83 @@
 	     (lambda () 
 	       (set-display-generic-objects-as-solid 1) ;; there may be consequences...
 	       (using-active-atom
-		(show-feats aa-imol aa-chain-id aa-res-no aa-ins-code))))))
+		(show-feats aa-imol aa-chain-id aa-res-no aa-ins-code))))
+
+	    (add-simple-coot-menu-menuitem 
+	     menu "Tabulate Ligand Distortions"
+	     (lambda ()
+	       (using-active-atom
+		(print-residue-distortions aa-imol aa-chain-id aa-res-no aa-ins-code))))
+
+	    (add-simple-coot-menu-menuitem 
+	     menu "Display Ligand Distortions"
+	     (lambda ()
+	       (set-display-generic-objects-as-solid 1) ;; there may be consequences...
+	       (using-active-atom
+		(display-residue-distortions aa-imol aa-chain-id aa-res-no aa-ins-code))))
+
+	    (add-simple-coot-menu-menuitem
+	     menu "write sdf file" 
+	     (lambda ()
+	       (using-active-atom
+		(let* ((rn (residue-name aa-imol aa-chain-id aa-res-no aa-ins-code))
+		       (file-name (string-append rn ".sdf")))
+		  (residue-to-sdf-file aa-imol aa-chain-id aa-res-no aa-ins-code file-name)))))
+
+	    (add-simple-coot-menu-menuitem 
+	     menu "Density Score Ligand"
+	     (lambda ()
+	       (using-active-atom
+		(let ((spec (list aa-chain-id aa-res-no aa-ins-code)))
+		  (let ((r (density-score-residue aa-imol spec (imol-refinement-map))))
+		    (format #t "density at ligand atoms: ~s~%" r))))))
 
 
+	    (add-simple-coot-menu-menuitem
+	     menu "### [Fetch ligand description & generate restraints]"
+	     (lambda ()
+	       (using-active-atom
+		(let ((comp-id (residue-name aa-imol aa-chain-id aa-res-no aa-ins-code)))
+		  (format #t "here with residue name ~s~%" comp-id)
+		  (let ((s (get-SMILES-for-comp-id-from-pdbe comp-id)))
+		    (if (string? s)
+			(let* ((pdbe-cif-file-name (append-dir-file "coot-download"
+								    (string-append "PDBe-" comp-id ".cif"))))
+			  (import-from-3d-generator-from-mdl pdbe-cif-file-name comp-id))))))))
 
-))
+	    (add-simple-coot-menu-menuitem 
+	     menu "Isolate and probe ligand"
+	     (lambda ()
+	       
+	       (using-active-atom
+		(let* ((ss (string-append "//" aa-chain-id "/" (number->string aa-res-no)))
+		       (imol-selection (new-molecule-by-atom-selection aa-imol ss))
+		       (work-dir (get-directory "coot-molprobity"))
+		       (tmp-selected-ligand-for-probe-pdb 
+			(append-dir-file work-dir "tmp-selected-ligand-for-probe.pdb"))
+		       (tmp-protein-for-probe-pdb
+			(append-dir-file work-dir "tmp-protein-for-probe.pdb"))
+		       (probe-dots-file-name
+			(append-dir-file work-dir "probe.dots")))
+
+		  (set-mol-displayed imol-selection 0)
+		  (set-mol-active    imol-selection 0)
+		  (write-pdb-file imol-selection tmp-selected-ligand-for-probe-pdb)
+		  (write-pdb-file aa-imol tmp-protein-for-probe-pdb)
+		  (goosh-command 
+		   *probe-command* 
+		   (list "-u" "-once" (number->string aa-res-no)  ;; -once or -both
+			 (string-append "not " (number->string aa-res-no))
+			 "-density60"
+			 tmp-selected-ligand-for-probe-pdb
+			 tmp-protein-for-probe-pdb)
+		   '()
+		   probe-dots-file-name
+		   #f)
+		  (handle-read-draw-probe-dots-unformatted probe-dots-file-name aa-imol 0)
+		  (graphics-draw)))))
+
+
+	    ))))
 
 
