@@ -129,7 +129,9 @@ main(int argc, char **argv) {
       // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRAL;
 
       coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
-      restraints.make_restraints(geom, flags, 1, 0.0, 0, pseudos);
+      bool do_trans_peptide_restraints = false;
+      restraints.make_restraints(geom, flags, 1, do_trans_peptide_restraints,
+				 0.0, 0, pseudos);
 
       restraints.set_do_numerical_gradients();
       restraints.minimize(flags);
