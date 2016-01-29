@@ -1,4 +1,5 @@
 
+#include <cstring>
 #include <string.h>
 #include "coot-hole.hh"
 

@@ -1,6 +1,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "clipper/core/coords.h"
+#include "clipper/core/xmap.h"
 #include "clipper/core/nxmap.h"
 
 #include "utils/coot-utils.hh"
@@ -80,7 +81,6 @@ namespace coot {
 
       void mask_around_coord(const clipper::Coord_orth &co, float atom_radius,
 			     clipper::Xmap<float> *xmap) const;
-
 
    public:
       hole(mmdb::Manager *mol, 
