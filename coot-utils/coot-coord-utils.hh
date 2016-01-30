@@ -963,6 +963,8 @@ namespace coot {
 			       util::contact_atoms_info_t::ele_index_t> > metals() const;
 
 	 std::vector<contact_atoms_info_t> get_contacts() const { return atom_contacts; }
+
+	 void transform_atom(int i, int j);
 	 
       };
 
@@ -1084,6 +1086,12 @@ namespace coot {
       std::pair<mmdb::Manager *, std::vector<residue_spec_t> > 
       get_fragment_from_atom_spec(const atom_spec_t &atom_spec, mmdb::Manager *mol);
 
+      // transform the atoms in mol that are in moving_chain
+      // it seems (for some reason) that atom::Transform(mat) now needs a (non-const)
+      // argument or else clang complains
+      // 
+      void transform_chain(mmdb::Manager *mol, mmdb::Chain *moving_chain,
+			   int n_atoms, mmdb::PAtom *atoms, mmdb::mat44 &my_matt);
 
       // transform atoms in residue
       void transform_atoms(mmdb::Residue *res, const clipper::RTop_orth &rtop);

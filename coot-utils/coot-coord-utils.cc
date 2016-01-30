@@ -3618,6 +3618,21 @@ mmdb::Residue *coot::util::copy_and_delete_hydrogens(mmdb::Residue *residue_in) 
 } 
 
 
+// transform the atoms in mol that are in moving_chain.
+// 
+void
+coot::util::transform_chain(mmdb::Manager *mol,
+			    mmdb::Chain *moving_chain,
+			    int n_atoms, mmdb::PAtom *atom_selection,
+			    mmdb::mat44 &my_matt) {
+
+   for (int iat=0; iat<n_atoms; iat++) {
+      mmdb::Atom *at = atom_selection[iat];
+      if (at->residue->chain == moving_chain) { 
+	 at->Transform(my_matt);
+      }
+   }
+}
 
 // transform atoms in residue
 void
