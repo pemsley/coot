@@ -1191,6 +1191,11 @@
 					  (format #t "handle: ~s~%" handle))))))
 
 	(add-simple-coot-menu-menuitem
+	 submenu-representation "Add Balls to Simple Sticks"
+	 (lambda () 
+	   (map (lambda (imol) (set-draw-stick-mode-atoms imol 1)) (molecule-number-list))))
+
+	(add-simple-coot-menu-menuitem
 	 submenu-representation "Simple Sticks (No Balls)"
 	 (lambda () 
 	   (map (lambda (imol) (set-draw-stick-mode-atoms imol 0)) (molecule-number-list))))

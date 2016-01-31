@@ -241,6 +241,17 @@ coot::util::water_coordination_t::metals() const {
    return v;
 }
 
+void
+coot::util::water_coordination_t::transform_atom(int i, int j) {
+
+   mmdb::mat44 &m = atom_contacts[i][j].mat;
+   // atom_contacts[i][j].at->Transform(atom_contacts[i][j].mat);
+   atom_contacts[i][j].at->Transform(m);
+
+}
+
+
+
 
 void
 coot::util::water_coordination_t::sort_contacts(std::vector<coot::util::contact_atoms_info_t> *v) const {

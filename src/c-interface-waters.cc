@@ -386,7 +386,8 @@ SCM metal_coordination_scm(int imol, float dist_max) {
 	    clipper::Coord_orth central_at_pos = coot::co(contacts[i].central_atom());
 	    for (unsigned int j=0; j<contacts[i].size(); j++) {
 	       clipper::Coord_orth save_pos = coot::co(contacts[i][j].at);
-	       contacts[i][j].at->Transform(contacts[i][j].mat);
+	       // contacts[i][j].at->Transform(contacts[i][j].mat);
+	       c.transform_atom(i,j);
 	       clipper::Coord_orth at_j_pos = coot::co(contacts[i][j].at);
 	       contacts[i][j].at->x = save_pos.x();
 	       contacts[i][j].at->y = save_pos.y();
@@ -513,7 +514,8 @@ PyObject *metal_coordination_py(int imol, float dist_max) {
             clipper::Coord_orth central_at_pos = coot::co(contacts[i].central_atom());
             for (unsigned int j=0; j<contacts[i].size(); j++) {
                clipper::Coord_orth save_pos = coot::co(contacts[i][j].at);
-               contacts[i][j].at->Transform(contacts[i][j].mat);
+	       // contacts[i][j].at->Transform(contacts[i][j].mat);
+	       c.transform_atom(i,j);
                clipper::Coord_orth at_j_pos = coot::co(contacts[i][j].at);
                contacts[i][j].at->x = save_pos.x();
                contacts[i][j].at->y = save_pos.y();
