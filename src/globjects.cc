@@ -1664,6 +1664,8 @@ init_gl_widget(GtkWidget *widget) {
    
    // 
    glEnable(GL_DEPTH_TEST);
+
+   glEnable(GL_POINT_SMOOTH); // cirlces not squares
    
    if (g.do_anti_aliasing_flag)
       glEnable(GL_LINE_SMOOTH);
