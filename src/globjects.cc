@@ -2684,7 +2684,7 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 	       
 	       if (! handled_non_atom_drag_event) {
 
-		  short int do_drag = 0;
+		  bool do_drag_pan_flag = false;
 		  if (info.static_graphics_pick_pending()) {
 		     if (info.control_key_for_rotate_flag) {
 			if (event->state & GDK_CONTROL_MASK) { 
@@ -2698,47 +2698,14 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 		     }
 		  } else {
 		     if (event->state & GDK_CONTROL_MASK) {
-			do_drag = 1;
+			do_drag_pan_flag = true;
 		     } else {
 			local_rotate_view_mode = 1; 
 		     }
 		  }
 
-		  if (do_drag) { 
-		     // ----- DRAG -----
-
-		     // We are in (density) drag mode:
-		     // 
-		     // We need to do two things:
-		     // i) change the rotation axis centre.
-		     //    Question: which direction are we dragging in...?
-		     //    That is, what is the vector in coordinate space
-		     //    that corresponds to the screen x axis?
-		     // 
-		     // ii) update the map about the new rotation centre
-		     //
-
-		     x_diff = x - info.GetMouseBeginX();
-		     y_diff = y - info.GetMouseBeginY();
-
-		     coot::CartesianPair vec_x_y = screen_x_to_real_space_vector(widget);
-
-		     // x_diff and y_diff are the scale factors to the x and y
-		     // drag vectors.
-		     // 
-		     info.add_to_RotationCentre(vec_x_y, -x_diff*0.02, -y_diff*0.02);
-
-		     if (info.GetActiveMapDrag() == 1) {
-			for (int ii=0; ii<info.n_molecules(); ii++) { 
-			   info.molecules[ii].update_map(); // to take account
-			   // of new rotation centre.
-			}
-		     }
-		     for (int ii=0; ii<info.n_molecules(); ii++) { 
-			info.molecules[ii].update_symmetry();
-		     }
-		     info.graphics_draw();
-
+		  if (do_drag_pan_flag) {
+		     do_drag_pan(x, y, widget);
 		  } // control_is_pressed
 	       }
 	    }
@@ -2849,6 +2816,8 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
       button_was_pressed = 1;
       /* Mouse button 2 is engaged */
       // cout << "Button 2 motion " << event->x << " " << event->y;
+
+      do_drag_pan(x, y, widget);
    }
    
    if (! button_was_pressed) { 
@@ -2866,6 +2835,47 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
    info.SetMouseBegin(x,y);
 
    return TRUE; 
+
+}
+
+void
+do_drag_pan(gdouble x, gdouble y, GtkWidget *widget) {
+
+   graphics_info_t info;
+   
+   // ----- DRAG -----
+
+   // We are in (density) drag mode:
+   // 
+   // We need to do two things:
+   // i) change the rotation axis centre.
+   //    Question: which direction are we dragging in...?
+   //    That is, what is the vector in coordinate space
+   //    that corresponds to the screen x axis?
+   // 
+   // ii) update the map about the new rotation centre
+   //
+
+   gdouble x_diff = x - info.GetMouseBeginX();
+   gdouble y_diff = y - info.GetMouseBeginY();
+
+   coot::CartesianPair vec_x_y = screen_x_to_real_space_vector(widget);
+
+   // x_diff and y_diff are the scale factors to the x and y
+   // drag vectors.
+   // 
+   info.add_to_RotationCentre(vec_x_y, -x_diff*0.02, -y_diff*0.02);
+
+   if (info.GetActiveMapDrag() == 1) {
+      for (int ii=0; ii<info.n_molecules(); ii++) { 
+	 info.molecules[ii].update_map(); // to take account
+	 // of new rotation centre.
+      }
+   }
+   for (int ii=0; ii<info.n_molecules(); ii++) { 
+      info.molecules[ii].update_symmetry();
+   }
+   info.graphics_draw();
 
 }
 
