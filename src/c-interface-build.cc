@@ -4747,8 +4747,12 @@ void save_symmetry_coords(int imol,
 	    asc.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 	    asc.mol->FinishStructEdit();
 	    
-        mmdb_manager_delete_conect(mol2);
-	    int ierr = mol2->WritePDBASCII(filename);
+	    mmdb_manager_delete_conect(mol2);
+	    int ierr = -1;
+	    if (coot::is_mmcif_filename(filename))
+	       ierr = mol2->WriteCIFASCII(filename);
+	    else
+	       ierr = mol2->WritePDBASCII(filename);
 	    if (ierr) {
 	       std::cout << "WARNING:: WritePDBASCII to " << filename << " failed." << std::endl;
 	       std::string s = "WARNING:: WritePDBASCII to file ";
