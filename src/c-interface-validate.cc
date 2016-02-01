@@ -2313,6 +2313,35 @@ PyObject *pathology_data(const std::string &mtz_file_name,
    std::cout << "INFO:: pathology_plots() found "
 	     << fp_vs_reso_data.size() << " data" << std::endl;
 
+
+   // this is just a bit of fun - looking for large FP outliers.
+   // 
+   if (false) { 
+      int n_data = fp_vs_reso_data.size();
+      for (unsigned int i=0; i<fp_vs_reso_data.size(); i++) {
+	 int low_lim = i-20;
+	 int high_lim = i+20;
+	 if (low_lim < 0) low_lim = 0;
+	 if (high_lim >= n_data) high_lim = n_data;
+	 double sum = 0;
+	 double n = 0;
+	 for (int j=low_lim; j<high_lim; j++) {
+	    if (j != i) {
+	       sum += fp_vs_reso_data[j].second;
+	       n += 1;
+	    }
+	 }
+	 double local_average =  sum/n;
+	 double this_f    = fp_vs_reso_data[i].second;
+	 double this_reso = fp_vs_reso_data[i].first;
+	 if (this_f > 3 * local_average) {
+	    std::cout << "   " << this_reso << " " << this_f << " / " << local_average
+		      << " = " << this_f/local_average << std::endl;
+	 } 
+      }
+   }
+   
+
    if (  fp_vs_reso_data.size() > 0 &&
        fosf_vs_reso_data.size() > 0 && 
   	    sf_vs_f_data.size() > 0 && 

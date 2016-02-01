@@ -53,66 +53,52 @@ def plots(mtz, fp, sigfp):
         intensity_data = True
         
     data = coot.pathology_data(mtz, fp, sigfp)
-    # try: 
-    if True:
-        prefix,tail = os.path.splitext(mtz)
-        fp_lab = "FP"
-        sigfp_lab = "SIGFP"
-        if (intensity_data):
+    print 'len data is', len(data)
+    print 'data[0] is', data[0]
+
+    prefix,tail = os.path.splitext(mtz)
+    fp_lab = "FP"
+    sigfp_lab = "SIGFP"
+    if (intensity_data):
             fp_lab = "I"
             sigfp_lab = "SIGI"
+
+    labels = [("Resolution", fp_lab),
+              ('Resolution', fp_lab + '/' + sigfp_lab),
+              (fp_lab, sigfp_lab),
+              (fp_lab, fp_lab + '/' + sigfp_lab)]
+
+    for icount in range(len(labels)):
+
+        label_pair = labels[icount];
         
-        labels = [("Resolution", fp_lab),
-                  ('Resolution', fp_lab + '/' + sigfp_lab),
-                  (fp_lab, sigfp_lab),
-                  (fp_lab, fp_lab + '/' + sigfp_lab)]
-        z = zip(range(4), labels)
-        if True:
-            ii = 0 # label indexing hack
-            l_0 = labels[ii][0].replace('/', '_')
-            l_1 = labels[ii][1].replace('/', '_')
-            png_file_name = prefix + "-" + l_0 + "-vs-" + l_1 + ".png"
+        ii = 0 # label indexing hack
+        l_0 = label_pair[0].replace('/', '_')
+        l_1 = label_pair[1].replace('/', '_')
+        png_file_name = prefix + "-" + l_0 + "-vs-" + l_1 + ".png"
 
-            n_x_labels = 5
-            """
-            if l_0 == "Resolution":
-                for j in range(n_x_labels):
-                    f = data.invresolsq_max() * j / n_x_labels
-                    if f == 0:
-                        x_label = "Inf"
-                    else:
-                        x_label = str(round(math.sqrt(1/f), 3));
-                    # print j, x_label
-                    x_labels[j] = x_label
-            else:
-                x_labels = None
-            """
+        fig1 = plt.figure()
+        ax = plt.gca()
+        plt.title(label_pair[1] + " vs. " + label_pair[0])
+        ax.set_xlabel(label_pair[0])
+        ax.set_ylabel(label_pair[1])
+        xdata = [x[0] for x in data[icount+1]]
+        ydata = [y[1] for y in data[icount+1]]
 
-            fig1 = plt.figure()
-            ax = plt.gca()
-            plt.title('Data Amplitude vs. Resolution')
-            ax.set_xlabel(u'Resolution d\'être sélectionnés ()')
-            ax.set_ylabel('Amplitude (FP)')
-            xdata = [x[0] for x in data[ii+1]]
-            ydata = [y[1] for y in data[ii+1]]
+        ymin = 0
+        if (intensity_data):
+            ymin = min(ydata)
 
-            ymin = 0
-            if (intensity_data):
-                ymin = min(ydata)
-            
-            xmax = max(xdata)
-            ymax = max(ydata)
-            plt.xlim(0, xmax)
-            plt.ylim(ymin, ymax)
-                     
-            s = 8
-            # If this is F data the the y axis min should be 0.
-            # The x-axis min should be 0.
-            print "making plot", png_file_name
-            l = plt.scatter(xdata, ydata, s, alpha=0.2)
-            plt.savefig(png_file_name)
-            plt.close()
-            
+        xmax = max(xdata)
+        ymax = max(ydata)
+        plt.xlim(0, xmax)
+        plt.ylim(ymin, ymax)
 
-    # except TypeError as e:
-    #            print "caught TypeError:", e
+        s = 8
+        # If this is F data the the y axis min should be 0.
+        # The x-axis min should be 0.
+        print "making plot", png_file_name
+        l = plt.scatter(xdata, ydata, s, alpha=0.2)
+        plt.savefig(png_file_name)
+        plt.close()
+        
