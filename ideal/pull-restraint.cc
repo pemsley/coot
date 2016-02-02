@@ -57,7 +57,7 @@ coot::distortion_score_target_pos(const coot::simple_restraint &rest,
                                    gsl_vector_get(v,idx+1), 
                                    gsl_vector_get(v,idx+2));
 
-   double sigma = 0.06; // guess, copy below
+   double sigma = 0.04; // (slightly refined) guess, copy below
    double weight = 1.0/(sigma*sigma);
    double dist = clipper::Coord_orth::length(current_pos, rest.atom_pull_target_pos);
    // std::cout << "distortion_score_target_pos() returning " << weight * dist * dist << std::endl;
@@ -72,7 +72,7 @@ void coot::my_df_target_pos(const gsl_vector *v,
    for (int i=0; i<restraints->size(); i++) {
       if ( (*restraints)[i].restraint_type == TARGET_POS_RESTRANT) {
 	 const simple_restraint &rest = (*restraints)[i];
-	 double sigma = 0.06; // change as above in distortion score
+	 double sigma = 0.04; // change as above in distortion score
 	 int idx = 3*(rest.atom_index_1);
 	 clipper::Coord_orth current_pos(gsl_vector_get(v,idx), 
 					 gsl_vector_get(v,idx+1), 

@@ -1542,25 +1542,32 @@ graphics_info_t::draw_moving_atoms_graphics_object() {
       }
 
       if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
-	 float ball_scale_factor = 1.2;
+	 float ball_scale_factor = 1.0; // 1.2;
 	 for (int i=0; i<graphics_info_t::regularize_object_bonds_box.n_ramachandran_goodness_spots; i++) {
 	    const coot::Cartesian &pos = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].first;
 	    const float &prob_raw      = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].second;
 	    // std::cout << "    rama " << pos << " prob_raw: " << prob_raw << std::endl;
+	    
 	    // prob values are between 0 and 1.66 (ish)
-	    float prob = prob_raw;
-	    if (prob > 1.0) prob = 1.0;
+	    double prob = prob_raw;
+	    if (prob > 0.5) prob = 0.5; // 0.4 and 2.5 f(for q) might be better (not tested)
 	    
 	    if (true) {
 	       
 	       if (true) { 
-		  double q = (1 - prob);
+		  double q = (1 - 2.0 * prob);
+		  
 		  // Lovell et al. 2003, 50, 437 Protein Structure, Function
 		  // and Genetics values: 0.02 and 0.002 - so for a typical
 		  // user, if prob = 0.1 (q=0.9), say then they are fine with
-		  // that and the ball should be small - fn(0.9) -> small
-		  // 
-		  float radius = pow(q, 25); // so that medium probabilities seems smaller
+		  // that and the ball should be small
+
+		  // fn(q):
+		  // fn(1.0) -> large
+		  // fn(0.9) -> quite small
+		  // fn(0.0) -> tiny
+		  
+		  double radius = pow(q, 25); // so that medium probabilities seems smaller
 
 		  // currently radius is 0-1;
 
@@ -1570,12 +1577,12 @@ graphics_info_t::draw_moving_atoms_graphics_object() {
 		  int slices = 20;
 		  GLUquadric* quad = gluNewQuadric();
 
-		  GLfloat  mat_specular[]  = {0.6, 0.8, 0.6, 0.4};
+		  GLfloat  mat_specular[]  = {0.6, 0.8, 0.6, 0.46};
 		  GLfloat  mat_shininess[] = {25};
 		  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
 		  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
 		  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
+		  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
 		  glEnable(GL_LIGHTING);
 		  glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
 		  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
