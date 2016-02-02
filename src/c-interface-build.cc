@@ -4318,7 +4318,22 @@ int planar_peptide_restraints_state() {
    bool r = g.Geom_p()->planar_peptide_restraint_state();
    int rr = r;
    return rr;
-} 
+}
+
+/*  ----------------------------------------------------------------------- */
+/*                         Trans Peptide Restraints                         */
+/*  ----------------------------------------------------------------------- */
+
+
+/*! \brief add a restraint on peptides to keep trans peptides trans 
+
+i.e. omega in trans-peptides is restraints to 180 degrees.
+ */
+void set_use_trans_peptide_restraints(short int on_off_state) {
+
+   graphics_info_t g;
+   g.do_trans_peptide_restraints = on_off_state;
+}
 
 
 void add_omega_torsion_restriants() {

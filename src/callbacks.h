@@ -3318,6 +3318,11 @@ on_refine_params_use_planar_peptides_checkbutton_toggled
                                         gpointer         user_data);
 
 void
+on_refine_params_use_trans_peptide_restraints_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+
+void
 on_refine_params_use_peptide_omegas_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
