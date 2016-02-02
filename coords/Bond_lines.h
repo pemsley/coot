@@ -268,7 +268,7 @@ class graphical_bonds_container {
       n_ramachandran_goodness_spots = 0;
       n_atom_centres_ = 0;
       if (consolidated_atom_centres) {
-	 for (unsigned int i=0; i<n_consolidated_atom_centres; i++)
+	 for (int i=0; i<n_consolidated_atom_centres; i++)
 	    delete [] consolidated_atom_centres[i].points;
 	 delete [] consolidated_atom_centres;
 	 consolidated_atom_centres = NULL;

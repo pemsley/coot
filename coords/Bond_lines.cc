@@ -5171,7 +5171,7 @@ graphical_bonds_container::add_atom_centres(const std::vector<std::pair<bool,coo
    col_idx_max += 1;
 
    unsigned int counts[col_idx_max]; // is this allowed?
-   for (unsigned int i=0; i<col_idx_max; i++) {
+   for (int i=0; i<col_idx_max; i++) {
       counts[i] = 0;
    }
 
@@ -5181,7 +5181,7 @@ graphical_bonds_container::add_atom_centres(const std::vector<std::pair<bool,coo
    consolidated_atom_centres = new graphical_bonds_points_list[col_idx_max];
    n_consolidated_atom_centres = col_idx_max;
    
-   for (unsigned int i=0; i<col_idx_max; i++) {
+   for (int i=0; i<col_idx_max; i++) {
       // std::cout << "sizing consolidated_atoms_centres " << i << " to " << counts[i] << std::endl;
       consolidated_atom_centres[i] = graphical_bonds_points_list(counts[i]);
    }
@@ -5191,7 +5191,7 @@ graphical_bonds_container::add_atom_centres(const std::vector<std::pair<bool,coo
    }
 
    if (false) // debug
-      for (unsigned int i=0; i<col_idx_max; i++)
+      for (int i=0; i<col_idx_max; i++)
 	 std::cout << "    col " << i << " has " << consolidated_atom_centres[i].num_points
 		   << std::endl;
 
