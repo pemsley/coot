@@ -102,7 +102,7 @@ COOT_EXTRA_LIBS = \
 EXTRA_DIST = \
 	coot.i post-glade add-c-extern.sh blank.cc fix-gettext.sh \
 	mol-hierachy.cc \
-	junk.cc coot.defs coot-dox.cfg post-gtk2-glade.sh \
+	junk.cc coot-gtk2.defs coot-dox.cfg post-gtk2-glade.sh \
         post-process-coot-wrap-guile.sh \
         post-process-coot-wrap-python.sh \
 	coot_wrap_guile_pre_gtk2.cc 
