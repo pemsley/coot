@@ -248,6 +248,8 @@ int copy_molecule(int imol) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       iret = g.copy_model_molecule(imol);
+      if (is_valid_model_molecule(iret))
+	  g.molecules[iret].set_have_unsaved_changes_from_outside();
    }
    if (is_valid_map_molecule(imol)) {
       int new_mol_number = graphics_info_t::create_molecule();
@@ -4829,6 +4831,7 @@ int new_molecule_by_symmetry(int imol,
 	 atom_selection_container_t asc = make_asc(mol_symm);
 	 graphics_info_t g;
 	 g.molecules[imol_new].install_model(imol_new, asc, g.Geom_p(), name, 1);
+	 g.molecules[imol].set_have_unsaved_changes_from_outside();
 	 update_go_to_atom_window_on_new_mol();
 	 graphics_draw();
 	 istate = imol_new;
@@ -4942,6 +4945,7 @@ new_molecule_by_symmetry_with_atom_selection(int imol,
 	 atom_selection_container_t asc = make_asc(new_mol);
 	 graphics_info_t g;
 	 g.molecules[imol_new].install_model(imol_new, asc, g.Geom_p(), name, 1);
+	 g.molecules[imol].set_have_unsaved_changes_from_outside();
 	 update_go_to_atom_window_on_new_mol();
 	 graphics_draw();
       }
@@ -6535,6 +6539,7 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 	       shelx_flag = 1;
 	    graphics_info_t g;
 	    g.molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1, shelx_flag);
+	    g.molecules[imol].set_have_unsaved_changes_from_outside();
 	    update_go_to_atom_window_on_new_mol();
 	 } else {
 	    std::cout << "in new_molecule_by_atom_selection "
@@ -6620,6 +6625,7 @@ int new_molecule_by_sphere_selection(int imol_orig, float x, float y, float z, f
 	       shelx_flag = 1;
 	    graphics_info_t g;
 	    g.molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1, shelx_flag);
+	    g.molecules[imol].set_have_unsaved_changes_from_outside();
 	 } else {
 	    graphics_info_t::erase_last_molecule();
 	    std::cout << "in new_molecule_by_atom_selection "
