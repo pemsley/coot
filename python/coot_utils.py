@@ -1298,7 +1298,7 @@ def get_first_ncs_master_chain():
 # Remember, that now the about-pt is the "to" point, i.e. the maps are brought from 
 # somewhere else and generated about the about-pt.
 #
-def transform_map_using_lsq_matrix(imol_bref, ref_chain, ref_resno_start, ref_resno_end,
+def transform_map_using_lsq_matrix(imol_ref, ref_chain, ref_resno_start, ref_resno_end,
                                    imol_mov, mov_chain, mov_resno_start, mov_resno_end,
                                    imol_map, about_pt, radius):
 
