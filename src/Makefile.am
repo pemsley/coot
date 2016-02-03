@@ -302,7 +302,6 @@ coot_bin_SOURCES = \
 	coot-nomenclature.cc	 \
 	coot-fileselections.h    \
 	coot-glue.hh             \
-	coot-glue.c              \
 	coot-glue-gtk2.c	 \
 	coot-glue-gtk2-python.cc \
 	coot-hydrogens.hh        \
