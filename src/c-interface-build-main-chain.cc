@@ -428,6 +428,38 @@ db_mainchain(int imol,
    return imol_new;
 }
 
+/*  ----------------------------------------------------------------------- */
+/*                  pepflip                                                 */
+/*  ----------------------------------------------------------------------- */
+// use the values that are in graphics_info
+void do_pepflip(short int state) {
+
+   graphics_info_t g;
+
+   g.set_in_pepflip_define(state);
+   if (state) { 
+      g.pick_cursor_maybe();
+      g.pick_pending_flag = 1;
+      std::cout << "click on a atom in the peptide you wish to flip: "
+		<< std::endl;
+   } else {
+      g.normal_cursor();
+   } 
+      
+} 
+
+void pepflip(int imol, const char *chain_id, int resno,
+	     const char *inscode, const char *alt_conf) {
+   /* the residue with CO,
+      for scripting interface. */
+
+   if (is_valid_model_molecule(imol)) { 
+      graphics_info_t g;
+      g.molecules[imol].pepflip_residue(chain_id, resno, inscode, alt_conf);
+      graphics_draw();
+   } 
+} 
+
 									 
 /*  ----------------------------------------------------------------------- */
 /*                         Planar Peptide Restraints                        */
