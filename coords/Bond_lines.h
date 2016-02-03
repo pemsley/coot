@@ -185,7 +185,33 @@ public:
       points[current_count] = pt;
       current_count++;
    } 
-}; 
+};
+
+class graphical_bonds_cis_peptide_markup {
+
+public:
+
+   bool is_pre_pro_cis_peptide;
+   coot::Cartesian pt_ca_1; 
+   coot::Cartesian pt_c_1;
+   coot::Cartesian pt_n_2;
+   coot::Cartesian pt_ca_2;
+   graphical_bonds_cis_peptide_markup(const coot::Cartesian &pt_ca_1_in,
+				      const coot::Cartesian &pt_c_1_in,
+				      const coot::Cartesian &pt_n_2_in,
+				      const coot::Cartesian &pt_ca_2_in,
+				      bool is_pre_pro_cis_peptide_in) {
+      pt_ca_1 = pt_ca_1_in;
+      pt_c_1  = pt_c_1_in;
+      pt_n_2  = pt_n_2_in;
+      pt_ca_2 = pt_ca_2_in;
+      is_pre_pro_cis_peptide = is_pre_pro_cis_peptide_in;
+   }
+
+   graphical_bonds_cis_peptide_markup() {
+      is_pre_pro_cis_peptide = false;
+   } 
+};
 
 // Uses graphical_bonds_lines_list
 // 
@@ -216,6 +242,8 @@ class graphical_bonds_container {
    std::vector<coot::torus_description_t> rings;
    int n_consolidated_atom_centres;
    graphical_bonds_points_list *consolidated_atom_centres;
+   int n_cis_peptide_markups;
+   graphical_bonds_cis_peptide_markup *cis_peptide_markups;
    
    graphical_bonds_container() { 
       num_colours = 0; 
@@ -233,9 +261,11 @@ class graphical_bonds_container {
       ramachandran_goodness_spots_ptr = NULL;
       consolidated_atom_centres = NULL;
       n_consolidated_atom_centres = 0;
+      n_cis_peptide_markups = 0;
+      cis_peptide_markups = NULL;
    }
 
-   void clear_up() { 
+   void clear_up() {
 
       if (bonds_)
 	 for (int icol=0; icol<num_colours; icol++)
@@ -268,11 +298,13 @@ class graphical_bonds_container {
       n_ramachandran_goodness_spots = 0;
       n_atom_centres_ = 0;
       if (consolidated_atom_centres) {
-	 for (unsigned int i=0; i<n_consolidated_atom_centres; i++)
+	 for (int i=0; i<n_consolidated_atom_centres; i++)
 	    delete [] consolidated_atom_centres[i].points;
 	 delete [] consolidated_atom_centres;
 	 consolidated_atom_centres = NULL;
       }
+      delete [] cis_peptide_markups;
+      cis_peptide_markups = NULL;
    }
 
    graphical_bonds_container(const std::vector<graphics_line_t> &a) { 
@@ -299,6 +331,12 @@ class graphical_bonds_container {
       atom_centres_colour_ = NULL;
       atom_centres_ = NULL; 
       n_atom_centres_ = 0;
+      n_ramachandran_goodness_spots = 0;
+      ramachandran_goodness_spots_ptr = NULL;
+      consolidated_atom_centres = NULL;
+      n_consolidated_atom_centres = 0;
+      n_cis_peptide_markups = 0;
+      cis_peptide_markups = NULL;
    }
       
    void add_colour(const  std::vector<graphics_line_t> &a ) {
@@ -332,8 +370,9 @@ class graphical_bonds_container {
 					const ramachandrans_container_t &rc);
    void add_atom_centres(const std::vector<std::pair<bool,coot::Cartesian> > &centres,
 			 const std::vector<int> &colours);
-   bool have_rings() const { return rings.size();
-   }
+   bool have_rings() const { return rings.size(); }
+
+   void add_cis_peptide_markup(const std::vector<coot::atom_quad> &cis_peptide_quads);
 };
 
 
@@ -434,6 +473,7 @@ class Bond_lines_container {
    void add_deuterium_spots(const atom_selection_container_t &SelAtom);
    void add_ramachandran_goodness_spots(const atom_selection_container_t &SelAtom);
    void add_atom_centres(const atom_selection_container_t &SelAtom, int atom_colour_type);
+   void add_cis_peptide_markup(const atom_selection_container_t &SelAtom);
    int add_ligand_bonds(const atom_selection_container_t &SelAtom, 
 			mmdb::PPAtom ligand_atoms_selection,
 			int n_ligand_atoms);
@@ -513,6 +553,7 @@ class Bond_lines_container {
 				     mmdb::Atom *atom_p_2,
 				     std::vector<std::pair<bool, mmdb::Residue *> > *het_residues);
 
+   std::vector<coot::atom_quad> cis_peptide_quads;
    
 
 public:

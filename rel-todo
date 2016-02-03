@@ -41,6 +41,8 @@ In unknown file:
 
 * Fixed?
 
+   o the ball colour is not using the CA-only flag in colour by chain mode.
+
    o duplicate or create a fragment from a molecule, now quick-save-as.  The
      new molecules are not saved and are not in the state file - they should be.
      Frank von Delft.
