@@ -51,6 +51,8 @@ In unknown file:
 
    o Fix the python version of the JLigand interface.
 
+   o Fix the python version of Sequencing interface, cootaneer_gui_bl
+
    o carbohydrate: Does it work in Python mode?
 
      A 310 in 3u0p
