@@ -221,7 +221,8 @@ coot::refine_end(coot::minimol::fragment *many_residues,
 
    restraints.set_quiet_reporting();
    restraints.add_map(xmap, weight);
-   restraints.make_restraints(geom, flags, do_internal_torsions, 0, 0, pseudos);
+   bool do_trans_peptide_restraints = true;
+   restraints.make_restraints(geom, flags, do_internal_torsions, do_internal_torsions, 0, 0, pseudos);
    restraints.minimize(flags);
 
    for (unsigned int ii=0; ii<moving_residues.size(); ii++) {

@@ -431,8 +431,8 @@ def get_probe_dots_from(pdb_file_name, point, radius):
     if (not command_in_path_qm(probe_command)):
       interactive_probe_is_OK_qm = 'no'
     else:
-      status = make_directory_maybe("coot-molprobity")
-      if (status == 0):    # 0 is good for mkdir()
+      dir_name = get_directory("coot-molprobity")
+      if (dir_name):    # OK, we had it or made it
         interactive_probe_is_OK_qm = 'yes'
       else:
         interactive_probe_is_OK_qm = 'no'
@@ -469,6 +469,9 @@ def probe_local_sphere(imol, radius):
   # selection radius and the probe radius are the same, then
   # sometimes the middle atom of a bonded angle set is missing
   # (outside the sphere) and that leads to bad clashes.
+  # There are also bad clashed at the edge when alt-confed atoms
+  # are not selected but non-alt-confs are which leads to missing atoms
+  # in a bond angle and therefore clashes.
 
   pt = rotation_centre()
   imol_new = new_molecule_by_sphere_selection(imol, pt[0], pt[1], pt[2],

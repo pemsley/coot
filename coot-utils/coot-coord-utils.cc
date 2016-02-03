@@ -3050,24 +3050,28 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
       residues_of_chain[ich].sort_residues();
    }
 
-   for (unsigned int ich=0; ich<residues_of_chain.size(); ich++) { 
-      std::cout << "chain idx: " << ich << " create_mmdbmanager_from_residue_vector() "
-		<< residues_of_chain[ich].chain_id << std::endl;
-      for (unsigned int ii=0; ii<residues_of_chain[ich].residues.size(); ii++) { 
-	 std::cout << "   " << ii << " " << residues_of_chain[ich].residues[ii]->GetSeqNum()
-		   << std::endl;
+   if (false) {  // debug sorting
+      for (unsigned int ich=0; ich<residues_of_chain.size(); ich++) { 
+	 std::cout << "chain idx: " << ich << " create_mmdbmanager_from_residue_vector() "
+		   << residues_of_chain[ich].chain_id << std::endl;
+	 for (unsigned int ii=0; ii<residues_of_chain[ich].residues.size(); ii++) { 
+	    std::cout << "   " << ii << " " << residues_of_chain[ich].residues[ii]->GetSeqNum()
+		      << std::endl;
+	 }
       }
    }
 
    std::sort(residues_of_chain.begin(), residues_of_chain.end());
 
-   for (unsigned int ich=0; ich<residues_of_chain.size(); ich++) { 
-      std::cout << "chain idx: " << ich << " create_mmdbmanager_from_residue_vector() "
-		<< residues_of_chain[ich].chain_id << std::endl;
-      for (unsigned int ii=0; ii<residues_of_chain[ich].residues.size(); ii++) { 
-	 std::cout << "   post sort " << ii << " "
-		   << residues_of_chain[ich].residues[ii]->GetSeqNum()
-		   << std::endl;
+   if (false) {  // debug sorting
+      for (unsigned int ich=0; ich<residues_of_chain.size(); ich++) { 
+	 std::cout << "chain idx: " << ich << " create_mmdbmanager_from_residue_vector() "
+		   << residues_of_chain[ich].chain_id << std::endl;
+	 for (unsigned int ii=0; ii<residues_of_chain[ich].residues.size(); ii++) { 
+	    std::cout << "   post sort " << ii << " "
+		      << residues_of_chain[ich].residues[ii]->GetSeqNum()
+		      << std::endl;
+	 }
       }
    }
 

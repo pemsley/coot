@@ -308,8 +308,10 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
 int
 coot::restraints_container_t::add_link_torsion(std::string link_type,
 					       int phi_psi_restraints_type,
-					       mmdb::PResidue first, mmdb::PResidue second,
-					       short int is_fixed_first, short int is_fixed_second,
+					       mmdb::Residue *first,
+					       mmdb::Residue *second,
+					       short int is_fixed_first,
+					       short int is_fixed_second,
 					       const coot::protein_geometry &geom) {
 
    // link_type is "p", "TRANS" etc.
@@ -318,13 +320,12 @@ coot::restraints_container_t::add_link_torsion(std::string link_type,
 // 	     << phi_psi_restraints_type << std::endl;
    
    int n_torsion = 0;
-      
+
    mmdb::PPAtom first_sel;
    mmdb::PPAtom second_sel;
    int n_first_res_atoms, n_second_res_atoms;
    int n_atom_1, n_atom_2, n_atom_3, n_atom_4;
 
-   
    first->GetAtomTable(first_sel,   n_first_res_atoms); 
    second->GetAtomTable(second_sel, n_second_res_atoms);
 
@@ -354,7 +355,7 @@ coot::restraints_container_t::add_link_torsion(std::string link_type,
 	    // 
 	    if (geom.link(i).link_torsion_restraint[j].atom_1_comp_id == 1) {
 	       atom_1_sel = first_sel;
-	       n_atom_1 = n_first_res_atoms; 
+	       n_atom_1 = n_first_res_atoms;
 	       fixed_flag[0] = is_fixed_first;
 	    } else {
 	       atom_1_sel = second_sel;
@@ -414,7 +415,7 @@ coot::restraints_container_t::add_link_torsion(std::string link_type,
 				    int index2 = get_asc_index(atom_2_sel[isat]->name,
 							       atom_2_sel[isat]->altLoc,
 							       atom_2_sel[isat]->residue->seqNum,
-							       atom_2_sel[ifat]->GetInsCode(),
+							       atom_2_sel[isat]->GetInsCode(),
 							       atom_2_sel[isat]->GetChainID());
 				    
 				    int index3 = get_asc_index(atom_3_sel[itat]->name,
@@ -504,14 +505,19 @@ coot::restraints_container_t::apply_link_chem_mods(const coot::protein_geometry 
 
 int
 coot::restraints_container_t::make_link_restraints(const coot::protein_geometry &geom,
-						   bool do_rama_plot_restraints) {
+						   bool do_rama_plot_restraints,
+						   bool do_trans_peptide_restraints) {
 
    if (from_residue_vector) {
       // coot::bonded_pair_container_t bonded_pair_container;
-      bonded_pairs_container = make_link_restraints_from_res_vec(geom, do_rama_plot_restraints);      
+      bonded_pairs_container = make_link_restraints_from_res_vec(geom,
+								 do_rama_plot_restraints,
+								 do_trans_peptide_restraints);      
       return bonded_pairs_container.size();
    } else { 
-      return make_link_restraints_by_linear(geom, do_rama_plot_restraints); // conventional
+      return make_link_restraints_by_linear(geom,
+					    do_rama_plot_restraints,
+					    do_trans_peptide_restraints); // conventional
    }
    
    int ir = 0;
@@ -520,7 +526,8 @@ coot::restraints_container_t::make_link_restraints(const coot::protein_geometry 
 
 int
 coot::restraints_container_t::make_link_restraints_by_linear(const coot::protein_geometry &geom,
-							     bool do_rama_plot_restraints) {
+							     bool do_rama_plot_restraints,
+							     bool do_trans_peptide_restraints) {
 
 
    // Last time (for monomer geometry), we got a residue and added
@@ -580,7 +587,8 @@ coot::restraints_container_t::make_link_restraints_by_linear(const coot::protein
 
 coot::bonded_pair_container_t
 coot::restraints_container_t::make_link_restraints_from_res_vec(const coot::protein_geometry &geom,
-								bool do_rama_plot_restraints) {
+								bool do_rama_plot_restraints,
+								bool do_trans_peptide_restraints) {
 
    // this determines the link type
    coot::bonded_pair_container_t bonded_residue_pairs = bonded_residues_from_res_vec(geom);
@@ -603,6 +611,7 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
    int n_link_bond_restr = 0;
    int n_link_angle_restr = 0;
    int n_link_torsion_restr = 0;
+   int n_link_trans_peptide = 0;
    int n_link_plane_restr = 0;
    int n_link_parallel_plane_restr = 0;
 
@@ -658,6 +667,12 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
 					      is_fixed_first_residue,
 					      is_fixed_second_residue,
 					      geom);
+	 
+	 n_link_trans_peptide += add_link_trans_peptide(sel_res_1, sel_res_2,
+							is_fixed_first_residue,
+							is_fixed_second_residue,
+							geom);
+	 
 	 // 	    gettimeofday(&current_time, NULL);
 	 // td = time_diff(current_time, start_time);
 	 // t1 = td;
@@ -693,6 +708,7 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
       std::cout << "   " << n_link_bond_restr    << " bond    links" << std::endl;
       std::cout << "   " << n_link_angle_restr   << " angle   links" << std::endl;
       std::cout << "   " << n_link_plane_restr   << " plane   links" << std::endl;
+      std::cout << "   " << n_link_trans_peptide << " trans-peptide links" << std::endl;
       std::cout << "   " << n_link_parallel_plane_restr   << " parallel plane restraints" << std::endl;
    }
    return iret; 
@@ -744,7 +760,7 @@ coot::restraints_container_t::add_rama_links_from_res_vec(const coot::bonded_pai
 	       }
 	    }
 	 }
-      } 
+      }
    }
 
    for (unsigned int ir=0; ir<rama_triples.size(); ir++) {

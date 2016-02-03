@@ -725,6 +725,7 @@ public:        //                      public
 
       //  bond width (now changeable).
       bond_width = 3.0;
+      display_stick_mode_atoms_flag = false;
 
       // 
       rotate_colour_map_for_difference_map = 240.0; // degrees
@@ -1133,10 +1134,19 @@ public:        //                      public
 
    // These are not const because set_bond_colour_by_mol_no() gets called.
    // maybe needs fixing.  Similarly  set_symm_bond_colour_mol_and_symop().
+   bool display_stick_mode_atoms_flag;
    void display_bonds(bool against_a_dark_background);
    void display_symmetry_bonds();
    void display_bonds(const graphical_bonds_container &bonds_box, float bond_width_in, bool against_a_dark_background);
+   void display_bonds_stick_mode_atoms(const graphical_bonds_container &bonds_box,
+				       const coot::Cartesian &front,
+				       const coot::Cartesian &back,
+				       bool against_a_dark_background);
+
    void display_ghost_bonds(int ighost);
+   void set_display_stick_mode_atoms(bool f) {
+      display_stick_mode_atoms_flag = f;
+   } 
 
 
    std::vector<int> labelled_atom_index_list;

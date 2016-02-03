@@ -336,6 +336,7 @@ graphics_ligand_molecule::setup_from(mmdb::Residue *residue_p,
 				     coot::protein_geometry *geom_p,
 				     bool against_a_dark_background) {
 
+
    bool status = false; // "failed" status initially
    
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
@@ -351,6 +352,7 @@ graphics_ligand_molecule::setup_from(mmdb::Residue *residue_p,
 	    const coot::dictionary_residue_restraints_t &restraints = p.second;
 	    RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, restraints, alt_conf);
 	    RDKit::RWMol rdk_mol_with_no_Hs = coot::remove_Hs_and_clean(rdkm);
+	    RDKit::MolOps::sanitizeMol(rdk_mol_with_no_Hs);
 
 	    double weight_for_3d_distances = 0.005;
 	    int mol_2d_depict_conformer =
