@@ -231,6 +231,10 @@ coot_bin_SOURCES = \
 	c-interface.h            \
 	c-interface-analysis.cc	 \
 	c-interface-build.cc	 \
+	c-interface-build-morph.cc	 \
+	c-interface-build-main-chain.cc	 \
+	c-interface-build-side-chain.cc	 \
+	c-interface-build-symmetry.cc	 \
 	c-interface-build-gui.cc \
 	c-interface-database.hh  \
 	c-interface-database.cc  \

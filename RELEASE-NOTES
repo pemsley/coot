@@ -12,7 +12,7 @@
 
   o CHANGE: coot-download directory is no longer created on starting coot [Marcin W.]
 
-  o CHANGE: Middle-mouse pan added
+  o CHANGE: Middle-mouse pan added [Martín X]
 
   o CHANGE: N-terminal addition of peptides has been improved
 
@@ -22,7 +22,9 @@
              coot.make-shelx-restraints
 
   o BUG-FIX: Save Symmetry coordinates with a .cif filename now saves coordinates
-             as mmCIF.
+             as mmCIF [Wolfram Tempel]
+
+  o BUG-FIX: Fix typo in python gui transform_map_using_lsq_matrix() [Gyorgy Snell]
 
 
 -----
