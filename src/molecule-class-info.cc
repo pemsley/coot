@@ -1770,6 +1770,7 @@ molecule_class_info_t::draw_molecule(short int do_zero_occ_spots,
 		  }
 	       }
 	    }
+	    cis_peptide_markups();
 	 }
       }
    }
@@ -1809,6 +1810,50 @@ molecule_class_info_t::deuterium_spots() const {
 	 glVertex3f(bonds_box.deuterium_spots_ptr[i].x(),
 		    bonds_box.deuterium_spots_ptr[i].y(),
 		    bonds_box.deuterium_spots_ptr[i].z());
+      }
+      glEnd();
+   }
+}
+
+void
+molecule_class_info_t::cis_peptide_markups() const {
+
+   if (bonds_box.n_cis_peptide_markups > 0) {
+      glColor3f(0.8, 0.2, 0.2);
+      glBegin(GL_TRIANGLES);
+      for (int i=0; i<bonds_box.n_cis_peptide_markups; i++) { 
+	 const graphical_bonds_cis_peptide_markup &m = bonds_box.cis_peptide_markups[i];
+	 coot::Cartesian fan_centre = m.pt_ca_1.mid_point(m.pt_ca_2);
+
+	 coot::Cartesian v1 = fan_centre - m.pt_ca_1;
+	 coot::Cartesian v2 = fan_centre - m.pt_c_1;
+	 coot::Cartesian v3 = fan_centre - m.pt_n_2;
+	 coot::Cartesian v4 = fan_centre - m.pt_ca_2;
+
+	 coot::Cartesian pt_ca_1 = m.pt_ca_1 + v1 * 0.15;
+	 coot::Cartesian pt_c_1  = m.pt_c_1  + v2 * 0.15;
+	 coot::Cartesian pt_n_2  = m.pt_n_2  + v3 * 0.15;
+	 coot::Cartesian pt_ca_2 = m.pt_ca_2 + v4 * 0.15;
+	 
+	 glVertex3f(fan_centre.x(), fan_centre.y(), fan_centre.z());
+	 glVertex3f(pt_ca_1.x(), pt_ca_1.y(), pt_ca_1.z());
+	 glVertex3f(pt_c_1.x(),  pt_c_1.y(),  pt_c_1.z());
+
+ 	 glVertex3f(fan_centre.x(), fan_centre.y(), fan_centre.z());
+ 	 glVertex3f(pt_c_1.x(),  pt_c_1.y(),  pt_c_1.z());
+ 	 glVertex3f(pt_n_2.x(),  pt_n_2.y(),  pt_n_2.z());
+	 
+ 	 glVertex3f(fan_centre.x(), fan_centre.y(), fan_centre.z());
+ 	 glVertex3f(pt_n_2.x(),  pt_n_2.y(),  pt_n_2.z());
+ 	 glVertex3f(pt_ca_2.x(), pt_ca_2.y(), pt_ca_2.z());
+
+	 if (false) { 
+	    std::cout << "fan-centre " << fan_centre << std::endl;
+	    std::cout << " ca-1 "      << m.pt_ca_1  << std::endl;
+	    std::cout << " ca-2 "      << m.pt_ca_2  << std::endl;
+	    std::cout << " c-1  "      << m.pt_c_1  << std::endl;
+	    std::cout << " n-2  "      << m.pt_n_2  << std::endl;
+	 }
       }
       glEnd();
    }

@@ -944,6 +944,8 @@ public:        //                      public
    void zero_occupancy_spots() const;
    void deuterium_spots() const;
    void set_occupancy_residue_range(const std::string &chain_id, int ires1, int ires2, float occ_val);
+   void cis_peptide_markups() const;
+   
 
    void set_b_factor_residue_range(const std::string &chain_id, int ires1, int ires2, float b_val);
    void set_b_factor_atom_selection(const atom_selection_container_t &asc, float b_val, bool moving_atoms);
