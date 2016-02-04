@@ -2300,6 +2300,8 @@ void set_refine_params_toggle_buttons(GtkWidget *button) {
       lookup_widget(button, "refine_params_use_torsions_checkbutton");
    GtkWidget *planar_peptide_restraints_checkbutton =
       lookup_widget(button, "refine_params_use_planar_peptides_checkbutton");
+   GtkWidget *trans_peptide_restraints_checkbutton =
+      lookup_widget(button, "refine_params_use_trans_peptide_restraints_checkbutton");
    GtkWidget *phi_psi_peptide_checkbutton =
       lookup_widget(button, "refine_params_use_peptide_torsions_checkbutton");
    GtkWidget *link_torsion_type_vbox =
@@ -2315,13 +2317,22 @@ void set_refine_params_toggle_buttons(GtkWidget *button) {
       gtk_widget_set_sensitive(GTK_WIDGET(phi_psi_peptide_checkbutton), FALSE);
    }
 
+   if (trans_peptide_restraints_checkbutton) {
+      if (g.do_trans_peptide_restraints) {
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(trans_peptide_restraints_checkbutton), TRUE);
+      } else {
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(trans_peptide_restraints_checkbutton), FALSE);
+      }
+   }
 
-   GtkWidget *omega = lookup_widget(button,
-		       "refine_params_use_peptide_omegas_checkbutton");
-   if (g.do_peptide_omega_torsion_restraints) {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(omega), TRUE);
-   } else {
-      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(omega), FALSE);
+   if (false) { 
+      GtkWidget *omega = lookup_widget(button,
+				       "refine_params_use_peptide_omegas_checkbutton");
+      if (g.do_peptide_omega_torsion_restraints) {
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(omega), TRUE);
+      } else {
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(omega), FALSE);
+      }
    }
 
    // planar peptide restraints:

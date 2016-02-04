@@ -10,60 +10,6 @@
 
    o Fix the python version of the JLigand interface.
 
-   o duplicate or create a fragment from a molecule, now quick-save-as.  The
-     new molecules are not saved and are not in the state file - they should be.
-     Frank von Delft.
-
-   o Fix the python version of the JLigand interface.
-
-   o carbohydrate: Does it work in Python mode?
-
-     A 310 in 3u0p
-
-   o fix match-acedrg-dict-to-grade-dict-fails-to-write-dictionary.py (mac)
-
-   o Look at gtk-demo for how to set the colour patch of button that makes a colour
-     selection. Use it in map preferences. 
-
-   o hilight interesting site (in python mode at least) gives big balls
-
-   o Fix sphere-refine-here-breaks-SS-bond.py (on atg)
-
-   o on accept or reject moving atoms, clear the pull restraint.
-
-* Done.
-
-   o use refinement to make an cis-peptide - then relieve it - the
-     refinement gui should track this - does it?
-
-     graphics-info-modelling's "cis peptides"
-
-   o ligands validation paper: check the isolated dots for A 2748 in 3hmj
-
-   o read in ejd/BLG.pdb, look at the terminal - we only want/need one such warning:
-
-WARNING:: failed to find dictionary entry index for GLB
-
-   o the coot page should say "reference"
-
-   o TRS in thumbnail view - e.g. in 3h6d.
-
-* Done.
-
-   o chiral restraints in 0BR (and others, presumably)
-
-   o unsigned int
-
-../../coot/git/coot/src/c-interface.cc: In function ‘void set_display_only_model_mol(int)’:
-../../coot/git/coot/src/c-interface.cc:5093:29: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
-    for (unsigned int i=0; i<n; i++) {
-
-
-../../coot/git/coot/src/c-interface.cc:5095:16: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
-       if (i == imol)
-
-* Done.
-                
    o Do a better job when getting recent PDBe structures with refmac5 not in the path:
 
 command "refmac5" not found
@@ -100,12 +46,64 @@ In unknown file:
 <unnamed port>: In procedure open-file in expression (open-file str OPEN_READ):
 <unnamed port>: No such file or directory: "refmac-version-tmp.log"
 
+   o the ball colour is not using the CA-only flag in colour by chain mode.
+
+* Fixed?
+
+   o duplicate or create a fragment from a molecule, now quick-save-as.  The
+     new molecules are not saved and are not in the state file - they should be.
+     Frank von Delft.
+
+* Done.
+
+   o carbohydrate: Does it work in Python mode?
+
+     A 310 in 3u0p
+
+   o fix match-acedrg-dict-to-grade-dict-fails-to-write-dictionary.py (mac)
+
+   o Look at gtk-demo for how to set the colour patch of button that makes a colour
+     selection. Use it in map preferences. 
+
+   o hilight interesting site (in python mode at least) gives big balls
+
+   o Fix sphere-refine-here-breaks-SS-bond.py (on atg)
+
+   o on accept or reject moving atoms, clear the pull restraint.
+
+* Done.
+ 
+   o use refinement to make an cis-peptide - then relieve it - the
+     refinement gui should track this - does it?
+
+     graphics-info-modelling's "cis peptides"
+
+   o read in ejd/BLG.pdb, look at the terminal - we only want/need one such warning:
+
+WARNING:: failed to find dictionary entry index for GLB
+
+   o the coot page should say "reference"
+
+   o TRS in thumbnail view - e.g. in 3h6d.
+
+* Done.
+
+   o chiral restraints in 0BR (and others, presumably)
+
+   o unsigned int
+
+../../coot/git/coot/src/c-interface.cc: In function ‘void set_display_only_model_mol(int)’:
+../../coot/git/coot/src/c-interface.cc:5093:29: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+    for (unsigned int i=0; i<n; i++) {
+
+
+../../coot/git/coot/src/c-interface.cc:5095:16: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+       if (i == imol)
+
+* Done.
+                
    o 3pt6 looks hideous when using PBDe -> Get From PDBe, but not from
      EDS.  Why?
-
-   o Glyo add NAG with ASN-NAG
-
-* Fixed
 
    o pyrogen with no arguments should do a pyrogen --help
 
@@ -132,13 +130,6 @@ In unknown file:
    o make_rtop_orth_for_jiggle_atoms() needs SO3 sampling.
 
    o Look at 15S in 4hhz: is the NH correctly positioned in the lbg view?
-
-   o permissions on Ubuntu 14.04
-
-   o Draw -> Additional Representation -> Ball and Stick - balls are
-     too big.
-
-   o Pro-CD -> CA and C NBC... what to do?
 
    o Refine a bit of of the DNA in 3pt6 and see that the nbc seem to be failing.
 
@@ -333,7 +324,7 @@ Program terminated with signal 7, Bus error.
 
 * Can't understand.
 
-   o crash: Vinoth:
+   o another crash: Vinoth:
 
 
 
@@ -393,7 +384,6 @@ Program terminated with signal 11, Segmentation fault.
 #5  0x0000003c570248d5 in ?? () from /lib64/libgobject-2.0.so.0
 #6  0x0000003c57025d76 in g_signal_emit_valist () from /lib64/libgobject-2.0.so.0
 #7  0x0000003c57026333 in g_signal_emit () from /lib64/libgobject-2.0.so.0
-#8  0x0000003c5700e3de in g_closure_invoke () from /lib64/libgobject-2.0.so.0
 
 * Done.
 
@@ -414,10 +404,6 @@ Program terminated with signal 11, Segmentation fault.
 
    o move all the classes at the top of molecule-class-info.h to their
      own files.
-
-* Done.
-
-   o is nsteps_max 80 a good number for refinement? Consider increase.
 
 * Done.
 

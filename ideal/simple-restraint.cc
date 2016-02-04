@@ -5193,7 +5193,7 @@ coot::restraints_container_t::make_flanking_atoms_restraints(const coot::protein
 							     bool do_trans_peptide_restraints) {
 
    coot::bonded_pair_container_t bonded_residue_pairs = bonded_flanking_residues(geom);
-   int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, "Flanking residue");
+   int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, do_trans_peptide_restraints, "Flanking residue");
 
    int n_rama_restraints = -1; // unset, don't output an info line if
 			       // do_rama_plot_restraints is not set.

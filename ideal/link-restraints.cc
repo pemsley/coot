@@ -573,7 +573,7 @@ coot::restraints_container_t::make_link_restraints_by_linear(const coot::protein
 		<< std::endl;
    // std::cout << "  " << bonded_residue_pairs << std::endl;
 
-   int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, "Link");
+   int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, do_trans_peptide_restraints, "Link");
 
    if (do_rama_plot_restraints) {
       add_rama_links(selHnd, geom);
@@ -594,7 +594,7 @@ coot::restraints_container_t::make_link_restraints_from_res_vec(const coot::prot
    coot::bonded_pair_container_t bonded_residue_pairs = bonded_residues_from_res_vec(geom);
    // std::cout << "   DEBUG:: in make_link_restraints_from_res_vec() found "
    //           << bonded_residue_pairs.size() << " bonded residues " << std::endl;
-   int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, "Link");
+   int iv = make_link_restraints_by_pairs(geom, bonded_residue_pairs, do_trans_peptide_restraints, "Link");
 
    if (do_rama_plot_restraints)
       add_rama_links_from_res_vec(bonded_residue_pairs, geom);
@@ -605,6 +605,7 @@ coot::restraints_container_t::make_link_restraints_from_res_vec(const coot::prot
 int
 coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_geometry &geom,
 							    const coot::bonded_pair_container_t &bonded_residue_pairs,
+							    bool do_trans_peptide_restraints,
 							    std::string link_flank_link_string) {
 
    int iret = 0;
@@ -667,11 +668,12 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
 					      is_fixed_first_residue,
 					      is_fixed_second_residue,
 					      geom);
-	 
-	 n_link_trans_peptide += add_link_trans_peptide(sel_res_1, sel_res_2,
-							is_fixed_first_residue,
-							is_fixed_second_residue,
-							geom);
+
+	 if (do_trans_peptide_restraints)
+	    n_link_trans_peptide += add_link_trans_peptide(sel_res_1, sel_res_2,
+							   is_fixed_first_residue,
+							   is_fixed_second_residue,
+							   geom);
 	 
 	 // 	    gettimeofday(&current_time, NULL);
 	 // td = time_diff(current_time, start_time);
@@ -708,7 +710,10 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
       std::cout << "   " << n_link_bond_restr    << " bond    links" << std::endl;
       std::cout << "   " << n_link_angle_restr   << " angle   links" << std::endl;
       std::cout << "   " << n_link_plane_restr   << " plane   links" << std::endl;
-      std::cout << "   " << n_link_trans_peptide << " trans-peptide links" << std::endl;
+      std::cout << "   " << n_link_trans_peptide << " trans-peptide links";
+      if (! do_trans_peptide_restraints)
+	 std::cout << " (not requested)";
+      std::cout << std::endl;
       std::cout << "   " << n_link_parallel_plane_restr   << " parallel plane restraints" << std::endl;
    }
    return iret; 

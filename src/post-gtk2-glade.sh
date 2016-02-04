@@ -61,6 +61,6 @@ sed -e 's/#include "callbacks.h.gtk2"/#include "callbacks.h"/' \
     -e 's/ *GLADE_HOOKUP_OBJECT .*model_toolbar_rot_trans_toolbutton.*/#ifdef GTK_TYPE_MENU_TOOL_BUTTON\n  &\n#endif/' \
     gtk2-interface.c > gtk2-interface.tmp
 
-mv gtk2-interface.tmp gtk2-interface.c 
+mv gtk2-interface.tmp gtk2-interface.c
 sh fixup-gtk2-interface.sh
 
