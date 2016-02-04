@@ -248,6 +248,8 @@ int copy_molecule(int imol) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       iret = g.copy_model_molecule(imol);
+      if (is_valid_model_molecule(iret))
+	  g.molecules[iret].set_have_unsaved_changes_from_outside();
    }
    if (is_valid_map_molecule(imol)) {
       int new_mol_number = graphics_info_t::create_molecule();
@@ -4318,7 +4320,22 @@ int planar_peptide_restraints_state() {
    bool r = g.Geom_p()->planar_peptide_restraint_state();
    int rr = r;
    return rr;
-} 
+}
+
+/*  ----------------------------------------------------------------------- */
+/*                         Trans Peptide Restraints                         */
+/*  ----------------------------------------------------------------------- */
+
+
+/*! \brief add a restraint on peptides to keep trans peptides trans 
+
+i.e. omega in trans-peptides is restraints to 180 degrees.
+ */
+void set_use_trans_peptide_restraints(short int on_off_state) {
+
+   graphics_info_t g;
+   g.do_trans_peptide_restraints = on_off_state;
+}
 
 
 void add_omega_torsion_restriants() {
@@ -4747,8 +4764,12 @@ void save_symmetry_coords(int imol,
 	    asc.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 	    asc.mol->FinishStructEdit();
 	    
-        mmdb_manager_delete_conect(mol2);
-	    int ierr = mol2->WritePDBASCII(filename);
+	    mmdb_manager_delete_conect(mol2);
+	    int ierr = -1;
+	    if (coot::is_mmcif_filename(filename))
+	       ierr = mol2->WriteCIFASCII(filename);
+	    else
+	       ierr = mol2->WritePDBASCII(filename);
 	    if (ierr) {
 	       std::cout << "WARNING:: WritePDBASCII to " << filename << " failed." << std::endl;
 	       std::string s = "WARNING:: WritePDBASCII to file ";
@@ -4825,6 +4846,7 @@ int new_molecule_by_symmetry(int imol,
 	 atom_selection_container_t asc = make_asc(mol_symm);
 	 graphics_info_t g;
 	 g.molecules[imol_new].install_model(imol_new, asc, g.Geom_p(), name, 1);
+	 g.molecules[imol].set_have_unsaved_changes_from_outside();
 	 update_go_to_atom_window_on_new_mol();
 	 graphics_draw();
 	 istate = imol_new;
@@ -4938,6 +4960,7 @@ new_molecule_by_symmetry_with_atom_selection(int imol,
 	 atom_selection_container_t asc = make_asc(new_mol);
 	 graphics_info_t g;
 	 g.molecules[imol_new].install_model(imol_new, asc, g.Geom_p(), name, 1);
+	 g.molecules[imol].set_have_unsaved_changes_from_outside();
 	 update_go_to_atom_window_on_new_mol();
 	 graphics_draw();
       }
@@ -6531,6 +6554,7 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 	       shelx_flag = 1;
 	    graphics_info_t g;
 	    g.molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1, shelx_flag);
+	    g.molecules[imol].set_have_unsaved_changes_from_outside();
 	    update_go_to_atom_window_on_new_mol();
 	 } else {
 	    std::cout << "in new_molecule_by_atom_selection "
@@ -6616,6 +6640,7 @@ int new_molecule_by_sphere_selection(int imol_orig, float x, float y, float z, f
 	       shelx_flag = 1;
 	    graphics_info_t g;
 	    g.molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1, shelx_flag);
+	    g.molecules[imol].set_have_unsaved_changes_from_outside();
 	 } else {
 	    graphics_info_t::erase_last_molecule();
 	    std::cout << "in new_molecule_by_atom_selection "

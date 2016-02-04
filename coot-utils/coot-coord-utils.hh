@@ -1278,7 +1278,10 @@ namespace coot {
       std::vector<cis_peptide_info_t>
       cis_peptides_info_from_coords(mmdb::Manager *mol);
 
-      // remove wrong cis_peptides
+      // where the atoms are in cis peptides
+      std::vector<atom_quad> cis_peptide_quads_from_coords(mmdb::Manager *mol);
+      
+      // remove wrong cis_peptides from the header records
       void remove_wrong_cis_peptides(mmdb::Manager *mol);
 
       // remove 1555 links between atoms that are more than dist_min

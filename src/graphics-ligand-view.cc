@@ -104,6 +104,7 @@ void graphics_ligand_molecule::gl_bonds(bool dark_background) {
 	 lig_build::pos_t pos_1 =  atoms[idx_1].atom_position;
 	 lig_build::pos_t pos_2 =  atoms[idx_2].atom_position;
 	 // c.f. canvas_item_for_bond
+
 	 bonds[ib].gl_bond(pos_1, pos_2, shorten_first, shorten_second, bt);
       }
    }
@@ -351,8 +352,8 @@ graphics_ligand_molecule::setup_from(mmdb::Residue *residue_p,
 	 } else {
 	    const coot::dictionary_residue_restraints_t &restraints = p.second;
 	    RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, restraints, alt_conf);
+	    // return a kekulize mol
 	    RDKit::RWMol rdk_mol_with_no_Hs = coot::remove_Hs_and_clean(rdkm);
-	    RDKit::MolOps::sanitizeMol(rdk_mol_with_no_Hs);
 
 	    double weight_for_3d_distances = 0.005;
 	    int mol_2d_depict_conformer =
