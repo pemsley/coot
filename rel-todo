@@ -48,6 +48,8 @@ WARNING:: failed to find dictionary entry index for GLB
 
    o TRS in thumbnail view - e.g. in 3h6d.
 
+* Done.
+
    o chiral restraints in 0BR (and others, presumably)
 
    o unsigned int
@@ -55,9 +57,12 @@ WARNING:: failed to find dictionary entry index for GLB
 ../../coot/git/coot/src/c-interface.cc: In function ‘void set_display_only_model_mol(int)’:
 ../../coot/git/coot/src/c-interface.cc:5093:29: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
     for (unsigned int i=0; i<n; i++) {
-                             ^
+
+
 ../../coot/git/coot/src/c-interface.cc:5095:16: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
        if (i == imol)
+
+* Done.
                 
    o Do a better job when getting recent PDBe structures with refmac5 not in the path:
 
