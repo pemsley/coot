@@ -2448,7 +2448,7 @@ def hilight_binding_site(imol, centre_residue_spec, hilight_colour, radius):
                                                 centre_residue_spec[1],
                                                 centre_residue_spec[2],
                                                 BALL_AND_STICK(),
-                                                bb_type, 6,
+                                                bb_type, 0.16,
                                                 draw_hydrogens_flag)
 
         map(lambda spec: additional_representation_by_attributes(imol,
@@ -2457,7 +2457,7 @@ def hilight_binding_site(imol, centre_residue_spec, hilight_colour, radius):
                                                                  spec[1],
                                                                  spec[2],
                                                                  BALL_AND_STICK(),
-                                                                 bb_type, 6,
+                                                                 bb_type, 0.16,
                                                                  draw_hydrogens_flag),
             other_residues)
 
