@@ -819,6 +819,8 @@ public:        //                      public
 					   	                    // we also set
 						                    // bond_colour_internal.
 
+   coot::colour_t get_bond_colour_by_mol_no(int icolour, bool against_a_dark_background);
+	   
    void set_bond_colour_by_colour_wheel_position(int i, int bond_type);
 
    std::string name_; // otherwise get and set, so make it public.

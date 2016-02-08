@@ -6193,8 +6193,13 @@ coot::util::cis_peptides_info_from_coords(mmdb::Manager *mol) {
 }
 
 
+// mark up things that have omega > 210 or omega < 150. i.e, 180 +/- 30.
+//
+// strictly_cis_flag is false by default.
+// 
 std::vector<coot::atom_quad>
-coot::util::cis_peptide_quads_from_coords(mmdb::Manager *mol) {
+coot::util::cis_peptide_quads_from_coords(mmdb::Manager *mol,
+					  bool strictly_cis_flag) {
 
    std::vector<atom_quad> v;
    
