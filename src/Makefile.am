@@ -226,8 +226,8 @@ coot_bin_SOURCES = \
 	main.cc 		 \
 	atom-overlaps.cc         \
 	git-revision-count.cc 	 \
-	c-inner-main.c		 \
-	c-inner-main.h		 \
+	scm-boot-guile.hh 	 \
+	scm-boot-guile.cc 	 \
 	c-interface.h            \
 	c-interface-analysis.cc	 \
 	c-interface-build.cc	 \
