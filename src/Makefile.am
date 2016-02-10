@@ -297,6 +297,7 @@ coot_bin_SOURCES = \
 	command-arg.hh           \
 	command-line.cc		 \
 	command-line-extern.cc   \
+	command-line-extern.hh   \
 	command-line.hh		 \
 	coot-database.hh	 \
 	coot-colour.hh	 	 \
@@ -308,6 +309,7 @@ coot_bin_SOURCES = \
 	coot-glue.hh             \
 	coot-glue-gtk2.c	 \
 	coot-glue-gtk2-python.cc \
+	coot-init-glue.hh        \
 	coot-hydrogens.hh        \
 	coot-hydrogens.cc        \
 	coot-render.hh           \
@@ -418,6 +420,7 @@ coot_bin_SOURCES = \
 	sdf-interface.hh         \
 	sdf-internal.hh          \
 	sdf-interface.cc         \
+	startup-scripts.hh       \
 	support.c support.h 	 \
 	support-gtk2-extras.c    \
 	testing.cc testing-2.cc  \
