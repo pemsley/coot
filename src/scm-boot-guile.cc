@@ -99,7 +99,7 @@ void inner_main(void *closure, int argc, char **argv) {
      flag = "#t";
 #endif
 
-     if (use_graphics_flag)
+     if (! use_graphics_flag)
         flag = "#f";
 
      std::string l = "(lambda () (load-all-scheme " + flag + "))";
