@@ -27,6 +27,8 @@
 #include "startup-scripts.hh"
 #include "graphics-info.h"
 
+#include "command-line-extern.hh"
+
 void inner_main(void *closure, int argc, char **argv) {
 
   short int use_graphics_flag = use_graphics_interface_state();
@@ -111,6 +113,12 @@ void inner_main(void *closure, int argc, char **argv) {
      try_load_scheme_extras_dir();
      try_load_dot_coot_and_preferences();
   }
+
+
+/* now handle the command line data */
+   handle_command_line_data_argc_argv(argc, argv);
+
+  run_command_line_scripts(); // i.e. -c '(do-something)'
   
   if (use_graphics_interface_state()) { 
      gtk_main(); 
