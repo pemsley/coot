@@ -97,7 +97,11 @@ void inner_main(void *closure, int argc, char **argv) {
      std::string flag = "#f";
 #ifdef USE_GUILE_GTK
      flag = "#t";
-#endif     
+#endif
+
+     if (use_graphics_flag)
+        flag = "#f";
+
      std::string l = "(lambda () (load-all-scheme " + flag + "))";
      thunk = scm_c_eval_string(l.c_str()); 
      scm_catch(SCM_BOOL_T, thunk, handler);
