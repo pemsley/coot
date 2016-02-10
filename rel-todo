@@ -1,6 +1,8 @@
  
  0.8.3
 
+   o Bond colour slider (edit -> bond colours) is broken. 
+
    o Do a better job when getting recent PDBe structures with refmac5 not in the path:
 
 command "refmac5" not found
@@ -50,6 +52,9 @@ In unknown file:
      Frank von Delft.
 
 * Done.
+
+  o a good test for jiggle fit is 3GP, beam it in and jiggle-fit.. It
+    wanders off.
 
    o Fix the python version of the JLigand interface.
 

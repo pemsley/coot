@@ -5,6 +5,8 @@
 #include <gtk/gtk.h>
 #include "c-interface-gtk-widgets.h"
 
+#include "c-interface-gtk-widgets.h"
+
 /* #define GTK_ENABLE_BROKEN 1  NO.  We are not going to do that. */
 #include <libguile.h>
 #include <guile-gtk.h>
