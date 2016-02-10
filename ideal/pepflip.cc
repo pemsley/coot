@@ -42,6 +42,7 @@ coot::pepflip(mmdb::Manager *mol,
 	      const std::string &altconf) {
 
    int status = pepflip_standard(mol, chain_id, resno, ins_code, altconf);
+
    if (status)
       return status;
    else
@@ -177,17 +178,22 @@ coot::pepflip_internal_to_residue(mmdb::Manager *mol,
 	    if (atom_name == " O  ")
 	       o_at = at;
 	 }
-	 if (c_at && o_at && ca_at) {
-	    clipper::Coord_orth p1(ca_at->x, ca_at->y, ca_at->z);
-	    clipper::Coord_orth p2(c_at->x,   c_at->y,  c_at->z);
-	    clipper::Coord_orth p3(o_at->x,   o_at->y,  o_at->z);
-	    clipper::Coord_orth p3_new = util::rotate_round_vector(p2-p1, p3, p1, M_PI);
-	    o_at->x = p3_new.x();
-	    o_at->y = p3_new.y();
-	    o_at->z = p3_new.z();
-	    status = true;
-	 }
       }
+      if (c_at && o_at && ca_at) {
+	 clipper::Coord_orth p1(ca_at->x, ca_at->y, ca_at->z);
+	 clipper::Coord_orth p2(c_at->x,   c_at->y,  c_at->z);
+	 clipper::Coord_orth p3(o_at->x,   o_at->y,  o_at->z);
+	 clipper::Coord_orth p3_new = util::rotate_round_vector(p2-p1, p3, p1, M_PI);
+	 o_at->x = p3_new.x();
+	 o_at->y = p3_new.y();
+	 o_at->z = p3_new.z();
+	 status = true;
+      } else {
+	 std::cout << "not all internal atoms found " << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: pepflip_internal_to_residue(): Null residue for "
+		<< chain_id << " " << resno << " " << ins_code << std::endl;
    }
    return status;
 } 

@@ -409,6 +409,12 @@ short int python_at_prompt_at_startup_state() {
 void start_graphics_interface() {
    add_to_history_simple("start-graphics-interface");
    gtk_main(); 
+}
+
+#include "startup-scripts.hh"
+
+bool run_startup_scripts_state() {
+   return graphics_info_t::run_startup_scripts_flag;
 } 
 
 
@@ -6266,8 +6272,11 @@ import_python_module(const char *module_name, int use_namespace) {
       simple += module_name;
       simple += " import *";
    }
-   std::cout << "Importing python module " << module_name 
-	     << " using command " << simple << std::endl;
+
+   if (false)
+      std::cout << "Importing python module " << module_name
+		<< " using command " << simple << std::endl;
+
    // not a const argument?  Dear oh dear....
    err = PyRun_SimpleString((char *)simple.c_str());
 #endif // USE_PYTHON

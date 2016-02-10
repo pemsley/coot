@@ -93,7 +93,8 @@ post_list = ["coot_gui.py",
 	    "pdbe_validation_data.py",
             "contact_score_isolated_ligand.py",
             "ligand_validation_sliders.py",
-            "rcrane_loader.py"]
+	    "rcrane_loader.py" # calls set_found_coot_gui()
+]
 
 # list of modules not available on Windows
 non_win_list = ["brute_lsqman.py"]
@@ -128,6 +129,7 @@ if use_gui_qm:
         if (gtk.pygtk_version < (2, 12)):
             coot_tooltips = gtk.Tooltips()
         # pygtk.require("2.0")
+	# print "adding to load list:", post_list # .. not sure that this is what I want
         python_list += post_list
         if (use_gui_qm == 2):
             # we do have guile_gtk and dont want to have 
@@ -166,7 +168,11 @@ def load_from_search_load_path(file):
 for coot_python_file in python_list:
     filename = os.path.join(search_load_path, coot_python_file)
     if filename and os.path.isfile(filename):
-        print "Loading:", coot_python_file
+        # we need user configuration of this verbosity
+
+	if False:
+	   print "Loading:", coot_python_file
+
         try:
             # BL says::
             # We execute the files rather than loading it as modules since

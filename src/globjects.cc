@@ -570,9 +570,11 @@ float molecule_rot_t::y_axis_angle = 0.0;
 
 // 0: never run it
 // 1: ask to run it
-// 2: alwasy run it
+// 2: always run it
 short int graphics_info_t::run_state_file_status = 1;
 bool      graphics_info_t::state_file_was_run_flag = false;
+// did we start with --no-startup-scripts?
+bool      graphics_info_t::run_startup_scripts_flag = true;
 
 GtkWidget *graphics_info_t::preferences_widget = NULL;
 int        graphics_info_t::mark_cis_peptides_as_bad_flag = 1;

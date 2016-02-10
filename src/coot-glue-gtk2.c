@@ -3,6 +3,9 @@
 #ifdef USE_GUILE_GTK
 
 #include <gtk/gtk.h>
+#include "c-interface-gtk-widgets.h"
+
+#include "c-interface-gtk-widgets.h"
 
 /* #define GTK_ENABLE_BROKEN 1  NO.  We are not going to do that. */
 #include <libguile.h>
@@ -280,6 +283,7 @@ coot_init_glue_types ()
 void
 coot_init_glue ()
 {
+
   coot_init_glue_types ();
   sgtk_init_gtk_gtk_glue_types ();
   sgtk_init_gtk_gdk_glue_types ();

@@ -903,3 +903,456 @@ void free_memory_run_refmac(GtkWidget *window) {
 //    std::cout << "debugging bad window got to end of free_memory_run_refmac"
 // 	     << std::endl;
 } 
+
+
+#ifdef USE_GUILE
+// return a list of refmac parameters.  Used so that we can test that
+// the save state of a refmac map works correctly.
+SCM refmac_parameters_scm(int imol) {
+
+   SCM r = SCM_EOL;
+   if (is_valid_map_molecule(imol)) { 
+      std::vector<coot::atom_attribute_setting_help_t>
+	 refmac_params = graphics_info_t::molecules[imol].get_refmac_params();
+      if (refmac_params.size() > 0) {
+	 // values have to go in in reverse order, as usual.
+	 for (int i=(int(refmac_params.size())-1); i>=0; i--) {
+	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_STRING)
+	       r = scm_cons(scm_makfrom0str(refmac_params[i].s.c_str()) ,r);
+	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_FLOAT)
+	       r = scm_cons(scm_double2num(refmac_params[i].val) ,r);
+	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_INT)
+	       r = scm_cons(SCM_MAKINUM(refmac_params[i].i) ,r);
+	 }
+      }
+   }
+   return r;
+}
+
+#endif	/* USE_GUILE */
+
+#ifdef USE_PYTHON
+PyObject *refmac_parameters_py(int imol) {
+
+   PyObject *r = PyList_New(0);
+   if (is_valid_map_molecule(imol)) { 
+      std::vector<coot::atom_attribute_setting_help_t>
+	 refmac_params = graphics_info_t::molecules[imol].get_refmac_params();
+      if (refmac_params.size() > 0) {
+	 // values have dont have to go in in reverse order.
+	for (unsigned int i=0; i<refmac_params.size(); i++) {
+	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_INT)
+	      PyList_Append(r, PyInt_FromLong(refmac_params[i].i));
+	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_FLOAT)
+	      PyList_Append(r, PyFloat_FromDouble(refmac_params[i].val));
+	    if (refmac_params[i].type == coot::atom_attribute_setting_help_t::IS_STRING)
+	      PyList_Append(r, PyString_FromString(refmac_params[i].s.c_str()));
+	 }
+      }
+   }
+   return r;
+}
+#endif	/* USE_PYTHON */
+
+
+
+//       int slen = mtz_in_filename.length(); c
+//       if (slen > 4) {
+// 	 mtz_out_filename = mtz_in_filename.substr(0,slen - 4) + "-refmac-";
+// 	 mtz_out_filename += g.int_to_string(g.molecules[imol_coords].Refmac_count());
+// 	 mtz_out_filename += ".mtz";
+//       } else {
+// 	 mtz_out_filename = "post-refmac";
+// 	 mtz_out_filename += g.int_to_string(g.molecules[imol_coords].Refmac_count());
+// 	 mtz_out_filename += ".mtz";
+//       } 
+
+// If ccp4i_project_dir is "", then carry on and put the log file in
+// this directory.  If not, put it in the appropriate project dir. The
+// pdb_in etc filename are manipulated in the calling routine.
+//
+// if swap_map_colours_post_refmac_flag is not 1 then imol_refmac_map is ignored.
+//
+// make_molecules_flag is 0 or 1: defining if run-refmac-by-filename
+// function should create molecules (it should *not* create molecules
+// if this is called in a sub-thread (because that will try to update
+// the graphics from the subthread and a crash will result).
+// 
+void
+execute_refmac_real(std::string pdb_in_filename,
+		    std::string pdb_out_filename,
+		    std::string mtz_in_filename,
+		    std::string mtz_out_filename,
+		    std::string cif_lib_filename,
+		    std::string fobs_col_name,
+		    std::string sigfobs_col_name,
+		    std::string r_free_col_name,
+		    short int have_sensible_free_r_flag,
+		    short int make_molecules_flag,
+		    std::string refmac_count_str,
+		    int swap_map_colours_post_refmac_flag,
+		    int imol_refmac_map,
+		    int diff_map_flag,
+		    int phase_combine_flag,
+		    std::string phib_string,
+		    std::string fom_string, 
+		    std::string ccp4i_project_dir) {
+
+
+   std::vector<std::string> cmds;
+
+   cmds.push_back(std::string("run-refmac-by-filename"));
+// BL says:: again debackslashing
+   cmds.push_back(single_quote(coot::util::intelligent_debackslash(pdb_in_filename)));
+   cmds.push_back(single_quote(coot::util::intelligent_debackslash(pdb_out_filename)));
+   cmds.push_back(single_quote(coot::util::intelligent_debackslash(mtz_in_filename)));
+   cmds.push_back(single_quote(coot::util::intelligent_debackslash(mtz_out_filename)));
+   cmds.push_back(single_quote(coot::util::intelligent_debackslash(cif_lib_filename)));
+   cmds.push_back(refmac_count_str);
+   cmds.push_back(graphics_info_t::int_to_string(swap_map_colours_post_refmac_flag));
+   cmds.push_back(graphics_info_t::int_to_string(imol_refmac_map));
+   cmds.push_back(graphics_info_t::int_to_string(diff_map_flag));
+   cmds.push_back(graphics_info_t::int_to_string(phase_combine_flag));
+
+   std::string phase_combine_cmd;
+   if (phase_combine_flag > 0 && phase_combine_flag < 3) {
+#ifdef USE_GUILE
+      phase_combine_cmd += "(cons ";
+      phase_combine_cmd += single_quote(phib_string);
+      phase_combine_cmd += " ";
+      phase_combine_cmd += single_quote(fom_string);
+      phase_combine_cmd += ")";
+#else
+#ifdef USE_PYTHON
+      phase_combine_cmd += "[\'";
+      phase_combine_cmd += phib_string;
+      phase_combine_cmd += "\', ";
+      phase_combine_cmd += single_quote(fom_string);
+      phase_combine_cmd += "]";
+#endif // USE_PYTHON
+#endif // USE_GUILE
+   } else {
+      phase_combine_cmd += single_quote("dummy");
+   }
+   cmds.push_back(phase_combine_cmd);
+
+   cmds.push_back(graphics_info_t::int_to_string(graphics_info_t::refmac_ncycles));
+   cmds.push_back(graphics_info_t::int_to_string(make_molecules_flag));
+   cmds.push_back(single_quote(coot::util::intelligent_debackslash(ccp4i_project_dir)));
+   if (phase_combine_flag == 3 && fobs_col_name != "") {
+     cmds.push_back(fobs_col_name);
+     cmds.push_back(sigfobs_col_name);
+   } else {
+     cmds.push_back(single_quote(fobs_col_name));
+     cmds.push_back(single_quote(sigfobs_col_name));
+   }
+   std::cout << "DEBUG in execute_refmac_real ccp4i_project_dir :"
+	     << single_quote(coot::util::intelligent_debackslash(ccp4i_project_dir))
+	     << ":" << std::endl;
+		
+   if (have_sensible_free_r_flag) { 
+      cmds.push_back(single_quote(r_free_col_name));
+   }
+
+   graphics_info_t g;
+   short int ilang = coot::STATE_SCM;
+   std::string cmd;
+
+#ifdef USE_PYTHON
+#ifndef USE_GUILE
+   ilang = coot::STATE_PYTHON;
+#endif
+#endif
+   if (ilang == coot::STATE_PYTHON) { 
+      cmd = g.state_command(cmds, ilang);
+#ifdef USE_PYTHON
+      safe_python_command(cmd);
+#endif
+   } else {
+      cmd = g.state_command(cmds, ilang);
+      safe_scheme_command(cmd);
+   } 
+} 
+
+int set_refmac_molecule(int imol) {
+   std::string cmd = "set-refmac-molecule";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
+   graphics_info_t::refmac_molecule = imol;
+   return imol;
+}
+
+
+void set_refmac_counter(int imol, int refmac_count) {
+
+   graphics_info_t g;
+   if (imol< g.n_molecules()) {
+      g.molecules[imol].set_refmac_counter(refmac_count);
+      std::cout << "INFO:: refmac counter of molecule number " << imol
+		<< " incremented to " << refmac_count << std::endl;
+   } else {
+      std::cout << "WARNING:: refmac counter of molecule number " << imol
+		<< " not incremented to " << refmac_count << std::endl;
+   } 
+   std::string cmd = "set-refmac-counter";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(refmac_count);
+   add_to_history_typed(cmd, args);
+} 
+
+
+const char *refmac_name(int imol) {
+
+   std::string cmd = "refmac-name";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   add_to_history_typed(cmd, args);
+   graphics_info_t g;
+   return g.molecules[imol].Refmac_in_name().c_str();
+} 
+
+int get_refmac_refinement_method() {
+  
+  graphics_info_t g;
+  return g.refmac_refinement_method;
+}
+
+void set_refmac_refinement_method(int method) {
+
+  graphics_info_t g;
+  g.set_refmac_refinement_method(method);
+}
+
+int get_refmac_phase_input() {
+  
+  graphics_info_t g;
+  return g.refmac_phase_input;
+}
+
+void set_refmac_use_tls(int state) {
+
+  graphics_info_t g;
+  g.set_refmac_use_tls(state);
+}
+
+int refmac_use_tls_state() {
+
+  graphics_info_t g;
+  return g.refmac_use_tls_flag;
+}
+
+void set_refmac_use_twin(int state) {
+
+  graphics_info_t g;
+  g.set_refmac_use_twin(state);
+}
+
+int refmac_use_twin_state() {
+
+  graphics_info_t g;
+  return g.refmac_use_twin_flag;
+}
+
+int refmac_use_sad_state() {
+
+  graphics_info_t g;
+  return g.refmac_use_sad_flag;
+}
+
+int get_refmac_ncycles() {
+  
+  graphics_info_t g;
+  return g.refmac_ncycles;
+}
+
+void set_refmac_ncycles(int no_cycles) {
+
+  graphics_info_t g;
+  g.set_refmac_n_cycles(no_cycles);
+}
+
+void add_refmac_ncycle_no(int cycle) {
+
+  graphics_info_t g;
+  g.add_refmac_ncycle_no(cycle);
+}
+
+void set_refmac_use_ncs(int state) {
+
+  graphics_info_t g;
+  g.set_refmac_use_ncs(state);
+}
+
+int refmac_use_ncs_state() {
+
+  graphics_info_t g;
+  return g.refmac_use_ncs_flag;
+}
+
+void set_refmac_use_intensities(int state) {
+
+  graphics_info_t g;
+  g.set_refmac_use_intensities(state);
+}
+
+int refmac_use_intensities_state() {
+
+  graphics_info_t g;
+  return g.refmac_use_intensities_flag;
+}
+  
+
+int refmac_imol_coords() {
+
+  graphics_info_t g;
+  return g.refmac_molecule;
+}
+
+/*! \brief add an atom to refmac_sad_atoms (used in refmac with SAD option)
+  list with atom_name and  fp, and fpp (and/or wavelength),
+  -9999 to not use fp/fpp or wavelength 
+  adds a new atom or overwrites existing ones with new parameters */
+void
+add_refmac_sad_atom(const char *atom_name, float fp, float fpp, float lambda) {
+
+  graphics_info_t g;
+  g.add_refmac_sad_atom(atom_name, fp, fpp, lambda);
+
+}
+
+/* !brief add an atom to refmac_sad_atoms (used in refmac with SAD option)
+  list with atom_name and  fp, and fpp 
+  adds a new atom or overwrites existing ones with new parameters */
+void
+add_refmac_sad_atom_fp(const char *atom_name, float fp, float fpp) {
+
+  graphics_info_t g;
+  g.add_refmac_sad_atom(atom_name, fp, fpp, -9999);
+
+}
+
+/* !brief add an atom to refmac_sad_atoms (used in refmac with SAD option)
+  list with atom_name and wavlength, fp and fpp will be calculated 
+  adds a new atom or overwrites existing ones with new parameters */
+void
+add_refmac_sad_atom_lambda(const char *atom_name, float lambda) {
+
+  graphics_info_t g;
+  g.add_refmac_sad_atom(atom_name, -9999, -9999, lambda);
+
+}
+
+/*! \brief clear the refmac_sad_atoms list */
+void
+clear_refmac_sad_atoms() {
+
+  graphics_info_t g;
+  g.refmac_sad_atoms.clear();
+}
+
+#ifdef USE_GUILE
+/*! \brief retrive the stored refmac_sad_atoms to be used in refmac with SAD option */
+/*  return list of e.g. (list (list "SE" -8.0 -4.0 #f) ...)  */
+SCM get_refmac_sad_atom_info_scm() {
+
+  SCM r = SCM_EOL;
+  std::vector<coot::refmac::sad_atom_info_t> sad_atoms = graphics_info_t::refmac_sad_atoms;
+  for (unsigned int i=0; i<sad_atoms.size(); i++) {
+    SCM ls = SCM_EOL;
+    std::string atom_name = sad_atoms[i].atom_name;
+    float fp = sad_atoms[i].fp;
+    float fpp = sad_atoms[i].fpp;
+    float lambda = sad_atoms[i].lambda;
+    ls = scm_cons(scm_makfrom0str(atom_name.c_str()) ,ls);
+    if (fabs(fp + 9999) <= 0.1) {
+      ls = scm_cons(SCM_BOOL_F, ls);
+    } else {
+      ls = scm_cons(scm_double2num(fp), ls);
+    }
+    if (fabs(fpp + 9999) <= 0.1) {
+      ls = scm_cons(SCM_BOOL_F, ls);
+    } else {
+      ls = scm_cons(scm_double2num(fpp), ls);
+    }
+    if (fabs(lambda + 9999) <= 0.1) {
+      ls = scm_cons(SCM_BOOL_F, ls);
+    } else {
+      ls = scm_cons(scm_double2num(lambda), ls);
+    }
+    r = scm_cons(scm_reverse(ls), r);
+  }
+  r = scm_reverse(r);
+  return r;
+}
+#endif // GUILE
+
+#ifdef USE_PYTHON
+/*! \brief retrive the stored refmac_sad_atoms to be used in refmac with SAD option */
+/*  return list of e.g. [["SE", -8.0, -4.0, None], ...]  */
+PyObject *get_refmac_sad_atom_info_py() {
+
+  PyObject *r = PyList_New(0);
+
+  std::vector<coot::refmac::sad_atom_info_t> sad_atoms = graphics_info_t::refmac_sad_atoms;
+  for (unsigned int i=0; i<sad_atoms.size(); i++) {
+    PyObject *ls = PyList_New(0);
+    std::string atom_name = sad_atoms[i].atom_name;
+    float fp = sad_atoms[i].fp;
+    float fpp = sad_atoms[i].fpp;
+    float lambda = sad_atoms[i].lambda;
+    PyList_Append(ls, PyString_FromString(atom_name.c_str()));
+    if (fabs(fp + 9999) <= 0.1) {
+      Py_INCREF(Py_None);
+      PyList_Append(ls, Py_None);
+    } else {
+      PyList_Append(ls, PyFloat_FromDouble(fp));
+    }
+    if (fabs(fpp + 9999) <= 0.1) {
+      Py_INCREF(Py_None);
+      PyList_Append(ls, Py_None);
+    } else {
+      PyList_Append(ls, PyFloat_FromDouble(fpp));
+    }
+    if (fabs(lambda + 9999) <= 0.1) {
+      Py_INCREF(Py_None);
+      PyList_Append(ls, Py_None);
+    } else {
+      PyList_Append(ls, PyFloat_FromDouble(lambda));
+    }
+    PyList_Append(r, ls);
+    Py_XDECREF(ls);
+  }
+  return r;
+}
+#endif // USE_PYTHON
+
+
+short int
+get_refmac_used_mtz_file_state() {
+
+  graphics_info_t g;
+  return g.refmac_used_mtz_file_flag;
+}
+
+void
+set_refmac_used_mtz_file(int state) {
+
+  graphics_info_t g;
+  return g.set_refmac_used_mtz_file(state);
+}
+
+const gchar *get_saved_refmac_file_filename() {
+
+  graphics_info_t g;
+  return g.saved_refmac_file_filename;
+}
+
+void
+set_stored_refmac_file_mtz_filename(int imol, const char *mtz_filename) {
+
+   if (imol < graphics_n_molecules()) { 
+     graphics_info_t::molecules[imol].store_refmac_file_mtz_filename(std::string(mtz_filename));
+   }
+}

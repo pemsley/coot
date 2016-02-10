@@ -900,16 +900,17 @@ public:
 
    void init() { 
 
-     for (int i=0; i<4; i++) 
-       background_colour[i] = 0.0;
+      for (int i=0; i<4; i++) 
+	 background_colour[i] = 0.0;
 
 #ifdef WINDOWS_MINGW
-     prefer_python = 1;
+      prefer_python = 1;
 #endif 
 
-     find_ligand_ligand_mols_ = new std::vector<std::pair<int, bool> >;
-     // find_ligand_wiggly_ligands_ = new std::vector<short int>; // now incorporated above
+      find_ligand_ligand_mols_ = new std::vector<std::pair<int, bool> >;
       geom_p = new coot::protein_geometry;
+      geom_p->set_verbose(false);
+     
       cif_dictionary_read_number = geom_p->init_standard();
       geom_p->add_planar_peptide_restraint();
 
@@ -1799,6 +1800,8 @@ public:
    // 2: alwasy run it
    static short int run_state_file_status; 
    static bool state_file_was_run_flag;
+   static bool run_startup_scripts_flag;
+
 
    // Go To Atom 
    // 

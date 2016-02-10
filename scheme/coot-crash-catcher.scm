@@ -273,8 +273,10 @@
       (if (eq? core #f)
 	  (begin
 	    (format #t "No core file found.  No debugging~%")
-	    (format #t "   This is not helpful.  ~%")
-	    (format #t "   Please turn on core dumps before sending a crash report~%")
+	    ;; Core dumps are now often not handled the way they used to be
+	    ;; thanks Marcin.
+	    ;; (format #t "   This is not helpful.  ~%")
+	    ;; (format #t "   Please turn on core dumps before sending a crash report~%")
 	    #f)
 	  (let ((gdb-script (make-gdb-script)))
 	    (if (string? gdb-script)

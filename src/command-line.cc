@@ -123,14 +123,15 @@ parse_command_line(int argc, char ** argv ) {
       {"splash-screen", 1, 0, 0}, // alternate splash screen
       {"self-test",        0, 0, 0},
       {"no-state-script",  0, 0, 0},
+      {"no-startup-scripts", 0, 0, 0},
       {"no-graphics",      0, 0, 0},
       {"no-splash-screen", 0, 0, 0},
       {"stereo",     0, 0, 0},        // no arguments 
-      {"side-by-side",     0, 0, 0},  // no arguments 
-      {"zalman-stereo",     0, 0, 0}, // no arguments 
-      {"version",    0, 0, 0},        // no arguments 
-      {"version-full",  0, 0, 0},     // no arguments 
-      {"no-guano",   0, 0, 0},        // no arguments
+      {"side-by-side",     0, 0, 0},  //
+      {"zalman-stereo",    0, 0, 0},  //
+      {"version",    0, 0, 0},        //
+      {"version-full",  0, 0, 0},     //
+      {"no-guano",   0, 0, 0},        //
       {"small-screen", 0, 0, 0},      // no arguments (setting for small screens)
       {"update-self", 0, 0, 0},  
       {0, 0, 0, 0}	       // must have blanks at end
@@ -241,6 +242,7 @@ parse_command_line(int argc, char ** argv ) {
 // 			       << "            [--update-self]\n"
 			       << "            [--self-test]\n"
 			       << "            [--no-state-script]\n"
+			       << "            [--no-startup-scripts]\n"
 			       << "            [--no-splash-screen]\n"
 			       << "            [--no-graphics]\n"
 			       << "            [--no-guano]\n"
@@ -257,9 +259,6 @@ parse_command_line(int argc, char ** argv ) {
 			   std::cout  << VERSION << " " << coot_version_extra_info() << std::endl;
 			   std::cout << "Binary type: " << COOT_SYS_BUILD_TYPE << std::endl;
 			   std::string s = COOT_BUILD_INFO_STRING;
-// 			   if (s.length() == 0)
-// 			      s = "Unknown";
-// 			   std::cout << "Builder_info: " << s << std::endl;
 			   if (s.length())
 			      std::cout << "Builder_info: " << s << std::endl;
 			   exit(0);
@@ -267,37 +266,39 @@ parse_command_line(int argc, char ** argv ) {
 			} else {
 			   if (arg_str == "python") {
 			      cld.script_is_python_flag = 1;
-			   } else { 
-
+			   } else {
 			      if (arg_str == "no-state-script") {
 				 graphics_info_t::run_state_file_status = 0;
-			      } else { 
-
-				 if (arg_str == "no-graphics") {
-				    cld.do_graphics = 0;
-				 } else { 
-				    if (arg_str == "side-by-side") {
-				       cld.hardware_stereo_flag = 2;
-				    } else { 
-				       if (arg_str == "no-guano") {
-					  cld.disable_state_script_writing = 1;
+			      } else {
+				 if (arg_str == "no-startup-scripts") {
+				    graphics_info_t::run_startup_scripts_flag = false;
+				 } else {
+				    if (arg_str == "no-graphics") {
+				       cld.do_graphics = 0;
+				    } else {
+				       if (arg_str == "side-by-side") {
+					  cld.hardware_stereo_flag = 2;
 				       } else {
-					  if (arg_str == "small-screen") {
-					     cld.small_screen_display = 1;
+					  if (arg_str == "no-guano") {
+					     cld.disable_state_script_writing = 1;
 					  } else {
-					     if (arg_str == "no-splash-screen") {
-						cld.use_splash_screen = 0;
+					     if (arg_str == "small-screen") {
+						cld.small_screen_display = 1;
 					     } else {
-					        if (arg_str == "self-test") {
-						   cld.run_internal_tests_and_exit = 1;
+						if (arg_str == "no-splash-screen") {
+						   cld.use_splash_screen = 0;
 						} else {
-						   if (arg_str == "update-self") {
-						      cld.update_self = 1;
-						      cld.do_graphics = 0;
+						   if (arg_str == "self-test") {
+						      cld.run_internal_tests_and_exit = 1;
 						   } else {
-						      std::cout << "WARNING! Malformed option - needs an argument: " 
-								<< long_options[option_index].name
-								<< std::endl << std::endl;
+						      if (arg_str == "update-self") {
+							 cld.update_self = 1;
+							 cld.do_graphics = 0;
+						      } else {
+							 std::cout << "WARNING! Malformed option - needs an argument: " 
+								   << long_options[option_index].name
+								   << std::endl << std::endl;
+						      }
 						   }
 						}
 					     }

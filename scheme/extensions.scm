@@ -1094,12 +1094,18 @@
 	(add-simple-coot-menu-menuitem
 	 submenu-pdbe "Get from PDBe..."
 	 (lambda () 
-	   (generic-single-entry "Get PDBe accession code"
-				 "" " Get it "
-				 (lambda (text)
-				   ;; fire off something that is controlled by a time-out -
-				   ;; doesn't return a useful value.
-				   (pdbe-get-pdb-and-sfs-cif 'include-sfs (string-downcase text))))))
+	   (let ((mess
+		  (if (command-in-path? "refmac5")
+		      "Get PDBe accession code"
+		      (string-append
+		       "\n  WARNING::refmac5 not in the path - SF calculation will fail  \n\n"
+		       "Get PDBe accession code"))))
+	     (generic-single-entry mess
+				   "" " Get it "
+				   (lambda (text)
+				     ;; fire off something that is controlled by a time-out -
+				     ;; doesn't return a useful value.
+				     (pdbe-get-pdb-and-sfs-cif 'include-sfs (string-downcase text)))))))
 
 
 	;; ---------------------------------------------------------------------

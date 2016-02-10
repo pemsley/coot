@@ -10,6 +10,8 @@
 
    o Fix the python version of the JLigand interface.
 
+   o Bond colour slider (edit -> bond colours) is broken. 
+
    o Do a better job when getting recent PDBe structures with refmac5 not in the path:
 
 command "refmac5" not found
@@ -50,11 +52,22 @@ In unknown file:
 
 * Fixed?
 
+   o Make the Display Manager open wider
+
+* Done.
+
    o duplicate or create a fragment from a molecule, now quick-save-as.  The
      new molecules are not saved and are not in the state file - they should be.
      Frank von Delft.
 
 * Done.
+
+  o a good test for jiggle fit is 3GP, beam it in and jiggle-fit.. It
+    wanders off.
+
+   o Fix the python version of the JLigand interface.
+
+   o Fix the python version of Sequencing interface, cootaneer_gui_bl
 
    o carbohydrate: Does it work in Python mode?
 

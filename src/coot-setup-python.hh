@@ -3,6 +3,8 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include <string>
+
 #if defined (USE_PYTHON)
 // #include "Python.h" // for Py_Initialize(); 20100813 included above now.
 #define SWIG_init    init_coot
@@ -33,6 +35,6 @@ SWIGEXPORT(void) SWIG_init(void);
 }
 #endif
 
-
 void setup_python(int argc, char **argv);
-
+// which calls:
+void try_load_dot_coot_py_and_preferences(const std::string &home_directory);
