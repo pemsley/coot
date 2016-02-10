@@ -371,7 +371,7 @@ class graphical_bonds_container {
    void add_atom_centres(const std::vector<std::pair<bool,coot::Cartesian> > &centres,
 			 const std::vector<int> &colours);
    bool have_rings() const { return rings.size(); }
-
+   bool empty() const { return (bonds_ == NULL); }
    void add_cis_peptide_markup(const std::vector<coot::atom_quad> &cis_peptide_quads);
 };
 
