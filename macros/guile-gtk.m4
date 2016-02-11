@@ -65,23 +65,21 @@ if test x$guile_gtk_prefix != x; then
    # now, were were GTK2 or GTK1? 
    # we have the variable coot_gtk2 in configure.in, which is either TRUE or FALSE
    # Let's use that here.  Perhaps there is a better (set by gtk macro?) variable?
-   if test $coot_gtk2 = TRUE ; then
-	GUILE_GTK_LIBS=$guile_gtk_prefix/lib/libguilegtk-2.0.la
-   else 
-	GUILE_GTK_LIBS=$guile_gtk_prefix/lib/libguilegtk-1.2.la
-   fi
+   #
+   # Why do I use the .la file here?
+   # Let's revert to standard lib usage.
+   # GUILE_GTK_LIBS=$guile_gtk_prefix/lib/libguilegtk-2.0.la
+   #
+   # mac os x doesn't have that file when guile-gtk is installed.
+   GUILE_GTK_LIBS="-L$guile_gtk_prefix/lib -lguilegtk-2.0"
    # do we need to set this in fact?
    GUILE_GTK_CFLAGS="-I$guile_gtk_prefix/include"
 
 else 
-	if test -n "$USE_GUILE_GTK" ; then 
-           # not sure if this code gets executed (much).
-           if test $coot_gtk2 = TRUE ; then
-   	      GUILE_GTK_LIBS="-lguilegtk-2.0"
-           else 
-	      GUILE_GTK_LIBS="-lguilegtk-1.2"
-           fi
-	fi
+   if test -n "$USE_GUILE_GTK" ; then 
+      # not sure if this code gets executed (much).
+      GUILE_GTK_LIBS="-lguilegtk-2.0"
+   fi
 fi
 
 AC_MSG_RESULT([$guile_gtk_prefix])

@@ -226,6 +226,9 @@ c_inner_main(void *closure, int argc, char** argv) {
 
   try_load_scheme_extras_dir();
 
+/*    now handle the command line data */
+  handle_command_line_data_argc_argv(argc, argv);
+
 /* And now read the users own initialization code and preferences*/
 /* preferences only GTK2 */
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
@@ -281,20 +284,17 @@ c_inner_main(void *closure, int argc, char** argv) {
      /* now the own code */
      check_file = does_file_exist(directory, filename); 
      
-     if (check_file) { 
+     if (check_file) {
        printf("Loading ~/.coot..."); 
        scm_c_primitive_load(check_file); 
-       printf("done.\n");
+/*        printf("done.\n"); */
      }
      
-     // now handle the command line data
-     handle_command_line_data_argc_argv(argc, argv);
-
      run_command_line_scripts();	/* this may turn off run-state-file */
 
      run_state_file_maybe();
      
-     run_update_self_maybe();
+     /* run_update_self_maybe(); */
 
      /* for now, make the user start the listener explictly. */
      /*   make_socket_listener_maybe(); */

@@ -1310,7 +1310,7 @@ if (have_coot_python):
        bns_handle = make_ball_and_stick(imol, text, 0.18, 0.3, 1)
        print "handle: ", bns_handle
 
-     global default_ball_and_stick_selection    # shoudl maybe be on top of file
+     global default_ball_and_stick_selection    # should maybe be on top of file
      add_simple_coot_menu_menuitem(
        submenu_representation,
        "Ball & Stick...",
@@ -1318,6 +1318,18 @@ if (have_coot_python):
                                               "Atom Selection:",
                                               default_ball_and_stick_selection,
                                               lambda imol, text: make_ball_n_stick_func(imol, text)))
+
+
+     add_simple_coot_menu_menuitem(
+       submenu_representation,
+       "Add Balls to Simple Sticks",
+       lambda func: map(lambda imol: set_draw_stick_mode_atoms(imol, 1), molecule_number_list()))
+
+
+     add_simple_coot_menu_menuitem(
+       submenu_representation,
+       "Simple Sticks (No Balls)",
+       lambda func: map(lambda imol: set_draw_stick_mode_atoms(imol, 0), molecule_number_list()))
 
 
      add_simple_coot_menu_menuitem(

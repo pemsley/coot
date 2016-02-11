@@ -3014,6 +3014,28 @@ def superpose_ligand_gui():
 
    window.show_all()
 
+
+def gui_overlap_ligands(imol_ligand, imol_ref, chain_id_ref, res_no_ref):
+
+    # we don't want to overlap-ligands if there is no dictionary
+    # for the residue to be matched to.
+    #
+    res_name = residue_name(imol_ref, chain_id_ref, res_no_ref, "")
+    restraints = monomer_restraints(res_name)
+    if (not restraints):
+        return False
+    else:
+        if (not residue_has_hetatms_qm(imol_ref, chain_id_ref, res_no_ref, "")):
+            return False
+        else:
+            print "----------- overlap-ligands %s %s %s %s ------------" \
+            %(imol_ligand, imol_ref, chain_id_ref, res_no_ref)
+            # this can return the rtop operator or the False (for fail of course).
+            match_ligand_torsions(imol_ligand, imol_ref, chain_id_ref, res_no_ref)
+            ret = overlap_ligands(imol_ligand, imol_ref, chain_id_ref, res_no_ref)
+            return ret
+
+
 global std_key_bindings
 std_key_bindings = [["^g", "keyboard-go-to-residue"],
                     ["^s", "quick-save-as"],
@@ -5216,6 +5238,26 @@ def toggle_backrub_rotamers(widget=None):
       # easily added. FIXME
       print "BL WARNING:: no widget"
    
+def toggle_hydrogen_display(widget=None):
+      """Toggle function to display all hydrogens or not.
+
+      Keyword arguments:
+      widget -- can be passed from the toolbutton
+
+      """
+
+      if widget:
+         if widget.get_active():
+            # the button is toggled on
+            hide_all_hydrogens()
+         else:
+            show_all_hydrogens()
+
+      else:
+         # non graphical - but wont be able to run if this is not loaded.
+         print "BL INFO:: No display, so I dont care about the hydrogens."
+         print "BL WARNING:: no widget"
+
 
 def toggle_wiimote(widget=None):
    """a toggle function to connect and disconnect from a Wiimote
@@ -5293,4 +5335,7 @@ def search_disk_dialog(program_name, path_ls):
       
    
 # let the c++ part of mapview know that this file was loaded:
+
+# print "From coot_gui.py calling set_found_coot_python_gui()" - called from rcrane loader
+# too (I think)
 set_found_coot_python_gui()

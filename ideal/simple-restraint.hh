@@ -1263,6 +1263,7 @@ namespace coot {
       // both of which use:
       int make_link_restraints_by_pairs(const protein_geometry &geom,
 					const bonded_pair_container_t &bonded_residue_pairs,
+					bool do_trans_peptide_restraints,
 					std::string link_or_flanking_link_string);
 
       void add_rama_links(int SelHnd, const protein_geometry &geom);

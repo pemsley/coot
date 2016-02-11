@@ -3089,6 +3089,13 @@ void remove_planar_peptide_restraints();
 /* return 1 if planar peptide restraints are on, 0 if off */
 int planar_peptide_restraints_state();
 
+
+/*! \brief add a restraint on peptides to keep trans peptides trans 
+
+i.e. omega in trans-peptides is restraints to 180 degrees.
+ */
+void set_use_trans_peptide_restraints(short int on_off_state);
+
 /*! \brief add restraints on the omega angle of the peptides
 
   (that is the torsion round the peptide bond).  Omega angles that are

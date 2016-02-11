@@ -1840,6 +1840,8 @@ coot::infer_H_name(int iat,
    return r;
 }
 
+
+// return a kekulized molecule
 RDKit::RWMol
 coot::remove_Hs_and_clean(const RDKit::ROMol &rdkm, bool set_aromaticity) {
 
@@ -1851,7 +1853,7 @@ coot::remove_Hs_and_clean(const RDKit::ROMol &rdkm, bool set_aromaticity) {
    // clean up things like nitro groups
    RDKit::MolOps::cleanUp(rdk_mol_with_no_Hs);
    rdk_mol_with_no_Hs.updatePropertyCache();
-   RDKit::MolOps::Kekulize(rdk_mol_with_no_Hs);
+
    RDKit::MolOps::assignRadicals(rdk_mol_with_no_Hs);
 	    
    if (set_aromaticity)
@@ -1866,7 +1868,12 @@ coot::remove_Hs_and_clean(const RDKit::ROMol &rdkm, bool set_aromaticity) {
    // remove bogus chirality specs:
    RDKit::MolOps::cleanupChirality(rdk_mol_with_no_Hs);
 
-   RDKit::MolOps::sanitizeMol(rdk_mol_with_no_Hs); //sets ringinfo
+   // When I add this some of the above might be redundant.
+   //
+   unsigned int ops = RDKit::MolOps::SANITIZE_KEKULIZE;
+   RDKit::MolOps::sanitizeMol(rdk_mol_with_no_Hs, ops); //sets ringinfo
+
+   RDKit::MolOps::Kekulize(rdk_mol_with_no_Hs);
 
    return rdk_mol_with_no_Hs;
 } 

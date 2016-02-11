@@ -650,7 +650,8 @@ def shell_command_to_string(cmd):
 # adapted from find_exe
 # this finds absolute file names too
 #
-def command_in_path_qm(cmd, only_extension_here=None,
+def command_in_path_qm(cmd, no_disk_search=True,
+                       only_extension_here=None,
                        add_extensions_here=[]):
 
     exe_path = find_exe(cmd, "PATH", no_disk_search=True,
@@ -1312,7 +1313,7 @@ def get_first_ncs_master_chain():
 # Remember, that now the about-pt is the "to" point, i.e. the maps are brought from 
 # somewhere else and generated about the about-pt.
 #
-def transform_map_using_lsq_matrix(imol_bref, ref_chain, ref_resno_start, ref_resno_end,
+def transform_map_using_lsq_matrix(imol_ref, ref_chain, ref_resno_start, ref_resno_end,
                                    imol_mov, mov_chain, mov_resno_start, mov_resno_end,
                                    imol_map, about_pt, radius):
 
@@ -3929,6 +3930,24 @@ if not use_gui_qm:
                     MyThread().start()
 
 enhanced_ligand_coot_qm = enhanced_ligand_coot_p
+
+# Function to hide hydrogens in all molecules
+#
+def hide_all_hydrogens():
+    """This will hide all hydrogens. They are not deleted."""
+
+    for imol in model_molecule_number_list():
+        set_draw_hydrogens(imol, 0)
+
+# Function to show all available hydrogens. No generation.
+#
+def show_all_hydrogens():
+    """This will show hydrogens on all models, if available. It wont generate any."""
+
+    for imol in model_molecule_number_list():
+        set_draw_hydrogens(imol, 1)
+
+
 ####### Back to Paul's scripting.
 ####### This needs to follow find_exe
 

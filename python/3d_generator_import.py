@@ -72,8 +72,15 @@ def import_from_3d_generator_from_mdl_using_pyrogen(mdl_file_name, comp_id):
     if not command_in_path_qm("pyrogen"):
         info_dialog("pyrogen not found in path")
     else:
-        # happy path
-        status = popen_command("pyrogen", ["-m", mdl_file_name, "--residue-type", comp_id],
+        # happy path, maybe!?
+        #  -m for sdf (default) and -c for mmcif
+        file_type_flag = "-c" if file_name_extension(mdl_file_name)=="cif" else "-m"
+        # depends on if we have mogul as well...
+        if command_in_path_qm("mogul"):
+            args = [file_type_flag, mdl_file_name, "--residue-type", comp_id]
+        else:
+            args = ["--no-mogul", file_type_flag, mdl_file_name, "--residue-type", comp_id]
+        status = popen_command("pyrogen", args,
                  [], "pyrogen.log", True)
         if status:
             info_dialog("Bad exit status for pyrogen\n - see pyrogen.log")
@@ -90,14 +97,14 @@ def import_from_3d_generator_from_mdl_using_pyrogen(mdl_file_name, comp_id):
 
 # to be over-ridden by your favourite 3d conformer and restraints generator, if you like...
 #
-def import_from_3d_generator_from_mdl(file_name, comp_id):
+def import_from_3d_generator_from_mdl(mdl_file_name, comp_id):
 
     # if acedrg is in the path use that (not available on Windows - yet)
     if command_in_path_qm("acedrg"):
         import_from_3d_generator_from_mdl_using_acedrg(mdl_file_name, comp_id)
     else:
         if command_in_path_qm("pyrogen"):
-            import_from_3d_generator_from_mdl_using_acedrg(mdl_file_name, comp_id)
+            import_from_3d_generator_from_mdl_using_pyrogen(mdl_file_name, comp_id)
         else:
             # fallback, to prodrg for now
             import_from_prodrg("mini-no", comp_id)

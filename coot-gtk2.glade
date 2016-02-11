@@ -8891,7 +8891,7 @@ just the cell and symmetry)
 </widget>
 
 <widget class="GtkWindow" id="display_control_window_glade">
-  <property name="width_request">500</property>
+  <property name="width_request">600</property>
   <property name="height_request">316</property>
   <property name="visible">True</property>
   <property name="title" translatable="yes">Display Manager</property>
@@ -15197,30 +15197,7 @@ Do you want to continue?
 		  <property name="spacing">0</property>
 
 		  <child>
-		    <widget class="GtkLabel" id="label281">
-		      <property name="label" translatable="yes">
-  LINK TORSION RESTRAINTS 
-  CURRENTLY DON'T WORK!   
-</property>
-		      <property name="use_underline">False</property>
-		      <property name="use_markup">False</property>
-		      <property name="justify">GTK_JUSTIFY_CENTER</property>
-		      <property name="wrap">False</property>
-		      <property name="selectable">False</property>
-		      <property name="xalign">0.5</property>
-		      <property name="yalign">0.5</property>
-		      <property name="xpad">0</property>
-		      <property name="ypad">0</property>
-		      <property name="ellipsize">PANGO_ELLIPSIZE_NONE</property>
-		      <property name="width_chars">-1</property>
-		      <property name="single_line_mode">False</property>
-		      <property name="angle">0</property>
-		    </widget>
-		    <packing>
-		      <property name="padding">0</property>
-		      <property name="expand">False</property>
-		      <property name="fill">False</property>
-		    </packing>
+		    <placeholder/>
 		  </child>
 
 		  <child>
@@ -15554,7 +15531,8 @@ Do you want to continue?
 			      <property name="sensitive">False</property>
 			      <property name="tooltip" translatable="yes">Use omega restraints too</property>
 			      <property name="can_focus">True</property>
-			      <property name="label" translatable="yes">Use Omega Restraints</property>
+			      <property name="label" translatable="yes">Use Omega Restraints - there is no code that 
+checks the value of this checkbutton</property>
 			      <property name="use_underline">True</property>
 			      <property name="relief">GTK_RELIEF_NORMAL</property>
 			      <property name="focus_on_click">True</property>
@@ -15580,7 +15558,7 @@ Do you want to continue?
 		      <child>
 			<widget class="GtkCheckButton" id="refine_params_use_planar_peptides_checkbutton">
 			  <property name="visible">True</property>
-			  <property name="tooltip" translatable="yes">Use planar peptide restraints too</property>
+			  <property name="tooltip" translatable="yes">Use planar peptide restraints (these are CA-N-C-O-CA plane restraints) and are used to keep peptides flat.</property>
 			  <property name="can_focus">True</property>
 			  <property name="label" translatable="yes">Use Planar Peptide Restraints</property>
 			  <property name="use_underline">True</property>
@@ -15599,8 +15577,30 @@ Do you want to continue?
 		      </child>
 
 		      <child>
+			<widget class="GtkCheckButton" id="refine_params_use_trans_peptide_restraints_checkbutton">
+			  <property name="visible">True</property>
+			  <property name="tooltip" translatable="yes">If checked, then Coot will add a restraint on omega (the torsion around the C-N peptide bond) with a target angle of 180 degrees.  This is not applied to cis peptide bonds.  Keep this checked to prevent inadvertent cis-peptides.</property>
+			  <property name="can_focus">True</property>
+			  <property name="label" translatable="yes">Use Trans Peptide Restraints</property>
+			  <property name="use_underline">True</property>
+			  <property name="relief">GTK_RELIEF_NORMAL</property>
+			  <property name="focus_on_click">True</property>
+			  <property name="active">True</property>
+			  <property name="inconsistent">False</property>
+			  <property name="draw_indicator">True</property>
+			  <signal name="toggled" handler="on_refine_params_use_trans_peptide_restraints_checkbutton_toggled" last_modification_time="Tue, 02 Feb 2016 20:04:58 GMT"/>
+			</widget>
+			<packing>
+			  <property name="padding">0</property>
+			  <property name="expand">False</property>
+			  <property name="fill">False</property>
+			</packing>
+		      </child>
+
+		      <child>
 			<widget class="GtkCheckButton" id="refine_params_use_ramachandran_goodness_torsions_checkbutton">
 			  <property name="visible">True</property>
+			  <property name="tooltip" translatable="yes">Turn on restraints on prefered values of (phi, psi).  Use with caution - not advised for global modifications.</property>
 			  <property name="can_focus">True</property>
 			  <property name="label" translatable="yes">Ramachandran Restraints</property>
 			  <property name="use_underline">True</property>

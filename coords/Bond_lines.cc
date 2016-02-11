@@ -1325,7 +1325,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 	 bonds.push_back(a);
       }
    }
-   float star_size = 0.4;
+   float star_size = 0.28;
 
    // initialize the hydrogen bonding flag:
    //
@@ -1572,6 +1572,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
    add_deuterium_spots(SelAtom);
    add_ramachandran_goodness_spots(SelAtom);
    add_atom_centres(SelAtom, atom_colour_type);
+   add_cis_peptide_markup(SelAtom);
 }
 
 void
@@ -1726,7 +1727,7 @@ Bond_lines_container::handle_long_bonded_atom(mmdb::PAtom atom,
    if (!bond_added_flag) {
       // bond it like a single atom then:
       
-      float star_size = 0.4;
+      float star_size = 0.28;
       coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
       coot::Cartesian small_vec_y(0.0, star_size, 0.0);
       coot::Cartesian small_vec_z(0.0, 0.0, star_size);
@@ -2979,6 +2980,7 @@ Bond_lines_container::make_graphical_bonds(bool thinning_flag) const {
    // box.add_ramachandran_goodness_spots(ramachandran_goodness_spots); not in this function (I guess)
    box.add_atom_centres(atom_centres, atom_centres_colour);
    box.rings = rings;
+   box.add_cis_peptide_markup(cis_peptide_quads);
    return box;
 }
 
@@ -3387,7 +3389,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 
    // stars if needed:
    // 
-   float star_size = 0.4;
+   float star_size = 0.28;
    // for atoms with no neighbour (contacts):
    coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
    coot::Cartesian small_vec_y(0.0, star_size, 0.0);
@@ -3703,7 +3705,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 	    std::cout << " atom_colour_map->index_for_chain(\"" << at->GetChainID()
 		      << "\") returns " << col << std::endl;
       }
-   } else { 
+   } else {
       if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) { 
 	 int sse = at->residue->SSE;
 	 switch (sse)  {
@@ -3736,7 +3738,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 	    std::string element = at->element;
 
 	    if (element == " C") {
-	       return YELLOW_BOND;
+	       return CARBON_BOND;
 	    } else {
 	       if (element == " N") {
 		  return BLUE_BOND;
@@ -3745,7 +3747,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 		     return RED_BOND;
 		  } else {
 		     if (element == " S") {
-			return GREEN_BOND;
+			return YELLOW_BOND;
 		     } else {
 			// if (element == " H") {
 			if (is_hydrogen(element)) {
@@ -3778,7 +3780,7 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 			return RED_BOND;
 		     } else {
 			if (element == " S") {
-			   return GREEN_BOND;
+			   return YELLOW_BOND;
 			} else {
 			   // if (element == " H") {
 			   if (is_hydrogen(element)) {
@@ -3790,10 +3792,10 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 	       }
 	       return GREY_BOND;	       
 
-	    } else { 
+	    } else {
 
 	       if (bond_colour_type == coot::DISULFIDE_COLOUR) {
-		  return GREEN_BOND;
+		  return YELLOW_BOND;
 	       } else {
 		  if (bond_colour_type == coot::COLOUR_BY_OCCUPANCY) {
 		     if (at->occupancy > 0.95) {
@@ -4376,7 +4378,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 		   << std::endl;
       } else { 
     
-	 float star_size = 0.4;
+	 float star_size = 0.28;
 	 // for atoms with no neighbour (contacts):
 	 coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
 	 coot::Cartesian small_vec_y(0.0, star_size, 0.0);
@@ -4457,6 +4459,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
    add_deuterium_spots(asc);
    int atom_colour_type = coot::COLOUR_BY_CHAIN;
    add_atom_centres(asc, atom_colour_type);
+   add_cis_peptide_markup(asc);
 }
 
 void
@@ -4670,7 +4673,7 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
       if (uddHnd>=0) {
 
 
-	 float star_size = 0.4;
+	 float star_size = 0.28;
 	 // for atoms with no neighbour (contacts):
 	 coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
 	 coot::Cartesian small_vec_y(0.0, star_size, 0.0);
@@ -4771,7 +4774,8 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
    add_zero_occ_spots(asc);
    add_deuterium_spots(asc);
    atom_colour_type = coot::COLOUR_BY_CHAIN;
-   add_atom_centres(asc, atom_colour_type);
+   add_atom_centres(asc, coot::COLOUR_BY_ATOM_TYPE);
+   add_cis_peptide_markup(asc);
 }
 
 void
@@ -4943,6 +4947,7 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
    add_deuterium_spots(asc);
    int atom_colour_type = coot::COLOUR_BY_CHAIN;
    add_atom_centres(asc, atom_colour_type);
+   add_cis_peptide_markup(asc);
 }
 
 
@@ -5030,7 +5035,8 @@ Bond_lines_container::add_ramachandran_goodness_spots(const atom_selection_conta
 
 		     try { 
 			coot::util::phi_psi_t pp(prev_res, this_res, next_res);
-			// std::cout << "   " << coot::residue_spec_t(this_res) << " " << pp << std::endl;
+			// std::cout << "   " << coot::residue_spec_t(this_res)
+			//           << " " << pp << std::endl;
 			mmdb::Atom *at = this_res->GetAtom(" CA "); // PDBv3 FIXME
 			if (at) {
 			   coot::Cartesian pos(at->x, at->y, at->z);
@@ -5040,7 +5046,8 @@ Bond_lines_container::add_ramachandran_goodness_spots(const atom_selection_conta
 		     }
 		     catch (const std::runtime_error &rte) {
 			if (false)
-			   std::cout << "WARNING:: in failed to get phi,psi " << rte.what() << " for "
+			   std::cout << "WARNING:: in failed to get phi,psi " << rte.what()
+				     << " for "
 				     << coot::residue_spec_t(prev_res) << " " 
 				     << coot::residue_spec_t(this_res) << " " 
 				     << coot::residue_spec_t(next_res) << std::endl;
@@ -5079,6 +5086,14 @@ Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom
       }
    }
 }
+
+
+void
+Bond_lines_container::add_cis_peptide_markup(const atom_selection_container_t &SelAtom) {
+
+   cis_peptide_quads = coot::util::cis_peptide_quads_from_coords(SelAtom.mol);
+}
+
 
 
 
@@ -5126,17 +5141,22 @@ graphical_bonds_container::add_ramachandran_goodness_spots(const std::vector<std
 	 
 	 if (spots[i].second.residue_name() == "GLY")
 	    rama = &rc.rama_gly;
-
-	 // phi_psi_t needs to contain the next residue type to use rama.pre_pro at some stage
+	 
+	 // phi_psi_t needs to contain the next residue type to use
+	 // rama.pre_pro at some stage
 
 	 float rama_score = 10;
 	 
 	 if (rama->allowed(clipper::Util::d2rad(spots[i].second.phi()),
-			  clipper::Util::d2rad(spots[i].second.psi())))
+			   clipper::Util::d2rad(spots[i].second.psi())))
 	    rama_score = 3;
 	 if (rama->favored(clipper::Util::d2rad(spots[i].second.phi()),
 			   clipper::Util::d2rad(spots[i].second.psi())))
 	    rama_score = 1;
+
+	 // ----- now lets do the size by probability
+	 rama_score = rama->probability(clipper::Util::d2rad(spots[i].second.phi()),
+					clipper::Util::d2rad(spots[i].second.psi()));
 	 
 	 std::pair<coot::Cartesian, float> p(spots[i].first, rama_score);
 	 ramachandran_goodness_spots_ptr[i] = p;
@@ -5171,7 +5191,7 @@ graphical_bonds_container::add_atom_centres(const std::vector<std::pair<bool,coo
    col_idx_max += 1;
 
    unsigned int counts[col_idx_max]; // is this allowed?
-   for (unsigned int i=0; i<col_idx_max; i++) {
+   for (int i=0; i<col_idx_max; i++) {
       counts[i] = 0;
    }
 
@@ -5181,7 +5201,7 @@ graphical_bonds_container::add_atom_centres(const std::vector<std::pair<bool,coo
    consolidated_atom_centres = new graphical_bonds_points_list[col_idx_max];
    n_consolidated_atom_centres = col_idx_max;
    
-   for (unsigned int i=0; i<col_idx_max; i++) {
+   for (int i=0; i<col_idx_max; i++) {
       // std::cout << "sizing consolidated_atoms_centres " << i << " to " << counts[i] << std::endl;
       consolidated_atom_centres[i] = graphical_bonds_points_list(counts[i]);
    }
@@ -5191,8 +5211,34 @@ graphical_bonds_container::add_atom_centres(const std::vector<std::pair<bool,coo
    }
 
    if (false) // debug
-      for (unsigned int i=0; i<col_idx_max; i++)
+      for (int i=0; i<col_idx_max; i++)
 	 std::cout << "    col " << i << " has " << consolidated_atom_centres[i].num_points
 		   << std::endl;
 
+}
+
+void
+graphical_bonds_container::add_cis_peptide_markup(const std::vector<coot::atom_quad> &cis_peptide_quads) {
+
+   if (cis_peptide_quads.size()) { 
+      // all cis_peptide_quads are valid, right?
+      n_cis_peptide_markups = cis_peptide_quads.size();
+      cis_peptide_markups = new graphical_bonds_cis_peptide_markup[n_cis_peptide_markups];
+   
+      for (unsigned int i=0; i<cis_peptide_quads.size(); i++) {
+	 const coot::atom_quad &q = cis_peptide_quads[i];
+	 coot::Cartesian c_1(q.atom_1->x, q.atom_1->y, q.atom_1->z);
+	 coot::Cartesian c_2(q.atom_2->x, q.atom_2->y, q.atom_2->z);
+	 coot::Cartesian c_3(q.atom_3->x, q.atom_3->y, q.atom_3->z);
+	 coot::Cartesian c_4(q.atom_4->x, q.atom_4->y, q.atom_4->z);
+	 bool flag = false;
+	 if (q.atom_4->residue) {
+	    std::string resname = q.atom_4->residue->GetResName();
+	    if (resname == "PRO")
+	       flag = true;
+	 }
+	 graphical_bonds_cis_peptide_markup m(c_1, c_2, c_3, c_4, flag);
+	 cis_peptide_markups[i] = m;
+      }
+   }
 }

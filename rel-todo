@@ -1,53 +1,8 @@
  
  0.8.3
 
-   o duplicate or create a fragment from a molecule, now quick-save-as.  The
-     new molecules are not saved and are not in the state file - they should be.
-     Frank von Delft.
+   o Bond colour slider (edit -> bond colours) is broken. 
 
-   o Fix the python version of the JLigand interface.
-
-   o carbohydrate: Does it work in Python mode?
-
-     A 310 in 3u0p
-
-   o fix match-acedrg-dict-to-grade-dict-fails-to-write-dictionary.py (mac)
-
-   o Look at gtk-demo for how to set the colour patch of button that makes a colour
-     selection. Use it in map preferences. 
-
-   o hilight interesting site (in python mode at least) gives big balls
-
-   o Fix sphere-refine-here-breaks-SS-bond.py (on atg)
-
-   o on accept or reject moving atoms, clear the pull restraint.
-
-* Done.
-
-   o use refinement to make an cis-peptide - then relieve it - the
-     refinement gui should track this - does it?
-
-     graphics-info-modelling's "cis peptides"
-
-   o ligands validation paper: check the isolated dots for A 2748 in 3hmj
-
-   o read in ejd/BLG.pdb, look at the terminal - we only want/need one such warning:
-
-WARNING:: failed to find dictionary entry index for GLB
-
-   o the coot page should say "reference"
-
-   o TRS in thumbnail view - e.g. in 3h6d.
-
-   o unsigned int
-
-../../coot/git/coot/src/c-interface.cc: In function ‘void set_display_only_model_mol(int)’:
-../../coot/git/coot/src/c-interface.cc:5093:29: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
-    for (unsigned int i=0; i<n; i++) {
-                             ^
-../../coot/git/coot/src/c-interface.cc:5095:16: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
-       if (i == imol)
-                
    o Do a better job when getting recent PDBe structures with refmac5 not in the path:
 
 command "refmac5" not found
@@ -84,6 +39,70 @@ In unknown file:
 <unnamed port>: In procedure open-file in expression (open-file str OPEN_READ):
 <unnamed port>: No such file or directory: "refmac-version-tmp.log"
 
+   o the ball colour is not using the CA-only flag in colour by chain mode.
+
+* Fixed?
+
+   o Make the Display Manager open wider
+
+* Done.
+
+   o duplicate or create a fragment from a molecule, now quick-save-as.  The
+     new molecules are not saved and are not in the state file - they should be.
+     Frank von Delft.
+
+* Done.
+
+  o a good test for jiggle fit is 3GP, beam it in and jiggle-fit.. It
+    wanders off.
+
+   o Fix the python version of the JLigand interface.
+
+   o Fix the python version of Sequencing interface, cootaneer_gui_bl
+
+   o carbohydrate: Does it work in Python mode?
+
+     A 310 in 3u0p
+
+   o fix match-acedrg-dict-to-grade-dict-fails-to-write-dictionary.py (mac)
+
+   o Look at gtk-demo for how to set the colour patch of button that makes a colour
+     selection. Use it in map preferences. 
+
+   o hilight interesting site (in python mode at least) gives big balls
+
+* Done.
+
+   o Fix sphere-refine-here-breaks-SS-bond.py (on atg)
+
+   o on accept or reject moving atoms, clear the pull restraint.
+
+* Done.
+ 
+   o use refinement to make an cis-peptide - then relieve it - the
+     refinement gui should track this - does it?
+
+     graphics-info-modelling's "cis peptides"
+
+   o ligands validation paper: check the isolated dots for A 2748 in 3hmj
+
+   o read in ejd/BLG.pdb, look at the terminal - we only want/need one such warning:
+
+WARNING:: failed to find dictionary entry index for GLB
+
+   o the coot page should say "reference"
+
+   o TRS in thumbnail view - e.g. in 3h6d.
+
+   o unsigned int
+
+../../coot/git/coot/src/c-interface.cc: In function ‘void set_display_only_model_mol(int)’:
+../../coot/git/coot/src/c-interface.cc:5093:29: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+    for (unsigned int i=0; i<n; i++) {
+                             ^
+../../coot/git/coot/src/c-interface.cc:5095:16: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
+       if (i == imol)
+                
    o 3pt6 looks hideous when using PBDe -> Get From PDBe, but not from
      EDS.  Why?
 
