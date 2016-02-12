@@ -6269,14 +6269,6 @@ coot::util::cis_peptide_quads_from_coords(mmdb::Manager *mol,
 			clipper::Coord_orth  nn(  n_next->x,   n_next->y,   n_next->z);
 			double tors = clipper::Coord_orth::torsion(caf, cf, nn, can);
 			double torsion = clipper::Util::rad2d(tors);
-<<<<<<< HEAD
-			if (torsion > 180.0) torsion -= 360.0;
-			double d = sqrt((cf - nn).lengthsq());
-			if (d<3.0) { // the residues were close in space, not just close in sequence
-			   if (torsion < 90.0 && torsion > -90.0) {
-			      atom_quad q(ca_first, c_first, n_next, ca_next);
-			      v.push_back(q);
-=======
 
 			// put torsion in the range -180 -> + 180
 			// 
@@ -6298,8 +6290,7 @@ coot::util::cis_peptide_quads_from_coords(mmdb::Manager *mol,
 				 atom_quad q(ca_first, c_first, n_next, ca_next);
 				 v.push_back(q);
 			      }
->>>>>>> f677863aa80249c4977ac5b6f2008d36c7aa1e42
-			   }
+            }
 			}
 		     }
 		  }
