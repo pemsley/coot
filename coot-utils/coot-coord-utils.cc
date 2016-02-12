@@ -6195,7 +6195,8 @@ coot::util::cis_peptides_info_from_coords(mmdb::Manager *mol) {
 
 // mark up things that have omega > 210 or omega < 150. i.e, 180 +/- 30.
 //
-// strictly_cis_flag is false by default.
+// strictly_cis_flag is false by default.  If strictly_cis_flag we catch twisted trans too (where twisted
+// means that (delta omega) is more than 30 degrees from 180 trans).
 // 
 std::vector<coot::atom_quad>
 coot::util::cis_peptide_quads_from_coords(mmdb::Manager *mol,
@@ -6268,12 +6269,36 @@ coot::util::cis_peptide_quads_from_coords(mmdb::Manager *mol,
 			clipper::Coord_orth  nn(  n_next->x,   n_next->y,   n_next->z);
 			double tors = clipper::Coord_orth::torsion(caf, cf, nn, can);
 			double torsion = clipper::Util::rad2d(tors);
+<<<<<<< HEAD
 			if (torsion > 180.0) torsion -= 360.0;
 			double d = sqrt((cf - nn).lengthsq());
 			if (d<3.0) { // the residues were close in space, not just close in sequence
 			   if (torsion < 90.0 && torsion > -90.0) {
 			      atom_quad q(ca_first, c_first, n_next, ca_next);
 			      v.push_back(q);
+=======
+
+			// put torsion in the range -180 -> + 180
+			// 
+			if (torsion > 180.0) torsion -= 360.0;
+			double d = sqrt((cf - nn).lengthsq());
+			if (d<3.0) { // the residues were close in space, not just close in sequence
+
+			   if (strictly_cis_flag) {
+			      double tors_crit = 90.0;
+			      // baddies: -90 to +90
+			      if ( (torsion > -tors_crit) && (torsion < tors_crit)) {
+				 atom_quad q(ca_first, c_first, n_next, ca_next);
+				 v.push_back(q);
+			      }
+			   } else {
+			      double tors_twist_delta_max = 30.0; // degrees
+			      // baddies: -150 to +150
+			      if ((torsion > (-180+tors_twist_delta_max)) && (torsion < (180-tors_twist_delta_max))) {
+				 atom_quad q(ca_first, c_first, n_next, ca_next);
+				 v.push_back(q);
+			      }
+>>>>>>> f677863aa80249c4977ac5b6f2008d36c7aa1e42
 			   }
 			}
 		     }
