@@ -133,7 +133,7 @@
 void show_citation_request();
 void load_gtk_resources();
 void setup_splash_screen();
-void desensitive_scripting_menu_item_maybe();
+void desensitive_scripting_menu_item_maybe(GtkWidget *window1);
 int setup_screen_size_settings();
 void setup_application_icon(GtkWindow *window);
 void setup_symm_lib();
@@ -421,7 +421,7 @@ main (int argc, char *argv[]) {
    // to start the graphics, we need to init glut and gtk with the
    // command line args.
 
-   desensitive_scripting_menu_item_maybe();
+   desensitive_scripting_menu_item_maybe(window1);
 
 #if ! defined (USE_GUILE)
 #ifdef USE_PYTHON
@@ -442,7 +442,7 @@ main (int argc, char *argv[]) {
    return 0;
 }
 
-void desensitive_scripting_menu_item_maybe() {
+void desensitive_scripting_menu_item_maybe(GtkWidget *window1) {
 
 
    // Finally desensitize the missing scripting menu
@@ -907,3 +907,32 @@ void create_rot_trans_menutoolbutton_menu(GtkWidget *window1) {
 #endif  // GTK_MINOR_VERSION
 } 
 
+void start_command_line_python_maybe(char **argv) {
+
+#ifdef USE_PYTHON
+
+#if PY_MAJOR_VERSION > 2
+   Py_Main(0, argv);
+#else
+#if PY_MINOR_VERSION > 2
+   Py_Main(0, argv);
+#endif     // PY_MINOR_VERSION
+#endif     // PY_MAJOR_VERSION
+
+     //  Skip initialization registration of signal handlers, useful
+     //  when Python is embedded. Version 2.4 or later. Thanks Stuart
+     //  McNicholas for letting me know about this.
+     //
+     // Question: Do we need to check that we are not using command
+     // line python no graphics before we use this?
+     //
+#if PY_MAJOR_VERSION > 2
+   Py_InitializeEx(0);
+#endif
+#if PY_MAJOR_VERSION == 2
+#if PY_MINOR_VERSION > 3
+   Py_InitializeEx(0);
+#endif
+#endif
+#endif
+}
