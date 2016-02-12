@@ -5332,6 +5332,66 @@ def search_disk_dialog(program_name, path_ls):
 
    return ret
 
+def duplicate_range_by_atom_pick():
+
+   """Pick two atoms and duplicate range in between."""
+
+   def pick_range_func(*atom_specs):
+
+      residue_specs = map(atom_spec2residue_spec, atom_specs)
+      imol_1 = atom_specs[0][1]
+      imol_2 = atom_specs[1][1]
+      chain_id1 = atom_specs[0][2]
+      chain_id2 = atom_specs[1][2]
+      res_no_1 = atom_specs[0][3]
+      res_no_2 = atom_specs[1][3]
+
+      # some sanity check
+      if (not imol_1 == imol_2):
+         msg = (
+            "BL WARNING:: not the same imols. \n"
+            "imol %i and %i were selected"
+            %(imol_1, imol_2))
+         info_dialog_and_text(msg)
+         return
+      else:
+         # imol ok
+         if (not chain_id1 == chain_id2):
+            msg = (
+               "BL WARNING:: not the same chains. \n"
+               "Chains %s and %s were selected"
+               %(chain_id1, chain_id2))
+            info_dialog_and_text(msg)
+            return
+         else:
+            # chain ok
+            
+            # only allow duplication of 30 res for now (hardcode)
+            # as to avoid strangeness if an atom is not selected
+            # properly. And swap start, stop res if required
+            res_diff = res_no_1 - res_no_2
+            if (abs(res_diff) > 30):
+               msg = (
+                  "BL WARNING:: too many residues. \n"
+                  "%i residues deExceeds the limit of 30 residues"
+                  %(abs(res_diff)))
+               info_dialog_and_text(msg)
+               return
+            elif (abs(res_diff) < 0):
+               msg = (
+                  "BL WARNING::  No residue selected.")
+               info_dialog_and_text(msg)
+               return
+            if (res_no_1 > res_no_2):
+               # need to swap
+               res_no_1, res_no_2 = res_no_2, res_no_1
+               
+            # main line
+            # NB: no occupancy setting here
+            duplicate_residue_range(imol_1, chain_id1, res_no_1, res_no_2)
+
+   add_status_bar_text("Pick two atoms")
+   user_defined_click(2, pick_range_func)
       
    
 # let the c++ part of mapview know that this file was loaded:

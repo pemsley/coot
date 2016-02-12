@@ -109,9 +109,10 @@ scripting exercise
 
 **** General ****
 
-   o function: make atom ANISO B
+   o user defined click shoudl stay cross haired as long as there is 
+	clicks pending (count the clicks?!)
 
-   o button/menu to hide hydrogens?!
+   o function: make atom ANISO B
 
    o add atom info to HETATM info in status bar!?
 
@@ -1020,5 +1021,9 @@ Osaka 2010
 * Done
 
    o Refmac use local NCS
+
+* Done
+
+   o button/menu to hide hydrogens?!
 
 * Done

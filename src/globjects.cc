@@ -205,7 +205,7 @@ GtkWidget *graphics_info_t::refine_params_dialog = 0;
 // flag to display the accep/reject dialog in the toolbar
 int graphics_info_t::accept_reject_dialog_docked_flag = coot::DIALOG;
 
-// flag to show/hide/sensitise the docked accep/reject dialog in the toolbar
+// flag to show/hide/sensitise the docked accept/reject dialog in the toolbar
 int graphics_info_t::accept_reject_dialog_docked_show_flag = coot::DIALOG_DOCKED_SHOW;
 
 // the refinement toolbar show/hide

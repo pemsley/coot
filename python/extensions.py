@@ -531,6 +531,12 @@ if (have_coot_python):
        "Associate Sequence to Chain...",
        lambda func: associate_sequence_with_chain_gui()) # no alignment on OK press
 
+
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Duplicate range (pick atoms)",
+       lambda func: duplicate_range_by_atom_pick())
+     
      # ---- F ---------
 
      # doublication to entry in main gtk code!
