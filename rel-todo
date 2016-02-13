@@ -1,18 +1,25 @@
  
  0.8.3
 
-   o "pepflip" (not exactly) for when add-terminal residue puts the CO
-     the wrong way round.... also the CB and the N.
+   o test: Helix atoms have correct B factor Oliver Clarke.
+
+   o test: can you do Ca Zone -> Mainchain on a reversed fragment of 7 
+     residues? Xavier Gomis-Rüth. 
+
+   o pdb -> mmcif : No TER records (mmdb fix)
 
    o Does "Phosphorylate this residue" work in Python mode?
-
-   o ligands validation paper: check the isolated dots for A 2748 in 3hmj
 
    o Fix the python version of the JLigand interface.
 
    o Bond colour slider (edit -> bond colours) is broken. 
 
-   o Do a better job when getting recent PDBe structures with refmac5 not in the path:
+* Fixed.
+
+   o ligands validation paper: check the isolated dots for A 2748 in 3hmj
+
+   o Do a better job when getting recent PDBe structures with refmac5
+     not in the path (do it at work):
 
 command "refmac5" not found
 Backtrace:
