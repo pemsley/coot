@@ -3405,6 +3405,7 @@ int place_helix_here() {
 
        if (n.success) {
 	  atom_selection_container_t asc = make_asc(n.mol[0].pcmmdbmanager());
+
 	  imol = g.create_molecule();
 	  graphics_info_t::molecules[imol].install_model(imol, asc, g.Geom_p(), "Helix", 1);
 	  

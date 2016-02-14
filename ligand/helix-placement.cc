@@ -96,7 +96,8 @@ coot::helix_placement::place_alpha_helix_near(const clipper::Coord_orth &pt,
 // 	     << rtop_eigen.rot().det() << std::endl;
 
    coot::minimol::molecule mr; // part of returned value
-   coot::helix_placement_info_t m = get_20_residue_helix_standard_orientation(n_residues);
+   coot::helix_placement_info_t m = get_20_residue_helix_standard_orientation(n_residues,
+									      b_factor);
    short int success = m.success;
    std::string failure_message = m.failure_message;
 
@@ -320,7 +321,7 @@ coot::helix_placement::place_alpha_helix_near_kc_version(const clipper::Coord_or
 
    std::vector<coot::minimol::molecule> mr(2); // part of returned value
    coot::helix_placement_info_t m =
-      get_20_residue_helix_standard_orientation(n_residues);
+      get_20_residue_helix_standard_orientation(n_residues, b_factor);
    short int success = m.success;
    std::string failure_message = m.failure_message;
    std::vector<std::pair<float, float> > cbeta_score_holder(2);
@@ -864,7 +865,8 @@ coot::helix_placement::helix_eigen_system(const clipper::Coord_orth mean_pos,
 
 
 coot::helix_placement_info_t
-coot::helix_placement::get_20_residue_helix_standard_orientation(int nresidues) const {
+coot::helix_placement::get_20_residue_helix_standard_orientation(int nresidues,
+								 float b_factor) const {
 
    coot::helix_placement_info_t m = get_20_residue_helix(nresidues);
    if (m.mol[0].fragments.size() > 0) {
@@ -912,12 +914,8 @@ coot::helix_placement::get_20_residue_helix_standard_orientation(int nresidues) 
       std::vector<coot::minimol::atom *> av = m.mol[0].select_atoms_serial();
       for (unsigned int iat=0; iat<av.size(); iat++) {
 	 av[iat]->pos = av[iat]->pos.transform(rtop);
+	 av[iat]->temperature_factor = b_factor;
       }
-
-//       for (unsigned int iat=0; iat<av.size(); iat++) {
-//  	 av[iat]->pos = av[iat]->pos.transform(x_axis_op);
-//       }
-
    }
    return m;
 }
@@ -951,9 +949,9 @@ coot::helix_placement::get_20_residue_helix(int n_residues) const {
 	       try { 
 		  f.addresidue(m[0][ires], 0);
 	       }
-	       catch (std::runtime_error rte) {
+	       catch (const std::runtime_error &rte) {
 		  std::cout << "ERROR:: get_20_residue_helix() " << rte.what() << std::endl;
-	       } 
+	       }
 	    }
 	    m[0] = f;
 	    success = 1;
@@ -1149,10 +1147,9 @@ coot::helix_placement::build_on_N_end(coot::minimol::fragment *f,
 		      << " success" << std::endl;
 	    build_on_N_end(f, min_density_limit, b_factor);
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    std::cout << "ERROR:: build_on_N_end() " << rte.what() << std::endl;
 	 } 
-	 
       } else {
 	 std::cout << "INFO build of N terminal residue " << ires_current_last-1
 		   << " failed (bad density fit)" << std::endl;
@@ -1214,7 +1211,7 @@ coot::helix_placement::build_on_C_end(coot::minimol::fragment *f,
 		      << " success" << std::endl;
 	    build_on_C_end(f, min_density_limit, b_factor);
 	 }
-	 catch (std::runtime_error rte) {
+	 catch (const std::runtime_error &rte) {
 	    std::cout << "ERROR:: build_on_C_end() " << rte.what() << std::endl;
 	 } 
       } else {
