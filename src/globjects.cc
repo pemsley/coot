@@ -4505,7 +4505,7 @@ void
 set_bond_colour(int i) {
 
    if (false)
-      std::cout << "set_bond_colour() idx: " << i << " vs "
+      std::cout << "globjects.cc set_bond_colour() idx: " << i << " vs "
 		<< " green "   << GREEN_BOND << " "
 		<< " blue "    << BLUE_BOND << " "
 		<< " red "     << RED_BOND << " "
@@ -4521,7 +4521,7 @@ set_bond_colour(int i) {
 	 glColor3f (0.2, 0.7, 0.1);
 	 break;
       case GREEN_BOND:
-	 glColor3f (0.1, 0.8, 0.1);
+	 glColor3f (0.0, 0.7, 0.0);
 	 break;
       case BLUE_BOND: 
 	 glColor3f (0.2, 0.2, 0.8);
@@ -4540,6 +4540,15 @@ set_bond_colour(int i) {
 	 break;
       case MAGENTA_BOND: 
 	 glColor3f (0.8, 0.1, 0.8);
+	 break;
+      case DARK_GREEN_BOND:
+	 glColor3f (0.05, 0.69, 0.05);
+	 break;
+      case DARK_ORANGE_BOND:
+	 glColor3f (0.7, 0.7, 0.05);
+	 break;
+      case DARK_BROWN_BOND:
+	 glColor3f (0.5, 0.5, 0.1);
 	 break;
       default:
 	 glColor3f (0.7, 0.8, 0.8);
@@ -4571,6 +4580,15 @@ set_bond_colour(int i) {
 	 break;
       case MAGENTA_BOND: 
 	 glColor3f (0.7, 0.1, 0.7);
+	 break;
+      case DARK_GREEN_BOND:
+	 glColor3f (0.05, 0.69, 0.05);
+	 break;
+      case DARK_ORANGE_BOND:
+	 glColor3f (0.7, 0.7, 0.05);
+	 break;
+      case DARK_BROWN_BOND:
+	 glColor3f (0.5, 0.5, 0.1);
 	 break;
       default:
 	 glColor3f (0.3, 0.4, 0.4);

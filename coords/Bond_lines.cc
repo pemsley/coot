@@ -1319,8 +1319,9 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 
    // initialize each colour in the Bond_lines_container
    //
-   if (bonds.size() == 0) { 
-      for (int i=0; i<10; i++) { 
+   if (bonds.size() == 0) {
+      // There are now 13 colours in bond_colours (CPK extras)
+      for (int i=0; i<13; i++) { 
 	 Bond_lines a(i);
 	 bonds.push_back(a);
       }
@@ -1771,8 +1772,8 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    // initialize each colour in the Bond_lines_container
    //
    if (bonds.size() == 0) {
-      bonds.resize(10);
-      for (int i=0; i<10; i++)
+      bonds.resize(13); // There are now 13 colours in bond_colours
+      for (int i=0; i<13; i++)
 	 bonds[i] = Bond_lines(i);
    }
    
@@ -1937,7 +1938,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 
    b_factor_scale = 1.0;
    if (bonds.size() == 0) { 
-      for (int i=0; i<10; i++) { 
+      for (int i=0; i<13; i++) {  // 13 colours now in bond_colours
 	 Bond_lines a(i);
 	 bonds.push_back(a);
       }
@@ -3767,6 +3768,30 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 			// if (element == " H") {
 			if (is_hydrogen(element)) {
 			   return HYDROGEN_GREY_BOND;
+			} else {
+			   if (element == " P") {
+			      return ORANGE_BOND;
+			   } else {
+			      if (element == " F") {
+				 return GREEN_BOND;
+			      } else {
+				 if (element == "CL") {
+				    return GREEN_BOND;
+				 } else {
+				    if (element == "BR") {
+				       return DARK_BROWN_BOND;
+				    } else {
+				       if (element == "MG") {
+					  return DARK_GREEN_BOND;
+				       } else {
+					  if (element == "FE") {
+					     return DARK_ORANGE_BOND;
+					  }
+				       }
+				    }
+				 }
+			      }
+			   }
 			}
 		     }
 		  }
