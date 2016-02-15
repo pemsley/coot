@@ -133,7 +133,7 @@
 void show_citation_request();
 void load_gtk_resources();
 void setup_splash_screen();
-void desensitive_scripting_menu_item_maybe(GtkWidget *window1);
+void desensitive_scripting_menu_item_maybe(GtkWidget *window);
 int setup_screen_size_settings();
 void setup_application_icon(GtkWindow *window);
 void setup_symm_lib();
@@ -443,7 +443,6 @@ main (int argc, char *argv[]) {
 }
 
 void desensitive_scripting_menu_item_maybe(GtkWidget *window1) {
-
 
    // Finally desensitize the missing scripting menu
    if (graphics_info_t::use_graphics_interface_flag) {
