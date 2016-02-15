@@ -76,7 +76,11 @@ In unknown file:
 
 * Done.
 
-   o Fix sphere-refine-here-breaks-SS-bond.py (on atg)
+   o Fix sphere-refine-here-breaks-SS-bond.py (on atg) 
+
+     Tricky. messed up structure - 669 C=O forms a peptide bonde with
+     N of 671 (because 671 is too close to 669). 669 also forms a bond
+     with 670. How do we stop this? 
 
    o on accept or reject moving atoms, clear the pull restraint.
 
@@ -440,3 +444,6 @@ Program terminated with signal 11, Segmentation fault.
    INFO:: setting refinement weight to 38.7039726093  from  19.6482391357 / ( 0.712498649955 * 0.712498649955 )
 
 * kludged.  Maybe worth a look another time
+
+   o Improved the dashed lines for links.
+
