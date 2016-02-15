@@ -3171,36 +3171,51 @@ Bond_lines_container::addBond(int col,
 }
 
 
-//
+// if half_bond_type_flag is HALF_BOND_FIRST_ATOM this is called with atom-pos, mid-pod
+// if half_bond_type_flag is HALF_BOND_SECOND_ATOM this is called with mid-pod, atom_pos
 void
 Bond_lines_container::add_dashed_bond(int col,
-				      const coot::Cartesian &start,
-				      const coot::Cartesian &end,
+				      const coot::Cartesian &start_in,
+				      const coot::Cartesian &end_in,
 				      int half_bond_type_flag) {
 
-   int n_dash = 16;
-   if ((half_bond_type_flag == HALF_BOND_FIRST_ATOM) || (half_bond_type_flag == HALF_BOND_SECOND_ATOM))
-      n_dash = 8;
-   int off = 0;
-   if (half_bond_type_flag == HALF_BOND_SECOND_ATOM)
-      off = 1;
+   float dash_start = 0;
+   float dash_end   = 19;
 
-   for (int idash=0; idash<n_dash; idash+=2) {
-      float frac_1 = float(idash    + off)/float(n_dash);
-      float frac_2 = float(idash+ 1 + off)/float(n_dash);
-      coot::Cartesian this_start(start + (end-start).by_scalar(frac_1));
-      coot::Cartesian this_end(  start + (end-start).by_scalar(frac_2));
-      coot::CartesianPair pair(this_start,this_end);
-      if (col < int(bonds.size())) { 
+   coot::Cartesian start = start_in;
+   coot::Cartesian end   = end_in;
+
+   if (half_bond_type_flag == HALF_BOND_FIRST_ATOM)
+      dash_end = 9.5;
+
+   if (half_bond_type_flag == HALF_BOND_SECOND_ATOM) { 
+      dash_start = 0;
+      dash_end = 9.5;
+      end = start_in;
+      start = end_in;
+   }
+
+   float n_dash = dash_end - dash_start;
+   coot::Cartesian delta = end - start;
+   coot::Cartesian f = delta.by_scalar(1.0/n_dash);
+
+   //                        1 1 1 1 1 1 1 1 1
+   //   0 1 2 3 4 5 6 7 8 9  0 1 2 3 4 5 6 7 8
+   //  X--__--__--__--__--_:_--__--__--__--__--X 19
+   //
+
+   // dash is, for example, in the range 0 to 9.5
+   //
+   for (float dash=dash_start; dash<=dash_end; dash+=2) {
+
+      if (true) {
+	 float frac_1 = dash/n_dash;              // frac_1 in the range 0 to 1
+	 float frac_2 = (dash+1)/n_dash;
+	 coot::Cartesian f_s(start + delta * frac_1);
+	 coot::Cartesian f_e(start + delta * frac_2);
+	 coot::CartesianPair pair(f_s, f_e);
 	 bonds[col].add_bond(pair, true, true);
-      } else {
-	 if (bonds.empty()) {
-	    std::cout << "empty bonds" << std::endl; // should never happen
-	 } else { 
-	    col = 0;
-	    bonds[col].add_bond(pair, true, true);
-	 }
-      } 
+      }
    }
 }
 

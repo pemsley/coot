@@ -18,8 +18,8 @@
 
    o ligands validation paper: check the isolated dots for A 2748 in 3hmj
 
-   o Do a better job when getting recent PDBe structures with refmac5
-     not in the path (do it at work):
+   o Do a better job when getting recent PDBe structures with refmac5 not in the path 
+     (do it at work): 
 
 command "refmac5" not found
 Backtrace:
@@ -55,6 +55,10 @@ In unknown file:
 <unnamed port>: In procedure open-file in expression (open-file str OPEN_READ):
 <unnamed port>: No such file or directory: "refmac-version-tmp.log"
 
+   o Bond colour slider (edit -> bond colours) is broken. 
+
+* Fixed now.
+
    o the ball colour is not using the CA-only flag in colour by chain mode.
 
 * Fixed?
@@ -70,7 +74,8 @@ In unknown file:
 * Done.
 
   o a good test for jiggle fit is 3GP, beam it in and jiggle-fit.. It
-    wanders off.
+    wanders off.  Needs better map masking (mask the density of the
+    atoms of residues-near-residue).
 
    o Fix the python version of the JLigand interface.
 
@@ -89,7 +94,11 @@ In unknown file:
 
 * Done.
 
-   o Fix sphere-refine-here-breaks-SS-bond.py (on atg)
+   o Fix sphere-refine-here-breaks-SS-bond.py (on atg) 
+
+     Tricky. messed up structure - 669 C=O forms a peptide bonde with
+     N of 671 (because 671 is too close to 669). 669 also forms a bond
+     with 670. How do we stop this? 
 
    o on accept or reject moving atoms, clear the pull restraint.
 
@@ -112,7 +121,7 @@ WARNING:: failed to find dictionary entry index for GLB
 
    o chiral restraints in 0BR (and others, presumably)
 
-   o unsigned int
+   o unsigned ints:
 
 ../../coot/git/coot/src/c-interface.cc: In function ‘void set_display_only_model_mol(int)’:
 ../../coot/git/coot/src/c-interface.cc:5093:29: warning: comparison between signed and unsigned integer expressions [-Wsign-compare]
@@ -166,7 +175,9 @@ WARNING:: failed to find dictionary entry index for GLB
 
    o are the oxygens on a nitro O and O-? (eg ligand in 4CCC).
 
-   o Sarah ligand: comp-id 23H: PDB accession code is 4MDS.
+   o Sarah ligand: comp-id 23H: PDB accession code is 4MDS. Thank you Sarah. 
+     It had tertiary amine with an amino group - it should be sp2
+     hybridized, but was not (N+) - and rdkit failed.
 
    o write a store.py wrapper that transfers files to pc:~/store
 
@@ -195,10 +206,6 @@ WARNING:: failed to find dictionary entry index for GLB
 #9  0x00000000007b5359 in rama_plot_mol_selector_activate (menuitem=<value optimized out>, user_data=<value optimized out>) at gtk-manual.cc:405
 #10 0x000000369b40e3de in g_closure_invoke () from /lib64/libgobject-2.0.so.0
 #11 0x000000369b4248d5 in ?? () from /lib64/libgobject-2.0.so.0
-
-   o Sarah's ligand: had tertiary amine with an amino group - it
-     should be sp2 hybridized, but was not (N+) - and rdkit failed.
-     23H - thank you Sarah. 
 
    o import an elbow dictionary cif as an "MTZ, cif. phs" file. Crash.
 
@@ -477,3 +484,6 @@ Program terminated with signal 11, Segmentation fault.
    INFO:: setting refinement weight to 38.7039726093  from  19.6482391357 / ( 0.712498649955 * 0.712498649955 )
 
 * kludged.  Maybe worth a look another time
+
+   o Improved the dashed lines for links.
+

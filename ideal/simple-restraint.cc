@@ -5081,6 +5081,7 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 		  bool whole_first_residue_is_fixed = 0;
 		  bool whole_second_residue_is_fixed = 0;
 		  bool order_switch_flag = l.second;
+
 		  if (!order_switch_flag) {
 		     coot::bonded_pair_t p(res_f, res_s,
 					   whole_first_residue_is_fixed,
@@ -5404,6 +5405,7 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const c
 // 		      << coot::residue_spec_t(residues_vec[ir].second) << std::endl;
 	    if (d.first) {
 	       if (d.second < dist_crit) {
+
 		  std::pair<std::string, bool> l =
 		     find_link_type_complicado(neighbours[ineighb], residues_vec[ir].second, geom);
 		  std::string link_type = l.first;

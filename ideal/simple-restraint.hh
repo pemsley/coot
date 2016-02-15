@@ -1532,10 +1532,10 @@ namespace coot {
       bool is_hydrogen(mmdb::Atom *at_p) const {
 	 std::string ele = at_p->element;
 	 if ((ele == "H") || (ele == " H"))
-	    return 1;
+	    return true;
 	 else
-	    return 0;
-      }
+	    return ((ele == "D") || (ele == " D"));
+	 }
 
       // return "" on no type found
       std::string get_type_energy(mmdb::Atom *at, const protein_geometry &geom) const {
@@ -1907,6 +1907,10 @@ namespace coot {
       std::pair<std::string, bool> find_link_type_complicado(mmdb::Residue *first,
 							     mmdb::Residue *second,
 							     const protein_geometry &geom) const;
+
+      // which calls
+      bool have_intermediate_residue_by_seqnum(mmdb::Residue *first,
+					       mmdb::Residue *second) const;
 
       // Allow public access to this - we need it to find the links
       // between residues when all we have to go on is the refmac
