@@ -101,6 +101,8 @@ WARNING:: failed to find dictionary entry index for GLB
 
    o TRS in thumbnail view - e.g. in 3h6d.
 
+* Done.
+
    o unsigned int
 
 ../../coot/git/coot/src/c-interface.cc: In function ‘void set_display_only_model_mol(int)’:
@@ -126,7 +128,9 @@ WARNING:: failed to find dictionary entry index for GLB
 
    o are the oxygens on a nitro O and O-? (eg ligand in 4CCC).
 
-   o Sarah ligand: comp-id 23H: PDB accession code is 4MDS.
+   o Sarah ligand: comp-id 23H: PDB accession code is 4MDS. Thank you Sarah. 
+     It had tertiary amine with an amino group - it should be sp2
+     hybridized, but was not (N+) - and rdkit failed.
 
    o write a store.py wrapper that transfers files to pc:~/store
 
@@ -155,10 +159,6 @@ WARNING:: failed to find dictionary entry index for GLB
 #9  0x00000000007b5359 in rama_plot_mol_selector_activate (menuitem=<value optimized out>, user_data=<value optimized out>) at gtk-manual.cc:405
 #10 0x000000369b40e3de in g_closure_invoke () from /lib64/libgobject-2.0.so.0
 #11 0x000000369b4248d5 in ?? () from /lib64/libgobject-2.0.so.0
-
-   o Sarah's ligand: had tertiary amine with an amino group - it
-     should be sp2 hybridized, but was not (N+) - and rdkit failed.
-     23H - thank you Sarah. 
 
    o import an elbow dictionary cif as an "MTZ, cif. phs" file. Crash.
 
