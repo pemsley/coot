@@ -1,8 +1,6 @@
  
  0.8.3
 
-   o Bond colour slider (edit -> bond colours) is broken. 
-
    o Do a better job when getting recent PDBe structures with refmac5 not in the path:
 
 command "refmac5" not found
@@ -39,6 +37,10 @@ In unknown file:
 <unnamed port>: In procedure open-file in expression (open-file str OPEN_READ):
 <unnamed port>: No such file or directory: "refmac-version-tmp.log"
 
+   o Bond colour slider (edit -> bond colours) is broken. 
+
+* Fixed now.
+
    o the ball colour is not using the CA-only flag in colour by chain mode.
 
 * Fixed?
@@ -54,7 +56,8 @@ In unknown file:
 * Done.
 
   o a good test for jiggle fit is 3GP, beam it in and jiggle-fit.. It
-    wanders off.
+    wanders off.  Needs better map masking (mask the density of the
+    atoms of residues-near-residue).
 
    o Fix the python version of the JLigand interface.
 
