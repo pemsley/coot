@@ -229,7 +229,7 @@ namespace coot {
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES = 255,
 
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_GEMAN_MCCLURE_DISTANCES = 63+1024,
-				// typical restriants add trans peptide restraints and geman-mcclure
+				// typical restraints add trans peptide restraints and geman-mcclure
 				TYPICAL_RESTRAINTS               = 1+2+  8+16+32+128+512+1024+2048,
 				TYPICAL_RESTRAINTS_WITH_TORSIONS = 1+2+4+8+16+32+128+512+1024+2048,
 				ALL_RESTRAINTS = 1+2+4+8+16+32+64+128+256+512+1024+2048
