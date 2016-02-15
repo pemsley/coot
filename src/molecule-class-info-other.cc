@@ -2412,8 +2412,17 @@ molecule_class_info_t::get_atom(const coot::atom_spec_t &atom_spec) const {
       } 
    } 
    return at;
+}
 
-} 
+mmdb::Atom *
+molecule_class_info_t::get_atom(int idx) const {
+
+   mmdb::Atom *r = NULL;
+   if (idx < atom_sel.n_selected_atoms)
+      r = atom_sel.atom_selection[idx];
+   return r;
+}
+
 
 // This should check that if "a" is typed, then set "a" as the
 // chain_id if it exists, else convert to "A" (if that exists).

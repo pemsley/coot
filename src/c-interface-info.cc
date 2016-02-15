@@ -1733,6 +1733,68 @@ PyObject *closest_atom_py(int imol) {
 } 
 #endif // USE_PYTHON
 
+#ifdef USE_GUILE
+SCM closest_atom_raw_scm() {
+
+   SCM r = SCM_BOOL_F;
+   graphics_info_t g;
+   // index, imol
+   std::pair<int, int> ca_ii = g.get_closest_atom();
+
+   int imol = ca_ii.second;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Atom *at = g.molecules[imol].get_atom(ca_ii.first);
+      if (at) {
+	 r = SCM_EOL;
+	 r = scm_cons(scm_double2num(at->z), r);
+	 r = scm_cons(scm_double2num(at->y), r);
+	 r = scm_cons(scm_double2num(at->x), r);
+	 r = scm_cons(scm_makfrom0str(at->altLoc), r);
+	 r = scm_cons(scm_makfrom0str(at->name), r);
+	 r = scm_cons(scm_makfrom0str(at->GetInsCode()), r);
+	 r = scm_cons(scm_int2num(at->GetSeqNum()), r);
+	 r = scm_cons(scm_makfrom0str(at->GetChainID()), r);
+	 r = scm_cons(scm_int2num(imol), r);
+      }
+   }
+   return r;
+}
+#endif 
+
+#ifdef USE_PYTHON
+PyObject *closest_atom_raw_py() {
+
+   PyObject *r;
+   r = Py_False;
+   graphics_info_t g;
+   // index, imol
+   std::pair<int, int> ca_ii = g.get_closest_atom();
+
+   int imol = ca_ii.second;
+   if (is_valid_model_molecule(imol)) {
+
+      mmdb::Atom *at = g.molecules[imol].get_atom(ca_ii.first);
+      if (at) {
+         r = PyList_New(9);
+	 PyList_SetItem(r, 0, PyInt_FromLong(imol));
+	 PyList_SetItem(r, 1, PyString_FromString(at->GetChainID()));
+	 PyList_SetItem(r, 2, PyInt_FromLong(at->GetSeqNum()));
+	 PyList_SetItem(r, 3, PyString_FromString(at->GetInsCode()));
+	 PyList_SetItem(r, 4, PyString_FromString(at->name));
+	 PyList_SetItem(r, 5, PyString_FromString(at->altLoc));
+	 PyList_SetItem(r, 6, PyFloat_FromDouble(at->x));
+	 PyList_SetItem(r, 7, PyFloat_FromDouble(at->y));
+	 PyList_SetItem(r, 8, PyFloat_FromDouble(at->z));
+      }
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+}
+#endif
+
+
 /*! \brief update the Go To Atom widget entries to atom closest to
   screen centre. */
 void update_go_to_atom_from_current_position() {

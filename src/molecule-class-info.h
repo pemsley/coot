@@ -1026,6 +1026,8 @@ public:        //                      public
 
    mmdb::Atom *get_atom(const coot::atom_spec_t &atom_spec) const;
 
+   mmdb::Atom *get_atom(int idx) const;
+
    void set_draw_hydrogens_state(int i) {
       if (draw_hydrogens_flag != i) { 
 	 draw_hydrogens_flag = i;

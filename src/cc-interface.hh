@@ -552,6 +552,18 @@ SCM active_residue();
 //! 
 SCM closest_atom(int imol);
 
+//! \brief return the specs of the closest atom to the centre of the screen
+//!
+//! Return a list of (list imol chain-id resno ins-code atom-name
+//! alt-conf (list x y z)) for atom that is closest to the screen
+//! for displayed molecules. If there is no atom, return scheme false.
+//! Don't choose the CA of the residue if there is a CA in the residue
+//! of the closest atom.
+//! 201602015-PE: I add this now, but I have a feeling that I've done this
+//! before.
+SCM closest_atom_raw_scm();
+
+
 //! \brief return residues near residue
 //! 
 //! Return residue specs for residues that have atoms that are
@@ -636,6 +648,16 @@ PyObject *active_residue_py();
 //! atom, or if imol is not a valid model molecule, return #f.
 // 
 PyObject *closest_atom_py(int imol);
+
+//! \brief return the specs of the closest atom to the centre of the screen
+//!
+//! Return a list of (list imol chain-id resno ins-code atom-name
+//! alt-conf (list x y z)) for atom that is closest to the screen
+//! for displayed molecules. If there is no atom, return scheme false.
+//! Don't choose the CA of the residue if there is a CA in the residue
+//! of the closest atom
+PyObject *closest_atom_raw_py();
+
 
 //! \brief
 // Return residue specs for residues that have atoms that are
