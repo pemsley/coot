@@ -10,7 +10,8 @@
 #include "c-interface-preferences.h"
 #include "cc-interface.hh"
 #include "cc-interface-scripting.hh"
-#include "c-inner-main.h" // for does_file_exist()
+// #include "c-inner-main.h" // for does_file_exist() 2015025-PE: not needed for modern
+                             // guile interface
 
 #include "graphics-info.h"
 #include "command-line.hh"

@@ -118,7 +118,8 @@ void inner_main(void *closure, int argc, char **argv) {
 /* now handle the command line data */
    handle_command_line_data_argc_argv(argc, argv);
 
-  run_command_line_scripts(); // i.e. -c '(do-something)'
+   run_command_line_scripts(); // i.e. -c '(do-something)'
+   run_state_file_maybe();
   
   if (use_graphics_interface_state()) { 
      gtk_main(); 
