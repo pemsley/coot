@@ -3781,11 +3781,15 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 				    if (element == "BR") {
 				       return DARK_BROWN_BOND;
 				    } else {
-				       if (element == "MG") {
-					  return DARK_GREEN_BOND;
+				       if (element == " I") {
+					  return MAGENTA_BOND;
 				       } else {
-					  if (element == "FE") {
-					     return DARK_ORANGE_BOND;
+					  if (element == "MG") {
+					     return DARK_GREEN_BOND;
+					  } else {
+					     if (element == "FE") {
+						return DARK_ORANGE_BOND;
+					     }
 					  }
 				       }
 				    }
