@@ -1855,6 +1855,10 @@ namespace coot {
 							     mmdb::Residue *second,
 							     const protein_geometry &geom) const;
 
+      // which calls
+      bool have_intermediate_residue_by_seqnum(mmdb::Residue *first,
+					       mmdb::Residue *second) const;
+
       // Allow public access to this - we need it to find the links
       // between residues when all we have to go on is the refmac
       // dictionary - no LINKRs and no user input.

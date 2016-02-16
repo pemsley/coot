@@ -633,10 +633,10 @@ Bond_lines_container::add_double_bond(int iat_1, int iat_2,
 	    col = atom_colour(atoms[iat_2], atom_colour_type);
 	    addBond(col, pt_2_1, mp_1, true, false);
 	    add_dashed_bond(col, pt_2_2, mp_2, HALF_BOND_SECOND_ATOM);
-	 } 
+	 }
       }
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "caught exception add_double_bond(): " << rte.what() << std::endl;
    } 
 }
@@ -690,9 +690,9 @@ Bond_lines_container::add_triple_bond(int iat_1, int iat_2, mmdb::PPAtom atoms, 
 	 addBond(col, pt_2_2, mp_2);
 	 addBond(col, pt_2_3, mp_3);
       }
-   } 
+   }
 	 
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "caught exception add_double_bond(): " << rte.what() << std::endl;
    } 
 } 
@@ -3171,36 +3171,63 @@ Bond_lines_container::addBond(int col,
 }
 
 
+// if half_bond_type_flag is HALF_BOND_FIRST_ATOM this is called with atom-pos, mid-pod
+// if half_bond_type_flag is HALF_BOND_SECOND_ATOM this is called with mid-pod, atom_pos
+//
+// When we have ca+ligands representation, this function can get
+// called with col=20 when bonds.size() is 10.  Hmm..
 //
 void
 Bond_lines_container::add_dashed_bond(int col,
-				      const coot::Cartesian &start,
-				      const coot::Cartesian &end,
+				      const coot::Cartesian &start_in,
+				      const coot::Cartesian &end_in,
 				      int half_bond_type_flag) {
 
-   int n_dash = 16;
-   if ((half_bond_type_flag == HALF_BOND_FIRST_ATOM) || (half_bond_type_flag == HALF_BOND_SECOND_ATOM))
-      n_dash = 8;
-   int off = 0;
-   if (half_bond_type_flag == HALF_BOND_SECOND_ATOM)
-      off = 1;
+   if (false) // debugging.
+      std::cout << ".... in add_dashed_bond() col is " << col
+		<< " and bonds.size() " << bonds.size()
+		<< " and half_bond_type_flag is " << half_bond_type_flag
+		<< std::endl;
 
-   for (int idash=0; idash<n_dash; idash+=2) {
-      float frac_1 = float(idash    + off)/float(n_dash);
-      float frac_2 = float(idash+ 1 + off)/float(n_dash);
-      coot::Cartesian this_start(start + (end-start).by_scalar(frac_1));
-      coot::Cartesian this_end(  start + (end-start).by_scalar(frac_2));
-      coot::CartesianPair pair(this_start,this_end);
-      if (col < int(bonds.size())) { 
-	 bonds[col].add_bond(pair, true, true);
-      } else {
-	 if (bonds.empty()) {
-	    std::cout << "empty bonds" << std::endl; // should never happen
-	 } else { 
-	    col = 0;
+   float dash_start = 0;
+   float dash_end   = 19;
+
+   coot::Cartesian start = start_in;
+   coot::Cartesian end   = end_in;
+
+   if (half_bond_type_flag == HALF_BOND_FIRST_ATOM)
+      dash_end = 9.5;
+
+   if (half_bond_type_flag == HALF_BOND_SECOND_ATOM) { 
+      dash_start = 0;
+      dash_end = 9.5;
+      end = start_in;
+      start = end_in;
+   }
+
+   float n_dash = dash_end - dash_start;
+   coot::Cartesian delta = end - start;
+   coot::Cartesian f = delta.by_scalar(1.0/n_dash);
+
+   //                        1 1 1 1 1 1 1 1 1
+   //   0 1 2 3 4 5 6 7 8 9  0 1 2 3 4 5 6 7 8
+   //  X--__--__--__--__--_:_--__--__--__--__--X 19
+   //
+
+   // dash is, for example, in the range 0 to 9.5
+   //
+   for (float dash=dash_start; dash<=dash_end; dash+=2) {
+
+      if (true) {
+	 float frac_1 = dash/n_dash;              // frac_1 in the range 0 to 1
+	 float frac_2 = (dash+1)/n_dash;
+	 coot::Cartesian f_s(start + delta * frac_1);
+	 coot::Cartesian f_e(start + delta * frac_2);
+	 coot::CartesianPair pair(f_s, f_e);
+	 if (col < int(bonds.size())) {
 	    bonds[col].add_bond(pair, true, true);
 	 }
-      } 
+      }
    }
 }
 
@@ -3211,7 +3238,7 @@ Bond_lines::add_bond(const coot::CartesianPair &p,
 		     bool end_end_cap) {
    graphics_line_t gl(p, begin_end_cap, end_end_cap);
    points.push_back(gl);
-} 
+}
 
 //
 Bond_lines::Bond_lines() {
@@ -3916,7 +3943,7 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
    
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
    mmdb::Model *model_p = SelAtom.mol->GetModel(1);
-   if (pg) { 
+   if (pg) {
       geom = pg;
       have_dictionary = true;
    }

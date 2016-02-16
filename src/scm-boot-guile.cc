@@ -15,11 +15,10 @@
 
 #include "utils/coot-utils.hh"
 #include "scm-boot-guile.hh"
+#include "boot-python.hh"
 #include "c-interface.h"
 
 #include "startup-scripts.hh"
-
-// void coot_init_glue(); // Hmmm... needs fixing?
 
 #include "coot-init-glue.hh"
 
@@ -118,7 +117,8 @@ void inner_main(void *closure, int argc, char **argv) {
 /* now handle the command line data */
    handle_command_line_data_argc_argv(argc, argv);
 
-  run_command_line_scripts(); // i.e. -c '(do-something)'
+   run_command_line_scripts(); // i.e. -c '(do-something)'
+   run_state_file_maybe();
   
   if (use_graphics_interface_state()) { 
      gtk_main(); 
@@ -148,36 +148,6 @@ void my_wrap_scm_boot_guile(int argc, char** argv) {
 
   printf("you should not see this, c_inner_main should have called exit(0)\n"); 
 
-}
-
-void start_command_line_python_maybe(char **argv) {
-
-#ifdef USE_PYTHON
-   
-#if PY_MAJOR_VERSION > 2 
-   Py_Main(0, argv);
-#else
-#if PY_MINOR_VERSION > 2 
-   Py_Main(0, argv);
-#endif     // PY_MINOR_VERSION
-#endif     // PY_MAJOR_VERSION
-
-     //  Skip initialization registration of signal handlers, useful
-     //  when Python is embedded. Version 2.4 or later. Thanks Stuart
-     //  McNicholas for letting me know about this.
-     //
-     // Question: Do we need to check that we are not using command
-     // line python no graphics before we use this?
-     // 
-#if PY_MAJOR_VERSION > 2
-   Py_InitializeEx(0);
-#endif     
-#if PY_MAJOR_VERSION == 2
-#if PY_MINOR_VERSION > 3
-   Py_InitializeEx(0);
-#endif     
-#endif     
-#endif     
 }
 
 void try_load_dot_coot_and_preferences() {

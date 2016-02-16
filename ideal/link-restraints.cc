@@ -866,10 +866,15 @@ coot::restraints_container_t::link_infos_are_glycosidic_p(const std::vector<std:
       } 
    } 
    return is_sweet;
-} 
+}
 
 // Return the link type and a residue order switch flag.
 // Return link_type as "" if not found.
+//
+// to help our correct judgement of making the right links, we need
+// the the neighbouring residues too (flanking residues) so that
+// have_intermediate_residue_by_seqnum() can use them (to check for
+// spurious bonding from highly distorted structure).
 // 
 std::pair<std::string, bool>
 coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
@@ -915,7 +920,7 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 
 	 // Now, if link is a TRANS (default-peptide-link), then
 	 // make sure that the C and N (or N and C) atoms of the
-	 // first and second residue are within dist_crit (2.0A) of
+	 // first and second residue are within dist_crit (2.0A (is this right?)) of
 	 // each other.  If not, then we should fail to find a link
 	 // between these 2 residues.
 	 // 
@@ -937,10 +942,18 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 	       if (close_info.first) {
 		  order_switch_flag = close_info.second;
 
-		  link_type = "TRANS"; // 200100415 for now, we force all peptide links to be
-				       // TRANS.  (We don't yet (as of today) know if this link was
-				       // CIS or TRANS). TRANS has 5-atom (plane3) plane
-				       // restraints, CIS does not.
+		  mmdb::Residue *r_1 = first;
+		  mmdb::Residue *r_2 = second;
+
+		  if (order_switch_flag)
+		     std::swap(r_1, r_2);
+
+		  if (! have_intermediate_residue_by_seqnum(r_1, r_2))
+
+		     link_type = "TRANS"; // 200100415 for now, we force all peptide links to be
+			   	          // TRANS.  (We don't yet (as of today) know if this link was
+				          // CIS or TRANS). TRANS has 5-atom (plane3) plane
+				          // restraints, CIS does not.
 	       } else {
 
 		  std::vector<std::pair<coot::chem_link, bool> > link_infos_non_peptide =
@@ -1068,6 +1081,55 @@ coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 		<< link_type << ": and order-switch flag " << order_switch_flag << std::endl;
    return std::pair<std::string, bool> (link_type, order_switch_flag);
 }
+
+
+// this test might not be in the right place.
+//
+// the residues passed to this function are (should be, if you're going to
+// reuse it) sorted.
+//
+// Ideally we should check neighbours of neighbours too (flanking residues)
+// 
+bool
+coot::restraints_container_t::have_intermediate_residue_by_seqnum(mmdb::Residue *first,
+								  mmdb::Residue *second) const {
+
+   bool r = false;
+   mmdb::Chain *c_1 =  first->GetChain();
+   mmdb::Chain *c_2 = second->GetChain();
+   if (c_1 == c_2) {
+      if (c_1) {
+	 int res_no_1 =  first->GetSeqNum();
+	 int res_no_2 = second->GetSeqNum();
+	 int res_no_diff = res_no_2 - res_no_1;
+	 std::cout << "...... res_no_diff " << res_no_diff << " from "
+		   << residue_spec_t(first) << " and " << residue_spec_t(second) << std::endl;
+	 if (res_no_diff != 1) {
+
+	    // try to find a residue that has resno more than res_no_1 and
+	    // less than res_no_2
+	    //
+	    for (unsigned int ii=0; ii<residues_vec.size(); ii++) {
+	       int resno_this = residues_vec[ii].second->GetSeqNum();
+	       std::cout << "    res_no_this: " << resno_this << " "
+			 << residue_spec_t(residues_vec[ii].second) << std::endl;
+	       if (resno_this > res_no_1) {
+		  if (resno_this < res_no_2) {
+		     mmdb::Chain *c_this = residues_vec[ii].second->GetChain();
+		     if (c_this == c_1) {
+			r = true;
+			break;
+		     }
+		  }
+	       }
+	    }
+	 }
+	 std::cout << "now return r is " << r << std::endl;
+      }
+   }
+   return r;
+} 
+
 
 // a pair, first is if C and N (or whatever the bonding atoms were,
 // given the chem_link) are close and second is if an order switch is
