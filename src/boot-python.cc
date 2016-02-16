@@ -30,7 +30,7 @@ void start_command_line_python_maybe(char **argv) {
 #if PY_MAJOR_VERSION == 2
 #if PY_MINOR_VERSION > 3
    Py_InitializeEx(0);
-#endif     
-#endif     
-#endif     
+#endif
+#endif
+#endif
 }
