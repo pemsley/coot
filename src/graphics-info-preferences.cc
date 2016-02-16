@@ -37,7 +37,6 @@
 #include "c-interface-preferences.h"
 #include "cc-interface.hh"
 #include "c-interface-scm.hh"
-#include "c-inner-main.h"
 #include "coot-preferences.h"
 #include "utils/coot-utils.hh"
 
