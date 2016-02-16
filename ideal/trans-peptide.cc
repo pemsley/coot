@@ -203,7 +203,7 @@ coot::distortion_score_trans_peptide(const coot::simple_restraint &restraint,
 		   << " periodicity " << restraint.periodicity
 		   << " target "      << restraint.target_value
 		   << " diff: " << diff << endl ;
-      std::cout << "in distortion_torsion: sigma = " << restraint.sigma
+      std::cout << "in distortion_trans_peptide: sigma = " << restraint.sigma
 		<< ", weight=" << pow(restraint.sigma,-2.0)
 		<< " and diff is " << diff << std::endl;
       std::cout << "distortion score trans-peptide "

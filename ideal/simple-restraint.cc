@@ -1766,7 +1766,7 @@ coot::distortion_score_torsion(const coot::simple_restraint &torsion_restraint,
 // 	     << diff*diff/(torsion_restraint.sigma * torsion_restraint.sigma) << " ";
 
 
-   if (true) { // debug 
+   if (false) { // debug 
       double pen = diff*diff/(torsion_restraint.sigma * torsion_restraint.sigma);
 	 std::cout << "distortion_torsion theta (calc): " << theta 
 		   << " periodicity " << torsion_restraint.periodicity
