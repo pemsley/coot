@@ -59,7 +59,7 @@ namespace coot {
 			COLOUR_BY_OCCUPANCY=6,
 			COLOUR_BY_B_FACTOR=7 };
 
-  class my_atom_colour_map_t { 
+  class my_atom_colour_map_t {
 
     public:
     std::vector<std::string> atom_colour_map;

@@ -633,10 +633,10 @@ Bond_lines_container::add_double_bond(int iat_1, int iat_2,
 	    col = atom_colour(atoms[iat_2], atom_colour_type);
 	    addBond(col, pt_2_1, mp_1, true, false);
 	    add_dashed_bond(col, pt_2_2, mp_2, HALF_BOND_SECOND_ATOM);
-	 } 
+	 }
       }
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "caught exception add_double_bond(): " << rte.what() << std::endl;
    } 
 }
@@ -690,9 +690,9 @@ Bond_lines_container::add_triple_bond(int iat_1, int iat_2, mmdb::PPAtom atoms, 
 	 addBond(col, pt_2_2, mp_2);
 	 addBond(col, pt_2_3, mp_3);
       }
-   } 
+   }
 	 
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "caught exception add_double_bond(): " << rte.what() << std::endl;
    } 
 } 
@@ -3174,11 +3174,21 @@ Bond_lines_container::addBond(int col,
 
 // if half_bond_type_flag is HALF_BOND_FIRST_ATOM this is called with atom-pos, mid-pod
 // if half_bond_type_flag is HALF_BOND_SECOND_ATOM this is called with mid-pod, atom_pos
+//
+// When we have ca+ligands representation, this function can get
+// called with col=20 when bonds.size() is 10.  Hmm..
+//
 void
 Bond_lines_container::add_dashed_bond(int col,
 				      const coot::Cartesian &start_in,
 				      const coot::Cartesian &end_in,
 				      int half_bond_type_flag) {
+
+   if (false) // debugging.
+      std::cout << ".... in add_dashed_bond() col is " << col
+		<< " and bonds.size() " << bonds.size()
+		<< " and half_bond_type_flag is " << half_bond_type_flag
+		<< std::endl;
 
    float dash_start = 0;
    float dash_end   = 19;
@@ -3215,7 +3225,9 @@ Bond_lines_container::add_dashed_bond(int col,
 	 coot::Cartesian f_s(start + delta * frac_1);
 	 coot::Cartesian f_e(start + delta * frac_2);
 	 coot::CartesianPair pair(f_s, f_e);
-	 bonds[col].add_bond(pair, true, true);
+	 if (col < int(bonds.size())) {
+	    bonds[col].add_bond(pair, true, true);
+	 }
       }
    }
 }
@@ -3227,7 +3239,7 @@ Bond_lines::add_bond(const coot::CartesianPair &p,
 		     bool end_end_cap) {
    graphics_line_t gl(p, begin_end_cap, end_end_cap);
    points.push_back(gl);
-} 
+}
 
 //
 Bond_lines::Bond_lines() {
@@ -3960,7 +3972,7 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
    
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
    mmdb::Model *model_p = SelAtom.mol->GetModel(1);
-   if (pg) { 
+   if (pg) {
       geom = pg;
       have_dictionary = true;
    }
