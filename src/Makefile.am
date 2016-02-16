@@ -224,6 +224,8 @@ fix_nomenclature_errors_SOURCES = \
 
 coot_bin_SOURCES = \
 	main.cc 		 \
+	boot-python.hh           \
+	boot-python.cc           \
 	atom-overlaps.cc         \
 	git-revision-count.cc 	 \
 	scm-boot-guile.hh 	 \
