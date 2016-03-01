@@ -12,6 +12,11 @@
 #include <glib.h>
 #include  <gtk/gtk.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#if !defined _MSC_VER
+#include <unistd.h>
+#endif
 
 #include "utils/coot-utils.hh"
 #include "scm-boot-guile.hh"
