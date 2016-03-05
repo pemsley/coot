@@ -1,6 +1,11 @@
  
  0.8.3
 
+   o in refinement branch (and on Mac, at least) hhh on 89A will crash.
+
+   o Can you make recent file work with coot - saving/reading the
+     local recent files file?
+
    o Do a better job when getting recent PDBe structures with refmac5 not in the path:
 
 command "refmac5" not found
