@@ -5264,7 +5264,6 @@ graphical_bonds_container::add_cis_peptide_markup(const std::vector<coot::util::
 	    pre_pro_flag = true;
 	 if (cis_peptide_quads[i].type == coot::util::cis_peptide_quad_info_t::TWISTED_TRANS)
 	    twisted_trans_flag = true;
-	 std::cout << "peptide " << i << " twisted_trans_flag: " << twisted_trans_flag << std::endl;
 	 graphical_bonds_cis_peptide_markup m(c_1, c_2, c_3, c_4, pre_pro_flag, twisted_trans_flag);
 	 cis_peptide_markups[i] = m;
       }
