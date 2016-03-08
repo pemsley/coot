@@ -6198,11 +6198,12 @@ coot::util::cis_peptides_info_from_coords(mmdb::Manager *mol) {
 // strictly_cis_flag is false by default.  If strictly_cis_flag we catch twisted trans too (where twisted
 // means that (delta omega) is more than 30 degrees from 180 trans).
 // 
-std::vector<coot::atom_quad>
+std::vector<coot::util::cis_peptide_quad_info_t>
 coot::util::cis_peptide_quads_from_coords(mmdb::Manager *mol,
 					  bool strictly_cis_flag) {
 
-   std::vector<atom_quad> v;
+   //    std::vector<atom_quad> v;
+   std::vector<cis_peptide_quad_info_t> v;
    
    int n_models = mol->GetNumberOfModels();
    if (n_models == 0)
@@ -6221,7 +6222,7 @@ coot::util::cis_peptide_quads_from_coords(mmdb::Manager *mol,
 	       mmdb::Residue *residue_p_2 = 0;
 	       mmdb::Atom *at_1 = 0;
 	       mmdb::Atom *at_2 = 0;
-	       for (int ires=0; ires<(nres-1); ires++) { 
+	       for (int ires=0; ires<(nres-1); ires++) {
    
 		  mmdb::Atom *ca_first = NULL, *c_first = NULL, *n_next = NULL, *ca_next = NULL;
 		  residue_p_1 = chain_p->GetResidue(ires);
@@ -6229,9 +6230,15 @@ coot::util::cis_peptide_quads_from_coords(mmdb::Manager *mol,
 		  residue_p_2 = chain_p->GetResidue(ires+1);
 		  int n_atoms_2 = residue_p_2->GetNumberOfAtoms();
 
+		  bool is_pre_pro = false;
+
 		  // if (residue_p_2->GetSeqNum() == (residue_p_1->GetSeqNum() + 1)) { 
-		  if (residue_p_1 && residue_p_2) { 
-	 
+		  if (residue_p_1 && residue_p_2) {
+
+		     std::string rn=residue_p_2->GetResName();
+		     if (rn == "PRO")
+			is_pre_pro = true;
+
 		     for (int iat=0; iat<n_atoms_1; iat++) {
 			at_1 = residue_p_1->GetAtom(iat);
 			if (std::string(at_1->GetAtomName()) == " CA ")
@@ -6276,20 +6283,31 @@ coot::util::cis_peptide_quads_from_coords(mmdb::Manager *mol,
 			double d = sqrt((cf - nn).lengthsq());
 			if (d<3.0) { // the residues were close in space, not just close in sequence
 
-			   if (strictly_cis_flag) {
-			      double tors_crit = 90.0;
-			      // baddies: -90 to +90
-			      if ( (torsion > -tors_crit) && (torsion < tors_crit)) {
-				 atom_quad q(ca_first, c_first, n_next, ca_next);
-				 v.push_back(q);
-			      }
+			   cis_peptide_quad_info_t::type_t type = cis_peptide_quad_info_t::UNSET_TYPE;
+
+			   double tors_crit = 90.0;
+			   // cis baddies: -90 to +90
+			   if ( (torsion > -tors_crit) && (torsion < tors_crit)) {
+			      if (is_pre_pro)
+				 type = cis_peptide_quad_info_t::PRE_PRO_CIS;
+			      else 
+				 type = cis_peptide_quad_info_t::CIS;
 			   } else {
-			      double tors_twist_delta_max = 30.0; // degrees
-			      // baddies: -150 to +150
-			      if ((torsion > (-180+tors_twist_delta_max)) && (torsion < (180-tors_twist_delta_max))) {
-				 atom_quad q(ca_first, c_first, n_next, ca_next);
-				 v.push_back(q);
+
+			      if (! strictly_cis_flag) { 
+
+				 double tors_twist_delta_max = 30.0; // degrees
+				 // baddies: -150 to +150
+				 if ((torsion > (-180+tors_twist_delta_max)) && (torsion < (180-tors_twist_delta_max)))
+				    type = cis_peptide_quad_info_t::TWISTED_TRANS;
+
 			      }
+			   }
+
+			   if (type != cis_peptide_quad_info_t::UNSET_TYPE) {
+			      atom_quad q(ca_first, c_first, n_next, ca_next);
+			      cis_peptide_quad_info_t qi(q, type);
+			      v.push_back(qi);
 			   }
 			}
 		     }
