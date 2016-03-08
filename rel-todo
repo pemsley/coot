@@ -3,10 +3,46 @@
 
    o in refinement branch (and on Mac, at least) hhh on 89A will crash.
 
+   o sphere refine needs to have alpha helical restraints if they have
+     been set in the gui
+
+   o Get rid of thinking not crashing
+
+   o when reading map or an mtz file check if the sigma is zero.  If
+     so, delete the map molecule and give a dialog.
+
+   o "Auto-EM" map radius mode - make the map radius bigger (look at
+     the map sampling to work out what the multiplier should be)
+
+   o to master: 98A is underneath the arg in 4xem when you flev.
+
+   o Oliver Clarke mmcif bugs (pdb->mmcif read by Phenix)
+
+   o test: Helix atoms have correct B factor Oliver Clarke.
+
    o Can you make recent file work with coot - saving/reading the
      local recent files file?
 
-   o Do a better job when getting recent PDBe structures with refmac5 not in the path:
+   o pdb -> mmcif : No TER records (mmdb fix): Eugene.
+
+* Done in bzr.
+
+   o Does "Phosphorylate this residue" work in Python mode?
+
+   o Fix the python version of the JLigand interface.
+
+   o Bond colour slider (edit -> bond colours) is broken. 
+
+* Fixed.
+
+   o ligands validation paper: check the isolated dots for A 2748 in 3hmj
+
+* This is a probe issue.  We have C2 on the CER close to the SG on 
+  CYS 1305.  Probably missing LINK.  But probe is clever and doesn't mark 
+  it up.  Hmm... I wonder why.  Submit it to their server?
+
+   o Do a better job when getting recent PDBe structures wieth refmac5 not 
+     in the path (do it at work): 
 
 command "refmac5" not found
 Backtrace:
