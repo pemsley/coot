@@ -70,8 +70,14 @@ mmdb::LinkContainer empty_links_container();
 // Bond things
 //
 // enum bond_colours { green, red, blue, yellow, white, grey }; 
+// GREEN Cl and F
+// DARK_BROWN is for Br
+// ORANGE is P
+// DARK_GREEN is Mg
+// DARK_ORANGE is Fe
 enum bond_colours { CARBON_BOND, YELLOW_BOND, RED_BOND, BLUE_BOND, GREEN_BOND, MAGENTA_BOND, 
-		    GREY_BOND, ORANGE_BOND, CYAN_BOND, HYDROGEN_GREY_BOND }; 
+		    GREY_BOND, ORANGE_BOND, CYAN_BOND, HYDROGEN_GREY_BOND, 
+		    DARK_BROWN_BOND, DARK_GREEN_BOND, DARK_ORANGE_BOND }; 
 
 float max_bond_length(const std::string &element);
 

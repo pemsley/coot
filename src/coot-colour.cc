@@ -30,12 +30,12 @@ namespace coot {
 	 hsv[2] = maxc;
       } else { 
 
-	 float range = maxc - minc; 
+	 float range = maxc - minc;
 	 hsv[1] = range/maxc;
 	 float rc = (maxc - col[0]) / range;
 	 float gc = (maxc - col[1]) / range;
 	 float bc = (maxc - col[2]) / range;
-	 if (col[0] == maxc){ 
+	 if (col[0] == maxc) {
 	    hsv[0] = bc-gc;
 	 } else {
 	    if (col[1]==maxc) {
@@ -50,10 +50,10 @@ namespace coot {
    }
 
    void colour_t::convert_from_hsv(const std::vector<float> &hsv) {
-      
+
       if (hsv[1] == 0.0) {
-	 col[0] = hsv[2]; 
-	 col[1] = hsv[2]; 
+	 col[0] = hsv[2];
+	 col[1] = hsv[2];
 	 col[2] = hsv[2];
       } else {
 	 float fi = floorf(hsv[0]*6.0);

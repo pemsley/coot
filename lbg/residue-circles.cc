@@ -75,7 +75,7 @@ lbg_info_t::optimise_residue_circles::optimise_residue_circles(const std::vector
    s = gsl_multimin_fdfminimizer_alloc (T, n_var);
    gsl_multimin_fdfminimizer_set (s, &my_func, x, 1, 1e-4);
    size_t iter = 0;
-   int n_steps = 400; // increase?
+   size_t n_steps = 500; // increase? (was 400) trying 500
    if (show_dynamics)
       n_steps = 60;
 

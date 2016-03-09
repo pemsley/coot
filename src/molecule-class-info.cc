@@ -731,6 +731,15 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int i, bool against_a_dark_back
 	 case CYAN_BOND:
 	    rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
 	    break;
+	 case DARK_GREEN_BOND:
+	    rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
+	    break;
+	 case DARK_ORANGE_BOND:
+	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
+	    break;
+	 case DARK_BROWN_BOND:
+	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
+	    break;
       
 	 default:
 	    rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;
@@ -768,6 +777,15 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int i, bool against_a_dark_back
 	    break;
 	 case CYAN_BOND:
 	    rgb[0] = 0.1; rgb[1] =  0.5; rgb[2] = 0.5;
+	    break;
+	 case DARK_GREEN_BOND:
+	    rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
+	    break;
+	 case DARK_ORANGE_BOND:
+	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
+	    break;
+	 case DARK_BROWN_BOND:
+	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
 	    break;
       
 	 default:
@@ -842,7 +860,7 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i, bool against_a_dark_back
 	    rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
 	    break;
 	 case GREEN_BOND:
-	    rgb[0] = 0.1; rgb[1] =  0.99; rgb[2] =  0.1;
+	    rgb[0] = 0.03; rgb[1] =  0.7; rgb[2] =  0.03;
 	    break;
 	 case GREY_BOND: 
 	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
@@ -862,6 +880,15 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i, bool against_a_dark_back
 	    break;
 	 case CYAN_BOND:
 	    rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
+	    break;
+	 case DARK_GREEN_BOND:
+	    rgb[0] = 0.05; rgb[1] =  0.49; rgb[2] =  0.05;
+	    break;
+	 case DARK_ORANGE_BOND:
+	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
+	    break;
+	 case DARK_BROWN_BOND:
+	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
 	    break;
       
 	 default:
@@ -900,6 +927,15 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i, bool against_a_dark_back
 	    break;
 	 case CYAN_BOND:
 	    rgb[0] = 0.1; rgb[1] =  0.5; rgb[2] = 0.5;
+	    break;
+	 case DARK_GREEN_BOND:
+	    rgb[0] = 0.05; rgb[1] =  0.69; rgb[2] =  0.05;
+	    break;
+	 case DARK_ORANGE_BOND:
+	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] = 0.05;
+	    break;
+	 case DARK_BROWN_BOND:
+	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
 	    break;
       
 	 default:

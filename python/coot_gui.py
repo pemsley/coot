@@ -5314,4 +5314,7 @@ def search_disk_dialog(program_name, path_ls):
       
    
 # let the c++ part of mapview know that this file was loaded:
+
+# print "From coot_gui.py calling set_found_coot_python_gui()" - called from rcrane loader
+# too (I think)
 set_found_coot_python_gui()

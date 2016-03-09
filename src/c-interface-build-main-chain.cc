@@ -460,6 +460,12 @@ void pepflip(int imol, const char *chain_id, int resno,
    } 
 } 
 
+int pepflip_intermediate_atoms() {
+
+   graphics_info_t g;
+   return g.pepflip_intermediate_atoms();
+} 
+
 									 
 /*  ----------------------------------------------------------------------- */
 /*                         Planar Peptide Restraints                        */

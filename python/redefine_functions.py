@@ -134,6 +134,7 @@ clear_and_update_molecule = clear_and_update_molecule_py
 add_molecule           = add_molecule_py
 active_residue         = active_residue_py
 closest_atom           = closest_atom_py
+closest_atom_raw       = closest_atom_raw_py
 residues_near_residue  = residues_near_residue_py
 residues_near_position = residues_near_position_py
 refine_zone_with_full_residue_spec = refine_zone_with_full_residue_spec_py

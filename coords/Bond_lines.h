@@ -636,7 +636,7 @@ public:
 	 have_dictionary = true;
       for_GL_solid_model_rendering = 0;
       if (bonds.size() == 0) { 
-	 for (int i=0; i<10; i++) { 
+	 for (int i=0; i<13; i++) {  // 13 colors now in bond_colours
 	    Bond_lines a(i);
 	    bonds.push_back(a);
 	 }
@@ -655,7 +655,7 @@ public:
       have_dictionary = 0;
       for_GL_solid_model_rendering = 0;
       if (bonds.size() == 0) { 
-	 for (int i=0; i<10; i++) { 
+	 for (int i=0; i<13; i++) { // 13 colors now in bond_colours
 	    Bond_lines a(i);
 	    bonds.push_back(a);
 	 }

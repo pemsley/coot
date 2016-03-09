@@ -704,6 +704,11 @@ void save_preferences() {
   std::string preferences_name;
   std::string file_name;
   std::string directory = PKGDATADIR;
+
+  // only save things if we didn't start with --no-startup-scripts
+  //
+  if (! g.run_startup_scripts_flag)
+     return;
   
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
   char *tmp_directory = getenv("COOT_HOME");
