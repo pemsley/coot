@@ -40,7 +40,7 @@ GtkWidget *test_get_image_widget_for_comp_id(const std::string &comp_id) {
    std::string png_file_name = "image-" + comp_id + ".png";
 
    { 
-      RDKit::MolDraw2DCairo drawer(300,300);
+      RDKit::MolDraw2DCairo drawer(200,200);
       drawer.drawMolecule(*m_local);
       drawer.finishDrawing();
       std::string dt = drawer.getDrawingText();
@@ -69,36 +69,29 @@ GtkWidget *get_image_widget_for_comp_id(const std::string &comp_id) {
    if (dict.first) {
 
       try { 
-	 RDKit::RWMol m = rdkit_mol(dict.second);
+	 RDKit::RWMol rdk_m = rdkit_mol(dict.second);
+	 RDKit::RWMol rdk_mol_with_no_Hs = coot::remove_Hs_and_clean(rdk_m);
 
-	 RDKit::MolOps::removeHs(m);
-	 
-	 int iconf_2d = RDDepict::compute2DCoords(m);
+	 int iconf_2d = RDDepict::compute2DCoords(rdk_mol_with_no_Hs);
 	 std::cout << "iconf_2d is " << iconf_2d << std::endl;
-	 WedgeMolBonds(m, &(m.getConformer(iconf_2d)));
+	 WedgeMolBonds(rdk_mol_with_no_Hs, &(rdk_mol_with_no_Hs.getConformer(iconf_2d)));
 
-	 std::string smb = RDKit::MolToMolBlock(m, true, iconf_2d);
+	 std::string smb = RDKit::MolToMolBlock(rdk_mol_with_no_Hs, true, iconf_2d);
 	 std::string fn = "test-" + comp_id + ".mol";
 	 std::ofstream f(fn.c_str());
 	 if (f)
 	    f << smb << std::endl;
 	 f.close();
 
-	 
-	 if (true) {
-	    // try old style, write to a PIL
-
-	 } 
-	 
-	 int n_conf = m.getNumConformers();
+	 int n_conf = rdk_mol_with_no_Hs.getNumConformers();
 	 std::cout << "n_conf for " << comp_id << " is " << n_conf << std::endl;
 	 if (n_conf > 0) {
 
 	    std::string png_file_name = "image-" + comp_id + ".png";
 
 	    { 
-	       RDKit::MolDraw2DCairo drawer(250, 250);
-	       drawer.drawMolecule(m);
+	       RDKit::MolDraw2DCairo drawer(150, 150);
+	       drawer.drawMolecule(rdk_mol_with_no_Hs);
 	       drawer.finishDrawing();
 	       std::string dt = drawer.getDrawingText();
 	       // std::cout << "PE-debug drawing-text :" << dt << ":" << std::endl;

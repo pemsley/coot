@@ -1,10 +1,58 @@
  
  0.8.3
 
+   o crash on pc:
+
+    read in pdb2o01.ent and scroll the representation
+
+#0  0x00000032544328e5 in raise () from /lib64/libc.so.6
+#1  0x00000032544340c5 in abort () from /lib64/libc.so.6
+#2  0x00000032544707f7 in __libc_message () from /lib64/libc.so.6
+#3  0x0000003254476126 in malloc_printerr () from /lib64/libc.so.6
+#4  0x0000003254479edf in _int_malloc () from /lib64/libc.so.6
+#5  0x000000325447a951 in malloc () from /lib64/libc.so.6
+#6  0x000000325ecbd09d in operator new(unsigned long) () from /usr/lib64/libstdc++.so.6
+#7  0x00007f5e7fb27d87 in allocate (this=<value optimized out>, iat_1=<value optimized out>, iat_2=<value optimized out>, atoms=0xbb89920, n_atoms=
+    25, also_2nd_order_neighbs_flag=false) at /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../include/c++/4.4.7/ext/new_allocator.h:89
+#8  _M_allocate (this=<value optimized out>, iat_1=<value optimized out>, iat_2=<value optimized out>, atoms=0xbb89920, n_atoms=25, 
+    also_2nd_order_neighbs_flag=false) at /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../include/c++/4.4.7/bits/stl_vector.h:140
+#9  _Vector_base (this=<value optimized out>, iat_1=<value optimized out>, iat_2=<value optimized out>, atoms=0xbb89920, n_atoms=25, 
+    also_2nd_order_neighbs_flag=false) at /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../include/c++/4.4.7/bits/stl_vector.h:113
+#10 vector (this=<value optimized out>, iat_1=<value optimized out>, iat_2=<value optimized out>, atoms=0xbb89920, n_atoms=25, 
+    also_2nd_order_neighbs_flag=false) at /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../include/c++/4.4.7/bits/stl_vector.h:229
+#11 Bond_lines_container::get_neighb_normal (this=<value optimized out>, iat_1=<value optimized out>, iat_2=<value optimized out>, atoms=0xbb89920, 
+    n_atoms=25, also_2nd_order_neighbs_flag=false) at ../../coot/git/coot/coords/Bond_lines.cc:742
+#12 0x00007f5e7fb2f858 in Bond_lines_container::add_double_bond (this=0x7fffdc0860c0, iat_1=5, iat_2=6, atoms=0xbb89920, n_atoms=25, 
+    atom_colour_type=5, bond_restraints=std::vector of length 145, capacity 145 = {...}, is_deloc=false)
+    at ../../coot/git/coot/coords/Bond_lines.cc:593
+#13 0x00007f5e7fb33775 in Bond_lines_container::add_bonds_het_residues (this=0x7fffdc0860c0, het_residues=
+    std::vector of length 178, capacity 256 = {...}, atom_colour_type=5, have_udd_handle=0, udd_handle=-1)
+    at ../../coot/git/coot/coords/Bond_lines.cc:926
+#14 0x00007f5e7fb3b9da in Bond_lines_container::do_Ca_plus_ligands_bonds (this=0x7fffdc0860c0, SelAtom=..., pg=<value optimized out>, min_dist=
+    -1.53540958e+17, max_dist=-1.53540752e+17, atom_colour_type=-603430977, do_bonds_to_hydrogens_in=<value optimized out>)
+    at ../../coot/git/coot/coords/Bond_lines.cc:4045
+#15 0x00007f5e7fb3bbec in Bond_lines_container::do_Ca_plus_ligands_colour_sec_struct_bonds (this=0x7fffdc0860c0, asc=..., pg=0x2c995c0, min_dist=
+    2.4000001, max_dist=4.69999981, do_bonds_to_hydrogens_in=true) at ../../coot/git/coot/coords/Bond_lines.cc:4195
+#16 0x000000000083b60a in molecule_class_info_t::ca_plus_ligands_sec_struct_representation (this=0x7f3ec70, pg=0x2c995c0)
+    at ../../coot/git/coot/src/molecule-class-info-other.cc:447
+#17 0x0000000000610cf0 in graphics_to_ca_plus_ligands_sec_struct_representation (imol=5) at ../../coot/git/coot/src/c-interface.cc:4589
+#18 0x000000000061195e in change_model_molecule_representation_mode (up_or_down=0) at ../../coot/git/coot/src/c-interface.cc:4740
+#19 0x00000000006b671f in glarea_scroll_event (widget=<value optimized out>, event=0x4f6f990) at ../../coot/git/coot/src/globjects.cc:4360
+#20 0x000000325d153f53 in ?? () from /usr/lib64/libgtk-x11-2.0.so.0
+#21 0x000000325640bb3e in g_closure_invoke () from /lib64/libgobject-2.0.so.0
+#22 0x0000003256420e23 in ?? () from /lib64/libgobject-2.0.so.0
+
+   o lbg fetch molecule ibrutinib - fails (Cobicistat works).
+
+   o Run Acedrg on pc-25151504.mol (possibly via lidia) and check for
+     geometry distortions.  Also, and perhaps more importantly, check
+     that the NBC and the H-NBCs are working properly when regularizing.
 
    o Does "Phosphorylate this residue" work in Python mode?
 
    o test: Helix atoms have correct B factor Oliver Clarke.
+
+* Done.
 
    o test: can you do Ca Zone -> Mainchain on a reversed fragment of 7 
      residues? Xavier Gomis-Rüth. 
