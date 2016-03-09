@@ -291,7 +291,8 @@
       (write-pdb-file imol-ref reference-pdb-file-name)
       (goosh-command "prosmart" 
 		     (let ((l (list "-p1" target-pdb-file-name
-				    "-p2" reference-pdb-file-name)))
+				    "-p2" reference-pdb-file-name
+				    "-restrain_seqid" "30")))
 		       (if include-side-chains? 
 			   (append l (list "-side"))
 			   l))
