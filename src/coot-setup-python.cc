@@ -19,6 +19,7 @@
 #include <string>
 #include <iostream>
 
+#include <sys/stat.h>
 #include <glob.h>
 
 

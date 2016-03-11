@@ -1772,7 +1772,6 @@ gint expose(GtkWidget *widget, GdkEventExpose *event) {
 
    
 /* When widget is exposed it's contents are redrawn. */
-#define DEG_TO_RAD .01745327
 gint draw(GtkWidget *widget, GdkEventExpose *event) {
 
 //    GtkWidget *w = graphics_info_t::glarea;
