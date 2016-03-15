@@ -18,6 +18,20 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
+if COOT_USE_PYTHON
+
+# if coot.py is called __init.py and goes in site-packages/coot/
+#dist_pkgpython_SCRIPTS = __init__.py
+#dist_python_SCRIPTS = coot.pth
+
+#__init__.py: coot.py
+#	cp coot.py __init__.py
+
+
+dist_python_SCRIPTS = coot.py coot.pth
+
+
+endif
 
 
 ######## 20091001 ########################################################
@@ -227,6 +241,9 @@ libexec_PROGRAMS = coot-bin coot-density-score-by-residue-bin
 bin_PROGRAMS =  coot-fix-nomenclature-errors
 endif
 dist_bin_SCRIPTS = coot coot-density-score-by-residue
+libexec_PROGRAMS = coot-bin
+bin_PROGRAMS = density-score-by-residue-real fix-nomenclature-errors dynarama-real
+dist_bin_SCRIPTS = coot density-score-by-residue dynarama
 check_PROGRAMS = test-coot-align test-cholesky
 
 coot_fix_nomenclature_errors_SOURCES = \
@@ -621,5 +638,15 @@ coot_density_score_by_residue_bin_LDADD  =	\
 	$(MMDB_LIBS)		\
 	$(GSL_LIBS)
 
-# subpkgdatadir = $(pkgdatadir)
-# subpkgdata_DATA = cfc.glade
+dynarama_real_SOURCES = dynarama-main.cc rama_plot.cc rama_mousey.cc
+dynarama_real_LDADD = \
+        $(top_builddir)/coords/libcoot-coords.la                \
+        $(top_builddir)/utils/libcoot-utils.la  \
+        $(top_builddir)/coot-utils/libcoot-coord-utils.la       \
+        $(top_builddir)/coot-surface/libcoot-surface.la         \
+        $(CLIPPER_LIBS)         \
+        $(MMDB_LIBS)            \
+        $(GLOB_LIBS)            \
+        $(GOOCANVAS_LIBS)       \
+        $(LIBGLADE_LIBS)
+
