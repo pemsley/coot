@@ -335,7 +335,10 @@ def handle_smiles_go(tlc_entry, smiles_entry):
 
     tlc_text = tlc_entry.get_text()
     smiles_text = smiles_entry.get_text()
-    new_molecule_by_smiles_string(tlc_text, smiles_text)
+    use_libcheck = False
+    if is_windows():
+        use_libcheck = True
+    new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=use_libcheck)
 
 # smiles GUI
 #
@@ -3011,6 +3014,28 @@ def superpose_ligand_gui():
 
    window.show_all()
 
+
+def gui_overlap_ligands(imol_ligand, imol_ref, chain_id_ref, res_no_ref):
+
+    # we don't want to overlap-ligands if there is no dictionary
+    # for the residue to be matched to.
+    #
+    res_name = residue_name(imol_ref, chain_id_ref, res_no_ref, "")
+    restraints = monomer_restraints(res_name)
+    if (not restraints):
+        return False
+    else:
+        if (not residue_has_hetatms_qm(imol_ref, chain_id_ref, res_no_ref, "")):
+            return False
+        else:
+            print "----------- overlap-ligands %s %s %s %s ------------" \
+            %(imol_ligand, imol_ref, chain_id_ref, res_no_ref)
+            # this can return the rtop operator or the False (for fail of course).
+            match_ligand_torsions(imol_ligand, imol_ref, chain_id_ref, res_no_ref)
+            ret = overlap_ligands(imol_ligand, imol_ref, chain_id_ref, res_no_ref)
+            return ret
+
+
 global std_key_bindings
 std_key_bindings = [["^g", "keyboard-go-to-residue"],
                     ["^s", "quick-save-as"],
@@ -5213,6 +5238,26 @@ def toggle_backrub_rotamers(widget=None):
       # easily added. FIXME
       print "BL WARNING:: no widget"
    
+def toggle_hydrogen_display(widget=None):
+      """Toggle function to display all hydrogens or not.
+
+      Keyword arguments:
+      widget -- can be passed from the toolbutton
+
+      """
+
+      if widget:
+         if widget.get_active():
+            # the button is toggled on
+            hide_all_hydrogens()
+         else:
+            show_all_hydrogens()
+
+      else:
+         # non graphical - but wont be able to run if this is not loaded.
+         print "BL INFO:: No display, so I dont care about the hydrogens."
+         print "BL WARNING:: no widget"
+
 
 def toggle_wiimote(widget=None):
    """a toggle function to connect and disconnect from a Wiimote
@@ -5287,6 +5332,66 @@ def search_disk_dialog(program_name, path_ls):
 
    return ret
 
+def duplicate_range_by_atom_pick():
+
+   """Pick two atoms and duplicate range in between."""
+
+   def pick_range_func(*atom_specs):
+
+      residue_specs = map(atom_spec2residue_spec, atom_specs)
+      imol_1 = atom_specs[0][1]
+      imol_2 = atom_specs[1][1]
+      chain_id1 = atom_specs[0][2]
+      chain_id2 = atom_specs[1][2]
+      res_no_1 = atom_specs[0][3]
+      res_no_2 = atom_specs[1][3]
+
+      # some sanity check
+      if (not imol_1 == imol_2):
+         msg = (
+            "BL WARNING:: not the same imols. \n"
+            "imol %i and %i were selected"
+            %(imol_1, imol_2))
+         info_dialog_and_text(msg)
+         return
+      else:
+         # imol ok
+         if (not chain_id1 == chain_id2):
+            msg = (
+               "BL WARNING:: not the same chains. \n"
+               "Chains %s and %s were selected"
+               %(chain_id1, chain_id2))
+            info_dialog_and_text(msg)
+            return
+         else:
+            # chain ok
+            
+            # only allow duplication of 30 res for now (hardcode)
+            # as to avoid strangeness if an atom is not selected
+            # properly. And swap start, stop res if required
+            res_diff = res_no_1 - res_no_2
+            if (abs(res_diff) > 30):
+               msg = (
+                  "BL WARNING:: too many residues. \n"
+                  "%i residues deExceeds the limit of 30 residues"
+                  %(abs(res_diff)))
+               info_dialog_and_text(msg)
+               return
+            elif (abs(res_diff) < 0):
+               msg = (
+                  "BL WARNING::  No residue selected.")
+               info_dialog_and_text(msg)
+               return
+            if (res_no_1 > res_no_2):
+               # need to swap
+               res_no_1, res_no_2 = res_no_2, res_no_1
+               
+            # main line
+            # NB: no occupancy setting here
+            duplicate_residue_range(imol_1, chain_id1, res_no_1, res_no_2)
+
+   add_status_bar_text("Pick two atoms")
+   user_defined_click(2, pick_range_func)
       
    
 # let the c++ part of mapview know that this file was loaded:

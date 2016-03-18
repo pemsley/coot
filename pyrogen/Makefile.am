@@ -44,9 +44,9 @@ _pyrogen_swig_la_LIBADD = libcoot_py_restraints.la \
 #
 # _pyrogen_swig_la_LDFLAGS = -avoid-version -module -shared -export-dynamic
 #
-_pyrogen_swig_la_LDFLAGS = -module
+_pyrogen_swig_la_LDFLAGS = -module $(SHARED_LDFLAGS)
 
-pyrogen_boost_la_LDFLAGS = -module
+pyrogen_boost_la_LDFLAGS = -module $(SHARED_LDFLAGS)
 
 
 # These get installed in libdir.
@@ -65,6 +65,7 @@ libcoot_py_restraints_la_LIBADD =  \
 
 # -no-undefined causes strange/interesting link errors with clang/Mac OS X 10.10.3
 # libcoot_py_restraints_la_LDFLAGS = -no-undefined 
+libcoot_py_restraints_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # The name of this starts with lib so it fits with boost::python wrapper
 pyrogen_boost_la_SOURCES = restraints-boost.cc restraints.hh
@@ -86,12 +87,13 @@ dist_pkgpython_PYTHON = pyrogen.py atom_types.py jay_util.py tautomer.py pyrogen
 # on $ bash autogen.sh, I get:
 # pyrogen/Makefile.am:79: OS_WIN32 does not appear in AM_CONDITIONAL
 #
-# if OS_WIN32
-# # Python .pyd modules are simply DLLs, but they have to be called .pyd for
-# # python to find them, and libtool only creates .dll.
-# install-exec-hook:
-# 	mv $(pyexecdir)/_pyrogen_swig.dll $(pyexecdir)/_pyrogen_swig.pyd
-# endif
+if OS_WIN32
+# Python .pyd modules are simply DLLs, but they have to be called .pyd for
+# python to find them, and libtool only creates .dll.
+install-exec-hook:
+	mv $(pyexecdir)/_pyrogen_swig-0.dll $(pyexecdir)/_pyrogen_swig.pyd
+	mv $(pyexecdir)/pyrogen_boost-0.dll $(pyexecdir)/pyrogen_boost.pyd
+endif
 
 # clean needs to remove _pyrogen_swig.so
 #

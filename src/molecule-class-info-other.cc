@@ -4732,7 +4732,10 @@ molecule_class_info_t::split_residue_internal(mmdb::Residue *residue, const std:
 //       nbonds += regularize_object_bonds_box.bonds_[i].num_lines;
 //    std::cout << "Post new bonds we have " << nbonds << " bonds lines\n";
 
-   do_accept_reject_dialog("Alt Conf Split", coot::refinement_results_t());
+   if (! graphics_info_t::show_alt_conf_intermediate_atoms_flag) {
+      if (graphics_info_t::use_graphics_interface_flag)
+         do_accept_reject_dialog("Alt Conf Split", coot::refinement_results_t());
+   }
    return p;
 }
 
