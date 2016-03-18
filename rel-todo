@@ -6,10 +6,6 @@
    o sphere refine needs to have alpha helical restraints if they have
      been set in the gui
 
-   o Get rid of thinking not crashing
-
-* Done.
-
    o when reading map or an mtz file check if the sigma is zero.  If
      so, delete the map molecule and give a dialog.
 
@@ -530,4 +526,8 @@ Program terminated with signal 11, Segmentation fault.
 * kludged.  Maybe worth a look another time
 
    o Improved the dashed lines for links.
+
+   o Get rid of thinking not crashing
+
+* Done.
 
