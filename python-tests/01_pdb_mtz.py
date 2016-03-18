@@ -1365,6 +1365,27 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
         print "   bond-length: ", bond_length(atom_1[2], atom_2[2])
 
+    def test30_1(self):
+        """Refine an NAG-ASN Link"""
+
+        imol = unittest_pdb("pdb2qc1-sans-cho.pdb")
+
+        if self.skip_test(not valid_model_molecule_qm(imol),
+            "failed to find pdb2qc1-sans-cho.pdb, skipping test" ):
+            return
+
+        imol_map = make_and_draw_map(rnase_mtz(), "FWT", "PHWT", "", 0, 0)
+        status = add_linked_residue(imol, "B", 141, "", "NAG", "NAG-ASN")
+        # do something with status?!
+        with_auto_accept([refine_residues, imol, [["B", 141, ""], ["B", 464, ""]]])
+
+        atom_1 = get_atom(imol, "B", 141, "", " ND2")
+        atom_2 = get_atom(imol, "B", 464, "", " C1 ")
+
+        self.failUnless(bond_length_within_tolerance_qm(atom_1, atom_2, 1.43, 0.2),
+                        "the bond between the two atoms is not within the tolerance")
+
+
     def test31_0(self):
         """Test for flying hydrogens on undo"""
 

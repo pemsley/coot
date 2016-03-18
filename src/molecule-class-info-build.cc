@@ -365,14 +365,25 @@ molecule_class_info_t::move_reference_chain_to_symm_chain_position(coot::Symm_At
 
       if (err_1 == 0) { 
 	 if (err_2 == 0) {
+
+	    // This used to work - but no longer if pre_shift_matt and my_matt
+	    // are not references - strange
+	    
 	    mmdb::Chain *moving_chain = atom_sel.atom_selection[naii.atom_index]->residue->chain;
 	    for (int iat=0; iat<atom_sel.n_selected_atoms; iat++) {
 	       mmdb::Atom *at = atom_sel.atom_selection[iat];
 	       if (at->residue->chain == moving_chain) { 
-		  at->Transform(pre_shift_matt);
-		  at->Transform(my_matt);
+		  // at->Transform(&pre_shift_matt);
+		  // at->Transform(&my_matt);
 	       }
 	    }
+
+	    coot::util::transform_chain(atom_sel.mol, moving_chain,
+					atom_sel.n_selected_atoms, atom_sel.atom_selection,
+					pre_shift_matt);
+	    coot::util::transform_chain(atom_sel.mol, moving_chain,
+					atom_sel.n_selected_atoms, atom_sel.atom_selection,
+					my_matt);
 
 
 	    have_unsaved_changes_flag = 1; // because we do a backup whatever...

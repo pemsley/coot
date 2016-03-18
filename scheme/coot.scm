@@ -40,7 +40,7 @@
     (let ((f (%search-load-path file)))
       (if f
 	  (begin
-	    (format #t "load ~s~%" file)
+	    ;; (format #t "load ~s~%" file) ;; remove verbose
 	    (load f))
 	  (format #t "Error finding ~s~%" file)))))
 

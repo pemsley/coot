@@ -102,7 +102,7 @@ COOT_EXTRA_LIBS = \
 EXTRA_DIST = \
 	coot.i post-glade add-c-extern.sh blank.cc fix-gettext.sh \
 	mol-hierachy.cc \
-	junk.cc coot.defs coot-dox.cfg post-gtk2-glade.sh \
+	junk.cc coot-gtk2.defs coot-dox.cfg post-gtk2-glade.sh \
         post-process-coot-wrap-guile.sh \
         post-process-coot-wrap-python.sh \
 	coot_wrap_guile_pre_gtk2.cc 
@@ -224,13 +224,19 @@ fix_nomenclature_errors_SOURCES = \
 
 coot_bin_SOURCES = \
 	main.cc 		 \
+	boot-python.hh           \
+	boot-python.cc           \
 	atom-overlaps.cc         \
 	git-revision-count.cc 	 \
-	c-inner-main.c		 \
-	c-inner-main.h		 \
+	scm-boot-guile.hh 	 \
+	scm-boot-guile.cc 	 \
 	c-interface.h            \
 	c-interface-analysis.cc	 \
 	c-interface-build.cc	 \
+	c-interface-build-morph.cc	 \
+	c-interface-build-main-chain.cc	 \
+	c-interface-build-side-chain.cc	 \
+	c-interface-build-symmetry.cc	 \
 	c-interface-build-gui.cc \
 	c-interface-database.hh  \
 	c-interface-database.cc  \
@@ -293,6 +299,7 @@ coot_bin_SOURCES = \
 	command-arg.hh           \
 	command-line.cc		 \
 	command-line-extern.cc   \
+	command-line-extern.hh   \
 	command-line.hh		 \
 	coot-database.hh	 \
 	coot-colour.hh	 	 \
@@ -302,9 +309,9 @@ coot_bin_SOURCES = \
 	coot-nomenclature.cc	 \
 	coot-fileselections.h    \
 	coot-glue.hh             \
-	coot-glue.c              \
 	coot-glue-gtk2.c	 \
 	coot-glue-gtk2-python.cc \
+	coot-init-glue.hh        \
 	coot-hydrogens.hh        \
 	coot-hydrogens.cc        \
 	coot-render.hh           \
@@ -415,6 +422,7 @@ coot_bin_SOURCES = \
 	sdf-interface.hh         \
 	sdf-internal.hh          \
 	sdf-interface.cc         \
+	startup-scripts.hh       \
 	support.c support.h 	 \
 	support-gtk2-extras.c    \
 	testing.cc testing-2.cc  \

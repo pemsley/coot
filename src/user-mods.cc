@@ -38,19 +38,28 @@ void
 coot::flips_container::parse_set_or_single(const std::string &line) {
 
    if (line.length() > 56) {
-      std::string set_string = line.substr(10,7);
-      std::string chain_id = line.substr(19,1);
-      std::string resno_string = line.substr(20,4);
-      std::string res_type =     line.substr(25,3);
-      std::string atom_name =    line.substr(28,4);
-      std::string score_string = line.substr(49,8);
-      std::string info_string  = line.substr(57,line.length()-57);
+      // It seems at some point the format got changes, so we need to offset by -1
+      // for older versions of reduce. We check for position of "sc:" to find the
+      // offset
+      std::size_t sc_pos = line.find("sc=");
+      int offset = 0;
+      if (sc_pos == 45) {
+         offset = -1;
+      }
+      std::string set_string = line.substr(10+offset,7);
+      std::string chain_id = line.substr(19+offset,1);
+      std::string resno_string = line.substr(20+offset,4);
+      std::string res_type =     line.substr(25+offset,3);
+      std::string atom_name =    line.substr(28+offset,4);
+      std::string score_string = line.substr(49+offset,8);
+      std::string info_string  = line.substr(57+offset,line.length()-57);
       if (atom_name == "    ")
 	 atom_name = " CA "; // e.g. for amide.
       try { 
 	 int resno_int = coot::util::string_to_int(resno_string);
-	 if (0) { 
-	    std::cout <<  "chain_id :" << chain_id << ": ";
+//    if (0) {
+       if (1) {
+       std::cout <<  "chain_id :" << chain_id << ": ";
 	    std::cout << "resno_string :" << resno_string << ": ";
 	    std::cout << "resno_int :" << resno_int << ": ";
 	    std::cout << "res_type :" << res_type << ": ";
@@ -64,7 +73,7 @@ coot::flips_container::parse_set_or_single(const std::string &line) {
 	       std::cout << "score :" << score << ":" << std::endl;
 	    std::string ins_code = "";
 	    std::string alt_conf = "";
-	    std::string user_mod_rest = line.substr(57);
+       std::string user_mod_rest = line.substr(57+offset);
 	    coot::atom_spec_t as(chain_id, resno_int, ins_code,
 				 atom_name, alt_conf);
 	    flips_container::flip fl(as, set_string, user_mod_rest,
@@ -91,11 +100,20 @@ coot::flips_container::parse_no_adj(const std::string &line) {
 
    if (line.length() > 66) {
 
+      // It seems at some point the format got changes, so we need to offset by -1
+      // for older versions of reduce. We check for position of "sc:" to find the
+      // offset
+
+      std::size_t first = line.find(":");
+      std::size_t second = line.find(":", first+1);
       int offset[3];
       std::vector<coot::atom_spec_t> specs;
       for (int ii=0; ii<3; ii++) { 
 	 offset[ii] = ii*16;
-	 std::string chain_id_1     = line.substr(offset[ii] + 19, 1);
+    if (second == 32) {
+       offset[ii] += -1;
+    }
+    std::string chain_id_1     = line.substr(offset[ii] + 19, 1);
 	 std::string resno_string_1 = line.substr(offset[ii] + 20, 4);
 	 std::string res_type_1 =     line.substr(offset[ii] + 25, 3);
 	 std::string atom_name_1 =    line.substr(offset[ii] + 28, 4);

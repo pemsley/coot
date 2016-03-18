@@ -81,7 +81,8 @@ namespace coot {
       clipper::Coord_orth
       move_helix_centre_point_guess(const clipper::Coord_orth &pt, float density_max) const;
       eigen_info_t helix_eigen_system(const clipper::Coord_orth pt, float search_radius) const;
-      helix_placement_info_t get_20_residue_helix_standard_orientation(int n_residues) const;
+      helix_placement_info_t get_20_residue_helix_standard_orientation(int n_residues,
+								       float b_factor) const;
       helix_placement_info_t get_20_residue_helix(int nresidues) const;
       float score_helix_position(const minimol::molecule &m) const;
       // pair(other atoms, c-betas)

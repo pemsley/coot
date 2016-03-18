@@ -120,10 +120,10 @@
 
 #ifdef USE_GUILE
 #include <libguile.h>
-#endif 
+#endif
 
 
-#include "c-inner-main.h"
+// #include "c-inner-main.h"
 #include "coot-glue.hh"
 
 #include "rotate-translate-modes.hh"
@@ -133,6 +133,7 @@
 void show_citation_request();
 void load_gtk_resources();
 void setup_splash_screen();
+void desensitive_scripting_menu_item_maybe(GtkWidget *window);
 int setup_screen_size_settings();
 void setup_application_icon(GtkWindow *window);
 void setup_symm_lib();
@@ -146,6 +147,7 @@ void start_command_line_python_maybe(char **argv);
 int setup_database();
 #endif
 
+#include "scm-boot-guile.hh"
 
 // This main is used for both python/guile useage and unscripted. 
 int
@@ -410,7 +412,8 @@ main (int argc, char *argv[]) {
    // Must be the last thing in this function, code after it does not get 
    // executed (if we are using guile)
    //
-   c_wrapper_scm_boot_guile(argc, argv); 
+
+   my_wrap_scm_boot_guile(argc, argv); 
 
    //  
 #endif
@@ -418,18 +421,7 @@ main (int argc, char *argv[]) {
    // to start the graphics, we need to init glut and gtk with the
    // command line args.
 
-   // Finally desensitize the missing scripting menu
-   if (graphics_info_t::use_graphics_interface_flag) {
-      GtkWidget *w;
-#ifndef USE_GUILE
-      w = lookup_widget(window1, "scripting_scheme1");
-      gtk_widget_set_sensitive(w, FALSE);
-#endif
-#ifndef USE_PYTHON
-      w = lookup_widget(window1, "scripting_python1");
-      gtk_widget_set_sensitive(w, FALSE);
-#endif
-   }
+   desensitive_scripting_menu_item_maybe(window1);
 
 #if ! defined (USE_GUILE)
 #ifdef USE_PYTHON
@@ -448,6 +440,22 @@ main (int argc, char *argv[]) {
 #endif // ! USE_GUILE
 
    return 0;
+}
+
+void desensitive_scripting_menu_item_maybe(GtkWidget *window1) {
+
+   // Finally desensitize the missing scripting menu
+   if (graphics_info_t::use_graphics_interface_flag) {
+      GtkWidget *w;
+#ifndef USE_GUILE
+      w = lookup_widget(window1, "scripting_scheme1");
+      gtk_widget_set_sensitive(w, FALSE);
+#endif
+#ifndef USE_PYTHON
+      w = lookup_widget(window1, "scripting_python1");
+      gtk_widget_set_sensitive(w, FALSE);
+#endif
+   }
 }
 
 

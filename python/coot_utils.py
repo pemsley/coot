@@ -650,7 +650,8 @@ def shell_command_to_string(cmd):
 # adapted from find_exe
 # this finds absolute file names too
 #
-def command_in_path_qm(cmd, only_extension_here=None,
+def command_in_path_qm(cmd, no_disk_search=True,
+                       only_extension_here=None,
                        add_extensions_here=[]):
 
     exe_path = find_exe(cmd, "PATH", no_disk_search=True,
@@ -1312,7 +1313,7 @@ def get_first_ncs_master_chain():
 # Remember, that now the about-pt is the "to" point, i.e. the maps are brought from 
 # somewhere else and generated about the about-pt.
 #
-def transform_map_using_lsq_matrix(imol_bref, ref_chain, ref_resno_start, ref_resno_end,
+def transform_map_using_lsq_matrix(imol_ref, ref_chain, ref_resno_start, ref_resno_end,
                                    imol_mov, mov_chain, mov_resno_start, mov_resno_end,
                                    imol_map, about_pt, radius):
 
@@ -3929,6 +3930,71 @@ if not use_gui_qm:
                     MyThread().start()
 
 enhanced_ligand_coot_qm = enhanced_ligand_coot_p
+
+# Function to hide hydrogens in all molecules
+#
+def hide_all_hydrogens():
+    """This will hide all hydrogens. They are not deleted."""
+
+    for imol in model_molecule_number_list():
+        set_draw_hydrogens(imol, 0)
+
+# Function to show all available hydrogens. No generation.
+#
+def show_all_hydrogens():
+    """This will show hydrogens on all models, if available. It wont generate any."""
+
+    for imol in model_molecule_number_list():
+        set_draw_hydrogens(imol, 1)
+
+# Duplication of a given residue range (in alt conf of course)
+#
+def duplicate_residue_range(imol, chain_id, res_no_start, res_no_end,
+                             occ_split=0.5):
+    """
+    This function duplicates the given residue range and makes two
+    alternative conformations of it. The occupancies are split 50:50 by
+    default.
+    
+    Args:
+        imol: molecule number
+        chain_id: chain
+        res_no_start: start of residue range
+        res_no_end: end of residue range
+    Keyword Args:
+        occ_split: alt conformation occupancy for alt conf A (default 0.5)
+    """
+
+    # backup current state and turn off backup
+    occ_backup = get_add_alt_conf_new_atoms_occupancy()
+    split_type_backup = alt_conf_split_type_number()
+    inter_state = show_alt_conf_intermediate_atoms_state()
+    make_backup(imol) # do a backup first
+    backup_mode = backup_state(imol)
+    turn_off_backup(imol)
+
+    # set new state
+    occ_a = (1 - occ_split) if (occ_split < 1 and occ_split > 0) else 0.5
+    set_add_alt_conf_new_atoms_occupancy(1 - occ_split)
+    set_add_alt_conf_split_type_number(1)  # better 2 for range?!
+    set_show_alt_conf_intermediate_atoms(1)
+
+    ins_code = ""
+    alt_conf = ""  # maybe this and above should be arg!?
+    rot_no = 0  # ignored currently anyway
+    for res_no in range(res_no_start, res_no_end + 1):
+        add_alt_conf(imol, chain_id, res_no, ins_code, alt_conf, rot_no)
+        accept_regularizement()
+    
+    # set things back
+    set_add_alt_conf_new_atoms_occupancy(occ_backup)
+    set_add_alt_conf_split_type_number(split_type_backup) 
+    set_show_alt_conf_intermediate_atoms(inter_state)
+    if (backup_mode == 1):
+        turn_on_backup(imol)
+
+        
+
 ####### Back to Paul's scripting.
 ####### This needs to follow find_exe
 

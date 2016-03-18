@@ -61,7 +61,11 @@ coot::multi_build_terminal_ALA(int offset, // direction
       std::string dir = "N";
       if (offset == 1)
 	 dir = "C";
-      residue_by_phi_psi rpp(dir, res_p, chain_id, "ALA", 20);
+
+      std::string residue_type = "ALA";
+      residue_type = "GLY"; // does good?
+      
+      residue_by_phi_psi rpp(dir, res_p, chain_id, residue_type, 20);
       rpp.import_map_from(xmap);
 
       // res from f is what we really want
@@ -93,8 +97,10 @@ coot::multi_build_terminal_ALA(int offset, // direction
 		   << " and found res with seqnum " << res.seqnum << std::endl;
 	 
 	 std::pair<bool, clipper::Coord_orth> cbeta_info = cbeta_position(res);
-	 if (cbeta_info.first)
+	 if (cbeta_info.first) { 
 	    res.addatom(" CB ", " C", cbeta_info.second, "", 1.0, 20.0);
+	    res.name = "ALA";
+	 }
 
 	 if (offset == -1)
 	    res.seqnum = res_p->GetSeqNum() -1;

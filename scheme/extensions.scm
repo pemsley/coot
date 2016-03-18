@@ -1094,12 +1094,18 @@
 	(add-simple-coot-menu-menuitem
 	 submenu-pdbe "Get from PDBe..."
 	 (lambda () 
-	   (generic-single-entry "Get PDBe accession code"
-				 "" " Get it "
-				 (lambda (text)
-				   ;; fire off something that is controlled by a time-out -
-				   ;; doesn't return a useful value.
-				   (pdbe-get-pdb-and-sfs-cif 'include-sfs (string-downcase text))))))
+	   (let ((mess
+		  (if (command-in-path? "refmac5")
+		      "Get PDBe accession code"
+		      (string-append
+		       "\n  WARNING::refmac5 not in the path - SF calculation will fail  \n\n"
+		       "Get PDBe accession code"))))
+	     (generic-single-entry mess
+				   "" " Get it "
+				   (lambda (text)
+				     ;; fire off something that is controlled by a time-out -
+				     ;; doesn't return a useful value.
+				     (pdbe-get-pdb-and-sfs-cif 'include-sfs (string-downcase text)))))))
 
 
 	;; ---------------------------------------------------------------------
@@ -1189,6 +1195,16 @@
 				      (lambda (imol text)
 					(let ((handle (make-ball-and-stick imol text 0.14 0.3 1)))
 					  (format #t "handle: ~s~%" handle))))))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-representation "Add Balls to Simple Sticks"
+	 (lambda () 
+	   (map (lambda (imol) (set-draw-stick-mode-atoms imol 1)) (molecule-number-list))))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-representation "Simple Sticks (No Balls)"
+	 (lambda () 
+	   (map (lambda (imol) (set-draw-stick-mode-atoms imol 0)) (molecule-number-list))))
 
 	(add-simple-coot-menu-menuitem
 	 submenu-representation "Clear Ball & Stick..."

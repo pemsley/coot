@@ -664,6 +664,136 @@ molecule_class_info_t::anisotropic_atoms() {
    }
 }
 
+coot::colour_t
+molecule_class_info_t::get_bond_colour_by_mol_no(int i, bool against_a_dark_background) {
+
+   coot::colour_t rgb;
+   
+   if (bonds_rotate_colour_map_flag == 0) {
+      set_bond_colour(i);
+   } else {
+      // float rotation_size = float(imol_no + 1) * bonds_colour_map_rotation/360.0;
+      float rotation_size = bonds_colour_map_rotation/360.0;
+
+//       std::cout << " ::::::::::: in set_bond_colour bonds_colour_map_rotation is "
+// 		<< bonds_colour_map_rotation << " for imol " << imol_no << std::endl;
+
+      // rotation_size typically then: 2*32/360 = 0.178
+      
+      while (rotation_size > 1.0) { // no more black bonds?
+	 rotation_size -= 1.0;
+      }
+      if (against_a_dark_background) {
+
+	 if (false)
+	    std::cout << "set_bond_colour_by_mol_no() idx: " << i << " vs "
+		      << " green "   << GREEN_BOND << " "
+		      << " blue "    << BLUE_BOND << " "
+		      << " red "     << RED_BOND << " "
+		      << " yellow "  << YELLOW_BOND << " "
+		      << " grey "    << GREY_BOND << " "
+		      << " H-grey "  << HYDROGEN_GREY_BOND << " "
+		      << " magenta " << MAGENTA_BOND << " "
+		      << std::endl;
+	 
+	 switch (i) {
+	 case CARBON_BOND:
+	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
+	    break;
+	 case YELLOW_BOND: 
+	    rgb[0] = 0.6; rgb[1] =  0.9; rgb[2] =  0.3;
+	    break;
+	 case BLUE_BOND: 
+	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  1.0;
+	    break;
+	 case RED_BOND: 
+	    rgb[0] = 1.0; rgb[1] =  0.3; rgb[2] =  0.3;
+	    break;
+	 case GREEN_BOND:
+	    rgb[0] = 0.1; rgb[1] =  0.99; rgb[2] =  0.1;
+	    break;
+	 case GREY_BOND: 
+	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.7;
+	    break;
+	 case HYDROGEN_GREY_BOND: 
+	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
+	    break;
+	    // replaced in mmdb-extras.h
+	    //       case white:   
+	    // 	 rgb[0] = 0.99; rgb[1] =  0.99; rgb[2] = 0.99;
+	    // 	 break;
+	 case MAGENTA_BOND:
+	    rgb[0] = 0.99; rgb[1] =  0.2; rgb[2] = 0.99;
+	    break;
+	 case ORANGE_BOND:
+	    rgb[0] = 0.89; rgb[1] =  0.89; rgb[2] = 0.1;
+	    break;
+	 case CYAN_BOND:
+	    rgb[0] = 0.1; rgb[1] =  0.89; rgb[2] = 0.89;
+	    break;
+      
+	 default:
+	    rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;
+	    rgb.rotate(i*26.0/360.0);
+	 }
+
+      } else {
+	 
+	 // against a white background.  Less pale, darker, more saturated.
+
+	 switch (i) {
+	 case YELLOW_BOND: 
+	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.0;
+	    break;
+	 case BLUE_BOND: 
+	    rgb[0] = 0.1; rgb[1] =  0.1; rgb[2] =  0.7;
+	    break;
+	 case RED_BOND: 
+	    rgb[0] = 0.7; rgb[1] =  0.0; rgb[2] =  0.0;
+	    break;
+	 case GREEN_BOND:
+	    rgb[0] = 0.1; rgb[1] =  0.7; rgb[2] =  0.1;
+	    break;
+	 case GREY_BOND: 
+	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  0.5;
+	    break;
+	 case HYDROGEN_GREY_BOND: 
+	    rgb[0] = 0.6; rgb[1] =  0.6; rgb[2] =  0.6;
+	    break;
+	 case MAGENTA_BOND:
+	    rgb[0] = 0.7; rgb[1] =  0.2; rgb[2] = 0.7;
+	    break;
+	 case ORANGE_BOND:
+	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] = 0.1;
+	    break;
+	 case CYAN_BOND:
+	    rgb[0] = 0.1; rgb[1] =  0.5; rgb[2] = 0.5;
+	    break;
+      
+	 default:
+	    rgb[0] = 0.5; rgb[1] =  0.1; rgb[2] =  0.1;
+	    // rgb = rotate_rgb(rgb, float(i*26.0/360.0));
+	    rgb.rotate(i*26.0/360.0);
+	 }
+      }
+
+      // "correct" for the +1 added in the calculation of the rotation
+      // size.
+      // 21. is the default colour map rotation
+
+      rgb.rotate(float(1.0 - 21.0/360.0));
+
+      if (graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag) {
+	 if (i == CARBON_BOND)
+	    rgb.rotate(rotation_size);
+      } else {
+	 rgb.rotate(rotation_size);
+      }
+   }
+   return rgb;
+}
+
+
 // fix the name to something involving rotation perhaps?
 // 
 // not const because bond_colour_internal is set.
@@ -687,8 +817,11 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i, bool against_a_dark_back
       }
       if (against_a_dark_background) { 
 	 switch (i) {
+	 case CARBON_BOND: 
+	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
+	    break;
 	 case YELLOW_BOND: 
-	    rgb[0] = 0.8; rgb[1] =  0.8; rgb[2] =  0.3;
+	    rgb[0] = 0.6; rgb[1] =  0.9; rgb[2] =  0.3;
 	    break;
 	 case BLUE_BOND: 
 	    rgb[0] = 0.5; rgb[1] =  0.5; rgb[2] =  1.0;
@@ -769,7 +902,7 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i, bool against_a_dark_back
       rgb = rotate_rgb(rgb, float(1.0 - 21.0/360.0));
 
       if (graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag) {
-	 if (i == YELLOW_BOND) { 
+	 if (i == CARBON_BOND) { 
 	    std::vector<float> rgb_new = rotate_rgb(rgb, rotation_size);
 	    bond_colour_internal = rgb_new;
 	    if (graphics_info_t::use_graphics_interface_flag)
@@ -1338,13 +1471,12 @@ molecule_class_info_t::combine_colour(float v, int col_part_index) {
 void
 molecule_class_info_t::rotate_rgb_in_place(float *rgb, const float &amount) const {
 
-   float *hsv;
-   hsv = new float[3];
+   float hsv[3];
    convert_rgb_to_hsv_in_place(rgb, hsv);
    hsv[0] += amount;
    if (hsv[0] > 1.0) hsv[0] -= 1.0;
    convert_hsv_to_rgb_in_place(hsv, rgb);
-   delete [] hsv;
+
 }
 
 // This allocated memory for xmap_is_diff_map, xmap_is_filled and
@@ -1770,6 +1902,7 @@ molecule_class_info_t::draw_molecule(short int do_zero_occ_spots,
 		  }
 	       }
 	    }
+	    cis_peptide_markups();
 	 }
       }
    }
@@ -1811,6 +1944,42 @@ molecule_class_info_t::deuterium_spots() const {
 		    bonds_box.deuterium_spots_ptr[i].z());
       }
       glEnd();
+   }
+}
+
+void
+molecule_class_info_t::cis_peptide_markups() const {
+
+   if (bonds_box.n_cis_peptide_markups > 0) {
+      glColor3f(0.8, 0.2, 0.2);
+      for (int i=0; i<bonds_box.n_cis_peptide_markups; i++) { 
+	 const graphical_bonds_cis_peptide_markup &m = bonds_box.cis_peptide_markups[i];
+
+	 if (! m.is_pre_pro_cis_peptide) { 
+	    coot::Cartesian fan_centre = m.pt_ca_1.mid_point(m.pt_ca_2);
+
+	    coot::Cartesian v1 = fan_centre - m.pt_ca_1;
+	    coot::Cartesian v2 = fan_centre - m.pt_c_1;
+	    coot::Cartesian v3 = fan_centre - m.pt_n_2;
+	    coot::Cartesian v4 = fan_centre - m.pt_ca_2;
+
+	    coot::Cartesian pt_ca_1 = m.pt_ca_1 + v1 * 0.15;
+	    coot::Cartesian pt_c_1  = m.pt_c_1  + v2 * 0.15;
+	    coot::Cartesian pt_n_2  = m.pt_n_2  + v3 * 0.15;
+	    coot::Cartesian pt_ca_2 = m.pt_ca_2 + v4 * 0.15;
+
+	    glBegin(GL_TRIANGLE_FAN);
+	 
+	    glVertex3f(fan_centre.x(), fan_centre.y(), fan_centre.z());
+	    glVertex3f(pt_ca_1.x(), pt_ca_1.y(), pt_ca_1.z());
+	    glVertex3f(pt_c_1.x(),  pt_c_1.y(),  pt_c_1.z());
+	    glVertex3f(pt_n_2.x(),  pt_n_2.y(),  pt_n_2.z());
+	    glVertex3f(pt_ca_2.x(), pt_ca_2.y(), pt_ca_2.z());
+
+	    glEnd();
+
+	 }
+      }
    }
 }
 
@@ -1999,7 +2168,7 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 	 // the hydrogen sticks don't appear and disappear behind the atom circle as the molecule is rotated
 	 // Note that this delta for atom interacts with the highlight.
 	 // 
-	 coot::Cartesian z_delta = (front - back) * 0.001;
+	 coot::Cartesian z_delta = (front - back) * 0.003;
 	 for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
 	    set_bond_colour_by_mol_no(icol, against_a_dark_background);
 	    for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) { 
@@ -2047,14 +2216,17 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 	       // 
 	       GLdouble point_size_data[2];
 	       glGetDoublev(GL_POINT_SIZE_RANGE, point_size_data);
-
+	       float off = 0.03;
+	       
 	       if (ball_point_size > point_size_data[1]) { 
+		  off *= (point_size_data[1]/ball_point_size);
 		  ball_point_size = point_size_data[1];
 		  hlit_point_size = (40.0/280.0) * point_size_data[1];
 	       }
 
-	       float off = 0.055;
-
+	       // the offset doesn't depend on zoom (until it does (implicitly) by the ball size going bigger
+	       // than the graphics card wants to draw it).
+	       // 
 	       coot::Cartesian offset = screen_x * off;
 	       offset += screen_y * (-off * 1.25);
 	       offset += z_delta * 2.0;
@@ -2066,15 +2238,36 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 	       // point_size_data on pc:  -> 1 and  63.375
 	       // point_size_data on mbp: -> 1 and 255.875
 
-	       glPointSize(hlit_point_size);
+	       glPointSize(hlit_point_size * 3);
 	       glBegin(GL_POINTS);
-	       glColor3f(0.8, 0.8, 0.8);
+	       // glColor3f(0.8, 0.8, 0.8);
 	       for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
+		  coot::colour_t cc = get_bond_colour_by_mol_no(icol, against_a_dark_background);
+		  // cc.average(coot::colour_t(0.9, 0.9, 0.9));
+		  cc.brighter(1.15);
+		  glColor3f(cc[0], cc[1], cc[2]);
 		  for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) { 
 		     // no points for hydrogens
 		     if (! bonds_box.consolidated_atom_centres[icol].points[i].first) {
 			const coot::Cartesian &pos = bonds_box.consolidated_atom_centres[icol].points[i].second;
 			coot::Cartesian pt = pos + offset;
+		  
+			glVertex3f(pt.x(), pt.y(), pt.z());
+		     }
+		  }
+	       }
+	       glEnd();
+
+	       // shiny
+	       glPointSize(hlit_point_size * 0.8);
+	       glBegin(GL_POINTS);
+	       glColor3f(0.9, 0.9, 0.9);
+	       for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
+		  for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) { 
+		     // no points for hydrogens
+		     if (! bonds_box.consolidated_atom_centres[icol].points[i].first) {
+			const coot::Cartesian &pos = bonds_box.consolidated_atom_centres[icol].points[i].second;
+			coot::Cartesian pt = pos + offset + z_delta;
 		  
 			glVertex3f(pt.x(), pt.y(), pt.z());
 		     }

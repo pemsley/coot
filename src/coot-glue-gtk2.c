@@ -3,8 +3,11 @@
 #ifdef USE_GUILE_GTK
 
 #include <gtk/gtk.h>
+#include "c-interface-gtk-widgets.h"
 
-/* #define GTK_ENABLE_BROKEN 1    NO.  We are not going to do that. */
+#include "c-interface-gtk-widgets.h"
+
+/* #define GTK_ENABLE_BROKEN 1  NO.  We are not going to do that. */
 #include <libguile.h>
 #include <guile-gtk.h>
 
@@ -273,7 +276,6 @@ coot_init_glue_types ()
       done = 1;
       sgtk_register_type_infos (type_infos);
       sgtk_register_type_infos_gtk (type_infos_gtk);
-
     }
 }
 
@@ -281,12 +283,13 @@ coot_init_glue_types ()
 void
 coot_init_glue ()
 {
+
   coot_init_glue_types ();
   sgtk_init_gtk_gtk_glue_types ();
   sgtk_init_gtk_gdk_glue_types ();
-  scm_c_define_gsubr (s_main_toolbar, 0, 0, 0, sgtk_main_toolbar);
-  scm_c_define_gsubr (s_main_menubar, 0, 0, 0, sgtk_main_menubar);
-  scm_c_define_gsubr (s_main_statusbar, 0, 0, 0, sgtk_main_statusbar);
+  scm_c_define_gsubr(s_main_toolbar,   0, 0, 0, sgtk_main_toolbar);
+  scm_c_define_gsubr(s_main_menubar,   0, 0, 0, sgtk_main_menubar);
+  scm_c_define_gsubr(s_main_statusbar, 0, 0, 0, sgtk_main_statusbar);
 }
 
 #endif // GTK_MAJOR_VERSION > 1

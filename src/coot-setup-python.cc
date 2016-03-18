@@ -10,7 +10,8 @@
 #include "c-interface-preferences.h"
 #include "cc-interface.hh"
 #include "cc-interface-scripting.hh"
-#include "c-inner-main.h" // for does_file_exist()
+// #include "c-inner-main.h" // for does_file_exist() 2015025-PE: not needed for modern
+                             // guile interface
 
 #include "graphics-info.h"
 #include "command-line.hh"
@@ -39,18 +40,28 @@ void setup_python(int argc, char **argv) {
   init_coot(); // i.e. SWIG_init for python, best we do this before
                // running .coot.py, eh?
 
-  char *home_directory = getenv("HOME");
+  
+  char *hds = getenv("HOME");
+  std::string home_directory;
+
+  if (hds)
+     home_directory = hds;
 
   // I won't mess with this - not sure what it does.
 #if defined(WINDOWS_MINGW) || defined(_MSC_VER)
-     home_directory = getenv("COOT_HOME");
-     std::string pkgdirectory = PKGDATADIR;
-     if (!home_directory) {
-       home_directory = getenv("HOME");
+  // In Windows we should use COOT_HOME
+  char *win_home = getenv("COOT_HOME");
+  std::string pkgdirectory = PKGDATADIR;
+  if (win_home) {
+     home_directory = win_home;
+  } else {
+     // if there is no COOT_HOME, there may be a HOME, then use this
+     // usually for advanced users... (set already)
+     if (!hds) {
+        // BL says:: not sure if this is the right fallback place. But where/what else?
+        home_directory = pkgdirectory;
      }
-     if (!home_directory) {
-       home_directory = (char *)pkgdirectory.c_str();
-     }
+  }
 #endif
 
      short int use_graphics_flag = use_graphics_interface_state();
@@ -91,10 +102,9 @@ void setup_python(int argc, char **argv) {
 	}
 	
 	std::string coot_load_modules_dot_py = "coot_load_modules.py";
-	char *coot_load_modules_dot_py_checked = 
-	   does_file_exist(pydirectory.c_str(), coot_load_modules_dot_py.c_str());
-	if (coot_load_modules_dot_py_checked) { 
-	   run_python_script(coot_load_modules_dot_py_checked);
+	std::string coot_py_file_name = graphics_info_t::add_dir_file(pydirectory, coot_load_modules_dot_py);
+	if (coot::file_exists(coot_py_file_name)) { 
+	   run_python_script(coot_py_file_name.c_str());
 	} else {
 	   std::cout << "WARNING:: No coot modules found! Python scripting crippled. " 
 		     << std::endl;
@@ -104,65 +114,15 @@ void setup_python(int argc, char **argv) {
      // scheme version
      try_load_python_extras_dir();
 
-     // load preferences file .coot_preferences.py
-     std::string preferences_dir = graphics_info_t::add_dir_file(home_directory, ".coot-preferences");
-     struct stat buff;
-     int preferences_dir_status = stat(preferences_dir.c_str(), &buff);
-     if (preferences_dir_status != 0) { 
-		std::cout << "INFO:: preferences directory " << preferences_dir 
-                  << " does not exist. Won't read preferences." << std::endl;;
-     } else {
-       // load all .py files
-       glob_t myglob;
-       int flags = 0;
-       //std::string glob_patt = "/*.py";
-       std::string glob_file = preferences_dir;
-       glob_file += "/*.py";
-       glob(glob_file.c_str(), flags, 0, &myglob);
-       size_t count;
-       // dont load the coot_toolbuttons.py if no graphics
-       // same for key_bindings (and potentially others)
-       std::vector<std::string> exclude_py_files;
-       exclude_py_files.push_back("coot_toolbuttons.py");
-       exclude_py_files.push_back("template_key_bindings.py");
-       std::size_t found_substr;
-
-       char **p;
-       for (p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) { 
-         char *preferences_file(*p);
-         found_substr = std::string::npos;
-         for (unsigned int i=0; i<exclude_py_files.size(); i++) {
-            found_substr = ((std::string)preferences_file).find(exclude_py_files[i]);
-            if (found_substr != std::string::npos)
-               break;
-         }
-         char *found2 = strstr(preferences_file, "coot_preferences.py");
-         if (((found_substr == std::string::npos) || (use_graphics_flag)) && 
-             ((!found2) || (prefer_python()))) {
-            std::cout << "INFO:: loading preferences file " << preferences_file
-                      << std::endl;
-            run_python_script(preferences_file);
-         }
-       }
-       globfree(&myglob);
-     }
-     // update the preferences
-     make_preferences_internal();
-
-     // load personal coot file .coot.py
-     const char *filename = ".coot.py";
-     if (home_directory) { 
-        char *check_file = does_file_exist(home_directory, filename);
-        if (check_file) {
-	   std::cout << "Loading ~/.coot.py..." << std::endl;
-	   run_python_script(check_file);
-        }
-     }
-
      // we only want to run one state file if using both scripting
      // languages.  Let that be the guile one.
+     //
+     try_load_dot_coot_py_and_preferences(home_directory);
      
 #ifndef USE_GUILE
+
+     // we get here if there is no guile but there is python and the ifdef is only here so 
+     // that we don't run both state script.
 
      command_line_data cld = parse_command_line(argc, argv);
      handle_command_line_data(cld);
@@ -174,12 +134,73 @@ void setup_python(int argc, char **argv) {
      
 #endif // USE_GUILE - not both start-up scripts
 
-#if defined USE_PYGTK && !defined USE_GUILE_GTK
-
-     // No more tips.
-     
-#endif // USE_PYGTK
-     
 #endif // USE_PYTHON  
 
+}
+
+void try_load_dot_coot_py_and_preferences(const std::string &home_directory) {
+
+   if (graphics_info_t::run_startup_scripts_flag) {
+
+      short int use_graphics_flag = use_graphics_interface_state();
+   
+      // load preferences file .coot_preferences.py
+      std::string preferences_dir = graphics_info_t::add_dir_file(home_directory, ".coot-preferences");
+      struct stat buff;
+      int preferences_dir_status = stat(preferences_dir.c_str(), &buff);
+     
+      if (preferences_dir_status != 0) { 
+	 std::cout << "INFO:: preferences directory " << preferences_dir 
+		   << " does not exist. Won't read preferences." << std::endl;;
+      } else {
+	 // load all .py files
+	 glob_t myglob;
+	 int flags = 0;
+	 //std::string glob_patt = "/*.py";
+	 std::string glob_file = preferences_dir;
+	 glob_file += "/*.py";
+	 glob(glob_file.c_str(), flags, 0, &myglob);
+	 size_t count;
+	 // dont load the coot_toolbuttons.py if no graphics
+	 // same for key_bindings (and potentially others)
+	 std::vector<std::string> exclude_py_files;
+	 exclude_py_files.push_back("coot_toolbuttons.py");
+	 exclude_py_files.push_back("template_key_bindings.py");
+	 std::size_t found_substr;
+
+	 char **p;
+	 for (p = myglob.gl_pathv, count = myglob.gl_pathc; count; p++, count--) { 
+	    char *preferences_file(*p);
+	    found_substr = std::string::npos;
+	    for (unsigned int i=0; i<exclude_py_files.size(); i++) {
+	       found_substr = ((std::string)preferences_file).find(exclude_py_files[i]);
+	       if (found_substr != std::string::npos)
+		  break;
+	    }
+	    char *found2 = strstr(preferences_file, "coot_preferences.py");
+	    if (((found_substr == std::string::npos) || (use_graphics_flag)) && 
+		((!found2) || (prefer_python()))) {
+	       if (false) // too verbose
+		  std::cout << "INFO:: loading preferences file " << preferences_file
+			    << std::endl;
+	       run_python_script(preferences_file); // run_python_script writes the file-name to
+	                                            // the terminal
+	    }
+	 }
+	 globfree(&myglob);
+      }
+
+      // update the preferences
+      make_preferences_internal();
+
+      // load personal coot file .coot.py
+      std::string filename = ".coot.py";
+      if (! home_directory.empty()) {
+	 std::string coot_py_file_name = graphics_info_t::add_dir_file(home_directory, filename);
+	 if (coot::file_exists(coot_py_file_name)) {
+	    std::cout << "Loading ~/.coot.py..." << std::endl;
+	    run_python_script(coot_py_file_name.c_str());
+	 }
+      }
+   }
 }

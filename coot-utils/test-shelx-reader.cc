@@ -19,6 +19,8 @@
  */
 
 
+#include <map>
+
 #include "utils/coot-utils.hh"
 #include "coot-shelx.hh"
 #include <iostream>

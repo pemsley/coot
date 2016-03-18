@@ -2683,6 +2683,22 @@ on_refine_params_use_planar_peptides_checkbutton_toggled
   }
 }
 
+
+
+void
+on_refine_params_use_trans_peptide_restraints_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+  if (togglebutton->active) {
+    set_use_trans_peptide_restraints(1);
+  } else { 
+    set_use_trans_peptide_restraints(0);
+  } 
+}
+
+				
+
 void
 on_refine_params_use_initial_pos_checkbutton_toggled (GtkToggleButton *togglebutton,
 						      gpointer         user_data)

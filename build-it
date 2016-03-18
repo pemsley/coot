@@ -1986,7 +1986,7 @@ fi #  ENABLE_GUILE_COOT
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python2.7
-pver=2.7.10
+pver=2.7.11
 
 if [ $ENABLE_PYTHON_COOT = yes ] ; then 
    $install_top_dir/bin/python -V
@@ -3397,7 +3397,7 @@ if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then
 	   cd - 
        fi
     else 
-       echo skip libgd build
+       echo $install_top_dir/include/gd.h exists - skip libgd build
     fi
 
    ) > $HOSTLOGDIR/15-libgd.log
@@ -3407,6 +3407,10 @@ if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then
     pwd
     # build render
     #
+    system_has_libgd=false
+    if [ -e /usr/include/gd.h ] ; then
+       system_has_libgd=true
+    fi
     if [ ! -e $install_top_dir/bin/render ] ; then 
        # now build it.
        gzip -dc ${AUTOBUILD_SOURCES}/Raster3D_$raster3d_version.tar.gz | tar xf -

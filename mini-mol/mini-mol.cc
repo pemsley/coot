@@ -251,10 +251,10 @@ coot::minimol::molecule::setup(mmdb::Manager *mol) {
 				 r.addatom(mat);
 			      }
 			   }
-			   try { 
+			   try {
 			      fragments[ifrag].addresidue(r, 0);
 			   } 
-			   catch (std::runtime_error rte) {
+			   catch (const std::runtime_error &rte) {
 			      std::cout << "ERROR:: minimol molecule setup() " << rte.what() << std::endl;
 			   }
 			}
@@ -887,7 +887,7 @@ coot::minimol::atom::atom(mmdb::Atom *at) {
    altLoc = at->altLoc;
    occupancy = at->occupancy;
    temperature_factor = at->tempFactor;
-} 
+}
 
 void
 coot::minimol::molecule::delete_molecule() {
@@ -1161,7 +1161,8 @@ coot::minimol::fragment::make_chain() const {
 std::ostream&
 coot::minimol::operator<<(std::ostream& s, coot::minimol::atom at) {
 
-   s << at.name << " :" << at.altLoc << ": " << at.pos.format() << " occ: " << at.occupancy;
+   s << at.name << " :" << at.altLoc << ": " << at.pos.format() << " occ: " << at.occupancy
+     << " b-fact: " << at.temperature_factor;
    return s;
 }
 

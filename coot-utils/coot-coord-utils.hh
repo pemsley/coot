@@ -963,6 +963,8 @@ namespace coot {
 			       util::contact_atoms_info_t::ele_index_t> > metals() const;
 
 	 std::vector<contact_atoms_info_t> get_contacts() const { return atom_contacts; }
+
+	 void transform_atom(int i, int j);
 	 
       };
 
@@ -1084,6 +1086,12 @@ namespace coot {
       std::pair<mmdb::Manager *, std::vector<residue_spec_t> > 
       get_fragment_from_atom_spec(const atom_spec_t &atom_spec, mmdb::Manager *mol);
 
+      // transform the atoms in mol that are in moving_chain
+      // it seems (for some reason) that atom::Transform(mat) now needs a (non-const)
+      // argument or else clang complains
+      // 
+      void transform_chain(mmdb::Manager *mol, mmdb::Chain *moving_chain,
+			   int n_atoms, mmdb::PAtom *atoms, mmdb::mat44 &my_matt);
 
       // transform atoms in residue
       void transform_atoms(mmdb::Residue *res, const clipper::RTop_orth &rtop);
@@ -1264,7 +1272,16 @@ namespace coot {
       std::vector<cis_peptide_info_t>
       cis_peptides_info_from_coords(mmdb::Manager *mol);
 
-      // remove wrong cis_peptides
+      // where the atoms are in cis peptides
+      // 
+      // mark up things that have omega > 210 or omega < 150. i.e, 180 +/- 30.
+      //
+      // strictly_cis_flag is false by default.
+      // 
+      std::vector<atom_quad> cis_peptide_quads_from_coords(mmdb::Manager *mol,
+							   bool strictly_cis_flag = false);
+      
+      // remove wrong cis_peptides from the header records
       void remove_wrong_cis_peptides(mmdb::Manager *mol);
 
       // remove 1555 links between atoms that are more than dist_min

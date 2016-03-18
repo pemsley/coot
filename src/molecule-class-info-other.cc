@@ -149,7 +149,7 @@ coot::dots_representation_info_t::solvent_exposure(int SelHnd_in, mmdb::Manager 
 		     // another atom?
 
 		     bool is_solvent_accessible = 1;
-		     for (unsigned int i_all=0; i_all<n_atoms_all; i_all++) {
+		     for (int i_all=0; i_all<n_atoms_all; i_all++) {
 			// don't exclude from self
 			mmdb::Atom *other_at = atoms_all[i_all];
 			std::string other_res_name = other_at->GetResName();
@@ -1004,7 +1004,7 @@ molecule_class_info_t::delete_residue(int model_number,
 
    // run over chains of the existing mol
    int n_models = atom_sel.mol->GetNumberOfModels();
-   for (unsigned int imod=1; imod<=n_models; imod++) {
+   for (int imod=1; imod<=n_models; imod++) {
 
       if (0)
 	 std::cout << "debug:: delete_residue() comparing imod: "
@@ -2090,7 +2090,7 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
    graphics_info_t g;
    int imol_map = g.Imol_Refinement_Map();
    if (imol_map >= 0) {
-      if (imol_map < graphics_info_t::molecules.size()) {
+      if (imol_map < int(graphics_info_t::molecules.size())) {
 	 if (graphics_info_t::molecules[imol_map].has_xmap() ||
 	     graphics_info_t::molecules[imol_map].has_nxmap()) {
 	    mmdb::Residue *res = get_residue(chain_id, res_no, ins_code);
@@ -4732,7 +4732,10 @@ molecule_class_info_t::split_residue_internal(mmdb::Residue *residue, const std:
 //       nbonds += regularize_object_bonds_box.bonds_[i].num_lines;
 //    std::cout << "Post new bonds we have " << nbonds << " bonds lines\n";
 
-   do_accept_reject_dialog("Alt Conf Split", coot::refinement_results_t());
+   if (! graphics_info_t::show_alt_conf_intermediate_atoms_flag) {
+      if (graphics_info_t::use_graphics_interface_flag)
+         do_accept_reject_dialog("Alt Conf Split", coot::refinement_results_t());
+   }
    return p;
 }
 

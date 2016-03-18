@@ -188,11 +188,9 @@ class LigandTestFunctions(unittest.TestCase):
 
         self.failIf(not valid_model_molecule_qm(imol_copy), "not valid molecule for copy of monomer-3GP.pdb")
 
-        # BL extra
-        # we go to the molecule otherwise we dont pick up the right active_atom
         set_go_to_atom_molecule(imol_orig)
         set_go_to_atom_chain_residue_atom_name("A", 1, " C8 ")
-        # end BL etxra
+
         active_atom = active_residue()
         if self.skip_test(not active_atom,
                           "No active atom found - skipping flip residue test"):

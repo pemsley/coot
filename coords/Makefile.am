@@ -47,12 +47,16 @@ libcoot_coords_la_LIBADD = \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la      \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
    $(top_builddir)/utils/libcoot-utils.la            \
-   $(RDKIT_LIBS)	        \
-   $(MMDB_LIBS)
+   $(MMDB_LIBS) \
+   $(RDKIT_LIBS)
 
 libcoot_coords_la_LDFLAGS = $(SHARED_LDFLAGS)
 
-check_PROGRAMS = test-phenix-geo
+check_PROGRAMS = test-phenix-geo test-transform
+
+test_transform_SOURCES = test-transform.cc
+
+test_transform_LDADD = libcoot-coords.la
 
 test_phenix_geo_SOURCES = test-phenix-geo.cc
 

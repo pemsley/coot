@@ -819,6 +819,8 @@ public:        //                      public
 					   	                    // we also set
 						                    // bond_colour_internal.
 
+   coot::colour_t get_bond_colour_by_mol_no(int icolour, bool against_a_dark_background);
+	   
    void set_bond_colour_by_colour_wheel_position(int i, int bond_type);
 
    std::string name_; // otherwise get and set, so make it public.
@@ -944,6 +946,8 @@ public:        //                      public
    void zero_occupancy_spots() const;
    void deuterium_spots() const;
    void set_occupancy_residue_range(const std::string &chain_id, int ires1, int ires2, float occ_val);
+   void cis_peptide_markups() const;
+   
 
    void set_b_factor_residue_range(const std::string &chain_id, int ires1, int ires2, float b_val);
    void set_b_factor_atom_selection(const atom_selection_container_t &asc, float b_val, bool moving_atoms);

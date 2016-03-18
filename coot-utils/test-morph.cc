@@ -97,11 +97,11 @@ int main(int argc, char **argv) {
 	       for (unsigned int ilocal=0; ilocal<local_residues.size(); ilocal++) { 
 
 		  mol->SelectAtoms(SelHnd, 1,
-				   local_residues[ilocal].chain.c_str(),
-				   local_residues[ilocal].resno,
-				   local_residues[ilocal].insertion_code.c_str(),
-				   local_residues[ilocal].resno,
-				   local_residues[ilocal].insertion_code.c_str(),
+				   local_residues[ilocal].chain_id.c_str(),
+				   local_residues[ilocal].res_no,
+				   local_residues[ilocal].ins_code.c_str(),
+				   local_residues[ilocal].res_no,
+				   local_residues[ilocal].ins_code.c_str(),
 				   "*", // any residue name
 				   "*", // atom name
 				   "*", // elements

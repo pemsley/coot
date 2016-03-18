@@ -98,6 +98,8 @@ def bond_length_from_atoms(atom_1, atom_2):
 
 def bond_length_within_tolerance_qm(atom_1, atom_2, ideal_length, tolerance):
 
+    # BL says:: this should (as in greg) probably throw an error, but we dont have the
+    # test object here, so cannot. Buh. Should pass self?!
     if (not atom_1):
         return False
     if (not atom_2):

@@ -2241,6 +2241,29 @@
       (gtk-widget-show-all window))))
 
 
+(define (gui-overlap-ligands  imol-ligand imol-ref chain-id-ref res-no-ref)
+
+    ;; we don't want to overlap-ligands if there is no dictionary
+    ;; for the residue to be matched to.
+    ;; 
+    (let* ((res-name (residue-name imol-ref chain-id-ref res-no-ref ""))
+	   (restraints (monomer-restraints res-name)))
+      (if (not restraints)
+	  #f
+	  (begin 
+	    (if (not (residue-has-hetatms? imol-ref chain-id-ref res-no-ref ""))
+		#f
+		(begin
+		  (format #t "----------- overlap-ligands ~s ~s ~s ~s ------------ ~%"
+			  imol-ligand imol-ref chain-id-ref res-no-ref)
+		  ;; this can return the rtop operator or the #f (for fail of course).
+		  (match-ligand-torsions imol-ligand imol-ref chain-id-ref res-no-ref)
+		  (overlap-ligands imol-ligand imol-ref chain-id-ref res-no-ref)
+		  ))))))
+
+
+
+
 
 (define (key-bindings-gui)
 
