@@ -1316,6 +1316,7 @@ if (have_coot_python):
        bns_handle = make_ball_and_stick(imol, text, 0.18, 0.3, 1)
        print "handle: ", bns_handle
 
+
      global default_ball_and_stick_selection    # maybe should be at the top of the file
      add_simple_coot_menu_menuitem(
        submenu_representation,
