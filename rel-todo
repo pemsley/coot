@@ -1,6 +1,8 @@
  
  0.8.3
 
+   o can you launch rcrane?
+
    o in refinement branch (and on Mac, at least) hhh on 89A will crash.
 
    o sphere refine needs to have alpha helical restraints if they have
