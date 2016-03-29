@@ -671,7 +671,7 @@
 ;; Return the exist status e.g. 0 or 1.
 ;; 
 (define (goosh-command cmd args data-list log-file-name screen-output-also?)
-    
+   
   (if (not (command-in-path-or-absolute? cmd))
       
       (begin 
