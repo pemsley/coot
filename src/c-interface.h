@@ -1676,10 +1676,6 @@ void info_dialog_and_text(const char *txt);
 /*! \brief set counter for runs of refmac so that this can be used to
   construct a unique filename for new output */
 void set_refmac_counter(int imol, int refmac_count);
-/*! \brief the name for refmac 
-
- @return a stub name used in the construction of filename for refmac output */
-const char *refmac_name(int imol);
 
 #ifdef __cplusplus
 #ifdef USE_GUILE

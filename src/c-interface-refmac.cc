@@ -1103,14 +1103,14 @@ void set_refmac_counter(int imol, int refmac_count) {
 } 
 
 
-const char *refmac_name(int imol) {
+std::string refmac_name(int imol) {
 
+   graphics_info_t g;
    std::string cmd = "refmac-name";
    std::vector<coot::command_arg_t> args;
    args.push_back(imol);
    add_to_history_typed(cmd, args);
-   graphics_info_t g;
-   return g.molecules[imol].Refmac_in_name().c_str();
+   return g.molecules[imol].Refmac_in_name();
 } 
 
 int get_refmac_refinement_method() {
@@ -1353,6 +1353,6 @@ void
 set_stored_refmac_file_mtz_filename(int imol, const char *mtz_filename) {
 
    if (imol < graphics_n_molecules()) { 
-     graphics_info_t::molecules[imol].store_refmac_file_mtz_filename(std::string(mtz_filename));
+     graphics_info_t::molecules[imol].store_refmac_mtz_filename(std::string(mtz_filename));
    }
 }
