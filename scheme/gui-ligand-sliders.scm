@@ -1,109 +1,161 @@
 
-;; This is a wrapper for the python function ligand_validation_metrics_gui() 
-;; in python/ligand_validation_sliders.py.
+(define *cache-ligand-metrics* #f)
 
-(define (refmac-columns f-list sigf-list rfree-list)
 
-  (if (not (> (vector-length f-list) 0))
-      #f
-      (if (not (> (vector-length sigf-list) 0))
-	  #f
-	  (if (not (> (vector-length rfree-list) 0))
-	      #f
+(define (to-python-arg-string ls)
+
+  (define (item-to-string item)
+    (cond
+     ((string? item) (if (string=? item ",")
+			 item
+			 (string-append "'" item "'")))
+     ((number? item) (number->string item))
+     ((equal? item #t) "True")
+     ((equal? item #f) "False")
+     (else 
+      "False")))
+
+  (let ((string-parts (map item-to-string ls)))
+    (let ((r (string-concatenate string-parts)))
+      (string-append "[" r "]"))))
+
+
+
+;; return 3 values 
+;; 
+(define (mtz-file-name->refinement-column-labels file-name)
+
+  (let ((columns (get-mtz-columns file-name)))
+    (let ((read-success (mtz-column-types-info-t-read-success-get columns)))
+      
+      (if (not (= read-success 1))
+	  
+	  ;; unhappy path
+	  (begin 
+	    (format #t "Failed to read columms from file ~s for map molecule ~s~%" fn imol-map)
+	    (values #f #f #f))
+	  
+	  ;; happy path
+	  (let ((f-cols (mtz-column-types-info-t-f-cols-get columns))
+		(sigf-cols (mtz-column-types-info-t-sigf-cols-get columns))
+		(rfree-cols (mtz-column-types-info-t-r-free-cols-get columns)))
+
+	    (let ((l1 (vector-mtz-type-label-length     f-cols))
+		  (l2 (vector-mtz-type-label-length  sigf-cols))
+		  (l3 (vector-mtz-type-label-length rfree-cols)))
+
+	      (if (not (all-true? (list
+				   (> l1 0)
+				   (> l2 0)
+				   (> l3 0))))
+		  
+		  ;; unhappy path
+		  (begin
+		    (format #t "Failed to find columns of the necessary types from ~s : ~s ~s ~s~%~!"
+			    fn l1 l2 l3)
+		    (values #f #f #f))
+
+		  ;; happy path
+		  (let ((f-col      (vector-mtz-type-label-ref     f-cols 0))
+			(sigf-col   (vector-mtz-type-label-ref  sigf-cols 0))
+			(r-free-col (vector-mtz-type-label-ref rfree-cols 0)))
+		    
+		    (let ((f-col-label      (mtz-type-label-column-label-get      f-col))
+			  (sigf-col-label   (mtz-type-label-column-label-get   sigf-col))
+			  (r-free-col-label (mtz-type-label-column-label-get r-free-col)))
+
+		      (values f-col-label sigf-col-label  r-free-col-label)
+		      
+		      )))))))))
+
+
+
+(define (ligand-validation-metrics-gui-list-wrapper imol chain-id res-no ins-code refmac-input-mtz-file-name
+						    fp-col sigfp-col rfree-col refmac-dir)
+
+
+  (let ((m (get-metrics-for-ligand imol chain-id res-no ins-code refmac-input-mtz-file-name 
+				   fp-col sigfp-col rfree-col refmac-dir)))
+
+    (if *cache-ligand-metrics*
+	(set! m (list 0.935339450836182 10.6290054321289 (list 0 10 18 70 143) 
+		      (list -0.0306930494488489 0.386785203839611 0.0146206432429434 10865.0 
+			    5373.01106146351 -27.3189968762454 0.0173681300165985 0.0280039555722363 
+			    -8.86567375069092e-10 -0.0025144037621947 0.117837198078632 0.120915851909265) 
+		      (list 0.952432048573266 13.3150000572205 13.9800000190735 0.176323987538941))))
+
+    (if (list? m)
+	
+	(let* ((diff-d 0.05)
+	       (d            (list-ref m 0))
+	       (mwz          (list-ref m 1))  ;; mogul Z
+	       (contact-info (list-ref m 2))  ;; number of bad contacts
+	       (bc (list-ref contact-info 0))
+	       (low-is-good 1)
+	       (high-is-good 0))
+
+	  ;; if mogul ran OK, then we can display the mogul markup
+	  ;; 
+	  (if (pair? mwz) ;; mwz an improper pair (mogul-z-worst . mogul-out-file-name) or an error status
+	      (let ((mogul-out-file-name (cdr mwz)))
+		(mogul-markup imol chain-id res-no ins-code mogul-out-file-name)))
 	      
-	      ;; happy path
+
+	  (let ((percentile-d      (get-ligand-percentile "density_correlation" d high-is-good))
+		(percentile-diff-d (get-ligand-percentile "coot_diff_map_correlation" diff-d low-is-good))
+		(percentile-mwz    (get-ligand-percentile "mogul_z_worst" (car mwz) low-is-good))
+		(percentile-bc     (get-ligand-percentile "bumps_1" bc low-is-good))
+		(c ",")) ;; comma
+	    
+	    (let ((input-to-sliders 
+		   (string-append
+		    "["
+		    (to-python-arg-string (list "Direct map density correl." c percentile-d c d))
+		    ","
+		    (to-python-arg-string (list " Diff map density correl." c percentile-diff-d c diff-d))
+		    ","
+		    (to-python-arg-string (list "            Mogul Z-worst" c percentile-mwz c mwz))
+		    ","
+		    (to-python-arg-string (list "             Bad contacts" c percentile-bc  c bc))
+		    "]")))
 	      
-	      ;; Using the first sigf (there should only be one typically)
-	      ;; get the F label (Fx) from x/y/SIGFPx
-	      ;; 
-	      (let ((field (vector-ref sigf-list 0)))
-		(format #t "debug:: f-list: ~s~%" f-list)
-		(format #t "debug:: sigf-list: ~s~%" sigf-list)
-		(format #t "debug:: field: ~s~%" field)
-		(let ((ls (split-after-char-last #\/ field list)))
-		  (format #t "debug:: ls: ~s~%" ls)
-		  (let ((sigf-col (cadr ls)))
-		    (format #t "debug:: sigf-col: ~s~%" sigf-col)
-		    (let ((sm (string-match "[Ss][Ii][Gg]F" sigf-col)))
-		      (format #t "debug:: sm: ~s~%" sm)
-		      ;; (let ((f-col (substring sigf-col (cdr (vector-ref sm 1))))) ;; what was I thinking?
+	      (run-python-command (string-append "ligand_validation_metrics_gui_list_wrapper(" 
+						 input-to-sliders
+						 ")"))))))))
 
-		      (let ((f-col (vector-ref f-list 0))) ;; hacketty hack!
-			   
-			(format #t "debug:: f-col: ~s~%" f-col)
-			(list 
-			 (string-append (car ls) "F" f-col)
-			 field
-			 (vector-ref rfree-list 0)))))))))))
-
-
-(define (get-refmac-columns-for-map imol-map)
-  (let ((m (mtz-file-name imol-map)))
-    (format #t "refmac-mtz-filename: ~s~%" m)
-    (if (not (> (string-length m) 0))
-	#f
-	(let ((f-cols (get-f-cols m))
-	      (sigf-cols (get-sigf-cols m))
-	      (free-cols (get-r-free-cols m)))
-	  (format #t "f      columns: ~s~%" f-cols)
-	  (format #t "sigf   columns: ~s~%" sigf-cols)
-	  (format #t "r-free columns: ~s~%" free-cols)
-	  (let ((rc (refmac-columns f-cols sigf-cols free-cols)))
-	    (format #t "---------- here in get-refmac-columns-for-map #1 ----------~%~!")
-	    (print-var rc)
-	    rc)))))
-
-
+  
 
 (if (defined? 'coot-main-menubar)
     (let ((menu (coot-menubar-menu "Ligand")))
 
       (add-simple-coot-menu-menuitem
-       menu "Ligand Validation Tests"
+       menu "--- Testing Ligand Metric Sliders --- "
        (lambda ()
-	 (using-active-atom
+	 
+	 (let ((imol-map (imol-refinement-map)))
 
-	  (format #t "---------- here #1 ----------~%~!")
+	   (if (not (valid-map-molecule? imol-map))
+	       (add-status-bar-text "No valid refinement map molecule")
 
-	  (let ((imol-map (imol-refinement-map)))
+	       (let ((refmac-input-mtz-file-name 
+		      (let ((l (refmac-parameters imol-map)))
+			(if (null? l)
+			    (mtz-file-name imol-map)
+			    (car l))))
+		     (refmac-dir (get-directory "coot-refmac")))
 
-	    (let ((refmac-input-mtz-file-name (mtz-file-name imol-map))
-		  (refmac-cols (get-refmac-columns-for-map imol-map)))
+		 (receive (f-col-label sigf-col-label r-free-col-label)
+			  (mtz-file-name->refinement-column-labels refmac-input-mtz-file-name)
+			  (format #t "    f-col-label: ~s~%"      f-col-label)
+			  (format #t " sigf-col-label: ~s~%"   sigf-col-label)
+			  (format #t "rfree-col-label: ~s~%" r-free-col-label)
 
-	      (format #t "---------- here #2 ----------~%~!")
-	      (print-var refmac-cols)
-
-	      (if (not (list? refmac-cols))
-		  
-		  (begin
-		    (format #t "Couldn't get columns from mtz file: ~s~%~!" refmac-input-mtz-file-name))
-
-		  ;; happy path
-		  (let ((fp-col    (list-ref refmac-cols 0))
-			(sigfp-col (list-ref refmac-cols 1))
-			(rfree-col (list-ref refmac-cols 2)))
-		    
-		    (let ((refmac-dir (get-directory "coot-refmac")))
-
-		      (format #t ":::::::::: (get-metrics-for-ligand ~s ~s ~s ~s ~s ~s ~s ~s ~s)~%~!"
-			      aa-imol aa-chain-id aa-res-no aa-ins-code 
-			      refmac-input-mtz-file-name 
-			      fp-col sigfp-col rfree-col refmac-dir)
-
-		      (let ((m (get-metrics-for-ligand aa-imol aa-chain-id aa-res-no aa-ins-code 
-						       refmac-input-mtz-file-name 
-						       fp-col sigfp-col rfree-col refmac-dir)))
-			(format #t "get-metrics-for-ligand returns ~s~%~!" m)
-			(if (list? m)
-			    't
-			    ))))))))))))
+			  (using-active-atom
+			   (ligand-validation-metrics-gui-list-wrapper 
+			    aa-imol aa-chain-id aa-res-no aa-ins-code 
+			    refmac-input-mtz-file-name 
+			    f-col-label sigf-col-label r-free-col-label refmac-dir))))))))))
 
 
 
-
-      
-		    
-
-
-      
 

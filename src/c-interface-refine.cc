@@ -333,7 +333,7 @@ std::string mtz_file_name(int imol) {
       r = graphics_info_t::molecules[imol].Refmac_mtz_filename();
    }
    return r;
-} 
+}
 
 
 

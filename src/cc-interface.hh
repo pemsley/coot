@@ -272,6 +272,12 @@ execute_refmac_real(std::string pdb_in_filename,
 		    std::string phib_string,
 		    std::string fom_string,
 		    std::string ccp4i_project_dir);
+
+/*! \brief the name for refmac 
+
+ @return a stub name used in the construction of filename for refmac output */
+std::string refmac_name(int imol);
+
 //! \}
 
 
@@ -674,14 +680,10 @@ std::string atom_info_as_text_for_statusbar(int atom_index, int imol,
 //!
 void regularize_residues(int imol, const std::vector<coot::residue_spec_t> &residues);
 
-
-
-//! \brief refine a zone, allowing the specification of insertion
-//!  codes for the residues too.
-//! 
 //! presumes that imol_Refinement_Map has been set
-#ifdef USE_GUILE
 std::string mtz_file_name(int imol);
+
+#ifdef USE_GUILE
 
 //! \brief
 //! Refine the given residue range

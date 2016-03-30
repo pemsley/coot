@@ -7041,12 +7041,6 @@ molecule_class_info_t::store_refmac_phase_params(const std::string &phi,
   refmac_hld_col = hld; 
 }
 
-void
-molecule_class_info_t::store_refmac_file_mtz_filename(const std::string &mtz_filename) { 
-
-   refmac_file_mtz_filename = mtz_filename; 
-}
-
 
 // return 0 on success
 // 

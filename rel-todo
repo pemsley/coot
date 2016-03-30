@@ -1,22 +1,51 @@
  
  0.8.3
 
+   o can you launch rcrane?
+
+* Yes. Done.
+
+   o does map scrolling work after running refmac (or via ligand check, perhaps)?
+
+* After refmac is fine.  After ligand check is problematic - not important enough to fix. Is 
+  because scrolling map changes to a map that gets deleted?
+
+   o repair 72A with alt conf and Sphere refine it.
+
+   o JED: 
+
+     Switching to "colour by molecule" loses the bond order annotation for ligands.
+     Colour by chain is not colour by chain for ligands with bond orders, or is, but then 
+     without.
+
    o in refinement branch (and on Mac, at least) hhh on 89A will crash.
+
+* is OK in master. 
 
    o sphere refine needs to have alpha helical restraints if they have
      been set in the gui
 
+* No, because it's quite possible that we pick up residues that are not supposed to be helical
+
    o when reading map or an mtz file check if the sigma is zero.  If
      so, delete the map molecule and give a dialog.
+
+* Punt.
 
    o "Auto-EM" map radius mode - make the map radius bigger (look at
      the map sampling to work out what the multiplier should be)
 
+* Punt
+
    o to master: 98A is underneath the arg in 4xem when you flev.
+
+* not any more.
 
    o Oliver Clarke mmcif bugs (pdb->mmcif read by Phenix)
 
    o test: Helix atoms have correct B factor Oliver Clarke.
+
+* Done
 
    o Can you make recent file work with coot - saving/reading the
      local recent files file?
@@ -33,6 +62,8 @@
 
 * Fixed.
 
+   o Make the "failed to read PDB file" info available from the GUI -
+     a pop-up or so.
 
    o Coot crashed:
 
@@ -75,7 +106,7 @@ Program terminated with signal 11, Segmentation fault.
   CYS 1305.  Probably missing LINK.  But probe is clever and doesn't mark 
   it up.  Hmm... I wonder why.  Submit it to their server?
 
-   o Do a better job when getting recent PDBe structures wieth refmac5 not 
+   o Do a better job when getting recent PDBe structures with refmac5 not 
      in the path (do it at work): 
 
 command "refmac5" not found
