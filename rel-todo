@@ -18,6 +18,8 @@
      Colour by chain is not colour by chain for ligands with bond orders, or is, but then 
      without.
 
+   o is .coot.py being read?
+
    o in refinement branch (and on Mac, at least) hhh on 89A will crash.
 
 * is OK in master. 
