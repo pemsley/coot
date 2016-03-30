@@ -100,7 +100,7 @@ class ligand_validation_metrics_gui:
 	pangolayout.set_alignment(pango.ALIGN_RIGHT)
         pangolayout.set_text(name)
 	pangolayout.context_changed()
-	print "pangolayout for ", name
+
         da.window.draw_layout(gc, 4+x_for_rj, y-3, pangolayout)
 
 	# Values text
