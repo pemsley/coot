@@ -114,6 +114,9 @@ In unknown file:
 
    o Bond colour slider (edit -> bond colours) is broken. 
 
+   o Judit: Map fill colour (cut glass mode) should be the background
+     colour (e.g. white on a white background).  But give the user a
+     chance to change this (with the gui).
 
    o read in NMR model 5hv8: look at the cis-peptide markup and balls
      markup in different representation styles - they need to be fixed.
