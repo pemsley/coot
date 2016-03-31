@@ -20,6 +20,8 @@
 
    o is .coot.py being read?
 
+Yes.
+
    o in refinement branch (and on Mac, at least) hhh on 89A will crash.
 
 * is OK in master. 
@@ -27,7 +29,8 @@
    o sphere refine needs to have alpha helical restraints if they have
      been set in the gui
 
-* No, because it's quite possible that we pick up residues that are not supposed to be helical
+* No, because it's quite possible that we pick up residues that are not supposed to be 
+  helical
 
    o when reading map or an mtz file check if the sigma is zero.  If
      so, delete the map molecule and give a dialog.
