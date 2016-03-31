@@ -44,31 +44,34 @@
 	 (else (vector-ref (getpwnam (getenv "USER")) 4)))))
 
   (let* ((time-str (let ((hour (tm:hour (localtime (current-time)))))
-		     (cond 
+		     (cond
 		      ((< hour 12) "Good morning")
 		      ((< hour 18) "Good afternoon")
 		      (else "Good evening"))))
 	 (hello-str (format #f "~a ~a. Welcome to Coot ~a." 
-			    time-str user (coot-version))))
+			    time-str (if (string=? user "None") "" user)) (coot-version)))
 
-    (let* ((name-strings (string-split user #\space))
-	   (first-name (car name-strings))
-	   (last-name  (car (reverse name-strings)))
-	   ;; in Japan (and other places (Korea, for example)?) the
-	   ;; personal name comes last.
-	   (personal-name 
-	    (let ((lang     (getenv "LANG"))
-		  (language (getenv "LANGUAGE")))
-	      (cond 
-	       ((string? lang) (cond 
-				((string=? lang "ja") last-name)
-				(else first-name)))
-	       ((string? language) (cond 
-				((string=? language "ja") last-name)
-				(else first-name)))
-	       (else
-		(first-non-trivial-name name-strings)))))
-	   (d-string (format #f "~a ~a. Welcome to Coot" time-str personal-name)))
-    
-      (format #t "~a~%" hello-str)
-      (set-display-intro-string d-string))))
+    (if (not (string=? user "None"))
+	(let* ((name-strings (string-split user #\space))
+	       (first-name (car name-strings))
+	       (last-name  (car (reverse name-strings)))
+	       ;; in Japan (and other places (Korea, for example)?) the
+	       ;; personal name comes last.
+	       (personal-name
+		(let ((lang     (getenv "LANG"))
+		      (language (getenv "LANGUAGE")))
+		  (cond 
+		   ((string? lang) (cond 
+				    ((string=? lang "ja") last-name)
+				    (else first-name)))
+		   ((string? language) (cond 
+					((string=? language "ja") last-name)
+					(else first-name)))
+		   (else
+		    (first-non-trivial-name name-strings)))))
+	       (d-string (format #f "~a ~a. Welcome to Coot" time-str personal-name)))
+	  
+	  (format #t "~a~%" hello-str)
+	  (set-display-intro-string d-string)))))
+
+
