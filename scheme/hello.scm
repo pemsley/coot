@@ -35,8 +35,9 @@
 
 ;; ideally we should say with the right internationalization
 ;; 
-;(let* ((pw-bits (getpwnam (getenv "USER")))
-;       (user (vector-ref pw-bits 4)))
+;;(let* ((pw-bits (getpwnam (getenv "USER")))
+;;       (user (vector-ref pw-bits 4)))
+;;
 (let* ((os-type (vector-ref (uname) 0))
        (user
 	(cond
@@ -49,7 +50,7 @@
 		      ((< hour 18) "Good afternoon")
 		      (else "Good evening"))))
 	 (hello-str (format #f "~a ~a. Welcome to Coot ~a." 
-			    time-str (if (string=? user "None") "" user)) (coot-version)))
+			    time-str (if (string=? user "None") "" user) (coot-version))))
 
     (if (not (string=? user "None"))
 	(let* ((name-strings (string-split user #\space))
@@ -73,5 +74,3 @@
 	  
 	  (format #t "~a~%" hello-str)
 	  (set-display-intro-string d-string)))))
-
-
