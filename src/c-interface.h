@@ -4292,6 +4292,14 @@ int get_default_bond_thickness();
   default status is 1. */
 void set_draw_zero_occ_markers(int status);
 
+
+/*! \brief set status of drawing cis-peptide markups
+
+  default status is 1. */
+void set_draw_cis_peptide_markups(int status);
+
+
+
 /*! \brief set the hydrogen drawing state. istat = 0 is hydrogens off,
   istat = 1: show hydrogens */
 void set_draw_hydrogens(int imol, int istat);
