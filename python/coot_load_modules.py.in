@@ -83,6 +83,7 @@ post_list = ["coot_gui.py",
             "gui_hole.py",
             "gui_prosmart.py",
             "gui_add_linked_cho.py",
+            "gui_contact_score_isolated_ligand.py",
             "jligand_gui.py",
             "get_recent_pdbe.py",
             "extensions.py",
@@ -135,6 +136,7 @@ if use_gui_qm:
             # we do have guile_gtk and dont want to have 
             # the extra extensions from python
             python_list.remove("extensions.py")
+	    python_list.remove("gui_contact_score_isolated_ligand.py")
     except:
         print "BL INFO:: could not import pygtk and gtk"
         pass    

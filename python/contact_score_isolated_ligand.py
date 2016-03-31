@@ -49,14 +49,8 @@ def contact_score_ligand(imol, res_spec):
     graphics_draw()
 
 
-menu = coot_menubar_menu("Ligand")
-
 def contact_score_ligand_func():
     with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                aa_ins_code, aa_atom_name, aa_alt_conf]:
         contact_score_ligand(aa_imol, [aa_chain_id, aa_res_no, aa_ins_code])
         
-add_simple_coot_menu_menuitem(menu, "Isolated dots for this ligand",
-                              lambda func: contact_score_ligand_func())
-
-            
