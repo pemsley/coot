@@ -149,4 +149,4 @@ logramatest_LDADD = \
 	$(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) $(GSL_LIBS)
 
-dist_bin_SCRIPTS = coot.mini-rsr
+dist_bin_SCRIPTS = coot-mini-rsr

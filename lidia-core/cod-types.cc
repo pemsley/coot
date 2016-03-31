@@ -8,6 +8,8 @@
 #include "boost/dynamic_bitset.hpp"
 
 // can throw a std::runtime_error
+//
+// rdkit_mol is not const because there is no const beginAtoms() operator.
 std::vector<std::string>
 cod::get_cod_atom_types(RDKit::ROMol &rdkm, bool add_name_as_property) {
 

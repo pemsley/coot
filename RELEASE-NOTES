@@ -1,20 +1,20 @@
 
   Pre-Release 0.8.3
 
-  o FEATURE: Residue correlations and distortion scores added to
-             cooot.mini-rsr output
+  o FEATURE: Add ligand percentile scoring to the API and GUI
 
-  o FEATURE: Add ligand percentile scoring to the API
+  o FEATURE: Residue correlations and distortion scores added to
+             cooot-mini-rsr output
 
   o CHANGE:  Hydrogen atoms are not longer fit to density
 
-  o CHANGE: Toolbars are now resizable
+  o CHANGE:  Toolbars are now resizable
 
-  o CHANGE: coot-download directory is no longer created on starting coot [Marcin W.]
+  o CHANGE:  coot-download directory is no longer created on starting coot [Marcin W.]
 
-  o CHANGE: Middle-mouse pan added [Martín X]
+  o CHANGE:  Middle-mouse pan added [Martín X]
 
-  o CHANGE: N-terminal addition of peptides has been improved
+  o CHANGE:  N-terminal addition of peptides has been improved
 
   o BUG-FIX: fix atom index check in add_atom_label() [Gabriele Balducci]
 

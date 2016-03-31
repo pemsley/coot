@@ -18,6 +18,10 @@
      Colour by chain is not colour by chain for ligands with bond orders, or is, but then 
      without.
 
+   o is .coot.py being read?
+
+Yes.
+
    o in refinement branch (and on Mac, at least) hhh on 89A will crash.
 
 * is OK in master. 
@@ -25,7 +29,8 @@
    o sphere refine needs to have alpha helical restraints if they have
      been set in the gui
 
-* No, because it's quite possible that we pick up residues that are not supposed to be helical
+* No, because it's quite possible that we pick up residues that are not supposed to be 
+  helical
 
    o when reading map or an mtz file check if the sigma is zero.  If
      so, delete the map molecule and give a dialog.
@@ -145,6 +150,9 @@ In unknown file:
 
    o Bond colour slider (edit -> bond colours) is broken. 
 
+   o Judit: Map fill colour (cut glass mode) should be the background
+     colour (e.g. white on a white background).  But give the user a
+     chance to change this (with the gui).
 
    o read in NMR model 5hv8: look at the cis-peptide markup and balls
      markup in different representation styles - they need to be fixed.
