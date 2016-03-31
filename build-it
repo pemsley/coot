@@ -2474,6 +2474,28 @@ if test -n "$build_clipper" ; then
     # despite our having build fftw for ourselves - I need to stop
     # that (because of clipper's m4/fftw.m4)
     
+    save_libs="$LIBS"
+    export LIBS="-L$install_top_dir/lib:$LIBS"
+    if [ -z "$LIBS" ] ; then
+      save_libs=
+      export LIBS=-L$install_top_dir/lib
+    else 
+      save_libs="$LIBS"
+      export LIBS=-L$install_top_dir/lib:$LIBS
+    fi
+    echo now we have LIBS $LIBS
+
+    echo ./configure --prefix=$install_top_dir \
+	--enable-mmdb=$install_top_dir \
+	--enable-ccp4=$install_top_dir \
+	--enable-shared  \
+	--enable-mmdb    \
+	--enable-cif     \
+	--enable-ccp4    \
+	--enable-minimol \
+	--enable-cns     \
+       CXXFLAGS="-g -O2 -fno-strict-aliasing"
+
     ./configure --prefix=$install_top_dir \
 	--enable-mmdb=$install_top_dir \
 	--enable-ccp4=$install_top_dir \
@@ -2484,6 +2506,7 @@ if test -n "$build_clipper" ; then
 	--enable-minimol \
 	--enable-cns     \
        CXXFLAGS="-g -O2 -fno-strict-aliasing"
+    export LIBS="$save_libs"
     # 20110921 I don't think we need these flags any longer
     #        CCP4_CXXFLAGS=-I$install_top_dir/include CCP4_LIBS=$install_top_dir/lib/libccp4c.la
     # we don't want to make the clipper executables, so let's cd in to the clipper libs and 
@@ -3381,11 +3404,12 @@ if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then
     if [ -e /usr/include/gd.h ] ; then
        system_has_libgd=true
     fi
-    
     echo system_has_libgd: $system_has_libgd
 
-    if [ $system_has_libgd = false ] ; then 
+    if [ "$system_has_libgd" = false ] ; then
+       echo checking for existance of $install_top_dir/include/gd.h
        if [ ! -e $install_top_dir/include/gd.h ] ; then
+           echo get and build libgd...
    	   # Amazon file names too long, so force output name with -O
            ${WGET} https://github.com/libgd/libgd/releases/download/gd-2.1.1/libgd-2.1.1.tar.gz -O ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz
 	   gzip -dc ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz | tar xf -
@@ -3395,6 +3419,8 @@ if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then
 	      make install
 	   fi
 	   cd - 
+       else
+           echo $install_top_dir/include/gd.h exists - skip libgd build
        fi
     else 
        echo $install_top_dir/include/gd.h exists - skip libgd build
@@ -3418,7 +3444,12 @@ if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then
        make linux # fixme for Darwin
        # add the gd support directory
 
-       if [ $system_has_libgd = false ] ; then 
+       system_has_libgd=false
+       if [ -e /usr/include/gd.h ] ; then
+          system_has_libgd=true
+       fi
+       echo system_has_libgd: $system_has_libgd
+       if [ "$system_has_libgd" = false ] ; then 
           sed -ibackup \
              -e "s?=.-lgd?=  -L$prefix/lib -lgd?" \
              -e "s?=.-DGD_SUPPORT?=  -DGD_SUPPORT -I$prefix/include?" \
