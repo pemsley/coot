@@ -1676,10 +1676,6 @@ void info_dialog_and_text(const char *txt);
 /*! \brief set counter for runs of refmac so that this can be used to
   construct a unique filename for new output */
 void set_refmac_counter(int imol, int refmac_count);
-/*! \brief the name for refmac 
-
- @return a stub name used in the construction of filename for refmac output */
-const char *refmac_name(int imol);
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
@@ -5013,6 +5009,7 @@ void unset_add_alt_conf_dialog(); /* set the static dialog holder in
 void unset_add_alt_conf_define(); /* turn off pending atom pick */
 void altconf();			/* temporary debugging interface. */
 void set_add_alt_conf_new_atoms_occupancy(float f); /* default 0.5 */
+float get_add_alt_conf_new_atoms_occupancy();
 void set_show_alt_conf_intermediate_atoms(int i);
 int  show_alt_conf_intermediate_atoms_state();
 void zero_occupancy_residue_range(int imol, const char *chain_id, int ires1, int ires2);

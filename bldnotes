@@ -1,6 +1,7 @@
  -*-text-*-
 
-scripts      rev 5732 (some prodrg stuff needs testing) generic objects, update running of jligand?! (r4782, need to use gtk.gdk.pixbuf_new_from_file() then) , check_ligand.py is dummy
+scripts      rev 5732 (some prodrg stuff needs testing) generic objects, update running of jligand?! (r4782, need to use gtk.gdk.pixbuf_new_from_file() then) , check_ligand.py is dummy dict-gen for windows...
+check drugbox in python
 tests        rev 5460 update
 build-it-win rev 4739 (check 0.8 pre builder, add publishing?!)
 missing script:
@@ -14,6 +15,8 @@ enhanced_ligand.py      test it
 -------------------------------------------------------
 
 check up to dateness of supplied manuals
+
+refinement selection with insertion code not working
 
 Fix installer guile warning for windows feel.
 
@@ -68,6 +71,8 @@ OIST-CCP4
 - after change the canvas (geometry) doesnt work for non-aa any more
 - improve seq assignment interface (take all seq, assign to all prot chains etc)
 - seq alignment produces N-term gaps which are not there... (gap to -2.5?)
+  ...and some other in seqeuence strangeness, need to adjust gap parameters
+  .. maybe alignment parameters should be cutsomisable....
 
 APS 2011(?)
 - copy NCS (chain and residue range) to specific chains (not just all)
@@ -104,7 +109,10 @@ scripting exercise
 
 **** General ****
 
-   o button/menu to hide hydrogens?!
+   o user defined click shoudl stay cross haired as long as there is 
+	clicks pending (count the clicks?!)
+
+   o function: make atom ANISO B
 
    o add atom info to HETATM info in status bar!?
 
@@ -520,6 +528,8 @@ low importance
 
    o fix runwincoot.bat when PYTHONPATH points to a pygtk installation.
 
+   o 64 bit windows version
+
    o Add Documents\ and Settings//My Documents to favourites in filechooser
 
    o build script: better for pango's friends (output and check)
@@ -534,7 +544,7 @@ low importance
 	working on MinGW (maybe DOS?)
 
    o write some info in registry to see that WinCoot is actually installed
-	together with version info etc maybe
+	together with version info install dir etc maybe
 
    o make install syminfo.lib from windows dir
 
@@ -1011,5 +1021,9 @@ Osaka 2010
 * Done
 
    o Refmac use local NCS
+
+* Done
+
+   o button/menu to hide hydrogens?!
 
 * Done

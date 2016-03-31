@@ -36,7 +36,9 @@
 ;; refmac-dir: the dir where input/output refmac files should be written.
 ;; 
 ;; return (list correlation mogul bumps difference-map-stats b-factor-info)
-;; where difference-map-stats: 
+;; where:
+;;     mogul is an improper pair (mogul-z-worst . mogul-out-file-name) or an error status
+;;     difference-map-stats:
 ;;       the output of map-to-model-correlation-stats-scm
 ;;       (list correlation var_x var_y n sum_x sum_y D D2 (based on mean/sd of the map at the ligand) 
 ;;             map_mean map_mean_at_ligand map_sd map_sd_at_ligand SCM_UNDEFINED)
@@ -155,6 +157,11 @@
                 c)
 	    ))))
 
+  ;; Return an error status (not a list) or a improper pair
+  ;; (mogul-z-worst . mogul-out-file-name) on success.
+  ;; 
+  ;; (we want the filename so that we can show mogul markup on the ligand when we activate this 
+  ;;  function from the gui)
   (define (get-mogul-score use-cache?)
 
     ;; if run-result is a string, then it is the mogul-output file name
@@ -174,14 +181,14 @@
 				  (if (= (length mogul-results-list) 0)
 				      'mogul-no-stats
 				      (apply max mogul-results-list)))))
-	    mogul-score))))
+	    (cons mogul-score run-result)))))
 
   ;; return a list: n_bad_overlaps n_hydrogen_bonds n_small_overlaps n_close_contacts n_wide_contacts
   ;; 
   (define (get-bump-score)
     (let* ((ligand-spec (list chain-id res-no ins-code))
 	   (cs (contact-score-ligand imol ligand-spec)))
-      (format #t "debug:: contact score cs: ~s~%" cs)
+      ;; (format #t "debug:: contact score cs: ~s~%" cs)
       (graphics-draw)
       cs))
 
@@ -297,14 +304,19 @@
 
     (let ((b-factor-info (get-b-factor-distribution-metrics stub-name)))
 
+      ;; add error checking to this 
+      ;; 
       (let ((cor (get-correlation stub-name)))
 	(if (number? cor)
 	    (let ((dms (get-ligand-difference-map-stats stub-name)))
 	      (if (not (list? dms))
 		  dms ;; error symbol
 		  (let ((mog (get-mogul-score #f))) ;; use the cache for the ligand? - testing only!
-		    (if (number? mog)
+
+		    (if (pair? mog)
 			(let ((bmp (get-bump-score)))
+
+			  ;; (format #t "------------- bmp: ~s~%" bmp)
 			  (if (list? bmp)
 			      (list cor mog bmp dms b-factor-info)
 			      bmp)) ;; error symbol/string

@@ -99,8 +99,8 @@ python2.1 python2.0])
   dnl BL says:: let them be defined by python in Windows (or in general?)
   dnl seems to be an odd way this...
   if test $have_windows_mingw = yes ; then
-     PYTHON_PREFIX=`$PYTHON -c "import sys; from distutils import sysconfig; sys.stdout.write(sysconfig.PREFIX)"`
-     PYTHON_EXEC_PREFIX=`$PYTHON -c "import sys; from distutils import sysconfig; sys.stdout.write(sysconfig.EXEC_PREFIX)"`
+     PYTHON_PREFIX=`$PYTHON -c "import sys, os; from distutils import sysconfig; path=sysconfig.PREFIX.replace(':','').split(os.sep); sys.stdout.write('/'+'/'.join(path))"`
+     PYTHON_EXEC_PREFIX=`$PYTHON -c "import sys, os; from distutils import sysconfig; path=sysconfig.EXEC_PREFIX.replace(':','').split(os.sep); sys.stdout.write('/'+'/'.join(path))"`
   fi
 
   dnl At times (like when building shared libraries) you may want
@@ -146,7 +146,7 @@ python2.1 python2.0])
      esac
      if test $have_windows_mingw = yes ; then
        dnl BL says:: just let python find its way
-       am_cv_python_pythondir=`$PYTHON -c "from distutils import sysconfig; print(sysconfig.get_python_lib(0,0,prefix=sysconfig.PREFIX))"`
+       am_cv_python_pythondir=`$PYTHON -c "import os; from distutils import sysconfig; path=sysconfig.get_python_lib(0,0,prefix=sysconfig.PREFIX).replace(':','').split(os.sep); print('/'+'/'.join(path))"`
      fi
     ])
   AC_SUBST([pythondir], [$am_cv_python_pythondir])
@@ -188,7 +188,7 @@ python2.1 python2.0])
      esac
      if test $have_windows_mingw = yes ; then
        dnl BL says:: just let python find its way
-       am_cv_python_pyexecdir=`$PYTHON -c "from distutils import sysconfig; print(sysconfig.get_python_lib(1,0,prefix=sysconfig.EXEC_PREFIX))"`
+       am_cv_python_pyexecdir=`$PYTHON -c "import os; from distutils import sysconfig; path=sysconfig.get_python_lib(0,0,prefix=sysconfig.EXEC_PREFIX).replace(':','').split(os.sep); print('/'+'/'.join(path))"`
      fi
     ])
   AC_SUBST([pyexecdir], [$am_cv_python_pyexecdir])

@@ -44,6 +44,7 @@
 
 #include "coot-utils/coot-rama.hh" // for ramachandran scoring of intermediate atoms
 #include "ramachandran-container.hh"
+#include "coot-utils/coot-coord-utils.hh" // is this needed?
 
 namespace coot { 
 
@@ -59,7 +60,7 @@ namespace coot {
 			COLOUR_BY_OCCUPANCY=6,
 			COLOUR_BY_B_FACTOR=7 };
 
-  class my_atom_colour_map_t { 
+  class my_atom_colour_map_t {
 
     public:
     std::vector<std::string> atom_colour_map;
@@ -192,6 +193,7 @@ class graphical_bonds_cis_peptide_markup {
 public:
 
    bool is_pre_pro_cis_peptide;
+   bool is_twisted; // twisted trans
    coot::Cartesian pt_ca_1; 
    coot::Cartesian pt_c_1;
    coot::Cartesian pt_n_2;
@@ -200,12 +202,14 @@ public:
 				      const coot::Cartesian &pt_c_1_in,
 				      const coot::Cartesian &pt_n_2_in,
 				      const coot::Cartesian &pt_ca_2_in,
-				      bool is_pre_pro_cis_peptide_in) {
+				      bool is_pre_pro_cis_peptide_in,
+				      bool is_twisted_in) {
       pt_ca_1 = pt_ca_1_in;
       pt_c_1  = pt_c_1_in;
       pt_n_2  = pt_n_2_in;
       pt_ca_2 = pt_ca_2_in;
       is_pre_pro_cis_peptide = is_pre_pro_cis_peptide_in;
+      is_twisted = is_twisted_in;
    }
 
    graphical_bonds_cis_peptide_markup() {
@@ -372,7 +376,7 @@ class graphical_bonds_container {
 			 const std::vector<int> &colours);
    bool have_rings() const { return rings.size(); }
    bool empty() const { return (bonds_ == NULL); }
-   void add_cis_peptide_markup(const std::vector<coot::atom_quad> &cis_peptide_quads);
+   void add_cis_peptide_markup(const std::vector<coot::util::cis_peptide_quad_info_t> &cis_peptide_quads);
 };
 
 
@@ -553,7 +557,7 @@ class Bond_lines_container {
 				     mmdb::Atom *atom_p_2,
 				     std::vector<std::pair<bool, mmdb::Residue *> > *het_residues);
 
-   std::vector<coot::atom_quad> cis_peptide_quads;
+   std::vector<coot::util::cis_peptide_quad_info_t> cis_peptide_quads;
    
 
 public:

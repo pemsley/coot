@@ -53,10 +53,10 @@ libcoot_geometry_la_LDFLAGS = $(SHARED_LDFLAGS)
 check_PROGRAMS = test-geometry test-read-components test-ccp4srs 
 
 bin_PROGRAMS = \
-	coot.compare-dictionaries          \
-	coot.make-shelx-restraints         \
-	coot.dictionary-bond-distributions \
-	coot.available-comp-id
+	coot-compare-dictionaries          \
+	coot-make-shelx-restraints         \
+	coot-dictionary-bond-distributions \
+	coot-available-comp-id
 
 test_geometry_SOURCES = test-geometry.cc
 

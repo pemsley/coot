@@ -633,10 +633,10 @@ Bond_lines_container::add_double_bond(int iat_1, int iat_2,
 	    col = atom_colour(atoms[iat_2], atom_colour_type);
 	    addBond(col, pt_2_1, mp_1, true, false);
 	    add_dashed_bond(col, pt_2_2, mp_2, HALF_BOND_SECOND_ATOM);
-	 } 
+	 }
       }
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "caught exception add_double_bond(): " << rte.what() << std::endl;
    } 
 }
@@ -690,9 +690,9 @@ Bond_lines_container::add_triple_bond(int iat_1, int iat_2, mmdb::PPAtom atoms, 
 	 addBond(col, pt_2_2, mp_2);
 	 addBond(col, pt_2_3, mp_3);
       }
-   } 
+   }
 	 
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "caught exception add_double_bond(): " << rte.what() << std::endl;
    } 
 } 
@@ -3174,11 +3174,21 @@ Bond_lines_container::addBond(int col,
 
 // if half_bond_type_flag is HALF_BOND_FIRST_ATOM this is called with atom-pos, mid-pod
 // if half_bond_type_flag is HALF_BOND_SECOND_ATOM this is called with mid-pod, atom_pos
+//
+// When we have ca+ligands representation, this function can get
+// called with col=20 when bonds.size() is 10.  Hmm..
+//
 void
 Bond_lines_container::add_dashed_bond(int col,
 				      const coot::Cartesian &start_in,
 				      const coot::Cartesian &end_in,
 				      int half_bond_type_flag) {
+
+   if (false) // debugging.
+      std::cout << ".... in add_dashed_bond() col is " << col
+		<< " and bonds.size() " << bonds.size()
+		<< " and half_bond_type_flag is " << half_bond_type_flag
+		<< std::endl;
 
    float dash_start = 0;
    float dash_end   = 19;
@@ -3215,7 +3225,9 @@ Bond_lines_container::add_dashed_bond(int col,
 	 coot::Cartesian f_s(start + delta * frac_1);
 	 coot::Cartesian f_e(start + delta * frac_2);
 	 coot::CartesianPair pair(f_s, f_e);
-	 bonds[col].add_bond(pair, true, true);
+	 if (col < int(bonds.size())) {
+	    bonds[col].add_bond(pair, true, true);
+	 }
       }
    }
 }
@@ -3227,7 +3239,7 @@ Bond_lines::add_bond(const coot::CartesianPair &p,
 		     bool end_end_cap) {
    graphics_line_t gl(p, begin_end_cap, end_end_cap);
    points.push_back(gl);
-} 
+}
 
 //
 Bond_lines::Bond_lines() {
@@ -3960,7 +3972,7 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
    
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
    mmdb::Model *model_p = SelAtom.mol->GetModel(1);
-   if (pg) { 
+   if (pg) {
       geom = pg;
       have_dictionary = true;
    }
@@ -5262,26 +5274,26 @@ graphical_bonds_container::add_atom_centres(const std::vector<std::pair<bool,coo
 }
 
 void
-graphical_bonds_container::add_cis_peptide_markup(const std::vector<coot::atom_quad> &cis_peptide_quads) {
+graphical_bonds_container::add_cis_peptide_markup(const std::vector<coot::util::cis_peptide_quad_info_t> &cis_peptide_quads) {
 
-   if (cis_peptide_quads.size()) { 
+   if (cis_peptide_quads.size()) {
       // all cis_peptide_quads are valid, right?
       n_cis_peptide_markups = cis_peptide_quads.size();
       cis_peptide_markups = new graphical_bonds_cis_peptide_markup[n_cis_peptide_markups];
    
       for (unsigned int i=0; i<cis_peptide_quads.size(); i++) {
-	 const coot::atom_quad &q = cis_peptide_quads[i];
+	 const coot::atom_quad &q = cis_peptide_quads[i].quad;
 	 coot::Cartesian c_1(q.atom_1->x, q.atom_1->y, q.atom_1->z);
 	 coot::Cartesian c_2(q.atom_2->x, q.atom_2->y, q.atom_2->z);
 	 coot::Cartesian c_3(q.atom_3->x, q.atom_3->y, q.atom_3->z);
 	 coot::Cartesian c_4(q.atom_4->x, q.atom_4->y, q.atom_4->z);
-	 bool flag = false;
-	 if (q.atom_4->residue) {
-	    std::string resname = q.atom_4->residue->GetResName();
-	    if (resname == "PRO")
-	       flag = true;
-	 }
-	 graphical_bonds_cis_peptide_markup m(c_1, c_2, c_3, c_4, flag);
+	 bool pre_pro_flag = false;
+	 bool twisted_trans_flag = false;
+	 if (cis_peptide_quads[i].type == coot::util::cis_peptide_quad_info_t::PRE_PRO_CIS)
+	    pre_pro_flag = true;
+	 if (cis_peptide_quads[i].type == coot::util::cis_peptide_quad_info_t::TWISTED_TRANS)
+	    twisted_trans_flag = true;
+	 graphical_bonds_cis_peptide_markup m(c_1, c_2, c_3, c_4, pre_pro_flag, twisted_trans_flag);
 	 cis_peptide_markups[i] = m;
       }
    }

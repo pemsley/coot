@@ -6,9 +6,69 @@ int main(int argc, char **argv) {return 0;}
 #include "rdkit-interface.hh"
 #include "coot-utils/coot-coord-utils.hh"
 
+// rdkit_mol is not const because there is no const beginAtoms() operator.
+// 
+void write_types(RDKit::RWMol &rdkm) {
+
+   for (unsigned int iat=0; iat<rdkm.getNumAtoms(); iat++) {
+      try {
+	 std::string name;
+	 RDKit::ATOM_SPTR at_p = rdkm[iat];
+	 at_p->getProp("name", name);
+	 std::cout << iat << "   \"" << name << "\"\n";
+      }
+      catch (const KeyErrorException &err) {
+	 std::cout << "caught no-name exception in rdkit_mol H-block" << std::endl;
+      }
+   }
+
+   std::vector<std::string> v = cod::get_cod_atom_types(rdkm);
+
+   for (unsigned int iat=0; iat<v.size(); iat++) {
+      std::string name;
+      try {
+	 RDKit::ATOM_SPTR at_p = rdkm[iat];
+	 at_p->getProp("name", name);
+      }
+      catch (const KeyErrorException &err) { }
+      std::cout << " " << std::right << std::setw(3) << iat << " " << name << " " << v[iat]
+		<< "\n";
+   }
+}
+
+void molecule_from_ccd_pdbx(const std::string &comp_id,
+			    const std::string &file_name) {
+
+   coot::protein_geometry geom;
+   int read_number = 0;
+   geom.init_refmac_mon_lib(file_name, read_number++);
+
+   bool idealised_flag = true;
+   mmdb::Manager *mol = geom.mol_from_dictionary(comp_id, idealised_flag);
+
+   if (! mol) {
+      std::cout << "Null mol from mol_from_dictionary() for " <<  comp_id << std::endl;
+   } else {
+      mmdb::Residue *residue_p = coot::util::get_first_residue(mol);
+
+      if (! residue_p) {
+	 // pretty strange
+	 std::cout << "Null residue from mol from mol_from_dictionary() for "
+		   << comp_id << std::endl;
+      } else {
+	 try {
+	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, geom);
+	 }
+
+	 catch(const std::runtime_error &rte) {
+	    std::cout << "error::" << rte.what() << std::endl;
+	 }
+      }
+   }
+}
+
 void molecule_from_comp_id(const std::string &comp_id) {
    try {
-      mmdb::Residue *residue_p = 0;
       coot::protein_geometry geom;
       // geom.init_standard();
 
@@ -33,31 +93,9 @@ void molecule_from_comp_id(const std::string &comp_id) {
 
 	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, geom);
 	    coot::debug_rdkit_molecule(&rdkm);
+
+	    write_types(rdkm);
 	       
-	    for (unsigned int iat=0; iat<rdkm.getNumAtoms(); iat++) {
-	       try {
-		  std::string name;
-		  RDKit::ATOM_SPTR at_p = rdkm[iat];
-		  at_p->getProp("name", name);
-		  std::cout << iat << "   \"" << name << "\"\n";
-	       }
-	       catch (const KeyErrorException &err) {
-		  std::cout << "caught no-name exception in rdkit_mol H-block" << std::endl;
-	       }
-	    }
-	       
-	    std::vector<std::string> v = cod::get_cod_atom_types(rdkm);
-	    std::cout << "PE-TYPES:: -------- got " << v.size() << " atoms " << std::endl;
-	    for (unsigned int iat=0; iat<v.size(); iat++) {
-	       std::string name;
-	       try { 
-		  RDKit::ATOM_SPTR at_p = rdkm[iat];
-		  at_p->getProp("name", name);
-	       }
-	       catch (const KeyErrorException &err) { } 
-	       std::cout << " " << std::right << std::setw(3) << iat << " " << name << " " << v[iat]
-			 << "\n";
-	    }
 	 }
       }
    }
@@ -104,12 +142,20 @@ int main(int argc, char **argv) {
    int status = 0;
 
    if (argc > 1) {
-      std::string s = argv[1];
-      if (s.length() == 3)
-	 molecule_from_comp_id(s);
-      else
-	 molecule_from_SMILES(s);
-   } 
+      if (argc == 2) {
+	 std::string s = argv[1];
+	 if (s.length() == 3)
+	    molecule_from_comp_id(s);
+	 else
+	    molecule_from_SMILES(s);
+      }
+      
+      if (argc == 3) {
+	 std::string comp_id = argv[1];
+	 std::string file_name = argv[2];
+	 molecule_from_ccd_pdbx(comp_id, file_name);
+      }
+   }
    return status;
 }
 

@@ -1102,8 +1102,7 @@ coot::restraints_container_t::have_intermediate_residue_by_seqnum(mmdb::Residue 
 	 int res_no_1 =  first->GetSeqNum();
 	 int res_no_2 = second->GetSeqNum();
 	 int res_no_diff = res_no_2 - res_no_1;
-	 std::cout << "...... res_no_diff " << res_no_diff << " from "
-		   << residue_spec_t(first) << " and " << residue_spec_t(second) << std::endl;
+
 	 if (res_no_diff != 1) {
 
 	    // try to find a residue that has resno more than res_no_1 and
@@ -1124,7 +1123,6 @@ coot::restraints_container_t::have_intermediate_residue_by_seqnum(mmdb::Residue 
 	       }
 	    }
 	 }
-	 std::cout << "now return r is " << r << std::endl;
       }
    }
    return r;

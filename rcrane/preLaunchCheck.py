@@ -33,10 +33,14 @@ def checkVersion():
     #this function could be (and previously was) implement by parsing coot_version(), which gives us more info
     #but testing svn_revision is far safer as it doesn't depend on the precise string formatting of coot_version()'s output
     
-    if svn_revision() >= 3562: #3562 is the 0.6.2 release
-        return True
-    else:
-        return False
+#     if svn_revision() >= 3562: #3562 is the 0.6.2 release
+#         return True
+#     else:
+#         return False
+
+    # The coot version and revision details was a mess.  Just return true for 0.8.3 and later.
+    #
+    return True
 
 
 def checkMonomerLibrary():
