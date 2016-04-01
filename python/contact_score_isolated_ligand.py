@@ -6,6 +6,7 @@ def deactivate_molecules_except(imol):
 
 
 # This will hydrogenate the active residue, not imol
+# returns the probe clash score
 #
 def contact_score_ligand(imol, res_spec):
 
@@ -45,8 +46,9 @@ def contact_score_ligand(imol, res_spec):
     # debugging!?
     handle_read_draw_probe_dots_unformatted(dots_file_name, imol, 0)
 
-    probe_clash_score(dots_file_name)
+    cs = probe_clash_score(dots_file_name)
     graphics_draw()
+    return cs
 
 
 menu = coot_menubar_menu("Ligand")
