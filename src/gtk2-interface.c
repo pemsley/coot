@@ -14033,7 +14033,7 @@ GtkWidget*
 create_splash_screen_window (void)
 {
   GtkWidget *splash_screen_window;
-  GtkWidget *image10620;
+  GtkWidget *image10854;
 
   splash_screen_window = gtk_window_new (GTK_WINDOW_POPUP);
   gtk_widget_set_name (splash_screen_window, "splash_screen_window");
@@ -14041,14 +14041,14 @@ create_splash_screen_window (void)
   gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
   gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
 
-  image10620 = create_pixmap (splash_screen_window, "coot-0.8.2.png");
-  gtk_widget_set_name (image10620, "image10620");
-  gtk_widget_show (image10620);
-  gtk_container_add (GTK_CONTAINER (splash_screen_window), image10620);
+  image10854 = create_pixmap (splash_screen_window, "coot-0.8.3.png");
+  gtk_widget_set_name (image10854, "image10854");
+  gtk_widget_show (image10854);
+  gtk_container_add (GTK_CONTAINER (splash_screen_window), image10854);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (splash_screen_window, splash_screen_window, "splash_screen_window");
-  GLADE_HOOKUP_OBJECT (splash_screen_window, image10620, "image10620");
+  GLADE_HOOKUP_OBJECT (splash_screen_window, image10854, "image10854");
 
   return splash_screen_window;
 }
