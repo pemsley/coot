@@ -15,12 +15,15 @@ namespace coot {
    class cablam_pseudo_torsion_info {
    public:
       torsion_atom_quad quad;
-   }; 
+   };
 
 
    class cablam {
       clipper::Coord_orth get_closest_CA_CA_approach(const coot::torsion_atom_quad &quad) const;
- public:
+      clipper::Coord_orth get_closest_CA_CA_approach(const clipper::Coord_orth &CA_pos_p,
+						     const clipper::Coord_orth &CA_pos_t,
+						     const clipper::Coord_orth &O_pos_p) const;
+   public:
       cablam(mmdb::PResidue *residues, int n_sel_residues);
    };
 

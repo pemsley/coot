@@ -3657,7 +3657,6 @@ create_column_label_window (void)
 
   label8 = gtk_label_new (_("(Thinking, not crashing)"));
   gtk_widget_set_name (label8, "label8");
-  gtk_widget_show (label8);
   gtk_box_pack_start (GTK_BOX (vbox2), label8, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label8), GTK_JUSTIFY_CENTER);
 

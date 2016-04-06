@@ -284,14 +284,18 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
 
     data_lines.append(labin_string)
 
+    log_file_name_disambiguator = strip_path(file_name_sans_extension(pdb_in_filename))
+    # this should be a database filename:
     refmac_log_file_name = ""
     if (len(ccp4i_project_dir) > 0) :
         refmac_log_file_name += ccp4i_project_dir
     refmac_log_file_name += "refmac-from-coot-"
+    refmac_log_file_name += log_file_name_disambiguator
+    refmac_log_file_name += "-"
     refmac_log_file_name += str(refmac_count)
     refmac_log_file_name += ".log"
 
-    refmac_count += 1
+    refmac_count = imol_refmac_count + refmac_count + 1
 
     print "INFO: running refmac with these command line args: ", command_line_args
     print "INFO: running refmac with these data lines: ", data_lines

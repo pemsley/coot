@@ -298,7 +298,21 @@ if (have_coot_python):
        lambda func: map_molecule_chooser_gui("Map to Copy...", 
 		lambda imol: copy_molecule(imol)))
 
+     
+     add_simple_coot_menu_menuitem(
+       submenu_maps,
+       "Make a Smoother Copy...", 
+       lambda func: map_molecule_chooser_gui("Map Molecule to Smoothenize...", 
+		lambda imol: smooth_map(imol, 1.25)))
 
+     
+     add_simple_coot_menu_menuitem(
+       submenu_maps,
+       "Make a Very Smooth Copy...", 
+       lambda func: map_molecule_chooser_gui("Map Molecule to Smoothenize...", 
+		lambda imol: smooth_map(imol, 2.0)))
+
+     
      add_simple_coot_menu_menuitem(
        submenu_maps,
        "Make a Difference Map...",
@@ -347,6 +361,13 @@ if (have_coot_python):
 #                    export_map_func(imol, radius_string, file_name)
 #                )
 #        )
+
+
+     add_simple_coot_menu_menuitem(
+       submenu_maps,
+       "Map Density Histogram...",
+       lambda func: map_molecule_chooser_gui("Choose the map",
+		lambda imol: map_histogram(imol)))
 
 
      add_simple_coot_menu_menuitem(
@@ -510,6 +531,12 @@ if (have_coot_python):
        "Associate Sequence to Chain...",
        lambda func: associate_sequence_with_chain_gui()) # no alignment on OK press
 
+
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Duplicate range (pick atoms)",
+       lambda func: duplicate_range_by_atom_pick())
+     
      # ---- F ---------
 
      # doublication to entry in main gtk code!
@@ -540,10 +567,21 @@ if (have_coot_python):
                          
      add_simple_coot_menu_menuitem(
        submenu_models,
-       "Fetch PDBe ligand description",
+       "Fetch PDBe description for this ligand",
        lambda func: get_smiles_pdbe_func())
 
-       
+
+     def get_pdbe_ligand_func(comp_id):
+         status = get_SMILES_for_comp_id_from_pdbe(comp_id)
+         get_monomer(comp_id)
+
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Fetch PDBe Ligand Description",
+       lambda func: generic_single_entry("Fetch PDBe Ligand Desciption for comp_id:",
+                                         "", " Fetch ", lambda comp_id: get_pdbe_ligand_func(comp_id)))
+
+
      add_simple_coot_menu_menuitem(
        submenu_models,
        "Fix Nomenclature Errors...",
@@ -618,16 +656,35 @@ if (have_coot_python):
                               lambda text: mon_dict_func(text)))
                               
 
-     def morph_fit_chain_func(radius=7):
+     def morph_fit_chain_func(radius):
        with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                   aa_ins_code, aa_atom_name, aa_alt_conf]:
          morph_fit_chain(aa_imol, aa_chain_id, radius)
          
      add_simple_coot_menu_menuitem(
        submenu_models,
-       "Morph Fit Chain (Radius 7)",
-       lambda func: morph_fit_chain_func()
+       "Morph Fit Chain (Averaging Radius 7)",
+       lambda func: morph_fit_chain_func(7)
        )
+     
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Morph Fit Chain (Averaging Radius 11)",
+       lambda func: morph_fit_chain_func(11)
+       )
+
+
+     def morph_fit_ss_func(radius):
+       with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                  aa_ins_code, aa_atom_name, aa_alt_conf]:
+         morph_fit_by_secondary_structure_elements(aa_imol, aa_chain_id)
+         
+     add_simple_coot_menu_menuitem(
+       submenu_models,
+       "Morph Fit Chain based on Secondary Structure",
+       lambda func: morph_fit_chain_func(7)
+       )
+     
      
      # -- N --
 
@@ -1068,7 +1125,7 @@ if (have_coot_python):
        submenu,
        "Molasses Refinement mode", 
        lambda func: (printf("Molasses..."),
-                     set_dragged_refinement_steps_per_frame(4)))
+                     set_dragged_refinement_steps_per_frame(5)))
 
 
      add_simple_coot_menu_menuitem(
@@ -1259,6 +1316,7 @@ if (have_coot_python):
        bns_handle = make_ball_and_stick(imol, text, 0.18, 0.3, 1)
        print "handle: ", bns_handle
 
+
      global default_ball_and_stick_selection    # maybe should be at the top of the file
      add_simple_coot_menu_menuitem(
        submenu_representation,
@@ -1281,6 +1339,18 @@ if (have_coot_python):
        submenu_representation,
        "Simple Sticks (No Balls)",
        lambda func: add_balls_to_simple_sticks(0))
+
+     add_simple_coot_menu_menuitem(
+       submenu_representation,
+       "Add Balls to Simple Sticks",
+       lambda func: map(lambda imol: set_draw_stick_mode_atoms(imol, 1), molecule_number_list()))
+
+
+     add_simple_coot_menu_menuitem(
+       submenu_representation,
+       "Simple Sticks (No Balls)",
+       lambda func: map(lambda imol: set_draw_stick_mode_atoms(imol, 0), molecule_number_list()))
+
 
      add_simple_coot_menu_menuitem(
        submenu_representation,
@@ -1504,7 +1574,13 @@ if (have_coot_python):
           ccp4mg_file_exe = find_exe(ccp4mg_exe, "PATH")
           pd_file_name = os.path.abspath(pd_file_name)
           args = [ccp4mg_file_exe, "-pict", pd_file_name]
-          os.spawnv(os.P_NOWAIT, ccp4mg_file_exe, args)
+          try:
+            import subprocess
+            subprocess.Popen(args).pid
+            print "BL DEBUG:: new subprocess"
+          except:
+            # no subprocess, use old style
+            os.spawnv(os.P_NOWAIT, ccp4mg_file_exe, args)
 	else:
           print "BL WARNING:: sorry cannot find %s in $PATH" %ccp4mg_exe
 

@@ -803,6 +803,14 @@ void set_add_alt_conf_new_atoms_occupancy(float f) {  /* default 0.5 */
    add_to_history_typed(cmd, args);
 }
 
+
+float get_add_alt_conf_new_atoms_occupancy() {
+
+   graphics_info_t g;
+   return g.add_alt_conf_new_atoms_occupancy;
+}
+
+
 void set_numerical_gradients(int istate) {
 
    graphics_info_t::do_numerical_gradients = istate;
@@ -4435,7 +4443,6 @@ void do_smiles_gui() {
 #endif // USE_GUILE
 
 } 
-
 
 void set_residue_density_fit_scale_factor(float f) {
 

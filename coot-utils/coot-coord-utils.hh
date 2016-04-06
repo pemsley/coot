@@ -663,6 +663,22 @@ namespace coot {
 	 
       };
 
+      // what type of cis-peptide is this?
+      // twisted? pre-pro? non-pre-pro-cis
+      // Of course "twisted" is not strictly cis.
+      // perhaps this function should be called unorthodox_peptide_torsion_quad_info_t
+      // 
+      class cis_peptide_quad_info_t {
+      public:
+	 enum type_t { UNSET_TYPE, CIS, PRE_PRO_CIS, TWISTED_TRANS };
+	 type_t type;
+	 atom_quad quad;
+	 cis_peptide_quad_info_t(const atom_quad &q, type_t t_in) {
+	    quad = q;
+	    type = t_in;
+	 }
+      };
+
       // weighted RTop_orth with deviance
       class w_rtop_orth : public clipper::RTop_orth {
       public:
@@ -1284,8 +1300,9 @@ namespace coot {
       //
       // strictly_cis_flag is false by default.
       // 
-      std::vector<atom_quad> cis_peptide_quads_from_coords(mmdb::Manager *mol,
-							   bool strictly_cis_flag = false);
+      std::vector<cis_peptide_quad_info_t>
+      cis_peptide_quads_from_coords(mmdb::Manager *mol,
+				    bool strictly_cis_flag = false);
       
       // remove wrong cis_peptides from the header records
       void remove_wrong_cis_peptides(mmdb::Manager *mol);

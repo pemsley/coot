@@ -5274,26 +5274,26 @@ graphical_bonds_container::add_atom_centres(const std::vector<std::pair<bool,coo
 }
 
 void
-graphical_bonds_container::add_cis_peptide_markup(const std::vector<coot::atom_quad> &cis_peptide_quads) {
+graphical_bonds_container::add_cis_peptide_markup(const std::vector<coot::util::cis_peptide_quad_info_t> &cis_peptide_quads) {
 
-   if (cis_peptide_quads.size()) { 
+   if (cis_peptide_quads.size()) {
       // all cis_peptide_quads are valid, right?
       n_cis_peptide_markups = cis_peptide_quads.size();
       cis_peptide_markups = new graphical_bonds_cis_peptide_markup[n_cis_peptide_markups];
    
       for (unsigned int i=0; i<cis_peptide_quads.size(); i++) {
-	 const coot::atom_quad &q = cis_peptide_quads[i];
+	 const coot::atom_quad &q = cis_peptide_quads[i].quad;
 	 coot::Cartesian c_1(q.atom_1->x, q.atom_1->y, q.atom_1->z);
 	 coot::Cartesian c_2(q.atom_2->x, q.atom_2->y, q.atom_2->z);
 	 coot::Cartesian c_3(q.atom_3->x, q.atom_3->y, q.atom_3->z);
 	 coot::Cartesian c_4(q.atom_4->x, q.atom_4->y, q.atom_4->z);
-	 bool flag = false;
-	 if (q.atom_4->residue) {
-	    std::string resname = q.atom_4->residue->GetResName();
-	    if (resname == "PRO")
-	       flag = true;
-	 }
-	 graphical_bonds_cis_peptide_markup m(c_1, c_2, c_3, c_4, flag);
+	 bool pre_pro_flag = false;
+	 bool twisted_trans_flag = false;
+	 if (cis_peptide_quads[i].type == coot::util::cis_peptide_quad_info_t::PRE_PRO_CIS)
+	    pre_pro_flag = true;
+	 if (cis_peptide_quads[i].type == coot::util::cis_peptide_quad_info_t::TWISTED_TRANS)
+	    twisted_trans_flag = true;
+	 graphical_bonds_cis_peptide_markup m(c_1, c_2, c_3, c_4, pre_pro_flag, twisted_trans_flag);
 	 cis_peptide_markups[i] = m;
       }
    }

@@ -1294,6 +1294,24 @@ class PdbMtzTestFunctions(unittest.TestCase):
 
 
     def test29_1(self):
+        """Skeletonize a map"""
+
+        imol = read_pdb(rnase_pdb())
+        imol_map = make_and_draw_map(rnase_mtz(), "FWT", "PHWT", "", 0, 0)
+        # should check that both are ok.
+        self.failUnless(valid_model_molecule_qm(imol),"failed to get imol")
+        self.failUnless(valid_map_molecule_qm(imol_map), "failed to get imap")
+
+        skeletonize_map(1, imol_map)
+        skeletonize_map(0, imol_map)
+        skeletonize_map(-1, -1)
+        skeletonize_map(0, 0)
+        close_molecule(imol)
+        close_molecule(imol_map)
+        # yeah, no crash
+        
+
+    def test29_2(self):
         """Simple Averaged maps"""
 
         imol_map_1 = make_and_draw_map(rnase_mtz(), "FWT", "PHWT", "", 0, 0)
@@ -1346,6 +1364,27 @@ class PdbMtzTestFunctions(unittest.TestCase):
         atom_2 = get_atom(imol, "A", 2, "", " C1 ")
 
         print "   bond-length: ", bond_length(atom_1[2], atom_2[2])
+
+    def test30_1(self):
+        """Refine an NAG-ASN Link"""
+
+        imol = unittest_pdb("pdb2qc1-sans-cho.pdb")
+
+        if self.skip_test(not valid_model_molecule_qm(imol),
+            "failed to find pdb2qc1-sans-cho.pdb, skipping test" ):
+            return
+
+        imol_map = make_and_draw_map(rnase_mtz(), "FWT", "PHWT", "", 0, 0)
+        status = add_linked_residue(imol, "B", 141, "", "NAG", "NAG-ASN")
+        # do something with status?!
+        with_auto_accept([refine_residues, imol, [["B", 141, ""], ["B", 464, ""]]])
+
+        atom_1 = get_atom(imol, "B", 141, "", " ND2")
+        atom_2 = get_atom(imol, "B", 464, "", " C1 ")
+
+        self.failUnless(bond_length_within_tolerance_qm(atom_1, atom_2, 1.43, 0.2),
+                        "the bond between the two atoms is not within the tolerance")
+
 
     def test31_0(self):
         """Test for flying hydrogens on undo"""

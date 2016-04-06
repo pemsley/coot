@@ -6,6 +6,56 @@
 
    o test: Helix atoms have correct B factor Oliver Clarke.
 
+   o crash on pc:
+
+    read in pdb2o01.ent and scroll the representation
+
+#0  0x00000032544328e5 in raise () from /lib64/libc.so.6
+#1  0x00000032544340c5 in abort () from /lib64/libc.so.6
+#2  0x00000032544707f7 in __libc_message () from /lib64/libc.so.6
+#3  0x0000003254476126 in malloc_printerr () from /lib64/libc.so.6
+#4  0x0000003254479edf in _int_malloc () from /lib64/libc.so.6
+#5  0x000000325447a951 in malloc () from /lib64/libc.so.6
+#6  0x000000325ecbd09d in operator new(unsigned long) () from /usr/lib64/libstdc++.so.6
+#7  0x00007f5e7fb27d87 in allocate (this=<value optimized out>, iat_1=<value optimized out>, iat_2=<value optimized out>, atoms=0xbb89920, n_atoms=
+    25, also_2nd_order_neighbs_flag=false) at /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../include/c++/4.4.7/ext/new_allocator.h:89
+#8  _M_allocate (this=<value optimized out>, iat_1=<value optimized out>, iat_2=<value optimized out>, atoms=0xbb89920, n_atoms=25, 
+    also_2nd_order_neighbs_flag=false) at /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../include/c++/4.4.7/bits/stl_vector.h:140
+#9  _Vector_base (this=<value optimized out>, iat_1=<value optimized out>, iat_2=<value optimized out>, atoms=0xbb89920, n_atoms=25, 
+    also_2nd_order_neighbs_flag=false) at /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../include/c++/4.4.7/bits/stl_vector.h:113
+#10 vector (this=<value optimized out>, iat_1=<value optimized out>, iat_2=<value optimized out>, atoms=0xbb89920, n_atoms=25, 
+    also_2nd_order_neighbs_flag=false) at /usr/lib/gcc/x86_64-redhat-linux/4.4.7/../../../../include/c++/4.4.7/bits/stl_vector.h:229
+#11 Bond_lines_container::get_neighb_normal (this=<value optimized out>, iat_1=<value optimized out>, iat_2=<value optimized out>, atoms=0xbb89920, 
+    n_atoms=25, also_2nd_order_neighbs_flag=false) at ../../coot/git/coot/coords/Bond_lines.cc:742
+#12 0x00007f5e7fb2f858 in Bond_lines_container::add_double_bond (this=0x7fffdc0860c0, iat_1=5, iat_2=6, atoms=0xbb89920, n_atoms=25, 
+    atom_colour_type=5, bond_restraints=std::vector of length 145, capacity 145 = {...}, is_deloc=false)
+    at ../../coot/git/coot/coords/Bond_lines.cc:593
+#13 0x00007f5e7fb33775 in Bond_lines_container::add_bonds_het_residues (this=0x7fffdc0860c0, het_residues=
+    std::vector of length 178, capacity 256 = {...}, atom_colour_type=5, have_udd_handle=0, udd_handle=-1)
+    at ../../coot/git/coot/coords/Bond_lines.cc:926
+#14 0x00007f5e7fb3b9da in Bond_lines_container::do_Ca_plus_ligands_bonds (this=0x7fffdc0860c0, SelAtom=..., pg=<value optimized out>, min_dist=
+    -1.53540958e+17, max_dist=-1.53540752e+17, atom_colour_type=-603430977, do_bonds_to_hydrogens_in=<value optimized out>)
+    at ../../coot/git/coot/coords/Bond_lines.cc:4045
+#15 0x00007f5e7fb3bbec in Bond_lines_container::do_Ca_plus_ligands_colour_sec_struct_bonds (this=0x7fffdc0860c0, asc=..., pg=0x2c995c0, min_dist=
+    2.4000001, max_dist=4.69999981, do_bonds_to_hydrogens_in=true) at ../../coot/git/coot/coords/Bond_lines.cc:4195
+#16 0x000000000083b60a in molecule_class_info_t::ca_plus_ligands_sec_struct_representation (this=0x7f3ec70, pg=0x2c995c0)
+    at ../../coot/git/coot/src/molecule-class-info-other.cc:447
+#17 0x0000000000610cf0 in graphics_to_ca_plus_ligands_sec_struct_representation (imol=5) at ../../coot/git/coot/src/c-interface.cc:4589
+#18 0x000000000061195e in change_model_molecule_representation_mode (up_or_down=0) at ../../coot/git/coot/src/c-interface.cc:4740
+#19 0x00000000006b671f in glarea_scroll_event (widget=<value optimized out>, event=0x4f6f990) at ../../coot/git/coot/src/globjects.cc:4360
+#20 0x000000325d153f53 in ?? () from /usr/lib64/libgtk-x11-2.0.so.0
+#21 0x000000325640bb3e in g_closure_invoke () from /lib64/libgobject-2.0.so.0
+#22 0x0000003256420e23 in ?? () from /lib64/libgobject-2.0.so.0
+
+   o lbg fetch molecule ibrutinib - fails (Cobicistat works).
+
+   o Run Acedrg on pc-25151504.mol (possibly via lidia) and check for
+     geometry distortions.  Also, and perhaps more importantly, check
+     that the NBC and the H-NBCs are working properly when regularizing.
+
+   o Does "Phosphorylate this residue" work in Python mode?
+>>>>>>> ab43b0ef5fc4ee40342a14cd88d32ec7f255af47
+
 * Fixed.
 
    o test: can you do Ca Zone -> Mainchain on a reversed fragment of 7 
@@ -17,24 +67,122 @@
 
    o Does "Phosphorylate this residue" work in Python mode?
 
-   o Fix the python version of the JLigand interface.
+   o Fix the python version of Sequencing interface, cootaneer_gui_bl
 
-   o Bond colour slider (edit -> bond colours) is broken. 
+   o carbohydrate: Does it work in Python mode?
 
-* Fixed.
+     A 310 in 3u0p
 
-   o ligands validation paper: check the isolated dots for A 2748 in 3hmj
+   o can you launch rcrane?
 
-   o Do a better job when getting recent PDBe structures with refmac5
-     not in the path (do it at work): 
+* Yes. Done.
+
+   o does map scrolling work after running refmac (or via ligand check, perhaps)?
+
+* After refmac is fine.  After ligand check is problematic - not important enough to fix. Is 
+  because scrolling map changes to a map that gets deleted?
+
+   o repair 72A with alt conf and Sphere refine it.
+
+   o JED: 
+
+     Switching to "colour by molecule" loses the bond order annotation for ligands.
+     Colour by chain is not colour by chain for ligands with bond orders, or is, but then 
+     without.
+
+   o is .coot.py being read?
+
+Yes.
 
    o in refinement branch (and on Mac, at least) hhh on 89A will crash.
+
+* is OK in master. 
+
+   o sphere refine needs to have alpha helical restraints if they have
+     been set in the gui
+
+* No, because it's quite possible that we pick up residues that are not supposed to be 
+  helical
+
+   o when reading map or an mtz file check if the sigma is zero.  If
+     so, delete the map molecule and give a dialog.
+
+* Punt.
+
+   o "Auto-EM" map radius mode - make the map radius bigger (look at
+     the map sampling to work out what the multiplier should be)
+
+* Punt
+
+   o to master: 98A is underneath the arg in 4xem when you flev.
+
+* not any more.
+
+   o Oliver Clarke mmcif bugs (pdb->mmcif read by Phenix)
+
+   o test: Helix atoms have correct B factor Oliver Clarke.
+
+* Done
 
    o Can you make recent file work with coot - saving/reading the
      local recent files file?
 
-   o Do a better job when getting recent PDBe structures with refmac5
-     not in the path:
+   o pdb -> mmcif : No TER records (mmdb fix): Eugene.
+
+* Done in bzr.
+
+   o Fix the python version of the JLigand interface.
+
+   o Bond colour slider (edit -> bond colours) is broken.
+
+* Fixed.
+
+   o Make the "failed to read PDB file" info available from the GUI -
+     a pop-up or so.
+
+   o Coot crashed:
+
+hostname: ("lg18.lmb.internal")
+
+exe-name: "/lmb/home/pemsley/autobuild/Linux-scientific-6.4-el-experimental-pre-release-gtk2-python/libexec/coot-bin"
+
+version-full: ("Builder_info: built by: Paul Emsley build-host: hal" "Binary type: Linux-x86_64-scientific-linux-6.4-python-gtk2" "[with python 2.7.10 embedded]" "[with guile 1.8.8 embedded]" "0.8.3-pre (revision-count 0)")
+
+working directory: "/lmb/home/ribo/Projects/RelA/models"
+
+
+[New Thread 11611]
+[Thread debugging using libthread_db enabled]
+Core was generated by `/lmb/home/pemsley/autobuild/Linux-scientific-6.4-el-experimental-pre-release-gt'.
+Program terminated with signal 11, Segmentation fault.
+#0  0x00002b1cd861a30b in coot::restraints_container_t::setup_gsl_vector_variables (this=0xd09d20) at ../../coot/ideal/simple-restraint.cc:7631
+7631	   for (int i=0; i<n_atoms; i++) {
+#0  0x00002b1cd861a30b in coot::restraints_container_t::setup_gsl_vector_variables (this=0xd09d20) at ../../coot/ideal/simple-restraint.cc:7631
+#1  0x00002b1cd8630ca5 in coot::restraints_container_t::geometric_distortions (this=0xd09d20, flags=<value optimized out>) at ../../coot/ideal/simple-restraint.cc:1068
+#2  0x00000000006fa1dc in graphics_info_t::drag_refine_refine_intermediate_atoms () at ../../coot/src/graphics-info-intermediate.cc:90
+#3  0x00000000006f3157 in graphics_info_t::drag_refine_idle_function (widget=<value optimized out>) at ../../coot/src/graphics-info-gui.cc:1240
+#4  0x00000000007015a9 in graphics_info_t::update_refinement_atoms (this=0x7ffc549b42fd, n_restraints=1024, restraints=<value optimized out>, rr_in=<value optimized out>, local_moving_atoms_asc=..., need_residue_order_check=true, imol=0, chain_id_1="U") at ../../coot/src/graphics-info-modelling.cc:610
+#5  0x0000000000701b97 in graphics_info_t::copy_mol_and_refine_inner (this=0x7ffc549b42fd, imol_for_atoms=0, resno_1=35, resno_2=42, nSelResidues=<value optimized out>, SelResidues=0x8fde860, chain_id_1="U", altconf="", have_flanking_residue_at_start=1, have_flanking_residue_at_end=1, imol_for_map=1) at ../../coot/src/graphics-info-modelling.cc:509
+#6  0x0000000000708366 in graphics_info_t::copy_mol_and_refine (this=0x7ffc549b42fd, imol_for_atoms=0, imol_for_map=1, resno_1=35, inscode_1=<value optimized out>, resno_2=42, inscode_2="", altconf="", chain_id_1="U") at ../../coot/src/graphics-info-modelling.cc:316
+#7  0x000000000070886a in graphics_info_t::refine_residue_range (this=0x7ffc549b42fd, imol=0, chain_id_1="U", chain_id_2=<value optimized out>, resno_1=35, ins_code_1="", resno_2=42, ins_code_2="", altconf="", is_water_like_flag=0) at ../../coot/src/graphics-info-modelling.cc:1727
+#8  0x0000000000708e22 in graphics_info_t::refine (this=0x7ffc549b42fd, imol=0, auto_range_flag=0, i_atom_no_1=<value optimized out>, i_atom_no_2=<value optimized out>) at ../../coot/src/graphics-info-modelling.cc:1595
+#9  0x00000000006d8d59 in graphics_info_t::check_if_in_refine_define (this=0x7ffc549b42fd, event=<value optimized out>) at ../../coot/src/graphics-info-defines.cc:364
+#10 0x00000000006dd37a in graphics_info_t::check_if_in_range_defines (this=0x7ffc549b42fd, event=0x2aab6c6151d0, state=@0x7ffc549b42f0) at ../../coot/src/graphics-info-defines.cc:249
+#11 0x00000000006aa2a6 in glarea_button_press (widget=<value optimized out>, event=0x2aab6c6151d0) at ../../coot/src/globjects.cc:4221
+#12 0x0000003a0b7559d3 in ?? () from /usr/lib64/libgtk-x11-2.0.so.0
+#13 0x0000003a00a0e3de in g_closure_invoke () from /lib64/libgobject-2.0.so.0
+#14 0x0000003a00a248d5 in ?? () from /lib64/libgobject-2.0.so.0
+#15 0x0000003a00a25bbb in g_signal_emit_valist () from /lib64/libgobject-2.0.so.0
+#16 0x0000003a00a26333 in g_signal_emit () from /lib64/libgobject-2.0.so.0
+
+   o ligands validation paper: check the isolated dots for A 2748 in 3hmj
+
+* This is a probe issue.  We have C2 on the CER close to the SG on 
+  CYS 1305.  Probably missing LINK.  But probe is clever and doesn't mark 
+  it up.  Hmm... I wonder why.  Submit it to their server?
+
+   o Do a better job when getting recent PDBe structures with refmac5 not 
+     in the path (do it at work): 
 
 command "refmac5" not found
 Backtrace:
@@ -72,6 +220,14 @@ In unknown file:
 
    o Bond colour slider (edit -> bond colours) is broken. 
 
+   o Judit: Map fill colour (cut glass mode) should be the background
+     colour (e.g. white on a white background).  But give the user a
+     chance to change this (with the gui).
+
+   o read in NMR model 5hv8: look at the cis-peptide markup and balls
+     markup in different representation styles - they need to be fixed.
+     Low priority.
+
 * Fixed now.
 
    o the ball colour is not using the CA-only flag in colour by chain mode.
@@ -91,14 +247,6 @@ In unknown file:
   o a good test for jiggle fit is 3GP, beam it in and jiggle-fit.. It
     wanders off.  Needs better map masking (mask the density of the
     atoms of residues-near-residue).
-
-   o Fix the python version of the JLigand interface.
-
-   o Fix the python version of Sequencing interface, cootaneer_gui_bl
-
-   o carbohydrate: Does it work in Python mode?
-
-     A 310 in 3u0p
 
    o fix match-acedrg-dict-to-grade-dict-fails-to-write-dictionary.py (mac)
 
@@ -501,4 +649,8 @@ Program terminated with signal 11, Segmentation fault.
 * kludged.  Maybe worth a look another time
 
    o Improved the dashed lines for links.
+
+   o Get rid of thinking not crashing
+
+* Done.
 

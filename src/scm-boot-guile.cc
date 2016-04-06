@@ -218,6 +218,14 @@ void try_load_dot_coot_and_preferences() {
 	       }
 	    }
 	 }
+
+	 // Now ~/.coot
+
+	 std::string fn = coot::util::append_dir_file(directory, ".coot");
+	 if (coot::file_exists(fn)) {
+	    std::cout << "Loading ~/.coot" << std::endl;
+	    scm_c_primitive_load(fn.c_str()); 
+	 }
       }
    }
 }

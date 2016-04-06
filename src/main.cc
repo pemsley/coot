@@ -202,9 +202,9 @@ main (int argc, char *argv[]) {
       glutInit(&argc, argv);
    } else {
       g_type_init(); // for lbg command-line mode, so that
-      // goo_canvas_new() works cleanly.
+                     // goo_canvas_new() works cleanly.
 #ifdef WINDOWS_MINGW
-      // in Windows we dont want a crash dialog if no-graphics
+      // in Windows we don't want a crash dialog if no-graphics
       SetErrorMode(SetErrorMode(SEM_NOGPFAULTERRORBOX) | SEM_NOGPFAULTERRORBOX);
 #endif // MINGW
    }

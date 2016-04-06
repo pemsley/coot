@@ -16,11 +16,12 @@ def contact_score_ligand(imol, res_spec):
     ins_code = res_spec2ins_code(res_spec)
     ss = "//" + chain_id + "/" + str(res_no)
     imol_selection = new_molecule_by_atom_selection(imol, ss)
-    ligand_selection_pdb = os.path.join("coot-molprobity",
+    coot_molprobity_dir = get_directory("coot-molprobity")
+    ligand_selection_pdb = os.path.join(coot_molprobity_dir,
                                         "tmp-selected-ligand-for-probe-" + str(imol) + ".pdb")
-    protein_selection_pdb = os.path.join("coot-molprobity",
+    protein_selection_pdb = os.path.join(coot_molprobity_dir,
                                          "tmp-protein-for-probe-" + str(imol) + ".pdb")
-    dots_file_name = os.path.join("coot-molprobity",
+    dots_file_name = os.path.join(coot_molprobity_dir,
                                   "probe-" + chain_id + "-" + str(res_no) + ".dots")
     set_mol_active(imol_selection, 0)
     set_mol_displayed(imol_selection, 0)

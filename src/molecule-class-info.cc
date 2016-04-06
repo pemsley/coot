@@ -1999,34 +1999,40 @@ void
 molecule_class_info_t::cis_peptide_markups() const {
 
    if (bonds_box.n_cis_peptide_markups > 0) {
-      glColor3f(0.8, 0.2, 0.2);
       for (int i=0; i<bonds_box.n_cis_peptide_markups; i++) { 
 	 const graphical_bonds_cis_peptide_markup &m = bonds_box.cis_peptide_markups[i];
 
-	 if (! m.is_pre_pro_cis_peptide) { 
-	    coot::Cartesian fan_centre = m.pt_ca_1.mid_point(m.pt_ca_2);
-
-	    coot::Cartesian v1 = fan_centre - m.pt_ca_1;
-	    coot::Cartesian v2 = fan_centre - m.pt_c_1;
-	    coot::Cartesian v3 = fan_centre - m.pt_n_2;
-	    coot::Cartesian v4 = fan_centre - m.pt_ca_2;
-
-	    coot::Cartesian pt_ca_1 = m.pt_ca_1 + v1 * 0.15;
-	    coot::Cartesian pt_c_1  = m.pt_c_1  + v2 * 0.15;
-	    coot::Cartesian pt_n_2  = m.pt_n_2  + v3 * 0.15;
-	    coot::Cartesian pt_ca_2 = m.pt_ca_2 + v4 * 0.15;
-
-	    glBegin(GL_TRIANGLE_FAN);
-	 
-	    glVertex3f(fan_centre.x(), fan_centre.y(), fan_centre.z());
-	    glVertex3f(pt_ca_1.x(), pt_ca_1.y(), pt_ca_1.z());
-	    glVertex3f(pt_c_1.x(),  pt_c_1.y(),  pt_c_1.z());
-	    glVertex3f(pt_n_2.x(),  pt_n_2.y(),  pt_n_2.z());
-	    glVertex3f(pt_ca_2.x(), pt_ca_2.y(), pt_ca_2.z());
-
-	    glEnd();
-
+	 if (! m.is_pre_pro_cis_peptide) {
+	    if (m.is_twisted) {
+	       glColor3f(0.7, 0.6, 0.1);
+	    } else {
+	       glColor3f(0.7, 0.2, 0.2);
+	    }
+	 } else {
+	    glColor3f(0.2, 0.7, 0.2);
 	 }
+	    
+	 coot::Cartesian fan_centre = m.pt_ca_1.mid_point(m.pt_ca_2);
+
+	 coot::Cartesian v1 = fan_centre - m.pt_ca_1;
+	 coot::Cartesian v2 = fan_centre - m.pt_c_1;
+	 coot::Cartesian v3 = fan_centre - m.pt_n_2;
+	 coot::Cartesian v4 = fan_centre - m.pt_ca_2;
+
+	 coot::Cartesian pt_ca_1 = m.pt_ca_1 + v1 * 0.15;
+	 coot::Cartesian pt_c_1  = m.pt_c_1  + v2 * 0.15;
+	 coot::Cartesian pt_n_2  = m.pt_n_2  + v3 * 0.15;
+	 coot::Cartesian pt_ca_2 = m.pt_ca_2 + v4 * 0.15;
+
+	 glBegin(GL_TRIANGLE_FAN);
+	 
+	 glVertex3f(fan_centre.x(), fan_centre.y(), fan_centre.z());
+	 glVertex3f(pt_ca_1.x(), pt_ca_1.y(), pt_ca_1.z());
+	 glVertex3f(pt_c_1.x(),  pt_c_1.y(),  pt_c_1.z());
+	 glVertex3f(pt_n_2.x(),  pt_n_2.y(),  pt_n_2.z());
+	 glVertex3f(pt_ca_2.x(), pt_ca_2.y(), pt_ca_2.z());
+
+	 glEnd();
       }
    }
 }
@@ -7080,12 +7086,6 @@ molecule_class_info_t::store_refmac_phase_params(const std::string &phi,
   refmac_hlb_col = hlb; 
   refmac_hlc_col = hlc; 
   refmac_hld_col = hld; 
-}
-
-void
-molecule_class_info_t::store_refmac_file_mtz_filename(const std::string &mtz_filename) { 
-
-   refmac_file_mtz_filename = mtz_filename; 
 }
 
 

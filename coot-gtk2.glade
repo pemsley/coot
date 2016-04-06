@@ -5061,7 +5061,6 @@
 
       <child>
 	<widget class="GtkLabel" id="label8">
-	  <property name="visible">True</property>
 	  <property name="label" translatable="yes">(Thinking, not crashing)</property>
 	  <property name="use_underline">False</property>
 	  <property name="use_markup">False</property>

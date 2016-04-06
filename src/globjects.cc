@@ -205,7 +205,7 @@ GtkWidget *graphics_info_t::refine_params_dialog = 0;
 // flag to display the accep/reject dialog in the toolbar
 int graphics_info_t::accept_reject_dialog_docked_flag = coot::DIALOG;
 
-// flag to show/hide/sensitise the docked accep/reject dialog in the toolbar
+// flag to show/hide/sensitise the docked accept/reject dialog in the toolbar
 int graphics_info_t::accept_reject_dialog_docked_show_flag = coot::DIALOG_DOCKED_SHOW;
 
 // the refinement toolbar show/hide
@@ -1796,8 +1796,10 @@ gint reshape(GtkWidget *widget, GdkEventConfigure *event) {
    if (graphics_info_t::make_current_gl_context(widget)) {
       glViewport(0,0, widget->allocation.width, widget->allocation.height);
       graphics_info_t g;
-      g.graphics_x_size = widget->allocation.width;
-      g.graphics_y_size = widget->allocation.height;
+      // BL says:: shouldnt widget be window1?!
+      GtkWidget *win = lookup_widget(widget, "window1");
+      g.graphics_x_size = win->allocation.width;
+      g.graphics_y_size = win->allocation.height;
    } 
    graphics_info_t::graphics_draw(); // Added 20080408, needed?
    return TRUE;
@@ -1820,7 +1822,6 @@ gint expose(GtkWidget *widget, GdkEventExpose *event) {
 
    
 /* When widget is exposed it's contents are redrawn. */
-#define DEG_TO_RAD .01745327
 gint draw(GtkWidget *widget, GdkEventExpose *event) {
 
 //    GtkWidget *w = graphics_info_t::glarea;

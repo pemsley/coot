@@ -1917,7 +1917,6 @@ public:        //                      public
    std::vector<coot::atom_attribute_setting_help_t> get_refmac_params() const;
 
    void store_refmac_mtz_filename(const std::string &mtz_filename);
-   void store_refmac_file_mtz_filename(const std::string &mtz_filename);
 
    void store_refmac_phase_params(const std::string &phi,
 				  const std::string &fom,

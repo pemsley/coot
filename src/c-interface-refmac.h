@@ -133,5 +133,5 @@ void save_refmac_phase_params_to_map(int imol_map,
  
 
 
-#endif /* C_INTERFACE_REFMAC_H */
 END_C_DECLS
+#endif /* C_INTERFACE_REFMAC_H */
