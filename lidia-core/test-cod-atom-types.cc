@@ -10,29 +10,38 @@ int main(int argc, char **argv) {return 0;}
 // 
 void write_types(RDKit::RWMol &rdkm) {
 
-   for (unsigned int iat=0; iat<rdkm.getNumAtoms(); iat++) {
-      try {
-	 std::string name;
-	 RDKit::ATOM_SPTR at_p = rdkm[iat];
-	 at_p->getProp("name", name);
-	 std::cout << iat << "   \"" << name << "\"\n";
-      }
-      catch (const KeyErrorException &err) {
-	 std::cout << "caught no-name exception in rdkit_mol H-block" << std::endl;
+   if (false) {
+      for (unsigned int iat=0; iat<rdkm.getNumAtoms(); iat++) {
+	 try {
+	    std::string name;
+	    RDKit::ATOM_SPTR at_p = rdkm[iat];
+	    at_p->getProp("name", name);
+	    std::cout << iat << "   \"" << name << "\"\n";
+	 }
+	 catch (const KeyErrorException &err) {
+	    std::cout << "caught no-name exception in rdkit_mol H-block" << std::endl;
+	 }
       }
    }
 
    std::vector<std::string> v = cod::get_cod_atom_types(rdkm);
 
+   const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
    for (unsigned int iat=0; iat<v.size(); iat++) {
       std::string name;
       try {
 	 RDKit::ATOM_SPTR at_p = rdkm[iat];
 	 at_p->getProp("name", name);
+
+	 int n = at_p->getAtomicNum();
+	 std::string atom_ele = tbl->getElementSymbol(n);
+      
+	 // Acedrg writes out: index element name COD-type, we should match that.
+	 std::cout << " " << std::right << std::setw(3) << iat << "    "
+		   << atom_ele << "    " << name << "     " << v[iat]
+		   << "\n";
       }
       catch (const KeyErrorException &err) { }
-      std::cout << " " << std::right << std::setw(3) << iat << " " << name << " " << v[iat]
-		<< "\n";
    }
 }
 
@@ -58,6 +67,7 @@ void molecule_from_ccd_pdbx(const std::string &comp_id,
       } else {
 	 try {
 	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, geom);
+	    write_types(rdkm);
 	 }
 
 	 catch(const std::runtime_error &rte) {
@@ -137,6 +147,24 @@ void molecule_from_SMILES(const std::string &smiles_string) {
 
 }
 
+void read_tables(const std::string &file_name) {
+
+   cod::bond_record_container_t brc = cod::read_acedrg_table_dir(file_name);
+   std::cout << "stored " << brc.size() << " bond records" << std::endl;
+   std::cout << "-- pre-sort " << std::endl;
+   brc.sort();
+   std::cout << "-- post-sort " << std::endl;
+
+   unsigned int n_records = 10;
+
+   for (unsigned int i=0; i<n_records; i++) { 
+      std::cout << "   " << brc.bonds[i] << std::endl;
+   }
+
+   brc.write("bonds.bin");
+   
+}
+
 int main(int argc, char **argv) {
 
    int status = 0;
@@ -151,9 +179,15 @@ int main(int argc, char **argv) {
       }
       
       if (argc == 3) {
-	 std::string comp_id = argv[1];
+
+	 std::string comp_id   = argv[1];
 	 std::string file_name = argv[2];
-	 molecule_from_ccd_pdbx(comp_id, file_name);
+
+	 if (comp_id == "tables") {
+	    read_tables(file_name);
+	 } else {
+	    molecule_from_ccd_pdbx(comp_id, file_name);
+	 }
       }
    }
    return status;
