@@ -763,7 +763,7 @@ cod::read_acedrg_table(const std::string &file_name) {
 
    bond_record_container_t brc;
    
-   std::ifstream f(file_name);
+   std::ifstream f(file_name.c_str());
 
    if (f) {
       std::vector<std::string> lines;
