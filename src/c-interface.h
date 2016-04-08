@@ -4186,7 +4186,10 @@ void jed_flip(int imol, const char *chain_id, int res_no, const char *ins_code, 
 /*! \name Water Fitting Functions */
 /* \{ */
 
-/*! Renumber the waters of molecule number imol with consecutive numbering */
+/*! \brief create a dialog for water fitting */
+void wrapped_create_find_waters_dialog();
+
+/*! \brief Renumber the waters of molecule number imol with consecutive numbering */
 void renumber_waters(int imol); 
 
 /*! \brief find waters */
