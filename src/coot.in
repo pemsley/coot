@@ -114,21 +114,15 @@ function check_for_no_graphics {
 }
 
 
-current_exe_dir=$(dirname $0)
 systype=$(uname)
 
 if [ $systype = Darwin ] ; then 
-   COOT_PREFIX="$(cd "$(dirname "$current_exe_dir")" 2>/dev/null && pwd)"
+   current_exe_dir="$(cd "$(dirname "$0")" 2>/dev/null && pwd)"
 else 
-   if [ $current_exe_dir = . ] ; then 
-      COOT_PREFIX=$(readlink -f $(dirname $PWD))
-   else 
-      COOT_PREFIX=$(readlink -f $(dirname "$current_exe_dir"))
-   fi
-   if test "$COOT_PREFIX" = ""; then
-      COOT_PREFIX=$(dirname "$current_exe_dir")
-   fi
+   current_exe_dir="$(dirname "$(readlink -f "$0")")"
 fi
+COOT_PREFIX="$(dirname "$current_exe_dir")"
+
 # echo COOT_PREFIX is $COOT_PREFIX
 
 coot_bin=$COOT_PREFIX/libexec/coot-bin
