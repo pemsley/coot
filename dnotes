@@ -7517,4 +7517,16 @@ PDB: 1ioy
 
      http://paulbourke.net/geometry/circlesphere/
 
+----
+
+     How to make a core dump for CCP4 Coot
+
+     which coot
+     cp that coot script to local-dir
+     edit to remove limit
+          hack in value of CCP4_PREFIX
+     $ unlimit coredumpsize
+     $ gdb /lmb/home/public/xtal/CCP4/ccp4-64/ccp4-7.0/libexec/coot-bin core.14139
+
+
 ---

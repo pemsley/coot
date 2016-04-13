@@ -11,6 +11,8 @@
 
   o FEATURE: Optionally add "balls" to standard stick mode
 
+  o CHANGE:  mini-rsr is now called coot-mini-rsrc
+
   o CHANGE:  Hydrogen atoms are not longer fit to density
 
   o CHANGE:  Toolbars are now resizable

@@ -18,7 +18,10 @@
 lib_LTLIBRARIES=libcoot-lidia-core.la
 
 pkginclude_HEADERS = lbg-shared.hh lbg-molfile.hh lig-build.hh \
-	rdkit-interface.hh use-rdkit.hh cod-types.hh neighbour-sorter.hh
+	rdkit-interface.hh use-rdkit.hh cod-types.hh neighbour-sorter.hh \
+	bond-record-container-t.hh bond-table-record-t.hh \
+	cod-atom-types.hh
+
 pkgincludedir = $(includedir)/coot/lidia-core
 
 
@@ -28,8 +31,9 @@ AM_CPPFLAGS = \
 	$(RDKIT_CXXFLAGS) 		\
         $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) $(COOT_WINDOWS_CFLAGS)
 
-libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc rdkit-interface.cc \
-	cod-types.cc
+libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc \
+	rdkit-interface.cc cod-types.cc bond-record-container-t.cc \
+	cod-atom-types.cc bond-table-record-t.cc
 
 libcoot_lidia_core_la_LIBADD =                        \
    $(top_builddir)/geometry/libcoot-geometry.la       \
@@ -54,6 +58,7 @@ test_cod_atom_types_SOURCES = test-cod-atom-types.cc
 
 test_cod_atom_types_LDADD = libcoot-lidia-core.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/coords/libcoot-coords.la \
 	$(RDKIT_LIBS)
 
 
