@@ -1,5 +1,12 @@
 -----
 
+  Pre-release 0.8.4
+
+  o BUG-FIX: set the suggested file name in the dialog on saving coordinates
+             [Andy Purkiss]
+
+-----
+
   Release 0.8.3
 
   o FEATURE: Add ligand percentile scoring to the API and GUI
