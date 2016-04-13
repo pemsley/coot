@@ -652,7 +652,6 @@ graphics_info_t::set_file_for_save_fileselection(GtkWidget *fileselection) const
    }
 }
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 graphics_info_t::save_directory_from_filechooser(const GtkWidget *fileselection) {
 
@@ -743,7 +742,6 @@ graphics_info_t::set_file_for_save_filechooser(GtkWidget *fileselection) const {
       }
    }
 }
-#endif // GTK_MAJOR_VERSION
 
 
 // I find this somewhat asthetically pleasing (maybe because the
