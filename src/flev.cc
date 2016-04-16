@@ -442,6 +442,7 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 #ifndef MAKE_ENHANCED_LIGAND_TOOLS
 # else
 
+
    double weight_for_3d_distances = 0.4; // for 3d distances
    double water_dist_max = 3.25;
    
@@ -488,6 +489,7 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 	       dots.solvent_exposure_differences(res_ref, filtered_residues);
 
 	    try {
+
 	       // can throw a std::runtime_error
 	       RDKit::RWMol rdkm = coot::rdkit_mol(res_ref, *g.Geom_p());
 
@@ -505,6 +507,22 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 		  coot::assign_formal_charges(&rdkm);
 		  coot::remove_non_polar_Hs(&rdkm);
 
+		  // we need to sanitizeMol() after remove_non_polar_Hs, and have
+		  // a kekulized representation.
+		  // we need to sanitize to get ring info,
+		  // then we need to kekulize because we are making a 2D chemical diagram
+		  //
+		  // failed_op sets set by sanitizeMol() - perhaps we shouldn't ignore it.
+		  //
+		  unsigned int failed_op_1 = 0;
+		  unsigned int failed_op_2 = 0;
+		  RDKit::MolOps::sanitizeMol(rdkm, failed_op_1, RDKit::MolOps::SANITIZE_ALL);
+		  RDKit::MolOps::sanitizeMol(rdkm, failed_op_2, RDKit::MolOps::SANITIZE_KEKULIZE);
+
+		  std::cout << "INFO:: sanitizeMol() returned with failed_op: "
+			    << failed_op_1 << " " << failed_op_2
+			    << " (note 'no-failure' is value 0)." << std::endl;
+
 		  int mol_2d_depict_conformer =
 		     coot::add_2d_conformer(&rdkm, weight_for_3d_distances);
 		  lig_build::molfile_molecule_t m =
@@ -515,7 +533,7 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 		  mmdb::Manager *mol_for_flat_residue =
 		     coot::util::create_mmdbmanager_from_residue(residue_flat);
 
-		  if (0) 
+		  if (false)
 		     for (unsigned int iat=0; iat<m.atoms.size(); iat++)
 			std::cout << iat << "  " << m.atoms[iat] << std::endl;
 	       
@@ -601,11 +619,11 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 		  delete mol_for_flat_residue;
 	       }
 	    }
-	    catch (std::runtime_error rte) {
+	    catch (const std::runtime_error &rte) {
 	       std::cout << "ERROR:: (runtime error) in fle_view_with_rdkit(): "
 			 << rte.what() << std::endl;
 	    } 
-	    catch (std::exception e) {
+	    catch (const std::exception &e) {
 	       std::cout << "ERROR (exception) in fle_view_with_rdkit(): " << e.what() << std::endl;
 	    } 
 	 }
