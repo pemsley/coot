@@ -710,6 +710,29 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	 }
       }
    }
+
+   bool debug = false;
+   if (debug)
+      std::cout << "---------------------- calling assign_formal_charges() -----------"
+		<< std::endl;
+   coot::assign_formal_charges(&m);
+
+   if (debug)
+      std::cout << "---------------------- getting ring info findSSSR() -----------"
+		<< std::endl;
+   std::vector<std::vector<int> > ring_info;
+   RDKit::MolOps::findSSSR(m, ring_info);
+
+   if (debug) {
+      // what's the ring info then?
+      RDKit::RingInfo* ring_info_p = m.getRingInfo();
+      unsigned int n_rings = ring_info_p->numRings();
+      std::cout << "INFO:: ring-info: found " << n_rings << " rings" << std::endl;
+   }
+   
+   if (debug)
+      std::cout << "---------------------- calling cleanUp() -----------" << std::endl;
+   RDKit::MolOps::cleanUp(m);
    return m;
 } 
 

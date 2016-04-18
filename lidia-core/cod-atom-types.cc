@@ -21,6 +21,7 @@ cod::atom_types_t::get_cod_atom_types(RDKit::ROMol &rdkm,
    std::vector<std::string> v;
 
    RDKit::RingInfo* ring_info_p = rdkm.getRingInfo();
+
    unsigned int n_rings = ring_info_p->numRings();
 
    // Maybe add a vector of ring sizes to the atoms (most atoms will
@@ -36,7 +37,6 @@ cod::atom_types_t::get_cod_atom_types(RDKit::ROMol &rdkm,
    // what is operator< for a vector of ints? Does this sort work!?
    // 
    std::sort(sorted_atomRings.begin(), sorted_atomRings.end());
-
    
    for (unsigned int i_ring=0; i_ring<n_rings; i_ring++) {
       std::vector<int> ring_atom_indices = sorted_atomRings[i_ring];
@@ -99,7 +99,8 @@ cod::atom_types_t::get_cod_atom_types(RDKit::ROMol &rdkm,
    for(ai=rdkm.beginAtoms(); ai!=rdkm.endAtoms(); ai++) {
       
       std::pair<std::string, std::list<third_neighbour_info_t> > s_pair =
-	 get_cod_atom_type(0, *ai, *ai, rdkm); // full-spec
+	 // get_cod_atom_type(0, *ai, *ai, rdkm); // full-spec
+	 get_cod_atom_type(*ai, 0, 0, *ai, rdkm);
 
       std::string s = s_pair.first;
       v.push_back(s);
@@ -317,11 +318,12 @@ cod::atom_types_t::trace_path(unsigned int idx,
 // calculating the atom types eventually.
 // 
 std::pair<std::string, std::list<cod::third_neighbour_info_t> >
-cod::atom_types_t::get_cod_atom_type(RDKit::Atom *atom_parent_p,
-		       RDKit::Atom *atom_p,
-		       RDKit::Atom *atom_base_p,
-		       const RDKit::ROMol &rdkm,
-		       int nb_level) {
+cod::atom_types_t::get_cod_atom_type(RDKit::Atom *atom_base_p,
+				     RDKit::Atom *atom_nb_1_p,
+				     RDKit::Atom *atom_parent_p,
+				     RDKit::Atom *atom_p,
+				     const RDKit::ROMol &rdkm,
+				     int nb_level) {
 
    std::list<third_neighbour_info_t> tnil;
 
@@ -394,11 +396,11 @@ cod::atom_types_t::get_cod_atom_type(RDKit::Atom *atom_parent_p,
 	 } else {
 
 	    // neighb_type is the type for the next level.  We don't want to
-	    // add level_3 neighb_types (give nb_level == 2)
+	    // add level_3 neighb_types (this function called with nb_level == 2)
 	    //
 	    if (nb_level < 2) {
 	       std::pair<std::string, std::list<third_neighbour_info_t> > s_pair =
-		  get_cod_atom_type(atom_p, neigh_atom_p, atom_base_p, rdkm, nb_level+1);
+		  get_cod_atom_type(atom_base_p, atom_parent_p, atom_p, neigh_atom_p, rdkm, nb_level+1);
 	       std::string neighb_type = s_pair.first;
 	       neighbour_types.push_back(neighb_type);
 
@@ -412,8 +414,19 @@ cod::atom_types_t::get_cod_atom_type(RDKit::Atom *atom_parent_p,
 	    } else {
 
 	       third_neighbour_info_t tni =
-		  get_cod_nb_3_type(atom_p, neigh_atom_p, atom_base_p, rdkm);
+		  get_cod_nb_3_type(atom_base_p, atom_parent_p, atom_p, neigh_atom_p, rdkm);
+
 	       if (! tni.ele.empty()) {
+
+		  if (false) { // debug
+		     std::string name_base;
+		     std::string name_this;
+		     atom_base_p->getProp("name", name_base);
+		     neigh_atom_p->getProp("name", name_this);
+		     std::cout << "    " << name_base << " has 3rd neighb "
+			       << name_this << std::endl;
+		  }
+
 		  tnil.push_back(tni);
 		  tnil.sort();
 		  tnil.unique();
@@ -444,10 +457,11 @@ cod::atom_types_t::get_cod_atom_type(RDKit::Atom *atom_parent_p,
 // that shares a ring with NB-3.
 // 
 cod::third_neighbour_info_t
-cod::atom_types_t::get_cod_nb_3_type(RDKit::Atom *atom_parent_p,
-		       RDKit::Atom *atom_p,
-		       RDKit::Atom *atom_base_p, // the original atom 
-		       const RDKit::ROMol &rdkm) {
+cod::atom_types_t::get_cod_nb_3_type(RDKit::Atom *atom_base_p, // the original atom 
+				     RDKit::Atom *atom_nb_1_p,
+				     RDKit::Atom *atom_parent_p,
+				     RDKit::Atom *atom_p,
+				     const RDKit::ROMol &rdkm) {
    
    third_neighbour_info_t tni;
 
@@ -467,7 +481,7 @@ cod::atom_types_t::get_cod_nb_3_type(RDKit::Atom *atom_parent_p,
       if (in_ring) {
 
 	 bool match_for_3rd_nb_info_flag =
-	    check_for_3rd_nb_info(atom_parent_p, atom_p, atom_base_p, rdkm);
+	    check_for_3rd_nb_info(atom_base_p, atom_nb_1_p, atom_parent_p, atom_p, rdkm);
 	 
 	 if (match_for_3rd_nb_info_flag) {
 	    
@@ -488,24 +502,28 @@ cod::atom_types_t::get_cod_nb_3_type(RDKit::Atom *atom_parent_p,
    return tni;
 }
 
-bool 
-cod::atom_types_t::check_for_3rd_nb_info(RDKit::Atom *atom_parent_p,
-			   RDKit::Atom *atom_p,
-			   RDKit::Atom *atom_base_p,
-			   const RDKit::ROMol &rdkm) {
+bool
+cod::atom_types_t::check_for_3rd_nb_info(RDKit::Atom *atom_base_p,
+					 RDKit::Atom *atom_nb_1_p,
+					 RDKit::Atom *atom_parent_p,
+					 RDKit::Atom *atom_p,
+					 const RDKit::ROMol &rdkm) {
 
+   // "related" means "3rd neighb info is needed for this atom"
+   //
    bool related = false;
-
-   // are atom_parent_p and atom_base_p in the same ring?
 
    RDKit::RingInfo* ring_info_p = rdkm.getRingInfo();
    unsigned int n_rings = ring_info_p->numRings();
    std::vector<std::vector<int> > atomRings = ring_info_p->atomRings();
+   
+   // are atom_parent_p and atom_base_p in the same ring?
+   // 
    for (unsigned int i_ring=0; i_ring<n_rings; i_ring++) {
       const std::vector<int> &ring_atom_indices = atomRings[i_ring];
       unsigned int n_ring_atoms = ring_atom_indices.size();
-      bool found_parent = false;
       bool found_base   = false;
+      bool found_parent = false;
       bool found_this   = false;
       for (unsigned int iat=0; iat<n_ring_atoms; iat++) {
 	 RDKit::Atom *ring_atom_p = rdkm[ring_atom_indices[iat]].get();
@@ -523,15 +541,90 @@ cod::atom_types_t::check_for_3rd_nb_info(RDKit::Atom *atom_parent_p,
 	 break;
       }
    }
-   
 
    // or
+   //
+   // if NB-2 is in a ring (not necessarily the same ring as base
+   // atom) then NB-3 is counted if the parent if NB-3 is also in a ring
 
-   // something else?
+   if (! related) {
 
+      bool found_base   = false;
+      bool found_parent = false;
+      bool found_this   = false;
+      bool found_nb_1   = false;
+      for (unsigned int i_ring=0; i_ring<n_rings; i_ring++) {
+	 const std::vector<int> &ring_atom_indices = atomRings[i_ring];
+	 unsigned int n_ring_atoms = ring_atom_indices.size();
+	 for (unsigned int iat=0; iat<n_ring_atoms; iat++) {
+	    RDKit::Atom *ring_atom_p = rdkm[ring_atom_indices[iat]].get();
+
+	    if (ring_atom_p == atom_parent_p)
+	       found_parent = true;
+	    if (ring_atom_p == atom_base_p)
+	       found_base = true;
+	    if (ring_atom_p == atom_p)
+	       found_this = true;
+	    if (ring_atom_p == atom_nb_1_p)
+	       found_nb_1 = true;
+	 }
+
+	 if (found_this && found_base && found_parent && found_nb_1)
+	    break;
+      }
+
+      // if (found_this && found_base && found_parent && found_nb_1) {
+
+      if (found_base && found_parent && found_nb_1) {
+
+	 related = true;
+      }
+   }
+
+   // finally exclude those atoms that are already related to base
+   // atom via a (different atom set) angle.
+   //
+   if (related)
+      if (related_via_angle(atom_base_p, atom_p, rdkm))
+	 related = false;
+   
    return related;
-
 }
+
+bool
+cod::atom_types_t::related_via_angle(RDKit::Atom *atom_in_1_p,
+				     RDKit::Atom *atom_in_2_p,
+				     const RDKit::ROMol &rdkm) const {
+
+   bool angle_related = false;
+   RDKit::ROMol::ADJ_ITER nbrIdx_1, endNbrs_1;
+   boost::tie(nbrIdx_1, endNbrs_1) = rdkm.getAtomNeighbors(atom_in_1_p);
+   while(nbrIdx_1 != endNbrs_1) {
+
+      RDKit::ATOM_SPTR at_mid = rdkm[*nbrIdx_1];
+
+      RDKit::ROMol::ADJ_ITER nbrIdx_2, endNbrs_2;
+      boost::tie(nbrIdx_2, endNbrs_2) = rdkm.getAtomNeighbors(at_mid);
+      while(nbrIdx_2 != endNbrs_2) {
+
+	 RDKit::Atom *at = rdkm[*nbrIdx_2].get();
+
+	 if (at == atom_in_2_p) {
+	    angle_related = true;
+	    break;
+	 }
+	 nbrIdx_2++;
+      }
+      if (angle_related)
+	 break;
+      nbrIdx_1++;
+   }
+
+   return angle_related;
+}
+
+
+	 
 
 
 // we are making cod types for which base atom?
@@ -539,19 +632,21 @@ cod::atom_types_t::check_for_3rd_nb_info(RDKit::Atom *atom_parent_p,
 //
 std::string
 cod::atom_types_t::make_cod_type(RDKit::Atom *base_atom_p,
-		   const std::string &atom_ele,
-		   const std::vector<std::string> &neighbour_types,
-		   const std::list<third_neighbour_info_t> &tnil,
-		   int nb_level) {
+				 const std::string &atom_ele,
+				 const std::vector<std::string> &neighbour_types,
+				 const std::list<third_neighbour_info_t> &tnil,
+				 int nb_level) {
 
    std::string s;
 
    std::vector<std::string> n = sort_neighbours(neighbour_types, nb_level);
 
-   if (false) { 
+   if (false) { // debugging
       std::string name;
       if (base_atom_p)
 	 base_atom_p->getProp("name", name);
+      else
+	 name = "<null-base-atom>";
       std::cout << "---- in make_cod_type() atom name: " << name
 		<< "  atom_ele " << atom_ele
 		<< " level " << nb_level
@@ -567,11 +662,11 @@ cod::atom_types_t::make_cod_type(RDKit::Atom *base_atom_p,
 	 std::string name;
 	 for (it=tnil.begin(); it!=tnil.end(); it++) {
 	    it->atom_p->getProp("name", name);
-	    std::cout << name << " "  << it->atom_p << "   \"" << it->ele << "\" "
+	    std::cout << "__ :" << name << ": "  << it->atom_p << "   \"" << it->ele << "\" "
 		      << it->degree << std::endl;
 	 }
       }
-   }
+   } // ------------------ debug block
 
    if (n.size() == 0) {
       s = atom_ele;

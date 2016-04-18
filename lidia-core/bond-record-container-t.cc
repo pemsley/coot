@@ -13,10 +13,16 @@
 #include "cod-atom-types.hh"
 #include "bond-record-container-t.hh"
 
-// can throw std::runtime_error
+#include "coot-utils/coot-coord-utils.hh"
+
+// can throw std::runtime_error.
+// 
+// The input atom names are directly from the pdbx cif file, so the
+// don't contain spaces, so the input at_name_in should not contain
+// spaces.
 unsigned int
 cod::bond_record_container_t::get_atom_index(const std::string &at_name_in,
-								    const RDKit::RWMol &mol) const {
+					     const RDKit::RWMol &mol) const {
 
    // check "name" property
 
@@ -29,6 +35,7 @@ cod::bond_record_container_t::get_atom_index(const std::string &at_name_in,
       try {
 	 std::string name = "";
 	 at_p->getProp("name", name);
+	 // std::cout << "   debug " << iat << " \"" << name << "\"" << std::endl;
 	 if (name == at_name_in) {
 	    found = true;
 	    idx = iat;
@@ -39,6 +46,8 @@ cod::bond_record_container_t::get_atom_index(const std::string &at_name_in,
    }
 
    if (! found) {
+      std::cout << "get_atom_index() throwing rte for atom \"" << at_name_in
+		<< "\""<< std::endl;
       std::string m(std::string("atom name \"") + at_name_in +
 		    std::string("\" not found in dictionary atom name list"));
       throw std::runtime_error(m);
@@ -52,7 +61,7 @@ unsigned int
 cod::bond_record_container_t::get_atom_index(const std::string &at_name_1,
 					     const coot::dictionary_residue_restraints_t &rest) const {
 
-   std::cout << " ... here in get_atom_index() " << at_name_1 << std::endl;
+
    unsigned idx = 0;
    bool found = false;
    for (unsigned int iat=0; iat<rest.atom_info.size(); iat++) { 
@@ -294,6 +303,14 @@ bool
 cod::bond_record_container_t::read_bonds(const std::string &bonds_file_name,
 					 const std::vector<std::string> &atom_types) {
 
+   // this is the slow function.
+   //
+   // It takes 3 seconds to run,
+   // of which 1s is the bonds_map[][] line,
+   // running getline() on the file takes 0.2s,
+   // 1.8 s is spend on string -> number
+   // the atom types look up takes ~0.1s each (really?)
+   
    bool status = true;
    std::ifstream f(bonds_file_name.c_str());
    if (f) {
@@ -301,30 +318,31 @@ cod::bond_record_container_t::read_bonds(const std::string &bonds_file_name,
       std::string line;
       try { 
 	 while (std::getline(f, line)) {
-	    double bl      = coot::util::string_to_float(line.substr( 0,10));
-	    double std_dev = coot::util::string_to_float(line.substr(11,20));
-	    int count      = coot::util::string_to_int(line.substr(21, 6));
-	    int idx_1      = coot::util::string_to_int(line.substr(28, 6));
-	    int idx_2      = coot::util::string_to_int(line.substr(36, 6));
 
-	    std::string type_1 = atom_types[idx_1];
-	    std::string type_2 = atom_types[idx_2];
+	    if (true) {
+	       double bl      = coot::util::string_to_double(line.substr( 0,10));
+	       double std_dev = coot::util::string_to_double(line.substr(11,20));
+	       int count      = coot::util::string_to_int(line.substr(21, 6));
+	       int idx_1      = coot::util::string_to_int(line.substr(28, 6));
+	       int idx_2      = coot::util::string_to_int(line.substr(36, 6));
 
-	    if (false)
-	       std::cout << "parsed "
-			 << std::setw(10) << bl << " "
-			 << std::setw(10) << std_dev << " "
-			 << std::setw( 8) << count
-			 << " idx_1: " << idx_1 << "    idx_2: " << idx_2 << "   "
-			 << type_1 << "   " << type_2 << "\n";
+	       std::string type_1 = atom_types[idx_1];
+	       std::string type_2 = atom_types[idx_2];
 
-	    if (type_2 < type_1)
-	       std::swap(type_1, type_2);
-	    bond_table_record_t bond(type_1, type_2, bl, std_dev, count);
+	       if (false)
+		  std::cout << "parsed "
+			    << std::setw(10) << bl << " "
+			    << std::setw(10) << std_dev << " "
+			    << std::setw( 8) << count
+			    << " idx_1: " << idx_1 << "    idx_2: " << idx_2 << "   "
+			    << type_1 << "   " << type_2 << "\n";
 
-	    // bonds.push_back(bond);
+	       if (type_2 < type_1)
+		  std::swap(type_1, type_2);
+	       bond_table_record_t bond(type_1, type_2, bl, std_dev, count);
 
-	    bonds_map[type_1][type_2] = bond;
+	       bonds_map[type_1][type_2] = bond;
+	    }
 	 }
       }
       catch (const std::runtime_error &rte) {
@@ -417,6 +435,7 @@ cod::bond_record_container_t::get_is_hydrogen_flags(const RDKit::RWMol &rdkm) co
 }
 
 // atom types are generated from the atoms of rest (which contains hydrogens)
+// 
 void
 cod::bond_record_container_t::validate(mmdb::Residue *res,
 				       const coot::dictionary_residue_restraints_t &rest) const {
@@ -432,51 +451,86 @@ cod::bond_record_container_t::validate(mmdb::Residue *res,
 	    
 	    RDKit::RWMol rdkm = coot::rdkit_mol(rest);
 
-	    coot::debug_rdkit_molecule(&rdkm);
+	    // coot::debug_rdkit_molecule(&rdkm);
 
 	    atom_types_t t;
 	    std::vector<std::string> v = t.get_cod_atom_types(rdkm, true);
 
-	    for (unsigned int ii=0; ii<v.size(); ii++)
-	       std::cout << "get_cod_atom_types() " << ii << " " << v[ii]
-			 << std::endl;
+	    if (rdkm.getNumAtoms() == v.size()) {
+	       unsigned int n_mol_atoms = rdkm.getNumAtoms();
+	       for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
+		  RDKit::ATOM_SPTR at_p = rdkm[iat];
+		  try {
+		     std::string name;
+		     at_p->getProp("name", name);
+		     std::cout << "    " << iat << " " << name
+			       << "  " << v[iat] << std::endl;
+		  }
+		  catch (const KeyErrorException &kee) {
+		     std::cout << "   " << iat << " " << kee.what()
+			       << std::endl;
+		  }
+	       }
+	    }
+
+	    if (false)
+	       for (unsigned int ii=0; ii<v.size(); ii++)
+		  std::cout << "get_cod_atom_types() " << ii << " " << v[ii]
+			    << std::endl;
 
 	    std::vector<bool> v_H = get_is_hydrogen_flags(rdkm);
 
 	    // check that v is the same length as residue has atoms
 	    //
-	    if (rdkm.getNumAtoms() == v.size()) {
-	       
+	    if ((rdkm.getNumAtoms() == v.size()) && (v.size() == v_H.size())) {
+
 	       for (unsigned int ibond=0; ibond<rest.bond_restraint.size(); ibond++) {
 		  const coot::dict_bond_restraint_t &bond = rest.bond_restraint[ibond];
-		  const std::string &at_name_1 = bond.atom_id_1_4c();
-		  const std::string &at_name_2 = bond.atom_id_2_4c();
+
+		  std::string at_name_1_4c = bond.atom_id_1_4c();
+		  std::string at_name_2_4c = bond.atom_id_2_4c();
+
+		  std::string at_name_1 = coot::util::remove_whitespace(bond.atom_id_1());
+		  std::string at_name_2 = coot::util::remove_whitespace(bond.atom_id_2());
+
+		  if (false) { 
+		     std::cout << "in validate(): at_name_1 is \"" << at_name_1
+			       << "\"" << std::endl;
+		     std::cout << "               at_name_2 is \"" << at_name_2
+			       << "\"" << std::endl;
+		  }
 
 		  try {
 		     
-		     // use atom indices and look in v.
+		     // use atom indices and look in v. Use non-whitespace names
+		     // 
 		     unsigned int atom_idx_1 = get_atom_index(at_name_1, rdkm);
 		     unsigned int atom_idx_2 = get_atom_index(at_name_2, rdkm);
 
-		     std::cout << "atom indices "
-			       << atom_idx_1 << " " << atom_idx_2 << std::endl;
+		     if (false)
+			std::cout << "atom indices "
+				  << atom_idx_1 << " " << atom_idx_2 << std::endl;
 
-		     std::string cod_type_1 = v[atom_idx_1];
-		     std::string cod_type_2 = v[atom_idx_2];
+		     if (! v_H[atom_idx_1] && ! v_H[atom_idx_2]) {
 
-		     if (cod_type_2 < cod_type_1)
-			std::swap(cod_type_1, cod_type_2);
+			std::string cod_type_1 = v[atom_idx_1];
+			std::string cod_type_2 = v[atom_idx_2];
+
+			if (cod_type_2 < cod_type_1)
+			   std::swap(cod_type_1, cod_type_2);
 		     
-		     bond_table_record_t cod_bond = 
-			get_cod_bond_from_table(cod_type_1, cod_type_2);
+			bond_table_record_t cod_bond = 
+			   get_cod_bond_from_table(cod_type_1, cod_type_2);
 		     
-		     double dist = get_bond_distance_from_model(at_name_1, at_name_2, res);
+			double dist =
+			   get_bond_distance_from_model(at_name_1_4c, at_name_2_4c, res);
 
-		     std::cout << "compare: model: " << dist
-			       << " vs tables: " << cod_bond.mean << " +/- "
-			       << cod_bond.std_dev << " "
-			       << cod_type_1 << "  " << cod_type_2
-			       << std::endl;
+			std::cout << "compare: model: " << dist
+				  << " vs tables: " << cod_bond.mean << " +/- "
+				  << cod_bond.std_dev << " "
+				  << cod_type_1 << "  " << cod_type_2
+				  << std::endl;
+		     }
 		  }
 		  catch (const std::runtime_error &rte) {
 		     std::cout << "No bond for atom names: \""
@@ -530,10 +584,9 @@ cod::bond_record_container_t::get_cod_bond_from_table(const std::string &cod_typ
 
 }
 
-
-
-#include "coot-utils/coot-coord-utils.hh"
-
+// This function may be called for bonds to Hydrogen atoms - they are in the dictionary
+// but often not in the model.
+//
 double
 cod::bond_record_container_t::get_bond_distance_from_model(const std::string &at_name_1,
 							   const std::string &at_name_2,

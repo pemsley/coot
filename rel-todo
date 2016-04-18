@@ -1,6 +1,8 @@
  
  0.8.3
 
+   o fix up hydrogenize and flev interface (is cprodrg still a part of ccp4?)
+
    o ligand distortions represenation (vs dictionary) should be in "Ligand" menu
 
    o set_occupacy_residue_range should be exported to the API (next to zero_occupancy_residue_range)
