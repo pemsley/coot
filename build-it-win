@@ -853,13 +853,10 @@ if test $OS = OSF1 ; then
    systype=${osversion}-OSF1
 fi
 
-# maybe all can be case
-case "$OS" in
-   MINGW*) 
-     systype=`uname -m`
-     architecture=`uname -m`
-   ;;
-esac
+if test "$OS" = "MINGW32*" ; then
+   systype=`uname -m`
+   architecture=`uname -m`
+fi
 
 echo systype: $systype
 
@@ -1276,11 +1273,10 @@ else
          if test "$OS" = Darwin ; then
             ccp4_system_type=Darwin
 	 else
-	    case "$OS" in 
-               MINGW*) 
-	         # not sure if really needed later?!
-	         ccp4_system_type=MinGW
-            esac
+	    if test "$OS" = "MINGW*" ; then
+	       # not sure if really needed later?!
+	       ccp4_system_type=MinGW
+	    fi
          fi
       fi
    fi

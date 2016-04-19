@@ -32,7 +32,7 @@
 !define PRODUCT_NAME "WinCoot"
 !define PRODUCT_VERSION "${WinCootVersion}"
 !define PRODUCT_PUBLISHER "Bernhard Lohkamp & Paul Emsley"
-!define PRODUCT_WEB_SITE "http://bernhardcl.github.io/coot"
+!define PRODUCT_WEB_SITE "http://www.ysbl.york.ac.uk/~lohkamp/coot/wincoot.html"
 !define PRODUCT_WEB_SITE_2 "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\uninst.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
@@ -167,8 +167,8 @@ FunctionEnd
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 
 !ifndef binary_dir
-; default to pre-release output dir
-!define binary_dir "C:\MinGW\msys\1.0\home\bernhard\public_html\software\binaries\pre-release"
+; default to nightlies output dir
+!define binary_dir "C:\MinGW\msys\1.0\home\bernhard\public_html\software\binaries\nightlies\pre-release"
 !endif
 ; just in case something goes wrong, we define src to be pre-release (default)
 !ifndef src_dir
@@ -234,35 +234,34 @@ Section "!WinCoot" SEC01
   endifbat:
 
   SetOverwrite on
-  File /oname=$INSTDIR\wincoot.bat.tmp "C:\MinGW\msys\1.0\home\bernhard\Projects\coot\windows\wincoot.bat"
+  File /oname=$INSTDIR\runwincoot.bat.tmp "C:\MinGW\msys\1.0\home\bernhard\Projects\coot\windows\runwincoot.bat"
 
+  SetOverwrite ifnewer
+; libexec DIR
+  SetOutPath "$INSTDIR\libexec"
+  SetOverwrite on
+  File "${src_dir}\libexec\coot-bin.exe"
+  File "${src_dir}\libexec\mini-rsr-bin.exe"
   SetOverwrite ifnewer
 ; bin DIR
   SetOutPath "$INSTDIR\bin"
-  SetOverwrite on
-  File "${src_dir}\bin\coot-bin.exe"
-  File "${src_dir}\bin\coot-density-score-by-residue-bin.exe"
-  File "${src_dir}\bin\findligand-bin.exe"
-  File "${src_dir}\bin\findwaters-bin.exe"
-  File "${src_dir}\bin\mini-rsr-bin.exe"
-  File "${src_dir}\bin\dynarama-bin.exe"
-  File "C:\MinGW\msys\1.0\home\bernhard\Projects\coot\windows\dynarama.bat"
-  SetOverwrite ifnewer
   File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\coot-icon.ico"
-  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\rama_all.ico"
   File "${src_dir}\bin\*.dll"
   File "${src_dir}\bin\coot-bfactan.exe"
   File "${src_dir}\bin\coot"
   File "${src_dir}\bin\coot-mini-rsr"
+  SetOverwrite ifnewer
   File "${src_dir}\bin\coot-available-comp-id.exe"
   File "${src_dir}\bin\coot-compare-dictionaries.exe"
-;  File "${src_dir}\bin\coot-dictionary-bond-distributions.exe"
+  File "${src_dir}\bin\coot-dictionary-bond-distributions.exe"
   File "${src_dir}\bin\coot-make-shelx-restraints.exe"
-  File "${src_dir}\bin\coot-density-score-by-residue"
+  File "${src_dir}\bin\density-score-by-residue"
+  File "${src_dir}\bin\density-score-by-residue-real.exe"
   File "${src_dir}\bin\findligand"
+  File "${src_dir}\bin\findligand-bin.exe"
   File "${src_dir}\bin\findwaters"
-  File "${src_dir}\bin\coot-fix-nomenclature-errors.exe"
-  File "${src_dir}\bin\dynarama"
+  File "${src_dir}\bin\findwaters-bin.exe"
+  File "${src_dir}\bin\fix-nomenclature-errors.exe"
   File "${src_dir}\bin\gdk-pixbuf-csource.exe"
   File "${src_dir}\bin\gdk-pixbuf-query-loaders.exe"
   File "${src_dir}\bin\glib-genmarshal.exe"
@@ -289,7 +288,7 @@ Section "!WinCoot" SEC01
   ; FIXME:: seems to be only needed in newer versions of msys
   ; ....... and maybe if we have shared compilation - not yet
   File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\libstdc++-6.dll"
-  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\libgcc_s_dw2-1.dll"
+  ;File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\libgcc_s_dw2-1.dll"
 ; PYTHON stuff new
   SetOutPath "$INSTDIR\python27"
   File /r "${src_dir}\python27\*.*"
@@ -1103,7 +1102,7 @@ Function FinishPagePreFunction
    ; Maybe not too much any more... (since graphics card issue)
    ${If} ${AtLeastWinVista}
        ; change to run on 1 core only (to enable compositing!)
-       !insertmacro AdvReplaceInFile "coot-bin.exe" "start /affinity 1 coot-bin.exe" "0" "1" "$INSTDIR\wincoot.bat.tmp"
+       !insertmacro AdvReplaceInFile "coot-bin.exe" "start /affinity 1 coot-bin.exe" "0" "1" "$INSTDIR\runwincoot.bat.tmp"
    ${EndIf}
    ; if we have an old bat file
    ${If} $have_bat == "True"
