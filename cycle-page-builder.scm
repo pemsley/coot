@@ -951,7 +951,7 @@
 ;                 #t #t)
 
 	 (list "WinCoot" 
-	       "http://www.ysbl.york.ac.uk/~lohkamp/build-logs/MINGW32_NT-6.-bernie-pc/gtk2" 
+	       "http://www.ysbl.york.ac.uk/~lohkamp/build-logs/MINGW32_NT-6.1-bernie-pc/gtk2" 
 	       "http://www.ysbl.york.ac.uk/~lohkamp/software/binaries/nightlies/pre-release"
 	       #t #t)
 

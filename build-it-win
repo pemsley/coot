@@ -622,10 +622,10 @@ if test "$run_tests" = true ; then
    echo removing old backup-files in coot-backup
    rm coot-backup/*
    # for python build we need to set COOT_PYTHON_DIR and COOT_HOME
-   COOT_PYTHON_DIR=$install_top_dir/share/coot/python
+   COOT_PYTHON_DIR=$install_top_dir/python27/lib/site-packages/coot
    COOT_HOME=$HOME
    PYTHONPATH=$COOT_PYTHON_DIR
-   PYTHONHOME=$install_top_dir/bin
+   PYTHONHOME=$install_top_dir/python27
    export PYTHONPATH
    export PYTHONHOME
    export COOT_PYTHON_DIR
@@ -687,11 +687,11 @@ fi
 #else 
 #   PATH=$AUTOBUILD_INSTALLED-gtk2$build_type/bin:$AUTOBUILD_INSTALLED-gtk2$build_type/python2.5:$PATH
 #fi 
-PATH=$PATH:/usr/local/bin:/usr/sbin:/usr/bsd:/sbin:/usr/bin:/bin:
-PATH=$PATH:/etc:/usr/etc
+#PATH=$PATH:/usr/local/bin:/usr/sbin:/usr/bsd:/sbin:/usr/bin:/bin:
+#PATH=$PATH:/etc:/usr/etc
 #
-export PATH
-echo PATH is now: $PATH
+#export PATH
+#echo PATH is now: $PATH
 echo AUTOBUILD_BUILD is $AUTOBUILD_BUILD
 
 # This is where the sources downloaded from network go:
@@ -708,6 +708,8 @@ mkdir -p $LOGS
 
 shared_static_flag="--disable-shared"
 shared_flag="--enable-shared --disable-static"
+# not shared yet
+shared_flag=
 shared_lib_ext=dll
 systype=unknown 
 
@@ -851,13 +853,10 @@ if test $OS = OSF1 ; then
    systype=${osversion}-OSF1
 fi
 
-# maybe all can be case
-case "$OS" in
-   MINGW*) 
-     systype=`uname -m`
-     architecture=`uname -m`
-   ;;
-esac
+if test "$OS" = "MINGW32*" ; then
+   systype=`uname -m`
+   architecture=`uname -m`
+fi
 
 echo systype: $systype
 
@@ -1274,11 +1273,10 @@ else
          if test "$OS" = Darwin ; then
             ccp4_system_type=Darwin
 	 else
-	    case "$OS" in 
-               MINGW*) 
-	         # not sure if really needed later?!
-	         ccp4_system_type=MinGW
-            esac
+	    if test "$OS" = "MINGW*" ; then
+	       # not sure if really needed later?!
+	       ccp4_system_type=MinGW
+	    fi
          fi
       fi
    fi
@@ -2215,7 +2213,9 @@ if test -n "$build_freeglut" ; then
 #nate's version is not good as it requires 'manual' adjustments to compilation
 #${WGET} http://www.xmission.com/~nate/glut/glut-3.7.6-bin.zip
 # we get another version instead
-${WGET} http://files.transmissionzero.co.uk/software/development/GLUT/freeglut-MinGW-2.8.1-1.mp.zip
+#${WGET} http://files.transmissionzero.co.uk/software/development/GLUT/freeglut-MinGW-2.8.1-1.mp.zip
+# seems dead, use own
+${WGET} $win_extras_place/freeglut-MinGW-2.8.1-1.mp.zip
 
 (
 date
@@ -2452,7 +2452,7 @@ if test -n "$build_gtk" ; then
       echo  BUILDING libiconv
       echo  ======================================================
       libiconv_version=1.9.1
-      ${WGET} http://http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/libiconv-${libiconv_version}.bin.woe32.zip
+      ${WGET} http://ftp.gnome.org/pub/gnome/binaries/win32/dependencies/libiconv-${libiconv_version}.bin.woe32.zip
       cd $install_top_dir
       7z x -y ${AUTOBUILD_SOURCES}/libiconv-${libiconv_version}.bin.woe32.zip
       cd -
@@ -2523,8 +2523,9 @@ if test -n "$build_gtk" ; then
       7z x -y ${AUTOBUILD_SOURCES}/gtk+-dev_${gtk2_version}_win32.zip
       cd - 
       # install hicolor theme
+      # FIXME - update to 0.15 but uses xz then (check install for it)
       hicolor_version=0.13
-      ${WGET} http://icon-theme.freedesktop.org/releases/hicolor-icon-theme-${hicolor_version}.tar.gz
+      ${WGET} --no-check-certificate http://icon-theme.freedesktop.org/releases/hicolor-icon-theme-${hicolor_version}.tar.gz
       gzip -cd ${AUTOBUILD_SOURCES}/hicolor-icon-theme-${hicolor_version}.tar.gz | tar xf -
       cd hicolor-icon-theme-${hicolor_version}
       ./configure --prefix=$install_top_dir
@@ -2620,6 +2621,7 @@ if test -n "$build_gtkglext" ; then
      fi
 
      patch -p0 < ${AUTOBUILD_SOURCES}/gtkglext_configure.patch
+     echo BL DEBUG PATH before config gtkglext is $PATH
      ./configure --build=i386-pc-mingw32 $generic_prefix
      $MAKE
     status=$?
@@ -2718,6 +2720,7 @@ mkdir $global_py_inst_dir
 cd $global_py_inst_dir
 global_py_inst_dir=`pwd -W`
 # convert / to \ for windows file names
+# maybe even two
 global_py_inst_dir=${global_py_inst_dir//\//\\}
 cd -
 
@@ -2756,8 +2759,9 @@ if [ "$python_version_installed" == "$python_target_version" ] ; then
    copy_python=1
 else
    # new python needs to be installed, please go ahead!!! put ddl in same dir
-   echo msiexec /i python-$pver.msi TARGETDIR=$global_py_inst_dir DLLDIR=$global_py_inst_dir ALLUSERS=1 /qn
-   msiexec //i python-$pver.msi TARGETDIR=$global_py_inst_dir DLLDIR=$global_py_inst_dir ALLUSERS=1 //qn
+   echo msiexec /a python-$pver.msi TARGETDIR=$global_py_inst_dir DLLDIR=$global_py_inst_dir ALLUSERS=1 /qn
+   # msiexec //i python-$pver.msi TARGETDIR=$global_py_inst_dir DLLDIR=$global_py_inst_dir ALLUSERS=1 //qn
+   msiexec //a python-$pver.msi TARGETDIR=$global_py_inst_dir DLLDIR=$global_py_inst_dir ALLUSERS=1 //qn 
    status=$?
    if [ "$status" != 0 ] ; then
       echo problem installing python
@@ -2798,13 +2802,15 @@ fi
 echo $copy_python > $HOME/python_copied.tmp
 ) >  $HOSTLOGDIR/07-python.txt 2>&1
 
-if [ $(cat $HOME/python_copied.tmp) == 2 ] ; then
+if [ -e $HOME/python_copied.tmp ] ; then
+ if [ $(cat $HOME/python_copied.tmp) == 2 ] ; then
    echo copied python, so dont install pygobject etc.
    build_pygobject=0
    build_pycairo=0
    build_pygtk=0
+ fi
+ rm $HOME/python_copied.tmp
 fi
-rm $HOME/python_copied.tmp
 
 # to uninstall use:
 # msiexec //uninstall python-$pver.msi //qb
@@ -3204,7 +3210,7 @@ if test -n "$build_curl" ; then
    #libcurl_version=7.19.7
    # libcurl_version=7.27.0
    libcurl_version=7.32.0
-   ${WGET} http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
+   ${WGET} --no-check-certificate http://curl.haxx.se/download/curl-$libcurl_version.tar.gz
 
    gzip -dc ${AUTOBUILD_SOURCES}/curl-$libcurl_version.tar.gz | tar xf -
    cd curl-$libcurl_version
