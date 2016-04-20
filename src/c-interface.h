@@ -4988,6 +4988,7 @@ void set_show_alt_conf_intermediate_atoms(int i);
 int  show_alt_conf_intermediate_atoms_state();
 void zero_occupancy_residue_range(int imol, const char *chain_id, int ires1, int ires2);
 void fill_occupancy_residue_range(int imol, const char *chain_id, int ires1, int ires2);
+void set_occupancy_residue_range(int imol, const char *chain_id, int ires1, int ires2, float occ);
 void set_b_factor_residue_range(int imol, const char *chain_id, int ires1, int ires2, float bval);
 void reset_b_factor_residue_range(int imol, const char *chain_id, int ires1, int ires2);
 /*! \} */
