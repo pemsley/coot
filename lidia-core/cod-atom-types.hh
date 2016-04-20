@@ -70,6 +70,8 @@ namespace cod {
 		 const std::map<int, std::vector<int> > &bond_map,
 		 unsigned int level);
 
+      static bool atomRingSorter(std::vector<int> &r1, std::vector<int> &r2);
+
    public:
       // can throw a std::runtime_error
       //

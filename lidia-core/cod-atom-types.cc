@@ -30,13 +30,12 @@ cod::atom_types_t::get_cod_atom_types(RDKit::ROMol &rdkm,
    std::vector<std::vector<int> > atomRings = ring_info_p->atomRings();
 
    // Now sort ring_info so that the rings with more atoms are at
-   // the top.  Practically 6-rings should come above 5-rings.
+   // the top.  Practically 6-rings should come after 5-rings.
    //
    std::vector<std::vector<int> > sorted_atomRings = atomRings;
    // 
-   // what is operator< for a vector of ints? Does this sort work!?
-   // 
-   std::sort(sorted_atomRings.begin(), sorted_atomRings.end());
+   //
+   std::sort(sorted_atomRings.begin(), sorted_atomRings.end(), atomRingSorter);
    
    for (unsigned int i_ring=0; i_ring<n_rings; i_ring++) {
       std::vector<int> ring_atom_indices = sorted_atomRings[i_ring];
@@ -113,6 +112,14 @@ cod::atom_types_t::get_cod_atom_types(RDKit::ROMol &rdkm,
       
    return v;
 }
+
+// static
+bool
+cod::atom_types_t::atomRingSorter(std::vector<int> &r1, std::vector<int> &r2) {
+
+   return (r1.size() < r2.size());
+}
+
 
 
 // ret
