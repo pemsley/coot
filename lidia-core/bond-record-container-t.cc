@@ -1,4 +1,6 @@
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
 #include <fstream>
 #include <iomanip>
 #include <list>
@@ -622,3 +624,5 @@ cod::bond_record_container_t::get_bond_distance_from_model(const std::string &at
    return d;
 
 }
+
+#endif // ENHANCED_LIGAND_TOOLS

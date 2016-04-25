@@ -123,8 +123,6 @@ cod::atom_types_t::atomRingSorter(const std::vector<int> &r1, const std::vector<
 }
 
 
-
-// ret
 void
 cod::atom_types_t::handle_bigger_rings_from_fused_rings(RDKit::ROMol &rdkm,
 							const std::vector<std::vector<int> > &fused_rings) {
