@@ -601,7 +601,7 @@ cod::bond_record_container_t::get_bond_distance_from_model(const std::string &at
    mmdb::Atom *at_2 = NULL;
 
    if (n_residue_atoms) {
-      for (unsigned int iat=0; iat<n_residue_atoms; iat++) { 
+      for (int iat=0; iat<n_residue_atoms; iat++) { 
 	 mmdb::Atom *at_p = residue_atoms[iat];
 	 std::string atom_name = at_p->GetAtomName();
 	 if (atom_name == at_name_1)
