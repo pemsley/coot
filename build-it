@@ -2602,6 +2602,8 @@ if [ "$build_gtkglext" = 1 ] ; then
         patch_file_1=gtk-gtkglwidget.c-for-modern-gtk-for-2.18.patch
         patch_file_2=gtkglext-context-finalize.diff
         patch_file_3=gtkglext-multisample.patch.patch
+        patch_file_4=gtkglext-pangox.patch
+        patch_file_5=gtkglext-gdkglfont.patch
 
         if pkg-config gtk+-2.0 --atleast-version 2.20 ; then
            patch_file_1=gtk-gtkglwidget.c-for-modern-gtk.patch
@@ -2612,6 +2614,14 @@ if [ "$build_gtkglext" = 1 ] ; then
 	${WGET} $extras_place/$patch_file_1
         ${WGET} $extras_place/$patch_file_2
         ${WGET} $extras_place/$patch_file_3
+        ${WGET} $extras_place/$patch_file_4
+        ${WGET} $extras_place/$patch_file_5
+
+        # we need extra patch to get rid of pangox dependency in
+        # configure and stop gdkglfont-x11.c getting compiled by
+        # removing references to it and its object from
+        # gdk/x11/Makefile.  Either that or get a nice new gtkglext by
+        # doing make dist from git (see hal Project).
 
         if patch -p0 < ${AUTOBUILD_SOURCES}/$patch_file_1 ; then 
             echo gtkglext patched patch_file_1 good.
@@ -2633,6 +2643,20 @@ if [ "$build_gtkglext" = 1 ] ; then
         fi
      else 
         echo version of gtk is old, no need to patch gtkglext.
+     fi
+
+     # get rid of font stuff.
+     if patch -p0 < ${AUTOBUILD_SOURCES}/$patch_file_4 ; then 
+         echo gtkglext patched patch_file_4 good.
+     else 
+         echo gtkglext patch_file_4 failed.
+         my_exit 2
+     fi
+     if patch -p0 < ${AUTOBUILD_SOURCES}/$patch_file_5 ; then 
+         echo gtkglext patched patch_file_5 good.
+     else 
+         echo gtkglext patch_file_5 failed.
+         my_exit 2
      fi
    
      if [ $OS = Darwin ] ; then
@@ -2672,7 +2696,9 @@ if [ "$build_gtkglext" = 1 ] ; then
     # capture the status from the subshell, if an error, exit the main shell too.
     status=$?
     echo status from gtkglext build was $status
-    if [ $status = 2 ] ; then 
+    if [ $status = 2 ] ; then
+       echo that\'s an error.
+       echo perhaps libXt-devel is missing\?
        my_exit 2
     fi
 else
