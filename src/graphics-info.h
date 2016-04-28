@@ -3252,17 +3252,19 @@ public:
    static bool refinement_move_atoms_with_zero_occupancy_flag;
 
    // 
-   static short int draw_zero_occ_spots_flag;
+   static bool draw_zero_occ_spots_flag;
+   static bool draw_cis_peptide_markups;
+
 
    // static
    static std::string ccp4_defs_file_name();
    static int ccp4_projects_index_last;
    void set_directory_for_fileselection_string(std::string filename);
    void set_directory_for_saving_for_fileselection_string(std::string filename);
-#if (GTK_MAJOR_VERSION > 1)
+
    void set_directory_for_filechooser_string(std::string filename);
    void set_directory_for_saving_for_filechooser_string(std::string filename);
-#endif // GTK_MAJOR_VERSION
+
    static int file_selection_dialog_x_size;
    static int file_selection_dialog_y_size; 
 

@@ -81,6 +81,7 @@ namespace coot {
       int string_to_int(const std::string &s);
       // throw an exception on unable to convert
       float string_to_float(const std::string &s);
+      double string_to_double(const std::string &s);
       // 
       std::pair<std::string, std::string> split_string_on_last_slash(const std::string &string_in);
       std::vector<std::string> split_string(const std::string &string_in,

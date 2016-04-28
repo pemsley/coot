@@ -394,6 +394,9 @@
 	      ((> (string-length tlc-text) 0)
 	       (substring tlc-text 0 3))
 	      (else "XXX"))))
+
+	(format #t "::::::::::::::::::::: three-letter-code: ~s~%" three-letter-code)
+	(format #t "::::::::::::::::::::: enhanced-ligand-coot?: ~s~%" (enhanced-ligand-coot?))
 	
 	(if (not (enhanced-ligand-coot?))
 

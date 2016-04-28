@@ -242,8 +242,6 @@ on_ok_button_coordinates_clicked       (GtkButton       *button,
   save_directory_from_fileselection(coords_fileselection1);
 
 
-#if (GTK_MAJOR_VERSION > 1) 
-
   files_arr = gtk_file_selection_get_selections(GTK_FILE_SELECTION(coords_fileselection1));
   while (*files_arr) {
    
@@ -262,27 +260,6 @@ on_ok_button_coordinates_clicked       (GtkButton       *button,
     files_arr++;
   }
   gtk_widget_destroy(coords_fileselection1); 
-
-#else 
-/*  old GTK1 style */
-
-  filename = gtk_file_selection_get_filename 
-     (GTK_FILE_SELECTION(coords_fileselection1));
-
-/*     From here, we go into c++ (that's why the c++ function
-       handle_read_draw needs to be declared external) and read the
-       molecule and display it. */
-   
-  if (move_molecule_here_flag) { 
-    handle_read_draw_molecule_and_move_molecule_here(filename);
-  } else { 
-    if (recentre_on_read_pdb_flag)
-      handle_read_draw_molecule_with_recentre(filename, 1);
-    else 
-      handle_read_draw_molecule_with_recentre(filename, 0); // no recentre
-  }
-
-#endif 
 
 }
 
@@ -2163,9 +2140,7 @@ on_save_coordinates1_activate          (GtkMenuItem     *menuitem,
   fill_option_menu_with_coordinates_options_unsaved_first(option_menu, callback_func, imol);
   set_transient_and_position(COOT_UNDEFINED_WINDOW, widget);
   gtk_widget_show(widget);
-#if (GTK_MAJOR_VERSION > 1)
   gtk_window_present(GTK_WINDOW(widget));
-#endif
 }
 
 
@@ -2181,8 +2156,7 @@ on_save_coords_dialog_save_button_clicked (GtkButton       *button,
   int imol_of_save_active_menu_item = 0; 
   int *itmp_p;
 
-  dialog = lookup_widget(GTK_WIDGET(button),
-			 "save_coords_dialog");
+  dialog = lookup_widget(GTK_WIDGET(button), "save_coords_dialog");
 
   option_menu = lookup_widget(GTK_WIDGET(button),
 			      "save_coords_optionmenu");
@@ -10895,7 +10869,6 @@ on_save_coords_filechooserdialog1_response
 					gint response_id, 
 					gpointer user_data)
 {
-#if (GTK_MAJOR_VERSION > 1)
   if (response_id == GTK_RESPONSE_OK) {
     char *stuff;
     GtkWidget *fileselection = lookup_widget(GTK_WIDGET(dialog), "save_coords_filechooserdialog1");
@@ -10911,7 +10884,6 @@ on_save_coords_filechooserdialog1_response
 
     gtk_widget_destroy(fileselection);
   }
-#endif /* GTK_MAJOR_VERSION  */
 }
 
 

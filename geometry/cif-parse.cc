@@ -2848,7 +2848,8 @@ coot::protein_geometry::init_standard() {
       // Next try CLIBD_MON:
       s = getenv("CLIBD_MON");
 #ifdef WINDOWS_MINGW
-      s = (char *)coot::util::remove_trailing_slash(s).c_str();
+      std::string tmp = coot::util::remove_trailing_slash(s);
+      s = (char *)tmp.c_str();
 #endif
       if (s) {
 	 istat = stat(s, &buf);

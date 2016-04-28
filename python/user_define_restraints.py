@@ -291,7 +291,8 @@ def run_prosmart(imol_target, imol_ref, include_side_chains=False):
   prosmart_exe = find_exe("prosmart")
   if prosmart_exe:
     l = ["-p1", target_pdb_file_name,
-         "-p2", reference_pdb_file_name]
+         "-p2", reference_pdb_file_name,
+         "-restrain_seqid", "30"]
     if include_side_chains:
       l += ["-side"]
     popen_command(prosmart_exe,

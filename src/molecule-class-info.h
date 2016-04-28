@@ -942,7 +942,9 @@ public:        //                      public
    short int have_unit_cell;
    void set_have_unit_cell_flag_maybe();
 
-   void draw_molecule(short int do_zero_occ_spots, bool against_a_dark_background);
+   void draw_molecule(short int do_zero_occ_spots,
+		      bool against_a_dark_background,
+		      bool show_cis_peptide_markups);
    void zero_occupancy_spots() const;
    void deuterium_spots() const;
    void set_occupancy_residue_range(const std::string &chain_id, int ires1, int ires2, float occ_val);

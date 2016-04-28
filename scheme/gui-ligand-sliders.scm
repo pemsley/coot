@@ -129,7 +129,7 @@
     (let ((menu (coot-menubar-menu "Ligand")))
 
       (add-simple-coot-menu-menuitem
-       menu "--- Testing Ligand Metric Sliders --- "
+       menu "Ligand Metric Sliders"
        (lambda ()
 	 
 	 (let ((imol-map (imol-refinement-map)))

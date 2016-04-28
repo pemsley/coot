@@ -1,10 +1,28 @@
+-----
 
-  Pre-Release 0.8.3
+  Pre-release 0.8.4
+
+  o BUG-FIX: set the suggested file name in the classic dialog on saving 
+             coordinates [Andy Purkiss, Arnaud Basle]
+
+  o BUG-FIX: correct wrapper for findligand and findwaters [Kuan-Fu Gabriel Lin]
+
+  o BUG-FIX: FLEV "problematic ligand" reduced in frequency
+
+-----
+
+  Release 0.8.3
 
   o FEATURE: Add ligand percentile scoring to the API and GUI
 
   o FEATURE: Residue correlations and distortion scores added to
              cooot-mini-rsr output
+
+  o FEATURE: cis-peptides and twisted trans-peptide are marked up
+
+  o FEATURE: Optionally add "balls" to standard stick mode
+
+  o CHANGE:  mini-rsr is now called coot-mini-rsr
 
   o CHANGE:  Hydrogen atoms are not longer fit to density
 
@@ -16,6 +34,8 @@
 
   o CHANGE:  N-terminal addition of peptides has been improved
 
+  o CHANGE:  If the dictionary file from PDBe is empty, now over-write it
+
   o BUG-FIX: fix atom index check in add_atom_label() [Gabriele Balducci]
 
   o BUG-FIX: Chiral volume restraints correctly output from
@@ -25,6 +45,8 @@
              as mmCIF [Wolfram Tempel]
 
   o BUG-FIX: Fix typo in python gui transform_map_using_lsq_matrix() [Gyorgy Snell]
+
+  o BUG-FIX: Highlight Interesting Site no longer has over-sized primitives
 
 
 -----

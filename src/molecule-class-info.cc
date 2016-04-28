@@ -1933,7 +1933,8 @@ int molecule_class_info_t::remove_atom_label(char *chain_id, int iresno, char *a
  
 void
 molecule_class_info_t::draw_molecule(short int do_zero_occ_spots,
-				     bool against_a_dark_background) {
+				     bool against_a_dark_background,
+				     bool show_cis_peptide_markups) {
 
    if (has_model()) { 
       if (draw_it == 1) {
@@ -1950,7 +1951,8 @@ molecule_class_info_t::draw_molecule(short int do_zero_occ_spots,
 		  }
 	       }
 	    }
-	    cis_peptide_markups();
+	    if (show_cis_peptide_markups)
+	       cis_peptide_markups();
 	 }
       }
    }

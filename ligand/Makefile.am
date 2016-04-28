@@ -76,7 +76,7 @@ dist_cootdata_DATA = \
 	ligands-2016.db
 
 
-bin_PROGRAMS = findligand-bin findwaters-bin
+libexec_PROGRAMS = findligand-bin findwaters-bin
 
 # check_PROGRAMS = test-helix-placement test-fffear-in-coot testdunbrack 
 #                  test-random test-ligand test-rotamer-tables-sql

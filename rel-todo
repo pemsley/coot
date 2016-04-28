@@ -4,8 +4,6 @@
    o Is the map contour level displayed without being over-written?
      (seen on refinement branch on mac)
 
-   o test: Helix atoms have correct B factor Oliver Clarke.
-
    o crash on pc:
 
     read in pdb2o01.ent and scroll the representation
@@ -54,7 +52,8 @@
      that the NBC and the H-NBCs are working properly when regularizing.
 
    o Does "Phosphorylate this residue" work in Python mode?
->>>>>>> ab43b0ef5fc4ee40342a14cd88d32ec7f255af47
+
+
 
 * Fixed.
 
@@ -65,17 +64,23 @@
 
 * Done.
 
-   o Does "Phosphorylate this residue" work in Python mode?
-
    o Fix the python version of Sequencing interface, cootaneer_gui_bl
 
    o carbohydrate: Does it work in Python mode?
 
      A 310 in 3u0p
 
-   o can you launch rcrane?
+   o fix up hydrogenize and flev interface (is cprodrg still a part of ccp4?)
 
-* Yes. Done.
+   o ligand distortions represenation (vs dictionary) should be in "Ligand" menu
+
+   o set_occupacy_residue_range should be exported to the API (next to
+     zero_occupancy_residue_range)
+
+   o when you fail to read a pdb file, it should not then go on to try
+     to read it as a small molecule cif if it does not exist.
+
+   o Display Ligand Distortrions for 3GP.
 
    o does map scrolling work after running refmac (or via ligand check, perhaps)?
 
@@ -119,10 +124,6 @@ Yes.
 * not any more.
 
    o Oliver Clarke mmcif bugs (pdb->mmcif read by Phenix)
-
-   o test: Helix atoms have correct B factor Oliver Clarke.
-
-* Done
 
    o Can you make recent file work with coot - saving/reading the
      local recent files file?
@@ -653,4 +654,8 @@ Program terminated with signal 11, Segmentation fault.
    o Get rid of thinking not crashing
 
 * Done.
+
+   o test: Helix atoms have correct B factor Oliver Clarke.
+
+* Done
 

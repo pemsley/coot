@@ -123,7 +123,7 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
 	       std::cout << "n_atoms: " << n_atoms << " n_bonds: "
 			 << n_bonds << std::endl;
 	    }
-	    catch (std::runtime_error rte) {
+	    catch (const std::runtime_error &rte) {
 	       std::cout << rte.what() << std::endl;
 	    }
 	 }

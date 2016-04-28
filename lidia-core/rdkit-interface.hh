@@ -165,6 +165,12 @@ namespace coot {
 					     const dictionary_residue_restraints_t &restraints,
 					     mmdb::Atom *atom_p);
 
+   // are all the bonds between the atoms (in the vector) all aromatic?
+   //
+   bool is_aromatic_ring(const std::vector<int> &ring_atom_indices,
+			 RDKit::ROMol &rdkm);
+   
+
    // update the atom positions of the rdkit_molecule from residue_p
    // 
    void update_coords(RDKit::RWMol *mol, int iconf, mmdb::Residue *residue_p);
