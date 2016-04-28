@@ -5769,7 +5769,7 @@ create_display_control_window_glade (void)
 
   display_control_window_glade = gtk_window_new (GTK_WINDOW_TOPLEVEL);
   gtk_widget_set_name (display_control_window_glade, "display_control_window_glade");
-  gtk_widget_set_size_request (display_control_window_glade, 500, 316);
+  gtk_widget_set_size_request (display_control_window_glade, 600, 316);
   gtk_window_set_title (GTK_WINDOW (display_control_window_glade), _("Display Manager"));
 
   vbox30 = gtk_vbox_new (FALSE, 0);
@@ -9008,7 +9008,6 @@ create_refine_params_dialog (void)
   GtkWidget *frame42;
   GtkWidget *vbox51;
   GtkWidget *vbox52;
-  GtkWidget *label281;
   GtkWidget *label79;
   GtkWidget *vbox60;
   GtkWidget *refine_params_use_torsions_checkbutton;
@@ -9030,6 +9029,7 @@ create_refine_params_dialog (void)
   GtkWidget *label605;
   GtkWidget *refine_params_use_peptide_omegas_checkbutton;
   GtkWidget *refine_params_use_planar_peptides_checkbutton;
+  GtkWidget *refine_params_use_trans_peptide_restraints_checkbutton;
   GtkWidget *refine_params_use_ramachandran_goodness_torsions_checkbutton;
   GtkWidget *refine_params_use_initial_pos_checkbutton;
   GtkWidget *frame292;
@@ -9088,11 +9088,6 @@ create_refine_params_dialog (void)
   gtk_widget_show (vbox52);
   gtk_box_pack_start (GTK_BOX (vbox51), vbox52, TRUE, TRUE, 0);
   gtk_container_set_border_width (GTK_CONTAINER (vbox52), 5);
-
-  label281 = gtk_label_new (_("\n  LINK TORSION RESTRAINTS \n  CURRENTLY DON'T WORK!   \n"));
-  gtk_widget_set_name (label281, "label281");
-  gtk_box_pack_start (GTK_BOX (vbox52), label281, FALSE, FALSE, 0);
-  gtk_label_set_justify (GTK_LABEL (label281), GTK_JUSTIFY_CENTER);
 
   label79 = gtk_label_new (_("<b>For Regularization and Refinement:</b>"));
   gtk_widget_set_name (label79, "label79");
@@ -9194,7 +9189,7 @@ create_refine_params_dialog (void)
   gtk_widget_show (label605);
   gtk_box_pack_start (GTK_BOX (hbox329), label605, FALSE, FALSE, 0);
 
-  refine_params_use_peptide_omegas_checkbutton = gtk_check_button_new_with_mnemonic (_("Use Omega Restraints"));
+  refine_params_use_peptide_omegas_checkbutton = gtk_check_button_new_with_mnemonic (_("Use Omega Restraints - there is no code that \nchecks the value of this checkbutton"));
   gtk_widget_set_name (refine_params_use_peptide_omegas_checkbutton, "refine_params_use_peptide_omegas_checkbutton");
   gtk_widget_show (refine_params_use_peptide_omegas_checkbutton);
   gtk_box_pack_start (GTK_BOX (hbox329), refine_params_use_peptide_omegas_checkbutton, FALSE, FALSE, 0);
@@ -9205,12 +9200,20 @@ create_refine_params_dialog (void)
   gtk_widget_set_name (refine_params_use_planar_peptides_checkbutton, "refine_params_use_planar_peptides_checkbutton");
   gtk_widget_show (refine_params_use_planar_peptides_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox60), refine_params_use_planar_peptides_checkbutton, FALSE, FALSE, 0);
-  gtk_tooltips_set_tip (tooltips, refine_params_use_planar_peptides_checkbutton, _("Use planar peptide restraints too"), NULL);
+  gtk_tooltips_set_tip (tooltips, refine_params_use_planar_peptides_checkbutton, _("Use planar peptide restraints (these are CA-N-C-O-CA plane restraints) and are used to keep peptides flat."), NULL);
+
+  refine_params_use_trans_peptide_restraints_checkbutton = gtk_check_button_new_with_mnemonic (_("Use Trans Peptide Restraints"));
+  gtk_widget_set_name (refine_params_use_trans_peptide_restraints_checkbutton, "refine_params_use_trans_peptide_restraints_checkbutton");
+  gtk_widget_show (refine_params_use_trans_peptide_restraints_checkbutton);
+  gtk_box_pack_start (GTK_BOX (vbox60), refine_params_use_trans_peptide_restraints_checkbutton, FALSE, FALSE, 0);
+  gtk_tooltips_set_tip (tooltips, refine_params_use_trans_peptide_restraints_checkbutton, _("If checked, then Coot will add a restraint on omega (the torsion around the C-N peptide bond) with a target angle of 180 degrees.  This is not applied to cis peptide bonds.  Keep this checked to prevent inadvertent cis-peptides."), NULL);
+  gtk_toggle_button_set_active (GTK_TOGGLE_BUTTON (refine_params_use_trans_peptide_restraints_checkbutton), TRUE);
 
   refine_params_use_ramachandran_goodness_torsions_checkbutton = gtk_check_button_new_with_mnemonic (_("Ramachandran Restraints"));
   gtk_widget_set_name (refine_params_use_ramachandran_goodness_torsions_checkbutton, "refine_params_use_ramachandran_goodness_torsions_checkbutton");
   gtk_widget_show (refine_params_use_ramachandran_goodness_torsions_checkbutton);
   gtk_box_pack_start (GTK_BOX (vbox60), refine_params_use_ramachandran_goodness_torsions_checkbutton, FALSE, FALSE, 0);
+  gtk_tooltips_set_tip (tooltips, refine_params_use_ramachandran_goodness_torsions_checkbutton, _("Turn on restraints on prefered values of (phi, psi).  Use with caution - not advised for global modifications."), NULL);
 
   refine_params_use_initial_pos_checkbutton = gtk_check_button_new_with_mnemonic (_("Use Initial Position Restraints"));
   gtk_widget_set_name (refine_params_use_initial_pos_checkbutton, "refine_params_use_initial_pos_checkbutton");
@@ -9386,6 +9389,9 @@ create_refine_params_dialog (void)
   g_signal_connect ((gpointer) refine_params_use_planar_peptides_checkbutton, "toggled",
                     G_CALLBACK (on_refine_params_use_planar_peptides_checkbutton_toggled),
                     NULL);
+  g_signal_connect ((gpointer) refine_params_use_trans_peptide_restraints_checkbutton, "toggled",
+                    G_CALLBACK (on_refine_params_use_trans_peptide_restraints_checkbutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) refine_params_use_ramachandran_goodness_torsions_checkbutton, "toggled",
                     G_CALLBACK (on_refine_params_use_ramachandran_goodness_torsions_checkbutton_toggled),
                     NULL);
@@ -9414,7 +9420,6 @@ create_refine_params_dialog (void)
   GLADE_HOOKUP_OBJECT (refine_params_dialog, frame42, "frame42");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, vbox51, "vbox51");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, vbox52, "vbox52");
-  GLADE_HOOKUP_OBJECT (refine_params_dialog, label281, "label281");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, label79, "label79");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, vbox60, "vbox60");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_use_torsions_checkbutton, "refine_params_use_torsions_checkbutton");
@@ -9435,6 +9440,7 @@ create_refine_params_dialog (void)
   GLADE_HOOKUP_OBJECT (refine_params_dialog, label605, "label605");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_use_peptide_omegas_checkbutton, "refine_params_use_peptide_omegas_checkbutton");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_use_planar_peptides_checkbutton, "refine_params_use_planar_peptides_checkbutton");
+  GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_use_trans_peptide_restraints_checkbutton, "refine_params_use_trans_peptide_restraints_checkbutton");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_use_ramachandran_goodness_torsions_checkbutton, "refine_params_use_ramachandran_goodness_torsions_checkbutton");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, refine_params_use_initial_pos_checkbutton, "refine_params_use_initial_pos_checkbutton");
   GLADE_HOOKUP_OBJECT (refine_params_dialog, frame292, "frame292");
