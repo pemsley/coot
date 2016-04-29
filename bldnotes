@@ -14,6 +14,11 @@ enhanced_ligand.py      test it
 * THINGS TO DO BEFORE 0.8.1 RELEASE * ONLY URGENT THING
 -------------------------------------------------------
 
+New Rama: drag residues->switch to selection and rather refine (e.g. add
+	extra torsion to ref target)?!
+
+fix probe/reduce from ccp4 as well as direct richardsons
+
 check up to dateness of supplied manuals
 
 refinement selection with insertion code not working
@@ -415,6 +420,12 @@ low importance
 
 
 **** Python ****
+
+   o get recent ebi skip queue and timeout if 404 return (esp for pics
+	which are not there - any more)
+   
+   o make some menu items in extension radio menu items, e.g. NCS matrix, 
+	rotamers - there may be more
 
    o make coot_gui into a method?! Maybe resolves some issue, e.g. loosing entry
 

@@ -1208,6 +1208,12 @@ if (have_coot_python):
        submenu_pdbe, "PDBe recent structures...",
        lambda func: pdbe_latest_releases_gui())
 
+     # we do test for refmac at startup not runtime (for simplicity)
+     if command_in_path_qm("refmac5"):
+       mess = " Get it "
+     else:
+       mess = "\n  WARNING::refmac5 not in the path - SF calculation will fail  \n\n"
+       
      add_simple_coot_menu_menuitem(
        submenu_pdbe, "Get from PDBe...",
        lambda func: generic_single_entry("Get PDBe accession code",

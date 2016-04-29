@@ -2529,6 +2529,28 @@ void fill_occupancy_residue_range(int imol, const char *chain_id, int ires1, int
    add_to_history_typed(cmd, args);
 }
 
+
+void set_occupancy_residue_range(int imol, const char *chain_id, int ires1, int ires2,
+				 float occ) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_occupancy_residue_range(std::string(chain_id), ires1, ires2, occ);
+   } else {
+      std::cout << "WARNING:: invalid model molecule number in set_occupancy_residue_range "
+		<< imol << std::endl;
+   }
+   graphics_draw();
+   std::string cmd = "set-occupancy-residue-range";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(ires1);
+   args.push_back(ires2);
+   args.push_back(occ);
+   add_to_history_typed(cmd, args);
+}
+
+
 void
 set_b_factor_residue_range(int imol, const char *chain_id, int ires1, int ires2, float bval) {
 

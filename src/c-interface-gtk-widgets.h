@@ -617,7 +617,6 @@ void execute_get_mols_ligand_search(GtkWidget *button);
    up. */
 void  free_blob_dialog_memory(GtkWidget *w);
 
-void wrapped_create_find_waters_dialog();
 void fill_find_waters_dialog(GtkWidget *find_ligand_dialog);
 /* interface fluff */
 void execute_find_waters(GtkWidget *ok_button);  
@@ -672,7 +671,7 @@ void apply_add_OXT_from_widget(GtkWidget *w);
 /* not for user consumption, this finds (from itself) the residue type
    and calls the graphics_info_t function. */
 void fill_chi_angles_vbox(GtkWidget *vbox);
- GtkWidget *wrapped_create_check_waters_dialog();
+GtkWidget *wrapped_create_check_waters_dialog();
 void check_waters_molecule_menu_item_activate(GtkWidget *item, 
 					      GtkPositionType pos);
 void check_water_by_difference_maps_option_menu_item_select(GtkWidget *item, 
@@ -756,50 +755,24 @@ void update_refmac_column_labels_frame(GtkWidget *optionmenu,
 
 void free_memory_run_refmac(GtkWidget *window); 
 
-/* some methods to get refmac run parameters */
-int get_refmac_refinement_method(void);
-void set_refmac_refinement_method(int method);
-int get_refmac_phase_input(void);
-void set_refmac_phase_input(int phase_flag);
-void set_refmac_use_tls(int state);
-int refmac_use_tls_state(void);
-void set_refmac_use_twin(int state);
-int refmac_use_twin_state(void);
-void set_refmac_use_sad(int state);
-int refmac_use_sad_state(void);
-int get_refmac_ncycles(void);
-void set_refmac_ncycles(int no_cycles);
-void add_refmac_ncycle_no(int cycle);
-void set_refmac_use_ncs(int state);
-int refmac_use_ncs_state(void);
-void set_refmac_use_intensities(int state);
-int refmac_use_intensities_state(void);
-int refmac_imol_coords(void);
-void add_refmac_sad_atom(const char *atom_name, float fp, float fpp, float lambda);
-void add_refmac_sad_atom_fp(const char *atom_name, float fp, float fpp);
-void add_refmac_sad_atom_lambda(const char *atom_name, float lambda);
-void clear_refmac_sad_atoms();
+/* Refmac widget interface */
 void store_refmac_mtz_file_label(GtkWidget *label);
-GtkWidget *get_refmac_mtz_file_label(void);
 void fill_refmac_sad_atom_entry(GtkWidget *widget);
-short int get_refmac_used_mtz_file_state();
-void set_refmac_used_mtz_file(int state);
-const gchar *get_saved_refmac_file_filename(void);
-void set_stored_refmac_file_mtz_filename(int imol, const char *mtz_filename);
-void save_refmac_params_to_map(int imol_map,
-			       const char *mtz_filename,
-			       const char *fobs_col,
-			       const char *sigfobs_col,
-			       const char *r_free_col,
-			       int r_free_flag_sensible);
-void save_refmac_phase_params_to_map(int imol_map,
-			     	     const char *phi,
-				     const char *fom,
-				     const char *hla,
-				     const char *hlb,
-				     const char *hlc,
-				     const char *hld);
+GtkWidget *get_refmac_mtz_file_label(void);
 
+void save_refmac_params_to_map(int imol_map,
+                              const char *mtz_filename,
+                              const char *fobs_col,
+                              const char *sigfobs_col,
+                              const char *r_free_col,
+                              int r_free_flag_sensible);
+void save_refmac_phase_params_to_map(int imol_map,
+                                    const char *phi,
+                                    const char *fom,
+                                    const char *hla,
+                                    const char *hlb,
+                                    const char *hlc,
+                                    const char *hld);
 
 #endif /* C_INTERFACE_GTK_WIDGETS_H */
 END_C_DECLS

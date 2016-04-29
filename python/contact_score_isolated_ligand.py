@@ -6,6 +6,7 @@ def deactivate_molecules_except(imol):
 
 
 # This will hydrogenate the active residue, not imol
+# returns the probe clash score
 #
 def contact_score_ligand(imol, res_spec):
 
@@ -45,18 +46,13 @@ def contact_score_ligand(imol, res_spec):
     # debugging!?
     handle_read_draw_probe_dots_unformatted(dots_file_name, imol, 0)
 
-    probe_clash_score(dots_file_name)
+    cs = probe_clash_score(dots_file_name)
     graphics_draw()
+    return cs
 
-
-menu = coot_menubar_menu("Ligand")
 
 def contact_score_ligand_func():
     with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                aa_ins_code, aa_atom_name, aa_alt_conf]:
         contact_score_ligand(aa_imol, [aa_chain_id, aa_res_no, aa_ins_code])
         
-add_simple_coot_menu_menuitem(menu, "Isolated dots for this ligand",
-                              lambda func: contact_score_ligand_func())
-
-            

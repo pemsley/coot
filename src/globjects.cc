@@ -1100,7 +1100,9 @@ coot::restraints_container_t graphics_info_t::last_restraints;
 #endif // HAVE_GSL
 // 
 // 
-short int graphics_info_t::draw_zero_occ_spots_flag = 1; // on by default
+bool graphics_info_t::draw_zero_occ_spots_flag = true; // on by default
+
+bool graphics_info_t::draw_cis_peptide_markups = true; // on by default
 
 int   graphics_info_t::check_waters_molecule = -1; // unset initially.
 float graphics_info_t::check_waters_b_factor_limit  = 80.0;
@@ -2129,7 +2131,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 	 // Molecule stuff
 	 //
-	 graphics_info_t::molecules[ii].draw_molecule(graphics_info_t::draw_zero_occ_spots_flag, is_bb);
+	 graphics_info_t::molecules[ii].draw_molecule(graphics_info_t::draw_zero_occ_spots_flag,
+						      is_bb, graphics_info_t::draw_cis_peptide_markups);
 
 	 //
 	 graphics_info_t::molecules[ii].draw_dipoles();

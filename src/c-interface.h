@@ -1500,38 +1500,6 @@ float residue_density_fit_scale_factor();
   map. Return 0 for bad imol */
 float density_at_point(int imol_map, float x, float y, float z);
 
-
-#ifdef __cplusplus
-#ifdef USE_GUILE
-float density_score_residue_scm(int imol, SCM residue_spec, int imol_map);
-#endif 
-#ifdef USE_PYTHON
-float density_score_residue_py(int imol, PyObject *residue_spec, int imol_map);
-#endif 
-#endif 
-
-/*! \brief simple density score for given residue (over-ridden by scripting function) */
-float density_score_residue(int imol, const char *chain_id, int res_no, const char *ins_code, int imol_map);
-
-
-#ifdef __cplusplus
-#ifdef USE_GUILE
-/*! \brief return sigma for the given map.  Return scheme False if not
-  a valid map molecule number. */
-SCM map_mean_scm(int imol);
-SCM map_sigma_scm(int imol);
-/*! \brief return either scheme false on non-a-map or list (mean, standard-deviation, skew, kurtosis) */
-SCM map_statistics_scm(int imol);
-#endif
-#ifdef USE_PYTHON
-/*! \brief return sigma for the given map.  Return Python False if not
-  a valid map molecule number. */
-PyObject *map_mean_py(int imol);
-PyObject *map_sigma_py(int imol);
-PyObject *map_statistics_py(int imol);
-#endif /*USE_PYTHON */
-#endif  /* c++ */
-
 /* \} */
  
 
@@ -4218,7 +4186,10 @@ void jed_flip(int imol, const char *chain_id, int res_no, const char *ins_code, 
 /*! \name Water Fitting Functions */
 /* \{ */
 
-/*! Renumber the waters of molecule number imol with consecutive numbering */
+/*! \brief create a dialog for water fitting */
+void wrapped_create_find_waters_dialog();
+
+/*! \brief Renumber the waters of molecule number imol with consecutive numbering */
 void renumber_waters(int imol); 
 
 /*! \brief find waters */
@@ -4323,6 +4294,14 @@ int get_default_bond_thickness();
 
   default status is 1. */
 void set_draw_zero_occ_markers(int status);
+
+
+/*! \brief set status of drawing cis-peptide markups
+
+  default status is 1. */
+void set_draw_cis_peptide_markups(int status);
+
+
 
 /*! \brief set the hydrogen drawing state. istat = 0 is hydrogens off,
   istat = 1: show hydrogens */
@@ -5009,6 +4988,7 @@ void set_show_alt_conf_intermediate_atoms(int i);
 int  show_alt_conf_intermediate_atoms_state();
 void zero_occupancy_residue_range(int imol, const char *chain_id, int ires1, int ires2);
 void fill_occupancy_residue_range(int imol, const char *chain_id, int ires1, int ires2);
+void set_occupancy_residue_range(int imol, const char *chain_id, int ires1, int ires2, float occ);
 void set_b_factor_residue_range(int imol, const char *chain_id, int ires1, int ires2, float bval);
 void reset_b_factor_residue_range(int imol, const char *chain_id, int ires1, int ires2);
 /*! \} */

@@ -440,11 +440,27 @@ coot::util::string_to_float(const std::string &s) {
    } else {
       std::string mess = "Cannot convert \"";
       mess += s;
-      mess += "\" to an integer";
+      mess += "\" to a float";
       throw std::runtime_error(mess);
    }
-} 
+}
 
+// throw an exception on unable to convert
+double
+coot::util::string_to_double(const std::string &s) {
+   
+   double f;
+   std::istringstream ss(s);
+   
+   if (ss>>f) { 
+      return f;
+   } else {
+      std::string mess = "Cannot convert \"";
+      mess += s;
+      mess += "\" to a double";
+      throw std::runtime_error(mess);
+   }
+}
 
 
 std::string

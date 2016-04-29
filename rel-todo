@@ -1,6 +1,18 @@
  
  0.8.3
 
+   o fix up hydrogenize and flev interface (is cprodrg still a part of ccp4?)
+
+   o ligand distortions represenation (vs dictionary) should be in "Ligand" menu
+
+   o set_occupacy_residue_range should be exported to the API (next to
+     zero_occupancy_residue_range)
+
+   o when you fail to read a pdb file, it should not then go on to try
+     to read it as a small molecule cif if it does not exist.
+
+   o Display Ligand Distortrions for 3GP.
+
    o can you launch rcrane?
 
 * Yes. Done.

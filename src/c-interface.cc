@@ -657,7 +657,6 @@ int clear_and_update_model_molecule_from_file(int molecule_number,
       graphics_draw();
    }
    return imol;
-
 } 
 
 
@@ -671,6 +670,21 @@ void set_draw_zero_occ_markers(int status) {
    add_to_history_typed(cmd, args);
    graphics_draw();
 }
+
+/*! \brief set status of drawing cis-peptide markups
+
+  default status is 1. */
+void set_draw_cis_peptide_markups(int status) {
+
+   graphics_info_t g;
+   g.draw_cis_peptide_markups = status;
+   std::string cmd = "set-draw-cis-peptide-markups";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(status);
+   add_to_history_typed(cmd, args);
+   graphics_draw();
+}
+
 
 
 

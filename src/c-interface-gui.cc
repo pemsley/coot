@@ -101,28 +101,8 @@ int show_paths_in_display_manager_state() {
 /*! \brief display the open coordinates dialog */
 void open_coords_dialog() {
 
-
    if (graphics_info_t::use_graphics_interface_flag) { 
    
-#if (GTK_MAJOR_VERSION == 1)
-
-      GtkWidget *coords_fileselection1 = coot_file_chooser();
-      GtkWidget *file_filter_button;
-      GtkWidget *sort_button;
-      add_ccp4i_project_optionmenu(coords_fileselection1, COOT_COORDS_FILE_SELECTION);
-
-      file_filter_button = add_filename_filter_button(coords_fileselection1, 
-						      COOT_COORDS_FILE_SELECTION);
-      sort_button = add_sort_button_fileselection(coords_fileselection1);
-      add_recentre_on_read_pdb_checkbutton(coords_fileselection1);
-      set_directory_for_fileselection(coords_fileselection1);
-      push_the_buttons_on_fileselection(file_filter_button, sort_button, 
-					coords_fileselection1);
-      set_file_selection_dialog_size(coords_fileselection1);
-      gtk_widget_show (coords_fileselection1);
-
-#else
-
       /* This split was here because the buttons don't work. They act on the
 	 file list, using the file list as a CList.  And CList is deprecated
 	 in GTk+2.  So the button-press callback code needs to be adjusted. */
@@ -141,7 +121,6 @@ void open_coords_dialog() {
       /* in gtk2 we have to push the buttons after we show the selection */
       push_the_buttons_on_fileselection(file_filter_button, sort_button, 
 					coords_fileselection1);
-#endif
    }
 }
 
@@ -1796,16 +1775,9 @@ void
 setup_guile_window_entry(GtkWidget *entry) { 
 
 #ifdef USE_GUILE
-#if (GTK_MAJOR_VERSION > 1) 
-    g_signal_connect(G_OBJECT(entry), "activate",
-		     G_CALLBACK(guile_window_enter_callback),
-		     (gpointer) entry);
-#else
-   gtk_signal_connect(GTK_OBJECT(entry), "activate",
-		      GTK_SIGNAL_FUNC(guile_window_enter_callback),
-		      entry);
-# endif // GTK_MAJOR_VERSION
-
+   g_signal_connect(G_OBJECT(entry), "activate",
+		    G_CALLBACK(guile_window_enter_callback),
+		    (gpointer) entry);
 #endif //  USE_GUILE
 
 }
@@ -1814,13 +1786,9 @@ setup_guile_window_entry(GtkWidget *entry) {
 void python_window_enter_callback( GtkWidget *widget,
 				   GtkWidget *entry )
 {
-#if (GTK_MAJOR_VERSION > 1) 
+
   const gchar *entry_text;
-#else
-  char *entry_text;
-#endif
   entry_text = gtk_entry_get_text(GTK_ENTRY(entry));
-  printf("Entry contents: %s\n", entry_text);
 
   // Sigh. PyRun_SimpleString needs a (char *), not a (const gchar *):
   size_t new_length = strlen(entry_text)+1;
@@ -1835,7 +1803,6 @@ void python_window_enter_callback( GtkWidget *widget,
   gtk_entry_set_text(GTK_ENTRY(entry),"");
 
   delete [] new_text;
-
 }
 #endif
 
@@ -1980,9 +1947,6 @@ GtkWidget *coot_file_chooser() {
 
    GtkWidget *w;
 
-#if (GTK_MAJOR_VERSION == 1)
-   w = create_coords_fileselection1 ();
-#else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
       w = create_coords_fileselection1();
       gtk_file_selection_set_select_multiple(GTK_FILE_SELECTION(w), TRUE);
@@ -1990,7 +1954,6 @@ GtkWidget *coot_file_chooser() {
       w = create_coords_filechooserdialog1(); 
       gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(w), TRUE);
    }
-#endif
    return w;
 }
 
@@ -1998,15 +1961,11 @@ GtkWidget *coot_dataset_chooser() {
 
    GtkWidget *w;
 
-#if (GTK_MAJOR_VERSION == 1)
-   w = create_dataset_fileselection1 ();
-#else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
       w = create_dataset_fileselection1();
    } else {
       w = create_dataset_filechooserdialog1(); 
    }
-#endif
    return w;
 }
 
@@ -2014,15 +1973,11 @@ GtkWidget *coot_map_name_chooser() {
 
    GtkWidget *w;
 
-#if (GTK_MAJOR_VERSION == 1)
-   w = create_map_name_fileselection1();
-#else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
       w = create_map_name_fileselection1();
    } else {
       w = create_map_name_filechooserdialog1(); 
    }
-#endif
    return w;
 }
 
@@ -2047,15 +2002,12 @@ GtkWidget *coot_cif_dictionary_chooser() {
 
    GtkWidget *w;
 
-#if (GTK_MAJOR_VERSION == 1)
-   w = create_cif_dictionary_fileselection ();
-#else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
       w = create_cif_dictionary_fileselection();
    } else {
       w = create_cif_dictionary_filechooserdialog1(); 
    }
-#endif
+
    return w;
 }
 
@@ -2063,15 +2015,12 @@ GtkWidget *coot_run_script_chooser() {
 
    GtkWidget *w;
 
-#if (GTK_MAJOR_VERSION == 1)
-   w = create_run_script_fileselection();
-#else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
       w = create_run_script_fileselection();
    } else {
       w = create_run_script_filechooserdialog1(); 
    }
-#endif
+
    return w;
 }
 
@@ -2079,9 +2028,6 @@ GtkWidget *coot_save_state_chooser() {
 
    GtkWidget *w;
 
-#if (GTK_MAJOR_VERSION == 1)
-   w = create_save_state_fileselection();
-#else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
       w = create_save_state_fileselection();
    } else {
@@ -2094,7 +2040,6 @@ GtkWidget *coot_save_state_chooser() {
 #endif      
       
    }
-#endif
    return w;
 }
 
@@ -2102,9 +2047,6 @@ GtkWidget *coot_save_symmetry_chooser() {
 
    GtkWidget *w;
 
-#if (GTK_MAJOR_VERSION == 1)
-   w = create_save_symmetry_coords_fileselection();
-#else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
       w = create_save_symmetry_coords_fileselection();
    } else {
@@ -2116,7 +2058,6 @@ GtkWidget *coot_save_symmetry_chooser() {
       gtk_file_chooser_set_do_overwrite_confirmation (GTK_FILE_CHOOSER (w), TRUE);
 #endif      
    }
-#endif
    return w;
 }
 
@@ -2124,9 +2065,6 @@ GtkWidget *coot_screendump_chooser() {
 
    GtkWidget *w;
 
-#if (GTK_MAJOR_VERSION == 1)
-   w = create_screendump_fileselection();
-#else
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
       w = create_screendump_fileselection();
    } else {
@@ -2139,7 +2077,6 @@ GtkWidget *coot_screendump_chooser() {
 #endif      
 
    }
-#endif
    return w;
 
 }
@@ -2147,24 +2084,17 @@ GtkWidget *coot_screendump_chooser() {
 
 void set_directory_for_coot_file_chooser(GtkWidget *coords_fileselection1) {
 
-#if (GTK_MAJOR_VERSION == 1)
-      set_directory_for_fileselection(coords_fileselection1);
-#else
       if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
 	set_directory_for_filechooser(coords_fileselection1);
       } else {
         set_directory_for_fileselection(coords_fileselection1);
       }
-#endif
+
 }
 
 const char *coot_file_chooser_file_name(GtkWidget *widget) {
 
    const char *f = 0;
-#if (GTK_MAJOR_VERSION == 1)
-#else
-
-#endif
    return f;
 }
 
@@ -4469,9 +4399,15 @@ skeletonize_map_single_map_maybe(GtkWidget *window, int imol) {
 void set_file_for_save_fileselection(GtkWidget *fileselection) { 
 
    graphics_info_t g;
+
    if (g.gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
       g.set_file_for_save_filechooser(fileselection);
    }
+
+   if (g.gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
+      g.set_file_for_save_fileselection(fileselection);
+   }
+   
 }
 
 

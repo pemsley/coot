@@ -13,11 +13,7 @@ else
   COOT_PREFIX=`dirname "$current_exe_dir"`
 fi
 
-echo COOT_PREFIX is $COOT_PREFIX
-coot_real=$current_exe_dir/coot-real
-# echo coot-real is at $coot_real
-
-
+# echo COOT_PREFIX is $COOT_PREFIX
 
 
 # ----------------------------------------------------------------------------
@@ -77,20 +73,6 @@ if [ $systype = Darwin ] ; then
 	DYLD_LIBRARY_PATH=$COOT_PREFIX/lib:${DYLD_LIBRARY_PATH}
    fi
 fi
-if [ $systype = IRIX ] ; then 
-   if [ -z "$LD_LIBRARYN32_PATH" ] ;  then
-	LD_LIBRARYN32_PATH=$COOT_PREFIX/lib
-   else 
-	LD_LIBRARYN32_PATH=$COOT_PREFIX/lib:${LD_LIBRARYN32_PATH}
-   fi
-fi
-if [ $systype = IRIX64 ] ; then 
-   if [ -z "$LD_LIBRARYN32_PATH" ] ;  then
-	LD_LIBRARYN32_PATH=$COOT_PREFIX/lib
-   else 
-	LD_LIBRARYN32_PATH=$COOT_PREFIX/lib:${LD_LIBRARYN32_PATH}
-   fi
-fi
 
 
 export SYMINFO
@@ -108,5 +90,5 @@ export DYLD_LIBRARY_PATH
 export LD_LIBRARY_PATH
 export LD_LIBRARYN32_PATH
 
-exec ${0}-real $*
+$COOT_PREFIX/libexec/findwaters-bin $*
 

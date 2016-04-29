@@ -710,6 +710,29 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	 }
       }
    }
+
+   bool debug = false;
+   if (debug)
+      std::cout << "---------------------- calling assign_formal_charges() -----------"
+		<< std::endl;
+   coot::assign_formal_charges(&m);
+
+   if (debug)
+      std::cout << "---------------------- getting ring info findSSSR() -----------"
+		<< std::endl;
+   std::vector<std::vector<int> > ring_info;
+   RDKit::MolOps::findSSSR(m, ring_info);
+
+   if (debug) {
+      // what's the ring info then?
+      RDKit::RingInfo* ring_info_p = m.getRingInfo();
+      unsigned int n_rings = ring_info_p->numRings();
+      std::cout << "INFO:: ring-info: found " << n_rings << " rings" << std::endl;
+   }
+   
+   if (debug)
+      std::cout << "---------------------- calling cleanUp() -----------" << std::endl;
+   RDKit::MolOps::cleanUp(m);
    return m;
 } 
 
@@ -2818,12 +2841,57 @@ void coot::update_coords(RDKit::RWMol *mol_p, int iconf, mmdb::Residue *residue_
 	       conf.setAtomPos(jat, r_pos);
 	    }
 	 }
-	 catch (KeyErrorException kee) {
+	 catch (const KeyErrorException &kee) {
 // 	    std::cout << "caught no-name for atom exception in update_coords(): "
 // 		      <<  kee.what() << std::endl;
 	 }
       }
    }
+}
+
+// are all the bonds between the atoms (in the vector) all aromatic?
+bool
+coot::is_aromatic_ring(const std::vector<int> &ring_atom_indices,
+		       RDKit::ROMol &rdkm) {
+
+   bool arom = true;
+
+   // for each atom in ring_atom_indices,
+   //    find the bonds of that atom
+   //    find the other atom index
+   //    if the other atom index is a member of ring_atom_indices
+   //       if the bond order is aromatic,
+   //          continue
+
+   for (unsigned int i=0; i<ring_atom_indices.size(); i++) {
+      // presuming that ring_atom_indices[i] is not negative
+      unsigned int idx(ring_atom_indices[i]);
+
+      RDKit::ATOM_SPTR at_p = rdkm[idx];
+      RDKit::ROMol::OEDGE_ITER current, end;
+      boost::tie(current, end) = rdkm.getAtomBonds(at_p.get());
+
+      while (current != end) {
+	 RDKit::BOND_SPTR bond= rdkm[*current];
+	 int idx_other = bond->getOtherAtomIdx(idx);
+
+	 std::vector<int>::const_iterator it = std::find(ring_atom_indices.begin(),
+							 ring_atom_indices.end(),
+							 idx_other);
+	 if (it != ring_atom_indices.end()) {
+	    // this bond was in the ring
+	    if (bond->getBondType() == RDKit::Bond::AROMATIC) {
+	    } else {
+	       arom = false;
+	       break;
+	    } 
+	 }
+	 current++;
+      }
+   }
+
+   return arom;
+
 }
 
 

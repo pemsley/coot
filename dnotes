@@ -7517,4 +7517,26 @@ PDB: 1ioy
 
      http://paulbourke.net/geometry/circlesphere/
 
+----
+
+     How to make a core dump for CCP4 Coot
+
+     which coot
+     cp that coot script to local-dir
+     edit to remove limit
+          hack in value of CCP4_PREFIX
+     $ unlimit coredumpsize
+     $ gdb /lmb/home/public/xtal/CCP4/ccp4-64/ccp4-7.0/libexec/coot-bin core.14139
+
+
+---- 
+
+     FLEV and Residue->2D Problems:
+
+     00J in 2xir is a good example for dictionary generation (and slider test?).
+     Yes, show this in the LIGANDS meeting (it's good for tutorial too)
+
+     FLEV: 4f6x: ZYL A 301: Mg-O on ligand: make it O- and delete the H.
+     R-2D: 3p8x: ZYD A 1:   OH on tail should be HO (also HUD ligand)
+
 ---

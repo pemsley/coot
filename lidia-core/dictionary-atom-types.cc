@@ -2,7 +2,7 @@
 #ifndef MAKE_ENHANCED_LIGAND_TOOLS
 int main(int argc, char **argv) {return 0;}
 #else 
-#include "cod-types.hh"
+#include "cod-atom-types.hh"
 
 #include <map>
 #include <algorithm>
@@ -78,7 +78,9 @@ int main(int argc, char **argv) {
 
 	    try { 
 	       RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, geom);
-	       std::vector<std::string> v = cod::get_cod_atom_types(rdkm);
+
+	       cod::atom_types_t t;
+	       std::vector<std::string> v = t.get_cod_atom_types(rdkm);
 	       if (v.size() == r.atom_info.size()) {
 		  // std::cout << comp_id << " was good" << std::endl;
 		  for (unsigned int iat=0; iat<r.atom_info.size(); iat++) {
@@ -191,7 +193,8 @@ int main(int argc, char **argv) {
 
 	    try { 
 	       RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, geom);
-	       std::vector<std::string> v = cod::get_cod_atom_types(rdkm);
+	       cod::atom_types_t t;
+	       std::vector<std::string> v = t.get_cod_atom_types(rdkm);
 	       if (v.size() == r.atom_info.size()) {
 		  for (unsigned int iat=0; iat<r.atom_info.size(); iat++) {
 		     const std::string &te = r.atom_info[iat].type_energy;

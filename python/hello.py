@@ -42,18 +42,22 @@ def first_non_trivial_name(str_list):
 import time
 import string
 import os, sys
+import getpass
 
-if (sys.platform == 'darwin'):
-    user = os.getenv('USER')
-else:
-    user = os.getenv('USERNAME')
+try:
+    user = getpass.getuser()
+    name_strings = string.split(str(user))
+except:
+    # no user found - shouldnt happen
+    print "BL WARNING:: no valid user name found"
+    name_strings = "anonymous Coot user"
+    
 
 hour = int(time.strftime("%H", time.localtime()))
 if hour < 12: time_str = "Morning"
 elif hour < 18: time_str = "Afternoon"
 else : time_str = "Evening"
 
-name_strings = string.split(str(user))
 
 # BL says: sorry but in windows we dont have a proper LC_* or language
 # setting, so no swapping of names for Japanese, Koreans etc.
