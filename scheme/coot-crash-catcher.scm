@@ -304,6 +304,14 @@
 			       (string-append "p" "e" "msley" "@" "mrc-lmb" "." "cam" ".ac.uk"))
 			 (append info-list (list gdb-string)))))
 
+(define (we-are-in-mrc-lmb?)
+
+  (let ((domainname-list (string->list-of-strings (shell-command-to-string "domainname"))))
+    (if (> (length domainname-list) 0)
+	(let ((domainname (car domainname-list)))
+	  (or (string=? "mrc-lmb" domainname)
+	      (string? (getenv "COOT_DEV_TEST"))))
+	#f)))
 
 
 ;; gui
@@ -331,20 +339,18 @@
       (gtk-box-pack-start vbox scrolled-win #t #t 5)
       (gtk-box-pack-start vbox hbox-buttons #f #f 5)
       ;; if in MRC show the send-mail button, else show the text.
-      (let ((domainname-list (string->list-of-strings (shell-command-to-string "domainname"))))
-	(if (> (length domainname-list) 0)
-	    (let ((domainname (car domainname-list)))
-	      (if (or (string=? "mrc-lmb" domainname)
-		      (string? (getenv "COOT_DEV_TEST")))
-		  (gtk-box-pack-start hbox-buttons send-button #t #f 5)
-		  (gtk-box-pack-start hbox-buttons send-label #t #f 5)))))
+      (if (we-are-in-mrc-lmb?)
+	  (begin
+	    (gtk-box-pack-start hbox-buttons send-button #t #f 5)
+	    (gtk-box-pack-start hbox-buttons send-label #t #f 5)))
       (gtk-box-pack-start hbox-buttons cancel-button #t #f 5)
       (gtk-text-insert text #f "black" "white" text-string -1)
 
       (gtk-signal-connect cancel-button "clicked"
 			  (lambda args
-			    ;; (gtk-widget-destroy window)))
-			    (press-the-other-button-window)))
+			    (if (we-are-in-mrc-lmb?)
+				(press-the-other-button-window)
+				(gtk-widget-destroy window))))
 
       (gtk-signal-connect send-button "clicked"
 			  (lambda args 
