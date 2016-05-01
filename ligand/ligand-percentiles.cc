@@ -231,11 +231,14 @@ int main(int argc, char **argv) {
 		   << "     --database <db-file-name>\n"
 		   << "     --metric <metric-name>\n"
 		   << "               e.g density_correlation, bumps_1, mogul_z_worst, diff_map_stat_1\n"
-		   << "     --value <value>\n"
+		   << "     --value <metric-name>\n"
 		   << "     --update-database <resolutions-table-file-name>\n"
 		   << "     --rank   rank PDB ligands\n"
 		   << "     --help   this output\n";
 	 
+	 // e.g. ligand-percentiles --database ligands-2016.db --value 0.6
+	 //                         --metric density_correlation
+
       } else {
 
 	 if (do_rank) {
