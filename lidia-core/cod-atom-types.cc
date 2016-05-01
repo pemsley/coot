@@ -1056,11 +1056,16 @@ cod::atom_type_t::level_4_type_to_level_3_type(const std::string &l4t)  {
 
    std::string s = l4t;
 
-   if (s.back() == '}') {
-      // trim off {xxxxx} from s
-      std::string::size_type ii = s.find_last_of('{');
-      if (ii != std::string::npos)
-	 s = s.substr(0,ii);
+   if (! s.empty()) {
+
+      // s.back() is C++-11
+      //
+      if (*(s.rbegin()) == '}') {
+	 // trim off {xxxxx} from s
+	 std::string::size_type ii = s.find_last_of('{');
+	 if (ii != std::string::npos)
+	    s = s.substr(0,ii);
+      }
    }
    return s;
 }
