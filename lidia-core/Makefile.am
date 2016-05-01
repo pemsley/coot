@@ -20,7 +20,7 @@ lib_LTLIBRARIES=libcoot-lidia-core.la
 pkginclude_HEADERS = lbg-shared.hh lbg-molfile.hh lig-build.hh \
 	rdkit-interface.hh use-rdkit.hh cod-types.hh neighbour-sorter.hh \
 	bond-record-container-t.hh bond-table-record-t.hh \
-	cod-atom-types.hh
+	cod-atom-types.hh primes.hh
 
 pkgincludedir = $(includedir)/coot/lidia-core
 

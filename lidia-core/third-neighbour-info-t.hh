@@ -1,6 +1,8 @@
 
 #ifndef THIRD_NEIGHBOUR_INFO_T 
-#define THIRD_NEIGHBOUR_INFO_T 
+#define THIRD_NEIGHBOUR_INFO_T
+
+#include "use-rdkit.hh"
 
 namespace cod { 
    class third_neighbour_info_t {

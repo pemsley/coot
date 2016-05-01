@@ -28,7 +28,7 @@ void write_types(RDKit::RWMol &rdkm) {
    }
 
    cod::atom_types_t t;
-   std::vector<std::string> v = t.get_cod_atom_types(rdkm);
+   std::vector<cod::atom_type_t> v = t.get_cod_atom_types(rdkm);
 
    const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
    for (unsigned int iat=0; iat<v.size(); iat++) {
@@ -42,7 +42,7 @@ void write_types(RDKit::RWMol &rdkm) {
       
 	 // Acedrg writes out: index element name COD-type, we should match that.
 	 std::cout << " " << std::right << std::setw(3) << iat << "    "
-		   << atom_ele << "    " << name << "     " << v[iat]
+		   << atom_ele << "    " << name << "     " << v[iat].level_4
 		   << "\n";
       }
       catch (const KeyErrorException &err) { }
@@ -144,11 +144,11 @@ void molecule_from_SMILES(const std::string &smiles_string) {
    RDKit::RWMol rdkm(*rdkmp);
 
    cod::atom_types_t t;
-   std::vector<std::string> v = t.get_cod_atom_types(rdkm);
+   std::vector<cod::atom_type_t> v = t.get_cod_atom_types(rdkm);
 
    std::cout << "PE-TYPES:: -------- got " << v.size() << " atoms " << std::endl;
    for (unsigned int i=0; i<v.size(); i++)
-      std::cout << "   " << i << " " << v[i] << "" << std::endl;
+      std::cout << "   " << i << " " << v[i].level_4 << "" << std::endl;
 
 }
 
@@ -210,6 +210,21 @@ validate(const std::string &comp_id,
    }
 }
 
+#include "primes.hh"
+#include <limits>
+void
+test_primes() {
+
+   cod::primes primes(200);
+   std::vector<unsigned int> pr = primes.get_primes();
+   for (unsigned int i=0; i<pr.size(); i++) { 
+      std::cout << "   " << pr[i];
+   }
+   std::cout << "" << std::endl;
+   std::cout << "max unsigned int: " << std::numeric_limits<unsigned int>::max()
+	     << std::endl;
+}
+
 
 int main(int argc, char **argv) {
 
@@ -218,10 +233,15 @@ int main(int argc, char **argv) {
    if (argc > 1) {
       if (argc == 2) {
 	 std::string s = argv[1];
-	 if (s.length() == 3)
-	    molecule_from_comp_id(s);
-	 else
-	    molecule_from_SMILES(s);
+
+	 if (s == "primes") {
+	    test_primes();
+	 } else { 
+	    if (s.length() == 3)
+	       molecule_from_comp_id(s);
+	    else
+	       molecule_from_SMILES(s);
+	 }
       }
       
       if (argc == 3) {
@@ -251,6 +271,7 @@ int main(int argc, char **argv) {
 	       validate(comp_id, chain_id, res_no, pdb_file_name, cif_file_name);
 	    }
 	    catch (const std::runtime_error &rte) {
+	       std::cout << "Failure:: " << rte.what() << std::endl;
 	    }
 	 }
       }

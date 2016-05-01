@@ -1,4 +1,5 @@
 
+#include "cod-atom-type-t.hh"
 #include "bond-table-record-t.hh"
 // for validation
 #include "geometry/protein-geometry.hh"
@@ -38,8 +39,21 @@ namespace cod {
 					  const std::string &at_name_2,
 					  mmdb::Residue *res) const;
 
-      bond_table_record_t get_cod_bond_from_table(const std::string &cod_type_1,
-						  const std::string &cod_type_2) const;
+      bond_table_record_t
+      get_cod_bond_from_table(const atom_type_t &cod_type_1,
+			      const atom_type_t &cod_type_2) const;
+      
+      // which uses
+      bond_table_record_t
+      make_bond_from_level_3_vector(const atom_type_t &cod_type_1,
+				    const atom_type_t &cod_type_2,
+				    const std::vector<bond_table_record_t> &v) const;
+      
+
+      bond_table_record_t
+      consolidate_bonds(const atom_type_t &cod_type_1,
+			const atom_type_t &cod_type_2,
+			const std::vector<bond_table_record_t> &lb) const;
       
     public:
       bond_record_container_t() {}
@@ -51,7 +65,17 @@ namespace cod {
       // do I want bonds?
       std::vector<bond_table_record_t> bonds;
 
-      std::map<std::string, std::map<std::string, bond_table_record_t> > bonds_map;
+      // Level-4 atom type is the (outer) key and (outer) value
+      // is a map for which the key is the second level-4 atom type,
+      // returning a bond record.
+      // std::map<std::string, std::map<std::string, bond_table_record_t> > bonds_map;
+
+      // the key is a level-3 atom type, the value is
+      // a map for which the key is a level-3 atom type and the value of that
+      // map is a vector of bond_table_record_t.
+      // 
+      std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > >
+      bonds_map;
       
       void add(const bond_table_record_t &rec) {
 	 bonds.push_back(rec);
