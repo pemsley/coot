@@ -1,4 +1,6 @@
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#define MAKE_ENHANCED_LIGAND_TOOLS
 
 // some-header
 
@@ -62,3 +64,5 @@ cod::operator<<(std::ostream &s, const cod::bond_table_record_t &btr) {
    return s;
 }
 
+
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
