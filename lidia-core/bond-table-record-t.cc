@@ -1,6 +1,5 @@
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-#define MAKE_ENHANCED_LIGAND_TOOLS
 
 // some-header
 
