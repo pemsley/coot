@@ -16,16 +16,13 @@ namespace cod {
 
       void sort() { std::sort(bonds.begin(), bonds.end()); }
       void fill_atom_map();
+      void fill_bonds_map();
 
       std::vector<std::string>
       read_atom_type_indices(const std::string &atom_type_indices_file_name) const;
       
       bool read_bonds(const std::string &bonds_file_name,
 		      const std::vector<std::string> &types);
-
-      // return the consolidated table
-      // 
-      void read_acedrg_table_dir(const std::string &table_dir_name);
 
       // can throw std::runtime_error
       unsigned int get_atom_index(const std::string &at_name_1,
@@ -62,7 +59,10 @@ namespace cod {
       }
       bool read_acedrg_table(const std::string &file_name);
 
-      // do I want bonds?
+      // fill the bonds table
+      // 
+      void read_acedrg_table_dir(const std::string &table_dir_name);
+
       std::vector<bond_table_record_t> bonds;
 
       // Level-4 atom type is the (outer) key and (outer) value
@@ -74,8 +74,14 @@ namespace cod {
       // a map for which the key is a level-3 atom type and the value of that
       // map is a vector of bond_table_record_t.
       // 
-      std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > >
-      bonds_map;
+      // std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > >
+      // bonds_map;
+
+      // same again, but with a level-2 type to index first
+      //
+      // bonds_map[l2][l2][l3][l3]
+      // 
+      std::map<std::string, std::map<std::string, std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > > > > bonds_map;
       
       void add(const bond_table_record_t &rec) {
 	 bonds.push_back(rec);
@@ -86,7 +92,8 @@ namespace cod {
 	 }
       }
       unsigned int size() { return bonds.size(); }
-      bool write(const std::string file_name) const;
+      bool write(const std::string &atom_indices_file_name,
+		 const std::string &bonds_file_name) const;
 
       bool read(const std::string &atom_type_indices_file_name,
 		const std::string &bonds_file_name);

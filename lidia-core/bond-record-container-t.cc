@@ -104,9 +104,10 @@ cod::bond_record_container_t::write_atom_type_indices(const std::string &file_na
 
 
 bool
-cod::bond_record_container_t::write(const std::string file_name) const {
+cod::bond_record_container_t::write(const std::string &atom_indices_file_name,
+				    const std::string &file_name) const {
 
-   write_atom_type_indices("atom-indices.tab");
+   write_atom_type_indices(atom_indices_file_name);
 
    bool status = false;
    std::ofstream f(file_name.c_str());
@@ -158,6 +159,15 @@ cod::bond_record_container_t::read_acedrg_table(const std::string &file_name) {
 	 std::vector<std::string> bits = coot::util::split_string_no_blanks(line);
 
 	 if (bits.size() == 18) {
+	    const std::string &cod_type_1_hash_str = bits[0];
+	    const std::string &cod_type_2_hash_str = bits[1];
+	    
+	    const std::string &cod_type_1_level_2_str  = bits[6];
+	    const std::string &cod_type_2_level_2_str  = bits[7];
+
+	    atom_level_2_type cod_type_atom_1_l2(cod_type_1_level_2_str);
+	    atom_level_2_type cod_type_atom_2_l2(cod_type_2_level_2_str);
+	    
 	    const std::string &cod_type_1_level_4  = bits[10];
 	    const std::string &cod_type_2_level_4  = bits[11];
 
@@ -166,8 +176,14 @@ cod::bond_record_container_t::read_acedrg_table(const std::string &file_name) {
 	    std::string cod_type_2_level_3 =
 	       atom_type_t::level_4_type_to_level_3_type(cod_type_2_level_4);
 
-	    atom_type_t cod_type_1(cod_type_1_level_3, cod_type_1_level_4);
-	    atom_type_t cod_type_2(cod_type_2_level_3, cod_type_2_level_4);
+	    // atom_type_t cod_type_1(cod_type_1_level_3, cod_type_1_level_4);
+	    // atom_type_t cod_type_2(cod_type_2_level_3, cod_type_2_level_4);
+
+	    atom_type_t cod_type_1(cod_type_1_hash_str, cod_type_atom_1_l2,
+				   cod_type_1_level_3,  cod_type_1_level_4);
+	    atom_type_t cod_type_2(cod_type_2_hash_str, cod_type_atom_2_l2,
+				   cod_type_2_level_3,  cod_type_2_level_4);
+
 	 
 	    // const std::string &mean_str    = bits[12];
 	    // const std::string &std_dev_str = bits[13];
@@ -216,13 +232,12 @@ cod::bond_record_container_t::read_acedrg_table_dir(const std::string &dir_name)
 	 add_table(single);
    }
 
-   // this should be a brc fuction
-   
    std::cout << "stored " << size() << " bond records" << std::endl;
    std::cout << "-- pre-sort " << std::endl;
    sort();
    std::cout << "-- post-sort " << std::endl;
 
+   fill_bonds_map();
    fill_atom_map();
 }
 
@@ -271,6 +286,23 @@ cod::bond_record_container_t::fill_atom_map() {
    std::map<std::string, unsigned int>::const_iterator it_map;
    it_map = atom_types_map.begin();
 }
+
+void
+cod::bond_record_container_t::fill_bonds_map() {
+
+   for (unsigned int i=0; i<bonds.size(); i++) {
+      const atom_type_t &c1 = bonds[i].cod_type_1;
+      const atom_type_t &c2 = bonds[i].cod_type_2;
+
+      std::string c1l2 = c1.level_2.string();
+      std::string c2l2 = c2.level_2.string();
+
+      bonds_map[c2l2][c1l2][c1.level_3][c2.level_3].push_back(bonds[i]);
+      bonds_map[c1l2][c2l2][c1.level_3][c2.level_3].push_back(bonds[i]);
+   }
+
+}
+
 
 bool
 cod::bond_record_container_t::read(const std::string &atom_type_indices_file_name,
@@ -338,7 +370,7 @@ cod::bond_record_container_t::read_bonds(const std::string &bonds_file_name,
 	       std::string type_1_level_4 = atom_types[idx_1];
 	       std::string type_2_level_4 = atom_types[idx_2];
 
-	       atom_type_t type_1(type_1_level_4);
+	       atom_type_t type_1(type_1_level_4); // hash and level-2 are empty
 	       atom_type_t type_2(type_2_level_4);
 
 	       if (false)
@@ -358,7 +390,8 @@ cod::bond_record_container_t::read_bonds(const std::string &bonds_file_name,
 	       std::string l3_type_1 = type_1.level_3;
 	       std::string l3_type_2 = type_2.level_3;
 
-	       bonds_map[l3_type_1][l3_type_2].push_back(bond);
+	       // this function (read_bonds()) doesn't read the level-2 types
+	       // bonds_map[l3_type_1][l3_type_2].push_back(bond);
 	    }
 	 }
       }
@@ -406,17 +439,19 @@ void
 cod::bond_record_container_t::check() const {
 
    std::cout << "start check " << std::endl;
-   std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > >::const_iterator it;
-   std::map<std::string, std::vector<bond_table_record_t> >::const_iterator it_i;
+   
+   std::map<std::string, std::map<std::string, std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > > > >::const_iterator it_l2_a;
+   std::map<std::string, std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > > >::const_iterator it_l2_b;
+   
+   for (it_l2_a=bonds_map.begin(); it_l2_a!=bonds_map.end(); it_l2_a++) {
+      std::string key_l2_a = it_l2_a->first;
 
-   for (it=bonds_map.begin(); it!=bonds_map.end(); it++) {
-      std::string key = it->first;
-      for (it_i=it->second.begin(); it_i != it->second.end(); it_i++) {
-	 std::string key_i = it_i->first;
-	 std::cout << "   " << key << "    " << key_i << " " << it_i->second.size() << std::endl;
+      for (it_l2_b=it_l2_a->second.begin(); it_l2_b!=it_l2_a->second.end(); it_l2_b++) {
+	 std::string key_l2_b = it_l2_b->first;
+	 std::cout << "   l2 types " << key_l2_a << " " << key_l2_b << std::endl;
       }
    }
-   std::cout << " done check all" << std::endl;
+   std::cout << " done check()" << std::endl;
 }
 
 std::vector<bool>
@@ -473,7 +508,10 @@ cod::bond_record_container_t::validate(mmdb::Residue *res,
 		     std::string name;
 		     at_p->getProp("name", name);
 		     std::cout << "    " << iat << " " << name
-			       << "  " << v[iat].level_3 << " " << v[iat].level_4 << std::endl;
+			       << "  " << v[iat].hash_value
+			       << "  \"" << v[iat].level_2.string() << "\""
+			       << "  \"" << v[iat].level_3 << "\""
+			       << "  \"" << v[iat].level_4 << "\"" << std::endl;
 		  }
 		  catch (const KeyErrorException &kee) {
 		     std::cout << "   " << iat << " " << kee.what()
@@ -521,7 +559,7 @@ cod::bond_record_container_t::validate(mmdb::Residue *res,
 
 		     if (! v_H[atom_idx_1] && ! v_H[atom_idx_2]) {
 
-			if (false)
+			if (true)
 			   std::cout << "Bond for atoms: " << at_name_1
 				     << " " << at_name_2 << std::endl;
 
@@ -536,7 +574,6 @@ cod::bond_record_container_t::validate(mmdb::Residue *res,
 		     
 			double dist =
 			   get_bond_distance_from_model(at_name_1_4c, at_name_2_4c, res);
-
 			
 			double z = 9999;
 			if (cod_bond.std_dev > 0)
@@ -587,33 +624,54 @@ cod::bond_record_container_t::get_cod_bond_from_table(const cod::atom_type_t &co
    cod::bond_table_record_t bond;
    bool found_bond = false;
 
-   if (false) { 
-      std::cout << "   get_cod_bond_from_table() using " // << cod_type_1.level_3 << "   "
+   if (true) {
+      std::cout << "  get_cod_bond_from_table() using "
+		<< cod_type_1.level_2.string() << "   "
 		<< cod_type_1.level_3 << std::endl;
-      std::cout << "                                   " // << cod_type_2.level_3 << "   "
+      std::cout << "                                  "
+		<< cod_type_2.level_2.string() << "   "
 		<< cod_type_2.level_3 << std::endl;
    }
       
-   std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > >::const_iterator it_3;
+   std::map<std::string, std::map<std::string, std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > > > >::const_iterator it_l2_a;
+   std::map<std::string, std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > > >::const_iterator it_l2_b;
+   
+   std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > >::const_iterator it_l3_a;
 
-   it_3 = bonds_map.find(cod_type_1.level_3);
-   if (it_3 != bonds_map.end()) {
+   std::map<std::string, std::vector<bond_table_record_t> >::const_iterator it_l3_b;
+   
+   it_l2_a = bonds_map.find(cod_type_1.level_2.string());
+   if (it_l2_a != bonds_map.end()) {
+      it_l2_b = it_l2_a->second.find(cod_type_2.level_2.string());
+      if (it_l2_b != it_l2_a->second.end()) {
+	 it_l3_a = it_l2_b->second.find(cod_type_1.level_3);
+	 if (it_l3_a != it_l2_b->second.end()) {
+	    it_l3_b = it_l3_a->second.find(cod_type_2.level_3);
+	    if (it_l3_b != it_l3_a->second.end()) {
 
-      std::map<std::string, std::vector<bond_table_record_t> >::const_iterator it_i;
-      it_i = it_3->second.find(cod_type_2.level_3);
-      if (it_i != it_3->second.end()) {
-	 if (it_i->second.size() > 0) {
-	    bond = make_bond_from_level_3_vector(cod_type_1, cod_type_2, it_i->second);
-	    found_bond = true;
+	       // OK, normal case, 2 level-3 hits
+	       bond = make_bond_from_level_3_vector(cod_type_1, cod_type_2, it_l3_b->second);
+	       found_bond = true;
+	       
+	    } else {
+	       std::string m("missing cod_type_2 level_3 " + cod_type_1.level_2.string());
+
+	       // we need to accumulate a level_3 vector from level_2s.
+	       //
+	       
+	       
+	       // throw(std::runtime_error(m));
+	    }
+	 } else {
+	    std::string m("missing cod_type_1 level_3 " + cod_type_1.level_3);
+	    throw(std::runtime_error(m));
 	 }
       } else {
-	 std::string m("missing cod_type_2 level_3 " + cod_type_2.level_3);
-	 m += " ";
-	 m += coot::util::int_to_string(it_3->second.size());
+	 std::string m("missing cod_type_2 level_2 " + cod_type_2.level_2.string());
 	 throw(std::runtime_error(m));
       }
    } else {
-      std::string m("missing cod_type_1 level_3 " + cod_type_1.level_3);
+      std::string m("missing cod_type_1 level_2 " + cod_type_1.level_2.string());
       throw(std::runtime_error(m));
    }
    return bond;
@@ -627,6 +685,7 @@ cod::bond_record_container_t::make_bond_from_level_3_vector(const cod::atom_type
 							    const std::vector<cod::bond_table_record_t> &v) const {
 
    cod::bond_table_record_t b = v[0];
+   unsigned int min_count_for_l4_match = 6; // counts should be at least this value
    unsigned int min_count_sum_for_merge = 2;
 
    if (v.size() > 1) {
@@ -637,9 +696,11 @@ cod::bond_record_container_t::make_bond_from_level_3_vector(const cod::atom_type
       for (unsigned int i=0; i<v.size(); i++) { 
 	 if (cod_type_1 == v[i].cod_type_1) {
 	    if (cod_type_2 == v[i].cod_type_2) {
-	       b = v[i];
-	       found_bond = true;
-	       break;
+	       if (v[1].count >= min_count_for_l4_match) {
+		  b = v[i];
+		  found_bond = true;
+		  break;
+	       }
 	    }
 	 }
       }

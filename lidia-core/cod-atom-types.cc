@@ -19,24 +19,25 @@
 void
 cod::fill_element_period_group_map() {
 
-   element_period_group_map[ "H"] = std::pair<unsigned int, unsigned int>(1, 1);
-   element_period_group_map[ "B"] = std::pair<unsigned int, unsigned int>(2,13);
-   element_period_group_map[ "C"] = std::pair<unsigned int, unsigned int>(2,14);
-   element_period_group_map[ "N"] = std::pair<unsigned int, unsigned int>(2,15);
-   element_period_group_map[ "O"] = std::pair<unsigned int, unsigned int>(2,16);
-   element_period_group_map[ "F"] = std::pair<unsigned int, unsigned int>(2,17);
-   element_period_group_map["Si"] = std::pair<unsigned int, unsigned int>(3,14);
-   element_period_group_map[ "P"] = std::pair<unsigned int, unsigned int>(3,15);
-   element_period_group_map[ "S"] = std::pair<unsigned int, unsigned int>(3,16);
-   element_period_group_map["Cl"] = std::pair<unsigned int, unsigned int>(3,17);
-   element_period_group_map["Ge"] = std::pair<unsigned int, unsigned int>(4,14);
-   element_period_group_map["As"] = std::pair<unsigned int, unsigned int>(4,15);
-   element_period_group_map["Se"] = std::pair<unsigned int, unsigned int>(4,16);
-   element_period_group_map["Br"] = std::pair<unsigned int, unsigned int>(4,17);
-   element_period_group_map["Sb"] = std::pair<unsigned int, unsigned int>(5,15);
-   element_period_group_map["Te"] = std::pair<unsigned int, unsigned int>(5,16);
-   element_period_group_map[ "I"] = std::pair<unsigned int, unsigned int>(5,17);
-   
+   if (element_period_group_map.size() == 0) {
+      element_period_group_map[ "H"] = std::pair<unsigned int, unsigned int>(1, 1);
+      element_period_group_map[ "B"] = std::pair<unsigned int, unsigned int>(2,13);
+      element_period_group_map[ "C"] = std::pair<unsigned int, unsigned int>(2,14);
+      element_period_group_map[ "N"] = std::pair<unsigned int, unsigned int>(2,15);
+      element_period_group_map[ "O"] = std::pair<unsigned int, unsigned int>(2,16);
+      element_period_group_map[ "F"] = std::pair<unsigned int, unsigned int>(2,17);
+      element_period_group_map["Si"] = std::pair<unsigned int, unsigned int>(3,14);
+      element_period_group_map[ "P"] = std::pair<unsigned int, unsigned int>(3,15);
+      element_period_group_map[ "S"] = std::pair<unsigned int, unsigned int>(3,16);
+      element_period_group_map["Cl"] = std::pair<unsigned int, unsigned int>(3,17);
+      element_period_group_map["Ge"] = std::pair<unsigned int, unsigned int>(4,14);
+      element_period_group_map["As"] = std::pair<unsigned int, unsigned int>(4,15);
+      element_period_group_map["Se"] = std::pair<unsigned int, unsigned int>(4,16);
+      element_period_group_map["Br"] = std::pair<unsigned int, unsigned int>(4,17);
+      element_period_group_map["Sb"] = std::pair<unsigned int, unsigned int>(5,15);
+      element_period_group_map["Te"] = std::pair<unsigned int, unsigned int>(5,16);
+      element_period_group_map[ "I"] = std::pair<unsigned int, unsigned int>(5,17);
+   }
 }
 
 
@@ -149,10 +150,10 @@ cod::atom_types_t::get_cod_atom_types(RDKit::ROMol &rdkm,
       // 
       atom_type.set_hash_value(make_hash_index(*ai, primes));
 
-      if (false)
+      if (true)
 	 std::cout << "atom type "
 		   << atom_type.hash_value << " types: " 
-		   << atom_type.level_2 << " "
+		   << atom_type.level_2.string() << " "
 		   << atom_type.level_4 << std::endl;
       
       v.push_back(atom_type);
@@ -167,7 +168,6 @@ cod::atom_types_t::get_cod_atom_types(RDKit::ROMol &rdkm,
       td += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
       std::cout << "time-diff (ms): " << td << std::endl;
    }
-   
    
    if (v.size() != rdkm.getNumAtoms())
       throw std::runtime_error("mismatch size in get_cod_atom_types()");
@@ -409,7 +409,7 @@ cod::atom_types_t::get_cod_atom_type(RDKit::Atom *atom_base_p,
 
    if (nb_level != 3) {
 
-      atom_ring_string = make_ring_info_string(atom_p);
+      atom_ring_string = make_ring_info_string(atom_p).second;
       
    }
 
@@ -483,69 +483,24 @@ cod::atom_types_t::get_cod_atom_type(RDKit::Atom *atom_base_p,
 	 nt[ii] = neighbour_types[ii].level_4; // FIXME
 
       std::pair<std::string, std::string> sp =
-	 make_cod_level_3_and_4_type(atom_base_p, atom_ele, nt, tnil, nb_level);
+	 make_cod_level_3_and_4_atom_type(atom_base_p, atom_ele, nt, tnil, nb_level);
 
       atom_type = atom_type_t(sp.first, sp.second);
       atom_type.tnil = tnil;
    }
 
-   if (nb_level == 0) { 
+   if (nb_level == 0) {
       // level 2 doesn't have info about the central atom, but does about the neighbours
       // 
-      std::string l2 = make_cod_level_2_atom_type(atom_base_p, rdkm);
-      atom_type.level_2 = l2;
+      // std::string l2 = make_cod_level_2_atom_type(atom_base_p, rdkm);
+      // atom_level_2_type l2(atom_base_p, rdkm);
+      atom_type.level_2 = atom_level_2_type(atom_base_p, rdkm);
       // std::cout << "with nb_level " << nb_level << " l2 is " << l2 << std::endl;
    }
 
    return atom_type;
 }
 
-std::string
-cod::atom_types_t::make_ring_info_string(RDKit::Atom *atom_p) const {
-
-   std::string atom_ring_string;
-   
-   std::vector<int> ring_size_vec;
-   std::vector<int> ring_arom_vec;
-
-   try {
-      atom_p->getProp("ring_size", ring_size_vec);
-      atom_p->getProp("ring_arom", ring_arom_vec);
-
-      // sort ring_info so that the rings with more atoms are at
-      // the top.  Practically 6-rings should come above 5-rings.
-
-      // sorting by ring size is done when the ring info is constructed
-      // and added to atoms - no here
-      // std::sort(ring_si.begin(), ring_info.end());
-	 
-      atom_ring_string = "[";
-      for (unsigned int i_ring=0; i_ring<ring_size_vec.size(); i_ring++) {
-
-	 if (i_ring > 0)
-	    atom_ring_string += ",";
-
-	 // If this ring is aromatic we need at append "a" to the (typically)
-	 // n_atoms_in_ring = 6.
-	 // 
-	 int n_atoms_in_ring = ring_size_vec[i_ring];
-
-	 atom_ring_string += coot::util::int_to_string(n_atoms_in_ring);
-	 int arom = ring_arom_vec[i_ring];
-	 if (arom) {
-	    atom_ring_string += "a";
-	 }
-      }
-      atom_ring_string += "]";
-   }
-   catch (const KeyErrorException &kee) {
-      // no ring info on that atom, that's fine
-      if (false)
-	 std::cout << "  debug-info:: no ring info for atom " << atom_p
-		   << std::endl;
-   }
-   return atom_ring_string;
-}
 
 unsigned int 
 cod::atom_types_t::get_smallest_ring_info(RDKit::Atom *atom_p) const {
@@ -747,11 +702,11 @@ cod::atom_types_t::related_via_angle(RDKit::Atom *atom_in_1_p,
 // first is 3rd level (without 3rd neighbour info) and second is full (with neighbour info)
 // 
 std::pair<std::string, std::string>
-cod::atom_types_t::make_cod_level_3_and_4_type(RDKit::Atom *base_atom_p,
-					       const std::string &atom_ele,
-					       const std::vector<std::string> &neighbour_types,
-					       const std::list<third_neighbour_info_t> &tnil,
-					       int nb_level) {
+cod::atom_types_t::make_cod_level_3_and_4_atom_type(RDKit::Atom *base_atom_p,
+						    const std::string &atom_ele,
+						    const std::vector<std::string> &neighbour_types,
+						    const std::list<third_neighbour_info_t> &tnil,
+						    int nb_level) {
 
    std::string s;
 
@@ -983,8 +938,6 @@ cod::atom_types_t::fei_neighb_sorter(const std::string &a, const std::string &b)
    }
 }
 
-
-
 // static
 bool
 cod::atom_types_t::neighbour_sorter(const std::string &a, const std::string &b) {
@@ -995,7 +948,6 @@ cod::atom_types_t::neighbour_sorter(const std::string &a, const std::string &b) 
    return (a < b);
 } 
 
-
 std::vector<std::string>
 cod::atom_types_t::sort_neighbours(const std::vector<std::string> &neighbours_in,
 				   int level) {
@@ -1005,70 +957,7 @@ cod::atom_types_t::sort_neighbours(const std::vector<std::string> &neighbours_in
    return n;
 }
 
-// we are making cod types for which base atom?
-// base_atom_p.
-//
-// neighbour info atom type: e.g. L3: "N(CCS)(SN)" needs L2: "C-3:S-2:"
-//
-// when done, check that these arguments are needed.
-std::string
-cod::atom_types_t::make_cod_level_2_atom_type(RDKit::Atom *base_atom_p,
-					      const RDKit::ROMol &rdkm) {
-   std::string l2;
-   std::vector<std::string> components;
 
-   RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
-   boost::tie(nbrIdx, endNbrs) = rdkm.getAtomNeighbors(base_atom_p);
-   while(nbrIdx != endNbrs) {
-      RDKit::ATOM_SPTR at_neighb = rdkm[*nbrIdx];
-      unsigned int degree = at_neighb->getDegree();
-      const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
-      int n = at_neighb->getAtomicNum();
-      std::string ring_info = make_ring_info_string(at_neighb.get());
-      
-      std::string atom_ele = tbl->getElementSymbol(n);
-      std::string s = atom_ele;
-      s += ring_info;
-      s += "-";
-      s += coot::util::int_to_string(degree);
-      components.push_back(s);
-      
-      nbrIdx++;
-   }
-
-   std::sort(components.begin(), components.end());
-   
-   for (unsigned int i=0; i<components.size(); i++) {
-      l2 += components[i];
-      l2 += ":";
-   }
-   return l2;
-}
-
-
-
-//
-// maybe this is the wrong file for this function
-// 
-// static 
-std::string
-cod::atom_type_t::level_4_type_to_level_3_type(const std::string &l4t)  {
-
-   std::string s = l4t;
-
-   if (! s.empty()) {
-
-      // s.back() is C++-11
-      //
-      if (*(s.rbegin()) == '}') {
-	 // trim off {xxxxx} from s
-	 std::string::size_type ii = s.find_last_of('{');
-	 if (ii != std::string::npos)
-	    s = s.substr(0,ii);
-      }
-   }
-   return s;
-}
 
 
 // return 0,0 on failure
@@ -1091,6 +980,9 @@ cod::atom_types_t::get_period_group(RDKit::Atom *at) const {
 }
 
 // return 0 on failure
+//
+// (don't use this function if you can avoid it)
+// 
 unsigned int
 cod::atom_types_t::make_hash_index(RDKit::Atom *at) const {
 

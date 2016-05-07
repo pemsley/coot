@@ -63,16 +63,14 @@ namespace cod {
       // first is 3rd level (without 3rd neighbour info) and second is full (with neighbour info)
       // 
       std::pair<std::string, std::string>
-      make_cod_level_3_and_4_type(RDKit::Atom *base_atom_p,
-				  const std::string &atom_ele,
-				  const std::vector<std::string> &neighbour_types,
-				  const std::list<third_neighbour_info_t> &tniv,
-				  int level);
+      make_cod_level_3_and_4_atom_type(RDKit::Atom *base_atom_p,
+				       const std::string &atom_ele,
+				       const std::vector<std::string> &neighbour_types,
+				       const std::list<third_neighbour_info_t> &tniv,
+				       int level);
       // which calls:
       std::string make_cod_3rd_neighb_info_type(const std::list<third_neighbour_info_t> &tniv);
 
-
-      std::string make_ring_info_string(RDKit::Atom *atom_p) const;
       unsigned int get_smallest_ring_info(RDKit::Atom *atom_p) const;
 
       // neighbour info atom type: e.g. "N(CCS)(SN)" -> "C-3:S-2:"
@@ -100,6 +98,9 @@ namespace cod {
 		 unsigned int level);
 
       static bool atomRingSorter(const std::vector<int> &r1, const std::vector<int> &r2);
+
+
+      int hybridization_to_int(RDKit::Atom::HybridizationType) const;
 
    public:
       // can throw a std::runtime_error

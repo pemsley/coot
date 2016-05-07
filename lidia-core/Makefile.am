@@ -33,7 +33,7 @@ AM_CPPFLAGS = \
 
 libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc \
 	rdkit-interface.cc cod-types.cc bond-record-container-t.cc \
-	cod-atom-types.cc bond-table-record-t.cc
+	cod-atom-type-t.cc cod-atom-types.cc bond-table-record-t.cc
 
 libcoot_lidia_core_la_LIBADD =                        \
    $(top_builddir)/geometry/libcoot-geometry.la       \

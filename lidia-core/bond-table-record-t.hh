@@ -41,7 +41,7 @@ namespace cod {
 	    return (cod_type_1 < btr.cod_type_1);
 	 }
       }
-      void write(std::ostream &s, std::string::size_type max_atom_typ_width) const;
+      void write(std::ostream &s) const;
       void write(std::ostream &s,
 		 unsigned int type_index_1,
 		 unsigned int type_index_2) const;
