@@ -81,7 +81,8 @@ cod::atom_level_2_type::atom_level_2_type(RDKit::Atom *base_atom_p,
       l2 += components[i].ring_info_string;
       if (components[i].neighb_hybridizations.size()) {
 	 l2 += "-";
-	 for (unsigned int j=0; j<components[i].neighb_hybridizations.size(); j++) { 
+	 int n_size = components[i].neighb_hybridizations.size(); // int for comparison below
+	 for (unsigned int j=0; j<n_size; j++) { 
 	    if (j != 0)
 	       l2 += "_";
 	    l2 += coot::util::int_to_string(components[i].neighb_hybridizations[j]);
