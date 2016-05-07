@@ -57,15 +57,15 @@ cod::atom_level_2_type::atom_level_2_type(RDKit::Atom *base_atom_p,
       nbrIdx++;
    }
 
+   std::sort(components.begin(), components.end(), level_2_component_sorter);
 
-   if (true) { // debug
+   if (false) { // debug
 
       std::string atom_name;
       base_atom_p->getProp("name", atom_name);
       // C[5a,6a] comes before C[5a]
       // C5[a]    comes before C[6a]
       //
-      std::sort(components.begin(), components.end(), level_2_component_sorter);
       std::cout << "   components sorted: " << atom_name << std::endl;
       for (unsigned int i=0; i<components.size(); i++)
 	 std::cout << " component  " << i << "   " << components[i] << std::endl;
@@ -75,8 +75,9 @@ cod::atom_level_2_type::atom_level_2_type(RDKit::Atom *base_atom_p,
 
    std::string l2;
 
-   int n_last_component = components.size() -1;
-   for (unsigned int i=0; i<components.size(); i++) {
+   int i_last_component = components.size() -1;
+   int n_components = components.size();
+   for (int i=0; i<n_components; i++) {
       l2 += components[i].element;
       l2 += components[i].ring_info_string;
       if (components[i].neighb_hybridizations.size()) {
@@ -86,7 +87,7 @@ cod::atom_level_2_type::atom_level_2_type(RDKit::Atom *base_atom_p,
 	       l2 += "_";
 	    l2 += coot::util::int_to_string(components[i].neighb_hybridizations[j]);
 	 }
-	 if (i != n_last_component)
+	 if (i != i_last_component)
 	    l2 += ":";
       }
    }

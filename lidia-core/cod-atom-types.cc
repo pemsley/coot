@@ -150,7 +150,7 @@ cod::atom_types_t::get_cod_atom_types(RDKit::ROMol &rdkm,
       // 
       atom_type.set_hash_value(make_hash_index(*ai, primes));
 
-      if (true)
+      if (false)
 	 std::cout << "atom type "
 		   << atom_type.hash_value << " types: " 
 		   << atom_type.level_2.string() << " "

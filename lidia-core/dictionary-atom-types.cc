@@ -40,7 +40,7 @@ int main(int argc, char **argv) {
    geom.set_verbose(false);
 
    int read_number = 0;
-   for (unsigned int i=1; i<argc; i++) {
+   for (int i=1; i<argc; i++) {
       std::string file_name = argv[i];
       coot::read_refmac_mon_lib_info_t status =
 	 geom.init_refmac_mon_lib(file_name, read_number);
