@@ -51,6 +51,9 @@ namespace cod {
       consolidate_bonds(const atom_type_t &cod_type_1,
 			const atom_type_t &cod_type_2,
 			const std::vector<bond_table_record_t> &lb) const;
+
+      void t3_miss_diagnose(const atom_type_t &cod_type_1,
+			    const atom_type_t &cod_type_2) const;
       
     public:
       bond_record_container_t() {}
