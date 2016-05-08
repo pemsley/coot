@@ -76,6 +76,10 @@ namespace cod {
 	 return (t_in.level_4 == level_4);
       }
 
+      bool l3_match(const atom_type_t &t_in) const {
+	 return (t_in.level_3 == level_3);
+      }
+
       bool operator<(const atom_type_t &t_in) const {
 	 return (level_4 < t_in.level_4); // is this the right way round?
       }
