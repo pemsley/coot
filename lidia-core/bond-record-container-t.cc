@@ -237,12 +237,18 @@ cod::bond_record_container_t::read_acedrg_table_dir(const std::string &dir_name)
    }
 
    std::cout << "stored " << size() << " bond records" << std::endl;
+
+   // why do I sort?
    std::cout << "-- pre-sort " << std::endl;
    sort();
    std::cout << "-- post-sort " << std::endl;
 
+   std::cout << "--  pre-fill bonds map " << std::endl;
    fill_bonds_map();
-   fill_atom_map();
+   std::cout << "-- post-fill bonds map " << std::endl;
+   std::cout << "--  pre-fill atoms map " << std::endl;
+   fill_atom_map(); // what does this do, I mean, why is the atom map needed?
+   std::cout << "-- post-fill atoms map " << std::endl;
 }
 
 
@@ -304,7 +310,6 @@ cod::bond_record_container_t::fill_bonds_map() {
       bonds_map[c1l2][c2l2][c1.level_3][c2.level_3].push_back(bonds[i]);
       bonds_map[c2l2][c1l2][c2.level_3][c1.level_3].push_back(bonds[i]);
    }
-
 }
 
 
@@ -658,22 +663,31 @@ cod::bond_record_container_t::get_cod_bond_from_table(const cod::atom_type_t &co
 	    if (it_l3_b != it_l3_a->second.end()) {
 
 	       // OK, normal case, 2 level-3 hits
-	       bond = make_bond_from_level_3_vector(cod_type_1, cod_type_2, it_l3_b->second);
+	       unsigned int approx_level = 0;
+	       bond = make_bond_from_level_3_vector(cod_type_1, cod_type_2, it_l3_b->second,
+						    approx_level);
 	       found_bond = true;
-	       
+
 	    } else {
-	       std::string m("missing cod_type_2 level_3 " + cod_type_1.level_2.string());
 
 	       // we need to accumulate a level_3 vector from level_2s.
 	       //
+	       unsigned int approx_level = 1;
+	       bond = make_bond_from_level_2_map(cod_type_1, cod_type_2, it_l2_b->second, approx_level);
+	       found_bond = true;
 	       
-	       
+	       // std::string m("missing cod_type_2 level_3 " + cod_type_1.level_2.string());
 	       // throw(std::runtime_error(m));
 	    }
 	 } else {
+
+	    unsigned int approx_level = 1;
+	    bond = make_bond_from_level_2_map(cod_type_1, cod_type_2, it_l2_b->second, approx_level);
+	    found_bond = true;
+
 	    // t3_miss_diagnose(cod_type_1, cod_type_2); // debugging
-	    std::string m("missing cod_type_1 level_3 " + cod_type_1.level_3);
-	    throw(std::runtime_error(m));
+	    // std::string m("missing cod_type_1 level_3 " + cod_type_1.level_3);
+	    // throw(std::runtime_error(m));
 	 }
       } else {
 	 std::string m("missing cod_type_2 level_2 " + cod_type_2.level_2.string());
@@ -691,7 +705,8 @@ cod::bond_record_container_t::get_cod_bond_from_table(const cod::atom_type_t &co
 cod::bond_table_record_t
 cod::bond_record_container_t::make_bond_from_level_3_vector(const cod::atom_type_t &cod_type_1,
 							    const cod::atom_type_t &cod_type_2,
-							    const std::vector<cod::bond_table_record_t> &v) const {
+							    const std::vector<cod::bond_table_record_t> &v,
+							    unsigned int approx_level) const {
 
    cod::bond_table_record_t b = v[0];
    unsigned int min_count_for_l4_match = 6; // counts should be at least this value
@@ -730,7 +745,7 @@ cod::bond_record_container_t::make_bond_from_level_3_vector(const cod::atom_type
 	 for (unsigned int j=0; j<local_bonds.size(); j++)
 	    n_sum += local_bonds[j].count;
 	 if (n_sum > min_count_sum_for_merge) {
-	    b = consolidate_bonds(cod_type_1, cod_type_2, local_bonds);
+	    b = consolidate_bonds(cod_type_1, cod_type_2, local_bonds, approx_level);
 	    found_bond = true;
 	 }
       }
@@ -748,21 +763,55 @@ cod::bond_record_container_t::make_bond_from_level_3_vector(const cod::atom_type
 	 for (unsigned int j=0; j<local_bonds.size(); j++)
 	    n_sum += local_bonds[j].count;
 	 if (n_sum > min_count_sum_for_merge) {
-	    b = consolidate_bonds(cod_type_1, cod_type_2, local_bonds);
+	    b = consolidate_bonds(cod_type_1, cod_type_2, local_bonds, approx_level);
 	    found_bond = true;
 	 }
       }
 
       if (! found_bond)
-	 b = consolidate_bonds(cod_type_1, cod_type_2, v);
+	 b = consolidate_bonds(cod_type_1, cod_type_2, v, approx_level);
    }
    return b;
 }
 
+// generalization
+//
+cod::bond_table_record_t
+cod::bond_record_container_t::make_bond_from_level_2_map(const atom_type_t &cod_type_1,
+							 const atom_type_t &cod_type_2,
+							 const std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > > &l3_map,
+							 unsigned int approx_level) const {
+
+   bond_table_record_t bond;
+   std::vector<bond_table_record_t> v;
+   std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > >::const_iterator it_l3_a_local;
+   std::map<std::string, std::vector<bond_table_record_t> >::const_iterator it_l3_b_local;
+
+   for (it_l3_a_local=l3_map.begin();
+	it_l3_a_local != l3_map.end();
+	it_l3_a_local++) {
+      for (it_l3_b_local=it_l3_a_local->second.begin();
+	   it_l3_b_local != it_l3_a_local->second.end();
+	   it_l3_b_local++) {
+	 for (unsigned int i=0; i<it_l3_b_local->second.size(); i++) {
+	    const bond_table_record_t &bond = it_l3_b_local->second[i];
+	    v.push_back(bond);
+	 }
+      }
+   }
+
+   bond = make_bond_from_level_3_vector(cod_type_1, cod_type_2, v, approx_level);
+
+   return bond;
+
+}
+
+
 cod::bond_table_record_t
 cod::bond_record_container_t::consolidate_bonds(const cod::atom_type_t &cod_type_1,
 						const cod::atom_type_t &cod_type_2,
-						const std::vector<cod::bond_table_record_t> &lb) const {
+						const std::vector<cod::bond_table_record_t> &lb,
+						unsigned int approx_level) const {
 
    double mean_sum = 0;
    double var_sum = 0;
@@ -777,7 +826,6 @@ cod::bond_record_container_t::consolidate_bonds(const cod::atom_type_t &cod_type
    double mean = mean_sum/double(n_sum);
    double var  = var_sum/double(n_sum);
    double sd = sqrt(var);
-   unsigned int approx_level = 0;
    return bond_table_record_t(cod_type_1, cod_type_2, mean, sd, n_sum, approx_level);
 }
 	       
