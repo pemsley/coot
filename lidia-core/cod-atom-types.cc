@@ -1,6 +1,10 @@
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
+#include <algorithm>
+
+#include <sys/time.h> // for time testing
+
 #include "rdkit-interface.hh"
 #include "GraphMol/Rings.h"
 #include "GraphMol/RingInfo.h"
@@ -8,7 +12,34 @@
 
 #include "utils/coot-utils.hh"
 
+#include "primes.hh"
 #include "cod-atom-types.hh"
+
+
+void
+cod::fill_element_period_group_map() {
+
+   if (element_period_group_map.size() == 0) {
+      element_period_group_map[ "H"] = std::pair<unsigned int, unsigned int>(1, 1);
+      element_period_group_map[ "B"] = std::pair<unsigned int, unsigned int>(2,13);
+      element_period_group_map[ "C"] = std::pair<unsigned int, unsigned int>(2,14);
+      element_period_group_map[ "N"] = std::pair<unsigned int, unsigned int>(2,15);
+      element_period_group_map[ "O"] = std::pair<unsigned int, unsigned int>(2,16);
+      element_period_group_map[ "F"] = std::pair<unsigned int, unsigned int>(2,17);
+      element_period_group_map["Si"] = std::pair<unsigned int, unsigned int>(3,14);
+      element_period_group_map[ "P"] = std::pair<unsigned int, unsigned int>(3,15);
+      element_period_group_map[ "S"] = std::pair<unsigned int, unsigned int>(3,16);
+      element_period_group_map["Cl"] = std::pair<unsigned int, unsigned int>(3,17);
+      element_period_group_map["Ge"] = std::pair<unsigned int, unsigned int>(4,14);
+      element_period_group_map["As"] = std::pair<unsigned int, unsigned int>(4,15);
+      element_period_group_map["Se"] = std::pair<unsigned int, unsigned int>(4,16);
+      element_period_group_map["Br"] = std::pair<unsigned int, unsigned int>(4,17);
+      element_period_group_map["Sb"] = std::pair<unsigned int, unsigned int>(5,15);
+      element_period_group_map["Te"] = std::pair<unsigned int, unsigned int>(5,16);
+      element_period_group_map[ "I"] = std::pair<unsigned int, unsigned int>(5,17);
+   }
+}
+
 
 // can throw a std::runtime_error
 //
@@ -16,11 +47,14 @@
 //
 // add_name_as_property is an optional argument default true
 // 
-std::vector<std::string>
+std::vector<cod::atom_type_t>
 cod::atom_types_t::get_cod_atom_types(RDKit::ROMol &rdkm,
 				      bool add_name_as_property) {
 
-   std::vector<std::string> v;
+
+   fill_element_period_group_map();
+
+   std::vector<atom_type_t> v;
 
    RDKit::RingInfo* ring_info_p = rdkm.getRingInfo();
 
@@ -95,18 +129,44 @@ cod::atom_types_t::get_cod_atom_types(RDKit::ROMol &rdkm,
 	 handle_bigger_rings_from_fused_rings(rdkm, fused_rings);
       curr++;
    }
+
+
+   cod::primes primes(600000);
+   
+   timeval start_time;
+   timeval current_time;
+   // gettimeofday(&start_time, NULL);
    
    RDKit::ROMol::AtomIterator ai;
    for(ai=rdkm.beginAtoms(); ai!=rdkm.endAtoms(); ai++) {
       
-      std::pair<std::string, std::list<third_neighbour_info_t> > s_pair =
-	 // get_cod_atom_type(0, *ai, *ai, rdkm); // full-spec
-	 get_cod_atom_type(*ai, 0, 0, *ai, rdkm);
+      // std::pair<std::string, std::list<third_neighbour_info_t> > s_pair =
+      // get_cod_atom_type(0, *ai, *ai, rdkm); // full-spec
+      // std::string s = s_pair.first;
+      
+      atom_type_t atom_type = get_cod_atom_type(*ai, 0, 0, *ai, rdkm);
 
-      std::string s = s_pair.first;
-      v.push_back(s);
+      // is this the right place?
+      // 
+      atom_type.set_hash_value(make_hash_index(*ai, primes));
+
+      if (false)
+	 std::cout << "atom type "
+		   << atom_type.hash_value << " types: " 
+		   << atom_type.level_2.string() << " "
+		   << atom_type.level_4 << std::endl;
+      
+      v.push_back(atom_type);
+      
       if (add_name_as_property)
-	 (*ai)->setProp("CODAtomName", s);
+	 (*ai)->setProp("CODAtomName", atom_type.level_4);
+   }
+   if (false) { // it's worth pre-computing the primes -600ms
+      gettimeofday(&current_time, NULL);
+      double td = current_time.tv_sec - start_time.tv_sec;  // milliseconds
+      td *= 1000.0;
+      td += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
+      std::cout << "time-diff (ms): " << td << std::endl;
    }
    
    if (v.size() != rdkm.getNumAtoms())
@@ -187,8 +247,8 @@ cod::atom_types_t::handle_bigger_rings_from_fused_rings(RDKit::ROMol &rdkm,
 
    unsigned int n_max_bonds = 6; // max ring size of interest (for COD)
 
-   // we need to rewrite this part // FIXME
-   // 
+   // I don't think that this is needed now we have rdkit ring info.
+   //
    if (false) { 
       // Return all the paths by which we get back to idx (using upto
       // (and including) n_max_bonds bonds (include backward paths also).
@@ -287,7 +347,6 @@ cod::atom_types_t::trace_path(unsigned int idx,
 							  target_idx,
 							  bond_map,
 							  level-1);
-		  
 	    if (v.size() > 0)
 	       for (unsigned int i=0; i<v.size(); i++)
 		  vr.push_back(v[i]);
@@ -321,10 +380,11 @@ cod::atom_types_t::trace_path(unsigned int idx,
 // atom_parent_p is the bonded parent of atom_p (used to check for
 // back-tracking)
 //
-// atom_base_p: the centroal (level 0) atom for which we are
+// atom_base_p: the central (nb-level 0) atom for which we are
 // calculating the atom types eventually.
 // 
-std::pair<std::string, std::list<cod::third_neighbour_info_t> >
+// std::pair<std::string, std::list<cod::third_neighbour_info_t> >
+cod::atom_type_t
 cod::atom_types_t::get_cod_atom_type(RDKit::Atom *atom_base_p,
 				     RDKit::Atom *atom_nb_1_p,
 				     RDKit::Atom *atom_parent_p,
@@ -332,9 +392,10 @@ cod::atom_types_t::get_cod_atom_type(RDKit::Atom *atom_base_p,
 				     const RDKit::ROMol &rdkm,
 				     int nb_level) {
 
+   atom_type_t atom_type; // returned type
+      
    std::list<third_neighbour_info_t> tnil;
 
-   std::string s;
    const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
    int n = atom_p->getAtomicNum();
    std::string atom_ele = tbl->getElementSymbol(n);
@@ -347,50 +408,16 @@ cod::atom_types_t::get_cod_atom_type(RDKit::Atom *atom_base_p,
    // std::vector<ring_info_t> ring_info_vec;
 
    if (nb_level != 3) {
+
+      atom_ring_string = make_ring_info_string(atom_p).second;
       
-      try {
-	 atom_p->getProp("ring_size", ring_size_vec);
-	 atom_p->getProp("ring_arom", ring_arom_vec);
-
-	 // sort ring_info so that the rings with more atoms are at
-	 // the top.  Practically 6-rings should come above 5-rings.
-
-	 // sorting by ring size is done when the ring info is constructed
-	 // and added to atoms - no here
-	 // std::sort(ring_si.begin(), ring_info.end());
-	 
-	 atom_ring_string = "[";
-	 for (unsigned int i_ring=0; i_ring<ring_size_vec.size(); i_ring++) {
-
-	    if (i_ring > 0)
-	       atom_ring_string += ",";
-
-	    // If this ring is aromatic we need at append "a" to the (typically)
-	    // n_atoms_in_ring = 6.
-	    // 
-	    int n_atoms_in_ring = ring_size_vec[i_ring];
-
-	    atom_ring_string += coot::util::int_to_string(n_atoms_in_ring);
-	    int arom = ring_arom_vec[i_ring];
-	    if (arom) {
-	       atom_ring_string += "a";
-	    }
-	 }
-	 atom_ring_string += "]";
-      }
-      catch (const KeyErrorException &kee) {
-	 // no ring info on that atom, that's fine
-	 if (false)
-	    std::cout << "  debug-info:: no ring info for atom " << atom_p
-		      << std::endl;
-      }
    }
 
    // recursion block
    //
    if (nb_level < 3) { // this is always true, I think
       
-      std::vector<std::string> neighbour_types;
+      std::vector<atom_type_t> neighbour_types;
 
       RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
       boost::tie(nbrIdx, endNbrs) = rdkm.getAtomNeighbors(atom_p);
@@ -406,14 +433,18 @@ cod::atom_types_t::get_cod_atom_type(RDKit::Atom *atom_base_p,
 	    // add level_3 neighb_types (this function called with nb_level == 2)
 	    //
 	    if (nb_level < 2) {
-	       std::pair<std::string, std::list<third_neighbour_info_t> > s_pair =
-		  get_cod_atom_type(atom_base_p, atom_parent_p, atom_p, neigh_atom_p, rdkm, nb_level+1);
-	       std::string neighb_type = s_pair.first;
-	       neighbour_types.push_back(neighb_type);
+	       // std::pair<std::string, std::list<third_neighbour_info_t> > s_pair =
+	       // get_cod_atom_type(atom_base_p, atom_parent_p, atom_p, neigh_atom_p,
+	       //                   rdkm, nb_level+1);
+	       atom_type_t atom_type = 
+		  get_cod_atom_type(atom_base_p, atom_parent_p, atom_p, neigh_atom_p,
+				    rdkm, nb_level+1);
+	       
+	       neighbour_types.push_back(atom_type);
 
-	       if (s_pair.second.size()) {
+	       if (atom_type.tnil.size()) {
 		  std::list<third_neighbour_info_t>::const_iterator it;
-		  for (it=s_pair.second.begin(); it!=s_pair.second.end(); it++)
+		  for (it=atom_type.tnil.begin(); it!=atom_type.tnil.end(); it++)
 		     tnil.push_back(*it);
 		  tnil.sort();
 		  tnil.unique();
@@ -446,16 +477,47 @@ cod::atom_types_t::get_cod_atom_type(RDKit::Atom *atom_base_p,
 
       tnil.sort();
       tnil.unique();
-      s = make_cod_type(atom_base_p, atom_ele, neighbour_types, tnil, nb_level);
+
+      std::vector<std::string> nt(neighbour_types.size());
+      for (unsigned int ii=0; ii<neighbour_types.size(); ii++)
+	 nt[ii] = neighbour_types[ii].level_4; // FIXME
+
+      std::pair<std::string, std::string> sp =
+	 make_cod_level_3_and_4_atom_type(atom_base_p, atom_ele, nt, tnil, nb_level);
+
+      atom_type = atom_type_t(sp.first, sp.second);
+      atom_type.tnil = tnil;
    }
 
-   if (false)
-      std::cout << "get_cod_atom_type():    level " << nb_level << " returning :"
-		<< s << ":" << std::endl;
+   if (nb_level == 0) {
+      // level 2 doesn't have info about the central atom, but does about the neighbours
+      // 
+      // std::string l2 = make_cod_level_2_atom_type(atom_base_p, rdkm);
+      // atom_level_2_type l2(atom_base_p, rdkm);
+      atom_type.level_2 = atom_level_2_type(atom_base_p, rdkm);
+      // std::cout << "with nb_level " << nb_level << " l2 is " << l2 << std::endl;
+   }
 
-   return std::pair<std::string, std::list<cod::third_neighbour_info_t> > (s, tnil);
-
+   return atom_type;
 }
+
+
+unsigned int 
+cod::atom_types_t::get_smallest_ring_info(RDKit::Atom *atom_p) const {
+
+   unsigned int sr = 0;
+   std::vector<int> ring_size_vec;
+   try {
+      atom_p->getProp("ring_size", ring_size_vec);
+      if (ring_size_vec.size())
+	 sr = ring_size_vec[0];
+   }
+   catch (const KeyErrorException &kee) {
+      // no ring info on that atom, that's fine
+   }
+   return sr;
+}
+
 
 // atom_p is the current atom for which we want the 3rd-neighbour
 // types, atom_base_p is the original (central, level 0) atom and we
@@ -637,12 +699,14 @@ cod::atom_types_t::related_via_angle(RDKit::Atom *atom_in_1_p,
 // we are making cod types for which base atom?
 // base_atom_p.
 //
-std::string
-cod::atom_types_t::make_cod_type(RDKit::Atom *base_atom_p,
-				 const std::string &atom_ele,
-				 const std::vector<std::string> &neighbour_types,
-				 const std::list<third_neighbour_info_t> &tnil,
-				 int nb_level) {
+// first is 3rd level (without 3rd neighbour info) and second is full (with neighbour info)
+// 
+std::pair<std::string, std::string>
+cod::atom_types_t::make_cod_level_3_and_4_atom_type(RDKit::Atom *base_atom_p,
+						    const std::string &atom_ele,
+						    const std::vector<std::string> &neighbour_types,
+						    const std::list<third_neighbour_info_t> &tnil,
+						    int nb_level) {
 
    std::string s;
 
@@ -717,7 +781,7 @@ cod::atom_types_t::make_cod_type(RDKit::Atom *base_atom_p,
 	       if ((n[i].length() == 1) && (same.size() == 1))
 		  do_compression = false;
 
-	       // ----------------------- level 1 --------------------------------
+	       // ----------------------- nb level 1 --------------------------------
 	       // 
 	       if (nb_level == 1) {
 		  if (same.size() == 0) { 
@@ -739,7 +803,7 @@ cod::atom_types_t::make_cod_type(RDKit::Atom *base_atom_p,
 		  }
 	       }
 
-	       // ----------------------- level 0 --------------------------------
+	       // ----------------------- nb level 0 --------------------------------
 	       // 
 	       if (nb_level == 0) {
 		  if (same.size() == 0) {
@@ -761,13 +825,14 @@ cod::atom_types_t::make_cod_type(RDKit::Atom *base_atom_p,
       }
    }
 
+   std::string s_3rd_level = s;
    if (! s.empty()) {
       if (nb_level == 0) {
 	 std::string t = make_cod_3rd_neighb_info_type(tnil);
 	 s += t;
       }
    }
-   return s;
+   return std::pair<std::string, std::string> (s_3rd_level, s);
 }
 
 
@@ -873,8 +938,6 @@ cod::atom_types_t::fei_neighb_sorter(const std::string &a, const std::string &b)
    }
 }
 
-
-
 // static
 bool
 cod::atom_types_t::neighbour_sorter(const std::string &a, const std::string &b) {
@@ -884,7 +947,6 @@ cod::atom_types_t::neighbour_sorter(const std::string &a, const std::string &b) 
       return false;
    return (a < b);
 } 
-
 
 std::vector<std::string>
 cod::atom_types_t::sort_neighbours(const std::vector<std::string> &neighbours_in,
@@ -897,6 +959,86 @@ cod::atom_types_t::sort_neighbours(const std::vector<std::string> &neighbours_in
 
 
 
+
+// return 0,0 on failure
+std::pair<unsigned int, unsigned int>
+cod::atom_types_t::get_period_group(RDKit::Atom *at) const {
+
+   const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
+   int n = at->getAtomicNum();
+   std::string atom_ele = tbl->getElementSymbol(n);
+
+   std::pair<unsigned int, unsigned int> period_group(0,0);
+   std::map<std::string, std::pair<unsigned int, unsigned int> >::const_iterator it;
+   it = element_period_group_map.find(atom_ele);
+   if (it != element_period_group_map.end()) {
+      period_group = it->second;
+   } else {
+      std::cout << "didn't find " << atom_ele << " in the map " << std::endl;
+   } 
+   return period_group;
+}
+
+// return 0 on failure
+//
+// (don't use this function if you can avoid it)
+// 
+unsigned int
+cod::atom_types_t::make_hash_index(RDKit::Atom *at) const {
+
+   cod::primes primes(600000); // 12ms
+
+   return make_hash_index(at, primes);
+}
+
+
+// return 0 on failure
+unsigned int
+cod::atom_types_t::make_hash_index(RDKit::Atom *at, const cod::primes &primes) const {
+
+   unsigned int hash_value = 0;
+
+   std::pair<unsigned int, unsigned int> pg = get_period_group(at);
+
+   unsigned int deg = at->getDegree();
+   
+   // what is the smallest ring of which this atom is part (0 is possible, 7 is max)?
+   //
+   unsigned int smallest_ring = get_smallest_ring_info(at);
+   unsigned int hash_min_ring = 2;
+   unsigned int ring_info = std::max(smallest_ring, hash_min_ring);
+   
+   bool arom = at->getIsAromatic();
+
+   std::vector<unsigned int> pr = primes.get_primes();
+
+   unsigned int prod = pr[arom] * pr[ring_info] * pr[8+deg] * pr[16+pg.first] * pr[24+pg.second];
+
+   unsigned int table_length = 1000;
+
+   hash_value = prod%table_length;
+
+   if (false) { // debug
+
+      const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
+      int n = at->getAtomicNum();
+      std::string atom_ele = tbl->getElementSymbol(n);
+
+      std::string name;
+      at->getProp("name", name);
+      
+      // std::cout << "   " << name << " " << pg.first << " "
+      // << pg.second << " hash-index " << hash_value << std::endl;
+      
+      std::cout << "   " << name << " ar: " << arom << " ri: " << ring_info
+		<< " degree: " <<  8 + deg
+		<< " per: "    << 16 + pg.first
+		<< " group: "  << 24 + pg.second
+		<< " prod " << prod << " hash-index " << hash_value
+		<< std::endl;
+   }
+   return hash_value;
+}
 
 
 #endif // MAKE_ENHANCED_LIGAND_TOOLS

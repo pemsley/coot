@@ -1,4 +1,5 @@
 
+#include "cod-atom-type-t.hh"
 #include "bond-table-record-t.hh"
 // for validation
 #include "geometry/protein-geometry.hh"
@@ -15,16 +16,13 @@ namespace cod {
 
       void sort() { std::sort(bonds.begin(), bonds.end()); }
       void fill_atom_map();
+      void fill_bonds_map();
 
       std::vector<std::string>
       read_atom_type_indices(const std::string &atom_type_indices_file_name) const;
       
       bool read_bonds(const std::string &bonds_file_name,
 		      const std::vector<std::string> &types);
-
-      // return the consolidated table
-      // 
-      void read_acedrg_table_dir(const std::string &table_dir_name);
 
       // can throw std::runtime_error
       unsigned int get_atom_index(const std::string &at_name_1,
@@ -38,8 +36,34 @@ namespace cod {
 					  const std::string &at_name_2,
 					  mmdb::Residue *res) const;
 
-      bond_table_record_t get_cod_bond_from_table(const std::string &cod_type_1,
-						  const std::string &cod_type_2) const;
+      bond_table_record_t
+      get_cod_bond_from_table(const atom_type_t &cod_type_1,
+			      const atom_type_t &cod_type_2) const;
+      
+      // which uses
+      bond_table_record_t
+      make_bond_from_level_3_vector(const atom_type_t &cod_type_1,
+				    const atom_type_t &cod_type_2,
+				    const std::vector<bond_table_record_t> &v,
+				    unsigned int approx_level) const;
+
+      // generalization
+      //
+      bond_table_record_t
+      make_bond_from_level_2_map(const atom_type_t &cod_type_1,
+				 const atom_type_t &cod_type_2,
+				 const std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > > &l3_map,
+				 unsigned int approx_level) const;
+      
+
+      bond_table_record_t
+      consolidate_bonds(const atom_type_t &cod_type_1,
+			const atom_type_t &cod_type_2,
+			const std::vector<bond_table_record_t> &lb,
+			unsigned int approx_level) const;
+
+      void t3_miss_diagnose(const atom_type_t &cod_type_1,
+			    const atom_type_t &cod_type_2) const;
       
     public:
       bond_record_container_t() {}
@@ -48,10 +72,29 @@ namespace cod {
       }
       bool read_acedrg_table(const std::string &file_name);
 
-      // do I want bonds?
+      // fill the bonds table
+      // 
+      void read_acedrg_table_dir(const std::string &table_dir_name);
+
       std::vector<bond_table_record_t> bonds;
 
-      std::map<std::string, std::map<std::string, bond_table_record_t> > bonds_map;
+      // Level-4 atom type is the (outer) key and (outer) value
+      // is a map for which the key is the second level-4 atom type,
+      // returning a bond record.
+      // std::map<std::string, std::map<std::string, bond_table_record_t> > bonds_map;
+
+      // the key is a level-3 atom type, the value is
+      // a map for which the key is a level-3 atom type and the value of that
+      // map is a vector of bond_table_record_t.
+      // 
+      // std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > >
+      // bonds_map;
+
+      // same again, but with a level-2 type to index first
+      //
+      // bonds_map[l2][l2][l3][l3]
+      // 
+      std::map<std::string, std::map<std::string, std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > > > > bonds_map;
       
       void add(const bond_table_record_t &rec) {
 	 bonds.push_back(rec);
@@ -62,7 +105,8 @@ namespace cod {
 	 }
       }
       unsigned int size() { return bonds.size(); }
-      bool write(const std::string file_name) const;
+      bool write(const std::string &atom_indices_file_name,
+		 const std::string &bonds_file_name) const;
 
       bool read(const std::string &atom_type_indices_file_name,
 		const std::string &bonds_file_name);

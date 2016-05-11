@@ -6394,14 +6394,12 @@ molecule_class_info_t::make_backup() { // changes history details
       char *env_var = getenv("COOT_BACKUP_DIR");
       if (env_var) { 
 	 struct stat buf;
-#ifdef WINDOWS_MINGW
-         // we better debackslash the directory
+
+         // we better debackslash the directory (for windows)
 	 std::string tmp_dir = env_var;
          tmp_dir = coot::util::intelligent_debackslash(tmp_dir);
 	 int err = stat(tmp_dir.c_str(), &buf);
-#else
-	 int err = stat(env_var, &buf);
-#endif // MINGW
+	 
 	 if (!err) {
 	    if (! S_ISDIR(buf.st_mode)) {
 	       env_var = NULL;
@@ -6427,11 +6425,11 @@ molecule_class_info_t::make_backup() { // changes history details
 	    mmdb::byte gz = mmdb::io::GZM_NONE;
 #else
 	    mmdb::byte gz;
-        if (g.backup_compress_files_flag) {
-	   gz = mmdb::io::GZM_ENFORCE;
-        } else {
-	   gz = mmdb::io::GZM_NONE;
-        }
+	    if (g.backup_compress_files_flag) {
+	       gz = mmdb::io::GZM_ENFORCE;
+	    } else {
+	       gz = mmdb::io::GZM_NONE;
+	    }
 #endif
 	    // Writing out a modified binary mmdb like this results in the
 	    // file being unreadable (crash in mmdb read).
@@ -6456,7 +6454,8 @@ molecule_class_info_t::make_backup() { // changes history details
 	       max_history_index++;
 	    history_index++;
 	 } else {
-	    std::cout << "BACKUP:: directory "<< backup_dir << " failure" << std::endl;
+	    std::cout << "WARNING:: backup directory "<< backup_dir
+		      << " failure to exist or create" << std::endl;
 	 } 
       } else {
 	 std::cout << "BACKUP:: Ooops - no atoms to backup for this empty molecule"

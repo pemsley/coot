@@ -1,26 +1,28 @@
  
- 0.8.3
+ 0.8.4
+
+   o clean this up:
+
+dictionary_residue_restraints_t&, mmdb::Residue*, const std::string&)’:
+../../coot/coot-utils/coot-tree-extras.cc:229: warning: comparison between signed and unsigned integer expressions
+../../coot/coot-utils/coot-tree-extras.cc: In member function ‘std::pair<int, std::vector<coot::map_index_t, std::allocator<coot::map_index_t> > > coot::atom_tree_t::get_forward_atoms(const coot::map_index_t&, const coot::map_index_t&) const’:
+../../coot/coot-utils/coot-tree-extras.cc:1161: warning: comparison between signed and unsigned integer expressions
+
+
+   o on startup, if COOT_SCHEME_EXTRA_DIR is set then
+     ~/.coot-preferences is not read/executed. It should do both. Was this a problem only in refinememnt branch?
 
    o fix up hydrogenize and flev interface (is cprodrg still a part of ccp4?)
 
    o ligand distortions represenation (vs dictionary) should be in "Ligand" menu
-
-   o set_occupacy_residue_range should be exported to the API (next to
-     zero_occupancy_residue_range)
 
    o when you fail to read a pdb file, it should not then go on to try
      to read it as a small molecule cif if it does not exist.
 
    o Display Ligand Distortrions for 3GP.
 
-   o can you launch rcrane?
-
-* Yes. Done.
-
    o does map scrolling work after running refmac (or via ligand check, perhaps)?
 
-* After refmac is fine.  After ligand check is problematic - not important enough to fix. Is 
-  because scrolling map changes to a map that gets deleted?
 
    o repair 72A with alt conf and Sphere refine it.
 
@@ -30,54 +32,15 @@
      Colour by chain is not colour by chain for ligands with bond orders, or is, but then 
      without.
 
-   o is .coot.py being read?
-
-Yes.
-
-   o in refinement branch (and on Mac, at least) hhh on 89A will crash.
-
-* is OK in master. 
-
-   o sphere refine needs to have alpha helical restraints if they have
-     been set in the gui
-
-* No, because it's quite possible that we pick up residues that are not supposed to be 
-  helical
-
-   o when reading map or an mtz file check if the sigma is zero.  If
-     so, delete the map molecule and give a dialog.
-
-* Punt.
-
-   o "Auto-EM" map radius mode - make the map radius bigger (look at
-     the map sampling to work out what the multiplier should be)
-
-* Punt
-
-   o to master: 98A is underneath the arg in 4xem when you flev.
-
-* not any more.
 
    o Oliver Clarke mmcif bugs (pdb->mmcif read by Phenix)
-
-   o test: Helix atoms have correct B factor Oliver Clarke.
-
-* Done
 
    o Can you make recent file work with coot - saving/reading the
      local recent files file?
 
-   o pdb -> mmcif : No TER records (mmdb fix): Eugene.
-
-* Done in bzr.
-
    o Does "Phosphorylate this residue" work in Python mode?
 
    o Fix the python version of the JLigand interface.
-
-   o Bond colour slider (edit -> bond colours) is broken.
-
-* Fixed.
 
    o Make the "failed to read PDB file" info available from the GUI -
      a pop-up or so.
@@ -581,4 +544,55 @@ Program terminated with signal 11, Segmentation fault.
    o Get rid of thinking not crashing
 
 * Done.
+
+
+   o set_occupacy_residue_range should be exported to the API (next to
+     zero_occupancy_residue_range)
+
+* Done. 
+
+
+* After refmac is fine.  After ligand check is problematic - not important enough to fix. Is 
+  because scrolling map changes to a map that gets deleted?
+
+   o is .coot.py being read?
+
+Yes.
+
+   o in refinement branch (and on Mac, at least) hhh on 89A will crash.
+
+* is OK in master. 
+
+   o sphere refine needs to have alpha helical restraints if they have
+     been set in the gui
+
+* No, because it's quite possible that we pick up residues that are not supposed to be 
+  helical
+
+   o when reading map or an mtz file check if the sigma is zero.  If
+     so, delete the map molecule and give a dialog.
+
+* Punt.
+
+   o "Auto-EM" map radius mode - make the map radius bigger (look at
+     the map sampling to work out what the multiplier should be)
+
+* Punt
+
+   o to master: 98A is underneath the arg in 4xem when you flev.
+
+* not any more.
+
+   o test: Helix atoms have correct B factor Oliver Clarke.
+
+* Done
+
+   o pdb -> mmcif : No TER records (mmdb fix): Eugene.
+
+* Done in bzr.
+
+
+   o Bond colour slider (edit -> bond colours) is broken.
+
+* Fixed.
 

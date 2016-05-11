@@ -6,8 +6,15 @@
 
 #include "third-neighbour-info-t.hh"
 
+#include "cod-atom-type-t.hh"
+#include "primes.hh"
+
 namespace cod {
 
+   // put these in a class?
+   static std::map<std::string, std::pair<unsigned int, unsigned int> > element_period_group_map;
+   void fill_element_period_group_map();
+   
    class atom_types_t {
       void handle_bigger_rings_from_fused_rings(RDKit::ROMol &rdkm,
 						const std::vector<std::vector<int> > &fused_rings);
@@ -19,7 +26,8 @@ namespace cod {
       // 
       // can throw a std::runtime_error
       //
-      std::pair<std::string, std::list<third_neighbour_info_t> >
+      // std::pair<std::string, std::list<third_neighbour_info_t> >
+      atom_type_t
       get_cod_atom_type(RDKit::Atom *atom_base_p,
 			RDKit::Atom *atom_nb_1_p,
 			RDKit::Atom *atom_nb_2_p,
@@ -52,13 +60,32 @@ namespace cod {
 			     RDKit::Atom *atom_in_2_p,
 			     const RDKit::ROMol &rdkm) const;
 
-      std::string make_cod_type(RDKit::Atom *base_atom_p,
-				const std::string &atom_ele,
-				const std::vector<std::string> &neighbour_types,
-				const std::list<third_neighbour_info_t> &tniv,
-				int level);
+      // first is 3rd level (without 3rd neighbour info) and second is full (with neighbour info)
+      // 
+      std::pair<std::string, std::string>
+      make_cod_level_3_and_4_atom_type(RDKit::Atom *base_atom_p,
+				       const std::string &atom_ele,
+				       const std::vector<std::string> &neighbour_types,
+				       const std::list<third_neighbour_info_t> &tniv,
+				       int level);
       // which calls:
       std::string make_cod_3rd_neighb_info_type(const std::list<third_neighbour_info_t> &tniv);
+
+      unsigned int get_smallest_ring_info(RDKit::Atom *atom_p) const;
+
+      // neighbour info atom type: e.g. "N(CCS)(SN)" -> "C-3:S-2:"
+      // 
+      std::string make_cod_level_2_atom_type(RDKit::Atom *base_atom_p, const RDKit::ROMol &rdkm);
+
+      //
+      unsigned int make_hash_index(RDKit::Atom *base_atom_p) const;
+
+      unsigned int make_hash_index(RDKit::Atom *base_atom_p,
+				   const primes &p) const;
+      
+      // which calls
+      std::pair<unsigned int, unsigned int> get_period_group(RDKit::Atom *at) const;
+      
 
       std::vector<std::vector<int> > trace_path(unsigned int idx,
 						const std::map<int, std::vector<int> > &bond_map,
@@ -72,11 +99,14 @@ namespace cod {
 
       static bool atomRingSorter(const std::vector<int> &r1, const std::vector<int> &r2);
 
+
+      int hybridization_to_int(RDKit::Atom::HybridizationType) const;
+
    public:
       // can throw a std::runtime_error
       //
       // rdkit_mol is not const because there is no const beginAtoms() operator.
-      std::vector<std::string>
+      std::vector<atom_type_t>
       get_cod_atom_types(RDKit::ROMol &rdkm, bool add_name_as_property = true);
    };
 

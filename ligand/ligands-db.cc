@@ -42,7 +42,8 @@ coot::ligand_metrics::get_values(const std::string &col_name) const {
       int rc = sqlite3_exec(db_, cmd.c_str(), db_select_callback, data_pointer, &zErrMsg);
       if (rc !=  SQLITE_OK) {
 	 if (zErrMsg) { 
-	    std::cout << "ERROR: processing command " << cmd << " " << zErrMsg << std::endl;
+	    std::cout << "ERROR: processing command '" << cmd << "' "
+		      << zErrMsg << std::endl;
 	 } else { 
 	    std::cout << "ERROR: processing command " << cmd << std::endl;
 	    sqlite3_free(zErrMsg);
@@ -50,7 +51,7 @@ coot::ligand_metrics::get_values(const std::string &col_name) const {
       }
    } else {
       std::cout << "invalid database" << std::endl;
-   } 
+   }
 
    return v;
 }
@@ -66,40 +67,44 @@ coot::ligand_metrics::get_index(double val, const std::string &col_name, bool lo
    int idx = 0;
    std::vector<double> v = get_values(col_name);
 
-   if (col_name == "coot_diff_map_correlation")
-      for (unsigned int i=0; i<v.size(); i++)
-	 v[i] = fabs(v[i]);
+   if (v.size()) { 
 
-   std::sort(v.begin(), v.end()); // sorted low to high
+      if (col_name == "coot_diff_map_correlation")
+	 for (unsigned int i=0; i<v.size(); i++)
+	    v[i] = fabs(v[i]);
 
-   if (low_is_good) { 
-      for (unsigned int i=0; i<v.size(); i++) { 
-	 if (val <= v[i]) {
-	    len = v.size();
-	    idx = len -i;
-	    break;
+      std::sort(v.begin(), v.end()); // sorted low to high
+
+      if (low_is_good) { 
+	 for (unsigned int i=0; i<v.size(); i++) { 
+	    if (val <= v[i]) {
+	       len = v.size();
+	       idx = len -i;
+	       break;
+	    }
+	 }
+      } else {
+	 bool found = false;
+	 for (unsigned int i=0; i<v.size(); i++) { 
+	    if (val < v[i]) {
+	       idx = i;
+	       len = v.size();
+	       break;
+	    }
+	 }
+
+	 if (! found) { 
+	    // OK! was it the top ranked item?
+	    //
+	    if (val == v.back()) {
+	       len = v.size();
+	       idx = len;
+	    } 
 	 }
       }
    } else {
-      bool found = false;
-      for (unsigned int i=0; i<v.size(); i++) { 
-	 if (val < v[i]) {
-	    idx = i;
-	    len = v.size();
-	    break;
-	 }
-      }
-
-      if (! found) { 
-	 // OK! was it the top ranked item?
-	 //
-	 if (val == v.back()) {
-	    len = v.size();
-	    idx = len;
-	 } 
-      }
-   }
-
+      std::cout << "No data to index" << std::endl;
+   } 
    return std::pair<int, int>(idx, len);
 }
 
@@ -109,33 +114,37 @@ coot::ligand_metrics::get_index(double val, const std::vector<double> &v, bool l
    int len = 0;
    int idx = 0;
 
-   if (low_is_good) { 
-      for (unsigned int i=0; i<v.size(); i++) { 
-	 if (val <= v[i]) {
-	    len = v.size();
-	    idx = len -i;
-	    break;
+   if (v.size()) {
+      if (low_is_good) { 
+	 for (unsigned int i=0; i<v.size(); i++) { 
+	    if (val <= v[i]) {
+	       len = v.size();
+	       idx = len -i;
+	       break;
+	    }
+	 }
+      } else {
+	 bool found = false;
+	 for (unsigned int i=0; i<v.size(); i++) { 
+	    if (val < v[i]) {
+	       idx = i;
+	       len = v.size();
+	       found = true;
+	       break;
+	    }
+	 }
+
+	 if (! found) { 
+	    // OK! was it the top ranked item?
+	    //
+	    if (val == v.back()) {
+	       len = v.size();
+	       idx = len;
+	    } 
 	 }
       }
    } else {
-      bool found = false;
-      for (unsigned int i=0; i<v.size(); i++) { 
-	 if (val < v[i]) {
-	    idx = i;
-	    len = v.size();
-	    found = true;
-	    break;
-	 }
-      }
-
-      if (! found) { 
-	 // OK! was it the top ranked item?
-	 //
-	 if (val == v.back()) {
-	    len = v.size();
-	    idx = len;
-	 } 
-      }
+      std::cout << "No data to index " << std::endl;
    }
    return std::pair<int, int>(idx, len);
 }
@@ -886,7 +895,7 @@ coot::ligand_metrics::get_value(const std::string &accession_code,
       val = v[0];
 
    return val;
-} 
+}
 
 std::vector<std::string>
 coot::ligand_metrics::get_primary_keys() const {
@@ -910,7 +919,7 @@ coot::ligand_metrics::get_primary_keys() const {
       }
    } else {
       std::cout << "invalid database" << std::endl;
-   } 
+   }
    
 
    return v;
