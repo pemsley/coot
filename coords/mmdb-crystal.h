@@ -195,7 +195,7 @@ class SymmMatrix {
                                     // a mmdb::mat44 - grumble.
 
    void add_unit_shift(int x, int y, int z);
-   friend std::ostream& operator<<(std::xostream&, SymmMatrix);
+   friend std::ostream& operator<<(std::ostream&, SymmMatrix);
 
 };
 
