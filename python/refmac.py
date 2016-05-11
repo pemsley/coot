@@ -158,7 +158,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
     global refmac_count
     import os, stat, operator
 
-    refmac_execfile = find_exe("refmac5","CCP4_BIN","PATH")
+    refmac_execfile = find_exe("refmac5", "CBIN", "CCP4_BIN", "PATH")
 
     labin_string = ""
     if (phase_combine_flag == 3 and (len(f_col) == 2)):
@@ -1456,7 +1456,7 @@ def get_refmac_version():
     else:
 
         # maybe want to cache these too!?
-        refmac_execfile = find_exe("refmac5","CCP4_BIN","PATH")
+        refmac_execfile = find_exe("refmac5", "CBIN", "CCP4_BIN", "PATH")
 
         if (refmac_execfile):
             log_file = "refmac_version_tmp.log"

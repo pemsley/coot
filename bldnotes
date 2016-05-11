@@ -29,6 +29,8 @@ Fix installer guile warning for windows feel.
 -- before 0.8
 
 Windows:
+ o replace msys with HOME in wincoot build scripts
+ o in general make wincoot build more general/compatible
  o check installer on win 8 (hangs after finished)
  o distribute src code!!!
  o change runwincoot.bat to (win)coot.bat
@@ -431,6 +433,9 @@ low importance
 
 
 **** Python ****
+
+
+   o keep refmac pid to cancel and kill refmac in download pdbe
 
    o get recent ebi skip queue and timeout if 404 return (esp for pics
 	which are not there - any more)

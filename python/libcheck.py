@@ -138,7 +138,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
     move_aside(os.path.join(dir_prefix, "libcheck.lib"))
     #print "passing libcheck these data lines:", libcheck_input
 
-    libcheck_exe_file = find_exe(libcheck_exe, "CCP4_BIN", "PATH")
+    libcheck_exe_file = find_exe(libcheck_exe, "CBIN", "CCP4_BIN", "PATH")
     if (libcheck_exe_file):
       libstatus = run_command_in_dir(dir_prefix, libcheck_exe_file, [], libcheck_input, log_file_name, True)
 
@@ -178,7 +178,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
             # OK, now let's run refmac:
             #
             libcheck_minimal_desc_status = libcheck_minimal_qm(log_file_name_in_dir)
-            refmac_exe = find_exe("refmac5", "CCP4_BIN", "PATH")
+            refmac_exe = find_exe("refmac5", "CBIN", "CCP4_BIN", "PATH")
             refmac_status = popen_command(refmac_exe, refmac_command_line, refmac_input, refmac_log_file_name)
 
             print "INFO:: libcheck-minimal? is ", libcheck_minimal_desc_status
@@ -244,7 +244,7 @@ def monomer_molecule_from_3_let_code(code, dict_cif_libin,
                                          post_refmac_pdb_file_name)
       
     else:
-      libcheck_exe_file = find_exe(libcheck_exe, "CCP4_BIN", "PATH")
+      libcheck_exe_file = find_exe(libcheck_exe, "CBIN", "CCP4_BIN", "PATH")
       if (not libcheck_exe_file):
         info_dialog("You need to setup CCP4 (specifically LIBCHECK) first.")
         return -2
