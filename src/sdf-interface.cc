@@ -284,33 +284,6 @@ void chemical_features::show(const RDKit::ROMol &rdkm, std::string name) {
    set_display_generic_object(n_new, 1);
 }
 
-RDKit::MolChemicalFeatureFactory *
-chemical_features::get_feature_factory() {
-
-   RDKit::MolChemicalFeatureFactory *factory = NULL;
-   
-   std::string features_file_name("BaseFeatures.fdef");
-   std::string data_dir = "Data";
-   std::string dir =
-      coot::util::append_dir_dir(coot::rdkit_package_data_dir(), data_dir);
-   std::string full_name =
-      coot::util::append_dir_file(dir, features_file_name);
-
-   // override that with an environment variable
-   const char *e = getenv("COOT_CHEMICAL_FEATURES_DEF");
-   if (e) full_name = e;
-   
-   if (coot::file_exists(full_name)) {
-      std::ifstream inStream(full_name.c_str());
-      std::istream &instrm = static_cast<std::istream &>(inStream);
-      factory = RDKit::buildFeatureFactory(instrm);
-
-   } else { 
-      std::cout << "WARNING:: " << full_name << " does not exist. "
-		<< "Stoping now." << std::endl;
-   }
-   return factory;
-}
 
 
 std::pair<bool, clipper::Coord_orth>

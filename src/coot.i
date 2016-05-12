@@ -27,6 +27,7 @@
 #include "coot-version.hh"
 #include "get-monomer.hh"
 #include "globularize.hh"
+#include "cfc.hh"
 %}
 
 
@@ -75,4 +76,5 @@ namespace std {
 %include "coot-version.hh"
 %include "get-monomer.hh"
 %include "globularize.hh"
+%include "cfc.hh"
 %include "../coords/phenix-geo.hh"

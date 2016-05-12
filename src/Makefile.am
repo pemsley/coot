@@ -291,6 +291,7 @@ coot_bin_SOURCES = \
 	cc-interface-scripting.hh \
 	callbacks.c callbacks.h	 \
         canvas-fixes.hh          \
+	cfc.cc cfc.hh            \
 	change-dir.cc		 \
 	change-dir.hh		 \
 	cmtz-interface-gui.hh	 \
