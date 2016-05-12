@@ -2,6 +2,14 @@
 // header-here
 
 #ifdef USE_PYTHON
+
+
+// needed to parse cc-interface.hh
+#ifdef USE_GUILE
+#include <libguile.h> 
+#endif // USE_GUILE
+
+
 #include "cfc.hh"
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
