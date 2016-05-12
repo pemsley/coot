@@ -5,6 +5,7 @@
 
 #include <iostream>
 #include <fstream>
+#include <cstring>
 
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
