@@ -1556,14 +1556,14 @@ coot::make_residue(const RDKit::ROMol &rdkm, int iconf, const std::string &res_n
    return residue_p;
 }
 
-coot::dictionary_residue_restraints_t
-coot::make_dictionary(const RDKit::ROMol &rdkm, int iconf, const std::string &res_name) {
+// coot::dictionary_residue_restraints_t
+// coot::make_dictionary(const RDKit::ROMol &rdkm, int iconf, const std::string &res_name) {
 
-   coot::dictionary_residue_restraints_t d;
+//    coot::dictionary_residue_restraints_t d;
 
-   return d;
+//    return d;
 
-} 
+// } 
 
 
 lig_build::bond_t::bond_type_t

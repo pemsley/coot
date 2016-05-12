@@ -28,7 +28,7 @@ void write_types(RDKit::RWMol &rdkm) {
    }
 
    cod::atom_types_t t;
-   std::vector<std::string> v = t.get_cod_atom_types(rdkm);
+   std::vector<cod::atom_type_t> v = t.get_cod_atom_types(rdkm);
 
    const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
    for (unsigned int iat=0; iat<v.size(); iat++) {
@@ -41,8 +41,19 @@ void write_types(RDKit::RWMol &rdkm) {
 	 std::string atom_ele = tbl->getElementSymbol(n);
       
 	 // Acedrg writes out: index element name COD-type, we should match that.
+	 // 
+	 //
+	 if (false)
+	    std::cout << " " << std::right << std::setw(3) << iat << "    "
+		      << atom_ele << "    " << name << "     " << v[iat].level_4
+		      << "\n";
+
+	 // Now I want to check the tier-2 types too
+	 // 
 	 std::cout << " " << std::right << std::setw(3) << iat << "    "
-		   << atom_ele << "    " << name << "     " << v[iat]
+		   << atom_ele << "    " << name << "     "
+		   << v[iat].level_2.string() << "  "
+		   << v[iat].level_4 << "  "
 		   << "\n";
       }
       catch (const KeyErrorException &err) { }
@@ -144,11 +155,11 @@ void molecule_from_SMILES(const std::string &smiles_string) {
    RDKit::RWMol rdkm(*rdkmp);
 
    cod::atom_types_t t;
-   std::vector<std::string> v = t.get_cod_atom_types(rdkm);
+   std::vector<cod::atom_type_t> v = t.get_cod_atom_types(rdkm);
 
    std::cout << "PE-TYPES:: -------- got " << v.size() << " atoms " << std::endl;
    for (unsigned int i=0; i<v.size(); i++)
-      std::cout << "   " << i << " " << v[i] << "" << std::endl;
+      std::cout << "   " << i << " " << v[i].level_4 << "" << std::endl;
 
 }
 
@@ -162,7 +173,7 @@ void read_tables(const std::string &tables_dir_name) {
 	 std::cout << "   " << brc.bonds[i] << std::endl;
    }
 
-   brc.write("bonds.tab"); // writes atom-indices.tab too atm
+   brc.write("atom-indices.tab", "bonds.tab"); // writes atom-indices.tab too atm
 
    std::cout << "----------- reading " << std::endl;
    cod::bond_record_container_t brc_read;
@@ -183,10 +194,19 @@ validate(const std::string &comp_id,
 	 const std::string &chain_id,
 	 int res_no,
 	 const std::string &pdb_file_name,
-	 const std::string &cif_file_name) {
+	 const std::string &cif_file_name,
+	 const std::string &acedrg_install_dir) {
 
    cod::bond_record_container_t brc; // perhaps we need a better constructor here
-   brc.read("atom-indices.tab", "bonds.tab");
+
+   // this uses bonds.tab, only the level-4 types, but this is not
+   // good enough to find all the hits with generalization, we need
+   // information in the acedrg tables/*.table files
+   // brc.read("atom-indices.tab", "bonds.tab");
+
+   std::string dir = acedrg_install_dir + "/share/acedrg/tables/allOrgBondTables";
+   brc.read_acedrg_table_dir(dir);
+   
    atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, false);
 
    coot::residue_spec_t residue_spec(chain_id, res_no, "");
@@ -210,6 +230,21 @@ validate(const std::string &comp_id,
    }
 }
 
+#include "primes.hh"
+#include <limits>
+void
+test_primes() {
+
+   cod::primes primes(200);
+   std::vector<unsigned int> pr = primes.get_primes();
+   for (unsigned int i=0; i<pr.size(); i++) { 
+      std::cout << "   " << pr[i];
+   }
+   std::cout << "" << std::endl;
+   std::cout << "max unsigned int: " << std::numeric_limits<unsigned int>::max()
+	     << std::endl;
+}
+
 
 int main(int argc, char **argv) {
 
@@ -218,10 +253,15 @@ int main(int argc, char **argv) {
    if (argc > 1) {
       if (argc == 2) {
 	 std::string s = argv[1];
-	 if (s.length() == 3)
-	    molecule_from_comp_id(s);
-	 else
-	    molecule_from_SMILES(s);
+
+	 if (s == "primes") {
+	    test_primes();
+	 } else { 
+	    if (s.length() == 3)
+	       molecule_from_comp_id(s);
+	    else
+	       molecule_from_SMILES(s);
+	 }
       }
       
       if (argc == 3) {
@@ -230,13 +270,13 @@ int main(int argc, char **argv) {
 	 std::string file_name = argv[2];
 
 	 if (comp_id == "tables") {
-	    read_tables(file_name);
+	    read_tables(file_name); // dir-name in this case
 	 } else {
 	    molecule_from_ccd_pdbx(comp_id, file_name);
 	 }
       }
 
-      if (argc == 7) {
+      if (argc == 8) {
 
 	 std::string residue = argv[1];
 	 if (residue == "residue") {
@@ -245,12 +285,15 @@ int main(int argc, char **argv) {
 	    std::string res_no_str    = argv[4];
 	    std::string pdb_file_name = argv[5];
 	    std::string cif_file_name = argv[6];
+	    std::string acedrg_dir    = argv[7];
 
 	    try {
 	       int res_no = coot::util::string_to_int(res_no_str);
-	       validate(comp_id, chain_id, res_no, pdb_file_name, cif_file_name);
+	       validate(comp_id, chain_id, res_no, pdb_file_name,
+			cif_file_name, acedrg_dir);
 	    }
 	    catch (const std::runtime_error &rte) {
+	       std::cout << "Failure:: " << rte.what() << std::endl;
 	    }
 	 }
       }

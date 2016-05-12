@@ -1328,8 +1328,8 @@ graphics_info_t::clear_up_moving_atoms() {
    in_moving_atoms_drag_atom_mode_flag = 0; // no more dragging atoms
    have_fixed_points_sheared_drag_flag = 0;
    // and take out any drag refine idle function:
-//    std::cout << "DEBUG:: removing token " << drag_refine_idle_function_token
-// 	     << " (clear_up_moving_atoms) " << std::endl;
+
+   graphics_info_t::continue_update_refinement_atoms_flag = false;
    gtk_idle_remove(drag_refine_idle_function_token); 
    drag_refine_idle_function_token = -1; // magic "not in use" value
    

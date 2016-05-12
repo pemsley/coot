@@ -418,7 +418,7 @@ no_proxy=${no_proxy:=".corp.net.com"}
 # set this to true if you want to run the test suite and make binary 
 # bundles (needs test data and the CCP4 suite):
 #
-run_tests=
+run_tests=${run_tests:=false}
 
 # This is where the compiled binaries/libraries/data get installed:
 # Note that the directory name must NOT end in a /
@@ -3433,83 +3433,100 @@ fi
 #################################################################
 # 
 
-raster3d_version=3.0-3
-# raster3d depends on libgd to make png images
-${WGET} http://skuld.bmsc.washington.edu/raster3d/Raster3D_$raster3d_version.tar.gz
+if [ -e $install_top_dir/bin/render ] ; then
+   echo not building Raster3D render
+else
 
-if [ -e ${AUTOBUILD_SOURCES}/Raster3D_3.0-3.tar.gz ] ; then
+   raster3d_version=3.0-3
+   # raster3d depends on libgd to make png images
+   ${WGET} http://skuld.bmsc.washington.edu/raster3d/Raster3D_$raster3d_version.tar.gz
 
-   ( 
-    date
-    pwd
-    # build libgd
-    #
-    system_has_libgd=false
-    if [ -e /usr/include/gd.h ] ; then
-       system_has_libgd=true
-    fi
-    echo system_has_libgd: $system_has_libgd
+   if [ ! -e ${AUTOBUILD_SOURCES}/Raster3D_$raster3d_version.tar.gz ] ; then
 
-    if [ "$system_has_libgd" = false ] ; then
-       echo checking for existance of $install_top_dir/include/gd.h
-       if [ ! -e $install_top_dir/include/gd.h ] ; then
-           echo get and build libgd...
-   	   # Amazon file names too long, so force output name with -O
-           ${WGET} https://github.com/libgd/libgd/releases/download/gd-2.1.1/libgd-2.1.1.tar.gz -O ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz
-	   gzip -dc ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz | tar xf -
-	   cd libgd-2.1.1
-	   bash ./configure --prefix=$install_top_dir
-	   if $MAKE ; then
-	      make install
-	   fi
-	   cd - 
-       else
-           echo $install_top_dir/include/gd.h exists - skip libgd build
-       fi
-    else 
-       echo $install_top_dir/include/gd.h exists - skip libgd build
-    fi
+      echo missing Raster3D tar file
 
-   ) > $HOSTLOGDIR/15-libgd.log
-    
-   ( 
-    date
-    pwd
-    # build render
-    #
-    system_has_libgd=false
-    if [ -e /usr/include/gd.h ] ; then
-       system_has_libgd=true
-    fi
-    if [ ! -e $install_top_dir/bin/render ] ; then 
-       # now build it.
-       gzip -dc ${AUTOBUILD_SOURCES}/Raster3D_$raster3d_version.tar.gz | tar xf -
-       cd Raster3D_$raster3d_version
-       make linux # fixme for Darwin
-       # add the gd support directory
-
+   else
+      ( 
+       date
+       pwd
+       # build libgd
+       #
        system_has_libgd=false
        if [ -e /usr/include/gd.h ] ; then
           system_has_libgd=true
        fi
        echo system_has_libgd: $system_has_libgd
-       if [ "$system_has_libgd" = false ] ; then 
-          sed -ibackup \
-             -e "s?=.-lgd?=  -L$prefix/lib -lgd?" \
-             -e "s?=.-DGD_SUPPORT?=  -DGD_SUPPORT -I$prefix/include?" \
-          Makefile.incl
+
+       if [ "$system_has_libgd" = false ] ; then
+          echo checking for existance of $install_top_dir/include/gd.h
+          if [ ! -e $install_top_dir/include/gd.h ] ; then
+              echo get and build libgd...
+   	      # Amazon file names too long, so force output name with -O
+              ${WGET} https://github.com/libgd/libgd/releases/download/gd-2.1.1/libgd-2.1.1.tar.gz -O ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz
+	      gzip -dc ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz | tar xf -
+   	      cd libgd-2.1.1
+	      bash ./configure --prefix=$install_top_dir
+	      if $MAKE ; then
+	         make install
+	      fi
+	      cd - 
+          else
+              echo $install_top_dir/include/gd.h exists - skip libgd build
+          fi
+       else 
+          echo $install_top_dir/include/gd.h exists - skip libgd build
        fi
+
+      ) > $HOSTLOGDIR/15-libgd.log
+    
+      ( 
+       date
+       pwd
+       # build render
+       #
+       system_has_libgd=false
+       if [ -e /usr/include/gd.h ] ; then
+          system_has_libgd=true
+       fi
+       if [ ! -e $install_top_dir/bin/render ] ; then 
+          # now build it.
+          gzip -dc ${AUTOBUILD_SOURCES}/Raster3D_$raster3d_version.tar.gz | tar xf -
+          cd Raster3D_$raster3d_version
+
+          make linux # FIXME for Darwin
+
+          # compiling libgd so that render links against it depend on libjpeg-turbo-devel
+          # having been installed.  i.e. /usr/lib/libjpeg.so should exist
+
+          # add the gd support directory
+          #
+          system_has_libgd=false
+          if [ -e /usr/include/gd.h ] ; then
+             system_has_libgd=true
+          fi
+          echo system_has_libgd: $system_has_libgd
+          if [ "$system_has_libgd" = false ] ; then 
+             sed -ibackup \
+                -e "s?=.-lgd?=  -L$install_top_dir/lib -lgd?" \
+                -e "s?=.-DGD_SUPPORT?=  -DGD_SUPPORT -I$install_top_dir/include?" \
+                -e 's/  TDEFS =.*/  TDEFS =/' \
+                -e 's/  TLIBS =.*/  TLIBS =/' \
+             Makefile.incl
+          fi
        
-       if $MAKE render ; then 
-  	  make prefix=$install_top_dir install
-	  # did that work?  I doubt it. Let's do it by hand
-	  cp render $install_top_dir/bin/
+          if $MAKE render ; then 
+  	     make prefix=$install_top_dir install
+	     # did that work?  I doubt it. Let's do it by hand
+             if [ ! -e $install_top_dir/bin/render ] ; then
+  	        cp render $install_top_dir/bin/
+             fi
+          fi
+          cd -
+       else 
+          echo $install_top_dir/bin/render already exists, no build
        fi
-       cd -
-    else 
-      echo $install_top_dir/bin/render already exists, no build
-    fi
-    ) > $HOSTLOGDIR/15-raster3d.log
+       ) > $HOSTLOGDIR/15-raster3d.log
+   fi
 fi
 
 

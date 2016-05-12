@@ -3985,6 +3985,8 @@ string   static std::string sessionid;
    void clear_atom_pull_restraint(bool refine_again_flag);
    static bool auto_clear_atom_pull_restraint_flag;
 
+   static bool continue_update_refinement_atoms_flag;
+
 };
 
 

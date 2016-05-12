@@ -1221,6 +1221,8 @@ graphics_info_t::handle_rama_plot_update(coot::rama_plot *plot) {
 gint
 graphics_info_t::drag_refine_idle_function(GtkWidget *widget) {
 
+   int retprog = -1;
+   
 #ifdef HAVE_GSL
 
    // 20100209 allow the Escape key to be seen during the (initial)
@@ -1231,33 +1233,44 @@ graphics_info_t::drag_refine_idle_function(GtkWidget *widget) {
    // but not before.  Both before and after come through this idle
    // function routine.  Pressing Esc while the dialog is up doesn't
    // need this pending events/main iteration thing.
+   //
+   //
+   // I don't much like this bit of code
    // 
    while (gtk_events_pending())
       gtk_main_iteration();
 
-   int retprog = graphics_info_t::drag_refine_refine_intermediate_atoms();
+   if (graphics_info_t::continue_update_refinement_atoms_flag) { 
 
-   if (retprog != GSL_CONTINUE) {
-      if (retprog == GSL_ENOPROG)
-	 std::cout << " NOPROGRESS" << std::endl;
-      if (retprog == GSL_SUCCESS)
-	 std::cout << " SUCCESS" << std::endl;
-      long t1 = glutGet(GLUT_ELAPSED_TIME);
-      std::cout << " TIME:: (dragged refinement): " << float(t1-T0)/1000.0 << std::endl;
+      retprog = graphics_info_t::drag_refine_refine_intermediate_atoms();
 
-      graphics_info_t g;
-      g.check_and_warn_inverted_chirals_and_cis_peptides();
+      if (retprog != GSL_CONTINUE) {
+	 if (retprog == GSL_ENOPROG)
+	    std::cout << " NOPROGRESS" << std::endl;
+	 if (retprog == GSL_SUCCESS)
+	    std::cout << " SUCCESS" << std::endl;
+	 long t1 = glutGet(GLUT_ELAPSED_TIME);
+	 std::cout << " TIME:: (dragged refinement): " << float(t1-T0)/1000.0 << std::endl;
 
-      gtk_idle_remove(graphics_info_t::drag_refine_idle_function_token);
-      graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
+	 graphics_info_t g;
+	 g.check_and_warn_inverted_chirals_and_cis_peptides();
+
+	 if (false)
+	    std::cout << "graphics_info_t::drag_refine_idle_function() not GSL_CONTINUE  "
+		      << " removing idle function " << graphics_info_t::drag_refine_idle_function_token
+		      << std::endl;
+	 gtk_idle_remove(graphics_info_t::drag_refine_idle_function_token);
+	 graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
+      } 
+
+
+      // 
+      graphics_draw();
+
+   } else {
+      // std::cout << "escaped out of drag_refine_idle_function" << std::endl;
    } 
 
-
-   // 
-   graphics_draw();
-
-#else
-   int retprog = -1;
 #endif // HAVE_GSL   
    return retprog;
 }
@@ -1271,11 +1284,17 @@ graphics_info_t::add_drag_refine_idle_function() {
    // add a idle function if there isn't one in operation already.
    graphics_info_t g;
    if (g.drag_refine_idle_function_token == -1) {
+
       g.drag_refine_idle_function_token =
 	 gtk_idle_add((GtkFunction)graphics_info_t::drag_refine_idle_function, g.glarea);
+      std::cout << "----- adding drag_refine idle function: " << g.drag_refine_idle_function_token
+		<< std::endl;
       T0 = glutGet(GLUT_ELAPSED_TIME);
       print_initial_chi_squareds_flag = 1;
-   }
+   } else {
+      std::cout << "DEBUG:: not adding drag idle function because there was one already in operation"
+		<< g.drag_refine_idle_function_token << std::endl;
+   } 
 } 
 
 

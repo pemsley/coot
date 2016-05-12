@@ -607,7 +607,7 @@ namespace coot {
       dictionary_residue_restraints_t(std::string comp_id_in,
 				      int read_number_in) {
 	 has_partial_charges_flag = 0;
-	 // comp_id = comp_id_in;
+	 // comp_id = comp_id_in; // why is this commented?
 	 read_number = read_number_in;
 	 filled_with_bond_order_data_only_flag = 0;
       }

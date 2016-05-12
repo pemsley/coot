@@ -1323,6 +1323,9 @@ unsigned int graphics_info_t::user_defined_interesting_positions_idx = 0;
 atom_pull_info_t graphics_info_t:: atom_pull = atom_pull_info_t();
 bool graphics_info_t::auto_clear_atom_pull_restraint_flag = true;
 
+bool graphics_info_t::continue_update_refinement_atoms_flag = false;
+
+
 // need to configure for this!
 // #define GDKGLEXT_HAVE_MODE_SAMPLES_SHIFT true
 
@@ -3153,15 +3156,13 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_Escape:
 
-      // std::cout << "GDK_Escape pressed" << std::endl;
-
       clear_up_moving_atoms();
       
       if (graphics_info_t::accept_reject_dialog) {
 	 if (graphics_info_t::accept_reject_dialog_docked_flag == coot::DIALOG) {
 	   save_accept_reject_dialog_window_position(graphics_info_t::accept_reject_dialog);
 	   gtk_widget_destroy(graphics_info_t::accept_reject_dialog);
-       graphics_info_t::accept_reject_dialog = 0;
+	   graphics_info_t::accept_reject_dialog = 0;
 	 } else {
 	   gtk_widget_set_sensitive(graphics_info_t::accept_reject_dialog, FALSE);
 	 }
@@ -3624,7 +3625,9 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 	    scheme_command += graphics_info_t::int_to_string(ikey);
 	    // scheme_command += "\"";
 	    scheme_command += ")";
-	    // std::cout << "running scheme command: " << scheme_command << std::endl;
+	    if (false)
+	       std::cout << "::::::: key press event not handled~! running scheme command: "
+			 << scheme_command << std::endl;
 	    safe_scheme_command(scheme_command);
 #else // not GUILE
 #ifdef USE_PYTHON	    
@@ -3638,10 +3641,11 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 #endif // USE_GUILE
 	    
 	 } else {
-	    std::cout << "Ignoring GDK_backslash key press event" << std::endl;
+	    std::cout << "INFO:: Ignoring GDK_backslash key press event" << std::endl;
 	 }
       }
-   } 
+   }
+
    return TRUE;
 }
 
@@ -4330,6 +4334,7 @@ gint glarea_button_press(GtkWidget *widget, GdkEventButton *event) {
 gint glarea_button_release(GtkWidget *widget, GdkEventButton *event) {
 
    if (graphics_info_t::in_moving_atoms_drag_atom_mode_flag) {
+
       graphics_info_t g;
       g.do_post_drag_refinement_maybe();
    }

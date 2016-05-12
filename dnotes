@@ -7599,4 +7599,12 @@ PDB: 1ioy
      FLEV: 4f6x: ZYL A 301: Mg-O on ligand: make it O- and delete the H.
      R-2D: 3p8x: ZYD A 1:   OH on tail should be HO (also HUD ligand)
 
+
+---- 
+
+     Dictionary files:
+
+     e.g. ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/1H2.cif
+
+
 ---

@@ -585,49 +585,56 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
 					 std::string chain_id_1) {
 
    coot::refinement_results_t rr = rr_in;
+   graphics_info_t::continue_update_refinement_atoms_flag = true;
    
    if (n_restraints > 0) {
-      moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
-      last_restraints = restraints;
 
-      if (atom_pull.status) {
-	 std::cout << "update_refinement_atoms() adding atom_pull_restraint "
-		   << atom_pull.spec << std::endl;
-	 last_restraints.add_atom_pull_restraint(atom_pull.spec, atom_pull.pos); // mouse target position
-      }
+      if (true) { 
+	 moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
+	 last_restraints = restraints;
 
-      regularize_object_bonds_box.clear_up();
-      make_moving_atoms_graphics_object(local_moving_atoms_asc); // sets moving_atoms_asc
-      int n_cis = coot::util::count_cis_peptides(moving_atoms_asc->mol);
-      graphics_info_t::moving_atoms_n_cis_peptides = n_cis;
-      // std::cout << "DEBUG:: start of ref have: " << n_cis << " cis peptides"
-      // << std::endl;
-      bool continue_flag = true;
-      int step_count = 0; 
-      print_initial_chi_squareds_flag = 1; // unset by drag_refine_idle_function
-      while ((step_count < 8000) && continue_flag) {
-
-	 int retval = drag_refine_idle_function(NULL);
-	 step_count += dragged_refinement_steps_per_frame;
-	 if (retval == GSL_SUCCESS) { 
-	    continue_flag = false;
-	    rr = graphics_info_t::saved_dragged_refinement_results;
+	 if (atom_pull.status) {
+	    std::cout << "update_refinement_atoms() adding atom_pull_restraint "
+		      << atom_pull.spec << std::endl;
+	    last_restraints.add_atom_pull_restraint(atom_pull.spec, atom_pull.pos); // mouse target position
 	 }
-	 if (retval == GSL_ENOPROG) {
-	    continue_flag = false;
-	    rr = graphics_info_t::saved_dragged_refinement_results;
-	 }
-      }
 
-      // if we reach here with continue_flag == 1, then we
-      // were refining (regularizing more like) and ran out
-      // of steps before convergence.  We still want to give
-      // the use a dialog though.
-      //
-      if (continue_flag) {
-	 rr = graphics_info_t::saved_dragged_refinement_results;
-	 rr.info = "Time's up...";
-      }
+	 regularize_object_bonds_box.clear_up();
+	 make_moving_atoms_graphics_object(local_moving_atoms_asc); // sets moving_atoms_asc
+	 int n_cis = coot::util::count_cis_peptides(moving_atoms_asc->mol);
+	 graphics_info_t::moving_atoms_n_cis_peptides = n_cis;
+	 // std::cout << "DEBUG:: start of ref have: " << n_cis << " cis peptides"
+	 // << std::endl;
+	 int step_count = 0; 
+	 print_initial_chi_squareds_flag = 1; // unset by drag_refine_idle_function
+
+	 while ((step_count < 8000) && graphics_info_t::continue_update_refinement_atoms_flag) {
+
+	    int retval = drag_refine_idle_function(NULL);
+	    step_count += dragged_refinement_steps_per_frame;
+	    if (retval == GSL_SUCCESS) { 
+	       graphics_info_t::continue_update_refinement_atoms_flag = false;
+	       rr = graphics_info_t::saved_dragged_refinement_results;
+	    }
+	    if (retval == GSL_ENOPROG) {
+	       graphics_info_t::continue_update_refinement_atoms_flag = false;
+	       rr = graphics_info_t::saved_dragged_refinement_results;
+	    }
+	 }
+
+	 // if we reach here with continue_flag == 1, then we
+	 // were refining (regularizing more like) and ran out
+	 // of steps before convergence.  We still want to give
+	 // the use a dialog though.
+	 //
+	 if (graphics_info_t::continue_update_refinement_atoms_flag) {
+	    rr = graphics_info_t::saved_dragged_refinement_results;
+	    rr.info = "Time's up...";
+	 }					\
+      } else {
+	 std::cout << "ERROR:: null moving_atoms_asc-> mol (because clear_up_moving_atoms() had been called? "
+		   << std::endl;
+      } 
       
    } else { 
       if (use_graphics_interface_flag) {
