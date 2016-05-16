@@ -175,6 +175,11 @@ coot::chem_feat_clust::fill_waters() {
 	       } else {
 		  clipper::Coord_orth pt = co(at);
 		  water_attribs wa(ilig, iw, at, pt);
+
+		  if (false)
+		     std::cout << "fill_waters(): adding " << ilig << " "
+			       << iw << " " << atom_spec_t(at) << std::endl;
+
 		  water_positions.push_back(wa);
 	       }
 	    }

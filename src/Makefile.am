@@ -120,6 +120,7 @@ coot_wrap_guile_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h    \
                              $(top_srcdir)/src/lbg-interface.hh \
                              $(top_srcdir)/src/c-interface-ligands-swig.hh \
                              $(top_srcdir)/src/sdf-interface.hh \
+                             $(top_srcdir)/src/cfc.hh \
                              $(top_srcdir)/src/cmtz-interface.hh \
                              $(top_srcdir)/src/c-interface-mogul.hh
 	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(WITH_GUILE_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -I$(top_srcdir) -guile -c++  $(top_srcdir)/src/coot.i
@@ -139,6 +140,7 @@ coot_wrap_python_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h      \
 			      $(top_srcdir)/src/lbg-interface.hh   \
                               $(top_srcdir)/src/c-interface-ligands-swig.hh \
 			      $(top_srcdir)/src/sdf-interface.hh   \
+                              $(top_srcdir)/src/cfc.hh \
                               $(top_srcdir)/src/c-interface-mogul.hh
 	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -c++ $(top_srcdir)/src/coot.i
 
@@ -494,6 +496,9 @@ fix_nomenclature_errors_LDADD = \
 # coot_bin_LDFLAGS = -static -lstdc++
 coot_bin_LDFLAGS =
 
+# coot_bin_CXXFLAGS=-Wl,--export-dynamic -dynamiclib
+#  -Wl,-undefined -Wl,dynamic_lookup 
+
 # 20101220 Note: when libtool/ltmain.sh is fixed, OPENMP_CFLAGS will
 # not be needed here. So says Justin Lecher (see email).
 #
@@ -586,3 +591,6 @@ density_score_by_residue_real_LDADD  =	\
 	$(CLIPPER_LIBS) 	\
 	$(MMDB_LIBS)		\
 	$(GSL_LIBS)
+
+# subpkgdatadir = $(pkgdatadir)
+# subpkgdata_DATA = cfc.glade

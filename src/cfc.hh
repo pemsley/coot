@@ -14,7 +14,12 @@
 PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 				       PyObject *solvated_ligand_info_py,
 				       float radius);
-
+// scipy has done some clustering
+// we get the cluster info here
+// 
+void chemical_feature_clusters_accept_info_py(PyObject *env_residue,
+					      PyObject *mol_ligand_specs,
+					      PyObject *cluster_info);
 
 #endif // USE_PYTHON
 

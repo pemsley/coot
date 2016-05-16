@@ -98,7 +98,7 @@ lbg(lig_build::molfile_molecule_t mm,
 
       if (use_graphics_interface_flag) {
 	 
-	 GtkBuilder *builder = gtk_builder_new ();
+	 GtkBuilder *builder = gtk_builder_new();
 	 guint add_from_file_status =
 	    gtk_builder_add_from_file (builder, glade_file_full.c_str(), NULL);
 

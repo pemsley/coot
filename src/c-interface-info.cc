@@ -1091,8 +1091,6 @@ coot::residue_spec_t residue_spec_from_py(PyObject *residue_in) {
 	 std::string chain_id  = PyString_AsString(chain_id_py);
 	 std::string ins_code  = PyString_AsString(ins_code_py);
 	 long resno            = PyInt_AsLong(resno_py);
-	 std::cout << "making spec from " << chain_id << " " << resno
-		   << " :" << ins_code << ":" << std::endl;
 	 rspec = coot::residue_spec_t(chain_id, resno, ins_code);
       }
    }

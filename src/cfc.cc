@@ -11,6 +11,7 @@
 
 
 #include "cfc.hh"
+#include "cfc-widgets.hh"
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "lidia-core/chemical-feature-clusters.hh"
@@ -74,6 +75,15 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 				 neighbs_waters.push_back(neighbs_raw[i]);
 			   }
 			}
+
+			if (false) { // debug
+			   std::cout << "molecule imol: " << imol << " has "
+				     << neighbs_waters.size() << " waters" << std::endl;
+			   for (unsigned int iwat=0; iwat<neighbs_waters.size(); iwat++)
+			      std::cout << "   " << iwat << " " << neighbs_waters[iwat]
+					<< std::endl;
+			}
+
 			coot::chem_feat_solvated_ligand_spec lig(ligand_spec, neighbs_waters, mol);
 			ligands.push_back(lig);
 			
@@ -127,6 +137,68 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
    return r;
 }
 
+#include <glib.h> // for g_error_new()
+
+void chemical_feature_clusters_accept_info_py(PyObject *env_residue,
+					      PyObject *mol_ligand_specs,
+					      PyObject *cluster_info) {
+
+   if (graphics_info_t::use_graphics_interface_flag) {
+
+      std::string glade_file = "lbg.glade";
+
+      std::string glade_file_full = coot::package_data_dir();
+      glade_file_full += "/";
+      glade_file_full += glade_file;
+
+      bool glade_file_exists = false;
+      struct stat buf;
+      int err = stat(glade_file_full.c_str(), &buf);
+      if (! err)
+	 glade_file_exists = true;
+
+      if (! glade_file_exists) { 
+	 std::cout << "ERROR:: glade file " << glade_file_full << " not found"
+		   << std::endl;
+      } else {
+	 GError *gerror = NULL;
+	 GtkBuilder *builder = gtk_builder_new();
+
+	 bool check_1 = (GTK_IS_BUILDER (builder), 0);
+	 bool check_2 = (glade_file_full.c_str() != NULL, 0);
+	 bool check_3 = (gerror == NULL || gerror == NULL, 0);
+
+ 	 std::cout << "checks: " << check_1 << " "
+ 		   << check_2 << " " << check_3 << std::endl;
+	 
+	 guint add_from_file_status = gtk_builder_add_from_file(builder,
+								glade_file_full.c_str(),
+								&gerror);
+	 if (! add_from_file_status) {
+
+	    show_chemical_feature_clusters_gui(builder);
+
+	 } else {
+	    std::cout << "ERROR:: problem init builder from " << glade_file_full
+		      << std::endl;
+	    // std::cout << "ERROR:: error: " << gerror << std::endl;
+	 }
+      }
+   }
+
+}
+
+
+// should this be in a cfc widgets-specific file?
+// 
+void show_chemical_feature_clusters_gui(GtkBuilder *builder) {
+
+   GtkWidget *cfc_dialog = GTK_WIDGET(gtk_builder_get_object(builder, "cfc_dialog"));
+
+   gtk_widget_show(cfc_dialog);
+
+
+}
 
 
 
