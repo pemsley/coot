@@ -59,6 +59,7 @@ namespace coot {
 	 unsigned int water_spec_idx;
 	 mmdb::Atom *atom_p;
 	 clipper::Coord_orth pos;
+	 residue_spec_t residue_spec() const { return residue_spec_t(atom_p->residue) ; }
       };
 
    private:

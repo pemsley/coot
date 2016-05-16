@@ -7546,4 +7546,8 @@ PDB: 1ioy
 
      e.g. ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/1H2.cif
 
+----
+
+     clustering lib: interesting? https://github.com/dsteinberg/libcluster
+
 ---
