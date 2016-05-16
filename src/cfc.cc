@@ -145,7 +145,7 @@ void chemical_feature_clusters_accept_info_py(PyObject *env_residue,
 
    if (graphics_info_t::use_graphics_interface_flag) {
 
-      std::string glade_file = "lbg.glade";
+      std::string glade_file = "cfc.glade";
 
       std::string glade_file_full = coot::package_data_dir();
       glade_file_full += "/";
