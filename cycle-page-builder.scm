@@ -918,7 +918,7 @@
 ;                #t #t)
 
           (list "binary-Linux-x86_64-debian-gnu-linux-jessie-python-gtk2"
-                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/jessie/build-logs/Linux-shelx8/"
+                "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/jessie/build-logs/Linux-hilbert/"
                 "http://shelx.uni-ac.gwdg.de/~tg/coot_deb/jessie/binaries/nightlies/pre-release"
                 #t #t)
 
