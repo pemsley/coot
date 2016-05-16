@@ -199,11 +199,16 @@ GtkWidget *cfc::wrapped_create_cfc_dialog(const cfc::extracted_cluster_info_from
    // buttons, the cluster with the most residues will appear at the
    // top
    // 
-   std::vector<std::pair<std::vector<int>, clustered_water_info_from_python> > cluster_vec(extracted_cluster_info.cluster_idx_max()+1);
+   std::vector<std::pair<std::vector<int>, water_cluster_info_from_python> > cluster_vec(extracted_cluster_info.cluster_idx_max()+1);
    for (it=cluster_map.begin(); it!=cluster_map.end(); it++) {
-      std::pair<std::vector<int>, clustered_water_info_from_python> p(it->second,
-								      extracted_cluster_info.cw[it->first]);
-      cluster_vec[it->first] = p;
+
+      unsigned int idx = it->first;
+      if (idx < extracted_cluster_info.wc.size()) {
+	 std::pair<std::vector<int>, water_cluster_info_from_python> p(it->second, extracted_cluster_info.wc[idx]);
+	 cluster_vec[it->first] = p;
+      } else {
+	 std::cout << "ERROR::::::::::::::: indexing fail " << idx << " " << extracted_cluster_info.wc.size() << std::endl;
+      }
    }
    std::sort(cluster_vec.begin(), cluster_vec.end(), extracted_cluster_info_from_python::cluster_vector_sorter);
 
@@ -218,17 +223,18 @@ GtkWidget *cfc::wrapped_create_cfc_dialog(const cfc::extracted_cluster_info_from
       for (unsigned int i=0; i<cluster_vec.size(); i++) {
 	 unsigned int n_this = cluster_vec[i].first.size();
 	 double f = inv_n * n_this;
-	 std::cout << "   Water cluster " << i << " is present in " << n_this << " = "
-		   << f*100 << " % of structures" << std::endl;
+	 if (false)
+	    std::cout << "   Water cluster " << i << " is present in " << n_this << " = "
+		      << f*100 << " % of structures" << std::endl;
 
 	 // button time!
 	 //
 	 // the left-hand water cluster button
 	 // on clicked: centre on this cluster
 	 //
-	 std::string lb_label = "Water cluster ";
+	 std::string lb_label = "Water ";
 	 lb_label += coot::util::int_to_string(i);
-	 lb_label += ":  ";
+	 lb_label += ": ";
 	 lb_label += coot::util::float_to_string_using_dec_pl(f*100, 1);
 	 lb_label += " % conserved";
 	 GtkWidget *left_button = gtk_button_new_with_label(lb_label.c_str());
@@ -243,12 +249,14 @@ GtkWidget *cfc::wrapped_create_cfc_dialog(const cfc::extracted_cluster_info_from
 				   left_button,
 				   (GtkDestroyNotify) gtk_widget_unref);
 
-	 clustered_water_info_from_python *clust_wat_p =
-	    new clustered_water_info_from_python(cluster_vec[i].second);
+	 water_cluster_info_from_python *wat_clust_p =
+	    new water_cluster_info_from_python(cluster_vec[i].second);
+
+	 std::cout << "creating a button with a index " << i << " and cluster centre " << cluster_vec[i].second.pos.format() << std::endl;
 
 	 gtk_signal_connect(GTK_OBJECT(left_button), "clicked",
 			    GTK_SIGNAL_FUNC(on_cfc_water_cluster_button_clicked),
-			    (gpointer) clust_wat_p);
+			    (gpointer) wat_clust_p);
 	 
 	 gtk_table_attach(GTK_TABLE(waters_table), left_button,
 			  0, 1, i, i+1,
@@ -307,10 +315,13 @@ void
 cfc::on_cfc_water_cluster_button_clicked(GtkButton *button,
 					 gpointer user_data) {
 
-   clustered_water_info_from_python *clust_wat_p = static_cast<clustered_water_info_from_python *> (user_data);
+   water_cluster_info_from_python *water_clust_p = static_cast<water_cluster_info_from_python *> (user_data);
 
-   std::cout << "go to imol " << clust_wat_p->imol << " spec: " << clust_wat_p->residue_spec << std::endl;
-
+   std::cout << "go here " << water_clust_p->pos.format() << std::endl;
+   coot::Cartesian c(water_clust_p->pos[0], water_clust_p->pos[1],    water_clust_p->pos[2]);
+   graphics_info_t g;
+   g.setRotationCentre(c);
+   g.graphics_draw();
 }
 
 

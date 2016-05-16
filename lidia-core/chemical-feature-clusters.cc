@@ -161,6 +161,13 @@ coot::chem_feat_clust::check_dictionaries() {
 void
 coot::chem_feat_clust::fill_waters() {
 
+   // This needs to be changed so that we only add waters that are
+   // some cut-off (4.2?) from the position of any of the atoms of any
+   // of the ligands
+   //
+   // we need to make a big vector of the positions of the ligand atoms
+   // and check that we are close enough
+
    for (unsigned int ilig=0; ilig<ligands.size(); ilig++) {
       for (unsigned int iw=0; iw<ligands[ilig].waters.size(); iw++) {
 	 mmdb::Residue *res = util::get_residue(ligands[ilig].waters[iw],

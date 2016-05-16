@@ -40,6 +40,7 @@ namespace cfc {
 	 weight = w_in;
 	 radius = r_in;
       }
+      water_cluster_info_from_python() {weight = 0;}
       clipper::Coord_orth pos;
       double weight;
       double radius;
@@ -74,8 +75,8 @@ namespace cfc {
 //       }
 
       // sort by the number of molecules (structures) are present in this cluster
-      static bool cluster_vector_sorter(const std::pair<std::vector<int>, clustered_water_info_from_python> &v1,
-					const std::pair<std::vector<int>, clustered_water_info_from_python> &v2) {
+      static bool cluster_vector_sorter(const std::pair<std::vector<int>, water_cluster_info_from_python> &v1,
+					const std::pair<std::vector<int>, water_cluster_info_from_python> &v2) {
 	 return (v2.first.size() < v1.first.size());
       }
    };
