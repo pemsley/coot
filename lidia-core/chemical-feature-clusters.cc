@@ -18,9 +18,11 @@
 // 
 coot::chem_feat_clust::chem_feat_clust(const std::vector<residue_spec_t> &protein_residues,
 				       const std::vector<chem_feat_solvated_ligand_spec> &ligands_in,
+				       double dist_cutoff_in,
 				       const protein_geometry *geometry_p_in,
 				       bool do_alignment) {
 
+   dist_cutoff = dist_cutoff_in;
    geometry_p = geometry_p_in;
    setup_success = fill_ligands(ligands_in);
    if (setup_success) {
@@ -167,6 +169,12 @@ coot::chem_feat_clust::fill_waters() {
    //
    // we need to make a big vector of the positions of the ligand atoms
    // and check that we are close enough
+   //
+   // so first get a big vector of ligand coords:
+   //
+   std::vector<clipper::Coord_orth> lig_coords = get_ligands_coords();
+   // 
+   // double dist_cutoff = 4.2; // a class member data
 
    for (unsigned int ilig=0; ilig<ligands.size(); ilig++) {
       for (unsigned int iw=0; iw<ligands[ilig].waters.size(); iw++) {
@@ -181,19 +189,60 @@ coot::chem_feat_clust::fill_waters() {
 			    << std::endl;
 	       } else {
 		  clipper::Coord_orth pt = co(at);
-		  water_attribs wa(ilig, iw, at, pt);
 
-		  if (false)
-		     std::cout << "fill_waters(): adding " << ilig << " "
-			       << iw << " " << atom_spec_t(at) << std::endl;
+		  if (is_close_to_a_ligand_atom(pt, lig_coords)) {
 
-		  water_positions.push_back(wa);
+		     water_attribs wa(ilig, iw, at, pt);
+
+		     if (false)
+			std::cout << "fill_waters(): adding " << ilig << " "
+				  << iw << " " << atom_spec_t(at) << std::endl;
+
+		     water_positions.push_back(wa);
+		  }
 	       }
 	    }
 	 }
       }
    }
 }
+
+std::vector<clipper::Coord_orth>
+coot::chem_feat_clust::get_ligands_coords() const {
+
+   std::vector<clipper::Coord_orth> v;
+   
+   for (unsigned int i=0; i<ligands.size(); i++) {
+      mmdb::Residue *res = ligands[i].residue;
+      if (res) {
+	 mmdb::PAtom *residue_atoms = 0;
+	 int n_residue_atoms;
+	 res->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (int iat=0; iat<n_residue_atoms; iat++) { 
+	    clipper::Coord_orth pt = co(residue_atoms[iat]);
+	    v.push_back(pt);
+	 }
+      }
+   }
+
+   return v;
+}
+
+bool
+coot::chem_feat_clust::is_close_to_a_ligand_atom(const clipper::Coord_orth &pt_test,
+						 const std::vector<clipper::Coord_orth> &ligand_atom_positions) const {
+
+   bool s = false;
+   double dc_sqrd = dist_cutoff * dist_cutoff;
+   for (unsigned int i=0; i<ligand_atom_positions.size(); i++) { 
+      if (clipper::Coord_orth(ligand_atom_positions[i] - pt_test).lengthsq() < dc_sqrd) {
+	 s = true;
+	 break;
+      }
+   }
+   return s;
+}
+
 
 void
 coot::chem_feat_clust::cluster_waters() {

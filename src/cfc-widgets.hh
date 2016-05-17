@@ -13,6 +13,7 @@ namespace cfc {
    
    GtkWidget *wrapped_create_cfc_dialog(const cfc::extracted_cluster_info_from_python &extracted_cluster_info);
    void on_cfc_water_cluster_button_clicked(GtkButton *button, gpointer user_data);
+   void on_cfc_water_cluster_structure_button_clicked(GtkButton *button, gpointer user_data);
    
 }
 

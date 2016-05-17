@@ -19,7 +19,7 @@
 // 
 PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 				       PyObject *solvated_ligand_info_py,
-				       float radius);
+				       double radius_1, double radius_2);
 // scipy has done some clustering
 // we get the cluster info here
 // 
@@ -67,6 +67,7 @@ namespace cfc {
       std::vector<clustered_water_info_from_python> cw;
       extracted_cluster_info_from_python(PyObject *cluster_info_py);
       unsigned int n_structures() const;
+      std::vector<int> structures_vec() const;
       unsigned int cluster_idx_max() const;
 
 //       // sort by the number of molecules (structures) are present in this cluster
@@ -79,6 +80,8 @@ namespace cfc {
 					const std::pair<std::vector<int>, water_cluster_info_from_python> &v2) {
 	 return (v2.first.size() < v1.first.size());
       }
+      // return the generic display object index
+      int show_water_balls() const;
    };
 
 }

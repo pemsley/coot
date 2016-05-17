@@ -822,7 +822,41 @@ graphics_info_t::displayed_map_imols() const {
       }
    }
    return is;
-} 
+}
+
+// for CFC
+void
+graphics_info_t::display_all_model_molecules() {
+
+   int n = n_molecules();
+
+   for (int i=0; i<n; i++) {
+      int state = 1;
+      if (is_valid_model_molecule(i)) {
+	 molecules[i].set_mol_is_displayed(state);
+	 if (display_control_window())
+	    set_display_control_button_state(i, "Displayed", state);
+      }
+   }
+}
+
+void
+graphics_info_t::undisplay_all_model_molecules_except(int imol) {
+
+   int n = n_molecules();
+
+   for (int i=0; i<n; i++) {
+      int state = 0;
+      if (i == imol)
+	 state = 1;
+      if (is_valid_model_molecule(i)) {
+	 molecules[i].set_mol_is_displayed(state);
+	 if (display_control_window())
+	    set_display_control_button_state(imol, "Displayed", state);
+      }
+   }
+}
+
 
    
 void
@@ -1633,9 +1667,8 @@ graphics_info_t::moving_atoms_graphics_object() {
 
       if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
 	 for (int i=0; i<graphics_info_t::regularize_object_bonds_box.n_ramachandran_goodness_spots; i++) {
-	    const coot::Cartesian &pos = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].first;
-	    const float &size          = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].second;
-	    // std::cout << "    rama " << pos << " " << size<< std::endl;
+	    const coot::Cartesian &pos = regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].first;
+	    const float &size          = regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].second;
 
 	    if (false) { 
 	       double base = size * 0.3;

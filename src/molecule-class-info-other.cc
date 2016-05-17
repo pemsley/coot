@@ -115,7 +115,7 @@ coot::dots_representation_info_t::solvent_exposure(int SelHnd_in, mmdb::Manager 
       mol->GetSelIndex(SelHnd_in, atoms, n_atoms);
       std::vector<double> radius(n_atoms);
 
-      for (unsigned int iat=0; iat<n_atoms; iat++) {
+      for (int iat=0; iat<n_atoms; iat++) {
 	 std::string ele(atoms[iat]->element);
 	 radius[iat] = get_radius(ele);
       }

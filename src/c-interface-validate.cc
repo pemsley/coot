@@ -1887,7 +1887,7 @@ void gln_asn_b_factor_outliers(int imol) {
 #ifdef USE_PYGTK
             graphics_info_t g;
             std::vector<coot::util::atom_spec_and_button_info_t> outlier_atoms;
-            for (int i=0; i<v.size(); i++) {
+            for (unsigned int i=0; i<v.size(); i++) {
                std::string callback_func = "[do_180_degree_side_chain_flip,";
                callback_func += coot::util::int_to_string(imol);
                callback_func += ",";

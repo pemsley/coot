@@ -3970,6 +3970,9 @@ string   static std::string sessionid;
 
    void register_user_defined_interesting_positions(const std::vector<std::pair<clipper::Coord_orth, std::string> > &udip);
 
+   // for CFC, no graphics_draw()
+   void display_all_model_molecules();
+   void undisplay_all_model_molecules_except(int imol);
 };
 
 

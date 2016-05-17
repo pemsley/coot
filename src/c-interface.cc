@@ -5097,7 +5097,19 @@ set_display_control_button_state(int imol, const std::string &button_type, int s
       }
       GtkWidget *button = lookup_widget(g.display_control_window(), button_name.c_str());
       if (button) {
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), state);
+
+	 // Don't make unnecessary changes (creates redraw events?)
+	 //
+	 bool is_active_now = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button));
+	 if (state && is_active_now) {
+	    // nothing
+	 } else {
+	    if ( (state == 0) && ! is_active_now) {
+	       // nothing again
+	    } else {
+	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(button), state);
+	    }
+	 }
       } else {
 	 std::cout << "Opps failed to find " << button_type << " button for mol "
 		   << imol << std::endl;
@@ -5125,18 +5137,7 @@ This stops flashing/delayed animations with many molecules */
 void set_display_only_model_mol(int imol) {
 
    graphics_info_t g;
-   int n = graphics_n_molecules();
-
-   for (int i=0; i<n; i++) {
-      int state = 0;
-      if (i == imol)
-	 state = 1;
-      if (is_valid_model_molecule(i)) {
-	 g.molecules[i].set_mol_is_displayed(state);
-	 if (g.display_control_window())
-	    set_display_control_button_state(imol, "Displayed", state);
-      }
-   }
+   g.undisplay_all_model_molecules_except(imol);
    graphics_draw();
 }
 

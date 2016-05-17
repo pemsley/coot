@@ -88,6 +88,11 @@ namespace coot {
 
       void align();
 
+      double dist_cutoff;
+      std::vector<clipper::Coord_orth> get_ligands_coords() const;
+      bool is_close_to_a_ligand_atom(const clipper::Coord_orth &pt_test,
+				     const std::vector<clipper::Coord_orth> &ligand_atom_positions) const;
+      
    public:
 
       // protein_residues includes waters
@@ -99,9 +104,13 @@ namespace coot {
       // is used)
       //
       // Waters (HOHs) are not used for alignment.
+      //
+      // waters in water_positions must be with dist_cutoff_in of any ligand atom
+      // (not just its own) - say 5A.
       // 
       chem_feat_clust(const std::vector<residue_spec_t> &protein_residues,
 		      const std::vector<chem_feat_solvated_ligand_spec> &ligands,
+		      double dist_cutoff_in,
 		      const protein_geometry *geometry, // maybe should be non-const pointer
 		      bool do_alignment = false);
 
@@ -110,7 +119,7 @@ namespace coot {
       void cluster_ligand_chemical_features();
 
       std::vector<water_attribs> get_water_positions() const { return water_positions; }
-      
+
    };
 
 }

@@ -9,6 +9,14 @@
 #include <libguile.h> 
 #endif // USE_GUILE
 
+// For drawing balls
+#if __APPLE__
+#   include <OpenGL/gl.h>
+#   include <OpenGL/glu.h>
+#else
+#   include <GL/gl.h>
+#   include <GL/glu.h>
+#endif
 
 #include "cfc.hh"
 #include "cfc-widgets.hh"
@@ -33,7 +41,7 @@
 // 
 PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 				       PyObject *solvated_ligand_info_py,
-				       float radius) {
+				       double radius_1, double radius_2) {
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
    PyObject *r = Py_False;
@@ -69,7 +77,7 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 
 			std::vector<coot::residue_spec_t> neighbs_waters; // fill this
 			std::vector<coot::residue_spec_t> neighbs_raw =
-			   coot::residues_near_residue(ligand_spec, mol, radius);
+			   coot::residues_near_residue(ligand_spec, mol, radius_1);
 			for (unsigned int i=0; i<neighbs_raw.size(); i++) { 
 			   mmdb::Residue *res = coot::util::get_residue(neighbs_raw[i], mol);
 			   if (res) {
@@ -102,7 +110,7 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 	    }
 	 }
 
-	 coot::chem_feat_clust cl(neighbs, ligands, graphics_info_t::Geom_p());
+	 coot::chem_feat_clust cl(neighbs, ligands, radius_2, graphics_info_t::Geom_p());
 
 	 std::vector<coot::chem_feat_clust::water_attribs> water_positions =
 	    cl.get_water_positions();
@@ -158,6 +166,8 @@ void chemical_feature_clusters_accept_info_py(PyObject *env_residue,
 
       GtkWidget *w = wrapped_create_cfc_dialog(eci);
 
+      int idx_gdo = eci.show_water_balls();
+
       if (w) {
 	 gtk_widget_show(w);
       } else {
@@ -190,6 +200,11 @@ GtkWidget *cfc::wrapped_create_cfc_dialog(const cfc::extracted_cluster_info_from
    }
    // how many structures are there?
    unsigned int n_structures = extracted_cluster_info.n_structures();
+   // if we iterate through n_structures, j=0; j<n_structures, to get
+   // to the molecule number (imol) of the jth structure, index into
+   // the structures_vec: imol = structures_vec[j];
+   //
+   std::vector<int> structures_vec = extracted_cluster_info.structures_vec();
 
    unsigned int cluster_idx = 0;
    double inv_n = 1.0/double(n_structures);
@@ -216,10 +231,10 @@ GtkWidget *cfc::wrapped_create_cfc_dialog(const cfc::extracted_cluster_info_from
 
    if (! waters_table) {
       std::cout << "no waters_table" << std::endl;
-   } else { 
+   } else {
 
       gtk_table_resize(GTK_TABLE(waters_table), cluster_vec.size(), 2);
-   
+
       for (unsigned int i=0; i<cluster_vec.size(); i++) {
 	 unsigned int n_this = cluster_vec[i].first.size();
 	 double f = inv_n * n_this;
@@ -245,14 +260,16 @@ GtkWidget *cfc::wrapped_create_cfc_dialog(const cfc::extracted_cluster_info_from
 	 button_name += "_water_cluster_";
 	 button_name += coot::util::int_to_string(i);
 	 button_name += "_button";
+
+	 // we should do a better job at clearing up the memory when
+	 // these buttons are destroyed
+	 // 
 	 gtk_object_set_data_full (GTK_OBJECT (cfc_dialog), button_name.c_str(), 
 				   left_button,
 				   (GtkDestroyNotify) gtk_widget_unref);
 
 	 water_cluster_info_from_python *wat_clust_p =
 	    new water_cluster_info_from_python(cluster_vec[i].second);
-
-	 std::cout << "creating a button with a index " << i << " and cluster centre " << cluster_vec[i].second.pos.format() << std::endl;
 
 	 gtk_signal_connect(GTK_OBJECT(left_button), "clicked",
 			    GTK_SIGNAL_FUNC(on_cfc_water_cluster_button_clicked),
@@ -272,29 +289,46 @@ GtkWidget *cfc::wrapped_create_cfc_dialog(const cfc::extracted_cluster_info_from
 	 GtkWidget *hbox = gtk_hbox_new(FALSE, 0);
 
 	 for (unsigned int j=0; j<n_structures; j++) {
-	    std::string struct_button_name = "cfc_site_";
-	    struct_button_name += coot::util::int_to_string(site_idx);
-	    struct_button_name += "_water_cluster_";
-	    struct_button_name += coot::util::int_to_string(i);
-	    struct_button_name += "_structure_";
-	    struct_button_name += coot::util::int_to_string(j);
-	    struct_button_name += "_button";
-	    std::string struct_button_label = " ";
-	    GtkWidget *button = gtk_button_new_with_label(struct_button_label.c_str());
-	    gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
-	    gtk_widget_show(button);
+
+	    if (j < structures_vec.size()) {
+
+	       int imol_local = structures_vec[j]; // should be some function of j...
+	       // the question is: what is
+	       // the imol (molecule number) of the jth
+	       // structure?
+	    
+	       std::string struct_button_name = "cfc_site_";
+	       struct_button_name += coot::util::int_to_string(site_idx);
+	       struct_button_name += "_water_cluster_";
+	       struct_button_name += coot::util::int_to_string(i);
+	       struct_button_name += "_structure_";
+	       struct_button_name += coot::util::int_to_string(imol_local);
+	       struct_button_name += "_button";
+	       std::string struct_button_label = " ";
+	       GtkWidget *button = gtk_button_new_with_label(struct_button_label.c_str());
+	       gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+	       gtk_signal_connect(GTK_OBJECT(button), "clicked",
+				  GTK_SIGNAL_FUNC(on_cfc_water_cluster_structure_button_clicked),
+				  GINT_TO_POINTER(imol_local));
+	    
+	       gtk_widget_show(button);
 
 
-	    // change the color to green when the structure (j) is a
-	    // member of the vector cluster_vec[i];
+	       // change the color to green when the structure (j) is a
+	       // member of the vector cluster_vec[i];
 
-	    if (std::find(cluster_vec[i].first.begin(), cluster_vec[i].first.end(), j) == cluster_vec[i].first.end()) {
-	       // wasn't there (that's OK)
-	    } else { 
-	       // happy path
-	       GdkColor color;
-	       gdk_color_parse ("lightgreen", &color);
-	       gtk_widget_modify_bg(GTK_WIDGET(button), GTK_STATE_NORMAL, &color);
+	       if (std::find(cluster_vec[i].first.begin(), cluster_vec[i].first.end(), imol_local) == cluster_vec[i].first.end()) {
+		  // wasn't there (that's OK)
+	       } else {
+		  // happy path
+		  GdkColor color;
+		  gdk_color_parse ("lightgreen", &color);
+		  gtk_widget_modify_bg(GTK_WIDGET(button), GTK_STATE_NORMAL, &color);
+	       }
+
+	    } else {
+	       std::cout << "ERRROR:: out of index range jth mol " << j
+			 << " " << structures_vec.size() << std::endl;
 	    }
 	    
 	 }
@@ -307,7 +341,6 @@ GtkWidget *cfc::wrapped_create_cfc_dialog(const cfc::extracted_cluster_info_from
 	 
       }
    }
-   
    return cfc_dialog;
 }
 
@@ -315,14 +348,30 @@ void
 cfc::on_cfc_water_cluster_button_clicked(GtkButton *button,
 					 gpointer user_data) {
 
-   water_cluster_info_from_python *water_clust_p = static_cast<water_cluster_info_from_python *> (user_data);
+   water_cluster_info_from_python *water_clust_p =
+      static_cast<water_cluster_info_from_python *> (user_data);
 
-   std::cout << "go here " << water_clust_p->pos.format() << std::endl;
-   coot::Cartesian c(water_clust_p->pos[0], water_clust_p->pos[1],    water_clust_p->pos[2]);
+   coot::Cartesian c(water_clust_p->pos[0],
+		     water_clust_p->pos[1],
+		     water_clust_p->pos[2]);
    graphics_info_t g;
    g.setRotationCentre(c);
+   g.display_all_model_molecules(); // no redraw
    g.graphics_draw();
 }
+
+void
+cfc::on_cfc_water_cluster_structure_button_clicked(GtkButton *button,
+						   gpointer user_data) {
+
+   int imol = GPOINTER_TO_INT(user_data);
+
+   graphics_info_t g;
+   g.undisplay_all_model_molecules_except(imol);  // no redraw
+   g.graphics_draw();
+
+}
+
 
 
 
@@ -345,12 +394,11 @@ cfc::extracted_cluster_info_from_python::extracted_cluster_info_from_python(PyOb
 
 	    int n_clusters = PyObject_Length(water_cluster_info_py);
 
-	    std::cout << "found a water cluster list of length " << n_clusters << std::endl;
-
 	    for (int iclust=0; iclust<n_clusters; iclust++) {
 	       PyObject *cluster_py = PyList_GetItem(water_cluster_info_py, iclust);
 
-	       // should be a list of length 3: with position, weight and cluster-sphere size/length/radius
+	       // should be a list of length 3: with position, weight and
+	       // cluster-sphere size/length/radius
 
 	       if (! PyTuple_Check(cluster_py)) {
 
@@ -359,8 +407,9 @@ cfc::extracted_cluster_info_from_python::extracted_cluster_info_from_python(PyOb
 		     std::cout << "ERROR:: not a list for water_cluster item in "
 			       << "cfc_extract_cluster_info() (null dp)" << std::endl;
 		  } else { 
-		     std::cout << "ERROR:: not a list for water_cluster item in cfc_extract_cluster_info()"
-			       << PyString_AsString(dp) << std::endl;
+		     std::cout << "ERROR:: not a list for water_cluster item in "
+			       << "cfc_extract_cluster_info()" << PyString_AsString(dp)
+			       << std::endl;
 		  }
 
 	       } else {
@@ -450,11 +499,6 @@ cfc::extracted_cluster_info_from_python::extracted_cluster_info_from_python(PyOb
 	 }
       }
    }
-
-   std::cout << "------------ v.size() " << v.size() << std::endl;
-
-   std::cout << "-------------v_cw.size() " << v_cw.size() << std::endl;
-
    wc = v;
    cw = v_cw;
 }
@@ -471,6 +515,26 @@ cfc::extracted_cluster_info_from_python::n_structures() const {
    return imol_map.size();
 }
 
+std::vector<int>
+cfc::extracted_cluster_info_from_python::structures_vec() const {
+   
+   std::list<int> imol_list;
+   std::vector<int> imol_vec;
+
+   for (unsigned int i=0; i<cw.size(); i++) {
+      imol_list.push_back(cw[i].imol);
+   }
+   imol_list.sort();
+   imol_list.unique();
+   std::list<int>::const_iterator it;
+   for (it=imol_list.begin(); it!=imol_list.end(); it++) {
+      imol_vec.push_back(*it);
+   }
+   return imol_vec;
+
+}
+
+
 
 unsigned int
 cfc::extracted_cluster_info_from_python::cluster_idx_max() const {
@@ -482,6 +546,48 @@ cfc::extracted_cluster_info_from_python::cluster_idx_max() const {
    }
    return idx_max;
 }
+
+// return the generic display object index
+int
+cfc::extracted_cluster_info_from_python::show_water_balls() const {
+
+   coot::generic_display_object_t obj("CFC conserved water balls");
+   
+   if (graphics_info_t::use_graphics_interface_flag) {
+      int n = n_structures();
+      int n_wc = wc.size();
+   
+      for (int i=0; i<n_wc; i++) {
+	 unsigned int n_this = 0;
+	 // count how many have this cluster
+	 for (unsigned int j=0; j<cw.size(); j++) { 
+	    if (cw[j].cluster_number == i) {
+	       n_this++;
+	    }
+	 }
+
+	 double f = double(n_this)/double(n);
+
+	 if (f > 0.01) {
+
+	    double radius = f * 1.1;
+	    std::cout << "adding sphere " << radius << " "
+		      << wc[i].pos.format() << std::endl;
+	    coot::generic_display_object_t::sphere_t sphere(wc[i].pos, radius);
+	    sphere.col = coot::colour_t(0.9, 0.2, 0.2);
+	    obj.spheres.push_back(sphere);
+	 }
+      }
+   }
+
+   obj.is_displayed_flag = true;
+   graphics_info_t::generic_objects_p->push_back(obj);
+   graphics_info_t::graphics_draw();
+
+   return (graphics_info_t::generic_objects_p->size() -1);
+   
+}
+
 
 
 #endif // USE_PYTHON
