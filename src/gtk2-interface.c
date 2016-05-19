@@ -32392,14 +32392,14 @@ create_cfc_dialog (void)
   GtkWidget *cfc_notebook;
   GtkWidget *label794;
   GtkWidget *label790;
+  GtkWidget *scrolledwindow39;
+  GtkWidget *viewport26;
   GtkWidget *cfc_ligands_table;
   GtkWidget *hbox437;
   GtkWidget *label796;
   GtkWidget *label797;
   GtkWidget *label798;
-  GtkWidget *cfc_site_xxx_pharmacophore_yy_button;
   GtkWidget *cfc_sites_xx_pharmacopher_yy_structures_hbox;
-  GtkWidget *cfc_site_xxx_pharmacophore_yy_structure_zz_button;
   GtkWidget *label791;
   GtkWidget *label795;
   GtkWidget *label792;
@@ -32414,7 +32414,6 @@ create_cfc_dialog (void)
   GtkWidget *closebutton1;
 
   cfc_dialog = gtk_dialog_new ();
-  gtk_widget_set_size_request (cfc_dialog, 400, 340);
   gtk_widget_set_name (cfc_dialog, "cfc_dialog");
   gtk_window_set_title (GTK_WINDOW (cfc_dialog), _("Chemical Feature Clusters"));
   gtk_window_set_type_hint (GTK_WINDOW (cfc_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -32438,10 +32437,20 @@ create_cfc_dialog (void)
   gtk_widget_show (label790);
   gtk_notebook_set_tab_label (GTK_NOTEBOOK (cfc_notebook), gtk_notebook_get_nth_page (GTK_NOTEBOOK (cfc_notebook), 0), label790);
 
+  scrolledwindow39 = gtk_scrolled_window_new (NULL, NULL);
+  gtk_widget_set_name (scrolledwindow39, "scrolledwindow39");
+  gtk_widget_show (scrolledwindow39);
+  gtk_container_add (GTK_CONTAINER (cfc_notebook), scrolledwindow39);
+
+  viewport26 = gtk_viewport_new (NULL, NULL);
+  gtk_widget_set_name (viewport26, "viewport26");
+  gtk_widget_show (viewport26);
+  gtk_container_add (GTK_CONTAINER (scrolledwindow39), viewport26);
+
   cfc_ligands_table = gtk_table_new (3, 2, FALSE);
   gtk_widget_set_name (cfc_ligands_table, "cfc_ligands_table");
   gtk_widget_show (cfc_ligands_table);
-  gtk_container_add (GTK_CONTAINER (cfc_notebook), cfc_ligands_table);
+  gtk_container_add (GTK_CONTAINER (viewport26), cfc_ligands_table);
 
   hbox437 = gtk_hbox_new (FALSE, 0);
   gtk_widget_set_name (hbox437, "hbox437");
@@ -32468,24 +32477,12 @@ create_cfc_dialog (void)
                     (GtkAttachOptions) (0), 0, 0);
   gtk_misc_set_alignment (GTK_MISC (label798), 0, 0.5);
 
-  cfc_site_xxx_pharmacophore_yy_button = gtk_button_new_with_mnemonic (_("H-bond Acceptor"));
-  gtk_widget_set_name (cfc_site_xxx_pharmacophore_yy_button, "cfc_site_xxx_pharmacophore_yy_button");
-  gtk_widget_show (cfc_site_xxx_pharmacophore_yy_button);
-  gtk_table_attach (GTK_TABLE (cfc_ligands_table), cfc_site_xxx_pharmacophore_yy_button, 0, 1, 1, 2,
-                    (GtkAttachOptions) (GTK_FILL),
-                    (GtkAttachOptions) (0), 0, 0);
-
   cfc_sites_xx_pharmacopher_yy_structures_hbox = gtk_hbox_new (FALSE, 0);
   gtk_widget_set_name (cfc_sites_xx_pharmacopher_yy_structures_hbox, "cfc_sites_xx_pharmacopher_yy_structures_hbox");
   gtk_widget_show (cfc_sites_xx_pharmacopher_yy_structures_hbox);
   gtk_table_attach (GTK_TABLE (cfc_ligands_table), cfc_sites_xx_pharmacopher_yy_structures_hbox, 1, 2, 1, 2,
                     (GtkAttachOptions) (GTK_FILL),
                     (GtkAttachOptions) (GTK_FILL), 0, 0);
-
-  cfc_site_xxx_pharmacophore_yy_structure_zz_button = gtk_button_new_with_mnemonic (_("i"));
-  gtk_widget_set_name (cfc_site_xxx_pharmacophore_yy_structure_zz_button, "cfc_site_xxx_pharmacophore_yy_structure_zz_button");
-  gtk_widget_show (cfc_site_xxx_pharmacophore_yy_structure_zz_button);
-  gtk_box_pack_start (GTK_BOX (cfc_sites_xx_pharmacopher_yy_structures_hbox), cfc_site_xxx_pharmacophore_yy_structure_zz_button, FALSE, FALSE, 0);
 
   label791 = gtk_label_new (_("Ligands"));
   gtk_widget_set_name (label791, "label791");
@@ -32558,14 +32555,14 @@ create_cfc_dialog (void)
   GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_notebook, "cfc_notebook");
   GLADE_HOOKUP_OBJECT (cfc_dialog, label794, "label794");
   GLADE_HOOKUP_OBJECT (cfc_dialog, label790, "label790");
+  GLADE_HOOKUP_OBJECT (cfc_dialog, scrolledwindow39, "scrolledwindow39");
+  GLADE_HOOKUP_OBJECT (cfc_dialog, viewport26, "viewport26");
   GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_ligands_table, "cfc_ligands_table");
   GLADE_HOOKUP_OBJECT (cfc_dialog, hbox437, "hbox437");
   GLADE_HOOKUP_OBJECT (cfc_dialog, label796, "label796");
   GLADE_HOOKUP_OBJECT (cfc_dialog, label797, "label797");
   GLADE_HOOKUP_OBJECT (cfc_dialog, label798, "label798");
-  GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_site_xxx_pharmacophore_yy_button, "cfc_site_xxx_pharmacophore_yy_button");
   GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_sites_xx_pharmacopher_yy_structures_hbox, "cfc_sites_xx_pharmacopher_yy_structures_hbox");
-  GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_site_xxx_pharmacophore_yy_structure_zz_button, "cfc_site_xxx_pharmacophore_yy_structure_zz_button");
   GLADE_HOOKUP_OBJECT (cfc_dialog, label791, "label791");
   GLADE_HOOKUP_OBJECT (cfc_dialog, label795, "label795");
   GLADE_HOOKUP_OBJECT (cfc_dialog, label792, "label792");
