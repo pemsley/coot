@@ -95,7 +95,7 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 					<< std::endl;
 			}
 
-			coot::chem_feat_solvated_ligand_spec lig(ligand_spec, neighbs_waters, mol);
+			coot::chem_feat_solvated_ligand_spec lig(ligand_spec, neighbs_waters, mol, imol);
 			ligands.push_back(lig);
 			
 		     } else {
@@ -115,7 +115,12 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 	 std::vector<coot::chem_feat_clust::water_attribs> water_positions =
 	    cl.get_water_positions();
 
+	 std::vector<coot::simple_chemical_feature_attributes> chemical_features =
+	    cl.get_chemical_features();
+
 	 std::cout << "INFO:: Got " << water_positions.size() << " waters" << std::endl;
+	 std::cout << "INFO:: Got " << chemical_features.size() << " chemical features"
+		   << std::endl;
 
 	 PyObject *water_attribs_py = PyList_New(water_positions.size());
 	 for (unsigned int iw=0; iw<water_positions.size(); iw++) {
@@ -130,14 +135,34 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 	    PyList_SetItem(water_attribs_py, iw, o);
 	 }
 
-	 r = water_attribs_py;
+	 PyObject *chemical_feature_attribs_py = PyList_New(chemical_features.size());
+	 for (unsigned int i=0; i<chemical_features.size(); i++) {
+	    // need: type, position, imol, res_spec
+	    PyObject *o = PyList_New(4);
+	    PyObject *pos_py = PyList_New(3);
+	    PyList_SetItem(pos_py, 0, PyFloat_FromDouble(chemical_features[i].pos.x()));
+	    PyList_SetItem(pos_py, 1, PyFloat_FromDouble(chemical_features[i].pos.y()));
+	    PyList_SetItem(pos_py, 2, PyFloat_FromDouble(chemical_features[i].pos.z()));
+
+	    PyList_SetItem(o, 0, PyString_FromString(chemical_features[i].type.c_str()));
+	    PyList_SetItem(o, 1, pos_py);
+	    PyList_SetItem(o, 2, PyInt_FromLong(chemical_features[i].imol));
+	    PyList_SetItem(o, 3, py_residue(chemical_features[i].residue_spec));
+	    PyList_SetItem(chemical_feature_attribs_py, i, o);
+	 }
+
+	 r = PyList_New(2); // 3 with residues
+
+	 PyList_SetItem(r, 0, water_attribs_py);
+	 PyList_SetItem(r, 1, chemical_feature_attribs_py);
+
 
       } else {
 	 std::cout << "ERROR:: chemical_feature_clusters_py() arg 2 is not a list"  << std::endl;
       }
    } else {
       std::cout << "ERROR:: chemical_feature_clusters_py() arg 1 is not a list"  << std::endl;
-   } 
+   }
 
    
 #endif // MAKE_ENHANCED_LIGAND_TOOLS   
@@ -180,9 +205,17 @@ void chemical_feature_clusters_accept_info_py(PyObject *env_residue,
 
 // should this be in a cfc widgets-specific file?
 // 
-GtkWidget *cfc::wrapped_create_cfc_dialog(const cfc::extracted_cluster_info_from_python &extracted_cluster_info) {
+GtkWidget *cfc::wrapped_create_cfc_dialog(cfc::extracted_cluster_info_from_python &extracted_cluster_info) {
 
    GtkWidget *cfc_dialog = create_cfc_dialog();
+
+   wrapped_create_cfc_dialog_add_waters(extracted_cluster_info, cfc_dialog);
+   wrapped_create_cfc_dialog_add_pharmacophores(extracted_cluster_info, cfc_dialog);
+
+   return cfc_dialog;
+}
+
+void cfc::wrapped_create_cfc_dialog_add_waters(cfc::extracted_cluster_info_from_python &extracted_cluster_info, GtkWidget *cfc_dialog) {
 
    // we want a vector of (water) clusters.  For each cluster we need
    // to know what structures have waters in that cluster
@@ -190,7 +223,7 @@ GtkWidget *cfc::wrapped_create_cfc_dialog(const cfc::extracted_cluster_info_from
    std::map<int, std::vector<int> > cluster_map;
    std::map<int, std::vector<int> >::const_iterator it;
    for (unsigned int i=0; i<extracted_cluster_info.cw.size(); i++) {
-      const clustered_water_info_from_python &cw = extracted_cluster_info.cw[i];
+      const clustered_feature_info_from_python &cw = extracted_cluster_info.cw[i];
 
       // add imol if it is not already a member of this cluster
       if (std::find(cluster_map[cw.cluster_number].begin(),
@@ -214,7 +247,7 @@ GtkWidget *cfc::wrapped_create_cfc_dialog(const cfc::extracted_cluster_info_from
    // buttons, the cluster with the most residues will appear at the
    // top
    // 
-   std::vector<std::pair<std::vector<int>, water_cluster_info_from_python> > cluster_vec(extracted_cluster_info.cluster_idx_max()+1);
+   std::vector<std::pair<std::vector<int>, water_cluster_info_from_python> > cluster_vec(extracted_cluster_info.water_cluster_idx_max()+1);
    for (it=cluster_map.begin(); it!=cluster_map.end(); it++) {
 
       unsigned int idx = it->first;
@@ -341,7 +374,99 @@ GtkWidget *cfc::wrapped_create_cfc_dialog(const cfc::extracted_cluster_info_from
 	 
       }
    }
-   return cfc_dialog;
+
+}
+
+
+void
+cfc::wrapped_create_cfc_dialog_add_pharmacophores(cfc::extracted_cluster_info_from_python &extracted_cluster_info, GtkWidget *cfc_dialog) {
+
+   GtkWidget *ligands_table = lookup_widget(cfc_dialog, "cfc_ligands_table");
+
+   // for each cluster, by which structures are they contributed?
+   //
+   std::map<std::string, std::vector<std::vector<int> > > cluster_structure_vector;
+   std::map<std::string, std::vector<clipper::Coord_orth> >::const_iterator it;   
+
+   for (it  = extracted_cluster_info.pharmacophore_model_cluster_means.begin();
+	it != extracted_cluster_info.pharmacophore_model_cluster_means.end();
+	it++) {
+
+      const std::string &type = it->first; // e.g. Donor
+      const std::vector<clipper::Coord_orth> &means = it->second;
+
+      cluster_structure_vector[type].resize(means.size());
+
+      int n_means = means.size();
+      for (int i=0; i<n_means; i++) { // types match cluster_number
+	 for (unsigned int j=0; j<extracted_cluster_info.pharmacophore[type].size(); j++) {
+
+	    if (extracted_cluster_info.pharmacophore[type][j].cluster_number == i) {
+	       if (std::find(cluster_structure_vector[type][i].begin(),
+			     cluster_structure_vector[type][i].end(),
+			     extracted_cluster_info.pharmacophore[type][j].imol) ==
+		   cluster_structure_vector[type][i].end()) {
+		  cluster_structure_vector[type][i].push_back(extracted_cluster_info.pharmacophore[type][j].imol);
+	       }
+	    }
+	 }
+      }
+   }
+
+   // what did we make?
+   //
+   std::cout << "... what did we make? " << std::endl;
+   std::map<std::string, std::vector<std::vector<int> > >::const_iterator it_2;
+   unsigned int n_pharacophores = 0;
+
+   for (it_2  = cluster_structure_vector.begin();
+	it_2 != cluster_structure_vector.end();
+	it_2++) {
+      for (unsigned int i=0; i<it_2->second.size(); i++) {
+	 n_pharacophores++;
+	 std::cout << " cluster_structure_vector[" << it_2->first << "][" << i << "] : ";
+	 for (unsigned int j=0; j<it_2->second[i].size(); j++) {
+	    std::cout << " " << it_2->second[i][j];
+	 }
+	 std::cout << std::endl;
+      }
+   }
+
+   gtk_table_resize(GTK_TABLE(ligands_table), n_pharacophores, 2);
+
+   // OK, now we can make some buttons
+   //
+   // do we want to "flatten out" cluster_structure_vector?
+   //
+   unsigned int n_structures = extracted_cluster_info.n_structures();
+   double inv_n = 1.0/double(n_structures);
+   
+   for (it_2  = cluster_structure_vector.begin();
+	it_2 != cluster_structure_vector.end();
+	it_2++) {
+
+      for (unsigned int i=0; i<it_2->second.size(); i++) {
+
+	 std::string lhb_label = it_2->first;
+	 unsigned int n_this = it_2->second[i].size();
+	 double f = inv_n * n_this;
+	 lhb_label += " ";
+	 lhb_label += coot::util::int_to_string(i);
+	 lhb_label += ": ";
+	 lhb_label += coot::util::float_to_string_using_dec_pl(f*100, 1);
+	 lhb_label += " % conserved";
+	 GtkWidget *left_button = gtk_button_new_with_label(lhb_label.c_str());
+	 gtk_table_attach(GTK_TABLE(ligands_table), left_button,
+			  0, 1, i, i+1,
+			  (GtkAttachOptions) (GTK_FILL),
+			  (GtkAttachOptions) (0), 0, 0);
+	 gtk_signal_connect(GTK_OBJECT(left_button), "clicked",
+			    GTK_SIGNAL_FUNC(on_cfc_pharmacophore_cluster_button_clicked),
+			    NULL);
+	 gtk_widget_show(left_button);
+
+      }
+   }
 }
 
 void
@@ -372,86 +497,97 @@ cfc::on_cfc_water_cluster_structure_button_clicked(GtkButton *button,
 
 }
 
+void
+cfc::on_cfc_pharmacophore_cluster_button_clicked(GtkButton *button,
+						 gpointer user_data) {
+
+   std::cout << "button clicked - do something " << std::endl;
+   
+}
+
+void
+cfc::on_cfc_pharmacophore_cluster_structure_button_clicked(GtkButton *button,
+							   gpointer user_data) {
+
+   std::cout << "structure button clicked - do something " << std::endl;
+
+}
 
 
-
-cfc::extracted_cluster_info_from_python::extracted_cluster_info_from_python(PyObject *cluster_info_py) {
+void
+cfc::extracted_cluster_info_from_python::extract_water_info(PyObject *cluster_info_py) {
 
    std::vector<water_cluster_info_from_python> v;
-   std::vector<clustered_water_info_from_python> v_cw;
+   std::vector<clustered_feature_info_from_python> v_cw;
 
-   if (! PyList_Check(cluster_info_py)) {
-      std::cout << "ERROR:: not a list in cfc_extract_cluster_info()" << std::endl;
-   } else {
-      int list_size = PyObject_Length(cluster_info_py);
-      if (list_size > 0) {
-	 PyObject *water_cluster_info_py = PyList_GetItem(cluster_info_py, 0);
+   int list_size = PyObject_Length(cluster_info_py);
+   if (list_size > 0) {
+      PyObject *water_cluster_info_py = PyList_GetItem(cluster_info_py, 0);
 
-	 if (! PyList_Check(water_cluster_info_py)) {
-	    std::cout << "ERROR:: not a list for water_cluster_info_py in cfc_extract_cluster_info()"
-		      << std::endl;
-	 } else {
+      if (! PyList_Check(water_cluster_info_py)) {
+	 std::cout << "ERROR:: not a list for water_cluster_info_py in cfc_extract_cluster_info()"
+		   << std::endl;
+      } else {
 
-	    int n_clusters = PyObject_Length(water_cluster_info_py);
+	 int n_clusters = PyObject_Length(water_cluster_info_py);
 
-	    for (int iclust=0; iclust<n_clusters; iclust++) {
-	       PyObject *cluster_py = PyList_GetItem(water_cluster_info_py, iclust);
+	 for (int iclust=0; iclust<n_clusters; iclust++) {
+	    PyObject *cluster_py = PyList_GetItem(water_cluster_info_py, iclust);
 
-	       // should be a list of length 3: with position, weight and
-	       // cluster-sphere size/length/radius
+	    // should be a list of length 3: with position, weight and
+	    // cluster-sphere size/length/radius
 
-	       if (! PyTuple_Check(cluster_py)) {
+	    if (! PyTuple_Check(cluster_py)) {
 
-		  PyObject *dp = display_python(cluster_py);
-		  if (dp == NULL) {
-		     std::cout << "ERROR:: not a list for water_cluster item in "
-			       << "cfc_extract_cluster_info() (null dp)" << std::endl;
-		  } else { 
-		     std::cout << "ERROR:: not a list for water_cluster item in "
-			       << "cfc_extract_cluster_info()" << PyString_AsString(dp)
-			       << std::endl;
-		  }
+	       PyObject *dp = display_python(cluster_py);
+	       if (dp == NULL) {
+		  std::cout << "ERROR:: not a list for water_cluster item in "
+			    << "cfc_extract_cluster_info() (null dp)" << std::endl;
+	       } else { 
+		  std::cout << "ERROR:: not a list for water_cluster item in "
+			    << "cfc_extract_cluster_info()" << PyString_AsString(dp)
+			    << std::endl;
+	       }
 
-	       } else {
+	    } else {
 		  
-		  int n_items = PyObject_Length(cluster_py);
+	       int n_items = PyObject_Length(cluster_py);
 
-		  if (n_items != 3) {
-		     std::cout << "strange cluster info " << n_items << std::endl;
-		  } else {
+	       if (n_items != 3) {
+		  std::cout << "strange cluster info " << n_items << std::endl;
+	       } else {
 		     
-		     PyObject *pos_py    = PyTuple_GetItem(cluster_py, 0);
-		     PyObject *weight_py = PyTuple_GetItem(cluster_py, 1);
-		     PyObject *radius_py = PyTuple_GetItem(cluster_py, 2);
+		  PyObject *pos_py    = PyTuple_GetItem(cluster_py, 0);
+		  PyObject *weight_py = PyTuple_GetItem(cluster_py, 1);
+		  PyObject *radius_py = PyTuple_GetItem(cluster_py, 2);
 
-		     if (! PyList_Check(pos_py)) {
-			std::cout << "ERROR:: position is not a list " << std::endl;
+		  if (! PyList_Check(pos_py)) {
+		     std::cout << "ERROR:: position is not a list " << std::endl;
+		  } else {
+		     int n_xyz = PyObject_Length(pos_py);
+		     if (n_xyz != 3) {
+			std::cout << "strange position list " << n_xyz << std::endl;
 		     } else {
-			int n_xyz = PyObject_Length(pos_py);
-			if (n_xyz != 3) {
-			   std::cout << "strange position list " << n_xyz << std::endl;
-			} else {
-			   PyObject *x_py = PyList_GetItem(pos_py, 0);
-			   PyObject *y_py = PyList_GetItem(pos_py, 1);
-			   PyObject *z_py = PyList_GetItem(pos_py, 2);
+			PyObject *x_py = PyList_GetItem(pos_py, 0);
+			PyObject *y_py = PyList_GetItem(pos_py, 1);
+			PyObject *z_py = PyList_GetItem(pos_py, 2);
 
-			   if (PyFloat_Check(x_py)) { // fatigue...
-			      if (PyFloat_Check(y_py)) {
-				 if (PyFloat_Check(z_py)) {
+			if (PyFloat_Check(x_py)) { // fatigue...
+			   if (PyFloat_Check(y_py)) {
+			      if (PyFloat_Check(z_py)) {
 
-				    double x = PyFloat_AsDouble(x_py);
-				    double y = PyFloat_AsDouble(y_py);
-				    double z = PyFloat_AsDouble(z_py);
+				 double x = PyFloat_AsDouble(x_py);
+				 double y = PyFloat_AsDouble(y_py);
+				 double z = PyFloat_AsDouble(z_py);
 
-				    if (PyFloat_Check(weight_py)) {
-				       if (PyFloat_Check(radius_py)) {
+				 if (PyFloat_Check(weight_py)) {
+				    if (PyFloat_Check(radius_py)) {
 
-					  double weight = PyFloat_AsDouble(weight_py);
-					  double radius = PyFloat_AsDouble(radius_py);
+				       double weight = PyFloat_AsDouble(weight_py);
+				       double radius = PyFloat_AsDouble(radius_py);
 
-					  clipper::Coord_orth pos(x,y,z);
-					  v.push_back(cfc::water_cluster_info_from_python(pos, weight, radius));
-				       }
+				       clipper::Coord_orth pos(x,y,z);
+				       v.push_back(cfc::water_cluster_info_from_python(pos, weight, radius));
 				    }
 				 }
 			      }
@@ -463,37 +599,36 @@ cfc::extracted_cluster_info_from_python::extracted_cluster_info_from_python(PyOb
 	    }
 	 }
       }
+   }
 
-      if (list_size > 1) { // it should be
-	 PyObject *cluster_assignments_py = PyList_GetItem(cluster_info_py, 1);
+   if (list_size > 1) { // it should be
+      PyObject *cluster_assignments_py = PyList_GetItem(cluster_info_py, 1);
 
-	 // contains a list of [imol, water-residue-spec, cluster-number]
+      // contains a list of [imol, water-residue-spec, cluster-number]
 
-	 if (! PyList_Check(cluster_assignments_py)) {
-	    std::cout << "ERROR:: cluster_assignments_py is not a list " << std::endl;
-	 } else {
-	    int n = PyObject_Length(cluster_assignments_py);
-	    std::cout << "found " << n << " cluster assignments" << std::endl;
-	    for (int i=0; i<n; i++) {
-	       PyObject *item_py = PyList_GetItem(cluster_assignments_py, i);
-	       if (! PyList_Check(item_py)) {
-		  std::cout << "ERROR:: item in cluster_assignments_py is not a list " << std::endl;
+      if (! PyList_Check(cluster_assignments_py)) {
+	 std::cout << "ERROR:: cluster_assignments_py is not a list " << std::endl;
+      } else {
+	 int n = PyObject_Length(cluster_assignments_py);
+	 for (int i=0; i<n; i++) {
+	    PyObject *item_py = PyList_GetItem(cluster_assignments_py, i);
+	    if (! PyList_Check(item_py)) {
+	       std::cout << "ERROR:: item in cluster_assignments_py is not a list " << std::endl;
+	    } else {
+	       int n_in_item = PyObject_Length(item_py);
+	       if (n_in_item != 3) {
+		  std::cout << "ERROR:: item in cluster_assignments_py is not of length 3 " << std::endl;
 	       } else {
-		  int n_in_item = PyObject_Length(item_py);
-		  if (n_in_item != 3) {
-		     std::cout << "ERROR:: item in cluster_assignments_py is not of length 3 " << std::endl;
-		  } else {
-		     PyObject *imol_py   = PyList_GetItem(item_py, 0);
-		     PyObject *spec_py   = PyList_GetItem(item_py, 1);
-		     PyObject *iclust_py = PyList_GetItem(item_py, 2);
+		  PyObject *imol_py   = PyList_GetItem(item_py, 0);
+		  PyObject *spec_py   = PyList_GetItem(item_py, 1);
+		  PyObject *iclust_py = PyList_GetItem(item_py, 2);
 
-		     coot::residue_spec_t water_spec = residue_spec_from_py(spec_py);
-		     int imol_water = PyInt_AsLong(imol_py);
-		     int iclust     = PyInt_AsLong(iclust_py);
+		  coot::residue_spec_t water_spec = residue_spec_from_py(spec_py);
+		  int imol_water = PyInt_AsLong(imol_py);
+		  int iclust     = PyInt_AsLong(iclust_py);
 
-		     clustered_water_info_from_python cw(imol_water, water_spec, iclust);
-		     v_cw.push_back(cw);
-		  }
+		  clustered_feature_info_from_python cw(imol_water, water_spec, iclust);
+		  v_cw.push_back(cw);
 	       }
 	    }
 	 }
@@ -501,6 +636,171 @@ cfc::extracted_cluster_info_from_python::extracted_cluster_info_from_python(PyOb
    }
    wc = v;
    cw = v_cw;
+}
+
+std::vector<clipper::Coord_orth>
+cfc::extracted_cluster_info_from_python::extract_cluster_means(PyObject *means_py) {
+
+   std::vector<clipper::Coord_orth> v;
+   if (! PyList_Check(means_py)) {
+      std::cout << "ERROR:: means_py not a list in extract_cluster_means()" << std::endl;
+   } else {
+
+      int n_means = PyObject_Length(means_py);
+      for (int i=0; i<n_means; i++) { 
+	 PyObject *mean_pos_py = PyList_GetItem(means_py, i);
+
+	 if (! PyList_Check(mean_pos_py)) {
+	    std::cout << "ERROR:: mean_pos_py not a list in extract_cluster_means()"
+		      << std::endl;
+	 } else {
+	    int n_pos = PyObject_Length(mean_pos_py);
+	    if (n_pos == 3) {
+	       
+	       PyObject *x_py = PyList_GetItem(mean_pos_py, 0);
+	       PyObject *y_py = PyList_GetItem(mean_pos_py, 1);
+	       PyObject *z_py = PyList_GetItem(mean_pos_py, 2);
+
+	       if (PyFloat_Check(x_py)) {
+		  if (PyFloat_Check(y_py)) {
+		     if (PyFloat_Check(z_py)) {
+
+			double x = PyFloat_AsDouble(x_py);
+			double y = PyFloat_AsDouble(x_py);
+			double z = PyFloat_AsDouble(x_py);
+			clipper::Coord_orth pos(x,y,z);
+			v.push_back(pos);
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   std::cout << "----------- " << v.size() << " pharmacophore centres " << std::endl;
+   return v;
+}
+
+
+void
+cfc::extracted_cluster_info_from_python::extract_chemical_feature_info(PyObject *cf_py) {
+
+   // cf_py is [type, features-annotated-by-cluster-number, cluster_means]
+
+   // key is type
+   // std::map<std::string, std::vector<clustered_feature_info_from_python> > pharmacophore;
+   // std::map<std::string, std::vector<clipper::Coord_orth> > pharmacophore_model_cluster_means;
+
+   if (! PyList_Check(cf_py)) {
+      std::cout << "ERROR:: not a list 0 in extract_chemical_feature_info()"
+		<< std::endl;
+   } else {
+
+      int n_cf = PyObject_Length(cf_py);
+      if (n_cf == 3) {
+
+	 PyObject *type_py  = PyList_GetItem(cf_py, 0);
+	 PyObject *facn_py  = PyList_GetItem(cf_py, 1);
+	 PyObject *means_py = PyList_GetItem(cf_py, 2);
+
+	 int n = PyObject_Length(facn_py);
+
+	 std::string type;
+	 if (PyString_Check(type_py))
+	    type = PyString_AsString(type_py);
+
+	 pharmacophore_model_cluster_means[type] = extract_cluster_means(means_py);
+
+	 for (int i=0; i<n; i++) {
+	    PyObject *pharm_py = PyList_GetItem(facn_py, i);
+
+	    // pharm_py [[[-21.515, 3.507, -8.572], 0, [True, 'A', 1501, '']], 4]
+	    
+	    if (! PyList_Check(pharm_py)) {
+	       std::cout << "ERROR:: pharm_py - Not a list " << std::endl;
+	    } else {
+
+	       int n_py = PyObject_Length(pharm_py);
+	       // std::cout << "pharm_py is a list of length " << n_py << std::endl;
+
+	       if (n_py == 2) {
+		  PyObject *pos_imol_spec_list_py = PyList_GetItem(pharm_py, 0);
+		  PyObject *cluster_number_py     = PyList_GetItem(pharm_py, 1);
+
+		  if (PyList_Check(pos_imol_spec_list_py)) { // fatigue
+		     if (PyInt_Check(cluster_number_py)) {
+
+			int cluster_number = PyInt_AsLong(cluster_number_py);
+
+			int n_pos_imol_spec_list =
+			   PyObject_Length(pos_imol_spec_list_py);
+
+			if (n_pos_imol_spec_list == 3) {
+
+			   PyObject *pos_py  = PyList_GetItem(pos_imol_spec_list_py, 0);
+			   PyObject *imol_py = PyList_GetItem(pos_imol_spec_list_py, 1);
+			   PyObject *spec_py = PyList_GetItem(pos_imol_spec_list_py, 2);
+
+			   if (PyList_Check(pos_py)) {
+			      if (PyInt_Check(imol_py)) {
+				 if (PyList_Check(spec_py)) {
+
+				    PyObject *x_py = PyList_GetItem(pos_py, 0);
+				    PyObject *y_py = PyList_GetItem(pos_py, 1);
+				    PyObject *z_py = PyList_GetItem(pos_py, 2);
+
+				    int imol = PyInt_AsLong(imol_py);
+
+				    coot::residue_spec_t res_spec =
+				       residue_spec_from_py(spec_py);
+
+				    // it's not a water of course
+				    clustered_feature_info_from_python cwi(imol,
+									   res_spec,
+									   cluster_number);
+				    // store cwi somewhere
+
+				    pharmacophore[type].push_back(cwi);
+
+				    std::cout << "  store " << imol << " " << res_spec
+					      << std::endl;
+				 }
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+}
+
+cfc::extracted_cluster_info_from_python::extracted_cluster_info_from_python(PyObject *cluster_info_py) {
+
+   if (! PyList_Check(cluster_info_py)) {
+      std::cout << "ERROR:: not a list in cfc_extract_cluster_info()" << std::endl;
+   } else {
+
+      int n = PyObject_Length(cluster_info_py);
+
+      if (n == 2) { // water then chemical_features
+
+	 PyObject *o0 = PyList_GetItem(cluster_info_py, 0);
+	 PyObject *o1 = PyList_GetItem(cluster_info_py, 1);
+	 extract_water_info(o0);
+
+	 if (PyList_Check(o1)) {
+	    int n_fc = PyObject_Length(o1);
+	    for (int i=0; i<n_fc; i++) {
+	       PyObject *o_list_item_py = PyList_GetItem(o1, i);
+	       extract_chemical_feature_info(o_list_item_py);
+	    }
+	 }
+      }
+   }
 }
 
 unsigned int
@@ -537,7 +837,7 @@ cfc::extracted_cluster_info_from_python::structures_vec() const {
 
 
 unsigned int
-cfc::extracted_cluster_info_from_python::cluster_idx_max() const {
+cfc::extracted_cluster_info_from_python::water_cluster_idx_max() const {
 
    int idx_max = 0;
    for (unsigned int i=0; i<cw.size(); i++) {
@@ -571,8 +871,6 @@ cfc::extracted_cluster_info_from_python::show_water_balls() const {
 	 if (f > 0.01) {
 
 	    double radius = f * 1.1;
-	    std::cout << "adding sphere " << radius << " "
-		      << wc[i].pos.format() << std::endl;
 	    coot::generic_display_object_t::sphere_t sphere(wc[i].pos, radius);
 	    sphere.col = coot::colour_t(0.9, 0.2, 0.2);
 	    obj.spheres.push_back(sphere);

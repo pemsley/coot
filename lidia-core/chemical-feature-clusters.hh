@@ -10,7 +10,32 @@
 // #include "use-rdkit.hh"
 #include <GraphMol/MolChemicalFeatures/MolChemicalFeatureFactory.h>
 
+
+
+namespace chemical_features {
+   RDKit::MolChemicalFeatureFactory *get_feature_factory();
+}
+
+
 namespace coot {
+
+   class simple_chemical_feature_attributes {
+   public:
+      simple_chemical_feature_attributes() {}
+      simple_chemical_feature_attributes(const std::string &type_in,
+					 const clipper::Coord_orth &pos_in,
+					 int imol_in,
+					 const residue_spec_t &rs) {
+	 type = type_in;
+	 pos = pos_in;
+	 imol = imol_in;
+	 residue_spec = rs;
+      }
+      std::string type;
+      clipper::Coord_orth pos;
+      int imol;
+      residue_spec_t residue_spec;
+   };
 
    class chem_feat_solvated_ligand_spec {
 
@@ -18,12 +43,16 @@ namespace coot {
       residue_spec_t ligand_spec;
       std::vector<residue_spec_t> waters;
       mmdb::Manager *mol;
+      int imol; // the molecule number that this molecule came from
+                // (needed so that we can navigate in the button-press callback)
       chem_feat_solvated_ligand_spec(const residue_spec_t &ligand_spec_in,
 				     const std::vector<residue_spec_t> &waters_in,
-				     mmdb::Manager *mol_in) {
+				     mmdb::Manager *mol_in,
+				     int imol_in) {
 	 ligand_spec = ligand_spec_in;
 	 waters = waters_in;
 	 mol = mol_in;
+	 imol = imol_in;
       }
    };
 
@@ -34,7 +63,8 @@ namespace coot {
    public:
       chem_feat_solvated_ligand(const residue_spec_t &ligand_spec_in,
 				const std::vector<residue_spec_t> &waters_in,
-				mmdb::Manager *mol_in) : chem_feat_solvated_ligand_spec(ligand_spec_in, waters_in, mol_in) { init_residue(); }
+				mmdb::Manager *mol_in,
+				int imol_in) : chem_feat_solvated_ligand_spec(ligand_spec_in, waters_in, mol_in, imol_in) { init_residue(); }
       chem_feat_solvated_ligand(const chem_feat_solvated_ligand_spec &ligand_spec_in) :
 				chem_feat_solvated_ligand_spec(ligand_spec_in) { init_residue(); }
       
@@ -74,8 +104,8 @@ namespace coot {
       // 
       std::vector<water_attribs> water_positions;
       
-      bool get_chemical_features(unsigned int idx, residue_spec_t lig_spec,
-				 mmdb::Manager *mol);
+      std::vector<simple_chemical_feature_attributes>
+      get_chemical_features(int imol, residue_spec_t lig_spec, mmdb::Manager *mol);
 
       bool cluster_waters(const std::vector<chem_feat_solvated_ligand_spec> &ligands);
 
@@ -88,7 +118,7 @@ namespace coot {
 
       void align();
 
-      double dist_cutoff;
+      double water_dist_cutoff;
       std::vector<clipper::Coord_orth> get_ligands_coords() const;
       bool is_close_to_a_ligand_atom(const clipper::Coord_orth &pt_test,
 				     const std::vector<clipper::Coord_orth> &ligand_atom_positions) const;
@@ -110,24 +140,16 @@ namespace coot {
       // 
       chem_feat_clust(const std::vector<residue_spec_t> &protein_residues,
 		      const std::vector<chem_feat_solvated_ligand_spec> &ligands,
-		      double dist_cutoff_in,
+		      double water_dist_cutoff_in,
 		      const protein_geometry *geometry, // maybe should be non-const pointer
 		      bool do_alignment = false);
 
-      void cluster_waters();
-
-      void cluster_ligand_chemical_features();
-
       std::vector<water_attribs> get_water_positions() const { return water_positions; }
 
+      // not const because protein_geometry might change
+      std::vector<simple_chemical_feature_attributes> get_chemical_features();
+
    };
-
-}
-
-
-namespace chemical_features {
-
-   RDKit::MolChemicalFeatureFactory *get_feature_factory();
 
 }
 

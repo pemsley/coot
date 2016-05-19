@@ -18,17 +18,17 @@
 // 
 coot::chem_feat_clust::chem_feat_clust(const std::vector<residue_spec_t> &protein_residues,
 				       const std::vector<chem_feat_solvated_ligand_spec> &ligands_in,
-				       double dist_cutoff_in,
+				       double water_dist_cutoff_in,
 				       const protein_geometry *geometry_p_in,
 				       bool do_alignment) {
 
-   dist_cutoff = dist_cutoff_in;
+   water_dist_cutoff = water_dist_cutoff_in;
    geometry_p = geometry_p_in;
    setup_success = fill_ligands(ligands_in);
    if (setup_success) {
       setup_success = check_dictionaries();
 
-      if (true) { // setup_success
+      if (setup_success) { // setup_success
 	 if (do_alignment)
 	    align();
 	 
@@ -48,20 +48,22 @@ coot::chem_feat_solvated_ligand::init_residue() {
 }
 
 
-bool
-coot::chem_feat_clust::get_chemical_features(unsigned int idx,
+std::vector<coot::simple_chemical_feature_attributes>
+coot::chem_feat_clust::get_chemical_features(int imol,
 					     residue_spec_t lig_spec,
 					     mmdb::Manager *mol) {
 
+   std::vector<coot::simple_chemical_feature_attributes> v;
    bool success = false;
 
    if (! setup_success)
-      return success;   
+      return v;   
 	 
    mmdb::Residue *residue_p = util::get_residue(lig_spec, mol);
 
    if (! residue_p) {
-      std::cout << "WARNING:: failed to get ligand " << idx << " at " << lig_spec << std::endl;
+      std::cout << "WARNING:: failed to get ligand for molecule " << imol
+		<< " at " << lig_spec << std::endl;
    } else {
 
       try {
@@ -71,7 +73,7 @@ coot::chem_feat_clust::get_chemical_features(unsigned int idx,
 	 RDKit::MolChemicalFeatureFactory *factory = chemical_features::get_feature_factory();
 	 if (! factory) {
 	    std::cout << "WARNING:: no factory" << std::endl;
-	    return success;
+	    return v;
 	 }
 
 	 RDKit::FeatSPtrList features = factory->getFeaturesForMol(rdkm);
@@ -85,15 +87,35 @@ coot::chem_feat_clust::get_chemical_features(unsigned int idx,
 	    RDGeom::Point3D pos = sp.get()->getPos();
 	    clipper::Coord_orth centre(pos.x, pos.y, pos.z);
 	    std::string family = sp.get()->getFamily();
-      
+	    simple_chemical_feature_attributes cf(family, centre, imol, lig_spec);
+	    v.push_back(cf);
 	 }
       }
       catch (const std::runtime_error &rte) {
 	 std::cout << "WARNING:: " << rte.what() << std::endl;
       }
    }
-   return success;
+
+   return v;
 }
+
+
+// return all chemical features
+// 
+std::vector<coot::simple_chemical_feature_attributes>
+coot::chem_feat_clust::get_chemical_features() {
+
+   std::vector<coot::simple_chemical_feature_attributes> v;
+
+   for (unsigned int i=0; i<ligands.size(); i++) {
+      std::vector<coot::simple_chemical_feature_attributes> cfs = 
+	 get_chemical_features(ligands[i].imol, ligands[i].ligand_spec, ligands[i].mol);
+      for (unsigned int j=0; j<cfs.size(); j++)
+	 v.push_back(cfs[j]);
+   }
+   return v;
+}
+
 
 RDKit::MolChemicalFeatureFactory *
 chemical_features::get_feature_factory() {
@@ -233,7 +255,7 @@ coot::chem_feat_clust::is_close_to_a_ligand_atom(const clipper::Coord_orth &pt_t
 						 const std::vector<clipper::Coord_orth> &ligand_atom_positions) const {
 
    bool s = false;
-   double dc_sqrd = dist_cutoff * dist_cutoff;
+   double dc_sqrd = water_dist_cutoff * water_dist_cutoff;
    for (unsigned int i=0; i<ligand_atom_positions.size(); i++) { 
       if (clipper::Coord_orth(ligand_atom_positions[i] - pt_test).lengthsq() < dc_sqrd) {
 	 s = true;
@@ -244,23 +266,7 @@ coot::chem_feat_clust::is_close_to_a_ligand_atom(const clipper::Coord_orth &pt_t
 }
 
 
-void
-coot::chem_feat_clust::cluster_waters() {
 
-   std::cout << "INFO:: clustering " << water_positions.size()
-	     << " water positions" << std::endl;
-
-
-}
-
-void
-coot::chem_feat_clust::cluster_ligand_chemical_features() {
-
-   for (unsigned int i=0; i<ligands.size(); i++) { 
-      get_chemical_features(i, ligands[i].ligand_spec, ligands[i].mol);
-   }
-
-}
 
 void
 coot::chem_feat_clust::align() {

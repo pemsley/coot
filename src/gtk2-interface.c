@@ -32414,6 +32414,7 @@ create_cfc_dialog (void)
   GtkWidget *closebutton1;
 
   cfc_dialog = gtk_dialog_new ();
+  gtk_widget_set_size_request (cfc_dialog, 400, 340);
   gtk_widget_set_name (cfc_dialog, "cfc_dialog");
   gtk_window_set_title (GTK_WINDOW (cfc_dialog), _("Chemical Feature Clusters"));
   gtk_window_set_type_hint (GTK_WINDOW (cfc_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);

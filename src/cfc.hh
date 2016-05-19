@@ -1,9 +1,14 @@
 
+// header here
+
 #ifndef CFC_HH
 #define CFC_HH
 
 #ifdef USE_PYTHON
 #include "Python.h"
+
+#include <map>
+#include <algorithm>
 
 #include <clipper/core/coords.h>
 #include "coot-utils/residue-and-atom-specs.hh"
@@ -48,32 +53,37 @@ namespace cfc {
 
    // the container for the water residues, annotated by which cluster the water is in
    // 
-   class clustered_water_info_from_python {
+   class clustered_feature_info_from_python {
    public:
-      clustered_water_info_from_python(int imol_in, coot::residue_spec_t &spec_in, int cluster_number_in) {
+      clustered_feature_info_from_python(int imol_in, coot::residue_spec_t &spec_in, int cluster_number_in) {
 	 imol = imol_in;
 	 residue_spec = spec_in;
 	 cluster_number = cluster_number_in;
       }
-      clustered_water_info_from_python() { imol = -1; cluster_number = -1;}
+      clustered_feature_info_from_python() { imol = -1; cluster_number = -1;}
       int imol;
       int cluster_number;
       coot::residue_spec_t residue_spec;
    };
 
    class extracted_cluster_info_from_python {
+      
+      void extract_water_info(PyObject *cluster_info_py);
+      void extract_chemical_feature_info(PyObject *cf_py);
+
+      std::vector<clipper::Coord_orth> extract_cluster_means(PyObject *means_py);
+
    public:
       std::vector<water_cluster_info_from_python>   wc;
-      std::vector<clustered_water_info_from_python> cw;
+      std::vector<clustered_feature_info_from_python> cw;
       extracted_cluster_info_from_python(PyObject *cluster_info_py);
       unsigned int n_structures() const;
       std::vector<int> structures_vec() const;
-      unsigned int cluster_idx_max() const;
+      unsigned int water_cluster_idx_max() const;
 
-//       // sort by the number of molecules (structures) are present in this cluster
-//       static bool cluster_vector_sorter(const std::vector<int> &v1, const std::vector<int> &v2) {
-// 	 return (v2.size() < v1.size());
-//       }
+      std::map<std::string, std::vector<clustered_feature_info_from_python> > pharmacophore;
+      std::map<std::string, std::vector<clipper::Coord_orth> > pharmacophore_model_cluster_means;
+      
 
       // sort by the number of molecules (structures) are present in this cluster
       static bool cluster_vector_sorter(const std::pair<std::vector<int>, water_cluster_info_from_python> &v1,
