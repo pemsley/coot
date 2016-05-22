@@ -3973,6 +3973,7 @@ string   static std::string sessionid;
    // for CFC, no graphics_draw()
    void display_all_model_molecules();
    void undisplay_all_model_molecules_except(int imol);
+   void undisplay_all_model_molecules_except(const std::vector<int> &keep_these);
 };
 
 

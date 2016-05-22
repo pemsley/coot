@@ -840,6 +840,7 @@ graphics_info_t::display_all_model_molecules() {
    }
 }
 
+// an unactivate
 void
 graphics_info_t::undisplay_all_model_molecules_except(int imol) {
 
@@ -850,12 +851,44 @@ graphics_info_t::undisplay_all_model_molecules_except(int imol) {
       if (i == imol)
 	 state = 1;
       if (is_valid_model_molecule(i)) {
-	 molecules[i].set_mol_is_displayed(state);
-	 if (display_control_window())
+	 molecules[i].set_mol_is_displayed(state); // raw, no callbacks
+	 molecules[i].set_mol_is_active(state);    // 
+	 if (display_control_window()) {
 	    set_display_control_button_state(imol, "Displayed", state);
+	    set_display_control_button_state(imol, "Active",   state);
+	 }
       }
    }
 }
+
+void
+graphics_info_t::undisplay_all_model_molecules_except(const std::vector<int> &keep_these) {
+
+
+   int n = n_molecules();
+
+   for (int i=0; i<n; i++) {
+      int state = 0;
+      bool found_in_keep_these = false;
+      for (unsigned int j=0; j<keep_these.size(); j++) {
+	 if (keep_these[j] == i) {
+	    found_in_keep_these = true;
+	    break;
+	 }
+      }
+      if (found_in_keep_these)
+	 state = 1;
+      if (is_valid_model_molecule(i)) {
+	 molecules[i].set_mol_is_displayed(state);
+	 molecules[i].set_mol_is_active(state);
+	 if (display_control_window())
+	    set_display_control_button_state(i, "Displayed", state);
+	 if (display_control_window())
+	    set_display_control_button_state(i, "Active", state);
+      }
+   }
+}
+
 
 
    

@@ -55,14 +55,14 @@ namespace cfc {
    // 
    class clustered_feature_info_from_python {
    public:
-      clustered_feature_info_from_python(int imol_in, coot::residue_spec_t &spec_in, int cluster_number_in) {
+      clustered_feature_info_from_python(int imol_in, coot::residue_spec_t &spec_in, unsigned int cluster_number_in) {
 	 imol = imol_in;
 	 residue_spec = spec_in;
 	 cluster_number = cluster_number_in;
       }
       clustered_feature_info_from_python() { imol = -1; cluster_number = -1;}
       int imol;
-      int cluster_number;
+      unsigned int cluster_number; // unsigned because it indexes into the cluster means vector
       coot::residue_spec_t residue_spec;
    };
 
@@ -77,14 +77,20 @@ namespace cfc {
       std::vector<water_cluster_info_from_python>   wc;
       std::vector<clustered_feature_info_from_python> cw;
       extracted_cluster_info_from_python(PyObject *cluster_info_py);
-      unsigned int n_structures() const;
-      std::vector<int> structures_vec() const;
+      unsigned int n_water_structures() const;
+      unsigned int n_pharmacophore_structures() const; 
+      std::vector<int> water_structures_vec() const;  // for structure buttons (water cluster)
+      std::vector<int> pharmacophore_structures_vec() const; // for structure buttons (pharma)
+      std::vector<std::pair<int, coot::residue_spec_t> >
+      pharmacophore_structures_and_specs_vec() const; // for structure buttons (pharma)
+      
+      std::vector<std::pair<int, coot::residue_spec_t> > water_cluster_imol_residue_spec_vec() const;
+      std::vector<std::pair<int, coot::residue_spec_t> > pharmacophore_cluster_imol_residue_spec_vec(const std::string &type, unsigned int cluster_idx);
       unsigned int water_cluster_idx_max() const;
 
       std::map<std::string, std::vector<clustered_feature_info_from_python> > pharmacophore;
       std::map<std::string, std::vector<clipper::Coord_orth> > pharmacophore_model_cluster_means;
       
-
       // sort by the number of molecules (structures) are present in this cluster
       static bool cluster_vector_sorter(const std::pair<std::vector<int>, water_cluster_info_from_python> &v1,
 					const std::pair<std::vector<int>, water_cluster_info_from_python> &v2) {
