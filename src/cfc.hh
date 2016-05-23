@@ -101,11 +101,7 @@ namespace cfc {
       // return the generic display object index
       int show_water_balls() const;
    };
-
 }
-   
-
-
 
 #endif // USE_PYTHON
 

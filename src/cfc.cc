@@ -413,16 +413,20 @@ cfc::wrapped_create_cfc_dialog_add_pharmacophores(cfc::extracted_cluster_info_fr
 
    // what did we make?
    //
-   std::cout << "... what did we make? " << std::endl;
    std::map<std::string, std::vector<std::pair<std::vector<int>, clipper::Coord_orth> > >::const_iterator it_2;
    unsigned int n_pharacophores = 0;
 
+   
    for (it_2  = cluster_structure_vector.begin();
 	it_2 != cluster_structure_vector.end();
 	it_2++) {
       for (unsigned int i=0; i<it_2->second.size(); i++) {
 	 n_pharacophores++;
-	 std::cout << "debug:: cluster_structure_vector[" << it_2->first << "][" << i << "] : ";
+
+	 if (false) // debug
+	    std::cout << "debug:: cluster_structure_vector[" << it_2->first
+		      << "][" << i << "] : ";
+	 
 	 for (unsigned int j=0; j<it_2->second[i].first.size(); j++) {
 	    std::cout << " " << it_2->second[i].first[j];
 	 }
@@ -455,13 +459,7 @@ cfc::wrapped_create_cfc_dialog_add_pharmacophores(cfc::extracted_cluster_info_fr
 
       const std::string &type = it_2->first;
 
-      std::cout << " debug:: " << it_2->first << " has size " << it_2->second.size()
-		<< std::endl;
-
       for (unsigned int i=0; i<it_2->second.size(); i++) {
-
-	 std::cout << " debug:: " << it_2->first << " has size " << it_2->second.size()
-		   << " now i = " << i << std::endl;
 
 	 // imol_residue_spec_vec should contain the imol,res_spec of ligands
 	 // that contribute to this pharmacophore, they are not in structure order and
@@ -470,13 +468,6 @@ cfc::wrapped_create_cfc_dialog_add_pharmacophores(cfc::extracted_cluster_info_fr
 	 std::vector<std::pair<int, coot::residue_spec_t> > imol_residue_spec_vec =
 	    extracted_cluster_info.pharmacophore_cluster_imol_residue_spec_vec(type, i);
 
-	 std::cout << "here with imol_residue_spec_vec: " << std::endl;
-	 for (unsigned int jj=0; jj<imol_residue_spec_vec.size(); jj++) { 
-	    std::cout << "    " << jj << ": "
-		      << imol_residue_spec_vec[jj].first  << " "
-		      << imol_residue_spec_vec[jj].second << std::endl;
-	 }
-	 
 	 std::string lhb_label = it_2->first;
 	 unsigned int n_this = it_2->second[i].first.size();
 	 double f = inv_n * n_this;
@@ -499,12 +490,8 @@ cfc::wrapped_create_cfc_dialog_add_pharmacophores(cfc::extracted_cluster_info_fr
 	 pbs.add_structure_buttons_hbox(hbox);
 	 std::vector<std::pair<int, coot::residue_spec_t> > contributing_specs;
 
-	 std::cout << "Now for the pharmacophore buttons per structure ... " << n_structures
-		   << std::endl;
-	 
 	 for (unsigned int j=0; j<n_structures; j++) {
 
-	    std::cout << "pharmacophore buttons, structure " << j << std::endl;
 	    if (true) {
 
 	       // we should store this vector, not keep evaluating it
@@ -940,8 +927,6 @@ cfc::extracted_cluster_info_from_python::extract_chemical_feature_info(PyObject 
 
 				    pharmacophore[type].push_back(cwi);
 
-				    std::cout << "  store " << imol << " " << res_spec
-					      << std::endl;
 				 }
 			      }
 			   }

@@ -66,6 +66,7 @@ namespace std {
 %include "c-interface-mogul.hh"
 %include "c-interface-sequence.hh"
 %include "c-interface-refmac.h"
+%include "c-interface-generic-objects.h"
 %include "cmtz-interface.hh"
 %include "manipulation-modes.hh"
 %include "rotamer-search-modes.hh"
