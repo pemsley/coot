@@ -193,8 +193,9 @@
 
      (if (not (file-exists? "coot-ccp4/monomer-3GP.pdb"))
 	 (begin 
-	     (format #t "  Oops! file not found! coot-ccp4/monomer-3GP.pdb~%")
-	     (throw 'fail)))
+	   ;; bad/strange/missing CCP4 install
+	   (format #t "  Oops! file not found! coot-ccp4/monomer-3GP.pdb~%")
+	   (throw 'untested)))
 
      (let* ((imol-orig (read-pdb "coot-ccp4/monomer-3GP.pdb"))
 	    (imol-copy (copy-molecule imol-orig)))

@@ -3987,6 +3987,11 @@ string   static std::string sessionid;
 
    static bool continue_update_refinement_atoms_flag;
 
+   // for CFC, no graphics_draw()
+   void display_all_model_molecules();
+   void undisplay_all_model_molecules_except(int imol);
+   void undisplay_all_model_molecules_except(const std::vector<int> &keep_these);
+
 };
 
 

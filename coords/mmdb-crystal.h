@@ -67,7 +67,7 @@ class symm_trans_t {
       { symm_no = n; x_shift_ = x; y_shift_ = y; z_shift_ = z;};
    symm_trans_t() {};
 
-   friend ostream & operator<<(ostream &s, const symm_trans_t &st);
+   friend std::ostream & operator<<(std::ostream &s, const symm_trans_t &st);
 
    int isym() const { return symm_no;};
    int x()    const { return x_shift_;};
@@ -96,7 +96,7 @@ class Cell_Translation {
    //Cell_Translation(clipper::Coord_frac);
    Cell_Translation() {us=0; vs=0; ws=0;}
    Cell_Translation(int a, int b, int c);
-   friend ostream& operator<<(ostream &s, Cell_Translation ct);
+   friend std::ostream& operator<<(std::ostream &s, Cell_Translation ct);
    Cell_Translation inv() const { return Cell_Translation(-us, -vs, -ws); }
 };
 
@@ -173,7 +173,7 @@ class molecule_extents_t {
 
    bool point_is_in_box(const coot::Cartesian &point, mmdb::PPAtom TransSel) const;
 
-   friend ostream& operator<<(ostream &s, molecule_extents_t);
+   friend std::ostream& operator<<(std::ostream &s, molecule_extents_t);
 };
 
 
@@ -195,7 +195,7 @@ class SymmMatrix {
                                     // a mmdb::mat44 - grumble.
 
    void add_unit_shift(int x, int y, int z);
-   friend ostream& operator<<(ostream&, SymmMatrix);
+   friend std::ostream& operator<<(std::ostream&, SymmMatrix);
 
 };
 

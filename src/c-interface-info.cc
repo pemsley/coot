@@ -1082,7 +1082,7 @@ coot::residue_spec_t residue_spec_from_py(PyObject *residue_in) {
 
    coot::residue_spec_t rspec; // default
 
-   if (PyList_Check(residue_in)) { 
+   if (PyList_Check(residue_in)) {
 
       if (PyList_Size(residue_in) == 3) { 
 	 PyObject *chain_id_py = PyList_GetItem(residue_in, 0);
@@ -1091,10 +1091,19 @@ coot::residue_spec_t residue_spec_from_py(PyObject *residue_in) {
 	 std::string chain_id  = PyString_AsString(chain_id_py);
 	 std::string ins_code  = PyString_AsString(ins_code_py);
 	 long resno            = PyInt_AsLong(resno_py);
-	 std::cout << "making spec from " << chain_id << " " << resno
-		   << " :" << ins_code << ":" << std::endl;
 	 rspec = coot::residue_spec_t(chain_id, resno, ins_code);
       }
+
+      if (PyList_Size(residue_in) == 4) {
+	 PyObject *chain_id_py = PyList_GetItem(residue_in, 1);
+	 PyObject *resno_py    = PyList_GetItem(residue_in, 2);
+	 PyObject *ins_code_py = PyList_GetItem(residue_in, 3);
+	 std::string chain_id  = PyString_AsString(chain_id_py);
+	 std::string ins_code  = PyString_AsString(ins_code_py);
+	 long resno            = PyInt_AsLong(resno_py);
+	 rspec = coot::residue_spec_t(chain_id, resno, ins_code);
+      }
+
    }
    return rspec;
 }

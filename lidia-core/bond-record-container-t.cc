@@ -709,8 +709,13 @@ cod::bond_record_container_t::make_bond_from_level_3_vector(const cod::atom_type
 							    unsigned int approx_level) const {
 
    cod::bond_table_record_t b = v[0];
-   unsigned int min_count_for_l4_match = 6; // counts should be at least this value
-   unsigned int min_count_sum_for_merge = 2;
+   unsigned int min_count_for_l4_match = 4; // counts should be at least this value
+                                            // Fei's value is 4, I used to have 6 (guess).
+
+   // when we are consolidating bonds, what should be the sum of counts so that we
+   // think that we've properly constructed a bond.
+   // 
+   unsigned int min_count_sum_for_merge = 4;
 
    if (v.size() > 1) {
 

@@ -822,7 +822,74 @@ graphics_info_t::displayed_map_imols() const {
       }
    }
    return is;
-} 
+}
+
+// for CFC
+void
+graphics_info_t::display_all_model_molecules() {
+
+   int n = n_molecules();
+
+   for (int i=0; i<n; i++) {
+      int state = 1;
+      if (is_valid_model_molecule(i)) {
+	 molecules[i].set_mol_is_displayed(state);
+	 if (display_control_window())
+	    set_display_control_button_state(i, "Displayed", state);
+      }
+   }
+}
+
+// an unactivate
+void
+graphics_info_t::undisplay_all_model_molecules_except(int imol) {
+
+   int n = n_molecules();
+
+   for (int i=0; i<n; i++) {
+      int state = 0;
+      if (i == imol)
+	 state = 1;
+      if (is_valid_model_molecule(i)) {
+	 molecules[i].set_mol_is_displayed(state); // raw, no callbacks
+	 molecules[i].set_mol_is_active(state);    // 
+	 if (display_control_window()) {
+	    set_display_control_button_state(imol, "Displayed", state);
+	    set_display_control_button_state(imol, "Active",   state);
+	 }
+      }
+   }
+}
+
+void
+graphics_info_t::undisplay_all_model_molecules_except(const std::vector<int> &keep_these) {
+
+
+   int n = n_molecules();
+
+   for (int i=0; i<n; i++) {
+      int state = 0;
+      bool found_in_keep_these = false;
+      for (unsigned int j=0; j<keep_these.size(); j++) {
+	 if (keep_these[j] == i) {
+	    found_in_keep_these = true;
+	    break;
+	 }
+      }
+      if (found_in_keep_these)
+	 state = 1;
+      if (is_valid_model_molecule(i)) {
+	 molecules[i].set_mol_is_displayed(state);
+	 molecules[i].set_mol_is_active(state);
+	 if (display_control_window())
+	    set_display_control_button_state(i, "Displayed", state);
+	 if (display_control_window())
+	    set_display_control_button_state(i, "Active", state);
+      }
+   }
+}
+
+
 
    
 void
@@ -1544,6 +1611,7 @@ graphics_info_t::draw_moving_atoms_graphics_object() {
       if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
 	 float ball_scale_factor = 1.0; // 1.2;
 	 for (int i=0; i<graphics_info_t::regularize_object_bonds_box.n_ramachandran_goodness_spots; i++) {
+
 	    const coot::Cartesian &pos = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].first;
 	    const float &prob_raw      = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].second;
 	    // std::cout << "    rama " << pos << " prob_raw: " << prob_raw << std::endl;
