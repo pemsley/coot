@@ -1733,7 +1733,6 @@ molecule_class_info_t::auto_fit_best_rotamer(int rotamer_search_mode,
 					     int clash_flag, float lowest_prob,
 					     const coot::protein_geometry &pg) {
 
-
    // 20090714 We decide here if we go into auto_fit_best_rotamer
    // (conventional mode with rigid body fitting) or backrub rotamers
    //
@@ -8054,15 +8053,17 @@ molecule_class_info_t::fill_partial_residue(coot::residue_spec_t &residue_spec,
    std::string altloc = "";
    float lowest_probability = 0.8;
    int clash_flag = 1;
-      
+
    mmdb::Residue *residue_p = get_residue(chain_id, resno, inscode);
    if (residue_p) { 
       std::string residue_type = residue_p->GetResName();
       mutate(resno, inscode, chain_id, residue_type); // fill missing atoms
-      if (refinement_map_number >= 0)
-	 auto_fit_best_rotamer(resno, altloc, inscode, chain_id,
+      if (refinement_map_number >= 0) {
+	 auto_fit_best_rotamer(ROTAMERSEARCHLOWRES,
+			       resno, altloc, inscode, chain_id,
 			       refinement_map_number, clash_flag,
 			       lowest_probability, *geom_p);
+      }
    }
    return 0;
 }
