@@ -1,6 +1,26 @@
  
  0.8.4
 
+   o on startup, if COOT_SCHEME_EXTRA_DIR is set then
+     ~/.coot-preferences is not read/executed. It should do both. Was this a 
+     problem only in refinememnt branch?
+
+   o Miguel OXT problems.  Add to the test suite.
+
+   o fix up hydrogenize and flev interface (is cprodrg still a part of ccp4?)
+
+   o ligand distortions represenation (vs dictionary) should be in "Ligand" 
+     menu
+
+   o optionally attach generic display object to molecule numbers so that 
+     the objects are undisplayed when the molecule number is undisplayed.
+
+* Done.
+
+   o Display Ligand Distortrions for 3GP.
+
+   o repair 72A with alt conf and Sphere refine it.
+
    o clean this up:
 
 dictionary_residue_restraints_t&, mmdb::Residue*, const std::string&)’:
@@ -88,19 +108,13 @@ dictionary_residue_restraints_t&, mmdb::Residue*, const std::string&)’:
    o when you fail to read a pdb file, it should not then go on to try
      to read it as a small molecule cif if it does not exist.
 
-   o Display Ligand Distortrions for 3GP.
-
    o does map scrolling work after running refmac (or via ligand check, perhaps)?
-
-
-   o repair 72A with alt conf and Sphere refine it.
 
    o JED: 
 
      Switching to "colour by molecule" loses the bond order annotation for ligands.
      Colour by chain is not colour by chain for ligands with bond orders, or is, but then 
      without.
-
 
    o Oliver Clarke mmcif bugs (pdb->mmcif read by Phenix)
 
@@ -113,6 +127,12 @@ dictionary_residue_restraints_t&, mmdb::Residue*, const std::string&)’:
 
    o Make the "failed to read PDB file" info available from the GUI -
      a pop-up or so.
+
+   o Why is "k" - fill sidechain so slow? (fixed now with 
+     forced ROTAMERMODELOWRES).
+
+* Done?
+
 
    o Coot crashed:
 

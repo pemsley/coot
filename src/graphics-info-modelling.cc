@@ -612,7 +612,7 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
 
 	    int retval = drag_refine_idle_function(NULL);
 	    step_count += dragged_refinement_steps_per_frame;
-	    if (retval == GSL_SUCCESS) { 
+	    if (retval == GSL_SUCCESS) {
 	       graphics_info_t::continue_update_refinement_atoms_flag = false;
 	       rr = graphics_info_t::saved_dragged_refinement_results;
 	    }

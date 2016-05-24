@@ -1245,6 +1245,7 @@ graphics_info_t::drag_refine_idle_function(GtkWidget *widget) {
       retprog = graphics_info_t::drag_refine_refine_intermediate_atoms();
 
       if (retprog != GSL_CONTINUE) {
+
 	 if (retprog == GSL_ENOPROG)
 	    std::cout << " NOPROGRESS" << std::endl;
 	 if (retprog == GSL_SUCCESS)
@@ -1257,8 +1258,9 @@ graphics_info_t::drag_refine_idle_function(GtkWidget *widget) {
 
 	 if (false)
 	    std::cout << "graphics_info_t::drag_refine_idle_function() not GSL_CONTINUE  "
-		      << " removing idle function " << graphics_info_t::drag_refine_idle_function_token
-		      << std::endl;
+		      << " removing idle function "
+		      << graphics_info_t::drag_refine_idle_function_token << std::endl;
+	 
 	 gtk_idle_remove(graphics_info_t::drag_refine_idle_function_token);
 	 graphics_info_t::drag_refine_idle_function_token = -1; // magic "not in use" value
       } 
@@ -1281,10 +1283,17 @@ graphics_info_t::drag_refine_idle_function(GtkWidget *widget) {
 void
 graphics_info_t::add_drag_refine_idle_function() {
 
+   // the calling function was activated because we dropped the tip of
+   // the pink refinment arrow, so we want to start up idle function
+   // refinemnt again (set continue_update_refinement_atoms_flag to true.
+   //
+   
+
    // add a idle function if there isn't one in operation already.
    graphics_info_t g;
    if (g.drag_refine_idle_function_token == -1) {
 
+      g.continue_update_refinement_atoms_flag = true;
       g.drag_refine_idle_function_token =
 	 gtk_idle_add((GtkFunction)graphics_info_t::drag_refine_idle_function, g.glarea);
       std::cout << "----- adding drag_refine idle function: " << g.drag_refine_idle_function_token

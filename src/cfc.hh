@@ -4,6 +4,8 @@
 #ifndef CFC_HH
 #define CFC_HH
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
 #ifdef USE_PYTHON
 #include "Python.h"
 
@@ -99,12 +101,10 @@ namespace cfc {
       // return the generic display object index
       int show_water_balls() const;
    };
-
 }
-   
-
-
 
 #endif // USE_PYTHON
+
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 
 #endif // CFC_HH

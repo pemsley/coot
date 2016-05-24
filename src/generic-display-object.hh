@@ -126,7 +126,9 @@ namespace coot {
 	 float radius;
 	 float radius_inner;
       };
-      
+
+      enum {UNDEFINED = -1};
+      int  imol;
       bool is_displayed_flag;
       bool is_closed_flag; // don't make buttons for closed display objects
       bool is_solid_flag;
@@ -146,6 +148,15 @@ namespace coot {
 	 is_closed_flag = false;
 	 opacity = 1.0;
 	 is_transparent_flag = false;
+	 imol = UNDEFINED;
+      }
+      generic_display_object_t(int imol_in, const std::string &n) {
+	 name = n;
+	 is_displayed_flag = false;
+	 is_closed_flag = false;
+	 opacity = 1.0;
+	 is_transparent_flag = false;
+	 imol = imol_in;
       }
       void add_line(const coot::colour_holder &colour_in,
 		    const std::string &colour_name,
@@ -166,6 +177,9 @@ namespace coot {
 	 is_closed_flag = true;
       } 
       static coot::colour_holder colour_values_from_colour_name(const std::string &colour_name);
+      int get_imol() const { return imol; }
+      bool is_valid_imol() { return (imol != UNDEFINED); }
+      void attach_to_molecule(int imol_in) { imol = imol_in; }
    };
 
    class generic_text_object_t { 

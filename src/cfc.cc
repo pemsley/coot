@@ -1,8 +1,9 @@
 
 // header-here
 
-#ifdef USE_PYTHON
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
+#ifdef USE_PYTHON
 
 // needed to parse cc-interface.hh
 #ifdef USE_GUILE
@@ -30,6 +31,7 @@
 #include "interface.h" // because we use create_cfc_dialog();
 #include "c-interface-python.hh" // because we use display_python().
 
+
 // return a Python object that contains (with indexing)
 //   water positions around ligand
 //   chemical features of ligands
@@ -43,7 +45,6 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 				       PyObject *solvated_ligand_info_py,
 				       double radius_1, double radius_2) {
 
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS
    PyObject *r = Py_False;
 
    if (PyList_Check(environment_residues_py)) {
@@ -165,8 +166,6 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
    }
 
    
-#endif // MAKE_ENHANCED_LIGAND_TOOLS   
-
    if (PyBool_Check(r)) {
       Py_INCREF(r);
    }
@@ -372,7 +371,6 @@ void cfc::wrapped_create_cfc_dialog_add_waters(cfc::extracted_cluster_info_from_
 	 
       }
    }
-
 }
 
 
@@ -415,16 +413,20 @@ cfc::wrapped_create_cfc_dialog_add_pharmacophores(cfc::extracted_cluster_info_fr
 
    // what did we make?
    //
-   std::cout << "... what did we make? " << std::endl;
    std::map<std::string, std::vector<std::pair<std::vector<int>, clipper::Coord_orth> > >::const_iterator it_2;
    unsigned int n_pharacophores = 0;
 
+   
    for (it_2  = cluster_structure_vector.begin();
 	it_2 != cluster_structure_vector.end();
 	it_2++) {
       for (unsigned int i=0; i<it_2->second.size(); i++) {
 	 n_pharacophores++;
-	 std::cout << "debug:: cluster_structure_vector[" << it_2->first << "][" << i << "] : ";
+
+	 if (false) // debug
+	    std::cout << "debug:: cluster_structure_vector[" << it_2->first
+		      << "][" << i << "] : ";
+	 
 	 for (unsigned int j=0; j<it_2->second[i].first.size(); j++) {
 	    std::cout << " " << it_2->second[i].first[j];
 	 }
@@ -457,13 +459,7 @@ cfc::wrapped_create_cfc_dialog_add_pharmacophores(cfc::extracted_cluster_info_fr
 
       const std::string &type = it_2->first;
 
-      std::cout << " debug:: " << it_2->first << " has size " << it_2->second.size()
-		<< std::endl;
-
       for (unsigned int i=0; i<it_2->second.size(); i++) {
-
-	 std::cout << " debug:: " << it_2->first << " has size " << it_2->second.size()
-		   << " now i = " << i << std::endl;
 
 	 // imol_residue_spec_vec should contain the imol,res_spec of ligands
 	 // that contribute to this pharmacophore, they are not in structure order and
@@ -472,13 +468,6 @@ cfc::wrapped_create_cfc_dialog_add_pharmacophores(cfc::extracted_cluster_info_fr
 	 std::vector<std::pair<int, coot::residue_spec_t> > imol_residue_spec_vec =
 	    extracted_cluster_info.pharmacophore_cluster_imol_residue_spec_vec(type, i);
 
-	 std::cout << "here with imol_residue_spec_vec: " << std::endl;
-	 for (unsigned int jj=0; jj<imol_residue_spec_vec.size(); jj++) { 
-	    std::cout << "    " << jj << ": "
-		      << imol_residue_spec_vec[jj].first  << " "
-		      << imol_residue_spec_vec[jj].second << std::endl;
-	 }
-	 
 	 std::string lhb_label = it_2->first;
 	 unsigned int n_this = it_2->second[i].first.size();
 	 double f = inv_n * n_this;
@@ -501,12 +490,8 @@ cfc::wrapped_create_cfc_dialog_add_pharmacophores(cfc::extracted_cluster_info_fr
 	 pbs.add_structure_buttons_hbox(hbox);
 	 std::vector<std::pair<int, coot::residue_spec_t> > contributing_specs;
 
-	 std::cout << "Now for the pharmacophore buttons per structure ... " << n_structures
-		   << std::endl;
-	 
 	 for (unsigned int j=0; j<n_structures; j++) {
 
-	    std::cout << "pharmacophore buttons, structure " << j << std::endl;
 	    if (true) {
 
 	       // we should store this vector, not keep evaluating it
@@ -616,6 +601,7 @@ cfc::on_cfc_water_cluster_button_clicked(GtkButton *button,
    g.setRotationCentre(c);
    g.display_all_model_molecules(); // no redraw
    g.graphics_draw();
+
 }
 
 void
@@ -627,7 +613,7 @@ cfc::on_cfc_water_cluster_structure_button_clicked(GtkButton *button,
    graphics_info_t g;
    g.undisplay_all_model_molecules_except(imol);  // no redraw
    g.graphics_draw();
-
+   
 }
 
 // on clicked, go a cluster mean, show all structures that
@@ -639,7 +625,6 @@ cfc::on_cfc_water_cluster_structure_button_clicked(GtkButton *button,
 void
 cfc::on_cfc_pharmacophore_cluster_button_clicked(GtkButton *button,
 						 gpointer user_data) {
-
    on_pharmacophore_click_info_t *ci_p =
       static_cast<on_pharmacophore_click_info_t *> (user_data);
 
@@ -670,11 +655,13 @@ cfc::on_cfc_pharmacophore_cluster_button_clicked(GtkButton *button,
    
    g.undisplay_all_model_molecules_except(keep_these);  // no redraw
    g.graphics_draw();
+
 }
 
 void
 cfc::on_cfc_pharmacophore_cluster_structure_button_clicked(GtkButton *button,
 							   gpointer user_data) {
+
    on_pharmacophore_structure_click_info_t *ci_p =
       static_cast<on_pharmacophore_structure_click_info_t *> (user_data);
 
@@ -686,6 +673,7 @@ cfc::on_cfc_pharmacophore_cluster_structure_button_clicked(GtkButton *button,
    g.setRotationCentre(c);
    g.undisplay_all_model_molecules_except(ci_p->imol);  // no redraw
    g.graphics_draw();
+
 }
 
 
@@ -811,12 +799,14 @@ cfc::extracted_cluster_info_from_python::extract_water_info(PyObject *cluster_in
    }
    wc = v;
    cw = v_cw;
+
 }
 
 std::vector<clipper::Coord_orth>
 cfc::extracted_cluster_info_from_python::extract_cluster_means(PyObject *means_py) {
 
    std::vector<clipper::Coord_orth> v;
+   
    if (! PyList_Check(means_py)) {
       std::cout << "ERROR:: means_py not a list in extract_cluster_means()" << std::endl;
    } else {
@@ -852,6 +842,7 @@ cfc::extracted_cluster_info_from_python::extract_cluster_means(PyObject *means_p
 	 }
       }
    }
+
    return v;
 }
 
@@ -936,8 +927,6 @@ cfc::extracted_cluster_info_from_python::extract_chemical_feature_info(PyObject 
 
 				    pharmacophore[type].push_back(cwi);
 
-				    std::cout << "  store " << imol << " " << res_spec
-					      << std::endl;
 				 }
 			      }
 			   }
@@ -986,6 +975,7 @@ cfc::extracted_cluster_info_from_python::n_water_structures() const {
       imol_map[cw[i].imol]++;
    }
    return imol_map.size();
+
 }
 
 std::vector<int>
@@ -1027,7 +1017,6 @@ cfc::extracted_cluster_info_from_python::pharmacophore_structures_vec() const {
    std::vector<int> imols_collection;
 
    std::map<std::string, std::vector<clustered_feature_info_from_python> >::const_iterator it;   
-
    for (it=pharmacophore.begin(); it!=pharmacophore.end(); it++) {
       for (unsigned int i=0; i<it->second.size(); i++) {
 
@@ -1041,6 +1030,7 @@ cfc::extracted_cluster_info_from_python::pharmacophore_structures_vec() const {
    std::sort(imols_collection.begin(), imols_collection.end());
    
    return imols_collection;
+   
 }
 
 // as above, but we return the spec too
@@ -1167,6 +1157,8 @@ cfc::extracted_cluster_info_from_python::show_water_balls() const {
    
 }
 
+
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 
 
 #endif // USE_PYTHON
