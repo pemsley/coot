@@ -112,17 +112,6 @@ scripting exercise
 
 **** General ****
 
-   o allow export of goograph points (and/or draw these separately after
-	passing of parameters)
-
-   o revisit (re)move TER when adding a C-terminal residue
-
-   o revisit anti-aliasing. Seems we need to antialias before drawing map 
-	and lines and not in general, I think.
-
-   o fix intelligent_previous_atom in molecule-class-info.cc when going
-	between chains, e.g. 1mru. Actually a problem forward too [MW]
-
    o place waters based on two maps e.g. both 2FoFc and FoFc
 
    o better error messages when ccp4 (e.g. libcheck) is not available
@@ -555,12 +544,6 @@ low importance
 
 
 **** Windows ****
-
-   o write a log to file (and maybe error too).
-
-   o pass args from msi to exe
-
-   o make real msi at some point
 
    o distribute probe and reduce (from Richardsons? if not ccp4)
 
@@ -1150,7 +1133,3 @@ Osaka 2010
    o fix probe/reduce from ccp4 
 
 * Done 
-
-   o new gtk/gtkglext disappears with Dexpot
-
-* not done but fixed by showing on all desktops. Nothing else can be done AFAIK.
