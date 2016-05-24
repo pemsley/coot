@@ -4500,14 +4500,21 @@ graphics_info_t::draw_generic_objects() {
 void
 graphics_info_t::draw_generic_objects_simple() {
 
-   // std::cout << "debug:: drawing " << generic_objects_p->size() << " generic objects" << std::endl;
+   // std::cout << "debug:: drawing " << generic_objects_p->size()
+   // << " generic objects" << std::endl;
+   
    for (unsigned int i=0; i<generic_objects_p->size(); i++) {
 
-//       std::cout << "debug:: drawing generic object - outer " << i << std::endl;
       if ((*generic_objects_p)[i].is_displayed_flag) {
 
-// 	 std::cout << "debug:: drawing generic  " << (*generic_objects_p)[i].lines_set.size()
-// 		   << " lines " << std::endl;
+	 // if this is attached to a molecule that is not displayed, skip it.
+	 if ((*generic_objects_p)[i].is_valid_imol()) { // i.e. is not UNDEFINED
+	    int imol = (*generic_objects_p)[i].get_imol();
+	    if (is_valid_model_molecule(imol))
+	       if (! graphics_info_t::molecules[imol].is_displayed_p()) {
+		  continue;
+	       } 
+	 } 
 
 	 // Lines
 	 for (unsigned int ils=0; ils< (*generic_objects_p)[i].lines_set.size(); ils++) {
@@ -4572,6 +4579,17 @@ graphics_info_t::draw_generic_objects_solid() {
       for (unsigned int i=0; i<generic_objects_p->size(); i++) {
 
 	 if ((*generic_objects_p)[i].is_displayed_flag) {
+
+
+	    // if this is attached to a molecule that is not displayed, skip it.
+	    if ((*generic_objects_p)[i].is_valid_imol()) { // i.e. is not UNDEFINED
+	       int imol = (*generic_objects_p)[i].get_imol();
+	       if (is_valid_model_molecule(imol))
+		  if (! graphics_info_t::molecules[imol].is_displayed_p()) {
+		     continue;
+		  } 
+	    } 
+	    
 
 	    // Previously (r4209) I had noted that
 	    // glEnable(GL_COLOR_MATERIAL) needed for correct tube

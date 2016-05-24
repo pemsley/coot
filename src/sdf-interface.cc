@@ -159,7 +159,7 @@ bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code
 	    name += g.int_to_string(residue_p->GetSeqNum());
 	    name += " ";
 	    name += residue_p->GetResName();
-	    chemical_features::show(rdkm, name);
+	    chemical_features::show(imol, rdkm, name);
 	    g.graphics_draw();
 	    success = true;
 	 }
@@ -199,7 +199,7 @@ bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code
 
 // internal - no public access
 // 
-void chemical_features::show(const RDKit::ROMol &rdkm, std::string name) {
+void chemical_features::show(int imol, const RDKit::ROMol &rdkm, std::string name) {
 
    graphics_info_t g;
 
@@ -281,6 +281,7 @@ void chemical_features::show(const RDKit::ROMol &rdkm, std::string name) {
    }
 
    int n_new = add_generic_display_object(features_obj);
+   attach_generic_object_to_molecule(n_new, imol);
    set_display_generic_object(n_new, 1);
 }
 

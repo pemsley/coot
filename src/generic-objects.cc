@@ -430,7 +430,24 @@ void close_all_generic_objects() {
       if (! is_closed_generic_object_p(i))
 	 close_generic_object(i);
    }
-} 
+}
+
+/*! \brief attach the generic object to a particular molecule 
+
+one might do this if the generic object is specific to a molecule.
+ */
+void attach_generic_object_to_molecule(int object_number, int imol) {
+
+   graphics_info_t g;
+   if (object_number >=0) { 
+      if (object_number < int(g.generic_objects_p->size())) {
+	 if (is_valid_model_molecule(imol)) {
+	    (*g.generic_objects_p)[object_number].attach_to_molecule(imol);
+	 }
+      }
+   }
+}
+
 
 
 

@@ -148,6 +148,15 @@ namespace coot {
 	 is_closed_flag = false;
 	 opacity = 1.0;
 	 is_transparent_flag = false;
+	 imol = UNDEFINED;
+      }
+      generic_display_object_t(int imol_in, const std::string &n) {
+	 name = n;
+	 is_displayed_flag = false;
+	 is_closed_flag = false;
+	 opacity = 1.0;
+	 is_transparent_flag = false;
+	 imol = imol_in;
       }
       void add_line(const coot::colour_holder &colour_in,
 		    const std::string &colour_name,
