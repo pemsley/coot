@@ -17,7 +17,6 @@ enhanced_ligand.py      test it
 New Rama: drag residues->switch to selection and rather refine (e.g. add
 	extra torsion to ref target)?!
 
-fix probe/reduce from ccp4 as well as direct richardsons
 
 check up to dateness of supplied manuals
 
@@ -25,7 +24,6 @@ refinement selection with insertion code not working
 
 Fix installer guile warning for windows feel.
 
-FIX COOT_REFMAC_DIR for x86 windows with spaces (and/or umlauts)!
 
 
 -- before 0.8
@@ -550,6 +548,10 @@ low importance
 
 **** Windows ****
 
+   o distribute probe and reduce (from Richardsons? if not ccp4)
+
+   o make batch msi (using msiwrapperbatch and config file)
+
    o fix runwincoot.bat when PYTHONPATH points to a pygtk installation.
 
    o 64 bit windows version
@@ -568,7 +570,8 @@ low importance
 	working on MinGW (maybe DOS?)
 
    o write some info in registry to see that WinCoot is actually installed
-	together with version info install dir etc maybe
+	together with version info install dir etc maybe; ask for uninstall
+	these. 
 
    o make install syminfo.lib from windows dir
 
@@ -1053,3 +1056,11 @@ Osaka 2010
    o button/menu to hide hydrogens?!
 
 * Done
+
+   o FIX COOT_REFMAC_DIR for x86 windows with spaces (and/or umlauts)!
+
+* Done ?? Most likely
+
+   o fix probe/reduce from ccp4 
+
+* Done 

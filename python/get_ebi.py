@@ -318,6 +318,7 @@ def get_pdb_redo(text):
                 print "make-and-draw-map with", mtz_file_name
                 make_and_draw_map(mtz_file_name, "FWT", "PHWT", "", 0, 0)
                 make_and_draw_map(mtz_file_name, "DELFWT", "PHDELWT", "", 0, 1)
+                make_and_draw_map(mtz_file_name, "FAN", "PHAN", "", 0, 1)
                 execfile(py_file_name)
             
 

@@ -272,10 +272,10 @@ mmdb_models_from_python_expression(PyObject *molecule_expression) {
 
    if (inmodel > 0) {
       for(int imodel=0; imodel<inmodel; imodel++) {
-         mmdb::Model *model_p = new mmdb::Model;
          PyObject *model_expression = PyList_GetItem(molecule_expression, imodel);
          int len_model_expression = PyObject_Length(model_expression);
          if (len_model_expression > 0) {
+	    mmdb::Model *model_p = new mmdb::Model;
 	   //PyObject *chain_list = model_expression; // interesting
             int nchains = len_model_expression;
 

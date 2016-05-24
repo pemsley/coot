@@ -3999,7 +3999,147 @@ def duplicate_residue_range(imol, chain_id, res_no_start, res_no_end,
     if (backup_mode == 1):
         turn_on_backup(imol)
 
-        
+# Necessary for jligand to find libcheck. Mmmh. Was this required before?!
+# does similar things to the ccp4 console batch. Win only
+def setup_ccp4():
+    """This will append ccp4 (e.g. CBIN) to PATH, so that we can find
+    CCP4 programs in PATH and not only in CBIN. But only if not already
+    in PATH."""
+
+    import os
+
+    # only for win
+    if (os.name == 'nt'):
+        # first check for CCP4
+        ccp4_dir = os.getenv("CCP4")
+        if not ccp4_dir:
+            print "BL INFO:: no $CCP4 found, wont setup CCP4 for Coot."
+            # done here
+        else:
+            CCP4 = ccp4_dir
+            CCP4_MASTER = os.path.abspath(os.path.join(ccp4_dir, os.pardir))
+            # not all required I guess!? They should be set anyway
+            ccp4_env_vars = {
+                "CCP4_SCR": ["C:\ccp4temp"],
+                "CCP4I_TCLTK": [CCP4_MASTER, "TclTk84\bin"],
+                "CBIN": [CCP4, "\bin"],
+                "CLIB": [CCP4, "\lib"],
+                "CLIBD": [CCP4, "\lib\data"],
+                "CEXAM": [CCP4, "\examples"],
+                "CHTML": [CCP4, "\html"],
+                "CINCL": [CCP4, "\include"],
+                "CCP4I_TOP": [CCP4, "\share\ccp4i"],
+                "CLIBD_MON": [CCP4, "\lib\data\monomers\\"],
+                "MMCIFDIC": [CCP4, "\lib\ccp4\cif_mmdic.lib"],
+                "CRANK": [CCP4, "\share\ccp4i\crank"],
+                "CCP4_OPEN": ["unknown"],
+                "GFORTRAN_UNBUFFERED_PRECONNECTED": ["Y"]
+                }
+            for env_var in ccp4_env_vars:
+                env_dir = os.getenv(env_var)
+                if not env_dir:
+                    # variable not set, so let do so if exists
+                    if len(key) > 1:
+                        if os.path.isdir(env_dir):
+                            # have dir so set variable
+                            key = ccp4_env_vars[env_var]
+                            value = os.path.join(key)
+                            #print "BL DEBUG:: set env variable to", env_var, value
+                            os.environ[env_var] = value
+                    else:
+                        value = key[0]
+                        #print "BL DEBUG:: set env variable to", env_var, value
+                        os.environ[env_var] = value
+            # change PATH!?
+            # how to do this cleverly?! Insert after first 3 - wincoot path
+            # (better to test for PATH where Coot comes from)
+            path = os.environ["PATH"]
+            path_list = path.split(os.pathsep)
+            path_list.insert(3, os.path.join(CCP4, "etc"))
+            path_list.insert(3, os.path.join(CCP4, "bin"))
+            os.environ["PATH"] = os.pathsep.join(path_list)
+            #print "BL DEBUG:: PATH set to", os.environ["PATH"]
+
+# Required if there is no ccp4 in PATH otherwise, e.g. wont find libcheck
+# for jligand
+setup_ccp4()
+
+# we work with globals here as to use the function later and not have to bother
+# with globals there any more
+# set to True in startup to change
+global debug_coot
+debug_coot = False
+def debug():
+    global debug_coot
+    return debug_coot
+
+# exchange alternative conformations, i.e. in simplest case swap alt conf A
+# with alt conf B. Variable to give list of new alt confs names
+#
+def rename_alt_confs(imol, chain_id, res_no, ins_code,
+                     new_names=["B","A"],
+                     old_names=[]):
+
+    """
+    Exchange names for alternative conformations, i.e. in simplest case swap
+    alt conf A with alt conf B. Variable to give list of new alt conf names.
+    E.g. new_names=["B", "A", "D", "C"], swaps A and B as well as C and D.
+    Default is alphabetical order for old_names (not necessarily the order
+    which is in the residue).
+    """
+
+    import string
+    
+    if not old_names:
+        old_names = list(string.ascii_uppercase)
+
+    # only works if all new alt confs are single letter
+    list_len = map(lambda x: len(x) == 1, new_names)
+    if not all(list_len):
+        print "BL INFO:: not all new alt confs are single letter, method wont work."
+    else:
+        # gogogo
+
+        # make dictionary to map new names to old
+        alt_conf_dic = dict((old_alt_conf, new_alt_conf)
+                            for (old_alt_conf, new_alt_conf)
+                            in zip(old_names, new_names))
+
+        # first check if we have alt confs:
+        alt_confs = residue_alt_confs(imol, chain_id, res_no, ins_code)
+        if (alt_confs > 1):
+            atom_ls = residue_info(imol, chain_id, res_no, ins_code)
+            change_list = []
+            for i in range(len(atom_ls)):
+                alt_conf_str = atom_ls[i][0][1]
+                atom_name = atom_ls[i][0][0]
+                if alt_conf_str:
+                    # first change to new lower case as not to duplicate alt conf
+                    change_list.append([imol, chain_id, res_no, ins_code, atom_name,
+                                        alt_conf_str, "alt-conf",
+                                        alt_conf_dic[alt_conf_str].lower()])
+            set_atom_attributes(change_list)
+            # make lower case back to upper (in change_list only)
+            for i in range(len(change_list)):
+                # use new alt conf!
+                change_list[i][5] = change_list[i][7]
+                change_list[i][7] = change_list[i][7].upper()
+            set_atom_attributes(change_list)
+        else:
+            print "BL INFO:: no alt confs in residue", imol, chain_id, res_no, ins_code
+
+# swap A and B
+#
+def rename_alt_confs_active_residue():
+    active_atom = active_residue()
+    if active_atom:
+        imol     = active_atom[0]
+        chain_id = active_atom[1]
+        resno    = active_atom[2]
+        inscode  = active_atom[3]
+
+        rename_alt_confs(imol, chain_id, resno, inscode)
+
 
 ####### Back to Paul's scripting.
 ####### This needs to follow find_exe

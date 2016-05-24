@@ -5409,6 +5409,9 @@ void nsv(int imol) {
 	    new exptl::nsv(g.molecules[imol].atom_sel.mol, name, imol,
 			   g.use_graphics_interface_flag,
 			   g.nsv_canvas_pixel_limit);
+	 // I think that there is a false positive for scan-build here.
+	 // The memory for sequence view is deleted before the new
+	 // pointer is assigned.
 	 g.set_sequence_view_is_displayed(seq_view->Canvas(), imol);
       }
    }
@@ -5474,6 +5477,9 @@ void sequence_view_old_style(int imol) {
 	 coot::sequence_view *seq_view =
 	    new coot::sequence_view(g.molecules[imol].atom_sel.mol,
 				    short_name, imol);
+	 // I think that there is a false positive for scan-build here.
+	 // The memory for sequence view is deleted before the new
+	 // pointer is assigned.
 	 g.set_sequence_view_is_displayed(seq_view->Canvas(), imol);
       }
    }
@@ -5753,6 +5759,11 @@ calc_and_set_optimal_b_factor ( GtkWidget *w ) {
 	float sharpening_limit = graphics_info_t::map_sharpening_scale_limit;
 	int imol = graphics_info_t::imol_map_sharpening;
 	float Bopt = optimal_B_kurtosis(imol);
+   if (fabs(Bopt-graphics_info_t::map_sharpening_scale_limit) <= 0.1) {
+      std::string txt;
+      txt = "INFO:: Optimisation did NOT converge.\n The value may be bogus.";
+      info_dialog_and_text(txt.c_str());
+   }
 	GtkWidget *h_scale = lookup_widget(w, "map_sharpening_hscale");
 	GtkAdjustment *adj = GTK_RANGE(h_scale)->adjustment;
         gtk_adjustment_set_value(adj, Bopt);

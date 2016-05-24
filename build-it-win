@@ -850,7 +850,7 @@ if test $OS = OSF1 ; then
    systype=${osversion}-OSF1
 fi
 
-if test "$OS" = "MINGW32_NT-5.1" ; then
+if test "$OS" = MINGW* ; then
    systype=`uname -m`
 fi
 

@@ -2525,10 +2525,12 @@ coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
       if (debug)
 	 std::cout << "   iround " << iround << " moving by " << moved_by.format() << std::endl;
       
-      clipper::Vec3<double> angles; 
-      if (atoms_p->size() > 1)
+      clipper::Vec3<double> angles;
+      bool angles_are_valid = false;
+      if (atoms_p->size() > 1) {
 	 angles = get_rigid_body_angle_components(*atoms_p, mean_pos, grad_vec);
-
+	 angles_are_valid = true;
+      }
 
       move_by_length = sqrt(moved_by.lengthsq());
 
@@ -2556,17 +2558,19 @@ coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
 		   << clipper::Util::rad2d(angles[0]) << " "
 		   << clipper::Util::rad2d(angles[1]) << " "
 		   << clipper::Util::rad2d(angles[2]) << std::endl;
-      if (atoms_p->size() > 1) 
+      
+      if (angles_are_valid) {
 	 apply_angles_to_ligand(angles,atoms_p,mean_pos);
 
-      // set angle_sum for next round
-      angle_sum = 0.0;
-      angle_sum += fabs(clipper::Util::rad2d(angles[0]));
-      angle_sum += fabs(clipper::Util::rad2d(angles[1]));
-      angle_sum += fabs(clipper::Util::rad2d(angles[2]));
-      if (debug) 
-	 std::cout << "   iround " << iround << " moved: " << move_by_length
-		   << " angle_sum: " << angle_sum << std::endl;
+	 // set angle_sum for next round
+	 angle_sum = 0.0;
+	 angle_sum += fabs(clipper::Util::rad2d(angles[0]));
+	 angle_sum += fabs(clipper::Util::rad2d(angles[1]));
+	 angle_sum += fabs(clipper::Util::rad2d(angles[2]));
+	 if (debug) 
+	    std::cout << "   iround " << iround << " moved: " << move_by_length
+		      << " angle_sum: " << angle_sum << std::endl;
+      }
       
       iround++;
       
@@ -2699,16 +2703,11 @@ coot::ligand::apply_angles_to_ligand(const clipper::Vec3<double> &angles ,
    clipper::Mat33<double> angle_mat = x_mat * y_mat * z_mat;
    clipper::RTop_orth angle_op(angle_mat, clipper::Coord_frac(0,0,0));
 
-   // std::cout << angle_op.format() << std::endl;
-   // std::cout << "mean pos in apply_angles: " << mean_pos.format() << std::endl; 
-   // std::cout << (*atoms_p)[0]->pos.format() << std::endl;
    for (unsigned int ii=0; ii<atoms_p->size(); ii++) {
       (*atoms_p)[ii]->pos -= mean_pos;
       (*atoms_p)[ii]->pos = (*atoms_p)[ii]->pos.transform(angle_op);
       (*atoms_p)[ii]->pos += mean_pos;
    }
-   // std::cout << (*atoms_p)[0]->pos.format() << std::endl;
-
 }
 
 // return the score

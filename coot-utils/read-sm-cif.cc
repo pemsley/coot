@@ -480,8 +480,10 @@ coot::smcif::get_resolution(const clipper::Cell &cell,
  	       if (! ierr) {
  		  ierr = loop->GetInteger(l, l_tag.c_str(), il);
  	       }
-	       hkl = clipper::HKL(h,k,l);
-	       slim = clipper::Util::max(slim, hkl.invresolsq(cell));
+	       if (! ierr) {
+		  hkl = clipper::HKL(h,k,l);
+		  slim = clipper::Util::max(slim, hkl.invresolsq(cell));
+	       }
 	    }
 	 }
       }

@@ -162,19 +162,22 @@ lbg(lig_build::molfile_molecule_t mm,
 	 lbg->update_descriptor_attributes();
       }
 
-      if (get_url_func_pointer_in != NULL) {
-	 lbg->set_curl_function(get_url_func_pointer_in);
-      }
-      if (prodrg_import_function_pointer) {
-	 lbg->set_prodrg_import_function(prodrg_import_function_pointer);
-      }
-      if (sbase_import_function_pointer) {
-	 lbg->set_sbase_import_function(sbase_import_function_pointer);
-      }
-      if (get_drug_mdl_file_function_pointer_in) {
-	 lbg->set_get_drug_mdl_file_function(get_drug_mdl_file_function_pointer_in);
-      } else {
-	 gtk_widget_set_sensitive(GTK_WIDGET(lbg->lbg_get_drug_menuitem), FALSE);
+      if (lbg) {
+	 if (get_url_func_pointer_in != NULL) {
+	    lbg->set_curl_function(get_url_func_pointer_in);
+	 }
+	 if (prodrg_import_function_pointer) {
+	    lbg->set_prodrg_import_function(prodrg_import_function_pointer);
+	 }
+	 if (sbase_import_function_pointer) {
+	    lbg->set_sbase_import_function(sbase_import_function_pointer);
+	 }
+	 if (get_drug_mdl_file_function_pointer_in) {
+	    lbg->set_get_drug_mdl_file_function(get_drug_mdl_file_function_pointer_in);
+	 } else {
+	    if (lbg->lbg_get_drug_menuitem)
+	       gtk_widget_set_sensitive(GTK_WIDGET(lbg->lbg_get_drug_menuitem), FALSE);
+	 }
       }
    }
    return lbg;
@@ -323,6 +326,8 @@ lbg_info_t::rdkit_mol(const widgeted_molecule_t &mol) const {
 	       m[idx_2_rdkit]->setIsAromatic(true);
 	    } 
 	    m.addBond(bond, true); // take ownership
+	 } else {
+	    delete bond;
 	 }
       } else {
 	 // std::cout << "debug:: bond " << ib << " is closed " << std::endl;

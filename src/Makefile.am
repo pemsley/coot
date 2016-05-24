@@ -264,6 +264,7 @@ coot_bin_SOURCES = \
 	c-interface-sequence.cc  \
 	c-interface-sequence.hh  \
 	c-interface-sfs.cc	 \
+	c-interface-sharpen.cc   \
 	c-interface-superpose.cc \
 	c-interface-validate.cc	 \
 	c-interface-view.cc	 \
