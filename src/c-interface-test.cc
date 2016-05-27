@@ -387,6 +387,13 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    SCM r = SCM_BOOL_F;
 
    if (true) {
+
+      dodec d;
+      d.test("dodec.xyz");
+
+   }
+
+   if (false) {
       std::string file_name = scm_to_locale_string(i_scm);
    } 
 
@@ -645,12 +652,21 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 // #include "globjects.h" //includes gtk/gtk.h
 // #include "c-interface-image-widget.hh"
 
+#include "utils/dodec.hh"
 
 #ifdef USE_PYTHON
 PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
+   std::cout << "-----------------------------------------------------" << std::endl;
+
    graphics_info_t g;
    PyObject *r = Py_False;
+
+   if (true) {
+      dodec d;
+      d.test("dodec.xyz");
+      d.face(0);
+   }
 
    if (0) {
 

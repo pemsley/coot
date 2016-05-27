@@ -152,17 +152,31 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 	    PyList_SetItem(chemical_feature_attribs_py, i, o);
 	 }
 
-	 r = PyList_New(2); // 3 with residues
+	 // ------------------------------------------------------------------------
+	 //            side chains 
+	 // ------------------------------------------------------------------------
 
+	 PyObject *residue_sidechain_attribs_py = PyList_New(1);
+	 PyObject *x_py = PyInt_FromLong(12);
+
+	 // PyList_SetItem(residue_sidechain_attribs_py, 0, x_py);
+
+	 // ------------------------------------------------------------------------
+	 //            combine
+	 // ------------------------------------------------------------------------
+
+	 r = PyList_New(2); // 3 with residues
+	 
 	 PyList_SetItem(r, 0, water_attribs_py);
 	 PyList_SetItem(r, 1, chemical_feature_attribs_py);
 
-
       } else {
-	 std::cout << "ERROR:: chemical_feature_clusters_py() arg 2 is not a list"  << std::endl;
+	 std::cout << "ERROR:: chemical_feature_clusters_py() arg 2 is not a list"
+		   << std::endl;
       }
    } else {
-      std::cout << "ERROR:: chemical_feature_clusters_py() arg 1 is not a list"  << std::endl;
+      std::cout << "ERROR:: chemical_feature_clusters_py() arg 1 is not a list"
+		<< std::endl;
    }
 
    
@@ -416,25 +430,31 @@ cfc::wrapped_create_cfc_dialog_add_pharmacophores(cfc::extracted_cluster_info_fr
    std::map<std::string, std::vector<std::pair<std::vector<int>, clipper::Coord_orth> > >::const_iterator it_2;
    unsigned int n_pharacophores = 0;
 
-   
    for (it_2  = cluster_structure_vector.begin();
 	it_2 != cluster_structure_vector.end();
 	it_2++) {
-      for (unsigned int i=0; i<it_2->second.size(); i++) {
+      for (unsigned int i=0; i<it_2->second.size(); i++)
 	 n_pharacophores++;
-
-	 if (false) // debug
-	    std::cout << "debug:: cluster_structure_vector[" << it_2->first
-		      << "][" << i << "] : ";
-	 
-	 for (unsigned int j=0; j<it_2->second[i].first.size(); j++) {
-	    std::cout << " " << it_2->second[i].first[j];
-	 }
-	 std::cout << std::endl;
-      }
    }
 
-   std::cout << "found " << n_pharacophores << " pharmacophores " << std::endl;
+
+   if (false) { 
+      for (it_2  = cluster_structure_vector.begin();
+	   it_2 != cluster_structure_vector.end();
+	   it_2++) {
+	 for (unsigned int i=0; i<it_2->second.size(); i++) {
+	    if (false) { // debug
+	       std::cout << "DEBUG:: cluster_structure_vector[" << it_2->first
+			 << "][" << i << "] : ";
+	       for (unsigned int j=0; j<it_2->second[i].first.size(); j++)
+		  std::cout << " " << it_2->second[i].first[j];
+	       std::cout << std::endl;
+	    }
+	 }
+      }
+      std::cout << "DEUBG:: found " << n_pharacophores << " pharmacophores " << std::endl;
+   }
+
 
    // this table has a header, so indexing is +1 vertical
    gtk_table_resize(GTK_TABLE(ligands_table), n_pharacophores+1, 2);
@@ -610,6 +630,8 @@ cfc::on_cfc_water_cluster_structure_button_clicked(GtkButton *button,
 
    int imol = GPOINTER_TO_INT(user_data);
 
+   // std::cout << "undisplay all except " << imol << std::endl;
+
    graphics_info_t g;
    g.undisplay_all_model_molecules_except(imol);  // no redraw
    g.graphics_draw();
@@ -645,7 +667,7 @@ cfc::on_cfc_pharmacophore_cluster_button_clicked(GtkButton *button,
 	 keep_these.push_back(ci_p->imol_residue_specs[i].first);
    }
 
-   if (true) { 
+   if (false) { 
       std::cout << "undisplay all except ";
       for (unsigned int i=0; i<keep_these.size(); i++) { 
 	 std::cout << " " << keep_these[i];
@@ -669,8 +691,9 @@ cfc::on_cfc_pharmacophore_cluster_structure_button_clicked(GtkButton *button,
    coot::Cartesian c(ci_p->pos[0],
 		     ci_p->pos[1],
 		     ci_p->pos[2]);
-   std::cout << "set rotation centre to " << ci_p->pos.format() << std::endl;
    g.setRotationCentre(c);
+   // std::cout << "undisplay all except " << ci_p->imol << std::endl;
+
    g.undisplay_all_model_molecules_except(ci_p->imol);  // no redraw
    g.graphics_draw();
 

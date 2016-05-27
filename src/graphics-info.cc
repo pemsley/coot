@@ -2373,6 +2373,41 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
    glPopMatrix();
 }
 
+void
+graphics_info_t::graphics_object_internal_dodec(const coot::generic_display_object_t::dodec_t &dodec) {
+
+   glPushMatrix();
+	       
+   glTranslated(dodec.position.x(), dodec.position.y(), dodec.position.z());
+   glScaled(dodec.size, dodec.size, dodec.size);
+
+   std::vector<clipper::Coord_orth> v = dodec.d.coords();
+
+   if (false) {
+      glBegin(GL_POINTS);
+      for (unsigned int i=0; i<v.size(); i++) { 
+	 glVertex3d(v[i].x(), v[i].y(), v[i].z());
+      }
+      glEnd();
+   }
+
+   for (unsigned int i=0; i<12; i++) {
+      glBegin(GL_TRIANGLE_FAN);
+      const std::vector<unsigned int> &face = dodec.d.face(i);
+      clipper::Coord_orth sum_vertex(0,0,0);
+      for (unsigned int j=0; j<5; j++)
+	 sum_vertex += v[face[j]];
+      clipper::Coord_orth face_normal(sum_vertex.unit());
+      for (unsigned int j=0; j<5; j++) {
+	 glNormal3d(face_normal.x(), face_normal.y(), face_normal.z());
+	 glVertex3d(v[face[j]].x(),  v[face[j]].y(),  v[face[j]].z());
+      }
+      glEnd();
+   }
+   glPopMatrix();
+}
+
+
 
 void
 graphics_info_t::update_environment_graphics_object(int atom_index, int imol) {
@@ -4484,6 +4519,19 @@ void coot::generic_display_object_t::add_point(const coot::colour_holder &colour
    points_set[points_set_index].add_point(coords_in);
 }
 
+void
+coot::generic_display_object_t::add_dodecahedron(const colour_holder &colour_in,
+						 const std::string &colour_name,
+						 double radius,
+						 const clipper::Coord_orth &pos) {
+
+   dodec d;
+   dodec_t dod(d, radius, pos);
+   dod.col = colour_in;
+   dodecs.push_back(dod);
+}
+
+
 // static
 void
 graphics_info_t::draw_generic_objects() {
@@ -4785,6 +4833,30 @@ graphics_info_t::draw_generic_objects_solid() {
 						 obj.arcs[iarc].normal,
 						 obj.arcs[iarc].radius,
 						 obj.arcs[iarc].radius_inner);
+	       }
+	    }
+
+
+	    // dodecahdrons
+	    //
+	    if ((*generic_objects_p)[i].dodecs.size()) {
+	       float feature_opacity = 0.7;
+	       glEnable (GL_BLEND);
+	       glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	       for (unsigned int idodec=0; idodec<(*generic_objects_p)[i].dodecs.size(); idodec++) {
+		  const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
+		  GLfloat  mat_diffuse[]  = {obj.dodecs[idodec].col.red,
+					     obj.dodecs[idodec].col.green,
+					     obj.dodecs[idodec].col.blue, 
+					     feature_opacity};
+		  GLfloat  mat_specular[]  = {0.3, 0.3, 0.3, 1.0};
+		  GLfloat  mat_shininess[] = {1};
+		  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+		  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+		  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_diffuse);
+		  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+
+		  g.graphics_object_internal_dodec(obj.dodecs[idodec]);
 	       }
 	    }
 	 }

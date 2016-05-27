@@ -643,6 +643,8 @@ class graphics_info_t {
 				     const coot::Cartesian &normal, 
 				     float radius, float radius_inner);
 
+   void graphics_object_internal_dodec(const coot::generic_display_object_t::dodec_t &dodec);
+
    void read_standard_residues();   // for mutation, we have
 				    // pre-prepared a pdb file with
 				    // residues in Buccaneer "Standard

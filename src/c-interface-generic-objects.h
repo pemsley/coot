@@ -59,6 +59,12 @@ void to_generic_object_add_arc(int object_number,
 			       float normal_y1, 
 			       float normal_z1);
 
+void to_generic_object_add_dodecahedron(int object_number,
+					const char *colour,
+					float radius,
+					float x,
+					float y,
+					float z);
 
 
 /*! \brief add a display list handle generic object */
