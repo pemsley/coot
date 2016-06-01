@@ -373,12 +373,32 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
 	 std::pair<std::vector<int>, water_cluster_info_from_python> p(it->second, extracted_cluster_info.wc[idx]);
 	 cluster_vec[it->first] = p;
       } else {
-	 std::cout << "ERROR::::::::::::::: indexing fail " << idx << " " << extracted_cluster_info.wc.size() << std::endl;
+	 std::cout << "ERROR::::::::::::::: indexing fail " << idx << " " << extracted_cluster_info.wc.size()
+		   << std::endl;
       }
    }
    std::sort(cluster_vec.begin(), cluster_vec.end(), extracted_cluster_info_from_python::cluster_vector_sorter);
 
-   GtkWidget *waters_table = lookup_widget(cfc_dialog, "cfc_waters_table");
+   // Now waters_table is not made by glade, we make a new one of them for each site
+   // and add the table to the vbox
+   
+   // GtkWidget *waters_table = lookup_widget(cfc_dialog, "cfc_waters_table");
+
+   GtkWidget *waters_vbox = lookup_widget(cfc_dialog, "cfc_waters_vbox");
+   GtkWidget *waters_table = gtk_table_new(cluster_vec.size(), 2, FALSE);
+
+   std::string waters_table_name = "cfc_waters_table_site_";
+   waters_table_name += coot::util::int_to_string(site_number);
+
+   // we want to be able to look up the widget and undisplay it.
+   // 
+   gtk_object_set_data_full (GTK_OBJECT (cfc_dialog), waters_table_name.c_str(), 
+			     waters_table,
+			     (GtkDestroyNotify) gtk_widget_unref);
+   gtk_box_pack_start(GTK_BOX(waters_vbox), waters_table, FALSE, FALSE, 0);
+   if (site_number == 0)
+      gtk_widget_show(waters_table);
+
 
    std::cout << ":::::::::::::::::: cfc_waters_table: " << waters_table << std::endl;
 
@@ -386,7 +406,7 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
       std::cout << "no waters_table" << std::endl;
    } else {
 
-      gtk_table_resize(GTK_TABLE(waters_table), cluster_vec.size(), 2);
+      // gtk_table_resize(GTK_TABLE(waters_table), cluster_vec.size(), 2);
 
       for (unsigned int i=0; i<cluster_vec.size(); i++) {
 	 unsigned int n_this = cluster_vec[i].first.size();
@@ -501,11 +521,6 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
 				   cfc::extracted_cluster_info_from_python extracted_cluster_info,
 				   GtkWidget *cfc_dialog) {
 
-   GtkWidget *ligands_table = lookup_widget(cfc_dialog, "cfc_ligands_table");
-
-   std::cout << "::::::::::::::::::::::::::::::::::::::::::::: ligands_table: "
-	     << ligands_table << std::endl;
-
    // for each cluster, by which structures are they contributed? And what is the
    // position of the cluster (needed for callback info construction).
    //
@@ -568,9 +583,24 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
       std::cout << "DEUBG:: found " << n_pharacophores << " pharmacophores " << std::endl;
    }
 
+   GtkWidget *cfc_ligands_vbox = lookup_widget(cfc_dialog, "cfc_ligands_vbox");
+   GtkWidget *ligands_table = gtk_table_new(n_pharacophores+1, 2, FALSE);
+
+   std::string ligands_table_name = "cfc_ligands_table_site";
+   ligands_table_name += coot::util::int_to_string(site_number);
+   
+   // we want to be able to look up the widget and undisplay it.
+   // 
+   gtk_object_set_data_full (GTK_OBJECT (cfc_dialog), ligands_table_name.c_str(), 
+			     ligands_table,
+			     (GtkDestroyNotify) gtk_widget_unref);
+   
+   gtk_box_pack_start(GTK_BOX(cfc_ligands_vbox), ligands_table, FALSE, FALSE, 0);
+   if (site_number == 0)
+      gtk_widget_show(ligands_table);
 
    // this table has a header, so indexing is +1 vertical
-   gtk_table_resize(GTK_TABLE(ligands_table), n_pharacophores+1, 2);
+   // gtk_table_resize(GTK_TABLE(ligands_table), n_pharacophores+1, 2);
 
    // OK, now we can make some buttons
    //
@@ -731,8 +761,6 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
 	 gtk_widget_show(p.structure_buttons_hbox);
       }
    }
-
-   std::cout << "------------ Done cfc::cfc_dialog_add_pharmacophores()" << std::endl;
 }
 
 void
@@ -1282,7 +1310,7 @@ cfc::extracted_cluster_info_from_python::water_cluster_idx_max() const {
 int
 cfc::extracted_cluster_info_from_python::show_water_balls(unsigned int site_number) const {
 
-   std::string s = "CFC conserved water balls" + coot::util::int_to_string(site_number);
+   std::string s = "CFC Site " + coot::util::int_to_string(site_number) + " conserved waters";
    coot::generic_display_object_t obj(s);
    
    if (graphics_info_t::use_graphics_interface_flag) {
