@@ -5,6 +5,8 @@
 #ifndef CFC_WIDGETS_HH
 #define CFC_WIDGETS_HH
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
 #include <gtk/gtk.h>
 
 #include "cfc.hh"
@@ -106,6 +108,8 @@ namespace cfc {
    };
    
 }
+
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 
 #endif // CFC_WIDGETS_HH
 

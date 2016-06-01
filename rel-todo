@@ -1,6 +1,10 @@
  
  0.8.4
 
+   o Miguel OXT problems.  Add to the test suite.
+
+   o Why is "k" - fill sidechain so slow?
+
    o clean this up:
 
 dictionary_residue_restraints_t&, mmdb::Residue*, const std::string&)’:

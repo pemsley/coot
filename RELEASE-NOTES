@@ -9,6 +9,10 @@
 
   o BUG-FIX: FLEV "problematic ligand" reduced in frequency
 
+  o CHANGE:  fill-partial-residue now works with ROTAMERSEARCHLOWRES rather than 
+             ROTAMERSEARCHHIGHRES.
+
+
 -----
 
   Release 0.8.3
