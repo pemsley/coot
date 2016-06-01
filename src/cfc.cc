@@ -186,49 +186,149 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
    return r;
 }
 
-void chemical_feature_clusters_accept_info_py(PyObject *env_residue,
+void chemical_feature_clusters_accept_info_py(unsigned int site_number,
+					      PyObject *env_residue,
 					      PyObject *mol_ligand_specs,
 					      PyObject *cluster_info) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
-
-
-      // I want a vector of things that contain
-      // the molecule number
-      // the water residue spec
-      // the cluster number
-      //
-      // and a vector of cluster specs
-      //
       cfc::extracted_cluster_info_from_python eci(cluster_info);
+      std::cout << "::::::::::::::::::::::::::: in chemical_feature_clusters_accept_info_py() "
+		<< site_number << " graphics_info_t::cfc_dialog test " << std::endl;
+      if (graphics_info_t::cfc_dialog)
+	 chemical_feature_clusters_add_site_info(site_number, eci, graphics_info_t::cfc_dialog);
+      else
+	 std::cout << "::::::::::::::::::::::::::: in chemical_feature_clusters_accept_info_py() "
+		   << site_number << " graphics_info_t::cfc_dialog is null " << std::endl;
+      int idx_gdo = eci.show_water_balls(site_number);
+   }
+}
 
-      GtkWidget *w = wrapped_create_cfc_dialog(eci);
+void chemical_feature_clusters_setup_dialog() {
 
-      int idx_gdo = eci.show_water_balls();
-
-      if (w) {
-	 gtk_widget_show(w);
-      } else {
-	 std::cout << "Null w in chemical_feature_clusters_accept_info_py()" << std::endl;
-      } 
-
+   GtkWidget *w = create_cfc_dialog();
+   if (w) {
+      graphics_info_t::cfc_dialog = w;
+   } else {
+      std::cout << "Null w in chemical_feature_clusters_accept_info_py()" << std::endl;
    }
 }
 
 
-// should this be in a cfc widgets-specific file?
+// where are the ligand binding sites?
+//
+// site_info_py looks like this:
 // 
-GtkWidget *cfc::wrapped_create_cfc_dialog(cfc::extracted_cluster_info_from_python &extracted_cluster_info) {
+// [(0, [0, [True, 'A', 1501, '']]),
+//  (1, [0, [True, 'A', 1501, '']]),
+//  (0, [0, [True, 'A', 1501, '']]),
+//  (0, [0, [True, 'A', 1501, '']]),
+//  (0, [0, [True, 'A', 1501, '']]),
+//  (0, [0, [True, 'A', 1501, '']]),
+//  (0, [0, [True, 'A', 1501, '']]),
+//  (0, [0, [True, 'A', 1501, '']]),  .. ]
+// for evey atom in every ligand:
+// [(site_idx, [imol, residue_spec])]
+// 
+PyObject *chemical_feature_clusters_accept_site_clusters_info_py(PyObject *site_info_py) {
 
-   GtkWidget *cfc_dialog = create_cfc_dialog();
+   // we need to make a list of ligand sites and the
+   // (imol, residue_spec) pairs the contribute to each site.
+   // 
+   // We are passed a list of
+   // [cluster_idx, [imol, residue_spec]] for every atom of every ligand, so
+   // when constructing the vector of pairs, we will check that that pair
+   // is not already there.
+   //
+   // the key is the cluster index
+   //
+   std::map<int, std::vector<std::pair<int, coot::residue_spec_t> > > ligand_sites;
 
-   wrapped_create_cfc_dialog_add_waters(extracted_cluster_info, cfc_dialog);
-   wrapped_create_cfc_dialog_add_pharmacophores(extracted_cluster_info, cfc_dialog);
+   if (! PyList_Check(site_info_py)) {
+      std::cout << "chemical_feature_clusters_accept_site_clusters_info_py "
+		<< "site_info_py is not a list" << std::endl;
+   } else {
+      int l = PyObject_Length(site_info_py);
+      std::cout << "chemical_feature_clusters_accept_site_clusters_info_py"
+		<< " site_info_py length " << l << std::endl;
+      for (int i=0; i<l; i++) {
+	 PyObject *tup = PyList_GetItem(site_info_py, i);
 
-   return cfc_dialog;
+	 if (PyTuple_Check(tup)) {
+	    PyObject *site_idx_py          = PyTuple_GetItem(tup, 0);
+	    PyObject *imol_residue_spec_py = PyTuple_GetItem(tup, 1);
+	    
+	    if (PyInt_Check(site_idx_py) || PyLong_Check(site_idx_py)) { // Argh! PyInt_Check() passes on Mac, fails on PC.
+	                                                                 // (it was actually a numpy int64, but keep
+	                                                                 //  this extra test now that we have it)
+	       if (PyList_Check(imol_residue_spec_py)) {
+		  int ll = PyObject_Length(imol_residue_spec_py);
+		  if (ll == 2) {
+		     int site_idx = -1;
+		     if (PyInt_Check(site_idx_py))
+			 site_idx = PyInt_AsLong(site_idx_py);
+		     if (PyLong_Check(site_idx_py))
+			 site_idx = PyInt_AsLong(site_idx_py);
+		     PyObject *imol_py     = PyList_GetItem(imol_residue_spec_py, 0);
+		     PyObject *res_spec_py = PyList_GetItem(imol_residue_spec_py, 1);
+		     int imol = PyInt_AsLong(imol_py);
+		     std::pair<bool, coot::residue_spec_t> spec =
+			make_residue_spec_py(res_spec_py);
+
+		     if (spec.first) { 
+			if (false)
+			   std::cout << "site: " << site_idx << " " << imol
+				     << " " << spec.second << std::endl;
+			
+			std::pair<int, coot::residue_spec_t> p(imol, spec.second);
+			if (std::find(ligand_sites[site_idx].begin(),
+				      ligand_sites[site_idx].end(),
+				      p) == ligand_sites[site_idx].end())
+			   ligand_sites[site_idx].push_back(p);
+		     }
+		  }
+	       }
+	    } else {
+	       std::cout << "site_idx_py was not a PyInt or a PyLong" << std::endl;
+	       PyObject *o = PyObject_Type(site_idx_py);
+	       PyObject *dp2 = display_python(o);
+	       if (dp2 == NULL) {
+		  std::cout << "ERROR:: chemical_feature_clusters_accept_site_clusters_info_py (null dp)" << std::endl;
+	       } else { 
+		  std::cout << "ERROR:: chemical_feature_clusters_accept_site_clusters_info_py() site_idx_py type: "
+			    << PyString_AsString(dp2) << std::endl;
+	    }
+	    } 
+	 }
+      }
+   }
+
+   // return a list of pairs of imol,residue_specs
+   //
+   PyObject *ligand_sites_py = PyList_New(ligand_sites.size());
+   
+   std::map<int, std::vector<std::pair<int, coot::residue_spec_t> > >::const_iterator it;
+   unsigned int list_idx = 0; // because we are using iterator
+   for (it = ligand_sites.begin(); it != ligand_sites.end(); it++) {
+      PyObject *li = PyList_New(it->second.size());
+      for (unsigned int i=0; i<it->second.size(); i++) { 
+	 PyObject *l = PyList_New(2);
+	 PyList_SetItem(l, 0, PyInt_FromLong(it->second[i].first));
+	 PyList_SetItem(l, 1, py_residue(it->second[i].second));
+	 PyList_SetItem(li, i, l);
+      }
+      PyList_SetItem(ligand_sites_py, list_idx, li);
+      list_idx++; // for next round
+   }
+
+   return ligand_sites_py;
 }
 
-void cfc::wrapped_create_cfc_dialog_add_waters(cfc::extracted_cluster_info_from_python &extracted_cluster_info, GtkWidget *cfc_dialog) {
+
+void
+cfc::cfc_dialog_add_waters(unsigned int site_number,
+			   cfc::extracted_cluster_info_from_python extracted_cluster_info,
+			   GtkWidget *cfc_dialog) {
 
    // we want a vector of (water) clusters.  For each cluster we need
    // to know what structures have waters in that cluster
@@ -259,7 +359,11 @@ void cfc::wrapped_create_cfc_dialog_add_waters(cfc::extracted_cluster_info_from_
    // vector using the number of structures, so that when we make the
    // buttons, the cluster with the most residues will appear at the
    // top
-   // 
+   //
+
+   std::cout << "--------- here with water_cluster_idx_max() "
+	     << extracted_cluster_info.water_cluster_idx_max() << std::endl;
+   
    std::vector<std::pair<std::vector<int>, water_cluster_info_from_python> > cluster_vec(extracted_cluster_info.water_cluster_idx_max()+1);
    for (it=cluster_map.begin(); it!=cluster_map.end(); it++) {
 
@@ -274,6 +378,8 @@ void cfc::wrapped_create_cfc_dialog_add_waters(cfc::extracted_cluster_info_from_
    std::sort(cluster_vec.begin(), cluster_vec.end(), extracted_cluster_info_from_python::cluster_vector_sorter);
 
    GtkWidget *waters_table = lookup_widget(cfc_dialog, "cfc_waters_table");
+
+   std::cout << ":::::::::::::::::: cfc_waters_table: " << waters_table << std::endl;
 
    if (! waters_table) {
       std::cout << "no waters_table" << std::endl;
@@ -300,16 +406,16 @@ void cfc::wrapped_create_cfc_dialog_add_waters(cfc::extracted_cluster_info_from_
 	 lb_label += " % conserved";
 	 GtkWidget *left_button = gtk_button_new_with_label(lb_label.c_str());
 	 // so that we can look up the widget names
-	 unsigned int site_idx=0;
 	 std::string button_name = "cfc_site_";
-	 button_name += coot::util::int_to_string(site_idx);
+	 button_name += coot::util::int_to_string(site_number);
 	 button_name += "_water_cluster_";
 	 button_name += coot::util::int_to_string(i);
 	 button_name += "_button";
 
 	 // we should do a better job at clearing up the memory when
 	 // these buttons are destroyed
-	 // 
+	 //
+	 std::cout << "debug:: gtk_object_set_data_full() on button with name " << button_name << std::endl;
 	 gtk_object_set_data_full (GTK_OBJECT (cfc_dialog), button_name.c_str(), 
 				   left_button,
 				   (GtkDestroyNotify) gtk_widget_unref);
@@ -326,6 +432,7 @@ void cfc::wrapped_create_cfc_dialog_add_waters(cfc::extracted_cluster_info_from_
 			  (GtkAttachOptions) (GTK_FILL),
 			  (GtkAttachOptions) (0), 0, 0);
 	 gtk_widget_show(left_button);
+
 
 	 // right hand buttons - one for every structure
 	 // name: cfc_site_xx_water_cluster_yy_hbox
@@ -344,13 +451,14 @@ void cfc::wrapped_create_cfc_dialog_add_waters(cfc::extracted_cluster_info_from_
 	       // structure?
 	    
 	       std::string struct_button_name = "cfc_site_";
-	       struct_button_name += coot::util::int_to_string(site_idx);
+	       struct_button_name += coot::util::int_to_string(site_number);
 	       struct_button_name += "_water_cluster_";
 	       struct_button_name += coot::util::int_to_string(i);
 	       struct_button_name += "_structure_";
 	       struct_button_name += coot::util::int_to_string(imol_local);
 	       struct_button_name += "_button";
 	       std::string struct_button_label = " ";
+
 	       GtkWidget *button = gtk_button_new_with_label(struct_button_label.c_str());
 	       gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
 	       gtk_signal_connect(GTK_OBJECT(button), "clicked",
@@ -374,7 +482,6 @@ void cfc::wrapped_create_cfc_dialog_add_waters(cfc::extracted_cluster_info_from_
 	       std::cout << "ERRROR:: out of index range jth mol " << j
 			 << " " << structures_vec.size() << std::endl;
 	    }
-	    
 	 }
 
 	 gtk_table_attach(GTK_TABLE(waters_table), hbox,
@@ -382,16 +489,20 @@ void cfc::wrapped_create_cfc_dialog_add_waters(cfc::extracted_cluster_info_from_
 			  (GtkAttachOptions) (GTK_FILL),
 			  (GtkAttachOptions) (0), 0, 0);
 	 gtk_widget_show(hbox);
-	 
       }
    }
 }
 
 
 void
-cfc::wrapped_create_cfc_dialog_add_pharmacophores(cfc::extracted_cluster_info_from_python &extracted_cluster_info, GtkWidget *cfc_dialog) {
+cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
+				   cfc::extracted_cluster_info_from_python extracted_cluster_info,
+				   GtkWidget *cfc_dialog) {
 
    GtkWidget *ligands_table = lookup_widget(cfc_dialog, "cfc_ligands_table");
+
+   std::cout << "::::::::::::::::::::::::::::::::::::::::::::: ligands_table: "
+	     << ligands_table << std::endl;
 
    // for each cluster, by which structures are they contributed? And what is the
    // position of the cluster (needed for callback info construction).
@@ -438,7 +549,7 @@ cfc::wrapped_create_cfc_dialog_add_pharmacophores(cfc::extracted_cluster_info_fr
    }
 
 
-   if (false) { 
+   if (true) { 
       for (it_2  = cluster_structure_vector.begin();
 	   it_2 != cluster_structure_vector.end();
 	   it_2++) {
@@ -466,145 +577,160 @@ cfc::wrapped_create_cfc_dialog_add_pharmacophores(cfc::extracted_cluster_info_fr
    // can make a simple container class and sort at the end.
    //
    unsigned int n_structures = extracted_cluster_info.n_pharmacophore_structures();
-   double inv_n = 1.0/double(n_structures);
 
-   // we want to sort the pharmacophore buttons.
-   // store them here and sort them when filled.
-   //
-   std::vector<pharm_button_set> pharm_button_set_collection; // fill then then sort it.
+   std::cout << "in cfc_dialog_add_pharmacophores() n_structures: " << n_structures << std::endl;
+
+   if (n_structures == 0) {
+
+      std::cout << "WARNING:: Ooops! in cfc_dialog_add_pharmacophores() n_structures is 0" << std::endl;
+
+   } else {
+
+      // Happy Path
+      
+      double inv_n = 1.0/double(n_structures);
+
+      // we want to sort the pharmacophore buttons.
+      // store them here and sort them when filled.
+      //
+      std::vector<pharm_button_set> pharm_button_set_collection; // fill then then sort it.
    
-   for (it_2  = cluster_structure_vector.begin();
-	it_2 != cluster_structure_vector.end();
-	it_2++) {
+      for (it_2  = cluster_structure_vector.begin();
+	   it_2 != cluster_structure_vector.end();
+	   it_2++) {
 
-      const std::string &type = it_2->first;
+	 const std::string &type = it_2->first;
 
-      for (unsigned int i=0; i<it_2->second.size(); i++) {
+	 for (unsigned int i=0; i<it_2->second.size(); i++) {
 
-	 // imol_residue_spec_vec should contain the imol,res_spec of ligands
-	 // that contribute to this pharmacophore, they are not in structure order and
-	 // there can be any number of them.
-	 //
-	 std::vector<std::pair<int, coot::residue_spec_t> > imol_residue_spec_vec =
-	    extracted_cluster_info.pharmacophore_cluster_imol_residue_spec_vec(type, i);
+	    // imol_residue_spec_vec should contain the imol,res_spec of ligands
+	    // that contribute to this pharmacophore, they are not in structure order and
+	    // there can be any number of them.
+	    //
+	    std::vector<std::pair<int, coot::residue_spec_t> > imol_residue_spec_vec =
+	       extracted_cluster_info.pharmacophore_cluster_imol_residue_spec_vec(type, i);
 
-	 std::string lhb_label = it_2->first;
-	 unsigned int n_this = it_2->second[i].first.size();
-	 double f = inv_n * n_this;
-	 lhb_label += " ";
-	 lhb_label += coot::util::int_to_string(i);
-	 lhb_label += ": ";
-	 lhb_label += coot::util::float_to_string_using_dec_pl(f*100, 1);
-	 lhb_label += " % conserved";
-	 GtkWidget *left_button = gtk_button_new_with_label(lhb_label.c_str());
+	    std::string lhb_label = it_2->first;
+	    unsigned int n_this = it_2->second[i].first.size();
+	    double f = inv_n * n_this;
+	    lhb_label += " ";
+	    lhb_label += coot::util::int_to_string(i);
+	    lhb_label += ": ";
+	    lhb_label += coot::util::float_to_string_using_dec_pl(f*100, 1);
+	    lhb_label += " % conserved";
+	    GtkWidget *left_button = gtk_button_new_with_label(lhb_label.c_str());
 
-	 pharm_button_set pbs(it_2->first, left_button, f);
+	    pharm_button_set pbs(it_2->first, left_button, f);
 	 
-	 // on clicked, go a cluster mean, show all structures that
-	 // contribute to this cluster, and the chemical features of
-	 // those ligands that match the type of the cluster.
-	 // 
-	 // We need cluster mean, and the contributors to this cluster.
+	    // on clicked, go a cluster mean, show all structures that
+	    // contribute to this cluster, and the chemical features of
+	    // those ligands that match the type of the cluster.
+	    // 
+	    // We need cluster mean, and the contributors to this cluster.
 
-	 GtkWidget *hbox = gtk_hbox_new(FALSE, 0);
-	 pbs.add_structure_buttons_hbox(hbox);
-	 std::vector<std::pair<int, coot::residue_spec_t> > contributing_specs;
+	    GtkWidget *hbox = gtk_hbox_new(FALSE, 0);
+	    pbs.add_structure_buttons_hbox(hbox);
+	    std::vector<std::pair<int, coot::residue_spec_t> > contributing_specs;
 
-	 for (unsigned int j=0; j<n_structures; j++) {
+	    for (unsigned int j=0; j<n_structures; j++) {
 
-	    if (true) {
+	       if (true) {
 
-	       // we should store this vector, not keep evaluating it
-	       //
-	       // pharmacophore_structures_vec()[j] yeilds an imol
+		  // we should store this vector, not keep evaluating it
+		  //
+		  // pharmacophore_structures_vec()[j] yeilds an imol
 
-	       int imol_this_structure = extracted_cluster_info.pharmacophore_structures_vec()[j];
-	       std::pair<int, coot::residue_spec_t> imol_res_spec_this_structure =
-		  extracted_cluster_info.pharmacophore_structures_and_specs_vec()[j];
+		  int imol_this_structure = extracted_cluster_info.pharmacophore_structures_vec()[j];
+		  std::pair<int, coot::residue_spec_t> imol_res_spec_this_structure =
+		     extracted_cluster_info.pharmacophore_structures_and_specs_vec()[j];
 
-	       // for contributing structures, used in the structure button callback.
-	       //
-	       // std::pair<int, coot::residue_spec_t> imol_res_spec_local =
-	       // imol_residue_spec_vec[j];
+		  // for contributing structures, used in the structure button callback.
+		  //
+		  // std::pair<int, coot::residue_spec_t> imol_res_spec_local =
+		  // imol_residue_spec_vec[j];
 
-	       // what is imol for the jth structure?
-	       // Not imol_res_spec_local.first
+		  // what is imol for the jth structure?
+		  // Not imol_res_spec_local.first
 
-	       // I don't think that it does - delete
-	       // std::cout << "structure " << j << " has imol " << imol_res_spec_local.first
-	       // << std::endl;
+		  // I don't think that it does - delete
+		  // std::cout << "structure " << j << " has imol " << imol_res_spec_local.first
+		  // << std::endl;
 	       
-	       std::string struct_button_label = " ";
-	       GtkWidget *button = gtk_button_new_with_label(struct_button_label.c_str());
+		  std::string struct_button_label = " ";
 
-	       // on clicked, go to this pharmacophore position,
-	       // show only this structure and this ligand and the pharmacophores
-	       // for this ligand. We need imol, res_spec, and pharmacophore pos.
-	       //
-	       const clipper::Coord_orth &pos = it_2->second[i].second;
-	       coot::residue_spec_t res_spec; // what is this now? Do we have access to the
-	                                      // ligand spec of imol_this_structure?
-	       on_pharmacophore_structure_click_info_t ci(pos, imol_this_structure, res_spec);
+		  GtkWidget *button = gtk_button_new_with_label(struct_button_label.c_str());
 
-	       on_pharmacophore_structure_click_info_t *ci_p = new on_pharmacophore_structure_click_info_t(ci);
+		  // on clicked, go to this pharmacophore position,
+		  // show only this structure and this ligand and the pharmacophores
+		  // for this ligand. We need imol, res_spec, and pharmacophore pos.
+		  //
+		  const clipper::Coord_orth &pos = it_2->second[i].second;
+		  coot::residue_spec_t res_spec; // what is this now? Do we have access to the
+		  // ligand spec of imol_this_structure?
+		  on_pharmacophore_structure_click_info_t ci(pos, imol_this_structure, res_spec);
+
+		  on_pharmacophore_structure_click_info_t *ci_p = new on_pharmacophore_structure_click_info_t(ci);
 	       
-	       gtk_signal_connect(GTK_OBJECT(button), "clicked",
-				  GTK_SIGNAL_FUNC(on_cfc_pharmacophore_cluster_structure_button_clicked),
-				  (gpointer)ci_p);
+		  gtk_signal_connect(GTK_OBJECT(button), "clicked",
+				     GTK_SIGNAL_FUNC(on_cfc_pharmacophore_cluster_structure_button_clicked),
+				     (gpointer)ci_p);
 
-	       if (std::find(it_2->second[i].first.begin(),
-			     it_2->second[i].first.end(),
-			     imol_this_structure) == it_2->second[i].first.end()) {
+		  if (std::find(it_2->second[i].first.begin(),
+				it_2->second[i].first.end(),
+				imol_this_structure) == it_2->second[i].first.end()) {
 		  
-		  // wasn't there (that's OK)
+		     // wasn't there (that's OK)
 		  
-	       } else {
-		  // happy path
-		  GdkColor color;
-		  gdk_color_parse("#AACCAA", &color);
-		  gtk_widget_modify_bg(GTK_WIDGET(button), GTK_STATE_NORMAL, &color);
+		  } else {
+		     // happy path
+		     GdkColor color;
+		     gdk_color_parse("#AACCAA", &color);
+		     gtk_widget_modify_bg(GTK_WIDGET(button), GTK_STATE_NORMAL, &color);
 
-		  if (std::find(contributing_specs.begin(),
-				contributing_specs.end(),
-				imol_res_spec_this_structure) == contributing_specs.end()) {
-		     contributing_specs.push_back(imol_res_spec_this_structure);
+		     if (std::find(contributing_specs.begin(),
+				   contributing_specs.end(),
+				   imol_res_spec_this_structure) == contributing_specs.end()) {
+			contributing_specs.push_back(imol_res_spec_this_structure);
+		     }
 		  }
+		  gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
+		  gtk_widget_show(button);
 	       }
-	       gtk_box_pack_start(GTK_BOX(hbox), button, FALSE, FALSE, 0);
-	       gtk_widget_show(button);
 	    }
-	 }
-	 pharm_button_set_collection.push_back(pbs);
-	 on_pharmacophore_click_info_t ci(it_2->second[i].second, contributing_specs);
-	 // make a pointer to a copy of that that we can use in the callback user-data.
-	 //
-	 on_pharmacophore_click_info_t *ci_p = new on_pharmacophore_click_info_t(ci);
-	 gtk_signal_connect(GTK_OBJECT(left_button), "clicked",
-			    GTK_SIGNAL_FUNC(on_cfc_pharmacophore_cluster_button_clicked),
-			    (gpointer) ci_p);
+	    pharm_button_set_collection.push_back(pbs);
+	    on_pharmacophore_click_info_t ci(it_2->second[i].second, contributing_specs);
+	    // make a pointer to a copy of that that we can use in the callback user-data.
+	    //
+	    on_pharmacophore_click_info_t *ci_p = new on_pharmacophore_click_info_t(ci);
+	    gtk_signal_connect(GTK_OBJECT(left_button), "clicked",
+			       GTK_SIGNAL_FUNC(on_cfc_pharmacophore_cluster_button_clicked),
+			       (gpointer) ci_p);
 
+	 }
+      }
+
+      std::sort(pharm_button_set_collection.begin(),
+		pharm_button_set_collection.end(),
+		pharm_button_set::sorter);
+
+      int i_row = 1; // start after the header
+   
+      for (unsigned int i=0; i<pharm_button_set_collection.size(); i++) {
+	 const pharm_button_set &p = pharm_button_set_collection[i];
+	 gtk_table_attach(GTK_TABLE(ligands_table), p.left_hand_button,
+			  0,1, i_row+i,i_row+i+1,
+			  (GtkAttachOptions) (GTK_FILL),
+			  (GtkAttachOptions) (0), 0, 0);
+	 gtk_table_attach(GTK_TABLE(ligands_table), p.structure_buttons_hbox,
+			  1,2, i_row+i,i_row+i+1,
+			  (GtkAttachOptions) (GTK_FILL),
+			  (GtkAttachOptions) (0), 0, 0);
+	 gtk_widget_show(p.left_hand_button);
+	 gtk_widget_show(p.structure_buttons_hbox);
       }
    }
 
-   std::sort(pharm_button_set_collection.begin(),
-	     pharm_button_set_collection.end(),
-	     pharm_button_set::sorter);
-
-   int i_row = 1; // start after the header
-   
-   for (unsigned int i=0; i<pharm_button_set_collection.size(); i++) {
-      const pharm_button_set &p = pharm_button_set_collection[i];
-      gtk_table_attach(GTK_TABLE(ligands_table), p.left_hand_button,
-		       0,1, i_row+i,i_row+i+1,
-		       (GtkAttachOptions) (GTK_FILL),
-		       (GtkAttachOptions) (0), 0, 0);
-      gtk_table_attach(GTK_TABLE(ligands_table), p.structure_buttons_hbox,
-		       1,2, i_row+i,i_row+i+1,
-		       (GtkAttachOptions) (GTK_FILL),
-		       (GtkAttachOptions) (0), 0, 0);
-      gtk_widget_show(p.left_hand_button);
-      gtk_widget_show(p.structure_buttons_hbox);
-   }
+   std::cout << "------------ Done cfc::cfc_dialog_add_pharmacophores()" << std::endl;
 }
 
 void
@@ -909,13 +1035,12 @@ cfc::extracted_cluster_info_from_python::extract_chemical_feature_info(PyObject 
 	    } else {
 
 	       int n_py = PyObject_Length(pharm_py);
-	       // std::cout << "pharm_py is a list of length " << n_py << std::endl;
 
 	       if (n_py == 2) {
 		  PyObject *pos_imol_spec_list_py = PyList_GetItem(pharm_py, 0);
 		  PyObject *cluster_number_py     = PyList_GetItem(pharm_py, 1);
 
-		  if (PyList_Check(pos_imol_spec_list_py)) { // fatigue
+		  if (PyList_Check(pos_imol_spec_list_py)) {
 		     if (PyInt_Check(cluster_number_py)) {
 
 			int cluster_number = PyInt_AsLong(cluster_number_py);
@@ -942,21 +1067,31 @@ cfc::extracted_cluster_info_from_python::extract_chemical_feature_info(PyObject 
 				    coot::residue_spec_t res_spec =
 				       residue_spec_from_py(spec_py);
 
-				    // it's not a water of course
-				    clustered_feature_info_from_python cwi(imol,
-									   res_spec,
-									   cluster_number);
-				    // store cwi somewhere
-
+				    clustered_feature_info_from_python cwi(imol, res_spec, cluster_number);
+				    // store cwi 
 				    pharmacophore[type].push_back(cwi);
 
+				 } else {
+				    std::cout << "ERROR:: spec_py is not a list" << std::endl;
 				 }
+			      } else {
+				 std::cout << "ERROR:: imol_py is not an int" << std::endl;
 			      }
-			   }
+			   } else {
+			      std::cout << "ERROR:: pos_py is not a list" << std::endl;
+			   } 
+			} else {
+			   std::cout << "ERROR:: n_pos_imol_spec_list is not 3" << std::endl;
 			}
-		     }
-		  }
-	       }
+		     } else {
+			std::cout << "ERROR:: cluster_number_py is not an int" << std::endl;
+		     } 
+		  } else {
+		     std::cout << "ERROR:: pos_imol_spec_list_py is not a list " << std::endl;
+		  } 
+	       } else {
+		  std::cout << "ERROR:: pharm_py is a list of length " << n_py << std::endl;
+	       } 
 	    }
 	 }
       }
@@ -1143,9 +1278,10 @@ cfc::extracted_cluster_info_from_python::water_cluster_idx_max() const {
 
 // return the generic display object index
 int
-cfc::extracted_cluster_info_from_python::show_water_balls() const {
+cfc::extracted_cluster_info_from_python::show_water_balls(unsigned int site_number) const {
 
-   coot::generic_display_object_t obj("CFC conserved water balls");
+   std::string s = "CFC conserved water balls" + coot::util::int_to_string(site_number);
+   coot::generic_display_object_t obj(s);
    
    if (graphics_info_t::use_graphics_interface_flag) {
       int n = n_water_structures();
@@ -1178,6 +1314,24 @@ cfc::extracted_cluster_info_from_python::show_water_balls() const {
 
    return (graphics_info_t::generic_objects_p->size() -1);
    
+}
+
+void
+cfc::chemical_feature_clusters_add_site_info(unsigned int site_number,
+					     const extracted_cluster_info_from_python &eci,
+					     GtkWidget *cfc_dialog) {
+
+   std::cout << "chemical_feature_clusters_add_site_info() cfc_dialog: "
+	     << cfc_dialog << std::endl;
+
+   // cfc_dialog = create_cfc_dialog();
+
+   cfc_dialog = graphics_info_t::cfc_dialog;
+
+   cfc_dialog_add_waters(site_number, eci, cfc_dialog);
+   cfc_dialog_add_pharmacophores(site_number, eci, cfc_dialog);
+
+   gtk_widget_show(cfc_dialog);
 }
 
 

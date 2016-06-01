@@ -101,7 +101,7 @@ make_residue_spec_py(PyObject *spec) {
    // state in the first position, which we skip (using offset = 1).
    int offset = 0;
    if (spec_length == 4) offset = 1;
-   if (spec_length == 3) {
+   if ((spec_length == 3) || (spec_length == 4)) {
       PyObject  *chain_id_py = PyList_GetItem(spec, 0+offset);
       PyObject     *resno_py = PyList_GetItem(spec, 1+offset);
       PyObject  *ins_code_py = PyList_GetItem(spec, 2+offset);

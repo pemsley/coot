@@ -3976,6 +3976,7 @@ string   static std::string sessionid;
    void display_all_model_molecules();
    void undisplay_all_model_molecules_except(int imol);
    void undisplay_all_model_molecules_except(const std::vector<int> &keep_these);
+   static GtkWidget *cfc_dialog;
 };
 
 

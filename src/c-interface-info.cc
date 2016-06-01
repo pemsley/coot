@@ -891,26 +891,30 @@ SCM residues_near_residue(int imol, SCM residue_in, float radius) {
 // specified by res_in.
 // 
 #ifdef USE_PYTHON
-PyObject *residues_near_residue_py(int imol, PyObject *residue_in, float radius) {
+PyObject *residues_near_residue_py(int imol, PyObject *residue_spec_in, float radius) {
 
    PyObject *r = PyList_New(0);
    if (is_valid_model_molecule(imol)) {
-      PyObject *chain_id_py = PyList_GetItem(residue_in, 0);
-      PyObject *resno_py    = PyList_GetItem(residue_in, 1);
-      PyObject *ins_code_py = PyList_GetItem(residue_in, 2);
-      std::string chain_id = PyString_AsString(chain_id_py);
-      std::string ins_code = PyString_AsString(ins_code_py);
-      int resno            = PyInt_AsLong(resno_py);
-      coot::residue_spec_t rspec(chain_id, resno, ins_code);
-      std::vector<coot::residue_spec_t> v =
-	 graphics_info_t::molecules[imol].residues_near_residue(rspec, radius);
-      for (unsigned int i=0; i<v.size(); i++) {
-	 PyObject *res_spec = PyList_New(3);
-	 PyList_SetItem(res_spec, 0, PyString_FromString(v[i].chain_id.c_str()));
-	 PyList_SetItem(res_spec, 1, PyInt_FromLong(v[i].res_no));
-	 PyList_SetItem(res_spec, 2, PyString_FromString(v[i].ins_code.c_str()));
-	 PyList_Append(r, res_spec);
-	 Py_XDECREF(res_spec);
+      if (PyList_Check(residue_spec_in)) {
+	 std::pair<bool, coot::residue_spec_t> rspec =
+	    make_residue_spec_py(residue_spec_in);
+
+	 if (rspec.first) { 
+	 
+	    std::vector<coot::residue_spec_t> v =
+	       graphics_info_t::molecules[imol].residues_near_residue(rspec.second, radius);
+	    for (unsigned int i=0; i<v.size(); i++) {
+	       PyObject *res_spec_py = py_residue(v[i]);
+	       PyList_Append(r, res_spec_py);
+	       // Py_XDECREF(res_spec); - what did this do before I removed it?
+	    }
+	 } else {
+	    std::cout << "ERROR:: residues_near_residue_py() failed to construct "
+		      << "residue spec" << std::endl;
+	 }
+      } else {
+	 std::cout << "ERROR:: residues_near_residue_py() res_spec_in not a list"
+		   << std::endl;
       }
    } 
    return r;
@@ -4872,9 +4876,37 @@ PyObject *residue_centre_py(int imol, const char *chain_id, int resno, const cha
 
 #endif
 
+#ifdef USE_PYTHON
+// the expanded form of this is in c-interface.h
+PyObject *residue_centre_from_spec_py(int imol, 
+				      PyObject *spec_py) {
+   
+   PyObject *r = Py_False;
+   std::pair<bool, coot::residue_spec_t> spec = make_residue_spec_py(spec_py);
+
+   if (spec.first) {
+      if (is_valid_model_molecule(imol)) {
+	 std::pair<bool, clipper::Coord_orth> rr =
+	    graphics_info_t::molecules[imol].residue_centre(spec.second);
+	 if (rr.first) {
+	    r = PyList_New(3);
+	    PyList_SetItem(r, 0, PyFloat_FromDouble(rr.second.x()));
+	    PyList_SetItem(r, 1, PyFloat_FromDouble(rr.second.y()));
+	    PyList_SetItem(r, 2, PyFloat_FromDouble(rr.second.z()));
+	 }
+      }
+   }
+   if (PyBool_Check(r))
+      Py_INCREF(r);
+
+   return r;
+}
+#endif // USE_PYTHON
+
+
 
 #ifdef USE_GUILE
-SCM link_info_scm(int imol) {
+   SCM link_info_scm(int imol) {
 
    SCM r = SCM_EOL;
    if (is_valid_model_molecule(imol)) {

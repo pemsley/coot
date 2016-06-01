@@ -471,6 +471,13 @@ coot::residue_spec_t residue_spec_from_py(PyObject *residue_in);
 // 
 coot::residue_spec_t get_residue_by_type(int imol, const std::string &residue_type);
 
+std::vector<coot::residue_spec_t> get_residue_specs_in_mol(int imol, const std::string &residue_type);
+
+#ifdef USE_PYTHON
+// Always returns a list
+PyObject *get_residue_specs_in_mol_py(int imol, const std::string &residue_type);
+#endif 
+
 #ifdef USE_GUILE
 // return a residue spec or scheme false
 SCM get_residue_by_type_scm(int, const std::string &residue_type);
@@ -606,6 +613,10 @@ PyObject *atom_info_string_py(int imol, const char *chain_id, int resno,
 //!
 PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char *ins_code);
 PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char *ins_code);
+
+// the expanded form of this is in c-interface.h
+PyObject *residue_centre_from_spec_py(int imol, 
+				      PyObject *spec_py);
 
 PyObject *chain_fragments_py(int imol, short int screen_output_also);
 

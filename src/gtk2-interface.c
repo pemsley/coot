@@ -32415,6 +32415,7 @@ create_cfc_dialog (void)
 
   cfc_dialog = gtk_dialog_new ();
   gtk_widget_set_name (cfc_dialog, "cfc_dialog");
+  gtk_widget_set_size_request (cfc_dialog, 300, -1);
   gtk_window_set_title (GTK_WINDOW (cfc_dialog), _("Chemical Feature Clusters"));
   gtk_window_set_type_hint (GTK_WINDOW (cfc_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -32459,12 +32460,12 @@ create_cfc_dialog (void)
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
 
-  label796 = gtk_label_new (_(""));
+  label796 = gtk_label_new (_("       Has "));
   gtk_widget_set_name (label796, "label796");
   gtk_widget_show (label796);
   gtk_box_pack_start (GTK_BOX (hbox437), label796, FALSE, FALSE, 0);
 
-  label797 = gtk_label_new (_(""));
+  label797 = gtk_label_new (_("      Has Not"));
   gtk_widget_set_name (label797, "label797");
   gtk_widget_show (label797);
   gtk_box_pack_start (GTK_BOX (hbox437), label797, FALSE, FALSE, 0);

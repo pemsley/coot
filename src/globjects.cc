@@ -540,7 +540,7 @@ coot::refinement_results_t graphics_info_t::saved_dragged_refinement_results(0, 
 float graphics_info_t::idle_function_rotate_angle = 1.0; // degrees
 bool  graphics_info_t::refinement_move_atoms_with_zero_occupancy_flag = 1; // yes
 
-float graphics_info_t::map_sampling_rate = 1.5;
+float graphics_info_t::map_sampling_rate = 1.8;
 
 // Initialise the static atom_sel.
 //
@@ -1319,6 +1319,9 @@ std::map<std::string, std::pair<std::string, std::string> > graphics_info_t::use
 std::vector<std::pair<clipper::Coord_orth, std::string> > graphics_info_t::user_defined_interesting_positions;
 unsigned int graphics_info_t::user_defined_interesting_positions_idx = 0;
 
+
+// Chemical Feature Clusters, cfc
+GtkWidget *graphics_info_t::cfc_dialog = NULL;
 
 // GTK2 code
 // 
