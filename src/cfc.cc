@@ -395,6 +395,11 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
    gtk_object_set_data_full (GTK_OBJECT (cfc_dialog), waters_table_name.c_str(), 
 			     waters_table,
 			     (GtkDestroyNotify) gtk_widget_unref);
+   // perhaps we want to do this actually?
+   std::string *wtn_p = new std::string(waters_table_name);
+   gpointer gp = (gpointer) wtn_p;
+   g_object_set_data(G_OBJECT(waters_table), "widget_name", gp);
+   
    gtk_box_pack_start(GTK_BOX(waters_vbox), waters_table, FALSE, FALSE, 0);
    if (site_number == 0)
       gtk_widget_show(waters_table);
@@ -586,7 +591,7 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
    GtkWidget *cfc_ligands_vbox = lookup_widget(cfc_dialog, "cfc_ligands_vbox");
    GtkWidget *ligands_table = gtk_table_new(n_pharacophores+1, 2, FALSE);
 
-   std::string ligands_table_name = "cfc_ligands_table_site";
+   std::string ligands_table_name = "cfc_ligands_table_site_";
    ligands_table_name += coot::util::int_to_string(site_number);
    
    // we want to be able to look up the widget and undisplay it.
@@ -594,6 +599,10 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
    gtk_object_set_data_full (GTK_OBJECT (cfc_dialog), ligands_table_name.c_str(), 
 			     ligands_table,
 			     (GtkDestroyNotify) gtk_widget_unref);
+   // perhaps we want to do this actually?
+   std::string *ltn_p = new std::string(ligands_table_name);
+   gpointer gp = (gpointer) ltn_p;
+   g_object_set_data(G_OBJECT(ligands_table), "widget_name", gp);
    
    gtk_box_pack_start(GTK_BOX(cfc_ligands_vbox), ligands_table, FALSE, FALSE, 0);
    if (site_number == 0)
@@ -764,6 +773,74 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
 }
 
 void
+cfc::on_cfc_site_button_clicked(GtkButton *button,
+				gpointer user_data) {
+
+   // we also need to look up the vboxes of ligands, residues and
+   // waters and display/undisplay the tables
+
+   if (user_data) {
+
+      std::pair<int, clipper::Coord_orth> *pos_p =
+	 static_cast<std::pair<int, clipper::Coord_orth> *> (user_data);
+
+      int site_number = pos_p->first;
+      // undisplay other tables
+      GtkWidget *ligands_vbox  = lookup_widget(GTK_WIDGET(button), "cfc_ligands_vbox");
+      GtkWidget *waters_vbox   = lookup_widget(GTK_WIDGET(button), "cfc_waters_vbox");
+      GtkWidget *residues_vbox = lookup_widget(GTK_WIDGET(button), "cfc_residues_vbox");
+
+      if (ligands_vbox) {
+	 std::string show_this_one_name = "cfc_ligands_table_site_";
+	 show_this_one_name += coot::util::int_to_string(site_number);
+	 cfc_table_show_hide(show_this_one_name, ligands_vbox);
+	 
+      }
+      if (waters_vbox) {
+	 std::string show_this_one_name = "cfc_waters_table_site_";
+	 show_this_one_name += coot::util::int_to_string(site_number);
+	 cfc_table_show_hide(show_this_one_name, waters_vbox);
+      }
+      if (residues_vbox) {
+	 std::string show_this_one_name = "cfc_residues_table_site_";
+	 show_this_one_name += coot::util::int_to_string(site_number);
+	 cfc_table_show_hide(show_this_one_name, residues_vbox);
+      }
+      
+      coot::Cartesian c(pos_p->second.x(), pos_p->second.y(), pos_p->second.z());
+      graphics_info_t g;
+      g.setRotationCentre(c);
+      g.graphics_draw();
+   }
+}
+
+
+void
+cfc::cfc_table_show_hide(std::string show_this_one_name, GtkWidget *vbox) {
+   
+   GList *dlist = gtk_container_children(GTK_CONTAINER(vbox));
+   GList *free_list = dlist;
+   
+   while (dlist) {
+      GtkWidget *list_item = (GtkWidget *) (dlist->data);
+      // get and test the name
+      gpointer gp = g_object_get_data(G_OBJECT(list_item), "widget_name");
+      if (gp) {
+	 std::string *name = static_cast<std::string *> (gp);
+	 if (*name == show_this_one_name) {
+	    gtk_widget_show(GTK_WIDGET(list_item));
+	 } else {
+	    gtk_widget_hide(GTK_WIDGET(list_item));
+	 }
+      }
+      dlist = dlist->next;
+   }
+   g_list_free(free_list);
+}
+
+
+
+void
 cfc::on_cfc_water_cluster_button_clicked(GtkButton *button,
 					 gpointer user_data) {
 
@@ -854,6 +931,34 @@ cfc::on_cfc_pharmacophore_cluster_structure_button_clicked(GtkButton *button,
    g.graphics_draw();
 
 }
+
+std::pair<bool, clipper::Coord_orth>
+cfc::extracted_cluster_info_from_python::pharmacophores_centre() const {
+
+   std::pair<bool, clipper::Coord_orth> pos_pair(false, clipper::Coord_orth(0,0,0));
+   clipper::Coord_orth sum(0,0,0);
+   unsigned int n = 0;
+
+   std::map<std::string, std::vector<clipper::Coord_orth> >::const_iterator it;
+
+   for (it =  pharmacophore_model_cluster_means.begin();
+	it != pharmacophore_model_cluster_means.end();
+	it++) {
+      for (unsigned int i=0; i<it->second.size(); i++) { 
+	 sum += it->second[i];
+	 n++;
+      }
+   }
+
+   if (n > 0) {
+      pos_pair.first = true;
+      double f(n);
+      pos_pair.second = clipper::Coord_orth(sum.x()/f, sum.y()/f, sum.z()/f);
+   }
+
+   return pos_pair;
+}
+
 
 
 void
@@ -1347,20 +1452,66 @@ cfc::extracted_cluster_info_from_python::show_water_balls(unsigned int site_numb
 }
 
 void
+cfc::cfc_dialog_add_site_info(unsigned int site_number,
+			      const extracted_cluster_info_from_python &eci) {
+
+   GtkWidget *sites_table = lookup_widget(graphics_info_t::cfc_dialog,
+					  "cfc_sites_table");
+   if (sites_table) {
+      gtk_table_resize(GTK_TABLE(sites_table), site_number+1, 4);
+      unsigned int n_structures = eci.n_pharmacophore_structures();
+      std::string structures_word = " structures";
+      if (n_structures == 1)
+	 structures_word = " structure";
+      std::string button_label = "Site ";
+      button_label += coot::util::int_to_string(site_number+1);
+      // info for callback
+      std::pair<int, clipper::Coord_orth> *site_no_pos_p = NULL;
+      std::pair<bool, clipper::Coord_orth> pos = eci.pharmacophores_centre();
+      if (pos.first) {
+	 site_no_pos_p = new std::pair<int, clipper::Coord_orth> (site_number, pos.second);
+      }
+      GtkWidget *site_button = gtk_button_new_with_label(button_label.c_str());
+      GtkWidget *label_1 = gtk_label_new(" contributed to by ");
+      GtkWidget *label_2 = gtk_label_new(coot::util::int_to_string(n_structures).c_str());
+      GtkWidget *label_3 = gtk_label_new(structures_word.c_str());
+      gtk_signal_connect(GTK_OBJECT(site_button), "clicked",
+			 GTK_SIGNAL_FUNC(on_cfc_site_button_clicked),
+			 (gpointer) site_no_pos_p);
+      gtk_table_attach(GTK_TABLE(sites_table), site_button,
+		       0, 1, site_number, site_number+1,
+		       (GtkAttachOptions) (GTK_FILL),
+		       (GtkAttachOptions) (0), 0, 0);
+      gtk_table_attach(GTK_TABLE(sites_table), label_1,
+		       1, 2, site_number, site_number+1,
+		       (GtkAttachOptions) (GTK_FILL),
+		       (GtkAttachOptions) (0), 0, 0);
+      gtk_table_attach(GTK_TABLE(sites_table), label_2,
+		       2, 3, site_number, site_number+1,
+		       (GtkAttachOptions) (GTK_FILL),
+		       (GtkAttachOptions) (0), 0, 0);
+      gtk_table_attach(GTK_TABLE(sites_table), label_3,
+		       3, 4, site_number, site_number+1,
+		       (GtkAttachOptions) (GTK_FILL),
+		       (GtkAttachOptions) (0), 0, 0);
+      gtk_widget_show(site_button);
+      gtk_widget_show(label_1);
+      gtk_widget_show(label_2);
+      gtk_widget_show(label_3);
+   }
+}
+
+
+void
 cfc::chemical_feature_clusters_add_site_info(unsigned int site_number,
 					     const extracted_cluster_info_from_python &eci,
 					     GtkWidget *cfc_dialog) {
 
-   std::cout << "chemical_feature_clusters_add_site_info() cfc_dialog: "
-	     << cfc_dialog << std::endl;
-
-   // cfc_dialog = create_cfc_dialog();
-
    cfc_dialog = graphics_info_t::cfc_dialog;
-
    cfc_dialog_add_waters(site_number, eci, cfc_dialog);
    cfc_dialog_add_pharmacophores(site_number, eci, cfc_dialog);
-
+   cfc_dialog_add_site_info(site_number, eci);
+   
    gtk_widget_show(cfc_dialog);
 }
 

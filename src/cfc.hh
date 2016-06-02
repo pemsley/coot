@@ -89,6 +89,7 @@ namespace cfc {
       std::vector<int> pharmacophore_structures_vec() const; // for structure buttons (pharma)
       std::vector<std::pair<int, coot::residue_spec_t> >
       pharmacophore_structures_and_specs_vec() const; // for structure buttons (pharma)
+      std::pair<bool, clipper::Coord_orth> pharmacophores_centre() const;
       
       std::vector<std::pair<int, coot::residue_spec_t> > water_cluster_imol_residue_spec_vec() const;
       std::vector<std::pair<int, coot::residue_spec_t> > pharmacophore_cluster_imol_residue_spec_vec(const std::string &type, unsigned int cluster_idx);
