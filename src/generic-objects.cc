@@ -169,6 +169,29 @@ void to_generic_object_add_dodecahedron(int object_number,
    } 
 }
 
+void to_generic_object_add_pentakis_dodecahedron(int object_number,
+						 const char *colour_name,
+						 float stellation_factor,
+						 float radius,
+						 float x,
+						 float y,
+						 float z) {
+
+   graphics_info_t g;
+   clipper::Coord_orth x1(x, y, z);
+   std::string c(colour_name);
+   coot::colour_holder colour =
+      coot::generic_display_object_t::colour_values_from_colour_name(c);
+
+   if (object_number >=0 && object_number < int(g.generic_objects_p->size())) { 
+
+      (*g.generic_objects_p)[object_number].add_pentakis_dodecahedron(colour, c, stellation_factor, radius, x1);
+   } else {
+      std::cout << "BAD object_number in to_generic_object_add_point: "
+		<< object_number << std::endl;
+   } 
+}
+
 
 
 /*! \brief add point to generic object object_number */

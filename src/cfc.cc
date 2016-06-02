@@ -441,8 +441,8 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
 	 // we should do a better job at clearing up the memory when
 	 // these buttons are destroyed
 	 //
-	 std::cout << "debug:: gtk_object_set_data_full() on button with name " << button_name
-		   << " and label: " << lb_label << std::endl;
+	 // std::cout << "debug:: gtk_object_set_data_full() on button with name " << button_name
+	 // << " and label: " << lb_label << std::endl;
 	 gtk_object_set_data_full (GTK_OBJECT (cfc_dialog), button_name.c_str(), 
 				   left_button,
 				   (GtkDestroyNotify) gtk_widget_unref);

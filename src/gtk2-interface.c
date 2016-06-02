@@ -32393,7 +32393,6 @@ create_cfc_dialog (void)
   GtkWidget *scrolledwindow40;
   GtkWidget *viewport27;
   GtkWidget *cfc_sites_table;
-  GtkWidget *label799;
   GtkWidget *label790;
   GtkWidget *scrolledwindow39;
   GtkWidget *viewport26;
@@ -32410,7 +32409,7 @@ create_cfc_dialog (void)
 
   cfc_dialog = gtk_dialog_new ();
   gtk_widget_set_name (cfc_dialog, "cfc_dialog");
-  gtk_widget_set_size_request (cfc_dialog, 300, -1);
+  gtk_widget_set_size_request (cfc_dialog, 340, 200);
   gtk_window_set_title (GTK_WINDOW (cfc_dialog), _("Chemical Feature Clusters"));
   gtk_window_set_type_hint (GTK_WINDOW (cfc_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -32437,14 +32436,7 @@ create_cfc_dialog (void)
   gtk_widget_set_name (cfc_sites_table, "cfc_sites_table");
   gtk_widget_show (cfc_sites_table);
   gtk_container_add (GTK_CONTAINER (viewport27), cfc_sites_table);
-
-  label799 = gtk_label_new (_(" contributed to by "));
-  gtk_widget_set_name (label799, "label799");
-  gtk_widget_show (label799);
-  gtk_table_attach (GTK_TABLE (cfc_sites_table), label799, 1, 2, 0, 1,
-                    (GtkAttachOptions) (GTK_FILL),
-                    (GtkAttachOptions) (0), 0, 0);
-  gtk_misc_set_alignment (GTK_MISC (label799), 0, 0.5);
+  gtk_container_set_border_width (GTK_CONTAINER (cfc_sites_table), 4);
 
   label790 = gtk_label_new (_("Sites"));
   gtk_widget_set_name (label790, "label790");
@@ -32523,7 +32515,6 @@ create_cfc_dialog (void)
   GLADE_HOOKUP_OBJECT (cfc_dialog, scrolledwindow40, "scrolledwindow40");
   GLADE_HOOKUP_OBJECT (cfc_dialog, viewport27, "viewport27");
   GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_sites_table, "cfc_sites_table");
-  GLADE_HOOKUP_OBJECT (cfc_dialog, label799, "label799");
   GLADE_HOOKUP_OBJECT (cfc_dialog, label790, "label790");
   GLADE_HOOKUP_OBJECT (cfc_dialog, scrolledwindow39, "scrolledwindow39");
   GLADE_HOOKUP_OBJECT (cfc_dialog, viewport26, "viewport26");

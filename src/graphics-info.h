@@ -645,6 +645,8 @@ class graphics_info_t {
 
    void graphics_object_internal_dodec(const coot::generic_display_object_t::dodec_t &dodec);
 
+   void graphics_object_internal_pentakis_dodec(const coot::generic_display_object_t::pentakis_dodec_t &penta_dodec);
+
    void read_standard_residues();   // for mutation, we have
 				    // pre-prepared a pdb file with
 				    // residues in Buccaneer "Standard

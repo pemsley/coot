@@ -2,6 +2,7 @@
 // header-here
 
 #include <fstream>
+#include <algorithm> // for reverse()
 #include "dodec.hh"
 
 dodec::dodec() {
@@ -106,7 +107,17 @@ dodec::assign_face_rings() {
 				 ring[3] = pairs[i4].first;
 				 ring[4] = pairs[i5].first;
 				 if (!known_ring(ring, rings)) {
-				    rings.push_back(ring);
+				    // we need the rings to go round in a direction (relative to the origin) so that
+				    // the normals are calculated pointing out consistently. These have been hand
+				    // tested one by one - terrible hack!
+				    if ((rings.size() == 1) || (rings.size() == 4) || (rings.size() == 5) ||
+					(rings.size() == 6) || (rings.size() == 7) || (rings.size() == 10)) {
+				       std::reverse(ring.begin(), ring.end());
+				       rings.push_back(ring);
+				    } else {
+				       // don't be perverse
+				       rings.push_back(ring);
+				    } 
 				 }
 			      }
 			   }
@@ -150,4 +161,44 @@ dodec::known_ring(std::vector<unsigned int> &ring,
       }
    }
    return r;
+}
+
+
+pentakis_dodec::pentakis_dodec(double height_in) {
+
+   prism_vertex_height = height_in;
+   init();
+}
+
+void
+pentakis_dodec::init() {
+
+
+   // the radius of d is sqrt(3) perhaps?  So if height_in is that, the we get ??? (I don't know the name) "buckyball"
+
+   std::vector<clipper::Coord_orth> coords = d.coords();
+   pyrimid_vertices.resize(12);
+
+   for (unsigned int i=0; i<12; i++) {
+      
+      // these are the indices of the vertices that make up the given face
+      std::vector<unsigned int> v = d.face(i);
+
+      // what is the coordinates of the point along the line from the
+      // origin, through the middle of the plane and somewhat above
+      // it?
+
+      clipper::Coord_orth face_centre_sum(0,0,0);
+
+      for (unsigned int j=0; j<5; j++) {
+	 face_centre_sum += coords[v[j]];
+      }
+
+      clipper::Coord_orth face_centre(0.2 * face_centre_sum);
+      clipper::Coord_orth face_centre_unit(face_centre.unit());
+
+      clipper::Coord_orth pyrimid_vertex(prism_vertex_height * face_centre_unit);
+      pyrimid_vertices[i] = pyrimid_vertex;
+   }
+
 }

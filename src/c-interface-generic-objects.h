@@ -66,6 +66,14 @@ void to_generic_object_add_dodecahedron(int object_number,
 					float y,
 					float z);
 
+void to_generic_object_add_pentakis_dodecahedron(int object_number,
+						 const char *colour,
+						 float stellation_factor,
+						 float radius_factor,
+						 float x,
+						 float y,
+						 float z);
+
 
 /*! \brief add a display list handle generic object */
 void to_generic_object_add_display_list_handle(int object_number, int display_list_id); 
