@@ -4701,7 +4701,8 @@ graphics_info_t::draw_generic_objects_solid() {
 
    // Don't mess with the lighting if we aren't drawing anything
    // 
-   if (generic_objects_p->size()) { 
+   if (generic_objects_p->size()) {
+
       glEnable(GL_LIGHTING);
       glEnable(GL_LIGHT1);
       glEnable(GL_LIGHT0);
@@ -4957,8 +4958,8 @@ graphics_info_t::draw_generic_objects_solid() {
 					     obj.pentakis_dodecs[idodec].col.green,
 					     obj.pentakis_dodecs[idodec].col.blue, 
 					     feature_opacity};
-		  GLfloat  mat_specular[]  = {0.3, 0.3, 0.3, 1.0};
-		  GLfloat  mat_shininess[] = {1};
+		  GLfloat  mat_specular[]  = {0.5, 0.5, 0.5, 1.0};
+		  GLfloat  mat_shininess[] = {40};
 		  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
 		  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
 		  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_diffuse);
