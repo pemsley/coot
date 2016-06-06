@@ -2146,7 +2146,7 @@ if test -n "$build_clipper" ; then
     # BL says:: FIXME
     # do we still need the patch?
     export     CPPFLAGS=-I$install_top_dir/include
-    export      LDFLAGS=-L$install_top_dir/lib
+    export      LDFLAGS="-Wl,--large-address-aware -L$install_top_dir/lib"
     echo CPPFLAGS $CPPFLAGS
     echo LDFLAGS  $LDFLAGS
 
@@ -3458,6 +3458,9 @@ if [ -e libtool ] ; then
   echo rm libtool for clean build
   rm libtool
 fi
+
+# quick hack for large maps
+export LDFLAGS="-Wl,--large-address-aware"
 
 echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 echo building in: $PWD

@@ -114,6 +114,18 @@ scripting exercise
 
 **** General ****
 
+   o revisit anti-aliasing. Seems we need to antialias before drawing map 
+	and lines and not in general, I think.
+
+   o fix intelligent_previous_atom in molecule-class-info.cc when going
+	between chains, e.g. 1mru. Actually a problem forward too [MW]
+
+   o place waters based on two maps e.g. both 2FoFc and FoFc
+
+   o better error messages when ccp4 (e.g. libcheck) is not available
+
+   o do clash checking on symmetry interfaces
+
    o user defined click shoudl stay cross haired as long as there is 
 	clicks pending (count the clicks?!)
 
@@ -138,6 +150,7 @@ scripting exercise
 	add zero occ box size??
 	set_default_initial_contour_level_for_map
 	set_label_on_recentre_flag(state)
+	set_draw_cis_peptide_markups(0)
 
    o make auto_read column labels public and expandable (cf pdb, mtz extension
 	list)

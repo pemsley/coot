@@ -631,6 +631,7 @@ def list_of_toolbar_functions():
          ['Backrub Rotamers', toggle_backrub_rotamers,
           "Toggle use (or not) of backrub rotamers",
           "auto-fit-rotamer.svg", True, True],
+         ['Cis<->Trans', "do_cis_trans_conversion_setup(1)", "Convert peptide: cis->trans or trans->cis", "flip-peptide.svg"],
          ["Run Refmac", "wrapped_create_run_refmac_dialog()", "Launch Refmac for Refinement", "azerbaijan.svg"]],
         ["Validation",
          ["Interactive dots", toggle_interactive_probe_dots,
