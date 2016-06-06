@@ -112,6 +112,12 @@ scripting exercise
 
 **** General ****
 
+   o revisit anti-aliasing. Seems we need to antialias before drawing map 
+	and lines and not in general, I think.
+
+   o fix intelligent_previous_atom in molecule-class-info.cc when going
+	between chains, e.g. 1mru. Actually a problem forward too [MW]
+
    o place waters based on two maps e.g. both 2FoFc and FoFc
 
    o better error messages when ccp4 (e.g. libcheck) is not available
