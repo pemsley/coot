@@ -52,6 +52,10 @@ namespace coot {
    // tinker with mol
    void set_3d_conformer_state(RDKit::RWMol *mol); // hack the setting of 3D state, seems not to
                                                    // be done for mdl files when zs are 0.
+   bool has_zero_coords(RDKit::RWMol *mol, unsigned int iconf); // e.g. reading from a MolFile,
+                                            // all coords are 0.0.
+                                            // in such a case we need to do a Compute2DCoords()
+                                            // before showing the molecule in lidia.
    void rdkit_mol_sanitize(RDKit::RWMol &mol);
    // tinker with mol
    void mogulify_mol(RDKit::RWMol &mol);

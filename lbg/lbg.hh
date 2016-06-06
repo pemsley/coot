@@ -917,7 +917,7 @@ private:
    
    std::string get_smiles_string_from_mol_rdkit() const;
    std::vector<alert_info_t> alerts(const RDKit::ROMol &mol) const;
-   void rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &file_name);
+   void rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &file_name, unsigned int iconf=0);
 #ifdef USE_PYTHON   
    PyObject *silicos_it_qed_default_func;
    PyObject * get_callable_python_func(const std::string &module_name,
