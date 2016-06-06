@@ -1157,8 +1157,9 @@ coot::atom_tree_t::get_forward_atoms(const coot::map_index_t &base_index,
 
    // If atom_vertex_vec was not filled, then we should not index into
    // it with index.index():  Stops a crash, at least.
-   // 
-   if (index.index() >= atom_vertex_vec.size())
+   //
+   int n_atom_vertex = atom_vertex_vec.size(); // (fixed unsigned int vs int warning)
+   if (index.index() >= n_atom_vertex)
       return std::pair<int, std::vector<coot::map_index_t> > (n_forward_count, v);
 
 

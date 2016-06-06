@@ -644,6 +644,10 @@ class graphics_info_t {
 				     const coot::Cartesian &normal, 
 				     float radius, float radius_inner);
 
+   void graphics_object_internal_dodec(const coot::generic_display_object_t::dodec_t &dodec);
+
+   void graphics_object_internal_pentakis_dodec(const coot::generic_display_object_t::pentakis_dodec_t &penta_dodec);
+
    void read_standard_residues();   // for mutation, we have
 				    // pre-prepared a pdb file with
 				    // residues in Buccaneer "Standard
@@ -3991,6 +3995,7 @@ string   static std::string sessionid;
    void display_all_model_molecules();
    void undisplay_all_model_molecules_except(int imol);
    void undisplay_all_model_molecules_except(const std::vector<int> &keep_these);
+   static GtkWidget *cfc_dialog;
 
 };
 

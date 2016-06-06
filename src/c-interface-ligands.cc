@@ -2395,7 +2395,34 @@ get_residue_by_type(int imol, const std::string &residue_type) {
       spec = g.molecules[imol].get_residue_by_type(residue_type);
    } 
    return spec;
-} 
+}
+
+
+std::vector<coot::residue_spec_t> get_residue_specs_in_mol(int imol, const std::string &residue_type) {
+
+   std::vector<coot::residue_spec_t> v;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      v = g.molecules[imol].get_residues_by_type(residue_type);
+   } 
+   return v;
+}
+
+#ifdef USE_PYTHON
+PyObject *get_residue_specs_in_mol_py(int imol,
+				      const std::string &residue_type) {
+
+   std::vector<coot::residue_spec_t> v =
+      get_residue_specs_in_mol(imol, residue_type);
+
+   PyObject *r = PyList_New(v.size());
+   for (unsigned int i=0; i<v.size(); i++)
+      PyList_SetItem(r, i, py_residue(v[i]));
+
+   return r;
+}
+#endif 
+
 
 
 #ifdef USE_GUILE

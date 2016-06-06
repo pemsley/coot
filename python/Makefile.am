@@ -52,5 +52,6 @@ dist_pkgpython_PYTHON = \
    enhanced_ligand.py		      \
    dictionary_generators.py coot_toolbuttons.py  rcrane_loader.py \
    pdbe_validation_data.py  pathology_plots.py ligand_validation_sliders.py \
+   chemical_feature_clusters.py res_spec_utils.py \
    $(TEXI_FILE)
 

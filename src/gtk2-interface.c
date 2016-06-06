@@ -32445,31 +32445,26 @@ create_cfc_dialog (void)
   GtkWidget *cfc_dialog;
   GtkWidget *dialog_vbox134;
   GtkWidget *cfc_notebook;
-  GtkWidget *label794;
+  GtkWidget *scrolledwindow40;
+  GtkWidget *viewport27;
+  GtkWidget *cfc_sites_table;
   GtkWidget *label790;
   GtkWidget *scrolledwindow39;
   GtkWidget *viewport26;
-  GtkWidget *cfc_ligands_table;
-  GtkWidget *hbox437;
-  GtkWidget *label796;
-  GtkWidget *label797;
-  GtkWidget *label798;
-  GtkWidget *cfc_sites_xx_pharmacopher_yy_structures_hbox;
+  GtkWidget *cfc_ligands_vbox;
   GtkWidget *label791;
   GtkWidget *label795;
   GtkWidget *label792;
   GtkWidget *cfc_waters_scrolledwindow;
   GtkWidget *viewport25;
-  GtkWidget *cfc_waters_table;
-  GtkWidget *cfc_site_xx_water_yy_button;
-  GtkWidget *cfc_site_xx_water_cluster_yy_hbox;
-  GtkWidget *cfc_site_xx_water_yy_structure_zz_button;
+  GtkWidget *cfc_waters_vbox;
   GtkWidget *label793;
   GtkWidget *dialog_action_area133;
-  GtkWidget *closebutton1;
+  GtkWidget *cfc_dialog_closebutton;
 
   cfc_dialog = gtk_dialog_new ();
   gtk_widget_set_name (cfc_dialog, "cfc_dialog");
+  gtk_widget_set_size_request (cfc_dialog, 340, 200);
   gtk_window_set_title (GTK_WINDOW (cfc_dialog), _("Chemical Feature Clusters"));
   gtk_window_set_type_hint (GTK_WINDOW (cfc_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
 
@@ -32482,10 +32477,21 @@ create_cfc_dialog (void)
   gtk_widget_show (cfc_notebook);
   gtk_box_pack_start (GTK_BOX (dialog_vbox134), cfc_notebook, TRUE, TRUE, 0);
 
-  label794 = gtk_label_new (_("Sites"));
-  gtk_widget_set_name (label794, "label794");
-  gtk_widget_show (label794);
-  gtk_container_add (GTK_CONTAINER (cfc_notebook), label794);
+  scrolledwindow40 = gtk_scrolled_window_new (NULL, NULL);
+  gtk_widget_set_name (scrolledwindow40, "scrolledwindow40");
+  gtk_widget_show (scrolledwindow40);
+  gtk_container_add (GTK_CONTAINER (cfc_notebook), scrolledwindow40);
+
+  viewport27 = gtk_viewport_new (NULL, NULL);
+  gtk_widget_set_name (viewport27, "viewport27");
+  gtk_widget_show (viewport27);
+  gtk_container_add (GTK_CONTAINER (scrolledwindow40), viewport27);
+
+  cfc_sites_table = gtk_table_new (3, 4, FALSE);
+  gtk_widget_set_name (cfc_sites_table, "cfc_sites_table");
+  gtk_widget_show (cfc_sites_table);
+  gtk_container_add (GTK_CONTAINER (viewport27), cfc_sites_table);
+  gtk_container_set_border_width (GTK_CONTAINER (cfc_sites_table), 4);
 
   label790 = gtk_label_new (_("Sites"));
   gtk_widget_set_name (label790, "label790");
@@ -32502,42 +32508,10 @@ create_cfc_dialog (void)
   gtk_widget_show (viewport26);
   gtk_container_add (GTK_CONTAINER (scrolledwindow39), viewport26);
 
-  cfc_ligands_table = gtk_table_new (3, 2, FALSE);
-  gtk_widget_set_name (cfc_ligands_table, "cfc_ligands_table");
-  gtk_widget_show (cfc_ligands_table);
-  gtk_container_add (GTK_CONTAINER (viewport26), cfc_ligands_table);
-
-  hbox437 = gtk_hbox_new (FALSE, 0);
-  gtk_widget_set_name (hbox437, "hbox437");
-  gtk_widget_show (hbox437);
-  gtk_table_attach (GTK_TABLE (cfc_ligands_table), hbox437, 1, 2, 0, 1,
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL), 0, 0);
-
-  label796 = gtk_label_new (_(""));
-  gtk_widget_set_name (label796, "label796");
-  gtk_widget_show (label796);
-  gtk_box_pack_start (GTK_BOX (hbox437), label796, FALSE, FALSE, 0);
-
-  label797 = gtk_label_new (_(""));
-  gtk_widget_set_name (label797, "label797");
-  gtk_widget_show (label797);
-  gtk_box_pack_start (GTK_BOX (hbox437), label797, FALSE, FALSE, 0);
-
-  label798 = gtk_label_new ("");
-  gtk_widget_set_name (label798, "label798");
-  gtk_widget_show (label798);
-  gtk_table_attach (GTK_TABLE (cfc_ligands_table), label798, 0, 1, 0, 1,
-                    (GtkAttachOptions) (GTK_FILL),
-                    (GtkAttachOptions) (0), 0, 0);
-  gtk_misc_set_alignment (GTK_MISC (label798), 0, 0.5);
-
-  cfc_sites_xx_pharmacopher_yy_structures_hbox = gtk_hbox_new (FALSE, 0);
-  gtk_widget_set_name (cfc_sites_xx_pharmacopher_yy_structures_hbox, "cfc_sites_xx_pharmacopher_yy_structures_hbox");
-  gtk_widget_show (cfc_sites_xx_pharmacopher_yy_structures_hbox);
-  gtk_table_attach (GTK_TABLE (cfc_ligands_table), cfc_sites_xx_pharmacopher_yy_structures_hbox, 1, 2, 1, 2,
-                    (GtkAttachOptions) (GTK_FILL),
-                    (GtkAttachOptions) (GTK_FILL), 0, 0);
+  cfc_ligands_vbox = gtk_vbox_new (FALSE, 0);
+  gtk_widget_set_name (cfc_ligands_vbox, "cfc_ligands_vbox");
+  gtk_widget_show (cfc_ligands_vbox);
+  gtk_container_add (GTK_CONTAINER (viewport26), cfc_ligands_vbox);
 
   label791 = gtk_label_new (_("Ligands"));
   gtk_widget_set_name (label791, "label791");
@@ -32564,29 +32538,10 @@ create_cfc_dialog (void)
   gtk_widget_show (viewport25);
   gtk_container_add (GTK_CONTAINER (cfc_waters_scrolledwindow), viewport25);
 
-  cfc_waters_table = gtk_table_new (3, 2, FALSE);
-  gtk_widget_set_name (cfc_waters_table, "cfc_waters_table");
-  gtk_widget_show (cfc_waters_table);
-  gtk_container_add (GTK_CONTAINER (viewport25), cfc_waters_table);
-
-  cfc_site_xx_water_yy_button = gtk_button_new_with_mnemonic (_("Water: 85% conserved"));
-  gtk_widget_set_name (cfc_site_xx_water_yy_button, "cfc_site_xx_water_yy_button");
-  gtk_table_attach (GTK_TABLE (cfc_waters_table), cfc_site_xx_water_yy_button, 0, 1, 0, 1,
-                    (GtkAttachOptions) (GTK_FILL),
-                    (GtkAttachOptions) (0), 0, 0);
-  gtk_widget_set_sensitive (cfc_site_xx_water_yy_button, FALSE);
-
-  cfc_site_xx_water_cluster_yy_hbox = gtk_hbox_new (FALSE, 0);
-  gtk_widget_set_name (cfc_site_xx_water_cluster_yy_hbox, "cfc_site_xx_water_cluster_yy_hbox");
-  gtk_table_attach (GTK_TABLE (cfc_waters_table), cfc_site_xx_water_cluster_yy_hbox, 1, 2, 0, 1,
-                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
-                    (GtkAttachOptions) (GTK_FILL), 0, 0);
-  gtk_widget_set_sensitive (cfc_site_xx_water_cluster_yy_hbox, FALSE);
-
-  cfc_site_xx_water_yy_structure_zz_button = gtk_button_new_with_mnemonic (_("button38"));
-  gtk_widget_set_name (cfc_site_xx_water_yy_structure_zz_button, "cfc_site_xx_water_yy_structure_zz_button");
-  gtk_widget_show (cfc_site_xx_water_yy_structure_zz_button);
-  gtk_box_pack_start (GTK_BOX (cfc_site_xx_water_cluster_yy_hbox), cfc_site_xx_water_yy_structure_zz_button, FALSE, FALSE, 0);
+  cfc_waters_vbox = gtk_vbox_new (FALSE, 0);
+  gtk_widget_set_name (cfc_waters_vbox, "cfc_waters_vbox");
+  gtk_widget_show (cfc_waters_vbox);
+  gtk_container_add (GTK_CONTAINER (viewport25), cfc_waters_vbox);
 
   label793 = gtk_label_new (_("Waters"));
   gtk_widget_set_name (label793, "label793");
@@ -32598,38 +32553,36 @@ create_cfc_dialog (void)
   gtk_widget_show (dialog_action_area133);
   gtk_button_box_set_layout (GTK_BUTTON_BOX (dialog_action_area133), GTK_BUTTONBOX_END);
 
-  closebutton1 = gtk_button_new_from_stock ("gtk-close");
-  gtk_widget_set_name (closebutton1, "closebutton1");
-  gtk_widget_show (closebutton1);
-  gtk_dialog_add_action_widget (GTK_DIALOG (cfc_dialog), closebutton1, GTK_RESPONSE_CLOSE);
-  GTK_WIDGET_SET_FLAGS (closebutton1, GTK_CAN_DEFAULT);
+  cfc_dialog_closebutton = gtk_button_new_from_stock ("gtk-close");
+  gtk_widget_set_name (cfc_dialog_closebutton, "cfc_dialog_closebutton");
+  gtk_widget_show (cfc_dialog_closebutton);
+  gtk_dialog_add_action_widget (GTK_DIALOG (cfc_dialog), cfc_dialog_closebutton, GTK_RESPONSE_CLOSE);
+  GTK_WIDGET_SET_FLAGS (cfc_dialog_closebutton, GTK_CAN_DEFAULT);
+
+  g_signal_connect ((gpointer) cfc_dialog, "response",
+                    G_CALLBACK (on_cfc_dialog_response),
+                    NULL);
 
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (cfc_dialog, cfc_dialog, "cfc_dialog");
   GLADE_HOOKUP_OBJECT_NO_REF (cfc_dialog, dialog_vbox134, "dialog_vbox134");
   GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_notebook, "cfc_notebook");
-  GLADE_HOOKUP_OBJECT (cfc_dialog, label794, "label794");
+  GLADE_HOOKUP_OBJECT (cfc_dialog, scrolledwindow40, "scrolledwindow40");
+  GLADE_HOOKUP_OBJECT (cfc_dialog, viewport27, "viewport27");
+  GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_sites_table, "cfc_sites_table");
   GLADE_HOOKUP_OBJECT (cfc_dialog, label790, "label790");
   GLADE_HOOKUP_OBJECT (cfc_dialog, scrolledwindow39, "scrolledwindow39");
   GLADE_HOOKUP_OBJECT (cfc_dialog, viewport26, "viewport26");
-  GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_ligands_table, "cfc_ligands_table");
-  GLADE_HOOKUP_OBJECT (cfc_dialog, hbox437, "hbox437");
-  GLADE_HOOKUP_OBJECT (cfc_dialog, label796, "label796");
-  GLADE_HOOKUP_OBJECT (cfc_dialog, label797, "label797");
-  GLADE_HOOKUP_OBJECT (cfc_dialog, label798, "label798");
-  GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_sites_xx_pharmacopher_yy_structures_hbox, "cfc_sites_xx_pharmacopher_yy_structures_hbox");
+  GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_ligands_vbox, "cfc_ligands_vbox");
   GLADE_HOOKUP_OBJECT (cfc_dialog, label791, "label791");
   GLADE_HOOKUP_OBJECT (cfc_dialog, label795, "label795");
   GLADE_HOOKUP_OBJECT (cfc_dialog, label792, "label792");
   GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_waters_scrolledwindow, "cfc_waters_scrolledwindow");
   GLADE_HOOKUP_OBJECT (cfc_dialog, viewport25, "viewport25");
-  GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_waters_table, "cfc_waters_table");
-  GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_site_xx_water_yy_button, "cfc_site_xx_water_yy_button");
-  GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_site_xx_water_cluster_yy_hbox, "cfc_site_xx_water_cluster_yy_hbox");
-  GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_site_xx_water_yy_structure_zz_button, "cfc_site_xx_water_yy_structure_zz_button");
+  GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_waters_vbox, "cfc_waters_vbox");
   GLADE_HOOKUP_OBJECT (cfc_dialog, label793, "label793");
   GLADE_HOOKUP_OBJECT_NO_REF (cfc_dialog, dialog_action_area133, "dialog_action_area133");
-  GLADE_HOOKUP_OBJECT (cfc_dialog, closebutton1, "closebutton1");
+  GLADE_HOOKUP_OBJECT (cfc_dialog, cfc_dialog_closebutton, "cfc_dialog_closebutton");
 
   return cfc_dialog;
 }

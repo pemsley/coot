@@ -2842,6 +2842,8 @@ public:        //                      public
    void add_hydrogens_from_file(const std::string &reduce_pdb_out);
 
    std::pair<bool, clipper::Coord_orth>
+   residue_centre(const coot::residue_spec_t &spec) const;
+   std::pair<bool, clipper::Coord_orth>
    residue_centre(const std::string &chain_id, int resno, const std::string &ins_code) const;
    // which calls:
    std::pair<bool, clipper::Coord_orth> residue_centre(mmdb::Residue *residue_p) const;
@@ -2919,6 +2921,8 @@ public:        //                      public
 					     const std::string &file_name) const;
 
    coot::residue_spec_t get_residue_by_type(const std::string &residue_type) const;
+   
+   std::vector<coot::residue_spec_t> get_residues_by_type(const std::string &residue_type) const;
 
    std::vector<coot::residue_spec_t> het_groups() const;
 

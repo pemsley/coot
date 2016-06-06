@@ -30,9 +30,12 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 // scipy has done some clustering
 // we get the cluster info here
 // 
-void chemical_feature_clusters_accept_info_py(PyObject *env_residue_py,
+void chemical_feature_clusters_accept_info_py(unsigned int site_number,
+					      PyObject *env_residue_py,
 					      PyObject *mol_ligand_specs_py,
 					      PyObject *cluster_info_py);
+
+PyObject *chemical_feature_clusters_accept_site_clusters_info_py(PyObject *site_info_py);
 
 namespace cfc {
 
@@ -57,7 +60,8 @@ namespace cfc {
    // 
    class clustered_feature_info_from_python {
    public:
-      clustered_feature_info_from_python(int imol_in, coot::residue_spec_t &spec_in, unsigned int cluster_number_in) {
+      clustered_feature_info_from_python(int imol_in, coot::residue_spec_t &spec_in,
+					 unsigned int cluster_number_in) {
 	 imol = imol_in;
 	 residue_spec = spec_in;
 	 cluster_number = cluster_number_in;
@@ -85,6 +89,7 @@ namespace cfc {
       std::vector<int> pharmacophore_structures_vec() const; // for structure buttons (pharma)
       std::vector<std::pair<int, coot::residue_spec_t> >
       pharmacophore_structures_and_specs_vec() const; // for structure buttons (pharma)
+      std::pair<bool, clipper::Coord_orth> pharmacophores_centre() const;
       
       std::vector<std::pair<int, coot::residue_spec_t> > water_cluster_imol_residue_spec_vec() const;
       std::vector<std::pair<int, coot::residue_spec_t> > pharmacophore_cluster_imol_residue_spec_vec(const std::string &type, unsigned int cluster_idx);
@@ -99,9 +104,11 @@ namespace cfc {
 	 return (v2.first.size() < v1.first.size());
       }
       // return the generic display object index
-      int show_water_balls() const;
+      int show_water_balls(unsigned int site_number) const;
    };
 }
+
+void chemical_feature_clusters_setup_dialog();
 
 #endif // USE_PYTHON
 

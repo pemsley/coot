@@ -99,6 +99,7 @@ public:
       phi_col = "PHWT";
       use_rama_targets = false;
       use_planar_peptide_restraints = true;
+      use_trans_peptide_restraints = true;
       use_torsion_targets = false;
       tabulate_distortions_flag = false;
       correlations = false;
@@ -109,6 +110,7 @@ public:
    bool use_rama_targets;
    bool use_torsion_targets;
    bool use_planar_peptide_restraints;
+   bool use_trans_peptide_restraints;
    bool tabulate_distortions_flag;
    bool correlations;
    int resno_start;
@@ -193,6 +195,7 @@ main(int argc, char **argv) {
 		<< "       --rama\n"
 		<< "       --torsions\n"
 		<< "       --no-planar-peptide-restraints\n"
+		<< "       --no-trans-peptide-restraints\n"
 		<< "       --tabulate-distortions\n"
 		<< "       --correlations\n"
 		<< "       --debug\n"
@@ -343,6 +346,8 @@ main(int argc, char **argv) {
 	    // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
 	    // flags = coot::NON_BONDED;
 	    coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+	    flags = coot::TYPICAL_RESTRAINTS;
+	    
 	    if (inputs.use_torsion_targets) {
 	       flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS;
 	       if (inputs.use_rama_targets)
@@ -357,8 +362,12 @@ main(int argc, char **argv) {
 	    if (inputs.use_rama_targets)
 	       do_rama_plot_restraints = 1;
 	    // this should be a user-settable parameter. 
-	    bool do_trans_peptide_restraints = false;
-	    restraints.make_restraints(geom, flags, 1, do_trans_peptide_restraints,
+	    bool make_trans_peptide_restraints = false;
+
+	    if (inputs.use_trans_peptide_restraints)
+	       make_trans_peptide_restraints = true;
+
+	    restraints.make_restraints(geom, flags, 1, make_trans_peptide_restraints,
 				       1.0, do_rama_plot_restraints, pseudos);
 
 	    int nsteps_max = 4000;
@@ -525,6 +534,7 @@ get_input_details(int argc, char **argv) {
    d.use_rama_targets = 0;
    d.use_torsion_targets = 0;
    d.use_planar_peptide_restraints = true;
+   d.use_trans_peptide_restraints = true;
    d.correlations = false;
    
    int ch;
@@ -550,6 +560,7 @@ get_input_details(int argc, char **argv) {
       {"torsions",  0, 0, 0},
       {"torsion",   0, 0, 0},
       {"no-planar-peptide-restraints", 0, 0, 0},
+      {"no-trans-peptide-restraints",  0, 0, 0},
       {"tabulate-distortions", 0, 0, 0},
       {"correlations", 0, 0, 0},
       {"debug",     0, 0, 0},  // developer option
@@ -619,6 +630,9 @@ get_input_details(int argc, char **argv) {
 	    }
 	    if (arg_str == "no-planar-peptide-restraints") { 
 	       d.use_planar_peptide_restraints = false;
+	    }
+	    if (arg_str == "no-trans-peptide-restraints") { 
+	       d.use_trans_peptide_restraints = false;
 	    }
 	    if (arg_str == "tabulate-distortions") { 
 	       d.tabulate_distortions_flag = true;

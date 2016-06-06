@@ -13,17 +13,24 @@
 
 namespace cfc {
    
-   GtkWidget *wrapped_create_cfc_dialog(cfc::extracted_cluster_info_from_python &extracted_cluster_info);
+   GtkWidget *wrapped_create_cfc_dialog(extracted_cluster_info_from_python extracted_cluster_info);
+   void on_cfc_site_button_clicked(GtkButton *button, gpointer user_data);
    void on_cfc_water_cluster_button_clicked(GtkButton *button, gpointer user_data);
    void on_cfc_water_cluster_structure_button_clicked(GtkButton *button, gpointer user_data);
 
    void on_cfc_pharmacophore_cluster_button_clicked(GtkButton *button, gpointer user_data);
    void on_cfc_pharmacophore_cluster_structure_button_clicked(GtkButton *button, gpointer user_data);
+   void cfc_table_show_hide(std::string show_this_one_name, GtkWidget *vbox);
+   
 
-   void wrapped_create_cfc_dialog_add_waters(extracted_cluster_info_from_python &extracted_cluster_info,
-					     GtkWidget *cfc_dialog);
-   void wrapped_create_cfc_dialog_add_pharmacophores(extracted_cluster_info_from_python &extracted_cluster_info,
-						     GtkWidget *cfc_dialog);
+   // pass by value because we need to use map[] operator (or do we?)
+   // 
+   void cfc_dialog_add_waters(unsigned int site_number,
+			      extracted_cluster_info_from_python extracted_cluster_info,
+			      GtkWidget *cfc_dialog);
+   void cfc_dialog_add_pharmacophores(unsigned int site_number,
+				      extracted_cluster_info_from_python extracted_cluster_info,
+				      GtkWidget *cfc_dialog);
 
    class pharm_button_set {
    public:
@@ -106,7 +113,15 @@ namespace cfc {
 	 res_spec = spec_in;
       }
    };
+
+   void chemical_feature_clusters_add_site_info(unsigned int site_number,
+						const extracted_cluster_info_from_python &eci,
+						GtkWidget *cfc_dialog);
+
+   void cfc_dialog_add_site_info(unsigned int site_number,
+				 const extracted_cluster_info_from_python &eci);
    
+
 }
 
 #endif // MAKE_ENHANCED_LIGAND_TOOLS

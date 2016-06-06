@@ -1267,7 +1267,7 @@ namespace lig_build {
 		  atom_id = "OH2";
 	    }
 
-	    return atom_id_info_t(atom_id, charge);
+	    // return atom_id_info_t(atom_id, charge);
 	 }
 
 	 if (ele == "S") {

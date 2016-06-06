@@ -3,6 +3,7 @@
 #define HAVE_GENERIC_DISPLAY_OBJECT_HH
 
 #include "utils/coot-utils.hh"  // for colour_holder
+#include "utils/dodec.hh"
 
 #include "coot-colour.hh"
 
@@ -19,11 +20,11 @@ namespace coot {
    // a container for lines of the same colour and width
    class generic_display_line_set_t { 
    public:
-     coot::colour_holder colour;
+     colour_holder colour;
      std::string colour_name;
      int width;
      std::vector<generic_display_line_t> lines;
-     generic_display_line_set_t(const coot::colour_holder &colour_in, 
+     generic_display_line_set_t(const colour_holder &colour_in, 
 				const std::string &colour_name_in,
 				const int &width_in) { 
        colour = colour_in;
@@ -38,7 +39,7 @@ namespace coot {
    // a container for points of the same colour and size
    class generic_display_point_set_t { 
    public:
-     coot::colour_holder colour;
+     colour_holder colour;
      std::string colour_name;
      int size;
      std::vector<clipper::Coord_orth> points;
@@ -68,7 +69,7 @@ namespace coot {
 	 }
 	 clipper::Coord_orth start_point;
 	 clipper::Coord_orth end_point;
-	 coot::colour_t col;
+	 colour_t col;
 	 float fract_head_size;
       };
       class sphere_t {
@@ -79,7 +80,7 @@ namespace coot {
 	    radius = r;
 	 }
 	 clipper::Coord_orth centre;
-	 coot::colour_t col;
+	 colour_t col;
 	 float radius;
       };
       class torus_t {
@@ -96,7 +97,7 @@ namespace coot {
 	 }
 	 clipper::Coord_orth start_point;
 	 clipper::Coord_orth end_point;
-	 coot::colour_t col;
+	 colour_t col;
 	 float radius_1;
 	 float radius_2;
 	 int n_ring_atoms;
@@ -122,9 +123,36 @@ namespace coot {
 	 clipper::Coord_orth start_dir;
 	 float start_angle;
 	 float end_angle;
-	 coot::colour_t col;
+	 colour_t col;
 	 float radius;
 	 float radius_inner;
+      };
+
+      class dodec_t {
+      public:
+	 dodec_t(const dodec &d_in, double size_in, const clipper::Coord_orth &pos_in) {
+	    d = d_in;
+	    size = size_in;
+	    position = pos_in;
+	 }
+	 dodec d;
+	 double size;
+	 clipper::Coord_orth position;
+	 colour_holder col;
+      };
+
+      class pentakis_dodec_t { // perhaps this should inherit from above
+      public:
+	 pentakis_dodec_t(const pentakis_dodec &pkdd_in, double size_in,
+			  const clipper::Coord_orth &pos_in) {
+	    pkdd = pkdd_in;
+	    size = size_in;
+	    position = pos_in;
+	 }
+	 pentakis_dodec pkdd;
+	 double size;
+	 clipper::Coord_orth position;
+	 colour_holder col;
       };
 
       enum {UNDEFINED = -1};
@@ -141,6 +169,8 @@ namespace coot {
       std::vector<sphere_t> spheres;
       std::vector<torus_t> tori;
       std::vector<arc_t> arcs;
+      std::vector<dodec_t> dodecs;
+      std::vector<pentakis_dodec_t> pentakis_dodecs;
       std::vector<int> GL_display_list_handles;
       generic_display_object_t(const std::string &n) { 
 	 name = n;
@@ -158,14 +188,22 @@ namespace coot {
 	 is_transparent_flag = false;
 	 imol = imol_in;
       }
-      void add_line(const coot::colour_holder &colour_in,
+      void add_line(const colour_holder &colour_in,
 		    const std::string &colour_name,
 		    const int &width_in, 
 		    const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords_in);
-      void add_point(const coot::colour_holder &colour_in,
+      void add_point(const colour_holder &colour_in,
 		     const std::string &colour_name,
 		     const int &size_in, 
 		     const clipper::Coord_orth &coords_in);
+      void add_dodecahedron(const colour_holder &colour_in,
+			    const std::string &colour_name,
+			    double radius, const clipper::Coord_orth &pos);
+      void add_pentakis_dodecahedron(const colour_holder &colour_in,
+				     const std::string &colour_name,
+				     double stellation_factor,
+				     double radius,
+				     const clipper::Coord_orth &pos);
       void raster3d(std::ofstream &render_stream) const;
       void clear() {
 	 lines_set.clear();
@@ -176,7 +214,7 @@ namespace coot {
 	 clear();
 	 is_closed_flag = true;
       } 
-      static coot::colour_holder colour_values_from_colour_name(const std::string &colour_name);
+      static colour_holder colour_values_from_colour_name(const std::string &colour_name);
       int get_imol() const { return imol; }
       bool is_valid_imol() { return (imol != UNDEFINED); }
       void attach_to_molecule(int imol_in) { imol = imol_in; }

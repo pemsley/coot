@@ -388,21 +388,39 @@ coot::restraints_editor::fill_bond_tree_data(GtkWidget *restraints_editor_dialog
    
    for (unsigned int i=0; i<restraints.bond_restraint.size(); i++) { 
       gtk_tree_store_append(tree_store_bonds, &toplevel, NULL);
-      try { 
+      try {
+
+	 // std::cout << "here in fill_bond_tree_data() " << i << " " << restraints.bond_restraint[i] << std::endl;
+	 // 
+	 // we still want to see the atom names, even if there is no value_esd() or value_dist() (which can throw runtime
+	 // errors if they are not present (reasonably enough)
+	 //
+	 double value_esd = 0.0;
+	 double value_dist = 0.0;
+
+	 try {
+	    value_dist = restraints.bond_restraint[i].value_dist();
+	    value_esd  = restraints.bond_restraint[i].value_esd();
+	 } 
+	 catch (const std::runtime_error &rte) { } // it's OK if these are not updated.
+	 
 	 gtk_tree_store_set(tree_store_bonds, &toplevel,
 			    0, restraints.bond_restraint[i].atom_id_1_4c().c_str(),
 			    1, restraints.bond_restraint[i].atom_id_2_4c().c_str(),
 			    2, restraints.bond_restraint[i].type().c_str(),
-			    3, restraints.bond_restraint[i].value_dist(),
-			    4, restraints.bond_restraint[i].value_esd(),
+			    3, value_dist,
+			    4, value_esd,
 			    -1);
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
+	 
 	 // do nothing, it's not really an error if the dictionary
 	 // doesn't have target geometry (the bonding description came
 	 // from a Chemical Component Dictionary entry for example).
 	 //
 	 // but we don't want to set the store in that case.
+
+	 std::cout << "caught rte: " << rte.what() << std::endl;
       } 
    }
 

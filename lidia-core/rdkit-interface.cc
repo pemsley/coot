@@ -869,15 +869,38 @@ coot::set_3d_conformer_state(RDKit::RWMol *mol) {
 	       zero_z = false;
 	       break;
 	    }
-	    if (zero_z) {
-	       conf.set3D(false);
-	    } 
+	 }
+	 if (zero_z) {
+	    conf.set3D(false);
 	 }
       }
    } else {
       std::cout << "WARNING:: in set_3d_conformer_state() null mol " << std::endl;
    } 
-} 
+}
+
+// e.g. reading from a MolFile
+bool
+coot::has_zero_coords(RDKit::RWMol *mol, unsigned int iconf) {
+
+   bool zero_z = true;
+   
+   if (mol) {
+      if (iconf<mol->getNumConformers()) {
+	 const RDKit::Conformer &conf = mol->getConformer(iconf);
+	 int n_atoms = conf.getNumAtoms();
+	 for (int iat=0; iat<n_atoms; iat++) { 
+	    const RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
+	    if (r_pos.lengthSq() > 0.1) {
+	       zero_z = false;
+	       break;
+	    }
+	 }
+      }
+   }
+   return zero_z;
+}
+
 
 
 

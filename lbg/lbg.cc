@@ -3419,7 +3419,7 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
 	 // should throw an exception before getting here, I think.
 	 std::cout << "Null m in import_mol_from_file() " << std::endl;
 	 try_as_mdl_mol = true;
-      } 
+      }
    }
    catch (const RDKit::FileParseException &rte) {
       try {
@@ -3429,13 +3429,20 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
 
 	 // strict_parsing is not in the MolFileToMol() interface for old RDKits.
 	 RDKit::RWMol *m = RDKit::MolFileToMol(file_name, sanitize, removeHs);
-
+	 unsigned int iconf = 0;
+	 
 	 if (!m) {
 	    std::string s = "Null molecule from MolFile file \"";
 	    s += file_name;
 	    s += "\"";
 	    throw std::runtime_error(s);
-	 } else { 
+	 } else {
+	    coot::set_3d_conformer_state(m);
+	    if (coot::has_zero_coords(m, 0)) {
+	       iconf = RDDepict::compute2DCoords(*m, NULL, true);
+	       // std::cout << "conf::has_zero_coords() was true "<< std::endl;
+	    }
+	 
 	    unsigned int n_bonds = m->getNumBonds();
 	    for (unsigned int ib=0; ib<n_bonds; ib++) {
 	       const RDKit::Bond *bond_p = m->getBondWithIdx(ib);
@@ -3457,9 +3464,7 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
 	       }
 	    }
 	 }
-	 
-	 coot::set_3d_conformer_state(m);
-	 rdkit_mol_post_read_handling(m, file_name);
+	 rdkit_mol_post_read_handling(m, file_name, iconf);
       }
       catch (const RDKit::FileParseException &rte) {
 	 try_as_mdl_mol = true;
@@ -3496,8 +3501,9 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
 }
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
+// iconf is default arg value 0.
 void
-lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &file_name) {
+lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &file_name, unsigned int iconf) {
 
    // molfile molecules don't know about aromatic bonds, we need
    // to kekulize now.
@@ -3505,19 +3511,18 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
    double weight_for_3d_distances = 0.4;
 
    int n_confs = m->getNumConformers();
-   // std::cout << "rdkit_mol_post_read_handling() n_confs is " << n_confs << std::endl;
+   // std::cout << "------------- rdkit_mol_post_read_handling() n_confs is " << n_confs << std::endl;
    
    if (n_confs > 0) {
-      int iconf = 0;
       if (m->getConformer(iconf).is3D()) {
-	 iconf = coot::add_2d_conformer(m, weight_for_3d_distances); // 3d -> 2d
+	 int iconf_local = coot::add_2d_conformer(m, weight_for_3d_distances); // 3d -> 2d
 	                                                             // (if not 3d, do nothing)
 	 std::cout << "rdkit_mol_post_read_handling() add_2d_conformer returned "
-		   << iconf << std::endl;
-	 if (iconf == -1) 
+		   << iconf_local << std::endl;
+	 if (iconf_local == -1)
 	    std::cout << "WARNING:: import_mol_from_file() failed to make 2d conformer "
 		      << std::endl;
-
+	 iconf = iconf_local;
       } 
 
       //    Old way (Pre-Feb 2013) goving via a molfile_molecule_t

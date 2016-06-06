@@ -1071,7 +1071,8 @@ namespace coot {
 	       float sig, float obs, int periodicty){
 
 	 bool r = 0;
-	 if (sig > 0.0) { 
+	 if (sig > 0.0) {
+
 	    restraints_vec.push_back(simple_restraint(rest_type, atom_1, atom_2, 
 						      atom_3, atom_4,
 						      fixed_atom_flags,

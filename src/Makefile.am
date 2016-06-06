@@ -298,6 +298,8 @@ coot_bin_SOURCES = \
 	callbacks.c callbacks.h	 \
         canvas-fixes.hh          \
 	cfc.cc cfc.hh            \
+        cfc-widgets.hh           \
+        cfc-widgets-c-interface.h \
 	change-dir.cc		 \
 	change-dir.hh		 \
 	cmtz-interface-gui.hh	 \

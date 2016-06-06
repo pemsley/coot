@@ -453,6 +453,12 @@ def residue_atom2occupancy(ra):
     else:
         return ra[1][0]
 
+def residue_atom2position(ra):
+    if not isinstance(ra, list):
+        return False
+    else:
+        return ra[2]
+
 def residue_spec2chain_id(rs):
     if not isinstance(rs, list):
         return False

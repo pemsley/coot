@@ -12454,3 +12454,20 @@ on_export_map_filechooserdialog_response
   }
   gtk_widget_destroy(GTK_WIDGET(dialog));
 } 
+
+#include "cfc-widgets-c-interface.h"
+
+void
+on_cfc_dialog_response                 (GtkDialog       *dialog,
+                                        gint             response_id,
+                                        gpointer         user_data) {
+
+   printf("handle response id %d\n", response_id);
+
+   if (response_id == GTK_RESPONSE_CLOSE) { 
+/*       close_cfc_dialog(GTK_WIDGET(dialog)); */
+      gtk_widget_hide(GTK_WIDGET(dialog)); /* FIXME - not a widget for gtk_widget_unref no destroy */
+
+   } 
+
+}

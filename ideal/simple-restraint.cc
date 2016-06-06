@@ -127,7 +127,7 @@ coot::geometry_distortion_info_container_t::print() const {
 	 }
       }
 
-      if (rest.restraint_type == coot::TORSION_RESTRAINT) {
+      if (rest.restraint_type == TORSION_RESTRAINT) {
 	 n_restraints_torsions++;
 	 mmdb::Atom *at_1 = atom[rest.atom_index_1];
 	 mmdb::Atom *at_2 = atom[rest.atom_index_2];
@@ -137,7 +137,7 @@ coot::geometry_distortion_info_container_t::print() const {
 	    clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
 	    clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
 	    clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
-	    clipper::Coord_orth p4(at_3->x, at_3->y, at_3->z);
+	    clipper::Coord_orth p4(at_4->x, at_4->y, at_4->z);
 	    double torsion_rad = clipper::Coord_orth::torsion(p1, p2, p3, p4);
 	    double torsion = clipper::Util::rad2d(torsion_rad);
 	    double distortion = rest.torsion_distortion(torsion);
@@ -164,6 +164,44 @@ coot::geometry_distortion_info_container_t::print() const {
 	    sum_penalties_angles += pen_score;
 	 }
       }
+
+      if (rest.restraint_type == TRANS_PEPTIDE_RESTRAINT) {
+	 mmdb::Atom *at_1 = atom[rest.atom_index_1];
+	 mmdb::Atom *at_2 = atom[rest.atom_index_2];
+	 mmdb::Atom *at_3 = atom[rest.atom_index_3];
+	 mmdb::Atom *at_4 = atom[rest.atom_index_4];
+	 if (at_1 && at_2 && at_3 && at_4) {
+	    clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+	    clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+	    clipper::Coord_orth p3(at_3->x, at_3->y, at_3->z);
+	    clipper::Coord_orth p4(at_4->x, at_4->y, at_4->z);
+	    double torsion_rad = clipper::Coord_orth::torsion(p1, p2, p3, p4);
+	    double torsion = clipper::Util::rad2d(torsion_rad);
+	    double distortion = rest.torsion_distortion(torsion);
+	    // std::cout << "---------- restraint is trans_peptide_restraint with per "
+	    // << rest.periodicity << " model " << torsion
+	    // << " torsion_distortion: " << distortion << std::endl;
+	    std::string chain_res_1 = std::string(at_1->GetChainID()) + " " + coot::util::int_to_string(at_1->GetSeqNum());
+	    std::string chain_res_2 = std::string(at_2->GetChainID()) + " " + coot::util::int_to_string(at_2->GetSeqNum());
+	    std::string chain_res_3 = std::string(at_3->GetChainID()) + " " + coot::util::int_to_string(at_3->GetSeqNum());
+	    std::string chain_res_4 = std::string(at_4->GetChainID()) + " " + coot::util::int_to_string(at_4->GetSeqNum());
+	    std::string s = std::string("trans-peptide ")
+	       + chain_res_1 + " "
+	       + std::string(at_1->name) + std::string(" - ")
+	       + chain_res_2 + " "
+	       + std::string(at_2->name) + std::string(" - ")
+	       + chain_res_3 + " "
+	       + std::string(at_3->name) + std::string(" - ")
+	       + chain_res_4 + " "
+	       + std::string(at_4->name)
+	       + std::string("  target: ")        + coot::util::float_to_string(rest.target_value)
+	       + std::string(" model_torsion: ")  + coot::util::float_to_string(torsion)
+	       + std::string(" sigma: ")          + coot::util::float_to_string(rest.sigma)
+	       + std::string(" penalty-score:  ") + coot::util::float_to_string_using_dec_pl(distortion, 3);
+	    penalty_string_torsions.push_back(std::pair<std::string,double> (s, distortion));
+	    sum_penalties_angles += distortion;
+	 }
+      }
 	    
       if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
 	 n_restraints_chirals++;
@@ -176,7 +214,11 @@ coot::geometry_distortion_info_container_t::print() const {
 	    mmdb::Atom *at_3 = atom[rest.atom_index_3];
 	    if (at_c && at_1 && at_2 && at_3) {
 	       std::cout << "   chiral volume problem centred at: "
-			 << at_c->name << " with neighbours "
+			 << at_c->GetChainID() << " "
+			 << at_c->GetSeqNum() << " "
+			 << at_c->GetResName() << " "
+			 << at_c->name 
+			 << "  with neighbours "
 			 << at_1->name << " "
 			 << at_2->name << " "
 			 << at_3->name << " "
@@ -1308,9 +1350,8 @@ starting_structure_diff_score(const gsl_vector *v, void *params) {
 
 // Return the distortion score.
 // 
-double
-coot::distortion_score(const gsl_vector *v, void *params) { 
-   
+double coot::distortion_score(const gsl_vector *v, void *params) {
+
    // so we are comparing the geometry of the value in the gsl_vector
    // v and the ideal values.
    // 
@@ -1353,10 +1394,9 @@ coot::distortion_score(const gsl_vector *v, void *params) {
 
       if (restraints->restraints_usage_flag & TRANS_PEPTIDE_MASK) {
 	 if ( (*restraints)[i].restraint_type == TRANS_PEPTIDE_RESTRAINT) {
-	    // std::cout << "adding an trans-peptide restraint: number " << i << std::endl;  
-	    // std::cout << "   distortion sum pre-adding a trans-peptide: " << distortion
-	    double d =  coot::distortion_score_trans_peptide((*restraints)[i], v);
-	    // std::cout << "   DEBUG:: distortion for trans-peptide: " << d << std::endl;
+	       double d =  coot::distortion_score_trans_peptide((*restraints)[i], v);
+	       // std::cout << "adding an trans-peptide restraint: number " << i 
+	       // << "   adding a trans-peptide: " << d << std::endl;
 	    distortion += d;
 	 }
       }
@@ -6025,7 +6065,7 @@ coot::simple_restraint::get_nbc_dist(const std::string &atom_1_type,
 double
 coot::simple_restraint::torsion_distortion(double model_theta) const {
 
-   if (restraint_type != TORSION_RESTRAINT) return 0;
+   if ((restraint_type != TORSION_RESTRAINT) && (restraint_type != TRANS_PEPTIDE_RESTRAINT)) return 0;
 
    // this functions needs to mirror distortion_score_torsion()
    double diff = 99999.9; 
@@ -6050,6 +6090,9 @@ coot::simple_restraint::torsion_distortion(double model_theta) const {
 	 diff -= 360.0; 
       }
    }
+   if (false)
+      std::cout << "in torsion_distortion() per: " << per << " diff: " << diff << " sigma: " << sigma
+		<< "   penalty: " << diff*diff/(sigma * sigma) << std::endl;
    return diff*diff/(sigma * sigma);
 } 
 
