@@ -21,16 +21,6 @@
 
    o repair 72A with alt conf and Sphere refine it.
 
-   o clean this up:
-
-dictionary_residue_restraints_t&, mmdb::Residue*, const std::string&)’:
-../../coot/coot-utils/coot-tree-extras.cc:229: warning: comparison between signed and unsigned integer expressions
-../../coot/coot-utils/coot-tree-extras.cc: In member function ‘std::pair<int, std::vector<coot::map_index_t, std::allocator<coot::map_index_t> > > coot::atom_tree_t::get_forward_atoms(const coot::map_index_t&, const coot::map_index_t&) const’:
-../../coot/coot-utils/coot-tree-extras.cc:1161: warning: comparison between signed and unsigned integer expressions
-
-
-* Done.
-
 
    o when you fail to read a pdb file, it should not then go on to try
      to read it as a small molecule cif if it does not exist.
@@ -611,4 +601,14 @@ Yes.
    o Bond colour slider (edit -> bond colours) is broken.
 
 * Fixed.
+
+   o clean this up:
+
+dictionary_residue_restraints_t&, mmdb::Residue*, const std::string&)’:
+../../coot/coot-utils/coot-tree-extras.cc:229: warning: comparison between signed and unsigned integer expressions
+../../coot/coot-utils/coot-tree-extras.cc: In member function ‘std::pair<int, std::vector<coot::map_index_t, std::allocator<coot::map_index_t> > > coot::atom_tree_t::get_forward_atoms(const coot::map_index_t&, const coot::map_index_t&) const’:
+../../coot/coot-utils/coot-tree-extras.cc:1161: warning: comparison between signed and unsigned integer expressions
+
+
+* Done.
 
