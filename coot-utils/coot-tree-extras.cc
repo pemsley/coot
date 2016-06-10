@@ -225,7 +225,8 @@ coot::atom_tree_t::fill_torsions(const coot::dictionary_residue_restraints_t &re
       // std::cout << " debug:: " << quads.size() << " quads" << std::endl;
       for (unsigned int iquad=0; iquad<quads.size(); iquad++) {
 	 bool inserted = 0;
-	 for (unsigned int iv=0; iv<atom_vertex_vec.size(); iv++) {
+	 int n_atom_vertex = atom_vertex_vec.size();
+	 for (int iv=0; iv<n_atom_vertex; iv++) {
 	    if (iv == quads[iquad].index2) {
 	       for (unsigned int ifo=0; ifo<atom_vertex_vec[iv].forward.size(); ifo++) { 
 		  if (atom_vertex_vec[iv].forward[ifo] == quads[iquad].index3) {
