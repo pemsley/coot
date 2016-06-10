@@ -2995,24 +2995,26 @@ graphics_info_t::set_sequence_view_is_displayed(GtkWidget *widget, int imol) {
 
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
 
-   // first delete the old sequence view if it exists
-   GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
-   if (w) {
-      coot::sequence_view *sv = (coot::sequence_view *)
-	 gtk_object_get_user_data(GTK_OBJECT(w));
-      delete sv;
-   }
-
    if (imol < n_molecules()) {
+
+      // first delete the old sequence view if it exists
+      GtkWidget *w = coot::get_validation_graph(imol, coot::SEQUENCE_VIEW);
+      if (w) {
+	 coot::sequence_view *sv = (coot::sequence_view *) gtk_object_get_user_data(GTK_OBJECT(w));
+	 delete sv;
+      }
+
 //       coot::sequence_view *sv = (coot::sequence_view *)
 // 	 gtk_object_get_user_data(GTK_OBJECT(sequence_view_is_displayed[imol]));
 //       std::cout << "DEBUG:: seting sequence_view_is_displayed[" << imol
 // 		<< "] " << widget << std::endl;
-      // sequence_view_is_displayed[imol] = widget; // ols style
+//       sequence_view_is_displayed[imol] = widget; // ols style
+
       coot::set_validation_graph(imol, coot::SEQUENCE_VIEW, widget);
    }
 #endif // HAVE_GTK_CANVAS   
-} 
+}
+
 void 
 graphics_info_t::unset_geometry_dialog_distance_togglebutton() { 
 

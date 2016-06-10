@@ -19,7 +19,7 @@
  * 02110-1301, USA
  */
 
-#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+#if defined(HAVE_GNOME_CANVAS)
 
 #ifndef HAVE_STRING
 #include <string>
@@ -28,20 +28,9 @@
 
 #include <mmdb2/mmdb_manager.h>
 
-#ifdef HAVE_GTK_CANVAS
-
+#ifdef HAVE_GNOME_CANVAS
 #include <gtk/gtk.h>
-#include <gdk_imlib.h>
-#include <gtk-canvas.h>
-
-#else 
-
-   #ifdef HAVE_GNOME_CANVAS
-      #include <gtk/gtk.h>
-      #include <libgnomecanvas/libgnomecanvas.h>
-      typedef GnomeCanvas     GtkCanvas; 
-      typedef GnomeCanvasItem GtkCanvasItem; 
-   #endif
+#include <libgnomecanvas/libgnomecanvas.h>
 #endif
 
 #include "coot-utils/coot-coord-utils.hh"
@@ -70,7 +59,7 @@ namespace exptl {
       class spec_and_object {
       public:
 	 int mol_no;
-	 GtkCanvasItem *obj;
+	 GnomeCanvasItem *obj;
 	 coot::atom_spec_t atom_spec;
 	 int position_number;
   	 spec_and_object(int molecule_number_in, coot::atom_spec_t &spec_in,
@@ -79,16 +68,17 @@ namespace exptl {
 	    atom_spec = spec_in;
 	    position_number = position_number_in;
 	 } 
-	 void add_rect_attribs(GtkCanvasItem *rect_item_in) { 
+	 void add_rect_attribs(GnomeCanvasItem *rect_item_in) { 
 	    obj = rect_item_in;
 	 }
       };
 
 
       int molecule_number;
-      GtkCanvas *canvas;
-      std::vector<GtkCanvasItem *> canvas_item_vec;
-      void setup_canvas(mmdb::Manager *mol, GtkWidget *scrolled_window);
+      GnomeCanvas *canvas;
+      GtkWidget *scrolled_window; // we use this for regenerate().
+      std::vector<GnomeCanvasItem *> canvas_item_vec;
+      void setup_canvas(mmdb::Manager *mol);
       std::vector<chain_length_residue_units_t> get_residue_counts(mmdb::Manager *mol) const;
       bool use_graphics_interface_flag;
       static void on_nsv_close_button_clicked (GtkButton *button,
@@ -107,7 +97,8 @@ namespace exptl {
       int pixels_per_chain;
       bool add_text_and_rect(mmdb::Residue *residue_p, int pos_number, int lowest_resno, double x_offset);
       std::string colour_by_secstr(mmdb::Residue *residue_p) const;
-      int points_max; 
+      int points_max;
+      void clear_canvas();
       
    public:
       nsv(mmdb::Manager *mol,

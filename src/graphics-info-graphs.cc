@@ -154,36 +154,38 @@ coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
    if (graphics_info_t::is_valid_model_molecule(imol)) {
       bool found = 1; 
 	switch(type){
-		case coot::GEOMETRY_GRAPH_GEOMETRY:
-			w = graphics_info_t::molecules[imol].validation_graphs.geometry_graph;
-			break;
-		case coot::GEOMETRY_GRAPH_B_FACTOR:
-			w = graphics_info_t::molecules[imol].validation_graphs.b_factor_variance_graph;
-			break;
-		case coot::GEOMETRY_GRAPH_CALC_B_FACTOR:
-			w = graphics_info_t::molecules[imol].validation_graphs.b_factor_graph;
-			break;
-		case coot::GEOMETRY_GRAPH_DENSITY_FIT:
-			w = graphics_info_t::molecules[imol].validation_graphs.residue_density_fit_graph;
-			break;
-		case coot::GEOMETRY_GRAPH_OMEGA_DISTORTION:
-			w = graphics_info_t::molecules[imol].validation_graphs.omega_distortion_graph;
-			break;
-		case coot::GEOMETRY_GRAPH_ROTAMER:
-			w = graphics_info_t::molecules[imol].validation_graphs.rotamer_graph;
-			break;
-		case coot::GEOMETRY_GRAPH_NCS_DIFFS:
-			w = graphics_info_t::molecules[imol].validation_graphs.ncs_diffs_graph;
-			break;
-		case coot::SEQUENCE_VIEW:
-			w = graphics_info_t::molecules[imol].validation_graphs.sequence_view_is_displayed;
-			break;
-		case coot::RAMACHANDRAN_PLOT:
-			w = graphics_info_t::molecules[imol].validation_graphs.dynarama_is_displayed;
-			break;
-		default:
-			found=0;
-			break;
+	case coot::GEOMETRY_GRAPH_GEOMETRY:
+	   w = graphics_info_t::molecules[imol].validation_graphs.geometry_graph;
+	   break;
+	case coot::GEOMETRY_GRAPH_B_FACTOR:
+	   w = graphics_info_t::molecules[imol].validation_graphs.b_factor_variance_graph;
+	   break;
+	case coot::GEOMETRY_GRAPH_CALC_B_FACTOR:
+	   w = graphics_info_t::molecules[imol].validation_graphs.b_factor_graph;
+	   break;
+	case coot::GEOMETRY_GRAPH_DENSITY_FIT:
+	   w = graphics_info_t::molecules[imol].validation_graphs.residue_density_fit_graph;
+	   break;
+	case coot::GEOMETRY_GRAPH_OMEGA_DISTORTION:
+	   w = graphics_info_t::molecules[imol].validation_graphs.omega_distortion_graph;
+	   break;
+	case coot::GEOMETRY_GRAPH_ROTAMER:
+	   w = graphics_info_t::molecules[imol].validation_graphs.rotamer_graph;
+	   break;
+	case coot::GEOMETRY_GRAPH_NCS_DIFFS:
+	   w = graphics_info_t::molecules[imol].validation_graphs.ncs_diffs_graph;
+	   break;
+	case coot::SEQUENCE_VIEW:
+	   w = graphics_info_t::molecules[imol].validation_graphs.sequence_view_is_displayed;
+	   std::cout << "debug:: switch for sequence_view for imol " << imol << " is "
+		     << w << std::endl;
+	   break;
+	case coot::RAMACHANDRAN_PLOT:
+	   w = graphics_info_t::molecules[imol].validation_graphs.dynarama_is_displayed;
+	   break;
+	default:
+	   found=0;
+	   break;
 	}
 
    }
@@ -215,6 +217,8 @@ graphics_info_t::update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelRes
 #endif // HAVE_GSL   
 }
 
+#include "nsv.hh"
+
 // The molecule-based version of the above.
 void
 graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving_atoms_asc_local,
@@ -222,6 +226,8 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
 
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
+
+   std::cout << "here 1 in graphics_info_t::update_geometry_graphs()" << std::endl;
 
    GtkWidget *graph = coot::get_validation_graph(imol_moving_atoms, coot::GEOMETRY_GRAPH_GEOMETRY);
    if (graph) {
@@ -321,7 +327,26 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
 	    }
 	 }
       }
-   } 
+   }
+
+   std::cout << "here 2 in graphics_info_t::update_geometry_graphs()" << std::endl;
+   graph = coot::get_validation_graph(imol_moving_atoms, coot::SEQUENCE_VIEW);
+   std::cout << "here 3 in graphics_info_t::update_geometry_graphs() " << graph << std::endl;
+   if (graph) {
+
+      std::cout << "here 4 in graphics_info_t::update_geometry_graphs()" << std::endl;
+      std::cout << "............ update sequence_view graph " << graph << std::endl;
+
+      exptl::nsv *sequence_view = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(graph), "nsv"));
+
+      if (sequence_view) {
+	 mmdb::Manager *mol = molecules[imol_moving_atoms].atom_sel.mol;
+	 sequence_view->regenerate(mol);
+      }
+			  
+   }
+
+   
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 #endif // HAVE_GSL
 }

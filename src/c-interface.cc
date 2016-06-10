@@ -6414,10 +6414,9 @@ void do_sequence_view(int imol) {
 	 sequence_view_old_style(imol);
       } else {
 	 nsv(imol);
-      } 
-   } 
-
-} 
+      }
+   }
+}
 
 
 /*  ----------------------------------------------------------------------- */

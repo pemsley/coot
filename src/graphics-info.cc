@@ -3616,6 +3616,11 @@ graphics_info_t::apply_undo() {
 		  }
 		  // now update the geometry graphs, so get the asc
 		  atom_selection_container_t u_asc = molecules[umol].atom_sel;
+
+
+		  std::cout << "--------- from apply_undo() calling update_geometry_graphs "
+			    << std::endl;
+		  
 		  update_geometry_graphs(u_asc, umol);
 #endif // HAVE_GTK_CANVAS   
 	       }
