@@ -24,13 +24,13 @@ coot::bonded_pair_container_t::linked_already_p(mmdb::Residue *r1, mmdb::Residue
 bool
 coot::bonded_pair_container_t::try_add(const coot::bonded_pair_t &bp) {
 
-   bool found = 0;
+   bool found = false;
    for (unsigned int i=0; i<bonded_residues.size(); i++) {
       if ( (bonded_residues[i].res_1 == bp.res_1 &&
 	    bonded_residues[i].res_2 == bp.res_2) ||
 	   (bonded_residues[i].res_1 == bp.res_2 &&
 	    bonded_residues[i].res_2 == bp.res_1) ) {
-	 found = 1;
+	 found = true;
 	 break;
       }
    }
@@ -169,7 +169,7 @@ coot::bonded_pair_container_t::filter() {
    std::vector<bonded_pair_t> new_bonded_residues;
    bool debug = false;
 
-   if (debug) { 
+   if (debug) {
       std::cout << ":::: we have these bonded pairs" << std::endl;
       for (unsigned int i=0; i<bonded_residues.size(); i++) {
 	 const bonded_pair_t &bp_i = bonded_residues[i];
@@ -201,13 +201,17 @@ coot::bonded_pair_container_t::filter() {
 			   std::string chain_id_2_j = bp_j.res_2->GetChainID();
 			   if (chain_id_1_j == chain_id_2_j) {
 			      if (chain_id_1_j == chain_id_1_i) {
-				 keep_this = false;
-				 if (debug)
-				    std::cout << ":::::::::::::::::::::: delete bonded pair "
-					      << residue_spec_t(bp_i.res_1) << " - to = "
-					      << residue_spec_t(bp_i.res_2) << " because "
-					      << residue_spec_t(bp_j.res_1) << " - to - "
-					      << residue_spec_t(bp_j.res_2) << " is closer " << std::endl;
+				 if (bp_i.link_type == "CIS" || bp_i.link_type == "TRANS") {
+				    if (bp_j.link_type == "CIS" || bp_j.link_type == "TRANS") {
+				       keep_this = false;
+				       if (debug)
+					  std::cout << ":::::::::::::::::::::: delete bonded pair "
+						    << residue_spec_t(bp_i.res_1) << " - to = "
+						    << residue_spec_t(bp_i.res_2) << " because "
+						    << residue_spec_t(bp_j.res_1) << " - to - "
+						    << residue_spec_t(bp_j.res_2) << " is closer " << std::endl;
+				    }
+				 }
 			      }
 			   }
 			}

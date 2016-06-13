@@ -5082,11 +5082,19 @@ coot::bonded_pair_container_t
 coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_geometry &geom) const {
 
    bool debug = false;
+
    coot::bonded_pair_container_t bpc;
    float dist_crit = 3.0;
 
-   if (debug)
-      std::cout << "  debug:: residues_vec.size() " << residues_vec.size() << std::endl;
+   if (verbose_geometry_reporting == VERBOSE)
+      debug = true;
+   
+   if (debug) {
+      std::cout << "  debug:: bonded_residues_from_res_vec() residues_vec.size() " << residues_vec.size() << std::endl;
+      for (unsigned int i=0; i<residues_vec.size(); i++) {
+	 std::cout << "   " << residues_vec[i].first << " " << residue_spec_t(residues_vec[i].second) << std::endl;
+      }
+   }
 
    int nres = residues_vec.size();
    for (unsigned int ii=0; ii<residues_vec.size(); ii++) {
@@ -5099,7 +5107,7 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 	    std::cout << " closest approach given " << coot::residue_spec_t(res_f)
 		      << " and " << coot::residue_spec_t(res_s) << std::endl;
 	    std::cout << " closest approach d " << d.first << " " << d.second << std::endl;
-	 } 
+	 }
 	 if (d.first) {
 	    if (d.second < dist_crit) {
 	       std::pair<std::string, bool> l  = find_link_type_complicado(res_f, res_s, geom);
@@ -5108,9 +5116,9 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 
 		  // too verbose?
 		  if (debug) 
-		     std::cout << "   INFO:: "
+		     std::cout << "   INFO:: find_link_type_complicado(): "
 			       << coot::residue_spec_t(res_f) << " " << coot::residue_spec_t(res_s)
-			       << " link_type :" << link_type << ":" << std::endl;
+			       << " link_type -> :" << link_type << ":" << std::endl;
 		  bool whole_first_residue_is_fixed = 0;
 		  bool whole_second_residue_is_fixed = 0;
 		  bool order_switch_flag = l.second;
@@ -5120,12 +5128,14 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 					   whole_first_residue_is_fixed,
 					   whole_second_residue_is_fixed, link_type);
 		     bool added_flag = bpc.try_add(p);
+		     std::cout << "bpc.try_add() on " << p << " returned " << added_flag << std::endl;
 		  } else {
 		     coot::bonded_pair_t p(res_s, res_f,
 					   whole_first_residue_is_fixed,
 					   whole_second_residue_is_fixed,
 					   link_type);
 		     bool added_flag = bpc.try_add(p);
+		     std::cout << "bpc.try_add() on " << p << " returned " << added_flag << std::endl;
 		  }
 	       } else {
 		  if (debug)

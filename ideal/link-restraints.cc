@@ -602,6 +602,8 @@ coot::restraints_container_t::make_link_restraints_from_res_vec(const coot::prot
    return bonded_residue_pairs;
 }
 
+#include <iomanip>
+
 int
 coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_geometry &geom,
 							    const coot::bonded_pair_container_t &bonded_residue_pairs,
@@ -635,8 +637,10 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
       if (verbose_geometry_reporting == VERBOSE) { 
 	 std::cout << " ------- looking for link :" << link_type
 		   << ": restraints etc. between residues " 
-		   << sel_res_1->GetChainID() << " " << sel_res_1->seqNum << " - " 
-		   << sel_res_2->GetChainID() << " " << sel_res_2->seqNum << std::endl;
+		   << sel_res_1->GetChainID() << " " << setw(3) << sel_res_1->seqNum << " " << sel_res_1->GetResName()
+		   << " - " 
+		   << sel_res_2->GetChainID() << " " << setw(3) << sel_res_2->seqNum << " " << sel_res_2->GetResName()
+		   << std::endl;
       }
 	 
 // 	    gettimeofday(&start_time, NULL);
