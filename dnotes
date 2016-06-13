@@ -7105,9 +7105,13 @@ Fri May 30 03:55:36 CEST 2014
 
    mmdb documentation 
    http://www.ebi.ac.uk/pdbe/docs/cldoc/object/cl_obj_surf.html
+   http://www.ebi.ac.uk/pdbe/docs/cldoc/object/cl_obj_selfnc.html
 
    Delete hydrogens:
    (new-molecule-by-atom-selection 0 "//*//*[!H]")
+
+   C-alphas selection
+   (new-molecule-by-atom-selection 0 "//*//CA[C]")
 
 ---
 Tue Jul  8 11:03:57 BST 2014

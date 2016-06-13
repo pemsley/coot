@@ -5749,10 +5749,10 @@ SCM run_python_command(const char *python_cmd) {
 // This is a library function really.  There should be somewhere else to put it.
 // It doesn't need expression at the scripting level.
 // return a null list on problem
-SCM scm_residue(const coot::residue_spec_t &res) {
+SCM residue_spec_to_scm(const coot::residue_spec_t &res) {
    SCM r = SCM_EOL;
 
-//    std::cout <<  "scm_residue on: " << res.chain << " " << res.resno << " "
+//    std::cout <<  "residue_spec_to_scm on: " << res.chain << " " << res.resno << " "
 // 	     << res.insertion_code  << std::endl;
    r = scm_cons(scm_makfrom0str(res.ins_code.c_str()), r);
    r = scm_cons(SCM_MAKINUM(res.res_no), r);
@@ -5768,7 +5768,7 @@ SCM scm_residue(const coot::residue_spec_t &res) {
 // This is a library function really.  There should be somewhere else to put it.
 // It doesn't need expression at the scripting level.
 // return a null list on problem
-PyObject *py_residue(const coot::residue_spec_t &res) {
+PyObject *residue_spec_to_py(const coot::residue_spec_t &res) {
    PyObject *r;
    r = PyList_New(4);
 
@@ -5783,6 +5783,37 @@ PyObject *py_residue(const coot::residue_spec_t &res) {
    return r;
 }
 #endif // USE_PYTHON
+
+#ifdef USE_PYTHON
+// Garanteed to return a triple list (will return unset-spec if needed).
+// 
+PyObject *residue_spec_make_triple_py(PyObject *res_spec_py) {
+
+   coot::residue_spec_t res_spec_default;
+   PyObject *r = PyList_New(3);
+   
+   if (PyList_Check(res_spec_py)) {
+      long l = PyObject_Length(res_spec_py);
+      int offset = 0;
+      if (l == 4) {
+	 offset = 1;
+      }
+      PyObject *chain_id_py = PyList_GetItem(res_spec_py, offset);
+      PyObject *res_no_py   = PyList_GetItem(res_spec_py, offset+1);
+      PyObject *ins_code_py = PyList_GetItem(res_spec_py, offset+2);
+      PyList_SetItem(r, 0, chain_id_py);
+      PyList_SetItem(r, 1, res_no_py);
+      PyList_SetItem(r, 2, ins_code_py);
+   } else {
+      PyObject *r = PyList_New(3);
+      PyList_SetItem(r, 0, PyString_FromString(res_spec_default.chain_id.c_str()));
+      PyList_SetItem(r, 1, PyInt_FromLong(res_spec_default.res_no));
+      PyList_SetItem(r, 2, PyString_FromString(res_spec_default.ins_code.c_str()));
+   }
+   return r;
+}
+#endif // USE_PYTHON
+
 
 #ifdef USE_GUILE 
 // Return a SCM list object of (residue1 residue2 omega) 
@@ -5804,8 +5835,8 @@ SCM cis_peptides(int imol) {
 	 coot::residue_spec_t r2(v[i].chain_id_2,
 				 v[i].resno_2,
 				 v[i].ins_code_2);
-	 SCM scm_r1 = scm_residue(r1);
-	 SCM scm_r2 = scm_residue(r2);
+	 SCM scm_r1 = residue_spec_to_scm(r1);
+	 SCM scm_r2 = residue_spec_to_scm(r2);
 	 SCM scm_residue_info = SCM_EOL;
 // 	 std::cout << "DEBUG:: cis pep with omega: "
 // 		   << v[i].omega_torsion_angle
@@ -5848,8 +5879,8 @@ PyObject *cis_peptides_py(int imol) {
 				 v[i].resno_2,
 				 v[i].ins_code_2);
 	 PyObject *py_r1, *py_r2, *py_residue_info;
-	 py_r1 = py_residue(r1);
-	 py_r2 = py_residue(r2);
+	 py_r1 = residue_spec_to_py(r1);
+	 py_r2 = residue_spec_to_py(r2);
 	 py_residue_info = PyList_New(3);
 // 	 std::cout << "DEBUG:: cis pep with omega: "
 // 		   << v[i].omega_torsion_angle

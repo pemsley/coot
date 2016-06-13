@@ -1950,7 +1950,7 @@ map_to_model_correlation_per_residue_scm(int imol, SCM specs_scm, unsigned short
    std::vector<std::pair<coot::residue_spec_t,float> >
       v = map_to_model_correlation_per_residue(imol, specs, atom_mask_mode, imol_map);
    for (unsigned int i=0; i<v.size(); i++) {
-      SCM p1 = scm_residue(v[i].first);
+      SCM p1 = residue_spec_to_scm(v[i].first);
       SCM p2 = scm_double2num(v[i].second);
       SCM item = scm_list_2(p1, p2);
       r = scm_cons(item, r);
@@ -2021,7 +2021,7 @@ map_to_model_correlation_per_residue_py(int imol, PyObject *specs_py, unsigned s
 
    PyObject *r = PyList_New(v.size());
    for (unsigned int i=0; i<v.size(); i++) {
-      PyObject *p0 = py_residue(v[i].first);
+      PyObject *p0 = residue_spec_to_py(v[i].first);
       PyObject *p1 = PyFloat_FromDouble(v[i].second);
       PyObject *item = PyList_New(2);
       PyList_SetItem(item, 0, p0);

@@ -889,6 +889,8 @@ SCM residues_near_residue(int imol, SCM residue_in, float radius) {
 // Return residue specs for residues that have atoms that are
 // closer than radius Angstroems to any atom in the residue
 // specified by res_in.
+//
+// This will return a list of residue specifiers as triples
 // 
 #ifdef USE_PYTHON
 PyObject *residues_near_residue_py(int imol, PyObject *residue_spec_in, float radius) {
@@ -904,8 +906,9 @@ PyObject *residues_near_residue_py(int imol, PyObject *residue_spec_in, float ra
 	    std::vector<coot::residue_spec_t> v =
 	       graphics_info_t::molecules[imol].residues_near_residue(rspec.second, radius);
 	    for (unsigned int i=0; i<v.size(); i++) {
-	       PyObject *res_spec_py = py_residue(v[i]);
-	       PyList_Append(r, res_spec_py);
+	       PyObject *res_spec_py = residue_spec_to_py(v[i]);
+	       PyObject *res_spec_triple_py = residue_spec_make_triple_py(res_spec_py);
+	       PyList_Append(r, res_spec_triple_py);
 	       // Py_XDECREF(res_spec); - what did this do before I removed it?
 	    }
 	 } else {
@@ -944,7 +947,7 @@ SCM residues_near_position_scm(int imol, SCM pt_in_scm, float radius) {
 	 mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
 	 std::vector<mmdb::Residue *> v = coot::residues_near_position(pt, mol, radius);
 	 for (unsigned int i=0; i<v.size(); i++) {
-	    SCM r_scm = scm_residue(coot::residue_spec_t(v[i]));
+	    SCM r_scm = residue_spec_to_scm(coot::residue_spec_t(v[i]));
 	    r = scm_cons(r_scm, r);
 	 }
       }
@@ -975,7 +978,7 @@ PyObject *residues_near_position_py(int imol, PyObject *pt_in_py, float radius) 
 	mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
 	std::vector<mmdb::Residue *> v = coot::residues_near_position(pt, mol, radius);
 	for (unsigned int i=0; i<v.size(); i++) {
-	  PyObject *r_py = py_residue(coot::residue_spec_t(v[i]));
+	  PyObject *r_py = residue_spec_to_py(coot::residue_spec_t(v[i]));
 	  PyList_Append(r, r_py);
 	  Py_XDECREF(r_py);
 	}
@@ -1627,7 +1630,7 @@ PyObject *active_atom_spec_py() {
    std::pair<bool, std::pair<int, coot::atom_spec_t> > r = active_atom_spec();
       PyObject *state_py = Py_True;
       PyObject *mol_no = PyInt_FromLong(r.second.first);
-      PyObject *spec = py_residue(r.second.second);
+      PyObject *spec = residue_spec_to_py(r.second.second);
       PyObject *tuple_inner = PyTuple_New(2);
    if (! r.first) {
       state_py = Py_False;

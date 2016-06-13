@@ -446,7 +446,7 @@ int pyrun_simple_string(const char *python_command);
 // This is a library function really.  There should be somewhere else to put it.
 // It doesn't need expression at the scripting level.
 // return a null list on problem
-SCM scm_residue(const coot::residue_spec_t &res);
+SCM residue_spec_to_scm(const coot::residue_spec_t &res);
 #endif
 
 #ifdef USE_PYTHON
@@ -455,8 +455,12 @@ SCM scm_residue(const coot::residue_spec_t &res);
 // This is a library function really.  There should be somewhere else to put it.
 // It doesn't need expression at the scripting level.
 // return a null list on problem
-PyObject *py_residue(const coot::residue_spec_t &res);
+PyObject *residue_spec_to_py(const coot::residue_spec_t &res);
 #endif
+
+#ifdef USE_PYTHON
+PyObject *residue_spec_make_triple_py(PyObject *residue_spec_py);
+#endif // USE_PYTHON
 
 #ifdef USE_GUILE
 coot::residue_spec_t residue_spec_from_scm(SCM residue_in);
