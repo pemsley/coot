@@ -1662,7 +1662,7 @@ SCM active_residue() {
    if (pp.first) {
       s = SCM_EOL;
       s = scm_cons(scm_makfrom0str(pp.second.second.alt_conf.c_str()) , s);
-      s = scm_cons(scm_makfrom0str(pp.second.second.atom_name.c_str()) , s);
+      s = scm_cons(scm_makfrom0str(pp.second.second.atom_name.c_str()), s);
       s = scm_cons(scm_makfrom0str(pp.second.second.ins_code.c_str()) , s);
       s = scm_cons(scm_int2num(pp.second.second.res_no) , s);
       s = scm_cons(scm_makfrom0str(pp.second.second.chain_id.c_str()) , s);
@@ -1688,12 +1688,12 @@ SCM closest_atom_simple_scm() {
 
    if (pp.first) {
       s = SCM_EOL;
-      s = scm_cons(scm_makfrom0str(pp.second.second.alt_conf.c_str()) , s);
-      s = scm_cons(scm_makfrom0str(pp.second.second.atom_name.c_str()) , s);
-      s = scm_cons(scm_makfrom0str(pp.second.second.ins_code.c_str()) , s);
-      s = scm_cons(scm_int2num(pp.second.second.res_no) , s);
-      s = scm_cons(scm_makfrom0str(pp.second.second.chain_id.c_str()) , s);
-      s = scm_cons(scm_int2num(pp.second.first) ,s);
+      s = scm_cons(scm_makfrom0str(pp.second.second.alt_conf.c_str()), s);
+      s = scm_cons(scm_makfrom0str(pp.second.second.atom_name.c_str()), s);
+      s = scm_cons(scm_makfrom0str(pp.second.second.ins_code.c_str()), s);
+      s = scm_cons(scm_int2num(pp.second.second.res_no), s);
+      s = scm_cons(scm_makfrom0str(pp.second.second.chain_id.c_str()), s);
+      s = scm_cons(scm_int2num(pp.second.first), s);
    }
    return s;
 } 
@@ -1722,6 +1722,36 @@ PyObject *active_residue_py() {
    return s;
 }
 #endif // PYTHON
+
+#ifdef USE_PYTHON
+//! \brief return the specs of the closest displayed atom
+//!
+//! Return a list of (list imol chain-id resno ins-code atom-name
+//! alt-conf (list x y z)) for atom that is closest to the screen
+//! centre in the given molecule (unlike active-residue, potentila CA 
+//! substition is not performed).  If there is no atom, or if imol is 
+//! not a valid model molecule, return scheme false.
+//! 
+PyObject *closest_atom_simple_py() {
+   
+   PyObject *s = Py_False;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = graphics_info_t::active_atom_spec_simple();
+   if (pp.first) {
+      s = PyList_New(6);
+      PyList_SetItem(s, 0, PyInt_FromLong(pp.second.first));
+      PyList_SetItem(s, 1, PyString_FromString(pp.second.second.chain_id.c_str()));
+      PyList_SetItem(s, 2, PyInt_FromLong(pp.second.second.res_no));
+      PyList_SetItem(s, 3, PyString_FromString(pp.second.second.ins_code.c_str()));
+      PyList_SetItem(s, 4, PyString_FromString(pp.second.second.atom_name.c_str()));
+      PyList_SetItem(s, 5, PyString_FromString(pp.second.second.alt_conf.c_str()));
+   }
+   if (PyBool_Check(s)) {
+     Py_INCREF(s);
+   }   
+   return s;
+} 
+#endif // USE_PYTHON
+
 
 #ifdef USE_GUILE
 SCM closest_atom(int imol) {

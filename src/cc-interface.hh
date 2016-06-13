@@ -563,7 +563,7 @@ SCM active_residue();
 //!
 //! Return a list of (list imol chain-id resno ins-code atom-name
 //! alt-conf (list x y z)) for atom that is closest to the screen
-//! centre in the given molecule (unlike active-residue, potentila CA 
+//! centre in the given molecule (unlike active-residue, potential CA 
 //! substition is not performed).  If there is no atom, or if imol is 
 //! not a valid model molecule, return scheme false.
 //! 
@@ -659,13 +659,23 @@ int add_molecule_py(PyObject *molecule_expression, const char *name);
 //
 PyObject *active_residue_py();
 
+//! \brief return the spec of the closest displayed atom
+//!
+//! Return a list of (list imol chain-id resno ins-code atom-name
+//! alt-conf (list x y z)) for atom that is closest to the screen
+//! centre in the given molecule (unlike active-residue, potential CA 
+//! substition is not performed).  If there is no atom, or if imol is 
+//! not a valid model molecule, return False.
+//! 
+PyObject *closest_atom_simple_py();
+
 //! \brief return closest atom in imolth molecule
 // 
 //! Return a list of [imol, chain-id, resno, ins-code, atom-name,
 //! alt-conf, [x, y, z]] for atom that is closest to the screen
 //! centre in the given molecule (unlike active-residue, no account is
 //! taken of the displayed state of the molecule).  If there is no
-//! atom, or if imol is not a valid model molecule, return #f.
+//! atom, or if imol is not a valid model molecule, return False.
 // 
 PyObject *closest_atom_py(int imol);
 
