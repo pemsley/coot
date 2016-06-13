@@ -1184,7 +1184,8 @@ coot::restraints_editor::get_residue_info() const {
    // e.g. view_and_store_atoms.store:
    GtkTreeIter  iter;
 
-   // Currently Acedrg writes out dictionaries with no proper name (uses . for name):
+   // Currently with an input mol file, Acedrg writes out dictionaries with no proper name
+   // (uses . for name):
    //
    // when the dialog is filled then, there is no string added to the name field.
    // when we read it we get a blank and hence the "Incomprehensible comp-id' message.
