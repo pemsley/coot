@@ -8050,7 +8050,7 @@ molecule_class_info_t::transform_by(mmdb::mat44 mat) {
 					 mat[2][0], mat[2][1], mat[2][2]);
       clipper::Coord_orth cco(mat[0][3], mat[1][3], mat[2][3]);
       clipper::RTop_orth rtop(clipper_mat, cco);
-      std::cout << "INFO:: coordinates transformed by orthonal matrix: \n"
+      std::cout << "INFO:: coordinates transformed by orthogonal matrix: \n"
 		<< rtop.format() << std::endl;
       clipper::Rotation rtn( clipper_mat );
       clipper::Polar_ccp4 polar = rtn.polar_ccp4();
@@ -8082,7 +8082,7 @@ void
 molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop) {
 
    make_backup();
-   std::cout << "INFO:: coordinates transformed by orthonal matrix: \n"
+   std::cout << "INFO:: coordinates transformed by orthogonal matrix: \n"
 	     << rtop.format() << std::endl;
    if (have_unit_cell) {
 
