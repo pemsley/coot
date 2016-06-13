@@ -516,13 +516,7 @@ class molecule_class_info_t {
    std::vector<coot::dots_representation_info_t> dots;
    coot::colour_t dots_colour;
    bool dots_colour_set;
-   coot::at_dist_info_t closest_atom(const coot::Cartesian &pt,
-				     bool ca_check_flag) const;
-   coot::at_dist_info_t closest_atom(const coot::Cartesian &pt,
-				     bool ca_check_flag,
-				     const std::string &chain_id,
-				     bool use_this_chain_id) const;
-   
+
    // return -1 on not found
    int get_atom_index(mmdb::Atom *atom) { 
      int idx = -1;
@@ -2522,6 +2516,12 @@ public:        //                      public
    void set_residue_name(std::string chain_id, int res_no, std::string ins_code, std::string new_name);
 
 
+   coot::at_dist_info_t closest_atom(const coot::Cartesian &pt,
+				     bool ca_check_flag) const;
+   coot::at_dist_info_t closest_atom(const coot::Cartesian &pt,
+				     bool ca_check_flag,
+				     const std::string &chain_id,
+				     bool use_this_chain_id) const;
    coot::at_dist_info_t closest_atom(const coot::Cartesian &pt) const;
 
 

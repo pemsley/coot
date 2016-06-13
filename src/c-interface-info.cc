@@ -1672,6 +1672,34 @@ SCM active_residue() {
 }
 #endif // USE_GUILE
 
+#ifdef USE_GUILE
+//! \brief return the specs of the closest displayed atom
+//!
+//! Return a list of (list imol chain-id resno ins-code atom-name
+//! alt-conf (list x y z)) for atom that is closest to the screen
+//! centre in the given molecule (unlike active-residue, potentila CA 
+//! substition is not performed).  If there is no atom, or if imol is 
+//! not a valid model molecule, return scheme false.
+//! 
+SCM closest_atom_simple_scm() {
+   
+   SCM s = SCM_BOOL(0);
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = graphics_info_t::active_atom_spec_simple();
+
+   if (pp.first) {
+      s = SCM_EOL;
+      s = scm_cons(scm_makfrom0str(pp.second.second.alt_conf.c_str()) , s);
+      s = scm_cons(scm_makfrom0str(pp.second.second.atom_name.c_str()) , s);
+      s = scm_cons(scm_makfrom0str(pp.second.second.ins_code.c_str()) , s);
+      s = scm_cons(scm_int2num(pp.second.second.res_no) , s);
+      s = scm_cons(scm_makfrom0str(pp.second.second.chain_id.c_str()) , s);
+      s = scm_cons(scm_int2num(pp.second.first) ,s);
+   }
+   return s;
+} 
+#endif // USE_GUILE
+
+
 #ifdef USE_PYTHON
 PyObject *active_residue_py() {
 

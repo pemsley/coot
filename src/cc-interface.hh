@@ -559,6 +559,16 @@ int clear_and_update_molecule(int molecule_number, SCM molecule_expression);
 //! 
 SCM active_residue();
 
+//! \brief return the specs of the closest displayed atom
+//!
+//! Return a list of (list imol chain-id resno ins-code atom-name
+//! alt-conf (list x y z)) for atom that is closest to the screen
+//! centre in the given molecule (unlike active-residue, potentila CA 
+//! substition is not performed).  If there is no atom, or if imol is 
+//! not a valid model molecule, return scheme false.
+//! 
+SCM closest_atom_simple_scm();
+
 //! \brief return the specs of the closest atom in imolth molecule
 //!
 //! Return a list of (list imol chain-id resno ins-code atom-name
@@ -568,6 +578,7 @@ SCM active_residue();
 //! atom, or if imol is not a valid model molecule, return scheme false.
 //! 
 SCM closest_atom(int imol);
+
 
 //! \brief return residues near residue
 //! 

@@ -7768,7 +7768,9 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 	    } else { 
 	       std::vector<std::vector<std::string> > ring_atoms_sets = p.second.get_ligand_ring_list();
 	       std::vector<coot::dict_torsion_restraint_t> interesting_torsions;
-	       for (unsigned int it=0; it<all_torsions.size(); it++) { 
+	       for (unsigned int it=0; it<all_torsions.size(); it++) {
+
+		  bool is_ring_torsion_flag = all_torsions[it].is_ring_torsion(ring_atoms_sets);
 		  if (! all_torsions[it].is_ring_torsion(ring_atoms_sets)) {
 		     if (all_torsions[it].atom_id_2_4c() == atom_name)
 			interesting_torsions.push_back(all_torsions[it]);
