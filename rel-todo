@@ -1,6 +1,20 @@
  
  0.8.4
 
+   o Ben: When saving a dictionary after chiral centre modification, then the output
+     file is practically empty.
+
+     Where in the gui is the quick way to invert this chiral centre? (Extensions -> Modelling -> 
+     Invert this Chiral Centre)
+
+     When I use the restraints editor, and edit the chirality (positive to negative) the console says 
+
+comp_id :DRG:, tlc :DRG:, name ::, group :non-polymer: n_atoms: 34 n_H_atoms: 17 desc-level :.:
+INFO:: wrote mmCIF "coot-tmp-restraints.cif"
+INFO:: restraints for "" were replaced
+
+     And the restraints are not updated
+
    o on startup, if COOT_SCHEME_EXTRA_DIR is set then
      ~/.coot-preferences is not read/executed. It should do both. Was this a 
      problem only in refinement branch?
