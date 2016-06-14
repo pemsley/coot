@@ -544,7 +544,7 @@ function post_install_slim {
     file_list="etc info man share libexec  \
 	libexec/coot-bin                   \
 	libexec/findwaters-bin             \
-	libexec/findligands-bin            \
+	libexec/findligand-bin             \
 	libexec/mini-rsr-bin               \
 	bin/coot                           \
         bin/findwaters                     \

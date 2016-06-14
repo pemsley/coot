@@ -1,21 +1,16 @@
  
  0.8.4
 
+   o Miguel OXT problems.  Add to the test suite.
+
    o on startup, if COOT_SCHEME_EXTRA_DIR is set then
      ~/.coot-preferences is not read/executed. It should do both. Was this a 
      problem only in refinement branch?
-
-   o Miguel OXT problems.  Add to the test suite.
 
    o fix up hydrogenize and flev interface (is cprodrg still a part of ccp4?)
 
    o ligand distortions represenation (vs dictionary) should be in "Ligand" 
      menu
-
-   o optionally attach generic display object to molecule numbers so that 
-     the objects are undisplayed when the molecule number is undisplayed.
-
-* Done.
 
    o Display Ligand Distortrions for 3GP.
 
@@ -698,6 +693,27 @@ dictionary_residue_restraints_t&, mmdb::Residue*, const std::string&)’:
 ../../coot/coot-utils/coot-tree-extras.cc: In member function ‘std::pair<int, std::vector<coot::map_index_t, std::allocator<coot::map_index_t> > > coot::atom_tree_t::get_forward_atoms(const coot::map_index_t&, const coot::map_index_t&) const’:
 ../../coot/coot-utils/coot-tree-extras.cc:1161: warning: comparison between signed and unsigned integer expressions
 
+
+* Done.
+
+
+   o Ben: When saving a dictionary after chiral centre modification, then the output
+     file is practically empty.
+
+* Done.
+
+     When I use the restraints editor, and edit the chirality (positive to negative) the console says 
+
+comp_id :DRG:, tlc :DRG:, name ::, group :non-polymer: n_atoms: 34 n_H_atoms: 17 desc-level :.:
+INFO:: wrote mmCIF "coot-tmp-restraints.cif"
+INFO:: restraints for "" were replaced
+
+     And the restraints are not updated
+
+* Done.  Now allow blank name.
+
+   o optionally attach generic display object to molecule numbers so that 
+     the objects are undisplayed when the molecule number is undisplayed.
 
 * Done.
 

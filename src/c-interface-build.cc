@@ -3293,7 +3293,7 @@ SCM list_nomenclature_errors_scm(int imol) {
    SCM r = SCM_EOL;
    if (v.size()) { 
       for(int i=v.size()-1; i>=0; i--) {
-	 r = scm_cons(scm_residue(v[i].second), r);
+	 r = scm_cons(residue_spec_to_scm(v[i].second), r);
       }
    }
    return r;
@@ -3310,7 +3310,7 @@ PyObject *list_nomenclature_errors_py(int imol) {
    if (v.size()) {
       r = PyList_New(v.size());
       for (unsigned int i=0; i<v.size(); i++) { 
-	 PyList_SetItem(r, i, py_residue(v[i].second));
+	 PyList_SetItem(r, i, residue_spec_to_py(v[i].second));
       }
    } 
    return r;
@@ -4874,7 +4874,7 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
 
       if (do_fit_and_refine) { 
 	 if (! new_res_spec.unset_p()) {
-	    r = scm_residue(new_res_spec);
+	    r = residue_spec_to_scm(new_res_spec);
 	    if (is_valid_map_molecule(imol_refinement_map())) {
 	       const clipper::Xmap<float> &xmap =
 		  g.molecules[imol_refinement_map()].xmap;
@@ -4929,7 +4929,7 @@ PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const
 
       if (do_fit_and_refine) {
          if (! new_res_spec.unset_p()) {
-            r = py_residue(new_res_spec);
+            r = residue_spec_to_py(new_res_spec);
             if (is_valid_map_molecule(imol_refinement_map())) {
                const clipper::Xmap<float> &xmap =
                   g.molecules[imol_refinement_map()].xmap;

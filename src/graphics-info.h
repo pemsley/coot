@@ -3696,6 +3696,8 @@ public:
    static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec();
    static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec(int imol);
    static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec_internal(int imol);
+   static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec_simple();
+
    // this can return -1 if there is no active atom molecule.
    int copy_active_atom_molecule();
 

@@ -277,18 +277,14 @@ def cfc_process_site(site_number, imol_ligand_specs, first_ligand_spec):
 
    imol_first = imol_ligand_specs[0][0] # others are lsq fitted to this
 
-   print "calling residues_near_residue_py", imol_first, first_ligand_spec
-   
    env_residue_specs = coot.residues_near_residue_py(imol_first, first_ligand_spec, 6)
-
-   print "env_residue_specs", env_residue_specs
 
    protein_res_specs = [r for r in env_residue_specs if get_residue_name(imol_first, r) != "HOH"]
 
    # only lsq the first (0th) one - that one has the most ligands in the site
    #
    if site_number == 0:
-       print "protein_res_specs (for lsqing):"
+       print "DEBUG:: protein_res_specs (for lsqing):"
        for spec in protein_res_specs:
 	   print "   ", spec, get_residue_name(imol_first, spec)
 
@@ -298,10 +294,7 @@ def cfc_process_site(site_number, imol_ligand_specs, first_ligand_spec):
 	   coot.add_lsq_match(res_no, res_no, chain_id, res_no, res_no, chain_id, 1)
 
        for imol in imol_ligand_specs[1:]:  # lsq fit others to the first in the list
-	   print '============================================================================================== lsq-match ', \
-		 imol_first, imol[0]
 	   coot.apply_lsq_matches_py(imol_first, imol[0])
-	   # pass
    
        ligand_centre = coot.residue_centre_py(imol_first,
                                           rsu.residue_spec_to_chain_id(first_ligand_spec),

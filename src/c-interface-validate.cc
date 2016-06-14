@@ -1679,7 +1679,7 @@ SCM alignment_mismatches_scm(int imol) {
       SCM deletions_scm = SCM_EOL;
       SCM mutations_scm = SCM_EOL;
       for (unsigned int i=0; i<mutations.size(); i++) {
-	 SCM rs_scm = scm_residue(mutations[i].first);
+	 SCM rs_scm = residue_spec_to_scm(mutations[i].first);
 	 SCM str = scm_makfrom0str(mutations[i].second.c_str());
 	 SCM c = SCM_EOL;
 	 c = scm_cons(str, c);
@@ -1687,7 +1687,7 @@ SCM alignment_mismatches_scm(int imol) {
 	 mutations_scm = scm_cons(c, mutations_scm);
       }
       for (unsigned int i=0; i<insertions.size(); i++) {
-	 SCM rs_scm = scm_residue(insertions[i].first);
+	 SCM rs_scm = residue_spec_to_scm(insertions[i].first);
 	 SCM str = scm_makfrom0str(insertions[i].second.c_str());
 	 SCM c = SCM_EOL;
 	 c = scm_cons(str, c);
@@ -1695,7 +1695,7 @@ SCM alignment_mismatches_scm(int imol) {
 	 insertions_scm = scm_cons(c, insertions_scm);
       }
       for (unsigned int i=0; i<deletions.size(); i++) {
-	 SCM rs_scm = scm_residue(deletions[i].first);
+	 SCM rs_scm = residue_spec_to_scm(deletions[i].first);
 	 SCM str = scm_makfrom0str(deletions[i].second.c_str());
 	 SCM c = SCM_EOL;
 	 c = scm_cons(str, c);
@@ -1757,7 +1757,7 @@ PyObject *alignment_mismatches_py(int imol) {
      PyObject *deletions_py = PyList_New(0);
      PyObject * mutations_py = PyList_New(0);
      for (unsigned int i=0; i<mutations.size(); i++) {
-	 PyObject *rs_py = py_residue(mutations[i].first);
+	 PyObject *rs_py = residue_spec_to_py(mutations[i].first);
 	 PyObject *str = PyString_FromString(mutations[i].second.c_str());
 	 PyList_Insert(rs_py, 0, str);
 	 PyList_Append(mutations_py, rs_py);
@@ -1765,7 +1765,7 @@ PyObject *alignment_mismatches_py(int imol) {
 	 Py_XDECREF(rs_py);
       }
       for (unsigned int i=0; i<insertions.size(); i++) {
-	 PyObject *rs_py = py_residue(insertions[i].first);
+	 PyObject *rs_py = residue_spec_to_py(insertions[i].first);
 	 PyObject *str = PyString_FromString(insertions[i].second.c_str());
 	 PyList_Insert(rs_py, 0, str);
 	 PyList_Append(insertions_py, rs_py);
@@ -1773,7 +1773,7 @@ PyObject *alignment_mismatches_py(int imol) {
 	 Py_XDECREF(rs_py);
       }
       for (unsigned int i=0; i<deletions.size(); i++) {
-	 PyObject *rs_py = py_residue(deletions[i].first);
+	 PyObject *rs_py = residue_spec_to_py(deletions[i].first);
 	 PyObject *str = PyString_FromString(deletions[i].second.c_str());
 	 PyList_Insert(rs_py, 0, str);
 	 PyList_Append(deletions_py, rs_py);
@@ -2221,7 +2221,7 @@ PyObject *all_molecule_ramachandran_region_py(int imol) {
         r = PyList_New(region_size);
         for (unsigned int i=0; i<rama_region.size(); i++) { 
           pair = PyTuple_New(2);
-          PyTuple_SetItem(pair, 0, py_residue(rama_region[i].first));
+          PyTuple_SetItem(pair, 0, residue_spec_to_py(rama_region[i].first));
           PyTuple_SetItem(pair, 1, PyInt_FromLong(rama_region[i].second));
           PyList_SetItem(r, i, pair);
         }

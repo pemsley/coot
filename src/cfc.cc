@@ -131,7 +131,7 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 	    PyList_SetItem(pos_py, 1, PyFloat_FromDouble(water_positions[iw].pos.y()));
 	    PyList_SetItem(pos_py, 2, PyFloat_FromDouble(water_positions[iw].pos.z()));
 	    PyList_SetItem(o, 0, PyInt_FromLong(water_positions[iw].ligand_idx));
-	    PyList_SetItem(o, 1, py_residue(water_positions[iw].residue_spec()));
+	    PyList_SetItem(o, 1, residue_spec_to_py(water_positions[iw].residue_spec()));
 	    PyList_SetItem(o, 2, pos_py);
 	    PyList_SetItem(water_attribs_py, iw, o);
 	 }
@@ -148,7 +148,7 @@ PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
 	    PyList_SetItem(o, 0, PyString_FromString(chemical_features[i].type.c_str()));
 	    PyList_SetItem(o, 1, pos_py);
 	    PyList_SetItem(o, 2, PyInt_FromLong(chemical_features[i].imol));
-	    PyList_SetItem(o, 3, py_residue(chemical_features[i].residue_spec));
+	    PyList_SetItem(o, 3, residue_spec_to_py(chemical_features[i].residue_spec));
 	    PyList_SetItem(chemical_feature_attribs_py, i, o);
 	 }
 
@@ -314,7 +314,7 @@ PyObject *chemical_feature_clusters_accept_site_clusters_info_py(PyObject *site_
       for (unsigned int i=0; i<it->second.size(); i++) { 
 	 PyObject *l = PyList_New(2);
 	 PyList_SetItem(l, 0, PyInt_FromLong(it->second[i].first));
-	 PyList_SetItem(l, 1, py_residue(it->second[i].second));
+	 PyList_SetItem(l, 1, residue_spec_to_py(it->second[i].second));
 	 PyList_SetItem(li, i, l);
       }
       PyList_SetItem(ligand_sites_py, list_idx, li);

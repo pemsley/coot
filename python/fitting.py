@@ -750,6 +750,7 @@ def sphere_refine_regularize_generic(use_map=True, radius=3, expand=False):
                 all_residues += other_residues
             # extend?
             if expand:
+		print "in sphere_refine_regularize_generic, all_residues is", all_residues
                 all_residues.sort()
                 tmp_ls = all_residues[:]
                 for res in tmp_ls:

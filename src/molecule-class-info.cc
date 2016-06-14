@@ -7815,7 +7815,9 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 	    } else { 
 	       std::vector<std::vector<std::string> > ring_atoms_sets = p.second.get_ligand_ring_list();
 	       std::vector<coot::dict_torsion_restraint_t> interesting_torsions;
-	       for (unsigned int it=0; it<all_torsions.size(); it++) { 
+	       for (unsigned int it=0; it<all_torsions.size(); it++) {
+
+		  bool is_ring_torsion_flag = all_torsions[it].is_ring_torsion(ring_atoms_sets);
 		  if (! all_torsions[it].is_ring_torsion(ring_atoms_sets)) {
 		     if (all_torsions[it].atom_id_2_4c() == atom_name)
 			interesting_torsions.push_back(all_torsions[it]);
@@ -8097,7 +8099,7 @@ molecule_class_info_t::transform_by(mmdb::mat44 mat) {
 					 mat[2][0], mat[2][1], mat[2][2]);
       clipper::Coord_orth cco(mat[0][3], mat[1][3], mat[2][3]);
       clipper::RTop_orth rtop(clipper_mat, cco);
-      std::cout << "INFO:: coordinates transformed by orthonal matrix: \n"
+      std::cout << "INFO:: coordinates transformed by orthogonal matrix: \n"
 		<< rtop.format() << std::endl;
       clipper::Rotation rtn( clipper_mat );
       clipper::Polar_ccp4 polar = rtn.polar_ccp4();
@@ -8129,7 +8131,7 @@ void
 molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop) {
 
    make_backup();
-   std::cout << "INFO:: coordinates transformed by orthonal matrix: \n"
+   std::cout << "INFO:: coordinates transformed by orthogonal matrix: \n"
 	     << rtop.format() << std::endl;
    if (have_unit_cell) {
 

@@ -349,7 +349,7 @@
       (gtk-signal-connect cancel-button "clicked"
 			  (lambda args
 			    (if (we-are-in-mrc-lmb?)
-				(press-the-other-button-window)
+				(press-the-other-button-window window)
 				(gtk-widget-destroy window))))
 
       (gtk-signal-connect send-button "clicked"
@@ -372,19 +372,21 @@
 ;; (add-newlines (list "one" "two" "three") "")
 
 
-(define (press-the-other-button-window)
+(define (press-the-other-button-window main-window)
     (let* ((window (gtk-window-new 'toplevel))
-	   (label (gtk-label-new "  No! Press the Other Button (Go On - it's not hard...) "))
+	   (label (gtk-label-new "  Press the Other Button? "))
 	   (vbox (gtk-vbox-new #f 2))
-	   (cancel-button (gtk-button-new-with-label " Cancel ")))
+	   (really-cancel-button (gtk-button-new-with-label " Really Cancel ")))
 	   
       (gtk-box-pack-start vbox label #f #f 5)
-      (gtk-box-pack-start vbox cancel-button #f #f 5)
+      (gtk-box-pack-start vbox really-cancel-button #f #f 5)
       (gtk-container-add window vbox)
 
-      (gtk-signal-connect cancel-button "clicked"
+      (gtk-signal-connect really-cancel-button "clicked"
 			  (lambda args
-			    (gtk-widget-destroy window)))
+			    (gtk-widget-destroy window)
+			    (gtk-widget-destroy main-window)))
+			  
       (gtk-widget-show-all window)))
 
 
