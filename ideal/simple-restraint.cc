@@ -5130,14 +5130,12 @@ coot::restraints_container_t::bonded_residues_from_res_vec(const coot::protein_g
 					   whole_first_residue_is_fixed,
 					   whole_second_residue_is_fixed, link_type);
 		     bool added_flag = bpc.try_add(p);
-		     std::cout << "bpc.try_add() on " << p << " returned " << added_flag << std::endl;
 		  } else {
 		     coot::bonded_pair_t p(res_s, res_f,
 					   whole_first_residue_is_fixed,
 					   whole_second_residue_is_fixed,
 					   link_type);
 		     bool added_flag = bpc.try_add(p);
-		     std::cout << "bpc.try_add() on " << p << " returned " << added_flag << std::endl;
 		  }
 	       } else {
 		  if (debug)
@@ -5610,6 +5608,22 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
       for (int iat=0; iat<n_atoms; iat++)
 	 std::cout << "------- " << iat << " " << atom_spec_t(atom[iat]) << std::endl;
    }
+
+   if (false) {
+      std::cout << "--------------------------------------------------\n";
+      std::cout << "   non-bonded list:" << std::endl;
+      std::cout << "--------------------------------------------------\n";
+      for (unsigned int i=0; i<filtered_non_bonded_atom_indices.size(); i++) { 
+	 std::cout << i << "  " << atom[i]->GetSeqNum() << " " << atom[i]->name << " : "; 
+	 for (unsigned int j=0; j<filtered_non_bonded_atom_indices[i].size(); j++) { 
+	    std::cout << filtered_non_bonded_atom_indices[i][j] << " ";
+	 } 
+	 std::cout << std::endl;
+      } 
+      std::cout << "--------------------------------------------------\n";
+   }
+   
+   
    for (unsigned int i=0; i<filtered_non_bonded_atom_indices.size(); i++) { 
       mmdb::Atom *at = atom[i];
       std::string res_type = at->GetResName();
@@ -5708,11 +5722,9 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
 	       // bool is_1_4_related = check_for_1_4_relation(i, filtered_non_bonded_atom_indices[i][j], ai);
 	       bool is_1_4_related = ai.is_1_4(i, filtered_non_bonded_atom_indices[i][j]);
 
-	       std::cout << "     is_1_4_related: " << is_1_4_related << std::endl;
-
 	       if (is_1_4_related) {
 		  dist_min = 2.7;
-	       } else { 
+	       } else {
 		  std::pair<bool, double> nbc_dist = geom.get_nbc_dist(type_1, type_2,
 								       in_same_residue_flag,
 								       in_same_ring_flag);
@@ -5800,9 +5812,6 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
 			    << " dist_min: " << dist_min << std::endl;
 	       }
 
-
-// 	       add_non_bonded(i, filtered_non_bonded_atom_indices[i][j], type_1, type_2,
-// 			      fixed_atom_flags, dist_min);
 
 	       simple_restraint r(NON_BONDED_CONTACT_RESTRAINT,
 				  i, filtered_non_bonded_atom_indices[i][j],
@@ -6251,7 +6260,7 @@ void
 coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const coot::bonded_pair_container_t &bpc,
 									   const coot::protein_geometry &geom) {
 
-   if (0) { // debug
+   if (false) { // debug
       std::cout << "DEBUG:: construct_non_bonded_contact_list_by_res_vec ::::::::::::::::" << std::endl;
       for (unsigned int i=0; i<bpc.size(); i++)
 	 std::cout << "   "
@@ -6270,28 +6279,58 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
       std::cout << "--------------- debug:: n_atoms " << n_atoms << std::endl;
    }
 
+   // Yes, this adds symmetry to filtered_non_bonded_atom_indices, i.e.
+   // filtered_non_bonded_atom_indices[0] contains 1
+   // filtered_non_bonded_atom_indices[1] contains 0
+   // 
    for (unsigned int i=0; i<bonded_atom_indices.size(); i++) {
+
+      // This is a hack.  It removes OXT from all NBCs.  Not the Right Way
+      // 
+      bool matched_oxt = false;
+      if (have_oxt_flag) {
+	 if (std::string(atom[i]->name) == " OXT") {  // PDBv3 FIXME
+	    matched_oxt = true;
+	 }
+      }
+
       for (unsigned int j=0; j<bonded_atom_indices.size(); j++) {
 
 	 if (i != j) {
+
+	    if (have_oxt_flag) {
+	       if (std::string(atom[j]->name) == " OXT") {  // PDBv3 FIXME
+		  matched_oxt = true;
+	       }
+	    }
 	    
-	    // In this section, we don't want NCBs within or to fixed
-	    // residues (including the flanking residues), so if both
-	    // atoms are in residues that are not in residue_vec, then
-	    // we don't add a NCB for that atom pair.
 
-	    if (! is_member_p(bonded_atom_indices[i], j)) {
+	    if (false)
+	       std::cout << "moving->moving: here with atoms "
+			 << atom_spec_t(atom[i]) <<  " " << atom_spec_t(atom[j])
+			 << " have_oxt_flag: " << have_oxt_flag
+			 << " matched_oxt: " << matched_oxt << std::endl;
 
-	       // atom j is not bonded to atom i, is it close? (i.e. within dist_crit?)
-	       clipper::Coord_orth pt1(atom[i]->x, atom[i]->y, atom[i]->z);
-	       clipper::Coord_orth pt2(atom[j]->x, atom[j]->y, atom[j]->z);
-	       double d = clipper::Coord_orth::length(pt1, pt2);
-	       if (d < dist_crit) {
-		  mmdb::Residue *r1 = atom[i]->residue;
-		  mmdb::Residue *r2 = atom[j]->residue;
+	    if (! matched_oxt) {
+	    
+	       // In this section, we don't want NCBs within or to fixed
+	       // residues (including the flanking residues), so if both
+	       // atoms are in residues that are not in residue_vec, then
+	       // we don't add a NCB for that atom pair.
+
+	       if (! is_member_p(bonded_atom_indices[i], j)) {
+
+		  // atom j is not bonded to atom i, is it close? (i.e. within dist_crit?)
+		  clipper::Coord_orth pt1(atom[i]->x, atom[i]->y, atom[i]->z);
+		  clipper::Coord_orth pt2(atom[j]->x, atom[j]->y, atom[j]->z);
+		  double d = clipper::Coord_orth::length(pt1, pt2);
+		  if (d < dist_crit) {
+		     mmdb::Residue *r1 = atom[i]->residue;
+		     mmdb::Residue *r2 = atom[j]->residue;
 		  
-		  if (is_a_moving_residue_p(r1) && is_a_moving_residue_p(r2)) {
-		     filtered_non_bonded_atom_indices[i].push_back(j);
+		     if (is_a_moving_residue_p(r1) && is_a_moving_residue_p(r2)) {
+			filtered_non_bonded_atom_indices[i].push_back(j);
+		     }
 		  }
 	       }
 	    }
@@ -6315,37 +6354,54 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 		  if (is_a_moving_residue_p(bonded_atom_residue) &&
 		      ! is_a_moving_residue_p(other_atom_residue)) {
 
-		     bonded_pair_match_info_t mi = 
-			bpc.match_info(bonded_atom_residue, other_atom_residue);
-
-		     if (! mi.state) {
-		      
-			// Simple part, the residues were not bonded to each other.
-		     
-			if (! is_member_p(bonded_atom_indices[iat], jat)) {
-			
-			   // atom j is not bonded to atom i, is it close? (i.e. within dist_crit?)
-			   clipper::Coord_orth pt1(atom[iat]->x, atom[iat]->y, atom[iat]->z);
-			   clipper::Coord_orth pt2(atom[jat]->x, atom[jat]->y, atom[jat]->z);
-			   double d = clipper::Coord_orth::length(pt1, pt2);
-			   if (d < dist_crit) {
-			      if (0)
-				 std::cout << " ///////////////////////////// NBC   here "
-					   << iat << " " << jat << " "
-					   << coot::atom_spec_t(atom[iat]) << " "
-					   << coot::atom_spec_t(atom[jat]) << " "
-					   << std::endl;
-			      filtered_non_bonded_atom_indices[iat].push_back(jat);
-			   }
+		     bool matched_oxt = false;
+		     if (have_oxt_flag) {
+			if (std::string(atom[jat]->name) == " OXT") {  // PDBv3 FIXME
+			   matched_oxt = true;
+			} else { 
+			   matched_oxt = false;
 			}
-		     } else {
+		     }
+
+		     if (false)
+			std::cout << "moving->non-moving: here with atom " << atom_spec_t(atom[jat])
+				  << " have_oxt_flag: " << have_oxt_flag
+				  << " matched_oxt: " << matched_oxt << std::endl;
+
+		     if (! matched_oxt) {
+
+			bonded_pair_match_info_t mi = 
+			   bpc.match_info(bonded_atom_residue, other_atom_residue);
+
+			if (! mi.state) {
+		      
+			   // Simple part, the residues were not bonded to each other.
+		     
+			   if (! is_member_p(bonded_atom_indices[iat], jat)) {
 			
-			// add to filtered_non_bonded_atom_indices (which is a class variable)
+			      // atom j is not bonded to atom i, is it close? (i.e. within dist_crit?)
+			      clipper::Coord_orth pt1(atom[iat]->x, atom[iat]->y, atom[iat]->z);
+			      clipper::Coord_orth pt2(atom[jat]->x, atom[jat]->y, atom[jat]->z);
+			      double d = clipper::Coord_orth::length(pt1, pt2);
+			      if (d < dist_crit) {
+				 if (false)
+				    std::cout << " ///////////////////////////// NBC   here "
+					      << iat << " " << jat << " "
+					      << coot::atom_spec_t(atom[iat]) << " "
+					      << coot::atom_spec_t(atom[jat]) << " "
+					      << std::endl;
+				 filtered_non_bonded_atom_indices[iat].push_back(jat);
+			      }
+			   }
+			} else {
 			
- 			if (mi.swap_needed)
- 			   construct_nbc_for_moving_non_moving_bonded(jat, iat, mi.link_type, geom);
-			else
- 			   construct_nbc_for_moving_non_moving_bonded(iat, jat, mi.link_type, geom);
+			   // add to filtered_non_bonded_atom_indices (which is a class variable)
+			
+			   if (mi.swap_needed)
+			      construct_nbc_for_moving_non_moving_bonded(jat, iat, mi.link_type, geom);
+			   else
+			      construct_nbc_for_moving_non_moving_bonded(iat, jat, mi.link_type, geom);
+			}
 		     }
 		  }
 	       }
