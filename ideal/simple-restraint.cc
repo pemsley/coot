@@ -594,7 +594,7 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
 
    do_numerical_gradients_flag = 0;
    verbose_geometry_reporting = NORMAL;
-   have_oxt_flag = 0; // set in mark_OXT()
+   have_oxt_flag = false; // set in mark_OXT()
    geman_mcclure_alpha = 1; // Is this a good value? Talk to Rob. FIXME.
    mol = mol_in;
 } 
@@ -4380,7 +4380,7 @@ coot::restraints_container_t::make_restraints(const coot::protein_geometry &geom
 // reference atoms (which is reasonable (I hope)).
 // 
 void 
-coot::restraints_container_t::mark_OXT(const coot::protein_geometry &geom) { 
+coot::restraints_container_t::mark_OXT(const coot::protein_geometry &geom) {
 
    std::string oxt(" OXT");
    for (int i=0; i<n_atoms; i++) { 
@@ -4394,8 +4394,10 @@ coot::restraints_container_t::mark_OXT(const coot::protein_geometry &geom) {
 	    // add it if it has not been added before.
 	    if (std::find(residues_with_OXTs.begin(),
 			  residues_with_OXTs.end(),
-			  residue) == residues_with_OXTs.end())
+			  residue) == residues_with_OXTs.end()) {
 	       residues_with_OXTs.push_back(residue);
+	       have_oxt_flag = true; // added 20160612 for Miguel's flying OXT bug.
+	    }
 	 }
       }
    }
@@ -5603,8 +5605,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
    // type before.
    std::map<mmdb::Residue *, std::pair<bool, dictionary_residue_restraints_t> > restraints_map;
 
-   if (false) { 
-      std::cout << "--------- the atom array: " << std::endl;
+   if (false) {
+      std::cout << "--------- make_non_bonded_contact_restraints() the atom array: " << std::endl;
       for (int iat=0; iat<n_atoms; iat++)
 	 std::cout << "------- " << iat << " " << atom_spec_t(atom[iat]) << std::endl;
    }
@@ -5616,7 +5618,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
       if (it == restraints_map.end()) { 
 	std::pair<bool, dictionary_residue_restraints_t> p = geom.get_monomer_restraints(res_type);
 	// p.first is false if this is not a filled dictionary
-	restraints_map[at->residue] = p; 
+	restraints_map[at->residue] = p;
       }
    }
 
@@ -5634,14 +5636,14 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
 
          if (at_1 && at_2) {
 
+	    bool add_it = true;
+
 	    // no bumps from hydrogens in the same residue
 	    //
 	    // [20131212: Why not?  I suppose that there was a reason,
 	    // it is not clear to me what it is now].  This needs to
 	    // be investigated/fixed.
 	    //
-	    bool add_it = true;
-
 	    if (at_2->residue == at_1->residue)
 	       if (is_hydrogen(at_1))
 	          if (is_hydrogen(at_2))
@@ -5650,35 +5652,41 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
    	    if (filtered_non_bonded_atom_indices[i][j] < int(i))
   	       add_it = false;
 
-	    // Don't make a bump between the CD of a PRO at residue(n) and the atoms of n-1
-	    
-	    std::string res_name_1 = at_1->GetResName();
-	    std::string res_name_2 = at_2->GetResName();
 	    int res_no_1 = at_1->GetSeqNum();
 	    int res_no_2 = at_2->GetSeqNum();
 	    
-	    if (res_name_1 == "PRO") {
-	       int res_no_pro   = res_no_1;
-	       int res_no_other = res_no_2;
-	       if (res_no_pro == (res_no_other + 1)) {
-		  std::string atom_name = at_1->name;
-		  if (atom_name == " CD ") {  // PDBv3 FIXME
-		     add_it = false;
-		  } 
-	       }
-	    }
-	    if (res_name_2 == "PRO") {
-	       int res_no_pro   = res_no_2;
-	       int res_no_other = res_no_1;
-	       if (res_no_pro == (res_no_other + 1)) {
-		  std::string atom_name = at_2->name;
-		  if (atom_name == " CD ") {  // PDBv3 FIXME
-		     add_it = false;
-		  } 
-	       }
-	    }
-	 
 	    if (add_it) { 
+
+	       // Don't make a bump between the CD of a PRO at residue(n) and the atoms of n-1
+	    
+	       std::string res_name_1 = at_1->GetResName();
+	       std::string res_name_2 = at_2->GetResName();
+	    
+	       if (res_name_1 == "PRO") {
+		  int res_no_pro   = res_no_1;
+		  int res_no_other = res_no_2;
+		  if (res_no_pro == (res_no_other + 1)) {
+		     std::string atom_name = at_1->name;
+		     if (atom_name == " CD ") {  // PDBv3 FIXME
+			add_it = false;
+		     } 
+		  }
+	       }
+	       if (res_name_2 == "PRO") {
+		  int res_no_pro   = res_no_2;
+		  int res_no_other = res_no_1;
+		  if (res_no_pro == (res_no_other + 1)) {
+		     std::string atom_name = at_2->name;
+		     if (atom_name == " CD ") {  // PDBv3 FIXME
+			add_it = false;
+		     } 
+		  }
+	       }
+	    }
+
+	    // -------------- OK add_it was set -----
+	    
+	    if (add_it) {
 
 	       double dist_min = 3.4;
 
@@ -5699,6 +5707,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
 	       
 	       // bool is_1_4_related = check_for_1_4_relation(i, filtered_non_bonded_atom_indices[i][j], ai);
 	       bool is_1_4_related = ai.is_1_4(i, filtered_non_bonded_atom_indices[i][j]);
+
+	       std::cout << "     is_1_4_related: " << is_1_4_related << std::endl;
 
 	       if (is_1_4_related) {
 		  dist_min = 2.7;
@@ -6155,12 +6165,12 @@ coot::restraints_container_t::construct_non_bonded_contact_list_conventional() {
 		     << res_selection_local[iat]->GetAtomName() << " \n";
 	}
 	
-	short int matched_oxt = 0;
-	if (have_oxt_flag) { 
-	   if (std::string(res_selection_local[iat]->name) == " OXT") { 
-	      matched_oxt = 1;
+	bool matched_oxt = false;
+	if (have_oxt_flag) {
+	   if (std::string(res_selection_local[iat]->name) == " OXT") {  // PDBv3 FIXME
+	      matched_oxt = true;
 	   } else { 
-	      matched_oxt = 0;
+	      matched_oxt = false;
 	   }
 	}
 
@@ -6196,7 +6206,7 @@ coot::restraints_container_t::construct_non_bonded_contact_list_conventional() {
 		    // PDBv3 FIXME
 		    if (have_oxt_flag) 
 		       if (! strcmp(res_selection_local_inner[jat]->name, " OXT")) // matched
-			  matched_oxt = 1;
+			  matched_oxt = true;
 
 		    if (! matched_oxt) { 
 
@@ -6219,22 +6229,27 @@ coot::restraints_container_t::construct_non_bonded_contact_list_conventional() {
      }
   }
 
-//   std::cout << "non-bonded list (unfiltered):" << std::endl;
-//   std::cout << "--------------------------------------------------\n";
-//   for (int i=0; i<non_bonded_atom_indices.size(); i++) { 
-//      std::cout << i << "  " << atom[i]->GetSeqNum() << " " << atom[i]->name << " : "; 
-//      for (int j=0; j<non_bonded_atom_indices[i].size(); j++) { 
-// 	std::cout << non_bonded_atom_indices[i][j] << " ";
-//      } 
-//      std::cout << std::endl;
-//   } 
-//   std::cout << "--------------------------------------------------\n";
+
+  if (false) {
+     std::cout << "--------------------------------------------------\n";
+     std::cout << "   non-bonded list (unfiltered):" << std::endl;
+     std::cout << "--------------------------------------------------\n";
+     for (unsigned int i=0; i<non_bonded_atom_indices.size(); i++) { 
+	std::cout << i << "  " << atom[i]->GetSeqNum() << " " << atom[i]->name << " : "; 
+	for (unsigned int j=0; j<non_bonded_atom_indices[i].size(); j++) { 
+	   std::cout << non_bonded_atom_indices[i][j] << " ";
+	} 
+	std::cout << std::endl;
+     } 
+     std::cout << "--------------------------------------------------\n";
+  }
 
   filter_non_bonded_by_distance(non_bonded_atom_indices, 8.0);
 }
 
 void
-coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const coot::bonded_pair_container_t &bpc, const coot::protein_geometry &geom) {
+coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const coot::bonded_pair_container_t &bpc,
+									   const coot::protein_geometry &geom) {
 
    if (0) { // debug
       std::cout << "DEBUG:: construct_non_bonded_contact_list_by_res_vec ::::::::::::::::" << std::endl;
@@ -6882,7 +6897,7 @@ coot::restraints_container_t::apply_mods(int idr, mmdb::PPAtom res_selection,
 					  int i_no_res_atoms,
 					  mmdb::PResidue residue_p,
 					 const coot::protein_geometry &geom) {
-   
+
    coot::restraints_container_t::restraint_counts_t mod_counts;
 
    // does this residue have an OXT? (pre-cached).  If yes, add a mod_COO
