@@ -12,11 +12,6 @@
    o ligand distortions represenation (vs dictionary) should be in "Ligand" 
      menu
 
-   o optionally attach generic display object to molecule numbers so that 
-     the objects are undisplayed when the molecule number is undisplayed.
-
-* Done.
-
    o Display Ligand Distortrions for 3GP.
 
    o repair 72A with alt conf and Sphere refine it.
@@ -627,3 +622,9 @@ INFO:: restraints for "" were replaced
      And the restraints are not updated
 
 * Done.  Now allow blank name.
+
+   o optionally attach generic display object to molecule numbers so that 
+     the objects are undisplayed when the molecule number is undisplayed.
+
+* Done.
+
