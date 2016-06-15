@@ -213,8 +213,8 @@ AM_CPPFLAGS = \
 
 pkginclude_HEADERS = crunch-model.hh
 
-libexec_PROGRAMS = coot-bin
-bin_PROGRAMS = density-score-by-residue-real fix-nomenclature-errors
+libexec_PROGRAMS = coot-bin density-score-by-residue-bin
+bin_PROGRAMS =  fix-nomenclature-errors
 dist_bin_SCRIPTS = coot density-score-by-residue
 check_PROGRAMS = test-coot-align test-cholesky
 
@@ -400,6 +400,7 @@ coot_bin_SOURCES = \
 	molecule-class-info-refine.cc   \
         molecule-class-info-kk.cc       \
 	molecule-class-info-surface.cc 	\
+	molecule-class-info-patterson.cc \
 	molecule-class-info-ncs.cc 	\
 	molecule-class-info-widget-work.cc \
 	mtz-column-auto-read.hh  \
@@ -578,8 +579,8 @@ test_coot_align_LDADD =	\
 # test_lbg_graph_LDADD = $(MMDB_LIBS)
 
 
-density_score_by_residue_real_SOURCES = density-score-by-residue-src.cc
-density_score_by_residue_real_LDADD  =	\
+density_score_by_residue_bin_SOURCES = density-score-by-residue-src.cc
+density_score_by_residue_bin_LDADD  =	\
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 	$(top_builddir)/coords/libcoot-coords.la 		\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
