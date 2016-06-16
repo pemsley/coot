@@ -101,27 +101,22 @@ if enhanced_ligand_coot_p():
                                        aa_ins_code, aa_atom_name, aa_alt_conf]:
                 print_residue_distortions(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
 
+        def display_ligand_distortions_func():
+            with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                       aa_ins_code, aa_atom_name, aa_alt_conf]:
+                set_display_generic_objects_as_solid(1)
+                display_residue_distortions(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
+
         add_simple_coot_menu_menuitem(
             menu,
             "Tabulate Ligand Distorsions",
             lambda func: tab_ligand_distorsions_func()
             )
 
-
-        def write_sdf_func():
-            with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
-                                       aa_ins_code, aa_atom_name, aa_alt_conf]:
-                rn = residue_name(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
-                file_name = rn + ".sdf"
-                residue_to_sdf_file(aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
-                                    file_name)
-
         add_simple_coot_menu_menuitem(
             menu,
-            "write sdf file",
-            lambda func: write_sdf_func()
-            )
-
+            "Display Ligand Distortions",
+            lambda func: display_ligand_distortions_func())
 
         def density_ligand_score_func():
             with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
