@@ -77,7 +77,7 @@ molecule_class_info_t::make_patterson(std::string mtz_file_name,
    bool ret_val = 0;
    if (coot::file_exists(mtz_file_name)) {
 
-      try { 
+      try {
 	 // KDC Code (examples/cpatterson.cpp)
 	 // 
 	 clipper::CCP4MTZfile mtzin;
@@ -88,7 +88,7 @@ molecule_class_info_t::make_patterson(std::string mtz_file_name,
 	 clipper::HKL_info hkls, hklp;
 	 typedef clipper::HKL_data_base::HKL_reference_index HRI;
 
-	 clipper::HKL_data<clipper::data32::F_sigF>     fsig( hkls );
+	 clipper::HKL_data<clipper::data32::F_sigF> fsig(hkls);
 
 	 // If use weights, use both strings, else just use the first
 	 int use_weights = 0;        // dummy value
@@ -96,13 +96,11 @@ molecule_class_info_t::make_patterson(std::string mtz_file_name,
 	 std::pair<std::string, std::string> p =
 	    make_import_datanames(f_col, sigf_col, weight_col, use_weights);
 	 // std::cout << "======= import_hkl_data using " << p.first << std::endl;
-	 // like this: "/*/*/[FWT]"
 	 mtzin.import_hkl_data(fsig, p.first);
 	 mtzin.close_read();
       
 	 // get Patterson spacegroup
-	 clipper::Spacegroup
-	    pspgr( clipper::Spgr_descr( spgr.generator_ops().patterson_ops() ) );
+	 clipper::Spacegroup pspgr(clipper::Spgr_descr(spgr.generator_ops().patterson_ops()));
 	 hklp.init( pspgr, cell, reso, true );
       
 	 // make patterson coeffs
@@ -155,6 +153,8 @@ molecule_class_info_t::make_patterson(std::string mtz_file_name,
       catch (const clipper::Message_base &rte) {
 	 std::cout << "WARNING:: bad read of HKL file " << mtz_file_name << std::endl;
       }
+   } else {
+      std::cout << "No such file: " << mtz_file_name << std::endl;
    }
    return ret_val;
 }
@@ -169,28 +169,70 @@ molecule_class_info_t::make_patterson_using_intensities(std::string mtz_file_nam
    bool ret_val = false;
    if (coot::file_exists(mtz_file_name)) {
 
-      std::cout << "................ make_patterson_using_intensities "
-		<< mtz_file_name << " ...... exists" << std::endl;
-
       try {
 	 clipper::HKL_info hkls, hklp;
 	 clipper::CCP4MTZfile mtzin;
 	 mtzin.open_read(mtz_file_name);
-	 std::cout << "post open_read() on " << mtz_file_name << std::endl;
+	 clipper::Spacegroup spgr = mtzin.spacegroup();
+	 clipper::Resolution reso = mtzin.resolution();
+	 clipper::Cell       cell = mtzin.cell();
 	 clipper::HKL_data<clipper::data32::I_sigI> isig(hkls);
-	 std::string data_name = "*/*/[I_sigI.I,I_sigI.sigI]";
-	 data_name = "*/*/";
-	 data_name = "";
+	 std::string data_name = "/*/*/[" + i_col + "," + sigi_col + "]";
 	 mtzin.import_hkl_data(isig, data_name);
 	 mtzin.close_read();
-	 std::cout << "Got " << isig.num_obs() << " Is" << std::endl;
+	 std::cout << "INFO:: make_patterson_using_intensities() Got "
+		   << isig.num_obs() << " Is" << std::endl;
+
+	 // get Patterson spacegroup
+	 clipper::Spacegroup pspgr(clipper::Spgr_descr(spgr.generator_ops().patterson_ops()));
+	 hklp.init(pspgr, cell, reso, true);
+      
+	 // make patterson coeffs
+	 int count = 0;
+	 clipper::HKL_data<clipper::data32::F_phi> fphi(hklp);
+	 typedef clipper::HKL_data_base::HKL_reference_index HRI;
+	 for (HRI ih = fphi.first(); !ih.last(); ih.next()) {
+	    // clipper::data32::F_sigF f = fsig[ih.hkl()];
+	    fphi[ih].phi() = 0.0;
+	    if ( !isig[ih].missing() ) {
+	       fphi[ih].f() = isig[ih].I();
+	    }
+	 }
+	 clipper::Grid_sampling grid;
+	 grid.init(pspgr, cell, reso);
+      
+	 // make xmap
+	 clipper::Xmap<float> xmap(pspgr, cell, grid);
+	 xmap.fft_from(fphi);
+	 is_patterson = 1; // needed for contour level protection
+			   // (Pattersons are off-scale, but we should
+			   // be able to change contour).
+
+	 std::string map_name = "Patterson ";
+	 map_name += mtz_file_name;
+	 map_name += " ";
+	 map_name += i_col;
+	 new_map(xmap, map_name);
+	 update_map_in_display_control_widget();
+	 mean_and_variance<float> mv = map_density_distribution(xmap, 40, false);
+	 map_mean_  = mv.mean; 
+	 map_sigma_ = sqrt(mv.variance);
+	 map_max_   = mv.max_density;
+	 map_min_   = mv.min_density;
+	 
+	 set_initial_contour_level();
+	 update_map();
+	 ret_val = 1;
+	 
       }
       catch (const std::exception &rte) {
-	 std::cout << "something got caught: " << rte.what() << std::endl;
+	 std::cout << "WARNING:: something got caught: " << rte.what() << std::endl;
       }
       catch (const clipper::Message_fatal &rte) {
-	 std::cout << "something got caught: " << rte.text() << std::endl;
+	 std::cout << "WARNING:: something got caught: " << rte.text() << std::endl;
       }
+   } else {
+      std::cout << "WARNING:: No such file: " << mtz_file_name << std::endl;
    }
 
    return ret_val;

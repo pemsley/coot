@@ -6137,6 +6137,12 @@ PyObject *add_dipole_for_residues_py(int imol, PyObject *residue_specs);
 int make_and_draw_patterson(const char *mtz_file_name, 
 			    const char *f_col, 
 			    const char *sigf_col);
+/*! \brief Make a patterson molecule
+
+\return a new molecule number or -1 on failure */
+int make_and_draw_patterson_using_intensities(const char *mtz_file_name, 
+					      const char *i_col, 
+					      const char *sigi_col);
 
 /*  ----------------------------------------------------------------------- */
 /*                  Laplacian                                               */
