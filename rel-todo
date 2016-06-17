@@ -1,13 +1,7 @@
  
  0.8.4
 
-   o Miguel OXT problems.  Add to the test suite.
-
-   o on startup, if COOT_SCHEME_EXTRA_DIR is set then
-     ~/.coot-preferences is not read/executed. It should do both. Was this a 
-     problem only in refinement branch?
-
-   o fix up hydrogenize and flev interface (is cprodrg still a part of ccp4?)
+   o fix up hydrogenize and flev interface
 
    o ligand distortions represenation (vs dictionary) should be in "Ligand" 
      menu
@@ -627,4 +621,18 @@ INFO:: restraints for "" were replaced
      the objects are undisplayed when the molecule number is undisplayed.
 
 * Done.
+
+   o on startup, if COOT_SCHEME_EXTRAS_DIR is set then
+     ~/.coot-preferences is not read/executed. It should do both. Was this a 
+     problem only in refinement branch?
+
+* Looks OK to me.  It does both on master pc.
+
+   o Miguel OXT problems.  Add to the test suite.
+
+* Done (no test).
+
+   o read unmerged data from pdbx. e.g.?
+
+* Punt
 

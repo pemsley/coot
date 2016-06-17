@@ -5,16 +5,35 @@
   o FEATURE: generic display objects can now be attached to a molecule number:
              attach_generic_object_to_molecule(obj_no, imol)
 
+  o FEATURE: Patterson from intensities: make_and_draw_patterson_using_intensities()
+
+  o FEATURE: Added function closest_atom_simple_py() which returns the closest atom 
+             to the centre of the screen (without CA subsitution)
+
+  o FEATURE: chemical feature clustering (import cfc_ligand_sites)
+
+  o CHANGE:  fill-partial-residue now works with ROTAMERSEARCHLOWRES rather than
+             ROTAMERSEARCHHIGHRES.
+
+  o CHANGE:  Many functions now dynamically update the sequence dialog
+
+  o CHANGE:  Improved lighting when displaying solid objects
+
   o BUG-FIX: set the suggested file name in the classic dialog on saving 
              coordinates [Andy Purkiss, Arnaud Basle]
+
+  o BUG-FIX: Typsetting improvements for Oxygen atoms in lidia
 
   o BUG-FIX: correct wrapper for findligand and findwaters [Kuan-Fu Gabriel Lin]
 
   o BUG-FIX: FLEV "problematic ligand" reduced in frequency
 
-  o CHANGE:  fill-partial-residue now works with ROTAMERSEARCHLOWRES rather than 
-             ROTAMERSEARCHHIGHRES.
+  o BUG-FIX: OXT-related refinement improved
 
+  o BUG-FIX: mini-rsr now optionally uses trans peptide restrints
+
+  o BUG-FIX: 4-char Hydrogen atom names from PBDx are now correctly read (folding in an 
+             mmdb2 fix)
 
 -----
 
