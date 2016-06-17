@@ -255,25 +255,44 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
 			      std::string alt_conf_1 = atom_1_sel[ifat]->altLoc;
 			      std::string alt_conf_2 = atom_2_sel[isat]->altLoc;
 			      std::string alt_conf_3 = atom_3_sel[itat]->altLoc;
-			      
+
+			      // either they are all the same (including the ususal case of all "")
+			      // or at_1 and at_2 are the same and at_3 is blank
+			      // or at_1 is non-blank and at_2 and at_2 are blank
+			      // 
 			      if (((alt_conf_1 == alt_conf_2) && (alt_conf_1 == alt_conf_3)) ||
 				  ((alt_conf_1 == alt_conf_2) && (alt_conf_3 == "")) ||
-				  ((alt_conf_2 == alt_conf_3) && (alt_conf_1 == ""))) { 
-			      
+				  ((alt_conf_2 == alt_conf_3) && (alt_conf_1 == "")) ||
+				  ((alt_conf_1 == "") && (alt_conf_2 == "")) ||
+				  ((alt_conf_2 == "") && (alt_conf_3 == ""))
+
+				  ) {
+
+				 // set the UDD flag for this residue being bonded/angle with 
+				 // the other
+				    
 				 atom_1_sel[ifat]->GetUDData(udd_atom_index_handle, index1);
 				 atom_2_sel[isat]->GetUDData(udd_atom_index_handle, index2);
 				 atom_3_sel[itat]->GetUDData(udd_atom_index_handle, index3);
 			      
-				 if (0) { 
+				 if (false) {  // debug
 				    std::cout << "bonded_atom_indices.size(): "
 					      <<  bonded_atom_indices.size() << std::endl;
 				    std::cout << "   add_link_angle: "  << " " << index1 << std::endl;
 				    std::cout << "   add_link_angle: "  << " " << index2 << std::endl;
 				    std::cout << "   add_link_angle: "  << " " << index3 << std::endl;
+
+				    std::cout << "adding link angle: "
+					      << atom_spec_t(atom[index1]) << " "
+					      << atom_spec_t(atom[index2]) << " "
+					      << atom_spec_t(atom[index3]) << std::endl;
+				    
+				    std::cout << "same as? test    : "
+					      << atom_spec_t(atom_1_sel[ifat]) << " "
+					      << atom_spec_t(atom_2_sel[isat]) << " "
+					      << atom_spec_t(atom_3_sel[itat]) << std::endl;
 				 }
 
-				 // set the UDD flag for this residue being bonded/angle with 
-				 // the other
 			     
 				 bonded_atom_indices[index1].push_back(index3);
 				 bonded_atom_indices[index3].push_back(index1);
@@ -291,7 +310,7 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
 				     geom.link(i).link_angle_restraint[j].angle_esd(),
 				     1.2); // junk value
 				 nangle++;
-			      }
+			      } 
 			   }
 			}
 		     }
@@ -300,7 +319,7 @@ coot::restraints_container_t::add_link_angle(std::string link_type,
 	    }
 	 }
       } 
-   } 
+   }
    return nangle;
 }
 
@@ -637,9 +656,9 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
       if (verbose_geometry_reporting == VERBOSE) { 
 	 std::cout << " ------- looking for link :" << link_type
 		   << ": restraints etc. between residues " 
-		   << sel_res_1->GetChainID() << " " << setw(3) << sel_res_1->seqNum << " " << sel_res_1->GetResName()
+		   << residue_spec_t(sel_res_1) << " " << sel_res_1->GetResName()
 		   << " - " 
-		   << sel_res_2->GetChainID() << " " << setw(3) << sel_res_2->seqNum << " " << sel_res_2->GetResName()
+		   << residue_spec_t(sel_res_2) << " " << sel_res_2->GetResName()
 		   << std::endl;
       }
 	 

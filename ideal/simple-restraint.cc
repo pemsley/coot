@@ -3005,10 +3005,9 @@ coot::restraints_container_t::construct_non_bonded_contact_list_conventional() {
      }
   }
 
-
   if (false) {
      std::cout << "--------------------------------------------------\n";
-     std::cout << "   non-bonded list (unfiltered):" << std::endl;
+     std::cout << "   conventional non-bonded list (unfiltered by distance):" << std::endl;
      std::cout << "--------------------------------------------------\n";
      for (unsigned int i=0; i<non_bonded_atom_indices.size(); i++) { 
 	std::cout << i << "  " << atom[i]->GetSeqNum() << " " << atom[i]->name << " : "; 
@@ -3026,6 +3025,9 @@ coot::restraints_container_t::construct_non_bonded_contact_list_conventional() {
 void
 coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const coot::bonded_pair_container_t &bpc,
 									   const coot::protein_geometry &geom) {
+   
+   const double dist_crit = 8.0;
+   filtered_non_bonded_atom_indices.resize(bonded_atom_indices.size());
 
    if (false) { // debug
       std::cout << "DEBUG:: construct_non_bonded_contact_list_by_res_vec ::::::::::::::::" << std::endl;
@@ -3036,14 +3038,19 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 		   << bpc[i].is_fixed_first << " " 
 		   << bpc[i].is_fixed_second << " " 
 		   << std::endl;
-   }
-   
-   const double dist_crit = 8.0;
-   filtered_non_bonded_atom_indices.resize(bonded_atom_indices.size());
-   if (false) { 
+      
       std::cout << "--------------- debug:: bonded_atom_indices size "
 		<< bonded_atom_indices.size() << std::endl;
       std::cout << "--------------- debug:: n_atoms " << n_atoms << std::endl;
+      
+      std::cout << "Bonded atom indices:" << std::endl;
+      for (unsigned int i=0; i<bonded_atom_indices.size(); i++) {
+	 std::cout << "  " << i << " " << atom_spec_t(atom[i]) << " " << bonded_atom_indices[i].size()
+		   << " |  ";
+	 for (unsigned int j=0; j<bonded_atom_indices[i].size(); j++)
+	    std::cout << " " << bonded_atom_indices[i][j];
+	 std::cout << "\n";
+      }
    }
 
    // Yes, this adds symmetry to filtered_non_bonded_atom_indices, i.e.
@@ -3085,8 +3092,15 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 	       // atoms are in residues that are not in residue_vec, then
 	       // we don't add a NCB for that atom pair.
 
-	       if (! is_member_p(bonded_atom_indices[i], j)) {
+	       // bonded_atom_indices contains indices of atoms that
+	       // are angle-related (not just directly bonded)
+	       // 
+	       if (is_member_p(bonded_atom_indices[i], j)) {
 
+		  // debug bonded atoms
+		  
+	       } else {
+		  
 		  // atom j is not bonded to atom i, is it close? (i.e. within dist_crit?)
 		  clipper::Coord_orth pt1(atom[i]->x, atom[i]->y, atom[i]->z);
 		  clipper::Coord_orth pt2(atom[j]->x, atom[j]->y, atom[j]->z);
@@ -3094,9 +3108,17 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 		  if (d < dist_crit) {
 		     mmdb::Residue *r1 = atom[i]->residue;
 		     mmdb::Residue *r2 = atom[j]->residue;
-		  
-		     if (is_a_moving_residue_p(r1) && is_a_moving_residue_p(r2)) {
-			filtered_non_bonded_atom_indices[i].push_back(j);
+
+		     std::string alt_conf_1 = atom[i]->altLoc;
+		     std::string alt_conf_2 = atom[j]->altLoc;
+
+ 		     if ((alt_conf_1 == alt_conf_2) ||
+ 			 (alt_conf_1.length() == 0) ||
+ 			 (alt_conf_2.length() == 0)) {
+
+			if (is_a_moving_residue_p(r1) && is_a_moving_residue_p(r2)) {
+			   filtered_non_bonded_atom_indices[i].push_back(j);
+			}
 		     }
 		  }
 	       }
@@ -3131,9 +3153,10 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 		     }
 
 		     if (false)
-			std::cout << "moving->non-moving: here with atom " << atom_spec_t(atom[jat])
-				  << " have_oxt_flag: " << have_oxt_flag
-				  << " matched_oxt: " << matched_oxt << std::endl;
+			std::cout << "moving->non-moving: here with atom "
+				  << atom_spec_t(atom[jat]) << " have_oxt_flag: "
+				  << have_oxt_flag << " matched_oxt: " << matched_oxt
+				  << std::endl;
 
 		     if (! matched_oxt) {
 
@@ -3176,6 +3199,27 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 	 }
       }
    }
+
+   if (false) {
+      std::cout << "--------------------------------------------------\n";
+      std::cout << "  res-vec non-bonded list:" << std::endl;
+      std::cout << "--------------------------------------------------\n";
+      for (unsigned int i=0; i<filtered_non_bonded_atom_indices.size(); i++) { 
+	 std::cout << i << "  " << atom_spec_t(atom[i]) << " ";
+	 for (unsigned int j=0; j<filtered_non_bonded_atom_indices[i].size(); j++) { 
+	    std::cout << filtered_non_bonded_atom_indices[i][j] << " "
+	       //  << atom_spec_t(atom[filtered_non_bonded_atom_indices[i][j]])
+		      << " ";
+	    if (j%20==0)
+	       if (j > 0)
+		  if (j != (filtered_non_bonded_atom_indices[i].size()-1))
+		     std::cout << "\n          ";
+	 } 
+	 std::cout << std::endl;
+      } 
+      std::cout << "--------------------------------------------------\n";
+   }
+   
 }
 
 // Add non-bonded contacts for atoms that are in residues that are
