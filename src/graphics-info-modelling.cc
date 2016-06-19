@@ -1802,12 +1802,23 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) {
       return; 
    }
    
-   std::string chain(chain_id_1);
    std::string altconf = atom1->altLoc;
-   bool select_altconf = true; // only when refining a single ligand/residue
-   if (ires1 != ires2)
-      select_altconf = false;
+   bool select_altconf = true; // only when refining a single ligand/residue or both atom
+                               // have the same alt conf that is non-blank.
+   if (ires1 != ires2) {
+      std::string alt_conf_1 = atom1->altLoc;
+      std::string alt_conf_2 = atom2->altLoc;
+      if (alt_conf_1 != alt_conf_2) {
+	 select_altconf = false;
+      } else {
+	 if (alt_conf_1.empty())
+	    select_altconf = false;
+      }
+   }
+   
 
+   std::string chain(chain_id_1);
+   
 //    std::cout << "-----------------------------------------------------" << std::endl;
 //    std::cout << "-----------------------------------------------------" << std::endl;
 //    std::cout << " Rigid Body Refinement "
