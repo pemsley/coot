@@ -661,8 +661,8 @@ PyObject *active_residue_py();
 
 //! \brief return the spec of the closest displayed atom
 //!
-//! Return a list of (list imol chain-id resno ins-code atom-name
-//! alt-conf (list x y z)) for atom that is closest to the screen
+//! Return a list of [imol, chain-id, resno, ins-code, atom-name,
+//! alt-conf, [x, y, z]] for atom that is closest to the screen
 //! centre in the given molecule (unlike active-residue, potential CA 
 //! substition is not performed).  If there is no atom, or if imol is 
 //! not a valid model molecule, return False.

@@ -133,6 +133,7 @@ residue_name           = residue_name_py
 clear_and_update_molecule = clear_and_update_molecule_py
 add_molecule           = add_molecule_py
 active_residue         = active_residue_py
+closest_atom_simple    = closest_atom_simple_py
 closest_atom           = closest_atom_py
 residues_near_residue  = residues_near_residue_py
 residues_near_position = residues_near_position_py
