@@ -20,22 +20,13 @@
  * 02110-1301, USA
  */
 
-#include <string.h> // for strcmp
-
 
 // we don't want to compile anything if we don't have gsl
 #ifdef HAVE_GSL
 
-#include <algorithm> // for sort
-#include <stdexcept>
-
 #include "simple-restraint.hh"
 
 #include "coot-utils/coot-coord-extras.hh"  // is_nucleotide_by_dict
-
-// #include "mmdb.h" // for printing of mmdb::Atom pointers as info not raw
-                     // pointers.  Removed. Too much (linking issues in)
-                     // Makefile pain.
 
 
 // Add a trans bond linkage
