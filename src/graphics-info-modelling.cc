@@ -1804,6 +1804,9 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) {
    
    std::string chain(chain_id_1);
    std::string altconf = atom1->altLoc;
+   bool select_altconf = true; // only when refining a single ligand/residue
+   if (ires1 != ires2)
+      select_altconf = false;
 
 //    std::cout << "-----------------------------------------------------" << std::endl;
 //    std::cout << "-----------------------------------------------------" << std::endl;
@@ -1851,13 +1854,13 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) {
 			range_mol[ir].addresidue(mol[ifrag][ires], 1);
 		     }
 		  }
-		  catch (std::runtime_error rte) {
+		  catch (const std::runtime_error &rte) {
 		     std::cout << "ERROR:: execute_rigid_body_refine() " << rte.what() << std::endl;
 		  } 
 		  
 
 		  for (unsigned int iat=0; iat<mol[ifrag][ires].atoms.size(); iat++) {
-		     if (mol[ifrag][ires][iat].altLoc == altconf) {
+		     if ((mol[ifrag][ires][iat].altLoc == altconf) || !select_altconf) {
 // 			std::cout << "From ref res delete atom "
 // 				  << mol[ifrag][ires][iat] << std::endl;
 			from_ref_delete_atom_indices.push_back(iat);
