@@ -608,6 +608,11 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
       if ( (*restraints)[i].restraint_type == coot::START_POS_RESTRAINT) {
          distortion += coot::distortion_score_start_pos((*restraints)[i], params, v);
       }
+
+      
+      if ( (*restraints)[i].restraint_type == coot::TARGET_POS_RESTRANT) {
+         distortion += coot::distortion_score_target_pos((*restraints)[i], params, v);
+      }
    }
 
 //     std::cout << "nbc_diff   distortion: " << nbc_diff << std::endl;

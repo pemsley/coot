@@ -107,6 +107,7 @@ void coot::my_df(const gsl_vector *v,
    my_df_non_bonded(v, params, df);
    my_df_chiral_vol(v, params, df);
    my_df_start_pos (v, params, df);
+   my_df_target_pos(v, params, df);
    my_df_parallel_planes(v, params, df);
 
    
