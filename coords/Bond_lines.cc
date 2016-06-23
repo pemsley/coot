@@ -4948,10 +4948,11 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 
 	 if (uddHnd>=0) {
     
+	    float star_size = 0.28;
 	    // for atoms with no neighbour (contacts):
-	    coot::Cartesian small_vec_x(0.5, 0.0, 0.0);
-	    coot::Cartesian small_vec_y(0.0, 0.5, 0.0);
-	    coot::Cartesian small_vec_z(0.0, 0.0, 0.5);
+	    coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
+	    coot::Cartesian small_vec_y(0.0, star_size, 0.0);
+	    coot::Cartesian small_vec_z(0.0, 0.0, star_size);
 
 	    int ic; // changed by reference;
 	    int col;
