@@ -45,16 +45,6 @@ else
     PYTHONPATH=${PYTHONPATH}:$COOT_PREFIX/share/coot/python
 fi
 
-GUILE_LOAD_PATH=\
-$COOT_PREFIX/share/guile/1.6:$COOT_PREFIX/share/guile:$COOT_PREFIX/share/guile/gtk-1.2:$COOT_PREFIX/share/guile/gui:$COOT_PREFIX/share/guile/www:$COOT_PREFIX/share/guile/site
-GUILE_WARN_DEPRECATED=no
-
-if [ -n "$LOCAL_GUILE_LOAD_PATH_EXTRAS" ] ; then 
-    GUILE_LOAD_PATH=${LOCAL_GUILE_LOAD_PATH_EXTRAS}:$GUILE_LOAD_PATH
-fi
-
-# echo GUILE_LOAD_PATH is now $GUILE_LOAD_PATH
-
 systype=`uname`
 
 if [ $systype = Linux ] ; then 
@@ -103,10 +93,8 @@ export COOT_REF_STRUCTS
 export COOT_RESOURCES_FILE
 export COOT_PIXMAPS_DIR
 export COOT_DATA_DIR
-export GUILE_LOAD_PATH
 export DYLD_LIBRARY_PATH
 export LD_LIBRARY_PATH
 export LD_LIBRARYN32_PATH
 
-exec ${0}-real $*
-
+exec $COOT_PREFIX/libexec/density-score-by-residue-bin $*

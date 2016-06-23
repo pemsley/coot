@@ -750,6 +750,7 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
   
 
    coot::undelocalise(&m);
+   coot::assign_formal_charges(&m);
    unsigned int n_mol_atoms = m.getNumAtoms();
    for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
       RDKit::ATOM_SPTR at_p = m[iat];

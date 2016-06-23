@@ -867,6 +867,10 @@ public:        //                      public
 		       std::string sigf_col,
 		       float map_sampling_rate);
    
+   bool make_patterson_using_intensities(std::string mtz_file_name,
+					 std::string i_col,
+					 std::string sigi_col,
+					 float map_sampling_rate);
 
    atom_selection_container_t atom_sel;
 

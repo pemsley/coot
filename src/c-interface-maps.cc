@@ -241,7 +241,29 @@ int make_and_draw_patterson(const char *mtz_file_name,
       graphics_draw();
    } 
    return imol;
-} 
+}
+
+
+/* return a new molecule number or -1 on failure */
+int make_and_draw_patterson_using_intensities(const char *mtz_file_name, 
+					      const char *i_col, 
+					      const char *sigi_col) {
+
+   graphics_info_t g;
+   int imol = g.create_molecule();
+   int status = g.molecules[imol].make_patterson_using_intensities(mtz_file_name,
+								   i_col, sigi_col,
+								   g.map_sampling_rate);
+
+   if (! status) { 
+      g.erase_last_molecule();
+      imol = -1;
+   } else {
+      graphics_draw();
+   } 
+   return imol;
+}
+
 
 
 int  make_and_draw_map_with_refmac_params(const char *mtz_file_name, 

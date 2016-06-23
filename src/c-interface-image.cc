@@ -68,12 +68,13 @@ GtkWidget *get_image_widget_for_comp_id(const std::string &comp_id) {
    
    if (dict.first) {
 
-      try { 
+      try {
 	 RDKit::RWMol rdk_m = rdkit_mol(dict.second);
+	 coot::assign_formal_charges(&rdk_m);
+	 coot::rdkit_mol_sanitize(rdk_m);
 	 RDKit::RWMol rdk_mol_with_no_Hs = coot::remove_Hs_and_clean(rdk_m);
 
 	 int iconf_2d = RDDepict::compute2DCoords(rdk_mol_with_no_Hs);
-	 std::cout << "iconf_2d is " << iconf_2d << std::endl;
 	 WedgeMolBonds(rdk_mol_with_no_Hs, &(rdk_mol_with_no_Hs.getConformer(iconf_2d)));
 
 	 std::string smb = RDKit::MolToMolBlock(rdk_mol_with_no_Hs, true, iconf_2d);
@@ -109,7 +110,7 @@ GtkWidget *get_image_widget_for_comp_id(const std::string &comp_id) {
 	 }
       }
       catch (...) {
-	 std::cout << "hack caught an exception " << std::endl;
+	 std::cout << "WARNING:: hack caught a ... exception " << std::endl;
       }
 	 
    } else {

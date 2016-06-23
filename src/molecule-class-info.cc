@@ -2786,8 +2786,9 @@ molecule_class_info_t::add_additional_representation(int representation_type,
       int display_list_handle_index = make_ball_and_stick(info.mmdb_string(),
 							  bonds_width, sphere_size, do_spheres,
 							  glci, geom);
+      int n_display_list_tags = display_list_tags.size();
       if ((display_list_handle_index >= 0) &&
-	  (display_list_handle_index < display_list_tags.size())) {
+	  (display_list_handle_index < n_display_list_tags)) {
 	 add_reps[n_rep].add_display_list_handle(display_list_handle_index);
       } 
    }
@@ -2811,7 +2812,8 @@ molecule_class_info_t::adjust_additional_representation(int represenation_number
 void
 molecule_class_info_t::clear_additional_representation(int representation_number) {
 
-   if (add_reps.size() > representation_number) {
+   int n_add_reps = add_reps.size();
+   if (n_add_reps > representation_number) {
       if (representation_number >= 0) {
 	 add_reps[representation_number].clear(); 
       } 
@@ -2822,7 +2824,8 @@ void
 molecule_class_info_t::set_show_additional_representation(int representation_number,
 							  bool on_off_flag) {
 
-   if (add_reps.size() > representation_number) {
+   int n_add_reps = add_reps.size();
+   if (n_add_reps > representation_number) {
       if (representation_number >= 0) {
 	 add_reps[representation_number].show_it = on_off_flag;
 	 if (add_reps[representation_number].representation_type == coot::BALL_AND_STICK ||
@@ -2838,7 +2841,7 @@ molecule_class_info_t::set_show_additional_representation(int representation_num
 void
 molecule_class_info_t::set_show_all_additional_representations(bool on_off_flag) {
    int n_reps = add_reps.size();
-   for (unsigned int i=0; i<n_reps; i++)
+   for (int i=0; i<n_reps; i++)
       set_show_additional_representation(i, on_off_flag);
 }
 
@@ -2847,7 +2850,7 @@ molecule_class_info_t::all_additional_representations_off_except(int rep_no,
 								 bool ball_and_sticks_off_too_flag) {
 
    int n_reps = add_reps.size();
-   for (unsigned int i=0; i<n_reps; i++)
+   for (int i=0; i<n_reps; i++)
       if (i != rep_no)
 	 if (ball_and_sticks_off_too_flag ||
 	     add_reps[i].representation_type != coot::BALL_AND_STICK)
@@ -2962,8 +2965,10 @@ molecule_class_info_t::label_symmetry_atom(int i) {
  
    // same test as has_model():
    if (has_model()) {
+
+      unsigned int i_unsigned(i);
       
-      if (i < labelled_symm_atom_index_list.size()) { 
+      if (i_unsigned < labelled_symm_atom_index_list.size()) { 
 
 	 int iatom_index = labelled_symm_atom_index_list[i];
 
@@ -3382,8 +3387,8 @@ molecule_class_info_t::update_additional_representations(const gl_context_info_t
 					  add_reps[i].sphere_radius, 
 					  add_reps[i].draw_atom_spheres_flag, 
 					  gl_info, geom);
-
-	 if ((handle >= 0) && (handle < display_list_tags.size()))
+	 int n_display_list_tags = display_list_tags.size();
+	 if ((handle >= 0) && (handle < n_display_list_tags))
 	    add_reps[i].update_self_display_list_entity(handle);
 	 display_list_tags[handle].display_it = add_reps[i].show_it;
       }

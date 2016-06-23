@@ -1321,7 +1321,7 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
       // gets embedded as user data (hmm).
       string *s = new string(v[i].first); // the 3-letter-code/comp_id (for user data).
       button_name += v[i].first;
-      std::cout << "Adding button: " << button << " " << button_name << std::endl;
+      // std::cout << "Adding button: " << button << " " << button_name << std::endl;
       gtk_widget_ref (button);
       gtk_object_set_data_full (GTK_OBJECT (dialog), 
 				button_name.c_str(), button,
