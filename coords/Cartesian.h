@@ -160,6 +160,8 @@ namespace coot {
       friend std::ofstream& operator<<(std::ofstream&, Cartesian);
 
    };
+   std::ostream&  operator<<(std::ostream&, Cartesian);
+   std::ofstream& operator<<(std::ofstream&, Cartesian);
 
         
    class CartesianPair { 

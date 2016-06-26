@@ -731,6 +731,8 @@ namespace coot {
 					  bool robust_filter);
 	 static bool deviance_sorter(const w_rtop_orth &a, const w_rtop_orth &b);
       };
+      std::ostream&  operator<<(std::ostream&  s, const quaternion &q);
+      std::ofstream& operator<<(std::ofstream& s, const quaternion &q);
 
       class chain_id_residue_vec_helper_t { 
       public: 

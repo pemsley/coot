@@ -133,6 +133,7 @@ namespace coot {
       // This works now with declaration coot::operator<<()
       friend std::ostream& operator<<(std::ostream &s, coot::simple_rotamer rot);
    };
+   std::ostream& operator<<(std::ostream &s, coot::simple_rotamer rot);
 
 
    // a dunbrack_rotamer is a typed container of simple rotamers,
