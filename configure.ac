@@ -39,7 +39,9 @@ AM_PROG_CC_STDC
 AC_HEADER_STDC
 
 AC_PROG_CXX
-# AM_PROG_LIBTOOL that's old style. Now we use LT_INIT
+# AM_PROG_LIBTOOL that's old style. Now we use LT_INIT.
+# for LT_INIT, we need AC_LANG_SOURCE first
+AC_LANG_SOURCE
 LT_INIT
 
 # AC_PROG_INTLTOOL, no, not today.  Mac compilation problems, no perl/ XML or something.
