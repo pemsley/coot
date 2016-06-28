@@ -401,6 +401,7 @@ rama_plot_mol_selector_activate (GtkMenuItem     *menuitem,
 #if defined(HAVE_GTK_CANVAS) || defined (HAVE_GNOME_CANVAS)
 
   rama_widget = dynarama_is_displayed_state(imol);
+  g_print("BL DEBUG:: have displayed rama %s and imol %i\n", rama_widget, imol);
   if (rama_widget == NULL) { 
     do_ramachandran_plot(imol); 
   } else { 

@@ -309,6 +309,7 @@ public:
    void resize_rama_canvas(GtkWidget *widget, GdkEventConfigure *event, gpointer data);
    void resize_rama_canvas();
    void open_pdb_file(const std::string &file_name);
+   void make_kleywegt_plot(int on_off);
    void plot_type_changed();
    void update_kleywegt_plot();
 
@@ -326,8 +327,21 @@ public:
       resize_it = FALSE;
       current_bg = NULL;
       current_residue = NULL;
+      residues_grp = NULL;
+      arrow_grp = NULL;
+      oldw = 0;
+      oldh = 0;
+      oldcanvash = 400;
+      oldcanvasw = 400;
+      pad_w = 0.;
+      pad_h = 0.;
       dialog_position_x = -100; dialog_position_y = -100; }
-
+   int oldw;
+   int oldh;
+   int oldcanvash;
+   int oldcanvasw;
+   float pad_w;
+   float pad_h;
    bool create_dynarama_window();
    // consider destructor where we should
    // gtk_object_destroy(big_box_item) if it is non-zero.

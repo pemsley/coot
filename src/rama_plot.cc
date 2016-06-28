@@ -90,7 +90,7 @@ coot::rama_plot::init(const std::string &type) {
       phipsi_edit_flag = 1;
       backbone_edit_flag = 0;
       imol = -9999; // magic number used in OK button callback.
-      init_internal("Ramachandran Plot", 0.02, 0.002, 1);
+      init_internal("Ramachandran Plot (Phi/Psi Edit Mode)", 0.02, 0.002, 1);
       hide_stats_frame();
    }
    if (type == "backbone-edit") { 
@@ -98,7 +98,7 @@ coot::rama_plot::init(const std::string &type) {
       backbone_edit_flag = 1;
       imol = -9999; // magic number used in OK button callback.
       short int hide_buttons = 1;
-      init_internal("Ramachandran Plot", 0.02, 0.002, 1, hide_buttons);
+      init_internal("Ramachandran Plot (Backbone Edit Mode)", 0.02, 0.002, 1, hide_buttons);
       hide_stats_frame();
    }
    green_box_item = NULL;
@@ -116,12 +116,12 @@ coot::rama_plot::resize_rama_canvas_internal(GtkWidget *widget,
    // FIXME
    // new idea:
    // save padding, i.e. diff canvas to window
-   static int oldw = 0;
-   static int oldh = 0;
-   static int oldcanvash = 400;
-   static int oldcanvasw = 400;
-   static float pad_w = 0.;
-   static float pad_h = 0.;
+//   static int oldw = 0;
+//   static int oldh = 0;
+//   static int oldcanvash = 400;
+//   static int oldcanvasw = 400;
+//   static float pad_w = 0.;
+//   static float pad_h = 0.;
    g_print("BL DBEUG size old %i and current %i\n", oldw, event->width);
    if (oldw > 400) {
       float canvas_w = GTK_WIDGET(canvas)->allocation.width;
@@ -328,7 +328,7 @@ coot::rama_plot::init_internal(const std::string &mol_name,
          gtk_widget_show(rama_open_menuitem);
          g_print("BL DEBUG:: stadn alone, so show menu open\n");
       } else {
-         g_print("BL DEBUG:: NOT stadn alone, so hide menu open\n");
+         g_print("BL DEBUG:: NOT stand alone, so hide menu open\n");
          gtk_widget_hide(rama_open_menuitem);
       }
 //      // set the title of of widget
@@ -1276,24 +1276,17 @@ coot::rama_plot::draw_green_box(double phi, double psi) {
                 "x", &x,
                 "y", &y,
                 NULL);
-   g_print("BL DEBUG:: green box current position %f, %f\n", x, y);
+   //g_print("BL DEBUG:: green box current position %f, %f\n", x, y);
    if (x < -990) {
       x = x-box_size/2.0;
       y = y-box_size/2.0;
-      g_print("BL DEBUG:: green box after correction %f, %f\n", x, y);
+      //g_print("BL DEBUG:: green box after correction %f, %f\n", x, y);
    }
-   g_print("BL DEBUG:: green box set to phi/psi: %f, %f\n", phi, psi);
-   // move to new position
-//   goo_canvas_item_translate(green_box_item,
-//                             -x+phi, -y+psi);
-   // multiply by scale
-   phi = phi * zoom;
-   psi = psi * zoom;
-   g_print("BL DEBUG:: green box set target phi/psi: %f, %f\n", phi, psi);
-   // FIXME - need to take box size into account?! (first time only)
+   //g_print("BL DEBUG:: green box set to phi/psi: %f, %f\n", phi, psi);
+   //g_print("BL DEBUG:: green box set target phi/psi: %f, %f\n", phi, psi);
    g_object_set(green_box_item,
-                "x", phi,
-                "y", psi,
+                "x", phi-box_size/2.0,
+                "y", -psi-box_size/2.0,
                 NULL);
    // put on top of everything
    goo_canvas_item_raise(green_box_item, NULL);
@@ -1543,9 +1536,17 @@ coot::rama_plot::button_item_release (GooCanvasItem *item, GdkEventButton *event
    // Only relevent for edit?!
    if (phipsi_edit_flag) {
       goo_canvas_pointer_ungrab (GOO_CANVAS(canvas), item, event->time);
+      // get position and residue
+      gchar *chain_id;
+      gint res_no;
+      float phi = event->x_root;
+      float psi = -1.*event->y_root;
+      chain_id = (gchar*)g_object_get_data(G_OBJECT(item), "chain");
+      res_no = (gint)g_object_get_data(G_OBJECT(item), "res_no");
+      g_print("BL DEBUG:: now add phi (%f), psi (%f) restrains to residue %i in chain %s\n",
+              phi, psi, res_no, chain_id);
       dragging = FALSE;
    }
-
 
    // return what? for what?
    return 0;
@@ -2850,6 +2851,22 @@ coot::rama_plot::open_pdb_file(const std::string &file_name) {
 
    mmdb::Manager *mol = rama_get_mmdb_manager(file_name);
    draw_it(mol);
+}
+
+
+void
+coot::rama_plot::make_kleywegt_plot(int on_off) {
+
+   if (on_off != is_kleywegt_plot()) {
+      // we have a change
+      if (on_off == 1 ) {
+         // change to kleywegt
+         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(kleywegt_radiomenuitem), TRUE);
+      } else {
+         // change to normal
+         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(rama_radiomenuitem), TRUE);
+      }
+   }
 }
 
 void

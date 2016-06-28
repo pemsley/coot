@@ -108,5 +108,5 @@ export DYLD_LIBRARY_PATH
 export LD_LIBRARY_PATH
 export LD_LIBRARYN32_PATH
 
-exec ${0}-real $*
+exec ${0}-bin $*
 

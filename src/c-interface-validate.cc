@@ -1627,9 +1627,19 @@ ramachandran_plot_differences(int imol1, int imol2) {
                                                                 // set by the init_internal() function
                                                                 // of rama_plot.
    if (rama_widget) {
-      std::string s = "Sorry. Can't have Kleywegt Plot reference molecule the same\n";
-      s += "an existing displayed Ramachandran Plot";
-      info_dialog(s.c_str());
+      GtkWidget *w = coot::get_validation_graph(imol1, coot::RAMACHANDRAN_PLOT);
+      if (w && (imol1 == imol2)) {
+         coot::rama_plot *plot =
+               (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(w));
+         gtk_widget_show(w);
+         plot->make_kleywegt_plot(1);
+      } else {
+         // dont have the widget, make a new one?! info for now
+         // FIXME
+         std::string s = "Sorry. Cant find an existing plot\n";
+         s += "not making a new one, yet.";
+         info_dialog(s.c_str());
+      }
    } else { 
       if (imol1 >= 0) {
 	 if (imol1 < graphics_info_t::n_molecules()) {  
@@ -1668,13 +1678,23 @@ void ramachandran_plot_differences_by_chain(int imol1, int imol2,
                                                                 // set by the init_internal() function
                                                                 // of rama_plot.
    if (rama_widget) {
-      std::string s = "Sorry. Can't have Kleywegt Plot reference molecule the same\n";
-      s += "an existing displayed Ramachandran Plot";
-      info_dialog(s.c_str());
+      GtkWidget *w = coot::get_validation_graph(imol1, coot::RAMACHANDRAN_PLOT);
+      if (w) {
+         coot::rama_plot *plot =
+               (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(w));
+         gtk_widget_show(w);
+         plot->make_kleywegt_plot(1);
+      } else {
+         // dont have the widget, make a new one?! info for now
+         // FIXME
+         std::string s = "Sorry. Cant find an existing plot\n";
+         s += "not making a new one, yet.";
+         info_dialog(s.c_str());
+      }
    } else { 
       if (is_valid_model_molecule(imol1)) {
 	 if (is_valid_model_molecule(imol2)) {
-	    short int is_kleywegt_plot_flag = 0;
+       short int is_kleywegt_plot_flag = 1;
 	    coot::rama_plot *rama = new coot::rama_plot; 
 	    rama->set_n_diffs(graphics_info_t::rama_n_diffs);
 	    rama->init(imol1,

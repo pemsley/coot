@@ -53,6 +53,8 @@ void set_go_to_atom_molecule(int imol) {}
 int set_go_to_atom_chain_residue_atom_name(const char *t1_chain_id, int iresno, const char *t3_atom_name) {}
 short int is_valid_model_molecule(int imol) {}
 void set_moving_atoms(double phi, double psi) {}
+void accept_phi_psi_moving_atoms() {}
+void clear_moving_atoms_object() {}
 }
 
 void setup_rgb_reps();
@@ -136,7 +138,7 @@ main(int argc, char *argv[]) {
       {"selection2", 1, 0, 0},
       {"chain", 1, 0, 0},
       {"chain2", 1, 0, 0},
-      {"edit", 1, 0, 0},
+      {"edit", 1, 0, 0},   // BL Note:: maybe there should be an edit selection
       {"kleywegt", 0, 0, 0},
       {0, 0, 0, 0}
    };
@@ -383,21 +385,25 @@ main(int argc, char *argv[]) {
                     is_kleywegt_plot_flag);
          if (is_kleywegt_plot_flag) {
             g_print("BL DEBUG:: some form of Kleywegt\n");
-            if (selHnd > -1) {
+            if (selHnd > -1 && selHnd2 > -1) {
                g_print("BL DEBUG:: with sel\n");
                rama->draw_it(imol, imol2,
                              mol, mol2,
                              selHnd, selHnd2);
             } else {
-               if (mol != mol2) {
-                  g_print("BL DEBUG:: with mol\n");
-                  rama->draw_it(imol, imol2,
-                                mol, mol2);
-               } else {
+               if (chain_id.size() != 0 && chain_id2.size() != 0)  {
                   g_print("BL DEBUG:: with chains %s and %s\n", chain_id.c_str(), chain_id2.c_str());
                   rama->draw_it(imol, imol2,
                                 mol, mol2,
                                 chain_id, chain_id2);
+               } else {
+                  if (mol != mol2) {
+                     g_print("BL DEBUG:: with mol\n");
+                     rama->draw_it(imol, imol2,
+                                   mol, mol2);
+                  } else {
+                     g_print("BL INFO:: have different imols but same selection. Should not happen. No idea what to do");
+                  }
                }
             }
          } else {

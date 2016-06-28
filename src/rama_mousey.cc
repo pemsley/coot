@@ -29,6 +29,9 @@
 #include "rama_mousey.hh" // has gtk/gtk.h
 #include "interface.h"    // needs gtk/gtk.h
 
+#include "c-interface-gtk-widgets.h"
+#include "c-interface.h"
+
 #include "rama_plot.hh"
 
 
@@ -48,8 +51,13 @@ on_dynarama2_window_destroy(GtkObject *caller, gpointer user_data) {
       g_print("BL DEBUG:: is stand_alone%i\n", plot->is_stand_alone());
       if (plot->is_stand_alone())
          gtk_exit(0);
-      else
-         gtk_widget_hide(plot->dynawin);
+      else {
+         int imol = plot->molecule_number();
+         if (imol >= 0) {
+            set_dynarama_is_displayed(0, imol); // which frees/deletes the
+            // memory of the user data.
+         }
+      }
    }
 
 }
@@ -78,8 +86,12 @@ on_dynarama2_ok_button_clicked(GtkButton *button, gpointer user_data) {
       g_print("BL DEBUG:: is stand_alone%i\n", plot->is_stand_alone());
       if (plot->is_stand_alone())
          gtk_exit(0);
-      else
-         gtk_widget_hide(plot->dynawin);
+      else {
+         int imol = plot->molecule_number();
+         if (imol == -9999)
+            accept_phi_psi_moving_atoms();
+         gtk_widget_destroy(plot->dynawin);
+      }
    }
 
 }
@@ -92,8 +104,12 @@ on_dynarama2_cancel_button_clicked(GtkButton *button, gpointer user_data) {
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (plot->is_stand_alone())
       gtk_exit(0);
-   else
-      gtk_widget_hide(plot->dynawin);
+   else {
+      int imol = plot->molecule_number();
+      if (imol == -9999)
+         clear_moving_atoms_object();
+      gtk_widget_destroy(plot->dynawin);
+   }
 }
 
 

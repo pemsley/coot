@@ -1712,9 +1712,10 @@ graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
       // Clear out the old one if it was there.
       GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
       if (w) {
-	 coot::rama_plot *plot =
-	    (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(w));
-	 delete plot;
+         coot::rama_plot *plot =
+               (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(w));
+         g_print("BL DEBUG:: deleting rama plot!!!\n");
+         delete plot;
       }
       coot::set_validation_graph(imol, coot::RAMACHANDRAN_PLOT, dyna_toplev);
    }
