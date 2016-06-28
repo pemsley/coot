@@ -18,20 +18,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
-if COOT_USE_PYTHON
-
-# if coot.py is called __init.py and goes in site-packages/coot/
-#dist_pkgpython_SCRIPTS = __init__.py
-#dist_python_SCRIPTS = coot.pth
-
-#__init__.py: coot.py
-#	cp coot.py __init__.py
-
-
-dist_python_SCRIPTS = coot.py coot.pth
-
-
-endif
 
 
 ######## 20091001 ########################################################
@@ -467,6 +453,9 @@ coot_bin_SOURCES = \
 if COOT_USE_PYTHON
    coot_bin_SOURCES += coot_wrap_python_gtk2.cc
    EXTRA_DIST += coot_wrap_python_pre_gtk2.cc 
+endif
+if COOT_USE_PYTHON
+dist_python_SCRIPTS = coot.py coot.pth
 endif
 
 

@@ -62,14 +62,17 @@ void hole(int imol, float start_x, float start_y, float start_z,
 		std::vector<coot::hole_surface_point_t> >
 	 hole_path_and_surface = hole.generate();
 
+      const std::vector<std::pair<clipper::Coord_orth, double> > &probe_path =
+	 hole_path_and_surface.first;
+
       int obj_path    = new_generic_object_number("Probe path");
       int obj_surface = new_generic_object_number("Probe surface");
    
-      for (unsigned int i=0; i<hole_path_and_surface.first.size(); i++) {
+      for (unsigned int i=0; i<probe_path.size(); i++) {
 	 to_generic_object_add_point(obj_path, "red", 3,
-				     hole_path_and_surface.first[i].first.x(),
-				     hole_path_and_surface.first[i].first.y(),
-				     hole_path_and_surface.first[i].first.z());
+				     probe_path[i].first.x(),
+				     probe_path[i].first.y(),
+				     probe_path[i].first.z());
       }
 
       for (unsigned int i=0; i<hole_path_and_surface.second.size(); i++) { 
@@ -86,13 +89,13 @@ void hole(int imol, float start_x, float start_y, float start_z,
 
       std::string text;
       double path_length = sqrt((p_1-p_2).lengthsq());
-      unsigned int n = hole_path_and_surface.first.size();
+      unsigned int n = probe_path.size();
       for (unsigned int i=0; i<n; i++) {
 	 double f = path_length * double(i)/double(n);
 	 std::string line;
 	 line += coot::util::float_to_string_using_dec_pl(f, 4);
 	 line += "      ";
-	 line += coot::util::float_to_string_using_dec_pl(hole_path_and_surface.first[i].second, 4);
+	 line += coot::util::float_to_string_using_dec_pl(probe_path[i].second, 4);
 	 line += "\n";
 	 text += line;
       }
@@ -104,7 +107,7 @@ void hole(int imol, float start_x, float start_y, float start_z,
       } else { 
 	 for (unsigned int i=0; i<n; i++) {
 	    double f = path_length * double(i)/double(n);
-	    radius_stream << f << "    "  << hole_path_and_surface.first[i].second
+	    radius_stream << f << "    "  << probe_path[i].second
 			  << "\n";
 	 }
       }
@@ -139,7 +142,7 @@ void hole(int imol, float start_x, float start_y, float start_z,
       simple_text_dialog("Probe radius data", text, geom.first, geom.second);
 
       if (show_probe_radius_graph_flag)
-	 show_hole_probe_radius_graph(hole_path_and_surface.first, path_length);
+	 show_hole_probe_radius_graph(probe_path, path_length);
 
 
       bool export_map = true;
@@ -147,9 +150,14 @@ void hole(int imol, float start_x, float start_y, float start_z,
 	 int imol_map = imol_refinement_map();
 	 if (is_valid_map_molecule(imol_map)) { 
 	    const clipper::Xmap<float> &ref_map = g.molecules[imol_map].xmap;
-	    hole.carve_a_map(hole_path_and_surface.first, ref_map, "hole.map");
+	    hole.carve_a_map(probe_path, ref_map, "hole.map");
 	 }
-      } 
+      }
+
+      export_map = false; // for commit while debugging.
+      if (export_map) {
+	 clipper::NXmap<float> nxmap = hole.carve_a_map(probe_path, "hole_nx.map");
+      }
    }
 }
 
@@ -226,16 +234,19 @@ void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper:
       int trace = g->trace_new();
       std::vector<std::pair<double, double> > data;
       unsigned int n = hole_path.size();
+      double y_max = 0.1;
       for (unsigned int i=0; i<n; i++) {
 	 double x, y;
 	 x = path_length * double(i)/double(n);
 	 y = hole_path[i].second;
 	 std::pair<double, double> p(x,y);
 	 data.push_back(p);
+	 if (y > y_max)
+	    y_max = y;
       }
       g->set_plot_title("Probe Radius Graph");
       g->set_data(trace, data);
-      g->set_extents(coot::goograph::Y_AXIS, 0, 5);
+      g->set_extents(coot::goograph::Y_AXIS, 0, y_max);
       g->set_ticks(coot::goograph::X_AXIS, 5, 1);
       g->set_ticks(coot::goograph::Y_AXIS, 1, 0.2);
       g->set_axis_label(coot::goograph::X_AXIS, "Position along Path");

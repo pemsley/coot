@@ -118,7 +118,13 @@
   (if (not (command-in-path-or-absolute? *reduce-command*))
       (format #t "command for reduce (~s) is not in path~%" *reduce-command*)
       (begin
-	(let ((reduce-het-dict-file-name "coot-molprobity/reduce-het-dict.txt"))
+	
+	(let* ((nshl (non-standard-residue-names imol))
+	       (ext (apply string-append (lambda (item)
+					   (string-append item "-"))
+			   nshl))
+	       (reduce-het-dict-file-name (string-append 
+					   "coot-molprobity/reduce-het-dict" ext ".txt")))
 
 
 	  (write-reduce-het-dict imol reduce-het-dict-file-name)

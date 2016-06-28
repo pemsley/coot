@@ -716,8 +716,11 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
       glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 100); // makes a difference.
       glDisable(GL_COLOR_MATERIAL);
 
+      // narrowing from doubles to floats (there is no glMaterialdv).
+
       GLfloat  mat_specular[]  = {0.4,  0.4,  0.4,  opacity}; // makes a difference
-      GLfloat  mat_ambient[]   = {.3*map_colour[0][0], 0.3*map_colour[0][1], 0.3*map_colour[0][2], opacity};
+      GLfloat  mat_ambient[]   = {.3*map_colour[0][0], 0.3*map_colour[0][1], 0.3*map_colour[0][2],
+				  opacity};
       GLfloat  mat_diffuse[]   = {map_colour[0][0], map_colour[0][1], map_colour[0][2], opacity};
       GLfloat  mat_shininess[] = {100}; // makes a difference
 	 
