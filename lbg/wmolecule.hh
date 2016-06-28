@@ -304,9 +304,7 @@ class widgeted_bond_t : public lig_build::bond_t, ligand_layout_graphic_primitiv
       if (atom_second.atom_id != "C") { 
 	 shorten_second = 1;
       }
-      lig_build::pos_t pos_1 =  atom_first.atom_position;
-      lig_build::pos_t pos_2 = atom_second.atom_position;
-      ci = canvas_item_for_bond(pos_1, pos_2, shorten_first, shorten_second, bt, root);
+      ci = canvas_item_for_bond(atom_first, atom_second, shorten_first, shorten_second, bt, root);
 
       // std::cout << "construct_internal() made ci " << ci << std::endl;
       
@@ -317,8 +315,8 @@ class widgeted_bond_t : public lig_build::bond_t, ligand_layout_graphic_primitiv
 
    // all bonds are made this way...
    // 
-   GooCanvasItem *canvas_item_for_bond(const lig_build::pos_t &pos_1,
-				       const lig_build::pos_t &pos_2,
+   GooCanvasItem *canvas_item_for_bond(const lig_build::atom_t &at_1,
+				       const lig_build::atom_t &at_2,
 				       bool shorten_first,
 				       bool shorten_second,
 				       bond_type_t bt,
@@ -342,7 +340,8 @@ class widgeted_bond_t : public lig_build::bond_t, ligand_layout_graphic_primitiv
 	 shorten_first = 1;
       if (atom_other.atom_id != "C")
 	 shorten_second = 1;
-      GooCanvasItem *new_line = canvas_item_for_bond(A, B, shorten_first, shorten_second,
+      GooCanvasItem *new_line = canvas_item_for_bond(atom_changed, atom_other,
+						     shorten_first, shorten_second,
 						     bt, root);
       update_canvas_item(new_line, root);
    }

@@ -1199,7 +1199,23 @@ namespace lig_build {
 	 }
 	 return sum_delta;
       }
-      
+
+      pos_t get_sum_delta_neighbours(const atom_t &atom) const {
+	 pos_t sum_delta(0,0);
+	 for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
+	    int idx_1 = bonds[ibond].get_atom_1_index();
+	    int idx_2 = bonds[ibond].get_atom_2_index();
+	    if (atoms[idx_1] == atom) {
+	       std::cout << "found atom idx1 " << atom << " in atoms: " << idx_1 << std::endl;
+	       sum_delta += atoms[idx_2].atom_position - atom.atom_position;
+	    }
+	    if (atoms[idx_2] == atom) {
+	       std::cout << "found atom idx2 " << atom << " in atoms: " << idx_1 << std::endl;
+	       sum_delta += atoms[idx_1].atom_position - atom.atom_position;
+	    }
+	 }
+	 return sum_delta;
+      }
 
       //
       atom_id_info_t
