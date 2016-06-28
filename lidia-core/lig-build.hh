@@ -114,7 +114,16 @@ namespace lig_build {
 	 double new_x = x_cen + (x - x_cen) * cos_theta - (y - y_cen) * sin_theta;
 	 double new_y = y_cen + (x - x_cen) * sin_theta + (y - y_cen) * cos_theta;
 	 return pos_t(new_x, new_y);
-      } 
+      }
+      
+      pos_t rotate_about(const pos_t &cen, double angle) {
+	 double theta = angle * DEG_TO_RAD;
+	 double sin_theta = sin(theta);
+	 double cos_theta = cos(theta);
+	 double new_x = cen.x + (x - cen.x) * cos_theta - (y - cen.y) * sin_theta;
+	 double new_y = cen.y + (x - cen.x) * sin_theta + (y - cen.y) * cos_theta;
+	 return pos_t(new_x, new_y);
+      }
       
       pos_t operator*(float sc) {
 	 return pos_t(x*sc, y*sc);

@@ -852,6 +852,7 @@
                 <property name="can_focus">True</property>
                 <property name="invisible_char">&#x25CF;</property>
                 <property name="width_chars">6</property>
+                <property name="text" translatable="yes">10</property>
                 <property name="primary_icon_sensitive">True</property>
                 <property name="secondary_icon_sensitive">True</property>
               </object>
@@ -912,6 +913,7 @@
                 <property name="tooltip_text" translatable="yes">Send to Coot</property>
                 <property name="border_width">14</property>
                 <property name="use_stock">True</property>
+                <property name="xalign">0.52999997138977051</property>
                 <signal name="clicked" handler="on_lbg_apply_button_clicked"/>
               </object>
               <packing>
@@ -1361,8 +1363,8 @@
     <property name="title" translatable="yes">Coot Lidia export as pdf filechooser</property>
     <property name="modal">True</property>
     <property name="type_hint">normal</property>
-    <property name="do_overwrite_confirmation">True</property>
     <property name="action">save</property>
+    <property name="do_overwrite_confirmation">True</property>
     <signal name="close" handler="on_lbg_export_as_pdf_filechooserdialog_close"/>
     <signal name="response" handler="on_lbg_export_as_pdf_filechooserdialog_response"/>
     <child internal-child="vbox">
@@ -1427,8 +1429,8 @@
     <property name="role">export lidia png file </property>
     <property name="modal">True</property>
     <property name="type_hint">normal</property>
-    <property name="do_overwrite_confirmation">True</property>
     <property name="action">save</property>
+    <property name="do_overwrite_confirmation">True</property>
     <signal name="close" handler="on_lbg_export_as_png_filechooserdialog_close"/>
     <signal name="response" handler="on_lbg_export_as_png_filechooserdialog_response"/>
     <child internal-child="vbox">
@@ -1644,8 +1646,8 @@
     <property name="title" translatable="yes">Save As MDL Molfile...</property>
     <property name="modal">True</property>
     <property name="type_hint">normal</property>
-    <property name="do_overwrite_confirmation">True</property>
     <property name="action">save</property>
+    <property name="do_overwrite_confirmation">True</property>
     <signal name="close" handler="on_lbg_save_as_filechooserdialog_close"/>
     <signal name="response" handler="on_lbg_save_as_filechooserdialog_response"/>
     <child internal-child="vbox">
@@ -1885,8 +1887,8 @@
     <property name="window_position">mouse</property>
     <property name="type_hint">normal</property>
     <property name="has_separator">False</property>
-    <property name="do_overwrite_confirmation">True</property>
     <property name="action">save</property>
+    <property name="do_overwrite_confirmation">True</property>
     <signal name="close" handler="on_lbg_export_as_svg_filechooserdialog_close"/>
     <signal name="response" handler="on_lbg_export_as_svg_filechooserdialog_response"/>
     <child internal-child="vbox">
