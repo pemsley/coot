@@ -284,13 +284,15 @@ widgeted_molecule_t::current_scale_and_centre() const {
 // }
 
 
+// All bonds are made this way
+//
 // simple (non-ring system) bonds.
 //
 // now deals with stereo_out/wedged/OUT_BOND
 // 
 GooCanvasItem *
-widgeted_bond_t::canvas_item_for_bond(const lig_build::pos_t &pos_1_raw,
-				      const lig_build::pos_t &pos_2_raw,
+widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
+				      const lig_build::atom_t &at_2,
 				      bool shorten_first,
 				      bool shorten_second,
 				      bond_type_t bt,
@@ -298,19 +300,35 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::pos_t &pos_1_raw,
 
    double shorten_fraction = 0.72; // was 0.76
    
-   lig_build::pos_t pos_1 = pos_1_raw;
-   lig_build::pos_t pos_2 = pos_2_raw;
+   lig_build::pos_t pos_1 = at_1.atom_position;
+   lig_build::pos_t pos_2 = at_2.atom_position;
 
-   // 20160628: when the bond comes in from the right and we have a Cl we need extra shortening
+   // 20160628: When the bond comes in from the right and we have a Cl we need extra shortening.
+   //           To do that we need to be passed the atom info (now done)
+   //           These tweaks may need extension in future.
    //
+   if (bt == SINGLE_BOND) {
+      lig_build::pos_t delta;
+      if (at_1.element == "Cl" || at_2.element == "Cl") {
+	 if (at_1.element == "Cl") {
+	    // delta is the difference vector from the Cl to the other atom
+	    delta = at_2.atom_position - at_1.atom_position;
+	 }
+	 if (at_2.element == "Cl") {
+	    delta = at_1.atom_position - at_2.atom_position;
+	 }
+	 if (delta.x > 10)
+	    shorten_fraction -= 0.13 * delta.x/26.8;
+      }
+   }
 
    // fraction_point() returns a point that is (say) 0.8 of the way
    // from p1 (first arg) to p2 (second arg).
    // 
    if (shorten_first)
-      pos_1 = lig_build::pos_t::fraction_point(pos_2_raw, pos_1_raw, shorten_fraction);
+      pos_1 = lig_build::pos_t::fraction_point(pos_2, pos_1, shorten_fraction);
    if (shorten_second)
-      pos_2 = lig_build::pos_t::fraction_point(pos_1_raw, pos_2_raw, shorten_fraction);
+      pos_2 = lig_build::pos_t::fraction_point(pos_1, pos_2, shorten_fraction);
 
 
    GooCanvasItem *ci = NULL;
