@@ -1448,10 +1448,68 @@ widgeted_molecule_t::delete_hydrogens(GooCanvasItem *root) {
 	 close_atom(iat, root);
       } 
    } 
+}
 
-} 
+// X or Y
+void
+widgeted_molecule_t::flip(int axis) {
+
+   std::pair<double, lig_build::pos_t> s_c = current_scale_and_centre();
+   const lig_build::pos_t &centre = s_c.second;
+   for (unsigned int iat=0; iat<atoms.size(); iat++) { 
+      if (! atoms[iat].is_closed()) {
+	 if (axis == X_AXIS) {
+	    double x_new = 2 * centre.x - atoms[iat].atom_position.x;
+	    atoms[iat].atom_position.x = x_new;
+	 }
+	 if (axis == Y_AXIS) {
+	    double y_new = 2 * centre.y - atoms[iat].atom_position.y;
+	    atoms[iat].atom_position.y = y_new;
+	 }
+      }
+   }
+
+   for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
+      lig_build::bond_t &bond = bonds[ibond];
+      if (! bond.is_closed()) {
+
+	 // when we invert the positions of the atom, then the centre info
+	 // (for double bonds) becomes invalid, so we need to reset the bond
+	 // to a copy of the bond without centre info.
+	 //
+	 if (bond.get_bond_type() == lig_build::bond_t::IN_BOND ||
+	     bond.get_bond_type() == lig_build::bond_t::OUT_BOND) {
+	    lig_build::bond_t::bond_type_t other_dir = lig_build::bond_t::IN_BOND;
+	    if (bond.get_bond_type() == lig_build::bond_t::IN_BOND)
+	       other_dir = lig_build::bond_t::OUT_BOND;
+	    if (bond.get_bond_type() == lig_build::bond_t::OUT_BOND)
+	       other_dir = lig_build::bond_t::IN_BOND;
+	    bond.set_bond_type(other_dir);
+	 }
+
+	 if (bond.get_bond_type() == lig_build::bond_t::DOUBLE_BOND) {
+	    widgeted_bond_t new_bond(bond.get_atom_1_index(), bond.get_atom_2_index(),
+				     atoms[bond.get_atom_1_index()], atoms[bond.get_atom_2_index()],
+				     lig_build::bond_t::DOUBLE_BOND, NULL);
+	    bonds[ibond] = new_bond;
+	 }
+      }
+   }
+   assign_ring_centres();
+}
 
 
+void
+widgeted_molecule_t::rotate_z(double angle) {
+
+   std::pair<double, lig_build::pos_t> s_c = current_scale_and_centre();
+   const lig_build::pos_t &centre = s_c.second;
+   for (unsigned int iat=0; iat<atoms.size(); iat++) {
+      if (! atoms[iat].is_closed()) {
+	 atoms[iat].atom_position = atoms[iat].atom_position.rotate_about(centre, angle);
+      }
+   }
+}
 
 
 topological_equivalence_t::topological_equivalence_t(const std::vector<widgeted_atom_t> &atoms_in,
@@ -1921,6 +1979,6 @@ topological_equivalence_t::tetrahedral_atoms() const {
    std::vector<std::pair<int, std::vector<int> > > v;
    
    return v;
-} 
+}
 
 #endif // GOO_CANVAS

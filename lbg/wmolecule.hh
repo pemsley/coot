@@ -657,6 +657,10 @@ public:
 
    void delete_hydrogens(GooCanvasItem *root);
 
+   enum {X_AXIS, Y_AXIS}; 
+   void flip(int axis); // X or Y
+   void rotate_z(double angle);  // in degrees
+
 };
 
 // -----------------------------------------------------------------

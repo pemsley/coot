@@ -2636,6 +2636,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_search_database_frame = NULL;
 	 lbg_import_from_smiles_dialog = NULL;
 	 lbg_import_from_smiles_entry = NULL;
+	 lbg_view_rotate_entry = NULL;
 	 canvas = NULL;
 	 return false; // boo.
 
@@ -2675,6 +2676,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_flip_rotate_hbox =          GTK_WIDGET(gtk_builder_get_object(builder, "lbg_flip_rotate_hbox"));
 	 lbg_clean_up_2d_toolbutton =    GTK_WIDGET(gtk_builder_get_object(builder, "lbg_clean_up_2d_toolbutton"));
 	 lbg_search_database_frame =     GTK_WIDGET(gtk_builder_get_object(builder, "lbg_search_database_frame"));
+	 lbg_view_rotate_entry     =     GTK_WIDGET(gtk_builder_get_object(builder, "lbg_view_rotate_entry"));
 
 	 gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), "---");
       }
@@ -2757,8 +2759,6 @@ lbg_info_t::init(GtkBuilder *builder) {
    if (use_graphics_interface_flag) {
       if (getenv("COOT_LBG_TEST_FUNCTION") != NULL) { 
 	 gtk_widget_show(pe_test_function_button);
-      } else {
-	 gtk_widget_hide(lbg_flip_rotate_hbox);
       }
    }
 
@@ -7082,6 +7082,41 @@ lbg_info_t::get_callable_python_func(const std::string &module_name,
 #endif
 
 
+// flipping
+void
+lbg_info_t::flip_molecule(int axis) {
+
+   widgeted_molecule_t new_mol = mol;
+   new_mol.flip(axis);
+   render_from_molecule(new_mol); // wipes mol
+   update_descriptor_attributes();
+}
+
+void
+lbg_info_t::rotate_z_molecule(double degrees) {
+
+   widgeted_molecule_t new_mol = mol;
+   new_mol.rotate_z(degrees);
+   render_from_molecule(new_mol); // wipes mol
+   update_descriptor_attributes();
+}
+
+// in degrees (used in on_lbg_view_rotate_apply_button_clicked
+// callback).
+void
+lbg_info_t::rotate_z_molecule(const std::string &angle_str) {
+
+   try {
+      double angle = coot::util::string_to_double(angle_str);
+      rotate_z_molecule(angle);
+   }
+   catch (const std::exception &rte) {
+      std::cout << "WARNING:: " << rte.what() << std::endl;
+   }
+}
+
+
+
 void
 lbg_info_t::pe_test_function() {
 
@@ -7122,8 +7157,7 @@ lbg_info_t::pe_test_function() {
 
    
 #endif
-} 
-
+}
 
 
 #endif // HAVE_GOOCANVAS
