@@ -1555,6 +1555,8 @@ lbg_info_t::font_colour(const std::string &ele) const {
       font_colour = "#006600";
    if (ele == "CL") 
       font_colour = "#116600";
+   if (ele == "Cl") // mol files should have the second character in lower case, I think.
+      font_colour = "#116600";
    if (ele == "I") 
       font_colour = "#220066";
    

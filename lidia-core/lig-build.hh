@@ -804,10 +804,10 @@ namespace lig_build {
 	 return atoms.size();
       }
 
-      void assign_ring_centres() {
+      void assign_ring_centres(bool force=false) {
 	 bool debug = false;
 	 for (unsigned int ib=0; ib<bonds.size(); ib++) {
-	    if (! bonds[ib].have_centre_pos()) { 
+	    if (! bonds[ib].have_centre_pos() || force) {
 	       int atom_index = bonds[ib].get_atom_1_index();
 	       int atom_index_other = bonds[ib].get_atom_2_index();
 	       if (debug) 
@@ -1297,7 +1297,7 @@ namespace lig_build {
 	    }
 	 }
 
-	 if (atom_id != "NH" && atom_id != "OH") {
+	 if (atom_id != "NH" && atom_id != "OH" && atom_id != "SH") {
 
 	    if (atom_id == "NH2") {
 	       // Could be "NH2" or "H2N", let's investigate
@@ -1339,7 +1339,7 @@ namespace lig_build {
 	    
 	 } else {
 
-	    // NH or OH
+	    // NH or OH or SH
 	    
 	    pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
 	    atom_id_info_t atom_id_info;
@@ -1352,6 +1352,8 @@ namespace lig_build {
 		  std::string txt = "HO";
 		  if (ele == "N")
 		     txt = "HN";
+		  if (ele == "S")
+		     txt = "HS";
 		  offset_text_t ot(txt);
 		  ot.tweak = pos_t(-8, 0);
 		  atom_id_info.add(ot);
@@ -1368,6 +1370,9 @@ namespace lig_build {
 	    }
 
 	    if (bond_indices.size() == 2) {
+
+	       // Does this happen for S?
+
 	       // Add a tweak factor (1.3) to prefer horizontal orientation.
 	       if (fabs(sum_delta.y) > fabs(sum_delta.x) * 1.3) { 
 		  
@@ -1376,7 +1381,7 @@ namespace lig_build {
 		  //      H
 		  //
 		  if (sum_delta.y > 0) {
-		     offset_text_t n("N");
+		     offset_text_t n(ele);
 		     offset_text_t h("H", offset_text_t::DOWN);
 		     atom_id_info.add(n);
 		     atom_id_info.add(h);
@@ -1387,7 +1392,7 @@ namespace lig_build {
 		  //      N
 		  //    /   \  .
 		  //
-		     offset_text_t n("N");
+		     offset_text_t n(ele);
 		     offset_text_t h("H", offset_text_t::UP);
 		     atom_id_info.add(n);
 		     atom_id_info.add(h);
@@ -1398,12 +1403,12 @@ namespace lig_build {
 		  if (sum_delta.x > 0.0) {
 		     // H pokes to the left
 		     atom_id_info = atom_id_info_t();
-		     offset_text_t n("HN");
+		     offset_text_t n(std::string("H") + ele);
 		     n.tweak = pos_t(-7,0);
 		     atom_id_info.add(n);
 		  } else {
 		     atom_id_info = atom_id_info_t();
-		     offset_text_t n("NH");
+		     offset_text_t n(ele + "H");
 		     n.tweak = pos_t(0,0);
 		     atom_id_info.add(n);
 		  } 

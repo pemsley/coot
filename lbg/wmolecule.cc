@@ -296,10 +296,13 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::pos_t &pos_1_raw,
 				      bond_type_t bt,
 				      GooCanvasItem *root) const {
 
-   double shorten_fraction = 0.76;
+   double shorten_fraction = 0.72; // was 0.76
    
    lig_build::pos_t pos_1 = pos_1_raw;
    lig_build::pos_t pos_2 = pos_2_raw;
+
+   // 20160628: when the bond comes in from the right and we have a Cl we need extra shortening
+   //
 
    // fraction_point() returns a point that is (say) 0.8 of the way
    // from p1 (first arg) to p2 (second arg).
@@ -337,7 +340,6 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::pos_t &pos_1_raw,
    case TRIPLE_BOND:
       { 
 	 GooCanvasItem *group = wrap_goo_canvas_group_new (root, dark);
-							   
       
 	 lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
 	 lig_build::pos_t buv_90 = buv.rotate(90);
@@ -1459,12 +1461,12 @@ widgeted_molecule_t::flip(int axis) {
    for (unsigned int iat=0; iat<atoms.size(); iat++) { 
       if (! atoms[iat].is_closed()) {
 	 if (axis == X_AXIS) {
-	    double x_new = 2 * centre.x - atoms[iat].atom_position.x;
-	    atoms[iat].atom_position.x = x_new;
-	 }
-	 if (axis == Y_AXIS) {
 	    double y_new = 2 * centre.y - atoms[iat].atom_position.y;
 	    atoms[iat].atom_position.y = y_new;
+	 }
+	 if (axis == Y_AXIS) {
+	    double x_new = 2 * centre.x - atoms[iat].atom_position.x;
+	    atoms[iat].atom_position.x = x_new;
 	 }
       }
    }
@@ -1495,7 +1497,7 @@ widgeted_molecule_t::flip(int axis) {
 	 }
       }
    }
-   assign_ring_centres();
+   assign_ring_centres(true);
 }
 
 
@@ -1509,6 +1511,7 @@ widgeted_molecule_t::rotate_z(double angle) {
 	 atoms[iat].atom_position = atoms[iat].atom_position.rotate_about(centre, angle);
       }
    }
+   assign_ring_centres(true);
 }
 
 
