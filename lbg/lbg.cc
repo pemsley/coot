@@ -1012,7 +1012,7 @@ lbg_info_t::highlight_bond(const lig_build::bond_t &bond, bool delete_mode) {
       goo_canvas_polyline_new_line(root,
 				   A.x, A.y,
 				   B.x, B.y,
-				   "line-width", 7.0,
+				   "line-width", 7.0, // in highlight_bond()
 				   "stroke-color", col.c_str(),
 				   "can-focus", 1,
 				   NULL);
@@ -1044,7 +1044,7 @@ lbg_info_t::highlight_atom(const lig_build::atom_t &atom, int atom_index, bool d
 
    GooCanvasItem *rect_item =
       goo_canvas_rect_new (root, x1, y1, width, height,
-			   "line-width", 2.0,
+			   "line-width", 2.0, // in highlight_atom()
 			   "stroke-color", col.c_str(),
 			   "can-focus", 1,
 			   NULL);
@@ -1549,15 +1549,19 @@ lbg_info_t::font_colour(const std::string &ele) const {
       font_colour = "blue";
    if (ele == "O") 
       font_colour = "red";
-   if (ele == "S") 
+   if (ele == "S")
       font_colour = "#888800";
+   if (ele == "P")
+      font_colour = "#DD9500"; // orange
    if (ele == "F") 
       font_colour = "#006600";
    if (ele == "CL") 
       font_colour = "#116600";
    if (ele == "Cl") // mol files should have the second character in lower case, I think.
       font_colour = "#116600";
-   if (ele == "I") 
+   if (ele == "Br")
+      font_colour = "#A52A2A";
+   if (ele == "I")
       font_colour = "#220066";
    
    return font_colour;
@@ -2283,7 +2287,7 @@ lbg_info_t::stamp_polygon(int n_edges, lig_build::polygon_position_info_t ppi,
 				 pt.x - 5.0, 
 				 pt.y - 5.0,
 				 10.0, 10.0,
-				 "line-width", 7.0,
+				 "line-width", 7.0, // in stamp_polygon_anywhere() (debug)
 				 "stroke-color", stroke_colour.c_str(),
 				 NULL);
       }
@@ -3301,9 +3305,10 @@ lbg_info_t::write_pdf(const std::string &file_name) const {
       pos_y += 240;
       // pos_x += 50;
       pos_x += 150;
-   } 
+   }
    surface = cairo_pdf_surface_create(file_name.c_str(), pos_x, pos_y);
    cr = cairo_create (surface);
+   cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
 
    /* Place it in the middle of our 9x10 page. */
    // cairo_translate (cr, 20, 130);
@@ -3336,6 +3341,7 @@ lbg_info_t::write_svg(const std::string &file_name) const {
 
    cairo_surface_t *surface = cairo_svg_surface_create(file_name.c_str(), pos_x, pos_y);
    cairo_t *cr = cairo_create(surface);
+   cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
 
    /* Place it in the middle of our 9x10 page. */
    cairo_translate(cr, 2, 13);
@@ -3365,6 +3371,7 @@ lbg_info_t::write_png(const std::string &file_name) {
    
    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size_x, size_y);
    cairo_t *cr = cairo_create (surface);
+   cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
 
    // 1.0 is item's visibility threshold to see if they should be rendered
    // (everything should be rendered).
@@ -4701,7 +4708,7 @@ lbg_info_t::show_grid(const lbg_info_t::ligand_grid &grid) {
 	 std::string colour = grid_intensity_to_colour(int_as_int);
  	 GooCanvasItem *rect =
  	    goo_canvas_rect_new(root, pos.x, pos.y, 3.5, 3.5,
- 				"line-width", 1.0,
+ 				"line-width", 1.0, // in show_grid()
  				"fill_color", colour.c_str(),
 				"stroke-color", colour.c_str(),
  				NULL);
@@ -4881,7 +4888,7 @@ lbg_info_t::ligand_grid::show_contour(GooCanvasItem *root, float contour_level,
       lig_build::pos_t grid_ori = to_canvas_pos(0.0, 0.0);
       goo_canvas_rect_new (group,
 			   grid_ori.x, grid_ori.y, 5.0, 5.0,
-			   "line-width", 1.0,
+			   "line-width", 1.0, // in show_contour()
 			   "stroke-color", "green",
 			   "fill_color", "blue",
 			   NULL);
@@ -4984,7 +4991,7 @@ lbg_info_t::show_mol_ring_centres() {
    for (unsigned int i=0; i<c.size(); i++) {
       GooCanvasItem *rect_item = goo_canvas_rect_new (root,
 						      c[i].x, c[i].y, 4.0, 4.0,
-						      "line-width", 1.0,
+						      "line-width", 1.0, // in show_mol_ring_centres()
 						      "stroke-color", "blue",
 						      "fill_color", "blue",
 						      NULL);
@@ -5001,7 +5008,7 @@ lbg_info_t::show_unlimited_atoms(const std::vector<widgeted_atom_ring_centre_inf
 			     ua[i].atom.atom_position.x -6.0,
 			     ua[i].atom.atom_position.y -6.0,
 			     12.0, 12.0,
-			     "line-width", 1.0,
+			     "line-width", 1.0, // in show_unlimited_atoms()
 			     "stroke-color", "lightblue",
 			     "fill_color", "lightblue",
 			     NULL);
@@ -5021,7 +5028,7 @@ lbg_info_t::show_ring_centres(std::vector<std::vector<std::string> > ring_atoms_
 				ring_centre.x -6.0,
 				ring_centre.y -6.0,
 				12.0, 12.0,
-				"line-width", 1.0,
+				"line-width", 1.0, // in show_ring_centres()
 				"stroke-color", "purple",
 				"fill_color", "purple",
 				NULL);
@@ -6234,7 +6241,7 @@ lbg_info_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_cen
       goo_canvas_polyline_new_line(group,
 				   A.x, A.y,
 				   close_mid_pt_1.x, close_mid_pt_1.y,
-				   "line-width", 2.5,
+				   "line-width", 2.5, // in draw_annotated_stacking_line()
 				   "line-dash", dash,
 				   "stroke-color", stroke_colour.c_str(),
 				   NULL);
@@ -6243,7 +6250,7 @@ lbg_info_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_cen
       goo_canvas_polyline_new_line(group,
 				   close_mid_pt_2.x, close_mid_pt_2.y,
 				   C.x, C.y,
-				   "line-width", 2.5,
+				   "line-width", 2.5, // in draw_annotated_stacking_line()
 				   "line-dash", dash,
 				   // "end_arrow",   end_arrow,
 				   "stroke-color", stroke_colour.c_str(),
@@ -6350,7 +6357,7 @@ lbg_info_t::draw_bonds_to_ligand() {
 	       GooCanvasItem *item = goo_canvas_polyline_new_line(root,
 								  A.x, A.y,
 								  B.x, B.y,
-								  "line-width", 2.5,
+								  "line-width", 2.5, // in draw_bonds_to_ligand()
 								  "line-dash", dash,
  								  "start_arrow", start_arrow,
  								  "end_arrow",   end_arrow,
@@ -6470,7 +6477,7 @@ lbg_info_t::show_key() {
       goo_canvas_polyline_new_line(key_group,
 				   A.x, A.y,
 				   B.x, B.y,
-				   "line-width", 2.5,
+				   "line-width", 2.5, // in show_key()
 				   "line-dash", dash,
 				   "stroke-color", stroke_colour.c_str(),
 				   "end_arrow",   end_arrow,
@@ -6488,7 +6495,7 @@ lbg_info_t::show_key() {
       goo_canvas_polyline_new_line(key_group,
 				   Ad.x, Ad.y,
 				   Bd.x, Bd.y,
-				   "line-width", 2.5,
+				   "line-width", 2.5, // in show_key()
 				   "line-dash", dash,
 				   "stroke-color", stroke_colour.c_str(),
 				   "start_arrow",   end_arrow,
@@ -6508,7 +6515,7 @@ lbg_info_t::show_key() {
       goo_canvas_polyline_new_line(key_group,
 				   C.x, C.y,
 				   D.x, D.y,
-				   "line-width", 2.5,
+				   "line-width", 2.5, // in show_key()
 				   "line-dash", dash,
 				   "stroke-color", stroke_colour.c_str(),
 				   "end_arrow",   end_arrow,
@@ -6527,7 +6534,7 @@ lbg_info_t::show_key() {
       goo_canvas_polyline_new_line(key_group,
 				   Cd.x, Cd.y,
 				   Dd.x, Dd.y,
-				   "line-width", 2.5,
+				   "line-width", 2.5, // in show_key()
 				   "line-dash", dash,
 				   "stroke-color", stroke_colour.c_str(),
 				   "start_arrow",   end_arrow,
@@ -6547,7 +6554,7 @@ lbg_info_t::show_key() {
       goo_canvas_polyline_new_line(key_group,
 				   WatA.x, WatA.y,
 				   WatB.x, WatB.y,
-				   "line-width", 2.5,
+				   "line-width", 2.5, // in show_key()
 				   "line-dash", dash,
 				   "stroke-color", lime.c_str(),
 				   NULL);
@@ -6564,7 +6571,7 @@ lbg_info_t::show_key() {
       goo_canvas_polyline_new_line(key_group,
 				   MetalA.x, MetalA.y,
 				   MetalB.x, MetalB.y,
-				   "line-width", 2.5,
+				   "line-width", 2.5, // in show_key()
 				   "line-dash", dash,
 				   "stroke-color",  "#990099",
 				   NULL);
