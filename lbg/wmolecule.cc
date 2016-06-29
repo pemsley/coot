@@ -161,7 +161,11 @@ widgeted_atom_t::make_canvas_text_item(const lig_build::atom_id_info_t &atom_id_
 	 if (atom_id_info_in.offsets[i].subscript) { 
 	    font = "Sans 8";
 	    y_pos += 3;
-	 } 
+	 }
+	 if (atom_id_info_in.offsets[i].superscript) { 
+	    font = "Sans 6";
+	    y_pos -= 6;
+	 }
 
 	 if (0)
 	    std::cout << "Rendering :" << atom_id_info_in[i].text << ": with tweak "
@@ -298,27 +302,62 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
 				      bond_type_t bt,
 				      GooCanvasItem *root) const {
 
-   double shorten_fraction = 0.72; // was 0.76
+   // We can shorten the bonds to the atoms by different amounts, eg. N+ = 0
+   // needs to be shorted asymmetrically.
+   // 
+   double shorten_fraction_1 = 0.72; // was 0.76
+   double shorten_fraction_2 = 0.72;
    
    lig_build::pos_t pos_1 = at_1.atom_position;
    lig_build::pos_t pos_2 = at_2.atom_position;
 
+   // Note: deltas from the south-east direction neighbour have a delta of ~ [20,20].
+   // 
    // 20160628: When the bond comes in from the right and we have a Cl we need extra shortening.
    //           To do that we need to be passed the atom info (now done)
    //           These tweaks may need extension in future.
    //
    if (bt == SINGLE_BOND) {
       lig_build::pos_t delta;
-      if (at_1.element == "Cl" || at_2.element == "Cl") {
-	 if (at_1.element == "Cl") {
+      if (at_1.element == "Cl" ||
+	  at_2.element == "Cl" ||
+	  at_1.element == "Br" ||
+	  at_2.element == "Br") {
+	 if (at_1.element == "Cl" || at_1.element == "Br") {
 	    // delta is the difference vector from the Cl to the other atom
 	    delta = at_2.atom_position - at_1.atom_position;
 	 }
-	 if (at_2.element == "Cl") {
+	 if (at_2.element == "Cl" || at_2.element == "Br") {
 	    delta = at_1.atom_position - at_2.atom_position;
 	 }
-	 if (delta.x > 10)
-	    shorten_fraction -= 0.13 * delta.x/26.8;
+	 if (delta.x > 10) {
+	    // shorten both, but the flag is not set for the bond to the (presumably) C.
+	    shorten_fraction_1 -= 0.13 * delta.x/26.8;
+	    shorten_fraction_2 -= 0.13 * delta.x/26.8;
+	 }
+      }
+   }
+   
+   if (at_1.element == "N" || at_2.element == "N") {
+      if (at_1.element == "N") {
+	 if (at_1.charge == 1) {
+	    // N+ : shorten if bond comes in from the right
+	    lig_build::pos_t delta = at_2.atom_position - at_1.atom_position;
+	    double sum_delta = delta.length();
+	    if (delta.x > 5)
+	       sum_delta += (26 + delta.x);
+	    shorten_fraction_1 -= 0.1 * sum_delta/60.0;
+	 }
+      }
+      if (at_2.element == "N") {
+	 if (at_2.charge == 1) {
+	    // N+ : shorten if bond comes in from the right
+	    lig_build::pos_t delta = at_1.atom_position - at_2.atom_position;
+	    double sum_delta = delta.length();
+	    if (delta.x > 5)
+	       sum_delta += (26 + delta.x);
+	    shorten_fraction_2 -= 0.1 * sum_delta/60.0;
+	 }
       }
    }
 
@@ -326,10 +365,9 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
    // from p1 (first arg) to p2 (second arg).
    // 
    if (shorten_first)
-      pos_1 = lig_build::pos_t::fraction_point(pos_2, pos_1, shorten_fraction);
+      pos_1 = lig_build::pos_t::fraction_point(pos_2, pos_1, shorten_fraction_1);
    if (shorten_second)
-      pos_2 = lig_build::pos_t::fraction_point(pos_1, pos_2, shorten_fraction);
-
+      pos_2 = lig_build::pos_t::fraction_point(pos_1, pos_2, shorten_fraction_2);
 
    GooCanvasItem *ci = NULL;
    switch (bt) {
@@ -1507,17 +1545,19 @@ widgeted_molecule_t::flip(int axis) {
 	    bond.set_bond_type(other_dir);
 	 }
 
-	 if (bond.get_bond_type() == lig_build::bond_t::DOUBLE_BOND) {
-	    widgeted_bond_t new_bond(bond.get_atom_1_index(), bond.get_atom_2_index(),
-				     atoms[bond.get_atom_1_index()], atoms[bond.get_atom_2_index()],
-				     lig_build::bond_t::DOUBLE_BOND, NULL);
-	    bonds[ibond] = new_bond;
-	 }
+// 	 // is this block needed now that we do assign_ring_centres(true)?
+// 	 // 
+// 	 if (bond.get_bond_type() == lig_build::bond_t::DOUBLE_BOND) {
+// 	    widgeted_bond_t new_bond(bond.get_atom_1_index(), bond.get_atom_2_index(),
+// 				     atoms[bond.get_atom_1_index()],
+// 				     atoms[bond.get_atom_2_index()],
+// 				     lig_build::bond_t::DOUBLE_BOND, NULL);
+// 	    bonds[ibond] = new_bond;
+// 	 }
       }
    }
    assign_ring_centres(true);
 }
-
 
 void
 widgeted_molecule_t::rotate_z(double angle) {

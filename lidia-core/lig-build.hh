@@ -1338,20 +1338,41 @@ namespace lig_build {
 		     offset_text_t ot2("2");
 		     offset_text_t otN("N");
 		     ot2.subscript = true;
-		     otH.tweak = pos_t(-14, 0);
-		     ot2.tweak = pos_t(-5, 0);
+		     otH.tweak = pos_t(-16, 0);
+		     ot2.tweak = pos_t(-7, 0);
 		     otN.tweak = pos_t(0, 0);
 		     id.add(otH);
 		     id.add(ot2);
 		     id.add(otN);
 		     return id;
-		  } 
+		  }
 	       } 
 
-	    } else { 
-	       atom_id_info_t simple(atom_id);
-	       return simple;
-	    } 
+	    } else {
+
+	       // [not NH, OH, SH or NH2]
+	       // There's lot's more that could go here.
+
+	       if (atom_id == "N+") {
+		  // nitro
+
+		  atom_id_info_t atom_id_info;
+		  atom_id_info.set_atom_id("N");
+		  offset_text_t n("N");
+		  offset_text_t pl("+");
+		  pl.superscript = true;
+		  pl.tweak = pos_t(6, 0);
+		  atom_id_info.add(n);
+		  atom_id_info.add(pl);
+		  return atom_id_info;
+
+	       } else { 
+	       
+		  atom_id_info_t simple(atom_id);
+		  return simple;
+	       }
+	       
+	    }
 	    
 	 } else {
 
