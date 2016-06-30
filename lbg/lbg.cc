@@ -2691,12 +2691,8 @@ lbg_info_t::init(GtkBuilder *builder) {
    canvas = goo_canvas_new();
    GTK_WIDGET_SET_FLAGS (canvas, GTK_CAN_FOCUS);
 
-   if (0) {  // hide rdkit stuff
-      GtkWidget *ww = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_qed_and_alert_hbox"));
-      gtk_widget_hide(lbg_flip_rotate_hbox);
-      gtk_widget_hide(lbg_alert_hbox_outer);
-      gtk_widget_hide(ww);
-   }
+   GooCanvasItem *root_item = goo_canvas_get_root_item(GOO_CANVAS(canvas));
+   g_object_set(G_OBJECT(root_item), "line_width", 1.6, NULL); // thank you Damon Chaplin
 
 #ifdef HAVE_CCP4SRS
    gtk_widget_show(lbg_search_database_frame);
@@ -2707,9 +2703,6 @@ lbg_info_t::init(GtkBuilder *builder) {
    if (use_graphics_interface_flag) { 
       gtk_widget_set(GTK_WIDGET(canvas), "bounds-padding", 50.0, NULL);
       gtk_object_set_user_data(GTK_OBJECT(canvas), (gpointer) this);
-      if (0) 
-	 std::cout << ":::::: attached this lbg_info_t pointer to canvas: " << this
-		   << " to " << canvas << std::endl;
    
       save_togglebutton_widgets(builder);
       GtkWidget *lbg_scrolled_win =
@@ -2737,9 +2730,6 @@ lbg_info_t::init(GtkBuilder *builder) {
 
       GooCanvasItem *root_item = goo_canvas_get_root_item(GOO_CANVAS(canvas));
 
-      // std::cout << "................ set lbg-info on root " << root_item << " of canvas"
-      // << canvas << std::endl;
-							  
       g_object_set_data_full(G_OBJECT(root_item), "lbg-info", this, NULL);
       g_signal_connect(G_OBJECT(root_item), "button_press_event",
 		       G_CALLBACK(on_canvas_button_press), NULL);

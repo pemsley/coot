@@ -350,7 +350,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 
 						      save_fvars(card); 
 
-						   } else { 
+						   } else {
 
 						      if ( (card_word_0.substr(0, 4) == "DEFS") || // DEFS and others
 							   (card_word_0.substr(0, 4) == "CGLS") ||
