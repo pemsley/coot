@@ -1012,6 +1012,7 @@ public:
    GtkWidget *lbg_clean_up_2d_toolbutton;
    GtkWidget *lbg_search_database_frame;
    GtkWidget *lbg_view_rotate_entry;
+   GtkWidget *lbg_qed_properties_progressbars[8];
 //    GtkWidget *lbg_nitrogen_toggle_toolbutton;
 //    GtkWidget *lbg_carbon_toggle_toolbutton;
 //    GtkWidget *lbg_oxygen_toggle_toolbutton;
@@ -1127,6 +1128,7 @@ public:
    std::string get_smiles_string(const RDKit::ROMol &mol) const;
 
    void update_qed(const RDKit::RWMol &rdkm);
+   void update_qed_properties(const std::vector<double> &d);
    void update_alerts(const RDKit::RWMol &rdkm);
    std::string get_smiles_string_from_mol(const RDKit::RWMol &mol) const;
    bool bond_pick_pending;

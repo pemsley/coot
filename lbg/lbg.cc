@@ -2643,6 +2643,8 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_import_from_smiles_dialog = NULL;
 	 lbg_import_from_smiles_entry = NULL;
 	 lbg_view_rotate_entry = NULL;
+	 for (unsigned int i=0; i<8; i++)
+	    lbg_qed_properties_progressbars[i] = NULL;
 	 canvas = NULL;
 	 return false; // boo.
 
@@ -2683,6 +2685,11 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_clean_up_2d_toolbutton =    GTK_WIDGET(gtk_builder_get_object(builder, "lbg_clean_up_2d_toolbutton"));
 	 lbg_search_database_frame =     GTK_WIDGET(gtk_builder_get_object(builder, "lbg_search_database_frame"));
 	 lbg_view_rotate_entry     =     GTK_WIDGET(gtk_builder_get_object(builder, "lbg_view_rotate_entry"));
+
+	 for (unsigned int i=0; i<8; i++) {
+	    std::string name = "qed_properties_" + coot::util::int_to_string(i) + "_progressbar";
+	    lbg_qed_properties_progressbars[i] = GTK_WIDGET(gtk_builder_get_object(builder, name.c_str()));
+	 }
 
 	 gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), "---");
       }
@@ -2864,10 +2871,11 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
 	 if (qed > 0)
 	    all_set = true;
 
-         if (false)
-	    std::vector<double> property_desirabilities = 
-               get_qed_properties(silicos_it_qed_properties_func,
-             		          silicos_it_qed_pads, rdkm);
+	 std::vector<double> property_desirabilities = 
+	    get_qed_properties(silicos_it_qed_properties_func,
+			       silicos_it_qed_pads, rdkm);
+	 update_qed_properties(property_desirabilities);
+	 
       } else {
 
 	 // If you are reading this: are you sure that Biscu-it has
@@ -2888,6 +2896,23 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
 #endif
 }
 #endif
+
+void
+lbg_info_t::update_qed_properties(const std::vector<double> &desirabilities) {
+
+   // std::cout << "update_qed_properties(): " << desirabilities.size() << " properties " << std::endl;
+   if (desirabilities.size() == 8) { 
+      for (unsigned int i=0; i<8; i++) {
+	 if (false)
+	    std::cout << "desirability " << i << " " << desirabilities[i] << " "
+		      << lbg_qed_properties_progressbars[i] << std::endl;
+	 if (desirabilities[i] >= 0)
+	    if (desirabilities[i] <= 1)
+	       gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_properties_progressbars[i]),
+					     desirabilities[i]);
+      }
+   }
+}
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 void

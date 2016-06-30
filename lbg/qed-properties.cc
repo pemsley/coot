@@ -13,7 +13,7 @@ get_qed_properties(PyObject *silicos_it_qed_properties_func,
 		   PyObject *silicos_it_qed_pads,
 		   const RDKit::ROMol &rdkm) {
 
-   std::vector<double> p;
+   std::vector<double> p(8);
    if (silicos_it_qed_properties_func) {
       try {
 	 PyObject *arg_list = PyTuple_New(1);
@@ -45,17 +45,21 @@ get_qed_properties(PyObject *silicos_it_qed_properties_func,
 	       if (PyFloat_Check(item_py)) {
 		  double item_f = PyFloat_AsDouble(item_py);
 		  properties[i] = item_f;
+		  // std::cout << "setting float " << i << " " << item_f << std::endl;
 	       } else {
 		  if (PyInt_Check(item_py)) {
 		     long item_i = PyInt_AsLong(item_py);
 		     properties[i] = item_i;
+		     // std::cout << "setting int " << i << " " << item_i << std::endl;
 		  }
 	       }
 	    }
 
-	    for (long i=0; i<l; i++) {
+	    for (long i=0; i<8; i++) {
 	       double s = get_qed_ads(properties, silicos_it_qed_pads, i);
-	       std::cout << i << " " << prop_names[i] << "  " << properties[i] << " " << s << std::endl;
+	       p[i] = s;
+	       if (false) // debug
+		  std::cout << i << " " << prop_names[i] << "  " << properties[i] << " " << s << std::endl;
 	    }
 	 }
       }
