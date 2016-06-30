@@ -1356,14 +1356,13 @@ namespace lig_build {
 	       if (atom_id == "N+") {
 		  // nitro
 
-		  atom_id_info_t atom_id_info;
-		  atom_id_info.set_atom_id("N");
-		  offset_text_t n("N");
-		  offset_text_t pl("+");
-		  pl.superscript = true;
-		  pl.tweak = pos_t(6, 0);
-		  atom_id_info.add(n);
-		  atom_id_info.add(pl);
+		  atom_id_info_t atom_id_info("N", 1);
+		  // offset_text_t n("N");
+		  // atom_id_info.add(n);
+		  // offset_text_t pl("+");
+		  // pl.superscript = true;
+		  // pl.tweak = pos_t(6, 0);
+		  // atom_id_info.add(pl);
 		  return atom_id_info;
 
 	       } else { 

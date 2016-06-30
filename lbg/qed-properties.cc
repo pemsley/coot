@@ -8,12 +8,13 @@
 #include "qed-interface.hh"
 #include "lidia-core/rdkit-interface.hh"
 
-std::vector<double>
+std::vector<std::pair<double, double> >
 get_qed_properties(PyObject *silicos_it_qed_properties_func,
 		   PyObject *silicos_it_qed_pads,
 		   const RDKit::ROMol &rdkm) {
 
-   std::vector<double> p(8);
+   std::vector<std::pair<double, double> > p(8, std::pair<double, double>(0,0));
+   
    if (silicos_it_qed_properties_func) {
       try {
 	 PyObject *arg_list = PyTuple_New(1);
@@ -56,10 +57,11 @@ get_qed_properties(PyObject *silicos_it_qed_properties_func,
 	    }
 
 	    for (long i=0; i<8; i++) {
-	       double s = get_qed_ads(properties, silicos_it_qed_pads, i);
+	       std::pair<double, double> s = get_qed_ads(properties, silicos_it_qed_pads, i);
 	       p[i] = s;
 	       if (false) // debug
-		  std::cout << i << " " << prop_names[i] << "  " << properties[i] << " " << s << std::endl;
+		  std::cout << i << " " << prop_names[i] << "  " << properties[i]
+			    << " " << s.first << " " << s.second << std::endl;
 	    }
 	 }
       }
@@ -88,10 +90,12 @@ get_qed_properties(PyObject *silicos_it_qed_properties_func,
    return p;
 }
 
-double
+
+// return (value, desirability)
+std::pair<double, double>
 get_qed_ads(const std::vector<double> &properties, PyObject *pads, long idx) {
 
-   double r = 0;
+   std::pair<double,double> r(0,0);
    if (! PyList_Check(pads)) {
       std::cout << "ERROR:: get_qed_ads() pads is not a list " << std::endl;
    } else {
@@ -126,15 +130,15 @@ get_qed_ads(const std::vector<double> &properties, PyObject *pads, long idx) {
 	       const double &f=coeffs[5];
 	       const double &dmax=coeffs[6];
 
-	       r = ((a+(b/(1+exp(-1*(x-c+d/2)/e))*(1-1/(1+exp(-1*(x-c-d/2)/f)))))/dmax);
-	       
+	       double desire =
+		  ((a+(b/(1+exp(-1*(x-c+d/2)/e))*(1-1/(1+exp(-1*(x-c-d/2)/f)))))/dmax);
+
+	       r = std::pair<double, double> (x, desire);
 	    }
 	 }
       }
    }
-
    return r;
-
 }
 
 

@@ -1058,7 +1058,7 @@ public:
    } 
    bool in_delete_mode_p() const { return in_delete_mode_; }
    double radius(int n_edges) const; // depends on zoom? (for future).
-   void clear();
+   void clear(bool do_descriptor_updates);
    std::string get_stroke_colour(int i, int n) const;
    void drag_canvas(int mouse_x, int mouse_y);
    void write_pdf(const std::string &file_name) const;
@@ -1128,7 +1128,9 @@ public:
    std::string get_smiles_string(const RDKit::ROMol &mol) const;
 
    void update_qed(const RDKit::RWMol &rdkm);
-   void update_qed_properties(const std::vector<double> &d);
+   void update_qed_properties(const std::vector<std::pair<double, double> > &d);
+   void reset_qed_properties_progress_bars(); // on exception on molecule editing and clear()
+   
    void update_alerts(const RDKit::RWMol &rdkm);
    std::string get_smiles_string_from_mol(const RDKit::RWMol &mol) const;
    bool bond_pick_pending;

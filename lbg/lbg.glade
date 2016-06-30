@@ -936,6 +936,7 @@
                     <property name="width_request">100</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="tooltip_text" translatable="yes">Optimal Value: 306</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -963,6 +964,7 @@
                     <property name="width_request">100</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="tooltip_text" translatable="yes">Optimal Value: 3</property>
                   </object>
                   <packing>
                     <property name="left_attach">3</property>
@@ -976,6 +978,7 @@
                     <property name="width_request">100</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="tooltip_text" translatable="yes">Optimal Value: 3</property>
                   </object>
                   <packing>
                     <property name="left_attach">5</property>
@@ -989,6 +992,7 @@
                     <property name="width_request">100</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="tooltip_text" translatable="yes">Optimal Value: 2</property>
                   </object>
                   <packing>
                     <property name="left_attach">7</property>
@@ -1092,6 +1096,7 @@
                     <property name="width_request">100</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="tooltip_text" translatable="yes">Optimal Value: 50</property>
                   </object>
                   <packing>
                     <property name="left_attach">1</property>
@@ -1107,6 +1112,7 @@
                     <property name="width_request">100</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="tooltip_text" translatable="yes">Optimal Value: 4</property>
                   </object>
                   <packing>
                     <property name="left_attach">3</property>
@@ -1122,6 +1128,7 @@
                     <property name="width_request">100</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="tooltip_text" translatable="yes">Optimal Value: 2</property>
                   </object>
                   <packing>
                     <property name="left_attach">5</property>
@@ -1137,6 +1144,7 @@
                     <property name="width_request">100</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="tooltip_text" translatable="yes">Optimal Value: 0</property>
                   </object>
                   <packing>
                     <property name="left_attach">7</property>
