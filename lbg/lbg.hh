@@ -920,6 +920,8 @@ private:
    void rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &file_name, unsigned int iconf=0);
 #ifdef USE_PYTHON   
    PyObject *silicos_it_qed_default_func;
+   PyObject *silicos_it_qed_properties_func;
+   PyObject *silicos_it_qed_pads;
    PyObject * get_callable_python_func(const std::string &module_name,
 				       const std::string &function_name) const;
    PyObject *user_defined_alerts_smarts_py;

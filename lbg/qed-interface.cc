@@ -36,9 +36,20 @@ lbg_info_t::setup_silicos_it_qed_default_func() {
 	    if (PyCallable_Check(pFunc)) {
 	       silicos_it_qed_default_func = pFunc;
 	    } else {
-	       std::cout << "function is not callable"  << std::endl;
+	       std::cout << "default() function is not callable"  << std::endl;
 	    }
 	 }
+
+	 pFunc = PyDict_GetItemString(pDict, "properties");
+	 if (pFunc) {
+	    if (PyCallable_Check(pFunc)) {
+	       silicos_it_qed_properties_func = pFunc;
+	    } else {
+	       std::cout << "properties() function is not callable"  << std::endl;
+	    }
+	 }
+
+	 silicos_it_qed_pads = PyDict_GetItemString(pDict, "pads2"); // or pads1 for Gerebtzoff
       }
    }
    Py_DECREF(pName);
@@ -60,17 +71,15 @@ get_qed(PyObject *silicos_it_qed_default_func, const RDKit::ROMol &rdkm) {
 	 boost::python::object obj(xx);
 	 rdkit_mol_py = obj.ptr();
 	 PyTuple_SetItem(arg_list, 0, rdkit_mol_py);
-	 PyObject *result = PyEval_CallObject(silicos_it_qed_default_func, arg_list);
-
-	 if (0)
+	 PyObject *result_default = PyEval_CallObject(silicos_it_qed_default_func, arg_list);
+	 if (false)
 	    std::cout << "DEBUG:: in get_qed() silicos_it_qed_default_func is "
 		      << silicos_it_qed_default_func << std::endl;
-	 
-	 if (! result) {
+	 if (! result_default) {
 	    std::cout << "Null result from silicos_it_qed_default_func" << std::endl;
 	 } else { 
-	    if (PyFloat_Check(result)) { 
-	       r = PyFloat_AsDouble(result);
+	    if (PyFloat_Check(result_default)) { 
+	       r = PyFloat_AsDouble(result_default);
 	    }
 	 }
 

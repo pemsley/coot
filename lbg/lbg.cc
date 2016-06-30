@@ -2863,6 +2863,11 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
 	 qed = get_qed(silicos_it_qed_default_func, rdkm);
 	 if (qed > 0)
 	    all_set = true;
+
+         if (false)
+	    std::vector<double> property_desirabilities = 
+               get_qed_properties(silicos_it_qed_properties_func,
+             		          silicos_it_qed_pads, rdkm);
       } else {
 
 	 // If you are reading this: are you sure that Biscu-it has
