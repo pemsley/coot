@@ -1217,7 +1217,8 @@ namespace lig_build {
 	 return sum_delta;
       }
 
-      //
+      // using bonds and charge
+      // 
       atom_id_info_t
       make_atom_id_by_using_bonds(int atom_index,
 				  const std::string &ele,
@@ -1237,6 +1238,12 @@ namespace lig_build {
 	 //
 	 int sum_neigb_bond_order = 0;
 
+	 // 20160701: This was commented out.  I wonder why.  I have
+	 //           now uncommented it.
+	 //           It was commented out because when we have charge the
+	 //           sum_neigb_bond_order gets confusing, e.g. N+H4 for
+	 //           sum_neigb_bond_order == 1 and
+	 //           N+H3 for sum_neigb_bond_order == 2.
 	 // sum_neigb_bond_order += charge;
 	 
 	 for (unsigned int ib=0; ib<bond_indices.size(); ib++) {
@@ -1252,71 +1259,123 @@ namespace lig_build {
 	       sum_neigb_bond_order += 3;
 	 }
 
-	 if (0) 
-	    std::cout << "debug::       in make_atom_id_by_using_bonds() "
-		      << ele << " sum_neigb_bond_order: "
-		      << sum_neigb_bond_order << " " << std::endl;
-
 	 if (ele == "N") {
-	    int fc = atoms[atom_index].charge; // formal charge
-	    if (sum_neigb_bond_order == 5)
-	       atom_id = "N+2";
-	    if (sum_neigb_bond_order == 4)
-	       atom_id = "N+";
-	    if (sum_neigb_bond_order == 3)
-	       atom_id = "N";
-	    if (sum_neigb_bond_order == 2)
-	       atom_id = "NH";
-	    if (sum_neigb_bond_order == 1)
-	       atom_id = "NH2";
-	    if (sum_neigb_bond_order == 0)
-	       atom_id = "NH3";
+
+	    if (charge == -2) { // weird
+	       atom_id = "N-2";
+	    }
+
+	    if (charge == -1) { // weird
+	       atom_id = "N-";
+	    }
+	    
+	    if (charge == 0) {
+	       if (sum_neigb_bond_order == 0)
+		  atom_id = "NH3";
+	       if (sum_neigb_bond_order == 1)
+		  atom_id = "NH2";
+	       if (sum_neigb_bond_order == 2)
+		  atom_id = "NH";
+	       if (sum_neigb_bond_order == 3)
+		  atom_id = "N";
+	       if (sum_neigb_bond_order == 4)
+		  atom_id = "N";
+	    }
+	    if (charge == +1) { // very typical
+	       if (sum_neigb_bond_order == 0)
+		  atom_id = "N+H4"; // ammonium
+	       if (sum_neigb_bond_order == 1)
+		  atom_id = "N+H3"; // lys
+	       if (sum_neigb_bond_order == 2)
+		  atom_id = "N+H2";
+	       if (sum_neigb_bond_order == 3)
+		  atom_id = "N+H";
+	       if (sum_neigb_bond_order == 4)
+		  atom_id = "N+";
+	       if (sum_neigb_bond_order == 5)
+		  atom_id = "N+"; // weird
+	    }
+	    if (charge == +2) { // all weird
+	       if (sum_neigb_bond_order == 0)
+		  atom_id = "N+2H5";
+	       if (sum_neigb_bond_order == 1)
+		  atom_id = "N+2H3";
+	       if (sum_neigb_bond_order == 3)
+		  atom_id = "N+2H2";
+	       if (sum_neigb_bond_order == 4)
+		  atom_id = "N+2H";
+	       if (sum_neigb_bond_order == 5)
+		  atom_id = "N+2";
+	    }
 	 }
 							   
 	 if (ele == "O") {
 
-	    if (sum_neigb_bond_order == 3)
-	       atom_id = "O";
-	    if (sum_neigb_bond_order == 2)
-	       atom_id = "O";
-	    if (sum_neigb_bond_order == 1) {
-	       if (charge == -1)
-		  atom_id = "O";
-	       else
-		  atom_id = "OH";
-	    }
-	    if (sum_neigb_bond_order == 0) {
-	       if (charge == -1)
-		  atom_id = "OH";
-	       else
-		  atom_id = "OH2";
+	    if (charge == 2) {
+	       atom_id = "O+2";
 	    }
 
-	    // return atom_id_info_t(atom_id, charge);
+	    if (charge == 1) {
+	       atom_id = "O+";
+	    }
+	    
+	    if (charge == 0) {
+	       if (sum_neigb_bond_order == 0)
+		  atom_id = "OH2";
+	       if (sum_neigb_bond_order == 1)
+		  atom_id = "OH";
+	       if (sum_neigb_bond_order == 2)
+		  atom_id = "O";
+	       if (sum_neigb_bond_order == 3)
+		  atom_id = "O"; // doesn't make sense
+	    }
+
+	    if (charge == -1) {
+	       if (sum_neigb_bond_order == 0)
+		  atom_id = "O-";
+	       if (sum_neigb_bond_order == 1)
+		  atom_id = "O-";
+	       if (sum_neigb_bond_order == 2)
+		  atom_id = "O-";
+	    }
+
+	    if (charge == -1) {
+	       if (sum_neigb_bond_order == 0)
+		  atom_id = "O-2";
+	       if (sum_neigb_bond_order == 1)
+		  atom_id = "O-2";
+	       if (sum_neigb_bond_order == 2)
+		  atom_id = "O-2";
+	    }
 	 }
 
 	 if (ele == "S") {
-	    if (sum_neigb_bond_order == 1) {
-	       atom_id = "SH";
-	    }
-	    if (sum_neigb_bond_order == 0) {
+
+	    // 20160701 need charge-specific atom_ids here?
+	    
+	    if (sum_neigb_bond_order == 0)
 	       atom_id = "SH2";
-	    }
+	    if (sum_neigb_bond_order == 1)
+	       atom_id = "SH";
+	    if (sum_neigb_bond_order == 2)
+	       atom_id = "S";
 	 }
 
 	 if (ele == "C") {
 	    if (sum_neigb_bond_order == 0) {
 	       atom_id = "CH4";
 	    }
-	    if (sum_neigb_bond_order == 5) {
-	       atom_id = "C+"; // Hmm... carbon can go either way
+	    if (charge == 1) {
+	       if (sum_neigb_bond_order == 5) {
+		  atom_id = "C="; // Hmm... carbon can go either way
+	       }
 	    }
 	 }
 
 	 if (atom_id != "NH" && atom_id != "OH" && atom_id != "SH") {
 
 	    if (atom_id == "NH2") {
-	       // Could be "NH2" or "H2N", let's investigate
+	       // Might be typeset as "NH2" or "H2N", let's investigate
 
 	       if (bond_indices.size() != 1) {
 		  // strange case - I don't know what else to do..
@@ -1346,11 +1405,14 @@ namespace lig_build {
 		     id.add(otN);
 		     return id;
 		  }
-	       } 
+	       }
 
 	    } else {
 
-	       // [not NH, OH, SH or NH2]
+	       // not NH2...
+	       // 
+	       // still in the [not NH, OH, SH] block.
+	       // 
 	       // There's lot's more that could go here.
 
 	       if (atom_id == "N+") {
@@ -1365,14 +1427,147 @@ namespace lig_build {
 		  // atom_id_info.add(pl);
 		  return atom_id_info;
 
-	       } else { 
-	       
-		  atom_id_info_t simple(atom_id);
-		  return simple;
+	       } else {
+
+		  if (atom_id == "N+H") {
+
+		     pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
+		     if (bond_indices.size() == 1) {
+			if (sum_delta.x < 0) {
+			   atom_id_info_t id("N", 1);
+			   offset_text_t h("H");
+			   h.tweak = pos_t(14, 0);
+			   id.add(h);
+			   return id;
+			} else {
+			   atom_id_info_t id;
+			   offset_text_t h("H");
+			   offset_text_t n("N");
+			   offset_text_t plus("+");
+			   h.tweak = pos_t(-10, 0);
+			   plus.tweak = pos_t(8, 0);
+			   plus.superscript = true;
+			   id.add(h);
+			   id.add(n);
+			   id.add(plus);
+			   return id;
+			}
+		     } else {
+			if (bond_indices.size() == 2) {
+
+			   if (fabs(sum_delta.y) > fabs(sum_delta.x)) {
+
+			      if (sum_delta.y > 0) {
+		  
+				 //    \   /
+				 //      N+
+				 //      H
+				 //
+
+				 atom_id_info_t id("N", 1);
+				 offset_text_t h("H", offset_text_t::DOWN);
+				 id.add(h);
+				 return id;
+				 
+			      } else {
+
+				 //      H
+				 //      N+
+				 //    /   \           .[not-multi-line comment]
+				 //
+				 atom_id_info_t id("N", 1);
+				 offset_text_t h("H", offset_text_t::UP);
+				 id.add(h);
+				 return id;
+
+			      }
+			   } else {
+			      // normal sideways
+
+			      if (sum_delta.x < 0) {
+				 atom_id_info_t id("N", 1);
+				 offset_text_t h("H");
+				 h.tweak = pos_t(14, 0);
+				 id.add(h);
+				 return id;
+			      } else {
+				 atom_id_info_t id;
+				 offset_text_t h("H");
+				 offset_text_t n("N");
+				 offset_text_t plus("+");
+				 h.tweak = pos_t(-10, 0);
+				 plus.tweak = pos_t(8, 0);
+				 plus.superscript = true;
+				 id.add(h);
+				 id.add(n);
+				 id.add(plus);
+				 return id;
+			      }
+			   }
+			   
+			} else {
+			   // what is the madness?
+			   return atom_id_info_t("NH+");
+			} 
+		     } 
+		  } else {
+		     
+		     if (atom_id == "N+H2") {
+
+			pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
+
+			if (sum_delta.x < 0) {
+			   atom_id_info_t id("N", 1);
+			   offset_text_t h("H");
+			   h.tweak = pos_t(6, 0);
+			   offset_text_t two("2");
+			   two.subscript = true;
+			   two.tweak = pos_t(16, 0);
+			   id.add(h);
+			   id.add(two);
+			   return id;
+			} else {
+			   atom_id_info_t id("N", 1);
+			   offset_text_t h("H");
+			   offset_text_t two("2");
+			   h.tweak = pos_t(-13, 0);
+			   two.tweak = pos_t(-8, 0);
+			   two.subscript = true;
+			   id.add(h);
+			   id.add(two);
+			   return id;
+			}
+
+		     } else {
+
+			if (atom_id == "O-") {
+			   return atom_id_info_t("0", -1);
+
+			} else {
+
+			   if (atom_id == "OH2") {
+			
+			      return atom_id_info_t("OH", "2");
+
+			   } else {
+			      if (atom_id == "N-2") {
+				 return atom_id_info_t("N", -2);
+
+			      } else {
+				 if (atom_id == "N-") {
+				    return atom_id_info_t("N", -1);
+			   
+				 } else {
+				    atom_id_info_t simple(atom_id);
+				    return simple;
+				 }
+			      }
+			   }
+			}
+		     }
+		  }
 	       }
-	       
 	    }
-	    
 	 } else {
 
 	    // NH or OH or SH

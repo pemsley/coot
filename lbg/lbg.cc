@@ -2206,9 +2206,21 @@ lbg_info_t::handle_charge_change() {
 	std::cout << "change charge on " << mol.atoms[atom_index]
 		  << " from " << pre_charge << " to " << charge
 		  << std::endl;
-	std::cout << "calling change_atom_id_maybe() " << atom_index
-		  << std::endl;
-	change_atom_id_maybe(atom_index);
+	std::cout << "now calling update_atom_id_forced() with atom_idx: "
+		  << atom_index << std::endl;
+
+	// prep for calling update_atom_id_forced():
+	// 
+	GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+	std::string ele = mol.atoms[atom_index].element;
+	std::string fc = font_colour(ele);
+	bool gl_flag = false; // not a GL render engine
+	std::vector<int> local_bonds = mol.bonds_having_atom_with_atom_index(atom_index);
+	lig_build::atom_id_info_t atom_id_info = 
+	   mol.make_atom_id_by_using_bonds(atom_index, ele, local_bonds, gl_flag);
+	
+	mol.atoms[atom_index].update_atom_id_forced(atom_id_info, fc, root);
+	// change_atom_id_maybe(atom_index);
       }
     }
   }
