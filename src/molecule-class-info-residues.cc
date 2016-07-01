@@ -939,6 +939,20 @@ molecule_class_info_t::residue_centre(const std::string &chain_id, int resno, co
    }
 }
 
+std::pair<bool, clipper::Coord_orth>
+molecule_class_info_t::residue_centre(const coot::residue_spec_t &spec) const {
+
+   clipper::Coord_orth p(0,0,0);
+   std::pair<bool, clipper::Coord_orth> r(false, p);
+   
+   mmdb::Residue *residue_p = get_residue(spec);
+   if (residue_p) {
+      r = residue_centre(residue_p);
+   }
+   return r;
+}
+
+
 
 std::pair<bool, clipper::Coord_orth>
 molecule_class_info_t::residue_centre(mmdb::Residue *residue_p) const {
@@ -1422,6 +1436,34 @@ molecule_class_info_t::get_residue_by_type(const std::string &residue_type) cons
 
    return spec;
 }
+
+std::vector<coot::residue_spec_t>
+molecule_class_info_t::get_residues_by_type(const std::string &residue_type) const {
+
+   std::vector<coot::residue_spec_t> v;
+
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) { 
+      mmdb::Chain *chain_p;
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 mmdb::Residue *residue_p;
+	 for (int ires=0; ires<nres; ires++) { 
+	    residue_p = chain_p->GetResidue(ires);
+	    std::string residue_name(residue_p->GetResName());
+	    if (residue_name == residue_type) {
+	       coot::residue_spec_t spec(residue_p);
+	       v.push_back(spec);
+	    }
+	 }
+      }
+   }
+   return v;
+}
+
 
 
 void

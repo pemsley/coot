@@ -3475,12 +3475,12 @@ new_close_molecules(GtkWidget *window) {
 		  GtkWidget *window = lookup_widget(w, "sequence_view_dialog");
 		  if (window) { 
 		     gtk_widget_destroy(window);
-		  } else { 
+		  } else {
 		     window = lookup_widget(w, "nsv_dialog");
 		     if (window) 
 			gtk_widget_destroy(window);
 		  }
-	       } 
+	       }
 #endif
 	       //graphics_info_t::molecules[imol].close_yourself();
 	       close_molecule(imol);
@@ -5409,6 +5409,7 @@ void nsv(int imol) {
 	    new exptl::nsv(g.molecules[imol].atom_sel.mol, name, imol,
 			   g.use_graphics_interface_flag,
 			   g.nsv_canvas_pixel_limit);
+	 g.set_sequence_view_is_displayed(seq_view->Canvas(), imol);
       }
    }
 #endif // defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)

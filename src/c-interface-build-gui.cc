@@ -894,11 +894,6 @@ void do_mutate_sequence(GtkWidget *dialog) {
 	 char *txt = NULL;
 
 
-#if (GTK_MAJOR_VERSION == 1) 
-	 gint start_pos = 0;
-	 gint end_pos = -1;
-	 txt = gtk_editable_get_chars(GTK_EDITABLE(text), start_pos, end_pos);
-#else
 	 // std::cout << "Gtk2 text view code... " << std::endl;
 	 // text is a GtkTextView in GTK2
 	 GtkTextView *tv = GTK_TEXT_VIEW(text);
@@ -908,7 +903,6 @@ void do_mutate_sequence(GtkWidget *dialog) {
 	 gtk_text_buffer_get_iter_at_offset(tb, &startiter, 0);
 	 gtk_text_buffer_get_iter_at_offset(tb, &enditer, -1);
 	 txt = gtk_text_buffer_get_text(tb, &startiter, &enditer, 0);
-#endif 	 
 
 	 if (txt) {
 	    std::string sequence(txt);
@@ -927,6 +921,7 @@ void do_mutate_sequence(GtkWidget *dialog) {
 	       cmd_strings.push_back(graphics_info_t::int_to_string(res2));
 	       cmd_strings.push_back(single_quote(sequence));
 	       std::string cmd = g.state_command(cmd_strings, state_lang);
+	       
 // BL says: I believe we should distinguish between python and guile here!?
 #ifdef USE_GUILE
 	       if (state_lang == coot::STATE_SCM) {
@@ -939,7 +934,9 @@ void do_mutate_sequence(GtkWidget *dialog) {
               }
 #endif // PYTHON
 #endif // GUILE
-	       update_go_to_atom_window_on_changed_mol(imol);
+	      update_go_to_atom_window_on_changed_mol(imol);
+	      g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
+
 	    } else {
 	       std::cout << "WARNING:: can't mutate.  Sequence of length: "
 			 << sequence.length() << " but residue range size: "
@@ -967,9 +964,8 @@ GtkWidget *wrapped_fit_loop_rama_search_dialog() {
    GtkWidget *mutate_ok_button   = lookup_widget(w, "mutate_sequence_ok_button");
    GtkWidget *fit_loop_ok_button = lookup_widget(w, "fit_loop_ok_button");
    GtkWidget *checkbutton        = lookup_widget(w, "mutate_sequence_do_autofit_checkbutton");
-#if (GTK_MAJOR_VERSION > 1)
+
    GtkWidget *rama_checkbutton   = lookup_widget(w, "mutate_sequence_use_ramachandran_restraints_checkbutton");
-#endif
    
    gtk_label_set_text(GTK_LABEL(label), "\nFit loop in Molecule:\n");
    gtk_widget_hide(mutate_ok_button);
@@ -1225,12 +1221,6 @@ int do_align_mutate_sequence(GtkWidget *w) {
 	 GtkWidget *text = lookup_widget(w, "align_and_mutate_sequence_text");
 	 char *txt = NULL;
       
-#if (GTK_MAJOR_VERSION == 1) 
-	 gint start_pos = 0;
-	 gint end_pos = -1;
-	 txt = gtk_editable_get_chars(GTK_EDITABLE(text), start_pos, end_pos);
-#else
-	 // std::cout << "Gtk2 text view code... " << std::endl;
 	 // text is a GtkTextView in GTK2
 	 GtkTextView *tv = GTK_TEXT_VIEW(text);
 	 GtkTextBuffer* tb = gtk_text_view_get_buffer(tv);
@@ -1239,7 +1229,6 @@ int do_align_mutate_sequence(GtkWidget *w) {
 	 gtk_text_buffer_get_iter_at_offset(tb, &startiter, 0);
 	 gtk_text_buffer_get_iter_at_offset(tb, &enditer, -1);
 	 txt = gtk_text_buffer_get_text(tb, &startiter, &enditer, 0);
-#endif 	 
       
 	 if (txt) {
 	    std::string sequence(txt);
@@ -1247,7 +1236,9 @@ int do_align_mutate_sequence(GtkWidget *w) {
 	    if (is_valid_model_molecule(imol)) {
 	       graphics_info_t g;
 	       g.mutate_chain(imol, chain_id, sequence, do_auto_fit, renumber_residues_flag);
+	       g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
 	       graphics_draw();
+	       
 	    }
 	 }
       } else {
@@ -1376,6 +1367,8 @@ change_chain_id_by_widget(GtkWidget *w) {
 	    GtkWidget *ws = wrapped_nothing_bad_dialog(r.second);
 	    gtk_widget_show(ws);
 	 }
+	 graphics_info_t g;
+	 g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
       }
    } else {
       std::cout << "ERROR: Couldn't get txt in change_chain_id_by_widget\n";

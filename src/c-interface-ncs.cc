@@ -606,9 +606,9 @@ PyObject *ncs_chain_differences_py(int imol, const char *master_chain_id) {
 						  cd.residue_info[iresinf].target_inscode);
 		  // according to Paul's documentation we should have resno and inscode
 		  // for both residues here too
-		  PyObject *thisr = PyList_GetSlice(py_residue(this_res), 2, 4);
+		  PyObject *thisr = PyList_GetSlice(residue_spec_to_py(this_res), 2, 4);
 		  
-		  PyObject *masta = PyList_GetSlice(py_residue(target_res), 2, 4);
+		  PyObject *masta = PyList_GetSlice(residue_spec_to_py(target_res), 2, 4);
 
 		  // res_l list seems only to have one element in Paul's scm code
 		  // currently?! Correct?!

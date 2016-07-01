@@ -956,7 +956,7 @@ std::vector<int> ligand_search_make_conformers_internal() {
 					       g.ligand_wiggly_ligand_n_samples,
 					       optim_geom, fill_return_vec);
 	 }
-	 catch (std::runtime_error mess) {
+	 catch (const std::runtime_error &mess) {
 	    std::cout << "Error in flexible ligand definition.\n";
 	    std::cout << mess.what() << std::endl;
 	    if (graphics_info_t::use_graphics_interface_flag) { 
@@ -2372,7 +2372,34 @@ get_residue_by_type(int imol, const std::string &residue_type) {
       spec = g.molecules[imol].get_residue_by_type(residue_type);
    } 
    return spec;
-} 
+}
+
+
+std::vector<coot::residue_spec_t> get_residue_specs_in_mol(int imol, const std::string &residue_type) {
+
+   std::vector<coot::residue_spec_t> v;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      v = g.molecules[imol].get_residues_by_type(residue_type);
+   } 
+   return v;
+}
+
+#ifdef USE_PYTHON
+PyObject *get_residue_specs_in_mol_py(int imol,
+				      const std::string &residue_type) {
+
+   std::vector<coot::residue_spec_t> v =
+      get_residue_specs_in_mol(imol, residue_type);
+
+   PyObject *r = PyList_New(v.size());
+   for (unsigned int i=0; i<v.size(); i++)
+      PyList_SetItem(r, i, residue_spec_to_py(v[i]));
+
+   return r;
+}
+#endif 
+
 
 
 #ifdef USE_GUILE
@@ -2381,7 +2408,7 @@ SCM get_residue_by_type_scm(int imol, const std::string &residue_type) {
    SCM r = SCM_BOOL_F;
    coot::residue_spec_t spec = get_residue_by_type(imol, residue_type);
    if (! spec.unset_p())
-      r = scm_residue(spec);
+      r = residue_spec_to_scm(spec);
    return r;
 }
 #endif
@@ -2393,7 +2420,7 @@ PyObject *get_residue_by_type_py(int imol, const std::string &residue_type) {
    PyObject *r = Py_False;
    coot::residue_spec_t spec = get_residue_by_type(imol, residue_type);
    if (! spec.unset_p())
-      r = py_residue(spec);
+      r = residue_spec_to_py(spec);
    if (PyBool_Check(r)) {
      Py_INCREF(r);
    }
@@ -2410,7 +2437,7 @@ SCM het_group_residues_scm(int imol) {
    if (is_valid_model_molecule(imol)) {
       std::vector<coot::residue_spec_t> specs = graphics_info_t::molecules[imol].het_groups();
       for (unsigned int i=0; i<specs.size(); i++) { 
-	 SCM s = scm_residue(specs[i]);
+	 SCM s = residue_spec_to_scm(specs[i]);
 	 r = scm_cons(s, r);
       }
       r = scm_reverse(r);
@@ -2427,7 +2454,7 @@ PyObject *het_group_residues_py(int imol) {
       std::vector<coot::residue_spec_t> specs = graphics_info_t::molecules[imol].het_groups();
       r = PyList_New(specs.size());
       for (unsigned int i=0; i<specs.size(); i++) { 
-         PyList_SetItem(r, i, py_residue(specs[i]));
+         PyList_SetItem(r, i, residue_spec_to_py(specs[i]));
       }
    } 
    if (PyBool_Check(r)) {
@@ -2455,7 +2482,7 @@ SCM new_molecule_sans_biggest_ligand_scm(int imol) {
    SCM r = SCM_BOOL_F;
    std::pair<mmdb::Residue *, int> res = new_molecule_sans_biggest_ligand(imol);
    if (res.first) {
-      r = scm_list_2(SCM_MAKINUM(res.second), scm_residue(res.first));
+      r = scm_list_2(SCM_MAKINUM(res.second), residue_spec_to_scm(res.first));
    }
    return r;
 }
@@ -2469,7 +2496,7 @@ PyObject *new_molecule_sans_biggest_ligand_py(int imol) {
    if (res.first) {
       r = PyList_New(2);
       PyList_SetItem(r, 0, PyLong_FromLong(res.second));
-      PyList_SetItem(r, 1, py_residue(res.first));
+      PyList_SetItem(r, 1, residue_spec_to_py(res.first));
    }
    if (PyBool_Check(r)) {
       Py_INCREF(r);

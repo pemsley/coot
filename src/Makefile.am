@@ -18,20 +18,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
-if COOT_USE_PYTHON
-
-# if coot.py is called __init.py and goes in site-packages/coot/
-#dist_pkgpython_SCRIPTS = __init__.py
-#dist_python_SCRIPTS = coot.pth
-
-#__init__.py: coot.py
-#	cp coot.py __init__.py
-
-
-dist_python_SCRIPTS = coot.py coot.pth
-
-
-endif
 
 
 ######## 20091001 ########################################################
@@ -120,6 +106,7 @@ coot_wrap_guile_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h    \
                              $(top_srcdir)/src/lbg-interface.hh \
                              $(top_srcdir)/src/c-interface-ligands-swig.hh \
                              $(top_srcdir)/src/sdf-interface.hh \
+                             $(top_srcdir)/src/cfc.hh \
                              $(top_srcdir)/src/cmtz-interface.hh \
                              $(top_srcdir)/src/c-interface-mogul.hh
 	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(WITH_GUILE_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src -I$(top_srcdir) -guile -c++  $(top_srcdir)/src/coot.i
@@ -139,6 +126,7 @@ coot_wrap_python_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h      \
 			      $(top_srcdir)/src/lbg-interface.hh   \
                               $(top_srcdir)/src/c-interface-ligands-swig.hh \
 			      $(top_srcdir)/src/sdf-interface.hh   \
+                              $(top_srcdir)/src/cfc.hh \
                               $(top_srcdir)/src/c-interface-mogul.hh
 	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -c++ $(top_srcdir)/src/coot.i
 
@@ -211,8 +199,8 @@ AM_CPPFLAGS = \
 
 pkginclude_HEADERS = crunch-model.hh
 
-libexec_PROGRAMS = coot-bin
-bin_PROGRAMS = density-score-by-residue-real fix-nomenclature-errors
+libexec_PROGRAMS = coot-bin density-score-by-residue-bin
+bin_PROGRAMS =  fix-nomenclature-errors
 dist_bin_SCRIPTS = coot density-score-by-residue
 check_PROGRAMS = test-coot-align test-cholesky
 
@@ -240,6 +228,7 @@ coot_bin_SOURCES = \
 	c-interface-build-gui.cc \
 	c-interface-database.hh  \
 	c-interface-database.cc  \
+	c-interface-generic-objects.h	 \
 	c-interface-gui.cc	 \
 	c-interface-gtk2.cc	 \
 	c-interface-gtk-widgets.h \
@@ -291,6 +280,9 @@ coot_bin_SOURCES = \
 	cc-interface-scripting.hh \
 	callbacks.c callbacks.h	 \
         canvas-fixes.hh          \
+	cfc.cc cfc.hh            \
+        cfc-widgets.hh           \
+        cfc-widgets-c-interface.h \
 	change-dir.cc		 \
 	change-dir.hh		 \
 	cmtz-interface-gui.hh	 \
@@ -394,6 +386,7 @@ coot_bin_SOURCES = \
 	molecule-class-info-refine.cc   \
         molecule-class-info-kk.cc       \
 	molecule-class-info-surface.cc 	\
+	molecule-class-info-patterson.cc \
 	molecule-class-info-ncs.cc 	\
 	molecule-class-info-widget-work.cc \
 	mtz-column-auto-read.hh  \
@@ -455,6 +448,9 @@ if COOT_USE_PYTHON
    coot_bin_SOURCES += coot_wrap_python_gtk2.cc
    EXTRA_DIST += coot_wrap_python_pre_gtk2.cc 
 endif
+if COOT_USE_PYTHON
+dist_python_SCRIPTS = coot.py coot.pth
+endif
 
 
 # testcartesian_SOURCES = testcartesian.cc
@@ -492,6 +488,9 @@ fix_nomenclature_errors_LDADD = \
 
 # coot_bin_LDFLAGS = -static -lstdc++
 coot_bin_LDFLAGS =
+
+# coot_bin_CXXFLAGS=-Wl,--export-dynamic -dynamiclib
+#  -Wl,-undefined -Wl,dynamic_lookup 
 
 # 20101220 Note: when libtool/ltmain.sh is fixed, OPENMP_CFLAGS will
 # not be needed here. So says Justin Lecher (see email).
@@ -569,8 +568,8 @@ test_coot_align_LDADD =	\
 # test_lbg_graph_LDADD = $(MMDB_LIBS)
 
 
-density_score_by_residue_real_SOURCES = density-score-by-residue-src.cc
-density_score_by_residue_real_LDADD  =	\
+density_score_by_residue_bin_SOURCES = density-score-by-residue-src.cc
+density_score_by_residue_bin_LDADD  =	\
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 	$(top_builddir)/coords/libcoot-coords.la 		\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
@@ -585,3 +584,6 @@ density_score_by_residue_real_LDADD  =	\
 	$(CLIPPER_LIBS) 	\
 	$(MMDB_LIBS)		\
 	$(GSL_LIBS)
+
+# subpkgdatadir = $(pkgdatadir)
+# subpkgdata_DATA = cfc.glade

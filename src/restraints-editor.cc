@@ -388,21 +388,39 @@ coot::restraints_editor::fill_bond_tree_data(GtkWidget *restraints_editor_dialog
    
    for (unsigned int i=0; i<restraints.bond_restraint.size(); i++) { 
       gtk_tree_store_append(tree_store_bonds, &toplevel, NULL);
-      try { 
+      try {
+
+	 // std::cout << "here in fill_bond_tree_data() " << i << " " << restraints.bond_restraint[i] << std::endl;
+	 // 
+	 // we still want to see the atom names, even if there is no value_esd() or value_dist() (which can throw runtime
+	 // errors if they are not present (reasonably enough)
+	 //
+	 double value_esd = 0.0;
+	 double value_dist = 0.0;
+
+	 try {
+	    value_dist = restraints.bond_restraint[i].value_dist();
+	    value_esd  = restraints.bond_restraint[i].value_esd();
+	 } 
+	 catch (const std::runtime_error &rte) { } // it's OK if these are not updated.
+	 
 	 gtk_tree_store_set(tree_store_bonds, &toplevel,
 			    0, restraints.bond_restraint[i].atom_id_1_4c().c_str(),
 			    1, restraints.bond_restraint[i].atom_id_2_4c().c_str(),
 			    2, restraints.bond_restraint[i].type().c_str(),
-			    3, restraints.bond_restraint[i].value_dist(),
-			    4, restraints.bond_restraint[i].value_esd(),
+			    3, value_dist,
+			    4, value_esd,
 			    -1);
       }
-      catch (std::runtime_error rte) {
+      catch (const std::runtime_error &rte) {
+	 
 	 // do nothing, it's not really an error if the dictionary
 	 // doesn't have target geometry (the bonding description came
 	 // from a Chemical Component Dictionary entry for example).
 	 //
 	 // but we don't want to set the store in that case.
+
+	 std::cout << "caught rte: " << rte.what() << std::endl;
       } 
    }
 
@@ -1159,11 +1177,20 @@ coot::restraints_editor::get_atom_info() const {
 
 std::pair<bool, coot::dict_chem_comp_t>
 coot::restraints_editor::get_residue_info() const {
+
    coot::dict_chem_comp_t info;
    bool proper = 0;
 
    // e.g. view_and_store_atoms.store:
    GtkTreeIter  iter;
+
+   // Currently with an input mol file, Acedrg writes out dictionaries with no proper name
+   // (uses . for name):
+   //
+   // when the dialog is filled then, there is no string added to the name field.
+   // when we read it we get a blank and hence the "Incomprehensible comp-id' message.
+   // We don't want that.
+   // 
 
    bool v = gtk_tree_model_get_iter_first(GTK_TREE_MODEL(view_and_store_info.store), &iter);
    if (v) { 
@@ -1201,7 +1228,7 @@ coot::restraints_editor::get_residue_info() const {
 	       n_H_atoms = ii;
 	 }
       }
-   
+
       if (tlc.length() == 0) {
 	 std::cout << "WARNING:: get_residue_info() three_letter_code blank/unset." << std::endl;
 	 std::cout << "WARNING:: get_residue_info() resetting three_letter_code to "
@@ -1211,7 +1238,7 @@ coot::restraints_editor::get_residue_info() const {
       
       if ((comp_id.length() > 0) &&
 	  (tlc.length()     > 0) &&
-	  (name.length()    > 0) &&
+	  // (name.length()    > 0) && // see comments above.
 	  // 	  (group.length()   > 0) && // libcheck from SMILES has group of "." in cif file, '
 	                                    // which after the cif reader is "".
 	  (description_level != "not-set") &&
@@ -1220,10 +1247,10 @@ coot::restraints_editor::get_residue_info() const {
 
 // 	 std::cout << "DEBUG:: makeing a coot::dict_chem_comp_t with comp_id "
 // 		   << comp_id << std::endl;
-
+	 
 	 coot::dict_chem_comp_t res_info(comp_id, tlc, name, group, n_atoms,
 					 n_H_atoms, description_level);
-	 proper = 1;
+	 proper = true;
 	 info = res_info;
       } else {
 	 std::cout << "WARNING:: Incomprehensible chem_comp!\n";
@@ -1271,8 +1298,7 @@ void restraints_editor_save_restraint_by_widget(GtkWidget *w) {
       GtkWidget *w = create_save_restraint_chooserdialog();
       coot::dictionary_residue_restraints_t r = re.make_restraint();
       std::string filename = "monomer-";
-//        std::cout << "DEBUG:: save restraint for " << r.residue_info.comp_id
-// 		 << " here " << std::endl;
+
       filename += r.residue_info.comp_id;
       filename += ".cif";
 #if (GTK_MAJOR_VERSION == 1) || ((GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION < 10))

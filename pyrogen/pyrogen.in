@@ -14,11 +14,12 @@ if [ $systype = Darwin ] ; then
    else 
 	DYLD_FALLBACK_LIBRARY_PATH=$prfx/lib:${DYLD_FALLBACK_LIBRARY_PATH}
    fi
+   export DYLD_FALLBACK_LIBRARY_PATH
 else
    prfx=$(readlink -f $(dirname "$current_exe_dir"))
+   export LD_LIBRARY_PATH=$prfx/lib
 fi
 
-export LD_LIBRARY_PATH=$prfx/lib
 export PATH=$prfx/bin:$PATH
 
 python -m pyrogen $*

@@ -516,13 +516,7 @@ class molecule_class_info_t {
    std::vector<coot::dots_representation_info_t> dots;
    coot::colour_t dots_colour;
    bool dots_colour_set;
-   coot::at_dist_info_t closest_atom(const coot::Cartesian &pt,
-				     bool ca_check_flag) const;
-   coot::at_dist_info_t closest_atom(const coot::Cartesian &pt,
-				     bool ca_check_flag,
-				     const std::string &chain_id,
-				     bool use_this_chain_id) const;
-   
+
    // return -1 on not found
    int get_atom_index(mmdb::Atom *atom) { 
      int idx = -1;
@@ -873,6 +867,10 @@ public:        //                      public
 		       std::string sigf_col,
 		       float map_sampling_rate);
    
+   bool make_patterson_using_intensities(std::string mtz_file_name,
+					 std::string i_col,
+					 std::string sigi_col,
+					 float map_sampling_rate);
 
    atom_selection_container_t atom_sel;
 
@@ -2522,6 +2520,12 @@ public:        //                      public
    void set_residue_name(std::string chain_id, int res_no, std::string ins_code, std::string new_name);
 
 
+   coot::at_dist_info_t closest_atom(const coot::Cartesian &pt,
+				     bool ca_check_flag) const;
+   coot::at_dist_info_t closest_atom(const coot::Cartesian &pt,
+				     bool ca_check_flag,
+				     const std::string &chain_id,
+				     bool use_this_chain_id) const;
    coot::at_dist_info_t closest_atom(const coot::Cartesian &pt) const;
 
 
@@ -2840,6 +2844,8 @@ public:        //                      public
    void add_hydrogens_from_file(const std::string &reduce_pdb_out);
 
    std::pair<bool, clipper::Coord_orth>
+   residue_centre(const coot::residue_spec_t &spec) const;
+   std::pair<bool, clipper::Coord_orth>
    residue_centre(const std::string &chain_id, int resno, const std::string &ins_code) const;
    // which calls:
    std::pair<bool, clipper::Coord_orth> residue_centre(mmdb::Residue *residue_p) const;
@@ -2917,6 +2923,8 @@ public:        //                      public
 					     const std::string &file_name) const;
 
    coot::residue_spec_t get_residue_by_type(const std::string &residue_type) const;
+   
+   std::vector<coot::residue_spec_t> get_residues_by_type(const std::string &residue_type) const;
 
    std::vector<coot::residue_spec_t> het_groups() const;
 

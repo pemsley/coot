@@ -387,6 +387,13 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    SCM r = SCM_BOOL_F;
 
    if (true) {
+
+      dodec d;
+      d.test("dodec.xyz");
+
+   }
+
+   if (false) {
       std::string file_name = scm_to_locale_string(i_scm);
    } 
 
@@ -645,12 +652,32 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 // #include "globjects.h" //includes gtk/gtk.h
 // #include "c-interface-image-widget.hh"
 
+#include "utils/dodec.hh"
 
 #ifdef USE_PYTHON
 PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
    graphics_info_t g;
    PyObject *r = Py_False;
+
+   if (true) {
+      graphics_info_t g;
+      int imol = g.create_molecule();
+
+      std::string mtz_file_name = "coot-download/r1ucssf.mtz";
+      mtz_file_name = "coot-download/r2xirsf.mtz";
+      std::string i_col = "I.I_sigI.I";
+      std::string sigi_col = "I.I_sigI.sigI";
+      int status = g.molecules[imol].make_patterson_using_intensities(mtz_file_name,
+								      i_col, sigi_col,
+								      g.map_sampling_rate);
+   }
+
+   if (false) {
+      dodec d;
+      d.test("dodec.xyz");
+      d.face(0);
+   }
 
    if (0) {
 

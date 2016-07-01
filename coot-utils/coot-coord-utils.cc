@@ -1027,13 +1027,13 @@ coot::util::quaternion::test_quaternion() {
 
 } 
 
-std::ostream&  coot::util::operator<<(std::ostream& s, const coot::util::quaternion &q) {
+std::ostream&  coot::operator<<(std::ostream& s, const coot::util::quaternion &q) {
 
    s << "(" << q.q0 << ", " << q.q1 << ", " << q.q2 << ", " << q.q3 << ")";
    return s;
 }
 
-std::ofstream& coot::util::operator<<(std::ofstream &s, const coot::util::quaternion &q) {
+std::ofstream& coot::operator<<(std::ofstream &s, const coot::util::quaternion &q) {
 
    // s << "(" << q.q0 << ", " << q.q1 << ", " << q.q2 << ", " << q.q3 << ")";
    return s;

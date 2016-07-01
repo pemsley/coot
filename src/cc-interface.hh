@@ -446,7 +446,7 @@ int pyrun_simple_string(const char *python_command);
 // This is a library function really.  There should be somewhere else to put it.
 // It doesn't need expression at the scripting level.
 // return a null list on problem
-SCM scm_residue(const coot::residue_spec_t &res);
+SCM residue_spec_to_scm(const coot::residue_spec_t &res);
 #endif
 
 #ifdef USE_PYTHON
@@ -455,8 +455,12 @@ SCM scm_residue(const coot::residue_spec_t &res);
 // This is a library function really.  There should be somewhere else to put it.
 // It doesn't need expression at the scripting level.
 // return a null list on problem
-PyObject *py_residue(const coot::residue_spec_t &res);
+PyObject *residue_spec_to_py(const coot::residue_spec_t &res);
 #endif
+
+#ifdef USE_PYTHON
+PyObject *residue_spec_make_triple_py(PyObject *residue_spec_py);
+#endif // USE_PYTHON
 
 #ifdef USE_GUILE
 coot::residue_spec_t residue_spec_from_scm(SCM residue_in);
@@ -470,6 +474,13 @@ coot::residue_spec_t residue_spec_from_py(PyObject *residue_in);
 // test the returned spec for unset_p().
 // 
 coot::residue_spec_t get_residue_by_type(int imol, const std::string &residue_type);
+
+std::vector<coot::residue_spec_t> get_residue_specs_in_mol(int imol, const std::string &residue_type);
+
+#ifdef USE_PYTHON
+// Always returns a list
+PyObject *get_residue_specs_in_mol_py(int imol, const std::string &residue_type);
+#endif 
 
 #ifdef USE_GUILE
 // return a residue spec or scheme false
@@ -548,6 +559,16 @@ int clear_and_update_molecule(int molecule_number, SCM molecule_expression);
 //! 
 SCM active_residue();
 
+//! \brief return the specs of the closest displayed atom
+//!
+//! Return a list of (list imol chain-id resno ins-code atom-name
+//! alt-conf (list x y z)) for atom that is closest to the screen
+//! centre in the given molecule (unlike active-residue, potential CA 
+//! substition is not performed).  If there is no atom, or if imol is 
+//! not a valid model molecule, return scheme false.
+//! 
+SCM closest_atom_simple_scm();
+
 //! \brief return the specs of the closest atom in imolth molecule
 //!
 //! Return a list of (list imol chain-id resno ins-code atom-name
@@ -557,6 +578,7 @@ SCM active_residue();
 //! atom, or if imol is not a valid model molecule, return scheme false.
 //! 
 SCM closest_atom(int imol);
+
 
 //! \brief return residues near residue
 //! 
@@ -607,6 +629,10 @@ PyObject *atom_info_string_py(int imol, const char *chain_id, int resno,
 PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char *ins_code);
 PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char *ins_code);
 
+// the expanded form of this is in c-interface.h
+PyObject *residue_centre_from_spec_py(int imol, 
+				      PyObject *spec_py);
+
 PyObject *chain_fragments_py(int imol, short int screen_output_also);
 
 //! \}
@@ -633,13 +659,23 @@ int add_molecule_py(PyObject *molecule_expression, const char *name);
 //
 PyObject *active_residue_py();
 
+//! \brief return the spec of the closest displayed atom
+//!
+//! Return a list of (list imol chain-id resno ins-code atom-name
+//! alt-conf (list x y z)) for atom that is closest to the screen
+//! centre in the given molecule (unlike active-residue, potential CA 
+//! substition is not performed).  If there is no atom, or if imol is 
+//! not a valid model molecule, return False.
+//! 
+PyObject *closest_atom_simple_py();
+
 //! \brief return closest atom in imolth molecule
 // 
 //! Return a list of [imol, chain-id, resno, ins-code, atom-name,
 //! alt-conf, [x, y, z]] for atom that is closest to the screen
 //! centre in the given molecule (unlike active-residue, no account is
 //! taken of the displayed state of the molecule).  If there is no
-//! atom, or if imol is not a valid model molecule, return #f.
+//! atom, or if imol is not a valid model molecule, return False.
 // 
 PyObject *closest_atom_py(int imol);
 

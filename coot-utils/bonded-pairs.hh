@@ -87,6 +87,8 @@ namespace coot {
       void reorder();
    public:
       std::vector<bonded_pair_t> bonded_residues;
+      // the returned value is "was this pair already added?".  A return value of 0 means that th
+      // pair was added.
       bool try_add(const bonded_pair_t &bp); // check for null residues too.
       unsigned int size() const { return bonded_residues.size(); }
       bonded_pair_t operator[](unsigned int i) { return bonded_residues[i]; }

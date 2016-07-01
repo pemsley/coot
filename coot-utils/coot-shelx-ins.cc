@@ -350,7 +350,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 
 						      save_fvars(card); 
 
-						   } else { 
+						   } else {
 
 						      if ( (card_word_0.substr(0, 4) == "DEFS") || // DEFS and others
 							   (card_word_0.substr(0, 4) == "CGLS") ||
@@ -1996,21 +1996,21 @@ coot::symm_card_composition_t::symm_card_composition_t(const std::string &symm_c
 	 if (iz != std::string::npos)
 	    z_element[iele] = 1;
 
-   // debugging stuff:
-   if (0) 
-      std::cout << "  after setting: x/y/z eles: (["
-		<< x_element[0] << " "
-		<< x_element[1] << " "
-		<< x_element[2] << "] "
-		<< ")  (["
-		<< y_element[0] << " "
-		<< y_element[1] << " "
-		<< y_element[2] << " ] "
-		<< ")  (["
-		<< z_element[0] << " "
-		<< z_element[1] << " "
-		<< z_element[2] << "] "
-		<< ") " << std::endl;
+      // debugging stuff:
+      if (0) 
+	 std::cout << "  after setting: x/y/z eles: (["
+		   << x_element[0] << " "
+		   << x_element[1] << " "
+		   << x_element[2] << "] "
+		   << ")  (["
+		   << y_element[0] << " "
+		   << y_element[1] << " "
+		   << y_element[2] << " ] "
+		   << ")  (["
+		   << z_element[0] << " "
+		   << z_element[1] << " "
+		   << z_element[2] << "] "
+		   << ") " << std::endl;
 
    
       // so now substituted should be stripped of all X, Y, Z

@@ -147,6 +147,53 @@ void to_generic_object_add_point(int object_number,
 }
 
 
+void to_generic_object_add_dodecahedron(int object_number,
+					const char *colour_name,
+					float radius,
+					float x,
+					float y,
+					float z) {
+
+   graphics_info_t g;
+   clipper::Coord_orth x1(x, y, z);
+   std::string c(colour_name);
+   coot::colour_holder colour =
+      coot::generic_display_object_t::colour_values_from_colour_name(c);
+
+   if (object_number >=0 && object_number < int(g.generic_objects_p->size())) { 
+
+      (*g.generic_objects_p)[object_number].add_dodecahedron(colour, c, radius, x1);
+   } else {
+      std::cout << "BAD object_number in to_generic_object_add_point: "
+		<< object_number << std::endl;
+   } 
+}
+
+void to_generic_object_add_pentakis_dodecahedron(int object_number,
+						 const char *colour_name,
+						 float stellation_factor,
+						 float radius,
+						 float x,
+						 float y,
+						 float z) {
+
+   graphics_info_t g;
+   clipper::Coord_orth x1(x, y, z);
+   std::string c(colour_name);
+   coot::colour_holder colour =
+      coot::generic_display_object_t::colour_values_from_colour_name(c);
+
+   if (object_number >=0 && object_number < int(g.generic_objects_p->size())) { 
+
+      (*g.generic_objects_p)[object_number].add_pentakis_dodecahedron(colour, c, stellation_factor, radius, x1);
+   } else {
+      std::cout << "BAD object_number in to_generic_object_add_point: "
+		<< object_number << std::endl;
+   } 
+}
+
+
+
 /*! \brief add point to generic object object_number */
 void to_generic_object_add_arc(int object_number, 
 			       const char *colour_name,
@@ -430,7 +477,24 @@ void close_all_generic_objects() {
       if (! is_closed_generic_object_p(i))
 	 close_generic_object(i);
    }
-} 
+}
+
+/*! \brief attach the generic object to a particular molecule 
+
+one might do this if the generic object is specific to a molecule.
+ */
+void attach_generic_object_to_molecule(int object_number, int imol) {
+
+   graphics_info_t g;
+   if (object_number >=0) { 
+      if (object_number < int(g.generic_objects_p->size())) {
+	 if (is_valid_model_molecule(imol)) {
+	    (*g.generic_objects_p)[object_number].attach_to_molecule(imol);
+	 }
+      }
+   }
+}
+
 
 
 

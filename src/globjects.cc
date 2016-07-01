@@ -540,7 +540,7 @@ coot::refinement_results_t graphics_info_t::saved_dragged_refinement_results(0, 
 float graphics_info_t::idle_function_rotate_angle = 1.0; // degrees
 bool  graphics_info_t::refinement_move_atoms_with_zero_occupancy_flag = 1; // yes
 
-float graphics_info_t::map_sampling_rate = 1.5;
+float graphics_info_t::map_sampling_rate = 1.8;
 
 // Initialise the static atom_sel.
 //
@@ -1319,6 +1319,9 @@ std::map<std::string, std::pair<std::string, std::string> > graphics_info_t::use
 std::vector<std::pair<clipper::Coord_orth, std::string> > graphics_info_t::user_defined_interesting_positions;
 unsigned int graphics_info_t::user_defined_interesting_positions_idx = 0;
 
+
+// Chemical Feature Clusters, cfc
+GtkWidget *graphics_info_t::cfc_dialog = NULL;
 
 // GTK2 code
 // 
@@ -2106,7 +2109,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       GL_matrix m;
       m.from_quaternion(graphics_info_t::quat); // consider a constructor.
       glMultMatrixf(m.get());
-      
 
       // Translate the scene to the the view centre
       // i.e. the screenrotation center is at (X(), Y(), Z())
@@ -2123,6 +2125,19 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 // glTranslatef(fbs.x(), fbs.y(), fbs.z());
       }
 
+      glPushMatrix();
+      glLoadIdentity();
+
+      GLfloat  light_0_position[] = { 1.0,  1.0, 1.0, 0.0};
+      GLfloat  light_1_position[] = { 1.0, -1.0, 1.0, 0.0};
+      GLfloat  light_2_position[] = {-1.0, -1.0, 1.0, 0.0};
+
+      glLightfv(GL_LIGHT0,   GL_POSITION, light_0_position);
+      glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
+      glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
+
+      glPopMatrix();
+      glMatrixMode(GL_MODELVIEW);
 
       // do we need to turn on the lighting?
       int n_display_list_objects = 0;

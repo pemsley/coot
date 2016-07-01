@@ -1175,8 +1175,9 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
       }
    }
 
-   std::cout << "DEBUG:: in create_mmdbmanager_from_res_vector: " << rv.size()
- 	     << " free residues and " << n_flanker << " flankers" << std::endl;
+   if (false)
+      std::cout << "DEBUG:: in create_mmdbmanager_from_res_vector: " << rv.size()
+		<< " free residues and " << n_flanker << " flankers" << std::endl;
    return std::pair <mmdb::Manager *, std::vector<mmdb::Residue *> > (new_mol, rv);
 }
 
@@ -1801,9 +1802,23 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) {
       return; 
    }
    
-   std::string chain(chain_id_1);
    std::string altconf = atom1->altLoc;
+   bool select_altconf = true; // only when refining a single ligand/residue or both atom
+                               // have the same alt conf that is non-blank.
+   if (ires1 != ires2) {
+      std::string alt_conf_1 = atom1->altLoc;
+      std::string alt_conf_2 = atom2->altLoc;
+      if (alt_conf_1 != alt_conf_2) {
+	 select_altconf = false;
+      } else {
+	 if (alt_conf_1.empty())
+	    select_altconf = false;
+      }
+   }
+   
 
+   std::string chain(chain_id_1);
+   
 //    std::cout << "-----------------------------------------------------" << std::endl;
 //    std::cout << "-----------------------------------------------------" << std::endl;
 //    std::cout << " Rigid Body Refinement "
@@ -1850,13 +1865,13 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) {
 			range_mol[ir].addresidue(mol[ifrag][ires], 1);
 		     }
 		  }
-		  catch (std::runtime_error rte) {
+		  catch (const std::runtime_error &rte) {
 		     std::cout << "ERROR:: execute_rigid_body_refine() " << rte.what() << std::endl;
 		  } 
 		  
 
 		  for (unsigned int iat=0; iat<mol[ifrag][ires].atoms.size(); iat++) {
-		     if (mol[ifrag][ires][iat].altLoc == altconf) {
+		     if ((mol[ifrag][ires][iat].altLoc == altconf) || !select_altconf) {
 // 			std::cout << "From ref res delete atom "
 // 				  << mol[ifrag][ires][iat] << std::endl;
 			from_ref_delete_atom_indices.push_back(iat);

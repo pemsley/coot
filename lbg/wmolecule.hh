@@ -99,10 +99,15 @@ public:
 				 NULL);
    }
    virtual GooCanvasItem *wrap_goo_canvas_polyline_new_line(GooCanvasItem *root,
-						    double pos_1_x, double pos_1_y,
-						    double pos_2_x, double pos_2_y,
-						    const std::string &key="stroke-color",
-						    const std::string &value="#111111") const { 
+							    double pos_1_x, double pos_1_y,
+							    double pos_2_x, double pos_2_y,
+							    const std::string &key="stroke-color",
+							    const std::string &value="#111111") const {
+
+      // For reasons not clear to me, the default line width is 2 when we get here.
+      // We can force line width here (1.5 is nice) but I'd rather put it on the canvas
+      // root and let this item inherit it from there
+      
       GooCanvasItem *item = 
  	 goo_canvas_polyline_new_line(root, 
  				      pos_1_x, pos_1_y,
@@ -304,9 +309,7 @@ class widgeted_bond_t : public lig_build::bond_t, ligand_layout_graphic_primitiv
       if (atom_second.atom_id != "C") { 
 	 shorten_second = 1;
       }
-      lig_build::pos_t pos_1 =  atom_first.atom_position;
-      lig_build::pos_t pos_2 = atom_second.atom_position;
-      ci = canvas_item_for_bond(pos_1, pos_2, shorten_first, shorten_second, bt, root);
+      ci = canvas_item_for_bond(atom_first, atom_second, shorten_first, shorten_second, bt, root);
 
       // std::cout << "construct_internal() made ci " << ci << std::endl;
       
@@ -317,8 +320,8 @@ class widgeted_bond_t : public lig_build::bond_t, ligand_layout_graphic_primitiv
 
    // all bonds are made this way...
    // 
-   GooCanvasItem *canvas_item_for_bond(const lig_build::pos_t &pos_1,
-				       const lig_build::pos_t &pos_2,
+   GooCanvasItem *canvas_item_for_bond(const lig_build::atom_t &at_1,
+				       const lig_build::atom_t &at_2,
 				       bool shorten_first,
 				       bool shorten_second,
 				       bond_type_t bt,
@@ -342,7 +345,8 @@ class widgeted_bond_t : public lig_build::bond_t, ligand_layout_graphic_primitiv
 	 shorten_first = 1;
       if (atom_other.atom_id != "C")
 	 shorten_second = 1;
-      GooCanvasItem *new_line = canvas_item_for_bond(A, B, shorten_first, shorten_second,
+      GooCanvasItem *new_line = canvas_item_for_bond(atom_changed, atom_other,
+						     shorten_first, shorten_second,
 						     bt, root);
       update_canvas_item(new_line, root);
    }
@@ -656,6 +660,10 @@ public:
 //    bool is_close_to_non_last_atom(const lig_build::pos_t &test_post) const;
 
    void delete_hydrogens(GooCanvasItem *root);
+
+   enum {X_AXIS, Y_AXIS}; 
+   void flip(int axis); // X or Y
+   void rotate_z(double angle);  // in degrees
 
 };
 

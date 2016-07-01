@@ -479,6 +479,15 @@ BINARY_INSTALL_CMD=www-placement
 publish=${publish:=:}
 publish_logs=${publish_logs:=:}
 
+# if umask was not set, then use 0022
+# umask 0022
+if [ -z "$umask" ] ; then
+   umask 0022
+else 
+   umask $umask
+fi
+
+
 # When we fail to extract the correct tar file from the web site, what
 # shall we build instead?
 #
@@ -544,7 +553,7 @@ function post_install_slim {
     file_list="etc info man share libexec  \
 	libexec/coot-bin                   \
 	libexec/findwaters-bin             \
-	libexec/findligands-bin            \
+	libexec/findligand-bin             \
 	libexec/mini-rsr-bin               \
 	bin/coot                           \
         bin/findwaters                     \
@@ -2298,8 +2307,6 @@ fi
 # -----------------------------------------------------------------------------
 #
 
-extras_place=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/dependencies
-
 #
 # libccp4: (not fortran)
 if test -n "$build_ccp4c" ; then 
@@ -2354,6 +2361,8 @@ mmdb_version=1.25.2
 mmdb_version=1.25.3
 mmdb_version=2.0.1
 mmdb_version=2.0.2
+mmdb_version=2.0.5
+mmdb_version=2.0.11
 # mmdb_server_dir=ftp://ftp.ccp4.ac.uk/opensource
 mmdb_server_dir=$extras_place
 echo ${WGET} $mmdb_server_dir/mmdb2-$mmdb_version.tar.gz
@@ -3829,6 +3838,10 @@ fi
 
 # clear up the library dependencies
 
+if [ $build_coot_prerelease = 1 ] ; then
+   pre_release_str=-pre-release
+fi
+
 clear_up_type=
 if [ $shared_static_flag != "--disable-static" ] ; then
     clear_up_type=clear-static
@@ -3839,9 +3852,9 @@ fi
 
 if [ $clear_up_type != "" ] ; then 
    if [ "$ENABLE_PYTHON_COOT" = "yes" ] ; then 
-      slim_dir=$(dirname $install_top_dir)/coot-${OS}-${systype}-gtk2-python
+      slim_dir=$(dirname $install_top_dir)/coot-${OS}-${systype}${pre_release_str}-gtk2-python
    else
-      slim_dir=$(dirname $install_top_dir)/coot-${OS}-${systype}-gtk2
+      slim_dir=$(dirname $install_top_dir)/coot-${OS}-${systype}${pre_release_str}-gtk2
    fi
    echo post-install slim... >&2
    post_install_slim $install_top_dir $slim_dir $clear_up_type 

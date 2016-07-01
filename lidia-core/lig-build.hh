@@ -114,7 +114,16 @@ namespace lig_build {
 	 double new_x = x_cen + (x - x_cen) * cos_theta - (y - y_cen) * sin_theta;
 	 double new_y = y_cen + (x - x_cen) * sin_theta + (y - y_cen) * cos_theta;
 	 return pos_t(new_x, new_y);
-      } 
+      }
+      
+      pos_t rotate_about(const pos_t &cen, double angle) {
+	 double theta = angle * DEG_TO_RAD;
+	 double sin_theta = sin(theta);
+	 double cos_theta = cos(theta);
+	 double new_x = cen.x + (x - cen.x) * cos_theta - (y - cen.y) * sin_theta;
+	 double new_y = cen.y + (x - cen.x) * sin_theta + (y - cen.y) * cos_theta;
+	 return pos_t(new_x, new_y);
+      }
       
       pos_t operator*(float sc) {
 	 return pos_t(x*sc, y*sc);
@@ -795,10 +804,10 @@ namespace lig_build {
 	 return atoms.size();
       }
 
-      void assign_ring_centres() {
+      void assign_ring_centres(bool force=false) {
 	 bool debug = false;
 	 for (unsigned int ib=0; ib<bonds.size(); ib++) {
-	    if (! bonds[ib].have_centre_pos()) { 
+	    if (! bonds[ib].have_centre_pos() || force) {
 	       int atom_index = bonds[ib].get_atom_1_index();
 	       int atom_index_other = bonds[ib].get_atom_2_index();
 	       if (debug) 
@@ -1190,7 +1199,23 @@ namespace lig_build {
 	 }
 	 return sum_delta;
       }
-      
+
+      pos_t get_sum_delta_neighbours(const atom_t &atom) const {
+	 pos_t sum_delta(0,0);
+	 for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
+	    int idx_1 = bonds[ibond].get_atom_1_index();
+	    int idx_2 = bonds[ibond].get_atom_2_index();
+	    if (atoms[idx_1] == atom) {
+	       std::cout << "found atom idx1 " << atom << " in atoms: " << idx_1 << std::endl;
+	       sum_delta += atoms[idx_2].atom_position - atom.atom_position;
+	    }
+	    if (atoms[idx_2] == atom) {
+	       std::cout << "found atom idx2 " << atom << " in atoms: " << idx_1 << std::endl;
+	       sum_delta += atoms[idx_1].atom_position - atom.atom_position;
+	    }
+	 }
+	 return sum_delta;
+      }
 
       //
       atom_id_info_t
@@ -1267,7 +1292,7 @@ namespace lig_build {
 		  atom_id = "OH2";
 	    }
 
-	    return atom_id_info_t(atom_id, charge);
+	    // return atom_id_info_t(atom_id, charge);
 	 }
 
 	 if (ele == "S") {
@@ -1288,7 +1313,7 @@ namespace lig_build {
 	    }
 	 }
 
-	 if (atom_id != "NH" && atom_id != "OH") {
+	 if (atom_id != "NH" && atom_id != "OH" && atom_id != "SH") {
 
 	    if (atom_id == "NH2") {
 	       // Could be "NH2" or "H2N", let's investigate
@@ -1313,24 +1338,44 @@ namespace lig_build {
 		     offset_text_t ot2("2");
 		     offset_text_t otN("N");
 		     ot2.subscript = true;
-		     otH.tweak = pos_t(-14, 0);
-		     ot2.tweak = pos_t(-5, 0);
+		     otH.tweak = pos_t(-16, 0);
+		     ot2.tweak = pos_t(-7, 0);
 		     otN.tweak = pos_t(0, 0);
 		     id.add(otH);
 		     id.add(ot2);
 		     id.add(otN);
 		     return id;
-		  } 
+		  }
 	       } 
 
-	    } else { 
-	       atom_id_info_t simple(atom_id);
-	       return simple;
-	    } 
+	    } else {
+
+	       // [not NH, OH, SH or NH2]
+	       // There's lot's more that could go here.
+
+	       if (atom_id == "N+") {
+		  // nitro
+
+		  atom_id_info_t atom_id_info("N", 1);
+		  // offset_text_t n("N");
+		  // atom_id_info.add(n);
+		  // offset_text_t pl("+");
+		  // pl.superscript = true;
+		  // pl.tweak = pos_t(6, 0);
+		  // atom_id_info.add(pl);
+		  return atom_id_info;
+
+	       } else { 
+	       
+		  atom_id_info_t simple(atom_id);
+		  return simple;
+	       }
+	       
+	    }
 	    
 	 } else {
 
-	    // NH or OH
+	    // NH or OH or SH
 	    
 	    pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
 	    atom_id_info_t atom_id_info;
@@ -1343,6 +1388,8 @@ namespace lig_build {
 		  std::string txt = "HO";
 		  if (ele == "N")
 		     txt = "HN";
+		  if (ele == "S")
+		     txt = "HS";
 		  offset_text_t ot(txt);
 		  ot.tweak = pos_t(-8, 0);
 		  atom_id_info.add(ot);
@@ -1359,6 +1406,9 @@ namespace lig_build {
 	    }
 
 	    if (bond_indices.size() == 2) {
+
+	       // Does this happen for S?
+
 	       // Add a tweak factor (1.3) to prefer horizontal orientation.
 	       if (fabs(sum_delta.y) > fabs(sum_delta.x) * 1.3) { 
 		  
@@ -1367,7 +1417,7 @@ namespace lig_build {
 		  //      H
 		  //
 		  if (sum_delta.y > 0) {
-		     offset_text_t n("N");
+		     offset_text_t n(ele);
 		     offset_text_t h("H", offset_text_t::DOWN);
 		     atom_id_info.add(n);
 		     atom_id_info.add(h);
@@ -1378,7 +1428,7 @@ namespace lig_build {
 		  //      N
 		  //    /   \  .
 		  //
-		     offset_text_t n("N");
+		     offset_text_t n(ele);
 		     offset_text_t h("H", offset_text_t::UP);
 		     atom_id_info.add(n);
 		     atom_id_info.add(h);
@@ -1389,12 +1439,12 @@ namespace lig_build {
 		  if (sum_delta.x > 0.0) {
 		     // H pokes to the left
 		     atom_id_info = atom_id_info_t();
-		     offset_text_t n("HN");
+		     offset_text_t n(std::string("H") + ele);
 		     n.tweak = pos_t(-7,0);
 		     atom_id_info.add(n);
 		  } else {
 		     atom_id_info = atom_id_info_t();
-		     offset_text_t n("NH");
+		     offset_text_t n(ele + "H");
 		     n.tweak = pos_t(0,0);
 		     atom_id_info.add(n);
 		  } 

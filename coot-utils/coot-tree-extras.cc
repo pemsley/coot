@@ -225,7 +225,8 @@ coot::atom_tree_t::fill_torsions(const coot::dictionary_residue_restraints_t &re
       // std::cout << " debug:: " << quads.size() << " quads" << std::endl;
       for (unsigned int iquad=0; iquad<quads.size(); iquad++) {
 	 bool inserted = 0;
-	 for (unsigned int iv=0; iv<atom_vertex_vec.size(); iv++) {
+	 int n_atom_vertex = atom_vertex_vec.size();
+	 for (int iv=0; iv<n_atom_vertex; iv++) {
 	    if (iv == quads[iquad].index2) {
 	       for (unsigned int ifo=0; ifo<atom_vertex_vec[iv].forward.size(); ifo++) { 
 		  if (atom_vertex_vec[iv].forward[ifo] == quads[iquad].index3) {
@@ -1157,8 +1158,9 @@ coot::atom_tree_t::get_forward_atoms(const coot::map_index_t &base_index,
 
    // If atom_vertex_vec was not filled, then we should not index into
    // it with index.index():  Stops a crash, at least.
-   // 
-   if (index.index() >= atom_vertex_vec.size())
+   //
+   int n_atom_vertex = atom_vertex_vec.size(); // (fixed unsigned int vs int warning)
+   if (index.index() >= n_atom_vertex)
       return std::pair<int, std::vector<coot::map_index_t> > (n_forward_count, v);
 
 

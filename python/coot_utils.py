@@ -101,7 +101,7 @@ def with_auto_accept(*funcs):
 def using_active_atom(*funcs):
 
     from types import ListType
-    active_atom = active_residue()
+    active_atom = closest_atom_simple_py()
     if (not active_atom):
         add_status_bar_text("No residue found")
     else:
@@ -452,6 +452,12 @@ def residue_atom2occupancy(ra):
         return False
     else:
         return ra[1][0]
+
+def residue_atom2position(ra):
+    if not isinstance(ra, list):
+        return False
+    else:
+        return ra[2]
 
 def residue_spec2chain_id(rs):
     if not isinstance(rs, list):

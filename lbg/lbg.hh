@@ -917,9 +917,11 @@ private:
    
    std::string get_smiles_string_from_mol_rdkit() const;
    std::vector<alert_info_t> alerts(const RDKit::ROMol &mol) const;
-   void rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &file_name);
+   void rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &file_name, unsigned int iconf=0);
 #ifdef USE_PYTHON   
    PyObject *silicos_it_qed_default_func;
+   PyObject *silicos_it_qed_properties_func;
+   PyObject *silicos_it_qed_pads;
    PyObject * get_callable_python_func(const std::string &module_name,
 				       const std::string &function_name) const;
    PyObject *user_defined_alerts_smarts_py;
@@ -1009,6 +1011,8 @@ public:
    GtkWidget *lbg_flip_rotate_hbox;
    GtkWidget *lbg_clean_up_2d_toolbutton;
    GtkWidget *lbg_search_database_frame;
+   GtkWidget *lbg_view_rotate_entry;
+   GtkWidget *lbg_qed_properties_progressbars[8];
 //    GtkWidget *lbg_nitrogen_toggle_toolbutton;
 //    GtkWidget *lbg_carbon_toggle_toolbutton;
 //    GtkWidget *lbg_oxygen_toggle_toolbutton;
@@ -1054,7 +1058,7 @@ public:
    } 
    bool in_delete_mode_p() const { return in_delete_mode_; }
    double radius(int n_edges) const; // depends on zoom? (for future).
-   void clear();
+   void clear(bool do_descriptor_updates);
    std::string get_stroke_colour(int i, int n) const;
    void drag_canvas(int mouse_x, int mouse_y);
    void write_pdf(const std::string &file_name) const;
@@ -1124,6 +1128,9 @@ public:
    std::string get_smiles_string(const RDKit::ROMol &mol) const;
 
    void update_qed(const RDKit::RWMol &rdkm);
+   void update_qed_properties(const std::vector<std::pair<double, double> > &d);
+   void reset_qed_properties_progress_bars(); // on exception on molecule editing and clear()
+   
    void update_alerts(const RDKit::RWMol &rdkm);
    std::string get_smiles_string_from_mol(const RDKit::RWMol &mol) const;
    bool bond_pick_pending;
@@ -1277,6 +1284,11 @@ public:
       all_additional_representations_off_except_func = f;
    }
 
+   // flipping
+   void flip_molecule(int axis);
+   void rotate_z_molecule(double angle); // in degrees
+   void rotate_z_molecule(const std::string &angle); // in degrees (used in on_lbg_view_rotate_apply_button_clicked
+                                                     // callback).
 
    // -- actually run the functions if they were set:
    void orient_view(int imol,

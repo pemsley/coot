@@ -68,6 +68,7 @@ namespace coot {
       clipper::Coord_orth pos(mmdb::Residue *base, mmdb::Residue *extending) const;
       friend std::ostream& operator<<(std::ostream &o, const atom_by_torsion_t &atb);
    };
+   std::ostream& operator<<(std::ostream &o, const atom_by_torsion_t &atb);
 
    class link_by_torsion_base_t {
    public:

@@ -161,7 +161,11 @@ widgeted_atom_t::make_canvas_text_item(const lig_build::atom_id_info_t &atom_id_
 	 if (atom_id_info_in.offsets[i].subscript) { 
 	    font = "Sans 8";
 	    y_pos += 3;
-	 } 
+	 }
+	 if (atom_id_info_in.offsets[i].superscript) { 
+	    font = "Sans 6";
+	    y_pos -= 6;
+	 }
 
 	 if (0)
 	    std::cout << "Rendering :" << atom_id_info_in[i].text << ": with tweak "
@@ -284,30 +288,86 @@ widgeted_molecule_t::current_scale_and_centre() const {
 // }
 
 
+// All bonds are made this way
+//
 // simple (non-ring system) bonds.
 //
 // now deals with stereo_out/wedged/OUT_BOND
 // 
 GooCanvasItem *
-widgeted_bond_t::canvas_item_for_bond(const lig_build::pos_t &pos_1_raw,
-				      const lig_build::pos_t &pos_2_raw,
+widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
+				      const lig_build::atom_t &at_2,
 				      bool shorten_first,
 				      bool shorten_second,
 				      bond_type_t bt,
 				      GooCanvasItem *root) const {
 
-   double shorten_fraction = 0.76;
+   // We can shorten the bonds to the atoms by different amounts, eg. N+ = 0
+   // needs to be shorted asymmetrically.
+   // 
+   double shorten_fraction_1 = 0.72; // was 0.76
+   double shorten_fraction_2 = 0.72;
    
-   lig_build::pos_t pos_1 = pos_1_raw;
-   lig_build::pos_t pos_2 = pos_2_raw;
+   lig_build::pos_t pos_1 = at_1.atom_position;
+   lig_build::pos_t pos_2 = at_2.atom_position;
+
+   // Note: deltas from the south-east direction neighbour have a delta of ~ [20,20].
+   // 
+   // 20160628: When the bond comes in from the right and we have a Cl we need extra shortening.
+   //           To do that we need to be passed the atom info (now done)
+   //           These tweaks may need extension in future.
+   //
+   if (bt == SINGLE_BOND) {
+      lig_build::pos_t delta;
+      if (at_1.element == "Cl" ||
+	  at_2.element == "Cl" ||
+	  at_1.element == "Br" ||
+	  at_2.element == "Br") {
+	 if (at_1.element == "Cl" || at_1.element == "Br") {
+	    // delta is the difference vector from the Cl to the other atom
+	    delta = at_2.atom_position - at_1.atom_position;
+	 }
+	 if (at_2.element == "Cl" || at_2.element == "Br") {
+	    delta = at_1.atom_position - at_2.atom_position;
+	 }
+	 if (delta.x > 10) {
+	    // shorten both, but the flag is not set for the bond to the (presumably) C.
+	    shorten_fraction_1 -= 0.13 * delta.x/26.8;
+	    shorten_fraction_2 -= 0.13 * delta.x/26.8;
+	 }
+      }
+   }
+   
+   if (at_1.element == "N" || at_2.element == "N") {
+      if (at_1.element == "N") {
+	 if (at_1.charge == 1) {
+	    // N+ : shorten if bond comes in from the right
+	    lig_build::pos_t delta = at_2.atom_position - at_1.atom_position;
+	    double sum_delta = delta.length();
+	    if (delta.x > 5)
+	       sum_delta += (26 + delta.x);
+	    shorten_fraction_1 -= 0.1 * sum_delta/60.0;
+	 }
+      }
+      if (at_2.element == "N") {
+	 if (at_2.charge == 1) {
+	    // N+ : shorten if bond comes in from the right
+	    lig_build::pos_t delta = at_1.atom_position - at_2.atom_position;
+	    double sum_delta = delta.length();
+	    if (delta.x > 5)
+	       sum_delta += (26 + delta.x);
+	    shorten_fraction_2 -= 0.1 * sum_delta/60.0;
+	 }
+      }
+   }
 
    // fraction_point() returns a point that is (say) 0.8 of the way
    // from p1 (first arg) to p2 (second arg).
    // 
    if (shorten_first)
-      pos_1 = lig_build::pos_t::fraction_point(pos_2_raw, pos_1_raw, shorten_fraction);
+      pos_1 = lig_build::pos_t::fraction_point(pos_2, pos_1, shorten_fraction_1);
    if (shorten_second)
-      pos_2 = lig_build::pos_t::fraction_point(pos_1_raw, pos_2_raw, shorten_fraction);
+      pos_2 = lig_build::pos_t::fraction_point(pos_1, pos_2, shorten_fraction_2);
 
 
    GooCanvasItem *ci = NULL;
@@ -337,7 +397,6 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::pos_t &pos_1_raw,
    case TRIPLE_BOND:
       { 
 	 GooCanvasItem *group = wrap_goo_canvas_group_new (root, dark);
-							   
       
 	 lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
 	 lig_build::pos_t buv_90 = buv.rotate(90);
@@ -1448,10 +1507,69 @@ widgeted_molecule_t::delete_hydrogens(GooCanvasItem *root) {
 	 close_atom(iat, root);
       } 
    } 
+}
 
-} 
+// X or Y
+void
+widgeted_molecule_t::flip(int axis) {
+
+   std::pair<double, lig_build::pos_t> s_c = current_scale_and_centre();
+   const lig_build::pos_t &centre = s_c.second;
+   for (unsigned int iat=0; iat<atoms.size(); iat++) { 
+      if (! atoms[iat].is_closed()) {
+	 if (axis == X_AXIS) {
+	    double y_new = 2 * centre.y - atoms[iat].atom_position.y;
+	    atoms[iat].atom_position.y = y_new;
+	 }
+	 if (axis == Y_AXIS) {
+	    double x_new = 2 * centre.x - atoms[iat].atom_position.x;
+	    atoms[iat].atom_position.x = x_new;
+	 }
+      }
+   }
+
+   for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
+      lig_build::bond_t &bond = bonds[ibond];
+      if (! bond.is_closed()) {
+
+	 // when we invert the positions of the atom, then the centre info
+	 // (for double bonds) becomes invalid, so we need to reset the bond
+	 // to a copy of the bond without centre info.
+	 //
+	 if (bond.get_bond_type() == lig_build::bond_t::IN_BOND ||
+	     bond.get_bond_type() == lig_build::bond_t::OUT_BOND) {
+	    lig_build::bond_t::bond_type_t other_dir = lig_build::bond_t::IN_BOND;
+	    if (bond.get_bond_type() == lig_build::bond_t::IN_BOND)
+	       other_dir = lig_build::bond_t::OUT_BOND;
+	    if (bond.get_bond_type() == lig_build::bond_t::OUT_BOND)
+	       other_dir = lig_build::bond_t::IN_BOND;
+	    bond.set_bond_type(other_dir);
+	 }
+
+	 if (bond.get_bond_type() == lig_build::bond_t::DOUBLE_BOND) {
+	    widgeted_bond_t new_bond(bond.get_atom_1_index(), bond.get_atom_2_index(),
+				     atoms[bond.get_atom_1_index()], atoms[bond.get_atom_2_index()],
+				     lig_build::bond_t::DOUBLE_BOND, NULL);
+	    bonds[ibond] = new_bond;
+	 }
+      }
+   }
+   assign_ring_centres(true);
+}
 
 
+void
+widgeted_molecule_t::rotate_z(double angle) {
+
+   std::pair<double, lig_build::pos_t> s_c = current_scale_and_centre();
+   const lig_build::pos_t &centre = s_c.second;
+   for (unsigned int iat=0; iat<atoms.size(); iat++) {
+      if (! atoms[iat].is_closed()) {
+	 atoms[iat].atom_position = atoms[iat].atom_position.rotate_about(centre, angle);
+      }
+   }
+   assign_ring_centres(true);
+}
 
 
 topological_equivalence_t::topological_equivalence_t(const std::vector<widgeted_atom_t> &atoms_in,
@@ -1921,6 +2039,6 @@ topological_equivalence_t::tetrahedral_atoms() const {
    std::vector<std::pair<int, std::vector<int> > > v;
    
    return v;
-} 
+}
 
 #endif // GOO_CANVAS

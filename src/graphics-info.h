@@ -643,6 +643,10 @@ class graphics_info_t {
 				     const coot::Cartesian &normal, 
 				     float radius, float radius_inner);
 
+   void graphics_object_internal_dodec(const coot::generic_display_object_t::dodec_t &dodec);
+
+   void graphics_object_internal_pentakis_dodec(const coot::generic_display_object_t::pentakis_dodec_t &penta_dodec);
+
    void read_standard_residues();   // for mutation, we have
 				    // pre-prepared a pdb file with
 				    // residues in Buccaneer "Standard
@@ -3685,6 +3689,8 @@ public:
    static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec();
    static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec(int imol);
    static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec_internal(int imol);
+   static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec_simple();
+
    // this can return -1 if there is no active atom molecule.
    int copy_active_atom_molecule();
 
@@ -3970,6 +3976,11 @@ string   static std::string sessionid;
 
    void register_user_defined_interesting_positions(const std::vector<std::pair<clipper::Coord_orth, std::string> > &udip);
 
+   // for CFC, no graphics_draw()
+   void display_all_model_molecules();
+   void undisplay_all_model_molecules_except(int imol);
+   void undisplay_all_model_molecules_except(const std::vector<int> &keep_these);
+   static GtkWidget *cfc_dialog;
 };
 
 
