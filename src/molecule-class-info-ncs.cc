@@ -1423,7 +1423,7 @@ void
 molecule_class_info_t::update_strict_ncs_symmetry(const coot::Cartesian &centre_point,
 						  const molecule_extents_t &extents) {
 
-   if (0) 
+   if (true)
       std::cout << "DEBUG:: Update ncs symmetry for " << strict_ncs_matrices.size()
 		<< " NCS matrices" << std::endl;
 
@@ -1441,7 +1441,7 @@ molecule_class_info_t::update_strict_ncs_symmetry(const coot::Cartesian &centre_
 
 
    // guarenteed to be at least one.
-   if (0) 
+   if (true)
       std::cout << "There were " << ncs_mat_indices.size() << " touching molecules\n";
 
    Bond_lines_container bonds;
@@ -2521,3 +2521,147 @@ molecule_class_info_t::chain_centre_and_radius(const std::string &chain_id) cons
    return std::pair<clipper::Coord_orth, double> (pos, radius);
 }
 
+
+
+// process REMARK 350s
+void
+molecule_class_info_t::add_molecular_symmetry_matrices() {
+
+   if (atom_sel.mol) {
+
+      std::vector<coot::coot_mat44> biomt_matrices;
+      std::vector<std::string> biomt_chain_ids;
+      
+      mmdb::TitleContainer *tc_p = atom_sel.mol->GetRemarks();
+      int l = tc_p->Length();
+      std::map<std::pair<int, int>, quad_d_t> biomts;
+      for (int i=0; i<l; i++) {
+	 mmdb::Remark *cr = static_cast<mmdb::Remark *> (tc_p->GetContainerClass(i));
+	 if (cr->remarkNum == 350) {
+	    std::string rm = cr->remark;
+	    // std::cout << l << " " << rm << std::endl;
+	    std::vector<std::string> parts = coot::util::split_string_no_blanks(rm);
+
+	    // which chains?
+	    if (parts.size() > 5) {
+	       if (parts[0] == "APPLY") {
+		  if (parts[1] == "THE") {
+		     if (parts[2] == "FOLLOWING") {
+			if (parts[3] == "TO") {
+			   if (parts[4] == "CHAINS:") {
+			      unsigned int n = parts.size();
+			      for (unsigned int ii=5; ii<n; ii++) {
+				 unsigned int l = parts[ii].length();
+				 if (l > 1) {
+				    std::string chain_id = parts[ii].substr(0,l-1);
+				    std::cout << "adding chaind id " << chain_id << std::endl;
+				    biomt_chain_ids.push_back(chain_id);
+				 } else {
+				    if (l == 1) {
+				       // no comma
+				       std::string chain_id = parts[ii];
+				       std::cout << "adding chaind id " << chain_id << std::endl;
+				       biomt_chain_ids.push_back(chain_id);
+				    }
+				 } 
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+
+	    if (parts.size() == 6) {
+
+	       if (parts[0].substr(0,5) == "BIOMT") {
+	       
+		  // for (unsigned int i=0; i<parts.size(); i++)
+		  //   std::cout << i << " " << parts[i] << std::endl;
+	       
+		  try {
+		     int matrix_id = coot::util::string_to_int(parts[1]);
+		     char c = parts[0].back();
+		     int biomt_idx = c - 48;
+
+		     double x = coot::util::string_to_double(parts[2]);
+		     double y = coot::util::string_to_double(parts[3]);
+		     double z = coot::util::string_to_double(parts[4]);
+		     double t = coot::util::string_to_double(parts[5]);
+		     if (false)
+			std::cout << "   " << matrix_id << " " << biomt_idx << " "
+				  << x << " " << y << " " << z << " " << t 
+				  << std::endl;
+		     std::pair<int, int> key(matrix_id, biomt_idx);
+		     biomts[key] = quad_d_t(x,y,z,t);
+		  }
+		  catch (const std::runtime_error &rte) {
+		     std::cout << "WARNING:: " << rte.what() << std::endl;
+		  }
+	       }
+	    }
+	 }
+      }
+
+      // read lines. Now construct matrices.
+      //
+      // first determine max matrix_id (e.g. 60)
+      //
+      int matrix_id_max = 0;
+      std::map<std::pair<int, int>, quad_d_t>::const_iterator it;
+      for (it=biomts.begin(); it!=biomts.end(); it++) {
+	 if (it->first.first > matrix_id_max)
+	    matrix_id_max = it->first.first;
+      }
+      std::cout << "matrix_id_max " << matrix_id_max << std::endl;
+
+      if (matrix_id_max > 0) {
+	 for (int idx=0; idx<=matrix_id_max; idx++) { 
+	    std::pair<int, int> key_1(idx, 1);
+	    std::pair<int, int> key_2(idx, 2);
+	    std::pair<int, int> key_3(idx, 3);
+
+	    std::map<std::pair<int, int>, quad_d_t>::const_iterator it_1 = biomts.find(key_1);
+	    std::map<std::pair<int, int>, quad_d_t>::const_iterator it_2 = biomts.find(key_2);
+	    std::map<std::pair<int, int>, quad_d_t>::const_iterator it_3 = biomts.find(key_3);
+
+	    if (it_1 != biomts.end()) {
+	       if (it_2 != biomts.end()) {
+		  if (it_3 != biomts.end()) {
+
+		     coot::coot_mat44 m;
+		     m.m[0].v4[0] = it_1->second.x;
+		     m.m[0].v4[1] = it_1->second.y;
+		     m.m[0].v4[2] = it_1->second.z; 
+		     m.m[0].v4[3] = it_1->second.t; 
+		     m.m[1].v4[0] = it_2->second.x;
+		     m.m[1].v4[1] = it_2->second.y;
+		     m.m[1].v4[2] = it_2->second.z; 
+		     m.m[1].v4[3] = it_2->second.t; 
+		     m.m[2].v4[0] = it_3->second.x;
+		     m.m[2].v4[1] = it_3->second.y;
+		     m.m[2].v4[2] = it_3->second.z; 
+		     m.m[2].v4[3] = it_3->second.t; 
+		     m.m[3].v4[0] = 0;
+		     m.m[3].v4[1] = 0;
+		     m.m[3].v4[2] = 0;
+		     m.m[3].v4[3] = 0;
+
+		     biomt_matrices.push_back(m);
+		  }
+	       }
+	    }
+	 }
+      }
+
+      std::cout << "made " << biomt_matrices.size() << " biomt matrices" << std::endl;
+
+      for (unsigned int jj=0; jj<biomt_chain_ids.size(); jj++) { 
+	 for (unsigned int ii=0; ii<biomt_matrices.size(); ii++) {
+	    add_strict_ncs_matrix(biomt_chain_ids[jj],
+				  biomt_chain_ids[jj],
+				  biomt_matrices[ii]);
+	 }
+      }
+   }
+}

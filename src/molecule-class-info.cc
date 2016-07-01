@@ -186,6 +186,8 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 
       set_have_unit_cell_flag_maybe();
 
+      add_molecular_symmetry_matrices(); // process REMARK 350 BIOMT[123]
+
       if (molecule_is_all_c_alphas()) {
 	 ca_representation();
       } else {
@@ -2312,12 +2314,14 @@ molecule_class_info_t::get_vector_pependicular_to_screen_z(const coot::Cartesian
 void
 molecule_class_info_t::display_symmetry_bonds() {
 
+   std::cout << "display_symmetry_bonds() here 1 " << std::endl;
    // We may come here after having done additional_representations -
    // which would change the line width.
    // 
    glLineWidth(bond_width);
 
    if ((show_symmetry == 1) && (graphics_info_t::show_symmetry == 1)) {
+      std::cout << "display_symmetry_bonds() here 2 " << std::endl;
       int isymop;
 
       for (unsigned int isym=0; isym<symmetry_bonds_box.size(); isym++) { 
@@ -2353,10 +2357,13 @@ molecule_class_info_t::display_symmetry_bonds() {
 	 }
       }
 
+      std::cout << "display_symmetry_bonds() here 3 " << std::endl;
       if (show_strict_ncs_flag == 1) {
+	 std::cout << "display_symmetry_bonds() here 4 " << std::endl;
 	 // isn -> i_strict_ncs
 	 for (unsigned int isn=0; isn<strict_ncs_bonds_box.size(); isn++) {
 
+	    std::cout << "display_symmetry_bonds() here 5 " << isn << std::endl;
 	    const graphical_bonds_container &gbc = strict_ncs_bonds_box[isn].first;
 
 	    if (0) 
@@ -2364,15 +2371,20 @@ molecule_class_info_t::display_symmetry_bonds() {
 			 << isn << " created_flag: " 
 			 << gbc.symmetry_has_been_created << " "
 			 << "\n" ;
+	    
+	    std::cout << "display_symmetry_bonds() here 5A " << gbc.symmetry_has_been_created
+		      << std::endl;
 
-	    if (gbc.symmetry_has_been_created == 1) {
+            if (gbc.symmetry_has_been_created == 1) {
 
-	       if (0) 
+	       std::cout << "display_symmetry_bonds() here 6 " << std::endl;
+	       if (true) 
 		  std::cout << "num_colours: " << gbc.num_colours
 			    << std::endl;
 	       
 	       for (int icol=0; icol<gbc.num_colours; icol++) {
 
+		  std::cout << "display_symmetry_bonds() here 7 " << std::endl;
 		  if (0)
 		     std::cout << "here 4 - isn: " << isn << " "
 			       << "icol: " << icol << " num lines: "

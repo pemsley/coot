@@ -1297,14 +1297,14 @@ namespace lig_build {
 	    }
 	    if (charge == +2) { // all weird
 	       if (sum_neigb_bond_order == 0)
-		  atom_id = "N+2H5";
+		  atom_id = "N+2H4";
 	       if (sum_neigb_bond_order == 1)
 		  atom_id = "N+2H3";
-	       if (sum_neigb_bond_order == 3)
+	       if (sum_neigb_bond_order == 2)
 		  atom_id = "N+2H2";
-	       if (sum_neigb_bond_order == 4)
+	       if (sum_neigb_bond_order == 3)
 		  atom_id = "N+2H";
-	       if (sum_neigb_bond_order == 5)
+	       if (sum_neigb_bond_order == 4)
 		  atom_id = "N+2";
 	    }
 	 }
@@ -1312,11 +1312,17 @@ namespace lig_build {
 	 if (ele == "O") {
 
 	    if (charge == 2) {
-	       atom_id = "O+2";
+	       if (sum_neigb_bond_order == 1)
+		  atom_id = "O+2H3";
+	       if (sum_neigb_bond_order == 2)
+		  atom_id = "O+2H2";
 	    }
 
 	    if (charge == 1) {
-	       atom_id = "O+";
+	       if (sum_neigb_bond_order == 1)
+		  atom_id = "O+H2";
+	       if (sum_neigb_bond_order == 2)
+		  atom_id = "O+H";
 	    }
 	    
 	    if (charge == 0) {
@@ -1331,21 +1337,11 @@ namespace lig_build {
 	    }
 
 	    if (charge == -1) {
-	       if (sum_neigb_bond_order == 0)
-		  atom_id = "O-";
-	       if (sum_neigb_bond_order == 1)
-		  atom_id = "O-";
-	       if (sum_neigb_bond_order == 2)
-		  atom_id = "O-";
+	       atom_id = "O-";
 	    }
 
-	    if (charge == -1) {
-	       if (sum_neigb_bond_order == 0)
-		  atom_id = "O-2";
-	       if (sum_neigb_bond_order == 1)
-		  atom_id = "O-2";
-	       if (sum_neigb_bond_order == 2)
-		  atom_id = "O-2";
+	    if (charge == -2) {
+	       atom_id = "O-2";
 	    }
 	 }
 
@@ -1359,6 +1355,8 @@ namespace lig_build {
 	       atom_id = "SH";
 	    if (sum_neigb_bond_order == 2)
 	       atom_id = "S";
+	    if (sum_neigb_bond_order == 3)
+	       atom_id = "S";
 	 }
 
 	 if (ele == "C") {
@@ -1371,6 +1369,11 @@ namespace lig_build {
 	       }
 	    }
 	 }
+
+	 // ----------------- OK, atom_id is set, how do we type set that?
+
+	 std::cout << " atom_id is \"" << atom_id << "\" given charge "
+		   << charge << std::endl;
 
 	 if (atom_id != "NH" && atom_id != "OH" && atom_id != "SH") {
 
@@ -1517,21 +1520,23 @@ namespace lig_build {
 			pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
 
 			if (sum_delta.x < 0) {
+			   // bond from the left
 			   atom_id_info_t id("N", 1);
 			   offset_text_t h("H");
-			   h.tweak = pos_t(6, 0);
+			   h.tweak = pos_t(15, 0);
 			   offset_text_t two("2");
 			   two.subscript = true;
-			   two.tweak = pos_t(16, 0);
+			   two.tweak = pos_t(24, 0);
 			   id.add(h);
 			   id.add(two);
 			   return id;
 			} else {
+			   // bond from the right
 			   atom_id_info_t id("N", 1);
 			   offset_text_t h("H");
 			   offset_text_t two("2");
-			   h.tweak = pos_t(-13, 0);
-			   two.tweak = pos_t(-8, 0);
+			   h.tweak = pos_t(-14, 0);
+			   two.tweak = pos_t(-6, 0);
 			   two.subscript = true;
 			   id.add(h);
 			   id.add(two);
@@ -1544,22 +1549,28 @@ namespace lig_build {
 			   return atom_id_info_t("0", -1);
 
 			} else {
-
-			   if (atom_id == "OH2") {
-			
-			      return atom_id_info_t("OH", "2");
+			   if (atom_id == "O-2") {
+			      return atom_id_info_t("0", -2);
 
 			   } else {
-			      if (atom_id == "N-2") {
-				 return atom_id_info_t("N", -2);
+
+			      if (atom_id == "OH2") {
+			
+				 return atom_id_info_t("OH", "2");
 
 			      } else {
-				 if (atom_id == "N-") {
-				    return atom_id_info_t("N", -1);
-			   
+				 
+				 if (atom_id == "N-2") {
+				    return atom_id_info_t("N", -2);
+
 				 } else {
-				    atom_id_info_t simple(atom_id);
-				    return simple;
+				    if (atom_id == "N-") {
+				       return atom_id_info_t("N", -1);
+			   
+				    } else {
+				       atom_id_info_t simple(atom_id);
+				       return simple;
+				    }
 				 }
 			      }
 			   }
