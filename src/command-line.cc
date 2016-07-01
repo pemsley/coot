@@ -340,7 +340,7 @@ parse_command_line(int argc, char ** argv ) {
 	 
       case 'c':
          if (optarg) { 
-            std::cout << "command optarg: " << optarg << std::endl;
+            // std::cout << "command optarg: " << optarg << std::endl;
 	    cld.command.push_back(optarg);
          } else { 
             std::cout << "command optarg is NULL " << std::endl;

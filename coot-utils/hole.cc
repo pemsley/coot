@@ -517,7 +517,7 @@ coot::hole::get_min_and_max(const std::vector<std::pair<clipper::Coord_orth, dou
       min_pos = clipper::Coord_orth( 1e20,  1e20,  1e20);
       max_pos = clipper::Coord_orth(-1e20, -1e20, -1e20);
       for (unsigned int i=0; i<probe_path.size(); i++) {
-	 const clipper::Coord_orth pt = probe_path[i].first;
+	 const clipper::Coord_orth &pt = probe_path[i].first;
 	 if (pt[0] < min_pos[0]) min_pos[0] = pt[0];
 	 if (pt[1] < min_pos[1]) min_pos[1] = pt[1];
 	 if (pt[2] < min_pos[2]) min_pos[2] = pt[2];
@@ -534,13 +534,15 @@ clipper::Xmap<float>
 coot::hole::carve_a_map(const std::vector<std::pair<clipper::Coord_orth, double> > &probe_path,
 			const clipper::Xmap<float> &xmap_ref,
 			const std::string &file_name) const {
-   
+
+   // get min_max coords of probe path
+   //
    std::pair<clipper::Coord_orth, clipper::Coord_orth> min_max = get_min_and_max(probe_path);
    clipper::Coord_orth middle(0.5*(min_max.first[0]+ min_max.second[0]),
 			      0.5*(min_max.first[1]+ min_max.second[1]),
 			      0.5*(min_max.first[2]+ min_max.second[2]));
 
-   float border = 5;
+   float border = 50;
    clipper::Cell_descr cell_descr(min_max.second[0]-min_max.first[0] + border,
 				  min_max.second[1]-min_max.first[1] + border,
 				  min_max.second[2]-min_max.first[2] + border,
@@ -560,11 +562,11 @@ coot::hole::carve_a_map(const std::vector<std::pair<clipper::Coord_orth, double>
    clipper::Grid_range gr1(gr0.min() + middle.coord_frac(cell).coord_grid(grid),
 			   gr0.max() + middle.coord_frac(cell).coord_grid(grid));
 
-   std::cout << "Here with cell " << cell.format() << std::endl;
-   std::cout << "Here with gr1 "  << gr1.format() << std::endl;
-   std::cout << "Here with middle "  << middle.format() << std::endl;
+   std::cout << "Here with cell "           << cell.format() << std::endl;
+   std::cout << "Here with gr1 "            << gr1.format() << std::endl;
+   std::cout << "Here with middle "         << middle.format() << std::endl;
    std::cout << "Here with min_max.first "  << min_max.first.format() << std::endl;
-   std::cout << "Here with min_max.second "  << min_max.second.format() << std::endl;
+   std::cout << "Here with min_max.second " << min_max.second.format() << std::endl;
 
    clipper::Xmap<float> xmap = xmap_ref;
    
@@ -628,14 +630,15 @@ coot::hole::mask_around_coord(const clipper::Coord_orth &co, float atom_radius,
       for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) { 
 	 for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
 	    if ( (iw.coord().coord_frac(xmap->grid_sampling()).coord_orth(xmap->cell()) - co).lengthsq() < atom_radius_sq) {
-	       
- 	       // std::cout << "masked " << masked_map_val << " point at " 
-	       // << iw.coord().coord_frac(xmap_masked.grid_sampling()).coord_orth(xmap_masked.cell()).format()
-	       // << " centre point: " << co.format() << " " 
-	       //  			 << (iw.coord().coord_frac(xmap_masked.grid_sampling()).coord_orth(xmap_masked.cell()) - co).lengthsq()
-	       //  			 << std::endl;
 
 	       float masked_map_val = 4.9;
+
+	       if (false)
+		  std::cout << "masked " << masked_map_val << " point at " 
+			    << iw.coord().coord_frac(xmap->grid_sampling()).coord_orth(xmap->cell()).format()
+			    << " centre point: " << co.format() << " " 
+			    << (iw.coord().coord_frac(xmap->grid_sampling()).coord_orth(xmap->cell()) - co).lengthsq()
+			    << "\n";
 	       
 	       (*xmap)[iw] = masked_map_val;
 	       nhit++;
@@ -645,7 +648,7 @@ coot::hole::mask_around_coord(const clipper::Coord_orth &co, float atom_radius,
 	 }
       }
    }
-   // std::cout << "nhit " << nhit << " nmiss " << nmiss << std::endl;
+   std::cout << "nhit " << nhit << " nmiss " << nmiss << std::endl;
 }
 
 
@@ -659,7 +662,7 @@ coot::hole::carve_a_map(const std::vector<std::pair<clipper::Coord_orth, double>
 			      0.5*(min_max.first[1]+ min_max.second[1]),
 			      0.5*(min_max.first[2]+ min_max.second[2]));
 
-   float border = 5;
+   float border = 200;
    clipper::Cell_descr cell_descr(min_max.second[0]-min_max.first[0] + border,
 				  min_max.second[1]-min_max.first[1] + border,
 				  min_max.second[2]-min_max.first[2] + border,
@@ -679,35 +682,67 @@ coot::hole::carve_a_map(const std::vector<std::pair<clipper::Coord_orth, double>
    clipper::Grid_range gr1(gr0.min() + middle.coord_frac(cell).coord_grid(grid),
 			   gr0.max() + middle.coord_frac(cell).coord_grid(grid));
 
-   std::cout << "Here with cell " << cell.format() << std::endl;
-   std::cout << "Here with gr1 "  << gr1.format() << std::endl;
-   std::cout << "Here with middle "  << middle.format() << std::endl;
-   std::cout << "Here with min_max.first "  << min_max.first.format() << std::endl;
-   std::cout << "Here with min_max.second "  << min_max.second.format() << std::endl;
+   std::cout << "Here with NX min_max.first  "  << min_max.first.format() << std::endl;
+   std::cout << "Here with NX min_max.second "  << min_max.second.format() << std::endl;
+   std::cout << "Here with NX middle "           << middle.format() << std::endl;
+   std::cout << "max - min                   = " << (min_max.second - min_max.first).format()
+	     << std::endl;
+   std::cout << "Here with NX cell           = " << cell.format() << std::endl;
+   std::cout << "Here with NX gr0             min: "  << gr0.min().format() << " max: "
+	     << gr0.max().format() << std::endl;
+   std::cout << "Here with NX gr1             min: "  << gr1.min().format() << " max: "
+	     << gr1.max().format() << std::endl;
 
    // init nxmap
    clipper::NXmap<float> nxmap(cell, grid, gr1);
    
-   // clipper::Coord_grid offset =
-   // xmap.coord_map(nxmap.coord_orth(clipper::Coord_map(0.0,0.0,0.0))).coord_grid();
-
    std::cout << "created nxmap " << std::endl;
+
+   clipper::Coord_grid offset = -min_max.first.coord_frac(cell).coord_map(grid).coord_grid();
+
+   // debug
+   clipper::Coord_grid offset_orig_grid = offset;
+   clipper::Coord_map  offset_orig_map  = offset_orig_grid.coord_map();
+   clipper::Coord_frac offset_orig_frac = offset_orig_map.coord_frac(grid);
+   clipper::Coord_orth offset_orig_orth = offset_orig_frac.coord_orth(cell);
+   std::cout << "Here with offset orig grid " << offset_orig_grid.format() << std::endl;
+   std::cout << "Here with offset orig frac " << offset_orig_frac.format() << std::endl;
+   std::cout << "Here with offset orig orth " << offset_orig_orth.format() << std::endl;
+
+   // clipper::Coord_grid offset_grid(12, 23, 4); // good for 50
+   // clipper::Coord_grid offset_grid(11, 22, 3); // pretty good for 40
+   // clipper::Coord_grid offset_grid(11, 23, 3); // good for 100 (needs 11.5 for x)
+   // clipper::Coord_grid offset_grid(11, 23, 3);    // good for 200.
+
+   // try with molecule centred around 100,100,100
+   clipper::Coord_grid offset_grid(19, 36, 3);
+                                                  // So offset_grid is practically indepdendent
+                                                  // of border.  I guess though, that
+                                                  // it depends on resolution and sampling.
    
+   clipper::Coord_map  offset_map  = offset_grid.coord_map();
+   clipper::Coord_frac offset_frac = offset_map.coord_frac(grid);
+   clipper::Coord_orth offset_orth = offset_frac.coord_orth(cell);
+
+   std::cout << "Here with extra offset grid " << offset_grid.format() << std::endl;
+   std::cout << "Here with extra offset frac " << offset_frac.format() << std::endl;
+   std::cout << "Here with extra offset orth " << offset_orth.format() << std::endl;
+
    std::cout << "put stuff in nxmap " << std::endl;
    typedef clipper::NXmap<float>::Map_reference_index NRI;
    for (NRI inx = nxmap.first(); !inx.last(); inx.next()) { nxmap[inx] = 1; }
    
-   // for (NRI inx = nxmap.first(); !inx.last(); inx.next()) { }
-   
-   // clipper::Skeleton_basic::Neighbours neighb(nxmap);
-   
+   offset += offset_grid;
+
    for (unsigned int i=0; i<probe_path.size(); i++) { 
       const clipper::Coord_orth &pt = probe_path[i].first;
       clipper::Coord_frac cf = pt.coord_frac(cell);
       clipper::Coord_map  cm = cf.coord_map(grid);
       clipper::Coord_grid cg = cm.coord_grid();
-      nxmap.set_data(cg, 0);
-      // std::cout << "info::" << cg.format() << " set to 0"  << std::endl;
+      if (false)
+	 std::cout << "info:: at " << cg.format() << " + " << offset.format()
+		   << " setting to 0"  << std::endl;
+      nxmap.set_data(cg+offset, 0);
    }
 
    clipper::CCP4MAPfile mapout;

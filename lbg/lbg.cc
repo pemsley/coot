@@ -706,13 +706,14 @@ lbg_info_t::clear_and_redraw(const lig_build::pos_t &delta) {
       widgeted_molecule_t new_mol = translate_molecule(delta); // and do a canvas update
       translate_residue_circles(delta);
       render_from_molecule(new_mol);
-      update_descriptor_attributes();
+      // std::cout << "calling update_descriptor_attributes() from clear_and_redraw() " << std::endl;
+      // update_descriptor_attributes();
    } else {
       // this path gets called when the "Env Residues" button is pressed.
       // std::cout << "==== delta is zero path ==== " << std::endl;
       widgeted_molecule_t saved_mol = mol;
       render_from_molecule(saved_mol);
-      update_descriptor_attributes();
+      // update_descriptor_attributes();
    }
    draw_all_flev_annotations();
 }
@@ -1012,7 +1013,7 @@ lbg_info_t::highlight_bond(const lig_build::bond_t &bond, bool delete_mode) {
       goo_canvas_polyline_new_line(root,
 				   A.x, A.y,
 				   B.x, B.y,
-				   "line-width", 7.0,
+				   "line-width", 7.0, // in highlight_bond()
 				   "stroke-color", col.c_str(),
 				   "can-focus", 1,
 				   NULL);
@@ -1044,7 +1045,7 @@ lbg_info_t::highlight_atom(const lig_build::atom_t &atom, int atom_index, bool d
 
    GooCanvasItem *rect_item =
       goo_canvas_rect_new (root, x1, y1, width, height,
-			   "line-width", 2.0,
+			   "line-width", 2.0, // in highlight_atom()
 			   "stroke-color", col.c_str(),
 			   "can-focus", 1,
 			   NULL);
@@ -1126,7 +1127,6 @@ lbg_info_t::update_descriptor_attributes() {
       catch (const std::exception &e) {
 	 std::cout << "WARNING:: from update_descriptor_attributes() " << e.what() << std::endl;
 
-	 // SMILES string
 	 if (lbg_statusbar) { 
 	    std::string status_string;
 	    guint statusbar_context_id =
@@ -1137,6 +1137,7 @@ lbg_info_t::update_descriptor_attributes() {
 	    // QED progress bar
 	    gtk_label_set_text(GTK_LABEL(lbg_qed_text_label), "");
 	    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
+	    reset_qed_properties_progress_bars();
 	    // alerts
 	    gtk_widget_hide(lbg_alert_hbox);
 	    clear_canvas_alerts();
@@ -1549,13 +1550,19 @@ lbg_info_t::font_colour(const std::string &ele) const {
       font_colour = "blue";
    if (ele == "O") 
       font_colour = "red";
-   if (ele == "S") 
+   if (ele == "S")
       font_colour = "#888800";
+   if (ele == "P")
+      font_colour = "#DD9500"; // orange
    if (ele == "F") 
       font_colour = "#006600";
    if (ele == "CL") 
       font_colour = "#116600";
-   if (ele == "I") 
+   if (ele == "Cl") // mol files should have the second character in lower case, I think.
+      font_colour = "#116600";
+   if (ele == "Br")
+      font_colour = "#A52A2A";
+   if (ele == "I")
       font_colour = "#220066";
    
    return font_colour;
@@ -2281,7 +2288,7 @@ lbg_info_t::stamp_polygon(int n_edges, lig_build::polygon_position_info_t ppi,
 				 pt.x - 5.0, 
 				 pt.y - 5.0,
 				 10.0, 10.0,
-				 "line-width", 7.0,
+				 "line-width", 7.0, // in stamp_polygon_anywhere() (debug)
 				 "stroke-color", stroke_colour.c_str(),
 				 NULL);
       }
@@ -2577,7 +2584,7 @@ lbg_info_t::save_togglebutton_widgets(GtkBuilder *builder) {
 // score.
 // 
 void
-lbg_info_t::clear() {
+lbg_info_t::clear(bool do_descriptor_updates) {
 
    clear_canvas();
    // and that clears the alerts group
@@ -2588,7 +2595,9 @@ lbg_info_t::clear() {
    // clear the molecule
    mol.clear();
 
-   update_descriptor_attributes();
+   if (do_descriptor_updates) {
+      update_descriptor_attributes();
+   }
 }
 
 void
@@ -2636,6 +2645,9 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_search_database_frame = NULL;
 	 lbg_import_from_smiles_dialog = NULL;
 	 lbg_import_from_smiles_entry = NULL;
+	 lbg_view_rotate_entry = NULL;
+	 for (unsigned int i=0; i<8; i++)
+	    lbg_qed_properties_progressbars[i] = NULL;
 	 canvas = NULL;
 	 return false; // boo.
 
@@ -2675,6 +2687,12 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_flip_rotate_hbox =          GTK_WIDGET(gtk_builder_get_object(builder, "lbg_flip_rotate_hbox"));
 	 lbg_clean_up_2d_toolbutton =    GTK_WIDGET(gtk_builder_get_object(builder, "lbg_clean_up_2d_toolbutton"));
 	 lbg_search_database_frame =     GTK_WIDGET(gtk_builder_get_object(builder, "lbg_search_database_frame"));
+	 lbg_view_rotate_entry     =     GTK_WIDGET(gtk_builder_get_object(builder, "lbg_view_rotate_entry"));
+
+	 for (unsigned int i=0; i<8; i++) {
+	    std::string name = "qed_properties_" + coot::util::int_to_string(i) + "_progressbar";
+	    lbg_qed_properties_progressbars[i] = GTK_WIDGET(gtk_builder_get_object(builder, name.c_str()));
+	 }
 
 	 gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), "---");
       }
@@ -2683,12 +2701,8 @@ lbg_info_t::init(GtkBuilder *builder) {
    canvas = goo_canvas_new();
    GTK_WIDGET_SET_FLAGS (canvas, GTK_CAN_FOCUS);
 
-   if (0) {  // hide rdkit stuff
-      GtkWidget *ww = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_qed_and_alert_hbox"));
-      gtk_widget_hide(lbg_flip_rotate_hbox);
-      gtk_widget_hide(lbg_alert_hbox_outer);
-      gtk_widget_hide(ww);
-   }
+   GooCanvasItem *root_item = goo_canvas_get_root_item(GOO_CANVAS(canvas));
+   g_object_set(G_OBJECT(root_item), "line_width", 1.6, NULL); // thank you Damon Chaplin
 
 #ifdef HAVE_CCP4SRS
    gtk_widget_show(lbg_search_database_frame);
@@ -2699,9 +2713,6 @@ lbg_info_t::init(GtkBuilder *builder) {
    if (use_graphics_interface_flag) { 
       gtk_widget_set(GTK_WIDGET(canvas), "bounds-padding", 50.0, NULL);
       gtk_object_set_user_data(GTK_OBJECT(canvas), (gpointer) this);
-      if (0) 
-	 std::cout << ":::::: attached this lbg_info_t pointer to canvas: " << this
-		   << " to " << canvas << std::endl;
    
       save_togglebutton_widgets(builder);
       GtkWidget *lbg_scrolled_win =
@@ -2729,9 +2740,6 @@ lbg_info_t::init(GtkBuilder *builder) {
 
       GooCanvasItem *root_item = goo_canvas_get_root_item(GOO_CANVAS(canvas));
 
-      // std::cout << "................ set lbg-info on root " << root_item << " of canvas"
-      // << canvas << std::endl;
-							  
       g_object_set_data_full(G_OBJECT(root_item), "lbg-info", this, NULL);
       g_signal_connect(G_OBJECT(root_item), "button_press_event",
 		       G_CALLBACK(on_canvas_button_press), NULL);
@@ -2757,8 +2765,6 @@ lbg_info_t::init(GtkBuilder *builder) {
    if (use_graphics_interface_flag) {
       if (getenv("COOT_LBG_TEST_FUNCTION") != NULL) { 
 	 gtk_widget_show(pe_test_function_button);
-      } else {
-	 gtk_widget_hide(lbg_flip_rotate_hbox);
       }
    }
 
@@ -2860,6 +2866,8 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
       // non-interesting case first
       gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
       gtk_label_set_text(GTK_LABEL(lbg_qed_text_label), "");
+      std::vector<std::pair<double, double> > dummy; // resets progressbars to 0
+      update_qed_properties(dummy);
    } else {
       bool all_set = false;
       double qed = 0.0;
@@ -2867,6 +2875,13 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
 	 qed = get_qed(silicos_it_qed_default_func, rdkm);
 	 if (qed > 0)
 	    all_set = true;
+
+	 // get the values and their desirabilites (0->1)
+	 std::vector<std::pair<double, double> > properties = 
+	    get_qed_properties(silicos_it_qed_properties_func,
+			       silicos_it_qed_pads, rdkm);
+	 update_qed_properties(properties);
+	 
       } else {
 
 	 // If you are reading this: are you sure that Biscu-it has
@@ -2887,6 +2902,50 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
 #endif
 }
 #endif
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+void
+lbg_info_t::update_qed_properties(const std::vector<std::pair<double, double> > &properties) {
+
+   if (properties.size() == 8) { 
+      for (unsigned int i=0; i<8; i++) {
+	 if (false)
+	    std::cout << "desirability " << i << " "
+		      << properties[i].first << " "
+		      << properties[i].second << " "
+		      << lbg_qed_properties_progressbars[i] << std::endl;
+	 if (properties[i].second >= 0) {
+	    if (properties[i].second <= 1) {
+	       std::string s;
+	       if (i == 2 || i == 3 || i == 5 || i == 6 || i == 7)
+		  s = coot::util::int_to_string(int(properties[i].first));
+	       else
+		  s = coot::util::float_to_string(properties[i].first);
+		  
+	       gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_properties_progressbars[i]),
+					     properties[i].second);
+	       gtk_progress_bar_set_text(GTK_PROGRESS_BAR(lbg_qed_properties_progressbars[i]),
+					 s.c_str());
+					 
+	    }
+	 }
+      }
+   } else {
+      reset_qed_properties_progress_bars();
+   }
+}
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+void
+lbg_info_t::reset_qed_properties_progress_bars() {
+
+   for (unsigned int i=0; i<8; i++) {
+      gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_properties_progressbars[i]), 0);
+      gtk_progress_bar_set_text(GTK_PROGRESS_BAR(lbg_qed_properties_progressbars[i]), "");
+   }
+}
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 void
@@ -3147,7 +3206,7 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 
 
    make_saves_mutex = 0; // stop saving changes (restored at end)
-   clear();
+   clear(false);
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
    
    int re_index[mol_in.atoms.size()]; // map from mol_in atom indexing
@@ -3264,7 +3323,7 @@ lbg_info_t::undo() {
       render_from_molecule(saved_mol);
       update_descriptor_attributes();
    } else {
-      clear();
+      clear(true);
    } 
 } 
 
@@ -3299,9 +3358,10 @@ lbg_info_t::write_pdf(const std::string &file_name) const {
       pos_y += 240;
       // pos_x += 50;
       pos_x += 150;
-   } 
+   }
    surface = cairo_pdf_surface_create(file_name.c_str(), pos_x, pos_y);
    cr = cairo_create (surface);
+   cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
 
    /* Place it in the middle of our 9x10 page. */
    // cairo_translate (cr, 20, 130);
@@ -3334,6 +3394,7 @@ lbg_info_t::write_svg(const std::string &file_name) const {
 
    cairo_surface_t *surface = cairo_svg_surface_create(file_name.c_str(), pos_x, pos_y);
    cairo_t *cr = cairo_create(surface);
+   cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
 
    /* Place it in the middle of our 9x10 page. */
    cairo_translate(cr, 2, 13);
@@ -3363,6 +3424,7 @@ lbg_info_t::write_png(const std::string &file_name) {
    
    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size_x, size_y);
    cairo_t *cr = cairo_create (surface);
+   cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
 
    // 1.0 is item's visibility threshold to see if they should be rendered
    // (everything should be rendered).
@@ -4699,7 +4761,7 @@ lbg_info_t::show_grid(const lbg_info_t::ligand_grid &grid) {
 	 std::string colour = grid_intensity_to_colour(int_as_int);
  	 GooCanvasItem *rect =
  	    goo_canvas_rect_new(root, pos.x, pos.y, 3.5, 3.5,
- 				"line-width", 1.0,
+ 				"line-width", 1.0, // in show_grid()
  				"fill_color", colour.c_str(),
 				"stroke-color", colour.c_str(),
  				NULL);
@@ -4879,7 +4941,7 @@ lbg_info_t::ligand_grid::show_contour(GooCanvasItem *root, float contour_level,
       lig_build::pos_t grid_ori = to_canvas_pos(0.0, 0.0);
       goo_canvas_rect_new (group,
 			   grid_ori.x, grid_ori.y, 5.0, 5.0,
-			   "line-width", 1.0,
+			   "line-width", 1.0, // in show_contour()
 			   "stroke-color", "green",
 			   "fill_color", "blue",
 			   NULL);
@@ -4982,7 +5044,7 @@ lbg_info_t::show_mol_ring_centres() {
    for (unsigned int i=0; i<c.size(); i++) {
       GooCanvasItem *rect_item = goo_canvas_rect_new (root,
 						      c[i].x, c[i].y, 4.0, 4.0,
-						      "line-width", 1.0,
+						      "line-width", 1.0, // in show_mol_ring_centres()
 						      "stroke-color", "blue",
 						      "fill_color", "blue",
 						      NULL);
@@ -4999,7 +5061,7 @@ lbg_info_t::show_unlimited_atoms(const std::vector<widgeted_atom_ring_centre_inf
 			     ua[i].atom.atom_position.x -6.0,
 			     ua[i].atom.atom_position.y -6.0,
 			     12.0, 12.0,
-			     "line-width", 1.0,
+			     "line-width", 1.0, // in show_unlimited_atoms()
 			     "stroke-color", "lightblue",
 			     "fill_color", "lightblue",
 			     NULL);
@@ -5019,7 +5081,7 @@ lbg_info_t::show_ring_centres(std::vector<std::vector<std::string> > ring_atoms_
 				ring_centre.x -6.0,
 				ring_centre.y -6.0,
 				12.0, 12.0,
-				"line-width", 1.0,
+				"line-width", 1.0, // in show_ring_centres()
 				"stroke-color", "purple",
 				"fill_color", "purple",
 				NULL);
@@ -6232,7 +6294,7 @@ lbg_info_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_cen
       goo_canvas_polyline_new_line(group,
 				   A.x, A.y,
 				   close_mid_pt_1.x, close_mid_pt_1.y,
-				   "line-width", 2.5,
+				   "line-width", 2.5, // in draw_annotated_stacking_line()
 				   "line-dash", dash,
 				   "stroke-color", stroke_colour.c_str(),
 				   NULL);
@@ -6241,7 +6303,7 @@ lbg_info_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_cen
       goo_canvas_polyline_new_line(group,
 				   close_mid_pt_2.x, close_mid_pt_2.y,
 				   C.x, C.y,
-				   "line-width", 2.5,
+				   "line-width", 2.5, // in draw_annotated_stacking_line()
 				   "line-dash", dash,
 				   // "end_arrow",   end_arrow,
 				   "stroke-color", stroke_colour.c_str(),
@@ -6348,7 +6410,7 @@ lbg_info_t::draw_bonds_to_ligand() {
 	       GooCanvasItem *item = goo_canvas_polyline_new_line(root,
 								  A.x, A.y,
 								  B.x, B.y,
-								  "line-width", 2.5,
+								  "line-width", 2.5, // in draw_bonds_to_ligand()
 								  "line-dash", dash,
  								  "start_arrow", start_arrow,
  								  "end_arrow",   end_arrow,
@@ -6468,7 +6530,7 @@ lbg_info_t::show_key() {
       goo_canvas_polyline_new_line(key_group,
 				   A.x, A.y,
 				   B.x, B.y,
-				   "line-width", 2.5,
+				   "line-width", 2.5, // in show_key()
 				   "line-dash", dash,
 				   "stroke-color", stroke_colour.c_str(),
 				   "end_arrow",   end_arrow,
@@ -6486,7 +6548,7 @@ lbg_info_t::show_key() {
       goo_canvas_polyline_new_line(key_group,
 				   Ad.x, Ad.y,
 				   Bd.x, Bd.y,
-				   "line-width", 2.5,
+				   "line-width", 2.5, // in show_key()
 				   "line-dash", dash,
 				   "stroke-color", stroke_colour.c_str(),
 				   "start_arrow",   end_arrow,
@@ -6506,7 +6568,7 @@ lbg_info_t::show_key() {
       goo_canvas_polyline_new_line(key_group,
 				   C.x, C.y,
 				   D.x, D.y,
-				   "line-width", 2.5,
+				   "line-width", 2.5, // in show_key()
 				   "line-dash", dash,
 				   "stroke-color", stroke_colour.c_str(),
 				   "end_arrow",   end_arrow,
@@ -6525,7 +6587,7 @@ lbg_info_t::show_key() {
       goo_canvas_polyline_new_line(key_group,
 				   Cd.x, Cd.y,
 				   Dd.x, Dd.y,
-				   "line-width", 2.5,
+				   "line-width", 2.5, // in show_key()
 				   "line-dash", dash,
 				   "stroke-color", stroke_colour.c_str(),
 				   "start_arrow",   end_arrow,
@@ -6545,7 +6607,7 @@ lbg_info_t::show_key() {
       goo_canvas_polyline_new_line(key_group,
 				   WatA.x, WatA.y,
 				   WatB.x, WatB.y,
-				   "line-width", 2.5,
+				   "line-width", 2.5, // in show_key()
 				   "line-dash", dash,
 				   "stroke-color", lime.c_str(),
 				   NULL);
@@ -6562,7 +6624,7 @@ lbg_info_t::show_key() {
       goo_canvas_polyline_new_line(key_group,
 				   MetalA.x, MetalA.y,
 				   MetalB.x, MetalB.y,
-				   "line-width", 2.5,
+				   "line-width", 2.5, // in show_key()
 				   "line-dash", dash,
 				   "stroke-color",  "#990099",
 				   NULL);
@@ -7082,6 +7144,41 @@ lbg_info_t::get_callable_python_func(const std::string &module_name,
 #endif
 
 
+// flipping
+void
+lbg_info_t::flip_molecule(int axis) {
+
+   widgeted_molecule_t new_mol = mol;
+   new_mol.flip(axis);
+   render_from_molecule(new_mol); // wipes mol
+   // update_descriptor_attributes();
+}
+
+void
+lbg_info_t::rotate_z_molecule(double degrees) {
+
+   widgeted_molecule_t new_mol = mol;
+   new_mol.rotate_z(degrees);
+   render_from_molecule(new_mol); // wipes mol
+   // update_descriptor_attributes();
+}
+
+// in degrees (used in on_lbg_view_rotate_apply_button_clicked
+// callback).
+void
+lbg_info_t::rotate_z_molecule(const std::string &angle_str) {
+
+   try {
+      double angle = coot::util::string_to_double(angle_str);
+      rotate_z_molecule(angle);
+   }
+   catch (const std::exception &rte) {
+      std::cout << "WARNING:: " << rte.what() << std::endl;
+   }
+}
+
+
+
 void
 lbg_info_t::pe_test_function() {
 
@@ -7119,11 +7216,8 @@ lbg_info_t::pe_test_function() {
    }
 #endif
 
-
-   
 #endif
-} 
-
+}
 
 
 #endif // HAVE_GOOCANVAS
