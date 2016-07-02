@@ -100,9 +100,10 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
       }
    }
 
-   for (unsigned int i=0; i<lines.size(); i++) { 
-      std::cout << ":" << lines[i] << std::endl;
-   }
+   if (false) // screen output debugging
+      for (unsigned int i=0; i<lines.size(); i++)
+	 std::cout << ":" << lines[i] << std::endl;
+
    std::cout << "File \"" << file_name << "\" contained " << lines.size()
 	     << " lines " << std::endl;
 
@@ -141,7 +142,7 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
 	       // "   " cannot be converted to int.
 	    }
 	 }
-	 std::cout << "n_chirals: " << n_chirals << std::endl;
+	 // std::cout << "n_chirals: " << n_chirals << std::endl;
       }
 
       // atom block:

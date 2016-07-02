@@ -657,7 +657,7 @@ on_lbg_key_toggle_toolbutton_toggled(GtkToggleToolButton *button, gpointer user_
 }
 
 extern "C" G_MODULE_EXPORT void
-on_lbg_charge_toolbutton_toggled(GtkToggleToolButton *togglebutton, gpointer user_data) {
+on_lbg_charge_toggle_toolbutton_toggled(GtkToggleToolButton *togglebutton, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_handle_toggle_button(togglebutton, canvas, lbg_info_t::CHARGE);
 }

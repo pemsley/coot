@@ -1102,7 +1102,7 @@ lbg_info_t::handle_item_add(GdkEventButton *event) {
    }
 
    if (canvas_addition_mode == lbg_info_t::CHARGE) {
-     changed_status = handle_charge_change(); 
+      changed_status = handle_charge_change();
    } 
 
    if (changed_status) {
@@ -1755,7 +1755,6 @@ void
 lbg_info_t::squeeze_in_a_4th_bond(int atom_index, int canvas_addition_mode,
 				  const std::vector<int> &bond_indices) {
 
-   
    GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS (canvas));
    std::vector<double> angles = get_angles(atom_index, bond_indices);
    std::vector<double> sorted_angles = angles;
@@ -1804,8 +1803,8 @@ lbg_info_t::squeeze_in_a_4th_bond(int atom_index, int canvas_addition_mode,
 	 // OK, there were not centres on all side of all the bonds.
 	 // Go place the new atom not towards a ring centre
 
-	 std::cout << "Go place a bond not towards a ring centre" << std::endl;
-	 lig_build::pos_t new_atom_pos = get_new_pos_not_towards_ring_centres(atom_index, bond_indices);
+	 lig_build::pos_t new_atom_pos = get_new_pos_not_towards_ring_centres(atom_index,
+									      bond_indices);
 	 widgeted_atom_t new_atom(new_atom_pos, "C", 0, NULL);
 	 int new_atom_index = mol.add_atom(new_atom).second;
 	 lig_build::bond_t::bond_type_t bt = addition_mode_to_bond_type(canvas_addition_mode);
@@ -1906,21 +1905,63 @@ lbg_info_t::get_new_pos_not_towards_ring_centres(int atom_index,
 	    p = candidate_2;
       }
    } else {
+
       // build away from ring_centre
-      for (unsigned int i=0; i<bond_indices.size(); i++) { 
-	 if (mol.bonds[bond_indices[i]].have_centre_pos()) {
-	    lig_build::pos_t ring_centre = mol.bonds[bond_indices[i]].centre_pos();
+      
+      if (centres.size() > 0) {
+	 for (unsigned int i=0; i<bond_indices.size(); i++) { 
+	    if (mol.bonds[bond_indices[i]].have_centre_pos()) {
+	       lig_build::pos_t ring_centre = mol.bonds[bond_indices[i]].centre_pos();
+	       int other_index = mol.bonds[bond_indices[i]].get_other_index(atom_index);
+	       lig_build::pos_t p1 = mol.atoms[other_index].atom_position;
+	       lig_build::pos_t p2 = mol.atoms[atom_index ].atom_position;
+	       lig_build::pos_t bond_dir = p2 - p1;
+	       lig_build::pos_t bond_dir_uv = bond_dir.unit_vector();
+	       p = centre + bond_dir_uv * SINGLE_BOND_CANVAS_LENGTH * 0.8;
+	       break;
+	    }
+	 }
+      } else {
+
+	 std::vector<lig_build::pos_t> neighbours;
+	 p = lig_build::pos_t(100,100);
+	 for (unsigned int i=0; i<bond_indices.size(); i++) {
 	    int other_index = mol.bonds[bond_indices[i]].get_other_index(atom_index);
 	    lig_build::pos_t p1 = mol.atoms[other_index].atom_position;
-	    lig_build::pos_t p2 = mol.atoms[atom_index ].atom_position;
-	    lig_build::pos_t bond_dir = p2 - p1;
-	    lig_build::pos_t bond_dir_uv = bond_dir.unit_vector();
-	    p = centre + bond_dir_uv * SINGLE_BOND_CANVAS_LENGTH * 0.8;
-	    break;
+	    neighbours.push_back(p1);
+	 }
+
+	 std::pair<unsigned int, unsigned int> best_pair(0,0);
+	 double delta_length = 0;
+	 if (neighbours.size() > 0) {
+	    for (unsigned int i=0; i<(neighbours.size()-1); i++) { 
+	       lig_build::pos_t delta = neighbours[i+1] - neighbours[i];
+	       double len = delta.length();
+	       if (len > delta_length) {
+		  delta_length = len;
+		  best_pair.first  = i+1;
+		  best_pair.second = i;
+	       }
+	    }
+	    
+	    // now additionally test last to first
+	    lig_build::pos_t delta = neighbours[0] - neighbours.back();
+	    double len = delta.length();
+	    if (len > delta_length) {
+	       best_pair.first  = 0;
+	       best_pair.second = neighbours.size()-1; // the last one
+	    }
+	    
+	    if (delta_length > 0) {
+	       lig_build::pos_t b1 = neighbours[best_pair.second] + neighbours[best_pair.first];
+	       lig_build::pos_t b2(0.5*b1.x, 0.5*b1.y);
+	       lig_build::pos_t bond_dir = b2 - centre;
+	       lig_build::pos_t bond_dir_uv = bond_dir.unit_vector();
+	       p = centre + bond_dir_uv * SINGLE_BOND_CANVAS_LENGTH * 0.8;
+	    }
 	 }
       }
    }
-
    return p;
 }
 
@@ -2190,40 +2231,44 @@ lbg_info_t::try_stamp_bond_anywhere(int canvas_addition_mode, int x_mouse, int y
 bool 
 lbg_info_t::handle_charge_change() {
 
-  bool changed_status = false;
-  if (highlight_data.has_contents()) {
-    if (highlight_data.single_atom()) {
-      int atom_index = highlight_data.get_atom_index();
-      if (atom_index != UNASSIGNED_INDEX) {
-	int charge = mol.atoms[atom_index].charge;
-	int pre_charge = charge;
-	if (charge >= 2) {
-	  charge = -2;
-	} else {
-	  charge += 1;
-	}
-	mol.atoms[atom_index].charge = charge;
-	std::cout << "change charge on " << mol.atoms[atom_index]
-		  << " from " << pre_charge << " to " << charge
-		  << std::endl;
-	std::cout << "now calling update_atom_id_forced() with atom_idx: "
-		  << atom_index << std::endl;
+   bool changed_status = false;
+   if (highlight_data.has_contents()) {
+      if (highlight_data.single_atom()) {
+	 int atom_index = highlight_data.get_atom_index();
+	 if (atom_index != UNASSIGNED_INDEX) {
+	    int charge = mol.atoms[atom_index].charge;
+	    int pre_charge = charge;
+	    if (charge >= 2) {
+	       charge = -2;
+	    } else {
+	       charge += 1;
+	    }
+	    mol.atoms[atom_index].charge = charge;
+	    if (false)
+	       std::cout << "change charge on " << mol.atoms[atom_index]
+			 << " from " << pre_charge << " to " << charge
+			 << std::endl;
 
-	// prep for calling update_atom_id_forced():
-	// 
-	GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
-	std::string ele = mol.atoms[atom_index].element;
-	std::string fc = font_colour(ele);
-	bool gl_flag = false; // not a GL render engine
-	std::vector<int> local_bonds = mol.bonds_having_atom_with_atom_index(atom_index);
-	lig_build::atom_id_info_t atom_id_info = 
-	   mol.make_atom_id_by_using_bonds(atom_index, ele, local_bonds, gl_flag);
+	    // 20160701:
+	    // prep for calling update_atom_id_forced():
+	    // no longer change_atom_id_maybe(atom_index);
+	    //
+	    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+	    std::string ele = mol.atoms[atom_index].element;
+	    std::string fc = font_colour(ele);
+	    bool gl_flag = false; // not a GL render engine
+	    std::vector<int> local_bonds = mol.bonds_having_atom_with_atom_index(atom_index);
+	    lig_build::atom_id_info_t atom_id_info = 
+	       mol.make_atom_id_by_using_bonds(atom_index, ele, local_bonds, gl_flag);
 	
-	mol.atoms[atom_index].update_atom_id_forced(atom_id_info, fc, root);
-	// change_atom_id_maybe(atom_index);
+	    mol.atoms[atom_index].update_atom_id_forced(atom_id_info, fc, root);
+	    changed_status = true;
+	 }
       }
-    }
-  }
+   }
+
+  // update_descriptor_attributes() is done by calling function (e.g. handle_item_add()).
+  
   return changed_status;
 } 
 
@@ -2553,7 +2598,6 @@ bool
 lbg_info_t::save_togglebutton_widgets(GtkBuilder *builder) {
 
    std::vector<std::string> w_names;
-   // w_names.push_back("charge_toggle_toolbutton");
 
    w_names.push_back("single_toggle_toolbutton");
    w_names.push_back("double_toggle_toolbutton");
@@ -2577,11 +2621,13 @@ lbg_info_t::save_togglebutton_widgets(GtkBuilder *builder) {
    w_names.push_back("iodine_toggle_toolbutton");
    w_names.push_back("other_element_toggle_toolbutton");
    w_names.push_back("delete_item_toggle_toolbutton");
-   // undo and clear, charge, cut, smiles
+   w_names.push_back("lbg_charge_toggle_toolbutton");
+   
+   // undo and clear, cut, smiles
 
    for (unsigned int i=0; i<w_names.size(); i++) {
       GtkToggleToolButton *tb =
-	 GTK_TOGGLE_TOOL_BUTTON(gtk_builder_get_object (builder, w_names[i].c_str()));
+	 GTK_TOGGLE_TOOL_BUTTON(gtk_builder_get_object(builder, w_names[i].c_str()));
       widget_names[w_names[i]] = tb;
    }
    
