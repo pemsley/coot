@@ -163,7 +163,7 @@ widgeted_atom_t::make_canvas_text_item(const lig_build::atom_id_info_t &atom_id_
 	    y_pos += 3;
 	 }
 	 if (atom_id_info_in.offsets[i].superscript) { 
-	    font = "Sans 6";
+	    font = "Sans 8"; // 6 is too small for O-
 	    y_pos -= 6;
 	 }
 
@@ -308,8 +308,8 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
    double shorten_fraction_1 = 0.72; // was 0.76
    double shorten_fraction_2 = 0.72;
    
-   lig_build::pos_t pos_1 = at_1.atom_position;
-   lig_build::pos_t pos_2 = at_2.atom_position;
+   lig_build::pos_t pos_1_in = at_1.atom_position;
+   lig_build::pos_t pos_2_in = at_2.atom_position;
 
    // Note: deltas from the south-east direction neighbour have a delta of ~ [20,20].
    // 
@@ -337,37 +337,37 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
 	 }
       }
    }
-   
+
    if (at_1.element == "N" || at_2.element == "N") {
       if (at_1.element == "N") {
 	 if (at_1.charge == 1) {
-	    // N+ : shorten if bond comes in from the right
+	    // N+ : shorten most if bond comes in from the NE (delta is [X, -Y])
+	    //
 	    lig_build::pos_t delta = at_2.atom_position - at_1.atom_position;
-	    double sum_delta = delta.length();
-	    if (delta.x > 5)
-	       sum_delta += (26 + delta.x);
-	    shorten_fraction_1 -= 0.1 * sum_delta/60.0;
+	    double f = delta.x - delta.y + 52.0; // from 0 to 100;
+	    shorten_fraction_1 -= 0.17 * f/100.0;
 	 }
       }
       if (at_2.element == "N") {
 	 if (at_2.charge == 1) {
 	    // N+ : shorten if bond comes in from the right
 	    lig_build::pos_t delta = at_1.atom_position - at_2.atom_position;
-	    double sum_delta = delta.length();
-	    if (delta.x > 5)
-	       sum_delta += (26 + delta.x);
-	    shorten_fraction_2 -= 0.1 * sum_delta/60.0;
+	    double f = delta.x - delta.y + 52.0; // from 0 to 100;
+	    shorten_fraction_2 -= 0.17 * f/100.0;
 	 }
       }
    }
 
+   lig_build::pos_t pos_1 = pos_1_in;
+   lig_build::pos_t pos_2 = pos_2_in;
+   //
    // fraction_point() returns a point that is (say) 0.8 of the way
    // from p1 (first arg) to p2 (second arg).
    // 
    if (shorten_first)
-      pos_1 = lig_build::pos_t::fraction_point(pos_2, pos_1, shorten_fraction_1);
+      pos_1 = lig_build::pos_t::fraction_point(pos_2_in, pos_1_in, shorten_fraction_1);
    if (shorten_second)
-      pos_2 = lig_build::pos_t::fraction_point(pos_1, pos_2, shorten_fraction_2);
+      pos_2 = lig_build::pos_t::fraction_point(pos_1_in, pos_2_in, shorten_fraction_2);
 
 
    GooCanvasItem *ci = NULL;

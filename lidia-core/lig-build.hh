@@ -222,9 +222,9 @@ namespace lig_build {
 	 if (formal_charge != 0) { 
 	    offset_text_t superscript("");
 	    if (formal_charge == -1) superscript=offset_text_t("-");
-	    if (formal_charge == -2) superscript=offset_text_t("-2");
+	    if (formal_charge == -2) superscript=offset_text_t("2-");
 	    if (formal_charge == +1) superscript=offset_text_t("+");
-	    if (formal_charge == +2) superscript=offset_text_t("+2");
+	    if (formal_charge == +2) superscript=offset_text_t("2+");
 	    superscript.superscript = true;
 	    superscript.tweak = pos_t(8,0);
 	    offsets.push_back(superscript);
@@ -1371,9 +1371,6 @@ namespace lig_build {
 	 }
 
 	 // ----------------- OK, atom_id is set, how do we type set that?
-
-	 std::cout << " atom_id is \"" << atom_id << "\" given charge "
-		   << charge << std::endl;
 
 	 if (atom_id != "NH" && atom_id != "OH" && atom_id != "SH") {
 
