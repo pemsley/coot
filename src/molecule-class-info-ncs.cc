@@ -2581,7 +2581,8 @@ molecule_class_info_t::add_molecular_symmetry_matrices() {
 	       
 		  try {
 		     int matrix_id = coot::util::string_to_int(parts[1]);
-		     char c = parts[0].back();
+		     int l = parts[0].length();
+		     char c = parts[0][l-1];
 		     int biomt_idx = c - 48;
 
 		     double x = coot::util::string_to_double(parts[2]);
