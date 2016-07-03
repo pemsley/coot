@@ -1516,28 +1516,100 @@ namespace lig_build {
 
 			pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
 
-			if (sum_delta.x < 0) {
-			   // bond from the left
-			   atom_id_info_t id("N", 1);
-			   offset_text_t h("H");
-			   h.tweak = pos_t(15, 0);
-			   offset_text_t two("2");
-			   two.subscript = true;
-			   two.tweak = pos_t(24, 0);
-			   id.add(h);
-			   id.add(two);
-			   return id;
+			if (bond_indices.size() == 2) {
+
+			   if (fabs(sum_delta.y) > fabs(sum_delta.x)) {
+
+			      if (sum_delta.y > 0) {
+
+				 //      H2
+				 //      N+
+				 //    /   \           .[not multi-line comment]
+				 //
+				 atom_id_info_t id("N", 1);
+				 offset_text_t h("H", offset_text_t::DOWN); // weird
+				 offset_text_t t("2", offset_text_t::DOWN);
+				 t.subscript = true;
+				 t.tweak = pos_t(10,-4);
+				 id.add(h);
+				 id.add(t);
+				 return id;
+
+			      } else {
+		  
+				 //    \   /
+				 //      N+
+				 //      H2
+				 //
+				 atom_id_info_t id("N", 1);
+				 offset_text_t h("H", offset_text_t::UP);
+				 offset_text_t t("2", offset_text_t::UP);
+				 t.subscript = true;
+				 t.tweak = pos_t(9,-2);
+				 id.add(h);
+				 id.add(t);
+				 return id;
+
+			      }
+			   } else {
+			      // normal sideways of N+H2
+
+			      if (sum_delta.x < 0) {
+				 atom_id_info_t id("N", 1);
+				 offset_text_t h("H");
+				 offset_text_t t("2");
+				 h.tweak = pos_t(16, 0);
+				 t.tweak = pos_t(24, 0);
+				 t.subscript = true;
+				 id.add(h);
+				 id.add(t);
+				 return id;
+			      } else {
+				 atom_id_info_t id;
+				 offset_text_t h("H");
+				 offset_text_t t("2");
+				 offset_text_t n("N");
+				 offset_text_t plus("+");
+				 h.tweak = pos_t(-16, 0);
+				 t.tweak = pos_t(-7, 0);
+				 t.subscript = true;
+				 plus.tweak = pos_t(8, 0);
+				 plus.superscript = true;
+				 id.add(h);
+				 id.add(n);
+				 id.add(t);
+				 id.add(plus);
+				 return id;
+			      }
+			   }
+			   
 			} else {
-			   // bond from the right
-			   atom_id_info_t id("N", 1);
-			   offset_text_t h("H");
-			   offset_text_t two("2");
-			   h.tweak = pos_t(-14, 0);
-			   two.tweak = pos_t(-6, 0);
-			   two.subscript = true;
-			   id.add(h);
-			   id.add(two);
-			   return id;
+
+			   // sum bond_indices is 1 (well, not 2)
+
+			   if (sum_delta.x < 0) {
+			      // bond from the left
+			      atom_id_info_t id("N", 1);
+			      offset_text_t h("H");
+			      h.tweak = pos_t(15, 0);
+			      offset_text_t two("2");
+			      two.subscript = true;
+			      two.tweak = pos_t(24, 0);
+			      id.add(h);
+			      id.add(two);
+			      return id;
+			   } else {
+			      // bond from the right
+			      atom_id_info_t id("N", 1);
+			      offset_text_t h("H");
+			      offset_text_t two("2");
+			      h.tweak = pos_t(-14, 0);
+			      two.tweak = pos_t(-6, 0);
+			      two.subscript = true;
+			      id.add(h);
+			      id.add(two);
+			      return id;
+			   }
 			}
 
 		     } else {

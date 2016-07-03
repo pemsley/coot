@@ -3511,6 +3511,44 @@ lbg_info_t::save_molecule() {
    }
 }
 
+
+void
+lbg_info_t::import_molecule_from_file(const std::string &file_name) { // mol or cif
+
+   std::string ext = coot::util::file_name_extension(file_name);
+   if (ext == ".cif") {
+      import_molecule_from_cif_file(file_name);
+   } else {
+      import_mol_from_file(file_name);
+   }
+}
+
+
+void
+lbg_info_t::import_molecule_from_cif_file(const std::string &file_name) {
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
+   coot::protein_geometry pg;
+   pg.init_refmac_mon_lib(file_name, 43);
+   std::vector<std::string> types = pg.monomer_types();
+   if (types.size() > 0) {
+      std::string comp_id = types.back();
+      std::pair<bool, coot::dictionary_residue_restraints_t> p =
+	 pg.get_monomer_restraints(comp_id);
+      if (p.first) {
+	 bool show_hydrogens_flag = false;
+	 import_via_rdkit_from_restraints_dictionary(p.second, show_hydrogens_flag);
+      }
+   } else {
+      std::cout << "import_molecule_from_cif_file() no types from "
+		<< file_name << std::endl;
+   }
+
+#endif 
+}
+
+
 // What happens when this fails?  File name is missing?
 // File is null?
 // File is not a molecule format?
@@ -3592,6 +3630,9 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
       catch (const RDKit::MolSanitizeException &rte) {
 	 try_as_mdl_mol = true; // e.g. charges wrong.
       }
+      catch (const Invar::Invariant &rte) {
+	 try_as_mdl_mol = false; // e.g. bad input file
+      }
    }
    catch (const RDKit::BadFileException &e) {
       std::cout << "WARNING:: Bad file " << file_name << " " << e.message() << std::endl;
@@ -3631,7 +3672,9 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
    double weight_for_3d_distances = 0.4;
 
    int n_confs = m->getNumConformers();
-   // std::cout << "------------- rdkit_mol_post_read_handling() n_confs is " << n_confs << std::endl;
+      
+   std::cout << "..... n_confs C " << m->getNumConformers()
+	     << std::endl;
    
    if (n_confs > 0) {
       if (m->getConformer(iconf).is3D()) {
@@ -3773,32 +3816,67 @@ lbg_info_t::import_mol_from_comp_id(const std::string &comp_id,
    } 
 
    if (have_dict) { 
-    
-      try {
-	 RDKit::RWMol m = coot::rdkit_mol(dict);
-	 coot::undelocalise(&m);
-	 if (! show_hydrogens_status) 
-	   coot::remove_non_polar_Hs(&m);
-	 unsigned int n_mol_atoms = m.getNumAtoms();   
-	 for (unsigned int iat=0; iat<n_mol_atoms; iat++)
-	    m[iat]->calcImplicitValence(true);
-	 
-	 RDDepict::compute2DCoords(m, NULL, true);
-	 rdkit_mol_post_read_handling(&m, "from-comp-id");
-      }
-      catch (const RDKit::MolSanitizeException &e) {
-	 // calcImplicitValence() can make this happend
-	 std::cout << "ERROR:: on Sanitize" << e.what() << std::endl;
-      }
-      catch (const std::runtime_error &rte) {
-	 std::cout << "ERROR:: " << rte.what() << std::endl;
-      }
+      import_via_rdkit_from_restraints_dictionary(dict, show_hydrogens_status);
    }
 #else
    std::cout << "You need enhanced ligand tools version" << std::endl;
 #endif  // MAKE_ENHANCED_LIGAND_TOOLS
+}
 
-} 
+void
+lbg_info_t::import_via_rdkit_from_restraints_dictionary(const coot::dictionary_residue_restraints_t &dict, bool show_hydrogens_status) {
+
+#ifdef  MAKE_ENHANCED_LIGAND_TOOLS
+   try {
+      RDKit::RWMol m = coot::rdkit_mol(dict);
+      coot::undelocalise(&m);
+      if (! show_hydrogens_status) 
+	 coot::remove_non_polar_Hs(&m);
+      unsigned int n_mol_atoms = m.getNumAtoms();
+      for (unsigned int iat=0; iat<n_mol_atoms; iat++)
+	 m[iat]->calcImplicitValence(true);
+
+      std::cout << "..... n_confs A " << m.getNumConformers()
+		<< std::endl;
+
+      // 20160702 use add_2d_conformer() instead now?
+
+      coot::rdkit_mol_sanitize(m);
+      RDKit::MolOps::Kekulize(m); // non-const reference?
+      bool canonOrient=true;
+      bool clearConfs=true;
+      unsigned int nFlipsPerSample=3;
+      unsigned int nSamples=200;
+      int sampleSeed=10;
+      bool permuteDeg4Nodes=true;
+      
+      unsigned int conf_id = RDDepict::compute2DCoords(m, NULL,
+						       canonOrient,
+						       clearConfs,
+						       nFlipsPerSample,
+						       nSamples,
+						       sampleSeed,
+						       permuteDeg4Nodes);
+      RDKit::Conformer conf = m.getConformer(conf_id);
+      RDKit::WedgeMolBonds(m, &conf);
+      
+      // int conf_id = coot::add_2d_conformer(&m, 0);
+      
+      std::cout << "..... n_confs B " << m.getNumConformers()
+		<< " with new 2D conf_id " << conf_id
+		<< " 3d-flag: " << m.getConformer(conf_id).is3D() << std::endl;
+
+      rdkit_mol_post_read_handling(&m, "from-comp-id");
+   }
+   catch (const RDKit::MolSanitizeException &e) {
+      // calcImplicitValence() can make this happend
+      std::cout << "ERROR:: on Sanitize" << e.what() << std::endl;
+   }
+   catch (const std::runtime_error &rte) {
+      std::cout << "ERROR:: " << rte.what() << std::endl;
+   }
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
+}
 
 
 
@@ -3809,8 +3887,6 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
 
    // transfer atom names if you can.
 
-   // std::cout << "--------------------------- import_rdkit_mol() " << iconf << std::endl;
-   
    widgeted_molecule_t m;
 
    int n_conf  = rdkm->getNumConformers();
@@ -3875,7 +3951,7 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
 	 try {
 	    at_p->getProp("name", name);
 	 }
-	 catch (KeyErrorException kee) {
+	 catch (const KeyErrorException &kee) {
 	    // we don't need to see these.  We get them when reading an mdl file
 	    // (for example).
 	    // std::cout << "caught no-name for atom exception in import_rdkit_mol(): "
@@ -3906,7 +3982,13 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
 	    const widgeted_atom_t &wat2 = m[idx_2];
 	    widgeted_bond_t bond(idx_1, idx_2, wat1, wat2, bt, NULL);
 	    RDKit::Bond::BondDir bond_dir = bond_p->getBondDir();
-	    // std::cout << "bond " << ib << " type " << bt << " dir " << bond_dir << std::endl;
+	    if (false)
+	       std::cout << "bond " << ib << ":  type " << bt
+			 << " between " << idx_1 << " at "
+			 << conf.getAtomPos(idx_1)
+			 << " and " << idx_2 << " at "
+			 << conf.getAtomPos(idx_2)
+			 << " dir " << bond_dir << std::endl;
 	    if (bond_dir != RDKit::Bond::NONE) {
 	       if (bond_dir == RDKit::Bond::BEGINWEDGE)
 		  bond.set_bond_type(lig_build::bond_t::OUT_BOND);

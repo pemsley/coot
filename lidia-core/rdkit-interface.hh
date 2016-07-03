@@ -74,7 +74,9 @@ namespace coot {
    std::string add_H_to_ring_N_as_needed(RDKit::RWMol *mol,
 				  int idx, const std::string &atom_name,
 				  const dictionary_residue_restraints_t &restraints); 
-   
+
+   // can throw an RDKit::ConformerException (std::exception)
+   // can return -1 if current conformer is 3D.
    int add_2d_conformer(RDKit::ROMol *rdkmol_in, double weight_for_3d_distances); // tweak rdkmol_in
    RDKit::Bond::BondType convert_bond_type(const std::string &t);
 
