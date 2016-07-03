@@ -3673,9 +3673,6 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
 
    int n_confs = m->getNumConformers();
       
-   std::cout << "..... n_confs C " << m->getNumConformers()
-	     << std::endl;
-   
    if (n_confs > 0) {
       if (m->getConformer(iconf).is3D()) {
 	 int iconf_local = coot::add_2d_conformer(m, weight_for_3d_distances); // 3d -> 2d
@@ -3836,9 +3833,6 @@ lbg_info_t::import_via_rdkit_from_restraints_dictionary(const coot::dictionary_r
       for (unsigned int iat=0; iat<n_mol_atoms; iat++)
 	 m[iat]->calcImplicitValence(true);
 
-      std::cout << "..... n_confs A " << m.getNumConformers()
-		<< std::endl;
-
       // 20160702 use add_2d_conformer() instead now?
 
       coot::rdkit_mol_sanitize(m);
@@ -3861,10 +3855,11 @@ lbg_info_t::import_via_rdkit_from_restraints_dictionary(const coot::dictionary_r
       RDKit::WedgeMolBonds(m, &conf);
       
       // int conf_id = coot::add_2d_conformer(&m, 0);
-      
-      std::cout << "..... n_confs B " << m.getNumConformers()
-		<< " with new 2D conf_id " << conf_id
-		<< " 3d-flag: " << m.getConformer(conf_id).is3D() << std::endl;
+
+      if (false)
+	 std::cout << "..... n_confs B " << m.getNumConformers()
+		   << " with new 2D conf_id " << conf_id
+		   << " 3d-flag: " << m.getConformer(conf_id).is3D() << std::endl;
 
       rdkit_mol_post_read_handling(&m, "from-comp-id");
    }
