@@ -161,7 +161,7 @@ lbg(lig_build::molfile_molecule_t mm,
 	 lbg->render_from_molecule(wmol);
 	 lbg->update_descriptor_attributes();
       }
-      
+
       if (get_url_func_pointer_in != NULL) {
 	 lbg->set_curl_function(get_url_func_pointer_in);
       }
@@ -173,7 +173,9 @@ lbg(lig_build::molfile_molecule_t mm,
       }
       if (get_drug_mdl_file_function_pointer_in) {
 	 lbg->set_get_drug_mdl_file_function(get_drug_mdl_file_function_pointer_in);
-      } 
+      } else {
+	 gtk_widget_set_sensitive(GTK_WIDGET(lbg->lbg_get_drug_menuitem), FALSE);
+      }
    }
    return lbg;
 }
@@ -2704,6 +2706,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_import_from_smiles_dialog = NULL;
 	 lbg_import_from_smiles_entry = NULL;
 	 lbg_view_rotate_entry = NULL;
+	 lbg_get_drug_menuitem = NULL;
 	 for (unsigned int i=0; i<8; i++)
 	    lbg_qed_properties_progressbars[i] = NULL;
 	 canvas = NULL;
@@ -2741,6 +2744,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_alert_name_label =          GTK_WIDGET(gtk_builder_get_object(builder, "lbg_alert_name_label"));
 	 lbg_get_drug_dialog =           GTK_WIDGET(gtk_builder_get_object(builder, "lbg_get_drug_dialog"));
 	 lbg_get_drug_entry =            GTK_WIDGET(gtk_builder_get_object(builder, "lbg_get_drug_entry"));
+	 lbg_get_drug_menuitem =         GTK_WIDGET(gtk_builder_get_object(builder, "lbg_get_drug_menuitem"));
 	 pe_test_function_button =       GTK_WIDGET(gtk_builder_get_object(builder, "pe_test_function_button"));
 	 lbg_flip_rotate_hbox =          GTK_WIDGET(gtk_builder_get_object(builder, "lbg_flip_rotate_hbox"));
 	 lbg_clean_up_2d_toolbutton =    GTK_WIDGET(gtk_builder_get_object(builder, "lbg_clean_up_2d_toolbutton"));

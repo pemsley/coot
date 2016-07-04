@@ -1008,6 +1008,7 @@ public:
    GtkWidget *lbg_show_alerts_checkbutton; 
    GtkWidget *lbg_get_drug_dialog;
    GtkWidget *lbg_get_drug_entry;
+   GtkWidget *lbg_get_drug_menuitem;
    GtkWidget *lbg_flip_rotate_hbox;
    GtkWidget *lbg_clean_up_2d_toolbutton;
    GtkWidget *lbg_search_database_frame;
