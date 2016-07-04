@@ -313,13 +313,13 @@
               </packing>
             </child>
             <child>
-              <object class="GtkToggleToolButton" id="lbg_charge_toolbutton">
+              <object class="GtkToggleToolButton" id="lbg_charge_toggle_toolbutton">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Charge</property>
                 <property name="use_underline">True</property>
                 <property name="stock_id">generated-icon-charge-svg</property>
-                <signal name="toggled" handler="on_lbg_charge_toolbutton_toggled" swapped="no"/>
+                <signal name="toggled" handler="on_lbg_charge_toggle_toolbutton_toggled" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">False</property>

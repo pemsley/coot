@@ -2350,6 +2350,17 @@ public:        //                      public
    void add_strict_ncs_matrix(const std::string &chain_id,
 			      const std::string &target_chain_id,
 			      const coot::coot_mat44 &m);
+   
+   // trivial helper class for add_molecular_symmetry_matrices()
+   class quad_d_t {
+   public:
+      double x, y, z, t;
+      quad_d_t(const double &x_in, const double &y_in, const double &z_in, const double &t_in) {
+	 x = x_in; y = y_in; z = z_in; t = t_in;
+      }
+      quad_d_t() {}
+   };
+   void add_molecular_symmetry_matrices(); // process REMARK 350s
 
    // the first value is if we should apply the matrix or not (we may not have ghosts)
    std::pair<bool, clipper::RTop_orth>
