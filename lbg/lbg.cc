@@ -3549,6 +3549,8 @@ lbg_info_t::import_molecule_from_cif_file(const std::string &file_name) {
 }
 
 
+// Mol, sdf or mol2, that is.
+// 
 // What happens when this fails?  File name is missing?
 // File is null?
 // File is not a molecule format?
@@ -3596,30 +3598,10 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
 	    throw std::runtime_error(s);
 	 } else {
 	    coot::set_3d_conformer_state(m);
-	    if (coot::has_zero_coords(m, 0)) {
+	    if (coot::has_zero_coords(m, 0)) { // test for (,0,0,0) - not 2d test
 	       iconf = RDDepict::compute2DCoords(*m, NULL, true);
-	       // std::cout << "conf::has_zero_coords() was true "<< std::endl;
-	    }
-	 
-	    unsigned int n_bonds = m->getNumBonds();
-	    for (unsigned int ib=0; ib<n_bonds; ib++) {
-	       const RDKit::Bond *bond_p = m->getBondWithIdx(ib);
-	       int idx_1 = bond_p->getBeginAtomIdx();
-	       int idx_2 = bond_p->getEndAtomIdx();
-	       lig_build::bond_t::bond_type_t bt = coot::convert_bond_type(bond_p->getBondType());
-	    
-	       try { 
-		  RDKit::Bond::BondDir bond_dir = bond_p->getBondDir();
-		  if (bond_dir != RDKit::Bond::NONE) {
-		     if (bond_dir == RDKit::Bond::BEGINWEDGE)
-			std::cout << "out bond" << std::endl;
-		     if (bond_dir == RDKit::Bond::BEGINDASH)
-			std::cout << "in bond" << std::endl;
-		  }
-	       }
-	       catch (...) {
-		  std::cout << "WARNING:: problem. scrambled input molecule? numbers of atoms: ";
-	       }
+
+	       // bond wedge fiddle here removed
 	    }
 	 }
 	 rdkit_mol_post_read_handling(m, file_name, iconf);

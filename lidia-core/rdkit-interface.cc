@@ -825,13 +825,13 @@ coot::set_3d_conformer_state(RDKit::RWMol *mol) {
 	    }
 	 }
 	 if (all_zero_z) {
-	    std::cout << "conformer " << iconf << " set 3d false" << std::endl;
+	    // std::cout << "conformer " << iconf << " set 3d false" << std::endl;
 	    conf.set3D(false);
 	 } else {
-	    std::cout << "conformer " << iconf << " set 3d true" << std::endl;
+	    // std::cout << "conformer " << iconf << " set 3d true" << std::endl;
 	    conf.set3D(true);
 	 }
-	 std::cout << "conformer " << iconf << " is3D(): " << conf.is3D() << std::endl;
+	 // std::cout << "conformer " << iconf << " is3D(): " << conf.is3D() << std::endl;
       }
    } else {
       std::cout << "WARNING:: in set_3d_conformer_state() null mol " << std::endl;

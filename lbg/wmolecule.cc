@@ -344,16 +344,36 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
 	    // N+ : shorten most if bond comes in from the NE (delta is [X, -Y])
 	    //
 	    lig_build::pos_t delta = at_2.atom_position - at_1.atom_position;
-	    double f = delta.x - delta.y + 52.0; // from 0 to 100;
-	    shorten_fraction_1 -= 0.17 * f/100.0;
+	    double f = delta.x - delta.y; // from 0 to 40;
+	    double theta = delta.theta();
+	    // I want sc_1 to maximize at theta = -45 degrees (bond from NE corner)
+	    double sc_1 = 0.5 * (1.0 + cos(0.5 * (theta - M_PI_4))); // 0 -> 1
+	    double sc_2 = 0.3 * sc_1;
+	    shorten_fraction_1 -= + (sc_2 - 0.1);
+	    if (false)
+	       std::cout << "N is at_1"
+			 << " delta: " << delta
+			 << " theta " << (180/M_PI) * theta
+			 << " delta-theta " << (180 / M_PI) * (theta - M_PI_4)
+			 << " sc_1 " << sc_1
+			 << std::endl;
 	 }
       }
       if (at_2.element == "N") {
 	 if (at_2.charge == 1) {
-	    // N+ : shorten if bond comes in from the right
+	    // N+ : shorten if bond comes in from the NE (as above)
 	    lig_build::pos_t delta = at_1.atom_position - at_2.atom_position;
-	    double f = delta.x - delta.y + 52.0; // from 0 to 100;
-	    shorten_fraction_2 -= 0.17 * f/100.0;
+	    double theta = delta.theta();
+	    double sc_1 = 0.5 * (1.0 + cos(0.5 * (theta - M_PI_4))); // 0 -> 1
+	    double sc_2 = 0.3 * sc_1;
+	    shorten_fraction_2 -= + (sc_2 - 0.1);
+	    if (false)
+	       std::cout << "N is at_2"
+			 << " delta: " << delta
+			 << " theta " << (180/M_PI) * theta
+			 << " delta-theta " << (180 / M_PI) * (theta - M_PI_4)
+			 << " sc_1 " << sc_1
+			 << std::endl;
 	 }
       }
    }

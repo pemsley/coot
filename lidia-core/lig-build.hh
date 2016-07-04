@@ -133,7 +133,11 @@ namespace lig_build {
       } 
       double lengthsq() const {
 	 return (x*x + y*y);
-      } 
+      }
+      double theta() const {
+	 // down the canvas is positve Y, so we need to correct for that
+	 return atan2(-y,x);
+      }
       static double length(const pos_t &p1, const pos_t &p2) {
 	 double a = (p2.x - p1.x);
 	 double b = (p2.y - p1.y);
