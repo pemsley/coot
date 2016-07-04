@@ -186,7 +186,7 @@ on_clear_toolbutton_clicked(GtkToolButton *button, gpointer user_data) {
    GtkWidget *canvas = get_canvas_from_scrolled_win(GTK_WIDGET(user_data));
    lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (l)
-      l->clear();
+      l->clear(true);
 }
 
 extern "C" G_MODULE_EXPORT void

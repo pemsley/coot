@@ -99,10 +99,15 @@ public:
 				 NULL);
    }
    virtual GooCanvasItem *wrap_goo_canvas_polyline_new_line(GooCanvasItem *root,
-						    double pos_1_x, double pos_1_y,
-						    double pos_2_x, double pos_2_y,
-						    const std::string &key="stroke-color",
-						    const std::string &value="#111111") const { 
+							    double pos_1_x, double pos_1_y,
+							    double pos_2_x, double pos_2_y,
+							    const std::string &key="stroke-color",
+							    const std::string &value="#111111") const {
+
+      // For reasons not clear to me, the default line width is 2 when we get here.
+      // We can force line width here (1.5 is nice) but I'd rather put it on the canvas
+      // root and let this item inherit it from there
+      
       GooCanvasItem *item = 
  	 goo_canvas_polyline_new_line(root, 
  				      pos_1_x, pos_1_y,

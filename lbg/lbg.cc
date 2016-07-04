@@ -706,13 +706,14 @@ lbg_info_t::clear_and_redraw(const lig_build::pos_t &delta) {
       widgeted_molecule_t new_mol = translate_molecule(delta); // and do a canvas update
       translate_residue_circles(delta);
       render_from_molecule(new_mol);
-      update_descriptor_attributes();
+      // std::cout << "calling update_descriptor_attributes() from clear_and_redraw() " << std::endl;
+      // update_descriptor_attributes();
    } else {
       // this path gets called when the "Env Residues" button is pressed.
       // std::cout << "==== delta is zero path ==== " << std::endl;
       widgeted_molecule_t saved_mol = mol;
       render_from_molecule(saved_mol);
-      update_descriptor_attributes();
+      // update_descriptor_attributes();
    }
    draw_all_flev_annotations();
 }
@@ -1126,7 +1127,6 @@ lbg_info_t::update_descriptor_attributes() {
       catch (const std::exception &e) {
 	 std::cout << "WARNING:: from update_descriptor_attributes() " << e.what() << std::endl;
 
-	 // SMILES string
 	 if (lbg_statusbar) { 
 	    std::string status_string;
 	    guint statusbar_context_id =
@@ -1137,6 +1137,7 @@ lbg_info_t::update_descriptor_attributes() {
 	    // QED progress bar
 	    gtk_label_set_text(GTK_LABEL(lbg_qed_text_label), "");
 	    gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
+	    reset_qed_properties_progress_bars();
 	    // alerts
 	    gtk_widget_hide(lbg_alert_hbox);
 	    clear_canvas_alerts();
@@ -2583,7 +2584,7 @@ lbg_info_t::save_togglebutton_widgets(GtkBuilder *builder) {
 // score.
 // 
 void
-lbg_info_t::clear() {
+lbg_info_t::clear(bool do_descriptor_updates) {
 
    clear_canvas();
    // and that clears the alerts group
@@ -2594,7 +2595,9 @@ lbg_info_t::clear() {
    // clear the molecule
    mol.clear();
 
-   update_descriptor_attributes();
+   if (do_descriptor_updates) {
+      update_descriptor_attributes();
+   }
 }
 
 void
@@ -2643,6 +2646,8 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_import_from_smiles_dialog = NULL;
 	 lbg_import_from_smiles_entry = NULL;
 	 lbg_view_rotate_entry = NULL;
+	 for (unsigned int i=0; i<8; i++)
+	    lbg_qed_properties_progressbars[i] = NULL;
 	 canvas = NULL;
 	 return false; // boo.
 
@@ -2684,6 +2689,11 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_search_database_frame =     GTK_WIDGET(gtk_builder_get_object(builder, "lbg_search_database_frame"));
 	 lbg_view_rotate_entry     =     GTK_WIDGET(gtk_builder_get_object(builder, "lbg_view_rotate_entry"));
 
+	 for (unsigned int i=0; i<8; i++) {
+	    std::string name = "qed_properties_" + coot::util::int_to_string(i) + "_progressbar";
+	    lbg_qed_properties_progressbars[i] = GTK_WIDGET(gtk_builder_get_object(builder, name.c_str()));
+	 }
+
 	 gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), "---");
       }
    } 
@@ -2691,12 +2701,8 @@ lbg_info_t::init(GtkBuilder *builder) {
    canvas = goo_canvas_new();
    GTK_WIDGET_SET_FLAGS (canvas, GTK_CAN_FOCUS);
 
-   if (0) {  // hide rdkit stuff
-      GtkWidget *ww = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_qed_and_alert_hbox"));
-      gtk_widget_hide(lbg_flip_rotate_hbox);
-      gtk_widget_hide(lbg_alert_hbox_outer);
-      gtk_widget_hide(ww);
-   }
+   GooCanvasItem *root_item = goo_canvas_get_root_item(GOO_CANVAS(canvas));
+   g_object_set(G_OBJECT(root_item), "line_width", 1.6, NULL); // thank you Damon Chaplin
 
 #ifdef HAVE_CCP4SRS
    gtk_widget_show(lbg_search_database_frame);
@@ -2707,9 +2713,6 @@ lbg_info_t::init(GtkBuilder *builder) {
    if (use_graphics_interface_flag) { 
       gtk_widget_set(GTK_WIDGET(canvas), "bounds-padding", 50.0, NULL);
       gtk_object_set_user_data(GTK_OBJECT(canvas), (gpointer) this);
-      if (0) 
-	 std::cout << ":::::: attached this lbg_info_t pointer to canvas: " << this
-		   << " to " << canvas << std::endl;
    
       save_togglebutton_widgets(builder);
       GtkWidget *lbg_scrolled_win =
@@ -2737,9 +2740,6 @@ lbg_info_t::init(GtkBuilder *builder) {
 
       GooCanvasItem *root_item = goo_canvas_get_root_item(GOO_CANVAS(canvas));
 
-      // std::cout << "................ set lbg-info on root " << root_item << " of canvas"
-      // << canvas << std::endl;
-							  
       g_object_set_data_full(G_OBJECT(root_item), "lbg-info", this, NULL);
       g_signal_connect(G_OBJECT(root_item), "button_press_event",
 		       G_CALLBACK(on_canvas_button_press), NULL);
@@ -2866,6 +2866,8 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
       // non-interesting case first
       gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_progressbar), 0);
       gtk_label_set_text(GTK_LABEL(lbg_qed_text_label), "");
+      std::vector<std::pair<double, double> > dummy; // resets progressbars to 0
+      update_qed_properties(dummy);
    } else {
       bool all_set = false;
       double qed = 0.0;
@@ -2873,6 +2875,13 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
 	 qed = get_qed(silicos_it_qed_default_func, rdkm);
 	 if (qed > 0)
 	    all_set = true;
+
+	 // get the values and their desirabilites (0->1)
+	 std::vector<std::pair<double, double> > properties = 
+	    get_qed_properties(silicos_it_qed_properties_func,
+			       silicos_it_qed_pads, rdkm);
+	 update_qed_properties(properties);
+	 
       } else {
 
 	 // If you are reading this: are you sure that Biscu-it has
@@ -2893,6 +2902,50 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
 #endif
 }
 #endif
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+void
+lbg_info_t::update_qed_properties(const std::vector<std::pair<double, double> > &properties) {
+
+   if (properties.size() == 8) { 
+      for (unsigned int i=0; i<8; i++) {
+	 if (false)
+	    std::cout << "desirability " << i << " "
+		      << properties[i].first << " "
+		      << properties[i].second << " "
+		      << lbg_qed_properties_progressbars[i] << std::endl;
+	 if (properties[i].second >= 0) {
+	    if (properties[i].second <= 1) {
+	       std::string s;
+	       if (i == 2 || i == 3 || i == 5 || i == 6 || i == 7)
+		  s = coot::util::int_to_string(int(properties[i].first));
+	       else
+		  s = coot::util::float_to_string(properties[i].first);
+		  
+	       gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_properties_progressbars[i]),
+					     properties[i].second);
+	       gtk_progress_bar_set_text(GTK_PROGRESS_BAR(lbg_qed_properties_progressbars[i]),
+					 s.c_str());
+					 
+	    }
+	 }
+      }
+   } else {
+      reset_qed_properties_progress_bars();
+   }
+}
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+void
+lbg_info_t::reset_qed_properties_progress_bars() {
+
+   for (unsigned int i=0; i<8; i++) {
+      gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(lbg_qed_properties_progressbars[i]), 0);
+      gtk_progress_bar_set_text(GTK_PROGRESS_BAR(lbg_qed_properties_progressbars[i]), "");
+   }
+}
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 void
@@ -3153,7 +3206,7 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 
 
    make_saves_mutex = 0; // stop saving changes (restored at end)
-   clear();
+   clear(false);
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
    
    int re_index[mol_in.atoms.size()]; // map from mol_in atom indexing
@@ -3270,7 +3323,7 @@ lbg_info_t::undo() {
       render_from_molecule(saved_mol);
       update_descriptor_attributes();
    } else {
-      clear();
+      clear(true);
    } 
 } 
 
@@ -7098,7 +7151,7 @@ lbg_info_t::flip_molecule(int axis) {
    widgeted_molecule_t new_mol = mol;
    new_mol.flip(axis);
    render_from_molecule(new_mol); // wipes mol
-   update_descriptor_attributes();
+   // update_descriptor_attributes();
 }
 
 void
@@ -7107,7 +7160,7 @@ lbg_info_t::rotate_z_molecule(double degrees) {
    widgeted_molecule_t new_mol = mol;
    new_mol.rotate_z(degrees);
    render_from_molecule(new_mol); // wipes mol
-   update_descriptor_attributes();
+   // update_descriptor_attributes();
 }
 
 // in degrees (used in on_lbg_view_rotate_apply_button_clicked
@@ -7163,8 +7216,6 @@ lbg_info_t::pe_test_function() {
    }
 #endif
 
-
-   
 #endif
 }
 
