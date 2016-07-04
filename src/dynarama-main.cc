@@ -86,16 +86,16 @@ void setup_rgb_reps() {
                    << std::endl;
 
       // test:
-//       std::vector<std::string> test_col;
-//       test_col.push_back("blue");
-//       test_col.push_back("orange");
-//       test_col.push_back("magenta");
-//       test_col.push_back("cyan");
+      //       std::vector<std::string> test_col;
+      //       test_col.push_back("blue");
+      //       test_col.push_back("orange");
+      //       test_col.push_back("magenta");
+      //       test_col.push_back("cyan");
 
-//       std::vector<int> iv = r.GetColourNumbers(test_col);
-//       for (int i=0; i<iv.size(); i++) {
-// 	 std::cout << "Colour number: " << i << "  " << iv[i] << std::endl;
-//       }
+      //       std::vector<int> iv = r.GetColourNumbers(test_col);
+      //       for (int i=0; i<iv.size(); i++) {
+      // 	 std::cout << "Colour number: " << i << "  " << iv[i] << std::endl;
+      //       }
 
 
    } else {
@@ -159,6 +159,7 @@ main(int argc, char *argv[]) {
                }
                if (arg_str == "pdbin2") {
                   pdb_file_name2 = optarg;
+                  is_kleywegt_plot_flag = 1;
                   n_used_args += 2;
                }
                if (arg_str == "selection") {
@@ -167,6 +168,7 @@ main(int argc, char *argv[]) {
                }
                if (arg_str == "selection2") {
                   selection2 = optarg;
+                  is_kleywegt_plot_flag = 1;
                   n_used_args += 2;
                }
                if (arg_str == "chain") {
@@ -175,6 +177,7 @@ main(int argc, char *argv[]) {
                }
                if (arg_str == "chain2") {
                   chain_id2 = optarg;
+                  is_kleywegt_plot_flag = 1;
                   n_used_args += 2;
                }
                if (arg_str == "edit") {
@@ -261,7 +264,7 @@ main(int argc, char *argv[]) {
       float block_size = 1;
       int imol = 0; // dummy for now
       int imol2 = 0;
-// FIXME:: usage of imol here and in general for function. As well as asc.
+      // FIXME:: usage of imol here and in general for function. As well as asc.
 
       // edit plot?
       if (edit_res_no > -9999) {
@@ -316,10 +319,11 @@ main(int argc, char *argv[]) {
             g_print("BL WARNING:: problem making phi psi for 2 residues %i and %i\n",
                     edit_res_no, edit_res_no+1);
 
-         } else {
+      } else {
          coot::rama_plot *rama = new coot::rama_plot;
          // normal rama (or kleywy)
          if (is_kleywegt_plot_flag) {
+            g_print("BL DEBUG:: should make kleywegt plot");
             mol2 = mol;
             imol2 = imol + 1;
             if (chain_id.size() == 0 && chain_id2.size() == 0 &&
@@ -334,15 +338,23 @@ main(int argc, char *argv[]) {
             is_kleywegt_plot_flag = 1;
             mol2->ReadPDBASCII(pdb_file_name2.c_str());
             imol2 = imol + 1;
+            // Make a double name
+            pdb_file_name = pdb_file_name + " vs. \n" + pdb_file_name2;
             // what about selections? dont care if given ok,
             // if not then compare Rama of 2 structures
          }
+
          // Now select mols and pass the handle
          // Alternatively: pass the selection string
          // probably better to pass the Handle
          // OR even make a new mol and only work with these
+
          int selHnd = -1;
          int selHnd2 = -1;
+         int nRes;
+         mmdb::PResidue *SelResidue;
+         mmdb::PChain *SelChain;
+
          if (selection.size() > 0) {
             selHnd = mol->NewSelection();
             //selection="//A";
@@ -350,6 +362,27 @@ main(int argc, char *argv[]) {
                         mmdb::STYPE_RESIDUE,
                         selection.c_str(),
                         mmdb::SKEY_NEW);
+            mol->GetSelIndex(selHnd, SelResidue, nRes);
+            g_print("BL DEBUG:: have selection 1: %s with length of selected residues %i\n", selection.c_str(), nRes);
+         } else {
+            if (chain_id.size() > 0) {
+               selHnd = mol->NewSelection();
+               //selection="//A";
+               mol->Select(selHnd,
+                           mmdb::STYPE_RESIDUE,
+                           0,              // any model
+                           chain_id.c_str(),          // chains
+                           mmdb::ANY_RES, "*",
+                           mmdb::ANY_RES, "*", // all residues
+                           // any insertion code
+                           "*",            // any residue name
+                           "*",            // any atom name
+                           "*",           // any chemical element but sulphur
+                           "*",            // any alternative location indicator
+                           mmdb::SKEY_NEW);         // OR-selection
+               mol->GetSelIndex(selHnd, SelResidue, nRes);
+               g_print("BL DEBUG:: have chain 1: %s with length of selected residues %i\n", chain_id.c_str(), nRes);
+            }
          }
          if (selection2.size() > 0) {
             if (mol2) {
@@ -360,14 +393,10 @@ main(int argc, char *argv[]) {
                             selection2.c_str(),
                             mmdb::SKEY_NEW);
             } else {
-               selHnd2 = mol2->NewSelection();
-               //selection2="//A";
-               mol2->Select(selHnd2,
-                            mmdb::STYPE_RESIDUE,
-                            selection2.c_str(),
-                            mmdb::SKEY_NEW);
+               g_print("BL DEBUG:: no mol2, no 2nd selection.");
             }
          }
+
          //         // now make new mol, so that rama has not to deal with anything
          //         mmdb::Manager *mol_rama =
          //               coot::util::create_mmdbmanager_from_atom_selection(mol,
@@ -407,7 +436,7 @@ main(int argc, char *argv[]) {
                }
             }
          } else {
-            g_print("BL DEBUG:: normal plot");
+            g_print("BL DEBUG:: normal plot with selHnd: %i\n", selHnd);
             if (selHnd > -1)
                rama->draw_it(mol, selHnd);
             else {

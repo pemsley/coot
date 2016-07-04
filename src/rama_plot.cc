@@ -326,7 +326,7 @@ coot::rama_plot::init_internal(const std::string &mol_name,
 
       if (is_stand_alone()) {
          gtk_widget_show(rama_open_menuitem);
-         g_print("BL DEBUG:: stadn alone, so show menu open\n");
+         g_print("BL DEBUG:: stand alone, so show menu open\n");
       } else {
          g_print("BL DEBUG:: NOT stand alone, so hide menu open\n");
          gtk_widget_hide(rama_open_menuitem);
@@ -1473,7 +1473,7 @@ coot::rama_plot::generate_phi_psis_by_selection(mmdb::Manager *mol,
 						bool is_primary,
 						int SelectionHandle) {
 
-   if (is_primary) { 
+   if (is_primary) {
       phi_psi_model_sets.clear();
       coot::phi_psis_for_model_t empty(0);
       phi_psi_model_sets.push_back(empty);
@@ -1486,6 +1486,7 @@ coot::rama_plot::generate_phi_psis_by_selection(mmdb::Manager *mol,
    int n_residues;
    mol->GetSelIndex(SelectionHandle, residues, n_residues);
    coot::phi_psis_for_model_t model_phi_psis(1); // model 1.
+   g_print("BL DEBUG:: generating phi psis for %i number of residues\n", n_residues);
    for (int ires=1; ires<(n_residues-1); ires++) {
       mmdb::Residue *res_prev = residues[ires-1];
       mmdb::Residue *res_this = residues[ires];
@@ -1494,21 +1495,22 @@ coot::rama_plot::generate_phi_psis_by_selection(mmdb::Manager *mol,
       std::string chain_id_2 = res_this->GetChainID();
       std::string chain_id_3 = res_next->GetChainID();
       if (chain_id_1 == chain_id_2) {
-	 if (chain_id_2 == chain_id_3) {
-	    try { 
-	       coot::util::phi_psi_t pp(res_prev, res_this, res_next);
-	       coot::residue_spec_t spec(res_this);
-	       model_phi_psis.add_phi_psi(spec, pp);
-	    }
-	    catch (const std::runtime_error rte) {
-	       // nothing bad.
-	    }
-	 }
+         if (chain_id_2 == chain_id_3) {
+            try {
+               coot::util::phi_psi_t pp(res_prev, res_this, res_next);
+               coot::residue_spec_t spec(res_this);
+               model_phi_psis.add_phi_psi(spec, pp);
+            }
+            catch (const std::runtime_error rte) {
+               // nothing bad.
+            }
+         }
       }
    }
-   if (is_primary) 
+   g_print("BL DEBUG:: have model phi psi number %i\n", model_phi_psis.size());
+   if (is_primary)
       phi_psi_model_sets.push_back(model_phi_psis);
-   else 
+   else
       secondary_phi_psi_model_sets.push_back(model_phi_psis);
 }
 
