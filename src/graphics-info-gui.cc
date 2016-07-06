@@ -2102,9 +2102,17 @@ graphics_info_t::other_modelling_tools_unactive_togglebutton(const std::string &
 }
 
 int
-graphics_info_t::wrapped_create_edit_chi_angles_dialog(const std::string &res_type) {
+graphics_info_t::wrapped_create_edit_chi_angles_dialog(const std::string &res_type,
+						       edit_chi_edit_type mode) {
+
+   // mode is either EDIT_CHI or RESIDUE_PARTIAL_ALT_LOCS.
+
 
    GtkWidget *dialog = create_edit_chi_angles_dialog();
+   if (mode == RESIDUE_PARTIAL_ALT_LOCS) {
+      gtk_window_set_title(GTK_WINDOW(dialog), "Add Alternative Conformer Split by Torsion");
+   }
+   
    set_transient_and_position(COOT_EDIT_CHI_DIALOG, dialog);
 
    
@@ -2112,7 +2120,9 @@ graphics_info_t::wrapped_create_edit_chi_angles_dialog(const std::string &res_ty
    // are rotatable torsions:
    //
    GtkWidget *vbox = lookup_widget(dialog,"edit_chi_angles_vbox");
-   int n_boxes = fill_chi_angles_vbox(vbox, res_type);
+
+   std::cout << "calling fill_chi_angles_vbox() with mode " << mode << std::endl;
+   int n_boxes = fill_chi_angles_vbox(vbox, res_type, mode);
 
    // this needs to be deleted when dialog is destroyed, I think,
    // (currently it isn't).
@@ -2152,7 +2162,8 @@ graphics_info_t::clear_out_container(GtkWidget *vbox) {
 
 
 int 
-graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string monomer_type) {
+graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string monomer_type,
+				      edit_chi_edit_type mode) {
 
    int n_non_const_torsions = -1; // unset
 
@@ -2202,8 +2213,11 @@ graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string monomer_type)
 	    gtk_signal_connect(GTK_OBJECT(button), "motion_notify_event",
 			       GTK_SIGNAL_FUNC(on_change_current_chi_motion_notify),
 			       GINT_TO_POINTER(ichi));
-	    int *ichi_ptr = new int(ichi);
-	    gtk_object_set_data(GTK_OBJECT(button), "i_bond_user", ichi_ptr);
+
+	    int int_mode = static_cast<int> (mode);
+	    g_object_set_data(G_OBJECT(button), "i_bond", GINT_TO_POINTER(ichi));
+	    g_object_set_data(G_OBJECT(button), "chi_edit_mode", GINT_TO_POINTER(int_mode));
+	    
 	    gtk_widget_set_name(button, "edit_chi_angles_button");
 	    gtk_box_pack_start(GTK_BOX(vbox), button, FALSE, FALSE, 0);
 	    gtk_container_set_border_width(GTK_CONTAINER(button), 2);
@@ -2225,6 +2239,28 @@ graphics_info_t::on_change_current_chi_button_clicked(GtkButton *button,
    g.edit_chi_current_chi = i + 1;
    g.in_edit_chi_mode_flag = 1;
 
+   int i_mode = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "chi_edit_mode"));
+   edit_chi_edit_type mode = static_cast<edit_chi_edit_type> (i_mode);
+   
+   int i_bond = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "i_bond"));
+   std::cout << "on_change_current_chi_button_clicked "
+	     << g.edit_chi_current_chi << " mode " << mode
+	     << " i_bond " << i_bond << std::endl;
+
+   if (mode == RESIDUE_PARTIAL_ALT_LOCS) {
+      graphics_info_t g;
+      // wag the dog: when true, split the large fragment, not the small one.
+      bool wag_the_dog = false; // test for Ctrl pressed to set true
+
+      // to get access to event, I need to use a callback for button-release
+      // not button clicked
+      // 
+      // if (event->state & GDK_CONTROL_MASK)
+      //    wag_the_dog = true;
+      
+      g.residue_partial_alt_locs_split_residue(i_bond, wag_the_dog);
+      graphics_draw();
+   }
 } 
 
 // static
@@ -2250,19 +2286,39 @@ graphics_info_t::on_change_current_chi_motion_notify(GtkWidget *button, GdkEvent
    int *old_x = (int *) gtk_object_get_data(GTK_OBJECT(button), "old-x");
    int *old_y = (int *) gtk_object_get_data(GTK_OBJECT(button), "old-y");
 
-   int *i_bond_user = (int *) gtk_object_get_data(GTK_OBJECT(button), "i_bond_user");
+   int i_bond = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "i_bond"));
+   int i_mode = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "chi_edit_mode"));
 
-   if (i_bond_user) {  // should be every time 
-   
-      if (old_x && old_y) {
+   edit_chi_edit_type mode = static_cast<edit_chi_edit_type> (i_mode);
+
+   std::cout << "debug:: on_change_current_chi_motion_notify() "
+	     << " i_bond " << i_bond
+	     << " i_mode: " << i_mode
+	     << " mode " << mode << std::endl;
+
+   if (true) {
+         if (old_x && old_y) {
 	 int delta_x = event->x - *old_x;
 	 int delta_y = event->y - *old_y;
- 	 if (abs(delta_y) > abs(delta_x))
-	    if (abs(delta_y) < 20)
- 	    g.setup_flash_bond_internal(*i_bond_user);
+ 	 if (abs(delta_y) > abs(delta_x)) {
+	    if (abs(delta_y) < 20) {
+	       if (mode == EDIT_CHI) 
+		  g.setup_flash_bond_using_moving_atom_internal(i_bond);
+	       if (mode == RESIDUE_PARTIAL_ALT_LOCS)
+		  g.setup_flash_bond(imol_residue_partial_alt_locs,
+				     residue_partial_alt_locs_spec,
+				     i_bond);
+	    }
+	 }
       } else {
 	 // first time entered
-	 g.setup_flash_bond_internal(*i_bond_user);
+	 if (mode == EDIT_CHI)
+	    g.setup_flash_bond_using_moving_atom_internal(i_bond);
+	 if (mode == RESIDUE_PARTIAL_ALT_LOCS) {
+	    g.setup_flash_bond(imol_residue_partial_alt_locs,
+			       residue_partial_alt_locs_spec,
+			       i_bond);
+	 }
       }
       // save current values for next movement
       gtk_object_set_data(GTK_OBJECT(button), "old-x", ex);

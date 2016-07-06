@@ -335,6 +335,12 @@ namespace coot {
       fragment_sizes(const std::string &atom1,
 		     const std::string &atom2,
 		     bool reversed_flag);
+
+      // return a unique set
+      std::vector<int>
+      get_moving_atom_indices(const std::string &atom1,
+			      const std::string &atom2,
+			      bool reversed_flag);
       
       // Rotate round the 2 middle atoms of the torsion by angle (in
       // degress).  This is a relative rotation - not setting the

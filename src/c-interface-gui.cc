@@ -5160,7 +5160,7 @@ void fill_chi_angles_vbox(GtkWidget *vbox) {
 
    graphics_info_t g;
    gchar *strval = (gchar *) gtk_object_get_user_data(GTK_OBJECT(vbox));
-   g.fill_chi_angles_vbox(vbox, strval);
+   g.fill_chi_angles_vbox(vbox, strval, graphics_info_t::EDIT_CHI);
 }
 
 
