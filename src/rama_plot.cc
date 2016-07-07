@@ -499,7 +499,7 @@ coot::rama_plot::basic_white_underlay() {
 				"y1", -180.0,
 				"x2", 180.0,
 				"y2", 180.0,
-				"fill_color", "grey80",
+				"fill_color", "white",
 				"outline_color", "black",
 				NULL);
    
@@ -654,7 +654,7 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
 
    int region = coot::rama_plot::RAMA_UNKNOWN; // initially unset
    
-   std::string outline_color("black");
+   std::string outline_color("DimGray");
 
    if (box_size == 4) {
       draw_green_box(phi_psi.phi(), phi_psi.psi());
@@ -669,7 +669,7 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
 
 	 if (rama.allowed(clipper::Util::d2rad(phi),
 			  clipper::Util::d2rad(psi))) {
-	    colour = "steelblue";
+	    colour = "DodgerBlue";
 	    region = coot::rama_plot::RAMA_ALLOWED;
 	    if (rama.favored(clipper::Util::d2rad(phi),
 			     clipper::Util::d2rad(psi))) {
@@ -688,7 +688,7 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
 	 
 	       if (r_pro.allowed(clipper::Util::d2rad(phi),
 				 clipper::Util::d2rad(psi))) {
-		  colour = "steelblue";
+		  colour = "DodgerBlue";
 		  region = coot::rama_plot::RAMA_ALLOWED;
 		  if (r_pro.favored(clipper::Util::d2rad(phi),
 				    clipper::Util::d2rad(psi))) {
@@ -704,7 +704,7 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
 	       if (r_non_gly_pro.allowed(clipper::Util::d2rad(phi),
 					 clipper::Util::d2rad(psi))) {
 		  region = coot::rama_plot::RAMA_ALLOWED;
-		  colour = "steelblue"; 
+		  colour = "DodgerBlue"; 
 		  if (r_non_gly_pro.favored(clipper::Util::d2rad(phi),
 					    clipper::Util::d2rad(psi))) {
 		     region = coot::rama_plot::RAMA_PREFERRED;
@@ -807,7 +807,7 @@ coot::rama_plot::draw_phi_psi_as_gly(const coot::util::phi_psi_t &phi_psi) {
    double psi = phi_psi.psi();
    
    if (r_gly.allowed(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi))) {
-      colour = "steelblue";
+      colour = "DodgerBlue";
       region = coot::rama_plot::RAMA_ALLOWED;
       if (r_gly.favored(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi))) {
 	 region = coot::rama_plot::RAMA_PREFERRED;
