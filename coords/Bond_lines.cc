@@ -986,7 +986,11 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
 				    residue_atoms[jat]->PutUDData(udd_handle, BONDED_WITH_HETATM_BOND);
 				 }
 				 added_bond = 1; 
-				 break;
+				 // break; // nope! if this is in place: "" - "" is OK
+				 //                                      "A" - "A" is OK
+				 //                                      "A" - "B" is rejected as should be
+				 //                                      "" - "A" is OK
+				 //                             but      "" - "B" is is not considered
 
 			      }
 			   }
