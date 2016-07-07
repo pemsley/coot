@@ -1670,7 +1670,7 @@ namespace lig_build {
 		  if (ele == "S")
 		     txt = "HS";
 		  offset_text_t ot(txt);
-		  ot.tweak = pos_t(-8, 0);
+		  ot.tweak = pos_t(-10, 0);
 		  atom_id_info.add(ot);
 	       } else {
 		  // simple
@@ -1719,7 +1719,7 @@ namespace lig_build {
 		     // H pokes to the left
 		     atom_id_info = atom_id_info_t();
 		     offset_text_t n(std::string("H") + ele);
-		     n.tweak = pos_t(-7,0);
+		     n.tweak = pos_t(-10,0);
 		     atom_id_info.add(n);
 		  } else {
 		     atom_id_info = atom_id_info_t();
