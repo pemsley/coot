@@ -12382,3 +12382,13 @@ on_cfc_dialog_response                 (GtkDialog       *dialog,
    } 
 
 }
+
+
+void
+on_dynarama_outliers_only_togglebutton_toggled (GtkToggleButton *togglebutton,
+						gpointer         user_data)
+{
+   GtkWidget *window = lookup_widget(GTK_WIDGET(togglebutton), "dynarama_window");
+   toggle_dynarama_outliers(window, togglebutton->active); /* get the imol from window */
+}
+

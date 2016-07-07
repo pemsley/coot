@@ -2692,6 +2692,7 @@ void set_go_to_atom_molecule(int imol);
 void unset_go_to_atom_widget(); /* unstore the static go_to_atom_window */
 
 
+
 /* \} */
 
 
