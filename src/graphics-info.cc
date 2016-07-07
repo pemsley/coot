@@ -4053,8 +4053,9 @@ graphics_info_t::execute_edit_chi_angles(int atom_index, int imol) {
 								       whole_res_flag);
 
 	 regularize_object_bonds_box.clear_up();
-   
-	 int ires = wrapped_create_edit_chi_angles_dialog(res_type);
+
+	 edit_chi_edit_type mode = EDIT_CHI;
+	 int ires = wrapped_create_edit_chi_angles_dialog(res_type, mode);
 	 if (ires > 0) { 
 	    std::cout << "Use the 1,2,3,4 keys to select rotamers, 0 for "
 		      << "normal rotation mode" << std::endl;
@@ -4077,6 +4078,15 @@ graphics_info_t::execute_edit_chi_angles(int atom_index, int imol) {
       info_dialog(s); // checks use_graphics_interface_flag
    }
 }
+
+void
+graphics_info_t::residue_partial_alt_locs_split_residue(int i_bond, bool wag_the_dog) {
+
+   if (is_valid_model_molecule(imol_residue_partial_alt_locs)) {
+      molecules[imol_residue_partial_alt_locs].residue_partial_alt_locs_split_residue(residue_partial_alt_locs_spec, i_bond, residue_partial_alt_locs_rotate_fragment_angle, wag_the_dog, geom_p);
+   }
+}
+
 
 void
 graphics_info_t::setup_for_probe_dots_on_chis_molprobity(int imol) {
@@ -4123,7 +4133,7 @@ graphics_info_t::setup_for_probe_dots_on_chis_molprobity(int imol) {
 
 
 void
-graphics_info_t::setup_flash_bond_internal(int i_torsion_index) {
+graphics_info_t::setup_flash_bond_using_moving_atom_internal(int i_torsion_index) {
 
    // turn it off first, only enable it if we find a pair:
    draw_chi_angle_flash_bond_flag = 0; // member data item
@@ -4134,7 +4144,7 @@ graphics_info_t::setup_flash_bond_internal(int i_torsion_index) {
    // 
    if (! moving_atoms_asc) {
       std::cout << "ERROR: moving_atoms_asc is NULL" << std::endl;
-   } else { 
+   } else {
       if (moving_atoms_asc->n_selected_atoms == 0) {
 	 std::cout << "ERROR: no atoms in moving_atoms_asc" << std::endl;
       } else { 
@@ -4211,7 +4221,81 @@ graphics_info_t::add_flash_bond(const std::pair<clipper::Coord_orth, clipper::Co
    draw_chi_angle_flash_bond_flag = 1;
    flash_bond = bond;
 
-} 
+}
+
+// setup and draw
+// 
+void
+graphics_info_t::setup_flash_bond(int imol,
+				  coot::residue_spec_t spec,
+				  int i_bond) {
+
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Residue *residue_p = molecules[imol].get_residue(spec);
+      if (residue_p) {
+	 std::string residue_type = residue_p->GetResName();
+	 std::pair<short int, coot::dictionary_residue_restraints_t> r =
+	    geom_p->get_monomer_restraints(residue_type);
+	 
+	 if (r.first) {
+	    std::vector <coot::dict_torsion_restraint_t> torsion_restraints =
+	       r.second.get_non_const_torsions(find_hydrogen_torsions_flag);
+
+	    if (i_bond >= 0 && i_bond < int(torsion_restraints.size())) {
+
+	       std::pair<std::string, std::string> atom_names;
+	       atom_names.first  = torsion_restraints[i_bond].atom_id_2_4c();
+	       atom_names.second = torsion_restraints[i_bond].atom_id_3_4c();
+		  
+	       if ((atom_names.first != "") && (atom_names.second != "")) {
+		     
+		  mmdb::PPAtom residue_atoms;
+		  int nResidueAtoms;
+		  residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
+		     
+		  if (nResidueAtoms > 0) {
+		     for (int iat1=0; iat1<nResidueAtoms; iat1++) {
+			std::string ra1=residue_atoms[iat1]->name;
+			std::string alt_conf_1 = residue_atoms[iat1]->altLoc;
+			if (ra1 == atom_names.first) {
+			   for (int iat2=0; iat2<nResidueAtoms; iat2++) {
+			      std::string ra2=residue_atoms[iat2]->name;
+			      std::string alt_conf_2 = residue_atoms[iat2]->altLoc;
+			      if (ra2 == atom_names.second) {
+
+				 if (alt_conf_1 == alt_conf_2) { 
+
+				    draw_chi_angle_flash_bond_flag = 1;
+				    clipper::Coord_orth p1(residue_atoms[iat1]->x,
+							   residue_atoms[iat1]->y,
+							   residue_atoms[iat1]->z);
+				    clipper::Coord_orth p2(residue_atoms[iat2]->x,
+							   residue_atoms[iat2]->y,
+							   residue_atoms[iat2]->z);
+
+				    if (false)
+				       std::cout << "flash bond: "
+						 << coot::atom_spec_t(residue_atoms[iat1])
+						 << " - " 
+						 << coot::atom_spec_t(residue_atoms[iat2])
+						 << std::endl;
+
+				    std::pair<clipper::Coord_orth, clipper::Coord_orth> cp(p1, p2);
+				    add_flash_bond(cp);
+				    graphics_draw();
+				 }
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+}
 
 // static
 void graphics_info_t::draw_chi_angles_flash_bond() {
@@ -4228,7 +4312,7 @@ void graphics_info_t::draw_chi_angles_flash_bond() {
 		 graphics_info_t::flash_bond.second.z());
       glEnd();
    }
-} 
+}
 
 
 // ----------------------------------------------------------------------------

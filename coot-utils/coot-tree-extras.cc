@@ -755,6 +755,19 @@ coot::atom_tree_t::get_unique_moving_atom_indices(const std::string &atom1,
 
 }
 
+// give the user access, so that they know which atoms are moving.
+std::vector<int>
+coot::atom_tree_t::get_moving_atom_indices(const std::string &atom1,
+					   const std::string &atom2,
+					   bool reversed_flag) {
+   std::vector<int> r;
+   std::vector<coot::map_index_t> m = get_unique_moving_atom_indices(atom1, atom2, reversed_flag);
+   for (unsigned int i=0; i<m.size(); i++) { 
+      if (m[i].is_assigned())
+	 r.push_back(m[i].index());
+   }
+   return r;
+}
 
 
 // Throw exception on unable to rotate atoms.

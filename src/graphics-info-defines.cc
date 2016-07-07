@@ -270,6 +270,7 @@ graphics_info_t::check_if_in_range_defines(GdkEventButton *event,
    check_if_in_lsq_plane_define(event);
    check_if_in_lsq_plane_deviant_atom_define(event);
    check_if_in_torsion_general_define(event);
+   check_if_in_residue_partial_alt_locs(event);
    check_if_in_fixed_atom_define(event, state);
    check_if_in_base_pairing_define(event);
    check_if_in_multi_residue_torsion_define(event);
@@ -1595,7 +1596,36 @@ graphics_info_t::check_if_in_edit_backbone_torsion_define(GdkEventButton *event)
 	 model_fit_refine_unactive_togglebutton("model_refine_dialog_edit_backbone_torsions_togglebutton");
       }
    } 
-} 
+}
+
+void
+graphics_info_t::check_if_in_residue_partial_alt_locs(GdkEventButton *event) {
+
+   // like edit chi angles 
+   if (in_residue_partial_alt_locs_define) {
+
+      pick_info naii = atom_pick(event);
+      if (naii.success == GL_TRUE) {
+
+	 int imol = naii.imol;
+	 in_residue_partial_alt_locs_define = 0;
+	 pick_pending_flag = 0;
+	 normal_cursor();
+ 	 model_fit_refine_unactive_togglebutton("model_refine_dialog_residue_partial_alt_locs_togglebutton");
+	 moving_atoms_move_chis_flag = 1;
+
+	 imol_residue_partial_alt_locs = imol; // used in setup_flash_bond()
+	 mmdb::Residue *residue_p = molecules[imol].atom_sel.atom_selection[naii.atom_index]->GetResidue();
+	 residue_partial_alt_locs_spec = coot::residue_spec_t(residue_p);
+	 std::string res_type(residue_p->GetResName());
+	 //
+	 edit_chi_edit_type mode = RESIDUE_PARTIAL_ALT_LOCS;
+	 int ires = wrapped_create_edit_chi_angles_dialog(res_type, mode);
+	 
+      }
+   }
+}
+
 
 
 void

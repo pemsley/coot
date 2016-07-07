@@ -754,6 +754,19 @@ void toggle_torsion_general_reverse()  { /* a bool really */
       graphics_info_t::torsion_general_reverse_flag = 1;
 }
 
+void setup_residue_partial_alt_locs(short int state) {
+
+   graphics_info_t g;
+   g.in_residue_partial_alt_locs_define = state;
+   g.pick_cursor_maybe();
+   g.add_status_bar_text("Click on an atom to identify the residue for alt confs");
+
+   std::string cmd = "setup-residue-partial-alt-locs";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(state);
+   add_to_history_typed(cmd, args);
+}
+
 
 int set_show_chi_angle_bond(int imode) {
 
@@ -796,7 +809,7 @@ void set_graphics_edit_current_chi(int ichi) { /* button callback */
       graphics_info_t::in_edit_chi_mode_flag = 0; // off
    } else {
       graphics_info_t::in_edit_chi_mode_flag = 1; // on
-      g.setup_flash_bond_internal(ichi-1);
+      g.setup_flash_bond_using_moving_atom_internal(ichi-1);
    }
 
 }

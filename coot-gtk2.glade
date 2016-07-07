@@ -26834,7 +26834,7 @@ density (too big to be waters):
 	  <property name="spacing">0</property>
 
 	  <child>
-	    <widget class="GtkLabel" id="label134">
+	    <widget class="GtkLabel" id="edit_chi_angles_dialog_edit_mode_label">
 	      <property name="visible">True</property>
 	      <property name="label" translatable="yes">Chi Angles Rotation Mode:</property>
 	      <property name="use_underline">False</property>
