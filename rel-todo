@@ -1,6 +1,10 @@
  
  0.8.4
 
+   o why is sequence view so slow to open now?
+
+     Here is a bad spacing example scan-map/3K1L-DmL.pdb
+
    o Does "Phosphorylate this residue" work in Python mode?
 
    o Fix the python version of the JLigand interface.

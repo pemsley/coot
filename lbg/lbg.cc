@@ -1245,6 +1245,8 @@ lbg_info_t::is_atom_element(int addition_mode) const {
       r = 1;
    if (addition_mode == lbg_info_t::ATOM_P)
       r = 1;
+   if (addition_mode == lbg_info_t::ATOM_H)
+      r = 1;
    if (addition_mode == lbg_info_t::ATOM_F)
       r = 1;
    if (addition_mode == lbg_info_t::ATOM_CL)
@@ -1272,6 +1274,8 @@ lbg_info_t::to_element(int addition_mode) const {
       r = "S";
    if (addition_mode == lbg_info_t::ATOM_P)
       r = "P";
+   if (addition_mode == lbg_info_t::ATOM_H)
+      r = "H";
    if (addition_mode == lbg_info_t::ATOM_F)
       r = "F";
    if (addition_mode == lbg_info_t::ATOM_CL)
