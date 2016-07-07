@@ -2291,39 +2291,38 @@ graphics_info_t::on_change_current_chi_motion_notify(GtkWidget *button, GdkEvent
 
    edit_chi_edit_type mode = static_cast<edit_chi_edit_type> (i_mode);
 
-   std::cout << "debug:: on_change_current_chi_motion_notify() "
-	     << " i_bond " << i_bond
-	     << " i_mode: " << i_mode
-	     << " mode " << mode << std::endl;
+   if (false)
+      std::cout << "debug:: on_change_current_chi_motion_notify() "
+		<< " i_bond " << i_bond
+		<< " i_mode: " << i_mode
+		<< " mode " << mode << std::endl;
 
-   if (true) {
-         if (old_x && old_y) {
-	 int delta_x = event->x - *old_x;
-	 int delta_y = event->y - *old_y;
- 	 if (abs(delta_y) > abs(delta_x)) {
-	    if (abs(delta_y) < 20) {
-	       if (mode == EDIT_CHI) 
-		  g.setup_flash_bond_using_moving_atom_internal(i_bond);
-	       if (mode == RESIDUE_PARTIAL_ALT_LOCS)
-		  g.setup_flash_bond(imol_residue_partial_alt_locs,
-				     residue_partial_alt_locs_spec,
-				     i_bond);
-	    }
-	 }
-      } else {
-	 // first time entered
-	 if (mode == EDIT_CHI)
-	    g.setup_flash_bond_using_moving_atom_internal(i_bond);
-	 if (mode == RESIDUE_PARTIAL_ALT_LOCS) {
-	    g.setup_flash_bond(imol_residue_partial_alt_locs,
-			       residue_partial_alt_locs_spec,
-			       i_bond);
+   if (old_x && old_y) {
+      int delta_x = event->x - *old_x;
+      int delta_y = event->y - *old_y;
+      if (abs(delta_y) > abs(delta_x)) {
+	 if (abs(delta_y) < 20) {
+	    if (mode == EDIT_CHI) 
+	       g.setup_flash_bond_using_moving_atom_internal(i_bond);
+	    if (mode == RESIDUE_PARTIAL_ALT_LOCS)
+	       g.setup_flash_bond(imol_residue_partial_alt_locs,
+				  residue_partial_alt_locs_spec,
+				  i_bond);
 	 }
       }
-      // save current values for next movement
-      gtk_object_set_data(GTK_OBJECT(button), "old-x", ex);
-      gtk_object_set_data(GTK_OBJECT(button), "old-y", ey);
+   } else {
+      // first time entered
+      if (mode == EDIT_CHI)
+	 g.setup_flash_bond_using_moving_atom_internal(i_bond);
+      if (mode == RESIDUE_PARTIAL_ALT_LOCS) {
+	 g.setup_flash_bond(imol_residue_partial_alt_locs,
+			    residue_partial_alt_locs_spec,
+			    i_bond);
+      }
    }
+   // save current values for next movement
+   gtk_object_set_data(GTK_OBJECT(button), "old-x", ex);
+   gtk_object_set_data(GTK_OBJECT(button), "old-y", ey);
 }
 
 
