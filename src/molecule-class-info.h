@@ -3029,13 +3029,17 @@ public:        //                      public
 			const std::string &atom_name,
 			const coot::protein_geometry &geom);
 
-
-
    void update_bonds_using_phenix_geo(const coot::phenix_geo_bonds &b);
 
    void globularize();
 
    bool is_EM_map() const;
+
+   void residue_partial_alt_locs_split_residue(coot::residue_spec_t spec,
+					       int i_bond,
+					       double theta,  // degrees
+					       bool wag_the_dog,
+					       coot::protein_geometry *geom);
    
 };
 

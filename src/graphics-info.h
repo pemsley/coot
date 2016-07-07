@@ -819,6 +819,7 @@ class graphics_info_t {
    void check_if_in_lsq_plane_define(GdkEventButton *event);
    void check_if_in_lsq_plane_deviant_atom_define(GdkEventButton *event);
    void check_if_in_torsion_general_define(GdkEventButton *event);
+   void check_if_in_residue_partial_alt_locs(GdkEventButton *event);
    void check_if_in_base_pairing_define(GdkEventButton *event);
    void check_if_in_multi_residue_torsion_define(GdkEventButton *event);
    void check_if_in_fixed_atom_define(GdkEventButton *event,
@@ -2068,6 +2069,12 @@ public:
    // static int rot_trans_atom_index_rotation_origin_atom; old naive way.
    static mmdb::Atom *rot_trans_rotation_origin_atom; // "Eugene's way"
 
+   static int imol_residue_partial_alt_locs;
+   static short int in_residue_partial_alt_locs_define;
+   static coot::residue_spec_t residue_partial_alt_locs_spec;
+   void residue_partial_alt_locs_split_residue(int i_bond, bool wag_the_dog);
+   static double residue_partial_alt_locs_rotate_fragment_angle;
+
    static short int in_user_defined_define; 
 
    // save symmetry?
@@ -3092,9 +3099,11 @@ public:
    static bool      edit_chi_angles_reverse_fragment; 
    static coot::atom_spec_t chi_angles_clicked_atom_spec;
    void execute_edit_chi_angles(int atom_index, int imol);
-   int wrapped_create_edit_chi_angles_dialog(const std::string &res_type);
+   enum edit_chi_edit_type { UNSET, EDIT_CHI, RESIDUE_PARTIAL_ALT_LOCS};
+   int wrapped_create_edit_chi_angles_dialog(const std::string &res_type, 
+					     edit_chi_edit_type mode);
    // used by above:
-   int fill_chi_angles_vbox(GtkWidget *vbox, std::string res_type);
+   int fill_chi_angles_vbox(GtkWidget *vbox, std::string res_type, edit_chi_edit_type mode);
    void clear_out_container(GtkWidget *vbox);
    static std::string chi_angle_alt_conf;
 
@@ -3117,7 +3126,9 @@ public:
 						   GdkEventMotion *event);
 
    static short int moving_atoms_move_chis_flag;
-   void setup_flash_bond_internal(int ibond);
+   void setup_flash_bond_using_moving_atom_internal(int ibond);
+
+   void setup_flash_bond(int imol, coot::residue_spec_t residue_spec, int i_bond);
 
    //! angle in degrees.
    void rotate_chi(double x, double y); // a 'callback' from the

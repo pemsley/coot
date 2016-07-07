@@ -2086,13 +2086,16 @@ coot::protein_geometry::filter_torsion_restraints(const std::vector <coot::dict_
    for (unsigned int i=0; i<restraints_in.size(); i++) {
       std::string a2 = restraints_in[i].atom_id_2_4c();
       std::string a3 = restraints_in[i].atom_id_3_4c();
-      bool match = 0;
+      bool match = false;
       for (unsigned int j=0; j<r.size(); j++) {
 	 if (r[j].atom_id_2_4c() == a2)
 	    if (r[j].atom_id_3_4c() == a3)
-	       match = 1;
+	       match = true;
+	 if (r[j].atom_id_2_4c() == a3)
+	    if (r[j].atom_id_3_4c() == a2)
+	       match = true;
       }
-      if (match == 0)
+      if (! match)
 	 r.push_back(restraints_in[i]);
    }
 

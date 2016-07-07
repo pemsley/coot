@@ -810,7 +810,6 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 
    // ------------------------------------ Conformer -----------------------------
    
-   RDKit::Conformer *conf = new RDKit::Conformer(m.getNumAtoms());
    conf->set3D(true);
    unsigned int n_added = 0;
    for (unsigned int iat=0; iat<r.atom_info.size(); iat++) {

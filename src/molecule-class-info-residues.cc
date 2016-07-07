@@ -1794,3 +1794,151 @@ molecule_class_info_t::invert_chiral_centre(const std::string &chain_id, int res
 									new_restraints);
 
 }
+
+void
+molecule_class_info_t::residue_partial_alt_locs_split_residue(coot::residue_spec_t spec,
+							      int i_bond,
+							      double theta, // degrees
+							      bool wag_the_dog,
+							      coot::protein_geometry *geom_p) {
+
+   mmdb::Residue *residue_p = get_residue(spec);
+   if (residue_p) {
+      bool found = false;
+      std::string residue_type = residue_p->GetResName();
+      std::pair<short int, coot::dictionary_residue_restraints_t> r =
+	 geom_p->get_monomer_restraints(residue_type);
+	 
+      if (r.first) {
+	 bool find_hydrogen_torsions_flag = false;
+	 std::vector <coot::dict_torsion_restraint_t> torsion_restraints =
+	    r.second.get_non_const_torsions(find_hydrogen_torsions_flag);
+
+	 if (i_bond >= 0 && i_bond < int(torsion_restraints.size())) {
+
+	    std::pair<std::string, std::string> atom_names;
+	    atom_names.first  = torsion_restraints[i_bond].atom_id_2_4c();
+	    atom_names.second = torsion_restraints[i_bond].atom_id_3_4c();
+	    if ((atom_names.first != "") && (atom_names.second != "")) {
+	       mmdb::PPAtom residue_atoms;
+	       int nResidueAtoms;
+	       residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
+	       if (nResidueAtoms > 0) {
+		  for (int iat1=0; iat1<nResidueAtoms; iat1++) {
+		     std::string ra1=residue_atoms[iat1]->name;
+		     if (ra1 == atom_names.first) {
+			std::string alt_conf = residue_atoms[iat1]->altLoc;
+
+			if (alt_conf.empty()) { // don't split an already-split residue
+			   
+			   for (int iat2=0; iat2<nResidueAtoms; iat2++) {
+			      std::string ra2=residue_atoms[iat2]->name;
+			      if (ra2 == atom_names.second) {
+
+				 // OK we have both atoms.
+				 // now create new atoms and spin them around the bond
+				 found = true;
+
+				 std::string monomer_type = residue_p->GetResName();
+				 atom_selection_container_t residue_asc; // refactor: make a constructor
+				 residue_asc.n_selected_atoms = nResidueAtoms;
+				 residue_asc.atom_selection = residue_atoms;
+				 residue_asc.mol = 0;
+				 coot::contact_info contact = coot::getcontacts(residue_asc, monomer_type, geom_p);
+				 // contact.print(); // debug
+				 // std::vector<std::vector<int> > contact_indices = contact.get_contact_indices();
+				 // or this?
+				 std::vector<std::vector<int> > contact_indices =
+				    contact.get_contact_indices_with_reverse_contacts();
+
+				 if (false) { // debug - we needed reverse contacts
+				    std::cout << "-------- contact_indices ------" << std::endl;
+				    for (unsigned int ii=0; ii<contact_indices.size(); ii++) { 
+				       for (unsigned int jj=0; jj<contact_indices[ii].size(); jj++) { 
+					  std::cout << ii << "   " << contact_indices[ii][jj] << " ";
+				       }
+				       std::cout << std::endl;
+				    }
+				 }
+
+				 int base_atom_index = 0;
+
+				 try { 
+				    // 
+				    coot::atom_tree_t tree(contact_indices, base_atom_index, residue_p, alt_conf);
+
+				    bool reverse_fragment = false;
+				    std::pair<unsigned int, unsigned int> sizes = tree.fragment_sizes(ra1, ra2, false);
+
+				    // rotate the smallest fragment by default
+				    if (sizes.first > sizes.second)
+				       reverse_fragment = true;
+
+				    // now consider user input:
+				    if (wag_the_dog)
+				       reverse_fragment = !reverse_fragment;
+
+
+				    // we want to make a copy of the atoms before they were moved so that we can
+				    // set the alt conf and position of them when we make a copy
+				    std::vector<std::pair<mmdb::Atom *, clipper::Coord_orth> > atom_store;
+				    std::vector<int> moving_atoms =
+				       tree.get_moving_atom_indices(ra1, ra2, reverse_fragment);
+				    for (unsigned int ii=0; ii<moving_atoms.size(); ii++) {
+				       mmdb::Atom *at = residue_atoms[moving_atoms[ii]];
+				       clipper::Coord_orth co = coot::co(at);
+				       std::pair<mmdb::Atom *, clipper::Coord_orth> p(at, co);
+				       atom_store.push_back(p);
+				    }
+				    tree.rotate_about(ra1, ra2, theta, reverse_fragment);
+				 
+				    if (atom_store.size()) {
+				       make_backup();
+				       std::cout << "These are the moving atoms: " << std::endl;
+				       for (unsigned int ii=0; ii<atom_store.size(); ii++) {
+					  std::cout << "here 0 " << ii << " of " << atom_store.size() << std::endl;
+					  mmdb::Atom *at = atom_store[ii].first;
+					  const clipper::Coord_orth &pos = atom_store[ii].second;
+					  if (true)
+					     std::cout << "   " << coot::atom_spec_t(at) << std::endl;
+					  strcpy(at->altLoc, "A");
+					  at->occupancy = 0.5;
+					  mmdb::Atom *at_B = new mmdb::Atom;
+					  *at_B = *at;
+					  at_B->SetCoordinates(pos.x(), pos.y(), pos.z(), 0.5, at->tempFactor);
+					  strcpy(at_B->altLoc, "B");
+					  std::cout << "adding atom " << at_B << std::endl;
+					  residue_p->AddAtom(at_B);
+					  std::cout << "done adding atom " << at_B << std::endl;
+				       }
+
+				       have_unsaved_changes_flag = 1;
+				       atom_sel.mol->FinishStructEdit();
+				       atom_sel = make_asc(atom_sel.mol);
+				       make_bonds_type_checked();
+				    }
+				 }
+
+				 catch (const std::runtime_error &rte) {
+				    std::cout << "ERROR:: runtime_error: " << rte.what() << std::endl;
+				 }
+				 catch (const std::exception &rte) {
+				    std::cout << "ERROR:: exception: " << rte.what() << std::endl;
+				 }
+			      }
+			      if (found)
+				 break;
+			   }
+			   if (found)
+			      break;
+			}
+		     }
+		     if (found)
+			break;
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+}

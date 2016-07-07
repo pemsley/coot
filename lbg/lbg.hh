@@ -969,7 +969,7 @@ public:
       
    // toggle button modes, mutually exclusive
    enum { NONE, TRIANGLE, SQUARE, PENTAGON, HEXAGON, HEXAGON_AROMATIC, HEPTAGON, OCTAGON,
-	  ATOM_C, ATOM_N, ATOM_O, ATOM_S, ATOM_P, ATOM_F, ATOM_CL, ATOM_I, ATOM_BR, ATOM_X,
+	  ATOM_C, ATOM_N, ATOM_O, ATOM_H, ATOM_S, ATOM_P, ATOM_F, ATOM_CL, ATOM_I, ATOM_BR, ATOM_X,
 	  CHARGE, ADD_SINGLE_BOND, ADD_DOUBLE_BOND, ADD_TRIPLE_BOND, ADD_STEREO_OUT_BOND,
 	  DELETE_MODE};
 #if ( ( (GTK_MAJOR_VERSION == 2) && (GTK_MINOR_VERSION > 11) ) || GTK_MAJOR_VERSION > 2)
@@ -1008,6 +1008,7 @@ public:
    GtkWidget *lbg_show_alerts_checkbutton; 
    GtkWidget *lbg_get_drug_dialog;
    GtkWidget *lbg_get_drug_entry;
+   GtkWidget *lbg_get_drug_menuitem;
    GtkWidget *lbg_flip_rotate_hbox;
    GtkWidget *lbg_clean_up_2d_toolbutton;
    GtkWidget *lbg_search_database_frame;

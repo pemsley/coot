@@ -2692,6 +2692,7 @@ void set_go_to_atom_molecule(int imol);
 void unset_go_to_atom_widget(); /* unstore the static go_to_atom_window */
 
 
+
 /* \} */
 
 
@@ -5134,6 +5135,8 @@ void set_edit_chi_angles_reverse_fragment_state(short int istate);
 void setup_torsion_general(short int state);
 /* No need for this to be exported to scripting */
 void toggle_torsion_general_reverse();
+
+void setup_residue_partial_alt_locs(short int state);
 
 /* \} */
 

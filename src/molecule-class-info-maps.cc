@@ -587,6 +587,8 @@ molecule_class_info_t::draw_solid_density_surface(bool do_flat_shading) {
 	 coot::Cartesian back  = unproject(1.0);
 
 	 glEnable(GL_LIGHTING);
+	 glEnable(GL_LIGHT0); 
+	 glEnable(GL_LIGHT1); 
 	 glEnable(GL_LIGHT2); // OK, for maps
 	 glEnable (GL_BLEND);
 	 glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); 

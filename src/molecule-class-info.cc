@@ -7871,7 +7871,7 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 }
 
 
-// return a non-null string on a problem
+// return a non-empty string on a problem
 // 
 std::string
 molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,

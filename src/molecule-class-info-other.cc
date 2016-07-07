@@ -1110,7 +1110,7 @@ molecule_class_info_t::delete_residue_hydrogens(const std::string &chain_id, int
 		     mmdb::PPAtom residue_atoms;
 		     int nResidueAtoms;
 		     res->GetAtomTable(residue_atoms, nResidueAtoms);
-		     for (unsigned int iat=0; iat<nResidueAtoms; iat++) {
+		     for (int iat=0; iat<nResidueAtoms; iat++) {
 			std::string ele(residue_atoms[iat]->element);
 			if (ele == " H") {
 			   residue_has_hydrogens = 1;
@@ -1251,11 +1251,12 @@ molecule_class_info_t::delete_residue_with_full_spec(int imodel,
 				    res->DeleteAtom(i);
 				    was_deleted = 1;
 				 }
-                 // delete pointer if all atoms were deleted
-                 // should probably delete res too!?
-                 if (deleted_atom.size() == n_atoms) {
-                    residue_for_deletion = NULL;
-                 }
+				 // delete pointer if all atoms were deleted
+				 // should probably delete res too!?
+				 unsigned int ui_n_atoms = n_atoms;
+				 if (deleted_atom.size() == ui_n_atoms) {
+				    residue_for_deletion = NULL;
+				 }
 			      }
 			   }
 			}
@@ -2457,7 +2458,7 @@ coot::goto_residue_string_info_t::goto_residue_string_info_t(const std::string &
       std::string::size_type l = goto_residue_string.length();
       std::string number_string = "";
       std::string chain_id_string = ""; 
-      for (int i=0; i<l; i++) { 
+      for (std::string::size_type i=0; i<l; i++) { 
 	 if (coot::util::is_number(goto_residue_string[i])) {
 	    number_string += goto_residue_string[i];
 	    res_no_is_set = true;
@@ -2752,7 +2753,7 @@ molecule_class_info_t::res_name_from_serial_number(std::string chain_id, unsigne
 	 mmdb::Chain *chain_p = atom_sel.mol->GetChain(1,ichain);
 	 std::string mol_chain_id(chain_p->GetChainID());
 	 if (mol_chain_id == std::string(chain_id)) {
-	    int nres = chain_p->GetNumberOfResidues();
+	    unsigned int nres = chain_p->GetNumberOfResidues();
 	    if (serial_number < nres) {
 	       int ch_n_res;
 	       mmdb::PResidue *residues;
@@ -3294,7 +3295,7 @@ molecule_class_info_t::get_clash_score(const coot::minimol::molecule &a_rotamer)
 		     bool is_standard_aa = false;
 		     if (coot::util::is_standard_residue_name(residue_name))
 			is_standard_aa = true;
-		     for (int iat=0; iat<a_rotamer[ifrag][ires].n_atoms(); iat++) {
+		     for (unsigned int iat=0; iat<a_rotamer[ifrag][ires].n_atoms(); iat++) {
 			d_atom = clipper::Coord_orth::length(a_rotamer[ifrag][ires][iat].pos, atom_sel_atom);
 			if (d_atom < dist_crit) {
 			   int atom_sel_atom_resno = atom_sel.atom_selection[i]->GetSeqNum();
@@ -5096,7 +5097,7 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 
             // BL says:: some  mild hacking, but we need to return a proper state and the added chains
             istat = 0;
-            for (int i=0; i<add_state.second.size(); i++) {
+            for (unsigned int i=0; i<add_state.second.size(); i++) {
                resulting_chain_ids.push_back(add_state.second[i]);
             }
 	    if (add_state.first) { 
@@ -5547,7 +5548,7 @@ molecule_class_info_t::renumber_residue_range_old(const std::string &chain_id,
 	 int iser = -1; // unset
 
 	 int chain_n_residues = chain_p_active->GetNumberOfResidues();
-	 for (unsigned int ichres=0; ichres<chain_n_residues; ichres++) {
+	 for (int ichres=0; ichres<chain_n_residues; ichres++) {
 	    mmdb::Residue *ch_res = chain_p_active->GetResidue(ichres);
 	    int ch_res_seq_num = ch_res->GetSeqNum();
 	    std::string ch_res_ins_code = ch_res->GetInsCode();
@@ -8085,7 +8086,7 @@ void
 molecule_class_info_t::draw_dots() {
 
    if (draw_it) { 
-      for (int iset=0; iset<dots.size(); iset++) {
+      for (unsigned int iset=0; iset<dots.size(); iset++) {
 	 if (dots[iset].is_open_p() == 1) {
 	    glPointSize(2);
 	    unsigned int n_atoms = dots[iset].points.size();

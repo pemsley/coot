@@ -2114,7 +2114,8 @@ namespace coot {
       // return a pair, the first is status (1 if the name was found, 0 if not)
       // 
       std::pair<bool, std::string> get_monomer_name(const std::string &comp_id) const;
-      
+
+      // return 2-3 filtered torsions
       std::vector <dict_torsion_restraint_t>
       get_monomer_torsions_from_geometry(const std::string &monomer_type);
       std::vector <dict_chiral_restraint_t>
@@ -2122,6 +2123,7 @@ namespace coot {
 
       // as above, except filter out of the returned vectors torsions
       // that move (or are based on) hydrogens.
+      // return 2-3 filtered torsions
       // 
       std::vector <dict_torsion_restraint_t>
       get_monomer_torsions_from_geometry(const std::string &monomer_type, 

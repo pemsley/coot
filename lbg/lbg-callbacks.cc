@@ -118,6 +118,11 @@ on_sulfur_toggle_toolbutton_toggled(GtkToggleToolButton *button, gpointer user_d
 }
 
 extern "C" G_MODULE_EXPORT void
+on_hydrogen_toggle_toolbutton_toggled(GtkToggleToolButton *button, gpointer user_data) {
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_handle_toggle_button(button, canvas, lbg_info_t::ATOM_H);
+}
+extern "C" G_MODULE_EXPORT void
 on_oxygen_toggle_toolbutton_toggled(GtkToggleToolButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_handle_toggle_button(button, canvas, lbg_info_t::ATOM_O);

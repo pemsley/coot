@@ -265,6 +265,7 @@ class rama_plot {
 					   double worldx, double worldy,
 					   bool is_secondary) const;
 
+   bool draw_outliers_only;
    
 public:
 
@@ -430,8 +431,10 @@ public:
       if (model_no < phi_psi_model_sets.size())
 	 r = phi_psi_model_sets[model_no];
       return r;
-   } 
-
+   }
+   
+   void show_outliers_only(mmdb::Manager *mol, int state);
+   
    void debug() const; 
 
    void destroy_yourself();

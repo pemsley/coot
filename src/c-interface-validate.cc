@@ -1631,6 +1631,26 @@ resize_rama_canvas(GtkWidget *widget, GdkEventConfigure *event) {
 
 }
 
+
+void toggle_dynarama_outliers(GtkWidget *window, int state) {
+
+#if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
+   int imol = get_mol_from_dynarama(window);
+   GtkWidget *canvas = lookup_widget(GTK_WIDGET(window), "canvas");
+   if (canvas) { 
+      coot::rama_plot * plot = (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(canvas));
+      if (plot) {
+	 if (is_valid_model_molecule(imol)) {
+	    mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	    if (mol) {
+	       plot->show_outliers_only(mol, state);
+	    }
+	 } 
+      }
+   }
+#endif // HAVE_GTK_CANVAS   
+}
+
 // ----------------------------------------------------------------------------------
 //                            Alignment
 // ----------------------------------------------------------------------------------

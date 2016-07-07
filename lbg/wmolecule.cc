@@ -348,6 +348,7 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
 	    double theta = delta.theta();
 	    // I want sc_1 to maximize at theta = -45 degrees (bond from NE corner)
 	    double sc_1 = 0.5 * (1.0 + cos(0.5 * (theta - M_PI_4))); // 0 -> 1
+	    sc_1 *= sc_1; // sharpen
 	    double sc_2 = 0.3 * sc_1;
 	    shorten_fraction_1 -= + (sc_2 - 0.1);
 	    if (false)
@@ -365,6 +366,7 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
 	    lig_build::pos_t delta = at_1.atom_position - at_2.atom_position;
 	    double theta = delta.theta();
 	    double sc_1 = 0.5 * (1.0 + cos(0.5 * (theta - M_PI_4))); // 0 -> 1
+	    sc_1 *= sc_1;
 	    double sc_2 = 0.3 * sc_1;
 	    shorten_fraction_2 -= + (sc_2 - 0.1);
 	    if (false)

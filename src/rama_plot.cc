@@ -151,7 +151,7 @@ coot::rama_plot::init_internal(const std::string &mol_name,
    fixed_font_str = "monospace";
 #endif
 
-   GtkWidget *app1 = create_dynarama_window ();
+   GtkWidget *app1 = create_dynarama_window();
    if (hide_buttons == 1) {
       GtkWidget *w;
       w = lookup_widget(app1, "dynarama_ok_button");
@@ -222,6 +222,8 @@ coot::rama_plot::init_internal(const std::string &mol_name,
    setup_internal(level_prefered, level_allowed); 
    step = step_in;
    kleywegt_plot_uses_chain_ids = 0;
+
+   draw_outliers_only = false;
 
    green_box = coot::util::phi_psi_t(-999, -999, "", "", 0, "", ""); // set unsensible phi phi initially.
    setup_canvas(); 
@@ -430,7 +432,8 @@ coot::rama_plot::display_background() {
              	              // colour = "PaleGoldenrod";
 	    colour = "khaki";
 
-	    cell_border(int(i), int(j), int(step));
+	    // let's get rid of this procheck-alike thing
+	    // cell_border(int(i), int(j), int(step));
 	    item = gtk_canvas_item_new(gtk_canvas_root(canvas),
 					 GTK_CANVAS_TYPE_CANVAS_RECT,
 					 "x1", i+0.0,
@@ -460,8 +463,10 @@ coot::rama_plot::display_background() {
 	    colour = "red";
 	    colour = "pink";
 	    colour = "HotPink";
+	    colour = "LightPink";
 
-	    cell_border(int(i), int(j), int(step));
+	    // let's get rid of this procheck-alike thing
+	    // cell_border(int(i), int(j), int(step));
 	    item = gtk_canvas_item_new(gtk_canvas_root(canvas),
 					 GTK_CANVAS_TYPE_CANVAS_RECT,
 					 "x1", i+0.0,
@@ -494,7 +499,7 @@ coot::rama_plot::basic_white_underlay() {
 				"y1", -180.0,
 				"x2", 180.0,
 				"y2", 180.0,
-				"fill_color", "grey80",
+				"fill_color", "grey90",
 				"outline_color", "black",
 				NULL);
    
@@ -635,7 +640,7 @@ int
 coot::rama_plot::draw_phi_psi_point(const coot::util::phi_psi_t &phi_psi,
 				    bool as_white_flag) {
 
-   return draw_phi_psi_point_internal(phi_psi, as_white_flag, 2); 
+   return draw_phi_psi_point_internal(phi_psi, as_white_flag, 2);
 }
 
 int 
@@ -643,9 +648,13 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
 					     bool as_white_flag,
 					     int box_size) {
 
+   if (false)
+      std::cout << "draw_phi_psi_point_internal() called with draw_outliers_only "
+		<< draw_outliers_only << std::endl;
+
    int region = coot::rama_plot::RAMA_UNKNOWN; // initially unset
    
-   std::string outline_color("black");
+   std::string outline_color("DimGray");
 
    if (box_size == 4) {
       draw_green_box(phi_psi.phi(), phi_psi.psi());
@@ -660,7 +669,7 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
 
 	 if (rama.allowed(clipper::Util::d2rad(phi),
 			  clipper::Util::d2rad(psi))) {
-	    colour = "blue";
+	    colour = "DodgerBlue";
 	    region = coot::rama_plot::RAMA_ALLOWED;
 	    if (rama.favored(clipper::Util::d2rad(phi),
 			     clipper::Util::d2rad(psi))) {
@@ -679,7 +688,7 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
 	 
 	       if (r_pro.allowed(clipper::Util::d2rad(phi),
 				 clipper::Util::d2rad(psi))) {
-		  colour = "blue";
+		  colour = "DodgerBlue";
 		  region = coot::rama_plot::RAMA_ALLOWED;
 		  if (r_pro.favored(clipper::Util::d2rad(phi),
 				    clipper::Util::d2rad(psi))) {
@@ -695,7 +704,7 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
 	       if (r_non_gly_pro.allowed(clipper::Util::d2rad(phi),
 					 clipper::Util::d2rad(psi))) {
 		  region = coot::rama_plot::RAMA_ALLOWED;
-		  colour = "blue"; 
+		  colour = "DodgerBlue"; 
 		  if (r_non_gly_pro.favored(clipper::Util::d2rad(phi),
 					    clipper::Util::d2rad(psi))) {
 		     region = coot::rama_plot::RAMA_PREFERRED;
@@ -706,16 +715,20 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
 	       }
 	    }
 	 }
-	 GtkCanvasItem *item = gtk_canvas_item_new(gtk_canvas_root(canvas),
-						   GTK_CANVAS_TYPE_CANVAS_RECT,
-						   "x1", phi-box_size,
-						   "y1",-psi-box_size,
-						   "x2", phi+box_size,
-						   "y2",-psi+box_size,
-						   "fill_color", colour.c_str(),
-						   "outline_color", outline_color.c_str(),
-						   NULL);
-	 canvas_item_vec.push_back(item);
+
+	 if ((draw_outliers_only && region == RAMA_OUTLIER) ||
+	     ! draw_outliers_only) {
+	    GtkCanvasItem *item = gtk_canvas_item_new(gtk_canvas_root(canvas),
+						      GTK_CANVAS_TYPE_CANVAS_RECT,
+						      "x1", phi-box_size,
+						      "y1",-psi-box_size,
+						      "x2", phi+box_size,
+						      "y2",-psi+box_size,
+						      "fill_color", colour.c_str(),
+						      "outline_color", outline_color.c_str(),
+						      NULL);
+	    canvas_item_vec.push_back(item);
+	 }
       }
    }
 
@@ -794,7 +807,7 @@ coot::rama_plot::draw_phi_psi_as_gly(const coot::util::phi_psi_t &phi_psi) {
    double psi = phi_psi.psi();
    
    if (r_gly.allowed(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi))) {
-      colour = "blue";
+      colour = "steelblue";
       region = coot::rama_plot::RAMA_ALLOWED;
       if (r_gly.favored(clipper::Util::d2rad(phi), clipper::Util::d2rad(psi))) {
 	 region = coot::rama_plot::RAMA_PREFERRED;
@@ -818,13 +831,16 @@ coot::rama_plot::draw_phi_psi_as_gly(const coot::util::phi_psi_t &phi_psi) {
    points->coords[6] =  phi;
    points->coords[7] = -psi-3;
 
-   item = gtk_canvas_item_new(gtk_canvas_root(canvas),
-				GTK_CANVAS_TYPE_CANVAS_LINE,
-				"width_pixels", 2, 
-				"points", points,
-				"fill_color", colour.c_str(),
-				NULL); 
-   canvas_item_vec.push_back(item);
+   if ((draw_outliers_only && region == RAMA_OUTLIER) ||
+       ! draw_outliers_only) {
+      item = gtk_canvas_item_new(gtk_canvas_root(canvas),
+				 GTK_CANVAS_TYPE_CANVAS_LINE,
+				 "width_pixels", 2, 
+				 "points", points,
+				 "fill_color", colour.c_str(),
+				 NULL);
+      canvas_item_vec.push_back(item);
+   }
    gtk_canvas_points_free(points);
 
    return region;
@@ -871,7 +887,7 @@ coot::rama_plot::draw_phi_psi_points_for_model(const coot::phi_psis_for_model_t 
 void
 coot::rama_plot::generate_phi_psis(mmdb::Manager *mol_in) {
    if (mol_in) { 
-      bool is_primary = 1;
+      bool is_primary = true;
       generate_phi_psis(mol_in, is_primary);
    }
 }
@@ -1516,7 +1532,7 @@ coot::rama_plot::draw_it(mmdb::Manager *mol) {
       display_background();
       draw_axes();
       draw_zero_lines(); 
-      generate_phi_psis(mol);
+      generate_phi_psis(mol, true);
       coot::rama_stats_container_t counts = draw_phi_psi_points();
       counts_to_stats_frame(counts);
    }
@@ -2320,6 +2336,15 @@ coot::rama_plot::debug() const {
    std::cout << "ramadebug: is phi_psi_sets.size " << phi_psi_model_sets.size() << std::endl;
    std::cout << "ramadebug: allow_seqnum_offset_flag " << allow_seqnum_offset_flag << std::endl;
    //    std::cout << "ramadebug: is " << << std::endl;
+}
+
+void
+coot::rama_plot::show_outliers_only(mmdb::Manager *mol, int state) {
+   // draw_it(mol, state);
+
+   draw_outliers_only = state;
+   // std::cout << " in show_outliers_only() with state " << state << std::endl;
+   all_plot(clipper::Ramachandran::NonGlyPro5); // seems reasonable
 }
 
 
