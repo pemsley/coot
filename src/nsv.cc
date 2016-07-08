@@ -72,7 +72,7 @@ exptl::nsv::nsv(mmdb::Manager *mol,
    GtkWidget *top_lev = gtk_dialog_new();
    gtk_object_set_data(GTK_OBJECT(top_lev), "nsv_dialog", top_lev);
    GtkWidget *vbox = GTK_DIALOG(top_lev)->vbox;
-   canvas = GNOME_CANVAS(gnome_canvas_new_aa());
+   canvas = GNOME_CANVAS(gnome_canvas_new()); // gnome_canvas_new_aa() is very slow
    GtkWidget *name_label = gtk_label_new(molecule_name.c_str());
    gtk_box_pack_start(GTK_BOX(vbox), name_label, FALSE, FALSE, 1);
    scrolled_window = gtk_scrolled_window_new(NULL, NULL);
@@ -132,17 +132,13 @@ exptl::nsv::on_nsv_dialog_destroy (GtkObject *obj,
    set_sequence_view_is_displayed(0, imol);
 } 
 
-
+#include "utils/win-compat.hh"
 
 void
 exptl::nsv::setup_canvas(mmdb::Manager *mol) {
 
-#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
-   fixed_font_str = "monospace";
-#else
-   fixed_font_str = "fixed";
-   fixed_font_str = "Sans 9";
-#endif
+   fixed_font_str = coot::get_fixed_font();
+
    pixels_per_letter = 10; // 10 for my F10 box
    pixels_per_chain  = 12;
 
@@ -153,13 +149,6 @@ exptl::nsv::setup_canvas(mmdb::Manager *mol) {
    
    if (! mol)
       return;
-
-#ifdef HAVE_GTK_CANVAS
-   gnome_canvas_init();
-#endif
-
-
-   
 
    std::vector<chain_length_residue_units_t> rcv = get_residue_counts(mol);
    if (rcv.size() > 0) {
@@ -205,6 +194,11 @@ exptl::nsv::setup_canvas(mmdb::Manager *mol) {
 	 // 
 	 std::map <std::string, std::pair<int, int> > chain_id_graph_map;
 
+	 
+	 // x_offset below.
+	 // double resno_range_max_d = double(points_max + x_offset)/double(pixels_per_letter);
+	 // int resno_range_max = int(resno_range_max_d);
+
 	 // 100 is good for 2 chains
 	 // 
 
@@ -218,7 +212,7 @@ exptl::nsv::setup_canvas(mmdb::Manager *mol) {
 	 // the size of the canvas (e.g. long chain, we see only part
 	 // of it at one time).
 
-	 if (debug) { 
+	 if (debug) {
 	    std::cout << "DEBUG:: in setup_canvas(), total_res_range: " << total_res_range
 		      << " canvas_x_size " << canvas_x_size << " and canvas_y_size "
 		      << canvas_y_size << std::endl;
@@ -292,7 +286,6 @@ exptl::nsv::setup_canvas(mmdb::Manager *mol) {
 	 origin_marker();
 	 draw_axes(rcv, lowest_resno, biggest_res_number, x_offset);
 	 mol_to_canvas(mol, lowest_resno, x_offset);
-	 
 
       } else {
 	 std::cout << "Some residues have insertion codes, this is not coded for"
@@ -327,14 +320,19 @@ exptl::nsv::regenerate(mmdb::Manager *mol) {
 } 
 
 void
-exptl::nsv::chain_to_canvas(mmdb::Chain *chain_p, int position_number, int lowest_resno, double x_offset) {
+exptl::nsv::chain_to_canvas(mmdb::Chain *chain_p, int chain_position_number, int lowest_resno, double x_offset) {
 
    int nres = chain_p->GetNumberOfResidues();
    GtkCanvasItem *item;
 
+   std::cout << "calling add_text_and_rect() for ires range " << nres << std::endl;
    for (int ires=0; ires<nres; ires++) {
       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-      add_text_and_rect(residue_p, position_number, lowest_resno, x_offset);  // adds items to canvas_item_vec
+
+      std::cout << "residue serial " << ires << " of " << nres << " "
+		<< coot::residue_spec_t(residue_p) << std::endl;
+      add_text_and_rect(residue_p, chain_position_number,
+			lowest_resno, x_offset);  // adds items to canvas_item_vec
    }
 
    // now the chain label:
@@ -344,13 +342,15 @@ exptl::nsv::chain_to_canvas(mmdb::Chain *chain_p, int position_number, int lowes
    // On jackal it needs to be more left? Why? The font is wider?
    // How do I check the font width?
    x -= 10 + x_offset;
-   double y = -pixels_per_chain * position_number - 6;
+   double y = -pixels_per_chain * chain_position_number - 6;
+
    item = gnome_canvas_item_new(gnome_canvas_root(canvas),
 				GNOME_TYPE_CANVAS_TEXT,
 				"text", chain_label.c_str(),
 				"x", x,
 				"y", y,
 				"anchor", GTK_ANCHOR_WEST,
+				"fill_color", "#111111",
 				"font", fixed_font_str.c_str(),
 				NULL);
    canvas_item_vec.push_back(item);
@@ -359,22 +359,22 @@ exptl::nsv::chain_to_canvas(mmdb::Chain *chain_p, int position_number, int lowes
 
 bool
 exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
-			      int position_number,
+			      int chain_position_number,
 			      int lowest_resno,
 			      double x_offset) {
 
    bool too_wide = false;
-   if (residue_p) { 
+   if (residue_p) {
       mmdb::Atom *at = coot::util::intelligent_this_residue_mmdb_atom(residue_p);
       coot::atom_spec_t at_spec(at);
       std::string res_code =
 	 coot::util::three_letter_to_one_letter_with_specials(residue_p->GetResName());
       std::string colour = "black";
       double x = (residue_p->GetSeqNum() - lowest_resno + 1) * pixels_per_letter - x_offset;
-      double y = - pixels_per_chain * position_number - 6;
+      double y = - pixels_per_chain * chain_position_number - 6;
       
       exptl::nsv::spec_and_object *so = 
-	 new exptl::nsv::spec_and_object(molecule_number, at_spec, position_number);
+	 new exptl::nsv::spec_and_object(molecule_number, at_spec, chain_position_number);
       
       // It seems that I don't need the following, the letter seems to
       // be being clicked even if we click off the actual black of the
@@ -400,6 +400,7 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
       
       if (x1 < points_max) { 
 	 GtkCanvasItem *rect_item;
+
 	 rect_item = gnome_canvas_item_new(gnome_canvas_root(canvas),
 					 GNOME_TYPE_CANVAS_RECT,
 					 "x1", x1,
@@ -416,6 +417,9 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
 
 	 GtkCanvasItem *text_item;
 	 std::string colour = colour_by_secstr(residue_p);
+	 if (false)
+	    std::cout << "drawing text for res " << coot::residue_spec_t(residue_p) << " "
+		      << res_code << " " << x << " " << y << std::endl;
 	 text_item = gnome_canvas_item_new(gnome_canvas_root(canvas),
 					 GNOME_TYPE_CANVAS_TEXT,
 					 "text", res_code.c_str(),
@@ -430,6 +434,8 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
 	 canvas_item_vec.push_back(text_item);
       } else {
 	 too_wide = true;
+	 std::cout << "too wide x1 " << x1 << " "
+		   << coot::residue_spec_t(residue_p) << std::endl;
       }
    }
    return too_wide;

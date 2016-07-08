@@ -19,10 +19,12 @@
 
   o CHANGE:  Improved lighting when displaying solid objects
 
+  o CHANGE:  Typsetting improvements in lidia
+
   o BUG-FIX: set the suggested file name in the classic dialog on saving 
              coordinates [Andy Purkiss, Arnaud Basle]
 
-  o BUG-FIX: Typsetting improvements for Oxygen atoms in lidia
+  o BUG-FIX: Setting the formal charge in lidia now works properly
 
   o BUG-FIX: correct wrapper for findligand and findwaters [Kuan-Fu Gabriel Lin]
 
