@@ -325,12 +325,8 @@ exptl::nsv::chain_to_canvas(mmdb::Chain *chain_p, int chain_position_number, int
    int nres = chain_p->GetNumberOfResidues();
    GtkCanvasItem *item;
 
-   std::cout << "calling add_text_and_rect() for ires range " << nres << std::endl;
    for (int ires=0; ires<nres; ires++) {
       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-
-      std::cout << "residue serial " << ires << " of " << nres << " "
-		<< coot::residue_spec_t(residue_p) << std::endl;
       add_text_and_rect(residue_p, chain_position_number,
 			lowest_resno, x_offset);  // adds items to canvas_item_vec
    }
