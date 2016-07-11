@@ -12,6 +12,8 @@
 
   o FEATURE: chemical feature clustering (import cfc_ligand_sites)
 
+  o FEATURE: Ramachandran plot now has a "Outliers Only" mode
+
   o CHANGE:  fill-partial-residue now works with ROTAMERSEARCHLOWRES rather than
              ROTAMERSEARCHHIGHRES.
 

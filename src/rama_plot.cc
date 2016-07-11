@@ -1256,18 +1256,46 @@ coot::rama_plot::mouse_point_check_internal(const coot::phi_psis_for_model_t &ph
    double diff1x, diff1y;
    double smallest_diff = 999999; 
    for (it=phi_psi_set.phi_psi.begin(); it!=phi_psi_set.phi_psi.end(); it++) {
-      diff1x = fabs(it->second.phi() - worldx); 
-      diff1y = fabs(it->second.psi() + worldy);
-      if ((diff1x < 3) && (diff1y < 3)) {
-	 if ((diff1x+diff1y) < smallest_diff) {
-	    t.spec = it->first;
-	    t.model_number = imod;
+
+      if (!draw_outliers_only || (draw_outliers_only && is_outlier(it->second))) {
+	 diff1x = fabs(it->second.phi() - worldx);
+	 diff1y = fabs(it->second.psi() + worldy);
+	 if ((diff1x < 3) && (diff1y < 3)) {
+	    if ((diff1x+diff1y) < smallest_diff) {
+	       t.spec = it->first;
+	       t.model_number = imod;
+	    }
 	 }
       }
    }
    t.mouse_over_secondary_set = is_secondary;
    return t;
-} 
+}
+
+bool
+coot::rama_plot::is_outlier(const coot::util::phi_psi_t &phi_psi) const {
+
+   bool r = false;
+
+   double phi = clipper::Util::d2rad(phi_psi.phi());
+   double psi = clipper::Util::d2rad(phi_psi.psi());
+   if (phi_psi.residue_name() == "GLY") {
+      if (! r_gly.allowed(phi, psi))
+	 if (! r_gly.favored(phi, psi))
+	    r = true;
+   } else {
+      if (phi_psi.residue_name() == "PRO") {
+	 if (! r_pro.allowed(phi, psi))
+	    if (! r_pro.favored(phi, psi))
+	       r = true;
+      } else {
+	 if (! rama.allowed(phi, psi))
+	    if (! rama.favored(phi, psi))
+	       r = true;
+      }
+   }
+   return r;
+}
 
 
 coot::mouse_util_t
