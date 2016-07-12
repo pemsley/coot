@@ -563,6 +563,8 @@ GtkWidget *dynarama_is_displayed_state(int imol);
 /*  return -1 on error. */
 int get_mol_from_dynarama(GtkWidget *window);
 
+void toggle_dynarama_outliers(GtkWidget *window, int state);
+
 
 /* FIXME before release! */
 /* gcc ... -O2 -MT callbacks.o -MD -MP -MF .deps/callbacks.Tpo -c -o callbacks.o ../../coot/src/callbacks.c */

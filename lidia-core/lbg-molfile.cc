@@ -100,9 +100,10 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
       }
    }
 
-   for (unsigned int i=0; i<lines.size(); i++) { 
-      std::cout << ":" << lines[i] << std::endl;
-   }
+   if (false) // screen output debugging
+      for (unsigned int i=0; i<lines.size(); i++)
+	 std::cout << ":" << lines[i] << std::endl;
+
    std::cout << "File \"" << file_name << "\" contained " << lines.size()
 	     << " lines " << std::endl;
 
@@ -136,12 +137,12 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
 	    try {
 	       n_chirals = lig_build::string_to_int(n_chirals_string);
 	    }
-	    catch (std::runtime_error rte) {
+	    catch (const std::runtime_error &rte) {
 	       // std::cout << rte.what() << std::endl; often happens that
 	       // "   " cannot be converted to int.
 	    }
 	 }
-	 std::cout << "n_chirals: " << n_chirals << std::endl;
+	 // std::cout << "n_chirals: " << n_chirals << std::endl;
       }
 
       // atom block:
@@ -188,7 +189,7 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
 	       if (l> 11) {
 		  std::string stereo_bond_string = lines[i].substr( 9,3);
 		  stereo_bond = lig_build::string_to_int(stereo_bond_string);
-	       } 
+	       }
 	       
 	       int index_1   = lig_build::string_to_int(index_1_string);
 	       int index_2   = lig_build::string_to_int(index_2_string);
@@ -203,6 +204,8 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
 		     lig_build::molfile_bond_t bond(index_1-1, index_2-1, bt);
 		     if (stereo_bond != 0) {
 			// something interesting
+			// std::cout << "atoms " << index_1 << " " << index_2
+			// << " stereo_bond: " << stereo_bond << std::endl;
 			if (stereo_bond == 6)
 			   bond.bond_type = lig_build::bond_t::IN_BOND;
 			if (stereo_bond == 1)
@@ -215,7 +218,7 @@ lig_build::molfile_molecule_t::read(const std::string &file_name) {
 		  }
 	       }
 	    }
-	    catch (std::runtime_error rte) {
+	    catch (const std::runtime_error &rte) {
 	       std::cout << rte.what() << std::endl; 
 	    }
 	 } 

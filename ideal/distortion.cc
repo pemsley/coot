@@ -195,8 +195,8 @@ coot::geometry_distortion_info_container_t::print() const {
 	    
       if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
 	 n_restraints_chirals++;
-	 double chiral_limit = 10.0;  // arbitrons
-	 chiral_limit = 0.0;
+	 double chiral_limit = 2.0;  // (based on histogram of CVs of A chain of tutorial.)
+	 // chiral_limit = 0.0;
 	 if (geometry_distortion[i].distortion_score > chiral_limit) {
 	    mmdb::Atom *at_c = atom[rest.atom_index_centre];
 	    mmdb::Atom *at_1 = atom[rest.atom_index_1];

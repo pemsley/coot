@@ -6770,6 +6770,8 @@ create_dynarama_window (void)
   GtkWidget *dynarama_label;
   GtkWidget *dynarama_scrolledwindow;
   GtkWidget *dynarama_viewport;
+  GtkWidget *hbox437;
+  GtkWidget *dynarama_outliers_only_togglebutton;
   GtkWidget *rama_stats_frame;
   GtkWidget *rama_stats_vbox;
   GtkWidget *rama_stats_label_1;
@@ -6812,6 +6814,16 @@ create_dynarama_window (void)
   gtk_widget_set_name (dynarama_viewport, "dynarama_viewport");
   gtk_widget_show (dynarama_viewport);
   gtk_container_add (GTK_CONTAINER (dynarama_scrolledwindow), dynarama_viewport);
+
+  hbox437 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_set_name (hbox437, "hbox437");
+  gtk_widget_show (hbox437);
+  gtk_box_pack_start (GTK_BOX (dynarama_vbox), hbox437, FALSE, FALSE, 4);
+
+  dynarama_outliers_only_togglebutton = gtk_toggle_button_new_with_mnemonic (_("Outliers Only"));
+  gtk_widget_set_name (dynarama_outliers_only_togglebutton, "dynarama_outliers_only_togglebutton");
+  gtk_widget_show (dynarama_outliers_only_togglebutton);
+  gtk_box_pack_end (GTK_BOX (hbox437), dynarama_outliers_only_togglebutton, FALSE, FALSE, 0);
 
   rama_stats_frame = gtk_frame_new (NULL);
   gtk_widget_set_name (rama_stats_frame, "rama_stats_frame");
@@ -6914,6 +6926,9 @@ create_dynarama_window (void)
   g_signal_connect ((gpointer) dynarama_window, "destroy",
                     G_CALLBACK (on_dynarama_window_destroy),
                     NULL);
+  g_signal_connect ((gpointer) dynarama_outliers_only_togglebutton, "toggled",
+                    G_CALLBACK (on_dynarama_outliers_only_togglebutton_toggled),
+                    NULL);
   g_signal_connect ((gpointer) dynarama_ok_button, "clicked",
                     G_CALLBACK (on_dynarama_ok_button_clicked),
                     NULL);
@@ -6927,6 +6942,8 @@ create_dynarama_window (void)
   GLADE_HOOKUP_OBJECT (dynarama_window, dynarama_label, "dynarama_label");
   GLADE_HOOKUP_OBJECT (dynarama_window, dynarama_scrolledwindow, "dynarama_scrolledwindow");
   GLADE_HOOKUP_OBJECT (dynarama_window, dynarama_viewport, "dynarama_viewport");
+  GLADE_HOOKUP_OBJECT (dynarama_window, hbox437, "hbox437");
+  GLADE_HOOKUP_OBJECT (dynarama_window, dynarama_outliers_only_togglebutton, "dynarama_outliers_only_togglebutton");
   GLADE_HOOKUP_OBJECT (dynarama_window, rama_stats_frame, "rama_stats_frame");
   GLADE_HOOKUP_OBJECT (dynarama_window, rama_stats_vbox, "rama_stats_vbox");
   GLADE_HOOKUP_OBJECT (dynarama_window, rama_stats_label_1, "rama_stats_label_1");
@@ -15211,7 +15228,7 @@ create_edit_chi_angles_dialog (void)
   GtkWidget *edit_chi_angles_dialog;
   GtkWidget *dialog_vbox37;
   GtkWidget *vbox98;
-  GtkWidget *label134;
+  GtkWidget *edit_chi_angles_dialog_edit_mode_label;
   GtkWidget *scrolledwindow9;
   GtkWidget *viewport5;
   GtkWidget *edit_chi_angles_vbox;
@@ -15253,12 +15270,12 @@ create_edit_chi_angles_dialog (void)
   gtk_widget_show (vbox98);
   gtk_box_pack_start (GTK_BOX (dialog_vbox37), vbox98, TRUE, TRUE, 0);
 
-  label134 = gtk_label_new (_("Chi Angles Rotation Mode:"));
-  gtk_widget_set_name (label134, "label134");
-  gtk_widget_show (label134);
-  gtk_box_pack_start (GTK_BOX (vbox98), label134, FALSE, FALSE, 0);
-  gtk_label_set_justify (GTK_LABEL (label134), GTK_JUSTIFY_CENTER);
-  gtk_misc_set_padding (GTK_MISC (label134), 2, 7);
+  edit_chi_angles_dialog_edit_mode_label = gtk_label_new (_("Chi Angles Rotation Mode:"));
+  gtk_widget_set_name (edit_chi_angles_dialog_edit_mode_label, "edit_chi_angles_dialog_edit_mode_label");
+  gtk_widget_show (edit_chi_angles_dialog_edit_mode_label);
+  gtk_box_pack_start (GTK_BOX (vbox98), edit_chi_angles_dialog_edit_mode_label, FALSE, FALSE, 0);
+  gtk_label_set_justify (GTK_LABEL (edit_chi_angles_dialog_edit_mode_label), GTK_JUSTIFY_CENTER);
+  gtk_misc_set_padding (GTK_MISC (edit_chi_angles_dialog_edit_mode_label), 2, 7);
 
   scrolledwindow9 = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_set_name (scrolledwindow9, "scrolledwindow9");
@@ -15412,7 +15429,7 @@ create_edit_chi_angles_dialog (void)
   GLADE_HOOKUP_OBJECT_NO_REF (edit_chi_angles_dialog, edit_chi_angles_dialog, "edit_chi_angles_dialog");
   GLADE_HOOKUP_OBJECT_NO_REF (edit_chi_angles_dialog, dialog_vbox37, "dialog_vbox37");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, vbox98, "vbox98");
-  GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, label134, "label134");
+  GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, edit_chi_angles_dialog_edit_mode_label, "edit_chi_angles_dialog_edit_mode_label");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, scrolledwindow9, "scrolledwindow9");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, viewport5, "viewport5");
   GLADE_HOOKUP_OBJECT (edit_chi_angles_dialog, edit_chi_angles_vbox, "edit_chi_angles_vbox");

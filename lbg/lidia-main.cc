@@ -36,6 +36,15 @@
 #include <iomanip>
 #include <algorithm>
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include <RDGeneral/versions.h>
+#include <RDGeneral/FileParseException.h>
+#include <RDGeneral/BadFileException.h>
+#include <GraphMol/FileParsers/FileParsers.h>
+#ifdef USE_PYTHON
+#include <boost/python.hpp>
+#endif
+#endif
 
 #include <cairo.h>
 #if CAIRO_HAS_PDF_SURFACE
@@ -71,10 +80,13 @@ main(int argc, char *argv[]) {
    lig_build::molfile_molecule_t mm;
    mmdb::Manager *mol = NULL; // no atom names to transfer
 
-   if (argc > 1) {
-      std::string file_name(argv[1]);
-      mm.read(file_name);
-   }
+   // don't use my mol reader here, use the RDKit one after we have started lbg.
+   // Currently command line file reading is disabled then.
+   
+//    if (argc > 1) {
+//       std::string file_name(argv[1]);
+//       mm.read(file_name);
+//    }
 
    bool stand_alone_flag = 1;
    bool use_graphics = 1;

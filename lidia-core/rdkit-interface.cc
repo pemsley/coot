@@ -502,7 +502,6 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
     std::vector<std::vector<int> > ring_info;
     RDKit::MolOps::findSSSR(m, ring_info);
 
-    
     if (debug) {
        // what's the ring info then?
        RDKit::RingInfo* ring_info_p = m.getRingInfo();
@@ -549,7 +548,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
                 << "number of atoms comparison added_atom names size: " 
                 << added_atom_names.size() << " vs m.getNumAtoms() " 
 	        << m.getNumAtoms() << std::endl;
-   // RDKit::Conformer *conf = new RDKit::Conformer(added_atom_names.size());
+
    RDKit::Conformer *conf = new RDKit::Conformer(m.getNumAtoms());
    conf->set3D(true);
       
@@ -673,6 +672,32 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
       }
    }
 
+   // 20160702 add atoms to a conformer
+   RDKit::Conformer *conf = new RDKit::Conformer(m.getNumAtoms());
+   conf->set3D(true);
+   for (unsigned int iat=0; iat<r.atom_info.size(); iat++) { 
+      try {
+	 if (r.atom_info[iat].pdbx_model_Cartn_ideal.first) {
+	    RDGeom::Point3D pos(r.atom_info[iat].pdbx_model_Cartn_ideal.second.x(),
+				r.atom_info[iat].pdbx_model_Cartn_ideal.second.y(),
+				r.atom_info[iat].pdbx_model_Cartn_ideal.second.z());
+	    conf->setAtomPos(iat, pos);
+	 } else {
+	    if (r.atom_info[iat].model_Cartn.first) {
+	       RDGeom::Point3D pos(r.atom_info[iat].model_Cartn.second.x(),
+				   r.atom_info[iat].model_Cartn.second.y(),
+				   r.atom_info[iat].model_Cartn.second.z());
+	       conf->setAtomPos(iat, pos);
+	    }
+	 }
+      }
+      catch (const std::exception &rte) {
+	 std::cout << rte.what() << std::endl;
+      }
+   }
+   m.addConformer(conf);
+
+   
    // ------------------------------------ Bonds -----------------------------
 
    std::map<std::string, int>::const_iterator it_1;
@@ -711,6 +736,8 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
       }
    }
 
+   set_3d_conformer_state(&m);
+
    bool debug = false;
    if (debug)
       std::cout << "---------------------- calling assign_formal_charges() -----------"
@@ -720,6 +747,7 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
    if (debug)
       std::cout << "---------------------- getting ring info findSSSR() -----------"
 		<< std::endl;
+   
    std::vector<std::vector<int> > ring_info;
    RDKit::MolOps::findSSSR(m, ring_info);
 
@@ -784,25 +812,30 @@ coot::rdkit_mol_sanitize(RDKit::RWMol &mol) {
 void
 coot::set_3d_conformer_state(RDKit::RWMol *mol) {
 
-   if (mol) { 
+   if (mol) {
       for (unsigned int iconf=0; iconf<mol->getNumConformers(); iconf++) { 
 	 RDKit::Conformer &conf = mol->getConformer(iconf);
 	 int n_atoms = conf.getNumAtoms();
-	 bool zero_z = true;
+	 bool all_zero_z = true;
 	 for (int iat=0; iat<n_atoms; iat++) { 
 	    RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
 	    if ((r_pos.z < -0.01) || (r_pos.z > 0.01)) {
-	       zero_z = false;
+	       all_zero_z = false;
 	       break;
 	    }
 	 }
-	 if (zero_z) {
+	 if (all_zero_z) {
+	    // std::cout << "conformer " << iconf << " set 3d false" << std::endl;
 	    conf.set3D(false);
+	 } else {
+	    // std::cout << "conformer " << iconf << " set 3d true" << std::endl;
+	    conf.set3D(true);
 	 }
+	 // std::cout << "conformer " << iconf << " is3D(): " << conf.is3D() << std::endl;
       }
    } else {
       std::cout << "WARNING:: in set_3d_conformer_state() null mol " << std::endl;
-   } 
+   }
 }
 
 // e.g. reading from a MolFile
@@ -1939,7 +1972,7 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
                           // distance matrix is generated.  Should this
 			  // be passed?
 
-   int n_conf  = rdk_mol->getNumConformers();
+   unsigned int n_conf  = rdk_mol->getNumConformers();
    if (n_conf == 0) {
       std::cout << "WARNING:: no conformers in add_2d_conformer() - aborting"
 		<< std::endl;

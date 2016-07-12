@@ -244,6 +244,7 @@ public:
    void update_atom_id_forced(const lig_build::atom_id_info_t &atom_id_info_in,
 			      const std::string &fc, 
 			      GooCanvasItem *root) {
+
       set_atom_id(atom_id_info_in.atom_id);
       GooCanvasItem *text_item = make_canvas_text_item(atom_id_info_in, fc, root);
       update_canvas_item(text_item, root);

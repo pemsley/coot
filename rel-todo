@@ -1,18 +1,15 @@
  
  0.8.4
 
+   o why is sequence view so slow to open now?
+
+     Here is a bad spacing example scan-map/3K1L-DmL.pdb
+
+   o Does "Phosphorylate this residue" work in Python mode?
+
+   o Fix the python version of the JLigand interface.
+
    o fix up hydrogenize and flev interface
-
-   o ligand distortions represenation (vs dictionary) should be in "Ligand" 
-     menu
-
-   o Display Ligand Distortrions for 3GP.
-
-   o repair 72A with alt conf and Sphere refine it.
-
-
-   o when you fail to read a pdb file, it should not then go on to try
-     to read it as a small molecule cif if it does not exist.
 
    o does map scrolling work after running refmac (or via ligand check, perhaps)?
 
@@ -27,17 +24,8 @@
    o Can you make recent file work with coot - saving/reading the
      local recent files file?
 
-   o Does "Phosphorylate this residue" work in Python mode?
-
-   o Fix the python version of the JLigand interface.
-
    o Make the "failed to read PDB file" info available from the GUI -
      a pop-up or so.
-
-   o Why is "k" - fill sidechain so slow? (fixed now with 
-     forced ROTAMERMODELOWRES).
-
-* Done?
 
 
    o Coot crashed:
@@ -635,4 +623,27 @@ INFO:: restraints for "" were replaced
    o read unmerged data from pdbx. e.g.?
 
 * Punt
+
+   o ligand distortions represenation (vs dictionary) should be in "Ligand" 
+     menu
+
+* Done
+
+   o Display Ligand Distortrions for 3GP.
+
+* Looks fine - what did I mean?
+
+   o repair 72A with alt conf and Sphere refine it.
+
+* Done.
+
+   o when you fail to read a pdb file, it should not then go on to try
+     to read it as a small molecule cif if it does not exist.
+
+* Punt
+
+   o Why is "k" - fill sidechain so slow? (fixed now with 
+     forced ROTAMERMODELOWRES).
+
+* Done?
 

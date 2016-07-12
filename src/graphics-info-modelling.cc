@@ -1748,8 +1748,8 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) {
 
    /* Atom picking has happened. Actually do it */
 
-   mmdb::Atom *atom1;
-   mmdb::Atom *atom2;
+   mmdb::Atom *atom1 = NULL;
+   mmdb::Atom *atom2 = NULL;
 
    int ires1;  // set according to auto_range_flag
    int ires2;
@@ -1805,14 +1805,17 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) {
    std::string altconf = atom1->altLoc;
    bool select_altconf = true; // only when refining a single ligand/residue or both atom
                                // have the same alt conf that is non-blank.
-   if (ires1 != ires2) {
-      std::string alt_conf_1 = atom1->altLoc;
-      std::string alt_conf_2 = atom2->altLoc;
-      if (alt_conf_1 != alt_conf_2) {
-	 select_altconf = false;
-      } else {
-	 if (alt_conf_1.empty())
+
+   if (atom1 && atom2) { 
+      if (ires1 != ires2) {
+	 std::string alt_conf_1 = atom1->altLoc;
+	 std::string alt_conf_2 = atom2->altLoc;
+	 if (alt_conf_1 != alt_conf_2) {
 	    select_altconf = false;
+	 } else {
+	    if (alt_conf_1.empty())
+	       select_altconf = false;
+	 }
       }
    }
    

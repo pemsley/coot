@@ -120,12 +120,11 @@
       (begin
 	
 	(let* ((nshl (non-standard-residue-names imol))
-	       (ext (apply string-append (lambda (item)
-					   (string-append item "-"))
-			   nshl))
+	       (ext (apply string-append (map (lambda (item)
+						(string-append item "-"))
+					      nshl)))
 	       (reduce-het-dict-file-name (string-append 
 					   "coot-molprobity/reduce-het-dict" ext ".txt")))
-
 
 	  (write-reduce-het-dict imol reduce-het-dict-file-name)
 

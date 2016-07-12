@@ -693,6 +693,11 @@ int graphics_info_t::torsion_general_atom_index_2_mol_no = -1;
 int graphics_info_t::torsion_general_atom_index_3_mol_no = -1;
 int graphics_info_t::torsion_general_atom_index_4_mol_no = -1;
 short int graphics_info_t::in_edit_torsion_general_flag = 0;
+short int graphics_info_t::in_residue_partial_alt_locs_define = 0;
+int graphics_info_t::imol_residue_partial_alt_locs = 0;
+coot::residue_spec_t graphics_info_t::residue_partial_alt_locs_spec;
+double graphics_info_t::residue_partial_alt_locs_rotate_fragment_angle = 40; // degrees
+
 std::vector<coot::atom_spec_t> graphics_info_t::torsion_general_atom_specs;
 bool graphics_info_t::torsion_general_reverse_flag = 0;
 Tree graphics_info_t::torsion_general_tree; 
@@ -1027,7 +1032,7 @@ coot::rama_plot  *graphics_info_t::edit_phi_psi_plot = NULL;
 #endif // HAVE_GTK_CANVAS
 float graphics_info_t::rama_level_prefered = 0.02;
 float graphics_info_t::rama_level_allowed = 0.002;
-float graphics_info_t::rama_plot_background_block_size = 10; // divisible into 360 preferably.
+float graphics_info_t::rama_plot_background_block_size = 6; // divisible into 360 preferably.
 coot::ramachandran_points_container_t graphics_info_t::rama_points = coot::ramachandran_points_container_t();
 
 ramachandrans_container_t graphics_info_t::ramachandrans_container = ramachandrans_container_t();
@@ -2625,7 +2630,7 @@ gint glarea_motion_notify (GtkWidget *widget, GdkEventMotion *event) {
 	       }
 	    }
 	    if (info.in_edit_torsion_general_flag) {
-	       if (info.in_edit_chi_mode_view_rotate_mode) { 
+	       if (info.in_edit_chi_mode_view_rotate_mode) {
 		  local_rotate_view_mode = 1;
 	       } else {
 		  info.rotate_chi_torsion_general(x,y);
@@ -3244,7 +3249,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_KP_1:
       if (graphics_info_t::moving_atoms_move_chis_flag) { 
          graphics_info_t g;
-         g.setup_flash_bond_internal(0);
+         g.setup_flash_bond_using_moving_atom_internal(0);
 	 graphics_info_t::edit_chi_current_chi = 1;
 	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
       }
@@ -3254,7 +3259,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_KP_2:
       if (graphics_info_t::moving_atoms_move_chis_flag) { 
          graphics_info_t g;
-         g.setup_flash_bond_internal(1);
+         g.setup_flash_bond_using_moving_atom_internal(1);
 	 graphics_info_t::edit_chi_current_chi = 2;
 	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
       }
@@ -3264,7 +3269,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_KP_3:
       if (graphics_info_t::moving_atoms_move_chis_flag) { 
          graphics_info_t g;
-         g.setup_flash_bond_internal(2);
+         g.setup_flash_bond_using_moving_atom_internal(2);
 	 graphics_info_t::edit_chi_current_chi = 3;
 	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
       } else { 
@@ -3276,7 +3281,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_KP_4:
       if (graphics_info_t::moving_atoms_move_chis_flag) { 
          graphics_info_t g;
-         g.setup_flash_bond_internal(3);
+         g.setup_flash_bond_using_moving_atom_internal(3);
 	 graphics_info_t::edit_chi_current_chi = 4;
 	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
       }
@@ -3286,7 +3291,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_KP_5:
       if (graphics_info_t::moving_atoms_move_chis_flag) { 
          graphics_info_t g;
-         g.setup_flash_bond_internal(4);
+         g.setup_flash_bond_using_moving_atom_internal(4);
 	 graphics_info_t::edit_chi_current_chi = 5;
 	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
       }
@@ -3296,7 +3301,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    case GDK_KP_6:
       if (graphics_info_t::moving_atoms_move_chis_flag) { 
          graphics_info_t g;
-         g.setup_flash_bond_internal(5);
+         g.setup_flash_bond_using_moving_atom_internal(5);
 	 graphics_info_t::edit_chi_current_chi = 6;
 	 graphics_info_t::in_edit_chi_mode_flag = 1; // on
       }

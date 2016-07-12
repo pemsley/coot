@@ -186,6 +186,8 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 
       set_have_unit_cell_flag_maybe();
 
+      add_molecular_symmetry_matrices(); // process REMARK 350 BIOMT[123]
+
       if (molecule_is_all_c_alphas()) {
 	 ca_representation();
       } else {
@@ -2364,10 +2366,15 @@ molecule_class_info_t::display_symmetry_bonds() {
 			 << isn << " created_flag: " 
 			 << gbc.symmetry_has_been_created << " "
 			 << "\n" ;
+	    
+	    // std::cout << "display_symmetry_bonds() here 5A " << gbc.symmetry_has_been_created
+	    // << std::endl;
 
-	    if (gbc.symmetry_has_been_created == 1) {
+            if (gbc.symmetry_has_been_created == 1) {
 
-	       if (0) 
+	       // std::cout << "display_symmetry_bonds() here 6 " << std::endl;
+	       
+	       if (true) 
 		  std::cout << "num_colours: " << gbc.num_colours
 			    << std::endl;
 	       
@@ -7817,7 +7824,7 @@ molecule_class_info_t::jed_flip(coot::residue_spec_t &spec,
 }
 
 
-// return a non-null string on a problem
+// return a non-empty string on a problem
 // 
 std::string
 molecule_class_info_t::jed_flip_internal(coot::atom_tree_t &tree,

@@ -118,6 +118,11 @@ on_sulfur_toggle_toolbutton_toggled(GtkToggleToolButton *button, gpointer user_d
 }
 
 extern "C" G_MODULE_EXPORT void
+on_hydrogen_toggle_toolbutton_toggled(GtkToggleToolButton *button, gpointer user_data) {
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_handle_toggle_button(button, canvas, lbg_info_t::ATOM_H);
+}
+extern "C" G_MODULE_EXPORT void
 on_oxygen_toggle_toolbutton_toggled(GtkToggleToolButton *button, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_handle_toggle_button(button, canvas, lbg_info_t::ATOM_O);
@@ -367,7 +372,7 @@ on_lbg_open_filechooserdialog_response(GtkDialog       *dialog,
       lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
       if (l) {
 	 std::string file_name = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(l->open_dialog));
-	 l->import_mol_from_file(file_name);
+	 l->import_molecule_from_file(file_name);
       }
    }
    gtk_widget_hide(GTK_WIDGET(dialog));
@@ -657,7 +662,7 @@ on_lbg_key_toggle_toolbutton_toggled(GtkToggleToolButton *button, gpointer user_
 }
 
 extern "C" G_MODULE_EXPORT void
-on_lbg_charge_toolbutton_toggled(GtkToggleToolButton *togglebutton, gpointer user_data) {
+on_lbg_charge_toggle_toolbutton_toggled(GtkToggleToolButton *togglebutton, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_handle_toggle_button(togglebutton, canvas, lbg_info_t::CHARGE);
 }
