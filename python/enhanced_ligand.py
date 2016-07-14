@@ -109,7 +109,7 @@ if enhanced_ligand_coot_p():
 
         add_simple_coot_menu_menuitem(
             menu,
-            "Tabulate Ligand Distorsions",
+            "Tabulate (on terminal) Ligand Distorsions",
             lambda func: tab_ligand_distorsions_func()
             )
 
@@ -118,36 +118,37 @@ if enhanced_ligand_coot_p():
             "Display Ligand Distortions",
             lambda func: display_ligand_distortions_func())
 
-        def density_ligand_score_func():
-            with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
-                                       aa_ins_code, aa_atom_name, aa_alt_conf]:
-               spec = [aa_chain_id, aa_res_no, aa_ins_code]
-               r = density_score_residue(aa_imol, spec, imol_refinement_map())
-               # BL says:: maybe a dialog for this?!
-               print "density at ligand atoms:", r
+##        # not interesting for the normal user!?
+##        def density_ligand_score_func():
+##            with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+##                                       aa_ins_code, aa_atom_name, aa_alt_conf]:
+##               spec = [aa_chain_id, aa_res_no, aa_ins_code]
+##               r = density_score_residue(aa_imol, spec, imol_refinement_map())
+##               # BL says:: maybe a dialog for this?!
+##               print "density at ligand atoms:", r
 
-        add_simple_coot_menu_menuitem(
-            menu,
-            "Density Score Ligand",
-            lambda func: density_ligand_score_func()
-            )
+##        add_simple_coot_menu_menuitem(
+##            menu,
+##            "Density Score Ligand",
+##            lambda func: density_ligand_score_func()
+##            )
 
 
-        def fetch_ligand_pdbe_func():
-            with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
-                               aa_ins_code, aa_atom_name, aa_alt_conf]:
-               comp_id = residue_name(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
-               print "here with residue name", comp_id
-               s = get_SMILES_for_comp_id_from_pdbe(comp_id)
-               if (isinstance(s, str)):
-                   pdbe_cif_file_name = os.path.join("coot-download", "PDBe-" + comp_id + ".cif")
-                   import_from_3d_generator_from_mdl(pdbe_cif_file_name, comp_id)
+##        def fetch_ligand_pdbe_func():
+##            with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+##                               aa_ins_code, aa_atom_name, aa_alt_conf]:
+##               comp_id = residue_name(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
+##               print "here with residue name", comp_id
+##               s = get_SMILES_for_comp_id_from_pdbe(comp_id)
+##               if (isinstance(s, str)):
+##                   pdbe_cif_file_name = os.path.join("coot-download", "PDBe-" + comp_id + ".cif")
+##                   import_from_3d_generator_from_mdl(pdbe_cif_file_name, comp_id)
 
-        add_simple_coot_menu_menuitem(
-            menu,
-            "### [Fetch ligand description & generate restraints]",
-            lambda func: fetch_ligand_pdbe_func()
-            )
+##        add_simple_coot_menu_menuitem(
+##            menu,
+##            "### [Fetch ligand description & generate restraints]",
+##            lambda func: fetch_ligand_pdbe_func()
+##            )
 
 
         def probe_ligand_func():

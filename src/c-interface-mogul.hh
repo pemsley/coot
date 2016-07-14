@@ -23,6 +23,10 @@ SCM mogul_results_scm(const char *mogul_out_file_name);
 
 SCM mogul_results_process_many(const char *glob_str, const char *glob_dir);
 #endif 
+
+#ifdef USE_PYTHON
+PyObject *mogul_results_py(const char *mogul_out_file_name);
+#endif // USE_PYTHON
 #endif 
 
 #endif // C_INTERFACE_MOGUL_HH

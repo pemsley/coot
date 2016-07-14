@@ -81,3 +81,25 @@ SCM mogul_results_process_many(const char *glob_dir, const char *glob_str) {
    return r;
 }
 #endif
+
+#ifdef USE_PYTHON
+PyObject *mogul_results_py(const char *mogul_out_file_name) {
+
+   PyObject *r = Py_False;
+   coot::mogul m;
+   m.parse(mogul_out_file_name);
+   if (m.n_items() > 0) {
+      r = PyList_New(m.n_items());
+      for (unsigned int i=0; i<m.n_items(); i++) {
+         const coot::mogul_item &item = m[i];
+         PyObject *py_item = PyFloat_FromDouble(item.z);
+         PyList_SetItem(r, i, py_item);
+      }
+   }
+   if (PyBool_Check(r)) {
+      Py_INCREF(r);
+   }
+
+   return r;
+}
+#endif

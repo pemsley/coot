@@ -586,6 +586,8 @@ low importance
    o optionally include reduce/probe (via download?)
 
    o update gtk!?
+
+   o test srs
  
    o Test spider drag and drop (not working on windows - broken gtk)
 
