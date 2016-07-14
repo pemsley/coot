@@ -1330,7 +1330,6 @@ coot::util::extract_number_string(const std::string &s) {
 
    std::pair<std::string, long> r("", 0);
 
-   std::string::size_type len = s.length();
    for (std::string::size_type i=0; i<s.size(); i++) {
       if (is_number(s[i])) {
 	 r.first += s[i];

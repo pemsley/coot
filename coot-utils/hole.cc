@@ -201,14 +201,15 @@ coot::hole::generate() {
       
       std::pair<clipper::Coord_orth, double> new_pt = optimize_point(pt, selhnd);
       probe_path.push_back(new_pt);
-      double d = sqrt(l.lengthsq());
-      if (0) 
+      if (false) { 
+	 double d = sqrt(l.lengthsq());
 	 std::cout << "istep: " << istep << " l: " << d
 		   << " ss: " << new_pt.second << "        "
 		   << new_pt.first.x() << " "
 		   << new_pt.first.y() << " "
 		   << new_pt.first.z() << " "
 		   << std::endl;
+      }
       mol->DeleteSelection(selhnd);
       // next round
       prev_point = new_pt.first;
@@ -338,7 +339,7 @@ coot::hole::write_probe_path(const std::vector<std::pair<clipper::Coord_orth, do
 	 unsigned int max_downstream_check_limit = i+5;
 
 	 if (max_downstream_check_limit>=probe_path.size())
-	     max_downstream_check_limit=probe_path.size()-1;
+	    max_downstream_check_limit=probe_path.size()-1;
 
 	 render_stream << probe_path[i].first.x() << " "
 		       << probe_path[i].first.y() << " "
