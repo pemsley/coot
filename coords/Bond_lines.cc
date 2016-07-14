@@ -1629,28 +1629,31 @@ Bond_lines_container::handle_MET_or_MSE_case(mmdb::PAtom mse_atom,
    }
    if (residue_name == "CYS") {
       int col = atom_colour(mse_atom, atom_colour_type, atom_colour_map_p);
-      // We need to add special bonds SE -> CE and SE -> CG.
-      mmdb::PPAtom residue_atoms;
-      int nResidueAtoms;
-      mse_atom->residue->GetAtomTable(residue_atoms, nResidueAtoms);
-      for (int i=0; i<nResidueAtoms; i++) {
-	 std::string table_atom_name(residue_atoms[i]->name);
-	 if (table_atom_name == " CB ") {
-	    coot::Cartesian cart_at1(mse_atom->x, mse_atom->y, mse_atom->z);
-	    coot::Cartesian cart_at2(residue_atoms[i]->x,
-				     residue_atoms[i]->y,
-				     residue_atoms[i]->z);
 
-	    std::string altconf1 = mse_atom->altLoc;
-	    std::string altconf2 = residue_atoms[i]->altLoc;
-	    if ( (altconf1=="") || (altconf2=="") || (altconf1==altconf2) ) {
-	       coot::Cartesian bond_mid_point = cart_at1.mid_point(cart_at2);
-	       int colc = atom_colour(residue_atoms[i], atom_colour_type, atom_colour_map_p);
-	       addBond(col,  cart_at1, bond_mid_point);
-	       addBond(colc, bond_mid_point, cart_at2);
-	       // mark atom as bonded.
-	       residue_atoms[i]->PutUDData(udd_handle, BONDED_WITH_STANDARD_ATOM_BOND);
-	       mse_atom->PutUDData(udd_handle, BONDED_WITH_STANDARD_ATOM_BOND);
+      if (atom_name == " SG ") {
+	 // We need to add special bonds CB -> SG
+	 mmdb::PPAtom residue_atoms;
+	 int nResidueAtoms;
+	 mse_atom->residue->GetAtomTable(residue_atoms, nResidueAtoms);
+	 for (int i=0; i<nResidueAtoms; i++) {
+	    std::string table_atom_name(residue_atoms[i]->name);
+	    if (table_atom_name == " CB ") {
+	       coot::Cartesian cart_at1(mse_atom->x, mse_atom->y, mse_atom->z);
+	       coot::Cartesian cart_at2(residue_atoms[i]->x,
+					residue_atoms[i]->y,
+					residue_atoms[i]->z);
+
+	       std::string altconf1 = mse_atom->altLoc;
+	       std::string altconf2 = residue_atoms[i]->altLoc;
+	       if ( (altconf1=="") || (altconf2=="") || (altconf1==altconf2) ) {
+		  coot::Cartesian bond_mid_point = cart_at1.mid_point(cart_at2);
+		  int colc = atom_colour(residue_atoms[i], atom_colour_type, atom_colour_map_p);
+		  addBond(col,  cart_at1, bond_mid_point);
+		  addBond(colc, bond_mid_point, cart_at2);
+		  // mark atom as bonded.
+		  residue_atoms[i]->PutUDData(udd_handle, BONDED_WITH_STANDARD_ATOM_BOND);
+		  mse_atom->PutUDData(udd_handle, BONDED_WITH_STANDARD_ATOM_BOND);
+	       }
 	    }
 	 }
       }
