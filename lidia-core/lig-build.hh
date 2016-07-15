@@ -1211,11 +1211,11 @@ namespace lig_build {
 	    int idx_1 = bonds[ibond].get_atom_1_index();
 	    int idx_2 = bonds[ibond].get_atom_2_index();
 	    if (atoms[idx_1] == atom) {
-	       std::cout << "found atom idx1 " << atom << " in atoms: " << idx_1 << std::endl;
+	       // std::cout << "found atom idx1 " << atom << " in atoms: " << idx_1 << std::endl;
 	       sum_delta += atoms[idx_2].atom_position - atom.atom_position;
 	    }
 	    if (atoms[idx_2] == atom) {
-	       std::cout << "found atom idx2 " << atom << " in atoms: " << idx_1 << std::endl;
+	       // std::cout << "found atom idx2 " << atom << " in atoms: " << idx_1 << std::endl;
 	       sum_delta += atoms[idx_1].atom_position - atom.atom_position;
 	    }
 	 }
