@@ -4651,16 +4651,16 @@ molecule_class_info_t::split_residue_internal(mmdb::Residue *residue, const std:
 					      short int use_residue_mol_flag) {
 
    std::pair<bool,std::string> p(0,"");
-   mmdb::PResidue *SelResidues = new mmdb::PResidue;
    std::string ch(residue->GetChainID());
-   
-   SelResidues = &residue; // just one
+
+   // mmdb::Residue **SelResidues = new mmdb::Residue *; // memory leak
+   mmdb::Residue **SelResidues = &residue; // just one
 
    // std::cout << "==================== in split_residue_internal ============= " << std::endl;
 
    atom_selection_container_t asc;
    if (!use_residue_mol_flag) { 
-      mmdb::Manager *mov_mol = create_mmdbmanager_from_res_selection(SelResidues,
+      mmdb::Manager *mov_mol = create_mmdbmanager_from_res_selection(SelResidues,    // class function
 								    1, 0, 0, altconf, 
 								    ch, 1);
       
@@ -6445,7 +6445,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 
       GLfloat  mat_specular[]  = {0.8, 0.8, 0.8, 1.0};
       GLfloat  mat_ambient[]   = {0.2, 0.2, 0.2, 1.0};
-      GLfloat  mat_diffuse[]   = {0.7, 0.7, 0.7, 1.0};
+      // GLfloat  mat_diffuse[]   = {0.7, 0.7, 0.7, 1.0};
       GLfloat  mat_shininess[] = {50.0};
       
       glShadeModel(GL_SMOOTH);

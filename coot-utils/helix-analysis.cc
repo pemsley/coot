@@ -121,7 +121,7 @@ coot::helix_params_t::calc_B() {
       // Let's try another method to get to sin theta:
       // d sin(theta) = B.(CxC')/C^2
       // 
-      double d_sin_theta = clipper::Coord_orth::dot(B, c_crossed)/(len_C*len_C);
+      // double d_sin_theta = clipper::Coord_orth::dot(B, c_crossed)/(len_C*len_C);
       // Oh, what is d?  Fail...
       
       

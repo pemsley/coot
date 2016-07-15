@@ -2009,7 +2009,7 @@ mmdb_version=1.25.0
 mmdb_version=1.25.2
 mmdb_version=1.25.3
 mmdb_version=2.0.1
-mmdb_version=2.0.2
+mmdb_version=2.0.11
 #mmdb_server_dir=ftp://ftp.ccp4.ac.uk/opensource
 mmdb_server_dir=$extras_place
 echo ${WGET} $mmdb_server_dir/mmdb2-$mmdb_version.tar.gz
@@ -2146,7 +2146,7 @@ if test -n "$build_clipper" ; then
     # BL says:: FIXME
     # do we still need the patch?
     export     CPPFLAGS=-I$install_top_dir/include
-    export      LDFLAGS=-L$install_top_dir/lib
+    export      LDFLAGS="-Wl,--large-address-aware -L$install_top_dir/lib"
     echo CPPFLAGS $CPPFLAGS
     echo LDFLAGS  $LDFLAGS
 
@@ -3458,6 +3458,9 @@ if [ -e libtool ] ; then
   echo rm libtool for clean build
   rm libtool
 fi
+
+# quick hack for large maps
+export LDFLAGS="-Wl,--large-address-aware"
 
 echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 echo building in: $PWD

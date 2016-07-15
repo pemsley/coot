@@ -1110,11 +1110,16 @@ def read_refmac_log(imol, refmac_log_file):
             atom2     = item_ls[9]
             alt_conf2 = item_ls[10]
             if (len(alt_conf2) > 1):
+                # i.e. dont have alt conf but "Delta" or such instead
                 alt_conf2 = "."
                 item_ls.insert(10, alt_conf2)
             
-            dev       = float(item_ls[13])
-            sig       = float(item_ls[15])
+            if debug():
+                print "BL DEBUG:: have item list", item_ls
+                
+            # did I resolve the conflict correctly?
+            dev       = float(item_ls[12])
+            sig       = float(item_ls[14])
 
             if (alt_conf1 == "."): alt_conf1 = ""
             if (alt_conf2 == "."): alt_conf2 = ""

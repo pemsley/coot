@@ -1332,20 +1332,6 @@ if (have_coot_python):
                                               default_ball_and_stick_selection,
                                               lambda imol, text: make_ball_n_stick_func(imol, text)))
 
-     def add_balls_to_simple_sticks(mode):
-       for imol in model_molecule_list():
-         set_draw_stick_mode_atoms(imol, mode)
-
-     add_simple_coot_menu_menuitem(
-       submenu_representation,
-       "Add Balls to Simple Sticks",
-       lambda func: add_balls_to_simple_sticks(1))
-
-     add_simple_coot_menu_menuitem(
-       submenu_representation,
-       "Simple Sticks (No Balls)",
-       lambda func: add_balls_to_simple_sticks(0))
-
      add_simple_coot_menu_menuitem(
        submenu_representation,
        "Add Balls to Simple Sticks",

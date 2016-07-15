@@ -601,8 +601,6 @@ cod::atom_types_t::check_for_3rd_nb_info(RDKit::Atom *atom_base_p,
 	    found_parent = true;
 	 if (ring_atom_p == atom_base_p)
 	    found_base = true;
-	 if (ring_atom_p == atom_p)
-	    found_this = true;
       }
 
       if (found_parent && found_base) {

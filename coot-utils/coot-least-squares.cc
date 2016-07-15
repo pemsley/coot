@@ -30,7 +30,7 @@ coot::least_squares_fit::least_squares_fit(const std::vector<std::pair<double, d
 
       double x_mean = sum_x/n;
       double y_mean = sum_y/n;
-      double cov_xy = sum_xy/n;
+      // double cov_xy = sum_xy/n;
 
       double ss_xx = sum_x_sqrd - n * x_mean * x_mean;
       double ss_xy = sum_xy     - n * x_mean * y_mean;

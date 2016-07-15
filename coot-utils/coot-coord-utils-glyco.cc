@@ -521,7 +521,7 @@ coot::beam_in_linked_residue::delete_atom(mmdb::Residue *res, const std::string 
    res->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) {
       mmdb::Atom *at = residue_atoms[iat];
-      if (at) {  // unneeded precaution?
+      if (at) {
 	 std::string at_name(at->name);
 	 if (at_name == atom_name) {
 	    // std::cout << "..... delete_atom() deleting atom with index " << iat
@@ -532,14 +532,6 @@ coot::beam_in_linked_residue::delete_atom(mmdb::Residue *res, const std::string 
 	 }
       }
    }
-
-   residue_atoms = NULL;
-   res->GetAtomTable(residue_atoms, n_residue_atoms);
-   std::string rn = res->GetResName();
-   for (int iat=0; iat<n_residue_atoms; iat++) { 
-      mmdb::Atom *at = residue_atoms[iat];
-   }
-   
    if (deleted)
       res->TrimAtomTable();
 }

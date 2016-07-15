@@ -101,7 +101,7 @@ def with_auto_accept(*funcs):
 def using_active_atom(*funcs):
 
     from types import ListType
-    active_atom = closest_atom_simple_py()
+    active_atom = closest_atom_simple()
     if (not active_atom):
         add_status_bar_text("No residue found")
     else:

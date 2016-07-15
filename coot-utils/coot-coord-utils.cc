@@ -5783,7 +5783,6 @@ coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
 		  if (need_a_ter) {
 		     mmdb::Atom *at = new mmdb::Atom;
 		     at->MakeTer();
-		     int n_atoms_new = residue->AddAtom(at);
 		     residue->TrimAtomTable();
 		  }
 	       }
