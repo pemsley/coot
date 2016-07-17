@@ -6671,7 +6671,7 @@ molecule_class_info_t::set_b_factor_residue_range(const std::string &chain_id,
    int nSelAtoms;
    int SelHnd = atom_sel.mol->NewSelection();
    
-   atom_sel.mol->SelectAtoms(SelHnd, 0, (char *) chain_id.c_str(),
+   atom_sel.mol->SelectAtoms(SelHnd, 0, chain_id.c_str(),
 			     ires1, "*",
 			     ires2, "*",
 			     "*", // residue name
