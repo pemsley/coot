@@ -65,7 +65,7 @@
 # include <unixlib.h>
 #endif
 
-#define _LIBC
+#include <stdlib.h>		/* for alloca - needed? */
 
 #ifdef _LIBC
 # include <libintl.h>
