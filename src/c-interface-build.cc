@@ -2580,7 +2580,8 @@ void
 reset_b_factor_residue_range(int imol, const char *chain_id, int ires1, int ires2) {
 
    if (is_valid_model_molecule(imol)) {
-     graphics_info_t::molecules[imol].set_b_factor_residue_range(std::string(chain_id), ires1, ires2, graphics_info_t::default_new_atoms_b_factor);
+      graphics_info_t::molecules[imol].set_b_factor_residue_range(std::string(chain_id), ires1, ires2,
+								  graphics_info_t::default_new_atoms_b_factor);
    } else {
       std::cout << "WARNING:: invalid model molecule number in reset_b_factor_residue_range "
 		<< imol << std::endl;
@@ -2595,6 +2596,70 @@ reset_b_factor_residue_range(int imol, const char *chain_id, int ires1, int ires
    add_to_history_typed(cmd, args);
 
 }
+
+#ifdef USE_PYTHON
+void set_b_factor_residues_py(int imol, PyObject *residue_specs_b_value_tuple_list_py) {
+
+   if (is_valid_model_molecule(imol)) {
+      if (PyList_Check(residue_specs_b_value_tuple_list_py)) {
+	 unsigned int l = PyObject_Length(residue_specs_b_value_tuple_list_py);
+	 if (l > 0) {
+	    std::vector<std::pair<coot::residue_spec_t, double> > rbs;
+	    for (unsigned int i=0; i<l; i++) {
+	       PyObject *tuple_py = PyList_GetItem(residue_specs_b_value_tuple_list_py, i);
+	       if (PyTuple_Check(tuple_py)) {
+		  unsigned int l2 = PyObject_Length(tuple_py);
+		  if (l2 == 2) {
+		     PyObject *spec_py = PyTuple_GetItem(tuple_py, 0);
+		     PyObject *bfac_py = PyTuple_GetItem(tuple_py, 1);
+		     if (PyFloat_Check(bfac_py) || PyInt_Check(bfac_py)) {
+			coot::residue_spec_t spec = residue_spec_from_py(spec_py);
+			double b = PyFloat_AsDouble(bfac_py);
+			std::pair<coot::residue_spec_t, double> p(spec, b);
+			rbs.push_back(p);
+		     }
+		  }
+	       }
+	    }
+	    graphics_info_t::molecules[imol].set_b_factor_residues(rbs);
+	 }
+      }
+   }
+}
+#endif // USE_PYTHON
+
+#ifdef USE_GUILE
+void set_b_factor_residues_scm(int imol, SCM residue_specs_b_value_tuple_list_scm) {
+
+   if (is_valid_model_molecule(imol)) {
+      if (scm_is_true(scm_list_p(residue_specs_b_value_tuple_list_scm))) {
+	 SCM l_scm = scm_length(residue_specs_b_value_tuple_list_scm);
+	 unsigned int l = scm_to_int(l_scm);
+	 if (l > 0) {
+	    std::vector<std::pair<coot::residue_spec_t, double> > rbs;
+	    for (unsigned int i=0; i<l; i++) {
+	       SCM item_scm = scm_list_ref(residue_specs_b_value_tuple_list_scm,
+					   SCM_MAKINUM(l));
+	       if (scm_is_true(scm_list_p(item_scm))) {
+		  SCM l2_scm = scm_length(item_scm);
+		  unsigned int l2 = scm_to_int(l2_scm);
+		  if (l2 == 2) {
+		     SCM spec_scm = list_ref(item_scm, SCM_MAKINUM(0));
+		     SCM b_scm = list_ref(item_scm, SCM_MAKINUM(1));
+		     coot::residue_spec_t spec = residue_spec_from_scm(spec_scm);
+		     double b = scm_to_double(b_scm);
+		     std::pair<coot::residue_spec_t, double> p(spec, b);
+		     rbs.push_back(p);
+		  }
+	       }
+	    }
+	    graphics_info_t::molecules[imol].set_b_factor_residues(rbs);
+	 }
+      }
+   }
+}
+#endif // USE_GUILE
+
 
 
 

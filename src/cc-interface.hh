@@ -635,6 +635,14 @@ PyObject *residue_centre_from_spec_py(int imol,
 
 PyObject *chain_fragments_py(int imol, short int screen_output_also);
 
+#ifdef USE_PYTHON
+void set_b_factor_residues_py(int imol, PyObject *residue_specs_b_value_tuple_list_py);
+#endif
+
+#ifdef USE_GUILE
+void set_b_factor_residues_scm(int imol, SCM residue_specs_b_value_tuple_list_scm);
+#endif
+
 //! \}
 
 //! \name Using S-expression molecules
