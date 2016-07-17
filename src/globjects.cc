@@ -1725,8 +1725,8 @@ setup_lighting(short int do_lighting_flag) {
       // GL_LIGHT2 is for cut-glass mode
       // 
       GLfloat  light_0_position[] = { 1.0,  1.0, 1.0, 0.0};
-      GLfloat  light_1_position[] = { 1.0, -1.0, 1.0, 0.0};
-      GLfloat  light_2_position[] = {-1.0, -1.0, 1.0, 0.0};
+      GLfloat  light_1_position[] = {-1.0,  0.0, 1.0, 0.0};
+      GLfloat  light_2_position[] = { 0.0, 0.0, 0.0, 0.0};
 
       glClearColor(0.0, 0.0, 0.0, 0.0);
       glShadeModel(GL_SMOOTH);
@@ -2130,18 +2130,20 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 // glTranslatef(fbs.x(), fbs.y(), fbs.z());
       }
 
-      glPushMatrix();
-      glLoadIdentity();
 
-      GLfloat  light_0_position[] = { 1.0,  1.0, 1.0, 0.0};
-      GLfloat  light_1_position[] = { 1.0, -1.0, 1.0, 0.0};
-      GLfloat  light_2_position[] = {-1.0, -1.0, 1.0, 0.0};
+      if (false) { 
+	 glPushMatrix();
+	 glLoadIdentity();
+	 GLfloat  light_0_position[] = { -1.0,  1.0, 1.0, 0.0};
+	 GLfloat  light_1_position[] = {  1.0,  0.2, 1.0, 0.0};
+	 GLfloat  light_2_position[] = {  1.0,  1.0, 1.0, 0.0};
 
-      glLightfv(GL_LIGHT0,   GL_POSITION, light_0_position);
-      glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
-      glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
+	 glLightfv(GL_LIGHT0,   GL_POSITION, light_0_position);
+	 glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
+	 glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
+	 glPopMatrix();
+      }
 
-      glPopMatrix();
       glMatrixMode(GL_MODELVIEW);
 
       // do we need to turn on the lighting?

@@ -3399,10 +3399,10 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 						}
 					     bonds_size_colour_check(col);
 					     addBond(col, ca_1, ca_2);
-                         }
+					     }
 					  }
-                      at_1->PutUDData(udd_has_bond_handle, 1);
-                      at_2->PutUDData(udd_has_bond_handle, 1);
+					  at_1->PutUDData(udd_has_bond_handle, 1);
+					  at_2->PutUDData(udd_has_bond_handle, 1);
 					  // for use with Ca+ligand mode
 					  residue_this->PutUDData(udd_has_ca_handle, BONDED_WITH_STANDARD_ATOM_BOND);
 					  residue_prev->PutUDData(udd_has_ca_handle, BONDED_WITH_STANDARD_ATOM_BOND);
