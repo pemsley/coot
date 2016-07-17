@@ -2644,8 +2644,8 @@ void set_b_factor_residues_scm(int imol, SCM residue_specs_b_value_tuple_list_sc
 		  SCM l2_scm = scm_length(item_scm);
 		  unsigned int l2 = scm_to_int(l2_scm);
 		  if (l2 == 2) {
-		     SCM spec_scm = list_ref(item_scm, SCM_MAKINUM(0));
-		     SCM b_scm = list_ref(item_scm, SCM_MAKINUM(1));
+		     SCM spec_scm = scm_list_ref(item_scm, SCM_MAKINUM(0));
+		     SCM    b_scm = scm_list_ref(item_scm, SCM_MAKINUM(1));
 		     coot::residue_spec_t spec = residue_spec_from_scm(spec_scm);
 		     double b = scm_to_double(b_scm);
 		     std::pair<coot::residue_spec_t, double> p(spec, b);
