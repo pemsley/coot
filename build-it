@@ -1547,17 +1547,27 @@ if [ "$build_coot_prerelease" = 1 ] ; then
       generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-${build_type} ${config_extras:-}"
       coot_prefix="$generic_prefix"
       install_top_dir=${AUTOBUILD_INSTALLED}-pre-release-${build_type}
+      # python seems to link OK on Darwin, so no need for this jiggery pokery
+      if [ $(uname) != Darwin ] ; then
+         python_lib_flags=LDFLAGS="-Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release-${build_type}/lib"
+      fi
     else 
       # don't use pre-release
       generic_prefix="--prefix=$AUTOBUILD_INSTALLED-${build_type} ${config_extras:-}"
       coot_prefix="$generic_prefix"
       install_top_dir=${AUTOBUILD_INSTALLED}-${build_type}
+      if [ $(uname) != Darwin ] ; then
+         python_lib_flags=LDFLAGS="-Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release-${build_type}/lib"
+      fi
     fi
 else 
    # not pre-release
    generic_prefix="--prefix=$AUTOBUILD_INSTALLED-${build_type} ${config_extras:-}"
    install_top_dir=${AUTOBUILD_INSTALLED}-${build_type}
    coot_prefix="$generic_prefix"
+   if [ $(uname) != Darwin ] ; then
+      python_lib_flags=LDFLAGS="-Wl,--rpath=${AUTOBUILD_INSTALLED}-${build_type}/lib"
+   fi
 fi
 PATH=$install_top_dir/bin:$PATH
 
@@ -2795,9 +2805,9 @@ if test -n "$build_python" ; then
 
    cd Python-$pver
 
-   echo INFO:: ./configure $generic_prefix $python_spec_flags for python
-   # BL comment may need --enable-shared for python-config to pick up ldflags properly!?
-   if ./configure $generic_prefix --enable-shared $python_spec_flags ; then
+   echo INFO:: ./configure $generic_prefix $python_spec_flags $python_lib_flags for python
+   # 
+   if ./configure $generic_prefix --enable-shared $python_spec_flags $python_lib_flags ; then
      echo INFO:: make for python
      if $MAKE ; then
         echo INFO:: make install for python
