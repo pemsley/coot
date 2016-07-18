@@ -4682,6 +4682,26 @@ void graphics_to_occupancy_representation(int imol) {
    graphics_draw();
 }
 
+/*! \brief draw molecule number imol coloured by user-defined atom colours */
+void graphics_to_user_defined_atom_colours_representation(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      g.molecules[imol].user_defined_colours_representation(g.Geom_p());
+      std::vector<std::string> command_strings;
+      command_strings.push_back("graphics-to-user-defined-colours-representation");
+      command_strings.push_back(graphics_info_t::int_to_string(imol));
+      add_to_history(command_strings);
+   } else {
+      std::cout << "WARNING:: no such valid molecule " << imol
+		<< " in graphics_to_occupancy_representation"
+		<< std::endl;
+   }
+   graphics_draw();
+
+}
+
+
 
 
 int

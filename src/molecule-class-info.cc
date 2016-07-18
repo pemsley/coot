@@ -926,22 +926,49 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i, bool against_a_dark_back
 }
 
 
-// aka rainbow - or maybe b factor, occupancy
+// aka rainbow - or maybe b factor, occupancy or user defined colour index
+// 
 void
-molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bond_type) {
+molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds_box_type) {
 
-   float max_colour = 30;
    std::vector<float> rgb(3);
-   rgb[0] = 0.2; rgb[1] =  0.2; rgb[2] =  0.8; // blue
+   rgb[0] = 0.2f; rgb[1] =  0.2f; rgb[2] =  0.8f; // blue
    
-   // 30 is the size of rainbow colours, 0 -> 1.0 is the range of rainbow colours
+   bool done = false;
+   int offset = 0; // blue starts at 0
    
-   float rotation_size = 1.0 - float(i) * 0.7/max_colour;
-   rgb = rotate_rgb(rgb, rotation_size);
+   if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS) {
+      if (i == 0) {
+	 rgb[0] = 0.8f; rgb[1] =  0.8f; rgb[2] =  0.8f; // white
+	 done = true;
+      }
+      if (i == 1) {
+	 rgb[0] = 0.3f; rgb[1] =  0.3f; rgb[2] =  0.3f; // dark-grey
+	 done = true;
+      }
+      offset=2; // blue starts at 2.
+   }
+   if (! done) {
+      float max_colour = 30;
+   
+      // 30 is the size of rainbow colours, 0 -> 1.0 is the range of rainbow colours
+   
+      float rotation_size = 1.0 - float(i-offset) * 0.7/max_colour;
+      rgb = rotate_rgb(rgb, rotation_size);
+   }
+
+   // rotation_size size has useful colours between
+   // 1.0 (or higher?) and 0.0.
+   // Below 0.0, to -0.65 (more than -0.68) (dependant on starting rgb
+   // values I guess) there is amusing colour continuation of the colour
+   // wheel (red through purple to blue and further).
+   //
+   if (false)
+      std::cout << i << " " << " "
+		<< rgb[0] << " " << rgb[1] << " " << rgb[2] << " " << std::endl;
    bond_colour_internal = rgb;
    glColor3f(rgb[0], rgb[1], rgb[2]);
 }
-
 
 
 // We find a box (symm: 2 trans: 0 0 0), but we don't find any atoms
@@ -2084,10 +2111,15 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 
       if (bonds_box_type != coot::COLOUR_BY_RAINBOW_BONDS) {
 	 // if test suggested by Ezra Peisach.
-	 if (bonds_box.bonds_[i].num_lines > 0)
-	    set_bond_colour_by_mol_no(i, against_a_dark_background); // outside inner loop
+	 if (bonds_box.bonds_[i].num_lines > 0) {
+	    if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS) {
+	       set_bond_colour_by_colour_wheel_position(i, bonds_box_type);
+	    } else {
+	       set_bond_colour_by_mol_no(i, against_a_dark_background); // outside inner loop
+	    }
+	 }
       } else {
-	 set_bond_colour_by_colour_wheel_position(i, coot::COLOUR_BY_RAINBOW);
+	 set_bond_colour_by_colour_wheel_position(i, bonds_box_type);
       }
       int linesdrawn = 0;
 

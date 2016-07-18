@@ -3305,6 +3305,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 						float min_dist, float max_dist, int bond_colour_type) {
 
    int atom_colours_udd = -1; // unset/bad
+   int udd_handle_for_user_defined_colours = -1;
 
    // heuristic cut off for when user has omitted GAP cards.
    // 
@@ -3314,11 +3315,14 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 
    if (bond_colour_type == coot::COLOUR_BY_RAINBOW)
       atom_colours_udd = set_rainbow_colours(SelAtom.mol);
-   
+
+   if (bond_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS)
+      udd_handle_for_user_defined_colours = SelAtom.mol->GetUDDHandle(mmdb::UDR_ATOM,
+								      "user-defined-atom-colour-index");
+
    int udd_has_bond_handle = SelAtom.mol->RegisterUDInteger(mmdb::UDR_ATOM, "found-backbone-bond");
    for (int i=0; i<SelAtom.n_selected_atoms; i++)
       SelAtom.atom_selection[i]->PutUDData(udd_has_bond_handle, 0);
-   
 
    for(int imod = 1; imod<=SelAtom.mol->GetNumberOfModels(); imod++) {
       mmdb::Model *model_p = SelAtom.mol->GetModel(imod);
@@ -3395,7 +3399,15 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 						      col = 0;
 						   }
 						} else {
-						   col = atom_colour_map.index_for_chain(chain_p->GetChainID());
+
+						   if (bond_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS) {
+						      col = get_user_defined_col_index(at_1, udd_handle_for_user_defined_colours);
+						      // std::cout << coot::atom_spec_t(at_1) << " " << col << std::endl;
+						      if (col < 0) // problem
+							 col = 0;
+						   } else {
+						      col = atom_colour_map.index_for_chain(chain_p->GetChainID());
+						   }
 						}
 					     bonds_size_colour_check(col);
 					     addBond(col, ca_1, ca_2);
@@ -3422,8 +3434,8 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 
 
    // stars if needed:
-   // 
-   float star_size = 0.28;
+   //
+   float star_size = 0.2;
    // for atoms with no neighbour (contacts):
    coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
    coot::Cartesian small_vec_y(0.0, star_size, 0.0);
@@ -3658,6 +3670,7 @@ Bond_lines_container::do_Ca_or_P_bonds_internal_old(atom_selection_container_t S
 }
 
 
+// return the udd_handle of the UDReal values for "rainbow circle point"
 int
 Bond_lines_container::set_rainbow_colours(mmdb::Manager *mol) {
 
@@ -3705,8 +3718,6 @@ Bond_lines_container::set_rainbow_colours(mmdb::Manager *mol) {
 			for (int iat=0; iat<n_atoms; iat++) { 
 			   mmdb::Atom *atom_p = residue_p->GetAtom(iat);
 			   if (! atom_p->Het) {
-			      // std::cout << "not het chain-pos " << chain_pos << " atom: "
-			      // << atom_p << std::endl;
 			      atom_p->PutUDData(udd_handle, chain_pos);
 			   } else {
 			      atom_p->PutUDData(udd_handle, 0.88);
@@ -3888,7 +3899,31 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 // 			      col = atom_colour_map.index_for_rainbow(f);
 // 			   }
 			   col = 20;
-			} 
+			} else {
+			   if (bond_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS) {
+			      // up and down again...
+			      mmdb::Model *model_p = at->GetModel();
+			      if (model_p) {
+				 mmdb::Manager *mol = model_p->GetCoordHierarchy();
+				 if (mol) {
+				    int udd_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
+				    int ic;
+				    if (at->GetUDData(udd_handle, ic) == mmdb::UDDATA_Ok) {
+				       col = ic;
+				    } else {
+				       col = 20;
+				    }
+				 } else {
+				    col = 20; // :-)
+				 }
+			      } else {
+				 // disaster!
+				 col = 20; // (haha)
+			      }
+			   } else {
+			      col = 20;
+			   }
+			}
 		     } 
 		  }
 	       }
@@ -3904,7 +3939,8 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 void
 Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAtom,
 					       coot::protein_geometry *pg,
-					       float min_dist, float max_dist,
+					       float min_dist,
+					       float max_dist,
 					       bool do_bonds_to_hydrogens_in) {
 
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
@@ -3936,7 +3972,8 @@ Bond_lines_container::do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_con
 void
 Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAtom,
 					       coot::protein_geometry *pg,
-					       float min_dist, float max_dist, 
+					       float min_dist,
+					       float max_dist, 
 					       int atom_colour_type,
 					       bool do_bonds_to_hydrogens_in) {
 
@@ -4029,8 +4066,11 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
       }
 
       int het_atoms_colour_type = coot::COLOUR_BY_RAINBOW;
+
+      if (atom_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS)
+	 het_atoms_colour_type = coot::COLOUR_BY_USER_DEFINED_COLOURS;
       
-      short int have_udd_atoms = false;
+      bool have_udd_atoms = false;
       int udd_handle = -1;
       add_bonds_het_residues(het_residues, het_atoms_colour_type, have_udd_atoms, udd_handle);
       
@@ -5276,4 +5316,22 @@ graphical_bonds_container::add_cis_peptide_markup(const std::vector<coot::util::
 	 cis_peptide_markups[i] = m;
       }
    }
+}
+
+// for user defined colours:
+// 
+// return a colour index, and -1 on failure
+//
+int
+Bond_lines_container::get_user_defined_col_index(mmdb::Atom *at, int udd_handle) const {
+
+   int r = -1;
+
+   int ic = 0;
+   int ierr = at->GetUDData(udd_handle, ic);
+   if (ierr == mmdb::UDDATA_Ok)
+      r = ic;
+
+   return r;
+
 }
