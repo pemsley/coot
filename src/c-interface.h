@@ -942,6 +942,18 @@ are not (or may not be) on the same scale).
 */
 int blob_under_pointer_to_screen_centre();
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/*! \brief return scheme false or a list of molecule number and an atom spec  */
+SCM select_atom_under_pointer_scm();
+#endif
+
+#ifdef USE_PYTHON
+/*! \brief return Python false or a list of molecule number and an atom spec  */
+PyObject *select_atom_under_pointer_py();
+#endif
+#endif /* __cplusplus */
+
 /* \} */
 
 /*  --------------------------------------------------------------------- */

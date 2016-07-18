@@ -68,14 +68,16 @@ namespace coot {
     clip_hybrid_atom Hyb_atom() const { 
       return hybrid_atom;
     }
-  }; 
+  };
 
 }
 
 
 enum { PICK_ATOM_ALL_ATOM, PICK_ATOM_CA_ONLY, PICK_ATOM_CA_OR_LIGAND, PICK_ATOM_NON_HYDROGEN, PICK_ATOM_CA_OR_SIDECHAIN_OR_LIGAND };
 
+// a NULL event can be passed - in that case the check for CTRL press is not made.
 pick_info atom_pick(GdkEventButton *event); // atom index in the atom selection
+
 // pick_info moving_atoms_atom_pick(); not here, it's in graphics.
 
 pick_info pick_atom(const atom_selection_container_t &SelAtom, int imol,

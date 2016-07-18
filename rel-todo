@@ -6,6 +6,10 @@
 
    o write a test for apply_charges()
 
+   o on hector: ./coot-bin --no-graphics [Ctrl-D] vs:
+                ./coot-bin --no-graphics --python [Ctrl-D] 
+     the first crashes, the second works as expected.
+
    o why is sequence view so slow to open now?
 
 * Done

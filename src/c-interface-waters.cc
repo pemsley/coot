@@ -140,44 +140,87 @@ void renumber_waters(int imol) {
 	 update_go_to_atom_window_on_changed_mol(imol);
       }
    }
-} 
+}
 
 /* Put the blob under the cursor to the screen centre.  Check only
    positive blobs.  Useful function if bound to a key. */
 int blob_under_pointer_to_screen_centre() {
 
    int r = 0;
-   int imol_map = imol_refinement_map();
-   graphics_info_t g;
-   if (imol_map != -1) {
-      // OK we have a map to search.
-      coot::Cartesian front = unproject(0.0);
-      coot::Cartesian back  = unproject(1.0);
-      clipper::Coord_orth p1(front.x(), front.y(), front.z());
-      clipper::Coord_orth p2( back.x(),  back.y(),  back.z());
-      try { 
-	 clipper::Coord_orth blob =
-	    graphics_info_t::molecules[imol_map].find_peak_along_line_favour_front(p1, p2);
-	 coot::Cartesian cc(blob.x(), blob.y(), blob.z());
-	 g.setRotationCentre(cc);
-	 for(int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
-	    graphics_info_t::molecules[ii].update_map();
-	    graphics_info_t::molecules[ii].update_symmetry();
+   if (graphics_info_t::use_graphics_interface_flag) {
+      int imol_map = imol_refinement_map();
+      graphics_info_t g;
+      if (imol_map != -1) {
+	 // OK we have a map to search.
+	 coot::Cartesian front = unproject(0.0);
+	 coot::Cartesian back  = unproject(1.0);
+	 clipper::Coord_orth p1(front.x(), front.y(), front.z());
+	 clipper::Coord_orth p2( back.x(),  back.y(),  back.z());
+	 try { 
+	    clipper::Coord_orth blob =
+	       graphics_info_t::molecules[imol_map].find_peak_along_line_favour_front(p1, p2);
+	    coot::Cartesian cc(blob.x(), blob.y(), blob.z());
+	    g.setRotationCentre(cc);
+	    for(int ii=0; ii<graphics_info_t::n_molecules(); ii++) {
+	       graphics_info_t::molecules[ii].update_map();
+	       graphics_info_t::molecules[ii].update_symmetry();
+	    }
+	    g.make_pointer_distance_objects();
+	    graphics_draw();
 	 }
-	 g.make_pointer_distance_objects();
-	 graphics_draw();
+	 catch (std::runtime_error mess) {
+	    std::cout << mess.what() << std::endl;
+	 }
+      } else {
+	 std::string s = "Refinement map not selected - no action";
+	 std::cout << s << std::endl;
+	 // add_status_bar_text(s.c_str());
+	 info_dialog(s.c_str());
       }
-      catch (std::runtime_error mess) {
-	 std::cout << mess.what() << std::endl;
-      }
-   } else {
-      std::string s = "Refinement map not selected - no action";
-      std::cout << s << std::endl;
-      // add_status_bar_text(s.c_str());
-      info_dialog(s.c_str());
    }
    return r;
 }
+
+#ifdef USE_GUILE
+/*! \brief return scheme false or a list of molecule number and residue spec  */
+SCM select_atom_under_pointer_scm() {
+
+   SCM r = SCM_BOOL_F;
+   if (graphics_info_t::use_graphics_interface_flag) {
+      pick_info pi = atom_pick(NULL);
+      if (pi.success) {
+	 mmdb::Atom *at = graphics_info_t::molecules[pi.imol].atom_sel.atom_selection[pi.atom_index];
+	 SCM v1 = SCM_MAKINUM(pi.imol);
+	 SCM v2 = atom_spec_to_scm(coot::atom_spec_t(at));
+	 r = scm_list_2(v1, v2);
+	 normal_cursor();
+      }
+   }
+   return r;
+}
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+/*! \brief return Python false or a list of molecule number and residue spec  */
+PyObject *select_atom_under_pointer_py() {
+
+   PyObject *r = Py_False;
+   if (graphics_info_t::use_graphics_interface_flag) {
+      pick_info pi = atom_pick(NULL);
+      if (pi.success) {
+	 mmdb::Atom *at = graphics_info_t::molecules[pi.imol].atom_sel.atom_selection[pi.atom_index];
+	 r = PyList_New(2);
+	 PyObject *r0 = PyInt_FromLong(pi.imol);
+	 PyObject *r1 = atom_spec_to_py(coot::atom_spec_t(at));
+	 normal_cursor();
+      }
+   }
+   if (PyBool_Check(r))
+      Py_INCREF(r);
+   return r;
+}
+#endif // USE_PYTHON
+
 
 
 #ifdef USE_GUILE
