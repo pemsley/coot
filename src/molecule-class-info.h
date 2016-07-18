@@ -723,6 +723,10 @@ public:        //                      public
       bond_width = 3.0;
       display_stick_mode_atoms_flag = false;
 
+      // bespoke colouring
+      use_bespoke_grey_colour_for_carbon_atoms = false;
+      bespoke_carbon_atoms_colour = coot::colour_t(0.6, 0.6, 0.6);
+
       // 
       rotate_colour_map_for_difference_map = 240.0; // degrees
 
@@ -818,6 +822,10 @@ public:        //                      public
    coot::colour_t get_bond_colour_by_mol_no(int icolour, bool against_a_dark_background);
 	   
    void set_bond_colour_by_colour_wheel_position(int i, int bonds_box_type);
+   bool use_bespoke_grey_colour_for_carbon_atoms;
+   coot::colour_t bespoke_carbon_atoms_colour;
+   void set_use_bespoke_carbon_atom_colour(bool state) { use_bespoke_grey_colour_for_carbon_atoms = state; }
+   void set_bespoke_carbon_atom_colour(const coot::colour_t &col) { bespoke_carbon_atoms_colour = col; }
 
    std::string name_; // otherwise get and set, so make it public.
 

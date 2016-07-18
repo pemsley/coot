@@ -700,7 +700,11 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int i, bool against_a_dark_back
 	 
 	 switch (i) {
 	 case CARBON_BOND:
-	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
+	    if (use_bespoke_grey_colour_for_carbon_atoms) {
+	       rgb = bespoke_carbon_atoms_colour;
+	    } else {
+	       rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
+	    }
 	    break;
 	 case YELLOW_BOND: 
 	    rgb[0] = 0.6; rgb[1] =  0.9; rgb[2] =  0.3;
@@ -786,8 +790,13 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int i, bool against_a_dark_back
       rgb.rotate(float(1.0 - 21.0/360.0));
 
       if (graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag) {
-	 if (i == CARBON_BOND)
-	    rgb.rotate(rotation_size);
+	 if (i == CARBON_BOND) {
+	    if (use_bespoke_grey_colour_for_carbon_atoms) {
+	       rgb = bespoke_carbon_atoms_colour;
+	    } else {
+	       rgb.rotate(rotation_size);
+	    }
+	 }
       } else {
 	 rgb.rotate(rotation_size);
       }
@@ -819,8 +828,14 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i, bool against_a_dark_back
       }
       if (against_a_dark_background) { 
 	 switch (i) {
-	 case CARBON_BOND: 
-	    rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
+	 case CARBON_BOND:
+	    if (use_bespoke_grey_colour_for_carbon_atoms) {
+	       rgb[0] = bespoke_carbon_atoms_colour[0];
+	       rgb[1] = bespoke_carbon_atoms_colour[1];
+	       rgb[2] = bespoke_carbon_atoms_colour[2];
+	    } else {
+	       rgb[0] = 0.7; rgb[1] =  0.7; rgb[2] =  0.0;
+	    }
 	    break;
 	 case YELLOW_BOND: 
 	    rgb[0] = 0.6; rgb[1] =  0.9; rgb[2] =  0.3;
@@ -904,11 +919,20 @@ molecule_class_info_t::set_bond_colour_by_mol_no(int i, bool against_a_dark_back
       rgb = rotate_rgb(rgb, float(1.0 - 21.0/360.0));
 
       if (graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag) {
-	 if (i == CARBON_BOND) { 
-	    std::vector<float> rgb_new = rotate_rgb(rgb, rotation_size);
-	    bond_colour_internal = rgb_new;
+	 if (i == CARBON_BOND) {
+
+	    if (use_bespoke_grey_colour_for_carbon_atoms) {
+	       bond_colour_internal[0] = bespoke_carbon_atoms_colour[0];
+	       bond_colour_internal[1] = bespoke_carbon_atoms_colour[1];
+	       bond_colour_internal[2] = bespoke_carbon_atoms_colour[2];
+	    } else {
+	       std::vector<float> rgb_new = rotate_rgb(rgb, rotation_size);
+	       bond_colour_internal = rgb_new;
+	    }
 	    if (graphics_info_t::use_graphics_interface_flag)
-	       glColor3f(rgb_new[0],rgb_new[1], rgb_new[2]);
+	       glColor3f(bond_colour_internal[0],
+			 bond_colour_internal[1],
+			 bond_colour_internal[2]);
 	 } else {
 	    bond_colour_internal = rgb;
 	    if (graphics_info_t::use_graphics_interface_flag)

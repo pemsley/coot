@@ -4354,6 +4354,15 @@ int set_b_factor_bonds_scale_factor(int imol, float f);
   the centre of the screen */
 void change_model_molecule_representation_mode(int up_or_down);
 
+/*! \brief make the carbon atoms for molecule imol be grey
+ */
+void set_use_grey_carbons_for_molecule(int imol, short int state);
+/*! \brief set the colour for the carbon atoms 
+
+can be not grey if you desire, r, g, b in the range 0 to 1.
+ */
+void set_grey_carbon_colour(int imol, float r, float g, float b);
+
 
 /*! \brief make a ball and stick representation of imol given atom selection
 
