@@ -38,6 +38,8 @@ molecule_class_info_t::set_user_defined_colour_indices(const std::vector<std::pa
 
    if (atom_sel.mol) {
       int udd_handle = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
+      if (udd_handle == 0)
+	 udd_handle = atom_sel.mol->RegisterUDInteger(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
       for (unsigned int i=0; i<cis.size(); i++) {
 	 const coot::atom_spec_t &spec = cis[i].first;
 	 mmdb::Atom *at = get_atom(spec);
@@ -60,4 +62,16 @@ molecule_class_info_t::user_defined_colours_representation(coot::protein_geometr
    bonds.do_Ca_plus_ligands_bonds(atom_sel, geom_p, 2.4, 4.7, coot::COLOUR_BY_USER_DEFINED_COLOURS, false);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS;
+}
+
+
+void
+molecule_class_info_t::clear_user_defined_atom_colours() {
+
+   if (atom_sel.mol) {
+      int udd_handle = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
+      if (udd_handle != 0) {
+	 // atom_sel.mol->FreeUDRegister();
+      }
+   }
 }

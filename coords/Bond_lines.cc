@@ -3381,36 +3381,50 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
 					     addBond(col, bond_mid_point, ca_2);
 					  } else {
 					     if (bond_colour_type == coot::COLOUR_BY_SEC_STRUCT) {
-					     coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
-					     col = atom_colour(at_1, coot::COLOUR_BY_SEC_STRUCT);
-					     addBond(col, ca_1, bond_mid_point);
-					     col = atom_colour(at_2, coot::COLOUR_BY_SEC_STRUCT);
-					     addBond(col, bond_mid_point, ca_2);
+						coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
+						col = atom_colour(at_1, coot::COLOUR_BY_SEC_STRUCT);
+						addBond(col, ca_1, bond_mid_point);
+						col = atom_colour(at_2, coot::COLOUR_BY_SEC_STRUCT);
+						addBond(col, bond_mid_point, ca_2);
 					     } else {
+
+						int col_1 = 0;
+						int col_2 = 0;
 						if (bond_colour_type == coot::COLOUR_BY_RAINBOW) {
 						   if (atom_colours_udd > 0) {
 						      mmdb::realtype f;
 						      if (at_1->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok) {
-							 col = atom_colour_map.index_for_rainbow(f);
+							 col_1 = atom_colour_map.index_for_rainbow(f);
+							 if (at_2->GetUDData(atom_colours_udd, f) == mmdb::UDDATA_Ok) {
+							    col_2 = atom_colour_map.index_for_rainbow(f);
+							 } else {
+							    col_2 = 0;
+							 }
 						      } else {
-							 col = 0;
+							 col_1 = 0;
 						      }
 						   } else {
-						      col = 0;
+						      col_1 = 0;
 						   }
 						} else {
 
 						   if (bond_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS) {
-						      col = get_user_defined_col_index(at_1, udd_handle_for_user_defined_colours);
-						      // std::cout << coot::atom_spec_t(at_1) << " " << col << std::endl;
-						      if (col < 0) // problem
-							 col = 0;
+						      col_1 = get_user_defined_col_index(at_1, udd_handle_for_user_defined_colours);
+						      col_2 = get_user_defined_col_index(at_2, udd_handle_for_user_defined_colours);
+						      if (col_1 < 0) // problem
+							 col_1 = 0;
+						      if (col_2 < 0) // ditto
+							 col_2 = 0;
 						   } else {
-						      col = atom_colour_map.index_for_chain(chain_p->GetChainID());
+						      col_1 = atom_colour_map.index_for_chain(chain_p->GetChainID());
+						      col_2 = col_1;
 						   }
 						}
-					     bonds_size_colour_check(col);
-					     addBond(col, ca_1, ca_2);
+						bonds_size_colour_check(col_1);
+						bonds_size_colour_check(col_2);
+						coot::Cartesian bond_mid_point = ca_1.mid_point(ca_2);
+						addBond(col_1, ca_1, bond_mid_point);
+						addBond(col_2, bond_mid_point, ca_2);
 					     }
 					  }
 					  at_1->PutUDData(udd_has_bond_handle, 1);

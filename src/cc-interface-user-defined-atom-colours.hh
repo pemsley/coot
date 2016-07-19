@@ -19,4 +19,5 @@ void set_user_defined_atom_colour_scm(int imol, SCM atom_specs_colour_index_tupl
 void set_user_defined_atom_colour_by_residue_scm(int imol, SCM residue_specs_colour_index_tuple_list_scm);
 #endif // USE_GUILE
 
+void clear_user_defined_atom_colours(int imol);
 
