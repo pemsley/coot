@@ -4356,8 +4356,10 @@ void graphics_to_b_factor_representation(int imol);
 void graphics_to_b_factor_cas_representation(int imol);
 /*! \brief draw molecule number imol coloured by occupancy */
 void graphics_to_occupancy_representation(int imol);
-/*! \brief draw molecule number imol coloured by user-defined atom colours */
+/*! \brief draw molecule number imol in CA+Ligands mode coloured by user-defined atom colours */
 void graphics_to_user_defined_atom_colours_representation(int imol);
+/*! \brief draw molecule number imol all atoms coloured by user-defined atom colours */
+void graphics_to_user_defined_atom_colours_all_atoms_representation(int imol);
 /*! \brief what is the bond drawing state of molecule number imol  */
 int graphics_molecule_bond_type(int imol); 
 /*! \brief scale the colours for colour by b factor representation */

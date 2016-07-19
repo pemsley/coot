@@ -988,7 +988,7 @@ molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds
    // wheel (red through purple to blue and further).
    //
    if (false)
-      std::cout << i << " " << " "
+      std::cout << "set_bond_colour_by_colour_wheel_position "  << i << " " << " "
 		<< rgb[0] << " " << rgb[1] << " " << rgb[2] << " " << std::endl;
    bond_colour_internal = rgb;
    glColor3f(rgb[0], rgb[1], rgb[2]);
