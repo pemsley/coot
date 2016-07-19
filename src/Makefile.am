@@ -446,6 +446,7 @@ coot_bin_SOURCES = \
 	atom-selection.hh 	 \
 	ncs.hh 		         \
 	model-view.hh 		 \
+	view.hh 		 \
 	new-centre.hh
 
 if COOT_USE_PYTHON

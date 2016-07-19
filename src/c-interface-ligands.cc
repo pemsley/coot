@@ -93,7 +93,7 @@ void go_to_ligand() {
 	    // g.setRotationCentre(new_centre.position);
 	    g.perpendicular_ligand_view(pp.second.first, new_centre.residue_spec);
 	    
-	    g.update_things_on_move_and_redraw();
+	    g.update_things_on_move_and_redraw(); // now not done in perpendicular_ligand_view()
 	    std::string s = "Centred on residue ";
 	    // s += new_centre.residue_spec;
 	    s += coot::util::int_to_string(new_centre.residue_spec.res_no);
@@ -123,9 +123,9 @@ void go_to_ligand() {
 	       s += ").";
 	       add_status_bar_text(s.c_str());
 	    }
-	 } 
-      } 
-   } 
+	 }
+      }
+   }
 }
 
 void set_go_to_ligand_n_atoms_limit(int n_atoms_min) {

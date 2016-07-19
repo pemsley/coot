@@ -1223,6 +1223,7 @@ coot_save_state_and_exit(int retval, int save_state_flag) {
 #ifdef WINDOWS_MINGW
    clipper::ClipperInstantiator::instance().destroy();
 #endif
+
    exit(retval);
 } 
 
