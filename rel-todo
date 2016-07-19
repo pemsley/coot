@@ -1,7 +1,14 @@
  
  0.8.4
 
+   o improve the animation on go to ligand - I mean the reorientation of 
+     the ligand, don't just jump
+
    o write a test for apply_charges()
+
+   o on hector: ./coot-bin --no-graphics [Ctrl-D] vs:
+                ./coot-bin --no-graphics --python [Ctrl-D] 
+     the first crashes, the second works as expected.
 
    o why is sequence view so slow to open now?
 

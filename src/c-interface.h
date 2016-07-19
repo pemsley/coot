@@ -942,6 +942,18 @@ are not (or may not be) on the same scale).
 */
 int blob_under_pointer_to_screen_centre();
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/*! \brief return scheme false or a list of molecule number and an atom spec  */
+SCM select_atom_under_pointer_scm();
+#endif
+
+#ifdef USE_PYTHON
+/*! \brief return Python false or a list of molecule number and an atom spec  */
+PyObject *select_atom_under_pointer_py();
+#endif
+#endif /* __cplusplus */
+
 /* \} */
 
 /*  --------------------------------------------------------------------- */
@@ -4344,6 +4356,8 @@ void graphics_to_b_factor_representation(int imol);
 void graphics_to_b_factor_cas_representation(int imol);
 /*! \brief draw molecule number imol coloured by occupancy */
 void graphics_to_occupancy_representation(int imol);
+/*! \brief draw molecule number imol coloured by user-defined atom colours */
+void graphics_to_user_defined_atom_colours_representation(int imol);
 /*! \brief what is the bond drawing state of molecule number imol  */
 int graphics_molecule_bond_type(int imol); 
 /*! \brief scale the colours for colour by b factor representation */
@@ -4351,6 +4365,15 @@ int set_b_factor_bonds_scale_factor(int imol, float f);
 /*! \brief change the representation of the model molecule closest to
   the centre of the screen */
 void change_model_molecule_representation_mode(int up_or_down);
+
+/*! \brief make the carbon atoms for molecule imol be grey
+ */
+void set_use_grey_carbons_for_molecule(int imol, short int state);
+/*! \brief set the colour for the carbon atoms 
+
+can be not grey if you desire, r, g, b in the range 0 to 1.
+ */
+void set_grey_carbon_colour(int imol, float r, float g, float b);
 
 
 /*! \brief make a ball and stick representation of imol given atom selection

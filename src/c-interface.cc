@@ -4682,6 +4682,48 @@ void graphics_to_occupancy_representation(int imol) {
    graphics_draw();
 }
 
+/*! \brief draw molecule number imol coloured by user-defined atom colours */
+void graphics_to_user_defined_atom_colours_representation(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      g.molecules[imol].user_defined_colours_representation(g.Geom_p());
+      std::vector<std::string> command_strings;
+      command_strings.push_back("graphics-to-user-defined-colours-representation");
+      command_strings.push_back(graphics_info_t::int_to_string(imol));
+      add_to_history(command_strings);
+   } else {
+      std::cout << "WARNING:: no such valid molecule " << imol
+		<< " in graphics_to_occupancy_representation"
+		<< std::endl;
+   }
+   graphics_draw();
+
+}
+
+
+/*! \brief make the carbon atoms for molecule imol be grey
+ */
+void set_use_grey_carbons_for_molecule(int imol, short int state) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_use_bespoke_carbon_atom_colour(state);
+      graphics_draw();
+   }
+
+}
+/*! \brief set the colour for the carbon atoms 
+
+can be not grey if you desire, r, g, b in the range 0 to 1.
+ */
+void set_grey_carbon_colour(int imol, float r, float g, float b) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::colour_t col(r,g,b);
+      graphics_info_t::molecules[imol].set_bespoke_carbon_atom_colour(col);
+   }
+   // no graphics draw... Hmm.
+}
 
 
 int

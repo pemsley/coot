@@ -294,17 +294,14 @@ void output_residue_info_dialog(int imol, int atom_index) {
 
 	       graphics_info_t g;
 	       output_residue_info_as_text(atom_index, imol);
-	       mmdb::PAtom picked_atom = g.molecules[imol].atom_sel.atom_selection[atom_index];
-
-	       std::string residue_name = picked_atom->GetResName();
-   
+	       mmdb::Atom *selected_atom = g.molecules[imol].atom_sel.atom_selection[atom_index];
+	       std::string residue_name = selected_atom->GetResName();
 	       mmdb::PPAtom atoms;
 	       int n_atoms;
-
-	       picked_atom->residue->GetAtomTable(atoms,n_atoms);
+	       selected_atom->residue->GetAtomTable(atoms,n_atoms);
 	       GtkWidget *widget = wrapped_create_residue_info_dialog();
 
-	       mmdb::Residue *residue = picked_atom->residue; 
+	       mmdb::Residue *residue = selected_atom->residue; 
 	       coot::residue_spec_t *res_spec_p =
 		  new coot::residue_spec_t(residue->GetChainID(),
 					   residue->GetSeqNum(),

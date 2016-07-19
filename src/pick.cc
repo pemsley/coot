@@ -151,7 +151,7 @@ pick_atom(const atom_selection_container_t &SelAtom, int imol,
    return p_i;
 }
 
-//
+// event can be null. if so Crtl key press check is not made.
 pick_info
 atom_pick(GdkEventButton *event) { 
 
@@ -189,14 +189,20 @@ atom_pick(GdkEventButton *event) {
 
    short int check_pick = 0;
    if (graphics_info_t::control_key_for_rotate_flag == 0) {
-      // i.e. control_key is for picking
-      if (event->state & GDK_CONTROL_MASK) {
-	 check_pick = 1;
+
+      if (event) {
+	 // i.e. control_key is for picking
+	 if (event->state & GDK_CONTROL_MASK) {
+	    check_pick = 1;
+	 }
       }
    } else {
-      // control_key is for rotation
-      if (! (event->state & GDK_CONTROL_MASK)) {
-	 check_pick = 1;
+
+      if (event) {
+	 // control_key is for rotation
+	 if (! (event->state & GDK_CONTROL_MASK)) {
+	    check_pick = 1;
+	 }
       }
    }
 

@@ -28,6 +28,7 @@
 #include "get-monomer.hh"
 #include "globularize.hh"
 #include "cfc.hh"
+#include "cc-interface-user-defined-atom-colours.hh"
 %}
 
 
@@ -78,4 +79,5 @@ namespace std {
 %include "get-monomer.hh"
 %include "globularize.hh"
 %include "cfc.hh"
+%include "cc-interface-user-defined-atom-colours.hh"
 %include "../coords/phenix-geo.hh"

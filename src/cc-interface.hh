@@ -117,17 +117,14 @@ std::string menu_item_label(GtkWidget *menu_item);
 void set_rotation_centre(const clipper::Coord_orth &pos);
 
 #ifdef USE_GUILE
-// Bernie, no need to pythonize this, it's just to test the return
-// values on pressing "next residue" and "previous residue" (you can
-// if you wish of course).
 //
 // Pass the current values, return new values
-SCM goto_next_atom_maybe(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
-SCM goto_prev_atom_maybe(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
+SCM goto_next_atom_maybe_scm(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
+SCM goto_prev_atom_maybe_scm(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
 #endif 
 
 #ifdef USE_PYTHON
-// but I 'want' to! Needed for python unittest!
+
 PyObject *goto_next_atom_maybe_py(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
 PyObject *goto_prev_atom_maybe_py(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
 #endif
