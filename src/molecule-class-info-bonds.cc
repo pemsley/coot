@@ -55,13 +55,23 @@ molecule_class_info_t::set_user_defined_colour_indices(const std::vector<std::pa
 
 
 void
-molecule_class_info_t::user_defined_colours_representation(coot::protein_geometry *geom_p) { 
+molecule_class_info_t::user_defined_colours_representation(coot::protein_geometry *geom_p,
+							   bool all_atoms_mode) { 
 
    bonds_box.clear_up();
-   Bond_lines_container bonds(geom_p);
-   bonds.do_Ca_plus_ligands_bonds(atom_sel, geom_p, 2.4, 4.7, coot::COLOUR_BY_USER_DEFINED_COLOURS, false);
-   bonds_box = bonds.make_graphical_bonds_no_thinning();
-   bonds_box_type = coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS;
+   if (all_atoms_mode) {
+
+      Bond_lines_container bonds(atom_sel, Bond_lines_container::COLOUR_BY_USER_DEFINED_COLOURS);
+      bonds_box = bonds.make_graphical_bonds_no_thinning();
+      bonds_box_type = coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS;
+      
+   } else {
+
+      Bond_lines_container bonds(geom_p);
+      bonds.do_Ca_plus_ligands_bonds(atom_sel, geom_p, 2.4, 4.7, coot::COLOUR_BY_USER_DEFINED_COLOURS, false);
+      bonds_box = bonds.make_graphical_bonds_no_thinning();
+      bonds_box_type = coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS;
+   }
 }
 
 

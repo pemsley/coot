@@ -167,7 +167,8 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t asc,
 } 
 
 
-// This is the one for occupancy and B-factor representation
+// This is the one for occupancy and B-factor representation - and now
+// all-atom user-define colouring too
 // 
 Bond_lines_container::Bond_lines_container (const atom_selection_container_t &SelAtom,
 					    Bond_lines_container::bond_representation_type by_occ) {
@@ -187,6 +188,10 @@ Bond_lines_container::Bond_lines_container (const atom_selection_container_t &Se
       if (by_occ == Bond_lines_container::COLOUR_BY_B_FACTOR) {
 	 try_set_b_factor_scale(SelAtom.mol);
 	 construct_from_asc(SelAtom, 0.01, max_dist, coot::COLOUR_BY_B_FACTOR, 0, model_number);
+      } else {
+	 // how confusing... :-)
+	 if (by_occ == Bond_lines_container::COLOUR_BY_USER_DEFINED_COLOURS)
+	    construct_from_asc(SelAtom, 0.01, max_dist, coot::COLOUR_BY_USER_DEFINED_COLOURS, 0, model_number);
       }
    }
 }
@@ -393,7 +398,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 							 atom_selection_2[contact[i].id2],
 							 atom_colour_type);
 					  done_h_bond = true;
-				       } 
+				       }
 				    }
 				 
 				    if (element_2 == " O") {
@@ -409,8 +414,15 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 				       } 
 				    }
 
-				    if (! done_h_bond) { 
-				       addBond(HYDROGEN_GREY_BOND, atom_1_pos, atom_2_pos);
+				    if (! done_h_bond) {
+				       if (atom_colour_type != coot::COLOUR_BY_USER_DEFINED_COLOURS) {
+					  addBond(HYDROGEN_GREY_BOND, atom_1_pos, atom_2_pos);
+				       } else {
+					  add_half_bonds(atom_1_pos, atom_2_pos,
+							 atom_selection_1[contact[i].id1],
+							 atom_selection_2[contact[i].id2],
+							 atom_colour_type);
+				       }
 				    }
 				    done_bond_udd_handle = true;
 				    atom_p_1->PutUDData(udd_handle, BONDED_WITH_BOND_TO_HYDROGEN);
@@ -1323,13 +1335,17 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 
    // initialize each colour in the Bond_lines_container
    //
+   int n_col = 10;
+   if (atom_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS)
+      n_col = 40;
+   
    if (bonds.size() == 0) { 
-      for (int i=0; i<10; i++) { 
+      for (int i=0; i<n_col; i++) {
 	 Bond_lines a(i);
 	 bonds.push_back(a);
       }
    }
-   float star_size = 0.28;
+   float star_size = 0.22;
 
    // initialize the hydrogen bonding flag:
    //
@@ -1734,7 +1750,7 @@ Bond_lines_container::handle_long_bonded_atom(mmdb::PAtom atom,
    if (!bond_added_flag) {
       // bond it like a single atom then:
       
-      float star_size = 0.28;
+      float star_size = 0.22;
       coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
       coot::Cartesian small_vec_y(0.0, star_size, 0.0);
       coot::Cartesian small_vec_z(0.0, 0.0, star_size);
@@ -2941,11 +2957,11 @@ Bond_lines_container::Bond_lines_container(symm_keys key) {
 
 void Bond_lines_container::check_static() const {
 
-	graphical_bonds_container pot; 
+   graphical_bonds_container pot; 
 	
-        cout << "check: num_colours:"     << pot.num_colours << endl;
-	cout << "check: bonds:"           << pot.bonds_ << endl;
-        cout << "check: bonds::numlines " << pot.bonds_[12].num_lines << endl;
+   std::cout << "check: num_colours:"     << pot.num_colours << std::endl;
+   std::cout << "check: bonds:"           << pot.bonds_ << std::endl;
+   std::cout << "check: bonds::numlines " << pot.bonds_[12].num_lines << std::endl;
 
 }
 
@@ -2960,7 +2976,7 @@ Bond_lines_container::make_graphical_bonds_no_thinning() const {
    return make_graphical_bonds(false); // no thinning
 }
 
-graphical_bonds_container 
+graphical_bonds_container
 Bond_lines_container::make_graphical_bonds(bool thinning_flag) const {
 
    graphical_bonds_container box;
@@ -2978,9 +2994,8 @@ Bond_lines_container::make_graphical_bonds(bool thinning_flag) const {
       for (int j=0; j<bonds[i].size(); j++) 
 	 box.bonds_[i].pair_list[j] = bonds[i][j];
       if (thinning_flag)
-	 if (i == HYDROGEN_GREY_BOND) { 
+	 if (i == HYDROGEN_GREY_BOND)
 	    box.bonds_[i].thin_lines_flag = 1;
-	 } 
    }
    box.add_zero_occ_spots(zero_occ_spots);
    box.add_deuterium_spots(deuterium_spots);
@@ -4413,11 +4428,11 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 
 	       if (abs(res1 - res2) < 2) { 
 
-		  std::string segid1(at1->GetChainID());
-		  std::string segid2(at2->GetChainID());
-		  col = atom_colour_map.index_for_chain(segid1); 
+		  std::string chain_id_1(at1->GetChainID());
+		  std::string chain_id_2(at2->GetChainID());
+		  col = atom_colour_map.index_for_chain(chain_id_1); 
 
-		  if (segid1 == segid2) {
+		  if (chain_id_1 == chain_id_2) {
 
 		     element1 = at1->element;
 		     element2 = at2->element;
@@ -4466,7 +4481,7 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
 		   << std::endl;
       } else { 
     
-	 float star_size = 0.28;
+	 float star_size = 0.22;
 	 // for atoms with no neighbour (contacts):
 	 coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
 	 coot::Cartesian small_vec_y(0.0, star_size, 0.0);
@@ -4761,7 +4776,7 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
       if (uddHnd>=0) {
 
 
-	 float star_size = 0.28;
+	 float star_size = 0.22;
 	 // for atoms with no neighbour (contacts):
 	 coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
 	 coot::Cartesian small_vec_y(0.0, star_size, 0.0);
@@ -5002,7 +5017,7 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
 
 	 if (uddHnd>=0) {
     
-	    float star_size = 0.28;
+	    float star_size = 0.22;
 	    // for atoms with no neighbour (contacts):
 	    coot::Cartesian small_vec_x(star_size, 0.0, 0.0);
 	    coot::Cartesian small_vec_y(0.0, star_size, 0.0);

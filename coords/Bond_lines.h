@@ -568,7 +568,7 @@ class Bond_lines_container {
    
 
 public:
-   enum bond_representation_type { COLOUR_BY_OCCUPANCY, COLOUR_BY_B_FACTOR}; 
+   enum bond_representation_type { COLOUR_BY_OCCUPANCY, COLOUR_BY_B_FACTOR, COLOUR_BY_USER_DEFINED_COLOURS}; 
 
    // getting caught out with Bond_lines_container dependencies?
    // We need:  mmdb-extras.h which needs mmdb-manager.h and <string>
