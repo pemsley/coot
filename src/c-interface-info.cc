@@ -1411,8 +1411,8 @@ void set_rotation_centre(const clipper::Coord_orth &pos) {
 // Pass the current values, return new values
 //
 // Hmm maybe these function should pass the atom name too?  Yes they should
-SCM goto_next_atom_maybe(const char *chain_id, int resno, const char *ins_code,
-			 const char *atom_name) {
+SCM goto_next_atom_maybe_scm(const char *chain_id, int resno, const char *ins_code,
+			     const char *atom_name) {
 
    SCM r = SCM_BOOL_F;
 
@@ -1446,8 +1446,8 @@ SCM goto_next_atom_maybe(const char *chain_id, int resno, const char *ins_code,
 #endif
 
 #ifdef USE_GUILE
-SCM goto_prev_atom_maybe(const char *chain_id, int resno, const char *ins_code,
-			 const char *atom_name) {
+SCM goto_prev_atom_maybe_scm(const char *chain_id, int resno, const char *ins_code,
+			     const char *atom_name) {
 
    SCM r = SCM_BOOL_F;
    int imol = go_to_atom_molecule_number();
