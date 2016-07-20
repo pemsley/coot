@@ -54,9 +54,13 @@ namespace coot {
       bool read_data_sm_cif(const std::string &file_name);
       // return an empty map if not possible
       clipper::Xmap<float> map() const;
+      bool check_for_f_phis() const; // use sigmaa_maps if we have phis, use
+                                     // sigmaa_maps_by_calc_sfs if we don't.
+      // calculate maps using fcalc and phi calc in the .cif files
+      // return an empty map in first if not possible, 
+      std::pair<clipper::Xmap<float>, clipper::Xmap<float> > sigmaa_maps();
       // return an empty map in first if not possible
-      std::pair<clipper::Xmap<float>, clipper::Xmap<float> > sigmaa_maps() const;
-
+      std::pair<clipper::Xmap<float>, clipper::Xmap<float> > sigmaa_maps_by_calc_sfs(mmdb::Atom **atom_selection, int n_selected_atoms);
    };
 
    class simple_sm_u {
