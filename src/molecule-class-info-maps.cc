@@ -463,7 +463,7 @@ molecule_class_info_t::draw_density_map_internal(short int display_lists_for_map
 	    if (xmap_is_diff_map == 1) {
 
 	       if (n_diff_map_draw_vectors > 0) { 
-	       
+
 		  glColor3dv (map_colour[1]);
 		  // we only need to do this if it wasn't done above.
 		  if (n_draw_vectors == 0)
@@ -719,8 +719,10 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
 
       // narrowing from doubles to floats (there is no glMaterialdv).
 
-      GLfloat  mat_specular[]  = {0.4,  0.4,  0.4,  opacity}; // makes a difference
-      GLfloat  mat_ambient[]   = {.3*map_colour[0][0], 0.3*map_colour[0][1], 0.3*map_colour[0][2],
+      GLfloat  mat_specular[]  = {0.4f,  0.4f,  0.4f,  opacity}; // makes a difference
+      GLfloat  mat_ambient[]   = {0.3*map_colour[0][0],
+				  0.3*map_colour[0][1],
+				  0.3*map_colour[0][2],
 				  opacity};
       GLfloat  mat_diffuse[]   = {map_colour[0][0], map_colour[0][1], map_colour[0][2], opacity};
       GLfloat  mat_shininess[] = {100}; // makes a difference
@@ -765,12 +767,37 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
       glLightfv(GL_LIGHT2, GL_SPECULAR, specularLight);
 
       glMaterialf(GL_FRONT_AND_BACK, GL_SHININESS, 128);
-      glDisable(GL_COLOR_MATERIAL);
 
+      // glDisable(GL_COLOR_MATERIAL);
+
+      // the facets shine this colour
       GLfloat  mat_specular[]  = {0.98,  0.98,  0.98,  opacity};
-      GLfloat  mat_ambient[]   = {0.260, 0.260, 0.260, opacity};
-      GLfloat  mat_diffuse[]   = {0.400, 0.400, 0.400, opacity};
-      GLfloat  mat_shininess[] = {100.0};
+      GLfloat  mat_ambient[]   = {0.960, 0.160, 0.160, opacity};
+      GLfloat  mat_diffuse[]   = {0.900, 0.100, 0.100, opacity};
+      GLfloat  mat_shininess[] = {120.0};
+
+      if (is_difference_map_p()) {
+
+	 if (is_neg) {
+	    mat_ambient[0] = 0.03*map_colour[1][0];
+	    mat_ambient[1] = 0.03*map_colour[1][1];
+	    mat_ambient[2] = 0.03*map_colour[1][2];
+	    mat_ambient[3] = opacity;
+	    mat_diffuse[0] = map_colour[1][0];
+	    mat_diffuse[1] = map_colour[1][1];
+	    mat_diffuse[2] = map_colour[1][2];
+	    mat_diffuse[3] = opacity;
+	 } else {
+	    mat_ambient[0] = 0.3*map_colour[0][0];
+	    mat_ambient[1] = 0.3*map_colour[0][1];
+	    mat_ambient[2] = 0.3*map_colour[0][2];
+	    mat_ambient[3] = opacity;
+	    mat_diffuse[0] = map_colour[0][0];
+	    mat_diffuse[1] = map_colour[0][1];
+	    mat_diffuse[2] = map_colour[0][2];
+	    mat_diffuse[3] = opacity;
+	 }
+      }
 
       glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
       glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
