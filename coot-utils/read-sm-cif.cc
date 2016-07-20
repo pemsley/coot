@@ -137,6 +137,7 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
 
 	 char *label  = NULL;
 	 mmdb::realtype xf,yf,zf, occ, tf;
+	 int symmetry_multiplicity;
 	 mmdb::realtype x,y,z;
 	 int ierr_tot = 0;
 	 char *disorder_assembly = NULL;
@@ -197,6 +198,7 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
 	    
 	    occ = 1; // hack
 	    tf = 10.0;
+	    symmetry_multiplicity = 1;
 
 	    // can we get a real value for tf?
 	    int ierr_tf = 0;
@@ -208,12 +210,18 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
 	    // real value for occ?
 	    int ierr_occ = 0;
 	    loop->GetReal(occ, "_atom_site_occupancy", il, ierr_occ);
+
+	    int ierr_symm_mult = 0;
+	    loop->GetInteger(symmetry_multiplicity, "_atom_site_symmetry_multiplicity", il, ierr_symm_mult);
 	    
 	    if (ierr_tot == 0) {
 	       mmdb::Atom *at = new mmdb::Atom;
 	       clipper::Coord_frac cf(xf,yf,zf);
 	       clipper::Coord_orth co = cf.coord_orth(cell);
-	       at->SetCoordinates(co.x(), co.y(),co.z(), occ, tf);
+	       mmdb::realtype occ_symm = occ;
+	       if (ierr_symm_mult == 0)
+		  occ_symm /= float(symmetry_multiplicity);
+	       at->SetCoordinates(co.x(), co.y(),co.z(), occ_symm, tf);
 	       // label -> 4c atom name conversion? 
 	       at->SetAtomName(label);
 	       std::pair<std::string, int> ele = symbol_to_element(symbol);
@@ -231,7 +239,7 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
 	    } else {
 	       if (true)
 		  std::cout << "WARNING:: reject atom at loop count " << il << std::endl;
-	    } 
+	    }
 	 }
       }
    }
@@ -246,8 +254,8 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
       int ll = loop->GetLoopLength();
       char *label  = NULL;
       mmdb::realtype u11=-1, u22=-1, u33=-1, u12=-1, u13=-1, u23=-1;
-      int ierr_tot = 0;
       for (int il=0; il<ll; il++) {
+	 int ierr_tot = 0;
 	 label  = loop->GetString(loopTagsAniso[0], il, ierr);
 	 ierr_tot += ierr;
 	 loop->GetReal(u11, "_atom_site_aniso_U_11", il, ierr);
@@ -263,9 +271,11 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
 	 loop->GetReal(u23, "_atom_site_aniso_U_23", il, ierr);
 	 ierr_tot += ierr;
 
-	 if (! ierr_tot) {
+	 if (ierr_tot == 0) {
 	    // label -> atom name conversion here?
-            if ((u11>0) && (u22>0) && (u33>0) && (u12>0) && (u13>0) && (u23>0)) {
+            // if ((u11>0) && (u22>0) && (u33>0) && (u12>0) && (u13>0) && (u23>0))
+	    //  diagonals can be negative
+            if ((u11>0) && (u22>0)) {
 	       coot::simple_sm_u smu(label, u11, u22, u33, u12, u13, u23);
 	       u_aniso_vec.push_back(smu);
             }
@@ -291,10 +301,10 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
 	       at->u13 = cao(0,2);
 	       at->u23 = cao(1,2);
 	       at->WhatIsSet |= mmdb::ASET_Anis_tFac; // is anisotropic
-	    } 
+	    }
 	 }
       }
-   } 
+   }
    return atom_vec;
 }
 
@@ -361,7 +371,6 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
 	 mmdb::mmcif::PLoop loop = data->FindLoop(loopTag1);
 	 if (loop) {
 	    int ll = loop->GetLoopLength();
-	    std::cout << "INFO:: read_sm_cif() loop length: " << ll << std::endl;
 	    if (ll > 0) { 
 	       for (int il=0; il<ll; il++) {
 
@@ -1020,6 +1029,13 @@ coot::smcif::sigmaa_maps() {
    bool debug = true;
    clipper::Xmap<float> xmap;
    clipper::Xmap<float> xmap_diff;
+
+   // stop early if we don't have phases
+   bool f_phis = check_for_f_phis();
+   if (! f_phis) {
+      std::cout << "WARNING:: No (f_calc, phi_calc)s in file" << std::endl;
+      return std::pair<clipper::Xmap<float>, clipper::Xmap<float> > (xmap, xmap_diff);
+   }
    
    if (! data_cell.is_null()) { // cell is good
       if (! data_spacegroup.is_null()) { // space group is good
