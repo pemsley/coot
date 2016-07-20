@@ -33,6 +33,8 @@
 // molecule-class-info.h can be parsed, is silly.
 
 // For stat, mkdir:
+#include <iomanip> // for std::setw
+
 #include <sys/types.h>
 #include <sys/stat.h>
 
@@ -68,8 +70,6 @@
 #include <GL/glut.h> // needed (only?) for wirecube
 #include "globjects.h" // for set_bond_colour()
 #include "skeleton/graphical_skel.h"
-
-#include <iomanip> // for std::setw
 
 
 // #include "coords/mmdb.h"
