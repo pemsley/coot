@@ -1604,23 +1604,33 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 	file.open_read(filename);
 
 	em = is_em_map(file);
-	
-	if (1) { 
+
+	bool use_xmap = true; // not an nxmap
+	if (true) {
 	
 	   clipper::Grid_sampling fgs = file.grid_sampling();
-	   try {
-	      file.import_xmap(xmap);
-	   }
-	   catch (const clipper::Message_generic &exc) {
-	      std::cout << "WARNING:: failed to read " << filename
-			<< " Bad ASU (inconsistant gridding?)." << std::endl;
+	   clipper::Cell fcell = file.cell();
+	   double vol = fcell.volume();
+	   if (vol < 1.0) {
+	      std::cout << "WARNING:: non-sane unit cell volume " << vol << " - skip read"
+			<< std::endl;
 	      bad_read = true;
+	   } else {
+
+	      try {
+		 file.import_xmap(xmap);
+	      }
+	      catch (const clipper::Message_generic &exc) {
+		 std::cout << "WARNING:: failed to read " << filename
+			   << " Bad ASU (inconsistant gridding?)." << std::endl;
+		 bad_read = true;
+	      }
 	   }
 	} else {
 
 	   // Should never happen.  Not yet.
 	   // 
-	   std::cout << "=================== EM Map ====================== " << std::endl;
+	   std::cout << "=================== EM Map NXmap =================== " << std::endl;
 	   file.import_nxmap(nxmap);
 	   std::cout << "INFO:: created NX Map with grid " << nxmap.grid().format() << std::endl;
 	} 
@@ -1631,28 +1641,28 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
      std::pair<bool, coot::Cartesian> new_centre(false, coot::Cartesian(0,0,0)); // used only for first EM map
 
-     if (em) {
+     if (! bad_read) {
+	if (em) {
+	   // If this was the first map, recentre to the middle of the cell
+	   //
+	   if (imol_no == 0) {
+	      clipper::Cell c = file.cell();
+	      coot::Cartesian m(0.5*c.descr().a(),
+				0.5*c.descr().b(),
+				0.5*c.descr().c());
+	      new_centre.first = true;
+	      new_centre.second = m;
+	      std::cout << "INOF:: map appears to be EM map."<< std::endl;
+	   }
+	}
+	std::cout << "closing CCP4 map: " << filename << std::endl;
+	file.close_read();
 
-	// If this was the first map, recentre to the middle of the cell
-	//
-	if (imol_no == 0) {
-	   clipper::Cell c = file.cell();
-	   coot::Cartesian m(0.5*c.descr().a(),
-			     0.5*c.descr().b(),
-			     0.5*c.descr().c());
-	   new_centre.first = true;
-	   new_centre.second = m;
-           std::cout << "INOF:: map appears to be EM map."<< std::endl;
+	if (new_centre.first) {
+	   graphics_info_t g;
+	   g.setRotationCentre(new_centre.second);
 	}
      }
-     
-     std::cout << "closing CCP4 map: " << filename << std::endl;
-     file.close_read();
-
-     if (new_centre.first) {
-	graphics_info_t g;
-	g.setRotationCentre(new_centre.second);
-     } 
      
    } else {
      std::cout << "attempting to read CNS map: " << filename << std::endl;
