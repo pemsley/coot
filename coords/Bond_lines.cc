@@ -1825,11 +1825,10 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    
    if (ncontacts > 0) {
       for (int i=0; i<ncontacts; i++) {
-	 if ( draw_these_residue_contacts(residue_atoms[contact[i].id1]->GetResidue(),
-					  SelAtom.atom_selection[contact[i].id2]->GetResidue(),
-					  protein_geom_p)
-	      || residue_is_water_flag) {
-	    
+
+	 if (draw_these_atom_contacts(residue_atoms[contact[i].id1], SelAtom.atom_selection[contact[i].id2],
+				      protein_geom_p) || residue_is_water_flag) {
+
 	    coot::Cartesian atom_1(residue_atoms[ contact[i].id1 ]->x,
 				   residue_atoms[ contact[i].id1 ]->y,
 				   residue_atoms[ contact[i].id1 ]->z);
@@ -1904,7 +1903,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 //
 // No, if the residues are next to each other in sequence in the same
 // chain and are a polymer.
-//     
+//
 // Otherwise, yes.
 // 
 bool
@@ -1918,21 +1917,85 @@ Bond_lines_container::draw_these_residue_contacts(mmdb::Residue *this_residue,
       std::string ch2(env_residue->GetChainID());
       if ((abs(this_residue->GetSeqNum() - env_residue->GetSeqNum()) > 1)
 	  || (ch1 != ch2)) {
-	 return 1;
+	 return true;
       } else {
 	 // are we in a polymer? if so, no draw.
 	 //
 	 std::string this_res_type = this_residue->GetResName();
 	 std::string env_residue_res_type = env_residue->GetResName();
 	 if (protein_geom_p->linkable_residue_types_p(this_res_type, env_residue_res_type)) {
-	    return 0;
+	    return false;
 	 } else {
-	    return 1;
+	    return true;
 	 }
       }
    } else {
-      return 0;
+      return false;
    } 
+}
+
+
+// We want to filter out contact in the same residue.
+// 
+// we want to filter out atom contacts along the main chain.  Previously we did that by
+// checking that the residues were not next to each other (above) - but I want to see contacts
+// between bases in DNA, so now, filter out distances based on atom names (and residue numbering)
+// 
+bool
+Bond_lines_container::draw_these_atom_contacts(mmdb::Atom *this_atom, mmdb::Atom *env_atom,
+					       coot::protein_geometry *protein_geom) {
+
+   bool draw_flag = true;
+
+   mmdb::Residue *this_residue = this_atom->GetResidue();
+   mmdb::Residue *env_residue  =  env_atom->GetResidue();
+
+   mmdb::Chain *ch_this = this_atom->GetChain();
+   mmdb::Chain *ch_env  =  env_atom->GetChain();
+
+   if (ch_this != ch_env) {
+      return true;
+   } else {
+      if (this_residue == env_residue) {
+	 return false;
+      } else {
+	 if (abs(this_residue->GetSeqNum() - env_residue->GetSeqNum()) > 1) {
+	    return true;
+	 } else {
+	    // OK, we have neighbouring residues in the same chain
+	    //
+	    std::string this_res_type = this_residue->GetResName();
+	    std::string env_residue_res_type = env_residue->GetResName();
+	    if (! protein_geom->linkable_residue_types_p(this_res_type, env_residue_res_type)) {
+	       return true;
+	    } else {
+	       std::string this_atom_name = this_atom->GetAtomName();
+	       std::string  env_atom_name =  env_atom->GetAtomName();
+	       // PDBv3 FIXME
+	       if (this_atom_name == " N  ") if (env_atom_name == " CA ") draw_flag = false;
+
+	       if ((this_atom_name == " N  ") || (this_atom_name == " CA ") ||
+		   (this_atom_name == " C  ") || (this_atom_name == " O  ") ||
+		   (this_atom_name == " H  "))
+		  if ((env_atom_name == " N  ") || (env_atom_name == " CA ") ||
+		      (env_atom_name == " C  ") || (env_atom_name == " O  ") ||
+		      (env_atom_name == " H  "))
+		     draw_flag = false;
+
+	       if ((this_atom_name == " O3'") || (this_atom_name == " C3'") ||
+		   (this_atom_name == " P  ") || (this_atom_name == " OP1") ||
+		   (this_atom_name == " OP2") || (this_atom_name == " O5'") ||
+		   (this_atom_name == " C5'"))
+		  if ((env_atom_name == " O3'") || (env_atom_name == " C3'") ||
+		      (env_atom_name == " P  ") || (env_atom_name == " OP1") ||
+		      (env_atom_name == " OP2") || (env_atom_name == " O5'") ||
+		      (env_atom_name == " C5'"))
+		     draw_flag = false;
+	    }
+	 }
+      }
+   }
+   return draw_flag;
 }
 
 
