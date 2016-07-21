@@ -232,6 +232,7 @@ parse_command_line(int argc, char ** argv ) {
 			       << "            [--auto mtz-file-name]\n"
 			       << "            [--dictionary cif-dictionary-file-name]\n"
 			       << "            [--script script-file-name]\n"
+			       << "            [--em]\n"
 			       << "            [--title some-title]\n"
 			       << "            [--small-screen]\n"
 			       << "            [--splash-screen]\n"
