@@ -114,6 +114,7 @@ parse_command_line(int argc, char ** argv ) {
       {"code",       1, 0, 0},
       {"comp_id",    1, 0, 0},
       {"comp-id",    1, 0, 0},
+      {"em",         0, 0, 0},
       {"title",      1, 0, 0},
       {"port",       1, 0, 0},
       {"host",       1, 0, 0},
@@ -276,28 +277,32 @@ parse_command_line(int argc, char ** argv ) {
 				    if (arg_str == "no-graphics") {
 				       cld.do_graphics = 0;
 				    } else {
-				       if (arg_str == "side-by-side") {
-					  cld.hardware_stereo_flag = 2;
+				       if (arg_str == "em") {
+					  cld.em_mode = true;
 				       } else {
-					  if (arg_str == "no-guano") {
-					     cld.disable_state_script_writing = 1;
+					  if (arg_str == "side-by-side") {
+					     cld.hardware_stereo_flag = 2;
 					  } else {
-					     if (arg_str == "small-screen") {
-						cld.small_screen_display = 1;
+					     if (arg_str == "no-guano") {
+						cld.disable_state_script_writing = 1;
 					     } else {
-						if (arg_str == "no-splash-screen") {
-						   cld.use_splash_screen = 0;
+						if (arg_str == "small-screen") {
+						   cld.small_screen_display = 1;
 						} else {
-						   if (arg_str == "self-test") {
-						      cld.run_internal_tests_and_exit = 1;
+						   if (arg_str == "no-splash-screen") {
+						      cld.use_splash_screen = 0;
 						   } else {
-						      if (arg_str == "update-self") {
-							 cld.update_self = 1;
-							 cld.do_graphics = 0;
+						      if (arg_str == "self-test") {
+							 cld.run_internal_tests_and_exit = 1;
 						      } else {
-							 std::cout << "WARNING! Malformed option - needs an argument: " 
-								   << long_options[option_index].name
-								   << std::endl << std::endl;
+							 if (arg_str == "update-self") {
+							    cld.update_self = 1;
+							    cld.do_graphics = 0;
+							 } else {
+							    std::cout << "WARNING! Malformed option - needs an argument: " 
+								      << long_options[option_index].name
+								      << std::endl << std::endl;
+							 }
 						      }
 						   }
 						}

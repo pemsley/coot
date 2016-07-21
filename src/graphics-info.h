@@ -1450,6 +1450,7 @@ public:
    static short int quanta_like_zoom_flag; 
 
    static float box_radius;
+   static float box_radius_em;
 
    static float iso_level_increment; 
    static float diff_map_iso_level_increment;

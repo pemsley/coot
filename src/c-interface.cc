@@ -1734,6 +1734,20 @@ void set_density_size(float f) {
    
 }
 
+void set_density_size_em(float f) {
+
+   graphics_info_t g;
+   g.box_radius_em = f;
+   for (int ii=0; ii<g.n_molecules(); ii++) {
+      g.molecules[ii].update_map();
+   }
+   graphics_draw();
+   std::string cmd = "set-density-size-em";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(f);
+   add_to_history_typed(cmd, args);
+}
+
 /*! \brief set the extent of the box/radius of electron density contours */
 void set_map_radius(float f) {
    set_density_size(f);
