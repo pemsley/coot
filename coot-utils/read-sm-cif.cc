@@ -25,6 +25,7 @@
 #include "read-sm-cif.hh"
 
 
+
 // This can throw a std::runtime_error.
 // 
 clipper::Cell
@@ -139,13 +140,13 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
 	 mmdb::realtype xf,yf,zf, occ, tf;
 	 int symmetry_multiplicity;
 	 mmdb::realtype x,y,z;
-	 int ierr_tot = 0;
 	 char *disorder_assembly = NULL;
 	 char *disorder_group = NULL;
 	 std::string alt_loc;
 
 	 for (int il=0; il<ll; il++) {
 
+	    int ierr_tot = 0;
 	    label  = loop->GetString(loopTagsAtom[0], il, ierr);
 	    ierr_tot += ierr;
 	    loop->GetReal(xf, loopTagsAtom[1], il, ierr);
@@ -213,7 +214,7 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
 
 	    int ierr_symm_mult = 0;
 	    loop->GetInteger(symmetry_multiplicity, "_atom_site_symmetry_multiplicity", il, ierr_symm_mult);
-	    
+
 	    if (ierr_tot == 0) {
 	       mmdb::Atom *at = new mmdb::Atom;
 	       clipper::Coord_frac cf(xf,yf,zf);
@@ -254,6 +255,7 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
       int ll = loop->GetLoopLength();
       char *label  = NULL;
       mmdb::realtype u11=-1, u22=-1, u33=-1, u12=-1, u13=-1, u23=-1;
+      int ierr_tot = 0;
       for (int il=0; il<ll; il++) {
 	 int ierr_tot = 0;
 	 label  = loop->GetString(loopTagsAniso[0], il, ierr);
@@ -271,11 +273,9 @@ coot::smcif::read_coordinates(mmdb::mmcif::PData data, const clipper::Cell &cell
 	 loop->GetReal(u23, "_atom_site_aniso_U_23", il, ierr);
 	 ierr_tot += ierr;
 
-	 if (ierr_tot == 0) {
+	 if (! ierr_tot) {
 	    // label -> atom name conversion here?
-            // if ((u11>0) && (u22>0) && (u33>0) && (u12>0) && (u13>0) && (u23>0))
-	    //  diagonals can be negative
-            if ((u11>0) && (u22>0)) {
+            if ((u11>0) && (u22>0) && (u33>0)) {
 	       coot::simple_sm_u smu(label, u11, u22, u33, u12, u13, u23);
 	       u_aniso_vec.push_back(smu);
             }
@@ -504,7 +504,7 @@ coot::smcif::get_resolution(const clipper::Cell &cell,
    }
    delete data;
    double reso_A = 1/sqrt(slim);
-   std::cout << "returning clipper::Resolution( " << reso_A << " A)" << std::endl;
+   // std::cout << "returning clipper::Resolution( " << reso_A << " A)" << std::endl;
    return clipper::Resolution(reso_A);
 }
 
@@ -673,11 +673,16 @@ coot::smcif::read_data_sm_cif(const std::string &file_name) {
 	    // to init my_fsigf so that cell_, hkl_sampling_ and spacegroup_ are set,
 	    // we must init with init(spacegroup, cell, sampling)
 	    
-	    // my_fsigf.init(mydata, data_cell);
-	    // my_fphi.init( mydata, data_cell);
+	    my_fsigf.init(mydata, data_cell);
+	    my_fphi.init( mydata, data_cell);
 
-	    my_fsigf.init(data_spacegroup, data_cell, hkl_sampling);
-	    my_fphi.init( data_spacegroup, data_cell, hkl_sampling); // these may not exist
+	    // Enabling these causes a crash for fcf unit test.
+	    // 
+	    // These were initally added so that (I presumed) COD data can't be used to
+	    // calculate structure factors.
+	    // 
+	    // my_fsigf.init(data_spacegroup, data_cell, hkl_sampling);
+	    // my_fphi.init( data_spacegroup, data_cell, hkl_sampling); // these may not exist
 	                                                             // in the cif file.
 	    mmdb::mmcif::Data *data = new mmdb::mmcif::Data();
 	    data->SetFlag (mmdb::mmcif::CIFFL_SuggestCategories);
@@ -717,7 +722,7 @@ coot::smcif::read_data_sm_cif(const std::string &file_name) {
 		     h_tag = "_pd_refln_index_h";
 		     k_tag = "_pd_refln_index_k";
 		     l_tag = "_pd_refln_index_l";
-		  }
+		  } 
 	       }
 	       if (loop) {
 		  clipper::HKL_data_base* f_sigf_input;
@@ -822,22 +827,10 @@ coot::smcif::read_data_sm_cif(const std::string &file_name) {
       }
    }
 
-   if (false) {
-      std::cout << "end of read_data_sm_cif() mydata cell is  " << mydata.cell().format() << std::endl;
-      std::cout << "end of read_data_sm_cif() mydata spg is   " << mydata.spacegroup().descr().symbol_hm()
-		<< std::endl;
-
-      // my_fsigf values for cell and spacegroup are garbage here
-      std::cout << "end of read_data_sm_cif() my_fsigf cell is  " << my_fsigf.cell().format() << std::endl;
-      std::cout << "end of read_data_sm_cif() my_fsigf spg is   " << my_fsigf.spacegroup().descr().symbol_hm()
-		<< std::endl;
-   }
-
    if (false) { // debugging.
       for (clipper::HKL_info::HKL_reference_index hri = my_fsigf.first();
 	   !hri.last(); hri.next()) {
-	 std::cout << "read_data_sm_cif():: obs " << hri.hkl().format() << " "
-		   << my_fsigf[hri].f() << std::endl;
+	 std::cout << "read_data_sm_cif():: obs " << my_fsigf[hri].f() << std::endl;
       }
    }
    
@@ -865,7 +858,7 @@ coot::smcif::get_cell_for_data(mmdb::mmcif::PData data) const {
       }
    }
 
-   if (! ierr) {
+   if (! ierr) { 
       ierr = data->GetReal (c, "", "_cell_length_c");
       if (ierr) { 
 	 std::cout << "Bad cell length c " << std::endl;
@@ -915,7 +908,7 @@ coot::smcif::get_space_group(mmdb::mmcif::Data *data) const {
    std::string       old_style = "_symmetry_equiv_pos_as_xyz";
    
    std::pair<bool,clipper::Spacegroup> s = get_space_group_from_loop(data, old_style);
-   if (! s.first)
+   if (! s.first) 
       s = get_space_group_from_loop(data, shelxl_style);
    return s;
 }
@@ -1009,9 +1002,10 @@ coot::smcif::check_for_f_phis() const {
    for (hri = my_fphi.first(); !hri.last(); hri.next()) {
       if (! clipper::Util::isnan(my_fphi[hri].phi())) {
 	 n_phis++;
-	 std::cout << "check_for_f_phis " << hri.hkl().format() << " phi "
-		   << my_fphi[hri].phi()
-		   << std::endl;
+	 if (false)
+	    std::cout << "check_for_f_phis " << hri.hkl().format() << " phi "
+		      << my_fphi[hri].phi()
+		      << std::endl;
       }
    }
 
@@ -1021,101 +1015,6 @@ coot::smcif::check_for_f_phis() const {
       have = true;
    
    return have;
-}
-
-std::pair<clipper::Xmap<float>, clipper::Xmap<float> >
-coot::smcif::sigmaa_maps() {
-
-   bool debug = true;
-   clipper::Xmap<float> xmap;
-   clipper::Xmap<float> xmap_diff;
-
-   // stop early if we don't have phases
-   bool f_phis = check_for_f_phis();
-   if (! f_phis) {
-      std::cout << "WARNING:: No (f_calc, phi_calc)s in file" << std::endl;
-      return std::pair<clipper::Xmap<float>, clipper::Xmap<float> > (xmap, xmap_diff);
-   }
-   
-   if (! data_cell.is_null()) { // cell is good
-      if (! data_spacegroup.is_null()) { // space group is good
-	 if (! data_resolution.is_null()) { // resolution is good
-
-	    if (debug)
-	       std::cout << "cell, spacegroup, resolution is good" << std::endl;
-
-	    typedef clipper::HKL_data_base::HKL_reference_index HRI;
-	    clipper::Grid_sampling gs(data_spacegroup, data_cell, data_resolution);
-	    const clipper::HKL_info &hkls = mydata;
-
-	    clipper::HKL_data<clipper::datatypes::Phi_fom<float> > phiw(hkls, data_cell);
-	    clipper::HKL_data<clipper::datatypes::F_phi<float> >     fb(hkls, data_cell);
-	    clipper::HKL_data<clipper::datatypes::F_phi<float> >     fd(hkls, data_cell);
-	    clipper::HKL_data<clipper::datatypes::Flag>           flags(hkls, data_cell);
-
-	    clipper::HKL_info::HKL_reference_index hri;
-	    for (hri = flags.first(); !hri.last(); hri.next() )
-	       flags[hri].flag() = clipper::SFweight_spline<float>::BOTH;
-
-	    int n_phi_w = 0;
-	    for (hri = phiw.first(); !hri.last(); hri.next() ) {
-	       phiw[hri].phi() = my_fphi[hri].phi();
-	       phiw[hri].fom() = 1;
-	       n_phi_w++;
-	    }
-
-	    if (debug) {
-	       std::cout << "---------------- filling sigmaa_maps ... " << std::endl;
-	       std::cout << "spacegroup" << data_spacegroup.descr().symbol_hm()<< std::endl;
-
-	       for (hri = my_fsigf.first(); !hri.last(); hri.next()) {
-		  std::cout << "my_fsigf f: " << hri.hkl().format() << " "
-			    << my_fsigf[hri].f() << std::endl;
-	       }
-	       for (hri = my_fphi.first(); !hri.last(); hri.next() ) {
-		  std::cout << " my_fphi f: " << hri.hkl().format() << " "
-			    << my_fphi[hri].f() << " phi: " << my_fphi[hri].phi()
-			    << std::endl;
-	       }
-
-	       for (hri = phiw.first(); !hri.last(); hri.next() ) {
-		  std::cout << "   phiw: " << hri.hkl().format() << " "
-			    << phiw[hri].phi() << " "
-			    << phiw[hri].fom() << std::endl;
-	       }
-	    }
-
-	    int n_refln = hkls.num_reflections();
-	    int n_param = 6;
-	    clipper::SFweight_spline<float> sfw(n_refln, n_param);
-	    // fb returns with f() full of -nans.  I don't understand why.
-	    sfw(fb, fd, phiw, my_fsigf, my_fphi, flags);
-
-	    if (debug)
-	       for (hri = fb.first(); !hri.last(); hri.next())
-		  std::cout << "   " << hri.hkl().format() << " " 
-			    << "fb f " << fb[hri].f() << " phi " << fb[hri].phi() << "\n";
-	    
-	    xmap.init(data_spacegroup, data_cell, gs);
-	    xmap.fft_from(fb);
-
-	    xmap_diff.init(data_spacegroup, data_cell, gs);
-	    xmap_diff.fft_from(fd);
-
-	    int n_points = 0;
-	    clipper::Xmap_base::Map_reference_index ix;
-
-	    if (debug) { 
-	       for (ix = xmap.first(); !ix.last(); ix.next() ) {
-		  n_points++;
-		  std::cout << xmap[ix] << " ";
-		  if (n_points%60 == 0) std::cout << "\n";
-	       }
-	    }
-	 }
-      }
-   }
-   return std::pair<clipper::Xmap<float>, clipper::Xmap<float> > (xmap, xmap_diff);
 }
 
 
@@ -1187,6 +1086,100 @@ coot::smcif::sigmaa_maps_by_calc_sfs(mmdb::Atom **atom_selection, int n_selected
       }
    }
    return p;
+}
+
+
+
+std::pair<clipper::Xmap<float>, clipper::Xmap<float> >
+coot::smcif::sigmaa_maps() {
+
+   bool debug = false;
+   clipper::Xmap<float> xmap;
+   clipper::Xmap<float> xmap_diff;
+
+   // stop early if we don't have phases
+   bool f_phis = check_for_f_phis();
+   if (! f_phis) {
+      std::cout << "WARNING:: No (f_calc, phi_calc)s in file" << std::endl;
+      return std::pair<clipper::Xmap<float>, clipper::Xmap<float> > (xmap, xmap_diff);
+   }
+   
+   if (! data_cell.is_null()) { // cell is good
+      if (! data_spacegroup.is_null()) { // space group is good
+	 if (! data_resolution.is_null()) { // resolution is good
+
+	    if (debug)
+	       std::cout << "cell, spacegroup, resolution is good" << std::endl;
+
+	    typedef clipper::HKL_data_base::HKL_reference_index HRI;
+	    clipper::Grid_sampling gs(data_spacegroup, data_cell, data_resolution);
+	    const clipper::HKL_info &hkls = mydata;
+
+	    clipper::HKL_data<clipper::datatypes::Phi_fom<float> > phiw(hkls, data_cell);
+	    clipper::HKL_data<clipper::datatypes::F_phi<float> >     fb(hkls, data_cell);
+	    clipper::HKL_data<clipper::datatypes::F_phi<float> >     fd(hkls, data_cell);
+	    clipper::HKL_data<clipper::datatypes::Flag>           flags(hkls, data_cell);
+
+	    clipper::HKL_info::HKL_reference_index hri;
+	    for (hri = flags.first(); !hri.last(); hri.next() )
+	       flags[hri].flag() = clipper::SFweight_spline<float>::BOTH;
+	    for (hri = phiw.first(); !hri.last(); hri.next() ) {
+	       phiw[hri].phi() = my_fphi[hri].phi();
+	       phiw[hri].fom() = 1;
+	    }
+
+	    if (debug) { 
+	       std::cout << "---------------- filling sigmaa_maps ... " << std::endl;
+	       std::cout << "spacegroup" << data_spacegroup.descr().symbol_hm()<< std::endl;
+
+	       for (hri = my_fsigf.first(); !hri.last(); hri.next()) {
+		  std::cout << "my_fsigf f: " << hri.hkl().format() << " "
+			    << my_fsigf[hri].f() << std::endl;
+	       }
+	       for (hri = my_fphi.first(); !hri.last(); hri.next() ) {
+		  std::cout << " my_fphi f: " << hri.hkl().format() << " "
+			    << my_fphi[hri].f() << " phi: " << my_fphi[hri].phi()
+			    << std::endl;
+	       }
+	       for (hri = phiw.first(); !hri.last(); hri.next() ) {
+		  std::cout << "   phiw: " << hri.hkl().format() << " "
+			    << phiw[hri].phi() << " "
+			    << phiw[hri].fom() << std::endl;
+	       }
+	    }
+
+	    // int n_refln = hkls.num_reflections();
+	    int n_refln = 1000;
+	    int n_param = 20;
+	    clipper::SFweight_spline<float> sfw(n_refln, n_param);
+	    // fb returns with f() full of -nans.  I don't understand why.
+	    sfw(fb, fd, phiw, my_fsigf, my_fphi, flags);
+
+	    if (debug)
+	       for (hri = fb.first(); !hri.last(); hri.next())
+		  std::cout << "   " << hri.hkl().format() << " " 
+			    << "fb f " << fb[hri].f() << " phi " << fb[hri].phi() << "\n";
+	    
+	    xmap.init(data_spacegroup, data_cell, gs);
+	    xmap.fft_from(fb);
+
+	    xmap_diff.init(data_spacegroup, data_cell, gs);
+	    xmap_diff.fft_from(fd);
+
+	    int n_points = 0;
+	    clipper::Xmap_base::Map_reference_index ix;
+
+	    if (debug) { 
+	       for (ix = xmap.first(); !ix.last(); ix.next() ) {
+		  n_points++;
+		  std::cout << xmap[ix] << " ";
+		  if (n_points%60 == 0) std::cout << "\n";
+	       }
+	    }
+	 }
+      }
+   }
+   return std::pair<clipper::Xmap<float>, clipper::Xmap<float> > (xmap, xmap_diff);
 }
 
 
