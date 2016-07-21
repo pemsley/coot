@@ -310,7 +310,7 @@ coot::smcif::symbol_to_element(const std::string &symbol) const {
       if (c >= '0' && c <= '9') { 
 	 s[i] = ' ';
 	 oxidation_state = c - 48;
-      } 
+      }
       if (c == '+')
 	 s[i] = ' ';
       if (c == '-') {
@@ -322,7 +322,7 @@ coot::smcif::symbol_to_element(const std::string &symbol) const {
    if (s1.length() == 1)
       s1 = " " + s1;
    return std::pair<std::string, int> (s1, oxidation_state * sign_mult);
-} 
+}
 
 
 
@@ -868,7 +868,7 @@ coot::smcif::get_space_group(mmdb::mmcif::Data *data) const {
    std::string       old_style = "_symmetry_equiv_pos_as_xyz";
    
    std::pair<bool,clipper::Spacegroup> s = get_space_group_from_loop(data, old_style);
-   if (! s.first) 
+   if (! s.first)
       s = get_space_group_from_loop(data, shelxl_style);
    return s;
 }

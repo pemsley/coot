@@ -81,7 +81,7 @@ molecule_class_info_t::clear_user_defined_atom_colours() {
    if (atom_sel.mol) {
       int udd_handle = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
       if (udd_handle != 0) {
-	 // atom_sel.mol->FreeUDRegister();
+	 udd_handle = 0; // reset
       }
    }
 }
