@@ -2107,10 +2107,14 @@ int read_small_molecule_data_cif(const char *file_name) {
 
       std::pair<clipper::Xmap<float>, clipper::Xmap<float> > maps = smcif.sigmaa_maps();
       if (not (maps.first.is_null())) {
-	 g.molecules[imol].new_map(maps.first, file_name);
+	 std::string map_name = file_name;
+	 map_name += " SigmaA";
+	 g.molecules[imol].new_map(maps.first, map_name);
 	 g.scroll_wheel_map = imol;
 	 int imol_diff = g.create_molecule();
-	 g.molecules[imol_diff].new_map(maps.second, file_name);
+	 map_name = file_name;
+	 map_name += " Diff-SigmaA";
+	 g.molecules[imol_diff].new_map(maps.second, map_name);
 	 g.molecules[imol_diff].set_map_is_difference_map();
       }
       graphics_draw();
@@ -2140,10 +2144,14 @@ int read_small_molecule_data_cif_and_make_map_using_coords(const char *file_name
 	 smcif.sigmaa_maps_by_calc_sfs(atom_selection, n_selected_atoms);
       if (not (maps.first.is_null())) {
 	 imol_map = g.create_molecule();
-	 g.molecules[imol_map].new_map(maps.first, file_name);
+	 std::string map_name = file_name;
+	 map_name += " SigmaA";
+	 g.molecules[imol_map].new_map(maps.first, map_name);
 	 g.scroll_wheel_map = imol_map;
 	 int imol_diff = g.create_molecule();
-	 g.molecules[imol_diff].new_map(maps.second, file_name);
+	 map_name = file_name;
+	 map_name += " Diff-SigmaA";
+	 g.molecules[imol_diff].new_map(maps.second, map_name);
 	 g.molecules[imol_diff].set_map_is_difference_map();
       }
    }
