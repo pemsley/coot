@@ -4,6 +4,11 @@
    o improve the animation on go to ligand - I mean the reorientation of 
      the ligand, don't just jump
 
+* Done
+
+   o environment distances for neighbouring residues - use dictionary
+     group to exclude contacts along the link for particular group types
+
    o write a test for apply_charges()
 
    o on hector: ./coot-bin --no-graphics [Ctrl-D] vs:

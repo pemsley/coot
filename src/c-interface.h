@@ -3628,6 +3628,9 @@ int read_small_molecule_cif(const char *file_name);
 
 int read_small_molecule_data_cif(const char *file_name);
 
+int read_small_molecule_data_cif_and_make_map_using_coords(const char *file_name, 
+							   int imol_coords);
+
 /* \} */
 
 /*  ----------------------------------------------------------------------- */
