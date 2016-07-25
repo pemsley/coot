@@ -359,11 +359,14 @@
 		   '() log-file-name #t)))
 	     (if (not (ok-goosh-status? goosh-status))
 		 (begin
+		   (format #t "WARNING:: OOps - pyrogen exited with status: ~s~%~!" goosh-status)
 		   #f)
 		 (begin
 		   (let* ((pdb-file-name (string-append tlc-text "-pyrogen.pdb"))
 			  (cif-file-name (string-append tlc-text "-pyrogen.cif"))
 			  (imol (handle-read-draw-molecule-with-recentre pdb-file-name 0)))
+
+		     (format #t "INFO:: pyrogen test will try to read ~s~%~!" pdb-file-name)
 		     ;; add test for chirality in the dictionary here 
 		     (valid-model-molecule? imol)))))))))
 
