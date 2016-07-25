@@ -1335,18 +1335,13 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 
    // initialize each colour in the Bond_lines_container
    //
-<<<<<<< HEAD
-   if (bonds.size() == 0) {
-      // There are now 13 colours in bond_colours (CPK extras)
-      for (int i=0; i<13; i++) { 
-=======
-   int n_col = 10;
+   // There are now 13 colours in bond_colours (CPK extras)
+   int n_col = 13;
    if (atom_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS)
       n_col = 40;
    
    if (bonds.size() == 0) { 
       for (int i=0; i<n_col; i++) {
->>>>>>> origin/master
 	 Bond_lines a(i);
 	 bonds.push_back(a);
       }
