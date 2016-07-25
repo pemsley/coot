@@ -245,12 +245,16 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		  if (restraints.atom_info[i].atom_id_4c == atom_name) {
 		     if (restraints.atom_info[i].pdbx_stereo_config.first) {
 			if (restraints.atom_info[i].pdbx_stereo_config.second == "R") {
-			   std::cout << "  pdbx_stereo_config: " << atom_name << " R " << std::endl;
 			   RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_UNSPECIFIED;
 			   rdkit_at->setChiralTag(chiral_tag);
+			   std::string cip = "R";
+			   rdkit_at->setProp("_CIPCode", cip);
+			   std::cout << "  pdbx_stereo_config: " << atom_name << " R " << std::endl;
 			}
 			if (restraints.atom_info[i].pdbx_stereo_config.second == "S") {
 			   RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_UNSPECIFIED;
+			   std::string cip = "S";
+			   rdkit_at->setProp("_CIPCode", cip);
 			   std::cout << "        " << atom_name << " S " << std::endl;
 			}
 		     } 
@@ -658,8 +662,8 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 		     RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
 		     at->setChiralTag(chiral_tag);
 		  }
-	       } 
-	    } 
+	       }
+	    }
 	 }
 
 	 // need to try to get chiral info using atom_info[iat].pdbx_stereo_config
