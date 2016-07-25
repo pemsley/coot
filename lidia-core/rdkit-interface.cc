@@ -103,11 +103,12 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
    std::vector<mmdb::Atom *>     added_atoms; // gets added to as added_atom_names gets added to.
    std::map<std::string, int> atom_index;
    int current_atom_id = 0;
-   std::vector<int> bonded_atoms; // vector of the atoms that we will
-				  // add to the rdkit molecule.  We
-				  // don't want to add atoms that are
-				  // not bonded to anything
-				  // (e.g. hydrogens with mismatching names)
+   std::vector<std::pair<int, int> > bonded_atoms; // vector of the indices of the atoms that we will
+                                       // add to the rdkit molecule. The first index is into the
+                                       // residue_atoms and the second into restraints.atom_info.
+                                       // We don't want to add atoms that are
+				       // not bonded to anything (e.g. hydrogens with mismatching
+                                       // names).
    
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat_1=0; iat_1<n_residue_atoms; iat_1++) {
@@ -147,8 +148,22 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	       }
 	    }
 
-	    if (found_a_bonded_atom)
-	       bonded_atoms.push_back(iat_1);
+	    // what is the index of this atom name in the atom_info? (we need this so that we
+	    // can apply the charge to the rdkit atom later.)
+	    int ai_idx = -1;
+	    for (unsigned int jj=0; jj<restraints.atom_info.size(); jj++) {
+	       if (restraints.atom_info[jj].atom_id_4c == atom_name_1) {
+		  ai_idx = jj;
+		  break;
+	       }
+	    }
+
+	    if (found_a_bonded_atom) {
+	       if (ai_idx > -1) {
+		  std::pair<int, int> p(iat_1, ai_idx);
+		  bonded_atoms.push_back(p);
+	       }
+	    }
 	 }
       }
    }
@@ -161,7 +176,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 
    for (unsigned int iat=0; iat<bonded_atoms.size(); iat++) {
 
-      mmdb::Atom *at = residue_atoms[bonded_atoms[iat]];
+      mmdb::Atom *at = residue_atoms[bonded_atoms[iat].first];
       std::string atom_name(at->name);
       if (debug)
 	 std::cout << "   handling atom " << iat << " of " << n_residue_atoms << " bonded_atoms " 
@@ -183,6 +198,11 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    // rdkit_at->setMass(tbl->getAtomicWeight(atomic_number));
 	    rdkit_at->setIsotope(0);
 	    rdkit_at->setProp("name", atom_name);
+
+	    // formal charge
+	    const coot::dict_atom &atom_info = restraints.atom_info[bonded_atoms[iat].second];
+	    if (atom_info.formal_charge.first)
+	       rdkit_at->setFormalCharge(atom_info.formal_charge.second);
 
 	    // set the valence from they type energy.  Abstract?
 	    //
@@ -249,13 +269,13 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 			   rdkit_at->setChiralTag(chiral_tag);
 			   std::string cip = "R";
 			   rdkit_at->setProp("_CIPCode", cip);
-			   std::cout << "  pdbx_stereo_config: " << atom_name << " R " << std::endl;
+			   // std::cout << "  pdbx_stereo_config: " << atom_name << " R " << std::endl;
 			}
 			if (restraints.atom_info[i].pdbx_stereo_config.second == "S") {
 			   RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_UNSPECIFIED;
 			   std::string cip = "S";
 			   rdkit_at->setProp("_CIPCode", cip);
-			   std::cout << "        " << atom_name << " S " << std::endl;
+			   // std::cout << "        " << atom_name << " S " << std::endl;
 			}
 		     } 
 		  }
@@ -498,7 +518,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
     if (debug)
        std::cout << "---------------------- calling assign_formal_charges() -----------"
 		 << std::endl;
-    coot::assign_formal_charges(&m);
+    coot::assign_formal_charges(&m); // those not in the cif file, that is
 
     if (debug)
        std::cout << "---------------------- getting ring info findSSSR() -----------"
@@ -517,10 +537,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
        std::cout << "---------------------- calling cleanUp() -----------" << std::endl;
     RDKit::MolOps::cleanUp(m);
 
-   
    // OK, so cleanUp() doesn't fix the N charge problem our prodrg molecule
    // 
-   if (debug) { // debug, formal charges
+   if (false) { // debug, formal charges
       std::cout << "::::::::::::::::::::::::::: after cleanup :::::::::::::::::"
 		<< std::endl;
       int n_mol_atoms = m.getNumAtoms();
@@ -535,7 +554,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		      <<  kee.what() << std::endl;
 	 }
 	 int formal_charge = at_p->getFormalCharge();
+	 std::cout << name << " formal_charge " << formal_charge << std::endl;
       }
+      std::cout << "::::::::::: done " << std::endl;
    }
 
    // 2016014-PE needs investigating.
@@ -576,7 +597,13 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	 }
       }
    }
-   m.addConformer(conf);
+
+   int conf_id = m.addConformer(conf);
+
+   // RDKit::MolOps::assignStereochemistry(m, false, true, true); // this does not assign stereochemistry on m
+   
+   RDKit::MolOps::assignChiralTypesFrom3D(m, conf_id, true);
+   
    if (debug) 
       std::cout << "ending construction of rdkit mol: n_atoms " << m.getNumAtoms()
 		<< std::endl;
@@ -653,6 +680,15 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	 at->setIsotope(0);
 	 at->setProp("name", atom_name);
 
+	 if (false)
+	    std::cout << iat << " " << atom_name << " "
+		      << r.atom_info[iat].formal_charge.first << " "
+		      << r.atom_info[iat].formal_charge.second << std::endl;
+
+	 // formal charge
+	 if (r.atom_info[iat].formal_charge.first)
+	    at->setFormalCharge(r.atom_info[iat].formal_charge.second);
+	 
 	 // set the chirality (if this atom is chiral).
 	 //
 	 for (unsigned int ichi=0; ichi<r.chiral_restraint.size(); ichi++) { 
@@ -2821,14 +2857,24 @@ coot::debug_rdkit_molecule(const RDKit::ROMol *rdkm) {
       RDKit::Atom::HybridizationType ht = at_p->getHybridization();
       
       int f_c = at_p->getFormalCharge();
-      std::cout << "   " << iat << " ele: " << std::setw(2) << std::right << element;
+      std::cout << std::setw(3) << iat << " ele: " << std::setw(2) << std::right << element;
       if (! name.empty())
 	 std::cout << " name :" << name << ":";
       std::cout << " degree: " << degree;
       std::cout << " formal-charge: " << f_c << " ";
       std::cout << " hybridization: " << ht;
+						\
+      // chiral tag
+      RDKit::Atom::ChiralType ct = at_p->getChiralTag();
+      std::string cts = "!";
+      if (ct == RDKit::Atom::CHI_UNSPECIFIED)    cts = "-";
+      if (ct == RDKit::Atom::CHI_TETRAHEDRAL_CW) cts = " CW";
+      if (ct == RDKit::Atom::CHI_TETRAHEDRAL_CW) cts = "CCW";
+      if (ct == RDKit::Atom::CHI_OTHER)          cts = "Oth";
+      std::cout << " Chir: " << cts;
+      
 
-      // chirality
+      // R/S chirality
       std::string cip;
       try {
 	 at_p->getProp("_CIPCode", cip);
