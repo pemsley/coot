@@ -3329,6 +3329,14 @@ molecule_class_info_t::make_bonds_type_checked() {
       b_factor_representation();
    if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR)
       b_factor_representation_as_cas();
+   if (bonds_box_type == coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS)
+      user_defined_colours_representation(g.Geom_p(), true); // hack, because we need to remeber somehow
+                                                             // if this was called with all-atom or CA-only.
+                                                             // See c-interface.cc
+                                                             // graphics_to_user_defined_atom_colours_representation()
+                                                             // Perhaps we need two functions
+                                                             // user_defined_colours_representation_all()
+                                                             // user_defined_colours_representation_Calpha() [+ ligands]
    
    // bleugh. But if we don't do this here, where *do* we do it?
    // Should the glci be passed to make_bonds_type_checked()?  Urgh.

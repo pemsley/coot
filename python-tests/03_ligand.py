@@ -178,8 +178,8 @@ class LigandTestFunctions(unittest.TestCase):
         """Flip residue (around eigen vectors)"""
 
         mon_file = os.path.join("coot-ccp4", "monomer-3GP.pdb")
-        if self.skip_test(not os.path.isfile(mon_file),
-                    "  Oops! file not found! coot-ccp4/monomer-3GP.pdb, skip.")
+	e = os.path.isfile(mon_file)
+	if self.skip_test(not e, "  Oops! file not found! coot-ccp4/monomer-3GP.pdb, skip."):
             return
 
         imol_orig = read_pdb(mon_file)
@@ -193,8 +193,7 @@ class LigandTestFunctions(unittest.TestCase):
         set_go_to_atom_chain_residue_atom_name("A", 1, " C8 ")
 
         active_atom = active_residue()
-        if self.skip_test(not active_atom,
-                          "No active atom found - skipping flip residue test"):
+        if self.skip_test(not active_atom, "No active atom found - skipping flip residue test"):
             return
         imol      = active_atom[0]
         chain_id  = active_atom[1]
