@@ -1857,10 +1857,9 @@ to_vertex_list_t::Copy(const to_vertex_list_t &a) {
    
    // cout << "to_vertex_list_t Copy" << endl;
    //
-   int *new_vertex_list = new int[a.vertex_list_size];
-
-   for (int ii=0; ii<a.vertex_list_size; ii++)
-      new_vertex_list[ii] = a.vertex_list[ii];
+   // int *new_vertex_list = new int[a.vertex_list_size];
+   // for (int ii=0; ii<a.vertex_list_size; ii++)
+   //    new_vertex_list[ii] = a.vertex_list[ii];
 
    n_vertices       = a.n_vertices;
    vertex_list_size = a.vertex_list_size;

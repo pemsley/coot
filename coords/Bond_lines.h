@@ -58,7 +58,8 @@ namespace coot {
 			COLOUR_BY_MOLECULE=4,
 			COLOUR_BY_RAINBOW=5, 
 			COLOUR_BY_OCCUPANCY=6,
-			COLOUR_BY_B_FACTOR=7 };
+			COLOUR_BY_B_FACTOR=7,
+			COLOUR_BY_USER_DEFINED_COLOURS=8 };
 
   class my_atom_colour_map_t {
 
@@ -482,8 +483,16 @@ class Bond_lines_container {
 			mmdb::PPAtom ligand_atoms_selection,
 			int n_ligand_atoms);
 
+   // no longer use this - it's too crude
    bool draw_these_residue_contacts(mmdb::Residue *this_residue, mmdb::Residue *env_residue,
 				    coot::protein_geometry *protein_geom);
+
+   // we want to filter out atom contacts along the main chain.  Previously we did that by
+   // checking that the residues were not next to each other (above) - but I want to see contacts
+   // between bases in DNA, so now, filter out distances based on atom names (and residue numbering)
+   // 
+   bool draw_these_atom_contacts(mmdb::Atom *this_residue, mmdb::Atom *env_residue,
+				 coot::protein_geometry *protein_geom); // protein_geom is modifiable
 
    // abstract this out of construct_from_atom_selection for cleanliness.
    // 
@@ -558,10 +567,16 @@ class Bond_lines_container {
 				     std::vector<std::pair<bool, mmdb::Residue *> > *het_residues);
 
    std::vector<coot::util::cis_peptide_quad_info_t> cis_peptide_quads;
+
+   // for user defined colours:
+   // 
+   // return a colour index, and -1 on failure
+   //
+   int get_user_defined_col_index(mmdb::Atom *at, int udd_handle) const;
    
 
 public:
-   enum bond_representation_type { COLOUR_BY_OCCUPANCY, COLOUR_BY_B_FACTOR}; 
+   enum bond_representation_type { COLOUR_BY_OCCUPANCY, COLOUR_BY_B_FACTOR, COLOUR_BY_USER_DEFINED_COLOURS}; 
 
    // getting caught out with Bond_lines_container dependencies?
    // We need:  mmdb-extras.h which needs mmdb-manager.h and <string>

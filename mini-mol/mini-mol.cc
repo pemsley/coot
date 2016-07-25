@@ -595,9 +595,7 @@ coot::minimol::residue::update_positions_from(mmdb::Residue *residue_p) {
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       for (int iat=0; iat<n_atoms; iat++) {
 	 mmdb::Atom *at = residue_atoms[iat];
-	 // std::cout << "   " << seqnum <<  " " << atoms[iat].name << " from " << atoms[iat].pos.format()
-	 // << " to " << at->x << " " << at->y << " " << at->z << std::endl;
-	 clipper::Coord_orth p(residue_atoms[iat]->x, residue_atoms[iat]->y, residue_atoms[iat]->z);
+	 clipper::Coord_orth p(at->x, at->y, at->z);
 	 atoms[iat].pos = p;
       }
    }
@@ -933,10 +931,7 @@ coot::minimol::molecule::pcmmdbmanager() const {
       // if this fragment was uninitialised, residues size is 0.  We
       // don't want a mesage saying that we are writing out "0 - 1" (=
       // 4294967295) residues.
-      int n_residues = fragments[ifrag].residues.size();
-      if (n_residues != 0) n_residues = n_residues -1;
-//       std::cout << "   writing out " << n_residues
-// 		<< " residues for " << fragments[ifrag].fragment_id << std::endl; 
+      
       chain_p = new mmdb::Chain;
       chain_p->SetChainID(fragments[ifrag].fragment_id.c_str());
       model_p->AddChain(chain_p);

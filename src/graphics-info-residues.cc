@@ -353,8 +353,9 @@ graphics_info_t::perpendicular_ligand_view(int imol, const coot::residue_spec_t 
 	 graphics_info_t g;
 	 std::pair<bool, clipper::Coord_orth> residue_centre = g.molecules[imol].residue_centre(residue_p);
 	 if (residue_centre.first) {
-			
-	    g.setRotationCentre(residue_centre.second);
+
+	    if (false) // new style ligand navigation 20160720
+	       g.setRotationCentre(residue_centre.second);
 
 	    if (false) { // debug matrices/eigen
 
@@ -410,28 +411,42 @@ graphics_info_t::perpendicular_ligand_view(int imol, const coot::residue_spec_t 
 	    }
 
 	    coot::util::quaternion vq(md);
-	    g.quat[0] = vq.q0;
-	    g.quat[1] = vq.q1;
-	    g.quat[2] = vq.q2;
-	    g.quat[3] = vq.q3;
+
+	    // convert a coot::util::quaternion to a float *.
+
+	    // ugly - we should have equivalent of this in the quaternion class.
+	    // 
+	    float vqf[4];
+	    vqf[0] = vq.q0; vqf[1] = vq.q1; vqf[2] = vq.q2; vqf[3] = vq.q3;
 
 	    if (need_x_rotate) {
 	       float spin_quat[4];
 	       trackball(spin_quat, 0, 0, 0.0, 0.0174533*45, 0.8);
-	       add_quats(spin_quat, g.quat, g.quat);
+	       add_quats(spin_quat, vqf, vqf);
 	    } 
 
 	    if (need_y_rotate) { 
 	       float spin_quat[4];
 	       trackball(spin_quat, 0, 0, 0.0174533*45, 0.000, 0.8);
-	       add_quats(spin_quat, g.quat, g.quat);
+	       add_quats(spin_quat, vqf, vqf);
 	    }
 	    if (need_z_rotate) { 
 	       float spin_quat[4];
 	       trackball(spin_quat, 1.0, 1.0, 1.0, 1.0 + 0.0174533*180, 0.4);
-	       add_quats(spin_quat, g.quat, g.quat);
+	       add_quats(spin_quat, vqf, vqf);
 	    }
-	    g.update_things_on_move_and_redraw();
+
+	    // interpolate between current view and new view
+	    //
+
+	    const clipper::Coord_orth &rc = residue_centre.second;
+	    coot::Cartesian res_centre(rc.x(), rc.y(), rc.z());
+	    coot::Cartesian rot_centre = RotationCentre();
+	    coot::view_info_t view1(g.quat, rot_centre, zoom, "current");
+	    coot::view_info_t view2(vqf,    res_centre, zoom, "ligand-perp");
+	    int nsteps = 50;
+	    coot::view_info_t::interpolate(view1, view2, nsteps);
+
 	 }
       }
    }

@@ -225,7 +225,8 @@ namespace lig_build {
 	 offsets.push_back(offset_text_t(atom_id_in));
 	 if (formal_charge != 0) { 
 	    offset_text_t superscript("");
-	    if (formal_charge == -1) superscript=offset_text_t("-");
+	    // if (formal_charge == -1) superscript=offset_text_t("-"); // try U+2012 or U+2013
+	    if (formal_charge == -1) superscript=offset_text_t("−");
 	    if (formal_charge == -2) superscript=offset_text_t("2-");
 	    if (formal_charge == +1) superscript=offset_text_t("+");
 	    if (formal_charge == +2) superscript=offset_text_t("2+");
@@ -1210,11 +1211,11 @@ namespace lig_build {
 	    int idx_1 = bonds[ibond].get_atom_1_index();
 	    int idx_2 = bonds[ibond].get_atom_2_index();
 	    if (atoms[idx_1] == atom) {
-	       std::cout << "found atom idx1 " << atom << " in atoms: " << idx_1 << std::endl;
+	       // std::cout << "found atom idx1 " << atom << " in atoms: " << idx_1 << std::endl;
 	       sum_delta += atoms[idx_2].atom_position - atom.atom_position;
 	    }
 	    if (atoms[idx_2] == atom) {
-	       std::cout << "found atom idx2 " << atom << " in atoms: " << idx_1 << std::endl;
+	       // std::cout << "found atom idx2 " << atom << " in atoms: " << idx_1 << std::endl;
 	       sum_delta += atoms[idx_1].atom_position - atom.atom_position;
 	    }
 	 }
@@ -1670,7 +1671,7 @@ namespace lig_build {
 		  if (ele == "S")
 		     txt = "HS";
 		  offset_text_t ot(txt);
-		  ot.tweak = pos_t(-8, 0);
+		  ot.tweak = pos_t(-10, 0);
 		  atom_id_info.add(ot);
 	       } else {
 		  // simple
@@ -1719,7 +1720,7 @@ namespace lig_build {
 		     // H pokes to the left
 		     atom_id_info = atom_id_info_t();
 		     offset_text_t n(std::string("H") + ele);
-		     n.tweak = pos_t(-7,0);
+		     n.tweak = pos_t(-10,0);
 		     atom_id_info.add(n);
 		  } else {
 		     atom_id_info = atom_id_info_t();

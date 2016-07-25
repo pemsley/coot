@@ -117,17 +117,14 @@ std::string menu_item_label(GtkWidget *menu_item);
 void set_rotation_centre(const clipper::Coord_orth &pos);
 
 #ifdef USE_GUILE
-// Bernie, no need to pythonize this, it's just to test the return
-// values on pressing "next residue" and "previous residue" (you can
-// if you wish of course).
 //
 // Pass the current values, return new values
-SCM goto_next_atom_maybe(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
-SCM goto_prev_atom_maybe(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
+SCM goto_next_atom_maybe_scm(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
+SCM goto_prev_atom_maybe_scm(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
 #endif 
 
 #ifdef USE_PYTHON
-// but I 'want' to! Needed for python unittest!
+
 PyObject *goto_next_atom_maybe_py(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
 PyObject *goto_prev_atom_maybe_py(const char *chain_id, int resno, const char *ins_code, const char *atom_name);
 #endif
@@ -645,6 +642,14 @@ PyObject *residue_centre_from_spec_py(int imol,
 
 PyObject *chain_fragments_py(int imol, short int screen_output_also);
 
+#ifdef USE_PYTHON
+void set_b_factor_residues_py(int imol, PyObject *residue_specs_b_value_tuple_list_py);
+#endif
+
+#ifdef USE_GUILE
+void set_b_factor_residues_scm(int imol, SCM residue_specs_b_value_tuple_list_scm);
+#endif
+
 //! \}
 
 //! \name Using S-expression molecules
@@ -671,8 +676,8 @@ PyObject *active_residue_py();
 
 //! \brief return the spec of the closest displayed atom
 //!
-//! Return a list of (list imol chain-id resno ins-code atom-name
-//! alt-conf (list x y z)) for atom that is closest to the screen
+//! Return a list of [imol, chain-id, resno, ins-code, atom-name,
+//! alt-conf, [x, y, z]] for atom that is closest to the screen
 //! centre in the given molecule (unlike active-residue, potential CA 
 //! substition is not performed).  If there is no atom, or if imol is 
 //! not a valid model molecule, return False.

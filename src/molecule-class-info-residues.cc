@@ -125,7 +125,7 @@ molecule_class_info_t::apply_charges(const coot::protein_geometry &geom) {
 	 // 
 	 int imod = 1;
 	 mmdb::Model *model_p = mol->GetModel(imod);
-	 if (! model_p) { 
+	 if (model_p) {
 	    mmdb::Chain *chain_p;
 	    int nchains = model_p->GetNumberOfChains();
 	    for (int ichain=0; ichain<nchains; ichain++) {
@@ -1147,6 +1147,8 @@ molecule_class_info_t::watson_crick_pair_for_residue_range(const std::string &ch
 	 
 	    atom_sel.mol->FinishStructEdit();
 	    update_molecule_after_additions();
+	 } else {
+	    delete chain_p;
 	 }
       }
    } 

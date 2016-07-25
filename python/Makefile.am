@@ -49,9 +49,9 @@ dist_pkgpython_PYTHON = \
    redefine_functions.py user_define_restraints.py template_key_bindings.py   \
    gui_add_linked_cho.py ligand_check.py     run_mogul.py                     \
    contact_score_isolated_ligand.py          gui_contact_score_isolated_ligand.py \
-   enhanced_ligand.py		      \
    dictionary_generators.py coot_toolbuttons.py  rcrane_loader.py \
    pdbe_validation_data.py  pathology_plots.py ligand_validation_sliders.py \
+   enhanced_ligand.py	gui_ligand_sliders.py		      \
    chemical_feature_clusters.py res_spec_utils.py \
    $(TEXI_FILE)
 

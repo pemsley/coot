@@ -2839,7 +2839,7 @@ coot::protein_geometry::init_standard() {
       if (cmld) {
 	 mon_lib_dir = cmld;
       }
-   } 
+   }
       
    if (!s || env_dir_fails) {
 
@@ -2847,12 +2847,11 @@ coot::protein_geometry::init_standard() {
 
       // Next try CLIBD_MON:
       s = getenv("CLIBD_MON");
-#ifdef WINDOWS_MINGW
-      std::string tmp = coot::util::remove_trailing_slash(s);
-      s = (char *)tmp.c_str();
-#endif
       if (s) {
-	 istat = stat(s, &buf);
+
+	 std::string ss(s); // might have trailing "/"
+	 ss = coot::util::remove_trailing_slash(ss);
+	 istat = stat(ss.c_str(), &buf);
 	 if (istat) { 
 	    env_dir_fails = 1;
 	 } else {

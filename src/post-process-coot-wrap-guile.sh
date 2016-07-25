@@ -32,11 +32,10 @@ post="$4"
 guile_config=$1
 gtk2=$2 
 
-
-echo ::::::::::::::::::::: post-process-coot-wrap-guile 1 $1 
-echo ::::::::::::::::::::: post-process-coot-wrap-guile 2 $2 
-echo ::::::::::::::::::::: post-process-coot-wrap-guile 3 $3 
-echo ::::::::::::::::::::: post-process-coot-wrap-guile 4 $4 
+# echo ::::::::::::::::::::: post-process-coot-wrap-guile 1 $1 
+# echo ::::::::::::::::::::: post-process-coot-wrap-guile 2 $2 
+# echo ::::::::::::::::::::: post-process-coot-wrap-guile 3 $3 
+# echo ::::::::::::::::::::: post-process-coot-wrap-guile 4 $4 
 
 guile_version=`$guile_config --version 2>&1`
 

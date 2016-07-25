@@ -4660,16 +4660,16 @@ molecule_class_info_t::split_residue_internal(mmdb::Residue *residue, const std:
 					      short int use_residue_mol_flag) {
 
    std::pair<bool,std::string> p(0,"");
-   mmdb::PResidue *SelResidues = new mmdb::PResidue;
    std::string ch(residue->GetChainID());
-   
-   SelResidues = &residue; // just one
+
+   // mmdb::Residue **SelResidues = new mmdb::Residue *; // memory leak
+   mmdb::Residue **SelResidues = &residue; // just one
 
    // std::cout << "==================== in split_residue_internal ============= " << std::endl;
 
    atom_selection_container_t asc;
    if (!use_residue_mol_flag) { 
-      mmdb::Manager *mov_mol = create_mmdbmanager_from_res_selection(SelResidues,
+      mmdb::Manager *mov_mol = create_mmdbmanager_from_res_selection(SelResidues,    // class function
 								    1, 0, 0, altconf, 
 								    ch, 1);
       
@@ -6339,6 +6339,8 @@ molecule_class_info_t::draw_display_list_objects(int GL_context) {
    if (draw_it) { 
       if (display_list_tags.size() > 0) { 
 	 glEnable(GL_LIGHTING);
+	 glEnable(GL_LIGHT0);
+	 glEnable(GL_LIGHT1);
 	 std::vector<coot::display_list_object_info>::const_iterator it;
 	 for (it=display_list_tags.begin(); it!=display_list_tags.end(); it++) {
 	    if (! it->is_closed) { 
@@ -6454,7 +6456,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 
       GLfloat  mat_specular[]  = {0.8, 0.8, 0.8, 1.0};
       GLfloat  mat_ambient[]   = {0.2, 0.2, 0.2, 1.0};
-      GLfloat  mat_diffuse[]   = {0.7, 0.7, 0.7, 1.0};
+      // GLfloat  mat_diffuse[]   = {0.7, 0.7, 0.7, 1.0};
       GLfloat  mat_shininess[] = {50.0};
       
       glShadeModel(GL_SMOOTH);
@@ -6680,7 +6682,7 @@ molecule_class_info_t::set_b_factor_residue_range(const std::string &chain_id,
    int nSelAtoms;
    int SelHnd = atom_sel.mol->NewSelection();
    
-   atom_sel.mol->SelectAtoms(SelHnd, 0, (char *) chain_id.c_str(),
+   atom_sel.mol->SelectAtoms(SelHnd, 0, chain_id.c_str(),
 			     ires1, "*",
 			     ires2, "*",
 			     "*", // residue name
@@ -6782,6 +6784,31 @@ molecule_class_info_t::set_b_factor_atom_selection(const atom_selection_containe
   have_unsaved_changes_flag = 1;
   make_bonds_type_checked();
 }
+
+// all atoms of specified
+void
+molecule_class_info_t::set_b_factor_residues(const std::vector<std::pair<coot::residue_spec_t, double> > &rbs) {
+
+   for (unsigned int i=0; i<rbs.size(); i++) { 
+      const coot::residue_spec_t &spec = rbs[i].first;
+      double b = rbs[i].second;
+      mmdb::Residue *residue_p = get_residue(spec);
+      if (residue_p) {
+	 mmdb::Atom **residue_atoms = 0;
+	 int n_residue_atoms;
+	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (int j=0; j<n_residue_atoms; j++) {
+	    residue_atoms[j]->tempFactor = b;
+	 }
+      } else {
+	 std::cout << "WARNING:: No residue for spec " << spec << std::endl;
+      }
+   }
+   have_unsaved_changes_flag = 1;
+   atom_sel.mol->FinishStructEdit();
+   make_bonds_type_checked();
+}
+
 
 
 // Change chain id

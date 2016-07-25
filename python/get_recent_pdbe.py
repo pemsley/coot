@@ -34,7 +34,7 @@ def print_thread(*txt):
     print " ".join(map(str, txt))
     safe_print.release()
 
-#global coot_pdbe_image_cache_dir
+global coot_pdbe_image_cache_dir
 coot_pdbe_image_cache_dir = "coot-pdbe-images"  # can be shared (dir should
                                                 # be writable by sharers)
 
@@ -119,6 +119,7 @@ def dialog_box_of_buttons_with_async_ligands(window_name, geometry,
     def make_active_ligand_button(entry_id, ligand_tlc_list,
                                   ligands_hbox, protein_ribbon_hbox):
 
+        global coot_pdbe_image_cache_dir
         # main line
         image_size = 100
         for tlc in ligand_tlc_list:
@@ -132,12 +133,15 @@ def dialog_box_of_buttons_with_async_ligands(window_name, geometry,
 
         # now do the protein icon:
         image_size = 120
-        image_name_stub = entry_id + "_cbc" + str(image_size) + ".png"
-        image_url = "http://www.ebi.ac.uk/pdbe/entry-images/" + \
-                    image_name_stub
+        # image_name_stub = entry_id + "_cbc" + str(image_size) + ".png"
+        image_name_stub = "_deposited_chain_front_image-200x200.png"
+        # image_url = "http://www.ebi.ac.uk/pdbe/entry-images/" + \
+        #            image_name_stub
+        image_url = "http://www.ebi.ac.uk/pdbe/static/entry/" + \
+                    entry_id + image_name_stub
         
         entry_image_file_name = os.path.join(coot_pdbe_image_cache_dir,
-                                             image_name_stub)
+                                             entry_id + image_name_stub)
         cache_or_net_get_image(image_url, entry_image_file_name,
                                protein_ribbon_hbox)
         
@@ -828,7 +832,7 @@ def recent_structure_browser(t):
                 citation = string_append_with_spaces(author_list)
             return citation
 
-        #global coot_pdbe_image_cache_dir
+        global coot_pdbe_image_cache_dir
         make_directory_maybe(coot_pdbe_image_cache_dir)
 
         # now make a button list (a label and what to do)

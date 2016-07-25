@@ -409,6 +409,7 @@ short int graphics_info_t::print_initial_chi_squareds_flag = 0;
 short int graphics_info_t::show_symmetry = 0; 
 
 float    graphics_info_t::box_radius = 12.6;
+float    graphics_info_t::box_radius_em = 100;
 
 
 int      graphics_info_t::debug_atom_picking = 0;
@@ -1741,10 +1742,10 @@ setup_lighting(short int do_lighting_flag) {
       glPushMatrix();
       glLoadIdentity();
 
-      GLfloat  light_0_position[] = { 1.0,  1.0, 1.0, 0.0};
-      GLfloat  light_1_position[] = { 1.0, -1.0, 1.0, 0.0};
-      GLfloat  light_2_position[] = {-1.0, -1.0, 1.0, 0.0};
-      
+      GLfloat  light_0_position[] = { 1.0,  1.0,  1.0, 0.0};
+      GLfloat  light_1_position[] = {-1.0,  0.0,  1.0, 0.0};
+      GLfloat  light_2_position[] = { 0.0,  0.0, -1.0, 0.0};
+
       glClearColor(0.0, 0.0, 0.0, 0.0);
       glShadeModel(GL_SMOOTH);
 
@@ -2183,18 +2184,20 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 // glTranslatef(fbs.x(), fbs.y(), fbs.z());
       }
 
-      glPushMatrix();
-      glLoadIdentity();
 
-      GLfloat  light_0_position[] = { 1.0,  1.0, 1.0, 0.0};
-      GLfloat  light_1_position[] = { 1.0, -1.0, 1.0, 0.0};
-      GLfloat  light_2_position[] = {-1.0, -1.0, 1.0, 0.0};
+      if (false) { 
+	 glPushMatrix();
+	 glLoadIdentity();
+	 GLfloat  light_0_position[] = { -1.0,  1.0, 1.0, 0.0};
+	 GLfloat  light_1_position[] = {  1.0,  0.2, 1.0, 0.0};
+	 GLfloat  light_2_position[] = {  1.0,  1.0, 1.0, 0.0};
 
-      glLightfv(GL_LIGHT0,   GL_POSITION, light_0_position);
-      glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
-      glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
+	 glLightfv(GL_LIGHT0,   GL_POSITION, light_0_position);
+	 glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
+	 glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
+	 glPopMatrix();
+      }
 
-      glPopMatrix();
       glMatrixMode(GL_MODELVIEW);
 
       // do we need to turn on the lighting?

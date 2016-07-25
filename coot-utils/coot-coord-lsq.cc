@@ -290,7 +290,6 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
 		  mmdb::Atom *at1 = residue_atoms1[iat];
 		  std::string at1_name(at1->name);
 		  std::string at1_altconf(at1->altLoc);
-		  short int found_atom2 = 0;
 		  for (int jat=0; jat<n_residue_atoms2; jat++) {
 		     mmdb::Atom *at2 = residue_atoms2[jat];
 		     std::string at2_name(at2->name);
@@ -300,7 +299,6 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
 			if (at1_altconf == at2_altconf) {
 			   v1.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
 			   v2.push_back(clipper::Coord_orth(at2->x, at2->y, at2->z));
-			   found_atom2 = 1;
 			   break;
 			}
 		     }
@@ -323,7 +321,6 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
 		  mmdb::Atom *at1 = residue_atoms1[iat];
 		  std::string at1_name(at1->name);
 		  std::string at1_altconf(at1->altLoc);
-		  short int found_atom2 = 0;
 		  if (at1_name == match.reference_atom_name) { 
 		     if (at1_altconf == match.reference_alt_conf) { 
 			for (int jat=0; jat<n_residue_atoms2; jat++) {

@@ -997,6 +997,7 @@ graphics_info_t::adjust_refinement_residue_name(const std::string &resname) cons
 // Note: there is now a molecule-class-info version of this - perhaps
 // we should call it?  Next bug fix here: move over to the function call.
 // 
+// deep copy the passed residues
 // 
 mmdb::Manager *
 graphics_info_t::create_mmdbmanager_from_res_selection(mmdb::PResidue *SelResidues, 
@@ -3302,11 +3303,11 @@ graphics_info_t::drag_intermediate_atom(const coot::atom_spec_t &atom_spec, cons
 	    }
 	 }
       }
+      Bond_lines_container bonds(*moving_atoms_asc, geom_p, 0, 1, 0);
+      regularize_object_bonds_box.clear_up();
+      regularize_object_bonds_box = bonds.make_graphical_bonds();
+      graphics_draw();
    }
-   Bond_lines_container bonds(*moving_atoms_asc, geom_p, 0, 1, 0);
-   regularize_object_bonds_box.clear_up();
-   regularize_object_bonds_box = bonds.make_graphical_bonds();
-   graphics_draw();
 }
 
 

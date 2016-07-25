@@ -194,8 +194,9 @@ coot::mogul_results_add_cell_renderer(GtkTreeView *tree_view,
 
    gtk_tree_view_column_set_sort_column_id(column, pos);
 
-   char *s = new char[column_title.length() + 1];
-   strcpy(s, column_title.c_str());
+   // Memory Leak.  What was I thinking? This doesn't seem to do anything.
+   // char *s = new char[column_title.length() + 1];
+   // strcpy(s, column_title.c_str());
    g_object_set_data (G_OBJECT (cell_renderer), "column", GINT_TO_POINTER (pos));
    g_object_set_data (G_OBJECT (cell_renderer), "tree_type", GINT_TO_POINTER (tree_type));
    return cell_renderer;

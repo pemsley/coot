@@ -173,7 +173,8 @@ widgeted_atom_t::make_canvas_text_item(const lig_build::atom_id_info_t &atom_id_
 		      << y_o << std::endl;
 	 
 	 GooCanvasItem *item =
-	    wrap_goo_canvas_text_new(group, atom_id_info_in.offsets[i].text.c_str(),
+	    wrap_goo_canvas_text_new(group,
+				     atom_id_info_in.offsets[i].text.c_str(),
 				     x_pos, y_pos, 
 				     -1,
 				     // GTK_ANCHOR_CENTER,
@@ -347,7 +348,7 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
 	    double f = delta.x - delta.y; // from 0 to 40;
 	    double theta = delta.theta();
 	    // I want sc_1 to maximize at theta = -45 degrees (bond from NE corner)
-	    double sc_1 = 0.5 * (1.0 + cos(0.5 * (theta - M_PI_4))); // 0 -> 1
+	    double sc_1 = 0.5 * (1.0 + cos(theta - M_PI_4)); // 0 -> 1
 	    sc_1 *= sc_1; // sharpen
 	    double sc_2 = 0.3 * sc_1;
 	    shorten_fraction_1 -= + (sc_2 - 0.1);
@@ -365,7 +366,7 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
 	    // N+ : shorten if bond comes in from the NE (as above)
 	    lig_build::pos_t delta = at_1.atom_position - at_2.atom_position;
 	    double theta = delta.theta();
-	    double sc_1 = 0.5 * (1.0 + cos(0.5 * (theta - M_PI_4))); // 0 -> 1
+	    double sc_1 = 0.5 * (1.0 + cos(theta - M_PI_4)); // 0 -> 1
 	    sc_1 *= sc_1;
 	    double sc_2 = 0.3 * sc_1;
 	    shorten_fraction_2 -= + (sc_2 - 0.1);

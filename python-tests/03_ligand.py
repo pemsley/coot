@@ -178,8 +178,9 @@ class LigandTestFunctions(unittest.TestCase):
         """Flip residue (around eigen vectors)"""
 
         mon_file = os.path.join("coot-ccp4", "monomer-3GP.pdb")
-        self.failIf(not os.path.isfile(mon_file),
-                    "  Oops! file not found! coot-ccp4/monomer-3GP.pdb")
+        if self.skip_test(not os.path.isfile(mon_file),
+                    "  Oops! file not found! coot-ccp4/monomer-3GP.pdb, skip.")
+            return
 
         imol_orig = read_pdb(mon_file)
         imol_copy = copy_molecule(imol_orig)

@@ -1226,7 +1226,6 @@ void
 BuildCas::check_angle_torsion(atom_selection_container_t asc) const {
 
    TreeNode *node = NULL; 
-   TreeNode *new_node; 
 
    // yep, it's the same backwards...
    // for (int i=asc.n_selected_atoms-1; i>=0; i--) { 
@@ -1236,13 +1235,13 @@ BuildCas::check_angle_torsion(atom_selection_container_t asc) const {
       if (std::string(asc.atom_selection[i]->name) == " CA " ) { 
 
 	 coot::Cartesian pos(asc.atom_selection[i]->x,
-		       asc.atom_selection[i]->y,
-		       asc.atom_selection[i]->z); 
+			     asc.atom_selection[i]->y,
+			     asc.atom_selection[i]->z); 
 
 	 std::cout << "Got a CA at " << pos << endl; 
 
-	 new_node = new TreeNode; 
-	 new_node->setup(node, pos); 
+	 TreeNode *new_node = new TreeNode; 
+	 new_node->setup(node, pos);
 
 	 node = new_node;  // setup for next round
       }
@@ -1279,7 +1278,7 @@ BuildCas::check_angle_torsion(atom_selection_container_t asc) const {
 	 break;
       }
    }
-
+   delete node;
 } 
 
 // much like the above:

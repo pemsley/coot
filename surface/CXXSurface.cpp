@@ -797,16 +797,18 @@ int CXXSurface::updateWithVectorData(int count, const string name, int start, do
 
 
 int CXXSurface::updateWithPointerData(int count, const string name, int start, void **pointerBuffer){
-    unsigned int iPointer = getPointerHandle(name);
-    if (int(vertices.size()) < start + count){
-        vertices.resize(start+count);
-    }
-    
-    for (unsigned int i=0; i<(unsigned int) count; i++){
-        vertices[i+start].setPointer(iPointer, pointerBuffer[i]);
-    }
-    
-    return vertices.size();
+   unsigned int iPointer = getPointerHandle(name);
+   unsigned int ui_count = count;
+
+   // There is an "uninitialized argument value" bug here from scan-build July 2016.
+   
+   if (int(vertices.size()) < start + count){
+      vertices.resize(start+count);
+   }
+   for (unsigned int i=0; i<ui_count; i++){
+      vertices[i+start].setPointer(iPointer, pointerBuffer[i]);
+   }
+   return vertices.size();
 }
 
 int CXXSurface::extendTriangles(int *triangleBuffer, int count){

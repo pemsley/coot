@@ -267,6 +267,7 @@ coot_bin_SOURCES = \
 	c-interface-sequence.cc  \
 	c-interface-sequence.hh  \
 	c-interface-sfs.cc	 \
+	c-interface-sharpen.cc   \
 	c-interface-superpose.cc \
 	c-interface-validate.cc	 \
 	c-interface-view.cc	 \
@@ -278,9 +279,11 @@ coot_bin_SOURCES = \
 	c-interface-test.cc      \
 	cc-interface.hh		 \
 	cc-interface-ncs.hh      \
-	cc-interface-network.hh  	\
+	cc-interface-network.hh  \
 	cc-interface-mogul.hh    \
 	cc-interface-scripting.hh \
+	cc-interface-user-defined-atom-colours.hh \
+	cc-interface-user-defined-atom-colours.cc \
 	callbacks.c callbacks.h	 \
         canvas-fixes.hh          \
 	cfc.cc cfc.hh            \
@@ -379,6 +382,7 @@ coot_bin_SOURCES = \
 	ligand-check.hh          \
         map-statistics.hh        \
 	molecule-class-info.cc 	 \
+	molecule-class-info-bonds.cc    \
 	molecule-class-info-maps.cc 	\
 	molecule-class-info-maps-2.cc 	\
 	molecule-class-info-kdc.cc      \
@@ -448,6 +452,7 @@ coot_bin_SOURCES = \
 	atom-selection.hh 	 \
 	ncs.hh 		         \
 	model-view.hh 		 \
+	view.hh 		 \
 	new-centre.hh
 
 if COOT_USE_PYTHON

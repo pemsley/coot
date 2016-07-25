@@ -726,6 +726,7 @@ namespace coot {
 	    }
 	    return r;
 	 }
+	 
 	 clipper::RTop_orth centroid_rtop(const std::vector<std::pair<clipper::RTop_orth,float> > &rtops);
 	 clipper::RTop_orth centroid_rtop(const std::vector<std::pair<clipper::RTop_orth,float> > &rtops,
 					  bool robust_filter);

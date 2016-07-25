@@ -47,7 +47,7 @@ compare_dictionaries(const std::string &type,
 
    int status = 0;
    std::string dir = ".";
-   bool found_type_in_dictionary_1 = true;
+   // bool found_type_in_dictionary_1 = true; // not used
    bool found_type_in_dictionary_2 = true;
 
    coot::protein_geometry pg_1;
@@ -69,7 +69,6 @@ compare_dictionaries(const std::string &type,
    if (!r1.first) { 
       std::cout << "Failed to find restraints for type " << type << " in "
 		<< file_name_1 << std::endl;
-      found_type_in_dictionary_1 = false;
       status = 1;
    } else {
       if (!r2.first) { 
