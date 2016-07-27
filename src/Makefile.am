@@ -106,9 +106,11 @@ EXTRA_DIST = \
 	junk.cc coot-gtk2.defs coot-dox.cfg post-gtk2-glade.sh \
         post-process-coot-wrap-guile.sh \
         post-process-coot-wrap-python.sh \
-	coot_wrap_guile_pre.cc 
+	coot_wrap_guile_pre_gtk2.cc dynarama.glade 
 
 
+subpkgdatadir = $(pkgdatadir)
+subpkgdata_DATA = dynarama.glade
 
 
 # use -DHAVE_MMDBSSM or use (expanded from) $(MMDBSSM) works.

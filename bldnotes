@@ -701,6 +701,22 @@ low importance
 
    o 2nd derivative maps! (usefull?)
 
+
+**** dynarama ****
+
+   o add setting for chains when using a selection in kleywegt
+
+   o selector for multiple models
+
+   o add torsion angles for interactive movement
+
+   o fix/rethink resizing
+
+   o add function for user to show selection of res only
+
+   o compare rama by mol choose A and A and show appropirately in selector
+	(see first topic)?! 
+
 ---------------
 * DONE THINGS *
 ---------------

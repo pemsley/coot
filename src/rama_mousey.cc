@@ -35,20 +35,15 @@
 #include "rama_plot.hh"
 
 
-// new goocanvas stuff (FIXME: next two - proper callback afterwards):
-// FIXME:: protect against not getting plot (or such)
-// FIXME:: use gobject instead of gtk_objects?!
 extern "C" G_MODULE_EXPORT void
 on_dynarama2_window_destroy(GtkObject *caller, gpointer user_data) {
 
    // maybe no callback from builder for mainwindow!?
-   std::cout <<"BL DEBUG:: destroy button"<<std::endl;
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (!plot) {
       std::cout<<"failed to get the plot from " << canvas <<std::endl;
    } else {
-      g_print("BL DEBUG:: is stand_alone%i\n", plot->is_stand_alone());
       if (plot->is_stand_alone())
          gtk_exit(0);
       else {
@@ -77,13 +72,11 @@ on_dynarama2_window_configure_event(GtkWidget       *widget,
 extern "C" G_MODULE_EXPORT void
 on_dynarama2_ok_button_clicked(GtkButton *button, gpointer user_data) {
 
-   std::cout <<"BL DEBUG:: ok button"<<std::endl;
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (!plot) {
       std::cout<<"failed to get the plot from " << canvas <<std::endl;
    } else {
-      g_print("BL DEBUG:: is stand_alone%i\n", plot->is_stand_alone());
       if (plot->is_stand_alone())
          gtk_exit(0);
       else {
@@ -99,7 +92,6 @@ on_dynarama2_ok_button_clicked(GtkButton *button, gpointer user_data) {
 extern "C" G_MODULE_EXPORT void
 on_dynarama2_cancel_button_clicked(GtkButton *button, gpointer user_data) {
 
-   std::cout <<"BL DEBUG:: cancel button"<<std::endl;
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (plot->is_stand_alone())
@@ -116,10 +108,8 @@ on_dynarama2_cancel_button_clicked(GtkButton *button, gpointer user_data) {
 extern "C" G_MODULE_EXPORT void
 on_kleywegt_apply_chain_button_clicked(GtkButton *button, gpointer user_data) {
 
-   std::cout <<"BL DEBUG:: apply kleywegt button"<<std::endl;
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
-   // FIXME:: maybe need to pass some information, or hope its there
    plot->update_kleywegt_plot();
 
 }
@@ -129,7 +119,6 @@ on_kleywegt_apply_chain_button_clicked(GtkButton *button, gpointer user_data) {
 extern "C" G_MODULE_EXPORT void
 on_rama_open_menuitem_activate(GtkMenuItem *item, gpointer user_data) {
 
-   std::cout <<"BL DEBUG:: open button"<<std::endl;
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas),
@@ -144,7 +133,6 @@ on_rama_open_menuitem_activate(GtkMenuItem *item, gpointer user_data) {
 extern "C" G_MODULE_EXPORT void
 on_rama_print_menuitem_activate(GtkMenuItem *item, gpointer user_data) {
 
-   std::cout <<"BL DEBUG:: save as pdf button"<<std::endl;
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (plot) {
@@ -160,7 +148,6 @@ on_rama_print_menuitem_activate(GtkMenuItem *item, gpointer user_data) {
 extern "C" G_MODULE_EXPORT void
 on_rama_save_as_png_menuitem_activate(GtkMenuItem *item, gpointer user_data) {
 
-   std::cout <<"BL DEBUG:: save as PNG button"<<std::endl;
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (plot) {
@@ -177,7 +164,6 @@ on_rama_save_as_png_menuitem_activate(GtkMenuItem *item, gpointer user_data) {
 extern "C" G_MODULE_EXPORT void
 on_rama_close_menuitem_activate(GtkMenuItem *item, gpointer user_data) {
 
-   std::cout <<"BL DEBUG:: close button"<<std::endl;
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (plot)
@@ -188,25 +174,24 @@ on_rama_close_menuitem_activate(GtkMenuItem *item, gpointer user_data) {
 
 extern "C" G_MODULE_EXPORT void
 on_rama_radiomenuitem_toggled(GtkCheckMenuItem *checkmenuitem, gpointer user_data) {
-   std::cout <<"BL DEBUG:: toggled rama button"<<std::endl;
+
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (plot) {
       plot->plot_type_changed();
-//      if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(plot->rama_radiomenuitem))) {
-//         // have active rama plot
    }
 }
 
 extern "C" G_MODULE_EXPORT void
 on_kleywegt_radiomenuitem_toggled(GtkCheckMenuItem *checkmenuitem, gpointer user_data) {
-   std::cout <<"BL DEBUG:: toggled kley button"<<std::endl;
+
+   // do we need this then?
+
 }
 
 extern "C" G_MODULE_EXPORT void
 on_rama_about_menuitem_activate(GtkMenuItem *item, gpointer user_data) {
 
-   std::cout <<"BL DEBUG:: show about button"<<std::endl;
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (plot) {
@@ -220,7 +205,7 @@ on_rama_about_menuitem_activate(GtkMenuItem *item, gpointer user_data) {
 // About dialog
 extern "C" G_MODULE_EXPORT void
 on_rama_aboutdialog1_close(GtkDialog *dialog, gpointer user_data){
-   std::cout <<"BL DEBUG:: close about"<<std::endl;
+
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (plot) {
@@ -233,7 +218,7 @@ on_rama_aboutdialog1_close(GtkDialog *dialog, gpointer user_data){
 
 extern "C" G_MODULE_EXPORT void
 on_rama_aboutdialog1_response(GtkDialog *dialog, gint response_id, gpointer user_data) {
-   std::cout <<"BL DEBUG:: close/response about"<<std::endl;
+
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (plot) {
@@ -248,7 +233,7 @@ on_rama_aboutdialog1_response(GtkDialog *dialog, gint response_id, gpointer user
 // file chooser responses
 extern "C" G_MODULE_EXPORT void
 on_rama_export_as_pdf_filechooserdialog_close(GtkDialog *dialog, gpointer user_data){
-   std::cout <<"BL DEBUG:: close about"<<std::endl;
+
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas),
                                                                              "user_data"));
@@ -262,7 +247,7 @@ on_rama_export_as_pdf_filechooserdialog_close(GtkDialog *dialog, gpointer user_d
 
 extern "C" G_MODULE_EXPORT void
 on_rama_export_as_pdf_filechooserdialog_response(GtkDialog *dialog, gint response_id, gpointer user_data) {
-   std::cout <<"BL DEBUG:: close/response about"<<std::endl;
+
    if (response_id == GTK_RESPONSE_OK) {
       GtkWidget *canvas = GTK_WIDGET(user_data);
       coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas),
@@ -280,7 +265,7 @@ on_rama_export_as_pdf_filechooserdialog_response(GtkDialog *dialog, gint respons
 
 extern "C" G_MODULE_EXPORT void
 on_rama_export_as_png_filechooserdialog_close(GtkDialog *dialog, gpointer user_data){
-   std::cout <<"BL DEBUG:: close png"<<std::endl;
+
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas),
                                                                              "user_data"));
@@ -294,7 +279,7 @@ on_rama_export_as_png_filechooserdialog_close(GtkDialog *dialog, gpointer user_d
 
 extern "C" G_MODULE_EXPORT void
 on_rama_export_as_png_filechooserdialog_response(GtkDialog *dialog, gint response_id, gpointer user_data) {
-   std::cout <<"BL DEBUG:: close/response png id "<<response_id << std::endl;
+
    if (response_id == GTK_RESPONSE_OK) {
       GtkWidget *canvas = GTK_WIDGET(user_data);
       coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas),
@@ -302,7 +287,6 @@ on_rama_export_as_png_filechooserdialog_response(GtkDialog *dialog, gint respons
       if (plot) {
          std::string file_name =
                gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(plot->rama_export_as_png_filechooserdialog));
-         g_print("BL DEBUG:: shoudl write png file %s now\n", file_name.c_str());
          plot->write_png(file_name);
       } else {
          std::cout<< "failed to get a plot" <<std::endl;
@@ -313,7 +297,7 @@ on_rama_export_as_png_filechooserdialog_response(GtkDialog *dialog, gint respons
 
 extern "C" G_MODULE_EXPORT void
 on_rama_open_filechooserdialog_close(GtkDialog *dialog, gpointer user_data){
-   std::cout <<"BL DEBUG:: close open"<<std::endl;
+
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas),
                                                                              "user_data"));
@@ -327,7 +311,7 @@ on_rama_open_filechooserdialog_close(GtkDialog *dialog, gpointer user_data){
 
 extern "C" G_MODULE_EXPORT void
 on_rama_open_filechooserdialog_response(GtkDialog *dialog, gint response_id, gpointer user_data) {
-   std::cout <<"BL DEBUG:: close/response open"<<std::endl;
+
    if (response_id == GTK_RESPONSE_OK) {
       GtkWidget *canvas = GTK_WIDGET(user_data);
       coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(canvas),
@@ -335,7 +319,6 @@ on_rama_open_filechooserdialog_response(GtkDialog *dialog, gint response_id, gpo
       if (plot) {
          std::string file_name =
                gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(plot->rama_open_filechooserdialog));
-         g_print("BL DEBUG:: should open file %s\n", file_name.c_str());
          plot->open_pdb_file(file_name);
       } else {
          std::cout<< "failed to get a plot" <<std::endl;
@@ -424,13 +407,11 @@ gboolean rama_item_motion_event (GooCanvasItem *item,
 // 
 gint rama_motion_notify(GtkWidget *widget, GdkEventMotion *event) {
 
-   //g_print("BL DEBUG:: motion notify\n");
    double x,y;
    int x_as_int, y_as_int;
    GdkModifierType state;
 
    if (event->is_hint) {
-      // std::cout << "was hint";  usually true
       gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
       x = x_as_int;
       y = y_as_int;
@@ -450,7 +431,7 @@ gint rama_button_press (GtkWidget *widget, GdkEventButton *event) {
          static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(widget)));
 
    plot->button_press(widget, event);
-   g_print("BL DEBUG:: button press notify\n");
+   //g_print("BL DEBUG:: button press notify\n");
 
    return 0;
    
@@ -461,13 +442,14 @@ gint rama_key_release_event(GtkWidget *widget, GdkEventKey *event) {
    coot::rama_plot *plot =
       static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(widget)));
    gint i = plot->key_release_event(widget, event);
-   g_print("BL DEBUG:: key release event\n");
+   //g_print("BL DEBUG:: key release event\n");
    return i;
 }
 
 gint rama_key_press_event(GtkWidget *widget, GdkEventKey *event) {
 
-   g_print("BL DEBUG:: key press event\n");
+   // needed?
+   //g_print("BL DEBUG:: key press event\n");
    return 0;
 
 }

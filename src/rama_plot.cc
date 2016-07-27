@@ -78,6 +78,7 @@ coot::rama_plot::init(int imol_in, const std::string &mol_name_in, float level_p
    init_internal(mol_name_in, level_prefered, level_allowed, block_size, 0,
 		 is_kleywegt_plot_flag_in);
    // is_kleywegt_plot_flag = is_kleywegt_plot_flag_in;
+   gtk_widget_set_sensitive(rama_view_menu, TRUE);
 }
 
 // We could pass to this init the level_prefered and level_allowed
@@ -101,6 +102,7 @@ coot::rama_plot::init(const std::string &type) {
       init_internal("Ramachandran Plot (Backbone Edit Mode)", 0.02, 0.002, 1, hide_buttons);
       hide_stats_frame();
    }
+   gtk_widget_set_sensitive(rama_view_menu, FALSE);
    green_box_item = NULL;
 }
 
@@ -109,73 +111,122 @@ void
 coot::rama_plot::resize_rama_canvas_internal(GtkWidget *widget,
                                              GdkEventConfigure *event) {
 
-   // Fixme, should only be done once everything else is done (quite convoluted)
-   // and still doent work
-   // canvas size only gets real after 2nd event...
-   // maybe have to do via windows size then... all rubbish
-   // FIXME
-   // new idea:
-   // save padding, i.e. diff canvas to window
-//   static int oldw = 0;
+   // very new idea:
+   // only change zoom if there is no scroll bar.
+   // if no scrollbar, size alloc of canvas is 400
+   // but can we get this?
+
+
+   //   static int oldw = 0;
 //   static int oldh = 0;
 //   static int oldcanvash = 400;
 //   static int oldcanvasw = 400;
 //   static float pad_w = 0.;
 //   static float pad_h = 0.;
-   g_print("BL DBEUG size old %i and current %i\n", oldw, event->width);
-   if (oldw > 400) {
-      float canvas_w = GTK_WIDGET(canvas)->allocation.width;
-      float canvas_h = GTK_WIDGET(canvas)->allocation.height;
-      float win_w = event->width;
-      float win_h = event->height;
-      if (pad_w <= 0.) {
-         //calculate the required padding
-         pad_w = win_w - canvas_w;
-         pad_h = win_h - canvas_h;
-         pad_w = win_w - 400;
-         pad_h = win_h - 400;
-//         g_print("BL DEBUG:: have canvas w %f and h %f\n", canvas_w, canvas_h);
-//         g_print("BL DEBUG:: have win w %f and h %f\n", win_w, win_h);
-         g_print("BL DEBUG:: SET pad w %f and h %f\n", pad_w, pad_h);
-      }
-      // win size changed
-      if (oldw != win_w || oldh != win_h){
-         float space_w = win_w - pad_w;
-         float space_h = win_h - pad_h;
-         float scale_w = space_w / canvas_w;
-         float scale_h = space_h / canvas_h;
-         float mini = std::min(scale_h, scale_w);
-         float max = std::max(scale_h, scale_w);
-         float min_zoom;
-         float max_zoom;
+   // currently wrong since we get an allocation rather than an event if we track allocation
+   float canvas_w = GTK_WIDGET(canvas)->allocation.width;
+   float canvas_h = GTK_WIDGET(canvas)->allocation.height;
+   float win_w = event->width;
+   float win_h = event->height;
 
-         //new_zoom = mini/miniold * zoom;
-         g_print("BL DEBUG:: have canvas w %f and h %f\n", canvas_w, canvas_h);
-         g_print("BL DEBUG:: have win w %f and h %f\n", win_w, win_h);
-         g_print("BL DEBUG:: have space w %f and h %f\n", space_w, space_h);
-         //         g_print("BL DEBUG:: have pad w %f and h %f\n", pad_w, pad_h);
-         min_zoom = mini*zoom;
-         max_zoom = max*zoom;
-         if ((max_zoom*canvas_h > space_h) || (max_zoom * canvas_w > space_w))
-            zoom = min_zoom;
-         else
-            zoom = max_zoom;
-         g_print("BL DEBU:: mini %f and new zoom %f\n", mini, zoom);
-         //         if ((rw >= 1 && rh >=1) || (rw <= 1 && rh <=1))
-         //            new_zoom = minir * zoom;
-         //            g_print("BL DEBU:: mini %f, miniold %f and new r zoom %f\n", mini, miniold, new_zoom);
-         //            zoom=new_zoom;
-         goo_canvas_set_scale(GOO_CANVAS(canvas), zoom);
-         oldcanvash = canvas_h;
-         oldcanvasw = canvas_w;
-      }
+   g_print("BL DEBUG:: Width  size old %d, current %d, canvas %d\n", oldw, win_w, canvas_w);
+   g_print("BL DEBUG:: Height size old %d, current %d, canvas %d\n", oldh, win_h, canvas_h);
+
+   // no scrollbar, so change zoom
+   // may be even absolute, 400 = zoom 1!
+   if (canvas_h >= 400 ||
+       canvas_w >= 400) {
+      float mini = std::min(canvas_h, canvas_w);
+      float max = std::max(canvas_h, canvas_w);
+      float min_zoom;
+      float max_zoom;
+      zoom = mini/400.*0.8;
+      goo_canvas_set_scale(GOO_CANVAS(canvas), zoom);
+      g_print("BL DEBUG:: change zoom to %f\n", zoom);
+
+
+
+
    } else {
-      g_print("BL DEBUG:: dont resize yet - too small\n");
+      g_print("BL DEBUG:: dont resize have scroll\n");
    }
    oldw = event->width;
    oldh = event->height;
 
 }
+
+// "original" backup
+//void
+//coot::rama_plot::resize_rama_canvas_internal(GtkWidget *widget,
+//                                             GdkEventConfigure *event) {
+
+//   // Fixme, should only be done once everything else is done (quite convoluted)
+//   // and still doent work
+//   // canvas size only gets real after 2nd event...
+//   // maybe have to do via windows size then... all rubbish
+//   // FIXME
+//   // new idea:
+//   // save padding, i.e. diff canvas to window
+////   static int oldw = 0;
+////   static int oldh = 0;
+////   static int oldcanvash = 400;
+////   static int oldcanvasw = 400;
+////   static float pad_w = 0.;
+////   static float pad_h = 0.;
+//   g_print("BL DBEUG size old %i and current %i\n", oldw, event->width);
+//   if (oldw > 400) {
+//      float canvas_w = GTK_WIDGET(canvas)->allocation.width;
+//      float canvas_h = GTK_WIDGET(canvas)->allocation.height;
+//      float win_w = event->width;
+//      float win_h = event->height;
+//      if (pad_w <= 0.) {
+//         //calculate the required padding
+//         pad_w = win_w - canvas_w;
+//         pad_h = win_h - canvas_h;
+//         pad_w = win_w - 400;
+//         pad_h = win_h - 400;
+////         g_print("BL DEBUG:: have canvas w %f and h %f\n", canvas_w, canvas_h);
+////         g_print("BL DEBUG:: have win w %f and h %f\n", win_w, win_h);
+//         g_print("BL DEBUG:: SET pad w %f and h %f\n", pad_w, pad_h);
+//      }
+//      // win size changed
+//      if (oldw != win_w || oldh != win_h){
+//         float space_w = win_w - pad_w;
+//         float space_h = win_h - pad_h;
+//         float scale_w = space_w / canvas_w;
+//         float scale_h = space_h / canvas_h;
+//         float mini = std::min(scale_h, scale_w);
+//         float max = std::max(scale_h, scale_w);
+//         float min_zoom;
+//         float max_zoom;
+
+//         //new_zoom = mini/miniold * zoom;
+//         g_print("BL DEBUG:: have canvas w %f and h %f\n", canvas_w, canvas_h);
+//         g_print("BL DEBUG:: have win w %f and h %f\n", win_w, win_h);
+//         g_print("BL DEBUG:: have space w %f and h %f\n", space_w, space_h);
+//         //         g_print("BL DEBUG:: have pad w %f and h %f\n", pad_w, pad_h);
+//         min_zoom = mini*zoom;
+//         max_zoom = max*zoom;
+//         if ((max_zoom*canvas_h > space_h) || (max_zoom * canvas_w > space_w))
+//            zoom = min_zoom;
+//         else
+//            zoom = max_zoom;
+//         g_print("BL DEBU:: mini %f and new zoom %f\n", mini, zoom);
+//         //         if ((rw >= 1 && rh >=1) || (rw <= 1 && rh <=1))
+//         //            new_zoom = minir * zoom;
+//         //            g_print("BL DEBU:: mini %f, miniold %f and new r zoom %f\n", mini, miniold, new_zoom);
+//         //            zoom=new_zoom;
+//         goo_canvas_set_scale(GOO_CANVAS(canvas), zoom);
+//         oldcanvash = canvas_h;
+//         oldcanvasw = canvas_w;
+//      }
+//   } else {
+//      g_print("BL DEBUG:: dont resize yet - too small\n");
+//   }
+//   oldw = event->width;
+//   oldh = event->height;
+
+//}
 
 bool
 coot::rama_plot::create_dynarama_window() {
@@ -251,6 +302,8 @@ coot::rama_plot::create_dynarama_window() {
                                                                                         "rama_export_as_png_filechooserdialog"));
                rama_open_filechooserdialog = GTK_WIDGET(gtk_builder_get_object(builder,
                                                                                "rama_open_filechooserdialog"));
+               rama_view_menu = GTK_WIDGET(gtk_builder_get_object(builder,
+                                                                  "menuitem_view"));
                rama_radiomenuitem = GTK_WIDGET(gtk_builder_get_object(builder,
                                                                       "rama_radiomenuitem"));
                kleywegt_radiomenuitem = GTK_WIDGET(gtk_builder_get_object(builder,
@@ -266,12 +319,19 @@ coot::rama_plot::create_dynarama_window() {
          }
       }
    }
-   g_print("BL DEBUG:: dynawin at end of create %s anst status %i\n", dynawin, status);
+
    return status;
+
    }
 
 }
 
+
+// DEBUG:: FIXME
+void my_getsize(GtkWidget *widget, GtkAllocation *allocation, gpointer *data) {
+    printf("BL DEBUG:: size alloc %s width = %d, height = %d\n",
+           data, allocation->width, allocation->height);
+}
 
 //  The mapview entry point
 //
@@ -307,7 +367,6 @@ coot::rama_plot::init_internal(const std::string &mol_name,
    bool init_status;
    init_status = create_dynarama_window();
 
-   g_print("BL DEBUG:: in init internal with status %i\n", init_status);
    if (init_status) {
 
       if (hide_buttons == 1) {
@@ -326,13 +385,10 @@ coot::rama_plot::init_internal(const std::string &mol_name,
 
       if (is_stand_alone()) {
          gtk_widget_show(rama_open_menuitem);
-         g_print("BL DEBUG:: stand alone, so show menu open\n");
       } else {
-         g_print("BL DEBUG:: NOT stand alone, so hide menu open\n");
          gtk_widget_hide(rama_open_menuitem);
       }
 //      // set the title of of widget
-
       if (dynarama_label)
          gtk_label_set_text(GTK_LABEL(dynarama_label), mol_name.c_str());
 
@@ -348,8 +404,13 @@ coot::rama_plot::init_internal(const std::string &mol_name,
          std::cout<<"ELLOR:: no window, should bail out"<<std::endl;
       }
 
-      g_signal_connect(dynawin, "configure-event",
-                       G_CALLBACK(rama_resize), this);
+      gchar *txt;
+//      g_signal_connect(dynawin, "configure-event",
+//                       G_CALLBACK(rama_resize), this);
+
+//      gchar *txt ="win";
+//      g_signal_connect(dynawin, "size-allocate",
+//                       G_CALLBACK(my_getsize), (gpointer *)txt);
 
       allow_seqnum_offset_flag = 0;
 
@@ -366,6 +427,10 @@ coot::rama_plot::init_internal(const std::string &mol_name,
       g_object_set(G_OBJECT(canvas),
                    "has-tooltip", TRUE,
                    NULL);
+
+      txt ="canvas";
+      g_signal_connect(canvas, "size-allocate",
+                       G_CALLBACK(my_getsize), (gpointer *)txt);
 
 
       gtk_widget_add_events(GTK_WIDGET(canvas),
@@ -401,9 +466,11 @@ coot::rama_plot::init_internal(const std::string &mol_name,
       basic_white_underlay();
       if (level_allowed != current_level_allowed &&
           level_prefered != current_level_prefered) {
-         setup_background();
          current_level_allowed = level_allowed;
          current_level_prefered = level_prefered;
+      }
+      if (!current_bg) {
+         setup_background();
       }
       draw_axes();
       draw_zero_lines();
@@ -414,10 +481,16 @@ coot::rama_plot::init_internal(const std::string &mol_name,
                                            8., 8.,
                                            "fill-color", "green",
                                            "stroke-color", "black",
+                                           "tooltip", "dummy",
                                            NULL);
 
+      // Hope everything is there before we resize?!
+      g_signal_connect_after(dynawin, "size-allocate",
+                             G_CALLBACK(rama_resize), this);
+
    } else {
-      std::cout<<"BL WARNING:: no dynawin, bailing out - FIXME, shouldnt even continue" <<std::endl;
+      // FIXME throw runtime error here as not to continue?
+      std::cout<<"BL WARNING:: no dynawin, bailing out." <<std::endl;
    }
 }
 
@@ -430,9 +503,6 @@ coot::rama_plot::setup_internal(float level_prefered, float level_allowed) {
 
    n_diffs = 50; // default value.
    drawing_differences = 0; 
-
-   tooltip_item = NULL;
-   tooltip_item_text = NULL;
 
    rama.init(clipper::Ramachandran::All5);
    displayed_rama_type = clipper::Ramachandran::All5;
@@ -483,14 +553,8 @@ coot::rama_plot::set_n_diffs(int nd) {
 void
 coot::rama_plot::setup_canvas() {
 
-
-   std::cout<<"BL DEBUG:: have scale, i.e. zoom "<< zoom <<std::endl;
    goo_canvas_set_scale(GOO_CANVAS(canvas), zoom);
 
-   // gtk_canvas_set_scroll_region moves about the canvas in the
-   // widget, it doesn't seem to change the amount that it is
-   // scrollable.
-   //FIXME
    goo_canvas_set_bounds(GOO_CANVAS(canvas), -240.0, -220.0, 210.0, 230.0);
    g_signal_connect (G_OBJECT(canvas), "button_press_event",
                        G_CALLBACK(rama_button_press), NULL);
@@ -511,7 +575,7 @@ coot::rama_plot::setup_canvas() {
 
 void
 coot::rama_plot::draw_rect() {
-      g_print("BL DEBUG:: canvas size is %i and %i\n", canvas->allocation.height, canvas->allocation.width);
+
       GooCanvasItem *item;
       item = goo_canvas_rect_new(goo_canvas_get_root_item(GOO_CANVAS(canvas)),
             -100.0,
@@ -527,25 +591,25 @@ void
 coot::rama_plot::draw_it(mmdb::Manager *mol) {
 
    if (mol) {
-      g_print("BL DEBUG:: have mol\n");
       residues_grp = goo_canvas_group_new(root, NULL);
       generate_phi_psis(mol);
       coot::rama_stats_container_t counts = draw_phi_psi_points();
       counts_to_stats_frame(counts);
+      saved_counts = counts;
       mols_ = std::pair<mmdb::Manager *, mmdb::Manager *> (mol, mol);
       //resize_it = TRUE;  // only when done start resizing.
    }
 }
 
 void
-coot::rama_plot::draw_it(mmdb::Manager *mol, int SelHnd) {
+coot::rama_plot::draw_it(mmdb::Manager *mol, int SelHnd, int primary) {
 
    if (mol) {
-      g_print("BL DEBUG:: have mol\n");
       residues_grp = goo_canvas_group_new(root, NULL);
-      generate_phi_psis_by_selection(mol, 0, SelHnd);
+      generate_phi_psis_by_selection(mol, primary, SelHnd);
       coot::rama_stats_container_t counts = draw_phi_psi_points();
       counts_to_stats_frame(counts);
+      saved_counts = counts;
       //resize_it = TRUE;  // only when done start resizing.
    }
 }
@@ -680,9 +744,6 @@ coot::rama_plot::hide_all_background() {
 void
 coot::rama_plot::display_background() {
 
-
-   // Surely we don't need item and itm? Fix when you're bored.
-
    GooCanvasItem *item;
    GooCanvasItem *bg_non_gly_pro;
 
@@ -747,19 +808,98 @@ coot::rama_plot::display_background() {
 
 }
 
+// returns an int to make line and a vector of (x1,y1,x2,y2) to make_isolines between
+std::pair<int, std::vector<float> >
+coot::rama_plot::make_isolines_internal(clipper::Ramachandran rama_type, double threshold,
+                                        float x_in, float y_in) {
+
+   std::pair<int, std::vector<float> > ret;
+   std::vector<float> line;
+   float x;
+   float y;
+   float x1, y1;
+   float x2, y2;
+   float d2step;
+
+   x =  clipper::Util::d2rad(x_in+((float) step)/2.0);
+   y =  clipper::Util::d2rad(-(y_in+((float) step)/2.0));
+   x2 = clipper::Util::d2rad(x_in+((float) 3.*step)/2.0);
+   y2 = clipper::Util::d2rad(-(y_in+((float) 3.*step)/2.0));
+
+   int bl = rama_type.probability(x,y) >= threshold;
+   int br = rama_type.probability(x2,y) >= threshold;
+   int tl = rama_type.probability(x,y2) >= threshold;
+   int tr = rama_type.probability(x2,y2) >= threshold;
+   int config = bl | (br << 1) | (tl << 2) | (tr << 3);
+
+   if (config > 7) {
+      config = 15 - config;
+   }
+
+   switch(config) {
+   case 0:
+      break;
+   case 1:
+      x1 = x_in;
+      y1 = y_in + 0.5 * step;
+      x2 = x_in + 0.5 * step;
+      y2 = y_in;
+      break;
+   case 2:
+      x1 = x_in + 0.5 * step;
+      y1 = y_in;
+      x2 = x_in + step;
+      y2 = y_in + 0.5 * step;
+      break;
+   case 3:
+      x1 = x_in;
+      y1 = y_in + 0.5 * step;
+      x2 = x_in + step;
+      y2 = y_in + 0.5 * step;
+      break;
+   case 4:
+      x1 = x_in;
+      y1 = y_in + 0.5 * step;
+      x2 = x_in + 0.5 * step;
+      y2 = y_in + step;
+      break;
+   case 5:
+      x1 = x_in + 0.5 * step;
+      y1 = y_in;
+      x2 = x_in + 0.5 * step;
+      y2 = y_in + step;
+      break;
+   case 6:
+      // Two lines, shouldnt happen?! Not correct
+      std::cout<<"BL WARNING:: I dont expect this to happen for small blocks/steps?! Have x and y below.."<<config<<std::endl;
+      x1 = x_in + 0.5 * step;
+      y1 = y_in;
+      x2 = x_in + 0.5 * step;
+      y2 = y_in + step;
+      break;
+   case 7:
+      x1 = x_in + 0.5 * step;
+      y1 = y_in + step;
+      x2 = x_in + step;
+      y2 = y_in + 0.5 * step;
+      break;
+   }
+
+   ret.first = config;
+   line.push_back(x1);
+   line.push_back(y1);
+   line.push_back(x2);
+   line.push_back(y2);
+   ret.second = line;
+
+   return ret;
+
+}
+
 void
 coot::rama_plot::make_isolines(clipper::Ramachandran rama_type, GooCanvasItem *bg_group) {
 
-   // FIXME:: this could/should be streamlined as one function.
-
    GooCanvasItem *item;
-   // group all in one line
-//   GooCanvasItem *bg_allowed_line;
-//   GooCanvasItem *bg_preferred_line;
-
-//   bg_allowed_line = goo_canvas_group_new(root, NULL);
-//   bg_preferred_line = goo_canvas_group_new(root, NULL);
-
    float x;
    float y;
    float x1, y1;
@@ -767,98 +907,36 @@ coot::rama_plot::make_isolines(clipper::Ramachandran rama_type, GooCanvasItem *b
    float d2step;
    short int doit;
    std::string colour;
+   std::pair<int, std::vector <float> > make_line;
+   std::vector<float> line;
+   int config;
 
    for (float i= -180.0; i<180.0; i += step) {
       for (float j= -180.0; j<180.0; j += step) {
 
          // Make isolines. cf http://www.twodee.org/blog/?p=7595
-         x =  clipper::Util::d2rad(i);
-         y =  clipper::Util::d2rad(-j);
-         d2step = clipper::Util::d2rad(step);
+         make_line = make_isolines_internal(rama_type, rama_threshold_allowed, i, j);
+         config = make_line.first;
+         line = make_line.second;
+         x1 = line[0];
+         y1 = line[1];
+         x2 = line[2];
+         y2 = line[3];
 
-            colour = "grey50";
-            colour= "yellow"; // Procheck colour
-            // colour = "PaleGoldenrod";
-            colour = "khaki";
-
-         int bl = rama_type.probability(x,y) >= rama_threshold_allowed;
-         int br = rama_type.probability(x+d2step,y) >= rama_threshold_allowed;
-         int tl = rama_type.probability(x,y-d2step) >= rama_threshold_allowed;
-         int tr = rama_type.probability(x+d2step,y-d2step) >= rama_threshold_allowed;
-         int config = bl | (br << 1) | (tl << 2) | (tr << 3);
-
-         if (config > 7) {
-            config = 15 - config;
-         }
-
-         switch(config) {
-         case 0:
-            break;
-         case 1:
-            x1 = i;
-            y1 = j + 0.5 * step;
-            x2 = i + 0.5 * step;
-            y2 = j;
-            break;
-         case 2:
-            x1 = i + 0.5 * step;
-            y1 = j;
-            x2 = i + step;
-            y2 = j + 0.5 * step;
-            break;
-         case 3:
-            x1 = i;
-            y1 = j + 0.5 * step;
-            x2 = i + step;
-            y2 = j + 0.5 * step;
-            break;
-         case 4:
-            x1 = i;
-            y1 = j + 0.5 * step;
-            x2 = i + 0.5 * step;
-            y2 = j + step;
-            break;
-         case 5:
-            x1 = i + 0.5 * step;
-            y1 = j;
-            x2 = i + 0.5 * step;
-            y2 = j + step;
-            break;
-         case 6:
-            // Two lines, shouldnt happen?! Not correct
-            std::cout<<"BL WARNING:: I dont expect this to happen for small blocks/steps?! Have x and y below.."<<config<<std::endl;
-            x1 = i + 0.5 * step;
-            y1 = j;
-            x2 = i + 0.5 * step;
-            y2 = j + step;
-            break;
-         case 7:
-            x1 = i + 0.5 * step;
-            y1 = j + step;
-            x2 = i + step;
-            y2 = j + 0.5 * step;
-            break;
-         }
+         colour = "grey50";
+         colour= "yellow"; // Procheck colour
+         // colour = "PaleGoldenrod";
+         colour = "khaki";
 
          if (config > 0) {
             // have isoline
-//            std::cout<<"BL DEBUG:: have isoline" << i << " " << j<< " with value:" << rama.probability(x,y)<<" and config is "<<config<<std::endl;
-//            std::cout<<"BL DEBUG:: have isoline" << i+step << " " << j<< " with value:" << rama.probability(x+d2step,y)<<" and config is "<<config<<std::endl;
-//            std::cout<<"BL DEBUG:: have isoline" << i << " " << j+step<< " with value:" << rama.probability(x,y+d2step)<<" and config is "<<config<<std::endl;
-//            std::cout<<"BL DEBUG:: have isoline" << i+step << " " << j+step<< " with value:" << rama.probability(x+d2step,y+d2step)<<" and config is "<<config<<std::endl;
-//            std::cout<<"BL DEBUG:: line is from " << x1 << " " << y1<< " to:" << x2 <<" "<<y2<<std::endl;
-
             item = goo_canvas_polyline_new_line(bg_group,
                                                 x1,y1,
                                                 x2,y2,
                                                 "stroke-color", "purple",
                                                 "line-width", 2.0,
                                                 NULL);
-
          }
-
-
-
       }
    }
 
@@ -869,91 +947,35 @@ coot::rama_plot::make_isolines(clipper::Ramachandran rama_type, GooCanvasItem *b
    for (float i= -180; i<180; i += step) {
       for (float j= -180; j<180; j += step) {
 
-            colour = "HotPink";
-            x =  clipper::Util::d2rad(i);
-            y =  clipper::Util::d2rad(-j);
-            d2step = clipper::Util::d2rad(step);
+         colour = "HotPink";
+         colour = "grey50";
+         colour= "yellow"; // Procheck colour
+         // colour = "PaleGoldenrod";
+         colour = "khaki";
 
-               colour = "grey50";
-               colour= "yellow"; // Procheck colour
-               // colour = "PaleGoldenrod";
-               colour = "khaki";
+         make_line = make_isolines_internal(rama_type, rama_threshold_preferred, i, j);
+         config = make_line.first;
+         line = make_line.second;
+         x1 = line[0];
+         y1 = line[1];
+         x2 = line[2];
+         y2 = line[3];
 
-            int bl = rama_type.probability(x,y) >= rama_threshold_preferred;
-            int br = rama_type.probability(x+d2step,y) >= rama_threshold_preferred;
-            int tl = rama_type.probability(x,y-d2step) >= rama_threshold_preferred;
-            int tr = rama_type.probability(x+d2step,y-d2step) >= rama_threshold_preferred;
-            int config = bl | (br << 1) | (tl << 2) | (tr << 3);
+         if (config > 0) {
+            // have isoline
+            item = goo_canvas_polyline_new_line(bg_group,
+                                                x1,y1,
+                                                x2,y2,
+                                                "stroke-color", "HotPink",
+                                                "line-width", 2.0,
+                                                NULL);
 
-            if (config > 7) {
-               config = 15 - config;
-            }
-
-            switch(config) {
-            case 0:
-               break;
-            case 1:
-               x1 = i;
-               y1 = j + 0.5 * step;
-               x2 = i + 0.5 * step;
-               y2 = j;
-               break;
-            case 2:
-               x1 = i + 0.5 * step;
-               y1 = j;
-               x2 = i + step;
-               y2 = j + 0.5 * step;
-               break;
-            case 3:
-               x1 = i;
-               y1 = j + 0.5 * step;
-               x2 = i + step;
-               y2 = j + 0.5 * step;
-               break;
-            case 4:
-               x1 = i;
-               y1 = j + 0.5 * step;
-               x2 = i + 0.5 * step;
-               y2 = j + step;
-               break;
-            case 5:
-               x1 = i + 0.5 * step;
-               y1 = j;
-               x2 = i + 0.5 * step;
-               y2 = j + step;
-               break;
-            case 6:
-               // Two lines, shouldnt happen?! Not correct
-               std::cout<<"BL WARNING:: I dont expect this to happen for small blocks/steps?! Have x and y below.."<<config<<std::endl;
-               x1 = i + 0.5 * step;
-               y1 = j;
-               x2 = i + 0.5 * step;
-               y2 = j + step;
-               break;
-            case 7:
-               x1 = i + 0.5 * step;
-               y1 = j + step;
-               x2 = i + step;
-               y2 = j + 0.5 * step;
-               break;
-            }
-
-            if (config > 0) {
-               // have isoline
-              item = goo_canvas_polyline_new_line(bg_group,
-                                                   x1,y1,
-                                                   x2,y2,
-                                                   "stroke-color", "HotPink",
-                                                   "line-width", 2.0,
-                                                   NULL);
-
-            }
+         }
 
       }
    }
 
 }
-
 
 
 // draw a big square after everything else for residue i:
@@ -1089,61 +1111,29 @@ coot::rama_plot::black_border() {
 void
 coot::rama_plot::cell_border(int i, int j, int step_in) {
 
-   // put a border round the canvas one pixel shifted right and up
-   //
-//   GtkCanvasItem *item;
-//   GtkCanvasPoints *points  = gtk_canvas_points_new(5);
-   
-//   points->coords[0] = i+1;
-//   points->coords[1] = j+1;
-
-//   points->coords[2] = i+step+1;
-//   points->coords[3] = j+1;
-
-//   points->coords[4] = i+step+1;
-//   points->coords[5] = j+step+1;
-
-//   points->coords[6] = i+1;
-//   points->coords[7] = j+step+1;
-
-//   points->coords[8] = i+1;
-//   points->coords[9] = j+1;
-
-   
-//   item = gtk_canvas_item_new(gtk_canvas_root(canvas),
-//				GTK_CANVAS_TYPE_CANVAS_LINE,
-//				"width_pixels", 2,
-//				"points", points,
-//				"fill-color", "grey50",
-//				NULL);
-
-//   canvas_item_vec.push_back(item);
-
-//   gtk_canvas_points_free(points);
-
-   // FIXME; needed? Cant I make a border with goocanavas?
+   // FIXME; used?
    GooCanvasItem *item;
-      GooCanvasPoints *points;
-      points = goo_canvas_points_new(4);
+   GooCanvasPoints *points;
+   points = goo_canvas_points_new(4);
 
-      points->coords[0] = i+1;
-      points->coords[1] = j+1;
+   points->coords[0] = i+1;
+   points->coords[1] = j+1;
 
-      points->coords[2] = i+step+1;
-      points->coords[3] = j+1;
+   points->coords[2] = i+step+1;
+   points->coords[3] = j+1;
 
-      points->coords[4] = i+step+1;
-      points->coords[5] = j+step+1;
+   points->coords[4] = i+step+1;
+   points->coords[5] = j+step+1;
 
-      points->coords[6] = i+1;
-      points->coords[7] = j+step+1;
+   points->coords[6] = i+1;
+   points->coords[7] = j+step+1;
 
    item = goo_canvas_polyline_new(goo_canvas_get_root_item(GOO_CANVAS(canvas)),
                                   TRUE, 0,
                                   "points", points,
-            "line-width", 2,
-            "fill-color", "grey50",
-            NULL);
+                                  "line-width", 2,
+                                  "fill-color", "grey50",
+                                  NULL);
 
    goo_canvas_points_unref (points);
    
@@ -1169,8 +1159,8 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
    std::string outline_color("DimGray");
 
    if (box_size == 4) {
-      // FIXME:: should be via callback I think
-      draw_green_box(phi_psi.phi(), phi_psi.psi());
+      // IDEA:: could be via callback I think
+      draw_green_box(phi_psi.phi(), phi_psi.psi(), phi_psi.label());
    } else {
 
       if (phi_psi.residue_name() == "GLY") {
@@ -1266,30 +1256,31 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
 
 // move the green box
 void
-coot::rama_plot::draw_green_box(double phi, double psi) {
+coot::rama_plot::draw_green_box(double phi, double psi, std::string label) {
 
 
    int box_size = 4;
-   gdouble x, y;
-   // get the current position
-   g_object_get(green_box_item,
-                "x", &x,
-                "y", &y,
-                NULL);
-   //g_print("BL DEBUG:: green box current position %f, %f\n", x, y);
-   if (x < -990) {
-      x = x-box_size/2.0;
-      y = y-box_size/2.0;
-      //g_print("BL DEBUG:: green box after correction %f, %f\n", x, y);
-   }
-   //g_print("BL DEBUG:: green box set to phi/psi: %f, %f\n", phi, psi);
-   //g_print("BL DEBUG:: green box set target phi/psi: %f, %f\n", phi, psi);
+//   gdouble x, y;
+//   // get the current position
+//   g_object_get(green_box_item,
+//                "x", &x,
+//                "y", &y,
+//                NULL);
+//   if (x < -990) {
+//      x = x-box_size/2.0;
+//      y = y-box_size/2.0;
+//   }
    g_object_set(green_box_item,
-                "x", phi-box_size/2.0,
-                "y", -psi-box_size/2.0,
+                "x", phi-2*box_size,
+                "y", -psi-2*box_size,
+                NULL);
+   // make a tooltip
+   g_object_set(green_box_item,
+                "tooltip", label.c_str(),
                 NULL);
    // put on top of everything
    goo_canvas_item_raise(green_box_item, NULL);
+
 }
 
 int // return region
@@ -1424,7 +1415,6 @@ coot::rama_plot::generate_phi_psis(mmdb::Manager *mol_in, bool is_primary) {
       secondary_phi_psi_model_sets.clear();
       secondary_phi_psi_model_sets.push_back(empty);
    }
-   g_print("BL DEBUG:: have no of models %i and size before %i\n", n_models, phi_psi_model_sets.size());
    for (int imod=1; imod<=n_models; imod++) {
       coot::phi_psis_for_model_t model_phi_psis(imod);
       mmdb::Model *model_p = mol_in->GetModel(imod);
@@ -1465,7 +1455,6 @@ coot::rama_plot::generate_phi_psis(mmdb::Manager *mol_in, bool is_primary) {
       else 
 	 secondary_phi_psi_model_sets.push_back(model_phi_psis);
    }
-   g_print("BL DEBUG:: have no of models %i and size after %i\n", n_models, phi_psi_model_sets.size());
 }
 
 void
@@ -1486,7 +1475,7 @@ coot::rama_plot::generate_phi_psis_by_selection(mmdb::Manager *mol,
    int n_residues;
    mol->GetSelIndex(SelectionHandle, residues, n_residues);
    coot::phi_psis_for_model_t model_phi_psis(1); // model 1.
-   g_print("BL DEBUG:: generating phi psis for %i number of residues\n", n_residues);
+
    for (int ires=1; ires<(n_residues-1); ires++) {
       mmdb::Residue *res_prev = residues[ires-1];
       mmdb::Residue *res_this = residues[ires];
@@ -1507,7 +1496,7 @@ coot::rama_plot::generate_phi_psis_by_selection(mmdb::Manager *mol,
          }
       }
    }
-   g_print("BL DEBUG:: have model phi psi number %i\n", model_phi_psis.size());
+
    if (is_primary)
       phi_psi_model_sets.push_back(model_phi_psis);
    else
@@ -1526,15 +1515,14 @@ coot::rama_plot::generate_phi_psis_debug()
 
 gint
 coot::rama_plot::button_press (GtkWidget *Widget, GdkEventButton *event) {
-   g_print("BL DEBUG:: in normal button press\n");
-   // FIXME not connectd
 
+   // Note:: not used?!
    return button_press_conventional(Widget, event);
 }
 
 gint
 coot::rama_plot::button_item_release (GooCanvasItem *item, GdkEventButton *event) {
-   g_print("BL DEBUG:: in button release\n");
+
    // Only relevent for edit?!
    if (phipsi_edit_flag) {
       goo_canvas_pointer_ungrab (GOO_CANVAS(canvas), item, event->time);
@@ -1557,7 +1545,6 @@ coot::rama_plot::button_item_release (GooCanvasItem *item, GdkEventButton *event
 gint
 coot::rama_plot::button_item_press (GooCanvasItem *item, GdkEventButton *event) {
 
-   g_print("BL DEBUG:: in button ITEM press\n");
    if (phipsi_edit_flag)
       return button_press_editphipsi(item, event);
    else
@@ -1571,29 +1558,7 @@ coot::rama_plot::button_item_press (GooCanvasItem *item, GdkEventButton *event) 
 gint
 coot::rama_plot::button_press_backbone_edit (GooCanvasItem *item, GdkEventButton *event) {
 
-   // This should be editing of backbone by sliders!!
-   // so disable the following:: FIXME?!
-
-//   GdkCursor *fleur;
-//   // int x_as_int, y_as_int;
-
-//   drag_x = event->x;
-//   drag_y = event->y;
-
-//   if (event->button == 1) {
-////      fleur = gdk_cursor_new (GDK_FLEUR);
-//      fleur = gdk_cursor_new (GDK_TOP_LEFT_ARROW);
-
-//      GdkEventMask mask = GdkEventMask(GDK_POINTER_MOTION_MASK
-//                                       | GDK_POINTER_MOTION_HINT_MASK
-//                                       | GDK_BUTTON_RELEASE_MASK);
-//      goo_canvas_pointer_grab (GOO_CANVAS(canvas), item,
-//                               mask,
-//                               fleur,
-//                               event->time);
-//      gdk_cursor_unref (fleur);
-//      dragging = TRUE;
-//   }
+   // not doing anything (yet). Needed?
 
    return 0;
 }
@@ -1676,7 +1641,6 @@ coot::rama_plot::button_item_press_conventional (GooCanvasItem *item, GdkEventBu
 
       current_residue = item;
 
-      g_print("BL DEBUG:: NEW current_residue with NEw colour %s and %i\n", current_residue, current_colour);
    }
    // do something, maybe pass some data for usefullness.
    // return?! handled?
@@ -1739,7 +1703,7 @@ coot::rama_plot::item_enter_event(GooCanvasItem *item, GdkEventCrossing *event) 
 
    gchar *res_name;
    res_name = (gchar*)g_object_get_data(G_OBJECT(item), "res_name");
-   g_print ("%s received notify-enter event\n", res_name ? res_name : "unknown");
+   //g_print ("%s received notify-enter event\n", res_name ? res_name : "unknown");
 
    if (strcmp(res_name, "GLY") == 0) {
       show_background(bg_gly);
@@ -2097,12 +2061,25 @@ coot::rama_plot::counts_to_stats_frame(const coot::rama_stats_container_t &sc) {
 
 // A canvas item (actually group), so that we can destroy it
 //
-GooCanvasItem *
-coot::rama_plot::counts_to_canvas(const coot::rama_stats_container_t &sc) {
+void
+coot::rama_plot::counts_to_canvas(cairo_t *cr) {
 
-   GooCanvasItem *tmp_group = NULL;
+   coot::rama_stats_container_t sc = saved_counts;
 
    if (sc.n_ramas > 0) {
+
+      cairo_set_source_rgb(cr, 0.8, 0.8, 0.8);
+      cairo_rectangle(cr, -170, 280, 300, 120);
+      cairo_fill(cr);
+
+      cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
+
+      cairo_select_font_face(cr, "Purisa",
+                             CAIRO_FONT_SLANT_NORMAL,
+                             CAIRO_FONT_WEIGHT_BOLD);
+
+      cairo_set_font_size(cr, 14);
+
       float pref_frac = float(sc.n_preferred)/float(sc.n_ramas);
       float allow_frac = float(sc.n_allowed)/float(sc.n_ramas);
       int n_outliers = sc.n_ramas - sc.n_preferred - sc.n_allowed;
@@ -2114,11 +2091,17 @@ coot::rama_plot::counts_to_canvas(const coot::rama_stats_container_t &sc) {
       pref_str += coot::util::float_to_string(100.0*pref_frac);
       pref_str += "%)";
 
+      cairo_move_to(cr, -160, 310);
+      cairo_show_text(cr, pref_str.c_str());
+
       std::string allow_str = "In Allowed Regions:  ";
       allow_str += coot::util::int_to_string(sc.n_allowed);
       allow_str += "  (";
       allow_str += coot::util::float_to_string(100.0*allow_frac);
       allow_str += "%)";
+
+      cairo_move_to(cr, -160, 340);
+      cairo_show_text(cr, allow_str.c_str());
 
       std::string outlr_str = "Outliers:  ";
       outlr_str += coot::util::int_to_string(n_outliers);
@@ -2126,20 +2109,10 @@ coot::rama_plot::counts_to_canvas(const coot::rama_stats_container_t &sc) {
       outlr_str += coot::util::float_to_string(100.0*outlr_frac);
       outlr_str += "%)";
 
-      std::string all_txt = pref_str;
-      all_txt += "\n";
-      all_txt += allow_str;
-      all_txt += "\n";
-      all_txt += outlr_str;
+      cairo_move_to(cr, -160, 370);
+      cairo_show_text(cr, outlr_str.c_str());
 
-      tmp_group = goo_canvas_group_new(root, NULL);
-      goo_canvas_text_new(tmp_group, all_txt.c_str(),
-                          0, 400,
-                          -1, GTK_ANCHOR_WEST,
-                          NULL);
    }
-
-   return tmp_group;
 
 }
 
@@ -2154,9 +2127,9 @@ coot::rama_plot::draw_it(const coot::util::phi_psi_t &phipsi) {
    coot::residue_spec_t spec("", 0, "");
    phi_psi_set.add_phi_psi(spec, phipsi);
    phi_psi_model_sets.push_back(phi_psi_set);
-   g_print("BL DEBUG:: draw points?!\n");
+
    draw_phi_psi_points();
-   g_print("BL DEBUG:: done draw points?!\n");
+
 }
 
 
@@ -2177,9 +2150,8 @@ coot::rama_plot::draw_it(const std::vector<coot::util::phi_psi_t> &phi_psi_s) {
       phi_psi_set.add_phi_psi(spec, phi_psi_s[i]);
    }
    phi_psi_model_sets.push_back(phi_psi_set);
-   g_print("BL DEBUG:: draw points\n");
    draw_phi_psi_points();
-   g_print("BL DEBUG:: done points\n");
+
 }
 
 void 
@@ -2231,7 +2203,7 @@ coot::rama_plot::draw_2_phi_psi_sets_on_canvas(mmdb::Manager *mol1,
    // all_plot_background_and_bits(clipper::Ramachandran::All);
    // std::cout << "finding differences..." << std::endl;
    //FIXME
-   //find_phi_psi_differences(chainid1, chainid2);
+   find_phi_psi_differences();
    // std::cout << "drawing differences..." << std::endl;
    draw_phi_psi_differences();
 
@@ -2327,7 +2299,6 @@ coot::rama_plot::find_phi_psi_differences_internal(const std::string &chain_id1,
 	 coot::residue_spec_t spec_1 = it->first;
 	 coot::residue_spec_t spec_2 = it->first;
 	 // now (re)set chain_id of spec_2
-	 // FIXME
 	 if (use_chain_ids) {
             spec_2.chain_id = chain_id2;
 	 }
@@ -2402,12 +2373,11 @@ coot::rama_plot::draw_phi_psi_differences() {
 
       for (int j=0; j<n_diffs && j<n_vsize; j++) {
 
-	 coot::util::phi_psi_t pp1 = diff_sq[j].phi_psi_1();
-	 coot::util::phi_psi_t pp2 = diff_sq[j].phi_psi_2();
-	 
-	 draw_phi_psi_point(pp1, 1);
-	 draw_phi_psi_point(pp2, 0);
-         //FIXME
+         coot::util::phi_psi_t pp1 = diff_sq[j].phi_psi_1();
+         coot::util::phi_psi_t pp2 = diff_sq[j].phi_psi_2();
+
+         draw_phi_psi_point(pp1, 1);
+         draw_phi_psi_point(pp2, 0);
          GooCanvasPoints *points = goo_canvas_points_new(2);
 
          draw_kleywegt_arrow(pp1, pp2, points);
@@ -2765,18 +2735,19 @@ coot::rama_plot::rama_get_mmdb_manager(std::string pdb_name) {
 void
 coot::rama_plot::zoom_out() {
 
-   float canvas_scale = zoom/(zoom + 0.2);
-   zoom -= 0.2;
-   //FIXME
+   // make sure it doesnt get smaller than the window
+   if (zoom-0.2 < 0.8) {
+      zoom = 0.8;
+   } else {
+      zoom -= 0.2;
+   }
    goo_canvas_set_scale(GOO_CANVAS(canvas), zoom);
 
 }
 void
 coot::rama_plot::zoom_in() {
 
-   float canvas_scale = (zoom + 0.2)/zoom;
    zoom += 0.2;
-   // FIXME
    goo_canvas_set_scale(GOO_CANVAS(canvas), zoom);
 
 }
@@ -2789,7 +2760,7 @@ coot::rama_plot::allow_seqnum_offset() {
 } 
 
 void
-coot::rama_plot::write_pdf(std::string &file_name) const {
+coot::rama_plot::write_pdf(std::string &file_name) {
 #if CAIRO_HAS_PDF_SURFACE
 
    gdouble x1, y1, x2, y2;
@@ -2801,12 +2772,35 @@ coot::rama_plot::write_pdf(std::string &file_name) const {
                          NULL);
    cairo_surface_t *surface;
    cairo_t *cr;
-   double pos_x = x2 - x1;
-   double pos_y = y2 - y1;
-   surface = cairo_pdf_surface_create(file_name.c_str(), pos_x, pos_y);
+   double size_x = x2 - x1;
+   double size_y = y2 - y1;
+   int add_text = 0;
+   // Add some space for a title
+   size_y += 80;
+   // Increase the canvas if needed
+   if (!is_kleywegt_plot()) {
+      if (saved_counts.n_ramas > 0) {
+      size_y += 200;
+      add_text = 1;
+      }
+   }
+   surface = cairo_pdf_surface_create(file_name.c_str(), size_x, size_y);
    cr = cairo_create (surface);
    // place in the middle?!
-   cairo_translate (cr, 200, 200);
+   cairo_translate (cr, 240, 280);
+   // add title
+   const gchar *title = gtk_label_get_text(GTK_LABEL(dynarama_label));
+   cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
+   cairo_select_font_face(cr, "Purisa",
+       CAIRO_FONT_SLANT_NORMAL,
+       CAIRO_FONT_WEIGHT_BOLD);
+   cairo_set_font_size(cr, 20);
+   cairo_move_to(cr, -180, -230); // FIXME, maybe dependent on text length?!
+   cairo_show_text(cr, title);
+   // add stats
+   if (add_text) {
+      counts_to_canvas(cr);
+   }
    goo_canvas_render(GOO_CANVAS(canvas), cr, NULL, 1.0);
    cairo_show_page(cr);
    cairo_surface_destroy(surface);
@@ -2820,7 +2814,7 @@ coot::rama_plot::write_pdf(std::string &file_name) const {
 }
 
 void
-coot::rama_plot::write_png(std::string &file_name) const {
+coot::rama_plot::write_png(std::string &file_name) {
 
    gdouble x1, y1, x2, y2;
    g_object_get(GOO_CANVAS(canvas),
@@ -2832,14 +2826,34 @@ coot::rama_plot::write_png(std::string &file_name) const {
 
    int size_x = (int)x2 - (int)x1;
    int size_y = (int)y2 - (int)y1;
-   // FIXME
-   // Need an easy function to get the stats from the plot
-   //coot::rama_stats_container_t counts = draw_phi_psi_points();
-   //GooCanvasItem *tmp = counts_to_canvas(counts);
+   int add_text = 0;
+   // Add some space for a title
+   size_y += 80;
+   // Increase the canvas if needed
+   if (!is_kleywegt_plot()) {
+      if (saved_counts.n_ramas > 0) {
+      size_y += 200;
+      add_text = 1;
+      }
+   }
    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size_x, size_y);
    cairo_t *cr = cairo_create (surface);
    /* move closer to the centre */
-   cairo_translate (cr, 200, 200);
+   cairo_translate (cr, 240, 280);
+
+   // add title
+   const gchar *title = gtk_label_get_text(GTK_LABEL(dynarama_label));
+   cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
+   cairo_select_font_face(cr, "Purisa",
+       CAIRO_FONT_SLANT_NORMAL,
+       CAIRO_FONT_WEIGHT_BOLD);
+   cairo_set_font_size(cr, 20);
+   cairo_move_to(cr, -180, -230); // FIXME, maybe dependent on text length?!
+   cairo_show_text(cr, title);
+
+   if (add_text) {
+      counts_to_canvas(cr);
+   }
    goo_canvas_render (GOO_CANVAS(canvas), cr, NULL, 1.0);
    cairo_surface_write_to_png(surface, file_name.c_str());
    cairo_surface_destroy (surface);
@@ -2878,7 +2892,6 @@ coot::rama_plot::plot_type_changed() {
       // rama plot, i.e. hide the kleywegt box
       gtk_widget_hide(kleywegt_chain_box);
       if (mols().first) {
-         // FIXME:: better clear_canvas_items before a new draw!?
          clear_canvas_items();
          set_kleywegt_plot_state(0);
          gtk_widget_show(rama_stats_frame);
@@ -2907,7 +2920,6 @@ coot::rama_plot::plot_type_changed() {
          int i_chain_id2 = 0;
          if (chains2.size() > 0)
             i_chain_id2 = 1;
-         g_print("BL DEBUG:: finding differences of chains %s and %s\n",chains[0].c_str(), chains2[i_chain_id2].c_str());
          chain_ids_ = std::pair<std::string, std::string> (chains[0], chains2[i_chain_id2]);
 
          draw_it(molecule_numbers().first, molecule_numbers().second,
@@ -3013,8 +3025,6 @@ coot::rama_plot::fill_kleywegt_comboboxes(mmdb::Manager *mol1,
    gtk_cell_layout_pack_start( GTK_CELL_LAYOUT(kleywegt_chain_combobox2), cell2, TRUE );
    gtk_cell_layout_set_attributes( GTK_CELL_LAYOUT(kleywegt_chain_combobox2), cell2, "text", 0, NULL );
 
-   g_print("BL DEBUG:: have chain ids %s and %s as well as active: %i and %i\n",
-           chain_ids().first.c_str(), chain_ids().second.c_str(), active1, active2);
    gtk_combo_box_set_active(GTK_COMBO_BOX(kleywegt_chain_combobox1), active1);
    gtk_combo_box_set_active(GTK_COMBO_BOX(kleywegt_chain_combobox2), active2);
 

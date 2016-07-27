@@ -110,9 +110,15 @@ main(int argc, char *argv[]) {
 
    // add selections and kleywegt
    if (argc < 2) {
-      std::cout << "Usage: " << argv[0]
-                << " --pdbin pdb-in-filename"
-                << " [--pdbin2 pdb-in-filename2]"
+      std::cout << "Usage: " << argv[0] << "\n"
+                << "(--pdbin) pdb-in-filename"
+                << "[--selection atom-selection-string]\n"
+                << "[--chain chain-id]\n"
+                << "[--chain2 chain-id2] (for kleywegt plot)"
+                << "[--selection2 atom-selection-string] (for kleywegt plot)"
+                << "[--pdbin2 pdb-in-filename2 (for kleywegt plot, otherwise assume pdbin)]"
+                << "[--kleywegt (to make kleywegt, autoamtically for multiple selections, chains)]"
+                << "[--edit (edit mode, currently debug only)]"
                 << "\n";
       std::cout << "     where pdbin is the protein and pdbin2 a second one for a Kleywegt plot.\n";
 
@@ -245,6 +251,10 @@ main(int argc, char *argv[]) {
          }
       }
 
+      std::string file = argv[1];
+      if (coot::util::extension_is_for_coords(coot::util::file_name_extension(file)))
+         pdb_file_name = file;
+
       mmdb::Manager *mol = new mmdb::Manager();
       mmdb::Manager *mol2 = new mmdb::Manager();
 
@@ -264,7 +274,6 @@ main(int argc, char *argv[]) {
       float block_size = 1;
       int imol = 0; // dummy for now
       int imol2 = 0;
-      // FIXME:: usage of imol here and in general for function. As well as asc.
 
       // edit plot?
       if (edit_res_no > -9999) {
@@ -280,7 +289,7 @@ main(int argc, char *argv[]) {
          int nRes;
          int SelHnd;
          std::vector <coot::util::phi_psi_t> vp;
-         g_print("BL DEBUG:: edit plot with chain %s and resno %i\n", chain_id.c_str(), edit_res_no);
+         //g_print("BL DEBUG:: edit plot with chain %s and resno %i\n", chain_id.c_str(), edit_res_no);
          for (int resno=edit_res_no; resno<edit_res_no+2; resno++) {
             SelHnd= mol->NewSelection();
             mol->Select(SelHnd,
@@ -295,16 +304,8 @@ main(int argc, char *argv[]) {
                         "*",            // any alternative location indicator
                         mmdb::SKEY_NEW);         // OR-selection
             mol->GetSelIndex(SelHnd, SelResidue, nRes);
-            g_print("BL DEBUG:: no of res %i\n", nRes);
             if (nRes == 3) {
                std::pair<bool, coot::util::phi_psi_t> phi_psi_all = coot::util::get_phi_psi(SelResidue);
-               //            coot::util::phi_psi_t phi_psi = phi_psi_all.second();
-               //            // make a label
-               //            std::string label;
-               //            label = int_to_string(edit_res_no);
-               //            label += chain_id;
-               //            coot::util::phi_psi_t phipsi(phi_psi.first, phi_psi.second, "resname",
-               //                                         label, 1, "inscode", "chainid");
                if (phi_psi_all.first)
                   vp.push_back(phi_psi_all.second);
             } else {
@@ -323,7 +324,6 @@ main(int argc, char *argv[]) {
          coot::rama_plot *rama = new coot::rama_plot;
          // normal rama (or kleywy)
          if (is_kleywegt_plot_flag) {
-            g_print("BL DEBUG:: should make kleywegt plot");
             mol2 = mol;
             imol2 = imol + 1;
             if (chain_id.size() == 0 && chain_id2.size() == 0 &&
@@ -363,7 +363,6 @@ main(int argc, char *argv[]) {
                         selection.c_str(),
                         mmdb::SKEY_NEW);
             mol->GetSelIndex(selHnd, SelResidue, nRes);
-            g_print("BL DEBUG:: have selection 1: %s with length of selected residues %i\n", selection.c_str(), nRes);
          } else {
             if (chain_id.size() > 0) {
                selHnd = mol->NewSelection();
@@ -381,7 +380,6 @@ main(int argc, char *argv[]) {
                            "*",            // any alternative location indicator
                            mmdb::SKEY_NEW);         // OR-selection
                mol->GetSelIndex(selHnd, SelResidue, nRes);
-               g_print("BL DEBUG:: have chain 1: %s with length of selected residues %i\n", chain_id.c_str(), nRes);
             }
          }
          if (selection2.size() > 0) {
@@ -393,18 +391,10 @@ main(int argc, char *argv[]) {
                             selection2.c_str(),
                             mmdb::SKEY_NEW);
             } else {
-               g_print("BL DEBUG:: no mol2, no 2nd selection.");
+               g_print("BL INFO:: no mol2, no 2nd selection.");
             }
          }
 
-         //         // now make new mol, so that rama has not to deal with anything
-         //         mmdb::Manager *mol_rama =
-         //               coot::util::create_mmdbmanager_from_atom_selection(mol,
-         //                                                                  selHnd);
-         //         g_print("BL DEBUG:: no of res in orig and selection %i %i using selection %s\n",
-         //                 coot::util::number_of_residues_in_molecule(mol),
-         //                 coot::util::number_of_residues_in_molecule(mol_rama),
-         //                 selection.c_str());
          rama->set_stand_alone();
          rama->init(imol,
                     pdb_file_name,
@@ -413,21 +403,17 @@ main(int argc, char *argv[]) {
                     block_size,
                     is_kleywegt_plot_flag);
          if (is_kleywegt_plot_flag) {
-            g_print("BL DEBUG:: some form of Kleywegt\n");
             if (selHnd > -1 && selHnd2 > -1) {
-               g_print("BL DEBUG:: with sel\n");
                rama->draw_it(imol, imol2,
                              mol, mol2,
                              selHnd, selHnd2);
             } else {
                if (chain_id.size() != 0 && chain_id2.size() != 0)  {
-                  g_print("BL DEBUG:: with chains %s and %s\n", chain_id.c_str(), chain_id2.c_str());
                   rama->draw_it(imol, imol2,
                                 mol, mol2,
                                 chain_id, chain_id2);
                } else {
                   if (mol != mol2) {
-                     g_print("BL DEBUG:: with mol\n");
                      rama->draw_it(imol, imol2,
                                    mol, mol2);
                   } else {
@@ -436,18 +422,18 @@ main(int argc, char *argv[]) {
                }
             }
          } else {
-            g_print("BL DEBUG:: normal plot with selHnd: %i\n", selHnd);
             if (selHnd > -1)
-               rama->draw_it(mol, selHnd);
+               rama->draw_it(mol, selHnd, 1);
             else {
-               if (mol)
+               if (mol) {
                   rama->draw_it(mol);
-               // else empty plot!
+               } else {
+                  g_print("BL INFO:: no mol and no selection, so no plot. Sorry.");
+               }
             }
          }
       }
-      //rama->draw_rect();
-      std::cout <<"BL DBEUG:: now main "<<std::endl;
+
       gtk_main ();
       delete mol;
       if (mol2)

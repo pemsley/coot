@@ -2585,6 +2585,10 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 		  GtkWidget *widget = create_edit_backbone_torsions_dialog();
 		  set_edit_backbone_adjustments(widget);
 		  gtk_widget_show(widget);
+        // update the graph to show both
+        GtkWidget *adj;
+        adj = lookup_widget(widget, "edit_backbone_torsions_rotate_carbonyl_adjustment");
+        g_signal_emit_by_name(G_OBJECT(adj), "value_changed");
 		  
 	       } else { 
 		  std::cout << "WARNING:: not all atoms found in " 
@@ -2626,6 +2630,10 @@ graphics_info_t::set_edit_backbone_adjustments(GtkWidget *widget) {
    gtk_range_set_adjustment(GTK_RANGE(hscale_carbonyl), adjustment);
    gtk_signal_connect(GTK_OBJECT(adjustment), "value_changed",
 		      GTK_SIGNAL_FUNC(graphics_info_t::edit_backbone_carbonyl_changed_func), NULL);
+
+   // add a name to be able to lookup
+   g_object_set_data(G_OBJECT(widget), "edit_backbone_torsions_rotate_carbonyl_adjustment",
+                     adjustment);
 
 }
 
@@ -2759,7 +2767,10 @@ graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidg
 	 std::vector <coot::util::phi_psi_t> vp;
 	 std::string label = int_to_string(c_atom_p->GetSeqNum());
 	 if (pp.first.first > -200) { 
-	    label += c_atom_p->GetChainID();
+       label += " ";
+       label += c_atom_p->GetChainID();
+       label += " ";
+       label += c_atom_p->GetResName();
 	    coot::util::phi_psi_t phipsi1(clipper::Util::rad2d(pp.first.first), 
 					  clipper::Util::rad2d(pp.first.second),
 					  "resname", label, 1, "inscode", "chainid");
@@ -2767,7 +2778,10 @@ graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidg
 	 }
 	 if (pp.second.first > -200) { 
 	    label = int_to_string(n_atom_p->GetSeqNum());
+       label += " ";
 	    label += n_atom_p->GetChainID();
+       label += " ";
+       label += n_atom_p->GetResName();
 	    coot::util::phi_psi_t phipsi2(clipper::Util::rad2d(pp.second.first), 
 					  clipper::Util::rad2d(pp.second.second),
 					  "resname", label, 1, "inscode", "chainid");

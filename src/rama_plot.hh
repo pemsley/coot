@@ -244,7 +244,7 @@ class rama_plot {
 		      float block_size,
 		      short int hide_butttons = 0,
 		      short int is_kleywegt_plot = 0); // called by init(int imol)
-   void draw_green_box(double phi, double psi);
+   void draw_green_box(double phi, double psi, std::string label);
    short int phipsi_edit_flag;   // for active canvas (can move phi/psi point)
    short int backbone_edit_flag; // for passive canvas
    void clear_canvas_items();
@@ -260,7 +260,7 @@ class rama_plot {
    bool kleywegt_plot_uses_chain_ids;
    void hide_stats_frame();
    void counts_to_stats_frame(const rama_stats_container_t &sc);
-   GooCanvasItem *counts_to_canvas(const rama_stats_container_t &sc);
+   void counts_to_canvas(cairo_t *cr);
    bool resize_it;
    
    bool allow_seqnum_offset_flag; // was from a shelx molecule with A 1->100 and B 201->300
@@ -318,6 +318,7 @@ public:
    GtkWidget *rama_export_as_pdf_filechooserdialog;
    GtkWidget *rama_export_as_png_filechooserdialog;
    GtkWidget *rama_open_filechooserdialog;
+   GtkWidget *rama_view_menu;
 
    rama_plot() {
       green_box_item = NULL;
@@ -329,6 +330,7 @@ public:
       current_residue = NULL;
       residues_grp = NULL;
       arrow_grp = NULL;
+      saved_counts = rama_stats_container_t();
       oldw = 0;
       oldh = 0;
       oldcanvash = 400;
@@ -336,6 +338,8 @@ public:
       pad_w = 0.;
       pad_h = 0.;
       dialog_position_x = -100; dialog_position_y = -100; }
+
+   rama_stats_container_t saved_counts;
    int oldw;
    int oldh;
    int oldcanvash;
@@ -358,7 +362,6 @@ public:
 
    void set_stand_alone() {
       stand_alone_flag = 1;
-      g_print("BL DEBUG:: changed stand alone rama \n");
    }
 //   void set_stand_alone() { stand_alone_flag = 1; }
    bool is_stand_alone() { return stand_alone_flag; }
@@ -366,7 +369,7 @@ public:
    // The graphics interface, given that you have a mmdb::Manager. 
    // 
    void draw_it(mmdb::Manager *mol);
-   void draw_it(mmdb::Manager *mol, int SelHnd);
+   void draw_it(mmdb::Manager *mol, int SelHnd, int primary=0);
    void draw_it(int imol1, int imol2, mmdb::Manager *mol1, mmdb::Manager *mol2); // no chain ids.
    void draw_it(int imol1, int imol2,
                 mmdb::Manager *mol1, mmdb::Manager *mol2,
@@ -395,6 +398,8 @@ public:
    void hide_all_background();
    void show_background(GooCanvasItem *new_bg);
    void setup_background(bool blocks=1, bool isolines=1);
+   std::pair<int, std::vector<float> > make_isolines_internal(clipper::Ramachandran rama_type,
+                                                              double threshold, float x_in, float y_in);
    void make_isolines(clipper::Ramachandran rama_type, GooCanvasItem *bg_group);
    void setup_canvas(); 
    void black_border();
@@ -546,8 +551,8 @@ public:
    
    } 
 
-   void write_pdf(std::string &file_name) const;
-   void write_png(std::string &file_name) const;
+   void write_pdf(std::string &file_name);
+   void write_png(std::string &file_name);
 
    void fill_kleywegt_comboboxes(int imol);
    void fill_kleywegt_comboboxes(mmdb::Manager *mol1);
