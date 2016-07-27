@@ -1662,13 +1662,16 @@ Bond_lines_container::handle_MET_or_MSE_case(mmdb::PAtom mse_atom,
 	       std::string altconf1 = mse_atom->altLoc;
 	       std::string altconf2 = residue_atoms[i]->altLoc;
 	       if ( (altconf1=="") || (altconf2=="") || (altconf1==altconf2) ) {
-		  coot::Cartesian bond_mid_point = cart_at1.mid_point(cart_at2);
-		  int colc = atom_colour(residue_atoms[i], atom_colour_type, atom_colour_map_p);
-		  addBond(col,  cart_at1, bond_mid_point);
-		  addBond(colc, bond_mid_point, cart_at2);
-		  // mark atom as bonded.
-		  residue_atoms[i]->PutUDData(udd_handle, BONDED_WITH_STANDARD_ATOM_BOND);
-		  mse_atom->PutUDData(udd_handle, BONDED_WITH_STANDARD_ATOM_BOND);
+		  float len2 = (cart_at1 - cart_at2).amplitude_squared(); 
+		  if (len2 < 16) { // protection for weirdness
+		     coot::Cartesian bond_mid_point = cart_at1.mid_point(cart_at2);
+		     int colc = atom_colour(residue_atoms[i], atom_colour_type, atom_colour_map_p);
+		     addBond(col,  cart_at1, bond_mid_point);
+		     addBond(colc, bond_mid_point, cart_at2);
+		     // mark atom as bonded.
+		     residue_atoms[i]->PutUDData(udd_handle, BONDED_WITH_STANDARD_ATOM_BOND);
+		     mse_atom->PutUDData(udd_handle, BONDED_WITH_STANDARD_ATOM_BOND);
+		  }
 	       }
 	    }
 	 }
@@ -3888,9 +3891,6 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 		     } else {
 			if (is_hydrogen(element)) {
 			   return HYDROGEN_GREY_BOND;
-			} else {
-			   if (element == " S") {
-			   }
 			}
 		     }
 		  }
