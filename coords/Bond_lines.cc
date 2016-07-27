@@ -3886,9 +3886,11 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 		     if (element == " S") {
 			return YELLOW_BOND;
 		     } else {
-			// if (element == " H") {
 			if (is_hydrogen(element)) {
 			   return HYDROGEN_GREY_BOND;
+			} else {
+			   if (element == " S") {
+			   }
 			}
 		     }
 		  }
