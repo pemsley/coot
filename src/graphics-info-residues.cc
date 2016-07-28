@@ -353,8 +353,9 @@ graphics_info_t::perpendicular_ligand_view(int imol, const coot::residue_spec_t 
 	 graphics_info_t g;
 	 std::pair<bool, clipper::Coord_orth> residue_centre = g.molecules[imol].residue_centre(residue_p);
 	 if (residue_centre.first) {
-			
-	    g.setRotationCentre(residue_centre.second);
+
+	    if (false) // new style ligand navigation 20160720
+	       g.setRotationCentre(residue_centre.second);
 
 	    if (false) { // debug matrices/eigen
 
@@ -388,50 +389,86 @@ graphics_info_t::perpendicular_ligand_view(int imol, const coot::residue_spec_t 
 				      mat(1,0), mat(1,1), mat(1,2),
 				      mat(2,0), mat(2,1), mat(2,2));
 
+	    // OK, so md gives us an unsorted eigenvector matrix,
+	    // which, when we apply it to the view orients the ligands
+	    // along one of screen X, Y or Z.  Ideally, we'd like the
+	    // long axis of the ligand to be along screen X (and the
+	    // thinnest direction of the ligand along screen Z).  It
+	    // might be possible to rotate md by rotating the columns
+	    // (or rows).  But I don't do that.  I now test for the
+	    // longest eigenvector and that gives us the axis about
+	    // which I need to rotate the view by 90 degrees to put
+	    // the long axis of the ligand along screen z (we don't
+	    // need a rotation if eigen[0] is the longest vector of
+	    // course (unless we consider the tweak to rotate the
+	    // second longest eigenvector along screen y).  The order
+	    // the rotations are applied is important.  The flags are
+	    // set so that screen-x rotation happens last.
+
 	    bool need_x_rotate = false;
 	    bool need_y_rotate = false;
 	    bool need_z_rotate = false;
-			
-	    if (eigens[0] < eigens[1]) { 
-	       if (eigens[0] < eigens[2]) {
-		  // shortest is along x.  Needs rotation arounds screen x
-		  need_y_rotate = true;
-		  if (eigens[1] < eigens[2])
-		     need_z_rotate = true;
-	       }
-	    }
-		  
-	    if (eigens[1] < eigens[0]) { 
-	       if (eigens[1] < eigens[2]) {
-		  need_x_rotate = true;
-		  if (eigens[0] < eigens[2])
-		     need_z_rotate = true;
-	       }
-	    }
 
 	    coot::util::quaternion vq(md);
-	    g.quat[0] = vq.q0;
-	    g.quat[1] = vq.q1;
-	    g.quat[2] = vq.q2;
-	    g.quat[3] = vq.q3;
 
+	    // convert a coot::util::quaternion to a float *.
+
+	    // ugly - we should have equivalent of this in the quaternion class.
+	    // 
+	    float vqf[4];
+	    vqf[0] = vq.q0; vqf[1] = vq.q1; vqf[2] = vq.q2; vqf[3] = vq.q3;
+
+	    // test: initally along screen Y?
+	    if (eigens[1] > eigens[0]) {
+	       if (eigens[1] > eigens[2]) {
+		  need_z_rotate = true;
+		  if (eigens[2] > eigens[0]) // minor correction
+		     need_x_rotate = true;
+	       }
+	    }
+
+	    // test: initally along screen Z?
+	    if (eigens[2] > eigens[0]) {
+	       if (eigens[2] > eigens[1]) {
+		  need_y_rotate = true;
+		  if (eigens[0] > eigens[1]) // minor correction
+		     need_x_rotate = true;
+	       }
+	    }
+
+	    // test: initally along screen X? (only minor correction may be needed)
+	    if (eigens[0] > eigens[1])
+	       if (eigens[0] > eigens[2])
+		  if (eigens[2] > eigens[1])
+		     need_x_rotate = true;
+
+	    if (need_z_rotate) {
+	       float spin_quat[4];
+	       trackball(spin_quat, 1.0, 1.0, 1.0, 1.0 + 0.0174533*180, 0.4);
+	       add_quats(spin_quat, vqf, vqf);
+	    }
+	    if (need_y_rotate) {
+	       float spin_quat[4];
+	       trackball(spin_quat, 0, 0, 0.0174533*45, 0.000, 0.8);
+	       add_quats(spin_quat, vqf, vqf);
+	    }
 	    if (need_x_rotate) {
 	       float spin_quat[4];
 	       trackball(spin_quat, 0, 0, 0.0, 0.0174533*45, 0.8);
-	       add_quats(spin_quat, g.quat, g.quat);
+	       add_quats(spin_quat, vqf, vqf);
 	    } 
 
-	    if (need_y_rotate) { 
-	       float spin_quat[4];
-	       trackball(spin_quat, 0, 0, 0.0174533*45, 0.000, 0.8);
-	       add_quats(spin_quat, g.quat, g.quat);
-	    }
-	    if (need_z_rotate) { 
-	       float spin_quat[4];
-	       trackball(spin_quat, 1.0, 1.0, 1.0, 1.0 + 0.0174533*180, 0.4);
-	       add_quats(spin_quat, g.quat, g.quat);
-	    }
-	    g.update_things_on_move_and_redraw();
+	    // interpolate between current view and new view
+	    //
+
+	    const clipper::Coord_orth &rc = residue_centre.second;
+	    coot::Cartesian res_centre(rc.x(), rc.y(), rc.z());
+	    coot::Cartesian rot_centre = RotationCentre();
+	    coot::view_info_t view1(g.quat, rot_centre, zoom, "current");
+	    coot::view_info_t view2(vqf,    res_centre, zoom, "ligand-perp");
+	    int nsteps = 50;
+	    coot::view_info_t::interpolate(view1, view2, nsteps);
+
 	 }
       }
    }

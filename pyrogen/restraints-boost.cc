@@ -171,12 +171,15 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 
 	    RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
 
-	    RDKit::MolOps::assignStereochemistry(*m, false, true, true);
+	    bool clean = false;
+	    bool force = true;
+	    bool flag_stereo = true;
+	    // RDKit::MolOps::assignStereochemistry(*m, clean, force, flag_stereo);
 
 	    // Here test that the propety mmcif_chiral_volume_sign has
 	    // been set on atoms of mol_rw and m
 	    //
-	    if (true) {
+	    if (false) {
 	       for (unsigned int iat=0; iat<m->getNumAtoms(); iat++) {
 		  // std::cout << "DEBUG:: rdkit_mol_chem_comp_pdbx(): testing atom " << iat << std::endl;
 		  RDKit::ATOM_SPTR at_p = (*m)[iat];

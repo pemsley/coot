@@ -128,8 +128,10 @@ namespace coot {
 	  CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR=14,
 	  CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS=17,
 	  COLOUR_BY_MOLECULE_BONDS=8,
-	  COLOUR_BY_RAINBOW_BONDS=9, COLOUR_BY_B_FACTOR_BONDS=10,
-	  COLOUR_BY_OCCUPANCY_BONDS=11};
+	  COLOUR_BY_RAINBOW_BONDS=9,
+	  COLOUR_BY_B_FACTOR_BONDS=10,
+	  COLOUR_BY_OCCUPANCY_BONDS=11,
+	  COLOUR_BY_USER_DEFINED_COLOURS_BONDS=12 };
 
    enum { RESIDUE_NUMBER_UNSET = -1111};
 
@@ -721,6 +723,10 @@ public:        //                      public
       bond_width = 3.0;
       display_stick_mode_atoms_flag = false;
 
+      // bespoke colouring
+      use_bespoke_grey_colour_for_carbon_atoms = false;
+      bespoke_carbon_atoms_colour = coot::colour_t(0.6, 0.6, 0.6);
+
       // 
       rotate_colour_map_for_difference_map = 240.0; // degrees
 
@@ -815,7 +821,11 @@ public:        //                      public
 
    coot::colour_t get_bond_colour_by_mol_no(int icolour, bool against_a_dark_background);
 	   
-   void set_bond_colour_by_colour_wheel_position(int i, int bond_type);
+   void set_bond_colour_by_colour_wheel_position(int i, int bonds_box_type);
+   bool use_bespoke_grey_colour_for_carbon_atoms;
+   coot::colour_t bespoke_carbon_atoms_colour;
+   void set_use_bespoke_carbon_atom_colour(bool state) { use_bespoke_grey_colour_for_carbon_atoms = state; }
+   void set_bespoke_carbon_atom_colour(const coot::colour_t &col) { bespoke_carbon_atoms_colour = col; }
 
    std::string name_; // otherwise get and set, so make it public.
 
@@ -951,6 +961,7 @@ public:        //                      public
 
    void set_b_factor_residue_range(const std::string &chain_id, int ires1, int ires2, float b_val);
    void set_b_factor_atom_selection(const atom_selection_container_t &asc, float b_val, bool moving_atoms);
+   void set_b_factor_residues(const std::vector<std::pair<coot::residue_spec_t, double> > &rbs); // all atoms of specified
 
 
    std::vector<coot::atom_spec_t> fixed_atom_specs;
@@ -1057,6 +1068,7 @@ public:        //                      public
    void b_factor_representation();
    void b_factor_representation_as_cas();
    void occupancy_representation();
+   void user_defined_colours_representation(coot::protein_geometry *geom_p, bool all_atoms_mode); // geom needed for ligands
 
    void make_bonds_type_checked(); 
 
@@ -3038,6 +3050,10 @@ public:        //                      public
 					       double theta,  // degrees
 					       bool wag_the_dog,
 					       coot::protein_geometry *geom);
+
+   void set_user_defined_colour_indices_by_residues(const std::vector<std::pair<coot::residue_spec_t, int> > &cis);
+   void set_user_defined_colour_indices(const std::vector<std::pair<coot::atom_spec_t, int> > &cis);
+   void clear_user_defined_atom_colours();
    
 };
 

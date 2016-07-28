@@ -17,7 +17,6 @@ enhanced_ligand.py      test it
 New Rama: drag residues->switch to selection and rather refine (e.g. add
 	extra torsion to ref target)?!
 
-fix probe/reduce from ccp4 as well as direct richardsons
 
 check up to dateness of supplied manuals
 
@@ -25,12 +24,13 @@ refinement selection with insertion code not working
 
 Fix installer guile warning for windows feel.
 
-FIX COOT_REFMAC_DIR for x86 windows with spaces (and/or umlauts)!
 
 
 -- before 0.8
 
 Windows:
+ o replace msys with HOME in wincoot build scripts
+ o in general make wincoot build more general/compatible
  o check installer on win 8 (hangs after finished)
  o distribute src code!!!
  o change runwincoot.bat to (win)coot.bat
@@ -114,6 +114,18 @@ scripting exercise
 
 **** General ****
 
+   o revisit anti-aliasing. Seems we need to antialias before drawing map 
+	and lines and not in general, I think.
+
+   o fix intelligent_previous_atom in molecule-class-info.cc when going
+	between chains, e.g. 1mru. Actually a problem forward too [MW]
+
+   o place waters based on two maps e.g. both 2FoFc and FoFc
+
+   o better error messages when ccp4 (e.g. libcheck) is not available
+
+   o do clash checking on symmetry interfaces
+
    o user defined click shoudl stay cross haired as long as there is 
 	clicks pending (count the clicks?!)
 
@@ -138,6 +150,7 @@ scripting exercise
 	add zero occ box size??
 	set_default_initial_contour_level_for_map
 	set_label_on_recentre_flag(state)
+	set_draw_cis_peptide_markups(0)
 
    o make auto_read column labels public and expandable (cf pdb, mtz extension
 	list)
@@ -421,6 +434,9 @@ low importance
 
 **** Python ****
 
+
+   o keep refmac pid to cancel and kill refmac in download pdbe
+
    o get recent ebi skip queue and timeout if 404 return (esp for pics
 	which are not there - any more)
    
@@ -537,6 +553,10 @@ low importance
 
 **** Windows ****
 
+   o distribute probe and reduce (from Richardsons? if not ccp4)
+
+   o make batch msi (using msiwrapperbatch and config file)
+
    o fix runwincoot.bat when PYTHONPATH points to a pygtk installation.
 
    o 64 bit windows version
@@ -555,7 +575,8 @@ low importance
 	working on MinGW (maybe DOS?)
 
    o write some info in registry to see that WinCoot is actually installed
-	together with version info install dir etc maybe
+	together with version info install dir etc maybe; ask for uninstall
+	these. 
 
    o make install syminfo.lib from windows dir
 
@@ -586,6 +607,8 @@ low importance
    o optionally include reduce/probe (via download?)
 
    o update gtk!?
+
+   o test srs
  
    o Test spider drag and drop (not working on windows - broken gtk)
 
@@ -1038,3 +1061,11 @@ Osaka 2010
    o button/menu to hide hydrogens?!
 
 * Done
+
+   o FIX COOT_REFMAC_DIR for x86 windows with spaces (and/or umlauts)!
+
+* Done ?? Most likely
+
+   o fix probe/reduce from ccp4 
+
+* Done 

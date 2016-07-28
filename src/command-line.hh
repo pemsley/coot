@@ -29,6 +29,7 @@ public:
    bool update_self;
    std::string alternate_splash_screen_file_name; 
    bool run_internal_tests_and_exit;
+   bool em_mode;
    command_line_data() { 
      hardware_stereo_flag = 0; // default off
      port = 0;
@@ -42,6 +43,7 @@ public:
      use_splash_screen = 1;
      alternate_splash_screen_file_name = ""; // unset, tested vs blank.
      run_internal_tests_and_exit = 0;
+     em_mode = false;
    }
    void handle_immediate_settings();
    void roberto_pdbs(int argc, char **argv); // add any pdb files not alread added with --pdb/coords/xyzin

@@ -96,7 +96,12 @@ handle_command_line_data(command_line_data cld) {
    for (unsigned int i=0; i<cld.accession_codes.size(); i++) {
       graphics_info_t::command_line_accession_codes.push_back(cld.accession_codes[i]);
    }
-   
+
+
+   if (cld.em_mode) {
+      graphics_info_t::box_radius = graphics_info_t::box_radius_em;
+      // what else?
+   } 
 
    // coordinates
 

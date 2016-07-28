@@ -1,9 +1,10 @@
+
+#include <stdlib.h> 
 #include <math.h>
 #include <stdio.h>
 
 #include "gtkgraph.h"
 #include "gtkgraph_internal.h"
-
 static gint centre_x;
 static gint centre_y;
 static gint radius;
@@ -171,7 +172,7 @@ switch(graph->polar_format.type)
 
  max_store = (int) rint(-floor(log10(graph->dependant->maj_tick)));	/* simplest axis labels */
 
- if (fabs(max_store) >= 5)
+ if (abs(max_store) >= 5)
 	g_snprintf(format, 10, "%%.1E");
  else if (max_store <= 0)
 	g_snprintf(format, 10, "%%.0f");

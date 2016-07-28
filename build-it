@@ -1547,17 +1547,27 @@ if [ "$build_coot_prerelease" = 1 ] ; then
       generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-${build_type} ${config_extras:-}"
       coot_prefix="$generic_prefix"
       install_top_dir=${AUTOBUILD_INSTALLED}-pre-release-${build_type}
+      # python seems to link OK on Darwin, so no need for this jiggery pokery
+      if [ $(uname) != Darwin ] ; then
+         python_lib_flags=LDFLAGS="-Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release-${build_type}/lib"
+      fi
     else 
       # don't use pre-release
       generic_prefix="--prefix=$AUTOBUILD_INSTALLED-${build_type} ${config_extras:-}"
       coot_prefix="$generic_prefix"
       install_top_dir=${AUTOBUILD_INSTALLED}-${build_type}
+      if [ $(uname) != Darwin ] ; then
+         python_lib_flags=LDFLAGS="-Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release-${build_type}/lib"
+      fi
     fi
 else 
    # not pre-release
    generic_prefix="--prefix=$AUTOBUILD_INSTALLED-${build_type} ${config_extras:-}"
    install_top_dir=${AUTOBUILD_INSTALLED}-${build_type}
    coot_prefix="$generic_prefix"
+   if [ $(uname) != Darwin ] ; then
+      python_lib_flags=LDFLAGS="-Wl,--rpath=${AUTOBUILD_INSTALLED}-${build_type}/lib"
+   fi
 fi
 PATH=$install_top_dir/bin:$PATH
 
@@ -2460,7 +2470,8 @@ if test -n "$build_clipper" ; then
     #
     echo BUILDING clipper:
     # clipper_version is for the file name on the server, clipper_dir_version is the directory 
-    # that files untars into.
+    # that files untars into (20160713 with Marcin in control of the tar dist now they are the 
+    # same, it seems?).
     clipper_version=20ac
     clipper_version=2.1-081118-ac
     clipper_version=2.1-081201-ac
@@ -2470,7 +2481,9 @@ if test -n "$build_clipper" ; then
     clipper_version=2.1-091215-ac
     clipper_version=2.1-100511-ac
     clipper_version=2.1
+    clipper_version=2.1.20160708
     clipper_dir_version=2.1
+    clipper_dir_version=$clipper_version
     # ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
 
     # 20110921 hack in a temporary solution, while Kevin's new clipper
@@ -2480,7 +2493,8 @@ if test -n "$build_clipper" ; then
     # ${WGET} $extras_place/clipper-$clipper_hack_version.tar.gz
 
     # now clipper has all the bits.
-    ${WGET} $extras_place/clipper-$clipper_version.tar.gz
+    # ${WGET} $extras_place/clipper-$clipper_version.tar.gz
+    ${WGET} ftp://ftp.ccp4.ac.uk/opensource/clipper-$clipper_version.tar.gz
 
     (
     gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -
@@ -2795,9 +2809,9 @@ if test -n "$build_python" ; then
 
    cd Python-$pver
 
-   echo INFO:: ./configure $generic_prefix $python_spec_flags for python
-   # BL comment may need --enable-shared for python-config to pick up ldflags properly!?
-   if ./configure $generic_prefix --enable-shared $python_spec_flags ; then
+   echo INFO:: ./configure $generic_prefix $python_spec_flags $python_lib_flags for python
+   # 
+   if ./configure $generic_prefix --enable-shared $python_spec_flags $python_lib_flags ; then
      echo INFO:: make for python
      if $MAKE ; then
         echo INFO:: make install for python

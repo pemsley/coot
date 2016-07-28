@@ -158,7 +158,7 @@ def run_refmac_by_filename(pdb_in_filename, pdb_out_filename,
     global refmac_count
     import os, stat, operator
 
-    refmac_execfile = find_exe("refmac5","CCP4_BIN","PATH")
+    refmac_execfile = find_exe("refmac5", "CBIN", "CCP4_BIN", "PATH")
 
     labin_string = ""
     if (phase_combine_flag == 3 and (len(f_col) == 2)):
@@ -781,7 +781,10 @@ def read_refmac_log(imol, refmac_log_file):
     def get_bond_dist(i):
         i += 4      # jump to interesting lines
         while (len(lines[i]) > 5):
-            # e.g. "A  15 ARG C   . - A  15 ARG O   . mod.= 1.295 id.= 1.231 dev= -0.064 sig.= 0.020"
+            # e.g.
+            # "A  15 ARG C   . - A  15 ARG O   . mod.= 1.295 id.= 1.231 dev= -0.064 sig.= 0.020"
+            # new
+            # "A    318 THR CA  A - A    318 THR C   . mod.= 1.278 id.= 1.525 dev=  0.247 sig.= 0.021"
             line = lines[i]
             item_ls = split_clean(line)
             chain_id  = item_ls[0]
@@ -810,6 +813,9 @@ def read_refmac_log(imol, refmac_log_file):
 
             if (alt_conf1 == "."): alt_conf1 = ""
             if (alt_conf2 == "."): alt_conf2 = ""
+
+            if debug():
+                print "BL DEBUG:: haeve item lst", item_ls
 
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["Bond distance",
                                                        [res_no1, res_name1, atom1, alt_conf1,
@@ -1062,7 +1068,9 @@ def read_refmac_log(imol, refmac_log_file):
         i += 3      # jump to interesting lines (only 3 here....)
         while (len(lines[i]) > 5):
             # e.g.          "A  26 CYS SG  B U-value= 0.2014 0.2329 0.2399 0.0179 0.0227-0.0064 Delta= 0.051 Sigma=  0.025"
-            # new, e.g.  "A     19 GLU OE1 B U value= 0.6897 1.3874 0.6117-0.2763-0.0869 0.2513 Delta= 0.812 Sigma=  0.063"
+            # new, e.g.
+            # "A     19 GLU OE1 B U value= 0.6897 1.3874 0.6117-0.2763-0.0869 0.2513 Delta= 0.812 Sigma=  0.063"
+            # "A     38 GLU OE1   U value= 1.4840 1.8504 0.7506-0.5906 0.7687-1.0238 Delta= 2.145 Sigma=  0.190"
             line = lines[i]
             item_ls = split_clean(line)
             chain_id  = item_ls[0]
@@ -1077,10 +1085,11 @@ def read_refmac_log(imol, refmac_log_file):
             u_mat_ls  = item_ls[6:11]
             dev       = item_ls[13]
             sig       = item_ls[15]
-          
 
             if (alt_conf1 == "."): alt_conf1 = ""       # check, may be '.' if none
 
+            if debug():
+                print "BL DEBUG:: have item_ls", item_ls
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["Sphericity",
                                                        [res_no1, res_name1, atom1, alt_conf1,
                                                         -999999, "", "", "",
@@ -1092,7 +1101,9 @@ def read_refmac_log(imol, refmac_log_file):
         i += 3      # jump to interesting lines, again only 3
         while (len(lines[i]) > 5):
             # e.g.    "A  12 LEU N     - A  11 ASN C      Delta  =  4.625 Sigma=  2.000"
-            # new  "A     19 GLU OE2 B - A     19 GLU CD  B  Delta  = 70.167 Sigma=  3.000 Dist=  1.270"
+            # new
+            # "A     19 GLU OE2 B - A     19 GLU CD  B  Delta  = 70.167 Sigma=  3.000 Dist=  1.270"
+            # "A     15 ALA CB    - A     15 ALA CA     Delta  = 42.418 Sigma=  3.000 Dist=  1.542"
             line = lines[i]
             item_ls = split_clean(line)
             chain_id  = item_ls[0]
@@ -1110,14 +1121,22 @@ def read_refmac_log(imol, refmac_log_file):
             atom2     = item_ls[9]
             alt_conf2 = item_ls[10]
             if (len(alt_conf2) > 1):
+                # i.e. dont have alt conf but "Delta" or such instead
                 alt_conf2 = "."
                 item_ls.insert(10, alt_conf2)
             
-            dev       = float(item_ls[13])
-            sig       = float(item_ls[15])
+            if debug():
+                print "BL DEBUG:: have item list", item_ls
+                
+            # did I resolve the conflict correctly?
+            dev       = float(item_ls[12])
+            sig       = float(item_ls[14])
 
             if (alt_conf1 == "."): alt_conf1 = ""
             if (alt_conf2 == "."): alt_conf2 = ""
+
+            if debug():
+                print "BL DEBUG:: have item list", item_ls
 
             refmac_all_dev_list.append([imol, chain_id, res_no1, ["Rigid",
                                                        [res_no1, res_name1, atom1, alt_conf1,
@@ -1437,7 +1456,7 @@ def get_refmac_version():
     else:
 
         # maybe want to cache these too!?
-        refmac_execfile = find_exe("refmac5","CCP4_BIN","PATH")
+        refmac_execfile = find_exe("refmac5", "CBIN", "CCP4_BIN", "PATH")
 
         if (refmac_execfile):
             log_file = "refmac_version_tmp.log"

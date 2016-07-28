@@ -265,6 +265,7 @@ class rama_plot {
 					   double worldx, double worldy,
 					   bool is_secondary) const;
 
+   bool is_outlier(const coot::util::phi_psi_t &phi_psi) const;
    bool draw_outliers_only;
    
 public:

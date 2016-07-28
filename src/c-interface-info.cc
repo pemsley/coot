@@ -294,17 +294,14 @@ void output_residue_info_dialog(int imol, int atom_index) {
 
 	       graphics_info_t g;
 	       output_residue_info_as_text(atom_index, imol);
-	       mmdb::PAtom picked_atom = g.molecules[imol].atom_sel.atom_selection[atom_index];
-
-	       std::string residue_name = picked_atom->GetResName();
-   
+	       mmdb::Atom *selected_atom = g.molecules[imol].atom_sel.atom_selection[atom_index];
+	       std::string residue_name = selected_atom->GetResName();
 	       mmdb::PPAtom atoms;
 	       int n_atoms;
-
-	       picked_atom->residue->GetAtomTable(atoms,n_atoms);
+	       selected_atom->residue->GetAtomTable(atoms,n_atoms);
 	       GtkWidget *widget = wrapped_create_residue_info_dialog();
 
-	       mmdb::Residue *residue = picked_atom->residue; 
+	       mmdb::Residue *residue = selected_atom->residue; 
 	       coot::residue_spec_t *res_spec_p =
 		  new coot::residue_spec_t(residue->GetChainID(),
 					   residue->GetSeqNum(),
@@ -1414,8 +1411,8 @@ void set_rotation_centre(const clipper::Coord_orth &pos) {
 // Pass the current values, return new values
 //
 // Hmm maybe these function should pass the atom name too?  Yes they should
-SCM goto_next_atom_maybe(const char *chain_id, int resno, const char *ins_code,
-			 const char *atom_name) {
+SCM goto_next_atom_maybe_scm(const char *chain_id, int resno, const char *ins_code,
+			     const char *atom_name) {
 
    SCM r = SCM_BOOL_F;
 
@@ -1449,8 +1446,8 @@ SCM goto_next_atom_maybe(const char *chain_id, int resno, const char *ins_code,
 #endif
 
 #ifdef USE_GUILE
-SCM goto_prev_atom_maybe(const char *chain_id, int resno, const char *ins_code,
-			 const char *atom_name) {
+SCM goto_prev_atom_maybe_scm(const char *chain_id, int resno, const char *ins_code,
+			     const char *atom_name) {
 
    SCM r = SCM_BOOL_F;
    int imol = go_to_atom_molecule_number();

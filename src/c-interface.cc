@@ -1734,6 +1734,20 @@ void set_density_size(float f) {
    
 }
 
+void set_density_size_em(float f) {
+
+   graphics_info_t g;
+   g.box_radius_em = f;
+   for (int ii=0; ii<g.n_molecules(); ii++) {
+      g.molecules[ii].update_map();
+   }
+   graphics_draw();
+   std::string cmd = "set-density-size-em";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(f);
+   add_to_history_typed(cmd, args);
+}
+
 /*! \brief set the extent of the box/radius of electron density contours */
 void set_map_radius(float f) {
    set_density_size(f);
@@ -4682,6 +4696,66 @@ void graphics_to_occupancy_representation(int imol) {
    graphics_draw();
 }
 
+/*! \brief draw molecule number imol coloured by user-defined atom colours */
+void graphics_to_user_defined_atom_colours_representation(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      g.molecules[imol].user_defined_colours_representation(g.Geom_p(), false);
+      std::vector<std::string> command_strings;
+      command_strings.push_back("graphics-to-user-defined-colours-representation");
+      command_strings.push_back(graphics_info_t::int_to_string(imol));
+      add_to_history(command_strings);
+   } else {
+      std::cout << "WARNING:: no such valid molecule " << imol
+		<< " in graphics_to_occupancy_representation"
+		<< std::endl;
+   }
+   graphics_draw();
+}
+
+/*! \brief draw molecule number imol all atoms coloured by user-defined atom colours */
+void graphics_to_user_defined_atom_colours_all_atoms_representation(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      g.molecules[imol].user_defined_colours_representation(g.Geom_p(), true);
+      std::vector<std::string> command_strings;
+      command_strings.push_back("graphics-to-user-defined-colours-representation");
+      command_strings.push_back(graphics_info_t::int_to_string(imol));
+      add_to_history(command_strings);
+   } else {
+      std::cout << "WARNING:: no such valid molecule " << imol
+		<< " in graphics_to_occupancy_representation"
+		<< std::endl;
+   }
+   graphics_draw();
+}
+
+
+
+/*! \brief make the carbon atoms for molecule imol be grey
+ */
+void set_use_grey_carbons_for_molecule(int imol, short int state) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_use_bespoke_carbon_atom_colour(state);
+      graphics_draw();
+   }
+
+}
+/*! \brief set the colour for the carbon atoms 
+
+can be not grey if you desire, r, g, b in the range 0 to 1.
+ */
+void set_grey_carbon_colour(int imol, float r, float g, float b) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::colour_t col(r,g,b);
+      graphics_info_t::molecules[imol].set_bespoke_carbon_atom_colour(col);
+   }
+   // no graphics draw... Hmm.
+}
 
 
 int
@@ -7545,48 +7619,6 @@ void sharpen_with_gompertz_scaling(int imol, float b_factor,
 
 
 
-/*  ----------------------------------------------------------------------- */
-/*           Map kurtosis B factor optimization                             */
-/*  ----------------------------------------------------------------------- */
-float optimal_B_kurtosis(int imol) {
-// 
-// CALCULATES THE OPTIMAL BFACTOR:
-// PERFORMS A GOLDEN SECTION SEARCH ON
-// THE KURTOSIS OF THE ENTIRE SUPPLIED MAP
-// 
-	float sharpening_limit = graphics_info_t::map_sharpening_scale_limit;	
-	float kurtosis=0.0, B_optimal=0.0;
-	float a =-1.0*sharpening_limit, b=1.0*sharpening_limit, TOL=1E-2;
-	float fc= 0.0, fd=0.0, golden_ratio = (sqrt(5.0)-1.0)*0.5;
-	float c = b-golden_ratio*(b-a);
-	float d = a+golden_ratio*(b-a);
-	if (is_valid_map_molecule(imol)) {
-           if (graphics_info_t::molecules[imol].sharpen_b_factor_kurtosis_optimised() < -999.0) {
-		while( d-c > TOL ){
-			graphics_info_t::molecules[imol].sharpen(c, false, 0);
-			map_statistics_t ms1 	= graphics_info_t::molecules[imol].map_statistics();
-			fc			= ms1.kurtosis;
-			graphics_info_t::molecules[imol].sharpen(d, false, 0);
-			map_statistics_t ms2 	= graphics_info_t::molecules[imol].map_statistics();
-			fd			= ms2.kurtosis;
-			if( fc > fd ) { // FIND MAXIMUM
-				b = d; d = c;
-				c = b - golden_ratio*( b - a );
-			} else {
-				a = c; c = d;
-				d = a + golden_ratio*( b - a );
-			}
-		}
-		B_optimal = (c+d)*0.5;
-                // save it
-                graphics_info_t::molecules[imol].set_sharpen_b_factor_kurtosis_optimised(B_optimal);
-           } else {
-              // have already a calculated one, so use that one
-              B_optimal = graphics_info_t::molecules[imol].sharpen_b_factor_kurtosis_optimised();
-           }
-        }
-	return B_optimal;
-}
 
 /*  ----------------------------------------------------------------------- */
 /*                  Views                                                   */

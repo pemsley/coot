@@ -346,7 +346,7 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
        smiles_input.write(smiles_text)
        smiles_input.close()
 
-       libcheck_exe_file = find_exe(libcheck_exe, "CCP4_BIN", "PATH")
+       libcheck_exe_file = find_exe(libcheck_exe, "CBIN", "CCP4_BIN", "PATH")
 
        if (not libcheck_exe_file):
            print " BL WARNING:: libcheck not found!"

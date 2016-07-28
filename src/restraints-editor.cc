@@ -128,8 +128,6 @@ coot::restraints_editor::add_cell_renderer(GtkTreeView *tree_view,
 
   gtk_tree_view_column_set_sort_column_id(column, pos);
 
-  char *s = new char[column_title.length() + 1];
-  strcpy(s, column_title.c_str());
   g_object_set_data (G_OBJECT (cell_renderer), "column", GINT_TO_POINTER (pos));
   g_object_set_data (G_OBJECT (cell_renderer), "tree_type", GINT_TO_POINTER (tree_type));
   g_signal_connect(cell_renderer, "edited", (GCallback) cell_edited_callback,

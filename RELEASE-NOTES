@@ -2,7 +2,7 @@
 
   Pre-release 0.8.4
 
-  o FEATURE: generic display objects can now be attached to a molecule number:
+  o FEATURE: Generic display objects can now be attached to a molecule number:
              attach_generic_object_to_molecule(obj_no, imol)
 
   o FEATURE: Patterson from intensities: make_and_draw_patterson_using_intensities()
@@ -12,6 +12,8 @@
 
   o FEATURE: chemical feature clustering (import cfc_ligand_sites)
 
+  o FEATURE: Ramachandran plot now has a "Outliers Only" mode
+
   o CHANGE:  fill-partial-residue now works with ROTAMERSEARCHLOWRES rather than
              ROTAMERSEARCHHIGHRES.
 
@@ -19,16 +21,20 @@
 
   o CHANGE:  Improved lighting when displaying solid objects
 
-  o BUG-FIX: set the suggested file name in the classic dialog on saving 
+  o CHANGE:  Typsetting improvements in lidia
+
+  o BUG-FIX: Set the suggested file name in the classic dialog on saving 
              coordinates [Andy Purkiss, Arnaud Basle]
 
-  o BUG-FIX: Typsetting improvements for Oxygen atoms in lidia
+  o BUG-FIX: Setting the formal charge in lidia now works properly
 
-  o BUG-FIX: correct wrapper for findligand and findwaters [Kuan-Fu Gabriel Lin]
+  o BUG-FIX: Correct wrapper for findligand and findwaters [Kuan-Fu Gabriel Lin]
 
   o BUG-FIX: FLEV "problematic ligand" reduced in frequency
 
   o BUG-FIX: OXT-related refinement improved
+
+  o BUG-FIX: Remove long bond between CB and OXT in HETATM CYS [Dale Tronrud]
 
   o BUG-FIX: mini-rsr now optionally uses trans peptide restrints
 

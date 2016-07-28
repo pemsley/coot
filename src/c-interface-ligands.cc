@@ -93,7 +93,7 @@ void go_to_ligand() {
 	    // g.setRotationCentre(new_centre.position);
 	    g.perpendicular_ligand_view(pp.second.first, new_centre.residue_spec);
 	    
-	    g.update_things_on_move_and_redraw();
+	    g.update_things_on_move_and_redraw(); // now not done in perpendicular_ligand_view()
 	    std::string s = "Centred on residue ";
 	    // s += new_centre.residue_spec;
 	    s += coot::util::int_to_string(new_centre.residue_spec.res_no);
@@ -123,9 +123,9 @@ void go_to_ligand() {
 	       s += ").";
 	       add_status_bar_text(s.c_str());
 	    }
-	 } 
-      } 
-   } 
+	 }
+      }
+   }
 }
 
 void set_go_to_ligand_n_atoms_limit(int n_atoms_min) {
@@ -2107,21 +2107,57 @@ int read_small_molecule_data_cif(const char *file_name) {
 
       std::pair<clipper::Xmap<float>, clipper::Xmap<float> > maps = smcif.sigmaa_maps();
       if (not (maps.first.is_null())) {
-	 g.molecules[imol].new_map(maps.first, file_name);
+	 std::string map_name = file_name;
+	 map_name += " SigmaA";
+	 g.molecules[imol].new_map(maps.first, map_name);
 	 g.scroll_wheel_map = imol;
 	 int imol_diff = g.create_molecule();
-	 g.molecules[imol_diff].new_map(maps.second, file_name);
+	 map_name = file_name;
+	 map_name += " Diff-SigmaA";
+	 g.molecules[imol_diff].new_map(maps.second, map_name);
 	 g.molecules[imol_diff].set_map_is_difference_map();
-      } else { 
-	 // clipper::Xmap<float> xmap = smcif.map();
-	 // g.molecules[imol].new_map(xmap, file_name);
-	 std::pair<clipper::Xmap<float>, clipper::Xmap<float> > xmaps = smcif.sigmaa_maps();
-	 g.molecules[imol].new_map(xmaps.first, file_name);
       }
       graphics_draw();
    } 
    return imol;
 }
+
+int read_small_molecule_data_cif_and_make_map_using_coords(const char *file_name, 
+							   int imol_coords) {
+
+   graphics_info_t g;
+   int imol_map = -1;
+   if (is_valid_model_molecule(imol_coords)) {
+
+      // we make a new mol because somewhere in read_data_sm_cif(), the atom
+      // selections get trashed.
+      //
+      mmdb::Manager *new_mol = new mmdb::Manager;
+      new_mol->Copy(g.molecules[imol_coords].atom_sel.mol, mmdb::MMDBFCM_All);
+      atom_selection_container_t asc = make_asc(new_mol);
+      mmdb::Atom** atom_selection = asc.atom_selection;
+      int n_selected_atoms = asc.n_selected_atoms;
+      coot::smcif smcif;
+      bool state = smcif.read_data_sm_cif(file_name);
+      
+      std::pair<clipper::Xmap<float>, clipper::Xmap<float> > maps = 
+	 smcif.sigmaa_maps_by_calc_sfs(atom_selection, n_selected_atoms);
+      if (not (maps.first.is_null())) {
+	 imol_map = g.create_molecule();
+	 std::string map_name = file_name;
+	 map_name += " SigmaA";
+	 g.molecules[imol_map].new_map(maps.first, map_name);
+	 g.scroll_wheel_map = imol_map;
+	 int imol_diff = g.create_molecule();
+	 map_name = file_name;
+	 map_name += " Diff-SigmaA";
+	 g.molecules[imol_diff].new_map(maps.second, map_name);
+	 g.molecules[imol_diff].set_map_is_difference_map();
+      }
+   }
+   return imol_map;
+}
+
 
 
 

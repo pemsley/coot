@@ -206,9 +206,10 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		     }
 		  }
 		  
-		  if (! handled) 
-		     std::cout << "in init_refmac_mon_lib() null loop for catagory "
-			       << cat_name << std::endl; 
+		  if (! handled)   // this can happen if there is not an atom loop, e.g. dictionary
+		                   // with one atom e.g. AM.cif (Americium ion)
+		     std::cout << "WARNING:: in init_refmac_mon_lib() null loop for catagory "
+			       << cat_name << " file: " << ciffilename << std::endl; 
 		  
 	       } else {
                
@@ -1056,6 +1057,11 @@ coot::protein_geometry::chem_comp(mmdb::mmcif::PLoop mmCIFLoop) {
       ierr = mmCIFLoop->GetInteger(number_atoms_nh, "number_atoms_nh", j);
       ierr_tot += ierr;
 
+      char *release_status_cs = mmCIFLoop->GetString("release_status", j, ierr);
+      std::string release_status;
+      if (release_status_cs)
+	 release_status = release_status_cs; // can be "OBS" or "REL"
+      
       // If desc_level is in the file, extract it, otherwise set it to "None"
       // 
       s = mmCIFLoop->GetString("desc_level", j, ierr);

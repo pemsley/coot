@@ -169,7 +169,10 @@ def reduce_on_pdb_file(imol, pdb_in, pdb_out):
   else:
     # need full path to find het dict
     full_reduce_command = find_exe(reduce_command, "PATH")
-    reduce_het_dict_file_name = "coot-molprobity/reduce-het-dict.txt"
+
+    nshl = non_standard_residue_names(imol)
+    ext = "-".join(nshl)
+    reduce_het_dict_file_name = "coot-molprobity/reduce-het-dict-" + ext + ".txt"
     write_reduce_het_dict(imol, reduce_het_dict_file_name)
 
     # BL says: I think we should set REDUCE_HET_DICT

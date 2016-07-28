@@ -5783,7 +5783,6 @@ coot::util::mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
 		  if (need_a_ter) {
 		     mmdb::Atom *at = new mmdb::Atom;
 		     at->MakeTer();
-		     int n_atoms_new = residue->AddAtom(at);
 		     residue->TrimAtomTable();
 		  }
 	       }
@@ -6868,7 +6867,6 @@ coot::util::move_hetgroups_around_protein(mmdb::Manager *mol) {
 		     mmdb::Atom *at = 0;
 		     for (int ires=0; ires<nres; ires++) {
 			residue_p = chain_p->GetResidue(ires);
-			int n_atoms = residue_p->GetNumberOfAtoms();
 			std::string residue_name(residue_p->name);
 			if (residue_name == "WAT" ||
 			    residue_name == "HOH") {
@@ -7677,7 +7675,7 @@ coot::chiral_4th_atom(mmdb::Residue *residue_p, mmdb::Atom *at_centre,
 		      mmdb::Atom *at_1, mmdb::Atom *at_2, mmdb::Atom *at_3) {
 
    mmdb::Atom *rat = NULL;
-   double d_crit = 10.7;
+   double d_crit = sqrt(10.7);
 
    // this is a bit heavyweight in retrospect, - I could have just
    // used a "best-dist".  But it works.
@@ -7695,7 +7693,7 @@ coot::chiral_4th_atom(mmdb::Residue *residue_p, mmdb::Atom *at_centre,
       if (at != at_centre && at != at_1 && at != at_2 && at != at_3) { 
 	 clipper::Coord_orth pt = co(at);
 	 double d = (p_c - pt).clipper::Coord_orth::lengthsq();
-	 if (d < d_crit)
+	 if (d < d_sqrd)
 	    atoms[d] = at;
       }
    }
