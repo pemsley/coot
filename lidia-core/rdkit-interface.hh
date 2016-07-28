@@ -171,6 +171,9 @@ namespace coot {
 					     const dictionary_residue_restraints_t &restraints,
 					     mmdb::Atom *atom_p);
 
+   bool cip_rank_sorter(const std::pair<const RDKit::Atom *, unsigned int> &at_1,
+			const std::pair<const RDKit::Atom *, unsigned int> &at_2);
+
    // are all the bonds between the atoms (in the vector) all aromatic?
    //
    bool is_aromatic_ring(const std::vector<int> &ring_atom_indices,

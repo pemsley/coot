@@ -370,24 +370,26 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                     #info_dialog(txt)
                     download_thread_status = "fail"
                 else:
-                    # why extra function!?
-                    #refmac_inner(pdb_file_name, sfs_mtz_file_name,
-                    #             refmac_out_mtz_file_name)
-                    download_thread_status = "running-refmac-for-phases"
-                    refmac_result = refmac_calc_sfs_make_mtz(pdb_file_name,
-                                                             sfs_mtz_file_name,
-                                                             refmac_out_mtz_file_name)
-                    print "      refmac-result: ", refmac_result
+                    # first check cancel
+                    if not (download_thread_status == "cancelled"):
+                        # why extra function!?
+                        #refmac_inner(pdb_file_name, sfs_mtz_file_name,
+                        #             refmac_out_mtz_file_name)
+                        download_thread_status = "running-refmac-for-phases"
+                        refmac_result = refmac_calc_sfs_make_mtz(pdb_file_name,
+                                                                 sfs_mtz_file_name,
+                                                                 refmac_out_mtz_file_name)
+                        print "      refmac-result: ", refmac_result
 
-                    # if refmac_result is good? (is tuple not list)
-                    # good enough if it's not false?!
-                    if not (isinstance(refmac_result, types.TupleType)):
-                        download_thread_status = "fail-refmac"
-                    else:
-                        # make map
-                        # cant do here!! we are in thread!!
-                        #make_and_draw_map_local(refmac_out_mtz_file_name)
-                        download_thread_status = "done"  #??
+                        # if refmac_result is good? (is tuple not list)
+                        # good enough if it's not false?!
+                        if not (isinstance(refmac_result, types.TupleType)):
+                            download_thread_status = "fail-refmac"
+                        else:
+                            # make map
+                            # cant do here!! we are in thread!!
+                            #make_and_draw_map_local(refmac_out_mtz_file_name)
+                            download_thread_status = "done"  #??
 
             # main line get_sfs_run_refmac
             print "in get_sfs_run_refmac", sfs_cif_file_name,
@@ -431,6 +433,8 @@ def pdbe_get_pdb_and_sfs_cif(include_get_sfs_flag,
                                                            sfs_mtz_file_name,
                                                            pdb_file_name)
 
+                                 return False
+                              if (download_thread_status == "cancelled"):
                                  return False
                               else:
                                  return True

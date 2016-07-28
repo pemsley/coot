@@ -7621,4 +7621,21 @@ PDB: 1ioy
 
     http://www.slideshare.net/AnthonyCoyne1/fragment-based-drug-discovery
 
+----
+
+
+   To stop this:
+
+$ coot --no-graphics --python --script comp_ids.py
+
+Traceback (most recent call last):
+  File "<stdin>", line 1, in <module>
+  File "all_comp_ids.py", line 19, in <module>
+    m = pyrogen.rdkit_mol_chem_comp_pdbx(cif_file_name_in, comp_id)
+TypeError: No Python class registered for C++ class RDKit::ROMol
+
+imort rdkit # we need this of course
+# but don't forget:
+from rdkit import Chem
+
 ---

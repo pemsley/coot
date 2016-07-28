@@ -2470,7 +2470,8 @@ if test -n "$build_clipper" ; then
     #
     echo BUILDING clipper:
     # clipper_version is for the file name on the server, clipper_dir_version is the directory 
-    # that files untars into.
+    # that files untars into (20160713 with Marcin in control of the tar dist now they are the 
+    # same, it seems?).
     clipper_version=20ac
     clipper_version=2.1-081118-ac
     clipper_version=2.1-081201-ac
@@ -2480,7 +2481,9 @@ if test -n "$build_clipper" ; then
     clipper_version=2.1-091215-ac
     clipper_version=2.1-100511-ac
     clipper_version=2.1
+    clipper_version=2.1.20160708
     clipper_dir_version=2.1
+    clipper_dir_version=$clipper_version
     # ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
 
     # 20110921 hack in a temporary solution, while Kevin's new clipper
@@ -2490,7 +2493,8 @@ if test -n "$build_clipper" ; then
     # ${WGET} $extras_place/clipper-$clipper_hack_version.tar.gz
 
     # now clipper has all the bits.
-    ${WGET} $extras_place/clipper-$clipper_version.tar.gz
+    # ${WGET} $extras_place/clipper-$clipper_version.tar.gz
+    ${WGET} ftp://ftp.ccp4.ac.uk/opensource/clipper-$clipper_version.tar.gz
 
     (
     gzip -dc ${AUTOBUILD_SOURCES}/clipper-$clipper_version.tar.gz | tar xf -

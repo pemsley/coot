@@ -918,7 +918,23 @@ if (have_coot_python):
        try:
          r1 = int(text1)
          r2 = int(text2)
-         copy_residue_range_from_ncs_master_to_others(imol, chain_id, r1, r2)
+         if (chain_id == ncs_master_chain_id(imol)):
+           # hunkey dorey
+           copy_residue_range_from_ncs_master_to_others(imol, chain_id, r1, r2)
+         else:
+           # different given master to current master
+           # ask what to do.
+           txt = "Current master chain is %s, but you asked to copy from %s.\n" \
+                 %(ncs_master_chain_id(imol), chain_id)
+           txt += "Apply this master change?\n\n"
+           txt += "N.B. if no, then nothing is copied."
+           r = yes_no_dialog(txt, "Change Master")
+           if r:
+             ncs_control_change_ncs_master_to_chain_id(imol, chain_id)
+             copy_residue_range_from_ncs_master_to_others(imol, chain_id, r1, r2)
+             ## could change master back?!
+           else:
+             info_dialog("Master chain was not changed and copy not applied.")
        except:
          print "BL WARNING:: no valid number input"
 
@@ -938,7 +954,24 @@ if (have_coot_python):
      def copy_ncs_chain_func(imol, chain_id):
        ncs_chains = ncs_chain_ids(imol)
        if (ncs_chains):
-         copy_from_ncs_master_to_others(imol, chain_id)
+         # maybe this could be a function to avoid repetition.
+         if (chain_id == ncs_master_chain_id(imol)):
+           # hunkey dorey
+           copy_from_ncs_master_to_others(imol, chain_id)
+         else:
+           # different given master to current master
+           # ask what to do.
+           txt = "Current master chain is %s, but you asked to copy from %s.\n" \
+                 %(ncs_master_chain_id(imol), chain_id)
+           txt += "Apply this master change?\n\n"
+           txt += "N.B. if no, then nothing is copied."
+           r = yes_no_dialog(txt, "Change Master")
+           if r:
+             ncs_control_change_ncs_master_to_chain_id(imol, chain_id)
+             copy_from_ncs_master_to_others(imol, chain_id)
+             ## could change master back?!
+           else:
+             info_dialog("Master chain was not changed and copy not applied.")
        else:
          s = "You need to define NCS operators for molecule " + str(imol)
          info_dialog(s)

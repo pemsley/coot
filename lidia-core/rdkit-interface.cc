@@ -23,6 +23,7 @@
 #include <cstring>  // Fixes ::strchr complaints on 4.4.7 (hal)
 #include "utils/coot-utils.hh"
 #include "rdkit-interface.hh"
+#include <GraphMol/Chirality.h>  // for CIP ranks
 #include "coot-utils/coot-coord-utils.hh" // after rdkit-interface.hh to avoid ::strchr problems
 #include "neighbour-sorter.hh"
 
@@ -103,11 +104,12 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
    std::vector<mmdb::Atom *>     added_atoms; // gets added to as added_atom_names gets added to.
    std::map<std::string, int> atom_index;
    int current_atom_id = 0;
-   std::vector<int> bonded_atoms; // vector of the atoms that we will
-				  // add to the rdkit molecule.  We
-				  // don't want to add atoms that are
-				  // not bonded to anything
-				  // (e.g. hydrogens with mismatching names)
+   std::vector<std::pair<int, int> > bonded_atoms; // vector of the indices of the atoms that we will
+                                       // add to the rdkit molecule. The first index is into the
+                                       // residue_atoms and the second into restraints.atom_info.
+                                       // We don't want to add atoms that are
+				       // not bonded to anything (e.g. hydrogens with mismatching
+                                       // names).
    
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat_1=0; iat_1<n_residue_atoms; iat_1++) {
@@ -147,8 +149,22 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	       }
 	    }
 
-	    if (found_a_bonded_atom)
-	       bonded_atoms.push_back(iat_1);
+	    // what is the index of this atom name in the atom_info? (we need this so that we
+	    // can apply the charge to the rdkit atom later.)
+	    int ai_idx = -1;
+	    for (unsigned int jj=0; jj<restraints.atom_info.size(); jj++) {
+	       if (restraints.atom_info[jj].atom_id_4c == atom_name_1) {
+		  ai_idx = jj;
+		  break;
+	       }
+	    }
+
+	    if (found_a_bonded_atom) {
+	       if (ai_idx > -1) {
+		  std::pair<int, int> p(iat_1, ai_idx);
+		  bonded_atoms.push_back(p);
+	       }
+	    }
 	 }
       }
    }
@@ -161,7 +177,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 
    for (unsigned int iat=0; iat<bonded_atoms.size(); iat++) {
 
-      mmdb::Atom *at = residue_atoms[bonded_atoms[iat]];
+      mmdb::Atom *at = residue_atoms[bonded_atoms[iat].first];
       std::string atom_name(at->name);
       if (debug)
 	 std::cout << "   handling atom " << iat << " of " << n_residue_atoms << " bonded_atoms " 
@@ -183,6 +199,11 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    // rdkit_at->setMass(tbl->getAtomicWeight(atomic_number));
 	    rdkit_at->setIsotope(0);
 	    rdkit_at->setProp("name", atom_name);
+
+	    // formal charge
+	    const coot::dict_atom &atom_info = restraints.atom_info[bonded_atoms[iat].second];
+	    if (atom_info.formal_charge.first)
+	       rdkit_at->setFormalCharge(atom_info.formal_charge.second);
 
 	    // set the valence from they type energy.  Abstract?
 	    //
@@ -243,26 +264,25 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	       }
 	    }
 
-
-	    // OK, perhaps the atom was marked as a chiral atom using pdbx_stereo_config
-	    // 
-	    if (! done_chiral) {
-	       for (unsigned int ii=0; ii<restraints.atom_info.size(); ii++) { 
-		  if (atom_name == restraints.atom_info[ii].atom_id_4c) {
-		     if (restraints.atom_info[ii].pdbx_stereo_config_flag.first) {
-			if (restraints.atom_info[ii].pdbx_stereo_config_flag.second == "S") {
-			   RDKit::Atom::ChiralType tag = RDKit::Atom::CHI_UNSPECIFIED;
-			   tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
-			   std::cout << "------------------- found an S - and set tag "
-				     << tag <<  std::endl;
-			   rdkit_at->setChiralTag(tag);
+	    // set chirality
+	    // (if this atom has Chemical Component Dictionary style chirality (R/S pdbx_stereo_config_flag)
+	    //
+	    if (! done_chiral) { 
+	       for (unsigned int i=0; i<restraints.atom_info.size(); i++) { 
+		  if (restraints.atom_info[i].atom_id_4c == atom_name) {
+		     if (restraints.atom_info[i].pdbx_stereo_config.first) {
+			if (restraints.atom_info[i].pdbx_stereo_config.second == "R") {
+			   RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_UNSPECIFIED;
+			   rdkit_at->setChiralTag(chiral_tag);
+			   std::string cip = "R";
+			   rdkit_at->setProp("_CIPCode", cip);
+			   // std::cout << "  pdbx_stereo_config: " << atom_name << " R " << std::endl;
 			}
-			if (restraints.atom_info[ii].pdbx_stereo_config_flag.second == "R") {
-			   RDKit::Atom::ChiralType tag = RDKit::Atom::CHI_UNSPECIFIED;
-			   tag = RDKit::Atom::CHI_TETRAHEDRAL_CW;
-			   rdkit_at->setChiralTag(tag);
-			   std::cout << "------------------- found an R - and set tag "
-				     << tag <<  std::endl;
+			if (restraints.atom_info[i].pdbx_stereo_config.second == "S") {
+			   RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_UNSPECIFIED;
+			   std::string cip = "S";
+			   rdkit_at->setProp("_CIPCode", cip);
+			   // std::cout << "        " << atom_name << " S " << std::endl;
 			}
 		     }
 		  }
@@ -292,6 +312,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
    if (debug) {
       std::cout << "DEBUG:: number of atoms in rdkit mol: " << m.getNumAtoms() << std::endl;
    } 
+
+   // Doing wedget bonds before we set the chirality doesn't make sense.
+   // So this code needs to be moved down.
    
    for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
       if (debug)
@@ -391,8 +414,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 			 << atom_name_1 << "\" ele :" << ele_1 << ":" << std::endl;
 	       std::cout << "Here's the atoms we have:\n";
 	       for (unsigned int iat=0; iat<added_atom_names.size(); iat++) 
-		  std::cout << std::setw(2) << iat << " :" << added_atom_names[iat] << ":\n";
+		  std::cout << std::setw(2) << iat << " :" << added_atom_names[iat] << ":";
 	       // give up trying to construct this thing then.
+	       std::cout << std::endl;
 	    }
 	    std::string message = "Failed to get atom index for atom name \"";
 	    message += atom_name_1;
@@ -504,7 +528,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
     if (debug)
        std::cout << "---------------------- calling assign_formal_charges() -----------"
 		 << std::endl;
-    coot::assign_formal_charges(&m);
+    coot::assign_formal_charges(&m); // those not in the cif file, that is
 
     if (debug)
        std::cout << "---------------------- getting ring info findSSSR() -----------"
@@ -523,10 +547,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
        std::cout << "---------------------- calling cleanUp() -----------" << std::endl;
     RDKit::MolOps::cleanUp(m);
 
-   
    // OK, so cleanUp() doesn't fix the N charge problem our prodrg molecule
    // 
-   if (debug) { // debug, formal charges
+   if (false) { // debug, formal charges
       std::cout << "::::::::::::::::::::::::::: after cleanup :::::::::::::::::"
 		<< std::endl;
       int n_mol_atoms = m.getNumAtoms();
@@ -541,7 +564,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		      <<  kee.what() << std::endl;
 	 }
 	 int formal_charge = at_p->getFormalCharge();
+	 std::cout << name << " formal_charge " << formal_charge << std::endl;
       }
+      std::cout << "::::::::::: done " << std::endl;
    }
 
    // 2016014-PE needs investigating.
@@ -553,6 +578,233 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
       std::cout << "DEBUG:: sanitizeMol() " << std::endl;
    RDKit::MolOps::sanitizeMol(m);
 
+
+   // Now all the atoms have been added. If we try to run assignAtomCIPRanks() too early
+   // we get:
+   // 
+   // ****
+   // Pre-condition Violation
+   // getNumImplicitHs() called without preceding call to calcImplicitValence()
+   // Violation occurred on line 166 in file xxx/rdkit-Release_2015_03_1/Code/GraphMol/Atom.cpp
+   // Failed Expression: d_implicitValence>-1
+   // ****
+
+   // 
+   // Either from 3d or via R/S.  We need to calculate the CIP ranks.
+   // 
+   // Let's try R/S first.
+   // 
+   // Which means that we assign R/S according the the dictionary - and
+   // ignore the positions of the atoms.
+   //
+   // My understanding of the CHI_CCW and CHI_CW based on atom positions is this:
+   // Take the first 3 non-hydrogen atom neighbours of the chiral centre atom (CCat) in order,
+   // calculate the vectors to these atoms from the chiral centre atom: p1, p2, p3
+   // calculate p1.p2xp3: if it's positive then CW, if it's negative CHI_CCW.
+   // This is not the problem though.  We don't have positions - we want to set the chirality
+   // so that, when the postions are calculated, the chirality is correct in 3D.
+   // 
+   // OK, so the 3 non-hydrogen neighbours of CCat are not necessarily the top-ranked CIP atoms.
+   // If one of the substituents is a H atom, then they will be - this is the easy case.
+   // If (n_neighbs == 3) then if they come (in the bonds list for this atom) in the same order
+   // as the CIP ranks them - or are a circular permutation of that then if R then CW
+   // if S the CCW. Similar and reversed logic for non-circular permutation.
+   // 
+   // OK, more tricky, we have 4 non-hydrogen neighbours.  The CCW only relates to the
+   // first 3 neighbours.
+   //
+   // First test are the first 3 neighbours the same as the highest 3 CIP ranked neighbours?
+   // If yes, then same case as above with 3 neighbours.
+   //
+   // If not, then R for the CIP ranked neighbours will be CCW for the first 3 (when you swap
+   // an atom, and the atom has a CIP rank of less than both or more than both the others, then
+   // the direction changes).  If the "inserted" atom has a CIP-rank between the other two then
+   // the rotation direction is preserved.
+   // 
+   // Likewise S will be CW for the first 3.
+   // 
+   // Needs testing.
+   //
+   // Lots of things that work:
+   //
+   // Fails: B7H?   C17 is not a chiral centre - but the wedgebondmol picture suggest that it is
+   //               (this code doesn't think that it is).
+   // 
+   RDKit::UINT_VECT ranks(m.getNumAtoms(),-1);
+   RDKit::Chirality::assignAtomCIPRanks(m, ranks);
+   // 
+   for (unsigned int iat=0; iat<bonded_atoms.size(); iat++) {
+      const coot::dict_atom &atom_info = restraints.atom_info[bonded_atoms[iat].second];
+      
+      if (atom_info.pdbx_stereo_config.first) {
+	 if (atom_info.pdbx_stereo_config.second == "R" ||
+	     atom_info.pdbx_stereo_config.second == "S") {
+
+	    // accumulate neigbs of the chiral atom here:
+	    std::vector<std::pair<const RDKit::Atom *, unsigned int> > neighbs;
+	    
+	    // what are the atoms bonded to this rdkit atom?
+	    RDKit::Atom *rdkit_at = m[bonded_atoms[iat].first].get();  // probably - or always?
+
+	    RDKit::ROMol::OEDGE_ITER beg,end;
+	    boost::tie(beg,end) = m.getAtomBonds(rdkit_at);
+	    while(beg!=end){
+	       const RDKit::Bond *bond=m[*beg].get();
+	       ++beg;
+	       const RDKit::Atom *nbr=bond->getOtherAtom(rdkit_at);
+	       unsigned int cip_rank = 0;
+	       nbr->getProp(RDKit::common_properties::_CIPRank, cip_rank);
+	       std::pair<const RDKit::Atom *, unsigned int> p(nbr, cip_rank);
+	       neighbs.push_back(p);
+	    }
+
+	    if (false) { 
+	       std::cout << "atom " << rdkit_at << " has stereconfig " << atom_info.pdbx_stereo_config.second
+			 << " and " << neighbs.size() << " non-H neighbours " << std::endl;
+	       std::cout << "---------- unsorted neighbs: " << std::endl;
+	       for (unsigned int jj=0; jj<neighbs.size(); jj++) {
+		  std::cout << neighbs[jj].first << " " << neighbs[jj].second << std::endl;
+	       }
+	    }
+
+	    std::vector<std::pair<const RDKit::Atom *, unsigned int> > sorted_neighbs = neighbs;
+	    std::sort(sorted_neighbs.begin(), sorted_neighbs.end(), cip_rank_sorter);
+
+	    if (false) {
+	       std::cout << "---------- sorted neighbs: " << std::endl;
+	       for (unsigned int jj=0; jj<sorted_neighbs.size(); jj++) { 
+		  std::cout << jj << " " << sorted_neighbs[jj].first << " " << sorted_neighbs[jj].second
+			    << std::endl;
+	       }
+	    }
+	    
+	    bool inverted = true; // set this using cleverness
+
+	    if (neighbs.size() == 3) {
+
+	       neighbs.resize(3);
+	       sorted_neighbs.resize(3);
+
+	       if (neighbs[0] == sorted_neighbs[0])
+		  if (neighbs[1] == sorted_neighbs[1])
+		     if (neighbs[2] == sorted_neighbs[2])
+			inverted = false;
+		     
+	       if (neighbs[0] == sorted_neighbs[1])
+		  if (neighbs[1] == sorted_neighbs[2])
+		     if (neighbs[2] == sorted_neighbs[0])
+			inverted = false;
+
+	       if (neighbs[0] == sorted_neighbs[2])
+		  if (neighbs[1] == sorted_neighbs[0])
+		     if (neighbs[2] == sorted_neighbs[1])
+			inverted = false;
+
+	    } else {
+
+	       if (neighbs.size() == 4) { // what else can it be?
+
+		  // are the first 3 atoms of neighbour list the three atoms of highest CIP rank?
+		  
+		  bool atom_sets_match = false;
+		  std::vector<const RDKit::Atom *> needed_atoms(3);
+		  needed_atoms[0] = sorted_neighbs[1].first;
+		  needed_atoms[1] = sorted_neighbs[2].first;
+		  needed_atoms[2] = sorted_neighbs[3].first;
+
+		  unsigned int n_found = 0;
+		  for (unsigned int jj=0; jj<3; jj++) {
+		     for (unsigned int ii=0; ii<3; ii++) {
+			if (needed_atoms[ii] == neighbs[jj].first)
+			   n_found += 1;
+		     }
+		  }
+
+		  if (n_found == 3) {
+
+		     // as above
+
+		     if (neighbs[0] == sorted_neighbs[0])
+			if (neighbs[1] == sorted_neighbs[1])
+			   if (neighbs[2] == sorted_neighbs[2])
+			      inverted = false;
+
+		     if (neighbs[0] == sorted_neighbs[1])
+			if (neighbs[1] == sorted_neighbs[2])
+			   if (neighbs[2] == sorted_neighbs[0])
+			      inverted = false;
+
+		     if (neighbs[0] == sorted_neighbs[2])
+			if (neighbs[1] == sorted_neighbs[0])
+			   if (neighbs[2] == sorted_neighbs[1])
+			      inverted = false;
+
+		     if (atom_info.pdbx_stereo_config.second == "R") {
+			if (inverted)
+			   rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CCW);
+			else
+			   rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CW);
+		     }
+	       
+		     if (atom_info.pdbx_stereo_config.second == "S") {
+			if (inverted)
+			   rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CW);
+			else
+			   rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CCW);
+		     }
+		     
+		  } else {
+
+		     // tricky case: the high CIP ranked atoms are not the first 3 neighbours of rdkit_at
+		     unsigned int idx_cip_rank_lowest = 0;
+		     unsigned int cip_rank_lowest = 99999;
+		     for (unsigned int jj=0; jj<4; jj++) {
+			if (neighbs[jj].second < cip_rank_lowest) {
+			   cip_rank_lowest = neighbs[jj].second;
+			   idx_cip_rank_lowest = jj;
+			}
+		     }
+
+		     // idx_cip_rank_lowest should be something other than 0 now
+		     //
+		     // This part needs testing
+		     //
+		     if (false)
+			std::cout << "debug idx_cip_rank_lowest " << idx_cip_rank_lowest << std::endl;
+		     //
+		     // these need checking
+		     if (idx_cip_rank_lowest == 1)
+			inverted = true;
+		     if (idx_cip_rank_lowest == 2)
+			inverted = false;
+		     if (idx_cip_rank_lowest == 3)
+			inverted = true;
+
+		  }
+	       } else {
+		  std::cout << "WARNING:: crazy atom - too many connections " << atom_info << std::endl;
+	       }
+
+	    }
+
+	    if (atom_info.pdbx_stereo_config.second == "R") {
+	       if (inverted)
+		  rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CCW);
+	       else
+		  rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CW);
+	    }
+	       
+	    if (atom_info.pdbx_stereo_config.second == "S") {
+	       if (inverted)
+		  rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CW);
+	       else
+		  rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CCW);
+	    }
+
+	 }
+      }
+   }
+   
    if (false)
       std::cout << "DEBUG:: in constructing rdkit molecule, now adding a conf " 
                 << "number of atoms comparison added_atom names size: " 
@@ -582,21 +834,27 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	 }
       }
    }
+
+   
    int iconf = m.addConformer(conf);
 
-   if (debug)
-      std::cout << "DEBUG:: in rdkit_mol() assignStereochemistry() " << std::endl;
+   // if (debug)
+   // std::cout << "DEBUG:: in rdkit_mol() assignStereochemistry() " << std::endl;
 
-   std::cout << "DEBUG:: in rdkit_mol() call pre-chirality" << std::endl;
-   m.debugMol(std::cout);
+   // std::cout << "DEBUG:: in rdkit_mol() call pre-chirality" << std::endl;
+   // m.debugMol(std::cout);
    
    // std::cout << "DEBUG:: in rdkit_mol() call assignChiralTypesFrom3D() :::::::" << std::endl;
    // RDKit::MolOps::assignChiralTypesFrom3D(m, iconf);
    // m.debugMol(std::cout);
+
+   // We have added chiral centres "by hand" - don't try again using the RDKit method
+   // (not yet, anyway).
+   // 
+   // std::cout << "DEBUG:: in rdkit_mol() call assignStereochemistry() :::::::" << std::endl;
+   // RDKit::MolOps::assignStereochemistry(m, true, true, true);
    
-   std::cout << "DEBUG:: in rdkit_mol() call assignStereochemistry() :::::::" << std::endl;
-   RDKit::MolOps::assignStereochemistry(m, true, true, true);
-   m.debugMol(std::cout);
+   // m.debugMol(std::cout);
 
    if (debug) 
       std::cout << "DEBUG:: in rdkit_mol() ending rdkit mol: n_atoms " << m.getNumAtoms()
@@ -607,6 +865,17 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
       
    return m;
 }
+
+
+// sorts atoms so that the smallest ranks are at the top (close to index 0).
+//
+bool
+coot::cip_rank_sorter(const std::pair<const RDKit::Atom *, unsigned int> &at_1,
+		      const std::pair<const RDKit::Atom *, unsigned int> &at_2) {
+
+   return (at_1.second < at_2.second);
+}
+
 
 bool
 coot::chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2,
@@ -678,6 +947,15 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	 at->setIsotope(0);
 	 at->setProp("name", atom_name);
 
+	 if (false)
+	    std::cout << iat << " " << atom_name << " "
+		      << r.atom_info[iat].formal_charge.first << " "
+		      << r.atom_info[iat].formal_charge.second << std::endl;
+
+	 // formal charge
+	 if (r.atom_info[iat].formal_charge.first)
+	    at->setFormalCharge(r.atom_info[iat].formal_charge.second);
+	 
 	 // set the chirality (if this atom is chiral).
 	 //
 	 for (unsigned int ichi=0; ichi<r.chiral_restraint.size(); ichi++) { 
@@ -688,8 +966,8 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 		     RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
 		     at->setChiralTag(chiral_tag);
 		  }
-	       } 
-	    } 
+	       }
+	    }
 	 }
 
 	 // need to try to get chiral info using atom_info[iat].pdbx_stereo_config
@@ -2898,14 +3176,24 @@ coot::debug_rdkit_molecule(const RDKit::ROMol *rdkm) {
       RDKit::Atom::HybridizationType ht = at_p->getHybridization();
       
       int f_c = at_p->getFormalCharge();
-      std::cout << "   " << iat << " ele: " << std::setw(2) << std::right << element;
+      std::cout << std::setw(3) << iat << " ele: " << std::setw(2) << std::right << element;
       if (! name.empty())
 	 std::cout << " name :" << name << ":";
       std::cout << " degree: " << degree;
       std::cout << " formal-charge: " << f_c << " ";
       std::cout << " hybridization: " << ht;
+						\
+      // chiral tag
+      RDKit::Atom::ChiralType ct = at_p->getChiralTag();
+      std::string cts = "!";
+      if (ct == RDKit::Atom::CHI_UNSPECIFIED)    cts = "-";
+      if (ct == RDKit::Atom::CHI_TETRAHEDRAL_CW) cts = " CW";
+      if (ct == RDKit::Atom::CHI_TETRAHEDRAL_CW) cts = "CCW";
+      if (ct == RDKit::Atom::CHI_OTHER)          cts = "Oth";
+      std::cout << " Chir: " << cts;
+      
 
-      // chirality
+      // R/S chirality
       std::string cip;
       try {
 	 at_p->getProp("_CIPCode", cip);
@@ -2915,6 +3203,17 @@ coot::debug_rdkit_molecule(const RDKit::ROMol *rdkm) {
 	 // Not an error
 	 // std::cout << "KeyErrorException " << err.what() << " for _CIPCode" << std::endl;
 	 std::cout << " CIP-Code - ";
+      }
+      unsigned int cip_rank;
+      try {
+	 at_p->getProp(RDKit::common_properties::_CIPRank, cip_rank);
+	 std::cout << " CIP-Rank " << cip_rank;
+      }
+      catch (const KeyErrorException &err) {
+	 std::cout << " CIP-Rank - ";
+      }
+      catch (...) {
+	 std::cout << " CIP-Rank... - ";
       }
       std::cout << std::endl;
    }

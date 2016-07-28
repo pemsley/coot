@@ -5329,20 +5329,7 @@ def search_disk_dialog(program_name, path_ls):
    label_text += "\n\nShall we search the whole disk?\n"
 
    try:
-      dialog = gtk.Dialog("Search whole disk dialog", None,
-                          gtk.DIALOG_MODAL | gtk.DIALOG_NO_SEPARATOR,
-                          (gtk.STOCK_YES, gtk.RESPONSE_ACCEPT,
-                           gtk.STOCK_NO, gtk.RESPONSE_REJECT))
-      ifont = gtk.gdk.Font("fixed")
-      label = gtk.Label(label_text)
-      dialog.vbox.pack_end(label, True, True, 0)
-      dialog.show_all()
-      result = dialog.run()
-      if result == gtk.RESPONSE_ACCEPT:
-         ret = True
-      else:
-         ret = False
-      dialog.destroy()
+      ret = yes_no_dialog(label_text, "Search whole disk dialog")
    except:
       # no graphics
       label_text += "[y/N] >"
@@ -5416,7 +5403,41 @@ def duplicate_range_by_atom_pick():
 
    add_status_bar_text("Pick two atoms")
    user_defined_click(2, pick_range_func)
-      
+
+# A simple modal dialog to accept or reject something. Pass a question
+# to be asked as string.
+#
+def yes_no_dialog(label_text, title_text=None):
+   """A simple modal dialog to accept or reject something. Pass a question
+   to be asked as string.
+
+   Args:
+      label_text: the text/question to be displayed/asked in the dialog.
+
+   Keyword args:
+      title_text: title of the dialog window
+
+   Returns:
+      bool of answer.
+   """
+   
+   dialog = gtk.Dialog(title_text, None,
+                       gtk.DIALOG_MODAL | gtk.DIALOG_NO_SEPARATOR,
+                       (gtk.STOCK_YES, gtk.RESPONSE_ACCEPT,
+                        gtk.STOCK_NO, gtk.RESPONSE_REJECT))
+   ifont = gtk.gdk.Font("fixed")
+   label = gtk.Label(label_text)
+   dialog.vbox.pack_end(label, True, True, 0)
+   dialog.show_all()
+   result = dialog.run()
+   if result == gtk.RESPONSE_ACCEPT:
+      ret = True
+   else:
+      ret = False
+   dialog.destroy()
+   
+   return ret
+
    
 # let the c++ part of mapview know that this file was loaded:
 

@@ -179,15 +179,18 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	    RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest.second, "", undelocalize_flag);
 	    RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
 
-	    std::cout << "----------------------- assignStereochemistry() " << std::endl;
-
-	    // RDKit::MolOps::assignStereochemistry(*m, false, true, true);
-	    RDKit::MolOps::assignStereochemistry(*m, true, true, true);
+	    // Let's skip this step here if we can (because the chiral centres should have been
+	    // assigned in rdkit_mol() and we don't want to wipe them out here.
+	    // 
+	    bool clean = false;
+	    bool force = true;
+	    bool flag_stereo = true;
+	    // RDKit::MolOps::assignStereochemistry(*m, clean, force, flag_stereo);
 
 	    // Here test that the propety mmcif_chiral_volume_sign has
 	    // been set on atoms of mol_rw and m
 	    //
-	    if (true) {
+	    if (false) {
 	       for (unsigned int iat=0; iat<m->getNumAtoms(); iat++) {
 
 		  std::string name;

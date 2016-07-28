@@ -1124,8 +1124,8 @@ coot::restraints_container_t::have_intermediate_residue_by_seqnum(mmdb::Residue 
 	    //
 	    for (unsigned int ii=0; ii<residues_vec.size(); ii++) {
 	       int resno_this = residues_vec[ii].second->GetSeqNum();
-	       std::cout << "    res_no_this: " << resno_this << " "
-			 << residue_spec_t(residues_vec[ii].second) << std::endl;
+	       // std::cout << "    res_no_this: " << resno_this << " "
+	       //  	    << residue_spec_t(residues_vec[ii].second) << std::endl;
 	       if (resno_this > res_no_1) {
 		  if (resno_this < res_no_2) {
 		     mmdb::Chain *c_this = residues_vec[ii].second->GetChain();

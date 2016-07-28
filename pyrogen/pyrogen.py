@@ -872,6 +872,8 @@ if __name__ == "__main__":
 			#
 			mol_for_drawing = Chem.RemoveHs(mol, implicitOnly=False)
 			conf2D_id = AllChem.Compute2DCoords(mol_for_drawing)
+                        conf = mol.GetConformer(conf2D_id)
+                        Chem.WedgeMolBonds(mol_for_drawing, conf)
 			make_picture(mol_for_drawing, conf2D_id, comp_id, options.output_postfix)
 
 	else:

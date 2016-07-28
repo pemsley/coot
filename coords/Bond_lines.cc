@@ -1663,13 +1663,16 @@ Bond_lines_container::handle_MET_or_MSE_case(mmdb::PAtom mse_atom,
 	       std::string altconf1 = mse_atom->altLoc;
 	       std::string altconf2 = residue_atoms[i]->altLoc;
 	       if ( (altconf1=="") || (altconf2=="") || (altconf1==altconf2) ) {
-		  coot::Cartesian bond_mid_point = cart_at1.mid_point(cart_at2);
-		  int colc = atom_colour(residue_atoms[i], atom_colour_type, atom_colour_map_p);
-		  addBond(col,  cart_at1, bond_mid_point);
-		  addBond(colc, bond_mid_point, cart_at2);
-		  // mark atom as bonded.
-		  residue_atoms[i]->PutUDData(udd_handle, BONDED_WITH_STANDARD_ATOM_BOND);
-		  mse_atom->PutUDData(udd_handle, BONDED_WITH_STANDARD_ATOM_BOND);
+		  float len2 = (cart_at1 - cart_at2).amplitude_squared(); 
+		  if (len2 < 16) { // protection for weirdness
+		     coot::Cartesian bond_mid_point = cart_at1.mid_point(cart_at2);
+		     int colc = atom_colour(residue_atoms[i], atom_colour_type, atom_colour_map_p);
+		     addBond(col,  cart_at1, bond_mid_point);
+		     addBond(colc, bond_mid_point, cart_at2);
+		     // mark atom as bonded.
+		     residue_atoms[i]->PutUDData(udd_handle, BONDED_WITH_STANDARD_ATOM_BOND);
+		     mse_atom->PutUDData(udd_handle, BONDED_WITH_STANDARD_ATOM_BOND);
+		  }
 	       }
 	    }
 	 }
@@ -3887,7 +3890,6 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
 		     if (element == " S") {
 			return YELLOW_BOND;
 		     } else {
-			// if (element == " H") {
 			if (is_hydrogen(element)) {
 			   return HYDROGEN_GREY_BOND;
 			} else {
@@ -4680,7 +4682,7 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 
    std::vector<std::pair<bool, mmdb::Residue *> > het_residues; // bond these separately.
 
-   for (int i=0; i<4; i++) 
+   for (int i=0; i<4; i++)
       for (int j=0; j<4; j++) 
 	 my_matt[i][j] = 0.0;
       
@@ -4757,7 +4759,7 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 			  // (element1 != " H" && element1 != " D" &&
 			  //  element2 != " H" && element2 != " D") ) {
 
-			  (! is_hydrogen(element1) && ! is_hydrogen(element2))) { 
+			  (! is_hydrogen(element1) && ! is_hydrogen(element2))) {
 
 			coot::Cartesian atom_1(at1->x, at1->y, at1->z);
 			coot::Cartesian atom_2(at2->x, at2->y, at2->z);
@@ -4769,56 +4771,67 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 			// 
 			if (aloc_1 == "" || aloc_2 == "" || aloc_1 == aloc_2) {
 
-
 			   bool bond_het_residue_by_dictionary =
 			      add_bond_by_dictionary_maybe(at1, at2, &het_residues); // add to het_residues maybe
 
-			   if (! bond_het_residue_by_dictionary) { 
+			   if (! bond_het_residue_by_dictionary) {
 
 			      if (element1 != element2) {
 			   
 				 // Bonded to different atom elements.
 				 //
-			      
-				 coot::Cartesian bond_mid_point = atom_1.mid_point(atom_2);
-			      
-				 if (element1 != " C") {  // PDBv3 FIXME 
-				 
-				    if (element2 != " C") {
-				       // half bonds, e.g. N-O, (not frequent)
-				       int non_c_col = atom_colour(at1, atom_colour_type);
-				       bonds_size_colour_check(non_c_col);
-				       addBond(non_c_col, atom_1, bond_mid_point);
-				       non_c_col = atom_colour(at2, atom_colour_type);
-				       bonds_size_colour_check(non_c_col);
-				       addBond(non_c_col, atom_2, bond_mid_point);
-				    } else {
-				       // frequent
-				       int non_c_col = atom_colour(at1, atom_colour_type);
-				       bonds_size_colour_check(non_c_col);
-				       addBond(non_c_col, atom_1, bond_mid_point);
-				       bonds_size_colour_check(col);
-				       addBond(col, atom_2, bond_mid_point);
-				    }
-				 
-				 } else {
-				 
-				    if (element2 != " C") {
 
-				       // frequent
-				       bonds_size_colour_check(col);
-				       addBond(col, atom_1, bond_mid_point);
-				       int non_c_col = atom_colour(at2, atom_colour_type);
-				       bonds_size_colour_check(non_c_col);
-				       addBond(non_c_col, atom_2, bond_mid_point);
-				    
+				 double d = (atom_1-atom_2).amplitude();
+				 bool is_H = false;
+				 bool draw_it = true;
+				 if (element1 == " H") is_H = true;
+				 if (element2 == " H") is_H = true;
+				 if (is_H)
+				    if (d>1.5)
+				       draw_it = false;
+
+				 if (draw_it) {
+			      
+				    coot::Cartesian bond_mid_point = atom_1.mid_point(atom_2);
+			      
+				    if (element1 != " C") {  // PDBv3 FIXME
+
+				       if (element2 != " C") {
+
+					  // half bonds, e.g. N-O, (not frequent)
+					  int non_c_col = atom_colour(at1, atom_colour_type);
+					  bonds_size_colour_check(non_c_col);
+					  addBond(non_c_col, atom_1, bond_mid_point);
+					  non_c_col = atom_colour(at2, atom_colour_type);
+					  bonds_size_colour_check(non_c_col);
+					  addBond(non_c_col, atom_2, bond_mid_point);
+				       } else {
+					  // frequent
+					  int non_c_col = atom_colour(at1, atom_colour_type);
+					  bonds_size_colour_check(non_c_col);
+					  addBond(non_c_col, atom_1, bond_mid_point);
+					  bonds_size_colour_check(col);
+					  addBond(col, atom_2, bond_mid_point);
+				       }
+				 
 				    } else {
-				       std::cout << "impossible " << std::endl;
-				       bonds_size_colour_check(col);
-				       addBond(col, atom_2, bond_mid_point);
+
+				       if (element2 != " C") {
+
+					  // frequent
+					  bonds_size_colour_check(col);
+					  addBond(col, atom_1, bond_mid_point);
+					  int non_c_col = atom_colour(at2, atom_colour_type);
+					  bonds_size_colour_check(non_c_col);
+					  addBond(non_c_col, atom_2, bond_mid_point);
+				    
+				       } else {
+					  std::cout << "impossible " << std::endl;
+					  bonds_size_colour_check(col);
+					  addBond(col, atom_2, bond_mid_point);
+				       }
 				    }
 				 }
-
 			   
 			      } else {
 
@@ -4849,12 +4862,21 @@ Bond_lines_container::do_colour_by_chain_bonds_change_only(const atom_selection_
 			   }
 			}
 		     } else {
+
 			// It was a hydrogen (or bonded to Hydrogen).
 			// Mark it as bonded (we don't want to see single
 			// unbonded (stared) hydorgens.
-			if (uddHnd>=0) {
-			   at1->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
-			   at2->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
+
+			// check the distance.
+			coot::Cartesian pt_1(at1->x, at1->y, at1->z);
+			coot::Cartesian pt_2(at2->x, at2->y, at2->z);
+
+			double d = (pt_1-pt_2).amplitude();
+			if (d < 1.5) {
+			   if (uddHnd>=0) {
+			      at1->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
+			      at2->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
+			   }
 			}
 		     } 
 		  }

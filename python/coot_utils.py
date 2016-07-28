@@ -631,7 +631,7 @@ Python 2.6.2
         raise error
     return output
 
-# returns false of there is a problem running cmd
+# returns empty string if there is a problem running cmd
 #
 def shell_command_to_string(cmd):
 
@@ -644,12 +644,12 @@ def shell_command_to_string(cmd):
         try:
             ret = subprocess.check_output(cmd.split())
         except:
-            ret = False
+            ret = ""
     else:
         try:
             ret = check_output(cmd)
         except:
-            ret = False
+            ret = ""
     return ret
 
 # Return True or False
@@ -742,7 +742,7 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False):
         if not(command_in_path_qm(cmd)):
             print "command ", cmd, " not found in $PATH!"
             print "BL INFO:: Maybe we'll find it somewhere else later..."
-        cmd_execfile = find_exe(cmd, "CCP4_BIN", "PATH")
+        cmd_execfile = find_exe(cmd, "CBIN", "CBIN", "CCP4_BIN", "PATH")
 
     if (cmd_execfile):
         # minor = 2
@@ -2610,7 +2610,7 @@ def prodrg_ify(imol, chain_id, res_no, ins_code):
         delete_residue_hydrogens(imol,    chain_id, res_no, ins_code, "") # otherwise they fly
         write_pdb_file(new_mol, prodrg_xyzin)
         close_molecule(new_mol)
-        prodrg_exe = find_exe("cprodrg", "CCP4_BIN", "PATH")
+        prodrg_exe = find_exe("cprodrg", "CBIN", "CCP4_BIN", "PATH")
         if not prodrg_exe:
             info_dialog("Cannot find cprodrg, so no prodrg-ifying of ligand possible")
         else:
@@ -3627,7 +3627,7 @@ def run_concurrently(cmd, args=[], data_list=None, logfile=None, screen_flag=Fal
        print "command ", cmd, " not found in $PATH!"
        print "BL INFO:: Maybe we'll find it somewhere else later..."
     else:
-       cmd_execfile = find_exe(cmd,"CCP4_BIN","PATH")
+       cmd_execfile = find_exe(cmd, "CBIN", "CCP4_BIN", "PATH")
 
     if (cmd_execfile):
         if (major >= 2 and minor >=4):
