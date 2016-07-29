@@ -2109,6 +2109,7 @@ if test -n "$build_clipper" ; then
     #clipper_version=2.1-091215-ac
     clipper_version=2.1-100511-ac
     clipper_version=2.1
+    clipper_version=2.1.20160708
     clipper_dir_version=2.1
     #${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
 
@@ -2127,7 +2128,8 @@ if test -n "$build_clipper" ; then
     ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/clipper_win32.patch
 
     # now clipper has all the bits.
-    ${WGET} $extras_place/clipper-$clipper_version.tar.gz
+    # ${WGET} $extras_place/clipper-$clipper_version.tar.gz
+    ${WGET} ftp://ftp.ccp4.ac.uk/opensource/clipper-$clipper_version.tar.gz
 
     (
     # temp hack
