@@ -1,5 +1,8 @@
 -----
 
+
+-----
+
   Release 0.8.4
 
   o FEATURE: Generic display objects can now be attached to a molecule number:
@@ -11,6 +14,8 @@
              to the centre of the screen (without CA subsitution)
 
   o FEATURE: chemical feature clustering (import cfc_ligand_sites)
+
+  o FEATURE: user-define colour scheme
 
   o FEATURE: Ramachandran plot now has a "Outliers Only" mode
 

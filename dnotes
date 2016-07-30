@@ -3976,15 +3976,16 @@ INFO::
    o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top
      Make sure the release is called Release, not pre-release
    o change the version in configure.ac
-   o artists acknowledged in glade/aboutdialog?
-   o change the splash screen
-        Use glade-2
+   o Artists acknowledged in glade/aboutdialog?
+   o Use glade-2
+        Change the splash screen
         Fix the release name in the About dialog (aboutdialog)
         and copyright years.
         To correct the transparency, duplicate layer, bucket fill with white 
         the bottom layer, merge and bevel 6.
    o git add the new splash screen pixmap
    o Change the pixmaps/Makefile.am for the current splash screen image
+   o are coot_wrap*cc generated correctly (no enhanced-ligand code)?
    o commit
    o Passes build (build-latest) on pc? 
         OK, disable the build-latest cron-job 
