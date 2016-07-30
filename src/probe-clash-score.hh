@@ -120,9 +120,9 @@ namespace coot {
       spec_eraser(const std::map<std::pair<probe_atom_spec_t, probe_atom_spec_t>, bool> &ref_specs_in) {
 	 ref_specs = ref_specs_in;
       }
-      bool operator() (const std::pair<probe_atom_spec_t, probe_atom_spec_t> &s) const {
-	 return true;
-      } 
+      // bool operator() (const std::pair<probe_atom_spec_t, probe_atom_spec_t> &s) const {
+      //    return true;
+      // }
    };
 }
 
