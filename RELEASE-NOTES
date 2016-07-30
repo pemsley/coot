@@ -1,6 +1,6 @@
 -----
 
-  Pre-release 0.8.4
+  Release 0.8.4
 
   o FEATURE: Generic display objects can now be attached to a molecule number:
              attach_generic_object_to_molecule(obj_no, imol)
@@ -21,7 +21,7 @@
 
   o CHANGE:  Improved lighting when displaying solid objects
 
-  o CHANGE:  Typsetting improvements in lidia
+  o CHANGE:  Typesetting improvements in lidia
 
   o BUG-FIX: Set the suggested file name in the classic dialog on saving 
              coordinates [Andy Purkiss, Arnaud Basle]

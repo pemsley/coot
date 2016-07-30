@@ -44,7 +44,6 @@ cootrc: $(top_srcdir)/cootrc.template
 EXTRA_DIST = 		\
 	autogen.sh 	\
 	make-scheme-tar \
-	mapview.glade 	\
 	cootrc.template	\
 	py-compile      \
 	standard-residues.pdb \
@@ -59,10 +58,8 @@ EXTRA_DIST = 		\
 	count-loc 	\
 	syminfo.lib	\
 	colours.def	\
-	function-notes	\
 	my.supp		\
 	guile.supp	\
-	make-patches	\
 	windows/syminfo.lib	\
 	fix-cif-loops.awk       \
 	ifdef-for-create-aboutdialog.awk \
