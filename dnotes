@@ -7639,4 +7639,11 @@ imort rdkit # we need this of course
 # but don't forget:
 from rdkit import Chem
 
+----
+
+   Keep an eye on this:
+
+   https://apps.fedoraproject.org/packages/coot
+
+
 ---
