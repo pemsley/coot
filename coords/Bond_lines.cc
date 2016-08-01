@@ -434,8 +434,17 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 		  
 			      // Bonded to an atom of the same element.
 			      //
-			      col = atom_colour(atom_selection_1[ contact[i].id1 ], atom_colour_type);
-			      addBond(col, atom_1_pos, atom_2_pos);
+
+			      if (is_hydrogen(element_1)) { // both are hydrogen
+				 float len2 = (atom_1_pos - atom_2_pos).amplitude_squared(); 
+				 if (len2 < 1) { // protection for weirdness
+				    col = atom_colour(atom_selection_1[ contact[i].id1 ], atom_colour_type);
+				    addBond(col, atom_1_pos, atom_2_pos);
+				 }
+			      } else {
+				 col = atom_colour(atom_selection_1[ contact[i].id1 ], atom_colour_type);
+				 addBond(col, atom_1_pos, atom_2_pos);
+			      }
 			   }
 
 			   mark_atoms_as_bonded(atom_p_1, atom_p_2, have_udd_atoms, udd_handle, done_bond_udd_handle);
