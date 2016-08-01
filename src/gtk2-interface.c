@@ -9645,8 +9645,7 @@ create_accept_reject_refinement_dialog (void)
   gtk_frame_set_label_widget (GTK_FRAME (accept_reject_lights_frame), label445);
   gtk_label_set_use_markup (GTK_LABEL (label445), TRUE);
 
-  accept_dialog_accept_label_string = gtk_label_new (_("Accept Refinement?"));
-
+  accept_dialog_accept_label_string = gtk_label_new (_("<b>Accept Refinement?</b>"));
   gtk_widget_set_name (accept_dialog_accept_label_string, "accept_dialog_accept_label_string");
   gtk_widget_show (accept_dialog_accept_label_string);
   gtk_box_pack_start (GTK_BOX (vbox195), accept_dialog_accept_label_string, FALSE, FALSE, 0);
@@ -14113,7 +14112,7 @@ create_splash_screen_window (void)
   gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
   gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
 
-  image10854 = create_pixmap (splash_screen_window, "coot-0.8.4.png");
+  image10854 = create_pixmap (splash_screen_window, "coot-0.8.5-pre.png");
   gtk_widget_set_name (image10854, "image10854");
   gtk_widget_show (image10854);
   gtk_container_add (GTK_CONTAINER (splash_screen_window), image10854);
