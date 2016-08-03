@@ -30,7 +30,10 @@
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "lidia-core/rdkit-interface.hh"
-#endif 
+#endif
+
+#include "coot-utils/residue-and-atom-specs.hh"
+
 
 void 
 graphics_ligand_molecule::generate_display_list(bool dark_background_flag) {
@@ -339,14 +342,13 @@ graphics_ligand_molecule::render() {
    glDisable(GL_FOG);
    glCallList(display_list_tag);
    glEnable(GL_FOG);
-} 
+}
 
 bool
 graphics_ligand_molecule::setup_from(mmdb::Residue *residue_p,
 				     const std::string &alt_conf,
 				     coot::protein_geometry *geom_p,
 				     bool against_a_dark_background) {
-
 
    bool status = false; // "failed" status initially
    
@@ -362,42 +364,45 @@ graphics_ligand_molecule::setup_from(mmdb::Residue *residue_p,
 	 } else {
 	    const coot::dictionary_residue_restraints_t &restraints = p.second;
 	    RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, restraints, alt_conf);
-	    // return a kekulize mol
-	    RDKit::RWMol rdk_mol_with_no_Hs = coot::remove_Hs_and_clean(rdkm);
+	    unsigned int n_atoms = rdkm.getNumAtoms();
+	    if (n_atoms > 1) {
+	       // return a kekulize mol
+	       RDKit::RWMol rdk_mol_with_no_Hs = coot::remove_Hs_and_clean(rdkm);
 
-	    double weight_for_3d_distances = 0.005;
-	    int mol_2d_depict_conformer =
-	       coot::add_2d_conformer(&rdk_mol_with_no_Hs, weight_for_3d_distances);
+	       double weight_for_3d_distances = 0.005;
+	       int mol_2d_depict_conformer =
+		  coot::add_2d_conformer(&rdk_mol_with_no_Hs, weight_for_3d_distances);
 
-	    if (false) {  // debug screen positioning
-	       for (unsigned int iconf=0; iconf<rdkm.getNumConformers(); iconf++) { 
-		  RDKit::Conformer &conf = rdkm.getConformer(iconf);
-		  int n_atoms = conf.getNumAtoms();
-		  for (int iat=0; iat<n_atoms; iat++) { 
-		     RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
-		     std::cout << iconf << " " << iat << "  "
-			       << std::setw(8) << std::fixed
-			       << std::right << std::setprecision(3) << r_pos.x << "  "
-			       << std::right << std::setprecision(3) << r_pos.y << "  "
-			       << std::right << std::setprecision(3) << r_pos.z
-			       << std::endl;
+	       if (false) {  // debug screen positioning
+		  for (unsigned int iconf=0; iconf<rdkm.getNumConformers(); iconf++) { 
+		     RDKit::Conformer &conf = rdkm.getConformer(iconf);
+		     int n_atoms = conf.getNumAtoms();
+		     for (int iat=0; iat<n_atoms; iat++) { 
+			RDGeom::Point3D &r_pos = conf.getAtomPos(iat);
+			std::cout << iconf << " " << iat << "  "
+				  << std::setw(8) << std::fixed
+				  << std::right << std::setprecision(3) << r_pos.x << "  "
+				  << std::right << std::setprecision(3) << r_pos.y << "  "
+				  << std::right << std::setprecision(3) << r_pos.z
+				  << std::endl;
+		     }
 		  }
 	       }
-	    }
 
-	    // why is there no connection between a lig_build molecule_t
-	    // and a rdkit molecule conformer?
+	       // why is there no connection between a lig_build molecule_t
+	       // and a rdkit molecule conformer?
 
-	    // For now hack around using a molfile molecule...
-	    //
-	    // I think I should have a rdkit_mol->lig_build::molecule_t converter
-	    // (for later).
+	       // For now hack around using a molfile molecule...
+	       //
+	       // I think I should have a rdkit_mol->lig_build::molecule_t converter
+	       // (for later).
 	 
-	    lig_build::molfile_molecule_t m =
-	       coot::make_molfile_molecule(rdk_mol_with_no_Hs, mol_2d_depict_conformer);
-	    init_from_molfile_molecule(m, against_a_dark_background);
+	       lig_build::molfile_molecule_t m =
+		  coot::make_molfile_molecule(rdk_mol_with_no_Hs, mol_2d_depict_conformer);
+	       init_from_molfile_molecule(m, against_a_dark_background);
 
-	    status = true; // OK, if we got to here...
+	       status = true; // OK, if we got to here...
+	    }
 	 }
       }
       catch (const std::runtime_error &coot_error) {
