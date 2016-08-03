@@ -373,7 +373,7 @@ def make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir,
 
    m = pyrogen_boost.rdkit_mol_chem_comp_pdbx(cif_file_name_in, comp_id)
 
-   if True:  # debugging
+   if False:  # debugging
       for atom in m.GetAtoms():
          try:
             name    = atom.GetProp('name')
@@ -484,8 +484,6 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
          
    else:
       AllChem.UFFOptimizeMolecule(sane_H_mol, confId=conf_id)
-
-   # AllChem.UFFOptimizeMolecule(sane_H_mol)
 
    atom_names = add_atom_names(sane_H_mol) 
    all_set = atom_types.set_atom_types(sane_H_mol)  # has deloc bonds now, potentially
