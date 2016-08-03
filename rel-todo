@@ -10,4 +10,13 @@
  o Pyrogen chirality: Using CCD files as input, make a dictionary and either validate the coordinates 
    (dictionary vs actual) chiral volume or minimize and validate coordinates
 
+ o Fix Oliver Clarke Zn chirals bug.
+
+ o I like the interactive probe dots display a lot, but I really wish it was more interactive - would 
+   it be possible to add a "live" probe dots display, that would refresh every second or two during 
+   real space refinement and rotamer selection? This would be very helpful, particularly as a visual 
+   guide during "rubber-band" manipulation of a structure when real-space refining a zone. Preferably 
+   such a function would allow one to only display bad (pink) overlaps and h-bonds, as the full probe 
+   dots display can be a little distracting.  -- Oliver Clarke
+
 
