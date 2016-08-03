@@ -25,7 +25,7 @@ dnl implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 dnl
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(coot, 0.8.4)
+AC_INIT(coot, 0.8.5-pre)
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -73,6 +73,7 @@ AX_OPENMP
 AC_LIB_PREPARE_MULTILIB
 
 AC_SUBST(COOT_STDTYPES)
+
 
 EXPORT_DYNAMIC_FLAG_SPEC=$export_dynamic_flag_spec
 AC_SUBST(EXPORT_DYNAMIC_FLAG_SPEC)
