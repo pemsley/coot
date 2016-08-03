@@ -489,7 +489,6 @@ namespace coot {
       std::pair<bool, std::string> pdbx_stereo_config;
       std::pair<bool, clipper::Coord_orth> pdbx_model_Cartn_ideal;
       std::pair<bool, clipper::Coord_orth> model_Cartn;
-      std::pair<bool, std::string> pdbx_stereo_config_flag;
       dict_atom(const std::string &atom_id_in,
 		const std::string &atom_id_4c_in,
 		const std::string &type_symbol_in,

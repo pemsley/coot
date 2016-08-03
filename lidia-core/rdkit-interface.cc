@@ -82,7 +82,11 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		<< restraints.atom_info.size() << " atoms, "
 		<< restraints.bond_restraint.size() << " bond restraints with do_undelocalize "
 		<< do_undelocalize << std::endl;
-   
+
+   if (debug)
+      for (unsigned int ii=0; ii<restraints.atom_info.size(); ii++)
+	 std::cout << ii << "   " << restraints.atom_info[ii] << std::endl;
+
    RDKit::RWMol m;
 
    std::string n = coot::util::remove_trailing_whitespace(restraints.residue_info.name);
@@ -311,9 +315,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 
    if (debug) {
       std::cout << "DEBUG:: number of atoms in rdkit mol: " << m.getNumAtoms() << std::endl;
-   } 
+   }
 
-   // Doing wedget bonds before we set the chirality doesn't make sense.
+   // Doing wedge bonds before we set the chirality doesn't make sense.
    // So this code needs to be moved down.
    
    for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
@@ -632,9 +636,12 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
    // 
    RDKit::UINT_VECT ranks(m.getNumAtoms(),-1);
    RDKit::Chirality::assignAtomCIPRanks(m, ranks);
+
+   std::cout << "----------------------- chirality for " << bonded_atoms.size()
+	     << " bonded atoms ------------" << std::endl;
    // 
    for (unsigned int iat=0; iat<bonded_atoms.size(); iat++) {
-      const coot::dict_atom &atom_info = restraints.atom_info[bonded_atoms[iat].second];
+      coot::dict_atom atom_info = restraints.atom_info[bonded_atoms[iat].second];
       
       if (atom_info.pdbx_stereo_config.first) {
 	 if (atom_info.pdbx_stereo_config.second == "R" ||
@@ -658,7 +665,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	       neighbs.push_back(p);
 	    }
 
-	    if (false) { 
+	    if (true) { 
 	       std::cout << "atom " << rdkit_at << " has stereconfig " << atom_info.pdbx_stereo_config.second
 			 << " and " << neighbs.size() << " non-H neighbours " << std::endl;
 	       std::cout << "---------- unsorted neighbs: " << std::endl;
@@ -670,7 +677,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    std::vector<std::pair<const RDKit::Atom *, unsigned int> > sorted_neighbs = neighbs;
 	    std::sort(sorted_neighbs.begin(), sorted_neighbs.end(), cip_rank_sorter);
 
-	    if (false) {
+	    if (true) {
 	       std::cout << "---------- sorted neighbs: " << std::endl;
 	       for (unsigned int jj=0; jj<sorted_neighbs.size(); jj++) { 
 		  std::cout << jj << " " << sorted_neighbs[jj].first << " " << sorted_neighbs[jj].second
@@ -816,7 +823,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
       
    // Add positions to the conformer (only the first instance of an
    // atom with a particular atom name).
-   // 
+   //
    for (int iat=0; iat<n_residue_atoms; iat++) {
       std::string atom_name(residue_atoms[iat]->name);
       std::string atom_alt_conf(residue_atoms[iat]->altLoc);

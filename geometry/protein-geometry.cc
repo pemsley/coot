@@ -1080,6 +1080,8 @@ coot::operator<<(std::ostream &s, const dict_atom &at) {
      << "atom_id :" << at.atom_id << ":  "
      << "atom-id-4c :" << at.atom_id_4c << ":  "
      << "type-symbol :" << at.type_symbol << ":  "
+     << "pdbx_stereo_config: " << at.pdbx_stereo_config.first
+     << " \"" << at.pdbx_stereo_config.second << "\" "
      << "model-pos " << at.model_Cartn.first << " ";
    if (at.model_Cartn.first)
       s << at.model_Cartn.second.format() << " ";

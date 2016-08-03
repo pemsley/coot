@@ -718,17 +718,13 @@ void
 coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 					 const coot::dict_atom &atom_info) {
 
-   // debugging
-   bool debug = false;
-   
-   bool ifound = 0;
-   int this_index = -1; // unset
+   bool debug  = false;
+   bool ifound = false;
 
    for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
       if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
 	 if (dict_res_restraints[i].read_number == read_number) { 
 	    ifound = true;
-	    this_index = i;
 	    dict_res_restraints[i].atom_info.push_back(atom_info);
 	    break;
 	 } else {
@@ -740,8 +736,7 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 
    if (! ifound) {
       dict_res_restraints.push_back(dictionary_residue_restraints_t(comp_id, read_number));
-      this_index = dict_res_restraints.size()-1;
-      dict_res_restraints[this_index].atom_info.push_back(atom_info);
+      dict_res_restraints.back().atom_info.push_back(atom_info);
    }
 }
 
@@ -1350,12 +1345,14 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop) {
 	       }
 	    }
 
-	    if (false) 
+	    if (false)
 	       std::cout << "debug:: calling mon_lib_add_atom: "
 			 << ":" << comp_id << ":  "
 			 << ":" << atom_id << ":  "
 			 << ":" << padded_name << ":  "
 			 << ":" << type_symbol << ":  "
+			 << "stereo-config: " << pdbx_stereo_config_flag.first
+			 << " " << pdbx_stereo_config_flag.second << " "
 			 << "model-pos " << model_Cartn.first << " " << model_Cartn.second.format() << " "
 			 << "ideal-pos " << pdbx_model_Cartn_ideal.first << " "
 			 << pdbx_model_Cartn_ideal.second.format()
@@ -1364,7 +1361,7 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop) {
 	    dict_atom atom(atom_id, padded_name, type_symbol, type_energy, partial_charge);
 	    atom.aromaticity = aromaticity;
 	    atom.formal_charge = formal_charge;
-	    atom.pdbx_stereo_config_flag = pdbx_stereo_config_flag;
+	    atom.pdbx_stereo_config = pdbx_stereo_config_flag;
 	    if (model_Cartn.first)
 	       atom.add_pos(dict_atom::REAL_MODEL_POS, model_Cartn);
 	    if (pdbx_model_Cartn_ideal.first)
