@@ -5,9 +5,10 @@ EXTRA_DIST = coot.tex derivatives.tex tutorial.tex coot-plain-2.ps \
 	coot-reference-manual.texi 3-amino-benzamide-2.eps  3-amino-benzamide-2.png  
 
 
-coot-user-manual.dvi: $(top_srcdir)/doc/coot-user-manual.texi c-interface_8h.texi cc-interface_8hh.texi
+coot-user-manual.dvi: $(top_srcdir)/doc/coot-user-manual.texi c-interface_8h.texi cc-interface_8hh.texi \
+	              coot-scheme-functions.texi
 	if [ ! -e coot-plain-2.eps ] ; then cp $(top_srcdir)/doc/coot-plain-2.ps coot-plain-2.eps ; fi
-	texi2dvi $^
+	texi2dvi $<
 
 coot-user-manual.ps: coot-user-manual.dvi
 	dvips -o $@ $^
@@ -57,7 +58,8 @@ c-interface_8h.texi: $(top_srcdir)/src/doxygen/xml/c-interface_8h.xml
 cc-interface_8hh.texi: $(top_srcdir)/src/doxygen/xml/cc-interface_8hh.xml
 	xsltproc $(top_srcdir)/doc/xml2texi.xsl $< > $@
 
-
+coot-scheme-functions.texi:
+	guile -s $(top_srcdir)/scheme/snarf-coot-docs.scm $(top_srcdir)/scheme
 
 functions.tex: $(top_srcdir)/src/c-interface.h
 # scsh -s $(top_srcdir)/doc/function-filter.scsh $^ > $@
