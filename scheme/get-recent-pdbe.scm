@@ -310,8 +310,7 @@
 
 ;; return refmac-result or #f 
 ;; 
-(define (refmac-calc-sfs-make-mtz-with-columns pdb-in-file-name mtz-file-name mtz-refmaced-file-name
-					       f-col sigf-col r-free-col)
+(define (refmac-calc-sfs-make-mtz-with-columns pdb-in-file-name mtz-file-name mtz-refmaced-file-name f-col sigf-col r-free-col)
   
   (let* ((refmac-stub (append-dir-file "coot-refmac"
 				       (strip-path 
