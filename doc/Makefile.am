@@ -2,8 +2,12 @@
 EXTRA_DIST = coot.tex derivatives.tex tutorial.tex coot-plain-2.ps \
 	function-filter.scsh functions.tex derivatives-part.tex \
 	reference.tex crib-sheet.tex coot-user-manual.texi \
-	coot-reference-manual.texi 3-amino-benzamide-2.eps  3-amino-benzamide-2.png  
+	coot-reference-manual.texi 3-amino-benzamide-2.eps  3-amino-benzamide-2.png  \
+        xml2texi.xsl
 
+# why doesn't this pick up the script for the dist tar file?  I don't know. 
+# let's give up and add xm2texi.xsl to EXTRA_DIST
+noinst_SCRIPTS = $(top_srcdir)/doc/xml2texi.xsl
 
 coot-user-manual.dvi: $(top_srcdir)/doc/coot-user-manual.texi c-interface_8h.texi cc-interface_8hh.texi \
 	              coot-scheme-functions.texi
@@ -73,10 +77,10 @@ reference.dvi: $(top_srcdir)/doc/reference.tex functions.tex
 	-latex -interaction=nonstopmode $^
 	latex -interaction=nonstopmode $^
 
-coot-reference-manual.dvi: $(top_srcdir)/doc/coot-reference-manual.texi functions.texi
+coot-reference-manual.dvi: $(top_srcdir)/doc/coot-reference-manual.texi 
 	texi2dvi $<
 
-coot-reference-manual.html: $(top_srcdir)/doc/coot-reference-manual.texi functions.texi
+coot-reference-manual.html: $(top_srcdir)/doc/coot-reference-manual.texi 
 	texi2any --html $<
 
 reference-booklet.ps: reference.dvi
