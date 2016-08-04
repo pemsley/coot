@@ -43,7 +43,7 @@ template<class T> class Score_list {
   //! list size
   int size() const { return list.size(); }
  private:
-  int max;
+  unsigned int max;
   std::vector<std::pair<clipper::ftype,T> > list;
 };
 
