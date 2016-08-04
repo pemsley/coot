@@ -40,7 +40,7 @@ void test_spherical() {
    int m = 8;
    int n_bins = 100;
    
-   for (unsigned int iv=0; iv<n_bins; iv++) { 
+   for (int iv=0; iv<n_bins; iv++) { 
       double x = -1 + 2* double(iv)/double(n_bins);
       gsl_sf_result result;
       int success = gsl_sf_legendre_sphPlm_e(l, m, x, &result);
