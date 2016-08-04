@@ -18,7 +18,7 @@ std::pair<std::string,double> Coot_sequence::sequence_chain( const clipper::Xmap
 {
   // convert the sequence to minimol form
   clipper::MMoleculeSequence seq;
-  for ( int c = 0; c < sequence.size(); c++ ) {
+  for ( unsigned int c = 0; c < sequence.size(); c++ ) {
     clipper::MPolymerSequence pol;
     pol.set_id( sequence[c].first );
     pol.set_sequence( sequence[c].second );

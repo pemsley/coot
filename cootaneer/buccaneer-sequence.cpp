@@ -114,7 +114,7 @@ std::pair<double,std::pair<int,int> > Ca_sequence::sequence_score( const std::ve
 {
   // accumulate scores
   std::vector<double> score( scores.size() );
-  for ( int r = 0; r < scores.size(); r++ ) {
+  for ( unsigned int r = 0; r < scores.size(); r++ ) {
     int t = ProteinTools::residue_index( subseq.substr( r, 1 ) );
     if ( t >= 0 ) score[r] = scores[r][t];  // add residue z-score
     else          score[r] = 0.0;           // or a penalty of +0.0
@@ -122,14 +122,14 @@ std::pair<double,std::pair<int,int> > Ca_sequence::sequence_score( const std::ve
   // calculate cumulative score
   std::vector<double> sccum( scores.size()+1 );
   sccum[0] = 0.0;
-  for ( int r = 0; r < score.size(); r++ ) sccum[r+1] = sccum[r]+score[r];
+  for ( unsigned int r = 0; r < score.size(); r++ ) sccum[r+1] = sccum[r]+score[r];
   // now find grestest subsequence score
   int minseq = 1;
   int r1min = 0;
   int r2min = sccum.size()-1;
   double scmin = 0.0;
-  for ( int r1 = 0; r1 < sccum.size()-minseq; r1++ )
-    for ( int r2 = r1+minseq; r2 < sccum.size(); r2++ ) {
+  for ( int r1 = 0; r1 < int(sccum.size()-minseq); r1++ )
+    for ( int r2 = r1+minseq; r2 < int(sccum.size()); r2++ ) {
       double l1 = ( r2 - r1 )/50.0;  // downweight very long sequences
       // double sc = (sccum[r2]-sccum[r1]) + 1.5*sqrt( double(r2-r1+1 ) );
       double sc = ( sccum[r2]-sccum[r1] ) / pow( 1.0+l1*l1 , 0.25 );
@@ -196,7 +196,7 @@ Score_list<clipper::String> Ca_sequence::sequence_match( const std::vector<std::
     }
 
     // and try them out
-    for ( int j = 0; j < seqmut.size(); j++ ) {
+    for ( unsigned int j = 0; j < seqmut.size(); j++ ) {
       result_tmp = sequence_score( scores, seqmut[j] );
       double scr = result_tmp.first + 3.0;
       int s1 = result_tmp.second.first;
@@ -304,7 +304,7 @@ Score_list<clipper::String> Ca_sequence::sequence_chain( const clipper::MChain& 
   account any existing sequence. */
 void Ca_sequence::sequence_apply( clipper::MChain& chain, const clipper::String& seq )
 {
-  if ( chain.size() != seq.length() ) clipper::Message::message( clipper::Message_fatal( "Sequence: internal error - length mismatch" ) );
+  if ( chain.size() != int(seq.length()) ) clipper::Message::message( clipper::Message_fatal( "Sequence: internal error - length mismatch" ) );
 
   // make old and new sequences
   int m, m1, m2;
@@ -339,7 +339,7 @@ void Ca_sequence::sequence_apply( clipper::MChain& chain, const clipper::String&
   }
 
   // check each region in turn for clashes
-  for ( int i = 0; i < regions.size(); i++ ) {
+  for ( unsigned int i = 0; i < regions.size(); i++ ) {
     bool clash = false;
     m1 = regions[i].first;
     m2 = regions[i].second;
@@ -377,7 +377,7 @@ bool Ca_sequence::operator() ( clipper::MiniMol& mol2, const clipper::MiniMol& m
 
   // extract the necessary bits of the likelihood targets
   std::vector<LLK_map_target::Sampled> llksample( llktarget.size() );
-  for ( int t = 0; t < llktarget.size(); t++ )
+  for ( unsigned int t = 0; t < llktarget.size(); t++ )
     llksample[t] = llktarget[t].sampled();
 
   // split into separate chains
@@ -439,8 +439,8 @@ int Ca_sequence::num_sequenced() const
 clipper::String Ca_sequence::format() const
 {
   clipper::String result = "";
-  for ( int chn = 0; chn < history.size(); chn++ ) {
-    result += "Chain number: " + clipper::String( chn, 4 ) + "    length: " + clipper::String( int(history[chn].second[0].length()) ) + "\n";
+  for ( unsigned int chn = 0; chn < history.size(); chn++ ) {
+    result += "Chain number: " + clipper::String( int(chn), 4 ) + "    length: " + clipper::String( int(history[chn].second[0].length()) ) + "\n";
     for ( int res = 0; res < history[chn].second.size(); res++ ) {
       result += history[chn].second[res] + " \t" +
 	clipper::String( history[chn].second.score(res), 10, 6 ) + "\n";
@@ -454,7 +454,7 @@ clipper::String Ca_sequence::format() const
 
 void Ca_sequence::History::append( const Ca_sequence& data )
 {
-  for ( int i = 0; i < data.history.size(); i++ )
+  for ( unsigned int i = 0; i < data.history.size(); i++ )
     history.push_back( data.history[i] );
 }
 
@@ -462,7 +462,7 @@ void Ca_sequence::History::append( const Ca_sequence& data )
 clipper::String Ca_sequence::History::format( const clipper::MiniMol& mol ) const
 {
   clipper::String result = "";
-  for ( int h = 0; h < history.size(); h++ ) {
+  for ( unsigned int h = 0; h < history.size(); h++ ) {
     int tag = history[h].first;
     std::set<clipper::String> ids;
     clipper::String chn = "";
