@@ -294,8 +294,9 @@ std::pair<int,int> ProteinTools::chain_sequence_match( const clipper::String& ch
   for ( unsigned int chn = 0; chn < seqs.size(); chn++ ) {
     int lens = seqs[chn].length();
     for ( int off = -lenc+bestscr; off < lens-bestscr; off++ ) {
-      int scr = 0;
-      for ( unsigned int i = 0; i < seqs[chn].length(); i++ )
+       int scr = 0;
+       int sl = seqs[chn].length();
+      for ( int i = 0; i < sl; i++ )
 	if ( i-off >= 0 && i-off < chnseq.length() )
 	  if ( seqs[chn][i] == chnseq[i-off] )
 	    if ( isupper(chnseq[i-off]) )
