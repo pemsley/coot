@@ -1316,7 +1316,7 @@ lbg_info_t::try_change_to_element(int addition_element_mode) {
 }
 
 void
-lbg_info_t::change_atom_id_maybe(int atom_index) {
+lbg_info_t::change_atom_id_maybe(unsigned int atom_index) {
 
    std::string ele = mol.atoms[atom_index].element;
    std::string fc = font_colour(ele);
@@ -1326,12 +1326,12 @@ lbg_info_t::change_atom_id_maybe(int atom_index) {
 
 
 bool
-lbg_info_t::change_atom_element(int atom_index,
+lbg_info_t::change_atom_element(unsigned int atom_index,
 				std::string new_ele,
 				std::string font_colour) {
 
    bool changed_status = 0;
-   std::vector<int> local_bonds = mol.bonds_having_atom_with_atom_index(atom_index);
+   std::vector<unsigned int> local_bonds = mol.bonds_having_atom_with_atom_index(atom_index);
    lig_build::pos_t pos = mol.atoms[atom_index].atom_position;
 
    // 20110410: Old/simple
@@ -1500,10 +1500,10 @@ lbg_info_t::addition_mode_to_bond_type(int canvas_addition_mode) const {
 }
 
 bool
-lbg_info_t::add_bond_to_atom(int atom_index, int canvas_addition_mode) {
+lbg_info_t::add_bond_to_atom(unsigned int atom_index, int canvas_addition_mode) {
 
    bool changed_status = 0;
-   std::vector<int> bonds = mol.bonds_having_atom_with_atom_index(atom_index);
+   std::vector<unsigned int> bonds = mol.bonds_having_atom_with_atom_index(atom_index);
 
    switch (bonds.size()) {
 
@@ -1580,7 +1580,7 @@ lbg_info_t::font_colour(const std::string &ele) const {
 }
 
 void
-lbg_info_t::add_bond_to_atom_with_0_neighbours(int atom_index, int canvas_addition_mode) {
+lbg_info_t::add_bond_to_atom_with_0_neighbours(unsigned int atom_index, int canvas_addition_mode) {
 
    // certain change
    
@@ -1610,11 +1610,11 @@ lbg_info_t::add_bond_to_atom_with_0_neighbours(int atom_index, int canvas_additi
 
 
 void
-lbg_info_t::add_bond_to_atom_with_1_neighbour(int atom_index, int canvas_addition_mode,
-					      int bond_index) {
+lbg_info_t::add_bond_to_atom_with_1_neighbour(unsigned int atom_index, int canvas_addition_mode,
+					      unsigned int bond_index) {
    
-   int index_1 = mol.bonds[bond_index].get_atom_1_index();
-   int index_2 = mol.bonds[bond_index].get_atom_2_index();
+   unsigned int index_1 = mol.bonds[bond_index].get_atom_1_index();
+   unsigned int index_2 = mol.bonds[bond_index].get_atom_2_index();
 
    int other_atom_index = index_1;
    if (index_1 == atom_index)
@@ -1669,19 +1669,20 @@ lbg_info_t::add_bond_to_atom_with_1_neighbour(int atom_index, int canvas_additio
 }
 
 void
-lbg_info_t::add_bond_to_atom_with_2_neighbours(int atom_index, int canvas_addition_mode,
-					       const std::vector<int> &bond_indices) {
+lbg_info_t::add_bond_to_atom_with_2_neighbours(unsigned int atom_index,
+					       int canvas_addition_mode,
+					       const std::vector<unsigned int> &bond_indices) {
 
    widgeted_atom_t atom = mol.atoms[atom_index];
-   int atom_index_1 = mol.bonds[bond_indices[0]].get_atom_1_index();
-   int atom_index_2 = mol.bonds[bond_indices[0]].get_atom_2_index();
-   int atom_index_3 = mol.bonds[bond_indices[1]].get_atom_1_index();
-   int atom_index_4 = mol.bonds[bond_indices[1]].get_atom_2_index();
+   unsigned int atom_index_1 = mol.bonds[bond_indices[0]].get_atom_1_index();
+   unsigned int atom_index_2 = mol.bonds[bond_indices[0]].get_atom_2_index();
+   unsigned int atom_index_3 = mol.bonds[bond_indices[1]].get_atom_1_index();
+   unsigned int atom_index_4 = mol.bonds[bond_indices[1]].get_atom_2_index();
 
-   int A_index = atom_index_1;
+   unsigned int A_index = atom_index_1;
    if (atom_index_1 == atom_index)
       A_index = atom_index_2;
-   int B_index = atom_index_3;
+   unsigned int B_index = atom_index_3;
    if (atom_index_3 == atom_index)
       B_index = atom_index_4;
 
@@ -1718,8 +1719,9 @@ lbg_info_t::add_bond_to_atom_with_2_neighbours(int atom_index, int canvas_additi
 
 
 void
-lbg_info_t::add_bond_to_atom_with_3_neighbours(int atom_index, int canvas_addition_mode,
-					       const std::vector<int> &bond_indices) {
+lbg_info_t::add_bond_to_atom_with_3_neighbours(unsigned int atom_index,
+					       int canvas_addition_mode,
+					       const std::vector<unsigned int> &bond_indices) {
 
    GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS (canvas));
 
@@ -1729,11 +1731,11 @@ lbg_info_t::add_bond_to_atom_with_3_neighbours(int atom_index, int canvas_additi
    // If so, we shall remove and replace those bonds before we add
    // this new one.
    //
-   std::pair<bool, std::vector<int> > pr = have_2_stubs_attached_to_atom(atom_index, bond_indices);
-   std::vector<int> attached_bonds = pr.second;
+   std::pair<bool, std::vector<unsigned int> > pr = have_2_stubs_attached_to_atom(atom_index, bond_indices);
+   std::vector<unsigned int> attached_bonds = pr.second;
    
    if (pr.first) {
-      int l = attached_bonds.size();
+      unsigned int l = attached_bonds.size();
       
       widgeted_bond_t bond_to_core = orthogonalise_2_bonds(atom_index, attached_bonds, bond_indices);
       // now add a third
@@ -1763,8 +1765,8 @@ lbg_info_t::add_bond_to_atom_with_3_neighbours(int atom_index, int canvas_additi
 }
 
 void
-lbg_info_t::squeeze_in_a_4th_bond(int atom_index, int canvas_addition_mode,
-				  const std::vector<int> &bond_indices) {
+lbg_info_t::squeeze_in_a_4th_bond(unsigned int atom_index, int canvas_addition_mode,
+				  const std::vector<unsigned int> &bond_indices) {
 
    GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS (canvas));
    std::vector<double> angles = get_angles(atom_index, bond_indices);
@@ -1851,20 +1853,21 @@ lbg_info_t::squeeze_in_a_4th_bond(int atom_index, int canvas_addition_mode,
 // index atom_index.
 //
 bool
-lbg_info_t::all_closed_rings(int atom_index, const std::vector<int> &bond_indices) const {
+lbg_info_t::all_closed_rings(unsigned int atom_index,
+			     const std::vector<unsigned int> &bond_indices) const {
 
-   bool status = 0;
+   bool status = false;
 
    if (bond_indices.size() > 3) {
       std::vector<lig_build::pos_t> centres = get_centres_from_bond_indices(bond_indices);
       if (centres.size() > 2)
-	 status = 1;
+	 status = true;
    }
    return status;
 }
 
 std::vector<lig_build::pos_t>
-lbg_info_t::get_centres_from_bond_indices(const std::vector<int> &bond_indices) const {
+lbg_info_t::get_centres_from_bond_indices(const std::vector<unsigned int> &bond_indices) const {
 
    std::vector<lig_build::pos_t> centres;
    for (unsigned int ib=0; ib<bond_indices.size(); ib++) {
@@ -1872,10 +1875,10 @@ lbg_info_t::get_centres_from_bond_indices(const std::vector<int> &bond_indices) 
 	 lig_build::pos_t test_centre = mol.bonds[bond_indices[ib]].centre_pos();
 
 	 // add test_centre to centres only if it wasnt there already.
-	 bool found_centre = 0;
+	 bool found_centre = false;
 	 for (unsigned int j=0; j<centres.size(); j++) {
 	    if (test_centre.close_point(centres[j])) {
-	       found_centre = 1; // it was already there
+	       found_centre = true; // it was already there
 	       break;
 	    }
 	 }
@@ -1887,8 +1890,8 @@ lbg_info_t::get_centres_from_bond_indices(const std::vector<int> &bond_indices) 
 } 
 
 lig_build::pos_t
-lbg_info_t::get_new_pos_not_towards_ring_centres(int atom_index,
-						 const std::vector<int> &bond_indices) const { 
+lbg_info_t::get_new_pos_not_towards_ring_centres(unsigned int atom_index,
+						 const std::vector<unsigned int> &bond_indices) const { 
 
    lig_build::pos_t centre = mol.atoms[atom_index].atom_position;
    lig_build::pos_t p;
@@ -1978,8 +1981,8 @@ lbg_info_t::get_new_pos_not_towards_ring_centres(int atom_index,
 
 
 lig_build::pos_t
-lbg_info_t::new_pos_by_bisection(int atom_index,
-				 const std::vector<int> &bond_indices,
+lbg_info_t::new_pos_by_bisection(unsigned int atom_index,
+				 const std::vector<unsigned int> &bond_indices,
 				 const std::vector<double> &angles,
 				 GooCanvasItem *root) const {
 
@@ -2012,7 +2015,7 @@ lbg_info_t::new_pos_by_bisection(int atom_index,
 }
 
 std::vector<double>
-lbg_info_t::get_angles(int atom_index, const std::vector<int> &bond_indices) const {
+lbg_info_t::get_angles(unsigned int atom_index, const std::vector<unsigned int> &bond_indices) const {
 
    std::vector<double> v(bond_indices.size());
 
@@ -2022,8 +2025,8 @@ lbg_info_t::get_angles(int atom_index, const std::vector<int> &bond_indices) con
       unsigned int j = i+1;
       if (j == bond_indices.size())
 	 j = 0;
-      int idx_1 = mol.bonds[bond_indices[i]].get_other_index(atom_index);
-      int idx_2 = mol.bonds[bond_indices[j]].get_other_index(atom_index);
+      unsigned int idx_1 = mol.bonds[bond_indices[i]].get_other_index(atom_index);
+      unsigned int idx_2 = mol.bonds[bond_indices[j]].get_other_index(atom_index);
       lig_build::pos_t pos_1 = mol.atoms[idx_1].atom_position;
       lig_build::pos_t pos_2 = mol.atoms[idx_2].atom_position;
       lig_build::pos_t d_1 = pos_1 - centre;
@@ -2044,9 +2047,9 @@ lbg_info_t::get_angles(int atom_index, const std::vector<int> &bond_indices) con
 // (the "central" atom).
 // 
 widgeted_bond_t
-lbg_info_t::orthogonalise_2_bonds(int atom_index,
-				  const std::vector<int> &stub_attached_atoms,
-				  const std::vector<int> &bond_indices) { 
+lbg_info_t::orthogonalise_2_bonds(unsigned int atom_index,
+				  const std::vector<unsigned int> &stub_attached_atoms,
+				  const std::vector<unsigned int> &bond_indices) { 
 
    GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS (canvas));
 
@@ -2127,14 +2130,15 @@ lbg_info_t::orthogonalise_2_bonds(int atom_index,
 // return a status and a vector of atoms (bonded to atom_index) having
 // only one bond.
 // 
-std::pair<bool, std::vector<int> > 
-lbg_info_t::have_2_stubs_attached_to_atom(int atom_index, const std::vector<int> &bond_indices) const {
+std::pair<bool, std::vector<unsigned int> > 
+lbg_info_t::have_2_stubs_attached_to_atom(unsigned int atom_index,
+					  const std::vector<unsigned int> &bond_indices) const {
 
-   std::vector<int> v;
+   std::vector<unsigned int> v;
    for (unsigned int i=0; i<bond_indices.size(); i++) { 
       int other_index = mol.bonds[bond_indices[i]].get_other_index(atom_index);
       // now, does other_index have only one bond?
-      std::vector<int> local_bonds = mol.bonds_having_atom_with_atom_index(other_index);
+      std::vector<unsigned int> local_bonds = mol.bonds_having_atom_with_atom_index(other_index);
       if (local_bonds.size() == 1) {
 	 v.push_back(other_index);
       }
@@ -2142,7 +2146,7 @@ lbg_info_t::have_2_stubs_attached_to_atom(int atom_index, const std::vector<int>
    bool status = 0;
    if (v.size() > 1)
       status = 1;
-   return std::pair<bool, std::vector<int> > (status, v);
+   return std::pair<bool, std::vector<unsigned int> > (status, v);
 }
 
 
@@ -2268,7 +2272,7 @@ lbg_info_t::handle_charge_change() {
 	    std::string ele = mol.atoms[atom_index].element;
 	    std::string fc = font_colour(ele);
 	    bool gl_flag = false; // not a GL render engine
-	    std::vector<int> local_bonds = mol.bonds_having_atom_with_atom_index(atom_index);
+	    std::vector<unsigned int> local_bonds = mol.bonds_having_atom_with_atom_index(atom_index);
 	    lig_build::atom_id_info_t atom_id_info = 
 	       mol.make_atom_id_by_using_bonds(atom_index, ele, local_bonds, gl_flag);
 	
@@ -2543,8 +2547,8 @@ lbg_info_t::highlight_data_t::get_new_polygon_centre_using_1_atom(int n_edges,
    lig_build::polygon_position_info_t ppi(pos_1_, 0);
    lig_build::pos_t A = pos_1_;
 
-   int atom_index = get_atom_index();
-   std::vector<int> bv = mol.bonds_having_atom_with_atom_index(atom_index);
+   unsigned int atom_index = get_atom_index();
+   std::vector<unsigned int> bv = mol.bonds_having_atom_with_atom_index(atom_index);
 
    if (bv.size() == 2) {
       std::vector<lig_build::pos_t> neighbours;
@@ -3359,7 +3363,7 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
    // redo the atoms, this time with widgets.
    for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
 
-      std::vector<int> local_bonds = mol.bonds_having_atom_with_atom_index(iat);
+      std::vector<unsigned int> local_bonds = mol.bonds_having_atom_with_atom_index(iat);
       std::string ele = mol.atoms[iat].element;
       bool gl_flag = false; // not a GL render engine
       lig_build::atom_id_info_t atom_id_info =

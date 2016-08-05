@@ -126,7 +126,7 @@ void graphics_ligand_molecule::gl_bonds(bool dark_background) {
    for (unsigned int iat=0; iat<atoms.size(); iat++) { 
       std::string ele = atoms[iat].element;
       if (ele != "C") { 
-	 std::vector<int> local_bonds = bonds_having_atom_with_atom_index(iat);
+	 std::vector<unsigned int> local_bonds = bonds_having_atom_with_atom_index(iat);
 	 bool gl_flag = true;
 	 lig_build::atom_id_info_t atom_id_info = make_atom_id_by_using_bonds(iat, ele, local_bonds, gl_flag);
 	 // atoms[iat].set_atom_id(atom_id_info.atom_id); // quick hack
