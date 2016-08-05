@@ -205,19 +205,29 @@ dist_bin_SCRIPTS = coot density-score-by-residue
 check_PROGRAMS = test-coot-align test-cholesky
 
 fix_nomenclature_errors_SOURCES = \
-	fix-nomenclature.cc    \
-	coot-nomenclature.hh   \
-	coot-nomenclature.cc
+	fix-nomenclature.cc   
+
+coot_bin_SOURCES = main.cc       \
+	scm-boot-guile.hh 	 \
+	scm-boot-guile.cc 	 
+
+coot_bin_LDADD = libcoot-bundle.la
+
+# coot_bin_LDFLAGS = -static -lstdc++
+coot_bin_LDFLAGS =
+
+# coot_bin_CXXFLAGS=-Wl,--export-dynamic -dynamiclib
+#  -Wl,-undefined -Wl,dynamic_lookup 
 
 
-coot_bin_SOURCES = \
-	main.cc 		 \
+
+lib_LTLIBRARIES=libcoot-bundle.la
+
+libcoot_bundle_la_SOURCES = \
 	boot-python.hh           \
 	boot-python.cc           \
 	atom-overlaps.cc         \
 	git-revision-count.cc 	 \
-	scm-boot-guile.hh 	 \
-	scm-boot-guile.cc 	 \
 	c-interface.h            \
 	c-interface-analysis.cc	 \
 	c-interface-build.cc	 \
@@ -301,6 +311,7 @@ coot_bin_SOURCES = \
 	coot-colour.cc	 	 \
 	coot-align.cc 		 \
 	coot-align.hh		 \
+	coot-nomenclature.hh	 \
 	coot-nomenclature.cc	 \
 	coot-fileselections.h    \
 	coot-glue.hh             \
@@ -333,7 +344,7 @@ coot_bin_SOURCES = \
 	get-monomer.cc           \
 	gl-bits.hh		 \
 	globjects.cc 		 \
-	globjects.h gl-matrix.h  \
+	globjects.h              \
 	globularize.cc           \
 	globularize.hh           \
 	graphics-info.cc	 \
@@ -357,7 +368,8 @@ coot_bin_SOURCES = \
 	graphics-info-superpose.cc	\
 	graphics-ligand-view.cc	 \
 	graphics-ligand-view.hh	 \
-	gl-matrix.cc 		 \
+        gl-matrix.h  	         \
+        gl-matrix.cc 		 \
 	graphics-info.h 	 \
 	gtk-manual.cc		 \
 	gtk-manual.h		 \
@@ -450,9 +462,13 @@ coot_bin_SOURCES = \
 	new-centre.hh
 
 if COOT_USE_PYTHON
-   coot_bin_SOURCES += coot_wrap_python_gtk2.cc
+   pyexec_LTLIBRARIES = _coot.la
+   _coot_la_LDFLAGS = -module $(SHARED_LDFLAGS)
+   _coot_la_SOURCES = coot_wrap_python_gtk2.cc
+   _coot_la_LIBADD  = libcoot-bundle.la
    EXTRA_DIST += coot_wrap_python_pre_gtk2.cc 
 endif
+
 if COOT_USE_PYTHON
 dist_python_SCRIPTS = coot.py coot.pth
 endif
@@ -468,39 +484,36 @@ endif
 # graphics_crash_test_LDADD = @GTK_LIBS@ $(GTKGL_CONTEXT_LIBS) $(INTLLIBS) $(GLUT_LIBS) -lGL -lGLU
 
 fix_nomenclature_errors_LDADD = \
-	$(top_builddir)/ligand/libcoot-ligand.la      		\
-	$(top_builddir)/db-main/libcoot-db-main.la      	\
-	$(top_builddir)/ideal/libcoot-ideal.la    		\
-        $(top_builddir)/coot-utils/libcoot-map-heavy.la    \
-	$(top_builddir)/geometry/libcoot-geometry.la    	\
-	$(top_builddir)/coords/libcoot-coords.la      		\
-	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
-	$(top_builddir)/coot-utils/libcoot-coord-extras.la	\
-	$(top_builddir)/coot-utils/libcoot-coord-utils.la	\
-	$(top_builddir)/coot-utils/libcoot-map-utils.la		\
-	$(top_builddir)/coot-utils/libcoot-shelx.la	  	\
-        $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
-	$(top_builddir)/utils/libcoot-utils.la	  	        \
-	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
-        $(GLOB_LIBS)		\
-	$(GSL_LIBS)		\
-	$(CLIPPER_LIBS) 	\
-	$(MMDB_LIBS)		
+	libcoot-bundle.la
+
+#	$(top_builddir)/ligand/libcoot-ligand.la      		\
+#	$(top_builddir)/db-main/libcoot-db-main.la      	\
+#	$(top_builddir)/ideal/libcoot-ideal.la    		\
+#       $(top_builddir)/coot-utils/libcoot-map-heavy.la    \
+#	$(top_builddir)/geometry/libcoot-geometry.la    	\
+#	$(top_builddir)/coords/libcoot-coords.la      		\
+#	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
+#	$(top_builddir)/coot-utils/libcoot-coord-extras.la	\
+#	$(top_builddir)/coot-utils/libcoot-coord-utils.la	\
+#	$(top_builddir)/coot-utils/libcoot-map-utils.la		\
+#	$(top_builddir)/coot-utils/libcoot-shelx.la	  	\
+#       $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
+#	$(top_builddir)/utils/libcoot-utils.la	  	        \
+#	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
+#       $(GLOB_LIBS)		\
+#	$(GSL_LIBS)		\
+#	$(CLIPPER_LIBS) 	\
+#	$(MMDB_LIBS)		
 
 # removed from fix_nomenclature_errors_LDADD:
 #        $(RDKIT_LIBS)		
 #        $(L_BOOST_PYTHON)	# also needs PYTHON_LIBS, I guess?
 
-# coot_bin_LDFLAGS = -static -lstdc++
-coot_bin_LDFLAGS =
-
-# coot_bin_CXXFLAGS=-Wl,--export-dynamic -dynamiclib
-#  -Wl,-undefined -Wl,dynamic_lookup 
-
 # 20101220 Note: when libtool/ltmain.sh is fixed, OPENMP_CFLAGS will
 # not be needed here. So says Justin Lecher (see email).
 #
-coot_bin_LDADD = $(OPENMP_CFLAGS)       \
+libcoot_bundle_la_LIBADD = \
+                $(OPENMP_CFLAGS)        \
                 $(COOT_EXTRA_LIBS)      \
 		$(CLIPPER_LIBS) 	\
 		$(LIBSSM_LIBS)		\
@@ -530,7 +543,7 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 
 #		$(INTLLIBS) 		Fix when GETTEXT workds
 
-test_cholesky_SOURCES = test-chol.cc gl-matrix.cc
+test_cholesky_SOURCES = test-chol.cc 
 test_cholesky_LDADD =	\
 	$(top_builddir)/coords/libcoot-coords.la          \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
@@ -555,7 +568,7 @@ test_cholesky_LDADD =	\
 # test_command_line_LDADD = -L$(top_srcdir)/compat      -lcoot-compat    
 
 # if you like, you can investigate why coot-geometry and clipper is needed here:
-test_coot_align_SOURCES = align.cc coot-align.cc
+test_coot_align_SOURCES = align.cc
 test_coot_align_LDADD =	\
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 	$(top_builddir)/coords/libcoot-coords.la 		\
