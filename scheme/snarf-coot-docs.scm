@@ -332,6 +332,8 @@
 	     (f (cdr ls) non-null-list))
 	    ((string=? (car ls) "coot-scheme-functions.texi")
 	     (f (cdr ls) non-null-list))
+	    ((string=? (car ls) "coot-user-manual.texi")
+	     (f (cdr ls) non-null-list))
 	    ((is-empty-file? (car ls)) 
 	     (delete-file (car ls))
 	     (f (cdr ls) non-null-list))
