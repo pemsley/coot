@@ -7254,7 +7254,7 @@ void citation_notice_off() {
 
    graphics_info_t::show_citation_notice = 0;
 
-} 
+}
 
 /*  ----------------------------------------------------------------------- */
 /*                  cursor function                                         */
