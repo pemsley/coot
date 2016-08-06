@@ -8,6 +8,8 @@
 
 int main(int argc, char **argv) {
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
    typedef std::pair<std::string, coot::residue_spec_t> file_lig;
 
    std::vector<file_lig> l;
@@ -61,6 +63,8 @@ int main(int argc, char **argv) {
 
    coot::chem_feat_clust cl(neighbs_residues, ligands, &pg);
    cl.cluster_waters();
+
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 
    return 0;
 }
