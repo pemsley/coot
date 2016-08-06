@@ -16,7 +16,7 @@ void SSfind::prep_xmap( const clipper::Xmap<float>& xmap, const double radius )
 
   // make 1d list of densities
   clipper::Xmap<float>::Map_reference_index ix( xmap );
-  for ( int i = 0; i < mapbox.size(); i++ ) {
+  for ( unsigned int i = 0; i < mapbox.size(); i++ ) {
     ix.set_coord( mxgr.deindex( i ) );
     mapbox[i] = xmap[ix];
   }
@@ -56,7 +56,7 @@ std::vector<SearchResult> SSfind::search( const std::vector<Pair_coord>& target_
   // make a list of indexed, intergerized, rotated lists
   std::vector<std::vector<std::pair<int,int> > > index_lists;
   int i0 = mxgr.index( clipper::Coord_grid(0,0,0) );
-  for ( int r = 0; r < ops.size(); r++ ) {
+  for ( unsigned int r = 0; r < ops.size(); r++ ) {
     clipper::RTop_orth op = ops[r];
     std::vector<std::pair<int,int> > tmp;
     for ( int i = 0; i < target_cs.size(); i++ ) {
@@ -71,19 +71,19 @@ std::vector<SearchResult> SSfind::search( const std::vector<Pair_coord>& target_
   // make list of results
   SearchResult rsltnull = { 0.0, -1, -1 };
   std::vector<SearchResult> rslts( srctrn.size(), rsltnull );
-  for ( int i = 0; i < rslts.size(); i++ ) rslts[i].trn = srctrn[i];
+  for ( unsigned int i = 0; i < rslts.size(); i++ ) rslts[i].trn = srctrn[i];
 
   // find ss elements
   float bestcut = 0.0;  // optimisation: abandon searches where score < bestcut
   const float bestscl( frccut ); 
-  for ( int i = 0; i < rslts.size(); i++ ) {  // loop over map
+  for ( unsigned int i = 0; i < rslts.size(); i++ ) {  // loop over map
     float bestscr = rslts[i].score;
     int   bestrot = rslts[i].rot;
     float bestlim = ( bestscr > bestcut ) ? bestscr : bestcut;
     clipper::Coord_grid cg = grid.deindex( rslts[i].trn );  // coord in grid
     const int index0 = mxgr.index( cg );                    // index in list
     if ( mapbox[index0] > rhocut ) {
-      for ( int r = 0; r < index_lists.size(); r++ ) {      // loop over rotns
+      for ( unsigned int r = 0; r < index_lists.size(); r++ ) {      // loop over rotns
 	const std::vector<std::pair<int,int> >& index_list( index_lists[r] );
 	float hi = mapbox[index0+index_list[0].first ];
 	float lo = mapbox[index0+index_list[0].second];
@@ -107,7 +107,7 @@ std::vector<SearchResult> SSfind::search( const std::vector<Pair_coord>& target_
 
   // eliminate any results which would have been eliminated by the cutoff
   std::vector<SearchResult> rslts_cut;
-  for ( int i = 0; i < rslts.size(); i++ )
+  for ( unsigned int i = 0; i < rslts.size(); i++ )
     if ( rslts[i].score >= bestcut && rslts[i].rot >= 0 && rslts[i].trn >= 0 )
       rslts_cut.push_back( rslts[i] );
 
