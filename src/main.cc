@@ -200,8 +200,14 @@ main (int argc, char *argv[]) {
       g_object_set (gtk_settings_get_default (), "gtk-menu-images", TRUE, NULL);
       glutInit(&argc, argv);
    } else {
+
+      // not needed from 2.36
+#if (GTK_MAJOR_VERSION == 2)
+#if (GTK_MINOR_VERSION < 36)
       g_type_init(); // for lbg command-line mode, so that
                      // goo_canvas_new() works cleanly.
+#endif
+#endif
 #ifdef WINDOWS_MINGW
       // in Windows we don't want a crash dialog if no-graphics
       SetErrorMode(SetErrorMode(SEM_NOGPFAULTERRORBOX) | SEM_NOGPFAULTERRORBOX);
