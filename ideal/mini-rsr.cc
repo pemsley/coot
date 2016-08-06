@@ -162,6 +162,12 @@ fill_residues(const std::string &chain_id, int resno_start, int resno_end, mmdb:
    return v;
 }
 
+void
+print_version() {
+
+   std::cout << "coot-mini-rsr version " << VERSION << std::endl;
+
+}
 
 
 int
@@ -198,6 +204,7 @@ main(int argc, char **argv) {
 		<< "       --no-trans-peptide-restraints\n"
 		<< "       --tabulate-distortions\n"
 		<< "       --correlations\n"
+		<< "       --version\n"
 		<< "       --debug\n"
 		<< "\n"
 		<< "     --mapin ccp4-map-name can be used\n"
@@ -550,6 +557,7 @@ get_input_details(int argc, char **argv) {
    const char *optstr = "i:h:f:p:o:m:1:2:c:w";
 
    struct option long_options[] = {
+      {"version",0, 0, 0},
       {"pdbin",  1, 0, 0}, 
       {"hklin",  1, 0, 0}, 
       {"f",      1, 0, 0}, 
@@ -626,6 +634,10 @@ get_input_details(int argc, char **argv) {
 	    // long argument without parameter:
 	    std::string arg_str(long_options[option_index].name);
 	 
+	    if (arg_str == "version") {
+	       print_version();
+	       exit(0);
+	    }
 	    if (arg_str == "rama") {
 	       d.use_rama_targets = 1;
 	    }
@@ -688,6 +700,11 @@ get_input_details(int argc, char **argv) {
 
       case 'c':
 	 d.chain_id = optarg;
+	 break;
+
+      case 'v':
+	 print_version();
+	 exit(0);
 	 break;
 
       case 'w':
