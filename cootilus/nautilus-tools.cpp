@@ -67,7 +67,7 @@ clipper::MiniMol NucleicAcidTools::flag_chains( const clipper::MiniMol& mol )
         if ( flag[r] == 0 && flag[r-1] == -1 ) flag[r] = -1;
       for ( int r = int(flag.size()-2); r > 0; r-- )
         if ( flag[r] == 0 && flag[r+1] == -1 ) flag[r] = -1;
-      for ( unsigned int r = 0; r < mol_new[c].size(); r++ )
+      for ( int r = 0; r < mol_new[c].size(); r++ )
 	if ( flag[r] == -1 ) mol_new[c][r].set_type( "?" );
     }
   }

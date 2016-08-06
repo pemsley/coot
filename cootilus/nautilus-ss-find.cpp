@@ -59,7 +59,7 @@ std::vector<SearchResult> SSfind::search( const std::vector<Pair_coord>& target_
   for ( unsigned int r = 0; r < ops.size(); r++ ) {
     clipper::RTop_orth op = ops[r];
     std::vector<std::pair<int,int> > tmp;
-    for ( int i = 0; i < target_cs.size(); i++ ) {
+    for ( unsigned int i = 0; i < target_cs.size(); i++ ) {
       const clipper::Coord_map c1( grrot*(op*target_cs[i].first  ) );
       const clipper::Coord_map c2( grrot*(op*target_cs[i].second ) );
       tmp.push_back( std::pair<int,int>( mxgr.index(c1.coord_grid()) - i0,
@@ -92,7 +92,8 @@ std::vector<SearchResult> SSfind::search( const std::vector<Pair_coord>& target_
 	  hi = std::min( hi, mapbox[index0+index_list[i].first ] );
 	  lo = std::max( lo, mapbox[index0+index_list[i].second] );
 	  i++;
-	  if ( !( i < index_list.size() ) ) break;
+	  int idx_ls = index_list.size();
+	  if ( !( i < idx_ls ) ) break;
 	}
 	if ( hi - lo > bestlim ) {
 	  bestlim = bestscr = hi - lo;

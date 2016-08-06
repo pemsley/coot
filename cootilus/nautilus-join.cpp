@@ -18,7 +18,7 @@ std::vector<int> NucleicAcidJoin::best_chain( std::vector<Node>& nodes )
   // loop starts are now marks as 0
   // declare a list of 'dirty' nodes
   std::set<int> dirty;
-  for ( int i = 0; i < node_score.size(); i++ )
+  for ( unsigned int i = 0; i < node_score.size(); i++ )
     if ( node_score[i] == 0.0 ) dirty.insert( i );
   // now propogate the values
   std::vector<int> bck_ptrs( nodes.size(), -1 );
@@ -28,7 +28,7 @@ std::vector<int> NucleicAcidJoin::best_chain( std::vector<Node>& nodes )
     int node = *iter;
     dirty.erase( iter );
     // now check the children
-    for ( int j = 0; j < nodes[node].ptrs.size(); j++ ) {
+    for ( unsigned int j = 0; j < nodes[node].ptrs.size(); j++ ) {
       int next_node = nodes[node].ptrs[j];
       // test whether we've found a longer route
       float next_score = node_score[node] + nodes[next_node].score;
@@ -54,7 +54,7 @@ std::vector<int> NucleicAcidJoin::best_chain( std::vector<Node>& nodes )
   }
   // we've found all the long routes, now find the longest and back-trace it
   int node_max = 0;
-  for ( int i = 1; i < node_score.size(); i++ )
+  for ( unsigned int i = 1; i < node_score.size(); i++ )
     if ( node_score[i] > node_score[node_max] )
       node_max = i;
   // and back-trace
@@ -100,7 +100,7 @@ clipper::MiniMol NucleicAcidJoin::join( const clipper::MiniMol& mol )
   // make nnb model
   clipper::MiniMol molnb( spgr, cell );
   clipper::MPolymer chnnb;
-  for ( int r = 0; r < nas.size(); r++ ) {
+  for ( unsigned int r = 0; r < nas.size(); r++ ) {
     int a = nas[r].lookup( " C1'", clipper::MM::ANY );
     clipper::MMonomer mm;
     mm.insert( nas[r][a] );
@@ -111,7 +111,7 @@ clipper::MiniMol NucleicAcidJoin::join( const clipper::MiniMol& mol )
 
   // make list of equivalents
   std::vector<int> equivalent( nas.size() );
-  for ( int r = 0; r < nas.size(); r++ ) equivalent[r] = r;
+  for ( unsigned int r = 0; r < nas.size(); r++ ) equivalent[r] = r;
 
   // find equivalents
   double d2(1.0*1.0), j2(8.0*8.0);
@@ -125,7 +125,7 @@ clipper::MiniMol NucleicAcidJoin::join( const clipper::MiniMol& mol )
     std::vector<clipper::MAtomIndexSymmetry> atoms =
       nb( chnnb[r1][0].coord_orth(), 2.0 );
     //std::cout << " NB " << r1 << ": ";
-    for ( int i = 0; i < atoms.size(); i++ ) { // find other equivalent NAs
+    for ( unsigned int i = 0; i < atoms.size(); i++ ) { // find other equivalent NAs
       int r2 = atoms[i].monomer();
       //std::cout << r2 << " ";
       // if there is a match AND the residues hasn't already been matched
@@ -152,7 +152,7 @@ clipper::MiniMol NucleicAcidJoin::join( const clipper::MiniMol& mol )
   // find links
   Node nodenull; nodenull.score = 1.0;
   std::vector<Node> joins( nas.size(), nodenull );
-  for ( int r1 = 0; r1 < nas.size()-1; r1++ ) {
+  for ( int r1 = 0; r1 < int(nas.size()-1); r1++ ) {
     int r2 = r1 + 1;
     if ( nas[r2].seqnum() == nas[r1].seqnum()+1 ) {
       int a4 = nas[r1].lookup( " C4'", clipper::MM::ANY );
@@ -164,7 +164,7 @@ clipper::MiniMol NucleicAcidJoin::join( const clipper::MiniMol& mol )
 	int e1 = equivalent[r1];
 	int e2 = equivalent[r2];
 	bool found = false;
-	for ( int i = 0; i < joins[e1].ptrs.size(); i++ )
+	for ( unsigned int i = 0; i < joins[e1].ptrs.size(); i++ )
 	  if ( joins[e1].ptrs[i] == e2 ) found = true;
 	if ( !found ) joins[e1].ptrs.push_back( e2 );
       }
@@ -191,15 +191,15 @@ clipper::MiniMol NucleicAcidJoin::join( const clipper::MiniMol& mol )
     // add longest chain to list
     chns.push_back( chn );
     // remove used fragments
-    for ( int r = 0; r < chn.size(); r++ )
+    for ( unsigned int r = 0; r < chn.size(); r++ )
       flags[chn[r]] = 0;
     // remove links from used fragments
-    for ( int f = 0; f < joins.size(); f++ )
+    for ( unsigned int f = 0; f < joins.size(); f++ )
       if ( flags[f] == 0 )
 	joins[f].ptrs.clear();
     // and links to used fragments
-    for ( int f = 0; f < joins.size(); f++ )
-      for ( int j = joins[f].ptrs.size()-1; j >= 0; j-- )
+    for ( unsigned int f = 0; f < joins.size(); f++ )
+      for ( int j = int(joins[f].ptrs.size()-1); j >= 0; j-- )
 	if ( flags[joins[f].ptrs[j]] == 0 )
 	  joins[f].ptrs.erase( joins[f].ptrs.begin() + j );
   }
@@ -213,11 +213,11 @@ clipper::MiniMol NucleicAcidJoin::join( const clipper::MiniMol& mol )
   */
 
   // build chains from successive NAs, with symmetry shift
-  for ( int c = 0; c < chns.size(); c++ ) {
+  for ( unsigned int c = 0; c < chns.size(); c++ ) {
     clipper::MPolymer mp;
     // set a reference coord to build near
     clipper::Coord_orth cref( clipper::Coord_orth::null() );
-    for ( int r = 0; r < chns[c].size(); r++ ) {
+    for ( unsigned int r = 0; r < chns[c].size(); r++ ) {
       clipper::MMonomer mm = nas[chns[c][r]];
       if ( !cref.is_null() ) {
 	// get nearest symmetry copy
