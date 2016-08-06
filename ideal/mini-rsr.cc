@@ -259,12 +259,19 @@ main(int argc, char **argv) {
 			 << mv.second << std::endl;
 	    }
 	    
-	 } else { 
-	    clipper::CCP4MAPfile file;
-	    file.open_read(inputs.map_file_name);
-	    file.import_xmap(xmap);
-	    file.close_read();
-	    map_is_good = 1;
+	 } else {
+
+	    if (coot::file_exists(inputs.map_file_name)) {
+	       // should we try/catch around this read?
+	       clipper::CCP4MAPfile file;
+	       file.open_read(inputs.map_file_name);
+	       file.import_xmap(xmap);
+	       file.close_read();
+	       map_is_good = true;
+	    } else {
+	       std::cout << "WARNING:: map file " << inputs.map_file_name << " not found"
+			 << std::endl;
+	    } 
 	 }
 
 	 float map_weight = 60.0;
