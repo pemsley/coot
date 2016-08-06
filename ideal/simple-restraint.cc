@@ -1784,7 +1784,7 @@ int
 coot::restraints_container_t::make_monomer_restraints_by_linear(const coot::protein_geometry &geom,
 								bool do_residue_internal_torsions) {
 
-   // std::cout << "------------------------ in make_monomer_restraints_by_linear() " << std::endl;
+   // note: mini-rsr uses only the residue vector method
    
    int iret = 0;
    
@@ -1843,7 +1843,7 @@ int
 coot::restraints_container_t::make_monomer_restraints_from_res_vec(const coot::protein_geometry &geom,
 								   bool do_residue_internal_torsions) {
 
-   bool print_summary = false;
+   bool print_summary = true;
    int iret = 0;
 
    coot::restraints_container_t::restraint_counts_t sum;
@@ -1855,14 +1855,14 @@ coot::restraints_container_t::make_monomer_restraints_from_res_vec(const coot::p
       sum += local;
    } 
 
-   if (print_summary)
-      sum.report(do_residue_internal_torsions);
    if (verbose_geometry_reporting != QUIET) {
       std::cout << "INFO:: created " << restraints_vec.size() << " restraints" << std::endl;
       std::cout << std::endl;
+      if (print_summary)
+	 sum.report(do_residue_internal_torsions);
    }
    return iret;
-} 
+}
 
 
 

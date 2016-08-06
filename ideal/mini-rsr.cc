@@ -271,7 +271,7 @@ main(int argc, char **argv) {
 	    } else {
 	       std::cout << "WARNING:: map file " << inputs.map_file_name << " not found"
 			 << std::endl;
-	    } 
+	    }
 	 }
 
 	 float map_weight = 60.0;
@@ -695,9 +695,6 @@ get_input_details(int argc, char **argv) {
 	 break;
       }
    }
-
-   std::cout << "debug here with  input_pdb_file_name :" <<  d.input_pdb_file_name << ":" << std::endl;
-   std::cout << "debug here with output_pdb_file_name :" << d.output_pdb_file_name << ":" << std::endl;
 
    if (!d.input_pdb_file_name.empty()  && !d.output_pdb_file_name.empty()) { 
       if ((d.resno_start != UNSET && d.resno_end != UNSET) || (d.residues_around != mmdb::MinInt4)) { 
