@@ -227,8 +227,6 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 
-   std::cout << "here 1 in graphics_info_t::update_geometry_graphs()" << std::endl;
-
    GtkWidget *graph = coot::get_validation_graph(imol_moving_atoms, coot::GEOMETRY_GRAPH_GEOMETRY);
    if (graph) {
       // get deviations and replace those positions in the graph:
@@ -329,13 +327,8 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
       }
    }
 
-   std::cout << "here 2 in graphics_info_t::update_geometry_graphs()" << std::endl;
    graph = coot::get_validation_graph(imol_moving_atoms, coot::SEQUENCE_VIEW);
-   std::cout << "here 3 in graphics_info_t::update_geometry_graphs() " << graph << std::endl;
    if (graph) {
-
-      std::cout << "here 4 in graphics_info_t::update_geometry_graphs()" << std::endl;
-      std::cout << "............ update sequence_view graph " << graph << std::endl;
 
       exptl::nsv *sequence_view = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(graph), "nsv"));
 

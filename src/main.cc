@@ -578,7 +578,7 @@ setup_screen_size_settings() {
 
    // adjust the icons size of the refinement toolbar icons
    if (max_height <= 620) {
-     std::cout << "BL INFO:: screen has " << max_height << " height, will make small icons and small font" << std::endl;
+       // std::cout << "BL INFO:: screen has " << max_height << " height, will make small icons and small font" << std::endl;
        max_height = 620;
        gtk_rc_parse_string("gtk-icon-sizes=\"gtk-large-toolbar=10,10:gtk-button=10,10\"");
        gtk_rc_parse_string("class \"GtkLabel\" style \"small-font\"");

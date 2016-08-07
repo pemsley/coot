@@ -2554,13 +2554,11 @@ molecule_class_info_t::add_molecular_symmetry_matrices() {
 				 unsigned int l = parts[ii].length();
 				 if (l > 1) {
 				    std::string chain_id = parts[ii].substr(0,l-1);
-				    std::cout << "adding chaind id " << chain_id << std::endl;
 				    biomt_chain_ids.push_back(chain_id);
 				 } else {
 				    if (l == 1) {
 				       // no comma
 				       std::string chain_id = parts[ii];
-				       std::cout << "adding chaind id " << chain_id << std::endl;
 				       biomt_chain_ids.push_back(chain_id);
 				    }
 				 } 
@@ -2614,7 +2612,6 @@ molecule_class_info_t::add_molecular_symmetry_matrices() {
 	 if (it->first.first > matrix_id_max)
 	    matrix_id_max = it->first.first;
       }
-      std::cout << "matrix_id_max " << matrix_id_max << std::endl;
 
       if (matrix_id_max > 0) {
 	 for (int idx=0; idx<=matrix_id_max; idx++) { 
@@ -2655,7 +2652,7 @@ molecule_class_info_t::add_molecular_symmetry_matrices() {
 	 }
       }
 
-      std::cout << "made " << biomt_matrices.size() << " biomt matrices" << std::endl;
+      // std::cout << "made " << biomt_matrices.size() << " biomt matrices" << std::endl;
 
       for (unsigned int jj=0; jj<biomt_chain_ids.size(); jj++) { 
 	 for (unsigned int ii=0; ii<biomt_matrices.size(); ii++) {
