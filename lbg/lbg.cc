@@ -1166,9 +1166,9 @@ lbg_info_t::handle_item_delete(GdkEventButton *event) {
       if (highlight_data.single_atom()) {
 	 mol.close_atom(highlight_data.get_atom_index(), root);
       } else {
-	 int ind_1 = highlight_data.get_bond_indices().first;
-	 int ind_2 = highlight_data.get_bond_indices().second;
-	 int bond_index = mol.get_bond_index(ind_1, ind_2);
+	 unsigned int ind_1 = highlight_data.get_bond_indices().first;
+	 unsigned int ind_2 = highlight_data.get_bond_indices().second;
+	 unsigned int bond_index = mol.get_bond_index(ind_1, ind_2);
 	 mol.close_bond(bond_index, root, 1);
       }
       save_molecule();
