@@ -40,12 +40,6 @@
 #undef __GNU_LIBRARY__
 #endif
 
-#include <sys/types.h> // for stating
-#include <sys/stat.h>
-#if !defined _MSC_VER && !defined WINDOWS_MINGW
-#include <unistd.h>
-#endif
-
 #include <iostream>
 #include <string.h>
 #include <math.h>
@@ -169,6 +163,37 @@ print_version() {
 
 }
 
+void show_usage() {
+
+   std::string prog_name = "coot-mini-rsr";
+   
+   std::cout << "Usage: " << prog_name << "\n"
+	     << "       --pdbin pdb-in-filename\n"
+	     << "       --hklin mtz-filename\n"
+	     << "       --f f_col_label\n"
+	     << "       --phi phi_col_label\n"
+	     << "       --pdbout output-filename\n"
+	     << "       [ --resno-start resno_low\n"
+	     << "         --resno-end   resno_high] \n"
+	     << "       or [ --residues-around res_no ]\n"
+	     << "       or [ --residue-number resno ]\n"
+	     << "       --chain-id chain-id\n"
+	     << "       --weight w (weight of map gradients, default 60)\n"
+	     << "       --radius (default 4.2)\n"
+	     << "       --rama\n"
+	     << "       --torsions\n"
+	     << "       --no-planar-peptide-restraints\n"
+	     << "       --no-trans-peptide-restraints\n"
+	     << "       --tabulate-distortions\n"
+	     << "       --correlations\n"
+	     << "       --version\n"
+	     << "       --debug\n"
+	     << "\n"
+	     << "     --mapin ccp4-map-name can be used\n"
+	     << "       instead of --hklin --f --phi\n"
+	     << std::endl;
+}
+
 
 int
 main(int argc, char **argv) {
@@ -185,32 +210,7 @@ main(int argc, char **argv) {
    std::string phi_col("PHWT");
 
    if (argc < 2) {
-      std::cout << "Usage: " << argv[0] << "\n"
-		<< "       --pdbin pdb-in-filename\n"
-		<< "       --hklin mtz-filename\n"
-		<< "       --f f_col_label\n"
-		<< "       --phi phi_col_label\n"
-		<< "       --pdbout output-filename\n"
-		<< "       [ --resno-start resno_low\n"
-		<< "         --resno-end   resno_high] \n"
-		<< "       or [ --residues-around res_no ]\n"
-		<< "       or [ --residue-number resno ]\n"
-		<< "       --chain-id chain-id\n"
-		<< "       --weight w (weight of map gradients, default 60)\n"
-		<< "       --radius (default 4.2)\n"
-		<< "       --rama\n"
-		<< "       --torsions\n"
-		<< "       --no-planar-peptide-restraints\n"
-		<< "       --no-trans-peptide-restraints\n"
-		<< "       --tabulate-distortions\n"
-		<< "       --correlations\n"
-		<< "       --version\n"
-		<< "       --debug\n"
-		<< "\n"
-		<< "     --mapin ccp4-map-name can be used\n"
-		<< "       instead of --hklin --f --phi\n"
-		<< std::endl;
-
+      show_usage();
    } else {
 
       geom.set_verbose(0);
@@ -578,6 +578,7 @@ get_input_details(int argc, char **argv) {
       {"no-trans-peptide-restraints",  0, 0, 0},
       {"tabulate-distortions", 0, 0, 0},
       {"correlations", 0, 0, 0},
+      {"help", 0, 0, 0},
       {"debug",     0, 0, 0},  // developer option
       {0, 0, 0, 0}
    };
@@ -634,6 +635,10 @@ get_input_details(int argc, char **argv) {
 	    // long argument without parameter:
 	    std::string arg_str(long_options[option_index].name);
 	 
+	    if (arg_str == "help") {
+	       show_usage();
+	       exit(0);
+	    }
 	    if (arg_str == "version") {
 	       print_version();
 	       exit(0);
