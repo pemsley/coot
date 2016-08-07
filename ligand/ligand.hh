@@ -410,10 +410,6 @@ namespace coot {
 						   // the residue of
 						   // interest).
 
-      // utility function.  should be somewhere else I guess:
-      std::string int_to_string(int i) const;
-      std::string float_to_string(float f) const;
-
       void import_map_from(const clipper::Xmap<float> &map_in);
       // Create a new form of the function that sets the rms of the map,
       // which then gets used in a kludgey way to set the gradient scale.

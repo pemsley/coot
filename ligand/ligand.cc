@@ -1856,13 +1856,13 @@ coot::ligand::write_orientation_solution(unsigned int iclust,
 					 const coot::minimol::molecule &mol) const {
    
    std::string ori_sol_file_name = "ori-sol-cluster:_";
-   ori_sol_file_name += int_to_string(iclust);
+   ori_sol_file_name += util::int_to_string(iclust);
    ori_sol_file_name += "-ligno:_";
-   ori_sol_file_name += int_to_string(ilig);
+   ori_sol_file_name += util::int_to_string(ilig);
    ori_sol_file_name += "-eigen:_";
-   ori_sol_file_name += int_to_string(i_eigen_ori);
+   ori_sol_file_name += util::int_to_string(i_eigen_ori);
    ori_sol_file_name += "-ori:_";
-   ori_sol_file_name += int_to_string(ior);
+   ori_sol_file_name += util::int_to_string(ior);
    ori_sol_file_name += ".pdb";
    fitted_ligand_vec[ilig][iclust].write_file(ori_sol_file_name, default_b_factor);
 
@@ -2116,7 +2116,7 @@ coot::ligand::ligand_filename(int n_count, int ior) const {
 
    std::string outfile("ligand-");
    if (ior >= 0) {
-      outfile += int_to_string(ior);
+      outfile += util::int_to_string(ior);
    }
    outfile += ".pdb";
    if (ior < 0)
