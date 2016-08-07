@@ -7578,4 +7578,65 @@ imort rdkit # we need this of course
 # but don't forget:
 from rdkit import Chem
 
+
+-----
+
+
+when trying to bundle, and run coot-bin:
+   
+* thread #1: tid = 0x0000, 0x000000010bf485e1 libcoot-bundle.0.dylib`set_model_toolbar_docked_position + 337, stop reason = signal SIGSTOP
+use_graphics_interface_state ()
+Running python script /Users/pemsley/.coot-preferences/00-console.py
+Running python script /Users/pemsley/.coot-preferences/ball_for_sticks.py
+Running python script /Users/pemsley/.coot-preferences/coot_preferences.py
+
+** (coot-bin:68769): WARNING **: Widget is NULL: accept_reject_dialog_frame_docked
+/Users/pemsley/Projects/build-enhanced-ligand-no-guile-gtk/src/.libs/coot-bin:11: GtkWarning: void gtk_widget_set_sensitive(GtkWidget *, gboolean): assertion `GTK_IS_WIDGET (widget)' failed
+  /opt/X11/lib/libX11.6.dylib
+                             `
+/Users/pemsley/Projects/build-enhanced-ligand-no-guile-gtk/src/.libs/coot-bin:11: GtkWarning: void gtk_widget_hide(GtkWidget *): assertion `GTK_IS_WIDGET (widget)' failed
+  /opt/X11/lib/libX11.6.dylib
+                             `
+
+** (coot-bin:68769): WARNING **: Widget is NULL: model_fit_refine_toolbar_handlebox
+/Users/pemsley/Projects/build-enhanced-ligand-no-guile-gtk/src/.libs/coot-bin:15: GtkWarning: GtkWidget *gtk_widget_get_parent(GtkWidget *): assertion `GTK_IS_WIDGET (widget)' failed
+  /Users/pemsley/ccp4/ccp4-src-2015-02-05/ccp4-6.5/lib/libgdk_pixbuf-2.0.0.dylib
+                                                                                `I
+failed to lookup toolbar
+
+** (coot-bin:68769): WARNING **: Widget is NULL: main_window_model_fit_dialog_frame_left
+
+** (coot-bin:68769): WARNING **: Widget is NULL: main_window_model_fit_dialog_frame
+
+** (coot-bin:68769): WARNING **: Widget is NULL: model_fit_refine_toolbar_handlebox
+
+** (coot-bin:68769): WARNING **: Widget is NULL: vbox1
+
+** (coot-bin:68769): WARNING **: Widget is NULL: model_toolbar
+
+** (coot-bin:68769): WARNING **: Widget is NULL: model_toolbar_vsep_toolitem
+
+** (coot-bin:68769): WARNING **: Widget is NULL: model_toolbar_hsep_toolitem
+
+** (coot-bin:68769): WARNING **: Widget is NULL: model_toolbar_style_toolitem
+
+  * frame #0: 0x000000010bf485e1 libcoot-bundle.0.dylib`set_model_toolbar_docked_position + 337
+    frame #1: 0x000000010b8c8673 _coot.so`_wrap_set_model_toolbar_docked_position(_object*, _object*) + 195
+    frame #2: 0x00000001062d5901 libpython2.7.dylib`PyEval_EvalFrameEx + 19681
+    frame #3: 0x00000001062d07c2 libpython2.7.dylib`PyEval_EvalCodeEx + 1666
+    frame #4: 0x00000001062d0136 libpython2.7.dylib`PyEval_EvalCode + 54
+    frame #5: 0x00000001062f9544 libpython2.7.dylib`PyRun_FileExFlags + 164
+    frame #6: 0x00000001062cc60b libpython2.7.dylib`builtin_execfile + 507
+    frame #7: 0x00000001062d5901 libpython2.7.dylib`PyEval_EvalFrameEx + 19681
+    frame #8: 0x00000001062d07c2 libpython2.7.dylib`PyEval_EvalCodeEx + 1666
+    frame #9: 0x00000001062d0136 libpython2.7.dylib`PyEval_EvalCode + 54
+    frame #10: 0x00000001062f9615 libpython2.7.dylib`PyRun_SimpleStringFlags + 149
+    frame #11: 0x0000000102bf8591 coot-bin`run_python_script(filename_in=0x00007fc5b29c1150) + 1409 at c-interface.cc:6374
+    frame #12: 0x0000000102caaaba coot-bin`try_load_dot_coot_py_and_preferences(home_directory=0x00007fff5d305360) + 5034 at coot-setup-python.cc:187
+    frame #13: 0x0000000102ca95d6 coot-bin`setup_python(argc=1, argv=0x00007fff5d306790) + 2230 at coot-setup-python.cc:121
+    frame #14: 0x00000001028fd7b9 coot-bin`main(argc=1, argv=0x00007fff5d306790) + 9817 at main.cc:408
+    frame #15: 0x00007fff893645c9 libdyld.dylib`start + 1
+(lldb) ^D
+
+
 ---

@@ -5,6 +5,9 @@
   o BUG-FIX: Fix conformer-related crash when showing ligand view of some metals
              [Oliver Clarke]
 
+  o BUG-FIX: coot-mini-rsr no longer crashes when given a non-existant filename
+             for a map
+
 -----
 
   Release 0.8.4
