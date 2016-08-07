@@ -585,7 +585,8 @@ setup_screen_size_settings() {
        ret = 1;
    } else if (max_height <= 720) {
        int icon_size = 12 + (max_height - 620) / 25;
-       std::cout << "BL INFO:: screen has " << max_height << " height, will make icons to " <<  icon_size <<std::endl;
+       // std::cout << "BL INFO:: screen has " << max_height << " height, will make "
+       //           << "icons to " <<  icon_size <<std::endl;
        std::string toolbar_txt = "gtk-icon-sizes = \"gtk-large-toolbar=";
        toolbar_txt += coot::util::int_to_string(icon_size);
        toolbar_txt += ",";

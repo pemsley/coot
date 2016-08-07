@@ -2915,8 +2915,8 @@ coot::protein_geometry::init_standard() {
       // contains the linkages:
       filename += "/data/monomers/list/mon_lib_list.cif";
       if (using_clibd_mon) {
-	 filename = mon_lib_dir;
-	 filename += "list/mon_lib_list.cif";
+	 filename = util::remove_trailing_slash(mon_lib_dir);
+	 filename += "/list/mon_lib_list.cif";
       }
       // now check that that file is there:
       if (! is_regular_file(filename)) {

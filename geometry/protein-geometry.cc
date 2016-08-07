@@ -2181,17 +2181,18 @@ coot::protein_geometry::standard_protein_monomer_files() const {
    s.push_back("p/PO4.cif");
    s.push_back("s/SO4.cif");
    s.push_back("g/GOL.cif");
-   s.push_back("e/ETH.cif");
    s.push_back("c/CIT.cif");
+   // s.push_back("e/ETH.cif");
 
    s.push_back("a/AR.cif");
-   s.push_back("a/AD.cif");
    s.push_back("c/CR.cif");
-   s.push_back("c/CD.cif");
    s.push_back("g/GR.cif");
-   s.push_back("g/GD.cif");
-   s.push_back("t/TD.cif");
-   s.push_back("u/UR.cif");
+
+   // s.push_back("a/AD.cif");
+   // s.push_back("c/CD.cif");
+   // s.push_back("g/GD.cif");
+   // s.push_back("t/TD.cif");
+   // s.push_back("u/UR.cif");
 
    // new-style (CCP4 6.2) RNA names
    s.push_back("a/A.cif");

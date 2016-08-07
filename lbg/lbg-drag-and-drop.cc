@@ -313,6 +313,7 @@ int
 lbg_info_t::handle_lbg_drag_and_drop_filesystem_file(const std::string &uri) {
 
    int handled = FALSE;
+
    if (uri.length() > 7) {
       if (uri.substr(0,7)== "file://") {
 	 // std::cout << "---:" << uri << ": was a file:// string " << std::endl;
