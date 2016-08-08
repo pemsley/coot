@@ -124,7 +124,7 @@ void water_coordination_check(mmdb::Manager *mol, float max_dist) {
    std::sort(atom_contacts.begin(), atom_contacts.end(), contact_info_t::contacts_less);
    std::cout << "sorted" << std::endl;
 
-   for (int i=0; i<atom_contacts.size(); i++) {
+   for (unsigned int i=0; i<atom_contacts.size(); i++) {
       std::cout << "index: " << atom_contacts[i].this_index << std::endl;
       mmdb::Atom *at = waters_atom_sel[atom_contacts[i].this_index];
       std::cout << "at: " << at << std::endl;
