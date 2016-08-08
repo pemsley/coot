@@ -2066,7 +2066,7 @@ if test -n "$build_fftw" ; then
 ${WGET} $extras_place/fftw-2.1.5.tar.gz
 ${WGET} $win_extras_place/fftw-2.1.5_shared.patch
 ${WGET} $win_extras_place/fix_shared_makefiles.sh
-${WGTE} $win_extras_place/fix_libfftw.la.sh
+${WGET} $win_extras_place/fix_libfftw.la.sh
 #${WGET} $extras_place/fftw-configure-stuff.tar.gz
 (
 date
