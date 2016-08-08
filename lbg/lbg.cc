@@ -2754,7 +2754,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_alert_hbox =                GTK_WIDGET(gtk_builder_get_object(builder, "lbg_alert_hbox"));
 	 lbg_alert_hbox_outer =          GTK_WIDGET(gtk_builder_get_object(builder, "lbg_alert_hbox_outer"));
 	 lbg_show_alerts_checkbutton =   GTK_WIDGET(gtk_builder_get_object(builder, "lbg_show_alerts_checkbutton"));
-	 lbg_qed_properties_vbox =       GTK_WIDGET(gtk_builder_get_object(builder, "qed_properties_vbox"));
+	 lbg_qed_properties_vbox =       GTK_WIDGET(gtk_builder_get_object(builder, "lbg_qed_properties_vbox"));
 	 lbg_alert_name_label =          GTK_WIDGET(gtk_builder_get_object(builder, "lbg_alert_name_label"));
 	 lbg_get_drug_dialog =           GTK_WIDGET(gtk_builder_get_object(builder, "lbg_get_drug_dialog"));
 	 lbg_get_drug_entry =            GTK_WIDGET(gtk_builder_get_object(builder, "lbg_get_drug_entry"));
