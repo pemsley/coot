@@ -35,8 +35,7 @@ int get_monomer_molecule_by_network_and_dict_gen(const std::string &text) {
       if (retval.type == coot::command_arg_t::INT) {
 	 imol = retval.type;
       }
-   } 
-   
+   }
    return imol;
 } 
 
@@ -106,6 +105,7 @@ int get_monomer_from_dictionary(const char *three_letter_code,
 
    int istat = -1; // unfound molecule
    graphics_info_t g;
+
    mmdb::Manager *mol = g.Geom_p()->mol_from_dictionary(three_letter_code, idealised_flag);
    if (mol) {
       int imol = graphics_info_t::create_molecule();

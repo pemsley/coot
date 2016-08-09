@@ -50,7 +50,7 @@ main(int argc, char **argv) {
       coot::minimol::molecule m2 = myminimol.molecule_of_atom_types(std::string(" CA "));
 
       m2.write_file("minimoled-cas.pdb", 20.0);
-      for(int ifrag=0; ifrag<m2.fragments.size(); ifrag++)
+      for(unsigned int ifrag=0; ifrag<m2.fragments.size(); ifrag++)
 	 std::cout << "m2 fragment " << ifrag << " has "
 		   << m2[ifrag].residues.size()
 		   << " residues " << std::endl; 

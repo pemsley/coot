@@ -328,9 +328,11 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
 	 map_type = "difference";
       else
 	 map_type = "conventional";
+
+      std::string mtz_file_name_str = mtz_file_name;
       
       std::cout << "INFO:: making " << map_type << " map from MTZ filename "
-		<< mtz_file_name << " using " << f_col << " "
+		<< mtz_file_name_str << " using " << f_col << " "
 		<< phi_col << std::endl;
 
       if (valid_labels(mtz_file_name, f_col, phi_col, weight_col, use_weights)) {
@@ -340,7 +342,7 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
 	 imol = g.create_molecule();
 	 float msr = graphics_info_t::map_sampling_rate;
 	 std::string cwd = coot::util::current_working_dir();
-	 g.molecules[imol].map_fill_from_mtz_with_reso_limits(std::string(mtz_file_name),
+	 g.molecules[imol].map_fill_from_mtz_with_reso_limits(mtz_file_name_str,
 							      cwd,
 							      std::string(f_col),
 							      std::string(phi_col),

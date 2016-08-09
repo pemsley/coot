@@ -1,4 +1,7 @@
+
 -----
+
+  Pre-release 0.8.6
 
   o FEATURE: CPK atom colouring
 
@@ -12,6 +15,15 @@
   o CHANGE: Jigggle fit now works by masking the out the map for neighbouring residues
 
   
+-----
+
+  Release 0.8.5
+
+  o BUG-FIX: Fix conformer-related crash when showing ligand view of some metals
+             [Oliver Clarke]
+
+  o BUG-FIX: coot-mini-rsr no longer crashes when given a non-existant filename
+             for a map
 
 -----
 

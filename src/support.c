@@ -19,6 +19,8 @@
 
 #include "support.h"
 
+GList *pixmaps_directories = NULL;
+
 /* This is an internally used function to check if a pixmap file exists. */
 static gchar* check_file_exists        (const gchar     *directory,
                                         const gchar     *filename);
@@ -82,8 +84,6 @@ create_dummy_pixmap                    (GtkWidget       *widget)
   gdk_bitmap_unref (mask);
   return pixmap;
 }
-
-GList *pixmaps_directories = NULL;
 
 /* Use this function to set the directory containing installed pixmaps. */
 void

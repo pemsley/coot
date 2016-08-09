@@ -119,9 +119,6 @@ libcoot_map_heavy_la_LDFLAGS = $(SHARED_LDFLAGS)
 # test-agg-clust
 check_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-elastic test-spherical glyco-torsions test-tt-morph
 
-# testshelxreader fails to link for some reason! coot::protein_geometry::get_h_bond_type 
-# testcootutils also.  20100812 Fixed now - added libcoot-geometry.la
-
 # test_zo_chi_table_SOURCES = test-zo-chi-table.cc
 
 # test_agg_clust_SOURCES = test-agg-clust.cc

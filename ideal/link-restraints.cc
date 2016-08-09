@@ -728,7 +728,8 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
       if (! do_trans_peptide_restraints)
 	 std::cout << " (not requested)";
       std::cout << std::endl;
-      std::cout << "   " << n_link_parallel_plane_restr   << " parallel plane restraints" << std::endl;
+      std::cout << "   " << n_link_parallel_plane_restr   << " parallel plane restraints"
+		<< std::endl;
    }
    return iret; 
 }

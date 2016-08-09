@@ -931,7 +931,7 @@ widgeted_molecule_t::close_bond(int ib, GooCanvasItem *root,
 
       // ind_1
       std::string ele = atoms[ind_1].element;
-      std::vector<int> local_bonds = bonds_having_atom_with_atom_index(ind_1);
+      std::vector<unsigned int> local_bonds = bonds_having_atom_with_atom_index(ind_1);
       bool gl_flag = false; // not a GL render engine
       lig_build::atom_id_info_t new_atom_id =
 	 make_atom_id_by_using_bonds(ind_1, ele, local_bonds, gl_flag);
@@ -944,8 +944,8 @@ widgeted_molecule_t::close_bond(int ib, GooCanvasItem *root,
    
       if (handle_post_delete_stray_atoms_flag) {
 	 // are there any atoms that now don't have bonds?
-	 std::vector<int> stray_atoms = get_unconnected_atoms();
-	 std::vector<int> bonds; // empty
+	 std::vector<unsigned int> stray_atoms = get_unconnected_atoms();
+	 std::vector<unsigned int> bonds; // empty
 	 // std::cout << "got " << stray_atoms.size() << " stray atoms " << std::endl;
 	 if (stray_atoms.size()) {
 	    for (unsigned int istray=0; istray<stray_atoms.size(); istray++) {
@@ -963,7 +963,7 @@ widgeted_molecule_t::close_bond(int ib, GooCanvasItem *root,
 bool
 widgeted_molecule_t::close_atom(int iat, GooCanvasItem *root) {
 
-   std::vector<int> bds = bonds_having_atom_with_atom_index(iat);
+   std::vector<unsigned int> bds = bonds_having_atom_with_atom_index(iat);
    
    bool status = 0;
    if ((iat >= 0) && (iat<int(atoms.size()))) {
@@ -977,7 +977,7 @@ widgeted_molecule_t::close_atom(int iat, GooCanvasItem *root) {
    // change (say from N to NH).  Make a list of the atoms affected by
    // deleting the bond(s).
 
-   std::vector<int> affected_neighbour_atoms;
+   std::vector<unsigned int> affected_neighbour_atoms;
 
    for (unsigned int i=0; i<bds.size(); i++) {
       // std::cout << "close_atom() means closing bond " << bds[i] << std::endl;

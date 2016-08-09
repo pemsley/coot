@@ -49,7 +49,7 @@ Ca_group Ca_group::prev_ca_group(const clipper::ftype& phi, const clipper::ftype
 clipper::ftype Ca_chain::ramachandran_phi( const int& resno ) const
 {
   const Ca_chain& chain = (*this);
-  if ( resno-1 >= 0 && resno < chain.size() )
+  if ( resno-1 >= 0 && resno < int(chain.size()) )
     return clipper::Coord_orth::torsion( chain[resno-1].coord_c(), chain[resno].coord_n(), chain[resno].coord_ca(), chain[resno].coord_c() );
   else
     return clipper::Util::nan();
@@ -58,7 +58,7 @@ clipper::ftype Ca_chain::ramachandran_phi( const int& resno ) const
 clipper::ftype Ca_chain::ramachandran_psi( const int& resno ) const
 {
   const Ca_chain& chain = (*this);
-  if ( resno >= 0 && resno+1 < chain.size() )
+  if ( resno >= 0 && resno+1 < int(chain.size()) )
     return clipper::Coord_orth::torsion( chain[resno].coord_n(), chain[resno].coord_ca(), chain[resno].coord_c(), chain[resno+1].coord_n() );
   else
     return clipper::Util::nan();
@@ -166,7 +166,7 @@ std::vector<ProteinLoop::CoordList<5> > ProteinLoop::rebuild5atoms( const clippe
     r[0] = Coord_orth( c0, n1, ca1, 1.53, 1.92, phi1 );
     // find 2 possible positions for ca2
     std::vector<Coord_orth> ca2s = constrained_coords( ca1, r[0]-ca1, 3.8, 0.360, ca3, 3.8 );
-    for ( int ipsi1 = 0; ipsi1 < ca2s.size(); ipsi1++ ) {
+    for ( unsigned int ipsi1 = 0; ipsi1 < ca2s.size(); ipsi1++ ) {
       r[2] = ca2s[ipsi1];
       double psi1 = Coord_orth::torsion( n1, ca1, r[0], r[2] );
       if ( rama.allowed( phi1, psi1 ) ) {
@@ -174,7 +174,7 @@ std::vector<ProteinLoop::CoordList<5> > ProteinLoop::rebuild5atoms( const clippe
 	r[1] = Coord_orth( n1, ca1, r[0], 1.33, 1.99, psi1 );
 	// find 2 possible positions for c2
 	std::vector<Coord_orth> cc2s = constrained_coords( r[2], r[2]-r[1], 1.53, 1.22, ca3, 2.43 );
-	for ( int iphi2 = 0; iphi2 < cc2s.size(); iphi2++ ) {
+	for ( unsigned int iphi2 = 0; iphi2 < cc2s.size(); iphi2++ ) {
 	  // build c2, n3
 	  r[3] = cc2s[iphi2];
 	  double phi2 = Coord_orth::torsion( r[0], r[1], r[2], r[3] );
@@ -211,7 +211,7 @@ std::vector<ProteinLoop::CoordList<8> > ProteinLoop::rebuild8atoms( const clippe
 	r[1] = Coord_orth(  n1,  ca1, r[0], 1.33, 1.99, psi1 );
 	r[2] = Coord_orth( ca1, r[0], r[1], 1.47, 2.15, pi   );
 	r5 = rebuild5atoms( r[0], r[1], r[2], ca4, c4, n5 );
-	for ( int i = 0; i < r5.size(); i++ ) {
+	for ( unsigned int i = 0; i < r5.size(); i++ ) {
 	  for ( int j = 0; j < 5; j++ ) r[j+3] = r5[i][j];
 	  result.push_back(r);
 	}
@@ -277,13 +277,13 @@ std::pair<int,int> ProteinTools::chain_sequence_match( const clipper::String& ch
   std::vector<clipper::String> seqs( seq.size() );
   for ( int chn = 0; chn < seq.size(); chn++ ) {
     clipper::String s = "";
-    for ( int res = 0; res < seq[chn].sequence().length(); res++ )
+    for ( unsigned int res = 0; res < seq[chn].sequence().length(); res++ )
       s += residue_code_1( residue_index( seq[chn].sequence().substr(res,1) ) );
     seqs[chn] = s;
   }
   // set minimum match threshold
   int minscr = 0;
-  for ( int i = 0; i < chnseq.size(); i++ )
+  for ( unsigned int i = 0; i < chnseq.size(); i++ )
     if ( isupper(chnseq[i]) ) minscr++;
   minscr = minscr/3+4;
   // now find best match
@@ -291,12 +291,13 @@ std::pair<int,int> ProteinTools::chain_sequence_match( const clipper::String& ch
   int bestoff = -1;
   int bestscr = minscr;
   int lenc = chnseq.length();
-  for ( int chn = 0; chn < seqs.size(); chn++ ) {
+  for ( unsigned int chn = 0; chn < seqs.size(); chn++ ) {
     int lens = seqs[chn].length();
     for ( int off = -lenc+bestscr; off < lens-bestscr; off++ ) {
       int scr = 0;
-      for ( int i = 0; i < seqs[chn].length(); i++ )
-	if ( i-off >= 0 && i-off < chnseq.length() )
+      int sl = seqs[chn].length();
+      for ( int i = 0; i < sl; i++ )
+	if ( i-off >= 0 && i-off < int(chnseq.length()) )
 	  if ( seqs[chn][i] == chnseq[i-off] )
 	    if ( isupper(chnseq[i-off]) )
 	      scr++;
@@ -361,7 +362,7 @@ bool ProteinTools::chain_tidy( clipper::MiniMol& target, const clipper::MiniMol&
   clipper::String labels1 = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
   clipper::String labels2 = "abcdefghijklmnopqrstuvwxyz";
   for ( int chn = 0; chn < target.size(); chn++ ) {
-    if ( chn < labels1.length() ) {
+    if ( chn < int(labels1.length()) ) {
       target[chn].set_id( labels1.substr( chn, 1 ) );
       for ( int res = 0; res < target[chn].size(); res++ )
 	target[chn][res].set_seqnum( res + 1 );

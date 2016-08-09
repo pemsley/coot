@@ -61,5 +61,6 @@ namespace coot {
       friend std::ostream& operator<<(std::ostream &stream, 
 				      view_info_t &view);
    };
-
+   std::ostream& operator<<(std::ostream &stream, 
+			    view_info_t &view);
 }
