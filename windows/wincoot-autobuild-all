@@ -33,7 +33,6 @@ if [ -z "$make_guile" ] ; then
   make_guile=1
 fi
 
-# option to not build guile
 # BL note:: this needs to become more flexible!!!
 make_installer_only=${3:-0}
 if [ -e /z/make_installer_only ] ; then
