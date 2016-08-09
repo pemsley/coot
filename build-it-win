@@ -3465,9 +3465,8 @@ export LDFLAGS="-Wl,--large-address-aware"
 echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 echo building in: $PWD
 echo ./configure $coot_prefix \
-    --with-mmdb-prefix=$install_top_dir \
-    --with-ssmlib-prefix=$install_top_dir \
     --with-fftw-prefix=$install_top_dir \
+    $goocanvas_args     \
     $glut_prefix        \
     COOT_BUILD_INFO_STRING="$coot_build_info_string" \
     $guile_scripting          \
@@ -3477,9 +3476,8 @@ echo ./configure $coot_prefix \
     $coot_extra_args   
 
 ./configure $coot_prefix \
-    --with-mmdb-prefix=$install_top_dir \
-    --with-ssmlib-prefix=$install_top_dir \
     --with-fftw-prefix=$install_top_dir \
+    $goocanvas_args     \
     $glut_prefix        \
     COOT_BUILD_INFO_STRING="$coot_build_info_string" \
     $guile_scripting          \

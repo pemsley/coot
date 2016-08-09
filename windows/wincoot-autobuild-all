@@ -25,8 +25,17 @@ make_guile=${2:-1}
 if [ -e /z/make_guile ] ; then
   make_guile=0
 fi
-if [ -z "$build_coot_prerelease" ] ; then
-  make_guile=0
+if [ -z "$make_guile" ] ; then
+  make_guile=1
+fi
+
+# BL note:: this needs to become more flexible!!!
+make_installer_only=${3:-0}
+if [ -e /z/make_installer_only ] ; then
+  make_installer_only=1
+fi
+if [ -z "$make_installer_only" ] ; then
+  make_installer_only=1
 fi
 
 #
@@ -312,9 +321,9 @@ if [ "$build_installer" = "0" ] ; then
    echo
    echo making WinCoot installer
    echo in dir `pwd` with command:
-   echo $makensis ${makensis_flag} ${src_dir} $wincoot_installer_script
+   echo $makensis //V4 ${makensis_flag} ${src_dir} $wincoot_installer_script
    echo
-   "$makensis" ${makensis_flag} ${src_dir} $wincoot_installer_script
+   "$makensis" //V4 ${makensis_flag} ${src_dir} $wincoot_installer_script
    nsis_status=$?
    if [ "$nsis_status" = "0" ] ; then
         if [ -e /z/make_stable_build ] ; then
