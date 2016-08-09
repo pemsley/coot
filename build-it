@@ -3978,17 +3978,17 @@ if [ "$run_tests" = true ] ; then
 	          # only copy over the binary files if they are not there
 	          # already (checked by publish executable).
 	          #
-	          echo $publish $bin_tar_file
-	          $publish $bin_tar_file
-	          echo $publish $bin_tar_file.md5sum
-	          $publish $bin_tar_file.md5sum
+	          echo $publish $bin_tar_file $BINARY_TAR_DEST_DIR
+	          $publish $bin_tar_file $BINARY_TAR_DEST_DIR
+	          echo $publish $bin_tar_file.md5sum $BINARY_TAR_DEST_DIR
+	          $publish $bin_tar_file.md5sum $BINARY_TAR_DEST_DIR
 	          # echo $publish $binary_type_latest
 	          # publish $binary_type_latest
 	          echo $publish --no-server-check ChangeLog
 	          $publish --no-server-check ChangeLog
 	          echo $publish --no-server-check coot-README
 	          $publish --no-server-check coot-README
-                  if [ -z "$build_coot_prerelease" ] ; then 
+                  if [ -z "$build_coot_prerelease" ] ; then
    	             echo $publish  --no-server-check RELEASE-NOTES
 	             $publish --no-server-check RELEASE-NOTES
                   else 
