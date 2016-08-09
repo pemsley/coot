@@ -964,7 +964,7 @@ for (i = 0 ; i < graph->num_traces ; i++)
         gdk_draw_pixmap(buffer, tmp->format->marker_gc, tmp->format->marker, 0, 0, legend_x + 15 - tmp->format->marker_size, legend_y + ypos - tmp->format->marker_size, -1, -1);
 		}
 	
-	if  (text_buffer != NULL);
+	if  (text_buffer != NULL)
 		free(text_buffer);
 
 	if (tmp->format->legend_text == NULL)
