@@ -2069,6 +2069,11 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
                             background = "#c0e6c0")
       textbuffer.insert_with_tags_by_name(start, description, "tag")
 
+   def close_cb_func(*args):
+      if post_close_hook:
+         post_close_hook()
+      window.destroy()
+
    # main line
    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
    scrolled_win = gtk.ScrolledWindow()
