@@ -3858,7 +3858,7 @@ fi
 
 # clear up the library dependencies
 
-if [ $build_coot_prerelease = 1 ] ; then
+if [ "$build_coot_prerelease" = 1 ] ; then
    pre_release_str=-pre-release
 fi
 
