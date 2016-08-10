@@ -1,0 +1,189 @@
+
+.TH COOT 1
+
+.SH NAME
+coot \- macromolecular modeling
+
+.SH SYNOPSIS
+
+.B coot
+.br
+.B [\-\-coords|--pdb|--xyzin
+.I <coordinates-file-name>
+.B ]
+.br
+.B [\-\-map 
+.I <CCP4-format-map-file-name>
+.B ]
+.br
+.B [\-\-data|--hklin
+.I <mtz-file-name>
+.B ]
+.br
+.B [\-\-auto   
+.I <mtz-file-name>
+.B ]
+.br
+.B [\-\-script
+.I <python/scheme script file-name>
+.B ]
+.br
+.B [\-\-ccp4\-project 
+.I <directory-name>
+.B ]
+.br
+.B [\-\-dictionary 
+.I <mmCIF/pdbx dictionary file-name>
+.B ]
+.br
+.B [\-\-code  
+.I <wwPDB accession-code>
+.B ]
+.br
+.B [\-\-comp_id|--comp-id
+.I <wwPDB comp-id>
+.B ]
+.br
+.B [\-\-title  
+.I title    
+.B ]
+.br
+.B [\-\-port  
+.I port     
+.B ]
+.B [\-\-hostname|--host
+.I hostname  
+.B ]
+.br
+.B [\-\-splash\-screen
+.I <alternate splash screen>
+.B ]
+.br
+.B [\-\-help]     
+.br
+.B [\-\-em]
+.br
+.B [\-\-python]
+.br
+.B [\-\-no\-state\-script]
+.br
+.B [\-\-no\-startup\-scripts]
+.br
+.B [\-\-no\-graphics]
+.br
+.B [\-\-no\-splash\-screen]
+.br
+.B [\-\-stereo]
+.br
+.B [\-\-side\-by\-side]
+.br
+.B [\-\-zalman\-stereo]
+.br
+.B [\-\-version]
+.br
+.B [\-\-version\-full]
+.br
+.B [\-\-no\-guano]
+.br
+.B [\-\-small\-screen]
+.br
+.B [\-\-self\-test]
+
+.SH DESCRIPTION
+ 
+   Coot is a molecular graphics applications for modeling and
+   valiation. Although one can load files using the command line -
+   typical operations would involve loading files using menu items in
+   the File menu.
+
+   Coot is particularly useful in the modeling of proteins and ligands
+   in reference to x-ray data.
+
+.SH OPTIONS
+
+.B \-\-coords|--pdb|--xyzin
+.I <coordinates-file-name>
+
+.B \-\-map 
+.I <CCP4-format-map-file-name>
+
+.B \-\-data|--hklin
+.I <mtz-file-name>
+
+.B \-\-auto   
+.I <mtz-file-name>
+Try to automatically read the data in the given mtz file, don't allow the user to select the columns
+
+.B \-\-script
+.I <python/scheme script file-name>
+
+.B \-\-ccp4\-project 
+.I <directory-name>
+
+.B \-\-dictionary 
+.I <mmCIF/pdbx dictionary file-name>
+
+.B \-\-code  
+.I <wwPDB accession-code>
+
+.B \-\-comp_id|--comp-id
+.I <wwPDB comp-id>
+
+.B \-\-title  
+.I title    
+   the graphics window starts with this text
+
+.B \-\-port
+.I port     
+
+.B \-\-hostname|--host
+.I hostname  
+
+.B \-\-splash\-screen 
+.I <alternate splash screen>
+
+.B \-\-help print command line options
+
+.B \-\-em start in E.M.m mode.  This affects the default map radius
+
+.B \-\-python use python on the command line (needs
+.B --no-graphics
+)
+
+.B \-\-no\-state\-script  
+don't read the state file on start up
+
+.B \-\-no\-startup\-scripts 
+don't read any files on startup
+
+.B \-\-no\-graphics  
+use the command line    
+
+.B \-\-no\-splash\-screen
+no splash screen at start
+
+.B \-\-stereo  
+start in stereo graphics mode
+
+.B \-\-side\-by\-side start
+in side-by-side stereo graphics mode    
+
+.B \-\-zalman\-stereo
+start in Zalman-stereo graphics mode   
+
+.B \-\-version Print version information
+
+.B \-\-version\-full Print version and binary type information
+
+.B  \-\-no\-guano
+don't write files on exit
+
+.B \-\-small\-screen 
+start with small screen
+
+.B \-\-self\-test test slf
+
+
+.SH AUTHOR
+
+Paul Emsley, Kevin Cowtan, Bernhard Lohkamp

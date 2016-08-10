@@ -1,0 +1,36 @@
+
+.TH COOT 1
+
+.SH NAME
+coot-mini-rsr \- macromolecular modeling
+.SH SYNOPSIS
+      coot-mini-rsrs [OPTIONS] ... 
+
+.SH DESCRIPTION
+.B Coot is a molecular graphics application for modeling and validation
+
+.SH SYNOPSIS
+
+.B [\-\-coords|--pdb|--xyzin
+.I <coordinates-file-name>
+.B ]
+.B [\-\-map 
+.I <CCP4-format-map-file-name>
+.B ]
+.B [\-\-data|--hklin
+.I <mtz-file-name>
+.B ]
+.B [\-\-auto   
+.I <mtz-file-name>
+.B ]
+.B [\-\-script
+.I <python/scheme script file-name>
+.B ]
+.B [\-\-ccp4\-project 
+.I <directory-name>
+.B ]
+.B [\-\-dictionary 
+.I <mmCIF/pdbx dictionary file-name>
+.B ]
+
+
