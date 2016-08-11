@@ -199,9 +199,9 @@ AM_CPPFLAGS = \
 
 pkginclude_HEADERS = crunch-model.hh
 
-libexec_PROGRAMS = coot-bin density-score-by-residue-bin
+libexec_PROGRAMS = coot-bin coot-density-score-by-residue-bin
 bin_PROGRAMS =  fix-nomenclature-errors
-dist_bin_SCRIPTS = coot density-score-by-residue
+dist_bin_SCRIPTS = coot coot-density-score-by-residue
 check_PROGRAMS = test-coot-align test-cholesky
 
 fix_nomenclature_errors_SOURCES = \
@@ -573,8 +573,8 @@ test_coot_align_LDADD =	\
 # test_lbg_graph_LDADD = $(MMDB_LIBS)
 
 
-density_score_by_residue_bin_SOURCES = density-score-by-residue-src.cc
-density_score_by_residue_bin_LDADD  =	\
+coot_density_score_by_residue_bin_SOURCES = density-score-by-residue-src.cc
+coot_density_score_by_residue_bin_LDADD  =	\
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 	$(top_builddir)/coords/libcoot-coords.la 		\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\

@@ -555,12 +555,12 @@ function post_install_slim {
 	libexec/findwaters-bin             \
 	libexec/findligand-bin             \
 	libexec/mini-rsr-bin               \
+	libexec/density-score-by-residue-bin  \
 	bin/coot                           \
         bin/findwaters                     \
 	bin/findligand                     \
 	bin/guile                          \
-	bin/density-score-by-residue       \
-	bin/density-score-by-residue-real  \
+	bin/coot-density-score-by-residue       \
 	bin/coot-available-comp-id         \
 	bin/coot-compare-dictionaries      \
 	bin/coot-dictionary-bond-distributions \
@@ -1019,6 +1019,7 @@ if test $OS = Linux ; then
 
     fedora | centos | openSUSE )
       systype=${architecture}-${dist_name}-${dist_ver}
+      export CCACHE_DISABLE=1
     ;;
 
 
@@ -3610,6 +3611,7 @@ pwd
 gzip -dc ${AUTOBUILD_SOURCES}/$coot_version.tar.gz | tar xf -
 coot_dir_name=`echo $coot_version | sed 's/-revision.*//'`
 cd $coot_dir_name
+patch -p0 < ${AUTOBUILD_SOURCES}/coot-0.8.5-fedora.patch
 
 if test -n "$glib_installed" ; then
     coot_extra_args="$coot_extra_args --with-glib-prefix=$install_top_dir"
