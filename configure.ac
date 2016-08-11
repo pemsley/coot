@@ -25,9 +25,7 @@ dnl implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 dnl
 dnl Process this file with autoconf to produce a configure script.
 
-# I don't understand how to package pre-release - so hack the 
-# version here - don't commit this!
-AC_INIT(coot, 0.8.6)
+AC_INIT(coot, 0.8.6-pre)
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 

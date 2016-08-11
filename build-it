@@ -1019,7 +1019,6 @@ if test $OS = Linux ; then
 
     fedora | centos | openSUSE )
       systype=${architecture}-${dist_name}-${dist_ver}
-      export CCACHE_DISABLE=1
     ;;
 
 
