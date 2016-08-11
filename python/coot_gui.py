@@ -2075,16 +2075,10 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
       textbuffer.insert_with_tags_by_name(start, description, "tag")
 
    def close_cb_func(*args):
-<<<<<<< HEAD
       if post_close_hook:
          post_close_hook()
       window.destroy()
 
-=======
-      # should we check if post_close_hook is a callable func?
-      post_close_hook()
-      window.destroy()
->>>>>>> faddd19... For pythonic dialog_box_of_buttons_with_check_button add the optional arg
    # main line
    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
    scrolled_win = gtk.ScrolledWindow()
