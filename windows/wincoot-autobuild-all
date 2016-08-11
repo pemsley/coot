@@ -233,9 +233,9 @@ if [ $make_installer_only == 0 ] ; then
 done
 else
  # this is for installer only
- coot_test_status=0
  rm /z/make_installer_only
  . ${HOME}/wincoot-installer-variables
+ coot_test_status=0
 fi
 
 # flag for makensis, i.e. overwrite binary dir when stable release
