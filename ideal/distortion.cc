@@ -341,7 +341,8 @@ coot::operator<<(std::ostream &s, geometry_distortion_info_t gdi) {
 }
 
 coot::omega_distortion_info_container_t
-coot::restraints_container_t::omega_trans_distortions(int mark_cis_peptides_as_bad_flag) {
+coot::restraints_container_t::omega_trans_distortions(const coot::protein_geometry &geom,
+						      bool mark_cis_peptides_as_bad_flag) {
 
    // restraints_usage_flag = flags;  // not used?
    setup_gsl_vector_variables();  //initial positions in x array
@@ -352,8 +353,8 @@ coot::restraints_container_t::omega_trans_distortions(int mark_cis_peptides_as_b
    else
       chain_id = "blank"; // shouldn't happen.
 
-
    mmdb::Chain *chain_p = atom[0]->GetChain();
+   
    // I think there will be need for some sort of scaling thing here.
    std::pair<short int, int> minr = coot::util::min_resno_in_chain(chain_p);
    std::pair<short int, int> maxr = coot::util::max_resno_in_chain(chain_p);
@@ -373,122 +374,99 @@ coot::restraints_container_t::omega_trans_distortions(int mark_cis_peptides_as_b
 
    // we need to pick out the CA and C of this and N and Ca of next.
 
-   // now add data to dc.omega_distortions.
-   mmdb::PResidue *first = NULL;
-   mmdb::PResidue *second = NULL;
-   int nfirst, nnext;
-//    int ifirst;
-//    int inext;
+   int n_chain_residues = chain_p->GetNumberOfResidues();
+   for (int ires_serial=0; ires_serial<(n_chain_residues-1); ires_serial++) {
+   
+      mmdb::Residue *first  = chain_p->GetResidue(ires_serial);
+      mmdb::Residue *second = chain_p->GetResidue(ires_serial+1);
 
-   for (int i=istart_res; i<iend_res; i++) {
-      int selHnd1 = mol->NewSelection();
-      mol->Select(selHnd1, mmdb::STYPE_RESIDUE, 1,
-		  chain_id.c_str(),
-		  i, "*",
-		  i, "*",
-		  "*",  // residue name
-		  "*",  // Residue must contain this atom name?
-		  "*",  // Residue must contain this Element?
-		  "*",  // altLocs
-		  mmdb::SKEY_NEW // selection key
-		  );
-      mol->GetSelIndex(selHnd1, first, nfirst);
+      if (first && second) {
 
-      int selHnd2 = mol->NewSelection();
-      mol->Select(selHnd2, mmdb::STYPE_RESIDUE, 1,
-		  chain_id.c_str(),
-		  i+1, "*",
-		  i+1, "*",
-		  "*",  // residue name
-		  "*",  // Residue must contain this atom name?
-		  "*",  // Residue must contain this Element?
-		  "*",  // altLocs
-		  mmdb::SKEY_NEW // selection key
-		  );
-      mol->GetSelIndex(selHnd2, second, nnext);
+	 if (! chain_p->isSolventChain()) { 
 
+	    std::pair<std::string, bool> lt = find_link_type_complicado(first, second, geom);
 
-      if ((nfirst > 0) && (nnext > 0)) {
+	    if (lt.first == "TRANS" || lt.first == "PTRANS" ||
+		lt.first == "CIS"   || lt.first == "PCIS") {
+	       
+	       // So we have atoms selected in both residues, lets look for those atoms:
 
-	 if (! first[0]->chain->isSolventChain()) { 
+	       mmdb::Atom *at;
+	       clipper::Coord_orth ca_first, c_first, n_next, ca_next;
+	       short int got_ca_first = 0, got_c_first = 0, got_n_next = 0, got_ca_next = 0;
+	       mmdb::PPAtom res_selection = NULL;
+	       int i_no_res_atoms;
 
-	    // So we have atoms selected in both residues, lets look for those atoms:
-
-	    mmdb::Atom *at;
-	    clipper::Coord_orth ca_first, c_first, n_next, ca_next;
-	    short int got_ca_first = 0, got_c_first = 0, got_n_next = 0, got_ca_next = 0;
-	    mmdb::PPAtom res_selection = NULL;
-	    int i_no_res_atoms;
-
-	    first[0]->GetAtomTable(res_selection, i_no_res_atoms);
-	    if (i_no_res_atoms > 0) {
-	       for (int iresatom=0; iresatom<i_no_res_atoms; iresatom++) {
-		  at = res_selection[iresatom];
-		  std::string atom_name(at->name);
-		  if (atom_name == " CA ") {
-		     ca_first = clipper::Coord_orth(at->x, at->y, at->z);
-		     got_ca_first = 1;
-		  }
-		  if (atom_name == " C  ") {
-		     c_first = clipper::Coord_orth(at->x, at->y, at->z);
-		     got_c_first = 1;
-		  }
-	       }
-	    }
-	    second[0]->GetAtomTable(res_selection, i_no_res_atoms);
-	    if (i_no_res_atoms > 0) {
-	       for (int iresatom=0; iresatom<i_no_res_atoms; iresatom++) {
-		  at = res_selection[iresatom];
-		  std::string atom_name(at->name);
-		  if (atom_name == " CA ") {
-		     ca_next = clipper::Coord_orth(at->x, at->y, at->z);
-		     got_ca_next = 1;
-		  }
-		  if (atom_name == " N  ") {
-		     n_next = clipper::Coord_orth(at->x, at->y, at->z);
-		     got_n_next = 1;
-		  }
-	       }
-	    }
-
-	    if (got_ca_first && got_c_first && got_n_next && got_ca_next) {
-	       double tors = clipper::Coord_orth::torsion(ca_first, c_first, n_next, ca_next);
-	       double torsion = clipper::Util::rad2d(tors);
-	       torsion = (torsion > 0.0) ? torsion : 360.0 + torsion;
-	       std::string info = coot::util::int_to_string(i);
-	       info += chain_id;
-	       info += " ";
-	       info += first[0]->name;
-	       info += " Omega: ";
-	       info += coot::util::float_to_string(torsion);
-	       double distortion = fabs(180.0 - torsion);
-	       // distortion = (distortion < 60.0) ? distortion : 60.0;
-
-           // Add comment on Cis peptide, if it is:
-           if (torsion < 90.0 || torsion > 270.0) 
-              info += "  (Cis)";
-
-	       if (!mark_cis_peptides_as_bad_flag)
-		  // consider the cases: torsion=1 and torsion=359
-		  if (distortion > 90.0) {
-		     distortion = torsion;
-		     if (distortion > 180.0) {
-			distortion -= 360;
-			distortion = fabs(distortion);
+	       first->GetAtomTable(res_selection, i_no_res_atoms);
+	       if (i_no_res_atoms > 0) {
+		  for (int iresatom=0; iresatom<i_no_res_atoms; iresatom++) {
+		     at = res_selection[iresatom];
+		     std::string atom_name(at->name);
+		     if (atom_name == " CA ") {
+			ca_first = clipper::Coord_orth(at->x, at->y, at->z);
+			got_ca_first = 1;
+		     }
+		     if (atom_name == " C  ") {
+			c_first = clipper::Coord_orth(at->x, at->y, at->z);
+			got_c_first = 1;
 		     }
 		  }
-	       distortion *= scale;
-	       dc.omega_distortions.push_back(coot::omega_distortion_info_t(i, distortion, info));
-	    } else {
-	       std::cout << "INFO:: failed to get all atoms for omega torsion "
-			 << "chain " << first[0]->GetChainID() << " residues "
-			 << first[0]->GetSeqNum() << " to " << second[0]->GetSeqNum()
-			 << std::endl;
+	       }
+	       second->GetAtomTable(res_selection, i_no_res_atoms);
+	       if (i_no_res_atoms > 0) {
+		  for (int iresatom=0; iresatom<i_no_res_atoms; iresatom++) {
+		     at = res_selection[iresatom];
+		     std::string atom_name(at->name);
+		     if (atom_name == " CA ") {
+			ca_next = clipper::Coord_orth(at->x, at->y, at->z);
+			got_ca_next = 1;
+		     }
+		     if (atom_name == " N  ") {
+			n_next = clipper::Coord_orth(at->x, at->y, at->z);
+			got_n_next = 1;
+		     }
+		  }
+	       }
+
+	       if (got_ca_first && got_c_first && got_n_next && got_ca_next) {
+		  double tors = clipper::Coord_orth::torsion(ca_first, c_first, n_next, ca_next);
+		  double torsion = clipper::Util::rad2d(tors);
+		  torsion = (torsion > 0.0) ? torsion : 360.0 + torsion;
+		  std::string info = chain_id;
+		  info += " ";
+		  info += coot::util::int_to_string(first->GetSeqNum());
+		  info += " ";
+		  info += first->name;
+		  info += " Omega: ";
+		  info += coot::util::float_to_string(torsion);
+		  double distortion = fabs(180.0 - torsion);
+
+		  // Add comment on Cis peptide, if it is:
+		  if (torsion < 90.0 || torsion > 270.0) 
+		     info += "  (Cis)";
+
+		  if (!mark_cis_peptides_as_bad_flag)
+		     // consider the cases: torsion=1 and torsion=359
+		     if (distortion > 90.0) {
+			distortion = torsion;
+			if (distortion > 180.0) {
+			   distortion -= 360;
+			   distortion = fabs(distortion);
+			}
+		     }
+		  distortion *= scale;
+		  // the omega angle belongs to the second residue
+		  omega_distortion_info_t odi(second->GetSeqNum(), distortion, info);
+		  dc.omega_distortions.push_back(odi);
+	       } else {
+		  std::cout << "INFO:: failed to get all atoms for omega torsion "
+			    << "chain " << chain_id << " residues "
+			    << first->GetSeqNum() << " to " << second->GetSeqNum()
+			    << std::endl;
+	       }
 	    }
 	 }
       }
-      mol->DeleteSelection(selHnd1);
-      mol->DeleteSelection(selHnd2);
    }
    return dc;
 } 

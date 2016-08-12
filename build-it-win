@@ -528,8 +528,9 @@ function my_exit {
    fi
 
    # now copy the log files
-   cp -r ${LOGS} ${PUBLIC_HTML_LOGS}
-   echo copy the log files from ${LOGS} to ${PUBLIC_HTML_LOGS}
+   # FIXME try to avoid here as in another place or vice versa
+   #cp -r ${LOGS} ${PUBLIC_HTML_LOGS}
+   #echo copy the log files from ${LOGS} to ${PUBLIC_HTML_LOGS}
 
    exit $exit_arg
 }
@@ -1846,28 +1847,32 @@ if [ "$build_goocanvas" = "" ] ; then
         goocanvas_args="--with-goocanvas-prefix=$install_top_dir"
     else
         build_goocanvas=yes
+        goocanvas_args="--with-goocanvas-prefix=$install_top_dir"
     fi
 
     # is it compilable? (do we have the right gtk (etc) version?)
+    # this is nonsense to test before we have installed the other things. Since
+    # we are using binaries on windows, who cares. We hope that the
+    # dependencies will be there, so comment out this nonsense
     #
-    if [ "$build_goocanvas" = "yes" ] ; then
-        if pkg-config gtk+-2.0 --atleast-version 2.12 ; then
-            echo goocanvas: recent enough gtk+ version
-            if pkg-config cairo --atleast-version 1.4 ; then
-                echo goocanvas: recent enough cairo version
+    #if [ "$build_goocanvas" = "yes" ] ; then
+    #    if pkg-config gtk+-2.0 --atleast-version 2.12 ; then
+    #        echo goocanvas: recent enough gtk+ version
+    #        if pkg-config cairo --atleast-version 1.4 ; then
+    #            echo goocanvas: recent enough cairo version
           # yes, compilable
-                goocanvas_args="--with-goocanvas-prefix=$install_top_dir"
-            else
-                echo goocanvas: Cairo is too old.  Goocanvas needs cairo 1.4 or later. You have:
-                pkg-config cairo --modversion
-                build_goocanvas=no
-            fi
-        else 
-            echo goocanvas: gtk+-2.0 too old.  Goocanvas needs 2.12 or later. You have:
-            pkg-config gtk+-2.0 --modversion
-            build_goocanvas=no
-        fi
-    fi
+    #            goocanvas_args="--with-goocanvas-prefix=$install_top_dir"
+    #        else
+    #            echo goocanvas: Cairo is too old.  Goocanvas needs cairo 1.4 or later. You have:
+    #            pkg-config cairo --modversion
+    #            build_goocanvas=no
+    #        fi
+    #    else 
+    #        echo goocanvas: gtk+-2.0 too old.  Goocanvas needs 2.12 or later. You have:
+    #        pkg-config gtk+-2.0 --modversion
+    #        build_goocanvas=no
+    #    fi
+    #fi
 fi
 echo goocanvas:  goocanvas_args set to $goocanvas_args
 
