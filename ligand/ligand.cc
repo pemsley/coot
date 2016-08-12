@@ -1619,7 +1619,7 @@ coot::ligand::make_ligand_properties(int ilig) {
 
    if (atoms.size() == 0) {
       std::cout << "ERROR in ligand coordinates - none found" << std::endl;
-      // exit(1); // Harsh.  (but fair?)
+      // exit(1); // No exit() calls from a library
       return; 
       //
       // But wrong for interactive program.  To be fixed for that case.

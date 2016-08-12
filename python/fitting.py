@@ -31,7 +31,7 @@
 # This is simple-minded and outdated now we have the interruptible
 # version (below).
 #
-def fit_protein(imol):
+def fit_protein(imol, rotamer_only=False, animate=True):
 
     set_go_to_atom_molecule(imol)
     make_backup(imol) # do a backup first
@@ -64,14 +64,17 @@ def fit_protein(imol):
                         for alt_conf in residue_alt_confs(imol, chain_id, res_no, ins_code):
                             print "centering on ",chain_id,res_no," CA"
                             set_go_to_atom_chain_residue_atom_name(chain_id,res_no,"CA")
-                            rotate_y_scene(30, 0.3) # n-frames frame-interval(degrees)
+                            if animate:
+                                rotate_y_scene(30, 0.3) # n-frames frame-interval(degrees)
                             if (alt_conf == ""):
                                 auto_fit_best_rotamer(res_no, alt_conf, ins_code, chain_id, imol,
                                                       imol_map, 1, 0.1)
-                            if (imol_map >= 0):
+                            if (imol_map >= 0 and
+                                not rotamer_only):
                                 refine_zone(imol, chain_id, res_no, res_no, alt_conf)
                                 accept_regularizement()
-                            rotate_y_scene(30, 0.3)
+                            if animate:
+                                rotate_y_scene(30, 0.3)
       
     if (replacement_state == 0):
 	  set_refinement_immediate_replacement(0)
