@@ -920,10 +920,9 @@ graphics_info_t::omega_graphs(int imol) {
 			   coot::restraints_container_t restraints(molecules[imol].atom_sel,
 								   std::string(chain_id));
 
-// 			   std::cout << "DEBUG:: Getting omega distortions for "
-// 				     << nSelResidues << " selected residues\n";
 			   coot::omega_distortion_info_container_t om_dist = 
-			      restraints.omega_trans_distortions(mark_cis_peptides_as_bad_flag);
+			      restraints.omega_trans_distortions(*geom_p,
+								 mark_cis_peptides_as_bad_flag);
 			   // std::cout << "DEBUG: got om_dist." << std::endl;
 
 			   graphs->render_omega_blocks(om_dist, ich, std::string(chain_id),
@@ -949,7 +948,7 @@ graphics_info_t::omega_distortions_from_mol(const atom_selection_container_t &as
 
    coot::restraints_container_t restraints(asc, chain_id);
    coot::omega_distortion_info_container_t om_dist =
-      restraints.omega_trans_distortions(mark_cis_peptides_as_bad_flag);
+      restraints.omega_trans_distortions(*geom_p, mark_cis_peptides_as_bad_flag);
    return om_dist;
 }
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)

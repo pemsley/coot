@@ -1638,7 +1638,8 @@ namespace coot {
       geometric_distortions() const;
 
       omega_distortion_info_container_t
-      omega_trans_distortions(int mark_cis_peptides_as_bad_flag);
+      omega_trans_distortions(const protein_geometry &geom,
+			      bool mark_cis_peptides_as_bad_flag);
       
 
       // So, we provide easy(?) access to the atoms of next and
