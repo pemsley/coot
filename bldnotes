@@ -114,8 +114,6 @@ scripting exercise
 
 **** General ****
 
-   o centre on atom (e.g. via ^G should update status bar info)
-
    o revisit anti-aliasing. Seems we need to antialias before drawing map 
 	and lines and not in general, I think.
 
