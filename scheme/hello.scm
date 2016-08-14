@@ -70,7 +70,7 @@
 					(else first-name)))
 		   (else
 		    (first-non-trivial-name name-strings)))))
-	       (d-string (format #f "~a ~a. Welcome to Coot ~s~%~!" time-str personal-name (coot-version))))
+	       (d-string (format #f "~a ~a. Welcome to Coot ~a" time-str personal-name (coot-version))))
 	  
 	  (format #t "~a~%" hello-str)
 	  (set-display-intro-string d-string)))))
