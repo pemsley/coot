@@ -454,7 +454,7 @@ if COOT_USE_PYTHON
    EXTRA_DIST += coot_wrap_python_pre_gtk2.cc 
 endif
 if COOT_USE_PYTHON
-dist_python_SCRIPTS = coot.py coot.pth
+   dist_python_PYTHON = coot.py coot.pth
 endif
 
 
