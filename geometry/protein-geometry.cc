@@ -2186,7 +2186,7 @@ coot::protein_geometry::standard_protein_monomer_files() const {
 
    s.push_back("a/AR.cif");
    s.push_back("c/CR.cif");
-   s.push_back("g/GR.cif");
+   // s.push_back("g/GR.cif"); old
 
    // s.push_back("a/AD.cif");
    // s.push_back("c/CD.cif");
