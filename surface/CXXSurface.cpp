@@ -493,10 +493,10 @@ int CXXSurface::calculateVDWFromAtoms(mmdb::PManager allAtomsManager_in, const i
 	std::cout << "nUniqueContextAtoms " << nUniqueContextAtoms << " nSharedContextAtoms " << nSharedContextAtoms << std::endl;
 	
 	CXXBall::triangulateBalls(vdwBallPntrs, contextBallPntrs, delta, this, CXXSphereElement::VDW);
-	for (int i=0; i<vdwBallPntrs.size(); i++){
+	for (unsigned int i=0; i<vdwBallPntrs.size(); i++){
 		if (vdwBallPntrs[i]) delete vdwBallPntrs[i];
 	}
-	for (int i=0; i<contextBallPntrs.size(); i++){
+	for (unsigned int i=0; i<contextBallPntrs.size(); i++){
 		map<mmdb::PAtom, const CXXBall *>::iterator equivalentMainAtom = mainAtoms.find(ContextSelAtom[i]);
 		if (equivalentMainAtom == mainAtoms.end()){
 			if (contextBallPntrs[i]) delete contextBallPntrs[i];
@@ -545,10 +545,10 @@ int CXXSurface::calculateAccessibleFromAtoms(mmdb::PManager allAtomsManager_in, 
 	std::cout << "nUniqueContextAtoms " << nUniqueContextAtoms << " nSharedContextAtoms " << nSharedContextAtoms << std::endl;
 	
 	CXXBall::triangulateBalls(vdwBallPntrs, contextBallPntrs, delta, this, CXXSphereElement::Accessible);
-	for (int i=0; i<vdwBallPntrs.size(); i++){
+	for (unsigned int i=0; i<vdwBallPntrs.size(); i++){
 		if (vdwBallPntrs[i]) delete vdwBallPntrs[i];
 	}
-	for (int i=0; i<contextBallPntrs.size(); i++){
+	for (unsigned int i=0; i<contextBallPntrs.size(); i++){
 		map<mmdb::PAtom, const CXXBall *>::iterator equivalentMainAtom = mainAtoms.find(ContextSelAtom[i]);
 		if (equivalentMainAtom == mainAtoms.end()){
 			if (contextBallPntrs[i]) delete contextBallPntrs[i];
@@ -630,16 +630,16 @@ int CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, const int 
         }
     }
     splitReentrantProbes.resize(0);
-    for (int i=0; i<vdwBallPntrs.size(); i++){
+    for (unsigned int i=0; i<vdwBallPntrs.size(); i++){
 		if (vdwBallPntrs[i]) delete static_cast<const CXXAtomBall *>(vdwBallPntrs[i]);
-	}
-	for (int i=0; i<contextBallPntrs.size(); i++){
+    }
+    for (unsigned int i=0; i<contextBallPntrs.size(); i++){
 		if (contextBallPntrs[i]) delete static_cast<const CXXAtomBall *>(contextBallPntrs[i]);
-	}
+    }
     CXXBall::triangulateBalls(reentrantProbes, reentrantProbes, delta, this, CXXSphereElement::Reentrant);
-	for (int i=0; i<reentrantProbes.size(); i++){
-		delete static_cast<const CXXReentrantProbeBall *>(reentrantProbes[i]);
-	}
+    for (unsigned int i=0; i<reentrantProbes.size(); i++){
+       delete static_cast<const CXXReentrantProbeBall *>(reentrantProbes[i]);
+    }
 	
     if (blend_edges) {
         cout << "Starting to blend edges" <<endl;
@@ -1178,9 +1178,9 @@ void CXXSurface::compress(double tolerance){
     int atomHandle = getVectorHandle("atom");
     
 	vector<int, CXX::CXXAlloc<int> >equivalences(vertices.size());
-	for (int i=0; i<vertices.size(); i++){
+	for (unsigned int i=0; i<vertices.size(); i++){
 		bool uniqueAndDrawn = true;
-		for (int j=0; j<compressedVertices.size() && uniqueAndDrawn; j++){
+		for (unsigned int j=0; j<compressedVertices.size() && uniqueAndDrawn; j++){
 			if ((vertices[i].coordRef(vertexHandle).isNearly
 				 (compressedVertices[j].coordRef(vertexHandle), tolerance) &&
 				 vertices[i].coordRef(normalHandle).isNearly
@@ -1196,7 +1196,7 @@ void CXXSurface::compress(double tolerance){
 		}
 	}
 	int equivalent[3];
-	for (int i=0; i<triangles.size(); i++){
+	for (unsigned int i=0; i<triangles.size(); i++){
 		for (int j=0; j<3; j++){
 			equivalent[j] = equivalences[vertex(i,j)];
 		}

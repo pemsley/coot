@@ -55,7 +55,7 @@ int CXXBall::triangulateBalls(vector<const CXXBall*, CXX::CXXAlloc<const CXXBall
 	//Reformat the ragged Edges, so that we have them separated such that all of the ragged edges
 	//that need to be added to a particular probe are in an appropriate map associated with that probe	
 	std::map<const CXXBall*, std::map<const CXXBall *, std::vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > > >reformattedEdges;
-	for (int i=0; i<raggedEdges.size(); i++){
+	for (unsigned int i=0; i<raggedEdges.size(); i++){
 		std::map<const CXXBall *, std::vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > >::iterator raggedEdgesEnd = raggedEdges[i].end();
 		for (std::map<const CXXBall *, std::vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > >::iterator raggedEdgeSet = raggedEdges[i].begin();
 			 raggedEdgeSet != raggedEdgesEnd; 
@@ -81,7 +81,7 @@ int CXXBall::triangulateBalls(vector<const CXXBall*, CXX::CXXAlloc<const CXXBall
 	};
 	
 #pragma omp parallel for default(none) shared(trimmedBalls, contactMap, insideOrOutside, reformattedEdges, delta, aSurface) schedule(dynamic, 10) //num_threads(2)
-	for (int i=0; i<trimmedBalls.size(); i++){
+	for (unsigned int i=0; i<trimmedBalls.size(); i++){
 		const CXXBall &ball(*(trimmedBalls[i]));
 		std::map<const CXXBall *, std::vector<const CXXBall *, CXX::CXXAlloc<const CXXBall *> > >::iterator contacts;
 		contacts = contactMap.find(&ball);
@@ -198,7 +198,7 @@ int CXXBall::ballContacts(std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBal
 #else	
 #pragma omp parallel for default(none) shared (binnedballs, ballRadiusX2, limits, binWidth, nBins) schedule(dynamic,10) //num_threads(2)
 #endif	
-    for (int iBall=0; iBall< balls.size(); iBall++){
+    for (unsigned int iBall=0; iBall< balls.size(); iBall++){
 		int iBin[3];
 		for (int i=0; i<3; i++){
 			iBin[i] = (int)floor(((*balls[iBall])[i]-limits[i][0]) / binWidth[i]);
