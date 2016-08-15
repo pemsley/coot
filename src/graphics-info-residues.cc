@@ -467,7 +467,7 @@ graphics_info_t::perpendicular_ligand_view(int imol, const coot::residue_spec_t 
 	    coot::Cartesian rot_centre = RotationCentre();
 	    coot::view_info_t view1(g.quat, rot_centre,      zoom, "current");
 	    coot::view_info_t view2(vqf,    res_centre, nice_zoom, "ligand-perp");
-	    int nsteps = 50;
+	    int nsteps = 60;
 	    coot::view_info_t::interpolate(view1, view2, nsteps);
 
 	 }

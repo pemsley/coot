@@ -200,11 +200,11 @@ AM_CPPFLAGS = \
 pkginclude_HEADERS = crunch-model.hh
 
 libexec_PROGRAMS = coot-bin coot-density-score-by-residue-bin
-bin_PROGRAMS =  fix-nomenclature-errors
+bin_PROGRAMS =  coot-fix-nomenclature-errors
 dist_bin_SCRIPTS = coot coot-density-score-by-residue
 check_PROGRAMS = test-coot-align test-cholesky
 
-fix_nomenclature_errors_SOURCES = \
+coot_fix_nomenclature_errors_SOURCES = \
 	fix-nomenclature.cc    \
 	coot-nomenclature.hh   \
 	coot-nomenclature.cc
@@ -447,6 +447,7 @@ coot_bin_SOURCES = \
 	ncs.hh 		         \
 	model-view.hh 		 \
 	view.hh 		 \
+	view.cc 		 \
 	new-centre.hh
 
 if COOT_USE_PYTHON
@@ -467,7 +468,7 @@ endif
 
 # graphics_crash_test_LDADD = @GTK_LIBS@ $(GTKGL_CONTEXT_LIBS) $(INTLLIBS) $(GLUT_LIBS) -lGL -lGLU
 
-fix_nomenclature_errors_LDADD = \
+coot_fix_nomenclature_errors_LDADD = \
 	$(top_builddir)/ligand/libcoot-ligand.la      		\
 	$(top_builddir)/db-main/libcoot-db-main.la      	\
 	$(top_builddir)/ideal/libcoot-ideal.la    		\
