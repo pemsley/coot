@@ -24,11 +24,11 @@ libcoot_analysis_la_LIBADD = \
 
 libcoot_analysis_la_LDFLAGS = $(SHARED_LDFLAGS)
 
-bin_PROGRAMS = bfactan
+bin_PROGRAMS = coot-bfactan
 
 check_PROGRAMS = test-mogul test-cablam peptide-projection
 
-bfactan_SOURCES = bfactan.cc
+coot_bfactan_SOURCES = bfactan.cc
 
 test_mogul_SOURCES = test-mogul.cc
 
@@ -43,7 +43,7 @@ peptide_projection_SOURCES  = peptide-projection.cc
 
 peptide_projection_LDADD = libcoot-analysis.la
 
-bfactan_LDADD = \
+coot_bfactan_LDADD = \
 	libcoot-analysis.la 					\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la 	\
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
