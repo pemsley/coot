@@ -5,8 +5,7 @@
 findligand \- Find potential ligand postions in maps made using X-ray data
 .SH SYNOPSIS
 .B findwaters [OPTIONS] 
-.I <ligand-coordinates-file-name> 
-..
+.I <ligand-coordinates-file-name> ..
 
 .SH OPTIONS
 
