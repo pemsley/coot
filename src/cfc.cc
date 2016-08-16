@@ -1275,7 +1275,7 @@ std::vector<int>
 cfc::extracted_cluster_info_from_python::water_structures_vec() const {
 
    // I don't like using a list, I'd rather do it the usual way, with
-   // a vector ans std::find().
+   // a vector and std::find().
    //
    std::list<int> imol_list;
    std::vector<int> imol_vec;
