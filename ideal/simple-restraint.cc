@@ -2405,6 +2405,13 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
       }
    }
 
+   // cache the energy types:
+   std::map<mmdb::Atom *, std::string> energy_type_cache;
+   for (unsigned int i=0; i<filtered_non_bonded_atom_indices.size(); i++) {
+      mmdb::Atom *at = atom[i];
+      energy_type_cache[at] = get_type_energy(at, geom);
+   }
+
    int n_nbc_r = 0;
    for (unsigned int i=0; i<filtered_non_bonded_atom_indices.size(); i++) { 
       for (unsigned int j=0; j<filtered_non_bonded_atom_indices[i].size(); j++) {
@@ -2426,9 +2433,10 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
 // 	    d += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
 // 	    std::cout << "------------- mark a0: " << i << " " << j << " " << d << std::endl;
 // 	 }
-	 
-	 std::string type_1 = get_type_energy(at_1, geom); // not time consuming, but we can 
-	 std::string type_2 = get_type_energy(at_2, geom); // use a map for energy times
+
+	 // these are cached now
+	 // std::string type_1 = get_type_energy(at_1, geom); // not time consuming, but we can 
+	 // std::string type_2 = get_type_energy(at_2, geom); // use a map for energy times
 
 // 	 gettimeofday(&current_time, NULL);
 // 	 d = current_time.tv_sec - start_time.tv_sec;
@@ -2437,6 +2445,9 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
 // 	 std::cout << "------------- mark a1: " << i << " " << j << " " << d << std::endl;
 	    
          if (at_1 && at_2) {
+
+	    std::string type_1 = energy_type_cache[at_1];
+	    std::string type_2 = energy_type_cache[at_2];
 
 	    bool add_it = true;
 
