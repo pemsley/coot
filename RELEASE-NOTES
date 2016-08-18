@@ -1,4 +1,9 @@
 
+  Release 0.8.6.1
+
+  o BUG-FIX: Fix typo in findligand shell script
+
+
   Release 0.8.6
 
   o FEATURE: Added man pages
@@ -11,7 +16,7 @@
 
   o CHANGE:  Go-To-Ligand function now has better animation
 
-  o CHANGE:  Included a speedup for the non-bonded contact restraints generation
+  o CHANGE:  Included a speed-up for the non-bonded contact restraints generation
 
 -----
 
