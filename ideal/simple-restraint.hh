@@ -25,6 +25,7 @@
 #define HAVE_SIMPLE_RESTRAINT_HH
 
 #include <vector>
+#include <list>
 #include <string>
 #include <stdexcept>
 
@@ -1432,6 +1433,11 @@ namespace coot {
       int make_non_bonded_contact_restraints(const bonded_pair_container_t &bpc,
 					     const reduced_angle_info_container_t &ai,
 					     const protein_geometry &geom);
+      bool is_in_same_ring(mmdb::Residue *residue_p,
+			   std::map<std::string, std::pair<bool, std::vector<std::list<std::string> > > > &residue_ring_map_cache,
+			   const std::string &atom_name_1,
+			   const std::string &atom_name_2,
+			   const coot::protein_geometry &geom) const;
       
       //! Set a flag that we have an OXT and we need to position it
       //after the refinement.
@@ -1638,7 +1644,8 @@ namespace coot {
       geometric_distortions() const;
 
       omega_distortion_info_container_t
-      omega_trans_distortions(int mark_cis_peptides_as_bad_flag);
+      omega_trans_distortions(const protein_geometry &geom,
+			      bool mark_cis_peptides_as_bad_flag);
       
 
       // So, we provide easy(?) access to the atoms of next and

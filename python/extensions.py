@@ -1144,7 +1144,14 @@ if (have_coot_python):
                        valid_model_molecule_qm, "Logfile name: ", "",
                        lambda imol, text: read_refmac_log(imol, text)))
                        
-
+     add_simple_coot_menu_menuitem(
+       submenu_refine,
+       "Occupancy refinement input for REFMAC...",
+       lambda func: generic_chooser_and_file_selector("Extra restraints file",
+                       valid_model_molecule_qm, "Restraints file name: ",
+                       "refmac_extra_params.txt",
+                       lambda imol, text: restraints_for_occupancy_refinement(imol, text)))
+       
 
      # An example with a submenu:
      #

@@ -88,7 +88,7 @@ ScoreClashes::ScoreClashes( const std::vector<clipper::Coord_orth>& coords, cons
   ma.set_id( " C  " );
   ma.set_u_iso( 1.0 );
   ma.set_occupancy( 1.0 );
-  for ( int i = 0; i < coords.size(); i++ ) {
+  for ( unsigned int i = 0; i < coords.size(); i++ ) {
     ma.set_coord_orth( coords[i] );
     mm.insert( ma );
   }
@@ -123,9 +123,9 @@ void ScoreClashes::set_exclude( const std::vector<clipper::Coord_orth>& coords, 
   for ( int a = 0; a < mol[0][0].size(); a++ ) 
     mol[0][0][a].set_occupancy( 1.0 );
   // do a clash search and zero clashing occupancies
-  for ( int a = 0; a < coords.size(); a++ ) {
+  for ( unsigned int a = 0; a < coords.size(); a++ ) {
     std::vector<clipper::MAtomIndexSymmetry> atoms = nnb( coords[a], rad );
-    for ( int i = 0; i < atoms.size(); i++ )
+    for ( unsigned int i = 0; i < atoms.size(); i++ )
       mol[atoms[i].polymer()]
 	 [atoms[i].monomer()]
 	 [atoms[i].atom()].set_occupancy( 0.0 );
@@ -173,7 +173,7 @@ double ScoreClashes::score( const Chain& frag ) const
   for ( int r = 0; r < frag.size(); r++ ) {
     std::vector<clipper::MAtomIndexSymmetry>
       atoms = nnb( frag[r].coord_ca(), rad_ );
-    for ( int i = 0; i < atoms.size(); i++ )
+    for ( unsigned int i = 0; i < atoms.size(); i++ )
       if ( mol[atoms[i].polymer()]
 	      [atoms[i].monomer()]
 	      [atoms[i].atom()].occupancy() > 0.5 ) s += -1.0;
@@ -210,7 +210,7 @@ double ScoreClashes::score( const Chain& frag ) const
 
     // score vs density and clashes (omitting first and last residues)
     std::vector<std::pair<double,int> > fragscore( frags.size() );
-    for ( int f = 0; f < frags.size(); f++ ) {
+    for ( unsigned int f = 0; f < frags.size(); f++ ) {
       // density score
       double scr_rho = score_rho.score( frags[f] );
       // clash score
@@ -225,7 +225,7 @@ double ScoreClashes::score( const Chain& frag ) const
 
     result.resize( frags.size() );
     score.resize( frags.size() );
-    for ( int f = 0; f < frags.size(); f++ ) {
+    for ( unsigned int f = 0; f < frags.size(); f++ ) {
       result[f] = frags[fragscore[f].second];
       score[f]  = -fragscore[f].first;
     }

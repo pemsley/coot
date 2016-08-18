@@ -1,8 +1,16 @@
 
+;; simply read the cif file and show a monomer
+;; (no bond, angle restraints)
+;;
+(define (generate-molecule-from-mmcif comp-id mmcif-file-name)
+  
+  (read-cif-dictionary mmcif-file-name)
+  (get-monomer comp-id))
+
 
 ;; return a molecule number.  Return -1 on fail.
 ;; 
-(define (generate-molecule-from-mmcif comp-id mmcif-file-name)
+(define (generate-molecule-from-mmcif-by-dict-gen comp-id mmcif-file-name)
 
   ;; return a new molecule number, generator is "pyrogen" or "acedrg"
   ;; 

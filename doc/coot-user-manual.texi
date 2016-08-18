@@ -16,18 +16,11 @@
 @c needs documenting:
 @c void set_unpathed_backup_file_names(int state);
 @c int  unpathed_backup_file_names_state();
-@c miguel's axes
 
 @c Part 2: Summary Description and Copyright
 
 @c A real manual includes more text here, according to the license under
 @c which it is distributed. See GNU Sample Texts.
-
-@c @copying is not understood by tex2dvi on bubbles - Grrr! FIXME
-@c @copying
-@c @end copying
-
-@c Copyright @copyright{} 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Paul Emsley
 
 @c Part 3: Titlepage, Contents, Copyright
 
@@ -36,6 +29,14 @@
 @c permission text from the previous section, instead of writing it out
 @c again; it is output on the back of the title page. The @contents command
 @c generates a table of contents.
+
+@copying
+This Manual is for Coot version 0.7 and beyond
+
+Copyright @copyright{} 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011, 2012 Paul Emsley
+
+@end copying
+
 
 @titlepage
 @title The Coot User Manual
@@ -53,9 +54,9 @@ Paul Emsley
 @c The following two commands start the copyright page. 
 @page
 @vskip 0pt plus 1filll
-@c @copying is not understood by tex2dvi on bubbles - Grrr!
-@c @insertcopying
+@insertcopying
 @end titlepage
+
      
 @c Output the table of contents at the beginning.
 @contents
@@ -73,7 +74,6 @@ Paul Emsley
 @ifnottex
 @node Top
 @top Coot User Manual
-@c @insertcopying : FIXME see above.
 @end ifnottex
 
 @menu

@@ -27,6 +27,7 @@
 #include <algorithm>  // needed for sort? Yes.
 #include <stdexcept>  // Thow execption.
 
+#include "utils/win-compat.hh"
 #include "mini-mol/atom-quads.hh"
 #include "geometry/protein-geometry.hh"
 #include "utils/coot-utils.hh"
@@ -1737,7 +1738,8 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
    // If this is INH, DRG etc, don't try to auto-add
    // 
    if (is_non_auto_load_ligand(resname)) {
-      std::cout << "INFO:: comp-id: " << resname << " is marked for non-autoloading - stopping now "
+      std::cout << "INFO:: comp-id: " << resname
+		<< " is marked for non-autoloading - stopping now "
 		<< std::endl;
       return success;
    }
@@ -1817,31 +1819,19 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	 
 	 struct stat buf;
 	 int istat = stat(filename.c_str(), &buf);
-	 if (istat == 0) { 
-	    if (S_ISREG(buf.st_mode)) {
+	 if (istat == 0) {
+	    if (coot::is_regular_file(filename)) {
+
 	       coot::read_refmac_mon_lib_info_t rmit = init_refmac_mon_lib(filename, read_number);
 	       success = rmit.success;
 	    } else {
-	       
-	       // continue with regular file code
-#if defined(WINDOWS_MINGW) || defined(_MSC_VER)
-	       if (! S_ISDIR(buf.st_mode) ) {
-		  std::cout << "WARNING: " << filename 
-			    << ": no such file (or directory)\n";
-	       } else { 
-		  std::cout << "ERROR: dictionary " << filename
-			    << " is not a regular file" << std::endl;
+
+	       // error/warning
+	       if (! coot::is_dir_or_link(filename)) {
+		  std::cout << "WARNING: " << filename << ": no such file (or directory)\n";
+	       } else {
+		  std::cout << "ERROR: dictionary " << filename << " is not a regular file" << std::endl;
 	       }
-#else
-	       if (! S_ISDIR(buf.st_mode) && 
-		   ! S_ISLNK(buf.st_mode) ) {
-		  std::cout << "WARNING: " << filename 
-			    << ": no such file (or directory)\n";
-	       } else { 
-		  std::cout << "ERROR: dictionary " << filename
-			    << " is not a regular file" << std::endl;
-	       }
-#endif
 	    }
 	 } else { 
 	    
@@ -2191,17 +2181,18 @@ coot::protein_geometry::standard_protein_monomer_files() const {
    s.push_back("p/PO4.cif");
    s.push_back("s/SO4.cif");
    s.push_back("g/GOL.cif");
-   s.push_back("e/ETH.cif");
    s.push_back("c/CIT.cif");
+   // s.push_back("e/ETH.cif");
 
    s.push_back("a/AR.cif");
-   s.push_back("a/AD.cif");
    s.push_back("c/CR.cif");
-   s.push_back("c/CD.cif");
-   s.push_back("g/GR.cif");
-   s.push_back("g/GD.cif");
-   s.push_back("t/TD.cif");
-   s.push_back("u/UR.cif");
+   // s.push_back("g/GR.cif"); old
+
+   // s.push_back("a/AD.cif");
+   // s.push_back("c/CD.cif");
+   // s.push_back("g/GD.cif");
+   // s.push_back("t/TD.cif");
+   // s.push_back("u/UR.cif");
 
    // new-style (CCP4 6.2) RNA names
    s.push_back("a/A.cif");
@@ -3612,14 +3603,19 @@ mmdb::Residue *
 coot::protein_geometry::get_residue(const std::string &comp_id, bool idealised_flag,
 				    bool try_autoload_if_needed, float b_factor) {
 
+   // If the coordinates for the model are (0,0,0) then this function
+   // returns a null.
+   
    mmdb::Residue *residue_p = NULL;
 
    // might use try_dynamic_add (if needed).
    bool r = have_dictionary_for_residue_type(comp_id, 42, try_autoload_if_needed);
-   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
-      if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
-	 residue_p = dict_res_restraints[i].GetResidue(idealised_flag, b_factor);
-	 break;
+   if (r) {
+      for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+	 if (dict_res_restraints[i].residue_info.comp_id == comp_id) {
+	    residue_p = dict_res_restraints[i].GetResidue(idealised_flag, b_factor);
+	    break;
+	 }
       }
    }
    return residue_p;

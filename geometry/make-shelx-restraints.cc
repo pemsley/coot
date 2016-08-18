@@ -190,7 +190,7 @@ int main(int argc, char **argv) {
 	 }
       }
    } else {
-      std::cout << "Usage: coot.make-shelx-restraints cif-file-name"
+      std::cout << "Usage: coot-make-shelx-restraints cif-file-name"
 		<< std::endl;
    } 
    return status;

@@ -63,9 +63,9 @@ clipper::MiniMol NucleicAcidTools::flag_chains( const clipper::MiniMol& mol )
       }
       if ( flag[0] == 0 )             flag[0] = -1;
       if ( flag[flag.size()-1] == 0 ) flag[flag.size()-1] = -1;
-      for ( int r = 1; r < flag.size()-1; r++ )
+      for ( int r = 1; r < int(flag.size()-1); r++ )
         if ( flag[r] == 0 && flag[r-1] == -1 ) flag[r] = -1;
-      for ( int r = flag.size()-2; r > 0; r-- )
+      for ( int r = int(flag.size()-2); r > 0; r-- )
         if ( flag[r] == 0 && flag[r+1] == -1 ) flag[r] = -1;
       for ( int r = 0; r < mol_new[c].size(); r++ )
 	if ( flag[r] == -1 ) mol_new[c][r].set_type( "?" );
@@ -78,7 +78,7 @@ clipper::MiniMol NucleicAcidTools::flag_chains( const clipper::MiniMol& mol )
 clipper::RTop_orth NucleicAcidTools::symmetry_rtop( const std::vector<clipper::Coord_orth>& cowrk, clipper::Coord_orth& coref, const clipper::Spacegroup& spgr, const clipper::Cell& cell )
 {
   std::vector<clipper::Coord_frac> cwrk( cowrk.size() );
-  for ( int a = 0; a < cowrk.size(); a++ )
+  for ( unsigned int a = 0; a < cowrk.size(); a++ )
     cwrk[a] = cowrk[a].coord_frac(cell);
   clipper::Coord_frac cref = coref.coord_frac(cell);
   clipper::Coord_frac c1, c2;
@@ -86,7 +86,7 @@ clipper::RTop_orth NucleicAcidTools::symmetry_rtop( const std::vector<clipper::C
   int smin(0);
   clipper::Coord_frac dmin(0.0,0.0,0.0);
   for ( int s = 0; s < spgr.num_symops(); s++ )
-    for ( int a = 0; a < cwrk.size(); a++ ) {
+    for ( unsigned int a = 0; a < cwrk.size(); a++ ) {
       c1 = ( spgr.symop(s) * cwrk[a] );
       c2 = c1.lattice_copy_near( cref );
       d2 = ( c2 - cref ).lengthsq( cell );
@@ -136,7 +136,7 @@ bool NucleicAcidTools::symm_match( clipper::MiniMol& molwrk, const clipper::Mini
   clipper::Atom_list atomr = molref.atom_list();
   clipper::Range<clipper::ftype> urange, vrange, wrange;
   clipper::Coord_frac cfr( 0.0, 0.0, 0.0 );
-  for ( int i = 0; i < atomr.size(); i++ ) {
+  for ( unsigned int i = 0; i < atomr.size(); i++ ) {
     clipper::Coord_frac cf = atomr[i].coord_orth().coord_frac( cell );
     cfr += cf;
     urange.include( cf.u() );
@@ -171,7 +171,7 @@ bool NucleicAcidTools::symm_match( clipper::MiniMol& molwrk, const clipper::Mini
       clipper::Atom_list atomw = molwrk[c].atom_list();
       clipper::RTop_orth rtop = spgr.symop(sym).rtop_orth( cell );
       clipper::Coord_orth cow( 0.0, 0.0, 0.0 );
-      for ( int a = 0; a < atomw.size(); a++ ) {
+      for ( unsigned int a = 0; a < atomw.size(); a++ ) {
 	atomw[a].transform( rtop );
 	cow += atomw[a].coord_orth();
       }
@@ -189,7 +189,7 @@ bool NucleicAcidTools::symm_match( clipper::MiniMol& molwrk, const clipper::Mini
 				     rint( off0.w() ) + dw );
 	    clipper::Coord_orth ofo = off.coord_orth( cell );
 	    double scr = 0.0;
-	    for ( int a = 0; a < atomw.size(); a++ ) {
+	    for ( unsigned int a = 0; a < atomw.size(); a++ ) {
 	      clipper::Coord_orth coa = atomw[a].coord_orth() + ofo;
 	      clipper::Coord_grid cga = nxflt.coord_map( coa ).coord_grid();
 	      if ( nxflt.in_map( cga ) ) scr += nxflt.get_data( cga );

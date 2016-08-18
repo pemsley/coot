@@ -6201,6 +6201,7 @@ int laplacian (int imol);
 PyObject *get_pkgdatadir_py();
 #endif /* USE_PYTHON */
 #ifdef USE_GUILE
+// note: built-ins: (%package-data-dir) and %guile-build-info
 SCM get_pkgdatadir_scm();
 #endif
 #endif /*  __cplusplus */

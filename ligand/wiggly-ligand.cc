@@ -305,7 +305,7 @@ coot::wligand::optimize_and_install_if_unique(const coot::minimol::residue &wigg
 
       if (debug_wiggly_ligands) {  // debugging wiggly ligands
 	 std::string filename = "wligand-";
-	 filename += int_to_string(isample);
+	 filename += util::int_to_string(isample);
 	 filename += ".pdb";
 	 wiggled_ligand.write_file(filename, default_b_factor);
       }
@@ -816,12 +816,12 @@ coot::installed_wiggly_ligand_info_t::get_set_and_ideal_torsions(int i) const {
 	 p.second = torsioned_atoms[i].torsion_from_restraint;
       } else {
 	 std::string mess = "bad torsion index ";
-	 mess += coot::util::int_to_string(i);
+	 mess += util::int_to_string(i);
 	 throw std::runtime_error(mess);
       }
    } else {
       std::string mess = "bad torsion index ";
-      mess += coot::util::int_to_string(i);
+      mess += util::int_to_string(i);
       throw std::runtime_error(mess);
    } 
    return p;
@@ -840,12 +840,12 @@ coot::installed_wiggly_ligand_info_t::get_set_and_real_torsions(int i) const {
 	 
       } else {
 	 std::string mess = "bad torsion index ";
-	 mess += coot::util::int_to_string(i);
+	 mess += util::int_to_string(i);
 	 throw std::runtime_error(mess);
       }
    } else {
       std::string mess = "bad torsion index ";
-      mess += coot::util::int_to_string(i);
+      mess += util::int_to_string(i);
       throw std::runtime_error(mess);
    }
    return p;

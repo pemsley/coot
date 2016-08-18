@@ -16,7 +16,7 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc.,  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
 
 // Much this class was copied from the exmple code of clipper and
@@ -135,61 +135,62 @@ coot::util::fffear_search::fffear_search(mmdb::Manager *mol, int SelectionHandle
 
    if (npoints1 == 0) {
       std::cout << "No point" << std::endl;
-      exit(1);
-   } 
 
-   std::pair<float, float> mv = coot::util::mean_and_variance(xmap);
-   float xmap_mean  = mv.first;
-   float xmap_stddev = mv.second;
-
-   if (xmap_stddev > 0.0) { 
-   
-      post_process_nxmap(xmap_mean, xmap_stddev); // make nxmap match these.
-
-      float sum_non_masked_nxmap = 0.0;
-      int   n_non_masked = 0;
-      clipper::NXmap<float>::Map_reference_index inx;
-      for (inx = nxmap_mask.first(); !inx.last(); inx.next()) { 
-	 if (nxmap_mask[inx] > 0.0) {
-	    sum_non_masked_nxmap += nxmap[inx];
-	    n_non_masked++;
-	 }
-      }
-
-      if (n_non_masked == 0) {
-	 std::cout << "VERY STRANGE:: No non masked points!" << std::endl;
-      } else { 
-// 	 std::cout << "DEBUG:: sum non masked map: " << sum_non_masked_nxmap << " average over "
-// 		   << n_non_masked << " points is " << sum_non_masked_nxmap/float(n_non_masked)
-// 		   << std::endl;
-      }
-
-   
-      for (unsigned int iop=0; iop<ops.size(); iop++) {
-
-	 clipper::Xmap<float> r1;
-	 r1.init(clipper::Spacegroup::p1(), xmap.cell(), xmap.grid_sampling()); // fixed to be consistent with above results init.
-	 clipper::FFFear_fft<float> search(xmap);
-	 clipper::NX_operator nxop( xmap, nxmap, ops[iop]);
-	 search(r1, nxmap, nxmap_mask, nxop); // fill r1 with fffear search values at this orientation
+   } else {
       
-	 clipper::Xmap<float>::Map_reference_index ix;
-	 for ( ix = r1.first(); !ix.last(); ix.next() )
-	    if ( r1[ix] < results[ix].first) {
-	       results[ix].first = r1[ix];
-	       results[ix].second = iop;
+      std::pair<float, float> mv = coot::util::mean_and_variance(xmap);
+      float xmap_mean  = mv.first;
+      float xmap_stddev = mv.second;
+
+      if (xmap_stddev > 0.0) { 
+   
+	 post_process_nxmap(xmap_mean, xmap_stddev); // make nxmap match these.
+
+	 float sum_non_masked_nxmap = 0.0;
+	 int   n_non_masked = 0;
+	 clipper::NXmap<float>::Map_reference_index inx;
+	 for (inx = nxmap_mask.first(); !inx.last(); inx.next()) { 
+	    if (nxmap_mask[inx] > 0.0) {
+	       sum_non_masked_nxmap += nxmap[inx];
+	       n_non_masked++;
 	    }
-
-	 icount++;
-
-	 std::cout.flush();
-	 if (icount == 50) {
-	    std::cout << " " <<100*(float(iop)/float(ops.size())) << "%";
-	    std::cout.flush();
-	    icount = 0;
 	 }
+
+	 if (n_non_masked == 0) {
+	    std::cout << "VERY STRANGE:: No non masked points!" << std::endl;
+	 } else { 
+	    // 	 std::cout << "DEBUG:: sum non masked map: " << sum_non_masked_nxmap << " average over "
+	    // 		   << n_non_masked << " points is " << sum_non_masked_nxmap/float(n_non_masked)
+	    // 		   << std::endl;
+	 }
+
+   
+	 for (unsigned int iop=0; iop<ops.size(); iop++) {
+
+	    clipper::Xmap<float> r1;
+	    r1.init(clipper::Spacegroup::p1(), xmap.cell(), xmap.grid_sampling()); // fixed to be consistent with above results init.
+	    clipper::FFFear_fft<float> search(xmap);
+	    clipper::NX_operator nxop( xmap, nxmap, ops[iop]);
+	    search(r1, nxmap, nxmap_mask, nxop); // fill r1 with fffear search values at this orientation
+      
+	    clipper::Xmap<float>::Map_reference_index ix;
+	    for ( ix = r1.first(); !ix.last(); ix.next() )
+	       if ( r1[ix] < results[ix].first) {
+		  results[ix].first = r1[ix];
+		  results[ix].second = iop;
+	       }
+
+	    icount++;
+
+	    std::cout.flush();
+	    if (icount == 50) {
+	       std::cout << " " <<100*(float(iop)/float(ops.size())) << "%";
+	       std::cout.flush();
+	       icount = 0;
+	    }
+	 }
+	 std::cout << "\n";
       }
-      std::cout << "\n";
    }
 }
 

@@ -528,8 +528,9 @@ function my_exit {
    fi
 
    # now copy the log files
-   cp -r ${LOGS} ${PUBLIC_HTML_LOGS}
-   echo copy the log files from ${LOGS} to ${PUBLIC_HTML_LOGS}
+   # FIXME try to avoid here as in another place or vice versa
+   #cp -r ${LOGS} ${PUBLIC_HTML_LOGS}
+   #echo copy the log files from ${LOGS} to ${PUBLIC_HTML_LOGS}
 
    exit $exit_arg
 }
@@ -1846,28 +1847,32 @@ if [ "$build_goocanvas" = "" ] ; then
         goocanvas_args="--with-goocanvas-prefix=$install_top_dir"
     else
         build_goocanvas=yes
+        goocanvas_args="--with-goocanvas-prefix=$install_top_dir"
     fi
 
     # is it compilable? (do we have the right gtk (etc) version?)
+    # this is nonsense to test before we have installed the other things. Since
+    # we are using binaries on windows, who cares. We hope that the
+    # dependencies will be there, so comment out this nonsense
     #
-    if [ "$build_goocanvas" = "yes" ] ; then
-        if pkg-config gtk+-2.0 --atleast-version 2.12 ; then
-            echo goocanvas: recent enough gtk+ version
-            if pkg-config cairo --atleast-version 1.4 ; then
-                echo goocanvas: recent enough cairo version
+    #if [ "$build_goocanvas" = "yes" ] ; then
+    #    if pkg-config gtk+-2.0 --atleast-version 2.12 ; then
+    #        echo goocanvas: recent enough gtk+ version
+    #        if pkg-config cairo --atleast-version 1.4 ; then
+    #            echo goocanvas: recent enough cairo version
           # yes, compilable
-                goocanvas_args="--with-goocanvas-prefix=$install_top_dir"
-            else
-                echo goocanvas: Cairo is too old.  Goocanvas needs cairo 1.4 or later. You have:
-                pkg-config cairo --modversion
-                build_goocanvas=no
-            fi
-        else 
-            echo goocanvas: gtk+-2.0 too old.  Goocanvas needs 2.12 or later. You have:
-            pkg-config gtk+-2.0 --modversion
-            build_goocanvas=no
-        fi
-    fi
+    #            goocanvas_args="--with-goocanvas-prefix=$install_top_dir"
+    #        else
+    #            echo goocanvas: Cairo is too old.  Goocanvas needs cairo 1.4 or later. You have:
+    #            pkg-config cairo --modversion
+    #            build_goocanvas=no
+    #        fi
+    #    else 
+    #        echo goocanvas: gtk+-2.0 too old.  Goocanvas needs 2.12 or later. You have:
+    #        pkg-config gtk+-2.0 --modversion
+    #        build_goocanvas=no
+    #    fi
+    #fi
 fi
 echo goocanvas:  goocanvas_args set to $goocanvas_args
 
@@ -2066,7 +2071,7 @@ if test -n "$build_fftw" ; then
 ${WGET} $extras_place/fftw-2.1.5.tar.gz
 ${WGET} $win_extras_place/fftw-2.1.5_shared.patch
 ${WGET} $win_extras_place/fix_shared_makefiles.sh
-${WGTE} $win_extras_place/fix_libfftw.la.sh
+${WGET} $win_extras_place/fix_libfftw.la.sh
 #${WGET} $extras_place/fftw-configure-stuff.tar.gz
 (
 date
@@ -2109,6 +2114,7 @@ if test -n "$build_clipper" ; then
     #clipper_version=2.1-091215-ac
     clipper_version=2.1-100511-ac
     clipper_version=2.1
+    clipper_version=2.1.20160708
     clipper_dir_version=2.1
     #${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
 
@@ -2127,7 +2133,8 @@ if test -n "$build_clipper" ; then
     ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/clipper_win32.patch
 
     # now clipper has all the bits.
-    ${WGET} $extras_place/clipper-$clipper_version.tar.gz
+    # ${WGET} $extras_place/clipper-$clipper_version.tar.gz
+    ${WGET} ftp://ftp.ccp4.ac.uk/opensource/clipper-$clipper_version.tar.gz
 
     (
     # temp hack
@@ -3465,9 +3472,8 @@ export LDFLAGS="-Wl,--large-address-aware"
 echo From tar file: ${AUTOBUILD_SOURCES}/$coot_version.tar.gz
 echo building in: $PWD
 echo ./configure $coot_prefix \
-    --with-mmdb-prefix=$install_top_dir \
-    --with-ssmlib-prefix=$install_top_dir \
     --with-fftw-prefix=$install_top_dir \
+    $goocanvas_args     \
     $glut_prefix        \
     COOT_BUILD_INFO_STRING="$coot_build_info_string" \
     $guile_scripting          \
@@ -3477,9 +3483,8 @@ echo ./configure $coot_prefix \
     $coot_extra_args   
 
 ./configure $coot_prefix \
-    --with-mmdb-prefix=$install_top_dir \
-    --with-ssmlib-prefix=$install_top_dir \
     --with-fftw-prefix=$install_top_dir \
+    $goocanvas_args     \
     $glut_prefix        \
     COOT_BUILD_INFO_STRING="$coot_build_info_string" \
     $guile_scripting          \

@@ -824,7 +824,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkVBox" id="qed_properties_vbox">
+          <object class="GtkVBox" id="lbg_qed_properties_vbox">
             <property name="visible">True</property>
             <child>
               <object class="GtkTable" id="qed_properties_table">

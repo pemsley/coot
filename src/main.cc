@@ -200,8 +200,14 @@ main (int argc, char *argv[]) {
       g_object_set (gtk_settings_get_default (), "gtk-menu-images", TRUE, NULL);
       glutInit(&argc, argv);
    } else {
+
+      // not needed from 2.36
+#if (GTK_MAJOR_VERSION == 2)
+#if (GTK_MINOR_VERSION < 36)
       g_type_init(); // for lbg command-line mode, so that
                      // goo_canvas_new() works cleanly.
+#endif
+#endif
 #ifdef WINDOWS_MINGW
       // in Windows we don't want a crash dialog if no-graphics
       SetErrorMode(SetErrorMode(SEM_NOGPFAULTERRORBOX) | SEM_NOGPFAULTERRORBOX);
@@ -572,14 +578,15 @@ setup_screen_size_settings() {
 
    // adjust the icons size of the refinement toolbar icons
    if (max_height <= 620) {
-     std::cout << "BL INFO:: screen has " << max_height << " height, will make small icons and small font" << std::endl;
+       // std::cout << "BL INFO:: screen has " << max_height << " height, will make small icons and small font" << std::endl;
        max_height = 620;
        gtk_rc_parse_string("gtk-icon-sizes=\"gtk-large-toolbar=10,10:gtk-button=10,10\"");
        gtk_rc_parse_string("class \"GtkLabel\" style \"small-font\"");
        ret = 1;
    } else if (max_height <= 720) {
        int icon_size = 12 + (max_height - 620) / 25;
-       std::cout << "BL INFO:: screen has " << max_height << " height, will make icons to " <<  icon_size <<std::endl;
+       // std::cout << "BL INFO:: screen has " << max_height << " height, will make "
+       //           << "icons to " <<  icon_size <<std::endl;
        std::string toolbar_txt = "gtk-icon-sizes = \"gtk-large-toolbar=";
        toolbar_txt += coot::util::int_to_string(icon_size);
        toolbar_txt += ",";

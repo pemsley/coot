@@ -241,7 +241,7 @@ bool Chain::save_db( const clipper::String file ) const
 {
  std::ofstream fs( file.c_str(), std::ios::out | std::ios::binary );
   char d[20];
-  for ( int r = 0; r < dbresidues.size(); r++ ) {
+  for ( unsigned int r = 0; r < dbresidues.size(); r++ ) {
     dbresidues[r].data_export( d );
     fs.write( d, 20 );
   }
@@ -269,7 +269,7 @@ bool Chain::load_db( const clipper::String file )
   if ( l%20 != 0 ) return false;
   // import file data
   dbresidues.resize( l/20 );
-  for ( int r = 0; r < dbresidues.size(); r++ ) {
+  for ( unsigned int r = 0; r < dbresidues.size(); r++ ) {
     dbresidues[r].data_import( d + 20*r );
   }
   return true;
@@ -279,8 +279,10 @@ bool Chain::load_db( const clipper::String file )
 bool Chain::merge( const Chain& other, const std::vector<double>& wgt )
 {
   if ( other.size() != size() ) return false;
-  if ( wgt.size() != 3*size() ) return false;
-  for ( int r = 0; r < dbresidues.size(); r++ )
+  unsigned int w_size = wgt.size();
+  unsigned int sz = size();
+  if ( w_size != 3*sz ) return false;
+  for ( unsigned int r = 0; r < dbresidues.size(); r++ )
     dbresidues[r].merge( other.dbresidues[r],
 			 wgt[3*r], wgt[3*r+1], wgt[3*r+2] );
   return true;
@@ -300,7 +302,7 @@ bool Chain::is_continuous() const
   // go through and find elements where there is a chain break
   const double dmin = 4.0;
   std::vector<bool> cterm( dbresidues.size(), false );
-  for ( int i = 0; i < dbresidues.size()-1; i++ ) {
+  for ( unsigned int i = 0; i < dbresidues.size()-1; i++ ) {
     int j = i + 1;
     if ( !dbresidues[i].is_null() && !dbresidues[j].is_null() ) {
       clipper::Coord_orth co1 = dbresidues[i].coord_ca();
@@ -315,7 +317,7 @@ bool Chain::is_continuous() const
 
 void Chain::transform( const clipper::RTop_orth& rtop )
 {
-  for ( int r = 0; r < dbresidues.size(); r++ )
+  for ( unsigned int r = 0; r < dbresidues.size(); r++ )
     dbresidues[r].transform( rtop );
 }
 
@@ -351,7 +353,7 @@ void Chain::lsq_superpose( const Chain& frag, const std::vector<double>& wgts )
 double Chain::rmsd( const Chain& other ) const
 {
   double s0(0.0), s1(0.0);
-  for ( int i = 0; i < dbresidues.size(); i++ ) {
+  for ( unsigned int i = 0; i < dbresidues.size(); i++ ) {
     if ( !dbresidues[i].is_null() && !other.dbresidues[i].is_null() ) {
       s0 += 1.0;
       s1 +=
@@ -365,7 +367,7 @@ double Chain::rmsd( const Chain& other ) const
 double Chain::rmsd( const Chain& other, const std::vector<double>& wgts ) const
 {
   double s0(0.0), s1(0.0);
-  for ( int i = 0; i < dbresidues.size(); i++ ) {
+  for (unsigned int i = 0; i < dbresidues.size(); i++ ) {
     if ( !dbresidues[i].is_null() && !other.dbresidues[i].is_null() ) {
       s0 += wgts[i];
       s1 += wgts[i] *
@@ -379,7 +381,7 @@ double Chain::rmsd( const Chain& other, const std::vector<double>& wgts ) const
 void Chain::debug() const
 {
   double x1(0.0),y1(0.0),z1(0.0),x2(0.0),y2(0.0),z2(0.0);
-  for ( int r = 0; r < dbresidues.size(); r++ ) {
+  for (unsigned int r = 0; r < dbresidues.size(); r++ ) {
     x1 = clipper::Util::min( x1, dbresidues[r].coord_ca().x() );
     y1 = clipper::Util::min( y1, dbresidues[r].coord_ca().y() );
     z1 = clipper::Util::min( z1, dbresidues[r].coord_ca().z() );
@@ -409,7 +411,7 @@ void ChainDB::calc_distances()
   // go through and find elements where there is a chain break
   const double dmin = 4.0;
   std::vector<bool> cterm( dbresidues.size(), false );
-  for ( int i = 0; i < dbresidues.size()-1; i++ ) {
+  for ( unsigned int i = 0; i < dbresidues.size()-1; i++ ) {
     int j = i + 1;
     if ( !dbresidues[i].is_null() && !dbresidues[j].is_null() ) {
       clipper::Coord_orth co1 = dbresidues[i].coord_ca();
@@ -422,7 +424,7 @@ void ChainDB::calc_distances()
 
   // fill out the distance matrix table
   dbdistvecs.resize( dbresidues.size() );
-  for ( int i = 0; i < dbdistvecs.size(); i++ ) {
+  for ( unsigned int i = 0; i < dbdistvecs.size(); i++ ) {
     const clipper::Coord_orth co1 = dbresidues[i].coord_ca();
     for ( int d = 0; d < ndist; d++ ) dbdistvecs[i].data[d] = -1.0;
     for ( int d = 0; d < ndist; d++ ) {
@@ -544,7 +546,7 @@ double ChainDB::score_distance( const ChainDB& frag, int offset, double scut ) c
 */
 double ChainDB::score_distance( const ChainDB& frag, int offset, double scut, const std::vector<Residue::TypeMask>& types ) const
 {
-  for ( int i = 0; i < types.size(); i++ )
+  for ( unsigned int i = 0; i < types.size(); i++ )
     if ( !( Residue::TypeMask(dbresidues[offset+i].type()).mask() &
 	    types[i].mask() ) ) return -1.0;
   return score_distance( frag, offset, scut );
@@ -563,11 +565,12 @@ std::vector<int> ChainDB::match_fragment_preliminary( const ChainDB& fragdb, int
   // find preliminary matching db fragments and sort
   std::vector<std::pair<double,int> > scores_dist;
   double scut = 1.0e20;
-  for ( int i = 0; i < dbresidues.size(); i++ ) {
+  for ( unsigned int i = 0; i < dbresidues.size(); i++ ) {
     double scr = score_distance( fragdb, i, scut );
     if ( scr >= 0.0 )
       scores_dist.push_back( std::pair<double,int>( scr, i ) );
-    if ( scores_dist.size() >= 2*nhit ) {  // optimisation
+    int scores_dist_size = scores_dist.size();
+    if ( scores_dist_size >= 2*nhit ) {  // optimisation
       std::sort( scores_dist.begin(), scores_dist.end() );
       scores_dist.resize( nhit );
       scut = scores_dist.back().first;
@@ -578,9 +581,11 @@ std::vector<int> ChainDB::match_fragment_preliminary( const ChainDB& fragdb, int
 
   // construct result list
   std::vector<int> result;
-  for ( int i = 0; i < nhit; i++ )
-    if ( i < scores_dist.size() )
+  for ( int i = 0; i < nhit; i++ ) {
+    int scores_dist_size = scores_dist.size();
+    if ( i < scores_dist_size )
       result.push_back( scores_dist[i].second );
+  }
   return result;
 }
 
@@ -607,7 +612,7 @@ std::vector<Chain> ChainDB::match_fragment( const ChainDB& fragdb, int nlsq, int
   // score fragments
   std::vector<std::pair<double,int> > scores_lsq;
   // for best matches, calc lsq supersposition
-  for ( int i = 0; i < scores_dist.size(); i++ ) {
+  for ( unsigned int i = 0; i < scores_dist.size(); i++ ) {
     const int offset = scores_dist[i];
     Chain fragnew = extract( offset, fragdb.size() );
     fragnew.lsq_superpose( fragdb );
@@ -615,11 +620,12 @@ std::vector<Chain> ChainDB::match_fragment( const ChainDB& fragdb, int nlsq, int
     scores_lsq.push_back( std::pair<double,int>( d, offset ) );
   }
   std::sort( scores_lsq.begin(), scores_lsq.end() );
-  if ( scores_lsq.size() > nlsq ) scores_lsq.resize( nlsq );
+  int scores_lsq_size = scores_lsq.size();
+  if ( scores_lsq_size > nlsq ) scores_lsq.resize( nlsq );
 
   // build results
   std::vector<Chain> result;
-  for ( int i = 0; i < scores_lsq.size(); i++ ) {
+  for ( unsigned int i = 0; i < scores_lsq.size(); i++ ) {
     const int offset = scores_lsq[i].second;
     Chain fragnew = extract( offset, fragdb.size() );
     fragnew.lsq_superpose( fragdb );

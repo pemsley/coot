@@ -3,6 +3,9 @@
 # coot wrapper script 
 # Copyright 2004, 2005, 2006 Paul Emsley, University of York
 
+# Dear Coot-packager: there is nothing here of use for you - just 
+# exec /usr/libexec/density-score-by-residue-bin $*
+
 #
 current_exe_dir=`dirname $0`
 echo current_exe_dir is $current_exe_dir

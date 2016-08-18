@@ -1,0 +1,63 @@
+
+.TH COOT 1
+
+.SH NAME
+findwaters \- Find potential water postions in maps made using X-ray data
+.SH SYNOPSIS
+findwaters [OPTIONS] ... 
+
+.SH DESCRIPTION
+
+findwaters is a coot-related command-line program  used to find waters in maps related to structures without
+need for interactive molecular graphics.
+
+.SH OPTIONS
+
+.B [\-\-pdbin
+.I <coordinates-file-name>
+.B ]
+.B [\-\--hklin
+.I <mtz-file-name>
+.B ]
+.B [\-\-chain-id 
+.I chain-id
+.B ]
+.B [\-\-radius
+.I radius 
+.B ]
+
+specify residues:
+
+.B [\-\-resno-start
+.I res_no_low
+.B ]
+.B [\-\-resno-end
+.I res_no_high
+.B ]
+or 
+.B [\-\-residue-number
+.I res_no
+.B ]
+or 
+.B [\-\-residues-around
+.I res_no
+.B ]
+
+specify map:
+
+.B [\-\-mapin 
+.I <CCP4-format-map-file-name>
+.B ]
+or
+.B [--f
+.I f_col_label
+.B ]
+.B [--phi
+.I phi_col_label
+.B ]
+
+.SH AUTHOR
+Paul Emsley
+
+
+

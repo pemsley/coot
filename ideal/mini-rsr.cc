@@ -40,12 +40,6 @@
 #undef __GNU_LIBRARY__
 #endif
 
-#include <sys/types.h> // for stating
-#include <sys/stat.h>
-#if !defined _MSC_VER && !defined WINDOWS_MINGW
-#include <unistd.h>
-#endif
-
 #include <iostream>
 #include <string.h>
 #include <math.h>
@@ -162,6 +156,43 @@ fill_residues(const std::string &chain_id, int resno_start, int resno_end, mmdb:
    return v;
 }
 
+void
+print_version() {
+
+   std::cout << "coot-mini-rsr version " << VERSION << std::endl;
+
+}
+
+void show_usage() {
+
+   std::string prog_name = "coot-mini-rsr";
+   
+   std::cout << "Usage: " << prog_name << "\n"
+	     << "       --pdbin pdb-in-filename\n"
+	     << "       --hklin mtz-filename\n"
+	     << "       --f f_col_label\n"
+	     << "       --phi phi_col_label\n"
+	     << "       --pdbout output-filename\n"
+	     << "       [ --resno-start resno_low\n"
+	     << "         --resno-end   resno_high] \n"
+	     << "       or [ --residues-around res_no ]\n"
+	     << "       or [ --residue-number resno ]\n"
+	     << "       --chain-id chain-id\n"
+	     << "       --weight w (weight of map gradients, default 60)\n"
+	     << "       --radius (default 4.2)\n"
+	     << "       --rama\n"
+	     << "       --torsions\n"
+	     << "       --no-planar-peptide-restraints\n"
+	     << "       --no-trans-peptide-restraints\n"
+	     << "       --tabulate-distortions\n"
+	     << "       --correlations\n"
+	     << "       --version\n"
+	     << "       --debug\n"
+	     << "\n"
+	     << "     --mapin ccp4-map-name can be used\n"
+	     << "       instead of --hklin --f --phi\n"
+	     << std::endl;
+}
 
 
 int
@@ -179,31 +210,7 @@ main(int argc, char **argv) {
    std::string phi_col("PHWT");
 
    if (argc < 2) {
-      std::cout << "Usage: " << argv[0] << "\n"
-		<< "       --pdbin pdb-in-filename\n"
-		<< "       --hklin mtz-filename\n"
-		<< "       --f f_col_label\n"
-		<< "       --phi phi_col_label\n"
-		<< "       --pdbout output-filename\n"
-		<< "       [ --resno-start resno_low\n"
-		<< "         --resno-end   resno_high] \n"
-		<< "       or [ --residues-around res_no ]\n"
-		<< "       or [ --residue-number resno ]\n"
-		<< "       --chain-id chain-id\n"
-		<< "       --weight w (weight of map gradients, default 60)\n"
-		<< "       --radius (default 4.2)\n"
-		<< "       --rama\n"
-		<< "       --torsions\n"
-		<< "       --no-planar-peptide-restraints\n"
-		<< "       --no-trans-peptide-restraints\n"
-		<< "       --tabulate-distortions\n"
-		<< "       --correlations\n"
-		<< "       --debug\n"
-		<< "\n"
-		<< "     --mapin ccp4-map-name can be used\n"
-		<< "       instead of --hklin --f --phi\n"
-		<< std::endl;
-
+      show_usage();
    } else {
 
       geom.set_verbose(0);
@@ -259,12 +266,19 @@ main(int argc, char **argv) {
 			 << mv.second << std::endl;
 	    }
 	    
-	 } else { 
-	    clipper::CCP4MAPfile file;
-	    file.open_read(inputs.map_file_name);
-	    file.import_xmap(xmap);
-	    file.close_read();
-	    map_is_good = 1;
+	 } else {
+
+	    if (coot::file_exists(inputs.map_file_name)) {
+	       // should we try/catch around this read?
+	       clipper::CCP4MAPfile file;
+	       file.open_read(inputs.map_file_name);
+	       file.import_xmap(xmap);
+	       file.close_read();
+	       map_is_good = true;
+	    } else {
+	       std::cout << "WARNING:: map file " << inputs.map_file_name << " not found"
+			 << std::endl;
+	    }
 	 }
 
 	 float map_weight = 60.0;
@@ -543,6 +557,7 @@ get_input_details(int argc, char **argv) {
    const char *optstr = "i:h:f:p:o:m:1:2:c:w";
 
    struct option long_options[] = {
+      {"version",0, 0, 0},
       {"pdbin",  1, 0, 0}, 
       {"hklin",  1, 0, 0}, 
       {"f",      1, 0, 0}, 
@@ -563,6 +578,7 @@ get_input_details(int argc, char **argv) {
       {"no-trans-peptide-restraints",  0, 0, 0},
       {"tabulate-distortions", 0, 0, 0},
       {"correlations", 0, 0, 0},
+      {"help", 0, 0, 0},
       {"debug",     0, 0, 0},  // developer option
       {0, 0, 0, 0}
    };
@@ -619,6 +635,14 @@ get_input_details(int argc, char **argv) {
 	    // long argument without parameter:
 	    std::string arg_str(long_options[option_index].name);
 	 
+	    if (arg_str == "help") {
+	       show_usage();
+	       exit(0);
+	    }
+	    if (arg_str == "version") {
+	       print_version();
+	       exit(0);
+	    }
 	    if (arg_str == "rama") {
 	       d.use_rama_targets = 1;
 	    }
@@ -683,14 +707,16 @@ get_input_details(int argc, char **argv) {
 	 d.chain_id = optarg;
 	 break;
 
+      case 'v':
+	 print_version();
+	 exit(0);
+	 break;
+
       case 'w':
 	 d.map_weight = atof(optarg);
 	 break;
       }
    }
-
-   std::cout << "debug here with  input_pdb_file_name :" <<  d.input_pdb_file_name << ":" << std::endl;
-   std::cout << "debug here with output_pdb_file_name :" << d.output_pdb_file_name << ":" << std::endl;
 
    if (!d.input_pdb_file_name.empty()  && !d.output_pdb_file_name.empty()) { 
       if ((d.resno_start != UNSET && d.resno_end != UNSET) || (d.residues_around != mmdb::MinInt4)) { 

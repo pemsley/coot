@@ -445,7 +445,7 @@ bool Chain::is_continuous() const
   // go through and find elements where there is a chain break
   const double dmin = 2.0;
   std::vector<bool> cterm( dbmonomers.size(), false );
-  for ( int i = 0; i < dbmonomers.size()-1; i++ ) {
+  for ( int i = 0; i < int(dbmonomers.size()-1); i++ ) {
     int j = i + 1;
     const clipper::Coord_orth co1 = dbmonomers[i].coord_o3();
     const clipper::Coord_orth co2 = dbmonomers[j].coord_p();
@@ -459,7 +459,7 @@ bool Chain::is_continuous() const
 
 void Chain::transform( const clipper::RTop_orth& rtop )
 {
-  for ( int r = 0; r < dbmonomers.size(); r++ )
+  for ( unsigned int r = 0; r < dbmonomers.size(); r++ )
     dbmonomers[r].transform( rtop );
 }
 

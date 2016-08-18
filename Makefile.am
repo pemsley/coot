@@ -33,7 +33,7 @@ SUBDIRS = auxil scheme python pdb-templates macros compat utils protein_db mini-
 	coords angles skeleton ccp4mg-utils density-contour \
 	db-main analysis ideal ligand high-res build greg-tests python-tests \
 	tw libgtkgraph lbg cootaneer cootilus goograph pyrogen src data \
-        rama-data doc rcrane pixmaps
+	man rama-data doc rcrane pixmaps
 
 # po, no po today.
 
@@ -44,7 +44,6 @@ cootrc: $(top_srcdir)/cootrc.template
 EXTRA_DIST = 		\
 	autogen.sh 	\
 	make-scheme-tar \
-	mapview.glade 	\
 	cootrc.template	\
 	py-compile      \
 	standard-residues.pdb \
@@ -59,10 +58,8 @@ EXTRA_DIST = 		\
 	count-loc 	\
 	syminfo.lib	\
 	colours.def	\
-	function-notes	\
 	my.supp		\
 	guile.supp	\
-	make-patches	\
 	windows/syminfo.lib	\
 	fix-cif-loops.awk       \
 	ifdef-for-create-aboutdialog.awk \

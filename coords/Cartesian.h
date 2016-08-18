@@ -156,12 +156,12 @@ namespace coot {
       friend Cartesian     cross_product(const Cartesian &a, const Cartesian &b);
       friend surface_face_data on_a_face(const Cartesian &a, const Cartesian &b);
 
-      friend std::ostream&  operator<<(std::ostream&, Cartesian);
-      friend std::ofstream& operator<<(std::ofstream&, Cartesian);
+      friend std::ostream&  operator<<(std::ostream&, Cartesian pt);
+      friend std::ofstream& operator<<(std::ofstream&, Cartesian pt);
 
    };
-   std::ostream&  operator<<(std::ostream&, Cartesian);
-   std::ofstream& operator<<(std::ofstream&, Cartesian);
+   std::ostream&  operator<<(std::ostream&, Cartesian pt);
+   std::ofstream& operator<<(std::ofstream&, Cartesian pt);
 
         
    class CartesianPair { 
@@ -190,6 +190,8 @@ namespace coot {
       const Cartesian &getStart()  const { return start; }
       const Cartesian &getFinish() const { return finish;}
    };
+   std::ostream&  operator<<(std::ostream&,  CartesianPair);
+   std::ofstream& operator<<(std::ofstream&, CartesianPair);
 
    short int is_an_in_triangle(surface_face_data face,  const Cartesian &b,
 			       const Cartesian &c); 

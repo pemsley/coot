@@ -37,7 +37,9 @@ namespace coot {
       friend std::ostream &operator<<(std::ostream &s, phenix_geo_bond bg);
 #endif
    };
+#ifndef SWIG
    std::ostream &operator<<(std::ostream &s, phenix_geo_bond bg);
+#endif
 
    class phenix_geo_bonds {
       atom_spec_t parse_line_for_atom_spec(const std::string &l) const;

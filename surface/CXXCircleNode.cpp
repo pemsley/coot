@@ -158,7 +158,7 @@ int CXXCircleNode::probeContacts(std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCir
 				std::vector<std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator> &centralBin(binnedProbes[iBinX][iBinY][iBinZ]);
 
 				//#pragma omp parallel for default(none) shared (startBinX, endBinX, startBinY, endBinY, startBinZ, endBinZ, binnedProbes, probeRadiusX2, probeRadiusX2Sq) schedule(dynamic, 50) //num_threads(2)
-                for (int iCentralProbe = 0; iCentralProbe < centralBin.size(); iCentralProbe++){
+                for (unsigned int iCentralProbe = 0; iCentralProbe < centralBin.size(); iCentralProbe++){
 					CXXCircleNode &centralProbeRef(*centralBin[iCentralProbe]);
 
 					std::vector<mmdb::Atom *> ijkCentral(3);

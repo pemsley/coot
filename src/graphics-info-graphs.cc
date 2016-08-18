@@ -177,8 +177,6 @@ coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
 	   break;
 	case coot::SEQUENCE_VIEW:
 	   w = graphics_info_t::molecules[imol].validation_graphs.sequence_view_is_displayed;
-	   std::cout << "debug:: switch for sequence_view for imol " << imol << " is "
-		     << w << std::endl;
 	   break;
 	case coot::RAMACHANDRAN_PLOT:
 	   w = graphics_info_t::molecules[imol].validation_graphs.dynarama_is_displayed;
@@ -226,8 +224,6 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
 
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
-
-   std::cout << "here 1 in graphics_info_t::update_geometry_graphs()" << std::endl;
 
    GtkWidget *graph = coot::get_validation_graph(imol_moving_atoms, coot::GEOMETRY_GRAPH_GEOMETRY);
    if (graph) {
@@ -329,13 +325,8 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
       }
    }
 
-   std::cout << "here 2 in graphics_info_t::update_geometry_graphs()" << std::endl;
    graph = coot::get_validation_graph(imol_moving_atoms, coot::SEQUENCE_VIEW);
-   std::cout << "here 3 in graphics_info_t::update_geometry_graphs() " << graph << std::endl;
    if (graph) {
-
-      std::cout << "here 4 in graphics_info_t::update_geometry_graphs()" << std::endl;
-      std::cout << "............ update sequence_view graph " << graph << std::endl;
 
       exptl::nsv *sequence_view = static_cast<exptl::nsv *>(g_object_get_data(G_OBJECT(graph), "nsv"));
 
@@ -927,10 +918,9 @@ graphics_info_t::omega_graphs(int imol) {
 			   coot::restraints_container_t restraints(molecules[imol].atom_sel,
 								   std::string(chain_id));
 
-// 			   std::cout << "DEBUG:: Getting omega distortions for "
-// 				     << nSelResidues << " selected residues\n";
 			   coot::omega_distortion_info_container_t om_dist = 
-			      restraints.omega_trans_distortions(mark_cis_peptides_as_bad_flag);
+			      restraints.omega_trans_distortions(*geom_p,
+								 mark_cis_peptides_as_bad_flag);
 			   // std::cout << "DEBUG: got om_dist." << std::endl;
 
 			   graphs->render_omega_blocks(om_dist, ich, std::string(chain_id),
@@ -956,7 +946,7 @@ graphics_info_t::omega_distortions_from_mol(const atom_selection_container_t &as
 
    coot::restraints_container_t restraints(asc, chain_id);
    coot::omega_distortion_info_container_t om_dist =
-      restraints.omega_trans_distortions(mark_cis_peptides_as_bad_flag);
+      restraints.omega_trans_distortions(*geom_p, mark_cis_peptides_as_bad_flag);
    return om_dist;
 }
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)

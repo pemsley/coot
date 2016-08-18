@@ -414,14 +414,14 @@ namespace lig_build {
 	 is_closed_ = 0;
 	 bond_type = BOND_UNDEFINED;
       }
-      bond_t(int first, int second, bond_type_t bt) {
+      bond_t(unsigned int first, unsigned int second, bond_type_t bt) {
 	 atom_1 = first;
 	 atom_2 = second;
 	 bond_type = bt;
 	 have_centre_pos_ = false;
 	 is_closed_ = 0;
       }
-      bond_t(int first, int second, pos_t centre_pos_in, bond_type_t bt) {
+      bond_t(unsigned int first, unsigned int second, pos_t centre_pos_in, bond_type_t bt) {
 	 atom_1 = first;
 	 atom_2 = second;
 	 bond_type = bt;
@@ -468,17 +468,17 @@ namespace lig_build {
       bool matches_indices(const bond_t &test_bond) const {
 	 if (get_atom_1_index() == test_bond.get_atom_1_index()) {
 	    if (get_atom_2_index() == test_bond.get_atom_2_index()) {
-	       return 1;
+	       return true;
 	    } else {
-	       return 0;
+	       return false;
 	    }
 	 } else {
-	    return 0;
+	    return false;
 	 } 
       }
 
-      int get_other_index(const int &atom_index) const {
-	 int idx = get_atom_1_index();
+      unsigned int get_other_index(const unsigned int &atom_index) const {
+	 unsigned int idx = get_atom_1_index();
 	 if (idx == atom_index)
 	    idx = get_atom_2_index();
 	 return idx;
@@ -530,29 +530,29 @@ namespace lig_build {
 	 }
 	 return std::pair<bool, int> (is_new, new_atom_index);
       }
-      bool member(const int &ind, const std::vector<int> &no_pass_atoms) const {
-	 bool found = 0;
+      bool member(const unsigned int &ind, const std::vector<unsigned int> &no_pass_atoms) const {
+	 bool found = false;
 	 for (unsigned int i=0; i<no_pass_atoms.size(); i++) { 
 	    if (no_pass_atoms[i] == ind) {
-	       found = 1;
+	       found = true;
 	       break;
 	    }
 	 }
 	 return found;
       } 
 
-      std::pair<bool, std::vector<int> >
-      find_bonded_atoms_with_no_pass(int start_atom_index,
-				     int atom_index_other,
-				     int this_atom_index,
-				     const std::vector<int> &no_pass_atoms,
-				     int depth) const {
+      std::pair<bool, std::vector<unsigned int> >
+      find_bonded_atoms_with_no_pass(unsigned int start_atom_index,
+				     unsigned int atom_index_other,
+				     unsigned int this_atom_index,
+				     const std::vector<unsigned int> &no_pass_atoms,
+				     unsigned int depth) const {
 	 
-	 std::vector<int> atoms_bonded_to_atom_index_start;
-	 std::vector<int> local_no_pass_atoms = no_pass_atoms;
+	 std::vector<unsigned int> atoms_bonded_to_atom_index_start;
+	 std::vector<unsigned int> local_no_pass_atoms = no_pass_atoms;
 	 if (depth == 0) {
-	    std::vector<int> empty;
-	    return std::pair<bool, std::vector<int> > (0, empty);
+	    std::vector<unsigned int> empty;
+	    return std::pair<bool, std::vector<unsigned int> > (0, empty);
 	 } else {
 
 	    // get a list of all the atoms that are bonded to this atom not
@@ -560,7 +560,7 @@ namespace lig_build {
       
 	    for (unsigned int i=0; i<bonds.size(); i++) { 
 	       if (bonds[i].get_atom_1_index() == this_atom_index) {
-		  int idx = bonds[i].get_atom_2_index();
+		  unsigned int idx = bonds[i].get_atom_2_index();
 		  if (idx == start_atom_index)
 		     if (depth < (MAX_SEARCH_DEPTH-1)) {
 			if (member(atom_index_other, local_no_pass_atoms)) {
@@ -576,7 +576,7 @@ namespace lig_build {
 			   if (! ifound)
 			      local_no_pass_atoms.push_back(this_atom_index);
 			   // debug_pass_atoms(start_atom_index, this_atom_index, depth, local_no_pass_atoms);
-			   return std::pair<bool, std::vector<int> > (1, local_no_pass_atoms);
+			   return std::pair<bool, std::vector<unsigned int> > (1, local_no_pass_atoms);
 			}
 		     }
 		  if (! member(idx, local_no_pass_atoms)) {
@@ -591,27 +591,27 @@ namespace lig_build {
 		     }
 		     if (! found_this_atom_in_no_pass_atoms)
 			local_no_pass_atoms.push_back(this_atom_index);
-		  } 
+		  }
 	       }
 	       if (bonds[i].get_atom_2_index() == this_atom_index) {
-		  int idx = bonds[i].get_atom_1_index();
+		  unsigned int idx = bonds[i].get_atom_1_index();
 		  if (idx == start_atom_index)
 		     if (depth < (MAX_SEARCH_DEPTH-1)) {
 			if (member(atom_index_other, local_no_pass_atoms)) { 
 			   local_no_pass_atoms.push_back(this_atom_index);
 			   // if this_atom_index was not alread in
 			   // local_no_pass_atoms, then add it.
-			   bool ifound = 0; 
+			   bool ifound = false; 
 			   for (unsigned int ilnp=0; ilnp<local_no_pass_atoms.size(); ilnp++) {
 			      if (local_no_pass_atoms[ilnp] == this_atom_index) {
-				 ifound = 1;
+				 ifound = true;
 				 break;
 			      }
 			   }
 			   if (! ifound)
 			      local_no_pass_atoms.push_back(this_atom_index);
 			   // debug_pass_atoms(start_atom_index, this_atom_index, depth, local_no_pass_atoms);
-			   return std::pair<bool, std::vector<int> > (1, local_no_pass_atoms);
+			   return std::pair<bool, std::vector<unsigned int> > (1, local_no_pass_atoms);
 			}
 		     }
 		  if (! member(idx, local_no_pass_atoms)) {
@@ -640,7 +640,7 @@ namespace lig_build {
 	    }
 	 
 	    for (unsigned int iat=0; iat<atoms_bonded_to_atom_index_start.size(); iat++) { 
-	       std::pair<bool, std::vector<int> > r =
+	       std::pair<bool, std::vector<unsigned int> > r =
 		  find_bonded_atoms_with_no_pass(start_atom_index,
 						 atom_index_other,
 						 atoms_bonded_to_atom_index_start[iat],
@@ -660,8 +660,8 @@ namespace lig_build {
 	       std::cout << local_no_pass_atoms[i] << " ";
 	    std::cout << ")\n";
 	 }
-	 std::vector<int> empty;
-	 return std::pair<bool, std::vector<int> > (0, empty);
+	 std::vector<unsigned int> empty;
+	 return std::pair<bool, std::vector<unsigned int> > (0, empty);
       }
 
       // can throw an exception (no bonds)
@@ -674,7 +674,7 @@ namespace lig_build {
    public:
       molecule_t() {
 	 have_cached_bond_ring_centres_flag = false;
-      } 
+      }
       std::vector<Ta> atoms;
       std::vector<Tb> bonds;
       
@@ -720,12 +720,12 @@ namespace lig_build {
 	 bonds.clear();
       }
 
-      std::pair<bool, std::vector<int> >
-      found_self_through_bonds(int atom_index_start,
-			       int atom_index_other) const {
-	 std::vector<int> empty_no_pass_atoms;
+      std::pair<bool, std::vector<unsigned int> >
+      found_self_through_bonds(unsigned int atom_index_start,
+			       unsigned int atom_index_other) const {
+	 std::vector<unsigned int> empty_no_pass_atoms;
 	 empty_no_pass_atoms.push_back(atom_index_start);
-	 std::pair<bool, std::vector<int> > r =
+	 std::pair<bool, std::vector<unsigned int> > r =
 	    find_bonded_atoms_with_no_pass(atom_index_start, atom_index_start,
 					   atom_index_other, empty_no_pass_atoms,
 					   MAX_SEARCH_DEPTH);
@@ -757,7 +757,7 @@ namespace lig_build {
       // We dont want a copy of the bond, we want a reference to the
       // bond (so that it can be manipulated).
       // 
-      std::vector<unsigned int> bond_indices_with_atom_index(int test_atom_index) const {
+      std::vector<unsigned int> bond_indices_with_atom_index(unsigned int test_atom_index) const {
 	 std::vector<unsigned int> rv;
 	 if (!atoms[test_atom_index].is_closed()) { 
 	    for (unsigned int i=0; i<bonds.size(); i++) {
@@ -775,8 +775,8 @@ namespace lig_build {
       }
 
       // we have 2 indices, what is the bond that has these 2 atom indices?
-      int get_bond_index(int atom_index_in_1, int atom_index_in_2) const {
-	 int bi = UNASSIGNED_INDEX;
+      unsigned int get_bond_index(unsigned int atom_index_in_1, unsigned int atom_index_in_2) const {
+	 unsigned int bi = UNASSIGNED_INDEX;
 	 if (atom_index_in_1 != atom_index_in_2) { 
 	    for (unsigned int i=0; i<bonds.size(); i++) { 
 	       if ((bonds[i].get_atom_1_index() == atom_index_in_1) ||
@@ -792,8 +792,9 @@ namespace lig_build {
 	 return bi;
       }
 
-      void debug_pass_atoms(int atom_index_start, int this_atom_index, int depth,
-			    const std::vector<int> &local_no_pass_atoms) const {
+      void debug_pass_atoms(unsigned int atom_index_start, unsigned int this_atom_index,
+			    unsigned int depth,
+			    const std::vector<unsigned int> &local_no_pass_atoms) const {
 
 	 std::cout << "    found atom index " << atom_index_start << " from this atom: "
 		   << this_atom_index
@@ -805,7 +806,7 @@ namespace lig_build {
       }
 
 
-      int get_number_of_atoms_including_hydrogens() const {
+      unsigned int get_number_of_atoms_including_hydrogens() const {
 	 return atoms.size();
       }
 
@@ -813,15 +814,15 @@ namespace lig_build {
 	 bool debug = false;
 	 for (unsigned int ib=0; ib<bonds.size(); ib++) {
 	    if (! bonds[ib].have_centre_pos() || force) {
-	       int atom_index = bonds[ib].get_atom_1_index();
-	       int atom_index_other = bonds[ib].get_atom_2_index();
+	       unsigned int atom_index = bonds[ib].get_atom_1_index();
+	       unsigned int atom_index_other = bonds[ib].get_atom_2_index();
 	       if (debug) 
 		  std::cout << "=============== checking ring for atom index "
 			    << atom_index << " ===============" << std::endl;
 	       // path must pass through atom_index_other
-	       std::pair<bool, std::vector<int> > found =
+	       std::pair<bool, std::vector<unsigned int> > found =
 		  found_self_through_bonds(atom_index, atom_index_other);
-	       if (debug) { 
+	       if (debug) {
 		  std::cout << "-- constructor of widgeted_bond_t atom " << atom_index
 			    << " other bond index (not tested) " << bonds[ib].get_atom_2_index()
 			    << ", found status "
@@ -852,7 +853,7 @@ namespace lig_build {
 	       }
 	    }
 	 }
-      } 
+      }
 
       // 
       std::vector<pos_t> get_ring_centres() {
@@ -1005,7 +1006,7 @@ namespace lig_build {
       void delete_hydrogens() {
 	 for (unsigned int iat=0; iat<atoms.size(); iat++) { 
 	    if (atoms[iat].element == "H") {
-	       std::vector<int> bds = bonds_having_atom_with_atom_index(iat);
+	       std::vector<unsigned int> bds = bonds_having_atom_with_atom_index(iat);
 	       atoms[iat].close();
 	       for (unsigned int i=0; i<bds.size(); i++)
 		  bonds[bds[i]].close();
@@ -1013,9 +1014,9 @@ namespace lig_build {
 	 }
       }
 
-      std::vector<int> bonds_having_atom_with_atom_index(unsigned int test_atom_index) const {
+      std::vector<unsigned int> bonds_having_atom_with_atom_index(unsigned int test_atom_index) const {
 
-	 std::vector<int> v;
+	 std::vector<unsigned int> v;
 	 std::vector<unsigned int> vb =  bond_indices_with_atom_index(test_atom_index);
 	 
 	 for (unsigned int iv=0; iv<vb.size(); iv++) {
@@ -1028,9 +1029,9 @@ namespace lig_build {
 
       // return a vector of the atom indices of unconnected atoms
       //
-      std::vector<int> get_unconnected_atoms() const {
+      std::vector<unsigned int> get_unconnected_atoms() const {
 
-	 std::vector<int> v;
+	 std::vector<unsigned int> v;
 	 for (unsigned int iat=0; iat<atoms.size(); iat++) {
 	    if (! atoms[iat].is_closed()) { 
 	       bool in_a_bond = 0;
@@ -1104,8 +1105,8 @@ namespace lig_build {
 	    // So the bonds were the same, now the strays...
 
 	    if (mol_other.n_stray_atoms() == n_stray_atoms()) {
-	       std::vector<int> i_stray_atoms = stray_atoms();
-	       std::vector<int> j_stray_atoms = mol_other.stray_atoms();
+	       std::vector<unsigned int> i_stray_atoms = stray_atoms();
+	       std::vector<unsigned int> j_stray_atoms = mol_other.stray_atoms();
 	       int n_stray_hits = 0;
 	       for (unsigned int i=0; i<i_stray_atoms.size(); i++) {
 		  for (unsigned int j=0; j<j_stray_atoms.size(); j++) {
@@ -1134,8 +1135,8 @@ namespace lig_build {
 	 return n;
       } 
 
-      std::vector<int> stray_atoms() const {
-	 std::vector<int> strays;
+      std::vector<unsigned int> stray_atoms() const {
+	 std::vector<unsigned int> strays;
 	 bool found[atoms.size()];
 	 for (unsigned int i=0; i<atoms.size(); i++)
 	    found[i] = 0;
@@ -1195,7 +1196,8 @@ namespace lig_build {
 	 return std::pair<bool, double> (set_status, dist_closest);
       }
 
-      pos_t get_sum_delta_neighbours(int atom_index, const std::vector<int> &bond_indices) const {
+      pos_t get_sum_delta_neighbours(unsigned int atom_index,
+				     const std::vector<unsigned int> &bond_indices) const {
 	 pos_t sum_delta(0,0);
 	 for (unsigned int ibond=0; ibond<bond_indices.size(); ibond++) {
 	    int idx_other = bonds[bond_indices[ibond]].get_other_index(atom_index);
@@ -1225,9 +1227,9 @@ namespace lig_build {
       // using bonds and charge
       // 
       atom_id_info_t
-      make_atom_id_by_using_bonds(int atom_index,
+      make_atom_id_by_using_bonds(unsigned int atom_index,
 				  const std::string &ele,
-				  const std::vector<int> &bond_indices,
+				  const std::vector<unsigned int> &bond_indices,
 				  bool simple_gl_render) const {
 
 	 // The offset tweaks depend on the way the text is positioned on the canvas.
@@ -1746,7 +1748,7 @@ namespace lig_build {
 	 }
       } // end of make_atom_id_by_using_bonds()
 
-      bool delete_bond_between(int idx_1, int idx_2) {
+      bool delete_bond_between(unsigned int idx_1, unsigned int idx_2) {
 	 bool status = false;
 
 	 for (unsigned int ibond=0; ibond<bonds.size(); ibond++) { 

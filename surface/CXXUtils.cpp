@@ -25,12 +25,14 @@ int CXXUtils::assignUnitedAtomRadius  (mmdb::PManager theManager, int selHnd) {
 	// Add a radius property to the atoms
 	int iRadiusHandle = theManager->RegisterUDReal(mmdb::UDR_ATOM, "PerAtomRadius");
 	if (!iRadiusHandle) {
-		printf ( " registration failed.\n" );
-		exit ( 1 );
+	   printf ( "ERROR:: registration failed.\n" );
+	   // exit ( 1 );  // no exit from libraries
+	   return -100;
 	}
 	if (iRadiusHandle==mmdb::UDDATA_WrongUDRType) {
-		printf ( " wrong registration type used.\n" );
-		exit ( 2 );
+	   printf ( "ERROR:: wrong registration type used.\n" );
+	   // exit ( 2 );
+	   return -100;
 	}
 	
 	mmdb::Atom **SelAtom;
