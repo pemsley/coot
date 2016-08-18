@@ -3597,7 +3597,7 @@
 		       ))
 		 (xml (coot-get-url-as-string url)))
 
-	    (format #t ":::::::: url: ~s~%" url)
+	    (format #t "INFO:: url: ~s~%" url)
 
 	    (call-with-output-file (string-append drug-name ".xml")
 	      (lambda (port)

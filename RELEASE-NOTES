@@ -1,3 +1,18 @@
+
+  Release 0.8.6
+
+  o FEATURE: Added man pages
+
+  o CHANGE:  bfactan renamed coot-bfactan
+
+  o CHANGE:  no backups for each residue in fill_partial residues() function.
+
+  o CHANGE:  User control over max and min distance to the protein in findwaters
+
+  o CHANGE:  Go-To-Ligand function now has better animation
+
+  o CHANGE:  Included a speedup for the non-bonded contact restraints generation
+
 -----
 
   Release 0.8.5

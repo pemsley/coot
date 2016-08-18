@@ -48,7 +48,6 @@
 
 ;; run the tips gui.
 (define (tips-gui)
-  (format #t ":::::::::::::::::::: *do-coot-tips-flag*: ~s~%" *do-coot-tips-flag*)
   (if *do-coot-tips-flag*
       (let* ((window (gtk-window-new 'toplevel))
 	     (text (gtk-text-new #f #f))
