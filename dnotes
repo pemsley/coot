@@ -3985,7 +3985,10 @@ INFO::
         the bottom layer, merge and bevel 6.
    o git add the new splash screen pixmap
    o Change the pixmaps/Makefile.am for the current splash screen image
-   o commit
+   o git commit -a
+   o git push [maybe here? not sure]
+   o git tag Release-0.x.y 
+   o git push origin Release-0.x.y
    o Passes build (build-latest) on pc? 
         OK, disable the build-latest cron-job 
    o clear out pre-releases
