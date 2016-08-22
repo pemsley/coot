@@ -1,0 +1,33 @@
+
+.TH COOT 1
+
+.SH NAME
+coot-available-comp-id
+.SH SYNOPSIS
+coot-available-comp-id [comp-id|comp-id-prefix]
+
+.SH DESCRIPTION
+
+coot-available-comp-id is used to find an available comp-id for a new
+ligand. A comp-id prefix can be either one or two characters.
+
+If a 3-character comp-id (e.g. XYZ) is given then
+coot-available-comp-id will either say 
+
+INFO:: comp-id XYZ is available 
+
+or 
+
+INFO:: comp-id XYZ is not available 
+
+A comp-id-prefix will result in a list of the available comp-ids with
+the given prefix.
+
+.SH AUTHOR
+Paul Emsley
+
+.SH NOTES
+The Coot package needs to be compiled with the CCP4 SRS for this to
+give useful output.
+
+

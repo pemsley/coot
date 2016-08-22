@@ -5,7 +5,7 @@
 (define (generate-molecule-from-mmcif comp-id mmcif-file-name)
   
   (read-cif-dictionary mmcif-file-name)
-  (get-momomer comp-id))
+  (get-monomer comp-id))
 
 
 ;; return a molecule number.  Return -1 on fail.

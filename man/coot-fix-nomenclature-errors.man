@@ -1,0 +1,17 @@
+
+.TH COOT 1
+
+.SH NAME
+.B coot-fix-nomenclature-errors
+.SH SYNOPSIS
+.B coot-fix-nomenclature-errors 
+.I <input-coordinates-file> 
+.I <output-coordinate-file>
+
+.SH DESCRIPTION
+
+Create an output file with any nomenclature errors in the input corrected.
+
+.SH AUTHOR
+Paul Emsley
+

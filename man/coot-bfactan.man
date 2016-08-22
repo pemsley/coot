@@ -1,0 +1,16 @@
+
+.TH COOT 1
+
+.SH NAME
+coot-bfactan
+.SH SYNOPSIS
+coot-bfactan <coordinates-file>
+
+.SH DESCRIPTION
+
+Provide a per-residue temperature-factor analysis of the input file in
+xml format.
+
+.SH AUTHOR
+Paul Emsley
+

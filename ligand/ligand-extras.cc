@@ -480,7 +480,8 @@ coot::ligand::flood() {
 
    if (xmap_masked_stats.first != 1) { 
       std::cout << "PROGRAMMER ERROR! find_clusters/find_clusters_water_flood first!\n";
-      exit(1); // maybe.
+      // exit(1); // maybe. // no exit() from libraries
+      return;
    }
 
    int n_cycle = 20;

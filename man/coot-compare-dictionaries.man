@@ -4,7 +4,7 @@ q
 .SH NAME
 coot-compare-dictionaries - Compare mmCIF dictionaries
 .SH SYNOPSIS
-coot-mini-rsr [OPTIONS] ... 
+coot-compare-dictionaries [OPTIONS] ... 
 
 .SH DESCRIPTION
 

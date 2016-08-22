@@ -7918,6 +7918,7 @@ PyObject *view_description_py(int view_number) {
 }
 #endif // PYTHON
 
+#include "view.hh"
 
 /*! \brief save views to view_file_name */
 void save_views(const char *view_file_name) {

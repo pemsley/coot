@@ -1018,7 +1018,7 @@
 	     ;; (image-url (string-append "http://www.ebi.ac.uk/pdbe-srv/view/images/entry/" image-name-stub))
 	     ;; (image-url (string-append "http://www.ebi.ac.uk/pdbe/entry-images/" image-name-stub))
 	     (image-url (string-append "http://www.ebi.ac.uk/pdbe/static/entry/" entry-id image-name-stub))
-	     (nov (format #t ":::::::::::::::::::: image-url: ~s~%" image-url))
+	     ;; (nov (format #t ":::::::::::::::::::: image-url: ~s~%" image-url))
 	     ;; http://www.ebi.ac.uk/pdbe/static/entry/3zi7_deposited_chain_front_image-200x200.png
 	     (entry-image-file-name (append-dir-file *coot-pdbe-image-cache-dir* (string-append entry-id image-name-stub))))
 

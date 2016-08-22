@@ -177,8 +177,6 @@ coot::get_validation_graph(int imol, coot::geometry_graph_type type) {
 	   break;
 	case coot::SEQUENCE_VIEW:
 	   w = graphics_info_t::molecules[imol].validation_graphs.sequence_view_is_displayed;
-	   std::cout << "debug:: switch for sequence_view for imol " << imol << " is "
-		     << w << std::endl;
 	   break;
 	case coot::RAMACHANDRAN_PLOT:
 	   w = graphics_info_t::molecules[imol].validation_graphs.dynarama_is_displayed;

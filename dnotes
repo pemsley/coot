@@ -3986,7 +3986,10 @@ INFO::
    o git add the new splash screen pixmap
    o Change the pixmaps/Makefile.am for the current splash screen image
    o are coot_wrap*cc generated correctly (no enhanced-ligand code)?
-   o commit
+   o git commit -a
+   o git push [maybe here? not sure]
+   o git tag Release-0.x.y 
+   o git push origin Release-0.x.y
    o Passes build (build-latest) on pc? 
         OK, disable the build-latest cron-job 
    o clear out pre-releases
@@ -7703,5 +7706,10 @@ failed to lookup toolbar
     frame #14: 0x00000001028fd7b9 coot-bin`main(argc=1, argv=0x00007fff5d306790) + 9817 at main.cc:408
     frame #15: 0x00007fff893645c9 libdyld.dylib`start + 1
 (lldb) ^D
+
+----
+Thu Aug 18 12:03:32 BST 2016
+
+   RNA building test: coot-download/5fw1.ent
 
 ---
