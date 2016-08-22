@@ -93,6 +93,7 @@ AM_MINGW_WINDOWS
 dnl test for LIBPNG (Windows only - maybe shouif here rather than in macro?)
 if test "$have_windows_mingw" = yes; then
   AM_PATH_GLOB
+  AC_CONFIG_FILES(pyrogen/pyrogen.bat)
 fi
 
 AM_PATH_LIBPNG

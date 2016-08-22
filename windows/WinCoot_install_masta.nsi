@@ -190,7 +190,7 @@ Section "!WinCoot" SEC01
   SetOverwrite ifnewer
   File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\coot-icon.ico"
   File "${src_dir}\bin\*.dll"
-  File "${src_dir}\bin\bfactan.exe"
+  File "${src_dir}\bin\coot-bfactan.exe"
   File "${src_dir}\bin\coot"
   File "${src_dir}\bin\coot-mini-rsr"
   File "${src_dir}\bin\coot-available-comp-id.exe"
@@ -542,6 +542,7 @@ Section Uninstall
   Delete "$INSTDIR\bin\coot-icon.ico"
   Delete "$INSTDIR\bin\*.dll"
   Delete "$INSTDIR\bin\bfactan.exe"
+  Delete "$INSTDIR\bin\coot-bfactan.exe"
   Delete "$INSTDIR\bin\coot"
   Delete "$INSTDIR\bin\coot-real.exe"
   Delete "$INSTDIR\libexec\coot-bin.exe"
