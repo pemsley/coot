@@ -1019,7 +1019,12 @@ if (have_coot_python):
        "NCS Ghosts by Residue Range...",
        lambda func: molecule_chooser_gui("Make local NCS ghosts for molecule:",
                                          lambda imol: ncs_ghost_res_range_func(imol)))
-         
+
+     add_simple_coot_menu_menuitem(
+       submenu_ncs,
+       "Update NCS Ghosts using Local Match",
+       lambda func: update_ncs_ghosts_by_local_sphere())
+
 
      add_simple_coot_menu_menuitem(
        submenu_ncs,

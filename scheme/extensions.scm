@@ -854,6 +854,11 @@
 				      #f #f 
 				      go-button-label handle-go-function))))))
 
+	(add-simple-coot-menu-menuitem
+	 submenu-ncs "Update NCS Ghosts using Local Match"
+	 (lambda ()
+	   (update-ncs-ghosts-by-local-sphere)))
+
 	
 	(add-simple-coot-menu-menuitem
 	 submenu-ncs "NCS ligands..."
