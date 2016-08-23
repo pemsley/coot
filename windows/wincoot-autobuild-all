@@ -170,7 +170,7 @@ if [ $make_installer_only == 0 ] ; then
       echo Now build with:: run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it $extra_flag
       run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it $extra_flag
       python_build_status=$?
-      echo python build status $python_build_status
+      echo "python build (and test) status: " $python_build_status
       copy_logs python
       # read in variables from install run
       . ${HOME}/wincoot-installer-variables

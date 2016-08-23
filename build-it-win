@@ -379,7 +379,7 @@ STABLE_DEST_DIR=${STABLE_DEST_DIR:=${HOME}/public_html/software/binaries/stable}
 # When we fail to extract the correct tar file from the web site, what
 # shall we build instead?
 #
-fallback_coot_version=coot-0.7
+fallback_coot_version=coot-0.8
 
 # ----------------------------------------------------------------
 #   End of tinkering with parameters.

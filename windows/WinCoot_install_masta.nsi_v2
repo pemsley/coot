@@ -22,6 +22,9 @@
 ; for removal of installer
 !include "StrStr.nsh"
 
+; to detect windows version
+!include "WinVer.nsh"
+
 ; pre setting of Coot version
 !include "${src_dir}\coot-version"
 
@@ -30,7 +33,7 @@
 !define PRODUCT_VERSION "${WinCootVersion}"
 !define PRODUCT_PUBLISHER "Bernhard Lohkamp & Paul Emsley"
 !define PRODUCT_WEB_SITE "http://www.ysbl.york.ac.uk/~lohkamp/coot/wincoot.html"
-!define PRODUCT_WEB_SITE_2 "http://www.ysbl.york.ac.uk/~emsley/coot/"
+!define PRODUCT_WEB_SITE_2 "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/"
 !define PRODUCT_DIR_REGKEY "Software\Microsoft\Windows\CurrentVersion\App Paths\uninst.exe"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
@@ -53,15 +56,15 @@ Var STARTDIR
 ; Welcome page (allow 3 lines if long pre-release)
 !define MUI_WELCOMEPAGE_TITLE_3LINES
 !define MUI_WELCOMEFINISHPAGE_BITMAP_NOSTRETCH
-!define MUI_WELCOMEFINISHPAGE_BITMAP "C:\msys\home\bernhard\installer\coot_pic_welcome.bmp"
+!define MUI_WELCOMEFINISHPAGE_BITMAP "C:\MinGW\msys\1.0\home\bernhard\installer\coot_pic_welcome.bmp"
 !define MUI_HEADERIMAGE
 !define MUI_HEADERIMAGE_BITMAP_NOSTRETCH
-!define MUI_HEADERIMAGE_BITMAP "C:\msys\home\bernhard\installer\coot_pic_header.bmp"
+!define MUI_HEADERIMAGE_BITMAP "C:\MinGW\msys\1.0\home\bernhard\installer\coot_pic_header.bmp"
 !define MUI_PAGE_CUSTOMFUNCTION_PRE InitPreFunction
 !insertmacro MUI_PAGE_WELCOME
 ; License page
 !define MUI_PAGE_CUSTOMFUNCTION_PRE CheckForUpdate
-!insertmacro MUI_PAGE_LICENSE "C:\msys\home\bernhard\autobuild\extras\COPYING"
+!insertmacro MUI_PAGE_LICENSE "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\COPYING"
 ; Components page
 !define MUI_PAGE_CUSTOMFUNCTION_PRE CheckForUpdate
 !insertmacro MUI_PAGE_COMPONENTS
@@ -110,12 +113,12 @@ Var STARTDIR
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 
 !ifndef binary_dir
-; default to pre-release output dir
-!define binary_dir "C:\MinGW\msys\1.0\home\bernhard\public_html\software\binaries\pre-release"
+; default to nightlies output dir
+!define binary_dir "C:\MinGW\msys\1.0\home\bernhard\public_html\software\binaries\nightlies\pre-release"
 !endif
 ; just in case something goes wrong, we define src to be pre-release (default)
 !ifndef src_dir
-!define src_dir "C:\msys\home\bernhard\autobuild\MINGW32_NT-5.1-sarabellum-pre-release-gtk2"
+!define src_dir "C:\MinGW\msys\1.0\home\bernhard\autobuild\MINGW32_NT-6.1-bernie-pc-pre-release-gtk2"
 !endif
 !define outputname "${binary_dir}\${PRODUCT_NAME}-${PRODUCT_VERSION}.exe"
 OutFile "${outputname}"
@@ -155,7 +158,7 @@ Section "!WinCoot" SEC01
   ;  SetShellVarContext current
   ;continue_user:
   
-;  !insertmacro BIMAGE "C:\msys\home\bernhard\installer\coot_pic.bmp" /RESIZETOFIT
+;  !insertmacro BIMAGE "C:\MinGW\msys\1.0\home\bernhard\installer\coot_pic.bmp" /RESIZETOFIT
   SetOverwrite ifnewer
   SetOutPath "$INSTDIR"
   
@@ -173,14 +176,14 @@ Section "!WinCoot" SEC01
   endifbat:
 
   SetOverwrite on
-  File /oname=$INSTDIR\runwincoot.bat.tmp "C:\msys\home\bernhard\Projects\coot\windows\runwincoot.bat"
+  File /oname=$INSTDIR\runwincoot.bat.tmp "C:\MinGW\msys\1.0\home\bernhard\Projects\coot\windows\runwincoot.bat"
 
   SetOverwrite ifnewer
 ; libexec DIR
   SetOutPath "$INSTDIR\libexec"
   SetOverwrite on
   File "${src_dir}\libexec\coot-bin.exe"
-  File "${src_dir}\libexec\coot-density-score-by-residue-bin.exe"
+  File "${src_dir}\libexec\density-score-by-residue-bin.exe"
   File "${src_dir}\libexec\findligand-bin.exe"
   File "${src_dir}\libexec\findwaters-bin.exe"
   File "${src_dir}\libexec\mini-rsr-bin.exe"
@@ -190,17 +193,17 @@ Section "!WinCoot" SEC01
   SetOverwrite ifnewer
   File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\coot-icon.ico"
   File "${src_dir}\bin\*.dll"
-  File "${src_dir}\bin\coot-bfactan.exe"
+  File "${src_dir}\bin\bfactan.exe"
   File "${src_dir}\bin\coot"
   File "${src_dir}\bin\coot-mini-rsr"
   File "${src_dir}\bin\coot-available-comp-id.exe"
   File "${src_dir}\bin\coot-compare-dictionaries.exe"
-;  File "${src_dir}\bin\coot-dictionary-bond-distributions.exe"
+  File "${src_dir}\bin\coot-dictionary-bond-distributions.exe"
   File "${src_dir}\bin\coot-make-shelx-restraints.exe"
-  File "${src_dir}\bin\coot-density-score-by-residue"
+  File "${src_dir}\bin\density-score-by-residue"
   File "${src_dir}\bin\findligand"
   File "${src_dir}\bin\findwaters"
-  File "${src_dir}\bin\coot-fix-nomenclature-errors.exe"
+  File "${src_dir}\bin\fix-nomenclature-errors.exe"
   File "${src_dir}\bin\gdk-pixbuf-csource.exe"
   File "${src_dir}\bin\gdk-pixbuf-query-loaders.exe"
   File "${src_dir}\bin\glib-genmarshal.exe"
@@ -213,21 +216,21 @@ Section "!WinCoot" SEC01
   File "${src_dir}\bin\gtk-builder-convert"
   File "${src_dir}\bin\gtk-demo.exe"
   File "${src_dir}\bin\gtk-query-immodules-2.0.exe"
-  File "C:\msys\home\bernhard\autobuild\extras\gunzip"
-  File "C:\msys\home\bernhard\autobuild\extras\gzip.exe"
+  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\gunzip"
+  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\gzip.exe"
   File "${src_dir}\bin\iconv.exe"
   File "${src_dir}\bin\lidia.exe"
-  File "C:\msys\home\bernhard\autobuild\extras\msvcr90.dll"
-  File "C:\msys\home\bernhard\autobuild\extras\Microsoft.VC90.CRT.manifest"
+  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\msvcr90.dll"
+  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\Microsoft.VC90.CRT.manifest"
   File "${src_dir}\bin\pango-querymodules.exe"
   File "${src_dir}\bin\pango-view.exe"
   File "${src_dir}\bin\pkg-config.exe"
-  File "C:\msys\home\bernhard\autobuild\extras\ppm2bmp.exe"
+  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\ppm2bmp.exe"
   ; now the new mingw files for static compilation (or not)
   ; FIXME:: seems to be only needed in newer versions of msys
   ; ....... and maybe if we have shared compilation - not yet
-  ;File "C:\msys\home\bernhard\autobuild\extras\libstdc++-6.dll"
-  ;File "C:\msys\home\bernhard\autobuild\extras\libgcc_s_dw2-1.dll"
+  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\libstdc++-6.dll"
+  ;File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\libgcc_s_dw2-1.dll"
 ; PYTHON stuff new
   SetOutPath "$INSTDIR\python27"
   File /r "${src_dir}\python27\*.*"
@@ -240,8 +243,8 @@ Section "!WinCoot" SEC01
   File "${src_dir}\etc\pango\pango.modules"
 ; for ccp4 version
   SetOutPath "$INSTDIR\etc"
-  File "C:\msys\home\bernhard\Projects\coot\windows\runwincoot_ccp4.bat"
-  File "C:\msys\home\bernhard\Projects\coot\windows\runwincoot_ccp4_vista.bat"
+  File "C:\MinGW\msys\1.0\home\bernhard\Projects\coot\windows\runwincoot_ccp4.bat"
+  File "C:\MinGW\msys\1.0\home\bernhard\Projects\coot\windows\runwincoot_ccp4_vista.bat"
 ; SHARE
   SetOutPath "$INSTDIR\share\icons"
   File /r "${src_dir}\share\icons\*.*"
@@ -385,12 +388,13 @@ Section "!WinCoot" SEC01
   File "${src_dir}\share\coot\data\*"
   ;docs
   SetOutPath "$INSTDIR\doc"
-  File "C:\msys\home\bernhard\autobuild\extras\coot-manual.pdf"
-  File "C:\msys\home\bernhard\autobuild\extras\coot-keys-and-buttons.pdf"
-  File "C:\msys\home\bernhard\autobuild\extras\tutorial-2.pdf"
-  ;secondary structure(s)
-  SetOutPath "$INSTDIR\share\coot\ss-reference-structures"
-  File "C:\msys\home\bernhard\autobuild\extras\ss-reference-structures\*"
+  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\coot-user-manual.pdf"
+  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\crib-sheet.pdf"
+  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\tutorial.pdf"
+  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\tutorial-2.pdf"
+  ;;secondary structure(s)
+  ;SetOutPath "$INSTDIR\share\coot\ss-reference-structures"
+  ;File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\ss-reference-structures\*"
   ;make a backupdir, so that COOT_BACKUP_DIR has a defined directory
   SetOutPath "$INSTDIR\coot-backup"
   ; set outpath to $INSTDIR so that shortcuts are started in $INSTDIR
@@ -402,7 +406,7 @@ SectionEnd
 Section /o "Windows feel" SEC02
   SetOverwrite on
   SetOutPath "$INSTDIR\share\coot"
-  File "C:\msys\home\bernhard\autobuild\extras\cootrc"
+  File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\cootrc"
   SetOverwrite ifnewer
 ;  maybe here the other guile things?!
 SectionEnd
@@ -544,22 +548,18 @@ Section Uninstall
   Delete "$INSTDIR\bin\coot-icon.ico"
   Delete "$INSTDIR\bin\*.dll"
   Delete "$INSTDIR\bin\bfactan.exe"
-  Delete "$INSTDIR\bin\coot-bfactan.exe"
   Delete "$INSTDIR\bin\coot"
   Delete "$INSTDIR\bin\coot-real.exe"
   Delete "$INSTDIR\libexec\coot-bin.exe"
   Delete "$INSTDIR\libexec\density-score-by-residue-bin.exe"
-  Delete "$INSTDIR\libexec\coot-density-score-by-residue-bin.exe"
   Delete "$INSTDIR\libexec\findligand-bin.exe"
   Delete "$INSTDIR\libexec\findwaters-bin.exe"
   Delete "$INSTDIR\libexec\mini-rsr-bin.exe"
-  Delete "$INSTDIR\bin\coot-density-score-by-residue"
   Delete "$INSTDIR\bin\density-score-by-residue"
   Delete "$INSTDIR\bin\findligand"
   Delete "$INSTDIR\bin\findligand-real.exe"
   Delete "$INSTDIR\bin\findwaters"
   Delete "$INSTDIR\bin\findwaters-real.exe"
-  Delete "$INSTDIR\bin\coot-fix-nomenclature-errors.exe"
   Delete "$INSTDIR\bin\fix-nomenclature-errors.exe"
   Delete "$INSTDIR\bin\gdk-pixbuf-csource.exe"
   Delete "$INSTDIR\bin\gdk-pixbuf-query-loaders.exe"
@@ -827,7 +827,7 @@ Function MakeBackground
     ; from dark green to dark red : 0 0x80 0 0x80 0 0
     BgImage::SetBg /GRADIENT 0 0x80 0 0x80 0 0
     BgImage::AddText "$(^Name) Installer"
-    ;BgImage::AddImage C:\msys\home\bernhard\installer\coot_pic_welcome.bmp 150 0
+    ;BgImage::AddImage C:\MinGW\msys\1.0\home\bernhard\installer\coot_pic_welcome.bmp 150 0
     CreateFont $R0 "Comic Sans MS" 30 700
     # add a blue shadow for the text
     BgImage::AddText "$(^Name) Installer" $R0 0 0 255 48 48 798 198
@@ -959,15 +959,11 @@ Function FinishPagePreFunction
    !insertmacro ReplaceOnLine "yourWinCootdirectory" "$INSTDIR" "5" "$INSTDIR\runwincoot.bat.tmp"
    !insertmacro ReplaceOnLine "yourWinCootdirectoryGuile" "$GUILE_INST_DIR" "6" "$INSTDIR\runwincoot.bat.tmp"
    ;we want to change more for Vista (and possibly for Windows 7 too FIXME!)
-   GetVersion::WindowsName
-     Pop $R0
-     ${If} $R0 == "Vista"
-     ${OrIf} $R0 == "7"   ; assuming it's needed, wont harm
+   ; Maybe not too much any more... (since graphics card issue)
+   ${If} ${AtLeastWinVista}
        ; change to run on 1 core only (to enable compositing!)
        !insertmacro AdvReplaceInFile "coot-bin.exe" "start /affinity 1 coot-bin.exe" "0" "1" "$INSTDIR\runwincoot.bat.tmp"
-;       MessageBox MB_ICONINFORMATION|MB_OK "Have Vista or 7"
-     ${EndIf}
-
+   ${EndIf}
    ; if we have an old bat file
    ${If} $have_bat == "True"
      ; check if wincootbats are different
@@ -1031,8 +1027,8 @@ ${If} $update = 0
   CreateShortCut "$SMPROGRAMS\WinCoot\WinCoot Website.lnk" "$INSTDIR\${PRODUCT_NAME}.url"
   CreateShortCut "$SMPROGRAMS\WinCoot\Coot Website.lnk" "$INSTDIR\Coot.url"
   CreateShortCut "$SMPROGRAMS\WinCoot\Uninstall.lnk" "$INSTDIR\uninst.exe"
-  CreateShortCut "$SMPROGRAMS\WinCoot\Coot Manual.lnk" "$INSTDIR\doc\coot-manual.pdf"
-  CreateShortCut "$SMPROGRAMS\WinCoot\Coot Keys and Buttons.lnk" "$INSTDIR\doc\coot-keys-and-buttons.pdf"
+  CreateShortCut "$SMPROGRAMS\WinCoot\Coot Manual.lnk" "$INSTDIR\doc\coot-user-manual.pdf"
+  CreateShortCut "$SMPROGRAMS\WinCoot\Coot Keys and Buttons.lnk" "$INSTDIR\doc\crib-sheet.pdf"
   CreateShortCut "$SMPROGRAMS\WinCoot\Coot Tutorial.lnk" "$INSTDIR\doc\tutorial.pdf"
   !insertmacro MUI_STARTMENU_WRITE_END
   SetOutPath "$INSTDIR"
