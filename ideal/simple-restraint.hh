@@ -1438,6 +1438,10 @@ namespace coot {
 			   const std::string &atom_name_1,
 			   const std::string &atom_name_2,
 			   const coot::protein_geometry &geom) const;
+
+      bool is_acceptor(const std::string &energy_type,
+		       const coot::protein_geometry &geom) const;
+      
       
       //! Set a flag that we have an OXT and we need to position it
       //after the refinement.

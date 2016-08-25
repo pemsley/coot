@@ -1878,7 +1878,7 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(mmdb::Residue *
    std::string pdb_resname(residue_p->name);
    if (pdb_resname == "UNK") pdb_resname = "ALA";
 
-   if (0) 
+   if (false)
       std::cout << "--------------- make_monomer_restraints_by_residue() called "
 		<< residue_spec_t(residue_p)
 		<<  " and using type :" << pdb_resname << ":" << std::endl;
@@ -1915,7 +1915,7 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(mmdb::Residue *
 	    local.n_bond_restraints += add_bonds(idr, res_selection, i_no_res_atoms,
 						 residue_p, geom);
 	    
-	    // 		     std::cout << "   angles... " << std::endl;
+	    // std::cout << "   angles... " << std::endl;
 	    local.n_angle_restraints += add_angles(idr, res_selection, i_no_res_atoms,
 						   residue_p, geom);
 	    if (do_residue_internal_torsions) { 
@@ -2299,6 +2299,18 @@ coot::restraints_container_t::set_non_bonded_neighbour_residues_by_residue_vecto
 } 
 
 
+int 
+coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bonded_pair_container_t &bpc,
+								 const coot::protein_geometry &geom) {
+
+   // is this function used any more?
+   //
+   coot::restraints_container_t::reduced_angle_info_container_t ai(restraints_vec);
+   ai.write_angles_map("angles_map.tab");
+   return make_non_bonded_contact_restraints(bpc, ai, geom);
+   
+} 
+
 // Atoms that are not involved in bonds or angles, but are in the
 // residue selection should be at least 2.7A away from each other.
 // 
@@ -2341,17 +2353,11 @@ coot::restraints_container_t::set_non_bonded_neighbour_residues_by_residue_vecto
 //     Need to keep a list of repulsing atom pairs so that we don't have
 //     to calculate them once each for distortion_score and derivates..?
 //
-
-int 
-coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bonded_pair_container_t &bpc,
-								 const coot::protein_geometry &geom) {
-
-   coot::restraints_container_t::reduced_angle_info_container_t ai(restraints_vec);
-   // ai.write_angles_map("angles_map.tab");
-   return make_non_bonded_contact_restraints(bpc, ai, geom);
-   
-} 
-
+// Note that if residue-2 is not moving then it will not have angle restraints.  If
+// it doesn't have angle resraints then the is_1_4_related test will fail.
+// e.g (if n-1 is fixed residue): C(n-1)-N(n)-Ca(n)-C(n) or C(n-1)-N(n)-Ca(n)-CB(n)
+// will not be seen as 1-4 related.
+//
 int 
 coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bonded_pair_container_t &bpc,
 								 const coot::restraints_container_t::reduced_angle_info_container_t &ai,
@@ -2379,6 +2385,9 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
 	 std::cout << "------- " << iat << " " << atom_spec_t(atom[iat]) << std::endl;
    }
 
+   if (false)
+      ai.write_angles_map("angles-map.tab");
+   
    if (false) {
       std::cout << "--------------------------------------------------\n";
       std::cout << "   non-bonded list:" << std::endl;
@@ -2392,7 +2401,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
       } 
       std::cout << "--------------------------------------------------\n";
    }
-   
+
    for (unsigned int i=0; i<filtered_non_bonded_atom_indices.size(); i++) { 
       mmdb::Atom *at = atom[i];
       std::string res_type = at->GetResName();
@@ -2451,7 +2460,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
 
 	    bool add_it = true;
 
-	    // no bumps from hydrogens in the same residue
+	    // no H-H bumps in the same residue
 	    //
 	    // [20131212: Why not?  I suppose that there was a reason,
 	    // it is not clear to me what it is now].  This needs to
@@ -2523,12 +2532,24 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
 						      atom_name_1, atom_name_2, geom);
 		  
 	       }
-	       
-	       // bool is_1_4_related = check_for_1_4_relation(i, filtered_non_bonded_atom_indices[i][j], ai);
 
+	       
+	       // this doesn't check 1-4 over a moving->non-moving peptide link (see comment above function)
+	       // because the non-moving atom doesn't have angle restraints.
+	       //
 	       bool is_1_4_related = ai.is_1_4(i, filtered_non_bonded_atom_indices[i][j]);
+
+	       if (false)
+		  std::cout << "atom " << atom_spec_t(at_1) << " and atom "
+			    << atom_spec_t(at_2) << " 1-4 flag: "
+			    << is_1_4_related << std::endl;
+
 	       if (is_1_4_related) {
 		  dist_min = 2.7;
+		  if (is_hydrogen(at_1))
+		      dist_min -= 0.7;
+		  if (is_hydrogen(at_2))
+		      dist_min -= 0.7;
 	       } else {
 
 		  std::pair<bool, double> nbc_dist = geom.get_nbc_dist(type_1, type_2,
@@ -2570,6 +2591,9 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
 				       strange_exception = true;
 				 if (atom_name_1 == " CB ")
 				    if (atom_name_2 == " N  ")
+				       strange_exception = true;
+				 if (atom_name_1 == " C  ")
+				    if (atom_name_2 == " CB ")
 				       strange_exception = true;
 			      }
 			   }
@@ -2619,13 +2643,19 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
 			    << " dist_min: " << dist_min << std::endl;
 	       }
 
+	       if (is_hydrogen(at_1)) // should check from donor
+		  if (is_acceptor(type_2, geom))
+		     dist_min -= 0.7;
+	       if (is_hydrogen(at_2)) // should check from donor
+		  if (is_acceptor(type_1, geom))
+		      dist_min -= 0.7;
+
 	       simple_restraint r(NON_BONDED_CONTACT_RESTRAINT,
 				  i, filtered_non_bonded_atom_indices[i][j],
 				  type_1, type_2, 
 				  fixed_atom_flags, dist_min);
 
 	       restraints_vec.push_back(r);
-	    
 
 	       n_nbc_r++;
 	    }
@@ -2633,6 +2663,17 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
       }
    }
    return n_nbc_r;
+}
+
+bool
+coot::restraints_container_t::is_acceptor(const std::string &energy_type,
+					  const coot::protein_geometry &geom) const {
+
+   // get_energy_lib_atom() returns a blank atom on failure to look up energy_type
+   energy_lib_atom ela = geom.get_energy_lib_atom(energy_type);
+   bool acceptor_flag = ((ela.hb_type == HB_ACCEPTOR) || (ela.hb_type == HB_BOTH));
+   
+   return acceptor_flag;
 }
 
 // the bool in the residue_ring_map_cache is a flag that means "I've
@@ -2768,7 +2809,10 @@ coot::restraints_container_t::check_for_1_4_relation(int idx_1, int idx_2,
 
 coot::restraints_container_t::reduced_angle_info_container_t::reduced_angle_info_container_t(const std::vector<coot::simple_restraint> &r) {
 
-   for (unsigned int ii=0; ii<r.size(); ii++) { 
+   // this map is constructed correctly.  If you are here it's because
+   // you expect an angle restraint that not there.
+   // 
+   for (unsigned int ii=0; ii<r.size(); ii++) {
       if (r[ii].restraint_type == coot::ANGLE_RESTRAINT) {
 	 std::pair<int, int> p_1(r[ii].atom_index_2, r[ii].atom_index_3);
 	 std::pair<int, int> p_2(r[ii].atom_index_2, r[ii].atom_index_1);
@@ -2782,7 +2826,7 @@ void
 coot::restraints_container_t::reduced_angle_info_container_t::write_angles_map(const std::string &file_name) const {
 
    std::ofstream f(file_name.c_str());
-   if (f) { 
+   if (f) {
       std::map<int, std::vector<std::pair<int, int> > >::const_iterator it;
       for (it=angles.begin(); it!=angles.end(); it++) {
 	 const std::vector<std::pair<int, int> > &v = it->second;
@@ -2809,8 +2853,11 @@ coot::restraints_container_t::reduced_angle_info_container_t::is_1_4(int indx_1,
    it_1 = angles.find(indx_1);
    if (it_1 != angles.end()) {
       const std::vector<std::pair<int, int> > &v = it_1->second;
-      for (unsigned int ii=0; ii<v.size(); ii++) { 
-	 // what are the angles that have atom_mid as atom_1?
+      for (unsigned int ii=0; ii<v.size(); ii++) {
+	 
+	 // what are the angles that have atom_mid as atom_1?  We can ask this because angles
+	 // go into this object both way rounds: A-B-C, C-B-A.
+	 
 	 int idx_mid = v[ii].first;
 
 	 it_2 = angles.find(idx_mid);
@@ -2827,6 +2874,7 @@ coot::restraints_container_t::reduced_angle_info_container_t::is_1_4(int indx_1,
 
 	 if (f)
 	    break;
+
       }
    }
 
@@ -3181,11 +3229,16 @@ coot::restraints_container_t::construct_non_bonded_contact_list_conventional() {
   filter_non_bonded_by_distance(non_bonded_atom_indices, 8.0);
 }
 
+// This function is called by make_non_bonded_contact_restraints()
+//
 void
 coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const coot::bonded_pair_container_t &bpc,
 									   const coot::protein_geometry &geom) {
+
+   // How frequently does this function get called? - needs optimizing
    
-   const double dist_crit = 8.0;
+   const double dist_crit = 8.0; // good number?  Needs checking. 
+   
    filtered_non_bonded_atom_indices.resize(bonded_atom_indices.size());
 
    if (false) { // debug
@@ -3342,8 +3395,11 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 				 filtered_non_bonded_atom_indices[iat].push_back(jat);
 			      }
 			   }
+			   
 			} else {
-			
+
+			   // they were bonded to each other.
+			   
 			   // add to filtered_non_bonded_atom_indices (which is a class variable)
 			
 			   if (mi.swap_needed)

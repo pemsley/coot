@@ -287,8 +287,7 @@ coot::my_df_non_bonded(const  gsl_vector *v,
    
    // first extract the object from params 
    //
-   coot::restraints_container_t *restraints =
-      (coot::restraints_container_t *)params; 
+   restraints_container_t *restraints = (restraints_container_t *)params; 
    
    // the length of gsl_vector should be equal to n_var: 
    // 
@@ -311,16 +310,20 @@ coot::my_df_non_bonded(const  gsl_vector *v,
       double y_l_contrib;
       double z_l_contrib;
 
-      for (int i=0; i<restraints->size(); i++) { 
+      int restraints_size = restraints->size();
+
+      for (int i=0; i< restraints_size; i++) {
+
+	 const simple_restraint &this_restraint = (*restraints)[i];
       
-	 if ( (*restraints)[i].restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) { 
+	 if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) { 
 
 	    n_non_bonded_restr++; 
 	    
-	    target_val = (*restraints)[i].target_value;
+	    target_val = this_restraint.target_value;
 	    
 	    // what is the index of x_k?
-	    idx = 3*( (*restraints)[i].atom_index_1 );
+	    idx = 3*(this_restraint.atom_index_1);
 
 	    clipper::Coord_orth a1(gsl_vector_get(v,idx), 
 				   gsl_vector_get(v,idx+1), 
@@ -336,9 +339,9 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 
 	    b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
 
-	    weight = 1.0/( (*restraints)[i].sigma * (*restraints)[i].sigma );
+	    weight = 1.0/( this_restraint.sigma * this_restraint.sigma );
 
-	    if (b_i_sqrd < (*restraints)[i].target_value * (*restraints)[i].target_value) {
+	    if (b_i_sqrd < this_restraint.target_value * this_restraint.target_value) {
 
 	       double b_i = sqrt(b_i_sqrd);
 	       // double constant_part = 2.0*weight*(b_i - target_val)/b_i;
@@ -352,7 +355,7 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 	       y_l_contrib = constant_part*(a2.y()-a1.y());
 	       z_l_contrib = constant_part*(a2.z()-a1.z());
 
-	       if (! (*restraints)[i].fixed_atom_flags[0]) { 
+	       if (! this_restraint.fixed_atom_flags[0]) { 
 		  idx = 3*((*restraints)[i].atom_index_1 - 0); 
 		  // std::cout << " nbc  first non-fixed  idx is " << idx << std::endl;
 		  
@@ -362,11 +365,11 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 		  
 	       } else {
 		  // debug
-		  if (0) { 
-		     idx = 3*((*restraints)[i].atom_index_1 - 0); 
+		  if (0) {
+		     idx = 3*(this_restraint.atom_index_1 - 0); 
 		     std::cout << "NBC  Fixed atom[0] "
-			       << restraints->get_atom((*restraints)[i].atom_index_1)->GetSeqNum() << " " 
-			       << restraints->get_atom((*restraints)[i].atom_index_1)->name << " " 
+			       << restraints->get_atom(this_restraint.atom_index_1)->GetSeqNum() << " " 
+			       << restraints->get_atom(this_restraint.atom_index_1)->name << " " 
 			       << ", Not adding " << x_k_contrib << " "
 			       << y_k_contrib << " "
 			       << z_k_contrib << " to "
@@ -376,8 +379,8 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 		  }
 	       }
 
-	       if (! (*restraints)[i].fixed_atom_flags[1]) { 
-		  idx = 3*((*restraints)[i].atom_index_2 - 0); 
+	       if (! this_restraint.fixed_atom_flags[1]) { 
+		  idx = 3*(this_restraint.atom_index_2 - 0); 
 		  // std::cout << " nbc  second non-fixed idx is " << idx << std::endl;
 		  
 		  *gsl_vector_ptr(df, idx  ) += x_l_contrib;
@@ -387,10 +390,10 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 	       } else {
 		  // debug
 		  if (0) { 
-		     idx = 3*((*restraints)[i].atom_index_2 - 0); 
+		     idx = 3*(this_restraint.atom_index_2 - 0); 
 		     std::cout << "NBC  Fixed atom[1] "
-			       << restraints->get_atom((*restraints)[i].atom_index_2)->GetSeqNum() << " " 
-			       << restraints->get_atom((*restraints)[i].atom_index_2)->name << " " 
+			       << restraints->get_atom(this_restraint.atom_index_2)->GetSeqNum() << " " 
+			       << restraints->get_atom(this_restraint.atom_index_2)->name << " " 
 			       << ", Not adding " << x_k_contrib << " "
 			       << y_k_contrib << " "
 			       << z_k_contrib << " to "
