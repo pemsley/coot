@@ -492,8 +492,9 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
    // tmp debugging stuff
    double nbc_diff = 0.0;
    double d;
+   int restraints_size = restraints->size();
 
-   for (int i=0; i<restraints->size(); i++) {
+   for (int i=0; i< restraints_size; i++) {
 
 //       std::cout << "... restraint " << i << " of " << restraints->size() << " type "
 // 		<< (*restraints)[i].restraint_type << std::endl;
@@ -1165,16 +1166,25 @@ coot::distortion_score_non_bonded_contact(const coot::simple_restraint &nbc_rest
 					  const gsl_vector *v) {
 
    const int &idx_1 = 3*(nbc_restraint.atom_index_1); 
-   const int &idx_2 = 3*(nbc_restraint.atom_index_2); 
-   clipper::Coord_orth a1(gsl_vector_get(v, idx_1  ), 
-			  gsl_vector_get(v, idx_1+1), 
-			  gsl_vector_get(v, idx_1+2));
-   clipper::Coord_orth a2(gsl_vector_get(v, idx_2 ),
-			  gsl_vector_get(v, idx_2+1), 
-			  gsl_vector_get(v, idx_2+2));
+   const int &idx_2 = 3*(nbc_restraint.atom_index_2);
+   
+//    clipper::Coord_orth a1(gsl_vector_get(v, idx_1  ), 
+// 			     gsl_vector_get(v, idx_1+1), 
+// 			     gsl_vector_get(v, idx_1+2));
+//    clipper::Coord_orth a2(gsl_vector_get(v, idx_2 ),
+// 			     gsl_vector_get(v, idx_2+1), 
+// 			     gsl_vector_get(v, idx_2+2));
 
-   double dist_sq = (a1-a2).lengthsq();
-   double bit; 
+//    double dist_sq = (a1-a2).lengthsq();
+
+   double dist_sq = 0.0;
+
+   double delta = gsl_vector_get(v, idx_1) - gsl_vector_get(v, idx_2);
+   dist_sq += delta * delta;
+   delta = gsl_vector_get(v, idx_1+1) - gsl_vector_get(v, idx_2+1);
+   dist_sq += delta * delta;
+   delta = gsl_vector_get(v, idx_1+2) - gsl_vector_get(v, idx_2+2);
+   dist_sq += delta * delta;
 
    double r = 0.0;
 
@@ -1188,7 +1198,7 @@ coot::distortion_score_non_bonded_contact(const coot::simple_restraint &nbc_rest
    if (dist_sq < nbc_restraint.target_value * nbc_restraint.target_value) {
       double weight = 1.0/(nbc_restraint.sigma * nbc_restraint.sigma);
       double dist = sqrt(dist_sq);
-      bit = dist - nbc_restraint.target_value;
+      double bit = dist - nbc_restraint.target_value;
       r = weight * bit * bit;
    }
    return r;
