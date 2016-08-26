@@ -365,7 +365,7 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 	 display_density_level_this_image = 1;
 	 std::string s;
 	 s = "Read ";
-	 s += int_to_string(rmit.n_atoms);
+    s += int_to_string(rmit.n_atoms + rmit.n_links);
 	 s += " atoms/links in restraints from ";
 	 s += cif_dictionary_filename;
 	 display_density_level_screen_string = s;

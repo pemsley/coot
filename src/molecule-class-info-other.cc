@@ -5991,66 +5991,85 @@ molecule_class_info_t::find_water_baddies_AND(float b_factor_lim, const clipper:
 					      short int ignore_zero_occ_flag) {
 
    std::vector <coot::atom_spec_t> v;
-   std::vector <int> idx;
+   std::vector <std::pair<int, double> > idx;
    double den;
+
+   // put in one loop otherwise we get duplicates (or even more)
 
    for (int i=0; i<atom_sel.n_selected_atoms; i++) {
       if (atom_sel.atom_selection[i]->tempFactor > b_factor_lim) {
-	 if (! atom_sel.atom_selection[i]->isTer()) { 
-	    std::string resname = atom_sel.atom_selection[i]->GetResName();
-	    if (resname == "WAT" || resname == "HOH") {
-		  clipper::Coord_orth a(atom_sel.atom_selection[i]->x,
-					atom_sel.atom_selection[i]->y,
-					atom_sel.atom_selection[i]->z);
-	       den = coot::util::density_at_point(xmap_in, a);
-	       
-	       if (den > outlier_sigma_level*map_sigma || map_sigma < 0 || outlier_sigma_level < 0) {
-		  idx.push_back(i);
-	       }
-	    }
-	 }
+         if (! atom_sel.atom_selection[i]->isTer()) {
+            std::string resname = atom_sel.atom_selection[i]->GetResName();
+            if (resname == "WAT" || resname == "HOH") {
+               clipper::Coord_orth a(atom_sel.atom_selection[i]->x,
+                                     atom_sel.atom_selection[i]->y,
+                                     atom_sel.atom_selection[i]->z);
+               den = coot::util::density_at_point(xmap_in, a);
+
+               if (den > outlier_sigma_level*map_sigma || map_sigma < 0 || outlier_sigma_level < 0) {
+                  if( min_dist < 0 && max_dist < 0) {
+                     idx.push_back(std::make_pair(i, den));
+                  } else {
+                     // need to check the distances too, only around this water!?
+                     // try with mmdb
+                     // first select the water
+                     int SelHnd_wat;
+                     SelHnd_wat = atom_sel.mol->NewSelection();
+                     atom_sel.mol->Select(SelHnd_wat, mmdb::STYPE_ATOM, 0,
+                                          atom_sel.atom_selection[i]->GetChainID(),
+                                          atom_sel.atom_selection[i]->GetSeqNum(), "*",
+                                          atom_sel.atom_selection[i]->GetSeqNum(), "*",
+                                          "*",  // residue name
+                                          "*",  // Residue must contain this atom name?
+                                          "*",  // Residue must contain this Element?
+                                          "*",  // altLocs
+                                          mmdb::SKEY_NEW // selection key
+                                          );
+
+                     if (min_dist < 0)
+                        min_dist = 0.0;
+                     if (max_dist < 0)
+                        max_dist = 10.0; // should be enough?!
+                     int nSelAtoms_wat;
+                     mmdb::PPAtom SelAtom_wat;
+                     atom_sel.mol->GetSelIndex(SelHnd_wat, SelAtom_wat, nSelAtoms_wat);
+                     atom_sel.mol->SelectNeighbours(SelHnd_wat,
+                                                    mmdb::STYPE_ATOM,
+                                                    SelAtom_wat,
+                                                    nSelAtoms_wat,
+                                                    min_dist, max_dist,
+                                                    mmdb::SKEY_OR);
+
+                     atom_sel.mol->GetSelIndex(SelHnd_wat, SelAtom_wat, nSelAtoms_wat);
+                     // Do we need to remove the hydrogens?
+                     if (nSelAtoms_wat == 1) {
+                        // selection always contains the atom around which the neighbours are found
+                        //
+                        // no atoms between min and max distance found, i.e. closest contact must
+                        // be outside the range.
+                        idx.push_back(std::make_pair(i, den));
+                     }
+                  }
+               }
+            }
+         }
       }
    }
 
-   // min_dist is the closest contact limit, i.e. atoms with distances 
-
-   // max_dist is the maximum allowed distance to the nearest atom.
-
-   double d;
+   // now add the atoms (with all info, mabe could be done above too)
    for (unsigned int i=0; i<idx.size(); i++) {
-      clipper::Coord_orth p(atom_sel.atom_selection[idx[i]]->x,
-			    atom_sel.atom_selection[idx[i]]->y,
-			    atom_sel.atom_selection[idx[i]]->z);
-      double dist_to_atoms_min =  99999;
-      double dist_to_atoms_max = -99999;
 
-	if( min_dist < 0 || max_dist < 0)
-		continue;
+      std::string s = "B fac: ";
+      s += coot::util::float_to_string(atom_sel.atom_selection[idx[i].first]->tempFactor);
+      s += "   ED: ";
+      s += coot::util::float_to_string(idx[i].second);
+      s += " rmsd";
 
-      for (int iat=0; iat<atom_sel.n_selected_atoms; iat++) {
-	 if (atom_sel.atom_selection[idx[i]] != atom_sel.atom_selection[iat]) {
-	    bool is_H = false;
-	    // PDB v3 FIXME?
-	    if (! strncmp(atom_sel.atom_selection[iat]->name, " H", 2))
-	       is_H = true;
-	    if (! is_H) { 
-	       clipper::Coord_orth a(atom_sel.atom_selection[iat]->x,
-				     atom_sel.atom_selection[iat]->y,
-				     atom_sel.atom_selection[iat]->z);
-	       d = clipper::Coord_orth::length(p,a);
-	       if (d < dist_to_atoms_min)
-		  dist_to_atoms_min = d;
-	       if (d > dist_to_atoms_max)
-		  dist_to_atoms_max = d;
-	    }
-	    if (dist_to_atoms_min < min_dist ||
-		dist_to_atoms_min > max_dist) {
-	       coot::atom_spec_t atom_spec(atom_sel.atom_selection[idx[i]]);
-	       v.push_back(atom_spec);
-	    }
-	 }
-      }
+      coot::atom_spec_t atom_spec(atom_sel.atom_selection[idx[i].first], s);
+      atom_spec.float_user_data = atom_sel.atom_selection[idx[i].first]->occupancy;
+      v.push_back(atom_spec);
    }
+
    return v;
 }
 
