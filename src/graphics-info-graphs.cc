@@ -291,34 +291,37 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
 	 std::cout << "ERROR:: failed to get omega_graph from dialog\n";
       } else {
 
-	 // We do this long handedly (c.f. above) because here we use
-	 // render_omega_blocks() which needs the offset (which is a
-	 // per-chain variable:
-	 //
-	 int n_models = moving_atoms_asc_local.mol->GetNumberOfModels();
-	 for (int imodel = 1; imodel <= n_models; imodel++) { 
-	    mmdb::Model *model_p = moving_atoms_asc_local.mol->GetModel(imodel);
-	    mmdb::Chain *chain_p;
-	    const char *chain_id;
-	    int n_chains = model_p->GetNumberOfChains();
+	 if (! moving_atoms_asc_local.empty()) {
 
-	    for (int ich=0; ich<n_chains; ich++) {
-	       chain_p = model_p->GetChain(ich);
-	       chain_id = chain_p->GetChainID();
-	       std::pair<short int, int> m = coot::util::min_resno_in_chain(chain_p);
-	       if (m.first) {
-		  // not used:
-		  // int offset = m.second - 1; // min resno = 1 -> offset = 0
+	    // We do this long handedly (c.f. above) because here we use
+	    // render_omega_blocks() which needs the offset (which is a
+	    // per-chain variable:
+	    //
+	    int n_models = moving_atoms_asc_local.mol->GetNumberOfModels();
+	    for (int imodel = 1; imodel <= n_models; imodel++) { 
+	       mmdb::Model *model_p = moving_atoms_asc_local.mol->GetModel(imodel);
+	       mmdb::Chain *chain_p;
+	       const char *chain_id;
+	       int n_chains = model_p->GetNumberOfChains();
 
-		  coot::omega_distortion_info_container_t om_dist = 
-		     omega_distortions_from_mol(moving_atoms_asc_local, chain_id);	
+	       for (int ich=0; ich<n_chains; ich++) {
+		  chain_p = model_p->GetChain(ich);
+		  chain_id = chain_p->GetChainID();
+		  std::pair<short int, int> m = coot::util::min_resno_in_chain(chain_p);
+		  if (m.first) {
+		     // not used:
+		     // int offset = m.second - 1; // min resno = 1 -> offset = 0
 
-		  if (0)
-		     std::cout << "DEBUG:: update omega dist graph chain "
-			       << om_dist.chain_id << " " << om_dist.omega_distortions.size()
-			       << " blocks" << std::endl;
+		     coot::omega_distortion_info_container_t om_dist = 
+			omega_distortions_from_mol(moving_atoms_asc_local, chain_id);	
 
-		  gr->update_omega_blocks(om_dist, ich, std::string(chain_id));
+		     if (0)
+			std::cout << "DEBUG:: update omega dist graph chain "
+				  << om_dist.chain_id << " " << om_dist.omega_distortions.size()
+				  << " blocks" << std::endl;
+
+		     gr->update_omega_blocks(om_dist, ich, std::string(chain_id));
+		  }
 	       }
 	    }
 	 }
@@ -334,10 +337,9 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
 	 mmdb::Manager *mol = molecules[imol_moving_atoms].atom_sel.mol;
 	 sequence_view->regenerate(mol);
       }
-			  
    }
 
-   
+
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 #endif // HAVE_GSL
 }
@@ -1112,6 +1114,8 @@ std::vector<coot::geometry_graph_block_info_generic>
 graphics_info_t::rotamers_from_mol(const atom_selection_container_t &asc,
 				  int imol_moving_atoms) {
 
+   // this does not use the provided atom_selection_container_t asc
+   
    std::vector<coot::geometry_graph_block_info_generic> dv;
 
    mmdb::Manager *mol = molecules[imol_moving_atoms].atom_sel.mol;
@@ -1395,6 +1399,9 @@ graphics_info_t::density_fit_from_mol(const atom_selection_container_t &asc,
 
    std::vector<coot::geometry_graph_block_info_generic> drv;
    std::string altconf("");  // use this (e.g. "A") or "".
+
+   if (! asc.mol)
+      return drv;
    
    if (imol_map < n_molecules() && graphics_info_t::molecules[imol_map].has_xmap()) { 
       int n_models = asc.mol->GetNumberOfModels();
