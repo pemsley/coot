@@ -1,5 +1,4 @@
 
-
    For Release 0.8.7
 
    o Fetch molecule: acyclovir, (edit?) click Apply
@@ -17,5 +16,3 @@
    o remove debugging:
 
 debug:: switch for sequence_view for imol 0 is 0x0
-
-
