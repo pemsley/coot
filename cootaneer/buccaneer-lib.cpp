@@ -216,7 +216,7 @@ void LLK_map_target::search( clipper::Xmap<float>& resultscr, clipper::Xmap<int>
   clipper::Map_stats zstats( resultp1 );
 
   // loop over orientations
-  for ( int op = 0; op < rtops.size(); op++ ) {
+  for ( unsigned int op = 0; op < rtops.size(); op++ ) {
     // do the fffear search
     clipper::NX_operator nxop( xmap, target, rtops[op].inverse() );
     srch( resultp1, target, weight, nxop );
@@ -271,7 +271,7 @@ void LLK_map_target::Sampled::insert( clipper::Coord_orth coord, clipper::ftype 
 /* \return The log likelihood */
 clipper::ftype LLK_map_target::Sampled::llk( const clipper::Xmap<float>& xmap, const clipper::RTop_orth& rtop ) const {
   clipper::ftype r( 0.0 ), s( 0.0 );
-  for ( int i = 0; i < repxyz.size(); i++ ) {
+  for ( unsigned int i = 0; i < repxyz.size(); i++ ) {
     r += repwgt[i] * pow( xmap.interp<clipper::Interp_linear>( (rtop*repxyz[i]).coord_frac(xmap.cell()) ) - reptgt[i], 2 );
     s += repwgt[i];
   }
@@ -282,7 +282,7 @@ clipper::ftype LLK_map_target::Sampled::llk( const clipper::Xmap<float>& xmap, c
 clipper::ftype LLK_map_target::Sampled::correl( const clipper::Xmap<float>& xmap, const clipper::RTop_orth& rtop ) const {
   clipper::ftype x, y, w, sw, swx, swy, swxx, swyy, swxy;
   sw = swx = swy = swxx = swyy = swxy = 0.0;
-  for ( int i = 0; i < repxyz.size(); i++ ) {
+  for ( unsigned int i = 0; i < repxyz.size(); i++ ) {
     w = repwgt[i];
     x = reptgt[i];
     y = xmap.interp<clipper::Interp_linear>( (rtop*repxyz[i]).coord_frac(xmap.cell()) );

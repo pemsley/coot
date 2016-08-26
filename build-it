@@ -555,12 +555,12 @@ function post_install_slim {
 	libexec/findwaters-bin             \
 	libexec/findligand-bin             \
 	libexec/mini-rsr-bin               \
+	libexec/density-score-by-residue-bin  \
 	bin/coot                           \
         bin/findwaters                     \
 	bin/findligand                     \
 	bin/guile                          \
-	bin/density-score-by-residue       \
-	bin/density-score-by-residue-real  \
+	bin/coot-density-score-by-residue       \
 	bin/coot-available-comp-id         \
 	bin/coot-compare-dictionaries      \
 	bin/coot-dictionary-bond-distributions \
@@ -1425,7 +1425,6 @@ release_server_dir=http://lmb.bioch.ox.ac.uk/coot/software/source/releases
 release_server_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/source/releases/
 release_server_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/releases
 #
-extras_place=http://www2.mrc-lmb.cam.ac.uk/Groups/murshudov/coot/dependencies
 extras_place=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/dependencies
 
 
@@ -2025,7 +2024,7 @@ fi #  ENABLE_GUILE_COOT
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python2.7
-pver=2.7.11
+pver=2.7.12
 
 if [ $ENABLE_PYTHON_COOT = yes ] ; then 
    $install_top_dir/bin/python -V
@@ -3129,6 +3128,7 @@ fi
 # ${WGET} http://ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
 ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
 ${WGET} $extras_place/guile-1.8.7-updated.patch
+${WGET} $extras_place/guile-1.8.8-gc-segment.c.patch
 
  
 # if debian, unset LD_LIBRARY_PATH and set it back again when done.
@@ -3155,6 +3155,7 @@ if [ "$need_guile_unused_values_patch" = true ] ; then
 else
    additional_unused_arg=
 fi
+
 # arg to guile's configure
 ./configure $generic_prefix \
      CFLAGS="-I$install_top_dir/include $additional_unused_arg -O" \
@@ -3171,6 +3172,11 @@ if [ "$need_guile_unused_values_patch" = true ] ; then
 else
    echo not applying guile unused values patch
 fi
+# fedora 24 doesn't like the parethenses around a particular if expression
+# gcc 6.1.1 - harmless for others
+#
+patch -p0 < ${AUTOBUILD_SOURCES}/guile-1.8.8-gc-segment.c.patch
+
 echo =========== make ====================
 $MAKE
 status=$?
@@ -3972,17 +3978,17 @@ if [ "$run_tests" = true ] ; then
 	          # only copy over the binary files if they are not there
 	          # already (checked by publish executable).
 	          #
-	          echo $publish $bin_tar_file
-	          $publish $bin_tar_file
-	          echo $publish $bin_tar_file.md5sum
-	          $publish $bin_tar_file.md5sum
+	          echo $publish $bin_tar_file $BINARY_TAR_DEST_DIR
+	          $publish $bin_tar_file $BINARY_TAR_DEST_DIR
+	          echo $publish $bin_tar_file.md5sum $BINARY_TAR_DEST_DIR
+	          $publish $bin_tar_file.md5sum $BINARY_TAR_DEST_DIR
 	          # echo $publish $binary_type_latest
 	          # publish $binary_type_latest
 	          echo $publish --no-server-check ChangeLog
 	          $publish --no-server-check ChangeLog
 	          echo $publish --no-server-check coot-README
 	          $publish --no-server-check coot-README
-                  if [ -z "$build_coot_prerelease" ] ; then 
+                  if [ -z "$build_coot_prerelease" ] ; then
    	             echo $publish  --no-server-check RELEASE-NOTES
 	             $publish --no-server-check RELEASE-NOTES
                   else 

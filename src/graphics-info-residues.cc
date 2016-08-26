@@ -14,7 +14,7 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc.,  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
 
 #if defined (USE_PYTHON)
@@ -461,12 +461,13 @@ graphics_info_t::perpendicular_ligand_view(int imol, const coot::residue_spec_t 
 	    // interpolate between current view and new view
 	    //
 
+	    float nice_zoom = 23.1; // "ligand-sized"
 	    const clipper::Coord_orth &rc = residue_centre.second;
 	    coot::Cartesian res_centre(rc.x(), rc.y(), rc.z());
 	    coot::Cartesian rot_centre = RotationCentre();
-	    coot::view_info_t view1(g.quat, rot_centre, zoom, "current");
-	    coot::view_info_t view2(vqf,    res_centre, zoom, "ligand-perp");
-	    int nsteps = 50;
+	    coot::view_info_t view1(g.quat, rot_centre,      zoom, "current");
+	    coot::view_info_t view2(vqf,    res_centre, nice_zoom, "ligand-perp");
+	    int nsteps = 60;
 	    coot::view_info_t::interpolate(view1, view2, nsteps);
 
 	 }

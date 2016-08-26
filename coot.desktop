@@ -5,5 +5,5 @@ Comment=Macromolecular model builder
 Exec=coot
 Icon=coot
 Terminal=true
-Categories=Science
+Categories=Science;Chemistry;
 MimeType=chemical/x-pdb;chemical/x-mmcif;chemical/x-mdl-molfile;

@@ -149,8 +149,7 @@
 
 ;; helper function to see if a sequence has been assigned to a chain in imol
 ;; return #t if sequence is there, #f otherwise
-;;       
-
+;;
 (define (has-sequence? imol chain-id-ref)
   (let ((ls (sequence-info imol)))
     (if (not (list? ls))

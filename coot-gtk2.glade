@@ -24876,7 +24876,11 @@ programs to which you may be more accustomed.
   <child>
     <widget class="GtkImage" id="image10854">
       <property name="visible">True</property>
+<<<<<<< HEAD
       <property name="pixbuf">coot-0.8.5-pre.png</property>
+=======
+      <property name="pixbuf">coot-0.8.6.png</property>
+>>>>>>> b193a1bc4b1c0bfda31fc54241b17e3ac98ff254
       <property name="xalign">0.5</property>
       <property name="yalign">0.5</property>
       <property name="xpad">0</property>
@@ -28988,7 +28992,6 @@ r.m.s.d. level or the acceptable fit fraction.</property>
 		  <property name="can_default">True</property>
 		  <property name="has_default">True</property>
 		  <property name="can_focus">True</property>
-		  <property name="has_focus">True</property>
 		  <property name="label">gtk-ok</property>
 		  <property name="use_stock">True</property>
 		  <property name="relief">GTK_RELIEF_NORMAL</property>
@@ -29145,6 +29148,7 @@ This probably won't work</property>
 		<widget class="GtkEntry" id="libcheck_monomer_entry">
 		  <property name="visible">True</property>
 		  <property name="can_focus">True</property>
+		  <property name="has_focus">True</property>
 		  <property name="editable">True</property>
 		  <property name="visibility">True</property>
 		  <property name="max_length">0</property>

@@ -18,20 +18,6 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
-# pythondir = $(pkgdatadir)/python
-
-
-# how are these generated?  AFAICS, they are not.  comment out for now
-# 
-#if COOT_USE_PYTHON
-#TEXI_FILE =  coot-python-functions.texi
-
-
-#coot-python-functions.texi:
-#	python $(top_srcdir)/python/python_coot_docs.py 
-
-#endif
-
 dist_pkgpython_PYTHON = \
                         coot_utils.py        get_ebi.py      mutate.py        \
    background_demo.py   hello.py             raster3d.py                      \

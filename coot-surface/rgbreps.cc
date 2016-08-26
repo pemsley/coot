@@ -68,7 +68,7 @@ std::string RGBReps::GetNameOfColour(unsigned int i){
 }
 
 int  RGBReps::GetColourNumber(std::string name ) {
-  for (int i=0;i<colours_name_map.size();i++) {
+  for (unsigned int i=0;i<colours_name_map.size();i++) {
     if (!name.compare(colours_name_map[i])) {
       return i;
     }
@@ -109,10 +109,11 @@ std::vector<std::vector<double> > RGBReps::GetColourDefinitions(std::vector<int>
   std::vector <std::vector<double> > colvect;
   std::vector<double> col; 
   int n_codes =  codes.size();
-  for (unsigned int i=0;i< n_codes;i++) {
+  for (int i=0;i< n_codes;i++) {
       col.clear();
       ii = codes[i];
-      if (ii>colours.size()){
+      int col_size = colours.size();
+      if (ii>col_size){
 	col.push_back(255.0);
 	col.push_back(255.0);
 	col.push_back(255.0);

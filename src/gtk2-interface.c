@@ -14112,7 +14112,11 @@ create_splash_screen_window (void)
   gtk_window_set_position (GTK_WINDOW (splash_screen_window), GTK_WIN_POS_CENTER);
   gtk_window_set_type_hint (GTK_WINDOW (splash_screen_window), GDK_WINDOW_TYPE_HINT_SPLASHSCREEN);
 
+<<<<<<< HEAD
   image10854 = create_pixmap (splash_screen_window, "coot-0.8.5-pre.png");
+=======
+  image10854 = create_pixmap (splash_screen_window, "coot-0.8.6.png");
+>>>>>>> b193a1bc4b1c0bfda31fc54241b17e3ac98ff254
   gtk_widget_set_name (image10854, "image10854");
   gtk_widget_show (image10854);
   gtk_container_add (GTK_CONTAINER (splash_screen_window), image10854);
@@ -16516,7 +16520,7 @@ create_libcheck_monomer_dialog (void)
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, libcheck_monomer_ok_button, "libcheck_monomer_ok_button");
   GLADE_HOOKUP_OBJECT (libcheck_monomer_dialog, libcheck_monomer_cancel_button, "libcheck_monomer_cancel_button");
 
-  gtk_widget_grab_focus (libcheck_monomer_ok_button);
+  gtk_widget_grab_focus (libcheck_monomer_entry);
   gtk_widget_grab_default (libcheck_monomer_ok_button);
   return libcheck_monomer_dialog;
 }

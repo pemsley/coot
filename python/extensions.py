@@ -1019,7 +1019,12 @@ if (have_coot_python):
        "NCS Ghosts by Residue Range...",
        lambda func: molecule_chooser_gui("Make local NCS ghosts for molecule:",
                                          lambda imol: ncs_ghost_res_range_func(imol)))
-         
+
+     add_simple_coot_menu_menuitem(
+       submenu_ncs,
+       "Update NCS Ghosts using Local Match",
+       lambda func: update_ncs_ghosts_by_local_sphere())
+
 
      add_simple_coot_menu_menuitem(
        submenu_ncs,
@@ -1144,7 +1149,14 @@ if (have_coot_python):
                        valid_model_molecule_qm, "Logfile name: ", "",
                        lambda imol, text: read_refmac_log(imol, text)))
                        
-
+     add_simple_coot_menu_menuitem(
+       submenu_refine,
+       "Occupancy refinement input for REFMAC...",
+       lambda func: generic_chooser_and_file_selector("Extra restraints file",
+                       valid_model_molecule_qm, "Restraints file name: ",
+                       "refmac_extra_params.txt",
+                       lambda imol, text: restraints_for_occupancy_refinement(imol, text)))
+       
 
      # An example with a submenu:
      #

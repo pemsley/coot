@@ -314,9 +314,7 @@ void
 exptl::nsv::regenerate(mmdb::Manager *mol) {
 
    clear_canvas();
-   std::cout << "nsv::regenerate() from mol: " << mol << std::endl;
    setup_canvas(mol);
-
 } 
 
 void

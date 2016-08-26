@@ -18,7 +18,7 @@ get_coords_centre(const std::vector<coot::residue_spec_t> &residues,
 	 mmdb::PPAtom residue_atoms = 0;
 	 int n_residue_atoms;
 	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-	 for (unsigned int iat=0; iat<n_residue_atoms; iat++) {
+	 for (int iat=0; iat<n_residue_atoms; iat++) {
 	    mmdb::Atom *at = residue_atoms[iat];
 	    clipper::Coord_orth pt(at->x, at->y, at->z);
 	    sum += pt;

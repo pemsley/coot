@@ -2714,8 +2714,6 @@ Bond_lines_container::add_NCS_molecule(const atom_selection_container_t &SelAtom
 	 gbc = add_NCS_molecule_whole_chain(SelAtom, point, symm_distance, strict_ncs_mat);
       } else {
 
-	 std::cout << "in strict ncs section " << std::endl;
-   
 	 m[0][0] = strict_ncs_mat.first.m[0].v4[0];
 	 m[0][1] = strict_ncs_mat.first.m[0].v4[1];
 	 m[0][2] = strict_ncs_mat.first.m[0].v4[2];
@@ -2732,8 +2730,6 @@ Bond_lines_container::add_NCS_molecule(const atom_selection_container_t &SelAtom
 	 m[3][1] = strict_ncs_mat.first.m[3].v4[1];
 	 m[3][2] = strict_ncs_mat.first.m[3].v4[2];
 	 m[3][3] = strict_ncs_mat.first.m[3].v4[3];
-
-	 // gbc = make_graphical_symmetry_bonds();
 	 
       }
    }

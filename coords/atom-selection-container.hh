@@ -95,6 +95,10 @@ public:
       read_success = 0;
    }
 
+   bool empty() const {
+      return (mol == NULL);
+   }
+
    void fill_links_using_mol(mmdb::Manager *mol_other) {
       fill_links(mol_other);
    } 

@@ -13,6 +13,30 @@
 (load "filter.scm")
 ;; (load "coot-utils.scm")
 
+;; remove any trailing /s
+;; 
+(define (directory-as-file-name dir)
+
+  (if (= 0 (string-length dir))
+      "."
+      (let ((rchars (reverse (string->list dir))))
+	(let f ((rls rchars))
+	  (cond 
+	   ((eq? #\/ (car rls)) (f (cdr rls)))
+	   (else
+	    (list->string (reverse rls))))))))
+
+;; return the file component of file-name
+;; "x/y" -> "y" 
+;; "x" -> "x"
+(define (file-name-file file-name)
+
+  (if (not (string? file-name))
+      #f
+      (let ((ls (split-after-char-last #\/ file-name list)))
+	(car (reverse ls)))))
+
+
 (define is-empty-file?
   (lambda (file-name)
 
@@ -26,6 +50,25 @@
 		      #f))
 		#f))
 	  #f))))
+
+(define (append-dir-file dir-name file-name)
+
+  (if (not (string? dir-name))
+      #f
+      (if (not (string? file-name))
+	  #f
+	  (if (> (string-length dir-name) 0)
+	      (string-append (directory-as-file-name dir-name) "/" file-name)
+	      file-name))))
+
+
+;; prepend the files with the directory dir
+;; 
+;; (note that the args are reversed to "natural" order (which is the
+;; reverse of glob args)
+;; 
+(define (useful-glob dir pat)
+   (map (lambda (x) (append-dir-file dir x)) (glob pat dir)))
 
 
 ;; return a list of file names that match pattern pat in directory dir.
@@ -209,14 +252,15 @@
 ;; *** Duplicate node found: mutate (in ./../../coot/scheme/coot-scheme-functions.texi l. 42)
 ;; *** Duplicate node found: povray (in ./../../coot/scheme/coot-scheme-functions.texi l. 341)
 ;;*** Duplicate node found: raster3d (in ./../../coot/scheme/coot-scheme-functions.texi l. 361)
+;;
+;; call this script like this: guile -s $(top_srcdir)/scheme/snarf-coot-docs.scm $(top_srcdir)/scheme
 ;; 
-(let* ((source-files (glob "*.scm" ".")))
+(let* ((scm-dir (list-ref (command-line) 1))
+       (source-files (useful-glob scm-dir "*.scm")))
 
   (map (lambda (source-file)
      
-     (let* ((doc-file
-	     (string-append 
-	      (strip-extension source-file) ".texi"))
+     (let* ((doc-file (string-append (file-name-file (strip-extension source-file)) ".texi"))
 	    (tmp-file-1 (string-append doc-file ".tmp")))
        
        ;; problems snarfing coot docs?  check that the function-name
@@ -226,12 +270,13 @@
 			    "-o"
 			    tmp-file-1
 			    source-file)))
-	 (format #t "guile-tools ~s > snarf.log~%" args)
+	 (format #t "INFO:: run command:: guile-tools ~s > snarf.log~%" args)
 	 (let ((status (goosh-command "guile-tools" args '() "snarf-log" #t)))
 	   (format #t "guile-tools ~s returns status ~s~%" args status)
 	   (if (not (= status 0))
 	       (exit status)))
 	 
+	 (format #t "making ~s by greping... ~s ~%" doc-file tmp-file-1)
 	 (goosh-command "grep" (list "-v" "^" tmp-file-1) '() doc-file #f))
 
        (if (file-exists? tmp-file-1)
@@ -286,6 +331,8 @@
 	    ((string=? (car ls) "coot-scheme.texi")
 	     (f (cdr ls) non-null-list))
 	    ((string=? (car ls) "coot-scheme-functions.texi")
+	     (f (cdr ls) non-null-list))
+	    ((string=? (car ls) "coot-user-manual.texi")
 	     (f (cdr ls) non-null-list))
 	    ((is-empty-file? (car ls)) 
 	     (delete-file (car ls))

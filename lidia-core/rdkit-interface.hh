@@ -43,6 +43,10 @@ namespace coot {
    RDKit::RWMol rdkit_mol(const dictionary_residue_restraints_t &restraints); // fill the coord from
                                                                               // the dictionary if
                                                                               // you can.
+
+   // this can return a molecule with 0 atoms (e.g. atom is a ZN and there is 1 atom in the dictionary -
+   // so no bonded atoms - hence empty molecule is returned).
+   //
    RDKit::RWMol rdkit_mol(mmdb::Residue *residue_p,
 			  const dictionary_residue_restraints_t &restraints,
 			  const std::string &alt_conf="",

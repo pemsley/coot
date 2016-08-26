@@ -6,6 +6,7 @@
 #endif
 
 #include <iostream>
+#include "utils/win-compat.hh"
 #include "lbg-drag-and-drop.hh"
 
 #include "lbg.hh"
@@ -71,7 +72,7 @@ lbg_info_t::handle_lbg_drag_and_drop_string(const std::string &uri_in) {
 
    std::string uri = uri_in;
    
-   std::cout << "lbg:: handle this string :" << uri << ": " << std::endl;
+   // std::cout << "lbg:: handle this string :" << uri << ": " << std::endl;
    std::string::size_type pos = uri.find_first_of('\n');
    if (pos != std::string::npos) {
       // there was a carriage return, strip down the string
@@ -308,28 +309,19 @@ lbg_info_t::handle_lbg_drag_and_drop_chemspider_structure(const std::string &uri
    return handled;
 }
 
-
 int
 lbg_info_t::handle_lbg_drag_and_drop_filesystem_file(const std::string &uri) {
 
    int handled = FALSE;
+
    if (uri.length() > 7) {
       if (uri.substr(0,7)== "file://") {
 	 // std::cout << "---:" << uri << ": was a file:// string " << std::endl;
-	 std::string file_name;
-
-	 // Why this?
-#ifdef WINDOWS_MINGW
-	 file_name = uri.substr(8);
-#else
-	 file_name = uri.substr(7);
-#endif
-
+	 std::string file_name = coot::uri_to_file_name(uri);
 	 std::string ext = coot::util::file_name_extension(file_name);
-	 if (ext == ".mdl" || ext == ".mol" || ext == ".mol2") { 
+	 if (ext == ".mdl" || ext == ".mol" || ext == ".mol2" || ext == ".sdf") { 
 	    import_mol_from_file(file_name);
 	 }
-
 	 if (ext == ".smi") {
 	    import_mol_from_smiles_file(file_name);
 	 } 

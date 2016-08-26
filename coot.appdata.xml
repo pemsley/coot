@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!-- Copyright 2014 Paul Emsley <pemsley at mrc dash lmb dot cam dot ac dot uk> -->
-<application>
- <id type="desktop">Coot.desktop</id>
+<component type="desktop">
+ <id>coot.desktop</id>
  <metadata_license>GFDL-1.3</metadata_license>
  <project_license>GPL-2.0+ and GPL-3.0+ and LGPL-3.0+</project_license>
+ <name>Coot</name>
  <summary>Macromolecular model builder</summary>
  <description>
   <p>
@@ -21,9 +22,15 @@
   </p>
  </description>
  <screenshots>
-  <screenshot width="1248" height="702">http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/web/screenshots/coot-viagra-1.png</screenshot>
-  <screenshot type="default" width="960" height="540">http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/web/screenshots/coot-ligand-builder.png</screenshot>
+  <screenshot type="default">
+    <image type="source">http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/web/screenshots/coot-viagra-1.png</image>
+    <caption>Coot is typically used to view protein models and electron density</caption>
+  </screenshot>
+  <screenshot>
+    <image type="source">http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/web/screenshots/coot-ligand-builder.png</image>
+    <caption>Coot can be used to convert from 2D ligands to 3D and from 3D to 2D</caption>
+  </screenshot>
  </screenshots>
  <url type="homepage">http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/</url>
  <updatecontact>pemsley _at_ mrc dash lmb.cam.ac.uk</updatecontact>
-</application>
+</component>

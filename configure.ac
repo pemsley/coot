@@ -25,7 +25,7 @@ dnl implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 dnl
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(coot, 0.8.5-pre)
+AC_INIT(coot, 0.8.7-pre)
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -74,7 +74,7 @@ AC_LIB_PREPARE_MULTILIB
 
 AC_SUBST(COOT_STDTYPES)
 
-EXPORT_DYNAMIC_FLAG_SPEC="$export_dynamic_flag_spec"
+eval EXPORT_DYNAMIC_FLAG_SPEC=$export_dynamic_flag_spec
 AC_SUBST(EXPORT_DYNAMIC_FLAG_SPEC)
 
 
@@ -93,6 +93,7 @@ AM_MINGW_WINDOWS
 dnl test for LIBPNG (Windows only - maybe shouif here rather than in macro?)
 if test "$have_windows_mingw" = yes; then
   AM_PATH_GLOB
+  AC_CONFIG_FILES(pyrogen/pyrogen.bat)
 fi
 
 AM_PATH_LIBPNG
@@ -381,6 +382,7 @@ data/Makefile
 pixmaps/Makefile
 pixmaps/icons/Makefile
 rama-data/Makefile
+man/Makefile
 pyrogen/Makefile
 pyrogen/pyrogen
 auxil/Makefile

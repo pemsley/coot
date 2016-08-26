@@ -682,21 +682,21 @@ private:
    bool try_change_to_element(int addition_element_mode); // check for highlighted atom;
    bool try_add_or_modify_bond(int canvas_addition_mode, int x, int y,
 			       bool button_1_is_pressed); //  ditto.
-   bool add_bond_to_atom(int atom_index, int canvas_addition_mode);
-   void add_bond_to_atom_with_0_neighbours(int atom_index, int canvas_addition_mode);
-   void add_bond_to_atom_with_1_neighbour(int atom_index, int canvas_addition_mode,
-					  int bond_index);
-   void add_bond_to_atom_with_2_neighbours(int atom_index, int canvas_addition_mode,
-					   const std::vector<int> &bond_indices);
-   void add_bond_to_atom_with_3_neighbours(int atom_index, int canvas_addition_mode,
-					   const std::vector<int> &bond_indices);
+   bool add_bond_to_atom(unsigned int atom_index, int canvas_addition_mode);
+   void add_bond_to_atom_with_0_neighbours(unsigned int atom_index, int canvas_addition_mode);
+   void add_bond_to_atom_with_1_neighbour(unsigned int atom_index, int canvas_addition_mode,
+					  unsigned int bond_index);
+   void add_bond_to_atom_with_2_neighbours(unsigned int atom_index, int canvas_addition_mode,
+					   const std::vector<unsigned int> &bond_indices);
+   void add_bond_to_atom_with_3_neighbours(unsigned int atom_index, int canvas_addition_mode,
+					   const std::vector<unsigned int> &bond_indices);
    std::string to_element(int addition_mode) const;
    std::string font_colour(int addition_element_mode) const;
    std::string font_colour(const std::string &ele) const;
    lig_build::bond_t::bond_type_t addition_mode_to_bond_type(int canvas_addition_mode) const;
    void try_stamp_bond_anywhere(int canvas_addition_mode, int x_mouse, int y_mouse); // always modifies.
-   bool change_atom_element(int atom_index, std::string new_element, std::string fc);
-   void change_atom_id_maybe(int atom_index);
+   bool change_atom_element(unsigned int atom_index, std::string new_element, std::string fc);
+   void change_atom_id_maybe(unsigned int atom_index);
    lig_build::pos_t mouse_at_click;
    std::string mdl_file_name; // for save function.
    void add_search_combobox_text() const;
@@ -774,21 +774,22 @@ private:
    // return a status and a vector of atoms (bonded to atom_index) having
    // only one bond.
    // 
-   std::pair<bool, std::vector<int> > 
-   have_2_stubs_attached_to_atom(int atom_index, const std::vector<int> &bond_indices) const;
-   void squeeze_in_a_4th_bond(int atom_index, int canvas_addition_mode,
-			      const std::vector<int> &bond_indices);
+   std::pair<bool, std::vector<unsigned int> > 
+   have_2_stubs_attached_to_atom(unsigned int atom_index,
+				 const std::vector<unsigned int> &bond_indices) const;
+   void squeeze_in_a_4th_bond(unsigned int atom_index, int canvas_addition_mode,
+			      const std::vector<unsigned int> &bond_indices);
    std::vector<double>
-   get_angles(int atom_index, const std::vector<int> &bond_indices) const;
-   lig_build::pos_t  new_pos_by_bisection(int atom_index,
-					  const std::vector<int> &bond_indices,
+   get_angles(unsigned int atom_index, const std::vector<unsigned int> &bond_indices) const;
+   lig_build::pos_t  new_pos_by_bisection(unsigned int atom_index,
+					  const std::vector<unsigned int> &bond_indices,
 					  const std::vector<double> &angles,
 					  GooCanvasItem *root) const;
-   bool all_closed_rings(int atom_index, const std::vector<int> &bond_indices) const;
+   bool all_closed_rings(unsigned int atom_index, const std::vector<unsigned int> &bond_indices) const;
    std::vector<lig_build::pos_t>
-   get_centres_from_bond_indices(const std::vector<int> &bond_indices) const;
-   lig_build::pos_t get_new_pos_not_towards_ring_centres(int atom_index,
-							 const std::vector<int> &bond_indices) const;
+   get_centres_from_bond_indices(const std::vector<unsigned int> &bond_indices) const;
+   lig_build::pos_t get_new_pos_not_towards_ring_centres(unsigned int atom_index,
+							 const std::vector<unsigned int> &bond_indices) const;
    mmdb::Manager *get_cmmdbmanager(const std::string &filename) const;
 
    // sbase functions
@@ -807,9 +808,9 @@ private:
    // return the bond between the ligand "core" and the atom_index
    // (one of bond_indices)
    // 
-   widgeted_bond_t orthogonalise_2_bonds(int atom_index,
-					 const std::vector<int> &attached_bonds,
-					 const std::vector<int> &bond_indices);
+   widgeted_bond_t orthogonalise_2_bonds(unsigned int atom_index,
+					 const std::vector<unsigned int> &attached_bonds,
+					 const std::vector<unsigned int> &bond_indices);
    std::vector<residue_circle_t> residue_circles;
    std::pair<bool,lig_build::pos_t> get_residue_circles_top_left() const;
    lig_build::pos_t top_left_correction; // 0,0 by default
@@ -1013,6 +1014,7 @@ public:
    GtkWidget *lbg_clean_up_2d_toolbutton;
    GtkWidget *lbg_search_database_frame;
    GtkWidget *lbg_view_rotate_entry;
+   GtkWidget *lbg_qed_properties_vbox; // hide if not enhanced-ligand
    GtkWidget *lbg_qed_properties_progressbars[8];
 //    GtkWidget *lbg_nitrogen_toggle_toolbutton;
 //    GtkWidget *lbg_carbon_toggle_toolbutton;

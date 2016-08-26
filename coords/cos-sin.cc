@@ -62,18 +62,17 @@ cos_sin::operator()(float v) const {
 
    } 
 
-   if (v > 1.0) { 
+   if (v > 1.0) {
       std::cout << "Impossible cosine: " << v << std::endl;
-      exit(1);
+      v = 1.0;
    }
 
    /* Check that there are values in the table */
    if (is_table_filled == FALSE) { 
-     std::cout << "Need to call construct_cos_to_sin_table() first"
-	   << std::endl;
-      exit(1);
-   } 
-
+     std::cout << "ERROR:: Need to call construct_cos_to_sin_table() first"
+	       << std::endl;
+     return 0;
+   }
 
    tmp = (v*cos_to_sine_table_steps);
 

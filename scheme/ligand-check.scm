@@ -45,9 +45,7 @@
 ;; and b-factor-info
 ;;       list of (median-ratio median-ligand median-env ks-test-result)
 ;; 
-(define (get-metrics-for-ligand imol chain-id res-no ins-code 
-				refmac-input-mtz-file-name fobs-col sig-fobs-col rfree-col
-				refmac-dir)
+(define (get-metrics-for-ligand imol chain-id res-no ins-code refmac-input-mtz-file-name fobs-col sig-fobs-col rfree-col refmac-dir)
 
   ;; get-correlation and get-ligand-difference-map-stats are very similar
   ;; Let's factor out the similarities.
@@ -331,6 +329,7 @@
 
 
 ;; remove residues that are waters from env-residues
+;; 
 (define (filter-out-waters imol env-residues)
   (filter (lambda (residue-item)
 	    (let ((rn (residue-name imol

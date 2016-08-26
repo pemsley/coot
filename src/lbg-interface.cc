@@ -69,7 +69,7 @@ residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char
 	       coot::util::create_mmdbmanager_from_residue(residue_p);
 	    if (!mol) {
 	       std::cout << "ERROR:: failed to make mol for lbg" << std::endl;
-	    } else { 
+	    } else {
 	       int mol_2d_depict_conformer = coot::add_2d_conformer(&rdk_mol_with_no_Hs,
 								    weight_for_3d_distances);
 	       lig_build::molfile_molecule_t m =

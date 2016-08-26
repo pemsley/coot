@@ -1,0 +1,69 @@
+
+.TH COOT 1
+
+.SH NAME
+findligand \- Find potential ligand postions in maps made using X-ray data
+.SH SYNOPSIS
+.B findwaters [OPTIONS] 
+.I <ligand-coordinates-file-name> ..
+
+.SH OPTIONS
+
+.B findligand
+.B [\-\-pdbin
+.I <coordinates-file-name>
+.B ]
+.B [\-\--hklin
+.I <mtz-file-name>
+.B ]
+.B [\-\--dictionary
+.I <mmCIF-dictionary-file-name>
+.B ]
+.B [\-\-clusters
+.I ncluster
+.B ]
+.B [\-\-sigma
+.I n_rmsd
+.B ]
+.B [\-\-absolute
+.I map_cut
+.B ]
+.B [\-\-fit-fraction
+.I frac
+.B ]
+.B [\-\-flexible]
+.B [\-\-samples
+.I nsamples
+.B ]
+
+specify map:
+
+.B [\-\-mapin 
+.I <CCP4-format-map-file-name>
+.B ]
+or
+.B [--f
+.I f_col_label
+.B ]
+.B [--phi
+.I phi_col_label
+.B ]
+
+.SH DESCRIPTION
+
+findligand is a coot-related command-line program used to find waters
+in maps related to structures without need for interactive molecular
+graphics.  
+
+One or more coordinates files may be tested to fit in potential ligand
+sites in the map.
+
+.B --flexible 
+means use torsion-based conformation variation in ligand search
+
+
+.SH AUTHOR
+Paul Emsley
+
+
+

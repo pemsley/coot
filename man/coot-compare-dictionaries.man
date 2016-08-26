@@ -1,0 +1,45 @@
+
+.TH COOT 1
+q
+.SH NAME
+coot-compare-dictionaries - Compare mmCIF dictionaries
+.SH SYNOPSIS
+coot-compare-dictionaries [OPTIONS] ... 
+
+.SH DESCRIPTION
+
+coot-compare-dictionaries is used to compare dictionaries and output differences
+
+.SH OPTIONS
+
+.B [\-\-type
+.I comp-id
+.B ]
+.br
+.B [ \-\-dict-1
+.I reference-dictionary-file-name
+.B ]
+.br
+.B [ \-\-dict-2
+.I comparison-dictionary-file-name
+.B ]
+.br
+.B [\-\-bond-length-tol 
+.I bond-length-tolerance
+.B ]
+.br
+.B [\-\-angle-tol 
+.I angle-tolerance
+.B ]
+.br
+.B [\-\-full]
+.br
+.B [\-\-include-hydrogens]
+.br
+.B [\-\-quiet]
+
+.SH AUTHOR
+Paul Emsley
+
+
+

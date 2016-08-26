@@ -402,7 +402,8 @@ coot::ligand_metrics::make_db(const std::string &db_file_name) const {
 	    } else {
 	       std::cout << "rc for " << create_cmd << " " << rc << " " << std::endl;
 	    }
-	    exit(1);
+	    // exit(1); no exit from libraries
+	    db = NULL; // something bad happend
 	 }
 
       }
