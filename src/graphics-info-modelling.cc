@@ -3999,28 +3999,34 @@ graphics_info_t::delete_residue_range(int imol,
 				      const coot::residue_spec_t &res1,
 				      const coot::residue_spec_t &res2) {
 
-   molecules[imol].delete_zone(res1, res2);
-   if (delete_item_widget) {
-      GtkWidget *checkbutton = lookup_widget(graphics_info_t::delete_item_widget,
-					     "delete_item_keep_active_checkbutton");
-      if (GTK_TOGGLE_BUTTON(checkbutton)->active) {
-	 // don't destroy it.
-      } else {
-	 gint upositionx, upositiony;
-	 gdk_window_get_root_origin (delete_item_widget->window, &upositionx, &upositiony);
-	 delete_item_widget_x_position = upositionx;
-	 delete_item_widget_y_position = upositiony;
-	 gtk_widget_destroy(delete_item_widget);
-	 delete_item_widget = 0;
-	 normal_cursor();
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].delete_zone(res1, res2);
+      if (delete_item_widget) {
+	 GtkWidget *checkbutton = lookup_widget(graphics_info_t::delete_item_widget,
+						"delete_item_keep_active_checkbutton");
+	 if (GTK_TOGGLE_BUTTON(checkbutton)->active) {
+	    // don't destroy it.
+	 } else {
+	    gint upositionx, upositiony;
+	    gdk_window_get_root_origin (delete_item_widget->window, &upositionx, &upositiony);
+	    delete_item_widget_x_position = upositionx;
+	    delete_item_widget_y_position = upositiony;
+	    gtk_widget_destroy(delete_item_widget);
+	    delete_item_widget = 0;
+	    normal_cursor();
+	 }
       }
-   }
 
-   if ((imol >=0) && (imol < n_molecules())) {
-      graphics_info_t::molecules[imol].delete_zone(res1, res2);
-      if (graphics_info_t::go_to_atom_window) {
+      if (graphics_info_t::go_to_atom_window)
 	 update_go_to_atom_window_on_changed_mol(imol);
-      }
+
+      // faster is passing a blank asc, but to do that needs to check that
+      // updating other geometry graphs will work (not crash) with residues/mol
+      // unset.
+      //
+      // atom_selection_container_t asc = molecules[imol].atom_sel;
+      atom_selection_container_t asc;
+      update_geometry_graphs(asc, imol);
    }
    graphics_draw();
 }

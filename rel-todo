@@ -1,6 +1,8 @@
 
 
-   For Release 0.8.6
+   For Release 0.8.7
+
+   o Fetch molecule: acyclovir, (edit?) click Apply
  
    o make a small buccaneer test
 
@@ -17,29 +19,3 @@
 debug:: switch for sequence_view for imol 0 is 0x0
 
 
-   o fix this (low priority)
-
-   Go to Atom: -> double click on ZN residue
-
-   setup_graphics_ligand_view() gets called twice.  Should we rationalize the update_things_on_move code?
-
-Breakpoint 1, graphics_info_t::setup_graphics_ligand_view (this=0x7fffffffc31f, imol=0, residue_p=0x3d01140, alt_conf="") at ../../coot/git/coot/src/graphics-info-residues.cc:139
-139	graphics_info_t::setup_graphics_ligand_view(int imol, mmdb::Residue *residue_p, const std::string &alt_conf) {
-(gdb) bt
-#0  graphics_info_t::setup_graphics_ligand_view (this=0x7fffffffc31f, imol=0, residue_p=0x3d01140, alt_conf="") at ../../coot/git/coot/src/graphics-info-residues.cc:139
-#1  0x00000000006e5be1 in graphics_info_t::setRotationCentre (this=0x7fffffffc31f, index=30204, imol=0) at ../../coot/git/coot/src/graphics-info.cc:515
-#2  0x000000000073eebc in graphics_info_t::try_centre_from_new_go_to_atom (this=0x7fffffffc31f) at ../../coot/git/coot/src/graphics-info-navigation.cc:180
-#3  0x000000000073f28c in graphics_info_t::apply_go_to_atom_from_widget (this=0x7fffffffc31f, widget=<value optimized out>) at ../../coot/git/coot/src/graphics-info-navigation.cc:735
-#4  0x0000000000740147 in graphics_info_t::residue_tree_residue_row_activated (treeview=<value optimized out>, path=<value optimized out>, col=<value optimized out>, userdata=<value optimized out>)
-    at ../../coot/git/coot/src/graphics-info-navigation-gtk2.cc:363
-Breakpoint 1, graphics_info_t::setup_graphics_ligand_view (this=0x7fffffffc31f, imol=0, residue_p=0x3d01140, alt_conf="") at ../../coot/git/coot/src/graphics-info-residues.cc:139
-139	graphics_info_t::setup_graphics_ligand_view(int imol, mmdb::Residue *residue_p, const std::string &alt_conf) {
-(gdb) bt
-(gdb) continue
-#0  graphics_info_t::setup_graphics_ligand_view (this=0x7fffffffc31f, imol=0, residue_p=0x3d01140, alt_conf="") at ../../coot/git/coot/src/graphics-info-residues.cc:139
-#1  0x000000000075f360 in graphics_info_t::setup_graphics_ligand_view_aa (this=0x7fffffffc31f) at ../../coot/git/coot/src/graphics-info-residues.cc:115
-#2  0x00000000006d6260 in graphics_info_t::update_things_on_move (this=0x7fffffffc31f) at ../../coot/git/coot/src/graphics-info.cc:2989
-#3  0x00000000006d6279 in graphics_info_t::update_things_on_move_and_redraw (this=<value optimized out>) at ../../coot/git/coot/src/graphics-info.cc:2976
-#4  0x000000000073f298 in graphics_info_t::apply_go_to_atom_from_widget (this=0x7fffffffc31f, widget=<value optimized out>) at ../../coot/git/coot/src/graphics-info-navigation.cc:737
-#5  0x0000000000740147 in graphics_info_t::residue_tree_residue_row_activated (treeview=<value optimized out>, path=<value optimized out>, col=<value optimized out>, userdata=<value optimized out>)
-    at ../../coot/git/coot/src/graphics-info-navigation-gtk2.cc:363
