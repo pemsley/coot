@@ -1,5 +1,6 @@
 
 #include "Python.h"
+#include <cstddef>
 #include <string>
 #include <iostream>
 #include <vector>
