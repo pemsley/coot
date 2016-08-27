@@ -31,7 +31,7 @@ libcoot_surface_la_SOURCES = \
 # need this to be blank (otherwise it doesn't compile).
 #
 libcoot_surface_la_LIBADD = \
-	$(top_builddir)/surface/libccp4mg-surface.la \
+	$(top_builddir)/surface/libcoot-electrostatics.la \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GLUT_LIBS) $(COOT_OPENGL_LIBS)
 
 libcoot_surface_la_LDFLAGS = $(SHARED_LDFLAGS)
