@@ -6,14 +6,14 @@ AM_CPPFLAGS = -I$(top_srcdir)/coot-utils      \
 
 AM_CXXFLAGS = $(OPENMP_CFLAGS)
 
-lib_LTLIBRARIES = libccp4mg-surface.la
+lib_LTLIBRARIES = libcoot-electrostatics.la
 
 EXTRA_DIST = surface.cpp surface.h \
 	CXXTorusTriangle.cpp \
 	ElectroSurface.cpp
 
 
-libccp4mg_surface_la_SOURCES = \
+libcoot_electrostatics_la_SOURCES = \
 	CXXSphereElement.cpp \
 	CXXSphereElement.h \
 	CXXAlloc.h \
@@ -51,9 +51,9 @@ libccp4mg_surface_la_SOURCES = \
 	CXXUtils.h \
 	CXXSphereFlatTriangle.h
 
-libccp4mg_surface_la_LIBADD = $(CLIPPER_LIBS) $(FFTW2_LIBS) $(MMDB_LIBS) $(OPENMP_CFLAGS)
+libcoot_electrostatics_la_LIBADD = $(CLIPPER_LIBS) $(FFTW2_LIBS) $(MMDB_LIBS) $(OPENMP_CFLAGS)
 
-libccp4mg_surface_la_LDFLAGS = $(SHARED_LDFLAGS)
+libcoot_electrostatics_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 
 # CXXAtom.h CXXAtom.cpp

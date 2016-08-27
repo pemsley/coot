@@ -66,7 +66,7 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 	$(top_builddir)/coords/libcoot-coords.la      		\
 	$(top_builddir)/coot-surface/libcoot-surface.la  	\
-	$(top_builddir)/surface/libccp4mg-surface.la  		\
+	$(top_builddir)/surface/libcoot-electrostatics.la 	\
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
 	$(top_builddir)/coot-utils/libcoot-map-heavy.la  	\
 	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
