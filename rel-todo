@@ -1,5 +1,4 @@
 
-
    For Release 0.8.7
 
    o Build with guile-gnome
@@ -32,4 +31,9 @@ debug:: switch for sequence_view for imol 0 is 0x0
    such a function would allow one to only display bad (pink) overlaps and h-bonds, as the full probe 
    dots display can be a little distracting.  -- Oliver Clarke
 
+
+   o For goocanvas configuration, goo-canvas.m4, goocanvas uses pkg-config,
+     use PKG_CHECK_MODULES, 
+
+     https://searchcode.com/codesearch/view/38448402/
 
