@@ -16,3 +16,10 @@
    o remove debugging:
 
 debug:: switch for sequence_view for imol 0 is 0x0
+
+
+   o For goocanvas configuration, goo-canvas.m4, goocanvas uses pkg-config,
+     use PKG_CHECK_MODULES, 
+
+     https://searchcode.com/codesearch/view/38448402/
+

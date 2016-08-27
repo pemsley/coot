@@ -7720,12 +7720,15 @@ Redo the torsion energy/distortion:
 
 http://www.cryst.bbk.ac.uk/PPS2/course/section7/os_cov.html#tor_graph_back
 
----
-Wed 24 Aug 2016 00:54:22 BST
+----
+Fri 26 Aug 2016 20:59:55 BST
 
+   http://osiris.laya.com/coding/dylib_linking.html
 
-Redo the torsion energy/distortion:
+   libtool -dynamic -flat_namespace -install_name @executable_path/../lib/libbz2.1.0.2.dylib \
+    -lSystem -compatibility_version 1.0 -current_version 1.0.2 \
+    -o libbz2.1.0.2.dylib $(OBJS) 
 
-http://www.cryst.bbk.ac.uk/PPS2/course/section7/os_cov.html#tor_graph_back
+   this should be in libtool archive_cmds
 
 ---
