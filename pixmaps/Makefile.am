@@ -24,11 +24,7 @@ cootpixmapdir = $(pkgdatadir)/pixmaps
 # no longer use xpms.
 
 dist_cootpixmap_DATA = \
-<<<<<<< HEAD
-coot-0.8.5-pre.png \
-=======
 coot-0.8.6.png \
->>>>>>> b193a1bc4b1c0bfda31fc54241b17e3ac98ff254
 add-alt-conf.png      dna.svg			   probe-clash.svg                \
 add-alt-conf.svg      edit-backbone.svg		   radacina_handcuffs-small.svg   \
 add-peptide-1.png     edit-chi.png		   ramachandran.png               \
