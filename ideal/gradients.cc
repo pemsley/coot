@@ -160,7 +160,8 @@ void coot::my_df_bonds (const gsl_vector *v,
       double y_l_contrib;
       double z_l_contrib;
 
-      for (int i=0; i<restraints->size(); i++) {
+      int restraints_size = restraints->size();
+      for (int i=0; i<restraints_size; i++) {
        
 	 if ( (*restraints)[i].restraint_type == coot::BOND_RESTRAINT) { 
 
@@ -324,37 +325,49 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 	    target_val = this_restraint.target_value;
 	    
 	    // what is the index of x_k?
-	    idx = 3*(this_restraint.atom_index_1);
+	    int idx_1 = 3*this_restraint.atom_index_1;
 
-	    clipper::Coord_orth a1(gsl_vector_get(v,idx), 
-				   gsl_vector_get(v,idx+1), 
-				   gsl_vector_get(v,idx+2));
-	    idx = 3*((*restraints)[i].atom_index_2); 
-	    clipper::Coord_orth a2(gsl_vector_get(v,idx), 
-				   gsl_vector_get(v,idx+1), 
-				   gsl_vector_get(v,idx+2));
+// 	    clipper::Coord_orth a1(gsl_vector_get(v,idx), 
+// 				   gsl_vector_get(v,idx+1), 
+// 				   gsl_vector_get(v,idx+2));
+	    int idx_2 = 3*this_restraint.atom_index_2;
+// 	    clipper::Coord_orth a2(gsl_vector_get(v,idx), 
+// 				   gsl_vector_get(v,idx+1), 
+// 				   gsl_vector_get(v,idx+2));
 
 	    // what is b_i?
 	    // b_i = clipper::Coord_orth::length(a1,a2);
-	    b_i_sqrd = (a1-a2).lengthsq();
+	    // b_i_sqrd = (a1-a2).lengthsq();
+
+	    double b_i_sqrd = 0;
+	    double delta = gsl_vector_get(v, idx_1) - gsl_vector_get(v, idx_2);
+	    b_i_sqrd += delta * delta;
+	    delta = gsl_vector_get(v, idx_1+1) - gsl_vector_get(v, idx_2+1);
+	    b_i_sqrd += delta * delta;
+	    delta = gsl_vector_get(v, idx_1+2) - gsl_vector_get(v, idx_2+2);
+	    b_i_sqrd += delta * delta;
 
 	    b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
 
-	    weight = 1.0/( this_restraint.sigma * this_restraint.sigma );
+	    weight = 1.0/(this_restraint.sigma * this_restraint.sigma);
 
 	    if (b_i_sqrd < this_restraint.target_value * this_restraint.target_value) {
 
 	       double b_i = sqrt(b_i_sqrd);
 	       // double constant_part = 2.0*weight*(b_i - target_val)/b_i;
 	       double constant_part = 2.0*weight * (1 - target_val * f_inv_fsqrt(b_i_sqrd));
-	       
-	       x_k_contrib = constant_part*(a1.x()-a2.x());
-	       y_k_contrib = constant_part*(a1.y()-a2.y());
-	       z_k_contrib = constant_part*(a1.z()-a2.z());
 
-	       x_l_contrib = constant_part*(a2.x()-a1.x());
-	       y_l_contrib = constant_part*(a2.y()-a1.y());
-	       z_l_contrib = constant_part*(a2.z()-a1.z());
+	       double a1_a2_x = gsl_vector_get(v, idx_1  )-gsl_vector_get(v, idx_2  );
+	       double a1_a2_y = gsl_vector_get(v, idx_1+1)-gsl_vector_get(v, idx_2+1);
+	       double a1_a2_z = gsl_vector_get(v, idx_1+2)-gsl_vector_get(v, idx_2+2);
+
+	       x_k_contrib = constant_part*( a1_a2_x);
+	       y_k_contrib = constant_part*( a1_a2_y);
+	       z_k_contrib = constant_part*( a1_a2_z);
+
+	       x_l_contrib = constant_part*(-a1_a2_x);
+	       y_l_contrib = constant_part*(-a1_a2_y);
+	       z_l_contrib = constant_part*(-a1_a2_z);
 
 	       if (! this_restraint.fixed_atom_flags[0]) { 
 		  idx = 3*((*restraints)[i].atom_index_1 - 0); 
@@ -435,7 +448,8 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
       double y_l_contrib;
       double z_l_contrib;
 
-      for (int i=0; i<restraints->size(); i++) {
+      int restraints_size = restraints->size();
+      for (int i=0; i<restraints_size; i++) {
 
 	 const simple_restraint &rest = (*restraints)[i];
       
@@ -563,7 +577,9 @@ void coot::my_df_angles(const gsl_vector *v,
       double ds_dth;
       double w_ds_dth;
 
-      for (int i=0; i<restraints->size(); i++) {
+      int restraints_size = restraints->size();
+      
+      for (int i=0; i<restraints_size; i++) {
       
 	 if ( (*restraints)[i].restraint_type == coot::ANGLE_RESTRAINT) {
 
@@ -879,21 +895,24 @@ void coot::my_df_torsions_internal(const gsl_vector *v,
 
    if (restraints->restraints_usage_flag & coot::TORSIONS_MASK) { 
      
-      for (int i=0; i<restraints->size(); i++) {
+      int restraints_size = restraints->size();
+      for (int i=0; i<restraints_size; i++) {
+
+	 const simple_restraint &this_restraint = (*restraints)[i];
       
-	 if ( (*restraints)[i].restraint_type == coot::TORSION_RESTRAINT) {
+	 if ( this_restraint.restraint_type == coot::TORSION_RESTRAINT) {
 
 	    n_torsion_restr++;
 
-	    idx = 3*((*restraints)[i].atom_index_1); 
+	    idx = 3*(this_restraint.atom_index_1); 
 	    clipper::Coord_orth P1(gsl_vector_get(v,idx), 
 				   gsl_vector_get(v,idx+1), 
 				   gsl_vector_get(v,idx+2));
-	    idx = 3*((*restraints)[i].atom_index_2); 
+	    idx = 3*(this_restraint.atom_index_2); 
 	    clipper::Coord_orth P2(gsl_vector_get(v,idx), 
 				   gsl_vector_get(v,idx+1), 
 				   gsl_vector_get(v,idx+2));
-	    idx = 3*((*restraints)[i].atom_index_3); 
+	    idx = 3*(this_restraint.atom_index_3); 
 	    clipper::Coord_orth P3(gsl_vector_get(v,idx), 
 				   gsl_vector_get(v,idx+1), 
 				   gsl_vector_get(v,idx+2));
@@ -1020,8 +1039,9 @@ void coot::my_df_rama(const gsl_vector *v,
    try { 
 
       if (restraints->restraints_usage_flag & coot::RAMA_PLOT_MASK) { 
-     
-	 for (int i=0; i<restraints->size(); i++) {
+
+	 int restraints_size = restraints->size();
+	 for (int i=0; i<restraints_size; i++) {
       
 	    if ( (*restraints)[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
 
@@ -1236,9 +1256,10 @@ coot::my_df_chiral_vol(const gsl_vector *v, void *params, gsl_vector *df) {
    double distortion;
    
    if (restraints->restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) {
-      // if (0) {
+
+      int restraints_size = restraints->size();
       
-      for (int i=0; i<restraints->size(); i++) {
+      for (int i=0; i<restraints_size; i++) {
 	 
 	 if ( (*restraints)[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
 
@@ -1360,7 +1381,8 @@ coot::my_df_planes(const gsl_vector *v,
       double devi_len;
       double weight;
 
-      for (int i=0; i<restraints->size(); i++) {
+      int restraints_size = restraints->size();
+      for (int i=0; i<restraints_size; i++) {
        
 	 if ( (*restraints)[i].restraint_type == coot::PLANE_RESTRAINT) {
 
@@ -1411,7 +1433,10 @@ coot::my_df_parallel_planes(const gsl_vector *v,
    coot::restraints_container_t *restraints = (coot::restraints_container_t *)params;
    
    if (restraints->restraints_usage_flag & coot::PARALLEL_PLANES_MASK) {
-      for (int i=0; i<restraints->size(); i++) {
+
+      int restraints_size = restraints->size();
+
+      for (int i=0; i<restraints_size; i++) {
        
 	 if ( (*restraints)[i].restraint_type == coot::PARALLEL_PLANES_RESTRAINT) {
 	    const simple_restraint &ppr = (*restraints)[i];

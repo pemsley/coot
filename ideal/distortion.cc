@@ -496,6 +496,8 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 
    for (int i=0; i< restraints_size; i++) {
 
+      const simple_restraint &this_restraint = (*restraints)[i];
+
 //       std::cout << "... restraint " << i << " of " << restraints->size() << " type "
 // 		<< (*restraints)[i].restraint_type << std::endl;
       if (restraints->restraints_usage_flag & coot::BONDS_MASK) { // 1: bonds

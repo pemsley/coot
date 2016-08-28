@@ -2409,7 +2409,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
 	 std::cout << "------- " << iat << " " << atom_spec_t(atom[iat]) << std::endl;
    }
 
-   // THinking of setting this to true? is the (link) angle in the dictionary? Is one of the
+   // Thinking of setting this to true? is the (link) angle in the dictionary? Is one of the
    // residues non-moving? (see above notes).
    if (false)
       ai.write_angles_map("angles-map.tab");
@@ -3261,7 +3261,7 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 
    // How frequently does this function get called? - needs optimizing
    
-   const double dist_crit = 8.0; // good number?  Needs checking. 
+   const double dist_crit = 6.0; // good number?  Needs checking. (was 8.0);
    
    filtered_non_bonded_atom_indices.resize(bonded_atom_indices.size());
 
