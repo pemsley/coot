@@ -309,21 +309,12 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    std::cout << std::endl;
       }
 
-<<<<<<< HEAD
-   if (debug) {
-      std::cout << "DEBUG:: number of atoms in rdkit mol: " << m.getNumAtoms() << std::endl;
-   }
-
-   // Doing wedge bonds before we set the chirality doesn't make sense.
-   // So this code needs to be moved down.
-=======
       if (debug) {
 	 std::cout << "DEBUG:: number of atoms in rdkit mol: " << m.getNumAtoms() << std::endl;
       } 
 
       // Doing wedget bonds before we set the chirality doesn't make sense.
       // So this code needs to be moved down.
->>>>>>> b193a1bc4b1c0bfda31fc54241b17e3ac98ff254
    
       for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
 	 if (debug)
@@ -597,89 +588,6 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
       // Violation occurred on line 166 in file xxx/rdkit-Release_2015_03_1/Code/GraphMol/Atom.cpp
       // Failed Expression: d_implicitValence>-1
       // ****
-
-<<<<<<< HEAD
-   // 
-   // Either from 3d or via R/S.  We need to calculate the CIP ranks.
-   // 
-   // Let's try R/S first.
-   // 
-   // Which means that we assign R/S according the the dictionary - and
-   // ignore the positions of the atoms.
-   //
-   // My understanding of the CHI_CCW and CHI_CW based on atom positions is this:
-   // Take the first 3 non-hydrogen atom neighbours of the chiral centre atom (CCat) in order,
-   // calculate the vectors to these atoms from the chiral centre atom: p1, p2, p3
-   // calculate p1.p2xp3: if it's positive then CW, if it's negative CHI_CCW.
-   // This is not the problem though.  We don't have positions - we want to set the chirality
-   // so that, when the postions are calculated, the chirality is correct in 3D.
-   // 
-   // OK, so the 3 non-hydrogen neighbours of CCat are not necessarily the top-ranked CIP atoms.
-   // If one of the substituents is a H atom, then they will be - this is the easy case.
-   // If (n_neighbs == 3) then if they come (in the bonds list for this atom) in the same order
-   // as the CIP ranks them - or are a circular permutation of that then if R then CW
-   // if S the CCW. Similar and reversed logic for non-circular permutation.
-   // 
-   // OK, more tricky, we have 4 non-hydrogen neighbours.  The CCW only relates to the
-   // first 3 neighbours.
-   //
-   // First test are the first 3 neighbours the same as the highest 3 CIP ranked neighbours?
-   // If yes, then same case as above with 3 neighbours.
-   //
-   // If not, then R for the CIP ranked neighbours will be CCW for the first 3 (when you swap
-   // an atom, and the atom has a CIP rank of less than both or more than both the others, then
-   // the direction changes).  If the "inserted" atom has a CIP-rank between the other two then
-   // the rotation direction is preserved.
-   // 
-   // Likewise S will be CW for the first 3.
-   // 
-   // Needs testing.
-   //
-   // Lots of things that work:
-   //
-   // Fails: B7H?   C17 is not a chiral centre - but the wedgebondmol picture suggest that it is
-   //               (this code doesn't think that it is).
-   // 
-   RDKit::UINT_VECT ranks(m.getNumAtoms(),-1);
-   RDKit::Chirality::assignAtomCIPRanks(m, ranks);
-
-   std::cout << "----------------------- chirality for " << bonded_atoms.size()
-	     << " bonded atoms ------------" << std::endl;
-   // 
-   for (unsigned int iat=0; iat<bonded_atoms.size(); iat++) {
-      coot::dict_atom atom_info = restraints.atom_info[bonded_atoms[iat].second];
-      
-      if (atom_info.pdbx_stereo_config.first) {
-	 if (atom_info.pdbx_stereo_config.second == "R" ||
-	     atom_info.pdbx_stereo_config.second == "S") {
-
-	    // accumulate neigbs of the chiral atom here:
-	    std::vector<std::pair<const RDKit::Atom *, unsigned int> > neighbs;
-	    
-	    // what are the atoms bonded to this rdkit atom?
-	    RDKit::Atom *rdkit_at = m[bonded_atoms[iat].first].get();  // probably - or always?
-
-	    RDKit::ROMol::OEDGE_ITER beg,end;
-	    boost::tie(beg,end) = m.getAtomBonds(rdkit_at);
-	    while(beg!=end){
-	       const RDKit::Bond *bond=m[*beg].get();
-	       ++beg;
-	       const RDKit::Atom *nbr=bond->getOtherAtom(rdkit_at);
-	       unsigned int cip_rank = 0;
-	       nbr->getProp(RDKit::common_properties::_CIPRank, cip_rank);
-	       std::pair<const RDKit::Atom *, unsigned int> p(nbr, cip_rank);
-	       neighbs.push_back(p);
-	    }
-
-	    if (true) { 
-	       std::cout << "atom " << rdkit_at << " has stereconfig " << atom_info.pdbx_stereo_config.second
-			 << " and " << neighbs.size() << " non-H neighbours " << std::endl;
-	       std::cout << "---------- unsorted neighbs: " << std::endl;
-	       for (unsigned int jj=0; jj<neighbs.size(); jj++) {
-		  std::cout << neighbs[jj].first << " " << neighbs[jj].second << std::endl;
-	       }
-	    }
-=======
       // 
       // Either from 3d or via R/S.  We need to calculate the CIP ranks.
       // 
@@ -723,7 +631,6 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
       //
 
       unsigned int n_atoms = m.getNumAtoms();
->>>>>>> b193a1bc4b1c0bfda31fc54241b17e3ac98ff254
 
       if (n_atoms > 0) {
 	 RDKit::UINT_VECT ranks(m.getNumAtoms(),-1);
@@ -736,18 +643,8 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	       if (atom_info.pdbx_stereo_config.second == "R" ||
 		   atom_info.pdbx_stereo_config.second == "S") {
 
-<<<<<<< HEAD
-	    if (true) {
-	       std::cout << "---------- sorted neighbs: " << std::endl;
-	       for (unsigned int jj=0; jj<sorted_neighbs.size(); jj++) { 
-		  std::cout << jj << " " << sorted_neighbs[jj].first << " " << sorted_neighbs[jj].second
-			    << std::endl;
-	       }
-	    }
-=======
 		  // accumulate neigbs of the chiral atom here:
 		  std::vector<std::pair<const RDKit::Atom *, unsigned int> > neighbs;
->>>>>>> b193a1bc4b1c0bfda31fc54241b17e3ac98ff254
 	    
 		  // what are the atoms bonded to this rdkit atom?
 		  RDKit::Atom *rdkit_at = m[bonded_atoms[iat].first].get();  // probably - or always?
@@ -920,25 +817,6 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	 RDKit::Conformer *conf = new RDKit::Conformer(m.getNumAtoms());
 	 conf->set3D(true);
       
-<<<<<<< HEAD
-   // Add positions to the conformer (only the first instance of an
-   // atom with a particular atom name).
-   //
-   for (int iat=0; iat<n_residue_atoms; iat++) {
-      std::string atom_name(residue_atoms[iat]->name);
-      std::string atom_alt_conf(residue_atoms[iat]->altLoc);
-      if (atom_alt_conf == alt_conf) { 
-	 std::map<std::string, int>::const_iterator it = atom_index.find(atom_name);
-	 if (it != atom_index.end()) {
-	    RDGeom::Point3D pos(residue_atoms[iat]->x,
-				residue_atoms[iat]->y,
-				residue_atoms[iat]->z);
-	    conf->setAtomPos(it->second, pos);
-	    if (debug) 
-	       std::cout << "in construction of rdkit mol: making a conformer atom "
-			 << iat << " " << it->second << " " << atom_name << " at pos "
-			 << pos << std::endl;
-=======
 	 // Add positions to the conformer (only the first instance of an
 	 // atom with a particular atom name).
 	 // 
@@ -958,7 +836,6 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 			       << pos << std::endl;
 	       }
 	    }
->>>>>>> b193a1bc4b1c0bfda31fc54241b17e3ac98ff254
 	 }
 
 	 int conf_id = m.addConformer(conf);
