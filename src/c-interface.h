@@ -743,10 +743,6 @@ void set_draw_solid_density_surface(int imol, short int state);
   */
 void set_draw_map_standard_lines(int imol, short int state);
 
-/*! \brief set the state of the solid surface representation 
-  for molecule imap */
-void solid_surface(int imap, short int on_off_flag);
-
 /*! \brief set the opacity of density surface representation of the
   given map.
 

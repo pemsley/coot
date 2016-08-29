@@ -3073,19 +3073,6 @@ float model_resolution(int imol) {
 } 
 
 
-/*  ------------------------------------------------------------------------ */
-/*                     resolution                                            */
-/*  ------------------------------------------------------------------------ */
-
-void solid_surface(int imap, short int on_off_flag) {
-
-   if (is_valid_map_molecule(imap)) {
-      graphics_info_t::molecules[imap].do_solid_surface_for_density(on_off_flag);
-   }
-   graphics_draw();
-} 
-
-
 
 /*  ------------------------------------------------------------------------ */
 /*                     residue exists?                                       */
