@@ -293,6 +293,8 @@ class widgeted_bond_t : public lig_build::bond_t, ligand_layout_graphic_primitiv
    GooCanvasItem *ci;
    void clear(GooCanvasItem *root) {
       gint child_index = goo_canvas_item_find_child(root, ci);
+      std::cout << "debug:: in widgeted_bond_t::clear " << root
+		<< " child_index was " << child_index << std::endl;
       if (child_index != -1) {
 	 goo_canvas_item_remove_child(root, child_index);
       }
@@ -404,7 +406,11 @@ public:
    }
 
    void rotate_canvas_item(gdouble cx, gdouble cy, gdouble degrees) {
-      wrap_goo_canvas_item_rotate(ci, degrees, cx, cy);
+      if (ci)
+	 wrap_goo_canvas_item_rotate(ci, degrees, cx, cy);
+      else
+	 std::cout << "ERROR: traped null ci in wmolecule rotate_canvas_item() "
+		   << std::endl;
    }
 
    // We need to make a shorter bond canvas line because we have (say)

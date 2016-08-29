@@ -915,7 +915,7 @@ operator<<(std::ostream &s, widgeted_atom_ring_centre_info_t wa) {
 // }
 
 
-
+// return was-really-closed status
 bool
 widgeted_molecule_t::close_bond(int ib, GooCanvasItem *root,
 				bool handle_post_delete_stray_atoms_flag) {
@@ -923,12 +923,13 @@ widgeted_molecule_t::close_bond(int ib, GooCanvasItem *root,
    // on killing a bond, an N at one end of the bond may need its atom_id
    // changed to NH or so.
 
-   bool status = 0;
+   bool status = false;
    if ((ib >= 0) && (ib<int(bonds.size()))) {
       int ind_1 = bonds[ib].get_atom_1_index();
       int ind_2 = bonds[ib].get_atom_2_index();
+      std::cout << "calling bonds[" << ib << "].close(" << root << ")" << std::endl;
       bonds[ib].close(root);
-      status = 1;
+      status = true;
 
       // ind_1
       std::string ele = atoms[ind_1].element;
