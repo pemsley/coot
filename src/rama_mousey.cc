@@ -114,6 +114,18 @@ on_kleywegt_apply_chain_button_clicked(GtkButton *button, gpointer user_data) {
 
 }
 
+extern "C" G_MODULE_EXPORT void
+on_dynarama2_outliers_only_togglebutton_toggled(GtkToggleButton *button, gpointer user_data) {
+
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   coot::rama_plot *plot = static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (plot) {
+      // do something
+      g_print("BL DEBUG:: outliers toggled, button is %i\n", button->active);
+      plot->show_outliers_only(button->active);
+   }
+}
+
 // Menu callbacks
 //FIMXE connect all
 extern "C" G_MODULE_EXPORT void
@@ -187,6 +199,21 @@ on_kleywegt_radiomenuitem_toggled(GtkCheckMenuItem *checkmenuitem, gpointer user
 
    // do we need this then?
 
+}
+
+extern "C" G_MODULE_EXPORT void
+on_outliers_only_menuitem_toggled(GtkCheckMenuItem *checkmenuitem, gpointer user_data) {
+
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   coot::rama_plot *plot = static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (plot) {
+      g_print("BLDEBUG:: outlier only menu toggled\n");
+      int state;
+      state = gtk_check_menu_item_get_active (checkmenuitem);
+      plot->show_outliers_only(state);
+   } else {
+      std::cout<< "failed to get a plot" <<std::endl;
+   }
 }
 
 extern "C" G_MODULE_EXPORT void

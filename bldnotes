@@ -710,12 +710,16 @@ low importance
 
    o add torsion angles for interactive movement
 
-   o fix/rethink resizing
+   o fix/rethink resizing (check gimp)
 
    o add function for user to show selection of res only
 
    o compare rama by mol choose A and A and show appropirately in selector
 	(see first topic)?! 
+
+   o stand alone: change pos of green box too.
+
+
 
 ---------------
 * DONE THINGS *
