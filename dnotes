@@ -3994,7 +3994,7 @@ INFO::
    o clear out pre-releases
    o check for updates - needs consideration?
    o Build binaries on some hosts
-   o Update latest version info on coot web page.
+   o Update latest version info on coot web page, Projects/coot/web/index.html
    o Mail mailing list
 
 ---
