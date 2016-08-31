@@ -19,46 +19,48 @@ coot::parallel_planes_t::parallel_planes_t(const std::string &line) {
    for (unsigned int i=0; i<words.size(); i++)
       u[i] = coot::util::upcase(words[i]);
 
-   if (u[0].length() > 3) {
-      if (u[0].substr(0,4) == "EXTE") {
-	 if (u[1].length() > 3) {
-	    if (u[1].substr(0,4) == "STAC") {
-	       if (u[2].length() > 3) {
-		  if (u[2].substr(0,4) == "PLAN") {
-		     if (u[3] == "1") {
-			if (u[4].length() > 3) {
-			   if (u[4].substr(0,4) == "FIRS") {
-			      if (u[5].length() > 3) {
-				 if (u[5].substr(0,4) == "RESI") {
-				    // u[6] is the residue-number string
-				    // u[7] is INS
-				    // u[8] is . (usually)
-				    // u[9] is CHAI
+   if (u.size() > 10) {
+      if (u[0].length() > 3) {
+	 if (u[0].substr(0,4) == "EXTE") {
+	    if (u[1].length() > 3) {
+	       if (u[1].substr(0,4) == "STAC") {
+		  if (u[2].length() > 3) {
+		     if (u[2].substr(0,4) == "PLAN") {
+			if (u[3] == "1") {
+			   if (u[4].length() > 3) {
+			      if (u[4].substr(0,4) == "FIRS") {
+				 if (u[5].length() > 3) {
+				    if (u[5].substr(0,4) == "RESI") {
+				       // u[6] is the residue-number string
+				       // u[7] is INS
+				       // u[8] is . (usually)
+				       // u[9] is CHAI
 
-				    if (u[7] == "INS") {
-				       std::string ins_code = "";
-				       if (u[8] != ".")
-					  ins_code = u[8];
+				       if (u[7] == "INS") {
+					  std::string ins_code = "";
+					  if (u[8] != ".")
+					     ins_code = u[8];
 				    
-				       if (u[9].length() > 3) {
-					  if (u[9].substr(0,4) == "CHAI") {
-					     try {
-						plane_1_atoms.res_spec = residue_spec_t(u[10], util::string_to_int(u[6]), ins_code);
-					     } catch (const std::runtime_error &rte) {
-					     }
-					     if (u[11].length() > 3) {
-						if (u[11].substr(0,4) == "ATOM") {
-						   if (u[12] == "{") {
-						      int o=0;
-						      for (unsigned int i=13; i<words.size(); i++) {
-							 o++;
-							 if (u[i] == "}")
-							    break;
-							 plane_1_atoms.atom_names.push_back(u[i]);
-						      }
-						      int o_2 = parse_2nd_plane(u, o);
-						      if (o_2 > o) {
-							 parse_dist_and_type(u, o_2);
+					  if (u[9].length() > 3) {
+					     if (u[9].substr(0,4) == "CHAI") {
+						try {
+						   plane_1_atoms.res_spec = residue_spec_t(u[10], util::string_to_int(u[6]), ins_code);
+						} catch (const std::runtime_error &rte) {
+						}
+						if (u[11].length() > 3) {
+						   if (u[11].substr(0,4) == "ATOM") {
+						      if (u[12] == "{") {
+							 int o=0;
+							 for (unsigned int i=13; i<words.size(); i++) {
+							    o++;
+							    if (u[i] == "}")
+							       break;
+							    plane_1_atoms.atom_names.push_back(u[i]);
+							 }
+							 int o_2 = parse_2nd_plane(u, o);
+							 if (o_2 > o) {
+							    parse_dist_and_type(u, o_2);
+							 }
 						      }
 						   }
 						}
