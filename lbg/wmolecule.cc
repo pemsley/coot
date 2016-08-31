@@ -924,10 +924,10 @@ widgeted_molecule_t::close_bond(int ib, GooCanvasItem *root,
    // changed to NH or so.
 
    bool status = false;
-   if ((ib >= 0) && (ib<int(bonds.size()))) {
+   int n_bonds = bonds.size();
+   if ((ib >= 0) && (ib<n_bonds)) {
       int ind_1 = bonds[ib].get_atom_1_index();
       int ind_2 = bonds[ib].get_atom_2_index();
-      std::cout << "calling bonds[" << ib << "].close(" << root << ")" << std::endl;
       bonds[ib].close(root);
       status = true;
 

@@ -293,10 +293,11 @@ class widgeted_bond_t : public lig_build::bond_t, ligand_layout_graphic_primitiv
    GooCanvasItem *ci;
    void clear(GooCanvasItem *root) {
       gint child_index = goo_canvas_item_find_child(root, ci);
-      std::cout << "debug:: in widgeted_bond_t::clear " << root
-		<< " child_index was " << child_index << std::endl;
       if (child_index != -1) {
 	 goo_canvas_item_remove_child(root, child_index);
+      } else {
+	 std::cout << "WARNING:: widgeted_bond_t::clear() failed to remove child "
+		   << ci << " for root " << root << std::endl;
       }
       ci = NULL;
    }
@@ -386,14 +387,16 @@ public:
    // Now we use a constructor that does the creation of the canvas item too
    //
    widgeted_bond_t(int first, int second, 
-		   const lig_build::atom_t &atom_first, const lig_build::atom_t &atom_second,
+		   const lig_build::atom_t &atom_first,
+		   const lig_build::atom_t &atom_second,
 		   bond_type_t bt, GooCanvasItem *root) :
       lig_build::bond_t(first, second, bt) {
       construct_internal(atom_first, atom_second, bt, root);
    }
    // as above, but we give the centre of the ring too.
    widgeted_bond_t(int first, int second, 
-		   const lig_build::atom_t &atom_first, const lig_build::atom_t &atom_second,
+		   const lig_build::atom_t &atom_first,
+		   const lig_build::atom_t &atom_second,
 		   lig_build::pos_t centre_pos_in,
 		   bond_type_t bt, GooCanvasItem *root) :
       bond_t(first, second, centre_pos_in, bt) {
@@ -472,7 +475,6 @@ public:
       make_new_canvas_item_given_type(at_1, at_2, bt, root);
    }
    void close(GooCanvasItem *root) {
-      // std::cout << " closing sub-class bond" << std::endl;
       lig_build::bond_t::close();
       update_canvas_item(NULL, root);
    }
@@ -506,6 +508,10 @@ public:
       }
       return mmdb_bt;
    }
+
+   // debugging
+   GooCanvasItem *get_ci() const { return ci;}
+
 
 }; // end of widgeted_bond_t
 
