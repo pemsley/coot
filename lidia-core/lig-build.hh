@@ -35,6 +35,7 @@ enum { UNASSIGNED_INDEX = -1 };
 
 namespace lig_build {
 
+   enum { UNASSIGNED_BOND_INDEX = 2147483640 };
 
    // -----------------------------------------------------------------
    //                   pos_t
@@ -677,7 +678,7 @@ namespace lig_build {
       }
       std::vector<Ta> atoms;
       std::vector<Tb> bonds;
-      
+
       // Return new atom index (int) and whether or not the atom was
       // added (1) or returned the index of an extant atom (0).
       // 
@@ -776,15 +777,17 @@ namespace lig_build {
 
       // we have 2 indices, what is the bond that has these 2 atom indices?
       unsigned int get_bond_index(unsigned int atom_index_in_1, unsigned int atom_index_in_2) const {
-	 unsigned int bi = UNASSIGNED_INDEX;
-	 if (atom_index_in_1 != atom_index_in_2) { 
-	    for (unsigned int i=0; i<bonds.size(); i++) { 
-	       if ((bonds[i].get_atom_1_index() == atom_index_in_1) ||
-		   (bonds[i].get_atom_2_index() == atom_index_in_1)) {
-		  if ((bonds[i].get_atom_1_index() == atom_index_in_2) ||
-		      (bonds[i].get_atom_2_index() == atom_index_in_2)) {
-		     bi = i;
-		     break;
+	 unsigned int bi = UNASSIGNED_BOND_INDEX;
+	 if (atom_index_in_1 != atom_index_in_2) {
+	    for (unsigned int i=0; i<bonds.size(); i++) {
+	       if (! bonds[i].is_closed()) {
+		  if ((bonds[i].get_atom_1_index() == atom_index_in_1) ||
+		      (bonds[i].get_atom_2_index() == atom_index_in_1)) {
+		     if ((bonds[i].get_atom_1_index() == atom_index_in_2) ||
+			 (bonds[i].get_atom_2_index() == atom_index_in_2)) {
+			bi = i;
+			break;
+		     }
 		  }
 	       }
 	    }
