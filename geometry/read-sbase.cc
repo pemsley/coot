@@ -1,6 +1,7 @@
 /* geometry/protein-geometry.cc
  * 
  * Copyright 2010 The University of Oxford
+ * Copyright 2013, 2014, 2015 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

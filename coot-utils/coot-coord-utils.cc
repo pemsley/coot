@@ -3,6 +3,7 @@
  * Copyright 2006 by The University of York
  * Copyright 2007 by Paul Emsley
  * Copyright 2007, 2008, 2009 by The University of Oxford
+ * Copyright 2012, 2013, 2014, 2015, 2016 by Medical Research Council
  * Author: Paul Emsley
  * Author: Bernhard Lohkamp
  * 

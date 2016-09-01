@@ -4,6 +4,7 @@
  * Copyright 2008 The University of Oxford
  * Author: Paul Emsley
  * Copyright 2007 The University of York
+ * Copyright 2013, 2014, 2015, 2016 by Medical Research Council
  * Author: Bernhard Lohkamp
  * 
  * This program is free software; you can redistribute it and/or modify

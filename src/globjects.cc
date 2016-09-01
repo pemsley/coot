@@ -4,6 +4,7 @@
  * Copyright 2006 by Bernhard Lohkamp
  * Copyright 2007 by Paul Emsley
  * Copyright 2008, 2009 by The University of Oxford
+ * Copyright 2014, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

@@ -1,6 +1,7 @@
 # coot-utils/Makefile.am
 # 
 # Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
+# Copyright 2014 by Medical Research Council
 # Author: Paul Emsley
 # 
 # This program is free software; you can redistribute it and/or modify

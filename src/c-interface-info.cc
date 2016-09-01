@@ -8,6 +8,7 @@
  * Author: Paul Emsley
  * Copyright 2007, 2008 by Bernhard Lohkamp
  * Copyright 2007, 2008 The University of York
+ * Copyright 2012, 2013, 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

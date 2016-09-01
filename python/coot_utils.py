@@ -7,6 +7,7 @@
 # Copyright 2004, 2005, 2006, 2007 by Paul Emsley, The University of York
 #    <one line to give the program's name and a brief idea of what it does.>
 #    Copyright (C) <year>  <name of author>
+#    Copyright 2013, 2014, 2016 by Medical Research Council
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by

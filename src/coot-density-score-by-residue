@@ -2,6 +2,7 @@
 # -*-shell-script-*-
 # coot wrapper script 
 # Copyright 2004, 2005, 2006 Paul Emsley, University of York
+# Copyright 2016 by Medical Research Council
 
 # Dear Coot-packager: there is nothing here of use for you - just 
 # exec /usr/libexec/density-score-by-residue-bin $*

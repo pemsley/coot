@@ -1,6 +1,7 @@
 /* ligand/fast-ss-search.cc
  * 
  * Copyright 2008 The University of York
+ * Copyright 2015 by Medical Research Council
  * Author: Kevin Cowtan
  * 
  * This program is free software; you can redistribute it and/or modify

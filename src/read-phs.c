@@ -1,6 +1,7 @@
 /* src/read-phs.c
  * 
  * Copyright 2002, 2006 by The University of York
+ * Copyright 2015 by Medical Research Council
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify

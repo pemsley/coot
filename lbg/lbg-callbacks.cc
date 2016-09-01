@@ -2,6 +2,7 @@
  * 
  * Author: Paul Emsley
  * Copyright 2010 by The University of Oxford
+ * Copyright 2015 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -913,6 +914,8 @@ on_lbg_import_smiles_menuitem_activate(GtkMenuItem *button, gpointer user_data) 
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
    lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   std::cout << "debug:: here in on_lbg_import_smiles_menuitem_activate() l"
+	     << l << std::endl;
    if (l)
       gtk_widget_show(l->lbg_import_from_smiles_dialog);
 }

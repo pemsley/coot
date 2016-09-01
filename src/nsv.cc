@@ -1,6 +1,7 @@
 /* src/ncs.cc
  * 
  * Copyright 2009 by The University of Oxford
+ * Copyright 2016 by Medical Research Council
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
