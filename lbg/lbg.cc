@@ -2956,7 +2956,10 @@ lbg_info_t::init(GtkBuilder *builder) {
    } 
 
    canvas = goo_canvas_new();
-   goo_canvas_set_scale(GOO_CANVAS(canvas), 3);
+
+   // this works, but need gui access
+   // goo_canvas_set_scale(GOO_CANVAS(canvas), 3);
+   
    GTK_WIDGET_SET_FLAGS (canvas, GTK_CAN_FOCUS);
 
    GooCanvasItem *root_item = goo_canvas_get_root_item(GOO_CANVAS(canvas));
