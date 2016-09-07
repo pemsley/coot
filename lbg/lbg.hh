@@ -8,7 +8,7 @@
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
- * This program is distributed in the hope that it will be useful, but
+n * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
@@ -78,6 +78,9 @@ bool save_togglebutton_widgets(GtkBuilder *builder);
 
 void lbg_handle_toggle_button(GtkToggleToolButton *tb, GtkWidget *canvas, int mode);
 GtkWidget *get_canvas_from_scrolled_win(GtkWidget *scrolled_window);
+
+
+void lbg_scale_adj_changed( GtkWidget *widget, GtkSpinButton *spinbutton);
 
 
 // extern "C" { 
@@ -1028,6 +1031,7 @@ public:
    GtkWidget *lbg_flip_rotate_hbox;
    GtkWidget *lbg_clean_up_2d_toolbutton;
    GtkWidget *lbg_search_database_frame;
+   GtkWidget *lbg_scale_spinbutton;
    GtkWidget *lbg_view_rotate_entry;
    GtkWidget *lbg_qed_properties_vbox; // hide if not enhanced-ligand
    GtkWidget *lbg_qed_properties_progressbars[8];
@@ -1310,6 +1314,7 @@ public:
    void rotate_z_molecule(double angle); // in degrees
    void rotate_z_molecule(const std::string &angle); // in degrees (used in on_lbg_view_rotate_apply_button_clicked
                                                      // callback).
+   void scale_canvas(double sf);
 
    // -- actually run the functions if they were set:
    void orient_view(int imol,

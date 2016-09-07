@@ -434,6 +434,8 @@ on_canvas_button_press(GooCanvasItem  *item,
 		       GdkEventButton *event,
 		       gpointer        user_data) {
 
+   // currently the scroll wheel events are consumed before we get here - by the scrolled window perhaps
+
    int x_as_int = -1, y_as_int = -1;
    GdkModifierType state;
    gdk_window_get_pointer(event->window, &x_as_int, &y_as_int, &state);
@@ -448,7 +450,6 @@ on_canvas_button_press(GooCanvasItem  *item,
       y_as_int = int(event->y);
    }
 
-
    if (! target_item) { 
       lbg_info_t *l =
 	 static_cast<lbg_info_t *> (g_object_get_data (G_OBJECT (item), "lbg-info"));
@@ -460,6 +461,24 @@ on_canvas_button_press(GooCanvasItem  *item,
 	 } else { 
 	    l->handle_item_add(event);
 	 }
+
+	 if (event) {
+	    // std::cout << "here with event button: " << event->button << std::endl;
+
+	    if (event->state & GDK_CONTROL_MASK) {
+	       if (event->button == 4) { // scroll up
+		  gdouble scale =  goo_canvas_get_scale(GOO_CANVAS(l->canvas));
+		  scale *= 1.2;
+		  goo_canvas_set_scale(GOO_CANVAS(l->canvas), 1.2);
+	       }
+	       if (event->button == 5) { // scroll down
+		  gdouble scale =  goo_canvas_get_scale(GOO_CANVAS(l->canvas));
+		  scale /= 1.2;
+		  goo_canvas_set_scale(GOO_CANVAS(l->canvas), 1.2);
+	       }
+	    }
+	 }
+	 
       }
       
    } else {
@@ -2901,6 +2920,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_import_from_smiles_entry = NULL;
 	 lbg_view_rotate_entry = NULL;
 	 lbg_get_drug_menuitem = NULL;
+	 lbg_scale_spinbutton = NULL;
 	 for (unsigned int i=0; i<8; i++)
 	    lbg_qed_properties_progressbars[i] = NULL;
 	 canvas = NULL;
@@ -2945,6 +2965,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_clean_up_2d_toolbutton =    GTK_WIDGET(gtk_builder_get_object(builder, "lbg_clean_up_2d_toolbutton"));
 	 lbg_search_database_frame =     GTK_WIDGET(gtk_builder_get_object(builder, "lbg_search_database_frame"));
 	 lbg_view_rotate_entry     =     GTK_WIDGET(gtk_builder_get_object(builder, "lbg_view_rotate_entry"));
+	 lbg_scale_spinbutton      =     GTK_WIDGET(gtk_builder_get_object(builder, "lbg_scale_spinbutton"));
 
 	 for (unsigned int i=0; i<8; i++) {
 	    std::string name = "qed_properties_" + coot::util::int_to_string(i) + "_progressbar";
@@ -2952,18 +2973,33 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 }
 
 	 gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), "---");
+
       }
    } 
 
    canvas = goo_canvas_new();
 
    // this works, but need gui access
-   // goo_canvas_set_scale(GOO_CANVAS(canvas), 3);
+   // 
+   goo_canvas_set_scale(GOO_CANVAS(canvas), 1.0);
    
    GTK_WIDGET_SET_FLAGS (canvas, GTK_CAN_FOCUS);
 
    GooCanvasItem *root_item = goo_canvas_get_root_item(GOO_CANVAS(canvas));
    g_object_set(G_OBJECT(root_item), "line_width", 1.6, NULL); // thank you Damon Chaplin
+   g_object_set(G_OBJECT(root_item), "line_cap", CAIRO_LINE_CAP_ROUND, NULL);
+
+   if (lbg_scale_spinbutton) {
+                                     // value lower upper step_inc page_inc page_size (which should be 0)
+      GtkObject *adj = gtk_adjustment_new(1.0, 0.2, 12.0, 0.2, 0.2, 0.0);
+      gtk_spin_button_set_adjustment(GTK_SPIN_BUTTON(lbg_scale_spinbutton), GTK_ADJUSTMENT(adj));
+      gtk_spin_button_set_value(GTK_SPIN_BUTTON(lbg_scale_spinbutton), 1.0);
+
+      g_object_set_data(G_OBJECT(lbg_scale_spinbutton), "user_data", canvas);
+      g_signal_connect(adj, "value-changed", G_CALLBACK(lbg_scale_adj_changed), lbg_scale_spinbutton);
+
+   }
+   
 
 #ifdef HAVE_CCP4SRS
    gtk_widget_show(lbg_search_database_frame);
@@ -3052,6 +3088,36 @@ lbg_info_t::init(GtkBuilder *builder) {
 
 }
 #endif // GTK_VERSION
+
+
+// void lbg_scale_adj_changed(GtkWidget *widget, GtkSpinButton *spinbutton)
+
+// extern "C" G_MODULE_EXPORT
+void
+lbg_scale_adj_changed(GtkWidget *widget, GtkSpinButton *spinbutton) {
+
+   float f = gtk_spin_button_get_value_as_float(spinbutton);
+   gpointer user_data = g_object_get_data(G_OBJECT(spinbutton), "user_data");
+   if (user_data) {
+      GtkWidget *canvas = GTK_WIDGET(user_data);
+      lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+      if (l) {
+	 l->scale_canvas(f);
+      }
+   }
+}
+
+
+
+void
+lbg_info_t::scale_canvas(double sf) {
+
+   // std::cout << "setting scale " << sf << std::endl;
+   if (sf < 0.1) sf = 0.1;
+   goo_canvas_set_scale(GOO_CANVAS(canvas), sf);
+
+}
+
 
 void
 lbg_info_t::setup_lbg_drag_and_drop(GtkWidget *lbg_window) {
@@ -3676,28 +3742,42 @@ lbg_info_t::write_png(const std::string &file_name) {
    std::pair<lig_build::pos_t, lig_build::pos_t> extents = mol.ligand_extents();
 
    gdouble scale =  goo_canvas_get_scale(GOO_CANVAS(canvas));
-
-   // doesn't do anything?
-   // goo_canvas_set_scale(GOO_CANVAS(canvas), 4*scale);
-   // goo_canvas_update(GOO_CANVAS(canvas));
-   // render_from_molecule(mol);
+   // std::cout << "goo_canvas_get_scale() " << scale << std::endl;
    
-   int size_x = int(extents.second.x) + 220; // or so... (ideally should residue circle-based).
-   int size_y = int(extents.second.y) + 220;
+   int size_x = int(extents.second.x) + 30;
+   int size_y = int(extents.second.y) + 30;
+
+   if (key_group) {
+      size_y += 240; // *scale?
+      size_x += 50;
+   }
    
    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size_x, size_y);
    cairo_t *cr = cairo_create (surface);
-   cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
 
-   // 1.0 is item's visibility threshold to see if they should be rendered
-   // (everything should be rendered).
-   // 
-   goo_canvas_render (GOO_CANVAS(canvas), cr, NULL, 1.0); 
-   cairo_surface_write_to_png(surface, file_name.c_str());
-   cairo_surface_destroy (surface);
-   cairo_destroy (cr);
-   goo_canvas_set_scale(GOO_CANVAS(canvas), scale);
-   // goo_canvas_update(GOO_CANVAS(canvas));
+   {
+      
+      int new_width  = size_x * scale;
+      int new_height = size_y * scale;
+      cairo_content_t content = CAIRO_CONTENT_COLOR_ALPHA;
+      cairo_surface_t *new_surface = cairo_surface_create_similar(surface, content, new_width, new_height);
+      cairo_t *cr = cairo_create (new_surface);
+      cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+
+      /* Scale *before* setting the source surface (1) */
+      cairo_scale(cr, scale, scale);
+      cairo_set_source_surface(cr, surface, 0, 0);
+      cairo_pattern_set_extend (cairo_get_source(cr), CAIRO_EXTEND_REFLECT); 
+      /* Replace the destination with the source instead of overlaying */
+      cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
+      /* Do the actual drawing */
+      cairo_paint (cr);
+      goo_canvas_render(GOO_CANVAS(canvas), cr, NULL, 1.0); 
+      cairo_surface_write_to_png(new_surface, file_name.c_str());
+      cairo_surface_destroy(new_surface);
+      cairo_destroy(cr);
+   }
+   cairo_surface_destroy(surface);
 }
 
 
