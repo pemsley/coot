@@ -610,6 +610,13 @@ match_this_residue_and_dictionary(int imol, std::string chain_id, int res_no, st
 
    int result = 0;
 
+   if (false)
+      std::cout << "here in match_this_residue_and_dictionary() "
+		<< " cif_dict_out " << cif_dict_out
+		<< " reference_comp_id " << reference_comp_id
+		<< " output_comp_id " << output_comp_id
+		<< std::endl;
+
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       mmdb::Residue *this_residue = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
@@ -619,19 +626,22 @@ match_this_residue_and_dictionary(int imol, std::string chain_id, int res_no, st
 	    g.Geom_p()->get_monomer_restraints(this_residue_type);
 	 if (dict_1.first) {
 
+	    g.Geom_p()->try_dynamic_add(reference_comp_id, g.cif_dictionary_read_number++);
 	    std::pair<short int, coot::dictionary_residue_restraints_t> dict_2 =
 	       g.Geom_p()->get_monomer_restraints(reference_comp_id);
-	    
+
 	    if (dict_2.first) {
 
 	       coot::dictionary_match_info_t dmi = 
-		  // std::pair<unsigned int, coot::dictionary_residue_restraints_t> new_dict =
 		  dict_1.second.match_to_reference(dict_2.second, this_residue,
 						   output_comp_id, output_comp_id); // placeholder for name
+
 	       if (dmi.n_matches > 0) { 
 		  dmi.dict.residue_info.comp_id = output_comp_id;
 		  dmi.dict.residue_info.name =  ".";
 		  dmi.dict.write_cif(cif_dict_out);
+	       } else {
+		  std::cout << "No matches " << std::endl;
 	       }
 	       
 	    } else {

@@ -663,7 +663,14 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    int n_top = int(0.75 * float(ref.number_of_non_hydrogen_atoms()));
    if (minMatch <  3) minMatch =  3;
    if (minMatch > 14) minMatch = 14;
-   if (minMatch < n_top) minMatch = n_top;
+
+   // 20160908-PE I removed this line.  I am not sure why it is needed and for matching
+   // 3GP onto (ref) GTP if this line is in place, GetNofMatches() returns 0.
+   // The reverse logic seems more sensible to me now.
+   // 
+   // if (minMatch < n_top) minMatch = n_top;
+   // 
+   if (minMatch > n_top) minMatch = n_top;
 
    bool vertext_type = true;
    std::string s;
@@ -683,13 +690,14 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
       int build_result_2 = g_2->Build(use_bond_order);
       if (build_result_1 != 0) {
 	 std::cout << "Bad graph build result_2" << std::endl;
-      } else { 
+      } else {
+	 if (debug)
+	    std::cout << "debug:: minMatch is " << minMatch << std::endl;
 	 match.MatchGraphs(g_1, g_2, minMatch, vertext_type);
 	 int n_match = match.GetNofMatches();
 	 if (debug) 
 	    std::cout << "found " << n_match << " matches" << std::endl;
 	 if (n_match > 0) {
-
 
 	    // first find the best match:
 	    //
