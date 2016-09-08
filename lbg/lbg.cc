@@ -1474,7 +1474,7 @@ lbg_info_t::try_change_to_element(int addition_element_mode) {
    if (highlight_data.has_contents()) {
       if (highlight_data.single_atom()) {
 	 int atom_index = highlight_data.get_atom_index();
-	 if (atom_index != UNASSIGNED_INDEX) { 
+	 if (atom_index != UNASSIGNED_INDEX) {
 	    std::string new_ele = to_element(addition_element_mode);
 	    changed_status = mol.atoms[atom_index].change_element(new_ele);
 	    std::string fc = font_colour(addition_element_mode);
@@ -1734,8 +1734,10 @@ lbg_info_t::font_colour(int addition_element_mode) const {
       font_colour = "#00aa00";
    if (addition_element_mode == lbg_info_t::ATOM_CL)
       font_colour = "#229900";
+   if (addition_element_mode == lbg_info_t::ATOM_BR)
+      font_colour = "#A52A2A";
    if (addition_element_mode == lbg_info_t::ATOM_I)
-      font_colour = "#220077";
+      font_colour = "#220088";
    return font_colour;
 }
 
