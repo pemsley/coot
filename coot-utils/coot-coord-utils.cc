@@ -2248,7 +2248,9 @@ coot::graph_match_info_t::match_names(mmdb::Residue *res_with_moving_names) {
 	    }
 	 }
 
-	 std::cout << ".... atom name: " << atom_name << ": found_match " << found_match << std::endl;
+	 // std::cout << ".... atom name: " << atom_name << ": found_match "
+	 // << found_match << std::endl;
+	 
 	 if (! found_match) {
 	    // this atom name was not in the list of working atoms that were matched.
 
@@ -2262,13 +2264,13 @@ coot::graph_match_info_t::match_names(mmdb::Residue *res_with_moving_names) {
 		  break;
 	       }
 	    }
-	    std::cout << "      found_match_2 " << found_match_2 << std::endl;
+	    // std::cout << "      found_match_2 " << found_match_2 << std::endl;
 	    if (found_match_2)
 	       orig_moving_atom_names_non_mapped_non_same.push_back(atom_name);
 	    else
 	       orig_moving_atom_names_non_mapped_same.push_back(atom_name);
 	    
-	 } 
+	 }
       }
 
       if (debug) {
@@ -2349,9 +2351,10 @@ coot::graph_match_info_t::match_names(mmdb::Residue *res_with_moving_names) {
 	    }
 	 }
 
-	 std::cout << "debug atom name :" << this_atom_name
-		   << ": replace status: " << replace_name
-		   << " new name :" << new_atom_name << ":" << std::endl;
+	 if (false)
+	    std::cout << "debug atom name :" << this_atom_name
+		      << ": replace status: " << replace_name
+		      << " new name :" << new_atom_name << ":" << std::endl;
 	 if (replace_name) {
 	    residue_atoms[iat]->SetAtomName(new_atom_name.c_str());
 	 } 

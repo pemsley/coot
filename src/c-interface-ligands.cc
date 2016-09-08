@@ -2033,6 +2033,40 @@ void match_ligand_atom_names(int imol_ligand, const char *chain_id_ligand, int r
    }
 }
 
+/*! \brief Match ligand atom names to a reference ligand type (comp_id)
+
+  By using graph matching, make the names of the atoms of the
+  given ligand/residue match those of the reference ligand from the 
+  geometry store as closely as possible. Where there would be an
+  atom name clash, invent a new atom name.
+ */
+void match_ligand_atom_names_to_comp_id(int imol_ligand, const char *chain_id_ligand, int resno_ligand, const char *ins_code_ligand, const char *comp_id_ref) {
+
+   if (! is_valid_model_molecule(imol_ligand)) { 
+      std::cout << "Not a valid model number " << imol_ligand << std::endl;
+   } else {
+      graphics_info_t g;
+      mmdb::Residue *res_ref = NULL;
+
+      g.Geom_p()->try_dynamic_add(comp_id_ref, g.cif_dictionary_read_number++);
+      std::pair<bool, coot::dictionary_residue_restraints_t> p = 
+	 g.Geom_p()->get_monomer_restraints(comp_id_ref);
+
+      if (p.first)
+	 res_ref = p.second.GetResidue(true, g.default_new_atoms_b_factor);
+
+      if (! res_ref) {
+	 std::cout << "No reference residue for comp_id " << comp_id_ref << std::endl;
+      } else {
+	 
+	 // now lock res_ref - when multi-threaded
+	 g.molecules[imol_ligand].match_ligand_atom_names(chain_id_ligand, resno_ligand, ins_code_ligand, res_ref);
+	 graphics_draw();
+      }
+   }
+}
+
+
 
 /*  return a list of chiral centre ids as determined from topological
     equivalence analysis based on the bond info (and element names).

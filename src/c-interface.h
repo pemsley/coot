@@ -4154,6 +4154,17 @@ PyObject *compare_ligand_atom_types_py(int imol_ligand, int imol_ref, const char
 void match_ligand_atom_names(int imol_ligand, const char *chain_id_ligand, int resno_ligand, const char *ins_code_ligand,
 			     int imol_reference, const char *chain_id_reference, int resno_reference, const char *ins_code_reference);
 
+/*! \brief Match ligand atom names to a reference ligand type (comp_id)
+
+  By using graph matching, make the names of the atoms of the
+  given ligand/residue match those of the reference ligand from the 
+  geometry store as closely as possible. Where there would be an
+  atom name clash, invent a new atom name.
+
+  This doesn't create a new dictionary for the selected ligand - 
+  and that's a big problem.
+ */
+void match_ligand_atom_names_to_comp_id(int imol_ligand, const char *chain_id_ligand, int resno_ligand, const char *ins_code_ligand, const char *comp_id_ref);
 
 /* Transfer as many atom names as possible from the reference ligand
    to the given ligand.  The atom names are determined from graph

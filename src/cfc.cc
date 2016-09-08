@@ -24,6 +24,8 @@
 
 #ifdef USE_PYTHON
 
+#include <cstddef>
+
 // needed to parse cc-interface.hh
 #ifdef USE_GUILE
 #include <libguile.h> 
