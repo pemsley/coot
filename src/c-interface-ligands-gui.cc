@@ -164,13 +164,16 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
       if (graphics_info_t::find_ligand_here_cluster_flag)
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(search_here_toggle_button), TRUE);
    
-   // 040211: fill new sigma level entry
    fill_ligands_sigma_level_entry(find_ligand_dialog);
 
    // expert options
    fill_ligands_expert_options(find_ligand_dialog);
    // shall we see the expert option frame?
-   if (graphics_info_t::ligand_expert_flag == 0) {
+
+   // 20140907 Yes. We always see the ligand expert frame now.
+   //          never hide it.
+   // if (graphics_info_t::ligand_expert_flag == 0) {
+   if (false) {
       GtkWidget *frame = lookup_widget(find_ligand_dialog, "ligand_expert_frame");
       gtk_widget_hide(frame);
    }
@@ -178,7 +181,6 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
    return ifound_ligand * ifound_map * ifound_coords;
 
    // 050924 New "Expert Options" entries:
-   
 
 }
 
