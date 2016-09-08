@@ -578,7 +578,6 @@ def generic_multiple_entries_with_check_button(entry_info_list, check_button_inf
        return False
 
     def go_function_event(*args):
-       print "Here.................. check-button is ", check_button
        if check_button:
           handle_go_function(map(lambda entry: entry.get_text(), entries), check_button.get_active())
        else:
