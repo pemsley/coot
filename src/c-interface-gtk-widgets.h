@@ -612,6 +612,8 @@ void fill_ligands_sigma_level_entry(GtkWidget *dialog);
 void fill_ligands_expert_options(GtkWidget *find_ligand_dialog);
 void set_ligand_expert_options_from_widget(GtkWidget *button);
 
+void set_ligand_dialog_number_of_sites_sensitivity(GtkWidget *toggle_button);
+
  
 /*  info is stored in graphics_info_t beforehand */
 void execute_get_mols_ligand_search(GtkWidget *button); 

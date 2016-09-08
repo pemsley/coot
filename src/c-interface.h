@@ -4162,7 +4162,7 @@ void match_ligand_atom_names(int imol_ligand, const char *chain_id_ligand, int r
   atom name clash, invent a new atom name.
 
   This doesn't create a new dictionary for the selected ligand - 
-  and that's a big problem.
+  and that's a big problem (see match_residue_and_dictionary).
  */
 void match_ligand_atom_names_to_comp_id(int imol_ligand, const char *chain_id_ligand, int resno_ligand, const char *ins_code_ligand, const char *comp_id_ref);
 

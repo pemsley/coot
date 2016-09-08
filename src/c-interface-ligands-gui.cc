@@ -653,7 +653,20 @@ void set_ligand_expert_options_from_widget(GtkWidget *button) {
       if ((itop > 0) && (itop < 1000000))
 	 graphics_info_t::find_ligand_n_top_ligands = itop;
    }
-} 
+}
+
+void set_ligand_dialog_number_of_sites_sensitivity(GtkWidget *toggle_button) {
+
+   GtkWidget *hbox = lookup_widget(toggle_button, "hbox132");
+   if (hbox) {
+      if (GTK_TOGGLE_BUTTON(toggle_button)->active) {
+	 gtk_widget_set_sensitive(hbox, FALSE);
+      } else {
+	 gtk_widget_set_sensitive(hbox, TRUE);
+      }
+   }
+}
+
 
 
 /*  extract the sigma level and stick it in */

@@ -567,7 +567,7 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
 	 coot::read_refmac_mon_lib_info_t rmit = geom_matcher.init_refmac_mon_lib(cif_dict_in, 0);
 	 if (rmit.n_bonds == 0) {
 	    std::cout << "No bonds from " << cif_dict_in << std::endl;
-	 } else { 
+	 } else {
 	    std::pair<short int, coot::dictionary_residue_restraints_t> rp_2 =
 	       geom_matcher.get_monomer_restraints(cif_dict_comp_id);
 	    if (rp_2.first) {
