@@ -32,7 +32,7 @@
 #include <clipper/core/coords.h>
 
 #include "geometry/protein-geometry.hh"
-#include "coot-utils/residue-and-atom-specs.hh"
+#include "geometry/residue-and-atom-specs.hh"
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "lidia-core/rdkit-interface.hh"
 #endif

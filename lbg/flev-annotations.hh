@@ -1,6 +1,6 @@
 /* ideal/flev-annotations.hh
  * 
- * Copyright 2014 by Medical Research Council
+ * Copyright 2010 by The University of Oxford
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -23,6 +23,8 @@
 #define FLEV_ANNOTATIONS_HH
 
 #include "geometry/protein-geometry.hh"
+#include "geometry/main-chain.hh"
+#include "geometry/residue-and-atom-specs.hh"
 #include "lidia-core/lbg-shared.hh" // bash_distance_t
 
 

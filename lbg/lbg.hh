@@ -55,10 +55,11 @@ n * This program is distributed in the hope that it will be useful, but
 #include "lidia-core/lig-build.hh"
 #include "lidia-core/lbg-molfile.hh"
 #include "utils/coot-utils.hh"
-#include "coot-utils/coot-coord-utils.hh"
+// #include "coot-utils/coot-coord-utils.hh"
 
 #include "wmolecule.hh"
 
+#include "solvent-exposure-difference.hh"
 #include "flev-annotations.hh"
 #include "pi-stacking.hh"
 
@@ -90,6 +91,9 @@ void lbg_scale_adj_changed( GtkWidget *widget, GtkSpinButton *spinbutton);
 // 					  gpointer        user_data);
 // }
 
+namespace coot {
+   mmdb::Residue *get_first_residue_helper_fn(mmdb::Manager *mol);
+}
 
 // ====================================================================
 //                     lbg_info_t

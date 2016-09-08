@@ -31,7 +31,7 @@
 #include <algorithm>
 
 #include <clipper/core/coords.h>
-#include "coot-utils/residue-and-atom-specs.hh"
+#include "geometry/residue-and-atom-specs.hh"
 
 // return a Python object that contains (with indexing)
 //   water positions around ligand

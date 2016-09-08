@@ -47,7 +47,7 @@
 // How should I do this better?
 #define CXX_UNSET_CHARGE -99.8
 
-#include "residue-and-atom-specs.hh"
+#include "geometry/residue-and-atom-specs.hh"
 
 namespace coot {
 
@@ -251,21 +251,6 @@ namespace coot {
    lsq_plane_deviation(const std::vector<clipper::Coord_orth> &v,
 		       const clipper::Coord_orth &pt);
 
-   // return 0 or 1
-   bool is_main_chain_p(mmdb::Atom *at);
-
-   // return 0 or 1
-   bool is_hydrogen_p(mmdb::Atom *at);
-
-   // return 0 or 1
-   bool is_main_chain_or_cb_p(mmdb::Atom *at);
-
-   // return 0 or 1
-   bool is_main_chain_p(const std::string &atom_name);
-
-   // return 0 or 1
-   bool is_main_chain_or_cb_p(const std::string &atom_name);
-
    bool is_member_p(const std::vector<mmdb::Residue *> &v, mmdb::Residue *a);
 
 
@@ -316,21 +301,6 @@ namespace coot {
    std::vector<mmdb::Residue *> residues_near_position(const clipper::Coord_orth &pt,
 						  mmdb::Manager *mol,
 						  double radius);
-
-   // a trivial class to hold the residue and the solvent exposure,
-   // including and not including the ligand.
-   class solvent_exposure_difference_helper_t {
-   public:
-      residue_spec_t res_spec;
-      double exposure_fraction_holo;
-      double exposure_fraction_apo;
-      solvent_exposure_difference_helper_t(residue_spec_t res_spec_in, double h, double a) {
-	 res_spec = res_spec_in;
-	 exposure_fraction_holo = h;
-	 exposure_fraction_apo  = a;
-      }
-   };
-
 
 
    // Don't include residues that are HOH residues that are not bonded to

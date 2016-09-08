@@ -26,7 +26,7 @@
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 #include <vector>
-#include "coot-utils/residue-and-atom-specs.hh"
+#include "geometry/residue-and-atom-specs.hh"
 #include "geometry/protein-geometry.hh"
 // #include "use-rdkit.hh"
 #include <GraphMol/MolChemicalFeatures/MolChemicalFeatureFactory.h>

@@ -21,7 +21,7 @@
 
 #include <iomanip>
 #include <algorithm>
-#include "coot-utils/residue-and-atom-specs.hh"
+#include "geometry/residue-and-atom-specs.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "trace.hh"

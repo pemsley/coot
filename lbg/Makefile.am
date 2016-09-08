@@ -45,7 +45,6 @@ libcoot_lidia_la_SOURCES = lbg.cc wmolecule.cc  \
 # qed-interface.cc uses a boost::python function directly, so add L_BOOST_PYTHON
 # Thanks Marcin.
 libcoot_lidia_la_LIBADD = \
-	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
@@ -81,7 +80,6 @@ lidia_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 #
 lidia_LDADD = \
 	./libcoot-lidia.la \
-	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
 	$(top_builddir)/utils/libcoot-utils.la \

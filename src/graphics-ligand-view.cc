@@ -33,7 +33,7 @@
 #include "lidia-core/rdkit-interface.hh"
 #endif
 
-#include "coot-utils/residue-and-atom-specs.hh"
+#include "geometry/residue-and-atom-specs.hh"
 
 
 void 

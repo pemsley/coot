@@ -28,12 +28,17 @@ ACLOCAL_AMFLAGS=-I macros
 # coot-utils depends on mini-mol.
 # geometry depends on utils
 #
-SUBDIRS = auxil scheme python pdb-templates macros compat utils protein_db mini-mol geometry  \
+
+if COND_LIDIA_ONLY
+   SUBDIRS = compat utils mini-mol geometry coot-utils lidia-core
+else
+   SUBDIRS = auxil scheme python pdb-templates macros compat utils protein_db mini-mol geometry  \
         coot-utils surface coot-surface lidia-core \
 	coords angles skeleton ccp4mg-utils density-contour \
 	db-main analysis ideal ligand high-res build greg-tests python-tests \
 	tw libgtkgraph lbg cootaneer cootilus goograph pyrogen src data \
 	man rama-data doc rcrane pixmaps
+endif
 
 # po, no po today.
 

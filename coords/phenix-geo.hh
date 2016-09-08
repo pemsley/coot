@@ -23,7 +23,7 @@
 #define PHENIX_GEO_HH
 
 #include <vector>
-#include "coot-utils/residue-and-atom-specs.hh"
+#include "geometry/residue-and-atom-specs.hh"
 
 namespace coot {
 

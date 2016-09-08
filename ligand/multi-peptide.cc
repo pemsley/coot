@@ -20,7 +20,7 @@
  * 02110-1301, USA
  */
 
-#include "coot-utils/residue-and-atom-specs.hh"
+#include "geometry/residue-and-atom-specs.hh"
 #include "mini-mol/mini-mol-utils.hh"
 #include "ideal/simple-restraint.hh"
 #include "multi-peptide.hh"

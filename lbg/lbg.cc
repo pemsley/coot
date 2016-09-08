@@ -137,7 +137,7 @@ lbg(lig_build::molfile_molecule_t mm,
 	       if (ligand_spec_pair.first)
 		  lbg->set_ligand_spec(ligand_spec_pair.second);
 
-	       mmdb::Residue *residue_p = coot::util::get_first_residue(mol);
+	       mmdb::Residue *residue_p = coot::get_first_residue_helper_fn(mol);
 	       if (residue_p) {
 		  std::string res_name = residue_p->GetResName();
 		  gtk_label_set_text(GTK_LABEL(lbg->lbg_toolbar_layout_info_label), res_name.c_str());
@@ -207,6 +207,38 @@ lbg_info_t::new_lbg_window() {
        get_drug_mdl_file_function_pointer);
 }
 
+
+// when feeling righteous, remove this and put it into geometry and
+// remove the one in coot-utils
+//
+mmdb::Residue *
+coot::get_first_residue_helper_fn(mmdb::Manager *mol) {
+
+   mmdb::Residue *res = NULL;
+   if (mol) {
+      mmdb::Model *model_p = mol->GetModel(1);
+      if (model_p) { 
+	 mmdb::Chain *chain_p;
+      
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int i_chain=0; i_chain<n_chains; i_chain++) {
+	    chain_p = model_p->GetChain(i_chain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    mmdb::Residue *residue_p;
+	    for (int ires=0; ires<nres; ires++) {
+	       residue_p = chain_p->GetResidue(ires);
+	       if (residue_p) {
+		  res = residue_p;
+		  break;
+	       }
+	    }
+	    if (res)
+	       break;
+	 }
+      }
+   }
+   return res;
+}
 
 	     
 

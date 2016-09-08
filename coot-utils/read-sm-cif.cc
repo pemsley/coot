@@ -41,7 +41,7 @@
 
 #include "compat/coot-sysdep.h"
 #include "utils/coot-utils.hh"
-#include "coot-utils/residue-and-atom-specs.hh"
+#include "geometry/residue-and-atom-specs.hh"
 
 #include "read-sm-cif.hh"
 

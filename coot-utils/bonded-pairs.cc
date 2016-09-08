@@ -24,7 +24,7 @@
 #include <algorithm>
 #include <stdlib.h> // for abs()
 
-#include "residue-and-atom-specs.hh"
+#include "geometry/residue-and-atom-specs.hh"
 #include "bonded-pairs.hh"
 
 bool
