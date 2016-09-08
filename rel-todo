@@ -20,3 +20,7 @@ debug:: switch for sequence_view for imol 0 is 0x0
    o resolve the GSL problem. If no GSL fail in configure?  Or perhaps correctly 
      conditionally compile without it (not usage of $prefix/bin/gsl-config)
 
+   o display ligand distortions, move and regularize, display ligand distortions. 
+     Clear generic display objects -> not all graphics objects are removed - they 
+     should be.
+
