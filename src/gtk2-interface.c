@@ -53,8 +53,6 @@ create_window1 (void)
   GtkWidget *image10779;
   GtkWidget *search_monomer_library1;
   GtkWidget *image10780;
-  GtkWidget *smiles1;
-  GtkWidget *image10781;
   GtkWidget *get_pdb_using_code1;
   GtkWidget *image10782;
   GtkWidget *get_pdb_and_map_using_eds1;
@@ -502,16 +500,6 @@ create_window1 (void)
   gtk_widget_set_name (image10780, "image10780");
   gtk_widget_show (image10780);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (search_monomer_library1), image10780);
-
-  smiles1 = gtk_image_menu_item_new_with_mnemonic (_("SMILES..."));
-  gtk_widget_set_name (smiles1, "smiles1");
-  gtk_widget_show (smiles1);
-  gtk_container_add (GTK_CONTAINER (file1_menu), smiles1);
-
-  image10781 = gtk_image_new_from_stock ("smiles.svg", GTK_ICON_SIZE_MENU);
-  gtk_widget_set_name (image10781, "image10781");
-  gtk_widget_show (image10781);
-  gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (smiles1), image10781);
 
   get_pdb_using_code1 = gtk_image_menu_item_new_with_mnemonic (_("Fetch PDB using Accession Code..."));
   gtk_widget_set_name (get_pdb_using_code1, "get_pdb_using_code1");
@@ -2370,9 +2358,6 @@ create_window1 (void)
   g_signal_connect ((gpointer) search_monomer_library1, "activate",
                     G_CALLBACK (on_search_monomer_library1_activate),
                     NULL);
-  g_signal_connect ((gpointer) smiles1, "activate",
-                    G_CALLBACK (on_smiles1_activate),
-                    NULL);
   g_signal_connect ((gpointer) get_pdb_using_code1, "activate",
                     G_CALLBACK (on_get_pdb_using_code1_activate),
                     NULL);
@@ -2854,8 +2839,6 @@ create_window1 (void)
   GLADE_HOOKUP_OBJECT (window1, image10779, "image10779");
   GLADE_HOOKUP_OBJECT (window1, search_monomer_library1, "search_monomer_library1");
   GLADE_HOOKUP_OBJECT (window1, image10780, "image10780");
-  GLADE_HOOKUP_OBJECT (window1, smiles1, "smiles1");
-  GLADE_HOOKUP_OBJECT (window1, image10781, "image10781");
   GLADE_HOOKUP_OBJECT (window1, get_pdb_using_code1, "get_pdb_using_code1");
   GLADE_HOOKUP_OBJECT (window1, image10782, "image10782");
   GLADE_HOOKUP_OBJECT (window1, get_pdb_and_map_using_eds1, "get_pdb_and_map_using_eds1");
