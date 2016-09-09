@@ -59,7 +59,7 @@ libcoot_lidia_la_LDFLAGS = $(SHARED_LDFLAGS)
 lidia_SOURCES = lidia-main.cc lbg-callbacks-outer.cc 
 
 pkginclude_HEADERS = lbg.hh wmolecule.hh  flev-annotations.hh graphics-c-interface-functions.hh \
-	lbg-drag-and-drop.hh qed-interface.hh alerts.hh pi-stacking.hh
+	lbg-drag-and-drop.hh qed-interface.hh alerts.hh pi-stacking.hh solvent-exposure-difference.hh
 pkgincludedir = $(includedir)/coot/lbg
 
 # 20140521
