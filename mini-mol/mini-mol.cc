@@ -1,6 +1,7 @@
 /* mini-mol/min-mol.cc
  * 
  * Copyright  2003, 2004, The University of York
+ * Copyright 2014, 2015 by Medical Research Council
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify

@@ -1,3 +1,22 @@
+# lbg/Makefile.am
+# 
+# Copyright 2010, 2011 The University of Oxford
+# Author: Paul Emsley
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or (at
+# your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA
 
 lib_LTLIBRARIES=libcoot-lidia.la
 
@@ -26,7 +45,6 @@ libcoot_lidia_la_SOURCES = lbg.cc wmolecule.cc  \
 # qed-interface.cc uses a boost::python function directly, so add L_BOOST_PYTHON
 # Thanks Marcin.
 libcoot_lidia_la_LIBADD = \
-	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
@@ -41,7 +59,7 @@ libcoot_lidia_la_LDFLAGS = $(SHARED_LDFLAGS)
 lidia_SOURCES = lidia-main.cc lbg-callbacks-outer.cc 
 
 pkginclude_HEADERS = lbg.hh wmolecule.hh  flev-annotations.hh graphics-c-interface-functions.hh \
-	lbg-drag-and-drop.hh qed-interface.hh alerts.hh pi-stacking.hh
+	lbg-drag-and-drop.hh qed-interface.hh alerts.hh pi-stacking.hh solvent-exposure-difference.hh
 pkgincludedir = $(includedir)/coot/lbg
 
 # 20140521
@@ -62,7 +80,6 @@ lidia_LDFLAGS = $(EXPORT_DYNAMIC_FLAG_SPEC)
 #
 lidia_LDADD = \
 	./libcoot-lidia.la \
-	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
 	$(top_builddir)/utils/libcoot-utils.la \

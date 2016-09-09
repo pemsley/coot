@@ -1,6 +1,7 @@
 /* src/testing.cc
  * 
  * Copyright 2008, 2009, 2010 by the University of Oxford
+ * Copyright 2014, 2015 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

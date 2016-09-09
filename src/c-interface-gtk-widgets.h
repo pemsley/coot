@@ -3,6 +3,7 @@
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Copyright 2007 by Paul Emsley
  * Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The University of Oxford
+ * Copyright 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -609,6 +610,8 @@ int fill_vbox_with_coords_options_by_dialog_name(GtkWidget *find_ligand_dialog,
 void fill_ligands_sigma_level_entry(GtkWidget *dialog);
 void fill_ligands_expert_options(GtkWidget *find_ligand_dialog);
 void set_ligand_expert_options_from_widget(GtkWidget *button);
+
+void set_ligand_dialog_number_of_sites_sensitivity(GtkWidget *toggle_button);
 
  
 /*  info is stored in graphics_info_t beforehand */

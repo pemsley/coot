@@ -6,6 +6,7 @@
  * Copyright 2007 by Bernhard Lohkamp
  * Copyright 2008 by Kevin Cowtan
  * Copyright 2007, 2008, 2009 The University of Oxford
+ * Copyright 2015 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

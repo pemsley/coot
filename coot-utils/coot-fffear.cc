@@ -2,6 +2,7 @@
  * 
  * Copyright 2005 by The University of York
  * Copyright 2006 by The University of York
+ * Copyright 2016 by Medical Research Council
  * Author: Kevin Cowtan and Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify

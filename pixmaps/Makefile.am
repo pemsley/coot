@@ -1,5 +1,9 @@
 # Makefile.am
 # 
+# Copyright 2012 The University of Oxford
+# Copyright 2013 by Medical Research Council
+# Author: Paul Emsley
+# 
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 3 of the License, or (at
@@ -24,7 +28,7 @@ cootpixmapdir = $(pkgdatadir)/pixmaps
 # no longer use xpms.
 
 dist_cootpixmap_DATA = \
-coot-0.8.6.png \
+coot-0.8.7-pre.png \
 add-alt-conf.png      dna.svg			   probe-clash.svg                \
 add-alt-conf.svg      edit-backbone.svg		   radacina_handcuffs-small.svg   \
 add-peptide-1.png     edit-chi.png		   ramachandran.png               \

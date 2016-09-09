@@ -17,26 +17,20 @@ def ligand_check_refmac_columns(f_list, sigf_list, rfree_list):
     pass
     
 
-if enhanced_ligand_coot_p():
+if True:
 
-    global use_mogul
-    if use_mogul:
-        def import_from_3d_generator_from_mdl(dummy1, dummy2):
-            # here we could have something... to redefine and use mogul
-            pass
-    
     if (use_gui_qm != 2):
         menu = coot_menubar_menu("Ligand")
         
+    if enhanced_ligand_coot_p():
+    
         add_simple_coot_menu_menuitem(
           menu,
           "SMILES -> 2D",
           lambda func:
           generic_single_entry("SMILES string",
                                "", " Send to 2D Viewer ",
-                               lambda text: smiles_to_ligand_builder(text)
-                               )
-          )
+                               lambda text: smiles_to_ligand_builder(text)))
 
 
         add_simple_coot_menu_menuitem(
@@ -69,20 +63,6 @@ if enhanced_ligand_coot_p():
             lambda func: toggle_idle_ligand_interactions()
             )
 
-
-        def go_solid_func(state):
-            set_display_generic_objects_as_solid(state)
-            graphics_draw()
-
-        add_simple_coot_menu_menuitem(
-            menu, "Solid Generic Objects",
-            lambda func: go_solid_func(1))
-
-        add_simple_coot_menu_menuitem(
-            menu, "Unsolid Generic Objects",
-            lambda func: go_solid_func(0))
-        
-
         def show_chem_func():
             set_display_generic_objects_as_solid(1) # there may be consequences...
             with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
@@ -95,28 +75,59 @@ if enhanced_ligand_coot_p():
             lambda func: show_chem_func()
             )
 
+    def rename_atoms_to_reference(menuitem):
+        with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                   aa_ins_code, aa_atom_name, aa_alt_conf]:
+           # user chooses cif_dict_file_name_out (provide default)
+           # reference_comp_id and new_comp_id
 
-        def tab_ligand_distorsions_func():
-            with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
-                                       aa_ins_code, aa_atom_name, aa_alt_conf]:
-                print_residue_distortions(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
+           # args: entry_info_list, check_button_info, go_button_label, handle_go_function
+           generic_multiple_entries_with_check_button(
+               [["      Reference Residue Type: ", "ATP"],
+                ["               New Residue Type: ", "RXC"],
+                ["New Dictionary cif file name: ", "new-dictionary-RXC.cif"]],
+               False,
+               "   OK   ",
+               lambda (ref_comp_id_txt, new_comp_id_txt, new_cif_file_name_txt): match_this_residue_and_dictionary(aa_imol, aa_chain_id, aa_res_no, aa_ins_code, new_cif_file_name_txt, ref_comp_id_txt, new_comp_id_txt))
+        
 
-        def display_ligand_distortions_func():
-            with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
-                                       aa_ins_code, aa_atom_name, aa_alt_conf]:
-                set_display_generic_objects_as_solid(1)
-                display_residue_distortions(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
+    add_simple_coot_menu_menuitem(
+        menu, "Rename Atom to Reference", rename_atoms_to_reference)
 
-        add_simple_coot_menu_menuitem(
-            menu,
-            "Tabulate (on terminal) Ligand Distorsions",
-            lambda func: tab_ligand_distorsions_func()
-            )
+    def go_solid_func(state):
+        set_display_generic_objects_as_solid(state)
+        graphics_draw()
 
-        add_simple_coot_menu_menuitem(
-            menu,
-            "Display Ligand Distortions",
-            lambda func: display_ligand_distortions_func())
+    add_simple_coot_menu_menuitem(
+         menu, "Solid Generic Objects",
+         lambda func: go_solid_func(1))
+
+    add_simple_coot_menu_menuitem(
+         menu, "Unsolid Generic Objects",
+         lambda func: go_solid_func(0))
+        
+
+    def tab_ligand_distorsions_func():
+        with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                   aa_ins_code, aa_atom_name, aa_alt_conf]:
+             print_residue_distortions(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
+
+    def display_ligand_distortions_func():
+         with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
+             set_display_generic_objects_as_solid(1)
+             display_residue_distortions(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
+
+    add_simple_coot_menu_menuitem(
+         menu,
+         "Tabulate (on terminal) Ligand Distorsions",
+         lambda func: tab_ligand_distorsions_func()
+         )
+
+    add_simple_coot_menu_menuitem(
+         menu,
+         "Display Ligand Distortions",
+         lambda func: display_ligand_distortions_func())
 
 ##        # not interesting for the normal user!?
 ##        def density_ligand_score_func():
@@ -151,35 +162,35 @@ if enhanced_ligand_coot_p():
 ##            )
 
 
-        def probe_ligand_func():
-            with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
-                               aa_ins_code, aa_atom_name, aa_alt_conf]:
-               ss = "//" + aa_chain_id + "/" + str(aa_res_no)
-               imol_selection = new_molecule_by_atom_selection(aa_imol, ss)
-               work_dir = get_directory("coot-molprobity")
-               tmp_selected_ligand_for_probe_pdb = os.path.join(work_dir,
-                                                   "tmp-selected-ligand-for-probe.pdb")
-               tmp_protein_for_probe_pdb = os.path.join(work_dir,
-                                                    "tmp-protein-for-probe.pdb")
-               probe_dots_file_name = os.path.join(work_dir, "probe.dots")
+    def probe_ligand_func():
+         with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                            aa_ins_code, aa_atom_name, aa_alt_conf]:
+            ss = "//" + aa_chain_id + "/" + str(aa_res_no)
+            imol_selection = new_molecule_by_atom_selection(aa_imol, ss)
+            work_dir = get_directory("coot-molprobity")
+            tmp_selected_ligand_for_probe_pdb = os.path.join(work_dir,
+                                                "tmp-selected-ligand-for-probe.pdb")
+            tmp_protein_for_probe_pdb = os.path.join(work_dir,
+                                                 "tmp-protein-for-probe.pdb")
+            probe_dots_file_name = os.path.join(work_dir, "probe.dots")
 
-               set_mol_displayed(imol_selection, 0)
-               set_mol_active(imol_selection, 0)
-               # BL comment: we assume H and view is correct.
-               #set_go_to_atom_molecule(imol)
-               #rc = residue_centre(imol, chain_id, res_no, ins_code)
-               #set_rotation_centre(*rc)
-               #hydrogenate_region(6)
-               write_pdb_file(imol_selection, tmp_selected_ligand_for_probe_pdb)
-               write_pdb_file(imol, tmp_protein_for_probe_pdb)
-               popen_command(probe_command, ["-u", "-once", str(aa_res_no), # -once or -both
+            set_mol_displayed(imol_selection, 0)
+            set_mol_active(imol_selection, 0)
+            # BL comment: we assume H and view is correct.
+            #set_go_to_atom_molecule(imol)
+            #rc = residue_centre(imol, chain_id, res_no, ins_code)
+            #set_rotation_centre(*rc)
+            #hydrogenate_region(6)
+            write_pdb_file(imol_selection, tmp_selected_ligand_for_probe_pdb)
+            write_pdb_file(imol, tmp_protein_for_probe_pdb)
+            popen_command(probe_command, ["-u", "-once", str(aa_res_no), # -once or -both
                                              "not " + str(aa_res_no),
                                              "-density60",
                                              tmp_selected_ligand_for_probe_pdb,
                                              tmp_protein_for_probe_pdb],
                                              [], probe_dots_file_name, False)
-               handle_read_draw_probe_dots_unformatted(dots_file_name, aa_imol, 0)
-               graphics_draw()
+            handle_read_draw_probe_dots_unformatted(dots_file_name, aa_imol, 0)
+            graphics_draw()
 
 
 

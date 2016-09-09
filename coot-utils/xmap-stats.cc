@@ -1,6 +1,7 @@
 /* coot-utils/xmap-stats.cc
  * 
  * Copyright 2002, The University of York
+ * Copyright 2014, 2015 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

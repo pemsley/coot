@@ -3,6 +3,7 @@
  * Copyright 2002, 2003 The University of York
  * Author: Paul Emsley
  * Copyright 2007, 2008 The University of Oxford
+ * Copyright 2013, 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

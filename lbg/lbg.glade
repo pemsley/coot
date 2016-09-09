@@ -46,7 +46,7 @@
   <object class="GtkWindow" id="lbg_window">
     <property name="width_request">740</property>
     <property name="height_request">530</property>
-    <property name="title" translatable="yes">Coot Ligand Builder</property>
+    <property name="title" translatable="yes">Lidia: Coot's Ligand Builder</property>
     <property name="icon">pixmaps/coot-icon.png</property>
     <child>
       <object class="GtkVBox" id="lbg_vbox">
@@ -683,13 +683,57 @@
           </packing>
         </child>
         <child>
-          <object class="GtkStatusbar" id="lbg_statusbar">
+          <object class="GtkHBox" id="lbg_hbox_for_scale">
             <property name="visible">True</property>
-            <property name="spacing">2</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <object class="GtkLabel" id="label19">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes"> Scale </property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="pack_type">end</property>
+                <property name="position">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkSpinButton" id="lbg_scale_spinbutton">
+                <property name="width_request">80</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="max_length">4</property>
+                <property name="invisible_char">&#x25CF;</property>
+                <property name="climb_rate">0.1</property>
+                <property name="digits">2</property>
+                <property name="numeric">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="pack_type">end</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
           </object>
           <packing>
             <property name="expand">False</property>
+            <property name="fill">False</property>
             <property name="position">4</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkStatusbar" id="lbg_statusbar">
+            <property name="visible">True</property>
+            <property name="spacing">2</property>
+            <property name="has_resize_grip">False</property>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="position">5</property>
           </packing>
         </child>
         <child>
@@ -698,7 +742,7 @@
           </object>
           <packing>
             <property name="expand">False</property>
-            <property name="position">5</property>
+            <property name="position">6</property>
           </packing>
         </child>
         <child>
@@ -820,7 +864,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
-            <property name="position">6</property>
+            <property name="position">7</property>
           </packing>
         </child>
         <child>
@@ -1067,7 +1111,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
-            <property name="position">7</property>
+            <property name="position">8</property>
           </packing>
         </child>
         <child>
@@ -1171,7 +1215,7 @@
             <property name="expand">False</property>
             <property name="fill">False</property>
             <property name="padding">2</property>
-            <property name="position">8</property>
+            <property name="position">9</property>
           </packing>
         </child>
         <child>
@@ -1181,7 +1225,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="padding">4</property>
-            <property name="position">9</property>
+            <property name="position">10</property>
           </packing>
         </child>
         <child>
@@ -1329,7 +1373,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
-            <property name="position">10</property>
+            <property name="position">11</property>
           </packing>
         </child>
       </object>
@@ -2225,5 +2269,11 @@
     <action-widgets>
       <action-widget response="-5">lbg_smiles_dialog_ok_button</action-widget>
     </action-widgets>
+  </object>
+  <object class="GtkAdjustment" id="adjustment1">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
   </object>
 </interface>

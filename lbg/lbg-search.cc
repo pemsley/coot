@@ -30,7 +30,6 @@
 
 #include "clipper/core/coords.h"
 
-
 #include "lbg.hh"
 
 #ifdef HAVE_CCP4SRS

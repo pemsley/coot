@@ -1,6 +1,7 @@
 /* coot-utils/coot-tree-extras.cc
  * 
  * Copyright 2009 by The University of Oxford
+ * Copyright 2015 by Medical Research Council
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify

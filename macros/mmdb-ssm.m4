@@ -1,6 +1,7 @@
 # mmdb-ssm.m4
 # 
 # Copyright 2002 The University of York
+# Copyright 2014 by Medical Research Council
 # Author: Paul Emsley
 # 
 # This program is free software; you can redistribute it and/or modify

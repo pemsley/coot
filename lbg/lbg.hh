@@ -1,13 +1,14 @@
 /* lbg/lbg.hh
  * 
  * Copyright 2010, 2011, 2012 by The University of Oxford
+ * Copyright 2013, 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 3 of the License, or (at
  * your option) any later version.
  * 
- * This program is distributed in the hope that it will be useful, but
+n * This program is distributed in the hope that it will be useful, but
  * WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * General Public License for more details.
@@ -54,10 +55,11 @@
 #include "lidia-core/lig-build.hh"
 #include "lidia-core/lbg-molfile.hh"
 #include "utils/coot-utils.hh"
-#include "coot-utils/coot-coord-utils.hh"
+// #include "coot-utils/coot-coord-utils.hh"
 
 #include "wmolecule.hh"
 
+#include "solvent-exposure-difference.hh"
 #include "flev-annotations.hh"
 #include "pi-stacking.hh"
 
@@ -79,6 +81,9 @@ void lbg_handle_toggle_button(GtkToggleToolButton *tb, GtkWidget *canvas, int mo
 GtkWidget *get_canvas_from_scrolled_win(GtkWidget *scrolled_window);
 
 
+void lbg_scale_adj_changed( GtkWidget *widget, GtkSpinButton *spinbutton);
+
+
 // extern "C" { 
 // static gboolean on_residue_circle_clicked(GooCanvasItem  *item,
 // 					  GooCanvasItem  *target_item,
@@ -86,6 +91,9 @@ GtkWidget *get_canvas_from_scrolled_win(GtkWidget *scrolled_window);
 // 					  gpointer        user_data);
 // }
 
+namespace coot {
+   mmdb::Residue *get_first_residue_helper_fn(mmdb::Manager *mol);
+}
 
 // ====================================================================
 //                     lbg_info_t
@@ -652,6 +660,16 @@ private:
 				    // bonds), solvent accessiblity and
 				    // substitution contour.
    highlight_data_t highlight_data;
+   // we need to store the atom that was the rotation centre when we are
+   // rotating a bond. Sometimes we may need to delete a bond as it is rotated
+   // We need to be careful that we rotate atoms as we rotate canvas items.
+   // most_recent data are relevant if we still have left mouse pressed.
+   // 
+   highlight_data_t most_recent_drag_atom;
+   bool most_recent_bond_made_new_atom_flag;
+   bool most_recent_bond_is_being_dragged_flag;
+   int atom_index_of_atom_to_which_the_latest_bond_was_added;
+   
    bool is_atom_element(int addition_mode) const;
    bool is_bond(int addition_mode) const;
 
@@ -682,13 +700,15 @@ private:
    bool try_change_to_element(int addition_element_mode); // check for highlighted atom;
    bool try_add_or_modify_bond(int canvas_addition_mode, int x, int y,
 			       bool button_1_is_pressed); //  ditto.
-   bool add_bond_to_atom(unsigned int atom_index, int canvas_addition_mode);
-   void add_bond_to_atom_with_0_neighbours(unsigned int atom_index, int canvas_addition_mode);
-   void add_bond_to_atom_with_1_neighbour(unsigned int atom_index, int canvas_addition_mode,
+   // return "was changed" and new-atom-was-created status pair
+   std::pair<bool, bool> add_bond_to_atom(unsigned int atom_index, int canvas_addition_mode);
+   // return new-atom-was-created status
+   bool add_bond_to_atom_with_0_neighbours(unsigned int atom_index, int canvas_addition_mode);
+   bool add_bond_to_atom_with_1_neighbour(unsigned int atom_index, int canvas_addition_mode,
 					  unsigned int bond_index);
-   void add_bond_to_atom_with_2_neighbours(unsigned int atom_index, int canvas_addition_mode,
+   bool add_bond_to_atom_with_2_neighbours(unsigned int atom_index, int canvas_addition_mode,
 					   const std::vector<unsigned int> &bond_indices);
-   void add_bond_to_atom_with_3_neighbours(unsigned int atom_index, int canvas_addition_mode,
+   bool add_bond_to_atom_with_3_neighbours(unsigned int atom_index, int canvas_addition_mode,
 					   const std::vector<unsigned int> &bond_indices);
    std::string to_element(int addition_mode) const;
    std::string font_colour(int addition_element_mode) const;
@@ -713,12 +733,14 @@ private:
       canvas_scale = 1.0;
       canvas_drag_offset =  lig_build::pos_t(0,0);
       top_left_correction = lig_build::pos_t(0,0);
+      most_recent_bond_made_new_atom_flag = false;
       standard_residue_circle_radius = 19;
       button_down_bond_addition = false;
       latest_bond_canvas_item = 0;
       penultimate_atom_index = UNASSIGNED_INDEX;
       ultimate_atom_index = UNASSIGNED_INDEX;
       latest_bond_was_extended = 0;
+      atom_index_of_atom_to_which_the_latest_bond_was_added = UNASSIGNED_INDEX;
       stand_alone_flag = 0;
       ligand_spec_pair.first = 0; // unset ligand_spec
       use_graphics_interface_flag = 1; // default: show gui windows and widgets.
@@ -803,7 +825,7 @@ private:
    void display_search_results(const std::vector<coot::match_results_t> &v) const;
    void rotate_latest_bond(int x, int y);
    void rotate_or_extend_latest_bond(int x, int y);
-   void extend_latest_bond(); // use hilight_data
+   bool extend_latest_bond_maybe(); // use hilight_data
 
    // return the bond between the ligand "core" and the atom_index
    // (one of bond_indices)
@@ -1013,6 +1035,7 @@ public:
    GtkWidget *lbg_flip_rotate_hbox;
    GtkWidget *lbg_clean_up_2d_toolbutton;
    GtkWidget *lbg_search_database_frame;
+   GtkWidget *lbg_scale_spinbutton;
    GtkWidget *lbg_view_rotate_entry;
    GtkWidget *lbg_qed_properties_vbox; // hide if not enhanced-ligand
    GtkWidget *lbg_qed_properties_progressbars[8];
@@ -1295,6 +1318,7 @@ public:
    void rotate_z_molecule(double angle); // in degrees
    void rotate_z_molecule(const std::string &angle); // in degrees (used in on_lbg_view_rotate_apply_button_clicked
                                                      // callback).
+   void scale_canvas(double sf);
 
    // -- actually run the functions if they were set:
    void orient_view(int imol,

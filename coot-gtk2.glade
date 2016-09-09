@@ -225,26 +225,6 @@
 		      </child>
 
 		      <child>
-			<widget class="GtkImageMenuItem" id="smiles1">
-			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">SMILES...</property>
-			  <property name="use_underline">True</property>
-			  <signal name="activate" handler="on_smiles1_activate"/>
-
-			  <child internal-child="image">
-			    <widget class="GtkImage" id="image10781">
-			      <property name="visible">True</property>
-			      <property name="pixbuf">smiles.svg</property>
-			      <property name="xalign">0.5</property>
-			      <property name="yalign">0.5</property>
-			      <property name="xpad">0</property>
-			      <property name="ypad">0</property>
-			    </widget>
-			  </child>
-			</widget>
-		      </child>
-
-		      <child>
 			<widget class="GtkImageMenuItem" id="get_pdb_using_code1">
 			  <property name="visible">True</property>
 			  <property name="tooltip" translatable="yes">Get PDB Coordinates file from server using accession code</property>
@@ -24876,11 +24856,7 @@ programs to which you may be more accustomed.
   <child>
     <widget class="GtkImage" id="image10854">
       <property name="visible">True</property>
-<<<<<<< HEAD
-      <property name="pixbuf">coot-0.8.5-pre.png</property>
-=======
-      <property name="pixbuf">coot-0.8.6.png</property>
->>>>>>> b193a1bc4b1c0bfda31fc54241b17e3ac98ff254
+      <property name="pixbuf">coot-0.8.7-pre.png</property>
       <property name="xalign">0.5</property>
       <property name="yalign">0.5</property>
       <property name="xpad">0</property>

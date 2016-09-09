@@ -1,6 +1,7 @@
 /* ideal/extra-restraints.cc
  * 
  * Copyright 2010  by The University of Oxford
+ * Copyright 2013, 2015 by Medical Research Council
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify

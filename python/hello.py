@@ -1,6 +1,7 @@
 # hello.py 
 # Copyright 2005, 2006 by Bernhard Lohkamp
 # Copyright 2003, 2004, 2005, 2006 Paul Emsley, University of York
+# Copyright 2016 by Medical Research Council
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by

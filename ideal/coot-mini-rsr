@@ -2,6 +2,7 @@
 # -*-shell-script-*-
 # coot wrapper script 
 # Copyright 2004, 2005, 2006 Paul Emsley, University of York
+# Copyright 2016 by Medical Research Council
 
 #
 current_exe_dir=$(dirname $0)

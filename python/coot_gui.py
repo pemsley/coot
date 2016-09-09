@@ -578,7 +578,6 @@ def generic_multiple_entries_with_check_button(entry_info_list, check_button_inf
        return False
 
     def go_function_event(*args):
-       print "Here.................. check-button is ", check_button
        if check_button:
           handle_go_function(map(lambda entry: entry.get_text(), entries), check_button.get_active())
        else:
@@ -612,9 +611,11 @@ def generic_multiple_entries_with_check_button(entry_info_list, check_button_inf
        hbox1.pack_start(entry, False, 0)
        vbox.pack_start(hbox1, False, False, 0)
 
-    print "debug:: check-button-info: ", check_button_info
-    if not (type(entry_info_list) is ListType and len(check_button_info) == 2):
-       print "check_button_info failed list and length test"
+    # print "debug:: check-button-info: ", check_button_info
+    # print "debug:: entry-info-list: ", entry_info_list
+
+    if not (type(check_button_info) is ListType):
+            # and len(check_button_info) == 2): we can't do len on a bool
        check_button = False
     else:
        if type(check_button_info[0]) is StringType:
@@ -630,7 +631,7 @@ def generic_multiple_entries_with_check_button(entry_info_list, check_button_inf
        else:
           check_button = False      # the check-button when we don't want to see it
 
-    print "Here check button creation.................. check-button is ", check_button
+    # print "Here check button creation.................. check-button is ", check_button
     vbox.pack_start(h_sep, True, False, 3)
     vbox.pack_start(hbox3, False, False, 0)
     window.add(vbox)

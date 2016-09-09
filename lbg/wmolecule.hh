@@ -295,24 +295,34 @@ class widgeted_bond_t : public lig_build::bond_t, ligand_layout_graphic_primitiv
       gint child_index = goo_canvas_item_find_child(root, ci);
       if (child_index != -1) {
 	 goo_canvas_item_remove_child(root, child_index);
+      } else {
+	 std::cout << "WARNING:: widgeted_bond_t::clear() failed to remove child "
+		   << ci << " for root " << root << std::endl;
       }
       ci = NULL;
    }
 
    void construct_internal(const lig_build::atom_t &atom_first,
 			   const lig_build::atom_t &atom_second,
+			   bool shorten_first,
+			   bool shorten_second,
 			   bond_type_t bt, GooCanvasItem *root) {
-      bool shorten_first = 0;
-      bool shorten_second = 0;
-      if (atom_first.atom_id != "C") { 
-	 shorten_first = 1;
-      } 
-      if (atom_second.atom_id != "C") { 
-	 shorten_second = 1;
-      }
+      
+// Now CH3 are superatoms that require shortening.      
+//       bool shorten_first = 0;
+//       bool shorten_second = 0;
+//       if (atom_first.atom_id != "C") { 
+// 	 shorten_first = 1;
+//       } 
+//       if (atom_second.atom_id != "C") { 
+// 	 shorten_second = 1;
+//       }
+      
       ci = canvas_item_for_bond(atom_first, atom_second, shorten_first, shorten_second, bt, root);
 
-      // std::cout << "construct_internal() made ci " << ci << std::endl;
+      if (false)
+	 std::cout << "construct_internal() shorten first: " << shorten_first
+		   << " shorten_second " << shorten_second << " made ci " << ci << std::endl;
       
       g_signal_connect (ci, "key_press_event",
 			G_CALLBACK (on_wmolecule_key_press_event), NULL);
@@ -334,18 +344,21 @@ class widgeted_bond_t : public lig_build::bond_t, ligand_layout_graphic_primitiv
    // 
    void make_new_canvas_item_given_type(const lig_build::atom_t &atom_changed,
 					const lig_build::atom_t &atom_other,
+					bool shorten_first,
+					bool shorten_second,
 					lig_build::bond_t::bond_type_t bt,
 					GooCanvasItem *root) {
 
       lig_build::pos_t A = atom_changed.atom_position;
       lig_build::pos_t B =   atom_other.atom_position;
 
-      bool shorten_first = 0;
-      bool shorten_second = 0;
-      if (atom_changed.atom_id != "C")
-	 shorten_first = 1;
-      if (atom_other.atom_id != "C")
-	 shorten_second = 1;
+//       bool shorten_first = 0;
+//       bool shorten_second = 0;
+//       if (atom_changed.atom_id != "C")
+// 	 shorten_first = 1;
+//       if (atom_other.atom_id != "C")
+// 	 shorten_second = 1;
+      
       GooCanvasItem *new_line = canvas_item_for_bond(atom_changed, atom_other,
 						     shorten_first, shorten_second,
 						     bt, root);
@@ -384,18 +397,24 @@ public:
    // Now we use a constructor that does the creation of the canvas item too
    //
    widgeted_bond_t(int first, int second, 
-		   const lig_build::atom_t &atom_first, const lig_build::atom_t &atom_second,
+		   const lig_build::atom_t &atom_first,
+		   const lig_build::atom_t &atom_second,
+		   bool shorten_first, bool shorten_second,
 		   bond_type_t bt, GooCanvasItem *root) :
       lig_build::bond_t(first, second, bt) {
-      construct_internal(atom_first, atom_second, bt, root);
+      construct_internal(atom_first, atom_second, shorten_first, shorten_second, bt, root);
    }
    // as above, but we give the centre of the ring too.
    widgeted_bond_t(int first, int second, 
-		   const lig_build::atom_t &atom_first, const lig_build::atom_t &atom_second,
+		   const lig_build::atom_t &atom_first,
+		   const lig_build::atom_t &atom_second,
 		   lig_build::pos_t centre_pos_in,
 		   bond_type_t bt, GooCanvasItem *root) :
       bond_t(first, second, centre_pos_in, bt) {
-      construct_internal(atom_first, atom_second, bt, root);
+      // because there was a ring, these atoms don't need CH3 shortening
+      bool shorten_first = false;
+      bool shorten_second = false;
+      construct_internal(atom_first, atom_second, shorten_first, shorten_second, bt, root);
    }
    
    void update_canvas_item(GooCanvasItem *new_item, GooCanvasItem *root) {
@@ -403,8 +422,18 @@ public:
       ci = new_item;
    }
 
+   void update(const lig_build::atom_t &at_1, const lig_build::atom_t &at_2,
+	       bool shorten_first, bool shorten_second, GooCanvasItem *root) {
+      clear(root);
+      ci = canvas_item_for_bond(at_1, at_2, shorten_first, shorten_second, get_bond_type(), root);
+   }
+
    void rotate_canvas_item(gdouble cx, gdouble cy, gdouble degrees) {
-      wrap_goo_canvas_item_rotate(ci, degrees, cx, cy);
+      if (ci)
+	 wrap_goo_canvas_item_rotate(ci, degrees, cx, cy);
+      else
+	 std::cout << "ERROR: traped null ci in wmolecule rotate_canvas_item() "
+		   << std::endl;
    }
 
    // We need to make a shorter bond canvas line because we have (say)
@@ -412,21 +441,26 @@ public:
    // completely extend to the atom position).
    void make_new_canvas_item(const lig_build::atom_t &atom_changed,
 			     const lig_build::atom_t &atom_other,
+			     bool shorten_first,
+			     bool shorten_second,
 			     GooCanvasItem *root) {
 
       lig_build::bond_t::bond_type_t bt = get_bond_type();
-      make_new_canvas_item_given_type(atom_changed, atom_other, bt, root);
+      make_new_canvas_item_given_type(atom_changed, atom_other,
+				      shorten_first, shorten_second, bt, root);
    }
    void change_bond_order(const lig_build::atom_t &atom_changed,
 			  const lig_build::atom_t &atom_other,
+			  bool shorten_first, bool shorten_second,
 			  GooCanvasItem *root) {
-      change_bond_order(atom_changed, atom_other, 0, root);
-   } 
+      change_bond_order(atom_changed, atom_other, shorten_first, shorten_second, 0, root);
+   }
    void change_bond_order(const lig_build::atom_t &atom_changed,
 			  const lig_build::atom_t &atom_other,
+			  bool shorten_first, bool shorten_second,
 			  bool allow_triple_toggle,
 			  GooCanvasItem *root) {
-      // std::cout << "change_bond_order() " << atom_changed << " " << atom_other << std::endl;
+
       lig_build:: atom_t at_1 = atom_changed;
       lig_build:: atom_t at_2 = atom_other;
       lig_build::bond_t::bond_type_t bt = get_bond_type();
@@ -463,10 +497,9 @@ public:
 		   << bt << std::endl;
       
       set_bond_type(bt);
-      make_new_canvas_item_given_type(at_1, at_2, bt, root);
+      make_new_canvas_item_given_type(at_1, at_2, shorten_first, shorten_second, bt, root);
    }
    void close(GooCanvasItem *root) {
-      // std::cout << " closing sub-class bond" << std::endl;
       lig_build::bond_t::close();
       update_canvas_item(NULL, root);
    }
@@ -500,6 +533,10 @@ public:
       }
       return mmdb_bt;
    }
+
+   // debugging
+   GooCanvasItem *get_ci() const { return ci;}
+
 
 }; // end of widgeted_bond_t
 

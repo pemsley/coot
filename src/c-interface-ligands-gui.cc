@@ -3,6 +3,7 @@
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
  * Copyright 2008, 2009 The University of Oxford
+ * Copyright 2013, 2014 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -163,13 +164,16 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
       if (graphics_info_t::find_ligand_here_cluster_flag)
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(search_here_toggle_button), TRUE);
    
-   // 040211: fill new sigma level entry
    fill_ligands_sigma_level_entry(find_ligand_dialog);
 
    // expert options
    fill_ligands_expert_options(find_ligand_dialog);
    // shall we see the expert option frame?
-   if (graphics_info_t::ligand_expert_flag == 0) {
+
+   // 20140907 Yes. We always see the ligand expert frame now.
+   //          never hide it.
+   // if (graphics_info_t::ligand_expert_flag == 0) {
+   if (false) {
       GtkWidget *frame = lookup_widget(find_ligand_dialog, "ligand_expert_frame");
       gtk_widget_hide(frame);
    }
@@ -177,7 +181,6 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
    return ifound_ligand * ifound_map * ifound_coords;
 
    // 050924 New "Expert Options" entries:
-   
 
 }
 
@@ -650,7 +653,20 @@ void set_ligand_expert_options_from_widget(GtkWidget *button) {
       if ((itop > 0) && (itop < 1000000))
 	 graphics_info_t::find_ligand_n_top_ligands = itop;
    }
-} 
+}
+
+void set_ligand_dialog_number_of_sites_sensitivity(GtkWidget *toggle_button) {
+
+   GtkWidget *hbox = lookup_widget(toggle_button, "hbox132");
+   if (hbox) {
+      if (GTK_TOGGLE_BUTTON(toggle_button)->active) {
+	 gtk_widget_set_sensitive(hbox, FALSE);
+      } else {
+	 gtk_widget_set_sensitive(hbox, TRUE);
+      }
+   }
+}
+
 
 
 /*  extract the sigma level and stick it in */

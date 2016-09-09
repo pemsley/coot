@@ -2,6 +2,7 @@
  * 
  * Author: Paul Emsley
  * Copyright 2010 by The University of Oxford
+ * Copyright 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -35,6 +36,7 @@ enum { UNASSIGNED_INDEX = -1 };
 
 namespace lig_build {
 
+   enum { UNASSIGNED_BOND_INDEX = 2147483640 };
 
    // -----------------------------------------------------------------
    //                   pos_t
@@ -677,7 +679,7 @@ namespace lig_build {
       }
       std::vector<Ta> atoms;
       std::vector<Tb> bonds;
-      
+
       // Return new atom index (int) and whether or not the atom was
       // added (1) or returned the index of an extant atom (0).
       // 
@@ -776,15 +778,17 @@ namespace lig_build {
 
       // we have 2 indices, what is the bond that has these 2 atom indices?
       unsigned int get_bond_index(unsigned int atom_index_in_1, unsigned int atom_index_in_2) const {
-	 unsigned int bi = UNASSIGNED_INDEX;
-	 if (atom_index_in_1 != atom_index_in_2) { 
-	    for (unsigned int i=0; i<bonds.size(); i++) { 
-	       if ((bonds[i].get_atom_1_index() == atom_index_in_1) ||
-		   (bonds[i].get_atom_2_index() == atom_index_in_1)) {
-		  if ((bonds[i].get_atom_1_index() == atom_index_in_2) ||
-		      (bonds[i].get_atom_2_index() == atom_index_in_2)) {
-		     bi = i;
-		     break;
+	 unsigned int bi = UNASSIGNED_BOND_INDEX;
+	 if (atom_index_in_1 != atom_index_in_2) {
+	    for (unsigned int i=0; i<bonds.size(); i++) {
+	       if (! bonds[i].is_closed()) {
+		  if ((bonds[i].get_atom_1_index() == atom_index_in_1) ||
+		      (bonds[i].get_atom_2_index() == atom_index_in_1)) {
+		     if ((bonds[i].get_atom_1_index() == atom_index_in_2) ||
+			 (bonds[i].get_atom_2_index() == atom_index_in_2)) {
+			bi = i;
+			break;
+		     }
 		  }
 	       }
 	    }
@@ -1122,35 +1126,51 @@ namespace lig_build {
       }
 
 
-      int n_stray_atoms() const {  // unbonded atoms
+      unsigned int n_stray_atoms() const {  // unbonded atoms
 	 return stray_atoms().size();
       }
 
-      int num_atoms() const {
+      unsigned int num_atoms() const {
 	 int n = 0;
 	 for (unsigned int i=0; i<atoms.size(); i++) {
 	    if (!atoms[i].is_closed())
 	       n++;
 	 }
 	 return n;
-      } 
-
+      }
+      
+      unsigned int num_bonds_for_atom(int atom_index) {
+	 unsigned n = 0;
+	 for (unsigned int ib=0; ib<bonds.size(); ib++) {
+	    if (! bonds[ib].is_closed()) {
+	       int iat_1 = bonds[ib].get_atom_1_index();
+	       int iat_2 = bonds[ib].get_atom_2_index();
+	       if (! atoms[iat_1].is_closed())
+		  if (iat_1 == atom_index)
+		     n++;
+	       if (! atoms[iat_2].is_closed())
+		  if (iat_2 == atom_index)
+		     n++;
+	    }
+	 }
+	 return n;
+      }
+      
       std::vector<unsigned int> stray_atoms() const {
 	 std::vector<unsigned int> strays;
-	 bool found[atoms.size()];
-	 for (unsigned int i=0; i<atoms.size(); i++)
-	    found[i] = 0;
+	 std::vector<bool> found(atoms.size(), false);
 	 for (unsigned int ib=0; ib<bonds.size(); ib++) { 
 	    int iat_1 = bonds[ib].get_atom_1_index();
 	    int iat_2 = bonds[ib].get_atom_2_index();
 	    if (! atoms[iat_1].is_closed())
-	       found[iat_1] = 1;
+	       found[iat_1] = true;
 	    if (! atoms[iat_2].is_closed())
-	       found[iat_2] = 1;
+	       found[iat_2] = true;
 	 }
 	 for (unsigned int i=0; i<atoms.size(); i++)
-	    if (! found[i])
-	       strays.push_back(i);
+	    if (! atoms[i].is_closed())
+	       if (! found[i])
+		  strays.push_back(i);
 	 return strays;
       }
 
@@ -1222,6 +1242,31 @@ namespace lig_build {
 	    }
 	 }
 	 return sum_delta;
+      }
+
+      std::pair<bool, bool> shorten_flags(unsigned int bond_idx) const {
+	 bool shorten_first  = false;
+	 bool shorten_second = false;
+	 if (bond_idx < bonds.size()) {
+	    unsigned int idx_1 = bonds[bond_idx].get_atom_1_index();
+	    unsigned int idx_2 = bonds[bond_idx].get_atom_2_index();
+	    if (atoms[idx_1].element != "C") {
+	       shorten_first = true;
+	    } else {
+	       // Does this C have one bond?
+	       std::vector<unsigned int> v = bonds_having_atom_with_atom_index(idx_1);
+	       if (v.size() == 1)
+		  shorten_first = true;
+	    }
+	    if (atoms[idx_2].element != "C") {
+	       shorten_second = true;
+	    } else {
+	       std::vector<unsigned int> v = bonds_having_atom_with_atom_index(idx_2);
+	       if (v.size() == 1)
+		  shorten_second = true;
+	    }
+	 }
+	 return std::pair<bool, bool> (shorten_first, shorten_second);
       }
 
       // using bonds and charge
@@ -1368,11 +1413,47 @@ namespace lig_build {
 
 	 if (ele == "C") {
 	    if (sum_neigb_bond_order == 0) {
-	       atom_id = "CH4";
+	       return atom_id_info_t("CH", "4");
 	    }
 	    if (charge == 1) {
 	       if (sum_neigb_bond_order == 5) {
 		  atom_id = "C="; // Hmm... carbon can go either way
+	       }
+	    }
+
+	    if (charge == 0) {
+
+	       if (bond_indices.size() > 1) {
+		  atom_id = "C";
+	       } else {
+		  std::string h_count = "3";
+		  if (sum_neigb_bond_order == 2)
+		     h_count = "2";
+
+		  pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
+		  if (sum_delta.x < 0.2) { // prefer CH3 to H3C when (nearly) vertical.
+		     // return atom_id_info_t("CH", h_count);
+		     atom_id_info_t id("CH");
+		     offset_text_t ot(h_count);
+		     ot.tweak = pos_t(17, 0);
+		     ot.subscript = true;
+		     id.add(ot);
+		     return id;
+		  } else {
+		     // more tricky case then...
+		     atom_id_info_t id;
+		     offset_text_t otH("H");
+		     offset_text_t ot2(h_count);
+		     offset_text_t otN("C");
+		     ot2.subscript = true;
+		     otH.tweak = pos_t(-16, 0);
+		     ot2.tweak = pos_t(-7, 0);
+		     otN.tweak = pos_t(0, 0);
+		     id.add(otH);
+		     id.add(ot2);
+		     id.add(otN);
+		     return id;
+		  }
 	       }
 	    }
 	 }

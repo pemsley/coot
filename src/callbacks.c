@@ -3,6 +3,7 @@
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
  * Copyright 2008 The University of Oxford
+ * Copyright 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -11728,7 +11729,9 @@ on_find_ligands_search_all_radiobutton_toggled
 void
 on_find_ligands_search_here_radiobutton_toggled
                                         (GtkButton       *button,
-                                        gpointer         user_data) { 
+                                        gpointer         user_data) {
+
+  set_ligand_dialog_number_of_sites_sensitivity(GTK_WIDGET(button));
 
 }
 

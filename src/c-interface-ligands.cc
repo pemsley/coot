@@ -2,6 +2,7 @@
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Copyright 2008, 2009, 2010, 2011, 2012 by The University of Oxford
+ * Copyright 2012, 2013, 2014, 2015 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -566,7 +567,7 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
 	 coot::read_refmac_mon_lib_info_t rmit = geom_matcher.init_refmac_mon_lib(cif_dict_in, 0);
 	 if (rmit.n_bonds == 0) {
 	    std::cout << "No bonds from " << cif_dict_in << std::endl;
-	 } else { 
+	 } else {
 	    std::pair<short int, coot::dictionary_residue_restraints_t> rp_2 =
 	       geom_matcher.get_monomer_restraints(cif_dict_comp_id);
 	    if (rp_2.first) {
@@ -612,6 +613,13 @@ match_this_residue_and_dictionary(int imol, std::string chain_id, int res_no, st
 
    int result = 0;
 
+   if (false)
+      std::cout << "here in match_this_residue_and_dictionary() "
+		<< " cif_dict_out " << cif_dict_out
+		<< " reference_comp_id " << reference_comp_id
+		<< " output_comp_id " << output_comp_id
+		<< std::endl;
+
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       mmdb::Residue *this_residue = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
@@ -621,19 +629,22 @@ match_this_residue_and_dictionary(int imol, std::string chain_id, int res_no, st
 	    g.Geom_p()->get_monomer_restraints(this_residue_type);
 	 if (dict_1.first) {
 
+	    g.Geom_p()->try_dynamic_add(reference_comp_id, g.cif_dictionary_read_number++);
 	    std::pair<short int, coot::dictionary_residue_restraints_t> dict_2 =
 	       g.Geom_p()->get_monomer_restraints(reference_comp_id);
-	    
+
 	    if (dict_2.first) {
 
 	       coot::dictionary_match_info_t dmi = 
-		  // std::pair<unsigned int, coot::dictionary_residue_restraints_t> new_dict =
 		  dict_1.second.match_to_reference(dict_2.second, this_residue,
 						   output_comp_id, output_comp_id); // placeholder for name
+
 	       if (dmi.n_matches > 0) { 
 		  dmi.dict.residue_info.comp_id = output_comp_id;
 		  dmi.dict.residue_info.name =  ".";
 		  dmi.dict.write_cif(cif_dict_out);
+	       } else {
+		  std::cout << "No matches " << std::endl;
 	       }
 	       
 	    } else {
@@ -2054,6 +2065,40 @@ void match_ligand_atom_names(int imol_ligand, const char *chain_id_ligand, int r
       }
    }
 }
+
+/*! \brief Match ligand atom names to a reference ligand type (comp_id)
+
+  By using graph matching, make the names of the atoms of the
+  given ligand/residue match those of the reference ligand from the 
+  geometry store as closely as possible. Where there would be an
+  atom name clash, invent a new atom name.
+ */
+void match_ligand_atom_names_to_comp_id(int imol_ligand, const char *chain_id_ligand, int resno_ligand, const char *ins_code_ligand, const char *comp_id_ref) {
+
+   if (! is_valid_model_molecule(imol_ligand)) { 
+      std::cout << "Not a valid model number " << imol_ligand << std::endl;
+   } else {
+      graphics_info_t g;
+      mmdb::Residue *res_ref = NULL;
+
+      g.Geom_p()->try_dynamic_add(comp_id_ref, g.cif_dictionary_read_number++);
+      std::pair<bool, coot::dictionary_residue_restraints_t> p = 
+	 g.Geom_p()->get_monomer_restraints(comp_id_ref);
+
+      if (p.first)
+	 res_ref = p.second.GetResidue(true, g.default_new_atoms_b_factor);
+
+      if (! res_ref) {
+	 std::cout << "No reference residue for comp_id " << comp_id_ref << std::endl;
+      } else {
+	 
+	 // now lock res_ref - when multi-threaded
+	 g.molecules[imol_ligand].match_ligand_atom_names(chain_id_ligand, resno_ligand, ins_code_ligand, res_ref);
+	 graphics_draw();
+      }
+   }
+}
+
 
 
 /*  return a list of chiral centre ids as determined from topological

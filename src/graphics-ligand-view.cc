@@ -1,6 +1,7 @@
 /* src/graphics-ligand-view.cc
  * 
  * Copyright 2011 by The University of Oxford
+ * Copyright 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +33,7 @@
 #include "lidia-core/rdkit-interface.hh"
 #endif
 
-#include "coot-utils/residue-and-atom-specs.hh"
+#include "geometry/residue-and-atom-specs.hh"
 
 
 void 

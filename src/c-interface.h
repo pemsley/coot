@@ -3,6 +3,7 @@
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Copyright 2007 by Paul Emsley
  * Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The University of Oxford
+ * Copyright 2014, 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -742,10 +743,6 @@ void set_draw_solid_density_surface(int imol, short int state);
 
   */
 void set_draw_map_standard_lines(int imol, short int state);
-
-/*! \brief set the state of the solid surface representation 
-  for molecule imap */
-void solid_surface(int imap, short int on_off_flag);
 
 /*! \brief set the opacity of density surface representation of the
   given map.
@@ -4161,6 +4158,17 @@ PyObject *compare_ligand_atom_types_py(int imol_ligand, int imol_ref, const char
 void match_ligand_atom_names(int imol_ligand, const char *chain_id_ligand, int resno_ligand, const char *ins_code_ligand,
 			     int imol_reference, const char *chain_id_reference, int resno_reference, const char *ins_code_reference);
 
+/*! \brief Match ligand atom names to a reference ligand type (comp_id)
+
+  By using graph matching, make the names of the atoms of the
+  given ligand/residue match those of the reference ligand from the 
+  geometry store as closely as possible. Where there would be an
+  atom name clash, invent a new atom name.
+
+  This doesn't create a new dictionary for the selected ligand - 
+  and that's a big problem (see match_residue_and_dictionary).
+ */
+void match_ligand_atom_names_to_comp_id(int imol_ligand, const char *chain_id_ligand, int resno_ligand, const char *ins_code_ligand, const char *comp_id_ref);
 
 /* Transfer as many atom names as possible from the reference ligand
    to the given ligand.  The atom names are determined from graph

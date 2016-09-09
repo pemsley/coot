@@ -2,6 +2,7 @@
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006 by The University of York
  * Copyright 2008, 2009, 2010  by The University of Oxford
+ * Copyright 2013, 2014, 2015, 2016 by Medical Research Council
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -2510,17 +2511,17 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(const coot::bon
 	       std::string res_name_1 = at_1->GetResName();
 	       std::string res_name_2 = at_2->GetResName();
 	    
-	       if (res_name_1 == "PRO") {
+	       if (res_name_1 == "PRO" || res_name_1 == "HYP") {
 		  int res_no_pro   = res_no_1;
 		  int res_no_other = res_no_2;
 		  if (res_no_pro == (res_no_other + 1)) {
 		     std::string atom_name = at_1->name;
 		     if (atom_name == " CD ") {  // PDBv3 FIXME
 			add_it = false;
-		     } 
+		     }
 		  }
 	       }
-	       if (res_name_2 == "PRO") {
+	       if (res_name_2 == "PRO" || res_name_2 == "HYP") {
 		  int res_no_pro   = res_no_2;
 		  int res_no_other = res_no_1;
 		  if (res_no_pro == (res_no_other + 1)) {
