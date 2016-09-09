@@ -111,48 +111,94 @@ void
 coot::rama_plot::resize_rama_canvas_internal(GtkWidget *widget,
                                              GdkEventConfigure *event) {
 
-   // very new idea:
-   // only change zoom if there is no scroll bar.
-   // if no scrollbar, size alloc of canvas is 400
-   // but can we get this?
+   if (resize_canvas_with_window) {
+
+      if (false) {
+
+         // this is (more) old stuff, keep for now in case everything else makes it worse
+         // will try gimpish approach now
+
+         // very new idea:
+         // only change zoom if there is no scroll bar.
+         // if no scrollbar, size alloc of canvas is 400
+         // but can we get this?
 
 
-   //   static int oldw = 0;
-//   static int oldh = 0;
-//   static int oldcanvash = 400;
-//   static int oldcanvasw = 400;
-//   static float pad_w = 0.;
-//   static float pad_h = 0.;
-   // currently wrong since we get an allocation rather than an event if we track allocation
-   float canvas_w = GTK_WIDGET(canvas)->allocation.width;
-   float canvas_h = GTK_WIDGET(canvas)->allocation.height;
-   float win_w = event->width;
-   float win_h = event->height;
+         //   static int oldw = 0;
+         //   static int oldh = 0;
+         //   static int oldcanvash = 400;
+         //   static int oldcanvasw = 400;
+         //   static float pad_w = 0.;
+         //   static float pad_h = 0.;
+         // currently wrong since we get an allocation rather than an event if we track allocation
+         float canvas_w = GTK_WIDGET(canvas)->allocation.width;
+         float canvas_h = GTK_WIDGET(canvas)->allocation.height;
+         float win_w = event->width;
+         float win_h = event->height;
 
-   g_print("BL DEBUG:: Width  size old %d, current %d, canvas %d\n", oldw, win_w, canvas_w);
-   g_print("BL DEBUG:: Height size old %d, current %d, canvas %d\n", oldh, win_h, canvas_h);
+         g_print("BL DEBUG:: Width  size old %d, current %d, canvas %d\n", oldw, win_w, canvas_w);
+         g_print("BL DEBUG:: Height size old %d, current %d, canvas %d\n", oldh, win_h, canvas_h);
 
-   // no scrollbar, so change zoom
-   // may be even absolute, 400 = zoom 1!
-   if (canvas_h >= 400 ||
-       canvas_w >= 400) {
-      float mini = std::min(canvas_h, canvas_w);
-      float max = std::max(canvas_h, canvas_w);
-      float min_zoom;
-      float max_zoom;
-      zoom = mini/400.*0.8;
-      goo_canvas_set_scale(GOO_CANVAS(canvas), zoom);
-      g_print("BL DEBUG:: change zoom to %f\n", zoom);
+         // no scrollbar, so change zoom
+         // may be even absolute, 400 = zoom 1!
+         if (canvas_h >= 400 ||
+             canvas_w >= 400) {
+            float mini = std::min(canvas_h, canvas_w);
+            float max = std::max(canvas_h, canvas_w);
+            float min_zoom;
+            float max_zoom;
+            zoom = mini/400.*0.8;
+            goo_canvas_set_scale(GOO_CANVAS(canvas), zoom);
+            g_print("BL DEBUG:: change zoom to %f\n", zoom);
 
+         } else {
+            g_print("BL DEBUG:: dont resize have scroll\n");
+         }
+         oldw = event->width;
+         oldh = event->height;
+      }
 
+      // try after ideas from gimp
+      // scale proportionally to size difference
+      // 50% in either direction equals 75% overall
+      // 50% in both directions equals 50% overall
+      // same for enlargement (I think)
+      // if canvas smaller than scrolled win, max to scrolled window (when switched on)
+      GtkAllocation    allocation;
+      gint             current_width;
+      gint             current_height;
+      gtk_widget_get_allocation (widget, &allocation);
+
+      gint new_width;
+      gint new_height;
+
+      new_width = event->width;
+      new_height = event->height;
+
+      g_print("BL DEBUG:: old and new height %i %i\n", current_height, new_height);
+      g_print("BL DEBUG:: old and new width %i %i\n", current_width, new_width);
 
 
    } else {
-      g_print("BL DEBUG:: dont resize have scroll\n");
+      // maybe need to save new window size.
+      g_print("BL DEBUG:: dont resize since off\n");
    }
-   oldw = event->width;
-   oldh = event->height;
 
+}
+
+void
+coot::rama_plot::resize_mode_changed(int state) {
+
+   resize_canvas_with_window = state;
+
+   // set the button (if not already done)
+   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(zoom_resize_togglebutton)) != state) {
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(zoom_resize_togglebutton), state);
+   }
+   // same for menuitem
+   if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(zoom_resize_menuitem)) != state) {
+      gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(zoom_resize_menuitem), state);
+   }
 }
 
 // "original" backup
@@ -291,6 +337,8 @@ coot::rama_plot::create_dynarama_window() {
                scrolled_window = GTK_WIDGET(gtk_builder_get_object(builder,"dynarama_scrolledwindow"));
                outliers_only_tooglebutton = GTK_WIDGET(gtk_builder_get_object(builder,
                                                                              "dynarama2_outliers_only_togglebutton"));
+               zoom_resize_togglebutton = GTK_WIDGET(gtk_builder_get_object(builder,
+                                                     "dynarama2_zoom_resize_togglebutton"));
                rama_stats_frame =  GTK_WIDGET(gtk_builder_get_object(builder, "rama_stats_frame"));
                rama_stats_label1 = GTK_WIDGET(gtk_builder_get_object(builder, "rama_stats_label_1"));
                rama_stats_label2 = GTK_WIDGET(gtk_builder_get_object(builder, "rama_stats_label_2"));
@@ -312,6 +360,8 @@ coot::rama_plot::create_dynarama_window() {
                                                                           "kleywegt_radiomenuitem"));
                outliers_only_menuitem = GTK_WIDGET(gtk_builder_get_object(builder,
                                                   "outliers_only_menuitem"));
+               zoom_resize_menuitem = GTK_WIDGET(gtk_builder_get_object(builder,
+                                                                        "zoom_resize_menuitem"));
                kleywegt_chain_combobox1 = GTK_WIDGET(gtk_builder_get_object(builder,
                                                                             "kleywegt_chain_combobox1"));
                kleywegt_chain_combobox2 = GTK_WIDGET(gtk_builder_get_object(builder,
@@ -489,7 +539,9 @@ coot::rama_plot::init_internal(const std::string &mol_name,
                                            NULL);
 
       // Hope everything is there before we resize?!
-      g_signal_connect_after(dynawin, "size-allocate",
+//      g_signal_connect_after(dynawin, "size-allocate",
+
+      g_signal_connect_after(dynawin, "configure-event",
                              G_CALLBACK(rama_resize), this);
 
    } else {

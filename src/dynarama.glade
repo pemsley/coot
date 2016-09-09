@@ -2,6 +2,11 @@
 <interface>
   <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy toplevel-contextual -->
+  <object class="GtkIconFactory" id="iconfactory1">
+    <sources>
+      <source stock-id="stock-zoom-follow-window-12-svg" filename="pixmaps/stock-zoom-follow-window-12.svg"/>
+    </sources>
+  </object>
   <object class="GtkImage" id="image1">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -12,6 +17,11 @@
     <property name="can_focus">False</property>
     <property name="yalign">0.49000000953674316</property>
     <property name="stock">gtk-save-as</property>
+  </object>
+  <object class="GtkImage" id="image3">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="pixbuf">pixmaps/stock-zoom-follow-window-12.svg</property>
   </object>
   <object class="GtkWindow" id="dynarama2_window">
     <property name="visible">True</property>
@@ -191,6 +201,22 @@ Kleywegt Plot</property>
                         <signal name="toggled" handler="on_outliers_only_menuitem_toggled" swapped="no"/>
                       </object>
                     </child>
+                    <child>
+                      <object class="GtkSeparatorMenuItem" id="separatormenuitem3">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckMenuItem" id="zoom_resize_menuitem">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="tooltip_text" translatable="yes">Zoom image when window size changes</property>
+                        <property name="label" translatable="yes">Zoom with resize</property>
+                        <property name="use_underline">True</property>
+                        <signal name="toggled" handler="on_zoom_resize_menuitem_toggled" swapped="no"/>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -265,6 +291,22 @@ Kleywegt Plot</property>
               <placeholder/>
             </child>
             <child>
+              <object class="GtkToggleButton" id="dynarama2_zoom_resize_togglebutton">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+                <property name="tooltip_text" translatable="yes">Zoom image when window size changes</property>
+                <property name="image">image3</property>
+                <signal name="toggled" handler="on_dynarama2_zoom_resize_togglebutton_toggled" swapped="no"/>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="pack_type">end</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+            <child>
               <object class="GtkToggleButton" id="dynarama2_outliers_only_togglebutton">
                 <property name="label" translatable="yes">Outliers Only</property>
                 <property name="visible">True</property>
@@ -279,7 +321,7 @@ Kleywegt Plot</property>
                 <property name="fill">False</property>
                 <property name="padding">2</property>
                 <property name="pack_type">end</property>
-                <property name="position">1</property>
+                <property name="position">2</property>
               </packing>
             </child>
           </object>

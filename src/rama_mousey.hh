@@ -38,9 +38,15 @@ on_rama_radiomenuitem_toggled(GtkCheckMenuItem *checkmenuitem, gpointer user_dat
 void
 on_kleywegt_radiomenuitem_toggled(GtkCheckMenuItem *checkmenuitem, gpointer user_data);
 void
-on_dynarama2_outliers_only_togglebutton_toggled(GtkToggleButton *button, gpointer user_data);
+on_zoom_resize_menuitem_toggled(GtkCheckMenuItem *checkmenuitem, gpointer user_data);
 void
 on_rama_about_menuitem_activate(GtkMenuItem *item, gpointer user_data);
+
+//buttons
+void
+on_dynarama2_outliers_only_togglebutton_toggled(GtkToggleButton *button, gpointer user_data);
+void
+on_dynarama2_zoom_resize_togglebutton_toggled(GtkToggleButton *button, gpointer user_data);
 
 //about dialog
 void

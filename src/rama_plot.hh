@@ -195,6 +195,7 @@ class rama_plot {
    GtkWidget *dynarama_label;
    GtkWidget *scrolled_window;
    GtkWidget *outliers_only_tooglebutton;
+   GtkWidget *zoom_resize_togglebutton;
    GtkWidget *rama_stats_frame;
    GtkWidget *rama_stats_label1;
    GtkWidget *rama_stats_label2;
@@ -204,6 +205,7 @@ class rama_plot {
    GtkWidget *rama_radiomenuitem;
    GtkWidget *kleywegt_radiomenuitem;
    GtkWidget *outliers_only_menuitem;
+   GtkWidget *zoom_resize_menuitem;
    GtkWidget *kleywegt_chain_combobox1;
    GtkWidget *kleywegt_chain_combobox2;
    GtkWidget *dialog; // the container for the canvas
@@ -310,6 +312,7 @@ public:
    void resize_rama_canvas(GtkWidget *widget, GdkEventConfigure *event);
    void resize_rama_canvas(GtkWidget *widget, GdkEventConfigure *event, gpointer data);
    void resize_rama_canvas();
+   void resize_mode_changed(int state);
    void open_pdb_file(const std::string &file_name);
    void make_kleywegt_plot(int on_off);
    void plot_type_changed();
@@ -339,6 +342,7 @@ public:
       oldcanvasw = 400;
       pad_w = 0.;
       pad_h = 0.;
+      resize_canvas_with_window = 0;
       dialog_position_x = -100; dialog_position_y = -100; }
 
    rama_stats_container_t saved_counts;
@@ -348,6 +352,8 @@ public:
    int oldcanvasw;
    float pad_w;
    float pad_h;
+   // default dont resize canvas with window (easy path)
+   int resize_canvas_with_window;
    bool create_dynarama_window();
    // consider destructor where we should
    // gtk_object_destroy(big_box_item) if it is non-zero.
