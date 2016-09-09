@@ -5069,12 +5069,15 @@ coot::util::mutate_internal(mmdb::Residue *residue,
    }
 
    // only touch the atoms with given alt conf, ignore the others.
+   std::string to_residue_type = std_residue->GetResName();
    for(int i=0; i<nResidueAtoms; i++) {
       std::string atom_alt_conf(residue_atoms[i]->altLoc);
       if (atom_alt_conf == alt_conf) { 
 	 std::string residue_this_atom (residue_atoms[i]->name);
 	 if (coot::is_main_chain_p(residue_atoms[i])) {
-	    // nothing
+	    if (to_residue_type == "MSE") {
+	       residue_atoms[i]->Het = 1;
+	    }
 	 } else { 
 	    residue->DeleteAtom(i);
 	 }
