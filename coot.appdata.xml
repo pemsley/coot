@@ -23,11 +23,11 @@
  </description>
  <screenshots>
   <screenshot type="default">
-    <image type="source">http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/web/screenshots/coot-viagra-1.png</image>
+    <image type="source">http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/other/coot-viagra-1.png</image>
     <caption>Coot is typically used to view protein models and electron density</caption>
   </screenshot>
   <screenshot>
-    <image type="source">http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/web/screenshots/coot-ligand-builder.png</image>
+    <image type="source">http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/other/coot-ligand-builder.png</image>
     <caption>Coot can be used to convert from 2D ligands to 3D and from 3D to 2D</caption>
   </screenshot>
  </screenshots>
