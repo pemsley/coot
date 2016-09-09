@@ -992,7 +992,8 @@ lbg_info_t::rotate_latest_bond(int x_mouse, int y_mouse) {
 		     widgeted_atom_t atom = mol.atoms[atom_index_of_atom_to_which_the_latest_bond_was_added];
 		     // add a bond to the atom at the rotation centre
 		     widgeted_bond_t b(atom_index_of_atom_to_which_the_latest_bond_was_added,
-				       new_atom_index, atom, new_atom, bt, root);
+				       new_atom_index, atom, new_atom,
+				       false, true, bt, root);
 		     int new_bond_idx = mol.add_bond(b);
 		     if (new_bond_idx != lig_build::UNASSIGNED_BOND_INDEX) {
 			penultimate_atom_index = atom_index_of_atom_to_which_the_latest_bond_was_added;
@@ -1046,6 +1047,7 @@ lbg_info_t::extend_latest_bond_maybe() {
 				       atom_index_of_atom_to_which_the_latest_bond_was_added,
 				       mol.atoms[atom_index_snap_to],
 				       mol.atoms[atom_index_of_atom_to_which_the_latest_bond_was_added],
+				       false, false,
 				       bt, root);
 		     int new_bond_idx = mol.add_bond(b); // can reject addition if bond
 				                         // between the given atom
@@ -1555,10 +1557,16 @@ lbg_info_t::change_atom_element(unsigned int atom_index,
 	 //
 	 int index_1 = mol.bonds[local_bonds[ib]].get_atom_1_index();
 	 int index_2 = mol.bonds[local_bonds[ib]].get_atom_2_index();
-	 lig_build::atom_t atom_1 = mol.atoms[index_1];
-	 lig_build::atom_t atom_2 = mol.atoms[index_2];
+	 const lig_build::atom_t &atom_1 = mol.atoms[index_1];
+	 const lig_build::atom_t &atom_2 = mol.atoms[index_2];
 
-	 mol.bonds[local_bonds[ib]].make_new_canvas_item(atom_1, atom_2, root);
+	 bool shorten_first  = false;
+	 bool shorten_second = false;
+
+	 std::pair<bool, bool> shorten = mol.shorten_flags(local_bonds[ib]);
+	 
+	 mol.bonds[local_bonds[ib]].make_new_canvas_item(atom_1, atom_2,
+							 shorten.first, shorten.second, root);
       }
    }
    return changed_status;
@@ -1622,16 +1630,23 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode,
 		      << "bond type: " << bt << " c.f. " << lbg_info_t::ADD_STEREO_OUT_BOND
 		      << " and " << lig_build::bond_t::OUT_BOND
 		      << std::endl;
-	 
+
 	 if (bond_index != UNASSIGNED_INDEX) {
-	    // we need to pass the atoms so that we know if and how to
-	    // shorten the bonds (canvas items) to account for atom names.
+
+	    std::pair<bool, bool> shorten = mol.shorten_flags(bond_index);
+
+	    // 20160909 the shortening is calculated outside of the bond
+	    //          so I guess we don't need to pass the atoms.  Hmmm...
+	    // // we need to pass the atoms so that we know if and how to
+	    // // shorten the bonds (canvas items) to account for atom names.
+	    // 
 	    lig_build::atom_t at_1 = mol.atoms[ind_1];
 	    lig_build::atom_t at_2 = mol.atoms[ind_2];
 	    GooCanvasItem *root = goo_canvas_get_root_item(GOO_CANVAS (canvas));
-	    if (canvas_addition_mode == lbg_info_t::ADD_TRIPLE_BOND)
-	       mol.bonds[bond_index].change_bond_order(at_1, at_2, 1, root);
-	    else {
+	    if (canvas_addition_mode == lbg_info_t::ADD_TRIPLE_BOND) {
+	       mol.bonds[bond_index].change_bond_order(at_1, at_2, shorten.first, shorten.second,
+						       true, root);
+	    } else {
 
 	       lig_build::bond_t::bond_type_t current_bt = mol.bonds[bond_index].get_bond_type();
 	       
@@ -1650,19 +1665,24 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode,
 		     // it to a stereo out bond. If it is a stereo_out
 		     // bond, convert it with change_bond_order().
 		     //
+		     std::pair<bool, bool> shorten = mol.shorten_flags(bond_index);
 		     mol.bonds[bond_index].set_bond_type(bt);
-		     mol.bonds[bond_index].make_new_canvas_item(at_1, at_2, root);
+		     mol.bonds[bond_index].make_new_canvas_item(at_1, at_2,
+								shorten.first, shorten.second, root);
 		     
 		  } else {
 
-		     if (mol.bonds[bond_index].get_bond_type() == lig_build::bond_t::IN_BOND) { 
-			highlight_data.swap_bond_indices();
+		     if (mol.bonds[bond_index].get_bond_type() == lig_build::bond_t::IN_BOND) {
+			highlight_data.swap_bond_indices(); // what does this do?
+			std::swap(shorten.first, shorten.second);
 		     }
-			 
-		     mol.bonds[bond_index].change_bond_order(at_1, at_2, root); // out to in and vice
-             		                                                      // versa (with direction change)
+
+		     mol.bonds[bond_index].change_bond_order(at_1, at_2,
+							     shorten.first, shorten.second,
+							     root); // out to in and vice
+             		                                            // versa (with direction change)
 		  }
-		  
+
 	       } else {
 
 		  // Not to a wedge bond
@@ -1672,13 +1692,17 @@ lbg_info_t::try_add_or_modify_bond(int canvas_addition_mode,
 
 		     // We want to change from wedge to single
 		     mol.bonds[bond_index].set_bond_type(lig_build::bond_t::SINGLE_BOND);
-		     mol.bonds[bond_index].make_new_canvas_item(at_1, at_2, root);
+		     std::pair<bool, bool> shorten = mol.shorten_flags(bond_index);
+		     mol.bonds[bond_index].make_new_canvas_item(at_1, at_2,
+								shorten.first, shorten.second, root);
 
 		  } else {
 		     
 		     // conventional/usual change
-		     mol.bonds[bond_index].change_bond_order(at_1, at_2, root); // single to double
-				  		                                // or visa versa
+		     mol.bonds[bond_index].change_bond_order(at_1, at_2,
+							     shorten.first, shorten.second,
+							     root); // single to double
+				  		                    // or visa versa
 		  } 
 	       }
 	    } 
@@ -1817,7 +1841,7 @@ lbg_info_t::add_bond_to_atom_with_0_neighbours(unsigned int atom_index, int canv
    std::pair<bool, int> add_atom_status = mol.add_atom(new_atom);
    int new_index = add_atom_status.second;
    lig_build::bond_t::bond_type_t bt = addition_mode_to_bond_type(canvas_addition_mode);
-   widgeted_bond_t b(atom_index, new_index, atom, new_atom, bt, root);
+   widgeted_bond_t b(atom_index, new_index, atom, new_atom, true, true, bt, root);
    mol.add_bond(b);
 
    change_atom_id_maybe(atom_index);
@@ -1880,7 +1904,9 @@ lbg_info_t::add_bond_to_atom_with_1_neighbour(unsigned int atom_index, int canva
    std::pair<bool, int> add_atom_status = mol.add_atom(new_atom);
    int new_index = add_atom_status.second;
    lig_build::bond_t::bond_type_t bt = addition_mode_to_bond_type(canvas_addition_mode);
-   widgeted_bond_t b(atom_index, new_index, atom, new_atom, bt, root);
+   bool shorten_first  = false;
+   bool shorten_second = true; // CH3 superatom
+   widgeted_bond_t b(atom_index, new_index, atom, new_atom, shorten_first, shorten_second, bt, root);
    mol.add_bond(b);
 
    change_atom_id_maybe(atom_index);
@@ -1935,7 +1961,7 @@ lbg_info_t::add_bond_to_atom_with_2_neighbours(unsigned int atom_index,
    
    int new_index = checked_add.second;
    lig_build::bond_t::bond_type_t bt = addition_mode_to_bond_type(canvas_addition_mode);
-   widgeted_bond_t b(atom_index, new_index, atom, at, bt, root);
+   widgeted_bond_t b(atom_index, new_index, atom, at, false, true, bt, root);
    int new_bond_index = mol.add_bond(b);
 
    // Now, what about the atom that has been added to?  Now that we
@@ -1985,7 +2011,11 @@ lbg_info_t::add_bond_to_atom_with_3_neighbours(unsigned int atom_index,
       std::pair<bool, int> add_atom_status = mol.add_atom(new_atom);
       int new_atom_index = add_atom_status.second;
       lig_build::bond_t::bond_type_t bt = addition_mode_to_bond_type(canvas_addition_mode);
-      widgeted_bond_t b(atom_index, new_atom_index, mol.atoms[atom_index], new_atom, bt, root);
+      bool shorten_first  = false;
+      bool shorten_second = false;
+      if (mol.atoms[atom_index].element != "C") shorten_first = true;
+      widgeted_bond_t b(atom_index, new_atom_index, mol.atoms[atom_index], new_atom,
+			shorten_first, shorten_second, bt, root);
       mol.add_bond(b);
       change_atom_id_maybe(atom_index);
       change_atom_id_maybe(new_atom_index);
@@ -2038,8 +2068,10 @@ lbg_info_t::squeeze_in_a_4th_bond(unsigned int atom_index, int canvas_addition_m
 	 int new_atom_index = mol.add_atom(new_atom).second;
 	 lig_build::bond_t::bond_type_t bt =
 	    addition_mode_to_bond_type(canvas_addition_mode);
+	 bool shorten_first  = false;
+	 bool shorten_second = false;
 	 widgeted_bond_t b(atom_index, new_atom_index, mol.atoms[atom_index],
-			   new_atom, bt, root);
+			   new_atom, shorten_first, shorten_second, bt, root);
 	 mol.add_bond(b);
 	 change_atom_id_maybe(atom_index);
 	 change_atom_id_maybe(new_atom_index);
@@ -2055,7 +2087,10 @@ lbg_info_t::squeeze_in_a_4th_bond(unsigned int atom_index, int canvas_addition_m
 	 widgeted_atom_t new_atom(new_atom_pos, "C", 0, NULL);
 	 int new_atom_index = mol.add_atom(new_atom).second;
 	 lig_build::bond_t::bond_type_t bt = addition_mode_to_bond_type(canvas_addition_mode);
-	 widgeted_bond_t b(atom_index, new_atom_index, mol.atoms[atom_index], new_atom, bt, root);
+	 bool shorten_first  = false;
+	 bool shorten_second = false;
+	 widgeted_bond_t b(atom_index, new_atom_index, mol.atoms[atom_index], new_atom,
+			   shorten_first, shorten_second, bt, root);
 	 mol.add_bond(b);
 	 change_atom_id_maybe(atom_index);
 	 change_atom_id_maybe(new_atom_index);
@@ -2069,7 +2104,10 @@ lbg_info_t::squeeze_in_a_4th_bond(unsigned int atom_index, int canvas_addition_m
       widgeted_atom_t new_atom(new_atom_pos, "C", 0, NULL);
       int new_atom_index = mol.add_atom(new_atom).second;
       lig_build::bond_t::bond_type_t bt = addition_mode_to_bond_type(canvas_addition_mode);
-      widgeted_bond_t b(atom_index, new_atom_index, mol.atoms[atom_index], new_atom, bt, root);
+      bool shorten_first  = false;
+      bool shorten_second = false;
+      widgeted_bond_t b(atom_index, new_atom_index, mol.atoms[atom_index], new_atom,
+			shorten_first, shorten_second, bt, root);
       mol.add_bond(b);
       change_atom_id_maybe(atom_index);
       change_atom_id_maybe(new_atom_index);
@@ -2350,8 +2388,12 @@ lbg_info_t::orthogonalise_2_bonds(unsigned int atom_index,
    int new_atom_index_1 = mol.add_atom(atom_1).second;
    int new_atom_index_2 = mol.add_atom(atom_2).second;
    lig_build::bond_t::bond_type_t bt = addition_mode_to_bond_type(canvas_addition_mode);
-   widgeted_bond_t b_1(atom_index, new_atom_index_1, mol.atoms[atom_index], atom_1, bt, root);
-   widgeted_bond_t b_2(atom_index, new_atom_index_2, mol.atoms[atom_index], atom_2, bt, root);
+   bool shorten_first  = false;
+   bool shorten_second = false;
+   if (mol.atoms[atom_index].element != "C") shorten_first = true;
+   if (atom_2.element != "C") shorten_second = true;
+   widgeted_bond_t b_1(atom_index, new_atom_index_1, mol.atoms[atom_index], atom_1, shorten_first, shorten_second, bt, root);
+   widgeted_bond_t b_2(atom_index, new_atom_index_2, mol.atoms[atom_index], atom_2, shorten_first, shorten_second, bt, root);
    mol.add_bond(b_1);
    mol.add_bond(b_2);
 
@@ -2444,9 +2486,12 @@ lbg_info_t::try_stamp_polygon(int n_edges, int x_cen, int y_cen, bool is_spiro, 
 		     
 		     if (highlighted_atom_index != UNASSIGNED_INDEX) {
 			lig_build::bond_t::bond_type_t bt = lig_build::bond_t::SINGLE_BOND;
+			bool shorten_first  = false;
+			bool shorten_second = false;
 			widgeted_bond_t bond(highlighted_atom_index, new_atoms[0],
 					     mol.atoms[highlighted_atom_index],
 					     mol.atoms[new_atoms[0]],
+					     shorten_first, shorten_second,
 					     bt, root);
 			mol.add_bond(bond);
 		     }
@@ -3567,7 +3612,6 @@ lbg_info_t::get_stroke_colour(int i, int n) const {
 void
 lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 
-
    make_saves_mutex = 0; // stop saving changes (restored at end)
    clear(false);
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
@@ -3640,11 +3684,32 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 		  widgeted_bond_t bond(idx_1, idx_2, mol.atoms[idx_1], mol.atoms[idx_2], centre_pos, bt, root);
 		  mol.add_bond(bond);
 	       } else {
-		  widgeted_bond_t bond(idx_1, idx_2, mol.atoms[idx_1], mol.atoms[idx_2], bt, root);
+		  bool shorten_first  = false;
+		  bool shorten_second = false;
+		  if (mol.atoms[idx_1].element != "C")
+		     shorten_first = true;
+		  if (mol.atoms[idx_2].element != "C")
+		     shorten_second = true;
+		  widgeted_bond_t bond(idx_1, idx_2, mol.atoms[idx_1], mol.atoms[idx_2],
+				       shorten_first, shorten_second, bt, root);
 		  mol.add_bond(bond);
 	       }
 	    }
 	 }
+      }
+   }
+
+   // shorten C superatom bonds (we have to do this after all the bonds have been added)
+   //
+   for (unsigned int ibond=0; ibond<mol.bonds.size(); ibond++) {
+      int idx_1 = mol.bonds[ibond].get_atom_1_index();
+      int idx_2 = mol.bonds[ibond].get_atom_1_index();
+      std::pair<bool, bool> shorten = mol.shorten_flags(ibond);
+      if (shorten.first || shorten.second) {
+	 // why do we pass the atom_t if we lose it?
+	 const lig_build::atom_t &at_1 = mol.atoms[mol.bonds[ibond].get_atom_1_index()];
+	 const lig_build::atom_t &at_2 = mol.atoms[mol.bonds[ibond].get_atom_2_index()];
+	 mol.bonds[ibond].update(at_1, at_2, shorten.first, shorten.second, root);
       }
    }
 
@@ -3658,8 +3723,15 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 	 mol.make_atom_id_by_using_bonds(iat, ele, local_bonds, gl_flag);
 
       std::string fc = font_colour(ele);
-      if (ele != "C") 
+      if (ele != "C") {
 	 mol.atoms[iat].update_atom_id_forced(atom_id_info, fc, root);
+      } else {
+ 	 std::vector<unsigned int> bonds = mol.bonds_having_atom_with_atom_index(iat);
+ 	 if (bonds.size() == 1) {
+ 	    // CH3 superatom
+ 	    mol.atoms[iat].update_atom_id_forced(atom_id_info, fc, root);
+ 	 }
+      }
    }
 
    draw_substitution_contour();
@@ -4276,7 +4348,20 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
 	 try { 
 	    const widgeted_atom_t &wat1 = m[idx_1];
 	    const widgeted_atom_t &wat2 = m[idx_2];
-	    widgeted_bond_t bond(idx_1, idx_2, wat1, wat2, bt, NULL);
+	    bool shorten_first  = false;
+	    bool shorten_second = false;
+	    if ( (*rdkm)[idx_1]->getAtomicNum() != 6) {
+	       shorten_first = true;
+	    } else {
+	       // how many bonds does this atom have?
+	       // if (mol[idx_1].getNumBonds() == 1)
+	       //  shorten_first = true;
+	    }
+	    if ( (*rdkm)[idx_2]->getAtomicNum() != 6) {
+	       shorten_second = true;
+	    } else {
+	    }
+	    widgeted_bond_t bond(idx_1, idx_2, wat1, wat2, shorten_first, shorten_second, bt, NULL);
 	    RDKit::Bond::BondDir bond_dir = bond_p->getBondDir();
 	    if (false)
 	       std::cout << "bond " << ib << ":  type " << bt
@@ -4297,7 +4382,7 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
 	    std::cout << "WARNING:: problem. scrambled input molecule? numbers of atoms: ";
 	    std::cout << rdkm->getNumAtoms() << " vs "
 		      << m.get_number_of_atoms_including_hydrogens() << std::endl;
-	 } 
+	 }
       }
 
       m.assign_ring_centres();
@@ -7524,9 +7609,14 @@ lbg_info_t::get_drug(const std::string &drug_name) {
 
    if (get_drug_mdl_file_function_pointer) {
       try {
-	 std::string file_name = get_drug_mdl_file_function_pointer(drug_name);
-	 import_mol_from_file(file_name);
-	 save_molecule();
+	 if (get_drug_mdl_file_function_pointer) {
+	    std::string file_name = get_drug_mdl_file_function_pointer(drug_name);
+	    import_mol_from_file(file_name);
+	    save_molecule();
+	 } else {
+	    // use "here" python
+	    std::cout << "use here python" << std::endl;
+	 }
       }
       catch (const std::runtime_error &rte) {
 	 std::cout << "WARNING:: " << rte.what() << std::endl;

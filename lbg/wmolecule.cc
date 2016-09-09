@@ -129,7 +129,14 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
 	 int index_2 = mol_in.bonds[ib].index_2;
 	 lig_build::bond_t::bond_type_t bt = mol_in.bonds[ib].bond_type;
 	 GooCanvasItem *ci = NULL;
-	 widgeted_bond_t bond(index_1, index_2, atoms[index_1], atoms[index_2], bt, ci);
+	 bool shorten_first  = false;
+	 bool shorten_second = false;
+	 if (mol_in.atoms[index_1].element != "C")
+	    shorten_first = true;
+	 if (mol_in.atoms[index_2].element != "C")
+	    shorten_second = true;
+	 widgeted_bond_t bond(index_1, index_2, atoms[index_1], atoms[index_2],
+			      shorten_first, shorten_second, bt, ci);
 	 bonds.push_back(bond);
       }
 
@@ -403,6 +410,7 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
    case AROMATIC_BOND:        // this should not happen 
    case DELOC_ONE_AND_A_HALF: // this should not happen either
    case BOND_ANY:
+
       ci = wrap_goo_canvas_polyline_new_line(root,
 					     pos_1.x, pos_1.y,
 					     pos_2.x, pos_2.y,
@@ -564,7 +572,7 @@ widgeted_bond_t::make_wedge_out_bond_item(const lig_build::pos_t &pos_1,
    lig_build::pos_t short_edge_pt_1 = pos_2 + buv_90 * 3;
    lig_build::pos_t short_edge_pt_2 = pos_2 - buv_90 * 3;
 
-   // the line width means that the sharp angle an pos_1 here results
+   // the line width means that the sharp angle at pos_1 here results
    // in a few pixels beyond the pos_1, so artificially shorten it a
    // tiny amount.
    //
@@ -573,10 +581,11 @@ widgeted_bond_t::make_wedge_out_bond_item(const lig_build::pos_t &pos_1,
    //
    // 
    // lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.11);
-   lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.07);
+   // lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.07);
+   lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.05);
    
-   lig_build::pos_t sharp_point_1 = sharp_point + buv_90 * 0.1;
-   lig_build::pos_t sharp_point_2 = sharp_point - buv_90 * 0.1;
+   lig_build::pos_t sharp_point_1 = sharp_point + buv_90 * 0.05;
+   lig_build::pos_t sharp_point_2 = sharp_point - buv_90 * 0.05;
    
 //    GooCanvasItem *item =
 //       goo_canvas_polyline_new(root, TRUE, 4,
@@ -957,7 +966,7 @@ widgeted_molecule_t::close_bond(int ib, GooCanvasItem *root,
 		  make_atom_id_by_using_bonds(ind_1, ele, bonds, gl_flag);
 	       atoms[stray_atoms[istray]].update_atom_id_forced(atom_id_info, root);
 	    }
-	 } 
+	 }
       }
    }
    return status;
@@ -1571,9 +1580,12 @@ widgeted_molecule_t::flip(int axis) {
 	    bond.set_bond_type(other_dir);
 	 }
 
+	 bool shorten_first  = false;
+	 bool shorten_second = false;
 	 if (bond.get_bond_type() == lig_build::bond_t::DOUBLE_BOND) {
 	    widgeted_bond_t new_bond(bond.get_atom_1_index(), bond.get_atom_2_index(),
 				     atoms[bond.get_atom_1_index()], atoms[bond.get_atom_2_index()],
+				     shorten_first, shorten_second,
 				     lig_build::bond_t::DOUBLE_BOND, NULL);
 	    bonds[ibond] = new_bond;
 	 }
