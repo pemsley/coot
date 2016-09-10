@@ -176,8 +176,8 @@ lbg(lig_build::molfile_molecule_t mm,
 	 if (get_drug_mdl_file_function_pointer_in) {
 	    lbg->set_get_drug_mdl_file_function(get_drug_mdl_file_function_pointer_in);
 	 } else {
-	    if (lbg->lbg_get_drug_menuitem)
-	       gtk_widget_set_sensitive(GTK_WIDGET(lbg->lbg_get_drug_menuitem), FALSE);
+	    // if (lbg->lbg_get_drug_menuitem)
+	    // gtk_widget_set_sensitive(GTK_WIDGET(lbg->lbg_get_drug_menuitem), FALSE);
 	 }
       }
    }
@@ -4049,9 +4049,10 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
    if (n_confs > 0) {
       if (m->getConformer(iconf).is3D()) {
 	 int iconf_local = coot::add_2d_conformer(m, weight_for_3d_distances); // 3d -> 2d
-	                                                             // (if not 3d, do nothing)
-	 std::cout << "rdkit_mol_post_read_handling() add_2d_conformer returned "
-		   << iconf_local << std::endl;
+	                                                        // (if not 3d, do nothing)
+	 if (false)
+	    std::cout << "rdkit_mol_post_read_handling() add_2d_conformer returned "
+		      << iconf_local << std::endl;
 	 if (iconf_local == -1)
 	    std::cout << "WARNING:: import_mol_from_file() failed to make 2d conformer "
 		      << std::endl;
@@ -7607,23 +7608,88 @@ lbg_info_t::get_drug_using_entry_text() {
 void
 lbg_info_t::get_drug(const std::string &drug_name) {
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
+   bool status = false;
    if (get_drug_mdl_file_function_pointer) {
       try {
 	 if (get_drug_mdl_file_function_pointer) {
 	    std::string file_name = get_drug_mdl_file_function_pointer(drug_name);
 	    import_mol_from_file(file_name);
 	    save_molecule();
-	 } else {
-	    // use "here" python
-	    std::cout << "use here python" << std::endl;
 	 }
       }
       catch (const std::runtime_error &rte) {
 	 std::cout << "WARNING:: " << rte.what() << std::endl;
       } 
    } else {
-      std::cout << "Null get-drug function" << std::endl;
-   } 
+
+      PyObject *pName = PyString_FromString("lidia.fetch");
+      PyObject *pModule = PyImport_Import(pName);
+      if (pModule == NULL) {
+	 std::cout << "NULL pModule" << std::endl;
+      } else {
+	 // std::cout << "Hooray - found pModule" << std::endl;
+
+	 PyObject *pDict = PyModule_GetDict(pModule);
+	 if (! PyDict_Check(pDict)) {
+	    std::cout << "pDict is not a dict" << std::endl;
+	 } else {
+
+	    PyObject *pFunc = PyDict_GetItemString(pDict, "fetch_molecule");
+	    if (PyCallable_Check(pFunc)) {
+	       PyObject *arg_list = PyTuple_New(1);
+	       PyObject *drug_name_py = PyString_FromString(drug_name.c_str());
+	       PyTuple_SetItem(arg_list, 0, drug_name_py);
+	       PyObject *result_py = PyEval_CallObject(pFunc, arg_list);
+
+	       if (result_py) {
+
+		  if (PyString_Check(result_py)) {
+		     std::string file_name = PyString_AsString(result_py);
+
+		     bool sanitize = true;
+		     bool removeHs = false;
+		     RDKit::RWMol *m = RDKit::MolFileToMol(file_name, sanitize, removeHs);
+		     unsigned int iconf = 0;
+
+		     // we only want to compute coords if there are no coords
+		     //
+		     if (coot::has_zero_coords(m, 0))
+			iconf = RDDepict::compute2DCoords(*m, NULL, true);
+		     if (m->getNumConformers() == 0)
+			iconf = RDDepict::compute2DCoords(*m, NULL, true);
+
+		     if (m) {
+			rdkit_mol_post_read_handling(m, file_name, iconf);
+			status = true;
+		     }
+		  } else {
+		     std::cout << "Null result" << std::endl;
+		  }
+	       } else {
+		  std::cout << "results_py was not a string" << std::endl;
+	       }
+
+	    } else {
+	       std::cout << "Non-callable pFunc" << std::endl;
+	    }
+	 }
+      }
+   }
+
+   if (! status) {
+      // problem
+      clear(true);
+      std::string status_string = "  Problem downloading molecule " + drug_name;
+      guint statusbar_context_id = gtk_statusbar_get_context_id(GTK_STATUSBAR(lbg_statusbar),
+								status_string.c_str());
+      gtk_statusbar_push(GTK_STATUSBAR(lbg_statusbar),
+			 statusbar_context_id,
+			 status_string.c_str());
+
+   }
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 }
 
 
