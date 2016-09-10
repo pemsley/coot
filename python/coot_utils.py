@@ -38,6 +38,9 @@ have_mingw = False
 if  os.getenv("MSYSTEM"):
     have_mingw = True
 
+# this is set by the main application: False or 1 (use this python gui)
+# or 2 (guile-gtk is being used so use this if gui-gtk function is
+# not available)
 global use_gui_qm
 
 global user_defined_alert_smarts
