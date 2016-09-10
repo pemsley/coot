@@ -17,10 +17,11 @@ def ligand_check_refmac_columns(f_list, sigf_list, rfree_list):
     pass
     
 
-if True:
 
-    if (use_gui_qm != 2):
-        menu = coot_menubar_menu("Ligand")
+print "here with use_gui_qm", use_gui_qm
+if (use_gui_qm != 2):
+    menu = coot_menubar_menu("Ligand")
+    print "here 1 with menu", menu
         
     if enhanced_ligand_coot_p():
     
