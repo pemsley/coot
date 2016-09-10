@@ -408,12 +408,19 @@ public:
    widgeted_bond_t(int first, int second, 
 		   const lig_build::atom_t &atom_first,
 		   const lig_build::atom_t &atom_second,
+		   bool shorten_first, bool shorten_second,
 		   lig_build::pos_t centre_pos_in,
 		   bond_type_t bt, GooCanvasItem *root) :
       bond_t(first, second, centre_pos_in, bt) {
-      // because there was a ring, these atoms don't need CH3 shortening
-      bool shorten_first = false;
-      bool shorten_second = false;
+      
+      // because there was a ring, these atoms don't need CH3 shortening (so we
+      // can rely on the atom type)
+      // 20160909-PE that is no longer true now that we have atom names - so all
+      // bonds are shortened.
+      // 
+      // bool shorten_first = false;
+      // bool shorten_second = false;
+      
       construct_internal(atom_first, atom_second, shorten_first, shorten_second, bt, root);
    }
    

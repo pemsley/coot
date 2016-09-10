@@ -584,6 +584,7 @@ public:
       
       std::vector<residue_circle_t> starting_circles;
       std::vector<residue_circle_t>  current_circles;
+
       widgeted_molecule_t mol;
       
       void numerical_gradients(gsl_vector *x, gsl_vector *df, void *params) const;
@@ -780,7 +781,8 @@ private:
       lbg_alert_hbox_outer = NULL;
       alert_group = NULL; // group for alert annotations
       show_alerts_user_control = false; // no pattern matching available
-      geom_p = NULL; // no (static) geometry passed/set
+      geom_p = NULL; // no (const) geometry passed/set
+      display_atom_names = false;
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS   
       show_alerts_user_control = false;
       bond_pick_pending = false;
@@ -1059,7 +1061,11 @@ public:
    GtkWidget *canvas;
    GooCanvasItem *key_group;
    std::map<std::string, GtkToggleToolButton *> widget_names;
+
+   // when we have multiple molecule, these things should go together
    widgeted_molecule_t mol;
+   bool display_atom_names;
+   
    int canvas_addition_mode;
    void lbg_toggle_button_my_toggle(GtkToggleToolButton *tb);
    void save_molecule(); // moved so that function lbg() can save on start.
@@ -1343,6 +1349,11 @@ public:
       if (all_additional_representations_off_except_func) {
 	 (*all_additional_representations_off_except_func) (imol, representation_number, ball_and_sticks_off_too_flag);
       }
+   }
+
+   void set_display_atom_names(bool state) {
+      display_atom_names = state;
+      render_from_molecule(mol);
    }
    
 };

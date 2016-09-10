@@ -153,7 +153,7 @@ widgeted_atom_t::make_canvas_text_item(const lig_build::atom_id_info_t &atom_id_
    if (atom_id_info_in.atom_id != "C") {
       group = wrap_goo_canvas_group_new (root, fc);
       // run through each of the offsets (i.e. each letter)
-      for (unsigned int i=0; i<atom_id_info_in.size(); i++) {
+      for (unsigned int i=0; i<atom_id_info_in.n_offsets(); i++) {
 	 double x_o = -5; 
 	 double y_o =  8;
 	 if (atom_id_info_in[i].text_pos_offset == lig_build::offset_text_t::UP)
@@ -162,9 +162,20 @@ widgeted_atom_t::make_canvas_text_item(const lig_build::atom_id_info_t &atom_id_
 	    y_o += -12;
 
 	 std::string font = "Sans 10";
+
+	 if (atom_id_info_in.size_hint == -1)
+	    font = "Sans 6";
 	 
 	 double x_pos = atom_position.x + atom_id_info_in.offsets[i].tweak.x + x_o;
 	 double y_pos = atom_position.y + atom_id_info_in.offsets[i].tweak.y + y_o;
+
+	 // hacketty hack because smaller font go down and to the left relatively
+	 // (left is good because atom name are wider) - but let's compensate
+	 // for the downness
+	 if (atom_id_info_in.size_hint == -1) {
+	    y_pos -= 3;
+	 }
+	 
 	 // subscripts are lower and smaller font
 	 if (atom_id_info_in.offsets[i].subscript) { 
 	    font = "Sans 8";

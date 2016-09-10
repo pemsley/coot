@@ -102,6 +102,11 @@ test_lbg_functions_LDADD = \
 	$(RDKIT_LIBS) \
 	$(PYTHON_LIBS)
 
+pkgpythondir=$(pythondir)/lidia
+
+dist_pkgpython_PYTHON = \
+    __init__.py fetch.py
+
 
 appicondir=$(pkgdatadir)/pixmaps
 appicon_DATA = \

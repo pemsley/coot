@@ -176,8 +176,8 @@ lbg(lig_build::molfile_molecule_t mm,
 	 if (get_drug_mdl_file_function_pointer_in) {
 	    lbg->set_get_drug_mdl_file_function(get_drug_mdl_file_function_pointer_in);
 	 } else {
-	    if (lbg->lbg_get_drug_menuitem)
-	       gtk_widget_set_sensitive(GTK_WIDGET(lbg->lbg_get_drug_menuitem), FALSE);
+	    // if (lbg->lbg_get_drug_menuitem)
+	    // gtk_widget_set_sensitive(GTK_WIDGET(lbg->lbg_get_drug_menuitem), FALSE);
 	 }
       }
    }
@@ -2664,9 +2664,13 @@ lbg_info_t::stamp_polygon(int n_edges, lig_build::polygon_position_info_t ppi,
 	    if (((i/2)*2) == i)
 	       bt = lig_build::bond_t::DOUBLE_BOND;
 	 }
+	 bool shorten_first  = false;
+	 bool shorten_second = false;
 	 widgeted_bond_t bond(i_index, j_index,
 			      mol.atoms[atom_pos_index[i].second.second],
-			      mol.atoms[atom_pos_index[j].second.second], centre, bt, root);
+			      mol.atoms[atom_pos_index[j].second.second],
+			      shorten_first, shorten_second,
+			      centre, bt, root);
 	 mol.add_bond(bond);
 
       }
@@ -3662,10 +3666,6 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 	    std::cout << " in render_from_molecule: old sa: "
 		      << mol_in.atoms[iat].get_solvent_accessibility() << " new: "
 		      << mol.atoms[re_index[iat]].get_solvent_accessibility() << std::endl;
-// 	 if (sa > 0) {
-// 	    std::cout << "draw solvent accessibility " << sa << " at " << pos << std::endl;
-// 	    draw_solvent_accessibility_of_atom(pos, sa, root);
-// 	 }
       }
    }
 
@@ -3680,16 +3680,31 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 	                          // better to not have the bond than to have and atom bonded to itself.
 	       lig_build::bond_t::bond_type_t bt = mol_in.bonds[ib].get_bond_type();
 	       if (mol_in.bonds[ib].have_centre_pos()) {
+
+		  std::pair<bool, bool> shorten = mol.shorten_flags(ib);
+		  if (display_atom_names) {
+		     shorten.first = true;
+		     shorten.second = true;
+		  }
 		  lig_build::pos_t centre_pos = mol_in.bonds[ib].centre_pos();
-		  widgeted_bond_t bond(idx_1, idx_2, mol.atoms[idx_1], mol.atoms[idx_2], centre_pos, bt, root);
+		  widgeted_bond_t bond(idx_1, idx_2, mol.atoms[idx_1], mol.atoms[idx_2],
+				       shorten.first, shorten.second,
+				       centre_pos, bt, root);
 		  mol.add_bond(bond);
+
 	       } else {
+		  // bond with no ring centre
 		  bool shorten_first  = false;
 		  bool shorten_second = false;
 		  if (mol.atoms[idx_1].element != "C")
 		     shorten_first = true;
 		  if (mol.atoms[idx_2].element != "C")
 		     shorten_second = true;
+
+		  if (display_atom_names) {
+		     shorten_first  = true;
+		     shorten_second = true;
+		  }
 		  widgeted_bond_t bond(idx_1, idx_2, mol.atoms[idx_1], mol.atoms[idx_2],
 				       shorten_first, shorten_second, bt, root);
 		  mol.add_bond(bond);
@@ -3699,38 +3714,50 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
       }
    }
 
-   // shorten C superatom bonds (we have to do this after all the bonds have been added)
-   //
-   for (unsigned int ibond=0; ibond<mol.bonds.size(); ibond++) {
-      int idx_1 = mol.bonds[ibond].get_atom_1_index();
-      int idx_2 = mol.bonds[ibond].get_atom_1_index();
-      std::pair<bool, bool> shorten = mol.shorten_flags(ibond);
-      if (shorten.first || shorten.second) {
-	 // why do we pass the atom_t if we lose it?
-	 const lig_build::atom_t &at_1 = mol.atoms[mol.bonds[ibond].get_atom_1_index()];
-	 const lig_build::atom_t &at_2 = mol.atoms[mol.bonds[ibond].get_atom_2_index()];
-	 mol.bonds[ibond].update(at_1, at_2, shorten.first, shorten.second, root);
+   if (! display_atom_names) {
+      // shorten C superatom bonds (we have to do this after all the bonds have been added)
+      //
+      for (unsigned int ibond=0; ibond<mol.bonds.size(); ibond++) {
+	 int idx_1 = mol.bonds[ibond].get_atom_1_index();
+	 int idx_2 = mol.bonds[ibond].get_atom_1_index();
+	 std::pair<bool, bool> shorten = mol.shorten_flags(ibond);
+	 if (shorten.first || shorten.second) {
+	    // why do we pass the atom_t if we lose it?
+	    const lig_build::atom_t &at_1 = mol.atoms[mol.bonds[ibond].get_atom_1_index()];
+	    const lig_build::atom_t &at_2 = mol.atoms[mol.bonds[ibond].get_atom_2_index()];
+	    mol.bonds[ibond].update(at_1, at_2, shorten.first, shorten.second, root);
+	 }
       }
    }
 
    // redo the atoms, this time with widgets.
    for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
 
-      std::vector<unsigned int> local_bonds = mol.bonds_having_atom_with_atom_index(iat);
-      std::string ele = mol.atoms[iat].element;
-      bool gl_flag = false; // not a GL render engine
-      lig_build::atom_id_info_t atom_id_info =
-	 mol.make_atom_id_by_using_bonds(iat, ele, local_bonds, gl_flag);
+      if (display_atom_names) {
 
-      std::string fc = font_colour(ele);
-      if (ele != "C") {
+	 lig_build::atom_id_info_t atom_id_info = mol.atoms[iat].atom_name;
+	 atom_id_info.size_hint = -1;
+	 const std::string &ele = mol.atoms[iat].element;
+	 std::string fc = font_colour(ele);
 	 mol.atoms[iat].update_atom_id_forced(atom_id_info, fc, root);
+
       } else {
- 	 std::vector<unsigned int> bonds = mol.bonds_having_atom_with_atom_index(iat);
- 	 if (bonds.size() == 1) {
- 	    // CH3 superatom
- 	    mol.atoms[iat].update_atom_id_forced(atom_id_info, fc, root);
- 	 }
+	 std::vector<unsigned int> local_bonds = mol.bonds_having_atom_with_atom_index(iat);
+	 const std::string &ele = mol.atoms[iat].element;
+	 bool gl_flag = false; // not a GL render engine
+	 lig_build::atom_id_info_t atom_id_info =
+	    mol.make_atom_id_by_using_bonds(iat, ele, local_bonds, gl_flag);
+
+	 std::string fc = font_colour(ele);
+	 if (ele != "C") {
+	    mol.atoms[iat].update_atom_id_forced(atom_id_info, fc, root);
+	 } else {
+	    std::vector<unsigned int> bonds = mol.bonds_having_atom_with_atom_index(iat);
+	    if (bonds.size() == 1) {
+	       // CH3 superatom
+	       mol.atoms[iat].update_atom_id_forced(atom_id_info, fc, root);
+	    }
+	 }
       }
    }
 
@@ -4024,7 +4051,7 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
    if (try_as_mdl_mol) {
       std::cout << "..................... using my mdl parser.... " << std::endl;
       // read as an MDL mol file
-      // 
+      //
       mmdb::Manager *mol = NULL; // no atom names to transfer
       lig_build::molfile_molecule_t mm;
       mm.read(file_name);
@@ -4039,6 +4066,23 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
 void
 lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &file_name, unsigned int iconf) {
 
+   // 20160909-PE Paolo Tosco explains how atom names are stored in an RDKit molecule from sdf.
+   if (false) {
+      if (m) {
+	 unsigned int n_atoms = m->getNumAtoms();
+	 for (unsigned int iat=0; iat<n_atoms; iat++) {
+	    RDKit::ATOM_SPTR at_p = (*m)[iat];
+	    std::string name;
+	    try {
+	       at_p->getProp("molFileAlias", name);
+	       std::cout << "name: " << name << std::endl;
+	    }
+	    catch (const KeyErrorException &kee) {
+	    }
+	 }
+      }
+   }
+
    // molfile molecules don't know about aromatic bonds, we need
    // to kekulize now.
    RDKit::MolOps::Kekulize(*m); // non-const reference?
@@ -4049,9 +4093,10 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
    if (n_confs > 0) {
       if (m->getConformer(iconf).is3D()) {
 	 int iconf_local = coot::add_2d_conformer(m, weight_for_3d_distances); // 3d -> 2d
-	                                                             // (if not 3d, do nothing)
-	 std::cout << "rdkit_mol_post_read_handling() add_2d_conformer returned "
-		   << iconf_local << std::endl;
+	                                                        // (if not 3d, do nothing)
+	 if (false)
+	    std::cout << "rdkit_mol_post_read_handling() add_2d_conformer returned "
+		      << iconf_local << std::endl;
 	 if (iconf_local == -1)
 	    std::cout << "WARNING:: import_mol_from_file() failed to make 2d conformer "
 		      << std::endl;
@@ -4325,6 +4370,10 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
 	    // std::cout << "caught no-name for atom exception in import_rdkit_mol(): "
 	    // <<  kee.what() << std::endl;
 	 }
+	 try {
+	    at_p->getProp("molFileAlias", name);
+	 }
+	 catch (const KeyErrorException &kee) { }
 	 clipper::Coord_orth cp(r_pos.x , r_pos.y, r_pos.z);
 	 lig_build::pos_t pos = m.input_coords_to_canvas_coords(cp);
 	 int n = at_p->getAtomicNum();
@@ -7607,23 +7656,101 @@ lbg_info_t::get_drug_using_entry_text() {
 void
 lbg_info_t::get_drug(const std::string &drug_name) {
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
+   bool status = false;
+   std::string status_string;
+   
    if (get_drug_mdl_file_function_pointer) {
       try {
 	 if (get_drug_mdl_file_function_pointer) {
 	    std::string file_name = get_drug_mdl_file_function_pointer(drug_name);
 	    import_mol_from_file(file_name);
 	    save_molecule();
-	 } else {
-	    // use "here" python
-	    std::cout << "use here python" << std::endl;
 	 }
       }
       catch (const std::runtime_error &rte) {
 	 std::cout << "WARNING:: " << rte.what() << std::endl;
       } 
    } else {
-      std::cout << "Null get-drug function" << std::endl;
-   } 
+
+      PyObject *pName = PyString_FromString("lidia.fetch");
+      PyObject *pModule = PyImport_Import(pName);
+      if (pModule == NULL) {
+	 std::cout << "NULL pModule" << std::endl;
+      } else {
+	 // std::cout << "Hooray - found pModule" << std::endl;
+
+	 PyObject *pDict = PyModule_GetDict(pModule);
+	 if (! PyDict_Check(pDict)) {
+	    std::cout << "pDict is not a dict" << std::endl;
+	 } else {
+
+	    PyObject *pFunc = PyDict_GetItemString(pDict, "fetch_molecule");
+	    if (PyCallable_Check(pFunc)) {
+	       PyObject *arg_list = PyTuple_New(1);
+	       PyObject *drug_name_py = PyString_FromString(drug_name.c_str());
+	       PyTuple_SetItem(arg_list, 0, drug_name_py);
+	       PyObject *result_py = PyEval_CallObject(pFunc, arg_list);
+
+	       if (result_py) {
+
+		  if (PyString_Check(result_py)) {
+		     std::string file_name = PyString_AsString(result_py);
+
+		     try {
+			bool sanitize = true;
+			bool removeHs = false;
+			RDKit::RWMol *m = RDKit::MolFileToMol(file_name, sanitize, removeHs);
+			unsigned int iconf = 0;
+
+			// we only want to compute coords if there are no coords
+			//
+			if (coot::has_zero_coords(m, 0))
+			   iconf = RDDepict::compute2DCoords(*m, NULL, true);
+			if (m->getNumConformers() == 0)
+			   iconf = RDDepict::compute2DCoords(*m, NULL, true);
+
+			if (m) {
+			   rdkit_mol_post_read_handling(m, file_name, iconf);
+			   status = true;
+			}
+		     }
+
+		     catch (const RDKit::FileParseException &fpe) {
+			std::cout << "WARNING::" << fpe.what() << std::endl;
+			status_string = "File parsing error on reading " + file_name;
+		     }
+		  } else {
+		     std::cout << "Null result" << std::endl;
+		     status_string = "Null result on fetching " + drug_name;
+		  }
+	       } else {
+		  std::cout << "results_py was not a string" << std::endl;
+		  status_string = "Failed to download molecule " + drug_name;
+	       }
+
+	    } else {
+	       std::cout << "Non-callable pFunc" << std::endl;
+	       status_string = "Non-callable pFunc";
+	    }
+	 }
+      }
+   }
+
+   if (! status) {
+      // problem
+      clear(true);
+      if (status_string.empty())
+	 status_string = "  Problem downloading molecule " + drug_name;
+      guint statusbar_context_id = gtk_statusbar_get_context_id(GTK_STATUSBAR(lbg_statusbar),
+								status_string.c_str());
+      gtk_statusbar_push(GTK_STATUSBAR(lbg_statusbar),
+			 statusbar_context_id,
+			 status_string.c_str());
+
+   }
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 }
 
 
