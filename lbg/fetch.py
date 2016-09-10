@@ -134,8 +134,6 @@ def fetch_molecule(drug_name):
           db_mol_uri = "http://www.chemspider.com/FilesHandler.ashx?type=str&striph=yes&id="
           db_mol_uri += db_dict['ChemSpiderID']
           file_name = "ChemSpider-" + db_dict['ChemSpiderID'] + ".mol"
-          print "in fetch_molecule()", db_mol_uri
-          print "in fetch_molecule()", file_name
           response = urllib2.urlopen(db_mol_uri)
           xml_string = response.read()
           f = open(file_name, "w")
