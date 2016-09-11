@@ -219,6 +219,7 @@ namespace lig_build {
       atom_id_info_t(const std::string &atom_id_in) {
 	 atom_id = atom_id_in;
 	 offsets.push_back(offset_text_t(atom_id_in));
+	 size_hint = 0;
       }
 
       // make a superscript for the formal charge
@@ -240,11 +241,12 @@ namespace lig_build {
 	    atom_id = atom_id_in;
 	    offsets.push_back(offset_text_t(atom_id_in));
 	 }
+	 size_hint = 0;
       }
 
       // atom_id_info to be filled in by function that knows about
       // bonds by adding offsets.
-      atom_id_info_t() { }
+      atom_id_info_t() {  size_hint = 0; }
 
       // convenience constructor (for NH2, OH2 typically)
       atom_id_info_t(const std::string &front,
@@ -257,20 +259,24 @@ namespace lig_build {
 	 ot2.subscript = true;
 	 offsets.push_back(ot1);
 	 offsets.push_back(ot2);
+	 size_hint = 0;
       } 
 
+      std::vector<offset_text_t> offsets;
+      int size_hint; // a hint so that atom names can be rendered smaller than normal
+                     // -1 means smaller
+      
       void set_atom_id(const std::string &atom_id_in) {
 	 atom_id = atom_id_in;
       }
       
-      std::vector<offset_text_t> offsets;
       const offset_text_t &operator[](const unsigned int &indx) const {
 	 return offsets[indx];
       }
       void add(const offset_text_t &off) {
 	 offsets.push_back(off);
       } 
-      unsigned int size() const { return offsets.size(); } 
+      unsigned int n_offsets() const { return offsets.size(); } 
       
       std::string atom_id; // what we used to return, this is used for
 			   // testing against what we had so we know
@@ -1435,7 +1441,7 @@ namespace lig_build {
 		     // return atom_id_info_t("CH", h_count);
 		     atom_id_info_t id("CH");
 		     offset_text_t ot(h_count);
-		     ot.tweak = pos_t(17, 0);
+		     ot.tweak = pos_t(18, 0);
 		     ot.subscript = true;
 		     id.add(ot);
 		     return id;

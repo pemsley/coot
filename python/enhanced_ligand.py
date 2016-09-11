@@ -17,10 +17,8 @@ def ligand_check_refmac_columns(f_list, sigf_list, rfree_list):
     pass
     
 
-if True:
-
-    if (use_gui_qm != 2):
-        menu = coot_menubar_menu("Ligand")
+if (use_gui_qm != 2):
+    menu = coot_menubar_menu("Ligand")
         
     if enhanced_ligand_coot_p():
     

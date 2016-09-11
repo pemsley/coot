@@ -75,7 +75,7 @@ molecule_class_info_t::mutate(int resno, const std::string &insertion_code,
       mmdb::PPResidue SelResidues;
       int SelHnd = atom_sel.mol->NewSelection();
       atom_sel.mol->Select(SelHnd, mmdb::STYPE_RESIDUE, 1,
-			   (char *) chain_id.c_str(),
+			   chain_id.c_str(),
 			   resno, insertion_code.c_str(),
 			   resno, insertion_code.c_str(),
 			   "*", "*", "*", "*",

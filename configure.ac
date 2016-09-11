@@ -270,7 +270,7 @@ fi
 AC_ARG_WITH(lidia-only, [  --with-lidia-only build lidia only (not coot) ],
  lidia_only="yes",
  lidia_only=="no")
-AM_CONDITIONAL([COND_LIDIA_ONLY], [test "lidia_only" = yes])
+AM_CONDITIONAL([COND_LIDIA_ONLY], [test "$lidia_only" = yes])
 
 AM_CONDITIONAL(MAKE_ENHANCED_LIGAND_TOOLS, test x$coot_enhanced_ligand_additions = xtrue)
 AC_SUBST(ENHANCED_LIGAND_TOOLS_CFLAGS)

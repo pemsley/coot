@@ -83,20 +83,39 @@ lbg_info_t::search() const {
 
       std::cout << "Bad graph build result" << std::endl;
 
-   } else { 
+   } else {
 
-      if (geom_p) { 
+      if (stand_alone_flag) {
+	 // non-const protein_geometry *
+	 coot::protein_geometry *geom_p_local = new coot::protein_geometry;
+	 std::string srs_dir = "/Applications/ccp4-7.0/share/ccp4srs";
+	 geom_p_local->init_ccp4srs(srs_dir);
+
 	 graph->MakeSymmetryRelief(false);
 	 graph->Print();
 	 std::cout << "graph search using similarity  " << local_search_similarity << std::endl;
 	 std::cout << "graph build returns: " << build_result << std::endl;
 	 std::vector<coot::match_results_t> v =
-	    geom_p->compare_vs_ccp4srs(graph, local_search_similarity, n_atoms);
+	    geom_p_local->compare_vs_ccp4srs(graph, local_search_similarity, n_atoms);
 	 delete graph;
+	 std::cout << "found " << v.size() << " close matches" << std::endl;
 	 display_search_results(v);
+	 
       } else {
-	 std::cout << "WARNING:: No geometry in search() " << std::endl;
-      } 
+
+	 if (geom_p) { 
+	    graph->MakeSymmetryRelief(false);
+	    graph->Print();
+	    std::cout << "graph search using similarity  " << local_search_similarity << std::endl;
+	    std::cout << "graph build returns: " << build_result << std::endl;
+	    std::vector<coot::match_results_t> v =
+	       geom_p->compare_vs_ccp4srs(graph, local_search_similarity, n_atoms);
+	    delete graph;
+	    display_search_results(v);
+	 } else {
+	    std::cout << "WARNING:: No geometry library for ligand search() " << std::endl;
+	 }
+      }
    }
 }
 

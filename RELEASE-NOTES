@@ -14,9 +14,31 @@
 
   o CHANGE: Jigggle fit now works by masking the out the map for neighbouring 
             residues
-
-----
   
+  o FEATURE: Lidia now has canvas scaling
+
+  o FEATURE: Lidia now has CH3 superatoms
+
+  o FEATURE: Atom renaming to reference comp_id now has a place on the
+             Ligand menu
+
+  o FEATURE: Sequence View dynamically updates after a residue zone deletion
+
+  o FEATURE: NCS local update now has a place on the NCS menu
+
+  o CHANGE:  File -> SMILES has been removed
+
+  o CHANGE:  Non-bonded contact restraints calculation speed up
+
+  o BUG-FIX: MSE atoms are HETATMs after mutation [Sivasankar Putta]
+
+  o BUG-FIX: CD bump exception in HYP NBC across link [Jens Kaiser]
+
+  o BUG-FIX: Bond-dragging in Lidia now cleaned up
+
+
+------
+
   Release 0.8.6.1
 
   o BUG-FIX: Fix typo in findligand shell script
