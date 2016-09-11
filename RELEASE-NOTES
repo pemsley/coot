@@ -1,9 +1,9 @@
 
   Pre-Release 0.8.7
 
-  o FEATURE: Lidia now has CH3 superatoms
-
   o FEATURE: Lidia now has canvas scaling
+
+  o FEATURE: Lidia now has CH3 superatoms
 
   o FEATURE: Atom renaming to reference comp_id now has a place on the
              Ligand menu
@@ -13,8 +13,6 @@
   o FEATURE: NCS local update now has a place on the NCS menu
 
   o CHANGE:  File -> SMILES has been removed
-
-  o CHANGE:  Ligand fitting GUI has minor improvements
 
   o CHANGE:  Non-bonded contact restraints calculation speed up
 
