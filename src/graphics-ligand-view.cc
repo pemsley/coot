@@ -284,7 +284,7 @@ graphics_ligand_atom::make_text_item(const lig_build::atom_id_info_t &atom_id_in
    if (atom_id_info_in.atom_id != "C") {
       glColor3f(fc.col[0], fc.col[1], fc.col[2]);
 
-      for (unsigned int i=0; i<atom_id_info_in.size(); i++) {
+      for (unsigned int i=0; i<atom_id_info_in.n_offsets(); i++) {
 	 double x_o = -0.25; 
 	 double y_o = -0.25;
 	 if (atom_id_info_in[i].text_pos_offset == lig_build::offset_text_t::UP)
