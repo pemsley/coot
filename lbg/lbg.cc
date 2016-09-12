@@ -3297,7 +3297,7 @@ lbg_info_t::update_qed(const RDKit::RWMol &rdkm) {
       } else {
 
 	 // If you are reading this: are you sure that Biscu-it has
-	 // been installed?
+	 // been installed - and works properly in just python?
 	 
 	 // std::cout << "null silicos_it_qed_default_func " << std::endl;
       } 
