@@ -2108,7 +2108,7 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
 
 	       if (p.first) { 
 		  try {
-		  
+
 		     make_backup();
 		     mmdb::Residue *prev_res = coot::util::previous_residue(res);
 		     mmdb::Residue *next_res = coot::util::next_residue(res);

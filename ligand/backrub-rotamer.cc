@@ -34,8 +34,8 @@ std::pair<coot::minimol::molecule,float>
 coot::backrub::search(const coot::dictionary_residue_restraints_t &rest) {
 
    coot::minimol::molecule mol;
-   int n_vr = 20;                     // total is 2*n_vr+2
-   double vector_rotation_range = 20; // degrees either side of the starting position.
+   int n_vr = 15;                     // total is 2*n_vr+1
+   double vector_rotation_range = 15; // degrees either side of the starting position.
 
    float best_score = -9999;
    coot::minimol::fragment best_frag;
