@@ -113,71 +113,36 @@ coot::rama_plot::resize_rama_canvas_internal(GtkWidget *widget,
 
    if (resize_canvas_with_window) {
 
-      if (false) {
-
-         // this is (more) old stuff, keep for now in case everything else makes it worse
-         // will try gimpish approach now
-
-         // very new idea:
-         // only change zoom if there is no scroll bar.
-         // if no scrollbar, size alloc of canvas is 400
-         // but can we get this?
-
-
-         //   static int oldw = 0;
-         //   static int oldh = 0;
-         //   static int oldcanvash = 400;
-         //   static int oldcanvasw = 400;
-         //   static float pad_w = 0.;
-         //   static float pad_h = 0.;
-         // currently wrong since we get an allocation rather than an event if we track allocation
-         float canvas_w = GTK_WIDGET(canvas)->allocation.width;
-         float canvas_h = GTK_WIDGET(canvas)->allocation.height;
-         float win_w = event->width;
-         float win_h = event->height;
-
-         g_print("BL DEBUG:: Width  size old %d, current %d, canvas %d\n", oldw, win_w, canvas_w);
-         g_print("BL DEBUG:: Height size old %d, current %d, canvas %d\n", oldh, win_h, canvas_h);
-
-         // no scrollbar, so change zoom
-         // may be even absolute, 400 = zoom 1!
-         if (canvas_h >= 400 ||
-             canvas_w >= 400) {
-            float mini = std::min(canvas_h, canvas_w);
-            float max = std::max(canvas_h, canvas_w);
-            float min_zoom;
-            float max_zoom;
-            zoom = mini/400.*0.8;
-            goo_canvas_set_scale(GOO_CANVAS(canvas), zoom);
-            g_print("BL DEBUG:: change zoom to %f\n", zoom);
-
-         } else {
-            g_print("BL DEBUG:: dont resize have scroll\n");
-         }
-         oldw = event->width;
-         oldh = event->height;
-      }
-
       // try after ideas from gimp
       // scale proportionally to size difference
       // 50% in either direction equals 75% overall
       // 50% in both directions equals 50% overall
       // same for enlargement (I think)
       // if canvas smaller than scrolled win, max to scrolled window (when switched on)
-      GtkAllocation    allocation;
-      gint             current_width;
-      gint             current_height;
-      gtk_widget_get_allocation (widget, &allocation);
+      // use diagonals
+      static int oldw = 400;
+      static int oldh = 400;
 
+      GtkAllocation    allocation;
       gint new_width;
       gint new_height;
+      double zoom_factor;
+
+      gtk_widget_get_allocation (widget, &allocation);
+
 
       new_width = event->width;
       new_height = event->height;
 
-      g_print("BL DEBUG:: old and new height %i %i\n", current_height, new_height);
-      g_print("BL DEBUG:: old and new width %i %i\n", current_width, new_width);
+      zoom_factor = (sqrt(new_height*new_height*1. + new_width*new_width*1.)
+                     / sqrt(oldh*oldh*1. + oldw*oldw*1.));
 
+      zoom *= zoom_factor;
+      goo_canvas_set_scale(GOO_CANVAS(canvas), zoom);
+
+      // save the size for the next round
+      oldw = event->width;
+      oldh = event->height;
 
    } else {
       // maybe need to save new window size.
@@ -201,78 +166,6 @@ coot::rama_plot::resize_mode_changed(int state) {
    }
 }
 
-// "original" backup
-//void
-//coot::rama_plot::resize_rama_canvas_internal(GtkWidget *widget,
-//                                             GdkEventConfigure *event) {
-
-//   // Fixme, should only be done once everything else is done (quite convoluted)
-//   // and still doent work
-//   // canvas size only gets real after 2nd event...
-//   // maybe have to do via windows size then... all rubbish
-//   // FIXME
-//   // new idea:
-//   // save padding, i.e. diff canvas to window
-////   static int oldw = 0;
-////   static int oldh = 0;
-////   static int oldcanvash = 400;
-////   static int oldcanvasw = 400;
-////   static float pad_w = 0.;
-////   static float pad_h = 0.;
-//   g_print("BL DBEUG size old %i and current %i\n", oldw, event->width);
-//   if (oldw > 400) {
-//      float canvas_w = GTK_WIDGET(canvas)->allocation.width;
-//      float canvas_h = GTK_WIDGET(canvas)->allocation.height;
-//      float win_w = event->width;
-//      float win_h = event->height;
-//      if (pad_w <= 0.) {
-//         //calculate the required padding
-//         pad_w = win_w - canvas_w;
-//         pad_h = win_h - canvas_h;
-//         pad_w = win_w - 400;
-//         pad_h = win_h - 400;
-////         g_print("BL DEBUG:: have canvas w %f and h %f\n", canvas_w, canvas_h);
-////         g_print("BL DEBUG:: have win w %f and h %f\n", win_w, win_h);
-//         g_print("BL DEBUG:: SET pad w %f and h %f\n", pad_w, pad_h);
-//      }
-//      // win size changed
-//      if (oldw != win_w || oldh != win_h){
-//         float space_w = win_w - pad_w;
-//         float space_h = win_h - pad_h;
-//         float scale_w = space_w / canvas_w;
-//         float scale_h = space_h / canvas_h;
-//         float mini = std::min(scale_h, scale_w);
-//         float max = std::max(scale_h, scale_w);
-//         float min_zoom;
-//         float max_zoom;
-
-//         //new_zoom = mini/miniold * zoom;
-//         g_print("BL DEBUG:: have canvas w %f and h %f\n", canvas_w, canvas_h);
-//         g_print("BL DEBUG:: have win w %f and h %f\n", win_w, win_h);
-//         g_print("BL DEBUG:: have space w %f and h %f\n", space_w, space_h);
-//         //         g_print("BL DEBUG:: have pad w %f and h %f\n", pad_w, pad_h);
-//         min_zoom = mini*zoom;
-//         max_zoom = max*zoom;
-//         if ((max_zoom*canvas_h > space_h) || (max_zoom * canvas_w > space_w))
-//            zoom = min_zoom;
-//         else
-//            zoom = max_zoom;
-//         g_print("BL DEBU:: mini %f and new zoom %f\n", mini, zoom);
-//         //         if ((rw >= 1 && rh >=1) || (rw <= 1 && rh <=1))
-//         //            new_zoom = minir * zoom;
-//         //            g_print("BL DEBU:: mini %f, miniold %f and new r zoom %f\n", mini, miniold, new_zoom);
-//         //            zoom=new_zoom;
-//         goo_canvas_set_scale(GOO_CANVAS(canvas), zoom);
-//         oldcanvash = canvas_h;
-//         oldcanvasw = canvas_w;
-//      }
-//   } else {
-//      g_print("BL DEBUG:: dont resize yet - too small\n");
-//   }
-//   oldw = event->width;
-//   oldh = event->height;
-
-//}
 
 bool
 coot::rama_plot::create_dynarama_window() {
@@ -459,8 +352,8 @@ coot::rama_plot::init_internal(const std::string &mol_name,
       }
 
       gchar *txt;
-//      g_signal_connect(dynawin, "configure-event",
-//                       G_CALLBACK(rama_resize), this);
+      g_signal_connect(dynawin, "configure-event",
+                       G_CALLBACK(rama_resize), this);
 
 //      gchar *txt ="win";
 //      g_signal_connect(dynawin, "size-allocate",
