@@ -116,11 +116,17 @@ def fetch_molecule(drug_name):
           db_mol_uri = "http://www.drugbank.ca/structures/structures/small_molecule_drugs/" + \
                        db_dict["DrugBank"] + ".mol"
           file_name = db_dict["DrugBank"] + ".mol"
-          response = urllib2.urlopen(db_mol_uri)
-          xml_string = response.read()
-          f = open(file_name, "w")
-          f.write(xml_string)
-          f.close()
+          fetch_it = True
+          if os.path.exists(file_name):
+              if os.stat(file_name).st_size > 0:
+                  fetch_it = False
+
+          if fetch_it:
+             response = urllib2.urlopen(db_mol_uri)
+             xml_string = response.read()
+             f = open(file_name, "w")
+             f.write(xml_string)
+             f.close()
           # print "returning", file_name
           return file_name
        except urllib2.HTTPError as e:
@@ -134,11 +140,18 @@ def fetch_molecule(drug_name):
           db_mol_uri = "http://www.chemspider.com/FilesHandler.ashx?type=str&striph=yes&id="
           db_mol_uri += db_dict['ChemSpiderID']
           file_name = "ChemSpider-" + db_dict['ChemSpiderID'] + ".mol"
-          response = urllib2.urlopen(db_mol_uri)
-          xml_string = response.read()
-          f = open(file_name, "w")
-          f.write(xml_string)
-          f.close()
+          fetch_it = True
+          if os.path.exists(file_name):
+              if os.stat(file_name).st_size > 0:
+                  fetch_it = False
+
+          if fetch_it:
+              response = urllib2.urlopen(db_mol_uri)
+              xml_string = response.read()
+              f = open(file_name, "w")
+              f.write(xml_string)
+              f.close()
+              
           # print "returning", file_name
           return file_name
        else:
