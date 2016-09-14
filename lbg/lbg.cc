@@ -4083,42 +4083,58 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
       }
    }
 
-   // molfile molecules don't know about aromatic bonds, we need
-   // to kekulize now.
-   RDKit::MolOps::Kekulize(*m); // non-const reference?
-   double weight_for_3d_distances = 0.4;
+   try {
+      // molfile molecules don't know about aromatic bonds, we need
+      // to kekulize now.
+      RDKit::MolOps::Kekulize(*m); // non-const reference?
+      double weight_for_3d_distances = 0.4;
 
-   int n_confs = m->getNumConformers();
+      int n_confs = m->getNumConformers();
       
-   if (n_confs > 0) {
-      if (m->getConformer(iconf).is3D()) {
-	 int iconf_local = coot::add_2d_conformer(m, weight_for_3d_distances); // 3d -> 2d
-	                                                        // (if not 3d, do nothing)
-	 if (false)
-	    std::cout << "rdkit_mol_post_read_handling() add_2d_conformer returned "
-		      << iconf_local << std::endl;
-	 if (iconf_local == -1)
-	    std::cout << "WARNING:: import_mol_from_file() failed to make 2d conformer "
-		      << std::endl;
-	 iconf = iconf_local;
-      } 
+      if (n_confs > 0) {
+	 if (m->getConformer(iconf).is3D()) {
+	    int iconf_local = coot::add_2d_conformer(m, weight_for_3d_distances); // 3d -> 2d
+	    // (if not 3d, do nothing)
+	    if (false)
+	       std::cout << "rdkit_mol_post_read_handling() add_2d_conformer returned "
+			 << iconf_local << std::endl;
+	    if (iconf_local == -1)
+	       std::cout << "WARNING:: import_mol_from_file() failed to make 2d conformer "
+			 << std::endl;
+	    iconf = iconf_local;
+	 } 
 
-      //    Old way (Pre-Feb 2013) goving via a molfile_molecule_t
-      //    
-      //    lig_build::molfile_molecule_t mm = coot::make_molfile_molecule(*m, iconf);
-      //    mmdb::Manager *mol = NULL; // no atom names to transfer
-      //    widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
+	 //    Old way (Pre-Feb 2013) goving via a molfile_molecule_t
+	 //    
+	 //    lig_build::molfile_molecule_t mm = coot::make_molfile_molecule(*m, iconf);
+	 //    mmdb::Manager *mol = NULL; // no atom names to transfer
+	 //    widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
 
-      const RDKit::Conformer conformer = m->getConformer(iconf);
-      RDKit::WedgeMolBonds(*m, &conformer);
-      widgeted_molecule_t wmol = import_rdkit_mol(m, iconf);
-      mdl_file_name = file_name;
+	 const RDKit::Conformer conformer = m->getConformer(iconf);
+	 RDKit::WedgeMolBonds(*m, &conformer);
+	 widgeted_molecule_t wmol = import_rdkit_mol(m, iconf);
+	 mdl_file_name = file_name;
    
-      render_from_molecule(wmol);
-      update_descriptor_attributes();
-   } else {
-      std::cout << "WARNING:: molecule from " << file_name << " had 0 conformers " << std::endl;
+	 render_from_molecule(wmol);
+	 update_descriptor_attributes();
+     
+      } else {
+	 std::cout << "WARNING:: molecule from " << file_name << " had 0 conformers " << std::endl;
+      }
    }
+   catch (const std::exception &e) {
+      // Vitamin B12 DB00115 throws a std::exception because it can't kekulize mol
+      std::cout << "WARNING:: " << e.what() << " on reading " << file_name << std::endl;
+
+      std::string status_string = "  Can't kekulize mol from " + file_name;
+      guint statusbar_context_id = gtk_statusbar_get_context_id(GTK_STATUSBAR(lbg_statusbar),
+								status_string.c_str());
+      gtk_statusbar_push(GTK_STATUSBAR(lbg_statusbar),
+			 statusbar_context_id,
+			 status_string.c_str());
+      
+   }
+   
 }
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 
