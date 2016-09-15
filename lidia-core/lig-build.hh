@@ -26,6 +26,7 @@
 #include <math.h>  // for fabs, cos, sin
 #include <string>
 #include <vector>
+#include <set>
 #include <stdexcept>
 
 #define MAX_SEARCH_DEPTH 9
@@ -1934,11 +1935,11 @@ namespace lig_build {
 		     } else {
 
 			if (atom_id == "O-") {
-			   return atom_id_info_t("0", -1);
+			   return atom_id_info_t("O", -1);
 
 			} else {
 			   if (atom_id == "O-2") {
-			      return atom_id_info_t("0", -2);
+			      return atom_id_info_t("O", -2);
 
 			   } else {
 
