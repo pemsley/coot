@@ -435,6 +435,16 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
    case DOUBLE_OR_AROMATIC:
       {
 	 if (have_centre_pos()) {
+
+	    // we want to draw this sort of double bond - currently called "aromatic"
+	    // for double bonds that have atoms (other than the bond atoms) connect to each
+	    // atom of the bond.
+	    // i.e. we should draw a simple/symmetric double bond (canvas_item_double_bond) 
+	    // only if one or other (or both) of the atoms is not connected to other atoms.
+	    //
+	    // And to make the decision, this function needs to be passed
+	    // other_connections_to_first_atom.
+	    //
 	    ci = canvas_item_double_aromatic_bond(pos_1, pos_2, root);
 	 } else {
 	    ci = canvas_item_double_bond(pos_1, pos_2, root);
@@ -487,7 +497,6 @@ widgeted_bond_t::canvas_item_double_bond(const lig_build::pos_t &pos_1,
 	 
    GooCanvasItem *group = wrap_goo_canvas_group_new (root, dark);
 						     
-      
    lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
    lig_build::pos_t buv_90 = buv.rotate(90);
 

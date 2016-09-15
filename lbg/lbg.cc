@@ -1812,7 +1812,7 @@ lbg_info_t::font_colour(int addition_element_mode) const {
    if (addition_element_mode == lbg_info_t::ATOM_O)
       font_colour = "red";
    if (addition_element_mode == lbg_info_t::ATOM_N)
-      font_colour = "blue";
+      font_colour = "#0000aa";
    if (addition_element_mode == lbg_info_t::ATOM_S)
       font_colour = "#669900";
    if (addition_element_mode == lbg_info_t::ATOM_F)
@@ -1832,7 +1832,7 @@ lbg_info_t::font_colour(const std::string &ele) const {
    std::string font_colour = "#111111";
 
    if (ele == "N")
-      font_colour = "blue";
+      font_colour = "#0000aa";
    if (ele == "O") 
       font_colour = "red";
    if (ele == "S")
@@ -3108,7 +3108,7 @@ lbg_info_t::init(GtkBuilder *builder) {
    GTK_WIDGET_SET_FLAGS (canvas, GTK_CAN_FOCUS);
 
    GooCanvasItem *root_item = goo_canvas_get_root_item(GOO_CANVAS(canvas));
-   g_object_set(G_OBJECT(root_item), "line_width", 1.6, NULL); // thank you Damon Chaplin
+   g_object_set(G_OBJECT(root_item), "line_width", 1.5, NULL); // thank you Damon Chaplin
    g_object_set(G_OBJECT(root_item), "line_cap", CAIRO_LINE_CAP_ROUND, NULL);
 
    if (lbg_scale_spinbutton) {
