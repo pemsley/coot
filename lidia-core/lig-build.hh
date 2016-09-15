@@ -1069,9 +1069,9 @@ namespace lig_build {
       // to the inside of the ring that contains the most double bonds.
       // In 6-membered rings or alternating single and double bonds, it is especially prefered
       // if the bond is on the inside of this ring (in preference to the ring with the
-      // largest number of double bonds).
+      // largest number of double bonds). e.g. tetralin.
       // 
-      // there should be at least one ring passed in rings
+      // calling function should ensure that there should be at least one ring passed in rings.
       // 
       unsigned int favourite_ring_id(const std::vector<std::set<unsigned int> > &rings) const {
 	 unsigned int id = 0;
