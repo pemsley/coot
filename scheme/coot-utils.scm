@@ -3398,7 +3398,9 @@
   ;; strings and look for "DrugBank = " and take the last of the words
   ;; on that line.
 
-  (define (handle-rev-string rev-string)
+  (define (handle-rev-string-old rev-string)
+
+    (format #t "in handle-revi-string rev-string: ~s~%~!" rev-string)
 
     (let ((open-match (string-match "#[Rr][Ee][Dd][Ii][Rr][Ee][Cc][Tt] \\[\\[" rev-string))
 	  (close-match (string-match "\\]\\]" rev-string))
@@ -3472,6 +3474,36 @@
 	(format #t "handle-rev-string none of the above~%")
 	#f))))
 
+  (define (handle-rev-string-2016 rev-string)
+    (let ((lines (string-split rev-string #\newline)))
+      (let ((db-id #f))
+	(for-each (lambda (line)
+		    (if (string-match "DrugBank = " line)
+			(let ((parts (string->list-of-strings line)))
+			  (if (> (length parts) 3)
+			      (set! db-id (list-ref parts 3)))))
+		    ;; match other databases here
+		    )
+		  lines)
+
+	(format #t "db-id: ~s~%" db-id)
+
+	;; check an association-list for the "DrugBank" entry
+	;; 
+	(if (string? db-id)
+
+	    ;; normal path hopefully
+	    ;; 
+	    (let ((db-mol-uri (string-append 
+			       "http://www.drugbank.ca/structures/structures/small_molecule_drugs/" 
+			       db-id ".mol"))
+		  (file-name (string-append db-id ".mol")))
+	      (format #t "getting url: ~s~%" db-mol-uri)
+	      (coot-get-url db-mol-uri file-name)
+	      file-name)
+
+	    #f))))
+
 
   (define (handle-sxml-rev-value sxml)
     (let loop ((ls sxml))
@@ -3481,7 +3513,7 @@
        (else 
 	(let ((entity (car ls)))
 	  (if (string? entity)
-	      (handle-rev-string entity)
+	      (handle-rev-string-2016 entity)
 	      (loop (cdr ls))))))))
 
   (define (handle-sxml-revisions-value sxml)
@@ -3598,7 +3630,7 @@
 		       ))
 		 (xml (coot-get-url-as-string url)))
 
-	    (format #t "INFO:: url: ~s~%" url)
+	    (format #t "INFO:: get-drug-via-wikipedia: url: ~s~%" url)
 
 	    (call-with-output-file (string-append drug-name ".xml")
 	      (lambda (port)
