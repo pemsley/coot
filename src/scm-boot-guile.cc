@@ -43,6 +43,7 @@
 #include "scm-boot-guile.hh"
 #include "boot-python.hh"
 #include "c-interface.h"
+#include "c-interface-preferences.h"
 
 #include "startup-scripts.hh"
 
@@ -240,6 +241,8 @@ void try_load_dot_coot_and_preferences() {
 	    }
 	 }
 
+         // update preferences
+         make_preferences_internal();
 	 // Now ~/.coot
 
 	 std::string fn = coot::util::append_dir_file(directory, ".coot");

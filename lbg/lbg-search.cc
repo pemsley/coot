@@ -89,6 +89,7 @@ lbg_info_t::search() const {
 	 // non-const protein_geometry *
 	 coot::protein_geometry *geom_p_local = new coot::protein_geometry;
 	 std::string srs_dir = "/Applications/ccp4-7.0/share/ccp4srs";
+	 srs_dir = "/Users/pemsley/autobuild/build-coot+rdkit-pre-release-gtk2-python/share/ccp4srs";
 	 geom_p_local->init_ccp4srs(srs_dir);
 
 	 graph->MakeSymmetryRelief(false);

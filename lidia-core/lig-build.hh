@@ -26,6 +26,7 @@
 #include <math.h>  // for fabs, cos, sin
 #include <string>
 #include <vector>
+#include <set>
 #include <stdexcept>
 
 #define MAX_SEARCH_DEPTH 9
@@ -549,6 +550,8 @@ namespace lig_build {
 	 return found;
       } 
 
+      // this helps find the fist ring containing start_atom_index that goes through atom_index_other
+      // 
       std::pair<bool, std::vector<unsigned int> >
       find_bonded_atoms_with_no_pass(unsigned int start_atom_index,
 				     unsigned int atom_index_other,
@@ -572,7 +575,7 @@ namespace lig_build {
 		  if (idx == start_atom_index)
 		     if (depth < (MAX_SEARCH_DEPTH-1)) {
 			if (member(atom_index_other, local_no_pass_atoms)) {
-			   // if this_atom_index was not alread in
+			   // if this_atom_index was not already in
 			   // local_no_pass_atoms, then add it.
 			   bool ifound = 0; 
 			   for (unsigned int ilnp=0; ilnp<local_no_pass_atoms.size(); ilnp++) {
@@ -583,7 +586,6 @@ namespace lig_build {
 			   }
 			   if (! ifound)
 			      local_no_pass_atoms.push_back(this_atom_index);
-			   // debug_pass_atoms(start_atom_index, this_atom_index, depth, local_no_pass_atoms);
 			   return std::pair<bool, std::vector<unsigned int> > (1, local_no_pass_atoms);
 			}
 		     }
@@ -672,13 +674,156 @@ namespace lig_build {
 	 return std::pair<bool, std::vector<unsigned int> > (0, empty);
       }
 
+      std::vector<std::set<unsigned int> >
+      find_rings_including_atom_internal(unsigned int start_atom_index,
+					 unsigned int atom_index_other,
+					 unsigned int this_atom_index,
+					 const std::set<unsigned int> &no_pass_atoms,
+					 unsigned int depth) const {
+
+	 std::vector<std::set<unsigned int> > v;
+
+	 std::set<unsigned int> atoms_bonded_to_this_atom;
+	 std::set<unsigned int> local_no_pass_atoms = no_pass_atoms;
+
+	 if (depth == 0) {
+	    std::vector<std::set<unsigned int> > empty;
+	    return empty;
+	 } else {
+
+	    // construct a list of all the atoms that are bonded to this atom not
+	    // in the no_pass list
+
+	    for (unsigned int i=0; i<bonds.size(); i++) {
+	       if (bonds[i].get_atom_1_index() == this_atom_index) {
+		  unsigned int idx = bonds[i].get_atom_2_index();
+		  if (idx == start_atom_index) {
+		     if (depth < (MAX_SEARCH_DEPTH-1)) {
+
+			if (local_no_pass_atoms.find(atom_index_other) != local_no_pass_atoms.end()) {
+			   local_no_pass_atoms.insert(this_atom_index);
+			   std::vector<std::set<unsigned int> > f;
+			   f.push_back(local_no_pass_atoms);
+			   return f;
+			}
+		     }
+		  }
+		  if (local_no_pass_atoms.find(idx) == local_no_pass_atoms.end()) {
+		     atoms_bonded_to_this_atom.insert(idx);
+		     local_no_pass_atoms.insert(this_atom_index);
+		  }
+	       }
+
+	       if (bonds[i].get_atom_2_index() == this_atom_index) {
+		  unsigned int idx = bonds[i].get_atom_1_index();
+		  if (idx == start_atom_index) {
+		     if (depth < (MAX_SEARCH_DEPTH-1)) {
+
+			if (local_no_pass_atoms.find(atom_index_other) != local_no_pass_atoms.end()) {
+			   local_no_pass_atoms.insert(this_atom_index);
+			   std::vector<std::set<unsigned int> > f;
+			   f.push_back(local_no_pass_atoms);
+			   return f;
+			}
+		     }
+		  }
+		  if (local_no_pass_atoms.find(idx) == local_no_pass_atoms.end()) {
+		     atoms_bonded_to_this_atom.insert(idx);
+		     local_no_pass_atoms.insert(this_atom_index);
+		  }
+	       }
+	    } // end the bond loop
+
+	    std::set<unsigned int>::const_iterator it;
+	    for (it  = atoms_bonded_to_this_atom.begin();
+		 it != atoms_bonded_to_this_atom.end();
+		 it++) {
+	       std::vector<std::set<unsigned int> > r =
+		  find_rings_including_atom_internal(start_atom_index,
+						     atom_index_other,
+						     *it, local_no_pass_atoms, depth-1);
+	       // merge r onto v
+	       for (unsigned int jj=0; jj<r.size(); jj++)
+		  v.push_back(r[jj]);
+	    }
+	 }
+	 return v;
+      }
+      
+
+      std::vector<std::set<unsigned int> >
+      find_rings_including_atom_simple_internal(unsigned int start_atom_index,
+						unsigned int this_atom_index,
+						const std::set<unsigned int> &no_pass_atoms,
+						unsigned int depth) const {
+
+	 std::vector<std::set<unsigned int> > v;
+
+	 std::set<unsigned int> atoms_bonded_to_this_atom;
+	 std::set<unsigned int> local_no_pass_atoms = no_pass_atoms;
+
+	 if (depth == 0) {
+	    std::vector<std::set<unsigned int> > empty;
+	    return empty;
+	 } else {
+      
+	    // construct a list of all the atoms that are bonded to this atom not
+	    // in the no_pass list
+      
+	    for (unsigned int i=0; i<bonds.size(); i++) { 
+	       if (bonds[i].get_atom_1_index() == this_atom_index) {
+		  unsigned int idx = bonds[i].get_atom_2_index();
+		  if (idx == start_atom_index) {
+		     if (depth < (MAX_SEARCH_DEPTH-1)) {
+
+			local_no_pass_atoms.insert(this_atom_index);
+			v.push_back(local_no_pass_atoms);
+		     }
+		  }
+		  if (local_no_pass_atoms.find(idx) == local_no_pass_atoms.end()) {
+		     atoms_bonded_to_this_atom.insert(idx);
+		     local_no_pass_atoms.insert(this_atom_index);
+		  }
+	       }
+
+	       if (bonds[i].get_atom_2_index() == this_atom_index) {
+		  unsigned int idx = bonds[i].get_atom_1_index();
+		  if (idx == start_atom_index) {
+		     if (depth < (MAX_SEARCH_DEPTH-1)) {
+
+			local_no_pass_atoms.insert(this_atom_index);
+			v.push_back(local_no_pass_atoms);
+		     }
+		  }
+		  if (local_no_pass_atoms.find(idx) == local_no_pass_atoms.end()) {
+		     atoms_bonded_to_this_atom.insert(idx);
+		     local_no_pass_atoms.insert(this_atom_index);
+		  }
+	       }
+	    } // end the bond loop
+
+	    std::set<unsigned int>::const_iterator it;
+	    for (it  = atoms_bonded_to_this_atom.begin();
+		 it != atoms_bonded_to_this_atom.end();
+		 it++) {
+	       std::vector<std::set<unsigned int> > r =
+		  find_rings_including_atom_simple_internal(start_atom_index, *it,
+							    local_no_pass_atoms, depth-1);
+	       // merge r onto v
+	       for (unsigned int jj=0; jj<r.size(); jj++)
+		  v.push_back(r[jj]);
+	    }
+	 }
+	 return v;
+      }
+
       // can throw an exception (no bonds)
       //
       // not const because it now caches the return value;
       //
       bool have_cached_bond_ring_centres_flag;
       std::vector<pos_t> cached_bond_ring_centres;
-      
+
    public:
       molecule_t() {
 	 have_cached_bond_ring_centres_flag = false;
@@ -692,7 +837,7 @@ namespace lig_build {
       virtual std::pair<bool, int> add_atom(const Ta &at) {
 	 return checked_add(at);
       }
-      
+
       // Add a bond. But only add a bond if there is not already a
       // bond between the given atom indices in the bond list.
       //
@@ -738,7 +883,34 @@ namespace lig_build {
 					   atom_index_other, empty_no_pass_atoms,
 					   MAX_SEARCH_DEPTH);
 	 return r;
-      } 
+      }
+
+      // use like find_bonded_atoms_with_no_pass
+      std::vector<std::set<unsigned int> > rings_including_atom(unsigned int atom_index_start,
+								unsigned int atom_index_other) const {
+
+         std::set<unsigned int> empty_no_pass_atoms;
+         empty_no_pass_atoms.insert(atom_index_start);
+         // use like find_bonded_atoms_with_no_pass
+         std::vector<std::set<unsigned int> > v =
+	    find_rings_including_atom_internal(atom_index_start, atom_index_start,
+             	                               atom_index_other, empty_no_pass_atoms, MAX_SEARCH_DEPTH);
+         return v;
+      }
+
+      // as above - but we don't have a bond through which this ring must pass.
+      std::vector<std::set<unsigned int> > rings_including_atom(unsigned int atom_index_start) const {
+
+         std::set<unsigned int> empty_no_pass_atoms;
+         empty_no_pass_atoms.insert(atom_index_start);
+         // use like find_bonded_atoms_with_no_pass
+         std::vector<std::set<unsigned int> > v =
+	    find_rings_including_atom_simple_internal(atom_index_start, atom_index_start,
+						      empty_no_pass_atoms, MAX_SEARCH_DEPTH);
+         return v;
+      }
+      
+      
       // "Put the template class method definitions in the .h file" - Thanks, Kevin!
       // 
       virtual std::vector<Tb> bonds_with_vertex(const pos_t &pos) const {
@@ -815,6 +987,20 @@ namespace lig_build {
 	 std::cout << ")" << std::endl;
       }
 
+      void debug_pass_atoms(unsigned int atom_index_start, unsigned int this_atom_index,
+			    unsigned int depth,
+			    const std::set<unsigned int> &local_no_pass_atoms) const {
+
+	 std::cout << "    debug_pass_atoms(): found atom index "
+		   << atom_index_start << " from this atom: "
+		   << this_atom_index
+		   << ", at depth " << depth << " no-pass-atoms: (";
+	 std::set<unsigned int>::const_iterator it;
+	 for (it=local_no_pass_atoms.begin(); it!=local_no_pass_atoms.end(); it++)
+	    std::cout << *it << " ";
+	 std::cout << ")" << std::endl;
+      }
+      
 
       unsigned int get_number_of_atoms_including_hydrogens() const {
 	 return atoms.size();
@@ -822,48 +1008,88 @@ namespace lig_build {
 
       void assign_ring_centres(bool force=false) {
 	 bool debug = false;
+
+	 // first cache the ring info for the atoms.  The ring info should ideally/in future contain
+	 // information about the number (and placement?) of the double bonds in the ring (see comments
+	 // for favourite_ring_id().
+
 	 for (unsigned int ib=0; ib<bonds.size(); ib++) {
 	    if (! bonds[ib].have_centre_pos() || force) {
 	       unsigned int atom_index = bonds[ib].get_atom_1_index();
-	       unsigned int atom_index_other = bonds[ib].get_atom_2_index();
-	       if (debug) 
-		  std::cout << "=============== checking ring for atom index "
+	       if (debug)
+		  std::cout << "=============== checking bond " << ib
+			    << " for rings for atom index "
 			    << atom_index << " ===============" << std::endl;
-	       // path must pass through atom_index_other
-	       std::pair<bool, std::vector<unsigned int> > found =
-		  found_self_through_bonds(atom_index, atom_index_other);
+
+	       std::vector<std::set<unsigned int> > rings = rings_including_atom(atom_index);
+
 	       if (debug) {
-		  std::cout << "-- constructor of widgeted_bond_t atom " << atom_index
+		  std::cout << "   constructor of widgeted_bond_t atom " << atom_index
 			    << " other bond index (not tested) " << bonds[ib].get_atom_2_index()
-			    << ", found status "
-			    << found.first << " (";
-		  for (unsigned int i=0; i<found.second.size(); i++)
-		     std::cout << found.second[i] << " ";
-		  std::cout << ")\n"
-			    << std::endl;
+			    << ", found n_rings: " << rings.size() << std::endl;
+		  for (unsigned int ir=0; ir<rings.size(); ir++) {
+		     std::cout << "   ring " << ir << " :: ";
+		     std::set<unsigned int>::const_iterator it;
+		     for (it=rings[ir].begin(); it != rings[ir].end(); it ++)
+			std::cout << " " << *it;
+		     std::cout << std::endl;
+		  }
+
 	       }
-	       if (found.first) {
-		  if (found.second.size() > 0) { 
-		     lig_build::pos_t centre_pos_sum;
-		     std::string centre_pos_atoms_string;
-		     for (unsigned int i_ring_atom_list=0;
-			  i_ring_atom_list<found.second.size();
-			  i_ring_atom_list++) {
-			centre_pos_sum += atoms[found.second[i_ring_atom_list]].atom_position;
-		     }
-		     lig_build::pos_t centre_pos = centre_pos_sum * (1.0/double(found.second.size()));
-		     bonds[ib].add_centre(centre_pos);
-		     if (debug)
-			std::cout << "adding centre at " << centre_pos
-				  << " generated from (" << centre_pos_atoms_string << ")" 
-				  << " for bond " << ib
-				  << " connecting " << bonds[ib].get_atom_1_index() << " to "
-				  << bonds[ib].get_atom_2_index() << std::endl;
+	       if (rings.size() > 0) {
+		  lig_build::pos_t centre_pos_sum;
+		  std::string centre_pos_atoms_string;
+		  unsigned int fav_ring_id = favourite_ring_id(rings);
+		  std::set<unsigned int>::const_iterator it;
+		  for (it=rings[fav_ring_id].begin(); it != rings[fav_ring_id].end(); it ++) {
+		     centre_pos_sum += atoms[*it].atom_position;
+		  }
+		  lig_build::pos_t centre_pos = centre_pos_sum * (1.0/double(rings[fav_ring_id].size()));
+		  bonds[ib].add_centre(centre_pos);
+		  if (debug) {
+		     std::cout << "   adding centre at " << centre_pos
+			       << " generated from (";
+		     std::cout << "   (";
+		     for (it=rings[fav_ring_id].begin(); it != rings[fav_ring_id].end(); it ++)
+			std::cout << " " << *it;
+		     std::cout << ")" 
+			       << " for bond " << ib
+			       << " connecting " << bonds[ib].get_atom_1_index() << " to "
+			       << bonds[ib].get_atom_2_index() << std::endl;
 		  }
 	       }
 	    }
 	 }
       }
+
+      // Say double bond is in a 5-membered and a 6-membered ring.
+      // On which ring should a double bond be placed?
+      // The 6-membered.  Or failing that it has a 6-membered ring, the biggest ring.
+      //
+      // IUPAC Guidelines for chemical structure diagrams says that it should be offset
+      // to the inside of the ring that contains the most double bonds.
+      // In 6-membered rings or alternating single and double bonds, it is especially prefered
+      // if the bond is on the inside of this ring (in preference to the ring with the
+      // largest number of double bonds). e.g. tetralin.
+      // 
+      // calling function should ensure that there should be at least one ring passed in rings.
+      // 
+      unsigned int favourite_ring_id(const std::vector<std::set<unsigned int> > &rings) const {
+	 unsigned int id = 0;
+	 unsigned int n_best = 0;
+	 for (unsigned int i=0; i<rings.size(); i++) {
+	    if (rings[i].size() == 6) {
+	       id = i;
+	       break;
+	    }
+	    if (rings[i].size() > n_best) {
+	       id = i;
+	       n_best = rings.size();
+	    }
+	 }
+	 return id;
+      }
+      
 
       // 
       std::vector<pos_t> get_ring_centres() {
@@ -1709,11 +1935,11 @@ namespace lig_build {
 		     } else {
 
 			if (atom_id == "O-") {
-			   return atom_id_info_t("0", -1);
+			   return atom_id_info_t("O", -1);
 
 			} else {
 			   if (atom_id == "O-2") {
-			      return atom_id_info_t("0", -2);
+			      return atom_id_info_t("O", -2);
 
 			   } else {
 
@@ -1839,8 +2065,8 @@ namespace lig_build {
 	 bool status = false;
 
 	 for (unsigned int ibond=0; ibond<bonds.size(); ibond++) { 
-	    int index_1 = bonds[ibond].get_atom_1_index();
-	    int index_2 = bonds[ibond].get_atom_2_index();
+	    unsigned int index_1 = bonds[ibond].get_atom_1_index();
+	    unsigned int index_2 = bonds[ibond].get_atom_2_index();
 	    if (idx_1 == index_1) { 
 	       if (idx_2 == index_2) {
 		  bonds.erase(bonds.begin()+ibond);

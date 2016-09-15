@@ -135,8 +135,10 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
 	    shorten_first = true;
 	 if (mol_in.atoms[index_2].element != "C")
 	    shorten_second = true;
+
+	 std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > empty;
 	 widgeted_bond_t bond(index_1, index_2, atoms[index_1], atoms[index_2],
-			      shorten_first, shorten_second, bt, ci);
+			      shorten_first, shorten_second, bt, empty, ci);
 	 bonds.push_back(bond);
       }
 
@@ -320,6 +322,7 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
 				      bool shorten_first,
 				      bool shorten_second,
 				      bond_type_t bt,
+				      const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 				      GooCanvasItem *root) const {
 
    // We can shorten the bonds to the atoms by different amounts, eg. N+ = 0
@@ -412,6 +415,7 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
       pos_2 = lig_build::pos_t::fraction_point(pos_1_in, pos_2_in, shorten_fraction_2);
 
    GooCanvasItem *ci = NULL;
+   
    switch (bt) {
    case SINGLE_BOND:
       // Add new cases, a bit of a hack of course.
@@ -429,7 +433,21 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
    case DOUBLE_BOND:
    case DOUBLE_OR_AROMATIC:
       {
+	 
+	 std::cout << "here in canvas_item_for_bond() double with centre "
+		   << have_centre_pos() << std::endl;
+	 
 	 if (have_centre_pos()) {
+
+	    // we want to draw this sort of double bond - currently called "aromatic"
+	    // for double bonds that have atoms (other than the bond atoms) connect to each
+	    // atom of the bond.
+	    // i.e. we should draw a simple/symmetric double bond (canvas_item_double_bond) 
+	    // only if one or other (or both) of the atoms is not connected to other atoms.
+	    //
+	    // And to make the decision, this function needs to be passed
+	    // other_connections_to_first_atom.
+	    //
 	    ci = canvas_item_double_aromatic_bond(pos_1, pos_2, root);
 	 } else {
 	    ci = canvas_item_double_bond(pos_1, pos_2, root);
@@ -462,10 +480,11 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
       }
       break;
    case IN_BOND:
-      ci = make_wedge_bond_item(pos_1, pos_2, bt, root);
+      ci = make_wedge_bond_item(pos_1, pos_2, bt, other_connections_to_second_atom, root);
       break;
    case OUT_BOND:
-      ci = make_wedge_bond_item(pos_1, pos_2, bt, root);
+      // to be like MarvinSketch we need to know what is connected to the non-pointy end
+      ci = make_wedge_bond_item(pos_1, pos_2, bt, other_connections_to_second_atom, root);
       break;
    case BOND_UNDEFINED:
       break;
@@ -481,7 +500,6 @@ widgeted_bond_t::canvas_item_double_bond(const lig_build::pos_t &pos_1,
 	 
    GooCanvasItem *group = wrap_goo_canvas_group_new (root, dark);
 						     
-      
    lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
    lig_build::pos_t buv_90 = buv.rotate(90);
 
@@ -500,8 +518,6 @@ widgeted_bond_t::canvas_item_double_bond(const lig_build::pos_t &pos_1,
 }
 
 
-// Note of course, that a shortened aromatic double bond is probably
-// wrong.  Only carbons (AFAICS) will have aromatic double bonds.
 // 
 GooCanvasItem *
 widgeted_bond_t::canvas_item_double_aromatic_bond(const lig_build::pos_t &pos_1,
@@ -536,10 +552,18 @@ widgeted_bond_t::canvas_item_double_aromatic_bond(const lig_build::pos_t &pos_1,
 
    lig_build::pos_t inner_end_point = inner_start_point + buv * bond_length;
 
+   // These values (0.1, 0.9) are approximately OK for 6-membered rings
+   // (but create bonds that are slightly too long, in fact)
+   // but definately need to be shorter for 3,4 membered rings.
+   //
+   // To get it right, we need to know the positions of the atoms that are commect
+   // to the atoms of the double bonds (or slightly kludgey), we could work it out
+   // by knowing how many bonds/atoms in the ring of which this bond is a member.
+   // 
    lig_build::pos_t cutened_inner_start_point =
-      lig_build::pos_t::fraction_point(inner_start_point, inner_end_point, 0.1);
+      lig_build::pos_t::fraction_point(inner_start_point, inner_end_point, 0.14); // was 0.1
    lig_build::pos_t cutened_inner_end_point =
-      lig_build::pos_t::fraction_point(inner_start_point, inner_end_point, 0.9);
+      lig_build::pos_t::fraction_point(inner_start_point, inner_end_point, 0.86); // was 0.9
    
    GooCanvasItem *ci_2 =
       wrap_goo_canvas_polyline_new_line(group,
@@ -555,67 +579,152 @@ GooCanvasItem *
 widgeted_bond_t::make_wedge_bond_item(const lig_build::pos_t &pos_1,
 				      const lig_build::pos_t &pos_2,
 				      const lig_build::bond_t::bond_type_t &bt,
+				      const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 				      GooCanvasItem *root) const {
 
-//    std::cout << "here in make_wedge_bond_item " << bt << " " << pos_1 << " " << pos_2 << std::endl;
-//    std::cout << "" << std::endl;
-   
    GooCanvasItem *item = NULL;
 
    if (bt == lig_build::bond_t::OUT_BOND)
-      item = make_wedge_out_bond_item(pos_1, pos_2, root);
+      item = make_wedge_out_bond_item(pos_1, pos_2, other_connections_to_second_atom, root);
    if (bt == lig_build::bond_t::IN_BOND)
       item = make_wedge_in_bond_item(pos_1, pos_2, root);
 
    return item;
 }
 
+// pos_1 is the position of the atom at the sharp point (the chiral centre).
+// pos_2 is the position of the other atom.
 GooCanvasItem *
 widgeted_bond_t::make_wedge_out_bond_item(const lig_build::pos_t &pos_1,
 					  const lig_build::pos_t &pos_2,
+					  const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 					  GooCanvasItem *root) const {
 
-   // A filled shape (quadralateral (almost triangle)).
-   
-   lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
-   lig_build::pos_t buv_90 = buv.rotate(90);
-   lig_build::pos_t short_edge_pt_1 = pos_2 + buv_90 * 3;
-   lig_build::pos_t short_edge_pt_2 = pos_2 - buv_90 * 3;
 
-   // the line width means that the sharp angle at pos_1 here results
-   // in a few pixels beyond the pos_1, so artificially shorten it a
-   // tiny amount.
-   //
-   // Also, make it a quadralateral, with the sharp points very close,
-   // this make the spike go away.
-   //
-   // 
-   // lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.11);
-   // lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.07);
-   lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.05);
-   
-   lig_build::pos_t sharp_point_1 = sharp_point + buv_90 * 0.05;
-   lig_build::pos_t sharp_point_2 = sharp_point - buv_90 * 0.05;
-   
-//    GooCanvasItem *item =
-//       goo_canvas_polyline_new(root, TRUE, 4,
-// 				   sharp_point_2.x, sharp_point_2.y, 
-// 				   sharp_point_1.x, sharp_point_1.y, 
-// 				   short_edge_pt_1.x, short_edge_pt_1.y,
-// 				   short_edge_pt_2.x, short_edge_pt_2.y,
-// 				   "stroke-color", dark,
-// 				   "fill-color", dark);
+   if (false) {
+      std::cout << "   debug:: in make_wedge_out_bond_item() n-other-connections-to-second "
+		<< other_connections_to_second_atom.size() << std::endl;
+      for (unsigned int i=0; i<other_connections_to_second_atom.size(); i++) {
+	 std::cout << "  "
+		   << other_connections_to_second_atom[i].first << " "
+		   << other_connections_to_second_atom[i].second << std::endl;
+      }
+   }
 
-   GooCanvasItem *item =
-      wrap_goo_canvas_polyline_new(root, 
-				   sharp_point_2.x, sharp_point_2.y, 
-				   sharp_point_1.x, sharp_point_1.y, 
-				   short_edge_pt_1.x, short_edge_pt_1.y,
-				   short_edge_pt_2.x, short_edge_pt_2.y,
-				   dark, dark);
+   GooCanvasItem *item = NULL; // updated as return value
+   
+   if (other_connections_to_second_atom.size() > 0) {
+      item = make_sheared_or_darted_wedge_bond(pos_1, pos_2, other_connections_to_second_atom, root);
+   } else {
+   
+      // A filled shape (quadralateral (almost triangle)).
 
+      lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
+      lig_build::pos_t buv_90 = buv.rotate(90);
+      // How long is this bond?  The width of the fat (i.e. non-pointy) end should be
+      // proprotional to the length of the bond.
+      //
+      double l = lig_build::pos_t::length(pos_1, pos_2);
+      double bond_length_ratio = l/SINGLE_BOND_CANVAS_LENGTH;
+
+      lig_build::pos_t short_edge_pt_1 = pos_2 + buv_90 * 3 * bond_length_ratio;
+      lig_build::pos_t short_edge_pt_2 = pos_2 - buv_90 * 3 * bond_length_ratio;
+   
+      // the line width means that the sharp angle at pos_1 here results
+      // in a few pixels beyond the pos_1, so artificially shorten it a
+      // tiny amount.
+      //
+      // Also, make it a quadralateral, with the sharp points very close,
+      // this make the spike go away.
+      //
+      // 
+      // lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.11);
+      // lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.07);
+      lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.04);
+   
+      lig_build::pos_t sharp_point_1 = sharp_point + buv_90 * 0.03;
+      lig_build::pos_t sharp_point_2 = sharp_point - buv_90 * 0.03;
+
+      item = wrap_goo_canvas_polyline_new(root, 
+				      sharp_point_2.x, sharp_point_2.y, 
+				      sharp_point_1.x, sharp_point_1.y, 
+				      short_edge_pt_1.x, short_edge_pt_1.y,
+				      short_edge_pt_2.x, short_edge_pt_2.y,
+				      dark, dark);
+   }
    return item;
 }
+
+
+// pos_1 is the position of the atom at the sharp point (the chiral centre).
+// pos_2 is the position of the other atom.
+GooCanvasItem *
+widgeted_bond_t::make_sheared_or_darted_wedge_bond(const lig_build::pos_t &pos_1,
+						   const lig_build::pos_t &pos_2,
+						   const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
+						   GooCanvasItem *root) const {
+   GooCanvasItem *item = NULL;
+
+   if (other_connections_to_second_atom.size() > 0) {
+
+      if (other_connections_to_second_atom.size() == 1) {
+
+      const lig_build::pos_t  &third_atom_pos = other_connections_to_second_atom[0].first.atom_position;
+      const lig_build::bond_t &third_bond     = other_connections_to_second_atom[0].second;
+
+      lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
+      lig_build::pos_t buv_90 = buv.rotate(90);
+      lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.04);
+   
+      lig_build::pos_t sharp_point_1 = sharp_point + buv_90 * 0.03;
+      lig_build::pos_t sharp_point_2 = sharp_point - buv_90 * 0.03;
+
+      lig_build::pos_t bfrom3rd = pos_2 - third_atom_pos;
+      lig_build::pos_t bond_from_3rd_atom_extension   = pos_2 + bfrom3rd*0.1;
+      lig_build::pos_t bond_from_3rd_atom_contraction = pos_2 - bfrom3rd*0.18;
+
+      item = wrap_goo_canvas_polyline_new(root,
+					  sharp_point_2.x, sharp_point_2.y, 
+					  sharp_point_1.x, sharp_point_1.y, 
+					  bond_from_3rd_atom_extension.x,
+					  bond_from_3rd_atom_extension.y,
+					  bond_from_3rd_atom_contraction.x,
+					  bond_from_3rd_atom_contraction.y,
+					  dark, dark);
+
+      } else {
+
+	 // make a dart (there are 2 third atoms)
+	 
+	 const lig_build::pos_t  &third_atom_1_pos = other_connections_to_second_atom[0].first.atom_position;
+	 const lig_build::pos_t  &third_atom_2_pos = other_connections_to_second_atom[1].first.atom_position;
+
+	 lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
+	 lig_build::pos_t buv_90 = buv.rotate(90);
+	 lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.04);
+	 lig_build::pos_t sharp_point_1 = sharp_point + buv_90 * 0.03;
+	 lig_build::pos_t sharp_point_2 = sharp_point - buv_90 * 0.03;
+   
+	 lig_build::pos_t bfrom3rd_1 = pos_2 - third_atom_1_pos;
+	 lig_build::pos_t bfrom3rd_2 = pos_2 - third_atom_2_pos;
+	 lig_build::pos_t bond_from_3rd_atom_1_contraction = pos_2 - bfrom3rd_1*0.15;
+	 lig_build::pos_t bond_from_3rd_atom_2_contraction = pos_2 - bfrom3rd_2*0.15;
+
+	 item = wrap_goo_canvas_polyline_new(root,
+					     sharp_point_2.x, sharp_point_2.y, 
+					     sharp_point_1.x, sharp_point_1.y, 
+					     bond_from_3rd_atom_1_contraction.x,
+					     bond_from_3rd_atom_1_contraction.y,
+					     pos_2.x, pos_2.y,
+					     bond_from_3rd_atom_2_contraction.x,
+					     bond_from_3rd_atom_2_contraction.y,
+					     dark, dark);
+      }
+      
+   }
+   return item;
+}
+
 
 // pos_1 is at the sharp end.  Into the page.  A series of lines.
 // 
@@ -628,18 +737,58 @@ widgeted_bond_t::make_wedge_in_bond_item(const lig_build::pos_t &pos_1,
    lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
    lig_build::pos_t buv_90 = buv.rotate(90);
    int n_lines = 5;
+
+   // How long is this bond?  The width of the fat (i.e. non-pointy) end should be
+   // proprotional to the length of the bond.
+   //
+   double l = lig_build::pos_t::length(pos_1, pos_2);
+   double bond_length_ratio = l/SINGLE_BOND_CANVAS_LENGTH;
+
    for (int i=1; i<=n_lines; i++) {
       // then centre point of the line, some way along the pos_1 -> pos_2 vector;
       double len = double(i) * 1.0;
       double frac = (double(i)- 0.3)/double(n_lines);
       lig_build::pos_t fp = lig_build::pos_t::fraction_point(pos_1, pos_2, frac);
-      lig_build::pos_t p1 = fp + buv_90 * len;
-      lig_build::pos_t p2 = fp - buv_90 * len;
+      lig_build::pos_t p1 = fp + buv_90 * len * bond_length_ratio;
+      lig_build::pos_t p2 = fp - buv_90 * len * bond_length_ratio;
       GooCanvasItem *ci_1 = wrap_goo_canvas_polyline_new_line(group,
 							 p1.x, p1.y,
 							 p2.x, p2.y);
    }
    return group;
+}
+
+
+// to draw wedge bonds correctly
+std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
+widgeted_molecule_t::make_other_connections_to_second_atom_info(unsigned int bond_index) const {
+
+   std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > v;
+   int atom_chiral_idx = bonds[bond_index].get_atom_1_index();
+   int atom_other_idx  = bonds[bond_index].get_atom_2_index();
+
+   for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
+      if (ibond != bond_index) {
+	 int at_1_idx = bonds[ibond].get_atom_1_index();
+	 int at_2_idx = bonds[ibond].get_atom_2_index();
+	 if (at_1_idx == atom_other_idx) {
+	    if (at_2_idx != atom_chiral_idx) { // should always be
+	       std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_2_idx], bonds[ibond]);
+	       v.push_back(p);
+	    }
+	 }
+	 if (at_2_idx == atom_other_idx) {
+	    if (at_1_idx != atom_chiral_idx) {
+	       std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_2_idx], bonds[ibond]);
+	       v.push_back(p);
+	    }
+	 }
+      }
+   }
+//    std::cout << "from make_other_connections_to_second_atom_info() returning v of size "
+// 	     << v.size() << std::endl;
+
+   return v;
 }
 
 
@@ -1590,18 +1739,21 @@ widgeted_molecule_t::flip(int axis) {
 	    bond.set_bond_type(other_dir);
 	 }
 
-	 // is this block needed now that we do assign_ring_centres(true)?
-	 // 
-// 	 bool shorten_first  = false;
-// 	 bool shorten_second = false;
-// 	 if (bond.get_bond_type() == lig_build::bond_t::DOUBLE_BOND) {
-// 	    widgeted_bond_t new_bond(bond.get_atom_1_index(), bond.get_atom_2_index(),
-// 				     atoms[bond.get_atom_1_index()],
-// 				     atoms[bond.get_atom_2_index()],
-// 				     shorten_first, shorten_second,
-// 				     lig_build::bond_t::DOUBLE_BOND, NULL);
-// 	    bonds[ibond] = new_bond;
-// 	 }
+	 bool shorten_first  = false;
+	 bool shorten_second = false;
+	 if (bond.get_bond_type() == lig_build::bond_t::DOUBLE_BOND) {
+
+	    std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
+	       other_connections_to_second_atom =
+	       make_other_connections_to_second_atom_info(ibond);
+	    widgeted_bond_t new_bond(bond.get_atom_1_index(), bond.get_atom_2_index(),
+				     atoms[bond.get_atom_1_index()], atoms[bond.get_atom_2_index()],
+				     shorten_first, shorten_second,
+				     lig_build::bond_t::DOUBLE_BOND,
+				     other_connections_to_second_atom,
+				     NULL);
+	    bonds[ibond] = new_bond;
+	 }
       }
    }
    assign_ring_centres(true);
