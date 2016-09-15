@@ -434,6 +434,8 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
    case DOUBLE_BOND:
    case DOUBLE_OR_AROMATIC:
       {
+	 // std::cout << "here in canvas_item_for_bond() double with centre "
+	 // << have_centre_pos() << std::endl;
 	 if (have_centre_pos()) {
 
 	    // we want to draw this sort of double bond - currently called "aromatic"
