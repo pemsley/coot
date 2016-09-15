@@ -602,18 +602,22 @@ widgeted_bond_t::make_wedge_out_bond_item(const lig_build::pos_t &pos_1,
    GooCanvasItem *item = NULL; // updated as return value
    
    if (other_connections_to_second_atom.size() > 0) {
-
       item = make_sheared_or_darted_wedge_bond(pos_1, pos_2, other_connections_to_second_atom, root);
-
    } else {
    
       // A filled shape (quadralateral (almost triangle)).
-   
+
       lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
       lig_build::pos_t buv_90 = buv.rotate(90);
-      lig_build::pos_t short_edge_pt_1 = pos_2 + buv_90 * 3;
-      lig_build::pos_t short_edge_pt_2 = pos_2 - buv_90 * 3;
+      // How long is this bond?  The width of the fat (i.e. non-pointy) end should be
+      // proprotional to the length of the bond.
+      //
+      double l = lig_build::pos_t::length(pos_1, pos_2);
+      double bond_length_ratio = l/SINGLE_BOND_CANVAS_LENGTH;
 
+      lig_build::pos_t short_edge_pt_1 = pos_2 + buv_90 * 3 * bond_length_ratio;
+      lig_build::pos_t short_edge_pt_2 = pos_2 - buv_90 * 3 * bond_length_ratio;
+   
       // the line width means that the sharp angle at pos_1 here results
       // in a few pixels beyond the pos_1, so artificially shorten it a
       // tiny amount.
@@ -721,13 +725,20 @@ widgeted_bond_t::make_wedge_in_bond_item(const lig_build::pos_t &pos_1,
    lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
    lig_build::pos_t buv_90 = buv.rotate(90);
    int n_lines = 5;
+
+   // How long is this bond?  The width of the fat (i.e. non-pointy) end should be
+   // proprotional to the length of the bond.
+   //
+   double l = lig_build::pos_t::length(pos_1, pos_2);
+   double bond_length_ratio = l/SINGLE_BOND_CANVAS_LENGTH;
+
    for (int i=1; i<=n_lines; i++) {
       // then centre point of the line, some way along the pos_1 -> pos_2 vector;
       double len = double(i) * 1.0;
       double frac = (double(i)- 0.3)/double(n_lines);
       lig_build::pos_t fp = lig_build::pos_t::fraction_point(pos_1, pos_2, frac);
-      lig_build::pos_t p1 = fp + buv_90 * len;
-      lig_build::pos_t p2 = fp - buv_90 * len;
+      lig_build::pos_t p1 = fp + buv_90 * len * bond_length_ratio;
+      lig_build::pos_t p2 = fp - buv_90 * len * bond_length_ratio;
       GooCanvasItem *ci_1 = wrap_goo_canvas_polyline_new_line(group,
 							 p1.x, p1.y,
 							 p2.x, p2.y);
