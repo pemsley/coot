@@ -38,6 +38,10 @@ on_rama_radiomenuitem_toggled(GtkCheckMenuItem *checkmenuitem, gpointer user_dat
 void
 on_kleywegt_radiomenuitem_toggled(GtkCheckMenuItem *checkmenuitem, gpointer user_data);
 void
+on_zoom_in_activate(GtkMenuItem *item, gpointer user_data);
+void
+on_zoom_out_activate(GtkMenuItem *item, gpointer user_data);
+void
 on_zoom_resize_menuitem_toggled(GtkCheckMenuItem *checkmenuitem, gpointer user_data);
 void
 on_rama_about_menuitem_activate(GtkMenuItem *item, gpointer user_data);
