@@ -1448,6 +1448,8 @@ namespace lig_build {
 	 return std::pair<bool, double> (set_status, dist_closest);
       }
 
+      // the sum of the neighbour vectors from (relative to) the central atom
+      //
       pos_t get_sum_delta_neighbours(unsigned int atom_index,
 				     const std::vector<unsigned int> &bond_indices) const {
 	 pos_t sum_delta(0,0);
@@ -1663,8 +1665,7 @@ namespace lig_build {
 		     h_count = "2";
 
 		  pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
-		  if (fabs(sum_delta.x) < 3.2) { // prefer CH3 to H3C when (nearly) vertical.
-		     // return atom_id_info_t("CH", h_count);
+		  if (sum_delta.x < 3.2) { // prefer CH3 to H3C when (nearly) vertical.
 		     atom_id_info_t id("CH");
 		     offset_text_t ot(h_count);
 		     ot.tweak = pos_t(18, 0);
@@ -1707,7 +1708,7 @@ namespace lig_build {
 		  // H2N, with the 2 subscripted.
 		  // 
 		  pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
-		  if (fabs(sum_delta.x) < 3.2) { // prefer NH2 to H2N when (nearly) vertical.
+		  if (sum_delta.x < 3.2) { // prefer NH2 to H2N when (nearly) vertical.
 		     return atom_id_info_t("NH", "2");
 		  } else {
 		     // more tricky case then...
