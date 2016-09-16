@@ -1663,7 +1663,7 @@ namespace lig_build {
 		     h_count = "2";
 
 		  pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
-		  if (sum_delta.x < 0.2) { // prefer CH3 to H3C when (nearly) vertical.
+		  if (fabs(sum_delta.x) < 3.2) { // prefer CH3 to H3C when (nearly) vertical.
 		     // return atom_id_info_t("CH", h_count);
 		     atom_id_info_t id("CH");
 		     offset_text_t ot(h_count);
@@ -1672,7 +1672,6 @@ namespace lig_build {
 		     id.add(ot);
 		     return id;
 		  } else {
-		     // more tricky case then...
 		     atom_id_info_t id;
 		     offset_text_t otH("H");
 		     offset_text_t ot2(h_count);
@@ -1708,7 +1707,7 @@ namespace lig_build {
 		  // H2N, with the 2 subscripted.
 		  // 
 		  pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
-		  if (sum_delta.x < 0.2) { // prefer NH2 to H2N when (nearly) vertical.
+		  if (fabs(sum_delta.x) < 3.2) { // prefer NH2 to H2N when (nearly) vertical.
 		     return atom_id_info_t("NH", "2");
 		  } else {
 		     // more tricky case then...
