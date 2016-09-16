@@ -33,6 +33,7 @@ class widgeted_bond_t : public lig_build::bond_t, ligand_layout_graphic_primitiv
 			   bool shorten_first,
 			   bool shorten_second,
 			   bond_type_t bt,
+			   const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
 			   const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 			   GooCanvasItem *root) {
       
@@ -47,7 +48,9 @@ class widgeted_bond_t : public lig_build::bond_t, ligand_layout_graphic_primitiv
 //       }
       
       ci = canvas_item_for_bond(atom_first, atom_second, shorten_first, shorten_second, bt,
-				other_connections_to_second_atom, root);
+				other_connections_to_first_atom,
+				other_connections_to_second_atom,
+				root);
 
       if (false)
 	 std::cout << "construct_internal() shorten first: " << shorten_first
@@ -65,6 +68,7 @@ class widgeted_bond_t : public lig_build::bond_t, ligand_layout_graphic_primitiv
 				       bool shorten_first,
 				       bool shorten_second,
 				       bond_type_t bt,
+				       const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
 				       const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 				       GooCanvasItem *root) const;
 
@@ -77,6 +81,7 @@ class widgeted_bond_t : public lig_build::bond_t, ligand_layout_graphic_primitiv
 					bool shorten_first,
 					bool shorten_second,
 					lig_build::bond_t::bond_type_t bt,
+					const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
 					const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 					GooCanvasItem *root) {
 
@@ -92,17 +97,26 @@ class widgeted_bond_t : public lig_build::bond_t, ligand_layout_graphic_primitiv
       
       GooCanvasItem *new_line = canvas_item_for_bond(atom_changed, atom_other,
 						     shorten_first, shorten_second,
-						     bt, other_connections_to_second_atom, root);
+						     bt,
+						     other_connections_to_first_atom,
+						     other_connections_to_second_atom,
+						     root);
       update_canvas_item(new_line, root);
    }
 
+   GooCanvasItem * canvas_item_double_bond_simple(const lig_build::pos_t &pos_1,
+						  const lig_build::pos_t &pos_2,
+						  GooCanvasItem *root) const;
+					
    GooCanvasItem * canvas_item_double_bond(const lig_build::pos_t &pos_1,
 					   const lig_build::pos_t &pos_2,
+					   const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
+					   const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 					   GooCanvasItem *root) const;
 					
-   GooCanvasItem * canvas_item_double_aromatic_bond(const lig_build::pos_t &pos_1,
-						    const lig_build::pos_t &pos_2,
-						    GooCanvasItem *root) const;
+   GooCanvasItem * canvas_item_double_with_shortened_side_bond(const lig_build::pos_t &pos_1,
+							       const lig_build::pos_t &pos_2,
+							       GooCanvasItem *root) const;
 					
    GooCanvasItem * make_wedge_bond_item(const lig_build::pos_t &pos_1,
 					const lig_build::pos_t &pos_2,
@@ -140,10 +154,12 @@ public:
 		   const lig_build::atom_t &atom_second,
 		   bool shorten_first, bool shorten_second,
 		   bond_type_t bt,
+		   const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
 		   const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 		   GooCanvasItem *root) :
       lig_build::bond_t(first, second, bt) {
       construct_internal(atom_first, atom_second, shorten_first, shorten_second, bt,
+			 other_connections_to_first_atom,
 			 other_connections_to_second_atom, root);
    }
    // as above, but we give the centre of the ring too.
@@ -153,7 +169,8 @@ public:
 		   bool shorten_first, bool shorten_second,
 		   lig_build::pos_t centre_pos_in,
 		   bond_type_t bt,
-		   const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,		   
+		   const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
+		   const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 		   GooCanvasItem *root) :
       bond_t(first, second, centre_pos_in, bt) {
       
@@ -166,6 +183,7 @@ public:
       // bool shorten_second = false;
       
       construct_internal(atom_first, atom_second, shorten_first, shorten_second, bt,
+			 other_connections_to_first_atom,
 			 other_connections_to_second_atom, root);
    }
    
@@ -176,11 +194,13 @@ public:
 
    void update(const lig_build::atom_t &at_1, const lig_build::atom_t &at_2,
 	       bool shorten_first, bool shorten_second,
+	       const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
 	       const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 	       GooCanvasItem *root) {
       
       clear(root);
       ci = canvas_item_for_bond(at_1, at_2, shorten_first, shorten_second, get_bond_type(),
+				other_connections_to_first_atom,
 				other_connections_to_second_atom, root);
    }
 
@@ -188,9 +208,12 @@ public:
    void update(const lig_build::atom_t &at_1, const lig_build::atom_t &at_2,
 	       bool shorten_first, bool shorten_second, GooCanvasItem *root) {
       clear(root);
+      std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > other_connections_to_first_atom;
       std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > other_connections_to_second_atom;
       ci = canvas_item_for_bond(at_1, at_2, shorten_first, shorten_second, get_bond_type(),
-				other_connections_to_second_atom, root);
+				other_connections_to_first_atom,
+				other_connections_to_second_atom,
+				root);
    }
 
    void rotate_canvas_item(gdouble cx, gdouble cy, gdouble degrees) {
@@ -208,26 +231,31 @@ public:
 			     const lig_build::atom_t &atom_other,
 			     bool shorten_first,
 			     bool shorten_second,
+			     const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
 			     const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 			     GooCanvasItem *root) {
 
       lig_build::bond_t::bond_type_t bt = get_bond_type();
       make_new_canvas_item_given_type(atom_changed, atom_other,
 				      shorten_first, shorten_second, bt,
+				      other_connections_to_first_atom,
 				      other_connections_to_second_atom, root);
    }
    void change_bond_order(const lig_build::atom_t &atom_changed,
 			  const lig_build::atom_t &atom_other,
 			  bool shorten_first, bool shorten_second,
+			  const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
 			  const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 			  GooCanvasItem *root) {
       change_bond_order(atom_changed, atom_other, shorten_first, shorten_second, 0,
+			other_connections_to_first_atom,
 			other_connections_to_second_atom, root);
    }
    void change_bond_order(const lig_build::atom_t &atom_changed,
 			  const lig_build::atom_t &atom_other,
 			  bool shorten_first, bool shorten_second,
 			  bool allow_triple_toggle,
+			  const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,			  
 			  const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,			  
 			  GooCanvasItem *root) {
 
@@ -268,6 +296,7 @@ public:
       
       set_bond_type(bt);
       make_new_canvas_item_given_type(at_1, at_2, shorten_first, shorten_second, bt,
+				      other_connections_to_first_atom,
 				      other_connections_to_second_atom, root);
    }
    void close(GooCanvasItem *root) {

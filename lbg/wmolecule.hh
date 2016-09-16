@@ -307,9 +307,12 @@ public:
    // 
    lig_build::pos_t get_atom_canvas_position(const std::string &atom_name) const;
 
+   // to draw double bonds without centre correctly (and below)
+   std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
+      make_other_connections_to_first_atom_info(unsigned int bond_index) const;
    // to draw wedge bonds correctly
    std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
-   make_other_connections_to_second_atom_info(unsigned int bond_index) const;
+      make_other_connections_to_second_atom_info(unsigned int bond_index) const;
    
 
    // can throw an exception (no atoms)
