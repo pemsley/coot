@@ -45,7 +45,7 @@
   </object>
   <object class="GtkWindow" id="lbg_window">
     <property name="width_request">740</property>
-    <property name="height_request">530</property>
+    <property name="height_request">640</property>
     <property name="title" translatable="yes">Lidia: Coot's Ligand Builder</property>
     <property name="icon">pixmaps/coot-icon.png</property>
     <child>
