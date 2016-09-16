@@ -3732,6 +3732,24 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 				       centre_pos, bt, empty, root);
 		  mol.add_bond(bond);
 
+		  if (false) { // debug ring centres
+		     if (bt == lig_build::bond_t::DOUBLE_BOND) {
+			lig_build::pos_t pos = centre_pos;
+			pos += mol_in.atoms[mol_in.bonds[ib].get_atom_1_index()].atom_position;
+			pos += mol_in.atoms[mol_in.bonds[ib].get_atom_2_index()].atom_position;
+			pos = pos * 0.333333;
+			GooCanvasItem *item =
+			   goo_canvas_ellipse_new(root,
+						  pos.x, pos.y,
+						  6.0, 6.0,
+						  "line-width", 1.0,
+						  "stroke-color-rgba", 0xffffffaa,
+						  "fill_color_rgba", 0x992299aa,
+						  NULL);
+		     }
+		  }
+		  
+
 	       } else {
 		  // bond with no ring centre
 		  bool shorten_first  = false;

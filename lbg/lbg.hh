@@ -918,7 +918,10 @@ private:
    void show_mol_ring_centres(); // not const because mol.get_ring_centres() caches
    void show_unlimited_atoms(const std::vector<widgeted_atom_ring_centre_info_t> &ua);
    void show_ring_centres(std::vector<std::vector<std::string> > ring_atoms_list,
-			      const widgeted_molecule_t &mol);
+			  const widgeted_molecule_t &mol);
+   // this can cache ring centres in mol if they are not there already
+   void show_ring_centres(widgeted_molecule_t &mol);
+   
 
    std::string grid_intensity_to_colour(int val) const;
    std::string sixteen_to_hex_let(int v) const;

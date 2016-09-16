@@ -702,9 +702,7 @@ namespace lig_build {
 
 			if (local_no_pass_atoms.find(atom_index_other) != local_no_pass_atoms.end()) {
 			   local_no_pass_atoms.insert(this_atom_index);
-			   std::vector<std::set<unsigned int> > f;
-			   f.push_back(local_no_pass_atoms);
-			   return f;
+			   v.push_back(local_no_pass_atoms);
 			}
 		     }
 		  }
@@ -722,8 +720,7 @@ namespace lig_build {
 			if (local_no_pass_atoms.find(atom_index_other) != local_no_pass_atoms.end()) {
 			   local_no_pass_atoms.insert(this_atom_index);
 			   std::vector<std::set<unsigned int> > f;
-			   f.push_back(local_no_pass_atoms);
-			   return f;
+			   v.push_back(local_no_pass_atoms);
 			}
 		     }
 		  }
@@ -1015,13 +1012,18 @@ namespace lig_build {
 
 	 for (unsigned int ib=0; ib<bonds.size(); ib++) {
 	    if (! bonds[ib].have_centre_pos() || force) {
-	       unsigned int atom_index = bonds[ib].get_atom_1_index();
+	       unsigned int atom_index     = bonds[ib].get_atom_1_index();
+	       unsigned int atom_idx_other = bonds[ib].get_atom_2_index();
 	       if (debug)
 		  std::cout << "=============== checking bond " << ib
 			    << " for rings for atom index "
 			    << atom_index << " ===============" << std::endl;
 
-	       std::vector<std::set<unsigned int> > rings = rings_including_atom(atom_index);
+	       // all the rings for atom_index that pass throught atom_idx_other (because
+	       // for a double bond connected to a fused ring atom we want the ring that contains
+	       // this bond (not the other ring).
+	       // 
+	       std::vector<std::set<unsigned int> > rings = rings_including_atom(atom_index, atom_idx_other);
 
 	       if (debug) {
 		  std::cout << "   constructor of widgeted_bond_t atom " << atom_index

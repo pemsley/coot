@@ -1226,8 +1226,29 @@ lbg_info_t::show_ring_centres(std::vector<std::vector<std::string> > ring_atoms_
 		   << iring << std::endl;
       }
    }
+}
 
-} 
+
+// this can cache ring centres in mol if they are not there already.
+void
+lbg_info_t::show_ring_centres(widgeted_molecule_t &mol) {
+
+   GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+   std::vector<lig_build::pos_t> ring_centre_list = mol.get_ring_centres();
+
+   std::cout << "found " << ring_centre_list.size() << " ring centres" << std::endl;
+   for (unsigned int iring=0; iring<ring_centre_list.size(); iring++) {
+      std::cout << "   " << ring_centre_list[iring] << std::endl;
+      GooCanvasItem *item = goo_canvas_ellipse_new(root,
+						   ring_centre_list[iring].x, ring_centre_list[iring].y,
+						   12.0, 12.0,
+						   "line-width", 1.0,
+						   "stroke-color", "purple",
+						   "fill_color", "purple",
+						   NULL);
+   }
+
+}
 
 
 
