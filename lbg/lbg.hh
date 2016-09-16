@@ -1068,6 +1068,7 @@ public:
    // when we have multiple molecule, these things should go together
    widgeted_molecule_t mol;
    bool display_atom_names;
+   bool display_atom_numbers; // e.g. N:11, C:12
    
    int canvas_addition_mode;
    void lbg_toggle_button_my_toggle(GtkToggleToolButton *tb);

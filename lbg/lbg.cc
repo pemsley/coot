@@ -3721,7 +3721,6 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
       }
    }
 
-
    // add in bonds
    for (unsigned int ib=0; ib<mol_in.bonds.size(); ib++) {
       if (! mol_in.bonds[ib].is_closed()) { 
@@ -3734,7 +3733,7 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 	       if (mol_in.bonds[ib].have_centre_pos()) {
 
 		  std::pair<bool, bool> shorten = mol.shorten_flags(ib);
-		  if (display_atom_names) {
+		  if (display_atom_names || display_atom_numbers) {
 		     shorten.first = true;
 		     shorten.second = true;
 		  }
@@ -3772,7 +3771,7 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 		  if (mol.atoms[idx_2].element != "C")
 		     shorten_second = true;
 
-		  if (display_atom_names) {
+		  if (display_atom_names || display_atom_numbers) {
 		     shorten_first  = true;
 		     shorten_second = true;
 		  }
@@ -3787,7 +3786,7 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
       }
    }
 
-   if (! display_atom_names) {
+   if (! display_atom_names && ! display_atom_numbers) {
 
       // shorten C superatom bonds (we have to do this after all the bonds have been added)
       //
@@ -3835,9 +3834,11 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
    // redo the atoms, this time with widgets.
    for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
 
-      if (display_atom_names) {
+      if (display_atom_names || display_atom_numbers) {
 
 	 lig_build::atom_id_info_t atom_id_info = mol.atoms[iat].atom_name;
+	 if (display_atom_numbers)
+	    atom_id_info = mol.atoms[iat].element + ":" + coot::util::int_to_string(iat+1); // mol file numbering, 1-indexed
 	 atom_id_info.size_hint = -1;
 	 const std::string &ele = mol.atoms[iat].element;
 	 std::string fc = font_colour(ele);
