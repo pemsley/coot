@@ -782,7 +782,8 @@ private:
       alert_group = NULL; // group for alert annotations
       show_alerts_user_control = false; // no pattern matching available
       geom_p = NULL; // no (const) geometry passed/set
-      display_atom_names = false;
+      display_atom_names   = false;
+      display_atom_numbers = false;
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS   
       show_alerts_user_control = false;
       bond_pick_pending = false;
@@ -1359,6 +1360,11 @@ public:
       display_atom_names = state;
       render_from_molecule(mol);
    }
+   void set_display_atom_numbers(bool state) {
+      display_atom_numbers = state;
+      render_from_molecule(mol);
+   }
+   
    
 };
 
