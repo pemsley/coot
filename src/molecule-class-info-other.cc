@@ -4024,7 +4024,9 @@ molecule_class_info_t::fill_raster_model_info(bool against_a_dark_background) {
 	 for (int i=0; i<bonds_box.num_colours; i++) {
 	    set_bond_colour_by_mol_no(i, against_a_dark_background); //sets bond_colour_internal
 	    for (int j=0; j<bonds_box.bonds_[i].num_lines; j++) {
-	       rtmi.bond_lines.push_back(std::pair<coot::Cartesian, coot::Cartesian>(bonds_box.bonds_[i].pair_list[j].positions.getStart(), bonds_box.bonds_[i].pair_list[j].positions.getFinish()));
+	       std::pair<coot::Cartesian, coot::Cartesian> p(bonds_box.bonds_[i].pair_list[j].positions.getStart(),
+							     bonds_box.bonds_[i].pair_list[j].positions.getFinish());
+	       rtmi.bond_lines.push_back(p);
 	       coot::colour_t c;
 	       c.col.resize(3);
 	       c.col[0] = bond_colour_internal[0];
