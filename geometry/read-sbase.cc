@@ -124,7 +124,17 @@ coot::protein_geometry::matching_ccp4srs_residues_names(const std::string &compo
 #ifdef HAVE_CCP4SRS   
    std::string compound_name = coot::util::upcase(compound_name_frag);
    if (ccp4srs) {
-      int n_entries = ccp4srs->n_entries();
+      unsigned int n_entries = ccp4srs->n_entries();
+      for (unsigned int i=1; i<n_entries; i++) {
+	 ccp4srs::Monomer *Monomer = ccp4srs->getMonomer(i, NULL);
+	 std::string id = Monomer->ID();
+	 std::string chem_name = Monomer->chem_name();
+	 // std::cout << "i " << i <<  " monomer id  " << id << std::endl;
+	 if (chem_name.find(compound_name_frag) != std::string::npos) {
+	    std::pair<std::string, std::string> p(id, chem_name);
+	    v.push_back(p);
+	 }
+      }
    } else {
       std::cout << "WARNING:: Null CCP4SRS" << std::endl;
    } 

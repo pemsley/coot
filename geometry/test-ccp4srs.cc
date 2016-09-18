@@ -61,7 +61,7 @@ list_monomers() {
          std::cout << "CCP4SRS init problem." << std::endl;
          delete ccp4srs;
          ccp4srs = NULL;
-      } else { 
+      } else {
          int l = ccp4srs->n_entries();
          for (int i=0; i<l ;i++)  {
          ccp4srs::Monomer *Monomer = ccp4srs->getMonomer(i, NULL);
@@ -112,7 +112,7 @@ main(int argc, char **argv) {
    int status = pg.init_ccp4srs("nothing");
    std::cout << "INFO:: test-ccp4srs: status: " << status << std::endl;
  
-   if (argc > 1) { 
+   if (argc > 1) {
       std::string a1(argv[1]);
       if (a1 == "list") {  // non-polymers only
          list_monomers();
@@ -136,11 +136,23 @@ main(int argc, char **argv) {
          double local_search_similarity = 0.9;
          int n_atoms = restraints.residue_info.number_atoms_nh;
          mmdb::math::Graph *graph = restraints.make_graph(true);
-         if (false) { 
+
+	 // this crashes in mmdb graph matching code.
+         if (false) {
 	    std::vector<coot::match_results_t> v =
 	       pg.compare_vs_ccp4srs(graph, local_search_similarity, n_atoms);
 	    std::cout << "INFO:: test-ccp4srs: got " << v.size() << " SRS matches " << std::endl;
          }
+
+	 if (true) {
+	    pg.fill_using_ccp4srs("TRP");
+	    std::string match_str = "trypto";
+	    std::vector<std::pair<std::string, std::string> > v = pg.matching_ccp4srs_residues_names(match_str);
+	    std::cout << " Found " << v.size() << " monomers with names matching " << match_str << std::endl;
+	    for (unsigned int i=0; i<v.size(); i++)
+	       std::cout << v[i].first << " " << v[i].second << std::endl;
+	 }
+	 
          delete graph;
       } else {
          std::cout << "No comp_id " << comp_id << " in dictionary." << std::endl;
