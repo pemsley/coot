@@ -50,6 +50,9 @@
 #if CAIRO_HAS_PDF_SURFACE
 #include <cairo-pdf.h>
 #endif
+#if CAIRO_HAS_PS_SURFACE
+#include <cairo-ps.h>
+#endif
 #include <cairo-svg.h>
 #include "lbg.hh"
 #include "lbg-drag-and-drop.hh"
@@ -3942,6 +3945,41 @@ lbg_info_t::write_pdf(const std::string &file_name) const {
 #endif
 
 }
+
+void
+lbg_info_t::write_ps(const std::string &file_name) const { 
+
+#if CAIRO_HAS_PS_SURFACE
+   cairo_surface_t *surface;
+   cairo_t *cr;
+
+   std::pair<lig_build::pos_t, lig_build::pos_t> extents = mol.ligand_extents();
+   double pos_x = (extents.second.x + 220.0);
+   double pos_y = (extents.second.y + 220.0);
+
+   if (key_group) {
+      pos_y += 240;
+      // pos_x += 50;
+      pos_x += 150;
+   }
+   surface = cairo_ps_surface_create(file_name.c_str(), pos_x, pos_y);
+   cr = cairo_create (surface);
+   cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
+
+   /* Place it in the middle of our 9x10 page. */
+   // cairo_translate (cr, 20, 130);
+   cairo_translate(cr, 2, 13);
+
+   goo_canvas_render(GOO_CANVAS(canvas), cr, NULL, 1.0);
+   cairo_show_page(cr);
+   cairo_surface_destroy(surface);
+   cairo_destroy(cr);
+
+#else
+   std::cout << "No PS (no PS Surface in Cairo)" << std::endl;
+#endif
+}
+
 
 void
 lbg_info_t::write_svg(const std::string &file_name) const {

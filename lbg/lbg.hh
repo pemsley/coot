@@ -1099,6 +1099,7 @@ public:
    std::string get_stroke_colour(int i, int n) const;
    void drag_canvas(int mouse_x, int mouse_y);
    void write_pdf(const std::string &file_name) const;
+   void write_ps(const std::string &file_name) const;
    void write_png(const std::string &file_name);
    void write_svg(const std::string &file_name) const;
    void set_mouse_pos_at_click(int xpos, int ypos) {
