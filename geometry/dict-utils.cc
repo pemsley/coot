@@ -1067,6 +1067,39 @@ bool coot::dictionary_residue_restraints_t::composition_matches(const dictionary
 }
 
 
+// for hydrogens
+bool
+coot::dictionary_residue_restraints_t::is_connected_to_donor(const std::string &H_at_name_4c,
+							     const coot::energy_lib_t &energy_lib) const {
+
+   bool result = false;
+   for (unsigned int i=0; i<bond_restraint.size(); i++) {
+      if (bond_restraint[i].atom_id_1_4c() == H_at_name_4c) {
+	 // what is the energy type of bond[i].atom_id_2_4c()?
+	 std::string energy_type = type_energy(bond_restraint[i].atom_id_2_4c());
+	 std::map<std::string, energy_lib_atom>::const_iterator it = energy_lib.atom_map.find(energy_type);
+	 if (it != energy_lib.atom_map.end()) {
+	    if (it->second.hb_type == HB_DONOR || it->second.hb_type == HB_BOTH) {
+	       result = true;
+	       break;
+	    }
+	 }
+      }
+      if (bond_restraint[i].atom_id_2_4c() == H_at_name_4c) {
+	 // what is the energy type of bond[i].atom_id_1_4c()?
+	 std::string energy_type = type_energy(bond_restraint[i].atom_id_1_4c());
+	 std::map<std::string, energy_lib_atom>::const_iterator it = energy_lib.atom_map.find(energy_type);
+	 if (it != energy_lib.atom_map.end()) {
+	    if (it->second.hb_type == HB_DONOR || it->second.hb_type == HB_BOTH) {
+	       result = true;
+	       break;
+	    }
+	 }
+      }
+   }
+   return result;
+}
+
 
 
 // 1mzt

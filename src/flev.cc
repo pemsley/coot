@@ -1190,7 +1190,7 @@ coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
       std::cout << ":::: get_fle_ligand_bonds returns these " << v.size()
 		<< " bonds: " << std::endl;
       for (unsigned int i=0; i<v.size(); i++) { 
-	 std::cout << "   " << i << "  " << v[i] << std::endl;
+	 std::cout << "   " << i << " :  " << v[i] << std::endl;
       }
    } 
    return v;
