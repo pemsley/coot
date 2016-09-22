@@ -1,0 +1,217 @@
+
+#include <iostream>
+#include <vector>
+#include <mmdb2/mmdb_manager.h>
+#include <mmdb2/mmdb_math_graph.h>
+#include <ccp4srs/ccp4srs_manager.h>
+
+// a container for the results of the comparison vs CCP4SRS graph matching.
+//
+class match_results_t {
+public:
+   bool success;
+   std::string name;
+   std::string comp_id;
+   mmdb::Residue *res;
+   match_results_t(const std::string &comp_id_in, const std::string &name_in, mmdb::Residue *res_in) {
+      name = name_in;
+      comp_id = comp_id_in;
+      res = res_in;
+      if (res_in)
+	 success = true;
+      else
+	 success = false;
+   }
+};
+      
+
+
+// #define HAVE_CCP4SRS
+
+#ifdef TEST_WITH_GEOMETRY
+mmdb::math::Graph *
+get_graph_1() {
+   coot::protein_geometry *geom_p = new coot::protein_geometry;
+   const char *d1 = getenv(MONOMER_DIR_STR); // "COOT_CCP4SRS_DIR"
+   std::string srs_dir = PKGDATADIR;
+   if (d1)
+      srs_dir = d1;
+   std::cout << "---- geom_p init_ccp4srs with srs_dir " << srs_dir
+	     << std::endl;
+   geom_p->init_ccp4srs(srs_dir);
+   geom_p->try_dynamic_add(monomer_type, true);
+   std::pair<bool, coot::dictionary_residue_restraints_t> rest =
+      geom_p->get_monomer_restraints(monomer_type);
+   mmdb::math::Graph *graph = rest.second.make_graph(inc_Hs);
+   return graph;
+}
+#endif // TEST_WITH_GEOMETRY
+
+
+mmdb::math::Graph *
+get_graph_2() {
+
+   mmdb::math::Graph *graph = new mmdb::math::Graph;
+
+   std::vector<std::pair<std::string, int> > v;
+   v.push_back(std::pair<std::string, int>("N",   7));
+   v.push_back(std::pair<std::string, int>("CA",  6));
+   v.push_back(std::pair<std::string, int>("CB",  6));
+   v.push_back(std::pair<std::string, int>("CG",  6));
+   v.push_back(std::pair<std::string, int>("CD1", 6));
+   v.push_back(std::pair<std::string, int>("NE1", 7));
+   v.push_back(std::pair<std::string, int>("CE2", 6));
+   v.push_back(std::pair<std::string, int>("CD2", 6));
+   v.push_back(std::pair<std::string, int>("CE3", 6));
+   v.push_back(std::pair<std::string, int>("CZ3", 6));
+   v.push_back(std::pair<std::string, int>("CH2", 6));
+   v.push_back(std::pair<std::string, int>("CZ2", 6));
+   v.push_back(std::pair<std::string, int>("C",   6));
+   v.push_back(std::pair<std::string, int>("O",   8));
+
+   // mmdb::math::Vertex *vert = new mmdb::math::Vertex("", "");
+   // graph->AddVertex(vert);
+   for (unsigned int i=0; i<v.size(); i++) {
+      std::string ele = "C";
+      if (v[i].second == 7) ele = "N";
+      if (v[i].second == 8) ele = "0";
+      std::string name = v[i].first;
+      mmdb::math::Vertex *vert = new mmdb::math::Vertex(ele.c_str(), name.c_str());
+      graph->AddVertex(vert);
+   }
+
+   std::vector<std::pair<std::pair<int, int>, int> > e;
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(1,  2), 1));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(2,  3), 1));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(3,  4), 1));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(4,  8), 1));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(4,  5), 2));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(5,  6), 1));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(6,  7), 1));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(7, 12), 1));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(7,  8), 2));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(8,  9), 1));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(9, 10), 2));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(10, 11), 1));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(11, 12), 2));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>( 2, 13), 1));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(13, 14), 1));
+
+   for (unsigned int i=0; i<e.size(); i++) {
+      mmdb::math::Edge *ed = new mmdb::math::Edge(e[i].first.first, e[i].first.second,
+						  e[i].second);
+      graph->AddEdge(ed);
+   }
+
+   return graph;
+}
+
+void
+init_ccp4srs(ccp4srs::Manager *ccp4srs) {
+
+   const char *d1 = getenv("COOT_CCP4SRS_DIR");
+   std::string srs_dir;
+   if (d1)
+      srs_dir = d1;
+   int RC = ccp4srs->loadIndex(srs_dir.c_str());
+   if (RC != ccp4srs::CCP4SRS_Ok) {
+      std::cout << "CCP4SRS init problem." << std::endl;
+   }
+   
+}
+
+#ifdef HAVE_CCP4SRS
+std::vector<match_results_t>
+compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float similarity, int n_vertices) {
+
+   std::vector<match_results_t> v;
+
+   ccp4srs::Manager *ccp4srs = new ccp4srs::Manager;
+   init_ccp4srs(ccp4srs);
+
+   if (! ccp4srs) {
+      std::cout << "WARNING:: CCP4SRS is not initialized" << std::endl;
+   } else {
+      int l = ccp4srs->n_entries();
+      std::cout << "INFO:: compare_vs_ccp4srs(): found " << l << " entries in CCP4 SRS" << std::endl;
+      mmdb::math::Graph  *graph_2;
+      int rc = 0;
+      for (int i=201; i<l ;i++)  {
+	 ccp4srs::Monomer *Monomer = ccp4srs->getMonomer(i, NULL);
+	 if (Monomer)  {
+	    std::string id = Monomer->ID();
+	    std::cout << "i " << i <<  " monomer id  " << id << std::endl;
+	    if (id.length()) {
+	       graph_2 = Monomer->getGraph(&rc);
+
+	       if (rc < 10000) { 
+		  mmdb::math::GraphMatch match;
+		  match.SetTimeLimit(2); // seconds
+		  int minMatch = 6;
+
+		  std::cout << "INFO:: match.MatchGraphs must match at least "
+			    << minMatch << " atoms."
+			    << std::endl;
+
+		  if (true) {
+
+		     // hangs if you open the wrong (old) SRS.
+		     
+		     mmdb::math::VERTEX_EXT_TYPE vertex_ext=mmdb::math::EXTTYPE_Ignore; // mmdb default
+		     bool vertext_type = true;
+		     match.MatchGraphs(graph_2, graph_2, minMatch, vertext_type, vertex_ext);
+		     int n_match = match.GetNofMatches();
+		     std::cout << "INFO:: match NumberofMatches (potentially similar graphs) "
+			       << n_match << std::endl;
+
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return v;
+}
+#endif // HAVE_CCP4SRS
+   
+
+int test_ccp4srs_graph_search() {
+
+   int r = 0;
+
+#ifdef HAVE_CCP4SRS
+
+   double search_similarity = 0.9;
+   bool inc_Hs = false;
+   std::string monomer_type = "TRP";
+   unsigned int n_atoms = 12;
+
+   mmdb::math::Graph *graph = get_graph_2();
+
+   graph->SetName ("Coot-LBG-Query");
+   graph->MakeVertexIDs();
+   int build_result = graph->Build(false);
+   if (build_result != 0) {
+      std::cout << "Bad graph build result" << std::endl;
+   } else {
+      graph->MakeSymmetryRelief(false);
+      graph->Print();
+      std::cout << "graph search using similarity  " << search_similarity << std::endl;
+      std::cout << "graph build returns: " << build_result << std::endl;
+      std::vector<match_results_t> v = compare_vs_ccp4srs(graph, search_similarity, n_atoms);
+      delete graph;
+      std::cout << "found " << v.size() << " close matches" << std::endl;
+   }
+#endif // HAVE_CCP4SRS
+   return r;
+}
+
+
+int main(int argc, char **argv) {
+
+   int status = 0;
+
+   test_ccp4srs_graph_search();
+
+   return status;
+}

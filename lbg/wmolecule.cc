@@ -779,6 +779,12 @@ widgeted_bond_t::make_sheared_or_darted_wedge_bond(const lig_build::pos_t &pos_1
       lig_build::pos_t bond_from_3rd_atom_extension   = pos_2 + bfrom3rd*0.1;
       lig_build::pos_t bond_from_3rd_atom_contraction = pos_2 - bfrom3rd*0.18;
 
+      if (third_bond.get_bond_type() == lig_build::bond_t::DOUBLE_BOND) {
+	 // we need to make this shorter.
+	 bond_from_3rd_atom_extension   -= buv * 2.6;
+	 bond_from_3rd_atom_contraction -= buv * 2.6;
+      }
+
       item = wrap_goo_canvas_polyline_new(root,
 					  sharp_point_2.x, sharp_point_2.y, 
 					  sharp_point_1.x, sharp_point_1.y, 
@@ -806,17 +812,14 @@ widgeted_bond_t::make_sheared_or_darted_wedge_bond(const lig_build::pos_t &pos_1
 	 lig_build::pos_t bond_from_3rd_atom_1_contraction = pos_2 - bfrom3rd_1*0.15;
 	 lig_build::pos_t bond_from_3rd_atom_2_contraction = pos_2 - bfrom3rd_2*0.15;
 
-	 item = wrap_goo_canvas_polyline_new(root,
-					     sharp_point_2.x, sharp_point_2.y, 
-					     sharp_point_1.x, sharp_point_1.y, 
-					     bond_from_3rd_atom_1_contraction.x,
-					     bond_from_3rd_atom_1_contraction.y,
-					     pos_2.x, pos_2.y,
-					     bond_from_3rd_atom_2_contraction.x,
-					     bond_from_3rd_atom_2_contraction.y,
-					     dark, dark);
+	 std::vector<lig_build::pos_t> pts;
+	 pts.push_back(sharp_point_2);
+	 pts.push_back(sharp_point_1);
+	 pts.push_back(bond_from_3rd_atom_1_contraction);
+	 pts.push_back(pos_2);
+	 pts.push_back(bond_from_3rd_atom_2_contraction);
+	 item = wrap_goo_canvas_polyline_new_vp(root, pts, dark, dark);
       }
-      
    }
    return item;
 }

@@ -179,8 +179,44 @@ public:
 				 "stroke-color", sc.c_str(),
 				 NULL);
       return item;
-   } 
+   }
 
+   virtual GooCanvasItem *
+   wrap_goo_canvas_polyline_new_vp(GooCanvasItem *root,
+				   const std::vector<lig_build::pos_t> &pts,
+				   std::string fc,
+				   std::string sc) const {
+
+      GooCanvasItem *item = NULL;
+      if (pts.size() == 6) {
+	 item = goo_canvas_polyline_new(root, 
+					TRUE, 6,
+					pts[0].x, pts[0].y,
+					pts[1].x, pts[1].y,
+					pts[2].x, pts[2].y,
+					pts[3].x, pts[3].y,
+					pts[4].x, pts[4].y,
+					pts[5].x, pts[5].y,
+					"fill-color", fc.c_str(),
+					"stroke-color", sc.c_str(),
+					NULL);
+      } else {
+	 if (pts.size() == 5) {
+	    item = goo_canvas_polyline_new(root, 
+					   TRUE, 5,
+					   pts[0].x, pts[0].y,
+					   pts[1].x, pts[1].y,
+					   pts[2].x, pts[2].y,
+					   pts[3].x, pts[3].y,
+					   pts[4].x, pts[4].y,
+					   "fill-color", fc.c_str(),
+					   "stroke-color", sc.c_str(),
+					   NULL);
+	 }
+      }
+      return item;
+   }
+   
    
    void wrap_goo_canvas_item_rotate(GooCanvasItem *ci,
 					 double degrees, double cx, double cy) const {
