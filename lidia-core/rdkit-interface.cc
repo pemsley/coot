@@ -660,8 +660,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		  }
 
 		  if (false) { 
-		     std::cout << "atom " << rdkit_at << " has stereconfig " << atom_info.pdbx_stereo_config.second
-			       << " and " << neighbs.size() << " non-H neighbours " << std::endl;
+		     std::cout << "atom " << rdkit_at << " has stereconfig "
+			       << atom_info.pdbx_stereo_config.second << " and "
+			       << neighbs.size() << " non-H neighbours " << std::endl;
 		     std::cout << "---------- unsorted neighbs: " << std::endl;
 		     for (unsigned int jj=0; jj<neighbs.size(); jj++) {
 			std::cout << neighbs[jj].first << " " << neighbs[jj].second << std::endl;
@@ -674,8 +675,8 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		  if (false) {
 		     std::cout << "---------- sorted neighbs: " << std::endl;
 		     for (unsigned int jj=0; jj<sorted_neighbs.size(); jj++) { 
-			std::cout << jj << " " << sorted_neighbs[jj].first << " " << sorted_neighbs[jj].second
-				  << std::endl;
+			std::cout << jj << " " << sorted_neighbs[jj].first << " "
+				  << sorted_neighbs[jj].second << std::endl;
 		     }
 		  }
 	    

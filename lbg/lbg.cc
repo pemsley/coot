@@ -4078,7 +4078,11 @@ lbg_info_t::import_molecule_from_file(const std::string &file_name) { // mol or 
    if (ext == ".cif") {
       import_molecule_from_cif_file(file_name);
    } else {
-      import_mol_from_file(file_name);
+      if (ext == ".smi" || ext == ".smiles") {
+	 import_mol_from_smiles_file(file_name);
+      } else {
+	 import_mol_from_file(file_name);
+      }
    }
 }
 
