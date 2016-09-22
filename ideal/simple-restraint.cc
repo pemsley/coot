@@ -3936,11 +3936,38 @@ coot::restraints_container_t::add_chirals(int idr, mmdb::PPAtom res_selection,
 				    //
 				    int chiral_hydrogen_index = get_chiral_hydrogen_index(indexc, index1, index2, index3);
 				    
-				    if (0) 
-				       std::cout << "   Adding chiral restraint for "
+				    if (fabs(geom[idr].chiral_restraint[ic].target_volume()) < 1000.0 &&
+					fabs(geom[idr].chiral_restraint[ic].target_volume()) > 0.00001) {
+
+				       if (false) // debug
+					  std::cout << "   Adding chiral restraint for "
+						    << res_selection[iatc]->name
+						    << " " << res_selection[iatc]->GetSeqNum() <<  " "
+						    << res_selection[iatc]->GetChainID()
+						    << " with target volume "
+						    << geom[idr].chiral_restraint[ic].target_volume()
+						    << " with volume sigma "
+						    << geom[idr].chiral_restraint[ic].volume_sigma()
+						    << " with volume sign "
+						    << geom[idr].chiral_restraint[ic].volume_sign
+						    << " idr index: " << idr << " ic index: " << ic
+						    << " chiral_hydrogen_index: " << chiral_hydrogen_index
+						    << std::endl;
+
+				       std::vector<bool> fixed_flags =
+					  make_fixed_flags(indexc, index1, index2, index3);
+				       restraints_vec.push_back(simple_restraint(CHIRAL_VOLUME_RESTRAINT, indexc,
+										 index1, index2, index3,
+										 geom[idr].chiral_restraint[ic].volume_sign,
+										 geom[idr].chiral_restraint[ic].target_volume(),
+										 geom[idr].chiral_restraint[ic].volume_sigma(),
+										 fixed_flags, chiral_hydrogen_index));
+				       n_chiral_restr++;
+				    } else {
+				       std::cout << "WARNING:: Reject chiral restraint for "
 						 << res_selection[iatc]->name
 						 << " " << res_selection[iatc]->GetSeqNum() <<  " "
-						 << res_selection[iatc]->GetChainID() 
+						 << res_selection[iatc]->GetChainID()
 						 << " with target volume "
 						 << geom[idr].chiral_restraint[ic].target_volume()
 						 << " with volume sigma "
@@ -3950,16 +3977,7 @@ coot::restraints_container_t::add_chirals(int idr, mmdb::PPAtom res_selection,
 						 << " idr index: " << idr << " ic index: " << ic
 						 << " chiral_hydrogen_index: " << chiral_hydrogen_index
 						 << std::endl;
-				    
-				    std::vector<bool> fixed_flags =
-				       make_fixed_flags(indexc, index1, index2, index3);
-				    restraints_vec.push_back(simple_restraint(CHIRAL_VOLUME_RESTRAINT, indexc,
-									      index1, index2, index3,
-									      geom[idr].chiral_restraint[ic].volume_sign,
-									      geom[idr].chiral_restraint[ic].target_volume(),
-									      geom[idr].chiral_restraint[ic].volume_sigma(),
-									      fixed_flags, chiral_hydrogen_index));
-				    n_chiral_restr++;
+				    }
 				 }
 			      }
 			   }

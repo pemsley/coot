@@ -3000,26 +3000,31 @@ coot::dict_chiral_restraint_t::assign_chiral_volume_target_internal(double a, do
    double cos_2_beta  = cos_beta  * cos_beta;
    double cos_2_gamma = cos_gamma * cos_gamma;
 
-//    std::cout << "input a, b, c, alpha, beta, gamma " << a << " "
-// 	     << b << " " << c << " "
-// 	     << clipper::Util::rad2d(alpha) << " "
-// 	     << clipper::Util::rad2d(beta) << " "
-// 	     << clipper::Util::rad2d(gamma) << " " << std::endl;
 
-//    double a_bit = 1-cos_2_alpha-cos_2_beta-cos_2_gamma;
-//    double b_bit = 2 * cos_alpha * cos_beta * cos_gamma;
-//    double c_bit = a_bit + b_bit;
+   double param = 1-cos_2_alpha-cos_2_beta-cos_2_gamma + 2*cos_alpha*cos_beta*cos_gamma;
+   if (false) {
+      std::cout << "assign_chiral_volume_target_internal() input a, b, c, alpha, beta, gamma " << a << " "
+		<< b << " " << c << " "
+		<< clipper::Util::rad2d(alpha) << " "
+		<< clipper::Util::rad2d(beta) << " "
+		<< clipper::Util::rad2d(gamma) << " " << std::endl;
 
-//    std::cout << "bits: " << a_bit << " " << b_bit << " " << c_bit << std::endl;
+      double a_bit = 1-cos_2_alpha-cos_2_beta-cos_2_gamma;
+      double b_bit = 2 * cos_alpha * cos_beta * cos_gamma;
+      double c_bit = a_bit + b_bit;
+      std::cout << "    bits: " << a_bit << " " << b_bit << " " << c_bit << std::endl;
+      std::cout << "    param: " << param << std::endl;
+   }
+   if (param < 0) param = 0;
+   target_volume_ = volume_sign * a*b*c*sqrt(param);
 
-   target_volume_ = volume_sign * a*b*c*sqrt(1-cos_2_alpha-cos_2_beta-cos_2_gamma + 2*cos_alpha*cos_beta*cos_gamma);
+   volume_sigma_ = 0.2;  // seems reasonable give target voluemes of about 2.6
 
-   volume_sigma_ = 0.2;  // test value
-
-   if (0)
+   if (false)
       std::cout << "DEBUG:: assign_chiral_volume_target_internal() target_volume chiral: "
 		<< target_volume_ << std::endl;
-   
+
+   // give the appropriate dictionary, this can return a target_volume_ of nan
    return target_volume_;
 }
 

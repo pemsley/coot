@@ -611,7 +611,7 @@ coot::restraints_container_t::has_tiny_chiral_centre_volume(const coot::simple_r
 
    double chiral_fraction = fabs(cv/chiral_restraint.target_chiral_volume);
 
-   // std::cout << "     chiral_fraction " << chiral_fraction << std::endl;
+   // std::cout << "     chiral_fraction " << chiral_fraction << std::endl; // typically 1
 
    if (chiral_fraction < 0.4)
       r = true; 
