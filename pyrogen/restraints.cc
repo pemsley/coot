@@ -296,7 +296,6 @@ coot::match_restraints_to_reference_dictionaries(const coot::dictionary_residue_
    }
 
    std::string out_comp_id = restraints.residue_info.comp_id;
-   dictionary_residue_restraints_t empty_dict;
    dictionary_match_info_t best_match;
    int best_idx = -1;
 
@@ -320,6 +319,14 @@ coot::match_restraints_to_reference_dictionaries(const coot::dictionary_residue_
       restraints.change_names(returned_res, best_match.name_swaps, best_match.new_comp_id);
       dict = matching_dict_t(returned_res, best_match.dict);
    }
+
+   // here we need to worry about the group - should we return a dict with a group that is L-peptide
+   // that doesn't have the atoms for a peptide bond?  No.  In such a case we should change
+   // dict.group to be "non-polymer".
+   //
+   // Let's do that anyway be default.
+   //
+   dict.dict.residue_info.group = "non-polymer";
    
    return dict;
 }
