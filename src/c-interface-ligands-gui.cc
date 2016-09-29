@@ -657,7 +657,7 @@ void set_ligand_expert_options_from_widget(GtkWidget *button) {
 
 void set_ligand_dialog_number_of_sites_sensitivity(GtkWidget *toggle_button) {
 
-   GtkWidget *hbox = lookup_widget(toggle_button, "hbox132");
+   GtkWidget *hbox = lookup_widget(toggle_button, "find_ligands_dialog_number_of_sites_hbox");
    if (hbox) {
       if (GTK_TOGGLE_BUTTON(toggle_button)->active) {
 	 gtk_widget_set_sensitive(hbox, FALSE);
@@ -665,6 +665,23 @@ void set_ligand_dialog_number_of_sites_sensitivity(GtkWidget *toggle_button) {
 	 gtk_widget_set_sensitive(hbox, TRUE);
       }
    }
+}
+
+void set_ligand_dialog_real_space_refine_sites_checkbutton_state(GtkWidget *toggle_button) {
+
+   if (toggle_button) {
+      graphics_info_t g;
+      if (g.find_ligand_do_real_space_refine_state())
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), TRUE);
+      else 
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), FALSE);
+   }
+}
+
+void set_find_ligand_do_real_space_refinement(short int state) {
+   graphics_info_t g;
+   g.set_find_ligand_do_real_space_refine_state(state);
+   
 }
 
 

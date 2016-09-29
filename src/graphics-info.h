@@ -520,6 +520,7 @@ class graphics_info_t {
    static GdkModifierType button_2_mask_;
    static GdkModifierType button_3_mask_;
 
+   static bool find_ligand_do_real_space_refine_;
    static int find_ligand_protein_mol_;
    static int find_ligand_map_mol_;
    static std::vector<std::pair<int, bool> > *find_ligand_ligand_mols_; // contain a molecule number 
@@ -2392,6 +2393,12 @@ public:
 	 }
        }
      }
+   }
+   void set_find_ligand_do_real_space_refine_state(bool state) {
+     find_ligand_do_real_space_refine_ = state;
+   }
+   bool find_ligand_do_real_space_refine_state() {
+     return find_ligand_do_real_space_refine_;
    }
    std::vector<std::pair<int, bool> > find_ligand_ligand_mols() const { 
      return *find_ligand_ligand_mols_;

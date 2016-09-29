@@ -12395,3 +12395,18 @@ on_dynarama_outliers_only_togglebutton_toggled (GtkToggleButton *togglebutton,
    toggle_dynarama_outliers(window, togglebutton->active); /* get the imol from window */
 }
 
+
+
+void
+on_find_ligand_real_space_refine_solutions_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  printf("toggled\n");
+  if (togglebutton->active)
+    set_find_ligand_do_real_space_refinement(1);
+  else
+    set_find_ligand_do_real_space_refinement(0);
+
+}

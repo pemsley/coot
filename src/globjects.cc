@@ -775,6 +775,7 @@ short int graphics_info_t::guile_gui_loaded_flag = FALSE;
 short int graphics_info_t::python_gui_loaded_flag = FALSE;
 
 //
+bool  graphics_info_t::find_ligand_do_real_space_refine_ = true; // default on
 int   graphics_info_t::find_ligand_map_mol_ = -1;
 int   graphics_info_t::find_ligand_protein_mol_ = -1;
 bool  graphics_info_t::find_ligand_here_cluster_flag = 0;
