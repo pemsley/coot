@@ -1,7 +1,10 @@
 
-   For Release 0.8.7
+   For Release 0.8.8
 
    o New EDS Location [John Berrisford]
+
+   o Get some RNA - check that base pair restraints generation works
+     (user-defined restraints).  Donna M.
 
    o display ligand distortions, move and regularize, display ligand distortions. 
      Clear generic display objects -> not all graphics objects are removed - they 

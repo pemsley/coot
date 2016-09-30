@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <vector>
+#include <cstdlib>
 #include <mmdb2/mmdb_manager.h>
 #include <mmdb2/mmdb_math_graph.h>
 #include <ccp4srs/ccp4srs_manager.h>
@@ -143,11 +144,14 @@ compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float similarity, int n_vertices)
 	    std::cout << "i " << i <<  " monomer id  " << id << std::endl;
 	    if (id.length()) {
 	       graph_2 = Monomer->getGraph(&rc);
+               graph_2->Build(false);
+
+	       // mmdb::imatrix g2graph = graph_2->graph;  // protected
 
 	       if (rc < 10000) { 
 		  mmdb::math::GraphMatch match;
 		  match.SetTimeLimit(2); // seconds
-		  int minMatch = 6;
+		  int minMatch = 10;
 
 		  std::cout << "INFO:: match.MatchGraphs must match at least "
 			    << minMatch << " atoms."
@@ -158,8 +162,14 @@ compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float similarity, int n_vertices)
 		     // hangs if you open the wrong (old) SRS.
 		     
 		     mmdb::math::VERTEX_EXT_TYPE vertex_ext=mmdb::math::EXTTYPE_Ignore; // mmdb default
+		     vertex_ext = mmdb::math::EXTTYPE_Equal;
+
 		     bool vertext_type = true;
-		     match.MatchGraphs(graph_2, graph_2, minMatch, vertext_type, vertex_ext);
+
+		     // std::cout << "----- monomer graph ----- " << std::endl;
+		     // graph_2->Print();
+		     
+		     match.MatchGraphs(graph_1, graph_2, minMatch, vertext_type, vertex_ext);
 		     int n_match = match.GetNofMatches();
 		     std::cout << "INFO:: match NumberofMatches (potentially similar graphs) "
 			       << n_match << std::endl;
@@ -190,14 +200,15 @@ int test_ccp4srs_graph_search() {
 
    graph->SetName ("Coot-LBG-Query");
    graph->MakeVertexIDs();
+   std::cout << "... calling graph - Build() " << std::endl;
    int build_result = graph->Build(false);
    if (build_result != 0) {
       std::cout << "Bad graph build result" << std::endl;
    } else {
+      std::cout << "graph build returns status: " << build_result << std::endl;
       graph->MakeSymmetryRelief(false);
       graph->Print();
       std::cout << "graph search using similarity  " << search_similarity << std::endl;
-      std::cout << "graph build returns: " << build_result << std::endl;
       std::vector<match_results_t> v = compare_vs_ccp4srs(graph, search_similarity, n_atoms);
       delete graph;
       std::cout << "found " << v.size() << " close matches" << std::endl;

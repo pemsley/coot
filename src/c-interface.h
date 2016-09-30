@@ -4049,6 +4049,8 @@ void set_find_ligand_n_top_ligands(int n); /* fit the top n ligands,
 					      not all of them, default
 					      10. */
 
+void set_find_ligand_do_real_space_refinement(short int state);
+
 /*! \brief allow multiple ligand solutions per cluster. 
 
 The first limit is the fraction of the top scored positions that go on

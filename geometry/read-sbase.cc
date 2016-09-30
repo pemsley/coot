@@ -541,6 +541,7 @@ coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float sim
 	    std::cout << "i " << i <<  " monomer id  " << id << std::endl;
 	    if (id.length()) {
 	       graph_2 = Monomer->getGraph(&rc);
+	       graph_2->Build(false);
 
 	       if (rc < 10000) { 
 		  mmdb::math::GraphMatch match;
@@ -555,7 +556,7 @@ coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float sim
 
 		     // hangs if you open the wrong (old) SRS.
 		     
-		     mmdb::math::VERTEX_EXT_TYPE vertex_ext=mmdb::math::EXTTYPE_Ignore; // mmdb default
+		     mmdb::math::VERTEX_EXT_TYPE vertex_ext=mmdb::math::EXTTYPE_Equal; // mmdb default
 		     bool vertext_type = true;
 		     match.MatchGraphs(graph_2, graph_2, minMatch, vertext_type, vertex_ext);
 		     int n_match = match.GetNofMatches();
