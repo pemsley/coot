@@ -173,6 +173,42 @@
               </object>
             </child>
             <child>
+              <object class="GtkMenuItem" id="lbg_display_menuitem">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Display</property>
+                <property name="use_underline">True</property>
+                <child type="submenu">
+                  <object class="GtkMenu" id="menu2">
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkMenuItem" id="lbg_display_standard_menuitem">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Standard</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_lbg_display_standard_menuitem_activate"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuItem" id="lbg_display_indices_menuitem">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Atom Indices</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_lbg_display_indices_menuitem_activate"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuItem" id="lbg_display_names_menuitem">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Atom Names</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_lbg_display_names_menuitem_activate"/>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
               <object class="GtkMenuItem" id="menuitem4">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">_Help</property>
@@ -707,7 +743,7 @@
                 <property name="can_focus">True</property>
                 <property name="max_length">4</property>
                 <property name="invisible_char">&#x25CF;</property>
-                <property name="climb_rate">0.1</property>
+                <property name="climb_rate">0.10000000000000001</property>
                 <property name="digits">2</property>
                 <property name="numeric">True</property>
               </object>
@@ -1692,8 +1728,8 @@
     <property name="title" translatable="yes">Coot Lidia export as pdf filechooser</property>
     <property name="modal">True</property>
     <property name="type_hint">normal</property>
-    <property name="action">save</property>
     <property name="do_overwrite_confirmation">True</property>
+    <property name="action">save</property>
     <signal name="close" handler="on_lbg_export_as_pdf_filechooserdialog_close"/>
     <signal name="response" handler="on_lbg_export_as_pdf_filechooserdialog_response"/>
     <child internal-child="vbox">
@@ -1758,8 +1794,8 @@
     <property name="role">export lidia png file </property>
     <property name="modal">True</property>
     <property name="type_hint">normal</property>
-    <property name="action">save</property>
     <property name="do_overwrite_confirmation">True</property>
+    <property name="action">save</property>
     <signal name="close" handler="on_lbg_export_as_png_filechooserdialog_close"/>
     <signal name="response" handler="on_lbg_export_as_png_filechooserdialog_response"/>
     <child internal-child="vbox">
@@ -1821,8 +1857,8 @@
     <property name="border_width">5</property>
     <property name="window_position">mouse</property>
     <property name="type_hint">normal</property>
-    <property name="action">save</property>
     <property name="do_overwrite_confirmation">True</property>
+    <property name="action">save</property>
     <signal name="close" handler="on_lbg_export_as_svg_filechooserdialog_close"/>
     <signal name="response" handler="on_lbg_export_as_svg_filechooserdialog_response"/>
     <child internal-child="vbox">
@@ -2038,8 +2074,8 @@
     <property name="title" translatable="yes">Save As MDL Molfile...</property>
     <property name="modal">True</property>
     <property name="type_hint">normal</property>
-    <property name="action">save</property>
     <property name="do_overwrite_confirmation">True</property>
+    <property name="action">save</property>
     <signal name="close" handler="on_lbg_save_as_filechooserdialog_close"/>
     <signal name="response" handler="on_lbg_save_as_filechooserdialog_response"/>
     <child internal-child="vbox">
