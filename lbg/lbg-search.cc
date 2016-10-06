@@ -64,11 +64,11 @@ lbg_info_t::search() const {
       if (! mol.bonds[ib].is_closed()) {
 	 int mmdb_bond_type = mol.bonds[ib].mmdb_bond_type();
 	 if (mmdb_bond_type != UNASSIGNED_INDEX) {
-	    int ind_1 = mol.bonds[ib].get_atom_1_index();  
+	    int ind_1 = mol.bonds[ib].get_atom_1_index();
 	    int ind_2 = mol.bonds[ib].get_atom_2_index();
- 	    mmdb::math::Edge *e = new mmdb::math::Edge(vertex_indexing[ind_1] + 1,  // 1-indexed
- 				 vertex_indexing[ind_2] + 1,
- 				 mmdb_bond_type);
+ 	    mmdb::math::Edge *e = new mmdb::math::Edge(vertex_indexing[ind_1]+1,  // 1-indexed
+						       vertex_indexing[ind_2]+1,
+						       mmdb_bond_type);
 	    graph->AddEdge(e);
 	    n_bonds++;
 	 }
@@ -77,7 +77,7 @@ lbg_info_t::search() const {
    graph->SetName ("Coot-LBG-Query");
    graph->MakeVertexIDs();
    
-   int build_result = graph->Build(false);
+   int build_result = graph->Build(true);
 
    if (build_result != 0) {
 
