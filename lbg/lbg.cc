@@ -3059,6 +3059,9 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_scale_spinbutton = NULL;
 	 for (unsigned int i=0; i<8; i++)
 	    lbg_qed_properties_progressbars[i] = NULL;
+	 lbg_srs_search_results_scrolledwindow = NULL;
+	 lbg_srs_search_results_vbox = NULL;
+
 	 canvas = NULL;
 	 return false; // boo.
 
@@ -3102,6 +3105,8 @@ lbg_info_t::init(GtkBuilder *builder) {
 	 lbg_search_database_frame =     GTK_WIDGET(gtk_builder_get_object(builder, "lbg_search_database_frame"));
 	 lbg_view_rotate_entry     =     GTK_WIDGET(gtk_builder_get_object(builder, "lbg_view_rotate_entry"));
 	 lbg_scale_spinbutton      =     GTK_WIDGET(gtk_builder_get_object(builder, "lbg_scale_spinbutton"));
+	 lbg_srs_search_results_vbox =   GTK_WIDGET(gtk_builder_get_object(builder, "lbg_srs_search_results_vbox"));
+	 lbg_srs_search_results_scrolledwindow = GTK_WIDGET(gtk_builder_get_object(builder, "lbg_srs_search_results_scrolledwindow"));
 
 	 for (unsigned int i=0; i<8; i++) {
 	    std::string name = "qed_properties_" + coot::util::int_to_string(i) + "_progressbar";
@@ -3139,8 +3144,10 @@ lbg_info_t::init(GtkBuilder *builder) {
 
 #ifdef HAVE_CCP4SRS
    gtk_widget_show(lbg_search_database_frame);
+   gtk_widget_show(lbg_srs_search_results_scrolledwindow);
 #else
    // ... we don't have ccp4 srs
+   gtk_widget_hide(lbg_srs_search_results_scrolled_window);
 #endif // HAVE_CCP4SRS   
 
    if (use_graphics_interface_flag) { 

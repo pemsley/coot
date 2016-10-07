@@ -118,16 +118,17 @@ init_ccp4srs(ccp4srs::Manager *ccp4srs) {
    if (RC != ccp4srs::CCP4SRS_Ok) {
       std::cout << "CCP4SRS init problem." << std::endl;
    }
-   
 }
 
 #ifdef HAVE_CCP4SRS
 std::vector<match_results_t>
 compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float similarity, int n_vertices) {
 
-   int minMatch = int(similarity * n_vertices);
-   
    std::vector<match_results_t> v;
+
+   int minMatch = int(similarity * n_vertices);
+   std::cout << "INFO:: match.MatchGraphs must match at least "
+	     << minMatch << " atoms from " << similarity << " * " << n_vertices << std::endl;
 
    ccp4srs::Manager *ccp4srs = new ccp4srs::Manager;
    init_ccp4srs(ccp4srs);
@@ -137,43 +138,55 @@ compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float similarity, int n_vertices)
    } else {
       int l = ccp4srs->n_entries();
       std::cout << "INFO:: compare_vs_ccp4srs(): found " << l << " entries in CCP4 SRS" << std::endl;
-      mmdb::math::Graph  *graph_2;
+      mmdb::math::Graph  *graph_2 = NULL;
       int rc = 0;
       for (int i=1; i<l; i++)  {
 	 ccp4srs::Monomer *Monomer = ccp4srs->getMonomer(i, NULL);
 	 if (Monomer)  {
 	    std::string id = Monomer->ID();
-	    std::cout << "i " << i <<  " monomer id  " << id << std::endl;
+	    // std::cout << "i " << i <<  " monomer id  " << id << std::endl;
 	    if (id.length()) {
 	       graph_2 = Monomer->getGraph(&rc);
 	       if (graph_2) {
 		  graph_2->Build(true);
+		  graph_2->MakeSymmetryRelief(true);
 
-		  // mmdb::imatrix g2graph = graph_2->graph;  // protected
-
-		  if (rc < 10000) { 
+		  if (rc < 10000) {
 		     mmdb::math::GraphMatch match;
 		     match.SetTimeLimit(2); // seconds
 
-		     if (true)
-			std::cout << "INFO:: match.MatchGraphs must match at least "
-				  << minMatch << " atoms." << std::endl;
+		     mmdb::math::VERTEX_EXT_TYPE vertex_ext=mmdb::math::EXTTYPE_Equal; // mmdb default
+		     bool vertext_type = true;
+		     match.MatchGraphs(graph_1, graph_2, minMatch, vertext_type, vertex_ext);
+		     int n_match = match.GetNofMatches();
+		     if (n_match > 0) {
+			std::cout << "INFO:: " << id
+				  << " match NumberofMatches (similar graphs): " << n_match << std::endl;
 
-		     if (true) {
+			bool really_match = false;
+			for (int imatch=0; imatch<n_match; imatch++) {
+			   int n;
+			   mmdb::realtype p1, p2;
+			   mmdb::ivector FV1, FV2;
+			   match.GetMatch(imatch, FV1, FV2, n, p1, p2); // n p1 p2 set
+			   std::cout << "   match " << imatch << " matched " << n << " atoms"
+				     << std::endl;
+			   if (n >= minMatch) really_match = true;
+			   for (int ipair=1; ipair<=n; ipair++) {
+			      mmdb::math::Vertex *V1 = graph_1->GetVertex(FV1[ipair]);
+			      mmdb::math::Vertex *V2 = graph_2->GetVertex(FV2[ipair]);
+			      if ((!V1) || (!V2))  {
+				 std::cout << "Can't get vertices for match " << ipair << std::endl;
+			      } else  {
+				 std::cout << "   " << V1->GetUserID() << " " << V2->GetUserID()
+					   << std::endl;
+			      }
+			   }
+			   if (really_match)
+			      break;
+			}
 
-			// hangs if you open the wrong (old) SRS.
-		     
-			mmdb::math::VERTEX_EXT_TYPE vertex_ext=mmdb::math::EXTTYPE_Ignore; // mmdb default
-
-			vertex_ext = mmdb::math::EXTTYPE_Equal;
-		     
-			bool vertext_type = true;
-
-			match.MatchGraphs(graph_1, graph_2, minMatch, vertext_type, vertex_ext);
-			int n_match = match.GetNofMatches();
-			if (n_match > 0) {
-			   std::cout << "INFO:: match NumberofMatches (potentially similar graphs) "
-				     << n_match << std::endl;
+			if (really_match) {
 			   mmdb::Residue *residue_p = NULL; // for now
 			   std::string name = Monomer->chem_name();
 			   match_results_t mr(id, name, residue_p);
@@ -197,10 +210,10 @@ int test_ccp4srs_graph_search() {
 
 #ifdef HAVE_CCP4SRS
 
-   double search_similarity = 0.98;
+   double search_similarity = 0.95;
    bool inc_Hs = false;
    std::string monomer_type = "TRP";
-   unsigned int n_atoms = 12;
+   unsigned int n_atoms = 14;
 
    mmdb::math::Graph *graph = get_graph_2();
 
@@ -211,7 +224,7 @@ int test_ccp4srs_graph_search() {
       std::cout << "Bad graph build result" << std::endl;
    } else {
       std::cout << "graph build returns status: " << build_result << std::endl;
-      graph->MakeSymmetryRelief(false);
+      graph->MakeSymmetryRelief(true);
       graph->Print();
       std::cout << "graph search using similarity  " << search_similarity << std::endl;
       std::vector<match_results_t> v = compare_vs_ccp4srs(graph, search_similarity, n_atoms);

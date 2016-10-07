@@ -32,6 +32,65 @@
 
 #include "lbg.hh"
 
+mmdb::math::Graph *
+get_graph_2() {
+
+   mmdb::math::Graph *graph = new mmdb::math::Graph;
+
+   std::vector<std::pair<std::string, int> > v;
+   v.push_back(std::pair<std::string, int>("N",   7));
+   v.push_back(std::pair<std::string, int>("CA",  6));
+   v.push_back(std::pair<std::string, int>("CB",  6));
+   v.push_back(std::pair<std::string, int>("CG",  6));
+   v.push_back(std::pair<std::string, int>("CD1", 6));
+   v.push_back(std::pair<std::string, int>("NE1", 7));
+   v.push_back(std::pair<std::string, int>("CE2", 6));
+   v.push_back(std::pair<std::string, int>("CD2", 6));
+   v.push_back(std::pair<std::string, int>("CE3", 6));
+   v.push_back(std::pair<std::string, int>("CZ3", 6));
+   v.push_back(std::pair<std::string, int>("CH2", 6));
+   v.push_back(std::pair<std::string, int>("CZ2", 6));
+   v.push_back(std::pair<std::string, int>("C",   6));
+   v.push_back(std::pair<std::string, int>("O",   8));
+
+   // mmdb::math::Vertex *vert = new mmdb::math::Vertex("", "");
+   // graph->AddVertex(vert);
+   for (unsigned int i=0; i<v.size(); i++) {
+      std::string ele = "C";
+      if (v[i].second == 7) ele = "N";
+      if (v[i].second == 8) ele = "0";
+      std::string name = v[i].first;
+      mmdb::math::Vertex *vert = new mmdb::math::Vertex(ele.c_str(), name.c_str());
+      graph->AddVertex(vert);
+   }
+
+   std::vector<std::pair<std::pair<int, int>, int> > e;
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(1,  2), 1));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(2,  3), 1));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(3,  4), 1));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(4,  8), 1));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(4,  5), 2));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(5,  6), 1));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(6,  7), 1));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(7, 12), 1));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(7,  8), 2));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(8,  9), 1));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(9, 10), 2));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(10, 11), 1));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(11, 12), 2));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>( 2, 13), 1));
+   e.push_back(std::pair<std::pair<int, int>, int> (std::pair<int,int>(13, 14), 1));
+
+   for (unsigned int i=0; i<e.size(); i++) {
+      mmdb::math::Edge *ed = new mmdb::math::Edge(e[i].first.first, e[i].first.second,
+						  e[i].second);
+      graph->AddEdge(ed);
+   }
+
+   return graph;
+}
+
+
 #ifdef HAVE_CCP4SRS
 void
 lbg_info_t::search() const {
@@ -51,6 +110,7 @@ lbg_info_t::search() const {
       if (! mol.atoms[iat].is_closed()) {
 	 std::string ele = mol.atoms[iat].element;
 	 std::string name = mol.atoms[iat].get_atom_id();
+	 std::cout << "adding atom with ele " << ele << " and name \"" << name << "\"" << std::endl;
 	 mmdb::math::Vertex *v = new mmdb::math::Vertex(ele.c_str(), name.c_str());
 	 vertex_indexing[n_atoms] = iat;
 	 graph->AddVertex(v);
@@ -74,9 +134,13 @@ lbg_info_t::search() const {
 	 }
       }
    }
+
+   // hack for testing
+   // graph = get_graph_2();
+   // n_atoms = 14;
+   
    graph->SetName ("Coot-LBG-Query");
    graph->MakeVertexIDs();
-   
    int build_result = graph->Build(true);
 
    if (build_result != 0) {
@@ -86,6 +150,7 @@ lbg_info_t::search() const {
    } else {
 
       if (stand_alone_flag) {
+
 	 // non-const protein_geometry *
 	 coot::protein_geometry *geom_p_local = new coot::protein_geometry;
 
@@ -98,12 +163,12 @@ lbg_info_t::search() const {
 
 	 geom_p_local->init_ccp4srs(srs_dir);
 
-	 graph->MakeSymmetryRelief(false);
+	 graph->MakeSymmetryRelief(true);
 	 graph->Print();
 	 std::cout << "graph search using similarity  " << local_search_similarity << std::endl;
 	 std::cout << "graph build returns: " << build_result << std::endl;
 	 std::vector<coot::match_results_t> v =
-	    geom_p_local->compare_vs_ccp4srs(graph, local_search_similarity, n_atoms);
+	    geom_p_local->compare_vs_ccp4srs(graph, local_search_similarity, n_atoms, -1, -1);
 	 delete graph;
 	 std::cout << "found " << v.size() << " close matches" << std::endl;
 	 display_search_results(v);
@@ -111,12 +176,12 @@ lbg_info_t::search() const {
       } else {
 
 	 if (geom_p) { 
-	    graph->MakeSymmetryRelief(false);
+	    graph->MakeSymmetryRelief(true);
 	    graph->Print();
 	    std::cout << "graph search using similarity  " << local_search_similarity << std::endl;
 	    std::cout << "graph build returns: " << build_result << std::endl;
 	    std::vector<coot::match_results_t> v =
-	       geom_p->compare_vs_ccp4srs(graph, local_search_similarity, n_atoms);
+	       geom_p->compare_vs_ccp4srs(graph, local_search_similarity, n_atoms, -1, -1);
 	    delete graph;
 	    display_search_results(v);
 	 } else {
