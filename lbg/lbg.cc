@@ -3147,8 +3147,8 @@ lbg_info_t::init(GtkBuilder *builder) {
    gtk_widget_show(lbg_srs_search_results_scrolledwindow);
 #else
    // ... we don't have ccp4 srs
-   gtk_widget_hide(lbg_srs_search_results_scrolled_window);
-#endif // HAVE_CCP4SRS   
+   gtk_widget_hide(lbg_srs_search_results_scrolledwindow);
+#endif // HAVE_CCP4SRS
 
    if (use_graphics_interface_flag) { 
       gtk_widget_set(GTK_WIDGET(canvas), "bounds-padding", 50.0, NULL);
