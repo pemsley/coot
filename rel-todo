@@ -52,3 +52,16 @@ debug:: switch for sequence_view for imol 0 is 0x0
    o import imidaloze from lidia in coot. c.f. stand-alone
 
    o put the bond, angle, plane, nbc most distorted bonds in the refinement lights dialog
+
+   o think about this leak:
+
+==9640== 
+==9640== 414,024 (240 direct, 413,784 indirect) bytes in 1 blocks are definitely lost in loss record 12,495 of 12,514
+==9640==    at 0x4A08152: operator new[](unsigned long) (vg_replace_malloc.c:363)
+==9640==    by 0x6E26DA9: Bond_lines_container::make_graphical_bonds(bool) const (Bond_lines.cc:3062)
+==9640==    by 0x6E26FAF: Bond_lines_container::make_graphical_bonds_no_thinning() const (Bond_lines.cc:3052)
+==9640==    by 0x811BA0: molecule_class_info_t::make_colour_by_chain_bonds(short) (molecule-class-info.cc:3213)
+==9640==    by 0x8190F3: molecule_class_info_t::make_bonds_type_checked() (molecule-class-info.cc:3265)
+==9640==    by 0x81D63B: molecule_class_info_t::handle_read_draw_molecule(int, std::string, std::string, short, short, bool, bool, float, int) (molecule-class-info.cc
+:219)
+
