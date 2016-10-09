@@ -427,7 +427,8 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
                 << rest.torsion_restraint.size() << " torsions," 
                 << rest.chiral_restraint.size() << " chirals " 
                 << rest.plane_restraint.size() << std::endl;
-      add(rest);
+      int imol = 0; // dummy
+      add(imol, rest);
    }
 
    return success;

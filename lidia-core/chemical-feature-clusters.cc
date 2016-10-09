@@ -89,7 +89,7 @@ coot::chem_feat_clust::get_chemical_features(int imol,
 
       try {
 	 // this can throw an exception
-	 RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, *geometry_p);
+	 RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, *geometry_p);
 	 
 	 RDKit::MolChemicalFeatureFactory *factory = chemical_features::get_feature_factory();
 	 if (! factory) {

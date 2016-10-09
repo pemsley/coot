@@ -189,7 +189,7 @@ match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, i
 	    
 	       std::string res_name_ref_res(res_ref->GetResName());
 	       std::pair<bool, coot::dictionary_residue_restraints_t> restraints_info = 
-		  g.Geom_p()->get_monomer_restraints(res_name_ref_res);
+		  g.Geom_p()->get_monomer_restraints(res_name_ref_res, imol_ref);
 	       if (restraints_info.first) {
 		  std::vector <coot::dict_torsion_restraint_t> tr = 
 		     g.Geom_p()->get_monomer_torsions_from_geometry(res_name_ref_res, 0);
@@ -337,8 +337,8 @@ compare_ligand_atom_types_scm(int imol_ligand, int imol_ref, const char *chain_i
 		  int n_fail = 0;
 
 		  for (unsigned int i=0; i<matches.size(); i++) { 
-		     std::string energy_type_1 = g.Geom_p()->get_type_energy(matches[i].first.first,  rn1);
-		     std::string energy_type_2 = g.Geom_p()->get_type_energy(matches[i].second.first, rn2);
+		     std::string energy_type_1 = g.Geom_p()->get_type_energy(matches[i].first.first,  rn1, imol_ligand);
+		     std::string energy_type_2 = g.Geom_p()->get_type_energy(matches[i].second.first, rn2, imol_ref);
 
 		     std::string extra_space = "";
 		     if (i<10) extra_space = " ";
@@ -407,9 +407,9 @@ compare_ligand_atom_types_py(int imol_ligand, int imol_ref, const char *chain_id
 	       if (matches.size()) {
               int n_fail = 0;
 
-              for (unsigned int i=0; i<matches.size(); i++) { 
-                 std::string energy_type_1 = g.Geom_p()->get_type_energy(matches[i].first.first,  rn1);
-                 std::string energy_type_2 = g.Geom_p()->get_type_energy(matches[i].second.first, rn2);
+              for (unsigned int i=0; i<matches.size(); i++) {
+                 std::string energy_type_1 = g.Geom_p()->get_type_energy(matches[i].first.first,  rn1, imol_ligand);
+                 std::string energy_type_2 = g.Geom_p()->get_type_energy(matches[i].second.first, rn2, imol_ref);
 
                  std::string extra_space = "";
                  if (i<10) extra_space = " ";
@@ -561,7 +561,7 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
       coot::protein_geometry geom_local;
       geom_local.try_dynamic_add(reference_comp_id, 0);
       std::pair<short int, coot::dictionary_residue_restraints_t> rp_1 =
-	 geom_local.get_monomer_restraints(reference_comp_id);
+	 geom_local.get_monomer_restraints(reference_comp_id, imol);
       if (rp_1.first) {
 	 coot::protein_geometry geom_matcher;
 	 coot::read_refmac_mon_lib_info_t rmit = geom_matcher.init_refmac_mon_lib(cif_dict_in, 0);
@@ -569,7 +569,7 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
 	    std::cout << "No bonds from " << cif_dict_in << std::endl;
 	 } else {
 	    std::pair<short int, coot::dictionary_residue_restraints_t> rp_2 =
-	       geom_matcher.get_monomer_restraints(cif_dict_comp_id);
+	       geom_matcher.get_monomer_restraints(cif_dict_comp_id, imol);
 	    if (rp_2.first) {
 	       mmdb::Residue *residue_p = NULL; // for the moment
 	       // std::cout << "------ about to match "
@@ -623,12 +623,13 @@ match_this_residue_and_dictionary(int imol, std::string chain_id, int res_no, st
       if (this_residue) {
 	 std::string this_residue_type = this_residue->GetResName();
 	 std::pair<short int, coot::dictionary_residue_restraints_t> dict_1 =
-	    g.Geom_p()->get_monomer_restraints(this_residue_type);
+	    g.Geom_p()->get_monomer_restraints(this_residue_type, imol);
 	 if (dict_1.first) {
 
 	    g.Geom_p()->try_dynamic_add(reference_comp_id, g.cif_dictionary_read_number++);
+	    int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
 	    std::pair<short int, coot::dictionary_residue_restraints_t> dict_2 =
-	       g.Geom_p()->get_monomer_restraints(reference_comp_id);
+	       g.Geom_p()->get_monomer_restraints(reference_comp_id, imol_enc);
 
 	    if (dict_2.first) {
 
@@ -800,7 +801,7 @@ execute_ligand_search_internal() {
 	 try { 
 	    bool optim_geom = true;
 	    bool fill_vec = false;
-	    wlig.install_simple_wiggly_ligands(g.Geom_p(), mmol,
+	    wlig.install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
 					       g.ligand_wiggly_ligand_n_samples,
 					       optim_geom, fill_vec);
 	 }
@@ -973,7 +974,7 @@ std::vector<int> ligand_search_make_conformers_internal() {
 	    bool optim_geom = true;
 	    bool fill_return_vec = false; // would give input molecules (not conformers)
 	    coot::minimol::molecule mmol(g.molecules[ligands[i].first].atom_sel.mol);
-	    wlig.install_simple_wiggly_ligands(g.Geom_p(), mmol,
+	    wlig.install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
 					       g.ligand_wiggly_ligand_n_samples,
 					       optim_geom, fill_return_vec);
 	 }
@@ -1958,12 +1959,13 @@ int get_ccp4srs_monomer_and_dictionary(const char *comp_id) {
 SCM comp_id_to_name_scm(const char *comp_id) {
    SCM r = SCM_BOOL_F;
    graphics_info_t g;
-   std::pair<bool, std::string> name = g.Geom_p()->get_monomer_name(comp_id);
+   int imol = coot::protein_geometry::IMOL_ENC_ANY;
+   std::pair<bool, std::string> name = g.Geom_p()->get_monomer_name(comp_id, imol);
 
    if (! name.first) {
       g.Geom_p()->try_dynamic_add(comp_id, g.cif_dictionary_read_number);
       g.cif_dictionary_read_number++;
-      name = g.Geom_p()->get_monomer_name(comp_id);
+      name = g.Geom_p()->get_monomer_name(comp_id, imol);
    }
    if (name.first) {
       r = scm_makfrom0str(name.second.c_str());
@@ -1981,7 +1983,8 @@ PyObject *comp_id_to_name_py(const char *comp_id) {
    PyObject *r = Py_False;
 
    graphics_info_t g;
-   std::pair<bool, std::string> name = g.Geom_p()->get_monomer_name(comp_id);
+   int imol = coot::protein_geometry::IMOL_ENC_ANY;
+   std::pair<bool, std::string> name = g.Geom_p()->get_monomer_name(comp_id, imol);
    if (name.first) {
       r = PyString_FromString(name.second.c_str());
    }
@@ -2070,7 +2073,7 @@ void match_ligand_atom_names_to_comp_id(int imol_ligand, const char *chain_id_li
 
       g.Geom_p()->try_dynamic_add(comp_id_ref, g.cif_dictionary_read_number++);
       std::pair<bool, coot::dictionary_residue_restraints_t> p = 
-	 g.Geom_p()->get_monomer_restraints(comp_id_ref);
+	 g.Geom_p()->get_monomer_restraints(comp_id_ref, imol_ligand);
 
       if (p.first)
 	 res_ref = p.second.GetResidue(true, g.default_new_atoms_b_factor);
@@ -2102,8 +2105,9 @@ topological_equivalence_chiral_centres(const std::string &residue_type) {
 
    graphics_info_t g;
 
+   int imol = 0; // dummy
    std::pair<bool, coot::dictionary_residue_restraints_t> p = 
-      g.Geom_p()->get_monomer_restraints(residue_type);
+      g.Geom_p()->get_monomer_restraints(residue_type, imol);
 
    if (p.first) {
 
@@ -2824,19 +2828,23 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
       if (! residue_p) {
 	 std::cout << "Residue not found in molecule " << imol << " "
 		   << coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
-      } else { 
-	 coot::geometry_distortion_info_container_t gdc = g.geometric_distortions(residue_p);
+      } else {
+	 bool with_nbcs = true;
+	 coot::geometry_distortion_info_container_t gdc = g.geometric_distortions(imol, residue_p, with_nbcs);
 	 int n_restraints_bonds    = 0;
 	 int n_restraints_angles   = 0;
 	 int n_restraints_torsions = 0;
 	 int n_restraints_chirals  = 0;
 	 int n_restraints_planes   = 0;
+	 int n_restraints_nbcs     = 0;
 	 double sum_penalties_bonds    = 0;
 	 double sum_penalties_angles   = 0;
 	 double sum_penalties_planes   = 0;
 	 double sum_penalties_chirals  = 0;
 	 double sum_penalties_torsions = 0;
+	 double sum_penalties_nbcs     = 0;
 	 std::vector<std::pair<std::string,double> > penalty_string_bonds;
+	 std::vector<std::pair<std::string,double> > penalty_string_nbcs;
 	 std::vector<std::pair<std::string,double> > penalty_string_angles;
 	 std::cout << "Residue Distortion List: \n";
 	 for (unsigned int i=0; i<gdc.geometry_distortion.size(); i++) { 
@@ -2863,6 +2871,33 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 	       }
 	    }
 
+	    if (rest.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+	       n_restraints_bonds++;
+	       mmdb::Atom *at_1 = residue_p->GetAtom(rest.atom_index_1);
+	       mmdb::Atom *at_2 = residue_p->GetAtom(rest.atom_index_2);
+	       if (at_1 && at_2) {
+		  clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+		  clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+		  double d = sqrt((p2-p1).lengthsq());
+		  double distortion = d - rest.target_value;
+		  double pen_score = distortion*distortion/(rest.sigma*rest.sigma);
+		  if (distortion > 0) {
+		     pen_score = 0;
+		  } else {
+		     // don't tell me about NBC that are not too close
+		     std::string s = std::string("nbc  ")
+			+ std::string(at_1->name) + std::string(" to ") + std::string(at_2->name)
+			+ std::string(" target_value: ") + coot::util::float_to_string_using_dec_pl(rest.target_value, 3)
+			+ std::string(" d: ") + coot::util::float_to_string_using_dec_pl(d, 3)
+			+ std::string(" sigma: ") + coot::util::float_to_string_using_dec_pl(rest.sigma, 3)
+			+ std::string(" length-devi ") + coot::util::float_to_string_using_dec_pl(distortion, 3)
+			+ std::string(" penalty-score:  ") + coot::util::float_to_string(pen_score);
+		     penalty_string_nbcs.push_back(std::pair<std::string,double> (s, pen_score));
+		     sum_penalties_nbcs += pen_score;
+		  }
+	       }
+	    }
+	    
 	    if (rest.restraint_type == coot::ANGLE_RESTRAINT) {
 	       n_restraints_angles++;
 	       mmdb::Atom *at_1 = residue_p->GetAtom(rest.atom_index_1);
@@ -2922,17 +2957,17 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 	    
 	    if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
 	       n_restraints_chirals++;
-	       if (gdc.geometry_distortion[i].distortion_score > 10) { // arbitrons
+	       if (gdc.geometry_distortion[i].distortion_score > 0) { // arbitrons
 		  mmdb::Atom *at_c = residue_p->GetAtom(rest.atom_index_centre);
 		  mmdb::Atom *at_1 = residue_p->GetAtom(rest.atom_index_1);
 		  mmdb::Atom *at_2 = residue_p->GetAtom(rest.atom_index_2);
 		  mmdb::Atom *at_3 = residue_p->GetAtom(rest.atom_index_3);
 		  if (at_c && at_1 && at_2 && at_3) {
-		     std::cout << "   chiral volume problem centred at: "
+		     std::cout << "   chiral volume distortion centred at: "
 			       << at_c->name << " with neighbours "
 			       << at_1->name << " "
 			       << at_2->name << " "
-			       << at_2->name << " "
+			       << at_2->name << " penalty-score: "
 			       << gdc.geometry_distortion[i].distortion_score
 			       << std::endl;
 		  }
@@ -3026,8 +3061,9 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
       if (! residue_p) {
 	 std::cout << "Residue not found in molecule " << imol << " "
 		   << coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
-      } else { 
-	 coot::geometry_distortion_info_container_t gdc = g.geometric_distortions(residue_p);
+      } else {
+	 bool with_nbcs = true;
+	 coot::geometry_distortion_info_container_t gdc = g.geometric_distortions(imol, residue_p, with_nbcs);
 	 if (gdc.geometry_distortion.size()) {
 
 	    std::string name = std::string("Ligand Distortion of ");
@@ -3086,7 +3122,7 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 						  angle_info.normal.y(),
 						  angle_info.normal.z());
 		     }
-		     catch (std::runtime_error rte) {
+		     catch (const std::runtime_error &rte) {
 			std::cout << "WARNING:: " << rte.what() << std::endl;
 		     }
 		  }
@@ -3181,11 +3217,12 @@ add_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::str
 	    coot::dictionary_residue_restraints_t d(mol);
 	    std::cout << "INFO:: replacing restraints for type \""
 		      << d.residue_info.comp_id << "\"" << std::endl;
-	    g.Geom_p()->replace_monomer_restraints(d.residue_info.comp_id, d);
+	    int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+	    g.Geom_p()->replace_monomer_restraints(d.residue_info.comp_id, imol_enc, d);
 
 	    if (0) { 
 	       std::pair<bool, coot::dictionary_residue_restraints_t>
-		  r = g.Geom_p()->get_monomer_restraints(d.residue_info.comp_id);
+		  r = g.Geom_p()->get_monomer_restraints(d.residue_info.comp_id, imol);
 	       if (! r.first) {
 		  std::cout << "-------------------- problem retrieving restraints " << std::endl;
 	       } else {
@@ -3289,7 +3326,8 @@ invert_chiral_centre(int imol,
       if (rr.first) {
 	 // add new restraints to dictionary
 	 std::string new_type = rr.second.residue_info.comp_id;
-	 g.Geom_p()->replace_monomer_restraints(new_type, rr.second);
+	 // THIS ONE IS COMPLICATED, FIXME
+	 g.Geom_p()->replace_monomer_restraints(new_type, imol, rr.second);
 	 // add a new molecule from this residue
 	 mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(rr.first);
 	 // I think we can delete residue now that we have made mol.
@@ -3300,7 +3338,7 @@ invert_chiral_centre(int imol,
 	 std::string label = "New Residue " + new_type;
 	 g.molecules[g_mol].install_model(g_mol, asc, g.Geom_p(), label, 1);
 	 graphics_draw();
-      } 
+      }
    }
 }
 
@@ -3309,9 +3347,11 @@ comprised_of_organic_set_p(const std::string &comp_id) {
    
    bool r = false;
    graphics_info_t g;
-   if (g.Geom_p()->have_dictionary_for_residue_type(comp_id, g.cif_dictionary_read_number++)) {
+   int imol = 0; // dummy
+   if (g.Geom_p()->have_dictionary_for_residue_type(comp_id, imol, g.cif_dictionary_read_number++)) {
+      int imol = 0; // dummy;
       std::pair<bool, coot::dictionary_residue_restraints_t> rp = 
-            g.Geom_p()->get_monomer_restraints(comp_id);
+	 g.Geom_p()->get_monomer_restraints(comp_id, imol);
       if (rp.first) { 
          r = rp.second.comprised_of_organic_set();
       }

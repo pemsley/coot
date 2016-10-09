@@ -30,5 +30,25 @@ debug:: switch for sequence_view for imol 0 is 0x0
    o resolve the GSL problem. If no GSL fail in configure?  Or perhaps correctly 
      conditionally compile without it (not usage of $prefix/bin/gsl-config)
 
+   o graphics-info-modelling.cc: for (int iflash=0; iflash<2; iflash++) { 
+	allow flash of 1.
+
    o in interface to render: make bonds to hydrogens be thinner.
 
+   Lukasz Wojtas:
+
+   1) From res file When I try to show ANISO atoms WinCOOT stops working and shuts down. 
+
+   2) exported coordinates and U's round off like in shelxl
+
+      EXPORTED: C1    1  0.501129985  0.671778977   0.518324018
+      SHELXL:   C1    1    0.501130    0.671779    0.518324    11.00000    0.24195
+
+   3) When I try to fix coordinates temporarily by adding 10 - WinCOOT treats 
+      it as actual coordinate and not fixed one so atom is shifted. 
+
+   o when you mutate from an MSE the mainchain should revert to ATOMs
+
+   o import imidaloze from lidia in coot. c.f. stand-alone
+
+   o put the bond, angle, plane, nbc most distorted bonds in the refinement lights dialog

@@ -395,13 +395,14 @@ coot::progressive_residues_in_chain_check(const mmdb::Chain *chain_p) {
 //
 coot::contact_info::contact_info(const atom_selection_container_t &asc, 
 				 const std::string &monomer_type,
+				 int imol,
 				 coot::protein_geometry *geom_p) {
 
    // before messing about here, are you sure that you are looking at
    // the correct cif file for this residue?
 
    std::pair<bool, coot::dictionary_residue_restraints_t> r = 
-      geom_p->get_monomer_restraints(monomer_type);
+      geom_p->get_monomer_restraints(monomer_type, imol);
 
    if (r.first) {
       std::map<std::string, coot::map_index_t> name_map;
@@ -427,7 +428,7 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
 //
 // The atom selection here has already sifted out the unwanted alt confs.
 // 
-coot::contact_info::contact_info(const atom_selection_container_t &asc,
+coot::contact_info::contact_info(const atom_selection_container_t &asc, int imol,
 				 coot::protein_geometry *geom_p,
 				 const coot::bonded_pair_container_t &bonded_pairs) {
 
@@ -445,7 +446,7 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
    for (unsigned int ires=0; ires<residues.size(); ires++) { 
       std::string rn = residues[ires]->GetResName();
       std::pair<bool, coot::dictionary_residue_restraints_t> rest = 
-	 geom_p->get_monomer_restraints(rn);
+	 geom_p->get_monomer_restraints(rn, imol);
       if (! rest.first) {
 	 std::string m = "Restraints not found for type ";
 	 m += rn;
@@ -563,6 +564,7 @@ coot::contact_info::contacts_from_monomer_restraints(const atom_selection_contai
 
 void
 coot::contact_info::setup_from_monomer_restraints(const atom_selection_container_t &asc,
+						  int imol,
 						  coot::protein_geometry *geom_p) {
 
    std::vector<mmdb::Residue *> residues;
@@ -579,7 +581,7 @@ coot::contact_info::setup_from_monomer_restraints(const atom_selection_container
    for (unsigned int ires=0; ires<residues.size(); ires++) { 
       std::string rn = residues[ires]->GetResName();
       std::pair<bool, coot::dictionary_residue_restraints_t> rest = 
-	 geom_p->get_monomer_restraints(rn);
+	 geom_p->get_monomer_restraints(rn, imol);
       if (! rest.first) {
 	 std::string m = "Restraints not found for type ";
 	 m += rn;
@@ -591,11 +593,12 @@ coot::contact_info::setup_from_monomer_restraints(const atom_selection_container
 }
 
 coot::contact_info::contact_info(const atom_selection_container_t &asc,
+				 int imol,
 				 coot::protein_geometry *geom_p, 
 				 const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &link_bond_atoms) {
 
 
-   setup_from_monomer_restraints(asc, geom_p);
+   setup_from_monomer_restraints(asc, imol, geom_p);
    
    // now the link bond restraints
    for (unsigned int ilb=0; ilb<link_bond_atoms.size(); ilb++) {
@@ -619,12 +622,13 @@ coot::contact_info::contact_info(const atom_selection_container_t &asc,
 }
 
 template <class T>
-coot::contact_info::contact_info(mmdb::Manager *mol, int selhnd,
+coot::contact_info::contact_info(mmdb::Manager *mol, int imol,
+				 int selhnd,
 				 const std::vector<T> &link_torsions,
 				 coot::protein_geometry *geom_p) {
 
    atom_selection_container_t asc(mol, selhnd);
-   setup_from_monomer_restraints(asc, geom_p);
+   setup_from_monomer_restraints(asc, imol, geom_p);
    // now the bond between monomers (middle atoms must be in different residues).
    for (unsigned int itor=0; itor<link_torsions.size(); itor++) { 
       bool ifound = false;
@@ -653,18 +657,21 @@ coot::contact_info::contact_info(mmdb::Manager *mol, int selhnd,
 
 
 // instantiate that:
-template coot::contact_info::contact_info(mmdb::Manager *mol, int selhnd,
-				 const std::vector<coot::torsion_atom_quad> &link_torsions,
-				 coot::protein_geometry *geom_p);
+template coot::contact_info::contact_info(mmdb::Manager *mol,
+					  int imol,
+					  int selhnd,
+					  const std::vector<coot::torsion_atom_quad> &link_torsions,
+					  coot::protein_geometry *geom_p);
 
 // try to get the bonds/contacts from the dictionary.  If there are no
 // bonds, then fall back to the distance based search.
 coot::contact_info
 coot::getcontacts(const atom_selection_container_t &asc,
 		  const std::string &monomer_type,
+		  int imol,
 		  coot::protein_geometry *geom_p) {
 
-   coot::contact_info ci(asc, monomer_type, geom_p);
+   coot::contact_info ci(asc, monomer_type, imol, geom_p);
    if (ci.n_contacts() == 0)
       return coot::getcontacts(asc);
    return ci;

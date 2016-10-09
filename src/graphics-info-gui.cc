@@ -1273,7 +1273,7 @@ graphics_info_t::fill_output_residue_info_widget(GtkWidget *widget, int imol,
 
    // name
    graphics_info_t g;
-   std::pair<bool, std::string> p = g.Geom_p()->get_monomer_name(residue_name);
+   std::pair<bool, std::string> p = g.Geom_p()->get_monomer_name(residue_name, imol);
    if (p.first) {
       gtk_label_set_text(GTK_LABEL(residue_name_widget), p.second.c_str());
    } 
@@ -2166,12 +2166,17 @@ int
 graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string monomer_type,
 				      edit_chi_edit_type mode) {
 
+   int imol = 0; // FIXME - extract this from the vbox
+   //
+   // g_object_get_data(G_OBJECT(vbox), ...);
+   // g_object_set_data(..) elsewhere is needed of course
+
    int n_non_const_torsions = -1; // unset
 
    clear_out_container(vbox);
    
    std::pair<short int, coot::dictionary_residue_restraints_t> p =
-      Geom_p()->get_monomer_restraints(monomer_type);
+      Geom_p()->get_monomer_restraints(monomer_type, imol);
    
    if (p.first) {
 
@@ -2533,7 +2538,7 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 		  moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
 		  atom_selection_container_t asc = make_asc(mol);
 		  regularize_object_bonds_box.clear_up();
-		  make_moving_atoms_graphics_object(asc);
+		  make_moving_atoms_graphics_object(imol, asc);
 
 		  // save the fixed end points:
 		  backbone_torsion_end_ca_1 = 
@@ -2703,7 +2708,8 @@ graphics_info_t::edit_backbone_peptide_changed_func(GtkAdjustment *adj, GtkWidge
       } 
 #endif // HAVE_GTK_CANVAS
       regularize_object_bonds_box.clear_up();
-      g.make_moving_atoms_graphics_object(*moving_atoms_asc);
+      int imol = 0; // should be fine for backbone edits
+      g.make_moving_atoms_graphics_object(imol, *moving_atoms_asc);
       graphics_draw();
 
    } else { 
@@ -2780,7 +2786,8 @@ graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidg
 
 #endif // HAVE_GTK_CANVAS
       regularize_object_bonds_box.clear_up();
-      g.make_moving_atoms_graphics_object(*moving_atoms_asc);
+      int imol = 0; // should be fine for backbone edits
+      g.make_moving_atoms_graphics_object(imol, *moving_atoms_asc);
       graphics_draw();
 
    } else { 
@@ -2854,7 +2861,8 @@ graphics_info_t::change_peptide_carbonyl_by(double angle) {
 #endif // HAVE_GTK_CANVAS
 
    regularize_object_bonds_box.clear_up();
-   make_moving_atoms_graphics_object(*moving_atoms_asc);
+   int imol = 0; // should be fine for backbone edits
+   make_moving_atoms_graphics_object(imol, *moving_atoms_asc);
    graphics_draw();
 } 
 
@@ -2912,7 +2920,7 @@ graphics_info_t::phi_psi_pairs_from_moving_atoms() {
       p.second.first  = phi;
       p.second.second = psi;
 
-   } else { 
+   } else {
 
       // can't get the second ramachandran point
       p.second.first = -2000;
@@ -2992,7 +3000,8 @@ graphics_info_t::change_peptide_peptide_by(double angle) {
 #endif // HAVE_GTK_CANVAS
 
    regularize_object_bonds_box.clear_up();
-   make_moving_atoms_graphics_object(*moving_atoms_asc);
+   int imol = 0; // should be fine for backbone edits
+   make_moving_atoms_graphics_object(imol, *moving_atoms_asc);
    graphics_draw();
 } 
 

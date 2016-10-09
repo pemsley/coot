@@ -637,7 +637,8 @@ coot::chi_angles::change_by(int ichi, double diff,
 // c.f. get_torsion_bonds_atom_pairs in wiggly-ligand
 // 
 std::pair<short int, float>
-coot::chi_angles::change_by(int ichi, double diff,
+coot::chi_angles::change_by(int imol,
+			    int ichi, double diff,
 			    const std::vector<std::vector<int> > &contact_indices,
 			    coot::protein_geometry *pg_p,
 			    const coot::atom_spec_t &tree_base_atom,
@@ -651,7 +652,7 @@ coot::chi_angles::change_by(int ichi, double diff,
    std::string residue_name = residue->name;
    // filter out CONST torsions when making atom_name_pairs
    std::vector<coot::atom_name_pair> atom_name_pairs = 
-      get_torsion_bonds_atom_pairs(residue_name, pg_p, include_hydrogen_torsions_flag);
+      get_torsion_bonds_atom_pairs(residue_name, imol, pg_p, include_hydrogen_torsions_flag);
 
    if (atom_name_pairs.size() == 0) {
       std::cout << " Sorry, can't find atom rotatable bonds for residue type ";
@@ -859,15 +860,16 @@ coot::chi_angles::atom_name_quad_list(const std::string &residue_type) const {
 
 std::vector<coot::atom_name_pair>
 coot::chi_angles::get_torsion_bonds_atom_pairs(const std::string &monomer_type,
+					       int imol,
 					       coot::protein_geometry *pg,
 					       short int include_hydrogen_torsions_flag) const {
 
    std::vector<coot::atom_name_pair> atom_pairs;
    std::vector <coot::dict_torsion_restraint_t> monomer_torsions = 
-      pg->get_monomer_torsions_from_geometry(monomer_type);
+      pg->get_monomer_torsions_from_geometry(monomer_type, imol);
 
    std::pair<short int, coot::dictionary_residue_restraints_t> r =
-      pg->get_monomer_restraints(monomer_type);
+      pg->get_monomer_restraints(monomer_type, imol);
 
    std::string atom1, atom2;
    if (monomer_torsions.size() > 0) { 

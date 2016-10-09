@@ -30,7 +30,8 @@ namespace coot {
 
    // this can throw an exception
    std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> >
-   torsionable_bonds(mmdb::Manager *mol, mmdb::PPAtom atom_selection, int n_selected_atoms,
+   torsionable_bonds(int imol,
+		     mmdb::Manager *mol, mmdb::PPAtom atom_selection, int n_selected_atoms,
 		     protein_geometry *geom);
    // not sure this needs to public
    std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> >
@@ -41,14 +42,17 @@ namespace coot {
    // And the atom_quad version of that (for setting link torsions)
    // 
    std::vector<torsion_atom_quad>
-   torsionable_quads(mmdb::Manager *mol, mmdb::PPAtom atom_selection, int n_selected_atoms,
+   torsionable_quads(int imol,
+		     mmdb::Manager *mol, mmdb::PPAtom atom_selection, int n_selected_atoms,
 		     protein_geometry *geom);
    std::vector<torsion_atom_quad>
-   torsionable_link_quads(std::vector<mmdb::Residue *> residues_in,
+   torsionable_link_quads(int imol,
+			  std::vector<mmdb::Residue *> residues_in,
 			  mmdb::Manager *mol, protein_geometry *geom_p);
    
    // this can throw an std::runtime exception
-   void multi_residue_torsion_fit_map(mmdb::Manager *mol,
+   void multi_residue_torsion_fit_map(int imol,
+				      mmdb::Manager *mol,
 				      const clipper::Xmap<float> &xmap,
 				      int n_trials,
 				      coot::protein_geometry *geom_p); 

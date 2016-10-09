@@ -25,6 +25,7 @@
 // can thow a std::runtime_error
 double
 coot::protein_geometry::dreiding_torsion_energy(const std::string &comp_id,
+						int imol_enc,
 						mmdb::Atom *atom_0,
 						mmdb::Atom *atom_1,
 						mmdb::Atom *atom_2,
@@ -36,9 +37,9 @@ coot::protein_geometry::dreiding_torsion_energy(const std::string &comp_id,
       throw std::runtime_error("Null atom in dreiding_torsion_energy");
    } else {
       // happy path
-      int indx = get_monomer_restraints_index(comp_id, 1);
+      int indx = get_monomer_restraints_index(comp_id, imol_enc, true);
       if (indx != -1) {
-	 const coot::dictionary_residue_restraints_t &restraints = dict_res_restraints[indx];
+	 const coot::dictionary_residue_restraints_t &restraints = dict_res_restraints[indx].second;
 	 std::vector<std::string> name(4);
 	 std::vector<std::string> energy_type(4);
 	 std::vector<int> sp_hybrid(4);
@@ -69,9 +70,12 @@ coot::protein_geometry::dreiding_torsion_energy(const std::string &comp_id,
 }
 
 double
-coot::protein_geometry::dreiding_torsion_energy(const std::string &comp_id, const atom_quad &quad) const {
+coot::protein_geometry::dreiding_torsion_energy(const std::string &comp_id,
+						int imol_enc,
+						const atom_quad &quad) const {
 
-   return dreiding_torsion_energy(comp_id, quad.atom_1, quad.atom_2, quad.atom_3, quad.atom_4);
+   return dreiding_torsion_energy(comp_id, imol_enc,
+				  quad.atom_1, quad.atom_2, quad.atom_3, quad.atom_4);
 }
 
 // double
@@ -81,6 +85,7 @@ coot::protein_geometry::dreiding_torsion_energy(const std::string &comp_id, cons
 
 coot::protein_geometry::dreiding_torsion_energy_t
 coot::protein_geometry::dreiding_torsion_energy_params(const std::string &comp_id,
+						       int imol_enc,
 						       const atom_quad &quad) const {
 
    dreiding_torsion_energy_t dr(0,0,0);
@@ -89,9 +94,9 @@ coot::protein_geometry::dreiding_torsion_energy_params(const std::string &comp_i
       throw std::runtime_error("Null atom in dreiding_torsion_energy params");
    } else {
       // happy path
-      int indx = get_monomer_restraints_index(comp_id, 1);
+      int indx = get_monomer_restraints_index(comp_id, imol_enc, true);
       if (indx != -1) {
-	 const coot::dictionary_residue_restraints_t &restraints = dict_res_restraints[indx];
+	 const coot::dictionary_residue_restraints_t &restraints = dict_res_restraints[indx].second;
 	 std::vector<std::string> name(4);
 	 std::vector<std::string> energy_type(4);
 	 std::vector<int> sp_hybrid(4);

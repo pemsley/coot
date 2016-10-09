@@ -313,7 +313,9 @@ coot::match_restraints_to_reference_dictionaries(const coot::dictionary_residue_
       std::string best_comp_id = pg.get_monomer_restraints(best_idx).residue_info.comp_id;
       std::cout << "INFO:: Matched to reference dictionary of comp-id: " << best_comp_id << std::endl;
       mmdb::Residue *returned_res = util::deep_copy_this_residue(residue_p);
-      std::pair<bool, dictionary_residue_restraints_t> rest = pg.get_monomer_restraints(best_comp_id);
+      int imol = 0; // dummy
+      std::pair<bool, dictionary_residue_restraints_t> rest =
+	 pg.get_monomer_restraints(best_comp_id, imol);
       // dictionary_match_info_t dmi = 
       // restraints.match_to_reference(rest.second, returned_res, out_comp_id, out_comp_id);
       restraints.change_names(returned_res, best_match.name_swaps, best_match.new_comp_id);

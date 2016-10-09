@@ -382,7 +382,8 @@ main(int argc, char **argv) {
 	    if (inputs.use_trans_peptide_restraints)
 	       make_trans_peptide_restraints = true;
 
-	    restraints.make_restraints(geom, flags, 1, make_trans_peptide_restraints,
+	    int imol = 0; // dummy
+	    restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
 				       1.0, do_rama_plot_restraints, pseudos);
 
 	    int nsteps_max = 4000;

@@ -25,6 +25,7 @@
 #include "utils/coot-utils.hh"
 #include "protein-geometry.hh"
 #include "dict-mismatches.hh"
+#include "dict-utils.hh"
 
 // quiet means don't tell me about matches
 bool
@@ -1103,3 +1104,16 @@ coot::dictionary_residue_restraints_t::is_connected_to_donor(const std::string &
 
 
 // 1mzt
+
+std::vector<std::string>
+coot::comp_ids_in_dictionary_cif(const std::string &cif_dictionary_filename) {
+
+   std::vector<std::string> v;
+   coot::protein_geometry geom;
+   geom.set_verbose(false);
+   int read_number = 0;  // doesn't matter
+   int imol_enc = protein_geometry::IMOL_ENC_ANY;
+   geom.init_refmac_mon_lib(cif_dictionary_filename, read_number, imol_enc);
+   v = geom.monomer_restraints_comp_ids();
+   return v;
+}

@@ -356,6 +356,8 @@ coot::beam_in_linked_residue::get_residue() const {
 mmdb::Residue *
 coot::beam_in_linked_residue::get_residue_raw() const {
 
+   int imol = 0; // dummy
+   
    mmdb::Residue *r = NULL;
    if (! have_template) {
       std::cout << "WARNING:: no template" << std::endl;
@@ -407,7 +409,8 @@ coot::beam_in_linked_residue::get_residue_raw() const {
 	       // Try getting a molecule, then extracting the residue
 	       // (yes, that works).
 	       //
-	       mmdb::Manager *r_mol = geom_p->mol_from_dictionary(comp_id_new, 1);
+	       int imol_enc = protein_geometry::IMOL_ENC_ANY;
+	       mmdb::Manager *r_mol = geom_p->mol_from_dictionary(comp_id_new, imol_enc, 1);
 	       if (r_mol) {
 		  mmdb::Residue *r_new = coot::util::get_first_residue(r_mol);
 	       
@@ -442,7 +445,7 @@ coot::beam_in_linked_residue::get_residue_raw() const {
 	    if (mods.first.atom_mods[i].function == CHEM_MOD_FUNCTION_DELETE) {
 	       std::string atom_name = mods.first.atom_mods[i].atom_id;
 	       // now we need to expand the atom_id;
-	       std::string at_name = atom_id_mmdb_expand(atom_name, res_name_ref);
+	       std::string at_name = atom_id_mmdb_expand(atom_name, res_name_ref, imol);
 	       // std::cout << ".... delete atom \"" << at_name << "\" in residue_ref"
 	       // << std::endl;
 	       delete_atom(residue_ref, at_name);
@@ -454,7 +457,7 @@ coot::beam_in_linked_residue::get_residue_raw() const {
 	    if (mods.second.atom_mods[i].function == CHEM_MOD_FUNCTION_DELETE) {
 	       std::string atom_name = mods.second.atom_mods[i].atom_id;
 	       // now we need to expand the atom_id;
-	       std::string at_name = atom_id_mmdb_expand(atom_name, res_name_new);
+	       std::string at_name = atom_id_mmdb_expand(atom_name, res_name_new, imol);
  	       delete_atom(r, at_name);
 	    }
 	 }
@@ -538,10 +541,11 @@ coot::beam_in_linked_residue::delete_atom(mmdb::Residue *res, const std::string 
 
 std::string
 coot::beam_in_linked_residue::atom_id_mmdb_expand(const std::string &atom_id,
-						  const std::string &res_name) const {
+						  const std::string &res_name,
+						  int imol) const {
 
 
-   std::string atom_id_expanded = geom_p->atom_id_expand(atom_id, res_name);
+   std::string atom_id_expanded = geom_p->atom_id_expand(atom_id, res_name, imol);
    return atom_id_expanded;
 } 
 

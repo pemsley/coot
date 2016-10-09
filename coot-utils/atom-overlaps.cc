@@ -57,7 +57,7 @@ coot::atom_overlaps_container_t::init() {
 
       std::string cres_name = res_central->GetResName();
       std::pair<bool, dictionary_residue_restraints_t> d =
-	 geom_p->get_monomer_restraints(cres_name);
+	 geom_p->get_monomer_restraints(cres_name, protein_geometry::IMOL_ENC_ANY);
       if (! d.first) {
 	 std::cout << "Failed to get dictionary for " << cres_name << std::endl;
       } else {
@@ -68,7 +68,7 @@ coot::atom_overlaps_container_t::init() {
 	 have_dictionary = true;
 	 for (unsigned int i=0; i<neighbours.size(); i++) {
 	    std::string residue_name = neighbours[i]->GetResName();
-	    d = geom_p->get_monomer_restraints(residue_name);
+	    d = geom_p->get_monomer_restraints(residue_name, protein_geometry::IMOL_ENC_ANY);
 	    if (! d.first) {
 	       std::cout << "WARNING:: Overlap fail. Failed to get dictionary for name "
 			 << residue_name << std::endl;
@@ -351,7 +351,7 @@ coot::atom_overlaps_container_t::get_h_bond_type(mmdb::Atom *at) {
    hb_t type = HB_UNASSIGNED;
    std::string atom_name = at->name;
    std::string res_name = at->GetResName();
-   type = geom_p->get_h_bond_type(atom_name, res_name); // heavyweight
+   type = geom_p->get_h_bond_type(atom_name, res_name, protein_geometry::IMOL_ENC_ANY); // heavyweight
 
    return type;
 } 

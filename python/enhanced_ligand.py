@@ -105,7 +105,7 @@ if (use_gui_qm != 2):
          lambda func: go_solid_func(0))
         
 
-    def tab_ligand_distorsions_func():
+    def tab_ligand_distortions_func():
         with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                    aa_ins_code, aa_atom_name, aa_alt_conf]:
              print_residue_distortions(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
@@ -119,7 +119,7 @@ if (use_gui_qm != 2):
     add_simple_coot_menu_menuitem(
          menu,
          "Tabulate (on terminal) Ligand Distorsions",
-         lambda func: tab_ligand_distorsions_func()
+         lambda func: tab_ligand_distortions_func()
          )
 
     add_simple_coot_menu_menuitem(

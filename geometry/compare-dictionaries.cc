@@ -81,9 +81,9 @@ compare_dictionaries(const std::string &type,
    pg_2.init_refmac_mon_lib(file_name_2, 0);
 
    std::pair<bool, coot::dictionary_residue_restraints_t> r1 = 
-      pg_1.get_monomer_restraints(type);
+      pg_1.get_monomer_restraints(type, coot::protein_geometry::IMOL_ENC_ANY);
    std::pair<bool, coot::dictionary_residue_restraints_t> r2 = 
-      pg_2.get_monomer_restraints(type);
+      pg_2.get_monomer_restraints(type, coot::protein_geometry::IMOL_ENC_ANY);
 
    
 
@@ -133,9 +133,9 @@ compare_dictionaries(const std::string &type,
 
       if (pg_2.size() == 1) {
 	 int zeroth = 0;
-	 std::string ref_type = pg_2[0].comp_id();
+	 std::string ref_type = pg_2[0].second.comp_id();
 	 std::cout << "getting dictionary for " << ref_type << " from " << file_name_2 << std::endl;
-	 r2 = pg_2.get_monomer_restraints(ref_type);
+	 r2 = pg_2.get_monomer_restraints(ref_type, coot::protein_geometry::IMOL_ENC_ANY);
 	 if (r2.first) { // should be!
 	    mmdb::Residue *residue_p = NULL; // for the moment.
 	    std::string new_comp_id = type;
