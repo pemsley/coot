@@ -12473,7 +12473,7 @@ just the cell and symmetry)
 			      <property name="column_spacing">0</property>
 
 			      <child>
-				<widget class="GtkEntry" id="find_ligand_muilt_solution_entry_1">
+				<widget class="GtkEntry" id="find_ligand_multi_solution_entry_1">
 				  <property name="width_request">148</property>
 				  <property name="visible">True</property>
 				  <property name="can_focus">True</property>

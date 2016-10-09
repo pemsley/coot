@@ -7134,7 +7134,7 @@ create_find_ligand_dialog (void)
   GtkWidget *frame304;
   GtkWidget *alignment165;
   GtkWidget *table8;
-  GtkWidget *find_ligand_muilt_solution_entry_1;
+  GtkWidget *find_ligand_multi_solution_entry_1;
   GtkWidget *find_ligand_multi_solution_entry_2;
   GtkWidget *label800;
   GtkWidget *label801;
@@ -7482,15 +7482,15 @@ create_find_ligand_dialog (void)
   gtk_widget_show (table8);
   gtk_container_add (GTK_CONTAINER (alignment165), table8);
 
-  find_ligand_muilt_solution_entry_1 = gtk_entry_new ();
-  gtk_widget_set_name (find_ligand_muilt_solution_entry_1, "find_ligand_muilt_solution_entry_1");
-  gtk_widget_show (find_ligand_muilt_solution_entry_1);
-  gtk_table_attach (GTK_TABLE (table8), find_ligand_muilt_solution_entry_1, 1, 2, 1, 2,
+  find_ligand_multi_solution_entry_1 = gtk_entry_new ();
+  gtk_widget_set_name (find_ligand_multi_solution_entry_1, "find_ligand_multi_solution_entry_1");
+  gtk_widget_show (find_ligand_multi_solution_entry_1);
+  gtk_table_attach (GTK_TABLE (table8), find_ligand_multi_solution_entry_1, 1, 2, 1, 2,
                     (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
                     (GtkAttachOptions) (0), 0, 0);
-  gtk_widget_set_size_request (find_ligand_muilt_solution_entry_1, 148, -1);
-  gtk_entry_set_text (GTK_ENTRY (find_ligand_muilt_solution_entry_1), _("0.9"));
-  gtk_entry_set_invisible_char (GTK_ENTRY (find_ligand_muilt_solution_entry_1), 8226);
+  gtk_widget_set_size_request (find_ligand_multi_solution_entry_1, 148, -1);
+  gtk_entry_set_text (GTK_ENTRY (find_ligand_multi_solution_entry_1), _("0.9"));
+  gtk_entry_set_invisible_char (GTK_ENTRY (find_ligand_multi_solution_entry_1), 8226);
 
   find_ligand_multi_solution_entry_2 = gtk_entry_new ();
   gtk_widget_set_name (find_ligand_multi_solution_entry_2, "find_ligand_multi_solution_entry_2");
@@ -7710,7 +7710,7 @@ create_find_ligand_dialog (void)
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, frame304, "frame304");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, alignment165, "alignment165");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, table8, "table8");
-  GLADE_HOOKUP_OBJECT (find_ligand_dialog, find_ligand_muilt_solution_entry_1, "find_ligand_muilt_solution_entry_1");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, find_ligand_multi_solution_entry_1, "find_ligand_multi_solution_entry_1");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, find_ligand_multi_solution_entry_2, "find_ligand_multi_solution_entry_2");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, label800, "label800");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, label801, "label801");
