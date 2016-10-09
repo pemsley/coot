@@ -2165,12 +2165,13 @@ namespace coot {
 					      mmdb::math::GraphMatch &match, int n_match,
 					      ccp4srs::Monomer *monomer_p) const;
       std::vector<match_results_t>
-      compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float similarity, int n_vertices) const;
+      compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float similarity, int n_vertices,
+			 int srs_idx_start, int srs_idx_end) const;
+      int ccp4_srs_n_entries() const;
 
       // return empty string if not available.
       std::vector<std::string> get_available_ligand_comp_id(const std::string &hoped_for_head,
 							    unsigned int n_top=10) const;
-      
 
 #endif // HAVE_CCP4SRS      
 	 

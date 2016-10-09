@@ -2134,16 +2134,16 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       }
 
 
-      if (false) { 
+      if (true) {
 	 glPushMatrix();
 	 glLoadIdentity();
-	 GLfloat  light_0_position[] = { -1.0,  1.0, 1.0, 0.0};
-	 GLfloat  light_1_position[] = {  1.0,  0.2, 1.0, 0.0};
-	 GLfloat  light_2_position[] = {  1.0,  1.0, 1.0, 0.0};
+	 GLfloat  light_0_position[] = {  1.0,  1.0, 1.0, 0.0};
+	 GLfloat  light_1_position[] = {  1.0, -0.4, 1.0, 0.0};
+	 GLfloat  light_2_position[] = {  1.0, -1.0, 1.0, 0.0};
 
-	 glLightfv(GL_LIGHT0,   GL_POSITION, light_0_position);
-	 glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
-	 glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
+	 glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
+	 glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);
+	 glLightfv(GL_LIGHT2, GL_POSITION, light_2_position);
 	 glPopMatrix();
       }
 

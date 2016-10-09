@@ -7078,6 +7078,8 @@ create_find_ligand_dialog (void)
 {
   GtkWidget *find_ligand_dialog;
   GtkWidget *dialog_vbox2;
+  GtkWidget *scrolledwindow41;
+  GtkWidget *viewport28;
   GtkWidget *vbox44;
   GtkWidget *vbox47;
   GtkWidget *label75;
@@ -7129,6 +7131,15 @@ create_find_ligand_dialog (void)
   GtkWidget *ligand_n_samples_entry;
   GtkWidget *hbox132;
   GtkWidget *label281;
+  GtkWidget *frame304;
+  GtkWidget *alignment165;
+  GtkWidget *table8;
+  GtkWidget *find_ligand_muilt_solution_entry_1;
+  GtkWidget *find_ligand_multi_solution_entry_2;
+  GtkWidget *label800;
+  GtkWidget *label801;
+  GtkWidget *find_ligand_multi_solution_checkbutton;
+  GtkWidget *label799;
   GtkWidget *frame303;
   GtkWidget *alignment164;
   GtkWidget *vbox326;
@@ -7152,6 +7163,7 @@ create_find_ligand_dialog (void)
 
   find_ligand_dialog = gtk_dialog_new ();
   gtk_widget_set_name (find_ligand_dialog, "find_ligand_dialog");
+  gtk_widget_set_size_request (find_ligand_dialog, 400, 750);
   gtk_container_set_border_width (GTK_CONTAINER (find_ligand_dialog), 2);
   gtk_window_set_title (GTK_WINDOW (find_ligand_dialog), _("Find Ligands"));
   gtk_window_set_type_hint (GTK_WINDOW (find_ligand_dialog), GDK_WINDOW_TYPE_HINT_DIALOG);
@@ -7160,10 +7172,21 @@ create_find_ligand_dialog (void)
   gtk_widget_set_name (dialog_vbox2, "dialog_vbox2");
   gtk_widget_show (dialog_vbox2);
 
+  scrolledwindow41 = gtk_scrolled_window_new (NULL, NULL);
+  gtk_widget_set_name (scrolledwindow41, "scrolledwindow41");
+  gtk_widget_show (scrolledwindow41);
+  gtk_box_pack_start (GTK_BOX (dialog_vbox2), scrolledwindow41, TRUE, TRUE, 0);
+
+  viewport28 = gtk_viewport_new (NULL, NULL);
+  gtk_widget_set_name (viewport28, "viewport28");
+  gtk_widget_show (viewport28);
+  gtk_container_add (GTK_CONTAINER (scrolledwindow41), viewport28);
+
   vbox44 = gtk_vbox_new (FALSE, 0);
   gtk_widget_set_name (vbox44, "vbox44");
   gtk_widget_show (vbox44);
-  gtk_box_pack_start (GTK_BOX (dialog_vbox2), vbox44, TRUE, TRUE, 0);
+  gtk_container_add (GTK_CONTAINER (viewport28), vbox44);
+  gtk_widget_set_size_request (vbox44, 360, 750);
 
   vbox47 = gtk_vbox_new (FALSE, 0);
   gtk_widget_set_name (vbox47, "vbox47");
@@ -7343,7 +7366,7 @@ create_find_ligand_dialog (void)
   frame302 = gtk_frame_new (NULL);
   gtk_widget_set_name (frame302, "frame302");
   gtk_widget_show (frame302);
-  gtk_box_pack_start (GTK_BOX (vbox44), frame302, TRUE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox44), frame302, FALSE, FALSE, 0);
 
   alignment163 = gtk_alignment_new (0.5, 0.5, 1, 1);
   gtk_widget_set_name (alignment163, "alignment163");
@@ -7443,11 +7466,75 @@ create_find_ligand_dialog (void)
   gtk_frame_set_label_widget (GTK_FRAME (ligand_expert_frame), label281);
   gtk_label_set_use_markup (GTK_LABEL (label281), TRUE);
 
+  frame304 = gtk_frame_new (NULL);
+  gtk_widget_set_name (frame304, "frame304");
+  gtk_widget_show (frame304);
+  gtk_box_pack_start (GTK_BOX (vbox44), frame304, FALSE, FALSE, 0);
+
+  alignment165 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_set_name (alignment165, "alignment165");
+  gtk_widget_show (alignment165);
+  gtk_container_add (GTK_CONTAINER (frame304), alignment165);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment165), 0, 0, 12, 0);
+
+  table8 = gtk_table_new (3, 2, FALSE);
+  gtk_widget_set_name (table8, "table8");
+  gtk_widget_show (table8);
+  gtk_container_add (GTK_CONTAINER (alignment165), table8);
+
+  find_ligand_muilt_solution_entry_1 = gtk_entry_new ();
+  gtk_widget_set_name (find_ligand_muilt_solution_entry_1, "find_ligand_muilt_solution_entry_1");
+  gtk_widget_show (find_ligand_muilt_solution_entry_1);
+  gtk_table_attach (GTK_TABLE (table8), find_ligand_muilt_solution_entry_1, 1, 2, 1, 2,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_widget_set_size_request (find_ligand_muilt_solution_entry_1, 148, -1);
+  gtk_entry_set_text (GTK_ENTRY (find_ligand_muilt_solution_entry_1), _("0.9"));
+  gtk_entry_set_invisible_char (GTK_ENTRY (find_ligand_muilt_solution_entry_1), 8226);
+
+  find_ligand_multi_solution_entry_2 = gtk_entry_new ();
+  gtk_widget_set_name (find_ligand_multi_solution_entry_2, "find_ligand_multi_solution_entry_2");
+  gtk_widget_show (find_ligand_multi_solution_entry_2);
+  gtk_table_attach (GTK_TABLE (table8), find_ligand_multi_solution_entry_2, 1, 2, 2, 3,
+                    (GtkAttachOptions) (GTK_EXPAND | GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_widget_set_size_request (find_ligand_multi_solution_entry_2, 148, -1);
+  gtk_entry_set_text (GTK_ENTRY (find_ligand_multi_solution_entry_2), _("0.9"));
+  gtk_entry_set_invisible_char (GTK_ENTRY (find_ligand_multi_solution_entry_2), 8226);
+
+  label800 = gtk_label_new (_("Fraction for Scoring  "));
+  gtk_widget_set_name (label800, "label800");
+  gtk_widget_show (label800);
+  gtk_table_attach (GTK_TABLE (table8), label800, 0, 1, 1, 2,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_misc_set_alignment (GTK_MISC (label800), 0, 0.5);
+
+  label801 = gtk_label_new (_("Fraction for Correlation "));
+  gtk_widget_set_name (label801, "label801");
+  gtk_widget_show (label801);
+  gtk_table_attach (GTK_TABLE (table8), label801, 0, 1, 2, 3,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+  gtk_misc_set_alignment (GTK_MISC (label801), 0, 0.5);
+
+  find_ligand_multi_solution_checkbutton = gtk_check_button_new_with_mnemonic (_("Multi-Solutions"));
+  gtk_widget_set_name (find_ligand_multi_solution_checkbutton, "find_ligand_multi_solution_checkbutton");
+  gtk_widget_show (find_ligand_multi_solution_checkbutton);
+  gtk_table_attach (GTK_TABLE (table8), find_ligand_multi_solution_checkbutton, 0, 1, 0, 1,
+                    (GtkAttachOptions) (GTK_FILL),
+                    (GtkAttachOptions) (0), 0, 0);
+
+  label799 = gtk_label_new (_("<b>Solution Display Option</b>"));
+  gtk_widget_set_name (label799, "label799");
+  gtk_widget_show (label799);
+  gtk_frame_set_label_widget (GTK_FRAME (frame304), label799);
+  gtk_label_set_use_markup (GTK_LABEL (label799), TRUE);
+
   frame303 = gtk_frame_new (NULL);
   gtk_widget_set_name (frame303, "frame303");
   gtk_widget_show (frame303);
-  gtk_box_pack_start (GTK_BOX (vbox44), frame303, TRUE, TRUE, 0);
-  gtk_frame_set_shadow_type (GTK_FRAME (frame303), GTK_SHADOW_NONE);
+  gtk_box_pack_start (GTK_BOX (vbox44), frame303, FALSE, FALSE, 0);
 
   alignment164 = gtk_alignment_new (0.5, 0.5, 1, 1);
   gtk_widget_set_name (alignment164, "alignment164");
@@ -7492,10 +7579,11 @@ create_find_ligand_dialog (void)
   gtk_widget_show (hbox35);
   gtk_container_add (GTK_CONTAINER (dialog_action_area2), hbox35);
 
-  hbox36 = gtk_hbox_new (FALSE, 0);
+  hbox36 = gtk_hbox_new (TRUE, 0);
   gtk_widget_set_name (hbox36, "hbox36");
   gtk_widget_show (hbox36);
   gtk_box_pack_start (GTK_BOX (hbox35), hbox36, TRUE, TRUE, 0);
+  gtk_container_set_border_width (GTK_CONTAINER (hbox36), 2);
 
   find_ligand_ok_button = gtk_button_new ();
   gtk_widget_set_name (find_ligand_ok_button, "find_ligand_ok_button");
@@ -7568,6 +7656,8 @@ create_find_ligand_dialog (void)
   /* Store pointers to all widgets, for use by lookup_widget(). */
   GLADE_HOOKUP_OBJECT_NO_REF (find_ligand_dialog, find_ligand_dialog, "find_ligand_dialog");
   GLADE_HOOKUP_OBJECT_NO_REF (find_ligand_dialog, dialog_vbox2, "dialog_vbox2");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, scrolledwindow41, "scrolledwindow41");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, viewport28, "viewport28");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, vbox44, "vbox44");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, vbox47, "vbox47");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, label75, "label75");
@@ -7617,6 +7707,15 @@ create_find_ligand_dialog (void)
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, ligand_n_samples_entry, "ligand_n_samples_entry");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, hbox132, "hbox132");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, label281, "label281");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, frame304, "frame304");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, alignment165, "alignment165");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, table8, "table8");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, find_ligand_muilt_solution_entry_1, "find_ligand_muilt_solution_entry_1");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, find_ligand_multi_solution_entry_2, "find_ligand_multi_solution_entry_2");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, label800, "label800");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, label801, "label801");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, find_ligand_multi_solution_checkbutton, "find_ligand_multi_solution_checkbutton");
+  GLADE_HOOKUP_OBJECT (find_ligand_dialog, label799, "label799");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, frame303, "frame303");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, alignment164, "alignment164");
   GLADE_HOOKUP_OBJECT (find_ligand_dialog, vbox326, "vbox326");

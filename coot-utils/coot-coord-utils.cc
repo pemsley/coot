@@ -1894,13 +1894,18 @@ coot::graph_match(mmdb::Residue *res_moving,
       // Backtrack1() when we have hydrogens in the match.  It is not
       // clear to my why we don't want to do this all the time.
       // Anyway...
+      // 20161008 Now make it true - we are using SRS now.
+      // This does need a test
       // 
-      graph1.MakeSymmetryRelief ( false );
-      graph2.MakeSymmetryRelief ( false );
-   } 
+      // graph1.MakeSymmetryRelief ( false );
+      // graph2.MakeSymmetryRelief ( false );
+ 
+      graph1.MakeSymmetryRelief(true);
+      graph2.MakeSymmetryRelief(true);
+   }
 
-   int build_status1 = graph1.Build(1);
-   int build_status2 = graph2.Build(1);
+   int build_status1 = graph1.Build(true);
+   int build_status2 = graph2.Build(true);
    double best_match_sum = 1e20;
    int best_n_match = -99;
 

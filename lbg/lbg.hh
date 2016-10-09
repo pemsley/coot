@@ -1045,6 +1045,8 @@ public:
    GtkWidget *lbg_view_rotate_entry;
    GtkWidget *lbg_qed_properties_vbox; // hide if not enhanced-ligand
    GtkWidget *lbg_qed_properties_progressbars[8];
+   GtkWidget *lbg_srs_search_results_scrolledwindow;
+   GtkWidget *lbg_srs_search_results_vbox;
 //    GtkWidget *lbg_nitrogen_toggle_toolbutton;
 //    GtkWidget *lbg_carbon_toggle_toolbutton;
 //    GtkWidget *lbg_oxygen_toggle_toolbutton;
