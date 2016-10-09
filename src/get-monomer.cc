@@ -145,9 +145,6 @@ int get_monomer_for_molecule(const std::string &comp_id, int imol) {
 int get_monomer_from_dictionary(const std::string &comp_id,
 				int idealised_flag) {
 
-   std::cout << "--------- get_monomer_from_dictionary() " << comp_id << " " << idealised_flag
-	     << std::endl;
-
    int istat = -1; // unfound molecule
    graphics_info_t g;
 
