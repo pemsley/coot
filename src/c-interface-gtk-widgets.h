@@ -305,6 +305,10 @@ GtkWidget *wrapped_create_run_state_file_dialog();
 GtkWidget *wrapped_create_run_state_file_dialog_py();
 #endif /* USE_PYTHON */
 
+/* Allow the user to select a specific molecule for the ligand dictionary */
+void cif_dictionary_molecule_menu_item_select(GtkWidget *item, GtkPositionType pos);
+void fill_option_menu_with_coordinates_options_for_dictionary(GtkWidget *option_menu);
+
  void do_clipping1_activate();
 void clipping_adjustment_changed (GtkAdjustment *adj, GtkWidget *window);
 

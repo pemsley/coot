@@ -474,10 +474,12 @@ main(int argc, char **argv) {
 
 			      bool optim_geom = 1;
 			      bool fill_vec = 0;
-			      try { 
+			      try {
+				 int imol_ligand = 0;
 				 std::vector<coot::installed_wiggly_ligand_info_t>
 				    wiggled_ligands =
 				    wlig.install_simple_wiggly_ligands(&geom, mmol,
+								       imol_ligand,
 								       wiggly_ligand_n_samples,
 								       optim_geom,
 								       fill_vec);

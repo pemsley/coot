@@ -38,7 +38,7 @@
 // alt_conf is an optional arg.
 // 
 RDKit::RWMol
-coot::rdkit_mol(mmdb::Residue *residue_p, const coot::protein_geometry &geom) {
+coot::rdkit_mol(mmdb::Residue *residue_p, int imol_enc, const coot::protein_geometry &geom) {
 
    if (! residue_p) {
       throw std::runtime_error("Null residue in coot::rdkit_mol()");
@@ -50,7 +50,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p, const coot::protein_geometry &geom) {
 		   << res_name << "\"" << std::endl;
    
       std::pair<bool, coot::dictionary_residue_restraints_t> p = 
-	 geom.get_monomer_restraints_at_least_minimal(res_name);
+	 geom.get_monomer_restraints_at_least_minimal(res_name, imol_enc);
       if (! p.first) {
 
 	 std::string m = "rdkit_mol(): residue type ";
@@ -1066,9 +1066,9 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 // should kekulize flag be an argmuent?
 // 
 RDKit::RWMol
-coot::rdkit_mol_sanitized(mmdb::Residue *residue_p, const protein_geometry &geom) {
+coot::rdkit_mol_sanitized(mmdb::Residue *residue_p, int imol_enc, const protein_geometry &geom) {
 
-   RDKit::RWMol mol = coot::rdkit_mol(residue_p, geom);
+   RDKit::RWMol mol = coot::rdkit_mol(residue_p, imol_enc, geom);
    rdkit_mol_sanitize(mol);
    return mol;
 }

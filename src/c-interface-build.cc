@@ -4555,11 +4555,22 @@ float residue_density_fit_scale_factor() {
 // dictionary
 int handle_cif_dictionary(const char *filename) {
 
+   return handle_cif_dictionary_for_molecule(filename, coot::protein_geometry::IMOL_ENC_ANY);
+}
+
+// imol_enc can be the model molecule number or
+// IMOL_ENC_ANY for all
+// IMOL_ENC_AUTO for auto
+// IMOL_ENC_UNSET for unset - not useful.
+//
+int handle_cif_dictionary_for_molecule(const char *filename, int imol_enc) {
+
    graphics_info_t g;
    short int show_dialog_flag = 0;
    if (graphics_info_t::use_graphics_interface_flag)
       show_dialog_flag = 1;
    int r = g.add_cif_dictionary(coot::util::intelligent_debackslash(filename),
+				imol_enc,
                                 show_dialog_flag);
    graphics_draw();
    return r;
@@ -4750,7 +4761,7 @@ show_partial_charge_info(int imol, const char *chain_id, int resno, const char *
 	 std::string resname = residue->GetResName();
 	 int read_number = graphics_info_t::cif_dictionary_read_number;
 	 graphics_info_t g; 
-	 if (g.Geom_p()->have_dictionary_for_residue_type(resname, read_number)) {
+	 if (g.Geom_p()->have_dictionary_for_residue_type(resname, imol, read_number)) {
 	    
 	 }
 	 graphics_info_t::cif_dictionary_read_number++;

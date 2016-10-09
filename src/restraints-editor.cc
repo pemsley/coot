@@ -1269,6 +1269,8 @@ void apply_restraint_by_widget(GtkWidget *w) {
 
    // std::cout << "Make dictionary reisdue restraints container here" << std::endl;
 
+   int imol_restraints = coot::protein_geometry::IMOL_ENC_ANY; // FIXME
+
    // which restraints editor has dialog w?
    graphics_info_t g;
    coot::restraints_editor re = g.get_restraints_editor(w);
@@ -1279,7 +1281,7 @@ void apply_restraint_by_widget(GtkWidget *w) {
       r.write_cif(filename);
       coot::protein_geometry *pg = g.Geom_p();
       std::string type = r.residue_info.comp_id;
-      bool v = pg->replace_monomer_restraints(type, r);
+      bool v = pg->replace_monomer_restraints(type, imol_restraints, r);
       g.redraw_molecules_with_residue(type);
       if (v)
 	 std::cout << "INFO:: restraints for \"" << type << "\" were replaced" << std::endl;

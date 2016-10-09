@@ -168,7 +168,8 @@ coot::extra_restraints_t::matches_bond_template_p(const std::vector<std::string>
 
 
 void
-coot::restraints_container_t::add_extra_restraints(const extra_restraints_t &extra_restraints,
+coot::restraints_container_t::add_extra_restraints(int imol,
+						   const extra_restraints_t &extra_restraints,
 						   const protein_geometry &geom) {
 
 
@@ -184,7 +185,7 @@ coot::restraints_container_t::add_extra_restraints(const extra_restraints_t &ext
    add_extra_angle_restraints(extra_restraints);
    add_extra_torsion_restraints(extra_restraints);
    add_extra_start_pos_restraints(extra_restraints);
-   add_extra_parallel_plane_restraints(extra_restraints, geom);
+   add_extra_parallel_plane_restraints(imol, extra_restraints, geom);
 }
 
 void
@@ -454,7 +455,8 @@ coot::restraints_container_t::add_extra_torsion_restraints(const extra_restraint
 }
 
 void
-coot::restraints_container_t::add_extra_parallel_plane_restraints(const extra_restraints_t &extra_restraints,
+coot::restraints_container_t::add_extra_parallel_plane_restraints(int imol,
+								  const extra_restraints_t &extra_restraints,
 								  const protein_geometry &geom) {
 
 //    std::cout << "------ in add_extra_parallel_plane_restraints() " << extra_restraints.parallel_plane_restraints.size()
@@ -490,8 +492,8 @@ coot::restraints_container_t::add_extra_parallel_plane_restraints(const extra_re
 	 //
 	 std::string res_type_1 = r_1->GetResName();
 	 std::string res_type_2 = r_2->GetResName();
-	 std::pair<bool, dictionary_residue_restraints_t> dri_1 = geom.get_monomer_restraints(res_type_1);
-	 std::pair<bool, dictionary_residue_restraints_t> dri_2 = geom.get_monomer_restraints(res_type_2);
+	 std::pair<bool, dictionary_residue_restraints_t> dri_1 = geom.get_monomer_restraints(res_type_1, imol);
+	 std::pair<bool, dictionary_residue_restraints_t> dri_2 = geom.get_monomer_restraints(res_type_2, imol);
 
 	 if (dri_1.first && dri_2.first) {
 

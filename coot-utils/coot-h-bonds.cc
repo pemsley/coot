@@ -609,7 +609,7 @@ coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, mmdb::Manag
    for (int i=0; i<n_sel_1_atoms; i++) { 
       std::string name = sel_1_atoms[i]->name;
       std::string res_name = sel_1_atoms[i]->GetResName();
-      int h_bond_type = geom.get_h_bond_type(name, res_name);
+      int h_bond_type = geom.get_h_bond_type(name, res_name, protein_geometry::IMOL_ENC_ANY);
       sel_1_atoms[i]->PutUDData(udd_h_bond_type_handle, h_bond_type);
       if (debug)
 	 std::cout << "   h_bonds:: " 
@@ -623,7 +623,7 @@ coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, mmdb::Manag
       for (int i=0; i<n_sel_2_atoms; i++) { 
 	 std::string name = sel_2_atoms[i]->name;
 	 std::string res_name = sel_2_atoms[i]->GetResName();
-	 int h_bond_type = geom.get_h_bond_type(name, res_name);
+	 int h_bond_type = geom.get_h_bond_type(name, res_name, protein_geometry::IMOL_ENC_ANY);
 	 sel_2_atoms[i]->PutUDData(udd_h_bond_type_handle, h_bond_type);
       if (debug)
 	 std::cout << "h_bonds:: "

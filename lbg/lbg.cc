@@ -4103,9 +4103,10 @@ lbg_info_t::import_molecule_from_cif_file(const std::string &file_name) {
    pg.init_refmac_mon_lib(file_name, 43);
    std::vector<std::string> types = pg.monomer_types();
    if (types.size() > 0) {
+      int imol = 0; // dummy
       std::string comp_id = types.back();
       std::pair<bool, coot::dictionary_residue_restraints_t> p =
-	 pg.get_monomer_restraints(comp_id);
+	 pg.get_monomer_restraints(comp_id, imol);
       if (p.first) {
 	 bool show_hydrogens_flag = false;
 	 import_via_rdkit_from_restraints_dictionary(p.second, show_hydrogens_flag);
@@ -4374,10 +4375,13 @@ lbg_info_t::import_mol_from_comp_id(const std::string &comp_id,
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
+   int imol = 0; // dummy
+
    coot::protein_geometry pg;
    int dynamic_add_status = pg.try_dynamic_add(comp_id, 1);
    coot::dictionary_residue_restraints_t dict;
-   std::pair<bool, coot::dictionary_residue_restraints_t> p = pg.get_monomer_restraints(comp_id);
+   std::pair<bool, coot::dictionary_residue_restraints_t> p =
+      pg.get_monomer_restraints(comp_id, imol);
    bool have_dict = true;
    if (p.first) {
      have_dict = true;
@@ -4388,12 +4392,12 @@ lbg_info_t::import_mol_from_comp_id(const std::string &comp_id,
      pg.init_ccp4srs(".");
      bool status = pg.fill_using_ccp4srs(comp_id);
      if (status) {
-       p = pg.get_monomer_restraints(comp_id);
-       if (p.first) {
-	 dict = p.second;
-       } 
+	p = pg.get_monomer_restraints(comp_id, imol);
+	if (p.first) {
+	   dict = p.second;
+	} 
      } else {
-       std::cout << "Failed to load " << comp_id << " using SRS " << std::endl;
+	std::cout << "Failed to load " << comp_id << " using SRS " << std::endl;
      } 
 #endif // HAVE_CCP4SRS     
    } 

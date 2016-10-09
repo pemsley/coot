@@ -233,8 +233,9 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
       if (!gr) {
 	 std::cout << "ERROR:: failed to get geometry_graph from dialog\n";
       } else {
+	 bool with_nbcs = false;
 	 std::vector<coot::geometry_distortion_info_container_t> dv =
-	    geometric_distortions_from_mol(moving_atoms_asc_local);
+	    geometric_distortions_from_mol(imol_moving_atoms, moving_atoms_asc_local, with_nbcs);
 	 for(unsigned int ich=0; ich<dv.size(); ich++)
 // 	    std::cout << "       ich " << ich << " residue blocks for updating:\n"
 // 		      << dv[ich] << std::endl;
@@ -418,7 +419,8 @@ graphics_info_t::geometric_distortion(int imol) {
    if (mol) {
 
       // big copy:
-      dcv = geometric_distortions_from_mol(molecules[imol].atom_sel);
+      bool with_nbcs = false;
+      dcv = geometric_distortions_from_mol(imol, molecules[imol].atom_sel, with_nbcs);
 
       int max_chain_length = coot::util::max_min_max_residue_range(mol);
       if (max_chain_length <= 0) {
@@ -452,7 +454,7 @@ graphics_info_t::geometric_distortion(int imol) {
 
 #ifdef HAVE_GSL
 coot::geometry_distortion_info_container_t
-graphics_info_t::geometric_distortions(mmdb::Residue *residue_p) {
+graphics_info_t::geometric_distortions(int imol, mmdb::Residue *residue_p, bool with_nbcs) {
    
    coot::geometry_distortion_info_container_t gdc(NULL, 0, "");
 
@@ -460,7 +462,8 @@ graphics_info_t::geometric_distortions(mmdb::Residue *residue_p) {
       mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
       if (mol) {
 	 atom_selection_container_t asc = make_asc(mol);
-	 std::vector<coot::geometry_distortion_info_container_t> v = geometric_distortions_from_mol(asc);
+	 std::vector<coot::geometry_distortion_info_container_t> v =
+	    geometric_distortions_from_mol(imol, asc, with_nbcs);
 	 if (v.size() == 1) {
 	    if (v[0].geometry_distortion.size() > 1) {
 	       gdc = v[0];
@@ -477,7 +480,8 @@ graphics_info_t::geometric_distortions(mmdb::Residue *residue_p) {
 #ifdef HAVE_GSL
 #if defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
 std::vector<coot::geometry_distortion_info_container_t>
-graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t &asc) {
+graphics_info_t::geometric_distortions_from_mol(int imol, const atom_selection_container_t &asc,
+						bool with_nbcs) {
 
    std::vector<coot::geometry_distortion_info_container_t> dcv;
    std::string altconf("");  // use this (e.g. "A") or "".
@@ -538,7 +542,7 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 			       );
 	       asc.mol->GetSelIndex(selHnd, SelResidues, nSelResidues);
 	       std::pair<int, std::vector<std::string> > icheck = 
-		  check_dictionary_for_residue_restraints(SelResidues, nSelResidues);
+		  check_dictionary_for_residue_restraints(imol, SelResidues, nSelResidues);
 	    
 	       if (icheck.first == 0) { 
 		  for (unsigned int icheck_res=0; icheck_res<icheck.second.size(); icheck_res++) { 
@@ -583,7 +587,7 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 		     residue_vec.push_back(std::pair<bool, mmdb::Residue *> (0, SelResidues[ires]));
 
 		  std::vector<mmdb::Link> links;
-		  
+	  
 		  coot::restraints_container_t restraints(residue_vec,
 							  links,
 							  *Geom_p(),
@@ -598,6 +602,9 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 		  flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
 		  flags = coot::BONDS_ANGLES_AND_PLANES;
 		  flags = coot::BONDS_ANGLES_PLANES_AND_CHIRALS;
+
+		  if (with_nbcs)
+		     flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
 		  
 		  short int do_residue_internal_torsions = 0;
 	       
@@ -612,7 +619,7 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 		  coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 		  bool do_trans_peptide_restraints = false;
 		  int nrestraints = 
-		     restraints.make_restraints(*geom_p,
+		     restraints.make_restraints(imol, *geom_p,
 						flags,
 						do_residue_internal_torsions,
 						do_trans_peptide_restraints,
@@ -632,8 +639,10 @@ graphics_info_t::geometric_distortions_from_mol(const atom_selection_container_t
 		     // have been read for the residues in this chain.
 		     // e.g. a single CLs residues in a chain.
 		     std::vector<std::string> res_types = coot::util::residue_types_in_chain(chain_p);
-		     if (!geom_p->have_dictionary_for_residue_types(res_types)) {
-
+		     bool hd = geom_p->have_dictionary_for_residue_types(res_types, imol,
+									 cif_dictionary_read_number);
+		     cif_dictionary_read_number += res_types.size();
+		     if (! hd) {
 			if (use_graphics_interface_flag) { 
 			   GtkWidget *widget = create_no_restraints_info_dialog();
 			   gtk_widget_show(widget);

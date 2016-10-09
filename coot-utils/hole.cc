@@ -46,6 +46,7 @@ coot::hole::hole(mmdb::Manager *mol_in,
 void
 coot::hole::assign_vdw_radii(const coot::protein_geometry &geom) {
 
+   int imol = 0; // dummy
    bool use_vdwH_flag = 0; // extended atoms
 
    std::map<std::pair<std::string, std::string>, double> cached_radii;
@@ -78,7 +79,7 @@ coot::hole::assign_vdw_radii(const coot::protein_geometry &geom) {
 	       if (cached_radii.find(p) != cached_radii.end()) {
 		  radius = it->second;
 	       } else {
-		  radius = geom.get_vdw_radius(atom_name, residue_name, use_vdwH_flag);
+		  radius = geom.get_vdw_radius(atom_name, residue_name, imol, use_vdwH_flag);
 	       }
 	       if (radius > 0) {
 		  at->PutUDData(radius_handle, radius);

@@ -422,7 +422,9 @@ coot::energy_lib_t::add_energy_lib_torsions(mmdb::mmcif::PLoop mmCIFLoop) {
 
 
 coot::hb_t
-coot::protein_geometry::get_h_bond_type(const std::string &atom_name, const std::string &monomer_name) const {
+coot::protein_geometry::get_h_bond_type(const std::string &atom_name,
+					const std::string &monomer_name,
+					int imol_enc) const {
 
    bool debug = false;  // before debugging this, is ener_lib.cif being
 		        // read correctly?
@@ -430,7 +432,7 @@ coot::protein_geometry::get_h_bond_type(const std::string &atom_name, const std:
    // this is heavy!
    // 
    std::pair<bool, dictionary_residue_restraints_t> r =
-      get_monomer_restraints(monomer_name);
+      get_monomer_restraints(monomer_name, imol_enc);
 
    hb_t hb_type = HB_UNASSIGNED;
 

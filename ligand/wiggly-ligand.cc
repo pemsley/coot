@@ -44,6 +44,7 @@
 std::vector<coot::installed_wiggly_ligand_info_t>
 coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 					     const coot::minimol::molecule &ligand_in,
+					     int imol_ligand,
 					     int n_samples,
 					     bool optimize_geometry_flag,
 					     bool fill_returned_molecules_vector_flag) {
@@ -63,8 +64,8 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
    short int do_hydrogen_torsions_flag = 0;
    std::vector <coot::dict_torsion_restraint_t> m_torsions =
       pg->get_monomer_torsions_from_geometry(monomer_type, do_hydrogen_torsions_flag);
-   std::pair<short int, dictionary_residue_restraints_t> monomer_restraints = 
-      pg->get_monomer_restraints(monomer_type);
+   std::pair<bool, dictionary_residue_restraints_t> monomer_restraints = 
+      pg->get_monomer_restraints(monomer_type, imol_ligand);
 
    std::vector <coot::dict_torsion_restraint_t> non_const_torsions;
    int n_non_const_torsionable = 0;
@@ -154,8 +155,8 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 
       // " Did you forget to read the dictionary?";
       
-      std::pair<short int, dictionary_residue_restraints_t> p = 
-	 pg->get_monomer_restraints(monomer_type);
+      std::pair<bool, dictionary_residue_restraints_t> p = 
+	 pg->get_monomer_restraints(monomer_type, imol_ligand);
 
       m = "Requested flexible molecule for ligand ";
       m += monomer_type;
