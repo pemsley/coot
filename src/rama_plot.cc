@@ -1193,10 +1193,15 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
                                        "line-width", 1.,
                                        "tooltip", label.c_str(),
                                        NULL);
-            g_object_set_data (G_OBJECT (item), "id", (gchar *)label.c_str());
-            g_object_set_data (G_OBJECT (item), "res_name", (gchar *)phi_psi.residue_name().c_str());
-            g_object_set_data (G_OBJECT (item), "res_no", (gint *)phi_psi.residue_number);
-            g_object_set_data (G_OBJECT (item), "chain", (gchar *)phi_psi.chain_id.c_str());
+            // Better make a array of new variables to put in the g_object
+            gchar *g_label = (gchar *)label.c_str();
+            gchar *g_res_name = (gchar *)phi_psi.residue_name().c_str();
+            gint *g_res_number = (gint *)phi_psi.residue_number;
+            gchar *g_chain_id = (gchar *)phi_psi.chain_id.c_str();
+            g_object_set_data (G_OBJECT (item), "id", g_label);
+            g_object_set_data (G_OBJECT (item), "res_name", g_res_name);
+            g_object_set_data (G_OBJECT (item), "res_no", g_res_number);
+            g_object_set_data (G_OBJECT (item), "chain", g_chain_id);
             g_object_set_data (G_OBJECT (item), "rama_plot", (gpointer) this);
             g_signal_connect (item, "button_press_event",
                               G_CALLBACK (rama_item_button_press), NULL);
