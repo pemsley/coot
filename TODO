@@ -1374,6 +1374,12 @@ Think about:
 
      - punted.
 
+   o Is there a way to enable pointer distance measurements to include nearby
+     symmetry-equivalent molecules? [Aaron Finke]
+
+   o Think about helical symmetry:
+     http://www.ebi.ac.uk/pdbe/entry/pdb/4v3p/analysis
+
    o November project: 
 
      Make ligand fitting more automated - add RSR.

@@ -1,3 +1,24 @@
+/* src/molecule-class-info-refine.cc
+ * 
+ * Copyright 2010, 2011, 2012 by the University of Oxford
+ * Copyright 2013 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #include "compat/coot-sysdep.h"
 
@@ -349,7 +370,7 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
 		  it = bonded_neighbours.find(comp_id);
 		  std::vector<std::pair<std::string, std::string> > bps;
 		  if (it == bonded_neighbours.end()) {
-		     bps = geom.get_bonded_and_1_3_angles(comp_id);
+		     bps = geom.get_bonded_and_1_3_angles(comp_id, imol_no);
 		     bonded_neighbours[comp_id] = bps;
 		  } else {
 		     bps = it->second;

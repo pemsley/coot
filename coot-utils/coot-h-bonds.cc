@@ -352,16 +352,16 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manag
 	       at_1->GetUDData(hb_type_udd_handle, hb_type_1);
 	       at_2->GetUDData(hb_type_udd_handle, hb_type_2);
 
-	       if (0) // checking this? Are the types HB_UNASSIGNED?
+	       if (false) // checking this? Are the types HB_UNASSIGNED?
 		  std::cout << "debug:: in get_mcdonald_and_thornton() "
 			    << coot::atom_spec_t(at_1) << " "
 			    << coot::atom_spec_t(at_2) << "   "
-			    << hb_type_1 << " " << hb_type_2 
-			    << std::endl;
+			    << hb_type_1 << " " << hb_type_2 << " vs HB_UNASSIGNED:"
+			    << coot::HB_UNASSIGNED << std::endl;
 
 	       // hydrogen on ligand
 	       // 
-	       if (hb_type_1 == coot::HB_HYDROGEN) { 
+	       if (hb_type_1 == coot::HB_HYDROGEN) {
 		  if (hb_type_2 == coot::HB_ACCEPTOR ||
 		      hb_type_2 == coot::HB_BOTH) {
 
@@ -424,7 +424,7 @@ coot::h_bonds::make_h_bond_from_ligand_hydrogen(mmdb::Atom *at_1, // H on ligand
       double dist  = coot::distance(nb_1[iD].first, at_2);
       if (dist < 3.9)  // McDonald and Thornton
 	 good_donor_acceptor_dist = 1;
-      if (0) { 
+      if (0) {
 	 std::cout << "   H-on-ligand angle 1: " << angle << "  ";
 	 std::cout << "     angle: "
 		   << coot::atom_spec_t(nb_1[iD].first) << " "
@@ -597,19 +597,19 @@ int
 coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, mmdb::Manager *mol,
 					 const coot::protein_geometry &geom) {
 
-   bool debug = 0;
+   bool debug = false;
    mmdb::PPAtom sel_1_atoms = 0;
    mmdb::PPAtom sel_2_atoms = 0;
    int n_sel_1_atoms;
    int n_sel_2_atoms;
-   mol->GetSelIndex   (selHnd_1, sel_1_atoms, n_sel_1_atoms);
-   mol->GetSelIndex   (selHnd_2, sel_2_atoms, n_sel_2_atoms);
+   mol->GetSelIndex(selHnd_1, sel_1_atoms, n_sel_1_atoms);
+   mol->GetSelIndex(selHnd_2, sel_2_atoms, n_sel_2_atoms);
    int udd_h_bond_type_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "hb_type");
 
    for (int i=0; i<n_sel_1_atoms; i++) { 
       std::string name = sel_1_atoms[i]->name;
       std::string res_name = sel_1_atoms[i]->GetResName();
-      int h_bond_type = geom.get_h_bond_type(name, res_name);
+      int h_bond_type = geom.get_h_bond_type(name, res_name, protein_geometry::IMOL_ENC_ANY);
       sel_1_atoms[i]->PutUDData(udd_h_bond_type_handle, h_bond_type);
       if (debug)
 	 std::cout << "   h_bonds:: " 
@@ -623,7 +623,7 @@ coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, mmdb::Manag
       for (int i=0; i<n_sel_2_atoms; i++) { 
 	 std::string name = sel_2_atoms[i]->name;
 	 std::string res_name = sel_2_atoms[i]->GetResName();
-	 int h_bond_type = geom.get_h_bond_type(name, res_name);
+	 int h_bond_type = geom.get_h_bond_type(name, res_name, protein_geometry::IMOL_ENC_ANY);
 	 sel_2_atoms[i]->PutUDData(udd_h_bond_type_handle, h_bond_type);
       if (debug)
 	 std::cout << "h_bonds:: "

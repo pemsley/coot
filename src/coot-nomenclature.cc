@@ -1,6 +1,7 @@
 /* src/main.cc
  * 
  * Copyright 2005 by The University of York
+ * Copyright 2015 by Medical Research Council
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -121,8 +122,9 @@ coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool appl
 			   // This is assigned a sign in the refmac
 			   // dictionary, (unlike LEU and VAL).
 
+			   int imol = 0; // dummy
 			   std::vector<coot::dict_chiral_restraint_t> chiral_restraints = 
-			      Geom_p->get_monomer_chiral_volumes(std::string(residue_p->name));
+			      Geom_p->get_monomer_chiral_volumes(std::string(residue_p->name), imol);
 			   coot::dict_chiral_restraint_t chiral_restraint;
 			   for (unsigned int irestr=0; irestr<chiral_restraints.size(); irestr++) { 
 			      chiral_restraint = chiral_restraints[irestr];

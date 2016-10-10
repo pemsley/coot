@@ -1,3 +1,23 @@
+/* ideal/coot-compare-residues.cc
+ * 
+ * Copyright 2012 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 
 #include "geometry/protein-geometry.hh"
@@ -8,8 +28,8 @@
 #include "torsion-bonds.hh"
 
 bool
-coot::compare_residue_torsions(mmdb::Manager *mol1, mmdb::Residue *res_1,
-			       mmdb::Manager *mol2, mmdb::Residue *res_2,
+coot::compare_residue_torsions(int imol_1, mmdb::Manager *mol1, mmdb::Residue *res_1,
+			       int imol_2, mmdb::Manager *mol2, mmdb::Residue *res_2,
 			       double tolerance,
 			       coot::protein_geometry *geom_p) {
 
@@ -18,7 +38,7 @@ coot::compare_residue_torsions(mmdb::Manager *mol1, mmdb::Residue *res_1,
    std::string resname_2 = res_2->GetResName();
 
    std::pair<bool, coot::dictionary_residue_restraints_t> restraints = 
-      geom_p->get_monomer_restraints(resname_1);
+      geom_p->get_monomer_restraints(resname_1, imol_1);
 
    if (restraints.first) {
 
@@ -32,9 +52,9 @@ coot::compare_residue_torsions(mmdb::Manager *mol1, mmdb::Residue *res_1,
       if (n_residue_atoms_1 && n_residue_atoms_2) { 
       
 	 std::vector<torsion_atom_quad> tqv_1 = 
-	    torsionable_quads(mol1, residue_atoms_1, n_residue_atoms_1, geom_p);
+	    torsionable_quads(imol_1, mol1, residue_atoms_1, n_residue_atoms_1, geom_p);
 	 std::vector<torsion_atom_quad> tqv_2 = 
-	    torsionable_quads(mol2, residue_atoms_2, n_residue_atoms_2, geom_p);
+	    torsionable_quads(imol_2, mol2, residue_atoms_2, n_residue_atoms_2, geom_p);
 
 	 bool all_atom_names_match = compare_residue_torsion_atom_names(tqv_1, tqv_2);
 

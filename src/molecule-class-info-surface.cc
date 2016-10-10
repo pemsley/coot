@@ -186,11 +186,3 @@ molecule_class_info_t::make_surface(int SelHnd_selection, int SelHnd_all,
 }
 
 
-// electron density solid surface
-void
-molecule_class_info_t::do_solid_surface_for_density(short int on_off_flag) {
-
-}
-
-
-

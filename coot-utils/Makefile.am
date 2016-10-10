@@ -1,6 +1,7 @@
 # coot-utils/Makefile.am
 # 
 # Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
+# Copyright 2014 by Medical Research Council
 # Author: Paul Emsley
 # 
 # This program is free software; you can redistribute it and/or modify
@@ -29,7 +30,6 @@ lib_LTLIBRARIES= libcoot-coord-utils.la  libcoot-shelx.la libcoot-coord-extras.l
 	libcoot-map-utils.la libcoot-map-heavy.la
 
 pkginclude_HEADERS = peak-search.hh coot-trim.hh \
-	residue-and-atom-specs.hh \
 	coot-coord-utils.hh coot-map-utils.hh coot-coord-extras.hh \
 	coot-map-heavy.hh coot-lsq-types.h coot-shelx.hh \
 	coot-rama.hh xmap-stats.hh coot-h-bonds.hh lsq-improve.hh coot-hole.hh \

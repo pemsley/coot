@@ -4,6 +4,7 @@
  * Author: Paul Emsley
  * Copyright 2007 by The University of York
  * Copyright 2009 by The University of Oxford
+ * Copyright 2014, 2015, 2016 by Medical Research Council
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -1447,7 +1448,7 @@ molecule_class_info_t::update_strict_ncs_symmetry(const coot::Cartesian &centre_
    Bond_lines_container bonds;
    strict_ncs_bonds_box.clear();
    strict_ncs_bonds_box =
-      bonds.add_NCS(atom_sel,
+      bonds.add_NCS(atom_sel, imol_no,
 		    centre_point,
 		    graphics_info_t::symmetry_search_radius,
 		    cmats,

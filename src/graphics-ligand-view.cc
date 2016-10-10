@@ -1,6 +1,7 @@
 /* src/graphics-ligand-view.cc
  * 
  * Copyright 2011 by The University of Oxford
+ * Copyright 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -32,7 +33,7 @@
 #include "lidia-core/rdkit-interface.hh"
 #endif
 
-#include "coot-utils/residue-and-atom-specs.hh"
+#include "geometry/residue-and-atom-specs.hh"
 
 
 void 
@@ -283,7 +284,7 @@ graphics_ligand_atom::make_text_item(const lig_build::atom_id_info_t &atom_id_in
    if (atom_id_info_in.atom_id != "C") {
       glColor3f(fc.col[0], fc.col[1], fc.col[2]);
 
-      for (unsigned int i=0; i<atom_id_info_in.size(); i++) {
+      for (unsigned int i=0; i<atom_id_info_in.n_offsets(); i++) {
 	 double x_o = -0.25; 
 	 double y_o = -0.25;
 	 if (atom_id_info_in[i].text_pos_offset == lig_build::offset_text_t::UP)
@@ -345,7 +346,7 @@ graphics_ligand_molecule::render() {
 }
 
 bool
-graphics_ligand_molecule::setup_from(mmdb::Residue *residue_p,
+graphics_ligand_molecule::setup_from(int imol_in, mmdb::Residue *residue_p,
 				     const std::string &alt_conf,
 				     coot::protein_geometry *geom_p,
 				     bool against_a_dark_background) {
@@ -354,13 +355,15 @@ graphics_ligand_molecule::setup_from(mmdb::Residue *residue_p,
    
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
+   imol = imol_in;
    if (residue_p) {
       try {
 	 std::string res_name = residue_p->GetResName();
 	 std::pair<bool, coot::dictionary_residue_restraints_t> p = 
-	    geom_p->get_monomer_restraints_at_least_minimal(res_name);
+	    geom_p->get_monomer_restraints_at_least_minimal(res_name, imol);
 	 if (! p.first) {
-	    std::cout << "DEBUG:: No restraints for \"" << res_name << "\"" << std::endl;
+	    std::cout << "DEBUG:: graphics_ligand_molecule: No restraints for \""
+		      << res_name << "\"" << std::endl;
 	 } else {
 	    const coot::dictionary_residue_restraints_t &restraints = p.second;
 	    RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, restraints, alt_conf);

@@ -1,6 +1,7 @@
 /* src/molecule-class-info-build.cc
  * 
  * Copyright 2011 The University of Oxford
+ * Copyright 2013 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

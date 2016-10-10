@@ -1,6 +1,7 @@
 # extensions.py
 # Copyright 2007, 2008 by Bernhard Lohkamp
 # Copyright 2006, 2007, 2008 by The University of York
+# Copyright 2015 by Medical Research Council
 #
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -1019,7 +1020,12 @@ if (have_coot_python):
        "NCS Ghosts by Residue Range...",
        lambda func: molecule_chooser_gui("Make local NCS ghosts for molecule:",
                                          lambda imol: ncs_ghost_res_range_func(imol)))
-         
+
+     add_simple_coot_menu_menuitem(
+       submenu_ncs,
+       "Update NCS Ghosts using Local Match",
+       lambda func: update_ncs_ghosts_by_local_sphere())
+
 
      add_simple_coot_menu_menuitem(
        submenu_ncs,

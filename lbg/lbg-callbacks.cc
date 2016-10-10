@@ -2,6 +2,7 @@
  * 
  * Author: Paul Emsley
  * Copyright 2010 by The University of Oxford
+ * Copyright 2015 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -40,6 +41,8 @@ on_lbg_apply_button_clicked(GtkButton *button, gpointer user_data) {
    } else {
       // l->mol.debug();
       l->mol.write_mdl_molfile("prodrg-in.mdl");
+
+      // input to Coot, this means.
       l->import_prodrg_output("prodrg-in.mdl", "DRG");
    } 
 }
@@ -453,6 +456,39 @@ on_lbg_new_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
    }
 }
 
+extern "C" G_MODULE_EXPORT void
+on_lbg_display_standard_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
+
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (l) {
+      l->set_display_atom_names(false);
+      l->set_display_atom_numbers(false);
+   }
+}
+
+extern "C" G_MODULE_EXPORT void
+on_lbg_display_indices_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
+
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (l) {
+      l->set_display_atom_names(false);
+      l->set_display_atom_numbers(true);
+   }
+}
+
+extern "C" G_MODULE_EXPORT void
+on_lbg_display_names_menuitem_activate (GtkMenuItem *item, gpointer         user_data) {
+
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   lbg_info_t *l = static_cast<lbg_info_t *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (l) {
+      l->set_display_atom_numbers(false);
+      l->set_display_atom_names(true);
+   }
+}
+
 
 extern "C" G_MODULE_EXPORT void
 on_lbg_export_as_pdf_filechooserdialog_close(GtkDialog       *dialog,
@@ -565,6 +601,10 @@ on_lbg_export_as_svg_filechooserdialog_response(GtkDialog       *dialog,
    } 
    gtk_widget_hide(GTK_WIDGET(dialog));
 }
+
+
+
+
 
 extern "C" G_MODULE_EXPORT void
 on_residue_circles_toolbutton_clicked(GtkToolButton *button, gpointer user_data) {

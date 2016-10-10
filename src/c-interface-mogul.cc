@@ -1,3 +1,24 @@
+/* src/c-interface-mogul.cc
+ * 
+ * Copyright 2011, 2012 by the University of Oxford
+ * Copyright 2012, 2013 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
@@ -157,14 +178,16 @@ int update_restraints_using_mogul(int imol, const char *chain_id, int res_no, co
       if (residue_p) { 
 	 coot::mogul m(mogul_out_file_name);
 	 coot::dictionary_residue_restraints_t new_restraints =
-	    m.make_restraints(residue_p, monomer_type, *g.Geom_p());
-	 s = g.Geom_p()->replace_monomer_restraints_conservatively(monomer_type, new_restraints);
+	    m.make_restraints(residue_p, monomer_type, imol, *g.Geom_p());
+	 // THIS ONE IS COMPLICATED, FIXME
+	 s = g.Geom_p()->replace_monomer_restraints_conservatively(monomer_type,
+								   new_restraints);
       }
    }
    return s;
 }
 
-// results tabl
+// results table
 void
 show_mogul_geometry_dialog(const coot::mogul &m, mmdb::Residue *residue) {
 

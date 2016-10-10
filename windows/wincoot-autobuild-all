@@ -66,15 +66,16 @@ HOST=`hostname`
 function copy_logs {
   cp -p disk-space-status /z/build-logs/${OS}-${HOST}/disk-space-status
 
+  echo Copy logs from LOCAL to PUBLIC $1
   if [ $1 = "python" ] ; then 
-  # copy log files from local to public html
-   cp -p $LOCAL_HTML_LOGS/gtk2-build.log $PUBLIC_HTML_LOGS/
-   cp -p $LOCAL_HTML_LOGS/gtk2-build.log $PUBLIC_HTML_LOGS/gtk2-python-build.log
-   cp -r -p $LOCAL_HTML_LOGS/$HOSTLOG_STUB/  $PUBLIC_HTML_LOGS/
-   cp -p $LOCAL_HTML_LOGS/gtk2-test.log  $PUBLIC_HTML_LOGS/
-   cp -p $LOCAL_HTML_LOGS/gtk2-test.log  $PUBLIC_HTML_LOGS/gtk2-python-test.log
+      # copy log files from local to public html
+      cp -p $LOCAL_HTML_LOGS/gtk2-build.log $PUBLIC_HTML_LOGS/
+      cp -p $LOCAL_HTML_LOGS/gtk2-build.log $PUBLIC_HTML_LOGS/gtk2-python-build.log
+      cp -r -p $LOCAL_HTML_LOGS/$HOSTLOG_STUB/  $PUBLIC_HTML_LOGS/
+      cp -p $LOCAL_HTML_LOGS/gtk2-test.log  $PUBLIC_HTML_LOGS/
+      cp -p $LOCAL_HTML_LOGS/gtk2-test.log  $PUBLIC_HTML_LOGS/gtk2-python-test.log
   else
-  # copy log files from local to public html
+    # copy log files from local to public html
     if [ $make_guile != 0 ] ; then 
       cp -p $LOCAL_HTML_LOGS/gtk2-guile-build.log $PUBLIC_HTML_LOGS/
       cp -r -p $LOCAL_HTML_LOGS/${HOSTLOG_STUB}-guile/  $PUBLIC_HTML_LOGS/
@@ -140,139 +141,149 @@ fi
 
 if [ $make_installer_only == 0 ] ; then
 
-while [ $coot_version_status != 0 ]
-do
-  # build a python version
-  echo writing progress status to public html $PUBLIC_HTML_LOGS
-  echo write to file build-in-progress @`date +"%a_%d_%b_%H:%M"`
-  echo build-in-progress @`date +"%a_%d_%b_%H:%M"`> $PUBLIC_HTML_LOGS/gtk2-build-status
-  echo waiting for build       > $PUBLIC_HTML_LOGS/gtk2-test-status
-  echo BUILDING:: python WinCoot
-  # make a clean build of failed 3 times previously (last resort)
-  # shall we reset the counter? not yet
-  extra_flag=
-  if [ "$minor_build_cycle" = "2" ] ; then
-      extra_flag="clean"
-  fi
-  if [ "$build_coot_prerelease" = "0" ] ; then
-     # stable release
-     if [ -e /z/make_clean_wincoot_stable ] ; then
-        extra_flag="veryclean"
-        rm /z/make_clean_wincoot_stable
-     fi
-  else
-     # pre-release
-     if [ -e /z/make_clean_wincoot_prerelease ] ; then
-        extra_flag="veryclean"
-        rm /z/make_clean_wincoot_prerelease
-     fi
-  fi
-  echo Now build with:: run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it $extra_flag
-  run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it $extra_flag
-  python_build_status=$?
-  echo python build status $python_build_status
-  copy_logs python
-  # read in variables from install run
-  . ${HOME}/wincoot-installer-variables
-  if [ -z "$build_coot_prerelease" ] ; then
-    build_coot_prerelease=0
-  fi
-  # copy to public place too
-  cp ${HOME}/wincoot-installer-variables $PUBLIC_HTML_LOGS/
+    while [ $coot_version_status != 0 ]
+      do
+      # build a python version
+      echo writing progress status to public html $PUBLIC_HTML_LOGS
+      echo write to file build-in-progress @`date +"%a_%d_%b_%H:%M"`
+      echo build-in-progress @`date +"%a_%d_%b_%H:%M"`> $PUBLIC_HTML_LOGS/gtk2-build-status
+      echo waiting for build       > $PUBLIC_HTML_LOGS/gtk2-test-status
+      echo BUILDING:: python WinCoot
 
-  if [ "$build_coot_prerelease" = "0" ] ; then
-    install_top_dir=${HOME}/autobuild/${OS}-${HOST}-gtk2
-  else
-    install_top_dir=${HOME}/autobuild/${OS}-${HOST}-pre-release-gtk2
-  fi
-  COOT_PYTHON_VERSION=$install_top_dir/coot-version
- if [ $make_guile != 0 ] ; then 
-  COOT_GUILE_VERSION=$install_top_dir-guile/coot-version
-  diff ${COOT_PYTHON_VERSION} ${COOT_GUILE_VERSION} 
-  coot_version_status=$?
- else
-  coot_version_status=0
- fi
+      # do the build
+      echo Now build with:: run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it $extra_flag
+      run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it $extra_flag
+      python_build_status=$?
+      echo python build status $python_build_status
+      copy_logs python
+      # read in variables from install run
+      . ${HOME}/wincoot-installer-variables
+      if [ -z "$build_coot_prerelease" ] ; then
+          build_coot_prerelease=0
+      fi
+      if [ -z "$coot_test_status" ] ; then
+          coot_test_status=1
+      fi
+      # copy to public place too
+      cp ${HOME}/wincoot-installer-variables $PUBLIC_HTML_LOGS/
 
-  if [ "$build_coot_prerelease" = "0" ] ; then
-     # stable release
-     touch /z/make_clean_wincoot_prerelease
-  else
-     # pre-release
-     touch /z/make_clean_wincoot_stable
-  fi
+      # if failed dont bother with a guile build and other settings
+      if [ "$coot_build_status" = "0" ] ; then
 
-  # build a guile version but only if python build ok
-  # dont build for now at all
-  if [ "$coot_build_status" = "0" ] ; then
-   if [ $make_guile != 0 ] ; then 
-    echo 'waiting for guile build      ' > $PUBLIC_HTML_LOGS/gtk2-test-status
-    echo BUILDING:: python+guile WinCoot
-    # possibly could simplify extra flag, but issue if bails out on guile build
-    extra_flag=
-    if [ "$minor_build_cycle" = "2" ] ; then
-        extra_flag="clean"
-    fi
-    if [ "$build_coot_prerelease" = "0" ] ; then
-       # stable release
-       if [ -e /z/make_clean_wincoot_stable-guile ] ; then
-          extra_flag="veryclean"
-          rm /z/make_clean_wincoot_stable-guile
-       fi
-    else
-       # pre-release
-       if [ -e /z/make_clean_wincoot_prerelease-guile ] ; then
-          extra_flag="veryclean"
-          rm /z/make_clean_wincoot_prerelease-guile
-       fi
-    fi
-    echo Now build with:: run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it guile $extra_flag
-    run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it guile $extra_flag
+          if [ "$build_coot_prerelease" = "0" ] ; then
+              install_top_dir=${HOME}/autobuild/${OS}-${HOST}-gtk2
+          else
+              install_top_dir=${HOME}/autobuild/${OS}-${HOST}-pre-release-gtk2
+          fi
+          COOT_PYTHON_VERSION=$install_top_dir/coot-version
+          if [ $make_guile != 0 ] ; then 
+              COOT_GUILE_VERSION=$install_top_dir-guile/coot-version
+              diff ${COOT_PYTHON_VERSION} ${COOT_GUILE_VERSION} 
+              coot_version_status=$?
+          else
+              coot_version_status=0
+          fi
 
-    copy_logs guile
-    diff ${COOT_PYTHON_VERSION} ${COOT_GUILE_VERSION} 
-    coot_version_status=$?
+          if [ "$build_coot_prerelease" = "0" ] ; then
+          # stable release
+              touch /z/make_clean_wincoot_prerelease
+          else
+          # pre-release
+              touch /z/make_clean_wincoot_stable
+          fi
 
-    if [ "$build_coot_prerelease" = "0" ] ; then
-       # stable release
-       touch /z/make_clean_wincoot_prerelease-guile
-    else
-       # pre-release
-       touch /z/make_clean_wincoot_stable-guile
-    fi
+          if [ $make_guile != 0 ] ; then 
+              echo 'waiting for guile build      ' > $PUBLIC_HTML_LOGS/gtk2-test-status
+              echo BUILDING:: python+guile WinCoot
+              # possibly could simplify extra flag, but issue if bails out on guile build
+              extra_flag=
+              if [ "$minor_build_cycle" = "2" ] ; then
+                  extra_flag="clean"
+              fi
+              if [ "$build_coot_prerelease" = "0" ] ; then
+              # stable release
+                  if [ -e /z/make_clean_wincoot_stable-guile ] ; then
+                      extra_flag="veryclean"
+                      rm /z/make_clean_wincoot_stable-guile
+                  fi
+              else
+              # pre-release
+                  if [ -e /z/make_clean_wincoot_prerelease-guile ] ; then
+                      extra_flag="veryclean"
+                      rm /z/make_clean_wincoot_prerelease-guile
+                  fi
+              fi
+              echo Now build with:: run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it guile $extra_flag
+              run_tests=true build_coot_prerelease=${build_coot_prerelease} $build_it guile $extra_flag
 
-    if [ "$coot_version_status" = "1" ] ; then
-       echo 'python and python+guile build differ => build again'
-       build_cycle=$(($build_cycle+1))
-       echo tried $build_cycle times so far
-       if [ "$build_cycle" = "3" ] ; then
-  		echo We tried 3 times to build consistent python and python+guile version
-  		echo BUT FAILED!!
-		echo exiting build!
-		build_installer=1
-        	coot_version_status=0
-       fi
-    fi
-   fi 
-  else
-    # coot python did not build ok! We try 3 more times
-    echo python build failed '=>' try again
-    minor_build_cycle=$(($minor_build_cycle+1))
-    echo tried $minor_build_cycle times so far
-    if [ "$minor_build_cycle" = "3" ] ; then
-      echo We tried 3 times to build python coot
-      echo BUT FAILED!!
-      echo exiting build!
-      build_installer=1
-      coot_version_status=0
-    fi
-  fi
-done
+              copy_logs guile
+              diff ${COOT_PYTHON_VERSION} ${COOT_GUILE_VERSION} 
+              coot_version_status=$?
+
+              if [ "$build_coot_prerelease" = "0" ] ; then
+                  # stable release
+                  touch /z/make_clean_wincoot_prerelease-guile
+              else
+                  # pre-release
+                  touch /z/make_clean_wincoot_stable-guile
+              fi
+
+              if [ "$coot_version_status" = "1" ] ; then
+                  echo 'python and python+guile build differ => build again'
+                  build_cycle=$(($build_cycle+1))
+                  echo tried $build_cycle times so far
+                  if [ "$build_cycle" = "3" ] ; then
+                      echo We tried 3 times to build consistent python and python+guile version
+                      echo BUT FAILED!!
+                      echo exiting build!
+                      build_installer=1
+                      coot_version_status=0
+                  fi
+              fi
+          fi 
+          # end make_guile block
+      else
+          # Coot build was bad
+
+          # coot python did not build ok! We try 3 more times
+          echo python build failed '=>' try again
+          minor_build_cycle=$(($minor_build_cycle+1))
+          echo tried $minor_build_cycle times so far
+
+          # make a clean build of failed 3 times previously (last resort)
+          # shall we reset the counter? not yet
+          extra_flag=
+          if [ "$minor_build_cycle" = "2" ] ; then
+              extra_flag="clean"
+          fi
+          if [ "$build_coot_prerelease" = "0" ] ; then
+              # stable release
+              if [ -e /z/make_clean_wincoot_stable ] ; then
+                  extra_flag="veryclean"
+                  rm /z/make_clean_wincoot_stable
+              fi
+          else
+              # pre-release
+              if [ -e /z/make_clean_wincoot_prerelease ] ; then
+                  extra_flag="veryclean"
+                  rm /z/make_clean_wincoot_prerelease
+              fi
+          fi
+
+          if [ "$minor_build_cycle" = "3" ] ; then
+              echo We tried 3 times to build python coot
+              echo BUT FAILED!!
+              echo exiting build!
+              build_installer=1
+              coot_version_status=0
+          fi
+      fi
+    done
 else
  # this is for installer only
- rm /z/make_installer_only
- . ${HOME}/wincoot-installer-variables
- coot_test_status=0
+    rm /z/make_installer_only
+    . ${HOME}/wincoot-installer-variables
+    coot_test_status=0
 fi
 
 # flag for makensis, i.e. overwrite binary dir when stable release
@@ -346,43 +357,43 @@ if [ "$build_installer" = "0" ] ; then
    "$makensis" //V4 ${makensis_flag} ${src_dir} $wincoot_installer_script
    nsis_status=$?
    if [ "$nsis_status" = "0" ] ; then
-        if [ -e /z/make_stable_build ] ; then
+       if [ -e /z/make_stable_build ] ; then
           # clean up since we managed
-          rm /z/make_stable_build
-        fi
+           rm /z/make_stable_build
+       fi
 	# move files in correct places
 	# or do it before?!?
-	echo Installer script run successful!!
- 	echo make md5sum from ${BINARY_DIR}/${wincoot_exe} to ${BINARY_DIR}/${wincoot_exe}.md5sum
-	md5sum ${BINARY_DIR}/${wincoot_exe} > ${BINARY_DIR}/${wincoot_exe}.md5sum
-	/bin/ls -l ${BINARY_DIR}/${wincoot_exe}>> ${BINARY_DIR}/${wincoot_exe}.md5sum
-        # now update the binary_type_latest stuff 
-        echo write wincoot_version WinCoot-${wincoot_version} to file ${BINARY_DIR}/${binary_type_latest}
-        echo WinCoot-$wincoot_version > ${BINARY_DIR}/$binary_type_latest
-        # finally copy files and update the build-status
-	echo copy files from ${BINARY_DIR} to ${PUBLIC_BINARY_DIR}
-        cp ${BINARY_DIR}/${wincoot_exe} ${PUBLIC_BINARY_DIR}
-        cp ${BINARY_DIR}/${wincoot_exe}.md5sum ${PUBLIC_BINARY_DIR}
-        cp ${BINARY_DIR}/${binary_type_latest} ${PUBLIC_BINARY_DIR}
-        cp $LOCAL_HTML_LOGS/gtk2-build-status $PUBLIC_HTML_LOGS/gtk2-build-status
-
+       echo Installer script run successful!!
+       echo make md5sum from ${BINARY_DIR}/${wincoot_exe} to ${BINARY_DIR}/${wincoot_exe}.md5sum
+       md5sum ${BINARY_DIR}/${wincoot_exe} > ${BINARY_DIR}/${wincoot_exe}.md5sum
+       /bin/ls -l ${BINARY_DIR}/${wincoot_exe}>> ${BINARY_DIR}/${wincoot_exe}.md5sum
+       # now update the binary_type_latest stuff 
+       echo write wincoot_version WinCoot-${wincoot_version} to file ${BINARY_DIR}/${binary_type_latest}
+       echo WinCoot-$wincoot_version > ${BINARY_DIR}/$binary_type_latest
+       # finally copy files and update the build-status
+       echo copy files from ${BINARY_DIR} to ${PUBLIC_BINARY_DIR}
+       cp ${BINARY_DIR}/${wincoot_exe} ${PUBLIC_BINARY_DIR}
+       cp ${BINARY_DIR}/${wincoot_exe}.md5sum ${PUBLIC_BINARY_DIR}
+       cp ${BINARY_DIR}/${binary_type_latest} ${PUBLIC_BINARY_DIR}
+       cp $LOCAL_HTML_LOGS/gtk2-build-status $PUBLIC_HTML_LOGS/gtk2-build-status
+       
    else
-	echo Installer script failed! No windows installer made!
-        echo fail-installer > $PUBLIC_HTML_LOGS/gtk2-build-status
+       echo Installer script failed! No windows installer made!
+       echo fail-installer > $PUBLIC_HTML_LOGS/gtk2-build-status
    fi
 else
    if [ "$build_installer" = "999" ] ; then
-	echo WinCoot installer is up to date. Dont make a new one.
+       echo WinCoot installer is up to date. Dont make a new one.
    else
-   	echo Not making installer since inconsistent versions/or build errors
-        echo or failed tests
-        #if [ "$coot_build_status" = "0" ] ; then
-        #    echo pass-build > $PUBLIC_HTML_LOGS/gtk2-build-status
-        #else
-        #    echo fail-build > $PUBLIC_HTML_LOGS/gtk2-build-status
-        #fi
-	# maybe just copy status?
-	cp $LOCAL_HTML_LOGS/gtk2-build-status $PUBLIC_HTML_LOGS/gtk2-build-status
+       echo Not making installer since inconsistent versions/or build errors
+       echo or failed tests
+       #if [ "$coot_build_status" = "0" ] ; then
+       #    echo pass-build > $PUBLIC_HTML_LOGS/gtk2-build-status
+       #else
+       #    echo fail-build > $PUBLIC_HTML_LOGS/gtk2-build-status
+       #fi
+	   # maybe just copy status?
+       cp $LOCAL_HTML_LOGS/gtk2-build-status $PUBLIC_HTML_LOGS/gtk2-build-status
    fi
 fi
 

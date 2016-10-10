@@ -233,6 +233,7 @@ namespace coot {
 
       std::vector<coot::atom_name_pair>
       get_torsion_bonds_atom_pairs(const std::string &monomer_type,
+				   int imol,
 				   coot::protein_geometry *pg,
 				   short int include_hydrogen_torsions_flag) const;
 
@@ -296,10 +297,11 @@ namespace coot {
 			  const std::vector<std::vector<int> > &contact_indices);
       std::pair<short int, float> change_by(int ichi, double diff,
 					    coot::protein_geometry* geom_p);
-      std::pair<short int, float> change_by(int ichi, double diff,
-			  const std::vector<std::vector<int> > &contact_indices,
-			  coot::protein_geometry *pg,
-			  const coot::atom_spec_t &tree_base_atom,
+      std::pair<short int, float> change_by(int imol,
+					    int ichi, double diff,
+					    const std::vector<std::vector<int> > &contact_indices,
+					    coot::protein_geometry *pg,
+					    const coot::atom_spec_t &tree_base_atom,
 					    short int find_hydrogen_torsions);
 
       // so that we can highlight a bond, we need to know that atom

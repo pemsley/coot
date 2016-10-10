@@ -138,7 +138,7 @@ namespace coot {
       
       float max_z_badness; // passed to mogul items.
       
-      std::string get_bond_type(const coot::dictionary_residue_restraints_t &restraints,
+      std::string get_bond_type(const dictionary_residue_restraints_t &restraints,
 				const std::string &name_1,
 				const std::string &name_2) const;
       
@@ -169,10 +169,10 @@ namespace coot {
 	 apply_minimum_sigma_cap = state;
       } 
 
-      coot::dictionary_residue_restraints_t make_restraints(mmdb::Residue *residue_p,
+      dictionary_residue_restraints_t make_restraints(mmdb::Residue *residue_p,
 						      const std::string &comp_id,
-						      const coot::protein_geometry &geom);
-      // coot:: needed?
+						      int imol,
+						      const protein_geometry &geom);
       // 
       // interface coming from rdkit molecule - there we have synthetic names
       // and the atom names are a simple vector indexing from residue/rdkit-molecule
@@ -184,12 +184,12 @@ namespace coot {
       // bond_types_dict is a container simply to contain the bond
       // orders for a given set of atom names.
       // 
-      coot::dictionary_residue_restraints_t
+      dictionary_residue_restraints_t
       make_restraints(const std::string &comp_id,
 		      const std::string &compound_name,
 		      const std::vector<std::string> &atom_names,
 		      int n_atom_all, int n_atoms_non_H,
-		      const coot::dictionary_residue_restraints_t &bond_types_dict);
+		      const dictionary_residue_restraints_t &bond_types_dict);
 
       // can throw a runtime_exception
       mogul_item get_angle_item(const std::vector<int> &indices) const;

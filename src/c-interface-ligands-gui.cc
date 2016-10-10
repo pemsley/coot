@@ -3,6 +3,7 @@
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
  * Copyright 2008, 2009 The University of Oxford
+ * Copyright 2013, 2014 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -115,6 +116,8 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
 
    int ifound_map, ifound_coords, ifound_ligand; 
    short int diff_maps_only_flag = 0;
+   graphics_info_t g;
+
    ifound_map = fill_ligands_dialog_map_bits(find_ligand_dialog, diff_maps_only_flag);
    if (ifound_map == 0) {
       std::cout << "WARNING:: you must have a map to search for ligands!"
@@ -137,7 +140,7 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
 		<< std::endl;
       std::string s("WARNING:: you must have at least one\n          ligand to search for!\n");
       s += "         Ligands have less than ";
-      s += graphics_info_t::int_to_string(graphics_info_t::find_ligand_ligand_atom_limit);
+      s += coot::util::int_to_string(graphics_info_t::find_ligand_ligand_atom_limit);
       s += " atoms\n";
       GtkWidget *w = wrapped_nothing_bad_dialog(s);
       gtk_widget_show(w);
@@ -148,7 +151,7 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
    GtkWidget *togglebutton;
    togglebutton = lookup_widget(find_ligand_dialog,
 				"find_ligand_mask_waters_yes_radiobutton");
-   if (graphics_info_t::find_ligand_mask_waters_flag)
+   if (g.find_ligand_mask_waters_flag)
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton), TRUE);
    else 
       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(togglebutton), FALSE);
@@ -163,13 +166,42 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
       if (graphics_info_t::find_ligand_here_cluster_flag)
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(search_here_toggle_button), TRUE);
    
-   // 040211: fill new sigma level entry
    fill_ligands_sigma_level_entry(find_ligand_dialog);
+
+   // multi-solution check button
+   //
+   GtkWidget *multi_solution_check_button = lookup_widget(find_ligand_dialog,
+							  "find_ligand_multi_solution_checkbutton");
+   if (multi_solution_check_button) {
+
+      if (g.find_ligand_multiple_solutions_per_cluster_flag) {
+
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(multi_solution_check_button), TRUE);
+
+	 // g.find_ligand_score_by_correl_frac_limit
+	 // g.find_ligand_score_correl_frac_interesting_limit
+	 //
+	 GtkWidget *entry_1 = lookup_widget(find_ligand_dialog, "find_ligand_multi_solution_entry_1");
+	 GtkWidget *entry_2 = lookup_widget(find_ligand_dialog, "find_ligand_multi_solution_entry_2");
+	 if (entry_1) {
+	    gtk_entry_set_text(GTK_ENTRY(entry_1),
+			       coot::util::float_to_string(g.find_ligand_score_by_correl_frac_limit).c_str());
+	 }
+	 if (entry_2) {
+	    gtk_entry_set_text(GTK_ENTRY(entry_2),
+			       coot::util::float_to_string(g.find_ligand_score_correl_frac_interesting_limit).c_str());
+	 }
+      }
+   }
 
    // expert options
    fill_ligands_expert_options(find_ligand_dialog);
    // shall we see the expert option frame?
-   if (graphics_info_t::ligand_expert_flag == 0) {
+
+   // 20140907 Yes. We always see the ligand expert frame now.
+   //          never hide it.
+   // if (graphics_info_t::ligand_expert_flag == 0) {
+   if (false) {
       GtkWidget *frame = lookup_widget(find_ligand_dialog, "ligand_expert_frame");
       gtk_widget_hide(frame);
    }
@@ -177,7 +209,6 @@ int fill_ligands_dialog(GtkWidget *find_ligand_dialog) {
    return ifound_ligand * ifound_map * ifound_coords;
 
    // 050924 New "Expert Options" entries:
-   
 
 }
 
@@ -589,6 +620,41 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
       }
    }
 
+   // multi-solution check button
+   //
+   GtkWidget *multi_solution_check_button = lookup_widget(button,
+							  "find_ligand_multi_solution_checkbutton");
+   if (GTK_TOGGLE_BUTTON(multi_solution_check_button)->active) {
+      g.find_ligand_multiple_solutions_per_cluster_flag = true;
+   }
+
+   GtkWidget *entry_1 = lookup_widget(button, "find_ligand_multi_solution_entry_1");
+   GtkWidget *entry_2 = lookup_widget(button, "find_ligand_multi_solution_entry_2");
+   if (entry_1) {
+      const gchar *e1t = gtk_entry_get_text(GTK_ENTRY(entry_1));
+      if (e1t) {
+	 try {
+	    float f1 = coot::util::string_to_float(e1t);
+	    g.find_ligand_score_by_correl_frac_limit = f1;
+	 }
+	 catch (const std::exception &e) {
+	    std::cout << "WARNING:: failed to convert to number: " << e.what() << std::endl;
+	 }
+      }
+   }
+   if (entry_2) {
+      const gchar *e2t = gtk_entry_get_text(GTK_ENTRY(entry_2));
+      if (e2t) {
+	 try {
+	    float f2 = coot::util::string_to_float(e2t);
+	    g.find_ligand_score_correl_frac_interesting_limit = f2;
+	 }
+	 catch (const std::exception &e) {
+	    std::cout << "WARNING:: failed to convert to number: " << e.what() << std::endl;
+	 }
+      }
+   }
+
    if ( found_active_button_for_map &&
 	found_active_button_for_protein &&
 	found_active_button_for_ligands) {
@@ -650,7 +716,37 @@ void set_ligand_expert_options_from_widget(GtkWidget *button) {
       if ((itop > 0) && (itop < 1000000))
 	 graphics_info_t::find_ligand_n_top_ligands = itop;
    }
-} 
+}
+
+void set_ligand_dialog_number_of_sites_sensitivity(GtkWidget *toggle_button) {
+
+   GtkWidget *hbox = lookup_widget(toggle_button, "find_ligands_dialog_number_of_sites_hbox");
+   if (hbox) {
+      if (GTK_TOGGLE_BUTTON(toggle_button)->active) {
+	 gtk_widget_set_sensitive(hbox, FALSE);
+      } else {
+	 gtk_widget_set_sensitive(hbox, TRUE);
+      }
+   }
+}
+
+void set_ligand_dialog_real_space_refine_sites_checkbutton_state(GtkWidget *toggle_button) {
+
+   if (toggle_button) {
+      graphics_info_t g;
+      if (g.find_ligand_do_real_space_refine_state())
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), TRUE);
+      else 
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), FALSE);
+   }
+}
+
+void set_find_ligand_do_real_space_refinement(short int state) {
+   graphics_info_t g;
+   g.set_find_ligand_do_real_space_refine_state(state);
+   
+}
+
 
 
 /*  extract the sigma level and stick it in */

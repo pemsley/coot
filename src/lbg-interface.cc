@@ -52,7 +52,7 @@ residue_to_ligand_builder(int imol, const char *chain_id, int res_no, const char
 	 graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
       if (residue_p) {
 	 try {
-	    RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, *g.Geom_p());
+	    RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, imol, *g.Geom_p());
 	    RDKit::RWMol rdk_mol_with_no_Hs = coot::remove_Hs_and_clean(rdkm);
 
 	    if (0) {  // debugging

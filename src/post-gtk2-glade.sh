@@ -1,7 +1,13 @@
 # ok we leave interface.h alone and put the functions in add-c-extern.sh
 # we only manipulate gtk2-interface.c
 
-sed -e 's/#include "callbacks.h.gtk2"/#include "callbacks.h"/' \
+SED=sed
+
+if [ $(uname) = Darwin ] ; then
+   SED=gsed
+fi
+
+$SED -e 's/#include "callbacks.h.gtk2"/#include "callbacks.h"/' \
     -e 's/interface.h.gtk2/interface.h/' \
     -e 's/support.h.gtk2/support.h/' \
     -e 's/#include <unistd.h>/#ifndef _MSC_VER\n#include <unistd.h>\n#endif/' \

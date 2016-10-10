@@ -29,6 +29,9 @@
 #include <windows.h>
 #undef HKL
 
+// for timeval
+#include <winsock2.h>
+
 #define AddAtomA AddAtom
 #define GetAtomNameA GetAtomName
 #undef V_UNKNOWN
@@ -40,7 +43,7 @@
 #ifdef IGNORE
 #undef IGNORE
 #endif
-#endif
+#endif //Windows
 
 // some redefinitions for Visual C++
 #if defined _MSC_VER

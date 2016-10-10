@@ -1,6 +1,7 @@
 /* src/lbg-interface.cc
  * 
  * Copyright 2012 by The University of Oxford
+ * Copyright 2013 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -62,7 +63,7 @@ bool residue_to_sdf_file(int imol, const char *chain_id, int res_no, const char 
 	    bool includeStereo = true;
 	    int confId = 0;
 	    // this can throw an exception
-	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, *g.Geom_p());
+	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, *g.Geom_p());
 	    // maybe this can throw an exception too.
 	    RDKit::MolToMolFile(rdkm, sdf_file_name, includeStereo, confId, kekulize);
 	    // success = true we presume
@@ -107,7 +108,7 @@ bool residue_to_mdl_file_for_mogul(int imol, const char *chain_id,
 	    bool includeStereo = true;
 	    int confId = 0;
 	    // this can throw an exception
-	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, *g.Geom_p());
+	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, *g.Geom_p());
 
 	    coot::mogulify_mol(rdkm); // convert difficult functional groups to mogul query
 	                              // format (changes reference).
@@ -151,7 +152,7 @@ bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code
       } else { 
 	 try {
 	    // this can throw an exception
-	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, *g.Geom_p());
+	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, *g.Geom_p());
 	    // create a name (used to name the  generic objects object)
 	    std::string name = "Chemical Features: ";
 	    name += residue_p->GetChainID();

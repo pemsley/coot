@@ -155,7 +155,68 @@ public:
 				 "stroke-color", sc.c_str(),
 				 NULL);
       return item;
-   } 
+   }
+
+   // for 5 points darts - this is ugly
+   virtual GooCanvasItem *
+   wrap_goo_canvas_polyline_new(GooCanvasItem *root,
+				double sharp_point_2_x,   double sharp_point_2_y, 
+				double sharp_point_1_x,   double sharp_point_1_y, 
+				double in_point_x,        double in_point_y, 
+				double short_edge_pt_1_x, double short_edge_pt_1_y,
+				double short_edge_pt_2_x, double short_edge_pt_2_y,
+				std::string fc, std::string sc) const {
+
+      GooCanvasItem *item = 
+	 goo_canvas_polyline_new(root, 
+				 TRUE, 5,
+				 sharp_point_2_x, sharp_point_2_y, 
+				 sharp_point_1_x, sharp_point_1_y, 
+				 in_point_x, in_point_y, 
+				 short_edge_pt_1_x, short_edge_pt_1_y,
+				 short_edge_pt_2_x, short_edge_pt_2_y,
+				 "fill-color", fc.c_str(),
+				 "stroke-color", sc.c_str(),
+				 NULL);
+      return item;
+   }
+
+   virtual GooCanvasItem *
+   wrap_goo_canvas_polyline_new_vp(GooCanvasItem *root,
+				   const std::vector<lig_build::pos_t> &pts,
+				   std::string fc,
+				   std::string sc) const {
+
+      GooCanvasItem *item = NULL;
+      if (pts.size() == 6) {
+	 item = goo_canvas_polyline_new(root, 
+					TRUE, 6,
+					pts[0].x, pts[0].y,
+					pts[1].x, pts[1].y,
+					pts[2].x, pts[2].y,
+					pts[3].x, pts[3].y,
+					pts[4].x, pts[4].y,
+					pts[5].x, pts[5].y,
+					"fill-color", fc.c_str(),
+					"stroke-color", sc.c_str(),
+					NULL);
+      } else {
+	 if (pts.size() == 5) {
+	    item = goo_canvas_polyline_new(root, 
+					   TRUE, 5,
+					   pts[0].x, pts[0].y,
+					   pts[1].x, pts[1].y,
+					   pts[2].x, pts[2].y,
+					   pts[3].x, pts[3].y,
+					   pts[4].x, pts[4].y,
+					   "fill-color", fc.c_str(),
+					   "stroke-color", sc.c_str(),
+					   NULL);
+	 }
+      }
+      return item;
+   }
+   
    
    void wrap_goo_canvas_item_rotate(GooCanvasItem *ci,
 					 double degrees, double cx, double cy) const {
@@ -163,345 +224,10 @@ public:
    } 
 };
 
-// ====================================================================
-//                     widgeted_atom_t
-// ====================================================================
+#include "w-atom.hh"
 
-class widgeted_atom_t : public lig_build::atom_t , ligand_layout_graphic_primitives {
-   std::string font_colour;
-   double solvent_accessibility;
-   GooCanvasItem *ci;
-   // std::string atom_name; // typically names from a PDB file. 20111229 base class now
-   void clear(GooCanvasItem *root) {
-      gint child_index = goo_canvas_item_find_child(root, ci);
-      if (child_index != -1) {
-	 goo_canvas_item_remove_child(root, child_index);
-      }
-      ci = NULL;
-   }
-   void blank_text(GooCanvasItem *root) {
-      gint child_index = goo_canvas_item_find_child(root, ci);
-      if (child_index != -1) {
-	 // set text to ""
-	 g_object_set(ci, "visibility", GOO_CANVAS_ITEM_INVISIBLE, NULL);
-	 // gtk_widget_hide(GTK_WIDGET(ci)); invalid cast
-      } else {
-	 // std::cout << "debug::       blank_text() ci not found in children of root "<< std::endl;
-      } 
-   }
+#include "w-bond.hh"
 
-   // then general form, use this not the below 2 (which are used by
-   // this function)
-   // 
-   GooCanvasItem *make_canvas_text_item(const lig_build::atom_id_info_t &atom_id_info_in,
-					const std::string &fc,
-					GooCanvasItem *root);
-
-public:
-
-   widgeted_atom_t(lig_build::atom_t &at_in, GooCanvasItem *ci_in) : lig_build::atom_t(at_in) {
-      ci = ci_in;
-      font_colour = "yellow";
-      solvent_accessibility = -1;
-   }
-   widgeted_atom_t(lig_build::pos_t pos_in,
-		   std::string ele_in,
-		   int charge_in,
-		   GooCanvasItem *ci_in) :
-      lig_build::atom_t(pos_in, ele_in, charge_in) {
-      ci = ci_in;
-      font_colour = "hotpink";
-      solvent_accessibility = -1;
-   }
-   GooCanvasItem *get_canvas_item() const { return ci; }
-   void update_canvas_item(GooCanvasItem *new_item, GooCanvasItem *root) {
-      blank_text(root);
-      ci = new_item;
-   }
-   bool update_atom_id_maybe(const lig_build::atom_id_info_t &atom_id_info_in,
-			     GooCanvasItem *root) {
-      return update_atom_id_maybe(atom_id_info_in, font_colour, root);
-   }
-   bool update_atom_id_maybe(const lig_build::atom_id_info_t &atom_id_info_in,
-			     const std::string &fc,
-			     GooCanvasItem *root) {
-      bool changed_status = 0;
-      font_colour = fc;
-      GooCanvasItem *text_item = NULL;
-      if (! is_closed()) {
-	 if (atom_id_info_in.atom_id != get_atom_id()) {
-	    changed_status = set_atom_id(atom_id_info_in.atom_id);
-	    if (changed_status) {
-	       text_item = make_canvas_text_item(atom_id_info_in, fc, root);
-	       update_canvas_item(text_item, root);
-	    }
-	 }
-      } else {
-	 update_canvas_item(text_item, root); // close atom, replace with null.
-      } 
-      return changed_status;
-   }
-   void update_atom_id_forced(const lig_build::atom_id_info_t &atom_id_info_in,
-			      const std::string &fc, 
-			      GooCanvasItem *root) {
-
-      set_atom_id(atom_id_info_in.atom_id);
-      GooCanvasItem *text_item = make_canvas_text_item(atom_id_info_in, fc, root);
-      update_canvas_item(text_item, root);
-   }
-   
-   void update_atom_id_forced(const lig_build::atom_id_info_t &atom_id_info_in,
-			      GooCanvasItem *root) {
-      update_atom_id_forced(atom_id_info_in, font_colour, root);
-   }
-   void add_solvent_accessibility(double sa) {
-      solvent_accessibility = sa;
-   }
-   double get_solvent_accessibility() const { return solvent_accessibility; } // negative for none.
-   void close(GooCanvasItem *root) {
-      // std::cout << " closing subclass atom" << std::endl;
-      lig_build::atom_t::close();
-      update_canvas_item(NULL, root);
-   }
-   void set_atom_name(const std::string atom_name_in) {
-      atom_name = atom_name_in;
-   }
-//    std::string get_atom_name() const {
-//       return atom_name;
-//    } 
-   std::vector<coot::bash_distance_t> bash_distances;
-};
-
-// ====================================================================
-//                     widgeted_bond_t
-// ====================================================================
-
-static gboolean
-on_wmolecule_key_press_event (GooCanvasItem *item,
-			      GooCanvasItem *target,
-			      GdkEventKey *event,
-			      gpointer data)
-{
-  gchar *id = 0;
-  // id = g_object_get_data (G_OBJECT (item), "id");
-  g_print ("%s received key-press event\n", id ? id : "unknown");
-  return FALSE;
-}
-
-
-class widgeted_bond_t : public lig_build::bond_t, ligand_layout_graphic_primitives {
-   GooCanvasItem *ci;
-   void clear(GooCanvasItem *root) {
-      gint child_index = goo_canvas_item_find_child(root, ci);
-      if (child_index != -1) {
-	 goo_canvas_item_remove_child(root, child_index);
-      }
-      ci = NULL;
-   }
-
-   void construct_internal(const lig_build::atom_t &atom_first,
-			   const lig_build::atom_t &atom_second,
-			   bond_type_t bt, GooCanvasItem *root) {
-      bool shorten_first = 0;
-      bool shorten_second = 0;
-      if (atom_first.atom_id != "C") { 
-	 shorten_first = 1;
-      } 
-      if (atom_second.atom_id != "C") { 
-	 shorten_second = 1;
-      }
-      ci = canvas_item_for_bond(atom_first, atom_second, shorten_first, shorten_second, bt, root);
-
-      // std::cout << "construct_internal() made ci " << ci << std::endl;
-      
-      g_signal_connect (ci, "key_press_event",
-			G_CALLBACK (on_wmolecule_key_press_event), NULL);
-      
-   }
-
-   // all bonds are made this way...
-   // 
-   GooCanvasItem *canvas_item_for_bond(const lig_build::atom_t &at_1,
-				       const lig_build::atom_t &at_2,
-				       bool shorten_first,
-				       bool shorten_second,
-				       bond_type_t bt,
-				       GooCanvasItem *root) const;
-
-   // We need to make a shorter bond canvas line because we have (say)
-   // changed a carbon to a N (bond canvas line now does not
-   // completely extend to the atom position).
-   // 
-   void make_new_canvas_item_given_type(const lig_build::atom_t &atom_changed,
-					const lig_build::atom_t &atom_other,
-					lig_build::bond_t::bond_type_t bt,
-					GooCanvasItem *root) {
-
-      lig_build::pos_t A = atom_changed.atom_position;
-      lig_build::pos_t B =   atom_other.atom_position;
-
-      bool shorten_first = 0;
-      bool shorten_second = 0;
-      if (atom_changed.atom_id != "C")
-	 shorten_first = 1;
-      if (atom_other.atom_id != "C")
-	 shorten_second = 1;
-      GooCanvasItem *new_line = canvas_item_for_bond(atom_changed, atom_other,
-						     shorten_first, shorten_second,
-						     bt, root);
-      update_canvas_item(new_line, root);
-   }
-
-   GooCanvasItem * canvas_item_double_bond(const lig_build::pos_t &pos_1,
-					   const lig_build::pos_t &pos_2,
-					   GooCanvasItem *root) const;
-					
-   GooCanvasItem * canvas_item_double_aromatic_bond(const lig_build::pos_t &pos_1,
-						    const lig_build::pos_t &pos_2,
-						    GooCanvasItem *root) const;
-					
-   GooCanvasItem * make_wedge_bond_item(const lig_build::pos_t &pos_1,
-					const lig_build::pos_t &pos_2,
-					const lig_build::bond_t::bond_type_t &bt,
-					GooCanvasItem *root) const;
-   GooCanvasItem * make_wedge_out_bond_item(const lig_build::pos_t &pos_1,
-					    const lig_build::pos_t &pos_2,
-					    GooCanvasItem *root) const;
-   GooCanvasItem * make_wedge_in_bond_item(const lig_build::pos_t &pos_1,
-					   const lig_build::pos_t &pos_2,
-					   GooCanvasItem *root) const;
-
-
-   // -------------------- widgeted_bond_t public --------------------------
-
-public:
-
-   // this is for widgeted_bond_t that are invalid (to be assigned later).
-   widgeted_bond_t() : lig_build::bond_t() {
-      ci = NULL;
-   }
-
-   // Now we use a constructor that does the creation of the canvas item too
-   //
-   widgeted_bond_t(int first, int second, 
-		   const lig_build::atom_t &atom_first, const lig_build::atom_t &atom_second,
-		   bond_type_t bt, GooCanvasItem *root) :
-      lig_build::bond_t(first, second, bt) {
-      construct_internal(atom_first, atom_second, bt, root);
-   }
-   // as above, but we give the centre of the ring too.
-   widgeted_bond_t(int first, int second, 
-		   const lig_build::atom_t &atom_first, const lig_build::atom_t &atom_second,
-		   lig_build::pos_t centre_pos_in,
-		   bond_type_t bt, GooCanvasItem *root) :
-      bond_t(first, second, centre_pos_in, bt) {
-      construct_internal(atom_first, atom_second, bt, root);
-   }
-   
-   void update_canvas_item(GooCanvasItem *new_item, GooCanvasItem *root) {
-      clear(root);
-      ci = new_item;
-   }
-
-   void rotate_canvas_item(gdouble cx, gdouble cy, gdouble degrees) {
-      wrap_goo_canvas_item_rotate(ci, degrees, cx, cy);
-   }
-
-   // We need to make a shorter bond canvas line because we have (say)
-   // changed a carbon to a N (bond canvas line now does not
-   // completely extend to the atom position).
-   void make_new_canvas_item(const lig_build::atom_t &atom_changed,
-			     const lig_build::atom_t &atom_other,
-			     GooCanvasItem *root) {
-
-      lig_build::bond_t::bond_type_t bt = get_bond_type();
-      make_new_canvas_item_given_type(atom_changed, atom_other, bt, root);
-   }
-   void change_bond_order(const lig_build::atom_t &atom_changed,
-			  const lig_build::atom_t &atom_other,
-			  GooCanvasItem *root) {
-      change_bond_order(atom_changed, atom_other, 0, root);
-   } 
-   void change_bond_order(const lig_build::atom_t &atom_changed,
-			  const lig_build::atom_t &atom_other,
-			  bool allow_triple_toggle,
-			  GooCanvasItem *root) {
-      // std::cout << "change_bond_order() " << atom_changed << " " << atom_other << std::endl;
-      lig_build:: atom_t at_1 = atom_changed;
-      lig_build:: atom_t at_2 = atom_other;
-      lig_build::bond_t::bond_type_t bt = get_bond_type();
-      if (bt == lig_build::bond_t::SINGLE_BOND) { 
-	 if (allow_triple_toggle)
-	    bt = lig_build::bond_t::TRIPLE_BOND;
-	 else 
-	    bt = lig_build::bond_t::DOUBLE_BOND;
-      } else { 
-	 if (bt == lig_build::bond_t::DOUBLE_BOND) { 
-	    if (allow_triple_toggle)
-	       bt = lig_build::bond_t::TRIPLE_BOND;
-	    else
-	       bt = lig_build::bond_t::SINGLE_BOND;
-	 } else {
-	    if (bt == lig_build::bond_t::TRIPLE_BOND) { 
-	       bt = lig_build::bond_t::DOUBLE_BOND;
-	    } else { 
-	       if (bt == lig_build::bond_t::IN_BOND) {
-		  std::swap(atom_1, atom_2);
-		  std::swap(at_1, at_2);
-		  bt = lig_build::bond_t::OUT_BOND;
-	       } else {
-		  if (bt == lig_build::bond_t::OUT_BOND) { 
-		     bt = lig_build::bond_t::IN_BOND;
-		  }
-	       }
-	    }
-	 }
-      }
-
-      if (0)
-	 std::cout << "changing bond type from " << get_bond_type() << " to "
-		   << bt << std::endl;
-      
-      set_bond_type(bt);
-      make_new_canvas_item_given_type(at_1, at_2, bt, root);
-   }
-   void close(GooCanvasItem *root) {
-      // std::cout << " closing sub-class bond" << std::endl;
-      lig_build::bond_t::close();
-      update_canvas_item(NULL, root);
-   }
-   int mmdb_bond_type() const {
-      int mmdb_bt = 1;
-      switch (get_bond_type()) { 
-      case SINGLE_BOND:
-	 mmdb_bt = 1;
-	 break;
-      case IN_BOND:
-	 mmdb_bt = 1;
-	 break;
-      case OUT_BOND:
-	 mmdb_bt = 1;
-	 break;
-      case DOUBLE_BOND:
-	 mmdb_bt = 2;
-	 break;
-      case TRIPLE_BOND:
-	 mmdb_bt = 3;
-	 break;
-      case AROMATIC_BOND:
-      case DELOC_ONE_AND_A_HALF:
-      case SINGLE_OR_DOUBLE:
-      case SINGLE_OR_AROMATIC:
-      case DOUBLE_OR_AROMATIC:
-      case BOND_ANY:
-      case BOND_UNDEFINED:
-	 mmdb_bt = UNASSIGNED_INDEX;
-	 break;
-      }
-      return mmdb_bt;
-   }
-
-}; // end of widgeted_bond_t
 
 // trivial container for a (copy of an) atom an its ring centre (if
 // it has one)
@@ -617,6 +343,14 @@ public:
    // 
    lig_build::pos_t get_atom_canvas_position(const std::string &atom_name) const;
 
+   // to draw double bonds without centre correctly (and below)
+   std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
+      make_other_connections_to_first_atom_info(unsigned int bond_index) const;
+   // to draw wedge bonds correctly
+   std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
+      make_other_connections_to_second_atom_info(unsigned int bond_index) const;
+   
+
    // can throw an exception (no atoms)
    // 
    // lig_build::pos_t get_ligand_centre() const; // 20111229 base class now
@@ -668,63 +402,6 @@ public:
 
 };
 
-// -----------------------------------------------------------------
-//                   chirality
-// -----------------------------------------------------------------
-
-class topological_equivalence_t {
-
-   // internal copy of input params.
-   // 
-   std::vector<widgeted_atom_t> atoms;
-   std::vector<widgeted_bond_t> bonds;
-   
-   std::vector<bool> unique; // is the atom index marked as unique? initially all 0.
-   std::vector<int> isn;     // invariant-sequence-numbers
-   std::map<std::string, std::vector<int> > atom_map;
-
-   // the number of different EC values in the molecules.
-   int n_extended_connectivity(const std::vector<long int> &equivalent_classes) const;
-
-   bool continue_ec_calculations_p(const std::vector<long int> &curr_eqv, 
-				   const std::vector<long int> &prev_eqv);
-   
-   // fiddles with unique, return true if at least one unique was assigned.
-   bool assign_uniques(const std::vector<long int> &extended_connectivity);
-
-   void assign_invariant_sequence_number(const std::vector<long int> &curr_ec);
-
-   // return the next isn index to be used.
-   int assign_invariant_sequence_number(const std::vector<long int> &curr_ec,
-					const std::vector<std::pair<int, int> > &atom_index,
-					int next_index);
-
-   bool atoms_have_unassigned_isn_p() const;
-
-   // return a flag to let us know that it was done.
-   bool mark_isn(int atom_index, int i_s_n); 
-
-   // old
-   // fiddles with unique
-   bool identified_unique_p(const std::vector<long int> &curr_eqv, 
-			    const std::vector<long int> &prev_eqv);
-
-   std::vector<long int> assign_initial_topo_indices();
-   std::vector<long int> assign_topo_indices(const std::vector<long int> &prev_eqv,
-					     int round);
-
-   // Return a list of atom indices that are connected to 3 or 4 other
-   // atoms (return the indices of those other atoms too.
-   // 
-   std::vector<std::pair<int, std::vector<int> > > tetrahedral_atoms() const;
-
-      
-public:
-   topological_equivalence_t(const std::vector<widgeted_atom_t> &atoms,
-			     const std::vector<widgeted_bond_t> &bonds);
-
-   std::vector<std::string> chiral_centres() const;
-};
-
+#include "topological-equivalence.hh"
 
 #endif // WMOLECULE_HH

@@ -3,6 +3,7 @@
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006 The University of York
  * Copyright 2008 by The University of Oxford
+ * Copyright 2013, 2014, 2015, 2016 by Medical Research Council
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -55,7 +56,6 @@ namespace coot {
 	 value = value_in;
       }
    };
-
 
    class rama_triple_t {
    public:
@@ -807,7 +807,7 @@ namespace coot {
 			mmdb::Residue *res);
 
    std::pair<std::vector<std::string> , std::vector <atom_spec_t> >
-   inverted_chiral_volumes(mmdb::Manager *mol, protein_geometry *geom_p,
+   inverted_chiral_volumes(int imol, mmdb::Manager *mol, protein_geometry *geom_p,
 			   int cif_dictionary_read_number);
       
    
@@ -1274,15 +1274,19 @@ namespace coot {
 				       const protein_geometry &geom);
 					
 
-      int make_monomer_restraints       (const protein_geometry &geom,
-					 short int do_residue_internal_torsions);
+      int make_monomer_restraints(int imol,
+				  const protein_geometry &geom,
+				  short int do_residue_internal_torsions);
       //uses:
-      int make_monomer_restraints_by_linear (const protein_geometry &geom,
-					     bool do_residue_internal_torsions);
-      int make_monomer_restraints_from_res_vec (const protein_geometry &geom,
-						bool do_residue_internal_torsions);
+      int make_monomer_restraints_by_linear(int imol,
+					    const protein_geometry &geom,
+					    bool do_residue_internal_torsions);
+      int make_monomer_restraints_from_res_vec(int imol,
+					       const protein_geometry &geom,
+					       bool do_residue_internal_torsions);
       // which use:
-      restraint_counts_t make_monomer_restraints_by_residue(mmdb::Residue *residue_p,
+      restraint_counts_t make_monomer_restraints_by_residue(int imol,
+							    mmdb::Residue *residue_p,
 							    const protein_geometry &geom,
 							    bool do_residue_internal_torsions);
       
@@ -1429,15 +1433,20 @@ namespace coot {
       bool check_for_O_C_1_5_relation(mmdb::Atom *at_1, mmdb::Atom *at_2) const;  // check either way round
 
 
-      int make_non_bonded_contact_restraints(const bonded_pair_container_t &bpc, const protein_geometry &geom);
-      int make_non_bonded_contact_restraints(const bonded_pair_container_t &bpc,
+      int make_non_bonded_contact_restraints(int imol, const bonded_pair_container_t &bpc, const protein_geometry &geom);
+      int make_non_bonded_contact_restraints(int imol,
+					     const bonded_pair_container_t &bpc,
 					     const reduced_angle_info_container_t &ai,
 					     const protein_geometry &geom);
-      bool is_in_same_ring(mmdb::Residue *residue_p,
+      bool is_in_same_ring(int imol, mmdb::Residue *residue_p,
 			   std::map<std::string, std::pair<bool, std::vector<std::list<std::string> > > > &residue_ring_map_cache,
 			   const std::string &atom_name_1,
 			   const std::string &atom_name_2,
 			   const coot::protein_geometry &geom) const;
+
+      bool is_acceptor(const std::string &energy_type,
+		       const coot::protein_geometry &geom) const;
+      
       
       //! Set a flag that we have an OXT and we need to position it
       //after the refinement.
@@ -1496,14 +1505,14 @@ namespace coot {
 	 }
 
       // return "" on no type found
-      std::string get_type_energy(mmdb::Atom *at, const protein_geometry &geom) const {
+      std::string get_type_energy(int imol, mmdb::Atom *at, const protein_geometry &geom) const {
 	 std::string r;
 	 if (at) { 
 	    std::string atom_name = at->name;
 	    const char *rn = at->GetResName();
 	    if (rn) {
 	       std::string residue_name = rn;
-	       r = geom.get_type_energy(atom_name, residue_name);
+	       r = geom.get_type_energy(atom_name, residue_name, imol);
 	    } 
 	 }
 	 return r;
@@ -1787,7 +1796,8 @@ namespace coot {
       // We need to fill restraints_vec (which is a vector of
       // simple_restraint) using the coordinates () and the dictionary of
       // restraints, protein_geometry geom.
-      int make_restraints(const protein_geometry &geom,
+      int make_restraints(int imol,
+			  const protein_geometry &geom,
 			  restraint_usage_Flags flags,
 			  bool do_residue_internal_torsions,
 			  bool do_trans_peptide_restraints,
@@ -1803,14 +1813,16 @@ namespace coot {
       } 
       unsigned int const_test_function(const protein_geometry &geom) const;
 
-      void add_extra_restraints(const extra_restraints_t &extra_restraints,
+      void add_extra_restraints(int imol,
+				const extra_restraints_t &extra_restraints,
 				const protein_geometry &geom);
       // and that calls:
       void add_extra_bond_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_angle_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_torsion_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_start_pos_restraints(const extra_restraints_t &extra_restraints);
-      void add_extra_parallel_plane_restraints(const extra_restraints_t &extra_restraints,
+      void add_extra_parallel_plane_restraints(int imol,
+					       const extra_restraints_t &extra_restraints,
 					       const protein_geometry &geom);
 
       // old code:

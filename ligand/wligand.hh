@@ -172,6 +172,7 @@ namespace coot {
       std::vector<installed_wiggly_ligand_info_t>
       install_simple_wiggly_ligands(protein_geometry *pg,
 				    const minimol::molecule &ligand,
+				    int imol_ligand,
 				    int n_samples,
 				    bool optimize_geometry_flag,
 				    bool fill_returned_molecules_vector_flag);
@@ -183,7 +184,7 @@ namespace coot {
       void set_debug_wiggly_ligands() { debug_wiggly_ligands = 1; }
       std::vector<minimol::molecule> get_conformers() const {
 	 return initial_ligand;
-      } 
+      }
    }; 
 
 }

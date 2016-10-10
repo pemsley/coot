@@ -3,6 +3,7 @@
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Copyright 2007 by Paul Emsley
  * Copyright 2008, 2009, 2010, 2011, 2012 by The University of Oxford
+ * Copyright 2015 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -339,6 +340,7 @@ std::pair<int, std::vector<std::string> > merge_molecules_by_vector(const std::v
 //! \name Dictionary Functions
 //! \{
 std::vector<std::string> dictionary_entries();
+void debug_dictionary();
 // this can throw an exception
 std::string SMILES_for_comp_id(const std::string &comp_id);
 /*! \brief return a list of all the dictionaries read */
@@ -377,7 +379,8 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints);
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
-PyObject *monomer_restraints_py(const char *monomer_type);
+PyObject *monomer_restraints_py(std::string monomer_type);
+PyObject *monomer_restraints_for_molecule_py(std::string monomer_type, int imol);
 PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restraints);
 #endif // USE_PYTHON
 

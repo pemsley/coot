@@ -3,6 +3,7 @@
  * Copyright 2006 by The University of York
  * Copyright 2007 by Paul Emsley
  * Copyright 2007, 2008, 2009 by The University of Oxford
+ * Copyright 2012, 2013, 2014, 2015, 2016 by Medical Research Council
  * Author: Paul Emsley
  * Author: Bernhard Lohkamp
  * 
@@ -40,6 +41,7 @@
 #include "compat/coot-sysdep.h"
 
 #include "clipper/mmdb/clipper_mmdb.h"
+#include "geometry/main-chain.hh"
 
 std::vector<std::string>
 coot::util::residue_types_in_molecule(mmdb::Manager *mol) { 
@@ -170,22 +172,6 @@ coot::util::pair_residue_atoms(mmdb::Residue *a_residue_p,
    }
    return pv;
 }
-
-// return an atom selection handle for the selection in the mol
-// that matches the spec.
-//
-int
-coot::residue_spec_t::select_atoms(mmdb::Manager *mol, int selhnd,
-				   mmdb::SELECTION_KEY selection_key) {
-
-   if (mol) { 
-      mol->SelectAtoms(selhnd, 0, chain_id.c_str(),
-		       res_no, ins_code.c_str(),
-		       res_no, ins_code.c_str(),
-		       "*", "*", "*", "*", selection_key);
-   }
-   return selhnd;
-} 
 
 
 mmdb::Manager *
@@ -1059,76 +1045,6 @@ coot::is_member_p(const std::vector<mmdb::Residue *> &v, mmdb::Residue *a) {
 } 
 
 bool
-coot::is_main_chain_p(mmdb::Atom *at) { 
-
-   std::string mol_atom_name(at->name);
-   if (mol_atom_name == " N  " ||
-       mol_atom_name == " C  " ||
-       mol_atom_name == " H  " ||
-       mol_atom_name == " CA " ||
-       mol_atom_name == " HA " || // CA hydrogen
-       mol_atom_name == " O  ") {
-      return 1;
-   } else {
-      return 0;
-   } 
-}
-
-bool
-coot::is_main_chain_or_cb_p(mmdb::Atom *at) { 
-
-   std::string mol_atom_name(at->name);
-   return is_main_chain_or_cb_p(mol_atom_name);
-}
-
-// return 0 or 1
-bool
-coot::is_main_chain_p(const std::string &mol_atom_name) {
-
-   if (mol_atom_name == " N  " ||
-       mol_atom_name == " C  " ||
-       mol_atom_name == " H  " ||
-       mol_atom_name == " CA " ||
-       mol_atom_name == " CB " ||
-       mol_atom_name == " HA " || // CA hydrogen
-       mol_atom_name == " O  ") {
-      return 1;
-   } else {
-      return 0;
-   } 
-}
-
-// return 0 or 1
-bool
-coot::is_main_chain_or_cb_p(const std::string &mol_atom_name) {
-
-   if (mol_atom_name == " N  " ||
-       mol_atom_name == " C  " ||
-       mol_atom_name == " H  " ||
-       mol_atom_name == " CA " ||
-       mol_atom_name == " CB " ||
-       mol_atom_name == " HA " || // CA hydrogen
-       mol_atom_name == " O  ") {
-      return 1;
-   } else {
-      return 0;
-   } 
-} 
-
-
-// return 0 or 1
-bool coot::is_hydrogen_p(mmdb::Atom *at) {
-
-   std::string mol_atom_ele(at->element);
-   if (mol_atom_ele == " H" ||
-       mol_atom_ele == " D") {
-      return 1;
-   } else {
-      return 0;
-   }
-}
-
-bool
 coot::residues_in_order_p(mmdb::Chain *chain_p) {
 
    bool ordered_flag = 1;
@@ -1490,59 +1406,6 @@ coot::get_selection_handle(mmdb::Manager *mol, const coot::atom_spec_t &at) {
    return SelHnd;
 }
 
-std::ostream& coot::operator<< (std::ostream& s, const coot::atom_spec_t &spec) {
-
-   s << "[spec: ";
-   s << "model ";
-   s << spec.model_number;
-   s << " ";
-   s << "\"";
-   s << spec.chain_id;
-   s << "\" ";
-   s << spec.res_no;
-   s << " ";
-   s << "\"";
-   s << spec.ins_code;
-   s << "\"";
-   s << " ";
-   s << "\"";
-   s  << spec.atom_name;
-   s << "\"";
-   s << " ";
-   s << "\"";
-   s << spec.alt_conf;
-   s << "\"]";
-
-   return s;
-
-}
-
-std::ostream& coot::operator<< (std::ostream& s, const coot::residue_spec_t &spec) {
-
-   if (!spec.unset_p()) { 
-
-      s << "[spec: ";
-      // s << "{{debug:: mmdb::MinInt4 is " << MinInt4 << "}} ";
-      if (spec.model_number == mmdb::MinInt4)
-	 s << "mmdb::MinInt4";
-      else
-	 s << spec.model_number;
-      
-      s << " \"";
-      s << spec.chain_id;
-      s << "\" ";
-      s << spec.res_no;
-      s << " ";
-      s << "\"";
-      s << spec.ins_code;
-      s << "\"]";
-   } else {
-      s << "{residue-spec-not-set}";
-   } 
-   return s;
-
-}
-
 
 // deleted by calling process
 std::pair<mmdb::Manager *, std::vector<coot::residue_spec_t> >
@@ -1705,60 +1568,6 @@ coot::util::get_fragment_from_atom_spec(const coot::atom_spec_t &atom_spec,
    return std::pair<mmdb::Manager *, std::vector<coot::residue_spec_t> > (mol, v);
 } 
 
-bool
-coot::atom_spec_t::matches_spec(mmdb::Atom *atom) const {
-
-   if (atom_name == std::string(atom->name)) {
-
-      if (alt_conf == std::string(atom->altLoc)) {
-
-	 mmdb::Residue *residue_p = atom->residue;
-	 
-	 if (residue_p) { 
-	    
-	    if (res_no == atom->GetSeqNum()) {
-	       
-	       if (ins_code == std::string(atom->GetInsCode())) { 
-		  
-		  mmdb::Chain *chain_p= atom->GetChain();
-		  if (chain_p) {
-		     if (chain_id == chain_p->GetChainID()) {
-			// std::cout << atom_name << "a complete match " << std::endl;
-			return 1;
-		     } else {
-			// std::cout << atom_name << "a chain mismatch " << std::endl;
-			return 0;
-		     }
-		  } else {
-		     // std::cout << atom_name << "a no chain match " << std::endl;
-		     // no chain
-		     return 1;
-		  }
-	       } else {
-		  // std::cout << atom_name << "an inscode mismatch " << std::endl;
-		  return 0;
-	       }
-	    } else {
-	       // std::cout << atom_name << "a resno mismatch " << std::endl;
-	       return 0;
-	    }
-	    
-	 } else {
-	    // no residue
-	    // std::cout << atom_name << "a no chain match " << std::endl;
-	    return 1;
-	 }
-      } else {
-	 // std::cout << atom_name << "an altloc mismatch " << std::endl;
-	 return 0;
-      } 
-   } else {
-      // std::cout << atom_name << "an atom name mismatch :" << atom->name << ":" << std::endl;
-      return 0;
-   }
-   std::cout << atom_name << " should not happen (matches_spec()) " << atom->name << ":" << std::endl;
-   return 0;
-}
 
 std::vector<mmdb::Atom * >
 coot::torsion::matching_atoms(mmdb::Residue *residue) {
@@ -2085,13 +1894,18 @@ coot::graph_match(mmdb::Residue *res_moving,
       // Backtrack1() when we have hydrogens in the match.  It is not
       // clear to my why we don't want to do this all the time.
       // Anyway...
+      // 20161008 Now make it true - we are using SRS now.
+      // This does need a test
       // 
-      graph1.MakeSymmetryRelief ( false );
-      graph2.MakeSymmetryRelief ( false );
-   } 
+      // graph1.MakeSymmetryRelief ( false );
+      // graph2.MakeSymmetryRelief ( false );
+ 
+      graph1.MakeSymmetryRelief(true);
+      graph2.MakeSymmetryRelief(true);
+   }
 
-   int build_status1 = graph1.Build(1);
-   int build_status2 = graph2.Build(1);
+   int build_status1 = graph1.Build(true);
+   int build_status2 = graph2.Build(true);
    double best_match_sum = 1e20;
    int best_n_match = -99;
 
@@ -2247,7 +2061,9 @@ coot::graph_match_info_t::match_names(mmdb::Residue *res_with_moving_names) {
 	    }
 	 }
 
-	 std::cout << ".... atom name: " << atom_name << ": found_match " << found_match << std::endl;
+	 // std::cout << ".... atom name: " << atom_name << ": found_match "
+	 // << found_match << std::endl;
+	 
 	 if (! found_match) {
 	    // this atom name was not in the list of working atoms that were matched.
 
@@ -2261,13 +2077,13 @@ coot::graph_match_info_t::match_names(mmdb::Residue *res_with_moving_names) {
 		  break;
 	       }
 	    }
-	    std::cout << "      found_match_2 " << found_match_2 << std::endl;
+	    // std::cout << "      found_match_2 " << found_match_2 << std::endl;
 	    if (found_match_2)
 	       orig_moving_atom_names_non_mapped_non_same.push_back(atom_name);
 	    else
 	       orig_moving_atom_names_non_mapped_same.push_back(atom_name);
 	    
-	 } 
+	 }
       }
 
       if (debug) {
@@ -2348,9 +2164,10 @@ coot::graph_match_info_t::match_names(mmdb::Residue *res_with_moving_names) {
 	    }
 	 }
 
-	 std::cout << "debug atom name :" << this_atom_name
-		   << ": replace status: " << replace_name
-		   << " new name :" << new_atom_name << ":" << std::endl;
+	 if (false)
+	    std::cout << "debug atom name :" << this_atom_name
+		      << ": replace status: " << replace_name
+		      << " new name :" << new_atom_name << ":" << std::endl;
 	 if (replace_name) {
 	    residue_atoms[iat]->SetAtomName(new_atom_name.c_str());
 	 } 
@@ -5257,12 +5074,15 @@ coot::util::mutate_internal(mmdb::Residue *residue,
    }
 
    // only touch the atoms with given alt conf, ignore the others.
+   std::string to_residue_type = std_residue->GetResName();
    for(int i=0; i<nResidueAtoms; i++) {
       std::string atom_alt_conf(residue_atoms[i]->altLoc);
       if (atom_alt_conf == alt_conf) { 
 	 std::string residue_this_atom (residue_atoms[i]->name);
 	 if (coot::is_main_chain_p(residue_atoms[i])) {
-	    // nothing
+	    if (to_residue_type == "MSE") {
+	       residue_atoms[i]->Het = 1;
+	    }
 	 } else { 
 	    residue->DeleteAtom(i);
 	 }

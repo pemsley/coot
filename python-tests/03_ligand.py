@@ -277,7 +277,20 @@ class LigandTestFunctions(unittest.TestCase):
 
         
     def test10_0(self):
-        """Pyrogen Runs OK"""
+        """Pyrogen Runs OK?"""
+
+        # bad things may well happen if we run the wrong version of pyrogen.
+        # so force pyrogen to be the one that is installed alongside this version of coot 
+        # that we are running. We do that by looking and manipulating sys.argv[0]
+        import os, sys
+        
+        coot_dir = os.path.abspath(os.path.dirname(sys.argv[0]))
+        prefix_dir = os.path.normpath(os.path.join(coot_dir, ".."))
+        pyrogen_exe = "pyrogen"
+        if is_windows():
+            pyrogen_exe = "pyrogen.bat"
+        pyrogen_bin = os.path.normpath(os.path.join(prefix_dir, "bin",
+                                                    pyrogen_exe))
 
         smiles = "C1CNC1"
         tlc_text = "XXX"
@@ -297,9 +310,10 @@ class LigandTestFunctions(unittest.TestCase):
                     arg_list = ["--residue-type", tlc_text, smiles]
                 else:
                     arg_list = ["--no-mogul", "-M", "--residue-type", tlc_text, smiles]
-            popen_status = popen_command("pyrogen", arg_list, [], log_file_name, True)
+            popen_status = popen_command(pyrogen_bin, arg_list, [], log_file_name, True)
             # self.assertTrue(popen_status == 0)
-            self.assertEqual(popen_status, 0, "WARNING:: pyrogen exited with status %i\n" %popen_status)
+            self.assertEqual(popen_status, 0,
+                             "WARNING:: pyrogen exited with status %i\n" %popen_status)
             pdb_file_name = tlc_text + "-pyrogen.pdb"
             cif_file_name = tlc_text + "-pyrogen.cif"
             print "INFO:: pyrogen will try to read pdb file %s" %pdb_file_name

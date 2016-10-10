@@ -1,3 +1,24 @@
+/* pyrogen/restraints-boost.cc
+ * 
+ * Copyright 2011 by the University of Oxford
+ * Copyright 2014, 2015 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #include "compat/coot-sysdep.h"
 #include <GraphMol/GraphMol.h>
@@ -145,7 +166,9 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 
    mmdb::Residue *r = geom.get_residue(comp_id, idealized, try_autoload_if_needed);
 
-   std::pair<bool, dictionary_residue_restraints_t> rest = geom.get_monomer_restraints(comp_id);
+   int imol = 0; // dummy
+   std::pair<bool, dictionary_residue_restraints_t> rest =
+      geom.get_monomer_restraints(comp_id, imol);
 
    if (rest.first) {
 

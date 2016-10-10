@@ -3,6 +3,7 @@
  * Copyright 2002, 2003, 2004, 2005, 2006 by The University of York
  * Author: Paul Emsley
  * Copyright 2007 by Paul Emsley
+ * Copyright 2013, 2014 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,7 +75,7 @@ molecule_class_info_t::mutate(int resno, const std::string &insertion_code,
       mmdb::PPResidue SelResidues;
       int SelHnd = atom_sel.mol->NewSelection();
       atom_sel.mol->Select(SelHnd, mmdb::STYPE_RESIDUE, 1,
-			   (char *) chain_id.c_str(),
+			   chain_id.c_str(),
 			   resno, insertion_code.c_str(),
 			   resno, insertion_code.c_str(),
 			   "*", "*", "*", "*",

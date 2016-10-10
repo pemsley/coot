@@ -7,6 +7,7 @@
 # Copyright 2004, 2005, 2006, 2007 by Paul Emsley, The University of York
 #    <one line to give the program's name and a brief idea of what it does.>
 #    Copyright (C) <year>  <name of author>
+#    Copyright 2013, 2014, 2016 by Medical Research Council
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -37,6 +38,9 @@ have_mingw = False
 if  os.getenv("MSYSTEM"):
     have_mingw = True
 
+# this is set by the main application: False or 1 (use this python gui)
+# or 2 (guile-gtk is being used so use this if gui-gtk function is
+# not available)
 global use_gui_qm
 
 global user_defined_alert_smarts

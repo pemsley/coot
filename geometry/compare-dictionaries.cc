@@ -1,3 +1,24 @@
+/* geometry/compare-dictionaries.cc
+ * 
+ * Copyright 2013 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
+
 #ifdef __GNU_LIBRARY__
 #include "compat/coot-getopt.h"
 #else
@@ -60,9 +81,9 @@ compare_dictionaries(const std::string &type,
    pg_2.init_refmac_mon_lib(file_name_2, 0);
 
    std::pair<bool, coot::dictionary_residue_restraints_t> r1 = 
-      pg_1.get_monomer_restraints(type);
+      pg_1.get_monomer_restraints(type, coot::protein_geometry::IMOL_ENC_ANY);
    std::pair<bool, coot::dictionary_residue_restraints_t> r2 = 
-      pg_2.get_monomer_restraints(type);
+      pg_2.get_monomer_restraints(type, coot::protein_geometry::IMOL_ENC_ANY);
 
    
 
@@ -112,9 +133,9 @@ compare_dictionaries(const std::string &type,
 
       if (pg_2.size() == 1) {
 	 int zeroth = 0;
-	 std::string ref_type = pg_2[0].comp_id();
+	 std::string ref_type = pg_2[0].second.comp_id();
 	 std::cout << "getting dictionary for " << ref_type << " from " << file_name_2 << std::endl;
-	 r2 = pg_2.get_monomer_restraints(ref_type);
+	 r2 = pg_2.get_monomer_restraints(ref_type, coot::protein_geometry::IMOL_ENC_ANY);
 	 if (r2.first) { // should be!
 	    mmdb::Residue *residue_p = NULL; // for the moment.
 	    std::string new_comp_id = type;

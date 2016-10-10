@@ -25,7 +25,7 @@ dnl implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 dnl
 dnl Process this file with autoconf to produce a configure script.
 
-AC_INIT(coot, 0.8.6)
+AC_INIT(coot, 0.8.7-pre)
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -94,6 +94,7 @@ AM_MINGW_WINDOWS
 dnl test for LIBPNG (Windows only - maybe shouif here rather than in macro?)
 if test "$have_windows_mingw" = yes; then
   AM_PATH_GLOB
+  AC_CONFIG_FILES(pyrogen/pyrogen.bat)
 fi
 
 AM_PATH_LIBPNG
@@ -242,7 +243,7 @@ if test "$GOOCANVAS_CFLAGS" != "" ; then
    GOOCANVAS_CFLAGS="-DHAVE_GOOCANVAS $GOOCANVAS_CFLAGS"
 fi
 
-AC_ARG_WITH(enhanced-ligand-tools, [ --with-enhanced-ligand-tools with optional complicated/experimental ligand-related dependencies ],
+AC_ARG_WITH(enhanced-ligand-tools, [  --with-enhanced-ligand-tools with optional complicated/experimental ligand-related dependencies ],
  coot_enhanced_ligand_additions="true",
  coot_enhanced_ligand_additions="false")
 
@@ -251,6 +252,11 @@ if test x$coot_enhanced_ligand_additions = xtrue ; then
 else 	
    ENHANCED_LIGAND_TOOLS_CFLAGS=""
 fi
+
+AC_ARG_WITH(lidia-only, [  --with-lidia-only build lidia only (not coot) ],
+ lidia_only="yes",
+ lidia_only=="no")
+AM_CONDITIONAL([COND_LIDIA_ONLY], [test "$lidia_only" = yes])
 
 AM_CONDITIONAL(MAKE_ENHANCED_LIGAND_TOOLS, test x$coot_enhanced_ligand_additions = xtrue)
 AC_SUBST(ENHANCED_LIGAND_TOOLS_CFLAGS)

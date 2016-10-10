@@ -1,3 +1,24 @@
+/* src/get-monomer.cc
+ * 
+ * Copyright 2010 by the University of Oxford
+ * Copyright 2015 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 
 #if defined (USE_PYTHON)
@@ -42,30 +63,32 @@ int get_monomer_molecule_by_network_and_dict_gen(const std::string &text) {
 
 // Return the new molecule number, or else a negitive error code.
 // 
-int get_monomer(const char *three_letter_code) {
+int get_monomer(const std::string &comp_id_in) {
 
    int imol = -1;
 
+   std::string comp_id = comp_id_in;
+
    // first check if three_letter_code is valid, i.e. not empty
-   if (std::string(three_letter_code) == "")
+   if (comp_id.empty())
      return imol;
    // fast
-   imol = get_monomer_from_dictionary(three_letter_code, 1); // idealized
+   imol = get_monomer_from_dictionary(comp_id, 1); // idealized
+
    if (is_valid_model_molecule(imol)) { 
       return imol;
    } else { 
-      imol = get_monomer_from_dictionary(three_letter_code, 0); // non-idealized
+      imol = get_monomer_from_dictionary(comp_id, 0); // non-idealized
       if (is_valid_model_molecule(imol)) { 
 	 return imol;
       }
    }
-	 
 
    // OK, the slow path, using LIBCHECK.
 
    std::string function_name = "monomer-molecule-from-3-let-code";
    std::vector<coot::command_arg_t> args;
-   args.push_back(coot::util::single_quote(three_letter_code));
+   args.push_back(coot::util::single_quote(comp_id));
 
    // now add in the bespoke cif library if it was given.  It is
    // ignored in the libcheck script if cif_lib_filename is "".
@@ -77,7 +100,7 @@ int get_monomer(const char *three_letter_code) {
    if (graphics_info_t::cif_dictionary_filename_vec->size() > 0) {
       std::string dict_name = (*graphics_info_t::cif_dictionary_filename_vec)[0];
       coot::simple_cif_reader r(dict_name);
-      if (r.has_restraints_for(three_letter_code))
+      if (r.has_restraints_for(comp_id))
 	 cif_lib_filename = dict_name;
    }
    args.push_back(coot::util::single_quote(cif_lib_filename));
@@ -89,9 +112,28 @@ int get_monomer(const char *three_letter_code) {
 
    std::vector<std::string> command_strings;
    command_strings.push_back("get-monomer");
-   command_strings.push_back(coot::util::single_quote(three_letter_code));
+   command_strings.push_back(coot::util::single_quote(comp_id));
    add_to_history(command_strings);
 
+   return imol;
+}
+
+//! get the monomer for the given 
+int get_monomer_for_molecule(const std::string &comp_id, int imol) {
+
+   graphics_info_t g;
+
+   bool idealised_flag = true;
+   mmdb::Manager *mol = g.Geom_p()->mol_from_dictionary(comp_id, imol, idealised_flag);
+   if (mol) {
+      imol = graphics_info_t::create_molecule();
+      atom_selection_container_t asc = make_asc(mol);
+      std::string name = comp_id;
+      name += "_from_dict";
+      graphics_info_t::molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1);
+      move_molecule_to_screen_centre_internal(imol);
+      graphics_draw();
+   }
    return imol;
 }
 
@@ -100,17 +142,18 @@ int get_monomer(const char *three_letter_code) {
 /* Use the protein geometry dictionary to retrieve a set of
    coordinates quickly.  There are no restraints from this method
    though. */
-int get_monomer_from_dictionary(const char *three_letter_code,
+int get_monomer_from_dictionary(const std::string &comp_id,
 				int idealised_flag) {
 
    int istat = -1; // unfound molecule
    graphics_info_t g;
 
-   mmdb::Manager *mol = g.Geom_p()->mol_from_dictionary(three_letter_code, idealised_flag);
+   int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+   mmdb::Manager *mol = g.Geom_p()->mol_from_dictionary(comp_id, imol_enc, idealised_flag);
    if (mol) {
       int imol = graphics_info_t::create_molecule();
       atom_selection_container_t asc = make_asc(mol);
-      std::string name = three_letter_code;
+      std::string name = comp_id;
       name += "_from_dict";
       graphics_info_t::molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1);
       move_molecule_to_screen_centre_internal(imol);
@@ -119,5 +162,3 @@ int get_monomer_from_dictionary(const char *three_letter_code,
    }
    return istat;
 }
-
-

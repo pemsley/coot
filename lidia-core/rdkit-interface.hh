@@ -32,8 +32,10 @@ namespace coot {
 
    // can throw an runtime_error exception (e.g. residue not in dictionary)
    //
-   RDKit::RWMol rdkit_mol_sanitized(mmdb::Residue *residue_p, const protein_geometry &geom);
-   RDKit::RWMol rdkit_mol(mmdb::Residue *residue_p, const protein_geometry &geom);
+   RDKit::RWMol rdkit_mol_sanitized(mmdb::Residue *residue_p, int imol_enc,
+				    const protein_geometry &geom);
+   RDKit::RWMol rdkit_mol(mmdb::Residue *residue_p, int imol_enc,
+			  const protein_geometry &geom);
 
    // For this function, should we do this at end?
    // 

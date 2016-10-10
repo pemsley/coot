@@ -1,3 +1,23 @@
+/* coot-utils/atom-overlaps.cc
+ * 
+ * Copyright 2015 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 
 #include "atom-overlaps.hh"
@@ -37,7 +57,7 @@ coot::atom_overlaps_container_t::init() {
 
       std::string cres_name = res_central->GetResName();
       std::pair<bool, dictionary_residue_restraints_t> d =
-	 geom_p->get_monomer_restraints(cres_name);
+	 geom_p->get_monomer_restraints(cres_name, protein_geometry::IMOL_ENC_ANY);
       if (! d.first) {
 	 std::cout << "Failed to get dictionary for " << cres_name << std::endl;
       } else {
@@ -48,7 +68,7 @@ coot::atom_overlaps_container_t::init() {
 	 have_dictionary = true;
 	 for (unsigned int i=0; i<neighbours.size(); i++) {
 	    std::string residue_name = neighbours[i]->GetResName();
-	    d = geom_p->get_monomer_restraints(residue_name);
+	    d = geom_p->get_monomer_restraints(residue_name, protein_geometry::IMOL_ENC_ANY);
 	    if (! d.first) {
 	       std::cout << "WARNING:: Overlap fail. Failed to get dictionary for name "
 			 << residue_name << std::endl;
@@ -331,7 +351,7 @@ coot::atom_overlaps_container_t::get_h_bond_type(mmdb::Atom *at) {
    hb_t type = HB_UNASSIGNED;
    std::string atom_name = at->name;
    std::string res_name = at->GetResName();
-   type = geom_p->get_h_bond_type(atom_name, res_name); // heavyweight
+   type = geom_p->get_h_bond_type(atom_name, res_name, protein_geometry::IMOL_ENC_ANY); // heavyweight
 
    return type;
 } 

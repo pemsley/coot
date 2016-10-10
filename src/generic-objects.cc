@@ -2,6 +2,7 @@
  * 
  * Copyright 2005, 2006 The University of York
  * Copyright 2007, 2012 The University of Oxford
+ * Copyright 2014 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

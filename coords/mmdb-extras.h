@@ -98,6 +98,10 @@ public:
    void fill_links_using_mol(mmdb::Manager *mol_other) {
       fill_links(mol_other);
    } 
+   
+   bool empty() const {
+      return (mol == NULL);
+   }
   
    void clear_up() { 
       if (read_success) 
@@ -201,7 +205,8 @@ namespace coot {
     void contacts_from_monomer_restraints(const atom_selection_container_t asc, 
 			    std::map<mmdb::Residue *, dictionary_residue_restraints_t> &res_restraints); // non-const for map [] usage
 
-    void setup_from_monomer_restraints(const atom_selection_container_t &asc, 
+    void setup_from_monomer_restraints(const atom_selection_container_t &asc,
+				       int imol,
 				       coot::protein_geometry *geom_p);
 
 
@@ -236,8 +241,9 @@ namespace coot {
     // to account for alt confs, then you'll have to write a new
     // constructor.
     //
-    contact_info(const atom_selection_container_t &asc, 
+    contact_info(const atom_selection_container_t &asc,
 		 const std::string &monomer_type,
+		 int imol,
 		 protein_geometry *geom_p);
 
     // Here we look up the contacts for each monomer in the atom
@@ -247,10 +253,12 @@ namespace coot {
     // Can throw a std::runtime_error.
     // 
     contact_info(const atom_selection_container_t &asc,
+		 int imol,
 		 protein_geometry *geom_p, 
 		 const bonded_pair_container_t &bonded_pairs);
 
     contact_info(const atom_selection_container_t &asc,
+		 int imol,
 		 protein_geometry *geom_p, 
 		 const std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > &link_bond_atoms);
 
@@ -258,7 +266,9 @@ namespace coot {
     // handle - usually all atoms in mol, but not necessarily).
     // 
     template<class T>
-    contact_info(mmdb::Manager *mol, int selhnd,
+    contact_info(mmdb::Manager *mol,
+		 int imol,
+		 int selhnd,
 		 const std::vector<T> &link_torsions,
 		 protein_geometry *geom_p);
 
@@ -274,7 +284,8 @@ namespace coot {
     void print() const; // debug info
   };
   contact_info getcontacts(const atom_selection_container_t &asc); 
-  contact_info getcontacts(const atom_selection_container_t &asc, const std::string &monomer_type, 
+  contact_info getcontacts(const atom_selection_container_t &asc, 
+			   const std::string &monomer_type, int imol,
 			   protein_geometry *geom_p); 
 
   // Typically this is used on an asc (moving atoms) to get the N of a

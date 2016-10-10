@@ -2,6 +2,7 @@
  * 
  * Copyright 2005, 2006 by The University of York
  * Copyright 2009 by The University of Oxford
+ * Copyright 2015 by Medical Research Council
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify

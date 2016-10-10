@@ -3985,13 +3985,16 @@ INFO::
         the bottom layer, merge and bevel 6.
    o git add the new splash screen pixmap
    o Change the pixmaps/Makefile.am for the current splash screen image
-   o commit
+   o git commit -a
+   o git push [maybe here? not sure]
+   o git tag Release-0.x.y 
+   o git push origin Release-0.x.y
    o Passes build (build-latest) on pc? 
         OK, disable the build-latest cron-job 
    o clear out pre-releases
    o check for updates - needs consideration?
    o Build binaries on some hosts
-   o Update latest version info on coot web page.
+   o Update latest version info on coot web page, Projects/coot/web/index.html
    o Mail mailing list
 
 ---
@@ -7645,5 +7648,21 @@ Thu Aug 18 12:03:32 BST 2016
    RNA building test: coot-download/5fw1.ent
 
 
+
+---
+Wed 24 Aug 2016 00:54:22 BST
+
+
+Redo the torsion energy/distortion:
+
+http://www.cryst.bbk.ac.uk/PPS2/course/section7/os_cov.html#tor_graph_back
+
+
+---
+Mon Sep  5 23:19:46 BST 2016
+
+
+http://www.click2drug.org/encyclopedia/chemistry/fda-based-rings.html
+https://upload.wikimedia.org/wikipedia/commons/a/a8/Heterocycle_compounds.jpg
 
 ---

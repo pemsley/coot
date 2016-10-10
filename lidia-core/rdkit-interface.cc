@@ -1,6 +1,7 @@
 /* lidia-core/rdkit-interface.cc
  * 
  * Copyright 2010, 2011, 2012 by The University of Oxford
+ * Copyright 2012, 2013, 2014, 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -37,7 +38,7 @@
 // alt_conf is an optional arg.
 // 
 RDKit::RWMol
-coot::rdkit_mol(mmdb::Residue *residue_p, const coot::protein_geometry &geom) {
+coot::rdkit_mol(mmdb::Residue *residue_p, int imol_enc, const coot::protein_geometry &geom) {
 
    if (! residue_p) {
       throw std::runtime_error("Null residue in coot::rdkit_mol()");
@@ -49,7 +50,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p, const coot::protein_geometry &geom) {
 		   << res_name << "\"" << std::endl;
    
       std::pair<bool, coot::dictionary_residue_restraints_t> p = 
-	 geom.get_monomer_restraints_at_least_minimal(res_name);
+	 geom.get_monomer_restraints_at_least_minimal(res_name, imol_enc);
       if (! p.first) {
 
 	 std::string m = "rdkit_mol(): residue type ";
@@ -659,8 +660,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		  }
 
 		  if (false) { 
-		     std::cout << "atom " << rdkit_at << " has stereconfig " << atom_info.pdbx_stereo_config.second
-			       << " and " << neighbs.size() << " non-H neighbours " << std::endl;
+		     std::cout << "atom " << rdkit_at << " has stereconfig "
+			       << atom_info.pdbx_stereo_config.second << " and "
+			       << neighbs.size() << " non-H neighbours " << std::endl;
 		     std::cout << "---------- unsorted neighbs: " << std::endl;
 		     for (unsigned int jj=0; jj<neighbs.size(); jj++) {
 			std::cout << neighbs[jj].first << " " << neighbs[jj].second << std::endl;
@@ -673,8 +675,8 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		  if (false) {
 		     std::cout << "---------- sorted neighbs: " << std::endl;
 		     for (unsigned int jj=0; jj<sorted_neighbs.size(); jj++) { 
-			std::cout << jj << " " << sorted_neighbs[jj].first << " " << sorted_neighbs[jj].second
-				  << std::endl;
+			std::cout << jj << " " << sorted_neighbs[jj].first << " "
+				  << sorted_neighbs[jj].second << std::endl;
 		     }
 		  }
 	    
@@ -1064,9 +1066,9 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 // should kekulize flag be an argmuent?
 // 
 RDKit::RWMol
-coot::rdkit_mol_sanitized(mmdb::Residue *residue_p, const protein_geometry &geom) {
+coot::rdkit_mol_sanitized(mmdb::Residue *residue_p, int imol_enc, const protein_geometry &geom) {
 
-   RDKit::RWMol mol = coot::rdkit_mol(residue_p, geom);
+   RDKit::RWMol mol = coot::rdkit_mol(residue_p, imol_enc, geom);
    rdkit_mol_sanitize(mol);
    return mol;
 }

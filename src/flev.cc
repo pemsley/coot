@@ -1,6 +1,7 @@
 /* src/flev.cc
  * 
  * Copyright 2010, 2011, 2012 The University of Oxford
+ * Copyright 2014 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -79,7 +80,7 @@ sprout_hydrogens(int imol,
 //  dictionary and (at least one) hydrogen in the model
 // (if ligand_res is a SO4 (no hydrogens) that should not cause a fail).
 // 
-bool flev_check_for_hydrogens(mmdb::Residue *ligand_res,
+bool flev_check_for_hydrogens(int imol, mmdb::Residue *ligand_res,
 			      const std::vector<mmdb::Residue *> &env_residues,
 			      coot::protein_geometry *geom_p) {
 
@@ -115,7 +116,7 @@ bool flev_check_for_hydrogens(mmdb::Residue *ligand_res,
    if (n_hydrogens_ligand == 0) {
       // perhaps the ligand was not supposed to have any ligands
       std::string residue_type = ligand_res->GetResName();
-      if (geom_p->have_dictionary_for_residue_type(residue_type,
+      if (geom_p->have_dictionary_for_residue_type(residue_type, imol,
 						   graphics_info_t::cif_dictionary_read_number++)) {
 	 int n_hydrogens_ligand_dict = geom_p->n_hydrogens(residue_type);
 	 if (n_hydrogens_ligand_dict > 0)
@@ -331,7 +332,7 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 		  }
 		  
 		  std::pair<bool, coot::dictionary_residue_restraints_t> p = 
-		     geom_p->get_monomer_restraints(ligand_res_name);
+		     geom_p->get_monomer_restraints(ligand_res_name, imol);
 		  
 		  if (! p.first) {
 		     std::cout << "WARNING:: fle_view_internal(): "
@@ -457,7 +458,7 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 	 std::string ligand_res_name(res_ref->GetResName());
 
 	 std::pair<bool, coot::dictionary_residue_restraints_t> p = 
-	    geom_p->get_monomer_restraints_at_least_minimal(ligand_res_name);
+	    geom_p->get_monomer_restraints_at_least_minimal(ligand_res_name, imol);
 	 
 	 if (! p.first) {
 	    std::cout << "WARNING:: fle_view_with_rdkit(): "
@@ -491,7 +492,7 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 	    try {
 
 	       // can throw a std::runtime_error
-	       RDKit::RWMol rdkm = coot::rdkit_mol(res_ref, *g.Geom_p());
+	       RDKit::RWMol rdkm = coot::rdkit_mol(res_ref, imol, *g.Geom_p());
 
 	       // assign atom names
 	       if (int(rdkm.getNumAtoms()) < res_ref->GetNumberOfAtoms()) {
@@ -1189,7 +1190,7 @@ coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
       std::cout << ":::: get_fle_ligand_bonds returns these " << v.size()
 		<< " bonds: " << std::endl;
       for (unsigned int i=0; i<v.size(); i++) { 
-	 std::cout << "   " << i << "  " << v[i] << std::endl;
+	 std::cout << "   " << i << " :  " << v[i] << std::endl;
       }
    } 
    return v;
@@ -2300,9 +2301,10 @@ clipper::Coord_orth
 coot::flev_attached_hydrogens_t::get_atom_pos_bonded_to_atom(mmdb::Atom *lig_at, mmdb::Atom *H_at, // not H_at
 							     mmdb::Residue *ligand_residue,
 							     const coot::protein_geometry &geom) const {
+   int imol = 0; // FIXME needs checking
    std::string res_name(lig_at->residue->GetResName());
    std::pair<bool, dictionary_residue_restraints_t> p = 
-      geom.get_monomer_restraints_at_least_minimal(res_name);
+      geom.get_monomer_restraints_at_least_minimal(res_name, imol);
 
    if (! p.first) {
       std::string m = "No monomer type ";

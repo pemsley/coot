@@ -8,6 +8,7 @@
  * Author: Paul Emsley
  * Copyright 2007, 2008 by Bernhard Lohkamp
  * Copyright 2007, 2008 The University of York
+ * Copyright 2012, 2013, 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -3073,19 +3074,6 @@ float model_resolution(int imol) {
 } 
 
 
-/*  ------------------------------------------------------------------------ */
-/*                     resolution                                            */
-/*  ------------------------------------------------------------------------ */
-
-void solid_surface(int imap, short int on_off_flag) {
-
-   if (is_valid_map_molecule(imap)) {
-      graphics_info_t::molecules[imap].do_solid_surface_for_density(on_off_flag);
-   }
-   graphics_draw();
-} 
-
-
 
 /*  ------------------------------------------------------------------------ */
 /*                     residue exists?                                       */
@@ -3421,7 +3409,13 @@ std::vector<std::string>
 dictionary_entries() {
    graphics_info_t g;
    return g.Geom_p()->monomer_restraints_comp_ids();
-} 
+}
+
+void
+debug_dictionary() {
+   graphics_info_t g;
+   g.Geom_p()->debug();
+}
 
 #ifdef USE_GUILE
 SCM dictionary_entries_scm() {
@@ -3446,7 +3440,8 @@ PyObject *dictionary_entries_py() {
 SCM cif_file_for_comp_id_scm(const std::string &comp_id) {
 
    graphics_info_t g;
-   std::string f = g.Geom_p()->get_cif_file_name(comp_id);
+   int imol = 0; // dummy. Hmm.
+   std::string f = g.Geom_p()->get_cif_file_name(comp_id, imol);
    return scm_makfrom0str(f.c_str());
 } 
 #endif // GUILE
@@ -3455,8 +3450,9 @@ SCM cif_file_for_comp_id_scm(const std::string &comp_id) {
 #ifdef USE_PYTHON
 PyObject *cif_file_for_comp_id_py(const std::string &comp_id) {
 
+   int imol = 0; // dummy. Hmm.
    graphics_info_t g;
-   return PyString_FromString(g.Geom_p()->get_cif_file_name(comp_id).c_str());
+   return PyString_FromString(g.Geom_p()->get_cif_file_name(comp_id, imol).c_str());
 } 
 #endif // PYTHON
 
@@ -3507,14 +3503,16 @@ PyObject *SMILES_for_comp_id_py(const std::string &comp_id) {
 #ifdef USE_GUILE
 SCM monomer_restraints(const char *monomer_type) {
 
+   int imol = 0; // dummy.  This should be passed?
+   
    SCM r = SCM_BOOL_F;
 
    graphics_info_t g;
    // this forces try_dynamic_add()
-   g.Geom_p()->have_dictionary_for_residue_type(monomer_type, ++g.cif_dictionary_read_number);
+   g.Geom_p()->have_dictionary_for_residue_type(monomer_type, imol, ++g.cif_dictionary_read_number);
    // this doesn't force try_dynamic_add().  Hmmm.. FIXME (or think about it).
    std::pair<short int, coot::dictionary_residue_restraints_t> p =
-      g.Geom_p()->get_monomer_restraints(monomer_type);
+      g.Geom_p()->get_monomer_restraints(monomer_type, imol);
    if (p.first) {
 
       coot::dictionary_residue_restraints_t restraints = p.second;
@@ -3708,17 +3706,23 @@ SCM monomer_restraints(const char *monomer_type) {
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
-PyObject *monomer_restraints_py(const char *monomer_type) {
+PyObject *monomer_restraints_py(std::string monomer_type) {
+   return monomer_restraints_for_molecule_py(monomer_type, coot::protein_geometry::IMOL_ENC_ANY);
+}
+#endif // USE_PYTHON
+
+#ifdef USE_PYTHON
+PyObject *monomer_restraints_for_molecule_py(std::string monomer_type, int imol) {
 
    PyObject *r;
    r = Py_False;
 
    graphics_info_t g;
    // this forces try_dynamic_add()
-   g.Geom_p()->have_dictionary_for_residue_type(monomer_type, ++g.cif_dictionary_read_number);
+   g.Geom_p()->have_dictionary_for_residue_type(monomer_type, imol, ++g.cif_dictionary_read_number);
    // this doesn't force try_dynamic_add().  Hmmm.. FIXME (or think about it).
    std::pair<short int, coot::dictionary_residue_restraints_t> p =
-      g.Geom_p()->get_monomer_restraints(monomer_type);
+      g.Geom_p()->get_monomer_restraints(monomer_type, imol);
    if (!p.first) {
       std::cout << "WARNING:: can't find " << monomer_type << " in monomer dictionary"
 		<< std::endl;
@@ -4224,7 +4228,10 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
       monomer_restraints.residue_info      = residue_info;
       monomer_restraints.atom_info         = atoms; 
 
-      bool s = g.Geom_p()->replace_monomer_restraints(monomer_type, monomer_restraints);
+      // the imol is not specified, we want to replace the restraints that
+      // can be used by any molecule
+      int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+      bool s = g.Geom_p()->replace_monomer_restraints(monomer_type, imol_enc, monomer_restraints);
       if (s)
 	 retval = SCM_BOOL_T;
    }
@@ -4236,6 +4243,8 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 #ifdef USE_PYTHON
 PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restraints) {
 
+   int imol = 0; // maybe this should be passed?
+   
    PyObject *retval = Py_False;
 
    if (!PyDict_Check(restraints)) {
@@ -4502,9 +4511,12 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
       monomer_restraints.plane_restraint   = plane_restraints;
       monomer_restraints.residue_info      = residue_info;
       monomer_restraints.atom_info         = atoms; 
-      
+
+      // the imol is not specified, we want to replace the restraints that
+      // can be used by any molecule
+      int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
       graphics_info_t g;
-      bool s = g.Geom_p()->replace_monomer_restraints(monomer_type, monomer_restraints);
+      bool s = g.Geom_p()->replace_monomer_restraints(monomer_type, imol_enc, monomer_restraints);
       if (s)
 	 retval = Py_True;
       
@@ -4723,9 +4735,10 @@ char *get_atom_colour_from_mol_no(int imol, const char *element) {
 
 void write_restraints_cif_dictionary(const char *monomer_type, const char *file_name) {
 
+   int imol = 0;
    graphics_info_t g;
    std::pair<short int, coot::dictionary_residue_restraints_t> r = 
-      g.Geom_p()->get_monomer_restraints(monomer_type);
+      g.Geom_p()->get_monomer_restraints(monomer_type, imol);
    if (!r.first) {
       std::string s =  "Failed to find ";
       s += monomer_type;

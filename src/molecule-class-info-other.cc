@@ -3,6 +3,7 @@
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Copyright 2007 by The University of Oxford
  * Copyright 2007, 2008, 2009 The University of Oxford
+ * Copyright 2013, 2014, 2015 by Medical Research Council
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -423,7 +424,7 @@ molecule_class_info_t::bonds_no_waters_representation() {
 
    bonds_box.clear_up();
    Bond_lines_container bonds;
-   bonds.do_normal_bonds_no_water(atom_sel, 0.01, 1.9);
+   bonds.do_normal_bonds_no_water(atom_sel, imol_no, 0.01, 1.9);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::BONDS_NO_WATERS;
 } 
@@ -433,7 +434,7 @@ molecule_class_info_t::bonds_sec_struct_representation() {
 
    // 
    Bond_lines_container bonds;
-   bonds.do_colour_sec_struct_bonds(atom_sel, 0.01, 1.9);
+   bonds.do_colour_sec_struct_bonds(atom_sel, imol_no, 0.01, 1.9);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::BONDS_SEC_STRUCT_COLOUR;
 } 
@@ -444,7 +445,7 @@ molecule_class_info_t::ca_plus_ligands_sec_struct_representation(coot::protein_g
 
    // 
    Bond_lines_container bonds;
-   bonds.do_Ca_plus_ligands_colour_sec_struct_bonds(atom_sel, pg, 2.4, 4.7, draw_hydrogens_flag);
+   bonds.do_Ca_plus_ligands_colour_sec_struct_bonds(atom_sel, imol_no, pg, 2.4, 4.7, draw_hydrogens_flag);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_SEC_STRUCT_COLOUR;
 }
@@ -454,7 +455,7 @@ molecule_class_info_t::ca_plus_ligands_rainbow_representation(coot::protein_geom
 
    // 
    Bond_lines_container bonds;
-   bonds.do_Ca_plus_ligands_bonds(atom_sel, pg,
+   bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, pg,
 				  2.4, 4.7,
 				  coot::COLOUR_BY_RAINBOW,
 				  draw_hydrogens_flag); // not COLOUR_BY_RAINBOW_BONDS
@@ -481,7 +482,7 @@ molecule_class_info_t::b_factor_representation_as_cas() {
    std::cout << "molecule_class_info_t::b_factor_representation_as_cas with "
 	     << "bond type " << bond_type << std::endl;
    Bond_lines_container bonds;
-   bonds.do_Ca_plus_ligands_bonds(atom_sel, NULL, 2.4, 4.7, bond_type, draw_hydrogens_flag); // pass a dictionary
+   bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, NULL, 2.4, 4.7, bond_type, draw_hydrogens_flag); // pass a dictionary
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR;
 } 
@@ -1846,7 +1847,7 @@ molecule_class_info_t::auto_fit_best_rotamer(int resno,
 
 	    std::string monomer_type = res->GetResName();
 	    std::pair<short int, coot::dictionary_residue_restraints_t> p =
-	       pg.get_monomer_restraints(monomer_type);
+	       pg.get_monomer_restraints(monomer_type, imol_no);
 
 	    if (p.first) { 
 	       coot::dictionary_residue_restraints_t rest = p.second;
@@ -2032,7 +2033,7 @@ molecule_class_info_t::score_rotamers(const std::string &chain_id,
 		      << res_type << std::endl;
 	 } else {
 	    std::pair<short int, coot::dictionary_residue_restraints_t> p =
-	       pg.get_monomer_restraints(res_type);
+	       pg.get_monomer_restraints(res_type, imol_no);
 
 	    if (p.first) { 
 	       coot::dictionary_residue_restraints_t rest = p.second;
@@ -2101,7 +2102,7 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
 	    } else { 
 	       std::string monomer_type = res->GetResName();
 	       std::pair<short int, coot::dictionary_residue_restraints_t> p =
-		  pg.get_monomer_restraints(monomer_type);
+		  pg.get_monomer_restraints(monomer_type, imol_no);
 	       coot::dictionary_residue_restraints_t rest = p.second;
 
 	       if (p.first) { 
@@ -2156,7 +2157,7 @@ molecule_class_info_t::set_residue_to_rotamer_number(coot::residue_spec_t res_sp
 #endif // USE_DUNBRACK_ROTAMERS
       std::string monomer_type = res->GetResName();
       std::pair<short int, coot::dictionary_residue_restraints_t> p =
-	 pg.get_monomer_restraints(monomer_type);
+	 pg.get_monomer_restraints(monomer_type, imol_no);
       
       if (p.first) { 
 	 coot::dictionary_residue_restraints_t rest = p.second;
@@ -2185,7 +2186,7 @@ molecule_class_info_t::set_residue_to_rotamer_name(coot::residue_spec_t res_spec
       coot::richardson_rotamer rr(res, alt_conf_in, atom_sel.mol, 0.01, 0);
       std::string monomer_type = res->GetResName();
       std::pair<short int, coot::dictionary_residue_restraints_t> p =
-	 pg.get_monomer_restraints(monomer_type);
+	 pg.get_monomer_restraints(monomer_type, imol_no);
       
       if (p.first) { 
 	 coot::dictionary_residue_restraints_t rest = p.second;
@@ -3219,7 +3220,7 @@ molecule_class_info_t::N_chis(int atom_index) {
    if ( (resname == "GLY") || (resname == "ALA") ) {
       r = 0;
    } else {
-      if (g.Geom_p()->have_dictionary_for_residue_type(resname,
+      if (g.Geom_p()->have_dictionary_for_residue_type(resname, imol_no,
 						       graphics_info_t::cif_dictionary_read_number)) {
 	 std::vector <coot::dict_torsion_restraint_t> v =
 	    g.Geom_p()->get_monomer_torsions_from_geometry(resname, 0);
@@ -4023,7 +4024,9 @@ molecule_class_info_t::fill_raster_model_info(bool against_a_dark_background) {
 	 for (int i=0; i<bonds_box.num_colours; i++) {
 	    set_bond_colour_by_mol_no(i, against_a_dark_background); //sets bond_colour_internal
 	    for (int j=0; j<bonds_box.bonds_[i].num_lines; j++) {
-	       rtmi.bond_lines.push_back(std::pair<coot::Cartesian, coot::Cartesian>(bonds_box.bonds_[i].pair_list[j].positions.getStart(), bonds_box.bonds_[i].pair_list[j].positions.getFinish()));
+	       std::pair<coot::Cartesian, coot::Cartesian> p(bonds_box.bonds_[i].pair_list[j].positions.getStart(),
+							     bonds_box.bonds_[i].pair_list[j].positions.getFinish());
+	       rtmi.bond_lines.push_back(p);
 	       coot::colour_t c;
 	       c.col.resize(3);
 	       c.col[0] = bond_colour_internal[0];
@@ -4312,7 +4315,7 @@ molecule_class_info_t::bad_chiral_volumes() const {
    if (atom_sel.n_selected_atoms > 0) {
       // grr Geom_p() is not static
       graphics_info_t g;
-      pair = coot::inverted_chiral_volumes(atom_sel.mol, g.Geom_p(),
+      pair = coot::inverted_chiral_volumes(imol_no, atom_sel.mol, g.Geom_p(),
 					   graphics_info_t::cif_dictionary_read_number);
    }
 #endif //  HAVE_GSL
@@ -6421,7 +6424,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       asc.n_selected_atoms = n_selected_atoms;
       asc.SelectionHandle = SelHnd;
       
-      Bond_lines_container bonds(asc, geom);
+      Bond_lines_container bonds(asc, imol_no, geom);
       graphical_bonds_container bonds_box_local = bonds.make_graphical_bonds();
 
       // start display list object
@@ -8583,9 +8586,9 @@ molecule_class_info_t::set_torsion(const std::string &chain_id,
    } else {
       std::string res_name(residue_p->GetResName());
       std::pair<bool, coot::dictionary_residue_restraints_t> restraints_info = 
-	 geom.get_monomer_restraints(res_name);
+	 geom.get_monomer_restraints(res_name, imol_no);
       if (! restraints_info.first) {
-	 std::cout << "WARNING:: No restraints for " << res_name << std::endl;
+	 std::cout << "WARNING:: set_torsion: No restraints for " << res_name << std::endl;
       } else { 
 	 make_backup();
 	 coot::atom_tree_t tree(restraints_info.second, residue_p, alt_conf);
@@ -8626,10 +8629,10 @@ molecule_class_info_t::match_torsions(mmdb::Residue *res_reference,
    if (res_ligand) { // the local (moving) residue is xxx_ligand
       std::string res_name_ligand(res_ligand->GetResName());
       std::pair<bool, coot::dictionary_residue_restraints_t> ligand_restraints_info = 
-	 geom.get_monomer_restraints(res_name_ligand);
+	 geom.get_monomer_restraints(res_name_ligand, imol_no);
       if (ligand_restraints_info.first) {
 	 std::vector <coot::dict_torsion_restraint_t> tr_ligand = 
-	    geom.get_monomer_torsions_from_geometry(res_name_ligand, 0);
+	    geom.get_monomer_torsions_from_geometry(res_name_ligand, imol_no, 0);
 	 if (tr_ligand.size()) {
 	    
 	    // find the matching torsion between res_ligand and res_reference and then

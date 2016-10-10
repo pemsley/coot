@@ -3,6 +3,7 @@
  * Copyright 2002, 2003 The University of York
  * Author: Paul Emsley
  * Copyright 2007, 2008 The University of Oxford
+ * Copyright 2013, 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -381,7 +382,8 @@ main(int argc, char **argv) {
 	    if (inputs.use_trans_peptide_restraints)
 	       make_trans_peptide_restraints = true;
 
-	    restraints.make_restraints(geom, flags, 1, make_trans_peptide_restraints,
+	    int imol = 0; // dummy
+	    restraints.make_restraints(imol, geom, flags, 1, make_trans_peptide_restraints,
 				       1.0, do_rama_plot_restraints, pseudos);
 
 	    int nsteps_max = 4000;
