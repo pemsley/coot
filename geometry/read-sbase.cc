@@ -216,7 +216,7 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
    rest.residue_info.comp_id = monomer_type;
    
    if (! ccp4srs) {
-     std::cout << "WARNING:: Null CCP4SRS database " << std::endl;
+     std::cout << "WARNING:: fill_using_ccp4srs() Null CCP4SRS database " << std::endl;
    } else { 
       ccp4srs::Monomer *monomer_p = ccp4srs->getMonomer(monomer_type.c_str());
       if (! monomer_p) {
@@ -443,7 +443,8 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 // the types that are not in the dictionary.  Try to load an
 // ccp4srs description at least so that we can draw their bonds
 // correctly.  Use fill_using_ccp4srs().
-// 
+//
+// the passed type should be a set - so that we don't have to uniquify here.
 bool
 coot::protein_geometry::try_load_ccp4srs_description(const std::vector<std::string> &comp_ids_with_duplicates) {
 
@@ -543,8 +544,10 @@ coot::protein_geometry::ccp4_srs_n_entries() const {
 // else do the range (eg. 1001->2000 (idxs are inclusive)).
 // 
 std::vector<coot::match_results_t>
-coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float similarity, int n_vertices,
-					   int srs_idx_start, int srs_idx_end) const {
+coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1,
+					   float similarity, int n_vertices,
+					   int srs_idx_start, int srs_idx_end,
+					   bool fill_match_graphs) const {
 
    std::vector<coot::match_results_t> v;
 
@@ -587,6 +590,7 @@ coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float sim
 
 		     mmdb::math::VERTEX_EXT_TYPE vertex_ext=mmdb::math::EXTTYPE_Equal; // mmdb default
 		     bool vertext_type = true;
+		     match.SetMaxNofMatches(1, true); // only need find 1 match
 		     match.MatchGraphs(graph_1, graph_2, minMatch, vertext_type, vertex_ext);
 		     int n_match = match.GetNofMatches();
 		     if (n_match > 0) {
@@ -594,6 +598,7 @@ coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float sim
 				  << " match NumberofMatches (similar graphs): " << n_match << std::endl;
 
 			bool really_match = false;
+			std::vector<std::pair<int, int> > graph_match_atom_indices;
 			for (int imatch=0; imatch<n_match; imatch++) {
 			   int n;
 			   mmdb::realtype p1, p2;
@@ -610,6 +615,8 @@ coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float sim
 			      } else  {
 				 std::cout << "   " << V1->GetUserID() << " " << V2->GetUserID()
 					   << std::endl;
+				 std::pair<int, int> p(V1->GetUserID(), V2->GetUserID());
+				 graph_match_atom_indices.push_back(p);
 			      }
 			   }
 			   if (really_match)
@@ -620,6 +627,7 @@ coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float sim
 			   mmdb::Residue *residue_p = NULL; // for now
 			   std::string name = Monomer->chem_name();
 			   match_results_t mr(id, name, residue_p);
+			   mr.graph_match_atom_indices = graph_match_atom_indices;
 			   v.push_back(mr);
 			}
 		     }

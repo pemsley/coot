@@ -2313,8 +2313,8 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    if (! ifound) {
       if (try_autoload_if_needed) {
 	 ifound = try_dynamic_add(monomer_type, read_number);
-	 std::cout << "here in have_dictionary_for_residue_type() try_dynamic_add returned "
-		   << ifound << std::endl;
+	 // std::cout << "here in have_dictionary_for_residue_type() try_dynamic_add returned "
+	 // << ifound << std::endl;
       }
    }
 

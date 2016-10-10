@@ -3144,7 +3144,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 
 #ifdef HAVE_CCP4SRS
    gtk_widget_show(lbg_search_database_frame);
-   gtk_widget_show(lbg_srs_search_results_scrolledwindow);
+   gtk_widget_hide(lbg_srs_search_results_scrolledwindow); // show this when SRS results
 #else
    // ... we don't have ccp4 srs
    gtk_widget_hide(lbg_srs_search_results_scrolledwindow);
@@ -4092,6 +4092,51 @@ lbg_info_t::import_molecule_from_file(const std::string &file_name) { // mol or 
       }
    }
 }
+
+// Let's have a wrapper around sbase_import_func_ptr so that lbg-search doesn't need
+// to ask if sbase_import_func_ptr is valid or not.
+//
+void
+lbg_info_t::import_srs_monomer(const std::string &comp_id) {
+
+   // this is passed from coot as it calls lbg()
+   //
+   if (! stand_alone_flag) {
+      if (sbase_import_func_ptr) {
+	 sbase_import_func_ptr(comp_id);
+      } else {
+	 std::cout << "ERROR:: null sbase_import_func_ptr" << std::endl;
+      }
+   } else {
+      // here we are in lidia
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#ifdef HAVE_CCP4SRS
+      coot::protein_geometry pg;
+
+      const char *d1 = getenv("COOT_CCP4SRS_DIR"); // we should provide an "installed" dir
+                                                   // if COOT_CCP4SRS_DIR is not set
+      std::string srs_dir;
+      if (d1)
+	 srs_dir = d1;
+      pg.init_ccp4srs(srs_dir);
+      bool s = pg.fill_using_ccp4srs(comp_id);
+      std::cout << "DEBUG:: pg.fill_using_ccp4srs() returned " << s << std::endl;
+      if (s) {
+	 int imol_local = 0; // dummy
+	 std::pair<bool, coot::dictionary_residue_restraints_t> p =
+	    pg.get_monomer_restraints(comp_id, imol_local);
+	 if (p.first) {
+	    bool show_hydrogens_flag = false;
+	    import_via_rdkit_from_restraints_dictionary(p.second, show_hydrogens_flag);
+	 } else {
+	    std::cout << "ERROR:: bad extraction of restriants from srs " << comp_id << std::endl;
+	 }
+      }
+#endif // HAVE_CCP4SRS
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
+   }
+}
+
 
 
 void

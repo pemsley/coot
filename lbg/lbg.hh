@@ -1274,6 +1274,9 @@ public:
    void set_sbase_import_function(void (*f) (std::string)) {
       sbase_import_func_ptr = f;
    }
+   // Let's have a wrapper around that so that lbg-search doesn't need to ask if sbase_import_func_ptr
+   // is valid or not.
+   void import_srs_monomer(const std::string &comp_id);
 
    void import_prodrg_output(const std::string &prodrg_mdl_file_name, const std::string &comp_id) {
       if (prodrg_import_func_ptr) {

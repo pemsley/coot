@@ -110,9 +110,10 @@ lbg_info_t::search() const {
       if (! mol.atoms[iat].is_closed()) {
 	 std::string ele = mol.atoms[iat].element;
 	 std::string name = mol.atoms[iat].get_atom_id();
-	 std::cout << "adding atom with ele " << ele << " and name \"" << name << "\"" << std::endl;
+	 // std::cout << "adding atom with ele " << ele << " and name \"" << name << "\"" << std::endl;
 	 mmdb::math::Vertex *v = new mmdb::math::Vertex(ele.c_str(), name.c_str());
 	 vertex_indexing[n_atoms] = iat;
+	 v->SetUserID(iat);
 	 graph->AddVertex(v);
 	 n_atoms++;
       }
@@ -167,8 +168,10 @@ lbg_info_t::search() const {
 	 graph->Print();
 	 std::cout << "graph search using similarity  " << local_search_similarity << std::endl;
 	 std::cout << "graph build returns: " << build_result << std::endl;
+	 bool fill_graph_match = true;
 	 std::vector<coot::match_results_t> v =
-	    geom_p_local->compare_vs_ccp4srs(graph, local_search_similarity, n_atoms, -1, -1);
+	    geom_p_local->compare_vs_ccp4srs(graph, local_search_similarity, n_atoms,
+					     -1, -1, fill_graph_match);
 	 delete graph;
 	 std::cout << "found " << v.size() << " close matches" << std::endl;
 	 display_search_results(v);
@@ -180,8 +183,10 @@ lbg_info_t::search() const {
 	    graph->Print();
 	    std::cout << "graph search using similarity  " << local_search_similarity << std::endl;
 	    std::cout << "graph build returns: " << build_result << std::endl;
+	    bool fill_graph_match = true;
 	    std::vector<coot::match_results_t> v =
-	       geom_p->compare_vs_ccp4srs(graph, local_search_similarity, n_atoms, -1, -1);
+	       geom_p->compare_vs_ccp4srs(graph, local_search_similarity, n_atoms, -1, -1,
+					  fill_graph_match);
 	    delete graph;
 	    display_search_results(v);
 	 } else {
@@ -215,7 +220,7 @@ lbg_info_t::get_search_similarity() const {
 
 
 
-#ifdef HAVE_CCP4SRS   
+#ifdef HAVE_CCP4SRS
 coot::match_results_t
 lbg_info_t::residue_from_best_match(mmdb::math::Graph &graph_1, mmdb::math::Graph &graph_2,
 				    mmdb::math::GraphMatch &match, int n_match, 
@@ -225,7 +230,7 @@ lbg_info_t::residue_from_best_match(mmdb::math::Graph &graph_1, mmdb::math::Grap
    if (geom_p)
       r = geom_p->residue_from_best_match(graph_1, graph_2, match, n_match, monomer_p);
    return r;
-} 
+}
 #endif // HAVE_CCP4SRS
 
 void
@@ -253,6 +258,7 @@ lbg_info_t::display_search_results(const std::vector<coot::match_results_t> &v) 
       g_signal_connect(GTK_WIDGET(button), "clicked",
 		       GTK_SIGNAL_FUNC(on_sbase_search_result_button_clicked),
 		       (gpointer) (comp_id));
+      gtk_button_set_alignment(GTK_BUTTON(button), 0, 0.5);
       gtk_object_set_data(GTK_OBJECT(button), "lbg", (gpointer) this);
       gtk_widget_show(button);
    }
@@ -275,12 +281,14 @@ lbg_info_t::on_sbase_search_result_button_clicked (GtkButton *button,
       lbg_info_t *lbg = (lbg_info_t *) gtk_object_get_data(GTK_OBJECT(button), "lbg");
       if (!lbg) { 
 	 std::cout << "ERROR NULL lbg in on_sbase_search_result_button_clicked() " << std::endl;
-      } else { 
-	 if (! lbg->sbase_import_func_ptr) {
-	    std::cout << "WARNING:: null SBase import function " << std::endl;
-	 } else {
-	    lbg->sbase_import_func_ptr(comp_id);
-	 }
+      } else {
+// 	 if (! lbg->sbase_import_func_ptr) {
+// 	    std::cout << "WARNING:: null SBase import function " << std::endl;
+// 	 } else {
+// 	    lbg->sbase_import_func_ptr(comp_id);
+// 	 }
+	 // new style
+	 lbg->import_srs_monomer(comp_id);
       }
       
       // 20120110, old-style write out the comp-id to a special file name

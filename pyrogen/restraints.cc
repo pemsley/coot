@@ -263,7 +263,7 @@ coot::test_ccp4srs_usage(const coot::dictionary_residue_restraints_t &restraints
 	    std::cout << "Null graph " << std::endl;
 	 } else { 
 	    std::vector<coot::match_results_t> v =
-	       pg.compare_vs_ccp4srs(graph, local_search_similarity, n_atoms);
+	       pg.compare_vs_ccp4srs(graph, local_search_similarity, n_atoms, -1, -1, false);
 	    std::cout << "got " << v.size() << " SRS matches " << std::endl;
 	 } 
       }

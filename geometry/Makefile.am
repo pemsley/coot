@@ -23,7 +23,7 @@ lib_LTLIBRARIES=libcoot-geometry.la
 EXTRA_DIST = notes Makefile.simple
 
 pkginclude_HEADERS =  protein-geometry.hh read-sbase.hh lbg-graph.hh srs-interface.hh \
-   dict-utils.hh dict-mismatches.hh match-results.hh hb-types.hh main-chain.hh 
+   dict-utils.hh dict-mismatches.hh energy-lib.hh match-results.hh hb-types.hh main-chain.hh \
    residue-and-atom-specs.hh
 
 pkgincludedir = $(includedir)/coot/geometry

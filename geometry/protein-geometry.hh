@@ -48,6 +48,7 @@
 #endif
 #endif
 
+#include "match-results.hh"
 
 #include "energy-lib.hh"
 
@@ -1303,28 +1304,6 @@ namespace coot {
       }
    };
    
-
-   // a container for the results of the comparison vs CCP4SRS graph matching.
-   //
-   class match_results_t {
-   public:
-      bool success;
-      std::string name;
-      std::string comp_id;
-      mmdb::Residue *res;
-      // clipper::RTop_orth
-      match_results_t(const std::string &comp_id_in, const std::string &name_in, mmdb::Residue *res_in) {
-	 name = name_in;
-	 comp_id = comp_id_in;
-	 res = res_in;
-	 if (res_in)
-	    success = true;
-	 else
-	    success = false;
-      }
-   };
-      
-
    class read_refmac_mon_lib_info_t {
    public:
       unsigned int n_atoms;
@@ -2234,7 +2213,8 @@ namespace coot {
 					      ccp4srs::Monomer *monomer_p) const;
       std::vector<match_results_t>
       compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float similarity, int n_vertices,
-			 int srs_idx_start, int srs_idx_end) const;
+			 int srs_idx_start, int srs_idx_end,
+			 bool fill_graph_matches) const;
       int ccp4_srs_n_entries() const;
 
       // return empty string if not available.

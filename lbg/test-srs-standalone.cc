@@ -210,7 +210,7 @@ int test_ccp4srs_graph_search() {
 
 #ifdef HAVE_CCP4SRS
 
-   double search_similarity = 0.95;
+   double search_similarity = 0.85;
    bool inc_Hs = false;
    std::string monomer_type = "TRP";
    unsigned int n_atoms = 14;
