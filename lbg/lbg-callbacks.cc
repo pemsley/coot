@@ -39,6 +39,7 @@ on_lbg_apply_button_clicked(GtkButton *button, gpointer user_data) {
    if (!l) {
       std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
    } else {
+
       // l->mol.debug();
       l->mol.write_mdl_molfile("prodrg-in.mdl");
 

@@ -603,7 +603,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		  }
 
 		  if (false) { 
-		     std::cout << "atom " << rdkit_at << " has stereconfig "
+		     std::cout << "atom " << rdkit_at << " has stereoconfig "
 			       << atom_info.pdbx_stereo_config.second << " and "
 			       << neighbs.size() << " non-H neighbours " << std::endl;
 		     std::cout << "---------- unsorted neighbs: " << std::endl;

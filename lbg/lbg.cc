@@ -123,8 +123,9 @@ lbg(lig_build::molfile_molecule_t mm,
 	    // Happy Path
 	 
 	    lbg = new lbg_info_t(imol, geom_p_in);
-	    if (stand_alone_flag_in)
+	    if (stand_alone_flag_in) {
 	       lbg->set_stand_alone();
+	    }
 	    int init_status = lbg->init(builder);
 	    
 	    // normal built-in and using-graphics path...

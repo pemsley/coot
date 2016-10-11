@@ -1282,8 +1282,19 @@ public:
       if (prodrg_import_func_ptr) {
 	 prodrg_import_func_ptr(prodrg_mdl_file_name, comp_id);
       } else {
-	 std::cout << "WARNING:: No prodrg_import_func_ptr set" << std::endl;
-      } 
+
+	 // all we do is write the file.
+	 // update the status bar.
+	 //
+	 std::string status_string = "  Wrote file " + prodrg_mdl_file_name;
+	 guint statusbar_context_id = gtk_statusbar_get_context_id(GTK_STATUSBAR(lbg_statusbar),
+								   status_string.c_str());
+	 gtk_statusbar_push(GTK_STATUSBAR(lbg_statusbar),
+			    statusbar_context_id,
+			    status_string.c_str());
+      
+	 
+      }
    }
 
    // handle the net transfer of drug (to mdl file)
