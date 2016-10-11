@@ -422,6 +422,7 @@ namespace coot {
       std::string atom_id_2_4c() const { return atom_id_mmdb_expand(local_atom_id_2);}
       std::string atom_id_3_4c() const { return atom_id_mmdb_expand(local_atom_id_3);}
       std::string atom_id_c_4c() const { return atom_id_mmdb_expand(local_atom_id_centre);}
+      std::string get_atom_id_centre() const { return local_atom_id_centre; }
       void set_atom_1_atom_id(const std::string &id) { local_atom_id_1 = id; }
       void set_atom_2_atom_id(const std::string &id) { local_atom_id_2 = id; }
       void set_atom_3_atom_id(const std::string &id) { local_atom_id_3 = id; }

@@ -227,64 +227,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		  
 	       }
 
-	       // set the chirality
-	       // (if this atom is has restraints-style chiral info)
-	       //
-	       bool done_chiral = false;
-	    
-	       for (unsigned int ichi=0; ichi<restraints.chiral_restraint.size(); ichi++) {
-		  const dict_chiral_restraint_t &cr = restraints.chiral_restraint[ichi];
-		  if (cr.atom_id_c_4c() == atom_name) {
-		     done_chiral = true;
-		     if (!cr.has_unassigned_chiral_volume()) {
-			rdkit_at->setProp("mmcif_chiral_N1", util::remove_whitespace(cr.atom_id_1_4c()));
-			rdkit_at->setProp("mmcif_chiral_N2", util::remove_whitespace(cr.atom_id_2_4c()));
-			rdkit_at->setProp("mmcif_chiral_N3", util::remove_whitespace(cr.atom_id_3_4c()));
-			if (!cr.is_a_both_restraint()) {
-			   // e.g. RDKit::Atom::CHI_TETRAHEDRAL_CCW;
-			   RDKit::Atom::ChiralType chiral_tag =
-			      get_chiral_tag(residue_p, restraints, residue_atoms[iat]);
-			   rdkit_at->setChiralTag(chiral_tag);
-			
-			   std::string bc("positive");
-			   if (cr.volume_sign == dict_chiral_restraint_t::CHIRAL_RESTRAINT_NEGATIVE)
-			      bc = "negative";
-
-			   rdkit_at->setProp("mmcif_chiral_volume_sign", bc);
-
-			} else {
-			   std::string bc("both");
-			   rdkit_at->setProp("mmcif_chiral_volume_sign", bc);
-			} 
-		     }
-		  } 
-	       }
-
-	       // set chirality
-	       // (if this atom has Chemical Component Dictionary style chirality (R/S pdbx_stereo_config_flag)
-	       //
-	       if (! done_chiral) { 
-		  for (unsigned int i=0; i<restraints.atom_info.size(); i++) { 
-		     if (restraints.atom_info[i].atom_id_4c == atom_name) {
-			if (restraints.atom_info[i].pdbx_stereo_config.first) {
-			   if (restraints.atom_info[i].pdbx_stereo_config.second == "R") {
-			      RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_UNSPECIFIED;
-			      rdkit_at->setChiralTag(chiral_tag);
-			      std::string cip = "R";
-			      rdkit_at->setProp("_CIPCode", cip);
-			      // std::cout << "  pdbx_stereo_config: " << atom_name << " R " << std::endl;
-			   }
-			   if (restraints.atom_info[i].pdbx_stereo_config.second == "S") {
-			      RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_UNSPECIFIED;
-			      std::string cip = "S";
-			      rdkit_at->setProp("_CIPCode", cip);
-			      // std::cout << "        " << atom_name << " S " << std::endl;
-			   }
-			} 
-		     }
-		  }
-	       }
-	    
+	       set_atom_chirality(rdkit_at, at, residue_p, restraints);
 	    
 	       m.addAtom(rdkit_at);
 	       
@@ -858,6 +801,78 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
    return m;
 }
 
+void
+coot::set_atom_chirality(RDKit::Atom *rdkit_at,
+			 mmdb::Atom *at,
+			 mmdb::Residue *residue_p,
+			 const coot::dictionary_residue_restraints_t &restraints) {
+
+   // set the chirality
+   // (if this atom is has restraints-style chiral info)
+   //
+   bool done_chiral = false;
+
+   std::string atom_name = at->name;
+
+
+   for (unsigned int ichi=0; ichi<restraints.chiral_restraint.size(); ichi++) {
+      const dict_chiral_restraint_t &cr = restraints.chiral_restraint[ichi];
+      if (cr.atom_id_c_4c() == atom_name) {
+	 done_chiral = true;
+	 if (!cr.has_unassigned_chiral_volume()) {
+	    rdkit_at->setProp("mmcif_chiral_N1", util::remove_whitespace(cr.atom_id_1_4c()));
+	    rdkit_at->setProp("mmcif_chiral_N2", util::remove_whitespace(cr.atom_id_2_4c()));
+	    rdkit_at->setProp("mmcif_chiral_N3", util::remove_whitespace(cr.atom_id_3_4c()));
+	    if (!cr.is_a_both_restraint()) {
+	       // e.g. RDKit::Atom::CHI_TETRAHEDRAL_CCW;
+	       RDKit::Atom::ChiralType chiral_tag = get_chiral_tag(residue_p, restraints, at);
+	       rdkit_at->setChiralTag(chiral_tag);
+
+	       std::string bc("positive");
+	       if (cr.volume_sign == dict_chiral_restraint_t::CHIRAL_RESTRAINT_NEGATIVE)
+		  bc = "negative";
+
+	       rdkit_at->setProp("mmcif_chiral_volume_sign", bc);
+
+	    } else {
+	       std::string bc("both");
+	       rdkit_at->setProp("mmcif_chiral_volume_sign", bc);
+	    } 
+	 }
+      }
+   }
+
+   // set chirality
+   // (if this atom has Chemical Component Dictionary style chirality (R/S pdbx_stereo_config_flag)
+   //
+   if (! done_chiral) {
+      for (unsigned int i=0; i<restraints.atom_info.size(); i++) { 
+	 if (restraints.atom_info[i].atom_id_4c == atom_name) {
+	    set_atom_chirality(rdkit_at, restraints.atom_info[i]);
+	 }
+      }
+   }
+}
+
+void
+coot::set_atom_chirality(RDKit::Atom *rdkit_at, const coot::dict_atom &dict_atom) {
+
+   if (dict_atom.pdbx_stereo_config.first) {
+      if (dict_atom.pdbx_stereo_config.second == "R") {
+	 RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_UNSPECIFIED;
+	 rdkit_at->setChiralTag(chiral_tag);
+	 std::string cip = "R";
+	 rdkit_at->setProp("_CIPCode", cip);
+	 // std::cout << "  pdbx_stereo_config: " << atom_name << " R " << std::endl;
+      }
+      if (dict_atom.pdbx_stereo_config.second == "S") {
+	 RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_UNSPECIFIED;
+	 std::string cip = "S";
+	 rdkit_at->setProp("_CIPCode", cip);
+	 // std::cout << "        " << atom_name << " S " << std::endl;
+      }
+   } 
+}
 
 // sorts atoms so that the smallest ranks are at the top (close to index 0).
 //
@@ -883,6 +898,7 @@ coot::chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2,
       std::string name_2;
       at_1->getProp("name", name_1);
       at_2->getProp("name", name_2);
+
       for (unsigned int ich=0; ich<chiral_restraints.size(); ich++) {
 	 if (chiral_restraints[ich].atom_id_c_4c() == name_2) {
 	    second_is_chiral = true;
@@ -905,10 +921,29 @@ coot::chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2,
    }
    catch (...) {
       // this should not catch anything, the names should be set as properties
-   } 
+   }
 
    return status;
 }
+
+bool
+coot::chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2) {
+   
+   bool status = false;
+
+   RDKit::Atom::ChiralType chiral_tag_1 = at_1->getChiralTag();
+   if ( (chiral_tag_1 != RDKit::Atom::CHI_TETRAHEDRAL_CW) &&
+	(chiral_tag_1 != RDKit::Atom::CHI_TETRAHEDRAL_CCW)) {
+      RDKit::Atom::ChiralType chiral_tag_2 = at_2->getChiralTag();
+      if (chiral_tag_2 == RDKit::Atom::CHI_TETRAHEDRAL_CW)
+	 status = true;
+      if (chiral_tag_2 == RDKit::Atom::CHI_TETRAHEDRAL_CCW)
+	 status = true;
+   }
+
+   return status;
+}
+
 
 // fill the coords from the dictionary if you can.
 // 
@@ -926,7 +961,7 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 
       try {
 	 RDKit::Atom *at = new RDKit::Atom;
-	 std::string atom_name = r.atom_info[iat].atom_id;
+	 std::string atom_name = r.atom_info[iat].atom_id_4c;
 	 std::string ele_capped =
 	    coot::util::capitalise(coot::util::remove_leading_spaces(r.atom_info[iat].type_symbol));
 	 int atomic_number = tbl->getAtomicNumber(ele_capped);
@@ -943,18 +978,24 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	 // formal charge
 	 if (r.atom_info[iat].formal_charge.first)
 	    at->setFormalCharge(r.atom_info[iat].formal_charge.second);
-	 
-	 // set the chirality (if this atom is chiral).
+
+	 // set the chirality (if this atom is a chiral centre of a chiral restraint).
 	 //
+	 bool done_chiral = false;
 	 for (unsigned int ichi=0; ichi<r.chiral_restraint.size(); ichi++) { 
 	    if (r.chiral_restraint[ichi].atom_id_c_4c() == r.atom_info[iat].atom_id_4c) {
 	       if (!r.chiral_restraint[ichi].has_unassigned_chiral_volume()) {
 		  if (!r.chiral_restraint[ichi].is_a_both_restraint()) {
 		     RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
 		     at->setChiralTag(chiral_tag);
+		     done_chiral = true;
 		  }
 	       }
 	    }
+	 }
+
+	 if (! done_chiral) {
+	    set_atom_chirality(at, r.atom_info[iat]);
 	 }
 
 	 // need to try to get chiral info using atom_info[iat].pdbx_stereo_config
@@ -1010,8 +1051,15 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	    RDKit::Bond *bond = new RDKit::Bond(type);
 	    
 	    // wedge bonds should have the chiral centre as the first atom.
-	    // 
-	    bool swap_order = chiral_check_order_swap(m[idx_1], m[idx_2], r.chiral_restraint);
+	    //
+	    bool swap_order = false;
+
+	    if (r.chiral_restraint.size()) {
+	       swap_order = chiral_check_order_swap(m[idx_1], m[idx_2], r.chiral_restraint);
+	    } else {
+	       // use the atoms rdkit chiral status
+	       swap_order = chiral_check_order_swap(m[idx_1], m[idx_2]);
+	    }
 	    if (! swap_order) {  // normal
 	       bond->setBeginAtomIdx(idx_1);
 	       bond->setEndAtomIdx(  idx_2);
@@ -1199,6 +1247,8 @@ coot::get_chiral_tag(mmdb::Residue *residue_p,
 		     mmdb::Atom *atom_p) {
 
    RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_UNSPECIFIED; // as yet
+
+   if (! residue_p) return chiral_tag;
    
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;

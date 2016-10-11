@@ -4455,49 +4455,75 @@ lbg_info_t::import_mol_from_comp_id(const std::string &comp_id,
 #endif  // MAKE_ENHANCED_LIGAND_TOOLS
 }
 
+// #include "GraphMol/MolPickler.h" VERSION problems.
+
 void
 lbg_info_t::import_via_rdkit_from_restraints_dictionary(const coot::dictionary_residue_restraints_t &dict, bool show_hydrogens_status) {
 
 #ifdef  MAKE_ENHANCED_LIGAND_TOOLS
+
+   // double try/catch because we want to separate rdkit molecule construction
+   // problems from undelocalise/sanitize/compute2D problems.
+   //
    try {
       RDKit::RWMol m = coot::rdkit_mol(dict);
-      coot::undelocalise(&m);
-      if (! show_hydrogens_status) 
-	 coot::remove_non_polar_Hs(&m);
-      unsigned int n_mol_atoms = m.getNumAtoms();
-      for (unsigned int iat=0; iat<n_mol_atoms; iat++)
-	 m[iat]->calcImplicitValence(true);
+      try {
+	 coot::undelocalise(&m);
+	 if (! show_hydrogens_status) 
+	    coot::remove_non_polar_Hs(&m);
+	 unsigned int n_mol_atoms = m.getNumAtoms();
+	 for (unsigned int iat=0; iat<n_mol_atoms; iat++)
+	    m[iat]->calcImplicitValence(true);
 
-      // 20160702 use add_2d_conformer() instead now?
+	 // 20160702 use add_2d_conformer() instead now?
 
-      coot::rdkit_mol_sanitize(m);
-      RDKit::MolOps::Kekulize(m); // non-const reference?
-      bool canonOrient=true;
-      bool clearConfs=true;
-      unsigned int nFlipsPerSample=3;
-      unsigned int nSamples=200;
-      int sampleSeed=10;
-      bool permuteDeg4Nodes=true;
+	 coot::rdkit_mol_sanitize(m);
+	 RDKit::MolOps::Kekulize(m); // non-const reference?
+	 bool canonOrient=true;
+	 bool clearConfs=true;
+	 unsigned int nFlipsPerSample=3;
+	 unsigned int nSamples=200;
+	 int sampleSeed=10;
+	 bool permuteDeg4Nodes=true;
       
-      unsigned int conf_id = RDDepict::compute2DCoords(m, NULL,
-						       canonOrient,
-						       clearConfs,
-						       nFlipsPerSample,
-						       nSamples,
-						       sampleSeed,
-						       permuteDeg4Nodes);
-      RDKit::Conformer conf = m.getConformer(conf_id);
-      RDKit::WedgeMolBonds(m, &conf);
+	 unsigned int conf_id = RDDepict::compute2DCoords(m, NULL,
+							  canonOrient,
+							  clearConfs,
+							  nFlipsPerSample,
+							  nSamples,
+							  sampleSeed,
+							  permuteDeg4Nodes);
+	 RDKit::Conformer conf = m.getConformer(conf_id);
+	 RDKit::WedgeMolBonds(m, &conf);
       
-      // int conf_id = coot::add_2d_conformer(&m, 0);
+	 // int conf_id = coot::add_2d_conformer(&m, 0);
 
-      if (false)
-	 std::cout << "..... n_confs B " << m.getNumConformers()
-		   << " with new 2D conf_id " << conf_id
-		   << " 3d-flag: " << m.getConformer(conf_id).is3D() << std::endl;
+	 if (false)
+	    std::cout << "..... n_confs B " << m.getNumConformers()
+		      << " with new 2D conf_id " << conf_id
+		      << " 3d-flag: " << m.getConformer(conf_id).is3D() << std::endl;
 
-      rdkit_mol_post_read_handling(&m, "from-comp-id");
+	 rdkit_mol_post_read_handling(&m, "from-comp-id");
+      }
+      catch (const RDKit::MolSanitizeException &e) {
+	 // calcImplicitValence() can make this happend
+	 std::cout << "ERROR:: on Sanitize (inner) " << e.what() << std::endl;
+      }
+      catch (const std::runtime_error &rte) {
+	 std::cout << "ERROR:: (inner) import_via_rdkit_from_restraints_dictionary "
+		   << rte.what() << std::endl;
+	 coot::debug_rdkit_molecule(&m);
+
+	 // boost::python::api::object obj = RDKit::MolToBinary(m);
+
+// 	 {
+// 	    std::string res;
+// 	    RDKit::MolPickler::pickleMol(m,res);
+// 	 }
+	 
+      }
    }
+   // we don't have an rdkit molecule for these catches.
    catch (const RDKit::MolSanitizeException &e) {
       // calcImplicitValence() can make this happend
       std::cout << "ERROR:: on Sanitize" << e.what() << std::endl;
@@ -4505,6 +4531,7 @@ lbg_info_t::import_via_rdkit_from_restraints_dictionary(const coot::dictionary_r
    catch (const std::runtime_error &rte) {
       std::cout << "ERROR:: " << rte.what() << std::endl;
    }
+
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 }
 

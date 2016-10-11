@@ -55,9 +55,17 @@ namespace coot {
 			  bool undelocalise=true);
    // return a kekulized molecule
    RDKit::RWMol remove_Hs_and_clean(const RDKit::ROMol &m, bool set_aromaticity=false);
+
+   void set_atom_chirality(RDKit::Atom *rdkit_at,
+			   mmdb::Atom *atom_name,
+			   mmdb::Residue *residue_p,
+			   const coot::dictionary_residue_restraints_t &restraints);
+   void set_atom_chirality(RDKit::Atom *rdkit_at, const dict_atom &dict_atom);
+   
+
    // tinker with mol
    void set_3d_conformer_state(RDKit::RWMol *mol); // hack the setting of 3D state, seems not to
-                                                   // be done for mdl files when zs are 0.
+                                                   // be done for mdl files when zs are 0.   
    bool has_zero_coords(RDKit::RWMol *mol, unsigned int iconf); // e.g. reading from a MolFile,
                                             // all coords are 0.0.
                                             // in such a case we need to do a Compute2DCoords()
@@ -69,6 +77,7 @@ namespace coot {
    void mogulify_nitro_groups(RDKit::RWMol *rdkm);
    bool chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2,
 				const std::vector<dict_chiral_restraint_t>  &chiral_restraints);
+   bool chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2);
 
 
    // tweaking function used by above (change mol maybe).
