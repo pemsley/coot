@@ -2651,10 +2651,14 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
    //
    if (!r.first) {
       for (int i=(nrest-1); i>=0; i--) {
+	 // std::cout << "Matching :" << dict_res_restraints[i].second.residue_info.comp_id
+	 // << ": :" << monomer_type << ":" << std::endl;
 	 if (dict_res_restraints[i].second.residue_info.comp_id == monomer_type) {
+	    // std::cout << "   comparing " << dict_res_restraints[i].first << " " << imol_enc << std::endl;
 	    if (matches_imol(dict_res_restraints[i].first, imol_enc)) {
 	       r.second = dict_res_restraints[i].second;
 	       r.first = true;
+	       // std::cout << "found " << std::endl;
 	       break;
 	    }
 	 }

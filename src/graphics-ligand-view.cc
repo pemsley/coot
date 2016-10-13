@@ -367,6 +367,10 @@ graphics_ligand_molecule::setup_from(int imol_in, mmdb::Residue *residue_p,
 	 } else {
 	    const coot::dictionary_residue_restraints_t &restraints = p.second;
 	    RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, restraints, alt_conf);
+
+	    // std::cout << "--------------------- graphics-ligand-view setup_from() 1 " << std::endl;
+	    // coot::debug_rdkit_molecule(&rdkm);
+
 	    unsigned int n_atoms = rdkm.getNumAtoms();
 	    if (n_atoms > 1) {
 	       // return a kekulize mol

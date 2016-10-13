@@ -4331,9 +4331,7 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
       gtk_statusbar_push(GTK_STATUSBAR(lbg_statusbar),
 			 statusbar_context_id,
 			 status_string.c_str());
-      
    }
-   
 }
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 
@@ -4468,6 +4466,7 @@ lbg_info_t::import_via_rdkit_from_restraints_dictionary(const coot::dictionary_r
    //
    try {
       RDKit::RWMol m = coot::rdkit_mol(dict);
+
       try {
 	 coot::undelocalise(&m);
 	 if (! show_hydrogens_status) 
@@ -4495,10 +4494,9 @@ lbg_info_t::import_via_rdkit_from_restraints_dictionary(const coot::dictionary_r
 							  sampleSeed,
 							  permuteDeg4Nodes);
 	 RDKit::Conformer conf = m.getConformer(conf_id);
+
 	 RDKit::WedgeMolBonds(m, &conf);
       
-	 // int conf_id = coot::add_2d_conformer(&m, 0);
-
 	 if (false)
 	    std::cout << "..... n_confs B " << m.getNumConformers()
 		      << " with new 2D conf_id " << conf_id
@@ -4521,7 +4519,6 @@ lbg_info_t::import_via_rdkit_from_restraints_dictionary(const coot::dictionary_r
 // 	    std::string res;
 // 	    RDKit::MolPickler::pickleMol(m,res);
 // 	 }
-	 
       }
    }
    // we don't have an rdkit molecule for these catches.
