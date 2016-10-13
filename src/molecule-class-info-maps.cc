@@ -773,9 +773,9 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
 
       // the facets shine this colour
       GLfloat  mat_specular[]  = {0.98,  0.98,  0.98,  opacity};
-      GLfloat  mat_ambient[]   = {0.960, 0.160, 0.160, opacity};
-      GLfloat  mat_diffuse[]   = {0.900, 0.100, 0.100, opacity};
-      GLfloat  mat_shininess[] = {120.0};
+      GLfloat  mat_ambient[]   = {0.160, 0.160, 0.160, opacity};
+      GLfloat  mat_diffuse[]   = {0.200, 0.2,   0.200, opacity}; // lit surface is this colour 
+      GLfloat  mat_shininess[] = {120.0};                        // in the direction of the light.
 
       if (is_difference_map_p()) {
 
