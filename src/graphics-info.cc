@@ -93,6 +93,8 @@
 #include "cc-interface-scripting.hh"
 #endif
 
+#include "geometry/dict-utils.hh"
+
 // A few non-class members - should be somewhere else, I guess.
 // 
 void initialize_graphics_molecules() { 
@@ -116,7 +118,13 @@ graphics_info_t::valid_map_molecules() const {
 // static
 int graphics_info_t::create_molecule() { 
    int imol = molecules.size();
-   molecules.push_back(molecule_class_info_t(imol));
+   try {
+      molecules.push_back(molecule_class_info_t(imol));
+   }
+   catch (const std::bad_alloc &ba) {
+      std::cout << "ERROR:: bad_alloc: " << ba.what() << std::endl;
+      imol = -1;
+   }
    return imol;
 }
 
@@ -307,13 +315,45 @@ graphics_info_t::draw_anti_aliasing() {
   }
 }
 
+// This addresses the "everything is an INH" problem.
+//
+// imol_enc can be a specific model molecule number or
+// IMOL_ENC_AUTO, IMOL_ENC_ANY are the interesting values
+// otherwise mol number.
+// 
 int
 graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
+				    int imol_enc_in,
 				    short int show_no_bonds_dialog_maybe_flag) {
+
+   int imol_enc = imol_enc_in;
+
+   if (imol_enc_in == coot::protein_geometry::IMOL_ENC_AUTO) {
+      std::vector<std::string> comp_ids = coot::comp_ids_in_dictionary_cif(cif_dictionary_filename);
+      bool is_non_auto_load_comp_id = false;  // because it is ATP, not LIG
+      for (unsigned int i=0; i<comp_ids.size(); i++) {
+	 if (geom_p->is_non_auto_load_ligand(comp_ids[i])) {
+	    // imol_enc is the latest model added that contains this comp_id
+	    //
+	    is_non_auto_load_comp_id = true;
+	    
+	    for (int ii=(n_molecules()-1); ii>=0; ii--){
+	       if (is_valid_model_molecule(ii)) {
+		  imol_enc = ii;
+		  break;
+	       }
+	    }
+	    break;
+	 }
+      }
+      if (! is_non_auto_load_comp_id)
+	 imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+   }
 
    coot::read_refmac_mon_lib_info_t rmit = 
    geom_p->init_refmac_mon_lib(cif_dictionary_filename,
-			       cif_dictionary_read_number);
+			       cif_dictionary_read_number,
+			       imol_enc);
    
    cif_dictionary_read_number++; 
    if (rmit.success > 0) { 
@@ -444,7 +484,8 @@ graphics_info_t::import_all_refmac_cifs() {
 				    status = stat(cif_filename.c_str(), &buf);
 				    if (status == 0) {
 				       if (S_ISREG(buf.st_mode)) { 
-					  add_cif_dictionary(cif_filename, 0);
+					  add_cif_dictionary(cif_filename,
+							     coot::protein_geometry::IMOL_ENC_ANY, 0);
 				       }
 				    }
 				 }
@@ -1238,7 +1279,7 @@ graphics_info_t::accept_moving_atoms() {
 	 if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) {
 	    molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 0, mzo);
 	    update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
-	 } else { 
+	 } else {
 	    if (moving_atoms_asc_type == coot::NEW_COORDS_INSERT) {
 	       molecules[imol_moving_atoms].insert_coords(*moving_atoms_asc);
 	    } else { 
@@ -1492,8 +1533,8 @@ graphics_info_t::delete_molecule_from_from_display_manager(int imol, bool was_ma
 // are not updated)].
 // 
 void
-graphics_info_t::make_moving_atoms_graphics_object(const atom_selection_container_t &asc) {
-
+graphics_info_t::make_moving_atoms_graphics_object(int imol,
+						   const atom_selection_container_t &asc) {
 
    if (! moving_atoms_asc) {
       moving_atoms_asc = new atom_selection_container_t;
@@ -1539,7 +1580,7 @@ graphics_info_t::make_moving_atoms_graphics_object(const atom_selection_containe
 	 bool draw_hydrogens_flag = false;
 	 if (molecules[imol_moving_atoms].draw_hydrogens())
 	    draw_hydrogens_flag = true;
-	 bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, Geom_p(), 1.0, 4.7, draw_hydrogens_flag);
+	 bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol, Geom_p(), 1.0, 4.7, draw_hydrogens_flag);
 	 // std::cout << "done CA bonds" << std::endl;
 	 regularize_object_bonds_box.clear_up();
 	 regularize_object_bonds_box = bonds.make_graphical_bonds();
@@ -3824,7 +3865,7 @@ graphics_info_t::execute_edit_phi_psi(int atom_index, int imol) {
       atom_selection_container_t residue_asc = 
 	 graphics_info_t::molecules[imol].edit_residue_pull_residue(atom_index,
 								    whole_res_flag);
-      make_moving_atoms_graphics_object(residue_asc);
+      make_moving_atoms_graphics_object(imol, residue_asc);
       
       graphics_draw();
 
@@ -4006,7 +4047,7 @@ graphics_info_t::execute_edit_chi_angles(int atom_index, int imol) {
 	 if (ires > 0) { 
 	    std::cout << "Use the 1,2,3,4 keys to select rotamers, 0 for "
 		      << "normal rotation mode" << std::endl;
-	    make_moving_atoms_graphics_object(residue_asc);
+	    make_moving_atoms_graphics_object(imol, residue_asc);
 
 	    if (do_probe_dots_on_rotamers_and_chis_flag) {
 	       setup_for_probe_dots_on_chis_molprobity(imol);
@@ -4108,7 +4149,7 @@ graphics_info_t::setup_flash_bond_using_moving_atom_internal(int i_torsion_index
 		  std::pair<std::string, std::string> atom_names;
 
 		  std::pair<short int, coot::dictionary_residue_restraints_t> r =
-		     geom_p->get_monomer_restraints(residue_type);
+		     geom_p->get_monomer_restraints(residue_type, imol_moving_atoms);
 
 		  if (r.first) { 
 		     std::vector <coot::dict_torsion_restraint_t> torsion_restraints =
@@ -4321,7 +4362,7 @@ graphics_info_t::setup_flash_bond(int imol,
       if (residue_p) {
 	 std::string residue_type = residue_p->GetResName();
 	 std::pair<short int, coot::dictionary_residue_restraints_t> r =
-	    geom_p->get_monomer_restraints(residue_type);
+	    geom_p->get_monomer_restraints(residue_type, imol);
 	 
 	 if (r.first) {
 	    std::vector <coot::dict_torsion_restraint_t> torsion_restraints =
@@ -5439,7 +5480,7 @@ graphics_info_t::set_moving_atoms(atom_selection_container_t asc,
 				  int imol, int new_coords_type) {
 
    imol_moving_atoms = imol;
-   make_moving_atoms_graphics_object(asc);
+   make_moving_atoms_graphics_object(imol, asc);
    moving_atoms_asc_type = new_coords_type;
 } 
 

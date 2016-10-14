@@ -370,7 +370,7 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
 		  it = bonded_neighbours.find(comp_id);
 		  std::vector<std::pair<std::string, std::string> > bps;
 		  if (it == bonded_neighbours.end()) {
-		     bps = geom.get_bonded_and_1_3_angles(comp_id);
+		     bps = geom.get_bonded_and_1_3_angles(comp_id, imol_no);
 		     bonded_neighbours[comp_id] = bps;
 		  } else {
 		     bps = it->second;

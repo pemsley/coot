@@ -702,9 +702,7 @@ namespace lig_build {
 
 			if (local_no_pass_atoms.find(atom_index_other) != local_no_pass_atoms.end()) {
 			   local_no_pass_atoms.insert(this_atom_index);
-			   std::vector<std::set<unsigned int> > f;
-			   f.push_back(local_no_pass_atoms);
-			   return f;
+			   v.push_back(local_no_pass_atoms);
 			}
 		     }
 		  }
@@ -722,8 +720,7 @@ namespace lig_build {
 			if (local_no_pass_atoms.find(atom_index_other) != local_no_pass_atoms.end()) {
 			   local_no_pass_atoms.insert(this_atom_index);
 			   std::vector<std::set<unsigned int> > f;
-			   f.push_back(local_no_pass_atoms);
-			   return f;
+			   v.push_back(local_no_pass_atoms);
 			}
 		     }
 		  }
@@ -1015,13 +1012,18 @@ namespace lig_build {
 
 	 for (unsigned int ib=0; ib<bonds.size(); ib++) {
 	    if (! bonds[ib].have_centre_pos() || force) {
-	       unsigned int atom_index = bonds[ib].get_atom_1_index();
+	       unsigned int atom_index     = bonds[ib].get_atom_1_index();
+	       unsigned int atom_idx_other = bonds[ib].get_atom_2_index();
 	       if (debug)
 		  std::cout << "=============== checking bond " << ib
 			    << " for rings for atom index "
 			    << atom_index << " ===============" << std::endl;
 
-	       std::vector<std::set<unsigned int> > rings = rings_including_atom(atom_index);
+	       // all the rings for atom_index that pass throught atom_idx_other (because
+	       // for a double bond connected to a fused ring atom we want the ring that contains
+	       // this bond (not the other ring).
+	       // 
+	       std::vector<std::set<unsigned int> > rings = rings_including_atom(atom_index, atom_idx_other);
 
 	       if (debug) {
 		  std::cout << "   constructor of widgeted_bond_t atom " << atom_index
@@ -1448,6 +1450,8 @@ namespace lig_build {
 	 return std::pair<bool, double> (set_status, dist_closest);
       }
 
+      // the sum of the neighbour vectors from (relative to) the central atom
+      //
       pos_t get_sum_delta_neighbours(unsigned int atom_index,
 				     const std::vector<unsigned int> &bond_indices) const {
 	 pos_t sum_delta(0,0);
@@ -1663,8 +1667,7 @@ namespace lig_build {
 		     h_count = "2";
 
 		  pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
-		  if (sum_delta.x < 0.2) { // prefer CH3 to H3C when (nearly) vertical.
-		     // return atom_id_info_t("CH", h_count);
+		  if (sum_delta.x < 3.2) { // prefer CH3 to H3C when (nearly) vertical.
 		     atom_id_info_t id("CH");
 		     offset_text_t ot(h_count);
 		     ot.tweak = pos_t(18, 0);
@@ -1672,7 +1675,6 @@ namespace lig_build {
 		     id.add(ot);
 		     return id;
 		  } else {
-		     // more tricky case then...
 		     atom_id_info_t id;
 		     offset_text_t otH("H");
 		     offset_text_t ot2(h_count);
@@ -1708,7 +1710,7 @@ namespace lig_build {
 		  // H2N, with the 2 subscripted.
 		  // 
 		  pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
-		  if (sum_delta.x < 0.2) { // prefer NH2 to H2N when (nearly) vertical.
+		  if (sum_delta.x < 3.2) { // prefer NH2 to H2N when (nearly) vertical.
 		     return atom_id_info_t("NH", "2");
 		  } else {
 		     // more tricky case then...

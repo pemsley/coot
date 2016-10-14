@@ -429,7 +429,8 @@ class Bond_lines_container {
    //
    // if model_number is 0, display all models.
    //
-   void construct_from_asc(const atom_selection_container_t &SelAtom, 
+   void construct_from_asc(const atom_selection_container_t &SelAtom,
+			   int imol,
 			   float min_dist, float max_dist, 
 			   int atom_colour_type, 
 			   short int is_from_symmetry_flag,
@@ -448,6 +449,7 @@ class Bond_lines_container {
 				      int n_selected_atoms_1,
 				      const mmdb::PPAtom atom_selection_2,
 				      int n_selected_atoms_2,
+				      int imol,
 				      float min_dist, float max_dist,
 				      int atom_colour_type,
 				      bool are_different_atom_selections,
@@ -480,7 +482,8 @@ class Bond_lines_container {
    void add_ramachandran_goodness_spots(const atom_selection_container_t &SelAtom);
    void add_atom_centres(const atom_selection_container_t &SelAtom, int atom_colour_type);
    void add_cis_peptide_markup(const atom_selection_container_t &SelAtom);
-   int add_ligand_bonds(const atom_selection_container_t &SelAtom, 
+   int add_ligand_bonds(const atom_selection_container_t &SelAtom,
+			int imol,
 			mmdb::PPAtom ligand_atoms_selection,
 			int n_ligand_atoms);
 
@@ -508,13 +511,13 @@ class Bond_lines_container {
 
    // double and delocalized bonds (default (no optional arg) is double).
    // 
-   void add_double_bond(int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
+   void add_double_bond(int imol, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
 			const std::vector<coot::dict_bond_restraint_t> &bond_restraints,
 			bool is_deloc=0);
    // used by above, can throw an exception
-   clipper::Coord_orth get_neighb_normal(int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, 
+   clipper::Coord_orth get_neighb_normal(int imol, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, 
 	 				 bool also_2nd_order_neighbs=0) const;
-   void add_triple_bond(int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
+   void add_triple_bond(int imol, int iat_1, int iat_2, mmdb::PPAtom atoms, int n_atoms, int atom_colour_type,
 			const std::vector<coot::dict_bond_restraint_t> &bond_restraints);
 
 
@@ -550,11 +553,12 @@ class Bond_lines_container {
    // return the UDD handle
    int set_rainbow_colours(mmdb::Manager *mol);
    void do_colour_by_chain_bonds_change_only(const atom_selection_container_t &asc,
+					     int imol,
 					     int draw_hydrogens_flag);
 
    void try_set_b_factor_scale(mmdb::Manager *mol);
    graphical_bonds_container make_graphical_bonds(bool thinning_flag) const;
-   void add_bonds_het_residues(const std::vector<std::pair<bool, mmdb::Residue *> > &het_residues, int atom_colour_t, short int have_udd_atoms, int udd_handle);
+   void add_bonds_het_residues(const std::vector<std::pair<bool, mmdb::Residue *> > &het_residues, int imol, int atom_colour_t, short int have_udd_atoms, int udd_handle);
    void het_residue_aromatic_rings(mmdb::Residue *res, const coot::dictionary_residue_restraints_t &restraints, int col);
    // pass a list of atom name that are part of the aromatic ring system.
    void add_aromatic_ring_bond_lines(const std::vector<std::string> &ring_atom_names, mmdb::Residue *res, int col);
@@ -563,7 +567,7 @@ class Bond_lines_container {
 					      const std::vector<coot::dict_bond_restraint_t> &bond_restraints) const;
 
    // add to het_residues maybe
-   bool add_bond_by_dictionary_maybe(mmdb::Atom *atom_p_1,
+   bool add_bond_by_dictionary_maybe(int imol, mmdb::Atom *atom_p_1,
 				     mmdb::Atom *atom_p_2,
 				     std::vector<std::pair<bool, mmdb::Residue *> > *het_residues);
 
@@ -584,6 +588,7 @@ public:
    // Bond_lines_container(const atom_selection_container_t &asc);
 
    Bond_lines_container(const atom_selection_container_t &asc,
+			int imol,
 			int include_disulphides=0,
 			int include_hydrogens=1);
 
@@ -594,21 +599,25 @@ public:
    // display only the given model_number (if possible, of course).
    // 
    Bond_lines_container(const atom_selection_container_t &asc,
+			int imol,
 			const coot::protein_geometry *geom_in,
 			int include_disulphides,
 			int include_hydrogens,
 			int model_number);
 
-   Bond_lines_container(atom_selection_container_t, float max_dist);
+   Bond_lines_container(atom_selection_container_t, int imol, float max_dist);
 
-   Bond_lines_container(atom_selection_container_t asc, 
+   Bond_lines_container(atom_selection_container_t asc,
+			int imol,
 			float min_dist, float max_dist);
 
    // The constructor for ball and stick, this constructor implies that
    // for_GL_solid_model_rendering is set.
    // 
    // geom_in can be null.
-   Bond_lines_container (atom_selection_container_t asc, const coot::protein_geometry *geom);
+   Bond_lines_container (atom_selection_container_t asc,
+			 int imol,
+			 const coot::protein_geometry *geom);
 
    Bond_lines_container(atom_selection_container_t SelAtom, coot::Cartesian point,
 			float symm_distance,
@@ -639,6 +648,7 @@ public:
    // This is the one for occupancy and B-factor representation
    // 
    Bond_lines_container (const atom_selection_container_t &SelAtom,
+			 int imol,
 			 bond_representation_type by_occ);
 
    Bond_lines_container(int col);
@@ -690,14 +700,14 @@ public:
    // FYI: there is only one element to symm_trans, the is called from
    // the addSymmetry_vector_symms wrapper
    graphical_bonds_container
-      addSymmetry(const atom_selection_container_t &SelAtom,
+   addSymmetry(const atom_selection_container_t &SelAtom, int imol,
 		  coot::Cartesian point,
 		  float symm_distance,
 		  const std::vector<std::pair<symm_trans_t, Cell_Translation> > &symm_trans,
 		  short int symmetry_as_ca_flag,
 		  short int symmetry_whole_chain_flag);
    graphical_bonds_container
-      addSymmetry_with_mmdb(const atom_selection_container_t &SelAtom,
+   addSymmetry_with_mmdb(const atom_selection_container_t &SelAtom, int imol,
 			    coot::Cartesian point,
 			    float symm_distance,
 			    const std::vector<std::pair<symm_trans_t, Cell_Translation> > &symm_trans,
@@ -714,7 +724,7 @@ public:
    // FYI: there is only one element to symm_trans, the is called from
    // the addSymmetry_vector_symms wrapper
    graphical_bonds_container
-     addSymmetry_whole_chain(const atom_selection_container_t &SelAtom,
+   addSymmetry_whole_chain(const atom_selection_container_t &SelAtom, int imol,
 			     const coot::Cartesian &point,
 			     float symm_distance, 
 			     const std::vector <std::pair<symm_trans_t, Cell_Translation> > &symm_trans);
@@ -724,30 +734,33 @@ public:
    // related molecule is found, then select the whole chain.
    // 
    std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > >
-      addSymmetry_vector_symms(const atom_selection_container_t &SelAtom,
-			       coot::Cartesian point,
-			       float symm_distance,
-			       const std::vector<std::pair<symm_trans_t, Cell_Translation> > &symm_trans,
-			       short int symmetry_as_ca_flag,
-			       short int symmetry_whole_chain_flag,
-			       short int draw_hydrogens_flag,
-			       bool do_intermolecular_symmetry_bonds);
+   addSymmetry_vector_symms(const atom_selection_container_t &SelAtom,
+			    int imol,
+			    coot::Cartesian point,
+			    float symm_distance,
+			    const std::vector<std::pair<symm_trans_t, Cell_Translation> > &symm_trans,
+			    short int symmetry_as_ca_flag,
+			    short int symmetry_whole_chain_flag,
+			    short int draw_hydrogens_flag,
+			    bool do_intermolecular_symmetry_bonds);
 
    std::vector<std::pair<graphical_bonds_container, symm_trans_t> >
-      add_NCS(const atom_selection_container_t &SelAtom,
-	      coot::Cartesian point,
-	      float symm_distance,
-	      std::vector<std::pair<coot::coot_mat44, symm_trans_t> > &strict_ncs_mats,
-	      short int symmetry_as_ca_flag,
-	      short int symmetry_whole_chain_flag);
+   add_NCS(const atom_selection_container_t &SelAtom,
+	   int imol,
+	   coot::Cartesian point,
+	   float symm_distance,
+	   std::vector<std::pair<coot::coot_mat44, symm_trans_t> > &strict_ncs_mats,
+	   short int symmetry_as_ca_flag,
+	   short int symmetry_whole_chain_flag);
 
    graphical_bonds_container
-      add_NCS_molecule(const atom_selection_container_t &SelAtom,
-		       const coot::Cartesian &point,
-		       float symm_distance,
-		       const std::pair<coot::coot_mat44, symm_trans_t> &strict_ncs_mat,
-		       short int symmetry_as_ca_flag,
-		       short int symmetry_whole_chain_flag);
+   add_NCS_molecule(const atom_selection_container_t &SelAtom,
+		    int imol,
+		    const coot::Cartesian &point,
+		    float symm_distance,
+		    const std::pair<coot::coot_mat44, symm_trans_t> &strict_ncs_mat,
+		    short int symmetry_as_ca_flag,
+		    short int symmetry_whole_chain_flag);
 
    graphical_bonds_container
       add_NCS_molecule_calphas(const atom_selection_container_t &SelAtom,
@@ -756,10 +769,11 @@ public:
 			       const std::pair<coot::coot_mat44, symm_trans_t> &strict_ncs_mat);
 
    graphical_bonds_container
-      add_NCS_molecule_whole_chain(const atom_selection_container_t &SelAtom,
-				   const coot::Cartesian &point,
-				   float symm_distance,
-				   const std::pair<coot::coot_mat44, symm_trans_t> &strict_ncs_mat);
+   add_NCS_molecule_whole_chain(const atom_selection_container_t &SelAtom,
+				int imol,
+				const coot::Cartesian &point,
+				float symm_distance,
+				const std::pair<coot::coot_mat44, symm_trans_t> &strict_ncs_mat);
 
    graphical_bonds_container make_graphical_bonds() const;
    graphical_bonds_container make_graphical_bonds_no_thinning() const;
@@ -793,35 +807,43 @@ public:
 							float min_dist, float max_dist,
 							int bond_colour_type); 
    void do_Ca_plus_ligands_bonds(atom_selection_container_t SelAtom,
+				 int imol,
 				 coot::protein_geometry *pg,
 				 float min_dist, float max_dist,
 				 bool do_bonds_to_hydrogens_in);
-   void do_Ca_plus_ligands_bonds(atom_selection_container_t SelAtom, 
+   void do_Ca_plus_ligands_bonds(atom_selection_container_t SelAtom,
+				 int imol,
 				 coot::protein_geometry *pg,
 				 float min_dist, float max_dist,
 				 int atom_colour_type,
 				 bool do_bonds_to_hydrogens_in); 
+   void do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_container_t SelAtom,
+						int imol,
+						coot::protein_geometry *pg,
+						float min_dist_ca, float max_dist_ca,
+						float min_dist, float max_dist,
+						bool do_bonds_to_hydrogens_in);
    void do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_container_t SelAtom, 
-				 coot::protein_geometry *pg,
-				 float min_dist_ca, float max_dist_ca,
-				 float min_dist, float max_dist,
-				 bool do_bonds_to_hydrogens_in); 
-   void do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_container_t SelAtom, 
-				 coot::protein_geometry *pg,
-				 float min_dist_ca, float max_dist_ca,
-				 float min_dist, float max_dist,
-				 int atom_colour_type,
-				 bool do_bonds_to_hydrogens_in); 
+						int imol,
+						coot::protein_geometry *pg,
+						float min_dist_ca, float max_dist_ca,
+						float min_dist, float max_dist,
+						int atom_colour_type,
+						bool do_bonds_to_hydrogens_in);
    void do_colour_by_chain_bonds(const atom_selection_container_t &asc,
+				 int imol,
 				 int draw_hydrogens_flag,
 				 short int change_c_only_flag);
    void do_colour_by_molecule_bonds(const atom_selection_container_t &asc,
 				    int draw_hydrogens_flag);
    void do_normal_bonds_no_water(const atom_selection_container_t &asc,
+				 int imol,
 				 float min_dist, float max_dist);
    void do_colour_sec_struct_bonds(const atom_selection_container_t &asc,
+				   int imol,
 				   float min_dist, float max_dist); 
    void do_Ca_plus_ligands_colour_sec_struct_bonds(const atom_selection_container_t &asc,
+						   int imol,
 						   coot::protein_geometry *pg,
 						   float min_dist, float max_dist,
 						   bool do_bonds_to_hydrogens_in); 

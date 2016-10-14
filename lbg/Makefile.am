@@ -93,7 +93,7 @@ EXTRA_DIST=lbg.glade $(appicon_DATA) lbg-callbacks.cc
 subpkgdatadir = $(pkgdatadir)
 subpkgdata_DATA = lbg.glade lbg-callbacks.cc
 
-check_PROGRAMS = test_lbg_functions
+check_PROGRAMS = test_lbg_functions test-srs-standalone
 test_lbg_functions_SOURCES = test_lbg_functions.cc  graphics-c-interface-functions-blanks.cc
 test_lbg_functions_LDADD = \
        ./libcoot-lidia.la \
@@ -102,6 +102,9 @@ test_lbg_functions_LDADD = \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(RDKIT_LIBS) \
 	$(PYTHON_LIBS)
+
+test_srs_standalone_SOURCES = test-srs-standalone.cc
+test_srs_standalone_LDADD = $(CCP4SRS_LIBS) $(MMDB_LIBS)
 
 pkgpythondir=$(pythondir)/lidia
 

@@ -178,14 +178,16 @@ int update_restraints_using_mogul(int imol, const char *chain_id, int res_no, co
       if (residue_p) { 
 	 coot::mogul m(mogul_out_file_name);
 	 coot::dictionary_residue_restraints_t new_restraints =
-	    m.make_restraints(residue_p, monomer_type, *g.Geom_p());
-	 s = g.Geom_p()->replace_monomer_restraints_conservatively(monomer_type, new_restraints);
+	    m.make_restraints(residue_p, monomer_type, imol, *g.Geom_p());
+	 // THIS ONE IS COMPLICATED, FIXME
+	 s = g.Geom_p()->replace_monomer_restraints_conservatively(monomer_type,
+								   new_restraints);
       }
    }
    return s;
 }
 
-// results tabl
+// results table
 void
 show_mogul_geometry_dialog(const coot::mogul &m, mmdb::Residue *residue) {
 

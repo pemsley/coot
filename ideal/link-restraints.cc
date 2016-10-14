@@ -818,13 +818,13 @@ coot::restraints_container_t::find_link_type(mmdb::Residue *first,
 
    for (unsigned int idr=0; idr<geom.size(); idr++) {
       if (dictionary_name_matches_coords_resname(geom.three_letter_code(idr), residue_type_1)) {
-	 t1 = geom[idr].residue_info.group;
+	 t1 = geom[idr].second.residue_info.group;
 	 break;
       }
    }
    for (unsigned int idr=0; idr<geom.size(); idr++) {
       if (dictionary_name_matches_coords_resname(geom.three_letter_code(idr), residue_type_2)) {
-	 t2 = geom[idr].residue_info.group;
+	 t2 = geom[idr].second.residue_info.group;
 	 break;
       }
    }

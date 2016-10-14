@@ -173,8 +173,9 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
    
    mmdb::Residue *r = geom.get_residue(comp_id, idealized, try_autoload_if_needed);
 
+   int imol = 0; // dummy
    std::pair<bool, dictionary_residue_restraints_t> rest =
-     geom.get_monomer_restraints(comp_id);
+      geom.get_monomer_restraints(comp_id, imol);
 
    if (rest.first) {
 

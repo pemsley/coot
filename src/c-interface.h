@@ -3606,6 +3606,17 @@ int handle_cif_dictionary(const char *filename);
 
 return the number of bonds read (> 0 can be treated as success) */
 int read_cif_dictionary(const char *filename);
+
+/* \brief return the number of bonds read (> 0 can be treated as success).
+ Apply to the given molecule.
+
+ imol_enc can be the model molecule number or
+ -1 for all
+ -2 for auto
+ -3 for unset
+ */
+int handle_cif_dictionary_for_molecule(const char *filename, int imol_enc);
+
 int write_connectivity(const char* monomer_name, const char *filename);
 /*! \brief open the cif dictionary file selector dialog */
 void open_cif_dictionary_file_selector_dialog(); 
@@ -4052,6 +4063,8 @@ void set_ligand_verbose_reporting(int i); /* 0 off (default), 1 on */
 void set_find_ligand_n_top_ligands(int n); /* fit the top n ligands,
 					      not all of them, default
 					      10. */
+
+void set_find_ligand_do_real_space_refinement(short int state);
 
 /*! \brief allow multiple ligand solutions per cluster. 
 

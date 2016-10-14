@@ -535,8 +535,10 @@ void generate_local_self_restraints(int imol, const char *chain_id, float local_
 // 
 int delete_restraints(const char *comp_id) {
 
+   int imol = coot::protein_geometry::IMOL_ENC_ANY; // perhaps this should be passed
+
    graphics_info_t g;
-   return g.Geom_p()->delete_mon_lib(comp_id);
+   return g.Geom_p()->delete_mon_lib(comp_id, imol);
    
 } 
 

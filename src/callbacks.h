@@ -4524,3 +4524,7 @@ on_dynarama_outliers_only_togglebutton_toggled
                                         (GtkToggleButton *togglebutton,
 					 gpointer         user_data);
 
+void
+on_find_ligand_real_space_refine_solutions_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+					 gpointer         user_data);

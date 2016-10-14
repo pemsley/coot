@@ -368,6 +368,7 @@ coot::mogul_item::colour() const {
 coot::dictionary_residue_restraints_t
 coot::mogul::make_restraints(mmdb::Residue *residue_p,
 			     const std::string &comp_id,
+			     int imol,
 			     const coot::protein_geometry &geom) {
 
    coot::dictionary_residue_restraints_t r(comp_id, -1);
@@ -376,7 +377,7 @@ coot::mogul::make_restraints(mmdb::Residue *residue_p,
       int n_residue_atoms;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       std::pair<bool, dictionary_residue_restraints_t> current_restraints = 
-	 geom.get_monomer_restraints(comp_id);
+	 geom.get_monomer_restraints(comp_id, imol);
 
       for (unsigned int i=0; i<items.size(); i++) { 
 	 if (items[i].type == mogul_item::BOND) {

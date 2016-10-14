@@ -58,7 +58,7 @@ namespace coot {
       colour_t bones_colour;
       std::vector<std::pair<Cartesian, Cartesian> > density_lines;
       colour_t density_colour;
-      // bond_lines and bond_colour have the same length
+      // bond_lines and bond_colour have the same size.
       std::vector<std::pair<Cartesian, Cartesian> > bond_lines;
       std::vector<std::pair<Cartesian, Cartesian> > bone_lines;
       std::vector<colour_t> bond_colour;

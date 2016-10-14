@@ -22,7 +22,7 @@
 #include <clipper/ccp4/ccp4_map_io.h>
 
 #include "../utils/coot-utils.hh"
-#include "../coot-utils/residue-and-atom-specs.hh"
+#include "../geometry/residue-and-atom-specs.hh"
 #include "../coot-utils/coot-coord-utils.hh"
 #include "../coot-utils/coot-map-utils.hh"
 #include "multi-peptide.hh"

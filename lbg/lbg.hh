@@ -782,7 +782,8 @@ private:
       alert_group = NULL; // group for alert annotations
       show_alerts_user_control = false; // no pattern matching available
       geom_p = NULL; // no (const) geometry passed/set
-      display_atom_names = false;
+      display_atom_names   = false;
+      display_atom_numbers = false;
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS   
       show_alerts_user_control = false;
       bond_pick_pending = false;
@@ -918,7 +919,10 @@ private:
    void show_mol_ring_centres(); // not const because mol.get_ring_centres() caches
    void show_unlimited_atoms(const std::vector<widgeted_atom_ring_centre_info_t> &ua);
    void show_ring_centres(std::vector<std::vector<std::string> > ring_atoms_list,
-			      const widgeted_molecule_t &mol);
+			  const widgeted_molecule_t &mol);
+   // this can cache ring centres in mol if they are not there already
+   void show_ring_centres(widgeted_molecule_t &mol);
+   
 
    std::string grid_intensity_to_colour(int val) const;
    std::string sixteen_to_hex_let(int v) const;
@@ -1041,6 +1045,8 @@ public:
    GtkWidget *lbg_view_rotate_entry;
    GtkWidget *lbg_qed_properties_vbox; // hide if not enhanced-ligand
    GtkWidget *lbg_qed_properties_progressbars[8];
+   GtkWidget *lbg_srs_search_results_scrolledwindow;
+   GtkWidget *lbg_srs_search_results_vbox;
 //    GtkWidget *lbg_nitrogen_toggle_toolbutton;
 //    GtkWidget *lbg_carbon_toggle_toolbutton;
 //    GtkWidget *lbg_oxygen_toggle_toolbutton;
@@ -1065,6 +1071,7 @@ public:
    // when we have multiple molecule, these things should go together
    widgeted_molecule_t mol;
    bool display_atom_names;
+   bool display_atom_numbers; // e.g. N:11, C:12
    
    int canvas_addition_mode;
    void lbg_toggle_button_my_toggle(GtkToggleToolButton *tb);
@@ -1094,6 +1101,7 @@ public:
    std::string get_stroke_colour(int i, int n) const;
    void drag_canvas(int mouse_x, int mouse_y);
    void write_pdf(const std::string &file_name) const;
+   void write_ps(const std::string &file_name) const;
    void write_png(const std::string &file_name);
    void write_svg(const std::string &file_name) const;
    void set_mouse_pos_at_click(int xpos, int ypos) {
@@ -1266,13 +1274,27 @@ public:
    void set_sbase_import_function(void (*f) (std::string)) {
       sbase_import_func_ptr = f;
    }
+   // Let's have a wrapper around that so that lbg-search doesn't need to ask if sbase_import_func_ptr
+   // is valid or not.
+   void import_srs_monomer(const std::string &comp_id);
 
    void import_prodrg_output(const std::string &prodrg_mdl_file_name, const std::string &comp_id) {
       if (prodrg_import_func_ptr) {
 	 prodrg_import_func_ptr(prodrg_mdl_file_name, comp_id);
       } else {
-	 std::cout << "WARNING:: No prodrg_import_func_ptr set" << std::endl;
-      } 
+
+	 // all we do is write the file.
+	 // update the status bar.
+	 //
+	 std::string status_string = "  Wrote file " + prodrg_mdl_file_name;
+	 guint statusbar_context_id = gtk_statusbar_get_context_id(GTK_STATUSBAR(lbg_statusbar),
+								   status_string.c_str());
+	 gtk_statusbar_push(GTK_STATUSBAR(lbg_statusbar),
+			    statusbar_context_id,
+			    status_string.c_str());
+      
+	 
+      }
    }
 
    // handle the net transfer of drug (to mdl file)
@@ -1355,6 +1377,11 @@ public:
       display_atom_names = state;
       render_from_molecule(mol);
    }
+   void set_display_atom_numbers(bool state) {
+      display_atom_numbers = state;
+      render_from_molecule(mol);
+   }
+   
    
 };
 

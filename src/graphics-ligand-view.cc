@@ -346,7 +346,7 @@ graphics_ligand_molecule::render() {
 }
 
 bool
-graphics_ligand_molecule::setup_from(mmdb::Residue *residue_p,
+graphics_ligand_molecule::setup_from(int imol_in, mmdb::Residue *residue_p,
 				     const std::string &alt_conf,
 				     coot::protein_geometry *geom_p,
 				     bool against_a_dark_background) {
@@ -355,16 +355,22 @@ graphics_ligand_molecule::setup_from(mmdb::Residue *residue_p,
    
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
+   imol = imol_in;
    if (residue_p) {
       try {
 	 std::string res_name = residue_p->GetResName();
 	 std::pair<bool, coot::dictionary_residue_restraints_t> p = 
-	    geom_p->get_monomer_restraints_at_least_minimal(res_name);
+	    geom_p->get_monomer_restraints_at_least_minimal(res_name, imol);
 	 if (! p.first) {
-	    std::cout << "DEBUG:: No restraints for \"" << res_name << "\"" << std::endl;
+	    std::cout << "DEBUG:: graphics_ligand_molecule: No restraints for \""
+		      << res_name << "\"" << std::endl;
 	 } else {
 	    const coot::dictionary_residue_restraints_t &restraints = p.second;
 	    RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, restraints, alt_conf);
+
+	    // std::cout << "--------------------- graphics-ligand-view setup_from() 1 " << std::endl;
+	    // coot::debug_rdkit_molecule(&rdkm);
+
 	    unsigned int n_atoms = rdkm.getNumAtoms();
 	    if (n_atoms > 1) {
 	       // return a kekulize mol

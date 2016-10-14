@@ -88,7 +88,7 @@ molecule_class_info_t::user_defined_colours_representation(coot::protein_geometr
    } else {
 
       Bond_lines_container bonds(geom_p);
-      bonds.do_Ca_plus_ligands_bonds(atom_sel, geom_p, 2.4, 4.7, coot::COLOUR_BY_USER_DEFINED_COLOURS, false);
+      bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7, coot::COLOUR_BY_USER_DEFINED_COLOURS, false);
       bonds_box = bonds.make_graphical_bonds_no_thinning();
       bonds_box_type = coot::COLOUR_BY_USER_DEFINED_COLOURS_BONDS;
    }

@@ -1448,7 +1448,7 @@ molecule_class_info_t::update_strict_ncs_symmetry(const coot::Cartesian &centre_
    Bond_lines_container bonds;
    strict_ncs_bonds_box.clear();
    strict_ncs_bonds_box =
-      bonds.add_NCS(atom_sel,
+      bonds.add_NCS(atom_sel, imol_no,
 		    centre_point,
 		    graphics_info_t::symmetry_search_radius,
 		    cmats,

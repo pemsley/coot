@@ -138,7 +138,7 @@ widgeted_molecule_t::widgeted_molecule_t(const lig_build::molfile_molecule_t &mo
 
 	 std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > empty;
 	 widgeted_bond_t bond(index_1, index_2, atoms[index_1], atoms[index_2],
-			      shorten_first, shorten_second, bt, empty, ci);
+			      shorten_first, shorten_second, bt, empty, empty, ci);
 	 bonds.push_back(bond);
       }
 
@@ -322,6 +322,7 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
 				      bool shorten_first,
 				      bool shorten_second,
 				      bond_type_t bt,
+				      const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
 				      const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 				      GooCanvasItem *root) const {
 
@@ -433,13 +434,9 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
    case DOUBLE_BOND:
    case DOUBLE_OR_AROMATIC:
       {
-	 
-	 std::cout << "here in canvas_item_for_bond() double with centre "
-		   << have_centre_pos() << std::endl;
-	 
 	 if (have_centre_pos()) {
 
-	    // we want to draw this sort of double bond - currently called "aromatic"
+	    // we want to draw this sort of double bond
 	    // for double bonds that have atoms (other than the bond atoms) connect to each
 	    // atom of the bond.
 	    // i.e. we should draw a simple/symmetric double bond (canvas_item_double_bond) 
@@ -448,9 +445,12 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
 	    // And to make the decision, this function needs to be passed
 	    // other_connections_to_first_atom.
 	    //
-	    ci = canvas_item_double_aromatic_bond(pos_1, pos_2, root);
+	    ci = canvas_item_double_with_shortened_side_bond(pos_1, pos_2, root);
 	 } else {
-	    ci = canvas_item_double_bond(pos_1, pos_2, root);
+	    
+	    ci = canvas_item_double_bond(pos_1, pos_2,
+					 other_connections_to_first_atom,
+					 other_connections_to_second_atom, root);
 	 } 
       }
       break;
@@ -492,11 +492,105 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
    return ci;
 }
 
-
+// pos_1 and pos_2 are pre-shortened as needed.
+//
 GooCanvasItem *
 widgeted_bond_t::canvas_item_double_bond(const lig_build::pos_t &pos_1,
 					 const lig_build::pos_t &pos_2,
-					 GooCanvasItem *root) const { 
+					 const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
+					 const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
+					 GooCanvasItem *root) const {
+
+   if ((other_connections_to_second_atom.size() == 0)||
+       (other_connections_to_first_atom.size()  == 0)) {
+      return canvas_item_double_bond_simple(pos_1, pos_2, root);
+
+   } else {
+   
+      // somewhat like shortened side bond
+
+      GooCanvasItem *group = wrap_goo_canvas_group_new (root, dark);
+      GooCanvasItem *ci_1 = wrap_goo_canvas_polyline_new_line(group, pos_1.x, pos_1.y, pos_2.x, pos_2.y);
+      double bond_length = lig_build::pos_t::length(pos_2, pos_1); // shortened possibly.
+      lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
+      lig_build::pos_t buv_90 = buv.rotate(90);
+
+      // if the bond is cis, we want to be on the inside of that, if it's trans, it doesn't matter.
+      // So does pos_1 and pos_2 have neighbours that are on the same side as each other?
+
+      double delta_x = pos_2.x-pos_1.x;
+      if (delta_x == 0) delta_x = 0.01; // don't divide by zero
+      double m = (pos_2.y-pos_1.y)/delta_x;
+      double c = - m * pos_2.x + pos_2.y;
+
+      bool done = false; // true when pos_neighb_ref is set
+      lig_build::pos_t pos_neighb_ref;
+      
+      for (unsigned int ib1=0; ib1<other_connections_to_first_atom.size(); ib1++) {
+	 for (unsigned int ib2=0; ib2<other_connections_to_second_atom.size(); ib2++) {
+	    const lig_build::pos_t &p_1 = other_connections_to_first_atom[ib1].first.atom_position;
+	    const lig_build::pos_t &p_2 = other_connections_to_second_atom[ib2].first.atom_position;
+
+	    double r1 = m * p_1.x - p_1.y + c;  // ax + by + c > 0 ? where a = m, b = -1
+	    double r2 = m * p_2.x - p_2.y + c;
+	    double r1r2 = r1 * r2;
+	    if (r1r2 > 0) { // on same side
+
+	       pos_neighb_ref = p_1;
+	       done = true;
+	    }
+	    if (done) break;
+	 }
+	 if (done) break;
+      }
+      if (! done) {
+	 // we had a trans bond (only) - either side will do
+	 if (other_connections_to_first_atom.size()) {
+	    pos_neighb_ref = other_connections_to_first_atom[0].first.atom_position;
+	    done = true;
+	 } else {
+	    if (other_connections_to_second_atom.size()) {
+	       pos_neighb_ref = other_connections_to_second_atom[0].first.atom_position;
+	       done = true;
+	    }
+	 }
+      }
+
+      if (done) {
+	 double nice_dist = 5.0;
+	 lig_build::pos_t pos_offset_bond_start_t1 = pos_1 + buv_90 * nice_dist;
+	 lig_build::pos_t pos_offset_bond_start_t2 = pos_1 - buv_90 * nice_dist;
+	 double d1 = lig_build::pos_t::length(pos_neighb_ref, pos_offset_bond_start_t1);
+	 double d2 = lig_build::pos_t::length(pos_neighb_ref, pos_offset_bond_start_t2);
+
+	 lig_build::pos_t sp = pos_offset_bond_start_t1;
+	 if (d2 < d1)
+	    sp = pos_offset_bond_start_t2;
+	 lig_build::pos_t ep = sp + buv * bond_length;
+
+	 lig_build::pos_t cutened_inner_start_point = lig_build::pos_t::fraction_point(sp, ep, 0.14);
+	 lig_build::pos_t cutened_inner_end_point   = lig_build::pos_t::fraction_point(sp, ep, 0.86);
+	       
+	 GooCanvasItem *ci_2 =
+	    wrap_goo_canvas_polyline_new_line(group,
+					      cutened_inner_start_point.x, 
+					      cutened_inner_start_point.y, 
+					      cutened_inner_end_point.x, 
+					      cutened_inner_end_point.y);
+      }
+      return group;
+   }
+}
+					
+
+
+
+// symmetric (both offset, no shortening of a side-bond)
+//
+GooCanvasItem *
+widgeted_bond_t::canvas_item_double_bond_simple(const lig_build::pos_t &pos_1,
+						const lig_build::pos_t &pos_2,
+						GooCanvasItem *root) const { 
 	 
    GooCanvasItem *group = wrap_goo_canvas_group_new (root, dark);
 						     
@@ -518,11 +612,11 @@ widgeted_bond_t::canvas_item_double_bond(const lig_build::pos_t &pos_1,
 }
 
 
-// 
+// for rings
 GooCanvasItem *
-widgeted_bond_t::canvas_item_double_aromatic_bond(const lig_build::pos_t &pos_1,
-						  const lig_build::pos_t &pos_2,
-						  GooCanvasItem *root) const {
+widgeted_bond_t::canvas_item_double_with_shortened_side_bond(const lig_build::pos_t &pos_1,
+							     const lig_build::pos_t &pos_2,
+							     GooCanvasItem *root) const {
 
    GooCanvasItem *group = wrap_goo_canvas_group_new (root, dark);
 
@@ -556,7 +650,7 @@ widgeted_bond_t::canvas_item_double_aromatic_bond(const lig_build::pos_t &pos_1,
    // (but create bonds that are slightly too long, in fact)
    // but definately need to be shorter for 3,4 membered rings.
    //
-   // To get it right, we need to know the positions of the atoms that are commect
+   // To get it right, we need to know the positions of the atoms that are connected
    // to the atoms of the double bonds (or slightly kludgey), we could work it out
    // by knowing how many bonds/atoms in the ring of which this bond is a member.
    // 
@@ -683,6 +777,12 @@ widgeted_bond_t::make_sheared_or_darted_wedge_bond(const lig_build::pos_t &pos_1
       lig_build::pos_t bond_from_3rd_atom_extension   = pos_2 + bfrom3rd*0.1;
       lig_build::pos_t bond_from_3rd_atom_contraction = pos_2 - bfrom3rd*0.18;
 
+      if (third_bond.get_bond_type() == lig_build::bond_t::DOUBLE_BOND) {
+	 // we need to make this shorter.
+	 bond_from_3rd_atom_extension   -= buv * 2.6;
+	 bond_from_3rd_atom_contraction -= buv * 2.6;
+      }
+
       item = wrap_goo_canvas_polyline_new(root,
 					  sharp_point_2.x, sharp_point_2.y, 
 					  sharp_point_1.x, sharp_point_1.y, 
@@ -710,17 +810,14 @@ widgeted_bond_t::make_sheared_or_darted_wedge_bond(const lig_build::pos_t &pos_1
 	 lig_build::pos_t bond_from_3rd_atom_1_contraction = pos_2 - bfrom3rd_1*0.15;
 	 lig_build::pos_t bond_from_3rd_atom_2_contraction = pos_2 - bfrom3rd_2*0.15;
 
-	 item = wrap_goo_canvas_polyline_new(root,
-					     sharp_point_2.x, sharp_point_2.y, 
-					     sharp_point_1.x, sharp_point_1.y, 
-					     bond_from_3rd_atom_1_contraction.x,
-					     bond_from_3rd_atom_1_contraction.y,
-					     pos_2.x, pos_2.y,
-					     bond_from_3rd_atom_2_contraction.x,
-					     bond_from_3rd_atom_2_contraction.y,
-					     dark, dark);
+	 std::vector<lig_build::pos_t> pts;
+	 pts.push_back(sharp_point_2);
+	 pts.push_back(sharp_point_1);
+	 pts.push_back(bond_from_3rd_atom_1_contraction);
+	 pts.push_back(pos_2);
+	 pts.push_back(bond_from_3rd_atom_2_contraction);
+	 item = wrap_goo_canvas_polyline_new_vp(root, pts, dark, dark);
       }
-      
    }
    return item;
 }
@@ -788,6 +885,34 @@ widgeted_molecule_t::make_other_connections_to_second_atom_info(unsigned int bon
 //    std::cout << "from make_other_connections_to_second_atom_info() returning v of size "
 // 	     << v.size() << std::endl;
 
+   return v;
+}
+
+std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
+widgeted_molecule_t::make_other_connections_to_first_atom_info(unsigned int bond_index) const {
+
+   std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > v;
+   int atom_1_ref_idx = bonds[bond_index].get_atom_1_index();
+   int atom_2_ref_idx = bonds[bond_index].get_atom_2_index();
+
+   for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
+      if (ibond != bond_index) {
+	 int at_1_idx = bonds[ibond].get_atom_1_index();
+	 int at_2_idx = bonds[ibond].get_atom_2_index();
+	 if (at_1_idx == atom_1_ref_idx) {
+	    if (at_2_idx != atom_2_ref_idx) {
+	       std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_2_idx], bonds[ibond]);
+	       v.push_back(p);
+	    }
+	 }
+	 if (at_2_idx == atom_1_ref_idx) {
+	    if (at_1_idx != atom_2_ref_idx) {
+	       std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_1_idx], bonds[ibond]);
+	       v.push_back(p);
+	    }
+	 }
+      }
+   }
    return v;
 }
 
@@ -1744,12 +1869,16 @@ widgeted_molecule_t::flip(int axis) {
 	 if (bond.get_bond_type() == lig_build::bond_t::DOUBLE_BOND) {
 
 	    std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
+	       other_connections_to_first_atom =
+	       make_other_connections_to_first_atom_info(ibond);
+	    std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
 	       other_connections_to_second_atom =
 	       make_other_connections_to_second_atom_info(ibond);
 	    widgeted_bond_t new_bond(bond.get_atom_1_index(), bond.get_atom_2_index(),
 				     atoms[bond.get_atom_1_index()], atoms[bond.get_atom_2_index()],
 				     shorten_first, shorten_second,
 				     lig_build::bond_t::DOUBLE_BOND,
+				     other_connections_to_first_atom,
 				     other_connections_to_second_atom,
 				     NULL);
 	    bonds[ibond] = new_bond;

@@ -185,7 +185,7 @@ int main(int argc, char **argv) {
 
 	 for (unsigned int i=0; i<types.size(); i++) { 
 	    std::pair<bool, coot::dictionary_residue_restraints_t> r =
-	       geom.get_monomer_restraints(types[0]);
+	       geom.get_monomer_restraints(types[0], coot::protein_geometry::IMOL_ENC_ANY);
 	    if (r.first) { // how can it not be?
 
 	       if (! r.second.is_filled()) {

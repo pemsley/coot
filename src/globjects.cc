@@ -775,6 +775,7 @@ short int graphics_info_t::guile_gui_loaded_flag = FALSE;
 short int graphics_info_t::python_gui_loaded_flag = FALSE;
 
 //
+bool  graphics_info_t::find_ligand_do_real_space_refine_ = true; // default on
 int   graphics_info_t::find_ligand_map_mol_ = -1;
 int   graphics_info_t::find_ligand_protein_mol_ = -1;
 bool  graphics_info_t::find_ligand_here_cluster_flag = 0;
@@ -2186,16 +2187,16 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       }
 
 
-      if (false) { 
+      if (true) {
 	 glPushMatrix();
 	 glLoadIdentity();
-	 GLfloat  light_0_position[] = { -1.0,  1.0, 1.0, 0.0};
-	 GLfloat  light_1_position[] = {  1.0,  0.2, 1.0, 0.0};
-	 GLfloat  light_2_position[] = {  1.0,  1.0, 1.0, 0.0};
+	 GLfloat  light_0_position[] = {  1.0,  1.0, 1.0, 0.0};
+	 GLfloat  light_1_position[] = {  1.0, -0.4, 1.0, 0.0};
+	 GLfloat  light_2_position[] = {  1.0, -1.0, 1.0, 0.0};
 
-	 glLightfv(GL_LIGHT0,   GL_POSITION, light_0_position);
-	 glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
-	 glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
+	 glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
+	 glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);
+	 glLightfv(GL_LIGHT2, GL_POSITION, light_2_position);
 	 glPopMatrix();
       }
 

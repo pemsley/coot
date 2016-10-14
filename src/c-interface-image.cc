@@ -54,7 +54,7 @@ GtkWidget *test_get_image_widget_for_comp_id(const std::string &comp_id) {
 }
 
 
-GtkWidget *get_image_widget_for_comp_id(const std::string &comp_id) {
+GtkWidget *get_image_widget_for_comp_id(const std::string &comp_id, int imol) {
 
    GtkWidget *r = 0;
 
@@ -64,7 +64,7 @@ GtkWidget *get_image_widget_for_comp_id(const std::string &comp_id) {
    graphics_info_t g;
    g.Geom_p()->try_dynamic_add(comp_id, g.cif_dictionary_read_number++);
    std::pair<bool, coot::dictionary_residue_restraints_t> dict =
-      g.Geom_p()->get_monomer_restraints(comp_id);
+      g.Geom_p()->get_monomer_restraints(comp_id, imol);
    
    if (dict.first) {
 
