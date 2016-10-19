@@ -6328,13 +6328,26 @@ molecule_class_info_t::draw_display_list_objects(int GL_context) {
 
 //    std::cout << "draw_display_list_objects() display_list_tags.size() " << display_list_tags.size() << std::endl;
 //    std::cout << "draw_display_list_objects() add_reps.size() " << add_reps.size() << std::endl;
-   
+
+   GLfloat  ambientLight[] = { 0.1f, 0.1f, 0.1f, 0.1f };
+   GLfloat  diffuseLight[] = { 0.5f, 0.5f, 0.5f, 0.5f };
+   GLfloat specularLight[] = { 0.7f, 0.7f, 0.7, 0.8f };
+
+   // Assign created components to GL_LIGHT2
+   glLightfv(GL_LIGHT1, GL_AMBIENT,  ambientLight);
+   glLightfv(GL_LIGHT1, GL_DIFFUSE,  diffuseLight);
+   glLightfv(GL_LIGHT1, GL_SPECULAR, specularLight);
+
    int n_objects = 0;
    if (draw_it) { 
       if (display_list_tags.size() > 0) { 
 	 glEnable(GL_LIGHTING);
 	 glEnable(GL_LIGHT0);
 	 glEnable(GL_LIGHT1);
+	 glEnable(GL_LIGHT2);
+	 // glDisable(GL_LIGHT0);
+	 // glDisable(GL_LIGHT1);
+	 // glDisable(GL_LIGHT2);
 	 std::vector<coot::display_list_object_info>::const_iterator it;
 	 for (it=display_list_tags.begin(); it!=display_list_tags.end(); it++) {
 	    if (! it->is_closed) { 

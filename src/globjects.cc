@@ -1729,7 +1729,7 @@ setup_lighting(short int do_lighting_flag) {
       // 
       GLfloat  light_0_position[] = { 1.0,  1.0, 1.0, 0.0};
       GLfloat  light_1_position[] = {-1.0,  0.0, 1.0, 0.0};
-      GLfloat  light_2_position[] = { 0.0, 0.0, 0.0, 0.0};
+      GLfloat  light_2_position[] = { 0.0,  0.0, 0.0, 0.0};
 
       glClearColor(0.0, 0.0, 0.0, 0.0);
       glShadeModel(GL_SMOOTH);
@@ -2138,8 +2138,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 glPushMatrix();
 	 glLoadIdentity();
 	 GLfloat  light_0_position[] = {  1.0,  1.0, 1.0, 0.0};
-	 GLfloat  light_1_position[] = {  1.0, -0.4, 1.0, 0.0};
-	 GLfloat  light_2_position[] = {  1.0, -1.0, 1.0, 0.0};
+	 GLfloat  light_1_position[] = {  0.6, -0.7, 1.0, 0.0};
+	 GLfloat  light_2_position[] = {  0.7, -0.7, 1.0, 0.0};
 
 	 glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
 	 glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);
