@@ -1406,6 +1406,60 @@ coot::get_selection_handle(mmdb::Manager *mol, const coot::atom_spec_t &at) {
    return SelHnd;
 }
 
+// caller deletes the selection!
+int
+coot::specs_to_atom_selection(const std::vector<coot::residue_spec_t> &specs,
+			      mmdb::Manager *mol,
+			      int atom_mask_mode) {
+
+   int SelHnd = -1;
+   if (mol) {
+      SelHnd = mol->NewSelection();
+      for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++) {
+
+	 std::string res_name_selection  = "*";
+	 std::string atom_name_selection = "*";
+
+	 if (atom_mask_mode != 0) { // main chain for standard amino acids
+	    mmdb::Residue *res = util::get_residue(specs[ilocal], mol);
+	    if (res) {
+	       std::string residue_name(res->GetResName());
+	       if (util::is_standard_residue_name(residue_name)) { 
+
+		  // PDBv3 FIXME
+		  // 
+		  if (atom_mask_mode == 1)
+		     atom_name_selection = " N  , H  , HA , CA , C  , O  ";
+		  if (atom_mask_mode == 2)
+		     atom_name_selection = "!( N  , H  , HA , CA , C  , O  )";
+		  if (atom_mask_mode == 3)
+		     atom_name_selection = "!( N  , H  , HA , CA , C  , O  , CB )";
+	       } else {
+		  if (atom_mask_mode == 4)
+		     atom_name_selection = "%%%%%%"; // nothing (perhaps use "")
+		  if (atom_mask_mode == 5)
+		     atom_name_selection = "%%%%%%"; // nothing
+	       }
+	    }
+	 }
+
+	 mol->SelectAtoms(SelHnd, 1,
+			  specs[ilocal].chain_id.c_str(),
+			  specs[ilocal].res_no,
+			  specs[ilocal].ins_code.c_str(),
+			  specs[ilocal].res_no,
+			  specs[ilocal].ins_code.c_str(),
+			  res_name_selection.c_str(),
+			  atom_name_selection.c_str(), 
+			  "*", // elements
+			  "*", // alt loc.
+			  mmdb::SKEY_OR
+			  );
+      }
+   }
+   return SelHnd;
+}
+
 
 // deleted by calling process
 std::pair<mmdb::Manager *, std::vector<coot::residue_spec_t> >
