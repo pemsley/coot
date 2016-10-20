@@ -1735,18 +1735,11 @@ setup_lighting(short int do_lighting_flag) {
 
       // w = 0.0 means directional light
       //
-      // GL_LIGHT2 is for cut-glass mode, don't turn it on here.
-      //
-
-      // Setting the light position here doesn't work.
-      // Set the light positions after the object have been drawn. 
-      
-      glPushMatrix();
-      glLoadIdentity();
-
-      GLfloat  light_0_position[] = { 1.0,  1.0,  1.0, 0.0};
-      GLfloat  light_1_position[] = {-1.0,  0.0,  1.0, 0.0};
-      GLfloat  light_2_position[] = { 0.0,  0.0, -1.0, 0.0};
+      // GL_LIGHT2 is for cut-glass mode
+      // 
+      GLfloat  light_0_position[] = { 1.0,  1.0, 1.0, 0.0};
+      GLfloat  light_1_position[] = {-1.0,  0.0, 1.0, 0.0};
+      GLfloat  light_2_position[] = { 0.0,  0.0, 0.0, 0.0};
 
       glClearColor(0.0, 0.0, 0.0, 0.0);
       glShadeModel(GL_SMOOTH);
@@ -2191,8 +2184,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 glPushMatrix();
 	 glLoadIdentity();
 	 GLfloat  light_0_position[] = {  1.0,  1.0, 1.0, 0.0};
-	 GLfloat  light_1_position[] = {  1.0, -0.4, 1.0, 0.0};
-	 GLfloat  light_2_position[] = {  1.0, -1.0, 1.0, 0.0};
+	 GLfloat  light_1_position[] = {  0.6, -0.7, 1.0, 0.0};
+	 GLfloat  light_2_position[] = {  0.7, -0.7, 1.0, 0.0};
 
 	 glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
 	 glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);

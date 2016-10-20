@@ -2228,61 +2228,6 @@ coot::util::qq_plot_for_map_over_model(mmdb::Manager *mol,
    return qq.qq_norm();
 }
 
-// caller deletes the selection!
-int
-coot::util::specs_to_atom_selection(const std::vector<coot::residue_spec_t> &specs,
-				    mmdb::Manager *mol,
-				    int atom_mask_mode) {
-
-   int SelHnd = -1;
-   if (mol) {
-      SelHnd = mol->NewSelection();
-      for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++) {
-
-	 std::string res_name_selection  = "*";
-	 std::string atom_name_selection = "*";
-
-	 if (atom_mask_mode != 0) { // main chain for standard amino acids
-	    mmdb::Residue *res = get_residue(specs[ilocal], mol);
-	    if (res) {
-	       std::string residue_name(res->GetResName());
-	       if (is_standard_residue_name(residue_name)) { 
-
-		  // PDBv3 FIXME
-		  // 
-		  if (atom_mask_mode == 1)
-		     atom_name_selection = " N  , H  , HA , CA , C  , O  ";
-		  if (atom_mask_mode == 2)
-		     atom_name_selection = "!( N  , H  , HA , CA , C  , O  )";
-		  if (atom_mask_mode == 3)
-		     atom_name_selection = "!( N  , H  , HA , CA , C  , O  , CB )";
-	       } else {
-		  if (atom_mask_mode == 4)
-		     atom_name_selection = "%%%%%%"; // nothing (perhaps use "")
-		  if (atom_mask_mode == 5)
-		     atom_name_selection = "%%%%%%"; // nothing
-	       }
-	    }
-	 }
-
-	 mol->SelectAtoms(SelHnd, 1,
-			  specs[ilocal].chain_id.c_str(),
-			  specs[ilocal].res_no,
-			  specs[ilocal].ins_code.c_str(),
-			  specs[ilocal].res_no,
-			  specs[ilocal].ins_code.c_str(),
-			  res_name_selection.c_str(),
-			  atom_name_selection.c_str(), 
-			  "*", // elements
-			  "*", // alt loc.
-			  mmdb::SKEY_OR
-			  );
-      }
-   }
-   return SelHnd;
-}
-
-
 
 std::vector<float>
 coot::util::density_map_points_in_sphere(clipper::Coord_orth pt, float search_radius, const clipper::Xmap<float> &xmap) {

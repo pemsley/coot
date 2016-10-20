@@ -526,8 +526,33 @@ void generate_local_self_restraints(int imol, const char *chain_id, float local_
 								      *graphics_info_t::Geom_p());
    } 
    graphics_draw();
-} 
+}
 
+
+
+#ifdef USE_GUILE
+void generate_local_self_restraints_by_residues_scm(int imol, SCM residue_specs_scm, float local_dist_max) {
+
+   std::vector<coot::residue_spec_t> residue_specs = scm_to_residue_specs(residue_specs_scm);
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].generate_local_self_restraints(local_dist_max, residue_specs,
+								      *graphics_info_t::Geom_p());
+      graphics_draw();
+   }
+}
+#endif // USE_GUILE
+#ifdef USE_PYTHON
+void generate_local_self_restraints_by_residues_py(int imol, PyObject *residue_specs_py,
+						   float local_dist_max) {
+
+   std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(residue_specs_py);
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].generate_local_self_restraints(local_dist_max, residue_specs,
+								      *graphics_info_t::Geom_p());
+      graphics_draw();
+   }
+}
+#endif // USE_PYTHON
 
 
 /* ! \brief delete the restraints for the given comp_id (i.e. residue name)  */
@@ -557,8 +582,7 @@ int add_extra_bond_restraint(int imol, const char *chain_id_1, int res_no_1, con
    }
    return r;
 
-} 
-
+}
 
 int add_extra_torsion_restraint(int imol, 
 				const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, 
