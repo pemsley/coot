@@ -6326,12 +6326,13 @@ molecule_class_info_t::has_display_list_objects() {
 int 
 molecule_class_info_t::draw_display_list_objects(int GL_context) {
 
-//    std::cout << "draw_display_list_objects() display_list_tags.size() " << display_list_tags.size() << std::endl;
-//    std::cout << "draw_display_list_objects() add_reps.size() " << add_reps.size() << std::endl;
+   //    std::cout << "draw_display_list_objects() display_list_tags.size() " << display_list_tags.size()
+   // << std::endl;
+   //    std::cout << "draw_display_list_objects() add_reps.size() " << add_reps.size() << std::endl;
 
-   GLfloat  ambientLight[] = { 0.1f, 0.1f, 0.1f, 0.1f };
-   GLfloat  diffuseLight[] = { 0.5f, 0.5f, 0.5f, 0.5f };
-   GLfloat specularLight[] = { 0.7f, 0.7f, 0.7, 0.8f };
+   GLfloat  ambientLight[] = { 0.1f, 0.1f, 0.1f, 0.f };
+   GLfloat  diffuseLight[] = { 0.5f, 0.5f, 0.5f, 0.f };
+   GLfloat specularLight[] = { 0.5f, 0.5f, 0.5f, 0.f };
 
    // Assign created components to GL_LIGHT2
    glLightfv(GL_LIGHT1, GL_AMBIENT,  ambientLight);
