@@ -130,7 +130,8 @@ main(int argc, char **argv) {
 
       coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
       bool do_trans_peptide_restraints = false;
-      restraints.make_restraints(geom, flags, 1, do_trans_peptide_restraints,
+      int imol = 0; // dummy
+      restraints.make_restraints(imol, geom, flags, 1, do_trans_peptide_restraints,
 				 0.0, 0, pseudos);
 
       restraints.set_do_numerical_gradients();

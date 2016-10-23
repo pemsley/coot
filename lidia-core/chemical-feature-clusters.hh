@@ -128,8 +128,6 @@ namespace coot {
       std::vector<simple_chemical_feature_attributes>
       get_chemical_features(int imol, residue_spec_t lig_spec, mmdb::Manager *mol);
 
-      bool cluster_waters(const std::vector<chem_feat_solvated_ligand_spec> &ligands);
-
       // check that the ligand specs point to real residues
       bool fill_ligands(const std::vector<chem_feat_solvated_ligand_spec> &ligands_in);
 

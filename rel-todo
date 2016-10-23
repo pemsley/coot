@@ -1,6 +1,8 @@
 
    For Release 0.8.8
 
+   o Fix make check on test chemical features
+
    o New EDS Location [John Berrisford]
 
    o Get some RNA - check that base pair restraints generation works
