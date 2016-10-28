@@ -694,6 +694,9 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
       } else {
 	 if (debug)
 	    std::cout << "debug:: minMatch is " << minMatch << std::endl;
+
+	 // match.SetMaxNofMatches(100, true); // only need find first 100 matches
+	 match.SetTimeLimit(2); // seconds
 	 match.MatchGraphs(g_1, g_2, minMatch, vertext_type);
 	 int n_match = match.GetNofMatches();
 	 if (debug) 

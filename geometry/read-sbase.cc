@@ -59,7 +59,9 @@ coot::protein_geometry::read_ccp4srs_residues() {
 	 } else {
 	    std::cout << "WARNING:: structure " << local_residue_codes[i]
 		      << " not found in CCP4SRS " << std::endl;
-	 } 
+	 }
+	 delete monomer_p;
+	 monomer_p = NULL;
       }
    } else {
       std::cout << "WARNING:: CCP4SRS not initialised"  << std::endl;
@@ -209,16 +211,26 @@ coot::protein_geometry::init_ccp4srs(const std::string &ccp4srs_monomer_dir_in) 
 bool
 coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 
-#ifdef HAVE_CCP4SRS
-
    bool success = false;
-   coot::dictionary_residue_restraints_t rest(true); // constructor for CCP4SRS
-   rest.residue_info.comp_id = monomer_type;
+#ifdef HAVE_CCP4SRS
+   dictionary_residue_restraints_t rest;
+   success = rest.fill_using_ccp4srs(ccp4srs, monomer_type);
+#endif
+   return false;
+}
+
+#ifdef HAVE_CCP4SRS
+bool
+coot::dictionary_residue_restraints_t::fill_using_ccp4srs(ccp4srs::Manager *srs_manager,
+							  const std::string &monomer_type) {
    
-   if (! ccp4srs) {
+   bool success = false;
+   residue_info.comp_id = monomer_type;
+
+   if (! srs_manager) {
      std::cout << "WARNING:: fill_using_ccp4srs() Null CCP4SRS database " << std::endl;
    } else { 
-      ccp4srs::Monomer *monomer_p = ccp4srs->getMonomer(monomer_type.c_str());
+      ccp4srs::Monomer *monomer_p = srs_manager->getMonomer(monomer_type.c_str());
       if (! monomer_p) {
 	std::cout << "WARNING:: Null monomer ccp4srs::getMonomer()" << std::endl;
       } else { 
@@ -245,7 +257,7 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 			    number_atoms_all,
 			    number_atoms_nh,
 			    description_level);
-	 rest.residue_info = d;
+	 residue_info = d;
 	 
 
 	 // atoms
@@ -284,10 +296,10 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
                dict_at.add_pos(dict_atom::REAL_MODEL_POS, p);
             }
 
-	    rest.atom_info.push_back(dict_at);
+	    atom_info.push_back(dict_at);
 	 }
 
-	 if (rest.atom_info.size() > 1) {
+	 if (atom_info.size() > 1) {
 
 	    // bonds
 	 
@@ -341,7 +353,7 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 
 	       coot::dict_bond_restraint_t dict_bond(atom_name_1, atom_name_2, type, dist, esd);
 	       success = true;
-	       rest.bond_restraint.push_back(dict_bond);
+	       bond_restraint.push_back(dict_bond);
 	    }
 
 	    // angles
@@ -358,7 +370,7 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 	       std::string atom_name_3 = monomer_p->atom(ind_3)->name();
 	       coot::dict_angle_restraint_t dict_angle(atom_name_1, atom_name_2, atom_name_3,
 						       value, esd);
-	       rest.angle_restraint.push_back(dict_angle);
+	       angle_restraint.push_back(dict_angle);
 	    }
 
 	    // torsions
@@ -379,7 +391,7 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 	       coot::dict_torsion_restraint_t dict_torsion(id,
 							   atom_name_1, atom_name_2, atom_name_3, atom_name_4,
 							   value, esd, period);
-	       rest.torsion_restraint.push_back(dict_torsion);
+	       torsion_restraint.push_back(dict_torsion);
 	    }
 
 	    // chirals
@@ -399,7 +411,7 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 	       coot::dict_chiral_restraint_t dict_chiral(id,
 							 atom_name_c, atom_name_1, atom_name_2, atom_name_3, 
 							 sign);
-	       rest.chiral_restraint.push_back(dict_chiral);
+	       chiral_restraint.push_back(dict_chiral);
 	    }
 
 	    // planes
@@ -415,27 +427,23 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 	       }
 	       double esd = plane->esds()[0];
 	       coot::dict_plane_restraint_t dict_plane(id, atom_names, esd);
-	       rest.plane_restraint.push_back(dict_plane);
+	       plane_restraint.push_back(dict_plane);
 	    }
 	 }
       }
    }
    if (success) {
-      std::cout << "INFO:: adding restraint " << rest.atom_info.size() << " atoms and "
-		<< rest.bond_restraint.size() << " bonds, " 
-                << rest.angle_restraint.size() << " angles, " 
-                << rest.torsion_restraint.size() << " torsions," 
-                << rest.chiral_restraint.size() << " chirals " 
-                << rest.plane_restraint.size() << std::endl;
-      int imol = 0; // dummy
-      add(imol, rest);
+      if (false) // debugging
+	 std::cout << "INFO:: adding restraint from SRS " << atom_info.size() << " atoms and "
+		   << bond_restraint.size() << " bonds, " 
+		   << angle_restraint.size() << " angles, " 
+		   << torsion_restraint.size() << " torsions," 
+		   << chiral_restraint.size() << " chirals " 
+		   << plane_restraint.size() << std::endl;
    }
-
    return success;
-#else
-   return false;
-#endif      
 }
+#endif // HAVE_CCP4SRS
 
 
 // A new pdb file has been read in (say).  The residue types
@@ -448,7 +456,7 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 bool
 coot::protein_geometry::try_load_ccp4srs_description(const std::vector<std::string> &comp_ids_with_duplicates) {
 
-#ifdef HAVE_CCP4SRS   
+#ifdef HAVE_CCP4SRS
    bool status = false; // none added initially.
 
    std::vector<std::string> uniques;
@@ -458,7 +466,6 @@ coot::protein_geometry::try_load_ccp4srs_description(const std::vector<std::stri
 	 uniques.push_back(comp_ids_with_duplicates[ic]);
    }
 
-   
    if (ccp4srs) {
       for (unsigned int i=0; i<uniques.size(); i++) {
 	 std::cout << i << " " << uniques[i] << std::endl;
@@ -633,8 +640,12 @@ coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1,
 		     }
 		  }
 	       }
+	       delete graph_2; // fixes memory leak?
+	       graph_2 = NULL;
 	    }
 	 }
+	 delete Monomer;
+	 Monomer = NULL;
       }
    }
    return v;
