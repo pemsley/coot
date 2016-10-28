@@ -1,6 +1,7 @@
 
    For Release 0.8.8
 
+
    o Fetch molecule: acyclovir, (edit?) click Apply
  
    o Pyrogen chirality: Using CCD files as input, make a dictionary and either validate the coordinates 
@@ -9,6 +10,8 @@
    o Pyrogen: add command line arguement to keep the coordinates from the input CCD/mmcif file
 
    o when mutating to MSE atoms become HETATMs.
+
+   o Fix make check on test chemical features
 
    o New EDS Location [John Berrisford]
 

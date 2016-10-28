@@ -29,6 +29,12 @@ int main(int argc, char **argv) {return 0;}
 
 #include "bond-record-container-t.hh"
 
+#include "geometry/residue-and-atom-specs.hh"
+
+#include "coords/mmdb-extras.h"
+#include "coords/mmdb.h"
+
+
 // rdkit_mol is not const because there is no const beginAtoms() operator.
 // 
 void write_types(RDKit::RWMol &rdkm) {
@@ -88,7 +94,8 @@ void molecule_from_ccd_pdbx(const std::string &comp_id,
    geom.init_refmac_mon_lib(file_name, read_number++);
 
    bool idealised_flag = true;
-   mmdb::Manager *mol = geom.mol_from_dictionary(comp_id, idealised_flag);
+   int imol = 0; // dummy
+   mmdb::Manager *mol = geom.mol_from_dictionary(comp_id, imol, idealised_flag);
 
    if (! mol) {
       std::cout << "Null mol from mol_from_dictionary() for " <<  comp_id << std::endl;
@@ -101,7 +108,7 @@ void molecule_from_ccd_pdbx(const std::string &comp_id,
 		   << comp_id << std::endl;
       } else {
 	 try {
-	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, geom);
+	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, geom);
 	    write_types(rdkm);
 	 }
 
@@ -120,9 +127,10 @@ void molecule_from_comp_id(const std::string &comp_id) {
       // std::string three_letter_code = "001"; // nice test
       // std::string three_letter_code = "0PY"; // simple
       // std::string three_letter_code = "06C"; // simplest
-	 
+
+      int imol = 0; // dummy
       bool idealised_flag = true;
-      mmdb::Manager *mol = geom.mol_from_dictionary(comp_id, idealised_flag);
+      mmdb::Manager *mol = geom.mol_from_dictionary(comp_id, imol, idealised_flag);
 
       if (! mol) {
 	 std::cout << "Null mol from mol_from_dictionary() for " <<  comp_id << std::endl;
@@ -136,7 +144,7 @@ void molecule_from_comp_id(const std::string &comp_id) {
 		      << comp_id << std::endl;
 	 } else { 
 
-	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, geom);
+	    RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, geom);
 	    coot::debug_rdkit_molecule(&rdkm);
 
 	    write_types(rdkm);
@@ -204,11 +212,6 @@ void read_tables(const std::string &tables_dir_name) {
    
 }
 
-#include "coot-utils/residue-and-atom-specs.hh"
-
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
-
 void
 validate(const std::string &comp_id,
 	 const std::string &chain_id,
@@ -239,8 +242,9 @@ validate(const std::string &comp_id,
       int read_number = 0;
       geom.init_refmac_mon_lib(cif_file_name, read_number++);
 
+      int imol = 0; // dummy
       std::pair<bool, coot::dictionary_residue_restraints_t> p = 
-	 geom.get_monomer_restraints(comp_id);
+	 geom.get_monomer_restraints(comp_id, imol);
 
       if (p.first) {
 

@@ -2768,6 +2768,11 @@ public:        //                      public
    void generate_local_self_restraints(float local_dist_max,
 				       const std::string &chain_id,
 				       const coot::protein_geometry &geom);
+   void generate_local_self_restraints(float local_dist_max,
+				       const std::vector<coot::residue_spec_t> &residue_specs,
+				       const coot::protein_geometry &geom);
+   void generate_local_self_restraints(int selHnd, float local_dist_max,
+				       const coot::protein_geometry &geom);
 
    void add_parallel_plane_restraint(coot::residue_spec_t spec_1,
 				     coot::residue_spec_t spec_2);

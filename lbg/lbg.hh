@@ -825,7 +825,8 @@ private:
 						 mmdb::math::GraphMatch &match, int n_match, 
 						 ccp4srs::Monomer *monomer_p) const;
 #endif   
-   void display_search_results(const std::vector<coot::match_results_t> &v) const;
+   // not const because try_dynamic_add() can be called (to make images):
+   void display_search_results(const std::vector<coot::match_results_t> &v);
    void rotate_latest_bond(int x, int y);
    void rotate_or_extend_latest_bond(int x, int y);
    bool extend_latest_bond_maybe(); // use hilight_data
@@ -978,16 +979,17 @@ private:
    double bottom_of_flev_items();
 
    // geometry
-   const coot::protein_geometry *geom_p;
+   // (not const so that we can call try_dynamic_add())
+   coot::protein_geometry *geom_p;
 
 public:
-   lbg_info_t(GtkWidget *canvas_in, const coot::protein_geometry *geom_p_in) {
+   lbg_info_t(GtkWidget *canvas_in, coot::protein_geometry *geom_p_in) {
       canvas = canvas_in;
       init_internal();
       geom_p = geom_p_in;
    }
    lbg_info_t() { init_internal(); }
-   lbg_info_t(int imol_in, const coot::protein_geometry *geom_p_in) {
+   lbg_info_t(int imol_in, coot::protein_geometry *geom_p_in) {
       init_internal();
       geom_p = geom_p_in;
       imol = imol_in;
@@ -1111,8 +1113,9 @@ public:
    void update_descriptor_attributes(); // this is not in render_from_molecule() because it can/might be slow.
    void delete_hydrogens();
    void undo();
-#ifdef HAVE_CCP4SRS   
-   void search() const;
+#ifdef HAVE_CCP4SRS
+   // not const because try_dynamic_add() can be called.
+   void search();
 #endif   
    void import_molecule_from_file(const std::string &file_name); // mol or cif
    void import_molecule_from_cif_file(const std::string &file_name); // cif
@@ -1310,6 +1313,11 @@ public:
    void new_lbg_window();
    void clean_up_2d_representation(); // using rdkit
 
+#ifdef HAVE_CCP4SRS
+   // not const because we can call geom_p->try_dynamic_add()
+   GtkWidget *get_image_widget_for_comp_id(const std::string &comp_id, int imol, ccp4srs::Manager *srs_manager);
+#endif // HAVE_CCP4SRS
+
    void pe_test_function();
 
    // ----------------------------------------------------- functions from src ----------------------
@@ -1396,7 +1404,7 @@ lbg_info_t *lbg(lig_build::molfile_molecule_t mm,
 		const std::string &view_name, // annotate the decoration
 		const std::string &molecule_file_name,
 		int imol, // molecule number of the molecule of the
-		const coot::protein_geometry *geom_p_in,
+		coot::protein_geometry *geom_p_in,
 			  // layed-out residue
 		bool use_graphics_interface_flag,
 		bool stand_alone_flag_in,

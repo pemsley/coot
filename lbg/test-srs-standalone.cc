@@ -107,6 +107,7 @@ get_graph_2() {
    return graph;
 }
 
+#ifdef HAVE_CCP4SRS
 void
 init_ccp4srs(ccp4srs::Manager *ccp4srs) {
 
@@ -119,6 +120,7 @@ init_ccp4srs(ccp4srs::Manager *ccp4srs) {
       std::cout << "CCP4SRS init problem." << std::endl;
    }
 }
+#endif // HAVE_CCP4SRS
 
 #ifdef HAVE_CCP4SRS
 std::vector<match_results_t>

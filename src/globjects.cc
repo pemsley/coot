@@ -1735,30 +1735,20 @@ setup_lighting(short int do_lighting_flag) {
 
       // w = 0.0 means directional light
       //
-      // GL_LIGHT2 is for cut-glass mode, don't turn it on here.
-      //
-
-      // Setting the light position here doesn't work.
-      // Set the light positions after the object have been drawn. 
-      
-      glPushMatrix();
-      glLoadIdentity();
-
-      GLfloat  light_0_position[] = { 1.0,  1.0,  1.0, 0.0};
-      GLfloat  light_1_position[] = {-1.0,  0.0,  1.0, 0.0};
-      GLfloat  light_2_position[] = { 0.0,  0.0, -1.0, 0.0};
-
+      // GL_LIGHT2 is for cut-glass mode
+      // 
       glClearColor(0.0, 0.0, 0.0, 0.0);
       glShadeModel(GL_SMOOTH);
 
-      // glLightfv(GL_LIGHT0,   GL_POSITION, light_0_position);
-      // glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
-      // glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
 
       GLfloat light_ambient[]  = { 0.7, 0.7, 0.7, 0.6 };
       GLfloat light_diffuse[]  = { 0.6, 0.6, 0.6, 0.6 };
       GLfloat light_specular[] = { 0.6, 0.6, 0.6, 0.6 };
       GLfloat light_position[] = { 0.6, 0.6, 0.6, 0.0 };
+
+      glLightfv(GL_LIGHT0,   GL_POSITION, light_0_position);
+      glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
+      glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
 
       glLightfv(GL_LIGHT0, GL_AMBIENT,  light_ambient);
       glLightfv(GL_LIGHT0, GL_DIFFUSE,  light_diffuse);
@@ -1768,7 +1758,7 @@ setup_lighting(short int do_lighting_flag) {
       glLightfv(GL_LIGHT1, GL_AMBIENT,  light_ambient);
       glLightfv(GL_LIGHT1, GL_DIFFUSE,  light_diffuse);
       glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
-      glLightfv(GL_LIGHT1, GL_POSITION, light_position);      
+      glLightfv(GL_LIGHT1, GL_POSITION, light_position);
 
       glEnable(GL_LIGHT0);
       glEnable(GL_LIGHT1);
@@ -2191,8 +2181,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 glPushMatrix();
 	 glLoadIdentity();
 	 GLfloat  light_0_position[] = {  1.0,  1.0, 1.0, 0.0};
-	 GLfloat  light_1_position[] = {  1.0, -0.4, 1.0, 0.0};
-	 GLfloat  light_2_position[] = {  1.0, -1.0, 1.0, 0.0};
+	 GLfloat  light_1_position[] = {  0.6, -0.7, 1.0, 0.0};
+	 GLfloat  light_2_position[] = {  0.7, -0.7, 1.0, 0.0};
 
 	 glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
 	 glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);

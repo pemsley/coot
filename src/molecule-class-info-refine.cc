@@ -302,9 +302,6 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
 						      const coot::protein_geometry &geom) {
 
 
-   // clear what's already there - if anything
-   extra_restraints.bond_restraints.clear();
-   
    // Find all the contacts in chain_id that are less than or equal to local_dist_max
    // that are not bonded or related by an angle.
 
@@ -317,6 +314,17 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
 			     "*",
 			     "*", // elements
 			     "*"); // alt locs
+
+   generate_local_self_restraints(selHnd, local_dist_max, geom);
+}
+
+void
+molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_dist_max,
+						      const coot::protein_geometry &geom) {
+
+   // clear what's already there - if anything
+   extra_restraints.bond_restraints.clear();
+   
    int nSelAtoms;
    mmdb::PPAtom SelAtom; 
    atom_sel.mol->GetSelIndex(selHnd, SelAtom, nSelAtoms);
@@ -423,7 +431,22 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
        update_extra_restraints_representation();
        
    atom_sel.mol->DeleteSelection(selHnd);
-} 
+}
+
+void
+molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
+						      const std::vector<coot::residue_spec_t> &residue_specs,
+						      const coot::protein_geometry &geom) {
+
+   // Find all the contacts in chain_id that are less than or equal to local_dist_max
+   // that are not bonded or related by an angle.
+
+   int selHnd = coot::specs_to_atom_selection(residue_specs, atom_sel.mol, 0);
+   if (selHnd >= 0) {
+      generate_local_self_restraints(selHnd, local_dist_max, geom);
+   }
+}
+
 
 
 

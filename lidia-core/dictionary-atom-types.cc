@@ -82,7 +82,8 @@ int main(int argc, char **argv) {
 
       const std::string &comp_id = r.residue_info.comp_id;
       bool idealised_flag = true;
-      mmdb::Manager *mol = geom.mol_from_dictionary(comp_id, idealised_flag);
+      int imol = 0; // dummy
+      mmdb::Manager *mol = geom.mol_from_dictionary(comp_id, imol, idealised_flag);
 
       if (! mol) {
 	 std::cout << "Null mol from mol_from_dictionary() for " <<  comp_id << std::endl;
@@ -97,7 +98,7 @@ int main(int argc, char **argv) {
 	 } else { 
 
 	    try { 
-	       RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, geom);
+	       RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, geom);
 
 	       cod::atom_types_t t;
 	       std::vector<cod::atom_type_t> v = t.get_cod_atom_types(rdkm);
@@ -197,7 +198,8 @@ int main(int argc, char **argv) {
 
       const std::string &comp_id = r.residue_info.comp_id;
       bool idealised_flag = true;
-      mmdb::Manager *mol = geom.mol_from_dictionary(comp_id, idealised_flag);
+      int imol = 0; // dummy
+      mmdb::Manager *mol = geom.mol_from_dictionary(comp_id, imol, idealised_flag);
 
       if (! mol) {
 	 std::cout << "Null mol from mol_from_dictionary() for " <<  comp_id << std::endl;
@@ -212,7 +214,7 @@ int main(int argc, char **argv) {
 	 } else { 
 
 	    try { 
-	       RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, geom);
+	       RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, geom);
 	       cod::atom_types_t t;
 	       std::vector<cod::atom_type_t> v = t.get_cod_atom_types(rdkm);
 	       if (v.size() == r.atom_info.size()) {

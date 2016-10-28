@@ -19,12 +19,12 @@
  * 02110-1301, USA
  */
 
-// header-here
-
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
-#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh" // this is out of order.  Hmmm.
 #include "chemical-feature-clusters.hh"
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 
 int main(int argc, char **argv) {
 
@@ -74,15 +74,15 @@ int main(int argc, char **argv) {
 		   << neighbs_waters.size() << " water neighbours for ligand "
 		   << ligand_spec << std::endl;
 
-	 coot::chem_feat_solvated_ligand_spec lig(ligand_spec, neighbs_waters,
-						  atom_sel.mol);
+	 int imol = 0; // dummy
+	 coot::chem_feat_solvated_ligand_spec lig(ligand_spec, neighbs_waters, atom_sel.mol, imol);
 	 ligands.push_back(lig);
-
       }
    }
 
-   coot::chem_feat_clust cl(neighbs_residues, ligands, &pg);
-   cl.cluster_waters();
+   double water_dist_cutoff = 7;
+   coot::chem_feat_clust cl(neighbs_residues, ligands, water_dist_cutoff, &pg);
+   cl.get_water_positions();
 
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 

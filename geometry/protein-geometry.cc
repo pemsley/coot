@@ -1225,6 +1225,21 @@ coot::dict_torsion_restraint_t::format() const {
 }
 
 
+std::ostream &
+coot::operator<<(std::ostream &s, const coot::dictionary_residue_restraints_t &rest) {
+
+   std::cout << "--- dict " << rest.residue_info.comp_id << std::endl;
+   std::cout << "    " << rest.atom_info.size() << " atoms" << std::endl;
+   for (unsigned int iat=0; iat<rest.atom_info.size(); iat++)
+      std::cout << "   " << rest.atom_info[iat] << std::endl;
+   std::cout << "    " << rest.bond_restraint.size() << " bonds" << std::endl;
+   for (unsigned int ibond=0; ibond<rest.bond_restraint.size(); ibond++)
+      std::cout << "   " << rest.bond_restraint[ibond] << std::endl;
+
+   return s;
+}
+
+
 
 
 
@@ -2613,9 +2628,12 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
 							int imol_enc,
 							bool allow_minimal_flag) const {
 
+   // 20161028
+   // Compiling with SRS causes a crash when we access dict_res_restraints.
+   // Needs more testing.
+
    coot::dictionary_residue_restraints_t t(std::string("(null)"), 0);
    std::pair<bool, dictionary_residue_restraints_t> r(0,t);
-
    unsigned int nrest = dict_res_restraints.size();
 
    // This is how it used to be - starting from the beginning.

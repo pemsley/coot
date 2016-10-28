@@ -201,12 +201,6 @@ namespace coot {
 				 int atom_mask_mode,
 				 const clipper::Xmap<float> &xmap);
 
-      // caller deletes the selection!
-      int
-      specs_to_atom_selection(const std::vector<coot::residue_spec_t> &specs,
-			      mmdb::Manager *mol,
-			      int atom_mask_mode);
-
       // return a map and its standard deviation.  scale is applied to
       // map_in_2 before substraction.
       std::pair<clipper::Xmap<float>, float>

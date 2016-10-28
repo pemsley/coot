@@ -495,8 +495,9 @@ bool
 Bond_lines_container::add_bond_by_dictionary_maybe(int imol, mmdb::Atom *atom_p_1,
 						   mmdb::Atom *atom_p_2,
 						   std::vector<std::pair<bool, mmdb::Residue *> > *het_residues) {
+
    bool bond_het_residue_by_dictionary = false;
-   if (have_dictionary) 
+   if (have_dictionary)
       if (atom_p_1->residue == atom_p_2->residue)
 	 if (atom_p_1->Het)
 	    if (atom_p_2->Het) {
@@ -608,7 +609,6 @@ Bond_lines_container::add_double_bond(int imol, int iat_1, int iat_2,
 				      const std::vector<coot::dict_bond_restraint_t> &bond_restraints,
 				      bool is_deloc) {
 
-   //
    std::string ele_1 = atoms[iat_1]->element;
    std::string ele_2 = atoms[iat_2]->element;
 
@@ -894,7 +894,7 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
 					     int atom_colour_type,
 					     short int have_udd_handle,
 					     int udd_handle) {
-   
+
    if (het_residues.size()) {
       for (unsigned int ires=0; ires<het_residues.size(); ires++) {
 	 if (het_residues[ires].first) {
@@ -1550,7 +1550,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 			std::string ele = non_Hydrogen_atoms[i]->element;
 			if (ele == "CL" || ele == "BR" || ele == " S" ||  ele == " I"
 			    || ele == "Cl" || ele == "Br"  || ele == "MO"
-			    || ele == "PT" || ele == "RU" 
+			    || ele == "PT" || ele == "RU" || ele == " W"
 			    || ele == "AS" || ele == " P" || ele == "AU" || ele == "HG"
 			    || ele == "PD" || ele == "PB" || ele == "AG") {
 			   handle_long_bonded_atom(non_Hydrogen_atoms[i], uddHnd, atom_colour_type);
