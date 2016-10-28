@@ -1,6 +1,10 @@
 
    For Release 0.8.8
 
+   o Ligand Builder -> Open [cif dictionary] Failures
+     110 (butyl carboxylic acid - Oxygen formal charge)
+
+
    o Fix make check on test chemical features
 
    o New EDS Location [John Berrisford]

@@ -2733,26 +2733,27 @@ on_cif_dictionary_fileselection_ok_button_clicked (GtkButton       *button,
   int imol_enc = -3;		/* unset value */
 
   fileselection = lookup_widget(GTK_WIDGET(button), "cif_dictionary_fileselection");
-  save_directory_from_fileselection(fileselection);
-  filename = gtk_file_selection_get_filename 
-    (GTK_FILE_SELECTION(fileselection));
 
-  dictionary_molecule_selector_option_menu = 
-    lookup_widget(GTK_WIDGET(button),
-		  "cif_dictionary_file_selector_molecule_select_option_menu");
-  if (dictionary_molecule_selector_option_menu) {
-    menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(dictionary_molecule_selector_option_menu));
-    if (menu) {
-      active_menu_item = gtk_menu_get_active(GTK_MENU(menu));
-      if (active_menu_item) {
-	imol_enc = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(active_menu_item), 
-						     "select_molecule_number"));
+  if (fileselection) { 		/* it might be a file chooser */
+    save_directory_from_fileselection(fileselection);
+    filename = gtk_file_selection_get_filename 
+      (GTK_FILE_SELECTION(fileselection));
+
+    dictionary_molecule_selector_option_menu = 
+      lookup_widget(GTK_WIDGET(button),
+		    "cif_dictionary_file_selector_molecule_select_option_menu");
+    if (dictionary_molecule_selector_option_menu) {
+      menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(dictionary_molecule_selector_option_menu));
+      if (menu) {
+	active_menu_item = gtk_menu_get_active(GTK_MENU(menu));
+	if (active_menu_item) {
+	  imol_enc = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(active_menu_item), 
+						       "select_molecule_number"));
+	}
       }
     }
+    handle_cif_dictionary_for_molecule(filename, imol_enc);
   }
-
-  handle_cif_dictionary_for_molecule(filename, imol_enc);
-
   gtk_widget_destroy(fileselection);
 }
 
