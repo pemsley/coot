@@ -31,8 +31,8 @@
 #include "clipper/core/coords.h"
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-#ifdef RDKIT_HAS_CAIRO_SUPPORT
 #include "geometry/srs-interface.hh"
+#ifdef RDKIT_HAS_CAIRO_SUPPORT
 #include <cairo.h>
 #include <MolDraw2DCairo.h>
 #include "lidia-core/rdkit-interface.hh"
