@@ -569,6 +569,7 @@ coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1,
       std::cout << "INFO:: compare_vs_ccp4srs(): found " << l << " entries in CCP4 SRS" << std::endl;
       mmdb::math::Graph  *graph_2 = NULL;
       int rc = 0;
+      mmdb::io::File *fp = NULL;
 
       if (srs_idx_start < 1) {
 	 srs_idx_start = 1;
@@ -580,11 +581,16 @@ coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1,
 	    srs_idx_end = l-1;
       }
       
-      for (int i=srs_idx_start; i<=srs_idx_end; i++)  {
-	 ccp4srs::Monomer *Monomer = ccp4srs->getMonomer(i, NULL);
-	 if (Monomer)  {
+      for (int i=srs_idx_start; i<=srs_idx_end; i++) {
+	 ccp4srs::Monomer *Monomer = ccp4srs->getMonomer(i, fp);
+	 if (! fp) // the first time it is null
+	    fp = ccp4srs->getStructFile();
+
+	 if (! Monomer)  {
+	    std::cout << "Null monomer " << i << std::endl;
+	 } else {
 	    std::string id = Monomer->ID();
-	    // std::cout << "i " << i <<  " monomer id  " << id << std::endl;
+	    // std::cout << "monomer index i " << i <<  " monomer id  " << id << std::endl;
 	    if (id.length()) {
 	       graph_2 = Monomer->getGraph(&rc);
 	       if (graph_2) {
