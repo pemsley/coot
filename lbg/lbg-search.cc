@@ -316,6 +316,7 @@ lbg_info_t::display_search_results(const std::vector<coot::match_results_t> &v) 
 	    int imol = 0; // dummy
 
 #ifdef HAVE_CCP4SRS
+#ifdef RDKIT_HAS_CAIRO_SUPPORT
 	    GtkWidget *wp = get_image_widget_for_comp_id(v[i].comp_id, imol, srs_manager);
 	    if (wp) {
 	       gtk_widget_show(wp);
@@ -326,6 +327,7 @@ lbg_info_t::display_search_results(const std::vector<coot::match_results_t> &v) 
 	    } else {
 	       std::cout << "Null image for " << v[i].comp_id << std::endl;
 	    }
+#endif
 #endif
 	    gtk_box_pack_start(GTK_BOX(button_hbox), label, FALSE, FALSE, 0);
 	    gtk_widget_show(label);
