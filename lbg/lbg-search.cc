@@ -321,8 +321,7 @@ lbg_info_t::display_search_results(const std::vector<coot::match_results_t> &v) 
 	    if (wp) {
 	       gtk_widget_show(wp);
 	       // std::cout << "adding image " << wp << std::endl;
-	       // gtk_button_set_image(GTK_BUTTON(button), image); // gtk-button-images needs to be true 
-	       // for us to see the image.
+	       // std::cout << "gtk_box_pack_start() " << button_hbox << " " << wp << std::endl;
 	       gtk_box_pack_start(GTK_BOX(button_hbox), wp, FALSE, FALSE, 0);
 	    } else {
 	       std::cout << "Null image for " << v[i].comp_id << std::endl;
@@ -357,7 +356,8 @@ lbg_info_t::get_image_widget_for_comp_id(const std::string &comp_id, int imol, c
    if (false) {
       // pass this
       int cif_dictionary_read_number = 53;
-      std::cout << "calling try_dynamic_add() on " << comp_id << " " << cif_dictionary_read_number << std::endl;
+      std::cout << "calling try_dynamic_add() on " << comp_id << " " << cif_dictionary_read_number
+		<< std::endl;
       if (geom_p)
 	 geom_p->try_dynamic_add(comp_id, cif_dictionary_read_number++);
    }
@@ -391,12 +391,23 @@ lbg_info_t::get_image_widget_for_comp_id(const std::string &comp_id, int imol, c
 	 int n_conf = rdk_mol_with_no_Hs.getNumConformers();
 	 // std::cout << "n_conf for " << comp_id << " is " << n_conf << std::endl;
 	 if (n_conf > 0) {
-	    std::string png_file_name = "image-" + comp_id + ".png";
-	    { 
+	    {
 	       RDKit::MolDraw2DCairo drawer(150, 150);
 	       drawer.drawMolecule(rdk_mol_with_no_Hs);
 	       drawer.finishDrawing();
 	       std::string dt = drawer.getDrawingText();
+
+	       if (false) { // debugging.  Mac build has 0 bytes in dt
+		  std::string png_file_name = "image-" + comp_id + ".png";
+		  std::cout << "writing png " << png_file_name << std::endl;
+		  drawer.writeDrawingText(png_file_name.c_str());
+		  std::string dt_filename = "dt-" + comp_id + ".png";
+		  std::cout << "witing " << dt.length() << " chars to " << dt_filename << std::endl;
+		  std::ofstream f(dt_filename);
+		  f << dt;
+		  close(f);
+	       }
+
 	       // now convert dt to a Pixbuf
 	       GError *error = NULL;
 	       GdkPixbufLoader *pbl = gdk_pixbuf_loader_new_with_type ("png", &error);
@@ -419,6 +430,8 @@ lbg_info_t::get_image_widget_for_comp_id(const std::string &comp_id, int imol, c
 
 #endif   // RDKIT_HAS_CAIRO_SUPPORT
 #endif   // MAKE_ENHANCED_LIGAND_TOOLS
+
+   std::cout << "returning r " << r << std::endl;
    return r;
 }
 #endif // HAVE_CCP4SRS

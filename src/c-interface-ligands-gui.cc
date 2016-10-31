@@ -68,6 +68,7 @@
 
 #include "c-interface-ligands.hh"
 #include "c-interface-ligands-swig.hh"
+#include "c-interface-ligand-search.hh"
 
 #include "guile-fixups.h"
 
@@ -1129,3 +1130,86 @@ coot::ligand_check_percentiles_dialog(coot::residue_spec_t spec,
 
 }
 
+#include "c-interface-ligands-widgets.hh"
+
+ligand_wiggly_ligand_data_t
+setup_ligands_progress_bar() {
+
+   GtkWidget *vbox = gtk_vbox_new (FALSE, 5);
+   GtkWidget *progress_bar = gtk_progress_bar_new();
+   GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+   GtkWidget *label = gtk_label_new("  Installing Ligand Conformers  ");
+
+   gtk_window_set_title(GTK_WINDOW (window), "Fitting Ligands");
+   gtk_container_set_border_width(GTK_CONTAINER (window), 0);
+   gtk_container_set_border_width(GTK_CONTAINER (vbox), 10);
+   gtk_container_add(GTK_CONTAINER (window), vbox);
+
+   GtkWidget *main_window = lookup_widget(graphics_info_t::glarea, "window1");
+   gtk_window_set_transient_for(GTK_WINDOW(window), GTK_WINDOW(main_window));
+   
+   gtk_widget_show(vbox);
+   gtk_widget_show(progress_bar);
+   gtk_widget_show(label);
+   gtk_widget_show(window);
+   gtk_box_pack_start(GTK_BOX(vbox), progress_bar, FALSE, FALSE, 5);
+   gtk_box_pack_start(GTK_BOX(vbox), label,        FALSE, FALSE, 5);
+
+   // std::pair<GtkWidget *, GtkWidget *> p(progress_bar, window);
+
+   ligand_wiggly_ligand_data_t r;
+   r.progress_bar = progress_bar;
+   r.progress_bar_window = window;
+   r.progress_bar_label = label;
+
+   return r;
+
+}
+
+void setup_ligands_progress_bar_idle(coot::wligand *wlig,
+				     int imol_ligand,
+				     ligand_wiggly_ligand_data_t ld) {
+
+   ligand_wiggly_ligand_data_t *ldb = new ligand_wiggly_ligand_data_t(ld);
+
+   // this GtkFunction returns a gboolean and takes a gpointer
+   gint idle = gtk_idle_add((GtkFunction) install_simple_wiggly_ligand_idle_fn, ldb);
+   graphics_info_t g;
+   g.ligand_wiggly_ligand_count = 0;
+
+}
+
+// return 1 for keep going (next time)
+//
+gboolean install_simple_wiggly_ligand_idle_fn(gpointer data) {
+
+   gboolean status = 1;
+
+   graphics_info_t g;
+   ligand_wiggly_ligand_data_t *ldp = static_cast<ligand_wiggly_ligand_data_t *>(data);
+
+   if (g.ligand_wiggly_ligand_count >= g.ligand_wiggly_ligand_n_samples) {
+
+      if (ldp->finish) {
+	 status = 0;
+	 execute_ligand_search_internal(ldp->wlig);
+	 gtk_widget_destroy(ldp->progress_bar_window);
+      } else {
+	 // continue one more round
+	 gtk_label_set_text(GTK_LABEL(ldp->progress_bar_label), "Searching density clusters");
+	 ldp->finish = true; // set for next time round
+      }
+      
+   } else {
+      coot::minimol::molecule mmol(g.molecules[ldp->imol_ligand].atom_sel.mol);
+
+      ldp->wlig->install_simple_wiggly_ligand(g.Geom_p(), mmol, ldp->imol_ligand,
+					      g.ligand_wiggly_ligand_count, true);
+      gdouble frac = double(g.ligand_wiggly_ligand_count)/double(g.ligand_wiggly_ligand_n_samples);
+      gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR (ldp->progress_bar), frac);
+      
+   }
+   g.ligand_wiggly_ligand_count++;
+
+   return status;
+}
