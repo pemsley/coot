@@ -829,13 +829,15 @@ coot::restraints_container_t::find_link_type(mmdb::Residue *first,
       }
    }
 
-   if (t1 == "L-peptide" || t1 == "D-peptide" || t1 == "M-peptide" || t1 == "P-peptide" || t1 == "peptide")
-      if (t2 == "L-peptide" || t2 == "D-peptide" || t2 == "M-peptide" || t2 == "P-peptide" || t2 == "peptide")
+   if (t1 == "L-peptide" || t1 == "D-peptide" || t1 == "M-peptide" || t1 == "P-peptide" || t1 == "peptide") {
+      if (t2 == "L-peptide" || t2 == "D-peptide" || t2 == "M-peptide" || t2 == "P-peptide" || t2 == "peptide") {
 	 if (residue_type_2 == "PRO" || residue_type_2 == "HYP") {
 	    link_type = "PTRANS";
 	 } else {
 	    link_type = "TRANS";
 	 }
+      }
+   }
    
    if (coot::util::is_nucleotide_by_dict(first, geom))
       link_type = "p"; // phosphodiester linkage
