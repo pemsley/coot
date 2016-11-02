@@ -431,7 +431,6 @@ lbg_info_t::get_image_widget_for_comp_id(const std::string &comp_id, int imol, c
 #endif   // RDKIT_HAS_CAIRO_SUPPORT
 #endif   // MAKE_ENHANCED_LIGAND_TOOLS
 
-   std::cout << "returning r " << r << std::endl;
    return r;
 }
 #endif // HAVE_CCP4SRS
