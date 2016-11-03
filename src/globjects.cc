@@ -1747,6 +1747,10 @@ setup_lighting(short int do_lighting_flag) {
       GLfloat light_specular[] = { 0.6, 0.6, 0.6, 0.6 };
       GLfloat light_position[] = { 0.6, 0.6, 0.6, 0.0 };
 
+      GLfloat  light_0_position[] = { 1.0,  1.0, 1.0, 0.0};
+      GLfloat  light_1_position[] = {-1.0,  0.0, 1.0, 0.0};
+      GLfloat  light_2_position[] = { 0.0,  0.0, 0.0, 0.0};
+
       glLightfv(GL_LIGHT0,   GL_POSITION, light_0_position);
       glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
       glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
