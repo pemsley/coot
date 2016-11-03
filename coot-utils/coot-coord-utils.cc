@@ -6203,58 +6203,62 @@ coot::util::remove_wrong_cis_peptides(mmdb::Manager *mol) {
    mmdb::PCisPep CisPep;
    if (mol) { 
       int n_models = mol->GetNumberOfModels();
-      for (int imod=1; imod<=n_models; imod++) { 
-	 std::vector<mmdb::CisPep> bad_cis_peptides;
-	 std::vector<mmdb::CisPep> good_cis_peptides;
+      for (int imod=1; imod<=n_models; imod++) {
 	 mmdb::Model *model_p = mol->GetModel(imod);
-	 int ncp = model_p->GetNumberOfCisPeps();
-	 for (int icp=1; icp<=ncp; icp++) {
-	    CisPep = model_p->GetCisPep(icp);
-	    if (CisPep)  {
-	       // 	    std::cout << "mmdb:: " << " :" << CisPep->chainID1 << ": "
-	       // << CisPep->seqNum1 << " :" 
-	       // << CisPep->chainID2 << ": " << CisPep->seqNum2 << std::endl;
-	       coot::util::cis_peptide_info_t cph(CisPep);
+	 if (model_p) {
+	    std::vector<mmdb::CisPep> bad_cis_peptides;
+	    std::vector<mmdb::CisPep> good_cis_peptides;
+	    int ncp = model_p->GetNumberOfCisPeps();
+	    for (int icp=1; icp<=ncp; icp++) {
+	       CisPep = model_p->GetCisPep(icp);
+	       if (CisPep)  {
+		  // 	    std::cout << "mmdb:: " << " :" << CisPep->chainID1 << ": "
+		  // << CisPep->seqNum1 << " :" 
+		  // << CisPep->chainID2 << ": " << CisPep->seqNum2 << std::endl;
+		  coot::util::cis_peptide_info_t cph(CisPep);
 
-	       // Does that match any of the coordinates cispeps?
-	       short int ifound = 0;
-	       for (unsigned int iccp=0; iccp<v_coords.size(); iccp++) {
-		  if (cph == v_coords[iccp]) {
-		     // std::cout << " ......header matches" << std::endl;
-		     ifound = 1;
-		     break;
-		  } else {
-		     // std::cout << "       header not the same" << std::endl;
+		  // Does that match any of the coordinates cispeps?
+		  short int ifound = 0;
+		  for (unsigned int iccp=0; iccp<v_coords.size(); iccp++) {
+		     if (cph == v_coords[iccp]) {
+			// std::cout << " ......header matches" << std::endl;
+			ifound = 1;
+			break;
+		     } else {
+			// std::cout << "       header not the same" << std::endl;
+		     }
 		  }
+		  if (ifound == 0) {
+		     // needs to be removed
+		     std::cout << "INFO:: Removing CIS peptide from PDB header: " 
+			       << cph.chain_id_1 << " "
+			       << cph.resno_1 << " "
+			       << cph.chain_id_2 << " "
+			       << cph.resno_2 << " "
+			       << std::endl;
+		     bad_cis_peptides.push_back(*CisPep);
+		  } else {
+		     good_cis_peptides.push_back(*CisPep);
+		     // 	       std::cout << "This CIS peptide was real: " 
+		     // 			 << cph.chain_id_1 << " "
+		     // 			 << cph.resno_1 << " "
+		     // 			 << cph.chain_id_2 << " "
+		     // 			 << cph.resno_2 << " "
+		     // 			 << std::endl;
+		  } 
 	       }
-	       if (ifound == 0) {
-		  // needs to be removed
-		  std::cout << "INFO:: Removing CIS peptide from PDB header: " 
-			    << cph.chain_id_1 << " "
-			    << cph.resno_1 << " "
-			    << cph.chain_id_2 << " "
-			    << cph.resno_2 << " "
-			    << std::endl;
-		  bad_cis_peptides.push_back(*CisPep);
-	       } else {
-		  good_cis_peptides.push_back(*CisPep);
-		  // 	       std::cout << "This CIS peptide was real: " 
-		  // 			 << cph.chain_id_1 << " "
-		  // 			 << cph.resno_1 << " "
-		  // 			 << cph.chain_id_2 << " "
-		  // 			 << cph.resno_2 << " "
-		  // 			 << std::endl;
-	       } 
 	    }
-	 }
-	 if (bad_cis_peptides.size() > 0) {
-	    // delete all CISPEPs and add back the good ones
-	    model_p->RemoveCisPeps();
-	    for (unsigned int igood=0; igood<good_cis_peptides.size(); igood++) {
-	       mmdb::CisPep *good = new mmdb::CisPep;
-	       *good = good_cis_peptides[igood];
-	       model_p->AddCisPep(good);
+	    if (bad_cis_peptides.size() > 0) {
+	       // delete all CISPEPs and add back the good ones
+	       model_p->RemoveCisPeps();
+	       for (unsigned int igood=0; igood<good_cis_peptides.size(); igood++) {
+		  mmdb::CisPep *good = new mmdb::CisPep;
+		  *good = good_cis_peptides[igood];
+		  model_p->AddCisPep(good);
+	       }
 	    }
+	 } else {
+	    std::cout << "WARNING:: null model for model " << imod << std::endl;
 	 }
       }
    }
