@@ -1,7 +1,6 @@
 
    For Release 0.8.8
 
-
    o Fetch molecule: acyclovir, (edit?) click Apply
  
    o Pyrogen chirality: Using CCD files as input, make a dictionary and either validate the coordinates 
@@ -11,7 +10,12 @@
 
    o when mutating to MSE atoms become HETATMs.
 
+   o Ligand Builder -> Open [cif dictionary] Failures
+     110 (butyl carboxylic acid - Oxygen formal charge)
+
    o Fix make check on test chemical features
+
+* Done.
 
    o New EDS Location [John Berrisford]
 

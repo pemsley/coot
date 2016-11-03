@@ -794,6 +794,7 @@ float graphics_info_t::find_waters_sigma_cut_off = 1.8;
 float graphics_info_t::ligand_acceptable_fit_fraction = 0.75;
 float graphics_info_t::ligand_cluster_sigma_level = 1.0; // sigma
 int   graphics_info_t::ligand_wiggly_ligand_n_samples = 50;
+int   graphics_info_t::ligand_wiggly_ligand_count = 0; // dummy
 int   graphics_info_t::ligand_verbose_reporting_flag = 0; 
 // std::vector<short int> *graphics_info_t::find_ligand_wiggly_ligands_; bye!
 short int graphics_info_t::ligand_expert_flag = 0;

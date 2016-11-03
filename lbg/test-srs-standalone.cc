@@ -26,9 +26,6 @@ public:
 };
       
 
-
-// #define HAVE_CCP4SRS
-
 #ifdef TEST_WITH_GEOMETRY
 mmdb::math::Graph *
 get_graph_1() {
@@ -142,9 +139,17 @@ compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float similarity, int n_vertices)
       std::cout << "INFO:: compare_vs_ccp4srs(): found " << l << " entries in CCP4 SRS" << std::endl;
       mmdb::math::Graph  *graph_2 = NULL;
       int rc = 0;
-      for (int i=1; i<l; i++)  {
-	 ccp4srs::Monomer *Monomer = ccp4srs->getMonomer(i, NULL);
-	 if (Monomer)  {
+      mmdb::io::File *fp = NULL;
+
+      for (int i=1; i<l; i++) {
+	 ccp4srs::Monomer *Monomer = ccp4srs->getMonomer(i, fp);
+
+	 if (! fp) // the first time it is null
+	    fp = ccp4srs->getStructFile();
+
+	 if (! Monomer) {
+	    std::cout << "Null monomer for index " << i << " " << fp << std::endl;
+	 } else {
 	    std::string id = Monomer->ID();
 	    // std::cout << "i " << i <<  " monomer id  " << id << std::endl;
 	    if (id.length()) {

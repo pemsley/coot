@@ -1513,7 +1513,7 @@
             </child>
             <child>
               <object class="GtkCheckButton" id="lbg_import_from_comp_id_hydrogens_checkbutton">
-                <property name="label" translatable="yes">Keep Hydrogens</property>
+                <property name="label" translatable="yes">Keep All Hydrogens</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>

@@ -709,9 +709,29 @@ void add_ligand_clear_ligands() {
    g.find_ligand_clear_ligand_mols();
 } 
 
+#include "c-interface-ligand-search.hh"
+
 // Called from callbacks.c
 void execute_ligand_search() {
-   execute_ligand_search_internal();
+
+   // 20161031: If you come to look at this in the future, scrap all ligand search interface
+   // and re-write from scratch.
+   //
+   // It should have 2 paths: one with a info/progress-bar dialog and the (traditional)
+   // silent one (say, that is used in no-graphics mode).
+
+   if (graphics_info_t::use_graphics_interface_flag) {
+      ligand_wiggly_ligand_data_t lwld = ligand_search_install_wiggly_ligands();
+      // if we have wiggly/conformer ligands, execute_ligand_search_internal(wlig_p) 
+      // is run in install_simple_wiggly_ligand_idle_fn()
+
+      if (lwld.immediate_execute_ligand_search)
+	 execute_ligand_search_internal(lwld.wlig);
+
+   } else {
+      ligand_wiggly_ligand_data_t lwld = ligand_search_install_wiggly_ligands();
+      execute_ligand_search_internal(lwld.wlig);
+   }
 }
 
 
@@ -720,7 +740,8 @@ void execute_ligand_search() {
 #ifdef USE_GUILE
 SCM execute_ligand_search_scm() {
 
-   std::vector<int> solutions = execute_ligand_search_internal();
+   ligand_wiggly_ligand_data_t lwld = ligand_search_install_wiggly_ligands();
+   std::vector<int> solutions = execute_ligand_search_internal(lwld.wlig);
    return generic_int_vector_to_list_internal(solutions);
 }
 #endif // USE_GUILE
@@ -728,7 +749,9 @@ SCM execute_ligand_search_scm() {
 #ifdef USE_PYTHON
 PyObject *execute_ligand_search_py() {
 
-   std::vector<int> solutions = execute_ligand_search_internal();
+   ligand_wiggly_ligand_data_t lwld = ligand_search_install_wiggly_ligands();
+   std::vector<int> solutions = execute_ligand_search_internal(lwld.wlig);
+   // now sort solutions (because they (probably) have been real-space refined now)
    return generic_int_vector_to_list_internal_py(solutions);
 }
 #endif // USE_PYTHON
@@ -738,45 +761,17 @@ PyObject *execute_ligand_search_py() {
 void set_find_ligand_here_cluster(int state) {
    graphics_info_t g;
    g.find_ligand_here_cluster_flag = state;
-} 
+}
 
+#include "c-interface-ligands-widgets.hh"
 
-std::vector<int>
-execute_ligand_search_internal() {
-   
-   std::cout << "Executing ligand search..." << std::endl;
-   std::vector<int> solutions;
+ligand_wiggly_ligand_data_t
+ligand_search_install_wiggly_ligands() {
 
    graphics_info_t g;
-
-   if (! is_valid_model_molecule(g.find_ligand_protein_mol())) {
-      std::cout << "Protein molecule for ligand search not set" << std::endl;
-      std::cout << "Aborting ligand search" << std::endl;
-      return solutions; 
-   }
-   if (! is_valid_map_molecule(g.find_ligand_map_mol())) {
-      std::cout << "Map molecule for ligand search not set" << std::endl;
-      std::cout << "Aborting ligand search" << std::endl;
-      return solutions; 
-   }
-   if (g.find_ligand_ligand_mols().size() == 0) {
-      std::cout << "No defined ligand molecules" << std::endl;
-      std::cout << "Aborting ligand search" << std::endl;
-      return solutions; 
-   } 
-   
-   mmdb::Manager *protein_mol = 
-      g.molecules[g.find_ligand_protein_mol()].atom_sel.mol;
-
-   coot::wligand wlig;
-   if (g.ligand_verbose_reporting_flag) { 
-      wlig.set_verbose_reporting();
-      // debugging, output the post-conformer generation ligands wligand-*.pdb
-      // (but pre-idealized).
-      wlig.set_debug_wiggly_ligands();
-   } 
-   wlig.import_map_from(g.molecules[g.find_ligand_map_mol()].xmap);
    std::vector<std::pair<int, bool> > ligands = g.find_ligand_ligand_mols();
+   coot::wligand *wlig_p = new coot::wligand;
+   ligand_wiggly_ligand_data_t lfwd(wlig_p);
 
    for(unsigned int i=0; i<ligands.size(); i++) {
 
@@ -801,27 +796,95 @@ execute_ligand_search_internal() {
 //	 }
 
 	 // std::pair<short int, std::string> istat_pair =
-	 try { 
+	 try {
 	    bool optim_geom = true;
 	    bool fill_vec = false;
-	    wlig.install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
-					       g.ligand_wiggly_ligand_n_samples,
-					       optim_geom, fill_vec);
+
+	    if (graphics_info_t::use_graphics_interface_flag) {
+	       ligand_wiggly_ligand_data_t lfwd_local = setup_ligands_progress_bar();
+	       lfwd.imol_ligand = ligands[i].first;
+	       lfwd.progress_bar        = lfwd_local.progress_bar;
+	       lfwd.progress_bar_window = lfwd_local.progress_bar_window;
+	       lfwd.progress_bar_label  = lfwd_local.progress_bar_label;
+
+	       setup_ligands_progress_bar_idle(wlig_p, ligands[i].first, lfwd);
+
+	       // this GtkFunction returns a gint and takes a widget
+	       // gint idle = gtk_idle_add((GtkFunction) install_simple_wiggly_ligand_idle_fn,
+	       // progress_bar);
+
+	       // wlig.install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
+	       // g.ligand_wiggly_ligand_n_samples,
+	       // optim_geom, fill_vec);
+
+	    } else {
+	       wlig_p->install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
+						     g.ligand_wiggly_ligand_n_samples,
+						     optim_geom, fill_vec);
+	       lfwd.immediate_execute_ligand_search = false;
+	    }
 	 }
 	 catch (const std::runtime_error &mess) {
-	    std::cout << "Error in flexible ligand definition.\n";
+	    std::cout << "ERROR:: failure in flexible ligand definition.\n";
 	    std::cout << mess.what() << std::endl;
 	    if (graphics_info_t::use_graphics_interface_flag) { 
 	       GtkWidget *w = wrapped_nothing_bad_dialog(mess.what());
 	       gtk_widget_show(w);
 	    }
-	    return solutions;
+	    // return solutions;
 	 }
-      } else { 
+      } else {
 	 // argh (ii).
-	 wlig.install_ligand(g.molecules[ligands[i].first].atom_sel.mol);
+
+	 std::cout << "............ calling install_ligand()" << std::endl;
+	 wlig_p->install_ligand(g.molecules[ligands[i].first].atom_sel.mol);
       }
    }
+   std::cout << "ligand_search_install_wiggly_ligands: returning wlig " << wlig_p << std::endl;
+   return lfwd;
+}
+
+#include "c-interface-ligand-search.hh"
+
+std::vector<int>
+execute_ligand_search_internal(coot::wligand *wlig_p) {
+   
+   std::cout << "Executing ligand search internal using wlig_p " << wlig_p << std::endl;
+
+   std::vector<int> solutions;
+
+   graphics_info_t g;
+
+   if (! is_valid_model_molecule(g.find_ligand_protein_mol())) {
+      std::cout << "Protein molecule for ligand search not set" << std::endl;
+      std::cout << "Aborting ligand search" << std::endl;
+      return solutions; 
+   }
+   if (! is_valid_map_molecule(g.find_ligand_map_mol())) {
+      std::cout << "Map molecule for ligand search not set" << std::endl;
+      std::cout << "Aborting ligand search" << std::endl;
+      return solutions; 
+   }
+   if (g.find_ligand_ligand_mols().size() == 0) {
+      std::cout << "No defined ligand molecules" << std::endl;
+      std::cout << "Aborting ligand search" << std::endl;
+      return solutions; 
+   } 
+   
+   mmdb::Manager *protein_mol = 
+      g.molecules[g.find_ligand_protein_mol()].atom_sel.mol;
+
+   if (g.ligand_verbose_reporting_flag) { 
+      wlig_p->set_verbose_reporting();
+      // debugging, output the post-conformer generation ligands wligand-*.pdb
+      // (but pre-idealized).
+      wlig_p->set_debug_wiggly_ligands();
+   }
+
+   std::cout << "in execute_ligand_search_internal() import maps from mol "
+	     << g.find_ligand_map_mol() << std::endl;
+   wlig_p->import_map_from(g.molecules[g.find_ligand_map_mol()].xmap);
+   std::vector<std::pair<int, bool> > ligands = g.find_ligand_ligand_mols();
 
 
    short int mask_waters_flag; // treat waters like other atoms?
@@ -830,44 +893,44 @@ execute_ligand_search_internal() {
       int imol = graphics_info_t::create_molecule();
       if (graphics_info_t::map_mask_atom_radius > 0) {
 	 // only do this if it was set by the user.
-	 wlig.set_map_atom_mask_radius(graphics_info_t::map_mask_atom_radius);
+	 wlig_p->set_map_atom_mask_radius(graphics_info_t::map_mask_atom_radius);
       } else { 
-	 wlig.set_map_atom_mask_radius(2.0);  // Angstroms
+	 wlig_p->set_map_atom_mask_radius(2.0);  // Angstroms
       } 
-      
+
       std::string name("ligand masked map");
       // std::cout << "DEBUG:: calling mask_map\n";
-      wlig.mask_map(protein_mol, mask_waters_flag); // mask by protein
+      wlig_p->mask_map(protein_mol, mask_waters_flag); // mask by protein
       // std::cout << "DEBUG:: done mask_map\n";
-      g.molecules[imol].new_map(wlig.masked_map(), wlig.masked_map_name());
+      g.molecules[imol].new_map(wlig_p->masked_map(), wlig_p->masked_map_name());
 
       // This should not be be scroll map?
       if (0) { 
 	 g.scroll_wheel_map = imol;  // change the current scrollable map to
                                      // the masked map.
       }
-      wlig.find_clusters(g.ligand_cluster_sigma_level);  // trashes the xmap
-      wlig.set_acceptable_fit_fraction(g.ligand_acceptable_fit_fraction);
-      wlig.fit_ligands_to_clusters(g.find_ligand_n_top_ligands); // 10 clusters
+      wlig_p->find_clusters(g.ligand_cluster_sigma_level);  // trashes the xmap
+      wlig_p->set_acceptable_fit_fraction(g.ligand_acceptable_fit_fraction);
+      wlig_p->fit_ligands_to_clusters(g.find_ligand_n_top_ligands); // 10 clusters
 
    } else {
 
       // don't search the map, just use the peak/cluser at the screen
       // centre.
 
-      wlig.mask_map(protein_mol, mask_waters_flag);
+      wlig_p->mask_map(protein_mol, mask_waters_flag);
       // wlig.set_acceptable_fit_fraction(g.ligand_acceptable_fit_fraction);
       
       clipper::Coord_orth pt(g.X(), g.Y(), g.Z()); // close to 3GP peak (not in it).
       float n_sigma = g.ligand_cluster_sigma_level; // cluster points must be more than this.
-      wlig.cluster_from_point(pt, n_sigma);
-      wlig.fit_ligands_to_clusters(1); // just this cluster.
+      wlig_p->cluster_from_point(pt, n_sigma);
+      wlig_p->fit_ligands_to_clusters(1); // just this cluster.
       
    }
-   wlig.make_pseudo_atoms(); // put anisotropic atoms at the ligand sites
+   wlig_p->make_pseudo_atoms(); // put anisotropic atoms at the ligand sites
 
    // now add in the solution ligands:
-   int n_clusters = wlig.n_clusters_final();
+   int n_clusters = wlig_p->n_clusters_final();
 
    int n_new_ligand = 0;
    coot::minimol::molecule m;
@@ -879,8 +942,8 @@ execute_ligand_search_internal() {
       float frac_lim = g.find_ligand_score_by_correl_frac_limit; // 0.7;
       float correl_frac_lim = 0.9;
       // nino-mode
-      unsigned int nlc = wlig.n_ligands_for_cluster(iclust, frac_lim);
-      wlig.score_and_resort_using_correlation(iclust, nlc);
+      unsigned int nlc = wlig_p->n_ligands_for_cluster(iclust, frac_lim);
+      wlig_p->score_and_resort_using_correlation(iclust, nlc);
 
       // false is the default case
       if (g.find_ligand_multiple_solutions_per_cluster_flag == false) {
@@ -892,11 +955,11 @@ execute_ligand_search_internal() {
       float tolerance = 20.0;
       // limit_solutions should be run only after a post-correlation sort.
       //
-      wlig.limit_solutions(iclust, correl_frac_lim, nlc, tolerance, true);
+      wlig_p->limit_solutions(iclust, correl_frac_lim, nlc, tolerance, true);
 			   
       for (unsigned int isol=0; isol<nlc; isol++) { 
 
-	 m = wlig.get_solution(isol, iclust);
+	 m = wlig_p->get_solution(isol, iclust);
 	 if (! m.is_empty()) {
 	    float bf = graphics_info_t::default_new_atoms_b_factor;
 	    mmdb::Manager *ligand_mol = m.pcmmdbmanager();

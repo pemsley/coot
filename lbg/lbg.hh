@@ -1109,14 +1109,17 @@ public:
    void set_mouse_pos_at_click(int xpos, int ypos) {
       mouse_at_click = lig_build::pos_t(double(xpos), double(ypos));
    }
-   void render_from_molecule(const widgeted_molecule_t &mol_in);
+   void render(); // uses internal data member mol
    void update_descriptor_attributes(); // this is not in render_from_molecule() because it can/might be slow.
    void delete_hydrogens();
    void undo();
 #ifdef HAVE_CCP4SRS
    // not const because try_dynamic_add() can be called.
    void search();
-#endif   
+#endif
+
+   // update the internal class variable widgeted_molecule_t mol from mol_in
+   void import_from_widgeted_molecule(const widgeted_molecule_t &mol_in);
    void import_molecule_from_file(const std::string &file_name); // mol or cif
    void import_molecule_from_cif_file(const std::string &file_name); // cif
    // 20111021 try to read file_name as a MDL mol or a mol2 file.
@@ -1229,6 +1232,7 @@ public:
       mdl_file_name = file_name;
    }
 
+   void clear_and_redraw();
    void clear_and_redraw(const lig_build::pos_t &delta);
 
    // drag and drop callbacks
@@ -1383,11 +1387,9 @@ public:
 
    void set_display_atom_names(bool state) {
       display_atom_names = state;
-      render_from_molecule(mol);
    }
    void set_display_atom_numbers(bool state) {
       display_atom_numbers = state;
-      render_from_molecule(mol);
    }
    
    

@@ -928,7 +928,6 @@ int mutate_internal(int ires, const char *chain_id,
 /*  ----------------------------------------------------------------------- */
 /*                  ligands                                                 */
 /*  ----------------------------------------------------------------------- */
-std::vector<int> execute_ligand_search_internal();
 coot::graph_match_info_t
 overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref,
 			 int resno_ref, bool apply_rtop_flag);
