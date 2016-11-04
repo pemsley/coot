@@ -269,6 +269,8 @@ coot::dictionary_residue_restraints_t::fill_using_ccp4srs(ccp4srs::Manager *srs_
 	    std::string type_energy = at->energy_type();
 	    std::string atom_id = at->name();
 	    std::string atom_id_4c = atom_id_mmdb_expand(atom_id, type_symbol);
+	    char rcsb_chirality = at->rcsb_chirality();
+	    char ccp4_chirality = at->ccp4_chirality();
 	    coot::dict_atom dict_at(atom_id,
 				    atom_id_4c,
 				    type_symbol,
