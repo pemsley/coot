@@ -1,6 +1,9 @@
 
    For Release 0.8.8
 
+   o if the chain has a TER and we add NCS residues, then the
+   old/current TER should be deleted.
+
    o Ligand Builder -> Open [cif dictionary] Failures
      110 (butyl carboxylic acid - Oxygen formal charge)
 
