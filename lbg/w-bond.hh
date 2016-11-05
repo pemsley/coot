@@ -46,7 +46,7 @@ class widgeted_bond_t : public lig_build::bond_t, ligand_layout_graphic_primitiv
 //       if (atom_second.atom_id != "C") { 
 // 	 shorten_second = 1;
 //       }
-      
+
       ci = canvas_item_for_bond(atom_first, atom_second, shorten_first, shorten_second, bt,
 				other_connections_to_first_atom,
 				other_connections_to_second_atom,

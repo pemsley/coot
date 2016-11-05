@@ -865,7 +865,7 @@ coot::set_atom_chirality(RDKit::Atom *rdkit_at,
 void
 coot::set_atom_chirality(RDKit::Atom *rdkit_at, const coot::dict_atom &dict_atom) {
 
-   bool debug = false;
+   bool debug = true;
 
    if (dict_atom.pdbx_stereo_config.first) {
       if (dict_atom.pdbx_stereo_config.second == "R") {
@@ -890,9 +890,8 @@ coot::set_atom_chirality(RDKit::Atom *rdkit_at, const coot::dict_atom &dict_atom
 	    std::cout << "   pdbx_stereo_config: " << dict_atom.atom_id << " S -> CCW " << std::endl;
       }
       if (dict_atom.pdbx_stereo_config.second == "N") {
-	 if (debug)
+	 if (false) // otherwise too noisy
 	    std::cout << "No pdbx_stereo_config says N for " << dict_atom.atom_id << std::endl;
-	    
       }
    } else {
       if (debug)
@@ -2348,7 +2347,7 @@ coot::remove_Hs_and_clean(const RDKit::ROMol &rdkm, bool set_aromaticity) {
 int
 coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
 
-   bool debug = false;
+   bool debug = true;
 
    int icurrent_conf = 0; // the conformer number from which the
                           // distance matrix is generated.  Should this
@@ -2414,7 +2413,7 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
 	       if (ic_index >= n_items)
 		  std::cout << "indexing problem! " << ic_index << " but limit "
 			    << n_items << std::endl;
-	       if (debug) 
+	       if (false)
 		  std::cout << "mimic: atoms " << iat << " " << jat
 			    << " ic_index " << ic_index << " for max " << n_items
 			    << " dist " << diff.length() << std::endl;
@@ -3209,10 +3208,10 @@ coot::debug_rdkit_molecule(const RDKit::ROMol *rdkm) {
       // chiral tag
       RDKit::Atom::ChiralType ct = at_p->getChiralTag();
       std::string cts = "!";
-      if (ct == RDKit::Atom::CHI_UNSPECIFIED)    cts = "-";
-      if (ct == RDKit::Atom::CHI_TETRAHEDRAL_CW) cts = " CW";
-      if (ct == RDKit::Atom::CHI_TETRAHEDRAL_CW) cts = "CCW";
-      if (ct == RDKit::Atom::CHI_OTHER)          cts = "Oth";
+      if (ct == RDKit::Atom::CHI_UNSPECIFIED)     cts = "-";
+      if (ct == RDKit::Atom::CHI_TETRAHEDRAL_CW)  cts = " CW";
+      if (ct == RDKit::Atom::CHI_TETRAHEDRAL_CCW) cts = "CCW";
+      if (ct == RDKit::Atom::CHI_OTHER)           cts = "Oth";
       std::cout << " Chir: " << cts;
       
 
@@ -3260,16 +3259,23 @@ coot::debug_rdkit_molecule(const RDKit::ROMol *rdkm) {
       }
       catch (...) { }  // grr.
       std::string bond_type;
-      if (bond_p->getBondType() == RDKit::Bond::SINGLE) bond_type = "single";
-      if (bond_p->getBondType() == RDKit::Bond::DOUBLE) bond_type = "double";
-      if (bond_p->getBondType() == RDKit::Bond::TRIPLE) bond_type = "triple";
-      if (bond_p->getBondType() == RDKit::Bond::ONEANDAHALF) bond_type = "one-and-a-half";
+      if (bond_p->getBondType() == RDKit::Bond::SINGLE) bond_type   = "  single";
+      if (bond_p->getBondType() == RDKit::Bond::DOUBLE) bond_type   = "  double";
+      if (bond_p->getBondType() == RDKit::Bond::TRIPLE) bond_type   = "  triple";
       if (bond_p->getBondType() == RDKit::Bond::AROMATIC) bond_type = "aromatic";
+      if (bond_p->getBondType() == RDKit::Bond::ONEANDAHALF) bond_type = "one-and-a-half";
+      std::string bond_dir_str;
+      RDKit::Bond::BondDir bond_dir = bond_p->getBondDir();
+      if (bond_dir == RDKit::Bond::NONE)       bond_dir_str = "no-special";
+      if (bond_dir == RDKit::Bond::BEGINWEDGE) bond_dir_str = "beginwedge";
+      if (bond_dir == RDKit::Bond::BEGINDASH)  bond_dir_str = "begindash";
+      if (bond_dir == RDKit::Bond::UNKNOWN)    bond_dir_str = "unknown";
       
       std::cout << "  " << std::setw(2) << ib << "th  "
 		<< std::setw(2) << idx_1 << " " << n_1 << " -- "
 		<< std::setw(2) << idx_2 << " " << n_2 << "  type " 
-		<< std::setw(2) << bond_p->getBondType() << " " << bond_type << std::endl;
+		<< std::setw(2) << bond_p->getBondType() << " " << bond_type << " bond-dir: "
+		<< bond_dir_str << std::endl;
    }
 }
 

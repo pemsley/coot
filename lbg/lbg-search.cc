@@ -402,8 +402,9 @@ lbg_info_t::get_image_widget_for_comp_id(const std::string &comp_id, int imol, c
 		  std::cout << "writing png " << png_file_name << std::endl;
 		  drawer.writeDrawingText(png_file_name.c_str());
 		  std::string dt_filename = "dt-" + comp_id + ".png";
-		  std::cout << "witing " << dt.length() << " chars to " << dt_filename << std::endl;
-		  std::ofstream f(dt_filename.c_str()); // needs .c_str() for old compiler?
+		  std::cout << "writing " << dt.length() << " chars to " << dt_filename
+			    << std::endl;
+		  std::ofstream f(dt_filename.c_str());
 		  f << dt;
 		  f.close();
 	       }
