@@ -2846,6 +2846,10 @@ PyObject *symmetry_operators_to_xHM_py(PyObject *symmetry_operators);
 /*  ----------------------------------------------------------------------- */
 /* section Merge Molecules */
 
+/*! \brief merge molecules
+
+the first argument is a list of molecule numbers and the second is the target 
+   molecule into which the others should be merged  */
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
 SCM merge_molecules(SCM add_molecules, int imol);
@@ -2864,7 +2868,7 @@ PyObject *merge_molecules_py(PyObject *add_molecules, int imol);
 /*! \name  Align and Mutate */
 /* \{ */
 
-/*! \brief aligand and mutate the given chain to the given sequence  */
+/*! \brief align and mutate the given chain to the given sequence  */
 void align_and_mutate(int imol, const char *chain_id, const char *fasta_maybe, short int renumber_residues_flag);
 /*! \brief set the penalty for affine gap and space when aligning, defaults -3.0 and -0.4 */
 void set_alignment_gap_and_space_penalty(float wgap, float wspace);
@@ -3344,6 +3348,16 @@ int extra_restraints_are_shown(int imol);
 void set_extra_restraints_prosmart_sigma_limits(int imol, double limit_high, double limit_low);
 
 void generate_local_self_restraints(int imol, const char *chain_id, float local_dist_max);
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
+void generate_local_self_restraints_by_residues_scm(int imol, SCM residue_specs, float local_dist_max);
+#endif // USE_GUILE
+#ifdef USE_PYTHON
+void generate_local_self_restraints_by_residues_py(int imol, PyObject *residue_specs, float local_dist_max);
+#endif // USE_PYTHON
+#endif // __cplusplus
+
 
 /*! \brief proSMART interpolated restraints for model morphing  */
 void write_interpolated_extra_restraints(int imol_1, int imol_2, int n_steps, char *file_name_stub);

@@ -1406,6 +1406,60 @@ coot::get_selection_handle(mmdb::Manager *mol, const coot::atom_spec_t &at) {
    return SelHnd;
 }
 
+// caller deletes the selection!
+int
+coot::specs_to_atom_selection(const std::vector<coot::residue_spec_t> &specs,
+			      mmdb::Manager *mol,
+			      int atom_mask_mode) {
+
+   int SelHnd = -1;
+   if (mol) {
+      SelHnd = mol->NewSelection();
+      for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++) {
+
+	 std::string res_name_selection  = "*";
+	 std::string atom_name_selection = "*";
+
+	 if (atom_mask_mode != 0) { // main chain for standard amino acids
+	    mmdb::Residue *res = util::get_residue(specs[ilocal], mol);
+	    if (res) {
+	       std::string residue_name(res->GetResName());
+	       if (util::is_standard_residue_name(residue_name)) { 
+
+		  // PDBv3 FIXME
+		  // 
+		  if (atom_mask_mode == 1)
+		     atom_name_selection = " N  , H  , HA , CA , C  , O  ";
+		  if (atom_mask_mode == 2)
+		     atom_name_selection = "!( N  , H  , HA , CA , C  , O  )";
+		  if (atom_mask_mode == 3)
+		     atom_name_selection = "!( N  , H  , HA , CA , C  , O  , CB )";
+	       } else {
+		  if (atom_mask_mode == 4)
+		     atom_name_selection = "%%%%%%"; // nothing (perhaps use "")
+		  if (atom_mask_mode == 5)
+		     atom_name_selection = "%%%%%%"; // nothing
+	       }
+	    }
+	 }
+
+	 mol->SelectAtoms(SelHnd, 1,
+			  specs[ilocal].chain_id.c_str(),
+			  specs[ilocal].res_no,
+			  specs[ilocal].ins_code.c_str(),
+			  specs[ilocal].res_no,
+			  specs[ilocal].ins_code.c_str(),
+			  res_name_selection.c_str(),
+			  atom_name_selection.c_str(), 
+			  "*", // elements
+			  "*", // alt loc.
+			  mmdb::SKEY_OR
+			  );
+      }
+   }
+   return SelHnd;
+}
+
 
 // deleted by calling process
 std::pair<mmdb::Manager *, std::vector<coot::residue_spec_t> >
@@ -6149,58 +6203,62 @@ coot::util::remove_wrong_cis_peptides(mmdb::Manager *mol) {
    mmdb::PCisPep CisPep;
    if (mol) { 
       int n_models = mol->GetNumberOfModels();
-      for (int imod=1; imod<=n_models; imod++) { 
-	 std::vector<mmdb::CisPep> bad_cis_peptides;
-	 std::vector<mmdb::CisPep> good_cis_peptides;
+      for (int imod=1; imod<=n_models; imod++) {
 	 mmdb::Model *model_p = mol->GetModel(imod);
-	 int ncp = model_p->GetNumberOfCisPeps();
-	 for (int icp=1; icp<=ncp; icp++) {
-	    CisPep = model_p->GetCisPep(icp);
-	    if (CisPep)  {
-	       // 	    std::cout << "mmdb:: " << " :" << CisPep->chainID1 << ": "
-	       // << CisPep->seqNum1 << " :" 
-	       // << CisPep->chainID2 << ": " << CisPep->seqNum2 << std::endl;
-	       coot::util::cis_peptide_info_t cph(CisPep);
+	 if (model_p) {
+	    std::vector<mmdb::CisPep> bad_cis_peptides;
+	    std::vector<mmdb::CisPep> good_cis_peptides;
+	    int ncp = model_p->GetNumberOfCisPeps();
+	    for (int icp=1; icp<=ncp; icp++) {
+	       CisPep = model_p->GetCisPep(icp);
+	       if (CisPep)  {
+		  // 	    std::cout << "mmdb:: " << " :" << CisPep->chainID1 << ": "
+		  // << CisPep->seqNum1 << " :" 
+		  // << CisPep->chainID2 << ": " << CisPep->seqNum2 << std::endl;
+		  coot::util::cis_peptide_info_t cph(CisPep);
 
-	       // Does that match any of the coordinates cispeps?
-	       short int ifound = 0;
-	       for (unsigned int iccp=0; iccp<v_coords.size(); iccp++) {
-		  if (cph == v_coords[iccp]) {
-		     // std::cout << " ......header matches" << std::endl;
-		     ifound = 1;
-		     break;
-		  } else {
-		     // std::cout << "       header not the same" << std::endl;
+		  // Does that match any of the coordinates cispeps?
+		  short int ifound = 0;
+		  for (unsigned int iccp=0; iccp<v_coords.size(); iccp++) {
+		     if (cph == v_coords[iccp]) {
+			// std::cout << " ......header matches" << std::endl;
+			ifound = 1;
+			break;
+		     } else {
+			// std::cout << "       header not the same" << std::endl;
+		     }
 		  }
+		  if (ifound == 0) {
+		     // needs to be removed
+		     std::cout << "INFO:: Removing CIS peptide from PDB header: " 
+			       << cph.chain_id_1 << " "
+			       << cph.resno_1 << " "
+			       << cph.chain_id_2 << " "
+			       << cph.resno_2 << " "
+			       << std::endl;
+		     bad_cis_peptides.push_back(*CisPep);
+		  } else {
+		     good_cis_peptides.push_back(*CisPep);
+		     // 	       std::cout << "This CIS peptide was real: " 
+		     // 			 << cph.chain_id_1 << " "
+		     // 			 << cph.resno_1 << " "
+		     // 			 << cph.chain_id_2 << " "
+		     // 			 << cph.resno_2 << " "
+		     // 			 << std::endl;
+		  } 
 	       }
-	       if (ifound == 0) {
-		  // needs to be removed
-		  std::cout << "INFO:: Removing CIS peptide from PDB header: " 
-			    << cph.chain_id_1 << " "
-			    << cph.resno_1 << " "
-			    << cph.chain_id_2 << " "
-			    << cph.resno_2 << " "
-			    << std::endl;
-		  bad_cis_peptides.push_back(*CisPep);
-	       } else {
-		  good_cis_peptides.push_back(*CisPep);
-		  // 	       std::cout << "This CIS peptide was real: " 
-		  // 			 << cph.chain_id_1 << " "
-		  // 			 << cph.resno_1 << " "
-		  // 			 << cph.chain_id_2 << " "
-		  // 			 << cph.resno_2 << " "
-		  // 			 << std::endl;
-	       } 
 	    }
-	 }
-	 if (bad_cis_peptides.size() > 0) {
-	    // delete all CISPEPs and add back the good ones
-	    model_p->RemoveCisPeps();
-	    for (unsigned int igood=0; igood<good_cis_peptides.size(); igood++) {
-	       mmdb::CisPep *good = new mmdb::CisPep;
-	       *good = good_cis_peptides[igood];
-	       model_p->AddCisPep(good);
+	    if (bad_cis_peptides.size() > 0) {
+	       // delete all CISPEPs and add back the good ones
+	       model_p->RemoveCisPeps();
+	       for (unsigned int igood=0; igood<good_cis_peptides.size(); igood++) {
+		  mmdb::CisPep *good = new mmdb::CisPep;
+		  *good = good_cis_peptides[igood];
+		  model_p->AddCisPep(good);
+	       }
 	    }
+	 } else {
+	    std::cout << "WARNING:: null model for model " << imod << std::endl;
 	 }
       }
    }

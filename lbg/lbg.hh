@@ -825,7 +825,8 @@ private:
 						 mmdb::math::GraphMatch &match, int n_match, 
 						 ccp4srs::Monomer *monomer_p) const;
 #endif   
-   void display_search_results(const std::vector<coot::match_results_t> &v) const;
+   // not const because try_dynamic_add() can be called (to make images):
+   void display_search_results(const std::vector<coot::match_results_t> &v);
    void rotate_latest_bond(int x, int y);
    void rotate_or_extend_latest_bond(int x, int y);
    bool extend_latest_bond_maybe(); // use hilight_data
@@ -978,16 +979,17 @@ private:
    double bottom_of_flev_items();
 
    // geometry
-   const coot::protein_geometry *geom_p;
+   // (not const so that we can call try_dynamic_add())
+   coot::protein_geometry *geom_p;
 
 public:
-   lbg_info_t(GtkWidget *canvas_in, const coot::protein_geometry *geom_p_in) {
+   lbg_info_t(GtkWidget *canvas_in, coot::protein_geometry *geom_p_in) {
       canvas = canvas_in;
       init_internal();
       geom_p = geom_p_in;
    }
    lbg_info_t() { init_internal(); }
-   lbg_info_t(int imol_in, const coot::protein_geometry *geom_p_in) {
+   lbg_info_t(int imol_in, coot::protein_geometry *geom_p_in) {
       init_internal();
       geom_p = geom_p_in;
       imol = imol_in;
@@ -1107,13 +1109,17 @@ public:
    void set_mouse_pos_at_click(int xpos, int ypos) {
       mouse_at_click = lig_build::pos_t(double(xpos), double(ypos));
    }
-   void render_from_molecule(const widgeted_molecule_t &mol_in);
+   void render(); // uses internal data member mol
    void update_descriptor_attributes(); // this is not in render_from_molecule() because it can/might be slow.
    void delete_hydrogens();
    void undo();
-#ifdef HAVE_CCP4SRS   
-   void search() const;
-#endif   
+#ifdef HAVE_CCP4SRS
+   // not const because try_dynamic_add() can be called.
+   void search();
+#endif
+
+   // update the internal class variable widgeted_molecule_t mol from mol_in
+   void import_from_widgeted_molecule(const widgeted_molecule_t &mol_in);
    void import_molecule_from_file(const std::string &file_name); // mol or cif
    void import_molecule_from_cif_file(const std::string &file_name); // cif
    // 20111021 try to read file_name as a MDL mol or a mol2 file.
@@ -1226,6 +1232,7 @@ public:
       mdl_file_name = file_name;
    }
 
+   void clear_and_redraw();
    void clear_and_redraw(const lig_build::pos_t &delta);
 
    // drag and drop callbacks
@@ -1274,13 +1281,27 @@ public:
    void set_sbase_import_function(void (*f) (std::string)) {
       sbase_import_func_ptr = f;
    }
+   // Let's have a wrapper around that so that lbg-search doesn't need to ask if sbase_import_func_ptr
+   // is valid or not.
+   void import_srs_monomer(const std::string &comp_id);
 
    void import_prodrg_output(const std::string &prodrg_mdl_file_name, const std::string &comp_id) {
       if (prodrg_import_func_ptr) {
 	 prodrg_import_func_ptr(prodrg_mdl_file_name, comp_id);
       } else {
-	 std::cout << "WARNING:: No prodrg_import_func_ptr set" << std::endl;
-      } 
+
+	 // all we do is write the file.
+	 // update the status bar.
+	 //
+	 std::string status_string = "  Wrote file " + prodrg_mdl_file_name;
+	 guint statusbar_context_id = gtk_statusbar_get_context_id(GTK_STATUSBAR(lbg_statusbar),
+								   status_string.c_str());
+	 gtk_statusbar_push(GTK_STATUSBAR(lbg_statusbar),
+			    statusbar_context_id,
+			    status_string.c_str());
+      
+	 
+      }
    }
 
    // handle the net transfer of drug (to mdl file)
@@ -1295,6 +1316,11 @@ public:
 
    void new_lbg_window();
    void clean_up_2d_representation(); // using rdkit
+
+#ifdef HAVE_CCP4SRS
+   // not const because we can call geom_p->try_dynamic_add()
+   GtkWidget *get_image_widget_for_comp_id(const std::string &comp_id, int imol, ccp4srs::Manager *srs_manager);
+#endif // HAVE_CCP4SRS
 
    void pe_test_function();
 
@@ -1361,11 +1387,9 @@ public:
 
    void set_display_atom_names(bool state) {
       display_atom_names = state;
-      render_from_molecule(mol);
    }
    void set_display_atom_numbers(bool state) {
       display_atom_numbers = state;
-      render_from_molecule(mol);
    }
    
    
@@ -1382,7 +1406,7 @@ lbg_info_t *lbg(lig_build::molfile_molecule_t mm,
 		const std::string &view_name, // annotate the decoration
 		const std::string &molecule_file_name,
 		int imol, // molecule number of the molecule of the
-		const coot::protein_geometry *geom_p_in,
+		coot::protein_geometry *geom_p_in,
 			  // layed-out residue
 		bool use_graphics_interface_flag,
 		bool stand_alone_flag_in,

@@ -61,7 +61,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 					    int imol_enc_in) {
 
    if (false)
-      std::cout << "init_refmac_mon_lib() " << ciffilename << " "
+      std::cout << "DEBUG:: init_refmac_mon_lib() " << ciffilename << " "
 		<< read_number_in << " imol_enc_in: " << imol_enc_in << std::endl;
 
    int imol_enc = imol_enc_in;

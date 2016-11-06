@@ -129,38 +129,47 @@ void open_coords_dialog() {
 void
 open_cif_dictionary_file_selector_dialog() {
    
-   if (graphics_info_t::use_graphics_interface_flag) { 
-      GtkWidget *fileselection = coot_cif_dictionary_chooser();
+   if (graphics_info_t::use_graphics_interface_flag) {
+
+      GtkWidget *fileselection = coot_cif_dictionary_chooser(); // a chooser or a fileselection
       add_ccp4i_project_optionmenu(fileselection, COOT_CIF_DICTIONARY_FILE_SELECTION);
       add_filename_filter_button(fileselection, COOT_CIF_DICTIONARY_FILE_SELECTION);
       add_sort_button_fileselection(fileselection); 
       set_directory_for_fileselection(fileselection);
       set_file_selection_dialog_size(fileselection);
 
-      // action area for molecule selection
+      if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
 
-      GtkWidget *aa_hbox = GTK_FILE_SELECTION(fileselection)->action_area;
-      if (aa_hbox) {
-	 GtkWidget *frame = gtk_frame_new("Select Mol");
-	 GtkWidget *optionmenu = gtk_option_menu_new();
-	 g_object_set_data_full(G_OBJECT(fileselection),
-				"cif_dictionary_file_selector_molecule_select_option_menu",
-				gtk_widget_ref(optionmenu),
-				(GDestroyNotify) gtk_widget_unref);
+      } else {
 
-	 GtkSignalFunc callback_func =
-	    GTK_SIGNAL_FUNC(cif_dictionary_molecule_menu_item_select);
+	 // classic
 
-	 // this may not be what I want
-	 graphics_info_t g;
-	 int imol = first_coords_imol();
-	 fill_option_menu_with_coordinates_options_for_dictionary(optionmenu);
+	 // use action area for molecule selection
+	 //
+	 GtkWidget *aa_hbox = GTK_FILE_SELECTION(fileselection)->action_area;
 
-	 gtk_box_pack_start(GTK_BOX(aa_hbox), frame,      FALSE, TRUE, 0);
-	 gtk_container_add(GTK_CONTAINER(frame),optionmenu);
-	 gtk_widget_show(optionmenu);
-	 gtk_widget_show(frame);
+	 std::cout << "here with aa_hbox " << aa_hbox << std::endl;
+	 if (aa_hbox) {
+	    GtkWidget *frame = gtk_frame_new("Select Mol");
+	    GtkWidget *optionmenu = gtk_option_menu_new();
+	    g_object_set_data_full(G_OBJECT(fileselection),
+				   "cif_dictionary_file_selector_molecule_select_option_menu",
+				   gtk_widget_ref(optionmenu),
+				   (GDestroyNotify) gtk_widget_unref);
+
+	    GtkSignalFunc callback_func =
+	       GTK_SIGNAL_FUNC(cif_dictionary_molecule_menu_item_select);
+
+	    graphics_info_t g;
+	    int imol = first_coords_imol();
+	    fill_option_menu_with_coordinates_options_for_dictionary(optionmenu);
+
+	    gtk_box_pack_start(GTK_BOX(aa_hbox), frame, FALSE, TRUE, 0);
+	    gtk_container_add(GTK_CONTAINER(frame),optionmenu);
+	    gtk_widget_show(optionmenu);
+	    gtk_widget_show(frame);
 	 
+	 }
       }
       gtk_widget_show(fileselection);
    }
@@ -1649,11 +1658,8 @@ GtkWidget *add_sort_button_fileselection(GtkWidget *fileselection) {
    GtkWidget *button = 0;
    bool doit = 1;
 
-#if (GTK_MAJOR_VERSION > 1)
-   if (graphics_info_t::gtk2_file_chooser_selector_flag == 1) {
+   if (graphics_info_t::gtk2_file_chooser_selector_flag == 1)
       doit = 0;
-   }
-#endif
    
    if (doit) {
       GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
@@ -1682,7 +1688,7 @@ GtkWidget *add_sort_button_fileselection(GtkWidget *fileselection) {
       gtk_widget_show(button);
 
    } else {
-	// we have the chooser and dont need a sort button
+	// we have the chooser and don't need a sort button
    }
    return button;
 }
@@ -2087,7 +2093,7 @@ GtkWidget *coot_cif_dictionary_chooser() {
    if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::OLD_STYLE) {
       w = create_cif_dictionary_fileselection();
    } else {
-      w = create_cif_dictionary_filechooserdialog1(); 
+      w = create_cif_dictionary_filechooserdialog1();
    }
 
    return w;

@@ -1223,6 +1223,21 @@ coot::dict_torsion_restraint_t::format() const {
 }
 
 
+std::ostream &
+coot::operator<<(std::ostream &s, const coot::dictionary_residue_restraints_t &rest) {
+
+   std::cout << "--- dict " << rest.residue_info.comp_id << std::endl;
+   std::cout << "    " << rest.atom_info.size() << " atoms" << std::endl;
+   for (unsigned int iat=0; iat<rest.atom_info.size(); iat++)
+      std::cout << "   " << rest.atom_info[iat] << std::endl;
+   std::cout << "    " << rest.bond_restraint.size() << " bonds" << std::endl;
+   for (unsigned int ibond=0; ibond<rest.bond_restraint.size(); ibond++)
+      std::cout << "   " << rest.bond_restraint[ibond] << std::endl;
+
+   return s;
+}
+
+
 
 
 
@@ -2313,8 +2328,8 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    if (! ifound) {
       if (try_autoload_if_needed) {
 	 ifound = try_dynamic_add(monomer_type, read_number);
-	 std::cout << "here in have_dictionary_for_residue_type() try_dynamic_add returned "
-		   << ifound << std::endl;
+	 // std::cout << "here in have_dictionary_for_residue_type() try_dynamic_add returned "
+	 // << ifound << std::endl;
       }
    }
 
@@ -2611,9 +2626,12 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
 							int imol_enc,
 							bool allow_minimal_flag) const {
 
+   // 20161028
+   // Compiling with SRS causes a crash when we access dict_res_restraints.
+   // Needs more testing.
+
    coot::dictionary_residue_restraints_t t(std::string("(null)"), 0);
    std::pair<bool, dictionary_residue_restraints_t> r(0,t);
-
    unsigned int nrest = dict_res_restraints.size();
 
    // This is how it used to be - starting from the beginning.
@@ -2651,10 +2669,14 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
    //
    if (!r.first) {
       for (int i=(nrest-1); i>=0; i--) {
+	 // std::cout << "Matching :" << dict_res_restraints[i].second.residue_info.comp_id
+	 // << ": :" << monomer_type << ":" << std::endl;
 	 if (dict_res_restraints[i].second.residue_info.comp_id == monomer_type) {
+	    // std::cout << "   comparing " << dict_res_restraints[i].first << " " << imol_enc << std::endl;
 	    if (matches_imol(dict_res_restraints[i].first, imol_enc)) {
 	       r.second = dict_res_restraints[i].second;
 	       r.first = true;
+	       // std::cout << "found " << std::endl;
 	       break;
 	    }
 	 }

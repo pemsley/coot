@@ -287,6 +287,222 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
    return returned_tors_molecules_info;
 }
 
+// can throw a std::runtime_error
+coot::installed_wiggly_ligand_info_t
+coot::wligand::install_simple_wiggly_ligand(protein_geometry *pg,
+					    const minimol::molecule &ligand_in,
+					    int imol_ligand, int isample,
+					    bool optimize_geometry_flag) {
+   coot::installed_wiggly_ligand_info_t l;
+   short int istat = 0;
+   std::string m = ""; 
+   
+   // m_torsions: a set of torsions for this monomer
+   // 
+   std::string monomer_type = get_monomer_type_from_mol(ligand_in);
+//    std::cout << "DEBUG:: in install_simple_wiggly_ligands: "
+// 	     << "get_monomer_type_from_mol returns :"
+// 	     << monomer_type << ":" << std::endl;
+   short int do_hydrogen_torsions_flag = 0;
+   std::vector <coot::dict_torsion_restraint_t> m_torsions =
+      pg->get_monomer_torsions_from_geometry(monomer_type, do_hydrogen_torsions_flag);
+   std::pair<bool, dictionary_residue_restraints_t> monomer_restraints = 
+      pg->get_monomer_restraints(monomer_type, imol_ligand);
+
+   std::vector <coot::dict_torsion_restraint_t> non_const_torsions;
+   int n_non_const_torsionable = 0;
+   for (unsigned int i_tor=0; i_tor<m_torsions.size(); i_tor++) {
+      if (! m_torsions[i_tor].is_const()) { 
+	 non_const_torsions.push_back(m_torsions[i_tor]);
+	 n_non_const_torsionable++;
+      } 
+   } 
+
+   std::vector <coot::dict_torsion_restraint_t> non_const_non_ring_torsions;
+
+   if (monomer_restraints.first) {
+
+      // construct the non_const_non_ring_torsions vector by adding in
+      // torsions that are not in ring systems.
+      // 
+      std::vector<std::vector<std::string> >
+	 ring_atoms = monomer_restraints.second.get_ligand_ring_list();
+      // filter
+      for (unsigned int itor=0; itor<non_const_torsions.size(); itor++) {
+	 const coot::dict_torsion_restraint_t &torsion_rest = non_const_torsions[itor];
+	 // We need to test that the middle 2 atoms match atom names
+	 // I am unconvinced that this covers all cases.  Perhaps I should look for
+	 // 3 (or 4) atom name matches (comparing vs all torsion atom names).
+	 std::vector<std::string> torsion_restraint_atom_names(2);
+	 torsion_restraint_atom_names[0] = torsion_rest.atom_id_2_4c();
+	 torsion_restraint_atom_names[1] = torsion_rest.atom_id_3_4c();
+	 bool match = false; 
+	 for (unsigned int iring=0; iring<ring_atoms.size(); iring++) { 
+	    const std::vector<std::string> &ring_atom_names = ring_atoms[iring];
+	    // now, do the names in ring_atom_names match the names in torsion_restraint_atom_names?
+	    // if yes, this is a ring torsion, so reject it (otherwise add it of course)
+
+	    if (0) { 
+	       // debug
+	       std::cout << "ring " << iring << " atom names    : ";
+	       for (unsigned int iname_1=0; iname_1<ring_atom_names.size(); iname_1++)
+		  std::cout << "\"" << ring_atom_names[iname_1] << "\" ";
+	       std::cout << std::endl;
+	       std::cout << "torsion " << itor << " atom names : ";
+	       for (unsigned int iname_2=0; iname_2<torsion_restraint_atom_names.size(); iname_2++)
+		  std::cout << "\"" <<  torsion_restraint_atom_names[iname_2] << "\" ";
+	       std::cout << std::endl;
+	    }
+	    
+	    int n_match = 0;
+	    for (unsigned int iname_1=0; iname_1<ring_atom_names.size(); iname_1++) {
+	       for (unsigned int iname_2=0; iname_2<torsion_restraint_atom_names.size(); iname_2++) { 
+		  if (ring_atom_names[iname_1] == torsion_restraint_atom_names[iname_2])
+		     n_match++;
+	       }
+	    }
+	    if (n_match == 2) {
+	       match = true;
+	       break;
+	    }
+	 }
+
+	 if (! match) { 
+	    // non-ring torsion, add it.
+	    non_const_non_ring_torsions.push_back(torsion_rest);
+	 }
+      }
+
+   } else {
+      // urgh.  What to do...
+      non_const_non_ring_torsions = non_const_torsions;
+   } 
+
+   std::cout << "This residue has " << m_torsions.size() << " defined non-H torsions "
+	     << "of which " << n_non_const_torsionable << " are (non-const) rotatable and "
+	     << non_const_non_ring_torsions.size() << " are non-const and non-ring torsions"
+	     << std::endl;
+   
+   if (debug_wiggly_ligands) {
+      for (unsigned int itor=0; itor<m_torsions.size(); itor++) { 
+	 std::cout << " non-H torsion:   " << itor << " " << m_torsions[itor] << "\n";
+      }
+      for (unsigned int itor=0; itor<non_const_non_ring_torsions.size(); itor++) { 
+	 std::cout << " non-H-non-ring-non-const torsion:   " << itor << " "
+		   << non_const_non_ring_torsions[itor] << "\n";
+      }
+   }
+   
+   if (non_const_non_ring_torsions.size() == 0) {
+
+      // " Did you forget to read the dictionary?";
+      
+      std::pair<bool, dictionary_residue_restraints_t> p = 
+	 pg->get_monomer_restraints(monomer_type, imol_ligand);
+
+      m = "Requested flexible molecule for ligand \"";
+      m += monomer_type;
+      m += "\"\n"; 
+      m += " but no non-Hydrogen rotatable bonds found.\n";
+      if (p.first == 0) {
+	 std::string mess = "WARNING:: " + m;
+	 mess += " Did you forget to read the dictionary?\n";
+	 throw std::runtime_error(mess);
+      } else {
+	 // OK, there were restraints for such a thing, but no
+	 // torsions.  It was a phosphate or some such.
+	 // In that case, just install a simple static molecule
+	 install_ligand(ligand_in);
+	 istat = 1;
+      }
+
+   } else {
+      istat = 1; // OK.... so far.
+   }
+
+   // This should be inside the else (then we can remove the above
+   // return) , it's just a mess to do.
+   //
+
+   coot::minimol::molecule ligand = ligand_in; // local changable copy
+   // the coot::atom_tree_t is constructed from a residue, not a molecule.
+   coot::minimol::residue ligand_residue = ligand[0][ligand[0].min_res_no()];
+   std::string ligand_chain_id = ligand[0].fragment_id;
+
+   std::vector<float> torsion_set = get_torsions_by_random(non_const_non_ring_torsions);
+
+   if (debug_wiggly_ligands) { 
+      for (unsigned int itor=0; itor<torsion_set.size(); itor++) { 
+	 std::cout << "   non-const-non-ring-tors: " << itor << " "
+		   << non_const_non_ring_torsions[itor] << " " << torsion_set[itor]
+		   << std::endl;
+      }
+   } 
+
+      
+   std::vector<coot::atom_name_quad> atom_name_quads =
+      get_torsion_bonds_atom_quads(monomer_type, non_const_non_ring_torsions);
+   // the vector of rotation torsions. 
+   std::vector<coot::atom_tree_t::tree_dihedral_info_t> v;
+   if (torsion_set.size() == atom_name_quads.size()) { 
+      for (unsigned int it=0; it<torsion_set.size(); it++) {
+	 coot::atom_tree_t::tree_dihedral_info_t di(atom_name_quads[it], torsion_set[it]);
+	 v.push_back(di);
+      }
+   }
+
+
+   std::string alt_conf = "";
+   try { 
+      atom_tree_t tree(monomer_restraints.second, ligand_residue, alt_conf);
+      // angles in degrees.
+      tree.set_dihedral_multi(v);
+      minimol::residue wiggled_ligand_residue = tree.GetResidue();
+      installed_wiggly_ligand_info_t wl =
+	 optimize_and_install_if_unique(wiggled_ligand_residue,
+					pg, non_const_non_ring_torsions,
+					torsion_set, ligand_chain_id,
+					isample, optimize_geometry_flag, false);
+      if (!wl.mol.is_empty())
+	 l = wl;
+   }
+   catch (const std::runtime_error &rte) {
+      try { 
+	 mmdb::Residue *r = coot::GetResidue(ligand_residue);
+	 bool add_reverse_contacts = true;
+	 std::vector<std::vector<int> > contact_indices =
+	    coot::util::get_contact_indices_from_restraints(r, pg, 1, add_reverse_contacts);
+
+	 if (0) 
+	    for (unsigned int i=0; i<contact_indices.size(); i++) { 
+	       std::cout << "contacts " << i << " has " << contact_indices[i].size() << " contacts: ";
+	       for (unsigned int j=0; j<contact_indices[i].size(); j++) { 
+		  std::cout << contact_indices[i][j] << " ";
+	       }
+	       std::cout << std::endl;
+	    }
+	    
+	 int base_atom_index = 0; // hopefully this will work
+	 atom_tree_t tree(monomer_restraints.second,
+			  contact_indices, base_atom_index, ligand_residue, alt_conf);
+	 tree.set_dihedral_multi(v);
+	 minimol::residue wiggled_ligand_residue = tree.GetResidue();
+
+	 installed_wiggly_ligand_info_t wl = 
+	    optimize_and_install_if_unique(wiggled_ligand_residue,
+					   pg, non_const_non_ring_torsions,
+					   torsion_set, ligand_chain_id,
+					   isample, optimize_geometry_flag, false);
+	 delete r;
+      }
+      catch (const std::runtime_error &rte) {
+	 std::cout << "ERROR: in install_simple_wiggly_ligands() " << rte.what() << std::endl;
+      }
+   }
+   
+   return l;
+}
+
 coot::installed_wiggly_ligand_info_t
 coot::wligand::optimize_and_install_if_unique(const coot::minimol::residue &wiggled_ligand_residue,
 					      coot::protein_geometry *pg,

@@ -69,7 +69,7 @@ lbg(lig_build::molfile_molecule_t mm,
     const std::string &view_name,
     const std::string &molecule_file_name,
     int imol,
-    const coot::protein_geometry *geom_p_in,
+    coot::protein_geometry *geom_p_in,
     bool use_graphics_interface_flag,
     bool stand_alone_flag_in,
     int (*get_url_func_pointer_in) (const char *s1, const char *s2),
@@ -123,8 +123,9 @@ lbg(lig_build::molfile_molecule_t mm,
 	    // Happy Path
 	 
 	    lbg = new lbg_info_t(imol, geom_p_in);
-	    if (stand_alone_flag_in)
+	    if (stand_alone_flag_in) {
 	       lbg->set_stand_alone();
+	    }
 	    int init_status = lbg->init(builder);
 	    
 	    // normal built-in and using-graphics path...
@@ -147,7 +148,9 @@ lbg(lig_build::molfile_molecule_t mm,
 	       } 
 	       
 	       widgeted_molecule_t wmol = lbg->import_mol_file(mm, molecule_file_name, mol);
-	       lbg->render_from_molecule(wmol);
+
+	       lbg->import_from_widgeted_molecule(wmol);
+	       lbg->render();
 	       lbg->update_descriptor_attributes();
 	       lbg->save_molecule();
 	    }
@@ -162,7 +165,8 @@ lbg(lig_build::molfile_molecule_t mm,
 	    lbg->set_ligand_spec(ligand_spec_pair.second);
 	 
 	 widgeted_molecule_t wmol = lbg->import_mol_file(mm, molecule_file_name, mol);
-	 lbg->render_from_molecule(wmol);
+	 lbg->import_from_widgeted_molecule(wmol);
+	 lbg->render();
 	 lbg->update_descriptor_attributes();
       }
 
@@ -772,18 +776,32 @@ lbg_info_t::clear_and_redraw(const lig_build::pos_t &delta) {
    if (delta.non_zero()) {
       widgeted_molecule_t new_mol = translate_molecule(delta); // and do a canvas update
       translate_residue_circles(delta);
-      render_from_molecule(new_mol);
+      import_from_widgeted_molecule(new_mol);
+      render();
       // std::cout << "calling update_descriptor_attributes() from clear_and_redraw() " << std::endl;
       // update_descriptor_attributes();
    } else {
       // this path gets called when the "Env Residues" button is pressed.
       // std::cout << "==== delta is zero path ==== " << std::endl;
       widgeted_molecule_t saved_mol = mol;
-      render_from_molecule(saved_mol);
-      // update_descriptor_attributes();
+      // render_from_molecule(saved_mol);
+
+      import_from_widgeted_molecule(saved_mol);
+      render();
    }
    draw_all_flev_annotations();
 }
+
+void
+lbg_info_t::clear_and_redraw() {
+
+   clear_canvas();
+   widgeted_molecule_t saved_mol = mol;
+   import_from_widgeted_molecule(saved_mol);
+   render();
+}
+
+
 
 
 widgeted_molecule_t
@@ -3144,7 +3162,7 @@ lbg_info_t::init(GtkBuilder *builder) {
 
 #ifdef HAVE_CCP4SRS
    gtk_widget_show(lbg_search_database_frame);
-   gtk_widget_show(lbg_srs_search_results_scrolledwindow);
+   gtk_widget_hide(lbg_srs_search_results_scrolledwindow); // show this when SRS results
 #else
    // ... we don't have ccp4 srs
    gtk_widget_hide(lbg_srs_search_results_scrolledwindow);
@@ -3564,7 +3582,10 @@ lbg_info_t::handle_read_draw_coords_mol_and_solv_acc(const std::string &coot_pdb
    std::vector<solvent_accessible_atom_t> solvent_accessible_atoms =
       read_solvent_accessibilities(sa_file);
    wmol.map_solvent_accessibilities_to_atoms(solvent_accessible_atoms);
-   render_from_molecule(wmol);
+
+   import_from_widgeted_molecule(wmol);
+   render();
+   
 }
 
 
@@ -3675,11 +3696,15 @@ lbg_info_t::get_stroke_colour(int i, int n) const {
    return r;
 }
 
+// update the internal class variable widgeted_molecule_t mol from mol_in
+// 
 void
-lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
+lbg_info_t::import_from_widgeted_molecule(const widgeted_molecule_t &mol_in) {
+
+   // updates mol
 
    make_saves_mutex = 0; // stop saving changes (restored at end)
-   clear(false);
+   clear(false); // clear and no descriptor updates
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
    
    int re_index[mol_in.atoms.size()]; // map from mol_in atom indexing
@@ -3795,6 +3820,27 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 	 }
       }
    }
+   // for input_coords_to_canvas_coords() to work:
+   //
+   mol.centre_correction = mol_in.centre_correction;
+   mol.scale_correction  = mol_in.scale_correction;
+   mol.mol_in_min_y = mol_in.mol_in_min_y;
+   mol.mol_in_max_y = mol_in.mol_in_max_y;
+   
+   // 
+   make_saves_mutex = 1; // allow saves again.
+
+}
+
+void
+lbg_info_t::render() {
+
+   GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+
+   if (false)
+      std::cout << "------------ render_from_molecule() with display_atom_names " << display_atom_names
+		<< " display_atom_numbers "  << display_atom_numbers << " "
+		<< mol.atoms.size() << " atoms " << mol.bonds.size() << " bonds" << std::endl;
 
    if (! display_atom_names && ! display_atom_numbers) {
 
@@ -3876,16 +3922,6 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 
    draw_substitution_contour();
    
-   // for input_coords_to_canvas_coords() to work:
-   //
-   mol.centre_correction = mol_in.centre_correction;
-   mol.scale_correction  = mol_in.scale_correction;
-   mol.mol_in_min_y = mol_in.mol_in_min_y;
-   mol.mol_in_max_y = mol_in.mol_in_max_y;
-   
-   // 
-   make_saves_mutex = 1; // allow saves again.
-
 }
 
 void
@@ -3895,7 +3931,8 @@ lbg_info_t::undo() {
    if (save_molecule_index >= 0) { 
       widgeted_molecule_t saved_mol = previous_molecules[save_molecule_index];
       // std::cout << "undo... reverting to save molecule number " << save_molecule_index << std::endl;
-      render_from_molecule(saved_mol);
+      import_from_widgeted_molecule(saved_mol);
+      render();
       update_descriptor_attributes();
    } else {
       clear(true);
@@ -3912,7 +3949,9 @@ lbg_info_t::delete_hydrogens() {
    widgeted_molecule_t copy_mol = mol;
    copy_mol.delete_hydrogens(root);
    save_molecule();
-   render_from_molecule(copy_mol);
+   import_from_widgeted_molecule(copy_mol);
+   render();
+   
 } 
 
 
@@ -4093,6 +4132,51 @@ lbg_info_t::import_molecule_from_file(const std::string &file_name) { // mol or 
    }
 }
 
+// Let's have a wrapper around sbase_import_func_ptr so that lbg-search doesn't need
+// to ask if sbase_import_func_ptr is valid or not.
+//
+void
+lbg_info_t::import_srs_monomer(const std::string &comp_id) {
+
+   // this is passed from coot as it calls lbg()
+   //
+   if (! stand_alone_flag) {
+      if (sbase_import_func_ptr) {
+	 sbase_import_func_ptr(comp_id);
+      } else {
+	 std::cout << "ERROR:: null sbase_import_func_ptr" << std::endl;
+      }
+   } else {
+      // here we are in lidia
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#ifdef HAVE_CCP4SRS
+      coot::protein_geometry pg;
+
+      const char *d1 = getenv("COOT_CCP4SRS_DIR"); // we should provide an "installed" dir
+                                                   // if COOT_CCP4SRS_DIR is not set
+      std::string srs_dir;
+      if (d1)
+	 srs_dir = d1;
+      pg.init_ccp4srs(srs_dir);
+      bool s = pg.fill_using_ccp4srs(comp_id);
+      std::cout << "DEBUG:: pg.fill_using_ccp4srs() returned " << s << std::endl;
+      if (s) {
+	 int imol_local = 0; // dummy
+	 std::pair<bool, coot::dictionary_residue_restraints_t> p =
+	    pg.get_monomer_restraints(comp_id, imol_local);
+	 if (p.first) {
+	    bool show_hydrogens_flag = false;
+	    import_via_rdkit_from_restraints_dictionary(p.second, show_hydrogens_flag);
+	 } else {
+	    std::cout << "ERROR:: bad extraction of restriants from srs " << comp_id << std::endl;
+	 }
+      }
+#endif // HAVE_CCP4SRS
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
+   }
+}
+
+
 
 void
 lbg_info_t::import_molecule_from_cif_file(const std::string &file_name) {
@@ -4209,7 +4293,8 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
       lig_build::molfile_molecule_t mm;
       mm.read(file_name);
       widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
-      render_from_molecule(wmol);
+      import_from_widgeted_molecule(wmol);
+      render();
       update_descriptor_attributes();
    }
 }
@@ -4243,7 +4328,6 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
       double weight_for_3d_distances = 0.4;
 
       int n_confs = m->getNumConformers();
-      
       if (n_confs > 0) {
 	 if (m->getConformer(iconf).is3D()) {
 	    int iconf_local = coot::add_2d_conformer(m, weight_for_3d_distances); // 3d -> 2d
@@ -4265,10 +4349,12 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
 
 	 const RDKit::Conformer conformer = m->getConformer(iconf);
 	 RDKit::WedgeMolBonds(*m, &conformer);
+
 	 widgeted_molecule_t wmol = import_rdkit_mol(m, iconf);
 	 mdl_file_name = file_name;
    
-	 render_from_molecule(wmol);
+	 import_from_widgeted_molecule(wmol);
+	 render();
 	 update_descriptor_attributes();
      
       } else {
@@ -4285,9 +4371,7 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
       gtk_statusbar_push(GTK_STATUSBAR(lbg_statusbar),
 			 statusbar_context_id,
 			 status_string.c_str());
-      
    }
-   
 }
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 
@@ -4410,49 +4494,75 @@ lbg_info_t::import_mol_from_comp_id(const std::string &comp_id,
 #endif  // MAKE_ENHANCED_LIGAND_TOOLS
 }
 
+// #include "GraphMol/MolPickler.h" VERSION problems.
+
 void
 lbg_info_t::import_via_rdkit_from_restraints_dictionary(const coot::dictionary_residue_restraints_t &dict, bool show_hydrogens_status) {
 
 #ifdef  MAKE_ENHANCED_LIGAND_TOOLS
+
+   // double try/catch because we want to separate rdkit molecule construction
+   // problems from undelocalise/sanitize/compute2D problems.
+   //
    try {
       RDKit::RWMol m = coot::rdkit_mol(dict);
-      coot::undelocalise(&m);
-      if (! show_hydrogens_status) 
-	 coot::remove_non_polar_Hs(&m);
-      unsigned int n_mol_atoms = m.getNumAtoms();
-      for (unsigned int iat=0; iat<n_mol_atoms; iat++)
-	 m[iat]->calcImplicitValence(true);
 
-      // 20160702 use add_2d_conformer() instead now?
+      try {
+	 coot::undelocalise(&m);
+	 if (! show_hydrogens_status) 
+	    coot::remove_non_polar_Hs(&m);
+	 unsigned int n_mol_atoms = m.getNumAtoms();
+	 for (unsigned int iat=0; iat<n_mol_atoms; iat++)
+	    m[iat]->calcImplicitValence(true);
 
-      coot::rdkit_mol_sanitize(m);
-      RDKit::MolOps::Kekulize(m); // non-const reference?
-      bool canonOrient=true;
-      bool clearConfs=true;
-      unsigned int nFlipsPerSample=3;
-      unsigned int nSamples=200;
-      int sampleSeed=10;
-      bool permuteDeg4Nodes=true;
+	 // 20160702 use add_2d_conformer() instead now?
+
+	 coot::rdkit_mol_sanitize(m);
+	 RDKit::MolOps::Kekulize(m); // non-const reference?
+	 bool canonOrient=true;
+	 bool clearConfs=true;
+	 unsigned int nFlipsPerSample=3;
+	 unsigned int nSamples=200;
+	 int sampleSeed=10;
+	 bool permuteDeg4Nodes=true;
       
-      unsigned int conf_id = RDDepict::compute2DCoords(m, NULL,
-						       canonOrient,
-						       clearConfs,
-						       nFlipsPerSample,
-						       nSamples,
-						       sampleSeed,
-						       permuteDeg4Nodes);
-      RDKit::Conformer conf = m.getConformer(conf_id);
-      RDKit::WedgeMolBonds(m, &conf);
-      
-      // int conf_id = coot::add_2d_conformer(&m, 0);
+	 unsigned int conf_id = RDDepict::compute2DCoords(m, NULL,
+							  canonOrient,
+							  clearConfs,
+							  nFlipsPerSample,
+							  nSamples,
+							  sampleSeed,
+							  permuteDeg4Nodes);
+	 RDKit::Conformer conf = m.getConformer(conf_id);
 
-      if (false)
-	 std::cout << "..... n_confs B " << m.getNumConformers()
-		   << " with new 2D conf_id " << conf_id
-		   << " 3d-flag: " << m.getConformer(conf_id).is3D() << std::endl;
+	 RDKit::WedgeMolBonds(m, &conf);
 
-      rdkit_mol_post_read_handling(&m, "from-comp-id");
+	 if (false)
+	    std::cout << "..... n_confs B " << m.getNumConformers()
+		      << " with new 2D conf_id " << conf_id
+		      << " 3d-flag: " << m.getConformer(conf_id).is3D() << std::endl;
+
+	 gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), dict.residue_info.comp_id.c_str());
+	 rdkit_mol_post_read_handling(&m, "from-comp-id");
+      }
+      catch (const RDKit::MolSanitizeException &e) {
+	 // calcImplicitValence() can make this happend
+	 std::cout << "ERROR:: on Sanitize (inner) " << e.what() << std::endl;
+      }
+      catch (const std::runtime_error &rte) {
+	 std::cout << "ERROR:: (inner) import_via_rdkit_from_restraints_dictionary "
+		   << rte.what() << std::endl;
+	 coot::debug_rdkit_molecule(&m);
+
+	 // boost::python::api::object obj = RDKit::MolToBinary(m);
+
+// 	 {
+// 	    std::string res;
+// 	    RDKit::MolPickler::pickleMol(m,res);
+// 	 }
+      }
    }
+   // we don't have an rdkit molecule for these catches.
    catch (const RDKit::MolSanitizeException &e) {
       // calcImplicitValence() can make this happend
       std::cout << "ERROR:: on Sanitize" << e.what() << std::endl;
@@ -4460,6 +4570,7 @@ lbg_info_t::import_via_rdkit_from_restraints_dictionary(const coot::dictionary_r
    catch (const std::runtime_error &rte) {
       std::cout << "ERROR:: " << rte.what() << std::endl;
    }
+
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 }
 
@@ -4595,8 +4706,9 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
 			 << conf.getAtomPos(idx_2)
 			 << " dir " << bond_dir << std::endl;
 	    if (bond_dir != RDKit::Bond::NONE) {
-	       if (bond_dir == RDKit::Bond::BEGINWEDGE)
+	       if (bond_dir == RDKit::Bond::BEGINWEDGE) {
 		  bond.set_bond_type(lig_build::bond_t::OUT_BOND);
+	       }
 	       if (bond_dir == RDKit::Bond::BEGINDASH)
 		  bond.set_bond_type(lig_build::bond_t::IN_BOND);
 	    }
@@ -4645,7 +4757,8 @@ lbg_info_t::clean_up_2d_representation() {
 	    coot::make_molfile_molecule(rdkm, iconf);
 	 mmdb::Manager *mol = NULL; // no atom names to transfer
 	 widgeted_molecule_t wmol(mm, mol);
-	 render_from_molecule(wmol);
+	 import_from_widgeted_molecule(wmol);
+	 render();
 	 update_descriptor_attributes();
 	 save_molecule();
       }
@@ -4897,8 +5010,11 @@ lbg_info_t::flip_molecule(int axis) {
 
    widgeted_molecule_t new_mol = mol;
    new_mol.flip(axis);
-   render_from_molecule(new_mol); // wipes mol
+   // render_from_molecule(new_mol); // wipes mol
    // update_descriptor_attributes();
+
+   import_from_widgeted_molecule(new_mol);
+   render();
 }
 
 void
@@ -4906,8 +5022,9 @@ lbg_info_t::rotate_z_molecule(double degrees) {
 
    widgeted_molecule_t new_mol = mol;
    new_mol.rotate_z(degrees);
-   render_from_molecule(new_mol); // wipes mol
    // update_descriptor_attributes();
+   import_from_widgeted_molecule(new_mol);
+   render();
 }
 
 // in degrees (used in on_lbg_view_rotate_apply_button_clicked

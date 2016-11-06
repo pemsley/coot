@@ -234,7 +234,9 @@ coot_bin_SOURCES = \
 	c-interface-gtk-widgets.h \
 	c-interface-info.cc	 \
 	c-interface-kk.cc	 \
+	c-interface-ligand-search.hh \
 	c-interface-ligands.hh   \
+	c-interface-ligands-widgets.hh \
 	c-interface-ligands-swig.hh   \
 	c-interface-ligands.cc   \
 	c-interface-ligands-gui.cc \

@@ -2600,6 +2600,7 @@ public:
    static float ligand_acceptable_fit_fraction;
    static float ligand_cluster_sigma_level; // was 2.2 default
    static int   ligand_wiggly_ligand_n_samples;
+   static int   ligand_wiggly_ligand_count;
    static int   ligand_verbose_reporting_flag; 
    
    // Eleanor wants control over water parameters

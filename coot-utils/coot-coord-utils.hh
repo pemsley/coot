@@ -212,6 +212,19 @@ namespace coot {
    // return -1 on badness
    int get_selection_handle(mmdb::Manager *mol, const atom_spec_t &at);
 
+   // return a selection handle.
+   //
+   // mode:
+   // 0: all
+   // 1: mainchain
+   // 2: not mainchain
+   // 3: not mainchain or CB
+   // caller deletes the selection.
+   int
+   specs_to_atom_selection(const std::vector<coot::residue_spec_t> &specs,
+			   mmdb::Manager *mol,
+			   int atom_mask_mode);
+
    // Return the lsq deviation of the pt atom and (in second) the rms
    // deviation of the atoms in the plane (not the including pt of
    // course)

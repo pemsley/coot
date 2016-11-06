@@ -1886,7 +1886,7 @@ coot::ligand::sort_final_ligand(unsigned int iclust) {
    std::reverse(final_ligand[iclust].begin(),
 		final_ligand[iclust].end());
 
-   if (0) 
+   if (false)
       for (unsigned int isol=0; isol<final_ligand[iclust].size(); isol++)
 	 std::cout << "post reverse: solution " << isol << " of " << final_ligand[iclust].size()
 		   << " " << final_ligand[iclust][isol].second << std::endl;

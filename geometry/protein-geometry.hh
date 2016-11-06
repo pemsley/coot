@@ -24,8 +24,6 @@
 #ifndef PROTEIN_GEOMETRY_HH
 #define PROTEIN_GEOMETRY_HH
 
-#define MONOMER_DIR_STR "COOT_CCP4SRS_DIR"
-
 #ifndef HAVE_VECTOR
 #define HAVE_VECTOR
 #include <vector>
@@ -48,6 +46,7 @@
 #endif
 #endif
 
+#include "match-results.hh"
 
 #include "energy-lib.hh"
 
@@ -421,6 +420,7 @@ namespace coot {
       std::string atom_id_2_4c() const { return atom_id_mmdb_expand(local_atom_id_2);}
       std::string atom_id_3_4c() const { return atom_id_mmdb_expand(local_atom_id_3);}
       std::string atom_id_c_4c() const { return atom_id_mmdb_expand(local_atom_id_centre);}
+      std::string get_atom_id_centre() const { return local_atom_id_centre; }
       void set_atom_1_atom_id(const std::string &id) { local_atom_id_1 = id; }
       void set_atom_2_atom_id(const std::string &id) { local_atom_id_2 = id; }
       void set_atom_3_atom_id(const std::string &id) { local_atom_id_3 = id; }
@@ -772,8 +772,15 @@ namespace coot {
       // for hydrogens
       bool is_connected_to_donor(const std::string &H_at_name_4c,
 				 const energy_lib_t &energy_lib) const;
+
+      friend std::ostream& operator<<(std::ostream &s, const dictionary_residue_restraints_t &rest);
+
+#ifdef HAVE_CCP4SRS
+      bool fill_using_ccp4srs(ccp4srs::Manager *srs_manager, const std::string &monomer_type);
+#endif // HAVE_CCP4SRS
       
    };
+   std::ostream& operator<<(std::ostream &s, const dictionary_residue_restraints_t &rest);
 
    class dictionary_match_info_t {
    public:
@@ -1303,28 +1310,6 @@ namespace coot {
       }
    };
    
-
-   // a container for the results of the comparison vs CCP4SRS graph matching.
-   //
-   class match_results_t {
-   public:
-      bool success;
-      std::string name;
-      std::string comp_id;
-      mmdb::Residue *res;
-      // clipper::RTop_orth
-      match_results_t(const std::string &comp_id_in, const std::string &name_in, mmdb::Residue *res_in) {
-	 name = name_in;
-	 comp_id = comp_id_in;
-	 res = res_in;
-	 if (res_in)
-	    success = true;
-	 else
-	    success = false;
-      }
-   };
-      
-
    class read_refmac_mon_lib_info_t {
    public:
       unsigned int n_atoms;
@@ -2234,7 +2219,8 @@ namespace coot {
 					      ccp4srs::Monomer *monomer_p) const;
       std::vector<match_results_t>
       compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float similarity, int n_vertices,
-			 int srs_idx_start, int srs_idx_end) const;
+			 int srs_idx_start, int srs_idx_end,
+			 bool fill_graph_matches) const;
       int ccp4_srs_n_entries() const;
 
       // return empty string if not available.
@@ -2242,7 +2228,7 @@ namespace coot {
 							    unsigned int n_top=10) const;
 
 #endif // HAVE_CCP4SRS      
-	 
+
    };
 
 } // namespace coot

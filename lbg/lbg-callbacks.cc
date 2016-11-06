@@ -39,6 +39,7 @@ on_lbg_apply_button_clicked(GtkButton *button, gpointer user_data) {
    if (!l) {
       std::cout << "failed to get lbg_info_t from " << canvas << std::endl;
    } else {
+
       // l->mol.debug();
       l->mol.write_mdl_molfile("prodrg-in.mdl");
 
@@ -464,6 +465,7 @@ on_lbg_display_standard_menuitem_activate (GtkMenuItem *item, gpointer         u
    if (l) {
       l->set_display_atom_names(false);
       l->set_display_atom_numbers(false);
+      l->clear_and_redraw();
    }
 }
 
@@ -475,6 +477,7 @@ on_lbg_display_indices_menuitem_activate (GtkMenuItem *item, gpointer         us
    if (l) {
       l->set_display_atom_names(false);
       l->set_display_atom_numbers(true);
+      l->clear_and_redraw();
    }
 }
 
@@ -486,6 +489,7 @@ on_lbg_display_names_menuitem_activate (GtkMenuItem *item, gpointer         user
    if (l) {
       l->set_display_atom_numbers(false);
       l->set_display_atom_names(true);
+      l->clear_and_redraw();
    }
 }
 
