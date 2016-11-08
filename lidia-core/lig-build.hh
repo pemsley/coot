@@ -828,6 +828,8 @@ namespace lig_build {
       std::vector<Ta> atoms;
       std::vector<Tb> bonds;
 
+      virtual ~molecule_t() = 0;
+
       // Return new atom index (int) and whether or not the atom was
       // added (1) or returned the index of an extant atom (0).
       // 

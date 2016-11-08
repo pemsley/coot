@@ -865,7 +865,7 @@ coot::set_atom_chirality(RDKit::Atom *rdkit_at,
 void
 coot::set_atom_chirality(RDKit::Atom *rdkit_at, const coot::dict_atom &dict_atom) {
 
-   bool debug = true;
+   bool debug = false;
 
    if (dict_atom.pdbx_stereo_config.first) {
       if (dict_atom.pdbx_stereo_config.second == "R") {

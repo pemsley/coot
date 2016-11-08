@@ -34,6 +34,8 @@
 #include "lbg.hh"
 
 
+widgeted_molecule_t::~widgeted_molecule_t() {}
+
 // Don't forget that this function will be used in
 // render_from_molecule, which will add canvas item.
 //

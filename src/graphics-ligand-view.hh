@@ -66,6 +66,7 @@ public:
       display_list_tag = 0;
       imol = -1; // unset
    } 
+   ~graphics_ligand_molecule();
    // some OpenGL stuff.
    void render();
    void generate_display_list(bool against_a_dark_background);
