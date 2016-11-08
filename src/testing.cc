@@ -547,8 +547,8 @@ int test_alt_conf_rotamers() {
 		  if (chis.size() != 1) {
 		     std::string mess = "chis.size() is ";
 		     mess += stringify(int(chis.size()));
-		     mess += " for ";
-		     mess += stringify(79);
+		     mess += " for resno ";
+		     mess += stringify(80);
 		     throw std::runtime_error(mess);
 		  }
 		  int n_rots_found = 0;
@@ -559,14 +559,14 @@ int test_alt_conf_rotamers() {
 			if (chi_1 < -57.0)
 			   if (chi_2 > 95.0)
 			      if (chi_2 < 96.0)
-			   n_rots_found++;
+			         n_rots_found++;
 		  }
 		  if (n_rots_found != 1) {
 		     std::string mess = " Oops found ";
 		     mess += stringify(n_rots_found);
 		     mess += " rotamers ";
-		     mess += " for ";
-		     mess += stringify(79);
+		     mess += " for resno ";
+		     mess += stringify(80);
 		     throw std::runtime_error(mess);
 		  }
 	       } 
