@@ -746,10 +746,15 @@ SCM execute_ligand_search_scm() {
 #ifdef USE_PYTHON
 PyObject *execute_ligand_search_py() {
 
+   std::vector<int> solutions;
+   PyObject *r = generic_int_vector_to_list_internal_py(solutions);
    ligand_wiggly_ligand_data_t lwld = ligand_search_install_wiggly_ligands();
-   std::vector<int> solutions = execute_ligand_search_internal(lwld.wlig);
-   // now sort solutions (because they (probably) have been real-space refined now)
-   return generic_int_vector_to_list_internal_py(solutions);
+   if (lwld.immediate_execute_ligand_search) {
+      std::vector<int> solutions = execute_ligand_search_internal(lwld.wlig);
+      // now sort solutions (because they (probably) have been real-space refined now)
+      r = generic_int_vector_to_list_internal_py(solutions);
+   }
+   return r;
 }
 #endif // USE_PYTHON
 
@@ -803,6 +808,7 @@ ligand_search_install_wiggly_ligands() {
 	       lfwd.progress_bar        = lfwd_local.progress_bar;
 	       lfwd.progress_bar_window = lfwd_local.progress_bar_window;
 	       lfwd.progress_bar_label  = lfwd_local.progress_bar_label;
+	       lfwd.immediate_execute_ligand_search = false;
 
 	       setup_ligands_progress_bar_idle(wlig_p, ligands[i].first, lfwd);
 
@@ -818,7 +824,6 @@ ligand_search_install_wiggly_ligands() {
 	       wlig_p->install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
 						     g.ligand_wiggly_ligand_n_samples,
 						     optim_geom, fill_vec);
-	       lfwd.immediate_execute_ligand_search = false;
 	    }
 	 }
 	 catch (const std::runtime_error &mess) {
@@ -832,8 +837,6 @@ ligand_search_install_wiggly_ligands() {
 	 }
       } else {
 	 // argh (ii).
-
-	 std::cout << "............ calling install_ligand()" << std::endl;
 	 wlig_p->install_ligand(g.molecules[ligands[i].first].atom_sel.mol);
       }
    }
@@ -1012,7 +1015,7 @@ execute_ligand_search_internal(coot::wligand *wlig_p) {
 	    label_str += " acceptable ligands  ";
 	 gtk_label_set_text(GTK_LABEL(label), label_str.c_str());
 	 gtk_widget_show(w);
-      } else { 
+      } else {
 	 GtkWidget *w = create_no_new_ligands_info_dialog();
 	 gtk_widget_show(w);
       }

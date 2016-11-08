@@ -3823,28 +3823,31 @@ void add_ccp4i_project_optionmenu(GtkWidget *fileselection, int file_selection_t
    }
 
    if (add_shortcut) {
-//       std::cout << "in add_ccp4i_project_optionmenu widget is fileselection "
-// 		<< GTK_IS_FILE_CHOOSER(fileselection) << std::endl;
-      add_ccp4i_project_shortcut(fileselection);
+
+      if (GTK_IS_FILE_CHOOSER(fileselection))
+	 add_ccp4i_project_shortcut(fileselection);
 
    } else {
 
-      GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
+      if (GTK_IS_FILE_SELECTION(fileselection)) {
 
-      GtkWidget *optionmenu = gtk_option_menu_new();
-      gtk_widget_ref(optionmenu);
-      gtk_widget_show(optionmenu);
-      gtk_object_set_data(GTK_OBJECT(fileselection), "ccp4i_project_optionmenu", optionmenu);
-      gtk_object_set_user_data(GTK_OBJECT(optionmenu), GINT_TO_POINTER(file_selection_type));
-      GtkSignalFunc project_signal_func =
-	 GTK_SIGNAL_FUNC(option_menu_refmac_ccp4i_project_signal_func);
-      add_ccp4i_projects_to_optionmenu(optionmenu, file_selection_type, project_signal_func);
+	 GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
 
-      // Let's put the optionmenu in a frame with a label
-      GtkWidget *frame = gtk_frame_new("CCP4i Project Directory");
-      gtk_container_add(GTK_CONTAINER(aa), frame);
-      gtk_widget_show(frame);
-      gtk_container_add(GTK_CONTAINER(frame),optionmenu);
+	 GtkWidget *optionmenu = gtk_option_menu_new();
+	 gtk_widget_ref(optionmenu);
+	 gtk_widget_show(optionmenu);
+	 gtk_object_set_data(GTK_OBJECT(fileselection), "ccp4i_project_optionmenu", optionmenu);
+	 gtk_object_set_user_data(GTK_OBJECT(optionmenu), GINT_TO_POINTER(file_selection_type));
+	 GtkSignalFunc project_signal_func =
+	    GTK_SIGNAL_FUNC(option_menu_refmac_ccp4i_project_signal_func);
+	 add_ccp4i_projects_to_optionmenu(optionmenu, file_selection_type, project_signal_func);
+
+	 // Let's put the optionmenu in a frame with a label
+	 GtkWidget *frame = gtk_frame_new("CCP4i Project Directory");
+	 gtk_container_add(GTK_CONTAINER(aa), frame);
+	 gtk_widget_show(frame);
+	 gtk_container_add(GTK_CONTAINER(frame),optionmenu);
+      }
    }
 }
 

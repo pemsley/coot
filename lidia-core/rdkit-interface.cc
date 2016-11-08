@@ -890,9 +890,8 @@ coot::set_atom_chirality(RDKit::Atom *rdkit_at, const coot::dict_atom &dict_atom
 	    std::cout << "   pdbx_stereo_config: " << dict_atom.atom_id << " S -> CCW " << std::endl;
       }
       if (dict_atom.pdbx_stereo_config.second == "N") {
-	 if (false)
-	    std::cout << "No chirality: pdbx_stereo_config says N for " << dict_atom.atom_id << std::endl;
- 
+	 if (false) // otherwise too noisy
+	    std::cout << "No pdbx_stereo_config says N for " << dict_atom.atom_id << std::endl;
       }
    } else {
       if (false)
@@ -2362,7 +2361,7 @@ coot::remove_Hs_and_clean(const RDKit::ROMol &rdkm, bool set_aromaticity) {
 int
 coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
 
-   bool debug = false;
+   bool debug = true;
 
    int icurrent_conf = 0; // the conformer number from which the
                           // distance matrix is generated.  Should this
@@ -2428,7 +2427,7 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
 	       if (ic_index >= n_items)
 		  std::cout << "indexing problem! " << ic_index << " but limit "
 			    << n_items << std::endl;
-	       if (debug) 
+	       if (false)
 		  std::cout << "mimic: atoms " << iat << " " << jat
 			    << " ic_index " << ic_index << " for max " << n_items
 			    << " dist " << diff.length() << std::endl;

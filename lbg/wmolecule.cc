@@ -34,6 +34,8 @@
 #include "lbg.hh"
 
 
+widgeted_molecule_t::~widgeted_molecule_t() {}
+
 // Don't forget that this function will be used in
 // render_from_molecule, which will add canvas item.
 //
@@ -742,8 +744,8 @@ widgeted_bond_t::make_wedge_out_bond_item(const lig_build::pos_t &pos_1,
       lig_build::pos_t sharp_point_2 = sharp_point - buv_90 * 0.03;
 
       item = wrap_goo_canvas_polyline_new(root, 
-				      sharp_point_2.x, sharp_point_2.y, 
-				      sharp_point_1.x, sharp_point_1.y, 
+				      sharp_point_2.x, sharp_point_2.y,
+				      sharp_point_1.x, sharp_point_1.y,
 				      short_edge_pt_1.x, short_edge_pt_1.y,
 				      short_edge_pt_2.x, short_edge_pt_2.y,
 				      dark, dark);
@@ -765,34 +767,45 @@ widgeted_bond_t::make_sheared_or_darted_wedge_bond(const lig_build::pos_t &pos_1
 
       if (other_connections_to_second_atom.size() == 1) {
 
-      const lig_build::pos_t  &third_atom_pos = other_connections_to_second_atom[0].first.atom_position;
-      const lig_build::bond_t &third_bond     = other_connections_to_second_atom[0].second;
+	 const lig_build::pos_t  &third_atom_pos = other_connections_to_second_atom[0].first.atom_position;
+	 const lig_build::bond_t &third_bond     = other_connections_to_second_atom[0].second;
 
-      lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
-      lig_build::pos_t buv_90 = buv.rotate(90);
-      lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.04);
+	 lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
+	 lig_build::pos_t buv_90 = buv.rotate(90);
+	 lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.04);
    
-      lig_build::pos_t sharp_point_1 = sharp_point + buv_90 * 0.03;
-      lig_build::pos_t sharp_point_2 = sharp_point - buv_90 * 0.03;
+	 lig_build::pos_t sharp_point_1 = sharp_point + buv_90 * 0.03;
+	 lig_build::pos_t sharp_point_2 = sharp_point - buv_90 * 0.03;
 
-      lig_build::pos_t bfrom3rd = pos_2 - third_atom_pos;
-      lig_build::pos_t bond_from_3rd_atom_extension   = pos_2 + bfrom3rd*0.1;
-      lig_build::pos_t bond_from_3rd_atom_contraction = pos_2 - bfrom3rd*0.18;
+	 lig_build::pos_t bfrom3rd = pos_2 - third_atom_pos;
+	 lig_build::pos_t bond_from_3rd_atom_extension   = pos_2 + bfrom3rd*0.1;
+	 lig_build::pos_t bond_from_3rd_atom_contraction = pos_2 - bfrom3rd*0.18;
 
-      if (third_bond.get_bond_type() == lig_build::bond_t::DOUBLE_BOND) {
-	 // we need to make this shorter.
-	 bond_from_3rd_atom_extension   -= buv * 2.6;
-	 bond_from_3rd_atom_contraction -= buv * 2.6;
-      }
+	 if (third_bond.get_bond_type() == lig_build::bond_t::DOUBLE_BOND) {
+	    // we need to make this shorter.
+	    bond_from_3rd_atom_extension   -= buv * 2.6;
+	    bond_from_3rd_atom_contraction -= buv * 2.6;
+	 }
 
-      item = wrap_goo_canvas_polyline_new(root,
-					  sharp_point_2.x, sharp_point_2.y, 
-					  sharp_point_1.x, sharp_point_1.y, 
-					  bond_from_3rd_atom_extension.x,
-					  bond_from_3rd_atom_extension.y,
-					  bond_from_3rd_atom_contraction.x,
-					  bond_from_3rd_atom_contraction.y,
-					  dark, dark);
+	 if (false) {
+	    std::cout << " buv             " << buv << std::endl;
+	    std::cout << " pos_2           " << pos_2 << std::endl;
+	    std::cout << " 3rd atom pos    " << third_atom_pos << std::endl;
+	    std::cout << " bfrom3rd        " << bfrom3rd << std::endl;
+	    std::cout << " sheared points: " << sharp_point_2 << std::endl;
+	    std::cout << "                 " << sharp_point_1 << std::endl;
+	    std::cout << "                 " << bond_from_3rd_atom_extension   << std::endl;
+	    std::cout << "                 " << bond_from_3rd_atom_contraction << std::endl;
+	 }
+
+	 item = wrap_goo_canvas_polyline_new(root,
+					     sharp_point_2.x, sharp_point_2.y,
+					     sharp_point_1.x, sharp_point_1.y,
+					     bond_from_3rd_atom_extension.x,
+					     bond_from_3rd_atom_extension.y,
+					     bond_from_3rd_atom_contraction.x,
+					     bond_from_3rd_atom_contraction.y,
+					     dark, dark);
 
       } else {
 
@@ -878,14 +891,15 @@ widgeted_molecule_t::make_other_connections_to_second_atom_info(unsigned int bon
 	 }
 	 if (at_2_idx == atom_other_idx) {
 	    if (at_1_idx != atom_chiral_idx) {
-	       std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_2_idx], bonds[ibond]);
+	       std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_1_idx], bonds[ibond]);
 	       v.push_back(p);
 	    }
 	 }
       }
    }
-//    std::cout << "from make_other_connections_to_second_atom_info() returning v of size "
-// 	     << v.size() << std::endl;
+
+   // std::cout << "from make_other_connections_to_second_atom_info() returning v of size "
+   // << v.size() << std::endl;
 
    return v;
 }

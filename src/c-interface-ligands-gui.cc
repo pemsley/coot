@@ -1188,6 +1188,10 @@ gboolean install_simple_wiggly_ligand_idle_fn(gpointer data) {
    graphics_info_t g;
    ligand_wiggly_ligand_data_t *ldp = static_cast<ligand_wiggly_ligand_data_t *>(data);
 
+   std::cout << "runnign install_simple_wiggly_ligand_idle_fn() with g.ligand_wiggly_ligand_count "
+	     << g.ligand_wiggly_ligand_count << " " << g.ligand_wiggly_ligand_n_samples
+	     << " g.ligand_wiggly_ligand_n_samples and finish " << ldp->finish << std::endl;
+
    if (g.ligand_wiggly_ligand_count >= g.ligand_wiggly_ligand_n_samples) {
 
       if (ldp->finish) {

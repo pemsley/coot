@@ -3838,7 +3838,7 @@ lbg_info_t::render() {
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
    if (false)
-      std::cout << "render_from_molecule() with display_atom_names " << display_atom_names
+      std::cout << "------------ render_from_molecule() with display_atom_names " << display_atom_names
 		<< " display_atom_numbers "  << display_atom_numbers << " "
 		<< mol.atoms.size() << " atoms " << mol.bonds.size() << " bonds" << std::endl;
 
@@ -4328,7 +4328,6 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
       double weight_for_3d_distances = 0.4;
 
       int n_confs = m->getNumConformers();
-      
       if (n_confs > 0) {
 	 if (m->getConformer(iconf).is3D()) {
 	    int iconf_local = coot::add_2d_conformer(m, weight_for_3d_distances); // 3d -> 2d
@@ -4350,6 +4349,7 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
 
 	 const RDKit::Conformer conformer = m->getConformer(iconf);
 	 RDKit::WedgeMolBonds(*m, &conformer);
+
 	 widgeted_molecule_t wmol = import_rdkit_mol(m, iconf);
 	 mdl_file_name = file_name;
    
@@ -4536,12 +4536,13 @@ lbg_info_t::import_via_rdkit_from_restraints_dictionary(const coot::dictionary_r
 	 RDKit::Conformer conf = m.getConformer(conf_id);
 
 	 RDKit::WedgeMolBonds(m, &conf);
-      
+
 	 if (false)
 	    std::cout << "..... n_confs B " << m.getNumConformers()
 		      << " with new 2D conf_id " << conf_id
 		      << " 3d-flag: " << m.getConformer(conf_id).is3D() << std::endl;
 
+	 gtk_label_set_text(GTK_LABEL(lbg_toolbar_layout_info_label), dict.residue_info.comp_id.c_str());
 	 rdkit_mol_post_read_handling(&m, "from-comp-id");
       }
       catch (const RDKit::MolSanitizeException &e) {
@@ -4705,8 +4706,9 @@ lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
 			 << conf.getAtomPos(idx_2)
 			 << " dir " << bond_dir << std::endl;
 	    if (bond_dir != RDKit::Bond::NONE) {
-	       if (bond_dir == RDKit::Bond::BEGINWEDGE)
+	       if (bond_dir == RDKit::Bond::BEGINWEDGE) {
 		  bond.set_bond_type(lig_build::bond_t::OUT_BOND);
+	       }
 	       if (bond_dir == RDKit::Bond::BEGINDASH)
 		  bond.set_bond_type(lig_build::bond_t::IN_BOND);
 	    }
