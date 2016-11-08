@@ -1,12 +1,28 @@
 
+   For 0.8.7
+
+   o The mtz button on the refmac dialog
+
+* Done.
+
+   o New EDS Location [John Berrisford]
+
+* Done.
+
+   o PDBe files sfs cif location
+
+* seems OK, problem with python interface.
+
+
    For Release 0.8.8
 
    o if the chain has a TER and we add NCS residues, then the
    old/current TER should be deleted.
 
+   o enable mol2 reading to pyrogen
+
    o Ligand Builder -> Open [cif dictionary] Failures
      110 (butyl carboxylic acid - Oxygen formal charge)
-
 
    o Fix make check on test chemical features
 
