@@ -148,7 +148,6 @@ open_cif_dictionary_file_selector_dialog() {
 	 //
 	 GtkWidget *aa_hbox = GTK_FILE_SELECTION(fileselection)->action_area;
 
-	 std::cout << "here with aa_hbox " << aa_hbox << std::endl;
 	 if (aa_hbox) {
 	    GtkWidget *frame = gtk_frame_new("Select Mol");
 	    GtkWidget *optionmenu = gtk_option_menu_new();
