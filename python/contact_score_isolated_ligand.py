@@ -33,15 +33,17 @@ def contact_score_ligand(imol, res_spec):
 
     write_pdb_file(imol_selection, ligand_selection_pdb)
     write_pdb_file(imol, protein_selection_pdb)
-    popen_command(probe_command, ["-q", "-u", "-once", # -once or -both
+
+    args = ["-q", "-unformated", "-once", # -once or -both
+                                  # "-outside", # crashes probe
                                   # first pattern
                                   "CHAIN" + chain_id + " " + str(res_no),
                                   # second pattern
                                   "not " + str(res_no),
                                   # consider og33 (occ > 0.33)
-                                  "-density30",
-                                  ligand_selection_pdb, protein_selection_pdb],
-                  [], dots_file_name, False)
+                                  "-density50",
+                                  ligand_selection_pdb, protein_selection_pdb]
+    popen_command(probe_command, args, [], dots_file_name, False)
 
     # debugging!?
     handle_read_draw_probe_dots_unformatted(dots_file_name, imol, 0)
