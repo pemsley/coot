@@ -72,6 +72,7 @@ coot::quick_protein_donor_acceptors::is_hydrogen_bond_by_types(const std::pair<k
    if (type_1 == HB_BOTH || type_1 == HB_ACCEPTOR || type_1 == HB_DONOR) {
       hb_t type_2 = get_type(key_2);
       if (type_2 == HB_BOTH || type_2 == HB_ACCEPTOR || type_2 == HB_DONOR) {
+	 found = true;
 	 if (type_1 == HB_BOTH || type_1 == HB_ACCEPTOR)
 	    if (type_2 == HB_BOTH || type_2 == HB_DONOR)
 	       r = true;
@@ -83,8 +84,10 @@ coot::quick_protein_donor_acceptors::is_hydrogen_bond_by_types(const std::pair<k
 	    found = true;
       }
    } else {
-      if (type_1 == HB_NEITHER)
-	 found = true;
+      hb_t type_2 = get_type(key_2);
+      if (type_1 != HB_UNASSIGNED)
+	 if (type_2 != HB_UNASSIGNED)
+	    found = true;
    }
 
    return std::pair<bool, bool> (found, r);

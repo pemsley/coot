@@ -39,6 +39,10 @@ namespace coot {
       hb_t get_type(const key &k) const;
       void test() const;
       std::pair<bool, bool> is_hydrogen_bond_by_types(const std::pair<key,key> &hbtp) const;
+      std::pair<bool, bool> is_hydrogen_bond_by_types(const key &k1, const key &k2) const {
+	 std::pair<key,key> kp(k1,k2);
+	 return is_hydrogen_bond_by_types(kp);
+      }
       std::vector<std::pair<bool, bool> > is_hydrogen_bond_by_types(std::vector<std::pair<key, key> > &hbtps) const;
    };
 
