@@ -33,6 +33,8 @@
 #include "lbg/flev-annotations.hh"
 #include "ligand-check.hh"
 
+// not for swig
+
 namespace coot { 
 
    void write_solvent_accessibilities(const std::vector<std::pair<coot::atom_spec_t, float> > &sav,
@@ -102,5 +104,9 @@ namespace coot {
 			    double percentile_limit);
 
 } // namespace coot
+
+
+void coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec);
+
 
 #endif // C_INTERFACE_LIGANDS_HH

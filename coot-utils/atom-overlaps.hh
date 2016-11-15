@@ -31,6 +31,21 @@
 
 namespace coot {
 
+   class atom_overlaps_dots_container_t {
+   public:
+      class spikes_t {
+      public:
+	 std::string type;
+	 std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > positions;
+	 const std::pair<clipper::Coord_orth, clipper::Coord_orth> &operator[](unsigned int idx) {
+	    return positions[idx];}
+	 unsigned int size() const { return positions.size(); }
+      };
+      atom_overlaps_dots_container_t() {}
+      std::map<std::string, std::vector<clipper::Coord_orth> > dots;
+      spikes_t spikes;
+   };
+
    class atom_overlap_t {
    public:
       atom_overlap_t(mmdb::Atom *a1, mmdb::Atom *a2) {
@@ -135,7 +150,7 @@ namespace coot {
       std::vector<atom_overlap_t> overlaps;
       void make_overlaps();
       void contact_dots_for_overlaps() const; // old
-      void contact_dots();
+      atom_overlaps_dots_container_t contact_dots();
    };
 
 }

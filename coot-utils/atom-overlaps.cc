@@ -141,11 +141,11 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors() {
 	    energy_lib_atom neighb_ela = geom_p->get_energy_lib_atom(neigh_energy_type);
 	    hb_t neighb_hb_type = neighb_ela.hb_type;
 	    if (neighb_hb_type == coot::HB_DONOR) {
-	       std::cout << "----- adding ligand HB_HYDROGEN udd " << atom_spec_t(at) << std::endl;
+	       // std::cout << "----- adding ligand HB_HYDROGEN udd " << atom_spec_t(at) << std::endl;
 	       at->PutUDData(udd_h_bond_type_handle, coot::HB_HYDROGEN); // hb_t -> int
 	    }
 	    if (neighb_hb_type == coot::HB_BOTH) {
-	       std::cout << "----- adding ligand HB_HYDROGEN udd " << atom_spec_t(at) << std::endl;
+	       // std::cout << "----- adding ligand HB_HYDROGEN udd " << atom_spec_t(at) << std::endl;
 	       at->PutUDData(udd_h_bond_type_handle, coot::HB_HYDROGEN); // hb_t -> int
 	    }
 	 }
@@ -174,11 +174,11 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors() {
 	       energy_lib_atom neighb_ela = geom_p->get_energy_lib_atom(neigh_energy_type);
 	       hb_t neighb_hb_type = neighb_ela.hb_type;
 	       if (neighb_hb_type == coot::HB_DONOR) {
-		  std::cout << "----- adding env HB_HYDROGEN udd " << atom_spec_t(n_at) << std::endl;
+		  // std::cout << "----- adding env HB_HYDROGEN udd " << atom_spec_t(n_at) << std::endl;
 		  n_at->PutUDData(udd_h_bond_type_handle, coot::HB_HYDROGEN); // hb_t -> int
 	       }
 	       if (neighb_hb_type == coot::HB_BOTH) {
-		  std::cout << "----- adding env HB_HYDROGEN udd " << atom_spec_t(n_at) << std::endl;
+		  // std::cout << "----- adding env HB_HYDROGEN udd " << atom_spec_t(n_at) << std::endl;
 		  n_at->PutUDData(udd_h_bond_type_handle, coot::HB_HYDROGEN); // hb_t -> int
 	       }
 	    }
@@ -643,9 +643,10 @@ coot::atom_overlaps_container_t::is_inside_another_ligand_atom(int idx,
 }
 
 
-void
+coot::atom_overlaps_dots_container_t
 coot::atom_overlaps_container_t::contact_dots() {
 
+   atom_overlaps_dots_container_t ao;
    mmdb::realtype max_dist = 4.0; // max distance for an interaction
    if (mol) {
       mmdb::Contact *pscontact = NULL;
@@ -684,7 +685,7 @@ coot::atom_overlaps_container_t::contact_dots() {
 			0, &my_matt, i_contact_group);
       if (n_contacts > 0) {
 	 if (pscontact) {
-	    std::cout << "n_contacts: " << n_contacts << std::endl;
+	    // std::cout << "n_contacts: " << n_contacts << std::endl;
 	    for (int i=0; i<n_contacts; i++)
 	       ligand_to_env_atom_neighbour_map[pscontact[i].id1].push_back(pscontact[i].id2);
 
@@ -696,7 +697,7 @@ coot::atom_overlaps_container_t::contact_dots() {
 
 	       mmdb::Atom *cr_at = ligand_residue_atoms[it->first];
 
-	       std::cout << "Surface points for " << atom_spec_t(cr_at) << std::endl;
+	       // std::cout << "Surface points for " << atom_spec_t(cr_at) << std::endl;
 
 	       clipper::Coord_orth pt_at_1 = co(cr_at);
 
@@ -790,30 +791,42 @@ coot::atom_overlaps_container_t::contact_dots() {
 				 is_h_bond = true;
 			      std::string c_type = overlap_delta_to_contact_type(overlap_delta, is_h_bond);
 
-			      clipper::Coord_orth vect_to_pt_1 = pt_at_1 - pt_at_surface;
-			      clipper::Coord_orth vect_to_pt_1_unit(vect_to_pt_1.unit());
-			      clipper::Coord_orth pt_spike_inner = pt_at_surface + clash_spike_length * vect_to_pt_1_unit;
+			      if (false)
+				 std::cout << "spike "
+					   << c_type << " "
+					   << pt_at_surface.x() << " "
+					   << pt_at_surface.y() << " "
+					   << pt_at_surface.z() << " to "
+					   << pt_at_surface.x() << " "
+					   << pt_at_surface.y() << " "
+					   << pt_at_surface.z()
+					   << " theta " << theta << " phi " << phi
+					   << std::endl;
 
-			      std::cout << "spike "
-					<< c_type << " "
-					<< pt_at_surface.x() << " "
-					<< pt_at_surface.y() << " "
-					<< pt_at_surface.z() << " to "
-					<< pt_spike_inner.x() << " "
-					<< pt_spike_inner.y() << " "
-					<< pt_spike_inner.z()
-					<< " theta " << theta << " phi " << phi
-					<< std::endl;
+			      if (c_type != "clash") {
+				 ao.dots[c_type].push_back(pt_at_surface);
+			      } else {
+				 clipper::Coord_orth vect_to_pt_1 = pt_at_1 - pt_at_surface;
+				 clipper::Coord_orth vect_to_pt_1_unit(vect_to_pt_1.unit());
+				 clipper::Coord_orth pt_spike_inner =
+				    pt_at_surface + clash_spike_length * vect_to_pt_1_unit;
+				 std::pair<clipper::Coord_orth, clipper::Coord_orth> p(pt_at_surface,
+										       pt_spike_inner);
+				 ao.spikes.positions.push_back(p);
+			      }
 
 			   } else {
 
 			      // no environment atom was close to this ligand atom, so just add
 			      // a surface point
 
-			      std::cout << "spike-surface "
-					<< pt_at_surface.x() << " "
-					<< pt_at_surface.y() << " "
-					<< pt_at_surface.z() << std::endl;
+			      if (false)
+				 std::cout << "spike-surface "
+					   << pt_at_surface.x() << " "
+					   << pt_at_surface.y() << " "
+					   << pt_at_surface.z() << std::endl;
+
+			      ao.dots["vdw-surface"].push_back(pt_at_surface);
 			   }
 			}
 		     }
@@ -823,6 +836,7 @@ coot::atom_overlaps_container_t::contact_dots() {
 	 }
       }
    }
+   return ao;
 }
 
 // return H-bond, or wide-contact or close-contact or small-overlap or big-overlap or clash
@@ -848,7 +862,7 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta, boo
       else
 	 r = "H-bond";
    } else {
-      if (delta > -0.1)         // Word: -0.25, // -0.15 allows too much gren
+      if (delta > -0.1)         // Word: -0.25, // -0.15 allows too much green
 	 r = "close-contact";
       if (delta > 0.07)          // Word: 0
 	 r = "small-overlap";

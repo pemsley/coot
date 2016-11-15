@@ -57,4 +57,9 @@ def contact_score_ligand_func():
     with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                aa_ins_code, aa_atom_name, aa_alt_conf]:
         contact_score_ligand(aa_imol, [aa_chain_id, aa_res_no, aa_ins_code])
+
+def coot_contact_dots_ligand_func():
+    with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                               aa_ins_code, aa_atom_name, aa_alt_conf]:
+        coot_contact_dots_for_ligand_py(aa_imol, [aa_chain_id, aa_res_no, aa_ins_code])
         

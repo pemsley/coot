@@ -3060,7 +3060,7 @@ public:        //                      public
    void set_user_defined_colour_indices_by_residues(const std::vector<std::pair<coot::residue_spec_t, int> > &cis);
    void set_user_defined_colour_indices(const std::vector<std::pair<coot::atom_spec_t, int> > &cis);
    void clear_user_defined_atom_colours();
-   
+
 };
 
 #endif // MOLECULE_CLASS_INFO_T

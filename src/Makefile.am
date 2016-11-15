@@ -384,6 +384,7 @@ coot_bin_SOURCES = \
 	molecule-class-info-maps-2.cc 	\
 	molecule-class-info-kdc.cc      \
 	molecule-class-info-dots.cc 	\
+	molecule-class-info-dots-internal.cc 	\
 	molecule-class-info-other.cc 	\
 	molecule-class-info-build.cc 	\
 	molecule-class-info.h 	        \
