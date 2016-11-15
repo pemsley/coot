@@ -4094,17 +4094,31 @@ coot::restraints_container_t::add_planes(int idr, mmdb::PPAtom res_selection,
 					 mmdb::PResidue SelRes,
 					 const coot::protein_geometry &geom) {
 
-//    std::cout << "There are " << geom[idr].plane_restraint.size()
-// 	     << " plane restraints for " << SelRes->seqNum << " "
-// 	     << geom[idr].comp_id << std::endl; 
+   bool debug = false;
+
+   if (debug)
+      std::cout << "There are " << geom[idr].second.plane_restraint.size()
+		<< " dictionary plane restraints for " << SelRes->seqNum << " type: "
+		<< geom[idr].second.residue_info.comp_id << std::endl;
+
    int n_plane_restr = 0;
-   std::vector<std::string> altconfs;
+   // either altconfs are all the same,
+   // or they are different, in which case, add the atoms with blank altconfs to
+   // (only) each of the non-blank ones
+   //
+   std::vector<std::string> altconfs = util::get_residue_alt_confs(SelRes);
+   bool all_altconfs_the_same = true;
+   if (altconfs.size() > 1)
+      all_altconfs_the_same = false;
+
    for (unsigned int ip=0; ip<geom[idr].second.plane_restraint.size(); ip++) {
-      std::vector <std::pair<int, double> > pos_sigma; 
+      std::map<std::string, std::vector <std::pair<int, double> > > idx_and_sigmas;
       for (int iat=0; iat<i_no_res_atoms; iat++) {
 	 std::string pdb_atom_name(res_selection[iat]->name);
+	 std::string alt_conf(res_selection[iat]->altLoc);
 	 for (int irest_at=0; irest_at<geom[idr].second.plane_restraint[ip].n_atoms(); irest_at++) {
 	    if (pdb_atom_name == geom[idr].second.plane_restraint[ip].atom_id(irest_at)) {
+	       // is this slow?
 	       int idx = get_asc_index(res_selection[iat]->name,
 				       res_selection[iat]->altLoc,
 				       SelRes->seqNum,
@@ -4112,58 +4126,39 @@ coot::restraints_container_t::add_planes(int idr, mmdb::PPAtom res_selection,
 				       SelRes->GetChainID());
 	       if (idx >= 0) {
 		  double sigma = geom[idr].second.plane_restraint[ip].dist_esd(irest_at);
-		  if (sigma > 0) { 
+		  if (sigma > 0) {
 		     std::pair<int, double> idx_sigma_pair(idx, sigma);
-		     pos_sigma.push_back(idx_sigma_pair);
-		     altconfs.push_back(res_selection[iat]->altLoc);
-		  } else {
-		     std::cout << "failed to find esd for plane atom " << pdb_atom_name << std::endl;
-		  } 
+		     if (alt_conf.empty()) {
+			if (all_altconfs_the_same) {
+			   idx_and_sigmas[alt_conf].push_back(idx_sigma_pair);
+			} else {
+			   idx_and_sigmas[alt_conf].push_back(idx_sigma_pair);
+			   for (unsigned int ialtconf=0; ialtconf<altconfs.size(); ialtconf++) {
+			      if (! altconfs[ialtconf].empty()) {
+				 idx_and_sigmas[altconfs[ialtconf]].push_back(idx_sigma_pair);
+			      }
+			   }
+			}
+		     } else {
+			idx_and_sigmas[alt_conf].push_back(idx_sigma_pair);
+		     }
+		  }
 	       }
 	    }
 	 }
       }
-      if (pos_sigma.size() > 3 ) {
-	 if (check_altconfs_for_plane_restraint(altconfs)) { 
-	    // Hoorah, sufficient number of plane restraint atoms found a match
-	    // 
-	    //  	 std::cout << "adding a plane for " << SelRes->seqNum << " "
-	    //  		   << geom[idr].comp_id << " esd: "
-	    // 		   << geom[idr].plane_restraint[ip].dist_esd() << std::endl; 
 
-	    // fixed flags (map from  pos_sigma):
-	    // 
-	    std::vector<int> pos(pos_sigma.size());
-	    for (unsigned int i=0; i<pos_sigma.size(); i++) pos[i] = pos_sigma[i].first;
-	       
+      std::map<std::string, std::vector <std::pair<int, double> > >::const_iterator it;
+      for (it=idx_and_sigmas.begin(); it != idx_and_sigmas.end(); it++) {
+	 if (it->second.size() > 3 ) {
+	    std::vector<int> pos(it->second.size());
+	    for (unsigned int i=0; i<it->second.size(); i++) pos[i] = it->second[i].first;
 	    std::vector<bool> fixed_flags = make_fixed_flags(pos);
-	    
-// 	    std::cout << "DEBUG:: add_monomer plane restraint for plane-id: comp-id: "
-// 		      << geom[idr].comp_id << " "
-// 		      << geom[idr].plane_restraint[ip].plane_id << " "
-// 		      << SelRes->GetChainID()
-// 		      << " " << SelRes->GetSeqNum()
-// 		      << " :" << SelRes->GetInsCode() << ":"
-// 		      << std::endl;   
-// 	    std::cout << "DEBUG:: adding monomer plane with pos indexes ";
-// 	    for (int ipos=0; ipos<pos.size(); ipos++)
-// 	       std::cout << " " << pos[ipos];
-// 	    std::cout << "\n";
-
-
-	    add_plane(pos_sigma, fixed_flags);
+	    add_plane(it->second, fixed_flags);
 	    n_plane_restr++;
 	 }
-      } else {
-	 if (verbose_geometry_reporting == VERBOSE) {  
-	    std::cout << "in add_planes: sadly not every restraint atom had a match"
-		      << std::endl;
-	    std::cout << "   needed " << geom[idr].second.plane_restraint[ip].n_atoms()
-		      << " got " << pos_sigma.size()<< std::endl;
-	    std::cout << "   residue type: " << geom[idr].second.residue_info.comp_id << " "
-		      << "   plane id: " << ip << std::endl;
-	 }
-      } 
+      }
+
    }
    return n_plane_restr; 
 }

@@ -10,6 +10,13 @@
 
    o when mutating to MSE atoms become HETATMs.
 
+   o Ligand Builder -> Open [cif dictionary] Failures
+     110 (butyl carboxylic acid - Oxygen formal charge)
+
+   o Fix make check on test chemical features
+
+* Done.
+
    o New EDS Location [John Berrisford]
 
    o Get some RNA - check that base pair restraints generation works

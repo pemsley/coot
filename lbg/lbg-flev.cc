@@ -3110,8 +3110,8 @@ lbg_info_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_
       }
    }
    
-
-   render_from_molecule(new_mol);
+   import_from_widgeted_molecule(new_mol);
+   render();
    refine_residue_circle_positions();
 
    // has the current solution problems due to residues too close to the ligand?

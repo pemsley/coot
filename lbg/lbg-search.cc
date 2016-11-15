@@ -30,6 +30,17 @@
 
 #include "clipper/core/coords.h"
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include "geometry/srs-interface.hh"
+#ifdef RDKIT_HAS_CAIRO_SUPPORT
+#include <cairo.h>
+#include <MolDraw2DCairo.h>
+#include "lidia-core/rdkit-interface.hh"
+#else
+#include "lidia-core/rdkit-interface.hh"
+#endif // RDKIT_HAS_CAIRO_SUPPORT
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
+
 #include "lbg.hh"
 
 mmdb::math::Graph *
@@ -92,8 +103,9 @@ get_graph_2() {
 
 
 #ifdef HAVE_CCP4SRS
+// not const because try_dynamic_add() can be called
 void
-lbg_info_t::search() const {
+lbg_info_t::search() {
 
    double local_search_similarity = get_search_similarity();
 
@@ -175,7 +187,7 @@ lbg_info_t::search() const {
 	 delete graph;
 	 std::cout << "found " << v.size() << " close matches" << std::endl;
 	 display_search_results(v);
-	 
+
       } else {
 
 	 if (geom_p) { 
@@ -233,36 +245,195 @@ lbg_info_t::residue_from_best_match(mmdb::math::Graph &graph_1, mmdb::math::Grap
 }
 #endif // HAVE_CCP4SRS
 
+// not const because try_dynamic_add() can be called (to make images)
+//
 void
-lbg_info_t::display_search_results(const std::vector<coot::match_results_t> &v) const {
+lbg_info_t::display_search_results(const std::vector<coot::match_results_t> &v) {
 
-   gtk_widget_show(lbg_sbase_search_results_dialog);
-   
-   // clear GTK_BOX(lbg_sbase_search_results_vbox) here
-   // 
-   GList* glist = gtk_container_get_children(GTK_CONTAINER(lbg_sbase_search_results_vbox));
-   while (glist) {
-      GtkWidget *w = GTK_WIDGET(glist->data);
-      gtk_widget_destroy(w);
-      glist = glist->next;
-   }
+   bool new_dialog = false;
 
-   for (unsigned int i=0; i<v.size(); i++) {
-      std::string lab = v[i].comp_id;
-      lab += ":  ";
-      lab += v[i].name;
-      GtkWidget *button = gtk_button_new_with_label(lab.c_str());
-      gtk_box_pack_start(GTK_BOX(lbg_sbase_search_results_vbox),
-			 GTK_WIDGET(button), FALSE, FALSE, 3);
-      std::string *comp_id = new std::string(v[i].comp_id);
-      g_signal_connect(GTK_WIDGET(button), "clicked",
-		       GTK_SIGNAL_FUNC(on_sbase_search_result_button_clicked),
-		       (gpointer) (comp_id));
-      gtk_button_set_alignment(GTK_BUTTON(button), 0, 0.5);
-      gtk_object_set_data(GTK_OBJECT(button), "lbg", (gpointer) this);
-      gtk_widget_show(button);
+   if (new_dialog) {
+
+      gtk_widget_show(lbg_sbase_search_results_dialog);
+      GtkSettings *default_settings = gtk_settings_get_default();
+      g_object_set(default_settings, "gtk-button-images", TRUE, NULL);
+
+      // clear GTK_BOX(lbg_sbase_search_results_vbox) here
+      // 
+      GList* glist = gtk_container_get_children(GTK_CONTAINER(lbg_sbase_search_results_vbox));
+      while (glist) {
+	 GtkWidget *w = GTK_WIDGET(glist->data);
+	 gtk_widget_destroy(w);
+	 glist = glist->next;
+      }
+
+      for (unsigned int i=0; i<v.size(); i++) {
+	 std::string lab = v[i].comp_id;
+	 lab += ":  ";
+	 lab += v[i].name;
+	 GtkWidget *button = gtk_button_new_with_label(lab.c_str());
+	 gtk_box_pack_start(GTK_BOX(lbg_sbase_search_results_vbox),
+			    GTK_WIDGET(button), FALSE, FALSE, 3);
+	 std::string *comp_id = new std::string(v[i].comp_id);
+	 g_signal_connect(GTK_WIDGET(button), "clicked",
+			  GTK_SIGNAL_FUNC(on_sbase_search_result_button_clicked),
+			  (gpointer) (comp_id));
+	 gtk_button_set_alignment(GTK_BUTTON(button), 0, 0.5);
+	 gtk_object_set_data(GTK_OBJECT(button), "lbg", (gpointer) this);
+	 gtk_widget_show(button);
+      }
+   } else {
+
+      // put the results into lbg_srs_search_results_scrolledwindow
+      gtk_widget_show(lbg_srs_search_results_scrolledwindow);
+      if (lbg_srs_search_results_vbox) {
+
+#ifdef HAVE_CCP4SRS
+	 std::string srs_dir = coot::get_srs_dir(); // use environment variables or ccp4/prefix-dir fall-back
+	 ccp4srs::Manager *srs_manager = new ccp4srs::Manager;
+	 srs_manager->loadIndex(srs_dir.c_str());
+#endif // HAVE_CCP4SRS
+	 gtk_widget_show(lbg_srs_search_results_vbox);
+
+	 for (unsigned int i=0; i<v.size(); i++) {
+	    std::string lab = v[i].comp_id;
+	    lab += ":  ";
+	    lab += v[i].name;
+	    // GtkWidget *button = gtk_button_new_with_label(lab.c_str());
+	    GtkWidget *button = gtk_button_new();
+	    gtk_box_pack_start(GTK_BOX(lbg_srs_search_results_vbox),
+			       GTK_WIDGET(button), FALSE, FALSE, 3);
+	    std::string *comp_id = new std::string(v[i].comp_id);
+	    g_signal_connect(GTK_WIDGET(button), "clicked",
+			     GTK_SIGNAL_FUNC(on_sbase_search_result_button_clicked),
+			     (gpointer) (comp_id));
+	    gtk_button_set_alignment(GTK_BUTTON(button), 0, 0.5);
+	    gtk_object_set_data(GTK_OBJECT(button), "lbg", (gpointer) this);
+
+	    GtkWidget *label  = gtk_label_new(lab.c_str());
+	    GtkWidget *button_hbox = gtk_hbox_new(FALSE, 0);
+	    gtk_container_add(GTK_CONTAINER(button), button_hbox);
+	    int imol = 0; // dummy
+
+#ifdef HAVE_CCP4SRS
+#ifdef RDKIT_HAS_CAIRO_SUPPORT
+	    GtkWidget *wp = get_image_widget_for_comp_id(v[i].comp_id, imol, srs_manager);
+	    if (wp) {
+	       gtk_widget_show(wp);
+	       // std::cout << "adding image " << wp << std::endl;
+	       // std::cout << "gtk_box_pack_start() " << button_hbox << " " << wp << std::endl;
+	       gtk_box_pack_start(GTK_BOX(button_hbox), wp, FALSE, FALSE, 0);
+	    } else {
+	       std::cout << "Null image for " << v[i].comp_id << std::endl;
+	    }
+#endif
+#endif
+	    gtk_box_pack_start(GTK_BOX(button_hbox), label, FALSE, FALSE, 0);
+	    gtk_widget_show(label);
+	    gtk_widget_show(button);
+	    gtk_widget_show(button_hbox);
+	 }
+      } else {
+	 std::cout << "ERROR:: Null lbg_srs_search_results_vbox" << std::endl;
+      }
    }
 }
+
+
+#ifdef HAVE_CCP4SRS
+// because now we don't construct rdkit molecules by looking up the residue in the dictionary,
+// we get the dictionary (directly) from the srs::Monomer.  This works around a crash that
+// happens when we access the dictionary after using monomer functions.  Not tested in main coot yet.
+//
+GtkWidget *
+lbg_info_t::get_image_widget_for_comp_id(const std::string &comp_id, int imol, ccp4srs::Manager *srs_manager) {
+
+   GtkWidget *r = 0;
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#ifdef RDKIT_HAS_CAIRO_SUPPORT
+
+   if (false) {
+      // pass this
+      int cif_dictionary_read_number = 53;
+      std::cout << "calling try_dynamic_add() on " << comp_id << " " << cif_dictionary_read_number
+		<< std::endl;
+      if (geom_p)
+	 geom_p->try_dynamic_add(comp_id, cif_dictionary_read_number++);
+   }
+
+   // std::string srs_dir = coot::get_srs_dir(); // use environment variables or ccp4/prefix-dir fall-back
+   // = new ccp4srs::Manager;
+   // srs_manager->loadIndex(srs_dir.c_str());
+   coot::dictionary_residue_restraints_t dict;
+   bool status = dict.fill_using_ccp4srs(srs_manager, comp_id);
+
+   if (status) {
+
+      try {
+	 RDKit::RWMol rdk_m = coot::rdkit_mol(dict);
+	 coot::assign_formal_charges(&rdk_m);
+	 coot::rdkit_mol_sanitize(rdk_m);
+	 RDKit::RWMol rdk_mol_with_no_Hs = coot::remove_Hs_and_clean(rdk_m);
+
+	 int iconf_2d = RDDepict::compute2DCoords(rdk_mol_with_no_Hs);
+	 WedgeMolBonds(rdk_mol_with_no_Hs, &(rdk_mol_with_no_Hs.getConformer(iconf_2d)));
+
+	 std::string smb = RDKit::MolToMolBlock(rdk_mol_with_no_Hs, true, iconf_2d);
+	 if (false) { // debug
+	    std::string fn = "test-" + comp_id + ".mol";
+	    std::ofstream f(fn.c_str());
+	    if (f)
+	       f << smb << std::endl;
+	    f.close();
+	 }
+
+	 int n_conf = rdk_mol_with_no_Hs.getNumConformers();
+	 // std::cout << "n_conf for " << comp_id << " is " << n_conf << std::endl;
+	 if (n_conf > 0) {
+	    {
+	       RDKit::MolDraw2DCairo drawer(150, 150);
+	       drawer.drawMolecule(rdk_mol_with_no_Hs);
+	       drawer.finishDrawing();
+	       std::string dt = drawer.getDrawingText();
+
+	       if (false) { // debugging.  Mac build has 0 bytes in dt
+		  std::string png_file_name = "image-" + comp_id + ".png";
+		  std::cout << "writing png " << png_file_name << std::endl;
+		  drawer.writeDrawingText(png_file_name.c_str());
+		  std::string dt_filename = "dt-" + comp_id + ".png";
+		  std::cout << "witing " << dt.length() << " chars to " << dt_filename << std::endl;
+		  std::ofstream f(dt_filename.c_str()); // needs .c_str() for old compiler?
+		  f << dt;
+		  f.close();
+	       }
+
+	       // now convert dt to a Pixbuf
+	       GError *error = NULL;
+	       GdkPixbufLoader *pbl = gdk_pixbuf_loader_new_with_type ("png", &error);
+	       guchar tmp[dt.length()];
+	       for (unsigned int i=0; i<dt.size(); i++)
+		  tmp[i] = dt[i];
+	       gboolean write_status = gdk_pixbuf_loader_write(pbl, tmp, dt.length(), &error);
+	       gdk_pixbuf_loader_close(pbl, &error);
+	       GdkPixbuf *pixbuf = gdk_pixbuf_loader_get_pixbuf(pbl);
+	       r = gtk_image_new_from_pixbuf(pixbuf);
+	    }
+	 }
+      }
+      catch (...) {
+	 std::cout << "WARNING:: hack caught a ... exception " << std::endl;
+      }
+   } else {
+      std::cout << "No dictionary for rdkit_mol from " << comp_id << std::endl;
+   }
+
+#endif   // RDKIT_HAS_CAIRO_SUPPORT
+#endif   // MAKE_ENHANCED_LIGAND_TOOLS
+
+   return r;
+}
+#endif // HAVE_CCP4SRS
 
 // static
 void

@@ -69,7 +69,7 @@ lbg(lig_build::molfile_molecule_t mm,
     const std::string &view_name,
     const std::string &molecule_file_name,
     int imol,
-    const coot::protein_geometry *geom_p_in,
+    coot::protein_geometry *geom_p_in,
     bool use_graphics_interface_flag,
     bool stand_alone_flag_in,
     int (*get_url_func_pointer_in) (const char *s1, const char *s2),
@@ -148,7 +148,9 @@ lbg(lig_build::molfile_molecule_t mm,
 	       } 
 	       
 	       widgeted_molecule_t wmol = lbg->import_mol_file(mm, molecule_file_name, mol);
-	       lbg->render_from_molecule(wmol);
+
+	       lbg->import_from_widgeted_molecule(wmol);
+	       lbg->render();
 	       lbg->update_descriptor_attributes();
 	       lbg->save_molecule();
 	    }
@@ -163,7 +165,8 @@ lbg(lig_build::molfile_molecule_t mm,
 	    lbg->set_ligand_spec(ligand_spec_pair.second);
 	 
 	 widgeted_molecule_t wmol = lbg->import_mol_file(mm, molecule_file_name, mol);
-	 lbg->render_from_molecule(wmol);
+	 lbg->import_from_widgeted_molecule(wmol);
+	 lbg->render();
 	 lbg->update_descriptor_attributes();
       }
 
@@ -773,18 +776,32 @@ lbg_info_t::clear_and_redraw(const lig_build::pos_t &delta) {
    if (delta.non_zero()) {
       widgeted_molecule_t new_mol = translate_molecule(delta); // and do a canvas update
       translate_residue_circles(delta);
-      render_from_molecule(new_mol);
+      import_from_widgeted_molecule(new_mol);
+      render();
       // std::cout << "calling update_descriptor_attributes() from clear_and_redraw() " << std::endl;
       // update_descriptor_attributes();
    } else {
       // this path gets called when the "Env Residues" button is pressed.
       // std::cout << "==== delta is zero path ==== " << std::endl;
       widgeted_molecule_t saved_mol = mol;
-      render_from_molecule(saved_mol);
-      // update_descriptor_attributes();
+      // render_from_molecule(saved_mol);
+
+      import_from_widgeted_molecule(saved_mol);
+      render();
    }
    draw_all_flev_annotations();
 }
+
+void
+lbg_info_t::clear_and_redraw() {
+
+   clear_canvas();
+   widgeted_molecule_t saved_mol = mol;
+   import_from_widgeted_molecule(saved_mol);
+   render();
+}
+
+
 
 
 widgeted_molecule_t
@@ -3565,7 +3582,10 @@ lbg_info_t::handle_read_draw_coords_mol_and_solv_acc(const std::string &coot_pdb
    std::vector<solvent_accessible_atom_t> solvent_accessible_atoms =
       read_solvent_accessibilities(sa_file);
    wmol.map_solvent_accessibilities_to_atoms(solvent_accessible_atoms);
-   render_from_molecule(wmol);
+
+   import_from_widgeted_molecule(wmol);
+   render();
+   
 }
 
 
@@ -3676,11 +3696,15 @@ lbg_info_t::get_stroke_colour(int i, int n) const {
    return r;
 }
 
+// update the internal class variable widgeted_molecule_t mol from mol_in
+// 
 void
-lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
+lbg_info_t::import_from_widgeted_molecule(const widgeted_molecule_t &mol_in) {
+
+   // updates mol
 
    make_saves_mutex = 0; // stop saving changes (restored at end)
-   clear(false);
+   clear(false); // clear and no descriptor updates
    GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
    
    int re_index[mol_in.atoms.size()]; // map from mol_in atom indexing
@@ -3796,6 +3820,27 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 	 }
       }
    }
+   // for input_coords_to_canvas_coords() to work:
+   //
+   mol.centre_correction = mol_in.centre_correction;
+   mol.scale_correction  = mol_in.scale_correction;
+   mol.mol_in_min_y = mol_in.mol_in_min_y;
+   mol.mol_in_max_y = mol_in.mol_in_max_y;
+   
+   // 
+   make_saves_mutex = 1; // allow saves again.
+
+}
+
+void
+lbg_info_t::render() {
+
+   GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+
+   if (false)
+      std::cout << "render_from_molecule() with display_atom_names " << display_atom_names
+		<< " display_atom_numbers "  << display_atom_numbers << " "
+		<< mol.atoms.size() << " atoms " << mol.bonds.size() << " bonds" << std::endl;
 
    if (! display_atom_names && ! display_atom_numbers) {
 
@@ -3877,16 +3922,6 @@ lbg_info_t::render_from_molecule(const widgeted_molecule_t &mol_in) {
 
    draw_substitution_contour();
    
-   // for input_coords_to_canvas_coords() to work:
-   //
-   mol.centre_correction = mol_in.centre_correction;
-   mol.scale_correction  = mol_in.scale_correction;
-   mol.mol_in_min_y = mol_in.mol_in_min_y;
-   mol.mol_in_max_y = mol_in.mol_in_max_y;
-   
-   // 
-   make_saves_mutex = 1; // allow saves again.
-
 }
 
 void
@@ -3896,7 +3931,8 @@ lbg_info_t::undo() {
    if (save_molecule_index >= 0) { 
       widgeted_molecule_t saved_mol = previous_molecules[save_molecule_index];
       // std::cout << "undo... reverting to save molecule number " << save_molecule_index << std::endl;
-      render_from_molecule(saved_mol);
+      import_from_widgeted_molecule(saved_mol);
+      render();
       update_descriptor_attributes();
    } else {
       clear(true);
@@ -3913,7 +3949,9 @@ lbg_info_t::delete_hydrogens() {
    widgeted_molecule_t copy_mol = mol;
    copy_mol.delete_hydrogens(root);
    save_molecule();
-   render_from_molecule(copy_mol);
+   import_from_widgeted_molecule(copy_mol);
+   render();
+   
 } 
 
 
@@ -4255,7 +4293,8 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
       lig_build::molfile_molecule_t mm;
       mm.read(file_name);
       widgeted_molecule_t wmol = import_mol_file(mm, file_name, mol);
-      render_from_molecule(wmol);
+      import_from_widgeted_molecule(wmol);
+      render();
       update_descriptor_attributes();
    }
 }
@@ -4314,7 +4353,8 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
 	 widgeted_molecule_t wmol = import_rdkit_mol(m, iconf);
 	 mdl_file_name = file_name;
    
-	 render_from_molecule(wmol);
+	 import_from_widgeted_molecule(wmol);
+	 render();
 	 update_descriptor_attributes();
      
       } else {
@@ -4715,7 +4755,8 @@ lbg_info_t::clean_up_2d_representation() {
 	    coot::make_molfile_molecule(rdkm, iconf);
 	 mmdb::Manager *mol = NULL; // no atom names to transfer
 	 widgeted_molecule_t wmol(mm, mol);
-	 render_from_molecule(wmol);
+	 import_from_widgeted_molecule(wmol);
+	 render();
 	 update_descriptor_attributes();
 	 save_molecule();
       }
@@ -4967,8 +5008,11 @@ lbg_info_t::flip_molecule(int axis) {
 
    widgeted_molecule_t new_mol = mol;
    new_mol.flip(axis);
-   render_from_molecule(new_mol); // wipes mol
+   // render_from_molecule(new_mol); // wipes mol
    // update_descriptor_attributes();
+
+   import_from_widgeted_molecule(new_mol);
+   render();
 }
 
 void
@@ -4976,8 +5020,9 @@ lbg_info_t::rotate_z_molecule(double degrees) {
 
    widgeted_molecule_t new_mol = mol;
    new_mol.rotate_z(degrees);
-   render_from_molecule(new_mol); // wipes mol
    // update_descriptor_attributes();
+   import_from_widgeted_molecule(new_mol);
+   render();
 }
 
 // in degrees (used in on_lbg_view_rotate_apply_button_clicked

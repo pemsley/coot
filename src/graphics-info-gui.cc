@@ -642,7 +642,8 @@ graphics_info_t::set_directory_for_fileselection(GtkWidget *fileselection) const
     set_directory_for_filechooser(fileselection);
   } else {
     if (directory_for_fileselection != "") {
-//       std::cout << "set directory_for_fileselection "
+
+       //       std::cout << "set directory_for_fileselection "
 // 		<< directory_for_fileselection << std::endl;
       gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),
 				      directory_for_fileselection.c_str());
@@ -714,14 +715,14 @@ void
 graphics_info_t::set_directory_for_filechooser(GtkWidget *fileselection) const {
 
    if (directory_for_filechooser != "") {
-       std::cout << "set directory_for_filechooser "
-                 << directory_for_filechooser << std::endl;
+      // std::cout << "set directory_for_filechooser "
+      // << directory_for_filechooser << std::endl;
       gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fileselection),
                                       directory_for_filechooser.c_str());
    } else {
       // set to cwd!?
       std::string cwd = coot::util::current_working_dir();
-      std::cout << "set directory_for_filechooser to cwd " << std::endl;
+      // std::cout << "set directory_for_filechooser to cwd " << std::endl;
       gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fileselection),
                                           cwd.c_str());
       // std::cout << "not setting directory_for_fileselection" << std::endl;

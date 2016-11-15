@@ -794,6 +794,7 @@ float graphics_info_t::find_waters_sigma_cut_off = 1.8;
 float graphics_info_t::ligand_acceptable_fit_fraction = 0.75;
 float graphics_info_t::ligand_cluster_sigma_level = 1.0; // sigma
 int   graphics_info_t::ligand_wiggly_ligand_n_samples = 50;
+int   graphics_info_t::ligand_wiggly_ligand_count = 0; // dummy
 int   graphics_info_t::ligand_verbose_reporting_flag = 0; 
 // std::vector<short int> *graphics_info_t::find_ligand_wiggly_ligands_; bye!
 short int graphics_info_t::ligand_expert_flag = 0;
@@ -1737,21 +1738,21 @@ setup_lighting(short int do_lighting_flag) {
       //
       // GL_LIGHT2 is for cut-glass mode
       // 
-      GLfloat  light_0_position[] = { 1.0,  1.0, 1.0, 0.0};
-      GLfloat  light_1_position[] = {-1.0,  0.0, 1.0, 0.0};
-      GLfloat  light_2_position[] = { 0.0,  0.0, 0.0, 0.0};
-
       glClearColor(0.0, 0.0, 0.0, 0.0);
       glShadeModel(GL_SMOOTH);
-
-      // glLightfv(GL_LIGHT0,   GL_POSITION, light_0_position);
-      // glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
-      // glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
 
       GLfloat light_ambient[]  = { 0.7, 0.7, 0.7, 0.6 };
       GLfloat light_diffuse[]  = { 0.6, 0.6, 0.6, 0.6 };
       GLfloat light_specular[] = { 0.6, 0.6, 0.6, 0.6 };
       GLfloat light_position[] = { 0.6, 0.6, 0.6, 0.0 };
+
+      GLfloat  light_0_position[] = { 1.0,  1.0, 1.0, 0.0};
+      GLfloat  light_1_position[] = {-1.0,  0.0, 1.0, 0.0};
+      GLfloat  light_2_position[] = { 0.0,  0.0, 0.0, 0.0};
+
+      glLightfv(GL_LIGHT0,   GL_POSITION, light_0_position);
+      glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
+      glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
 
       glLightfv(GL_LIGHT0, GL_AMBIENT,  light_ambient);
       glLightfv(GL_LIGHT0, GL_DIFFUSE,  light_diffuse);
@@ -1761,7 +1762,7 @@ setup_lighting(short int do_lighting_flag) {
       glLightfv(GL_LIGHT1, GL_AMBIENT,  light_ambient);
       glLightfv(GL_LIGHT1, GL_DIFFUSE,  light_diffuse);
       glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
-      glLightfv(GL_LIGHT1, GL_POSITION, light_position);      
+      glLightfv(GL_LIGHT1, GL_POSITION, light_position);
 
       glEnable(GL_LIGHT0);
       glEnable(GL_LIGHT1);

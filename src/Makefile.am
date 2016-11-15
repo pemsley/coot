@@ -236,11 +236,13 @@ coot_bin_SOURCES = \
 	c-interface-info.cc	 \
 	c-interface-kk.cc	 \
 	c-interface-image.cc     \
-	c-interface-image-widget.hh \
-	c-interface-ligands.hh   \
-	c-interface-ligands-swig.hh   \
-	c-interface-ligands.cc   \
+	c-interface-image-widget.hh    \
+	c-interface-ligand-search.hh   \
+	c-interface-ligands.hh         \
+	c-interface-ligands-widgets.hh \
+	c-interface-ligands-swig.hh    \
 	c-interface-ligands-gui.cc \
+	c-interface-ligands.cc   \
 	c-interface-maps.cc	 \
 	c-interface-mmdb.cc	 \
 	c-interface-mmdb.hh      \
