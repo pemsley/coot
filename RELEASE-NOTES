@@ -1,7 +1,7 @@
 
 -----
 
-  Pre-release 0.8.7
+  Pre-release 0.8.8
 
   o FEATURE: CPK atom colouring
 
@@ -15,9 +15,13 @@
   o CHANGE: Jigggle fit now works by masking the out the map for neighbouring 
             residues
   
+------
+
+  Release 0.8.7
+
   o FEATURE: Lidia now has canvas scaling
 
-  o FEATURE: Lidia now has CH3 superatoms
+  o FEATURE: Lidia now has CH3 superatoms, atom name and index display modes
 
   o FEATURE: Atom renaming to reference comp_id now has a place on the
              Ligand menu
@@ -28,13 +32,20 @@
 
   o CHANGE:  File -> SMILES has been removed
 
+  o CHANGE:  Additional parameters available in the ligand-fitting dialog
+
   o CHANGE:  Non-bonded contact restraints calculation speed up
+
+  o BUG-FIX: Fix side-chain plane restraints for sphere-refined residues with 
+             alt confs
 
   o BUG-FIX: MSE atoms are HETATMs after mutation [Sivasankar Putta]
 
   o BUG-FIX: CD bump exception in HYP NBC across link [Jens Kaiser]
 
   o BUG-FIX: Bond-dragging in Lidia now cleaned up
+
+  o BUG-FIX: Correct bonds to W in WO4.
 
 
 ------

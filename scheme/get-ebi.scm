@@ -208,8 +208,9 @@
 		      (list imol imol-map imol-map-d))))))))
 
 
-  (define eds-site "http://eds.bmc.uu.se/eds")
-  (define eds-core "http://eds.bmc.uu.se")
+  (define eds-site "http://www.ebi.ac.uk/pdbe/coordinates")
+  (define eds-core "some://thing") ;; for web pages
+  (define eds-coords-site "http://www.ebi.ac.uk/pdbe/entry-files/download")
 
   ;; "1cbds" -> "cb/"
   ;; 
@@ -233,17 +234,16 @@
 	      (format #t "Can't make coot-download directory~%")
 	      
 	      (let* ((down-id (string-downcase id))
-		     (eds-url (string-append eds-site "/dfs/"))
 		     (target-pdb-file (string-append "pdb" down-id ".ent"))
 		     (dir-target-pdb-file (string-append coot-tmp-dir "/" target-pdb-file))
-		     (mc (mid-chars down-id))
-		     (model-url (string-append eds-url mc down-id "/" target-pdb-file))
-		     (target-mtz-file (string-append down-id "_sigmaa.mtz"))
+		     (model-url (string-append eds-coords-site "/" target-pdb-file))
+		     (target-mtz-file (string-append down-id "_map.mtz"))
 		     (dir-target-mtz-file (string-append coot-tmp-dir "/" target-mtz-file))
-		     (mtz-url (string-append eds-url mc down-id "/" target-mtz-file))
+		     (mtz-url (string-append eds-site "/files/" target-mtz-file))
 		     (eds-info-page (string-append eds-core "/cgi-bin/eds/uusfs?pdbCode=" down-id)))
 
-		(print-var eds-info-page)
+		(print-var model-url)
+		(print-var mtz-url)
 		
 		(let* ((pre-download-info (coot-get-url-as-string eds-info-page))
 		       ;; (pre-download-info-sxml (xml->sxml pre-download-info))
@@ -263,8 +263,8 @@
 		  (format #t "INFO:: read mtz   status: ~s~%" s2)
 		  
 		  (let ((r-imol (handle-read-draw-molecule dir-target-pdb-file))
-			(map-1 (make-and-draw-map dir-target-mtz-file "2FOFCWT" "PH2FOFCWT" "" 0 0))
-			(map-2 (make-and-draw-map dir-target-mtz-file  "FOFCWT"  "PHFOFCWT" "" 0 1)))
+			(map-1 (make-and-draw-map dir-target-mtz-file "FWT" "PHWT" "" 0 0))
+			(map-2 (make-and-draw-map dir-target-mtz-file  "DELFWT"  "PHDELWT" "" 0 1)))
 		    (set-scrollable-map map-1)
 		    (if (valid-model-molecule? r-imol)
 			(list r-imol map-1 map-2)

@@ -749,10 +749,15 @@ SCM execute_ligand_search_scm() {
 #ifdef USE_PYTHON
 PyObject *execute_ligand_search_py() {
 
+   std::vector<int> solutions;
+   PyObject *r = generic_int_vector_to_list_internal_py(solutions);
    ligand_wiggly_ligand_data_t lwld = ligand_search_install_wiggly_ligands();
-   std::vector<int> solutions = execute_ligand_search_internal(lwld.wlig);
-   // now sort solutions (because they (probably) have been real-space refined now)
-   return generic_int_vector_to_list_internal_py(solutions);
+   if (lwld.immediate_execute_ligand_search) {
+      std::vector<int> solutions = execute_ligand_search_internal(lwld.wlig);
+      // now sort solutions (because they (probably) have been real-space refined now)
+      r = generic_int_vector_to_list_internal_py(solutions);
+   }
+   return r;
 }
 #endif // USE_PYTHON
 
@@ -806,6 +811,7 @@ ligand_search_install_wiggly_ligands() {
 	       lfwd.progress_bar        = lfwd_local.progress_bar;
 	       lfwd.progress_bar_window = lfwd_local.progress_bar_window;
 	       lfwd.progress_bar_label  = lfwd_local.progress_bar_label;
+	       lfwd.immediate_execute_ligand_search = false;
 
 	       setup_ligands_progress_bar_idle(wlig_p, ligands[i].first, lfwd);
 
@@ -821,7 +827,6 @@ ligand_search_install_wiggly_ligands() {
 	       wlig_p->install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
 						     g.ligand_wiggly_ligand_n_samples,
 						     optim_geom, fill_vec);
-	       lfwd.immediate_execute_ligand_search = false;
 	    }
 	 }
 	 catch (const std::runtime_error &mess) {
@@ -835,8 +840,6 @@ ligand_search_install_wiggly_ligands() {
 	 }
       } else {
 	 // argh (ii).
-
-	 std::cout << "............ calling install_ligand()" << std::endl;
 	 wlig_p->install_ligand(g.molecules[ligands[i].first].atom_sel.mol);
       }
    }
@@ -1015,7 +1018,7 @@ execute_ligand_search_internal(coot::wligand *wlig_p) {
 	    label_str += " acceptable ligands  ";
 	 gtk_label_set_text(GTK_LABEL(label), label_str.c_str());
 	 gtk_widget_show(w);
-      } else { 
+      } else {
 	 GtkWidget *w = create_no_new_ligands_info_dialog();
 	 gtk_widget_show(w);
       }
@@ -3493,4 +3496,81 @@ double get_ligand_percentile(std::string metric_name, double metric_value, short
    return pc;
 }
 
+
+// ---------------------------------------------------
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+//                 coot built-in contact dots
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+
+#include "coot-utils/atom-overlaps.hh"
+
+void
+coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) {
+
+   graphics_info_t g;
+   mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+   mmdb::Residue *residue_p = coot::util::get_residue(res_spec, mol);
+   if (residue_p) {
+      std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
+      coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, g.Geom_p(), 0.5, 0.25);
+      coot::atom_overlaps_dots_container_t c = overlaps.contact_dots();
+      std::map<std::string, std::vector<clipper::Coord_orth> >::const_iterator it;
+      for (it=c.dots.begin(); it!=c.dots.end(); it++) {
+	 const std::string &type = it->first;
+	 const std::vector<clipper::Coord_orth> &v = it->second;
+	 std::string obj_name = type;
+	 int obj = new_generic_object_number(obj_name.c_str());
+	 std::string col = "#445566";
+	 if (type == "H-bond")        col = "greentint";
+	 if (type == "big-overlap")   col = "#ee5544";
+	 if (type == "small-overlap") col = "#bbbb44";
+	 if (type == "close-contact") col = "#55bb55";
+	 if (type == "wide-contact")  col = "#5555ee";
+	 int point_size = 2;
+	 if (type == "vdw-surface") point_size = 1;
+	 
+	 for (unsigned int i=0; i<v.size(); i++)
+	    to_generic_object_add_point(obj, col.c_str(), point_size, v[i].x(), v[i].y(), v[i].z());
+	 if (type != "vdw-surface")
+	    set_display_generic_object(obj, 1); // should be a function with no redraw
+      }
+      int spikes_obj = new_generic_object_number("clashes");
+      for (unsigned int i=0; i<c.spikes.size(); i++) {
+	 to_generic_object_add_line(spikes_obj, "#ff59b4", 2,
+				    c.spikes[i].first.x(),  c.spikes[i].first.y(),  c.spikes[i].first.z(),
+				    c.spikes[i].second.x(), c.spikes[i].second.y(), c.spikes[i].second.z());
+      }
+      set_display_generic_object(spikes_obj, 1);
+      
+   } else {
+      std::cout << "Can't find residue" << res_spec << std::endl;
+   }
+}
+
+#ifdef USE_PYTHON
+void
+coot_contact_dots_for_ligand_py(int imol, PyObject *ligand_spec_py) {
+
+   coot::residue_spec_t res_spec = residue_spec_from_py(ligand_spec_py);
+   if (is_valid_model_molecule(imol)) {
+      coot_contact_dots_for_ligand_internal(imol, res_spec);
+   }
+}
+#endif
+
+
+#ifdef USE_GUILE
+void
+coot_contact_dots_for_ligand_scm(int imol, SCM ligand_spec_scm) {
+
+   coot::residue_spec_t res_spec = residue_spec_from_scm(ligand_spec_scm);
+   if (is_valid_model_molecule(imol)) {
+      coot_contact_dots_for_ligand_internal(imol, res_spec);
+   }
+}
+#endif
 

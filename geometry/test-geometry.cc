@@ -29,6 +29,7 @@
 #include <iostream>
 
 #include "protein-geometry.hh"
+#include "protein-donor-acceptors.hh"
 
 std::vector <std::string> protein_monomers();
 
@@ -62,7 +63,7 @@ protein_monomers() {
 }
 
 int
-main(int argc, char **argv) {
+ccp4_setup(int argc, char **argv) {
  
    std::string filename;
    int read_number = 1;
@@ -119,3 +120,20 @@ main(int argc, char **argv) {
    return 0; 
 }
 
+void
+test_quick_hbs() {
+
+   coot::quick_protein_donor_acceptors qpda;
+   qpda.test();
+
+}
+
+
+int main(int argc, char **argv) {
+
+   // ccp4_setup(argc, argv);
+
+   test_quick_hbs();
+
+   return 0;
+}

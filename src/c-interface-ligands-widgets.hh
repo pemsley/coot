@@ -26,6 +26,7 @@ public:
       init();
    }
    ligand_wiggly_ligand_data_t(coot::wligand *wlig_in) {
+      init();
       wlig = wlig_in;
    }
 };

@@ -208,9 +208,14 @@ def get_eds_pdb_and_mtz(id):
                     return False
                 else:
                     return [imol, imol_map, imol_map_d]
-    
-    eds_site = "http://eds.bmc.uu.se/eds"
-    eds_core = "http://eds.bmc.uu.se"
+
+    # 20161105 update from John Berrisford
+    # eds_site = "http://eds.bmc.uu.se/eds"
+    # eds_core = "http://eds.bmc.uu.se"
+    eds_site = "http://www.ebi.ac.uk/pdbe/coordinates"
+    eds_core = "http://www.ebi.ac.uk/pdbe" # for web pages
+    # e.g. http://www.ebi.ac.uk/pdbe/entry-files/download/pdb1cbs.ent
+    eds_coords_site = 'http://www.ebi.ac.uk/pdbe/entry-files/download'
 
     # "1cbds" -> "cb/"
     #
@@ -233,15 +238,21 @@ def get_eds_pdb_and_mtz(id):
 
         if (r):
             down_id = string.lower(id)
-            eds_url = eds_site + "/dfs/"
+            # eds_url = eds_site + "/dfs/"
+            # target_pdb_file = down_id + ".ent"
             target_pdb_file = "pdb" + down_id + ".ent"
             dir_target_pdb_file = coot_tmp_dir + "/" + target_pdb_file
             mc = mid_chars(down_id)
-            model_url = eds_url + mc + down_id + "/" + target_pdb_file
-            target_mtz_file = down_id + "_sigmaa.mtz"
+            # model_url = eds_site + "/" + target_pdb_file
+            model_url = eds_coords_site + "/" + target_pdb_file
+            target_mtz_file = down_id + "_map.mtz"
             dir_target_mtz_file = coot_tmp_dir + "/" + target_mtz_file
-            mtz_url = eds_url + mc + down_id + "/" + target_mtz_file
+            mtz_url = eds_site  + "/files/" + target_mtz_file
             eds_info_page = eds_core + "/cgi-bin/eds/uusfs?pdbCode=" + down_id
+
+            print "model_url:", model_url
+            print "  mtz_url:", mtz_url
+            print "eds_info_page:", eds_info_page
 
             try:
                 pre_download_info = coot_get_url_as_string(eds_info_page)
@@ -268,8 +279,8 @@ def get_eds_pdb_and_mtz(id):
             # maybe should then not load the map!?
 
             r_imol = handle_read_draw_molecule(dir_target_pdb_file)
-            map_1 = make_and_draw_map(dir_target_mtz_file, "2FOFCWT", "PH2FOFCWT","",0,0)
-            map_2 = make_and_draw_map(dir_target_mtz_file, "FOFCWT", "PHFOFCWT",
+            map_1 = make_and_draw_map(dir_target_mtz_file, "FWT", "PHWT","",0,0)
+            map_2 = make_and_draw_map(dir_target_mtz_file, "DELFWT", "PHDELWT",
                               "", 0, 1)
             set_scrollable_map(map_1)
             if (valid_model_molecule_qm(r_imol)):
