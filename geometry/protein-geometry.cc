@@ -931,7 +931,7 @@ coot::dictionary_residue_restraints_t::element(const std::string &atom_name) con
    return r;
 }
 
-// likewise look up the energy type.  Return "" on no atom fould
+// likewise look up the energy type.  Return "" on no atom found
 // with that atom_name.
 // 
 std::string
@@ -939,6 +939,9 @@ coot::dictionary_residue_restraints_t::type_energy(const std::string &atom_name)
 
    std::string r = "";
    for (unsigned int iat=0; iat<atom_info.size(); iat++) {
+      if (false)
+	 std::cout << "comparing :" << atom_name << ": with :" << atom_info[iat].atom_id_4c
+		   << ":" << std::endl;
       if (atom_info[iat].atom_id_4c == atom_name) { // PDBv3 FIXME
 	 r = atom_info[iat].type_energy;
 	 break;
