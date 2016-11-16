@@ -393,7 +393,7 @@ public:
 
    void basic_white_underlay(); // Not const because we modify canvas_item_vec. 
    void display_background();   // Likewise.
-   void make_background(clipper::Ramachandran rama_type, GooCanvasItem *bg_group);
+   void make_background(const clipper::Ramachandran rama_type, GooCanvasItem *bg_group);
    GooCanvasItem *bg_all;
    GooCanvasItem *bg_gly;
    GooCanvasItem *bg_pro;
@@ -406,9 +406,9 @@ public:
    void hide_all_background();
    void show_background(GooCanvasItem *new_bg);
    void setup_background(bool blocks=1, bool isolines=1);
-   std::pair<int, std::vector<float> > make_isolines_internal(clipper::Ramachandran rama_type,
+   std::pair<int, std::vector<float> > make_isolines_internal(const clipper::Ramachandran rama_type,
                                                               double threshold, float x_in, float y_in);
-   void make_isolines(clipper::Ramachandran rama_type, GooCanvasItem *bg_group);
+   void make_isolines(const clipper::Ramachandran rama_type, GooCanvasItem *bg_group);
    void setup_canvas(); 
    void black_border();
    void cell_border(int i, int j, int step);

@@ -597,7 +597,7 @@ coot::rama_plot::setup_background(bool blocks, bool isolines) {
 // return the canvas item (group) for the typed background
 // pass Ramachandran by type, e.g. r_gly...
 void
-coot::rama_plot::make_background(clipper::Ramachandran rama_type, GooCanvasItem *bg_group) {
+coot::rama_plot::make_background(const clipper::Ramachandran rama_type, GooCanvasItem *bg_group) {
 
 
    GooCanvasItem *item;
@@ -758,7 +758,7 @@ coot::rama_plot::display_background() {
 
 // returns an int to make line and a vector of (x1,y1,x2,y2) to make_isolines between
 std::pair<int, std::vector<float> >
-coot::rama_plot::make_isolines_internal(clipper::Ramachandran rama_type, double threshold,
+coot::rama_plot::make_isolines_internal(const clipper::Ramachandran rama_type, double threshold,
                                         float x_in, float y_in) {
 
    std::pair<int, std::vector<float> > ret;
@@ -845,7 +845,7 @@ coot::rama_plot::make_isolines_internal(clipper::Ramachandran rama_type, double 
 }
 
 void
-coot::rama_plot::make_isolines(clipper::Ramachandran rama_type, GooCanvasItem *bg_group) {
+coot::rama_plot::make_isolines(const clipper::Ramachandran rama_type, GooCanvasItem *bg_group) {
 
    GooCanvasItem *item;
    float x;
