@@ -6331,10 +6331,10 @@ molecule_class_info_t::draw_display_list_objects(int GL_context) {
    //    std::cout << "draw_display_list_objects() add_reps.size() " << add_reps.size() << std::endl;
 
    GLfloat  ambientLight[] = { 0.1f, 0.1f, 0.1f, 0.f };
-   GLfloat  diffuseLight[] = { 0.5f, 0.5f, 0.5f, 0.f };
-   GLfloat specularLight[] = { 0.5f, 0.5f, 0.5f, 0.f };
+   GLfloat  diffuseLight[] = { 0.4f, 0.4f, 0.4f, 0.f };
+   GLfloat specularLight[] = { 0.4f, 0.4f, 0.4f, 0.f };
 
-   // Assign created components to GL_LIGHT2
+   // Assign created components to GL_LIGHT1
    glLightfv(GL_LIGHT1, GL_AMBIENT,  ambientLight);
    glLightfv(GL_LIGHT1, GL_DIFFUSE,  diffuseLight);
    glLightfv(GL_LIGHT1, GL_SPECULAR, specularLight);
@@ -6343,12 +6343,15 @@ molecule_class_info_t::draw_display_list_objects(int GL_context) {
    if (draw_it) { 
       if (display_list_tags.size() > 0) { 
 	 glEnable(GL_LIGHTING);
-	 glEnable(GL_LIGHT0);
-	 glEnable(GL_LIGHT1);
-	 glEnable(GL_LIGHT2);
+
+	 glEnable(GL_LIGHT0); // bright.
+	 glEnable(GL_LIGHT1); // dim, off axis
+	 glEnable(GL_LIGHT2); // very dark
+
 	 // glDisable(GL_LIGHT0);
 	 // glDisable(GL_LIGHT1);
 	 // glDisable(GL_LIGHT2);
+
 	 std::vector<coot::display_list_object_info>::const_iterator it;
 	 for (it=display_list_tags.begin(); it!=display_list_tags.end(); it++) {
 	    if (! it->is_closed) { 
