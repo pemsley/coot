@@ -4395,7 +4395,8 @@ coot::lsq_plane_info_t::lsq_plane_info_t(const std::vector<clipper::Coord_orth> 
 
 }
 
-
+// the header for this is (in) residue-and-atom-specs.hh.  Hmm... should be fixed.
+//
 std::pair<coot::atom_spec_t, coot::atom_spec_t>
 coot::link_atoms(mmdb::Link *link) {
 

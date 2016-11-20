@@ -697,7 +697,15 @@ namespace coot {
       // return null on failure
       mmdb::Residue *GetResidue(bool idealize_flag, float b_factor) const;
 
+      // This is very slow if you call it a number of times.
+      // Better to extract the ring info with get_ligand_ring_list()
+      // and test for atom_name_1 and atom_name_2 using that.
       bool in_same_ring(const std::string &atom_name_1, const std::string &atom_name_2) const;
+
+      // Here for convenience, but it doesn't rely on class functions or data items
+      // (could/should be static?)
+      bool in_same_ring(const std::string &atom_name_1, const std::string &atom_name_2,
+			const std::vector<std::vector<std::string> > &ring_list) const;
 
       bool ligand_has_aromatic_bonds_p() const;
 
