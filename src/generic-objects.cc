@@ -270,6 +270,7 @@ void set_display_generic_object(int object_number, short int istate) {
 	 "_toggle_button";
       GtkWidget *toggle_button = lookup_widget(g.generic_objects_dialog,
 					       toggle_button_name.c_str());
+
       if (toggle_button) {
 	 if (istate)
 	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), TRUE);

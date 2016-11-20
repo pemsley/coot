@@ -43,7 +43,7 @@ namespace coot {
       };
       atom_overlaps_dots_container_t() {}
       std::map<std::string, std::vector<clipper::Coord_orth> > dots;
-      spikes_t spikes;
+      spikes_t clashes;
    };
 
    class atom_overlap_t {

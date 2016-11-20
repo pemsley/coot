@@ -938,7 +938,7 @@ coot::atom_overlaps_container_t::contact_dots() {
 				    0.34* sqrt(biggest_overlap) * clash_spike_length * vect_to_pt_1_unit;
 				 std::pair<clipper::Coord_orth, clipper::Coord_orth> p(pt_at_surface,
 										       pt_spike_inner);
-				 ao.spikes.positions.push_back(p);
+				 ao.clashes.positions.push_back(p);
 			      }
 
 			   } else {
@@ -1140,18 +1140,55 @@ coot::atom_overlaps_container_t::all_atom_contact_dots(double dot_density_in) {
 			      // a wide contact
 			      if ((at->residue != atom_with_biggest_overlap->residue) ||
 				  (c_type != "wide-contact"))
-				 std::cout << "spike "
-					   << c_type << " "
+
+				 if (false) // turn on for standard-out debugging
+				    std::cout << "spike "
+					      << c_type << " "
+					      << pt_at_surface.x() << " "
+					      << pt_at_surface.y() << " "
+					      << pt_at_surface.z() << " to "
+					      << pt_spike_inner.x() << " "
+					      << pt_spike_inner.y() << " "
+					      << pt_spike_inner.z()
+					      << " theta " << theta << " phi " << phi
+					      << std::endl;
+
+			      if (c_type != "clash") {
+
+				 // draw dot if these are atoms from different residues or this is not
+				 // a wide contact
+				 if ((at->residue != atom_with_biggest_overlap->residue) ||
+				     (c_type != "wide-contact"))
+				    ao.dots[c_type].push_back(pt_at_surface);
+			      } else {
+				 // clash
+				 clipper::Coord_orth vect_to_pt_1 = pt_at_1 - pt_at_surface;
+				 clipper::Coord_orth vect_to_pt_1_unit(vect_to_pt_1.unit());
+				 // these days, spikes project away from the atom, not inwards
+				 // clipper::Coord_orth pt_spike_inner =
+				 // pt_at_surface + clash_spike_length * vect_to_pt_1_unit;
+				 clipper::Coord_orth pt_spike_inner =
+				    pt_at_surface -
+				    0.34* sqrt(biggest_overlap) * clash_spike_length * vect_to_pt_1_unit;
+				 std::pair<clipper::Coord_orth, clipper::Coord_orth> p(pt_at_surface,
+										       pt_spike_inner);
+				 ao.clashes.positions.push_back(p);
+			      }
+
+			   } else {
+
+			      // std::cout << "No atom_with_biggest_overlap" << std::endl;
+
+			      // no environment atom was close to this ligand atom, so just add
+			      // a surface point
+
+			      if (false)
+				 std::cout << "spike-surface "
 					   << pt_at_surface.x() << " "
 					   << pt_at_surface.y() << " "
-					   << pt_at_surface.z() << " to "
-					   << pt_spike_inner.x() << " "
-					   << pt_spike_inner.y() << " "
-					   << pt_spike_inner.z()
-					   << " theta " << theta << " phi " << phi
-					   << std::endl;
-			   } else {
-			      // std::cout << "No atom_with_biggest_overlap" << std::endl;
+					   << pt_at_surface.z() << std::endl;
+
+			      ao.dots["vdw-surface"].push_back(pt_at_surface);
 			   }
 			}
 		     }
