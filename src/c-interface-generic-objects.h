@@ -105,6 +105,13 @@ void to_generic_object_add_display_list_handle(int object_number, int display_li
   generally need this function.  */
 void set_display_generic_object(int object_number, short int istate);
 
+/*! \brief set the display status of object number object_number, 
+
+  set the state of a generic object to be drawn, but no redraw. 
+  Use when enabling multiple generic objects.
+*/
+void set_display_generic_object_simple(int object_number, short int istate);
+
 /*! \brief display (1) or undisplay (0) all generic display objects */
 void set_display_all_generic_objects(int state);
 

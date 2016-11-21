@@ -3575,7 +3575,7 @@ void coot_all_atom_contact_dots(int imol) {
 	 for (unsigned int i=0; i<v.size(); i++)
 	    to_generic_object_add_point(obj, col.c_str(), point_size, v[i].x(), v[i].y(), v[i].z());
 	 if (type != "vdw-surface")
-	    set_display_generic_object(obj, 1); // should be a function with no redraw
+	    set_display_generic_object_simple(obj, 1); // should be a function with no redraw
       }
       int clashes_obj = new_generic_object_number("clashes");
       for (unsigned int i=0; i<c.clashes.size(); i++) {
@@ -3583,6 +3583,7 @@ void coot_all_atom_contact_dots(int imol) {
 				    c.clashes[i].first.x(),  c.clashes[i].first.y(),  c.clashes[i].first.z(),
 				    c.clashes[i].second.x(), c.clashes[i].second.y(), c.clashes[i].second.z());
       }
-      set_display_generic_object(clashes_obj, 1);
+      set_display_generic_object_simple(clashes_obj, 1);
+      graphics_draw();
    }
 }

@@ -247,12 +247,10 @@ void to_generic_object_add_display_list_handle(int object_number, int display_li
       std::cout << "BAD object_number in to_generic_object_add_point: "
 		<< object_number << std::endl;
    } 
-   
-
 }
 
 
-void set_display_generic_object(int object_number, short int istate) {
+void set_display_generic_object_simple(int object_number, short int istate) {
 
    graphics_info_t g;
    if (object_number >=0  && object_number < int(g.generic_objects_p->size())) {
@@ -261,7 +259,6 @@ void set_display_generic_object(int object_number, short int istate) {
       std::cout << "BAD object_number in to_generic_object_add_point: "
 		<< object_number << std::endl;
    }
-   graphics_draw();
 
    if (g.generic_objects_dialog) {
       // get the togglebutton and set its state
@@ -280,14 +277,21 @@ void set_display_generic_object(int object_number, short int istate) {
    }
 }
 
+void set_display_generic_object(int object_number, short int istate) {
+   set_display_generic_object_simple(object_number, istate);
+   graphics_draw();
+}
+
+
 /*! \brief display (1) or undisplay (0) all generic display objects */
 void set_display_all_generic_objects(int state) {
 
    graphics_info_t g;
    unsigned int n_objs = g.generic_objects_p->size();
    for (unsigned int i=0; i<n_objs; i++) {
-      set_display_generic_object(i, state);
+      set_display_generic_object_simple(i, state);
    }
+   graphics_draw();
 }
 
 
