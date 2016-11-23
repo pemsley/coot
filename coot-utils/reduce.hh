@@ -37,6 +37,10 @@ namespace coot {
 								double bl,
 								double angle_rad,
 								double torsion_rad) const;
+      clipper::Coord_orth position_by_bisection(mmdb::Atom *at_1, // for Hs on PHE etc
+						mmdb::Atom *at_2,
+						mmdb::Atom *at_3,
+						double bl) const;
       std::pair<clipper::Coord_orth, clipper::Coord_orth>
       position_pair_by_bisection(mmdb::Atom *at_1,  // CA
 				 mmdb::Atom *at_2,  // CB
@@ -59,14 +63,14 @@ namespace coot {
 			 const std::string &at_name_3,
 			 torsion_info_t torsion_1, torsion_info_t torsion_2,
 			 mmdb::Residue *residue_p);
-      void add_2_hydrogens(const std::string &H_at_name_1,
-			   const std::string &H_at_name_2,
-			   const std::string &at_name_1,
-			   const std::string &at_name_2,
-			   const std::string &at_name_3,
-			   double bond_length,
-			   double angle_between_Hs, // in degrees
-			   mmdb::Residue *residue_p);
+      void add_sp3_hydrogens(const std::string &H_at_name_1,
+			     const std::string &H_at_name_2,
+			     const std::string &at_name_1,
+			     const std::string &at_name_2,
+			     const std::string &at_name_3,
+			     double bond_length,
+			     double angle_between_Hs, // in degrees
+			     mmdb::Residue *residue_p);
       void add_tetrahedral_hydrogen(const std::string &H_at_name,
 				    const std::string &central_name,
 				    const std::string &neighb_at_name_1,
@@ -74,6 +78,12 @@ namespace coot {
 				    const std::string &neighb_at_name_3,
 				    double bond_length,
 				    mmdb::Residue *residue_p);
+      void add_aromatic_hydrogen(const std::string &H_at_name,
+				 const std::string &neighb_at_name_1,
+				 const std::string &neighb_at_name_2, // add to this
+				 const std::string &neighb_at_name_3,
+				 double bl, mmdb::Residue *residue_p);
+
 
       mmdb::Manager *mol;
       void add_riding_hydrogens(); // non-spin-search
