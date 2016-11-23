@@ -426,6 +426,21 @@ int test_all_atom_overlaps() {
    return status;
 }
 
+#include "reduce.hh"
+
+int test_reduce() {
+
+   mmdb::Manager *mol = new mmdb::Manager;
+   std::string file_name = "1x8b.pdb";
+   mol->ReadCoorFile(file_name.c_str());
+   coot::reduce r(mol);
+   r.add_hydrogen_atoms();
+
+   mol->WritePDBASCII("reduced.pdb");
+   delete mol;
+   return 1;
+}
+
 
 int main(int argv, char **argc) {
 
@@ -457,8 +472,11 @@ int main(int argv, char **argc) {
    if (0)
       test_atom_overlaps();
 
-   if (1)
+   if (0)
       test_all_atom_overlaps();
+   
+   if (1)
+      test_reduce();
    
    return 0;
 }
