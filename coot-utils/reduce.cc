@@ -319,6 +319,7 @@ coot::reduce::add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *resi
       add_sp3_hydrogens(" HB2", " HB3", " CA ", " CB ", " CG ", bl, 107, residue_p);
       add_sp3_hydrogens(" HG2", " HG3", " CB ", " CG ", " CD ", bl, 107, residue_p);
       add_sp3_hydrogens(" HD2", " HD3", " CG ", " CD ", " NE ", bl, 107, residue_p);
+      add_guanidinium_hydrogens(residue_p);
    }
    if (res_name == "SER") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
@@ -675,6 +676,54 @@ coot::reduce::add_amino_hydrogens(const std::string &H_at_name_1,
 	 std::cout << "Fail to add " << at_name_1 << " at_1: " << at_n_1 << std::endl;
 	 std::cout << "            " << at_name_2 << " at_2: " << at_n_2 << std::endl;
 	 std::cout << "            " << at_name_3 << " at_3: " << at_n_3 << std::endl;
+      }
+   }
+}
+
+void
+coot::reduce::add_guanidinium_hydrogens(mmdb::Residue *residue_p) {
+
+   std::vector<std::string> alt_confs = util::get_residue_alt_confs(residue_p);
+   for (unsigned int i=0; i<alt_confs.size(); i++) {
+
+      // HE
+      std::string H_at_name = " HE ";
+      double bl = 0.86;
+      mmdb::Atom *at_n_1 = residue_p->GetAtom(" CD ", 0, alt_confs[i].c_str());
+      mmdb::Atom *at_n_2 = residue_p->GetAtom(" NE ", 0, alt_confs[i].c_str());
+      mmdb::Atom *at_n_3 = residue_p->GetAtom(" CZ ", 0, alt_confs[i].c_str());
+      if (at_n_1 && at_n_2 && at_n_3) {
+	 mmdb::realtype bf = at_n_2->tempFactor;
+	 clipper::Coord_orth H_pos = position_by_bisection(at_n_1, at_n_2, at_n_3, bl);
+	 add_hydrogen_atom(H_at_name, H_pos, bf, residue_p);
+      } else {
+	 std::cout << "Fail Residue " << residue_spec_t(residue_p) << " " << residue_p->GetResName()
+		   << " alt-conf \"" << alt_confs[i] << "\""
+		   << " failed in add_aromatic_hydrogen " << std::endl;
+	 std::cout << "Fail to add " << " CD " << " at_1: " << at_n_1 << std::endl;
+	 std::cout << "            " << " NE " << " at_2: " << at_n_2 << std::endl;
+	 std::cout << "            " << " CZ " << " at_3: " << at_n_3 << std::endl;
+      }
+
+      // HH[12][12]
+      //
+      at_n_1 = residue_p->GetAtom(" NE", 0, alt_confs[i].c_str());
+      at_n_2 = residue_p->GetAtom(" CZ ", 0, alt_confs[i].c_str());
+      mmdb::Atom *at_nh1 = residue_p->GetAtom(" NH1", 0, alt_confs[i].c_str());
+      mmdb::Atom *at_nh2 = residue_p->GetAtom(" NH2", 0, alt_confs[i].c_str());
+      if (at_n_1 && at_n_2 && at_n_3) {
+	 double bf_nh1 = at_nh2->tempFactor;
+	 double bf_nh2 = at_nh2->tempFactor;
+	 double a = clipper::Util::d2rad(120);
+	 double t = clipper::Util::d2rad(180);
+	 clipper::Coord_orth hh11 = position_by_bond_length_angle_torsion(at_n_1, at_n_2, at_nh1, bl, a, 0);
+	 clipper::Coord_orth hh12 = position_by_bond_length_angle_torsion(at_n_1, at_n_2, at_nh1, bl, a, t);
+	 clipper::Coord_orth hh21 = position_by_bond_length_angle_torsion(at_n_1, at_n_2, at_nh2, bl, a, 0);
+	 clipper::Coord_orth hh22 = position_by_bond_length_angle_torsion(at_n_1, at_n_2, at_nh2, bl, a, t);
+	 add_hydrogen_atom("HH11", hh11, bf_nh1, residue_p);
+	 add_hydrogen_atom("HH12", hh12, bf_nh2, residue_p);
+	 add_hydrogen_atom("HH21", hh21, bf_nh2, residue_p);
+	 add_hydrogen_atom("HH22", hh22, bf_nh2, residue_p);
       }
    }
 }
