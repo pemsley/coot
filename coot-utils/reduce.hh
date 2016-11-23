@@ -91,6 +91,48 @@ namespace coot {
 			       double bl_amino, // angle is 120, torsions are 180 and 0
 			       mmdb::Residue *residue_p);
       void add_guanidinium_hydrogens(mmdb::Residue *residue_p);
+      void add_trp_indole_hydrogens(mmdb::Residue *residue_p);
+      void add_trp_indole_hydrogen(const std::string &H_name,
+				   const std::string &at_name_1,
+				   const std::string &at_name_2,
+				   const std::string &at_name_3,
+				   double bl,
+				   mmdb::Residue *residue_p);
+      // this will need a spin-search
+      void add_OH_H(const std::string &H_name,
+		    const std::string &at_name_1,
+		    const std::string &at_name_2,
+		    const std::string &at_name_3,
+		    double bl,
+		    double angle,      // deg
+		    double tor_inital, // deg
+		    mmdb::Residue *residue_p);
+      // this will need a spin-search
+      void add_SH_H(const std::string &H_name,
+		    const std::string &at_name_1,
+		    const std::string &at_name_2,
+		    const std::string &at_name_3,
+		    double bl,
+		    double angle,      // deg
+		    double tor_inital, // deg
+		    mmdb::Residue *residue_p);
+      // both of the above wrap this:
+      void add_xH_H(const std::string &H_name,
+		    const std::string &at_name_1,
+		    const std::string &at_name_2,
+		    const std::string &at_name_3,
+		    double bl,
+		    double angle,      // deg
+		    double tor_inital, // deg
+		    mmdb::Residue *residue_p);
+
+      void add_his_ring_C_Hs(mmdb::Residue *residue_p);
+      void add_his_ring_C_H(const std::string &H_name,
+			    const std::string &at_name_1,
+			    const std::string &at_name_2,
+			    const std::string &at_name_3,
+			    double bl,
+			    mmdb::Residue *residue_p);
 
       mmdb::Manager *mol;
       void add_riding_hydrogens(); // non-spin-search
