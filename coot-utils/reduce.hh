@@ -83,7 +83,13 @@ namespace coot {
 				 const std::string &neighb_at_name_2, // add to this
 				 const std::string &neighb_at_name_3,
 				 double bl, mmdb::Residue *residue_p);
-
+      void add_amino_hydrogens(const std::string &H_at_name_1,
+			       const std::string &H_at_name_2,
+			       const std::string &at_name_1,
+			       const std::string &at_name_2,
+			       const std::string &at_name_3,
+			       double bl_amino, // angle is 120, torsions are 180 and 0
+			       mmdb::Residue *residue_p);
 
       mmdb::Manager *mol;
       void add_riding_hydrogens(); // non-spin-search

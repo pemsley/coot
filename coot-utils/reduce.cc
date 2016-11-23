@@ -223,7 +223,8 @@ coot::reduce::add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *resi
 
    std::string res_name = residue_p->GetResName();
    double bl = 0.97;
-   double bl_arom = 0.93;
+   double bl_arom  = 0.93;
+   double bl_amino = 0.86;
    if (res_name == "ALA") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
       torsion_info_t torsion_1(" N  ", " CA ", " CB ", bl, 109, 180);
@@ -299,6 +300,7 @@ coot::reduce::add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *resi
    if (res_name == "ASN") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
       add_sp3_hydrogens(" HB2", " HB3", " CA ", " CB ", " CG ", bl, 107, residue_p);
+      add_amino_hydrogens("HD21", "HD22", " ND2", " CG ", " OD1", bl_amino, residue_p);
    }
    if (res_name == "PRO") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
@@ -310,6 +312,7 @@ coot::reduce::add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *resi
       add_main_chain_hydrogens(residue_p, residue_prev_p);
       add_sp3_hydrogens(" HB2", " HB3", " CA ", " CB ", " CG ", bl, 107, residue_p);
       add_sp3_hydrogens(" HG2", " HG3", " CB ", " CG ", " CD ", bl, 107, residue_p);
+      add_amino_hydrogens("HE21", "HE22", " NE2", " CD ", " OE1", bl_amino, residue_p);
    }
    if (res_name == "ARG") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
@@ -635,6 +638,43 @@ coot::reduce::add_aromatic_hydrogen(const std::string &H_at_name,
 	 std::cout << "Fail to add " << neighb_at_name_1 << " at_1: " << at_n_1 << std::endl;
 	 std::cout << "            " << neighb_at_name_2 << " at_2: " << at_n_2 << std::endl;
 	 std::cout << "            " << neighb_at_name_3 << " at_3: " << at_n_3 << std::endl;
+      }
+   }
+}
+
+void
+coot::reduce::add_amino_hydrogens(const std::string &H_at_name_1,
+				  const std::string &H_at_name_2,
+				  const std::string &at_name_1,   // NE2
+				  const std::string &at_name_2,   // CG
+				  const std::string &at_name_3,   // OE1
+				  double bl_amino,
+				  mmdb::Residue *residue_p) {
+
+   std::vector<std::string> alt_confs = util::get_residue_alt_confs(residue_p);
+   for (unsigned int i=0; i<alt_confs.size(); i++) {
+      mmdb::Atom *at_n_1 = residue_p->GetAtom(at_name_1.c_str(), 0, alt_confs[i].c_str());
+      mmdb::Atom *at_n_2 = residue_p->GetAtom(at_name_2.c_str(), 0, alt_confs[i].c_str());
+      mmdb::Atom *at_n_3 = residue_p->GetAtom(at_name_3.c_str(), 0, alt_confs[i].c_str());
+      if (at_n_1 && at_n_2 && at_n_3) {
+	 clipper::Coord_orth Hp1 = position_by_bond_length_angle_torsion(at_n_3, at_n_2, at_n_1,
+									 bl_amino,
+									 clipper::Util::d2rad(120),
+									 clipper::Util::d2rad(180));
+	 clipper::Coord_orth Hp2 = position_by_bond_length_angle_torsion(at_n_3, at_n_2, at_n_1,
+									 bl_amino,
+									 clipper::Util::d2rad(120),
+									 clipper::Util::d2rad(0));
+	 mmdb::realtype bf = at_n_1->tempFactor;
+	 add_hydrogen_atom(H_at_name_1, Hp1, bf, residue_p);
+	 add_hydrogen_atom(H_at_name_2, Hp2, bf, residue_p);
+      } else {
+	 std::cout << "Fail Residue " << residue_spec_t(residue_p) << " " << residue_p->GetResName()
+		   << " alt-conf \"" << alt_confs[i] << "\""
+		   << " failed in add_amino_hydrogens" << std::endl;
+	 std::cout << "Fail to add " << at_name_1 << " at_1: " << at_n_1 << std::endl;
+	 std::cout << "            " << at_name_2 << " at_2: " << at_n_2 << std::endl;
+	 std::cout << "            " << at_name_3 << " at_3: " << at_n_3 << std::endl;
       }
    }
 }
