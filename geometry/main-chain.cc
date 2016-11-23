@@ -22,6 +22,16 @@ coot::is_main_chain_p(mmdb::Atom *at) {
 	     mol_atom_name == " HA3") {
 	    return 1;
 	 }
+	 
+	 // Perhaps N-terminal H atom?
+	 mmdb::Residue *res = at->residue;
+	 if (res) {
+	    if (res->isNTerminus()) {
+	       if (mol_atom_name == " H1 ") return true;
+	       if (mol_atom_name == " H2 ") return true;
+	       if (mol_atom_name == " H3 ") return true;
+	    }
+	 }
       }
       return 0;
    } 
