@@ -163,6 +163,12 @@ namespace coot {
       std::vector<std::vector<std::string> > trp_ring_list() const;
       std::vector<std::vector<std::string> > pro_ring_list() const;
 
+      atom_overlaps_dots_container_t all_atom_contact_dots_internal(double dot_density_in,
+								    mmdb::Manager *mol,
+								    int i_sel_hnd_1,
+								    int i_sel_hnd_2,
+								    mmdb::realtype min_dist,
+								    mmdb::realtype max_dist);
 
    public:
       // we need mol to use UDDs to mark the HB donors and acceptors (using coot-h-bonds.hh)
