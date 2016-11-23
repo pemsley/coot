@@ -7,3 +7,7 @@ add_simple_coot_menu_menuitem(coot_menubar_menu("Ligand"),
 add_simple_coot_menu_menuitem(coot_menubar_menu("Ligand"),
                               "Isolated Coot Ligand Dots for this Ligand",
                               lambda func: coot_contact_dots_ligand_func())
+
+add_simple_coot_menu_menuitem(coot_menubar_menu("Ligand"),
+                              "Coot All-Atom Contact Dots",
+                              lambda func: coot_all_atom_contact_dots_func())
