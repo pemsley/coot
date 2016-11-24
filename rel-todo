@@ -3,10 +3,12 @@
 
    o Fetch molecule: acyclovir, (edit?) click Apply
  
-   o Pyrogen chirality: Using CCD files as input, make a dictionary and either validate the coordinates 
-     (dictionary vs actual) chiral volume or minimize and validate coordinates
+   o Pyrogen chirality: Using CCD files as input, make a dictionary and 
+     either validate the coordinates (dictionary vs actual) chiral volume 
+     or minimize and validate coordinates
 
-   o Pyrogen: add command line arguement to keep the coordinates from the input CCD/mmcif file
+   o Pyrogen: add command line arguement to keep the coordinates from the 
+     input CCD/mmcif file
 
    o when mutating to MSE atoms become HETATMs.
 
@@ -15,16 +17,22 @@
 
    o Fix make check on test chemical features
 
-* Done.
+   o 3ggi sfs don't convert with mmcif-to-mtz.
 
-   o New EDS Location [John Berrisford]
+   o if the chain has a TER and we add NCS residues, then the
+     old/current TER should be deleted.  Write a test first.
+
+   o enable mol2 reading to pyrogen
+
+   o Ligand Builder -> Open [cif dictionary] Failures
+     110 (butyl carboxylic acid - Oxygen formal charge)
 
    o Get some RNA - check that base pair restraints generation works
      (user-defined restraints).  Donna M.
 
    o display ligand distortions, move and regularize, display ligand distortions. 
-     Clear generic display objects -> not all graphics objects are removed - they 
-     should be.
+     Clear generic display objects -> not all graphics objects are removed - 
+     they should be.
 
    o make a small buccaneer test
 
@@ -92,4 +100,8 @@ debug:: switch for sequence_view for imol 0 is 0x0
 ==9640==    by 0x8190F3: molecule_class_info_t::make_bonds_type_checked() (molecule-class-info.cc:3265)
 ==9640==    by 0x81D63B: molecule_class_info_t::handle_read_draw_molecule(int, std::string, std::string, short, short, bool, bool, float, int) (molecule-class-info.cc
 :219)
+
+   o Fix make check on test chemical features
+
+* Done.
 

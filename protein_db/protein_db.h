@@ -64,8 +64,8 @@ class Residue {
  private:
   static const int ntype = 22;
   static const char rtype1[ntype], rtype3[ntype][4];
-  static void unpack_float( const char* d, float& f ) { const short s = ((short(d[0])<<8)&0xFF00) | ((short(d[1]))&0x00FF); f = float(s)/100.0; }
-  static void pack_float( char* d, const float& f ) { const short s = rint(100.0*f); d[0] = char((s>>8)&0x00FF); d[1] = char((s)&0x00FF); }
+  static void unpack_float( const char* d, float& f ) { short s = ((short(d[0])<<8)&0xFF00) | ((short(d[1]))&0x00FF); f = float(s)/100.0; }
+  static void pack_float( char* d, const float& f ) { short s = lrint(100.0*f); d[0] = char((s>>8)&0x00FF); d[1] = char((s)&0x00FF); }
   float nnx, nny, nnz, cax, cay, caz, ccx, ccy, ccz;
   char typ, flg;
 };

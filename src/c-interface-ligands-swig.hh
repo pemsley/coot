@@ -125,6 +125,18 @@ match_this_residue_and_dictionary(int imol, std::string chain_id, int res_no, st
 // return False if unknown
 bool comprised_of_organic_set_p(const std::string &rn);
 
+#ifdef USE_PYTHON
+void
+coot_contact_dots_for_ligand_py(int imol, PyObject *ligand_spec);
+#endif
+
+
+#ifdef USE_GUILE
+void
+coot_contact_dots_for_ligand_scm(int imol, SCM ligand_spec_scm);
+#endif
+
+
 
 // we want to read in the built-in database to convert these scores to percentiles
 // return -1 (test for negative) on failure
@@ -136,9 +148,8 @@ bool comprised_of_organic_set_p(const std::string &rn);
 double get_ligand_percentile(std::string metric_name, double metric_value, short int reverse_order);
 
 
-
-bool
-enhanced_ligand_coot_p();
+// is enhanced ligand version
+bool enhanced_ligand_coot_p();
 
 
 #endif // C_INTERFACE_LIGANDS_SWIG_HH

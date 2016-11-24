@@ -66,7 +66,17 @@ p  So we need to have this function external for c++ linking.
 
 void add_ligand_builder_menu_item_maybe();
 void start_ligand_builder_gui_XXX(GtkMenuItem     *menuitem,
-			      gpointer         user_data);
+				  gpointer         user_data);
+
+
+/* ------------------------------------------------------------------------- */
+/*                    Cif dictionary                                         */
+/* ------------------------------------------------------------------------- */
+// Add a molecule chooser for a new cif file
+//
+void add_cif_dictionary_selector_molecule_selector(GtkWidget *fileselection,
+						   GtkWidget *aa_hbox);
+
 
 
 /* ------------------------------------------------------------------------- */

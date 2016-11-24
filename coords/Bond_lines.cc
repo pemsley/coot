@@ -41,6 +41,8 @@
 #include "Bond_lines.h"
 #include "coot-utils/coot-coord-utils.hh"
 
+#include "geometry/protein-donor-acceptors.hh"
+
 
 static std::string b_factor_bonds_scale_handle_name = "B-factor-bonds-scale";
 
@@ -1855,12 +1857,15 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 	 if (draw_these_atom_contacts(residue_atoms[contact[i].id1], SelAtom.atom_selection[contact[i].id2],
 				      protein_geom_p) || residue_is_water_flag) {
 
-	    coot::Cartesian atom_1(residue_atoms[ contact[i].id1 ]->x,
-				   residue_atoms[ contact[i].id1 ]->y,
-				   residue_atoms[ contact[i].id1 ]->z);
-	    coot::Cartesian atom_2(SelAtom.atom_selection[ contact[i].id2 ]->x,
-				   SelAtom.atom_selection[ contact[i].id2 ]->y,
-				   SelAtom.atom_selection[ contact[i].id2 ]->z);
+	    mmdb::Atom *atom_1 = residue_atoms[ contact[i].id1 ];
+	    mmdb::Atom *atom_2 = SelAtom.atom_selection[ contact[i].id2];
+
+	    coot::Cartesian atom_1_pos(residue_atoms[ contact[i].id1 ]->x,
+				       residue_atoms[ contact[i].id1 ]->y,
+				       residue_atoms[ contact[i].id1 ]->z);
+	    coot::Cartesian atom_2_pos(SelAtom.atom_selection[ contact[i].id2 ]->x,
+				       SelAtom.atom_selection[ contact[i].id2 ]->y,
+				       SelAtom.atom_selection[ contact[i].id2 ]->z);
 	    std::string ele1 = residue_atoms[ contact[i].id1 ]->element;
 	    std::string ele2 = SelAtom.atom_selection[ contact[i].id2 ]->element;
 	    std::string alt_conf_1 = residue_atoms[ contact[i].id1 ]->altLoc;
@@ -1883,7 +1888,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 	       bonding_dist_max -= shorter_bit;
 
 	    if (0) { // debug
-	       std::cout << " DEBUG:: add env dist "
+	       std::cout << " DEBUG:: add environ dist "
 			 << residue_atoms[ contact[i].id1 ] << " to "
 			 << SelAtom.atom_selection[ contact[i].id2 ]
 			 << std::endl;
@@ -1900,19 +1905,30 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 		      // ((ele1 != " H") && (ele2 != " H"))) { 
 		      ((! is_hydrogen(ele1)) && (! is_hydrogen(ele2)))) { 
 		     if (ele1 == " C")
-			addBond(0, atom_1, atom_2);
+			addBond(0, atom_1_pos, atom_2_pos);
 		     else {
 			if (ele2 == " C") { 
-			   addBond(0, atom_1, atom_2);
+			   addBond(0, atom_1_pos, atom_2_pos);
 			} else {
 			   
 			   // both atoms not Carbon
 			   
 			   // if (ele1 == " H" && ele2 == " H") {
 			   if (is_hydrogen(ele1) && is_hydrogen(ele2)) { 
-			      addBond(0, atom_1, atom_2); // not a charged/H-bond
-			   } else { 
-			      addBond(1, atom_1, atom_2); // interesting
+			      addBond(0, atom_1_pos, atom_2_pos); // not a charged/H-bond
+			   } else {
+
+			      // stop purple lines between (say) OD2 and mainchain O
+			      coot::quick_protein_donor_acceptors pda;
+			      coot::quick_protein_donor_acceptors::key k1(atom_1->GetResName(), atom_1->GetAtomName());
+			      coot::quick_protein_donor_acceptors::key k2(atom_2->GetResName(), atom_2->GetAtomName());
+			      // is-looked-up, is-H-bond
+			      int colour_index = 1; // H-bond
+			      std::pair<bool,bool> is_valid = pda.is_hydrogen_bond_by_types(k1,k2);
+			      if (is_valid.first)
+				 if (! is_valid.second)
+				    colour_index = 0;
+			      addBond(colour_index, atom_1_pos, atom_2_pos); // interesting
 			   }
 			}
 		     }
@@ -2061,10 +2077,9 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
       min_dist = tmp;
    }
    
-   for (int iresatom=0; iresatom< nResidueAtoms; iresatom++) { 
-      coot::Cartesian res_atom_pos(residue_atoms[iresatom]->x,
-				   residue_atoms[iresatom]->y,
-				   residue_atoms[iresatom]->z);
+   for (int iresatom=0; iresatom< nResidueAtoms; iresatom++) {
+      mmdb::Atom *res_atom = residue_atoms[iresatom];
+      coot::Cartesian res_atom_pos(res_atom->x, res_atom->y, res_atom->z);
       
       molecule_extents_t mol_extents(SelAtom, max_dist);
       std::vector<std::pair<symm_trans_t, Cell_Translation> > boxes =
@@ -2074,12 +2089,13 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 	 mmdb::PPAtom translated = trans_sel(SelAtom, boxes[ibox]);
 	 
 	 for (int it=0; it<SelAtom.n_selected_atoms; it++) { 
-	    
-	    coot::Cartesian symm_atom(translated[it]->x,
-				      translated[it]->y,
-				      translated[it]->z);
-	    
-	    float d = coot::Cartesian::LineLength(symm_atom, res_atom_pos);
+
+	    mmdb::Atom *trans_atom = translated[it];
+	    coot::Cartesian symm_atom_pos(translated[it]->x,
+					  translated[it]->y,
+					  translated[it]->z);
+
+	    float d = coot::Cartesian::LineLength(symm_atom_pos, res_atom_pos);
  	    // std::cout << translated[it] << " d = " << d << std::endl;
 	    if (d < max_dist && d >= min_dist) {
 	       std::string ele1 = residue_atoms[iresatom]->element;
@@ -2088,18 +2104,26 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 	       if (draw_env_distances_to_hydrogens_flag ||
 		   // ((ele1 != " H") && (ele2 != " H"))) {
 		   ((!is_hydrogen(ele1)) && (! is_hydrogen(ele2)))) {
-		   
+
 		  if (ele1 == " C")
-		     addBond(0, symm_atom, res_atom_pos);
+		     addBond(0, symm_atom_pos, res_atom_pos);
 		  else {
 		     if (ele2 == " C") { 
-			addBond(0, symm_atom, res_atom_pos);
-		     } else { 
-			// if (ele1 == " H" && ele2 == " H") { 
+			addBond(0, symm_atom_pos, res_atom_pos);
+		     } else {
 			if (is_hydrogen(ele1) && is_hydrogen(ele2)) {
-			   addBond(0, symm_atom, res_atom_pos);
-			} else { 
-			   addBond(1, symm_atom, res_atom_pos);
+			   addBond(0, symm_atom_pos, res_atom_pos);
+			} else {
+			   coot::quick_protein_donor_acceptors pda;
+			   coot::quick_protein_donor_acceptors::key k1(trans_atom->GetResName(), trans_atom->GetAtomName());
+			   coot::quick_protein_donor_acceptors::key k2(  res_atom->GetResName(),   res_atom->GetAtomName());
+			   // is-looked-up, is-H-bond
+			   int colour_index = 1; // H-bond
+			   std::pair<bool,bool> is_valid = pda.is_hydrogen_bond_by_types(k1,k2);
+			   if (is_valid.first)
+			      if (! is_valid.second)
+				 colour_index = 0;
+			   addBond(colour_index, symm_atom_pos, res_atom_pos);
 			}
 		     }
 		  }

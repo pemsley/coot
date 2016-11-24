@@ -1693,24 +1693,25 @@ coot::util::chains_in_molecule(mmdb::Manager *mol) {
       for (int imod=1; imod<=n_models; imod++) { 
       
 	 mmdb::Model *model_p = mol->GetModel(imod);
-   
-	 mmdb::Chain *chain;
-	 // run over chains of the existing mol
-	 int nchains = model_p->GetNumberOfChains();
-	 if (nchains <= 0) { 
-	    std::cout << "bad nchains in trim molecule " << nchains
-		      << std::endl;
-	 } else { 
-	    for (int ichain=0; ichain<nchains; ichain++) {
-	       chain = model_p->GetChain(ichain);
-	       if (chain == NULL) {  
-		  // This should not be necessary. It seem to be a
-		  // result of mmdb corruption elsewhere - possibly
-		  // DeleteChain in update_molecule_to().
-		  std::cout << "NULL chain in residues_in_molecule: "
-			    << std::endl;
-	       } else {
-		  v.push_back(chain->GetChainID());
+	 if (model_p) {
+	    mmdb::Chain *chain;
+	    // run over chains of the existing mol
+	    int nchains = model_p->GetNumberOfChains();
+	    if (nchains <= 0) {
+	       std::cout << "bad nchains in trim molecule " << nchains
+			 << std::endl;
+	    } else {
+	       for (int ichain=0; ichain<nchains; ichain++) {
+		  chain = model_p->GetChain(ichain);
+		  if (chain == NULL) {
+		     // This should not be necessary. It seem to be a
+		     // result of mmdb corruption elsewhere - possibly
+		     // DeleteChain in update_molecule_to().
+		     std::cout << "NULL chain in residues_in_molecule: "
+			       << std::endl;
+		  } else {
+		     v.push_back(chain->GetChainID());
+		  }
 	       }
 	    }
 	 }

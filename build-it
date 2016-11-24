@@ -2833,6 +2833,7 @@ if test -n "$build_python" ; then
 
    echo INFO:: ./configure $generic_prefix $python_spec_flags $python_lib_flags for python
    # 
+   # do we also need to use --with-threads=dir?
    if ./configure $generic_prefix --enable-shared $python_spec_flags $python_lib_flags ; then
      echo INFO:: make for python
      if $MAKE ; then
@@ -4001,10 +4002,13 @@ if [ "$run_tests" = true ] ; then
 	          # only copy over the binary files if they are not there
 	          # already (checked by publish executable).
 	          #
+                  # reading the git logs adding $BINARY_TAR_DEST_DIR seems to have fixed something. 
+                  # Now, the transfer-to-web-server.sh scripts take the second arg 
+                  # and munge it to be the correct directory for the binary (and .txt) files.
 	          echo $publish $bin_tar_file $BINARY_TAR_DEST_DIR
-	          $publish $bin_tar_file $BINARY_TAR_DEST_DIR
+	          $publish      $bin_tar_file $BINARY_TAR_DEST_DIR
 	          echo $publish $bin_tar_file.md5sum $BINARY_TAR_DEST_DIR
-	          $publish $bin_tar_file.md5sum $BINARY_TAR_DEST_DIR
+	          $publish      $bin_tar_file.md5sum $BINARY_TAR_DEST_DIR
 	          # echo $publish $binary_type_latest
 	          # publish $binary_type_latest
 	          echo $publish --no-server-check ChangeLog

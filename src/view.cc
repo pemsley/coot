@@ -57,11 +57,11 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
 	 //
 	 if (n_steps < 1)
 	    n_steps = 1;
-	 float frac = float(1.0)/float(n_steps);
-	 for (float f=0; f<=1.0; f+=frac) {
-	    float one_over_sin_omega = 1/sin(omega);
-	    float frac1 = sin((1-f)*omega) * one_over_sin_omega;
-	    float frac2 = sin(f*omega) * one_over_sin_omega;
+	 double frac = double(1.0)/double(n_steps);
+	 for (double f=0; f<=1.0; f+=frac) {
+	    double one_over_sin_omega = 1/sin(omega);
+	    double frac1 = sin((1-f)*omega) * one_over_sin_omega;
+	    double frac2 = sin(f*omega) * one_over_sin_omega;
 	    for (int iq=0; iq<4; iq++)
 	       g.quat[iq] = frac1*view1.quat[iq] + frac2*view2.quat[iq];
 	    coot::Cartesian rct =
@@ -84,7 +84,7 @@ coot::view_info_t::interpolate(const coot::view_info_t &view1,
 
 	 if (do_animation) {
 	    for (int i=0; i<=n_steps; i++) {
-	       float frac = float(i)/float(n_steps);
+	       double frac = double(i)/double(n_steps);
 	       coot::Cartesian rct =
 		  view1.rotation_centre + (view2.rotation_centre - view1.rotation_centre).by_scalar(frac);
 	       for (int iq=0; iq<4; iq++)
