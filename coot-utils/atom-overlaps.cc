@@ -19,6 +19,7 @@
  * 02110-1301, USA
  */
 
+#include <stdlib.h> // needed from abs()
 
 #include "atom-overlaps.hh"
 #include "coot-coord-utils.hh"
@@ -766,7 +767,7 @@ coot::atom_overlaps_container_t::is_inside_another_ligand_atom(int idx,
 
 
 coot::atom_overlaps_dots_container_t
-coot::atom_overlaps_container_t::contact_dots() {
+coot::atom_overlaps_container_t::contact_dots_for_ligand() { // or residue
 
    atom_overlaps_dots_container_t ao;
    mmdb::realtype max_dist = 4.0; // max distance for an interaction
@@ -805,22 +806,44 @@ coot::atom_overlaps_container_t::contact_dots() {
 			1, // 0: in same residue also?
 			pscontact, n_contacts,
 			0, &my_matt, i_contact_group);
+
       if (n_contacts > 0) {
 	 if (pscontact) {
-	    // std::cout << "n_contacts: " << n_contacts << std::endl;
-	    for (int i=0; i<n_contacts; i++)
-	       ligand_to_env_atom_neighbour_map[pscontact[i].id1].push_back(pscontact[i].id2);
 
-	    // std::map<int, std::vector<mmdb::Atom *> >::const_iterator it;
-	    std::map<int, std::vector<int> >::const_iterator it;
-	    for (it= ligand_to_env_atom_neighbour_map.begin();
-		 it!=ligand_to_env_atom_neighbour_map.end();
-		 it++) {
+	    // which atoms are close to which other atoms?
+	    std::map<int, std::vector<int> > contact_map; // these atoms can have nbc interactions
+	    std::map<int, std::vector<int> > bonded_map;  // these atoms are bonded and can mask
 
-	       mmdb::Atom *cr_at = ligand_residue_atoms[it->first];
+	    // the dots of an atom
+	    // which atom names of which residues are bonded or 1-3 related? (update the map
+	    // as you find and add new residue types in bonded_angle_or_ring_related().
+	    std::map<std::string, std::vector<std::pair<std::string, std::string> > > bonded_neighbours;
+	    // similar thinking: update the ring list map
+	    std::map<std::string, std::vector<std::vector<std::string> > > ring_list_map;
 
-	       // std::cout << "Surface points for " << atom_spec_t(cr_at) << std::endl;
+	    for (int i=0; i<n_contacts; i++) {
+	       bool mc_flag = true;
+	       atom_interaction_type ait =
+		  bonded_angle_or_ring_related(mol, // also check links
+					       ligand_residue_atoms[pscontact[i].id1],
+					       env_residue_atoms[pscontact[i].id2], mc_flag,
+					       bonded_neighbours,   // updatedby fn.
+					       ring_list_map        // updatedby fn.
+					       );
+	       if (ait == CLASHABLE) {
+		  contact_map[pscontact[i].id1].push_back(pscontact[i].id2);
+	       } else {
+		  if (ait == BONDED) {
+		     bonded_map[pscontact[i].id1].push_back(pscontact[i].id2);
+		  }
+	       }
+	    }
+	    std::cout << "done contact map" << std::endl;
 
+
+	    for (int iat=0; iat<n_ligand_residue_atoms; iat++) {
+
+	       mmdb::Atom *cr_at = ligand_residue_atoms[iat];
 	       clipper::Coord_orth pt_at_1 = co(cr_at);
 
 	       double dot_density = 0.35;
@@ -834,9 +857,7 @@ coot::atom_overlaps_container_t::contact_dots() {
 		  phi_step   /= dot_density;
 		  theta_step /= dot_density;
 	       }
-
 	       double r_1 = get_vdw_radius_ligand_atom(cr_at);
-
 	       bool even = true;
 	       for (double theta=0; theta<M_PI; theta+=theta_step) {
 		  double phi_step_inner = phi_step + 0.1 * pow(theta-0.5*M_PI, 2);
@@ -846,9 +867,7 @@ coot::atom_overlaps_container_t::contact_dots() {
 					       r_1*sin(phi)*sin(theta),
 					       r_1*cos(theta));
 			clipper::Coord_orth pt_at_surface = pt + pt_at_1;
-			bool draw_it = ! is_inside_another_ligand_atom(it->first, pt_at_surface);
-
-			// if (std::string(cr_at->name) != " O1 ") draw_it = false; // debugging
+			bool draw_it = ! is_inside_another_ligand_atom(iat, pt_at_surface);
 
 			if (draw_it) {
 
@@ -860,19 +879,14 @@ coot::atom_overlaps_container_t::contact_dots() {
 			   mmdb::Atom *atom_with_biggest_overlap = 0;
 			   double r_2_for_biggest_overlap = 0;
 
-			   if (false) { // debug
-			      std::cout << ":::: atom " << atom_spec_t(cr_at)
-					<< " has radius " << r_1 << " and " << it->second.size()
-					<< " env neighbours" << std::endl;
-			      for (unsigned int ii=0; ii<it->second.size(); ii++)
-				 std::cout << "   " << atom_spec_t(env_residue_atoms[it->second[ii]])
-					   << std::endl;
-			   }
+			   // now check which atom this is clashing with (if any) and pick the
+			   // one with the biggest overlap
+			   //
+			   const std::vector<int> &v = contact_map[iat];
+			   for (unsigned int jj=0; jj<v.size(); jj++) {
 
-			   for (unsigned int jj=0; jj<it->second.size(); jj++) {
-
-			      mmdb::Atom *neighb_atom = env_residue_atoms[it->second[jj]];
-			      double r_2 = get_vdw_radius_neighb_atom(it->second[jj]);
+			      mmdb::Atom *neighb_atom = env_residue_atoms[v[jj]];
+			      double r_2 = get_vdw_radius_neighb_atom(v[jj]);
 			      double r_2_sqrd = r_2 * r_2;
 			      double r_2_plus_prb_squard =
 				 r_2_sqrd + 2 * r_2 * probe_radius + probe_radius * probe_radius;
@@ -882,7 +896,7 @@ coot::atom_overlaps_container_t::contact_dots() {
 
 			      if (false)
 				 std::cout << " for atom "
-					   << atom_spec_t(env_residue_atoms[it->second[jj]])
+					   << atom_spec_t(env_residue_atoms[v[jj]])
 					   << " comparing " << d_sqrd << " vs "
 					   << r_2_plus_prb_squard << " with r_2 " << r_2
 					   << " probe_radius " << probe_radius << std::endl;
@@ -1476,6 +1490,7 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
 	 }
       }
    }
+
    return ait;
 }
 

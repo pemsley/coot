@@ -392,7 +392,7 @@ int test_atom_overlaps() {
      if (residue_p) {
 	std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
 	coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, &geom, 0.5, 0.25);
-	coot::atom_overlaps_dots_container_t c = overlaps.contact_dots();
+	coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand();
      } else {
        std::cout << "Can't find residue" << spec << std::endl;
      }
@@ -433,9 +433,10 @@ int test_reduce() {
    mmdb::Manager *mol = new mmdb::Manager;
    std::string file_name = "1x8b.pdb";
    mol->ReadCoorFile(file_name.c_str());
+   // doing this 100 times takes 6s - might be quicker if I don't keep adding Hs
+   // to the same residues :-)
    coot::reduce r(mol);
    r.add_hydrogen_atoms();
-
    mol->WritePDBASCII("reduced.pdb");
    delete mol;
    return 1;

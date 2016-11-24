@@ -5,7 +5,11 @@
 #include "clipper/core/coords.h"
 #include "mmdb2/mmdb_manager.h"
 
+#include "geometry/protein-geometry.hh" // needed to get H-bond types when checking HIS protonatino
+                                        // (and spin searching OHs).
+
 namespace coot {
+
    class reduce {
 
       class torsion_info_t {
@@ -127,14 +131,15 @@ namespace coot {
 		    mmdb::Residue *residue_p);
 
       void add_his_ring_C_Hs(mmdb::Residue *residue_p);
-      void add_his_ring_C_H(const std::string &H_name,
-			    const std::string &at_name_1,
-			    const std::string &at_name_2,
-			    const std::string &at_name_3,
-			    double bl,
-			    mmdb::Residue *residue_p);
+      void add_his_ring_H(const std::string &H_name,
+			  const std::string &at_name_1,
+			  const std::string &at_name_2,
+			  const std::string &at_name_3,
+			  double bl,
+			  mmdb::Residue *residue_p);
 
       mmdb::Manager *mol;
+      protein_geometry *geom_p;
       void add_riding_hydrogens(); // non-spin-search
       void add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *residue_prev_p);
       void add_main_chain_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *residue_prev_p,
@@ -143,9 +148,14 @@ namespace coot {
       void add_main_chain_HA(mmdb::Residue *residue_p);
       void add_hydrogen_atom(std::string atom_name, clipper::Coord_orth &pos,
 			     mmdb::realtype bf, mmdb::Residue *residue_p);
+      // score hypotheses and convert to the best scoring one.
+      void find_best_his_protonation_orientation(mmdb::Residue *residue_p);
+      void delete_atom_by_name(const std::string &at_name, mmdb::Residue *residue_p);
    public:
       reduce(mmdb::Manager *mol_in) { mol = mol_in;}
       void add_hydrogen_atoms(); // changes mol
+      void delete_hydrogen_atoms();
+      void add_geometry(protein_geometry *geom_p_in) { geom_p = geom_p_in; }
    };
 
 }

@@ -3491,7 +3491,8 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
    if (residue_p) {
       std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
       coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, g.Geom_p(), 0.5, 0.25);
-      coot::atom_overlaps_dots_container_t c = overlaps.contact_dots();
+      coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand();
+      std::cout << "------------- score " << c.score() << std::endl;
       std::map<std::string, std::vector<clipper::Coord_orth> >::const_iterator it;
       for (it=c.dots.begin(); it!=c.dots.end(); it++) {
 	 const std::string &type = it->first;
