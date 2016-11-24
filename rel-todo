@@ -15,17 +15,20 @@
    o Ligand Builder -> Open [cif dictionary] Failures
      110 (butyl carboxylic acid - Oxygen formal charge)
 
-   o Fix make check on test chemical features
+   o like sphere refine, but onlyn select residues that are linearly related to
+     the active residue (Hmm... how to do the GUI for this...?)
+     -- Chris Oubridge
+
+     maybe autozone 2 will do?
 
    o 3ggi sfs don't convert with mmcif-to-mtz.
+
+   o make test should do something useful [Tim Fenn].
 
    o if the chain has a TER and we add NCS residues, then the
      old/current TER should be deleted.  Write a test first.
 
    o enable mol2 reading to pyrogen
-
-   o Ligand Builder -> Open [cif dictionary] Failures
-     110 (butyl carboxylic acid - Oxygen formal charge)
 
    o Get some RNA - check that base pair restraints generation works
      (user-defined restraints).  Donna M.
@@ -36,7 +39,9 @@
 
    o make a small buccaneer test
 
-   o write a test that runs findwaters 
+   o make a cootaneer test
+
+   o write a test that runs findwaters
 
    o write a test that runs findligand
 
@@ -78,7 +83,7 @@ debug:: switch for sequence_view for imol 0 is 0x0
    2) exported coordinates and U's round off like in shelxl
 
       EXPORTED: C1    1  0.501129985  0.671778977   0.518324018
-      SHELXL:   C1    1    0.501130    0.671779    0.518324    11.00000    0.24195
+      SHELXL:   C1    1  0.501130     0.671779      0.518324    11.00000    0.24195
 
    3) When I try to fix coordinates temporarily by adding 10 - WinCOOT treats 
       it as actual coordinate and not fixed one so atom is shifted. 
@@ -100,8 +105,4 @@ debug:: switch for sequence_view for imol 0 is 0x0
 ==9640==    by 0x8190F3: molecule_class_info_t::make_bonds_type_checked() (molecule-class-info.cc:3265)
 ==9640==    by 0x81D63B: molecule_class_info_t::handle_read_draw_molecule(int, std::string, std::string, short, short, bool, bool, float, int) (molecule-class-info.cc
 :219)
-
-   o Fix make check on test chemical features
-
-* Done.
 

@@ -185,8 +185,10 @@ coot::reduce::position_by_tetrahedron(mmdb::Atom *at_central,
 void
 coot::reduce::add_hydrogen_atoms() {
 
-   add_riding_hydrogens();
-
+   if (mol) {
+      add_riding_hydrogens();
+      mol->FinishStructEdit();
+   }
 }
 
 void
@@ -226,6 +228,7 @@ coot::reduce::add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *resi
    double bl_arom  = 0.93;
    double bl_amino = 0.86;
    double bl_oh    = 0.84;
+   double bl_sh    = 1.2;
    if (res_name == "ALA") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
       torsion_info_t torsion_1(" N  ", " CA ", " CB ", bl, 109, 180);
@@ -234,7 +237,7 @@ coot::reduce::add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *resi
    if (res_name == "CYS") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
       add_sp3_hydrogens(" HB2", " HB3", " CA ", " CB ", " SG ", bl, 107, residue_p);
-      add_SH_H(" HG ", " SG ", " CB ", " CA ", bl_oh, 109.5, 180, residue_p);
+      add_SH_H(" HG ", " SG ", " CB ", " CA ", bl_sh, 109.5, 180, residue_p);
    }
    if (res_name == "ASP") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
@@ -400,11 +403,9 @@ coot::reduce::add_main_chain_H(mmdb::Residue *residue_p, mmdb::Residue *residue_
 	       clipper::Coord_orth at_n_pos  = co(at_n);
 	       clipper::Coord_orth at_ca_pos = co(at_ca);
 	       double angle = clipper::Util::d2rad(125.0);
-	       // clipper::Coord_orth H_pos(at_o_pos, at_c_pos, at_n_pos, bl, angle, M_PI);
 	       clipper::Coord_orth H_pos(at_ca_pos, at_c_pos, at_n_pos, bl, angle, M_PI);
 	       mmdb::realtype bf = at_n->tempFactor;
 	       add_hydrogen_atom(" H  ", H_pos, bf, residue_p);
-	    
 	    }
 	 }
       }
@@ -830,18 +831,18 @@ void
 coot::reduce::add_his_ring_C_Hs(mmdb::Residue *residue_p) {
 
    double bl_arom = 0.93;
-   add_his_ring_C_H(" HD2", " CG ", " CD2", "NE2", bl_arom, residue_p);
-   add_his_ring_C_H(" HE2", " ND1", " CE1", "NE2", bl_arom, residue_p);
+   add_his_ring_H(" HD2", " CG ", " CD2", "NE2", bl_arom, residue_p);
+   add_his_ring_H(" HE2", " ND1", " CE1", "NE2", bl_arom, residue_p);
 
 }
 
 void
-coot::reduce::add_his_ring_C_H(const std::string &H_name,
-			       const std::string &at_name_1,
-			       const std::string &at_name_2,
-			       const std::string &at_name_3,
-			       double bl_arom,
-			       mmdb::Residue *residue_p) {
+coot::reduce::add_his_ring_H(const std::string &H_name,
+			     const std::string &at_name_1,
+			     const std::string &at_name_2,
+			     const std::string &at_name_3,
+			     double bl_arom,
+			     mmdb::Residue *residue_p) {
 
    std::vector<std::string> alt_confs = util::get_residue_alt_confs(residue_p);
    for (unsigned int i=0; i<alt_confs.size(); i++) {
@@ -857,3 +858,82 @@ coot::reduce::add_his_ring_C_H(const std::string &H_name,
 
 }
 
+
+#include "atom-overlaps.hh"
+
+void
+coot::reduce::find_best_his_protonation_orientation(mmdb::Residue *residue_p) {
+
+   // Put the H on the ND1 then on the NE2 - see which gives the best
+   // score - choose that.
+   //
+   // Do orientation hypotheses later.
+
+   if (geom_p) {
+      std::string res_name = residue_p->GetResName();
+      if (res_name == "HIS") {
+	 double bl = 0.86;
+	 add_his_ring_H(" HE2", " CE1", "NE2", " CD2", bl, residue_p);
+	 std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
+	 atom_overlaps_container_t ao(residue_p, neighbs, mol, geom_p, 0.5);
+	 atom_overlaps_dots_container_t aod = ao.contact_dots_for_ligand();
+      }
+   } else {
+      std::cout << "No geometry" << std::endl;
+   }
+
+}
+
+void
+coot::reduce::delete_atom_by_name(const std::string &at_name, mmdb::Residue *residue_p) {
+
+   bool an_atom_was_deleted = true; // so we can start the while loop
+   while (an_atom_was_deleted) {
+      an_atom_was_deleted = false;
+      int n_atoms = residue_p->GetNumberOfAtoms();
+      for (int iat=0; iat<n_atoms; iat++) {
+	 mmdb::Atom *at = residue_p->GetAtom(iat);
+	 std::string ele(at->element);
+	 if (ele == " H" || ele == " D") {
+	    residue_p->DeleteAtom(iat);
+	    an_atom_was_deleted = true;
+	    break;
+	 }
+      }
+   }
+}
+
+void
+coot::reduce::delete_hydrogen_atoms() {
+
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+	 mmdb::Chain *chain_p;
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    mmdb::Residue *residue_p;
+	    mmdb::Atom *at;
+	    for (int ires=0; ires<nres; ires++) {
+	       residue_p = chain_p->GetResidue(ires);
+	       int n_atoms = residue_p->GetNumberOfAtoms();
+	       bool an_atom_was_deleted = true; // so we can start the while loop
+	       while (an_atom_was_deleted) {
+		  an_atom_was_deleted = false;
+		  for (int iat=0; iat<n_atoms; iat++) {
+		     at = residue_p->GetAtom(iat);
+		     std::string ele(at->element);
+		     if (ele == " H" || ele == " D") {
+			residue_p->DeleteAtom(iat);
+			an_atom_was_deleted = true;
+			break;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+}
