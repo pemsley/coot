@@ -1,7 +1,15 @@
 
    For Release 0.8.8
 
+   o like sphere refine, but onlyn select residues that are linearly related to
+     the active residue (Hmm... how to do the GUI for this...?)
+     -- Chris Oubridge
+
+     maybe autozone 2 will do?
+
    o 3ggi sfs don't convert with mmcif-to-mtz.
+
+   o make test should do something useful [Tim Fenn].
 
    o if the chain has a TER and we add NCS residues, then the
      old/current TER should be deleted.  Write a test first.
@@ -20,9 +28,9 @@
 
    o Fetch molecule: acyclovir, (edit?) click Apply
  
-   o make a small buccaneer test
+   o make a cootaneer test
 
-   o write a test that runs findwaters 
+   o write a test that runs findwaters
 
    o write a test that runs findligand
 
@@ -50,7 +58,7 @@ debug:: switch for sequence_view for imol 0 is 0x0
    2) exported coordinates and U's round off like in shelxl
 
       EXPORTED: C1    1  0.501129985  0.671778977   0.518324018
-      SHELXL:   C1    1    0.501130    0.671779    0.518324    11.00000    0.24195
+      SHELXL:   C1    1  0.501130     0.671779      0.518324    11.00000    0.24195
 
    3) When I try to fix coordinates temporarily by adding 10 - WinCOOT treats 
       it as actual coordinate and not fixed one so atom is shifted. 

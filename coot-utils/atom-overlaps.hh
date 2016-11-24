@@ -38,12 +38,30 @@ namespace coot {
 	 std::string type;
 	 std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > positions;
 	 const std::pair<clipper::Coord_orth, clipper::Coord_orth> &operator[](unsigned int idx) {
-	    return positions[idx];}
+	    return positions[idx];
+	 }
 	 unsigned int size() const { return positions.size(); }
       };
       atom_overlaps_dots_container_t() {}
       std::map<std::string, std::vector<clipper::Coord_orth> > dots;
       spikes_t clashes;
+      double score() const {
+	 std::map<std::string, std::vector<clipper::Coord_orth> >::const_iterator it;
+	 // do these match the types in overlap_delta_to_contact_type()?
+	 double r = 0;
+	 it = dots.find("H-bond");
+	 if (it != dots.end()) r += it->second.size();
+	 it = dots.find("wide-contact");
+	 if (it != dots.end()) r += 0.1 * it->second.size();
+	 it = dots.find("close-contact");
+	 if (it != dots.end()) r -= 0.0 * it->second.size();
+	 it = dots.find("small-overlap");
+	 if (it != dots.end()) r -= 0.1 * it->second.size();
+	 it = dots.find("big-overlap");
+	 if (it != dots.end()) r -= it->second.size();
+	 r -= clashes.size();
+	 return r;
+      }
    };
 
    class atom_overlap_t {
@@ -195,7 +213,7 @@ namespace coot {
       std::vector<atom_overlap_t> overlaps;
       void make_overlaps();
       void contact_dots_for_overlaps() const; // old
-      atom_overlaps_dots_container_t contact_dots();
+      atom_overlaps_dots_container_t contact_dots_for_ligand();
       atom_overlaps_dots_container_t all_atom_contact_dots(double dot_density = 0.5);
 
    };

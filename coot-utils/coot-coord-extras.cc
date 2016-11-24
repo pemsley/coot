@@ -294,7 +294,6 @@ bool
 coot::util::is_nucleotide_by_dict_dynamic_add(mmdb::Residue *residue_p, coot::protein_geometry *geom_p) {
 
    bool is_nuc = 0;
-   bool ifound = 0;
    std::string residue_name = residue_p->GetResName();
 
    std::pair<short int, dictionary_residue_restraints_t> p = 
