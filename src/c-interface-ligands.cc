@@ -3512,13 +3512,13 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
 	 if (type != "vdw-surface")
 	    set_display_generic_object(obj, 1); // should be a function with no redraw
       }
-      int spikes_obj = new_generic_object_number("clashes");
-      for (unsigned int i=0; i<c.spikes.size(); i++) {
-	 to_generic_object_add_line(spikes_obj, "#ff59b4", 2,
-				    c.spikes[i].first.x(),  c.spikes[i].first.y(),  c.spikes[i].first.z(),
-				    c.spikes[i].second.x(), c.spikes[i].second.y(), c.spikes[i].second.z());
+      int clashes_obj = new_generic_object_number("clashes");
+      for (unsigned int i=0; i<c.clashes.size(); i++) {
+	 to_generic_object_add_line(clashes_obj, "#ff59b4", 2,
+				    c.clashes[i].first.x(),  c.clashes[i].first.y(),  c.clashes[i].first.z(),
+				    c.clashes[i].second.x(), c.clashes[i].second.y(), c.clashes[i].second.z());
       }
-      set_display_generic_object(spikes_obj, 1);
+      set_display_generic_object(clashes_obj, 1);
       
    } else {
       std::cout << "Can't find residue" << res_spec << std::endl;
@@ -3548,3 +3548,42 @@ coot_contact_dots_for_ligand_scm(int imol, SCM ligand_spec_scm) {
 }
 #endif
 
+// all-atom contact dots.  This is not the place for this definition (not a ligand function)
+//
+void coot_all_atom_contact_dots(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+      coot::atom_overlaps_container_t overlaps(mol, g.Geom_p(), 0.5, 0.25);
+      coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(0.6);
+      std::map<std::string, std::vector<clipper::Coord_orth> >::const_iterator it;
+      for (it=c.dots.begin(); it!=c.dots.end(); it++) {
+	 const std::string &type = it->first;
+	 const std::vector<clipper::Coord_orth> &v = it->second;
+	 std::string obj_name = type;
+	 int obj = new_generic_object_number(obj_name.c_str());
+	 std::string col = "#445566";
+	 if (type == "H-bond")        col = "greentint";
+	 if (type == "big-overlap")   col = "#ee5544";
+	 if (type == "small-overlap") col = "#bbbb44";
+	 if (type == "close-contact") col = "#55bb55";
+	 if (type == "wide-contact")  col = "#5555ee";
+	 int point_size = 2;
+	 if (type == "vdw-surface") point_size = 1;
+
+	 for (unsigned int i=0; i<v.size(); i++)
+	    to_generic_object_add_point(obj, col.c_str(), point_size, v[i].x(), v[i].y(), v[i].z());
+	 if (type != "vdw-surface")
+	    set_display_generic_object_simple(obj, 1); // should be a function with no redraw
+      }
+      int clashes_obj = new_generic_object_number("clashes");
+      for (unsigned int i=0; i<c.clashes.size(); i++) {
+	 to_generic_object_add_line(clashes_obj, "#ff59b4", 2,
+				    c.clashes[i].first.x(),  c.clashes[i].first.y(),  c.clashes[i].first.z(),
+				    c.clashes[i].second.x(), c.clashes[i].second.y(), c.clashes[i].second.z());
+      }
+      set_display_generic_object_simple(clashes_obj, 1);
+      graphics_draw();
+   }
+}

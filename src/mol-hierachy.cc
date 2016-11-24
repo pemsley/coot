@@ -166,7 +166,7 @@ void check_chiral_volumes(int imol) {
    // for(int imod = 1; imod<=asc.mol->GetNumberOfModels(); imod++) {
    int imod = 1;
    mmdb::Model *model_p = mol->GetModel(imod);
-   if (model_p) { 
+   if (model_p) {
       mmdb::Chain *chain_p;
       int n_chains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<n_chains; ichain++) {
@@ -174,7 +174,7 @@ void check_chiral_volumes(int imol) {
 	 int nres = chain_p->GetNumberOfResidues();
 	 mmdb::Residue *residue_p;
 	 mmdb::Atom *at;
-	 for (int ires=0; ires<nres; ires++) { 
+	 for (int ires=0; ires<nres; ires++) {
 	    residue_p = chain_p->GetResidue(ires);
 	    int n_atoms = residue_p->GetNumberOfAtoms();
 	    for (int iat=0; iat<n_atoms; iat++) {
