@@ -62,4 +62,17 @@ def coot_contact_dots_ligand_func():
     with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                aa_ins_code, aa_atom_name, aa_alt_conf]:
         coot_contact_dots_for_ligand_py(aa_imol, [aa_chain_id, aa_res_no, aa_ins_code])
-        
+
+# not ready for public yet
+def coot_all_atom_contact_dots_func():
+    with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                               aa_ins_code, aa_atom_name, aa_alt_conf]:
+        coot_all_atom_contact_dots(aa_imol)
+
+if (have_coot_python):
+  if coot_python.main_menubar():
+
+      # not ready for public yet
+      add_simple_coot_menu_menuitem(coot_menubar_menu("Ligand"),
+                                    "Coot All-Atom Contact Dots",
+                                    lambda func: coot_all_atom_contact_dots_func())

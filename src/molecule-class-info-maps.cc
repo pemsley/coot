@@ -708,7 +708,7 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
       // normal solid 
    
       GLfloat  ambientLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-      GLfloat  diffuseLight[] = { 0.7f, 0.7f, 0.7f, 1.0f };
+      GLfloat  diffuseLight[] = { 0.4f, 0.4f, 0.4f, 1.0f };
       GLfloat specularLight[] = { 0.1f, 0.1f, 0.1f, 1.0f };
    
       // Assign created components to GL_LIGHT2

@@ -125,6 +125,9 @@ match_this_residue_and_dictionary(int imol, std::string chain_id, int res_no, st
 // return False if unknown
 bool comprised_of_organic_set_p(const std::string &rn);
 
+// all-atom contact dots.  This is not the place for this declaration (not a ligand function)
+void coot_all_atom_contact_dots(int imol);
+
 #ifdef USE_PYTHON
 void
 coot_contact_dots_for_ligand_py(int imol, PyObject *ligand_spec);

@@ -5048,7 +5048,7 @@ PyObject *residue_centre_from_spec_py(int imol,
 
 
 #ifdef USE_GUILE
-   SCM link_info_scm(int imol) {
+SCM link_info_scm(int imol) {
 
    SCM r = SCM_EOL;
    if (is_valid_model_molecule(imol)) {
