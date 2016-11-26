@@ -434,6 +434,7 @@ molecule_class_info_t::reduce(coot::protein_geometry *geom_p) {
    coot::reduce r(mol);
    r.add_geometry(geom_p);
    r.add_hydrogen_atoms();
-   make_bonds_type_checked();
+   update_molecule_after_additions();
+   update_symmetry();
 
 }

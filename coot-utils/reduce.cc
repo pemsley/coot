@@ -188,6 +188,7 @@ coot::reduce::add_hydrogen_atoms() {
 
    if (mol) {
       add_riding_hydrogens();
+      std::cout << "calling FinishStructEdit()" << std::endl;
       mol->FinishStructEdit();
    }
 }
@@ -686,9 +687,9 @@ coot::reduce::add_amino_hydrogens(const std::string &H_at_name_1,
 	 std::cout << "Fail Residue " << residue_spec_t(residue_p) << " " << residue_p->GetResName()
 		   << " alt-conf \"" << alt_confs[i] << "\""
 		   << " failed in add_amino_hydrogens" << std::endl;
-	 std::cout << "Fail to add " << at_name_1 << " at_1: " << at_n_1 << std::endl;
-	 std::cout << "            " << at_name_2 << " at_2: " << at_n_2 << std::endl;
-	 std::cout << "            " << at_name_3 << " at_3: " << at_n_3 << std::endl;
+	 std::cout << "Fail to add " << at_name_1 << " at_1: " << at_name_1 << " " << at_n_1 << std::endl;
+	 std::cout << "            " << at_name_2 << " at_2: " << at_name_2 << " " << at_n_2 << std::endl;
+	 std::cout << "            " << at_name_3 << " at_3: " << at_name_3 << " " << at_n_3 << std::endl;
       }
    }
 }
@@ -713,9 +714,9 @@ coot::reduce::add_guanidinium_hydrogens(mmdb::Residue *residue_p) {
 	 std::cout << "Fail Residue " << residue_spec_t(residue_p) << " " << residue_p->GetResName()
 		   << " alt-conf \"" << alt_confs[i] << "\""
 		   << " failed in add_aromatic_hydrogen " << std::endl;
-	 std::cout << "Fail to add " << " CD " << " at_1: " << at_n_1 << std::endl;
-	 std::cout << "            " << " NE " << " at_2: " << at_n_2 << std::endl;
-	 std::cout << "            " << " CZ " << " at_3: " << at_n_3 << std::endl;
+	 std::cout << "Fail to add guanidinium-H " << " CD " << " at_1: " << at_n_1 << std::endl;
+	 std::cout << "                          " << " NE " << " at_2: " << at_n_2 << std::endl;
+	 std::cout << "                          " << " CZ " << " at_3: " << at_n_3 << std::endl;
       }
 
       // HH[12][12]
