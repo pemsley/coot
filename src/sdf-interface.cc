@@ -41,6 +41,7 @@
 #include <istream> // for istream?
 
 #include "graphics-info.h"
+#include "c-interface-generic-objects.h"
 #include "sdf-interface.hh"
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS

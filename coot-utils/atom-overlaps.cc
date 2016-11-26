@@ -23,7 +23,7 @@
 
 #include "atom-overlaps.hh"
 #include "coot-coord-utils.hh"
-// #include "coot-h-bonds.hh"
+#include "geometry/main-chain.hh"
 
 coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Residue *res_central_in,
 							   const std::vector<mmdb::Residue *> &neighbours_in,
@@ -771,6 +771,9 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand() { // or residue
 
    atom_overlaps_dots_container_t ao;
    mmdb::realtype max_dist = 4.0; // max distance for an interaction
+
+   bool excl_mc_flag = true; // exclude main-chain to main-chain interactions also
+
    if (mol) {
       mmdb::Contact *pscontact = NULL;
       int n_contacts;
@@ -822,13 +825,12 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand() { // or residue
 	    std::map<std::string, std::vector<std::vector<std::string> > > ring_list_map;
 
 	    for (int i=0; i<n_contacts; i++) {
-	       bool mc_flag = true;
 	       atom_interaction_type ait =
 		  bonded_angle_or_ring_related(mol, // also check links
 					       ligand_residue_atoms[pscontact[i].id1],
-					       env_residue_atoms[pscontact[i].id2], mc_flag,
-					       bonded_neighbours,   // updatedby fn.
-					       ring_list_map        // updatedby fn.
+					       env_residue_atoms[pscontact[i].id2], excl_mc_flag,
+					       &bonded_neighbours,   // updatedby fn.
+					       &ring_list_map        // updatedby fn.
 					       );
 	       if (ait == CLASHABLE) {
 		  contact_map[pscontact[i].id1].push_back(pscontact[i].id2);
@@ -869,7 +871,12 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand() { // or residue
 			clipper::Coord_orth pt_at_surface = pt + pt_at_1;
 			bool draw_it = ! is_inside_another_ligand_atom(iat, pt_at_surface);
 
-			if (draw_it) {
+			bool draw_it_2 = ! is_inside_an_env_atom_to_which_its_bonded(iat,
+										     bonded_map[iat],
+										     env_residue_atoms,
+										     pt_at_surface);
+
+			if (draw_it && draw_it_2) {
 
 			   // is the point on the surface of cr_at inside the sphere
 			   // of an environment atom?
@@ -886,6 +893,12 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand() { // or residue
 			   for (unsigned int jj=0; jj<v.size(); jj++) {
 
 			      mmdb::Atom *neighb_atom = env_residue_atoms[v[jj]];
+
+			      // turn off main-chain to main-chain interactions (to match the dots from probe)
+			      if (is_main_chain_p(cr_at)) // this might be true for amino-acid residues
+				 if (is_main_chain_p(neighb_atom))
+				    continue;
+
 			      double r_2 = get_vdw_radius_neighb_atom(v[jj]);
 			      double r_2_sqrd = r_2 * r_2;
 			      double r_2_plus_prb_squard =
@@ -940,7 +953,8 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand() { // or residue
 					   << std::endl;
 
 			      if (c_type != "clash") {
-				 ao.dots[c_type].push_back(pt_at_surface);
+				 atom_overlaps_dots_container_t::dot_t dot(overlap_delta, pt_at_surface);
+				 ao.dots[c_type].push_back(dot);
 			      } else {
 				 clipper::Coord_orth vect_to_pt_1 = pt_at_1 - pt_at_surface;
 				 clipper::Coord_orth vect_to_pt_1_unit(vect_to_pt_1.unit());
@@ -966,7 +980,8 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand() { // or residue
 					   << pt_at_surface.y() << " "
 					   << pt_at_surface.z() << std::endl;
 
-			      ao.dots["vdw-surface"].push_back(pt_at_surface);
+			      atom_overlaps_dots_container_t::dot_t dot(0, pt_at_surface);
+			      ao.dots["vdw-surface"].push_back(dot);
 			   }
 			}
 		     }
@@ -1055,8 +1070,8 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal(double dot_densi
 	       bonded_angle_or_ring_related(mol, // also check links
 					    atom_selection[pscontact[i].id1],
 					    atom_selection[pscontact[i].id2], mc_flag,
-					    bonded_neighbours,   // updatedby fn.
-					    ring_list_map        // updatedby fn.
+					    &bonded_neighbours,   // updatedby fn.
+					    &ring_list_map        // updatedby fn.
 					    );
 	    if (ait == CLASHABLE) {
 	       contact_map[pscontact[i].id1].push_back(pscontact[i].id2);
@@ -1188,8 +1203,10 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal(double dot_densi
 			      // draw dot if these are atoms from different residues or this is not
 			      // a wide contact
 			      if ((at->residue != atom_with_biggest_overlap->residue) ||
-				  (c_type != "wide-contact"))
-				 ao.dots[c_type].push_back(pt_at_surface);
+				  (c_type != "wide-contact")) {
+				 atom_overlaps_dots_container_t::dot_t dot(overlap_delta, pt_at_surface);
+				 ao.dots[c_type].push_back(dot);
+			      }
 			   } else {
 			      // clash
 			      clipper::Coord_orth vect_to_pt_1 = pt_at_1 - pt_at_surface;
@@ -1218,7 +1235,8 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal(double dot_densi
 					<< pt_at_surface.y() << " "
 					<< pt_at_surface.z() << std::endl;
 
-			   ao.dots["vdw-surface"].push_back(pt_at_surface);
+			   atom_overlaps_dots_container_t::dot_t dot(0, pt_at_surface);
+			   ao.dots["vdw-surface"].push_back(dot);
 			}
 		     }
 		  }
@@ -1258,6 +1276,35 @@ coot::atom_overlaps_container_t::is_inside_another_atom_to_which_its_bonded(int 
 
    return r;
 }
+
+bool
+coot::atom_overlaps_container_t::is_inside_an_env_atom_to_which_its_bonded(int idx,
+									   const std::vector<int> &bonded_neighb_indices,
+									   mmdb::Atom **env_residue_atoms,
+									   const clipper::Coord_orth &pt_at_surface) {
+
+   bool r = false;
+   double r_1 = get_vdw_radius_neighb_atom(idx);
+   for (unsigned int i=0; i<bonded_neighb_indices.size(); i++) {
+      mmdb::Atom *env_atom = env_residue_atoms[bonded_neighb_indices[i]];
+      // std::cout << "testing env_atom: " << atom_spec_t(env_atom) << std::endl;
+      clipper::Coord_orth pt_env_atom = co(env_atom);
+      double r_2 = 1.6;
+      std::string ele(env_atom->element);
+      if (ele == " H")
+	 r_2 = 0.97;
+      double r_2_sqrd = r_2 * r_2;
+      double d_sqrd = (pt_at_surface - pt_env_atom).lengthsq();
+      if (d_sqrd < r_2_sqrd) {
+	 // std::cout << "   " << pt_at_surface.format() << " is inside atom " << atom_spec_t(env_atom) << std::endl;
+	 r = true;
+	 break;
+      }
+   }
+
+   return r;
+}
+
 
 
 
@@ -1351,8 +1398,6 @@ coot::atom_overlaps_container_t::setup_env_residue_atoms_radii(int i_sel_hnd_env
    }
 }
 
-#include "geometry/main-chain.hh"
-
 // We need here a flag for main-chain -> mainchain interactions also.
 // Currently only consider side-chain -> side-chain and side-chain -> main-chain.
 //
@@ -1369,8 +1414,8 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
 							      mmdb::Atom *at_1,
 							      mmdb::Atom *at_2,
 							      bool exclude_mainchain_also,
-							      std::map<std::string, std::vector<std::pair<std::string, std::string> > > &bonded_neighbours,
-							      std::map<std::string, std::vector<std::vector<std::string> > > &ring_list_map) {
+							      std::map<std::string, std::vector<std::pair<std::string, std::string> > > *bonded_neighbours,
+							      std::map<std::string, std::vector<std::vector<std::string> > > *ring_list_map) {
 
    // At the N terminus, the N has attached Hydrogen atoms H1, H2, H3.  These should not clash
    // with the N Nitrogen atom.
@@ -1441,11 +1486,12 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
       std::string atom_name_1 = at_1->name;
       std::string atom_name_2 = at_2->name;
       std::map<std::string, std::vector<std::pair<std::string, std::string> > >::const_iterator it;
-      it = bonded_neighbours.find(res_name);
-      if (it == bonded_neighbours.end()) {
+      it = bonded_neighbours->find(res_name);
+      if (it == bonded_neighbours->end()) {
 	 bps = geom_p->get_bonded_and_1_3_angles(res_name, protein_geometry::IMOL_ENC_ANY);
-	 // std::cout << "adding " << bps.size() << " bonded pairs for type " << res_name << std::endl;
-	 bonded_neighbours[res_name] = bps;
+	 // bonded_neighbours[res_name] = bps; // when arg is reference
+	 // bonded_neighbours->insert(res_name, bps);
+	 (*bonded_neighbours)[res_name] = bps;
       } else {
 	 bps = it->second;
       }
@@ -1465,7 +1511,7 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
 	 }
       }
       if (ait == CLASHABLE) { // i.e. so far, unset by this block
-	 bool ringed = in_same_ring(at_1, at_2, ring_list_map); // update ring_list_map
+	 bool ringed = in_same_ring(at_1, at_2, *ring_list_map); // update ring_list_map
 	 if (ringed) ait = BONDED;
       }
    }
@@ -1494,6 +1540,7 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
    return ait;
 }
 
+// this modifies ring_list_map, so it is not const.
 bool
 coot::atom_overlaps_container_t::in_same_ring(mmdb::Atom *at_1, mmdb::Atom *at_2,
 					      std::map<std::string, std::vector<std::vector<std::string> > > &ring_list_map) const {

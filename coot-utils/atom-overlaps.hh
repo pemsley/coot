@@ -42,11 +42,21 @@ namespace coot {
 	 }
 	 unsigned int size() const { return positions.size(); }
       };
+      class dot_t {
+      public:
+	 double overlap;
+	 clipper::Coord_orth pos;
+	 dot_t(double o, const clipper::Coord_orth &pos_in) {
+	    overlap = o;
+	    pos = pos_in;
+	 }
+      };
       atom_overlaps_dots_container_t() {}
-      std::map<std::string, std::vector<clipper::Coord_orth> > dots;
+      std::map<std::string, std::vector<dot_t> > dots;
       spikes_t clashes;
       double score() const {
-	 std::map<std::string, std::vector<clipper::Coord_orth> >::const_iterator it;
+	 // std::map<std::string, std::vector<clipper::Coord_orth> >::const_iterator it;
+	 std::map<std::string, std::vector<dot_t> >::const_iterator it;
 	 // do these match the types in overlap_delta_to_contact_type()?
 	 double r = 0;
 	 it = dots.find("H-bond");
@@ -153,8 +163,12 @@ namespace coot {
       bool is_inside_another_atom_to_which_its_bonded(int atom_idx,
 						      mmdb::Atom *at,
 						      const clipper::Coord_orth &pt_on_surface,
-						      const std::vector<int> &boned_neighb_indices,
+						      const std::vector<int> &bonded_neighb_indices,
 						      mmdb::Atom **atom_selection) const;
+      bool is_inside_an_env_atom_to_which_its_bonded(int idx,
+						     const std::vector<int> &bonded_neighb_indices,
+						     mmdb::Atom **env_residue_atoms,
+						     const clipper::Coord_orth &pt_at_surface);
       double clash_spike_length;
       void mark_donors_and_acceptors();
       void mark_donors_and_acceptors_central_residue(int udd_h_bond_type_handle);
@@ -168,11 +182,11 @@ namespace coot {
 				   mmdb::Atom *at_1,
 				   mmdb::Atom *at_2,
 				   bool exclude_mainchain_also,
-				   std::map<std::string, std::vector<std::pair<std::string, std::string> > > &bonded_neighbours,
-				   std::map<std::string, std::vector<std::vector<std::string> > > &ring_list_map);
+				   std::map<std::string, std::vector<std::pair<std::string, std::string> > > *bonded_neighbours,
+				   std::map<std::string, std::vector<std::vector<std::string> > > *ring_list_map);
       bool are_bonded_residues(mmdb::Residue *res_1, mmdb::Residue *res_2) const;
       bool in_same_ring(mmdb::Atom *at_1, mmdb::Atom *at_2,
-			      std::map<std::string, std::vector<std::vector<std::string> > > &ring_list_map) const;
+			std::map<std::string, std::vector<std::vector<std::string> > > &ring_list_map) const;
 //       bool in_same_ring(const std::string &atom_name_1,
 // 			const std::string &atom_name_2,
 // 			const std::vector<std::vector<std::string> > &ring_list) const;

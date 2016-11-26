@@ -423,3 +423,17 @@ molecule_class_info_t::globularize() {
    }
 
 } 
+
+#include "coot-utils/reduce.hh"
+
+
+void
+molecule_class_info_t::reduce(coot::protein_geometry *geom_p) {
+
+   mmdb::Manager *mol = atom_sel.mol;
+   coot::reduce r(mol);
+   r.add_geometry(geom_p);
+   r.add_hydrogen_atoms();
+   make_bonds_type_checked();
+
+}

@@ -20,6 +20,8 @@
  * 02110-1301, USA
  */
 
+#include "generic-display-objects-c.h"
+
 /*  ----------------------------------------------------------------------- */
 /*                  Generic Objects                                         */
 /*  ----------------------------------------------------------------------- */
@@ -44,24 +46,32 @@ void to_generic_object_add_line(int object_number,
 /*! \brief add a dashed line to generic object object_number 
 
 dash_density is number of dashes per Angstrom.*/
-void to_generic_object_add_dashed_line(int object_number, 
+void to_generic_object_add_dashed_line(int object_number,
 				       const char *colour,
 				       int line_width,
 				       float dash_density,
-				       float from_x1, 
-				       float from_y1, 
-				       float from_z1, 
-				       float to_x2, 
-				       float to_y2, 
+				       float from_x1,
+				       float from_y1,
+				       float from_z1,
+				       float to_x2,
+				       float to_y2,
 				       float to_z2); 
 
 /*! \brief add point to generic object object_number */
-void to_generic_object_add_point(int object_number, 
+void to_generic_object_add_point(int object_number,
 				 const char *colour,
 				 int point_width,
-				 float from_x1, 
-				 float from_y1, 
+				 float from_x1,
+				 float from_y1,
 				 float from_z1);
+
+#ifndef SWIG
+void to_generic_object_add_point_internal(int object_number,
+				 const std::string &colour_name, // needed for indexing objects by colour
+				 const coot::colour_holder &colour,
+				 int point_width,
+				 const clipper::Coord_orth &pt);
+#endif // SWIG
 
 /*! \brief add point to generic object object_number */
 void to_generic_object_add_arc(int object_number, 
@@ -112,9 +122,6 @@ void set_display_generic_object(int object_number, short int istate);
 */
 void set_display_generic_object_simple(int object_number, short int istate);
 
-/*! \brief display (1) or undisplay (0) all generic display objects */
-void set_display_all_generic_objects(int state);
-
 
 /*! \brief is generic display object displayed?
 
@@ -159,15 +166,9 @@ void close_generic_object(int object_number);
 */
 short int is_closed_generic_object_p(int object_number);
 
-void close_all_generic_objects();
-
 /*! \brief clear out the lines and points from object_number, but keep
   it displayable (not closed). */
 void generic_object_clear(int object_number);
-
-/*! \brief a kludgey thing, so that the generic objects gui can be
-  called from a callback.  */
-void generic_objects_gui_wrapper();
 
 /*! \brief attach the generic object to a particular molecule 
 

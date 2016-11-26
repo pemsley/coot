@@ -1,4 +1,5 @@
 
+#include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 #include "reduce.hh"
 
@@ -269,9 +270,9 @@ coot::reduce::add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *resi
       add_main_chain_hydrogens(residue_p, residue_prev_p);
       add_sp3_hydrogens("HG12", "HG13", " CB ", " CG1", " CD1", bl, 107, residue_p);
       torsion_info_t ti(" CB ", " CG1", " CD1", bl, 109, 180);
-      add_methyl_Hs(" HD1", " HD2", " HD3", ti, residue_p);
+      add_methyl_Hs("HD11", "HD12", "HD13", ti, residue_p);
       torsion_info_t t2(" CA ", " CB ", " CG2", bl, 109, 180);
-      add_methyl_Hs(" HG1", " HG2", " HG3", t2, residue_p);
+      add_methyl_Hs("HG21", "HG22", "HG23", t2, residue_p);
       add_tetrahedral_hydrogen(" HB ", " CB ", " CA ", " CG1", " CG2", bl, residue_p);
    }
    if (res_name == "LYS") {
@@ -336,8 +337,8 @@ coot::reduce::add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *resi
       add_main_chain_hydrogens(residue_p, residue_prev_p);
       add_tetrahedral_hydrogen(" HB ", " CB ", " CA ", " OG1", " CG2", bl, residue_p);
       torsion_info_t ti(" CA ", " CB ", " CG2", bl, 109, 180);
-      add_methyl_Hs(" HG1", " HG2", " HG3", ti, residue_p);
-      add_OH_H(" HG ", " OG1", " CB ", " CA ", bl_oh, 109.5, 180, residue_p);
+      add_methyl_Hs("HG21", "HG22", "HG23", ti, residue_p);
+      add_OH_H(" HG1", " OG1", " CB ", " CA ", bl_oh, 109.5, 180, residue_p);
    }
    if (res_name == "VAL") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
@@ -367,13 +368,17 @@ coot::reduce::add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *resi
 void
 coot::reduce::add_main_chain_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *residue_prev_p,
 				       bool is_gly) {
-   add_main_chain_H(residue_p, residue_prev_p);
+
    if (is_gly) {
-      // GLY Hydrogens
       double bl = 0.97;
-      add_sp3_hydrogens(" H1 ", " H2 ", " N  ", " CA ", " C  ", bl, 107, residue_p);
+      add_sp3_hydrogens(" HA2", " HA3", " N  ", " CA ", " C  ", bl, 107, residue_p);
+      add_main_chain_H(residue_p, residue_prev_p);
    } else {
       add_main_chain_HA(residue_p);
+      std::string residue_name(residue_p->GetResName());
+      if (util::is_standard_amino_acid_name(residue_name))
+	 if (residue_name != "PRO")
+	    add_main_chain_H(residue_p, residue_prev_p);
    }
 }
 

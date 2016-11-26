@@ -3061,6 +3061,8 @@ public:        //                      public
    void set_user_defined_colour_indices(const std::vector<std::pair<coot::atom_spec_t, int> > &cis);
    void clear_user_defined_atom_colours();
 
+   void reduce(coot::protein_geometry *geom_p);
+
 };
 
 #endif // MOLECULE_CLASS_INFO_T

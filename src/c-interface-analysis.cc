@@ -35,6 +35,7 @@
 #include "graphics-info.h"
 #include "cc-interface.hh"
 #include "c-interface.h"
+#include "c-interface-generic-objects.h"
 
 #include "coot-utils/coot-hole.hh"
 
