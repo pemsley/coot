@@ -473,10 +473,13 @@ int main(int argv, char **argc) {
    if (0)
       test_atom_overlaps();
 
-   if (0)
-      test_all_atom_overlaps();
    
    if (1)
+      for (unsigned int i=0; i<10; i++) {
+	 test_all_atom_overlaps();
+      }
+   
+   if (0)
       test_reduce();
    
    return 0;

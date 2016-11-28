@@ -1003,9 +1003,9 @@ coot::atom_overlaps_container_t::all_atom_contact_dots(double dot_density_in,
    coot::atom_overlaps_dots_container_t ao;
 
    if (mol) {
-      mmdb::realtype max_dist = 1.75 + 1.75 + probe_radius; // max distance for an interaction
+      mmdb::realtype max_dist = 1.75 + 1.75 + 2 * probe_radius; // max distance for an interaction
       mmdb::realtype min_dist = 0.01;
-      int i_sel_hnd = mol->NewSelection();
+      int i_sel_hnd = mol->NewSelection(); // d
       mol->SelectAtoms (i_sel_hnd, 0, "*",
 			mmdb::ANY_RES, // starting resno, an int
 			"*", // any insertion code
@@ -1018,6 +1018,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots(double dot_density_in,
 			);
       ao = all_atom_contact_dots_internal(dot_density_in, mol, i_sel_hnd, i_sel_hnd, min_dist, max_dist,
 					  make_vdw_surface);
+      mol->DeleteSelection(i_sel_hnd);
    }
    return ao;
 }
@@ -1033,6 +1034,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal(double dot_densi
 								bool make_vdw_surface) {
    
    coot::atom_overlaps_dots_container_t ao;
+   bool exclude_mc_flag = true;
 
    long i_contact_group = 1;
    mmdb::mat44 my_matt;
@@ -1068,20 +1070,32 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal(double dot_densi
 	 // similar thinking: update the ring list map
 	 std::map<std::string, std::vector<std::vector<std::string> > > ring_list_map;
 
+	 // initialize contact_map and bonded_map - not sure if this speeds things up - but it
+	 // doesn't seem to slow things down.
+	 //
+	 std::vector<int> dum;
+	 for (int iat=0; iat<n_selected_atoms; iat++)
+	    contact_map[iat] = dum;
+	 for (int iat=0; iat<n_selected_atoms; iat++)
+	    bonded_map[iat] = dum;
+
 	 for (int i=0; i<n_contacts; i++) {
-	    bool mc_flag = true;
-	    atom_interaction_type ait =
-	       bonded_angle_or_ring_related(mol, // also check links
-					    atom_selection[pscontact[i].id1],
-					    atom_selection[pscontact[i].id2], mc_flag,
-					    &bonded_neighbours,   // updatedby fn.
-					    &ring_list_map        // updatedby fn.
-					    );
-	    if (ait == CLASHABLE) {
-	       contact_map[pscontact[i].id1].push_back(pscontact[i].id2);
-	    } else {
-	       if (ait == BONDED) {
-		  bonded_map[pscontact[i].id1].push_back(pscontact[i].id2);
+	    if (pscontact[i].id1 < pscontact[i].id2) {
+	       atom_interaction_type ait =
+		  bonded_angle_or_ring_related(mol, // also check links
+					       atom_selection[pscontact[i].id1],
+					       atom_selection[pscontact[i].id2], exclude_mc_flag,
+					       &bonded_neighbours,   // updatedby fn.
+					       &ring_list_map        // updatedby fn.
+					       );
+	       if (ait == CLASHABLE) {
+		  contact_map[pscontact[i].id1].push_back(pscontact[i].id2);
+		  contact_map[pscontact[i].id2].push_back(pscontact[i].id1);
+	       } else {
+		  if (ait == BONDED) {
+		     bonded_map[pscontact[i].id1].push_back(pscontact[i].id2);
+		     bonded_map[pscontact[i].id2].push_back(pscontact[i].id1);
+		  }
 	       }
 	    }
 	 }
@@ -1479,8 +1493,7 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
       // ------------------- same residue ------------------------
       //
       std::string res_name = res_1->GetResName();
-      std::vector<std::pair<std::string, std::string> > bps =
-	 geom_p->get_bonded_and_1_3_angles(res_name, protein_geometry::IMOL_ENC_ANY);
+      std::vector<std::pair<std::string, std::string> > bps;
       std::string atom_name_1 = at_1->name;
       std::string atom_name_2 = at_2->name;
       std::map<std::string, std::vector<std::pair<std::string, std::string> > >::const_iterator it;
