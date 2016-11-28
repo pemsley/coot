@@ -994,13 +994,15 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand() { // or residue
    return ao;
 }
 
+// dot_density_in is default 0.5.
+// bool make_vdw_surface is default false.
 coot::atom_overlaps_dots_container_t
-coot::atom_overlaps_container_t::all_atom_contact_dots(double dot_density_in) {
+coot::atom_overlaps_container_t::all_atom_contact_dots(double dot_density_in,
+						       bool make_vdw_surface) {
 
    coot::atom_overlaps_dots_container_t ao;
 
    if (mol) {
-      std::cout << " in all_atom_contact_dots() with mol " << std::endl;
       mmdb::realtype max_dist = 1.75 + 1.75 + probe_radius; // max distance for an interaction
       mmdb::realtype min_dist = 0.01;
       int i_sel_hnd = mol->NewSelection();
@@ -1014,7 +1016,8 @@ coot::atom_overlaps_container_t::all_atom_contact_dots(double dot_density_in) {
 			"*", // elements
 			"*"  // alt loc.
 			);
-      ao = all_atom_contact_dots_internal(dot_density_in, mol, i_sel_hnd, i_sel_hnd, min_dist, max_dist);
+      ao = all_atom_contact_dots_internal(dot_density_in, mol, i_sel_hnd, i_sel_hnd, min_dist, max_dist,
+					  make_vdw_surface);
    }
    return ao;
 }
@@ -1026,7 +1029,8 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal(double dot_densi
 								int i_sel_hnd_1,
 								int i_sel_hnd_2,
 								mmdb::realtype min_dist,
-								mmdb::realtype max_dist) {
+								mmdb::realtype max_dist,
+								bool make_vdw_surface) {
    
    coot::atom_overlaps_dots_container_t ao;
 
@@ -1224,19 +1228,13 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal(double dot_densi
 
 			} else {
 
-			   // std::cout << "No atom_with_biggest_overlap" << std::endl;
-
 			   // no environment atom was close to this ligand atom, so just add
 			   // a surface point
 
-			   if (false)
-			      std::cout << "spike-surface "
-					<< pt_at_surface.x() << " "
-					<< pt_at_surface.y() << " "
-					<< pt_at_surface.z() << std::endl;
-
-			   atom_overlaps_dots_container_t::dot_t dot(0, pt_at_surface);
-			   ao.dots["vdw-surface"].push_back(dot);
+			   if (make_vdw_surface) {
+			      atom_overlaps_dots_container_t::dot_t dot(0, pt_at_surface);
+			      ao.dots["vdw-surface"].push_back(dot);
+			   }
 			}
 		     }
 		  }
@@ -1326,7 +1324,7 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta, boo
 
    if (is_h_bond) {
       if (delta >= 0) {
-	 delta -= 0.7;
+	 delta -= 0.8;
 	 if (delta > 0.4)
 	    r = "clash";
 	 else
@@ -1337,9 +1335,9 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta, boo
 	 r = "close-contact";
       if (delta > 0.07)         // Word: 0
 	 r = "small-overlap";
-      if (delta > 0.33)         // Word: 0.2  // 0.15, 0.18, 0.2, 0.25, 0.3 allows too much red
+      if (delta > 0.36)         // Word: 0.2  // 0.15, 0.18, 0.2, 0.25, 0.3 allows too much red
 	 r = "big-overlap";
-      if (delta > 0.4)          // Word: 0.4 // 0.3, 0.35 too much clash
+      if (delta > 0.5)          // Word: 0.4 // 0.3, 0.35 too much clash
 	 r = "clash";
    }
    return r;
@@ -1478,7 +1476,7 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
       }
    } else {
 
-      // same residue
+      // ------------------- same residue ------------------------
       //
       std::string res_name = res_1->GetResName();
       std::vector<std::pair<std::string, std::string> > bps =
@@ -1513,6 +1511,28 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
       if (ait == CLASHABLE) { // i.e. so far, unset by this block
 	 bool ringed = in_same_ring(at_1, at_2, *ring_list_map); // update ring_list_map
 	 if (ringed) ait = BONDED;
+      }
+      if (ait == CLASHABLE) {
+	 // N-terminus Hs?
+
+	 // Don't clash on H-H interaction or H-CA either.
+	 //
+	 if (res_1->isNTerminus()) {
+
+	    std::string at_name_1 = at_1->GetAtomName();
+	    std::string at_name_2 = at_2->GetAtomName();
+	    if (at_name_1 == " H1 " || at_name_1 == " H2 " || at_name_1 == " H3 ") {
+	       if (at_name_2 == " H1 " || at_name_2 == " H2 " || at_name_2 == " H3 " ||
+		   at_name_2 == " CA " || at_name_2 == " N  ") {
+		  ait = BONDED;
+	       }
+	    } else {
+	       if (at_name_1 == " CA " || at_name_1 == " N  ") {
+		  if (at_name_2 == " H1 " || at_name_2 == " H2 " || at_name_2 == " H3 ")
+		     ait = BONDED;
+	       }
+	    }
+	 }
       }
    }
 

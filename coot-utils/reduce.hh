@@ -67,14 +67,14 @@ namespace coot {
 			 const std::string &at_name_3,
 			 torsion_info_t torsion_1, torsion_info_t torsion_2,
 			 mmdb::Residue *residue_p);
-      void add_sp3_hydrogens(const std::string &H_at_name_1,
-			     const std::string &H_at_name_2,
-			     const std::string &at_name_1,
-			     const std::string &at_name_2,
-			     const std::string &at_name_3,
-			     double bond_length,
-			     double angle_between_Hs, // in degrees
-			     mmdb::Residue *residue_p);
+      void add_2_sp3_hydrogens(const std::string &H_at_name_1,
+			       const std::string &H_at_name_2,
+			       const std::string &at_name_1,
+			       const std::string &at_name_2,
+			       const std::string &at_name_3,
+			       double bond_length,
+			       double angle_between_Hs, // in degrees
+			       mmdb::Residue *residue_p);
       void add_tetrahedral_hydrogen(const std::string &H_at_name,
 				    const std::string &central_name,
 				    const std::string &neighb_at_name_1,

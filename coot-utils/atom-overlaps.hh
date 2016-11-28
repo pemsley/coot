@@ -200,7 +200,8 @@ namespace coot {
 								    int i_sel_hnd_1,
 								    int i_sel_hnd_2,
 								    mmdb::realtype min_dist,
-								    mmdb::realtype max_dist);
+								    mmdb::realtype max_dist,
+								    bool make_vdw_surface);
 
    public:
       // we need mol to use UDDs to mark the HB donors and acceptors (using coot-h-bonds.hh)
@@ -228,7 +229,8 @@ namespace coot {
       void make_overlaps();
       void contact_dots_for_overlaps() const; // old
       atom_overlaps_dots_container_t contact_dots_for_ligand();
-      atom_overlaps_dots_container_t all_atom_contact_dots(double dot_density = 0.5);
+      atom_overlaps_dots_container_t all_atom_contact_dots(double dot_density = 0.5,
+							   bool make_vdw_surface = false);
 
    };
 
