@@ -4702,8 +4702,8 @@ coot::generic_display_object_t::colour_values_from_colour_name(const std::string
    if (c.length() == 7) {
       if (c[0] == '#') {
 	 return coot::colour_holder(c); // hex colour string
-      } 
-   } 
+      }
+   }
 
    if (c == "blue") {
       colour.red = 0.1; 
@@ -4711,9 +4711,9 @@ coot::generic_display_object_t::colour_values_from_colour_name(const std::string
       colour.blue = 0.8;
    } else {
       if (c == "sky") {
-	 colour.red = 0.4; 
-	 colour.green = 0.4; 
-	 colour.blue = 0.6;
+	 colour.red = 0.53 * 0.6; 
+	 colour.green = 0.81 * 0.6; 
+	 colour.blue = 0.92 * 0.6;
       } else {
 	 if (c == "green") {
 	    colour.red   = 0.05; 
@@ -4766,25 +4766,37 @@ coot::generic_display_object_t::colour_values_from_colour_name(const std::string
 				       colour.blue = 0.6;
 				    } else {
 				       if (c == "forestgreen") {
-					  colour.red = 0.6; 
-					  colour.green = 0.8; 
-					  colour.blue = 0.1;
+					  colour.red   = 0.6;
+					  colour.green = 0.8;
+					  colour.blue  = 0.1;
 				       } else {
 					  if (c == "yellowgreen") {
-					     colour.red   = 0.6; 
-					     colour.green = 0.8; 
+					     colour.red   = 0.6;
+					     colour.green = 0.8;
 					     colour.blue  = 0.2;
 					  } else {
 					     if (c == "goldenrod") {
-						colour.red   = 0.85; 
-						colour.green = 0.65; 
+						colour.red   = 0.85;
+						colour.green = 0.65;
 						colour.blue  = 0.12;
 					     } else {
 						if (c == "orangered") {
-						   colour.red   = 0.9; 
-						   colour.green = 0.27; 
+						   colour.red   = 0.9;
+						   colour.green = 0.27;
 						   colour.blue  = 0.0;
-						}
+						} else {
+						   if (c == "magenta") {
+						      colour.red   = 0.7;
+						      colour.green = 0.2;
+						      colour.blue  = 0.7;
+						   } else {
+						      if (c == "cornflower") {
+							 colour.red   = 0.38;
+							 colour.green = 0.58;
+							 colour.blue  = 0.93;
+						      }
+						   }
+						} 
 					     }
 					  }
 				       }

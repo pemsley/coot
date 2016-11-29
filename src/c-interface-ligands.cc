@@ -3494,41 +3494,36 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
       coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, g.Geom_p(), 0.5, 0.25);
       coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand();
       std::cout << "------------- score " << c.score() << std::endl;
+
+      // for quick colour lookups.
+      std::map<std::string, coot::colour_holder> colour_map;
+      colour_map["blue"      ] = coot::generic_display_object_t::colour_values_from_colour_name("blue");
+      colour_map["sky"       ] = coot::generic_display_object_t::colour_values_from_colour_name("sky");
+      colour_map["sea"       ] = coot::generic_display_object_t::colour_values_from_colour_name("sea");
+      colour_map["greentint" ] = coot::generic_display_object_t::colour_values_from_colour_name("greentint");
+      colour_map["green"     ] = coot::generic_display_object_t::colour_values_from_colour_name("green");
+      colour_map["orange"    ] = coot::generic_display_object_t::colour_values_from_colour_name("orange");
+      colour_map["orangered" ] = coot::generic_display_object_t::colour_values_from_colour_name("orangered");
+      colour_map["yellow"    ] = coot::generic_display_object_t::colour_values_from_colour_name("yellow");
+      colour_map["yellowtint"] = coot::generic_display_object_t::colour_values_from_colour_name("yellowtint");
+      colour_map["red"       ] = coot::generic_display_object_t::colour_values_from_colour_name("red");
+      colour_map["#55dd55"   ] = coot::generic_display_object_t::colour_values_from_colour_name("#55dd55");
+      colour_map["hotpink"   ] = coot::generic_display_object_t::colour_values_from_colour_name("hotpink");
+      colour_map["grey"      ] = coot::generic_display_object_t::colour_values_from_colour_name("grey");
+      colour_map["magenta"   ] = coot::generic_display_object_t::colour_values_from_colour_name("magenta");
+      
       std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
       for (it=c.dots.begin(); it!=c.dots.end(); it++) {
 	 const std::string &type = it->first;
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
 	 std::string obj_name = type;
 	 int obj = new_generic_object_number(obj_name.c_str());
-
-// colours from handle_read_draw_probe_dots_unformatted
-// 			   if (gap2> -0.4) current_colour = "red";
-// 			   if (gap2> -0.3) current_colour = "orange";
-// 			   if (gap2> -0.2) current_colour = "yellow";
-// 			   if (gap2> -0.1) current_colour = "yellowtint";
-// 			   if (gap2>  0.0) current_colour = "green";
-// 			   if (gap2> 0.15) current_colour = "sea";
-// 			   if (gap2> 0.25) current_colour = "sky";
-// 			   if (gap2> 0.35) current_colour = "blue";
-
-	 std::string col = "#445566";
-	 if (type == "H-bond")        col = "greentint";
-	 if (type == "big-overlap")   col = "orange";
-	 if (type == "small-overlap") col = "yellow";
-	 if (type == "close-contact") col = "#55dd55";
-	 if (type == "wide-contact")  col = "blue";
 	 int point_size = 2;
 	 if (type == "vdw-surface") point_size = 1;
-	 std::map<std::string, coot::colour_holder> colour_map;
-	 colour_map["greentint"] = coot::generic_display_object_t::colour_values_from_colour_name("greentint");
-	 colour_map["orange"   ] = coot::generic_display_object_t::colour_values_from_colour_name("orange");
-	 colour_map["yellow"   ] = coot::generic_display_object_t::colour_values_from_colour_name("yellow");
-	 colour_map["#55dd55"  ] = coot::generic_display_object_t::colour_values_from_colour_name("#55dd55");
-	 colour_map["blue"     ] = coot::generic_display_object_t::colour_values_from_colour_name("blue");
-
-	 for (unsigned int i=0; i<v.size(); i++)
+	 for (unsigned int i=0; i<v.size(); i++) {
+	    const std::string &col = v[i].col;
 	    to_generic_object_add_point_internal(obj, col, colour_map[col], point_size, v[i].pos);
-	 
+	 }
 	 if (type != "vdw-surface")
 	    set_display_generic_object(obj, 1); // should be a function with no redraw
       }
@@ -3588,25 +3583,36 @@ void coot_all_atom_contact_dots(int imol) {
       coot::atom_overlaps_container_t overlaps(mol, g.Geom_p(), 0.5, 0.25);
       coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(0.6);
       std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
+
+      // for quick colour lookups.
+      std::map<std::string, coot::colour_holder> colour_map;
+      colour_map["blue"      ] = coot::generic_display_object_t::colour_values_from_colour_name("blue");
+      colour_map["sky"       ] = coot::generic_display_object_t::colour_values_from_colour_name("sky");
+      colour_map["sea"       ] = coot::generic_display_object_t::colour_values_from_colour_name("sea");
+      colour_map["greentint" ] = coot::generic_display_object_t::colour_values_from_colour_name("greentint");
+      colour_map["green"     ] = coot::generic_display_object_t::colour_values_from_colour_name("green");
+      colour_map["orange"    ] = coot::generic_display_object_t::colour_values_from_colour_name("orange");
+      colour_map["orangered" ] = coot::generic_display_object_t::colour_values_from_colour_name("orangered");
+      colour_map["yellow"    ] = coot::generic_display_object_t::colour_values_from_colour_name("yellow");
+      colour_map["yellowtint"] = coot::generic_display_object_t::colour_values_from_colour_name("yellowtint");
+      colour_map["red"       ] = coot::generic_display_object_t::colour_values_from_colour_name("red");
+      colour_map["#55dd55"   ] = coot::generic_display_object_t::colour_values_from_colour_name("#55dd55");
+      colour_map["hotpink"   ] = coot::generic_display_object_t::colour_values_from_colour_name("hotpink");
+      colour_map["grey"      ] = coot::generic_display_object_t::colour_values_from_colour_name("grey");
+      colour_map["magenta"   ] = coot::generic_display_object_t::colour_values_from_colour_name("magenta");
+      
       for (it=c.dots.begin(); it!=c.dots.end(); it++) {
 	 const std::string &type = it->first;
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
 	 std::string obj_name = type;
 	 int obj = new_generic_object_number(obj_name.c_str());
 	 std::string col = "#445566";
-	 if (type == "H-bond")        col = "greentint";
-	 if (type == "big-overlap")   col = "#ee5544";
-	 if (type == "small-overlap") col = "#bbbb44";
-	 if (type == "close-contact") col = "#55bb55";
-	 if (type == "wide-contact")  col = "#5555ee";
 	 int point_size = 2;
 	 if (type == "vdw-surface") point_size = 1;
-
-	 for (unsigned int i=0; i<v.size(); i++)
-	    to_generic_object_add_point(obj, col.c_str(), point_size,
-					v[i].pos.x(),
-					v[i].pos.y(),
-					v[i].pos.z());
+	 for (unsigned int i=0; i<v.size(); i++) {
+	    const std::string &col = v[i].col;
+	    to_generic_object_add_point_internal(obj, col, colour_map[col], point_size, v[i].pos);
+	 }
 	 if (type != "vdw-surface")
 	    set_display_generic_object_simple(obj, 1); // should be a function with no redraw
       }

@@ -929,7 +929,7 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 		   std::string s = g.state_command(cmd_strings, coot::STATE_PYTHON);
 		   safe_python_command(s);
 #else
-#if defined USE_GUILE && !defined WINDOWS_MINGW
+#if defined USE_GUILE_GTK && !defined WINDOWS_MINGW
 		   graphics_info_t g;
 		   std::vector<std::string> cmd_strings;
 		   cmd_strings.push_back("interesting-things-gui");
@@ -939,10 +939,10 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 		   cmd_strings.push_back(ls);
 		   std::string s = g.state_command(cmd_strings, coot::STATE_SCM);
 		   safe_scheme_command(s);
-#endif // GUILE
+#endif // GUILE_GTK
 #endif // PYGTK
 		} else {
-#if defined USE_GUILE && !defined WINDOWS_MINGW
+#if defined USE_GUILE_GTK && !defined WINDOWS_MINGW
 		   graphics_info_t g;
 		   std::vector<std::string> cmd_strings;
 		   cmd_strings.push_back("interesting-things-gui");
