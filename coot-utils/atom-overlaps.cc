@@ -721,16 +721,24 @@ coot::atom_overlaps_container_t::is_inside_another_ligand_atom(int idx,
 
    if (idx >= 0) {
 
-      const std::vector<std::pair<mmdb::Atom *, double> > &v = ligand_atom_neighbour_map.find(idx)->second;
-      for (unsigned int i=0; i<v.size(); i++) {
-	 clipper::Coord_orth pt = co(v[i].first);
-	 double dist_sqrd = (dot_pt - pt).lengthsq();
+      std::map<int, std::vector<std::pair<mmdb::Atom *, double> > >::const_iterator it;
+      it = ligand_atom_neighbour_map.find(idx);
 
-	 const double &radius_other = v[i].second;
-	 if (dist_sqrd < radius_other * radius_other) {
-	    r = true;
-	    break;
+      if (it != ligand_atom_neighbour_map.end()) {
+
+	 const std::vector<std::pair<mmdb::Atom *, double> > &v = it->second;
+	 for (unsigned int i=0; i<v.size(); i++) {
+	    clipper::Coord_orth pt = co(v[i].first);
+	    double dist_sqrd = (dot_pt - pt).lengthsq();
+
+	    const double &radius_other = v[i].second;
+	    if (dist_sqrd < radius_other * radius_other) {
+	       r = true;
+	       break;
+	    }
 	 }
+      } else {
+	 std::cout << "Opps! Missing in ligand_atom_neighbour_map: idx " << idx << std::endl;
       }
    }
    return r;
@@ -840,7 +848,7 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand() { // or residue
 		  }
 	       }
 	    }
-	    std::cout << "done contact map" << std::endl;
+	    // std::cout << "done contact map" << std::endl;
 
 
 	    for (int iat=0; iat<n_ligand_residue_atoms; iat++) {
@@ -1638,26 +1646,42 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
 
    if (ait == CLASHABLE) {
       // maybe it was a link
-      int imod = 1;
-      mmdb::Model *model_p = mol->GetModel(imod);
-      int n_links = model_p->GetNumberOfLinks();
-      if (n_links > 0) {
-	 for (int i_link=1; i_link<=n_links; i_link++) {
-	    mmdb::PLink link = model_p->GetLink(i_link);
-	    std::pair<atom_spec_t, atom_spec_t> atoms = link_atoms(link);
-	    atom_spec_t spec_1(at_1);
-	    atom_spec_t spec_2(at_2);
-	    if (spec_1 == atoms.first)
-	       if (spec_2 == atoms.second)
-		  ait = BONDED;
-	    if (spec_2 == atoms.first)
-	       if (spec_1 == atoms.second)
-		  ait = BONDED;
-	 }
-      }
+      if (is_linked(at_1, at_2))
+	 ait = BONDED;
    }
 
    return ait;
+}
+
+bool
+coot::atom_overlaps_container_t::is_linked(mmdb::Atom *at_1,
+					   mmdb::Atom *at_2) const {
+
+   bool status = false;
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   int n_links = model_p->GetNumberOfLinks();
+   if (n_links > 0) {
+      for (int i_link=1; i_link<=n_links; i_link++) {
+	 mmdb::PLink link = model_p->GetLink(i_link);
+	 std::pair<atom_spec_t, atom_spec_t> atoms = link_atoms(link);
+	 atom_spec_t spec_1(at_1);
+	 atom_spec_t spec_2(at_2);
+	 if (spec_1 == atoms.first) {
+	    if (spec_2 == atoms.second) {
+	       status = true;
+	       break;
+	    }
+	 }
+	 if (spec_2 == atoms.first) {
+	    if (spec_1 == atoms.second) {
+	       status = true;
+	       break;
+	    }
+	 }
+      }
+   }
+   return status;
 }
 
 // this modifies ring_list_map, so it is not const.

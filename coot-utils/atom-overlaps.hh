@@ -194,6 +194,7 @@ namespace coot {
       bool are_bonded_residues(mmdb::Residue *res_1, mmdb::Residue *res_2) const;
       bool in_same_ring(mmdb::Atom *at_1, mmdb::Atom *at_2,
 			std::map<std::string, std::vector<std::vector<std::string> > > &ring_list_map) const;
+      bool is_linked(mmdb::Atom *at_1, mmdb::Atom *at_2) const;
 //       bool in_same_ring(const std::string &atom_name_1,
 // 			const std::string &atom_name_2,
 // 			const std::vector<std::vector<std::string> > &ring_list) const;

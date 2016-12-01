@@ -2,6 +2,7 @@
 #include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 #include "reduce.hh"
+#include "atom-overlaps.hh"
 
    // Spin-search: OH, SH, NH3, MET methyls
 
@@ -214,16 +215,48 @@ coot::reduce::add_riding_hydrogens() {
 	       residue_prev_p = 0;
 	    // what about strange missing residues - where we can place the CA HA
 	    // (but not the N's H).
-	    add_riding_hydrogens(residue_p, residue_prev_p);
+	    bool done = add_riding_hydrogens(residue_p, residue_prev_p);
+	    if (! done) {
+	       hydrogen_placement_by_dictionary(residue_p);
+	    }
+	 }
+      }
+   }
+
+   mol->FinishStructEdit();
+
+   // Now, which N has the H on the HISs?
+   
+   model_p = mol->GetModel(imod);
+   if (model_p) {
+      mmdb::Chain *chain_p;
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 chain_p = model_p->GetChain(ichain);
+	 if (chain_p) {
+	    int nres = chain_p->GetNumberOfResidues();
+	    for (int ires=0; ires<nres; ires++) {
+	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	       if (residue_p) {
+		  std::string res_name = residue_p->GetResName();
+		  if (res_name == "HIS") {
+		     find_best_his_protonation_orientation(residue_p);
+		  }
+	       }
+	    }
 	 }
       }
    }
 }
 
 // only call this with a valid residue_p
-void
+//
+// return a status indication that this residue type was handled
+//
+bool
 coot::reduce::add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *residue_prev_p) {
 
+   bool done = false;
    std::string res_name = residue_p->GetResName();
    double bl = 0.97;
    double bl_arom  = 0.93;
@@ -234,20 +267,24 @@ coot::reduce::add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *resi
       add_main_chain_hydrogens(residue_p, residue_prev_p);
       torsion_info_t torsion_1(" N  ", " CA ", " CB ", bl, 109, 180);
       add_methyl_Hs(" HB1", " HB2", " HB3", torsion_1, residue_p);
+      done = true;
    }
    if (res_name == "CYS") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
       add_2_sp3_hydrogens(" HB2", " HB3", " CA ", " CB ", " SG ", bl, 107, residue_p);
       add_SH_H(" HG ", " SG ", " CB ", " CA ", bl_sh, 109.5, 180, residue_p);
+      done = true;
    }
    if (res_name == "ASP") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
       add_2_sp3_hydrogens(" HB2", " HB3", " CA ", " CB ", " CG ", bl, 107, residue_p);
+      done = true;
    }
    if (res_name == "GLU") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
       add_2_sp3_hydrogens(" HB2", " HB3", " CA ", " CB ", " CG ", bl, 107, residue_p);
       add_2_sp3_hydrogens(" HG2", " HG3", " CB ", " CG ", " CD ", bl, 107, residue_p);
+      done = true;
    }
    if (res_name == "PHE") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
@@ -257,14 +294,17 @@ coot::reduce::add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *resi
       add_aromatic_hydrogen(" HD2", " CG ", " CD2", " CE2", bl_arom, residue_p);
       add_aromatic_hydrogen(" HE2", " CD2", " CE2", " CZ ", bl_arom, residue_p);
       add_aromatic_hydrogen(" HZ ", " CE1", " CZ ", " CE2", bl_arom, residue_p);
+      done = true;
    }
    if (res_name == "GLY") {
       add_main_chain_hydrogens(residue_p, residue_prev_p, true);
+      done = true;
    }
    if (res_name == "HIS") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
       add_2_sp3_hydrogens(" HB2", " HB3", " CA ", " CB ", " CG ", bl, 107, residue_p);
       add_his_ring_C_Hs(residue_p);
+      done = true;
    }
    if (res_name == "ILE") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
@@ -274,6 +314,7 @@ coot::reduce::add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *resi
       torsion_info_t t2(" CA ", " CB ", " CG2", bl, 109, 180);
       add_methyl_Hs("HG21", "HG22", "HG23", t2, residue_p);
       add_tetrahedral_hydrogen(" HB ", " CB ", " CA ", " CG1", " CG2", bl, residue_p);
+      done = true;
    }
    if (res_name == "LYS") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
@@ -283,6 +324,7 @@ coot::reduce::add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *resi
       add_2_sp3_hydrogens(" HE2", " HE3", " CD ", " CE ", " NZ ", bl, 107, residue_p);
       torsion_info_t ti(" CD ", " CE ", " NZ ", bl, 109, 180);
       add_methyl_Hs(" HZ1", " HZ2", " HZ3", ti, residue_p);
+      done = true;
    }
    if (res_name == "LEU") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
@@ -292,6 +334,7 @@ coot::reduce::add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *resi
       add_methyl_Hs("HD11", "HD12", "HD13", t1, residue_p);
       add_methyl_Hs("HD21", "HD22", "HD23", t2, residue_p);
       add_tetrahedral_hydrogen(" HG ", " CG ", " CB ", " CD1", " CD2", bl, residue_p);
+      done = true;
    }
    if (res_name == "MET") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
@@ -299,27 +342,32 @@ coot::reduce::add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *resi
       add_2_sp3_hydrogens(" HG2", " HG3", " CB ", " CG ", " SD ", bl, 107, residue_p);
       torsion_info_t t1(" CG ", " SD ", " CE", bl, 109, 180);
       add_methyl_Hs(" HE1", " HE2", " HE3", t1, residue_p);
+      done = true;
    }
    if (res_name == "MSE") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
       add_2_sp3_hydrogens(" HB1", " HB2", " CA ", " CB ", " CG ", bl, 107, residue_p);
+      done = true;
    }
    if (res_name == "ASN") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
       add_2_sp3_hydrogens(" HB2", " HB3", " CA ", " CB ", " CG ", bl, 107, residue_p);
       add_amino_hydrogens("HD21", "HD22", " ND2", " CG ", " OD1", bl_amino, residue_p);
+      done = true;
    }
    if (res_name == "PRO") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
       add_2_sp3_hydrogens(" HB2", " HB3", " CA ", " CB ", " CG ", bl, 107, residue_p);
       add_2_sp3_hydrogens(" HG2", " HG3", " CB ", " CG ", " CD ", bl, 107, residue_p);
       add_2_sp3_hydrogens(" HD2", " HD3", " CG ", " CD ", " N  ", bl, 107, residue_p);
+      done = true;
    }
    if (res_name == "GLN") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
       add_2_sp3_hydrogens(" HB2", " HB3", " CA ", " CB ", " CG ", bl, 107, residue_p);
       add_2_sp3_hydrogens(" HG2", " HG3", " CB ", " CG ", " CD ", bl, 107, residue_p);
       add_amino_hydrogens("HE21", "HE22", " NE2", " CD ", " OE1", bl_amino, residue_p);
+      done = true;
    }
    if (res_name == "ARG") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
@@ -327,11 +375,13 @@ coot::reduce::add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *resi
       add_2_sp3_hydrogens(" HG2", " HG3", " CB ", " CG ", " CD ", bl, 107, residue_p);
       add_2_sp3_hydrogens(" HD2", " HD3", " CG ", " CD ", " NE ", bl, 107, residue_p);
       add_guanidinium_hydrogens(residue_p);
+      done = true;
    }
    if (res_name == "SER") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
       add_2_sp3_hydrogens(" HB2", " HB3", " CA ", " CB ", " OG ", bl, 107, residue_p);
       add_OH_H(" HG ", " OG ", " CB ", " CA ", bl_oh, 109.5, 180, residue_p);
+      done = true;
    }
    if (res_name == "THR") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
@@ -339,6 +389,7 @@ coot::reduce::add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *resi
       torsion_info_t ti(" CA ", " CB ", " CG2", bl, 109, 180);
       add_methyl_Hs("HG21", "HG22", "HG23", ti, residue_p);
       add_OH_H(" HG1", " OG1", " CB ", " CA ", bl_oh, 109.5, 180, residue_p);
+      done = true;
    }
    if (res_name == "VAL") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
@@ -347,11 +398,13 @@ coot::reduce::add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *resi
       add_methyl_Hs("HG11", "HG12", "HG13", t1, residue_p);
       add_methyl_Hs("HG21", "HG22", "HG23", t2, residue_p);
       add_tetrahedral_hydrogen(" HB ", " CB ", " CA ", " CG1", " CG2", bl, residue_p);
+      done = true;
    }
    if (res_name == "TRP") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
       add_2_sp3_hydrogens(" HB2", " HB3", " CA ", " CB ", " CG ", bl, 107, residue_p);
       add_trp_indole_hydrogens(residue_p);
+      done = true;
    }
    if (res_name == "TYR") {
       add_main_chain_hydrogens(residue_p, residue_prev_p);
@@ -361,7 +414,9 @@ coot::reduce::add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *resi
       add_aromatic_hydrogen(" HD2", " CG ", " CD2", " CE2", bl_arom, residue_p);
       add_aromatic_hydrogen(" HE2", " CD2", " CE2", " CZ ", bl_arom, residue_p);
       add_OH_H(" HH ", " OH ", " CZ ", " CE1", bl_oh, 109.5, 180, residue_p);
+      done = true;
    }
+   return done;
 }
 
 // is_gly is false by default
@@ -423,6 +478,7 @@ coot::reduce::add_main_chain_HA(mmdb::Residue *residue_p) {
 
    double bl = 0.97;
 
+
    // PDBv3 FIXME
    std::vector<std::string> alt_confs = util::get_residue_alt_confs(residue_p);
    for (unsigned int i=0; i<alt_confs.size(); i++) {
@@ -438,7 +494,7 @@ coot::reduce::add_main_chain_HA(mmdb::Residue *residue_p) {
    }
 }
 
-void
+mmdb::Atom *
 coot::reduce::add_hydrogen_atom(std::string atom_name, clipper::Coord_orth &pos,
 				mmdb::realtype bf, mmdb::Residue *residue_p) {
 
@@ -446,7 +502,9 @@ coot::reduce::add_hydrogen_atom(std::string atom_name, clipper::Coord_orth &pos,
    new_H->SetAtomName(atom_name.c_str());
    new_H->SetElementName(" H"); // PDBv3 FIXME
    new_H->SetCoordinates(pos.x(), pos.y(), pos.z(), 1.0, bf);
-   residue_p->AddAtom(new_H);
+   int n_atoms = residue_p->GetNumberOfAtoms();
+   int idx = residue_p->AddAtom(new_H);
+   return new_H;
 }
 
 
@@ -790,6 +848,35 @@ coot::reduce::add_OH_H(const std::string &H_name,
 
 }
 
+      
+void
+coot::reduce::add_OH_H(const std::string &H_at_name,
+		       const std::string &first_neighb,
+		       const std::vector<std::string> &second_neighb_vec,
+		       const std::map<std::string, std::vector<std::string> > &third_neighb_map,
+		       double bond_length,
+		       double ang_deg,
+		       double torsion_deg,
+		       mmdb::Residue *residue_p) {
+
+   if (second_neighb_vec.size() > 0) {
+      std::string second = second_neighb_vec[0];
+      std::map<std::string, std::vector<std::string> >::const_iterator it;
+      it = third_neighb_map.find(second);
+      if (it != third_neighb_map.end()) {
+	 std::vector<std::string> thirds = it->second;
+	 if (thirds.size() > 0) {
+	    std::string third = thirds[0];
+	    add_OH_H(H_at_name, first_neighb, second_neighb_vec[0], third,
+		     bond_length, ang_deg, torsion_deg, residue_p);
+	 }
+      } else {
+	 std::cout << "failed to find key " << second << " in thirds map" << std::endl;
+      }
+   }
+}
+
+
 // this will need a spin-search
 void
 coot::reduce::add_SH_H(const std::string &H_name,
@@ -807,7 +894,7 @@ coot::reduce::add_SH_H(const std::string &H_name,
 
 
 // this will need a spin-search
-void
+std::vector<mmdb::Atom *>
 coot::reduce::add_xH_H(const std::string &H_name,
 		       const std::string &at_name_1,  // OG
 		       const std::string &at_name_2,  // CB
@@ -817,6 +904,7 @@ coot::reduce::add_xH_H(const std::string &H_name,
 		       double tor_inital, // deg
 		       mmdb::Residue *residue_p) {
 
+   std::vector<mmdb::Atom *> r;
    std::vector<std::string> alt_confs = util::get_residue_alt_confs(residue_p);
    for (unsigned int i=0; i<alt_confs.size(); i++) {
       mmdb::Atom *at_1 = residue_p->GetAtom(at_name_1.c_str(), 0, alt_confs[i].c_str());
@@ -827,9 +915,11 @@ coot::reduce::add_xH_H(const std::string &H_name,
 									   clipper::Util::d2rad(angle),
 									   clipper::Util::d2rad(tor_inital));
 	 double bf = at_2->tempFactor;
-	 add_hydrogen_atom(H_name, H_pos, bf, residue_p);
+	 mmdb::Atom *at = add_hydrogen_atom(H_name, H_pos, bf, residue_p);
+	 r.push_back(at);
       }
    }
+   return r;
 }
 
 void
@@ -837,11 +927,11 @@ coot::reduce::add_his_ring_C_Hs(mmdb::Residue *residue_p) {
 
    double bl_arom = 0.93;
    add_his_ring_H(" HD2", " CG ", " CD2", "NE2", bl_arom, residue_p);
-   add_his_ring_H(" HE2", " ND1", " CE1", "NE2", bl_arom, residue_p);
+   add_his_ring_H(" HE1", " ND1", " CE1", "NE2", bl_arom, residue_p);
 
 }
 
-void
+std::vector<mmdb::Atom *>
 coot::reduce::add_his_ring_H(const std::string &H_name,
 			     const std::string &at_name_1,
 			     const std::string &at_name_2,
@@ -849,6 +939,7 @@ coot::reduce::add_his_ring_H(const std::string &H_name,
 			     double bl_arom,
 			     mmdb::Residue *residue_p) {
 
+   std::vector<mmdb::Atom *> r;
    std::vector<std::string> alt_confs = util::get_residue_alt_confs(residue_p);
    for (unsigned int i=0; i<alt_confs.size(); i++) {
       mmdb::Atom *at_1 = residue_p->GetAtom(at_name_1.c_str(), 0, alt_confs[i].c_str());
@@ -857,14 +948,37 @@ coot::reduce::add_his_ring_H(const std::string &H_name,
       if (at_1 && at_2 && at_3) {
 	 clipper::Coord_orth H_pos = position_by_bisection(at_1, at_2, at_3, bl_arom);
 	 double bf = at_2->tempFactor;
-	 add_hydrogen_atom(H_name, H_pos, bf, residue_p);
+	 mmdb::Atom *at = add_hydrogen_atom(H_name, H_pos, bf, residue_p);
+	 r.push_back(at);
       }
    }
-
+   return r;
 }
 
+void
+coot::reduce::add_his_ring_H(const std::string &H_at_name,
+			     const std::string &first_neigh,
+			     const std::vector<std::string> second_neighb_vec,
+			     double bl,
+			     mmdb::Residue *residue_p) {
 
-#include "atom-overlaps.hh"
+   if (second_neighb_vec.size() == 2) {
+      add_his_ring_H(H_at_name, second_neighb_vec[0], first_neigh, second_neighb_vec[1], bl, residue_p);
+   }
+}
+
+void
+coot::reduce::add_aromatic_hydrogen(const std::string &H_at_name,
+				    const std::string &first_neigh,
+				    const std::vector<std::string> second_neighb_vec,
+				    double bl,
+				    mmdb::Residue *residue_p) {
+
+   if (second_neighb_vec.size() == 2) {
+      add_aromatic_hydrogen(H_at_name, second_neighb_vec[0], first_neigh, second_neighb_vec[1],
+			    bl, residue_p);
+   }
+}
 
 void
 coot::reduce::find_best_his_protonation_orientation(mmdb::Residue *residue_p) {
@@ -872,22 +986,85 @@ coot::reduce::find_best_his_protonation_orientation(mmdb::Residue *residue_p) {
    // Put the H on the ND1 then on the NE2 - see which gives the best
    // score - choose that.
    //
-   // Do orientation hypotheses later.
+   // Do orientation hypotheses later - maybe.
 
    if (geom_p) {
       std::string res_name = residue_p->GetResName();
       if (res_name == "HIS") {
 	 double bl = 0.86;
-	 add_his_ring_H(" HE2", " CE1", "NE2", " CD2", bl, residue_p);
+	 std::vector<mmdb::Atom *> v = add_his_ring_H(" HE2", " CE1", "NE2", " CD2", bl, residue_p);
 	 std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
-	 atom_overlaps_container_t ao(residue_p, neighbs, mol, geom_p, 0.5);
-	 atom_overlaps_dots_container_t aod = ao.contact_dots_for_ligand();
+	 atom_overlaps_container_t ao_1(residue_p, neighbs, mol, geom_p, 0.5);
+	 atom_overlaps_dots_container_t aod_1 = ao_1.contact_dots_for_ligand();
+	 double s1 = aod_1.score();
+	 // this only does the first alt conf. It can get messy with alt confs.
+
+	 if (v.size() > 0) {
+	    mmdb::Atom *at = v[0];
+	    delete at;
+	    mol->FinishStructEdit();
+	 }
+
+ 	 v = add_his_ring_H(" HD1", " CG ", "ND1", " CE1", bl, residue_p);
+ 	 atom_overlaps_container_t ao_2(residue_p, neighbs, mol, geom_p, 0.5);
+ 	 atom_overlaps_dots_container_t aod_2 = ao_2.contact_dots_for_ligand();
+ 	 double s2 = aod_2.score();
+ 	 std::cout << "scores: " << residue_spec_t(residue_p) << " " << s1 << " " << s2
+ 		   << std::endl;
+	 if (v.size() > 0) { // sanity check
+	    if (s1 > s2) {
+	       // delete HD1
+	       delete v[0];
+	       // add the first one back
+	       add_his_ring_H(" HE2", " CE1", "NE2", " CD2", bl, residue_p);
+	       mol->FinishStructEdit();
+	    }
+	 }
       }
    } else {
       std::cout << "No geometry" << std::endl;
    }
-
 }
+
+void
+coot::reduce::switch_his_protonation(mmdb::Residue *residue_p,
+				     mmdb::Atom *current_H_atom) {
+
+   if (current_H_atom) {
+      std::string atom_name = current_H_atom->name;
+      std::string new_atom_name;
+      if (atom_name == " HD1") new_atom_name = " HE2";
+      if (atom_name == " HE2") new_atom_name = " HD1";
+      if (! new_atom_name.empty()) {
+
+	 // ND1 -> HD1   and   NE2 -> HE2 by dictionary
+	 //
+	 // New atom HD1 first
+	 std::cout << "switch_his_protonation() " << 1 << std::endl;
+	 std::string at_name_1 = " CG ";
+	 std::string at_name_2 = " ND1";
+	 std::string at_name_3 = " CE1";
+	 if (new_atom_name == " HE2") {
+	    at_name_1 = " CE1";
+	    at_name_2 = " NE2";
+	    at_name_3 = " CD2";
+	 }
+	 std::string alt_conf = current_H_atom->altLoc;
+	 mmdb::Atom *at_1 = residue_p->GetAtom(at_name_1.c_str(), 0, alt_conf.c_str());
+	 mmdb::Atom *at_2 = residue_p->GetAtom(at_name_2.c_str(), 0, alt_conf.c_str());
+	 mmdb::Atom *at_3 = residue_p->GetAtom(at_name_3.c_str(), 0, alt_conf.c_str());
+	 if (at_1 && at_2 && at_3) {
+	    std::cout << "switch_his_protonation() " << 2 << " " << new_atom_name << std::endl;
+	    current_H_atom->SetAtomName(new_atom_name.c_str());
+	    double bl_arom = 0.93;
+	    clipper::Coord_orth pos = position_by_bisection(at_1, at_2, at_3, bl_arom);
+	    double bf = current_H_atom->tempFactor;
+	    current_H_atom->SetCoordinates(pos.x(), pos.y(), pos.z(), 1.0, bf);
+	 }
+      }
+   }
+}
+
 
 void
 coot::reduce::delete_atom_by_name(const std::string &at_name, mmdb::Residue *residue_p) {
@@ -940,5 +1117,104 @@ coot::reduce::delete_hydrogen_atoms() {
 	    }
 	 }
       }
+   }
+}
+
+// skip waters, HOH
+void
+coot::reduce::hydrogen_placement_by_dictionary(mmdb::Residue *residue_p) {
+
+   std::string res_name = residue_p->GetResName();
+   if (res_name != "HOH") {
+      if (geom_p) {
+	 std::pair<bool, dictionary_residue_restraints_t> p =
+	    geom_p->get_monomer_restraints(res_name, imol);
+	 if (p.first) {
+	    hydrogen_placement_by_dictionary(p.second, residue_p);
+	 }
+      }
+   }
+}
+
+void
+coot::reduce::hydrogen_placement_by_dictionary(const dictionary_residue_restraints_t &rest,
+					       mmdb::Residue *residue_p) {
+
+   for (unsigned int iat=0; iat<rest.atom_info.size(); iat++) {
+      if (rest.atom_info[iat].is_hydrogen()) {
+	 const std::string &H_at_name = rest.atom_info[iat].atom_id_4c;
+	 // to which atom is this hydrogen connected?
+	 std::vector<unsigned int> neighbs = rest.neighbours(iat, false);
+	 if (neighbs.size() == 1) {
+	    // what else would it be?
+	    const unsigned int &iat_neighb = neighbs[0];
+	    const std::string &energy_type = rest.atom_info[iat_neighb].type_energy;
+	    if (! energy_type.empty()) {
+	       place_hydrogen_by_connected_atom_energy_type(iat, iat_neighb, rest, residue_p);
+	    } else {
+	       place_hydrogen_by_connected_2nd_neighbours(iat, iat_neighb, rest, residue_p);
+	    }
+	 }
+      }
+   }
+
+}
+
+void
+coot::reduce::place_hydrogen_by_connected_atom_energy_type(unsigned int iat,
+							   unsigned int iat_neighb,
+							   const dictionary_residue_restraints_t &rest,
+							   mmdb::Residue *residue_p) {
+
+   const std::string &energy_type = rest.atom_info[iat_neighb].type_energy;
+   const std::string &H_at_name = rest.atom_info[iat].atom_id_4c;
+   if (false)
+      std::cout << " hydrogen atom " << H_at_name << " in residue type " << rest.residue_info.comp_id
+		<< " by_energy_type: " << energy_type << std::endl;
+   const std::string &first_neighb = rest.atom_info[iat_neighb].atom_id_4c;
+   std::vector<std::string> second_neighb_vec = rest.neighbours(first_neighb, false);
+
+   std::cout << "second_neighb_vec.size() " << second_neighb_vec.size() << std::endl;
+   for (unsigned int ii=0; ii<second_neighb_vec.size(); ii++) {
+      std::cout << " second_neighb_vec: " << ii << " " << second_neighb_vec[ii] << std::endl;
+   }
+   
+   if (energy_type == "CR16" || energy_type == "CR15") {
+      double bl = 1.08;
+      add_aromatic_hydrogen(H_at_name, first_neighb, second_neighb_vec, bl, residue_p);
+   }
+   if (energy_type == "NR15") {
+      double bl = 0.86;
+      add_his_ring_H(H_at_name, first_neighb, second_neighb_vec, bl, residue_p);
+   }
+   if (energy_type == "OH1") {
+      // needs a spin-search
+      double bl_oh    = 0.84;
+      std::map<std::string, std::vector<std::string> > third_neighb_map;
+      for (unsigned int i=0; i<second_neighb_vec.size(); i++) {
+	 std::vector<std::string> nn = rest.neighbours(second_neighb_vec[i], false);
+	 // erase/remove?
+	 for (unsigned int j=0; j<nn.size(); j++) {
+	    if (nn[j] != first_neighb)
+	       third_neighb_map[second_neighb_vec[i]].push_back(nn[j]);
+	 }
+      }
+      add_OH_H(H_at_name, first_neighb, second_neighb_vec, third_neighb_map,
+	       bl_oh, 109.5, 180, residue_p);
+   }
+
+}
+
+void
+coot::reduce::place_hydrogen_by_connected_2nd_neighbours(unsigned int iat,
+							 unsigned int iat_neighb,
+							 const dictionary_residue_restraints_t &rest,
+							 mmdb::Residue *residue_p) {
+   
+   std::vector<unsigned int> neighbs = rest.neighbours(iat_neighb, false);
+   std::string ele_neighb = rest.atom_info[iat_neighb].type_symbol;
+
+   // something complicated
+   for (unsigned int iat=0; iat<neighbs.size(); iat++) {
    }
 }

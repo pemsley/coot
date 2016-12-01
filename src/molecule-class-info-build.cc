@@ -430,11 +430,46 @@ molecule_class_info_t::globularize() {
 void
 molecule_class_info_t::reduce(coot::protein_geometry *geom_p) {
 
+   make_backup();
    mmdb::Manager *mol = atom_sel.mol;
-   coot::reduce r(mol);
+   coot::reduce r(mol, imol_no);
    r.add_geometry(geom_p);
    r.add_hydrogen_atoms();
    update_molecule_after_additions();
    update_symmetry();
 
+}
+
+void
+molecule_class_info_t::switch_HIS_protonation(coot::residue_spec_t res_spec) {
+
+   mmdb::Residue *residue_p = get_residue(res_spec);
+   if (residue_p) {
+
+      mmdb::Atom *at = 0;
+      mmdb::Atom *atom_1 = 0;
+      mmdb::Atom *atom_2 = 0;
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int i=0; i<n_residue_atoms; i++) {
+	 mmdb::Atom *res_at = residue_atoms[i];
+	 std::string atom_name = res_at->name;
+	 if (atom_name == " HD1")
+	    atom_1 = res_at;
+	 if (atom_name == " HE2")
+	    atom_2 = res_at;
+      }
+      
+      if (atom_1 && ! atom_2) at = atom_1;
+      if (atom_2 && ! atom_1) at = atom_2;
+
+      if (at) {
+	 make_backup();
+	 coot::reduce r(atom_sel.mol, imol_no);
+	 r.switch_his_protonation(residue_p, at);
+	 update_molecule_after_additions();
+	 update_symmetry();
+      }
+   }
 }

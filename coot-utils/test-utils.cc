@@ -435,7 +435,8 @@ int test_reduce() {
    mol->ReadCoorFile(file_name.c_str());
    // doing this 100 times takes 6s - might be quicker if I don't keep adding Hs
    // to the same residues :-)
-   coot::reduce r(mol);
+   int imol = 0; // dummy
+   coot::reduce r(mol, imol);
    r.add_hydrogen_atoms();
    mol->WritePDBASCII("reduced.pdb");
    delete mol;

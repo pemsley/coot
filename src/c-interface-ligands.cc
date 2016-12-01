@@ -3551,6 +3551,29 @@ coot_contact_dots_for_ligand_py(int imol, PyObject *ligand_spec_py) {
 }
 #endif
 
+#ifdef USE_PYTHON
+void switch_HIS_protonation_py(int imol, PyObject *residue_spec_py) {
+
+   coot::residue_spec_t res_spec = residue_spec_from_py(residue_spec_py);
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].switch_HIS_protonation(res_spec);
+   }
+   graphics_draw();
+}
+#endif // USE_PYTHON
+
+#ifdef USE_GUILE
+void switch_HIS_protonation_scm(int imol, SCM residue_spec_scm) {
+
+   coot::residue_spec_t res_spec = residue_spec_from_scm(residue_spec_scm);
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].switch_HIS_protonation(res_spec);
+   }
+   graphics_draw();
+}
+#endif // USE_GUILE
+
+
 void coot_reduce(int imol) {
 
    if (is_valid_model_molecule(imol)) {

@@ -3061,6 +3061,7 @@ public:        //                      public
    void set_user_defined_colour_indices(const std::vector<std::pair<coot::atom_spec_t, int> > &cis);
    void clear_user_defined_atom_colours();
 
+   void switch_HIS_protonation(coot::residue_spec_t res_spec);
    void reduce(coot::protein_geometry *geom_p);
 
 };
