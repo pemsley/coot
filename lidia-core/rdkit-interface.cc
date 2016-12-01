@@ -2361,7 +2361,7 @@ coot::remove_Hs_and_clean(const RDKit::ROMol &rdkm, bool set_aromaticity) {
 int
 coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
 
-   bool debug = true;
+   bool debug = false;
 
    int icurrent_conf = 0; // the conformer number from which the
                           // distance matrix is generated.  Should this
