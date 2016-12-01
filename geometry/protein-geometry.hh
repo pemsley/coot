@@ -504,6 +504,7 @@ namespace coot {
       }
       dict_atom() {}; // for resize(0);
       void add_pos(int pos_type, const std::pair<bool, clipper::Coord_orth> &model_pos_ideal);
+      bool is_hydrogen() const;
       friend std::ostream& operator<<(std::ostream &s, const dict_atom &at);
    };
    std::ostream& operator<<(std::ostream &s, const dict_atom &at);
@@ -716,6 +717,10 @@ namespace coot {
       bool is_bond_order_data_only() const { return filled_with_bond_order_data_only_flag; }
 
       std::vector<std::string> neighbours(const std::string &atom_name, bool allow_hydrogen_neighbours_flag) const;
+      // same thing with indexing into the atom_info vector.  No protection
+      // for out of bounds atom_idx value (i.e. atom_idx must be valid).
+      std::vector<unsigned int> neighbours(unsigned atom_idx,
+					   bool allow_hydrogen_neighbours_flag) const;
 
       // return "" on not found
       std::string get_bond_type(const std::string &name_1, const std::string &name_2) const;

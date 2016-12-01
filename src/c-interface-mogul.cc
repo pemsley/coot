@@ -32,6 +32,7 @@
 
 #include "graphics-info.h"
 #include "c-interface.h"
+#include "c-interface-generic-objects.h"
 #include "cc-interface-mogul.hh"
 
 #include "interface.h"

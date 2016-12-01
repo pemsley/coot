@@ -2308,7 +2308,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       }
 
 
-      // 
+      //
       draw_crosshairs_maybe();
 
       // 
@@ -3779,12 +3779,13 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       break;
       
    case GDK_c:
-   case GDK_C:
       if (graphics_info_t::control_is_pressed) {
 	 g.copy_active_atom_molecule();
       } else {
-	 g.draw_crosshairs_flag = 1 - g.draw_crosshairs_flag; 
-	 g.crosshairs_text();
+	 if (! graphics_info_t::shift_is_pressed) {
+	    g.draw_crosshairs_flag = 1 - g.draw_crosshairs_flag;
+	    g.crosshairs_text();
+	 }
       }
       g.graphics_draw();
       break;

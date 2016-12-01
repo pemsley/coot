@@ -1,4 +1,4 @@
-/* src/c-interface-widgets.h
+/* src/c-interface-widgets.hh
  * 
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Copyright 2007 by Paul Emsley

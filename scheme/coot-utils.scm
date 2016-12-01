@@ -3112,7 +3112,7 @@
 		   (if curl-info
 		       (let ((v1 (assoc 'content-length-download curl-info))
 			     (v2 (assoc 'size-download           curl-info)))
-			 (if (list v1)
+			 (if (list v1)  ;; Do I mean "list?"?
 			     (if (list v2)
 				 (let ((f (/ (cdr v2) (cdr v1))))
 				   (format #t "~3,2f% " (* f 100))

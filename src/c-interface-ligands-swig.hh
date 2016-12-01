@@ -129,14 +129,19 @@ bool comprised_of_organic_set_p(const std::string &rn);
 void coot_all_atom_contact_dots(int imol);
 
 #ifdef USE_PYTHON
-void
-coot_contact_dots_for_ligand_py(int imol, PyObject *ligand_spec);
+void coot_contact_dots_for_ligand_py(int imol, PyObject *ligand_spec);
+// change HE2 to HD1 and vice versa
+void switch_HIS_protonation_py(int imol, PyObject *residue_spec);
 #endif
+
+// this is not a ligand function - it does not belong here.
+void coot_reduce(int imol);
 
 
 #ifdef USE_GUILE
-void
-coot_contact_dots_for_ligand_scm(int imol, SCM ligand_spec_scm);
+void coot_contact_dots_for_ligand_scm(int imol, SCM residue_spec_scm);
+// change HE2 to HD1 and vice versa
+void switch_HIS_protonation_scm(int imol, SCM residue_spec_scm);
 #endif
 
 
