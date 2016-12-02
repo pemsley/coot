@@ -55,6 +55,11 @@ namespace coot {
       };
       atom_overlaps_dots_container_t() {}
       std::map<std::string, std::vector<dot_t> > dots;
+      void add(const atom_overlaps_dots_container_t &other) {
+	 std::map<std::string, std::vector<dot_t> >::const_iterator it;
+	 for (it=other.dots.begin(); it!=other.dots.end(); it++)
+	    dots[it->first].insert(dots[it->first].begin(),it->second.begin(), it->second.end());
+      }
       spikes_t clashes;
       double score() const {
 	 // std::map<std::string, std::vector<clipper::Coord_orth> >::const_iterator it;
@@ -144,8 +149,10 @@ namespace coot {
 
       // first is yes/no, second is if the H is on the ligand.
       // also allow water to be return true values.
+      static
       std::pair<bool, bool> is_h_bond_H_and_acceptor(mmdb::Atom *ligand_atom,
-						     mmdb::Atom *env_atom) const;
+						     mmdb::Atom *env_atom,
+						     int udd_h_bond_type_handle);
 
       hb_t get_h_bond_type(mmdb::Atom *at);
       // store the results of a contact search.
@@ -166,11 +173,13 @@ namespace coot {
 					 const clipper::Coord_orth &probe_pos,
 					 const clipper::Coord_orth &pt_idx_at) const;
       // for all-atom contacts
+      static
       bool is_inside_another_atom_to_which_its_bonded(int atom_idx,
 						      mmdb::Atom *at,
 						      const clipper::Coord_orth &pt_on_surface,
 						      const std::vector<int> &bonded_neighb_indices,
-						      mmdb::Atom **atom_selection) const;
+						      mmdb::Atom **atom_selection,
+						      const std::vector<double> &neighb_atom_radius);
       bool is_inside_an_env_atom_to_which_its_bonded(int idx,
 						     const std::vector<int> &bonded_neighb_indices,
 						     mmdb::Atom **env_residue_atoms,
@@ -180,7 +189,8 @@ namespace coot {
       void mark_donors_and_acceptors_central_residue(int udd_h_bond_type_handle);
       void mark_donors_and_acceptors_for_neighbours(int udd_h_bond_type_handle);
       // return a contact-type and a colour
-      std::pair<std::string, std::string> overlap_delta_to_contact_type(double delta, bool is_h_bond) const;
+      static std::pair<std::string, std::string> overlap_delta_to_contact_type(double delta, bool is_h_bond);
+      // can throw std::exception
       const dictionary_residue_restraints_t &get_dictionary(mmdb::Residue *r, unsigned int idx) const;
       // where BONDED here means bonded/1-3-angle/ring related
       enum atom_interaction_type { CLASHABLE, BONDED, IGNORED };
@@ -210,7 +220,7 @@ namespace coot {
 								    mmdb::realtype min_dist,
 								    mmdb::realtype max_dist,
 								    bool make_vdw_surface);
-
+      
    public:
       // we need mol to use UDDs to mark the HB donors and acceptors (using coot-h-bonds.hh)
       atom_overlaps_container_t(mmdb::Residue *res_central_in,
@@ -239,6 +249,67 @@ namespace coot {
       atom_overlaps_dots_container_t contact_dots_for_ligand();
       atom_overlaps_dots_container_t all_atom_contact_dots(double dot_density = 0.5,
 							   bool make_vdw_surface = false);
+
+      // public because thread -> static
+      //
+      static
+      atom_overlaps_dots_container_t
+      contacts_for_atom(int iat,
+			mmdb::Atom **atom_selection,
+			const std::map<int, std::vector<int> > &contact_map,
+			const std::map<int, std::vector<int> > &bonded_map,
+			const std::vector<double> &neighb_atom_radius,
+			int udd_h_bond_type_handle,
+			double probe_radius,
+			double dot_density_in,
+			double clash_spike_length,
+			bool make_vdw_surface);
+      static
+      // void
+      atom_overlaps_dots_container_t
+      contacts_for_atoms(int iat_start, int iat_end,
+			mmdb::Atom **atom_selection,
+			const std::map<int, std::vector<int> > &contact_map,
+			const std::map<int, std::vector<int> > &bonded_map,
+			const std::vector<double> &neighb_atom_radius,
+			int udd_h_bond_type_handle,
+			double probe_radius,
+			double dot_density_in,
+			double clash_spike_length,
+			bool make_vdw_surface);
+      
+
+      static void contacts_for_atom_test();
+      static void contacts_for_atom_test_1(int iat);
+      static void contacts_for_atom_test_2(int iat, mmdb::Atom **atom_selection);
+      static void contacts_for_atom_test_3(int iat,
+					   mmdb::Atom **atom_selection,
+					   const std::map<int, std::vector<int> > &contact_map);
+      static void contacts_for_atom_test_4(int iat,
+					   mmdb::Atom **atom_selection,
+					   const std::map<int, std::vector<int> > &contact_map,
+					   const std::map<int, std::vector<int> > &bonded_map);
+      static void contacts_for_atom_test_6(int iat,
+					   mmdb::Atom **atom_selection,
+					   const std::map<int, std::vector<int> > &contact_map,
+					   const std::map<int, std::vector<int> > &bonded_map,
+					   double probe_radius, double dot_density_in);
+      static void contacts_for_atom_test_7(int iat,
+					   mmdb::Atom **atom_selection,
+					   const std::map<int, std::vector<int> > &contact_map,
+					   const std::map<int, std::vector<int> > &bonded_map,
+					   const std::vector<double> &neighb_atom_radius,
+					   double probe_radius, double dot_density_in);
+      static void contacts_for_atom_test_all(int iat,
+					     mmdb::Atom **atom_selection,
+					     const std::map<int, std::vector<int> > &contact_map,
+					     const std::map<int, std::vector<int> > &bonded_map,
+					     const std::vector<double> &neighb_atom_radius,
+					     int udd_h_bond_type_handle,
+					     double probe_radius,
+					     double dot_density_in,
+					     double clash_spike_length,
+					     bool make_vdw_surface);
 
    };
 
