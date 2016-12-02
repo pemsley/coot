@@ -126,6 +126,8 @@ void open_coords_dialog() {
 }
 
 
+#include "c-interface-widgets.hh"
+
 void
 open_cif_dictionary_file_selector_dialog() {
    
@@ -140,38 +142,47 @@ open_cif_dictionary_file_selector_dialog() {
 
       if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
 
+	 GtkWidget *aa_hbutton_box = gtk_dialog_get_action_area(GTK_DIALOG(fileselection));
+	 if (GTK_IS_HBUTTON_BOX(aa_hbutton_box))
+	    add_cif_dictionary_selector_molecule_selector(fileselection, aa_hbutton_box);
+
       } else {
 
-	 // classic
+	 // classic (I'm in the club, Moet Chandon in my cup...)
 
-	 // use action area for molecule selection
-	 //
 	 GtkWidget *aa_hbox = GTK_FILE_SELECTION(fileselection)->action_area;
-
-	 if (aa_hbox) {
-	    GtkWidget *frame = gtk_frame_new("Select Mol");
-	    GtkWidget *optionmenu = gtk_option_menu_new();
-	    g_object_set_data_full(G_OBJECT(fileselection),
-				   "cif_dictionary_file_selector_molecule_select_option_menu",
-				   gtk_widget_ref(optionmenu),
-				   (GDestroyNotify) gtk_widget_unref);
-
-	    GtkSignalFunc callback_func =
-	       GTK_SIGNAL_FUNC(cif_dictionary_molecule_menu_item_select);
-
-	    graphics_info_t g;
-	    int imol = first_coords_imol();
-	    fill_option_menu_with_coordinates_options_for_dictionary(optionmenu);
-
-	    gtk_box_pack_start(GTK_BOX(aa_hbox), frame, FALSE, TRUE, 0);
-	    gtk_container_add(GTK_CONTAINER(frame),optionmenu);
-	    gtk_widget_show(optionmenu);
-	    gtk_widget_show(frame);
-	 
-	 }
+	 if (aa_hbox)
+	    add_cif_dictionary_selector_molecule_selector(fileselection, aa_hbox);
       }
       gtk_widget_show(fileselection);
    }
+}
+
+void
+add_cif_dictionary_selector_molecule_selector(GtkWidget *fileselection, // maybe it's a chooser
+					      GtkWidget *aa_hbox) {
+
+   // if we came from a chooser, aa_hbox is an hbutton_box
+   // if we came from a selector, aa_hbox is an hbox.
+
+   GtkWidget *frame = gtk_frame_new("Select Mol");
+   GtkWidget *optionmenu = gtk_option_menu_new();
+   g_object_set_data_full(G_OBJECT(fileselection),
+			  "cif_dictionary_file_selector_molecule_select_option_menu",
+			  gtk_widget_ref(optionmenu),
+			  (GDestroyNotify) gtk_widget_unref);
+
+   GtkSignalFunc callback_func =
+      GTK_SIGNAL_FUNC(cif_dictionary_molecule_menu_item_select);
+
+   graphics_info_t g;
+   int imol = first_coords_imol();
+   fill_option_menu_with_coordinates_options_for_dictionary(optionmenu);
+
+   gtk_box_pack_start(GTK_BOX(aa_hbox), frame, FALSE, TRUE, 0);
+   gtk_container_add(GTK_CONTAINER(frame),optionmenu);
+   gtk_widget_show(optionmenu);
+   gtk_widget_show(frame);
 }
 
 void

@@ -85,7 +85,7 @@
 (if (defined? 'coot-main-menubar)
     (let ((menu (coot-menubar-menu "Ligand")))
       (add-simple-coot-menu-menuitem 
-       menu "Isolated dots for this ligand"
+       menu "Isolated Molprobity dots for this ligand"
        (lambda ()
         (using-active-atom
 	   (contact-score-ligand aa-imol (list aa-chain-id aa-res-no aa-ins-code)))))))

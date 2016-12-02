@@ -138,6 +138,9 @@ namespace coot {
 	 }
 	 return r;
       }
+      bool operator !=(const atom_spec_t &matcher) const {
+	 return ! operator==(matcher);
+      }
 #endif 
 
 #ifndef SWIG

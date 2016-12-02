@@ -938,6 +938,12 @@ std::string
 coot::dictionary_residue_restraints_t::type_energy(const std::string &atom_name) const {
 
    std::string r = "";
+
+   // If you are reading this, then you are looking in a dictionary looked up from an index
+   // that is out of bounds.
+   // 
+   // std::cout << "dictionary_has " << atom_info.size() << " atoms" << std::endl;
+   
    for (unsigned int iat=0; iat<atom_info.size(); iat++) {
       if (false)
 	 std::cout << "comparing :" << atom_name << ": with :" << atom_info[iat].atom_id_4c
@@ -3974,6 +3980,28 @@ coot::dictionary_residue_restraints_t::in_same_ring(const std::string &atom_name
 
    bool match = false;
    std::vector<std::vector<std::string> > ring_list = get_ligand_ring_list();
+
+   for (unsigned int i=0; i<ring_list.size(); i++) {
+      unsigned int n_match = 0;
+      for (unsigned int j=0; j<ring_list[i].size(); j++) {
+	 if (ring_list[i][j] == atom_name_1)
+	    n_match++;
+	 if (ring_list[i][j] == atom_name_2)
+	    n_match++;
+      }
+      if (n_match == 2) {
+	 match = true;
+	 break;
+      }
+   }
+   return match;
+}
+
+bool
+coot::dictionary_residue_restraints_t::in_same_ring(const std::string &atom_name_1, const std::string &atom_name_2,
+						    const std::vector<std::vector<std::string> > &ring_list) const {
+
+   bool match = false;
 
    for (unsigned int i=0; i<ring_list.size(); i++) {
       unsigned int n_match = 0;

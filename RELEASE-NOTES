@@ -1,7 +1,9 @@
 
------
 
   Pre-release 0.8.8
+
+  o FEATURE: intermediate-atoms movement works with stick for atom positional 
+             restraint rather than scaled all-atom movement
 
   o FEATURE: CPK atom colouring
 
@@ -12,12 +14,18 @@
 
   o FEATURE: intermediate-atoms pepflip enabled
 
-  o CHANGE: Jigggle fit now works by masking the out the map for neighbouring 
+  o CHANGE: Jiggle fit now works by masking the out the map for neighbouring 
             residues
+  
+  o CHANGE: Jiggle fit now works by masking the out the map for neighbouring 
+            residues
+
   
 ------
 
   Release 0.8.7
+
+  o FEATURE: intermediate-atoms pepflip enabled
 
   o FEATURE: Lidia now has canvas scaling
 

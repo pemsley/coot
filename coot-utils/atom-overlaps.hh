@@ -38,12 +38,30 @@ namespace coot {
 	 std::string type;
 	 std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > positions;
 	 const std::pair<clipper::Coord_orth, clipper::Coord_orth> &operator[](unsigned int idx) {
-	    return positions[idx];}
+	    return positions[idx];
+	 }
 	 unsigned int size() const { return positions.size(); }
       };
       atom_overlaps_dots_container_t() {}
       std::map<std::string, std::vector<clipper::Coord_orth> > dots;
-      spikes_t spikes;
+      spikes_t clashes;
+      double score() const {
+	 std::map<std::string, std::vector<clipper::Coord_orth> >::const_iterator it;
+	 // do these match the types in overlap_delta_to_contact_type()?
+	 double r = 0;
+	 it = dots.find("H-bond");
+	 if (it != dots.end()) r += it->second.size();
+	 it = dots.find("wide-contact");
+	 if (it != dots.end()) r += 0.1 * it->second.size();
+	 it = dots.find("close-contact");
+	 if (it != dots.end()) r -= 0.0 * it->second.size();
+	 it = dots.find("small-overlap");
+	 if (it != dots.end()) r -= 0.1 * it->second.size();
+	 it = dots.find("big-overlap");
+	 if (it != dots.end()) r -= it->second.size();
+	 r -= clashes.size();
+	 return r;
+      }
    };
 
    class atom_overlap_t {
@@ -76,6 +94,9 @@ namespace coot {
    class atom_overlaps_container_t {
 
       void init();
+      void init_for_all_atom();
+      enum overlap_mode_t { CENTRAL_RESIDUE, ALL_ATOM };
+      overlap_mode_t overlap_mode;
       mmdb::Manager *mol;
       bool have_dictionary; // for central residue (or should it be all residues?)
       mmdb::Residue *res_central;
@@ -89,7 +110,11 @@ namespace coot {
       std::map<mmdb::Atom *, double> central_residue_atoms_vdw_radius_map; // ligand atoms
       std::map<mmdb::Atom *, double> neighbour_atoms_vdw_radius_map; // neighbouring atoms
       dictionary_residue_restraints_t central_residue_dictionary;
+      // for ligand and environment neighbours
       std::vector<dictionary_residue_restraints_t> neighb_dictionaries;
+      // for all atom
+      std::map<std::string, dictionary_residue_restraints_t> dictionary_map;
+
       double get_vdw_radius_ligand_atom(mmdb::Atom *at);
       double get_vdw_radius_neighb_atom(mmdb::Atom *at, unsigned int idx_neighb_res);
       double get_vdw_radius_neighb_atom(int idx_neighb_atom) const;
@@ -101,8 +126,8 @@ namespace coot {
       void add_residue_neighbour_index_to_neighbour_atoms();
       std::vector<double> neighb_atom_radius;
 
-      // first is yes/no, second is if the H is on the ligand
-      // 
+      // first is yes/no, second is if the H is on the ligand.
+      // also allow water to be return true values.
       std::pair<bool, bool> is_h_bond_H_and_acceptor(mmdb::Atom *ligand_atom,
 						     mmdb::Atom *env_atom) const;
 
@@ -124,10 +149,44 @@ namespace coot {
       bool is_inside_another_ligand_atom(int idx,
 					 const clipper::Coord_orth &probe_pos,
 					 const clipper::Coord_orth &pt_idx_at) const;
+      // for all-atom contacts
+      bool is_inside_another_atom_to_which_its_bonded(int atom_idx,
+						      mmdb::Atom *at,
+						      const clipper::Coord_orth &pt_on_surface,
+						      const std::vector<int> &boned_neighb_indices,
+						      mmdb::Atom **atom_selection) const;
       double clash_spike_length;
       void mark_donors_and_acceptors();
+      void mark_donors_and_acceptors_central_residue(int udd_h_bond_type_handle);
+      void mark_donors_and_acceptors_for_neighbours(int udd_h_bond_type_handle);
       std::string overlap_delta_to_contact_type(double delta, bool is_h_bond) const;
-      
+      const dictionary_residue_restraints_t &get_dictionary(mmdb::Residue *r, unsigned int idx) const;
+      // where BONDED here means bonded/1-3-angle/ring related
+      enum atom_interaction_type { CLASHABLE, BONDED, IGNORED };
+      atom_interaction_type
+      bonded_angle_or_ring_related(mmdb::Manager *mol,
+				   mmdb::Atom *at_1,
+				   mmdb::Atom *at_2,
+				   bool exclude_mainchain_also,
+				   std::map<std::string, std::vector<std::pair<std::string, std::string> > > &bonded_neighbours,
+				   std::map<std::string, std::vector<std::vector<std::string> > > &ring_list_map);
+      bool are_bonded_residues(mmdb::Residue *res_1, mmdb::Residue *res_2) const;
+      bool in_same_ring(mmdb::Atom *at_1, mmdb::Atom *at_2,
+			      std::map<std::string, std::vector<std::vector<std::string> > > &ring_list_map) const;
+//       bool in_same_ring(const std::string &atom_name_1,
+// 			const std::string &atom_name_2,
+// 			const std::vector<std::vector<std::string> > &ring_list) const;
+      std::vector<std::vector<std::string> > phe_ring_list() const;
+      std::vector<std::vector<std::string> > his_ring_list() const;
+      std::vector<std::vector<std::string> > trp_ring_list() const;
+      std::vector<std::vector<std::string> > pro_ring_list() const;
+
+      atom_overlaps_dots_container_t all_atom_contact_dots_internal(double dot_density_in,
+								    mmdb::Manager *mol,
+								    int i_sel_hnd_1,
+								    int i_sel_hnd_2,
+								    mmdb::realtype min_dist,
+								    mmdb::realtype max_dist);
 
    public:
       // we need mol to use UDDs to mark the HB donors and acceptors (using coot-h-bonds.hh)
@@ -139,18 +198,24 @@ namespace coot {
 				mmdb::Residue *neighbour,
 				mmdb::Manager *mol,
 				const protein_geometry *geom_p_in);
-      // this one for contact dots
+      // this one for contact dots (around central ligand)
       atom_overlaps_container_t(mmdb::Residue *res_central_in,
 				const std::vector<mmdb::Residue *> &neighbours_in,
 				mmdb::Manager *mol,
 				const protein_geometry *geom_p_in,
 				double clash_spike_length_in,
 				double probe_radius_in = 0.25);
+      atom_overlaps_container_t(mmdb::Manager *mol_in,
+				const protein_geometry *geom_p_in,
+				double clash_spike_length_in = 0.5,
+				double probe_radius_in = 0.25);
 
       std::vector<atom_overlap_t> overlaps;
       void make_overlaps();
       void contact_dots_for_overlaps() const; // old
-      atom_overlaps_dots_container_t contact_dots();
+      atom_overlaps_dots_container_t contact_dots_for_ligand();
+      atom_overlaps_dots_container_t all_atom_contact_dots(double dot_density = 0.5);
+
    };
 
 }

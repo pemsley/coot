@@ -392,7 +392,7 @@ int test_atom_overlaps() {
      if (residue_p) {
 	std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
 	coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, &geom, 0.5, 0.25);
-	coot::atom_overlaps_dots_container_t c = overlaps.contact_dots();
+	coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand();
      } else {
        std::cout << "Can't find residue" << spec << std::endl;
      }
@@ -400,6 +400,46 @@ int test_atom_overlaps() {
      std::cout << "Failed to read " << file_name << std::endl;
    }
    return status;
+}
+
+int test_all_atom_overlaps() {
+
+   int status = 0;
+   coot::protein_geometry geom;
+   geom.init_standard();
+   geom.try_dynamic_add("824", 1);
+   geom.try_dynamic_add("MG", 1);
+
+   mmdb::Manager *mol = new mmdb::Manager;
+   std::string file_name = "1x8b-all-H-no-water.pdb";
+   // file_name = "3-atoms.pdb";
+   coot::residue_spec_t spec("A", 901, "");
+
+   int read_status = mol->ReadCoorFile(file_name.c_str());
+
+   if (read_status == mmdb::Error_NoError) {
+      coot::atom_overlaps_container_t overlaps(mol, &geom, 0.5, 0.5);
+      coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(0.5);
+   }
+
+   delete mol;
+   return status;
+}
+
+#include "reduce.hh"
+
+int test_reduce() {
+
+   mmdb::Manager *mol = new mmdb::Manager;
+   std::string file_name = "1x8b.pdb";
+   mol->ReadCoorFile(file_name.c_str());
+   // doing this 100 times takes 6s - might be quicker if I don't keep adding Hs
+   // to the same residues :-)
+   coot::reduce r(mol);
+   r.add_hydrogen_atoms();
+   mol->WritePDBASCII("reduced.pdb");
+   delete mol;
+   return 1;
 }
 
 
@@ -430,8 +470,14 @@ int main(int argv, char **argc) {
    if (0)
       test_least_squares_fit();
    
-   if (1)
+   if (0)
       test_atom_overlaps();
+
+   if (0)
+      test_all_atom_overlaps();
+   
+   if (1)
+      test_reduce();
    
    return 0;
 }
