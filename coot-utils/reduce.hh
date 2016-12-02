@@ -67,14 +67,14 @@ namespace coot {
 			 const std::string &at_name_3,
 			 torsion_info_t torsion_1, torsion_info_t torsion_2,
 			 mmdb::Residue *residue_p);
-      void add_sp3_hydrogens(const std::string &H_at_name_1,
-			     const std::string &H_at_name_2,
-			     const std::string &at_name_1,
-			     const std::string &at_name_2,
-			     const std::string &at_name_3,
-			     double bond_length,
-			     double angle_between_Hs, // in degrees
-			     mmdb::Residue *residue_p);
+      void add_2_sp3_hydrogens(const std::string &H_at_name_1,
+			       const std::string &H_at_name_2,
+			       const std::string &at_name_1,
+			       const std::string &at_name_2,
+			       const std::string &at_name_3,
+			       double bond_length,
+			       double angle_between_Hs, // in degrees
+			       mmdb::Residue *residue_p);
       void add_tetrahedral_hydrogen(const std::string &H_at_name,
 				    const std::string &central_name,
 				    const std::string &neighb_at_name_1,
@@ -121,41 +121,82 @@ namespace coot {
 		    double tor_inital, // deg
 		    mmdb::Residue *residue_p);
       // both of the above wrap this:
-      void add_xH_H(const std::string &H_name,
-		    const std::string &at_name_1,
-		    const std::string &at_name_2,
-		    const std::string &at_name_3,
-		    double bl,
-		    double angle,      // deg
-		    double tor_inital, // deg
-		    mmdb::Residue *residue_p);
+      std::vector<mmdb::Atom *> add_xH_H(const std::string &H_name,
+					 const std::string &at_name_1,
+					 const std::string &at_name_2,
+					 const std::string &at_name_3,
+					 double bl,
+					 double angle,      // deg
+					 double tor_inital, // deg
+					 mmdb::Residue *residue_p);
 
+      void add_OH_H(const std::string &H_at_name,
+		    const std::string &first_neighb,
+		    const std::vector<std::string> &second_neighb_vec,
+		    const std::map<std::string, std::vector<std::string> > &third_neighb_vec,
+		    double bond_length,
+		    double ang_deg,
+		    double torsion_deg,
+		    mmdb::Residue *residue_p);
+      
+      
       void add_his_ring_C_Hs(mmdb::Residue *residue_p);
-      void add_his_ring_H(const std::string &H_name,
-			  const std::string &at_name_1,
-			  const std::string &at_name_2,
-			  const std::string &at_name_3,
+      std::vector<mmdb::Atom *> add_his_ring_H(const std::string &H_name,
+					       const std::string &at_name_1,
+					       const std::string &at_name_2,
+					       const std::string &at_name_3,
+					       double bl,
+					       mmdb::Residue *residue_p);
+
+      void add_his_ring_H(const std::string &H_at_name,
+			  const std::string &first_neigh,
+			  const std::vector<std::string> second_neighb_vec,
 			  double bl,
 			  mmdb::Residue *residue_p);
 
+      void add_aromatic_hydrogen(const std::string &H_at_name,
+				 const std::string &first_neigh,
+				 const std::vector<std::string> second_neighb_vec,
+				 double bl,
+				 mmdb::Residue *residue_p);
+
       mmdb::Manager *mol;
+      int imol; // for dictionary lookups.
       protein_geometry *geom_p;
       void add_riding_hydrogens(); // non-spin-search
-      void add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *residue_prev_p);
+      bool add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *residue_prev_p);
       void add_main_chain_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *residue_prev_p,
 				    bool is_gly=false);
       void add_main_chain_H(mmdb::Residue *residue_p, mmdb::Residue *residue_prev_p);
       void add_main_chain_HA(mmdb::Residue *residue_p);
-      void add_hydrogen_atom(std::string atom_name, clipper::Coord_orth &pos,
-			     mmdb::realtype bf, mmdb::Residue *residue_p);
+      mmdb::Atom *add_hydrogen_atom(std::string atom_name, clipper::Coord_orth &pos,
+				    mmdb::realtype bf, mmdb::Residue *residue_p);
       // score hypotheses and convert to the best scoring one.
       void find_best_his_protonation_orientation(mmdb::Residue *residue_p);
       void delete_atom_by_name(const std::string &at_name, mmdb::Residue *residue_p);
+      void hydrogen_placement_by_dictionary(mmdb::Residue *residue_p);
+      void hydrogen_placement_by_dictionary(const dictionary_residue_restraints_t &rest,
+					    mmdb::Residue *residue_p);
+      void place_hydrogen_by_connected_atom_energy_type(unsigned int iat,
+							unsigned int iat_neighb,
+							const dictionary_residue_restraints_t &rest,
+							mmdb::Residue *residue_p);
+      void place_hydrogen_by_connected_2nd_neighbours(unsigned int iat,
+						      unsigned int iat_neighb,
+						      const dictionary_residue_restraints_t &rest,
+						      mmdb::Residue *residue_p);
+      
    public:
-      reduce(mmdb::Manager *mol_in) { mol = mol_in;}
+      reduce(mmdb::Manager *mol_in, int imol_in) {
+	 mol = mol_in;
+	 imol = imol_in;
+      }
       void add_hydrogen_atoms(); // changes mol
       void delete_hydrogen_atoms();
       void add_geometry(protein_geometry *geom_p_in) { geom_p = geom_p_in; }
+      // change HE2 to HD1 and vice versa
+      void switch_his_protonation(mmdb::Residue *residue_p, mmdb::Atom *current_H_atom);
+      
    };
 
 }

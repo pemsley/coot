@@ -2695,7 +2695,7 @@ graphics_info_t::set_edit_backbone_adjustments(GtkWidget *widget) {
 
 }
 
-// static 
+// static
 void
 graphics_info_t::edit_backbone_peptide_changed_func(GtkAdjustment *adj, GtkWidget *window) { 
    
@@ -2754,7 +2754,7 @@ graphics_info_t::edit_backbone_peptide_changed_func(GtkAdjustment *adj, GtkWidge
 					  "resname", label, 1, "inscode", "chainid");
 	    vp.push_back(phipsi1);
 	 }
-	 if (pp.second.first > -200) { 
+	 if (pp.second.first > -200) {
 	    label = int_to_string(n_atom_p->GetSeqNum());
 	    label += n_atom_p->GetChainID();
 	    coot::util::phi_psi_t phipsi2(clipper::Util::rad2d(pp.second.first), 

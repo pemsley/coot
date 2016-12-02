@@ -105,6 +105,7 @@ coot_wrap_guile_pre.cc:      $(top_srcdir)/src/c-interface.h    \
                              $(top_srcdir)/src/coot.i           \
                              $(top_srcdir)/src/lbg-interface.hh \
                              $(top_srcdir)/src/c-interface-ligands-swig.hh \
+			     $(top_srcdir)/src/c-interface-generic-objects.h \
                              $(top_srcdir)/src/sdf-interface.hh \
                              $(top_srcdir)/src/cfc.hh \
                              $(top_srcdir)/src/cmtz-interface.hh \
@@ -326,6 +327,7 @@ coot_bin_SOURCES = \
         dots-representation.hh   \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
+	draw-generic-display-objects.cc \
 	flev.hh			 \
 	flev.cc                  \
 	generic-display-object.hh\

@@ -72,6 +72,7 @@
 #include "graphics-info.h"
 #include "interface.h"
 #include "c-interface.h"
+#include "c-interface-generic-objects.h"
 #include "c-interface-gtk-widgets.h"
 #include "c-interface-preferences.h"
 #include "cc-interface.hh"

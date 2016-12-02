@@ -1,4 +1,4 @@
-/* src/c-interface.cc
+/* src/c-interface-test.cc
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Copyright 2008, 2009 by The University of Oxford
@@ -116,6 +116,7 @@
 
 
 #include "c-interface.h"
+#include "c-interface-generic-objects.h"
 #include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
 #include "c-interface-ligands.hh"

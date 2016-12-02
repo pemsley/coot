@@ -973,7 +973,45 @@ coot::dictionary_residue_restraints_t::neighbours(const std::string &atom_name, 
       }
    }
    return n;
-} 
+}
+
+std::vector<unsigned int>
+coot::dictionary_residue_restraints_t::neighbours(unsigned int idx, bool allow_hydrogen_neighbours_flag) const {
+
+   std::vector<unsigned int> v;
+   std::string atom_name = atom_info[idx].atom_id_4c;
+   for (unsigned int i=0; i<bond_restraint.size(); i++) { 
+      if (bond_restraint[i].atom_id_1() == atom_name) {
+	 const std::string &other_atom_name = bond_restraint[i].atom_id_2();
+	 if (allow_hydrogen_neighbours_flag || ! is_hydrogen(other_atom_name)) {
+	    // what is the index of atom_id_2?  - bleugh.  This shows
+	    // that the dictionary store should work with atom indices, not
+	    // atom names (i.e. do it like RDKit does it).
+	    for (unsigned int iat=0; iat<atom_info.size(); iat++) {
+	       if (atom_info[iat].atom_id_4c == other_atom_name) {
+		  v.push_back(iat);
+		  break;
+	       }
+	    }
+	 }
+      }
+      if (bond_restraint[i].atom_id_2() == atom_name) {
+	 const std::string &other_atom_name = bond_restraint[i].atom_id_1();
+	 if (allow_hydrogen_neighbours_flag || ! is_hydrogen(other_atom_name)) {
+	    // what is the index of atom_id_2?  - bleugh.  This shows
+	    // that the dictionary store should work with atom indices, not
+	    // atom names (i.e. do it like RDKit does it).
+	    for (unsigned int iat=0; iat<atom_info.size(); iat++) {
+	       if (atom_info[iat].atom_id_4c == other_atom_name) {
+		  v.push_back(iat);
+		  break;
+	       }
+	    }
+	 }
+      }
+   }
+   return v;
+}
 
 
 
@@ -2913,6 +2951,17 @@ coot::dictionary_residue_restraints_t::is_hydrogen(const std::string &atom_name)
 	 }
       }
    }
+   return r;
+}
+
+bool
+coot::dict_atom::is_hydrogen() const {
+
+   bool r = false;
+   if (type_symbol == "H" ||
+       type_symbol == " H" ||
+       type_symbol == "D")
+      r = true;
    return r;
 }
 

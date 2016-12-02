@@ -32,6 +32,7 @@
 
 #include "graphics-info.h"
 #include "c-interface.h"
+#include "c-interface-generic-objects.h"
 #include "cc-interface.hh"
 #include "c-interface-scm.hh"
 #include "c-interface-python.hh"
