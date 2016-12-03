@@ -1705,6 +1705,7 @@ molecule_class_info_t::delete_hydrogens(){  // return status of atoms deleted (0
       
       if (atoms_to_be_deleted.size() > 0) {
 
+	 make_backup();
 	 for (unsigned int iat=0; iat<atoms_to_be_deleted.size(); iat++) {
 	    delete atoms_to_be_deleted[iat];
 	    atoms_to_be_deleted[iat] = NULL;

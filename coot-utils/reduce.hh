@@ -14,9 +14,9 @@ namespace coot {
 
       class torsion_info_t {
       public:
-	 torsion_info_t(const std::string &at_name_1_in,
-			const std::string &at_name_2_in,
-			const std::string &at_name_3_in,
+	 torsion_info_t(const std::string &at_name_1_in, // CA 
+			const std::string &at_name_2_in, // CB
+			const std::string &at_name_3_in, // CG1 (i.e. other way round)
 			double bond_length_in,
 			double angle_deg_in,
 			double torsion_deg_in) {
@@ -27,9 +27,34 @@ namespace coot {
 	    angle_deg = angle_deg_in;
 	    torsion_deg = torsion_deg_in;
 	 }
-	 std::string at_name_1;
-	 std::string at_name_2;
-	 std::string at_name_3;
+	 // can throw a std::runtime_error
+	 torsion_info_t(const std::string &first_neighb,
+			const std::vector<std::string> &second_neighb_vec,
+			const std::map<std::string, std::vector<std::string> > &third_neighbour_map,
+			double bl,
+			double angle_in,
+			double torsion_in) {
+	    if (second_neighb_vec.size() > 0) {
+	       std::string second = second_neighb_vec[0];
+	       std::map<std::string, std::vector<std::string> >::const_iterator it;
+	       it = third_neighbour_map.find(second);
+	       if (it != third_neighbour_map.end()) {
+		  std::vector<std::string> thirds = it->second;
+		  if (thirds.size() > 0) {
+		     const std::string &third = thirds[0];
+		     at_name_1 = third;
+		     at_name_2 = second;
+		     at_name_3 = first_neighb;
+		     angle_deg = angle_in;
+		     torsion_deg = torsion_in;
+		     bond_length = bl;
+		  }
+	       }
+	    }
+	 }
+	 std::string at_name_1; // CA (not sure if this atom ordering is sensible)
+	 std::string at_name_2; // CB
+	 std::string at_name_3; // CG1
 	 double bond_length;
 	 double angle_deg;
 	 double torsion_deg;
@@ -74,7 +99,16 @@ namespace coot {
 			       const std::string &at_name_3,
 			       double bond_length,
 			       double angle_between_Hs, // in degrees
-			       mmdb::Residue *residue_p);
+			       mmdb::Residue *residue_p,
+			       bool choose_only_farthest_position=false);
+      void add_2_sp3_hydrogens(const std::string &H_at_name_1,
+			       const std::string &H_at_name_2,
+			       const std::string &first_neighb,
+			       const std::vector<std::string> &second_neighb_vec,
+			       double bond_length,
+			       double angle_between_Hs, // in degrees
+			       mmdb::Residue *residue_p,
+			       bool choose_only_farthest_position=false);
       void add_tetrahedral_hydrogen(const std::string &H_at_name,
 				    const std::string &central_name,
 				    const std::string &neighb_at_name_1,
@@ -82,6 +116,11 @@ namespace coot {
 				    const std::string &neighb_at_name_3,
 				    double bond_length,
 				    mmdb::Residue *residue_p);
+      void add_tetrahedral_hydrogen(const std::string &H_at_name,
+				    const std::string &first_neighb,
+				    const std::vector<std::string> &second_neighb_vec,
+				    double bl, mmdb::Residue *residue_p);
+      
       void add_aromatic_hydrogen(const std::string &H_at_name,
 				 const std::string &neighb_at_name_1,
 				 const std::string &neighb_at_name_2, // add to this
@@ -94,6 +133,14 @@ namespace coot {
 			       const std::string &at_name_3,
 			       double bl_amino, // angle is 120, torsions are 180 and 0
 			       mmdb::Residue *residue_p);
+      void add_amino_hydrogens(const std::string &H_at_name_1,
+			       const std::string &H_at_name_2,
+			       const std::string &first_neighb,
+			       const std::vector<std::string> &second_neighb_vec,
+			       const std::map<std::string, std::vector<std::string> > &third_neighb_vec,
+			       double bl_amino,
+			       mmdb::Residue *residue_p);
+
       void add_guanidinium_hydrogens(mmdb::Residue *residue_p);
       void add_trp_indole_hydrogens(mmdb::Residue *residue_p);
       void add_trp_indole_hydrogen(const std::string &H_name,
@@ -167,8 +214,22 @@ namespace coot {
       bool add_riding_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *residue_prev_p);
       void add_main_chain_hydrogens(mmdb::Residue *residue_p, mmdb::Residue *residue_prev_p,
 				    bool is_gly=false);
-      void add_main_chain_H(mmdb::Residue *residue_p, mmdb::Residue *residue_prev_p);
       void add_main_chain_HA(mmdb::Residue *residue_p);
+      void add_main_chain_H(mmdb::Residue *residue_p, mmdb::Residue *residue_prev_p);
+      // like above but for ligands (both second neighbours come from ligand residue)
+      void add_amino_single_H(const std::string &H_at_name,
+			      const std::string &first_neighb,
+			      const std::vector<std::string> &second_neighb_vec,
+			      double bl,
+			      mmdb::Residue *residue_p);
+      // add H to second atom by bisection
+      void add_amino_single_H(const std::string H_at_name,
+			      const std::string &at_name_1,
+			      const std::string &at_name_2,
+			      const std::string &at_name_3,
+			      double bl,
+			      mmdb::Residue *residue_p);
+
       mmdb::Atom *add_hydrogen_atom(std::string atom_name, clipper::Coord_orth &pos,
 				    mmdb::realtype bf, mmdb::Residue *residue_p);
       // score hypotheses and convert to the best scoring one.
@@ -177,14 +238,37 @@ namespace coot {
       void hydrogen_placement_by_dictionary(mmdb::Residue *residue_p);
       void hydrogen_placement_by_dictionary(const dictionary_residue_restraints_t &rest,
 					    mmdb::Residue *residue_p);
-      void place_hydrogen_by_connected_atom_energy_type(unsigned int iat,
-							unsigned int iat_neighb,
-							const dictionary_residue_restraints_t &rest,
-							mmdb::Residue *residue_p);
+      // return a list of names of placed atoms
+      std::vector<std::string>
+      place_hydrogen_by_connected_atom_energy_type(unsigned int iat,
+						   unsigned int iat_neighb,
+						   const dictionary_residue_restraints_t &rest,
+						   mmdb::Residue *residue_p);
+      // which calls
+      std::vector<std::string>
+      place_hydrogen_by_connected_atom_energy_type(const std::string &energy_type,
+						   unsigned int iat,
+						   unsigned int iat_neighb,
+						   const dictionary_residue_restraints_t &rest,
+						   mmdb::Residue *residue_p);
       void place_hydrogen_by_connected_2nd_neighbours(unsigned int iat,
 						      unsigned int iat_neighb,
 						      const dictionary_residue_restraints_t &rest,
 						      mmdb::Residue *residue_p);
+
+      // atoms that are connected to the second neighbour that aren't the first neighbour.
+      //
+      std::map<std::string, std::vector<std::string> > 
+      third_neighbour_map(const std::string &first_neighb,
+			  const std::vector<std::string> second_neighb_vec,
+			  const dictionary_residue_restraints_t &rest) const;
+
+      std::string get_other_H_name(const std::string &first_neighb,
+				   const std::string &H_at_name,
+				   const dictionary_residue_restraints_t &dict) const;
+      std::vector<std::string> get_other_H_names(const std::string &first_neighb,
+						 const std::string &H_at_name,
+						 const dictionary_residue_restraints_t &dict) const;
       
    public:
       reduce(mmdb::Manager *mol_in, int imol_in) {

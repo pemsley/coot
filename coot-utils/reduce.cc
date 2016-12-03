@@ -472,6 +472,32 @@ coot::reduce::add_main_chain_H(mmdb::Residue *residue_p, mmdb::Residue *residue_
    }
 }
 
+// like above but for ligands (both second neighbours come from ligand residue)
+void
+coot::reduce::add_amino_single_H(const std::string &H_at_name,
+				 const std::string &first_neighb,
+				 const std::vector<std::string> &second_neighb_vec,
+				 double bl,
+				 mmdb::Residue *residue_p) {
+
+   if (second_neighb_vec.size() == 2) {
+      add_amino_single_H(H_at_name, second_neighb_vec[0], first_neighb, second_neighb_vec[1], bl, residue_p);
+   }
+}
+
+// add H to second atom by bisection
+void
+coot::reduce::add_amino_single_H(const std::string H_at_name,
+				 const std::string &at_name_1,
+				 const std::string &at_name_2,
+				 const std::string &at_name_3,
+				 double bl,
+				 mmdb::Residue *residue_p) {
+
+   add_trp_indole_hydrogen(H_at_name, at_name_1, at_name_2, at_name_3, bl, residue_p);
+}
+
+
 // The H on the CA
 void
 coot::reduce::add_main_chain_HA(mmdb::Residue *residue_p) {
@@ -625,6 +651,11 @@ coot::reduce::add_methyl_Hs(const std::string &at_name_1,  // HB1 (for example)
 }
 
 
+// choose_only_farthest_position is default false.
+// if choose_only_farthest_position is true, only add the H_at_name_1 and
+// add it in the position that is furthese from the averge of the second neighbours
+// e.g. the single H on the N of piperidine.
+//
 void
 coot::reduce::add_2_sp3_hydrogens(const std::string &H_at_name_1,
 				  const std::string &H_at_name_2,
@@ -633,7 +664,8 @@ coot::reduce::add_2_sp3_hydrogens(const std::string &H_at_name_1,
 				  const std::string &at_name_3,
 				  double bond_length,
 				  double angle_between_Hs, // in degrees
-				  mmdb::Residue *residue_p) {
+				  mmdb::Residue *residue_p,
+				  bool choose_only_farthest_position) {
 
    std::vector<std::string> alt_confs = util::get_residue_alt_confs(residue_p);
    for (unsigned int i=0; i<alt_confs.size(); i++) {
@@ -646,8 +678,20 @@ coot::reduce::add_2_sp3_hydrogens(const std::string &H_at_name_1,
 	    position_pair_by_bisection(at_1, at_2, at_3, bond_length,
 				       clipper::Util::d2rad(angle_between_Hs));
 	 mmdb::realtype bf = at_2->tempFactor;
-	 add_hydrogen_atom(H_at_name_1, Hs.first,  bf, residue_p);
-	 add_hydrogen_atom(H_at_name_2, Hs.second, bf, residue_p);
+	 if (! choose_only_farthest_position) {
+	    add_hydrogen_atom(H_at_name_1, Hs.first,  bf, residue_p);
+	    add_hydrogen_atom(H_at_name_2, Hs.second, bf, residue_p);
+	 } else {
+	    clipper::Coord_orth at_pos_1 = co(at_1);
+	    clipper::Coord_orth at_pos_3 = co(at_3);
+	    clipper::Coord_orth mp(0.5 * (at_pos_1 + at_pos_3));
+	    double d1 = (Hs.first).lengthsq();
+	    double d2 = (Hs.second).lengthsq();
+	    if (d1 > d2)
+	       add_hydrogen_atom(H_at_name_1, Hs.first, bf, residue_p);
+	    else
+	       add_hydrogen_atom(H_at_name_1, Hs.second,  bf, residue_p);
+	 }
       } else {
 	 if (!alt_confs[i].empty()) {
 	    std::cout << "Residue " << residue_spec_t(residue_p) << " " << residue_p->GetResName()
@@ -659,6 +703,29 @@ coot::reduce::add_2_sp3_hydrogens(const std::string &H_at_name_1,
       }
    }
 }
+
+// choose_only_farthest_position is default false.
+// if choose_only_farthest_position is true, only add the H_at_name_1 and
+// add it in the position that is furthese from the averge of the second neighbours
+//
+void
+coot::reduce::add_2_sp3_hydrogens(const std::string &H_at_name_1,
+				  const std::string &H_at_name_2,
+				  const std::string &first_neighb,
+				  const std::vector<std::string> &second_neighb_vec,
+				  double bond_length,
+				  double angle_between_Hs, // in degrees
+				  mmdb::Residue *residue_p,
+				  bool choose_only_farthest_position) {
+
+   if (second_neighb_vec.size() == 2) {
+      const std::string &second_1 = second_neighb_vec[0];
+      const std::string &second_2 = second_neighb_vec[1];
+      add_2_sp3_hydrogens(H_at_name_1, H_at_name_2, second_1, first_neighb, second_2, bond_length,
+			  angle_between_Hs, residue_p, choose_only_farthest_position);
+   }
+}
+
 
 
 void
@@ -686,7 +753,32 @@ coot::reduce::add_tetrahedral_hydrogen(const std::string &H_at_name,
    }
 }
 
+void
+coot::reduce::add_tetrahedral_hydrogen(const std::string &H_at_name,
+				       const std::string &first_neighb,
+				       const std::vector<std::string> &second_neighb_vec,
+				       double bl, mmdb::Residue *residue_p) {
 
+   if (false) {
+      std::cout << "atom " << first_neighb << " has " << second_neighb_vec.size()
+		<< " neighbours" << std::endl;
+      for (unsigned int i=0; i<second_neighb_vec.size(); i++)
+	 std::cout << "   " << second_neighb_vec[i] << std::endl;
+   }
+
+   if (second_neighb_vec.size() == 3)
+      add_tetrahedral_hydrogen(H_at_name, first_neighb,
+			       second_neighb_vec[0],
+			       second_neighb_vec[1],
+			       second_neighb_vec[2],
+			       bl, residue_p);
+   else
+      std::cout << "WARNING:: atom " << first_neighb << " had " << second_neighb_vec.size()
+		<< " neighbours  (not 3)" << std::endl;
+}
+
+
+// This does alphiphatic hydrogens just as well, also aldehyde hydrogens
 void
 coot::reduce::add_aromatic_hydrogen(const std::string &H_at_name,
 				    const std::string &neighb_at_name_1,
@@ -750,6 +842,30 @@ coot::reduce::add_amino_hydrogens(const std::string &H_at_name_1,
       }
    }
 }
+
+void
+coot::reduce::add_amino_hydrogens(const std::string &H_at_name_1,
+				  const std::string &H_at_name_2,
+				  const std::string &first_neighb,
+				  const std::vector<std::string> &second_neighb_vec,
+				  const std::map<std::string, std::vector<std::string> > &third_neighb_map,
+				  double bl_amino,
+				  mmdb::Residue *residue_p) {
+
+   if (second_neighb_vec.size() > 0) {
+      std::string second = second_neighb_vec[0];
+      std::map<std::string, std::vector<std::string> >::const_iterator it;
+      it = third_neighb_map.find(second);
+      if (it != third_neighb_map.end()) {
+	 std::vector<std::string> thirds = it->second;
+	 if (thirds.size() > 0) {
+	    const std::string &third = thirds[0];
+	    add_amino_hydrogens(H_at_name_1, H_at_name_2, first_neighb, second, third, bl_amino, residue_p);
+	 }
+      }
+   }
+}
+
 
 void
 coot::reduce::add_guanidinium_hydrogens(mmdb::Residue *residue_p) {
@@ -1140,19 +1256,24 @@ void
 coot::reduce::hydrogen_placement_by_dictionary(const dictionary_residue_restraints_t &rest,
 					       mmdb::Residue *residue_p) {
 
+   std::vector<std::string> done_atom_name_list; // so that we don't add some atoms twice
    for (unsigned int iat=0; iat<rest.atom_info.size(); iat++) {
       if (rest.atom_info[iat].is_hydrogen()) {
 	 const std::string &H_at_name = rest.atom_info[iat].atom_id_4c;
-	 // to which atom is this hydrogen connected?
-	 std::vector<unsigned int> neighbs = rest.neighbours(iat, false);
-	 if (neighbs.size() == 1) {
-	    // what else would it be?
-	    const unsigned int &iat_neighb = neighbs[0];
-	    const std::string &energy_type = rest.atom_info[iat_neighb].type_energy;
-	    if (! energy_type.empty()) {
-	       place_hydrogen_by_connected_atom_energy_type(iat, iat_neighb, rest, residue_p);
-	    } else {
-	       place_hydrogen_by_connected_2nd_neighbours(iat, iat_neighb, rest, residue_p);
+	 if (std::find(done_atom_name_list.begin(), done_atom_name_list.end(), H_at_name) == done_atom_name_list.end()) {
+	    // to which atom is this hydrogen connected?
+	    std::vector<unsigned int> neighbs = rest.neighbours(iat, false);
+	    if (neighbs.size() == 1) {
+	       // what else would it be?
+	       const unsigned int &iat_neighb = neighbs[0];
+	       const std::string &energy_type = rest.atom_info[iat_neighb].type_energy;
+	       if (! energy_type.empty()) {
+		  std::vector<std::string> v = 
+		     place_hydrogen_by_connected_atom_energy_type(iat, iat_neighb, rest, residue_p);
+		  done_atom_name_list.insert(done_atom_name_list.end(), v.begin(), v.end());
+	       } else {
+		  place_hydrogen_by_connected_2nd_neighbours(iat, iat_neighb, rest, residue_p);
+	       }
 	    }
 	 }
       }
@@ -1160,13 +1281,31 @@ coot::reduce::hydrogen_placement_by_dictionary(const dictionary_residue_restrain
 
 }
 
-void
+// return a list of placed atoms (sometimes, e.g. NH2) placing one atom means placing two of them
+//
+std::vector<std::string>
 coot::reduce::place_hydrogen_by_connected_atom_energy_type(unsigned int iat,
 							   unsigned int iat_neighb,
 							   const dictionary_residue_restraints_t &rest,
 							   mmdb::Residue *residue_p) {
 
+   std::vector<std::string> v;
    const std::string &energy_type = rest.atom_info[iat_neighb].type_energy;
+   return place_hydrogen_by_connected_atom_energy_type(energy_type, iat, iat_neighb, rest, residue_p);
+
+}
+
+
+// return a list of placed atoms (sometimes, e.g. NH2) placing one atom means placing two of them
+//
+std::vector<std::string>
+coot::reduce::place_hydrogen_by_connected_atom_energy_type(const std::string &energy_type,
+							   unsigned int iat,
+							   unsigned int iat_neighb,
+							   const dictionary_residue_restraints_t &rest,
+							   mmdb::Residue *residue_p) {
+
+   std::vector<std::string> v;
    const std::string &H_at_name = rest.atom_info[iat].atom_id_4c;
    if (false)
       std::cout << " hydrogen atom " << H_at_name << " in residue type " << rest.residue_info.comp_id
@@ -1174,35 +1313,134 @@ coot::reduce::place_hydrogen_by_connected_atom_energy_type(unsigned int iat,
    const std::string &first_neighb = rest.atom_info[iat_neighb].atom_id_4c;
    std::vector<std::string> second_neighb_vec = rest.neighbours(first_neighb, false);
 
-   std::cout << "second_neighb_vec.size() " << second_neighb_vec.size() << std::endl;
-   for (unsigned int ii=0; ii<second_neighb_vec.size(); ii++) {
-      std::cout << " second_neighb_vec: " << ii << " " << second_neighb_vec[ii] << std::endl;
+   if (false) {
+      std::cout << " place_hydrogen_by_connected_atom_energy_type second_neighb_vec.size() "
+		<< second_neighb_vec.size() << std::endl;
+      for (unsigned int ii=0; ii<second_neighb_vec.size(); ii++)
+	 std::cout << " place_hydrogen_by_connected_atom_energy_type second_neighb_vec: "
+		   << ii << " " << second_neighb_vec[ii] << std::endl;
    }
    
    if (energy_type == "CR16" || energy_type == "CR15") {
       double bl = 1.08;
       add_aromatic_hydrogen(H_at_name, first_neighb, second_neighb_vec, bl, residue_p);
+      v.push_back(H_at_name);
    }
-   if (energy_type == "NR15") {
+   if (energy_type == "NR15" || energy_type == "NR16") {
       double bl = 0.86;
       add_his_ring_H(H_at_name, first_neighb, second_neighb_vec, bl, residue_p);
+      v.push_back(H_at_name);
    }
-   if (energy_type == "OH1") {
-      // needs a spin-search
-      double bl_oh    = 0.84;
-      std::map<std::string, std::vector<std::string> > third_neighb_map;
-      for (unsigned int i=0; i<second_neighb_vec.size(); i++) {
-	 std::vector<std::string> nn = rest.neighbours(second_neighb_vec[i], false);
-	 // erase/remove?
-	 for (unsigned int j=0; j<nn.size(); j++) {
-	    if (nn[j] != first_neighb)
-	       third_neighb_map[second_neighb_vec[i]].push_back(nn[j]);
-	 }
+   if (energy_type == "NH2" || energy_type == "C2") {
+      double bl_amino = 1.01; // makes refmac mon lib
+      double bl = 0.97;
+      if (energy_type == "NH2") bl = bl_amino;
+      std::string H_at_other = get_other_H_name(first_neighb, H_at_name, rest);
+      if (! H_at_other.empty()) {
+	 std::map<std::string, std::vector<std::string> >
+	    tnm = third_neighbour_map(first_neighb, second_neighb_vec, rest);
+	 add_amino_hydrogens(H_at_name, H_at_other, first_neighb, second_neighb_vec, tnm,
+			     bl, residue_p);
+	 v.push_back(H_at_name);
+	 v.push_back(H_at_other);
       }
-      add_OH_H(H_at_name, first_neighb, second_neighb_vec, third_neighb_map,
-	       bl_oh, 109.5, 180, residue_p);
+   }
+   if (energy_type == "CH1") {
+      // sp3 carbon with one H atom
+      double bl = 0.97;
+      add_tetrahedral_hydrogen(H_at_name, first_neighb, second_neighb_vec, bl, residue_p);
+      v.push_back(H_at_name);
+   }
+   if (energy_type == "CH2") {
+      // sp3 carbon with 2 H atoms
+      double bl = 0.97;
+      std::string H_at_other = get_other_H_name(first_neighb, H_at_name, rest);
+      if (! H_at_other.empty()) {
+	 double angle_between_Hs = 107.0; // we could get this from the dictionary
+	 add_2_sp3_hydrogens(H_at_name, H_at_other, first_neighb, second_neighb_vec,
+			     bl, angle_between_Hs, residue_p);
+	 v.push_back(H_at_name);
+	 v.push_back(H_at_other);
+      }
+   }
+   if (energy_type == "NT1") {
+      // H atom on sp3 nitrogen connected to 2 sp3 carbon atoms, e.g. in piperidine
+      // choose equitorial orientation, not axial.  Which means, build both hydrogen positions
+      // and chose the one that is furthest from the average position of the second neighbours.
+      //
+      double angle_between_Hs = 107.0; // we could get this from the dictionary
+      double bl = 0.86;
+      bool choose_only_farthest_position = true; // we find two H positions, choose
+	                                         // the one farthest from the 2nd neighbs.
+      add_2_sp3_hydrogens(H_at_name, "Hdum", first_neighb, second_neighb_vec,
+			  bl, angle_between_Hs, residue_p, choose_only_farthest_position);
    }
 
+   if (energy_type == "OH1") {
+      // needs a spin-search
+      double bl_oh = 0.84;
+      std::map<std::string, std::vector<std::string> > tnm = third_neighbour_map(first_neighb, second_neighb_vec, rest);
+      add_OH_H(H_at_name, first_neighb, second_neighb_vec, tnm,
+	       bl_oh, 109.5, 180, residue_p);
+      v.push_back(H_at_name);
+   }
+
+   if (energy_type == "CH3" || energy_type == "NT3") {
+      std::vector<std::string> H_other = get_other_H_names(H_at_name, first_neighb, rest);
+      if (H_other.size() == 2) {
+	 std::map<std::string, std::vector<std::string> > tnm =
+	    third_neighbour_map(first_neighb, second_neighb_vec, rest);
+	 double bl = 0.97;
+	 double ang = 109;
+	 double tor = 180;
+	 torsion_info_t tor_info(first_neighb, second_neighb_vec, tnm, bl, ang, tor); // fn reverses order
+	 add_methyl_Hs(H_at_name, H_other[0], H_other[1], tor_info, residue_p);
+	 v.push_back(H_at_name);
+	 v.push_back(H_other[0]);
+	 v.push_back(H_other[1]);
+      }
+   }
+
+   if (energy_type == "NH1") {
+      // e.g. H on the N in an amino acid peptide
+      double bl = 0.86;
+      add_amino_single_H(H_at_name, first_neighb, second_neighb_vec, bl, residue_p);
+      v.push_back(H_at_name);
+   }
+
+   if (energy_type == "C1") {
+      // aldehyde Hydrogen atom
+      if (second_neighb_vec.size() == 2) {
+	 double bl = 0.97;
+	 add_aromatic_hydrogen(H_at_name, second_neighb_vec[0], first_neighb, second_neighb_vec[1],
+			       bl, residue_p);
+	 v.push_back(H_at_name);
+      }
+   }
+
+   if (v.empty()) {
+      std::cout << "FAIL: ------------------------------ " << first_neighb << " "
+		<< energy_type << std::endl;
+   }
+   return v;
+}
+
+// atoms that are connected to the second neighbour that aren't the first neighbour.
+//
+std::map<std::string, std::vector<std::string> > 
+coot::reduce::third_neighbour_map(const std::string &first_neighb,
+				  const std::vector<std::string> second_neighb_vec,
+				  const coot::dictionary_residue_restraints_t &rest) const {
+
+   std::map<std::string, std::vector<std::string> > m;
+   for (unsigned int i=0; i<second_neighb_vec.size(); i++) {
+      std::vector<std::string> nn = rest.neighbours(second_neighb_vec[i], false);
+      for (unsigned int j=0; j<nn.size(); j++) {
+	 if (nn[j] != first_neighb)
+	    m[second_neighb_vec[i]].push_back(nn[j]);
+      }
+   }
+   return m;
 }
 
 void
@@ -1217,4 +1455,24 @@ coot::reduce::place_hydrogen_by_connected_2nd_neighbours(unsigned int iat,
    // something complicated
    for (unsigned int iat=0; iat<neighbs.size(); iat++) {
    }
+}
+
+// return a null string on failure.
+//
+std::string
+coot::reduce::get_other_H_name(const std::string &first_neighb,
+			       const std::string &H_at_name,
+			       const dictionary_residue_restraints_t &dict) const {
+
+   return dict.get_other_H_name(H_at_name);
+}
+
+// return a empty vector on failure
+//
+std::vector<std::string>
+coot::reduce::get_other_H_names(const std::string &H_at_name,
+				const std::string &first_neighb,
+				const dictionary_residue_restraints_t &dict) const {
+
+   return dict.get_other_H_names(H_at_name);
 }
