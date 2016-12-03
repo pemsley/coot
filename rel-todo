@@ -1,6 +1,25 @@
 
    For Release 0.8.8
 
+   o Fetch molecule: acyclovir, (edit?) click Apply
+ 
+   o Pyrogen chirality: Using CCD files as input, make a dictionary and 
+     either validate the coordinates (dictionary vs actual) chiral volume 
+     or minimize and validate coordinates
+
+   o Pyrogen: add command line arguement to keep the coordinates from the 
+     input CCD/mmcif file
+
+   o when mutating to MSE atoms become HETATMs.
+
+   o Ligand Builder -> Open [cif dictionary] Failures
+     110 (butyl carboxylic acid - Oxygen formal charge)
+
+   o Fix make check on test chemical features
+
+   o comp_id C23, look at the thumbnail, or residue->2D, see that the Oxygen atom
+     seems chiral - is the bond the wrong way round?
+
    o like sphere refine, but onlyn select residues that are linearly related to
      the active residue (Hmm... how to do the GUI for this...?)
      -- Chris Oubridge
@@ -26,8 +45,6 @@
      Clear generic display objects -> not all graphics objects are removed - they 
      should be.
 
-   o Fetch molecule: acyclovir, (edit?) click Apply
- 
    o make a cootaneer test
 
    o write a test that runs findwaters

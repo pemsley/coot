@@ -786,6 +786,11 @@ namespace coot {
       bool is_connected_to_donor(const std::string &H_at_name_4c,
 				 const energy_lib_t &energy_lib) const;
 
+      // return an empty string on failure
+      std::string get_other_H_name(const std::string &H_at_name) const;
+      // return an empty vector on failure
+      std::vector<std::string> get_other_H_names(const std::string &H_at_name) const;
+
       friend std::ostream& operator<<(std::ostream &s, const dictionary_residue_restraints_t &rest);
 
 #ifdef HAVE_CCP4SRS

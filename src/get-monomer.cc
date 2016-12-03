@@ -159,6 +159,9 @@ int get_monomer_from_dictionary(const std::string &comp_id,
       move_molecule_to_screen_centre_internal(imol);
       graphics_draw();
       istat = imol;
+   } else {
+      std::cout << "WARNING:: Null mol from mol_from_dictionary() with comp_id " << comp_id << " "
+		<< idealised_flag << std::endl;
    }
    return istat;
 }
