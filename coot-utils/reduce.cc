@@ -724,6 +724,9 @@ coot::reduce::add_2_sp3_hydrogens(const std::string &H_at_name_1,
       const std::string &second_2 = second_neighb_vec[1];
       add_2_sp3_hydrogens(H_at_name_1, H_at_name_2, second_1, first_neighb, second_2, bond_length,
 			  angle_between_Hs, residue_p, choose_only_farthest_position);
+   } else {
+      std::cout << "WARNING:: in add_2_sp3_hydrogens() second_neighb_vec.size() is "
+		<< second_neighb_vec.size() << std::endl;
    }
 }
 
@@ -1321,17 +1324,19 @@ coot::reduce::place_hydrogen_by_connected_atom_energy_type(const std::string &en
 	 std::cout << " place_hydrogen_by_connected_atom_energy_type second_neighb_vec: "
 		   << ii << " " << second_neighb_vec[ii] << std::endl;
    }
-   
+
    if (energy_type == "CR16" || energy_type == "CR15") {
       double bl = 1.08;
       add_aromatic_hydrogen(H_at_name, first_neighb, second_neighb_vec, bl, residue_p);
       v.push_back(H_at_name);
    }
+
    if (energy_type == "NR15" || energy_type == "NR16") {
       double bl = 0.86;
       add_his_ring_H(H_at_name, first_neighb, second_neighb_vec, bl, residue_p);
       v.push_back(H_at_name);
    }
+
    if (energy_type == "NH2" || energy_type == "C2") {
       double bl_amino = 1.01; // makes refmac mon lib
       double bl = 0.97;
@@ -1346,12 +1351,14 @@ coot::reduce::place_hydrogen_by_connected_atom_energy_type(const std::string &en
 	 v.push_back(H_at_other);
       }
    }
+
    if (energy_type == "CH1") {
       // sp3 carbon with one H atom
       double bl = 0.97;
       add_tetrahedral_hydrogen(H_at_name, first_neighb, second_neighb_vec, bl, residue_p);
       v.push_back(H_at_name);
    }
+
    if (energy_type == "CH2") {
       // sp3 carbon with 2 H atoms
       double bl = 0.97;
@@ -1364,23 +1371,49 @@ coot::reduce::place_hydrogen_by_connected_atom_energy_type(const std::string &en
 	 v.push_back(H_at_other);
       }
    }
+
    if (energy_type == "NT1") {
+
+      bool choose_only_farthest_position = true; // we find two H positions, choose
+	                                         // the one farthest from the 2nd neighbs.
+
       // H atom on sp3 nitrogen connected to 2 sp3 carbon atoms, e.g. in piperidine
       // choose equitorial orientation, not axial.  Which means, build both hydrogen positions
       // and chose the one that is furthest from the average position of the second neighbours.
       //
       double angle_between_Hs = 107.0; // we could get this from the dictionary
       double bl = 0.86;
-      bool choose_only_farthest_position = true; // we find two H positions, choose
-	                                         // the one farthest from the 2nd neighbs.
-      add_2_sp3_hydrogens(H_at_name, "Hdum", first_neighb, second_neighb_vec,
+      std::string H_at_other = "Hdum";
+      add_2_sp3_hydrogens(H_at_name, H_at_other, first_neighb, second_neighb_vec,
 			  bl, angle_between_Hs, residue_p, choose_only_farthest_position);
+      v.push_back(H_at_name);
+   }
+
+   if (energy_type == "NT2") {
+      double angle_between_Hs = 107.0; // we could get this from the dictionary
+      double bl = 0.86;
+      std::string H_at_other = get_other_H_name(first_neighb, H_at_name, rest);
+      add_2_sp3_hydrogens(H_at_name, H_at_other, first_neighb, second_neighb_vec,
+			  bl, angle_between_Hs, residue_p);
+      v.push_back(H_at_name);
+      v.push_back(H_at_other);
    }
 
    if (energy_type == "OH1") {
       // needs a spin-search
       double bl_oh = 0.84;
-      std::map<std::string, std::vector<std::string> > tnm = third_neighbour_map(first_neighb, second_neighb_vec, rest);
+      std::map<std::string, std::vector<std::string> > tnm =
+	 third_neighbour_map(first_neighb, second_neighb_vec, rest);
+      add_OH_H(H_at_name, first_neighb, second_neighb_vec, tnm,
+	       bl_oh, 109.5, 180, residue_p);
+      v.push_back(H_at_name);
+   }
+
+   if (energy_type == "SH1") {
+      // needs a spin-search
+      double bl_oh = 1.2; // 1.33 from ener lib.
+      std::map<std::string, std::vector<std::string> > tnm =
+	 third_neighbour_map(first_neighb, second_neighb_vec, rest);
       add_OH_H(H_at_name, first_neighb, second_neighb_vec, tnm,
 	       bl_oh, 109.5, 180, residue_p);
       v.push_back(H_at_name);
@@ -1421,7 +1454,8 @@ coot::reduce::place_hydrogen_by_connected_atom_energy_type(const std::string &en
 
    if (v.empty()) {
       std::cout << "FAIL: ------------------------------ " << first_neighb << " "
-		<< energy_type << std::endl;
+		<< energy_type << " for comp_id " << rest.residue_info.comp_id
+		<< std::endl;
    }
    return v;
 }
