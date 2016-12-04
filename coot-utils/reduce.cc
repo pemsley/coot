@@ -1,4 +1,5 @@
 
+#include <algorithm>
 #include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 #include "reduce.hh"
