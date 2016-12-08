@@ -1,6 +1,10 @@
 
    For Release 0.8.8
 
+   o coot-probe: does it work with symmetry?
+
+   o coot-reduce: does it work with symmetry? (this is more tricky and less useful)
+
    o Fetch molecule: acyclovir, (edit?) click Apply
  
    o Pyrogen chirality: Using CCD files as input, make a dictionary and 
