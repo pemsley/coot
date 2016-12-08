@@ -7,6 +7,10 @@
 
    o Fetch molecule: acyclovir, (edit?) click Apply
  
+   o lidia: import 
+   CC(C)C[C@@H](C[C@H](O)[C@H](Cc1ccccc1)NC(=O)COc2c(C)cccc2C)NC(=O)c3cccc(N)c3
+     change amine for meta to para - SMILES updates but drawing doesn't.
+ 
    o Pyrogen chirality: Using CCD files as input, make a dictionary and 
      either validate the coordinates (dictionary vs actual) chiral volume 
      or minimize and validate coordinates

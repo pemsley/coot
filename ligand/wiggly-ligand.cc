@@ -135,11 +135,12 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
       // urgh.  What to do...
       non_const_non_ring_torsions = non_const_torsions;
    } 
-
-   std::cout << "This residue has " << m_torsions.size() << " defined non-H torsions "
-	     << "of which " << n_non_const_torsionable << " are (non-const) rotatable and "
-	     << non_const_non_ring_torsions.size() << " are non-const and non-ring torsions"
-	     << std::endl;
+ 
+   if (false)
+      std::cout << "This residue has " << m_torsions.size() << " defined non-H torsions "
+	        << "of which " << n_non_const_torsionable << " are (non-const) rotatable and "
+	        << non_const_non_ring_torsions.size() << " are non-const and non-ring torsions"
+	        << std::endl;
    
    if (debug_wiggly_ligands) {
       for (unsigned int itor=0; itor<m_torsions.size(); itor++) { 
@@ -378,10 +379,11 @@ coot::wligand::install_simple_wiggly_ligand(protein_geometry *pg,
       non_const_non_ring_torsions = non_const_torsions;
    } 
 
-   std::cout << "This residue has " << m_torsions.size() << " defined non-H torsions "
-	     << "of which " << n_non_const_torsionable << " are (non-const) rotatable and "
-	     << non_const_non_ring_torsions.size() << " are non-const and non-ring torsions"
-	     << std::endl;
+   if (false)
+      std::cout << "This residue has " << m_torsions.size() << " defined non-H torsions "
+	        << "of which " << n_non_const_torsionable << " are (non-const) rotatable and "
+	        << non_const_non_ring_torsions.size() << " are non-const and non-ring torsions"
+	        << std::endl;
    
    if (debug_wiggly_ligands) {
       for (unsigned int itor=0; itor<m_torsions.size(); itor++) { 
@@ -617,8 +619,6 @@ coot::wligand::get_monomer_type_from_mol(const coot::minimol::molecule &mol) con
       if (ifound)
 	 break;
    }
-
-   std::cout << "get_monomer type: " << r << std::endl;
    return r;
 }
 

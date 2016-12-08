@@ -1264,19 +1264,27 @@ coot::reduce::hydrogen_placement_by_dictionary(const dictionary_residue_restrain
    for (unsigned int iat=0; iat<rest.atom_info.size(); iat++) {
       if (rest.atom_info[iat].is_hydrogen()) {
 	 const std::string &H_at_name = rest.atom_info[iat].atom_id_4c;
+	 // if we haven't done it already...
 	 if (std::find(done_atom_name_list.begin(), done_atom_name_list.end(), H_at_name) == done_atom_name_list.end()) {
-	    // to which atom is this hydrogen connected?
-	    std::vector<unsigned int> neighbs = rest.neighbours(iat, false);
-	    if (neighbs.size() == 1) {
-	       // what else would it be?
-	       const unsigned int &iat_neighb = neighbs[0];
-	       const std::string &energy_type = rest.atom_info[iat_neighb].type_energy;
-	       if (! energy_type.empty()) {
-		  std::vector<std::string> v = 
-		     place_hydrogen_by_connected_atom_energy_type(iat, iat_neighb, rest, residue_p);
-		  done_atom_name_list.insert(done_atom_name_list.end(), v.begin(), v.end());
-	       } else {
-		  place_hydrogen_by_connected_2nd_neighbours(iat, iat_neighb, rest, residue_p);
+	    // skip the HO3' on RNA and DNA. I could instead test for presence/position of next
+	    // residue, but this easier and will be correct for most cases.
+	    if ((rest.residue_info.group == "DNA" || rest.residue_info.group == "RNA") &&
+		H_at_name == "HO3'") {
+	       continue;
+	    } else {
+	       // to which atom is this hydrogen connected?
+	       std::vector<unsigned int> neighbs = rest.neighbours(iat, false);
+	       if (neighbs.size() == 1) {
+		  // what else would it be?
+		  const unsigned int &iat_neighb = neighbs[0];
+		  const std::string &energy_type = rest.atom_info[iat_neighb].type_energy;
+		  if (! energy_type.empty()) {
+		     std::vector<std::string> v =
+			place_hydrogen_by_connected_atom_energy_type(iat, iat_neighb, rest, residue_p);
+		     done_atom_name_list.insert(done_atom_name_list.end(), v.begin(), v.end());
+		  } else {
+		     place_hydrogen_by_connected_2nd_neighbours(iat, iat_neighb, rest, residue_p);
+		  }
 	       }
 	    }
 	 }
