@@ -118,7 +118,8 @@ libcoot_map_heavy_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 
 # test-agg-clust
-check_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-elastic test-spherical glyco-torsions test-tt-morph
+check_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-elastic test-spherical glyco-torsions \
+	test-tt-morph test-coot-probe
 
 # test_zo_chi_table_SOURCES = test-zo-chi-table.cc
 
@@ -130,6 +131,10 @@ check_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-elast
 #        $(top_builddir)/mini-mol/libcoot-mini-mol.la 
 #        $(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
 
+
+test_coot_probe_SOURCES = test-coot-probe.cc
+test_coot_probe_LDADD =          \
+	./libcoot-coord-utils.la
 
 testshelxreader_SOURCES = test-shelx-reader.cc
 testshelxreader_LDADD =          \
