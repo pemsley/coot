@@ -437,8 +437,7 @@ coot::beam_in_linked_residue::get_residue_raw() const {
    if (r) {
       try { 
 	 // apply the mods given the link type
-	 std::pair<coot::protein_geometry::chem_mod, coot::protein_geometry::chem_mod>
-	    mods = geom_p->get_chem_mods_for_link(link_type);
+	 std::pair<coot::chem_mod, coot::chem_mod> mods = geom_p->get_chem_mods_for_link(link_type);
 
 	 std::string res_name_ref = residue_ref->GetResName();
 	 for (unsigned int i=0; i<mods.first.atom_mods.size(); i++) { 
@@ -1096,7 +1095,7 @@ coot::glyco_tree_t::complex_tree() const {
    linked_residue_t MAN_3  ("BMA", "BETA1-4");  // parent is NAG_2
    linked_residue_t NAG_4  ("NAG", "BETA1-4");  // parent is MAN_3
 
-   linked_residue_t XYL_4  ("XYL", "BETA1-2");  // parent is MAN_3
+   linked_residue_t XYP_4  ("XYP", "BETA1-2");  // parent is MAN_3
    
    linked_residue_t MAN_4_1("MAN", "ALPHA1-6"); // parent is MAN_3
    linked_residue_t NAG_4_2("NAG", "ALPHA1-6"); // parent is MAN_4_1
@@ -1127,7 +1126,7 @@ coot::glyco_tree_t::complex_tree() const {
    tree<linked_residue_t>::iterator gal_5_2 = t.append_child(nag_5_1, GAL_5_2);
    
    tree<linked_residue_t>::iterator nag_4   = t.append_child(man_3,   NAG_4);
-   tree<linked_residue_t>::iterator xyl_4   = t.append_child(man_3,   XYL_4);
+   tree<linked_residue_t>::iterator xyp_4   = t.append_child(man_3,   XYP_4);
 
    tree<linked_residue_t>::iterator man_6_1 = t.append_child(man_3,   MAN_6_1);
    tree<linked_residue_t>::iterator nag_6_2 = t.append_child(man_6_1, NAG_6_2);

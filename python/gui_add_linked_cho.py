@@ -260,8 +260,16 @@ def add_module_carbohydrate():
                 lambda func: add_carbo_link_func("MAN", "ALPHA1-6"))
 
             add_simple_coot_menu_menuitem(
+                menu, "Add an ALPHA1-3 FUC",
+                lambda func: add_carbo_link_func("FUC", "ALPHA1-3"))
+
+            add_simple_coot_menu_menuitem(
                 menu, "Add an ALPHA1-6 FUC",
                 lambda func: add_carbo_link_func("FUC", "ALPHA1-6"))
+
+            add_simple_coot_menu_menuitem(
+                menu, "Add an BETA1-2 XYP",
+                lambda func: add_carbo_link_func("XYP", "BETA1-2"))
 
             def add_multi_carbo_link_func(link_list):
                 with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,

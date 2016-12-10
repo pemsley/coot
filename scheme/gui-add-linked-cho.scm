@@ -327,6 +327,13 @@
 	    (add-linked-residue aa-imol aa-chain-id aa-res-no aa-ins-code "MAN" "ALPHA1-6"))))
 
 	(add-simple-coot-menu-menuitem
+	 menu "Add an ALPHA1-3 FUC"
+	 (lambda () 
+	   (set-matrix 8)
+	   (using-active-atom
+	    (add-linked-residue aa-imol aa-chain-id aa-res-no aa-ins-code "FUC" "ALPHA1-3"))))
+
+	(add-simple-coot-menu-menuitem
 	 menu "Add an ALPHA1-6 FUC"
 	 (lambda () 
 	   (set-matrix 8)

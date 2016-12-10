@@ -3758,6 +3758,7 @@ SCM set_torsion_scm(int imol, const char *chain_id, int res_no, const char *inse
 		    const char *atom_name_3,
 		    const char *atom_name_4, double tors);
 
+/*! \brief create a multi-residue torsion dialog (user manipulation of torsions) */
 void multi_residue_torsion_scm(int imol, SCM residues_specs_scm);
 
 
@@ -3776,6 +3777,7 @@ PyObject *set_torsion_py(int imol, const char *chain_id, int res_no, const char 
 		         const char *atom_name_3,
 		         const char *atom_name_4, double tors);
 
+/*! \brief create a multi-residue torsion dialog (user manipulation of torsions) */
 void multi_residue_torsion_py(int imol, PyObject *residues_specs_py);
 
 #endif  /* USE_PYTHON */
