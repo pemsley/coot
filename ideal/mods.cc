@@ -64,14 +64,13 @@ coot::restraints_container_t::apply_mod(const std::string &mod_name,
    // We crash here when linked with CCP4srs, geom.mods has been corrupted.
    //
    if (false) {
-      std::map<std::string, coot::protein_geometry::chem_mod>::const_iterator iit;
+      std::map<std::string, coot::chem_mod>::const_iterator iit;
       std::cout << "------ Here are the current mods: " << geom.mods.size() << std::endl;
       for (iit=geom.mods.begin(); iit!=geom.mods.end(); iit++) 
 	 std::cout << "  " << iit->first << std::endl;
    }
 
-   std::map<std::string, coot::protein_geometry::chem_mod>::const_iterator it = 
-      geom.mods.find(mod_name);
+   std::map<std::string, coot::chem_mod>::const_iterator it = geom.mods.find(mod_name);
 
    if (it != geom.mods.end()) {
       for (unsigned int i=0; i<it->second.bond_mods.size(); i++) { 
