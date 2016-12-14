@@ -8,8 +8,10 @@ EXTRA_DIST = ASN-NAG-via-NAG-ASN.pdb            \
 	     SIA-pyranose-via-ALPHA2-3.pdb      \
 	     link-by-torsion-to-pyranose-core-ALPHA1-2.tab \
 	     link-by-torsion-to-pyranose-core-ALPHA1-3.tab \
+	     link-by-torsion-to-FUC-core-ALPHA1-3.tab \
 	     link-by-torsion-to-pyranose-core-ALPHA1-6.tab \
 	     link-by-torsion-to-pyranose-core-ALPHA2-3.tab \
+	     link-by-torsion-to-pyranose-core-BETA1-2.tab  \
 	     link-by-torsion-to-pyranose-core-BETA1-3.tab  \
 	     link-by-torsion-to-pyranose-core-BETA1-4.tab  \
              link-by-torsion-to-pyranose-core-NAG-ASN.tab  \

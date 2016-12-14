@@ -1,0 +1,7 @@
+# atom names for XYP beta-D-xylopyranose
+   atom C1B C based-on 1  O2 1  C2 1  C1 bond-length: 7.82960 angle:  17.90639 tors: -106.
+   atom C2B C based-on 0 C1B 1  O2 1  C2 bond-length: 1.53896 angle:  14.71917 tors:  161.
+   atom C3B C based-on 0 C2B 0 C1B 1  O2 bond-length: 1.52793 angle: 111.16498 tors:  166.
+   atom C4B C based-on 0 C3B 0 C2B 0 C1B bond-length: 1.52411 angle: 112.18610 tors:  -52.
+   atom C5B C based-on 0 C4B 0 C3B 0 C2B bond-length: 1.52936 angle: 109.83957 tors:   50.
+   atom O5B O based-on 0 C5B 0 C4B 0 C3B bond-length: 1.39994 angle: 111.50530 tors:  -52.
