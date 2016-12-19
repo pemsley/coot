@@ -1,6 +1,8 @@
 
    For Release 0.8.8
 
+   o bad 2D layout IXY in 3wzy
+
    o coot-probe: does it work with symmetry?
 
    o coot-reduce: does it work with symmetry? (this is more tricky and less useful)
