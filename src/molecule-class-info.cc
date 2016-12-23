@@ -3124,6 +3124,10 @@ check_static_vecs_extents() {
 void
 molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p) {
 
+   std::cout << "------------ this makebonds() " << max_dist << " " << max_dist << std::endl;
+
+   debug_atom_selection_container(atom_sel);
+
    Bond_lines_container bonds(atom_sel, min_dist, max_dist);
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
@@ -7524,10 +7528,12 @@ molecule_class_info_t::add_multiple_dummies(const std::vector<coot::scored_skel_
 
    if (has_model()) {
       mmdb::Model *model_p = atom_sel.mol->GetModel(1);
-      int n_chains = atom_sel.mol->GetNumberOfChains(1);
-      if (n_chains > 0) {
-	 mmdb::Chain *chain_p = model_p->GetChain(0);
-	 add_multiple_dummies(chain_p, pos_position);
+      if (model_p) {
+	 int n_chains = atom_sel.mol->GetNumberOfChains(1);
+	 if (n_chains > 0) {
+	    mmdb::Chain *chain_p = model_p->GetChain(0);
+	    add_multiple_dummies(chain_p, pos_position);
+	 }
       }
    }
 }
@@ -7565,23 +7571,23 @@ molecule_class_info_t::add_multiple_dummies(mmdb::Chain *chain_p,
       res_p->seqNum = i + 1;
       res_p->SetResName("DUM");
 
-      // std::cout << atom_p << " added to molecule" << std::endl;
+      std::cout << atom_p << " added to molecule" << std::endl;
    }
 
-   // std::cout << "DEBUG:: add_multiple_dummies finishing.. "
-   // << pos_position.size() << std::endl;
-   // if (pos_position.size() > 0) {
+
+   std::cout << "DEBUG:: add_multiple_dummies finishing.. "
+	     << pos_position.size() << std::endl;
    
    // Actually, we want to run this code when there are no new guide
    // points too.  This sets atom_sel.SelectionHandle properly, which
    // is needed in close_yourself, where a DeleteSelection() is done
    // to give back the memory.
-      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-      atom_sel.mol->FinishStructEdit();
-      atom_sel = make_asc(atom_sel.mol);
-      have_unsaved_changes_flag = 1; 
-      makebonds(0.0, 0.0, geom_p);
-      // }
+   
+   atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+   atom_sel.mol->FinishStructEdit();
+   atom_sel = make_asc(atom_sel.mol);
+   have_unsaved_changes_flag = 1; 
+   makebonds(0.0, 0.0, geom_p);
 } 
 
 void

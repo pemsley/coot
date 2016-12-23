@@ -894,6 +894,17 @@ coot::glyco_tree_t::print(const tree<linked_residue_t> &glyco_tree) const {
    }
 }
 
+std::vector<mmdb::Residue *>
+coot::glyco_tree_t::residues(const tree<linked_residue_t> &glyco_tree) const {
+
+   tree<linked_residue_t>::iterator it;
+   std::vector<mmdb::Residue *> v;
+   for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
+      v.push_back(it->residue);
+   }
+   return v;
+}
+
 void
 coot::glyco_tree_t::compare_vs_allowed_trees(const tree<linked_residue_t> &tr_for_testing) const {
 

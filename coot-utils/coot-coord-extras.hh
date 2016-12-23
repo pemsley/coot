@@ -642,7 +642,7 @@ namespace coot {
    public:
       glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol, protein_geometry *geom_p_in);
       void print(const tree<linked_residue_t> &glyco_tree) const;
-
+      std::vector<mmdb::Residue *> residues(const tree<linked_residue_t> &glyco_tree) const;
    }; 
 }
 

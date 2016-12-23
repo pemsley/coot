@@ -2732,6 +2732,15 @@ PyObject *test_function_py(PyObject *i, PyObject *j);
 /*                    glyco tools test  */
 void glyco_tree_test();
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM glyco_tree_scm(int imol, SCM active_residue_scm);
+#endif
+#ifdef USE_PYTHON
+PyObject *glyco_tree_py(int imol, PyObject *active_residue_py);
+#endif /* PYTHON */
+#endif
+
 
 
 /*  ----------------------------------------------------------------------- */

@@ -310,9 +310,9 @@ int test_internal_single() {
       // status = test_map_tools();
       // status = test_minimol();
       // status = test_monomer_organic_set();
-      // status = test_COO_mod();
+      status = test_COO_mod();
       // status = test_output_link_distances_are_correct();
-      status = test_string_splitting();
+      // status = test_string_splitting();
    }
    catch (const std::runtime_error &mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
