@@ -115,10 +115,10 @@ coot::operator<<(std::ostream &s, const coot::chem_mod_tor &a) {
 std::ostream&
 coot::operator<<(std::ostream &s, const coot::chem_mod_plane &a) {
 
-   s << "[chem_mod_plane "
+   s << "[chem_mod_plane function="
      << a.function << " "
      << a.plane_id << " ";
-
+   s << " n_atoms=" << a.atom_id_esd.size();
    for (unsigned int i=0; i<a.atom_id_esd.size(); i++)
       s << "  " << a.atom_id_esd[i].first << " "
 	<< a.atom_id_esd[i].second;

@@ -286,16 +286,6 @@ namespace coot {
 	 void add_mod_chir(const chem_mod_chir &chem_chir) {
 	    chir_mods.push_back(chem_chir);
 	 }
-	 // this looks dangerous
-// 	 const chem_mod_plane &operator[](const chem_mod_plane &plane) const {
-// 	    for (unsigned int iplane=0; iplane<plane_mods.size(); iplane++) {
-// 	       if (plane_mods[iplane].plane_id == plane.plane_id) {
-// 		  return plane_mods[iplane];
-// 	       }
-// 	    }
-// 	    plane_mods.push_back(plane);
-// 	    return plane_mods.back();
-// 	 }
 	 void add_plane_atom(const std::string &plane_id,
 			     const std::string &function,
 			     const std::string &atom_name,
@@ -303,7 +293,10 @@ namespace coot {
 	    bool done = false;
 	    for (unsigned int iplane=0; iplane<plane_mods.size(); iplane++) {
 	       if (plane_mods[iplane].plane_id == plane_id) {
-		  chem_mod_function_t cmft = CHEM_MOD_FUNCTION_UNSET; // FIXME
+		  chem_mod_function_t cmft = CHEM_MOD_FUNCTION_UNSET;
+		  if (function == "add")    cmft = CHEM_MOD_FUNCTION_ADD;
+		  if (function == "change") cmft = CHEM_MOD_FUNCTION_CHANGE;
+		  if (function == "delete") cmft = CHEM_MOD_FUNCTION_DELETE;
 		  if (plane_mods[iplane].function == cmft) {
 		     plane_mods[iplane].add_atom(atom_name, dist);
 		     done = true;
