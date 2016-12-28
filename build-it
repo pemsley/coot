@@ -3854,7 +3854,7 @@ unset PKG_CONFIG_PATH
 # refmac_mon_lib=refmac_dictionary_v5.41.tar.gz
 
 # new style
-mon_lib_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files
+mon_lib_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/dependencies
 refmac_mon_lib=refmac-monomer-library.tar.gz
 
 if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
