@@ -3466,7 +3466,7 @@
 					 "http://www.drugbank.ca/structures/structures/small_molecule_drugs/" 
 					 dbi ".mol"))
 			    (file-name (string-append dbi ".mol")))
-			;; (format #t "getting url: ~s~%" db-mol-uri)
+			(format #t "getting drugbank url: ~s ~s~%" db-mol-uri file-name)
 			(coot-get-url db-mol-uri file-name)
 			file-name)))))))
 
@@ -3631,15 +3631,21 @@
 		 (xml (coot-get-url-as-string url)))
 
 	    (format #t "INFO:: get-drug-via-wikipedia: url: ~s~%" url)
+	    (let ((l (string-length xml)))
+	      (if (= l 0)
+		  ;; something bad happened - wikipedia replied with an empty string
+		  (begin
+		    (format #t "INFO:: Badness - wikipedia replied with an empty string~%"))
 
-	    (call-with-output-file (string-append drug-name ".xml")
-	      (lambda (port)
-		(display xml port)))
+		  (begin
+		    (call-with-output-file (string-append drug-name ".xml")
+		      (lambda (port)
+			(display xml port)))
 
-	    (call-with-input-string
-	     xml (lambda (string-port)
-		   (let ((sxml (xml->sxml string-port)))
-		     (handle-sxml sxml))))))))
+		    (call-with-input-string
+		     xml (lambda (string-port)
+			   (let ((sxml (xml->sxml string-port)))
+			     (handle-sxml sxml)))))))))))
 
 
 (define (get-SMILES-for-comp-id-from-pdbe comp-id)
