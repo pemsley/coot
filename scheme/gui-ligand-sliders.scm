@@ -48,7 +48,7 @@
 	  
 	  ;; unhappy path
 	  (begin 
-	    (format #t "Failed to read columms from file ~s for map molecule ~s~%" fn imol-map)
+	    (format #t "Failed to read columms from file ~s for map molecule ~s~%" file-name imol-map)
 	    (values #f #f #f))
 	  
 	  ;; happy path
