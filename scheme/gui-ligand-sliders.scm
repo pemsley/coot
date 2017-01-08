@@ -68,7 +68,7 @@
 		  ;; unhappy path
 		  (begin
 		    (format #t "Failed to find columns of the necessary types from ~s : ~s ~s ~s~%~!"
-			    fn l1 l2 l3)
+			    file-name l1 l2 l3)
 		    (values #f #f #f))
 
 		  ;; happy path
