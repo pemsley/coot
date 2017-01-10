@@ -1100,6 +1100,7 @@ case $dist_name in
        libxmu-dev
        libxt-dev
        libc6-dev
+       libncurses5-dev
        libglu1-mesa-dev 
        mesa-common-dev
        libgtk2.0-dev
@@ -2287,7 +2288,7 @@ else
 fi
 
 
-# clipper depends on mmdb, so if mmdb was built, the so must clipper.
+# clipper depends on mmdb, so if mmdb was built, the so must clipper be.
 # likewise for fftw.
 #
 build_clipper=1
@@ -2302,7 +2303,7 @@ if [ -z "$build_mmdb" ] ; then
           if [ -e $install_top_dir/include/clipper/contrib/sfscale.h ] ; then
              echo $install_top_dir/include/clipper/contrib/sfscale.h exist
 	     build_clipper=
-          else 
+          else
             echo $install_top_dir/include/clipper/contrib/sfscale.h not exist, building clipper
   	     build_clipper=1
           fi
@@ -2310,7 +2311,7 @@ if [ -z "$build_mmdb" ] ; then
           echo $install_top_dir/include/clipper/ccp4/ccp4_mtz_io.h not exist, building clipper
        fi
     fi
-else 
+else
    echo mmdb needs to be built, so clipper needs building.
 fi
 
