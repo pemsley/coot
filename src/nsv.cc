@@ -25,7 +25,7 @@
 #endif
 
 
-#if defined(HAVE_GNOME_CANVAS)
+#if defined(HAVE_GNOME_CANVAS) || defined (HAVE_GOOCANVAS)
 
 // Don't forget to enable
 // g.set_sequence_view_is_displayed(seq_view->Canvas(), imol) in nsv()
@@ -47,6 +47,8 @@
 #include "get-residue.hh"
 
 #include "canvas-fixes.hh"
+
+#include "utils/win-compat.hh"
 
 exptl::nsv::nsv(mmdb::Manager *mol,
 		const std::string &molecule_name,
@@ -74,12 +76,19 @@ exptl::nsv::nsv(mmdb::Manager *mol,
    gtk_object_set_data(GTK_OBJECT(top_lev), "nsv_dialog", top_lev);
    gtk_window_set_title(GTK_WINDOW(top_lev), "Coot Sequence View");
    GtkWidget *vbox = GTK_DIALOG(top_lev)->vbox;
+#ifdef HAVE_GOOCANVAS
+   canvas = goo_canvas_new();
+   canvas_group = goo_canvas_get_root_item(GOO_CANVAS(canvas));
+#else
    canvas = GNOME_CANVAS(gnome_canvas_new()); // gnome_canvas_new_aa() is very slow
+#endif
+
    std::string label_string = "Molecule Number ";
    label_string += coot::util::int_to_string(molecule_number_in);
    label_string += ": ";
    label_string += molecule_name;
    GtkWidget *name_label = gtk_label_new(label_string.c_str());
+
    gtk_box_pack_start(GTK_BOX(vbox), name_label, FALSE, FALSE, 1);
    scrolled_window = gtk_scrolled_window_new(NULL, NULL);
    gtk_box_pack_start(GTK_BOX(vbox), GTK_WIDGET(scrolled_window), TRUE, TRUE, 1);
@@ -102,14 +111,14 @@ exptl::nsv::nsv(mmdb::Manager *mol,
 
    g_object_set_data(G_OBJECT(canvas), "nsv", (gpointer) this); // used to regenerate.
 
-   setup_canvas(mol);
-   gtk_widget_show(scrolled_window);
+   setup_canvas(mol);  
 		      
    if (use_graphics_interface_flag) { 
       gtk_widget_show(aa);
       gtk_widget_show(close_button);
       gtk_widget_show(GTK_WIDGET(name_label));
       gtk_widget_show(GTK_WIDGET(canvas));
+      gtk_widget_show(scrolled_window);
       gtk_widget_show(top_lev);
    }
 
@@ -138,12 +147,16 @@ exptl::nsv::on_nsv_dialog_destroy (GtkObject *obj,
    set_sequence_view_is_displayed(0, imol);
 } 
 
-#include "utils/win-compat.hh"
 
 void
 exptl::nsv::setup_canvas(mmdb::Manager *mol) {
 
+#ifdef HAVE_GOOCANVAS
+   // BL says:: here we dont need the special Windows font (it would actually be too large)
+   fixed_font_str = "Sans 9";
+#else
    fixed_font_str = coot::get_fixed_font();
+#endif
 
    pixels_per_letter = 10; // 10 for my F10 box
    pixels_per_chain  = 12;
@@ -287,11 +300,18 @@ exptl::nsv::setup_canvas(mmdb::Manager *mol) {
 	 if (debug)
 	    std::cout << " -> x_offset:" << x_offset << std::endl;
 
+#ifdef HAVE_GOOCANVAS
+
+    goo_canvas_set_bounds(GOO_CANVAS(canvas),
+                          -70,  -1. * pixels_per_chain * (rcv.size() + 3),
+                          canvas_x_size, 2. * pixels_per_chain);
+#else
  	 gnome_canvas_set_scroll_region(canvas, left_limit, upper_limit,
  				      scroll_width, scroll_height);
-	 origin_marker();
-	 draw_axes(rcv, lowest_resno, biggest_res_number, x_offset);
-	 mol_to_canvas(mol, lowest_resno, x_offset);
+#endif
+    origin_marker();
+    draw_axes(rcv, lowest_resno, biggest_res_number, x_offset);
+    mol_to_canvas(mol, lowest_resno, x_offset);
 
       } else {
 	 std::cout << "Some residues have insertion codes, this is not coded for"
@@ -327,7 +347,11 @@ void
 exptl::nsv::chain_to_canvas(mmdb::Chain *chain_p, int chain_position_number, int lowest_resno, double x_offset) {
 
    int nres = chain_p->GetNumberOfResidues();
+#ifdef HAVE_GOOCANVAS
+   GooCanvasItem *item;
+#else
    GtkCanvasItem *item;
+#endif
 
    for (int ires=0; ires<nres; ires++) {
       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
@@ -344,6 +368,16 @@ exptl::nsv::chain_to_canvas(mmdb::Chain *chain_p, int chain_position_number, int
    x -= 10 + x_offset;
    double y = -pixels_per_chain * chain_position_number - 6;
 
+#ifdef HAVE_GOOCANVAS
+   item = goo_canvas_text_new(canvas_group,
+                              chain_label.c_str(),
+                              x, y,
+                              -1,
+                              GTK_ANCHOR_WEST,
+                              "fill_color", "#111111",
+                              "font", fixed_font_str.c_str(),
+                              NULL);
+#else
    item = gnome_canvas_item_new(gnome_canvas_root(canvas),
 				GNOME_TYPE_CANVAS_TEXT,
 				"text", chain_label.c_str(),
@@ -354,6 +388,7 @@ exptl::nsv::chain_to_canvas(mmdb::Chain *chain_p, int chain_position_number, int
 				"font", fixed_font_str.c_str(),
 				NULL);
    canvas_item_vec.push_back(item);
+#endif
 }
 
 
@@ -399,7 +434,27 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
       // double x1_max = 22500; // magic number
       
       if (x1 < points_max) { 
-	 GtkCanvasItem *rect_item;
+#ifdef HAVE_GOOCANVAS
+         // BL says:: not sure if I should work with groups or models here (dont see
+         // what the difference/advatage of either is. Groups may be easier.
+         GooCanvasItem *txt_letter_group;
+
+         txt_letter_group = goo_canvas_group_new(canvas_group, NULL);
+
+         GooCanvasItem *rect_item;
+
+         rect_item = goo_canvas_rect_new(txt_letter_group,
+                                         x1, y1,
+                                         x2-x1,
+                                         y2-y1,
+                                         "line-width", 0.0,
+                                         "fill-color", rect_colour.c_str(),
+                                         "can-focus", TRUE,
+                                         NULL);
+         // Save the rectangle to be able to change the bg of the letter later.
+         g_object_set_data(G_OBJECT(txt_letter_group), "rect", rect_item);
+#else
+    GtkCanvasItem *rect_item;
 
 	 rect_item = gnome_canvas_item_new(gnome_canvas_root(canvas),
 					 GNOME_TYPE_CANVAS_RECT,
@@ -412,26 +467,61 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
 					 NULL);
 	 so->obj = rect_item;
 	 canvas_item_vec.push_back(rect_item);
-	 gtk_signal_connect(GTK_OBJECT(rect_item), "event",
-			    GTK_SIGNAL_FUNC(rect_event), so);
 
-	 GtkCanvasItem *text_item;
+    gtk_signal_connect(GTK_OBJECT(rect_item), "event",
+			    GTK_SIGNAL_FUNC(rect_event), so);
+#endif
+
+#ifdef HAVE_GOOCANVAS
+
+    // BL says:: seems the only way to do this is to group the rect and txt and then
+    // connect the signal to the group. The rect will have to be data (or passed) to callback
+    // to change colour. Otherwise the letter on top blocks the signal to the rect it seems.
+    // Alternatively use goocanvas model item/group (not sure what the
+    // advantage/disadvantage is)
+    // Or make a new canvas item!?
+    // Anyway, this works well, so we go with this!
+
+    GooCanvasItem *text_item;
 	 std::string colour = colour_by_secstr(residue_p);
 	 if (false)
 	    std::cout << "drawing text for res " << coot::residue_spec_t(residue_p) << " "
 		      << res_code << " " << x << " " << y << std::endl;
-	 text_item = gnome_canvas_item_new(gnome_canvas_root(canvas),
-					 GNOME_TYPE_CANVAS_TEXT,
-					 "text", res_code.c_str(),
-					 "x", x,
-					 "y", y,
-					 "anchor", GTK_ANCHOR_CENTER,
-					 "fill_color", colour.c_str(),
-					 "font", fixed_font_str.c_str(),
-					 NULL);
+    text_item = goo_canvas_text_new(txt_letter_group,
+                                    res_code.c_str(),
+                                    x, y,
+                                    -1,
+                                    GTK_ANCHOR_CENTER,
+                                    "fill_color", colour.c_str(),
+                                    "font", fixed_font_str.c_str(),
+                                    "can-focus", FALSE,
+                                    NULL);
+    g_signal_connect(G_OBJECT(txt_letter_group), "enter_notify_event",
+                     G_CALLBACK(rect_notify_event), NULL);
+    g_signal_connect(G_OBJECT(txt_letter_group), "leave_notify_event",
+                     G_CALLBACK(rect_notify_event), NULL);
+    g_signal_connect(G_OBJECT(txt_letter_group), "button-press-event",
+                     G_CALLBACK(rect_button_event), so);
+
+#else
+    GtkCanvasItem *text_item;
+    std::string colour = colour_by_secstr(residue_p);
+    if (false)
+       std::cout << "drawing text for res " << coot::residue_spec_t(residue_p) << " "
+            << res_code << " " << x << " " << y << std::endl;
+    text_item = gnome_canvas_item_new(gnome_canvas_root(canvas),
+                GNOME_TYPE_CANVAS_TEXT,
+                "text", res_code.c_str(),
+                "x", x,
+                "y", y,
+                "anchor", GTK_ANCHOR_CENTER,
+                "fill_color", colour.c_str(),
+                "font", fixed_font_str.c_str(),
+                NULL);
 	 gtk_signal_connect(GTK_OBJECT(text_item), "event",
 			    GTK_SIGNAL_FUNC(letter_event), so);
-	 canvas_item_vec.push_back(text_item);
+    canvas_item_vec.push_back(text_item);
+#endif
       } else {
 	 too_wide = true;
 	 std::cout << "too wide x1 " << x1 << " "
@@ -444,6 +534,12 @@ exptl::nsv::add_text_and_rect(mmdb::Residue *residue_p,
 void
 exptl::nsv::clear_canvas() {
 
+#ifdef HAVE_GOOCANVAS
+   if (canvas) {
+      if (canvas_group)
+         goo_canvas_item_remove(canvas_group);
+   }
+#else
    if (canvas) { 
 
       GnomeCanvasGroup *root = GNOME_CANVAS_GROUP(gnome_canvas_root(GNOME_CANVAS(canvas)));
@@ -455,10 +551,11 @@ exptl::nsv::clear_canvas() {
 	    gtk_object_destroy(GTK_OBJECT(item));
       }
    }
+#endif
 }
 
 
-
+#ifndef HAVE_GOOCANVAS
 // static
 gint
 exptl::nsv::letter_event (GtkObject *obj,
@@ -474,7 +571,7 @@ exptl::nsv::letter_event (GtkObject *obj,
    // 
 
    // std::cout << "event type: " << event->type << std::endl;
-   
+
    // if (event->motion.state & GDK_BUTTON1_MASK) {
    if (event->type == GDK_BUTTON_RELEASE) {
       set_go_to_atom_molecule(spec_obj.mol_no);
@@ -489,10 +586,50 @@ exptl::nsv::letter_event (GtkObject *obj,
 	 // std::cout << " Leaving a text " << obj << " " << obj << std::endl;
 	 gnome_canvas_item_set(GNOME_CANVAS_ITEM(spec_obj.obj), "fill_color", "grey85", NULL);
       }
+
    }
    return 1;
 }
-   
+#endif
+
+#ifdef HAVE_GOOCANVAS
+// static
+gboolean
+exptl::nsv::rect_notify_event (GooCanvasItem *item,
+                               GooCanvasItem *target,
+                               GdkEventCrossing *event,
+                               gpointer data) {
+
+   GooCanvasItem *rect;
+   rect = static_cast<GooCanvasItem *> (g_object_get_data(G_OBJECT(item), "rect"));
+   if (event->type == GDK_ENTER_NOTIFY) {
+      // std::cout << "Entering a box " << obj << std::endl;
+      g_object_set(rect, "fill_color", "moccasin", NULL);
+   }
+
+   if (event->type == GDK_LEAVE_NOTIFY) {
+      //std::cout << " Leaving a box " << rect << std::endl;
+      g_object_set(rect, "fill_color", "grey85", NULL);
+   }
+   return FALSE;
+}
+
+gboolean
+exptl::nsv::rect_button_event(GooCanvasItem *item,
+                            GooCanvasItem *target,
+                            GdkEventButton *event,
+                            gpointer data)
+
+{
+
+   // std::cout << "box clicked" << std::endl;
+   exptl::nsv::spec_and_object spec_obj = *((exptl::nsv::spec_and_object *) data);
+   set_go_to_atom_molecule(spec_obj.mol_no);
+   set_go_to_atom_from_spec(spec_obj.atom_spec);
+   return FALSE;
+}
+
+#else
 // static
 gint
 exptl::nsv::rect_event (GtkObject *obj,
@@ -520,7 +657,7 @@ exptl::nsv::rect_event (GtkObject *obj,
    } 
    return 1;
 }
-
+#endif
 
 std::vector<exptl::nsv::chain_length_residue_units_t> 
 exptl::nsv::get_residue_counts(mmdb::Manager *mol) const {
@@ -579,8 +716,14 @@ void
 exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
 		      int lrn, int brn, double x_offset) {
 
+#ifdef HAVE_GOOCANVAS
+   GooCanvasItem *item;
+   GooCanvasPoints *points;
+   points = goo_canvas_points_new(2);
+#else
    GtkCanvasItem *item;
    GtkCanvasPoints *points = gnome_canvas_points_new(2);
+#endif
    float font_scaler = pixels_per_letter;
 
    // ticks and text
@@ -616,6 +759,13 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
       if (i_ax_pos == 1)
 	 y_for_text = y_value - 10.0;
       
+#ifdef HAVE_GOOCANVAS
+      item = goo_canvas_polyline_new(canvas_group, FALSE, 0,
+                                     "points", points,
+                                     "line-width", 1.0,
+                                     "stroke-color", "black",
+                                     NULL);
+#else
       item = gnome_canvas_item_new(gnome_canvas_root(canvas),
 				 GNOME_TYPE_CANVAS_LINE,
 				 "width_pixels", 1,
@@ -623,6 +773,7 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
 				 "fill_color", "black",
 				 NULL);
       canvas_item_vec.push_back(item);
+#endif
 
       // tick marks and tick labels
       for (int irn=irn_start; irn<=brn; irn+=5) {
@@ -637,6 +788,21 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
 	       
 	    double x = (irn-lrn+1)*font_scaler - x_offset; // x for resno label
 	    std::string lab = coot::util::int_to_string(irn);
+#ifdef HAVE_GOOCANVAS
+       item = goo_canvas_polyline_new(canvas_group, FALSE, 0,
+                                      "points", points,
+                                      "line-width", 1.0,
+                                      "stroke-color", "black",
+                                      NULL);
+       item = goo_canvas_text_new(canvas_group,
+                                  lab.c_str(),
+                                  x, y_for_text,
+                                  -1,
+                                  GTK_ANCHOR_CENTER,
+                                  "font", fixed_font_str.c_str(),
+                                  "fill_color", "black",
+                                  NULL);
+#else
 	    item = gnome_canvas_item_new(gnome_canvas_root(canvas),
 				       GNOME_TYPE_CANVAS_LINE,
 				       "width_pixels", 1,
@@ -654,9 +820,13 @@ exptl::nsv::draw_axes(std::vector<chain_length_residue_units_t> clru,
 				       "fill_color", "black",
 				       NULL);
 	    canvas_item_vec.push_back(item);
+#endif
 	 } 
       }
    }
+#ifdef HAVE_GOOCANVAS
+   goo_canvas_points_unref(points);
+#endif
 
 }
 
@@ -671,6 +841,7 @@ exptl::nsv::tick_start_number(int low_res_no) const {
 void
 exptl::nsv::origin_marker() {
 
+#ifndef HAVE_GOOCANVAS
    if (0) { 
       GtkCanvasItem *item;
       GtkCanvasPoints *points = gnome_canvas_points_new(5);
@@ -692,6 +863,7 @@ exptl::nsv::origin_marker() {
 				 "fill_color", "blue",
 				 NULL);
    }
+#endif
 }
 
 
@@ -714,4 +886,6 @@ exptl::nsv::colour_by_secstr(mmdb::Residue *residue_p) const {
 }
 
 
-#endif // defined(HAVE_GNOME_CANVAS)
+#endif // HAVE_GNOME_CANVAS
+
+// ----------
