@@ -920,7 +920,7 @@ coot::ligand_report_absolute_t::make_percentiles() const {
 
 #ifdef USE_SQLITE3
 
-   std::string pkg_data_dir = PKGDATADIR;
+   std::string pkg_data_dir = coot::package_data_dir();
    std::string ligands_db_file_name = "ligands.db";
    std::string d = coot::util::append_dir_file(pkg_data_dir, "data");
    std::string f = coot::util::append_dir_file(d, ligands_db_file_name);

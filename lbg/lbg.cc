@@ -3921,7 +3921,7 @@ lbg_info_t::render() {
    }
 
    draw_substitution_contour();
-   
+
 }
 
 void
@@ -4060,17 +4060,33 @@ void
 lbg_info_t::write_png(const std::string &file_name) {
 
    std::pair<lig_build::pos_t, lig_build::pos_t> extents = mol.ligand_extents();
+   std::pair<lig_build::pos_t, lig_build::pos_t> extents_flev = flev_residues_extents();
 
    gdouble scale =  goo_canvas_get_scale(GOO_CANVAS(canvas));
+
    // std::cout << "goo_canvas_get_scale() " << scale << std::endl;
+   // std::cout << "extents_flev: " << extents_flev.first << " " << extents_flev.second
+   //           << std::endl;
    
    int size_x = int(extents.second.x) + 30;
    int size_y = int(extents.second.y) + 30;
 
+   if (extents_flev.second.x > size_x) size_x = extents_flev.second.x;
+   if (extents_flev.second.y > size_y) size_y = extents_flev.second.y;
+
+   // the above extents give us the centre of residue circle - we want to see the whole circle,
+   // so expand things a bit.
+
+   size_x += 40;
+   size_y += 40;
+
    if (key_group) {
-      size_y += 240; // *scale?
-      size_x += 50;
+      // std::cout << "adding space for (just) the key" << std::endl;
+      size_y += 260; // *scale?
+      size_x += 150;
    }
+   // std::cout << "new size_x: " << size_x << std::endl;
+   // std::cout << "new size_y: " << size_y << std::endl;
    
    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size_x, size_y);
    cairo_t *cr = cairo_create (surface);
@@ -4087,7 +4103,7 @@ lbg_info_t::write_png(const std::string &file_name) {
       /* Scale *before* setting the source surface (1) */
       cairo_scale(cr, scale, scale);
       cairo_set_source_surface(cr, surface, 0, 0);
-      cairo_pattern_set_extend (cairo_get_source(cr), CAIRO_EXTEND_REFLECT); 
+      cairo_pattern_set_extend(cairo_get_source(cr), CAIRO_EXTEND_REFLECT);
       /* Replace the destination with the source instead of overlaying */
       cairo_set_operator (cr, CAIRO_OPERATOR_SOURCE);
       /* Do the actual drawing */
@@ -4949,6 +4965,9 @@ lbg_info_t::get_drug(const std::string &drug_name) {
 			 status_string.c_str());
 
    }
+#else
+   std::cout << "WARNING:: Not compiled with enhanced-ligand-tools - Nothing doing Hermione"
+	     << std::endl;
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 }
 
