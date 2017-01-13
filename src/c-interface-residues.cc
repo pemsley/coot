@@ -293,6 +293,29 @@ SCM glyco_tree_scm(int imol, SCM active_residue_scm) {
 }
 #endif
 
+#ifdef USE_GUILE
+SCM glyco_tree_residues_scm(int imol, SCM active_residue_scm) {
+   
+   SCM r = SCM_BOOL_F;
+
+   if (is_valid_model_molecule(imol)) {
+
+      coot::residue_spec_t residue_spec = residue_spec_from_scm(active_residue_scm);
+      graphics_info_t g;
+      mmdb::Residue *residue_p = g.molecules[imol].get_residue(residue_spec);
+      mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+      std::vector<std::string> types_with_no_dictionary =
+	 g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+      for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
+	 g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
+      coot::glyco_tree_t t(residue_p, mol, g.Geom_p());
+      std::vector<mmdb::Residue *> v_residues;
+      std::vector<coot::residue_spec_t> v(v_residues.size());
+   }
+   return r;
+}
+#endif
+
 #ifdef USE_PYTHON
 PyObject *glyco_tree_py(int imol, PyObject *active_residue_py) {
 
@@ -326,6 +349,8 @@ PyObject *glyco_tree_residues_py(int imol, PyObject *active_residue_py) {
    if (is_valid_model_molecule(imol)) {
 
       coot::residue_spec_t residue_spec = residue_spec_from_py(active_residue_py);
+
+      std::cout << "..... active residue spec: " << residue_spec << std::endl;
       graphics_info_t g;
       mmdb::Residue *residue_p = g.molecules[imol].get_residue(residue_spec);
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
@@ -334,10 +359,14 @@ PyObject *glyco_tree_residues_py(int imol, PyObject *active_residue_py) {
       for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
 	 g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
       coot::glyco_tree_t t(residue_p, mol, g.Geom_p());
-      std::vector<mmdb::Residue *> v_residues;
+      std::vector<mmdb::Residue *> v_residues = t.residues(residue_spec);
+
+      std::cout << ".... v_residues.size() "  << v_residues.size() << std::endl;
+      
       std::vector<coot::residue_spec_t> v(v_residues.size());
       r = PyList_New(v_residues.size());
       for (unsigned int i=0; i<v_residues.size(); i++) {
+	 std::cout << "     " << i << " " << coot::residue_spec_t(v_residues[i]) << std::endl;
 	 coot::residue_spec_t spec(v_residues[i]);
 	 PyList_SetItem(r, i, residue_spec_to_py(spec));
       }

@@ -623,6 +623,8 @@ namespace coot {
 
    class glyco_tree_t {
       protein_geometry *geom_p;
+      std::vector<mmdb::Residue *> linked_residues;
+
       bool is_pyranose(mmdb::Residue *r) const; 
       tree<linked_residue_t> find_rooted_tree(mmdb::Residue *residue_root_p,
 					      const std::vector<mmdb::Residue *> &residues) const;
@@ -638,11 +640,12 @@ namespace coot {
       static bool residue_comparitor(mmdb::Residue *res1, mmdb::Residue *res2) {
 	 return (residue_spec_t(res1) < residue_spec_t(res2));
       } 
+      void print(const tree<linked_residue_t> &glyco_tree) const;
+      std::vector<mmdb::Residue *> residues(const tree<linked_residue_t> &glyco_tree) const;
       
    public:
       glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol, protein_geometry *geom_p_in);
-      void print(const tree<linked_residue_t> &glyco_tree) const;
-      std::vector<mmdb::Residue *> residues(const tree<linked_residue_t> &glyco_tree) const;
+      std::vector<mmdb::Residue *> residues(const coot::residue_spec_t &containing_res_spec) const;
    }; 
 }
 

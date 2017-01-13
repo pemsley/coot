@@ -667,7 +667,7 @@ coot::glyco_tree_t::glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol,
 
       std::queue<mmdb::Residue *> q;
       std::vector<mmdb::Residue *> considered;
-      std::vector<mmdb::Residue *> linked_residues;
+      // std::vector<mmdb::Residue *> linked_residues;
       
       if (is_pyranose(residue_p) || std::string(residue_p->name) == "ASN")
 	 q.push(residue_p);
@@ -724,7 +724,7 @@ coot::glyco_tree_t::is_pyranose(mmdb::Residue *residue_p) const {
    } 
 
    return is_pyranose;
-} 
+}
 
 
 // find tree rooted on residue_p.
@@ -785,25 +785,28 @@ coot::glyco_tree_t::find_rooted_tree(mmdb::Residue *residue_p,
 
 		     if (link.first == "NAG-ASN") {
 			if (link.second == true) {
-			   std::cout << "   Adding "
-				     << coot::residue_spec_t(done_residues[ires].second)
-				     << " " << "via NAG-ASN" << " to parent "
-				     << coot::residue_spec_t(it->residue)
-				     << std::endl;
+			   if (false)
+			      std::cout << "   Adding "
+					<< coot::residue_spec_t(done_residues[ires].second)
+					<< " " << "via NAG-ASN" << " to parent "
+					<< coot::residue_spec_t(it->residue)
+					<< std::endl;
 			   linked_residue_t this_linked_residue(done_residues[ires].second, "NAG-ASN");
 			   glyco_tree.append_child(it, this_linked_residue);
 			   something_added = true;
 			   done_residues[ires].first = true;
 			}
 		     } else {
-			std::cout << "found link type " << link.first << " order-switch " 
-				  << link.second << std::endl;
+			if (false)
+			   std::cout << "found link type " << link.first << " order-switch " 
+				     << link.second << std::endl;
 			linked_residue_t this_linked_residue(done_residues[ires].second, link.first);
 			this_linked_residue.order_switch = link.second;
-			std::cout << "   Adding " << coot::residue_spec_t(done_residues[ires].second)
-				  << " via " << link.first << " to parent " 
-				  << coot::residue_spec_t(it->residue)
-				  << std::endl;
+			if (false)
+			   std::cout << "   Adding " << coot::residue_spec_t(done_residues[ires].second)
+				     << " via " << link.first << " to parent " 
+				     << coot::residue_spec_t(it->residue)
+				     << std::endl;
 			glyco_tree.append_child(it, this_linked_residue);
 			something_added = true;
 			done_residues[ires].first = true;
@@ -904,6 +907,34 @@ coot::glyco_tree_t::residues(const tree<linked_residue_t> &glyco_tree) const {
    }
    return v;
 }
+
+std::vector<mmdb::Residue *>
+coot::glyco_tree_t::residues(const coot::residue_spec_t &containing_res_spec) const {
+
+   // will this always find the right ASN? (consider in protien chain ASN next to ASN)
+   //
+   std::vector<mmdb::Residue *> v;
+   for (unsigned int ires=0; ires<linked_residues.size(); ires++) {
+      mmdb::Residue *this_res = linked_residues[ires];
+      std::string residue_name(this_res->name);
+      std::cout << "residues(): considering residue " << coot::residue_spec_t(this_res) << " "
+		<< residue_name << std::endl;
+      if (residue_name == "ASN") {
+	 std::vector<mmdb::Residue *> res_store;
+	 tree<coot::linked_residue_t> tr = find_ASN_rooted_tree(this_res, linked_residues);
+	 res_store = residues(tr);
+	 for (unsigned int ii=0; ii<res_store.size(); ii++) {
+	    coot::residue_spec_t spec(res_store[ii]);
+	    if (spec == containing_res_spec) {
+	       v = res_store;
+	       break;
+	    }
+	 }
+      }
+   }
+  return v;
+}
+
 
 void
 coot::glyco_tree_t::compare_vs_allowed_trees(const tree<linked_residue_t> &tr_for_testing) const {

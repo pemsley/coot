@@ -410,6 +410,71 @@ int replace_fragment(int imol_target, int imol_fragment,
    return istate;
 }
 
+#ifdef USE_GUILE
+int replace_residues_from_mol_scm(int imol_target,
+				 int imol_ref,
+				 SCM residue_specs_list_ref_scm) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol_target)) {
+      if (is_valid_model_molecule(imol_ref)) {
+	 mmdb::Manager *mol = graphics_info_t::molecules[imol_ref].atom_sel.mol;
+	 std::vector<coot::residue_spec_t> specs = scm_to_residue_specs(residue_specs_list_ref_scm);
+	 if (specs.size()) {
+	    mmdb::Manager *mol_new = coot::util::create_mmdbmanager_from_residue_specs(specs, mol);
+	    if (mol_new) {
+	       atom_selection_container_t asc = make_asc(mol_new);
+	       status = graphics_info_t::molecules[imol_target].replace_fragment(asc);
+	       graphics_draw();
+	    }
+	 }
+      }
+   }
+
+   if (false) {
+      // we can't yet add the residue_spec_list_scm
+      std::vector<std::string> command_strings;
+      command_strings.push_back("replace-fragement-from-mol-scm");
+      command_strings.push_back(graphics_info_t::int_to_string(imol_target));
+      add_to_history(command_strings);
+   }
+   return status;
+}
+#endif // USE_GUILE
+
+/*! \brief replace the given residues from the reference molecule to the target molecule
+*/
+#ifdef USE_PYTHON
+int replace_residues_from_mol_py(int imol_target,
+				 int imol_ref,
+				 PyObject *residue_specs_list_ref_py) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol_target)) {
+      if (is_valid_model_molecule(imol_ref)) {
+	 mmdb::Manager *mol = graphics_info_t::molecules[imol_ref].atom_sel.mol;
+	 std::vector<coot::residue_spec_t> specs = py_to_residue_specs(residue_specs_list_ref_py);
+	 if (specs.size()) {
+	    mmdb::Manager *mol_new = coot::util::create_mmdbmanager_from_residue_specs(specs, mol);
+	    atom_selection_container_t asc = make_asc(mol_new);
+	    status = graphics_info_t::molecules[imol_target].replace_fragment(asc);
+	    graphics_draw();
+	 }
+      }
+   }
+
+   if (false) {
+      // we can't yet add the residue_spec_list_py
+      std::vector<std::string> command_strings;
+      command_strings.push_back("replace-fragement-from-mol-py");
+      command_strings.push_back(graphics_info_t::int_to_string(imol_target));
+      add_to_history(command_strings);
+   }
+   return status;
+}
+#endif /* USE_PYTHON */
+
+
 /*! \brief copy the given residue range from the reference chain to the target chain 
 
 resno_range_start and resno_range_end are inclusive. */
@@ -4380,6 +4445,45 @@ int new_molecule_by_sphere_selection(int imol_orig, float x, float y, float z, f
    }
    return imol;
 }
+
+#ifdef USE_PYTHON
+/*! \brief create a new molecule that consists of only the atoms
+  of the specified list of residues
+@return the new molecule number, -1 means an error. */
+int new_molecule_by_residue_specs_py(int imol, PyObject *residue_spec_list_py) {
+
+   int imol_new = -1;
+   if (is_valid_model_molecule(imol)) {
+      std::vector<coot::residue_spec_t> specs = py_to_residue_specs(residue_spec_list_py);
+      if (specs.size()) {
+	 graphics_info_t g;
+	 mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+	 mmdb::Manager *mol_new = coot::util::create_mmdbmanager_from_residue_specs(specs, mol);
+	 if (mol_new) {
+	    imol_new = graphics_info_t::create_molecule();
+	    atom_selection_container_t asc = make_asc(mol_new);
+	    std::string label = "residues-selected-from-mol-";
+	    label += coot::util::int_to_string(imol);
+	    g.molecules[imol_new].install_model(imol_new, asc, g.Geom_p(), label, 1);
+	 }
+      }
+   }
+   return imol_new;
+
+}
+#endif /* USE_PYTHON */
+
+#ifdef USE_GUILE
+/*! \brief create a new molecule that consists of only the atoms
+  of the specified list of residues
+@return the new molecule number, -1 means an error. */
+int new_molecule_by_residue_specs_scm(int imol, SCM *residue_spec_list_scm) {
+
+   int imol_new = -1;
+   return imol_new;
+}
+#endif /* USE_GUILE */
+
 
 // ---------------------------------------------------------------------
 // b-factor

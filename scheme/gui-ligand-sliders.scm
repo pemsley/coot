@@ -28,7 +28,7 @@
      ((number? item) (number->string item))
      ((equal? item #t) "True")
      ((equal? item #f) "False")
-     (else 
+     (else
       "False")))
 
   (let ((string-parts (map item-to-string ls)))

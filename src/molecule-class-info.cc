@@ -3124,9 +3124,9 @@ check_static_vecs_extents() {
 void
 molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p) {
 
-   std::cout << "------------ this makebonds() " << max_dist << " " << max_dist << std::endl;
-
-   debug_atom_selection_container(atom_sel);
+   // std::cout << "------------ this makebonds() " << max_dist << " " << max_dist << std::endl;
+   //
+   // debug_atom_selection_container(atom_sel);
 
    Bond_lines_container bonds(atom_sel, min_dist, max_dist);
    bonds_box.clear_up();
