@@ -233,7 +233,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 						    int udd_handle) {
 
    mmdb::Contact *contact = NULL;
-   int ncontacts;
+   int ncontacts = 0;
    long i_contact_group = 1;
 
    // matrix stuff
