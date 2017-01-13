@@ -588,6 +588,7 @@ function post_install_slim {
 	bin/coot-compare-dictionaries      \
 	bin/coot-dictionary-bond-distributions \
 	bin/coot-make-shelx-restraints \
+	bin/lidia \
         bin/curl \
 	$keep_lib_archs"
 

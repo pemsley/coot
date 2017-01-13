@@ -257,7 +257,7 @@ get_drug_mdl_via_wikipedia_and_drugbank(std::string drugname) {
 #ifdef USE_GUILE
 	 std::string s = get_drug_via_wikipedia_and_drugbank_scm(drugname);
 	 if (s.empty()) {
-	    std::cout << "INFO:: get_drug_via_wikipedia result-not-a-string" << std::endl;
+	    std::cout << "INFO:: get_drug_via_wikipedia_scm result-not-a-string" << std::endl;
 	 }
 	 return s;
 #endif
@@ -271,6 +271,9 @@ get_drug_mdl_via_wikipedia_and_drugbank(std::string drugname) {
 }
 
 #ifdef USE_GUILE
+
+#include "c-interface-scm.hh" // for debugging
+
 // Return the file name of the mdl mol file.
 // 
 // Return empty string on error
@@ -283,6 +286,7 @@ get_drug_via_wikipedia_and_drugbank_scm(const std::string &drugname) {
    command += single_quote(drugname);
    command += ")";
    SCM r = safe_scheme_command(command);
+   std::string sr = scm_to_locale_string(display_scm(r));
    if (scm_is_true(scm_string_p(r)))
       s = scm_to_locale_string(r);
    return s;

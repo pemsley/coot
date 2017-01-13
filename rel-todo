@@ -1,6 +1,15 @@
 
    For Release 0.8.8
 
+   o It appears that merging coordinates (read from cif with
+   multi-character label_asym_id and auth_asym_id) in to another set
+   of coordinates will assign single-character chain IDs to the source
+   coordinates. Might it be better to just add a prefix to those ids?
+   Regards, Wolfram Tempel
+
+   o colour by occupancy and colour by B-factor don't work [Hans Raaijmakers]
+
+
    o bad 2D layout IXY in 3wzy
 
    o go to ligand: JED: Can I make a list of "non-interesting comp-ids?"
