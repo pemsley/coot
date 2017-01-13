@@ -3380,14 +3380,13 @@
     (let ((i (drugbox->drugitem "PubChem  *=" s)))
       (format #t "in drugbox->pubchem i: ~s~%" i)
       i))
-      
-	
+
   (define (drugbox->chemspider s)
     (let ((i (drugbox->drugitem "ChemSpiderID  *=" s)))
       (format #t "in drugbox->chemspider i: ~s~%" i)
       i))
 
-	
+
 
   ;; With some clever coding, these handle-***-value functions could
   ;; be consolidated.  There is likely something clever in Python to
@@ -3424,7 +3423,7 @@
 			;; try pubchem as a fallback
 			(let ((pc (drugbox->pubchem rev-string)))
 			  (if (not (string? pc))
-			      
+
 			      ;; OK, try chemspider extraction
 			      (let ((cs (drugbox->chemspider rev-string)))
 				(if (not (string? cs))
@@ -3476,33 +3475,50 @@
 
   (define (handle-rev-string-2016 rev-string)
     (let ((lines (string-split rev-string #\newline)))
-      (let ((db-id #f))
-	(for-each (lambda (line)
-		    (if (string-match "DrugBank = " line)
-			(let ((parts (string->list-of-strings line)))
-			  (if (> (length parts) 3)
-			      (set! db-id (list-ref parts 3)))))
-		    ;; match other databases here
-		    )
-		  lines)
 
-	(format #t "db-id: ~s~%" db-id)
+      (cond 
+       ((= (length lines) 1)
+	(let* ((line (car lines))
+	       (open-match (string-match "#[Rr][Ee][Dd][Ii][Rr][Ee][Cc][Tt] \\[\\[" line)))
+	  (if open-match
+	      (let ((close-match (string-match "\\]\\]" line)))
+		(if close-match
+		    (begin
+; 				  (format #t "-----------:  open-match ~%" open-match)
+; 				  (format #t "-----------: close-match ~%" close-match)
+; 				  (format #t "-----------: line ~%" line)
+		      (let ((s (substring line 12 (car (vector-ref close-match 1)))))
+			(get-drug-via-wikipedia s)))))))) ;; returns a file anme
 
-	;; check an association-list for the "DrugBank" entry
-	;; 
-	(if (string? db-id)
+       (else
+	(let ((db-id #f)) ;; drugbank-id e.g. DB01098
+	  (for-each (lambda (line)
+		      (if (string-match "DrugBank = " line)
+			  (let ((parts (string->list-of-strings line)))
+			    (if (> (length parts) 3)
+				(set! db-id (list-ref parts 3)))))
+		      ;; match other databases here
+		      )
+		    lines)
 
-	    ;; normal path hopefully
-	    ;; 
-	    (let ((db-mol-uri (string-append 
-			       "http://www.drugbank.ca/structures/structures/small_molecule_drugs/" 
-			       db-id ".mol"))
-		  (file-name (string-append db-id ".mol")))
-	      (format #t "getting url: ~s~%" db-mol-uri)
-	      (coot-get-url db-mol-uri file-name)
-	      file-name)
+	  (format #t "DEBUG:: handle-rev-string-2016: db-id: ~s~%" db-id)
+	  
+	  ;; check an association-list for the "DrugBank" entry
+	  ;; 
+	  (if (string? db-id)
 
-	    #f))))
+	      ;; normal path hopefully
+	      ;; 
+	      (let ((db-mol-uri (string-append
+				 ;; "http://www.drugbank.ca/structures/structures/small_molecule_drugs/"
+				 "https://www.drugbank.ca/structures/small_molecule_drugs/"
+				 db-id ".mol"))
+		    (file-name (string-append db-id ".mol")))
+		(format #t "DEBUG:: handle-rev-string-2016: getting url: ~s to file ~s~%" db-mol-uri file-name)
+		(coot-get-url db-mol-uri file-name)
+		file-name)
+ 
+	      #f))))))
 
 
   (define (handle-sxml-rev-value sxml)
@@ -3617,7 +3633,7 @@
 
 
   ;; main line
-
+  ;;
   (if (string? drug-name-in)
       (if (> (string-length drug-name-in) 0)
 	  ;; we need to downcase the drug name for wikipedia
@@ -3632,6 +3648,7 @@
 
 	    (format #t "INFO:: get-drug-via-wikipedia: url: ~s~%" url)
 	    (let ((l (string-length xml)))
+
 	      (if (= l 0)
 		  ;; something bad happened - wikipedia replied with an empty string
 		  (begin
@@ -3642,10 +3659,15 @@
 		      (lambda (port)
 			(display xml port)))
 
-		    (call-with-input-string
-		     xml (lambda (string-port)
-			   (let ((sxml (xml->sxml string-port)))
-			     (handle-sxml sxml)))))))))))
+		    ;;
+		    (let ((captured (call-with-input-string
+				     xml (lambda (string-port)
+					   (let ((sxml (xml->sxml string-port)))
+					     (handle-sxml sxml))))))
+		      captured))))))))
+
+
+;; --------------------------------------------------------
 
 
 (define (get-SMILES-for-comp-id-from-pdbe comp-id)

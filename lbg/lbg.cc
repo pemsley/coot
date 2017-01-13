@@ -3710,6 +3710,11 @@ lbg_info_t::import_from_widgeted_molecule(const widgeted_molecule_t &mol_in) {
    int re_index[mol_in.atoms.size()]; // map from mol_in atom indexing
 				      // the this molecule atom
 				      // indexing.
+
+   if (false)
+      std::cout << "import_from_widgeted_molecule with " << mol_in.atoms.size()
+		<< " atoms" << std::endl;
+
    for (unsigned int i=0; i<mol_in.atoms.size(); i++)
       re_index[i] = UNASSIGNED_INDEX;
 
@@ -3722,11 +3727,14 @@ lbg_info_t::import_from_widgeted_molecule(const widgeted_molecule_t &mol_in) {
 						    mol_in.atoms[iat].element,
 						    mol_in.atoms[iat].charge,
 						    ci);
-	 if (0) 
+	 if (false)
 	    std::cout << "render from molecule " << iat
 		      << " id: " << mol_in.atoms[iat].atom_id
 		      << " name: " << mol_in.atoms[iat].atom_name
-		      << " charge:" << mol_in.atoms[iat].charge << std::endl;
+		      << " charge:" << mol_in.atoms[iat].charge
+		      << " pos: " << mol_in.atoms[iat].atom_position
+		      << std::endl;
+
 	 double sa = mol_in.atoms[iat].get_solvent_accessibility();
 	 new_atom.set_atom_name(mol_in.atoms[iat].get_atom_name());
 
@@ -3740,7 +3748,7 @@ lbg_info_t::import_from_widgeted_molecule(const widgeted_molecule_t &mol_in) {
 	 std::pair<bool, int> s = mol.add_atom(new_atom);
 	 re_index[iat] = s.second;
 	 
-	 if (0)
+	 if (false)
 	    if (! s.first)
 	       std::cout << "render_from_molecule() atom " << iat
 			 << " was close to atom " << s.second << " "
@@ -3820,13 +3828,14 @@ lbg_info_t::import_from_widgeted_molecule(const widgeted_molecule_t &mol_in) {
 	 }
       }
    }
+
    // for input_coords_to_canvas_coords() to work:
    //
    mol.centre_correction = mol_in.centre_correction;
    mol.scale_correction  = mol_in.scale_correction;
    mol.mol_in_min_y = mol_in.mol_in_min_y;
    mol.mol_in_max_y = mol_in.mol_in_max_y;
-   
+
    // 
    make_saves_mutex = 1; // allow saves again.
 
@@ -4239,8 +4248,8 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
    bool try_as_mdl_mol = false;
 #ifndef MAKE_ENHANCED_LIGAND_TOOLS
    // fallback
-   try_as_mdl_mol = true; 
-#else    
+   try_as_mdl_mol = true;
+#else
    try {
       RDKit::RWMol *m = RDKit::Mol2FileToMol(file_name);
       coot::set_3d_conformer_state(m);
@@ -4253,6 +4262,7 @@ lbg_info_t::import_mol_from_file(const std::string &file_name) {
       }
    }
    catch (const RDKit::FileParseException &rte) {
+
       try {
 	 bool sanitize = true;
 	 bool removeHs = false;
@@ -4340,6 +4350,7 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
    try {
       // molfile molecules don't know about aromatic bonds, we need
       // to kekulize now.
+
       RDKit::MolOps::Kekulize(*m); // non-const reference?
       double weight_for_3d_distances = 0.4;
 
@@ -4355,7 +4366,7 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
 	       std::cout << "WARNING:: import_mol_from_file() failed to make 2d conformer "
 			 << std::endl;
 	    iconf = iconf_local;
-	 } 
+	 }
 
 	 //    Old way (Pre-Feb 2013) goving via a molfile_molecule_t
 	 //    
@@ -4368,11 +4379,10 @@ lbg_info_t::rdkit_mol_post_read_handling(RDKit::RWMol *m, const std::string &fil
 
 	 widgeted_molecule_t wmol = import_rdkit_mol(m, iconf);
 	 mdl_file_name = file_name;
-   
 	 import_from_widgeted_molecule(wmol);
 	 render();
 	 update_descriptor_attributes();
-     
+
       } else {
 	 std::cout << "WARNING:: molecule from " << file_name << " had 0 conformers " << std::endl;
       }
@@ -4877,11 +4887,17 @@ lbg_info_t::get_drug(const std::string &drug_name) {
    std::string status_string;
    
    if (get_drug_mdl_file_function_pointer) {
+
       try {
 	 if (get_drug_mdl_file_function_pointer) {
 	    std::string file_name = get_drug_mdl_file_function_pointer(drug_name);
-	    import_mol_from_file(file_name);
-	    save_molecule();
+	    if (file_name.empty()) {
+	       std::cout << "WARNING:: in get_drug(): empty mol file name." << std::endl;
+	    } else {
+	       status = true;
+	       import_mol_from_file(file_name);
+	       save_molecule();
+	    }
 	 }
       }
       catch (const std::runtime_error &rte) {
