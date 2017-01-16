@@ -253,6 +253,30 @@ lbg_info_t::draw_all_flev_residue_attribs() {
    }
 }
 
+// top left and bottom right corners.
+//
+std::pair<lig_build::pos_t, lig_build::pos_t>
+lbg_info_t::flev_residues_extents() const {
+
+   std::pair<lig_build::pos_t, lig_build::pos_t> p; // defaults with (-1, -1) for coordinates
+   if (draw_flev_annotations_flag) {
+      lig_build::pos_t ligand_centre = mol.get_ligand_centre();
+      GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
+      if (residue_circles.size()) {
+	 p.first  = lig_build::pos_t( 9999, 9999);
+	 p.second = lig_build::pos_t(-9999, -9999);
+	 for (unsigned int i=0; i<residue_circles.size(); i++) {
+	    const lig_build::pos_t &pos = residue_circles[i].pos;
+	    if (pos.x < p.first.x) p.first.x = pos.x;
+	    if (pos.y < p.first.y) p.first.y = pos.y;
+	    if (pos.x > p.second.x) p.second.x = pos.x;
+	    if (pos.y > p.second.y) p.second.y = pos.y;
+	 }
+      }
+   }
+   return p;
+}
+
 void
 lbg_info_t::draw_all_flev_ligand_annotations() {
 

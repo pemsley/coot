@@ -21,10 +21,27 @@ namespace coot {
 
    class ray_trace_molecule_info {
 
-      float bond_thickness; 
       float density_thickness;
       float zoom;
    public:
+
+      class bond_t {
+      public:
+         Cartesian begin_pos;
+         Cartesian end_pos;
+         double bond_thickness;
+	 bond_t (const Cartesian &b, const Cartesian &e, double bt) {
+	    begin_pos = b;
+	    end_pos = e;
+	    bond_thickness = bt;
+	 }
+      };
+
+      class coloured_bonds_container_t {
+      public:
+         std::vector<bond_t> bonds;
+         colour_t colour;
+      };
 
       class ball_t {
       public:
@@ -59,10 +76,10 @@ namespace coot {
       std::vector<std::pair<Cartesian, Cartesian> > density_lines;
       colour_t density_colour;
       // bond_lines and bond_colour have the same size.
-      std::vector<std::pair<Cartesian, Cartesian> > bond_lines;
+      std::vector<coloured_bonds_container_t> bond_lines;
       std::vector<std::pair<Cartesian, Cartesian> > bone_lines;
       std::vector<colour_t> bond_colour;
-      std::vector<std::pair<Cartesian, colour_t> > atom;
+      // std::vector<std::pair<Cartesian, colour_t> > atom;
       std::vector<ball_t> balls;
 
       // extra restraints representation

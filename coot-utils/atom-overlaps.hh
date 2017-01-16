@@ -42,11 +42,23 @@ namespace coot {
 	 }
 	 unsigned int size() const { return positions.size(); }
       };
+      class dot_t {
+      public:
+	 double overlap;
+	 clipper::Coord_orth pos;
+	 std::string col;
+	 dot_t(double o, const std::string &col_in, const clipper::Coord_orth &pos_in) {
+	    overlap = o;
+	    pos = pos_in;
+	    col = col_in;
+	 }
+      };
       atom_overlaps_dots_container_t() {}
-      std::map<std::string, std::vector<clipper::Coord_orth> > dots;
+      std::map<std::string, std::vector<dot_t> > dots;
       spikes_t clashes;
       double score() const {
-	 std::map<std::string, std::vector<clipper::Coord_orth> >::const_iterator it;
+	 // std::map<std::string, std::vector<clipper::Coord_orth> >::const_iterator it;
+	 std::map<std::string, std::vector<dot_t> >::const_iterator it;
 	 // do these match the types in overlap_delta_to_contact_type()?
 	 double r = 0;
 	 it = dots.find("H-bond");
@@ -121,8 +133,12 @@ namespace coot {
       double get_overlap_volume(const double &dist, const double &r_1, const double &r_2) const; // in A^3
       const protein_geometry *geom_p;
 
+      bool clashable_alt_confs(mmdb::Atom *at_1, mmdb::Atom *at_2) const;
       std::vector<double> env_residue_radii;
       void setup_env_residue_atoms_radii(int i_sel_hnd_env_atoms); // fill above
+      // which calls:
+      double type_energy_to_radius(const std::string &te) const;
+      
       void add_residue_neighbour_index_to_neighbour_atoms();
       std::vector<double> neighb_atom_radius;
 
@@ -139,8 +155,8 @@ namespace coot {
       // a quick store of what's close to what and the radius.
       //
       std::map<int, std::vector<std::pair<mmdb::Atom *, double> > > ligand_atom_neighbour_map;
-      // std::map<int, std::vector<mmdb::Atom *> > ligand_to_env_atom_neighbour_map;
       std::map<int, std::vector<int> > ligand_to_env_atom_neighbour_map;
+      // adds radii too.
       void fill_ligand_atom_neighbour_map();
       // include inner cusps (ugly/simple)
       bool is_inside_another_ligand_atom(int idx,
@@ -153,13 +169,18 @@ namespace coot {
       bool is_inside_another_atom_to_which_its_bonded(int atom_idx,
 						      mmdb::Atom *at,
 						      const clipper::Coord_orth &pt_on_surface,
-						      const std::vector<int> &boned_neighb_indices,
+						      const std::vector<int> &bonded_neighb_indices,
 						      mmdb::Atom **atom_selection) const;
+      bool is_inside_an_env_atom_to_which_its_bonded(int idx,
+						     const std::vector<int> &bonded_neighb_indices,
+						     mmdb::Atom **env_residue_atoms,
+						     const clipper::Coord_orth &pt_at_surface);
       double clash_spike_length;
       void mark_donors_and_acceptors();
       void mark_donors_and_acceptors_central_residue(int udd_h_bond_type_handle);
       void mark_donors_and_acceptors_for_neighbours(int udd_h_bond_type_handle);
-      std::string overlap_delta_to_contact_type(double delta, bool is_h_bond) const;
+      // return a contact-type and a colour
+      std::pair<std::string, std::string> overlap_delta_to_contact_type(double delta, bool is_h_bond) const;
       const dictionary_residue_restraints_t &get_dictionary(mmdb::Residue *r, unsigned int idx) const;
       // where BONDED here means bonded/1-3-angle/ring related
       enum atom_interaction_type { CLASHABLE, BONDED, IGNORED };
@@ -168,11 +189,12 @@ namespace coot {
 				   mmdb::Atom *at_1,
 				   mmdb::Atom *at_2,
 				   bool exclude_mainchain_also,
-				   std::map<std::string, std::vector<std::pair<std::string, std::string> > > &bonded_neighbours,
-				   std::map<std::string, std::vector<std::vector<std::string> > > &ring_list_map);
+				   std::map<std::string, std::vector<std::pair<std::string, std::string> > > *bonded_neighbours,
+				   std::map<std::string, std::vector<std::vector<std::string> > > *ring_list_map);
       bool are_bonded_residues(mmdb::Residue *res_1, mmdb::Residue *res_2) const;
       bool in_same_ring(mmdb::Atom *at_1, mmdb::Atom *at_2,
-			      std::map<std::string, std::vector<std::vector<std::string> > > &ring_list_map) const;
+			std::map<std::string, std::vector<std::vector<std::string> > > &ring_list_map) const;
+      bool is_linked(mmdb::Atom *at_1, mmdb::Atom *at_2) const;
 //       bool in_same_ring(const std::string &atom_name_1,
 // 			const std::string &atom_name_2,
 // 			const std::vector<std::vector<std::string> > &ring_list) const;
@@ -186,7 +208,8 @@ namespace coot {
 								    int i_sel_hnd_1,
 								    int i_sel_hnd_2,
 								    mmdb::realtype min_dist,
-								    mmdb::realtype max_dist);
+								    mmdb::realtype max_dist,
+								    bool make_vdw_surface);
 
    public:
       // we need mol to use UDDs to mark the HB donors and acceptors (using coot-h-bonds.hh)
@@ -214,7 +237,8 @@ namespace coot {
       void make_overlaps();
       void contact_dots_for_overlaps() const; // old
       atom_overlaps_dots_container_t contact_dots_for_ligand();
-      atom_overlaps_dots_container_t all_atom_contact_dots(double dot_density = 0.5);
+      atom_overlaps_dots_container_t all_atom_contact_dots(double dot_density = 0.5,
+							   bool make_vdw_surface = false);
 
    };
 

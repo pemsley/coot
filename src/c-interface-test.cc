@@ -1,4 +1,4 @@
-/* src/c-interface.cc
+/* src/c-interface-test.cc
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Copyright 2008, 2009 by The University of Oxford
@@ -116,6 +116,7 @@
 
 
 #include "c-interface.h"
+#include "c-interface-generic-objects.h"
 #include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
 #include "c-interface-ligands.hh"
@@ -739,8 +740,8 @@ void glyco_tree_test() {
 
       std::vector<std::string> types_with_no_dictionary =
 	 g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
-      std::cout << "glyco-test found " << types_with_no_dictionary.size() << " types with no dictionary"
-		<< std::endl;
+      std::cout << "glyco-test found " << types_with_no_dictionary.size()
+		<< " types with no dictionary" << std::endl;
       for (unsigned int i=0; i<types_with_no_dictionary.size(); i++) {
 	 std::cout << "trying to dynamic add: " << types_with_no_dictionary[i] << std::endl;
 	 g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
@@ -750,5 +751,3 @@ void glyco_tree_test() {
    } 
 
 }
-
-

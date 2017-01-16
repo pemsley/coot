@@ -1,4 +1,6 @@
 
+# this function is not at startup?
+
 def deactivate_molecules_except(imol):
     for i in model_molecule_list():
         if (i != imol):
@@ -65,14 +67,17 @@ def coot_contact_dots_ligand_func():
 
 # not ready for public yet
 def coot_all_atom_contact_dots_func():
+    
     with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                aa_ins_code, aa_atom_name, aa_alt_conf]:
+
+        coot_probe_object_names = ['wide-contact', 'close-contact', 'small-overlap',
+                                   'big-overlap', 'H-bond', 'clashes']
+        n = number_of_generic_objects()
+        for i in range(n):
+           if generic_object_name(i) in coot_probe_object_names:
+              close_generic_object(i)
+           else:
+               print generic_object_name(i), "is not in", coot_probe_object_names
         coot_all_atom_contact_dots(aa_imol)
 
-if (have_coot_python):
-  if coot_python.main_menubar():
-
-      # not ready for public yet
-      add_simple_coot_menu_menuitem(coot_menubar_menu("Ligand"),
-                                    "Coot All-Atom Contact Dots",
-                                    lambda func: coot_all_atom_contact_dots_func())

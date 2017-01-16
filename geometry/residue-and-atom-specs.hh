@@ -281,6 +281,9 @@ namespace coot {
 	    u = false;
 	 return u;
       }
+      bool empty() const {
+	 return unset_p();
+      }
       residue_spec_t next() const {
 	 residue_spec_t r = *this;
 	 if (res_no != mmdb::MinInt4)

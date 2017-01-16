@@ -1386,7 +1386,9 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
 	    if (ierr_optional_x == 0)
 	       if (ierr_optional_y == 0)
 		  if (ierr_optional_z == 0) {
-		     model_Cartn = std::pair<bool, clipper::Coord_orth>(true, clipper::Coord_orth(x,y,z));
+		     // model_Cartn = std::pair<bool, clipper::Coord_orth>(true, clipper::Coord_orth(x,y,z));
+		     model_Cartn.first = true;
+		     model_Cartn.second = clipper::Coord_orth(x,y,z);
 		     if (close_float_p(x, 0.0))
 			if (close_float_p(z, 0.0))
 			   if (close_float_p(z, 0.0))
@@ -1432,6 +1434,7 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
 			 << "ideal-pos " << pdbx_model_Cartn_ideal.first << " "
 			 << pdbx_model_Cartn_ideal.second.format()
 			 << std::endl;
+
 	    // mon_lib_add_atom(comp_id, atom_id, padded_name, type_symbol, type_energy,
 	    // partial_charge, formal_charge, aromaticity,
 	    // model_Cartn, pdbx_model_Cartn_ideal);
@@ -1448,8 +1451,8 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
 	    if (pdbx_model_Cartn_ideal.first)
 	       atom_info.add_pos(dict_atom::IDEAL_MODEL_POS, pdbx_model_Cartn_ideal);
 
-	    atom_info.formal_charge = formal_charge;
-	    atom_info.aromaticity = aromaticity;
+	    atom_info.formal_charge      = formal_charge;
+	    atom_info.aromaticity        = aromaticity;
 	    atom_info.pdbx_stereo_config = pdbx_stereo_config_flag;
 
 	    mon_lib_add_atom(comp_id, imol_enc, atom_info);

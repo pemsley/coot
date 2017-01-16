@@ -115,10 +115,10 @@ coot::operator<<(std::ostream &s, const coot::chem_mod_tor &a) {
 std::ostream&
 coot::operator<<(std::ostream &s, const coot::chem_mod_plane &a) {
 
-   s << "[chem_mod_plane "
+   s << "[chem_mod_plane function="
      << a.function << " "
      << a.plane_id << " ";
-
+   s << " n_atoms=" << a.atom_id_esd.size();
    for (unsigned int i=0; i<a.atom_id_esd.size(); i++)
       s << "  " << a.atom_id_esd[i].first << " "
 	<< a.atom_id_esd[i].second;
@@ -593,8 +593,10 @@ coot::protein_geometry::add_chem_mod_plane(mmdb::mmcif::PLoop mmCIFLoop) {
       ierr_tot += ierr;
 
       if (ierr_tot == 0 || function == "delete") {
-	 coot::chem_mod_plane plane(plane_id, function);
-	 mods[mod_id][plane].add_atom(atom_id_mmdb_expand(atom_id), new_dist_esd);
+	 // coot::chem_mod_plane plane(plane_id, function);
+	 // mods[mod_id][plane].add_atom(atom_id_mmdb_expand(atom_id), new_dist_esd);
+	 std::string atom_name = atom_id_mmdb_expand(atom_id);
+	 mods[mod_id].add_plane_atom(plane_id, function, atom_name, new_dist_esd);
       } else {
 	 std::cout << "oops in add_chem_mod_plane ierr_tot is "
 		   << ierr_tot << std::endl;
@@ -604,7 +606,7 @@ coot::protein_geometry::add_chem_mod_plane(mmdb::mmcif::PLoop mmCIFLoop) {
 
 // can throw a std::runtime_error
 // 
-std::pair<coot::protein_geometry::chem_mod, coot::protein_geometry::chem_mod>
+std::pair<coot::chem_mod, coot::chem_mod>
 coot::protein_geometry::get_chem_mods_for_link(const std::string &link_id) const {
 
    bool found = false; 
