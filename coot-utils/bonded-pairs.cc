@@ -105,8 +105,7 @@ coot::bonded_pair_t::apply_chem_mods(const coot::protein_geometry &geom) {
 	 // get the chem mods for each residue (can throw a runtime
 	 // error if there is one - (not an error).
 	 // 
-	 std::pair<protein_geometry::chem_mod, protein_geometry::chem_mod> mods =
-	    geom.get_chem_mods_for_link(link_type);
+	 std::pair<chem_mod, chem_mod> mods = geom.get_chem_mods_for_link(link_type);
 	 std::string res_1_name = res_1->GetResName();
 	 std::string res_2_name = res_2->GetResName();
 	 for (unsigned int i=0; i<mods.first.atom_mods.size(); i++) {

@@ -170,7 +170,7 @@ int main(int argc, char **argv) {
    if (argc > 1) {
       std::string metric_str = "density_correlation";
       std::string value_str;
-      std::string database_name = std::string(PKGDATADIR) + "/data/ligands-2016.db";
+      std::string database_name = coot::package_data_dir() + "/data/ligands-2016.db";
       bool do_help = false;
       bool do_rank = false;
 

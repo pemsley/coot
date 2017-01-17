@@ -23,9 +23,8 @@
 
 #include <iomanip>
 
-#define HAVE_CPLUSPLUS_THREAD // hack
 
-#ifdef HAVE_CPLUSPLUS_THREAD
+#ifdef HAVE_CXX_THREAD
 #include <thread>
 #include <future>
 #endif
@@ -61,6 +60,8 @@ coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Residue *res_ce
 
 }
 
+// this can throw a std::out_of_range (missing residue from dictionary)
+// 
 // clash spike_length should be 0.5;
 coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Residue *res_central_in,
 							   const std::vector<mmdb::Residue *> &neighbours_in,
@@ -78,6 +79,8 @@ coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Residue *res_ce
 
 }
 
+// this can throw a std::out_of_range (missing residue from dictionary)
+//
 coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Manager *mol_in,
 							   const protein_geometry *geom_p_in,
 							   double clash_spike_length_in,
@@ -92,6 +95,8 @@ coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Manager *mol_in
 
 
 
+// this can throw a std::out_of_range (missing residue from dictionary)
+//
 void
 coot::atom_overlaps_container_t::init() {
 
@@ -139,6 +144,8 @@ coot::atom_overlaps_container_t::init() {
    }
 }
 
+// this can throw a std::out_of_range (missing residue from dictionary)
+//
 void
 coot::atom_overlaps_container_t::init_for_all_atom() {
 
@@ -240,7 +247,8 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors_central_residue(int u
    }
 }
 
-// can throw std::exception
+// this can throw a std::out_of_range
+//
 const coot::dictionary_residue_restraints_t &
 coot::atom_overlaps_container_t::get_dictionary(mmdb::Residue *r, unsigned int idx) const {
 
@@ -252,9 +260,10 @@ coot::atom_overlaps_container_t::get_dictionary(mmdb::Residue *r, unsigned int i
       if (it == dictionary_map.end()) {
 	 std::cout << "========= hideous failure in get_dictionary for type " << res_name
 		   << " using " << dictionary_map.size() << " dictionary entries" << std::endl;
-	 std::string mess = "No dictionary for type " + res_name;
-	 std::out_of_range ex(mess);
-	 throw(ex);
+	 std::string mess = "dictionary index out of range for ";
+	 mess += res_name;
+	 std::out_of_range oor(mess);
+	 throw oor;
       }
       return it->second;
    } else {
@@ -262,6 +271,8 @@ coot::atom_overlaps_container_t::get_dictionary(mmdb::Residue *r, unsigned int i
    }
 }
 
+// this can throw a std::out_of_range
+//
 void
 coot::atom_overlaps_container_t::mark_donors_and_acceptors_for_neighbours(int udd_h_bond_type_handle) {
 
