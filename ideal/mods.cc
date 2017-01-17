@@ -51,8 +51,8 @@ coot::restraints_container_t::apply_mods(int idr, mmdb::PPAtom res_selection,
 	 apply_mod("COO", geom, idr, residue_p);
       }
    }
-   return mod_counts;
 
+   return mod_counts;
 }
 
 void
@@ -64,27 +64,26 @@ coot::restraints_container_t::apply_mod(const std::string &mod_name,
    // We crash here when linked with CCP4srs, geom.mods has been corrupted.
    //
    if (false) {
-      std::map<std::string, coot::protein_geometry::chem_mod>::const_iterator iit;
-      std::cout << "------ Here are the current mods: " << geom.mods.size() << std::endl;
+      std::map<std::string, coot::chem_mod>::const_iterator iit;
       for (iit=geom.mods.begin(); iit!=geom.mods.end(); iit++) 
 	 std::cout << "  " << iit->first << std::endl;
    }
 
-   std::map<std::string, coot::protein_geometry::chem_mod>::const_iterator it = 
-      geom.mods.find(mod_name);
+   std::map<std::string, coot::chem_mod>::const_iterator it = geom.mods.find(mod_name);
 
    if (it != geom.mods.end()) {
-      for (unsigned int i=0; i<it->second.bond_mods.size(); i++) { 
+
+      for (unsigned int i=0; i<it->second.bond_mods.size(); i++) {
 	 apply_mod_bond(it->second.bond_mods[i], residue_p);
       }
-      for (unsigned int i=0; i<it->second.angle_mods.size(); i++) { 
+      for (unsigned int i=0; i<it->second.angle_mods.size(); i++) {
 	 apply_mod_angle(it->second.angle_mods[i], residue_p);
       }
-      for (unsigned int i=0; i<it->second.plane_mods.size(); i++) { 
+      for (unsigned int i=0; i<it->second.plane_mods.size(); i++) {
 	 apply_mod_plane(it->second.plane_mods[i], residue_p);
       }
    } else {
-      std::cout << "mod name \"" << mod_name << "\" not found in dictionary "
+      std::cout << "WARNING:: mod name \"" << mod_name << "\" not found in dictionary "
 		<< std::endl;
    } 
 }
@@ -366,9 +365,9 @@ coot::restraints_container_t::mod_plane_add(const coot::chem_mod_plane &mod_plan
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    
    std::map<std::string, std::vector <int> > pos; // we worry about alt confs.
-   
+
    for (unsigned int i=0; i<mod_plane.atom_id_esd.size(); i++) {
-      for (int iat=0; iat<n_residue_atoms; iat++) { 
+      for (int iat=0; iat<n_residue_atoms; iat++) {
 	 std::string atom_name(residue_atoms[iat]->name);
 	 if (atom_name == mod_plane.atom_id_esd[i].first) {
 	    int atom_index;
@@ -383,7 +382,7 @@ coot::restraints_container_t::mod_plane_add(const coot::chem_mod_plane &mod_plan
    std::map<std::string, std::vector <int> >::const_iterator it;
    for (it=pos.begin(); it!=pos.end(); it++) {
       const std::vector<int> &position_indices = it->second;
-   
+
       if (position_indices.size() > 3) {
 	 double esd = 0.02;
 
@@ -393,7 +392,7 @@ coot::restraints_container_t::mod_plane_add(const coot::chem_mod_plane &mod_plan
 	 
 	 std::vector<bool> fixed_flags = make_fixed_flags(position_indices);
 	 add_plane(position_sigma_indices, fixed_flags);
-	 if (0) { 
+	 if (false) {
 	    std::cout << "DEBUG:: mod_plane_add() adding plane\n";
 	    for (unsigned int i=0; i<position_indices.size(); i++)
 	       std::cout << "   " << coot::atom_spec_t(atom[position_indices[i]]) << "\n";

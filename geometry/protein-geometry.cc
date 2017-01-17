@@ -1037,6 +1037,88 @@ coot::dictionary_residue_restraints_t::get_attached_H_names(const std::string &a
 }
 
 
+// return an empty string on failure
+std::string
+coot::dictionary_residue_restraints_t::get_other_H_name(const std::string &H_at_name) const {
+
+   std::string r;
+
+   // if it's a hydrogen atom name as input then the neighbour of that won't be
+   // a hydrogen
+   //
+   std::vector<std::string> neighbs = neighbours(H_at_name, false);
+
+   if (neighbs.size() == 1) {
+      const std::string &n = neighbs[0];
+      for (unsigned int i=0; i<bond_restraint.size(); i++) {
+	 if (bond_restraint[i].atom_id_1() == n) {
+	    if (bond_restraint[i].atom_id_2() != H_at_name) {
+	       if (false)
+		  std::cout << "here 1 with br " << bond_restraint[i] << " ele :"
+			    << element(bond_restraint[i].atom_id_2_4c()) << ":" << std::endl;
+	       if (element(bond_restraint[i].atom_id_2_4c()) == " H") {
+		  r = bond_restraint[i].atom_id_2_4c();
+		  break;
+	       }
+	    }
+	 }
+	 if (bond_restraint[i].atom_id_2() == n) {
+	    if (bond_restraint[i].atom_id_1() != H_at_name) {
+	       if (false)
+		  std::cout << "here 2 with br " << bond_restraint[i] << " ele :"
+			    << element(bond_restraint[i].atom_id_1_4c()) << ":" << std::endl;
+	       if (element(bond_restraint[i].atom_id_1_4c()) == " H") {
+		  r = bond_restraint[i].atom_id_1_4c();
+		  break;
+	       }
+	    }
+	 }
+      }
+   }
+   return r;
+}
+
+// return an empty vector on failure
+std::vector<std::string>
+coot::dictionary_residue_restraints_t::get_other_H_names(const std::string &H_at_name) const {
+
+   std::vector<std::string> v;
+
+   // if it's a hydrogen atom name as input then the neighbour of that won't be
+   // a hydrogen
+   //
+   std::vector<std::string> neighbs = neighbours(H_at_name, false);
+
+   if (neighbs.size() == 1) {
+      const std::string &n = neighbs[0];
+      for (unsigned int i=0; i<bond_restraint.size(); i++) {
+	 if (bond_restraint[i].atom_id_1() == n) {
+	    if (bond_restraint[i].atom_id_2() != H_at_name) {
+	       if (false)
+		  std::cout << "here 1 with br " << bond_restraint[i] << " ele :"
+			    << element(bond_restraint[i].atom_id_2_4c()) << ":" << std::endl;
+	       if (element(bond_restraint[i].atom_id_2_4c()) == " H") {
+		  v.push_back(bond_restraint[i].atom_id_2_4c());
+	       }
+	    }
+	 }
+	 if (bond_restraint[i].atom_id_2() == n) {
+	    if (bond_restraint[i].atom_id_1() != H_at_name) {
+	       if (false)
+		  std::cout << "here 2 with br " << bond_restraint[i] << " ele :"
+			    << element(bond_restraint[i].atom_id_1_4c()) << ":" << std::endl;
+	       if (element(bond_restraint[i].atom_id_1_4c()) == " H") {
+		  v.push_back(bond_restraint[i].atom_id_1_4c());
+	       }
+	    }
+	 }
+      }
+   }
+   return v;
+}
+
+
+
 
 void 
 coot::protein_geometry::add_restraint(std::string comp_id,
@@ -3865,6 +3947,8 @@ coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code
       model_p->AddChain(chain_p);
       mol = new mmdb::Manager;
       mol->AddModel(model_p);
+   } else {
+      std::cout << "WARNING:: Null residue in mol_from_dictionary() for " << three_letter_code << std::endl;
    }
    return mol;
 }
@@ -3955,7 +4039,7 @@ coot::dictionary_residue_restraints_t::GetResidue(bool idealised_flag, float b_f
 	 flag_and_have_coords = true;
       }
 
-      if (! flag_and_have_coords) { 
+      if (! flag_and_have_coords) {
 	 // OK, try model_Cartn (and that is idealised if the dictionary was refmac)
 	 // (better than nothing).
 	 // 

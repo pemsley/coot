@@ -104,6 +104,9 @@ namespace coot {
    class link_by_torsion_t : public link_by_torsion_base_t {
       void init(mmdb::Residue *ref_res_p, mmdb::Residue *ext_res_p);
       std::string link_type_to_file_name(const std::string &link_type) const;
+      std::string link_type_to_file_name(const std::string &link_type,
+					 const std::string &new_res_comp_id) const;
+      
       std::string comp_id_to_decoration_file_name(const std::string &link_type) const;
       float b_factor;
    public:

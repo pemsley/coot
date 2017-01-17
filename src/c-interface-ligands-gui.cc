@@ -920,7 +920,7 @@ coot::ligand_report_absolute_t::make_percentiles() const {
 
 #ifdef USE_SQLITE3
 
-   std::string pkg_data_dir = PKGDATADIR;
+   std::string pkg_data_dir = coot::package_data_dir();
    std::string ligands_db_file_name = "ligands.db";
    std::string d = coot::util::append_dir_file(pkg_data_dir, "data");
    std::string f = coot::util::append_dir_file(d, ligands_db_file_name);
@@ -1187,10 +1187,11 @@ gboolean install_simple_wiggly_ligand_idle_fn(gpointer data) {
 
    graphics_info_t g;
    ligand_wiggly_ligand_data_t *ldp = static_cast<ligand_wiggly_ligand_data_t *>(data);
-
-   std::cout << "runnign install_simple_wiggly_ligand_idle_fn() with g.ligand_wiggly_ligand_count "
-	     << g.ligand_wiggly_ligand_count << " " << g.ligand_wiggly_ligand_n_samples
-	     << " g.ligand_wiggly_ligand_n_samples and finish " << ldp->finish << std::endl;
+  
+   if (false)
+      std::cout << "INFO:: running install_simple_wiggly_ligand_idle_fn() with g.ligand_wiggly_ligand_count "
+	        << g.ligand_wiggly_ligand_count << " " << g.ligand_wiggly_ligand_n_samples
+	        << " g.ligand_wiggly_ligand_n_samples and finish " << ldp->finish << std::endl;
 
    if (g.ligand_wiggly_ligand_count >= g.ligand_wiggly_ligand_n_samples) {
 

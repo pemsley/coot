@@ -310,9 +310,9 @@ int test_internal_single() {
       // status = test_map_tools();
       // status = test_minimol();
       // status = test_monomer_organic_set();
-      // status = test_COO_mod();
+      status = test_COO_mod();
       // status = test_output_link_distances_are_correct();
-      status = test_string_splitting();
+      // status = test_string_splitting();
    }
    catch (const std::runtime_error &mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -2727,7 +2727,7 @@ int test_COO_mod() {
       
       mmdb::PResidue *SelResidues = new mmdb::PResidue[1];
       SelResidues[0] = asc.atom_selection[0]->residue;
-      
+
       residue_selection_t result =
 	 testing_func_probabilities_refine_fragment(asc, SelResidues,
 						    1, "A", 93, t.geom, 0, 0, 0, 0);
@@ -2762,7 +2762,7 @@ int test_COO_mod() {
       std::cout << "OXT->O distance: " << oxt_dist << std::endl;
    
       if (d < 0.02)
-	 if (oxt_dist > 2.0) 
+	 if (oxt_dist > 2.0)
 	    status = 1;
 
    }

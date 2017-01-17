@@ -708,6 +708,23 @@ int copy_residue_range(int imol_target,    const char *chain_id_target,
 		       int imol_reference, const char *chain_id_reference, 
 		       int resno_range_start, int resno_range_end);
 
+/*! \brief replace the given residues from the reference molecule to the target molecule
+*/
+#ifdef __cplusplus
+#ifdef USE_GUILE
+int replace_residues_from_mol_scm(int imol_target,
+				 int imol_ref,
+				 SCM residue_specs_list_ref_scm);
+#endif /* USE_GUILE */
+
+#ifdef USE_PYTHON
+int replace_residues_from_mol_py(int imol_target,
+				 int imol_ref,
+				 PyObject *residue_specs_list_ref_py);
+#endif /* USE_PYTHON */
+#endif	/* __cplusplus */
+
+
 /*! \brief replace pdb.  Fail if molecule_number is not a valid model molecule.
   Return -1 on failure.  Else return molecule_number  */
 int clear_and_update_model_molecule_from_file(int molecule_number, 
@@ -2732,6 +2749,17 @@ PyObject *test_function_py(PyObject *i, PyObject *j);
 /*                    glyco tools test  */
 void glyco_tree_test();
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM glyco_tree_scm(int imol, SCM active_residue_scm);
+SCM glyco_tree_residues_scm(int imol, SCM active_residue_scm);
+#endif
+#ifdef USE_PYTHON
+PyObject *glyco_tree_py(int imol, PyObject *active_residue_py);
+PyObject *glyco_tree_residues_py(int imol, PyObject *active_residue_py);
+#endif /* PYTHON */
+#endif
+
 
 
 /*  ----------------------------------------------------------------------- */
@@ -3762,6 +3790,7 @@ SCM set_torsion_scm(int imol, const char *chain_id, int res_no, const char *inse
 		    const char *atom_name_3,
 		    const char *atom_name_4, double tors);
 
+/*! \brief create a multi-residue torsion dialog (user manipulation of torsions) */
 void multi_residue_torsion_scm(int imol, SCM residues_specs_scm);
 
 
@@ -3780,6 +3809,7 @@ PyObject *set_torsion_py(int imol, const char *chain_id, int res_no, const char 
 		         const char *atom_name_3,
 		         const char *atom_name_4, double tors);
 
+/*! \brief create a multi-residue torsion dialog (user manipulation of torsions) */
 void multi_residue_torsion_py(int imol, PyObject *residues_specs_py);
 
 #endif  /* USE_PYTHON */
@@ -5734,12 +5764,30 @@ int new_molecule_by_residue_type_selection(int imol, const char *residue_type);
 @return the new molecule number, -1 means an error. */
 int new_molecule_by_atom_selection(int imol, const char* atom_selection);
 
-/*! \brief create a new molecule that consists of only the atoms 
+/*! \brief create a new molecule that consists of only the atoms
   within the given radius (r) of the given position.
 
 @return the new molecule number, -1 means an error. */
 int new_molecule_by_sphere_selection(int imol, float x, float y, float z, 
 				     float r, short int allow_partial_residues);
+
+
+#ifdef __cplusplus
+#ifdef USE_PYTHON
+/*! \brief create a new molecule that consists of only the atoms
+  of the specified list of residues
+@return the new molecule number, -1 means an error. */
+int new_molecule_by_residue_specs_py(int imol, PyObject *residue_spec_list_py);
+#endif /* USE_PYTHON */
+
+#ifdef USE_GUILE
+/*! \brief create a new molecule that consists of only the atoms 
+  of the specified list of residues
+@return the new molecule number, -1 means an error. */
+int new_molecule_by_residue_specs_scm(int imol, SCM *residue_spec_list_scm);
+#endif /* USE_GUILE */
+#endif /* __cplusplus */
+
 /*! \} */
 
 

@@ -853,8 +853,6 @@ ligand_search_install_wiggly_ligands() {
 std::vector<int>
 execute_ligand_search_internal(coot::wligand *wlig_p) {
    
-   std::cout << "Executing ligand search internal using wlig_p " << wlig_p << std::endl;
-
    std::vector<int> solutions;
 
    graphics_info_t g;
