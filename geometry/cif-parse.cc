@@ -1435,12 +1435,6 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
 			 << pdbx_model_Cartn_ideal.second.format()
 			 << std::endl;
 
-	    // mon_lib_add_atom(comp_id, atom_id, padded_name, type_symbol, type_energy,
-	    // partial_charge, formal_charge, aromaticity,
-	    // model_Cartn, pdbx_model_Cartn_ideal);
-
-	    dict_atom atom_info(atom_id, padded_name, type_symbol, type_energy, partial_charge);
-
 	    dict_atom atom(atom_id, padded_name, type_symbol, type_energy, partial_charge);
 	    atom.aromaticity = aromaticity;
 	    atom.formal_charge = formal_charge;
@@ -1449,13 +1443,13 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
 	       atom.add_pos(dict_atom::REAL_MODEL_POS, model_Cartn);
 
 	    if (pdbx_model_Cartn_ideal.first)
-	       atom_info.add_pos(dict_atom::IDEAL_MODEL_POS, pdbx_model_Cartn_ideal);
+	       atom.add_pos(dict_atom::IDEAL_MODEL_POS, pdbx_model_Cartn_ideal);
 
-	    atom_info.formal_charge      = formal_charge;
-	    atom_info.aromaticity        = aromaticity;
-	    atom_info.pdbx_stereo_config = pdbx_stereo_config_flag;
+	    atom.formal_charge      = formal_charge;
+	    atom.aromaticity        = aromaticity;
+	    atom.pdbx_stereo_config = pdbx_stereo_config_flag;
 
-	    mon_lib_add_atom(comp_id, imol_enc, atom_info);
+	    mon_lib_add_atom(comp_id, imol_enc, atom);
 
 	 } else {
 	    std::cout << " error on read " << ierr_tot << std::endl;
