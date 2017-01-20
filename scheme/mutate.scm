@@ -194,7 +194,9 @@
    (else 
     #f)))
 
-
+;; Mutate a residue range of nucleotides
+;; where sequence is a string (for example: "atgccgta")
+;;
 (define (mutate-nucleotide-range imol chain-id resno-start resno-end sequence)
 
   ;; Return #f on unknown letter.  We don't need to be specific about
