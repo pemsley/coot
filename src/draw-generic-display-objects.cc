@@ -225,9 +225,9 @@ graphics_info_t::draw_generic_objects_solid() {
 	       // 		      (*generic_objects_p)[i].lines_set[ils].colour.green,
 	       // 		      (*generic_objects_p)[i].lines_set[ils].colour.blue);
 
-	       GLfloat  mat_diffuse[]  = {(*generic_objects_p)[i].lines_set[ils].colour.red   * 0.8,
-					  (*generic_objects_p)[i].lines_set[ils].colour.green * 0.8,
-					  (*generic_objects_p)[i].lines_set[ils].colour.blue  * 0.8, 
+	       GLfloat  mat_diffuse[]  = {float((*generic_objects_p)[i].lines_set[ils].colour.red   * 0.8),
+					  float((*generic_objects_p)[i].lines_set[ils].colour.green * 0.8),
+					  float((*generic_objects_p)[i].lines_set[ils].colour.blue  * 0.8),
 					  1.0};
 	       glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_diffuse);
 	       glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
@@ -371,9 +371,9 @@ graphics_info_t::draw_generic_objects_solid() {
 		  // glEnable(GL_COLOR_MATERIAL);
 		  glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
 	       
-		  GLfloat  mat_diffuse[]  = {obj.arcs[iarc].col.col[0] * 0.8,
-					     obj.arcs[iarc].col.col[1] * 0.8,
-					     obj.arcs[iarc].col.col[2] * 0.8, 
+		  GLfloat  mat_diffuse[]  = {float(obj.arcs[iarc].col.col[0] * 0.8),
+					     float(obj.arcs[iarc].col.col[1] * 0.8),
+					     float(obj.arcs[iarc].col.col[2] * 0.8),
 					     1.0};
 		  // 	       GLfloat  mat_specular[]  = {obj.arcs[iarc].col.col[0],
 		  // 					   obj.arcs[iarc].col.col[1],
