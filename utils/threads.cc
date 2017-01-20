@@ -1,4 +1,5 @@
 
+#include <stdexcept>
 #include "coot-utils.hh"
 
 // unsigned int coot::coot_n_threads = 0;
