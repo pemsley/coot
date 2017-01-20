@@ -69,8 +69,14 @@ AC_CHECK_HEADERS([sys/stdtypes.h], [COOT_STDTYPES="-DHAVE_SYS_STDTYPES_H=1"], [C
 dnl AC_OPENMP
 AX_OPENMP
 
-AX_CXX_COMPILE_STDCXX_11
-AX_CXX_HAVE_THREAD
+AC_ARG_WITH(modern-language-tools, [  --with-modern-language-tools with optional experimental features ],
+ coot_modern_language_tools="true",
+ coot_modern_language_tools="false")
+
+if $coot_modern_language_tools = true ; then
+   AX_CXX_COMPILE_STDCXX_11
+   AX_CXX_HAVE_THREAD
+fi
 
 AC_LIB_PREPARE_MULTILIB
 

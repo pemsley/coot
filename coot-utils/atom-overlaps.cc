@@ -1062,14 +1062,19 @@ coot::atom_overlaps_container_t::all_atom_contact_dots(double dot_density_in,
 			"*", // elements
 			"*"  // alt loc.
 			);
+#ifdef HAVE_CXX_THREAD
       ao = all_atom_contact_dots_internal(dot_density_in, mol, i_sel_hnd, i_sel_hnd, min_dist, max_dist,
 					  make_vdw_surface);
       mol->DeleteSelection(i_sel_hnd);
+#else
+
+      // set ao using non-threaded version
+
+#endif // HAVE_CXX_THREAD
    }
    return ao;
 }
 
-      
 coot::atom_overlaps_dots_container_t
 coot::atom_overlaps_container_t::all_atom_contact_dots_internal(double dot_density_in,
 								mmdb::Manager *mol,
@@ -1080,6 +1085,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal(double dot_densi
 								bool make_vdw_surface) {
    
    coot::atom_overlaps_dots_container_t ao;
+#ifdef HAVE_CXX_THREAD
    bool exclude_mc_flag = true;
 
    long i_contact_group = 1;
@@ -1176,6 +1182,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal(double dot_densi
 
       }
    }
+#endif // HAVE_CXX_THREAD
    return ao;
 }
 
