@@ -2936,7 +2936,9 @@ graphics_info_t::update_maps() {
 	 }
       }
 #else
-      unsigned int n_threads = 4;
+      // unsigned int n_threads = 4;
+      unsigned int n_threads = coot::get_max_number_of_threads();
+      // std::cout << "got n_threads: " << n_threads << std::endl;
       std::vector<std::thread> threads;
       std::vector<int> molecules_with_maps;
       for (int ii=0; ii<n_molecules(); ii++) {
