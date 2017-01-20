@@ -1,6 +1,6 @@
 /* coot-utils/atom-overlaps.cc
  * 
- * Copyright 2015 by Medical Research Council
+ * Copyright 2016 by Medical Research Council
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -29,6 +29,7 @@
 #include <future>
 #endif
 
+#include "utils/coot-utils.hh"
 #include "atom-overlaps.hh"
 #include "coot-coord-utils.hh"
 #include "geometry/main-chain.hh"
@@ -1150,7 +1151,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal(double dot_densi
 
 	 std::cout << "done contact map" << std::endl;
 
-	 unsigned int n_threads = 4;
+	 unsigned int n_threads = get_max_number_of_threads();
 	 std::vector<std::thread> threads;
 	 unsigned int n_per_thread = n_selected_atoms/n_threads;
 	 std::cout << "n per thread " << n_per_thread << std::endl;

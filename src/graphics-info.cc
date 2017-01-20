@@ -2895,23 +2895,91 @@ graphics_info_t::set_imol_refinement_map(int imol) {
    return r;
 } 
 
+// for threading, static
+void
+graphics_info_t::update_maps_for_mols(const std::vector<int> &mol_idxs) {
+   for (unsigned int i=0; i<mol_idxs.size(); i++)
+      graphics_info_t::molecules[mol_idxs[i]].update_map();
+}
+
+// move (on) up
+#ifdef HAVE_CXX_THREAD
+#include <thread>
+#include <future>
+#endif // HAVE_CXX_THREAD
+// remember to link with -std=c++11 to get thread constructors
+
+void
+call_from_thread() {
+    std::cout << "Hello World" << std::endl;
+}
+
+void
+call_from_thread_v2(int i) {
+   std::cout << "Hello World " << i << std::endl;
+}
 
 
 void
-graphics_info_t::add_vector_to_RotationCentre(const coot::Cartesian &vec) { 
-   
-   rotation_centre_x += vec.x();
-   rotation_centre_y += vec.y();
-   rotation_centre_z += vec.z();
+graphics_info_t::update_maps() {
+
+   // put it in it's own file xxx_threaded.cc and
+   // link that with -std=c++11 (or use macros to work out correct flags)
 
    if (GetActiveMapDrag() == 1) {
+
+#ifndef HAVE_CXX_THREAD
       for (int ii=0; ii<n_molecules(); ii++) { 
 	 if (molecules[ii].has_xmap()) { 
 	    molecules[ii].update_map(); // to take account
 	                                // of new rotation centre.
 	 }
       }
-   }
+#else
+      // unsigned int n_threads = 4;
+      unsigned int n_threads = coot::get_max_number_of_threads();
+      // std::cout << "got n_threads: " << n_threads << std::endl;
+      std::vector<std::thread> threads;
+      std::vector<int> molecules_with_maps;
+      for (int ii=0; ii<n_molecules(); ii++) {
+	 if (molecules[ii].has_xmap()) {
+	    molecules_with_maps.push_back(ii);
+	 }
+      }
+
+      // we must make sure that the threads don't update the same map
+      //
+
+      std::vector<std::vector<int> > maps_vec_vec(n_threads);
+      unsigned int thread_idx = 0;
+      // put the maps in maps_vec_vec
+      for (unsigned int ii=0; ii<molecules_with_maps.size(); ii++) {
+	 maps_vec_vec[thread_idx].push_back(molecules_with_maps[ii]);
+	 thread_idx++;
+	 if (thread_idx == n_threads) thread_idx = 0;
+      }
+
+
+      for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
+	 const std::vector<int> &mv = maps_vec_vec[i_thread];
+	 threads.push_back(std::thread(update_maps_for_mols, mv));
+      }
+      for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
+	 threads.at(i_thread).join();
+
+#endif // HAVE_CXX_THREAD
+
+   } // active map drag test
+}
+
+void
+graphics_info_t::add_vector_to_RotationCentre(const coot::Cartesian &vec) {
+
+   rotation_centre_x += vec.x();
+   rotation_centre_y += vec.y();
+   rotation_centre_z += vec.z();
+
+   update_maps();
    for (int ii=0; ii<n_molecules(); ii++) { 
       molecules[ii].update_symmetry();
    }
