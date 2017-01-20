@@ -191,6 +191,52 @@ void molecule_from_SMILES(const std::string &smiles_string) {
 
 }
 
+void
+write_bonds_by_type(RDKit::RWMol *rdkm, const std::vector<cod::atom_type_t> &v) {
+
+   if (rdkm) {
+      unsigned int n_atoms = rdkm->getNumAtoms();
+      if (n_atoms == v.size()) {
+	 unsigned int n_bonds = rdkm->getNumBonds();
+	 for (unsigned int ib=0; ib<n_bonds; ib++) {
+	    const RDKit::Bond *bond_p = rdkm->getBondWithIdx(ib);
+	    int idx_1 = bond_p->getBeginAtomIdx();
+	    int idx_2 = bond_p->getEndAtomIdx();
+	    std::string t1 = v[idx_1].level_4;
+	    std::string t2 = v[idx_2].level_4;
+	    if (t1 > t2) {
+	       // std::swap(t1, t2);
+	    }
+	    std::cout << "BOND level-4 " << t1 << "     " << t2 << std::endl;
+	    // std::cout << "BOND level-3 " << v[idx_1].level_3 << "     " << v[idx_2].level_3 << std::endl;
+	    // std::cout << "BOND level-2 " << v[idx_1].level_2.string() << "     "
+	    // << v[idx_2].level_2.string() << std::endl;
+	 }
+      }
+   }
+}
+
+void molecule_from_mdl_mol(const std::string &file_name) {
+
+   try {
+      RDKit::RWMol *rdkm = RDKit::MolFileToMol(file_name);
+      if (rdkm) {
+	 cod::atom_types_t t;
+	 std::vector<cod::atom_type_t> v = t.get_cod_atom_types(*rdkm);
+	 std::cout << "PE-TYPES:: -------- " << v.size() << " atoms " << " from "
+		   << file_name << std::endl;
+	 for (unsigned int i=0; i<v.size(); i++)
+	    std::cout << "   " << i << " " << v[i].level_4 << "" << std::endl;
+	 write_bonds_by_type(rdkm, v);
+      } else {
+	 std::cout << "WARNING:: file " << file_name << " null molecule" << std::endl;
+      }
+   }
+   catch (const RDKit::MolSanitizeException &e) {
+      std::cout << "WARNING:: file " << file_name << " "  << e.what() << std::endl;
+   }
+}
+
 void read_tables(const std::string &tables_dir_name) {
 
    cod::bond_record_container_t brc(tables_dir_name);
@@ -269,6 +315,14 @@ test_primes() {
 	     << std::endl;
 }
 
+void proc_mols(const std::string &mol_dir) {
+
+   std::vector<std::string> files = coot::util::glob_files(mol_dir, "*.mol");
+   for (unsigned int i=0; i<files.size(); i++) {
+      molecule_from_mdl_mol(files[i]);
+   }
+}
+
 
 int main(int argc, char **argv) {
 
@@ -280,7 +334,7 @@ int main(int argc, char **argv) {
 
 	 if (s == "primes") {
 	    test_primes();
-	 } else { 
+	 } else {
 	    if (s.length() == 3)
 	       molecule_from_comp_id(s);
 	    else
@@ -296,7 +350,12 @@ int main(int argc, char **argv) {
 	 if (comp_id == "tables") {
 	    read_tables(file_name); // dir-name in this case
 	 } else {
-	    molecule_from_ccd_pdbx(comp_id, file_name);
+	    if (comp_id == "mol-dir") {
+	       std::string mol_dir = file_name;
+	       proc_mols(mol_dir);
+	    } else {
+	       molecule_from_ccd_pdbx(comp_id, file_name);
+	    }
 	 }
       }
 
