@@ -53,7 +53,14 @@ namespace coot {
 	    col = col_in;
 	 }
       };
-      atom_overlaps_dots_container_t() {}
+      atom_overlaps_dots_container_t() {
+	 // I think this speeds things up a bit.
+	 dots["close-contact"].reserve(2500);
+	 dots["small-overlap"].reserve(2500);
+	 dots["wide-contact" ].reserve(2500);
+	 dots["big-overlap"  ].reserve(2500);
+	 dots["H-bond"       ].reserve(2500);
+      }
       std::map<std::string, std::vector<dot_t> > dots;
       void add(const atom_overlaps_dots_container_t &other) {
 	 std::map<std::string, std::vector<dot_t> >::const_iterator it;
@@ -265,18 +272,18 @@ namespace coot {
 			double clash_spike_length,
 			bool make_vdw_surface);
       static
-      // void
-      atom_overlaps_dots_container_t
+      void
       contacts_for_atoms(int iat_start, int iat_end,
-			mmdb::Atom **atom_selection,
-			const std::map<int, std::vector<int> > &contact_map,
-			const std::map<int, std::vector<int> > &bonded_map,
-			const std::vector<double> &neighb_atom_radius,
-			int udd_h_bond_type_handle,
-			double probe_radius,
-			double dot_density_in,
-			double clash_spike_length,
-			bool make_vdw_surface);
+			 mmdb::Atom **atom_selection,
+			 const std::map<int, std::vector<int> > &contact_map,
+			 const std::map<int, std::vector<int> > &bonded_map,
+			 const std::vector<double> &neighb_atom_radius,
+			 int udd_h_bond_type_handle,
+			 double probe_radius,
+			 double dot_density_in,
+			 double clash_spike_length,
+			 bool make_vdw_surface,
+			 atom_overlaps_dots_container_t *ao_results); // fill this
       
 
       static void contacts_for_atom_test();

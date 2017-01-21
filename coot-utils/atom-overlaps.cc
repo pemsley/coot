@@ -1075,6 +1075,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots(double dot_density_in,
    return ao;
 }
 
+
 coot::atom_overlaps_dots_container_t
 coot::atom_overlaps_container_t::all_atom_contact_dots_internal(double dot_density_in,
 								mmdb::Manager *mol,
@@ -1161,6 +1162,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal(double dot_densi
 	 std::vector<std::thread> threads;
 	 unsigned int n_per_thread = n_selected_atoms/n_threads;
 	 std::cout << "n per thread " << n_per_thread << std::endl;
+	 std::vector<coot::atom_overlaps_dots_container_t> results_container_vec(n_threads);
 
 	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
 	    int iat_start = i_thread * n_per_thread;
@@ -1168,18 +1170,36 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal(double dot_densi
 	    if (i_thread == (n_threads - 1))
 	       iat_end = n_selected_atoms;
 	    
-	    std::promise<atom_overlaps_dots_container_t> promiseObj;
-	    std::future<atom_overlaps_dots_container_t> futureObj = promiseObj.get_future();
-	    
+	    //	    std::promise<atom_overlaps_dots_container_t> promiseObj;
+	    // std::future<atom_overlaps_dots_container_t> futureObj = promiseObj.get_future();
+
 	    std::cout << "thread: " << iat_start << " to " << iat_end << std::endl;
-	    threads.push_back(std::thread(contacts_for_atoms, iat_start, iat_end,
+
+ 	    threads.push_back(std::thread(contacts_for_atoms, iat_start, iat_end,
 					  atom_selection, contact_map, bonded_map,
 					  neighb_atom_radius, udd_h_bond_type_handle, probe_radius,
-					  dot_density_in, clash_spike_length, make_vdw_surface));
+					  dot_density_in, clash_spike_length, make_vdw_surface,
+					  &results_container_vec[i_thread]));
+
 	 }
 	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
 	    threads.at(i_thread).join();
 
+	 if (false) {
+	    for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
+	       std::map<std::string, std::vector<atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
+	       for (it =results_container_vec[i_thread].dots.begin();
+		    it!=results_container_vec[i_thread].dots.end();
+		    it++) {
+		  std::cout << "thread  " << i_thread << " results size "
+			    << it->first << " " << it->second.size() << std::endl;
+	       }
+	    }
+	 }
+	 coot::atom_overlaps_dots_container_t consolidated;
+	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
+	    consolidated.add(results_container_vec[i_thread]);
+	 std::cout << "consolidatied" << std::endl;
       }
    }
 #endif // HAVE_CXX_THREAD
@@ -1187,9 +1207,9 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal(double dot_densi
 }
 
 
+// put results in ao
 //
-//
-coot::atom_overlaps_dots_container_t
+void
 coot::atom_overlaps_container_t::contacts_for_atoms(int iat_start, int iat_end,
 						    mmdb::Atom **atom_selection,
 						    const std::map<int, std::vector<int> > &contact_map,
@@ -1199,13 +1219,13 @@ coot::atom_overlaps_container_t::contacts_for_atoms(int iat_start, int iat_end,
 						    double probe_radius,
 						    double dot_density_in,
 						    double clash_spike_length,
-						    bool make_vdw_surface) {
+						    bool make_vdw_surface,
+						    coot::atom_overlaps_dots_container_t *ao) {
 
-   atom_overlaps_dots_container_t ao;
    for (int iat=iat_start; iat<iat_end; iat++)
-      ao.add(contacts_for_atom(iat, atom_selection, contact_map, bonded_map, neighb_atom_radius, udd_h_bond_type_handle,
-			       probe_radius, dot_density_in, clash_spike_length, make_vdw_surface));
-   return ao;
+      ao->add(contacts_for_atom(iat, atom_selection, contact_map, bonded_map, neighb_atom_radius,
+				udd_h_bond_type_handle, probe_radius, dot_density_in,
+				clash_spike_length, make_vdw_surface));
 }
 
 coot::atom_overlaps_dots_container_t
