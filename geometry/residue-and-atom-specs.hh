@@ -138,6 +138,9 @@ namespace coot {
 	 }
 	 return r;
       }
+      bool operator !=(const atom_spec_t &matcher) const {
+	 return ! operator==(matcher);
+      }
 #endif 
 
 #ifndef SWIG
@@ -259,6 +262,9 @@ namespace coot {
 	 if (res_no != mmdb::MinInt4)
 	    u = false;
 	 return u;
+      }
+      bool empty() const {
+	 return unset_p();
       }
       residue_spec_t next() const {
 	 residue_spec_t r = *this;

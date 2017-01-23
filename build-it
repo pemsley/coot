@@ -588,6 +588,7 @@ function post_install_slim {
 	bin/coot-compare-dictionaries      \
 	bin/coot-dictionary-bond-distributions \
 	bin/coot-make-shelx-restraints \
+	bin/lidia \
         bin/curl \
 	$keep_lib_archs"
 
@@ -1100,6 +1101,7 @@ case $dist_name in
        libxmu-dev
        libxt-dev
        libc6-dev
+       libncurses5-dev
        libglu1-mesa-dev 
        mesa-common-dev
        libgtk2.0-dev
@@ -2287,7 +2289,7 @@ else
 fi
 
 
-# clipper depends on mmdb, so if mmdb was built, the so must clipper.
+# clipper depends on mmdb, so if mmdb was built, the so must clipper be.
 # likewise for fftw.
 #
 build_clipper=1
@@ -2302,7 +2304,7 @@ if [ -z "$build_mmdb" ] ; then
           if [ -e $install_top_dir/include/clipper/contrib/sfscale.h ] ; then
              echo $install_top_dir/include/clipper/contrib/sfscale.h exist
 	     build_clipper=
-          else 
+          else
             echo $install_top_dir/include/clipper/contrib/sfscale.h not exist, building clipper
   	     build_clipper=1
           fi
@@ -2310,7 +2312,7 @@ if [ -z "$build_mmdb" ] ; then
           echo $install_top_dir/include/clipper/ccp4/ccp4_mtz_io.h not exist, building clipper
        fi
     fi
-else 
+else
    echo mmdb needs to be built, so clipper needs building.
 fi
 
@@ -2833,6 +2835,7 @@ if test -n "$build_python" ; then
 
    echo INFO:: ./configure $generic_prefix $python_spec_flags $python_lib_flags for python
    # 
+   # do we also need to use --with-threads=dir?
    if ./configure $generic_prefix --enable-shared $python_spec_flags $python_lib_flags ; then
      echo INFO:: make for python
      if $MAKE ; then
@@ -3853,7 +3856,7 @@ unset PKG_CONFIG_PATH
 # refmac_mon_lib=refmac_dictionary_v5.41.tar.gz
 
 # new style
-mon_lib_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files
+mon_lib_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/dependencies
 refmac_mon_lib=refmac-monomer-library.tar.gz
 
 if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
@@ -4001,10 +4004,13 @@ if [ "$run_tests" = true ] ; then
 	          # only copy over the binary files if they are not there
 	          # already (checked by publish executable).
 	          #
+                  # reading the git logs adding $BINARY_TAR_DEST_DIR seems to have fixed something. 
+                  # Now, the transfer-to-web-server.sh scripts take the second arg 
+                  # and munge it to be the correct directory for the binary (and .txt) files.
 	          echo $publish $bin_tar_file $BINARY_TAR_DEST_DIR
-	          $publish $bin_tar_file $BINARY_TAR_DEST_DIR
+	          $publish      $bin_tar_file $BINARY_TAR_DEST_DIR
 	          echo $publish $bin_tar_file.md5sum $BINARY_TAR_DEST_DIR
-	          $publish $bin_tar_file.md5sum $BINARY_TAR_DEST_DIR
+	          $publish      $bin_tar_file.md5sum $BINARY_TAR_DEST_DIR
 	          # echo $publish $binary_type_latest
 	          # publish $binary_type_latest
 	          echo $publish --no-server-check ChangeLog

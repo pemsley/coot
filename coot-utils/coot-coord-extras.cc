@@ -294,7 +294,6 @@ bool
 coot::util::is_nucleotide_by_dict_dynamic_add(mmdb::Residue *residue_p, coot::protein_geometry *geom_p) {
 
    bool is_nuc = 0;
-   bool ifound = 0;
    std::string residue_name = residue_p->GetResName();
 
    std::pair<short int, dictionary_residue_restraints_t> p = 
@@ -305,19 +304,23 @@ coot::util::is_nucleotide_by_dict_dynamic_add(mmdb::Residue *residue_p, coot::pr
 	  p.second.residue_info.group == "DNA" ) {
 	 is_nuc = 1;
       }
-   }
-
-   int read_number = 40;
-   if (ifound == 0) {
+   } else {
+      int read_number = 40;
       int status = geom_p->try_dynamic_add(residue_name, read_number);
       if (status != 0) {
 	 // we successfully added it, let's try to run this function
 	 // again.  Or we could just test the last entry in
 	 // geom_p->dict_res_restraints(), but it is not public, so
 	 // it's messy.
-	 // 
-	 is_nuc = is_nucleotide_by_dict_dynamic_add(residue_p, geom_p);
-      } 
+	 //
+	 p = geom_p->get_monomer_restraints(residue_name, protein_geometry::IMOL_ENC_ANY);
+	 if (p.first) {
+	    if (p.second.residue_info.group == "RNA" ||
+		p.second.residue_info.group == "DNA" ) {
+	       is_nuc = 1;
+	    }
+	 }
+      }
    }
    return is_nuc;
 }

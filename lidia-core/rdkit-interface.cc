@@ -865,7 +865,7 @@ coot::set_atom_chirality(RDKit::Atom *rdkit_at,
 void
 coot::set_atom_chirality(RDKit::Atom *rdkit_at, const coot::dict_atom &dict_atom) {
 
-   bool debug = true;
+   bool debug = false;
 
    if (dict_atom.pdbx_stereo_config.first) {
       if (dict_atom.pdbx_stereo_config.second == "R") {
@@ -874,12 +874,12 @@ coot::set_atom_chirality(RDKit::Atom *rdkit_at, const coot::dict_atom &dict_atom
 	 //
 	 // RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_UNSPECIFIED;
 	 RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CW;
-	 
+
+	 if (debug)
+	    std::cout << "   pdbx_stereo_config: " << dict_atom.atom_id << " R -> CW " << std::endl;
 	 rdkit_at->setChiralTag(chiral_tag);
 	 std::string cip = "R";
 	 rdkit_at->setProp("_CIPCode", cip);
-	 if (debug)
-	    std::cout << "   pdbx_stereo_config: " << dict_atom.atom_id << " R -> CW " << std::endl;
       }
       if (dict_atom.pdbx_stereo_config.second == "S") {
 	 RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
@@ -894,7 +894,7 @@ coot::set_atom_chirality(RDKit::Atom *rdkit_at, const coot::dict_atom &dict_atom
 	    std::cout << "No pdbx_stereo_config says N for " << dict_atom.atom_id << std::endl;
       }
    } else {
-      if (debug)
+      if (false)
 	 std::cout << "No pdbx_stereoconfig for atom " << dict_atom.atom_id << std::endl;
    }
 }
@@ -1023,11 +1023,23 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	    }
 	 }
 
+	 // need to try to get chiral info using atom_info[iat].pdbx_stereo_config
+	 //
 	 if (! done_chiral) {
 	    set_atom_chirality(at, r.atom_info[iat]);
 	 }
 
-	 // need to try to get chiral info using atom_info[iat].pdbx_stereo_config
+
+         if (false) {
+	    RDKit::Atom::ChiralType ct = at->getChiralTag();
+	    std::string cts = "!";
+	    if (ct == RDKit::Atom::CHI_UNSPECIFIED)     cts = "-";
+	    if (ct == RDKit::Atom::CHI_TETRAHEDRAL_CW)  cts = " CW";
+	    if (ct == RDKit::Atom::CHI_TETRAHEDRAL_CCW) cts = "CCW";
+	    if (ct == RDKit::Atom::CHI_OTHER)           cts = "Oth";
+	    std::cout << "After chiral set: atom name " << atom_name
+		      << " Chir: " << ct << " " << cts << std::endl;
+         }
 	 
 	 int idx = m.addAtom(at);
 	 added_atoms[r.atom_info[iat].atom_id_4c] = idx; // for making bonds.
@@ -1133,6 +1145,8 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
    if (debug)
       std::cout << "---------------------- calling cleanUp() -----------" << std::endl;
    RDKit::MolOps::cleanUp(m);
+   if (debug)
+      std::cout << "---------------------- calling sanitizeMol() -----------" << std::endl;
    RDKit::MolOps::sanitizeMol(m); // doesn't seem to do chirality assignement
                                   // if chiral centres are set to CHI_UNSPECIFIED
                                   // (I thought that it should - needs more digging)
@@ -1141,7 +1155,7 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
                                   // which presumes that the pdbx CIP codes are the
                                   // same as RDKit's.
    return m;
-} 
+}
 
 
 
@@ -2347,7 +2361,7 @@ coot::remove_Hs_and_clean(const RDKit::ROMol &rdkm, bool set_aromaticity) {
 int
 coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
 
-   bool debug = true;
+   bool debug = false;
 
    int icurrent_conf = 0; // the conformer number from which the
                           // distance matrix is generated.  Should this

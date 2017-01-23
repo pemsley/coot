@@ -1693,24 +1693,25 @@ coot::util::chains_in_molecule(mmdb::Manager *mol) {
       for (int imod=1; imod<=n_models; imod++) { 
       
 	 mmdb::Model *model_p = mol->GetModel(imod);
-   
-	 mmdb::Chain *chain;
-	 // run over chains of the existing mol
-	 int nchains = model_p->GetNumberOfChains();
-	 if (nchains <= 0) { 
-	    std::cout << "bad nchains in trim molecule " << nchains
-		      << std::endl;
-	 } else { 
-	    for (int ichain=0; ichain<nchains; ichain++) {
-	       chain = model_p->GetChain(ichain);
-	       if (chain == NULL) {  
-		  // This should not be necessary. It seem to be a
-		  // result of mmdb corruption elsewhere - possibly
-		  // DeleteChain in update_molecule_to().
-		  std::cout << "NULL chain in residues_in_molecule: "
-			    << std::endl;
-	       } else {
-		  v.push_back(chain->GetChainID());
+	 if (model_p) {
+	    mmdb::Chain *chain;
+	    // run over chains of the existing mol
+	    int nchains = model_p->GetNumberOfChains();
+	    if (nchains <= 0) {
+	       std::cout << "bad nchains in trim molecule " << nchains
+			 << std::endl;
+	    } else {
+	       for (int ichain=0; ichain<nchains; ichain++) {
+		  chain = model_p->GetChain(ichain);
+		  if (chain == NULL) {
+		     // This should not be necessary. It seem to be a
+		     // result of mmdb corruption elsewhere - possibly
+		     // DeleteChain in update_molecule_to().
+		     std::cout << "NULL chain in residues_in_molecule: "
+			       << std::endl;
+		  } else {
+		     v.push_back(chain->GetChainID());
+		  }
 	       }
 	    }
 	 }
@@ -4394,7 +4395,8 @@ coot::lsq_plane_info_t::lsq_plane_info_t(const std::vector<clipper::Coord_orth> 
 
 }
 
-
+// the header for this is (in) residue-and-atom-specs.hh.  Hmm... should be fixed.
+//
 std::pair<coot::atom_spec_t, coot::atom_spec_t>
 coot::link_atoms(mmdb::Link *link) {
 
@@ -5874,10 +5876,10 @@ coot::util::residue_has_hetatms(mmdb::Residue *residue_p) {
 
 // angle in radians.
 clipper::Coord_orth
-coot::util::rotate_round_vector(const clipper::Coord_orth &direction,
-				const clipper::Coord_orth &position,
-				const clipper::Coord_orth &origin_shift,
-				double angle) {
+coot::util::rotate_around_vector(const clipper::Coord_orth &direction,
+				 const clipper::Coord_orth &position,
+				 const clipper::Coord_orth &origin_shift,
+				 double angle) {
    
    clipper::Coord_orth unit_vec = clipper::Coord_orth(direction.unit());
    
@@ -5925,7 +5927,7 @@ coot::util::rotate_residue(mmdb::Residue *residue_p,
 	 mmdb::Atom *at = residue_atoms[iat];
 	 if (at) {
 	    clipper::Coord_orth pt(at->x, at->y, at->z);
-	    clipper::Coord_orth pt_new = rotate_round_vector(direction, pt, origin_shift, angle);
+	    clipper::Coord_orth pt_new = rotate_around_vector(direction, pt, origin_shift, angle);
 	    at->x = pt_new.x();
 	    at->y = pt_new.y();
 	    at->z = pt_new.z();

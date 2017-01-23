@@ -197,7 +197,7 @@ int test_internal() {
 				  "test peak search non-close"));
 
    functions.push_back(named_func(test_symop_card, "test symop card"));
-   functions.push_back(named_func(test_rotate_round_vector, "test rotate round vector"));
+   functions.push_back(named_func(test_rotate_around_vector, "test rotate round vector"));
    functions.push_back(named_func(test_ssm_sequence_formatting, "SSM sequence alignment output"));
    status = run_internal_tests(functions);
    return status;
@@ -310,9 +310,9 @@ int test_internal_single() {
       // status = test_map_tools();
       // status = test_minimol();
       // status = test_monomer_organic_set();
-      // status = test_COO_mod();
+      status = test_COO_mod();
       // status = test_output_link_distances_are_correct();
-      status = test_string_splitting();
+      // status = test_string_splitting();
    }
    catch (const std::runtime_error &mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -547,8 +547,8 @@ int test_alt_conf_rotamers() {
 		  if (chis.size() != 1) {
 		     std::string mess = "chis.size() is ";
 		     mess += stringify(int(chis.size()));
-		     mess += " for ";
-		     mess += stringify(79);
+		     mess += " for resno ";
+		     mess += stringify(80);
 		     throw std::runtime_error(mess);
 		  }
 		  int n_rots_found = 0;
@@ -559,14 +559,14 @@ int test_alt_conf_rotamers() {
 			if (chi_1 < -57.0)
 			   if (chi_2 > 95.0)
 			      if (chi_2 < 96.0)
-			   n_rots_found++;
+			         n_rots_found++;
 		  }
 		  if (n_rots_found != 1) {
 		     std::string mess = " Oops found ";
 		     mess += stringify(n_rots_found);
 		     mess += " rotamers ";
-		     mess += " for ";
-		     mess += stringify(79);
+		     mess += " for resno ";
+		     mess += stringify(80);
 		     throw std::runtime_error(mess);
 		  }
 	       } 
@@ -1992,7 +1992,7 @@ bool test_tree_rotation(const coot::dictionary_residue_restraints_t &rest,
 
 
 int 
-test_rotate_round_vector() {
+test_rotate_around_vector() {
 
    int r = 0;
    
@@ -2107,7 +2107,7 @@ test_rotate_round_vector() {
 		  std::cout << "   D_pt " << D_pt.format() << std::endl;
 		  // Make sure that D_pt does not move when rotated:
 		  for (double a=0; a<7.0; a+=1.0) {
-		     clipper::Coord_orth D_pt_r =  coot::util::rotate_round_vector(ab, D_pt, rotate_pt_2, a);
+		     clipper::Coord_orth D_pt_r =  coot::util::rotate_around_vector(ab, D_pt, rotate_pt_2, a);
 		     std::cout << "   " << a << " " << D_pt_r.format() << std::endl;
 		  }
 	       }
@@ -2115,7 +2115,7 @@ test_rotate_round_vector() {
 	       double test_angle = 20.0; // degrees
 
 	       clipper::Coord_orth C_prime_pt =
-		  coot::util::rotate_round_vector(ab, C_pt, rotate_pt_2, (M_PI/180.0)*test_angle);
+		  coot::util::rotate_around_vector(ab, C_pt, rotate_pt_2, (M_PI/180.0)*test_angle);
 
 	       clipper::Coord_orth dc(C_pt-D_pt);
 	       clipper::Coord_orth dc_prime(C_prime_pt-D_pt);
@@ -2727,7 +2727,7 @@ int test_COO_mod() {
       
       mmdb::PResidue *SelResidues = new mmdb::PResidue[1];
       SelResidues[0] = asc.atom_selection[0]->residue;
-      
+
       residue_selection_t result =
 	 testing_func_probabilities_refine_fragment(asc, SelResidues,
 						    1, "A", 93, t.geom, 0, 0, 0, 0);
@@ -2762,7 +2762,7 @@ int test_COO_mod() {
       std::cout << "OXT->O distance: " << oxt_dist << std::endl;
    
       if (d < 0.02)
-	 if (oxt_dist > 2.0) 
+	 if (oxt_dist > 2.0)
 	    status = 1;
 
    }

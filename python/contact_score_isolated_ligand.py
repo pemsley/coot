@@ -1,4 +1,6 @@
 
+# this function is not at startup?
+
 def deactivate_molecules_except(imol):
     for i in model_molecule_list():
         if (i != imol):
@@ -33,15 +35,17 @@ def contact_score_ligand(imol, res_spec):
 
     write_pdb_file(imol_selection, ligand_selection_pdb)
     write_pdb_file(imol, protein_selection_pdb)
-    popen_command(probe_command, ["-q", "-u", "-once", # -once or -both
+
+    args = ["-q", "-unformated", "-once", # -once or -both
+                                  # "-outside", # crashes probe
                                   # first pattern
                                   "CHAIN" + chain_id + " " + str(res_no),
                                   # second pattern
                                   "not " + str(res_no),
                                   # consider og33 (occ > 0.33)
-                                  "-density30",
-                                  ligand_selection_pdb, protein_selection_pdb],
-                  [], dots_file_name, False)
+                                  "-density50",
+                                  ligand_selection_pdb, protein_selection_pdb]
+    popen_command(probe_command, args, [], dots_file_name, False)
 
     # debugging!?
     handle_read_draw_probe_dots_unformatted(dots_file_name, imol, 0)
@@ -55,4 +59,25 @@ def contact_score_ligand_func():
     with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                aa_ins_code, aa_atom_name, aa_alt_conf]:
         contact_score_ligand(aa_imol, [aa_chain_id, aa_res_no, aa_ins_code])
-        
+
+def coot_contact_dots_ligand_func():
+    with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                               aa_ins_code, aa_atom_name, aa_alt_conf]:
+        coot_contact_dots_for_ligand_py(aa_imol, [aa_chain_id, aa_res_no, aa_ins_code])
+
+# not ready for public yet
+def coot_all_atom_contact_dots_func():
+    
+    with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
+                               aa_ins_code, aa_atom_name, aa_alt_conf]:
+
+        coot_probe_object_names = ['wide-contact', 'close-contact', 'small-overlap',
+                                   'big-overlap', 'H-bond', 'clashes']
+        n = number_of_generic_objects()
+        for i in range(n):
+           if generic_object_name(i) in coot_probe_object_names:
+              close_generic_object(i)
+           else:
+               print generic_object_name(i), "is not in", coot_probe_object_names
+        coot_all_atom_contact_dots(aa_imol)
+

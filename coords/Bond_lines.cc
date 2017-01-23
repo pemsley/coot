@@ -41,6 +41,8 @@
 #include "Bond_lines.h"
 #include "coot-utils/coot-coord-utils.hh"
 
+#include "geometry/protein-donor-acceptors.hh"
+
 
 static std::string b_factor_bonds_scale_handle_name = "B-factor-bonds-scale";
 
@@ -231,7 +233,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 						    int udd_handle) {
 
    mmdb::Contact *contact = NULL;
-   int ncontacts;
+   int ncontacts = 0;
    long i_contact_group = 1;
 
    // matrix stuff
@@ -270,7 +272,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
    // in mmdb's MakeBricks (or something like that) from here, that's
    // because we are passing an atom that has a nan for a coordinate.
 
-   if (0) { 
+   if (false) {
       std::cout << "Seeking contact: selection 1 " << std::endl;
       for (int ii=0; ii<n_selected_atoms_1; ii++)
 	 std::cout << "   " << ii << " " << atom_selection_1[ii] << " :"
@@ -293,195 +295,201 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 
    if (ncontacts > 0) {
 
-      std::vector<std::pair<bool, mmdb::Residue *> > het_residues; // bond these separately.
-      std::vector<std::pair<bool, mmdb::Residue *> > hoh_residues; // that have O and Hs.
+      if (contact) {
+
+	 if (false)
+	    for (int i=0; i< ncontacts; i++)
+	       std::cout << "contact " << i << " " << contact[i].id1 << " " << contact[i].id2
+			 << std::endl;
+
+	 std::vector<std::pair<bool, mmdb::Residue *> > het_residues; // bond these separately.
+	 std::vector<std::pair<bool, mmdb::Residue *> > hoh_residues; // that have O and Hs.
       
-      for (int i=0; i< ncontacts; i++) {
+	 for (int i=0; i< ncontacts; i++) {
 
- 	 if (are_different_atom_selections ||
- 	      (contact[i].id2 > contact[i].id1) ) {
+	    if (are_different_atom_selections || (contact[i].id2 > contact[i].id1) ) {
 
-	    mmdb::Atom *atom_p_1 = atom_selection_1[ contact[i].id1 ];
-	    mmdb::Atom *atom_p_2 = atom_selection_2[ contact[i].id2 ];
+	       mmdb::Atom *atom_p_1 = atom_selection_1[ contact[i].id1 ];
+	       mmdb::Atom *atom_p_2 = atom_selection_2[ contact[i].id2 ];
 
-	    std::string chain_id1(atom_p_1->GetChainID());
-	    std::string chain_id2(atom_p_2->GetChainID());
+	       std::string chain_id1(atom_p_1->GetChainID());
+	       std::string chain_id2(atom_p_2->GetChainID());
 
-	    std::string aloc_1(atom_p_1->altLoc);
-	    std::string aloc_2(atom_p_2->altLoc);
+	       std::string aloc_1(atom_p_1->altLoc);
+	       std::string aloc_2(atom_p_2->altLoc);
 
-	    element_1 = atom_p_1->element;
-	    element_2 = atom_p_2->element;
+	       element_1 = atom_p_1->element;
+	       element_2 = atom_p_2->element;
 
-	    coot::Cartesian atom_1_pos(atom_p_1->x, atom_p_1->y, atom_p_1->z);
-	    coot::Cartesian atom_2_pos(atom_p_2->x, atom_p_2->y, atom_p_2->z);
+	       coot::Cartesian atom_1_pos(atom_p_1->x, atom_p_1->y, atom_p_1->z);
+	       coot::Cartesian atom_2_pos(atom_p_2->x, atom_p_2->y, atom_p_2->z);
 
-	    if (chain_id1 == chain_id2) {
+	       if (chain_id1 == chain_id2) {
 
-	       // alternate location test
-	       // 
-	       if ( (aloc_1=="") || (aloc_2=="") || (aloc_1==aloc_2) ) {
+		  // alternate location test
+		  // 
+		  if ( (aloc_1=="") || (aloc_2=="") || (aloc_1==aloc_2) ) {
 
-		  int res_1 = atom_p_1->GetSeqNum();
-		  int res_2 = atom_p_2->GetSeqNum();
+		     int res_1 = atom_p_1->GetSeqNum();
+		     int res_2 = atom_p_2->GetSeqNum();
 
-		  bool bond_het_residue_by_dictionary =
-		     add_bond_by_dictionary_maybe(imol, atom_p_1, atom_p_2, &het_residues); // add to het_residues maybe
+		     bool bond_het_residue_by_dictionary =
+			add_bond_by_dictionary_maybe(imol, atom_p_1, atom_p_2, &het_residues); // add to het_residues maybe
 
-		  if (0)
-		     std::cout << atom_p_1 <<  " " << atom_p_2 << " bonded by dictionary: "
-			       << bond_het_residue_by_dictionary << std::endl;
+		     if (0)
+			std::cout << atom_p_1 <<  " " << atom_p_2 << " bonded by dictionary: "
+				  << bond_het_residue_by_dictionary << std::endl;
 		  
-		  if (bond_het_residue_by_dictionary) {
+		     if (bond_het_residue_by_dictionary) {
 		     
-		     std::string res_name = atom_p_1->GetResName();
-		     if (res_name == "HOH" || res_name == "DOD")
-			add_bond_by_dictionary_maybe(imol, atom_p_1, atom_p_2, &hoh_residues);
+			std::string res_name = atom_p_1->GetResName();
+			if (res_name == "HOH" || res_name == "DOD")
+			   add_bond_by_dictionary_maybe(imol, atom_p_1, atom_p_2, &hoh_residues);
 		     
-		  } else { 
+		     } else { 
 
-		     // this +/- 1 residue test, or are DUM atoms.
+			// this +/- 1 residue test, or are DUM atoms.
 
-		     bool is_neighbour = false;
-		     if (labs(res_1 - res_2) < 2)
-			is_neighbour = true;
-		     if (! is_neighbour)
-			if (labs(atom_p_1->residue->index - atom_p_2->residue->index) < 2)
+			bool is_neighbour = false;
+			if (labs(res_1 - res_2) < 2)
 			   is_neighbour = true;
+			if (! is_neighbour)
+			   if (labs(atom_p_1->residue->index - atom_p_2->residue->index) < 2)
+			      is_neighbour = true;
 
-		     // Maybe DUM-DUM needs it's own bonding selection and drawing function
+			// Maybe DUM-DUM needs it's own bonding selection and drawing function
 		     
-// 		     if (! is_neighbour)
-// 			if (strncmp(atom_p_1->name, "DUM", 3))
-// 			   if (strncmp(atom_p_2->name, "DUM", 3))
-// 			      is_neighbour = true;
+			// 		     if (! is_neighbour)
+			// 			if (strncmp(atom_p_1->name, "DUM", 3))
+			// 			   if (strncmp(atom_p_2->name, "DUM", 3))
+			// 			      is_neighbour = true;
 		     
-		     if (is_neighbour) {
+			if (is_neighbour) {
 
-			//  		  std::cout << "Adding bond " << atom_selection_1[ contact[i].id1 ]
-			//  			    << " to "
-			//  			    << atom_selection_2[ contact[i].id2 ] << std::endl;
+			   //  		  std::cout << "Adding bond " << atom_selection_1[ contact[i].id1 ]
+			   //  			    << " to "
+			   //  			    << atom_selection_2[ contact[i].id2 ] << std::endl;
 
-			if (atom_selection_1[ contact[i].id1 ]->GetModel() ==
-			    atom_selection_2[ contact[i].id2 ]->GetModel()) {
+			   if (atom_selection_1[ contact[i].id1 ]->GetModel() ==
+			       atom_selection_2[ contact[i].id2 ]->GetModel()) {
 
-			   bool done_bond_udd_handle = false; // set only for bonds to hydrogen
+			      bool done_bond_udd_handle = false; // set only for bonds to hydrogen
 
-			   if (element_1 != element_2) {
+			      if (element_1 != element_2) {
 		  
-			      // Bonded to different atom elements.
+				 // Bonded to different atom elements.
 
-			      if (! is_hydrogen(element_1) && ! is_hydrogen(element_2)) { 
-				 add_half_bonds(atom_1_pos, atom_2_pos,
-						atom_selection_1[contact[i].id1],
-						atom_selection_2[contact[i].id2],
-						atom_colour_type);
-			      } else {
-			      
-				 // Bonds to hydrogens are one colour - HYDROGEN_GREY_BOND, not
-				 // half-bonds.
-				 // 
-				 // Except hydrogens on waters are treated differently to other
-				 // hydrogens (if they are not then we don't get to see the
-				 // oxygen).
-			      
-				 std::string resname_1 = atom_p_1->GetResName();
-				 std::string resname_2 = atom_p_2->GetResName();
-				 if (resname_1 == "HOH" || resname_2 == "HOH" ||
-                                     resname_1 == "DOD" || resname_2 == "DOD") {
+				 if (! is_hydrogen(element_1) && ! is_hydrogen(element_2)) { 
 				    add_half_bonds(atom_1_pos, atom_2_pos,
 						   atom_selection_1[contact[i].id1],
 						   atom_selection_2[contact[i].id2],
 						   atom_colour_type);
 				 } else {
 
-				    bool done_h_bond = false; // set when we make a half-bond between H and O.
-				    if (element_1 == " O") {
-				       int bond_udd = NO_BOND;
-				       atom_p_1->GetUDData(udd_handle, bond_udd);
-				       if (bond_udd == BONDED_WITH_STANDARD_ATOM_BOND) {
-				       } else {
-					  add_half_bonds(atom_1_pos, atom_2_pos,
-							 atom_selection_1[contact[i].id1],
-							 atom_selection_2[contact[i].id2],
-							 atom_colour_type);
-					  done_h_bond = true;
+				    // Bonds to hydrogens are one colour - HYDROGEN_GREY_BOND, not
+				    // half-bonds.
+				    //
+				    // Except hydrogens on waters are treated differently to other
+				    // hydrogens (if they are not then we don't get to see the
+				    // oxygen).
+
+				    std::string resname_1 = atom_p_1->GetResName();
+				    std::string resname_2 = atom_p_2->GetResName();
+				    if (resname_1 == "HOH" || resname_2 == "HOH" ||
+					resname_1 == "DOD" || resname_2 == "DOD") {
+				       add_half_bonds(atom_1_pos, atom_2_pos,
+						      atom_selection_1[contact[i].id1],
+						      atom_selection_2[contact[i].id2],
+						      atom_colour_type);
+				    } else {
+
+				       bool done_h_bond = false; // set when we make a half-bond between H and O.
+				       if (element_1 == " O") {
+					  int bond_udd = NO_BOND;
+					  atom_p_1->GetUDData(udd_handle, bond_udd);
+					  if (bond_udd == BONDED_WITH_STANDARD_ATOM_BOND) {
+					  } else {
+					     add_half_bonds(atom_1_pos, atom_2_pos,
+							    atom_selection_1[contact[i].id1],
+							    atom_selection_2[contact[i].id2],
+							    atom_colour_type);
+					     done_h_bond = true;
+					  }
 				       }
-				    }
 				 
-				    if (element_2 == " O") {
-				       int bond_udd = NO_BOND;
-				       atom_p_2->GetUDData(udd_handle, bond_udd);
-				       if (bond_udd == BONDED_WITH_STANDARD_ATOM_BOND) {
-				       } else {
-					  add_half_bonds(atom_1_pos, atom_2_pos,
-							 atom_selection_1[contact[i].id1],
-							 atom_selection_2[contact[i].id2],
-							 atom_colour_type);
-					  done_h_bond = true;
-				       } 
-				    }
-
-				    if (! done_h_bond) {
-				       if (atom_colour_type != coot::COLOUR_BY_USER_DEFINED_COLOURS) {
-					  addBond(HYDROGEN_GREY_BOND, atom_1_pos, atom_2_pos);
-				       } else {
-					  add_half_bonds(atom_1_pos, atom_2_pos,
-							 atom_selection_1[contact[i].id1],
-							 atom_selection_2[contact[i].id2],
-							 atom_colour_type);
+				       if (element_2 == " O") {
+					  int bond_udd = NO_BOND;
+					  atom_p_2->GetUDData(udd_handle, bond_udd);
+					  if (bond_udd == BONDED_WITH_STANDARD_ATOM_BOND) {
+					  } else {
+					     add_half_bonds(atom_1_pos, atom_2_pos,
+							    atom_selection_1[contact[i].id1],
+							    atom_selection_2[contact[i].id2],
+							    atom_colour_type);
+					     done_h_bond = true;
+					  } 
 				       }
-				    }
-				    done_bond_udd_handle = true;
-				    atom_p_1->PutUDData(udd_handle, BONDED_WITH_BOND_TO_HYDROGEN);
-				    atom_p_2->PutUDData(udd_handle, BONDED_WITH_BOND_TO_HYDROGEN);
-				 }
-			      } // not hydrogen test
-		  
-			   } else {
-		  
-			      // Bonded to an atom of the same element.
-			      //
 
-			      if (is_hydrogen(element_1)) { // both are hydrogen
-				 float len2 = (atom_1_pos - atom_2_pos).amplitude_squared(); 
-				 if (len2 < 1) { // protection for weirdness
+				       if (! done_h_bond) {
+					  if (atom_colour_type != coot::COLOUR_BY_USER_DEFINED_COLOURS) {
+					     addBond(HYDROGEN_GREY_BOND, atom_1_pos, atom_2_pos);
+					  } else {
+					     add_half_bonds(atom_1_pos, atom_2_pos,
+							    atom_selection_1[contact[i].id1],
+							    atom_selection_2[contact[i].id2],
+							    atom_colour_type);
+					  }
+				       }
+				       done_bond_udd_handle = true;
+				       atom_p_1->PutUDData(udd_handle, BONDED_WITH_BOND_TO_HYDROGEN);
+				       atom_p_2->PutUDData(udd_handle, BONDED_WITH_BOND_TO_HYDROGEN);
+				    }
+				 } // not hydrogen test
+		  
+			      } else {
+		  
+				 // Bonded to an atom of the same element.
+				 //
+
+				 if (is_hydrogen(element_1)) { // both are hydrogen
+				    float len2 = (atom_1_pos - atom_2_pos).amplitude_squared(); 
+				    if (len2 < 1) { // protection for weirdness
+				       col = atom_colour(atom_selection_1[ contact[i].id1 ], atom_colour_type);
+				       addBond(col, atom_1_pos, atom_2_pos);
+				    }
+				 } else {
 				    col = atom_colour(atom_selection_1[ contact[i].id1 ], atom_colour_type);
 				    addBond(col, atom_1_pos, atom_2_pos);
 				 }
-			      } else {
-				 col = atom_colour(atom_selection_1[ contact[i].id1 ], atom_colour_type);
-				 addBond(col, atom_1_pos, atom_2_pos);
 			      }
+
+			      mark_atoms_as_bonded(atom_p_1, atom_p_2, have_udd_atoms, udd_handle, done_bond_udd_handle);
+
 			   }
-
-			   mark_atoms_as_bonded(atom_p_1, atom_p_2, have_udd_atoms, udd_handle, done_bond_udd_handle);
-
 			}
 		     }
 		  }
 	       }
-	    }
-	 } // contact atom is higher up the list check.
-// 	 else {
-// 	    std::cout << "debug:: ignoring contact " << i << std::endl;
-// 	 }
+	    } // contact atom is higher up the list check.
+	    // 	 else {
+	    // 	    std::cout << "debug:: ignoring contact " << i << std::endl;
+	    // 	 }
 
-      } // i over ncontacts
+	 } // i over ncontacts
       
-      delete [] contact;
+	 delete [] contact;
 
-      // OK, now we can handle the het_residues: But we don't want to
-      // do this every time that this function is called (X-X, X-H).
-      // So do it only on X-X.
-      //
-      // het_residues is filled for by X-X for everything except HOHs.
-      // 
-      if (! are_different_atom_selections) 
-	 add_bonds_het_residues(het_residues, imol, atom_colour_type, have_udd_atoms, udd_handle);
-      if (hoh_residues.size())
-	 add_bonds_het_residues(hoh_residues, imol, atom_colour_type, have_udd_atoms, udd_handle);
-      
+	 // OK, now we can handle the het_residues: But we don't want to
+	 // do this every time that this function is called (X-X, X-H).
+	 // So do it only on X-X.
+	 //
+	 // het_residues is filled for by X-X for everything except HOHs.
+	 // 
+	 if (! are_different_atom_selections) 
+	    add_bonds_het_residues(het_residues, imol, atom_colour_type, have_udd_atoms, udd_handle);
+	 if (hoh_residues.size())
+	    add_bonds_het_residues(hoh_residues, imol, atom_colour_type, have_udd_atoms, udd_handle);
+      }
    }
 }
 
@@ -1127,8 +1135,8 @@ Bond_lines_container::add_aromatic_ring_bond_lines(const std::vector<std::string
 	       for (int istep=0; istep<n_steps; istep++) {
 		  double angle_1 = step_frac * 2.0 * M_PI * istep;
 		  double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
-		  clipper::Coord_orth pt_1 = coot::util::rotate_round_vector(n, first_pt, c, angle_1);
-		  clipper::Coord_orth pt_2 = coot::util::rotate_round_vector(n, first_pt, c, angle_2);
+		  clipper::Coord_orth pt_1 = coot::util::rotate_around_vector(n, first_pt, c, angle_1);
+		  clipper::Coord_orth pt_2 = coot::util::rotate_around_vector(n, first_pt, c, angle_2);
 		  addBond(col, pt_1, pt_2);
 	       }
 	    } else { 
@@ -1854,12 +1862,15 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 	 if (draw_these_atom_contacts(residue_atoms[contact[i].id1], SelAtom.atom_selection[contact[i].id2],
 				      protein_geom_p) || residue_is_water_flag) {
 
-	    coot::Cartesian atom_1(residue_atoms[ contact[i].id1 ]->x,
-				   residue_atoms[ contact[i].id1 ]->y,
-				   residue_atoms[ contact[i].id1 ]->z);
-	    coot::Cartesian atom_2(SelAtom.atom_selection[ contact[i].id2 ]->x,
-				   SelAtom.atom_selection[ contact[i].id2 ]->y,
-				   SelAtom.atom_selection[ contact[i].id2 ]->z);
+	    mmdb::Atom *atom_1 = residue_atoms[ contact[i].id1 ];
+	    mmdb::Atom *atom_2 = SelAtom.atom_selection[ contact[i].id2];
+
+	    coot::Cartesian atom_1_pos(residue_atoms[ contact[i].id1 ]->x,
+				       residue_atoms[ contact[i].id1 ]->y,
+				       residue_atoms[ contact[i].id1 ]->z);
+	    coot::Cartesian atom_2_pos(SelAtom.atom_selection[ contact[i].id2 ]->x,
+				       SelAtom.atom_selection[ contact[i].id2 ]->y,
+				       SelAtom.atom_selection[ contact[i].id2 ]->z);
 	    std::string ele1 = residue_atoms[ contact[i].id1 ]->element;
 	    std::string ele2 = SelAtom.atom_selection[ contact[i].id2 ]->element;
 	    std::string alt_conf_1 = residue_atoms[ contact[i].id1 ]->altLoc;
@@ -1882,7 +1893,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 	       bonding_dist_max -= shorter_bit;
 
 	    if (0) { // debug
-	       std::cout << " DEBUG:: add env dist "
+	       std::cout << " DEBUG:: add environ dist "
 			 << residue_atoms[ contact[i].id1 ] << " to "
 			 << SelAtom.atom_selection[ contact[i].id2 ]
 			 << std::endl;
@@ -1899,19 +1910,30 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 		      // ((ele1 != " H") && (ele2 != " H"))) { 
 		      ((! is_hydrogen(ele1)) && (! is_hydrogen(ele2)))) { 
 		     if (ele1 == " C")
-			addBond(0, atom_1, atom_2);
+			addBond(0, atom_1_pos, atom_2_pos);
 		     else {
 			if (ele2 == " C") { 
-			   addBond(0, atom_1, atom_2);
+			   addBond(0, atom_1_pos, atom_2_pos);
 			} else {
 			   
 			   // both atoms not Carbon
 			   
 			   // if (ele1 == " H" && ele2 == " H") {
 			   if (is_hydrogen(ele1) && is_hydrogen(ele2)) { 
-			      addBond(0, atom_1, atom_2); // not a charged/H-bond
-			   } else { 
-			      addBond(1, atom_1, atom_2); // interesting
+			      addBond(0, atom_1_pos, atom_2_pos); // not a charged/H-bond
+			   } else {
+
+			      // stop purple lines between (say) OD2 and mainchain O
+			      coot::quick_protein_donor_acceptors pda;
+			      coot::quick_protein_donor_acceptors::key k1(atom_1->GetResName(), atom_1->GetAtomName());
+			      coot::quick_protein_donor_acceptors::key k2(atom_2->GetResName(), atom_2->GetAtomName());
+			      // is-looked-up, is-H-bond
+			      int colour_index = 1; // H-bond
+			      std::pair<bool,bool> is_valid = pda.is_hydrogen_bond_by_types(k1,k2);
+			      if (is_valid.first)
+				 if (! is_valid.second)
+				    colour_index = 0;
+			      addBond(colour_index, atom_1_pos, atom_2_pos); // interesting
 			   }
 			}
 		     }
@@ -2060,10 +2082,9 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
       min_dist = tmp;
    }
    
-   for (int iresatom=0; iresatom< nResidueAtoms; iresatom++) { 
-      coot::Cartesian res_atom_pos(residue_atoms[iresatom]->x,
-				   residue_atoms[iresatom]->y,
-				   residue_atoms[iresatom]->z);
+   for (int iresatom=0; iresatom< nResidueAtoms; iresatom++) {
+      mmdb::Atom *res_atom = residue_atoms[iresatom];
+      coot::Cartesian res_atom_pos(res_atom->x, res_atom->y, res_atom->z);
       
       molecule_extents_t mol_extents(SelAtom, max_dist);
       std::vector<std::pair<symm_trans_t, Cell_Translation> > boxes =
@@ -2073,12 +2094,13 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 	 mmdb::PPAtom translated = trans_sel(SelAtom, boxes[ibox]);
 	 
 	 for (int it=0; it<SelAtom.n_selected_atoms; it++) { 
-	    
-	    coot::Cartesian symm_atom(translated[it]->x,
-				      translated[it]->y,
-				      translated[it]->z);
-	    
-	    float d = coot::Cartesian::LineLength(symm_atom, res_atom_pos);
+
+	    mmdb::Atom *trans_atom = translated[it];
+	    coot::Cartesian symm_atom_pos(translated[it]->x,
+					  translated[it]->y,
+					  translated[it]->z);
+
+	    float d = coot::Cartesian::LineLength(symm_atom_pos, res_atom_pos);
  	    // std::cout << translated[it] << " d = " << d << std::endl;
 	    if (d < max_dist && d >= min_dist) {
 	       std::string ele1 = residue_atoms[iresatom]->element;
@@ -2087,18 +2109,26 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 	       if (draw_env_distances_to_hydrogens_flag ||
 		   // ((ele1 != " H") && (ele2 != " H"))) {
 		   ((!is_hydrogen(ele1)) && (! is_hydrogen(ele2)))) {
-		   
+
 		  if (ele1 == " C")
-		     addBond(0, symm_atom, res_atom_pos);
+		     addBond(0, symm_atom_pos, res_atom_pos);
 		  else {
 		     if (ele2 == " C") { 
-			addBond(0, symm_atom, res_atom_pos);
-		     } else { 
-			// if (ele1 == " H" && ele2 == " H") { 
+			addBond(0, symm_atom_pos, res_atom_pos);
+		     } else {
 			if (is_hydrogen(ele1) && is_hydrogen(ele2)) {
-			   addBond(0, symm_atom, res_atom_pos);
-			} else { 
-			   addBond(1, symm_atom, res_atom_pos);
+			   addBond(0, symm_atom_pos, res_atom_pos);
+			} else {
+			   coot::quick_protein_donor_acceptors pda;
+			   coot::quick_protein_donor_acceptors::key k1(trans_atom->GetResName(), trans_atom->GetAtomName());
+			   coot::quick_protein_donor_acceptors::key k2(  res_atom->GetResName(),   res_atom->GetAtomName());
+			   // is-looked-up, is-H-bond
+			   int colour_index = 1; // H-bond
+			   std::pair<bool,bool> is_valid = pda.is_hydrogen_bond_by_types(k1,k2);
+			   if (is_valid.first)
+			      if (! is_valid.second)
+				 colour_index = 0;
+			   addBond(colour_index, symm_atom_pos, res_atom_pos);
 			}
 		     }
 		  }

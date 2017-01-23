@@ -1093,20 +1093,32 @@ coot::residue_spec_t residue_spec_from_py(PyObject *residue_in) {
 	 PyObject *chain_id_py = PyList_GetItem(residue_in, 0);
 	 PyObject *resno_py    = PyList_GetItem(residue_in, 1);
 	 PyObject *ins_code_py = PyList_GetItem(residue_in, 2);
-	 std::string chain_id  = PyString_AsString(chain_id_py);
-	 std::string ins_code  = PyString_AsString(ins_code_py);
-	 long resno            = PyInt_AsLong(resno_py);
-	 rspec = coot::residue_spec_t(chain_id, resno, ins_code);
+	 if (PyString_Check(chain_id_py)) {
+	    if (PyString_Check(ins_code_py)) {
+	       if (PyInt_Check(resno_py)) {
+		  std::string chain_id  = PyString_AsString(chain_id_py);
+		  std::string ins_code  = PyString_AsString(ins_code_py);
+		  long resno            = PyInt_AsLong(resno_py);
+		  rspec = coot::residue_spec_t(chain_id, resno, ins_code);
+	       }
+	    }
+	 }
       }
 
       if (PyList_Size(residue_in) == 4) {
 	 PyObject *chain_id_py = PyList_GetItem(residue_in, 1);
 	 PyObject *resno_py    = PyList_GetItem(residue_in, 2);
 	 PyObject *ins_code_py = PyList_GetItem(residue_in, 3);
-	 std::string chain_id  = PyString_AsString(chain_id_py);
-	 std::string ins_code  = PyString_AsString(ins_code_py);
-	 long resno            = PyInt_AsLong(resno_py);
-	 rspec = coot::residue_spec_t(chain_id, resno, ins_code);
+	 if (PyString_Check(chain_id_py)) {
+	    if (PyString_Check(ins_code_py)) {
+	       if (PyInt_Check(resno_py)) {
+		  std::string chain_id  = PyString_AsString(chain_id_py);
+		  std::string ins_code  = PyString_AsString(ins_code_py);
+		  long resno            = PyInt_AsLong(resno_py);
+		  rspec = coot::residue_spec_t(chain_id, resno, ins_code);
+	       }
+	    }
+	 }
       }
 
    }
@@ -4977,7 +4989,7 @@ PyObject *residue_centre_from_spec_py(int imol,
 
 
 #ifdef USE_GUILE
-   SCM link_info_scm(int imol) {
+SCM link_info_scm(int imol) {
 
    SCM r = SCM_EOL;
    if (is_valid_model_molecule(imol)) {

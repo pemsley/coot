@@ -41,6 +41,7 @@
 #include "c-interface-widgets.hh" // for generic_objects_dialog_table_add_object_internal()
 
 #include "graphics-info.h"
+#include "c-interface-generic-objects.h"
 
 
 /*  ----------------------------------------------------------------------- */
@@ -147,6 +148,24 @@ void to_generic_object_add_point(int object_number,
    } 
 }
 
+void to_generic_object_add_point_internal(int object_number, 
+					  const std::string &colour_name,
+					  const coot::colour_holder &colour,
+					  int point_width,
+					  const clipper::Coord_orth &pt) {
+
+   graphics_info_t g;
+
+   if (object_number >=0 && object_number < int(g.generic_objects_p->size())) { 
+
+      (*g.generic_objects_p)[object_number].add_point(colour, colour_name, point_width, pt);
+
+   } else {
+      std::cout << "BAD object_number in to_generic_object_add_point: "
+		<< object_number << std::endl;
+   }
+}
+
 
 void to_generic_object_add_dodecahedron(int object_number,
 					const char *colour_name,
@@ -247,12 +266,10 @@ void to_generic_object_add_display_list_handle(int object_number, int display_li
       std::cout << "BAD object_number in to_generic_object_add_point: "
 		<< object_number << std::endl;
    } 
-   
-
 }
 
 
-void set_display_generic_object(int object_number, short int istate) {
+void set_display_generic_object_simple(int object_number, short int istate) {
 
    graphics_info_t g;
    if (object_number >=0  && object_number < int(g.generic_objects_p->size())) {
@@ -261,7 +278,6 @@ void set_display_generic_object(int object_number, short int istate) {
       std::cout << "BAD object_number in to_generic_object_add_point: "
 		<< object_number << std::endl;
    }
-   graphics_draw();
 
    if (g.generic_objects_dialog) {
       // get the togglebutton and set its state
@@ -270,6 +286,7 @@ void set_display_generic_object(int object_number, short int istate) {
 	 "_toggle_button";
       GtkWidget *toggle_button = lookup_widget(g.generic_objects_dialog,
 					       toggle_button_name.c_str());
+
       if (toggle_button) {
 	 if (istate)
 	    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), TRUE);
@@ -279,14 +296,21 @@ void set_display_generic_object(int object_number, short int istate) {
    }
 }
 
+void set_display_generic_object(int object_number, short int istate) {
+   set_display_generic_object_simple(object_number, istate);
+   graphics_draw();
+}
+
+
 /*! \brief display (1) or undisplay (0) all generic display objects */
 void set_display_all_generic_objects(int state) {
 
    graphics_info_t g;
    unsigned int n_objs = g.generic_objects_p->size();
    for (unsigned int i=0; i<n_objs; i++) {
-      set_display_generic_object(i, state);
+      set_display_generic_object_simple(i, state);
    }
+   graphics_draw();
 }
 
 
@@ -449,7 +473,6 @@ void close_generic_object(int object_number) {
 	 gtk_widget_hide(toggle_button);
       if (label)
 	 gtk_widget_hide(label);
-      
    }
 }
 
@@ -479,6 +502,17 @@ void close_all_generic_objects() {
 	 close_generic_object(i);
    }
 }
+
+void generic_objects_gui_wrapper() {
+
+   graphics_info_t g;
+   if (! g.generic_objects_dialog) { 
+      g.generic_objects_dialog = wrapped_create_generic_objects_dialog();
+   }
+   gtk_widget_show(g.generic_objects_dialog);
+} 
+
+
 
 /*! \brief attach the generic object to a particular molecule 
 
@@ -895,7 +929,7 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 		   std::string s = g.state_command(cmd_strings, coot::STATE_PYTHON);
 		   safe_python_command(s);
 #else
-#if defined USE_GUILE && !defined WINDOWS_MINGW
+#if defined USE_GUILE_GTK && !defined WINDOWS_MINGW
 		   graphics_info_t g;
 		   std::vector<std::string> cmd_strings;
 		   cmd_strings.push_back("interesting-things-gui");
@@ -905,10 +939,10 @@ void handle_read_draw_probe_dots_unformatted(const char *dots_file, int imol,
 		   cmd_strings.push_back(ls);
 		   std::string s = g.state_command(cmd_strings, coot::STATE_SCM);
 		   safe_scheme_command(s);
-#endif // GUILE
+#endif // GUILE_GTK
 #endif // PYGTK
 		} else {
-#if defined USE_GUILE && !defined WINDOWS_MINGW
+#if defined USE_GUILE_GTK && !defined WINDOWS_MINGW
 		   graphics_info_t g;
 		   std::vector<std::string> cmd_strings;
 		   cmd_strings.push_back("interesting-things-gui");

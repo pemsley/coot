@@ -638,17 +638,17 @@ coot::trace::make_fragment(std::pair<unsigned int, coot::scored_node_t> scored_n
    clipper::Coord_orth rel_line_pt_C(diff_p_unit * f_ca_ca_c + perp_unit * 0.48);
    clipper::Coord_orth rel_line_pt_N(diff_p_unit * f_ca_ca_n - perp_unit * 0.47);
 
-   clipper::Coord_orth p_N = util::rotate_round_vector(diff_p_unit,
-						       pos_1 + rel_line_pt_N,
-						       pos_1, alpha);
-
-   clipper::Coord_orth p_O = util::rotate_round_vector(diff_p_unit,
-						       pos_1 + rel_line_pt_O,
-						       pos_1, alpha);
+   clipper::Coord_orth p_N = util::rotate_around_vector(diff_p_unit,
+							pos_1 + rel_line_pt_N,
+							pos_1, alpha);
    
-   clipper::Coord_orth p_C = util::rotate_round_vector(diff_p_unit,
-						       pos_1 + rel_line_pt_C,
-						       pos_1, alpha);
+   clipper::Coord_orth p_O = util::rotate_around_vector(diff_p_unit,
+							pos_1 + rel_line_pt_O,
+							pos_1, alpha);
+   
+   clipper::Coord_orth p_C = util::rotate_around_vector(diff_p_unit,
+							pos_1 + rel_line_pt_C,
+							pos_1, alpha);
 
    minimol::residue r1(res_no_base,   "ALA");
    minimol::residue r2(res_no_base+1, "ALA");
@@ -945,28 +945,28 @@ coot::trace::spin_score(unsigned int idx_1, unsigned int idx_2) const {
 
       // direction position orig-shift angle
       // 
-      clipper::Coord_orth p_CO = util::rotate_round_vector(diff_p_unit,
-							  pos_1 + rel_line_pt_O,
-							  pos_1, alpha);
+      clipper::Coord_orth p_CO = util::rotate_around_vector(diff_p_unit,
+							    pos_1 + rel_line_pt_O,
+							    pos_1, alpha);
       
-      clipper::Coord_orth p_CO_low = util::rotate_round_vector(diff_p_unit,
-							  pos_1 + rel_line_pt_O_low,
-							  pos_1, alpha);
+      clipper::Coord_orth p_CO_low = util::rotate_around_vector(diff_p_unit,
+								pos_1 + rel_line_pt_O_low,
+								pos_1, alpha);
       
-      clipper::Coord_orth p_CO_anti = util::rotate_round_vector(diff_p_unit,
-							  pos_1 + rel_line_pt_CO_anti,
-							  pos_1, alpha);
+      clipper::Coord_orth p_CO_anti = util::rotate_around_vector(diff_p_unit,
+								 pos_1 + rel_line_pt_CO_anti,
+								 pos_1, alpha);
       
-      clipper::Coord_orth p_N = util::rotate_round_vector(diff_p_unit,
-							  pos_1 + rel_line_pt_N,
-							  pos_1, alpha);
+      clipper::Coord_orth p_N = util::rotate_around_vector(diff_p_unit,
+							   pos_1 + rel_line_pt_N,
+							   pos_1, alpha);
       
-      clipper::Coord_orth p_2 = util::rotate_round_vector(diff_p_unit,
-							  pos_1 + rel_line_pt_perp1,
-							  pos_1, alpha);
-      clipper::Coord_orth p_3 = util::rotate_round_vector(diff_p_unit,
-							  pos_1 + rel_line_pt_perp2,
-							  pos_1, alpha);
+      clipper::Coord_orth p_2 = util::rotate_around_vector(diff_p_unit,
+							   pos_1 + rel_line_pt_perp1,
+							   pos_1, alpha);
+      clipper::Coord_orth p_3 = util::rotate_around_vector(diff_p_unit,
+							   pos_1 + rel_line_pt_perp2,
+							   pos_1, alpha);
 
       // clipper::Coord_orth p_N_acceptor_1 = util::rotate_round_vector(diff_p_unit,
       // 								     pos_1 + rel_line_pt_N_accpt,

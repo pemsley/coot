@@ -72,6 +72,7 @@
 #include "graphics-info.h"
 #include "interface.h"
 #include "c-interface.h"
+#include "c-interface-generic-objects.h"
 #include "c-interface-gtk-widgets.h"
 #include "c-interface-preferences.h"
 #include "cc-interface.hh"
@@ -126,6 +127,8 @@ void open_coords_dialog() {
 }
 
 
+#include "c-interface-widgets.hh"
+
 void
 open_cif_dictionary_file_selector_dialog() {
    
@@ -140,39 +143,47 @@ open_cif_dictionary_file_selector_dialog() {
 
       if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
 
+	 GtkWidget *aa_hbutton_box = gtk_dialog_get_action_area(GTK_DIALOG(fileselection));
+	 if (GTK_IS_HBUTTON_BOX(aa_hbutton_box))
+	    add_cif_dictionary_selector_molecule_selector(fileselection, aa_hbutton_box);
+
       } else {
 
-	 // classic
+	 // classic (I'm in the club, Moet Chandon in my cup...)
 
-	 // use action area for molecule selection
-	 //
 	 GtkWidget *aa_hbox = GTK_FILE_SELECTION(fileselection)->action_area;
-
-	 std::cout << "here with aa_hbox " << aa_hbox << std::endl;
-	 if (aa_hbox) {
-	    GtkWidget *frame = gtk_frame_new("Select Mol");
-	    GtkWidget *optionmenu = gtk_option_menu_new();
-	    g_object_set_data_full(G_OBJECT(fileselection),
-				   "cif_dictionary_file_selector_molecule_select_option_menu",
-				   gtk_widget_ref(optionmenu),
-				   (GDestroyNotify) gtk_widget_unref);
-
-	    GtkSignalFunc callback_func =
-	       GTK_SIGNAL_FUNC(cif_dictionary_molecule_menu_item_select);
-
-	    graphics_info_t g;
-	    int imol = first_coords_imol();
-	    fill_option_menu_with_coordinates_options_for_dictionary(optionmenu);
-
-	    gtk_box_pack_start(GTK_BOX(aa_hbox), frame, FALSE, TRUE, 0);
-	    gtk_container_add(GTK_CONTAINER(frame),optionmenu);
-	    gtk_widget_show(optionmenu);
-	    gtk_widget_show(frame);
-	 
-	 }
+	 if (aa_hbox)
+	    add_cif_dictionary_selector_molecule_selector(fileselection, aa_hbox);
       }
       gtk_widget_show(fileselection);
    }
+}
+
+void
+add_cif_dictionary_selector_molecule_selector(GtkWidget *fileselection, // maybe it's a chooser
+					      GtkWidget *aa_hbox) {
+
+   // if we came from a chooser, aa_hbox is an hbutton_box
+   // if we came from a selector, aa_hbox is an hbox.
+
+   GtkWidget *frame = gtk_frame_new("Select Mol");
+   GtkWidget *optionmenu = gtk_option_menu_new();
+   g_object_set_data_full(G_OBJECT(fileselection),
+			  "cif_dictionary_file_selector_molecule_select_option_menu",
+			  gtk_widget_ref(optionmenu),
+			  (GDestroyNotify) gtk_widget_unref);
+
+   GtkSignalFunc callback_func =
+      GTK_SIGNAL_FUNC(cif_dictionary_molecule_menu_item_select);
+
+   graphics_info_t g;
+   int imol = first_coords_imol();
+   fill_option_menu_with_coordinates_options_for_dictionary(optionmenu);
+
+   gtk_box_pack_start(GTK_BOX(aa_hbox), frame, FALSE, TRUE, 0);
+   gtk_container_add(GTK_CONTAINER(frame),optionmenu);
+   gtk_widget_show(optionmenu);
+   gtk_widget_show(frame);
 }
 
 void
@@ -3823,28 +3834,31 @@ void add_ccp4i_project_optionmenu(GtkWidget *fileselection, int file_selection_t
    }
 
    if (add_shortcut) {
-//       std::cout << "in add_ccp4i_project_optionmenu widget is fileselection "
-// 		<< GTK_IS_FILE_CHOOSER(fileselection) << std::endl;
-      add_ccp4i_project_shortcut(fileselection);
+
+      if (GTK_IS_FILE_CHOOSER(fileselection))
+	 add_ccp4i_project_shortcut(fileselection);
 
    } else {
 
-      GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
+      if (GTK_IS_FILE_SELECTION(fileselection)) {
 
-      GtkWidget *optionmenu = gtk_option_menu_new();
-      gtk_widget_ref(optionmenu);
-      gtk_widget_show(optionmenu);
-      gtk_object_set_data(GTK_OBJECT(fileselection), "ccp4i_project_optionmenu", optionmenu);
-      gtk_object_set_user_data(GTK_OBJECT(optionmenu), GINT_TO_POINTER(file_selection_type));
-      GtkSignalFunc project_signal_func =
-	 GTK_SIGNAL_FUNC(option_menu_refmac_ccp4i_project_signal_func);
-      add_ccp4i_projects_to_optionmenu(optionmenu, file_selection_type, project_signal_func);
+	 GtkWidget *aa = GTK_FILE_SELECTION(fileselection)->action_area;
 
-      // Let's put the optionmenu in a frame with a label
-      GtkWidget *frame = gtk_frame_new("CCP4i Project Directory");
-      gtk_container_add(GTK_CONTAINER(aa), frame);
-      gtk_widget_show(frame);
-      gtk_container_add(GTK_CONTAINER(frame),optionmenu);
+	 GtkWidget *optionmenu = gtk_option_menu_new();
+	 gtk_widget_ref(optionmenu);
+	 gtk_widget_show(optionmenu);
+	 gtk_object_set_data(GTK_OBJECT(fileselection), "ccp4i_project_optionmenu", optionmenu);
+	 gtk_object_set_user_data(GTK_OBJECT(optionmenu), GINT_TO_POINTER(file_selection_type));
+	 GtkSignalFunc project_signal_func =
+	    GTK_SIGNAL_FUNC(option_menu_refmac_ccp4i_project_signal_func);
+	 add_ccp4i_projects_to_optionmenu(optionmenu, file_selection_type, project_signal_func);
+
+	 // Let's put the optionmenu in a frame with a label
+	 GtkWidget *frame = gtk_frame_new("CCP4i Project Directory");
+	 gtk_container_add(GTK_CONTAINER(aa), frame);
+	 gtk_widget_show(frame);
+	 gtk_container_add(GTK_CONTAINER(frame),optionmenu);
+      }
    }
 }
 

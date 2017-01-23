@@ -1,18 +1,68 @@
 
    For Release 0.8.8
 
-   o if the chain has a TER and we add NCS residues, then the
-   old/current TER should be deleted.
+   o It appears that merging coordinates (read from cif with
+   multi-character label_asym_id and auth_asym_id) in to another set
+   of coordinates will assign single-character chain IDs to the source
+   coordinates. Might it be better to just add a prefix to those ids?
+   Regards, Wolfram Tempel
+
+   o colour by occupancy and colour by B-factor don't work [Hans Raaijmakers]
+
+
+   o bad 2D layout IXY in 3wzy
+
+   o go to ligand: JED: Can I make a list of "non-interesting comp-ids?"
+
+   o coot-probe: does it work with symmetry?
+
+   o coot-reduce: does it work with symmetry? (this is more tricky and less useful)
+
+   o Fetch molecule: acyclovir, (edit?) click Apply
+
+   o get penacillin G from chemspider 
+     CC1([C@@H](N2[C@H](S1)[C@@H](C2=O)/N=C(\Cc3ccccc3)/O)C(=O)O)C
+     Acedrg it.
+     Read in dict to coot, make a molecule, look at the thumbnail - backwards wedge bond
+ 
+   o lidia: import 
+   CC(C)C[C@@H](C[C@H](O)[C@H](Cc1ccccc1)NC(=O)COc2c(C)cccc2C)NC(=O)c3cccc(N)c3
+     change amine for meta to para - SMILES updates but drawing doesn't.
+ 
+   o Pyrogen chirality: Using CCD files as input, make a dictionary and 
+     either validate the coordinates (dictionary vs actual) chiral volume 
+     or minimize and validate coordinates
+
+   o Pyrogen: add command line arguement to keep the coordinates from the 
+     input CCD/mmcif file
+
+   o when mutating to MSE atoms become HETATMs.
 
    o Ligand Builder -> Open [cif dictionary] Failures
      110 (butyl carboxylic acid - Oxygen formal charge)
 
-
    o Fix make check on test chemical features
 
-* Done.
+   o comp_id C23, look at the thumbnail, or residue->2D, see that the Oxygen atom
+     seems chiral - is the bond the wrong way round?
 
-   o New EDS Location [John Berrisford]
+   o like sphere refine, but onlyn select residues that are linearly related to
+     the active residue (Hmm... how to do the GUI for this...?)
+     -- Chris Oubridge
+
+     maybe autozone 2 will do?
+
+   o 3ggi sfs don't convert with mmcif-to-mtz.
+
+   o make test should do something useful [Tim Fenn].
+
+   o if the chain has a TER and we add NCS residues, then the
+     old/current TER should be deleted.  Write a test first.
+
+   o enable mol2 reading to pyrogen
+
+   o Ligand Builder -> Open [cif dictionary] Failures
+     110 (butyl carboxylic acid - Oxygen formal charge)
 
    o Get some RNA - check that base pair restraints generation works
      (user-defined restraints).  Donna M.
@@ -21,11 +71,9 @@
      Clear generic display objects -> not all graphics objects are removed - they 
      should be.
 
-   o Fetch molecule: acyclovir, (edit?) click Apply
- 
-   o make a small buccaneer test
+   o make a cootaneer test
 
-   o write a test that runs findwaters 
+   o write a test that runs findwaters
 
    o write a test that runs findligand
 
@@ -53,7 +101,7 @@ debug:: switch for sequence_view for imol 0 is 0x0
    2) exported coordinates and U's round off like in shelxl
 
       EXPORTED: C1    1  0.501129985  0.671778977   0.518324018
-      SHELXL:   C1    1    0.501130    0.671779    0.518324    11.00000    0.24195
+      SHELXL:   C1    1  0.501130     0.671779      0.518324    11.00000    0.24195
 
    3) When I try to fix coordinates temporarily by adding 10 - WinCOOT treats 
       it as actual coordinate and not fixed one so atom is shifted. 
@@ -75,4 +123,8 @@ debug:: switch for sequence_view for imol 0 is 0x0
 ==9640==    by 0x8190F3: molecule_class_info_t::make_bonds_type_checked() (molecule-class-info.cc:3265)
 ==9640==    by 0x81D63B: molecule_class_info_t::handle_read_draw_molecule(int, std::string, std::string, short, short, bool, bool, float, int) (molecule-class-info.cc
 :219)
+
+   o Fix make check on test chemical features
+
+* Done.
 

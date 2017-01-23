@@ -1491,7 +1491,7 @@ graphics_info_t::density_fit_from_residues(mmdb::PResidue *SelResidues, int nSel
 	 if (this_resno > max_resno)
 	    max_resno = this_resno;
 
-	 mmdb::PAtom *residue_atoms;
+	 mmdb::PAtom *residue_atoms=0;
 	 int n_residue_atoms;
 
 	 SelResidues[ir]->GetAtomTable(residue_atoms, n_residue_atoms);

@@ -994,7 +994,9 @@ molecule_class_info_t::replace_fragment(atom_selection_container_t asc) {
 //
 // model number is either a specific model number of mmdb::MinInt4, meaning:
 // any/all model(s).
-// 
+//
+// if we have delete_zone mode then we don't want to update the ghosts or the gui
+// or make backups
 short int
 molecule_class_info_t::delete_residue(int model_number,
 				      const std::string &chain_id, int resno,
@@ -1448,14 +1450,57 @@ molecule_class_info_t::delete_zone(const coot::residue_spec_t &res1,
 	 if (res1.model_number == res2.model_number)
 	    model_number_ANY = res1.model_number;
 
-   
-   for (int i=first_res; i<=last_res; i++)
-      // delete_residue_with_altconf(res1.chain, i, inscode, alt_conf);
-      delete_residue(model_number_ANY, res1.chain_id, i, inscode);
+   bool was_deleted = false;
+
+   std::vector<coot::residue_spec_t> deleted_residue_specs;
+
+   // run over chains of the existing mol
+   int n_models = atom_sel.mol->GetNumberOfModels();
+   for (int imod=1; imod<=n_models; imod++) {
+
+      int nchains = atom_sel.mol->GetNumberOfChains(imod);
+      for (int ichain=0; ichain<nchains; ichain++) {
+
+	 mmdb::Chain *chain_p = atom_sel.mol->GetChain(imod,ichain);
+	 std::string mol_chain_id(chain_p->GetChainID());
+
+	 if (res1.chain_id == mol_chain_id) {
+
+	    int nres = chain_p->GetNumberOfResidues();
+	    for (int ires=0; ires<nres; ires++) {
+	       mmdb::Residue *res = chain_p->GetResidue(ires);
+	       if (res) {
+		  int res_no = res->GetSeqNum();
+		  if (res_no >= first_res) {
+		     if (res_no <= last_res) {
+			chain_p->DeleteResidue(ires);
+			was_deleted = true;
+			deleted_residue_specs.push_back(coot::residue_spec_t(res));
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
    backup_this_molecule = tmp_backup_this_molecule; // restore state
 
-   // bonds, have_unsaved_changes_flag etc dealt with by
-   // delete_residue_with_altconf().
+   if (was_deleted) {
+
+      std::cout << "INFO... deleting links..." << std::endl;
+      for (unsigned int ispec=0; ispec<deleted_residue_specs.size(); ispec++) {
+	 const coot::residue_spec_t &spec = deleted_residue_specs[ispec];
+	 delete_any_link_containing_residue(spec);
+      }
+      atom_sel.atom_selection = NULL;
+      atom_sel.mol->FinishStructEdit();
+      atom_sel = make_asc(atom_sel.mol);
+      have_unsaved_changes_flag = 1;
+      make_bonds_type_checked(); // calls update_ghosts()
+      trim_atom_label_table();
+      update_symmetry();
+   }
+
    return 0;
 }
 
@@ -1705,6 +1750,7 @@ molecule_class_info_t::delete_hydrogens(){  // return status of atoms deleted (0
       
       if (atoms_to_be_deleted.size() > 0) {
 
+	 make_backup();
 	 for (unsigned int iat=0; iat<atoms_to_be_deleted.size(); iat++) {
 	    delete atoms_to_be_deleted[iat];
 	    atoms_to_be_deleted[iat] = NULL;
@@ -2107,7 +2153,7 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
 
 	       if (p.first) { 
 		  try {
-		  
+
 		     make_backup();
 		     mmdb::Residue *prev_res = coot::util::previous_residue(res);
 		     mmdb::Residue *next_res = coot::util::next_residue(res);
@@ -4015,25 +4061,28 @@ molecule_class_info_t::fill_raster_model_info(bool against_a_dark_background) {
    if (has_model()) {
       if (draw_it) { 
 	 int restore_bonds = 0;
-	 graphics_info_t g; // bleugh
 	 if (g.raster3d_water_sphere_flag && bonds_box_type == coot::NORMAL_BONDS) {
 	    // remove waters
 	    bonds_no_waters_representation();
 	    restore_bonds = 1;
 	 }
+	 rtmi.bond_lines.resize(bonds_box.num_colours);
 	 for (int i=0; i<bonds_box.num_colours; i++) {
 	    set_bond_colour_by_mol_no(i, against_a_dark_background); //sets bond_colour_internal
+	    double thickness = g.raster3d_bond_thickness;
+	    if (bonds_box.bonds_[i].thin_lines_flag) thickness *= 0.5;
 	    for (int j=0; j<bonds_box.bonds_[i].num_lines; j++) {
-	       std::pair<coot::Cartesian, coot::Cartesian> p(bonds_box.bonds_[i].pair_list[j].positions.getStart(),
-							     bonds_box.bonds_[i].pair_list[j].positions.getFinish());
-	       rtmi.bond_lines.push_back(p);
-	       coot::colour_t c;
-	       c.col.resize(3);
-	       c.col[0] = bond_colour_internal[0];
-	       c.col[1] = bond_colour_internal[1];
-	       c.col[2] = bond_colour_internal[2];
-	       rtmi.bond_colour.push_back(c);
+	       coot::ray_trace_molecule_info::bond_t b(bonds_box.bonds_[i].pair_list[j].positions.getStart(),
+						       bonds_box.bonds_[i].pair_list[j].positions.getFinish(),
+						       thickness);
+	       rtmi.bond_lines[i].bonds.push_back(b);
 	    }
+	    coot::colour_t c;
+	    c.col.resize(3);
+	    c.col[0] = bond_colour_internal[0];
+	    c.col[1] = bond_colour_internal[1];
+	    c.col[2] = bond_colour_internal[2];
+	    rtmi.bond_lines[i].colour = c;
 	 }
 	 // restore bond_box_type
 	 if (restore_bonds) {
@@ -4052,8 +4101,18 @@ molecule_class_info_t::fill_raster_model_info(bool against_a_dark_background) {
 	    c.col[0] = bond_colour_internal[0];
 	    c.col[1] = bond_colour_internal[1];
 	    c.col[2] = bond_colour_internal[2];
+	    // std::cout << " bonds_box for atoms " << i << " col " << c << std::endl;
 	    // here is the place to add tiny rastered hydrogen balls.
-	    rtmi.atom.push_back(std::pair<coot::Cartesian, coot::colour_t> (bonds_box.atom_centres_[i].second, c));
+	    // rtmi.atom.push_back(std::pair<coot::Cartesian, coot::colour_t>
+	    // (bonds_box.atom_centres_[i].second, c));
+	    double r = g.raster3d_atom_radius;
+	    std::cout << "comparing colours " << bonds_box.atom_centres_colour_[i] << " vs "
+		      << HYDROGEN_GREY_BOND << std::endl;
+	    if (bonds_box.atom_centres_colour_[i] == HYDROGEN_GREY_BOND)
+	       r *= 0.5;
+
+	    coot::ray_trace_molecule_info::ball_t b(bonds_box.atom_centres_[i].second, c, r);
+	    rtmi.balls.push_back(b);
 	 }
 	 rtmi.molecule_name = name_;
 	 rtmi.molecule_number = imol_no;
@@ -4188,8 +4247,8 @@ molecule_class_info_t::fill_raster_additional_info() const {
 	    for (unsigned int istep=0; istep<n_steps; istep++) {
 	       double angle_1 = step_frac * 2.0 * M_PI * istep;
 	       double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
-	       pt_1 = coot::util::rotate_round_vector(ppr.normal, first_pt, ppr.ring_centre, angle_1);
-	       pt_2 = coot::util::rotate_round_vector(ppr.normal, first_pt, ppr.ring_centre, angle_2);
+	       pt_1 = coot::util::rotate_around_vector(ppr.normal, first_pt, ppr.ring_centre, angle_1);
+	       pt_2 = coot::util::rotate_around_vector(ppr.normal, first_pt, ppr.ring_centre, angle_2);
 	       coot::Cartesian p1(pt_1);
 	       coot::Cartesian p2(pt_2);
 	       rti.add_extra_representation_line(p1, p2, c, thickness);
@@ -4200,8 +4259,8 @@ molecule_class_info_t::fill_raster_additional_info() const {
 	    for (unsigned int istep=0; istep<n_steps; istep++) {
 	       double angle_1 = step_frac * 2.0 * M_PI * istep;
 	       double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
-	       pt_1 = coot::util::rotate_round_vector(ppr.normal, first_pt_pp, ppr.plane_projection_point, angle_1);
-	       pt_2 = coot::util::rotate_round_vector(ppr.normal, first_pt_pp, ppr.plane_projection_point, angle_2);
+	       pt_1 = coot::util::rotate_around_vector(ppr.normal, first_pt_pp, ppr.plane_projection_point, angle_1);
+	       pt_2 = coot::util::rotate_around_vector(ppr.normal, first_pt_pp, ppr.plane_projection_point, angle_2);
 	       coot::Cartesian p1(pt_1);
 	       coot::Cartesian p2(pt_2);
 	       rti.add_extra_representation_line(p1, p2, c, thickness);
@@ -6331,10 +6390,10 @@ molecule_class_info_t::draw_display_list_objects(int GL_context) {
    //    std::cout << "draw_display_list_objects() add_reps.size() " << add_reps.size() << std::endl;
 
    GLfloat  ambientLight[] = { 0.1f, 0.1f, 0.1f, 0.f };
-   GLfloat  diffuseLight[] = { 0.5f, 0.5f, 0.5f, 0.f };
-   GLfloat specularLight[] = { 0.5f, 0.5f, 0.5f, 0.f };
+   GLfloat  diffuseLight[] = { 0.4f, 0.4f, 0.4f, 0.f };
+   GLfloat specularLight[] = { 0.4f, 0.4f, 0.4f, 0.f };
 
-   // Assign created components to GL_LIGHT2
+   // Assign created components to GL_LIGHT1
    glLightfv(GL_LIGHT1, GL_AMBIENT,  ambientLight);
    glLightfv(GL_LIGHT1, GL_DIFFUSE,  diffuseLight);
    glLightfv(GL_LIGHT1, GL_SPECULAR, specularLight);
@@ -6343,12 +6402,15 @@ molecule_class_info_t::draw_display_list_objects(int GL_context) {
    if (draw_it) { 
       if (display_list_tags.size() > 0) { 
 	 glEnable(GL_LIGHTING);
-	 glEnable(GL_LIGHT0);
-	 glEnable(GL_LIGHT1);
-	 glEnable(GL_LIGHT2);
+
+	 glEnable(GL_LIGHT0); // bright.
+	 glEnable(GL_LIGHT1); // dim, off axis
+	 glEnable(GL_LIGHT2); // very dark
+
 	 // glDisable(GL_LIGHT0);
 	 // glDisable(GL_LIGHT1);
 	 // glDisable(GL_LIGHT2);
+
 	 std::vector<coot::display_list_object_info>::const_iterator it;
 	 for (it=display_list_tags.begin(); it!=display_list_tags.end(); it++) {
 	    if (! it->is_closed) { 
