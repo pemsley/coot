@@ -5945,7 +5945,7 @@ coot::util::rotate_atom_about(const clipper::Coord_orth &direction,
 
    if (at) {
       clipper::Coord_orth pos(at->x, at->y, at->z);
-      clipper::Coord_orth new_pos = rotate_round_vector(direction, pos, origin_shift, angle);
+      clipper::Coord_orth new_pos = rotate_around_vector(direction, pos, origin_shift, angle);
       at->x = new_pos.x();
       at->y = new_pos.y();
       at->z = new_pos.z();

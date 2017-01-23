@@ -3075,7 +3075,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    // the target residues for residues_near_residue().
    // 
    std::vector<mmdb::Residue *> central_residues;
-   for (unsigned int iat=0; iat<n_atoms; iat++) {
+   for (int iat=0; iat<n_atoms; iat++) {
       mmdb::Atom *at = atom_selection[iat];
       mmdb::Residue *r = at->GetResidue();
       if (std::find(central_residues.begin(), central_residues.end(), r) == central_residues.end()) {
