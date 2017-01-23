@@ -7751,3 +7751,16 @@ mods.  That adds and deletes refer to named plane restraints (see the
 add and delete atoms).
 
 ---
+Thu  1 Dec 2016 23:08:27 GMT
+
+   testing for std::thread (needs -pthread?)
+
+   https://github.com/molpopgen/devnotes/wiki/Useful-autoconf-macros
+
+   (not quite what I want, I think)
+
+   Maybe this:
+
+   https://github.com/emcrisostomo/CXX-Autoconf-Macros/blob/master/ax_cxx_have_thread.m4
+
+---

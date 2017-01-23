@@ -2949,12 +2949,15 @@ do_drag_pan(gdouble x, gdouble y, GtkWidget *widget) {
    // 
    info.add_to_RotationCentre(vec_x_y, -x_diff*0.02, -y_diff*0.02);
 
-   if (info.GetActiveMapDrag() == 1) {
-      for (int ii=0; ii<info.n_molecules(); ii++) { 
-	 info.molecules[ii].update_map(); // to take account
-	 // of new rotation centre.
-      }
-   }
+//    if (info.GetActiveMapDrag() == 1) {
+//       for (int ii=0; ii<info.n_molecules(); ii++) {
+// 	 info.molecules[ii].update_map(); // to take account
+// 	 // of new rotation centre.
+//       }
+//    }
+
+   info.update_maps();
+
    for (int ii=0; ii<info.n_molecules(); ii++) { 
       info.molecules[ii].update_symmetry();
    }

@@ -1,7 +1,10 @@
 
    For Release 0.8.8
 
+
    o Fetch molecule: acyclovir, (edit?) click Apply
+
+   o  can you read this: all-comp-ids/T/PDBe-TFH.cif.  Its OBS though.
 
    o It appears that merging coordinates (read from cif with
    multi-character label_asym_id and auth_asym_id) in to another set
