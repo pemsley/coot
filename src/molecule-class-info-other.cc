@@ -4202,8 +4202,8 @@ molecule_class_info_t::fill_raster_additional_info() const {
 	    for (unsigned int istep=0; istep<n_steps; istep++) {
 	       double angle_1 = step_frac * 2.0 * M_PI * istep;
 	       double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
-	       pt_1 = coot::util::rotate_round_vector(ppr.normal, first_pt, ppr.ring_centre, angle_1);
-	       pt_2 = coot::util::rotate_round_vector(ppr.normal, first_pt, ppr.ring_centre, angle_2);
+	       pt_1 = coot::util::rotate_around_vector(ppr.normal, first_pt, ppr.ring_centre, angle_1);
+	       pt_2 = coot::util::rotate_around_vector(ppr.normal, first_pt, ppr.ring_centre, angle_2);
 	       coot::Cartesian p1(pt_1);
 	       coot::Cartesian p2(pt_2);
 	       rti.add_extra_representation_line(p1, p2, c, thickness);
@@ -4214,8 +4214,8 @@ molecule_class_info_t::fill_raster_additional_info() const {
 	    for (unsigned int istep=0; istep<n_steps; istep++) {
 	       double angle_1 = step_frac * 2.0 * M_PI * istep;
 	       double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
-	       pt_1 = coot::util::rotate_round_vector(ppr.normal, first_pt_pp, ppr.plane_projection_point, angle_1);
-	       pt_2 = coot::util::rotate_round_vector(ppr.normal, first_pt_pp, ppr.plane_projection_point, angle_2);
+	       pt_1 = coot::util::rotate_around_vector(ppr.normal, first_pt_pp, ppr.plane_projection_point, angle_1);
+	       pt_2 = coot::util::rotate_around_vector(ppr.normal, first_pt_pp, ppr.plane_projection_point, angle_2);
 	       coot::Cartesian p1(pt_1);
 	       coot::Cartesian p2(pt_2);
 	       rti.add_extra_representation_line(p1, p2, c, thickness);

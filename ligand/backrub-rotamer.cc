@@ -167,7 +167,7 @@ coot::backrub::make_test_fragment(mmdb::Residue *r, double rotation_angle) const
 	 // rotate pt
 	 double ra = M_PI*rotation_angle/180.0;
 	 clipper::Coord_orth pt_new =
-	    coot::util::rotate_round_vector(dir, pt, ca_prev, ra);
+	    coot::util::rotate_around_vector(dir, pt, ca_prev, ra);
 	 f[ires][iat].pos = pt_new;
       }
    }
@@ -454,7 +454,7 @@ coot::backrub::sample_individual_peptide(mmdb::Residue *r, double rotation_angle
 		     // rotate pt
 		     double ra = M_PI*sample_rotation_angle/180.0;
 		     clipper::Coord_orth pt_new =
-			coot::util::rotate_round_vector(dir, pt, ca_ref_rot, ra);
+			coot::util::rotate_around_vector(dir, pt, ca_ref_rot, ra);
 		     double d =  clipper::Coord_orth::length(O_pos, pt_new);
 		     sum_dist += d;
 		  }
@@ -545,7 +545,7 @@ coot::backrub::apply_back_rotation(coot::minimol::fragment *f,
 	    // rotate pt
 	    double ra = M_PI*best_back_rotation_angle/180.0;
 	    clipper::Coord_orth pt_new =
-	       coot::util::rotate_round_vector(dir, pt, ca_ref_rot, ra);
+	       coot::util::rotate_around_vector(dir, pt, ca_ref_rot, ra);
 	    (*f)[ires][iat].pos = pt_new;
 	 } 
       }

@@ -1110,10 +1110,10 @@ namespace coot {
       //
       // Note that angle is in radians.
       // 
-      clipper::Coord_orth rotate_round_vector(const clipper::Coord_orth &direction,
-					      const clipper::Coord_orth &position,
-					      const clipper::Coord_orth &origin_shift,
-					      double angle);
+      clipper::Coord_orth rotate_around_vector(const clipper::Coord_orth &direction,
+					       const clipper::Coord_orth &position,
+					       const clipper::Coord_orth &origin_shift,
+					       double angle);
       // angle in radians
       // 
       void rotate_residue(mmdb::Residue *residue_p,

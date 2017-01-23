@@ -2580,14 +2580,6 @@ public:
    // we allow terminal fitting without rigid body refinement
    static short int terminal_residue_do_rigid_body_refine; 
 
-   // Rotate position round direction, direction is not necessarily a
-   // unit vector
-   // 
-   clipper::Coord_orth rotate_round_vector(const clipper::Coord_orth &direction,
-					   const clipper::Coord_orth &position,
-					   const clipper::Coord_orth &origin_shift,
-					   double angle) const; 
-
    // public (from globjects);
    // 
    void execute_db_main();
