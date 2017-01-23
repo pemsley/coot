@@ -994,7 +994,9 @@ molecule_class_info_t::replace_fragment(atom_selection_container_t asc) {
 //
 // model number is either a specific model number of mmdb::MinInt4, meaning:
 // any/all model(s).
-// 
+//
+// if we have delete_zone mode then we don't want to update the ghosts or the gui
+// or make backups
 short int
 molecule_class_info_t::delete_residue(int model_number,
 				      const std::string &chain_id, int resno,
@@ -1448,14 +1450,57 @@ molecule_class_info_t::delete_zone(const coot::residue_spec_t &res1,
 	 if (res1.model_number == res2.model_number)
 	    model_number_ANY = res1.model_number;
 
-   
-   for (int i=first_res; i<=last_res; i++)
-      // delete_residue_with_altconf(res1.chain, i, inscode, alt_conf);
-      delete_residue(model_number_ANY, res1.chain_id, i, inscode);
+   bool was_deleted = false;
+
+   std::vector<coot::residue_spec_t> deleted_residue_specs;
+
+   // run over chains of the existing mol
+   int n_models = atom_sel.mol->GetNumberOfModels();
+   for (int imod=1; imod<=n_models; imod++) {
+
+      int nchains = atom_sel.mol->GetNumberOfChains(imod);
+      for (int ichain=0; ichain<nchains; ichain++) {
+
+	 mmdb::Chain *chain_p = atom_sel.mol->GetChain(imod,ichain);
+	 std::string mol_chain_id(chain_p->GetChainID());
+
+	 if (res1.chain_id == mol_chain_id) {
+
+	    int nres = chain_p->GetNumberOfResidues();
+	    for (int ires=0; ires<nres; ires++) {
+	       mmdb::Residue *res = chain_p->GetResidue(ires);
+	       if (res) {
+		  int res_no = res->GetSeqNum();
+		  if (res_no >= first_res) {
+		     if (res_no <= last_res) {
+			chain_p->DeleteResidue(ires);
+			was_deleted = true;
+			deleted_residue_specs.push_back(coot::residue_spec_t(res));
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
    backup_this_molecule = tmp_backup_this_molecule; // restore state
 
-   // bonds, have_unsaved_changes_flag etc dealt with by
-   // delete_residue_with_altconf().
+   if (was_deleted) {
+
+      std::cout << "INFO... deleting links..." << std::endl;
+      for (unsigned int ispec=0; ispec<deleted_residue_specs.size(); ispec++) {
+	 const coot::residue_spec_t &spec = deleted_residue_specs[ispec];
+	 delete_any_link_containing_residue(spec);
+      }
+      atom_sel.atom_selection = NULL;
+      atom_sel.mol->FinishStructEdit();
+      atom_sel = make_asc(atom_sel.mol);
+      have_unsaved_changes_flag = 1;
+      make_bonds_type_checked(); // calls update_ghosts()
+      trim_atom_label_table();
+      update_symmetry();
+   }
+
    return 0;
 }
 
