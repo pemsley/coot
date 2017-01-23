@@ -2929,7 +2929,7 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
 				moving_atoms_asc->atom_selection[i]->y,
 				moving_atoms_asc->atom_selection[i]->z);
 	 clipper::Coord_orth new_pos = 
-	    g.rotate_round_vector(screen_vector, co, rotation_centre, x_diff * 0.018);
+	    coot::util::rotate_around_vector(screen_vector, co, rotation_centre, x_diff * 0.018);
 	 moving_atoms_asc->atom_selection[i]->x = new_pos.x();
 	 moving_atoms_asc->atom_selection[i]->y = new_pos.y();
 	 moving_atoms_asc->atom_selection[i]->z = new_pos.z();

@@ -113,7 +113,7 @@ def fetch_molecule(drug_name):
     try_chemspider = False # usually not needed
     if "DrugBank" in db_dict:
        try:
-          db_mol_uri = "http://www.drugbank.ca/structures/structures/small_molecule_drugs/" + \
+          db_mol_uri = "https://www.drugbank.ca/structures/small_molecule_drugs/" + \
                        db_dict["DrugBank"] + ".mol"
           file_name = db_dict["DrugBank"] + ".mol"
           fetch_it = True

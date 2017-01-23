@@ -2713,17 +2713,17 @@ graphics_info_t::edit_backbone_peptide_changed_func(GtkAdjustment *adj, GtkWidge
       
       double rad_angle = clipper::Util::d2rad(adj->value);
       clipper::Coord_orth new_c = 
-	 g.rotate_round_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
-			       this_c.second,
-			       backbone_torsion_end_ca_1, rad_angle);
+	 coot::util::rotate_around_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
+				this_c.second,
+				backbone_torsion_end_ca_1, rad_angle);
       clipper::Coord_orth new_o = 
-	 g.rotate_round_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
-			       this_o.second,
-			       backbone_torsion_end_ca_1, rad_angle);
+	 coot::util::rotate_around_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
+					  this_o.second,
+					  backbone_torsion_end_ca_1, rad_angle);
       clipper::Coord_orth new_n = 
-	 g.rotate_round_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
-			       next_n.second,
-			       backbone_torsion_end_ca_1, rad_angle);
+	 coot::util::rotate_around_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
+					  next_n.second,
+					  backbone_torsion_end_ca_1, rad_angle);
       n_atom_p->x = new_n.x();
       n_atom_p->y = new_n.y();
       n_atom_p->z = new_n.z();
@@ -2797,13 +2797,13 @@ graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidg
 
       double rad_angle = clipper::Util::d2rad(adj->value);
       clipper::Coord_orth new_c = 
-	 g.rotate_round_vector(carbonyl_n_pos - backbone_torsion_end_ca_1,
-			       this_c.second,
-			       backbone_torsion_end_ca_1, rad_angle);
+	 coot::util::rotate_around_vector(carbonyl_n_pos - backbone_torsion_end_ca_1,
+					  this_c.second,
+					  backbone_torsion_end_ca_1, rad_angle);
       clipper::Coord_orth new_o = 
-	 g.rotate_round_vector(carbonyl_n_pos - backbone_torsion_end_ca_1,
-			       this_o.second,
-			       backbone_torsion_end_ca_1, rad_angle);
+	 coot::util::rotate_around_vector(carbonyl_n_pos - backbone_torsion_end_ca_1,
+					  this_o.second,
+					  backbone_torsion_end_ca_1, rad_angle);
 
       c_atom_p->x = new_c.x();
       c_atom_p->y = new_c.y();
@@ -2875,11 +2875,11 @@ graphics_info_t::change_peptide_carbonyl_by(double angle) {
    double rad_angle = clipper::Util::d2rad(angle);
    
    clipper::Coord_orth new_c = 
-      rotate_round_vector(carbonyl_n_pos - backbone_torsion_end_ca_1,
+      coot::util::rotate_around_vector(carbonyl_n_pos - backbone_torsion_end_ca_1,
 			  carbonyl_c_pos,
 			  carbonyl_n_pos, rad_angle);
    clipper::Coord_orth new_o = 
-      rotate_round_vector(carbonyl_n_pos - backbone_torsion_end_ca_1,
+      coot::util::rotate_around_vector(carbonyl_n_pos - backbone_torsion_end_ca_1,
 			  carbonyl_o_pos,
 			  carbonyl_n_pos, rad_angle);
 
@@ -3006,16 +3006,16 @@ graphics_info_t::change_peptide_peptide_by(double angle) {
    double rad_angle = clipper::Util::d2rad(angle);
 
    clipper::Coord_orth new_c = 
-      rotate_round_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
+      coot::util::rotate_around_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
 			  carbonyl_c_pos,
 			  backbone_torsion_end_ca_1, rad_angle);
    clipper::Coord_orth new_o = 
-      rotate_round_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
+      coot::util::rotate_around_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
 			  carbonyl_o_pos,
 			  backbone_torsion_end_ca_1, rad_angle);
 
    clipper::Coord_orth new_n = 
-      rotate_round_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
+      coot::util::rotate_around_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
 			  carbonyl_n_pos,
 			  backbone_torsion_end_ca_1, rad_angle);
 

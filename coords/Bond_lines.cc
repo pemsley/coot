@@ -1135,8 +1135,8 @@ Bond_lines_container::add_aromatic_ring_bond_lines(const std::vector<std::string
 	       for (int istep=0; istep<n_steps; istep++) {
 		  double angle_1 = step_frac * 2.0 * M_PI * istep;
 		  double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
-		  clipper::Coord_orth pt_1 = coot::util::rotate_round_vector(n, first_pt, c, angle_1);
-		  clipper::Coord_orth pt_2 = coot::util::rotate_round_vector(n, first_pt, c, angle_2);
+		  clipper::Coord_orth pt_1 = coot::util::rotate_around_vector(n, first_pt, c, angle_1);
+		  clipper::Coord_orth pt_2 = coot::util::rotate_around_vector(n, first_pt, c, angle_2);
 		  addBond(col, pt_1, pt_2);
 	       }
 	    } else { 
