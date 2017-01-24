@@ -68,7 +68,7 @@ int test_symop_card();
 int test_coot_atom_tree();
 int test_coot_atom_tree_2();
 int test_coot_atom_tree_proline();
-int test_rotate_round_vector();
+int test_rotate_around_vector();
 int test_ssm_sequence_formatting();
 int test_OXT_in_restraints();
 int test_relativise_file_name();

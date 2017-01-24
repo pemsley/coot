@@ -1249,7 +1249,7 @@ molecule_class_info_t::spin_search(clipper::Xmap<float> &xmap,
 					    residue_atoms[iat]->y,
 					    residue_atoms[iat]->z);
 			
-		     clipper::Coord_orth co = coot::util::rotate_round_vector(dir, pt, orig, angle);
+		     clipper::Coord_orth co = coot::util::rotate_around_vector(dir, pt, orig, angle);
 		     residue_atoms[iat]->x = co.x();
 		     residue_atoms[iat]->y = co.y();
 		     residue_atoms[iat]->z = co.z();

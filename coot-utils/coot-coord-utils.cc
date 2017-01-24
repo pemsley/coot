@@ -5876,10 +5876,10 @@ coot::util::residue_has_hetatms(mmdb::Residue *residue_p) {
 
 // angle in radians.
 clipper::Coord_orth
-coot::util::rotate_round_vector(const clipper::Coord_orth &direction,
-				const clipper::Coord_orth &position,
-				const clipper::Coord_orth &origin_shift,
-				double angle) {
+coot::util::rotate_around_vector(const clipper::Coord_orth &direction,
+				 const clipper::Coord_orth &position,
+				 const clipper::Coord_orth &origin_shift,
+				 double angle) {
    
    clipper::Coord_orth unit_vec = clipper::Coord_orth(direction.unit());
    
@@ -5927,7 +5927,7 @@ coot::util::rotate_residue(mmdb::Residue *residue_p,
 	 mmdb::Atom *at = residue_atoms[iat];
 	 if (at) {
 	    clipper::Coord_orth pt(at->x, at->y, at->z);
-	    clipper::Coord_orth pt_new = rotate_round_vector(direction, pt, origin_shift, angle);
+	    clipper::Coord_orth pt_new = rotate_around_vector(direction, pt, origin_shift, angle);
 	    at->x = pt_new.x();
 	    at->y = pt_new.y();
 	    at->z = pt_new.z();

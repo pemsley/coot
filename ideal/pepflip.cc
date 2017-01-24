@@ -184,7 +184,7 @@ coot::pepflip_internal_to_residue(mmdb::Manager *mol,
 	 clipper::Coord_orth p1(ca_at->x, ca_at->y, ca_at->z);
 	 clipper::Coord_orth p2(c_at->x,   c_at->y,  c_at->z);
 	 clipper::Coord_orth p3(o_at->x,   o_at->y,  o_at->z);
-	 clipper::Coord_orth p3_new = util::rotate_round_vector(p2-p1, p3, p1, M_PI);
+	 clipper::Coord_orth p3_new = util::rotate_around_vector(p2-p1, p3, p1, M_PI);
 	 o_at->x = p3_new.x();
 	 o_at->y = p3_new.y();
 	 o_at->z = p3_new.z();

@@ -197,7 +197,7 @@ int test_internal() {
 				  "test peak search non-close"));
 
    functions.push_back(named_func(test_symop_card, "test symop card"));
-   functions.push_back(named_func(test_rotate_round_vector, "test rotate round vector"));
+   functions.push_back(named_func(test_rotate_around_vector, "test rotate round vector"));
    functions.push_back(named_func(test_ssm_sequence_formatting, "SSM sequence alignment output"));
    status = run_internal_tests(functions);
    return status;
@@ -1992,7 +1992,7 @@ bool test_tree_rotation(const coot::dictionary_residue_restraints_t &rest,
 
 
 int 
-test_rotate_round_vector() {
+test_rotate_around_vector() {
 
    int r = 0;
    
@@ -2107,7 +2107,7 @@ test_rotate_round_vector() {
 		  std::cout << "   D_pt " << D_pt.format() << std::endl;
 		  // Make sure that D_pt does not move when rotated:
 		  for (double a=0; a<7.0; a+=1.0) {
-		     clipper::Coord_orth D_pt_r =  coot::util::rotate_round_vector(ab, D_pt, rotate_pt_2, a);
+		     clipper::Coord_orth D_pt_r =  coot::util::rotate_around_vector(ab, D_pt, rotate_pt_2, a);
 		     std::cout << "   " << a << " " << D_pt_r.format() << std::endl;
 		  }
 	       }
@@ -2115,7 +2115,7 @@ test_rotate_round_vector() {
 	       double test_angle = 20.0; // degrees
 
 	       clipper::Coord_orth C_prime_pt =
-		  coot::util::rotate_round_vector(ab, C_pt, rotate_pt_2, (M_PI/180.0)*test_angle);
+		  coot::util::rotate_around_vector(ab, C_pt, rotate_pt_2, (M_PI/180.0)*test_angle);
 
 	       clipper::Coord_orth dc(C_pt-D_pt);
 	       clipper::Coord_orth dc_prime(C_prime_pt-D_pt);
