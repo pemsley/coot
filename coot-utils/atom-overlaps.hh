@@ -65,11 +65,11 @@ namespace coot {
       void add(const atom_overlaps_dots_container_t &other) {
 	 std::map<std::string, std::vector<dot_t> >::const_iterator it;
 	 for (it=other.dots.begin(); it!=other.dots.end(); it++)
-	    dots[it->first].insert(dots[it->first].begin(),it->second.begin(), it->second.end());
+	    if (it->second.size())
+	       dots[it->first].insert(dots[it->first].end(),it->second.begin(), it->second.end());
       }
       spikes_t clashes;
       double score() const {
-	 // std::map<std::string, std::vector<clipper::Coord_orth> >::const_iterator it;
 	 std::map<std::string, std::vector<dot_t> >::const_iterator it;
 	 // do these match the types in overlap_delta_to_contact_type()?
 	 double r = 0;
@@ -86,6 +86,12 @@ namespace coot {
 	 r -= clashes.size();
 	 return r;
       }
+      void debug() const {
+	 std::map<std::string, std::vector<atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
+	 for (it=dots.begin(); it!=dots.end(); it++)
+	    std::cout << " contact dot map " << it->first << " size " << it->second.size() << std::endl;
+      }
+
    };
 
    class atom_overlap_t {
@@ -220,13 +226,22 @@ namespace coot {
       std::vector<std::vector<std::string> > trp_ring_list() const;
       std::vector<std::vector<std::string> > pro_ring_list() const;
 
-      atom_overlaps_dots_container_t all_atom_contact_dots_internal(double dot_density_in,
-								    mmdb::Manager *mol,
-								    int i_sel_hnd_1,
-								    int i_sel_hnd_2,
-								    mmdb::realtype min_dist,
-								    mmdb::realtype max_dist,
-								    bool make_vdw_surface);
+      atom_overlaps_dots_container_t all_atom_contact_dots_internal_multi_thread(double dot_density_in,
+										 mmdb::Manager *mol,
+										 int i_sel_hnd_1,
+										 int i_sel_hnd_2,
+										 mmdb::realtype min_dist,
+										 mmdb::realtype max_dist,
+										 bool make_vdw_surface);
+
+      atom_overlaps_dots_container_t
+      all_atom_contact_dots_internal_single_thread(double dot_density_in,
+						   mmdb::Manager *mol,
+						   int i_sel_hnd_1,
+						   int i_sel_hnd_2,
+						   mmdb::realtype min_dist,
+						   mmdb::realtype max_dist,
+						   bool make_vdw_surface);
       
    public:
       // we need mol to use UDDs to mark the HB donors and acceptors (using coot-h-bonds.hh)

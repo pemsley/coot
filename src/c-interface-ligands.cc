@@ -3601,8 +3601,11 @@ void coot_all_atom_contact_dots(int imol) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+      // spike-length ball-radius
       coot::atom_overlaps_container_t overlaps(mol, g.Geom_p(), 0.5, 0.25);
-      coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(0.6);
+      // dot density
+      coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(0.95, true);
+
       std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
 
       // for quick colour lookups.
