@@ -42,6 +42,8 @@ namespace coot {
    unsigned int get_max_number_of_threads();
    // sets this:
    static unsigned int coot_n_threads;
+   // using this:
+   long get_number_of_threads_by_system_call();
 
    namespace sequence {
 
