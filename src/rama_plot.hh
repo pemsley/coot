@@ -251,7 +251,7 @@ class rama_plot {
    void draw_green_box(double phi, double psi, std::string label);
    short int phipsi_edit_flag;   // for active canvas (can move phi/psi point)
    short int backbone_edit_flag; // for passive canvas
-   void clear_canvas_items();
+   void clear_canvas_items(int all=0);
    void clear_last_canvas_item();
    void clear_last_canvas_items(int n);
    std::pair<int, int> molecule_numbers_; // needed for undating kleywegt plots
@@ -307,6 +307,8 @@ public:
    void draw_rect();
    enum rama_position_t {RAMA_OUTLIER, RAMA_ALLOWED, RAMA_PREFERRED, RAMA_UNKNOWN};
    enum rama_type {RAMA_ALL, RAMA_GLY, RAMA_PRO, RAMA_NON_GLY_PRO};
+   // Maybe not the best names!?
+   enum rama_plot_type {RAMA, KLEYWEGT, PHI_EDIT, BACKBONE_EDIT}; // KLEYWEGT not used yet
    void resize_rama_canvas_internal(GtkWidget *widget, GdkEventConfigure *event, gpointer data);
    void resize_rama_canvas_internal(GtkWidget *widget, GdkEventConfigure *event);
    void resize_rama_canvas(GtkWidget *widget, GdkEventConfigure *event);
@@ -336,6 +338,8 @@ public:
       residues_grp = NULL;
       arrow_grp = NULL;
       saved_counts = rama_stats_container_t();
+      rama_mol_name = "";
+      plot_type = -1;
       oldw = 0;
       oldh = 0;
       oldcanvash = 400;
@@ -346,6 +350,8 @@ public:
       dialog_position_x = -100; dialog_position_y = -100; }
 
    rama_stats_container_t saved_counts;
+   std::string rama_mol_name;
+   int plot_type;
    int oldw;
    int oldh;
    int oldcanvash;
@@ -360,7 +366,7 @@ public:
    void init(const std::string &type);
    // typically level_prefered = 0.02, level_allowed is 0.002, block_size is 10.0;
    void init(int imol_no, const std::string &mol_name, float level_prefered, float level_allowed,
-	     float block_size_for_background, short int is_kleywegt_plot_flag);
+             float block_size_for_background, short int is_kleywegt_plot_flag);
    void init();
 
    void allow_seqnum_offset();
@@ -371,7 +377,6 @@ public:
    void set_stand_alone() {
       stand_alone_flag = 1;
    }
-//   void set_stand_alone() { stand_alone_flag = 1; }
    bool is_stand_alone() { return stand_alone_flag; }
 
    // The graphics interface, given that you have a mmdb::Manager. 

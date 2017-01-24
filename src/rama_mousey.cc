@@ -156,7 +156,7 @@ on_rama_print_menuitem_activate(GtkMenuItem *item, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (plot) {
-      gchar *file_name = "dynarama.pdf";
+      const gchar *file_name = "dynarama.pdf";
       gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(plot->rama_export_as_pdf_filechooserdialog),
                                         file_name);
       gtk_widget_show(plot->rama_export_as_pdf_filechooserdialog);
@@ -171,7 +171,7 @@ on_rama_save_as_png_menuitem_activate(GtkMenuItem *item, gpointer user_data) {
    GtkWidget *canvas = GTK_WIDGET(user_data);
    coot::rama_plot *plot = static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
    if (plot) {
-      gchar *file_name = "dynarama.png";
+      const gchar *file_name = "dynarama.png";
       gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(plot->rama_export_as_png_filechooserdialog),
                                         file_name);
       gtk_widget_show(plot->rama_export_as_png_filechooserdialog);

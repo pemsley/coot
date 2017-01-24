@@ -104,156 +104,180 @@ void setup_rgb_reps() {
    }
 }
 
+void
+print_help(std::string cmd) {
+   std::cout << "Usage: " << cmd << "\n"
+             << "(--pdbin) pdb-in-filename\n"
+             << "[--selection atom-selection-string]\n"
+             << "[--chain chain-id]\n"
+             << "[--chain2 chain-id2] (for kleywegt plot)\n"
+             << "[--selection2 atom-selection-string] (for kleywegt plot)\n"
+             << "[--pdbin2 pdb-in-filename2 (for kleywegt plot, otherwise assume pdbin)]\n"
+             << "[--kleywegt (to make kleywegt, autoamtically for multiple selections, chains)]\n"
+             << "[--edit (edit mode, currently debug only)]\n"
+             << "[--help (this help)]\n"
+             << "\n";
+   std::cout << "     where pdbin is the protein and pdbin2 a second one for a Kleywegt plot.\n";
+
+
+}
+
 int
 main(int argc, char *argv[]) {
 
 
-   // add selections and kleywegt
-   if (argc < 2) {
-      std::cout << "Usage: " << argv[0] << "\n"
-                << "(--pdbin) pdb-in-filename"
-                << "[--selection atom-selection-string]\n"
-                << "[--chain chain-id]\n"
-                << "[--chain2 chain-id2] (for kleywegt plot)"
-                << "[--selection2 atom-selection-string] (for kleywegt plot)"
-                << "[--pdbin2 pdb-in-filename2 (for kleywegt plot, otherwise assume pdbin)]"
-                << "[--kleywegt (to make kleywegt, autoamtically for multiple selections, chains)]"
-                << "[--edit (edit mode, currently debug only)]"
-                << "\n";
-      std::cout << "     where pdbin is the protein and pdbin2 a second one for a Kleywegt plot.\n";
+   std::string pdb_file_name;
+   std::string pdb_file_name2;
+   std::string selection;
+   std::string selection2;
+   std::string chain_id;
+   std::string chain_id2;
+   selection = "";
+   selection2 = "";
+   int index;
+   int edit_res_no = -9999;
+   int n_used_args = 0;
+   int is_kleywegt_plot_flag = 0;
+   bool do_help = false;
 
-   } else {
-
-      std::string pdb_file_name;
-      std::string pdb_file_name2;
-      std::string selection;
-      std::string selection2;
-      std::string chain_id;
-      std::string chain_id2;
-      selection = "";
-      selection2 = "";
-      int edit_res_no = -9999;
-      int n_used_args = 0;
-      int is_kleywegt_plot_flag = 0;
-
-      const char *optstr = "i:s:j:t:c:d:e:k";
-      struct option long_options[] = {
-      {"pdbin", 1, 0, 0},
-      {"selection", 1, 0, 0},
-      {"pdbin2", 1, 0, 0},
-      {"selection2", 1, 0, 0},
-      {"chain", 1, 0, 0},
-      {"chain2", 1, 0, 0},
-      {"edit", 1, 0, 0},   // BL Note:: maybe there should be an edit selection
-      {"kleywegt", 0, 0, 0},
-      {0, 0, 0, 0}
+   const char *optstr = "i:s:j:t:c:d:e:kh";
+   struct option long_options[] = {
+   {"pdbin", 1, 0, 0},
+   {"selection", 1, 0, 0},
+   {"pdbin2", 1, 0, 0},
+   {"selection2", 1, 0, 0},
+   {"chain", 1, 0, 0},
+   {"chain2", 1, 0, 0},
+   {"edit", 1, 0, 0},   // BL Note:: maybe there should be an edit selection
+   {"kleywegt", 0, 0, 0},
+   {"help", 0, 0, 0},
+   {0, 0, 0, 0}
    };
 
-      int ch;
-      int option_index = 0;
-      while ( -1 !=
-              (ch = getopt_long(argc, argv, optstr, long_options, &option_index))) {
-         switch(ch) {
+   int ch;
+   int option_index = 0;
+   while ( -1 !=
+           (ch = getopt_long(argc, argv, optstr, long_options, &option_index))) {
+      switch(ch) {
 
-         case 0:
-            if (optarg) {
-               std::string arg_str = long_options[option_index].name;
+      case 0:
+         if (optarg) {
+            std::string arg_str = long_options[option_index].name;
 
-               if (arg_str == "pdbin") {
-                  pdb_file_name = optarg;
-                  n_used_args += 2;
-               }
-               if (arg_str == "pdbin2") {
-                  pdb_file_name2 = optarg;
-                  is_kleywegt_plot_flag = 1;
-                  n_used_args += 2;
-               }
-               if (arg_str == "selection") {
-                  selection = optarg;
-                  n_used_args += 2;
-               }
-               if (arg_str == "selection2") {
-                  selection2 = optarg;
-                  is_kleywegt_plot_flag = 1;
-                  n_used_args += 2;
-               }
-               if (arg_str == "chain") {
-                  chain_id = optarg;
-                  n_used_args += 2;
-               }
-               if (arg_str == "chain2") {
-                  chain_id2 = optarg;
-                  is_kleywegt_plot_flag = 1;
-                  n_used_args += 2;
-               }
-               if (arg_str == "edit") {
-                  edit_res_no = coot::util::string_to_int(optarg);
-                  n_used_args += 2;
-               }
-            } else {
-
-               // options without arguments:
-
-               // long argument without parameter:
-               std::string arg_str(long_options[option_index].name);
-
-               if (arg_str == "kleywegt") {
-                  is_kleywegt_plot_flag = 1;
-                  n_used_args++;
-               }
+            if (arg_str == "pdbin") {
+               pdb_file_name = optarg;
+               n_used_args += 2;
             }
-            break;
+            if (arg_str == "pdbin2") {
+               pdb_file_name2 = optarg;
+               is_kleywegt_plot_flag = 1;
+               n_used_args += 2;
+            }
+            if (arg_str == "selection") {
+               selection = optarg;
+               n_used_args += 2;
+            }
+            if (arg_str == "selection2") {
+               selection2 = optarg;
+               is_kleywegt_plot_flag = 1;
+               n_used_args += 2;
+            }
+            if (arg_str == "chain") {
+               chain_id = optarg;
+               n_used_args += 2;
+            }
+            if (arg_str == "chain2") {
+               chain_id2 = optarg;
+               is_kleywegt_plot_flag = 1;
+               n_used_args += 2;
+            }
+            if (arg_str == "edit") {
+               edit_res_no = coot::util::string_to_int(optarg);
+               n_used_args += 2;
+            }
+         } else {
 
-         case 'i':
-            pdb_file_name = optarg;
-            n_used_args += 2;
-            break;
+            // options without arguments:
 
-         case 'j':
-            pdb_file_name2 = optarg;
-            n_used_args += 2;
-            break;
+            // long argument without parameter:
+            std::string arg_str(long_options[option_index].name);
 
-         case 's':
-            selection = optarg;
-            n_used_args += 2;
-            break;
-
-         case 't':
-            selection2 = optarg;
-            n_used_args += 2;
-            break;
-
-         case 'c':
-            chain_id = optarg;
-            n_used_args += 2;
-            break;
-
-         case 'd':
-            chain_id2 = optarg;
-            n_used_args += 2;
-            break;
-
-         case 'e':
-            edit_res_no = coot::util::string_to_int(optarg);
-            n_used_args += 2;
-            break;
-
-         case 'k':
-            is_kleywegt_plot_flag = 1;
-            n_used_args++;
-            break;
-
-
-         default:
-            std::cout << "default optarg: " << optarg << std::endl;
-            break;
+            if (arg_str == "kleywegt") {
+               is_kleywegt_plot_flag = 1;
+               n_used_args++;
+            }
+            if (arg_str == "help") {
+               print_help(argv[0]);
+               do_help = true;
+               n_used_args++;
+            }
          }
-      }
+         break;
 
-      std::string file = argv[1];
-      if (coot::util::extension_is_for_coords(coot::util::file_name_extension(file)))
-         pdb_file_name = file;
+      case 'i':
+         pdb_file_name = optarg;
+         n_used_args += 2;
+         break;
+
+      case 'j':
+         pdb_file_name2 = optarg;
+         n_used_args += 2;
+         break;
+
+      case 's':
+         selection = optarg;
+         n_used_args += 2;
+         break;
+
+      case 't':
+         selection2 = optarg;
+         n_used_args += 2;
+         break;
+
+      case 'c':
+         chain_id = optarg;
+         n_used_args += 2;
+         break;
+
+      case 'd':
+         chain_id2 = optarg;
+         n_used_args += 2;
+         break;
+
+      case 'e':
+         edit_res_no = coot::util::string_to_int(optarg);
+         n_used_args += 2;
+         break;
+
+      case 'k':
+         is_kleywegt_plot_flag = 1;
+         n_used_args++;
+         break;
+
+      case 'h':
+         print_help(argv[0]);
+         n_used_args++;
+         do_help = true;
+         break;
+
+      default:
+         std::cout << "default optarg: " << optarg << std::endl;
+         break;
+      }
+   }
+
+   for (index = optind; index < argc; index++) {
+      if (coot::util::extension_is_for_coords(coot::util::file_name_extension(argv[index])))
+         pdb_file_name = argv[index];
+      else {
+         std::cout <<"BL INFO:: have an unknown arg: " << argv[index] <<std::endl;
+         print_help(argv[0]);
+         do_help = true;
+      }
+   }
+
+
+   if (not do_help) {
 
       mmdb::Manager *mol = new mmdb::Manager();
       mmdb::Manager *mol2 = new mmdb::Manager();
@@ -438,9 +462,9 @@ main(int argc, char *argv[]) {
       delete mol;
       if (mol2)
          delete mol2;
-   }
-   gtk_init(&argc, &argv);
 
+      gtk_init(&argc, &argv);
+   }
 
 }
 

@@ -106,7 +106,7 @@ EXTRA_DIST = \
 	junk.cc coot-gtk2.defs coot-dox.cfg post-gtk2-glade.sh \
         post-process-coot-wrap-guile.sh \
         post-process-coot-wrap-python.sh \
-	coot_wrap_guile_pre_gtk2.cc dynarama.glade 
+	coot_wrap_guile_pre.cc dynarama.glade
 
 
 subpkgdatadir = $(pkgdatadir)
