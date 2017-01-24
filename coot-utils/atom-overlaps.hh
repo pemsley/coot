@@ -203,6 +203,7 @@ namespace coot {
       void mark_donors_and_acceptors_for_neighbours(int udd_h_bond_type_handle);
       // return a contact-type and a colour
       static std::pair<std::string, std::string> overlap_delta_to_contact_type(double delta, bool is_h_bond);
+      static void test_get_type(double delta, bool is_h_bond, std::string *c_type_p, std::string *col);
       // can throw std::exception
       const dictionary_residue_restraints_t &get_dictionary(mmdb::Residue *r, unsigned int idx) const;
       // where BONDED here means bonded/1-3-angle/ring related
