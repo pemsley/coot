@@ -994,7 +994,9 @@ molecule_class_info_t::replace_fragment(atom_selection_container_t asc) {
 //
 // model number is either a specific model number of mmdb::MinInt4, meaning:
 // any/all model(s).
-// 
+//
+// if we have delete_zone mode then we don't want to update the ghosts or the gui
+// or make backups
 short int
 molecule_class_info_t::delete_residue(int model_number,
 				      const std::string &chain_id, int resno,
@@ -1448,14 +1450,64 @@ molecule_class_info_t::delete_zone(const coot::residue_spec_t &res1,
 	 if (res1.model_number == res2.model_number)
 	    model_number_ANY = res1.model_number;
 
-   
-   for (int i=first_res; i<=last_res; i++)
-      // delete_residue_with_altconf(res1.chain, i, inscode, alt_conf);
-      delete_residue(model_number_ANY, res1.chain_id, i, inscode);
+   bool was_deleted = false;
+
+   std::vector<coot::residue_spec_t> deleted_residue_specs;
+   std::vector<mmdb::Residue *> deleted_residues;
+
+   // run over chains of the existing mol
+   int n_models = atom_sel.mol->GetNumberOfModels();
+   for (int imod=1; imod<=n_models; imod++) {
+
+      int nchains = atom_sel.mol->GetNumberOfChains(imod);
+      for (int ichain=0; ichain<nchains; ichain++) {
+
+	 mmdb::Chain *chain_p = atom_sel.mol->GetChain(imod, ichain);
+	 if (chain_p) {
+	    std::string mol_chain_id(chain_p->GetChainID());
+
+	    if (res1.chain_id == mol_chain_id) {
+
+	       int nres = chain_p->GetNumberOfResidues();
+	       // for (int ires=0; ires<nres; ires++) {
+	       for (int ires=nres-1; ires>=0; ires--) {
+		  mmdb::Residue *res = chain_p->GetResidue(ires);
+		  if (res) {
+		     int res_no = res->GetSeqNum();
+		     if (res_no >= first_res) {
+			if (res_no <= last_res) {
+			   was_deleted = true;
+			   deleted_residue_specs.push_back(coot::residue_spec_t(res));
+			   deleted_residues.push_back(res);
+			}
+		     }
+		  }
+	       }
+	       // delete multiple residues like this, rather than chain_p->DeleteResidue(ires);
+	       for (unsigned int i=0; i<deleted_residues.size(); i++)
+		  delete deleted_residues[i];
+	    }
+	 }
+      }
+   }
    backup_this_molecule = tmp_backup_this_molecule; // restore state
 
-   // bonds, have_unsaved_changes_flag etc dealt with by
-   // delete_residue_with_altconf().
+   if (was_deleted) {
+
+      std::cout << "INFO... deleting links..." << std::endl;
+      for (unsigned int ispec=0; ispec<deleted_residue_specs.size(); ispec++) {
+	 const coot::residue_spec_t &spec = deleted_residue_specs[ispec];
+	 delete_any_link_containing_residue(spec);
+      }
+      atom_sel.atom_selection = NULL;
+      atom_sel.mol->FinishStructEdit();
+      atom_sel = make_asc(atom_sel.mol);
+      have_unsaved_changes_flag = 1;
+      make_bonds_type_checked(); // calls update_ghosts()
+      trim_atom_label_table();
+      update_symmetry();
+   }
+
    return 0;
 }
 
@@ -2108,7 +2160,7 @@ molecule_class_info_t::backrub_rotamer(const std::string &chain_id, int res_no,
 
 	       if (p.first) { 
 		  try {
-		  
+
 		     make_backup();
 		     mmdb::Residue *prev_res = coot::util::previous_residue(res);
 		     mmdb::Residue *next_res = coot::util::next_residue(res);
@@ -4202,8 +4254,8 @@ molecule_class_info_t::fill_raster_additional_info() const {
 	    for (unsigned int istep=0; istep<n_steps; istep++) {
 	       double angle_1 = step_frac * 2.0 * M_PI * istep;
 	       double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
-	       pt_1 = coot::util::rotate_round_vector(ppr.normal, first_pt, ppr.ring_centre, angle_1);
-	       pt_2 = coot::util::rotate_round_vector(ppr.normal, first_pt, ppr.ring_centre, angle_2);
+	       pt_1 = coot::util::rotate_around_vector(ppr.normal, first_pt, ppr.ring_centre, angle_1);
+	       pt_2 = coot::util::rotate_around_vector(ppr.normal, first_pt, ppr.ring_centre, angle_2);
 	       coot::Cartesian p1(pt_1);
 	       coot::Cartesian p2(pt_2);
 	       rti.add_extra_representation_line(p1, p2, c, thickness);
@@ -4214,8 +4266,8 @@ molecule_class_info_t::fill_raster_additional_info() const {
 	    for (unsigned int istep=0; istep<n_steps; istep++) {
 	       double angle_1 = step_frac * 2.0 * M_PI * istep;
 	       double angle_2 = step_frac * 2.0 * M_PI * (istep + 1);
-	       pt_1 = coot::util::rotate_round_vector(ppr.normal, first_pt_pp, ppr.plane_projection_point, angle_1);
-	       pt_2 = coot::util::rotate_round_vector(ppr.normal, first_pt_pp, ppr.plane_projection_point, angle_2);
+	       pt_1 = coot::util::rotate_around_vector(ppr.normal, first_pt_pp, ppr.plane_projection_point, angle_1);
+	       pt_2 = coot::util::rotate_around_vector(ppr.normal, first_pt_pp, ppr.plane_projection_point, angle_2);
 	       coot::Cartesian p1(pt_1);
 	       coot::Cartesian p2(pt_2);
 	       rti.add_extra_representation_line(p1, p2, c, thickness);

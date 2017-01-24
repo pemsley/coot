@@ -2361,32 +2361,32 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
       float inner_angle_step = 6;
       for (float iangle=0; iangle<=360.1; iangle+=inner_angle_step) {
 
-	 // rotate_round_vector() args: direction position origin_shift angle
+	 // rotate_around_vector() args: direction position origin_shift angle
 	 clipper::Coord_orth pt_multi_this =
-	    coot::util::rotate_round_vector(this_circle_tangent,
-					    pt_ring_this,
-					    pt_this,
-					    clipper::Util::d2rad(iangle));
+	    coot::util::rotate_around_vector(this_circle_tangent,
+					     pt_ring_this,
+					     pt_this,
+					     clipper::Util::d2rad(iangle));
 	 clipper::Coord_orth pt_multi_next =
-	    coot::util::rotate_round_vector(next_circle_tangent,
-					    pt_ring_next,
-					    pt_next,
-					    clipper::Util::d2rad(iangle));
+	    coot::util::rotate_around_vector(next_circle_tangent,
+					     pt_ring_next,
+					     pt_next,
+					     clipper::Util::d2rad(iangle));
 
 	 // and the inner next of those points, i.e. neighbours
 	 // on the same inner ring.
 	 // 
 	 clipper::Coord_orth pt_multi_this_plus =
-	    coot::util::rotate_round_vector(this_circle_tangent,
-					    pt_ring_this,
-					    pt_this,
-					    clipper::Util::d2rad(iangle+inner_angle_step));
+	    coot::util::rotate_around_vector(this_circle_tangent,
+					     pt_ring_this,
+					     pt_this,
+					     clipper::Util::d2rad(iangle+inner_angle_step));
 	       
 	 clipper::Coord_orth pt_multi_next_plus =
-	    coot::util::rotate_round_vector(next_circle_tangent,
-					    pt_ring_next,
-					    pt_next,
-					    clipper::Util::d2rad(iangle+inner_angle_step));
+	    coot::util::rotate_around_vector(next_circle_tangent,
+					     pt_ring_next,
+					     pt_next,
+					     clipper::Util::d2rad(iangle+inner_angle_step));
 
 	 // 4 GL_QUAD vertices
 	 // small radius direction
@@ -3012,18 +3012,6 @@ graphics_info_t::find_atom_in_moving_atoms(const coot::atom_spec_t &at) const {
    return cat;
 }
 
-// Rotate position round direction
-// 
-clipper::Coord_orth
-graphics_info_t::rotate_round_vector(const clipper::Coord_orth &direction,
-				     const clipper::Coord_orth &position,
-				     const clipper::Coord_orth &origin_shift,
-				     double angle) const {
-
-   // moved this function down to utils
-   return coot::util::rotate_round_vector(direction, position, origin_shift, angle);
-}
-
 
 
 int
@@ -3451,10 +3439,10 @@ graphics_info_t::rotate_baton(const double &x, const double &y) {
    coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
    coot::Cartesian screen_z = (front - centre);
 
-   clipper::Coord_orth new_pos = rotate_round_vector(to_coord_orth(screen_z),
-						     to_coord_orth(baton_tip),
-						     to_coord_orth(baton_root),
-						     0.01*diff);
+   clipper::Coord_orth new_pos = coot::util::rotate_around_vector(to_coord_orth(screen_z),
+								  to_coord_orth(baton_tip),
+								  to_coord_orth(baton_root),
+								  0.01*diff);
 
    baton_tip = to_cartesian(new_pos);
    graphics_draw();

@@ -399,10 +399,10 @@ coot::hole::write_probe_path(const std::vector<std::pair<clipper::Coord_orth, do
 	    // now let's rotate unit_plane_vect around the circle.
 	    clipper::Coord_orth pos(probe_path[i].second * unit_plane_vect);
 	    clipper::Coord_orth circle_point =
-	       coot::util::rotate_round_vector(v_hat,
-					       pos,
-					       clipper::Coord_orth(0,0,0),
-					       theta);
+	       coot::util::rotate_around_vector(v_hat,
+						pos,
+						clipper::Coord_orth(0,0,0),
+						theta);
 	    clipper::Coord_orth surface_point = probe_path[i].first + circle_point;
 
 	    render_stream << surface_point.x() << " "

@@ -306,8 +306,8 @@ coot::beam_in_linked_residue::get_residue() const {
 	    position =     clipper::Coord_orth(at_O6->x, at_O6->y, at_O6->z);
 	    direction = origin_shift - base;
 	    clipper::Coord_orth new_pos =
-	       coot::util::rotate_round_vector(direction, position,
-					       origin_shift, diff);
+	       coot::util::rotate_around_vector(direction, position,
+						origin_shift, diff);
 	    at_O6->x = new_pos.x();
 	    at_O6->y = new_pos.y();
 	    at_O6->z = new_pos.z();
@@ -327,7 +327,7 @@ coot::beam_in_linked_residue::get_residue() const {
 	    position = clipper::Coord_orth(at_O6->x, at_O6->y, at_O6->z);
 	    double diff = clipper::Util::d2rad(template_torsion - current_torsion);
 	    clipper::Coord_orth new_pos =
-	       coot::util::rotate_round_vector(direction, position, origin_shift, -diff);
+	       coot::util::rotate_around_vector(direction, position, origin_shift, -diff);
 
 	    at_O6->x = new_pos.x();
 	    at_O6->y = new_pos.y();
@@ -340,7 +340,7 @@ coot::beam_in_linked_residue::get_residue() const {
 	       mmdb::Atom *at = residue_atoms[i];
 	       clipper::Coord_orth p(at->x, at->y, at->z);
 	       clipper::Coord_orth n =
-		  coot::util::rotate_round_vector(direction, p, origin_shift, -diff);
+		  coot::util::rotate_around_vector(direction, p, origin_shift, -diff);
 	       at->x = n.x();
 	       at->y = n.y();
 	       at->z = n.z();

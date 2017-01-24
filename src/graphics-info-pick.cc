@@ -719,7 +719,7 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_z(double angle) {
 				      moving_atoms_asc->atom_selection[i]->y,
 				      moving_atoms_asc->atom_selection[i]->z);
 	       clipper::Coord_orth new_pos = 
-		  rotate_round_vector(screen_vector, co, rotation_centre, angle);
+		  coot::util::rotate_around_vector(screen_vector, co, rotation_centre, angle);
 	       moving_atoms_asc->atom_selection[i]->x = new_pos.x();
 	       moving_atoms_asc->atom_selection[i]->y = new_pos.y();
 	       moving_atoms_asc->atom_selection[i]->z = new_pos.z();
@@ -779,7 +779,7 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_x(double angle) {
 				      moving_atoms_asc->atom_selection[i]->y,
 				      moving_atoms_asc->atom_selection[i]->z);
 	       clipper::Coord_orth new_pos = 
-		  rotate_round_vector(screen_vector, co, rotation_centre, angle);
+		  coot::util::rotate_around_vector(screen_vector, co, rotation_centre, angle);
 	       moving_atoms_asc->atom_selection[i]->x = new_pos.x();
 	       moving_atoms_asc->atom_selection[i]->y = new_pos.y();
 	       moving_atoms_asc->atom_selection[i]->z = new_pos.z();
