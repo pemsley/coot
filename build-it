@@ -1103,6 +1103,7 @@ case $dist_name in
        libc6-dev
        libncurses5-dev
        libglu1-mesa-dev 
+       libjpeg-dev
        mesa-common-dev
        libgtk2.0-dev
        libgnomecanvas2-dev'
