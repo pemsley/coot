@@ -3522,7 +3522,8 @@ else
               ${WGET} https://github.com/libgd/libgd/releases/download/gd-2.1.1/libgd-2.1.1.tar.gz -O ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz
 	      gzip -dc ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz | tar xf -
    	      cd libgd-2.1.1
-	      bash ./configure --prefix=$install_top_dir
+              # don't use /bin/sh as shell to run libtool (on Ubuntu it's a problem)
+	      bash ./configure --prefix=$install_top_dir SHELL=/bin/bash
 	      if $MAKE ; then
 	         make install
 	      fi
