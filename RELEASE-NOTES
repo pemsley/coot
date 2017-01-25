@@ -1,5 +1,26 @@
 
 ------
+
+  Pre-release 0.8.8
+
+  o FEATURE: Modern compilers will multi-thread multiple map contouring
+
+  o CHANGE:  delete residue range speeded up [Oliver Clarke]
+
+  o CHANGE:  PG4 added to other solvent ligands
+
+  o CHANGE:  Solid model lighting adjusted
+
+  o BUG-FIX: Colour by B-factor and Occupancy modes restored [Hans Raaijmakers]
+
+  o BUG-FIX: network interface to Drugbank follows server changes
+
+  o BUG-FIX: Fix the PNG image output limits from lidia
+
+  o BUG-FIX: Refmac monomer library is restored (after server crash)
+
+  o BUG-FIX: Use XYP not XYL for carbohydrate tree additions
+
 ------
 
   Release 0.8.7
