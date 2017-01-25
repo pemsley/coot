@@ -1008,7 +1008,7 @@ coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 			   float h_bond_dist_max) {
    
    std::vector<coot::fle_ligand_bond_t> v; // returned value
-   bool debug = false;
+   bool debug = true;
 
    if (debug) {
       std::cout << "::::::::::::::::::::: get_fle_ligand_bonds() inputs: " << std::endl;
@@ -1061,7 +1061,8 @@ coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 
       for (unsigned int i=0; i<hbonds.size(); i++) {
 	 if (debug)
-	    std::cout << coot::atom_spec_t(hbonds[i].donor) << "..."
+	    std::cout << "DEBUG:: in get_fle_ligand_bonds() hbond [" << i << "] "
+		      << coot::atom_spec_t(hbonds[i].donor) << "...to... "
 		      << coot::atom_spec_t(hbonds[i].acceptor) << " with ligand donor flag "
 		      << hbonds[i].ligand_atom_is_donor << std::endl;
 
@@ -1111,7 +1112,9 @@ coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 	 if (debug) 
 	    std::cout << "constructing fle ligand bond " << ligand_atom->name
 		      << " " << bond_type << " " << hbonds[i].dist << " " 
-		      << env_residue_atom << std::endl;
+		      << coot::atom_spec_t(env_residue_atom) << " "
+		      << env_residue_atom->GetResName()
+		      << std::endl;
 
 	 // we want to pass the atom specifics (not just the environ residue spec)
 	 // 
