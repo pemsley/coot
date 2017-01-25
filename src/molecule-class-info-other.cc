@@ -464,12 +464,12 @@ molecule_class_info_t::ca_plus_ligands_rainbow_representation(coot::protein_geom
 }
 
 void
-molecule_class_info_t::b_factor_representation() { 
+molecule_class_info_t::b_factor_representation() {
 
    Bond_lines_container::bond_representation_type bond_type =
       Bond_lines_container::COLOUR_BY_B_FACTOR;
 
-   Bond_lines_container bonds(atom_sel, bond_type);
+   Bond_lines_container bonds(atom_sel, imol_no, bond_type);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::COLOUR_BY_B_FACTOR_BONDS;
 } 
@@ -493,7 +493,7 @@ molecule_class_info_t::occupancy_representation() {
    Bond_lines_container::bond_representation_type bond_type =
       Bond_lines_container::COLOUR_BY_OCCUPANCY;
 
-   Bond_lines_container bonds(atom_sel, bond_type);
+   Bond_lines_container bonds(atom_sel, imol_no, bond_type);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::COLOUR_BY_OCCUPANCY_BONDS;
 } 
