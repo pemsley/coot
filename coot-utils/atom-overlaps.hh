@@ -60,7 +60,21 @@ namespace coot {
 	 dots["wide-contact" ].reserve(2500);
 	 dots["big-overlap"  ].reserve(2500);
 	 dots["H-bond"       ].reserve(2500);
+	 dots["vdw-surface"  ].reserve(2500);
       }
+
+      // 6,000 a/t -> size 145,000
+      // 1,000 a/t -> size  27,000
+      atom_overlaps_dots_container_t(unsigned int n_atoms_per_thread) {
+
+	 dots["close-contact"].reserve(25 * n_atoms_per_thread);
+	 dots["small-overlap"].reserve(25 * n_atoms_per_thread);
+	 dots["wide-contact" ].reserve(25 * n_atoms_per_thread);
+	 dots["big-overlap"  ].reserve(25 * n_atoms_per_thread);
+	 dots["H-bond"       ].reserve(25 * n_atoms_per_thread);
+	 dots["vdw-surface"  ].reserve(25 * n_atoms_per_thread);
+      }
+
       std::map<std::string, std::vector<dot_t> > dots;
       void add(const atom_overlaps_dots_container_t &other) {
 	 std::map<std::string, std::vector<dot_t> >::const_iterator it;
@@ -218,7 +232,9 @@ namespace coot {
       bool are_bonded_residues(mmdb::Residue *res_1, mmdb::Residue *res_2) const;
       bool in_same_ring(mmdb::Atom *at_1, mmdb::Atom *at_2,
 			std::map<std::string, std::vector<std::vector<std::string> > > &ring_list_map) const;
+      // check LINK records
       bool is_linked(mmdb::Atom *at_1, mmdb::Atom *at_2) const;
+      bool is_ss_bonded(mmdb::Residue *residue_p) const;
 //       bool in_same_ring(const std::string &atom_name_1,
 // 			const std::string &atom_name_2,
 // 			const std::vector<std::vector<std::string> > &ring_list) const;

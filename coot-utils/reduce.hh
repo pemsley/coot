@@ -159,14 +159,14 @@ namespace coot {
 		    double tor_inital, // deg
 		    mmdb::Residue *residue_p);
       // this will need a spin-search
-      void add_SH_H(const std::string &H_name,
-		    const std::string &at_name_1,
-		    const std::string &at_name_2,
-		    const std::string &at_name_3,
-		    double bl,
-		    double angle,      // deg
-		    double tor_inital, // deg
-		    mmdb::Residue *residue_p);
+      std::vector<mmdb::Atom *> add_SH_H(const std::string &H_name,
+					 const std::string &at_name_1,
+					 const std::string &at_name_2,
+					 const std::string &at_name_3,
+					 double bl,
+					 double angle,      // deg
+					 double tor_inital, // deg
+					 mmdb::Residue *residue_p);
       // both of the above wrap this:
       std::vector<mmdb::Atom *> add_xH_H(const std::string &H_name,
 					 const std::string &at_name_1,
@@ -231,7 +231,9 @@ namespace coot {
 			      mmdb::Residue *residue_p);
 
       mmdb::Atom *add_hydrogen_atom(std::string atom_name, clipper::Coord_orth &pos,
-				    mmdb::realtype bf, mmdb::Residue *residue_p);
+				    mmdb::realtype bf,
+				    const std::string &altconf,
+				    mmdb::Residue *residue_p);
       // score hypotheses and convert to the best scoring one.
       void find_best_his_protonation_orientation(mmdb::Residue *residue_p);
       void delete_atom_by_name(const std::string &at_name, mmdb::Residue *residue_p);
@@ -269,7 +271,9 @@ namespace coot {
       std::vector<std::string> get_other_H_names(const std::string &first_neighb,
 						 const std::string &H_at_name,
 						 const dictionary_residue_restraints_t &dict) const;
-      
+
+      bool is_ss_bonded(mmdb::Residue *residue_p) const;
+
    public:
       reduce(mmdb::Manager *mol_in, int imol_in) {
 	 mol = mol_in;

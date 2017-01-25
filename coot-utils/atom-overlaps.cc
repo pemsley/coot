@@ -1426,7 +1426,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 	 std::vector<std::thread> threads;
 	 unsigned int n_per_thread = n_selected_atoms/n_threads;
 	 std::cout << "n per thread " << n_per_thread << std::endl;
-	 std::vector<coot::atom_overlaps_dots_container_t> results_container_vec(n_threads);
+	 std::vector<atom_overlaps_dots_container_t> results_container_vec(n_threads);
 
 	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
 	    int iat_start = i_thread * n_per_thread;
@@ -1436,7 +1436,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 	       iat_end = n_selected_atoms; // for loop uses iat_start and tests for < iat_end
 	    
 	    std::cout << "thread: " << i_thread << " from atom " << iat_start << " to " << iat_end << std::endl;
-
+	    results_container_vec[i_thread] = atom_overlaps_dots_container_t(n_per_thread);
  	    threads.push_back(std::thread(contacts_for_atoms, iat_start, iat_end,
 					  atom_selection, contact_map, bonded_map,
 					  neighb_atom_radius, udd_h_bond_type_handle, probe_radius,
@@ -1496,17 +1496,9 @@ coot::atom_overlaps_container_t::contacts_for_atoms(int iat_start, int iat_end,
 
    for (int iat=iat_start; iat<iat_end; iat++) {
 
-      // restore this when bug fixed - easy. FIXME
-      //
-      //       ao->add(contacts_for_atom(iat, atom_selection, contact_map, bonded_map, neighb_atom_radius,
-      // 				udd_h_bond_type_handle, probe_radius, dot_density_in,
-      // 				clash_spike_length, make_vdw_surface));
-
-      atom_overlaps_dots_container_t new_ao =
-	 contacts_for_atom(iat, atom_selection, contact_map, bonded_map, neighb_atom_radius,
-			   udd_h_bond_type_handle, probe_radius, dot_density_in,
-			   clash_spike_length, make_vdw_surface);
-      ao->add(new_ao);
+      ao->add(contacts_for_atom(iat, atom_selection, contact_map, bonded_map, neighb_atom_radius,
+       				udd_h_bond_type_handle, probe_radius, dot_density_in,
+				clash_spike_length, make_vdw_surface));
    }
 }
 
@@ -2105,6 +2097,25 @@ coot::atom_overlaps_container_t::is_linked(mmdb::Atom *at_1,
    }
    return status;
 }
+
+bool
+coot::atom_overlaps_container_t::is_ss_bonded(mmdb::Residue *residue_p) const {
+
+   bool status = false;
+   if (residue_p) {
+      std::string res_name = residue_p->GetResName();
+      if (res_name == "CYS") {
+	 int imod = 1;
+	 mmdb::Model *model_p = mol->GetModel(imod);
+	 // check SS bonds here
+	 status = true;
+      }
+   }
+
+   return status;
+}
+
+
 
 // this modifies ring_list_map, so it is not const.
 bool
