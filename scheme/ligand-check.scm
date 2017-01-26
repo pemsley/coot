@@ -96,7 +96,7 @@
 						refmac-dir
 						(string-append
 						 stub-name "-with-ligand.pdb"))))
-		
+
 		(make-directory-maybe refmac-dir)
 		(make-directory-maybe "coot-refmac") ;; XYZOUT goes here
 		(write-pdb-file imol with-ligand-pdb-file-name)

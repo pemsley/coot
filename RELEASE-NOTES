@@ -21,6 +21,8 @@
 
   o BUG-FIX: Use XYP not XYL for carbohydrate tree additions
 
+  o BUG-FIX: Restore missing waters in FLEV
+
 ------
 
   Release 0.8.7

@@ -1748,7 +1748,11 @@ namespace coot {
 
       double Map_weight() const { 
 	 return map_weight; 
-      } 
+      }
+
+      void set_map_weight(const double &mw) {
+	 map_weight = mw;
+      }
 
       void setup_multimin_func() { 
 

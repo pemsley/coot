@@ -3151,13 +3151,22 @@ void clear_moving_atoms_object(); /* just get rid of just the bonds (redraw done
 
  */
 SCM refine_residues_scm(int imol, SCM r); /* presumes the alt_conf is "". */
-SCM refine_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf); /* to be renamed later. */
+SCM refine_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf);
+SCM refine_residues_with_modes_with_alt_conf_scm(int imol, SCM residues_spec_list_scm,
+						 const char *alt_conf,
+						 SCM mode_1,
+						 SCM mode_2,
+						 SCM mode_3);
 SCM regularize_residues_scm(int imol, SCM r); /* presumes the alt_conf is "". */
 SCM regularize_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf); 
 #endif
 #ifdef USE_PYTHON
 PyObject *refine_residues_py(int imol, PyObject *r);  /* presumes the alt_conf is "". */
-PyObject *refine_residues_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf);  /* to be renamed later. */
+PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf,
+						      PyObject *mode_1,
+						      PyObject *mode_2,
+						      PyObject *mode_3);
+PyObject *refine_residues_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf);
 PyObject *regularize_residues_py(int imol, PyObject *r);  /* presumes the alt_conf is "". */
 PyObject *regularize_residues_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf);
 #endif /* PYTHON */
