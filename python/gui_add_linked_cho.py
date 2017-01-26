@@ -143,12 +143,6 @@ def add_linked_residue_tree(imol, parent, tree):
             else:
                 return c > add_linked_residue_tree_correlation_cut_off
     
-    def delete_residue_by_spec(spec):
-        delete_residue(imol,
-                       residue_spec2chain_id(spec),
-                       residue_spec2res_no(spec),
-                       residue_spec2ins_code(spec))
-
     def func(parent, res_pair):
         if (not isinstance(parent, list)):
             print "WARNING:: OOps not a proper res_spec %s with residue_to_add: %s" %(parent, res_pair)
@@ -189,7 +183,7 @@ def add_linked_residue_tree(imol, parent, tree):
                     return preped_new_res_spec
                 else:
                     print "----------- That was not well fitting. Deleting:", preped_new_res_spec
-                    delete_residue_by_spec(preped_new_res_spec)
+                    delete_residue_by_spec(imol, preped_new_res_spec)
                     replace_residues_from_mol_py(imol, imol_glyco_pre, save_residue_specs)
                     with AutoAccept():
                         # Note: may not get rid of screwed up refinement from

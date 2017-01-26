@@ -1206,8 +1206,9 @@ def toggle_active_mol(imol):
 
 # return a python (list) representation of molecule imol, or False if we can't
 # do it (imol is a map, say)
+# optional arg: chain
 #
-def python_representation(imol):
+def python_representation(imol, chains=[]):
 
     if (not valid_model_molecule_qm(imol)):
         return False
@@ -1219,7 +1220,10 @@ def python_representation(imol):
             ins_code = insertion_code_from_serial_number(imol, chain_id, n)
             return [res_no, ins_code, res_name, residue_info(imol, chain_id, res_no, ins_code)]
 
-        ls = [map(lambda chain_id: [chain_id, map(lambda serial_number: r_info(imol, chain_id, serial_number), range(chain_n_residues(chain_id, imol)))], chain_ids(imol))]
+        if not chains:
+            # use all
+            chains = chain_ids(imol)
+        ls = [map(lambda chain_id: [chain_id, map(lambda serial_number: r_info(imol, chain_id, serial_number), range(chain_n_residues(chain_id, imol)))], chains)]
         return ls
 
 # reorder chains
@@ -3798,7 +3802,24 @@ def merge_solvent_chains(imol):
         if (is_solvent_chain_qm(imol, chain_id)):
             solvent_chains.append(chain_id)
 
-    # now renumber
+    # now check for overlapping waters and remove
+    # maybe this should rather be done in general when merging molecules
+    # as well.
+    for chain_id in solvent_chains:
+        residue_ls = python_representation(imol, [chain_id])[0][0][1]
+        for res in residue_ls:
+            res_spec = [chain_id, res[0], res[1]]
+            if residue_exists_qm(imol, *res_spec):
+                near_residues = residues_near_residue(imol, res_spec, 0.05)
+                if near_residues:
+                    # delete
+                    for del_res in near_residues:
+                        delete_residue_by_spec(imol, del_res)
+
+    # renumber chains after removal:
+    renumber_waters(imol)
+
+    # now merge and renumber
     if (len(solvent_chains) > 1):
         master_chain = solvent_chains[0]
         last_prev_water = chain_n_residues(master_chain, imol)
@@ -3811,7 +3832,9 @@ def merge_solvent_chains(imol):
             change_chain_id(imol, chain_id, master_chain, 1,
                             new_start, new_end)
             last_prev_water = new_end
-            
+
+          
+    
 
 # helper to comvert functions to strings
 def cmd2str(*args):
@@ -4143,6 +4166,13 @@ def rename_alt_confs_active_residue():
         inscode  = active_atom[3]
 
         rename_alt_confs(imol, chain_id, resno, inscode)
+
+# Moved from gui_add_linked_cho.py to make a global function.
+def delete_residue_by_spec(imol, spec):
+    delete_residue(imol,
+                   residue_spec2chain_id(spec),
+                   residue_spec2res_no(spec),
+                   residue_spec2ins_code(spec))
 
 
 ####### Back to Paul's scripting.

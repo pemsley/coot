@@ -5168,14 +5168,14 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 	       } 
 	    }
 
-	    if (has_single_residue_type_chain_flag) {
-	       if (add_molecules[imol].n_selected_atoms > 0) {
-		  mmdb::Residue *add_model_residue = add_molecules[imol].atom_selection[0]->residue;
-		  copy_and_add_residue_to_chain(add_residue_to_this_chain, add_model_residue);
+       if (has_single_residue_type_chain_flag) {
+          if (add_molecules[imol].n_selected_atoms > 0) {
+             mmdb::Residue *add_model_residue = add_molecules[imol].atom_selection[0]->residue;
+                copy_and_add_residue_to_chain(add_residue_to_this_chain, add_model_residue);
 		  multi_residue_add_flag = false;
 		  atom_sel.mol->FinishStructEdit();
 		  update_molecule_after_additions();
-	       }
+             }
 	    } else {
 	       multi_residue_add_flag = 1;
 	    } 
@@ -5313,7 +5313,7 @@ molecule_class_info_t::try_add_by_consolidation(mmdb::Manager *adding_mol) {
 	       residue_types.push_back(res_name);
 	 }
 
-	 if (residue_types.size() == 1) {
+    if (residue_types.size() == 1) {
 	    std::map<std::string, std::pair<int, mmdb::Chain *> >::const_iterator it =
 	       single_res_type_map.find(residue_types[0]);
 	    if (it != single_res_type_map.end()) {
@@ -5322,6 +5322,8 @@ molecule_class_info_t::try_add_by_consolidation(mmdb::Manager *adding_mol) {
 		  // We got a match, now add all of adding_mol chain_p
 		  // to this molecule's chain
 
+        // BL says:: we check in copy_and_add_chain_residues_to_chain if there
+        // are overlapping waters. Alternativley we could do it here already.
 		  copy_and_add_chain_residues_to_chain(chain_p, it->second.second);
 		  done_this_chain = true;
 		  std::string cid = it->second.second->GetChainID();
@@ -5450,6 +5452,18 @@ molecule_class_info_t::copy_and_add_residue_to_chain(mmdb::Chain *this_model_cha
    if (add_model_residue) {
       short int whole_res_flag = 1;
       int udd_atom_index_handle = 1; // does this matter?
+      bool add_this = true;
+      // check for overlapping water (could be generalised for same residue type?!
+      std::vector<mmdb::Residue *> close_residues;
+      close_residues = coot::residues_near_residue(add_model_residue, atom_sel.mol, 0.05);
+      for (unsigned int i=0; i<close_residues.size(); i++) {
+         if (close_residues[i]->isSolvent() && add_model_residue->isSolvent()) {
+            add_this = false;
+            std::cout<<"INFO:: not adding water because of overlap\n"<<std::endl;
+            break;
+         }
+      }
+      if (add_this) {
       mmdb::Residue *residue_copy = coot::deep_copy_this_residue(add_model_residue,
 							    "",
 							    whole_res_flag,
@@ -5464,6 +5478,7 @@ molecule_class_info_t::copy_and_add_residue_to_chain(mmdb::Chain *this_model_cha
 	 // residue_copy->seqNum = new_res_resno;
 	 res_copied = residue_copy;
       }
+   }
    }
    return res_copied;
 }

@@ -181,6 +181,10 @@ def get_eds_pdb_and_mtz(id):
     # 
     # URL:: "http://eds.bmc.uu.se/eds/sfd/sa/2sar/pdb2sar.ent"
     # URL:: "http://eds.bmc.uu.se/eds/sfd/sa/2sar/2sar_sigmaa.mtz"
+    #
+    # 20161010 new prefix
+    # http://www.ebi.ac.uk/pdbe/coordinates/
+    # http://www.ebi.ac.uk/pdbe/coordinates/files/1cbs_map.mtz
 
     def get_cached_eds_files(accession_code):
         down_code = string.lower(accession_code)
