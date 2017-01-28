@@ -1663,49 +1663,46 @@ graphics_info_t::draw_moving_atoms_graphics_object() {
 	    double prob = prob_raw;
 	    if (prob > 0.5) prob = 0.5; // 0.4 and 2.5 f(for q) might be better (not tested)
 	    
-	    if (true) {
+	    double q = (1 - 2.0 * prob);
+		  
+	    // Lovell et al. 2003, 50, 437 Protein Structure, Function
+	    // and Genetics values: 0.02 and 0.002 - so for a typical
+	    // user, if prob = 0.1 (q=0.9), say then they are fine with
+	    // that and the ball should be small
+
+	    // fn(q):
+	    // fn(1.0) -> large
+	    // fn(0.9) -> quite small
+	    // fn(0.0) -> tiny
+		  
+	    double radius = pow(q, 25); // so that medium probabilities seems smaller
+
+	    // currently radius is 0-1;
+
+	    // now map to aesthetically pleasing ball size
+	    radius = 0.15 + ball_scale_factor * radius;
+		  
+	    int slices = 20;
+	    GLUquadric* quad = gluNewQuadric();
+
+	    GLfloat  mat_specular[]  = {0.6, 0.8, 0.6, 0.46};
+	    GLfloat  mat_shininess[] = {25};
+	    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+	    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
+	    glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
+	    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+	    glEnable(GL_LIGHTING);
+	    glEnable(GL_LIGHT1);
+	    glEnable(GL_LIGHT0);
+	    glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
+	    glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	       
-	       if (true) { 
-		  double q = (1 - 2.0 * prob);
-		  
-		  // Lovell et al. 2003, 50, 437 Protein Structure, Function
-		  // and Genetics values: 0.02 and 0.002 - so for a typical
-		  // user, if prob = 0.1 (q=0.9), say then they are fine with
-		  // that and the ball should be small
-
-		  // fn(q):
-		  // fn(1.0) -> large
-		  // fn(0.9) -> quite small
-		  // fn(0.0) -> tiny
-		  
-		  double radius = pow(q, 25); // so that medium probabilities seems smaller
-
-		  // currently radius is 0-1;
-
-		  // now map to aesthetically pleasing ball size
-		  radius = 0.15 + ball_scale_factor * radius;
-		  
-		  int slices = 20;
-		  GLUquadric* quad = gluNewQuadric();
-
-		  GLfloat  mat_specular[]  = {0.6, 0.8, 0.6, 0.46};
-		  GLfloat  mat_shininess[] = {25};
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-		  glEnable(GL_LIGHTING);
-		  glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
-		  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	       
-		  glPushMatrix();
-		  glTranslatef(pos.x(), pos.y(), pos.z());
-		  // gluDisk(quad, 0, base, slices, 2);
-		  gluSphere(quad, radius, 10, 10);
-		  glPopMatrix();
-		  glDisable(GL_LIGHTING);
-	       }
-	    }
+	    glPushMatrix();
+	    glTranslatef(pos.x(), pos.y(), pos.z());
+	    // gluDisk(quad, 0, base, slices, 2);
+	    gluSphere(quad, radius, 10, 10);
+	    glPopMatrix();
+	    glDisable(GL_LIGHTING);
 	 }
       } 
    }
@@ -4294,7 +4291,7 @@ graphics_info_t::draw_atom_pull_restraint() {
 		  glBegin(GL_LINES);
 		  glColor3f(0.3, 1.0, 0.6);
 		  for (int idash=0; idash<(n_dashes-1); idash++) {
-		     if (visible) { 
+		     if (visible) {
 			float fracs = float(idash)/float(n_dashes);
 			float fracn = float(idash+1)/float(n_dashes);
 			clipper::Coord_orth p1 = pt_start + fracs * (pt_end - pt_start);
@@ -4327,7 +4324,7 @@ graphics_info_t::draw_atom_pull_restraint() {
 		  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
 		  glEnable(GL_LIGHTING);
 		  glEnable(GL_LIGHT1);
-		  glEnable(GL_LIGHT0);
+		  glEnable(GL_LIGHT0); // enabled here
 		  glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
 		  glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
    
