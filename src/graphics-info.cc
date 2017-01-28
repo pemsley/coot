@@ -4816,7 +4816,7 @@ graphics_info_t::draw_generic_text() {
 
    // should be const, I think.
 
-   if (generic_texts_p->size() > 0 ) { 
+   if (generic_texts_p->size() > 0 ) {
       // GLfloat pink[3] =  { 1.0, 0.8, 0.8 };
       GLfloat pink[3] =  { font_colour.red, font_colour.green, font_colour.blue };
       glColor3fv(pink);
@@ -4939,6 +4939,12 @@ coot::generic_display_object_t::colour_values_from_colour_name(const std::string
 							 colour.red   = 0.38;
 							 colour.green = 0.58;
 							 colour.blue  = 0.93;
+						      } else {
+							 if (c == "royalblue") {
+							    colour.red   = 0.25;
+							    colour.green = 0.41;
+							    colour.blue  = 0.88;
+							 }
 						      }
 						   }
 						} 

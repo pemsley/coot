@@ -1226,6 +1226,18 @@ SCM refine_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf) { /
 } 
 #endif // USE_GUILE
 
+// these functions need to call each other the other way round
+//
+#ifdef USE_GUILE
+SCM refine_residues_with_modes_with_alt_conf_scm(int imol, SCM residues_spec_list_scm,
+						 const char *alt_conf,
+						 SCM mode_1,
+						 SCM mode_2,
+						 SCM mode_3) {
+   return refine_residues_with_alt_conf_scm(imol, residues_spec_list_scm, alt_conf);
+}
+#endif // USE_GUILE
+
 #ifdef USE_GUILE
 SCM regularize_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf) {
    
@@ -1281,6 +1293,8 @@ PyObject *refine_residues_py(int imol, PyObject *r) {
 }
 #endif // USE_PYTHON
 
+
+
 #ifdef USE_PYTHON
 PyObject *regularize_residues_py(int imol, PyObject *r) { /* presumes the alt_conf is "". */
    return regularize_residues_with_alt_conf_py(imol, r, "");
@@ -1288,10 +1302,26 @@ PyObject *regularize_residues_py(int imol, PyObject *r) { /* presumes the alt_co
 #endif // USE_PYTHON
 
 
+#ifdef USE_PYTHON
+PyObject *refine_residues_with_alt_conf_py(int imol, PyObject *r,
+					   const char *alt_conf) {
+   PyObject *m1 = Py_False;
+   PyObject *m2 = Py_False;
+   PyObject *m3 = Py_False;
+   Py_INCREF(m1);
+   Py_INCREF(m2);
+   Py_INCREF(m3);
+   return refine_residues_with_modes_with_alt_conf_py(imol, r, alt_conf, m1, m2, m3);
+}
+#endif // USE_PYTHON
 
 #ifdef USE_PYTHON
-PyObject *refine_residues_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf) {
-      
+PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *r,
+						      const char *alt_conf,
+						      PyObject *mode_1,
+						      PyObject *mode_2,
+						      PyObject *mode_3) {
+
    PyObject *rv = Py_False;
    if (is_valid_model_molecule(imol)) {
      std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(r);
@@ -1313,10 +1343,31 @@ PyObject *refine_residues_with_alt_conf_py(int imol, PyObject *r, const char *al
             add_status_bar_text("Refinement map not set");
           } else {
             // normal
-            mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
-            coot::refinement_results_t rr =
-              g.refine_residues_vec(imol, residues, alt_conf, mol);
-            rv = g.refinement_results_to_py(rr);
+	     mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+
+	     bool soft_mode_hard_mode = false;
+	     if (PyString_Check(mode_1)) {
+		std::string s = PyString_AsString(mode_1);
+		if (s == "soft-mode/hard-mode")
+		   soft_mode_hard_mode = true;
+	     }
+
+	     if (soft_mode_hard_mode) {
+// 		double w_orig = g.geometry_vs_map_weight;
+// 		g.geometry_vs_map_weight /= 50;
+// 		coot::refinement_results_t rr =
+// 		   g.refine_residues_vec(imol, residues, alt_conf, mol);
+// 		g.geometry_vs_map_weight = w_orig;
+// 		g.last_restraints.set_map_weight(w_orig);
+// 		// continue with normal/hard mode
+// 		g.drag_refine_refine_intermediate_atoms();
+// 		// rv = g.refinement_results_to_py(rr);
+	     } else {
+		// normal
+		coot::refinement_results_t rr =
+		   g.refine_residues_vec(imol, residues, alt_conf, mol);
+		rv = g.refinement_results_to_py(rr);
+	     }
           }
         } 
       } else {

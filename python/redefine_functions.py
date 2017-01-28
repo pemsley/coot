@@ -32,6 +32,7 @@ merge_molecules        = merge_molecules_py
 alignment_results      = alignment_results_py
 nearest_residue_by_sequence = nearest_residue_by_sequence_py
 refine_residues        = refine_residues_py
+refine_residues_with_modes_with_alt_conf = refine_residues_with_modes_with_alt_conf_py
 copy_residue_range_from_ncs_master_to_chains = copy_residue_range_from_ncs_master_to_chains_py
 copy_from_ncs_master_to_chains = copy_from_ncs_master_to_chains_py
 # to be renamed later

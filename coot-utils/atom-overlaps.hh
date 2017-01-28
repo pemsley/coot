@@ -53,16 +53,37 @@ namespace coot {
 	    col = col_in;
 	 }
       };
-      atom_overlaps_dots_container_t() {}
+      atom_overlaps_dots_container_t() {
+	 // I think this speeds things up a bit.
+	 dots["close-contact"].reserve(2500);
+	 dots["small-overlap"].reserve(2500);
+	 dots["wide-contact" ].reserve(2500);
+	 dots["big-overlap"  ].reserve(2500);
+	 dots["H-bond"       ].reserve(2500);
+	 dots["vdw-surface"  ].reserve(2500);
+      }
+
+      // 6,000 a/t -> size 145,000
+      // 1,000 a/t -> size  27,000
+      atom_overlaps_dots_container_t(unsigned int n_atoms_per_thread) {
+
+	 dots["close-contact"].reserve(25 * n_atoms_per_thread);
+	 dots["small-overlap"].reserve(25 * n_atoms_per_thread);
+	 dots["wide-contact" ].reserve(25 * n_atoms_per_thread);
+	 dots["big-overlap"  ].reserve(25 * n_atoms_per_thread);
+	 dots["H-bond"       ].reserve(25 * n_atoms_per_thread);
+	 dots["vdw-surface"  ].reserve(25 * n_atoms_per_thread);
+      }
+
       std::map<std::string, std::vector<dot_t> > dots;
       void add(const atom_overlaps_dots_container_t &other) {
 	 std::map<std::string, std::vector<dot_t> >::const_iterator it;
 	 for (it=other.dots.begin(); it!=other.dots.end(); it++)
-	    dots[it->first].insert(dots[it->first].begin(),it->second.begin(), it->second.end());
+	    if (it->second.size())
+	       dots[it->first].insert(dots[it->first].end(),it->second.begin(), it->second.end());
       }
       spikes_t clashes;
       double score() const {
-	 // std::map<std::string, std::vector<clipper::Coord_orth> >::const_iterator it;
 	 std::map<std::string, std::vector<dot_t> >::const_iterator it;
 	 // do these match the types in overlap_delta_to_contact_type()?
 	 double r = 0;
@@ -79,6 +100,12 @@ namespace coot {
 	 r -= clashes.size();
 	 return r;
       }
+      void debug() const {
+	 std::map<std::string, std::vector<atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
+	 for (it=dots.begin(); it!=dots.end(); it++)
+	    std::cout << " contact dot map " << it->first << " size " << it->second.size() << std::endl;
+      }
+
    };
 
    class atom_overlap_t {
@@ -190,6 +217,7 @@ namespace coot {
       void mark_donors_and_acceptors_for_neighbours(int udd_h_bond_type_handle);
       // return a contact-type and a colour
       static std::pair<std::string, std::string> overlap_delta_to_contact_type(double delta, bool is_h_bond);
+      static void test_get_type(double delta, bool is_h_bond, std::string *c_type_p, std::string *col);
       // can throw std::exception
       const dictionary_residue_restraints_t &get_dictionary(mmdb::Residue *r, unsigned int idx) const;
       // where BONDED here means bonded/1-3-angle/ring related
@@ -204,7 +232,9 @@ namespace coot {
       bool are_bonded_residues(mmdb::Residue *res_1, mmdb::Residue *res_2) const;
       bool in_same_ring(mmdb::Atom *at_1, mmdb::Atom *at_2,
 			std::map<std::string, std::vector<std::vector<std::string> > > &ring_list_map) const;
+      // check LINK records
       bool is_linked(mmdb::Atom *at_1, mmdb::Atom *at_2) const;
+      bool is_ss_bonded(mmdb::Residue *residue_p) const;
 //       bool in_same_ring(const std::string &atom_name_1,
 // 			const std::string &atom_name_2,
 // 			const std::vector<std::vector<std::string> > &ring_list) const;
@@ -213,13 +243,22 @@ namespace coot {
       std::vector<std::vector<std::string> > trp_ring_list() const;
       std::vector<std::vector<std::string> > pro_ring_list() const;
 
-      atom_overlaps_dots_container_t all_atom_contact_dots_internal(double dot_density_in,
-								    mmdb::Manager *mol,
-								    int i_sel_hnd_1,
-								    int i_sel_hnd_2,
-								    mmdb::realtype min_dist,
-								    mmdb::realtype max_dist,
-								    bool make_vdw_surface);
+      atom_overlaps_dots_container_t all_atom_contact_dots_internal_multi_thread(double dot_density_in,
+										 mmdb::Manager *mol,
+										 int i_sel_hnd_1,
+										 int i_sel_hnd_2,
+										 mmdb::realtype min_dist,
+										 mmdb::realtype max_dist,
+										 bool make_vdw_surface);
+
+      atom_overlaps_dots_container_t
+      all_atom_contact_dots_internal_single_thread(double dot_density_in,
+						   mmdb::Manager *mol,
+						   int i_sel_hnd_1,
+						   int i_sel_hnd_2,
+						   mmdb::realtype min_dist,
+						   mmdb::realtype max_dist,
+						   bool make_vdw_surface);
       
    public:
       // we need mol to use UDDs to mark the HB donors and acceptors (using coot-h-bonds.hh)
@@ -265,18 +304,18 @@ namespace coot {
 			double clash_spike_length,
 			bool make_vdw_surface);
       static
-      // void
-      atom_overlaps_dots_container_t
+      void
       contacts_for_atoms(int iat_start, int iat_end,
-			mmdb::Atom **atom_selection,
-			const std::map<int, std::vector<int> > &contact_map,
-			const std::map<int, std::vector<int> > &bonded_map,
-			const std::vector<double> &neighb_atom_radius,
-			int udd_h_bond_type_handle,
-			double probe_radius,
-			double dot_density_in,
-			double clash_spike_length,
-			bool make_vdw_surface);
+			 mmdb::Atom **atom_selection,
+			 const std::map<int, std::vector<int> > &contact_map,
+			 const std::map<int, std::vector<int> > &bonded_map,
+			 const std::vector<double> &neighb_atom_radius,
+			 int udd_h_bond_type_handle,
+			 double probe_radius,
+			 double dot_density_in,
+			 double clash_spike_length,
+			 bool make_vdw_surface,
+			 atom_overlaps_dots_container_t *ao_results); // fill this
       
 
       static void contacts_for_atom_test();

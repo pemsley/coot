@@ -12273,6 +12273,7 @@ on_generic_objects_dialog_closebutton_clicked
 
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "generic_objects_dialog");
   gtk_widget_hide(w);
+  graphics_draw();
 
 } 
 
@@ -12281,7 +12282,8 @@ void
 on_generic_objects_dialog_close        (GtkDialog       *dialog,
                                         gpointer         user_data) { 
 
-  printf("on_generic_objects_dialog_close\n");
+/*   printf("on_generic_objects_dialog_close\n"); */
+  graphics_draw();
 
 }
 

@@ -3535,6 +3535,7 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
       colour_map["hotpink"   ] = coot::generic_display_object_t::colour_values_from_colour_name("hotpink");
       colour_map["grey"      ] = coot::generic_display_object_t::colour_values_from_colour_name("grey");
       colour_map["magenta"   ] = coot::generic_display_object_t::colour_values_from_colour_name("magenta");
+      colour_map["royalblue" ] = coot::generic_display_object_t::colour_values_from_colour_name("royalblue");
       
       std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
       for (it=c.dots.begin(); it!=c.dots.end(); it++) {
@@ -3627,8 +3628,11 @@ void coot_all_atom_contact_dots(int imol) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+      // spike-length ball-radius
       coot::atom_overlaps_container_t overlaps(mol, g.Geom_p(), 0.5, 0.25);
-      coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(0.6);
+      // dot density
+      coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(0.95, true);
+
       std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
 
       // for quick colour lookups.
