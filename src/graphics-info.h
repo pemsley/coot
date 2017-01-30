@@ -2229,6 +2229,9 @@ public:
 
    // Display the graphical object of the regularization
    static void draw_moving_atoms_graphics_object();
+   static void draw_ramachandran_goodness_spots();
+   static void draw_rotamer_probability_object();
+   std::vector<coot::generic_display_object_t::dodec_t> get_rotamer_dodecs();
 
    static int mol_no_for_environment_distances;
    static bool display_environment_graphics_object_as_solid_flag;

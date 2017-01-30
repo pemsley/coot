@@ -44,6 +44,8 @@ libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
         base-pairing.cc backrub-rotamer.cc trace.cc trace-2.cc multi-peptide.cc \
         ligands-db.cc
 
+#   $(top_builddir)/coords/libcoot-coords.la           # library re-order
+
 # clean
 libcoot_ligand_la_LIBADD = \
    $(top_builddir)/ideal/libcoot-ideal.la             \
@@ -52,7 +54,6 @@ libcoot_ligand_la_LIBADD = \
    $(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
    $(top_builddir)/geometry/libcoot-geometry.la       \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la       \
-   $(top_builddir)/coords/libcoot-coords.la           \
    $(top_builddir)/coot-utils/libcoot-coord-extras.la \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
    $(top_builddir)/coot-utils/libcoot-map-utils.la    \
@@ -158,11 +159,12 @@ ligand_percentiles_LDADD = ./libcoot-ligand.la
 
 test_fffear_in_coot_SOURCES = test-fffear-in-coot.cc
 
+# 	$(top_builddir)/coords/libcoot-coords.la
+
 test_fffear_in_coot_LDADD = \
 	./libcoot-ligand.la \
 	$(top_builddir)/ideal/libcoot-ideal.la             \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
-	$(top_builddir)/coords/libcoot-coords.la           \
 	$(top_builddir)/coot-utils/libcoot-shelx.la        \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/coot-utils/libcoot-map-heavy.la    \
@@ -181,12 +183,13 @@ test_fffear_in_coot_LDADD = \
 
 # -L$(top_builddir)/ideal        -lcoot-ideal       
 
+#	$(top_builddir)/coords/libcoot-coords.la
+
 findligand_bin_LDADD = \
 	./libcoot-ligand.la                                \
 	$(top_builddir)/ideal/libcoot-ideal.la             \
         $(top_builddir)/coot-utils/libcoot-map-heavy.la    \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
-	$(top_builddir)/coords/libcoot-coords.la           \
 	$(top_builddir)/db-main/libcoot-db-main.la         \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la    \
@@ -201,12 +204,13 @@ findligand_bin_LDADD = \
         $(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 
+# 	$(top_builddir)/coords/libcoot-coords.la
+
 findwaters_bin_LDADD = \
 	./libcoot-ligand.la                                \
 	$(top_builddir)/ideal/libcoot-ideal.la             \
         $(top_builddir)/coot-utils/libcoot-map-heavy.la    \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
-	$(top_builddir)/coords/libcoot-coords.la           \
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
 	$(top_builddir)/db-main/libcoot-db-main.la         \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \

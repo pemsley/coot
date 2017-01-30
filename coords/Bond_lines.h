@@ -45,6 +45,8 @@
 
 #include "coot-utils/coot-rama.hh" // for ramachandran scoring of intermediate atoms
 #include "ramachandran-container.hh"
+#include "rotamer-container.hh"
+#include "ligand/rotamer.hh"
 #include "coot-utils/coot-coord-utils.hh" // is this needed?
 
 namespace coot { 
@@ -250,6 +252,8 @@ class graphical_bonds_container {
    graphical_bonds_points_list *consolidated_atom_centres;
    int n_cis_peptide_markups;
    graphical_bonds_cis_peptide_markup *cis_peptide_markups;
+   int n_rotamer_markups;
+   rotamer_markup_container_t *rotamer_markups;
    
    graphical_bonds_container() { 
       num_colours = 0; 
@@ -269,6 +273,8 @@ class graphical_bonds_container {
       n_consolidated_atom_centres = 0;
       n_cis_peptide_markups = 0;
       cis_peptide_markups = NULL;
+      n_rotamer_markups = 0;
+      rotamer_markups = NULL;
    }
 
    void clear_up() {
@@ -280,11 +286,6 @@ class graphical_bonds_container {
 	 for (int icol=0; icol<num_colours; icol++)
 	    delete [] symmetry_bonds_[icol].pair_list;
 
-//       if (bonds_)
-// 	 std::cout << " clearing bonds " << bonds_ << std::endl;
-//       if (symmetry_bonds_)
-// 	 std::cout << " clearing symmetry bonds " << symmetry_bonds_ << std::endl;
-      
       delete [] bonds_;  // null testing part of delete
       delete [] symmetry_bonds_; 
       delete [] atom_centres_;
@@ -311,6 +312,9 @@ class graphical_bonds_container {
       }
       delete [] cis_peptide_markups;
       cis_peptide_markups = NULL;
+      n_rotamer_markups = 0;
+      delete [] rotamer_markups;
+      rotamer_markups = NULL;
    }
 
    graphical_bonds_container(const std::vector<graphics_line_t> &a) { 
@@ -347,9 +351,6 @@ class graphical_bonds_container {
       
    void add_colour(const  std::vector<graphics_line_t> &a ) {
       
- /*       cout << "filling a graphical_bonds_container from a vector "  */
-/* 	   << "of size " << a.size() << endl; */
-
      graphical_bonds_lines_list *new_bonds_ = new graphical_bonds_lines_list[num_colours+1];
      if ( bonds_ != NULL ) {
        for (int i = 0; i < num_colours; i++ ) new_bonds_[i] = bonds_[i];
@@ -372,8 +373,11 @@ class graphical_bonds_container {
 
    void add_zero_occ_spots(const std::vector<coot::Cartesian> &spots);
    void add_deuterium_spots(const std::vector<coot::Cartesian> &spots);
-   void add_ramachandran_goodness_spots(const std::vector<std::pair<coot::Cartesian, coot::util::phi_psi_t> > &spots,
+   void add_ramachandran_goodness_spots(const std::vector<std::pair<coot::Cartesian,
+					coot::util::phi_psi_t> > &spots,
 					const ramachandrans_container_t &rc);
+   void add_rotamer_goodness_markup(const std::vector<rotamer_markup_container_t> &ric);
+
    void add_atom_centres(const std::vector<std::pair<bool,coot::Cartesian> > &centres,
 			 const std::vector<int> &colours);
    bool have_rings() const { return rings.size(); }
@@ -434,7 +438,9 @@ class Bond_lines_container {
 			   float min_dist, float max_dist, 
 			   int atom_colour_type, 
 			   short int is_from_symmetry_flag,
-			   int model_number);
+			   int model_number,
+			   bool do_rama_markup=false,
+			   bool do_rota_markup=false);
 
    // PDBv3 FIXME
    bool is_hydrogen(const std::string &ele) const {
@@ -455,7 +461,7 @@ class Bond_lines_container {
 				      bool are_different_atom_selections,
 				      bool have_udd_atoms,
 				      int udd_handle);
-   
+
    void construct_from_model_links(mmdb::Model *model, int atom_colour_type);
    // which wraps...
    void add_link_bond(mmdb::Model *model_p, int atom_colour_type, mmdb::Link *link);
@@ -471,7 +477,7 @@ class Bond_lines_container {
 				coot::my_atom_colour_map_t *atom_colour_map = 0);
 
    // void check_atom_limits(atom_selection_container_t SelAtoms) const;
-   
+
    void write(std::string) const;
 
    mmdb::PPAtom trans_sel(atom_selection_container_t AtomSel, 
@@ -480,13 +486,15 @@ class Bond_lines_container {
    void add_zero_occ_spots(const atom_selection_container_t &SelAtom);
    void add_deuterium_spots(const atom_selection_container_t &SelAtom);
    void add_ramachandran_goodness_spots(const atom_selection_container_t &SelAtom);
+   void add_rotamer_goodness_markup(const atom_selection_container_t &SelAtom);
    void add_atom_centres(const atom_selection_container_t &SelAtom, int atom_colour_type);
    void add_cis_peptide_markup(const atom_selection_container_t &SelAtom);
-   int add_ligand_bonds(const atom_selection_container_t &SelAtom,
-			int imol,
-			mmdb::PPAtom ligand_atoms_selection,
-			int n_ligand_atoms);
-
+   int add_ligand_bonds(const atom_selection_container_t &SelAtom, int imol,
+			mmdb::PPAtom ligand_atoms_selection, int n_ligand_atoms);
+   std::vector<rotamer_markup_container_t> dodecs;
+   // filled by return value of
+   std::vector<rotamer_markup_container_t> get_rotamer_dodecs(const atom_selection_container_t &SelAtom) const;
+   
    // no longer use this - it's too crude
    bool draw_these_residue_contacts(mmdb::Residue *this_residue, mmdb::Residue *env_residue,
 				    coot::protein_geometry *protein_geom);
@@ -578,6 +586,11 @@ class Bond_lines_container {
    // return a colour index, and -1 on failure
    //
    int get_user_defined_col_index(mmdb::Atom *at, int udd_handle) const;
+
+   // we can put other things here
+   void init() {
+      rotamer_probability_tables_p = NULL;
+   }
    
 
 public:
@@ -590,7 +603,10 @@ public:
    Bond_lines_container(const atom_selection_container_t &asc,
 			int imol,
 			int include_disulphides=0,
-			int include_hydrogens=1);
+			int include_hydrogens=1,
+			bool do_rama_markup=false,
+			bool do_rota_markup=false,
+			coot::rotamer_probability_tables *tables_p=0);
 
    // the constructor for bond by dictionary - should use this most of the time.
    // geom_in can be null if you don't have it.
@@ -662,6 +678,7 @@ public:
       b_factor_scale = 1.0;
       have_dictionary = false;
       geom = protein_geom;
+      init();
       if (protein_geom)
 	 have_dictionary = true;
       for_GL_solid_model_rendering = 0;
@@ -684,6 +701,7 @@ public:
       b_factor_scale = 1.0;
       have_dictionary = 0;
       for_GL_solid_model_rendering = 0;
+      init();
       if (bonds.size() == 0) { 
 	 for (int i=0; i<13; i++) { // 13 colors now in bond_colours
 	    Bond_lines a(i);
@@ -694,7 +712,12 @@ public:
    // used by above:
    void stars_for_unbonded_atoms(mmdb::Manager *mol, int UddHandle);
    void set_udd_unbonded(mmdb::Manager *mol, int UddHandle);
-   
+
+   coot::rotamer_probability_tables *rotamer_probability_tables_p;
+   void add_rotamer_tables(coot::rotamer_probability_tables *tables_p) {
+      rotamer_probability_tables_p = tables_p;
+   }
+
    // arguments as above.
    // 
    // FYI: there is only one element to symm_trans, the is called from
@@ -777,8 +800,10 @@ public:
 
    graphical_bonds_container make_graphical_bonds() const;
    graphical_bonds_container make_graphical_bonds_no_thinning() const;
+   // these bools merely flag the extraction of the already generated markups
    graphical_bonds_container make_graphical_bonds(const ramachandrans_container_t &rc,
-						  bool do_ramachandran_markup) const;
+						  bool do_ramachandran_markup,
+						  bool do_rotamer_markup) const;
 
      
    // debugging function

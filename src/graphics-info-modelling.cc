@@ -3423,7 +3423,7 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
 
    // We need to filter out atoms that are not (either the same
    // altconf as atom_index or "")
-   // 
+   //
    mmdb::Residue *tres = coot::deep_copy_this_residue(residue, 
 						 std::string(at_rot->altLoc),
 						 0, atom_index_udd);
@@ -3475,9 +3475,9 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int irot) {
 			    residue->GetSeqNum(),
 			    residue->GetInsCode());
    
-	    mmdb::PPAtom residue_atoms_2;
-	    int nResidueAtoms_2;
-	    ((mmdb::Residue *)moving_res)->GetAtomTable(residue_atoms_2, nResidueAtoms_2);
+	    mmdb::PPAtom residue_atoms_2 = NULL;
+	    int nResidueAtoms_2 = 0;
+	    moving_res->GetAtomTable(residue_atoms_2, nResidueAtoms_2);
 	    mmdb::Atom *atom_p;
 	    int i_add;
 	    for(int iat=0; iat<nResidueAtoms_2; iat++) {
@@ -3529,9 +3529,11 @@ graphics_info_t::get_rotamer_probability(mmdb::Residue *res,
 	 std::vector<coot::rotamer_probability_info_t> v = rot_prob_tables.probability_this_rotamer(res);
 	 if (v.size() > 0) {
 	    r = v[0];
-	 } 
+	    std::cout << "  residue " << coot::residue_spec_t(res) << " " << v[0] << std::endl;
+	 }
+
       }
-      catch (std::runtime_error e) {
+      catch (const std::runtime_error &e) {
 	 std::cout << "get_rotamer_probability: caught: " << e.what() << std::endl;
       } 
    } else {

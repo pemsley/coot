@@ -152,7 +152,7 @@ namespace coot {
 #include "gsl/gsl_multimin.h"
 
 // #include "Cartesian.h"
-#include "coords/mmdb-extras.h" // for atom_selection_container_t, this and
+#include "coot-utils/atom-selection-container.hh" // for atom_selection_container_t, this and
 			 // the interface that uses this can be
 			 // deleted, I think, when we move to clipper
 			 // (so that clipper does not get infected
@@ -602,7 +602,7 @@ namespace coot {
       turn_off_when_close_target_position_restraint_eraser(mmdb::PAtom *atoms_in, int n_atoms_in) {
 	 atoms = atoms_in;
 	 n_atoms = n_atoms_in;
-	 close_dist = 0.4;
+	 close_dist = 0.5; // was 0.4
       }
       bool operator() (const simple_restraint &r) const {
 	 bool v = false;

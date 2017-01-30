@@ -58,11 +58,11 @@ AM_LDFLAGS = $(MMDB_LIBS) $(CLIPPER_LIBS) $(GLS_LIBS)
 # change dependency_libs in the .la file though).
 # 
 # libcoot_ideal_la_LDFLAGS = $(GSL_LIBS) $(MMDB_LIBS) $(CLIPPER_LIBS)
+# reworking library order  $(top_builddir)/coords/libcoot-coords.la           
 
 libcoot_ideal_la_LIBADD =                 \
    $(top_builddir)/coot-utils/libcoot-map-heavy.la     \
    $(top_builddir)/geometry/libcoot-geometry.la        \
-   $(top_builddir)/coords/libcoot-coords.la            \
    $(top_builddir)/coot-utils/libcoot-coord-extras.la  \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la   \
    $(top_builddir)/utils/libcoot-utils.la              \
@@ -115,7 +115,6 @@ mini_rsr_bin_LDADD =  \
         ./libcoot-ideal.la                                 \
 	$(top_builddir)/coot-utils/libcoot-map-heavy.la    \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
-	$(top_builddir)/coords/libcoot-coords.la           \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
 	$(top_builddir)/coot-utils/libcoot-shelx.la        \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \

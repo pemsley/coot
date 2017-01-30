@@ -38,7 +38,6 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
       // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
       flags = coot::ALL_RESTRAINTS;
    
-   
    if (do_torsion_restraints && do_rama_restraints) {
 
       // Do we really need this fine control?
@@ -62,8 +61,6 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 	 g.clear_atom_pull_restraint(true);
       }
    }
-   
-	    
 
    // print_initial_chi_squareds_flag is 1 the first time then we turn it off.
    int steps_per_frame = dragged_refinement_steps_per_frame;
@@ -73,18 +70,41 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    graphics_info_t::saved_dragged_refinement_results =
       g.last_restraints.minimize(flags, steps_per_frame, print_initial_chi_squareds_flag);
 
-
    retprog = graphics_info_t::saved_dragged_refinement_results.progress;
    print_initial_chi_squareds_flag = 0;
    int do_disulphide_flag = 0;
    int draw_hydrogens_flag = 0;
    if (molecules[imol_moving_atoms].draw_hydrogens())
       draw_hydrogens_flag = 1;
-   Bond_lines_container bonds(*(g.moving_atoms_asc), do_disulphide_flag, draw_hydrogens_flag);
+   bool do_rama_markup = true;
+   bool do_rota_markup = true;
+
+   // wrap the filling of the rotamer probability tables
+   //
+   coot::rotamer_probability_tables *tables_pointer = NULL;
+   
+   if (! rot_prob_tables.tried_and_failed()) {
+      if (rot_prob_tables.is_well_formatted()) {
+	 tables_pointer = &rot_prob_tables;
+      } else {
+	 rot_prob_tables.fill_tables();
+	 if (rot_prob_tables.is_well_formatted()) {
+	    tables_pointer = &rot_prob_tables;
+	 }
+      }
+   } else {
+      do_rota_markup = false;
+   }
+
+   Bond_lines_container bonds(*g.moving_atoms_asc, imol_moving_atoms,
+			      do_disulphide_flag, draw_hydrogens_flag,
+			      do_rama_markup, do_rota_markup,
+			      tables_pointer
+			      );
+
    g.regularize_object_bonds_box.clear_up();
-   bool do_markup = true;
    g.regularize_object_bonds_box = bonds.make_graphical_bonds(g.ramachandrans_container,
-							      do_markup);
+							      do_rama_markup, do_rota_markup);
 
    // debug
    coot::geometry_distortion_info_container_t gdic = last_restraints.geometric_distortions(flags);
@@ -92,8 +112,6 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    char *env = getenv("COOT_DEBUG_REFINEMENT");
    if (env)
       g.tabulate_geometric_distortions(last_restraints);
-
-   
 
    // Update the Accept/Reject Dialog if it exists (and it should do,
    // if we are doing dragged refinement).
@@ -171,18 +189,6 @@ bool graphics_info_t::pepflip_intermediate_atoms() {
 
 	       drag_refine_refine_intermediate_atoms();
 
-	       if (false) { 
-		  int draw_H_flag = 0;
-		  int do_disulphide_flag = 0;
-		  if (molecules[imol_moving_atoms].draw_hydrogens())
-		     draw_H_flag = 1;
-		  Bond_lines_container bonds(*moving_atoms_asc, do_disulphide_flag, draw_H_flag);
-		  regularize_object_bonds_box.clear_up();
-		  bool do_markup = true;
-		  regularize_object_bonds_box =
-		     bonds.make_graphical_bonds(graphics_info_t::ramachandrans_container,
-						do_markup);
-	       }
 	    }
 	 }
       }

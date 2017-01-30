@@ -442,8 +442,6 @@ graphics_info_t::draw_generic_objects_solid() {
 		  g.graphics_object_internal_pentakis_dodec(obj.pentakis_dodecs[idodec]);
 	       }
 	    }
-
-	    
 	 }
       }
       glDisable(GL_LIGHTING);

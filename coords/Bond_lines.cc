@@ -28,6 +28,7 @@
 #include <vector>
 #include <algorithm> // for find
 #include <set>
+#include <iterator>
 
 #include "Cartesian.h"
 #include <mmdb2/mmdb_manager.h>
@@ -59,23 +60,30 @@ Bond_lines::Bond_lines(const graphics_line_t &line) {
 // 
 Bond_lines_container::Bond_lines_container(const atom_selection_container_t &SelAtom,
 					   int imol,
-					   int do_disulphide_bonds_in,   // default argument
-					   int do_bonds_to_hydrogens_in // default argument
-					   )
-{
+					   int do_disulphide_bonds_in,   // default argument, 0
+					   int do_bonds_to_hydrogens_in, // default argument, 1
+					   bool do_rama_markup,       // default argument false
+					   bool do_rota_markup,       // default argument false
+					   coot::rotamer_probability_tables *tables_p
+					   ) {
 
+   init();
    do_disulfide_bonds_flag = do_disulphide_bonds_in;
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
    b_factor_scale = 1.0;
    have_dictionary = 0;
    for_GL_solid_model_rendering = 0;
+   if (tables_p)
+      rotamer_probability_tables_p = tables_p;
+   
    // 1.7 will not catch MET bonds (1.791 and 1.803) nor MSE bonds (1.95)
    // but SO4 bonds (1.46 are fine).
    // They should have special case, handle_MET_or_MSE_case
    // However, for VNP thingy, S1 has bonds to carbons of 1.67 1.77.  Baah.
    float max_dist = 1.71;
    int model_number = 0; // all models
-   construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number);
+   construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number,
+		      do_rama_markup, do_rota_markup);
    verbose_reporting = 0;
    udd_has_ca_handle = -1;
 
@@ -94,14 +102,14 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
 					   const coot::protein_geometry *geom_in,
 					   int do_disulphide_bonds_in, 
 					   int do_bonds_to_hydrogens_in,
-					   int model_number)
-{
+					   int model_number) {
 
    do_disulfide_bonds_flag = do_disulphide_bonds_in;
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
    for_GL_solid_model_rendering = 0;
    b_factor_scale = 1.0;
    have_dictionary = 0;
+   init();
    if (geom_in) {
       geom = geom_in;
       have_dictionary = 1;
@@ -127,6 +135,7 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t SelAtom,
    b_factor_scale = 1.0;
    have_dictionary = 0;
    for_GL_solid_model_rendering = 0;
+   init();
    int model_number = 0; // all models
    construct_from_asc(SelAtom, imol, 0.01, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number); 
 }
@@ -143,6 +152,7 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t SelAtom,
    b_factor_scale = 1.0;
    have_dictionary = 0;
    for_GL_solid_model_rendering = 0;
+   init();
    // 0 is is_from_symmetry_flag
    int model_number = 0; // all models
    construct_from_asc(SelAtom, imol, min_dist, max_dist, coot::COLOUR_BY_ATOM_TYPE, 0, model_number); 
@@ -165,6 +175,7 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t asc,
    do_bonds_to_hydrogens = 1;
    b_factor_scale = 1.0;
    have_dictionary = 0;
+   init();
    if (geom_in) {
       geom = geom_in;
       have_dictionary = 1;
@@ -178,9 +189,9 @@ Bond_lines_container::Bond_lines_container(atom_selection_container_t asc,
 // This is the one for occupancy and B-factor representation - and now
 // all-atom user-define colouring too
 // 
-Bond_lines_container::Bond_lines_container (const atom_selection_container_t &SelAtom,
-					    int imol,
-					    Bond_lines_container::bond_representation_type by_occ) {
+Bond_lines_container::Bond_lines_container(const atom_selection_container_t &SelAtom,
+					   int imol,
+					   Bond_lines_container::bond_representation_type by_occ) {
 
    verbose_reporting = 0;
    do_disulfide_bonds_flag = 1;
@@ -189,6 +200,7 @@ Bond_lines_container::Bond_lines_container (const atom_selection_container_t &Se
    b_factor_scale = 1.0;
    have_dictionary = 0;
    for_GL_solid_model_rendering = 0;
+   init();
    float max_dist = 1.71;
    int model_number = 0; // all models
    if (by_occ == Bond_lines_container::COLOUR_BY_OCCUPANCY) {
@@ -1350,7 +1362,7 @@ coot::model_bond_atom_info_t::non_Hydrogen_atoms() const {
    return non_H_atoms;
 }
 
-// we rely on SelAtom.atom_selection being properly constucted to
+// we rely on SelAtom.atom_selection being properly constructed to
 // contain all atoms
 void
 Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAtom,
@@ -1358,7 +1370,9 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 					 float min_dist, float max_dist,
 					 int atom_colour_type,
 					 short int is_from_symmetry_flag,
-					 int model_number) {
+					 int model_number,
+					 bool do_rama_markup,
+					 bool do_rota_markup) {
 
    // initialize each colour in the Bond_lines_container
    //
@@ -1621,7 +1635,14 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
 
    add_zero_occ_spots(SelAtom);
    add_deuterium_spots(SelAtom);
-   add_ramachandran_goodness_spots(SelAtom);
+   if (do_rama_markup) {
+      std::cout << "........... add_ramachandran_goodness_spots() " << std::endl;
+      add_ramachandran_goodness_spots(SelAtom);
+   }
+   if (do_rota_markup) {
+      std::cout << "........... add_rotamer_goodness_spots() " << std::endl;
+      add_rotamer_goodness_markup(SelAtom);
+   }
    add_atom_centres(SelAtom, atom_colour_type);
    add_cis_peptide_markup(SelAtom);
 }
@@ -2068,6 +2089,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
    do_bonds_to_hydrogens = 1;  // added 20070629
    for_GL_solid_model_rendering = 0;
    have_dictionary = 0;
+   init();
 
    b_factor_scale = 1.0;
    if (bonds.size() == 0) { 
@@ -3064,6 +3086,7 @@ Bond_lines_container::Bond_lines_container(symm_keys key) {
    do_bonds_to_hydrogens = 1;  // added 20070629
    b_factor_scale = 1.0;
    for_GL_solid_model_rendering = 0;
+   init();
    have_dictionary = 0;
    
    if (key == NO_SYMMETRY_BONDS) {
@@ -3131,7 +3154,8 @@ Bond_lines_container::make_graphical_bonds(bool thinning_flag) const {
 
 graphical_bonds_container
 Bond_lines_container::make_graphical_bonds(const ramachandrans_container_t &rc,
-					   bool do_rama_markup) const {
+					   bool do_rama_markup,
+					   bool do_rotamer_markup) const {
 
 
    graphical_bonds_container box;
@@ -3158,6 +3182,8 @@ Bond_lines_container::make_graphical_bonds(const ramachandrans_container_t &rc,
    box.add_deuterium_spots(deuterium_spots);
    if (do_rama_markup)
       box.add_ramachandran_goodness_spots(ramachandran_goodness_spots, rc);
+   if (do_rotamer_markup)
+      box.add_rotamer_goodness_markup(dodecs);
    box.add_atom_centres(atom_centres, atom_centres_colour);
    box.rings = rings;
    return box;
@@ -3286,6 +3312,7 @@ Bond_lines_container::Bond_lines_container(int col) {
 
    do_bonds_to_hydrogens = 1;  // added 20070629
    have_dictionary = 0;
+   init();
    b_factor_scale = 1.0;
    for_GL_solid_model_rendering = 0;
    std::cout << "Strange Bond_lines_container(int col)" << std::endl;
@@ -5277,8 +5304,6 @@ bool residue_sort_function(mmdb::Residue *r1, mmdb::Residue *r2) {
 
 }
 
-#include <iterator>
-
 void
 Bond_lines_container::add_ramachandran_goodness_spots(const atom_selection_container_t &SelAtom) {
 
@@ -5347,6 +5372,13 @@ Bond_lines_container::add_ramachandran_goodness_spots(const atom_selection_conta
 
 
 
+void
+Bond_lines_container::add_rotamer_goodness_markup(const atom_selection_container_t &SelAtom) {
+
+   // std::vector<rotamer_markup_container_t>
+
+   dodecs = get_rotamer_dodecs(SelAtom);
+}
 
 void
 Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom,
@@ -5445,6 +5477,17 @@ graphical_bonds_container::add_ramachandran_goodness_spots(const std::vector<std
 	 std::pair<coot::Cartesian, float> p(spots[i].first, rama_score);
 	 ramachandran_goodness_spots_ptr[i] = p;
       }
+   }
+}
+
+void
+graphical_bonds_container::add_rotamer_goodness_markup(const std::vector<rotamer_markup_container_t> &ric) {
+
+   if (ric.size() > 0) {
+      n_rotamer_markups = ric.size();
+      rotamer_markups = new rotamer_markup_container_t[n_rotamer_markups];
+      for (unsigned int i=0; i<ric.size(); i++)
+	 rotamer_markups[i] = ric[i];
    }
 }
 

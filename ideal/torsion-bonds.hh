@@ -55,7 +55,7 @@ namespace coot {
 				      mmdb::Manager *mol,
 				      const clipper::Xmap<float> &xmap,
 				      int n_trials,
-				      coot::protein_geometry *geom_p); 
+				      protein_geometry *geom_p); 
    // which calls 
    double get_rand_angle(double current_angle, const torsion_atom_quad &quad, int itrial,
 			 int n_trials,
@@ -68,10 +68,10 @@ namespace coot {
    double get_self_clash_score(mmdb::Manager *mol,
 			       mmdb::PPAtom atom_selection,
 			       int n_selected_atoms,
-			       const std::vector<coot::torsion_atom_quad> &quads);
+			       const std::vector<torsion_atom_quad> &quads);
    bool both_in_a_torsion_p(mmdb::Atom *at_1,
 			    mmdb::Atom *at_2,
-			    const std::vector<coot::torsion_atom_quad> &quads);
+			    const std::vector<torsion_atom_quad> &quads);
 } 
 
 #endif // IDEAL_TORSION_BONDS_HH

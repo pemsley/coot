@@ -1238,7 +1238,7 @@ graphics_info_t::rotamers_from_residue_selection(mmdb::PResidue *SelResidues,
    std::vector<coot::geometry_graph_block_info_generic> v;
    for (int ires=0; ires<nSelResidues; ires++) {
       std::string res_name = SelResidues[ires]->GetResName();
-      if (res_name != "HOH") { 
+      if (res_name != "HOH") {
 	 int this_resno = SelResidues[ires]->GetSeqNum();
 	 std::string chain_id = SelResidues[ires]->GetChainID();
 	 std::string alt_conf = ""; // fixme?

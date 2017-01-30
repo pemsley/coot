@@ -33,10 +33,9 @@ if COND_LIDIA_ONLY
    SUBDIRS = compat utils mini-mol geometry lidia-core lbg
 else
    SUBDIRS = auxil scheme python pdb-templates macros compat utils protein_db mini-mol geometry  \
-        coot-utils surface coot-surface lidia-core \
-	coords angles skeleton ccp4mg-utils density-contour \
-	db-main analysis ideal ligand high-res build greg-tests python-tests \
-	tw libgtkgraph lbg cootaneer cootilus goograph pyrogen src data \
+        coot-utils lidia-core angles ccp4mg-utils db-main analysis ideal ligand coords \
+	density-contour surface coot-surface skeleton  high-res build greg-tests \
+	python-tests tw libgtkgraph lbg cootaneer cootilus goograph pyrogen src data \
 	man rama-data doc rcrane pixmaps
 endif
 

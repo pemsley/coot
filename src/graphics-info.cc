@@ -1629,7 +1629,7 @@ graphics_info_t::draw_moving_atoms_graphics_object() {
 	    glColor3f (0.6, 0.6, 0.6);
 	 }
 
-	 
+
 	 graphical_bonds_lines_list &ll = graphics_info_t::regularize_object_bonds_box.bonds_[i];
 	 if (ll.thin_lines_flag)
 	    glLineWidth(bw * 0.5);
@@ -1651,6 +1651,20 @@ graphics_info_t::draw_moving_atoms_graphics_object() {
 	 glEnd();
       }
 
+      draw_ramachandran_goodness_spots();
+      draw_rotamer_probability_object();
+
+   }
+}
+
+
+
+// Display the graphical object of the regularization.
+// static
+void 
+graphics_info_t::draw_ramachandran_goodness_spots() {
+   
+   if (graphics_info_t::regularize_object_bonds_box.num_colours > 0) {
       if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
 	 float ball_scale_factor = 1.0; // 1.2;
 	 for (int i=0; i<graphics_info_t::regularize_object_bonds_box.n_ramachandran_goodness_spots; i++) {
@@ -1674,7 +1688,7 @@ graphics_info_t::draw_moving_atoms_graphics_object() {
 	    // fn(1.0) -> large
 	    // fn(0.9) -> quite small
 	    // fn(0.0) -> tiny
-		  
+
 	    double radius = pow(q, 25); // so that medium probabilities seems smaller
 
 	    // currently radius is 0-1;
@@ -1707,6 +1721,79 @@ graphics_info_t::draw_moving_atoms_graphics_object() {
       } 
    }
 }
+
+#include "utils/dodec.hh"
+
+// static
+void
+graphics_info_t::draw_rotamer_probability_object() {
+
+   graphics_info_t g;
+   std::vector<coot::generic_display_object_t::dodec_t> dodecs = g.get_rotamer_dodecs();
+
+   if (dodecs.size()) {
+
+      glDisable(GL_COLOR_MATERIAL);
+      glEnable(GL_NORMALIZE); // slows things, but makes the shiny nice
+
+      // draw with:
+      glEnable(GL_LIGHTING);
+      glEnable(GL_LIGHT1);
+      glEnable(GL_LIGHT0);
+
+      // glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
+      // glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+      
+      for (unsigned int i=0; i<dodecs.size(); i++) {
+
+	 float feature_opacity = 0.8;
+	 const coot::generic_display_object_t::dodec_t &dodec = dodecs[i];
+	 GLfloat  mat_diffuse[]  = {dodec.col.red,
+				    dodec.col.green,
+				    dodec.col.blue, 
+				    feature_opacity};
+	 GLfloat  mat_specular[]  = {0.3, 0.3, 0.3, 1.0};
+	 GLfloat  mat_shininess[] = {100};
+	 glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
+	 glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
+	 glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_diffuse);
+	 glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
+
+	 g.graphics_object_internal_dodec(dodec);
+      }
+      glDisable(GL_LIGHTING);
+   }
+}
+
+// can this be const?
+std::vector<coot::generic_display_object_t::dodec_t>
+graphics_info_t::get_rotamer_dodecs() {
+
+   std::vector<coot::generic_display_object_t::dodec_t> dodecs;
+   if (regularize_object_bonds_box.num_colours > 0) {
+      if (regularize_object_bonds_box.n_rotamer_markups > 0) {
+	 dodec d;
+	 coot::Cartesian top    = unproject_xyz(100, 100, 0.5);
+	 coot::Cartesian bottom = unproject_xyz(100,   0, 0.5);
+	 clipper::Coord_orth screen_y(top.x()-bottom.x(),
+				      top.y()-bottom.y(),
+				      top.z()-bottom.z());
+
+	 for (int i=0; i<regularize_object_bonds_box.n_rotamer_markups; i++) {
+
+	    clipper::Coord_orth pos = regularize_object_bonds_box.rotamer_markups[i].pos;
+	    pos -= screen_y * (7.0/graphics_info_t::zoom);
+	    double size = 0.6;
+	    coot::generic_display_object_t::dodec_t dodec(d, size, pos);
+	    dodec.col = regularize_object_bonds_box.rotamer_markups[i].col;
+	    dodecs.push_back(dodec);
+	 }
+      }
+   }
+   return dodecs;
+}
+
+
 
 // This does (draws) symmetry too.
 // 
@@ -2402,7 +2489,7 @@ void
 graphics_info_t::graphics_object_internal_pentakis_dodec(const coot::generic_display_object_t::pentakis_dodec_t &penta_dodec) {
 
    glPushMatrix();
-	       
+
    glTranslated(penta_dodec.position.x(), penta_dodec.position.y(), penta_dodec.position.z());
    glScaled(penta_dodec.size, penta_dodec.size, penta_dodec.size);
 
@@ -2424,7 +2511,7 @@ graphics_info_t::graphics_object_internal_pentakis_dodec(const coot::generic_dis
 	 clipper::Coord_orth pvu(pv[i].unit());
 	 glNormal3d(pvu.x(), pvu.y(), pvu.z());
 	 glVertex3d(pv[i].x(), pv[i].y(), pv[i].z()); 
-      
+
 	 for (unsigned int j=0; j<=4; j++) {
 	    const clipper::Coord_orth &pt = v[face[j]];
 	    clipper::Coord_orth ptu(pt.unit());
@@ -2437,7 +2524,7 @@ graphics_info_t::graphics_object_internal_pentakis_dodec(const coot::generic_dis
 	 glVertex3d(pt.x(),  pt.y(),  pt.z());
 	 glEnd();
       }
-      
+
    } else {
 
       // the surfaces of the triangles are flat/sharp and don't blend into each other.
