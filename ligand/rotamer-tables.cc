@@ -567,7 +567,7 @@ coot::rotamer_probability_tables::probability_this_rotamer(unsigned int i_table,
 std::vector<coot::rotamer_probability_info_t>
 coot::rotamer_probability_tables::probability_this_rotamer(mmdb::Residue *residue) const {
 
-   if (true) { // debugging
+   if (false) { // debugging
       std::cout << "probability_this_rotamer(): getting probability_this_rotamer for "
 		<< coot::residue_spec_t(residue) << " " << residue->GetResName() << std::endl;
    }
@@ -591,7 +591,7 @@ coot::rotamer_probability_tables::probability_this_rotamer(mmdb::Residue *residu
 
    int i_table = -1;
 
-   if (true) { // debug
+   if (false) { // debug
       std::cout << "probability_this_rotamer() tables.size() " << tables.size() << std::endl;
       for (unsigned int itab=0; itab<tables.size(); itab++) {
 	 std::cout << "    " << tables[itab].residue_name << std::endl;

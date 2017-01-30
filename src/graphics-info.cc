@@ -1666,40 +1666,37 @@ graphics_info_t::draw_ramachandran_goodness_spots() {
    
    if (graphics_info_t::regularize_object_bonds_box.num_colours > 0) {
       if (regularize_object_bonds_box.n_ramachandran_goodness_spots) {
+
+	 // ------------------------------------------
+
+	 coot::Cartesian top       = unproject_xyz(100, 100, 0.5);
+	 coot::Cartesian bottom    = unproject_xyz(100,   0, 0.5);
+	 coot::Cartesian screen_y = top - bottom;
+
+	 // ------------------------------------------
+
 	 float ball_scale_factor = 1.0; // 1.2;
 	 for (int i=0; i<graphics_info_t::regularize_object_bonds_box.n_ramachandran_goodness_spots; i++) {
 
-	    const coot::Cartesian &pos = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].first;
+	    coot::Cartesian pos = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].first;
 	    const float &prob_raw      = graphics_info_t::regularize_object_bonds_box.ramachandran_goodness_spots_ptr[i].second;
-	    // std::cout << "    rama " << pos << " prob_raw: " << prob_raw << std::endl;
-	    
-	    // prob values are between 0 and 1.66 (ish)
+
+	    // ------------------------------------------
+
+	    pos -= screen_y * (float(4.8)/float(graphics_info_t::zoom));
 	    double prob = prob_raw;
 	    if (prob > 0.5) prob = 0.5; // 0.4 and 2.5 f(for q) might be better (not tested)
-	    
 	    double q = (1 - 2.0 * prob);
-		  
-	    // Lovell et al. 2003, 50, 437 Protein Structure, Function
-	    // and Genetics values: 0.02 and 0.002 - so for a typical
-	    // user, if prob = 0.1 (q=0.9), say then they are fine with
-	    // that and the ball should be small
+	    q = pow(q, 25);
+	    coot::colour_holder col = coot::colour_holder(q, 0.0, 1.0, std::string(""));
+	    double radius = 0.5;
 
-	    // fn(q):
-	    // fn(1.0) -> large
-	    // fn(0.9) -> quite small
-	    // fn(0.0) -> tiny
+	    // ------------------------------------------
 
-	    double radius = pow(q, 25); // so that medium probabilities seems smaller
-
-	    // currently radius is 0-1;
-
-	    // now map to aesthetically pleasing ball size
-	    radius = 0.15 + ball_scale_factor * radius;
-		  
 	    int slices = 20;
 	    GLUquadric* quad = gluNewQuadric();
 
-	    GLfloat  mat_specular[]  = {0.6, 0.8, 0.6, 0.46};
+	    GLfloat  mat_specular[]  = {col.red, col.green, col.blue, 0.6};
 	    GLfloat  mat_shininess[] = {25};
 	    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
 	    glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
@@ -1743,10 +1740,10 @@ graphics_info_t::draw_rotamer_probability_object() {
 
       // glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
       // glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-      
+
       for (unsigned int i=0; i<dodecs.size(); i++) {
 
-	 float feature_opacity = 0.8;
+	 float feature_opacity = 0.6;
 	 const coot::generic_display_object_t::dodec_t &dodec = dodecs[i];
 	 GLfloat  mat_diffuse[]  = {dodec.col.red,
 				    dodec.col.green,
@@ -1782,8 +1779,8 @@ graphics_info_t::get_rotamer_dodecs() {
 	 for (int i=0; i<regularize_object_bonds_box.n_rotamer_markups; i++) {
 
 	    clipper::Coord_orth pos = regularize_object_bonds_box.rotamer_markups[i].pos;
-	    pos -= screen_y * (7.0/graphics_info_t::zoom);
-	    double size = 0.6;
+	    pos -= screen_y * double((double(12.5)/double(graphics_info_t::zoom)));
+	    double size = 0.52;
 	    coot::generic_display_object_t::dodec_t dodec(d, size, pos);
 	    dodec.col = regularize_object_bonds_box.rotamer_markups[i].col;
 	    dodecs.push_back(dodec);
