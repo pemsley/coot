@@ -1683,7 +1683,7 @@ graphics_info_t::draw_ramachandran_goodness_spots() {
 
 	    // ------------------------------------------
 
-	    pos -= screen_y * (float(4.8)/float(graphics_info_t::zoom));
+	    pos -= screen_y * (float(7.5)/float(graphics_info_t::zoom));
 	    double prob = prob_raw;
 	    if (prob > 0.5) prob = 0.5; // 0.4 and 2.5 f(for q) might be better (not tested)
 	    double q = (1 - 2.0 * prob);
@@ -1779,7 +1779,7 @@ graphics_info_t::get_rotamer_dodecs() {
 	 for (int i=0; i<regularize_object_bonds_box.n_rotamer_markups; i++) {
 
 	    clipper::Coord_orth pos = regularize_object_bonds_box.rotamer_markups[i].pos;
-	    pos -= screen_y * double((double(12.5)/double(graphics_info_t::zoom)));
+	    pos -= screen_y * double(22.0/double(graphics_info_t::zoom));
 	    double size = 0.52;
 	    coot::generic_display_object_t::dodec_t dodec(d, size, pos);
 	    dodec.col = regularize_object_bonds_box.rotamer_markups[i].col;

@@ -1637,11 +1637,11 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
    add_zero_occ_spots(SelAtom);
    add_deuterium_spots(SelAtom);
    if (do_rama_markup) {
-      std::cout << "........... add_ramachandran_goodness_spots() " << std::endl;
+      // std::cout << "........... add_ramachandran_goodness_spots() " << std::endl;
       add_ramachandran_goodness_spots(SelAtom);
    }
    if (do_rota_markup) {
-      std::cout << "........... add_rotamer_goodness_spots() " << std::endl;
+      // std::cout << "........... add_rotamer_goodness_spots() " << std::endl;
       add_rotamer_goodness_markup(SelAtom);
    }
    add_atom_centres(SelAtom, atom_colour_type);

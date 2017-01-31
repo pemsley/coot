@@ -61,15 +61,19 @@ Bond_lines_container::get_rotamer_dodecs(const atom_selection_container_t &asc) 
 		     double z = 0;
 		     coot::colour_holder col(z, 0.0, 1.0, std::string(""));
 		     if (pr.state == coot::rotamer_probability_info_t::OK) {
-			if (false)
-			   std::cout << coot::residue_spec_t(residues[i].first) << " " << pr << "\n";
-			z = sqrt(sqrt(pr.probability*0.01));
+			if (true)
+			   std::cout << "   debug pr "
+				     << coot::residue_spec_t(residues[i].first) << " " << pr << "\n";
+			z = 1 - sqrt(sqrt(pr.probability*0.01));
 			col = coot::colour_holder(z, 0.0, 1.0, std::string(""));
 		     }
-		     if (pr.state == coot::rotamer_probability_info_t::MISSING_ATOMS)
+		     if (pr.state == coot::rotamer_probability_info_t::MISSING_ATOMS) {
+			std::cout << "----------- missing atoms " << coot::residue_spec_t(residue_p)
+				  << std::endl;
 			col = coot::colour_holder("#bb22bb"); // purple
+		     }
 		     if (pr.state == coot::rotamer_probability_info_t::ROTAMER_NOT_FOUND)
-			col = coot::colour_holder("#22eeee"); // cyan
+			col = coot::colour_holder("#555555");
 
 		     rotamer_markup_container_t rc(pos, col);
 		     dodecs.push_back(rc);
