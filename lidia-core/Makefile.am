@@ -40,7 +40,7 @@ libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc \
 libcoot_lidia_core_la_LIBADD =                        \
    $(top_builddir)/geometry/libcoot-geometry.la       \
    $(top_builddir)/utils/libcoot-utils.la             \
-   $(top_builddir)/coot-utils/libcoot-coord-utils.la       \
+   $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
    $(RDKIT_LIBS)
 
 # interesting link failure when using -no-undefined.
