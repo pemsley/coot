@@ -38,6 +38,13 @@ namespace coot {
    // Use this to find things in $prefix/share/RDKit
    std::string rdkit_package_data_dir();
 
+   // use env var COOT_N_THREADS (or fallback) to get the number of threads
+   unsigned int get_max_number_of_threads();
+   // sets this:
+   static unsigned int coot_n_threads;
+   // using this:
+   long get_number_of_threads_by_system_call();
+
    namespace sequence {
 
       class fasta {

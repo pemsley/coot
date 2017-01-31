@@ -50,9 +50,11 @@ int main(int argc, char **argv) {
 	       for (unsigned int i=0; i<rtv.size(); i++)
 		  if (rtv[i] != "HOH")
 		     geom.try_dynamic_add(rtv[i], read_number++);
-	       
-	       coot::atom_overlaps_container_t overlaps(mol, &geom, 0.5, 0.5);
-	       coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(0.5);
+
+	       // spike-length probe-radius
+	       coot::atom_overlaps_container_t overlaps(mol, &geom, 0.5, 0.25);
+	       double dot_density = 0.2;
+	       coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(dot_density);
 	    }
 	    catch (const std::out_of_range &oor) {
 	       std::cout << "ERROR:: " << oor.what() << std::endl;

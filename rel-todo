@@ -1,14 +1,19 @@
 
    For Release 0.8.8
 
+   o  can you read this: all-comp-ids/T/PDBe-TFH.cif.  Its OBS though.
+
+* Too obscure
+
    o It appears that merging coordinates (read from cif with
-   multi-character label_asym_id and auth_asym_id) in to another set
-   of coordinates will assign single-character chain IDs to the source
-   coordinates. Might it be better to just add a prefix to those ids?
-   Regards, Wolfram Tempel
+     multi-character label_asym_id and auth_asym_id) in to another set
+     of coordinates will assign single-character chain IDs to the source
+     coordinates. Might it be better to just add a prefix to those ids?
+        - Wolfram Tempel
 
    o colour by occupancy and colour by B-factor don't work [Hans Raaijmakers]
 
+* Done.
 
    o bad 2D layout IXY in 3wzy
 

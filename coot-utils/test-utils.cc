@@ -407,11 +407,20 @@ int test_all_atom_overlaps() {
    int status = 0;
    coot::protein_geometry geom;
    geom.init_standard();
+   geom.set_verbose(false);
    geom.try_dynamic_add("824", 1);
    geom.try_dynamic_add("MG", 1);
 
+   // for 5hcj
+   geom.try_dynamic_add("LMT", 1);
+   geom.try_dynamic_add("MBR", 1);
+   geom.try_dynamic_add("CL", 1);
+   geom.try_dynamic_add("NA", 1);
+   
+
    mmdb::Manager *mol = new mmdb::Manager;
    std::string file_name = "1x8b-all-H-no-water.pdb";
+   file_name = "5hcj-with-coot-Hs.pdb";
    // file_name = "3-atoms.pdb";
    coot::residue_spec_t spec("A", 901, "");
 
@@ -476,7 +485,7 @@ int main(int argv, char **argc) {
 
    
    if (1)
-      for (unsigned int i=0; i<10; i++) {
+      for (unsigned int i=0; i<2; i++) {
 	 test_all_atom_overlaps();
       }
    

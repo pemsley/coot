@@ -192,24 +192,29 @@ namespace coot {
 	 mmdb::Atom *ligand_atom = at_donor;
 	 mmdb::Atom *residue_atom = at_acceptor;
 
-	 if (! ligand_atom_is_donor_flag)
-	    std::swap(ligand_atom, residue_atom);
+	 if (at_donor) {
+	    if (at_acceptor) {
 
-	 if (is_a_metal(residue_atom->residue)) {
-	    r_bond_type = METAL_CONTACT_BOND;
-	 } else { 
+	       if (! ligand_atom_is_donor_flag)
+		  std::swap(ligand_atom, residue_atom);
 
-	    if (ligand_atom_is_donor_flag) { 
-	       if (coot::is_main_chain_p(residue_atom))
-		  r_bond_type = H_BOND_ACCEPTOR_MAINCHAIN;
-	       else
-		  r_bond_type = H_BOND_ACCEPTOR_SIDECHAIN;
+	       if (is_a_metal(residue_atom->residue)) {
+		  r_bond_type = METAL_CONTACT_BOND;
+	       } else { 
+
+		  if (ligand_atom_is_donor_flag) { 
+		     if (coot::is_main_chain_p(residue_atom))
+			r_bond_type = H_BOND_ACCEPTOR_MAINCHAIN;
+		     else
+			r_bond_type = H_BOND_ACCEPTOR_SIDECHAIN;
 	       
-	    } else {
-	       if (coot::is_main_chain_p(residue_atom))
-		  r_bond_type = H_BOND_DONOR_MAINCHAIN;
-	       else
-		  r_bond_type = H_BOND_DONOR_SIDECHAIN;
+		  } else {
+		     if (coot::is_main_chain_p(residue_atom))
+			r_bond_type = H_BOND_DONOR_MAINCHAIN;
+		     else
+			r_bond_type = H_BOND_DONOR_SIDECHAIN;
+		  }
+	       }
 	    }
 	 }
 	 return r_bond_type;

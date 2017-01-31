@@ -769,7 +769,10 @@ def sphere_refine_regularize_generic(use_map=True, radius=3, expand=False):
 
             print "imol: %s residues: %s" %(imol, all_residues)
             if use_map:
-                refine_residues(imol, all_residues)
+                # don't use 'soft-mode/hard-mode' at the moment
+                # (not sure how to integrate weight change into dragged refinement)
+                refine_residues_with_modes_with_alt_conf(imol, all_residues, "",
+                                                         '#soft-mode/hard-mode', False, False)
             else:
                 regularize_residues(imol, all_residues)
         

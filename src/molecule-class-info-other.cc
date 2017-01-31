@@ -464,12 +464,12 @@ molecule_class_info_t::ca_plus_ligands_rainbow_representation(coot::protein_geom
 }
 
 void
-molecule_class_info_t::b_factor_representation() { 
+molecule_class_info_t::b_factor_representation() {
 
    Bond_lines_container::bond_representation_type bond_type =
       Bond_lines_container::COLOUR_BY_B_FACTOR;
 
-   Bond_lines_container bonds(atom_sel, bond_type);
+   Bond_lines_container bonds(atom_sel, imol_no, bond_type);
    bonds_box = bonds.make_graphical_bonds_no_thinning();
    bonds_box_type = coot::COLOUR_BY_B_FACTOR_BONDS;
 } 
@@ -493,7 +493,7 @@ molecule_class_info_t::occupancy_representation() {
    Bond_lines_container::bond_representation_type bond_type =
       Bond_lines_container::COLOUR_BY_OCCUPANCY;
 
-   Bond_lines_container bonds(atom_sel, bond_type);
+   Bond_lines_container bonds(atom_sel, imol_no, bond_type);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::COLOUR_BY_OCCUPANCY_BONDS;
 } 
@@ -1453,6 +1453,7 @@ molecule_class_info_t::delete_zone(const coot::residue_spec_t &res1,
    bool was_deleted = false;
 
    std::vector<coot::residue_spec_t> deleted_residue_specs;
+   std::vector<mmdb::Residue *> deleted_residues;
 
    // run over chains of the existing mol
    int n_models = atom_sel.mol->GetNumberOfModels();
@@ -1461,24 +1462,30 @@ molecule_class_info_t::delete_zone(const coot::residue_spec_t &res1,
       int nchains = atom_sel.mol->GetNumberOfChains(imod);
       for (int ichain=0; ichain<nchains; ichain++) {
 
-	 mmdb::Chain *chain_p = atom_sel.mol->GetChain(imod,ichain);
-	 std::string mol_chain_id(chain_p->GetChainID());
+	 mmdb::Chain *chain_p = atom_sel.mol->GetChain(imod, ichain);
+	 if (chain_p) {
+	    std::string mol_chain_id(chain_p->GetChainID());
 
-	 if (res1.chain_id == mol_chain_id) {
+	    if (res1.chain_id == mol_chain_id) {
 
-	    int nres = chain_p->GetNumberOfResidues();
-	    for (int ires=0; ires<nres; ires++) {
-	       mmdb::Residue *res = chain_p->GetResidue(ires);
-	       if (res) {
-		  int res_no = res->GetSeqNum();
-		  if (res_no >= first_res) {
-		     if (res_no <= last_res) {
-			chain_p->DeleteResidue(ires);
-			was_deleted = true;
-			deleted_residue_specs.push_back(coot::residue_spec_t(res));
+	       int nres = chain_p->GetNumberOfResidues();
+	       // for (int ires=0; ires<nres; ires++) {
+	       for (int ires=nres-1; ires>=0; ires--) {
+		  mmdb::Residue *res = chain_p->GetResidue(ires);
+		  if (res) {
+		     int res_no = res->GetSeqNum();
+		     if (res_no >= first_res) {
+			if (res_no <= last_res) {
+			   was_deleted = true;
+			   deleted_residue_specs.push_back(coot::residue_spec_t(res));
+			   deleted_residues.push_back(res);
+			}
 		     }
 		  }
 	       }
+	       // delete multiple residues like this, rather than chain_p->DeleteResidue(ires);
+	       for (unsigned int i=0; i<deleted_residues.size(); i++)
+		  delete deleted_residues[i];
 	    }
 	 }
       }
