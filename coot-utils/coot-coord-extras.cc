@@ -28,6 +28,7 @@
 #include "string.h"
 
 #include "utils/coot-utils.hh"
+#include "geometry/mol-utils.hh"
 #include "coot-coord-utils.hh"
 #include "coot-coord-extras.hh"
 

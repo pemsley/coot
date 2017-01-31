@@ -56,6 +56,7 @@
 #include "ideal/torsion-bonds.hh"
 
 #include "molecule-class-info.h"
+#include "geometry/mol-utils.hh"
 #include "utils/coot-utils.hh"
 #include "coot-hydrogens.hh"
 

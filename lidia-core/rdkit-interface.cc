@@ -25,7 +25,11 @@
 #include "utils/coot-utils.hh"
 #include "rdkit-interface.hh"
 #include <GraphMol/Chirality.h>  // for CIP ranks
-#include "coot-utils/coot-coord-utils.hh" // after rdkit-interface.hh to avoid ::strchr problems
+#include "geometry/residue-and-atom-specs.hh"
+#include "geometry/mol-utils.hh"
+
+// what does this give us?
+// #include "coot-utils/coot-coord-utils.hh" // after rdkit-interface.hh to avoid ::strchr problems
 #include "neighbour-sorter.hh"
 
 

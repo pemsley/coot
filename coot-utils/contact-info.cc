@@ -1,4 +1,6 @@
 
+#include <algorithm>
+
 #include "coot-coord-utils.hh"
 #include "contact-info.hh"
 

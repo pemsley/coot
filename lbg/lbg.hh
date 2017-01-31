@@ -55,7 +55,6 @@ n * This program is distributed in the hope that it will be useful, but
 #include "lidia-core/lig-build.hh"
 #include "lidia-core/lbg-molfile.hh"
 #include "utils/coot-utils.hh"
-// #include "coot-utils/coot-coord-utils.hh"
 
 #include "wmolecule.hh"
 

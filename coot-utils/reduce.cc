@@ -1,6 +1,7 @@
 
 #include <algorithm>
 #include <string.h>
+#include "geometry/mol-utils.hh"
 #include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 #include "reduce.hh"

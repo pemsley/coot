@@ -782,7 +782,9 @@ namespace coot {
 
       std::pair<bool, clipper::Coord_orth> get_residue_centre(mmdb::Residue *res);
       
-      std::vector<std::string> get_residue_alt_confs(mmdb::Residue *res);
+
+      // now in mol-utils
+      // std::vector<std::string> get_residue_alt_confs(mmdb::Residue *res);
 
 
       std::vector<std::string> residue_types_in_molecule(mmdb::Manager *mol);

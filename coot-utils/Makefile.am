@@ -26,7 +26,7 @@ if COOT_USE_PYTHON
 WITH_PYTHON_CFLAGS=-DUSE_PYTHON
 endif
 
-lib_LTLIBRARIES= libcoot-coord-utils.la  libcoot-shelx.la libcoot-coord-extras.la \
+lib_LTLIBRARIES= libcoot-coord-utils.la  libcoot-coord-extras.la \
 	libcoot-map-utils.la libcoot-map-heavy.la
 
 pkginclude_HEADERS = peak-search.hh coot-trim.hh \
@@ -55,7 +55,7 @@ AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(COOT_WINDOWS_CFLAGS) \
 libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	coot-coord-utils-nucleotides.cc coot-rama.cc coot-h-bonds.cc hole.cc read-sm-cif.cc \
 	bonded-pairs.cc helix-analysis.cc elastic.cc glyco-torsions.cc coot-least-squares.cc \
-	atom-overlaps.cc reduce.cc atom-selection-container.cc contact-info.cc
+	atom-overlaps.cc reduce.cc atom-selection-container.cc contact-info.cc coot-shelx-ins.cc
 
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la 
@@ -64,20 +64,21 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 
 # clean
 libcoot_coord_utils_la_LIBADD = \
+    $(top_builddir)/lidia-core/libcoot-lidia-core.la \
     $(top_builddir)/geometry/libcoot-geometry.la \
     $(GSL_LIBS)
 
 libcoot_coord_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # shelx
-libcoot_shelx_la_SOURCES = coot-shelx-ins.cc
+# libcoot_shelx_la_SOURCES = coot-shelx-ins.cc
 
 # clean
-libcoot_shelx_la_LIBADD =  \
-    libcoot-coord-utils.la \
-    $(top_builddir)/utils/libcoot-utils.la
+# libcoot_shelx_la_LIBADD =  \
+# libcoot-coord-utils.la \
+# $(top_builddir)/utils/libcoot-utils.la
 
-libcoot_shelx_la_LDFLAGS = $(SHARED_LDFLAGS)
+# ibcoot_shelx_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # for non-simple coordinates things
 libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc \
@@ -137,9 +138,7 @@ test_coot_probe_LDADD =          \
 	./libcoot-coord-utils.la
 
 testshelxreader_SOURCES = test-shelx-reader.cc
-testshelxreader_LDADD =          \
-	./libcoot-shelx.la       \
-	./libcoot-coord-utils.la 
+testshelxreader_LDADD =  ./libcoot-coord-utils.la 
 
 #	$(top_builddir)/geometry/libcoot-geometry.la 
 #       $(top_builddir)/mini-mol/libcoot-mini-mol.la 
@@ -147,7 +146,6 @@ testshelxreader_LDADD =          \
 
 testcootutils_SOURCES = test-utils.cc
 testcootutils_LDADD =            \
-	./libcoot-shelx.la       \
 	./libcoot-coord-extras.la\
 	./libcoot-coord-utils.la \
 	$(GSL_LIBS) \

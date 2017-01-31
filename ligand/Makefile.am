@@ -114,7 +114,6 @@ ligand_percentiles_LDADD = ./libcoot-ligand.la
 #	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 #	$(top_builddir)/coot-utils/libcoot-map-utils.la    \
 #	$(top_builddir)/db-main/libcoot-db-main.la         \
-#	$(top_builddir)/coot-utils/libcoot-shelx.la        \
 #	$(top_builddir)/geometry/libcoot-geometry.la       \
 #	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
 #	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
@@ -132,7 +131,6 @@ ligand_percentiles_LDADD = ./libcoot-ligand.la
 #	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 #	$(top_builddir)/coot-utils/libcoot-map-utils.la    \
 #	$(top_builddir)/db-main/libcoot-db-main.la         \
-#	$(top_builddir)/coot-utils/libcoot-shelx.la        \
 #	$(top_builddir)/geometry/libcoot-geometry.la       \
 #	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
 #	$(top_builddir)/utils/libcoot-utils.la             \
@@ -147,7 +145,6 @@ ligand_percentiles_LDADD = ./libcoot-ligand.la
 #	$(top_builddir)/coords/libcoot-coords.la           \
 #	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 #	$(top_builddir)/coot-utils/libcoot-map-utils.la    \
-#	$(top_builddir)/coot-utils/libcoot-shelx.la        \
 #	$(top_builddir)/geometry/libcoot-geometry.la       \
 #	$(top_builddir)/db-main/libcoot-db-main.la         \
 #	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
@@ -165,7 +162,6 @@ test_fffear_in_coot_LDADD = \
 	./libcoot-ligand.la \
 	$(top_builddir)/ideal/libcoot-ideal.la             \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
-	$(top_builddir)/coot-utils/libcoot-shelx.la        \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/coot-utils/libcoot-map-heavy.la    \
 	$(top_builddir)/db-main/libcoot-db-main.la         \
@@ -197,7 +193,6 @@ findligand_bin_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
 	$(top_builddir)/utils/libcoot-utils.la             \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
-	$(top_builddir)/coot-utils/libcoot-shelx.la        \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
 	$(top_builddir)/compat/libcoot-compat.la           \
         $(GLOB_LIBS) \
@@ -218,7 +213,6 @@ findwaters_bin_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
 	$(top_builddir)/utils/libcoot-utils.la             \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
-	$(top_builddir)/coot-utils/libcoot-shelx.la        \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
 	$(top_builddir)/compat/libcoot-compat.la           \
         $(GLOB_LIBS) \
@@ -251,7 +245,6 @@ dist_bin_SCRIPTS = findwaters findligand
 #	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 #	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
 #	$(top_builddir)/utils/libcoot-utils.la             \
-#	$(top_builddir)/coot-utils/libcoot-shelx.la        \
 #	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
 #        $(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)
 

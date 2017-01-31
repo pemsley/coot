@@ -76,6 +76,7 @@
 #include "ligand/richardson-rotamer.hh"
 #endif 
 
+#include "geometry/mol-utils.hh"
 #include "ligand/ligand.hh"
 #include "utils/coot-utils.hh"
 #include "coot-utils/lsq-improve.hh"

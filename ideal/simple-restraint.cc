@@ -33,6 +33,7 @@
 #include <algorithm> // for sort
 #include <stdexcept>
 
+#include "geometry/mol-utils.hh"
 #include "simple-restraint.hh"
 
 //

@@ -72,7 +72,6 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la  	\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  	\
-	$(top_builddir)/coot-utils/libcoot-shelx.la	  	\
 	$(top_builddir)/utils/libcoot-utils.la  		\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
 	$(top_builddir)/analysis/libcoot-analysis.la 		\
@@ -490,7 +489,6 @@ coot_fix_nomenclature_errors_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la	\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la	\
 	$(top_builddir)/coot-utils/libcoot-map-utils.la		\
-	$(top_builddir)/coot-utils/libcoot-shelx.la	  	\
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
 	$(top_builddir)/utils/libcoot-utils.la	  	        \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
@@ -547,7 +545,6 @@ test_cholesky_LDADD =	\
 	$(top_builddir)/coords/libcoot-coords.la          \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la      \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
-	$(top_builddir)/coot-utils/libcoot-shelx.la       \
 	$(top_builddir)/geometry/libcoot-geometry.la      \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
 	$(top_builddir)/utils/libcoot-utils.la            \
@@ -573,7 +570,6 @@ test_coot_align_LDADD =	\
 	$(top_builddir)/coords/libcoot-coords.la 		\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la 	\
-	$(top_builddir)/coot-utils/libcoot-shelx.la  		\
 	$(top_builddir)/utils/libcoot-utils.la  		\
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
         $(GLOB_LIBS)		\
@@ -592,7 +588,6 @@ coot_density_score_by_residue_bin_LDADD  =	\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\
 	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  	\
-	$(top_builddir)/coot-utils/libcoot-shelx.la  		\
         $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
 	$(top_builddir)/utils/libcoot-utils.la  		\
 	$(top_builddir)/compat/libcoot-compat.la  		\

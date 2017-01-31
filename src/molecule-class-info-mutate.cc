@@ -54,6 +54,7 @@
 // #include "xmap-utils.h"
 // #include "coot-coord-utils.hh"
 
+#include "geometry/mol-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
 
 #include "molecule-class-info.h"

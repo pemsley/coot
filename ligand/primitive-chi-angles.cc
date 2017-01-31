@@ -2,6 +2,7 @@
 #include <iostream>
 #include <stdexcept>
 
+#include "geometry/mol-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
 
 #include "primitive-chi-angles.hh"

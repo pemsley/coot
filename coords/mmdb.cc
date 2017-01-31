@@ -39,6 +39,7 @@
 #include "mmdb-extras.h"
 #include "Cartesian.h"
 #include "mmdb.h"
+#include "coot-utils/lidia-core-functions.hh"
 
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"

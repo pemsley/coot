@@ -1,9 +1,13 @@
 
+#include <string.h>
 #include "utils/coot-utils.hh"
 #include "atom-selection-container.hh"
 #include "read-sm-cif.hh"
 #include "coot-shelx.hh"
 #include "geometry/residue-and-atom-specs.hh"
+#include "lidia-core/lig-build.hh"
+#include "lidia-core/lbg-molfile.hh"
+#include "lidia-core-functions.hh"
 
 mmdb::Residue *
 atom_selection_container_t::get_next(mmdb::Residue *residue_in) const {

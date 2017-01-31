@@ -37,6 +37,7 @@
 #include "mmdb-crystal.h"  // should be merged with extras
 
 #include "geometry/lbg-graph.hh"  // aromatic ring systems
+#include "geometry/mol-utils.hh"
 #include "utils/coot-utils.hh" // for int_to_string
 
 #include "Bond_lines.h"

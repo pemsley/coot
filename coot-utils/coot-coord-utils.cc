@@ -42,6 +42,7 @@
 
 #include "clipper/mmdb/clipper_mmdb.h"
 #include "geometry/main-chain.hh"
+#include "geometry/mol-utils.hh"
 
 std::vector<std::string>
 coot::util::residue_types_in_molecule(mmdb::Manager *mol) { 

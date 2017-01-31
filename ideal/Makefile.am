@@ -100,7 +100,6 @@ with_geometry_LDADD = \
 	$(top_builddir)/coot-utils/libcoot-map-heavy.la    \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/coords/libcoot-coords.la           \
-	$(top_builddir)/coot-utils/libcoot-shelx.la        \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
 	$(top_builddir)/utils/libcoot-utils.la             \
@@ -116,7 +115,6 @@ mini_rsr_bin_LDADD =  \
 	$(top_builddir)/coot-utils/libcoot-map-heavy.la    \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la   \
-	$(top_builddir)/coot-utils/libcoot-shelx.la        \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
