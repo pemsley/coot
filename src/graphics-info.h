@@ -3967,6 +3967,13 @@ string   static std::string sessionid;
    void undisplay_all_model_molecules_except(const std::vector<int> &keep_these);
    static GtkWidget *cfc_dialog;
 
+   static void fill_rotamer_probability_tables() {
+
+     if (! rot_prob_tables.tried_and_failed()) {
+       rot_prob_tables.fill_tables();
+     }
+   }
+
 };
 
 

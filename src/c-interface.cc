@@ -6252,6 +6252,22 @@ run_state_file_py() {
 }
 #endif // USE_PYTHON
 
+#include "pre-load.hh"
+#ifdef HAVE_CXX_THREAD
+#include <thread>
+#endif
+
+void pre_load_rotamer_tables() {
+
+   // I don't have this right.  Deactivate for now.
+
+#ifdef HAVE_CXX_THREAD
+   // std::thread t(graphics_info_t::fill_rotamer_probability_tables);
+   // t.join();
+#endif
+}
+
+
 
 void
 run_state_file_maybe() { 

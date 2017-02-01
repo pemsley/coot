@@ -524,7 +524,7 @@ get_max_effective_screen_height() {
     gint height;
     int max_height;
     max_height = -1;
-#if (GTK_MAJOR_VERSION >1)
+
 // no gdk_property get on windows (at the moment)
 #if !defined WINDOWS_MINGW && !defined _MSC_VER 
     ok = gdk_property_get(gdk_get_default_root_window(),  // a gdk window
@@ -568,7 +568,6 @@ get_max_effective_screen_height() {
             g_print ("BL ERROR:: couldnt get gdk screen; should never happen\n");
         }
     }
-#endif //GTK
     return max_height;
 }
 

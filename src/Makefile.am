@@ -408,6 +408,7 @@ coot_bin_SOURCES = \
 	pisa-interface.hh	 \
         pick.h pick.cc		 \
 	positioned-widgets.h     \
+	pre-load.hh              \
 	probe-clash-score.cc     \
 	probe-clash-score.hh     \
 	protein_db-interface.hh  \
