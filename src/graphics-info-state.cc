@@ -38,6 +38,7 @@
 #include "c-interface.h"
 #include "cc-interface.hh"
 #include "c-interface-scm.hh"
+#include "rotamer-search-modes.hh"
 
 // save state
 //
@@ -209,6 +210,10 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    // Torsion restraints were set?
    if (do_torsion_restraints)
       commands.push_back(state_command("set-refine-with-torsion-restraints", do_torsion_restraints, il));
+
+   // Backrub rotamers?
+   if (rotamer_search_mode == ROTAMERSEARCHLOWRES)
+      commands.push_back(state_command("set-rotamer-search-mode", ROTAMERSEARCHLOWRES, il));
    
    std::vector <std::string> command_strings;
 
