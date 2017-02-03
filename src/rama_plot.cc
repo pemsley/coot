@@ -176,9 +176,10 @@ coot::rama_plot::init_internal(const std::string &mol_name,
    canvas = GTK_CANVAS(gtk_canvas_new());
    gtk_widget_set_usize(GTK_WIDGET(canvas), 400, 400);
 
-   int ysize = 500;
+   int ysize = 560; // 20170202 was 500: without this the viewport is too short
+                    // for the rama canvas (how has this happened?)
    if (! is_kleywegt_plot_flag_local) // extra space needed
-      ysize = 535;
+      ysize += 35;
 
    gtk_widget_set_usize(app1, 400, ysize);
 
