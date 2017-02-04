@@ -55,7 +55,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 						     short int have_flanking_residue_at_end,
 						     short int have_disulfide_residues,
 						     const std::string &altloc,
-						     const char *chain_id,
+						     const std::string &chain_id,
 						     mmdb::Manager *mol_in, 
 						     const std::vector<coot::atom_spec_t> &fixed_atom_specs) {
 
@@ -188,8 +188,8 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 						     short int have_flanking_residue_at_end,
 						     short int have_disulfide_residues,
 						     const std::string &altloc,
-						     const char *chain_id,
-						     mmdb::Manager *mol, // const in an ideal world
+						     const std::string &chain_id,
+						     mmdb::Manager *mol,
 						     const std::vector<coot::atom_spec_t> &fixed_atom_specs,
 						     const clipper::Xmap<float> &map_in,
 						     float map_weight_in) {
@@ -243,7 +243,7 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 					    short int have_flanking_residue_at_end,
 					    short int have_disulfide_residues,
 					    const std::string &altloc,
-					    const char *chain_id,
+					    const std::string &chain_id,
 					    mmdb::Manager *mol_in, 
 					    const std::vector<coot::atom_spec_t> &fixed_atom_specs) {
 
@@ -271,7 +271,7 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
    SelHnd_atom = mol->NewSelection();
    mol->SelectAtoms(SelHnd_atom,
 		    0,
-		    chain_id,
+		    chain_id.c_str(),
 		    iselection_start_res, "*",
 		    iselection_end_res,   "*",
 		    "*", // rnames
@@ -687,7 +687,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
    if (! include_map_terms())
       tolerance = 0.18;
 
-   double step_size = 0.1 * gsl_blas_dnrm2 (x);
+   double step_size = 0.1 * gsl_blas_dnrm2(x);
 
    // std::cout << ":::: starting with step_size " << step_size << std::endl;
 
@@ -862,7 +862,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
    bool print_summary = true;
    if (verbose_geometry_reporting == QUIET) print_summary = false;
    
-   std::vector<coot::refinement_lights_info_t> lights_vec;
+   std::vector<refinement_lights_info_t> lights_vec;
    int n_bond_restraints = 0; 
    int n_angle_restraints = 0; 
    int n_torsion_restraints = 0; 
@@ -904,7 +904,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	 }
       }
       
-      if (restraints_usage_flag & coot::GEMAN_MCCLURE_DISTANCE_MASK) { 
+      if (restraints_usage_flag & GEMAN_MCCLURE_DISTANCE_MASK) { 
 	 if ( restraints_vec[i].restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
 	    n_geman_mcclure_distance++;
 	    double d = distortion_score_geman_mcclure_distance(restraints_vec[i], v, geman_mcclure_alpha);
@@ -912,7 +912,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	 }
       }
 
-      if (restraints_usage_flag & coot::ANGLES_MASK) { // 2: angles
+      if (restraints_usage_flag & ANGLES_MASK) { // 2: angles
 	 if ( restraints_vec[i].restraint_type == coot::ANGLE_RESTRAINT) {
 	    n_angle_restraints++;
 	    double dist = coot::distortion_score_angle(restraints_vec[i], v);
@@ -924,7 +924,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	 }
       }
 
-      if (restraints_usage_flag & coot::TORSIONS_MASK) { // 4: torsions
+      if (restraints_usage_flag & TORSIONS_MASK) { // 4: torsions
 	 if ( restraints_vec[i].restraint_type == coot::TORSION_RESTRAINT) {
 	    try { 
 	       torsion_distortion += coot::distortion_score_torsion(restraints_vec[i], v); 
@@ -936,7 +936,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	 }
       }
 
-      if (restraints_usage_flag & coot::PLANES_MASK) { // 8: planes
+      if (restraints_usage_flag & PLANES_MASK) { // 8: planes
 	 if ( restraints_vec[i].restraint_type == coot::PLANE_RESTRAINT) {
 	    n_plane_restraints++;
 	    double dist = coot::distortion_score_plane(restraints_vec[i], v); 
@@ -1156,6 +1156,48 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
    return lights_vec;
 } 
 
+
+// public
+coot::model_bond_deltas
+coot::restraints_container_t::resolve_bonds() {
+
+   setup_gsl_vector_variables();
+   return resolve_bonds(x);
+
+}
+
+coot::model_bond_deltas
+coot::restraints_container_t::resolve_bonds(const gsl_vector *v) const {
+
+   model_bond_deltas resultant;
+
+   for (int i=0; i<size(); i++) {
+      if (restraints_usage_flag & BONDS_MASK) {
+	 const simple_restraint &rest = restraints_vec[i];
+	 if (rest.restraint_type == BOND_RESTRAINT) {
+
+	    int idx = 3*(rest.atom_index_1);
+	    clipper::Coord_orth a1(gsl_vector_get(v,idx),
+				   gsl_vector_get(v,idx+1),
+				   gsl_vector_get(v,idx+2));
+	    idx = 3*(rest.atom_index_2);
+	    clipper::Coord_orth a2(gsl_vector_get(v,idx),
+				   gsl_vector_get(v,idx+1),
+				   gsl_vector_get(v,idx+2));
+	    double ideal = rest.target_value;
+	    double bl = clipper::Coord_orth::length(a1,a2);
+	    double delta = bl - ideal;
+	    clipper::Coord_orth b_uv((a2-a1).unit());
+	    clipper::Coord_orth b_uv_abs(std::fabs(b_uv.x()),
+					 std::fabs(b_uv.y()),
+					 std::fabs(b_uv.z()));
+	    clipper::Coord_orth frag(b_uv_abs * delta);
+	    resultant.add(clipper::Coord_orth(b_uv_abs * delta));
+	 }
+      }
+   }
+   return resultant;
+}
 
 
 // Ah, but (c.f. distortion) we want to return a low value for a good
@@ -1938,25 +1980,34 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
       if (i_no_res_atoms > 0) {
 
 	 // std::cout << "   bonds... " << std::endl;
-	 local.n_bond_restraints += add_bonds(idr, res_selection, i_no_res_atoms,
-					      residue_p, geom);
+	 if (restraints_usage_flag & coot::BONDS)
+	    local.n_bond_restraints += add_bonds(idr, res_selection, i_no_res_atoms,
+						 residue_p, geom);
 	    
 	 // std::cout << "   angles... " << std::endl;
-	 local.n_angle_restraints += add_angles(idr, res_selection, i_no_res_atoms,
-						residue_p, geom);
-	 if (do_residue_internal_torsions) { 
-	    // 	 	        std::cout << "   torsions... " << std::endl;
-	    std::string residue_type = residue_p->GetResName();
-	    if (residue_type != "PRO") 
-	       local.n_torsion_restr += add_torsions(idr, res_selection, i_no_res_atoms,
-						     residue_p, geom);
+	 if (restraints_usage_flag & coot::ANGLES)
+	    local.n_angle_restraints += add_angles(idr, res_selection, i_no_res_atoms,
+						   residue_p, geom);
+
+	 if (restraints_usage_flag & coot::TORSIONS) {
+	    if (do_residue_internal_torsions) {
+	       // 	 	        std::cout << "   torsions... " << std::endl;
+	       std::string residue_type = residue_p->GetResName();
+	       if (residue_type != "PRO") 
+		  local.n_torsion_restr += add_torsions(idr, res_selection, i_no_res_atoms,
+							residue_p, geom);
+	    }
 	 }
+      
 	 // 		     std::cout << "   planes... " << std::endl;
-	 local.n_plane_restraints += add_planes(idr, res_selection, i_no_res_atoms,
+	 if (restraints_usage_flag & coot::PLANES)
+	    local.n_plane_restraints += add_planes(idr, res_selection, i_no_res_atoms,
+						   residue_p, geom);
+	    
+	 if (restraints_usage_flag & coot::CHIRAL_VOLUMES)
+	    local.n_chiral_restr += add_chirals(idr, res_selection, i_no_res_atoms, 
 						residue_p, geom);
 
-	 local.n_chiral_restr += add_chirals(idr, res_selection, i_no_res_atoms, 
-					     residue_p, geom);
 	 coot::restraints_container_t::restraint_counts_t mod_counts =
 	    apply_mods(idr, res_selection, i_no_res_atoms, residue_p, geom);
 	 // now combine mod_counts with local

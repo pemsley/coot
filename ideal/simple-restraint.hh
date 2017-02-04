@@ -37,6 +37,8 @@
 
 #include "extra-restraints.hh"
 
+#include "model-bond-deltas.hh"
+
 // refinement_results_t is outside of the GSL test because it is
 // needed to make the accept_reject_dialog, and that can be compiled
 // without the GSL.
@@ -202,11 +204,14 @@ namespace coot {
    //          restraints_usage_flag & 2 for ANGLES etc.      
    //
    enum restraint_usage_Flags { NO_GEOMETRY_RESTRAINTS = 0,
-				BONDS = 1, BONDS_AND_ANGLES = 3,
+				BONDS = 1,
+				ANGLES = 2,
+				BONDS_AND_ANGLES = 3,
 				TORSIONS = 4,
 				NON_BONDED = 16,
 				CHIRAL_VOLUMES = 32,
-				RAMA = 64, 
+				PLANES = 8,
+				RAMA = 64,
 				BONDS_ANGLES_AND_TORSIONS = 7,
 				BONDS_ANGLES_TORSIONS_AND_PLANES = 15,
 				BONDS_AND_PLANES = 9,
@@ -974,7 +979,7 @@ namespace coot {
 			 short int have_flanking_residue_at_end,
 			 short int have_disulfide_residues,
 			 const std::string &altloc,
-			 const char *chain_id,
+			 const std::string &chain_id,
 			 mmdb::Manager *mol_in, 
 			 const std::vector<atom_spec_t> &fixed_atom_specs);
 
@@ -1519,7 +1524,8 @@ namespace coot {
       }
 
       bonded_pair_container_t bonded_pairs_container;
-      
+
+      model_bond_deltas resolve_bonds(const gsl_vector *v) const;
 
    public: 
 
@@ -1559,7 +1565,7 @@ namespace coot {
 // 	 }
 //       }
 
-      restraints_container_t(atom_selection_container_t asc_in) { 
+      restraints_container_t(atom_selection_container_t asc_in) {
 	 verbose_geometry_reporting = NORMAL;
 	 n_atoms = asc_in.n_selected_atoms; 
 	 mol = asc_in.mol;
@@ -1568,8 +1574,6 @@ namespace coot {
 	 include_map_terms_flag = 0;
 	 have_oxt_flag = 0;
 	 do_numerical_gradients_flag = 0;
-	 std::cout << "asc_in.n_selected_atoms " << asc_in.n_selected_atoms
-		   << std::endl; 
 	 initial_position_params_vec.resize(3*asc_in.n_selected_atoms);
 	 lograma.init(LogRamachandran::All, 2.0, true);
 	 from_residue_vector = 0;
@@ -1594,7 +1598,7 @@ namespace coot {
 			     short int have_flanking_residue_at_end,
 			     short int have_disulfide_residues,
 			     const std::string &altloc,
-			     const char *chain_id,
+			     const std::string &chain_id,
 			     mmdb::Manager *mol, // const in an ideal world
 			     const std::vector<atom_spec_t> &fixed_atom_specs);
 
@@ -1605,7 +1609,7 @@ namespace coot {
 			     short int have_flanking_residue_at_end,
 			     short int have_disulfide_residues,
 			     const std::string &altloc,
-			     const char *chain_id,
+			     const std::string &chain_id,
 			     mmdb::Manager *mol, // const in an ideal world
 			     const std::vector<atom_spec_t> &fixed_atom_specs,
 			     const clipper::Xmap<float> &map_in,
@@ -1902,6 +1906,8 @@ namespace coot {
       //
       void set_do_numerical_gradients() { do_numerical_gradients_flag = 1;}
       bool do_numerical_gradients_status() { return do_numerical_gradients_flag; }
+      
+      model_bond_deltas resolve_bonds(); // calls setup_gsl_vector_variables()
 
    }; 
 
