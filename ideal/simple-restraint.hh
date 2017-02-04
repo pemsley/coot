@@ -1175,6 +1175,8 @@ namespace coot {
 
       int get_asc_index(const atom_spec_t &spec) const;
 
+      int get_asc_index(mmdb::Atom *at);
+
       int add_bonds(int idr, mmdb::PPAtom res_selection,
 		    int i_no_res_atoms,
 		    mmdb::PResidue SelRes,
@@ -1811,7 +1813,9 @@ namespace coot {
 			  bool do_trans_peptide_restraints,
 			  float rama_plot_target_weight,
 			  bool do_rama_plot_retraints, 
-			  pseudo_restraint_bond_type sec_struct_pseudo_bonds);
+			  pseudo_restraint_bond_type sec_struct_pseudo_bonds,
+			  bool do_link_restraints=true,
+			  bool do_flank_restraints=true);
 
       unsigned int test_function(const protein_geometry &geom);
       unsigned int inline_const_test_function(const protein_geometry &geom) const {
@@ -1906,7 +1910,7 @@ namespace coot {
       //
       void set_do_numerical_gradients() { do_numerical_gradients_flag = 1;}
       bool do_numerical_gradients_status() { return do_numerical_gradients_flag; }
-      
+
       model_bond_deltas resolve_bonds(); // calls setup_gsl_vector_variables()
 
    }; 

@@ -369,11 +369,11 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
    // Set the UDD of the indices in the atom array (i.e. the thing
    // that get_asc_index returns)
    // 
-   if (mol) { 
+   if (mol) {
       udd_atom_index_handle = mol->RegisterUDInteger ( mmdb::UDR_ATOM, "atom_array_index");
-      if (udd_atom_index_handle < 0) { 
+      if (udd_atom_index_handle < 0) {
 	 std::cout << "ERROR:: can't make udd_handle in init_from_mol\n";
-      } else { 
+      } else {
 	 for (int i=0; i<n_atoms; i++) {
 	    atom[i]->PutUDData(udd_atom_index_handle,i);
 	    // std::cout << "init_shared_post() atom " << atom_spec_t(atom[i])
@@ -904,7 +904,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	 }
       }
       
-      if (restraints_usage_flag & GEMAN_MCCLURE_DISTANCE_MASK) { 
+      if (restraints_usage_flag & GEMAN_MCCLURE_DISTANCE_MASK) {
 	 if ( restraints_vec[i].restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
 	    n_geman_mcclure_distance++;
 	    double d = distortion_score_geman_mcclure_distance(restraints_vec[i], v, geman_mcclure_alpha);
@@ -1390,7 +1390,9 @@ coot::restraints_container_t::make_restraints(int imol,
 					      bool do_trans_peptide_restraints,
 					      float rama_plot_target_weight,
 					      bool do_rama_plot_restraints, 
-					      coot::pseudo_restraint_bond_type sec_struct_pseudo_bonds) {
+					      coot::pseudo_restraint_bond_type sec_struct_pseudo_bonds,
+					      bool do_link_restraints,
+					      bool do_flank_restraints) {
 
    // if a peptider is trans, add a restraint to penalize non-trans configuration
    // (currently a torsion restraint on peptide w of 180)
@@ -1409,23 +1411,28 @@ coot::restraints_container_t::make_restraints(int imol,
       mark_OXT(geom);
       make_monomer_restraints(imol, geom, do_residue_internal_torsions);
 
-      bool do_link_restraints = true;
-      bool do_flank_restraints = true;
+      bool do_link_restraints_internal = true;
+      bool do_flank_restraints_internal = true;
 
       if (! from_residue_vector) {
 	 if (istart_res == iend_res)
-	    do_link_restraints = false;
+	    do_link_restraints_internal = false;
 	 if (! istart_minus_flag && !iend_plus_flag)
-	    do_flank_restraints = false;
+	    do_flank_restraints_internal = false;
       }
 
-      if (do_link_restraints)
+      if (! do_link_restraints)
+	 do_link_restraints_internal = false;
+      if (! do_flank_restraints)
+	 do_flank_restraints_internal = false;
+
+      if (do_link_restraints_internal)
 	 make_link_restraints(geom, do_rama_plot_restraints, do_trans_peptide_restraints);
 
       // don't do torsions, ramas maybe.   
       coot::bonded_pair_container_t bpc;
 
-      if (do_flank_restraints)
+      if (do_flank_restraints_internal)
 	 bpc = make_flanking_atoms_restraints(geom,
 					      do_rama_plot_restraints,
 					      do_trans_peptide_restraints);
@@ -1979,32 +1986,29 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 		  
       if (i_no_res_atoms > 0) {
 
-	 // std::cout << "   bonds... " << std::endl;
-	 if (restraints_usage_flag & coot::BONDS)
+	 if (restraints_usage_flag & BONDS)
 	    local.n_bond_restraints += add_bonds(idr, res_selection, i_no_res_atoms,
 						 residue_p, geom);
 	    
-	 // std::cout << "   angles... " << std::endl;
-	 if (restraints_usage_flag & coot::ANGLES)
+	 if (restraints_usage_flag & ANGLES)
 	    local.n_angle_restraints += add_angles(idr, res_selection, i_no_res_atoms,
 						   residue_p, geom);
 
-	 if (restraints_usage_flag & coot::TORSIONS) {
+	 if (restraints_usage_flag & TORSIONS) {
 	    if (do_residue_internal_torsions) {
-	       // 	 	        std::cout << "   torsions... " << std::endl;
+	       std::cout << "   torsions... " << std::endl;
 	       std::string residue_type = residue_p->GetResName();
-	       if (residue_type != "PRO") 
+	       if (residue_type != "PRO")
 		  local.n_torsion_restr += add_torsions(idr, res_selection, i_no_res_atoms,
 							residue_p, geom);
 	    }
 	 }
-      
-	 // 		     std::cout << "   planes... " << std::endl;
-	 if (restraints_usage_flag & coot::PLANES)
+
+	 if (restraints_usage_flag & PLANES)
 	    local.n_plane_restraints += add_planes(idr, res_selection, i_no_res_atoms,
 						   residue_p, geom);
-	    
-	 if (restraints_usage_flag & coot::CHIRAL_VOLUMES)
+
+	 if (restraints_usage_flag & CHIRAL_VOLUMES)
 	    local.n_chiral_restr += add_chirals(idr, res_selection, i_no_res_atoms, 
 						residue_p, geom);
 
@@ -3887,31 +3891,19 @@ coot::restraints_container_t::add_torsions(int idr, mmdb::PPAtom res_selection,
 				 std::string pdb_atom_name4(res_selection[iat4]->name);
 				 if (pdb_atom_name4 == geom[idr].second.torsion_restraint[ib].atom_id_4_4c()) {
 		  
-
 				    // now we need the indices of
 				    // pdb_atom_name1 and
 				    // pdb_atom_name2 in asc.atom_selection:
 
-				    int index1 = get_asc_index(res_selection[iat]->name,
-							       res_selection[iat]->altLoc,
-							       SelRes->seqNum,
-							       SelRes->GetInsCode(),
-							       SelRes->GetChainID());
-				    int index2 = get_asc_index(res_selection[iat2]->name,
-							       res_selection[iat2]->altLoc,
-							       SelRes->seqNum,
-							       SelRes->GetInsCode(),
-							       SelRes->GetChainID());
-				    int index3 = get_asc_index(res_selection[iat3]->name,
-							       res_selection[iat3]->altLoc,
-							       SelRes->seqNum,
-							       SelRes->GetInsCode(),
-							       SelRes->GetChainID());
-				    int index4 = get_asc_index(res_selection[iat4]->name,
-							       res_selection[iat4]->altLoc,
-							       SelRes->seqNum,
-							       SelRes->GetInsCode(),
-							       SelRes->GetChainID());
+				    int index1;
+				    int index2;
+				    int index3;
+				    int index4;
+
+				    res_selection[iat ]->GetUDData(udd_atom_index_handle, index1);
+				    res_selection[iat2]->GetUDData(udd_atom_index_handle, index2);
+				    res_selection[iat3]->GetUDData(udd_atom_index_handle, index3);
+				    res_selection[iat4]->GetUDData(udd_atom_index_handle, index4);
 
 				    double torsion_angle = geom[idr].second.torsion_restraint[ib].angle();
 				    if (torsion_angle < 0)
@@ -4145,11 +4137,14 @@ coot::restraints_container_t::add_planes(int idr, mmdb::PPAtom res_selection,
 	 for (int irest_at=0; irest_at<geom[idr].second.plane_restraint[ip].n_atoms(); irest_at++) {
 	    if (pdb_atom_name == geom[idr].second.plane_restraint[ip].atom_id(irest_at)) {
 	       // is this slow?
-	       int idx = get_asc_index(res_selection[iat]->name,
-				       res_selection[iat]->altLoc,
-				       SelRes->seqNum,
-				       SelRes->GetInsCode(),
-				       SelRes->GetChainID());
+// 	       int idx = get_asc_index(res_selection[iat]->name,
+// 				       res_selection[iat]->altLoc,
+// 				       SelRes->seqNum,
+// 				       SelRes->GetInsCode(),
+// 				       SelRes->GetChainID());
+
+	       int idx = get_asc_index(res_selection[iat]);
+
 	       if (idx >= 0) {
 		  double sigma = geom[idr].second.plane_restraint[ip].dist_esd(irest_at);
 		  if (sigma > 0) {
@@ -4282,11 +4277,12 @@ coot::restraints_container_t::add_rama(std::string link_type,
 
       std::vector<int> atom_indices(5, -1);
       for (int i=0; i<5; i++) {
-	 atom_indices[i] = get_asc_index(rama_atoms[i]->name,
-					 rama_atoms[i]->altLoc,
-					 rama_atoms[i]->residue->seqNum,
-					 rama_atoms[i]->GetInsCode(),
-					 rama_atoms[i]->GetChainID());
+// 	 atom_indices[i] = get_asc_index(rama_atoms[i]->name,
+// 					 rama_atoms[i]->altLoc,
+// 					 rama_atoms[i]->residue->seqNum,
+// 					 rama_atoms[i]->GetInsCode(),
+// 					 rama_atoms[i]->GetChainID());
+	 atom_indices[i] = get_asc_index(rama_atoms[i]);
       }
 
       if ( (atom_indices[0] != -1) && (atom_indices[1] != -1) && (atom_indices[2] != -1) && 
@@ -4340,6 +4336,14 @@ coot::restraints_container_t::get_asc_index(const char *at_name,
 
    return get_asc_index_new(at_name, alt_loc, resno, ins_code, chain_id);
    
+}
+
+int
+coot::restraints_container_t::get_asc_index(mmdb::Atom *at) {
+
+   int idx = -1;
+   at->GetUDData(udd_atom_index_handle, idx);
+   return idx;
 }
 
 int
