@@ -21,12 +21,21 @@
  * 02110-1301, USA
  */
 
-#include <string.h> // for strcmp
-
+// #define ANALYSE_REFINEMENT_TIMING
 
 // we don't want to compile anything if we don't have gsl
 #ifdef HAVE_GSL
 
+#include <string.h> // for strcmp
+
+#ifdef ANALYSE_REFINEMENT_TIMING
+#include <sys/time.h> // for gettimeofday()
+#endif // ANALYSE_REFINEMENT_TIMING
+
+
+#ifdef HAVE_CXX_THREAD
+#include <thread>
+#endif
 
 #include <fstream>
 #include <algorithm> // for sort
@@ -88,6 +97,12 @@ void coot::my_df(const gsl_vector *v,
 		 void *params, 
 		 gsl_vector *df) {
 
+#ifdef ANALYSE_REFINEMENT_TIMING
+   timeval start_time;
+   timeval current_time;
+   gettimeofday(&start_time, NULL);
+#endif // ANALYSE_REFINEMENT_TIMING
+
    // first extract the object from params 
    //
    coot::restraints_container_t *restraints =
@@ -118,6 +133,14 @@ void coot::my_df(const gsl_vector *v,
 
    if (restraints->do_numerical_gradients_status())
       coot::numerical_gradients((gsl_vector *)v, params, df); 
+
+#ifdef ANALYSE_REFINEMENT_TIMING
+   gettimeofday(&current_time, NULL);
+   double td = current_time.tv_sec - start_time.tv_sec;
+   td *= 1000.0;
+   td += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
+   std::cout << "------------- mark my_df: " << td << std::endl;
+#endif // ANALYSE_REFINEMENT_TIMING
 
 }
    
@@ -285,6 +308,11 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 			void *params, 
 			gsl_vector *df) {
    
+#ifdef ANALYSE_REFINEMENT_TIMING
+   timeval start_time;
+   timeval current_time;
+   gettimeofday(&start_time, NULL);
+#endif // ANALYSE_REFINEMENT_TIMING
    
    // first extract the object from params 
    //
@@ -407,6 +435,13 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 	 }
       }
    }
+#ifdef ANALYSE_REFINEMENT_TIMING
+   gettimeofday(&current_time, NULL);
+   double td = current_time.tv_sec - start_time.tv_sec;
+   td *= 1000.0;
+   td += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
+   std::cout << "------------- mark my_df_non_bonded: " << td << std::endl;
+#endif // ANALYSE_REFINEMENT_TIMING
 }
 
 void

@@ -21,9 +21,13 @@
  * 02110-1301, USA
  */
 
+// #define ANALYSE_REFINEMENT_TIMING
+
 #include <string.h> // for strcmp
 
-// #include <sys/time.h> for gettimeofday
+#ifdef ANALYSE_REFINEMENT_TIMING
+#include <sys/time.h>
+#endif // ANALYSE_REFINEMENT_TIMING
 
 // we don't want to compile anything if we don't have gsl
 #ifdef HAVE_GSL
@@ -1262,6 +1266,12 @@ void coot::my_df_electron_density (const gsl_vector *v,
 				   void *params, 
 				   gsl_vector *df) {
 
+#ifdef ANALYSE_REFINEMENT_TIMING
+   timeval start_time;
+   timeval current_time;
+   gettimeofday(&start_time, NULL);
+#endif // ANALYSE_REFINEMENT_TIMING
+
    // first extract the object from params 
    //
    coot::restraints_container_t *restraints =
@@ -1314,6 +1324,13 @@ void coot::my_df_electron_density (const gsl_vector *v,
 	 } 
       }
    }
+#ifdef ANALYSE_REFINEMENT_TIMING
+   gettimeofday(&current_time, NULL);
+   double td = current_time.tv_sec - start_time.tv_sec;
+   td *= 1000.0;
+   td += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
+   std::cout << "------------- mark my_df_electron_density: " << td << std::endl;
+#endif // ANALYSE_REFINEMENT_TIMING
 }
 
 void coot::my_df_electron_density_old (gsl_vector *v, 
