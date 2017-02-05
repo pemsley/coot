@@ -17235,7 +17235,7 @@ create_superpose_dialog (void)
   gtk_widget_show (vbox109);
   gtk_box_pack_start (GTK_BOX (dialog_vbox49), vbox109, TRUE, TRUE, 0);
 
-  label159 = gtk_label_new (_("Superpose Protein Molecules using\nSecondardy Structure Matching"));
+  label159 = gtk_label_new (_("Superpose Protein Molecules using\nSecondary Structure Matching"));
   gtk_widget_set_name (label159, "label159");
   gtk_widget_show (label159);
   gtk_box_pack_start (GTK_BOX (vbox109), label159, FALSE, FALSE, 0);
@@ -17970,7 +17970,7 @@ create_merge_molecules_dialog (void)
   gtk_widget_set_name (merge_molecuoes_scrolledwindow, "merge_molecuoes_scrolledwindow");
   gtk_widget_show (merge_molecuoes_scrolledwindow);
   gtk_box_pack_start (GTK_BOX (vbox114), merge_molecuoes_scrolledwindow, TRUE, TRUE, 0);
-  gtk_widget_set_size_request (merge_molecuoes_scrolledwindow, -1, 120);
+  gtk_widget_set_size_request (merge_molecuoes_scrolledwindow, 300, 300);
   GTK_WIDGET_UNSET_FLAGS (merge_molecuoes_scrolledwindow, GTK_CAN_FOCUS);
 
   viewport7 = gtk_viewport_new (NULL, NULL);
