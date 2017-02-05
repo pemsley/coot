@@ -1579,6 +1579,8 @@ namespace coot {
 
       model_bond_deltas resolve_bonds(const gsl_vector *v) const;
 
+      void make_restraint_types_index_limits();
+
    public: 
 
       enum link_torsion_restraints_type { NO_LINK_TORSION = 0, 
@@ -1891,10 +1893,6 @@ namespace coot {
 					       const extra_restraints_t &extra_restraints,
 					       const protein_geometry &geom);
 
-      // old code:
-      // Read restraints from the refmac .rst file
-      int make_restraints(std::string ciffilename);
-
       void update_atoms(gsl_vector *s);
       // return the WritePDBASCII() status, or -1 if mol was 0.
       int write_new_atoms(std::string pdb_file_name);
@@ -1971,6 +1969,21 @@ namespace coot {
 
       model_bond_deltas resolve_bonds(); // calls setup_gsl_vector_variables()
 
+      // we set these so that the functions, for particular types, that loop over the restraints
+      // need only loop over the relevant range
+      // i.e. say we have 2000 restraints, only the top 100 of which might contain
+      // bond restraints. make_restraint_types_index_limits() is called at the end of
+      // make_restraints()
+      //
+      // these are public because they are used in the my_df_xxx functions
+      //
+      std::pair<unsigned int, unsigned int> restraints_limits_bonds;
+      std::pair<unsigned int, unsigned int> restraints_limits_angles;
+      std::pair<unsigned int, unsigned int> restraints_limits_torsions;
+      std::pair<unsigned int, unsigned int> restraints_limits_chirals;
+      std::pair<unsigned int, unsigned int> restraints_limits_planes;
+      std::pair<unsigned int, unsigned int> restraints_limits_non_bonded_contacts;
+      std::pair<unsigned int, unsigned int> restraints_limits_geman_mclure;
    }; 
 
    void my_df_non_bonded_thread_dispatcher(const gsl_vector *v,
