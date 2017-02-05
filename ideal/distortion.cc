@@ -21,7 +21,13 @@
  * 02110-1301, USA
  */
 
+// #define ANALYSE_REFINEMENT_TIMING
+
 #include <string.h> // for strcmp
+
+#ifdef ANALYSE_REFINEMENT_TIMING
+#include <sys/time.h> // for gettimeofday()
+#endif // ANALYSE_REFINEMENT_TIMING
 
 
 // we don't want to compile anything if we don't have gsl
@@ -476,6 +482,12 @@ coot::restraints_container_t::omega_trans_distortions(const coot::protein_geomet
 // 
 double coot::distortion_score(const gsl_vector *v, void *params) {
 
+#ifdef ANALYSE_REFINEMENT_TIMING
+   timeval start_time;
+   timeval current_time;
+   gettimeofday(&start_time, NULL);
+#endif // ANALYSE_REFINEMENT_TIMING
+
    // so we are comparing the geometry of the value in the gsl_vector
    // v and the ideal values.
    // 
@@ -603,6 +615,14 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
    if ( restraints->include_map_terms() )
       distortion += coot::electron_density_score(v, params); // good map fit: low score
    
+#ifdef ANALYSE_REFINEMENT_TIMING
+   gettimeofday(&current_time, NULL);
+   double td = current_time.tv_sec - start_time.tv_sec;
+   td *= 1000.0;
+   td += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
+   std::cout << "------------- mark distortion_score: " << td << std::endl;
+#endif // ANALYSE_REFINEMENT_TIMING
+
    // cout << "distortion (in distortion_score): " << distortion << endl; 
    return distortion; 
 }

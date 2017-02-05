@@ -2515,6 +2515,7 @@ if test -n "$build_clipper" ; then
     # is not available yet from his site.
     clipper_hack_version=2.1-110915-fixup-2
     clipper_hack_version=2.1-140110-fixup
+    clipper_hack_version=2.1-20170202.tar.gz
     # ${WGET} $extras_place/clipper-$clipper_hack_version.tar.gz
 
     # now clipper has all the bits.
