@@ -2936,19 +2936,10 @@ graphics_info_t::update_maps_for_mols(const std::vector<int> &mol_idxs) {
 // move (on) up
 #ifdef HAVE_CXX_THREAD
 #include <thread>
-#include <future>
+// #include <future>
 #endif // HAVE_CXX_THREAD
 // remember to link with -std=c++11 to get thread constructors
 
-void
-call_from_thread() {
-    std::cout << "Hello World" << std::endl;
-}
-
-void
-call_from_thread_v2(int i) {
-   std::cout << "Hello World " << i << std::endl;
-}
 
 
 void
@@ -2989,7 +2980,6 @@ graphics_info_t::update_maps() {
 	 thread_idx++;
 	 if (thread_idx == n_threads) thread_idx = 0;
       }
-
 
       for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
 	 const std::vector<int> &mv = maps_vec_vec[i_thread];
