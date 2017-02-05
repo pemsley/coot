@@ -744,7 +744,11 @@ namespace coot {
    };
 
 
-   double distortion_score(const gsl_vector *v, void *params); 
+   double distortion_score(const gsl_vector *v, void *params);
+   // return value in distortion
+   void distortion_score_multithread(const gsl_vector *v, void *params,
+				     int idx_start, int idx_end, double *distortion);
+   
    double distortion_score_bond(const simple_restraint &bond_restraint,
 				const gsl_vector *v); 
    double distortion_score_geman_mcclure_distance(const simple_restraint &bond_restraint,
