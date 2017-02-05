@@ -1484,8 +1484,93 @@ coot::restraints_container_t::make_restraints(int imol,
 	       std::cout << "INFO:: make_restraints(): made " << n_nbcr << " non-bonded restraints\n";
 	 }
       }
+      make_restraint_types_index_limits();
    }
    return restraints_vec.size();
+}
+
+
+void
+coot::restraints_container_t::make_restraint_types_index_limits() {
+
+   unsigned int unset = 9999999;
+   restraints_limits_bonds = std::pair<unsigned int, unsigned int> (unset,0);
+   restraints_limits_angles = std::pair<unsigned int, unsigned int> (unset,0);
+   restraints_limits_torsions = std::pair<unsigned int, unsigned int> (unset,0);
+   restraints_limits_chirals = std::pair<unsigned int, unsigned int> (unset,0);
+   restraints_limits_planes =  std::pair<unsigned int, unsigned int> (unset,0);
+   restraints_limits_non_bonded_contacts = std::pair<unsigned int, unsigned int> (unset,0);
+   restraints_limits_geman_mclure = std::pair<unsigned int, unsigned int> (unset,0);
+
+   for (unsigned int i=0; i<restraints_vec.size(); i++) {
+      const simple_restraint &restraint = restraints_vec[i];
+      if (restraint.restraint_type == coot::BOND_RESTRAINT) {
+	 if (restraints_limits_bonds.first == unset)
+	    restraints_limits_bonds.first = i;
+	 if (i > restraints_limits_bonds.second)
+	    restraints_limits_bonds.second = i;
+      }
+      if (restraint.restraint_type == coot::ANGLE_RESTRAINT) {
+	 if (restraints_limits_angles.first == unset)
+	    restraints_limits_angles.first = i;
+	 if (i > restraints_limits_angles.second)
+	    restraints_limits_angles.second = i;
+      }
+      if (restraint.restraint_type == coot::TORSION_RESTRAINT) {
+	 if (restraints_limits_torsions.first == unset)
+	    restraints_limits_torsions.first = i;
+	 if (i > restraints_limits_torsions.second)
+	    restraints_limits_torsions.second = i;
+      }
+      if (restraint.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
+	 if (restraints_limits_chirals.first == unset)
+	    restraints_limits_chirals.first = i;
+	 if (i > restraints_limits_chirals.second)
+	    restraints_limits_chirals.second = i;
+      }
+      if (restraint.restraint_type == coot::PLANE_RESTRAINT) {
+	 if (restraints_limits_planes.first == unset)
+	    restraints_limits_planes.first = i;
+	 if (i > restraints_limits_planes.second)
+	    restraints_limits_planes.second = i;
+      }
+      if (restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+	 if (restraints_limits_non_bonded_contacts.first == unset)
+	    restraints_limits_non_bonded_contacts.first = i;
+	 if (i > restraints_limits_non_bonded_contacts.second)
+	    restraints_limits_non_bonded_contacts.second = i;
+      }
+      if (restraint.restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+	 if (restraints_limits_geman_mclure.first == unset)
+	    restraints_limits_geman_mclure.first = i;
+	 if (i > restraints_limits_geman_mclure.second)
+	    restraints_limits_geman_mclure.second = i;
+      }
+   }
+
+   // now check for unsets
+   if (restraints_limits_bonds.first  == unset) restraints_limits_bonds.first = 0;
+   if (restraints_limits_angles.first == unset) restraints_limits_angles.first = 0;
+   if (restraints_limits_torsions.first == unset) restraints_limits_torsions.first = 0;
+   if (restraints_limits_chirals.first == unset) restraints_limits_chirals.first = 0;
+   if (restraints_limits_planes.first == unset) restraints_limits_planes.first = 0;
+   if (restraints_limits_non_bonded_contacts.first == unset) restraints_limits_non_bonded_contacts.first = 0;
+   if (restraints_limits_geman_mclure.first == unset) restraints_limits_geman_mclure.first = 0;
+
+   std::cout << "restraints limits bonds "
+	     << restraints_limits_bonds.first << " " << restraints_limits_bonds.second << std::endl;
+   std::cout << "restraints limits angles "
+	     << restraints_limits_angles.first << " " << restraints_limits_angles.second << std::endl;
+   std::cout << "restraints limits torsions "
+	     << restraints_limits_torsions.first << " " << restraints_limits_torsions.second << std::endl;
+   std::cout << "restraints limits chirals "
+	     << restraints_limits_chirals.first << " " << restraints_limits_chirals.second << std::endl;
+   std::cout << "restraints limits planes "
+	     << restraints_limits_planes.first << " " << restraints_limits_planes.second << std::endl;
+   std::cout << "restraints limits nbc "
+	     << restraints_limits_non_bonded_contacts.first << " " << restraints_limits_non_bonded_contacts.second
+	     << std::endl;
+
 }
 
 

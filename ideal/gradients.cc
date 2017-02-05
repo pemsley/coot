@@ -145,9 +145,9 @@ void coot::my_df(const gsl_vector *v,
 }
    
 /* The gradients of f, df = (df/dx(k), df/dy(k) .. df/dx(l) .. ). */
-void coot::my_df_bonds (const gsl_vector *v, 
-			void *params,
-			gsl_vector *df) {
+void coot::my_df_bonds(const gsl_vector *v,
+		       void *params,
+		       gsl_vector *df) {
 
    // first extract the object from params 
    //
@@ -183,8 +183,8 @@ void coot::my_df_bonds (const gsl_vector *v,
       double y_l_contrib;
       double z_l_contrib;
 
-      for (int i=0; i<restraints->size(); i++) {
-       
+      for (unsigned int i=restraints->restraints_limits_bonds.first; i<=restraints->restraints_limits_bonds.second; i++) {
+
 	 if ( (*restraints)[i].restraint_type == coot::BOND_RESTRAINT) { 
 
 // 	    std::cout << "DEBUG bond restraint fixed flags: "
@@ -489,7 +489,7 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
       double y_l_contrib;
       double z_l_contrib;
 
-      for (int i=0; i<restraints->size(); i++) {
+      for (unsigned int i=restraints->restraints_limits_geman_mclure.first; i<=restraints->restraints_limits_geman_mclure.second; i++) {
 
 	 const simple_restraint &rest = (*restraints)[i];
       
@@ -617,7 +617,7 @@ void coot::my_df_angles(const gsl_vector *v,
       double ds_dth;
       double w_ds_dth;
 
-      for (int i=0; i<restraints->size(); i++) {
+      for (unsigned int i=restraints->restraints_limits_angles.first; i<=restraints->restraints_limits_angles.second; i++) {
       
 	 if ( (*restraints)[i].restraint_type == coot::ANGLE_RESTRAINT) {
 
@@ -933,7 +933,7 @@ void coot::my_df_torsions_internal(const gsl_vector *v,
 
    if (restraints->restraints_usage_flag & coot::TORSIONS_MASK) { 
      
-      for (int i=0; i<restraints->size(); i++) {
+      for (unsigned int i=restraints->restraints_limits_torsions.first; i<=restraints->restraints_limits_torsions.second; i++) {
       
 	 if ( (*restraints)[i].restraint_type == coot::TORSION_RESTRAINT) {
 
@@ -1290,9 +1290,8 @@ coot::my_df_chiral_vol(const gsl_vector *v, void *params, gsl_vector *df) {
    double distortion;
    
    if (restraints->restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) {
-      // if (0) {
       
-      for (int i=0; i<restraints->size(); i++) {
+      for (unsigned int i=restraints->restraints_limits_chirals.first; i<=restraints->restraints_limits_chirals.second; i++) {
 	 
 	 if ( (*restraints)[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
 
@@ -1414,7 +1413,7 @@ coot::my_df_planes(const gsl_vector *v,
       double devi_len;
       double weight;
 
-      for (int i=0; i<restraints->size(); i++) {
+      for (unsigned int i=restraints->restraints_limits_planes.first; i<=restraints->restraints_limits_planes.second; i++) {
        
 	 if ( (*restraints)[i].restraint_type == coot::PLANE_RESTRAINT) {
 

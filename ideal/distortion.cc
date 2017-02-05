@@ -509,14 +509,22 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 
    for (int i=0; i< restraints_size; i++) {
 
-//       std::cout << "... restraint " << i << " of " << restraints->size() << " type "
-// 		<< (*restraints)[i].restraint_type << std::endl;
+      if (restraints->restraints_usage_flag & coot::NON_BONDED_MASK) { // 16:
+	 if ( (*restraints)[i].restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+	    d = coot::distortion_score_non_bonded_contact( (*restraints)[i], v);
+	    distortion += d;
+	    nbc_diff += d;
+	    continue;
+	 }
+      }
+
       if (restraints->restraints_usage_flag & coot::BONDS_MASK) { // 1: bonds
 	 if ( (*restraints)[i].restraint_type == coot::BOND_RESTRAINT) {
   	    // cout << "this is a bond restraint: " << i << endl;
 	    d = coot::distortion_score_bond((*restraints)[i], v);
 	    // std::cout << "DEBUG:: distortion for bond: " << d << std::endl;
 	    distortion += d;
+	    continue;
 	 }
       }
 
@@ -526,6 +534,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	    d = coot::distortion_score_angle((*restraints)[i], v);
 	    // std::cout << "DEBUG:: distortion for angle: " << d << std::endl;
 	    distortion += d;
+	    continue;
 	 }
       }
 
@@ -535,6 +544,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	       // std::cout << "adding an trans-peptide restraint: number " << i 
 	       // << "   adding a trans-peptide: " << d << std::endl;
 	    distortion += d;
+	    continue;
 	 }
       }
 
@@ -546,6 +556,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	    // std::cout << "DEBUG:: distortion for torsion: " << d << std::endl;
 	    distortion += d;
 	    // std::cout << "distortion sum post-adding a torsion: " << distortion << std::endl;
+	    continue;
 	 }
       }
 
@@ -554,6 +565,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	    // 	    std::cout << "adding an plane restraint " << i << std::endl;  
 	    d =  coot::distortion_score_plane((*restraints)[i], v);
 	    distortion += d;
+	    continue;
 	 }
       }
 
@@ -563,28 +575,16 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	    // std::cout << "DEBUG:: distortion for parallel plane restraint  " << i << ":  " << d
 	    // << " c.f. " << distortion << std::endl;
 	    distortion += d;
-	 }
-      }
-
-      if (restraints->restraints_usage_flag & coot::NON_BONDED_MASK) { // 16: 
-	 if ( (*restraints)[i].restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) { 
-	    // std::cout << "adding a non_bonded restraint " << i << std::endl;
-	    // std::cout << "distortion sum pre-adding  " << distortion << std::endl;
-	    d = coot::distortion_score_non_bonded_contact( (*restraints)[i], v);
-	    // std::cout << "DEBUG:: distortion for nbc: " << d << std::endl;
-	    distortion += d;
-	    // 	    std::cout << "distortion sum post-adding " << distortion << std::endl;
-	    nbc_diff += d;
+	    continue;
 	 }
       }
 
       if (restraints->restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) { 
-	 // if (0) { 
-	 
    	 if ( (*restraints)[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) { 
    	    d = coot::distortion_score_chiral_volume( (*restraints)[i], v);
 	    // std::cout << "DEBUG:: distortion for chiral: " << d << std::endl;
    	    distortion += d;
+	    continue;
    	 }
       }
 
@@ -594,6 +594,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
    	    d = coot::distortion_score_rama( (*restraints)[i], v, restraints->LogRama());
 	    // std::cout << "DEBUG:: distortion for rama: " << d << std::endl;
    	    distortion += d; // positive is bad...  negative is good.
+	    continue;
    	 }
       }
       
