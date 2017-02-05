@@ -615,6 +615,20 @@ coot::restraints_container_t::assign_fixed_atom_indices(const std::vector<coot::
    // << " fixed atoms" << std::endl;
 }
 
+
+void
+coot::restraints_container_t::debug_atoms() const {
+
+   std::cout << "---- " << n_atoms << " atoms" << std::endl;
+   for (int iat=0; iat<n_atoms; iat++) {
+      std::cout << iat << " " << atom_spec_t(atom[iat]) << "  "
+		<< atom[iat]->x << " "
+		<< atom[iat]->y << " "
+		<< atom[iat]->z << std::endl;
+   }
+}
+
+
 // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
 // 
 coot::refinement_results_t

@@ -654,7 +654,7 @@ namespace coot {
       std::vector<geometry_distortion_info_t> geometry_distortion;
       mmdb::PAtom *atom;
       int n_atoms;
-      int min_resno; 
+      int min_resno;
       int max_resno;
       geometry_distortion_info_container_t(const std::vector<geometry_distortion_info_t> &geometry_distortion_in, 
 					   mmdb::PAtom *atom_in, 
@@ -770,6 +770,7 @@ namespace coot {
    void my_df_planes(const gsl_vector *v, void *params, gsl_vector *df); 
    //  the non-bonded contacts
    void my_df_non_bonded(const gsl_vector *v, void *params, gsl_vector *df); 
+   //
    //  the chiral volumes
    void my_df_chiral_vol(const gsl_vector *v, void *params, gsl_vector *df); 
    //  the deviation from starting point terms:
@@ -1910,10 +1911,22 @@ namespace coot {
       //
       void set_do_numerical_gradients() { do_numerical_gradients_flag = 1;}
       bool do_numerical_gradients_status() { return do_numerical_gradients_flag; }
+      void debug_atoms() const;
 
       model_bond_deltas resolve_bonds(); // calls setup_gsl_vector_variables()
 
    }; 
+
+   void my_df_non_bonded_thread_dispatcher(const gsl_vector *v,
+					   gsl_vector *df,
+					   restraints_container_t *restraints_p,
+					   int idx_start,
+					   int idx_end);
+   void my_df_non_bonded_single(const gsl_vector *v,
+				gsl_vector *df,
+				const simple_restraint &this_restraint
+				// const restraints_container_t &restraints // for debugging
+				);
 
    void simple_refine(mmdb::Residue *residue_p,
 		      mmdb::Manager *mol,
