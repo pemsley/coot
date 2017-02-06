@@ -26997,8 +26997,8 @@ create_move_molecule_here_dialog (void)
   GtkWidget *dialog_vbox95;
   GtkWidget *vbox184;
   GtkWidget *label287;
-  GtkWidget *move_molecule_here_optionmenu;
   GtkWidget *move_molecule_here_big_molecules_checkbutton;
+  GtkWidget *move_molecule_here_optionmenu;
   GtkWidget *dialog_action_area94;
   GtkWidget *hbox143;
   GtkWidget *move_molecule_here_ok_button;
@@ -27032,19 +27032,19 @@ create_move_molecule_here_dialog (void)
   label287 = gtk_label_new (_("\nMove Molecule Here:"));
   gtk_widget_set_name (label287, "label287");
   gtk_widget_show (label287);
-  gtk_box_pack_start (GTK_BOX (vbox184), label287, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox184), label287, FALSE, FALSE, 4);
   gtk_label_set_justify (GTK_LABEL (label287), GTK_JUSTIFY_CENTER);
-
-  move_molecule_here_optionmenu = gtk_option_menu_new ();
-  gtk_widget_set_name (move_molecule_here_optionmenu, "move_molecule_here_optionmenu");
-  gtk_widget_show (move_molecule_here_optionmenu);
-  gtk_box_pack_start (GTK_BOX (vbox184), move_molecule_here_optionmenu, FALSE, FALSE, 6);
 
   move_molecule_here_big_molecules_checkbutton = gtk_check_button_new_with_mnemonic (_("Allow big molecules to move"));
   gtk_widget_set_name (move_molecule_here_big_molecules_checkbutton, "move_molecule_here_big_molecules_checkbutton");
   gtk_widget_show (move_molecule_here_big_molecules_checkbutton);
-  gtk_box_pack_start (GTK_BOX (vbox184), move_molecule_here_big_molecules_checkbutton, FALSE, FALSE, 0);
+  gtk_box_pack_start (GTK_BOX (vbox184), move_molecule_here_big_molecules_checkbutton, FALSE, FALSE, 5);
   gtk_tooltips_set_tip (tooltips, move_molecule_here_big_molecules_checkbutton, _("\"Big\" means more than 400 atoms"), NULL);
+
+  move_molecule_here_optionmenu = gtk_option_menu_new ();
+  gtk_widget_set_name (move_molecule_here_optionmenu, "move_molecule_here_optionmenu");
+  gtk_widget_show (move_molecule_here_optionmenu);
+  gtk_box_pack_start (GTK_BOX (vbox184), move_molecule_here_optionmenu, FALSE, FALSE, 2);
 
   dialog_action_area94 = GTK_DIALOG (move_molecule_here_dialog)->action_area;
   gtk_widget_set_name (dialog_action_area94, "dialog_action_area94");
@@ -27122,8 +27122,8 @@ create_move_molecule_here_dialog (void)
   GLADE_HOOKUP_OBJECT_NO_REF (move_molecule_here_dialog, dialog_vbox95, "dialog_vbox95");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, vbox184, "vbox184");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, label287, "label287");
-  GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, move_molecule_here_optionmenu, "move_molecule_here_optionmenu");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, move_molecule_here_big_molecules_checkbutton, "move_molecule_here_big_molecules_checkbutton");
+  GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, move_molecule_here_optionmenu, "move_molecule_here_optionmenu");
   GLADE_HOOKUP_OBJECT_NO_REF (move_molecule_here_dialog, dialog_action_area94, "dialog_action_area94");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, hbox143, "hbox143");
   GLADE_HOOKUP_OBJECT (move_molecule_here_dialog, move_molecule_here_ok_button, "move_molecule_here_ok_button");
