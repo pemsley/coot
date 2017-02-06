@@ -1,0 +1,39 @@
+
+#include "mol-utils-2.hh"
+
+// put this in mol-utils.cc when that arrives in this branch
+
+std::map<std::string, std::pair<int, int> >
+coot::get_residue_number_limits(mmdb::Manager *mol) {
+
+   std::map<std::string, std::pair<int, int> > limits;
+   if (mol) {
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	    std::string chain_id = chain_p->GetChainID();
+	    int nres = chain_p->GetNumberOfResidues();
+	    int min_res_no =  9999999;
+	    int max_res_no = -9999999;
+	    for (int ires=0; ires<nres; ires++) {
+	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	       int res_no = residue_p->GetSeqNum();
+	       if (res_no < min_res_no) min_res_no = res_no;
+	       if (res_no > max_res_no) max_res_no = res_no;
+	    }
+	    if (min_res_no < 9999999) {
+	       if (max_res_no > -9999999) {
+		  std::pair<int, int> res_lims(min_res_no, max_res_no);
+		  limits[chain_id] = res_lims;
+	       }
+	    }
+	 }
+      }
+   }
+   return limits;
+}
+
+

@@ -29,7 +29,7 @@ EXTRA_DIST = notes Makefile.simple molmantest.cc test-indexing.hh test-indexing.
 
 pkginclude_HEADERS =  test-indexing.hh simple-restraint.hh pepflip.hh \
 	regularize-minimol.hh lograma.h \
-	parallel-planes.hh torsion-bonds.hh extra-restraints.hh
+	parallel-planes.hh torsion-bonds.hh extra-restraints.hh model-bond-deltas.hh
 
 pkgincludedir = $(includedir)/coot/ideal
 
@@ -76,7 +76,7 @@ libcoot_ideal_la_SOURCES = simple-restraint.cc \
 	pepflip.cc regularize-minimol.cc lograma.cpp \
         extra-restraints-kk.cc simple-restraint-kk.cc torsion-bonds.cc \
 	coot-compare-residues.hh coot-compare-residues.cc link-restraints.cc \
-	parallel-planes.cc trans-peptide.cc
+	parallel-planes.cc trans-peptide.cc model-bond-deltas.cc
 
 libcoot_ideal_la_LDFLAGS = $(SHARED_LDFLAGS)
 

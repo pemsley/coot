@@ -21,16 +21,23 @@
  * 02110-1301, USA
  */
 
-#include <string.h> // for strcmp
-
+// #define ANALYSE_REFINEMENT_TIMING
 
 // we don't want to compile anything if we don't have gsl
 #ifdef HAVE_GSL
 
+#include <string.h> // for strcmp
+
+#ifdef ANALYSE_REFINEMENT_TIMING
+#include <sys/time.h> // for gettimeofday()
+#endif // ANALYSE_REFINEMENT_TIMING
 
 #include <fstream>
 #include <algorithm> // for sort
 #include <stdexcept>
+#ifdef HAVE_CXX_THREAD
+#include <thread>
+#endif // HAVE_CXX_THREAD
 
 #include "simple-restraint.hh"
 
@@ -470,132 +477,170 @@ coot::restraints_container_t::omega_trans_distortions(const coot::protein_geomet
       }
    }
    return dc;
-} 
+}
 
-// Return the distortion score.
-// 
-double coot::distortion_score(const gsl_vector *v, void *params) {
-
-   // so we are comparing the geometry of the value in the gsl_vector
-   // v and the ideal values.
-   // 
+// return value in distortion
+void
+coot::distortion_score_multithread(const gsl_vector *v, void *params,
+				   int idx_start, int idx_end, double *distortion) {
 
    // first extract the object from params 
    //
-   coot::restraints_container_t *restraints =
-      (coot::restraints_container_t *)params;
+   coot::restraints_container_t *restraints = static_cast<coot::restraints_container_t *>(params);
 
-   double distortion = 0;
+   double d = 0;
+   for (int i=idx_start; i<idx_end; i++) {
 
+      if (restraints->restraints_usage_flag & coot::NON_BONDED_MASK) { // 16:
+	 if ( (*restraints)[i].restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+	    d = coot::distortion_score_non_bonded_contact( (*restraints)[i], v);
+	    *distortion += d;
+	    continue;
+	 }
+      }
 
-   // distortion += starting_structure_diff_score(v, params); 
-
-   // tmp debugging stuff
-   double nbc_diff = 0.0;
-   double d;
-   int restraints_size = restraints->size();
-
-   for (int i=0; i< restraints_size; i++) {
-
-//       std::cout << "... restraint " << i << " of " << restraints->size() << " type "
-// 		<< (*restraints)[i].restraint_type << std::endl;
       if (restraints->restraints_usage_flag & coot::BONDS_MASK) { // 1: bonds
 	 if ( (*restraints)[i].restraint_type == coot::BOND_RESTRAINT) {
-  	    // cout << "this is a bond restraint: " << i << endl;
 	    d = coot::distortion_score_bond((*restraints)[i], v);
-	    // std::cout << "DEBUG:: distortion for bond: " << d << std::endl;
-	    distortion += d;
+	    *distortion += d;
+	    continue;
 	 }
       }
 
       if (restraints->restraints_usage_flag & coot::ANGLES_MASK) { // 2: angles
 	 if ( (*restraints)[i].restraint_type == coot::ANGLE_RESTRAINT) {
-  	    // cout << "adding an angle restraint " << i << endl;
 	    d = coot::distortion_score_angle((*restraints)[i], v);
-	    // std::cout << "DEBUG:: distortion for angle: " << d << std::endl;
-	    distortion += d;
+	    *distortion += d;
+	    continue;
 	 }
       }
 
       if (restraints->restraints_usage_flag & TRANS_PEPTIDE_MASK) {
 	 if ( (*restraints)[i].restraint_type == TRANS_PEPTIDE_RESTRAINT) {
 	       double d =  coot::distortion_score_trans_peptide((*restraints)[i], v);
-	       // std::cout << "adding an trans-peptide restraint: number " << i 
-	       // << "   adding a trans-peptide: " << d << std::endl;
-	    distortion += d;
+	    *distortion += d;
+	    continue;
 	 }
       }
 
       if (restraints->restraints_usage_flag & coot::TORSIONS_MASK) { // 4: torsions
 	 if ( (*restraints)[i].restraint_type == coot::TORSION_RESTRAINT) {
-	    // std::cout << "adding an torsion restraint: number " << i << std::endl;  
-	    // std::cout << "distortion sum pre-adding a torsion: " << distortion << std::endl;
 	    double d =  coot::distortion_score_torsion((*restraints)[i], v); 
-	    // std::cout << "DEBUG:: distortion for torsion: " << d << std::endl;
-	    distortion += d;
-	    // std::cout << "distortion sum post-adding a torsion: " << distortion << std::endl;
+	    *distortion += d;
+	    continue;
 	 }
       }
 
       if (restraints->restraints_usage_flag & coot::PLANES_MASK) { // 8: planes
 	 if ( (*restraints)[i].restraint_type == coot::PLANE_RESTRAINT) {
-	    // 	    std::cout << "adding an plane restraint " << i << std::endl;  
 	    d =  coot::distortion_score_plane((*restraints)[i], v);
-	    distortion += d;
+	    *distortion += d;
+	    continue;
 	 }
       }
 
       if (restraints->restraints_usage_flag & coot::PARALLEL_PLANES_MASK) { // 128
 	 if ( (*restraints)[i].restraint_type == coot::PARALLEL_PLANES_RESTRAINT) {
 	    d =  coot::distortion_score_parallel_planes((*restraints)[i], v);
-	    // std::cout << "DEBUG:: distortion for parallel plane restraint  " << i << ":  " << d
-	    // << " c.f. " << distortion << std::endl;
-	    distortion += d;
-	 }
-      }
-
-      if (restraints->restraints_usage_flag & coot::NON_BONDED_MASK) { // 16: 
-	 if ( (*restraints)[i].restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) { 
-	    // std::cout << "adding a non_bonded restraint " << i << std::endl;
-	    // std::cout << "distortion sum pre-adding  " << distortion << std::endl;
-	    d = coot::distortion_score_non_bonded_contact( (*restraints)[i], v);
-	    // std::cout << "DEBUG:: distortion for nbc: " << d << std::endl;
-	    distortion += d;
-	    // 	    std::cout << "distortion sum post-adding " << distortion << std::endl;
-	    nbc_diff += d;
+	    *distortion += d;
+	    continue;
 	 }
       }
 
       if (restraints->restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) { 
-	 // if (0) { 
-	 
    	 if ( (*restraints)[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) { 
    	    d = coot::distortion_score_chiral_volume( (*restraints)[i], v);
-	    // std::cout << "DEBUG:: distortion for chiral: " << d << std::endl;
-   	    distortion += d;
+   	    *distortion += d;
+	    continue;
    	 }
       }
 
       if (restraints->restraints_usage_flag & coot::RAMA_PLOT_MASK) {
    	 if ( (*restraints)[i].restraint_type == coot::RAMACHANDRAN_RESTRAINT) {
-	    // std::cout << "......... a RAMACHANDRAN_RESTRAINT " << i << std::endl;
    	    d = coot::distortion_score_rama( (*restraints)[i], v, restraints->LogRama());
-	    // std::cout << "DEBUG:: distortion for rama: " << d << std::endl;
-   	    distortion += d; // positive is bad...  negative is good.
+   	    *distortion += d; // positive is bad...  negative is good.
+	    continue;
    	 }
       }
       
       if ( (*restraints)[i].restraint_type == coot::START_POS_RESTRAINT) {
-         distortion += coot::distortion_score_start_pos((*restraints)[i], params, v);
+         *distortion += coot::distortion_score_start_pos((*restraints)[i], params, v);
       }
    }
+}
+
+// Return the distortion score.
+//
+double coot::distortion_score(const gsl_vector *v, void *params) {
+
+#ifdef ANALYSE_REFINEMENT_TIMING
+   timeval start_time;
+   timeval current_time;
+   gettimeofday(&start_time, NULL);
+#endif // ANALYSE_REFINEMENT_TIMING
+
+   // so we are comparing the geometry of the value in the gsl_vector
+   // v and the ideal values.
+   //
+
+   // first extract the object from params 
+   //
+   coot::restraints_container_t *restraints = static_cast<coot::restraints_container_t *>(params);
+
+   double distortion = 0;
+
+
+   // distortion += starting_structure_diff_score(v, params);
+
+   // tmp debugging stuff
+   double nbc_diff = 0.0;
+   double d;
+   int restraints_size = restraints->size();
+
+
+#ifdef HAVE_CXX_THREAD
+
+   unsigned int n_threads = get_max_number_of_threads();
+   std::vector<std::thread> threads;
+   unsigned int n_per_thread = restraints_size/n_threads;
+   double distortions[n_threads];
+
+   for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
+      int idx_start = i_thread * n_per_thread;
+      int idx_end   = idx_start + n_per_thread;
+      // for the last thread, set the end restraint index
+      if (i_thread == (n_threads - 1))
+	 idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
+      distortions[i_thread] = 0;
+      threads.push_back(std::thread(distortion_score_multithread,
+				    v, params, idx_start, idx_end, &distortions[i_thread]));
+   }
+   for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
+      threads.at(i_thread).join();
+   for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
+      distortion += distortions[i_thread];
+
+#else
+
+   distortion_score_multithread(v, params, 0, restraints_size, &distortion);
+
+#endif // HAVE_CXX_THREAD
 
 //     std::cout << "nbc_diff   distortion: " << nbc_diff << std::endl;
 //     std::cout << "post-terms distortion: " << distortion << std::endl;
 
-   if ( restraints->include_map_terms() )
+   if (restraints->include_map_terms())
+      // multi-thread this too:
       distortion += coot::electron_density_score(v, params); // good map fit: low score
    
+#ifdef ANALYSE_REFINEMENT_TIMING
+   gettimeofday(&current_time, NULL);
+   double td = current_time.tv_sec - start_time.tv_sec;
+   td *= 1000.0;
+   td += double(current_time.tv_usec - start_time.tv_usec) * 0.001;
+   std::cout << "------------- mark distortion_score: " << td << std::endl;
+#endif // ANALYSE_REFINEMENT_TIMING
+
    // cout << "distortion (in distortion_score): " << distortion << endl; 
    return distortion; 
 }
