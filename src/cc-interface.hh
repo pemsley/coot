@@ -967,7 +967,7 @@ void add_animated_ligand_interaction(int imol, const coot::fle_ligand_bond_t &lb
 /*  ----------------------------------------------------------------------- */
 /*                  Cootaneer                                               */
 /*  ----------------------------------------------------------------------- */
-int cootaneer_internal(int imol_map, int imol_model, coot::atom_spec_t &atom_spec);
+int cootaneer_internal(int imol_map, int imol_model, const coot::atom_spec_t &atom_spec);
 
 #ifdef USE_GUILE
 //! \name Dock Sidechains
