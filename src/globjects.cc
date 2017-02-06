@@ -868,8 +868,6 @@ short int graphics_info_t::display_density_level_this_image = 1;
 std::string graphics_info_t::display_density_level_screen_string =
    "Welcome to Coot";
 
-// dynarama
-//
 // This kills the compiler:  Move the allocation to init.
 // GtkWidget **graphics_info_t::dynarama_is_displayed = new GtkWidget *[graphics_info_t::n_molecules_max];
 float       graphics_info_t::residue_density_fit_scale_factor = 1.0;
@@ -1041,6 +1039,8 @@ float graphics_info_t::add_alt_conf_new_atoms_occupancy = 0.5;
 short int graphics_info_t::show_alt_conf_intermediate_atoms_flag = 0;
 float graphics_info_t::ncs_homology_level = 0.7;
 
+// dynarama
+//
 // edit phi/psi
 short int graphics_info_t::in_edit_phi_psi_define = 0;
 int graphics_info_t::edit_phi_psi_atom_index = -1;
@@ -1052,6 +1052,7 @@ coot::rama_plot  *graphics_info_t::edit_phi_psi_plot = NULL;
 float graphics_info_t::rama_level_prefered = 0.02;
 float graphics_info_t::rama_level_allowed = 0.002;
 float graphics_info_t::rama_plot_background_block_size = 2; // divisible into 360 preferably.
+int graphics_info_t::rama_psi_axis_mode = coot::rama_plot::PSI_CLASSIC;
 coot::ramachandran_points_container_t graphics_info_t::rama_points = coot::ramachandran_points_container_t();
 
 ramachandrans_container_t graphics_info_t::ramachandrans_container = ramachandrans_container_t();

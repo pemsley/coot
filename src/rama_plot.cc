@@ -2672,11 +2672,12 @@ coot::rama_plot::draw_axes() {
    GooCanvasItem *item;
    GooCanvasItem *axis_grp;
 
-   float shift;
+   float shift, shift_label;
    if (psi_axis_mode == PSI_CLASSIC) {
       shift = 0.0;
    } else {
       shift = -60.0;
+      shift_label = -40.0;
    }
    axis_grp = goo_canvas_group_new(root, NULL);
    item = goo_canvas_text_new(axis_grp,
@@ -2692,7 +2693,7 @@ coot::rama_plot::draw_axes() {
    item = goo_canvas_text_new(axis_grp,
                               "Psi",
                               -230.0,
-                              15.0 + shift,
+                              15.0 + shift_label,
                               -1,
                               GTK_ANCHOR_WEST,
                               "font", fixed_font_str.c_str(),

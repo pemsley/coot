@@ -3330,6 +3330,7 @@ public:
    static float rama_level_prefered;
    static float rama_level_allowed;
    static float rama_plot_background_block_size; // divisible into 360 preferably.
+   static int rama_psi_axis_mode;
 
    /* 
      Return the index of the superposed molecule - which could either be a
