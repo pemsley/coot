@@ -570,7 +570,7 @@ coot::distortion_score_multithread(const gsl_vector *v, void *params,
       }
 
       if ( (*restraints)[i].restraint_type == coot::TARGET_POS_RESTRANT) {
-         distortion += coot::distortion_score_target_pos((*restraints)[i], params, v);
+         *distortion += coot::distortion_score_target_pos((*restraints)[i], params, v);
       }
    }
 }

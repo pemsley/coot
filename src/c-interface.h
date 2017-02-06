@@ -4840,8 +4840,8 @@ void close_molecule(int imol);
 /*  ----------------------------------------------------------------------- */
 /*                  rotamers                                                */
 /*  ----------------------------------------------------------------------- */
-/* section Rotatmer Functions */
-/*! \name Rotatmer Functions */
+/* section Rotamer Functions */
+/*! \name Rotamer Functions */
 /* \{ */
 
 /* functions defined in c-interface-build */
