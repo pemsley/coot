@@ -205,6 +205,8 @@ class rama_plot {
    GtkWidget *rama_radiomenuitem;
    GtkWidget *kleywegt_radiomenuitem;
    GtkWidget *outliers_only_menuitem;
+   GtkWidget *psi_axis_classic_radioitem;
+   GtkWidget *psi_axis_paule_radioitem;
    GtkWidget *zoom_resize_menuitem;
    GtkWidget *kleywegt_chain_combobox1;
    GtkWidget *kleywegt_chain_combobox2;
@@ -248,6 +250,7 @@ class rama_plot {
 		      float block_size,
 		      short int hide_butttons = 0,
 		      short int is_kleywegt_plot = 0); // called by init(int imol)
+   void reinitialise();
    void draw_green_box(double phi, double psi, std::string label);
    short int phipsi_edit_flag;   // for active canvas (can move phi/psi point)
    short int backbone_edit_flag; // for passive canvas
@@ -298,15 +301,14 @@ class rama_plot {
 
    bool is_outlier(const coot::util::phi_psi_t &phi_psi) const;
    bool draw_outliers_only;
-   double drag_x, drag_y;
-   gboolean dragging;
-
-   
+   int psi_axis_mode;
+ 
 public:
 
    void draw_rect();
    enum rama_position_t {RAMA_OUTLIER, RAMA_ALLOWED, RAMA_PREFERRED, RAMA_UNKNOWN};
    enum rama_type {RAMA_ALL, RAMA_GLY, RAMA_PRO, RAMA_NON_GLY_PRO};
+   enum psi_axis_type {PSI_CLASSIC, PSI_MINUS_120};
    // Maybe not the best names!?
    enum rama_plot_type {RAMA, KLEYWEGT, PHI_EDIT, BACKBONE_EDIT}; // KLEYWEGT not used yet
    void resize_rama_canvas_internal(GtkWidget *widget, GdkEventConfigure *event, gpointer data);
@@ -363,10 +365,11 @@ public:
    bool create_dynarama_window();
    // consider destructor where we should
    // gtk_object_destroy(big_box_item) if it is non-zero.
-   void init(const std::string &type);
+   void init(const std::string &type, short int psi_axis=PSI_CLASSIC);
    // typically level_prefered = 0.02, level_allowed is 0.002, block_size is 10.0;
    void init(int imol_no, const std::string &mol_name, float level_prefered, float level_allowed,
-             float block_size_for_background, short int is_kleywegt_plot_flag);
+             float block_size_for_background, short int is_kleywegt_plot_flag,
+             short int psi_axis=PSI_CLASSIC);
    void init();
 
    void allow_seqnum_offset();
@@ -574,6 +577,8 @@ public:
 
    void show_outliers_only(mmdb::Manager *mol, int state);
    void show_outliers_only(int state);
+   void psi_axis_changed();
+   void set_rama_psi_axis(int state);
    void debug() const;
 
    void destroy_yourself();

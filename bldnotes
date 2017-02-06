@@ -702,6 +702,8 @@ low importance
 
 **** dynarama ****
 
+   o close menu could be quit in stand alone
+
    o (better) exception handling when e.g. no glade file
 
    o make psi range option -120->240 (optional)

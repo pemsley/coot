@@ -115,6 +115,7 @@ print_help(std::string cmd) {
              << "[--pdbin2 pdb-in-filename2 (for kleywegt plot, otherwise assume pdbin)]\n"
              << "[--kleywegt (to make kleywegt, autoamtically for multiple selections, chains)]\n"
              << "[--edit (edit mode, currently debug only)]\n"
+             << "[--psiaxis (change psi axis to -120 to 240)]\n"
              << "[--help (this help)]\n"
              << "\n";
    std::cout << "     where pdbin is the protein and pdbin2 a second one for a Kleywegt plot.\n";
@@ -138,9 +139,10 @@ main(int argc, char *argv[]) {
    int edit_res_no = -9999;
    int n_used_args = 0;
    int is_kleywegt_plot_flag = 0;
+   int psi_axis_option = coot::rama_plot::PSI_CLASSIC;
    bool do_help = false;
 
-   const char *optstr = "i:s:j:t:c:d:e:kh";
+   const char *optstr = "i:s:j:t:c:d:e:kph";
    struct option long_options[] = {
    {"pdbin", 1, 0, 0},
    {"selection", 1, 0, 0},
@@ -150,6 +152,7 @@ main(int argc, char *argv[]) {
    {"chain2", 1, 0, 0},
    {"edit", 1, 0, 0},   // BL Note:: maybe there should be an edit selection
    {"kleywegt", 0, 0, 0},
+   {"psiaxis", 0, 0, 0},
    {"help", 0, 0, 0},
    {0, 0, 0, 0}
    };
@@ -206,6 +209,10 @@ main(int argc, char *argv[]) {
                is_kleywegt_plot_flag = 1;
                n_used_args++;
             }
+            if (arg_str == "psiaxis") {
+               psi_axis_option = coot::rama_plot::PSI_MINUS_120;
+               n_used_args++;
+            }
             if (arg_str == "help") {
                print_help(argv[0]);
                do_help = true;
@@ -254,6 +261,11 @@ main(int argc, char *argv[]) {
          n_used_args++;
          break;
 
+      case 'p':
+         psi_axis_option = coot::rama_plot::PSI_MINUS_120;
+         n_used_args++;
+         break;
+
       case 'h':
          print_help(argv[0]);
          n_used_args++;
@@ -295,7 +307,7 @@ main(int argc, char *argv[]) {
 
       float level_prefered = 0.02;
       float level_allowed = 0.002;
-      float block_size = 1;
+      float block_size = 2;
       int imol = 0; // dummy for now
       int imol2 = 0;
 
@@ -303,7 +315,7 @@ main(int argc, char *argv[]) {
       if (edit_res_no > -9999) {
          // make an edit plot
          coot::rama_plot *edit_phi_psi_plot = new coot::rama_plot;
-         edit_phi_psi_plot->init("phi/psi-edit");
+         edit_phi_psi_plot->init("phi/psi-edit", psi_axis_option);
          edit_phi_psi_plot->set_stand_alone();
 
          if (chain_id.size() == 0)
@@ -425,7 +437,8 @@ main(int argc, char *argv[]) {
                     level_prefered,
                     level_allowed,
                     block_size,
-                    is_kleywegt_plot_flag);
+                    is_kleywegt_plot_flag,
+                    psi_axis_option);
          if (is_kleywegt_plot_flag) {
             if (selHnd > -1 && selHnd2 > -1) {
                rama->draw_it(imol, imol2,

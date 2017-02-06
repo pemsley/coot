@@ -52,6 +52,12 @@ on_dynarama2_outliers_only_togglebutton_toggled(GtkToggleButton *button, gpointe
 void
 on_dynarama2_zoom_resize_togglebutton_toggled(GtkToggleButton *button, gpointer user_data);
 
+//psi axis
+void
+on_psi_axis_classic_radioitem_toggled(GtkToggleButton *button, gpointer user_data);
+void
+on_psi_axis_paule_radioitem_toggled(GtkToggleButton *button, gpointer user_data);
+
 //about dialog
 void
 on_rama_aboutdialog1_close(GtkDialog *dialog, gpointer user_data);

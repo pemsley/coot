@@ -70,7 +70,7 @@
 
 void
 coot::rama_plot::init(int imol_in, const std::string &mol_name_in, float level_prefered, float level_allowed,
-                      float block_size, short int is_kleywegt_plot_flag_in) {
+                      float block_size, short int is_kleywegt_plot_flag_in, short int psi_axis) {
 
    imol = imol_in; // is this used? (yes, sort of, but not handling
 		   // the click on a residue)
@@ -80,6 +80,7 @@ coot::rama_plot::init(int imol_in, const std::string &mol_name_in, float level_p
    bool init_status;
    init_status = create_dynarama_window();
    if (init_status) {
+      psi_axis_mode = psi_axis; // or should this be in init_internal?!
       init_internal(mol_name_in, level_prefered, level_allowed, block_size, 0,
                     is_kleywegt_plot_flag_in);
       gtk_widget_set_sensitive(rama_view_menu, TRUE);
@@ -93,7 +94,7 @@ coot::rama_plot::init(int imol_in, const std::string &mol_name_in, float level_p
 // here, if we wanted the phi/psi edit and backbone edit to have
 // "non-standard" contour levels.
 void
-coot::rama_plot::init(const std::string &type) {
+coot::rama_plot::init(const std::string &type, short int psi_axis) {
 
    if (type == "phi/psi-edit") { 
       phipsi_edit_flag = 1;
@@ -102,6 +103,7 @@ coot::rama_plot::init(const std::string &type) {
       bool init_status;
       init_status = create_dynarama_window();
       if (init_status) {
+         psi_axis_mode = psi_axis; // or should this be in init_internal?!
          init_internal("Ramachandran Plot (Phi/Psi Edit Mode)", 0.02, 0.002, 1);
          hide_stats_frame();
          gtk_widget_set_sensitive(rama_view_menu, FALSE);
@@ -116,6 +118,7 @@ coot::rama_plot::init(const std::string &type) {
       bool init_status;
       init_status = create_dynarama_window();
       if (init_status) {
+         psi_axis_mode = psi_axis; // or should this be in init_internal?!
          init_internal("Ramachandran Plot (Backbone Edit Mode)", 0.02, 0.002, 1, hide_buttons);
          hide_stats_frame();
          gtk_widget_set_sensitive(rama_view_menu, FALSE);
@@ -276,6 +279,10 @@ coot::rama_plot::create_dynarama_window() {
                                                                           "kleywegt_radiomenuitem"));
                outliers_only_menuitem = GTK_WIDGET(gtk_builder_get_object(builder,
                                                   "outliers_only_menuitem"));
+               psi_axis_classic_radioitem = GTK_WIDGET(gtk_builder_get_object(builder,
+                                                                              "psi_axis_classic_radioitem"));
+               psi_axis_paule_radioitem = GTK_WIDGET(gtk_builder_get_object(builder,
+                                                                            "psi_axis_paule_radioitem"));
                zoom_resize_menuitem = GTK_WIDGET(gtk_builder_get_object(builder,
                                                                         "zoom_resize_menuitem"));
                kleywegt_chain_combobox1 = GTK_WIDGET(gtk_builder_get_object(builder,
@@ -453,6 +460,47 @@ coot::rama_plot::init_internal(const std::string &mol_name,
 }
 
 void
+coot::rama_plot::reinitialise() {
+
+   // restart the canvas, so remove root first and make a new one;
+   clear_canvas_items(1);
+
+   setup_background();
+   g_print("BL DEBUG:: done backgorund\n");
+   draw_axes();
+   g_print("BL DEBUG:: 1/2 way\n");
+   draw_zero_lines();
+   g_print("BL DEBUG:: 0 lins\n");
+   black_border();
+   g_print("BL DEBUG:: done borders\n");
+
+   if (plot_type == PHI_EDIT) {
+      phipsi_edit_flag = 1;
+      backbone_edit_flag = 0;
+      imol = -9999; // magic number used in OK button callback.
+      init_internal("Ramachandran Plot (Phi/Psi Edit Mode)", 0.02, 0.002, 1);
+      hide_stats_frame();
+      gtk_widget_set_sensitive(rama_view_menu, FALSE);
+      green_box_item = NULL;
+   }
+   if (plot_type == BACKBONE_EDIT) {
+      phipsi_edit_flag = 0;
+      backbone_edit_flag = 1;
+      imol = -9999; // magic number used in OK button callback.
+      short int hide_buttons = 1;
+      init_internal("Ramachandran Plot (Backbone Edit Mode)", 0.02, 0.002, 1, hide_buttons);
+      hide_stats_frame();
+      gtk_widget_set_sensitive(rama_view_menu, FALSE);
+      green_box_item = NULL;
+   }
+   if (plot_type == RAMA) {
+      // normal plot
+      g_print("BL DEBUG:: redraw normal plot\n");
+
+   }
+}
+
+void
 coot::rama_plot::setup_internal(float level_prefered, float level_allowed) {
 
    zoom = 0.8;
@@ -512,8 +560,12 @@ coot::rama_plot::setup_canvas() {
 
    goo_canvas_set_scale(GOO_CANVAS(canvas), zoom);
 
-   goo_canvas_set_bounds(GOO_CANVAS(canvas), -240.0, -220.0, 210.0, 230.0);
+   if (psi_axis_mode == PSI_CLASSIC) {
+      goo_canvas_set_bounds(GOO_CANVAS(canvas), -240.0, -220.0, 210.0, 230.0);
 
+   } else {
+      goo_canvas_set_bounds(GOO_CANVAS(canvas), -240.0, -280.0, 210.0, 170.0);
+   }
    g_signal_connect (G_OBJECT(canvas), "button_press_event",
                        G_CALLBACK(rama_button_press), NULL);
 
@@ -613,10 +665,20 @@ coot::rama_plot::make_background(const clipper::Ramachandran rama_type, GooCanva
    float y;
    float d2step;
    short int doit;
-   std::string colour;
+   std::string colour; 
+   int start_angle;
+   int end_angle;
+
+   if (psi_axis_mode == PSI_CLASSIC) {
+      start_angle = -180.0;
+      end_angle = 180.0;
+   } else {
+      start_angle = -240.0;
+      end_angle = 120.0;
+   }
 
    for (float i= -180.0; i<180.0; i += step) {
-      for (float j= -180.0; j<180.0; j += step) {
+      for (float j= start_angle; j<end_angle; j += step) {
 
          x =  clipper::Util::d2rad(i+((float) step)/2.0);
          y =  clipper::Util::d2rad(-(j+((float) step)/2.0));
@@ -873,9 +935,19 @@ coot::rama_plot::make_isolines(const clipper::Ramachandran rama_type, GooCanvasI
    std::pair<int, std::vector <float> > make_line;
    std::vector<float> line;
    int config;
+   int start_angle;
+   int end_angle;
+
+   if (psi_axis_mode == PSI_CLASSIC) {
+      start_angle = -180.0;
+      end_angle = 180.0;
+   } else {
+      start_angle = -240.0;
+      end_angle = 120.0;
+   }
 
    for (float i= -180.0; i<180.0; i += step) {
-      for (float j= -180.0; j<180.0; j += step) {
+      for (float j= start_angle; j<end_angle; j += step) {
 
          // Make isolines. cf http://www.twodee.org/blog/?p=7595
          make_line = make_isolines_internal(rama_type, rama_threshold_allowed, i, j);
@@ -905,7 +977,7 @@ coot::rama_plot::make_isolines(const clipper::Ramachandran rama_type, GooCanvasI
    // that their borders are not stamped on by the allowed regions.
    //
    for (float i= -180.0; i<180.0; i += step) {
-      for (float j= -180.0; j<180.0; j += step) {
+      for (float j= start_angle; j<end_angle; j += step) {
    
          colour = "LightPink";
 
@@ -1007,10 +1079,16 @@ coot::rama_plot::basic_white_underlay() {
 
    GooCanvasItem *item;
 
+   float corner;
+   if (psi_axis_mode == PSI_CLASSIC) {
+      corner = -180.0;
+   } else {
+      corner = -240.0;
+   }
    // FIMXE:: think if not an outline on top later
    item = goo_canvas_rect_new(root,
             -180.0,
-            -180.0,
+            corner,
             360.0,
             360.0,
             "fill-color", "grey97",
@@ -1056,18 +1134,28 @@ coot::rama_plot::black_border() {
    GooCanvasItem *border_group;
    border_group = goo_canvas_group_new(root, NULL);
 
+   float psi_start, psi_end;
+   
+   // maybe make these global!?
+   if (psi_axis_mode == PSI_CLASSIC) {
+      psi_start = -180.0;
+      psi_end = 180.0;
+   } else {
+      psi_start = -240.0;
+      psi_end = 120.0;
+   }
    
    points->coords[0] = -180.0;
-   points->coords[1] = -180.0; 
+   points->coords[1] = psi_start; 
 
    points->coords[2] = -180.0;
-   points->coords[3] =  180.0; 
+   points->coords[3] = psi_end; 
 
    points->coords[4] = 180.0;
-   points->coords[5] = 180.0; 
+   points->coords[5] = psi_end; 
 
-   points->coords[6] =  180.0;
-   points->coords[7] = -180.0; 
+   points->coords[6] = 180.0;
+   points->coords[7] = psi_start; 
 
       item = goo_canvas_polyline_new(border_group,
                                      TRUE, 0,
@@ -1201,6 +1289,8 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
          if ((draw_outliers_only && region == RAMA_OUTLIER) ||
              ! draw_outliers_only) {
             std::string label = phi_psi.label();
+            if (psi_axis_mode == PSI_MINUS_120 && psi < -120)
+               psi = psi + 360.0;
 
             item = goo_canvas_rect_new(residues_grp,
                                        phi-box_size,
@@ -1278,6 +1368,8 @@ coot::rama_plot::draw_phi_psi_as_gly(const coot::util::phi_psi_t &phi_psi) {
       colour = "red3";
       region = coot::rama_plot::RAMA_OUTLIER;
    }
+   if (psi_axis_mode == PSI_MINUS_120 && psi < -120)
+      psi = psi + 360.0;
 
    GooCanvasPoints *points;
    points = goo_canvas_points_new(3);
@@ -2387,6 +2479,17 @@ void
 coot::rama_plot::draw_kleywegt_arrow(const coot::util::phi_psi_t &phi_psi_primary,
 				     const coot::util::phi_psi_t &phi_psi_secondary,
                                      GooCanvasPoints *points) {
+   float psi_shift_primary = 0.;
+   float psi_shift_secondary = 0.;
+
+   if (psi_axis_mode == PSI_MINUS_120) {
+      if (phi_psi_primary.psi() < -120) {
+         psi_shift_primary = 360.0;
+      }
+      if (phi_psi_secondary.psi() < -120) {
+         psi_shift_secondary = 360.0;
+      }
+   }
 
    coot::rama_kleywegt_wrap_info wi = test_kleywegt_wrap(phi_psi_primary,
                                                          phi_psi_secondary);
@@ -2403,9 +2506,9 @@ coot::rama_plot::draw_kleywegt_arrow(const coot::util::phi_psi_t &phi_psi_primar
          // the normal case
          item = goo_canvas_polyline_new_line(arrow_grp,
                                              phi_psi_primary.phi(),
-                                             -phi_psi_primary.psi(),
+                                             -phi_psi_primary.psi() + psi_shift_primary,
                                              phi_psi_secondary.phi(),
-                                             -phi_psi_secondary.psi(),
+                                             -phi_psi_secondary.psi() + psi_shift_secondary,
                                              "line-width", 1.0,
                                              "start-arrow", FALSE,
                                              "end-arrow", TRUE,
@@ -2431,7 +2534,7 @@ coot::rama_plot::draw_kleywegt_arrow(const coot::util::phi_psi_t &phi_psi_primar
 
          item = goo_canvas_polyline_new_line(arrow_grp,
                                              phi_psi_primary.phi(),
-                                             -phi_psi_primary.psi(),
+                                             -phi_psi_primary.psi() + psi_shift_primary,
                                              wi.primary_border_point.first,
                                              -wi.primary_border_point.second,
                                              "line-width", 1.0,
@@ -2453,7 +2556,7 @@ coot::rama_plot::draw_kleywegt_arrow(const coot::util::phi_psi_t &phi_psi_primar
                                              wi.secondary_border_point.first,
                                              -wi.secondary_border_point.second,
                                              phi_psi_secondary.phi(),
-                                             -phi_psi_secondary.psi(),
+                                             -phi_psi_secondary.psi() + psi_shift_secondary,
                                              "line-width", 1.0,
                                              "start-arrow", FALSE,
                                              "end-arrow", TRUE,
@@ -2480,6 +2583,19 @@ coot::rama_plot::test_kleywegt_wrap(const coot::util::phi_psi_t &phi_psi_primary
    float border_start = 180.0;
    float border_end = -180.0;
 
+   if (psi_axis_mode == PSI_MINUS_120) {
+      if (psi_1 < -120) {
+         psi_1 += 360.0;
+         border_start = 240.0;
+         border_end = -120.0;
+      }
+      if (psi_2 < -120) {
+         psi_2 += 360.0;
+         border_start = -120.0;
+         border_end = 240.0;
+      }
+   }
+
    if (fabs(phi_1 - phi_2) > 200.0) {
 
       wi.is_wrapped = 1;
@@ -2490,9 +2606,9 @@ coot::rama_plot::test_kleywegt_wrap(const coot::util::phi_psi_t &phi_psi_primary
          psi_gradient = (180.0 - phi_1)/(phi_2 + 360.0 - phi_1);
 
       float psi_critical = psi_1 + psi_gradient * (psi_2 - psi_1);
-      wi.primary_border_point.first = border_start;
+      wi.primary_border_point.first = 180.0;
       wi.primary_border_point.second = psi_critical;
-      wi.secondary_border_point.first = border_end;
+      wi.secondary_border_point.first = -180.0;
       wi.secondary_border_point.second = psi_critical;
    } 
    if (fabs(psi_1 - psi_2) > 200.0) {
@@ -2506,9 +2622,9 @@ coot::rama_plot::test_kleywegt_wrap(const coot::util::phi_psi_t &phi_psi_primary
 
       float phi_critical = phi_2 + psi_gradient * (phi_1 - phi_2);
       wi.primary_border_point.first = phi_critical;
-      wi.primary_border_point.second = -180.0;
+      wi.primary_border_point.second = border_end;
       wi.secondary_border_point.first = phi_critical;
-      wi.secondary_border_point.second = 180.0;
+      wi.secondary_border_point.second = border_start;
    } 
    return wi;
 } 
@@ -2520,10 +2636,18 @@ coot::rama_plot::draw_zero_lines() {
    GooCanvasItem *item;
    GooCanvasItem *zero_grp;
    zero_grp = goo_canvas_group_new(root, NULL);
+   float start, end;
+   if (psi_axis_mode == PSI_CLASSIC) {
+      start = -180.0;
+      end = 180.0;
+   } else {
+      start = -240.0;
+      end = 120.0;
+   }
 
    item = goo_canvas_polyline_new_line(zero_grp,
-                                       0.0, -180.0,
-                                       0.0, 180.0,
+                                       0.0, start,
+                                       0.0, end,
                                        "stroke-color", "grey",
                                        "line-width", 1.0,
                                        NULL);
@@ -2548,11 +2672,17 @@ coot::rama_plot::draw_axes() {
    GooCanvasItem *item;
    GooCanvasItem *axis_grp;
 
+   float shift;
+   if (psi_axis_mode == PSI_CLASSIC) {
+      shift = 0.0;
+   } else {
+      shift = -60.0;
+   }
    axis_grp = goo_canvas_group_new(root, NULL);
    item = goo_canvas_text_new(axis_grp,
                               "Phi",
                               -10.0,
-                              220.0,
+                              220.0 + shift,
                               -1,
                               GTK_ANCHOR_WEST,
                               "font", fixed_font_str.c_str(),
@@ -2562,7 +2692,7 @@ coot::rama_plot::draw_axes() {
    item = goo_canvas_text_new(axis_grp,
                               "Psi",
                               -230.0,
-                              15.0,
+                              15.0 + shift,
                               -1,
                               GTK_ANCHOR_WEST,
                               "font", fixed_font_str.c_str(),
@@ -2575,24 +2705,34 @@ coot::rama_plot::draw_axes() {
    std::vector<canvas_tick_t> pnts;
 
    // x axis
-   pnts.push_back(canvas_tick_t(0,-180.0,180.0));
-   pnts.push_back(canvas_tick_t(0,-120.0,180.0));
-   pnts.push_back(canvas_tick_t(0,-60.0,180.0));
-   pnts.push_back(canvas_tick_t(0,0.0,180.0));
-   pnts.push_back(canvas_tick_t(0,60.0,180.0));
-   pnts.push_back(canvas_tick_t(0,120.0,180.0));
-   pnts.push_back(canvas_tick_t(0,180.0,180.0));
+   float tick_pos;
+   if (psi_axis_mode == PSI_CLASSIC) {
+      tick_pos = 180.0;
+   } else {
+      tick_pos = 120.0;
+   }
+   pnts.push_back(canvas_tick_t(0,-180.0,tick_pos));
+   pnts.push_back(canvas_tick_t(0,-120.0,tick_pos));
+   pnts.push_back(canvas_tick_t(0,-60.0,tick_pos));
+   pnts.push_back(canvas_tick_t(0,0.0,tick_pos));
+   pnts.push_back(canvas_tick_t(0,60.0,tick_pos));
+   pnts.push_back(canvas_tick_t(0,120.0,tick_pos));
+   pnts.push_back(canvas_tick_t(0,180.0,tick_pos));
    
 
    // y axis
-   float tick_pos = -180.0;
+   tick_pos = -180.0;
+   if (psi_axis_mode == PSI_CLASSIC) {
+      pnts.push_back(canvas_tick_t(1,tick_pos,180.0));
+   } else {
+      pnts.push_back(canvas_tick_t(1,tick_pos,-240.0));
+   } 
    pnts.push_back(canvas_tick_t(1,tick_pos,-180.0));
    pnts.push_back(canvas_tick_t(1,tick_pos,-120.0));
    pnts.push_back(canvas_tick_t(1,tick_pos,-60.0));
    pnts.push_back(canvas_tick_t(1,tick_pos,0.0));
    pnts.push_back(canvas_tick_t(1,tick_pos,60.0));
    pnts.push_back(canvas_tick_t(1,tick_pos,120.0));
-   pnts.push_back(canvas_tick_t(1,tick_pos,180.0));
 
    for (unsigned int i=0; i<pnts.size(); i++) { 
 
@@ -2611,7 +2751,11 @@ coot::rama_plot::draw_axes() {
    std::vector<int> tick_text_phi;
    std::vector<int> tick_text_psi;
 
-   tick_text_psi.push_back(-180);
+   if (psi_axis_mode == PSI_CLASSIC) {
+     tick_text_psi.push_back(-180);
+   } else {
+     tick_text_psi.push_back(240);
+   }
    tick_text_psi.push_back(-120);
    tick_text_psi.push_back(-60);
    tick_text_psi.push_back(0);
@@ -2652,7 +2796,7 @@ coot::rama_plot::draw_axes() {
       item = goo_canvas_text_new(axis_grp,
                                  text,
                                  tick_text_phi[i] - 10.0,
-                                 200.0,
+                                 200.0 + shift,
                                  -1,
                                  GTK_ANCHOR_WEST,
                                  "font", fixed_font_str.c_str(),
@@ -2899,6 +3043,7 @@ coot::rama_plot::plot_type_changed() {
       if (mols().first) {
          // clear_canvas_items();
          set_kleywegt_plot_state(0);
+         kleywegt_plot_uses_chain_ids = 0;
          gtk_widget_show(rama_stats_frame);
          draw_it(mols().first);
       }
@@ -2931,6 +3076,7 @@ coot::rama_plot::plot_type_changed() {
                  mols().first, mols().second,
                  chain_ids().first, chain_ids().second);
          fill_kleywegt_comboboxes(mols().first, mols().second);
+         kleywegt_plot_uses_chain_ids = 1;
       } else {
          std::cout<< "BL INFO:: no molecule found, please read one in."<<std::endl;
       }
@@ -3128,6 +3274,29 @@ coot::rama_plot::show_outliers_only(int state) {
 }
 
 
+void
+coot::rama_plot::psi_axis_changed() {
+
+   if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(psi_axis_classic_radioitem)) == TRUE) {
+      psi_axis_mode = PSI_CLASSIC;
+   } else {
+      psi_axis_mode = PSI_MINUS_120;
+   }
+
+   set_rama_psi_axis(psi_axis_mode);
+
+}
+
+void
+coot::rama_plot::set_rama_psi_axis(int state) {
+
+   psi_axis_mode = state;
+
+   g_print("BL DEBUG:: have axis state %i\n", state);
+
+   reinitialise();
+
+}
 
 // Notes for the workings of editphipsi
 // 
