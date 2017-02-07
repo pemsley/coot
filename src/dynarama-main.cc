@@ -439,45 +439,52 @@ main(int argc, char *argv[]) {
                     block_size,
                     is_kleywegt_plot_flag,
                     psi_axis_option);
-         if (is_kleywegt_plot_flag) {
-            if (selHnd > -1 && selHnd2 > -1) {
-               rama->draw_it(imol, imol2,
-                             mol, mol2,
-                             selHnd, selHnd2);
-            } else {
-               if (chain_id.size() != 0 && chain_id2.size() != 0)  {
+         if (rama->dynawin) {
+            if (is_kleywegt_plot_flag) {
+               if (selHnd > -1 && selHnd2 > -1) {
                   rama->draw_it(imol, imol2,
                                 mol, mol2,
-                                chain_id, chain_id2);
+                                selHnd, selHnd2);
                } else {
-                  if (mol != mol2) {
+                  if (chain_id.size() != 0 && chain_id2.size() != 0)  {
                      rama->draw_it(imol, imol2,
-                                   mol, mol2);
+                                   mol, mol2,
+                                   chain_id, chain_id2);
                   } else {
-                     g_print("BL INFO:: have different imols but same selection. Should not happen. No idea what to do");
+                     if (mol != mol2) {
+                        rama->draw_it(imol, imol2,
+                                      mol, mol2);
+                     } else {
+                        g_print("BL INFO:: have different imols but same selection. Should not happen. No idea what to do");
+                     }
+                  }
+               }
+            } else {
+               if (selHnd > -1)
+                  rama->draw_it(mol, selHnd, 1);
+               else {
+                  if (mol) {
+                     rama->draw_it(mol);
+                  } else {
+                     g_print("BL INFO:: no mol and no selection, so no plot. Sorry.");
                   }
                }
             }
          } else {
-            if (selHnd > -1)
-               rama->draw_it(mol, selHnd, 1);
-            else {
-               if (mol) {
-                  rama->draw_it(mol);
-               } else {
-                  g_print("BL INFO:: no mol and no selection, so no plot. Sorry.");
-               }
-            }
+            g_print("BL WARNING:: something went wrong initialising the rama plot\n");
+            return 1;
          }
       }
 
       gtk_main ();
-      delete mol;
+      if (mol)
+         delete mol;
       if (mol2)
          delete mol2;
 
       gtk_init(&argc, &argv);
    }
+   return 0;
 
 }
 

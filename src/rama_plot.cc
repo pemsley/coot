@@ -307,8 +307,8 @@ coot::rama_plot::create_dynarama_window() {
 
 // DEBUG:: function for debugging
 void my_getsize(GtkWidget *widget, GtkAllocation *allocation, gpointer *data) {
-    printf("BL DEBUG:: size alloc %s width = %d, height = %d\n",
-           data, allocation->width, allocation->height);
+    printf("BL DEBUG:: size alloc width = %d, height = %d\n",
+           allocation->width, allocation->height);
 }
 
 //  The mapview entry point
@@ -562,10 +562,10 @@ coot::rama_plot::setup_canvas() {
    goo_canvas_set_scale(GOO_CANVAS(canvas), zoom);
 
    if (psi_axis_mode == PSI_CLASSIC) {
-      goo_canvas_set_bounds(GOO_CANVAS(canvas), -240.0, -220.0, 210.0, 230.0);
+      goo_canvas_set_bounds(GOO_CANVAS(canvas), -240.0, -220.0, 210.0, 240.0);
 
    } else {
-      goo_canvas_set_bounds(GOO_CANVAS(canvas), -240.0, -280.0, 210.0, 170.0);
+      goo_canvas_set_bounds(GOO_CANVAS(canvas), -240.0, -280.0, 210.0, 180.0);
    }
    g_signal_connect (G_OBJECT(canvas), "button_press_event",
                        G_CALLBACK(rama_button_press), NULL);
@@ -2723,7 +2723,7 @@ coot::rama_plot::draw_axes() {
    item = goo_canvas_text_new(axis_grp,
                               "Phi",
                               -10.0,
-                              220.0 + shift,
+                              230.0 + shift,
                               -1,
                               GTK_ANCHOR_WEST,
                               "font", fixed_font_str.c_str(),
@@ -3228,8 +3228,8 @@ coot::rama_plot::update_kleywegt_plot() {
    // get chains, imols, mols
    int imol1;
    int imol2;
-   gchar *chain_id1 = ""; // surely they cannot be 0
-   gchar *chain_id2 = "";
+   gchar *chain_id1 = 0;
+   gchar *chain_id2 = 0;
    mmdb::Manager *mol1;
    mmdb::Manager *mol2;
 
@@ -3238,7 +3238,7 @@ coot::rama_plot::update_kleywegt_plot() {
    GtkTreeIter iter;
    GtkTreeModel *model;
 
-   if( gtk_combo_box_get_active_iter( GTK_COMBO_BOX(kleywegt_chain_combobox1), &iter ) ) {
+   if( gtk_combo_box_get_active_iter( GTK_COMBO_BOX(kleywegt_chain_combobox1), &iter)) {
           /* Obtain data model from combo box. */
        model = gtk_combo_box_get_model(GTK_COMBO_BOX(kleywegt_chain_combobox1));
 

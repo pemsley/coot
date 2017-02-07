@@ -1607,7 +1607,11 @@ void do_ramachandran_plot(int imol) {
 		       graphics_info_t::rama_plot_background_block_size,
              is_kleywegt_plot_flag,
              graphics_info_t::rama_psi_axis_mode);
-	    rama->draw_it(graphics_info_t::molecules[imol].atom_sel.mol); 
+       if (rama->dynawin) {
+          rama->draw_it(graphics_info_t::molecules[imol].atom_sel.mol);
+       } else {
+          std::cout<<"WARNING:: could not initialise ramachandran\n"<<std::endl;
+       }
 	 }
       }
    }
@@ -1658,9 +1662,13 @@ ramachandran_plot_differences(int imol1, int imol2) {
 				   graphics_info_t::rama_plot_background_block_size,
                is_kleywegt_plot_flag,
                graphics_info_t::rama_psi_axis_mode);
-			rama->draw_it(imol1, imol2,
-				      graphics_info_t::molecules[imol1].atom_sel.mol,
-				      graphics_info_t::molecules[imol2].atom_sel.mol);
+         if (rama->dynawin) {
+            rama->draw_it(imol1, imol2,
+                     graphics_info_t::molecules[imol1].atom_sel.mol,
+                     graphics_info_t::molecules[imol2].atom_sel.mol);
+           } else {
+              std::cout<<"WARNING:: could not initialise ramachandran\n"<<std::endl;
+         }
 		     }
 		  }
 	       }
@@ -1711,11 +1719,15 @@ void ramachandran_plot_differences_by_chain(int imol1, int imol2,
 	       rama->allow_seqnum_offset();
 // 	    std::cout << "rama differences on mols: " << imol1 << " " << a_chain
 // 		      << " to " << imol2 << " " << b_chain << std::endl;
+       if (rama->dynawin) {
 	    rama->draw_it(imol1, imol2,
 			  graphics_info_t::molecules[imol1].atom_sel.mol,
 			  graphics_info_t::molecules[imol2].atom_sel.mol,
 			  std::string(a_chain), std::string(b_chain));
 	    rama->set_kleywegt_plot_uses_chain_ids();
+       } else {
+          std::cout<<"WARNING:: could not initialise ramachandran\n"<<std::endl;
+       }
 	 } else {
 	    std::cout << "WARNING no molecule number " << imol2 << " in molecule (or closed)\n";
 	 }
