@@ -1349,6 +1349,35 @@ coot::rama_plot::set_data_for_phi_psi_point_item(const std::string &label,
 
 }
 
+void
+coot::rama_plot::set_data_for_phi_psi_point_item(const std::string &label,
+                                                 const coot::util::phi_psi_t &phi_psi,
+                                                 GooCanvasItem *item) {
+
+   std::string::size_type l_label    = label.length();
+   std::string::size_type l_res_name = phi_psi.residue_name().length();
+   std::string::size_type l_chain_id = phi_psi.chain_id.length();
+   gchar *c_label    = new gchar[l_label+1];
+   gchar *c_res_name = new gchar[l_res_name+1];
+   gchar *c_chain_id = new gchar[l_chain_id+1];
+
+   // init new char []s
+   for (unsigned int jj=0; jj<=l_label;    jj++)    c_label[jj] = 0;
+   for (unsigned int jj=0; jj<=l_res_name; jj++) c_res_name[jj] = 0;
+   for (unsigned int jj=0; jj<=l_chain_id; jj++) c_chain_id[jj] = 0;
+
+   strncpy(c_label,                     label.c_str(),    l_label+1);
+   strncpy(c_res_name, phi_psi.residue_name().c_str(), l_res_name+1);
+   strncpy(c_chain_id,       phi_psi.chain_id.c_str(), l_chain_id+1);
+
+   g_object_set_data (G_OBJECT (item), "id",       c_label);
+   g_object_set_data (G_OBJECT (item), "res_name", c_res_name);
+   g_object_set_data (G_OBJECT (item), "chain",    c_chain_id);
+   g_object_set_data (G_OBJECT (item), "res_no", GINT_TO_POINTER(phi_psi.residue_number));
+   g_object_set_data (G_OBJECT (item), "rama_plot", (gpointer) this);
+
+}
+
 // move the green box
 void
 coot::rama_plot::draw_green_box(double phi, double psi, std::string label) {
