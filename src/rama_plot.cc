@@ -21,6 +21,9 @@
  * 02110-1301, USA
  */
 
+#ifndef RAMA_PLOT
+#define RAMA_PLOT
+
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
@@ -31,10 +34,8 @@
 #endif
 
 #if defined(HAVE_GTK_CANVAS) || defined(HAVE_GNOME_CANVAS)
- 
-#ifndef RAMA_PLOT
-#define RAMA_PLOT
 
+#include <string.h>
 #include <iostream>
 #include <algorithm>
 
@@ -1302,16 +1303,9 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
                                        "line-width", 1.,
                                        "tooltip", label.c_str(),
                                        NULL);
-            // Better make a array of new variables to put in the g_object
-            gchar *g_label = (gchar *)label.c_str();
-            gchar *g_res_name = (gchar *)phi_psi.residue_name().c_str();
-            gint *g_res_number = (gint *)phi_psi.residue_number;
-            gchar *g_chain_id = (gchar *)phi_psi.chain_id.c_str();
-            g_object_set_data (G_OBJECT (item), "id", g_label);
-            g_object_set_data (G_OBJECT (item), "res_name", g_res_name);
-            g_object_set_data (G_OBJECT (item), "res_no", g_res_number);
-            g_object_set_data (G_OBJECT (item), "chain", g_chain_id);
-            g_object_set_data (G_OBJECT (item), "rama_plot", (gpointer) this);
+
+            set_data_for_phi_psi_point_item(label, phi_psi, item);
+
             g_signal_connect (item, "button_press_event",
                               G_CALLBACK (rama_item_button_press), NULL);
             g_signal_connect (item, "button_release_event",
@@ -1326,6 +1320,34 @@ coot::rama_plot::draw_phi_psi_point_internal(const coot::util::phi_psi_t &phi_ps
    return region;
 }
 
+void
+coot::rama_plot::set_data_for_phi_psi_point_item(const std::string &label,
+                                                 const coot::util::phi_psi_t &phi_psi,
+                                                 GooCanvasItem *item) {
+
+   std::string::size_type l_label    = label.length();
+   std::string::size_type l_res_name = phi_psi.residue_name().length();
+   std::string::size_type l_chain_id = phi_psi.chain_id.length();
+   gchar *c_label    = new gchar[l_label+1];
+   gchar *c_res_name = new gchar[l_res_name+1];
+   gchar *c_chain_id = new gchar[l_chain_id+1];
+
+   // init new char []s
+   for (unsigned int jj=0; jj<=l_label;    jj++)    c_label[jj] = 0;
+   for (unsigned int jj=0; jj<=l_res_name; jj++) c_res_name[jj] = 0;
+   for (unsigned int jj=0; jj<=l_chain_id; jj++) c_chain_id[jj] = 0;
+
+   strncpy(c_label,                     label.c_str(),    l_label+1);
+   strncpy(c_res_name, phi_psi.residue_name().c_str(), l_res_name+1);
+   strncpy(c_chain_id,       phi_psi.chain_id.c_str(), l_chain_id+1);
+
+   g_object_set_data (G_OBJECT (item), "id",       c_label);
+   g_object_set_data (G_OBJECT (item), "res_name", c_res_name);
+   g_object_set_data (G_OBJECT (item), "chain",    c_chain_id);
+   g_object_set_data (G_OBJECT (item), "res_no", GINT_TO_POINTER(phi_psi.residue_number));
+   g_object_set_data (G_OBJECT (item), "rama_plot", (gpointer) this);
+
+}
 
 // move the green box
 void
@@ -1399,11 +1421,7 @@ coot::rama_plot::draw_phi_psi_as_gly(const coot::util::phi_psi_t &phi_psi) {
       //                                  "fill-color", colour.c_str(),
 
 
-      g_object_set_data (G_OBJECT (item), "id", (gchar *)label.c_str());
-      g_object_set_data (G_OBJECT (item), "res_name", (gchar *)phi_psi.residue_name().c_str());
-      g_object_set_data (G_OBJECT (item), "res_no", (gint *)phi_psi.residue_number);
-      g_object_set_data (G_OBJECT (item), "chain", (gchar *)phi_psi.chain_id.c_str());
-      g_object_set_data (G_OBJECT (item), "rama_plot", (gpointer) this);
+      set_data_for_phi_psi_point_item(label, phi_psi, item);
 
       g_signal_connect (item, "button_press_event",
                         G_CALLBACK (rama_item_button_press), NULL);
@@ -1599,13 +1617,13 @@ coot::rama_plot::button_item_release (GooCanvasItem *item, GdkEventButton *event
    // Only relevent for edit?!
    if (phipsi_edit_flag) {
       goo_canvas_pointer_ungrab (GOO_CANVAS(canvas), item, event->time);
-      // get position and residue
-      gchar *chain_id;
-      gint res_no;
-      float phi = event->x_root;
-      float psi = -1.*event->y_root;
-      chain_id = (gchar*)g_object_get_data(G_OBJECT(item), "chain");
-      res_no = (gint)g_object_get_data(G_OBJECT(item), "res_no");
+//      // get position and residue, maybe relevant once we connect this
+//      gchar *chain_id;
+//      gint res_no;
+//      float phi = event->x_root;
+//      float psi = -1.*event->y_root;
+//      chain_id = (gchar*)g_object_get_data(G_OBJECT(item), "chain");
+//      res_no = (gint)g_object_get_data(G_OBJECT(item), "res_no");
       dragging = FALSE;
    }
 
@@ -1740,11 +1758,9 @@ coot::rama_plot::button_press_conventional (GtkWidget *widget, GdkEventButton *e
 void
 coot::rama_plot::recentre_graphics_maybe(GooCanvasItem *item) {
 
-   gchar *chain;
-   gint resno;
-
-   chain = (gchar*)g_object_get_data(G_OBJECT(item), "chain");
-   resno = (gint)g_object_get_data(G_OBJECT(item), "res_no");
+   gchar *chain = static_cast<gchar *> (g_object_get_data(G_OBJECT(item),
+                                                          "chain"));
+   int resno = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item), "res_no"));
 
    if (is_stand_alone()) {
       g_print("BL INFO:: this would recentre on imol: %i chain_id: %s resno: %i\n", imol, chain, resno);
@@ -1773,9 +1789,8 @@ coot::rama_plot::recentre_graphics_maybe(mouse_util_t t) {
 gint
 coot::rama_plot::item_enter_event(GooCanvasItem *item, GdkEventCrossing *event) {
 
-   gchar *res_name;
-   res_name = (gchar*)g_object_get_data(G_OBJECT(item), "res_name");
-   //g_print ("%s received notify-enter event\n", res_name ? res_name : "unknown");
+   gchar *res_name = static_cast<gchar *> (g_object_get_data(G_OBJECT(item),
+                                                             "res_name"));
 
    if (strcmp(res_name, "GLY") == 0) {
       show_background(bg_gly);
@@ -1786,14 +1801,11 @@ coot::rama_plot::item_enter_event(GooCanvasItem *item, GdkEventCrossing *event) 
          show_background(bg_non_gly_pro);
       }
    }
+   return 0;
 }
 
 gint
 coot::rama_plot::item_motion_event(GooCanvasItem *item, GdkEventMotion *event) {
-
-   gchar *res_name;
-   res_name = (gchar*)g_object_get_data(G_OBJECT(item), "res_name");
-   //g_print ("%s received motion-notify event\n", res_name ? res_name : "unknown");
 
    if (phipsi_edit_flag) {
       if (dragging && (event->state & GDK_BUTTON1_MASK)){
@@ -1801,10 +1813,9 @@ coot::rama_plot::item_motion_event(GooCanvasItem *item, GdkEventMotion *event) {
           double new_y = event->y;
           goo_canvas_item_translate (item, new_x - drag_x, new_y - drag_y);
         }
-
    }
-
-}
+   return 0;
+} 
 
 bool
 coot::rama_plot::is_outlier(const coot::util::phi_psi_t &phi_psi) const {
@@ -3188,8 +3199,8 @@ coot::rama_plot::update_kleywegt_plot() {
    // get chains, imols, mols
    int imol1;
    int imol2;
-   gchar *chain_id1;
-   gchar *chain_id2;
+   gchar *chain_id1 = ""; // surely they cannot be 0
+   gchar *chain_id2 = "";
    mmdb::Manager *mol1;
    mmdb::Manager *mol2;
 
@@ -3221,8 +3232,12 @@ coot::rama_plot::update_kleywegt_plot() {
    // clear_canvas_items();
 
    draw_it(imol1, imol2, mol1, mol2, chain_id1, chain_id2);
-   g_free(chain_id1);
-   g_free(chain_id2);
+
+   // shouldnt be needed at all. Not alloced.
+//   if (chain_id1)
+//      g_free(chain_id1);
+//   if (chain_id2)
+//      g_free(chain_id2);
 
 }
 
@@ -3324,6 +3339,5 @@ coot::rama_plot::set_rama_psi_axis(int state) {
 // via a phi_psi_t
 // 
 
-#endif // RAMA_PLOT
 #endif // HAVE_GTK_CANVAS
-
+#endif // RAMA_PLOT

@@ -706,8 +706,6 @@ low importance
 
    o (better) exception handling when e.g. no glade file
 
-   o make psi range option -120->240 (optional)
-
    o add function for user to show selection of res only
 
    o 2nd residue in kleywegt should get green box too (or not)
@@ -725,6 +723,13 @@ low importance
    o compare rama by mol choose A and A and show appropirately in selector
 	(see first topic)?! 
 
+   o wrap kleywegt arrows different in reverse order (e.g. tutorial-modern.pdb
+	B->A gets long arrows)
+
+
+   o make psi range option -120->240 (optional)
+
+* Done
 
    o contour lines thinner (?) and black
 

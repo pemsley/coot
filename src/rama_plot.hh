@@ -448,7 +448,11 @@ public:
    int draw_phi_psi_point_internal(const util::phi_psi_t &phi_psi,
 				   bool as_white_flag, int box_size);
 
-   
+   // which calls
+   void set_data_for_phi_psi_point_item(const std::string &label,
+                                        const coot::util::phi_psi_t &phi_psi,
+                                        GooCanvasItem *item);
+
    rama_stats_container_t draw_phi_psi_points();
    rama_stats_container_t draw_phi_psi_points_for_model(const coot::phi_psis_for_model_t &pp_set); 
 
