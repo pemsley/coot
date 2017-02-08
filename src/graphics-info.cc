@@ -1328,9 +1328,12 @@ graphics_info_t::accept_moving_atoms() {
    in_edit_chi_mode_view_rotate_mode = 0;
 
    if (do_probe_dots_post_refine_flag) {
-      do_interactive_probe();
+      if (do_coot_probe_dots_during_refine_flag) {
+	 // do_interactive_coot_probe();
+      } else {
+	 do_interactive_probe(); // old molprobity way
+      }
    }
-
 
    int mode = MOVINGATOMS;
    run_post_manipulation_hook(imol_moving_atoms, mode);
@@ -1482,6 +1485,104 @@ graphics_info_t::clear_up_moving_atoms() {
 }
 
 
+// static
+gint
+graphics_info_t::drag_refine_refine_intermediate_atoms() {
+
+   int retprog = -1;
+#ifdef HAVE_GSL
+
+   graphics_info_t g;
+
+   // While the results of the refinement are a conventional result
+   // (unrefined), let's continue.  However, there are return values
+   // that we will stop refining and remove the idle function is on a
+   // GSL_ENOPROG(RESS) and GSL_SUCCESS.... actually, we will remove
+   // it on anything other than a GSL_CONTINUE
+   //
+
+   // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
+   // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+   // coot::restraint_usage_Flags flags = coot::BONDS_AND_PLANES;
+   // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES;
+   coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
+   
+   if (do_torsion_restraints) {
+      if (use_only_extra_torsion_restraints_for_torsions_flag) { 
+	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
+	 flags = coot::TYPICAL_RESTRAINTS;
+      } else {
+	 flags = coot::TYPICAL_RESTRAINTS_WITH_TORSIONS;
+      }
+   }
+
+   if (do_rama_restraints)
+      // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+      // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
+      flags = coot::ALL_RESTRAINTS;
+   
+   
+   if (do_torsion_restraints && do_rama_restraints) {
+
+      // Do we really need this fine control?
+      
+//       if (use_only_extra_torsion_restraints_for_torsions_flag) { 
+// 	 // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+// 	 // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
+//       } else {
+// 	 // This changes the function to using torsions (for non-peptide torsions)
+// 	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
+// 	 flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
+//       }
+
+      flags = coot::ALL_RESTRAINTS;
+   }
+	    
+
+   // print_initial_chi_squareds_flag is 1 the first time then we turn it off.
+   int steps_per_frame = dragged_refinement_steps_per_frame;
+   if (! g.last_restraints.include_map_terms())
+      steps_per_frame *= 6;
+
+   graphics_info_t::saved_dragged_refinement_results =
+      g.last_restraints.minimize(flags, steps_per_frame, print_initial_chi_squareds_flag);
+
+
+   retprog = graphics_info_t::saved_dragged_refinement_results.progress;
+   print_initial_chi_squareds_flag = 0;
+   int do_disulphide_flag = 0;
+   int draw_hydrogens_flag = 0;
+   if (molecules[imol_moving_atoms].draw_hydrogens())
+      draw_hydrogens_flag = 1;
+   Bond_lines_container bonds(*(g.moving_atoms_asc), do_disulphide_flag, draw_hydrogens_flag);
+   g.regularize_object_bonds_box.clear_up();
+   bool do_markup = true;
+   g.regularize_object_bonds_box = bonds.make_graphical_bonds(g.ramachandrans_container,
+							      do_markup);
+
+   if (g.do_coot_probe_dots_during_refine_flag)
+      g.do_interactive_coot_probe();
+
+   char *env = getenv("COOT_DEBUG_REFINEMENT");
+   if (env)
+      g.tabulate_geometric_distortions(last_restraints);
+
+   // Update the Accept/Reject Dialog if it exists (and it should do,
+   // if we are doing dragged refinement).
+   if (accept_reject_dialog) {
+      if (saved_dragged_refinement_results.lights.size() > 0) {
+	 update_accept_reject_dialog_with_results(accept_reject_dialog,
+						  coot::CHI_SQUAREDS,
+						  saved_dragged_refinement_results);
+      }
+   }
+   
+#endif // HAVE_GSL
+
+   return retprog;
+}
+
+
 void
 graphics_info_t::set_dynarama_is_displayed(GtkWidget *dyna_toplev, int imol) {
 
@@ -1599,6 +1700,9 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       Bond_lines_container bonds(*moving_atoms_asc, do_disulphide_flag, draw_hydrogens_flag);
       regularize_object_bonds_box.clear_up();
       regularize_object_bonds_box = bonds.make_graphical_bonds();
+
+      // if (do_coot_probe_dots_during_refine_flag)
+      // do_interactive_coot_probe();
    }
 }
 

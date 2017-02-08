@@ -815,6 +815,7 @@ short int graphics_info_t::do_probe_dots_on_rotamers_and_chis_flag = 0;
 short int graphics_info_t::do_probe_dots_post_refine_flag = 0;
 coot::Cartesian graphics_info_t::probe_dots_on_chis_molprobity_centre = coot::Cartesian(0.0, 0.0, 0.0);
 float graphics_info_t::probe_dots_on_chis_molprobity_radius = 6.0;
+bool graphics_info_t::do_coot_probe_dots_during_refine_flag = false;
 
 float* graphics_info_t::background_colour = new float[4];
 

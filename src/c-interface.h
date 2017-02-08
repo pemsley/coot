@@ -6082,6 +6082,9 @@ void set_do_probe_dots_post_refine(short int state);
   refinement has happened? */
 short int do_probe_dots_post_refine_state();
 
+/* state is 1 for on and 0 for off */
+void set_do_coot_probe_dots_during_refine(short int state);
+
 /*! \brief make an attempt to convert pdb hydrogen name to the name
   used in Coot (and the refmac dictionary, perhaps). */
 char *unmangle_hydrogen_name(const char *pdb_hydrogen_name);

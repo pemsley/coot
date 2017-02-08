@@ -2203,6 +2203,8 @@ fi
 #   test for gnomecanvas
 # ##############################################################
 
+# on new Scientific Linux (7.3) we need to test for libgnomecanvas, not libgnomecanvas-2.0
+#
 # test for gnomecanvas here
 if pkg-config --modversion libgnomecanvas-2.0 ; then
    :
@@ -2826,7 +2828,7 @@ if test -n "$build_python" ; then
    # This is a problem with old(?) wgets.  In future, we should remove this.
    if ${WGET} --no-check-certificate http://www.python.org/ftp/python/$pver/Python-$pver.tgz ; then 
      echo got Python-$pver.tgz
-   else 
+   else
      echo problem getting Python-$pver.tgz
    fi
    (
@@ -3349,7 +3351,8 @@ guile_lib_version=0.1.6
 guile_lib_version=0.2.1
 # guile-lib has moved
 # ${WGET} http://download.gna.org/guile-lib/guile-lib-$guile_lib_version.tar.gz
-${WGET} http://download.savannah.gnu.org/releases/guile-lib/guile-lib-$guile_lib_version.tar.gz
+# ${WGET} http://download.savannah.gnu.org/releases/guile-lib/guile-lib-$guile_lib_version.tar.gz
+${WGET} $extras_place/guile-lib-$guile_lib_version.tar.gz
 
 ( 
 date

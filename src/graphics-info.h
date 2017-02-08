@@ -3655,9 +3655,23 @@ public:
      generic_objects_p->push_back(o);
      int r = generic_objects_p->size() -1;
      return r;
-   } 
-   static GtkWidget *generic_objects_dialog; 
+   }
+   static GtkWidget *generic_objects_dialog;
 
+   static int generic_object_index(const std::string &n) {
+     int index = -1;
+     int nobjs = generic_objects_p->size();
+     for (int iobj=0; iobj<nobjs; iobj++) {
+       if ((*generic_objects_p)[iobj].name == n) {
+	 if (!(*generic_objects_p)[iobj].is_closed_flag) {
+	   index = iobj;
+	   break;
+	 }
+       }
+     }
+     return index;
+   }
+ 
 
    // ---- active atom:
    static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec();
@@ -3683,9 +3697,12 @@ public:
    // probe dots on intermediate atoms (we need to have hydrogens)
    static short int do_probe_dots_on_rotamers_and_chis_flag;
    static short int do_probe_dots_post_refine_flag;
+   static bool do_coot_probe_dots_during_refine_flag;
    void do_probe_dots_on_rotamers_and_chis();
    void do_probe_dots_post_refine();
-   void do_interactive_probe() const;
+   void do_interactive_probe() const; // molprobity probe
+   // not const because it manipulates generic graphics objects
+   void do_interactive_coot_probe(); // coot probe
 
    // can be private?
    void setup_for_probe_dots_on_chis_molprobity(int imol);
