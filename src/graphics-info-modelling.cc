@@ -4089,7 +4089,6 @@ graphics_info_t::do_interactive_probe() const {
 #endif // USE_PYTHON
 #endif // USE_GUILE
 
-   
 }
 
 void
