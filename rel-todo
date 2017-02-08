@@ -1,6 +1,16 @@
 
    For Release 0.8.8
 
+   o in Ana's map after sequence assignment (which was very fast): it went into a long 
+     stall - not sure what it was doing. Without fitting, the model had hideous mainchain
+
+   o add a colour-blind-enabled constructor for the coot::colour_holder (probably should 
+     be in the default constructor, then make it an optional arg).
+
+   o Add a test for CISPEP card addition for the introduction of a cis peptide.
+     Currently coot deletes wrong cispeps (only) (not adds new ones).  Needs
+     thought.
+
    o  can you read this: all-comp-ids/T/PDBe-TFH.cif.  Its OBS though.
 
 * Too obscure
