@@ -1456,7 +1456,8 @@
 ;; return the h-box of the buttons.
 ;;
 ;; a button is a list of (label callback-thunk text-description)
-;; 
+;; where text-description is an option arg (can be omitted)
+;;
 (define (dialog-box-of-buttons window-name geometry buttons close-button-label)
   (dialog-box-of-buttons-with-check-button window-name geometry 
 					   buttons close-button-label
