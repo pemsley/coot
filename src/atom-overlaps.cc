@@ -118,6 +118,7 @@ graphics_info_t::do_interactive_coot_probe() {
 
    if (moving_atoms_asc->n_selected_atoms > 0) {
       if (moving_atoms_asc->mol) {
+
 	 coot::atom_overlaps_container_t ao(moving_atoms_asc->mol, Geom_p());
 	 // dot density
 	 coot::atom_overlaps_dots_container_t c = ao.all_atom_contact_dots(0.5);
@@ -169,10 +170,7 @@ graphics_info_t::do_interactive_coot_probe() {
 	    (*g.generic_objects_p)[clashes_obj].clear();
 	 std::string cn =  "#ff59b4";
 	 coot::colour_holder ch(cn);
-	 std::cout << "............ n_clashes " << c.clashes.size() << std::endl;
 	 for (unsigned int i=0; i<c.clashes.size(); i++) {
-	    std::cout << "add clash " << c.clashes[i].first.format() << " " << c.clashes[i].second.format()
-		      << std::endl;
 	    (*g.generic_objects_p)[clashes_obj].add_line(ch, cn, 2, c.clashes[i]);
 	 }
 	 (*g.generic_objects_p)[clashes_obj].is_displayed_flag = true;
