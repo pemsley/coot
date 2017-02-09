@@ -123,6 +123,11 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 						  saved_dragged_refinement_results);
       }
    }
+
+   if (true)
+      if (do_coot_probe_dots_during_refine_flag)
+	 g.do_interactive_coot_probe();
+   
    
 #endif // HAVE_GSL
 

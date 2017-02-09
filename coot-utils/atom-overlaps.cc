@@ -1402,9 +1402,9 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 	    }
 	 }
 
-	 std::cout << "done contact_map and bonded_map " << std::endl;
 
 	 if (false) { // show contact map:
+	    std::cout << "done contact_map and bonded_map " << std::endl;
 	    std::cout << "     contact map: " << contact_map.size() << std::endl;
 	    std::map<int, std::vector<int> >::const_iterator it;
 	    for (it=contact_map.begin(); it!=contact_map.end(); it++) {
@@ -1425,7 +1425,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 	 unsigned int n_threads = get_max_number_of_threads();
 	 std::vector<std::thread> threads;
 	 unsigned int n_per_thread = n_selected_atoms/n_threads;
-	 std::cout << "n per thread " << n_per_thread << std::endl;
+	 // /std::cout << "n per thread " << n_per_thread << std::endl;
 	 std::vector<atom_overlaps_dots_container_t> results_container_vec(n_threads);
 
 	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
@@ -1434,8 +1434,10 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 	    // for the last thread, set the end atom index
 	    if (i_thread == (n_threads - 1))
 	       iat_end = n_selected_atoms; // for loop uses iat_start and tests for < iat_end
-	    
-	    std::cout << "thread: " << i_thread << " from atom " << iat_start << " to " << iat_end << std::endl;
+
+	    if (false)
+	       std::cout << "thread: " << i_thread << " from atom " << iat_start
+			 << " to " << iat_end << std::endl;
 	    results_container_vec[i_thread] = atom_overlaps_dots_container_t(n_per_thread);
  	    threads.push_back(std::thread(contacts_for_atoms, iat_start, iat_end,
 					  atom_selection, contact_map, bonded_map,
@@ -1444,10 +1446,10 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 					  &results_container_vec[i_thread]));
 
 	 }
-	 std::cout << "joining... " << std::endl;
+	 // std::cout << "joining... " << std::endl;
 	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
 	    threads.at(i_thread).join();
-	 std::cout << "joined" << std::endl;
+	 // std::cout << "joined" << std::endl;
 
 	 if (false) {
 	    for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
@@ -1461,7 +1463,9 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 	    }
 	 }
 
-	 std::cout << "consolidating..." << std::endl;
+	 if (false)
+	    std::cout << "consolidating..." << std::endl;
+
 	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
 	    ao.add(results_container_vec[i_thread]);
 	 if (false) { // debugging
@@ -1611,15 +1615,8 @@ coot::atom_overlaps_container_t::contacts_for_atom(int iat,
 		     overlap_delta_to_contact_type(overlap_delta, is_h_bond);
 		  const std::string &c_type = c_type_col.first;
 		  const std::string &col    = c_type_col.second;
-		  
 
 		  clipper::Coord_orth pt_spike_inner = pt_at_surface;
-		  if (c_type == "clash") {
-		     clipper::Coord_orth vect_to_pt_1 = pt_at_1 - pt_at_surface;
-		     clipper::Coord_orth vect_to_pt_1_unit(vect_to_pt_1.unit());
-		     pt_spike_inner = pt_at_surface -
-			0.3 * sqrt(biggest_overlap) * clash_spike_length * vect_to_pt_1_unit;
-		  }
 
 		  if (c_type != "clash") {
 

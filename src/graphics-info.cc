@@ -1327,10 +1327,9 @@ graphics_info_t::accept_moving_atoms() {
    have_fixed_points_sheared_drag_flag = 0;
    in_edit_chi_mode_view_rotate_mode = 0;
 
-   if (do_probe_dots_post_refine_flag) {
-      do_interactive_probe();
+   if (do_coot_probe_dots_during_refine_flag) {
+      do_interactive_coot_probe();
    }
-
 
    int mode = MOVINGATOMS;
    run_post_manipulation_hook(imol_moving_atoms, mode);
@@ -1599,6 +1598,9 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       Bond_lines_container bonds(*moving_atoms_asc, do_disulphide_flag, draw_hydrogens_flag);
       regularize_object_bonds_box.clear_up();
       regularize_object_bonds_box = bonds.make_graphical_bonds();
+
+      // if (do_coot_probe_dots_during_refine_flag)
+      // do_interactive_coot_probe();
    }
 }
 

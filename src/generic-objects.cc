@@ -353,23 +353,9 @@ int new_generic_object_number(const char *name) {
 
 // return the index of the object with name name, if not, return -1;
 // 
-int generic_object_index(const char *name) {
+int generic_object_index(const std::string &name) {
 
-   graphics_info_t g;
-   int index = -1; 
-   if (name) {
-      std::string n(name);
-      int nobjs = g.generic_objects_p->size();
-      for (int iobj=0; iobj<nobjs; iobj++) {
-	 if ((*g.generic_objects_p)[iobj].name == n) {
-	    if (!(*g.generic_objects_p)[iobj].is_closed_flag) { 
-	       index = iobj;
-	       break;
-	    }
-	 }
-      }
-   }
-   return index;
+   return graphics_info_t::generic_object_index(name);
 }
 
 

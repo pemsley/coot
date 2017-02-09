@@ -129,7 +129,7 @@ void set_display_generic_object_simple(int object_number, short int istate);
 int generic_object_is_displayed_p(int object_number);
 
 /*! \brief return the index of the object with name name, if not, return -1; */
-int generic_object_index(const char *name);
+int generic_object_index(const std::string &name);
 
 /*! \brief what is the name of generic object number obj_number? 
 
