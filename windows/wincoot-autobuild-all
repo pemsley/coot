@@ -13,9 +13,20 @@
 build_coot_prerelease=${1:-1}
 if [ -e /z/make_stable_build ] ; then
   build_coot_prerelease=0
+  if [ -e /z/make_clean_wincoot_stable ] ; then
+     extra_flag="veryclean"
+     rm /z/make_clean_wincoot_stable
+  fi
 fi
 if [ -z "$build_coot_prerelease" ] ; then
   build_coot_prerelease=0
+fi
+
+if [ "$build_coot_prerelease" -ne "0" ] ; then 
+  if [ -e /z/make_clean_wincoot_prerelease ] ; then
+     extra_flag="veryclean"
+     rm /z/make_clean_wincoot_prerelease
+  fi
 fi
 
 # option to not build guile
@@ -39,8 +50,8 @@ if [ -z "$make_installer_only" ] ; then
 fi
 
 #
-BINARY_DIR=/c/MinGW/msys/1.0/home/bernhard/public_html/software/binaries/nightlies/pre-release
-PRE_BINARY_DIR=/c/MinGW/msys/1.0/home/bernhard/public_html/software/binaries/nightlies/pre-release
+BINARY_DIR=/c/MinGW/msys/1.0/home/bernhard/public_html/software/binaries/pre-release
+PRE_BINARY_DIR=/c/MinGW/msys/1.0/home/bernhard/public_html/software/binaries/pre-release
 # test if there is enough disk space first
 (
 fsutil.exe volume diskfree c: > ${HOME}/diskspace.tmp
@@ -71,14 +82,14 @@ function copy_logs {
       # copy log files from local to public html
       cp -p $LOCAL_HTML_LOGS/gtk2-build.log $PUBLIC_HTML_LOGS/
       cp -p $LOCAL_HTML_LOGS/gtk2-build.log $PUBLIC_HTML_LOGS/gtk2-python-build.log
-      cp -r -p $LOCAL_HTML_LOGS/$HOSTLOG_STUB/  $PUBLIC_HTML_LOGS/
+      cp -a $LOCAL_HTML_LOGS/$HOSTLOG_STUB/.  $PUBLIC_HTML_LOGS/
       cp -p $LOCAL_HTML_LOGS/gtk2-test.log  $PUBLIC_HTML_LOGS/
       cp -p $LOCAL_HTML_LOGS/gtk2-test.log  $PUBLIC_HTML_LOGS/gtk2-python-test.log
   else
     # copy log files from local to public html
     if [ $make_guile != 0 ] ; then 
       cp -p $LOCAL_HTML_LOGS/gtk2-guile-build.log $PUBLIC_HTML_LOGS/
-      cp -r -p $LOCAL_HTML_LOGS/${HOSTLOG_STUB}-guile/  $PUBLIC_HTML_LOGS/
+      cp -a $LOCAL_HTML_LOGS/${HOSTLOG_STUB}-guile/.  $PUBLIC_HTML_LOGS/
       cp -p $LOCAL_HTML_LOGS/gtk2-guile-test.log  $PUBLIC_HTML_LOGS/
     fi
   fi
@@ -98,7 +109,7 @@ wincoot_installer_script=${HOME}/Projects/coot/windows/WinCoot_install_masta.nsi
 LOCAL_HTML_LOGS=$HOME/public_html/build-logs/${OS}-${HOST}
 PUBLIC_HTML_LOGS=/z/build-logs/${OS}-${HOST}
 PUBLIC_STABLE_DEST_DIR=${PUBLIC_STABLE_DEST_DIR:=/z/software/binaries/stable}
-PUBLIC_NIGHTLY_DEST_DIR=${PUBLIC_NIGHTLY_DEST_DIR:=/z/software/binaries/nightlies/pre-release}
+PUBLIC_NIGHTLY_DEST_DIR=${PUBLIC_NIGHTLY_DEST_DIR:=/z/software/binaries/pre-release}
 
 # before we start building, lets update the test data files
 #cp -ur /h/data/greg-data/* ~/data/greg-data
@@ -402,7 +413,7 @@ fi
 # not really working on msys right now
 #chmod 755 /z/build-logs/MINGW32_NT-6.1-sarabellum
 #chmod 744 /z/build-logs/MINGW32_NT-6.1-sarabellum/*
-#chmod 744 /z/software/binaries/nightlies/pre-release/*
+#chmod 744 /z/software/binaries/pre-release/*
 #chmod 744 /z/software/binaries/stable/*
 #chmod 755 /z/build-logs/MINGW32_NT-6.1-sarabellum/*
 #chmod 744 /z/build-logs/MINGW32_NT-6.1-sarabellum/*/*

@@ -110,8 +110,8 @@ Var STARTDIR
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 
 !ifndef binary_dir
-; default to nightlies output dir
-!define binary_dir "C:\msys\home\bernhard\public_html\software\binaries\nightlies\pre-release"
+; default to pre-release output dir
+!define binary_dir "C:\MinGW\msys\1.0\home\bernhard\public_html\software\binaries\pre-release"
 !endif
 ; just in case something goes wrong, we define src to be pre-release (default)
 !ifndef src_dir
