@@ -10,6 +10,7 @@
    o Add a test for CISPEP card addition for the introduction of a cis peptide.
      Currently coot deletes wrong cispeps (only) (not adds new ones).  Needs
      thought.
+   o speed up accept after rigid body fit.
 
    o  can you read this: all-comp-ids/T/PDBe-TFH.cif.  Its OBS though.
 

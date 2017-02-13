@@ -111,3 +111,74 @@ PyObject *ligand_atom_overlaps_py(int imol, PyObject *ligand_spec, double neighb
    return r;
 } 
 #endif
+
+// not const because it manipulated generic graphics objects
+void
+graphics_info_t::do_interactive_coot_probe() {
+
+   if (moving_atoms_asc->n_selected_atoms > 0) {
+      if (moving_atoms_asc->mol) {
+	 coot::atom_overlaps_container_t ao(moving_atoms_asc->mol, Geom_p());
+	 // dot density
+	 coot::atom_overlaps_dots_container_t c = ao.all_atom_contact_dots(0.5);
+
+	 std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
+
+	 // for quick colour lookups.
+	 std::map<std::string, coot::colour_holder> colour_map;
+	 colour_map["blue"      ] = coot::generic_display_object_t::colour_values_from_colour_name("blue");
+	 colour_map["sky"       ] = coot::generic_display_object_t::colour_values_from_colour_name("sky");
+	 colour_map["sea"       ] = coot::generic_display_object_t::colour_values_from_colour_name("sea");
+	 colour_map["greentint" ] = coot::generic_display_object_t::colour_values_from_colour_name("greentint");
+	 colour_map["green"     ] = coot::generic_display_object_t::colour_values_from_colour_name("green");
+	 colour_map["orange"    ] = coot::generic_display_object_t::colour_values_from_colour_name("orange");
+	 colour_map["orangered" ] = coot::generic_display_object_t::colour_values_from_colour_name("orangered");
+	 colour_map["yellow"    ] = coot::generic_display_object_t::colour_values_from_colour_name("yellow");
+	 colour_map["yellowtint"] = coot::generic_display_object_t::colour_values_from_colour_name("yellowtint");
+	 colour_map["red"       ] = coot::generic_display_object_t::colour_values_from_colour_name("red");
+	 colour_map["#55dd55"   ] = coot::generic_display_object_t::colour_values_from_colour_name("#55dd55");
+	 colour_map["hotpink"   ] = coot::generic_display_object_t::colour_values_from_colour_name("hotpink");
+	 colour_map["grey"      ] = coot::generic_display_object_t::colour_values_from_colour_name("grey");
+	 colour_map["magenta"   ] = coot::generic_display_object_t::colour_values_from_colour_name("magenta");
+
+	 graphics_info_t g;
+	 for (it=c.dots.begin(); it!=c.dots.end(); it++) {
+	    const std::string &type = it->first;
+	    const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
+	    std::string obj_name = type;
+	    int obj = g.generic_object_index(obj_name.c_str());
+	    if (obj == -1)
+	       obj = new_generic_object_number(obj_name.c_str());
+	    else
+	       (*g.generic_objects_p)[obj].clear();
+	    std::string col = "#445566";
+	    int point_size = 2;
+	    if (type == "vdw-surface") point_size = 1;
+	    for (unsigned int i=0; i<v.size(); i++) {
+	       const std::string &col = v[i].col;
+	       (*g.generic_objects_p)[obj].add_point(colour_map[col], col, point_size, v[i].pos);
+	    }
+	    if (type != "vdw-surface")
+	       (*g.generic_objects_p)[obj].is_displayed_flag = true;
+	 }
+
+	 int clashes_obj = g.generic_object_index("clashes"); // find or set
+	 if (clashes_obj == -1)
+	    clashes_obj = new_generic_object_number("clashes");
+	 else
+	    (*g.generic_objects_p)[clashes_obj].clear();
+	 std::string cn =  "#ff59b4";
+	 coot::colour_holder ch(cn);
+	 std::cout << "............ n_clashes " << c.clashes.size() << std::endl;
+	 for (unsigned int i=0; i<c.clashes.size(); i++) {
+	    std::cout << "add clash " << c.clashes[i].first.format() << " " << c.clashes[i].second.format()
+		      << std::endl;
+	    (*g.generic_objects_p)[clashes_obj].add_line(ch, cn, 2, c.clashes[i]);
+	 }
+	 (*g.generic_objects_p)[clashes_obj].is_displayed_flag = true;
+
+	 // do we need to draw here?
+	 // graphics_draw();
+      }
+   }
+}

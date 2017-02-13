@@ -1328,9 +1328,12 @@ graphics_info_t::accept_moving_atoms() {
    in_edit_chi_mode_view_rotate_mode = 0;
 
    if (do_probe_dots_post_refine_flag) {
-      do_interactive_probe();
+      if (do_coot_probe_dots_during_refine_flag) {
+	 // do_interactive_coot_probe();
+      } else {
+	 do_interactive_probe(); // old molprobity way
+      }
    }
-
 
    int mode = MOVINGATOMS;
    run_post_manipulation_hook(imol_moving_atoms, mode);
@@ -1556,6 +1559,9 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    g.regularize_object_bonds_box = bonds.make_graphical_bonds(g.ramachandrans_container,
 							      do_markup);
 
+   if (g.do_coot_probe_dots_during_refine_flag)
+      g.do_interactive_coot_probe();
+
    char *env = getenv("COOT_DEBUG_REFINEMENT");
    if (env)
       g.tabulate_geometric_distortions(last_restraints);
@@ -1693,6 +1699,9 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
       Bond_lines_container bonds(*moving_atoms_asc, do_disulphide_flag, draw_hydrogens_flag);
       regularize_object_bonds_box.clear_up();
       regularize_object_bonds_box = bonds.make_graphical_bonds();
+
+      // if (do_coot_probe_dots_during_refine_flag)
+      // do_interactive_coot_probe();
    }
 }
 
