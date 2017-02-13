@@ -1770,7 +1770,7 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) {
    } else { 
    
       // make sure that the atom indices are in the right order:
-      // 
+      //
       if (residue_range_atom_index_1 > residue_range_atom_index_2) {
 	 int tmp;
 	 tmp = residue_range_atom_index_2; 
@@ -1835,7 +1835,7 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) {
 
    if (Imol_Refinement_Map() == -1 ) { // magic number
       //
-      std::cout << "Please set a map against which the refimentment should occur"
+      std::cout << "Please set a map against which the refinement should occur"
 		<< std::endl;
       show_select_map_dialog();  // protected
    } else {
@@ -1847,7 +1847,7 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) {
 
       // Fill range_mol and manipulate mol so that it has a blank (it
       // will get copied and used as to mask the map).
-      // 
+      //
       for (unsigned int ifrag=0; ifrag<mol.fragments.size(); ifrag++) {
 	 if (mol[ifrag].fragment_id == chain) {
 	    for (int ires=mol.fragments[ifrag].min_res_no();
@@ -1963,7 +1963,7 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
    // atom_selection. (c.f. accepting refinement or
    // regularization).
 
-   if (atoms.size() > 0) { 
+   if (atoms.size() > 0) {
 
       atom_selection_container_t rigid_body_asc;
       // 	 rigid_body_asc.mol = (Mymmdb::Manager *) moved_mol.pcmmdbmanager();
@@ -1984,7 +1984,7 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
       // 					 rigid_body_asc.n_selected_atoms);
 
       success = 1;
-      rigid_body_asc = make_asc(moved_mol.pcmmdbmanager());
+      rigid_body_asc = make_asc(moved_mol.pcmmdbmanager(), true);
 
       moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
       imol_moving_atoms = imol_rigid_body_refine;
@@ -2621,7 +2621,7 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
 
 
       if (rot_trans_object_type == ROT_TRANS_TYPE_CHAIN) 
-	mp = 
+	mp =
 	 coot::util::create_mmdbmanager_from_res_selection(molecules[imol_rot_trans_object].atom_sel.mol,
 							   sel_residues, n_sel_residues,
 							   0, 0, altloc_string, chain_id,
@@ -2630,7 +2630,7 @@ graphics_info_t::execute_rotate_translate_ready() { // manual movement
       if (rot_trans_object_type == ROT_TRANS_TYPE_MOLECULE)
 	mp = 
 	  coot::util::create_mmdbmanager_from_mmdbmanager(molecules[imol_rot_trans_object].atom_sel.mol);
-							 
+
       rt_asc = make_asc(mp.first);
       rt_asc.UDDOldAtomIndexHandle = mp.second;
 
