@@ -169,7 +169,6 @@ graphics_info_t::do_interactive_coot_probe() {
 	    (*g.generic_objects_p)[clashes_obj].clear();
 	 std::string cn =  "#ff59b4";
 	 coot::colour_holder ch(cn);
-	 std::cout << "............ n_clashes " << c.clashes.size() << std::endl;
 	 for (unsigned int i=0; i<c.clashes.size(); i++) {
 	    std::cout << "add clash " << c.clashes[i].first.format() << " " << c.clashes[i].second.format()
 		      << std::endl;
