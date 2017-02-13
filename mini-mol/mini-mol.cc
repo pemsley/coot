@@ -29,8 +29,9 @@
 
 #include "compat/coot-sysdep.h"
 
-coot::minimol::molecule::molecule(mmdb::Manager *mol) {
-   setup(mol);
+// udd_atom_index_to_user_data is optional arg default false
+coot::minimol::molecule::molecule(mmdb::Manager *mol, bool udd_atom_index_to_user_data_flag) {
+   setup(mol, udd_atom_index_to_user_data_flag);
 }
 
 
@@ -181,7 +182,7 @@ coot::minimol::molecule::min_resno_in_chain(mmdb::Chain *chain_p) const {
 // Return status.  If good, return 0 else (if bad) return 1.
 //
 short int
-coot::minimol::molecule::setup(mmdb::Manager *mol) {
+coot::minimol::molecule::setup(mmdb::Manager *mol, bool udd_atom_index_to_user_data_flag) {
 
    short int istat = 0;
    if (mol == NULL) {
@@ -195,6 +196,14 @@ coot::minimol::molecule::setup(mmdb::Manager *mol) {
       // fill molecule etc from mmdb_mol_in;
       if (fragments.size() > 0) {
 	 delete_molecule();
+      }
+
+      bool do_atom_index_transfer = false;
+      int udd_atom_index_handle = -1;
+      if (udd_atom_index_to_user_data_flag) {
+	 udd_atom_index_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
+	 if (udd_atom_index_handle >= 0)
+	    do_atom_index_transfer = true;
       }
 
       int imod = 1;
@@ -226,10 +235,10 @@ coot::minimol::molecule::setup(mmdb::Manager *mol) {
 		     // result of mmdb corruption elsewhere - possibly
 		     // DeleteChain in update_molecule_to().
 		     std::cout << "NULL chain in ... minimol setup" << std::endl;
-		  } else { 
+		  } else {
 		     int nres = chain_p->GetNumberOfResidues();
 		     std::pair<short int, int> min_info = min_resno_in_chain(chain_p);
-		     if (min_info.first) { 
+		     if (min_info.first) {
 			fragments[ifrag].resize_for(nres, min_info.second);
 			mmdb::PResidue residue_p;
 			mmdb::Atom *at;
@@ -249,6 +258,12 @@ coot::minimol::molecule::setup(mmdb::Manager *mol) {
 							 std::string(at->altLoc),
 							 at->occupancy,
 							 at->tempFactor);
+				 if (do_atom_index_transfer) {
+				    int atom_udd_atom_index = -1;
+				    if (at->GetUDData(udd_atom_index_handle, atom_udd_atom_index) == mmdb::UDDATA_Ok) {
+				       mat.int_user_data = atom_udd_atom_index;
+				    }
+				 }
 				 r.addatom(mat);
 			      }
 			   }
@@ -463,7 +478,7 @@ coot::minimol::molecule::read_file(std::string pdb_filename) {
 	 }
       }
    } else {
-      setup(&mol);
+      setup(&mol, false);
    }
    return ierr;
 }
@@ -706,7 +721,7 @@ coot::minimol::fragment::operator[](int i) {
 
 	 // 	 check();
 
-	 if (false) { 
+	 if (false) {
 	    std::cout << "DEBUG:: on N-terminal residue addtion residues.size() is "
 		      << residues.size()
 		      << " and offset_diff is " << offset_diff
@@ -853,6 +868,7 @@ coot::minimol::atom::atom(std::string atom_name,
    pos = clipper::Coord_orth(x,y,z);
    occupancy = occupancy_in;
    temperature_factor = dbf;
+   int_user_data = -1;
 } 
 
 coot::minimol::atom::atom(std::string atom_name,
@@ -864,6 +880,7 @@ coot::minimol::atom::atom(std::string atom_name,
    altLoc = altloc;
    occupancy = 1.0;
    temperature_factor = dbf;
+   int_user_data = -1;
 } 
 
 coot::minimol::atom::atom(std::string atom_name,
@@ -877,6 +894,7 @@ coot::minimol::atom::atom(std::string atom_name,
    altLoc = altloc;
    occupancy = occupancy_in;
    temperature_factor = dbf;
+   int_user_data = -1;
 }
 
 coot::minimol::atom::atom(mmdb::Atom *at) {
@@ -886,6 +904,7 @@ coot::minimol::atom::atom(mmdb::Atom *at) {
    altLoc = at->altLoc;
    occupancy = at->occupancy;
    temperature_factor = at->tempFactor;
+   int_user_data = -1;
 }
 
 void
@@ -919,6 +938,9 @@ coot::minimol::molecule::pcmmdbmanager() const {
    mmdb::PManager mol = new mmdb::Manager;
    mmdb::InitMatType();
 
+   int udd_atom_index_handle = -1;
+   udd_atom_index_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "atom index");
+
    // we have to add to the mmdb mol atom by atom
 
    mmdb::Model *model_p = new mmdb::Model;
@@ -950,15 +972,19 @@ coot::minimol::molecule::pcmmdbmanager() const {
 	       // 		      << fragments[ifrag][ires].atoms.size()
 	       // 		      << " atoms " << std::endl;
 	       for (unsigned int iatom=0; iatom<fragments[ifrag][ires].atoms.size(); iatom++) {
+		  const atom &this_atom = (*this)[ifrag][ires][iatom];
 		  atom_p = new mmdb::Atom;
 		  atom_p->SetCoordinates((*this)[ifrag][ires][iatom].pos.x(),
 					 (*this)[ifrag][ires][iatom].pos.y(),
 					 (*this)[ifrag][ires][iatom].pos.z(),
 					 (*this)[ifrag][ires][iatom].occupancy,
 					 (*this)[ifrag][ires][iatom].temperature_factor);
-		  atom_p->SetAtomName((*this)[ifrag][ires][iatom].name.c_str());
+		  atom_p->SetAtomName(this_atom.name.c_str());
 		  strncpy(atom_p->element,(*this)[ifrag][ires][iatom].element.c_str(),3);
 		  strncpy(atom_p->altLoc, (*this)[ifrag][ires][iatom].altLoc.c_str(), 2);
+		  if (udd_atom_index_handle >= 0)
+		     if (this_atom.int_user_data >= 0)
+			atom_p->PutUDData(udd_atom_index_handle, this_atom.int_user_data);
 		  i_add = res_p->AddAtom(atom_p);
 		  if (i_add < 0) 
 		     std::cout << "addatom addition error" << std::endl;
@@ -1065,6 +1091,7 @@ coot::minimol::fragment::addresidue(const coot::minimol::residue &res,
       if (res.is_undefined()) {
 	 throw std::runtime_error("ERROR:: caught uninitialised res in addresidue().");
       } else {
+	 // std::cout << "in addresidue " << res << " " << res[0].int_user_data << std::endl;
 	 (*this)[res.seqnum] = res;
       }
    }

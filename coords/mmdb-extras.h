@@ -62,7 +62,6 @@ using namespace std;  // ugh.  This should not be here.  FIXME
 void
 debug_atom_selection_container(atom_selection_container_t asc);
 
-
 mmdb::LinkContainer empty_links_container();
 
 

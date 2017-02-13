@@ -611,7 +611,7 @@ debug_atom_selection_container(atom_selection_container_t asc) {
 }
 
 atom_selection_container_t
-make_asc(mmdb::Manager *mol) {
+make_asc(mmdb::Manager *mol, bool transfer_atom_index_flag) {
 
    atom_selection_container_t asc;
    asc.mol = mol;
@@ -642,8 +642,14 @@ make_asc(mmdb::Manager *mol) {
    asc.read_success = 1;
    asc.UDDOldAtomIndexHandle = -1;
 
+   if (transfer_atom_index_flag) {
+      int udd_atom_index_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
+      asc.UDDOldAtomIndexHandle = udd_atom_index_handle;
+   }
+
    return asc;
 }
+
 
 void
 atom_selection_container_t::fill_links(mmdb::Manager *mol_other) {
