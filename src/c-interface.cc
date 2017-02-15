@@ -539,48 +539,51 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 	 // description (should be fast) and if found, rerun the bonding
 	 // algorithm.
 
-      
-	 std::vector<std::string> types_with_no_dictionary =
-	    g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+	 // when we use coot as a python module, at the start g.Geom_p() is null
 
-	 int first_n_types_with_no_dictionary = types_with_no_dictionary.size();
+	 if (g.Geom_p()) {
+	    std::vector<std::string> types_with_no_dictionary =
+	       g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+
+	    int first_n_types_with_no_dictionary = types_with_no_dictionary.size();
 	 
-	 std::cout << "DEBUG:: there were " << types_with_no_dictionary.size() << " types "
-		   << "with no dictionary " << std::endl;
+	    std::cout << "DEBUG:: there were " << types_with_no_dictionary.size() << " types "
+		      << "with no dictionary " << std::endl;
 
-	 for (unsigned int i=0; i<types_with_no_dictionary.size(); i++) {
-	    if (0)
-	       std::cout << "DEBUG:: calling try_dynamic_add: " << types_with_no_dictionary[i]
-			 << " with read number " << g.cif_dictionary_read_number << std::endl;
-	    int n_bonds = g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i],
-						      g.cif_dictionary_read_number);
-	    g.cif_dictionary_read_number++;
-	 }
+	    for (unsigned int i=0; i<types_with_no_dictionary.size(); i++) {
+	       if (0)
+		  std::cout << "DEBUG:: calling try_dynamic_add: " << types_with_no_dictionary[i]
+			    << " with read number " << g.cif_dictionary_read_number << std::endl;
+	       int n_bonds = g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i],
+							 g.cif_dictionary_read_number);
+	       g.cif_dictionary_read_number++;
+	    }
 	 
-	 types_with_no_dictionary = g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+	    types_with_no_dictionary = g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
 
-	 if (types_with_no_dictionary.size()) {
-	    if (g.Geom_p()->try_load_ccp4srs_description(types_with_no_dictionary))
-	       g.molecules[imol].make_bonds_type_checked();
-	 } else {
-	    // perhaps we have read dictionaries for everything (but
-	    // first check that there had been dictionaries to read.
-	    if (first_n_types_with_no_dictionary > 0) {
-	       g.molecules[imol].make_bonds_type_checked();
+	    if (types_with_no_dictionary.size()) {
+	       if (g.Geom_p()->try_load_ccp4srs_description(types_with_no_dictionary))
+		  g.molecules[imol].make_bonds_type_checked();
+	    } else {
+	       // perhaps we have read dictionaries for everything (but
+	       // first check that there had been dictionaries to read.
+	       if (first_n_types_with_no_dictionary > 0) {
+		  g.molecules[imol].make_bonds_type_checked();
+	       } 
 	    } 
-	 } 
 
 	 
-	 if (graphics_info_t::nomenclature_errors_mode == coot::PROMPT) { 
-	    // Now, did that PDB file contain nomenclature errors?
-	    std::vector<std::pair<std::string,coot::residue_spec_t> > nomenclature_errors = 
-	       g.molecules[imol].list_nomenclature_errors(g.Geom_p());
-	    // gui function checks use_graphics_interface_flag
-	    if (nomenclature_errors.size())
-	       show_fix_nomenclature_errors_gui(imol, nomenclature_errors);
-	 }
-	 if (graphics_info_t::nomenclature_errors_mode == coot::AUTO_CORRECT) {
-	    fix_nomenclature_errors(imol);
+	    if (graphics_info_t::nomenclature_errors_mode == coot::PROMPT) { 
+	       // Now, did that PDB file contain nomenclature errors?
+	       std::vector<std::pair<std::string,coot::residue_spec_t> > nomenclature_errors = 
+		  g.molecules[imol].list_nomenclature_errors(g.Geom_p());
+	       // gui function checks use_graphics_interface_flag
+	       if (nomenclature_errors.size())
+		  show_fix_nomenclature_errors_gui(imol, nomenclature_errors);
+	    }
+	    if (graphics_info_t::nomenclature_errors_mode == coot::AUTO_CORRECT) {
+	       fix_nomenclature_errors(imol);
+	    }
 	 }
 	 
 	 

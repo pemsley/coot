@@ -207,10 +207,11 @@ check_PROGRAMS = test-coot-align test-cholesky
 
 
 # is this the right dependencies?
-fix_nomenclature_errors_SOURCES = \
-	fix-nomenclature.cc   \
-	coot-nomenclature.hh   \
-	coot-nomenclature.cc
+coot_fix_nomenclature_errors_SOURCES = \
+	fix-nomenclature.cc
+
+#	coot-nomenclature.hh
+#	coot-nomenclature.cc
 
 coot_bin_SOURCES = main.cc       \
 	scm-boot-guile.hh 	 \
@@ -474,11 +475,11 @@ libcoot_bundle_la_SOURCES = \
 if COOT_USE_PYTHON
    pyexec_LTLIBRARIES = _coot.la
    _coot_la_LDFLAGS = -module $(SHARED_LDFLAGS)
-   _coot_la_SOURCES = coot_wrap_python_gtk2.cc
+   _coot_la_SOURCES = coot_wrap_python.cc
    _coot_la_LIBADD  = libcoot-bundle.la
-   coot_bin_SOURCES += coot_wrap_python.cc
-   EXTRA_DIST += coot_wrap_python_pre_gtk2.cc 
-   # EXTRA_DIST += coot_wrap_python_pre.cc 
+   # coot_bin_SOURCES += coot_wrap_python.cc
+   # EXTRA_DIST += coot_wrap_python.cc
+   EXTRA_DIST += coot_wrap_python_pre.cc
 endif
 
 if COOT_USE_PYTHON
@@ -495,7 +496,7 @@ endif
 
 # graphics_crash_test_LDADD = @GTK_LIBS@ $(GTKGL_CONTEXT_LIBS) $(INTLLIBS) $(GLUT_LIBS) -lGL -lGLU
 
-fix_nomenclature_errors_LDADD = \
+coot_fix_nomenclature_errors_LDADD = \
 	libcoot-bundle.la
 
 #	$(top_builddir)/ligand/libcoot-ligand.la      		\
@@ -562,7 +563,7 @@ test_cholesky_LDADD =	\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
 	$(top_builddir)/coot-utils/libcoot-shelx.la       \
 	$(top_builddir)/geometry/libcoot-geometry.la      \
-        $(top_builddir)/lidia-core/libcoot-lidia-core.la        \
+        $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
 	$(top_builddir)/utils/libcoot-utils.la            \
         $(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GSL_LIBS)

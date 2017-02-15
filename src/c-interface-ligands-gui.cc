@@ -69,6 +69,7 @@
 #include "c-interface-ligands.hh"
 #include "c-interface-ligands-swig.hh"
 #include "c-interface-ligand-search.hh"
+#include "c-interface-widgets.hh"
 
 #include "guile-fixups.h"
 

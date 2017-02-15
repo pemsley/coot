@@ -112,6 +112,7 @@
 #include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
 #include "c-interface-preferences.h"
+#include "c-interface-widgets.hh"
 
 #include "coot-surface/rgbreps.h"
 
