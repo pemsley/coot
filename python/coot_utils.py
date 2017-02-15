@@ -7,6 +7,7 @@
 # Copyright 2004, 2005, 2006, 2007 by Paul Emsley, The University of York
 #    <one line to give the program's name and a brief idea of what it does.>
 #    Copyright (C) <year>  <name of author>
+#    Copyright 2013, 2014, 2016 by Medical Research Council
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -37,6 +38,9 @@ have_mingw = False
 if  os.getenv("MSYSTEM"):
     have_mingw = True
 
+# this is set by the main application: False or 1 (use this python gui)
+# or 2 (guile-gtk is being used so use this if gui-gtk function is
+# not available)
 global use_gui_qm
 
 global user_defined_alert_smarts
@@ -3221,12 +3225,12 @@ def get_drug_via_wikipedia(drug_name_in):
             mol_name = parse_wiki_drug_xml(xml_tree, "DrugBank  *= ")
 
             if not isinstance(mol_name, str):
-                print "BL WARNING:: mol_name not a string (DrugBank entry from wikipedia)", mol_name
+                print "WARNING:: mol_name not a string (DrugBank entry from wikipedia)", mol_name
                 # try pubchem as fallback
                 mol_name = parse_wiki_drug_xml(xml_tree,  "PubChem  *= ")
                 if not isinstance(mol_name, str):
 
-                    print "BL WARNING:: mol_name not a string (pubchem entry either)", mol_name
+                    print "WARNING:: mol_name not a string (pubchem entry either)", mol_name
                     # so was there a redirect?
                     # if so, get the name and call get_drug_via_wikipedia with it
                     redirected_drug_name = get_redirected_drug_name(xml_tree)
@@ -3246,7 +3250,7 @@ def get_drug_via_wikipedia(drug_name_in):
                     coot_get_url(pc_mol_uri, file_name)
                     
             else:
-                db_mol_uri = "http://www.drugbank.ca/structures/structures/small_molecule_drugs/" + \
+                db_mol_uri = "https://www.drugbank.ca/structures/small_molecule_drugs/" + \
                              mol_name + ".mol"
                 file_name = mol_name + ".mol"
                 coot_get_url(db_mol_uri, file_name)

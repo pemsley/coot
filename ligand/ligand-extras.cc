@@ -1,6 +1,7 @@
 /* ligand/ligand-extras.cc 
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006 The University of York
+ * Copyright 2014 by Medical Research Council
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -480,7 +481,8 @@ coot::ligand::flood() {
 
    if (xmap_masked_stats.first != 1) { 
       std::cout << "PROGRAMMER ERROR! find_clusters/find_clusters_water_flood first!\n";
-      exit(1); // maybe.
+      // exit(1); // maybe. // no exit() from libraries
+      return;
    }
 
    int n_cycle = 20;

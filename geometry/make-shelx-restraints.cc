@@ -1,3 +1,23 @@
+/* geometry/make-shelx-restraints.cc
+ * 
+ * Copyright 2015 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #include <algorithm>
 #include <fstream>
@@ -165,7 +185,7 @@ int main(int argc, char **argv) {
 
 	 for (unsigned int i=0; i<types.size(); i++) { 
 	    std::pair<bool, coot::dictionary_residue_restraints_t> r =
-	       geom.get_monomer_restraints(types[0]);
+	       geom.get_monomer_restraints(types[0], coot::protein_geometry::IMOL_ENC_ANY);
 	    if (r.first) { // how can it not be?
 
 	       if (! r.second.is_filled()) {
@@ -190,7 +210,7 @@ int main(int argc, char **argv) {
 	 }
       }
    } else {
-      std::cout << "Usage: coot.make-shelx-restraints cif-file-name"
+      std::cout << "Usage: coot-make-shelx-restraints cif-file-name"
 		<< std::endl;
    } 
    return status;

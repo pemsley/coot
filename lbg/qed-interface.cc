@@ -12,6 +12,13 @@
 void
 lbg_info_t::setup_silicos_it_qed_default_func() {
 
+   // Are you here (again)?
+   //
+   // make sure that this works:
+   // $ python
+   // >>> import silicos_it.descriptors
+   // >>> from silicos_it.descriptors import qed
+
    silicos_it_qed_default_func = NULL;
 
    // Build the name object

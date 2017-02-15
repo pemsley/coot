@@ -1,6 +1,7 @@
 /* src/c-interface.cc
  * 
  * Copyright 2007 The University of York
+ * Copyright 2014 by Medical Research Council
  * written by Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify

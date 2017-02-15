@@ -1,6 +1,7 @@
 /* geometry/protein-geometry.cc
  * 
  * Copyright 2010 The University of Oxford
+ * Copyright 2013, 2014, 2015 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -58,7 +59,9 @@ coot::protein_geometry::read_ccp4srs_residues() {
 	 } else {
 	    std::cout << "WARNING:: structure " << local_residue_codes[i]
 		      << " not found in CCP4SRS " << std::endl;
-	 } 
+	 }
+	 delete monomer_p;
+	 monomer_p = NULL;
       }
    } else {
       std::cout << "WARNING:: CCP4SRS not initialised"  << std::endl;
@@ -123,7 +126,17 @@ coot::protein_geometry::matching_ccp4srs_residues_names(const std::string &compo
 #ifdef HAVE_CCP4SRS   
    std::string compound_name = coot::util::upcase(compound_name_frag);
    if (ccp4srs) {
-      int n_entries = ccp4srs->n_entries();
+      unsigned int n_entries = ccp4srs->n_entries();
+      for (unsigned int i=1; i<n_entries; i++) {
+	 ccp4srs::Monomer *Monomer = ccp4srs->getMonomer(i, NULL);
+	 std::string id = Monomer->ID();
+	 std::string chem_name = Monomer->chem_name();
+	 // std::cout << "i " << i <<  " monomer id  " << id << std::endl;
+	 if (chem_name.find(compound_name_frag) != std::string::npos) {
+	    std::pair<std::string, std::string> p(id, chem_name);
+	    v.push_back(p);
+	 }
+      }
    } else {
       std::cout << "WARNING:: Null CCP4SRS" << std::endl;
    } 
@@ -198,16 +211,26 @@ coot::protein_geometry::init_ccp4srs(const std::string &ccp4srs_monomer_dir_in) 
 bool
 coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 
-#ifdef HAVE_CCP4SRS
-
    bool success = false;
-   coot::dictionary_residue_restraints_t rest(true); // constructor for CCP4SRS
-   rest.residue_info.comp_id = monomer_type;
+#ifdef HAVE_CCP4SRS
+   dictionary_residue_restraints_t rest;
+   success = rest.fill_using_ccp4srs(ccp4srs, monomer_type);
+#endif
+   return false;
+}
+
+#ifdef HAVE_CCP4SRS
+bool
+coot::dictionary_residue_restraints_t::fill_using_ccp4srs(ccp4srs::Manager *srs_manager,
+							  const std::string &monomer_type) {
    
-   if (! ccp4srs) {
-     std::cout << "WARNING:: Null CCP4SRS database " << std::endl;
+   bool success = false;
+   residue_info.comp_id = monomer_type;
+
+   if (! srs_manager) {
+     std::cout << "WARNING:: fill_using_ccp4srs() Null CCP4SRS database " << std::endl;
    } else { 
-      ccp4srs::Monomer *monomer_p = ccp4srs->getMonomer(monomer_type.c_str());
+      ccp4srs::Monomer *monomer_p = srs_manager->getMonomer(monomer_type.c_str());
       if (! monomer_p) {
 	std::cout << "WARNING:: Null monomer ccp4srs::getMonomer()" << std::endl;
       } else { 
@@ -234,7 +257,7 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 			    number_atoms_all,
 			    number_atoms_nh,
 			    description_level);
-	 rest.residue_info = d;
+	 residue_info = d;
 	 
 
 	 // atoms
@@ -246,6 +269,8 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 	    std::string type_energy = at->energy_type();
 	    std::string atom_id = at->name();
 	    std::string atom_id_4c = atom_id_mmdb_expand(atom_id, type_symbol);
+	    char rcsb_chirality = at->rcsb_chirality();
+	    char ccp4_chirality = at->ccp4_chirality();
 	    coot::dict_atom dict_at(atom_id,
 				    atom_id_4c,
 				    type_symbol,
@@ -273,10 +298,10 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
                dict_at.add_pos(dict_atom::REAL_MODEL_POS, p);
             }
 
-	    rest.atom_info.push_back(dict_at);
+	    atom_info.push_back(dict_at);
 	 }
 
-	 if (rest.atom_info.size() > 1) {
+	 if (atom_info.size() > 1) {
 
 	    // bonds
 	 
@@ -330,7 +355,7 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 
 	       coot::dict_bond_restraint_t dict_bond(atom_name_1, atom_name_2, type, dist, esd);
 	       success = true;
-	       rest.bond_restraint.push_back(dict_bond);
+	       bond_restraint.push_back(dict_bond);
 	    }
 
 	    // angles
@@ -347,7 +372,7 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 	       std::string atom_name_3 = monomer_p->atom(ind_3)->name();
 	       coot::dict_angle_restraint_t dict_angle(atom_name_1, atom_name_2, atom_name_3,
 						       value, esd);
-	       rest.angle_restraint.push_back(dict_angle);
+	       angle_restraint.push_back(dict_angle);
 	    }
 
 	    // torsions
@@ -368,7 +393,7 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 	       coot::dict_torsion_restraint_t dict_torsion(id,
 							   atom_name_1, atom_name_2, atom_name_3, atom_name_4,
 							   value, esd, period);
-	       rest.torsion_restraint.push_back(dict_torsion);
+	       torsion_restraint.push_back(dict_torsion);
 	    }
 
 	    // chirals
@@ -388,7 +413,7 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 	       coot::dict_chiral_restraint_t dict_chiral(id,
 							 atom_name_c, atom_name_1, atom_name_2, atom_name_3, 
 							 sign);
-	       rest.chiral_restraint.push_back(dict_chiral);
+	       chiral_restraint.push_back(dict_chiral);
 	    }
 
 	    // planes
@@ -404,26 +429,23 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 	       }
 	       double esd = plane->esds()[0];
 	       coot::dict_plane_restraint_t dict_plane(id, atom_names, esd);
-	       rest.plane_restraint.push_back(dict_plane);
+	       plane_restraint.push_back(dict_plane);
 	    }
 	 }
       }
    }
    if (success) {
-      std::cout << "INFO:: adding restraint " << rest.atom_info.size() << " atoms and "
-		<< rest.bond_restraint.size() << " bonds, " 
-                << rest.angle_restraint.size() << " angles, " 
-                << rest.torsion_restraint.size() << " torsions," 
-                << rest.chiral_restraint.size() << " chirals " 
-                << rest.plane_restraint.size() << std::endl;
-      add(rest);
+      if (false) // debugging
+	 std::cout << "INFO:: adding restraint from SRS " << atom_info.size() << " atoms and "
+		   << bond_restraint.size() << " bonds, " 
+		   << angle_restraint.size() << " angles, " 
+		   << torsion_restraint.size() << " torsions," 
+		   << chiral_restraint.size() << " chirals " 
+		   << plane_restraint.size() << std::endl;
    }
-
    return success;
-#else
-   return false;
-#endif      
 }
+#endif // HAVE_CCP4SRS
 
 
 // A new pdb file has been read in (say).  The residue types
@@ -431,11 +453,12 @@ coot::protein_geometry::fill_using_ccp4srs(const std::string &monomer_type) {
 // the types that are not in the dictionary.  Try to load an
 // ccp4srs description at least so that we can draw their bonds
 // correctly.  Use fill_using_ccp4srs().
-// 
+//
+// the passed type should be a set - so that we don't have to uniquify here.
 bool
 coot::protein_geometry::try_load_ccp4srs_description(const std::vector<std::string> &comp_ids_with_duplicates) {
 
-#ifdef HAVE_CCP4SRS   
+#ifdef HAVE_CCP4SRS
    bool status = false; // none added initially.
 
    std::vector<std::string> uniques;
@@ -445,7 +468,6 @@ coot::protein_geometry::try_load_ccp4srs_description(const std::vector<std::stri
 	 uniques.push_back(comp_ids_with_duplicates[ic]);
    }
 
-   
    if (ccp4srs) {
       for (unsigned int i=0; i<uniques.size(); i++) {
 	 std::cout << i << " " << uniques[i] << std::endl;
@@ -511,50 +533,127 @@ coot::protein_geometry::residue_from_best_match(mmdb::math::Graph &graph1, mmdb:
 
 
 #ifdef HAVE_CCP4SRS
+int
+coot::protein_geometry::ccp4_srs_n_entries() const {
+
+   if (! ccp4srs) {
+      std::cout << "WARNING:: CCP4SRS is not initialized" << std::endl;
+      return 0;
+   } else {
+      return ccp4srs->n_entries();
+   }
+}
+#endif // HAVE_CCP4SRS
+
+
+#ifdef HAVE_CCP4SRS
+
+// if srs_idx_start is negative then run through all the
+// monomers
+// else do the range (eg. 1001->2000 (idxs are inclusive)).
+// 
 std::vector<coot::match_results_t>
-coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float similarity, int n_vertices) const {
+coot::protein_geometry::compare_vs_ccp4srs(mmdb::math::Graph *graph_1,
+					   float similarity, int n_vertices,
+					   int srs_idx_start, int srs_idx_end,
+					   bool fill_match_graphs) const {
 
    std::vector<coot::match_results_t> v;
 
+   int minMatch = int(similarity * n_vertices);
+   std::cout << "INFO:: match.MatchGraphs must match at least "
+	     << minMatch << " atoms from " << similarity << " * " << n_vertices << std::endl;
+   
    if (! ccp4srs) {
       std::cout << "WARNING:: CCP4SRS is not initialized" << std::endl;
    } else {
       int l = ccp4srs->n_entries();
       std::cout << "INFO:: compare_vs_ccp4srs(): found " << l << " entries in CCP4 SRS" << std::endl;
-      mmdb::math::Graph  *graph_2;
+      mmdb::math::Graph  *graph_2 = NULL;
       int rc = 0;
-      for (int i=1; i<l ;i++)  {
-	 ccp4srs::Monomer *Monomer = ccp4srs->getMonomer(i, NULL);
-	 if (Monomer)  {
+      mmdb::io::File *fp = NULL;
+
+      if (srs_idx_start < 1) {
+	 srs_idx_start = 1;
+	 srs_idx_end = l;
+      } else {
+	 if (srs_idx_start >= l)
+	    srs_idx_start = 1;
+	 if (srs_idx_end >= (l-1))
+	    srs_idx_end = l-1;
+      }
+      
+      for (int i=srs_idx_start; i<=srs_idx_end; i++) {
+	 ccp4srs::Monomer *Monomer = ccp4srs->getMonomer(i, fp);
+	 if (! fp) // the first time it is null
+	    fp = ccp4srs->getStructFile();
+
+	 if (! Monomer)  {
+	    std::cout << "Null monomer " << i << std::endl;
+	 } else {
 	    std::string id = Monomer->ID();
-	    std::cout << "i " << i <<  " monomer id  " << id << std::endl;
+	    // std::cout << "monomer index i " << i <<  " monomer id  " << id << std::endl;
 	    if (id.length()) {
 	       graph_2 = Monomer->getGraph(&rc);
+	       if (graph_2) {
+		  graph_2->Build(true);
+		  graph_2->MakeSymmetryRelief(true); // necessary if graph_1 has symmetry relief?
 
-	       if (rc < 10000) { 
-		  mmdb::math::GraphMatch match;
-		  match.SetTimeLimit(2); // seconds
-		  int minMatch = 6;
+		  if (rc < 10000) {
+		     mmdb::math::GraphMatch match;
+		     match.SetTimeLimit(2); // seconds
 
-		  std::cout << "INFO:: match.MatchGraphs must match at least "
-			    << minMatch << " atoms."
-			    << std::endl;
-
-		  if (true) {
-
-		     // hangs if you open the wrong (old) SRS.
-		     
-		     mmdb::math::VERTEX_EXT_TYPE vertex_ext=mmdb::math::EXTTYPE_Ignore; // mmdb default
+		     mmdb::math::VERTEX_EXT_TYPE vertex_ext=mmdb::math::EXTTYPE_Equal; // mmdb default
 		     bool vertext_type = true;
-		     match.MatchGraphs(graph_2, graph_2, minMatch, vertext_type, vertex_ext);
+		     match.SetMaxNofMatches(1, true); // only need find 1 match
+		     match.MatchGraphs(graph_1, graph_2, minMatch, vertext_type, vertex_ext);
 		     int n_match = match.GetNofMatches();
-		     std::cout << "INFO:: match NumberofMatches (potentially similar graphs) "
-			       << n_match << std::endl;
+		     if (n_match > 0) {
+			std::cout << "INFO:: " << id
+				  << " match NumberofMatches (similar graphs): " << n_match << std::endl;
 
+			bool really_match = false;
+			std::vector<std::pair<int, int> > graph_match_atom_indices;
+			for (int imatch=0; imatch<n_match; imatch++) {
+			   int n;
+			   mmdb::realtype p1, p2;
+			   mmdb::ivector FV1, FV2;
+			   match.GetMatch(imatch, FV1, FV2, n, p1, p2); // n p1 p2 set
+			   std::cout << "   match " << imatch << " matched " << n << " atoms"
+				     << std::endl;
+			   if (n >= minMatch) really_match = true;
+			   for (int ipair=1; ipair<=n; ipair++) {
+			      mmdb::math::Vertex *V1 = graph_1->GetVertex(FV1[ipair]);
+			      mmdb::math::Vertex *V2 = graph_2->GetVertex(FV2[ipair]);
+			      if ((!V1) || (!V2))  {
+				 std::cout << "Can't get vertices for match " << ipair << std::endl;
+			      } else  {
+				 std::cout << "   " << V1->GetUserID() << " " << V2->GetUserID()
+					   << std::endl;
+				 std::pair<int, int> p(V1->GetUserID(), V2->GetUserID());
+				 graph_match_atom_indices.push_back(p);
+			      }
+			   }
+			   if (really_match)
+			      break;
+			}
+
+			if (really_match) {
+			   mmdb::Residue *residue_p = NULL; // for now
+			   std::string name = Monomer->chem_name();
+			   match_results_t mr(id, name, residue_p);
+			   mr.graph_match_atom_indices = graph_match_atom_indices;
+			   v.push_back(mr);
+			}
+		     }
 		  }
 	       }
+	       delete graph_2; // fixes memory leak?
+	       graph_2 = NULL;
 	    }
 	 }
+	 delete Monomer;
+	 Monomer = NULL;
       }
    }
    return v;

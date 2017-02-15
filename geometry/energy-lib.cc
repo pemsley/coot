@@ -1,3 +1,24 @@
+/* geometry/energy-lib.cc
+ * 
+ * Copyright 2010, 2011, 2012 by the University of Oxford
+ * Copyright 2014, 2015 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #include <stdexcept>
 
@@ -401,15 +422,17 @@ coot::energy_lib_t::add_energy_lib_torsions(mmdb::mmcif::PLoop mmCIFLoop) {
 
 
 coot::hb_t
-coot::protein_geometry::get_h_bond_type(const std::string &atom_name, const std::string &monomer_name) const {
+coot::protein_geometry::get_h_bond_type(const std::string &atom_name,
+					const std::string &monomer_name,
+					int imol_enc) const {
 
-   bool debug = 0;  // before debugging this, is ener_lib.cif being
-		    // read correctly?
+   bool debug = false;  // before debugging this, is ener_lib.cif being
+		        // read correctly?
    
    // this is heavy!
    // 
-   std::pair<bool, coot::dictionary_residue_restraints_t> r =
-      get_monomer_restraints(monomer_name);
+   std::pair<bool, dictionary_residue_restraints_t> r =
+      get_monomer_restraints(monomer_name, imol_enc);
 
    hb_t hb_type = HB_UNASSIGNED;
 
@@ -418,17 +441,32 @@ coot::protein_geometry::get_h_bond_type(const std::string &atom_name, const std:
       m += monomer_name;
       std::cout << m << std::endl;
    } else {
-      for (unsigned int i=0; i<r.second.atom_info.size(); i++) {
-	 if (r.second.atom_info[i].atom_id_4c == atom_name) { 
-	    std::string type = r.second.atom_info[i].type_energy;
+      const dictionary_residue_restraints_t &dict = r.second;
+      for (unsigned int i=0; i<dict.atom_info.size(); i++) {
+	 if (dict.atom_info[i].atom_id_4c == atom_name) {
+	    std::string type = dict.atom_info[i].type_energy;
 	    if (type.length()) {
-	       std::map<std::string, coot::energy_lib_atom>::const_iterator it = 
-		  energy_lib.atom_map.find(type);
-	       if (it != energy_lib.atom_map.end()) { 
-		  hb_type = it->second.hb_type;
-		  if (debug)
-		     std::cout << "DEBUG:: found hb_type " << hb_type << " for " << atom_name
-			       << " given energy type " << type << std::endl;
+
+	       if (type == "H") { // Acedrg types
+
+		  // if this is connected to a H-bond donor, then change the
+		  // type to HB_HYDROGEN
+		  if (dict.is_connected_to_donor(atom_name, energy_lib)) {
+		     hb_type = HB_HYDROGEN;
+		     // std::cout << "... atom " << atom_name << " was connected to donor" << std::endl;
+		  } else {
+		     // std::cout << "... atom " << atom_name << " was not connected to donor" << std::endl;
+		  }
+
+	       } else {
+		  std::map<std::string, coot::energy_lib_atom>::const_iterator it =
+		     energy_lib.atom_map.find(type);
+		  if (it != energy_lib.atom_map.end()) {
+		     hb_type = it->second.hb_type;
+		     if (debug)
+			std::cout << "DEBUG:: found hb_type " << hb_type << " for " << atom_name
+				  << " given energy type " << type << std::endl;
+		  }
 	       }
 	    }
 	    break;

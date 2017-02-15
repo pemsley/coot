@@ -1,3 +1,23 @@
+/* ideal/trans-peptide.cc
+ * 
+ * Copyright 2016 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #include "simple-restraint.hh"
 int
@@ -229,7 +249,8 @@ void coot::my_df_trans_peptides(const gsl_vector *v,
 
    if (restraints->restraints_usage_flag & TRANS_PEPTIDE_MASK) { 
      
-      for (int i=0; i<restraints->size(); i++) {
+      int restraints_size = restraints->size();
+      for (int i=0; i< restraints_size; i++) {
 
 	 const simple_restraint &restraint = (*restraints)[i];
       

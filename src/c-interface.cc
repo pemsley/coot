@@ -2,6 +2,7 @@
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Copyright 2008, 2009 by The University of Oxford
+ * Copyright 2013, 2014, 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License as
@@ -7254,7 +7255,7 @@ void citation_notice_off() {
 
    graphics_info_t::show_citation_notice = 0;
 
-} 
+}
 
 /*  ----------------------------------------------------------------------- */
 /*                  cursor function                                         */
@@ -7918,6 +7919,7 @@ PyObject *view_description_py(int view_number) {
 }
 #endif // PYTHON
 
+#include "view.hh"
 
 /*! \brief save views to view_file_name */
 void save_views(const char *view_file_name) {

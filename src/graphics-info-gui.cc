@@ -2,6 +2,7 @@
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by the University of York
  * Copyright 2007, 2008, 2009 by the University of Oxford
+ * Copyright 2014, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -610,7 +611,8 @@ graphics_info_t::set_directory_for_fileselection(GtkWidget *fileselection) const
     set_directory_for_filechooser(fileselection);
   } else {
     if (directory_for_fileselection != "") {
-//       std::cout << "set directory_for_fileselection "
+
+       //       std::cout << "set directory_for_fileselection "
 // 		<< directory_for_fileselection << std::endl;
       gtk_file_selection_set_filename(GTK_FILE_SELECTION(fileselection),
 				      directory_for_fileselection.c_str());
@@ -682,14 +684,14 @@ void
 graphics_info_t::set_directory_for_filechooser(GtkWidget *fileselection) const {
 
    if (directory_for_filechooser != "") {
-       std::cout << "set directory_for_filechooser "
-                 << directory_for_filechooser << std::endl;
+      // std::cout << "set directory_for_filechooser "
+      // << directory_for_filechooser << std::endl;
       gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fileselection),
                                       directory_for_filechooser.c_str());
    } else {
       // set to cwd!?
       std::string cwd = coot::util::current_working_dir();
-      std::cout << "set directory_for_filechooser to cwd " << std::endl;
+      // std::cout << "set directory_for_filechooser to cwd " << std::endl;
       gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(fileselection),
                                           cwd.c_str());
       // std::cout << "not setting directory_for_fileselection" << std::endl;
@@ -1272,7 +1274,7 @@ graphics_info_t::fill_output_residue_info_widget(GtkWidget *widget, int imol,
 
    // name
    graphics_info_t g;
-   std::pair<bool, std::string> p = g.Geom_p()->get_monomer_name(residue_name);
+   std::pair<bool, std::string> p = g.Geom_p()->get_monomer_name(residue_name, imol);
    if (p.first) {
       gtk_label_set_text(GTK_LABEL(residue_name_widget), p.second.c_str());
    } 
@@ -2165,12 +2167,17 @@ int
 graphics_info_t::fill_chi_angles_vbox(GtkWidget *vbox, std::string monomer_type,
 				      edit_chi_edit_type mode) {
 
+   int imol = 0; // FIXME - extract this from the vbox
+   //
+   // g_object_get_data(G_OBJECT(vbox), ...);
+   // g_object_set_data(..) elsewhere is needed of course
+
    int n_non_const_torsions = -1; // unset
 
    clear_out_container(vbox);
    
    std::pair<short int, coot::dictionary_residue_restraints_t> p =
-      Geom_p()->get_monomer_restraints(monomer_type);
+      Geom_p()->get_monomer_restraints(monomer_type, imol);
    
    if (p.first) {
 
@@ -2532,7 +2539,7 @@ graphics_info_t::execute_setup_backbone_torsion_edit(int imol, int atom_index) {
 		  moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
 		  atom_selection_container_t asc = make_asc(mol);
 		  regularize_object_bonds_box.clear_up();
-		  make_moving_atoms_graphics_object(asc);
+		  make_moving_atoms_graphics_object(imol, asc);
 
 		  // save the fixed end points:
 		  backbone_torsion_end_ca_1 = 
@@ -2629,7 +2636,7 @@ graphics_info_t::set_edit_backbone_adjustments(GtkWidget *widget) {
 
 }
 
-// static 
+// static
 void
 graphics_info_t::edit_backbone_peptide_changed_func(GtkAdjustment *adj, GtkWidget *window) { 
    
@@ -2647,17 +2654,17 @@ graphics_info_t::edit_backbone_peptide_changed_func(GtkAdjustment *adj, GtkWidge
       
       double rad_angle = clipper::Util::d2rad(adj->value);
       clipper::Coord_orth new_c = 
-	 g.rotate_round_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
-			       this_c.second,
-			       backbone_torsion_end_ca_1, rad_angle);
+	 coot::util::rotate_around_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
+				this_c.second,
+				backbone_torsion_end_ca_1, rad_angle);
       clipper::Coord_orth new_o = 
-	 g.rotate_round_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
-			       this_o.second,
-			       backbone_torsion_end_ca_1, rad_angle);
+	 coot::util::rotate_around_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
+					  this_o.second,
+					  backbone_torsion_end_ca_1, rad_angle);
       clipper::Coord_orth new_n = 
-	 g.rotate_round_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
-			       next_n.second,
-			       backbone_torsion_end_ca_1, rad_angle);
+	 coot::util::rotate_around_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
+					  next_n.second,
+					  backbone_torsion_end_ca_1, rad_angle);
       n_atom_p->x = new_n.x();
       n_atom_p->y = new_n.y();
       n_atom_p->z = new_n.z();
@@ -2688,7 +2695,7 @@ graphics_info_t::edit_backbone_peptide_changed_func(GtkAdjustment *adj, GtkWidge
 					  "resname", label, 1, "inscode", "chainid");
 	    vp.push_back(phipsi1);
 	 }
-	 if (pp.second.first > -200) { 
+	 if (pp.second.first > -200) {
 	    label = int_to_string(n_atom_p->GetSeqNum());
 	    label += n_atom_p->GetChainID();
 	    coot::util::phi_psi_t phipsi2(clipper::Util::rad2d(pp.second.first), 
@@ -2702,7 +2709,8 @@ graphics_info_t::edit_backbone_peptide_changed_func(GtkAdjustment *adj, GtkWidge
       } 
 #endif // HAVE_GTK_CANVAS
       regularize_object_bonds_box.clear_up();
-      g.make_moving_atoms_graphics_object(*moving_atoms_asc);
+      int imol = 0; // should be fine for backbone edits
+      g.make_moving_atoms_graphics_object(imol, *moving_atoms_asc);
       graphics_draw();
 
    } else { 
@@ -2730,13 +2738,13 @@ graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidg
 
       double rad_angle = clipper::Util::d2rad(adj->value);
       clipper::Coord_orth new_c = 
-	 g.rotate_round_vector(carbonyl_n_pos - backbone_torsion_end_ca_1,
-			       this_c.second,
-			       backbone_torsion_end_ca_1, rad_angle);
+	 coot::util::rotate_around_vector(carbonyl_n_pos - backbone_torsion_end_ca_1,
+					  this_c.second,
+					  backbone_torsion_end_ca_1, rad_angle);
       clipper::Coord_orth new_o = 
-	 g.rotate_round_vector(carbonyl_n_pos - backbone_torsion_end_ca_1,
-			       this_o.second,
-			       backbone_torsion_end_ca_1, rad_angle);
+	 coot::util::rotate_around_vector(carbonyl_n_pos - backbone_torsion_end_ca_1,
+					  this_o.second,
+					  backbone_torsion_end_ca_1, rad_angle);
 
       c_atom_p->x = new_c.x();
       c_atom_p->y = new_c.y();
@@ -2779,7 +2787,8 @@ graphics_info_t::edit_backbone_carbonyl_changed_func(GtkAdjustment *adj, GtkWidg
 
 #endif // HAVE_GTK_CANVAS
       regularize_object_bonds_box.clear_up();
-      g.make_moving_atoms_graphics_object(*moving_atoms_asc);
+      int imol = 0; // should be fine for backbone edits
+      g.make_moving_atoms_graphics_object(imol, *moving_atoms_asc);
       graphics_draw();
 
    } else { 
@@ -2807,11 +2816,11 @@ graphics_info_t::change_peptide_carbonyl_by(double angle) {
    double rad_angle = clipper::Util::d2rad(angle);
    
    clipper::Coord_orth new_c = 
-      rotate_round_vector(carbonyl_n_pos - backbone_torsion_end_ca_1,
+      coot::util::rotate_around_vector(carbonyl_n_pos - backbone_torsion_end_ca_1,
 			  carbonyl_c_pos,
 			  carbonyl_n_pos, rad_angle);
    clipper::Coord_orth new_o = 
-      rotate_round_vector(carbonyl_n_pos - backbone_torsion_end_ca_1,
+      coot::util::rotate_around_vector(carbonyl_n_pos - backbone_torsion_end_ca_1,
 			  carbonyl_o_pos,
 			  carbonyl_n_pos, rad_angle);
 
@@ -2853,7 +2862,8 @@ graphics_info_t::change_peptide_carbonyl_by(double angle) {
 #endif // HAVE_GTK_CANVAS
 
    regularize_object_bonds_box.clear_up();
-   make_moving_atoms_graphics_object(*moving_atoms_asc);
+   int imol = 0; // should be fine for backbone edits
+   make_moving_atoms_graphics_object(imol, *moving_atoms_asc);
    graphics_draw();
 } 
 
@@ -2911,7 +2921,7 @@ graphics_info_t::phi_psi_pairs_from_moving_atoms() {
       p.second.first  = phi;
       p.second.second = psi;
 
-   } else { 
+   } else {
 
       // can't get the second ramachandran point
       p.second.first = -2000;
@@ -2937,16 +2947,16 @@ graphics_info_t::change_peptide_peptide_by(double angle) {
    double rad_angle = clipper::Util::d2rad(angle);
 
    clipper::Coord_orth new_c = 
-      rotate_round_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
+      coot::util::rotate_around_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
 			  carbonyl_c_pos,
 			  backbone_torsion_end_ca_1, rad_angle);
    clipper::Coord_orth new_o = 
-      rotate_round_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
+      coot::util::rotate_around_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
 			  carbonyl_o_pos,
 			  backbone_torsion_end_ca_1, rad_angle);
 
    clipper::Coord_orth new_n = 
-      rotate_round_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
+      coot::util::rotate_around_vector(backbone_torsion_end_ca_2 - backbone_torsion_end_ca_1,
 			  carbonyl_n_pos,
 			  backbone_torsion_end_ca_1, rad_angle);
 
@@ -2991,7 +3001,8 @@ graphics_info_t::change_peptide_peptide_by(double angle) {
 #endif // HAVE_GTK_CANVAS
 
    regularize_object_bonds_box.clear_up();
-   make_moving_atoms_graphics_object(*moving_atoms_asc);
+   int imol = 0; // should be fine for backbone edits
+   make_moving_atoms_graphics_object(imol, *moving_atoms_asc);
    graphics_draw();
 } 
 

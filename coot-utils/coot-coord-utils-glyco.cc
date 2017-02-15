@@ -306,8 +306,8 @@ coot::beam_in_linked_residue::get_residue() const {
 	    position =     clipper::Coord_orth(at_O6->x, at_O6->y, at_O6->z);
 	    direction = origin_shift - base;
 	    clipper::Coord_orth new_pos =
-	       coot::util::rotate_round_vector(direction, position,
-					       origin_shift, diff);
+	       coot::util::rotate_around_vector(direction, position,
+						origin_shift, diff);
 	    at_O6->x = new_pos.x();
 	    at_O6->y = new_pos.y();
 	    at_O6->z = new_pos.z();
@@ -327,7 +327,7 @@ coot::beam_in_linked_residue::get_residue() const {
 	    position = clipper::Coord_orth(at_O6->x, at_O6->y, at_O6->z);
 	    double diff = clipper::Util::d2rad(template_torsion - current_torsion);
 	    clipper::Coord_orth new_pos =
-	       coot::util::rotate_round_vector(direction, position, origin_shift, -diff);
+	       coot::util::rotate_around_vector(direction, position, origin_shift, -diff);
 
 	    at_O6->x = new_pos.x();
 	    at_O6->y = new_pos.y();
@@ -340,7 +340,7 @@ coot::beam_in_linked_residue::get_residue() const {
 	       mmdb::Atom *at = residue_atoms[i];
 	       clipper::Coord_orth p(at->x, at->y, at->z);
 	       clipper::Coord_orth n =
-		  coot::util::rotate_round_vector(direction, p, origin_shift, -diff);
+		  coot::util::rotate_around_vector(direction, p, origin_shift, -diff);
 	       at->x = n.x();
 	       at->y = n.y();
 	       at->z = n.z();
@@ -356,6 +356,8 @@ coot::beam_in_linked_residue::get_residue() const {
 mmdb::Residue *
 coot::beam_in_linked_residue::get_residue_raw() const {
 
+   int imol = 0; // dummy
+   
    mmdb::Residue *r = NULL;
    if (! have_template) {
       std::cout << "WARNING:: no template" << std::endl;
@@ -407,7 +409,8 @@ coot::beam_in_linked_residue::get_residue_raw() const {
 	       // Try getting a molecule, then extracting the residue
 	       // (yes, that works).
 	       //
-	       mmdb::Manager *r_mol = geom_p->mol_from_dictionary(comp_id_new, 1);
+	       int imol_enc = protein_geometry::IMOL_ENC_ANY;
+	       mmdb::Manager *r_mol = geom_p->mol_from_dictionary(comp_id_new, imol_enc, 1);
 	       if (r_mol) {
 		  mmdb::Residue *r_new = coot::util::get_first_residue(r_mol);
 	       
@@ -434,15 +437,14 @@ coot::beam_in_linked_residue::get_residue_raw() const {
    if (r) {
       try { 
 	 // apply the mods given the link type
-	 std::pair<coot::protein_geometry::chem_mod, coot::protein_geometry::chem_mod>
-	    mods = geom_p->get_chem_mods_for_link(link_type);
+	 std::pair<coot::chem_mod, coot::chem_mod> mods = geom_p->get_chem_mods_for_link(link_type);
 
 	 std::string res_name_ref = residue_ref->GetResName();
 	 for (unsigned int i=0; i<mods.first.atom_mods.size(); i++) { 
 	    if (mods.first.atom_mods[i].function == CHEM_MOD_FUNCTION_DELETE) {
 	       std::string atom_name = mods.first.atom_mods[i].atom_id;
 	       // now we need to expand the atom_id;
-	       std::string at_name = atom_id_mmdb_expand(atom_name, res_name_ref);
+	       std::string at_name = atom_id_mmdb_expand(atom_name, res_name_ref, imol);
 	       // std::cout << ".... delete atom \"" << at_name << "\" in residue_ref"
 	       // << std::endl;
 	       delete_atom(residue_ref, at_name);
@@ -454,7 +456,7 @@ coot::beam_in_linked_residue::get_residue_raw() const {
 	    if (mods.second.atom_mods[i].function == CHEM_MOD_FUNCTION_DELETE) {
 	       std::string atom_name = mods.second.atom_mods[i].atom_id;
 	       // now we need to expand the atom_id;
-	       std::string at_name = atom_id_mmdb_expand(atom_name, res_name_new);
+	       std::string at_name = atom_id_mmdb_expand(atom_name, res_name_new, imol);
  	       delete_atom(r, at_name);
 	    }
 	 }
@@ -538,10 +540,11 @@ coot::beam_in_linked_residue::delete_atom(mmdb::Residue *res, const std::string 
 
 std::string
 coot::beam_in_linked_residue::atom_id_mmdb_expand(const std::string &atom_id,
-						  const std::string &res_name) const {
+						  const std::string &res_name,
+						  int imol) const {
 
 
-   std::string atom_id_expanded = geom_p->atom_id_expand(atom_id, res_name);
+   std::string atom_id_expanded = geom_p->atom_id_expand(atom_id, res_name, imol);
    return atom_id_expanded;
 } 
 
@@ -664,7 +667,7 @@ coot::glyco_tree_t::glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol,
 
       std::queue<mmdb::Residue *> q;
       std::vector<mmdb::Residue *> considered;
-      std::vector<mmdb::Residue *> linked_residues;
+      // std::vector<mmdb::Residue *> linked_residues;
       
       if (is_pyranose(residue_p) || std::string(residue_p->name) == "ASN")
 	 q.push(residue_p);
@@ -721,7 +724,7 @@ coot::glyco_tree_t::is_pyranose(mmdb::Residue *residue_p) const {
    } 
 
    return is_pyranose;
-} 
+}
 
 
 // find tree rooted on residue_p.
@@ -782,25 +785,28 @@ coot::glyco_tree_t::find_rooted_tree(mmdb::Residue *residue_p,
 
 		     if (link.first == "NAG-ASN") {
 			if (link.second == true) {
-			   std::cout << "   Adding "
-				     << coot::residue_spec_t(done_residues[ires].second)
-				     << " " << "via NAG-ASN" << " to parent "
-				     << coot::residue_spec_t(it->residue)
-				     << std::endl;
+			   if (false)
+			      std::cout << "   Adding "
+					<< coot::residue_spec_t(done_residues[ires].second)
+					<< " " << "via NAG-ASN" << " to parent "
+					<< coot::residue_spec_t(it->residue)
+					<< std::endl;
 			   linked_residue_t this_linked_residue(done_residues[ires].second, "NAG-ASN");
 			   glyco_tree.append_child(it, this_linked_residue);
 			   something_added = true;
 			   done_residues[ires].first = true;
 			}
 		     } else {
-			std::cout << "found link type " << link.first << " order-switch " 
-				  << link.second << std::endl;
+			if (false)
+			   std::cout << "found link type " << link.first << " order-switch " 
+				     << link.second << std::endl;
 			linked_residue_t this_linked_residue(done_residues[ires].second, link.first);
 			this_linked_residue.order_switch = link.second;
-			std::cout << "   Adding " << coot::residue_spec_t(done_residues[ires].second)
-				  << " via " << link.first << " to parent " 
-				  << coot::residue_spec_t(it->residue)
-				  << std::endl;
+			if (false)
+			   std::cout << "   Adding " << coot::residue_spec_t(done_residues[ires].second)
+				     << " via " << link.first << " to parent " 
+				     << coot::residue_spec_t(it->residue)
+				     << std::endl;
 			glyco_tree.append_child(it, this_linked_residue);
 			something_added = true;
 			done_residues[ires].first = true;
@@ -890,6 +896,45 @@ coot::glyco_tree_t::print(const tree<linked_residue_t> &glyco_tree) const {
       std::cout << "   " << s << " " << *it << std::endl;
    }
 }
+
+std::vector<mmdb::Residue *>
+coot::glyco_tree_t::residues(const tree<linked_residue_t> &glyco_tree) const {
+
+   tree<linked_residue_t>::iterator it;
+   std::vector<mmdb::Residue *> v;
+   for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
+      v.push_back(it->residue);
+   }
+   return v;
+}
+
+std::vector<mmdb::Residue *>
+coot::glyco_tree_t::residues(const coot::residue_spec_t &containing_res_spec) const {
+
+   // will this always find the right ASN? (consider in protien chain ASN next to ASN)
+   //
+   std::vector<mmdb::Residue *> v;
+   for (unsigned int ires=0; ires<linked_residues.size(); ires++) {
+      mmdb::Residue *this_res = linked_residues[ires];
+      std::string residue_name(this_res->name);
+      std::cout << "residues(): considering residue " << coot::residue_spec_t(this_res) << " "
+		<< residue_name << std::endl;
+      if (residue_name == "ASN") {
+	 std::vector<mmdb::Residue *> res_store;
+	 tree<coot::linked_residue_t> tr = find_ASN_rooted_tree(this_res, linked_residues);
+	 res_store = residues(tr);
+	 for (unsigned int ii=0; ii<res_store.size(); ii++) {
+	    coot::residue_spec_t spec(res_store[ii]);
+	    if (spec == containing_res_spec) {
+	       v = res_store;
+	       break;
+	    }
+	 }
+      }
+   }
+  return v;
+}
+
 
 void
 coot::glyco_tree_t::compare_vs_allowed_trees(const tree<linked_residue_t> &tr_for_testing) const {
@@ -1092,7 +1137,7 @@ coot::glyco_tree_t::complex_tree() const {
    linked_residue_t MAN_3  ("BMA", "BETA1-4");  // parent is NAG_2
    linked_residue_t NAG_4  ("NAG", "BETA1-4");  // parent is MAN_3
 
-   linked_residue_t XYL_4  ("XYL", "BETA1-2");  // parent is MAN_3
+   linked_residue_t XYP_4  ("XYP", "BETA1-2");  // parent is MAN_3
    
    linked_residue_t MAN_4_1("MAN", "ALPHA1-6"); // parent is MAN_3
    linked_residue_t NAG_4_2("NAG", "ALPHA1-6"); // parent is MAN_4_1
@@ -1123,7 +1168,7 @@ coot::glyco_tree_t::complex_tree() const {
    tree<linked_residue_t>::iterator gal_5_2 = t.append_child(nag_5_1, GAL_5_2);
    
    tree<linked_residue_t>::iterator nag_4   = t.append_child(man_3,   NAG_4);
-   tree<linked_residue_t>::iterator xyl_4   = t.append_child(man_3,   XYL_4);
+   tree<linked_residue_t>::iterator xyp_4   = t.append_child(man_3,   XYP_4);
 
    tree<linked_residue_t>::iterator man_6_1 = t.append_child(man_3,   MAN_6_1);
    tree<linked_residue_t>::iterator nag_6_2 = t.append_child(man_6_1, NAG_6_2);

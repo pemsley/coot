@@ -2,6 +2,7 @@
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Copyright 2008, 2009, 2011, 2012 by The University of Oxford
+ * Copyright 2014, 2015 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -328,9 +329,11 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
 	 map_type = "difference";
       else
 	 map_type = "conventional";
+
+      std::string mtz_file_name_str = mtz_file_name;
       
       std::cout << "INFO:: making " << map_type << " map from MTZ filename "
-		<< mtz_file_name << " using " << f_col << " "
+		<< mtz_file_name_str << " using " << f_col << " "
 		<< phi_col << std::endl;
 
       if (valid_labels(mtz_file_name, f_col, phi_col, weight_col, use_weights)) {
@@ -340,7 +343,7 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
 	 imol = g.create_molecule();
 	 float msr = graphics_info_t::map_sampling_rate;
 	 std::string cwd = coot::util::current_working_dir();
-	 g.molecules[imol].map_fill_from_mtz_with_reso_limits(std::string(mtz_file_name),
+	 g.molecules[imol].map_fill_from_mtz_with_reso_limits(mtz_file_name_str,
 							      cwd,
 							      std::string(f_col),
 							      std::string(phi_col),
@@ -2104,5 +2107,48 @@ PyObject *qq_plot_map_and_model_py(int imol,
    return r;
 }
 
+#endif // USE_PYTHON
+
+#ifdef USE_PYTHON
+//! \brief return two lists: a list of vertices and a list of indices for connection
+PyObject *map_contours(int imol, float contour_level) {
+
+   PyObject *r = Py_False;
+
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t g;
+      coot::Cartesian centre = g.RotationCentre();
+      float radius = graphics_info_t::box_radius;
+      r = PyList_New(2);
+      std::pair<std::vector<clipper::Coord_orth>,
+	 std::vector<std::pair<unsigned int, unsigned> > > contours =
+	 graphics_info_t::molecules[imol].get_contours(contour_level, radius, centre);
+      const std::vector<clipper::Coord_orth> &vertices = contours.first;
+      const std::vector<std::pair<unsigned int, unsigned int> > &connections = contours.second;
+      unsigned int n_vertices = vertices.size();
+      unsigned int n_connections = connections.size();
+      PyObject *vertex_list_py = PyList_New(n_vertices);
+      PyObject *connection_list_py = PyList_New(n_vertices);
+      for (unsigned int i=0; i<vertices.size(); i++) {
+	 PyObject *v = PyList_New(3);
+	 PyList_SetItem(v, 0, PyFloat_FromDouble(vertices[i].x()));
+	 PyList_SetItem(v, 1, PyFloat_FromDouble(vertices[i].y()));
+	 PyList_SetItem(v, 2, PyFloat_FromDouble(vertices[i].z()));
+	 PyList_SetItem(vertex_list_py, i, v);
+      }
+      for (unsigned int i=0; i<connections.size(); i++) {
+	 PyObject *v = PyList_New(2);
+	 PyList_SetItem(v, 0, PyInt_FromLong(connections[i].first));
+	 PyList_SetItem(v, 1, PyInt_FromLong(connections[i].second));
+	 PyList_SetItem(connection_list_py, 0, v);
+      }
+      PyList_SetItem(r, 0, vertex_list_py);
+      PyList_SetItem(r, 1, connection_list_py);
+   }
+   if (PyBool_Check(r))
+      Py_XINCREF(r);
+   return r;
+}
+// \}
 #endif // USE_PYTHON
 

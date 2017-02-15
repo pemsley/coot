@@ -1,6 +1,7 @@
 /* coot-utils/coot-map-utils.hh
  * 
  * Copyright 2004, 2005, 2006, 2007 The University of York
+ * Copyright 2015 by Medical Research Council
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -15,7 +16,8 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc.,  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA.
  */
 
 #ifndef COOT_MAP_UTILS_HH
@@ -195,12 +197,6 @@ namespace coot {
 				 const std::vector<coot::residue_spec_t> &nb_residues,
 				 int atom_mask_mode,
 				 const clipper::Xmap<float> &xmap);
-
-      // caller deletes the selection!
-      int
-      specs_to_atom_selection(const std::vector<coot::residue_spec_t> &specs,
-			      mmdb::Manager *mol,
-			      int atom_mask_mode);
 
       // return a map and its standard deviation.  scale is applied to
       // map_in_2 before substraction.

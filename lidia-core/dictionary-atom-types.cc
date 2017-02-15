@@ -1,3 +1,23 @@
+/* lidia-core/dictionary-atom-types.cc
+ * 
+ * Copyright 2016 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #ifndef MAKE_ENHANCED_LIGAND_TOOLS
 int main(int argc, char **argv) {return 0;}
@@ -62,7 +82,8 @@ int main(int argc, char **argv) {
 
       const std::string &comp_id = r.residue_info.comp_id;
       bool idealised_flag = true;
-      mmdb::Manager *mol = geom.mol_from_dictionary(comp_id, idealised_flag);
+      int imol = 0; // dummy
+      mmdb::Manager *mol = geom.mol_from_dictionary(comp_id, imol, idealised_flag);
 
       if (! mol) {
 	 std::cout << "Null mol from mol_from_dictionary() for " <<  comp_id << std::endl;
@@ -77,7 +98,7 @@ int main(int argc, char **argv) {
 	 } else { 
 
 	    try { 
-	       RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, geom);
+	       RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, geom);
 
 	       cod::atom_types_t t;
 	       std::vector<cod::atom_type_t> v = t.get_cod_atom_types(rdkm);
@@ -177,7 +198,8 @@ int main(int argc, char **argv) {
 
       const std::string &comp_id = r.residue_info.comp_id;
       bool idealised_flag = true;
-      mmdb::Manager *mol = geom.mol_from_dictionary(comp_id, idealised_flag);
+      int imol = 0; // dummy
+      mmdb::Manager *mol = geom.mol_from_dictionary(comp_id, imol, idealised_flag);
 
       if (! mol) {
 	 std::cout << "Null mol from mol_from_dictionary() for " <<  comp_id << std::endl;
@@ -192,7 +214,7 @@ int main(int argc, char **argv) {
 	 } else { 
 
 	    try { 
-	       RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, geom);
+	       RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol, geom);
 	       cod::atom_types_t t;
 	       std::vector<cod::atom_type_t> v = t.get_cod_atom_types(rdkm);
 	       if (v.size() == r.atom_info.size()) {

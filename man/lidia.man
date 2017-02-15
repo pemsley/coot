@@ -1,0 +1,18 @@
+
+.TH COOT 1
+
+.SH NAME
+lidia
+.SH SYNOPSIS
+lidia
+
+.SH DESCRIPTION
+
+Provide a 2D gui for creation and display of chemical diagrams.
+
+.SH NOTES
+lidia is a stand-alone version of the ligand-builder in the Coot package.
+
+.SH AUTHOR
+Paul Emsley
+

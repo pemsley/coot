@@ -23,7 +23,8 @@ lib_LTLIBRARIES=libcoot-geometry.la
 EXTRA_DIST = notes Makefile.simple
 
 pkginclude_HEADERS =  protein-geometry.hh read-sbase.hh lbg-graph.hh srs-interface.hh \
-   dict-mismatches.hh hb-types.hh
+   dict-utils.hh dict-mismatches.hh energy-lib.hh match-results.hh hb-types.hh main-chain.hh \
+   residue-and-atom-specs.hh chem_mods.hh mol-utils-2.hh
 
 pkgincludedir = $(includedir)/coot/geometry
 
@@ -37,9 +38,10 @@ AM_CXXFLAGS = \
 
 
 libcoot_geometry_la_SOURCES = protein-geometry.cc protein-geometry-mmdb.cc \
-    read-sbase.cc energy-lib.cc 	 \
-    chem_mods.cc \
-    lbg-graph.cc  dreiding.cc dict-utils.cc cif-parse.cc
+    read-sbase.cc energy-lib.cc   \
+    chem_mods.cc srs-interface.cc protein-donor-acceptors.cc protein-donor-acceptors.hh \
+    lbg-graph.cc  dreiding.cc dict-utils.cc cif-parse.cc main-chain.cc residue-and-atom-specs.cc \
+    mol-utils-2.cc
 
 libcoot_geometry_la_LIBADD = \
         $(top_builddir)/mini-mol/libcoot-mini-mol.la \
@@ -50,12 +52,12 @@ libcoot_geometry_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # libcoot_geometry_la_CXXFLAGS = -g -O1
 
-check_PROGRAMS = test-geometry test-read-components test-ccp4srs 
+check_PROGRAMS = test-geometry test-read-components test-ccp4srs \
+	coot-dictionary-bond-distributions
 
 bin_PROGRAMS = \
 	coot-compare-dictionaries          \
 	coot-make-shelx-restraints         \
-	coot-dictionary-bond-distributions \
 	coot-available-comp-id
 
 test_geometry_SOURCES = test-geometry.cc

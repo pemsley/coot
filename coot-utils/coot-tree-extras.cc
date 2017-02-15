@@ -1,6 +1,7 @@
 /* coot-utils/coot-tree-extras.cc
  * 
  * Copyright 2009 by The University of Oxford
+ * Copyright 2015 by Medical Research Council
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -1316,7 +1317,7 @@ coot::atom_tree_t::rotate_internal(std::vector<coot::map_index_t> moving_atom_in
       int idx = moving_atom_indices[im].index();
       mmdb::Atom *at = residue_atoms[idx];
       clipper::Coord_orth po(at->x, at->y, at->z);
-      clipper::Coord_orth pt = coot::util::rotate_round_vector(dir, po, base_atom_pos, angle);
+      clipper::Coord_orth pt = coot::util::rotate_around_vector(dir, po, base_atom_pos, angle);
       if (debug)
 	 std::cout << "  rotate_internal() moving atom number " << im << " " << at->name
 		   << " from\n    " << at->x << "," << at->y << "," << at->z << " to "

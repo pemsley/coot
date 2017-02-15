@@ -4,6 +4,7 @@
  * Author: Paul Emsley
  * Copyright 2007 by The University of York
  * Copyright 2009 by The University of Oxford
+ * Copyright 2014, 2015, 2016 by Medical Research Council
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -18,7 +19,7 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1307
  * USA.
  */
 
@@ -1447,7 +1448,7 @@ molecule_class_info_t::update_strict_ncs_symmetry(const coot::Cartesian &centre_
    Bond_lines_container bonds;
    strict_ncs_bonds_box.clear();
    strict_ncs_bonds_box =
-      bonds.add_NCS(atom_sel,
+      bonds.add_NCS(atom_sel, imol_no,
 		    centre_point,
 		    graphics_info_t::symmetry_search_radius,
 		    cmats,
@@ -2554,13 +2555,11 @@ molecule_class_info_t::add_molecular_symmetry_matrices() {
 				 unsigned int l = parts[ii].length();
 				 if (l > 1) {
 				    std::string chain_id = parts[ii].substr(0,l-1);
-				    std::cout << "adding chaind id " << chain_id << std::endl;
 				    biomt_chain_ids.push_back(chain_id);
 				 } else {
 				    if (l == 1) {
 				       // no comma
 				       std::string chain_id = parts[ii];
-				       std::cout << "adding chaind id " << chain_id << std::endl;
 				       biomt_chain_ids.push_back(chain_id);
 				    }
 				 } 
@@ -2614,7 +2613,6 @@ molecule_class_info_t::add_molecular_symmetry_matrices() {
 	 if (it->first.first > matrix_id_max)
 	    matrix_id_max = it->first.first;
       }
-      std::cout << "matrix_id_max " << matrix_id_max << std::endl;
 
       if (matrix_id_max > 0) {
 	 for (int idx=0; idx<=matrix_id_max; idx++) { 
@@ -2655,7 +2653,7 @@ molecule_class_info_t::add_molecular_symmetry_matrices() {
 	 }
       }
 
-      std::cout << "made " << biomt_matrices.size() << " biomt matrices" << std::endl;
+      // std::cout << "made " << biomt_matrices.size() << " biomt matrices" << std::endl;
 
       for (unsigned int jj=0; jj<biomt_chain_ids.size(); jj++) { 
 	 for (unsigned int ii=0; ii<biomt_matrices.size(); ii++) {

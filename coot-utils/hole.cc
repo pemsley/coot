@@ -1,3 +1,24 @@
+/* coot-utils/hole.cc
+ * 
+ * Copyright 2011, 2012 by The University of Oxford
+ * Copyright 2015, 2016 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #include <fstream>
 #include "clipper/ccp4/ccp4_map_io.h"
@@ -25,6 +46,7 @@ coot::hole::hole(mmdb::Manager *mol_in,
 void
 coot::hole::assign_vdw_radii(const coot::protein_geometry &geom) {
 
+   int imol = 0; // dummy
    bool use_vdwH_flag = 0; // extended atoms
 
    std::map<std::pair<std::string, std::string>, double> cached_radii;
@@ -57,7 +79,7 @@ coot::hole::assign_vdw_radii(const coot::protein_geometry &geom) {
 	       if (cached_radii.find(p) != cached_radii.end()) {
 		  radius = it->second;
 	       } else {
-		  radius = geom.get_vdw_radius(atom_name, residue_name, use_vdwH_flag);
+		  radius = geom.get_vdw_radius(atom_name, residue_name, imol, use_vdwH_flag);
 	       }
 	       if (radius > 0) {
 		  at->PutUDData(radius_handle, radius);
@@ -377,10 +399,10 @@ coot::hole::write_probe_path(const std::vector<std::pair<clipper::Coord_orth, do
 	    // now let's rotate unit_plane_vect around the circle.
 	    clipper::Coord_orth pos(probe_path[i].second * unit_plane_vect);
 	    clipper::Coord_orth circle_point =
-	       coot::util::rotate_round_vector(v_hat,
-					       pos,
-					       clipper::Coord_orth(0,0,0),
-					       theta);
+	       coot::util::rotate_around_vector(v_hat,
+						pos,
+						clipper::Coord_orth(0,0,0),
+						theta);
 	    clipper::Coord_orth surface_point = probe_path[i].first + circle_point;
 
 	    render_stream << surface_point.x() << " "

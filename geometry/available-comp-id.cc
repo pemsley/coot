@@ -1,6 +1,7 @@
 /* geometry/available-comp-id.cc
  * 
  * Copyright 2015 Paul Emsley
+ * Copyright 2015 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

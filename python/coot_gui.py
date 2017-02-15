@@ -20,7 +20,8 @@
 
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
-# Foundation, Inc.,  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA
 
 
 # Fire up the coot scripting gui.  This function is called from the
@@ -577,7 +578,6 @@ def generic_multiple_entries_with_check_button(entry_info_list, check_button_inf
        return False
 
     def go_function_event(*args):
-       print "Here.................. check-button is ", check_button
        if check_button:
           handle_go_function(map(lambda entry: entry.get_text(), entries), check_button.get_active())
        else:
@@ -611,9 +611,11 @@ def generic_multiple_entries_with_check_button(entry_info_list, check_button_inf
        hbox1.pack_start(entry, False, 0)
        vbox.pack_start(hbox1, False, False, 0)
 
-    print "debug:: check-button-info: ", check_button_info
-    if not (type(entry_info_list) is ListType and len(check_button_info) == 2):
-       print "check_button_info failed list and length test"
+    # print "debug:: check-button-info: ", check_button_info
+    # print "debug:: entry-info-list: ", entry_info_list
+
+    if not (type(check_button_info) is ListType):
+            # and len(check_button_info) == 2): we can't do len on a bool
        check_button = False
     else:
        if type(check_button_info[0]) is StringType:
@@ -629,7 +631,7 @@ def generic_multiple_entries_with_check_button(entry_info_list, check_button_inf
        else:
           check_button = False      # the check-button when we don't want to see it
 
-    print "Here check button creation.................. check-button is ", check_button
+    # print "Here check button creation.................. check-button is ", check_button
     vbox.pack_start(h_sep, True, False, 3)
     vbox.pack_start(hbox3, False, False, 0)
     window.add(vbox)
@@ -2035,10 +2037,11 @@ def add_view_to_views_panel(view_name, view_number):
 
 # a button is a list of [label, callback, text_description]
 #
-def dialog_box_of_buttons(window_name, geometry, buttons, close_button_label):
+def dialog_box_of_buttons(window_name, geometry, buttons,
+                          close_button_label, post_hook=None):
    return dialog_box_of_buttons_with_check_button(window_name, geometry,
                                                   buttons, close_button_label,
-                                                  False, False, False)
+                                                  False, False, False, post_hook)
 
 # geometry is an improper list of ints
 #
@@ -2050,6 +2053,9 @@ def dialog_box_of_buttons(window_name, geometry, buttons, close_button_label):
 # If check_button_label is False, don't make one, otherwise create with
 # the given label and "on" state
 #
+# Add a post hook, to execute a function after the dialog is closed.
+# Default is None.
+#
 # Note:
 #  - if label is "HSep" a horizontal separator is inserted instead of a button
 #  - the description is optional
@@ -2058,7 +2064,8 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
                                             buttons, close_button_label,
                                             check_button_label,
                                             check_button_func,
-                                            check_button_is_initially_on_flag):
+                                            check_button_is_initially_on_flag,
+                                            post_close_hook=None):
    
 
    def add_text_to_text_widget(text_box, description):
@@ -2067,6 +2074,11 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
       textbuffer.create_tag("tag", foreground="black", 
                             background = "#c0e6c0")
       textbuffer.insert_with_tags_by_name(start, description, "tag")
+
+   def close_cb_func(*args):
+      if post_close_hook:
+         post_close_hook()
+      window.destroy()
 
    # main line
    window = gtk.Window(gtk.WINDOW_TOPLEVEL)
@@ -2102,7 +2114,7 @@ def dialog_box_of_buttons_with_check_button(window_name, geometry,
    outside_vbox.pack_start(h_sep, False, False, 2)
    ok_button = gtk.Button(close_button_label)
    outside_vbox.pack_end(ok_button, False, False, 0)
-   ok_button.connect("clicked", lambda w: window.destroy())
+   ok_button.connect("clicked", close_cb_func, window, post_close_hook)
 	
    window.show_all()
    return inside_vbox
@@ -4410,7 +4422,7 @@ def solvent_ligand_list():
    global additional_solvent_ligands
    return (additional_solvent_ligands +
            ["EDO", "GOL", "DMS", "ACT", "MPD", "CIT", "SO4", "PO4", "TRS",
-            "TAM"])
+            "TAM", "PG4"])
 
 # add solvent molecules
 #
@@ -5093,6 +5105,8 @@ def click_protein_db_loop_gui():
                      toggle_active_mol(imol)
                      toggle_display_mol(imol)
 
+                  loop_mols.append(imol_loops_consolidated)
+
                   dialog_box_of_buttons("Loop Candidates",
                                         [360, 200],
                                         [["Original loop", lambda func:
@@ -5103,8 +5117,9 @@ def click_protein_db_loop_gui():
                                          ["Toggle All Candidate Loops", lambda func:
                                           toggle_func(imol_loops_consolidated)]
                                          ] + buttons,
-                                        " Close ")
-                  
+                                        " Close ",
+                                        lambda: map(lambda im: (set_mol_displayed(im, 0), set_mol_active(im,0)), loop_mols))
+                 
       user_defined_click(n, pick_func)
       
    generic_number_chooser(range(2,10), 4,

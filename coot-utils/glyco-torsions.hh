@@ -1,3 +1,24 @@
+/* coot-utils/glyco-torsions.hh
+ * 
+ * Copyright 2011, 2012 by The University of Oxford
+ * Copyright 2014 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #include <algorithm>
 #include "utils/coot-utils.hh"
@@ -83,6 +104,9 @@ namespace coot {
    class link_by_torsion_t : public link_by_torsion_base_t {
       void init(mmdb::Residue *ref_res_p, mmdb::Residue *ext_res_p);
       std::string link_type_to_file_name(const std::string &link_type) const;
+      std::string link_type_to_file_name(const std::string &link_type,
+					 const std::string &new_res_comp_id) const;
+      
       std::string comp_id_to_decoration_file_name(const std::string &link_type) const;
       float b_factor;
    public:

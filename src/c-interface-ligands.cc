@@ -2,6 +2,7 @@
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Copyright 2008, 2009, 2010, 2011, 2012 by The University of Oxford
+ * Copyright 2012, 2013, 2014, 2015 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -53,6 +54,7 @@
 
 #include "graphics-info.h"
 #include "c-interface.h"
+#include "c-interface-generic-objects.h"
 #include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
 #include "cc-interface-scripting.hh"
@@ -188,7 +190,7 @@ match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, i
 	    
 	       std::string res_name_ref_res(res_ref->GetResName());
 	       std::pair<bool, coot::dictionary_residue_restraints_t> restraints_info = 
-		  g.Geom_p()->get_monomer_restraints(res_name_ref_res);
+		  g.Geom_p()->get_monomer_restraints(res_name_ref_res, imol_ref);
 	       if (restraints_info.first) {
 		  std::vector <coot::dict_torsion_restraint_t> tr = 
 		     g.Geom_p()->get_monomer_torsions_from_geometry(res_name_ref_res, 0);
@@ -336,8 +338,8 @@ compare_ligand_atom_types_scm(int imol_ligand, int imol_ref, const char *chain_i
 		  int n_fail = 0;
 
 		  for (unsigned int i=0; i<matches.size(); i++) { 
-		     std::string energy_type_1 = g.Geom_p()->get_type_energy(matches[i].first.first,  rn1);
-		     std::string energy_type_2 = g.Geom_p()->get_type_energy(matches[i].second.first, rn2);
+		     std::string energy_type_1 = g.Geom_p()->get_type_energy(matches[i].first.first,  rn1, imol_ligand);
+		     std::string energy_type_2 = g.Geom_p()->get_type_energy(matches[i].second.first, rn2, imol_ref);
 
 		     std::string extra_space = "";
 		     if (i<10) extra_space = " ";
@@ -406,9 +408,9 @@ compare_ligand_atom_types_py(int imol_ligand, int imol_ref, const char *chain_id
 	       if (matches.size()) {
               int n_fail = 0;
 
-              for (unsigned int i=0; i<matches.size(); i++) { 
-                 std::string energy_type_1 = g.Geom_p()->get_type_energy(matches[i].first.first,  rn1);
-                 std::string energy_type_2 = g.Geom_p()->get_type_energy(matches[i].second.first, rn2);
+              for (unsigned int i=0; i<matches.size(); i++) {
+                 std::string energy_type_1 = g.Geom_p()->get_type_energy(matches[i].first.first,  rn1, imol_ligand);
+                 std::string energy_type_2 = g.Geom_p()->get_type_energy(matches[i].second.first, rn2, imol_ref);
 
                  std::string extra_space = "";
                  if (i<10) extra_space = " ";
@@ -560,15 +562,15 @@ match_residue_and_dictionary(int imol, std::string chain_id, int res_no, std::st
       coot::protein_geometry geom_local;
       geom_local.try_dynamic_add(reference_comp_id, 0);
       std::pair<short int, coot::dictionary_residue_restraints_t> rp_1 =
-	 geom_local.get_monomer_restraints(reference_comp_id);
+	 geom_local.get_monomer_restraints(reference_comp_id, imol);
       if (rp_1.first) {
 	 coot::protein_geometry geom_matcher;
 	 coot::read_refmac_mon_lib_info_t rmit = geom_matcher.init_refmac_mon_lib(cif_dict_in, 0);
 	 if (rmit.n_bonds == 0) {
 	    std::cout << "No bonds from " << cif_dict_in << std::endl;
-	 } else { 
+	 } else {
 	    std::pair<short int, coot::dictionary_residue_restraints_t> rp_2 =
-	       geom_matcher.get_monomer_restraints(cif_dict_comp_id);
+	       geom_matcher.get_monomer_restraints(cif_dict_comp_id, imol);
 	    if (rp_2.first) {
 	       mmdb::Residue *residue_p = NULL; // for the moment
 	       // std::cout << "------ about to match "
@@ -609,28 +611,39 @@ match_this_residue_and_dictionary(int imol, std::string chain_id, int res_no, st
 
    int result = 0;
 
+   if (false)
+      std::cout << "here in match_this_residue_and_dictionary() "
+		<< " cif_dict_out " << cif_dict_out
+		<< " reference_comp_id " << reference_comp_id
+		<< " output_comp_id " << output_comp_id
+		<< std::endl;
+
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       mmdb::Residue *this_residue = g.molecules[imol].get_residue(chain_id, res_no, ins_code);
       if (this_residue) {
 	 std::string this_residue_type = this_residue->GetResName();
 	 std::pair<short int, coot::dictionary_residue_restraints_t> dict_1 =
-	    g.Geom_p()->get_monomer_restraints(this_residue_type);
+	    g.Geom_p()->get_monomer_restraints(this_residue_type, imol);
 	 if (dict_1.first) {
 
+	    g.Geom_p()->try_dynamic_add(reference_comp_id, g.cif_dictionary_read_number++);
+	    int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
 	    std::pair<short int, coot::dictionary_residue_restraints_t> dict_2 =
-	       g.Geom_p()->get_monomer_restraints(reference_comp_id);
-	    
+	       g.Geom_p()->get_monomer_restraints(reference_comp_id, imol_enc);
+
 	    if (dict_2.first) {
 
 	       coot::dictionary_match_info_t dmi = 
-		  // std::pair<unsigned int, coot::dictionary_residue_restraints_t> new_dict =
 		  dict_1.second.match_to_reference(dict_2.second, this_residue,
 						   output_comp_id, output_comp_id); // placeholder for name
+
 	       if (dmi.n_matches > 0) { 
 		  dmi.dict.residue_info.comp_id = output_comp_id;
 		  dmi.dict.residue_info.name =  ".";
 		  dmi.dict.write_cif(cif_dict_out);
+	       } else {
+		  std::cout << "No matches " << std::endl;
 	       }
 	       
 	    } else {
@@ -694,9 +707,29 @@ void add_ligand_clear_ligands() {
    g.find_ligand_clear_ligand_mols();
 } 
 
+#include "c-interface-ligand-search.hh"
+
 // Called from callbacks.c
 void execute_ligand_search() {
-   execute_ligand_search_internal();
+
+   // 20161031: If you come to look at this in the future, scrap all ligand search interface
+   // and re-write from scratch.
+   //
+   // It should have 2 paths: one with a info/progress-bar dialog and the (traditional)
+   // silent one (say, that is used in no-graphics mode).
+
+   if (graphics_info_t::use_graphics_interface_flag) {
+      ligand_wiggly_ligand_data_t lwld = ligand_search_install_wiggly_ligands();
+      // if we have wiggly/conformer ligands, execute_ligand_search_internal(wlig_p) 
+      // is run in install_simple_wiggly_ligand_idle_fn()
+
+      if (lwld.immediate_execute_ligand_search)
+	 execute_ligand_search_internal(lwld.wlig);
+
+   } else {
+      ligand_wiggly_ligand_data_t lwld = ligand_search_install_wiggly_ligands();
+      execute_ligand_search_internal(lwld.wlig);
+   }
 }
 
 
@@ -705,7 +738,8 @@ void execute_ligand_search() {
 #ifdef USE_GUILE
 SCM execute_ligand_search_scm() {
 
-   std::vector<int> solutions = execute_ligand_search_internal();
+   ligand_wiggly_ligand_data_t lwld = ligand_search_install_wiggly_ligands();
+   std::vector<int> solutions = execute_ligand_search_internal(lwld.wlig);
    return generic_int_vector_to_list_internal(solutions);
 }
 #endif // USE_GUILE
@@ -713,8 +747,15 @@ SCM execute_ligand_search_scm() {
 #ifdef USE_PYTHON
 PyObject *execute_ligand_search_py() {
 
-   std::vector<int> solutions = execute_ligand_search_internal();
-   return generic_int_vector_to_list_internal_py(solutions);
+   std::vector<int> solutions;
+   PyObject *r = generic_int_vector_to_list_internal_py(solutions);
+   ligand_wiggly_ligand_data_t lwld = ligand_search_install_wiggly_ligands();
+   if (lwld.immediate_execute_ligand_search) {
+      std::vector<int> solutions = execute_ligand_search_internal(lwld.wlig);
+      // now sort solutions (because they (probably) have been real-space refined now)
+      r = generic_int_vector_to_list_internal_py(solutions);
+   }
+   return r;
 }
 #endif // USE_PYTHON
 
@@ -723,45 +764,17 @@ PyObject *execute_ligand_search_py() {
 void set_find_ligand_here_cluster(int state) {
    graphics_info_t g;
    g.find_ligand_here_cluster_flag = state;
-} 
+}
 
+#include "c-interface-ligands-widgets.hh"
 
-std::vector<int>
-execute_ligand_search_internal() {
-   
-   std::cout << "Executing ligand search..." << std::endl;
-   std::vector<int> solutions;
+ligand_wiggly_ligand_data_t
+ligand_search_install_wiggly_ligands() {
 
    graphics_info_t g;
-
-   if (! is_valid_model_molecule(g.find_ligand_protein_mol())) {
-      std::cout << "Protein molecule for ligand search not set" << std::endl;
-      std::cout << "Aborting ligand search" << std::endl;
-      return solutions; 
-   }
-   if (! is_valid_map_molecule(g.find_ligand_map_mol())) {
-      std::cout << "Map molecule for ligand search not set" << std::endl;
-      std::cout << "Aborting ligand search" << std::endl;
-      return solutions; 
-   }
-   if (g.find_ligand_ligand_mols().size() == 0) {
-      std::cout << "No defined ligand molecules" << std::endl;
-      std::cout << "Aborting ligand search" << std::endl;
-      return solutions; 
-   } 
-   
-   mmdb::Manager *protein_mol = 
-      g.molecules[g.find_ligand_protein_mol()].atom_sel.mol;
-
-   coot::wligand wlig;
-   if (g.ligand_verbose_reporting_flag) { 
-      wlig.set_verbose_reporting();
-      // debugging, output the post-conformer generation ligands wligand-*.pdb
-      // (but pre-idealized).
-      wlig.set_debug_wiggly_ligands();
-   } 
-   wlig.import_map_from(g.molecules[g.find_ligand_map_mol()].xmap);
    std::vector<std::pair<int, bool> > ligands = g.find_ligand_ligand_mols();
+   coot::wligand *wlig_p = new coot::wligand;
+   ligand_wiggly_ligand_data_t lfwd(wlig_p);
 
    for(unsigned int i=0; i<ligands.size(); i++) {
 
@@ -786,27 +799,91 @@ execute_ligand_search_internal() {
 //	 }
 
 	 // std::pair<short int, std::string> istat_pair =
-	 try { 
+	 try {
 	    bool optim_geom = true;
 	    bool fill_vec = false;
-	    wlig.install_simple_wiggly_ligands(g.Geom_p(), mmol,
-					       g.ligand_wiggly_ligand_n_samples,
-					       optim_geom, fill_vec);
+
+	    if (graphics_info_t::use_graphics_interface_flag) {
+	       ligand_wiggly_ligand_data_t lfwd_local = setup_ligands_progress_bar();
+	       lfwd.imol_ligand = ligands[i].first;
+	       lfwd.progress_bar        = lfwd_local.progress_bar;
+	       lfwd.progress_bar_window = lfwd_local.progress_bar_window;
+	       lfwd.progress_bar_label  = lfwd_local.progress_bar_label;
+	       lfwd.immediate_execute_ligand_search = false;
+
+	       setup_ligands_progress_bar_idle(wlig_p, ligands[i].first, lfwd);
+
+	       // this GtkFunction returns a gint and takes a widget
+	       // gint idle = gtk_idle_add((GtkFunction) install_simple_wiggly_ligand_idle_fn,
+	       // progress_bar);
+
+	       // wlig.install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
+	       // g.ligand_wiggly_ligand_n_samples,
+	       // optim_geom, fill_vec);
+
+	    } else {
+	       wlig_p->install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
+						     g.ligand_wiggly_ligand_n_samples,
+						     optim_geom, fill_vec);
+	    }
 	 }
 	 catch (const std::runtime_error &mess) {
-	    std::cout << "Error in flexible ligand definition.\n";
+	    std::cout << "ERROR:: failure in flexible ligand definition.\n";
 	    std::cout << mess.what() << std::endl;
 	    if (graphics_info_t::use_graphics_interface_flag) { 
 	       GtkWidget *w = wrapped_nothing_bad_dialog(mess.what());
 	       gtk_widget_show(w);
 	    }
-	    return solutions;
+	    // return solutions;
 	 }
-      } else { 
+      } else {
 	 // argh (ii).
-	 wlig.install_ligand(g.molecules[ligands[i].first].atom_sel.mol);
+	 wlig_p->install_ligand(g.molecules[ligands[i].first].atom_sel.mol);
       }
    }
+   std::cout << "ligand_search_install_wiggly_ligands: returning wlig " << wlig_p << std::endl;
+   return lfwd;
+}
+
+#include "c-interface-ligand-search.hh"
+
+std::vector<int>
+execute_ligand_search_internal(coot::wligand *wlig_p) {
+   
+   std::vector<int> solutions;
+
+   graphics_info_t g;
+
+   if (! is_valid_model_molecule(g.find_ligand_protein_mol())) {
+      std::cout << "Protein molecule for ligand search not set" << std::endl;
+      std::cout << "Aborting ligand search" << std::endl;
+      return solutions; 
+   }
+   if (! is_valid_map_molecule(g.find_ligand_map_mol())) {
+      std::cout << "Map molecule for ligand search not set" << std::endl;
+      std::cout << "Aborting ligand search" << std::endl;
+      return solutions; 
+   }
+   if (g.find_ligand_ligand_mols().size() == 0) {
+      std::cout << "No defined ligand molecules" << std::endl;
+      std::cout << "Aborting ligand search" << std::endl;
+      return solutions; 
+   } 
+   
+   mmdb::Manager *protein_mol = 
+      g.molecules[g.find_ligand_protein_mol()].atom_sel.mol;
+
+   if (g.ligand_verbose_reporting_flag) { 
+      wlig_p->set_verbose_reporting();
+      // debugging, output the post-conformer generation ligands wligand-*.pdb
+      // (but pre-idealized).
+      wlig_p->set_debug_wiggly_ligands();
+   }
+
+   std::cout << "in execute_ligand_search_internal() import maps from mol "
+	     << g.find_ligand_map_mol() << std::endl;
+   wlig_p->import_map_from(g.molecules[g.find_ligand_map_mol()].xmap);
+   std::vector<std::pair<int, bool> > ligands = g.find_ligand_ligand_mols();
 
 
    short int mask_waters_flag; // treat waters like other atoms?
@@ -815,44 +892,44 @@ execute_ligand_search_internal() {
       int imol = graphics_info_t::create_molecule();
       if (graphics_info_t::map_mask_atom_radius > 0) {
 	 // only do this if it was set by the user.
-	 wlig.set_map_atom_mask_radius(graphics_info_t::map_mask_atom_radius);
+	 wlig_p->set_map_atom_mask_radius(graphics_info_t::map_mask_atom_radius);
       } else { 
-	 wlig.set_map_atom_mask_radius(2.0);  // Angstroms
+	 wlig_p->set_map_atom_mask_radius(2.0);  // Angstroms
       } 
-      
+
       std::string name("ligand masked map");
       // std::cout << "DEBUG:: calling mask_map\n";
-      wlig.mask_map(protein_mol, mask_waters_flag); // mask by protein
+      wlig_p->mask_map(protein_mol, mask_waters_flag); // mask by protein
       // std::cout << "DEBUG:: done mask_map\n";
-      g.molecules[imol].new_map(wlig.masked_map(), wlig.masked_map_name());
+      g.molecules[imol].new_map(wlig_p->masked_map(), wlig_p->masked_map_name());
 
       // This should not be be scroll map?
       if (0) { 
 	 g.scroll_wheel_map = imol;  // change the current scrollable map to
                                      // the masked map.
       }
-      wlig.find_clusters(g.ligand_cluster_sigma_level);  // trashes the xmap
-      wlig.set_acceptable_fit_fraction(g.ligand_acceptable_fit_fraction);
-      wlig.fit_ligands_to_clusters(g.find_ligand_n_top_ligands); // 10 clusters
+      wlig_p->find_clusters(g.ligand_cluster_sigma_level);  // trashes the xmap
+      wlig_p->set_acceptable_fit_fraction(g.ligand_acceptable_fit_fraction);
+      wlig_p->fit_ligands_to_clusters(g.find_ligand_n_top_ligands); // 10 clusters
 
    } else {
 
       // don't search the map, just use the peak/cluser at the screen
       // centre.
 
-      wlig.mask_map(protein_mol, mask_waters_flag);
+      wlig_p->mask_map(protein_mol, mask_waters_flag);
       // wlig.set_acceptable_fit_fraction(g.ligand_acceptable_fit_fraction);
       
       clipper::Coord_orth pt(g.X(), g.Y(), g.Z()); // close to 3GP peak (not in it).
       float n_sigma = g.ligand_cluster_sigma_level; // cluster points must be more than this.
-      wlig.cluster_from_point(pt, n_sigma);
-      wlig.fit_ligands_to_clusters(1); // just this cluster.
+      wlig_p->cluster_from_point(pt, n_sigma);
+      wlig_p->fit_ligands_to_clusters(1); // just this cluster.
       
    }
-   wlig.make_pseudo_atoms(); // put anisotropic atoms at the ligand sites
+   wlig_p->make_pseudo_atoms(); // put anisotropic atoms at the ligand sites
 
    // now add in the solution ligands:
-   int n_clusters = wlig.n_clusters_final();
+   int n_clusters = wlig_p->n_clusters_final();
 
    int n_new_ligand = 0;
    coot::minimol::molecule m;
@@ -864,8 +941,8 @@ execute_ligand_search_internal() {
       float frac_lim = g.find_ligand_score_by_correl_frac_limit; // 0.7;
       float correl_frac_lim = 0.9;
       // nino-mode
-      unsigned int nlc = wlig.n_ligands_for_cluster(iclust, frac_lim);
-      wlig.score_and_resort_using_correlation(iclust, nlc);
+      unsigned int nlc = wlig_p->n_ligands_for_cluster(iclust, frac_lim);
+      wlig_p->score_and_resort_using_correlation(iclust, nlc);
 
       // false is the default case
       if (g.find_ligand_multiple_solutions_per_cluster_flag == false) {
@@ -877,11 +954,11 @@ execute_ligand_search_internal() {
       float tolerance = 20.0;
       // limit_solutions should be run only after a post-correlation sort.
       //
-      wlig.limit_solutions(iclust, correl_frac_lim, nlc, tolerance, true);
+      wlig_p->limit_solutions(iclust, correl_frac_lim, nlc, tolerance, true);
 			   
       for (unsigned int isol=0; isol<nlc; isol++) { 
 
-	 m = wlig.get_solution(isol, iclust);
+	 m = wlig_p->get_solution(isol, iclust);
 	 if (! m.is_empty()) {
 	    float bf = graphics_info_t::default_new_atoms_b_factor;
 	    mmdb::Manager *ligand_mol = m.pcmmdbmanager();
@@ -894,6 +971,16 @@ execute_ligand_search_internal() {
 	    label += g.int_to_string(isol);
 	    g.molecules[g_mol].install_model(g_mol, asc, g.Geom_p(), label, 1);
 	    g.molecules[g_mol].assign_hetatms();
+#ifdef HAVE_GSL
+	    if (g.find_ligand_do_real_space_refine_state()) {
+ 	       int previous_state = refinement_immediate_replacement_state();
+ 	       g.refinement_immediate_replacement_flag = 1;
+ 	       g.refine_residue_range(g_mol, "A", "A", 1, "", 1, "", "", 0);
+ 	       accept_regularizement();
+ 	       g.refinement_immediate_replacement_flag = previous_state;
+	    }
+	    
+#endif // HAVE_GSL	    
 	    solutions.push_back(g_mol);
 	    n_new_ligand++;
 	    if (g.go_to_atom_window){
@@ -927,7 +1014,7 @@ execute_ligand_search_internal() {
 	    label_str += " acceptable ligands  ";
 	 gtk_label_set_text(GTK_LABEL(label), label_str.c_str());
 	 gtk_widget_show(w);
-      } else { 
+      } else {
 	 GtkWidget *w = create_no_new_ligands_info_dialog();
 	 gtk_widget_show(w);
       }
@@ -952,7 +1039,7 @@ std::vector<int> ligand_search_make_conformers_internal() {
 	    bool optim_geom = true;
 	    bool fill_return_vec = false; // would give input molecules (not conformers)
 	    coot::minimol::molecule mmol(g.molecules[ligands[i].first].atom_sel.mol);
-	    wlig.install_simple_wiggly_ligands(g.Geom_p(), mmol,
+	    wlig.install_simple_wiggly_ligands(g.Geom_p(), mmol, ligands[i].first,
 					       g.ligand_wiggly_ligand_n_samples,
 					       optim_geom, fill_return_vec);
 	 }
@@ -1937,12 +2024,13 @@ int get_ccp4srs_monomer_and_dictionary(const char *comp_id) {
 SCM comp_id_to_name_scm(const char *comp_id) {
    SCM r = SCM_BOOL_F;
    graphics_info_t g;
-   std::pair<bool, std::string> name = g.Geom_p()->get_monomer_name(comp_id);
+   int imol = coot::protein_geometry::IMOL_ENC_ANY;
+   std::pair<bool, std::string> name = g.Geom_p()->get_monomer_name(comp_id, imol);
 
    if (! name.first) {
       g.Geom_p()->try_dynamic_add(comp_id, g.cif_dictionary_read_number);
       g.cif_dictionary_read_number++;
-      name = g.Geom_p()->get_monomer_name(comp_id);
+      name = g.Geom_p()->get_monomer_name(comp_id, imol);
    }
    if (name.first) {
       r = scm_makfrom0str(name.second.c_str());
@@ -1960,7 +2048,8 @@ PyObject *comp_id_to_name_py(const char *comp_id) {
    PyObject *r = Py_False;
 
    graphics_info_t g;
-   std::pair<bool, std::string> name = g.Geom_p()->get_monomer_name(comp_id);
+   int imol = coot::protein_geometry::IMOL_ENC_ANY;
+   std::pair<bool, std::string> name = g.Geom_p()->get_monomer_name(comp_id, imol);
    if (name.first) {
       r = PyString_FromString(name.second.c_str());
    }
@@ -2032,6 +2121,40 @@ void match_ligand_atom_names(int imol_ligand, const char *chain_id_ligand, int r
    }
 }
 
+/*! \brief Match ligand atom names to a reference ligand type (comp_id)
+
+  By using graph matching, make the names of the atoms of the
+  given ligand/residue match those of the reference ligand from the 
+  geometry store as closely as possible. Where there would be an
+  atom name clash, invent a new atom name.
+ */
+void match_ligand_atom_names_to_comp_id(int imol_ligand, const char *chain_id_ligand, int resno_ligand, const char *ins_code_ligand, const char *comp_id_ref) {
+
+   if (! is_valid_model_molecule(imol_ligand)) { 
+      std::cout << "Not a valid model number " << imol_ligand << std::endl;
+   } else {
+      graphics_info_t g;
+      mmdb::Residue *res_ref = NULL;
+
+      g.Geom_p()->try_dynamic_add(comp_id_ref, g.cif_dictionary_read_number++);
+      std::pair<bool, coot::dictionary_residue_restraints_t> p = 
+	 g.Geom_p()->get_monomer_restraints(comp_id_ref, imol_ligand);
+
+      if (p.first)
+	 res_ref = p.second.GetResidue(true, g.default_new_atoms_b_factor);
+
+      if (! res_ref) {
+	 std::cout << "No reference residue for comp_id " << comp_id_ref << std::endl;
+      } else {
+	 
+	 // now lock res_ref - when multi-threaded
+	 g.molecules[imol_ligand].match_ligand_atom_names(chain_id_ligand, resno_ligand, ins_code_ligand, res_ref);
+	 graphics_draw();
+      }
+   }
+}
+
+
 
 /*  return a list of chiral centre ids as determined from topological
     equivalence analysis based on the bond info (and element names).
@@ -2047,8 +2170,9 @@ topological_equivalence_chiral_centres(const std::string &residue_type) {
 
    graphics_info_t g;
 
+   int imol = 0; // dummy
    std::pair<bool, coot::dictionary_residue_restraints_t> p = 
-      g.Geom_p()->get_monomer_restraints(residue_type);
+      g.Geom_p()->get_monomer_restraints(residue_type, imol);
 
    if (p.first) {
 
@@ -2769,19 +2893,23 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
       if (! residue_p) {
 	 std::cout << "Residue not found in molecule " << imol << " "
 		   << coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
-      } else { 
-	 coot::geometry_distortion_info_container_t gdc = g.geometric_distortions(residue_p);
+      } else {
+	 bool with_nbcs = true;
+	 coot::geometry_distortion_info_container_t gdc = g.geometric_distortions(imol, residue_p, with_nbcs);
 	 int n_restraints_bonds    = 0;
 	 int n_restraints_angles   = 0;
 	 int n_restraints_torsions = 0;
 	 int n_restraints_chirals  = 0;
 	 int n_restraints_planes   = 0;
+	 int n_restraints_nbcs     = 0;
 	 double sum_penalties_bonds    = 0;
 	 double sum_penalties_angles   = 0;
 	 double sum_penalties_planes   = 0;
 	 double sum_penalties_chirals  = 0;
 	 double sum_penalties_torsions = 0;
+	 double sum_penalties_nbcs     = 0;
 	 std::vector<std::pair<std::string,double> > penalty_string_bonds;
+	 std::vector<std::pair<std::string,double> > penalty_string_nbcs;
 	 std::vector<std::pair<std::string,double> > penalty_string_angles;
 	 std::cout << "Residue Distortion List: \n";
 	 for (unsigned int i=0; i<gdc.geometry_distortion.size(); i++) { 
@@ -2808,6 +2936,33 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 	       }
 	    }
 
+	    if (rest.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+	       n_restraints_bonds++;
+	       mmdb::Atom *at_1 = residue_p->GetAtom(rest.atom_index_1);
+	       mmdb::Atom *at_2 = residue_p->GetAtom(rest.atom_index_2);
+	       if (at_1 && at_2) {
+		  clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+		  clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+		  double d = sqrt((p2-p1).lengthsq());
+		  double distortion = d - rest.target_value;
+		  double pen_score = distortion*distortion/(rest.sigma*rest.sigma);
+		  if (distortion > 0) {
+		     pen_score = 0;
+		  } else {
+		     // don't tell me about NBC that are not too close
+		     std::string s = std::string("nbc  ")
+			+ std::string(at_1->name) + std::string(" to ") + std::string(at_2->name)
+			+ std::string(" target_value: ") + coot::util::float_to_string_using_dec_pl(rest.target_value, 3)
+			+ std::string(" d: ") + coot::util::float_to_string_using_dec_pl(d, 3)
+			+ std::string(" sigma: ") + coot::util::float_to_string_using_dec_pl(rest.sigma, 3)
+			+ std::string(" length-devi ") + coot::util::float_to_string_using_dec_pl(distortion, 3)
+			+ std::string(" penalty-score:  ") + coot::util::float_to_string(pen_score);
+		     penalty_string_nbcs.push_back(std::pair<std::string,double> (s, pen_score));
+		     sum_penalties_nbcs += pen_score;
+		  }
+	       }
+	    }
+	    
 	    if (rest.restraint_type == coot::ANGLE_RESTRAINT) {
 	       n_restraints_angles++;
 	       mmdb::Atom *at_1 = residue_p->GetAtom(rest.atom_index_1);
@@ -2867,17 +3022,17 @@ print_residue_distortions(int imol, std::string chain_id, int res_no, std::strin
 	    
 	    if (rest.restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
 	       n_restraints_chirals++;
-	       if (gdc.geometry_distortion[i].distortion_score > 10) { // arbitrons
+	       if (gdc.geometry_distortion[i].distortion_score > 0) { // arbitrons
 		  mmdb::Atom *at_c = residue_p->GetAtom(rest.atom_index_centre);
 		  mmdb::Atom *at_1 = residue_p->GetAtom(rest.atom_index_1);
 		  mmdb::Atom *at_2 = residue_p->GetAtom(rest.atom_index_2);
 		  mmdb::Atom *at_3 = residue_p->GetAtom(rest.atom_index_3);
 		  if (at_c && at_1 && at_2 && at_3) {
-		     std::cout << "   chiral volume problem centred at: "
+		     std::cout << "   chiral volume distortion centred at: "
 			       << at_c->name << " with neighbours "
 			       << at_1->name << " "
 			       << at_2->name << " "
-			       << at_2->name << " "
+			       << at_2->name << " penalty-score: "
 			       << gdc.geometry_distortion[i].distortion_score
 			       << std::endl;
 		  }
@@ -2971,8 +3126,9 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
       if (! residue_p) {
 	 std::cout << "Residue not found in molecule " << imol << " "
 		   << coot::residue_spec_t(chain_id, res_no, ins_code) << std::endl;
-      } else { 
-	 coot::geometry_distortion_info_container_t gdc = g.geometric_distortions(residue_p);
+      } else {
+	 bool with_nbcs = true;
+	 coot::geometry_distortion_info_container_t gdc = g.geometric_distortions(imol, residue_p, with_nbcs);
 	 if (gdc.geometry_distortion.size()) {
 
 	    std::string name = std::string("Ligand Distortion of ");
@@ -3031,7 +3187,7 @@ display_residue_distortions(int imol, std::string chain_id, int res_no, std::str
 						  angle_info.normal.y(),
 						  angle_info.normal.z());
 		     }
-		     catch (std::runtime_error rte) {
+		     catch (const std::runtime_error &rte) {
 			std::cout << "WARNING:: " << rte.what() << std::endl;
 		     }
 		  }
@@ -3126,11 +3282,12 @@ add_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::str
 	    coot::dictionary_residue_restraints_t d(mol);
 	    std::cout << "INFO:: replacing restraints for type \""
 		      << d.residue_info.comp_id << "\"" << std::endl;
-	    g.Geom_p()->replace_monomer_restraints(d.residue_info.comp_id, d);
+	    int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+	    g.Geom_p()->replace_monomer_restraints(d.residue_info.comp_id, imol_enc, d);
 
 	    if (0) { 
 	       std::pair<bool, coot::dictionary_residue_restraints_t>
-		  r = g.Geom_p()->get_monomer_restraints(d.residue_info.comp_id);
+		  r = g.Geom_p()->get_monomer_restraints(d.residue_info.comp_id, imol);
 	       if (! r.first) {
 		  std::cout << "-------------------- problem retrieving restraints " << std::endl;
 	       } else {
@@ -3234,7 +3391,8 @@ invert_chiral_centre(int imol,
       if (rr.first) {
 	 // add new restraints to dictionary
 	 std::string new_type = rr.second.residue_info.comp_id;
-	 g.Geom_p()->replace_monomer_restraints(new_type, rr.second);
+	 // THIS ONE IS COMPLICATED, FIXME
+	 g.Geom_p()->replace_monomer_restraints(new_type, imol, rr.second);
 	 // add a new molecule from this residue
 	 mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(rr.first);
 	 // I think we can delete residue now that we have made mol.
@@ -3245,7 +3403,7 @@ invert_chiral_centre(int imol,
 	 std::string label = "New Residue " + new_type;
 	 g.molecules[g_mol].install_model(g_mol, asc, g.Geom_p(), label, 1);
 	 graphics_draw();
-      } 
+      }
    }
 }
 
@@ -3254,9 +3412,11 @@ comprised_of_organic_set_p(const std::string &comp_id) {
    
    bool r = false;
    graphics_info_t g;
-   if (g.Geom_p()->have_dictionary_for_residue_type(comp_id, g.cif_dictionary_read_number++)) {
+   int imol = 0; // dummy
+   if (g.Geom_p()->have_dictionary_for_residue_type(comp_id, imol, g.cif_dictionary_read_number++)) {
+      int imol = 0; // dummy;
       std::pair<bool, coot::dictionary_residue_restraints_t> rp = 
-            g.Geom_p()->get_monomer_restraints(comp_id);
+	 g.Geom_p()->get_monomer_restraints(comp_id, imol);
       if (rp.first) { 
          r = rp.second.comprised_of_organic_set();
       }
@@ -3310,3 +3470,184 @@ double get_ligand_percentile(std::string metric_name, double metric_value, short
 }
 
 
+// ---------------------------------------------------
+
+
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+//                 coot built-in contact dots
+////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////
+
+#include "coot-utils/atom-overlaps.hh"
+
+void
+coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) {
+
+   graphics_info_t g;
+   mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+   mmdb::Residue *residue_p = coot::util::get_residue(res_spec, mol);
+   if (residue_p) {
+      std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
+      coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, g.Geom_p(), 0.5, 0.25);
+      coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand();
+      std::cout << "------------- score " << c.score() << std::endl;
+
+      // for quick colour lookups.
+      std::map<std::string, coot::colour_holder> colour_map;
+      colour_map["blue"      ] = coot::generic_display_object_t::colour_values_from_colour_name("blue");
+      colour_map["sky"       ] = coot::generic_display_object_t::colour_values_from_colour_name("sky");
+      colour_map["sea"       ] = coot::generic_display_object_t::colour_values_from_colour_name("sea");
+      colour_map["greentint" ] = coot::generic_display_object_t::colour_values_from_colour_name("greentint");
+      colour_map["green"     ] = coot::generic_display_object_t::colour_values_from_colour_name("green");
+      colour_map["orange"    ] = coot::generic_display_object_t::colour_values_from_colour_name("orange");
+      colour_map["orangered" ] = coot::generic_display_object_t::colour_values_from_colour_name("orangered");
+      colour_map["yellow"    ] = coot::generic_display_object_t::colour_values_from_colour_name("yellow");
+      colour_map["yellowtint"] = coot::generic_display_object_t::colour_values_from_colour_name("yellowtint");
+      colour_map["red"       ] = coot::generic_display_object_t::colour_values_from_colour_name("red");
+      colour_map["#55dd55"   ] = coot::generic_display_object_t::colour_values_from_colour_name("#55dd55");
+      colour_map["hotpink"   ] = coot::generic_display_object_t::colour_values_from_colour_name("hotpink");
+      colour_map["grey"      ] = coot::generic_display_object_t::colour_values_from_colour_name("grey");
+      colour_map["magenta"   ] = coot::generic_display_object_t::colour_values_from_colour_name("magenta");
+      colour_map["royalblue" ] = coot::generic_display_object_t::colour_values_from_colour_name("royalblue");
+      
+      std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
+      for (it=c.dots.begin(); it!=c.dots.end(); it++) {
+	 const std::string &type = it->first;
+	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
+	 std::string obj_name = type;
+	 int obj = new_generic_object_number(obj_name.c_str());
+	 int point_size = 2;
+	 if (type == "vdw-surface") point_size = 1;
+	 for (unsigned int i=0; i<v.size(); i++) {
+	    const std::string &col = v[i].col;
+	    to_generic_object_add_point_internal(obj, col, colour_map[col], point_size, v[i].pos);
+	 }
+	 if (type != "vdw-surface")
+	    set_display_generic_object(obj, 1); // should be a function with no redraw
+      }
+      int clashes_obj = new_generic_object_number("clashes");
+      for (unsigned int i=0; i<c.clashes.size(); i++) {
+	 to_generic_object_add_line(clashes_obj, "#ff59b4", 2,
+				    c.clashes[i].first.x(),  c.clashes[i].first.y(),  c.clashes[i].first.z(),
+				    c.clashes[i].second.x(), c.clashes[i].second.y(), c.clashes[i].second.z());
+      }
+      set_display_generic_object(clashes_obj, 1);
+      
+   } else {
+      std::cout << "Can't find residue" << res_spec << std::endl;
+   }
+}
+
+#ifdef USE_PYTHON
+void
+coot_contact_dots_for_ligand_py(int imol, PyObject *ligand_spec_py) {
+
+   coot::residue_spec_t res_spec = residue_spec_from_py(ligand_spec_py);
+   if (is_valid_model_molecule(imol)) {
+      coot_contact_dots_for_ligand_internal(imol, res_spec);
+   }
+}
+#endif
+
+#ifdef USE_PYTHON
+void switch_HIS_protonation_py(int imol, PyObject *residue_spec_py) {
+
+   coot::residue_spec_t res_spec = residue_spec_from_py(residue_spec_py);
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].switch_HIS_protonation(res_spec);
+   }
+   graphics_draw();
+}
+#endif // USE_PYTHON
+
+#ifdef USE_GUILE
+void switch_HIS_protonation_scm(int imol, SCM residue_spec_scm) {
+
+   coot::residue_spec_t res_spec = residue_spec_from_scm(residue_spec_scm);
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].switch_HIS_protonation(res_spec);
+   }
+   graphics_draw();
+}
+#endif // USE_GUILE
+
+
+void coot_reduce(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      g.molecules[imol].reduce(g.Geom_p());
+      graphics_draw();
+   }
+}
+
+
+
+#ifdef USE_GUILE
+void
+coot_contact_dots_for_ligand_scm(int imol, SCM ligand_spec_scm) {
+
+   coot::residue_spec_t res_spec = residue_spec_from_scm(ligand_spec_scm);
+   if (is_valid_model_molecule(imol)) {
+      coot_contact_dots_for_ligand_internal(imol, res_spec);
+   }
+}
+#endif
+
+// all-atom contact dots.  This is not the place for this definition (not a ligand function)
+//
+void coot_all_atom_contact_dots(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+      // spike-length ball-radius
+      coot::atom_overlaps_container_t overlaps(mol, g.Geom_p(), 0.5, 0.25);
+      // dot density
+      coot::atom_overlaps_dots_container_t c = overlaps.all_atom_contact_dots(0.95, true);
+
+      std::map<std::string, std::vector<coot::atom_overlaps_dots_container_t::dot_t> >::const_iterator it;
+
+      // for quick colour lookups.
+      std::map<std::string, coot::colour_holder> colour_map;
+      colour_map["blue"      ] = coot::generic_display_object_t::colour_values_from_colour_name("blue");
+      colour_map["sky"       ] = coot::generic_display_object_t::colour_values_from_colour_name("sky");
+      colour_map["sea"       ] = coot::generic_display_object_t::colour_values_from_colour_name("sea");
+      colour_map["greentint" ] = coot::generic_display_object_t::colour_values_from_colour_name("greentint");
+      colour_map["green"     ] = coot::generic_display_object_t::colour_values_from_colour_name("green");
+      colour_map["orange"    ] = coot::generic_display_object_t::colour_values_from_colour_name("orange");
+      colour_map["orangered" ] = coot::generic_display_object_t::colour_values_from_colour_name("orangered");
+      colour_map["yellow"    ] = coot::generic_display_object_t::colour_values_from_colour_name("yellow");
+      colour_map["yellowtint"] = coot::generic_display_object_t::colour_values_from_colour_name("yellowtint");
+      colour_map["red"       ] = coot::generic_display_object_t::colour_values_from_colour_name("red");
+      colour_map["#55dd55"   ] = coot::generic_display_object_t::colour_values_from_colour_name("#55dd55");
+      colour_map["hotpink"   ] = coot::generic_display_object_t::colour_values_from_colour_name("hotpink");
+      colour_map["grey"      ] = coot::generic_display_object_t::colour_values_from_colour_name("grey");
+      colour_map["magenta"   ] = coot::generic_display_object_t::colour_values_from_colour_name("magenta");
+      
+      for (it=c.dots.begin(); it!=c.dots.end(); it++) {
+	 const std::string &type = it->first;
+	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
+	 std::string obj_name = type;
+	 int obj = new_generic_object_number(obj_name.c_str());
+	 std::string col = "#445566";
+	 int point_size = 2;
+	 if (type == "vdw-surface") point_size = 1;
+	 for (unsigned int i=0; i<v.size(); i++) {
+	    const std::string &col = v[i].col;
+	    to_generic_object_add_point_internal(obj, col, colour_map[col], point_size, v[i].pos);
+	 }
+	 if (type != "vdw-surface")
+	    set_display_generic_object_simple(obj, 1); // should be a function with no redraw
+      }
+      int clashes_obj = new_generic_object_number("clashes");
+      for (unsigned int i=0; i<c.clashes.size(); i++) {
+	 to_generic_object_add_line(clashes_obj, "#ff59b4", 2,
+				    c.clashes[i].first.x(),  c.clashes[i].first.y(),  c.clashes[i].first.z(),
+				    c.clashes[i].second.x(), c.clashes[i].second.y(), c.clashes[i].second.z());
+      }
+      set_display_generic_object_simple(clashes_obj, 1);
+      graphics_draw();
+   }
+}

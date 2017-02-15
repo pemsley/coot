@@ -1,0 +1,91 @@
+.\" Copyright 2016 by Medical Research Council
+.\"
+.\" %%%LICENSE_START(GPLv3+_DOC_FULL)
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 3 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, see
+.\" <http://www.gnu.org/licenses/>.
+.\" %%%LICENSE_END
+
+.TH COOT 1
+
+.SH NAME
+findligand \- Find potential ligand postions in maps made using X-ray data
+.SH SYNOPSIS
+.B findwaters [OPTIONS] 
+.I <ligand-coordinates-file-name> ..
+
+.SH OPTIONS
+
+.B findligand
+.B [\-\-pdbin
+.I <coordinates-file-name>
+.B ]
+.B [\-\--hklin
+.I <mtz-file-name>
+.B ]
+.B [\-\--dictionary
+.I <mmCIF-dictionary-file-name>
+.B ]
+.B [\-\-clusters
+.I ncluster
+.B ]
+.B [\-\-sigma
+.I n_rmsd
+.B ]
+.B [\-\-absolute
+.I map_cut
+.B ]
+.B [\-\-fit-fraction
+.I frac
+.B ]
+.B [\-\-flexible]
+.B [\-\-samples
+.I nsamples
+.B ]
+
+specify map:
+
+.B [\-\-mapin 
+.I <CCP4-format-map-file-name>
+.B ]
+or
+.B [--f
+.I f_col_label
+.B ]
+.B [--phi
+.I phi_col_label
+.B ]
+
+.SH DESCRIPTION
+
+findligand is a coot-related command-line program used to find waters
+in maps related to structures without need for interactive molecular
+graphics.  
+
+One or more coordinates files may be tested to fit in potential ligand
+sites in the map.
+
+.B --flexible 
+means use torsion-based conformation variation in ligand search
+
+
+.SH AUTHOR
+Paul Emsley
+
+
+

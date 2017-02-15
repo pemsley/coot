@@ -1,3 +1,24 @@
+/* lidia-core/chemical-feature-clusters.hh
+ * 
+ * Copyright 2012 by the University of Oxford
+ * Copyright 2016 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #ifndef CHEMICAL_FEATURE_CLUSTERS_HH
 #define CHEMICAL_FEATURE_CLUSTERS_HH
@@ -5,7 +26,7 @@
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 #include <vector>
-#include "coot-utils/residue-and-atom-specs.hh"
+#include "geometry/residue-and-atom-specs.hh"
 #include "geometry/protein-geometry.hh"
 // #include "use-rdkit.hh"
 #include <GraphMol/MolChemicalFeatures/MolChemicalFeatureFactory.h>
@@ -106,8 +127,6 @@ namespace coot {
       
       std::vector<simple_chemical_feature_attributes>
       get_chemical_features(int imol, residue_spec_t lig_spec, mmdb::Manager *mol);
-
-      bool cluster_waters(const std::vector<chem_feat_solvated_ligand_spec> &ligands);
 
       // check that the ligand specs point to real residues
       bool fill_ligands(const std::vector<chem_feat_solvated_ligand_spec> &ligands_in);

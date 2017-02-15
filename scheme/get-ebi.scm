@@ -1,3 +1,20 @@
+;;;; Copyright 2010 by the University of Oxford
+;;;; Copyright 2013, 2014, 2015 by Medical Research Council
+
+;;;; This program is free software; you can redistribute it and/or modify
+;;;; it under the terms of the GNU General Public License as published by
+;;;; the Free Software Foundation; either version 3 of the License, or (at
+;;;; your option) any later version.
+ 
+;;;; This program is distributed in the hope that it will be useful, but
+;;;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;;;; General Public License for more details.
+ 
+;;;; You should have received a copy of the GNU General Public License
+;;;; along with this program; if not, write to the Free Software
+;;;; Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+
 
 (use-modules (oop goops) 
 	     (oop goops describe))
@@ -154,6 +171,11 @@
   ;; 
   ;; URL::       "http://eds.bmc.uu.se/eds/sfd/sa/2sar/pdb2sar.ent"
   ;; URL:: "http://eds.bmc.uu.se/eds/sfd/sa/2sar/2sar_sigmaa.mtz"
+  ;;
+  ;; 20161010 new prefix
+  ;; http://www.ebi.ac.uk/pdbe/coordinates/
+  ;; http://www.ebi.ac.uk/pdbe/coordinates/files/1cbs_map.mtz
+  ;; 
 
   ;; Return a list of 3 molecule numbers or #f.
   ;; 
@@ -186,8 +208,9 @@
 		      (list imol imol-map imol-map-d))))))))
 
 
-  (define eds-site "http://eds.bmc.uu.se/eds")
-  (define eds-core "http://eds.bmc.uu.se")
+  (define eds-site "http://www.ebi.ac.uk/pdbe/coordinates")
+  (define eds-core "some://thing") ;; for web pages
+  (define eds-coords-site "http://www.ebi.ac.uk/pdbe/entry-files/download")
 
   ;; "1cbds" -> "cb/"
   ;; 
@@ -211,17 +234,16 @@
 	      (format #t "Can't make coot-download directory~%")
 	      
 	      (let* ((down-id (string-downcase id))
-		     (eds-url (string-append eds-site "/dfs/"))
 		     (target-pdb-file (string-append "pdb" down-id ".ent"))
 		     (dir-target-pdb-file (string-append coot-tmp-dir "/" target-pdb-file))
-		     (mc (mid-chars down-id))
-		     (model-url (string-append eds-url mc down-id "/" target-pdb-file))
-		     (target-mtz-file (string-append down-id "_sigmaa.mtz"))
+		     (model-url (string-append eds-coords-site "/" target-pdb-file))
+		     (target-mtz-file (string-append down-id "_map.mtz"))
 		     (dir-target-mtz-file (string-append coot-tmp-dir "/" target-mtz-file))
-		     (mtz-url (string-append eds-url mc down-id "/" target-mtz-file))
+		     (mtz-url (string-append eds-site "/files/" target-mtz-file))
 		     (eds-info-page (string-append eds-core "/cgi-bin/eds/uusfs?pdbCode=" down-id)))
 
-		(print-var eds-info-page)
+		(print-var model-url)
+		(print-var mtz-url)
 		
 		(let* ((pre-download-info (coot-get-url-as-string eds-info-page))
 		       ;; (pre-download-info-sxml (xml->sxml pre-download-info))
@@ -241,8 +263,8 @@
 		  (format #t "INFO:: read mtz   status: ~s~%" s2)
 		  
 		  (let ((r-imol (handle-read-draw-molecule dir-target-pdb-file))
-			(map-1 (make-and-draw-map dir-target-mtz-file "2FOFCWT" "PH2FOFCWT" "" 0 0))
-			(map-2 (make-and-draw-map dir-target-mtz-file  "FOFCWT"  "PHFOFCWT" "" 0 1)))
+			(map-1 (make-and-draw-map dir-target-mtz-file "FWT" "PHWT" "" 0 0))
+			(map-2 (make-and-draw-map dir-target-mtz-file  "DELFWT"  "PHDELWT" "" 0 1)))
 		    (set-scrollable-map map-1)
 		    (if (valid-model-molecule? r-imol)
 			(list r-imol map-1 map-2)

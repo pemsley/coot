@@ -3,6 +3,7 @@
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Copyright 2007 by Paul Emsley
  * Copyright 2007, 2008 by The University of Oxford
+ * Copyright 2016 by Medical Research Council
  * 
  * Author: Paul Emsley
  * 
@@ -519,6 +520,7 @@ class graphics_info_t {
    static GdkModifierType button_2_mask_;
    static GdkModifierType button_3_mask_;
 
+   static bool find_ligand_do_real_space_refine_;
    static int find_ligand_protein_mol_;
    static int find_ligand_map_mol_;
    static std::vector<std::pair<int, bool> > *find_ligand_ligand_mols_; // contain a molecule number 
@@ -646,6 +648,9 @@ class graphics_info_t {
 			   const std::string &molname);
    int create_empty_molecule(const std::string &molname);
 
+   // for multi-threading
+   static void update_maps_for_mols(const std::vector<int> &mol_idxs);
+
    // symm_atom_pick (public) uses this (private) function:
 
    void 
@@ -727,7 +732,7 @@ class graphics_info_t {
       return gr;
    }
    std::vector<coot::geometry_distortion_info_container_t>
-   geometric_distortions_from_mol(const atom_selection_container_t &asc);
+     geometric_distortions_from_mol(int imol, const atom_selection_container_t &asc, bool with_nbcs);
    void print_geometry_distortion(const std::vector<coot::geometry_distortion_info_container_t> &v) const;
 #endif // HAVE_GSL
 #endif // defined(HAVE_GNOME_CANVAS) || defined(HAVE_GTK_CANVAS)
@@ -1617,7 +1622,9 @@ public:
    static float RotationCentre_x() { return rotation_centre_x; }
    static float RotationCentre_y() { return rotation_centre_y; }
    static float RotationCentre_z() { return rotation_centre_z; }
-   
+
+   // possibly for multi-threading, public access.
+   void update_maps();
 
    // pointer: aka rotation centre:
    // 
@@ -2160,9 +2167,9 @@ public:
    // restraints.  Try to auto-load the dictionary cifs and try again.
    // The vector is a list of residues for which no restraints could be found.
    std::pair<int, std::vector<std::string> >
-   check_dictionary_for_residue_restraints(mmdb::PResidue *SelResidues, int nSelResidues);
+     check_dictionary_for_residue_restraints(int imol, mmdb::PResidue *SelResidues, int nSelResidues);
    std::pair<int, std::vector<std::string> >
-   check_dictionary_for_residue_restraints(const std::vector<mmdb::Residue *> &residues);
+     check_dictionary_for_residue_restraints(int imol, const std::vector<mmdb::Residue *> &residues);
 
    // called by copy_mol_and_refine and copy_mol_and_regularize
    // 
@@ -2392,6 +2399,12 @@ public:
        }
      }
    }
+   void set_find_ligand_do_real_space_refine_state(bool state) {
+     find_ligand_do_real_space_refine_ = state;
+   }
+   bool find_ligand_do_real_space_refine_state() {
+     return find_ligand_do_real_space_refine_;
+   }
    std::vector<std::pair<int, bool> > find_ligand_ligand_mols() const { 
      return *find_ligand_ligand_mols_;
    }
@@ -2500,7 +2513,7 @@ public:
    // 
    int set_imol_refinement_map(int imol);
 
-   void make_moving_atoms_graphics_object(const atom_selection_container_t &asc);
+   void make_moving_atoms_graphics_object(int imol, const atom_selection_container_t &asc);
    static short int moving_atoms_asc_type; 
 
    //
@@ -2521,9 +2534,13 @@ public:
    static int graphics_sample_step;
    static int dynamic_map_zoom_offset; 
 
-   // uses cif_dictionary_filename_vec
-   //
+   // uses cif_dictionary_filename_vec.
+   //imol_enc can be the model molecule number or
+   // -1 for all
+   // -2 for auto
+   // -3 for unset
    int add_cif_dictionary(std::string cif_dictionary_filename,
+			  int imol_enc,
 			  short int show_no_bonds_dialog_maybe_flag);
    void import_all_refmac_cifs();
    static std::vector<std::string> *cif_dictionary_filename_vec;
@@ -2568,14 +2585,6 @@ public:
    // we allow terminal fitting without rigid body refinement
    static short int terminal_residue_do_rigid_body_refine; 
 
-   // Rotate position round direction, direction is not necessarily a
-   // unit vector
-   // 
-   clipper::Coord_orth rotate_round_vector(const clipper::Coord_orth &direction,
-					   const clipper::Coord_orth &position,
-					   const clipper::Coord_orth &origin_shift,
-					   double angle) const; 
-
    // public (from globjects);
    // 
    void execute_db_main();
@@ -2588,6 +2597,7 @@ public:
    static float ligand_acceptable_fit_fraction;
    static float ligand_cluster_sigma_level; // was 2.2 default
    static int   ligand_wiggly_ligand_n_samples;
+   static int   ligand_wiggly_ligand_count;
    static int   ligand_verbose_reporting_flag; 
    
    // Eleanor wants control over water parameters
@@ -3038,6 +3048,7 @@ public:
    int wrapped_create_edit_chi_angles_dialog(const std::string &res_type, 
 					     edit_chi_edit_type mode);
    // used by above:
+   // (imol should be encoded into vbox - it isn't yet) // FIXME
    int fill_chi_angles_vbox(GtkWidget *vbox, std::string res_type, edit_chi_edit_type mode);
    void clear_out_container(GtkWidget *vbox);
    static std::string chi_angle_alt_conf;
@@ -3087,7 +3098,8 @@ public:
    // (used by rotate_chi)
    // We need to pass the asc for the mol because we need it for seekcontacts()
    // 
-   short int update_residue_by_chi_change(mmdb::Residue *residue,
+   short int update_residue_by_chi_change(int imol, 
+					  mmdb::Residue *residue,
 					  atom_selection_container_t &asc,
 					  int chi, double diff);
    // temporary storage, during the change-over
@@ -3633,9 +3645,23 @@ public:
      generic_objects_p->push_back(o);
      int r = generic_objects_p->size() -1;
      return r;
-   } 
-   static GtkWidget *generic_objects_dialog; 
+   }
+   static GtkWidget *generic_objects_dialog;
 
+   static int generic_object_index(const std::string &n) {
+     int index = -1;
+     int nobjs = generic_objects_p->size();
+     for (int iobj=0; iobj<nobjs; iobj++) {
+       if ((*generic_objects_p)[iobj].name == n) {
+	 if (!(*generic_objects_p)[iobj].is_closed_flag) {
+	   index = iobj;
+	   break;
+	 }
+       }
+     }
+     return index;
+   }
+ 
 
    // ---- active atom:
    static std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom_spec();
@@ -3661,9 +3687,12 @@ public:
    // probe dots on intermediate atoms (we need to have hydrogens)
    static short int do_probe_dots_on_rotamers_and_chis_flag;
    static short int do_probe_dots_post_refine_flag;
+   static bool do_coot_probe_dots_during_refine_flag;
    void do_probe_dots_on_rotamers_and_chis();
    void do_probe_dots_post_refine();
-   void do_interactive_probe() const;
+   void do_interactive_probe() const; // molprobity probe
+   // not const because it manipulates generic graphics objects
+   void do_interactive_coot_probe(); // coot probe
 
    // can be private?
    void setup_for_probe_dots_on_chis_molprobity(int imol);
@@ -3908,7 +3937,8 @@ string   static std::string sessionid;
    // place helix here fudge factor (for EM maps?)
    static float place_helix_here_fudge_factor;
 
-   coot::geometry_distortion_info_container_t geometric_distortions(mmdb::Residue *residue_p);
+   coot::geometry_distortion_info_container_t geometric_distortions(int imol, mmdb::Residue *residue_p,
+								    bool with_nbcs);
 
    void tabulate_geometric_distortions(const coot::restraints_container_t &restraints) const;
 

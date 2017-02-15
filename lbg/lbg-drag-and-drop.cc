@@ -1,3 +1,23 @@
+/* lbg/lbg-drag-and-drop.cc
+ * 
+ * Copyright 2010 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #ifdef HAVE_GOOCANVAS
 
@@ -6,6 +26,7 @@
 #endif
 
 #include <iostream>
+#include "utils/win-compat.hh"
 #include "lbg-drag-and-drop.hh"
 
 #include "lbg.hh"
@@ -71,7 +92,7 @@ lbg_info_t::handle_lbg_drag_and_drop_string(const std::string &uri_in) {
 
    std::string uri = uri_in;
    
-   std::cout << "lbg:: handle this string :" << uri << ": " << std::endl;
+   // std::cout << "lbg:: handle this string :" << uri << ": " << std::endl;
    std::string::size_type pos = uri.find_first_of('\n');
    if (pos != std::string::npos) {
       // there was a carriage return, strip down the string
@@ -288,48 +309,62 @@ lbg_info_t::handle_lbg_drag_and_drop_pubchem_image(const std::string &uri) {
 int
 lbg_info_t::handle_lbg_drag_and_drop_chemspider_structure(const std::string &uri) {
 
+   // http://www.chemspider.com/ImagesHandler.ashx?id=2424&w=250&h=250
+
    int handled = FALSE;
+   
    if (uri.length() > 7) {
       if (uri.substr(0,7) == "http://") {
-	 if (uri.find("http://www.chemspider.com/Chemical-Structure.") != std::string::npos) { 
-	    if (uri.find(".html") != std::string::npos) {
-	       std::string id_string = get_id_string(uri, 45, 13);
-	       handled = get_chemspider_mol(id_string);
+	 if (uri.find("http://www.chemspider.com/ImagesHandler.ashx?id=") != std::string::npos) {
+	    std::string id = get_id_string(uri, 48, 7);
+	    std::cout << "got id: " << id << std::endl;
+	    std::string url = "http://www.chemspider.com/FilesHandler.ashx?type=str&striph=yes&id=";
+	    url += id;
+	    std::string file_name = "ChemSpider-" + id + ".mol";
+
+	    handled = get_chemspider_mol(id);
+
+	 } else {
+	    std::cout << "WARNING:: failed to find ImagesHandler" << std::endl;
+	 }
+      }
+   }
+
+   // old, this will probably never work again
+   if (! handled) { 
+      if (uri.length() > 7) {
+	 if (uri.substr(0,7) == "http://") {
+	    if (uri.find("http://www.chemspider.com/Chemical-Structure.") != std::string::npos) { 
+	       if (uri.find(".html") != std::string::npos) {
+		  std::string id_string = get_id_string(uri, 45, 13);
+		  handled = get_chemspider_mol(id_string);
+	       } else {
+		  std::cout << "fail 2" << std::endl;
+	       }
 	    } else {
-	       std::cout << "fail 2" << std::endl;
+	       std::cout << "fail 1 - no chemspider in " << uri << std::endl;
 	    }
 	 } else {
-	    std::cout << "fail 1 " << std::endl;
-	 }
-      } else {
-	 std::cout << "fail 0" << std::endl;
-      } 
+	    std::cout << "fail 0 - uri to short: " << uri << std::endl;
+	 } 
+      }
    }
    return handled;
 }
-
 
 int
 lbg_info_t::handle_lbg_drag_and_drop_filesystem_file(const std::string &uri) {
 
    int handled = FALSE;
+
    if (uri.length() > 7) {
       if (uri.substr(0,7)== "file://") {
 	 // std::cout << "---:" << uri << ": was a file:// string " << std::endl;
-	 std::string file_name;
-
-	 // Why this?
-#ifdef WINDOWS_MINGW
-	 file_name = uri.substr(8);
-#else
-	 file_name = uri.substr(7);
-#endif
-
+	 std::string file_name = coot::uri_to_file_name(uri);
 	 std::string ext = coot::util::file_name_extension(file_name);
-	 if (ext == ".mdl" || ext == ".mol" || ext == ".mol2") { 
+	 if (ext == ".mdl" || ext == ".mol" || ext == ".mol2" || ext == ".sdf") { 
 	    import_mol_from_file(file_name);
 	 }
-
 	 if (ext == ".smi") {
 	    import_mol_from_smiles_file(file_name);
 	 } 
@@ -356,8 +391,12 @@ lbg_info_t::handle_lbg_drag_and_drop_drugbank(const std::string &uri_clean,
 					      const std::string &url_file_name_file) {
 
    int handled = FALSE;
+
+   // std::cout << " in handle_lbg_drag_and_drop_drugbank() with "
+   // << uri_clean << " " << url_file_name_file << std::endl;
    
-   if (url_file_name_file == "image.png") {
+   if (url_file_name_file == "image.png" || url_file_name_file == "image.svg") {
+
       if (uri_clean.find_last_of("/molecules/DB") != std::string::npos) {
 	 std::pair<std::string, std::string> s =
 	    coot::util::split_string_on_last_slash(uri_clean);
@@ -366,12 +405,14 @@ lbg_info_t::handle_lbg_drag_and_drop_drugbank(const std::string &uri_clean,
 	 if (ss.second.find("DB") != std::string::npos) {
 	    std::string local_file = ss.second;
 	    local_file += ".mol";
+
 	    std::string drugbank_mol_url = "http://www.drugbank.ca/structures/structures/";
 	    drugbank_mol_url += "small_molecule_drugs/";
 	    drugbank_mol_url += local_file;
+	    
 	    std::string file_name =
 	       coot::util::append_dir_file("coot-download", local_file);
-	    // std::cout << "getting drugbank mol url :" << drugbank_mol_url << ":" << std::endl;
+	    std::cout << "getting drugbank mol url :" << drugbank_mol_url << ":" << std::endl;
 	    get_url_func_ptr(drugbank_mol_url.c_str(), file_name.c_str());
 	    import_mol_from_file(file_name);
 	    handled = TRUE;

@@ -66,10 +66,11 @@ public:
       display_list_tag = 0;
       imol = -1; // unset
    } 
+   ~graphics_ligand_molecule();
    // some OpenGL stuff.
    void render();
    void generate_display_list(bool against_a_dark_background);
-   bool setup_from(mmdb::Residue *r,
+   bool setup_from(int imol, mmdb::Residue *r,
 		   const std::string &alt_conf,
 		   coot::protein_geometry *geom_p, bool against_a_dark_background);
    int imol;

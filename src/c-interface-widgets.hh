@@ -1,8 +1,9 @@
-/* src/c-interface-widgets.h
+/* src/c-interface-widgets.hh
  * 
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Copyright 2007 by Paul Emsley
  * Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The University of Oxford
+ * Copyright 2015 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -65,7 +66,17 @@ p  So we need to have this function external for c++ linking.
 
 void add_ligand_builder_menu_item_maybe();
 void start_ligand_builder_gui_XXX(GtkMenuItem     *menuitem,
-			      gpointer         user_data);
+				  gpointer         user_data);
+
+
+/* ------------------------------------------------------------------------- */
+/*                    Cif dictionary                                         */
+/* ------------------------------------------------------------------------- */
+// Add a molecule chooser for a new cif file
+//
+void add_cif_dictionary_selector_molecule_selector(GtkWidget *fileselection,
+						   GtkWidget *aa_hbox);
+
 
 
 /* ------------------------------------------------------------------------- */

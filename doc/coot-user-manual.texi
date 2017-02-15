@@ -2392,9 +2392,9 @@ refinement.  In this way, one can select residues that are not in a
 linear range.  This technique is useful for refining disulfide bonds and
 glycosidic linkages.
 
-To enable sphere refinement, Right-mouse in the vertical toolbutton
-menu, Manage buttons -> [Tick] Sphere Refine -> Apply.  You will need
-a python-enabled Coot to do this.
+To enable sphere refinement, Right-mouse click in the right hand side of
+the horizontal toolbutton menu, Manage buttons -> [Tick] Sphere Refine
+-> Apply.  You will need a python-enabled Coot to do this.
 
 The following adds a key binding (Shift-R) that refines resides that are
 within 3.5@AA{} of the residue at the centre of the screen:
@@ -3276,7 +3276,7 @@ This function can easily be bound to a key.
 @node Find Waters
 @section Find Waters
 @cindex waters, finding
-As with finding ligands, you are given a chose of maps, protein
+As with finding ligands, you are given a choice of maps, protein
 (masking) atoms. A final selection has to be made for the cut-off level,
 note that this value is the number of standard deviation of the density
 of the map @emph{before} the map has been masked.  The default sigma

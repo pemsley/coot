@@ -3,6 +3,7 @@
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006 The University of York
  * Copyright 2008 by The University of Oxford
+ * Copyright 2013, 2014, 2015, 2016 by Medical Research Council
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -25,6 +26,7 @@
 #define HAVE_SIMPLE_RESTRAINT_HH
 
 #include <vector>
+#include <list>
 #include <string>
 #include <stdexcept>
 
@@ -34,6 +36,8 @@
 #include "parallel-planes.hh"
 
 #include "extra-restraints.hh"
+
+#include "model-bond-deltas.hh"
 
 // refinement_results_t is outside of the GSL test because it is
 // needed to make the accept_reject_dialog, and that can be compiled
@@ -54,7 +58,6 @@ namespace coot {
 	 value = value_in;
       }
    };
-
 
    class rama_triple_t {
    public:
@@ -201,11 +204,14 @@ namespace coot {
    //          restraints_usage_flag & 2 for ANGLES etc.      
    //
    enum restraint_usage_Flags { NO_GEOMETRY_RESTRAINTS = 0,
-				BONDS = 1, BONDS_AND_ANGLES = 3,
+				BONDS = 1,
+				ANGLES = 2,
+				BONDS_AND_ANGLES = 3,
 				TORSIONS = 4,
 				NON_BONDED = 16,
 				CHIRAL_VOLUMES = 32,
-				RAMA = 64, 
+				PLANES = 8,
+				RAMA = 64,
 				BONDS_ANGLES_AND_TORSIONS = 7,
 				BONDS_ANGLES_TORSIONS_AND_PLANES = 15,
 				BONDS_AND_PLANES = 9,
@@ -648,7 +654,7 @@ namespace coot {
       std::vector<geometry_distortion_info_t> geometry_distortion;
       mmdb::PAtom *atom;
       int n_atoms;
-      int min_resno; 
+      int min_resno;
       int max_resno;
       geometry_distortion_info_container_t(const std::vector<geometry_distortion_info_t> &geometry_distortion_in, 
 					   mmdb::PAtom *atom_in, 
@@ -699,7 +705,11 @@ namespace coot {
    };
 
 
-   double distortion_score(const gsl_vector *v, void *params); 
+   double distortion_score(const gsl_vector *v, void *params);
+   // return value in distortion
+   void distortion_score_multithread(const gsl_vector *v, void *params,
+				     int idx_start, int idx_end, double *distortion);
+   
    double distortion_score_bond(const simple_restraint &bond_restraint,
 				const gsl_vector *v); 
    double distortion_score_geman_mcclure_distance(const simple_restraint &bond_restraint,
@@ -764,6 +774,7 @@ namespace coot {
    void my_df_planes(const gsl_vector *v, void *params, gsl_vector *df); 
    //  the non-bonded contacts
    void my_df_non_bonded(const gsl_vector *v, void *params, gsl_vector *df); 
+   //
    //  the chiral volumes
    void my_df_chiral_vol(const gsl_vector *v, void *params, gsl_vector *df); 
    //  the deviation from starting point terms:
@@ -806,7 +817,7 @@ namespace coot {
 			mmdb::Residue *res);
 
    std::pair<std::vector<std::string> , std::vector <atom_spec_t> >
-   inverted_chiral_volumes(mmdb::Manager *mol, protein_geometry *geom_p,
+   inverted_chiral_volumes(int imol, mmdb::Manager *mol, protein_geometry *geom_p,
 			   int cif_dictionary_read_number);
       
    
@@ -973,7 +984,7 @@ namespace coot {
 			 short int have_flanking_residue_at_end,
 			 short int have_disulfide_residues,
 			 const std::string &altloc,
-			 const char *chain_id,
+			 const std::string &chain_id,
 			 mmdb::Manager *mol_in, 
 			 const std::vector<atom_spec_t> &fixed_atom_specs);
 
@@ -1169,6 +1180,8 @@ namespace coot {
 
       int get_asc_index(const atom_spec_t &spec) const;
 
+      int get_asc_index(mmdb::Atom *at);
+
       int add_bonds(int idr, mmdb::PPAtom res_selection,
 		    int i_no_res_atoms,
 		    mmdb::PResidue SelRes,
@@ -1273,15 +1286,19 @@ namespace coot {
 				       const protein_geometry &geom);
 					
 
-      int make_monomer_restraints       (const protein_geometry &geom,
-					 short int do_residue_internal_torsions);
+      int make_monomer_restraints(int imol,
+				  const protein_geometry &geom,
+				  short int do_residue_internal_torsions);
       //uses:
-      int make_monomer_restraints_by_linear (const protein_geometry &geom,
-					     bool do_residue_internal_torsions);
-      int make_monomer_restraints_from_res_vec (const protein_geometry &geom,
-						bool do_residue_internal_torsions);
+      int make_monomer_restraints_by_linear(int imol,
+					    const protein_geometry &geom,
+					    bool do_residue_internal_torsions);
+      int make_monomer_restraints_from_res_vec(int imol,
+					       const protein_geometry &geom,
+					       bool do_residue_internal_torsions);
       // which use:
-      restraint_counts_t make_monomer_restraints_by_residue(mmdb::Residue *residue_p,
+      restraint_counts_t make_monomer_restraints_by_residue(int imol,
+							    mmdb::Residue *residue_p,
 							    const protein_geometry &geom,
 							    bool do_residue_internal_torsions);
       
@@ -1428,10 +1445,20 @@ namespace coot {
       bool check_for_O_C_1_5_relation(mmdb::Atom *at_1, mmdb::Atom *at_2) const;  // check either way round
 
 
-      int make_non_bonded_contact_restraints(const bonded_pair_container_t &bpc, const protein_geometry &geom);
-      int make_non_bonded_contact_restraints(const bonded_pair_container_t &bpc,
+      int make_non_bonded_contact_restraints(int imol, const bonded_pair_container_t &bpc, const protein_geometry &geom);
+      int make_non_bonded_contact_restraints(int imol,
+					     const bonded_pair_container_t &bpc,
 					     const reduced_angle_info_container_t &ai,
 					     const protein_geometry &geom);
+      bool is_in_same_ring(int imol, mmdb::Residue *residue_p,
+			   std::map<std::string, std::pair<bool, std::vector<std::list<std::string> > > > &residue_ring_map_cache,
+			   const std::string &atom_name_1,
+			   const std::string &atom_name_2,
+			   const coot::protein_geometry &geom) const;
+
+      bool is_acceptor(const std::string &energy_type,
+		       const coot::protein_geometry &geom) const;
+      
       
       //! Set a flag that we have an OXT and we need to position it
       //after the refinement.
@@ -1490,21 +1517,24 @@ namespace coot {
 	 }
 
       // return "" on no type found
-      std::string get_type_energy(mmdb::Atom *at, const protein_geometry &geom) const {
+      std::string get_type_energy(int imol, mmdb::Atom *at, const protein_geometry &geom) const {
 	 std::string r;
 	 if (at) { 
 	    std::string atom_name = at->name;
 	    const char *rn = at->GetResName();
 	    if (rn) {
 	       std::string residue_name = rn;
-	       r = geom.get_type_energy(atom_name, residue_name);
+	       r = geom.get_type_energy(atom_name, residue_name, imol);
 	    } 
 	 }
 	 return r;
       }
 
       bonded_pair_container_t bonded_pairs_container;
-      
+
+      model_bond_deltas resolve_bonds(const gsl_vector *v) const;
+
+      void make_restraint_types_index_limits();
 
    public: 
 
@@ -1544,7 +1574,7 @@ namespace coot {
 // 	 }
 //       }
 
-      restraints_container_t(atom_selection_container_t asc_in) { 
+      restraints_container_t(atom_selection_container_t asc_in) {
 	 verbose_geometry_reporting = NORMAL;
 	 n_atoms = asc_in.n_selected_atoms; 
 	 mol = asc_in.mol;
@@ -1553,8 +1583,6 @@ namespace coot {
 	 include_map_terms_flag = 0;
 	 have_oxt_flag = 0;
 	 do_numerical_gradients_flag = 0;
-	 std::cout << "asc_in.n_selected_atoms " << asc_in.n_selected_atoms
-		   << std::endl; 
 	 initial_position_params_vec.resize(3*asc_in.n_selected_atoms);
 	 lograma.init(LogRamachandran::All, 2.0, true);
 	 from_residue_vector = 0;
@@ -1579,7 +1607,7 @@ namespace coot {
 			     short int have_flanking_residue_at_end,
 			     short int have_disulfide_residues,
 			     const std::string &altloc,
-			     const char *chain_id,
+			     const std::string &chain_id,
 			     mmdb::Manager *mol, // const in an ideal world
 			     const std::vector<atom_spec_t> &fixed_atom_specs);
 
@@ -1590,7 +1618,7 @@ namespace coot {
 			     short int have_flanking_residue_at_end,
 			     short int have_disulfide_residues,
 			     const std::string &altloc,
-			     const char *chain_id,
+			     const std::string &chain_id,
 			     mmdb::Manager *mol, // const in an ideal world
 			     const std::vector<atom_spec_t> &fixed_atom_specs,
 			     const clipper::Xmap<float> &map_in,
@@ -1638,7 +1666,8 @@ namespace coot {
       geometric_distortions() const;
 
       omega_distortion_info_container_t
-      omega_trans_distortions(int mark_cis_peptides_as_bad_flag);
+      omega_trans_distortions(const protein_geometry &geom,
+			      bool mark_cis_peptides_as_bad_flag);
       
 
       // So, we provide easy(?) access to the atoms of next and
@@ -1732,7 +1761,11 @@ namespace coot {
 
       double Map_weight() const { 
 	 return map_weight; 
-      } 
+      }
+
+      void set_map_weight(const double &mw) {
+	 map_weight = mw;
+      }
 
       void setup_multimin_func() { 
 
@@ -1780,13 +1813,16 @@ namespace coot {
       // We need to fill restraints_vec (which is a vector of
       // simple_restraint) using the coordinates () and the dictionary of
       // restraints, protein_geometry geom.
-      int make_restraints(const protein_geometry &geom,
+      int make_restraints(int imol,
+			  const protein_geometry &geom,
 			  restraint_usage_Flags flags,
 			  bool do_residue_internal_torsions,
 			  bool do_trans_peptide_restraints,
 			  float rama_plot_target_weight,
 			  bool do_rama_plot_retraints, 
-			  pseudo_restraint_bond_type sec_struct_pseudo_bonds);
+			  pseudo_restraint_bond_type sec_struct_pseudo_bonds,
+			  bool do_link_restraints=true,
+			  bool do_flank_restraints=true);
 
       unsigned int test_function(const protein_geometry &geom);
       unsigned int inline_const_test_function(const protein_geometry &geom) const {
@@ -1796,19 +1832,17 @@ namespace coot {
       } 
       unsigned int const_test_function(const protein_geometry &geom) const;
 
-      void add_extra_restraints(const extra_restraints_t &extra_restraints,
+      void add_extra_restraints(int imol,
+				const extra_restraints_t &extra_restraints,
 				const protein_geometry &geom);
       // and that calls:
       void add_extra_bond_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_angle_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_torsion_restraints(const extra_restraints_t &extra_restraints);
       void add_extra_start_pos_restraints(const extra_restraints_t &extra_restraints);
-      void add_extra_parallel_plane_restraints(const extra_restraints_t &extra_restraints,
+      void add_extra_parallel_plane_restraints(int imol,
+					       const extra_restraints_t &extra_restraints,
 					       const protein_geometry &geom);
-
-      // old code:
-      // Read restraints from the refmac .rst file
-      int make_restraints(std::string ciffilename);
 
       void update_atoms(gsl_vector *s);
       // return the WritePDBASCII() status, or -1 if mol was 0.
@@ -1879,8 +1913,37 @@ namespace coot {
       //
       void set_do_numerical_gradients() { do_numerical_gradients_flag = 1;}
       bool do_numerical_gradients_status() { return do_numerical_gradients_flag; }
+      void debug_atoms() const;
 
+      model_bond_deltas resolve_bonds(); // calls setup_gsl_vector_variables()
+
+      // we set these so that the functions, for particular types, that loop over the restraints
+      // need only loop over the relevant range
+      // i.e. say we have 2000 restraints, only the top 100 of which might contain
+      // bond restraints. make_restraint_types_index_limits() is called at the end of
+      // make_restraints()
+      //
+      // these are public because they are used in the my_df_xxx functions
+      //
+      std::pair<unsigned int, unsigned int> restraints_limits_bonds;
+      std::pair<unsigned int, unsigned int> restraints_limits_angles;
+      std::pair<unsigned int, unsigned int> restraints_limits_torsions;
+      std::pair<unsigned int, unsigned int> restraints_limits_chirals;
+      std::pair<unsigned int, unsigned int> restraints_limits_planes;
+      std::pair<unsigned int, unsigned int> restraints_limits_non_bonded_contacts;
+      std::pair<unsigned int, unsigned int> restraints_limits_geman_mclure;
    }; 
+
+   void my_df_non_bonded_thread_dispatcher(const gsl_vector *v,
+					   gsl_vector *df,
+					   restraints_container_t *restraints_p,
+					   int idx_start,
+					   int idx_end);
+   void my_df_non_bonded_single(const gsl_vector *v,
+				gsl_vector *df,
+				const simple_restraint &this_restraint
+				// const restraints_container_t &restraints // for debugging
+				);
 
    void simple_refine(mmdb::Residue *residue_p,
 		      mmdb::Manager *mol,

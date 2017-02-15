@@ -1,3 +1,19 @@
+;;;; Copyright 2015 by Medical Research Council
+
+;;;; This program is free software; you can redistribute it and/or modify
+;;;; it under the terms of the GNU General Public License as published by
+;;;; the Free Software Foundation; either version 3 of the License, or (at
+;;;; your option) any later version.
+ 
+;;;; This program is distributed in the hope that it will be useful, but
+;;;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;;;; General Public License for more details.
+ 
+;;;; You should have received a copy of the GNU General Public License
+;;;; along with this program; if not, write to the Free Software
+;;;; Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
+
 
 (define (add-pyranose-pseudo-ring-plane-restraints comp-id)
 
@@ -101,6 +117,15 @@
 			      (("ALPHA1-3" . "MAN")
 			       (("ALPHA1-2" . "MAN")
 				(("ALPHA1-2" . "MAN"))))))))
+
+(define paucimannose-tree '(("NAG-ASN" . "NAG")
+			    (("ALPHA1-3" . "FUC"))
+			    (("BETA1-4" . "NAG")
+			     (("BETA1-4" . "BMA")
+			      (("ALPHA1-6" . "MAN"))
+			      (("ALPHA1-3" . "MAN"))
+			      (("XYP-BMA"  . "XYP"))))))
+
 
 ;(define oligomannose-tree '(("NAG-ASN" . "NAG")
 ;			    (("BETA1-4" . "NAG")
@@ -311,11 +336,25 @@
 	    (add-linked-residue aa-imol aa-chain-id aa-res-no aa-ins-code "MAN" "ALPHA1-6"))))
 
 	(add-simple-coot-menu-menuitem
+	 menu "Add an ALPHA1-3 FUC"
+	 (lambda () 
+	   (set-matrix 8)
+	   (using-active-atom
+	    (add-linked-residue aa-imol aa-chain-id aa-res-no aa-ins-code "FUC" "ALPHA1-3"))))
+
+	(add-simple-coot-menu-menuitem
 	 menu "Add an ALPHA1-6 FUC"
 	 (lambda () 
 	   (set-matrix 8)
 	   (using-active-atom
 	    (add-linked-residue aa-imol aa-chain-id aa-res-no aa-ins-code "FUC" "ALPHA1-6"))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Add an XYP-BMA XYP"
+	 (lambda () 
+	   (set-matrix 8)
+	   (using-active-atom
+	    (add-linked-residue aa-imol aa-chain-id aa-res-no aa-ins-code "XYP" "XYP-BMA"))))
 
 	(add-simple-coot-menu-menuitem
 	 menu "N-link add NAG, NAG, BMA"
@@ -349,6 +388,16 @@
 	    (add-linked-residue-tree aa-imol
 				     (list aa-chain-id aa-res-no aa-ins-code)
 				     oligomannose-tree))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Add Paucimannose"
+	 (lambda ()
+	   (using-active-atom
+	    (make-backup aa-imol)
+	    ;; (with-no-backups aa-imol
+	    (add-linked-residue-tree aa-imol
+				     (list aa-chain-id aa-res-no aa-ins-code)
+				     paucimannose-tree))))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Torsion Fit this residue"

@@ -1,4 +1,29 @@
+/* src/graphics-info.cc
+ * 
+ * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by the University of York
+ * Copyright 2007, 2008, 2009 by the University of Oxford
+ * Copyright 2016 by Medical Research Council
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
+#ifndef VIEW_HH
+#define VIEW_HH
+
+#include "coords/Cartesian.h"
 
 namespace coot {
    
@@ -59,8 +84,10 @@ namespace coot {
 			       const view_info_t &view2);
 
       friend std::ostream& operator<<(std::ostream &stream, 
-				      view_info_t &view);
+				      const view_info_t &view);
    };
    std::ostream& operator<<(std::ostream &stream, 
-			    view_info_t &view);
+			    const view_info_t &view);
 }
+
+#endif // VIEW_HH

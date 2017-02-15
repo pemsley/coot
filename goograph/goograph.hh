@@ -44,7 +44,7 @@ namespace coot {
       bool y_data_are_ints;
       graph_trace_info_t () {
 	 dashed = false;
-	 y_data_are_ints;
+	 y_data_are_ints = false;
 	 plot_type = PLOT_TYPE_LINE;
       }
       void set_data(const std::vector<std::pair<double, double> > &data_in);

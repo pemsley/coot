@@ -1,3 +1,24 @@
+/* coot-utils/residue-and-atom-specs.hh
+ * 
+ * Copyright 2011, 2012 by The University of Oxford
+ * Copyright 2013, 2015 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #ifndef RESIDUE_AND_ATOM_SPEC_HH
 #define RESIDUE_AND_ATOM_SPEC_HH
@@ -117,6 +138,9 @@ namespace coot {
 	 }
 	 return r;
       }
+      bool operator !=(const atom_spec_t &matcher) const {
+	 return ! operator==(matcher);
+      }
 #endif 
 
 #ifndef SWIG
@@ -151,12 +175,15 @@ namespace coot {
 	 }
 	 return false;
       }
-#endif // SWIG      
+#endif // SWIG
       
-#ifndef SWIG      
+#ifndef SWIG
       friend std::ostream& operator<< (std::ostream& s, const atom_spec_t &spec);
-#endif // SWIG      
+#endif // SWIG
    };
+#ifndef SWIG
+      std::ostream& operator<< (std::ostream& s, const atom_spec_t &spec);
+#endif // SWIG
    
    bool compare_atom_specs_user_float(const atom_spec_t &a1,
 				      const atom_spec_t &a2);
@@ -236,6 +263,9 @@ namespace coot {
 	    u = false;
 	 return u;
       }
+      bool empty() const {
+	 return unset_p();
+      }
       residue_spec_t next() const {
 	 residue_spec_t r = *this;
 	 if (res_no != mmdb::MinInt4)
@@ -259,7 +289,7 @@ namespace coot {
 	 }
 	 return 0;
       }
-#endif // SWIG      
+#endif // SWIG
       
 #ifndef SWIG
       bool operator<(const residue_spec_t &matcher) const{
@@ -287,7 +317,7 @@ namespace coot {
 	 } 
 	 return 0;
       }
-#endif // SWIG      
+#endif // SWIG
 
       std::string format() const {
 	 std::ostringstream s;
@@ -305,10 +335,13 @@ namespace coot {
       int select_atoms(mmdb::Manager *mol, int selhnd,
 		       mmdb::SELECTION_KEY selection_key);
 
-#ifndef SWIG      
+#ifndef SWIG
       friend std::ostream& operator<< (std::ostream& s, const residue_spec_t &spec);
-#endif // SWIG      
+#endif // SWIG
    };
+#ifndef SWIG
+   std::ostream& operator<< (std::ostream& s, const residue_spec_t &spec);
+#endif // SWIG
 
 }
 

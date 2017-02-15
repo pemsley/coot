@@ -1,6 +1,7 @@
 /* src/graphics-info-residues.cc
  * 
  * Copyright 2011 by The University of Oxford.
+ * Copyright 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -14,7 +15,7 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc.,  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
 
 #if defined (USE_PYTHON)
@@ -59,7 +60,8 @@ graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residu
       }
 
       // uses dynamic add
-      bool dict_status = geom_p->have_dictionary_for_residue_types(residue_types);
+      bool dict_status = geom_p->have_dictionary_for_residue_types(residue_types, imol,
+								   cif_dictionary_read_number);
 
       mmdb::Manager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
       if (! moving_mol) {
@@ -81,13 +83,13 @@ graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residu
 
 	 try { 
 	    std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > pairs = 
-	       coot::torsionable_bonds(mol, atom_selection, n_selected_atoms, Geom_p());
+	       coot::torsionable_bonds(imol, mol, atom_selection, n_selected_atoms, Geom_p());
 	    
 	    GtkWidget *w = wrapped_create_multi_residue_torsion_dialog(pairs);
 	    gtk_widget_show(w);
 
 	    moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
-	    make_moving_atoms_graphics_object(make_asc(moving_mol));
+	    make_moving_atoms_graphics_object(imol, make_asc(moving_mol));
 	 }
 	 catch (std::runtime_error rte) {
 	    std::cout << "WARNING:: " << rte.what() << std::endl;
@@ -153,8 +155,7 @@ graphics_info_t::setup_graphics_ligand_view(int imol, mmdb::Residue *residue_p, 
 		     std::cout << "   setup_graphics_ligand() on residue "
 			       << coot::residue_spec_t(residue_p) << std::endl;
 		  graphics_ligand_view_flag =
-		     graphics_ligand_mol.setup_from(residue_p, alt_conf, Geom_p(), background_is_black_p());
-		  graphics_ligand_mol.imol = imol;
+		     graphics_ligand_mol.setup_from(imol, residue_p, alt_conf, Geom_p(), background_is_black_p());
 
 		  // This overwrites the atom info in the status bar - I don't like that.
 		  // There needs to be a different mechanism to report the residue type.
@@ -162,7 +163,7 @@ graphics_info_t::setup_graphics_ligand_view(int imol, mmdb::Residue *residue_p, 
 		  if (false) {
 		     std::string res_name = residue_p->GetResName();
 		     std::pair<bool, coot::dictionary_residue_restraints_t> p = 
-			Geom_p()->get_monomer_restraints_at_least_minimal(res_name);
+			Geom_p()->get_monomer_restraints_at_least_minimal(res_name, imol);
 		     if (! p.first) {
 			// 
 		     } else {
@@ -461,12 +462,13 @@ graphics_info_t::perpendicular_ligand_view(int imol, const coot::residue_spec_t 
 	    // interpolate between current view and new view
 	    //
 
+	    float nice_zoom = 23.1; // "ligand-sized"
 	    const clipper::Coord_orth &rc = residue_centre.second;
 	    coot::Cartesian res_centre(rc.x(), rc.y(), rc.z());
 	    coot::Cartesian rot_centre = RotationCentre();
-	    coot::view_info_t view1(g.quat, rot_centre, zoom, "current");
-	    coot::view_info_t view2(vqf,    res_centre, zoom, "ligand-perp");
-	    int nsteps = 50;
+	    coot::view_info_t view1(g.quat, rot_centre,      zoom, "current");
+	    coot::view_info_t view2(vqf,    res_centre, nice_zoom, "ligand-perp");
+	    int nsteps = 60;
 	    coot::view_info_t::interpolate(view1, view2, nsteps);
 
 	 }

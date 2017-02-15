@@ -1,9 +1,91 @@
+
+------
+
+  Pre-release 0.8.8
+
+  o FEATURE: Modern compilers will multi-thread multiple map contouring
+
+  o CHANGE:  delete residue range speeded up [Oliver Clarke]
+
+  o CHANGE:  PG4 added to other solvent ligands
+
+  o CHANGE:  Solid model lighting adjusted
+
+  o BUG-FIX: Colour by B-factor and Occupancy modes restored [Hans Raaijmakers]
+
+  o BUG-FIX: network interface to Drugbank follows server changes
+
+  o BUG-FIX: Fix the PNG image output limits from lidia
+
+  o BUG-FIX: Refmac monomer library is restored (after server crash)
+
+  o BUG-FIX: Use XYP not XYL for carbohydrate tree additions
+
+  o BUG-FIX: Restore missing waters in FLEV
+
+------
+
+  Release 0.8.7
+
+  o FEATURE: Lidia now has canvas scaling
+
+  o FEATURE: Lidia now has CH3 superatoms, atom name and index display modes
+
+  o FEATURE: Atom renaming to reference comp_id now has a place on the
+             Ligand menu
+
+  o FEATURE: Sequence View dynamically updates after a residue zone deletion
+
+  o FEATURE: NCS local update now has a place on the NCS menu
+
+  o CHANGE:  File -> SMILES has been removed
+
+  o CHANGE:  Additional parameters available in the ligand-fitting dialog
+
+  o CHANGE:  Non-bonded contact restraints calculation speed up
+
+  o BUG-FIX: Fix side-chain plane restraints for sphere-refined residues with 
+             alt confs
+
+  o BUG-FIX: MSE atoms are HETATMs after mutation [Sivasankar Putta]
+
+  o BUG-FIX: CD bump exception in HYP NBC across link [Jens Kaiser]
+
+  o BUG-FIX: Bond-dragging in Lidia now cleaned up
+
+  o BUG-FIX: Correct bonds to W in WO4.
+
+
+------
+
+  Release 0.8.6.1
+
+  o BUG-FIX: Fix typo in findligand shell script
+
+
+  Release 0.8.6
+
+  o FEATURE: Added man pages
+
+  o CHANGE:  bfactan renamed coot-bfactan
+
+  o CHANGE:  no backups for each residue in fill_partial residues() function.
+
+  o CHANGE:  User control over max and min distance to the protein in findwaters
+
+  o CHANGE:  Go-To-Ligand function now has better animation
+
+  o CHANGE:  Included a speed-up for the non-bonded contact restraints generation
+
 -----
 
   Release 0.8.5
 
   o BUG-FIX: Fix conformer-related crash when showing ligand view of some metals
              [Oliver Clarke]
+
+  o BUG-FIX: coot-mini-rsr no longer crashes when given a non-existent file-name
+             for a map
 
 -----
 

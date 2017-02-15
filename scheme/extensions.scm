@@ -1,5 +1,6 @@
 ;;;; Copyright 2007 by The University of York
 ;;;; Copyright 2007 by Paul Emsley
+;;;; Copyright 2015 by Medical Research Council
 ;;;; 
 ;;;; This program is free software; you can redistribute it and/or modify
 ;;;; it under the terms of the GNU General Public License as published by
@@ -853,6 +854,11 @@
 				      entry-2-default-text 
 				      #f #f 
 				      go-button-label handle-go-function))))))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-ncs "Update NCS Ghosts using Local Match"
+	 (lambda ()
+	   (update-ncs-ghosts-by-local-sphere)))
 
 	
 	(add-simple-coot-menu-menuitem

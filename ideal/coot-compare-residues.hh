@@ -3,8 +3,8 @@
 namespace coot {
    
    bool
-   compare_residue_torsions(mmdb::Manager *mol1, mmdb::Residue *res_1,
-			    mmdb::Manager *mol2, mmdb::Residue *res_2,
+   compare_residue_torsions(int imol_1, mmdb::Manager *mol1, mmdb::Residue *res_1,
+			    int imol_2, mmdb::Manager *mol2, mmdb::Residue *res_2,
 			    double tollerance, // in degrees
 			    coot::protein_geometry *geom_p);
 

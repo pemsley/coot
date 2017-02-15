@@ -3,6 +3,7 @@
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Copyright 2005 by Bernhard Lohkamp
  * Copyright 2009 by The University of Oxford
+ * Copyright 2013, 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -175,9 +176,10 @@ coot::rama_plot::init_internal(const std::string &mol_name,
    canvas = GTK_CANVAS(gtk_canvas_new());
    gtk_widget_set_usize(GTK_WIDGET(canvas), 400, 400);
 
-   int ysize = 500;
+   int ysize = 560; // 20170202 was 500: without this the viewport is too short
+                    // for the rama canvas (how has this happened?)
    if (! is_kleywegt_plot_flag_local) // extra space needed
-      ysize = 535;
+      ysize += 35;
 
    gtk_widget_set_usize(app1, 400, ysize);
 

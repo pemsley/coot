@@ -2,6 +2,7 @@
  * 
  * Copyright 2006, 2007, by The University of York
  * Copyright 2008, 2009, 2010, 2011, 2012 by The University of Oxford
+ * Copyright 2013 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -46,7 +47,7 @@
 // How should I do this better?
 #define CXX_UNSET_CHARGE -99.8
 
-#include "residue-and-atom-specs.hh"
+#include "geometry/residue-and-atom-specs.hh"
 
 namespace coot {
 
@@ -211,6 +212,19 @@ namespace coot {
    // return -1 on badness
    int get_selection_handle(mmdb::Manager *mol, const atom_spec_t &at);
 
+   // return a selection handle.
+   //
+   // mode:
+   // 0: all
+   // 1: mainchain
+   // 2: not mainchain
+   // 3: not mainchain or CB
+   // caller deletes the selection.
+   int
+   specs_to_atom_selection(const std::vector<coot::residue_spec_t> &specs,
+			   mmdb::Manager *mol,
+			   int atom_mask_mode);
+
    // Return the lsq deviation of the pt atom and (in second) the rms
    // deviation of the atoms in the plane (not the including pt of
    // course)
@@ -249,21 +263,6 @@ namespace coot {
    std::pair<double, double>
    lsq_plane_deviation(const std::vector<clipper::Coord_orth> &v,
 		       const clipper::Coord_orth &pt);
-
-   // return 0 or 1
-   bool is_main_chain_p(mmdb::Atom *at);
-
-   // return 0 or 1
-   bool is_hydrogen_p(mmdb::Atom *at);
-
-   // return 0 or 1
-   bool is_main_chain_or_cb_p(mmdb::Atom *at);
-
-   // return 0 or 1
-   bool is_main_chain_p(const std::string &atom_name);
-
-   // return 0 or 1
-   bool is_main_chain_or_cb_p(const std::string &atom_name);
 
    bool is_member_p(const std::vector<mmdb::Residue *> &v, mmdb::Residue *a);
 
@@ -315,21 +314,6 @@ namespace coot {
    std::vector<mmdb::Residue *> residues_near_position(const clipper::Coord_orth &pt,
 						  mmdb::Manager *mol,
 						  double radius);
-
-   // a trivial class to hold the residue and the solvent exposure,
-   // including and not including the ligand.
-   class solvent_exposure_difference_helper_t {
-   public:
-      residue_spec_t res_spec;
-      double exposure_fraction_holo;
-      double exposure_fraction_apo;
-      solvent_exposure_difference_helper_t(residue_spec_t res_spec_in, double h, double a) {
-	 res_spec = res_spec_in;
-	 exposure_fraction_holo = h;
-	 exposure_fraction_apo  = a;
-      }
-   };
-
 
 
    // Don't include residues that are HOH residues that are not bonded to
@@ -1126,10 +1110,10 @@ namespace coot {
       //
       // Note that angle is in radians.
       // 
-      clipper::Coord_orth rotate_round_vector(const clipper::Coord_orth &direction,
-					      const clipper::Coord_orth &position,
-					      const clipper::Coord_orth &origin_shift,
-					      double angle);
+      clipper::Coord_orth rotate_around_vector(const clipper::Coord_orth &direction,
+					       const clipper::Coord_orth &position,
+					       const clipper::Coord_orth &origin_shift,
+					       double angle);
       // angle in radians
       // 
       void rotate_residue(mmdb::Residue *residue_p,

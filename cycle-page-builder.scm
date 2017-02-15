@@ -1,5 +1,19 @@
-
-;; (use-modules (www url))
+;;;; Copyright 2008 by The University of Oxford
+;;;; Copyright 2013, 2015 by Medical Research Council
+;;;;
+;;;; This program is free software; you can redistribute it and/or modify
+;;;; it under the terms of the GNU General Public License as published by
+;;;; the Free Software Foundation; either version 3 of the License, or (at
+;;;; your option) any later version.
+ 
+;;;; This program is distributed in the hope that it will be useful, but
+;;;; WITHOUT ANY WARRANTY; without even the implied warranty of
+;;;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+;;;; General Public License for more details.
+ 
+;;;; You should have received a copy of the GNU General Public License
+;;;; along with this program; if not, write to the Free Software
+;;;; Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
 
 (use-modules (srfi srfi-13)
              (srfi srfi-1)
@@ -437,17 +451,19 @@
 
   ;; 
   (define (colour-from-revision-count bin-rev source-rev)
+    
     (if (= bin-rev source-rev)
 	"#057705" ;; dark green
 	(let* ((diff-1 (- source-rev bin-rev))
 	       (max-diff 30)
 	       (frac-diff (/ 1 max-diff))
 	       (diff-2 (if (> diff-1 max-diff) max-diff diff-1)))
+
 	  (if (< diff-2 0)
 	      "#101010" ;; dark grey, for a strange situation
 	      (let ((blue 0.05)
-		    (red (+ 0.05 (* 0.9 diff-2 frac-diff)))
-		    (green (- 0.9 (* 0.9 diff-2 frac-diff))))
+		    (red   (+ 0.05 (* 0.9 diff-2 frac-diff)))
+		    (green (- 0.9  (* 0.9 diff-2 frac-diff))))
 		(apply string-append
 		       (cons "#" (map (lambda(c) 
 					(let ((s (format #f "~x" (inexact->exact (round (* 255 c))))))
@@ -474,6 +490,9 @@
 	      (*ENTITY* "nbsp")
 	      (*ENTITY* "nbsp")
 	      ,(let ((binary-revision ((record-accessor rec-type 'latest-binary-revision) binary-record)))
+ 
+                 ;; no colour means source-code-revision-count is #f
+ 
 		 (if (not (number? source-code-revision-count))
 		     (if (not (number? binary-revision))
 			 "No-source-rev,no-bin-rev"
@@ -482,6 +501,7 @@
 			 "Missing-bin-rev"
 			 (let ((font-colour (colour-from-revision-count 
 					     binary-revision source-code-revision-count)))
+
 			     `(b (font (@ color ,font-colour)) ,binary-revision)))))))))
 			   
 		     
@@ -891,7 +911,7 @@
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
 
-	 (list "binary-Linux-x86_64-scientific-linux-6.7-python-gtk2"
+	 (list "binary-Linux-x86_64-scientific-linux-6.8-python-gtk2"
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-hal.lmb.internal/"
 	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
 	       #t #t)
@@ -929,7 +949,7 @@
 ;                 #t #t)
 
 	 (list "WinCoot" 
-	       "http://www.ysbl.york.ac.uk/~lohkamp/build-logs/MINGW32_NT-6.1-sarabellum/gtk2" 
+	       "http://www.ysbl.york.ac.uk/~lohkamp/build-logs/MINGW32_NT-6.-bernie-pc/gtk2" 
 	       "http://www.ysbl.york.ac.uk/~lohkamp/software/binaries/nightlies/pre-release"
 	       #t #t)
 

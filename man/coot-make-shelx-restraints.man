@@ -1,0 +1,17 @@
+.TH COOT 1
+
+.SH NAME
+.B coot-make-shelx-restraints
+.SH SYNOPSIS
+.B coot-make-shelx-restraints 
+.I <mmCIF-restraints-file>
+
+.SH DESCRIPTION
+
+Convert mmCIF-style restraints to SHELXL-style restraints.
+
+Create an output file for every comp-id in the input mmCIF restraints file.
+
+.SH AUTHOR
+Paul Emsley
+

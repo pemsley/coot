@@ -18,6 +18,9 @@
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA
  */
 
+#ifndef WLIGAND_HH
+#define WLIGAND_HH
+
 #include "monomer-utils.hh"
 #include "ligand.hh"
 
@@ -121,6 +124,8 @@ namespace coot {
 
       bool is_unique_conformer(const coot::minimol::molecule &mol) const;
 
+      // can throw a std::runtime_error
+      // (if the dictionary/atoms are not found)
       installed_wiggly_ligand_info_t
       optimize_and_install_if_unique(const minimol::residue &wiggled_ligand_residue,
 				     coot::protein_geometry *pg,
@@ -172,9 +177,18 @@ namespace coot {
       std::vector<installed_wiggly_ligand_info_t>
       install_simple_wiggly_ligands(protein_geometry *pg,
 				    const minimol::molecule &ligand,
+				    int imol_ligand,
 				    int n_samples,
 				    bool optimize_geometry_flag,
 				    bool fill_returned_molecules_vector_flag);
+
+      // install one by one for diallog updating
+      installed_wiggly_ligand_info_t
+      install_simple_wiggly_ligand(protein_geometry *pg,
+				   const minimol::molecule &ligand,
+				   int imol_ligand,
+				   int isample,
+				   bool optimize_geometry_flag);
 
       short int install_linked_wiggly_ligands(const protein_geometry &pg,
 					      const minimol::molecule &ligand,
@@ -183,7 +197,9 @@ namespace coot {
       void set_debug_wiggly_ligands() { debug_wiggly_ligands = 1; }
       std::vector<minimol::molecule> get_conformers() const {
 	 return initial_ligand;
-      } 
+      }
    }; 
 
 }
+
+#endif // WLIGAND_HH

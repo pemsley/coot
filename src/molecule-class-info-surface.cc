@@ -15,7 +15,7 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA.
  */
 
 #ifdef USE_PYTHON
@@ -184,13 +184,5 @@ molecule_class_info_t::make_surface(int SelHnd_selection, int SelHnd_all,
       cootsurface->draw(0, 0);
    glEndList();
 }
-
-
-// electron density solid surface
-void
-molecule_class_info_t::do_solid_surface_for_density(short int on_off_flag) {
-
-}
-
 
 

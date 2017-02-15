@@ -1,5 +1,28 @@
- 
+# 
 # -*-shell-script-*-s
+#
+# Copyright 2004, 2005, 2006, 2007, 2008 by The University of York
+# Copyright 2009, 2010, 2011, 2012 by The University of York
+# Copyright 2012 by Paul Emsley
+# Copyright 2012, 2013, 2014, 2015, 2016 by Medical Reserch Council
+# Copyright 2014, 2015, 2016 by Medical Research Council
+# Author: Paul Emsley
+# 
+# This program is free software; you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation; either version 3 of the License, or (at
+# your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful, but
+# WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+# General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+# 02110-1301, USA
+#
 #
 #
 #  For instructions, read below, starting at :: NOTE :: 
@@ -555,16 +578,17 @@ function post_install_slim {
 	libexec/findwaters-bin             \
 	libexec/findligand-bin             \
 	libexec/mini-rsr-bin               \
+	libexec/density-score-by-residue-bin  \
 	bin/coot                           \
         bin/findwaters                     \
 	bin/findligand                     \
 	bin/guile                          \
-	bin/density-score-by-residue       \
-	bin/density-score-by-residue-real  \
+	bin/coot-density-score-by-residue       \
 	bin/coot-available-comp-id         \
 	bin/coot-compare-dictionaries      \
 	bin/coot-dictionary-bond-distributions \
 	bin/coot-make-shelx-restraints \
+	bin/lidia \
         bin/curl \
 	$keep_lib_archs"
 
@@ -1077,7 +1101,9 @@ case $dist_name in
        libxmu-dev
        libxt-dev
        libc6-dev
+       libncurses5-dev
        libglu1-mesa-dev 
+       libjpeg-dev
        mesa-common-dev
        libgtk2.0-dev
        libgnomecanvas2-dev'
@@ -1311,14 +1337,14 @@ echo "Testing version of make"
 MAKE=make
 if make --version ; then
    # let's try to set some args
-   if [ -e /proc/meminfo ] ; then 
+   if [ -e /proc/meminfo ] ; then
       memory_kb=$(awk '/MemTotal:/ {print $2} ' /proc/meminfo)
-      if [ "$memory_kb" -gt 2000512 ] ; then 
+      if [ "$memory_kb" -gt 2000512 ] ; then
          if [ -e /proc/cpuinfo ] ; then
             if np=$(grep processor /proc/cpuinfo | wc -l) ; then
-               # limit to 4 processors, not much speed up after that.
-               if [ "$np" -gt 4 ] ; then 
-                  np=4
+               # limit to 8 processors
+               if [ "$np" -gt 8 ] ; then
+                  np=8
                fi
                echo using $np processors in compilation
                MAKE="make -j$np"
@@ -1425,7 +1451,6 @@ release_server_dir=http://lmb.bioch.ox.ac.uk/coot/software/source/releases
 release_server_dir=http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/source/releases/
 release_server_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/releases
 #
-extras_place=http://www2.mrc-lmb.cam.ac.uk/Groups/murshudov/coot/dependencies
 extras_place=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/dependencies
 
 
@@ -2178,6 +2203,8 @@ fi
 #   test for gnomecanvas
 # ##############################################################
 
+# on new Scientific Linux (7.3) we need to test for libgnomecanvas, not libgnomecanvas-2.0
+#
 # test for gnomecanvas here
 if pkg-config --modversion libgnomecanvas-2.0 ; then
    :
@@ -2265,7 +2292,7 @@ else
 fi
 
 
-# clipper depends on mmdb, so if mmdb was built, the so must clipper.
+# clipper depends on mmdb, so if mmdb was built, the so must clipper be.
 # likewise for fftw.
 #
 build_clipper=1
@@ -2280,7 +2307,7 @@ if [ -z "$build_mmdb" ] ; then
           if [ -e $install_top_dir/include/clipper/contrib/sfscale.h ] ; then
              echo $install_top_dir/include/clipper/contrib/sfscale.h exist
 	     build_clipper=
-          else 
+          else
             echo $install_top_dir/include/clipper/contrib/sfscale.h not exist, building clipper
   	     build_clipper=1
           fi
@@ -2288,7 +2315,7 @@ if [ -z "$build_mmdb" ] ; then
           echo $install_top_dir/include/clipper/ccp4/ccp4_mtz_io.h not exist, building clipper
        fi
     fi
-else 
+else
    echo mmdb needs to be built, so clipper needs building.
 fi
 
@@ -2490,6 +2517,7 @@ if test -n "$build_clipper" ; then
     # is not available yet from his site.
     clipper_hack_version=2.1-110915-fixup-2
     clipper_hack_version=2.1-140110-fixup
+    clipper_hack_version=2.1-20170202.tar.gz
     # ${WGET} $extras_place/clipper-$clipper_hack_version.tar.gz
 
     # now clipper has all the bits.
@@ -2800,7 +2828,7 @@ if test -n "$build_python" ; then
    # This is a problem with old(?) wgets.  In future, we should remove this.
    if ${WGET} --no-check-certificate http://www.python.org/ftp/python/$pver/Python-$pver.tgz ; then 
      echo got Python-$pver.tgz
-   else 
+   else
      echo problem getting Python-$pver.tgz
    fi
    (
@@ -2811,6 +2839,7 @@ if test -n "$build_python" ; then
 
    echo INFO:: ./configure $generic_prefix $python_spec_flags $python_lib_flags for python
    # 
+   # do we also need to use --with-threads=dir?
    if ./configure $generic_prefix --enable-shared $python_spec_flags $python_lib_flags ; then
      echo INFO:: make for python
      if $MAKE ; then
@@ -3129,6 +3158,7 @@ fi
 # ${WGET} http://ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
 ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
 ${WGET} $extras_place/guile-1.8.7-updated.patch
+${WGET} $extras_place/guile-1.8.8-gc-segment.c.patch
 
  
 # if debian, unset LD_LIBRARY_PATH and set it back again when done.
@@ -3155,6 +3185,7 @@ if [ "$need_guile_unused_values_patch" = true ] ; then
 else
    additional_unused_arg=
 fi
+
 # arg to guile's configure
 ./configure $generic_prefix \
      CFLAGS="-I$install_top_dir/include $additional_unused_arg -O" \
@@ -3171,6 +3202,11 @@ if [ "$need_guile_unused_values_patch" = true ] ; then
 else
    echo not applying guile unused values patch
 fi
+# fedora 24 doesn't like the parethenses around a particular if expression
+# gcc 6.1.1 - harmless for others
+#
+patch -p0 < ${AUTOBUILD_SOURCES}/guile-1.8.8-gc-segment.c.patch
+
 echo =========== make ====================
 $MAKE
 status=$?
@@ -3315,7 +3351,8 @@ guile_lib_version=0.1.6
 guile_lib_version=0.2.1
 # guile-lib has moved
 # ${WGET} http://download.gna.org/guile-lib/guile-lib-$guile_lib_version.tar.gz
-${WGET} http://download.savannah.gnu.org/releases/guile-lib/guile-lib-$guile_lib_version.tar.gz
+# ${WGET} http://download.savannah.gnu.org/releases/guile-lib/guile-lib-$guile_lib_version.tar.gz
+${WGET} $extras_place/guile-lib-$guile_lib_version.tar.gz
 
 ( 
 date
@@ -3490,7 +3527,8 @@ else
               ${WGET} https://github.com/libgd/libgd/releases/download/gd-2.1.1/libgd-2.1.1.tar.gz -O ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz
 	      gzip -dc ${AUTOBUILD_SOURCES}/libgd-2.1.1.tar.gz | tar xf -
    	      cd libgd-2.1.1
-	      bash ./configure --prefix=$install_top_dir
+              # don't use /bin/sh as shell to run libtool (on Ubuntu it's a problem)
+	      bash ./configure --prefix=$install_top_dir SHELL=/bin/bash
 	      if $MAKE ; then
 	         make install
 	      fi
@@ -3824,7 +3862,7 @@ unset PKG_CONFIG_PATH
 # refmac_mon_lib=refmac_dictionary_v5.41.tar.gz
 
 # new style
-mon_lib_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files
+mon_lib_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/dependencies
 refmac_mon_lib=refmac-monomer-library.tar.gz
 
 if [ -e $install_top_dir/share/coot/lib/data/monomers ] ; then
@@ -3852,7 +3890,7 @@ fi
 
 # clear up the library dependencies
 
-if [ $build_coot_prerelease = 1 ] ; then
+if [ "$build_coot_prerelease" = 1 ] ; then
    pre_release_str=-pre-release
 fi
 
@@ -3972,17 +4010,20 @@ if [ "$run_tests" = true ] ; then
 	          # only copy over the binary files if they are not there
 	          # already (checked by publish executable).
 	          #
-	          echo $publish $bin_tar_file
-	          $publish $bin_tar_file
-	          echo $publish $bin_tar_file.md5sum
-	          $publish $bin_tar_file.md5sum
+                  # reading the git logs adding $BINARY_TAR_DEST_DIR seems to have fixed something. 
+                  # Now, the transfer-to-web-server.sh scripts take the second arg 
+                  # and munge it to be the correct directory for the binary (and .txt) files.
+	          echo $publish $bin_tar_file $BINARY_TAR_DEST_DIR
+	          $publish      $bin_tar_file $BINARY_TAR_DEST_DIR
+	          echo $publish $bin_tar_file.md5sum $BINARY_TAR_DEST_DIR
+	          $publish      $bin_tar_file.md5sum $BINARY_TAR_DEST_DIR
 	          # echo $publish $binary_type_latest
 	          # publish $binary_type_latest
 	          echo $publish --no-server-check ChangeLog
 	          $publish --no-server-check ChangeLog
 	          echo $publish --no-server-check coot-README
 	          $publish --no-server-check coot-README
-                  if [ -z "$build_coot_prerelease" ] ; then 
+                  if [ -z "$build_coot_prerelease" ] ; then
    	             echo $publish  --no-server-check RELEASE-NOTES
 	             $publish --no-server-check RELEASE-NOTES
                   else 

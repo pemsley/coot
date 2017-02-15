@@ -476,7 +476,7 @@ coot::rotamer_probability_tables::fill_tables(const std::string &dir) {
 	 coot::a_rotamer_table t = coot::a_rotamer_table(res[i].first, file_name);
 	 tables.push_back(t);
       }
-      catch (std::runtime_error mess) {
+      catch (const std::runtime_error &mess) {
 	 std::cout << "Failed to read rotamer probability table for " << res[i].first
 		   << "\n" << mess.what() << std::endl;
 	 bad_read = 1;
@@ -910,7 +910,7 @@ coot::rotamer_probability_tables::test_yourself() {
 		     fail = 1;
 		  }
 	       }
-	       catch (std::runtime_error mess) {
+	       catch (const std::runtime_error &mess) {
 		  std::cout << "Oooops: " << mess.what() << " on testing " << residue_name << " ";
 		  for (unsigned int i_chi = 0; i_chi<chi_local.size(); i_chi++)
 		     std::cout << "[" << chi_local[i_chi].first << " " << chi_local[i_chi].second << "] ";

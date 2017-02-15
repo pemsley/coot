@@ -1,3 +1,24 @@
+/* src/molecule-class-info-refine.cc
+ * 
+ * Copyright 2010, 2011, 2012 by the University of Oxford
+ * Copyright 2013 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #include "compat/coot-sysdep.h"
 
@@ -281,9 +302,6 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
 						      const coot::protein_geometry &geom) {
 
 
-   // clear what's already there - if anything
-   extra_restraints.bond_restraints.clear();
-   
    // Find all the contacts in chain_id that are less than or equal to local_dist_max
    // that are not bonded or related by an angle.
 
@@ -296,6 +314,17 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
 			     "*",
 			     "*", // elements
 			     "*"); // alt locs
+
+   generate_local_self_restraints(selHnd, local_dist_max, geom);
+}
+
+void
+molecule_class_info_t::generate_local_self_restraints(int selHnd, float local_dist_max,
+						      const coot::protein_geometry &geom) {
+
+   // clear what's already there - if anything
+   extra_restraints.bond_restraints.clear();
+   
    int nSelAtoms;
    mmdb::PPAtom SelAtom; 
    atom_sel.mol->GetSelIndex(selHnd, SelAtom, nSelAtoms);
@@ -349,7 +378,7 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
 		  it = bonded_neighbours.find(comp_id);
 		  std::vector<std::pair<std::string, std::string> > bps;
 		  if (it == bonded_neighbours.end()) {
-		     bps = geom.get_bonded_and_1_3_angles(comp_id);
+		     bps = geom.get_bonded_and_1_3_angles(comp_id, imol_no);
 		     bonded_neighbours[comp_id] = bps;
 		  } else {
 		     bps = it->second;
@@ -402,7 +431,22 @@ molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
        update_extra_restraints_representation();
        
    atom_sel.mol->DeleteSelection(selHnd);
-} 
+}
+
+void
+molecule_class_info_t::generate_local_self_restraints(float local_dist_max,
+						      const std::vector<coot::residue_spec_t> &residue_specs,
+						      const coot::protein_geometry &geom) {
+
+   // Find all the contacts in chain_id that are less than or equal to local_dist_max
+   // that are not bonded or related by an angle.
+
+   int selHnd = coot::specs_to_atom_selection(residue_specs, atom_sel.mol, 0);
+   if (selHnd >= 0) {
+      generate_local_self_restraints(selHnd, local_dist_max, geom);
+   }
+}
+
 
 
 

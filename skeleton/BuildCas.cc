@@ -19,12 +19,8 @@
  */
 
 #include <string.h>
-//#if defined (__WIN32__)
-//#undef AddAtom
-//#define AddAtomA AddAtom
-//#endif
 #include "clipper/mmdb/clipper_mmdb.h" // for clipper mmdb stuff (obviously)
-                               // convert_to_atoms_internal().
+                                       // convert_to_atoms_internal().
 
 #include "compat/coot-sysdep.h"
 #include "BuildCas.h"  // contains Cartesian.h needed by graphical_skel.h

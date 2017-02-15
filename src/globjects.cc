@@ -4,6 +4,7 @@
  * Copyright 2006 by Bernhard Lohkamp
  * Copyright 2007 by Paul Emsley
  * Copyright 2008, 2009 by The University of Oxford
+ * Copyright 2014, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -774,6 +775,7 @@ short int graphics_info_t::guile_gui_loaded_flag = FALSE;
 short int graphics_info_t::python_gui_loaded_flag = FALSE;
 
 //
+bool  graphics_info_t::find_ligand_do_real_space_refine_ = true; // default on
 int   graphics_info_t::find_ligand_map_mol_ = -1;
 int   graphics_info_t::find_ligand_protein_mol_ = -1;
 bool  graphics_info_t::find_ligand_here_cluster_flag = 0;
@@ -792,6 +794,7 @@ float graphics_info_t::find_waters_sigma_cut_off = 1.8;
 float graphics_info_t::ligand_acceptable_fit_fraction = 0.75;
 float graphics_info_t::ligand_cluster_sigma_level = 1.0; // sigma
 int   graphics_info_t::ligand_wiggly_ligand_n_samples = 50;
+int   graphics_info_t::ligand_wiggly_ligand_count = 0; // dummy
 int   graphics_info_t::ligand_verbose_reporting_flag = 0; 
 // std::vector<short int> *graphics_info_t::find_ligand_wiggly_ligands_; bye!
 short int graphics_info_t::ligand_expert_flag = 0;
@@ -812,6 +815,7 @@ short int graphics_info_t::do_probe_dots_on_rotamers_and_chis_flag = 0;
 short int graphics_info_t::do_probe_dots_post_refine_flag = 0;
 coot::Cartesian graphics_info_t::probe_dots_on_chis_molprobity_centre = coot::Cartesian(0.0, 0.0, 0.0);
 float graphics_info_t::probe_dots_on_chis_molprobity_radius = 6.0;
+bool graphics_info_t::do_coot_probe_dots_during_refine_flag = false;
 
 float* graphics_info_t::background_colour = new float[4];
 
@@ -1727,7 +1731,7 @@ setup_lighting(short int do_lighting_flag) {
       // 
       GLfloat  light_0_position[] = { 1.0,  1.0, 1.0, 0.0};
       GLfloat  light_1_position[] = {-1.0,  0.0, 1.0, 0.0};
-      GLfloat  light_2_position[] = { 0.0, 0.0, 0.0, 0.0};
+      GLfloat  light_2_position[] = { 0.0,  0.0, 0.0, 0.0};
 
       glClearColor(0.0, 0.0, 0.0, 0.0);
       glShadeModel(GL_SMOOTH);
@@ -2132,16 +2136,16 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       }
 
 
-      if (false) { 
+      if (true) {
 	 glPushMatrix();
 	 glLoadIdentity();
-	 GLfloat  light_0_position[] = { -1.0,  1.0, 1.0, 0.0};
-	 GLfloat  light_1_position[] = {  1.0,  0.2, 1.0, 0.0};
-	 GLfloat  light_2_position[] = {  1.0,  1.0, 1.0, 0.0};
+	 GLfloat  light_0_position[] = {  1.0,  1.0, 1.0, 0.0};
+	 GLfloat  light_1_position[] = {  0.6, -0.7, 1.0, 0.0};
+	 GLfloat  light_2_position[] = {  0.7, -0.7, 1.0, 0.0};
 
-	 glLightfv(GL_LIGHT0,   GL_POSITION, light_0_position);
-	 glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
-	 glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
+	 glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
+	 glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);
+	 glLightfv(GL_LIGHT2, GL_POSITION, light_2_position);
 	 glPopMatrix();
       }
 
@@ -2305,7 +2309,7 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       }
 
 
-      // 
+      //
       draw_crosshairs_maybe();
 
       // 
@@ -2895,12 +2899,15 @@ do_drag_pan(gdouble x, gdouble y, GtkWidget *widget) {
    // 
    info.add_to_RotationCentre(vec_x_y, -x_diff*0.02, -y_diff*0.02);
 
-   if (info.GetActiveMapDrag() == 1) {
-      for (int ii=0; ii<info.n_molecules(); ii++) { 
-	 info.molecules[ii].update_map(); // to take account
-	 // of new rotation centre.
-      }
-   }
+//    if (info.GetActiveMapDrag() == 1) {
+//       for (int ii=0; ii<info.n_molecules(); ii++) {
+// 	 info.molecules[ii].update_map(); // to take account
+// 	 // of new rotation centre.
+//       }
+//    }
+
+   info.update_maps();
+
    for (int ii=0; ii<info.n_molecules(); ii++) { 
       info.molecules[ii].update_symmetry();
    }
@@ -3776,12 +3783,13 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
       break;
       
    case GDK_c:
-   case GDK_C:
       if (graphics_info_t::control_is_pressed) {
 	 g.copy_active_atom_molecule();
       } else {
-	 g.draw_crosshairs_flag = 1 - g.draw_crosshairs_flag; 
-	 g.crosshairs_text();
+	 if (! graphics_info_t::shift_is_pressed) {
+	    g.draw_crosshairs_flag = 1 - g.draw_crosshairs_flag;
+	    g.crosshairs_text();
+	 }
       }
       g.graphics_draw();
       break;

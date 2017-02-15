@@ -2,6 +2,7 @@
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by the University of York
  * Copyright 2007, 2008, 2009 by the University of Oxford
+ * Copyright 2014, 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -38,7 +39,7 @@
 #endif
 
 #include <gtk/gtk.h>  // must come after mmdb_manager on MacOS X Darwin
-#include <GL/glut.h>  // for some reason...  // Eh?
+#include <GL/glut.h>  // Timing
 
 #include <iostream>
 #include <dirent.h>   // for refmac dictionary files
@@ -92,6 +93,8 @@
 #include "cc-interface-scripting.hh"
 #endif
 
+#include "geometry/dict-utils.hh"
+
 // A few non-class members - should be somewhere else, I guess.
 // 
 void initialize_graphics_molecules() { 
@@ -115,7 +118,13 @@ graphics_info_t::valid_map_molecules() const {
 // static
 int graphics_info_t::create_molecule() { 
    int imol = molecules.size();
-   molecules.push_back(molecule_class_info_t(imol));
+   try {
+      molecules.push_back(molecule_class_info_t(imol));
+   }
+   catch (const std::bad_alloc &ba) {
+      std::cout << "ERROR:: bad_alloc: " << ba.what() << std::endl;
+      imol = -1;
+   }
    return imol;
 }
 
@@ -306,13 +315,45 @@ graphics_info_t::draw_anti_aliasing() {
   }
 }
 
+// This addresses the "everything is an INH" problem.
+//
+// imol_enc can be a specific model molecule number or
+// IMOL_ENC_AUTO, IMOL_ENC_ANY are the interesting values
+// otherwise mol number.
+// 
 int
 graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
+				    int imol_enc_in,
 				    short int show_no_bonds_dialog_maybe_flag) {
+
+   int imol_enc = imol_enc_in;
+
+   if (imol_enc_in == coot::protein_geometry::IMOL_ENC_AUTO) {
+      std::vector<std::string> comp_ids = coot::comp_ids_in_dictionary_cif(cif_dictionary_filename);
+      bool is_non_auto_load_comp_id = false;  // because it is ATP, not LIG
+      for (unsigned int i=0; i<comp_ids.size(); i++) {
+	 if (geom_p->is_non_auto_load_ligand(comp_ids[i])) {
+	    // imol_enc is the latest model added that contains this comp_id
+	    //
+	    is_non_auto_load_comp_id = true;
+	    
+	    for (int ii=(n_molecules()-1); ii>=0; ii--){
+	       if (is_valid_model_molecule(ii)) {
+		  imol_enc = ii;
+		  break;
+	       }
+	    }
+	    break;
+	 }
+      }
+      if (! is_non_auto_load_comp_id)
+	 imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+   }
 
    coot::read_refmac_mon_lib_info_t rmit = 
    geom_p->init_refmac_mon_lib(cif_dictionary_filename,
-			       cif_dictionary_read_number);
+			       cif_dictionary_read_number,
+			       imol_enc);
    
    cif_dictionary_read_number++; 
    if (rmit.success > 0) { 
@@ -443,7 +484,8 @@ graphics_info_t::import_all_refmac_cifs() {
 				    status = stat(cif_filename.c_str(), &buf);
 				    if (status == 0) {
 				       if (S_ISREG(buf.st_mode)) { 
-					  add_cif_dictionary(cif_filename, 0);
+					  add_cif_dictionary(cif_filename,
+							     coot::protein_geometry::IMOL_ENC_ANY, 0);
 				       }
 				    }
 				 }
@@ -1237,7 +1279,7 @@ graphics_info_t::accept_moving_atoms() {
 	 if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) {
 	    molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 0, mzo);
 	    update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
-	 } else { 
+	 } else {
 	    if (moving_atoms_asc_type == coot::NEW_COORDS_INSERT) {
 	       molecules[imol_moving_atoms].insert_coords(*moving_atoms_asc);
 	    } else { 
@@ -1286,9 +1328,12 @@ graphics_info_t::accept_moving_atoms() {
    in_edit_chi_mode_view_rotate_mode = 0;
 
    if (do_probe_dots_post_refine_flag) {
-      do_interactive_probe();
+      if (do_coot_probe_dots_during_refine_flag) {
+	 // do_interactive_coot_probe();
+      } else {
+	 do_interactive_probe(); // old molprobity way
+      }
    }
-
 
    int mode = MOVINGATOMS;
    run_post_manipulation_hook(imol_moving_atoms, mode);
@@ -1514,6 +1559,9 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    g.regularize_object_bonds_box = bonds.make_graphical_bonds(g.ramachandrans_container,
 							      do_markup);
 
+   if (g.do_coot_probe_dots_during_refine_flag)
+      g.do_interactive_coot_probe();
+
    char *env = getenv("COOT_DEBUG_REFINEMENT");
    if (env)
       g.tabulate_geometric_distortions(last_restraints);
@@ -1585,8 +1633,8 @@ graphics_info_t::delete_molecule_from_from_display_manager(int imol, bool was_ma
 // are not updated)].
 // 
 void
-graphics_info_t::make_moving_atoms_graphics_object(const atom_selection_container_t &asc) {
-
+graphics_info_t::make_moving_atoms_graphics_object(int imol,
+						   const atom_selection_container_t &asc) {
 
    if (! moving_atoms_asc) {
       moving_atoms_asc = new atom_selection_container_t;
@@ -1632,7 +1680,7 @@ graphics_info_t::make_moving_atoms_graphics_object(const atom_selection_containe
 	 bool draw_hydrogens_flag = false;
 	 if (molecules[imol_moving_atoms].draw_hydrogens())
 	    draw_hydrogens_flag = true;
-	 bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, Geom_p(), 1.0, 4.7, draw_hydrogens_flag);
+	 bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol, Geom_p(), 1.0, 4.7, draw_hydrogens_flag);
 	 // std::cout << "done CA bonds" << std::endl;
 	 regularize_object_bonds_box.clear_up();
 	 regularize_object_bonds_box = bonds.make_graphical_bonds();
@@ -1651,6 +1699,9 @@ graphics_info_t::make_moving_atoms_graphics_object(const atom_selection_containe
       Bond_lines_container bonds(*moving_atoms_asc, do_disulphide_flag, draw_hydrogens_flag);
       regularize_object_bonds_box.clear_up();
       regularize_object_bonds_box = bonds.make_graphical_bonds();
+
+      // if (do_coot_probe_dots_during_refine_flag)
+      // do_interactive_coot_probe();
    }
 }
 
@@ -2319,32 +2370,32 @@ graphics_info_t::graphics_object_internal_arc(float start_angle,
       float inner_angle_step = 6;
       for (float iangle=0; iangle<=360.1; iangle+=inner_angle_step) {
 
-	 // rotate_round_vector() args: direction position origin_shift angle
+	 // rotate_around_vector() args: direction position origin_shift angle
 	 clipper::Coord_orth pt_multi_this =
-	    coot::util::rotate_round_vector(this_circle_tangent,
-					    pt_ring_this,
-					    pt_this,
-					    clipper::Util::d2rad(iangle));
+	    coot::util::rotate_around_vector(this_circle_tangent,
+					     pt_ring_this,
+					     pt_this,
+					     clipper::Util::d2rad(iangle));
 	 clipper::Coord_orth pt_multi_next =
-	    coot::util::rotate_round_vector(next_circle_tangent,
-					    pt_ring_next,
-					    pt_next,
-					    clipper::Util::d2rad(iangle));
+	    coot::util::rotate_around_vector(next_circle_tangent,
+					     pt_ring_next,
+					     pt_next,
+					     clipper::Util::d2rad(iangle));
 
 	 // and the inner next of those points, i.e. neighbours
 	 // on the same inner ring.
 	 // 
 	 clipper::Coord_orth pt_multi_this_plus =
-	    coot::util::rotate_round_vector(this_circle_tangent,
-					    pt_ring_this,
-					    pt_this,
-					    clipper::Util::d2rad(iangle+inner_angle_step));
+	    coot::util::rotate_around_vector(this_circle_tangent,
+					     pt_ring_this,
+					     pt_this,
+					     clipper::Util::d2rad(iangle+inner_angle_step));
 	       
 	 clipper::Coord_orth pt_multi_next_plus =
-	    coot::util::rotate_round_vector(next_circle_tangent,
-					    pt_ring_next,
-					    pt_next,
-					    clipper::Util::d2rad(iangle+inner_angle_step));
+	    coot::util::rotate_around_vector(next_circle_tangent,
+					     pt_ring_next,
+					     pt_next,
+					     clipper::Util::d2rad(iangle+inner_angle_step));
 
 	 // 4 GL_QUAD vertices
 	 // small radius direction
@@ -2853,23 +2904,91 @@ graphics_info_t::set_imol_refinement_map(int imol) {
    return r;
 } 
 
+// for threading, static
+void
+graphics_info_t::update_maps_for_mols(const std::vector<int> &mol_idxs) {
+   for (unsigned int i=0; i<mol_idxs.size(); i++)
+      graphics_info_t::molecules[mol_idxs[i]].update_map();
+}
+
+// move (on) up
+#ifdef HAVE_CXX_THREAD
+#include <thread>
+#include <future>
+#endif // HAVE_CXX_THREAD
+// remember to link with -std=c++11 to get thread constructors
+
+void
+call_from_thread() {
+    std::cout << "Hello World" << std::endl;
+}
+
+void
+call_from_thread_v2(int i) {
+   std::cout << "Hello World " << i << std::endl;
+}
 
 
 void
-graphics_info_t::add_vector_to_RotationCentre(const coot::Cartesian &vec) { 
-   
-   rotation_centre_x += vec.x();
-   rotation_centre_y += vec.y();
-   rotation_centre_z += vec.z();
+graphics_info_t::update_maps() {
+
+   // put it in it's own file xxx_threaded.cc and
+   // link that with -std=c++11 (or use macros to work out correct flags)
 
    if (GetActiveMapDrag() == 1) {
+
+#ifndef HAVE_CXX_THREAD
       for (int ii=0; ii<n_molecules(); ii++) { 
 	 if (molecules[ii].has_xmap()) { 
 	    molecules[ii].update_map(); // to take account
 	                                // of new rotation centre.
 	 }
       }
-   }
+#else
+      // unsigned int n_threads = 4;
+      unsigned int n_threads = coot::get_max_number_of_threads();
+      // std::cout << "got n_threads: " << n_threads << std::endl;
+      std::vector<std::thread> threads;
+      std::vector<int> molecules_with_maps;
+      for (int ii=0; ii<n_molecules(); ii++) {
+	 if (molecules[ii].has_xmap()) {
+	    molecules_with_maps.push_back(ii);
+	 }
+      }
+
+      // we must make sure that the threads don't update the same map
+      //
+
+      std::vector<std::vector<int> > maps_vec_vec(n_threads);
+      unsigned int thread_idx = 0;
+      // put the maps in maps_vec_vec
+      for (unsigned int ii=0; ii<molecules_with_maps.size(); ii++) {
+	 maps_vec_vec[thread_idx].push_back(molecules_with_maps[ii]);
+	 thread_idx++;
+	 if (thread_idx == n_threads) thread_idx = 0;
+      }
+
+
+      for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
+	 const std::vector<int> &mv = maps_vec_vec[i_thread];
+	 threads.push_back(std::thread(update_maps_for_mols, mv));
+      }
+      for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
+	 threads.at(i_thread).join();
+
+#endif // HAVE_CXX_THREAD
+
+   } // active map drag test
+}
+
+void
+graphics_info_t::add_vector_to_RotationCentre(const coot::Cartesian &vec) {
+
+   rotation_centre_x += vec.x();
+   rotation_centre_y += vec.y();
+   rotation_centre_z += vec.z();
+
+   update_maps();
    for (int ii=0; ii<n_molecules(); ii++) { 
       molecules[ii].update_symmetry();
    }
@@ -2900,18 +3019,6 @@ graphics_info_t::find_atom_in_moving_atoms(const coot::atom_spec_t &at) const {
      std::cout << "WARNING:: OOps: moving_atoms_asc->mol is NULL" << std::endl;
    } 
    return cat;
-}
-
-// Rotate position round direction
-// 
-clipper::Coord_orth
-graphics_info_t::rotate_round_vector(const clipper::Coord_orth &direction,
-				     const clipper::Coord_orth &position,
-				     const clipper::Coord_orth &origin_shift,
-				     double angle) const {
-
-   // moved this function down to utils
-   return coot::util::rotate_round_vector(direction, position, origin_shift, angle);
 }
 
 
@@ -3341,10 +3448,10 @@ graphics_info_t::rotate_baton(const double &x, const double &y) {
    coot::Cartesian front  = unproject_xyz(0, 0, 0.0);
    coot::Cartesian screen_z = (front - centre);
 
-   clipper::Coord_orth new_pos = rotate_round_vector(to_coord_orth(screen_z),
-						     to_coord_orth(baton_tip),
-						     to_coord_orth(baton_root),
-						     0.01*diff);
+   clipper::Coord_orth new_pos = coot::util::rotate_around_vector(to_coord_orth(screen_z),
+								  to_coord_orth(baton_tip),
+								  to_coord_orth(baton_root),
+								  0.01*diff);
 
    baton_tip = to_cartesian(new_pos);
    graphics_draw();
@@ -3617,10 +3724,6 @@ graphics_info_t::apply_undo() {
 		  // now update the geometry graphs, so get the asc
 		  atom_selection_container_t u_asc = molecules[umol].atom_sel;
 
-
-		  std::cout << "--------- from apply_undo() calling update_geometry_graphs "
-			    << std::endl;
-		  
 		  update_geometry_graphs(u_asc, umol);
 #endif // HAVE_GTK_CANVAS   
 	       }
@@ -3877,7 +3980,7 @@ graphics_info_t::execute_edit_phi_psi(int atom_index, int imol) {
       atom_selection_container_t residue_asc = 
 	 graphics_info_t::molecules[imol].edit_residue_pull_residue(atom_index,
 								    whole_res_flag);
-      make_moving_atoms_graphics_object(residue_asc);
+      make_moving_atoms_graphics_object(imol, residue_asc);
       
       graphics_draw();
 
@@ -4059,7 +4162,7 @@ graphics_info_t::execute_edit_chi_angles(int atom_index, int imol) {
 	 if (ires > 0) { 
 	    std::cout << "Use the 1,2,3,4 keys to select rotamers, 0 for "
 		      << "normal rotation mode" << std::endl;
-	    make_moving_atoms_graphics_object(residue_asc);
+	    make_moving_atoms_graphics_object(imol, residue_asc);
 
 	    if (do_probe_dots_on_rotamers_and_chis_flag) {
 	       setup_for_probe_dots_on_chis_molprobity(imol);
@@ -4161,7 +4264,7 @@ graphics_info_t::setup_flash_bond_using_moving_atom_internal(int i_torsion_index
 		  std::pair<std::string, std::string> atom_names;
 
 		  std::pair<short int, coot::dictionary_residue_restraints_t> r =
-		     geom_p->get_monomer_restraints(residue_type);
+		     geom_p->get_monomer_restraints(residue_type, imol_moving_atoms);
 
 		  if (r.first) { 
 		     std::vector <coot::dict_torsion_restraint_t> torsion_restraints =
@@ -4235,7 +4338,7 @@ graphics_info_t::setup_flash_bond(int imol,
       if (residue_p) {
 	 std::string residue_type = residue_p->GetResName();
 	 std::pair<short int, coot::dictionary_residue_restraints_t> r =
-	    geom_p->get_monomer_restraints(residue_type);
+	    geom_p->get_monomer_restraints(residue_type, imol);
 	 
 	 if (r.first) {
 	    std::vector <coot::dict_torsion_restraint_t> torsion_restraints =
@@ -4628,450 +4731,12 @@ graphics_info_t::clear_last_simple_distance() {
 }
 
 
-// ---------------------- generic objects -----------------------------
-
-void
-coot::generic_display_object_t::add_line(const coot::colour_holder &colour_in,
-					 const std::string &colour_name,
-					 const int &width_in, 
-					 const std::pair<clipper::Coord_orth, clipper::Coord_orth> &coords_in) {
-
-   int lines_set_index = -1; // magic unset value
-   
-   for (unsigned int ils=0; ils<lines_set.size(); ils++) {
-      if (lines_set[ils].colour_name == colour_name) {
-	 if (lines_set[ils].width == width_in) {
-	    lines_set_index = ils;
-	    break;
-	 }
-      }
-   }
-
-   if (lines_set_index == -1) {
-      generic_display_line_set_t t(colour_in, colour_name, width_in);
-      lines_set.push_back(t);
-      lines_set_index = lines_set.size() -1;
-   }
-
-   coot::generic_display_line_t line(coords_in);
-   lines_set[lines_set_index].add_line(line);
-   
-}
-
-void coot::generic_display_object_t::add_point(const coot::colour_holder &colour_in,
-					       const std::string &colour_name,
-					       const int &size_in, 
-					       const clipper::Coord_orth &coords_in) {
-   int points_set_index = -1; // magic unset number
-   for (unsigned int ips=0; ips<points_set.size(); ips++) {
-      if (points_set[ips].colour_name == colour_name) {
-	 if (points_set[ips].size == size_in) {
-	    points_set_index = ips;
-	    break;
-	 } 
-      }
-   }
-   if (points_set_index == -1) {
-      coot::generic_display_point_set_t point_set(colour_in, colour_name, size_in);
-      points_set.push_back(point_set);
-      points_set_index = points_set.size() -1;
-   }
-   points_set[points_set_index].add_point(coords_in);
-}
-
-void
-coot::generic_display_object_t::add_dodecahedron(const colour_holder &colour_in,
-						 const std::string &colour_name,
-						 double radius,
-						 const clipper::Coord_orth &pos) {
-
-   dodec d;
-   dodec_t dod(d, radius, pos);
-   dod.col = colour_in;
-   dodecs.push_back(dod);
-}
-
-void
-coot::generic_display_object_t::add_pentakis_dodecahedron(const colour_holder &colour_in,
-							  const std::string &colour_name,
-							  double stellation_factor,
-							  double radius,
-							  const clipper::Coord_orth &pos) {
-
-   pentakis_dodec d(stellation_factor);
-   pentakis_dodec_t pdod(d, radius, pos);
-   pdod.col = colour_in;
-
-   pentakis_dodecs.push_back(pdod);
-}
-
-
-// static
-void
-graphics_info_t::draw_generic_objects() {
-   graphics_info_t g;
-   if (! g.display_generic_objects_as_solid_flag) 
-      g.draw_generic_objects_simple();
-   else 
-      g.draw_generic_objects_solid(); // gluCylinders and gluDisks
-}
-
-
-
-// static
-void
-graphics_info_t::draw_generic_objects_simple() {
-
-   // std::cout << "debug:: drawing " << generic_objects_p->size()
-   // << " generic objects" << std::endl;
-   
-   for (unsigned int i=0; i<generic_objects_p->size(); i++) {
-
-      if ((*generic_objects_p)[i].is_displayed_flag) {
-
-	 // if this is attached to a molecule that is not displayed, skip it.
-	 if ((*generic_objects_p)[i].is_valid_imol()) { // i.e. is not UNDEFINED
-	    int imol = (*generic_objects_p)[i].get_imol();
-	    if (is_valid_model_molecule(imol))
-	       if (! graphics_info_t::molecules[imol].is_displayed_p()) {
-		  continue;
-	       } 
-	 } 
-
-	 // Lines
-	 for (unsigned int ils=0; ils< (*generic_objects_p)[i].lines_set.size(); ils++) {
-	    glLineWidth((*generic_objects_p)[i].lines_set[ils].width);
-	    glColor3f((*generic_objects_p)[i].lines_set[ils].colour.red,
-		      (*generic_objects_p)[i].lines_set[ils].colour.green,
-		      (*generic_objects_p)[i].lines_set[ils].colour.blue);
-	    glBegin(GL_LINES);
-	    unsigned int s = (*generic_objects_p)[i].lines_set[ils].lines.size();
-	    for (unsigned int iline=0; iline<s; iline++) {
-	       glVertex3f((*generic_objects_p)[i].lines_set[ils].lines[iline].coords.first.x(),
-			  (*generic_objects_p)[i].lines_set[ils].lines[iline].coords.first.y(),
-			  (*generic_objects_p)[i].lines_set[ils].lines[iline].coords.first.z());
-	       glVertex3f((*generic_objects_p)[i].lines_set[ils].lines[iline].coords.second.x(),
-			  (*generic_objects_p)[i].lines_set[ils].lines[iline].coords.second.y(),
-			  (*generic_objects_p)[i].lines_set[ils].lines[iline].coords.second.z());
-	    }
-	    glEnd();
-	 }
-
-	 // Points
-	 for (unsigned int ips=0; ips<(*generic_objects_p)[i].points_set.size(); ips++) {
-	    glPointSize((*generic_objects_p)[i].points_set[ips].size);
-	    glColor3f((*generic_objects_p)[i].points_set[ips].colour.red,
-		      (*generic_objects_p)[i].points_set[ips].colour.green,
-		      (*generic_objects_p)[i].points_set[ips].colour.blue);
-	    glBegin(GL_POINTS);
-	    unsigned int npoints = (*generic_objects_p)[i].points_set[ips].points.size();
-	    for (unsigned int ipoint=0; ipoint<npoints; ipoint++) { 
-	       glVertex3f((*generic_objects_p)[i].points_set[ips].points[ipoint].x(),
-			  (*generic_objects_p)[i].points_set[ips].points[ipoint].y(),
-			  (*generic_objects_p)[i].points_set[ips].points[ipoint].z());
-	    }
-	    glEnd();
-	 }
-
-         // Display lists
-	 for (unsigned int idl=0; idl<(*generic_objects_p)[i].GL_display_list_handles.size(); idl++) {
-             glCallList((*generic_objects_p)[i].GL_display_list_handles[idl]);
-         }
-      }
-   }
-}
-
-// static
-void
-graphics_info_t::draw_generic_objects_solid() {
-
-   graphics_info_t g;
-   double radius = 0.02;
-
-   // Don't mess with the lighting if we aren't drawing anything
-   // 
-   if (generic_objects_p->size()) {
-
-      glEnable(GL_LIGHTING);
-      glEnable(GL_LIGHT1);
-      glEnable(GL_LIGHT0);
-      glDisable(GL_LIGHT2); // only for cut-glass mode
-      glDisable(GL_COLOR_MATERIAL);
-      glEnable(GL_NORMALIZE); // slows things, but makes the shiny nice
-
-      for (unsigned int i=0; i<generic_objects_p->size(); i++) {
-
-	 if ((*generic_objects_p)[i].is_displayed_flag) {
-
-
-	    // if this is attached to a molecule that is not displayed, skip it.
-	    if ((*generic_objects_p)[i].is_valid_imol()) { // i.e. is not UNDEFINED
-	       int imol = (*generic_objects_p)[i].get_imol();
-	       if (is_valid_model_molecule(imol))
-		  if (! graphics_info_t::molecules[imol].is_displayed_p()) {
-		     continue;
-		  } 
-	    } 
-	    
-
-	    // Previously (r4209) I had noted that
-	    // glEnable(GL_COLOR_MATERIAL) needed for correct tube
-	    // colours.
-	    // 
-	    // 20120903 but this creates problems when displaying
-	    // chemical features (they become solid yellow (with nvidia
-	    // drivers?)).  I currently don't understand what problems
-	    // result if we do not enable GL_COLOR_MATERIAL here. (Mogul
-	    // output markup seems OK?).  So comment out.
-	    // 
-	    // glEnable(GL_COLOR_MATERIAL);
-	 
-	    GLfloat  mat_specular[]  = {0.9, 0.9, 0.9, 1};
-	    GLfloat  mat_shininess[] = {80};
-	 
-	    glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-	    glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-	    
-	    // Lines
-	    for (unsigned int ils=0; ils< (*generic_objects_p)[i].lines_set.size(); ils++) {
-	    
-	       glLineWidth((*generic_objects_p)[i].lines_set[ils].width);
-	       // 	    glColor3f((*generic_objects_p)[i].lines_set[ils].colour.red,
-	       // 		      (*generic_objects_p)[i].lines_set[ils].colour.green,
-	       // 		      (*generic_objects_p)[i].lines_set[ils].colour.blue);
-
-	       GLfloat  mat_diffuse[]  = {(*generic_objects_p)[i].lines_set[ils].colour.red   * 0.8,
-					  (*generic_objects_p)[i].lines_set[ils].colour.green * 0.8,
-					  (*generic_objects_p)[i].lines_set[ils].colour.blue  * 0.8, 
-					  1.0};
-	       glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_diffuse);
-	       glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
-	    
-	       unsigned int s = (*generic_objects_p)[i].lines_set[ils].lines.size();
-	       for (unsigned int iline=0; iline<s; iline++) {
-
-		  g.graphics_object_internal_single_tube((*generic_objects_p)[i].lines_set[ils].lines[iline].coords.first,
-							 (*generic_objects_p)[i].lines_set[ils].lines[iline].coords.second,
-							 (*generic_objects_p)[i].lines_set[ils].width * radius,
-							 coot::ROUND_ENDS);
-	       }
-	    }
-	 
-	    // Points
-	    for (unsigned int ips=0; ips<(*generic_objects_p)[i].points_set.size(); ips++) {
-	       // 	    glColor3f((*generic_objects_p)[i].points_set[ips].colour.red,
-	       // 		      (*generic_objects_p)[i].points_set[ips].colour.green,
-	       // 		      (*generic_objects_p)[i].points_set[ips].colour.blue);
-	    
-	       int sphere_slices = 5;
-	       int sphere_stacks = 5;
-	       float feature_opacity = 1.0;
-	       unsigned int npoints = (*generic_objects_p)[i].points_set[ips].points.size();
-	       for (unsigned int ipoint=0; ipoint<npoints; ipoint++) {
-
-		  const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
-		  GLfloat  mat_specular[]  = {obj.points_set[ips].colour.red,
-					      obj.points_set[ips].colour.green,
-					      obj.points_set[ips].colour.blue,
-					      feature_opacity};
-		  GLfloat  mat_shininess[] = {15};
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
-
-	       
-		  GLUquadric* sphere_quad = gluNewQuadric();
-		  glPushMatrix();
-		  glTranslatef((*generic_objects_p)[i].points_set[ips].points[ipoint].x(),
-			       (*generic_objects_p)[i].points_set[ips].points[ipoint].y(),
-			       (*generic_objects_p)[i].points_set[ips].points[ipoint].z());	 
-		  gluSphere(sphere_quad,
-			    (*generic_objects_p)[i].points_set[ips].size * radius,
-			    sphere_slices, sphere_stacks);
-		  gluDeleteQuadric(sphere_quad);
-		  glPopMatrix();	 
-	       }
-	    }
-
-	    // Other stuff:
-	    float feature_opacity = 0.6;
-	    // feature_opacity = 1.0; // hack for to fix shininess
-
-	    // spheres
-
-	    if ((*generic_objects_p)[i].spheres.size()) {
-	       glEnable (GL_BLEND); // these 2 lines are needed to make the transparency work.
-	       glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	       for (unsigned int isphere=0; isphere<(*generic_objects_p)[i].spheres.size(); isphere++) { 
-
-		  const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
-		  GLfloat  mat_specular[]  = {obj.spheres[isphere].col.col[0],
-					      obj.spheres[isphere].col.col[1],
-					      obj.spheres[isphere].col.col[2], 
-					      feature_opacity};
-		  GLfloat  mat_shininess[] = {15};
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
-	       
-		  int sphere_slices = 10;
-		  int sphere_stacks = 10;
-		  GLUquadric* sphere_quad = gluNewQuadric();
-		  glPushMatrix();
-		  glTranslatef((*generic_objects_p)[i].spheres[isphere].centre.x(),
-			       (*generic_objects_p)[i].spheres[isphere].centre.y(),
-			       (*generic_objects_p)[i].spheres[isphere].centre.z());
-		  gluSphere(sphere_quad,
-			    (*generic_objects_p)[i].spheres[isphere].radius,
-			    sphere_slices, sphere_stacks);
-		  gluDeleteQuadric(sphere_quad);
-		  glPopMatrix();
-	       }
-	    }
-
-	    // arrows
-	    if ((*generic_objects_p)[i].arrows.size()) {
-	       glEnable (GL_BLEND);
-	       glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	       for (unsigned int iarrow=0; iarrow<(*generic_objects_p)[i].arrows.size(); iarrow++) {
-		  const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
-		  GLfloat  mat_specular[]  = {obj.arrows[iarrow].col.col[0],
-					      obj.arrows[iarrow].col.col[1],
-					      obj.arrows[iarrow].col.col[2], 
-					      feature_opacity};
-		  GLfloat  mat_shininess[] = {15};
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_specular);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_specular);
-		  g.graphics_object_internal_arrow((*generic_objects_p)[i].arrows[iarrow].start_point,
-						   (*generic_objects_p)[i].arrows[iarrow].end_point,
-						   0.3, 0.1); 
-	       }
-	    }
-
-	    // tori
-	    if ((*generic_objects_p)[i].tori.size()) {
-	       glEnable (GL_BLEND);
-	       glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	       for (unsigned int itor=0; itor<(*generic_objects_p)[i].tori.size(); itor++) {
-		  const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
-		  GLfloat  mat_diffuse[]  = {obj.tori[itor].col.col[0],
-					     obj.tori[itor].col.col[1],
-					     obj.tori[itor].col.col[2], 
-					     feature_opacity};
-		  GLfloat  mat_specular[]  = {0.1, 0.1, 0.1, 1.0};
-		  GLfloat  mat_shininess[] = {1};
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_diffuse);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
-
-		  g.graphics_object_internal_torus(obj.tori[itor].start_point,
-						   obj.tori[itor].end_point,
-						   obj.tori[itor].radius_1,
-						   obj.tori[itor].radius_2,
-						   obj.tori[itor].n_ring_atoms);
-	       }
-	    }
-
-	    // arcs
-	    if ((*generic_objects_p)[i].arcs.size()) {
-	    
-	       for (unsigned int iarc=0; iarc<(*generic_objects_p)[i].arcs.size(); iarc++) {
-		  const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
-
-		  // glEnable(GL_COLOR_MATERIAL);
-		  glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-	       
-		  GLfloat  mat_diffuse[]  = {obj.arcs[iarc].col.col[0] * 0.8,
-					     obj.arcs[iarc].col.col[1] * 0.8,
-					     obj.arcs[iarc].col.col[2] * 0.8, 
-					     1.0};
-		  // 	       GLfloat  mat_specular[]  = {obj.arcs[iarc].col.col[0],
-		  // 					   obj.arcs[iarc].col.col[1],
-		  // 					   obj.arcs[iarc].col.col[2], 
-		  // 					   1.0};
-		  GLfloat  mat_specular[]  = {0.6, 0.6, 0.6, 1};
-		  GLfloat  mat_shininess[] = {35};
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_diffuse);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
-
-		  g.graphics_object_internal_arc(obj.arcs[iarc].start_angle,
-						 obj.arcs[iarc].end_angle,
-						 obj.arcs[iarc].start_point,
-						 obj.arcs[iarc].start_dir,
-						 obj.arcs[iarc].normal,
-						 obj.arcs[iarc].radius,
-						 obj.arcs[iarc].radius_inner);
-	       }
-	    }
-
-
-	    // dodecahdrons
-	    //
-	    if ((*generic_objects_p)[i].dodecs.size()) {
-	       float feature_opacity = 0.7;
-	       glEnable (GL_BLEND);
-	       glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	       for (unsigned int idodec=0; idodec<(*generic_objects_p)[i].dodecs.size(); idodec++) {
-		  const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
-		  GLfloat  mat_diffuse[]  = {obj.dodecs[idodec].col.red,
-					     obj.dodecs[idodec].col.green,
-					     obj.dodecs[idodec].col.blue, 
-					     feature_opacity};
-		  GLfloat  mat_specular[]  = {0.3, 0.3, 0.3, 1.0};
-		  GLfloat  mat_shininess[] = {1};
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_diffuse);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
-
-		  g.graphics_object_internal_dodec(obj.dodecs[idodec]);
-	       }
-	    }
-
-	    // pentakis dodecahdrons
-	    //
-	    if ((*generic_objects_p)[i].pentakis_dodecs.size()) {
-	       float feature_opacity = 0.93;
-	       glEnable (GL_BLEND);
-	       glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	       for (unsigned int idodec=0; idodec<(*generic_objects_p)[i].pentakis_dodecs.size(); idodec++) {
-		  const coot::generic_display_object_t &obj = (*generic_objects_p)[i];
-		  GLfloat  mat_diffuse[]  = {obj.pentakis_dodecs[idodec].col.red,
-					     obj.pentakis_dodecs[idodec].col.green,
-					     obj.pentakis_dodecs[idodec].col.blue, 
-					     feature_opacity};
-		  GLfloat  mat_specular[]  = {0.5, 0.5, 0.5, 1.0};
-		  GLfloat  mat_shininess[] = {40};
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_SHININESS, mat_shininess);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT,   mat_diffuse);
-		  glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE,   mat_diffuse);
-
-		  g.graphics_object_internal_pentakis_dodec(obj.pentakis_dodecs[idodec]);
-	       }
-	    }
-
-	    
-	 }
-      }
-      glDisable(GL_LIGHTING);
-   }
-}
-
-
 void
 graphics_info_t::draw_generic_text() {
 
    // should be const, I think.
 
-   if (generic_texts_p->size() > 0 ) { 
+   if (generic_texts_p->size() > 0 ) {
       // GLfloat pink[3] =  { 1.0, 0.8, 0.8 };
       GLfloat pink[3] =  { font_colour.red, font_colour.green, font_colour.blue };
       glColor3fv(pink);
@@ -5102,8 +4767,8 @@ coot::generic_display_object_t::colour_values_from_colour_name(const std::string
    if (c.length() == 7) {
       if (c[0] == '#') {
 	 return coot::colour_holder(c); // hex colour string
-      } 
-   } 
+      }
+   }
 
    if (c == "blue") {
       colour.red = 0.1; 
@@ -5111,9 +4776,9 @@ coot::generic_display_object_t::colour_values_from_colour_name(const std::string
       colour.blue = 0.8;
    } else {
       if (c == "sky") {
-	 colour.red = 0.4; 
-	 colour.green = 0.4; 
-	 colour.blue = 0.6;
+	 colour.red = 0.53 * 0.6; 
+	 colour.green = 0.81 * 0.6; 
+	 colour.blue = 0.92 * 0.6;
       } else {
 	 if (c == "green") {
 	    colour.red   = 0.05; 
@@ -5166,25 +4831,43 @@ coot::generic_display_object_t::colour_values_from_colour_name(const std::string
 				       colour.blue = 0.6;
 				    } else {
 				       if (c == "forestgreen") {
-					  colour.red = 0.6; 
-					  colour.green = 0.8; 
-					  colour.blue = 0.1;
+					  colour.red   = 0.6;
+					  colour.green = 0.8;
+					  colour.blue  = 0.1;
 				       } else {
 					  if (c == "yellowgreen") {
-					     colour.red   = 0.6; 
-					     colour.green = 0.8; 
+					     colour.red   = 0.6;
+					     colour.green = 0.8;
 					     colour.blue  = 0.2;
 					  } else {
 					     if (c == "goldenrod") {
-						colour.red   = 0.85; 
-						colour.green = 0.65; 
+						colour.red   = 0.85;
+						colour.green = 0.65;
 						colour.blue  = 0.12;
 					     } else {
 						if (c == "orangered") {
-						   colour.red   = 0.9; 
-						   colour.green = 0.27; 
+						   colour.red   = 0.9;
+						   colour.green = 0.27;
 						   colour.blue  = 0.0;
-						}
+						} else {
+						   if (c == "magenta") {
+						      colour.red   = 0.7;
+						      colour.green = 0.2;
+						      colour.blue  = 0.7;
+						   } else {
+						      if (c == "cornflower") {
+							 colour.red   = 0.38;
+							 colour.green = 0.58;
+							 colour.blue  = 0.93;
+						      } else {
+							 if (c == "royalblue") {
+							    colour.red   = 0.25;
+							    colour.green = 0.41;
+							    colour.blue  = 0.88;
+							 }
+						      }
+						   }
+						} 
 					     }
 					  }
 				       }
@@ -5353,7 +5036,7 @@ graphics_info_t::set_moving_atoms(atom_selection_container_t asc,
 				  int imol, int new_coords_type) {
 
    imol_moving_atoms = imol;
-   make_moving_atoms_graphics_object(asc);
+   make_moving_atoms_graphics_object(imol, asc);
    moving_atoms_asc_type = new_coords_type;
 } 
 
@@ -5883,231 +5566,3 @@ graphics_info_t::remove_last_lsq_plane_atom() {
    return 0;
 }
 
-coot::view_info_t
-coot::view_info_t::interpolate(const coot::view_info_t &view1,
-			       const coot::view_info_t &view2,
-			       int n_steps) {
-   coot::view_info_t view;
-   graphics_info_t g;
-
-//    std::cout << "start quat interpolation: zooms: " << view1.zoom << " " << view2.zoom
-// 	     << " and centres: "
-// 	     << view1.rotation_centre << " to " << view2.rotation_centre << std::endl;
-
-//     std::cout << "quaternion interpolation using " << n_steps << " steps"
-// 	      << std::endl;
-
-   float total_zoom_by = view2.zoom/view1.zoom;
-   float frac_zoom_by =  1;
-   int smooth_scroll_state = graphics_info_t::smooth_scroll;
-   graphics_info_t::smooth_scroll = 0;
-   if (n_steps > 0)
-      frac_zoom_by = total_zoom_by/float(n_steps); 
-
-   // non-slerping
-   // 
-   if (0) { 
-      for (int i=0; i<=n_steps; i++) {
-	 float frac = float(i)/float(n_steps);
-	 coot::Cartesian rct =
-	    view1.rotation_centre + (view2.rotation_centre - view1.rotation_centre).by_scalar(frac);
-	 for (int iq=0; iq<4; iq++)
-	    g.quat[iq] = view1.quat[iq] + frac*(view2.quat[iq]-view1.quat[iq]);
-	 g.zoom = view1.zoom + frac*(view2.zoom-view1.zoom);
-	 g.setRotationCentre(rct);
-	 graphics_info_t::graphics_draw();
-      }
-   }
-
-   if (1) {
-      float omega = acos(coot::view_info_t::dot_product(view1, view2)/(view1.quat_length()*view2.quat_length()));
-      if (omega != 0.0) { 
-	 // slerping
-	 //
-	 if (n_steps < 1)
-	    n_steps = 1;
-	 float t_step = float(1.0)/float(n_steps);
-	 for (float t=0; t<=1; t+=t_step) {
-	    float one_over_sin_omega = 1/sin(omega);
-	    float frac1 = sin((1-t)*omega) * one_over_sin_omega;
-	    float frac2 = sin(t*omega) * one_over_sin_omega;
-	    for (int iq=0; iq<4; iq++)
-	       g.quat[iq] = frac1*view1.quat[iq] + frac2*view2.quat[iq];
-	    coot::Cartesian rct =
-	       view1.rotation_centre + (view2.rotation_centre - view1.rotation_centre).by_scalar(t);
-	    g.setRotationCentre(rct);
-	    g.zoom = view1.zoom + t*(view2.zoom-view1.zoom);
-	    graphics_info_t::graphics_draw();
-	 }
-      } else {
-	 // non slerping
-	 for (int i=0; i<=n_steps; i++) {
-	    float frac = float(i)/float(n_steps);
-	    coot::Cartesian rct =
-	       view1.rotation_centre + (view2.rotation_centre - view1.rotation_centre).by_scalar(frac);
-	    for (int iq=0; iq<4; iq++)
-	       g.quat[iq] = view1.quat[iq] + frac*(view2.quat[iq]-view1.quat[iq]);
-	    g.setRotationCentre(rct);
-	    g.zoom = view1.zoom + frac*(view2.zoom-view1.zoom);
-	    graphics_info_t::graphics_draw();
-	 }
-      }
-   }
-
-   graphics_info_t::smooth_scroll = smooth_scroll_state;
-   return view;
-}
-
-float
-coot::view_info_t::quat_length() const {
-
-   float d = 0.0;
-   for (int i=0; i<4; i++) {
-      d += quat[i]*quat[i];
-   }
-   return sqrt(d);
-}
-
-
-// static
-float 
-coot::view_info_t::dot_product(const coot::view_info_t &view1,
-			       const coot::view_info_t &view2) {
-
-   float d = 0.0;
-   for (int i=0; i<4; i++) {
-      d += view1.quat[i]*view2.quat[i];
-   }
-   return d;
-}
-
-std::ostream&
-coot::operator<<(std::ostream &f, coot::view_info_t &view) {
-
-   // position quaternion zoom view-name
-   //
-
-#ifdef USE_GUILE
-   if (! view.is_simple_spin_view_flag) { 
-      f << "(add-view ";
-      f << "(list ";
-      f << "   ";
-      f << view.rotation_centre.x();
-      f << " ";
-      f << view.rotation_centre.y();
-      f << " ";
-      f << view.rotation_centre.z();
-      f << ")\n";
-
-      f << "   (list ";
-      f << view.quat[0]; 
-      f << " ";
-      f << view.quat[1]; 
-      f << " ";
-      f << view.quat[2]; 
-      f << " ";
-      f << view.quat[3];
-      f << ")\n";
-      
-      f << "   ";
-      f << view.zoom; 
-      f << "\n";
-
-      f << "   ";
-      f << coot::util::single_quote(view.view_name);
-   
-      f << ")\n";
-   } else {
-      f << "(add-spin-view ";
-      f << coot::util::single_quote(view.view_name);
-      f << " ";
-      f << view.n_spin_steps;
-      f << " ";
-      f << view.degrees_per_step * view.n_spin_steps;
-      f << ")\n";
-   }
-#else
-#ifdef USE_PYTHON
-   if (! view.is_simple_spin_view_flag) { 
-      f << "add_view(";
-      f << "[";
-      f << view.rotation_centre.x();
-      f << ", ";
-      f << view.rotation_centre.y();
-      f << ", ";
-      f << view.rotation_centre.z();
-      f << "],\n";
-
-      f << "   [";
-      f << view.quat[0]; 
-      f << ", ";
-      f << view.quat[1]; 
-      f << ", ";
-      f << view.quat[2]; 
-      f << ", ";
-      f << view.quat[3];
-      f << "],\n";
-      
-      f << "   ";
-      f << view.zoom; 
-      f << ",\n";
-
-      f << "   ";
-      f << coot::util::single_quote(view.view_name);
-   
-      f << ")\n";
-   } else {
-      f << "add_spin_view(";
-      f << coot::util::single_quote(view.view_name);
-      f << ", ";
-      f << view.n_spin_steps;
-      f << ", ";
-      f << view.degrees_per_step * view.n_spin_steps;
-      f << ")\n";
-   }
-#endif // USE_PYTHON
-#endif // USE_GUILE
-   return f;
-
-}
-
-   
-bool
-coot::view_info_t::matches_view (const coot::view_info_t &view) const { 
-   float frac = 0.01;
-   bool matches = 0;
-   if (zoom < view.zoom*(1+frac)) { 
-      if (zoom > view.zoom*(1-frac)) { 
-	 if (rotation_centre.x() < view.rotation_centre.x()*(1+frac)) { 
-	    if (rotation_centre.x() > view.rotation_centre.x()*(1-frac)) { 
-	       if (rotation_centre.y() < view.rotation_centre.y()*(1+frac)) { 
-		  if (rotation_centre.y() > view.rotation_centre.y()*(1-frac)) { 
-		     if (rotation_centre.z() < view.rotation_centre.z()*(1+frac)) { 
-			if (rotation_centre.z() > view.rotation_centre.z()*(1-frac)) { 
-			   if (quat[0] < view.quat[0]*(1+frac)) { 
-			      if (quat[0] > view.quat[0]*(1-frac) ){ 
-				 if (quat[1] < view.quat[1]*(1+frac)) { 
-				    if (quat[1] > view.quat[1]*(1-frac) ){ 
-				       if (quat[2] < view.quat[2]*(1+frac)) { 
-					  if (quat[2] > view.quat[2]*(1-frac) ){ 
-					     if (quat[3] < view.quat[3]*(1+frac)) { 
-						if (quat[3] > view.quat[3]*(1-frac) ){
-						   matches = 1;
-						}
-					     }
-					  }
-				       }
-				    }
-				 }
-			      }
-			   }
-			}
-		     }
-		  }
-	       }
-	    }
-	 }
-      }
-   }
-   return matches;
-}

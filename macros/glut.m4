@@ -143,6 +143,13 @@ else
 
 	esac
 
+        # Use pkg-config to find the libs - we don't need -Xmu
+        case "$ac_cv_build" in
+           x86_64-apple-darwin*)
+           GLUT_LDOPTS="-lglut $GL_LIBS"
+           break;;
+        esac
+
 fi
 
 

@@ -115,6 +115,53 @@ int test_topological_equivalence(const std::string &file_name) {
    return r;
 }
 
+int test_ccp4srs_graph_search() {
+
+   int r = 0;
+
+#ifdef HAVE_CCP4SRS
+
+   double search_similarity = 0.9;
+   bool inc_Hs = false;
+   std::string monomer_type = "TRP";
+   unsigned int n_atoms = 12;
+
+   coot::protein_geometry *geom_p = new coot::protein_geometry;
+   const char *d1 = getenv(MONOMER_DIR_STR); // "COOT_CCP4SRS_DIR"
+   std::string srs_dir = PKGDATADIR;
+   if (d1)
+      srs_dir = d1;
+   std::cout << "---- geom_p init_ccp4srs with srs_dir " << srs_dir
+	     << std::endl;
+   geom_p->init_ccp4srs(srs_dir);
+   geom_p->try_dynamic_add(monomer_type, true);
+   std::pair<bool, coot::dictionary_residue_restraints_t> rest =
+      geom_p->get_monomer_restraints(monomer_type);
+   mmdb::math::Graph *graph = rest.second.make_graph(inc_Hs);
+   graph->SetName ("Coot-LBG-Query");
+   graph->MakeVertexIDs();
+
+   int build_result = graph->Build(false);
+
+   if (build_result != 0) {
+
+      std::cout << "Bad graph build result" << std::endl;
+
+   } else {
+
+      graph->MakeSymmetryRelief(false);
+      graph->Print();
+      std::cout << "graph search using similarity  " << search_similarity << std::endl;
+      std::cout << "graph build returns: " << build_result << std::endl;
+      std::vector<coot::match_results_t> v =
+	 geom_p->compare_vs_ccp4srs(graph, search_similarity, n_atoms);
+      delete graph;
+      std::cout << "found " << v.size() << " close matches" << std::endl;
+   }
+#endif // HAVE_CCP4SRS
+   return r;
+}
+
 int main(int argc, char **argv) {
 
    gtk_init(&argc, &argv);
@@ -131,7 +178,9 @@ int main(int argc, char **argv) {
 
    // r = test_molfile();
 
-   r = test_split_molecule();
+   // r = test_split_molecule();
+
+   r = test_ccp4srs_graph_search();
 
    if (r == 0)
       std::cout << "test failed" << std::endl;

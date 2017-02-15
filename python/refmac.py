@@ -1477,3 +1477,70 @@ def get_refmac_version():
                 print "INFO:: problem to get refmac version"
         else:
             return False
+
+
+# Writes an input file for refmac to refine occupancies. Takes all
+# residues with alt confs (each will be one group). Complete groups
+# if sum occ ~1 otherwise incomplete. Takes solvent too.
+#
+def restraints_for_occupancy_refinement(imol, file_name="refmac_extra_params.txt",
+                                        n_cycle=1):
+
+    # simple version for now.
+    # take each residue and make all alt confs to be one
+    # ignore close contact ones
+    res_list = residues_with_alt_confs(imol)
+    group_id = 1
+    if (not res_list):
+        print "BL INFO:: no alt confs"
+        return
+    else:
+        f = open(file_name, 'w')
+        for (chain_id, res_no, ins_code) in res_list:
+            atom_name = 'dummy'
+            if is_protein_chain_qm(imol, chain_id):
+                atom_name = ' CA '
+            if is_solvent_chain_qm(imol, chain_id):
+                atom_name = ' O  '
+            alt_confs = residue_alt_confs(imol, chain_id, res_no, ins_code)
+            try:
+                # remove no alt confs, assums always CA is alt
+                alt_confs.remove('') 
+            except:
+                pass # no atoms without alt confs
+            group_list = []
+            total_occ = 0.
+            # only if we know the atom type for now
+            if (atom_name != "dummy"):
+                write_it = 0
+                for alt_conf in alt_confs:
+                    try:
+                        # add CA occupancies
+                        atom_spec = atom_specs(imol, chain_id, res_no, ins_code,
+                                               atom_name, alt_conf)
+                        total_occ += atom_spec[0]
+                        line = "occupancy group id " + str(group_id) + \
+                               " chain " + chain_id + \
+                               " residue " + str(res_no) + \
+                               " alt " + alt_conf + "\n"
+                        f.write(line)                
+                        group_list.append(group_id)
+                        group_id += 1
+                        write_it = 1
+                    except:
+                        # some problem getting atoms.
+                        pass
+
+                complete = ""
+                if (abs(total_occ - 1.) > 0.1):
+                    complete = "in"
+                line = "occupancy group alts " + complete + "complete " + \
+                       " ".join(map(str, group_list)) + "\n"
+                if write_it:
+                    f.write(line)
+        # we could have cycle etc too
+        f.write("occupancy refine ncycle "+ str(n_cycle) + "\n") 
+        f.write("occupancy refine\n")
+        f.close()
+        
+        

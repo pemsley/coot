@@ -5,6 +5,7 @@
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Copyright 2007 by Paul Emsley
  * Copyright 2008, 2009, 2010, 2011, 2012 by the University of Oxford
+ * Copyright 2013, 2014, 2015 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -2765,6 +2766,11 @@ public:        //                      public
    void generate_local_self_restraints(float local_dist_max,
 				       const std::string &chain_id,
 				       const coot::protein_geometry &geom);
+   void generate_local_self_restraints(float local_dist_max,
+				       const std::vector<coot::residue_spec_t> &residue_specs,
+				       const coot::protein_geometry &geom);
+   void generate_local_self_restraints(int selHnd, float local_dist_max,
+				       const coot::protein_geometry &geom);
 
    void add_parallel_plane_restraint(coot::residue_spec_t spec_1,
 				     coot::residue_spec_t spec_2);
@@ -3054,7 +3060,12 @@ public:        //                      public
    void set_user_defined_colour_indices_by_residues(const std::vector<std::pair<coot::residue_spec_t, int> > &cis);
    void set_user_defined_colour_indices(const std::vector<std::pair<coot::atom_spec_t, int> > &cis);
    void clear_user_defined_atom_colours();
-   
+
+   void switch_HIS_protonation(coot::residue_spec_t res_spec);
+   void reduce(coot::protein_geometry *geom_p);
+
+   std::pair<std::vector<clipper::Coord_orth>, std::vector<std::pair<unsigned int, unsigned int> > > get_contours(float contour_level, float radius, const coot::Cartesian &centre) const;
+
 };
 
 #endif // MOLECULE_CLASS_INFO_T

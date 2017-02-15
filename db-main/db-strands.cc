@@ -24,6 +24,8 @@
 #include <sys/types.h>   
 #include <dirent.h>
 
+#include "geometry/main-chain.hh"
+
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
 

@@ -4,6 +4,7 @@
  * Copyright 2007 by The University of Oxford
  * Copyright 2007 by Bernhard Lohkamp
  * Copyright 2007 by The University of York
+ * Copyright 2013 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -167,7 +168,7 @@ int cootaneer_py(int imol_map, int imol_model, PyObject *atom_in_fragment_atom_s
    if (atom_spec.string_user_data == "Bad Spec") {
       std::cout << "Bad Python expression for atom spec" << std::endl;
       return -1; 
-   } else { 
+   } else {
       istat = cootaneer_internal(imol_map, imol_model, atom_spec);
       graphics_draw();
    }
@@ -175,12 +176,14 @@ int cootaneer_py(int imol_map, int imol_model, PyObject *atom_in_fragment_atom_s
 }
 #endif // USE_PYTHON
 
-int cootaneer_internal(int imol_map, int imol_model, coot::atom_spec_t &atom_spec) {
+#include "utils/coot-utils.hh"
+
+int cootaneer_internal(int imol_map, int imol_model, const coot::atom_spec_t &atom_spec) {
    int istat = 0;
    if (is_valid_model_molecule(imol_model)) {
       if (is_valid_map_molecule(imol_map)) {
 
-	 std::string llkdfile = PKGDATADIR;
+	 std::string llkdfile = coot::package_data_dir();
 	 llkdfile += "/cootaneer-llk-2.40.dat";
 
 	 // was that over-ridden?
@@ -195,7 +198,7 @@ int cootaneer_internal(int imol_map, int imol_model, coot::atom_spec_t &atom_spe
 	    std::cout << "Ooops! Can't find cootaneer likelihood data! - failure"
 		      << std::endl;
 
-	 } else { 
+	 } else {
 
 	    std::string chain_id = atom_spec.chain_id;
 

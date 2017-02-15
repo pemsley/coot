@@ -45,8 +45,8 @@
   </object>
   <object class="GtkWindow" id="lbg_window">
     <property name="width_request">740</property>
-    <property name="height_request">530</property>
-    <property name="title" translatable="yes">Coot Ligand Builder</property>
+    <property name="height_request">640</property>
+    <property name="title" translatable="yes">Lidia: Coot's Ligand Builder</property>
     <property name="icon">pixmaps/coot-icon.png</property>
     <child>
       <object class="GtkVBox" id="lbg_vbox">
@@ -173,6 +173,42 @@
               </object>
             </child>
             <child>
+              <object class="GtkMenuItem" id="lbg_display_menuitem">
+                <property name="visible">True</property>
+                <property name="label" translatable="yes">Display</property>
+                <property name="use_underline">True</property>
+                <child type="submenu">
+                  <object class="GtkMenu" id="menu2">
+                    <property name="visible">True</property>
+                    <child>
+                      <object class="GtkMenuItem" id="lbg_display_standard_menuitem">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Standard</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_lbg_display_standard_menuitem_activate"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuItem" id="lbg_display_indices_menuitem">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Atom Indices</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_lbg_display_indices_menuitem_activate"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuItem" id="lbg_display_names_menuitem">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Atom Names</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_lbg_display_names_menuitem_activate"/>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
               <object class="GtkMenuItem" id="menuitem4">
                 <property name="visible">True</property>
                 <property name="label" translatable="yes">_Help</property>
@@ -200,317 +236,1074 @@
           </packing>
         </child>
         <child>
-          <object class="GtkToolbar" id="lbg_toolbar_1">
+          <object class="GtkHBox" id="hbox5">
             <property name="visible">True</property>
             <child>
-              <object class="GtkToolButton" id="clear_toolbutton">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Clear</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">gtk-clear</property>
-                <signal name="clicked" handler="on_clear_toolbutton_clicked"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
+              <placeholder/>
             </child>
             <child>
-              <object class="GtkToolButton" id="undo_toolbutton">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Undo</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">gtk-undo</property>
-                <signal name="clicked" handler="on_undo_toolbutton_clicked"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
+              <placeholder/>
             </child>
             <child>
-              <object class="GtkToggleToolButton" id="single_toggle_toolbutton">
+              <object class="GtkHPaned" id="lbg_hpaned">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">Single</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">generated-icon-single-svg</property>
-                <signal name="toggled" handler="on_single_toggle_toolbutton_toggled"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToggleToolButton" id="double_toggle_toolbutton">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Double</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">generated-icon-double-svg</property>
-                <signal name="toggled" handler="on_double_toggle_toolbutton_toggled"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToggleToolButton" id="triple_toggle_toolbutton">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Triple</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">generated-icon-triple-svg</property>
-                <signal name="toggled" handler="on_triple_toggle_toolbutton_toggled"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToggleToolButton" id="stereo_out_toggle_toolbutton">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Stereo</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">generated-icon-stereo-out-svg</property>
-                <signal name="toggled" handler="on_stereo_out_toggle_toolbutton_toggled"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToggleToolButton" id="lbg_charge_toggle_toolbutton">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Charge</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">generated-icon-charge-svg</property>
-                <signal name="toggled" handler="on_lbg_charge_toggle_toolbutton_toggled"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToggleToolButton" id="delete_item_toggle_toolbutton">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Cut</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">gtk-cut</property>
-                <signal name="toggled" handler="on_delete_item_toggle_toolbutton_toggled"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="lbg_delete_hydrogens_toolbutton">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Delete Hydrogens</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">generated-icon-delete-hydrogens-svg</property>
-                <signal name="clicked" handler="on_lbg_delete_hydrogens_toolbutton_clicked"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="lbg_smiles_toolbutton">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">SMILES</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">generated-icon-face-smile-svg</property>
-                <signal name="clicked" handler="on_lbg_smiles_toolbutton_clicked"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="pe_test_function_button">
-                <property name="label" translatable="yes">test function</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">gtk-dialog-warning</property>
-                <signal name="clicked" handler="on_pe_test_function_button_clicked"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="lbg_clean_up_2d_toolbutton">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Tidy Up</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">generated-icon-clean-up-2d</property>
-                <signal name="clicked" handler="on_lbg_clean_up_2d_toolbutton_clicked"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolItem" id="toolbar_custom_item">
-                <property name="visible">True</property>
+                <property name="can_focus">True</property>
                 <child>
-                  <object class="GtkLabel" id="lbg_toolbar_layout_info_label">
+                  <object class="GtkVBox" id="vbox8">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">Layout-Info</property>
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkToolbar" id="lbg_toolbar_1">
+                        <property name="visible">True</property>
+                        <child>
+                          <object class="GtkToolButton" id="clear_toolbutton">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Clear</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">gtk-clear</property>
+                            <signal name="clicked" handler="on_clear_toolbutton_clicked"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToolButton" id="undo_toolbutton">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Undo</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">gtk-undo</property>
+                            <signal name="clicked" handler="on_undo_toolbutton_clicked"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToggleToolButton" id="single_toggle_toolbutton">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Single</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">generated-icon-single-svg</property>
+                            <signal name="toggled" handler="on_single_toggle_toolbutton_toggled"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToggleToolButton" id="double_toggle_toolbutton">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Double</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">generated-icon-double-svg</property>
+                            <signal name="toggled" handler="on_double_toggle_toolbutton_toggled"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToggleToolButton" id="triple_toggle_toolbutton">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Triple</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">generated-icon-triple-svg</property>
+                            <signal name="toggled" handler="on_triple_toggle_toolbutton_toggled"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToggleToolButton" id="stereo_out_toggle_toolbutton">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Stereo</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">generated-icon-stereo-out-svg</property>
+                            <signal name="toggled" handler="on_stereo_out_toggle_toolbutton_toggled"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToggleToolButton" id="lbg_charge_toggle_toolbutton">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Charge</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">generated-icon-charge-svg</property>
+                            <signal name="toggled" handler="on_lbg_charge_toggle_toolbutton_toggled"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToggleToolButton" id="delete_item_toggle_toolbutton">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Cut</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">gtk-cut</property>
+                            <signal name="toggled" handler="on_delete_item_toggle_toolbutton_toggled"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToolButton" id="lbg_delete_hydrogens_toolbutton">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Delete Hydrogens</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">generated-icon-delete-hydrogens-svg</property>
+                            <signal name="clicked" handler="on_lbg_delete_hydrogens_toolbutton_clicked"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToolButton" id="lbg_smiles_toolbutton">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">SMILES</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">generated-icon-face-smile-svg</property>
+                            <signal name="clicked" handler="on_lbg_smiles_toolbutton_clicked"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToolButton" id="pe_test_function_button">
+                            <property name="label" translatable="yes">test function</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">gtk-dialog-warning</property>
+                            <signal name="clicked" handler="on_pe_test_function_button_clicked"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToolButton" id="lbg_clean_up_2d_toolbutton">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Tidy Up</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">generated-icon-clean-up-2d</property>
+                            <signal name="clicked" handler="on_lbg_clean_up_2d_toolbutton_clicked"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToolItem" id="toolbar_custom_item">
+                            <property name="visible">True</property>
+                            <child>
+                              <object class="GtkLabel" id="lbg_toolbar_layout_info_label">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Layout-Info</property>
+                              </object>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToolButton" id="info_toolbutton">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Info</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">gtk-info</property>
+                            <signal name="clicked" handler="on_info_toolbutton_clicked"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkToolbar" id="lbg_toolbar_2">
+                        <property name="visible">True</property>
+                        <property name="toolbar_style">both</property>
+                        <child>
+                          <object class="GtkToggleToolButton" id="c3_toggle_toolbutton">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">3-C</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">generated-icon-3-c-svg</property>
+                            <signal name="toggled" handler="on_c3_toggle_toolbutton_toggled"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToggleToolButton" id="c4_toggle_toolbutton">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">4-C</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">generated-icon-4-c-svg</property>
+                            <signal name="toggled" handler="on_c4_toggle_toolbutton_toggled"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToggleToolButton" id="c5_toggle_toolbutton">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">5-C</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">generated-icon-5-c-svg</property>
+                            <signal name="toggled" handler="on_c5_toggle_toolbutton_toggled"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToggleToolButton" id="c6_toggle_toolbutton">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">6-C</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">generated-icon-6-c-exp-2-svg</property>
+                            <signal name="toggled" handler="on_c6_toggle_toolbutton_toggled"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToggleToolButton" id="c6_arom_toggle_toolbutton">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">6-Arom</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">generated-icon-6-c-arom-svg</property>
+                            <signal name="toggled" handler="on_c6_arom_toggle_toolbutton_toggled"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToggleToolButton" id="c7_toggle_toolbutton">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">7-C</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">generated-icon-7-c-svg</property>
+                            <signal name="toggled" handler="on_c7_toggle_toolbutton_toggled"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToggleToolButton" id="c8_toggle_toolbutton">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">8-C</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">generated-icon-8-c-svg</property>
+                            <signal name="toggled" handler="on_c8_toggle_toolbutton_toggled"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToggleToolButton" id="residue_circles_toggletoolbutton">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Env. Residues</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">gtk-add</property>
+                            <signal name="toggled" handler="on_residue_circles_toggle_toolbutton_toggled"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkToggleToolButton" id="lbg_key_toggle_toolbutton">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes">Key</property>
+                            <property name="use_underline">True</property>
+                            <property name="stock_id">lbg-key-icon-svg</property>
+                            <signal name="toggled" handler="on_lbg_key_toggle_toolbutton_toggled"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="homogeneous">True</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkHBox" id="hbox1">
+                        <property name="visible">True</property>
+                        <child>
+                          <object class="GtkToolbar" id="lbg_atom_toolbar">
+                            <property name="visible">True</property>
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <object class="GtkToggleToolButton" id="carbon_toggle_toolbutton">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">C</property>
+                                <property name="use_underline">True</property>
+                                <signal name="toggled" handler="on_carbon_toggle_toolbutton_toggled"/>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="homogeneous">True</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkToggleToolButton" id="nitrogen_toggle_toolbutton">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">N</property>
+                                <property name="use_underline">True</property>
+                                <signal name="toggled" handler="on_nitrogen_toggle_toolbutton_toggled"/>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="homogeneous">True</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkToggleToolButton" id="oxygen_toggle_toolbutton">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">O</property>
+                                <property name="use_underline">True</property>
+                                <signal name="toggled" handler="on_oxygen_toggle_toolbutton_toggled"/>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="homogeneous">True</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkToggleToolButton" id="sulfur_toggle_toolbutton">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">S</property>
+                                <property name="use_underline">True</property>
+                                <signal name="toggled" handler="on_sulfur_toggle_toolbutton_toggled"/>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="homogeneous">True</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkToggleToolButton" id="phos_toggle_toolbutton">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">P</property>
+                                <property name="use_underline">True</property>
+                                <signal name="toggled" handler="on_phos_toggle_toolbutton_toggled"/>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="homogeneous">True</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkToggleToolButton" id="hydrogen_toogle_toolbutton">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">H</property>
+                                <property name="use_underline">True</property>
+                                <signal name="toggled" handler="on_hydrogen_toggle_toolbutton_toggled"/>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="homogeneous">True</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkToggleToolButton" id="fluorine_toggle_toolbutton">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">F</property>
+                                <property name="use_underline">True</property>
+                                <signal name="toggled" handler="on_fluorine_toggle_toolbutton_toggled"/>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="homogeneous">True</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkToggleToolButton" id="chlorine_toggle_toolbutton">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Cl</property>
+                                <property name="use_underline">True</property>
+                                <signal name="toggled" handler="on_chlorine_toggle_toolbutton_toggled"/>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="homogeneous">True</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkToggleToolButton" id="bromine_toggle_toolbutton">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">Br</property>
+                                <property name="use_underline">True</property>
+                                <signal name="toggled" handler="on_bromine_toggle_toolbutton_toggled"/>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="homogeneous">True</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkToggleToolButton" id="iodine_toggle_toolbutton">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">I</property>
+                                <property name="use_underline">True</property>
+                                <signal name="toggled" handler="on_iodine_toggle_toolbutton_toggled"/>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="homogeneous">True</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkToggleToolButton" id="other_element_toggle_toolbutton">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">X</property>
+                                <property name="use_underline">True</property>
+                                <signal name="toggled" handler="on_other_element_toggle_toolbutton_toggled"/>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="homogeneous">True</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkScrolledWindow" id="lbg_scrolledwindow">
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="hscrollbar_policy">automatic</property>
+                            <property name="vscrollbar_policy">automatic</property>
+                            <property name="shadow_type">etched-in</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="position">2</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkHBox" id="lbg_hbox_for_scale">
+                        <property name="visible">True</property>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <object class="GtkLabel" id="label19">
+                            <property name="visible">True</property>
+                            <property name="label" translatable="yes"> Scale </property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="pack_type">end</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkSpinButton" id="lbg_scale_spinbutton">
+                            <property name="width_request">80</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="max_length">4</property>
+                            <property name="invisible_char">&#x25CF;</property>
+                            <property name="climb_rate">0.10000000000000001</property>
+                            <property name="digits">2</property>
+                            <property name="numeric">True</property>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="pack_type">end</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">3</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkStatusbar" id="lbg_statusbar">
+                        <property name="visible">True</property>
+                        <property name="spacing">2</property>
+                        <property name="has_resize_grip">False</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">4</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkHBox" id="lbg_qed_and_alert_hbox">
+                        <property name="visible">True</property>
+                        <child>
+                          <object class="GtkHBox" id="lbg_qed_hbox">
+                            <property name="visible">True</property>
+                            <child>
+                              <object class="GtkLabel" id="label5">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes"> QED: </property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkProgressBar" id="lbg_qed_progressbar">
+                                <property name="width_request">140</property>
+                                <property name="visible">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="lbg_qed_text_label">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">qed_text</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkHBox" id="lbg_alert_hbox_outer">
+                            <property name="visible">True</property>
+                            <child>
+                              <object class="GtkHBox" id="lbg_alert_hbox">
+                                <child>
+                                  <object class="GtkImage" id="lbg_alert_image">
+                                    <property name="visible">True</property>
+                                    <property name="stock">gtk-dialog-warning</property>
+                                  </object>
+                                  <packing>
+                                    <property name="position">0</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="lbg_alert_label">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes"> ALERT!  </property>
+                                  </object>
+                                  <packing>
+                                    <property name="position">1</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="lbg_alert_name_label">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">alert-name</property>
+                                  </object>
+                                  <packing>
+                                    <property name="position">2</property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <object class="GtkLabel" id="label6">
+                                    <property name="visible">True</property>
+                                    <property name="label" translatable="yes">  </property>
+                                  </object>
+                                  <packing>
+                                    <property name="position">3</property>
+                                  </packing>
+                                </child>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <placeholder/>
+                        </child>
+                        <child>
+                          <object class="GtkCheckButton" id="lbg_show_alerts_checkbutton">
+                            <property name="label" translatable="yes">Show Alerts</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="receives_default">False</property>
+                            <property name="draw_indicator">True</property>
+                            <signal name="toggled" handler="on_lbg_show_alerts_checkbutton_toggled"/>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="pack_type">end</property>
+                            <property name="position">2</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">5</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkVBox" id="lbg_qed_properties_vbox">
+                        <property name="visible">True</property>
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkTable" id="qed_properties_table">
+                            <property name="visible">True</property>
+                            <property name="border_width">10</property>
+                            <property name="n_rows">2</property>
+                            <property name="n_columns">8</property>
+                            <child>
+                              <object class="GtkLabel" id="label10">
+                                <property name="visible">True</property>
+                                <property name="xalign">1</property>
+                                <property name="label" translatable="yes">Mol. Weight </property>
+                                <property name="justify">right</property>
+                              </object>
+                              <packing>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkProgressBar" id="qed_properties_0_progressbar">
+                                <property name="width_request">100</property>
+                                <property name="visible">True</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="x_options"></property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label11">
+                                <property name="visible">True</property>
+                                <property name="xalign">1</property>
+                                <property name="label" translatable="yes">cLogP </property>
+                                <property name="justify">right</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkProgressBar" id="qed_properties_1_progressbar">
+                                <property name="width_request">100</property>
+                                <property name="visible">True</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">3</property>
+                                <property name="right_attach">4</property>
+                                <property name="x_options"></property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkProgressBar" id="qed_properties_2_progressbar">
+                                <property name="width_request">100</property>
+                                <property name="visible">True</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">5</property>
+                                <property name="right_attach">6</property>
+                                <property name="x_options"></property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkProgressBar" id="qed_properties_3_progressbar">
+                                <property name="width_request">100</property>
+                                <property name="visible">True</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">7</property>
+                                <property name="right_attach">8</property>
+                                <property name="x_options"></property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label12">
+                                <property name="visible">True</property>
+                                <property name="xalign">1</property>
+                                <property name="label" translatable="yes">#HBA </property>
+                                <property name="justify">right</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">4</property>
+                                <property name="right_attach">5</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label13">
+                                <property name="visible">True</property>
+                                <property name="xalign">1</property>
+                                <property name="label" translatable="yes">#Donors </property>
+                                <property name="justify">right</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">6</property>
+                                <property name="right_attach">7</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label14">
+                                <property name="visible">True</property>
+                                <property name="xalign">1</property>
+                                <property name="label" translatable="yes">PSA </property>
+                                <property name="justify">right</property>
+                              </object>
+                              <packing>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label15">
+                                <property name="visible">True</property>
+                                <property name="xalign">1</property>
+                                <property name="label" translatable="yes">#RotBonds </property>
+                                <property name="justify">right</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">2</property>
+                                <property name="right_attach">3</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label16">
+                                <property name="visible">True</property>
+                                <property name="xalign">1</property>
+                                <property name="label" translatable="yes">#Arom </property>
+                                <property name="justify">right</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">4</property>
+                                <property name="right_attach">5</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label17">
+                                <property name="visible">True</property>
+                                <property name="xalign">1</property>
+                                <property name="label" translatable="yes">#Alerts </property>
+                                <property name="justify">right</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">6</property>
+                                <property name="right_attach">7</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkProgressBar" id="qed_properties_4_progressbar">
+                                <property name="width_request">100</property>
+                                <property name="visible">True</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">1</property>
+                                <property name="right_attach">2</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="x_options"></property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkProgressBar" id="qed_properties_5_progressbar">
+                                <property name="width_request">100</property>
+                                <property name="visible">True</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">3</property>
+                                <property name="right_attach">4</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="x_options"></property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkProgressBar" id="qed_properties_6_progressbar">
+                                <property name="width_request">100</property>
+                                <property name="visible">True</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">5</property>
+                                <property name="right_attach">6</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="x_options"></property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkProgressBar" id="qed_properties_7_progressbar">
+                                <property name="width_request">100</property>
+                                <property name="visible">True</property>
+                              </object>
+                              <packing>
+                                <property name="left_attach">7</property>
+                                <property name="right_attach">8</property>
+                                <property name="top_attach">1</property>
+                                <property name="bottom_attach">2</property>
+                                <property name="x_options"></property>
+                                <property name="y_options"></property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="padding">3</property>
+                            <property name="position">0</property>
+                          </packing>
+                        </child>
+                        <child>
+                          <object class="GtkHBox" id="lbg_flip_rotate_hbox">
+                            <property name="visible">True</property>
+                            <property name="border_width">4</property>
+                            <child>
+                              <object class="GtkButton" id="lbg_view_flip_around_x_button">
+                                <property name="label" translatable="yes">Flip Around X</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <signal name="clicked" handler="on_lbg_view_flip_around_x_button_clicked"/>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">0</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label18">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">    </property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">1</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="lbg_view_flip_around_y_button">
+                                <property name="label" translatable="yes">Flip Around Y</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <signal name="clicked" handler="on_lbg_view_flip_around_y_button_clicked"/>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">2</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label8">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes">   Rotate Z </property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">3</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkEntry" id="lbg_view_rotate_entry">
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="invisible_char">&#x25CF;</property>
+                                <property name="width_chars">6</property>
+                                <property name="text" translatable="yes">10</property>
+                                <property name="primary_icon_sensitive">True</property>
+                                <property name="secondary_icon_sensitive">True</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">4</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label9">
+                                <property name="visible">True</property>
+                                <property name="label" translatable="yes"> degrees</property>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">5</property>
+                              </packing>
+                            </child>
+                            <child>
+                              <object class="GtkButton" id="lbg_view_rotate_apply_button">
+                                <property name="label">gtk-apply</property>
+                                <property name="visible">True</property>
+                                <property name="can_focus">True</property>
+                                <property name="receives_default">True</property>
+                                <property name="use_stock">True</property>
+                                <signal name="clicked" handler="on_lbg_view_rotate_apply_button_clicked"/>
+                              </object>
+                              <packing>
+                                <property name="expand">False</property>
+                                <property name="fill">False</property>
+                                <property name="position">6</property>
+                              </packing>
+                            </child>
+                          </object>
+                          <packing>
+                            <property name="expand">False</property>
+                            <property name="fill">False</property>
+                            <property name="padding">2</property>
+                            <property name="position">1</property>
+                          </packing>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="fill">False</property>
+                        <property name="position">6</property>
+                      </packing>
+                    </child>
                   </object>
+                  <packing>
+                    <property name="resize">False</property>
+                    <property name="shrink">True</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkScrolledWindow" id="lbg_srs_search_results_scrolledwindow">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="hscrollbar_policy">automatic</property>
+                    <property name="vscrollbar_policy">automatic</property>
+                    <child>
+                      <object class="GtkViewport" id="lbg_srs_search_results_viewport">
+                        <property name="visible">True</property>
+                        <property name="resize_mode">queue</property>
+                        <child>
+                          <object class="GtkVBox" id="lbg_srs_search_results_vbox">
+                            <property name="visible">True</property>
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                  <packing>
+                    <property name="resize">True</property>
+                    <property name="shrink">True</property>
+                  </packing>
                 </child>
               </object>
               <packing>
-                <property name="expand">False</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToolButton" id="info_toolbutton">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Info</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">gtk-info</property>
-                <signal name="clicked" handler="on_info_toolbutton_clicked"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
+                <property name="position">2</property>
               </packing>
             </child>
           </object>
           <packing>
-            <property name="expand">False</property>
             <property name="position">1</property>
           </packing>
         </child>
         <child>
-          <object class="GtkToolbar" id="lbg_toolbar_2">
+          <object class="GtkHSeparator" id="lbg_hseparator">
             <property name="visible">True</property>
-            <property name="toolbar_style">both</property>
-            <child>
-              <object class="GtkToggleToolButton" id="c3_toggle_toolbutton">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">3-C</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">generated-icon-3-c-svg</property>
-                <signal name="toggled" handler="on_c3_toggle_toolbutton_toggled"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToggleToolButton" id="c4_toggle_toolbutton">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">4-C</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">generated-icon-4-c-svg</property>
-                <signal name="toggled" handler="on_c4_toggle_toolbutton_toggled"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToggleToolButton" id="c5_toggle_toolbutton">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">5-C</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">generated-icon-5-c-svg</property>
-                <signal name="toggled" handler="on_c5_toggle_toolbutton_toggled"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToggleToolButton" id="c6_toggle_toolbutton">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">6-C</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">generated-icon-6-c-exp-2-svg</property>
-                <signal name="toggled" handler="on_c6_toggle_toolbutton_toggled"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToggleToolButton" id="c6_arom_toggle_toolbutton">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">6-Arom</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">generated-icon-6-c-arom-svg</property>
-                <signal name="toggled" handler="on_c6_arom_toggle_toolbutton_toggled"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToggleToolButton" id="c7_toggle_toolbutton">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">7-C</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">generated-icon-7-c-svg</property>
-                <signal name="toggled" handler="on_c7_toggle_toolbutton_toggled"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToggleToolButton" id="c8_toggle_toolbutton">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">8-C</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">generated-icon-8-c-svg</property>
-                <signal name="toggled" handler="on_c8_toggle_toolbutton_toggled"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToggleToolButton" id="residue_circles_toggletoolbutton">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Env. Residues</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">gtk-add</property>
-                <signal name="toggled" handler="on_residue_circles_toggle_toolbutton_toggled"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkToggleToolButton" id="lbg_key_toggle_toolbutton">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">Key</property>
-                <property name="use_underline">True</property>
-                <property name="stock_id">lbg-key-icon-svg</property>
-                <signal name="toggled" handler="on_lbg_key_toggle_toolbutton_toggled"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="homogeneous">True</property>
-              </packing>
-            </child>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -518,671 +1311,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkHBox" id="hbox1">
-            <property name="visible">True</property>
-            <child>
-              <object class="GtkToolbar" id="lbg_atom_toolbar">
-                <property name="visible">True</property>
-                <property name="orientation">vertical</property>
-                <child>
-                  <object class="GtkToggleToolButton" id="carbon_toggle_toolbutton">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">C</property>
-                    <property name="use_underline">True</property>
-                    <signal name="toggled" handler="on_carbon_toggle_toolbutton_toggled"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="homogeneous">True</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleToolButton" id="nitrogen_toggle_toolbutton">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">N</property>
-                    <property name="use_underline">True</property>
-                    <signal name="toggled" handler="on_nitrogen_toggle_toolbutton_toggled"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="homogeneous">True</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleToolButton" id="oxygen_toggle_toolbutton">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">O</property>
-                    <property name="use_underline">True</property>
-                    <signal name="toggled" handler="on_oxygen_toggle_toolbutton_toggled"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="homogeneous">True</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleToolButton" id="sulfur_toggle_toolbutton">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">S</property>
-                    <property name="use_underline">True</property>
-                    <signal name="toggled" handler="on_sulfur_toggle_toolbutton_toggled"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="homogeneous">True</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleToolButton" id="phos_toggle_toolbutton">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">P</property>
-                    <property name="use_underline">True</property>
-                    <signal name="toggled" handler="on_phos_toggle_toolbutton_toggled"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="homogeneous">True</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleToolButton" id="hydrogen_toogle_toolbutton">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">H</property>
-                    <property name="use_underline">True</property>
-                    <signal name="toggled" handler="on_hydrogen_toggle_toolbutton_toggled"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="homogeneous">True</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleToolButton" id="fluorine_toggle_toolbutton">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">F</property>
-                    <property name="use_underline">True</property>
-                    <signal name="toggled" handler="on_fluorine_toggle_toolbutton_toggled"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="homogeneous">True</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleToolButton" id="chlorine_toggle_toolbutton">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">Cl</property>
-                    <property name="use_underline">True</property>
-                    <signal name="toggled" handler="on_chlorine_toggle_toolbutton_toggled"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="homogeneous">True</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleToolButton" id="bromine_toggle_toolbutton">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">Br</property>
-                    <property name="use_underline">True</property>
-                    <signal name="toggled" handler="on_bromine_toggle_toolbutton_toggled"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="homogeneous">True</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleToolButton" id="iodine_toggle_toolbutton">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">I</property>
-                    <property name="use_underline">True</property>
-                    <signal name="toggled" handler="on_iodine_toggle_toolbutton_toggled"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="homogeneous">True</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkToggleToolButton" id="other_element_toggle_toolbutton">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">X</property>
-                    <property name="use_underline">True</property>
-                    <signal name="toggled" handler="on_other_element_toggle_toolbutton_toggled"/>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="homogeneous">True</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkScrolledWindow" id="lbg_scrolledwindow">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="hscrollbar_policy">automatic</property>
-                <property name="vscrollbar_policy">automatic</property>
-                <property name="shadow_type">etched-in</property>
-                <child>
-                  <placeholder/>
-                </child>
-              </object>
-              <packing>
-                <property name="position">1</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="position">3</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkStatusbar" id="lbg_statusbar">
-            <property name="visible">True</property>
-            <property name="spacing">2</property>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="position">4</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkHSeparator" id="hseparator1">
-            <property name="visible">True</property>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="position">5</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkHBox" id="lbg_qed_and_alert_hbox">
-            <property name="visible">True</property>
-            <child>
-              <object class="GtkHBox" id="lbg_qed_hbox">
-                <property name="visible">True</property>
-                <child>
-                  <object class="GtkLabel" id="label5">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes"> QED: </property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkProgressBar" id="lbg_qed_progressbar">
-                    <property name="width_request">140</property>
-                    <property name="visible">True</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="lbg_qed_text_label">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">qed_text</property>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkHBox" id="lbg_alert_hbox_outer">
-                <property name="visible">True</property>
-                <child>
-                  <object class="GtkHBox" id="lbg_alert_hbox">
-                    <child>
-                      <object class="GtkImage" id="lbg_alert_image">
-                        <property name="visible">True</property>
-                        <property name="stock">gtk-dialog-warning</property>
-                      </object>
-                      <packing>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="lbg_alert_label">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes"> ALERT!  </property>
-                      </object>
-                      <packing>
-                        <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="lbg_alert_name_label">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">alert-name</property>
-                      </object>
-                      <packing>
-                        <property name="position">2</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label6">
-                        <property name="visible">True</property>
-                        <property name="label" translatable="yes">  </property>
-                      </object>
-                      <packing>
-                        <property name="position">3</property>
-                      </packing>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">False</property>
-                    <property name="fill">False</property>
-                    <property name="position">0</property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-            <child>
-              <object class="GtkCheckButton" id="lbg_show_alerts_checkbutton">
-                <property name="label" translatable="yes">Show Alerts</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">False</property>
-                <property name="draw_indicator">True</property>
-                <signal name="toggled" handler="on_lbg_show_alerts_checkbutton_toggled"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="pack_type">end</property>
-                <property name="position">2</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">6</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkVBox" id="qed_properties_vbox">
-            <property name="visible">True</property>
-            <child>
-              <object class="GtkTable" id="qed_properties_table">
-                <property name="visible">True</property>
-                <property name="border_width">10</property>
-                <property name="n_rows">2</property>
-                <property name="n_columns">8</property>
-                <child>
-                  <object class="GtkLabel" id="label10">
-                    <property name="visible">True</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">Mol. Weight </property>
-                    <property name="justify">right</property>
-                  </object>
-                  <packing>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkProgressBar" id="qed_properties_0_progressbar">
-                    <property name="width_request">100</property>
-                    <property name="visible">True</property>
-                    <property name="tooltip_text" translatable="yes">Optimal Value: 306</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="x_options"></property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label11">
-                    <property name="visible">True</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">cLogP </property>
-                    <property name="justify">right</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkProgressBar" id="qed_properties_1_progressbar">
-                    <property name="width_request">100</property>
-                    <property name="visible">True</property>
-                    <property name="tooltip_text" translatable="yes">Optimal Value: 3</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">3</property>
-                    <property name="right_attach">4</property>
-                    <property name="x_options"></property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkProgressBar" id="qed_properties_2_progressbar">
-                    <property name="width_request">100</property>
-                    <property name="visible">True</property>
-                    <property name="tooltip_text" translatable="yes">Optimal Value: 3</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">5</property>
-                    <property name="right_attach">6</property>
-                    <property name="x_options"></property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkProgressBar" id="qed_properties_3_progressbar">
-                    <property name="width_request">100</property>
-                    <property name="visible">True</property>
-                    <property name="tooltip_text" translatable="yes">Optimal Value: 1</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">7</property>
-                    <property name="right_attach">8</property>
-                    <property name="x_options"></property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label12">
-                    <property name="visible">True</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">#HBA </property>
-                    <property name="justify">right</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">4</property>
-                    <property name="right_attach">5</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label13">
-                    <property name="visible">True</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">#Donors </property>
-                    <property name="justify">right</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">6</property>
-                    <property name="right_attach">7</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label14">
-                    <property name="visible">True</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">PSA </property>
-                    <property name="justify">right</property>
-                  </object>
-                  <packing>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label15">
-                    <property name="visible">True</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">#RotBonds </property>
-                    <property name="justify">right</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">2</property>
-                    <property name="right_attach">3</property>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label16">
-                    <property name="visible">True</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">#Arom </property>
-                    <property name="justify">right</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">4</property>
-                    <property name="right_attach">5</property>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkLabel" id="label17">
-                    <property name="visible">True</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">#Alerts </property>
-                    <property name="justify">right</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">6</property>
-                    <property name="right_attach">7</property>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkProgressBar" id="qed_properties_4_progressbar">
-                    <property name="width_request">100</property>
-                    <property name="visible">True</property>
-                    <property name="tooltip_text" translatable="yes">Optimal Value: 50</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">1</property>
-                    <property name="right_attach">2</property>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="x_options"></property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkProgressBar" id="qed_properties_5_progressbar">
-                    <property name="width_request">100</property>
-                    <property name="visible">True</property>
-                    <property name="tooltip_text" translatable="yes">Optimal Value: 4</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">3</property>
-                    <property name="right_attach">4</property>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="x_options"></property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkProgressBar" id="qed_properties_6_progressbar">
-                    <property name="width_request">100</property>
-                    <property name="visible">True</property>
-                    <property name="tooltip_text" translatable="yes">Optimal Value: 2</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">5</property>
-                    <property name="right_attach">6</property>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="x_options"></property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkProgressBar" id="qed_properties_7_progressbar">
-                    <property name="width_request">100</property>
-                    <property name="visible">True</property>
-                    <property name="tooltip_text" translatable="yes">Optimal Value: 0</property>
-                  </object>
-                  <packing>
-                    <property name="left_attach">7</property>
-                    <property name="right_attach">8</property>
-                    <property name="top_attach">1</property>
-                    <property name="bottom_attach">2</property>
-                    <property name="x_options"></property>
-                    <property name="y_options"></property>
-                  </packing>
-                </child>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="padding">3</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <placeholder/>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="position">7</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkHBox" id="lbg_flip_rotate_hbox">
-            <property name="visible">True</property>
-            <property name="border_width">4</property>
-            <child>
-              <object class="GtkButton" id="lbg_view_flip_around_x_button">
-                <property name="label" translatable="yes">Flip Around X</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <signal name="clicked" handler="on_lbg_view_flip_around_x_button_clicked"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label18">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">    </property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="lbg_view_flip_around_y_button">
-                <property name="label" translatable="yes">Flip Around Y</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <signal name="clicked" handler="on_lbg_view_flip_around_y_button_clicked"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label8">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes">   Rotate Z </property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">3</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEntry" id="lbg_view_rotate_entry">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="invisible_char">&#x25CF;</property>
-                <property name="width_chars">6</property>
-                <property name="text" translatable="yes">10</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">4</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label9">
-                <property name="visible">True</property>
-                <property name="label" translatable="yes"> degrees</property>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">5</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkButton" id="lbg_view_rotate_apply_button">
-                <property name="label">gtk-apply</property>
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
-                <signal name="clicked" handler="on_lbg_view_rotate_apply_button_clicked"/>
-              </object>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-                <property name="position">6</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="fill">False</property>
-            <property name="padding">2</property>
-            <property name="position">8</property>
-          </packing>
-        </child>
-        <child>
-          <object class="GtkHSeparator" id="hseparator2">
-            <property name="visible">True</property>
-          </object>
-          <packing>
-            <property name="expand">False</property>
-            <property name="padding">4</property>
-            <property name="position">9</property>
-          </packing>
+          <placeholder/>
         </child>
         <child>
           <object class="GtkHBox" id="lbg_buttons_hbox">
@@ -1329,7 +1458,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
-            <property name="position">10</property>
+            <property name="position">4</property>
           </packing>
         </child>
       </object>
@@ -1384,7 +1513,7 @@
             </child>
             <child>
               <object class="GtkCheckButton" id="lbg_import_from_comp_id_hydrogens_checkbutton">
-                <property name="label" translatable="yes">Keep Hydrogens</property>
+                <property name="label" translatable="yes">Keep All Hydrogens</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">False</property>
@@ -1850,7 +1979,7 @@
             <child>
               <object class="GtkLabel" id="label7">
                 <property name="visible">True</property>
-                <property name="label" translatable="yes">Get Molecule:</property>
+                <property name="label" translatable="yes">Fetch Molecule (from the Internet):</property>
               </object>
               <packing>
                 <property name="position">0</property>
@@ -2225,5 +2354,11 @@
     <action-widgets>
       <action-widget response="-5">lbg_smiles_dialog_ok_button</action-widget>
     </action-widgets>
+  </object>
+  <object class="GtkAdjustment" id="adjustment1">
+    <property name="upper">100</property>
+    <property name="step_increment">1</property>
+    <property name="page_increment">10</property>
+    <property name="page_size">10</property>
   </object>
 </interface>

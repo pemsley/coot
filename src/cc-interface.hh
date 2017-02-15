@@ -3,6 +3,7 @@
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Copyright 2007 by Paul Emsley
  * Copyright 2008, 2009, 2010, 2011, 2012 by The University of Oxford
+ * Copyright 2015 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -339,6 +340,7 @@ std::pair<int, std::vector<std::string> > merge_molecules_by_vector(const std::v
 //! \name Dictionary Functions
 //! \{
 std::vector<std::string> dictionary_entries();
+void debug_dictionary();
 // this can throw an exception
 std::string SMILES_for_comp_id(const std::string &comp_id);
 /*! \brief return a list of all the dictionaries read */
@@ -377,7 +379,8 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints);
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
-PyObject *monomer_restraints_py(const char *monomer_type);
+PyObject *monomer_restraints_py(std::string monomer_type);
+PyObject *monomer_restraints_for_molecule_py(std::string monomer_type, int imol);
 PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restraints);
 #endif // USE_PYTHON
 
@@ -905,7 +908,6 @@ int mutate_internal(int ires, const char *chain_id,
 /*  ----------------------------------------------------------------------- */
 /*                  ligands                                                 */
 /*  ----------------------------------------------------------------------- */
-std::vector<int> execute_ligand_search_internal();
 coot::graph_match_info_t
 overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref,
 			 int resno_ref, bool apply_rtop_flag);
@@ -945,7 +947,7 @@ void add_animated_ligand_interaction(int imol, const coot::fle_ligand_bond_t &lb
 /*  ----------------------------------------------------------------------- */
 /*                  Cootaneer                                               */
 /*  ----------------------------------------------------------------------- */
-int cootaneer_internal(int imol_map, int imol_model, coot::atom_spec_t &atom_spec);
+int cootaneer_internal(int imol_map, int imol_model, const coot::atom_spec_t &atom_spec);
 
 #ifdef USE_GUILE
 //! \name Dock Sidechains
@@ -1239,6 +1241,21 @@ PyObject *link_info_py(int imol);
 //! \brief handle the string that get when a file or URL is dropped.
 int handle_drag_and_drop_string(const std::string &uri);
 // \}
+
+
+/* ------------------------------------------------------------------------- */
+/*                      Map Contours                                         */
+/* ------------------------------------------------------------------------- */
+
+#ifdef USE_PYTHON
+/*! \name Map Contouring */
+// \{
+//! \brief return two lists: a list of vertices and a list of indices for connection
+PyObject *map_contours(int imol, float contour_level);
+// \}
+#endif // USE_PYTHON
+
+
 
 /* ------------------------------------------------------------------------- */
 /*                      correlation maps                                     */

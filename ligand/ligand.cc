@@ -3,6 +3,7 @@
  * Copyright 2002, 2003, 2004, 2005 by The University of York
  * Author Paul Emsley
  * Copyright 2008, 2009 by The University of Oxford
+ * Copyright 2012, 2015, 2016 by Medical Research Council
  * Author Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -24,7 +25,7 @@
 // This file was written as the USA started its (2003) attack on Iraq.
 //
 
-#include <stdio.h> // for snprintf
+// #include <stdio.h> // for snprintf
 
 #include <fstream>
 
@@ -38,17 +39,17 @@
 #include <sys/stat.h>
 
 #if defined _MSC_VER
-#define S_ISDIR(m)  (((m) & S_IFMT) == S_IFDIR)
-#define S_IWUSR S_IWRITE
+// #define S_ISDIR(m)  (((m) & S_IFMT) == S_IFDIR)
+// #define S_IWUSR S_IWRITE
 #define snprintf _snprintf
 #else
 #include <unistd.h>
 #endif
 
-#if !defined(WINDOWS_MINGW) && !defined(_MSC_VER)
-#include <pwd.h>
-#include <sys/types.h>
-#endif 
+// #if !defined(WINDOWS_MINGW) && !defined(_MSC_VER)
+// #include <pwd.h>
+// #include <sys/types.h>
+// #endif 
 
 #include "clipper/ccp4/ccp4_map_io.h"
 #include "clipper/ccp4/ccp4_mtz_io.h"
@@ -61,6 +62,7 @@
 
 #include <mmdb2/mmdb_coormngr.h> // for GetMassCenter()
 
+#include "utils/win-compat.hh"
 #include "utils/coot-utils.hh"
 
 #include "coords/mmdb-extras.h"   // 220403
@@ -230,16 +232,8 @@ coot::ligand::map_fill_from_mtz(std::string mtz_file_name,
   clipper::MTZcrystal myxtl; 
     
   std::cout << "reading mtz file " << mtz_file_name << std::endl;
-
-  // does the file mtz_file_name exist?
-  struct stat buf;
-  int status = stat(mtz_file_name.c_str(), &buf);
-  if (status != 0) {
-     std::cout << "Error finding mtz file\n";
+  if (! coot::is_regular_file(mtz_file_name))
      return 0;
-  } 
-     
-
   
   clipper::CCP4MTZfile mtzin; 
   mtzin.open_read( mtz_file_name );       // open new file 
@@ -1391,60 +1385,10 @@ coot::ligand::trace_along(const clipper::Coord_grid &cg_start,
 void
 coot::ligand::output_map(std::string filename) const {
 
-   struct stat buf;
-   int status = stat(".", &buf);
-   if (status != 0) {
-      std::cout << "WARNING:: [Impossible!] error finding directory . " << std::endl;
-   } else {
-
-#if !defined(WINDOWS_MINGW) && !defined(_MSC_VER)
-      if (S_ISDIR(buf.st_mode)) {
-
-	 // if the process owner is the same as the directory owner
-	 // and we have permission to write the let's do that
-	 // 
-	 char *username_str = getenv("USER");
-	 if (username_str) { 
-	    std::string username(username_str);
-	    // std::cout << "DEBUG::  pre pwbits, username is " << username << std::endl;
-	    struct passwd *pwbits = getpwnam(username.c_str());
-	    // std::cout << "DEBUG:: post pwbits, username is " << username << std::endl;
-
-	    if (pwbits) { 
-	 
-	       if (buf.st_uid == pwbits->pw_uid) { 
-
-		  if (S_IWUSR & buf.st_mode) { // writable by owner?
-		     clipper::CCP4MAPfile mapout;
-		     mapout.open_write(filename);
-		     mapout.export_xmap(xmap_cluster);
-		     mapout.close_write(); 
-		  } else { 
-		     std::cout << "WARNING:: No permission to write file "  
-			       << filename << std::endl;
-		  }
-	       } else { 
-		  std::cout << "WARNING: Coot notes that process owner and file owner "
-			    << "         are different.  " << filename << " not written." 
-			    << std::endl;
-	       }
-	    } else {
-	       std::cout << "Can't getpwnam for user " << username << std::endl;
-	       std::cout << "No map written!" << std::endl;
-	    } 
-	 } else { 
-	    std::cout<< "WARNING:: very improbably USER is not defined\n"
-		     << "         " << filename  << " not written."
-		     << std::endl;
-	 } 
-      }
-#else
-     clipper::CCP4MAPfile mapout;
-     mapout.open_write(filename);
-     mapout.export_xmap(xmap_cluster);
-     mapout.close_write(); 
-#endif
-   }
+   clipper::CCP4MAPfile mapout;
+   mapout.open_write(filename);
+   mapout.export_xmap(xmap_cluster);
+   mapout.close_write(); 
 }
 
 
@@ -1676,7 +1620,7 @@ coot::ligand::make_ligand_properties(int ilig) {
 
    if (atoms.size() == 0) {
       std::cout << "ERROR in ligand coordinates - none found" << std::endl;
-      // exit(1); // Harsh.  (but fair?)
+      // exit(1); // No exit() calls from a library
       return; 
       //
       // But wrong for interactive program.  To be fixed for that case.
@@ -1913,13 +1857,13 @@ coot::ligand::write_orientation_solution(unsigned int iclust,
 					 const coot::minimol::molecule &mol) const {
    
    std::string ori_sol_file_name = "ori-sol-cluster:_";
-   ori_sol_file_name += int_to_string(iclust);
+   ori_sol_file_name += util::int_to_string(iclust);
    ori_sol_file_name += "-ligno:_";
-   ori_sol_file_name += int_to_string(ilig);
+   ori_sol_file_name += util::int_to_string(ilig);
    ori_sol_file_name += "-eigen:_";
-   ori_sol_file_name += int_to_string(i_eigen_ori);
+   ori_sol_file_name += util::int_to_string(i_eigen_ori);
    ori_sol_file_name += "-ori:_";
-   ori_sol_file_name += int_to_string(ior);
+   ori_sol_file_name += util::int_to_string(ior);
    ori_sol_file_name += ".pdb";
    fitted_ligand_vec[ilig][iclust].write_file(ori_sol_file_name, default_b_factor);
 
@@ -1942,7 +1886,7 @@ coot::ligand::sort_final_ligand(unsigned int iclust) {
    std::reverse(final_ligand[iclust].begin(),
 		final_ligand[iclust].end());
 
-   if (0) 
+   if (false)
       for (unsigned int isol=0; isol<final_ligand[iclust].size(); isol++)
 	 std::cout << "post reverse: solution " << isol << " of " << final_ligand[iclust].size()
 		   << " " << final_ligand[iclust][isol].second << std::endl;
@@ -2170,14 +2114,10 @@ coot::ligand::similar_eigen_values(int iclust, int ilig) const {
 // index (ior) in the filename.
 std::string
 coot::ligand::ligand_filename(int n_count, int ior) const {
-   char s[100];
+
    std::string outfile("ligand-");
-   snprintf(s,99,"%d",n_count);
-   outfile += s;
    if (ior >= 0) {
-      outfile += "-";
-      snprintf(s,99,"%d",ior);
-      outfile += s;
+      outfile += util::int_to_string(ior);
    }
    outfile += ".pdb";
    if (ior < 0)
@@ -2202,20 +2142,6 @@ coot::ligand::get_first_residue_name(const coot::minimol::molecule &mol) const {
    }
    return name;
 } 
-
-std::string
-coot::ligand::int_to_string(int i) const {
-   char s[100];
-   snprintf(s,99,"%d",i);
-   return std::string(s);
-}
-
-std::string
-coot::ligand::float_to_string(float f) const {
-   char s[100];
-   snprintf(s,99,"%f",f);
-   return std::string(s);
-}
 
 // a rough and ready calculator, so that we don't try to fit tris to a
 // polysaccharide or vica versa.

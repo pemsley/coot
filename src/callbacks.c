@@ -3,6 +3,7 @@
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Author: Paul Emsley
  * Copyright 2008 The University of Oxford
+ * Copyright 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -2726,13 +2727,33 @@ on_cif_dictionary_fileselection_ok_button_clicked (GtkButton       *button,
 {
   const char *filename;
   GtkWidget *fileselection;
+  GtkWidget *dictionary_molecule_selector_option_menu = NULL;
+  GtkWidget *active_menu_item;
+  GtkWidget *menu;
+  int imol_enc = -3;		/* unset value */
 
   fileselection = lookup_widget(GTK_WIDGET(button), "cif_dictionary_fileselection");
-  save_directory_from_fileselection(fileselection);
-  filename = gtk_file_selection_get_filename 
-    (GTK_FILE_SELECTION(fileselection));
-  handle_cif_dictionary(filename);
 
+  if (fileselection) { 		/* it might be a file chooser */
+    save_directory_from_fileselection(fileselection);
+    filename = gtk_file_selection_get_filename 
+      (GTK_FILE_SELECTION(fileselection));
+
+    dictionary_molecule_selector_option_menu = 
+      lookup_widget(GTK_WIDGET(button),
+		    "cif_dictionary_file_selector_molecule_select_option_menu");
+    if (dictionary_molecule_selector_option_menu) {
+      menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(dictionary_molecule_selector_option_menu));
+      if (menu) {
+	active_menu_item = gtk_menu_get_active(GTK_MENU(menu));
+	if (active_menu_item) {
+	  imol_enc = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(active_menu_item), 
+						       "select_molecule_number"));
+	}
+      }
+    }
+    handle_cif_dictionary_for_molecule(filename, imol_enc);
+  }
   gtk_widget_destroy(fileselection);
 }
 
@@ -4118,10 +4139,11 @@ on_run_refmac_map_mtz_radiobutton_toggled
                                         gpointer         user_data)
 {
   GtkWidget *map_optionmenu  = lookup_widget(GTK_WIDGET(togglebutton), "run_refmac_map_optionmenu");
+  GtkWidget *active_menu_item;
   if (togglebutton->active) {
     /* update the map column labels */
     fill_option_menu_with_refmac_labels_options(map_optionmenu);
-    GtkWidget *active_menu_item = gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(map_optionmenu))));
+    active_menu_item = gtk_menu_get_active(GTK_MENU(gtk_option_menu_get_menu(GTK_OPTION_MENU(map_optionmenu))));
     if (active_menu_item) {
       gtk_menu_item_activate(GTK_MENU_ITEM(active_menu_item));
     }
@@ -11704,7 +11726,9 @@ on_find_ligands_search_all_radiobutton_toggled
 void
 on_find_ligands_search_here_radiobutton_toggled
                                         (GtkButton       *button,
-                                        gpointer         user_data) { 
+                                        gpointer         user_data) {
+
+  set_ligand_dialog_number_of_sites_sensitivity(GTK_WIDGET(button));
 
 }
 
@@ -12225,6 +12249,7 @@ on_generic_objects_dialog_closebutton_clicked
 
   GtkWidget *w = lookup_widget(GTK_WIDGET(button), "generic_objects_dialog");
   gtk_widget_hide(w);
+  graphics_draw();
 
 } 
 
@@ -12233,7 +12258,8 @@ void
 on_generic_objects_dialog_close        (GtkDialog       *dialog,
                                         gpointer         user_data) { 
 
-  printf("on_generic_objects_dialog_close\n");
+/*   printf("on_generic_objects_dialog_close\n"); */
+  graphics_draw();
 
 }
 
@@ -12392,3 +12418,18 @@ on_dynarama_outliers_only_togglebutton_toggled (GtkToggleButton *togglebutton,
    toggle_dynarama_outliers(window, togglebutton->active); /* get the imol from window */
 }
 
+
+
+void
+on_find_ligand_real_space_refine_solutions_checkbutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  printf("toggled\n");
+  if (togglebutton->active)
+    set_find_ligand_do_real_space_refinement(1);
+  else
+    set_find_ligand_do_real_space_refinement(0);
+
+}

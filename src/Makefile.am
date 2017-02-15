@@ -66,7 +66,7 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 	$(top_builddir)/coords/libcoot-coords.la      		\
 	$(top_builddir)/coot-surface/libcoot-surface.la  	\
-	$(top_builddir)/surface/libccp4mg-surface.la  		\
+	$(top_builddir)/surface/libcoot-electrostatics.la 	\
 	$(top_builddir)/ccp4mg-utils/libccp4mg-utils.la 	\
 	$(top_builddir)/coot-utils/libcoot-map-heavy.la  	\
 	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
@@ -91,7 +91,7 @@ EXTRA_DIST = \
 	junk.cc coot-gtk2.defs coot-dox.cfg post-gtk2-glade.sh \
         post-process-coot-wrap-guile.sh \
         post-process-coot-wrap-python.sh \
-	coot_wrap_guile_pre_gtk2.cc 
+	coot_wrap_guile_pre.cc 
 
 
 
@@ -99,12 +99,13 @@ EXTRA_DIST = \
 # use -DHAVE_MMDBSSM or use (expanded from) $(MMDBSSM) works.
 # SWIG_FLAGS is either blank or defines COOT_USE_GTK2_INTERFACE usage
 #
-coot_wrap_guile_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h    \
+coot_wrap_guile_pre.cc:      $(top_srcdir)/src/c-interface.h    \
                              $(top_srcdir)/src/cc-interface.hh  \
                              $(top_srcdir)/src/cc-interface-ncs.hh  \
                              $(top_srcdir)/src/coot.i           \
                              $(top_srcdir)/src/lbg-interface.hh \
                              $(top_srcdir)/src/c-interface-ligands-swig.hh \
+			     $(top_srcdir)/src/c-interface-generic-objects.h \
                              $(top_srcdir)/src/sdf-interface.hh \
                              $(top_srcdir)/src/cfc.hh \
                              $(top_srcdir)/src/cmtz-interface.hh \
@@ -114,23 +115,23 @@ coot_wrap_guile_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h    \
 # For GOOPS support: -proxy -Linkage module (or passive), however, doing that makes SWIG_init() go away.
 # -proxy  exports the GOOPS wrapper definitions into module.scm
 
-coot_wrap_guile_gtk2.cc: coot_wrap_guile_pre_gtk2.cc
+coot_wrap_guile.cc: coot_wrap_guile_pre.cc
 	$(MAKE_COOT_WRAP_GUILE) gtk2 $^ $@
 
 # python
 
-coot_wrap_python_pre_gtk2.cc: $(top_srcdir)/src/c-interface.h      \
-			      $(top_srcdir)/src/cc-interface.hh    \
-	                      $(top_srcdir)/src/coot.i             \
-                              $(top_srcdir)/src/cc-interface-ncs.hh  \
-			      $(top_srcdir)/src/lbg-interface.hh   \
-                              $(top_srcdir)/src/c-interface-ligands-swig.hh \
-			      $(top_srcdir)/src/sdf-interface.hh   \
-                              $(top_srcdir)/src/cfc.hh \
-                              $(top_srcdir)/src/c-interface-mogul.hh
+coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h      \
+			 $(top_srcdir)/src/cc-interface.hh    \
+	                 $(top_srcdir)/src/coot.i             \
+                         $(top_srcdir)/src/cc-interface-ncs.hh  \
+			 $(top_srcdir)/src/lbg-interface.hh   \
+                         $(top_srcdir)/src/c-interface-ligands-swig.hh \
+			 $(top_srcdir)/src/sdf-interface.hh   \
+                         $(top_srcdir)/src/cfc.hh \
+                         $(top_srcdir)/src/c-interface-mogul.hh
 	swig -o $@ -DCOOT_USE_GTK2_INTERFACE $(ENHANCED_LIGAND_TOOLS_CFLAGS) $(PYTHON_CFLAGS)  $(USE_LIBCURL) -I$(top_srcdir)/src  -I$(top_srcdir) -shadow -python -c++ $(top_srcdir)/src/coot.i
 
-coot_wrap_python_gtk2.cc: coot_wrap_python_pre_gtk2.cc
+coot_wrap_python.cc: coot_wrap_python_pre.cc
 	$(MAKE_COOT_WRAP_PYTHON_XXX) gtk2 $^ $@
 
 #libcoot_wrap.so: coot_wrap.o
@@ -199,13 +200,17 @@ AM_CPPFLAGS = \
 
 pkginclude_HEADERS = crunch-model.hh
 
-libexec_PROGRAMS = coot-bin density-score-by-residue-bin
-bin_PROGRAMS =  fix-nomenclature-errors
-dist_bin_SCRIPTS = coot density-score-by-residue
+libexec_PROGRAMS = coot-bin coot-density-score-by-residue-bin
+bin_PROGRAMS =  coot-fix-nomenclature-errors
+dist_bin_SCRIPTS = coot coot-density-score-by-residue
 check_PROGRAMS = test-coot-align test-cholesky
 
+
+# is this the right dependencies?
 fix_nomenclature_errors_SOURCES = \
-	fix-nomenclature.cc   
+	fix-nomenclature.cc   \
+	coot-nomenclature.hh   \
+	coot-nomenclature.cc
 
 coot_bin_SOURCES = main.cc       \
 	scm-boot-guile.hh 	 \
@@ -244,7 +249,9 @@ libcoot_bundle_la_SOURCES = \
 	c-interface-gtk-widgets.h \
 	c-interface-info.cc	 \
 	c-interface-kk.cc	 \
+	c-interface-ligand-search.hh \
 	c-interface-ligands.hh   \
+	c-interface-ligands-widgets.hh \
 	c-interface-ligands-swig.hh   \
 	c-interface-ligands.cc   \
 	c-interface-ligands-gui.cc \
@@ -327,10 +334,11 @@ libcoot_bundle_la_SOURCES = \
 	coot-setup-python.cc     \
 	coot-setup-python.hh     \
 	coot-version.hh          \
-	coot_wrap_guile_gtk2.cc  \
+	coot_wrap_guile.cc  \
         dots-representation.hh   \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
+	draw-generic-display-objects.cc \
 	flev.hh			 \
 	flev.cc                  \
 	generic-display-object.hh\
@@ -394,6 +402,7 @@ libcoot_bundle_la_SOURCES = \
 	molecule-class-info-maps-2.cc 	\
 	molecule-class-info-kdc.cc      \
 	molecule-class-info-dots.cc 	\
+	molecule-class-info-dots-internal.cc 	\
 	molecule-class-info-other.cc 	\
 	molecule-class-info-build.cc 	\
 	molecule-class-info.h 	        \
@@ -459,6 +468,7 @@ libcoot_bundle_la_SOURCES = \
 	ncs.hh 		         \
 	model-view.hh 		 \
 	view.hh 		 \
+	view.cc 		 \
 	new-centre.hh
 
 if COOT_USE_PYTHON
@@ -466,11 +476,13 @@ if COOT_USE_PYTHON
    _coot_la_LDFLAGS = -module $(SHARED_LDFLAGS)
    _coot_la_SOURCES = coot_wrap_python_gtk2.cc
    _coot_la_LIBADD  = libcoot-bundle.la
+   coot_bin_SOURCES += coot_wrap_python.cc
    EXTRA_DIST += coot_wrap_python_pre_gtk2.cc 
+   # EXTRA_DIST += coot_wrap_python_pre.cc 
 endif
 
 if COOT_USE_PYTHON
-dist_python_SCRIPTS = coot.py coot.pth
+   dist_python_PYTHON = coot.py coot.pth
 endif
 
 
@@ -586,8 +598,8 @@ test_coot_align_LDADD =	\
 # test_lbg_graph_LDADD = $(MMDB_LIBS)
 
 
-density_score_by_residue_bin_SOURCES = density-score-by-residue-src.cc
-density_score_by_residue_bin_LDADD  =	\
+coot_density_score_by_residue_bin_SOURCES = density-score-by-residue-src.cc
+coot_density_score_by_residue_bin_LDADD  =	\
 	$(top_builddir)/geometry/libcoot-geometry.la    	\
 	$(top_builddir)/coords/libcoot-coords.la 		\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la 		\

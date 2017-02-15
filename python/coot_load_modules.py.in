@@ -186,7 +186,7 @@ for coot_python_file in python_list:
             execfile(filename)
         except:
             traceback.print_exc()
-            print "BL ERROR: couldn't load ", coot_python_file
+            print "ERROR:: couldn't load ", coot_python_file
             if coot_unittesting:
                 coot_real_exit(1)
     else:

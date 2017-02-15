@@ -2,12 +2,9 @@
 #include <stdio.h>		/* for stderr on FC 3 */
 #include "support.h"
 
-#if (GTK_MAJOR_VERSION > 1) 
-GList *pixmaps_directories;
+extern GList *pixmaps_directories; /* because the global variable is in support.c */
 gchar* find_pixmap_file(const gchar     *filename);
-#endif 
 
-#if (GTK_MAJOR_VERSION > 1) 
 /* This is from GTK2's support.c - needed because create_pixbuf is
    used in the new aboutdialog */
 /* This is an internally used function to create pixmaps. */
@@ -39,9 +36,7 @@ create_pixbuf                          (const gchar     *filename)
   g_free (pathname);
   return pixbuf;
 }
-#endif /*  (GTK_MAJOR_VERSION > 1)  */
 
-#if (GTK_MAJOR_VERSION > 1) 
 /* This is an internally used function to find pixmap files. */
 /* static */
 gchar*
@@ -62,4 +57,3 @@ find_pixmap_file                       (const gchar     *filename)
     }
   return NULL;
 }
-#endif /*  (GTK_MAJOR_VERSION > 1)  */

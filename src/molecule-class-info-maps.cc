@@ -3,6 +3,7 @@
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Copyright 2007 by Paul Emsley
  * Copyright 2007, 2008, 2009, 2010 by The University of Oxford
+ * Copyright 2013, 2014, 2015, 2016 by Medical Research Council
  * 
  * Author: Paul Emsley
  * 
@@ -706,7 +707,7 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
       // normal solid 
    
       GLfloat  ambientLight[] = { 0.2f, 0.2f, 0.2f, 1.0f };
-      GLfloat  diffuseLight[] = { 0.7f, 0.7f, 0.7f, 1.0f };
+      GLfloat  diffuseLight[] = { 0.4f, 0.4f, 0.4f, 1.0f };
       GLfloat specularLight[] = { 0.1f, 0.1f, 0.1f, 1.0f };
    
       // Assign created components to GL_LIGHT2
@@ -720,11 +721,13 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
       // narrowing from doubles to floats (there is no glMaterialdv).
 
       GLfloat  mat_specular[]  = {0.4f,  0.4f,  0.4f,  opacity}; // makes a difference
-      GLfloat  mat_ambient[]   = {0.3*map_colour[0][0],
-				  0.3*map_colour[0][1],
-				  0.3*map_colour[0][2],
+      GLfloat  mat_ambient[]   = {float(0.3*map_colour[0][0]),
+				  float(0.3*map_colour[0][1]),
+				  float(0.3*map_colour[0][2]),
 				  opacity};
-      GLfloat  mat_diffuse[]   = {map_colour[0][0], map_colour[0][1], map_colour[0][2], opacity};
+      GLfloat  mat_diffuse[]   = {float(map_colour[0][0]),
+				  float(map_colour[0][1]),
+				  float(map_colour[0][2]), opacity};
       GLfloat  mat_shininess[] = {100}; // makes a difference
 	 
       glMaterialfv(GL_FRONT_AND_BACK, GL_SPECULAR,  mat_specular);
@@ -735,8 +738,12 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
       if (is_neg) {
 	 // override
 	 GLfloat  mat_specular[]  = {0.4,  0.4,  0.4,  opacity};
-	 GLfloat  mat_ambient[]   = {.3*map_colour[1][0], 0.3*map_colour[1][1], 0.3*map_colour[1][2], opacity};
-	 GLfloat  mat_diffuse[]   = {map_colour[1][0], map_colour[1][1], map_colour[1][2], opacity};
+	 GLfloat  mat_ambient[]   = {float(0.3*map_colour[1][0]),
+				     float(0.3*map_colour[1][1]),
+				     float(0.3*map_colour[1][2]), opacity};
+	 GLfloat  mat_diffuse[]   = {float(map_colour[1][0]),
+				     float(map_colour[1][1]),
+				     float(map_colour[1][2]), opacity};
 	 GLfloat  mat_shininess[] = {100};
 
 // 	 std::cout << " is_neg with map_colour: "
@@ -772,9 +779,9 @@ molecule_class_info_t::setup_density_surface_material(bool solid_mode, float opa
 
       // the facets shine this colour
       GLfloat  mat_specular[]  = {0.98,  0.98,  0.98,  opacity};
-      GLfloat  mat_ambient[]   = {0.960, 0.160, 0.160, opacity};
-      GLfloat  mat_diffuse[]   = {0.900, 0.100, 0.100, opacity};
-      GLfloat  mat_shininess[] = {120.0};
+      GLfloat  mat_ambient[]   = {0.160, 0.160, 0.160, opacity};
+      GLfloat  mat_diffuse[]   = {0.200, 0.2,   0.200, opacity}; // lit surface is this colour 
+      GLfloat  mat_shininess[] = {120.0};                        // in the direction of the light.
 
       if (is_difference_map_p()) {
 
@@ -3278,3 +3285,23 @@ molecule_class_info_t::map_statistics() const {
    return mp;
 
 } 
+
+std::pair<std::vector<clipper::Coord_orth>, std::vector<std::pair<unsigned int, unsigned> > >
+molecule_class_info_t::get_contours(float contour_level,
+				    float radius,
+				    const coot::Cartesian &centre) const {
+
+   std::pair<std::vector<clipper::Coord_orth>, std::vector<std::pair<unsigned int, unsigned int> > > r;
+
+   std::vector<clipper::Coord_orth> &vertices = r.first;
+   std::vector<std::pair<unsigned int, unsigned int> > &connections = r.second;
+
+   int isample_step = 1;
+   CIsoSurface<float> my_isosurface;
+   // a pointer and a size
+   coot::CartesianPairInfo v = my_isosurface.GenerateSurface_from_Xmap(xmap,
+								       contour_level,
+								       radius, centre,
+								       isample_step);
+   return r;
+}

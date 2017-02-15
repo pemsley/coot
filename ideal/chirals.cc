@@ -2,6 +2,7 @@
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006 by The University of York
  * Copyright 2008, 2009, 2010  by The University of Oxford
+ * Copyright 2013 by Medical Research Council
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -175,7 +176,8 @@ coot::is_inverted_chiral_atom_p(const coot::dict_chiral_restraint_t &chiral_rest
 // 0 is good.
 // 
 std::pair<std::vector<std::string> , std::vector <coot::atom_spec_t> >
-coot::inverted_chiral_volumes(mmdb::Manager *mol, protein_geometry *geom_p,
+coot::inverted_chiral_volumes(int imol,
+			      mmdb::Manager *mol, protein_geometry *geom_p,
 			      int cif_dictionary_read_number) {
 
    std::vector <coot::atom_spec_t> v;
@@ -194,7 +196,7 @@ coot::inverted_chiral_volumes(mmdb::Manager *mol, protein_geometry *geom_p,
       if (nchains <= 0) { 
 	 std::cout << "bad nchains in molecule " << nchains
 		   << std::endl;
-      } else { 
+      } else {
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    chain_p = model_p->GetChain(ichain);
 	    if (chain_p == NULL) {  
@@ -214,7 +216,8 @@ coot::inverted_chiral_volumes(mmdb::Manager *mol, protein_geometry *geom_p,
 		     if (residue_type == "UNK")
 			residue_type = "ALA";
 		     if (! geom_p->have_dictionary_for_residue_type(residue_type,
-								  cif_dictionary_read_number)) {
+								    imol,
+								    cif_dictionary_read_number)) {
 			std::cout << "WARNING::! Failed to find restraint for residue type "
 				  << residue_type << std::endl;
 			restraints_status = 0;
@@ -229,7 +232,7 @@ coot::inverted_chiral_volumes(mmdb::Manager *mol, protein_geometry *geom_p,
 			   unknown_types_vec.push_back(residue_type);
 		     } else { 
 			std::vector<coot::dict_chiral_restraint_t> chiral_restraints = 
-			   geom_p->get_monomer_chiral_volumes(std::string(residue_p->name));
+			   geom_p->get_monomer_chiral_volumes(std::string(residue_p->name), imol);
 			coot::dict_chiral_restraint_t chiral_restraint;
 			for (unsigned int irestr=0; irestr<chiral_restraints.size(); irestr++) { 
 			   chiral_restraint = chiral_restraints[irestr];
@@ -564,9 +567,9 @@ coot::restraints_container_t::has_inverted_chiral_centre(const coot::simple_rest
 
    // either both positve or both negative is fine...
    if (cv*chiral_restraint.chiral_volume_sign < 0)
-      r = 1; // yes, a problem
+      r = true; // yes, a problem
 
-   if (0) {
+   if (false) {
       std::cout << "debug in has_inverted_chiral_centre() cv = " << cv << " target: " 
 		<< chiral_restraint.target_chiral_volume << std::endl;
       std::cout << "debug in has_inverted_chiral_centre() distortion = " << distortion << " " 
@@ -610,7 +613,7 @@ coot::restraints_container_t::has_tiny_chiral_centre_volume(const coot::simple_r
 
    double chiral_fraction = fabs(cv/chiral_restraint.target_chiral_volume);
 
-   // std::cout << "     chiral_fraction " << chiral_fraction << std::endl;
+   // std::cout << "     chiral_fraction " << chiral_fraction << std::endl; // typically 1
 
    if (chiral_fraction < 0.4)
       r = true; 

@@ -3,6 +3,7 @@
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Copyright 2007 by Paul Emsley
  * Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The University of Oxford
+ * Copyright 2014, 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -707,6 +708,23 @@ int copy_residue_range(int imol_target,    const char *chain_id_target,
 		       int imol_reference, const char *chain_id_reference, 
 		       int resno_range_start, int resno_range_end);
 
+/*! \brief replace the given residues from the reference molecule to the target molecule
+*/
+#ifdef __cplusplus
+#ifdef USE_GUILE
+int replace_residues_from_mol_scm(int imol_target,
+				 int imol_ref,
+				 SCM residue_specs_list_ref_scm);
+#endif /* USE_GUILE */
+
+#ifdef USE_PYTHON
+int replace_residues_from_mol_py(int imol_target,
+				 int imol_ref,
+				 PyObject *residue_specs_list_ref_py);
+#endif /* USE_PYTHON */
+#endif	/* __cplusplus */
+
+
 /*! \brief replace pdb.  Fail if molecule_number is not a valid model molecule.
   Return -1 on failure.  Else return molecule_number  */
 int clear_and_update_model_molecule_from_file(int molecule_number, 
@@ -742,10 +760,6 @@ void set_draw_solid_density_surface(int imol, short int state);
 
   */
 void set_draw_map_standard_lines(int imol, short int state);
-
-/*! \brief set the state of the solid surface representation 
-  for molecule imap */
-void solid_surface(int imap, short int on_off_flag);
 
 /*! \brief set the opacity of density surface representation of the
   given map.
@@ -2735,6 +2749,17 @@ PyObject *test_function_py(PyObject *i, PyObject *j);
 /*                    glyco tools test  */
 void glyco_tree_test();
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+SCM glyco_tree_scm(int imol, SCM active_residue_scm);
+SCM glyco_tree_residues_scm(int imol, SCM active_residue_scm);
+#endif
+#ifdef USE_PYTHON
+PyObject *glyco_tree_py(int imol, PyObject *active_residue_py);
+PyObject *glyco_tree_residues_py(int imol, PyObject *active_residue_py);
+#endif /* PYTHON */
+#endif
+
 
 
 /*  ----------------------------------------------------------------------- */
@@ -2849,6 +2874,10 @@ PyObject *symmetry_operators_to_xHM_py(PyObject *symmetry_operators);
 /*  ----------------------------------------------------------------------- */
 /* section Merge Molecules */
 
+/*! \brief merge molecules
+
+the first argument is a list of molecule numbers and the second is the target 
+   molecule into which the others should be merged  */
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
 #ifdef USE_GUILE
 SCM merge_molecules(SCM add_molecules, int imol);
@@ -2867,7 +2896,7 @@ PyObject *merge_molecules_py(PyObject *add_molecules, int imol);
 /*! \name  Align and Mutate */
 /* \{ */
 
-/*! \brief aligand and mutate the given chain to the given sequence  */
+/*! \brief align and mutate the given chain to the given sequence  */
 void align_and_mutate(int imol, const char *chain_id, const char *fasta_maybe, short int renumber_residues_flag);
 /*! \brief set the penalty for affine gap and space when aligning, defaults -3.0 and -0.4 */
 void set_alignment_gap_and_space_penalty(float wgap, float wspace);
@@ -3122,13 +3151,22 @@ void clear_moving_atoms_object(); /* just get rid of just the bonds (redraw done
 
  */
 SCM refine_residues_scm(int imol, SCM r); /* presumes the alt_conf is "". */
-SCM refine_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf); /* to be renamed later. */
+SCM refine_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf);
+SCM refine_residues_with_modes_with_alt_conf_scm(int imol, SCM residues_spec_list_scm,
+						 const char *alt_conf,
+						 SCM mode_1,
+						 SCM mode_2,
+						 SCM mode_3);
 SCM regularize_residues_scm(int imol, SCM r); /* presumes the alt_conf is "". */
 SCM regularize_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf); 
 #endif
 #ifdef USE_PYTHON
 PyObject *refine_residues_py(int imol, PyObject *r);  /* presumes the alt_conf is "". */
-PyObject *refine_residues_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf);  /* to be renamed later. */
+PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf,
+						      PyObject *mode_1,
+						      PyObject *mode_2,
+						      PyObject *mode_3);
+PyObject *refine_residues_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf);
 PyObject *regularize_residues_py(int imol, PyObject *r);  /* presumes the alt_conf is "". */
 PyObject *regularize_residues_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf);
 #endif /* PYTHON */
@@ -3347,6 +3385,16 @@ int extra_restraints_are_shown(int imol);
 void set_extra_restraints_prosmart_sigma_limits(int imol, double limit_high, double limit_low);
 
 void generate_local_self_restraints(int imol, const char *chain_id, float local_dist_max);
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
+void generate_local_self_restraints_by_residues_scm(int imol, SCM residue_specs, float local_dist_max);
+#endif // USE_GUILE
+#ifdef USE_PYTHON
+void generate_local_self_restraints_by_residues_py(int imol, PyObject *residue_specs, float local_dist_max);
+#endif // USE_PYTHON
+#endif // __cplusplus
+
 
 /*! \brief proSMART interpolated restraints for model morphing  */
 void write_interpolated_extra_restraints(int imol_1, int imol_2, int n_steps, char *file_name_stub);
@@ -3605,6 +3653,17 @@ int handle_cif_dictionary(const char *filename);
 
 return the number of bonds read (> 0 can be treated as success) */
 int read_cif_dictionary(const char *filename);
+
+/* \brief return the number of bonds read (> 0 can be treated as success).
+ Apply to the given molecule.
+
+ imol_enc can be the model molecule number or
+ -1 for all
+ -2 for auto
+ -3 for unset
+ */
+int handle_cif_dictionary_for_molecule(const char *filename, int imol_enc);
+
 int write_connectivity(const char* monomer_name, const char *filename);
 /*! \brief open the cif dictionary file selector dialog */
 void open_cif_dictionary_file_selector_dialog(); 
@@ -3736,6 +3795,7 @@ SCM set_torsion_scm(int imol, const char *chain_id, int res_no, const char *inse
 		    const char *atom_name_3,
 		    const char *atom_name_4, double tors);
 
+/*! \brief create a multi-residue torsion dialog (user manipulation of torsions) */
 void multi_residue_torsion_scm(int imol, SCM residues_specs_scm);
 
 
@@ -3754,6 +3814,7 @@ PyObject *set_torsion_py(int imol, const char *chain_id, int res_no, const char 
 		         const char *atom_name_3,
 		         const char *atom_name_4, double tors);
 
+/*! \brief create a multi-residue torsion dialog (user manipulation of torsions) */
 void multi_residue_torsion_py(int imol, PyObject *residues_specs_py);
 
 #endif  /* USE_PYTHON */
@@ -4052,6 +4113,8 @@ void set_find_ligand_n_top_ligands(int n); /* fit the top n ligands,
 					      not all of them, default
 					      10. */
 
+void set_find_ligand_do_real_space_refinement(short int state);
+
 /*! \brief allow multiple ligand solutions per cluster. 
 
 The first limit is the fraction of the top scored positions that go on
@@ -4157,6 +4220,17 @@ PyObject *compare_ligand_atom_types_py(int imol_ligand, int imol_ref, const char
 void match_ligand_atom_names(int imol_ligand, const char *chain_id_ligand, int resno_ligand, const char *ins_code_ligand,
 			     int imol_reference, const char *chain_id_reference, int resno_reference, const char *ins_code_reference);
 
+/*! \brief Match ligand atom names to a reference ligand type (comp_id)
+
+  By using graph matching, make the names of the atoms of the
+  given ligand/residue match those of the reference ligand from the 
+  geometry store as closely as possible. Where there would be an
+  atom name clash, invent a new atom name.
+
+  This doesn't create a new dictionary for the selected ligand - 
+  and that's a big problem (see match_residue_and_dictionary).
+ */
+void match_ligand_atom_names_to_comp_id(int imol_ligand, const char *chain_id_ligand, int resno_ligand, const char *ins_code_ligand, const char *comp_id_ref);
 
 /* Transfer as many atom names as possible from the reference ligand
    to the given ligand.  The atom names are determined from graph
@@ -4761,8 +4835,8 @@ void close_molecule(int imol);
 /*  ----------------------------------------------------------------------- */
 /*                  rotamers                                                */
 /*  ----------------------------------------------------------------------- */
-/* section Rotatmer Functions */
-/*! \name Rotatmer Functions */
+/* section Rotamer Functions */
+/*! \name Rotamer Functions */
 /* \{ */
 
 /* functions defined in c-interface-build */
@@ -5694,12 +5768,30 @@ int new_molecule_by_residue_type_selection(int imol, const char *residue_type);
 @return the new molecule number, -1 means an error. */
 int new_molecule_by_atom_selection(int imol, const char* atom_selection);
 
-/*! \brief create a new molecule that consists of only the atoms 
+/*! \brief create a new molecule that consists of only the atoms
   within the given radius (r) of the given position.
 
 @return the new molecule number, -1 means an error. */
 int new_molecule_by_sphere_selection(int imol, float x, float y, float z, 
 				     float r, short int allow_partial_residues);
+
+
+#ifdef __cplusplus
+#ifdef USE_PYTHON
+/*! \brief create a new molecule that consists of only the atoms
+  of the specified list of residues
+@return the new molecule number, -1 means an error. */
+int new_molecule_by_residue_specs_py(int imol, PyObject *residue_spec_list_py);
+#endif /* USE_PYTHON */
+
+#ifdef USE_GUILE
+/*! \brief create a new molecule that consists of only the atoms 
+  of the specified list of residues
+@return the new molecule number, -1 means an error. */
+int new_molecule_by_residue_specs_scm(int imol, SCM *residue_spec_list_scm);
+#endif /* USE_GUILE */
+#endif /* __cplusplus */
+
 /*! \} */
 
 
@@ -5957,7 +6049,7 @@ find words, construct a url and open it. */
 void handle_online_coot_search_request(const char *entry_text);
 /* \} */
 
-#include "c-interface-generic-objects.h"
+// #include "c-interface-generic-objects.h"
 
 
 /*  ----------------------------------------------------------------------- */
@@ -5984,6 +6076,9 @@ void set_do_probe_dots_post_refine(short int state);
 /*! \brief show the state of shall we run molprobity after a
   refinement has happened? */
 short int do_probe_dots_post_refine_state();
+
+/* state is 1 for on and 0 for off */
+void set_do_coot_probe_dots_during_refine(short int state);
 
 /*! \brief make an attempt to convert pdb hydrogen name to the name
   used in Coot (and the refmac dictionary, perhaps). */

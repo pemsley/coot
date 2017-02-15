@@ -56,6 +56,8 @@ void show_usage(std::string pname) {
 	     << " --phi phi_col_label"
 	     << " --pdbout waters-filename"
 	     << " --sigma sigma-level"
+	     << " --min-dist min-dist-to-protein"
+	     << " --max-dist min-dist-to-protein"
 	     << " --flood"
 	     << " --flood-atom-radius"
 	     << " --chop"
@@ -87,6 +89,8 @@ main(int argc, char **argv) {
       std::string    output_pdb;
       std::string     sigma_str;
       std::string map_file_name;
+      std::string min_dist_str;
+      std::string max_dist_str;
       short int do_flood_flag = 0;
       short int do_chop_flag = 0;
       float flood_atom_mask_radius = 1.4; 
@@ -100,6 +104,8 @@ main(int argc, char **argv) {
 	 {"pdbout", 1, 0, 0},
 	 {"sigma",  1, 0, 0},
 	 {"mapin",  1, 0, 0},
+	 {"min-dist",  1, 0, 0},
+	 {"max-dist",  1, 0, 0},
 	 {"flood-atom-radius",  1, 0, 0},
 	 {"flood",  0, 0, 0},
 	 {"chop",   0, 0, 0},
@@ -137,6 +143,12 @@ main(int argc, char **argv) {
 	       }
 	       if (arg_str == "mapin") {
 		  map_file_name = optarg;
+	       }
+	       if (arg_str == "min-dist") {
+		  min_dist_str = optarg;
+	       }
+	       if (arg_str == "max-dist") {
+		  max_dist_str = optarg;
 	       }
 	       if (arg_str == "flood-atom-radius") {
 
@@ -261,6 +273,25 @@ main(int argc, char **argv) {
 	 bool set_wpdl = false;
 	 float wpdl_max = 3.2; // defaults in ligand() constructor
 	 float wpdl_min = 2.4; //            ""
+
+	 if (! min_dist_str.empty()) {
+	    try {
+	       wpdl_min = coot::util::string_to_float(min_dist_str);
+	       set_wpdl = true;
+	    }
+	    catch (const std::exception &e) {
+	       std::cout << "WARNING:: unable to convert: " << e.what() << std::endl;
+	    }
+	 }
+	 if (! max_dist_str.empty()) {
+	    try {
+	       wpdl_max = coot::util::string_to_float(max_dist_str);
+	       set_wpdl = true;
+	    }
+	    catch (const std::exception &e) {
+	       std::cout << "WARNING:: unable to convert: " << e.what() << std::endl;
+	    }
+	 }
 	 
 	 coot::ligand lig;
 	 if (have_map) {

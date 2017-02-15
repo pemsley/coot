@@ -3,6 +3,7 @@
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
  * Copyright 2007 by Paul Emsley
  * Copyright 2007, 2008, 2009 by The University of Oxford
+ * Copyright 2013, 2014, 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -136,7 +137,7 @@ molecule_class_info_t::apply_charges(const coot::protein_geometry &geom) {
 		  residue_p = chain_p->GetResidue(ires);
 		  std::string res_type = residue_p->GetResName();
 		  std::pair<short int, coot::dictionary_residue_restraints_t> rp = 
-		     geom.get_monomer_restraints(res_type);
+		     geom.get_monomer_restraints(res_type, imol_no);
 		  if (rp.first) {
 		     try { 
 			coot::dipole p(rp.second, residue_p);
@@ -199,7 +200,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
    if (residue_p) {
       std::string residue_type = residue_p->GetResName();
       std::pair<bool, coot::dictionary_residue_restraints_t> p = 
-	 geom.get_monomer_restraints_at_least_minimal(residue_type);
+	 geom.get_monomer_restraints_at_least_minimal(residue_type, imol_no);
       if (! p.first) {
 	 std::cout << "WARNING:: sprout_hydrogens(): No restraints for residue type "
 		   << residue_type << std::endl;
@@ -214,7 +215,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 	    std::string residue_name = residue_p->GetResName();
 	    
 	    std::pair<bool, coot::dictionary_residue_restraints_t> rp = 
-	       geom.get_monomer_restraints(residue_name);
+	       geom.get_monomer_restraints(residue_name, imol_no);
 	    
 	    if (rp.first) { 
 	    
@@ -260,7 +261,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 
 		  coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
 		  bool do_trans_peptide_restraints = false;
-		  int n_restraints = restraints.make_restraints(geom, flags, do_torsions,
+		  int n_restraints = restraints.make_restraints(imol_no, geom, flags, do_torsions,
 								do_trans_peptide_restraints,
 								0, 0, coot::NO_PSEUDO_BONDS);
 		  restraints.minimize(flags);
@@ -275,7 +276,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 							       geom, residue_mol, fixed_atoms);
 		     flags = coot::CHIRAL_VOLUMES;
 		     flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-		     n_restraints = restraints_2.make_restraints(geom,
+		     n_restraints = restraints_2.make_restraints(imol_no, geom,
 								 flags, do_torsions,
 								 do_trans_peptide_restraints,
 								 0, 0, coot::NO_PSEUDO_BONDS);
@@ -1400,7 +1401,7 @@ molecule_class_info_t::multi_residue_torsion_fit(const std::vector<coot::residue
    // do we need to send over the base atom too?  Or just say
    // that it's the first atom in moving_mol?
    // 
-   coot::multi_residue_torsion_fit_map(moving_mol, xmap, n_trials, geom_p);
+   coot::multi_residue_torsion_fit_map(imol_no, moving_mol, xmap, n_trials, geom_p);
 
    atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
    replace_coords(moving_atoms_asc, 1, 1);
@@ -1765,7 +1766,7 @@ molecule_class_info_t::invert_chiral_centre(const std::string &chain_id, int res
       if (chiral_atom) { 
 	 std::string comp_id = residue_p->GetResName();
 	 std::pair<bool, coot::dictionary_residue_restraints_t> rest =
-	    geom.get_monomer_restraints(comp_id);
+	    geom.get_monomer_restraints(comp_id, imol_no);
 	 if (rest.first) {
 	    std::vector<coot::dict_chiral_restraint_t> cr = rest.second.chiral_restraint;
 	    for (unsigned int ir=0; ir<cr.size(); ir++) { 
@@ -1809,7 +1810,7 @@ molecule_class_info_t::residue_partial_alt_locs_split_residue(coot::residue_spec
       bool found = false;
       std::string residue_type = residue_p->GetResName();
       std::pair<short int, coot::dictionary_residue_restraints_t> r =
-	 geom_p->get_monomer_restraints(residue_type);
+	 geom_p->get_monomer_restraints(residue_type, imol_no);
 	 
       if (r.first) {
 	 bool find_hydrogen_torsions_flag = false;
@@ -1846,7 +1847,7 @@ molecule_class_info_t::residue_partial_alt_locs_split_residue(coot::residue_spec
 				 residue_asc.n_selected_atoms = nResidueAtoms;
 				 residue_asc.atom_selection = residue_atoms;
 				 residue_asc.mol = 0;
-				 coot::contact_info contact = coot::getcontacts(residue_asc, monomer_type, geom_p);
+				 coot::contact_info contact = coot::getcontacts(residue_asc, monomer_type, imol_no, geom_p);
 				 // contact.print(); // debug
 				 // std::vector<std::vector<int> > contact_indices = contact.get_contact_indices();
 				 // or this?

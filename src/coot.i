@@ -18,6 +18,8 @@
 #include "cc-interface-scripting.hh"
 #include "c-interface-refmac.h"
 #include "cc-interface-ncs.hh"
+#include "c-interface-generic-objects.h"
+#include "generic-display-objects-c.h"
 #include "manipulation-modes.hh"
 #include "rotamer-search-modes.hh"
 #include "lbg-interface.hh"
@@ -73,11 +75,12 @@ namespace std {
 %include "rotamer-search-modes.hh"
 %include "lbg-interface.hh"
 %include "sdf-interface.hh"
-%include "coot-utils/residue-and-atom-specs.hh" // for atom_spec_t
+%include "geometry/residue-and-atom-specs.hh" // for atom_spec_t
 %include "probe-clash-score.hh"
 %include "coot-version.hh"
 %include "get-monomer.hh"
 %include "globularize.hh"
+%include "generic-display-objects-c.h"
 %include "cfc.hh"
 %include "cc-interface-user-defined-atom-colours.hh"
 %include "../coords/phenix-geo.hh"

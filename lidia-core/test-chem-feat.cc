@@ -1,12 +1,34 @@
+/* lidia-core/test-chem-feat.cc
+ * 
+ * Copyright 2016 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
-// header-here
-
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.h"
-#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/coot-coord-utils.hh" // this is out of order.  Hmmm.
 #include "chemical-feature-clusters.hh"
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 
 int main(int argc, char **argv) {
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
    typedef std::pair<std::string, coot::residue_spec_t> file_lig;
 
@@ -52,15 +74,17 @@ int main(int argc, char **argv) {
 		   << neighbs_waters.size() << " water neighbours for ligand "
 		   << ligand_spec << std::endl;
 
-	 coot::chem_feat_solvated_ligand_spec lig(ligand_spec, neighbs_waters,
-						  atom_sel.mol);
+	 int imol = 0; // dummy
+	 coot::chem_feat_solvated_ligand_spec lig(ligand_spec, neighbs_waters, atom_sel.mol, imol);
 	 ligands.push_back(lig);
-
       }
    }
 
-   coot::chem_feat_clust cl(neighbs_residues, ligands, &pg);
-   cl.cluster_waters();
+   double water_dist_cutoff = 7;
+   coot::chem_feat_clust cl(neighbs_residues, ligands, water_dist_cutoff, &pg);
+   cl.get_water_positions();
+
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 
    return 0;
 }

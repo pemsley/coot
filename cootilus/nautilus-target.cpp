@@ -45,12 +45,12 @@ void NucleicAcidTarget::init_stats( const clipper::Xmap<float>& xmap, const int 
 double NucleicAcidTarget::radius() const
 {
   std::vector<clipper::Coord_orth> coords;
-  for ( int i = 0; i < target_.size(); i++ ) {
+  for ( unsigned int i = 0; i < target_.size(); i++ ) {
     coords.push_back( target_[i].first  );
     coords.push_back( target_[i].second );
   }
   double r2 = 0.0;
-  for ( int a = 0; a < coords.size(); a++ ) {
+  for ( unsigned int a = 0; a < coords.size(); a++ ) {
     double d2 = coords[a].lengthsq();
     if ( d2 > r2 ) r2 = d2;
   }
@@ -62,7 +62,7 @@ float NucleicAcidTarget::score_min( const clipper::Xmap<float>& xmap, const clip
 {
   typedef clipper::Interp_cubic I;
   float mn(0.0), mx(0.0);
-  for ( int i = 0; i < target_.size(); i++ ) {
+  for ( unsigned int i = 0; i < target_.size(); i++ ) {
     mx = std::min(mx,xmap.interp<I>(xmap.coord_map(rtop*target_[i].first )));
     mn = std::min(mn,xmap.interp<I>(xmap.coord_map(rtop*target_[i].second)));
   }
@@ -74,7 +74,7 @@ float NucleicAcidTarget::score_sum( const clipper::Xmap<float>& xmap, const clip
 {
   typedef clipper::Interp_cubic I;
   float mn(0.0), mx(0.0);
-  for ( int i = 0; i < target_.size(); i++ ) {
+  for ( unsigned int i = 0; i < target_.size(); i++ ) {
     mx += xmap.interp<I>(xmap.coord_map(rtop*target_[i].first ));
     mn += xmap.interp<I>(xmap.coord_map(rtop*target_[i].second));
   }
@@ -449,13 +449,13 @@ const clipper::MiniMol NucleicAcidTargets::find( const clipper::Xmap<float>& xma
 
   // filter lists on translation
   std::vector<SearchResult> filter_s, filter_p;
-  for ( int i = 0; i < found_s.size(); i++ ) {
+  for ( unsigned int i = 0; i < found_s.size(); i++ ) {
     int it = found_s[i].trn;
     clipper::Coord_orth trn( xmap.coord_orth( grid.deindex(it).coord_map() ) );
     std::vector<clipper::MAtomIndexSymmetry> atoms = nb( trn, 4.0 );
     if ( atoms.size() == 0 ) filter_s.push_back( found_s[i] );
   }
-  for ( int i = 0; i < found_p.size(); i++ ) {
+  for ( unsigned int i = 0; i < found_p.size(); i++ ) {
     int it = found_p[i].trn;
     clipper::Coord_orth trn( xmap.coord_orth( grid.deindex(it).coord_map() ) );
     std::vector<clipper::MAtomIndexSymmetry> atoms = nb( trn, 4.0 );
@@ -574,7 +574,7 @@ const clipper::MiniMol NucleicAcidTargets::prune( const clipper::MiniMol& mol ) 
 	for ( int a1 = 0; a1 < mol_nb[c1][r1].size(); a1++ ) {
 	  const clipper::Coord_orth co = mol_nb[c1][r1][a1].coord_orth();
 	  std::vector<clipper::MAtomIndexSymmetry> atoms = nb( co, 2.0 );
-	  for ( int i = 0; i < atoms.size(); i++ ) {
+	  for ( unsigned int i = 0; i < atoms.size(); i++ ) {
 	    int c2 = atoms[i].polymer();
 	    int r2 = atoms[i].monomer();
 	    if ( !mol_nb[c2].exists_property( "NON-NA" ) ) {  // clash with NA
@@ -715,7 +715,7 @@ const clipper::MiniMol NucleicAcidTargets::rebuild_bases( const clipper::Xmap<fl
 	  if ( test ) {
 	    const clipper::Coord_orth co = mol_new[c1][r1][a1].coord_orth();
 	    std::vector<clipper::MAtomIndexSymmetry> atoms = nb( co, 2.0 );
-	    for ( int i = 0; i < atoms.size(); i++ ) {
+	    for ( unsigned int i = 0; i < atoms.size(); i++ ) {
 	      int c2 = atoms[i].polymer();
 	      int r2 = atoms[i].monomer();
 	      if ( c1 != c2 || r1 != r2 ) clash = true;

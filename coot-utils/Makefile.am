@@ -1,6 +1,7 @@
 # coot-utils/Makefile.am
 # 
 # Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
+# Copyright 2014 by Medical Research Council
 # Author: Paul Emsley
 # 
 # This program is free software; you can redistribute it and/or modify
@@ -29,12 +30,12 @@ lib_LTLIBRARIES= libcoot-coord-utils.la  libcoot-shelx.la libcoot-coord-extras.l
 	libcoot-map-utils.la libcoot-map-heavy.la
 
 pkginclude_HEADERS = peak-search.hh coot-trim.hh \
-	residue-and-atom-specs.hh \
 	coot-coord-utils.hh coot-map-utils.hh coot-coord-extras.hh \
 	coot-map-heavy.hh coot-lsq-types.h coot-shelx.hh \
 	coot-rama.hh xmap-stats.hh coot-h-bonds.hh lsq-improve.hh coot-hole.hh \
 	read-sm-cif.hh bonded-pairs.hh tree.hh helix-analysis.hh elastic.hh emma.hh \
-	glyco-torsions.hh coot-least-squares.hh coot-density-stats.hh atom-overlaps.hh
+	glyco-torsions.hh coot-least-squares.hh coot-density-stats.hh \
+        atom-overlaps.hh reduce.hh
 
 pkgincludedir = $(includedir)/coot/coot-utils
 
@@ -54,7 +55,7 @@ AM_CXXFLAGS = $(COOT_GSL_FLAGS) $(COOT_WINDOWS_CFLAGS) \
 libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	coot-coord-utils-nucleotides.cc coot-rama.cc coot-h-bonds.cc hole.cc read-sm-cif.cc \
 	bonded-pairs.cc helix-analysis.cc elastic.cc glyco-torsions.cc coot-least-squares.cc \
-	atom-overlaps.cc
+	atom-overlaps.cc reduce.cc
 
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la 
@@ -117,7 +118,8 @@ libcoot_map_heavy_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 
 # test-agg-clust
-check_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-elastic test-spherical glyco-torsions test-tt-morph
+check_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-elastic test-spherical glyco-torsions \
+	test-tt-morph test-coot-probe
 
 # test_zo_chi_table_SOURCES = test-zo-chi-table.cc
 
@@ -129,6 +131,10 @@ check_PROGRAMS = test-h-bonds testshelxreader testcootutils test-hole test-elast
 #        $(top_builddir)/mini-mol/libcoot-mini-mol.la 
 #        $(top_builddir)/utils/libcoot-utils.la $(GLOB_LIBS)
 
+
+test_coot_probe_SOURCES = test-coot-probe.cc
+test_coot_probe_LDADD =          \
+	./libcoot-coord-utils.la
 
 testshelxreader_SOURCES = test-shelx-reader.cc
 testshelxreader_LDADD =          \

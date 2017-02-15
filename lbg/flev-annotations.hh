@@ -1,8 +1,30 @@
+/* ideal/flev-annotations.hh
+ * 
+ * Copyright 2010 by The University of Oxford
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #ifndef FLEV_ANNOTATIONS_HH
 #define FLEV_ANNOTATIONS_HH
 
 #include "geometry/protein-geometry.hh"
+#include "geometry/main-chain.hh"
+#include "geometry/residue-and-atom-specs.hh"
 #include "lidia-core/lbg-shared.hh" // bash_distance_t
 
 
@@ -170,24 +192,29 @@ namespace coot {
 	 mmdb::Atom *ligand_atom = at_donor;
 	 mmdb::Atom *residue_atom = at_acceptor;
 
-	 if (! ligand_atom_is_donor_flag)
-	    std::swap(ligand_atom, residue_atom);
+	 if (at_donor) {
+	    if (at_acceptor) {
 
-	 if (is_a_metal(residue_atom->residue)) {
-	    r_bond_type = METAL_CONTACT_BOND;
-	 } else { 
+	       if (! ligand_atom_is_donor_flag)
+		  std::swap(ligand_atom, residue_atom);
 
-	    if (ligand_atom_is_donor_flag) { 
-	       if (coot::is_main_chain_p(residue_atom))
-		  r_bond_type = H_BOND_ACCEPTOR_MAINCHAIN;
-	       else
-		  r_bond_type = H_BOND_ACCEPTOR_SIDECHAIN;
+	       if (is_a_metal(residue_atom->residue)) {
+		  r_bond_type = METAL_CONTACT_BOND;
+	       } else { 
+
+		  if (ligand_atom_is_donor_flag) { 
+		     if (coot::is_main_chain_p(residue_atom))
+			r_bond_type = H_BOND_ACCEPTOR_MAINCHAIN;
+		     else
+			r_bond_type = H_BOND_ACCEPTOR_SIDECHAIN;
 	       
-	    } else {
-	       if (coot::is_main_chain_p(residue_atom))
-		  r_bond_type = H_BOND_DONOR_MAINCHAIN;
-	       else
-		  r_bond_type = H_BOND_DONOR_SIDECHAIN;
+		  } else {
+		     if (coot::is_main_chain_p(residue_atom))
+			r_bond_type = H_BOND_DONOR_MAINCHAIN;
+		     else
+			r_bond_type = H_BOND_DONOR_SIDECHAIN;
+		  }
+	       }
 	    }
 	 }
 	 return r_bond_type;

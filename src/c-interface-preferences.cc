@@ -3,6 +3,7 @@
  * Copyright 2005, 2006 The University of York
  * Author: Paul Emsley
  * Copyright 2007 The University of Oxford
+ * Copyright 2014, 2015 by Medical Research Council
  * Author: Paul Emsley, Bernhard Lohkamp
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -1073,105 +1074,11 @@ short int do_probe_dots_post_refine_state() {
    return graphics_info_t::do_probe_dots_post_refine_flag;
 }
 
-
-
-
-/*! \brief return the number of generic display objects */
-int number_of_generic_objects() {
-
-   graphics_info_t g;
-   return g.generic_objects_p->size();
+/* state is 1 for on and 0 for off */
+void set_do_coot_probe_dots_during_refine(short int state) {
+   graphics_info_t::do_coot_probe_dots_during_refine_flag = state;
+   std::cout << "set do_coot_probe_dots_during_refine_flag " << state << std::endl;
 }
-
-void generic_objects_gui_wrapper() {
-
-   graphics_info_t g;
-   if (! g.generic_objects_dialog) { 
-      g.generic_objects_dialog = wrapped_create_generic_objects_dialog();
-   }
-   gtk_widget_show(g.generic_objects_dialog);
-   
-
-   // --------------------------- old (by scripting) ------------------------
-
-//    std::vector<std::string> cmd;
-//    cmd.push_back("generic-objects-gui");
-//    graphics_info_t g;
-
-// #if defined USE_GUILE && !defined WINDOWS_MINGW
-
-//    std::string s = g.state_command(cmd, coot::STATE_SCM);
-//    safe_scheme_command(s);
-
-
-// #else
-// #ifdef USE_PYGTK
-
-//    std::string s = g.state_command(cmd, coot::STATE_PYTHON);
-//    safe_python_command(s);
-
-// #endif // USE_PYGTK
-
-// #endif // USE_GUILE
-
-   
-
-} 
-
-
-std::pair<short int, std::string>
-is_interesting_dots_object_next_p(const std::vector<std::string> &vs) {
-
-   std::pair<short int, std::string> r(0, "");
-
-   if (vs.size() == 3) {
-//       std::cout << "Looking at bits:  \n  "; 
-//       for (unsigned int i=0; i<3; i++) { 
-// 	 std::cout << ":" << vs[i] << ": ";
-//       }
-//       std::cout << "\n"; 
-      if ((vs[1] == "wide") && (vs[2] == "contact)")) {
-	 r.first = 1;
-	 r.second = "wide contact";
-      }
-      if ((vs[1] == "close") && (vs[2] == "contact)")) {
-	 r.first = 1;
-	 r.second = "close contact";
-      }
-      if ((vs[1] == "small") && (vs[2] == "overlap)")) {
-	 r.first = 1;
-	 r.second = "small overlap";
-      }
-      if ((vs[1] == "bad") && (vs[2] == "overlap)")) {
-	 r.first = 1;
-	 r.second = "bad overlap";
-      }
-      if (vs[1] == "H-bonds)") { 
-	 r.first = 1;
-	 r.second = "H-bonds";
-      }
-   }
-   return r;
-}
-
-std::string probe_dots_short_contact_name_to_expanded_name(const std::string &short_name) {
-
-   std::vector<std::pair<std::string, std::string> > names;
-   names.push_back(std::pair<std::string, std::string>("wc", "wide contact"));
-   names.push_back(std::pair<std::string, std::string>("cc", "close contact"));
-   names.push_back(std::pair<std::string, std::string>("so", "small overlap"));
-   names.push_back(std::pair<std::string, std::string>("bo", "bad overlap"));
-   names.push_back(std::pair<std::string, std::string>("hb", "H-bonds"));
-
-   std::string r = "unknown";
-   for (int i=0; i<5; i++) {
-      if (names[i].first == short_name) {
-	 r = names[i].second;
-	 break;
-      }
-   } 
-   return r;
-} 
 
 
 

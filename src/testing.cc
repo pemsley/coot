@@ -1,6 +1,7 @@
 /* src/testing.cc
  * 
  * Copyright 2008, 2009, 2010 by the University of Oxford
+ * Copyright 2014, 2015 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -196,7 +197,7 @@ int test_internal() {
 				  "test peak search non-close"));
 
    functions.push_back(named_func(test_symop_card, "test symop card"));
-   functions.push_back(named_func(test_rotate_round_vector, "test rotate round vector"));
+   functions.push_back(named_func(test_rotate_around_vector, "test rotate round vector"));
    functions.push_back(named_func(test_ssm_sequence_formatting, "SSM sequence alignment output"));
    status = run_internal_tests(functions);
    return status;
@@ -309,9 +310,9 @@ int test_internal_single() {
       // status = test_map_tools();
       // status = test_minimol();
       // status = test_monomer_organic_set();
-      // status = test_COO_mod();
+      status = test_COO_mod();
       // status = test_output_link_distances_are_correct();
-      status = test_string_splitting();
+      // status = test_string_splitting();
    }
    catch (const std::runtime_error &mess) {
       std::cout << "FAIL: " << " " << mess.what() << std::endl;
@@ -396,11 +397,12 @@ int test_monomer_organic_set() {
    for (int i=0; i<4; i++) { 
       std::string res_type = types[i];
       std::pair<bool, coot::dictionary_residue_restraints_t> rp = 
-         t.geom.get_monomer_restraints(res_type);
+         t.geom.get_monomer_restraints(res_type, 0);
       if (! rp.first) { 
          t.geom.try_dynamic_add(res_type,read_number++);
       }
-      if (t.geom.have_dictionary_for_residue_type(res_type, read_number++)) { 
+      int imol = 0; // dummy
+      if (t.geom.have_dictionary_for_residue_type(res_type, imol, read_number++)) { 
          bool f = rp.second.comprised_of_organic_set();
          if (f) 
             std::cout << "test: " << res_type << " is IN organic set" << std::endl;
@@ -545,8 +547,8 @@ int test_alt_conf_rotamers() {
 		  if (chis.size() != 1) {
 		     std::string mess = "chis.size() is ";
 		     mess += stringify(int(chis.size()));
-		     mess += " for ";
-		     mess += stringify(79);
+		     mess += " for resno ";
+		     mess += stringify(80);
 		     throw std::runtime_error(mess);
 		  }
 		  int n_rots_found = 0;
@@ -557,14 +559,14 @@ int test_alt_conf_rotamers() {
 			if (chi_1 < -57.0)
 			   if (chi_2 > 95.0)
 			      if (chi_2 < 96.0)
-			   n_rots_found++;
+			         n_rots_found++;
 		  }
 		  if (n_rots_found != 1) {
 		     std::string mess = " Oops found ";
 		     mess += stringify(n_rots_found);
 		     mess += " rotamers ";
-		     mess += " for ";
-		     mess += stringify(79);
+		     mess += " for resno ";
+		     mess += stringify(80);
 		     throw std::runtime_error(mess);
 		  }
 	       } 
@@ -611,8 +613,9 @@ int test_wiggly_ligands () {
    try { 
       bool optim_geom = 0;
       bool fill_vec = 1;
+      int imol = 0; // dummy
       std::vector<coot::installed_wiggly_ligand_info_t> ms = 
-	 wlig.install_simple_wiggly_ligands(&geom, mmol, wiggly_ligand_n_samples,
+	 wlig.install_simple_wiggly_ligands(&geom, mmol, imol, wiggly_ligand_n_samples,
 					    optim_geom, fill_vec);
 
       // jump out if no returned molecules
@@ -707,8 +710,9 @@ testing_func_probabilities_refine_fragment(atom_selection_container_t atom_sel,
 
    coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
    bool do_trans_peptide_restraints = false;
+   int imol = 0; // dummy
    int nrestraints = 
-      restraints.make_restraints(geom, flags,
+      restraints.make_restraints(imol, geom, flags,
 				 do_residue_internal_torsions,
 				 do_trans_peptide_restraints,
 				 rama_plot_restraint_weight,
@@ -1132,8 +1136,9 @@ restr_res_vector() {
       coot::restraints_container_t
 	 restraints(residues, links, geom, mol, fixed_atom_specs);
       restraints.add_map(xmap, weight);
-      bool do_trans_peptide_restraints = true;      
-      restraints.make_restraints(geom, flags, 0, do_trans_peptide_restraints, 0.0, 0, coot::NO_PSEUDO_BONDS);
+      bool do_trans_peptide_restraints = true;
+      int imol = 0;
+      restraints.make_restraints(imol, geom, flags, 0, do_trans_peptide_restraints, 0.0, 0, coot::NO_PSEUDO_BONDS);
       restraints.minimize(flags);
       restraints.write_new_atoms("ss-test.pdb");
    }
@@ -1255,7 +1260,7 @@ test_dipole() {
    atom_selection_container_t atom_sel = get_atom_selection(filename, true, true);
 
    std::pair<short int, coot::dictionary_residue_restraints_t> rp = 
-      t.geom.get_monomer_restraints(res_type);
+      t.geom.get_monomer_restraints(res_type, 0);
 
    if (rp.first) { 
    
@@ -1297,7 +1302,7 @@ test_dictionary_partial_charges() {
    testing_data t;
    for (unsigned int iv=0; iv<v.size(); iv++) {
       std::pair<short int, coot::dictionary_residue_restraints_t> rp = 
-	 t.geom.get_monomer_restraints(v[iv]);
+	 t.geom.get_monomer_restraints(v[iv], 0);
       if (! rp.first) {
 	 std::cout << " Fail - no restraints for " << v[iv] << std::endl;
 	 return 0;
@@ -1472,7 +1477,8 @@ int test_ligand_fit_from_given_point() {
    bool optim_geom = 1;
    bool fill_vec = 0;
    coot::minimol::molecule mmol(l_asc.mol);
-   wlig.install_simple_wiggly_ligands(&t.geom, mmol, n_conformers, optim_geom, fill_vec);
+   int imol = 0; // dummy
+   wlig.install_simple_wiggly_ligands(&t.geom, mmol, imol, n_conformers, optim_geom, fill_vec);
    short int mask_waters_flag = 1;
    wlig.mask_map(asc.mol, mask_waters_flag);
    clipper::Coord_orth pt(55.06, 10.16, 21.73); // close to 3GP peak (not in it).
@@ -1526,8 +1532,9 @@ int test_ligand_conformer_torsion_angles() {
    bool fill_vec = 1;
    int n_conformers = 200;
    coot::minimol::molecule mmol(l_asc.mol);
+   int imol = 0; // dummy
    std::vector<coot::installed_wiggly_ligand_info_t> conformer_info = 
-      wlig.install_simple_wiggly_ligands(&t.geom, mmol, n_conformers,
+      wlig.install_simple_wiggly_ligands(&t.geom, mmol, imol, n_conformers,
 					 optim_geom, fill_vec);
    std::cout << "INFO:: there were " << conformer_info.size()
 	     << " returned conformers" << std::endl;
@@ -1674,7 +1681,7 @@ int test_coot_atom_tree() {
    coot::protein_geometry geom;
    coot::read_refmac_mon_lib_info_t rmit = geom.init_refmac_mon_lib(greg_test(cif_file_name), 0);
    std::pair<short int, coot::dictionary_residue_restraints_t> p = 
-      geom.get_monomer_restraints("ASP");
+      geom.get_monomer_restraints("ASP", 0);
 
    if (!p.first) {
       std::cout << "No ASP in dictionary" << std::endl;
@@ -1712,7 +1719,7 @@ int test_coot_atom_tree() {
 	       coot::read_refmac_mon_lib_info_t rmit =
 		  geom.init_refmac_mon_lib(greg_test("libcheck_3GP.cif"), 0);
 	       std::pair<short int, coot::dictionary_residue_restraints_t> p = 
-		  geom.get_monomer_restraints("3GP");
+		  geom.get_monomer_restraints("3GP", 0);
 	       if (p.first) { 
 		  bool test1 = test_tree_rotation(p.second, res, " N9 ", " C1*", 0);
 		  atom_sel.mol->WritePDBASCII("3GP-test1.pdb");
@@ -1985,7 +1992,7 @@ bool test_tree_rotation(const coot::dictionary_residue_restraints_t &rest,
 
 
 int 
-test_rotate_round_vector() {
+test_rotate_around_vector() {
 
    int r = 0;
    
@@ -2100,7 +2107,7 @@ test_rotate_round_vector() {
 		  std::cout << "   D_pt " << D_pt.format() << std::endl;
 		  // Make sure that D_pt does not move when rotated:
 		  for (double a=0; a<7.0; a+=1.0) {
-		     clipper::Coord_orth D_pt_r =  coot::util::rotate_round_vector(ab, D_pt, rotate_pt_2, a);
+		     clipper::Coord_orth D_pt_r =  coot::util::rotate_around_vector(ab, D_pt, rotate_pt_2, a);
 		     std::cout << "   " << a << " " << D_pt_r.format() << std::endl;
 		  }
 	       }
@@ -2108,7 +2115,7 @@ test_rotate_round_vector() {
 	       double test_angle = 20.0; // degrees
 
 	       clipper::Coord_orth C_prime_pt =
-		  coot::util::rotate_round_vector(ab, C_pt, rotate_pt_2, (M_PI/180.0)*test_angle);
+		  coot::util::rotate_around_vector(ab, C_pt, rotate_pt_2, (M_PI/180.0)*test_angle);
 
 	       clipper::Coord_orth dc(C_pt-D_pt);
 	       clipper::Coord_orth dc_prime(C_prime_pt-D_pt);
@@ -2474,7 +2481,7 @@ int test_flev_aromatics() {
       std::vector<mmdb::Residue *> residues =
 	 coot::residues_near_residue(res_ref, atom_sel.mol, residues_near_radius);
       std::pair<bool, coot::dictionary_residue_restraints_t> p = 
-	 t.geom.get_monomer_restraints("5GP");
+	 t.geom.get_monomer_restraints("5GP", 0);
       coot::pi_stacking_container_t pi_stack_info(p.second, residues, res_ref);
 
       if (pi_stack_info.stackings.size() > 0)
@@ -2720,7 +2727,7 @@ int test_COO_mod() {
       
       mmdb::PResidue *SelResidues = new mmdb::PResidue[1];
       SelResidues[0] = asc.atom_selection[0]->residue;
-      
+
       residue_selection_t result =
 	 testing_func_probabilities_refine_fragment(asc, SelResidues,
 						    1, "A", 93, t.geom, 0, 0, 0, 0);
@@ -2755,7 +2762,7 @@ int test_COO_mod() {
       std::cout << "OXT->O distance: " << oxt_dist << std::endl;
    
       if (d < 0.02)
-	 if (oxt_dist > 2.0) 
+	 if (oxt_dist > 2.0)
 	    status = 1;
 
    }
@@ -2939,7 +2946,8 @@ int test_multi_residue_torsion() {
 	 for (int i=0; i<n_selected_atoms; i++) { 
 	    std::cout << "selected atom: " << atom_selection[i] << std::endl;
 	 }
-	 coot::contact_info contacts(asc, &t.geom, bpc);
+	 int imol = 0; // dummy
+	 coot::contact_info contacts(asc, imol, &t.geom, bpc);
  	 std::vector<std::vector<int> > contact_indices =
  	    contacts.get_contact_indices_with_reverse_contacts();
  	 coot::atom_tree_t tree(contact_indices, 0, mol, selhnd);
@@ -2983,9 +2991,9 @@ test_torsions_from_residue_selection() {
       mmdb::PPAtom atom_selection;
       int n_selected_atoms;
       mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
-
+      int imol = 0; // dummy
       std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > v = 
-	 coot::torsionable_bonds(mol, atom_selection, n_selected_atoms, &t.geom);
+	 coot::torsionable_bonds(imol, mol, atom_selection, n_selected_atoms, &t.geom);
 
       // tidy up
       mol->DeleteSelection(selhnd);

@@ -1,0 +1,110 @@
+.\" Copyright 2016 by Medical Research Council
+.\"
+.\" %%%LICENSE_START(GPLv3+_DOC_FULL)
+.\" This is free documentation; you can redistribute it and/or
+.\" modify it under the terms of the GNU General Public License as
+.\" published by the Free Software Foundation; either version 3 of
+.\" the License, or (at your option) any later version.
+.\"
+.\" The GNU General Public License's references to "object code"
+.\" and "executables" are to be interpreted as the output of any
+.\" document formatting or typesetting system, including
+.\" intermediate and printed output.
+.\"
+.\" This manual is distributed in the hope that it will be useful,
+.\" but WITHOUT ANY WARRANTY; without even the implied warranty of
+.\" MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+.\" GNU General Public License for more details.
+.\"
+.\" You should have received a copy of the GNU General Public
+.\" License along with this manual; if not, see
+.\" <http://www.gnu.org/licenses/>.
+.\" %%%LICENSE_END
+
+.TH COOT 1
+q
+.SH NAME
+coot-mini-rsr \- Real space Refinement using X-ray data
+.SH SYNOPSIS
+coot-mini-rsr [OPTIONS] ... 
+
+.SH DESCRIPTION
+
+coot-mini-rsr is used for real-space refinement of structures without
+need for interactive molecular graphics.
+
+.SH OPTIONS
+
+.B [\-\-pdbin
+.I <coordinates-file-name>
+.B ]
+.br
+.B [\-\--hklin
+.I <mtz-file-name>
+.B ]
+.br
+.B [\-\-dictionary 
+.I <mmCIF/pdbx dictionary file-name>
+.B ]
+.br
+.B [\-\-chain-id 
+.I chain-id
+.B ]
+.br
+.B [\-\-weight 
+.I weight
+.B ]
+.br
+.B [\-\-radius
+.I radius 
+.B ]
+.br
+.B [--rama]
+.br
+.B [--torsions]
+.br
+.B [--no-planar-peptide-restraints]
+.br
+.B [--no-trans-peptide-restraints]
+.br
+.B [--tabulate-distortions]
+.br
+.B [--correlations]
+.br
+.B [--version]
+
+specify residues:
+
+.B [\-\-resno-start
+.I res_no_low
+.B ]
+.B [\-\-resno-end
+.I res_no_high
+.B ]
+or 
+.B [\-\-residue-number
+.I res_no
+.B ]
+or 
+.B [\-\-residues-around
+.I res_no
+.B ]
+
+specify map:
+
+.B [\-\-mapin 
+.I <CCP4-format-map-file-name>
+.B ]
+or
+.B [--f
+.I f_col_label
+.B ]
+.B [--phi
+.I phi_col_label
+.B ]
+
+.SH AUTHOR
+Paul Emsley
+
+
+

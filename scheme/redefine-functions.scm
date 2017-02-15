@@ -10,6 +10,8 @@
 (define water-chain water-chain-scm)
 (define water-chain-from-shelx-ins water-chain-from-shelx-ins-scm)
 (define generic-object-name generic-object-name-scm)
+(define generic-object-is-displayed? generic-object-is-displayed-p)
+(define is-closed-generic-object? is-closed-generic-object-p)
 (define additional-representation-info additional-representation-info-scm)
 (define missing-atom-info missing-atom-info-scm)
 (define key-sym-code key-sym-code-scm)

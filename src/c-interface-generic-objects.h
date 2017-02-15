@@ -1,3 +1,26 @@
+/* src/c-interface-generic-objects/.cc
+ * 
+ * Copyright 2011 by the University of Oxford
+ * Copyright 2016 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
+
+#include "generic-display-objects-c.h"
 
 /*  ----------------------------------------------------------------------- */
 /*                  Generic Objects                                         */
@@ -23,24 +46,32 @@ void to_generic_object_add_line(int object_number,
 /*! \brief add a dashed line to generic object object_number 
 
 dash_density is number of dashes per Angstrom.*/
-void to_generic_object_add_dashed_line(int object_number, 
+void to_generic_object_add_dashed_line(int object_number,
 				       const char *colour,
 				       int line_width,
 				       float dash_density,
-				       float from_x1, 
-				       float from_y1, 
-				       float from_z1, 
-				       float to_x2, 
-				       float to_y2, 
+				       float from_x1,
+				       float from_y1,
+				       float from_z1,
+				       float to_x2,
+				       float to_y2,
 				       float to_z2); 
 
 /*! \brief add point to generic object object_number */
-void to_generic_object_add_point(int object_number, 
+void to_generic_object_add_point(int object_number,
 				 const char *colour,
 				 int point_width,
-				 float from_x1, 
-				 float from_y1, 
+				 float from_x1,
+				 float from_y1,
 				 float from_z1);
+
+#ifndef SWIG
+void to_generic_object_add_point_internal(int object_number,
+				 const std::string &colour_name, // needed for indexing objects by colour
+				 const coot::colour_holder &colour,
+				 int point_width,
+				 const clipper::Coord_orth &pt);
+#endif // SWIG
 
 /*! \brief add point to generic object object_number */
 void to_generic_object_add_arc(int object_number, 
@@ -84,8 +115,12 @@ void to_generic_object_add_display_list_handle(int object_number, int display_li
   generally need this function.  */
 void set_display_generic_object(int object_number, short int istate);
 
-/*! \brief display (1) or undisplay (0) all generic display objects */
-void set_display_all_generic_objects(int state);
+/*! \brief set the display status of object number object_number, 
+
+  set the state of a generic object to be drawn, but no redraw. 
+  Use when enabling multiple generic objects.
+*/
+void set_display_generic_object_simple(int object_number, short int istate);
 
 
 /*! \brief is generic display object displayed?
@@ -94,7 +129,7 @@ void set_display_all_generic_objects(int state);
 int generic_object_is_displayed_p(int object_number);
 
 /*! \brief return the index of the object with name name, if not, return -1; */
-int generic_object_index(const char *name);
+int generic_object_index(const std::string &name);
 
 /*! \brief what is the name of generic object number obj_number? 
 
@@ -131,15 +166,9 @@ void close_generic_object(int object_number);
 */
 short int is_closed_generic_object_p(int object_number);
 
-void close_all_generic_objects();
-
 /*! \brief clear out the lines and points from object_number, but keep
   it displayable (not closed). */
 void generic_object_clear(int object_number);
-
-/*! \brief a kludgey thing, so that the generic objects gui can be
-  called from a callback.  */
-void generic_objects_gui_wrapper();
 
 /*! \brief attach the generic object to a particular molecule 
 

@@ -4,6 +4,7 @@
  * Copyright 2008, 2009, 2010 The University of Oxford
  * Author: Paul Emsley
  * Copyright 2006, 2007 by Bernhard Lohkamp
+ * Copyright 2015 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by

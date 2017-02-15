@@ -125,6 +125,26 @@ match_this_residue_and_dictionary(int imol, std::string chain_id, int res_no, st
 // return False if unknown
 bool comprised_of_organic_set_p(const std::string &rn);
 
+// all-atom contact dots.  This is not the place for this declaration (not a ligand function)
+void coot_all_atom_contact_dots(int imol);
+
+#ifdef USE_PYTHON
+void coot_contact_dots_for_ligand_py(int imol, PyObject *ligand_spec);
+// change HE2 to HD1 and vice versa
+void switch_HIS_protonation_py(int imol, PyObject *residue_spec);
+#endif
+
+// this is not a ligand function - it does not belong here.
+void coot_reduce(int imol);
+
+
+#ifdef USE_GUILE
+void coot_contact_dots_for_ligand_scm(int imol, SCM residue_spec_scm);
+// change HE2 to HD1 and vice versa
+void switch_HIS_protonation_scm(int imol, SCM residue_spec_scm);
+#endif
+
+
 
 // we want to read in the built-in database to convert these scores to percentiles
 // return -1 (test for negative) on failure
@@ -136,9 +156,8 @@ bool comprised_of_organic_set_p(const std::string &rn);
 double get_ligand_percentile(std::string metric_name, double metric_value, short int reverse_order);
 
 
-
-bool
-enhanced_ligand_coot_p();
+// is enhanced ligand version
+bool enhanced_ligand_coot_p();
 
 
 #endif // C_INTERFACE_LIGANDS_SWIG_HH

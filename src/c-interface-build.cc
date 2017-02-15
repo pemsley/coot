@@ -6,6 +6,7 @@
  * Copyright 2007 by Bernhard Lohkamp
  * Copyright 2008 by Kevin Cowtan
  * Copyright 2007, 2008, 2009, 2010, 2011 The University of Oxford
+ * Copyright 2013, 2014, 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -408,6 +409,71 @@ int replace_fragment(int imol_target, int imol_fragment,
    add_to_history(command_strings);
    return istate;
 }
+
+#ifdef USE_GUILE
+int replace_residues_from_mol_scm(int imol_target,
+				 int imol_ref,
+				 SCM residue_specs_list_ref_scm) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol_target)) {
+      if (is_valid_model_molecule(imol_ref)) {
+	 mmdb::Manager *mol = graphics_info_t::molecules[imol_ref].atom_sel.mol;
+	 std::vector<coot::residue_spec_t> specs = scm_to_residue_specs(residue_specs_list_ref_scm);
+	 if (specs.size()) {
+	    mmdb::Manager *mol_new = coot::util::create_mmdbmanager_from_residue_specs(specs, mol);
+	    if (mol_new) {
+	       atom_selection_container_t asc = make_asc(mol_new);
+	       status = graphics_info_t::molecules[imol_target].replace_fragment(asc);
+	       graphics_draw();
+	    }
+	 }
+      }
+   }
+
+   if (false) {
+      // we can't yet add the residue_spec_list_scm
+      std::vector<std::string> command_strings;
+      command_strings.push_back("replace-fragement-from-mol-scm");
+      command_strings.push_back(graphics_info_t::int_to_string(imol_target));
+      add_to_history(command_strings);
+   }
+   return status;
+}
+#endif // USE_GUILE
+
+/*! \brief replace the given residues from the reference molecule to the target molecule
+*/
+#ifdef USE_PYTHON
+int replace_residues_from_mol_py(int imol_target,
+				 int imol_ref,
+				 PyObject *residue_specs_list_ref_py) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol_target)) {
+      if (is_valid_model_molecule(imol_ref)) {
+	 mmdb::Manager *mol = graphics_info_t::molecules[imol_ref].atom_sel.mol;
+	 std::vector<coot::residue_spec_t> specs = py_to_residue_specs(residue_specs_list_ref_py);
+	 if (specs.size()) {
+	    mmdb::Manager *mol_new = coot::util::create_mmdbmanager_from_residue_specs(specs, mol);
+	    atom_selection_container_t asc = make_asc(mol_new);
+	    status = graphics_info_t::molecules[imol_target].replace_fragment(asc);
+	    graphics_draw();
+	 }
+      }
+   }
+
+   if (false) {
+      // we can't yet add the residue_spec_list_py
+      std::vector<std::string> command_strings;
+      command_strings.push_back("replace-fragement-from-mol-py");
+      command_strings.push_back(graphics_info_t::int_to_string(imol_target));
+      add_to_history(command_strings);
+   }
+   return status;
+}
+#endif /* USE_PYTHON */
+
 
 /*! \brief copy the given residue range from the reference chain to the target chain 
 
@@ -1160,6 +1226,18 @@ SCM refine_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf) { /
 } 
 #endif // USE_GUILE
 
+// these functions need to call each other the other way round
+//
+#ifdef USE_GUILE
+SCM refine_residues_with_modes_with_alt_conf_scm(int imol, SCM residues_spec_list_scm,
+						 const char *alt_conf,
+						 SCM mode_1,
+						 SCM mode_2,
+						 SCM mode_3) {
+   return refine_residues_with_alt_conf_scm(imol, residues_spec_list_scm, alt_conf);
+}
+#endif // USE_GUILE
+
 #ifdef USE_GUILE
 SCM regularize_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf) {
    
@@ -1215,6 +1293,8 @@ PyObject *refine_residues_py(int imol, PyObject *r) {
 }
 #endif // USE_PYTHON
 
+
+
 #ifdef USE_PYTHON
 PyObject *regularize_residues_py(int imol, PyObject *r) { /* presumes the alt_conf is "". */
    return regularize_residues_with_alt_conf_py(imol, r, "");
@@ -1222,10 +1302,26 @@ PyObject *regularize_residues_py(int imol, PyObject *r) { /* presumes the alt_co
 #endif // USE_PYTHON
 
 
+#ifdef USE_PYTHON
+PyObject *refine_residues_with_alt_conf_py(int imol, PyObject *r,
+					   const char *alt_conf) {
+   PyObject *m1 = Py_False;
+   PyObject *m2 = Py_False;
+   PyObject *m3 = Py_False;
+   Py_INCREF(m1);
+   Py_INCREF(m2);
+   Py_INCREF(m3);
+   return refine_residues_with_modes_with_alt_conf_py(imol, r, alt_conf, m1, m2, m3);
+}
+#endif // USE_PYTHON
 
 #ifdef USE_PYTHON
-PyObject *refine_residues_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf) {
-      
+PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *r,
+						      const char *alt_conf,
+						      PyObject *mode_1,
+						      PyObject *mode_2,
+						      PyObject *mode_3) {
+
    PyObject *rv = Py_False;
    if (is_valid_model_molecule(imol)) {
      std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(r);
@@ -1247,10 +1343,31 @@ PyObject *refine_residues_with_alt_conf_py(int imol, PyObject *r, const char *al
             add_status_bar_text("Refinement map not set");
           } else {
             // normal
-            mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
-            coot::refinement_results_t rr =
-              g.refine_residues_vec(imol, residues, alt_conf, mol);
-            rv = g.refinement_results_to_py(rr);
+	     mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+
+	     bool soft_mode_hard_mode = false;
+	     if (PyString_Check(mode_1)) {
+		std::string s = PyString_AsString(mode_1);
+		if (s == "soft-mode/hard-mode")
+		   soft_mode_hard_mode = true;
+	     }
+
+	     if (soft_mode_hard_mode) {
+// 		double w_orig = g.geometry_vs_map_weight;
+// 		g.geometry_vs_map_weight /= 50;
+// 		coot::refinement_results_t rr =
+// 		   g.refine_residues_vec(imol, residues, alt_conf, mol);
+// 		g.geometry_vs_map_weight = w_orig;
+// 		g.last_restraints.set_map_weight(w_orig);
+// 		// continue with normal/hard mode
+// 		g.drag_refine_refine_intermediate_atoms();
+// 		// rv = g.refinement_results_to_py(rr);
+	     } else {
+		// normal
+		coot::refinement_results_t rr =
+		   g.refine_residues_vec(imol, residues, alt_conf, mol);
+		rv = g.refinement_results_to_py(rr);
+	     }
           }
         } 
       } else {
@@ -4380,6 +4497,45 @@ int new_molecule_by_sphere_selection(int imol_orig, float x, float y, float z, f
    return imol;
 }
 
+#ifdef USE_PYTHON
+/*! \brief create a new molecule that consists of only the atoms
+  of the specified list of residues
+@return the new molecule number, -1 means an error. */
+int new_molecule_by_residue_specs_py(int imol, PyObject *residue_spec_list_py) {
+
+   int imol_new = -1;
+   if (is_valid_model_molecule(imol)) {
+      std::vector<coot::residue_spec_t> specs = py_to_residue_specs(residue_spec_list_py);
+      if (specs.size()) {
+	 graphics_info_t g;
+	 mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+	 mmdb::Manager *mol_new = coot::util::create_mmdbmanager_from_residue_specs(specs, mol);
+	 if (mol_new) {
+	    imol_new = graphics_info_t::create_molecule();
+	    atom_selection_container_t asc = make_asc(mol_new);
+	    std::string label = "residues-selected-from-mol-";
+	    label += coot::util::int_to_string(imol);
+	    g.molecules[imol_new].install_model(imol_new, asc, g.Geom_p(), label, 1);
+	 }
+      }
+   }
+   return imol_new;
+
+}
+#endif /* USE_PYTHON */
+
+#ifdef USE_GUILE
+/*! \brief create a new molecule that consists of only the atoms
+  of the specified list of residues
+@return the new molecule number, -1 means an error. */
+int new_molecule_by_residue_specs_scm(int imol, SCM *residue_spec_list_scm) {
+
+   int imol_new = -1;
+   return imol_new;
+}
+#endif /* USE_GUILE */
+
+
 // ---------------------------------------------------------------------
 // b-factor
 // ---------------------------------------------------------------------
@@ -4554,11 +4710,22 @@ float residue_density_fit_scale_factor() {
 // dictionary
 int handle_cif_dictionary(const char *filename) {
 
+   return handle_cif_dictionary_for_molecule(filename, coot::protein_geometry::IMOL_ENC_ANY);
+}
+
+// imol_enc can be the model molecule number or
+// IMOL_ENC_ANY for all
+// IMOL_ENC_AUTO for auto
+// IMOL_ENC_UNSET for unset - not useful.
+//
+int handle_cif_dictionary_for_molecule(const char *filename, int imol_enc) {
+
    graphics_info_t g;
    short int show_dialog_flag = 0;
    if (graphics_info_t::use_graphics_interface_flag)
       show_dialog_flag = 1;
    int r = g.add_cif_dictionary(coot::util::intelligent_debackslash(filename),
+				imol_enc,
                                 show_dialog_flag);
    graphics_draw();
    return r;
@@ -4749,7 +4916,7 @@ show_partial_charge_info(int imol, const char *chain_id, int resno, const char *
 	 std::string resname = residue->GetResName();
 	 int read_number = graphics_info_t::cif_dictionary_read_number;
 	 graphics_info_t g; 
-	 if (g.Geom_p()->have_dictionary_for_residue_type(resname, read_number)) {
+	 if (g.Geom_p()->have_dictionary_for_residue_type(resname, imol, read_number)) {
 	    
 	 }
 	 graphics_info_t::cif_dictionary_read_number++;

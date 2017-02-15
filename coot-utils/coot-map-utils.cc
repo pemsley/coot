@@ -2,6 +2,7 @@
  * 
  * Copyright 2004, 2005, 2006, 2007 The University of York
  * Copyright 2008, 2009, 2010 by The University of Oxford
+ * Copyright 2013, 2014, 2015 by Medical Research Council
   * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,7 +16,7 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc.,  59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
+ * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
 
 
@@ -550,7 +551,7 @@ coot::util::spin_search(const clipper::Xmap<float> &xmap, mmdb::Residue *res, co
 	 clipper::Coord_orth dir   = pa3 - pa2;
 	 clipper::Coord_orth pos   = pa4;
 	 clipper::Coord_orth shift = pa3;
-	 clipper::Coord_orth co = coot::util::rotate_round_vector(dir, pos, shift, theta);
+	 clipper::Coord_orth co = coot::util::rotate_around_vector(dir, pos, shift, theta);
 	 float this_d = coot::util::density_at_point(xmap, co);
 	 if (this_d > best_d) {
 	    best_d = this_d;
@@ -2164,61 +2165,6 @@ coot::util::qq_plot_for_map_over_model(mmdb::Manager *mol,
    qq_plot_t qq(map_points);
    return qq.qq_norm();
 }
-
-// caller deletes the selection!
-int
-coot::util::specs_to_atom_selection(const std::vector<coot::residue_spec_t> &specs,
-				    mmdb::Manager *mol,
-				    int atom_mask_mode) {
-
-   int SelHnd = -1;
-   if (mol) {
-      SelHnd = mol->NewSelection();
-      for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++) {
-
-	 std::string res_name_selection  = "*";
-	 std::string atom_name_selection = "*";
-
-	 if (atom_mask_mode != 0) { // main chain for standard amino acids
-	    mmdb::Residue *res = get_residue(specs[ilocal], mol);
-	    if (res) {
-	       std::string residue_name(res->GetResName());
-	       if (is_standard_residue_name(residue_name)) { 
-
-		  // PDBv3 FIXME
-		  // 
-		  if (atom_mask_mode == 1)
-		     atom_name_selection = " N  , H  , HA , CA , C  , O  ";
-		  if (atom_mask_mode == 2)
-		     atom_name_selection = "!( N  , H  , HA , CA , C  , O  )";
-		  if (atom_mask_mode == 3)
-		     atom_name_selection = "!( N  , H  , HA , CA , C  , O  , CB )";
-	       } else {
-		  if (atom_mask_mode == 4)
-		     atom_name_selection = "%%%%%%"; // nothing (perhaps use "")
-		  if (atom_mask_mode == 5)
-		     atom_name_selection = "%%%%%%"; // nothing
-	       }
-	    }
-	 }
-
-	 mol->SelectAtoms(SelHnd, 1,
-			  specs[ilocal].chain_id.c_str(),
-			  specs[ilocal].res_no,
-			  specs[ilocal].ins_code.c_str(),
-			  specs[ilocal].res_no,
-			  specs[ilocal].ins_code.c_str(),
-			  res_name_selection.c_str(),
-			  atom_name_selection.c_str(), 
-			  "*", // elements
-			  "*", // alt loc.
-			  mmdb::SKEY_OR
-			  );
-      }
-   }
-   return SelHnd;
-}
-
 
 
 std::vector<float>

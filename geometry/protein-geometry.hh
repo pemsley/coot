@@ -2,6 +2,7 @@
  * 
  * Copyright 2004, 2005 The University of York
  * Copyright 2008, 2009, 2011, 2012 The University of Oxford
+ * Copyright 2013, 2014, 2015 by Medical Research Council
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify
@@ -23,8 +24,6 @@
 #ifndef PROTEIN_GEOMETRY_HH
 #define PROTEIN_GEOMETRY_HH
 
-#define MONOMER_DIR_STR "COOT_CCP4SRS_DIR"
-
 #ifndef HAVE_VECTOR
 #define HAVE_VECTOR
 #include <vector>
@@ -41,14 +40,17 @@
 #include <mmdb2/mmdb_utils.h>
 #include <mmdb2/mmdb_math_graph.h>
 
-// #include <ccp4srs/ccp4srs_manager.h>
-
 #ifdef HAVE_CCP4SRS
 #ifndef CCP4SRS_BASE_H
 #include <ccp4srs/ccp4srs_manager.h>
 #endif
 #endif
 
+#include "chem_mods.hh"
+
+#include "match-results.hh"
+
+#include "energy-lib.hh"
 
 #include "clipper/core/coords.h"
 
@@ -420,6 +422,7 @@ namespace coot {
       std::string atom_id_2_4c() const { return atom_id_mmdb_expand(local_atom_id_2);}
       std::string atom_id_3_4c() const { return atom_id_mmdb_expand(local_atom_id_3);}
       std::string atom_id_c_4c() const { return atom_id_mmdb_expand(local_atom_id_centre);}
+      std::string get_atom_id_centre() const { return local_atom_id_centre; }
       void set_atom_1_atom_id(const std::string &id) { local_atom_id_1 = id; }
       void set_atom_2_atom_id(const std::string &id) { local_atom_id_2 = id; }
       void set_atom_3_atom_id(const std::string &id) { local_atom_id_3 = id; }
@@ -503,6 +506,7 @@ namespace coot {
       }
       dict_atom() {}; // for resize(0);
       void add_pos(int pos_type, const std::pair<bool, clipper::Coord_orth> &model_pos_ideal);
+      bool is_hydrogen() const;
       friend std::ostream& operator<<(std::ostream &s, const dict_atom &at);
    };
    std::ostream& operator<<(std::ostream &s, const dict_atom &at);
@@ -602,6 +606,12 @@ namespace coot {
 
       void write_cif_pdbx_chem_comp_descriptor(mmdb::mmcif::Data *data) const;
       
+      // imol_enc can be the model molecule number or
+      // -1 for all
+      // -2 for auto
+      // -3 for unset
+      // int imol_enc;
+
    public:
       dictionary_residue_restraints_t(std::string comp_id_in,
 				      int read_number_in) {
@@ -690,7 +700,15 @@ namespace coot {
       // return null on failure
       mmdb::Residue *GetResidue(bool idealize_flag, float b_factor) const;
 
+      // This is very slow if you call it a number of times.
+      // Better to extract the ring info with get_ligand_ring_list()
+      // and test for atom_name_1 and atom_name_2 using that.
       bool in_same_ring(const std::string &atom_name_1, const std::string &atom_name_2) const;
+
+      // Here for convenience, but it doesn't rely on class functions or data items
+      // (could/should be static?)
+      bool in_same_ring(const std::string &atom_name_1, const std::string &atom_name_2,
+			const std::vector<std::vector<std::string> > &ring_list) const;
 
       bool ligand_has_aromatic_bonds_p() const;
 
@@ -701,6 +719,10 @@ namespace coot {
       bool is_bond_order_data_only() const { return filled_with_bond_order_data_only_flag; }
 
       std::vector<std::string> neighbours(const std::string &atom_name, bool allow_hydrogen_neighbours_flag) const;
+      // same thing with indexing into the atom_info vector.  No protection
+      // for out of bounds atom_idx value (i.e. atom_idx must be valid).
+      std::vector<unsigned int> neighbours(unsigned atom_idx,
+					   bool allow_hydrogen_neighbours_flag) const;
 
       // return "" on not found
       std::string get_bond_type(const std::string &name_1, const std::string &name_2) const;
@@ -761,8 +783,24 @@ namespace coot {
       // are the number of atoms of each element the same ie. they have the same chemical formula?
       // 
       bool composition_matches(const dictionary_residue_restraints_t &other) const;
+
+      // for hydrogens
+      bool is_connected_to_donor(const std::string &H_at_name_4c,
+				 const energy_lib_t &energy_lib) const;
+
+      // return an empty string on failure
+      std::string get_other_H_name(const std::string &H_at_name) const;
+      // return an empty vector on failure
+      std::vector<std::string> get_other_H_names(const std::string &H_at_name) const;
+
+      friend std::ostream& operator<<(std::ostream &s, const dictionary_residue_restraints_t &rest);
+
+#ifdef HAVE_CCP4SRS
+      bool fill_using_ccp4srs(ccp4srs::Manager *srs_manager, const std::string &monomer_type);
+#endif // HAVE_CCP4SRS
       
    };
+   std::ostream& operator<<(std::ostream &s, const dictionary_residue_restraints_t &rest);
 
    class dictionary_match_info_t {
    public:
@@ -1017,566 +1055,6 @@ namespace coot {
    };
    std::ostream& operator<<(std::ostream &s, chem_link lnk);
 
-   // ------------------------------------------------------------------------
-   //                  chem_mods
-   // ------------------------------------------------------------------------
-   
-   // a container for the data_mod_list chem_mods (used to be simply
-   // chem_mod, but that name is now used as a class that contains the
-   // actual chem mods (with lists of atoms, bonds, angles and so on).
-   // 
-   class list_chem_mod {
-   public:
-      std::string name;
-      std::string id;
-      std::string group_id;
-      std::string comp_id;
-      list_chem_mod(const std::string &id_in,
-		    const std::string &name_in,
-		    const std::string &comp_id_in,
-		    const std::string &group_id_in) {
-	 id = id_in;
-	 name = name_in;
-	 comp_id = comp_id_in;
-	 group_id = group_id_in;
-      } 
-      friend std::ostream& operator<<(std::ostream &s, list_chem_mod mod);
-   };
-   std::ostream& operator<<(std::ostream &s, list_chem_mod mod);
-
-   enum chem_mod_function_t { CHEM_MOD_FUNCTION_UNSET,
-			      CHEM_MOD_FUNCTION_ADD,
-			      CHEM_MOD_FUNCTION_CHANGE,
-			      CHEM_MOD_FUNCTION_DELETE };
-   
-   class chem_mod_atom {
-   public:
-      chem_mod_atom(const std::string &function_in,
-		    const std::string &atom_id_in,
-		    const std::string &new_atom_id_in,
-		    const std::string &new_type_symbol_in,
-		    const std::string &new_type_energy_in,
-		    mmdb::realtype new_partial_charge_in) {
-	 function = CHEM_MOD_FUNCTION_UNSET;
-	 if (function_in == "add")
-	    function = CHEM_MOD_FUNCTION_ADD;
-	 if (function_in == "delete")
-	    function = CHEM_MOD_FUNCTION_DELETE;
-	 if (function_in == "change")
-	    function = CHEM_MOD_FUNCTION_CHANGE;
-	 atom_id = atom_id_in;
-	 new_atom_id = new_atom_id_in;
-	 new_type_symbol = new_type_symbol_in;
-	 new_type_energy = new_type_energy_in;
-	 new_partial_charge = new_partial_charge_in;
-      }
-      chem_mod_function_t function;
-      std::string atom_id;
-      std::string new_atom_id;
-      std::string new_type_symbol;
-      std::string new_type_energy;
-      mmdb::realtype new_partial_charge;
-      friend std::ostream& operator<<(std::ostream &s, const chem_mod_atom &a);
-   };
-   std::ostream& operator<<(std::ostream &s, const chem_mod_atom &a);
-
-   class chem_mod_tree {
-      chem_mod_function_t function;
-      std::string atom_id;
-      std::string atom_back;
-      std::string back_type;
-      std::string atom_forward;
-      std::string connect_type;
-   public:
-      chem_mod_tree (const std::string &function_in,
-		     const std::string &atom_id_in,
-		     const std::string &atom_back_in,
-		     const std::string &back_type_in,
-		     const std::string &atom_forward_in,
-		     const std::string &connect_type_in) {
-	 function = CHEM_MOD_FUNCTION_UNSET;
-	 if (function_in == "add")
-	    function = CHEM_MOD_FUNCTION_ADD;
-	 if (function_in == "delete")
-	    function = CHEM_MOD_FUNCTION_DELETE;
-	 if (function_in == "change")
-	    function = CHEM_MOD_FUNCTION_CHANGE;
-	 atom_id = atom_id_in;
-	 atom_back = atom_back_in;
-	 back_type = back_type_in;
-	 atom_forward = atom_forward_in;
-	 connect_type = connect_type_in;
-      }
-      friend std::ostream& operator<<(std::ostream &s, const chem_mod_tree &a);
-   };
-   std::ostream& operator<<(std::ostream &s, const chem_mod_tree &a);
-
-   class chem_mod_bond {
-   public:
-      chem_mod_bond(const std::string &function_in,
-		    const std::string &atom_id_1_in,
-		    const std::string &atom_id_2_in,
-		    const std::string &new_type_in,
-		    mmdb::realtype new_value_dist_in,
-		    mmdb::realtype new_value_dist_esd_in) {
-	 function = CHEM_MOD_FUNCTION_UNSET;
-	 if (function_in == "add")
-	    function = CHEM_MOD_FUNCTION_ADD;
-	 if (function_in == "delete")
-	    function = CHEM_MOD_FUNCTION_DELETE;
-	 if (function_in == "change")
-	    function = CHEM_MOD_FUNCTION_CHANGE;
-	 atom_id_1 = atom_id_1_in;
-	 atom_id_2 = atom_id_2_in;
-	 new_type = new_type_in;
-	 new_value_dist = new_value_dist_in;
-	 new_value_dist_esd = new_value_dist_esd_in;
-      }
-      chem_mod_function_t function;
-      std::string atom_id_1;
-      std::string atom_id_2;
-      std::string new_type;
-      mmdb::realtype new_value_dist;
-      mmdb::realtype new_value_dist_esd;
-      friend std::ostream& operator<<(std::ostream &s, const chem_mod_bond &a);
-   };
-   std::ostream& operator<<(std::ostream &s, const chem_mod_bond &a);
-
-   class chem_mod_angle {
-   public:
-      chem_mod_angle(const std::string &function_in,
-		     const std::string &atom_id_1_in,
-		     const std::string &atom_id_2_in,
-		     const std::string &atom_id_3_in,
-		     mmdb::realtype new_value_angle_in,
-		     mmdb::realtype new_value_angle_esd_in) {
-	 function = CHEM_MOD_FUNCTION_UNSET;
-	 if (function_in == "add")
-	    function = CHEM_MOD_FUNCTION_ADD;
-	 if (function_in == "delete")
-	    function = CHEM_MOD_FUNCTION_DELETE;
-	 if (function_in == "change")
-	    function = CHEM_MOD_FUNCTION_CHANGE;
-	 atom_id_1 = atom_id_1_in;
-	 atom_id_2 = atom_id_2_in;
-	 atom_id_3 = atom_id_3_in;
-	 new_value_angle = new_value_angle_in;
-	 new_value_angle_esd = new_value_angle_esd_in;
-      }
-      chem_mod_function_t function;
-      std::string atom_id_1;
-      std::string atom_id_2;
-      std::string atom_id_3;
-      std::string new_type;
-      mmdb::realtype new_value_angle;
-      mmdb::realtype new_value_angle_esd;
-      friend std::ostream& operator<<(std::ostream &s, const chem_mod_angle &a);
-   };
-   std::ostream& operator<<(std::ostream &s, const chem_mod_angle &a);
-
-   class chem_mod_tor {
-   public:
-      chem_mod_tor(const std::string &function_in,
-		   const std::string &atom_id_1_in,
-		   const std::string &atom_id_2_in,
-		   const std::string &atom_id_3_in,
-		   const std::string &atom_id_4_in,
-		   mmdb::realtype new_value_angle_in,
-		   mmdb::realtype new_value_angle_esd_in,
-		   int new_period_in) {
-	 function = CHEM_MOD_FUNCTION_UNSET;
-	 if (function_in == "add")
-	    function = CHEM_MOD_FUNCTION_ADD;
-	 if (function_in == "delete")
-	    function = CHEM_MOD_FUNCTION_DELETE;
-	 if (function_in == "change")
-	    function = CHEM_MOD_FUNCTION_CHANGE;
-	 atom_id_1 = atom_id_1_in;
-	 atom_id_2 = atom_id_2_in;
-	 atom_id_3 = atom_id_3_in;
-	 atom_id_4 = atom_id_4_in;
-	 new_value_angle = new_value_angle_in;
-	 new_value_angle_esd = new_value_angle_esd_in;
-	 new_period = new_period_in;
-      }
-      chem_mod_function_t function;
-      std::string atom_id_1;
-      std::string atom_id_2;
-      std::string atom_id_3;
-      std::string atom_id_4;
-      std::string new_type;
-      mmdb::realtype new_value_angle;
-      mmdb::realtype new_value_angle_esd;
-      int new_period;
-      friend std::ostream& operator<<(std::ostream &s, const chem_mod_tor &a);
-   };
-   std::ostream& operator<<(std::ostream &s, const chem_mod_tor &a);
-
-   class chem_mod_plane {
-   public:
-      chem_mod_plane(const std::string &plane_id_in,
-		     const std::string &function_in) {
-	 function = CHEM_MOD_FUNCTION_UNSET;
-	 if (function_in == "add")
-	    function = CHEM_MOD_FUNCTION_ADD;
-	 if (function_in == "delete")
-	    function = CHEM_MOD_FUNCTION_DELETE;
-	 if (function_in == "change")
-	    function = CHEM_MOD_FUNCTION_CHANGE;
-	 plane_id = plane_id_in;
-      }
-      chem_mod_function_t function;
-      std::string plane_id;
-      std::vector<std::pair<std::string, mmdb::realtype> > atom_id_esd;
-      void add_atom(const std::string &atom_id, mmdb::realtype esd) {
-	 std::pair<std::string, mmdb::realtype> p(atom_id, esd);
-	 atom_id_esd.push_back(p);
-      }
-      friend std::ostream& operator<<(std::ostream &s, const chem_mod_plane &a);
-   };
-   std::ostream& operator<<(std::ostream &s, const chem_mod_plane &a);
-
-   class chem_mod_chir {
-   public:
-      chem_mod_chir(const std::string &function_in,
-		    const std::string &atom_id_centre_in,
-		    const std::string &atom_id_1_in,
-		    const std::string &atom_id_2_in,
-		    const std::string &atom_id_3_in,
-		    int new_volume_sign_in) {
-	 function = CHEM_MOD_FUNCTION_UNSET;
-	 if (function_in == "add")
-	    function = CHEM_MOD_FUNCTION_ADD;
-	 if (function_in == "delete")
-	    function = CHEM_MOD_FUNCTION_DELETE;
-	 if (function_in == "change")
-	    function = CHEM_MOD_FUNCTION_CHANGE;
-	 atom_id_centre = atom_id_centre_in;
-	 atom_id_1 = atom_id_1_in;
-	 atom_id_2 = atom_id_2_in;
-	 atom_id_3 = atom_id_3_in;
-	 new_volume_sign = new_volume_sign_in;
-      }
-      chem_mod_function_t function;
-      std::string atom_id_centre;
-      std::string atom_id_1;
-      std::string atom_id_2;
-      std::string atom_id_3;
-      int new_volume_sign;
-      friend std::ostream& operator<<(std::ostream &s, const chem_mod_chir &a);
-   };
-   std::ostream& operator<<(std::ostream &s, const chem_mod_chir &a);
-
-   
-
-
-   // ------------------------------------------------------------------------
-   //                  energy lib
-   // ------------------------------------------------------------------------
-   
-   class energy_lib_atom {
-   public:
-      std::string type;
-      mmdb::realtype weight;
-      hb_t hb_type;
-      // radii are negative if not assigned.
-      mmdb::realtype vdw_radius;
-      mmdb::realtype vdwh_radius;
-      mmdb::realtype ion_radius;
-      std::string element;
-      int valency; // negative if unset
-      int sp_hybridisation; // negative if unset
-      energy_lib_atom(const std::string &type_in,
-		      hb_t hb_type_in,
-		      float weight_in,
-		      float vdw_radius_in,
-		      float vdwh_radius_in,
-		      float ion_radius_in,
-		      const std::string &element_in,
-		      int valency_in,
-		      int sp_hybridisation_in) {
-	 type = type_in;
-	 hb_type = hb_type_in;
-	 weight = weight_in;
-	 vdw_radius  = vdw_radius_in;
-	 vdwh_radius = vdwh_radius_in;
-	 ion_radius = ion_radius_in;
-	 element = element_in;
-	 valency = valency_in;
-	 sp_hybridisation = sp_hybridisation_in;
-      }
-      // for the map
-      energy_lib_atom() {
-	 type = "";
-	 hb_type = HB_UNASSIGNED;
-	 weight = -1;
-	 vdw_radius = -1;
-	 ion_radius = -1;
-	 element = "";
-	 valency = -1;
-	 sp_hybridisation = -1;
-      } 
-      friend std::ostream& operator<<(std::ostream &s, const energy_lib_atom &at);
-   };
-   std::ostream& operator<<(std::ostream &s, const energy_lib_atom &at);
-
-   
-
-   class energy_lib_bond {
-   public:
-      std::string atom_type_1;
-      std::string atom_type_2;
-      std::string type; // single, double, aromatic etc
-      float spring_constant; // for energetics
-      float length;
-      float esd;
-      bool needed_permissive;
-      energy_lib_bond() {
-	 type = "unset";
-	 length = 0;
-	 esd = 0;
-	 needed_permissive = false;
-      }
-      energy_lib_bond(const std::string &atom_type_1_in,
-		      const std::string &atom_type_2_in,
-		      const std::string &type_in,
-		      float spring_constant_in,
-		      float length_in,
-		      float esd_in) {
-	 atom_type_1 = atom_type_1_in;
-	 atom_type_2 = atom_type_2_in;
-	 type = type_in;
-	 spring_constant = spring_constant_in;
-	 length = length_in;
-	 esd = esd_in;
-	 needed_permissive = false;
-      }
-      // Order-dependent.  Call twice - or more.
-      bool matches(const std::string &type_1, const std::string &type_2,
-		   const std::string &bond_type_in,
-		   bool permissive_type) const {
-	 
-	 bool r = false;
-	 if (type == bond_type_in) { 
-	    if (atom_type_1 == type_1) {
-	       if (atom_type_2 == "") { 
-		  if (permissive_type) 
-		     r = true;
-	       } else {
-		  if (atom_type_2 == type_2)
-		     r = true;
-	       }
-	    }
-	 }
-	 return r;
-      }
-      bool filled() const {
-	 return (type != "unset");
-      }
-      void set_needed_permissive() {
-	 needed_permissive = true;
-      } 
-      friend std::ostream& operator<<(std::ostream &s, const energy_lib_bond &bond);
-   };
-   std::ostream& operator<<(std::ostream &s, const energy_lib_bond &bond);
-
-   class energy_lib_angle {
-   public:
-      std::string atom_type_1;
-      std::string atom_type_2;
-      std::string atom_type_3;
-      float spring_constant; // for energetics
-      float angle;
-      float angle_esd;
-      energy_lib_angle() {
-	 angle = 120;
-	 angle_esd = 6;
-	 spring_constant = 450;
-      }
-      energy_lib_angle(const std::string &atom_type_1_in,
-		       const std::string &atom_type_2_in,
-		       const std::string &atom_type_3_in,
-		       float spring_constant_in,
-		       float value_in,
-		       float value_esd_in) {
-	 
-	 atom_type_1 = atom_type_1_in;
-	 atom_type_2 = atom_type_2_in;
-	 atom_type_3 = atom_type_3_in;
-	 spring_constant = spring_constant_in;
-	 angle = value_in;
-	 angle_esd = value_esd_in;
-      }
-      bool matches(const std::string &type_1,
-		   const std::string &type_2,
-		   const std::string &type_3,
-		   bool permissive_1, bool permissive_3) const {
-
-	 bool r = false;
-	 // must match the middle atom at least.
-	 if (atom_type_2 == type_2) {
-	 
-	    // first atom matches
-	    if (atom_type_1 == type_1) {
-	       if (atom_type_3 == type_3)
-		  r = true;
-	       if (atom_type_3 == "")
-		  if (permissive_3)
-		     r = true;
-	    }
-
-	    // 3rd atom  match
-	    if (atom_type_3 == type_3) {
-	       if (atom_type_1 == "")
-		  if (permissive_1)
-		     r = true;
-	    }
-
-	    // permissive 1 and 3
-	    if (permissive_1 && permissive_3) {
-// 	       std::cout << "looking at \"" << atom_type_1 << "\" and \"" << atom_type_3
-// 			 << "\"" << std::endl;
-	       if (atom_type_1 == "")
-		  if (atom_type_3 == "")
-		     r = true;
-	    }
-	 }
-	 return r;
-      }
-   };
-
-   class energy_lib_torsion {
-   public:
-      std::string atom_type_1;
-      std::string atom_type_2;
-      std::string atom_type_3;
-      std::string atom_type_4;
-      std::string label;
-      float spring_constant; // for energetics
-      float angle;
-      int period;
-      energy_lib_torsion() {
-	 spring_constant = 0.0;
-	 angle = 0.0;
-	 period = 0;
-      }
-      energy_lib_torsion(const std::string &atom_type_1_in,
-			 const std::string &atom_type_2_in,
-			 const std::string &atom_type_3_in,
-			 const std::string &atom_type_4_in,
-			 float spring_constant_in,
-			 float value_in,
-			 int period_in) {
-	 
-	 atom_type_1 = atom_type_1_in;
-	 atom_type_2 = atom_type_2_in;
-	 atom_type_3 = atom_type_3_in;
-	 atom_type_4 = atom_type_4_in;
-	 spring_constant = spring_constant_in;
-	 angle = value_in;
-	 period = period_in;
-      }
-      // order dependent.  Call twice.
-      bool matches(const std::string &type_2, const std::string &type_3) const {
-	 bool r = false;
-	 if (atom_type_2 == type_2)
-	    if (atom_type_3 == type_3)
-	       r = true;
-	 return r;
-      }
-      friend std::ostream& operator<<(std::ostream &s, const energy_lib_torsion &torsion);
-   };
-   std::ostream& operator<<(std::ostream &s, const energy_lib_torsion &torsion);
-
-   // --------------------------
-   // energy container
-   // --------------------------
-   // 
-   class energy_lib_t {
-
-      // so that we can return an angle, a status and a message.  We
-      // don't want to keep calling get_angle when the first time we
-      // get a ENERGY_TYPES_NOT_FOUND.
-      // 
-      class energy_angle_info_t {
-      public:
-	 enum { OK, ANGLE_NOT_FOUND, ENERGY_TYPES_NOT_FOUND};
-	 short int status;
-	 energy_lib_angle angle;
-	 std::string message;
-	 energy_angle_info_t() {
-	    status = ANGLE_NOT_FOUND;
-	 }
-	 energy_angle_info_t(short int status, const energy_lib_angle &angle, std::string message);
-      };
-
-      class energy_torsion_info_t {
-      public:
-	 enum { OK, TORSION_NOT_FOUND, ENERGY_TYPES_NOT_FOUND};
-	 short int status;
-	 energy_lib_angle angle;
-	 std::string message;
-	 energy_torsion_info_t() {
-	    status = TORSION_NOT_FOUND;
-	 }
-	 energy_torsion_info_t(short int status,
-			       const energy_lib_torsion &torsion,
-			       std::string message);
-      };
-      
-      // if permissive is true, allow the bond to be matched by
-      // default/"" energy type.  Order dependent.
-      energy_lib_bond get_bond(const std::string &atom_type_1,
-			       const std::string &atom_type_2,
-			       const std::string &bond_type, // refmac energy lib format
-			       bool permissive) const;
-
-      // if permissive is true, allow the bond to be matched by
-      // default/"" energy type.  Order dependent.
-      // 
-      energy_angle_info_t get_angle(const std::string &atom_type_1,
-				    const std::string &atom_type_2,
-				    const std::string &atom_type_3,
-				    bool permissive_atom_2,
-				    bool permissive_atom_3) const;
-
-      
-   public:
-      std::map<std::string, energy_lib_atom> atom_map;
-      std::vector<energy_lib_bond> bonds;
-      std::vector<energy_lib_angle> angles;
-      std::vector<energy_lib_torsion> torsions;
-      
-      energy_lib_t() {}
-      energy_lib_t(const std::string &file_name) { read(file_name); }
-
-      // Will throw an std::runtime_error if not found.
-      // 
-      energy_lib_bond get_bond(const std::string &atom_type_1,
-			       const std::string &atom_type_2,
-			       const std::string &bond_type) const; // refmac energy lib format 
-      // 
-      energy_lib_angle get_angle(const std::string &atom_type_1,
-				 const std::string &atom_type_2,
-				 const std::string &atom_type_3) const;
-
-      // types of the 2 middle atoms
-      // Will throw an std::runtime_error if not found.
-      energy_lib_torsion get_torsion(const std::string &atom_type_2,
-				     const std::string &atom_type_3) const;
-      
-      void read(const std::string &file_name,
-		bool print_info_message_flag=false);
-      void add_energy_lib_atom(    const energy_lib_atom    &atom);
-      void add_energy_lib_bond(    const energy_lib_bond    &bond);
-      void add_energy_lib_angle(   const energy_lib_angle   &angle);
-      void add_energy_lib_torsion(const energy_lib_torsion &torsion);
-      void add_energy_lib_atoms( mmdb::mmcif::PLoop mmCIFLoop);
-      void add_energy_lib_bonds( mmdb::mmcif::PLoop mmCIFLoop);
-      void add_energy_lib_angles(mmdb::mmcif::PLoop mmCIFLoop);
-      void add_energy_lib_torsions(mmdb::mmcif::PLoop mmCIFLoop);
-   };
-
 
    // ---------------------------------------------------------------
    // helper classes for linkage selection
@@ -1600,28 +1078,6 @@ namespace coot {
       }
    };
    
-
-   // a container for the results of the comparison vs CCP4SRS graph matching.
-   //
-   class match_results_t {
-   public:
-      bool success;
-      std::string name;
-      std::string comp_id;
-      mmdb::Residue *res;
-      // clipper::RTop_orth
-      match_results_t(const std::string &comp_id_in, const std::string &name_in, mmdb::Residue *res_in) {
-	 name = name_in;
-	 comp_id = comp_id_in;
-	 res = res_in;
-	 if (res_in)
-	    success = true;
-	 else
-	    success = false;
-      }
-   };
-      
-
    class read_refmac_mon_lib_info_t {
    public:
       unsigned int n_atoms;
@@ -1670,7 +1126,11 @@ namespace coot {
       std::vector<std::string> residue_codes;
       bool verbose_mode;
 
-      std::vector<dictionary_residue_restraints_t> dict_res_restraints;
+      // int imol_enc_current; // given the current read of a dictionary
+      // set the molecule_number for those entries to imol_enc
+      // the first number of the pair is the imol_enc
+      //
+      std::vector<std::pair<int, dictionary_residue_restraints_t> > dict_res_restraints;
       std::vector<dictionary_residue_link_restraints_t> dict_link_res_restraints;
       std::vector<chem_link> chem_link_vec;
       std::vector<list_chem_mod>  chem_mod_vec;
@@ -1684,17 +1144,18 @@ namespace coot {
       // 
       std::map<std::string,dictionary_residue_restraints_t> simple_monomer_descriptions;
 
-      int  comp_atom   (mmdb::mmcif::PLoop mmCIFLoop); 
+      int  comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc); 
       std::string comp_atom_pad_atom_name(const std::string &atom_id, const std::string &type_symbol) const;
       // return the comp_id
-      std::string chem_comp   (mmdb::mmcif::PLoop mmCIFLoop);
-      void comp_tree   (mmdb::mmcif::PLoop mmCIFLoop); 
-      int  comp_bond   (mmdb::mmcif::PLoop mmCIFLoop); 
-      void comp_angle  (mmdb::mmcif::PLoop mmCIFLoop); 
-      void comp_torsion(mmdb::mmcif::PLoop mmCIFLoop); 
-      void comp_plane  (mmdb::mmcif::PLoop mmCIFLoop); 
+      std::string chem_comp(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
+      void comp_tree   (mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
+      int  comp_bond   (mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
+      void comp_angle  (mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
+      void comp_torsion(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
+      void comp_plane  (mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
       std::pair<int, std::vector<std::string> >
-      comp_chiral (mmdb::mmcif::PLoop mmCIFLoop);  // return the number of chirals and a vector
+      comp_chiral(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
+                                                 // return the number of chirals and a vector
 						 // of monomer names that have had
 						 // chirals added (almost certainly just
 						 // one of them, of course).
@@ -1707,18 +1168,19 @@ namespace coot {
       void link_torsion(mmdb::mmcif::PLoop mmCIFLoop); 
       void link_plane  (mmdb::mmcif::PLoop mmCIFLoop);
       int  link_chiral  (mmdb::mmcif::PLoop mmCIFLoop); // return number of new chirals
-      void pdbx_chem_comp_descriptor(mmdb::mmcif::PLoop mmCIFLoop); 
+      void pdbx_chem_comp_descriptor(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc); 
 
       // return the comp id (so that later we can associate the file name with the comp_id).
       // 
-      std::string chem_comp_component(mmdb::mmcif::PStruct structure);
+      std::string chem_comp_component(mmdb::mmcif::PStruct structure, int imol_enc);
       // non-looping (single) tor
-      void chem_comp_tor_structure(mmdb::mmcif::PStruct structure);
+      void chem_comp_tor_structure(mmdb::mmcif::PStruct structure, int imol_enc);
       // non-looping (single) chir
-      void chem_comp_chir_structure(mmdb::mmcif::PStruct structure);
+      void chem_comp_chir_structure(mmdb::mmcif::PStruct structure, int imol_enc);
 
 
       void mon_lib_add_chem_comp(const std::string &comp_id,
+				 int imol_enc,
 				 const std::string &three_letter_code,
 				 const std::string &name,
 				 const std::string &group,
@@ -1727,6 +1189,7 @@ namespace coot {
 
       // old
       void mon_lib_add_atom(const std::string &comp_id,
+			    int imol_enc,
 			    const std::string &atom_id,
 			    const std::string &atom_id_4c,
 			    const std::string &type_symbol,
@@ -1737,35 +1200,42 @@ namespace coot {
 			    const std::pair<bool, clipper::Coord_orth> &model_pos,
 			    const std::pair<bool, clipper::Coord_orth> &model_pos_ideal);
 
-      void mon_lib_add_atom(const std::string &comp_id, const dict_atom &atom_info);
+      void mon_lib_add_atom(const std::string &comp_id,
+			    int imol_enc,
+			    const dict_atom &atom_info);
 
       // called because they were all at origin, for example.
-      void delete_atom_positions(const std::string &comp_id, int pos_type);
+      void delete_atom_positions(const std::string &comp_id, int imol_enc, int pos_type);
 			    
       void mon_lib_add_tree(std::string comp_id,
+			    int imol_enc,
 			    std::string atom_id,
 			    std::string atom_back,
 			    std::string atom_forward,
 			    std::string connect_type);
    
       void mon_lib_add_bond(std::string comp_id,
+			    int imol_enc,
 			    std::string atom_id_1, std::string atom_id_2,
 			    std::string type,
 			    mmdb::realtype value_dist, mmdb::realtype value_dist_esd,
 			    dict_bond_restraint_t::aromaticity_t arom_in);
 
       void mon_lib_add_bond_no_target_geom(std::string comp_id,
+					   int imol_enc,
 					   std::string atom_id_1, std::string atom_id_2,
 					   std::string type,
 					   dict_bond_restraint_t::aromaticity_t arom_in);
       
       void mon_lib_add_angle(std::string comp_id,
+			     int imol_enc,
 			     std::string atom_id_1,
 			     std::string atom_id_2,
 			     std::string atom_id_3,
 			     mmdb::realtype value_angle, mmdb::realtype value_angle_esd);
 
       void mon_lib_add_torsion(std::string comp_id,
+			       int imol_enc,
 			       std::string torsion_id,
 			       std::string atom_id_1,
 			       std::string atom_id_2,
@@ -1775,6 +1245,7 @@ namespace coot {
 			       int period);
 
       void mon_lib_add_chiral(std::string comp_id,
+			      int imol_enc,
 			      std::string id,
 			      std::string atom_id_centre,
 			      std::string atom_id_1,
@@ -1787,16 +1258,18 @@ namespace coot {
       // the atom name, if not, we create a restraint.
       // 
       void mon_lib_add_plane(const std::string &comp_id,
+			     int imol_enc,
 			     const std::string &plane_id,
 			     const std::string &atom_id,
 			     const mmdb::realtype &dist_esd);
 
-      void add_restraint(std::string comp_id, const dict_bond_restraint_t &restr);
-      void add_restraint(std::string comp_id, const dict_angle_restraint_t &restr);
-      void add_restraint(std::string comp_id, const dict_torsion_restraint_t &restr);
-      void add_restraint(std::string comp_id, const dict_chiral_restraint_t &rest);
+      void add_restraint(std::string comp_id, int imol_enc, const dict_bond_restraint_t &restr);
+      void add_restraint(std::string comp_id, int imol_enc, const dict_angle_restraint_t &restr);
+      void add_restraint(std::string comp_id, int imol_enc, const dict_torsion_restraint_t &restr);
+      void add_restraint(std::string comp_id, int imol_enc, const dict_chiral_restraint_t &rest);
 
       void add_pdbx_descriptor(const std::string &comp_id,
+			       int imol_enc,
 			       pdbx_chem_comp_descriptor_item &descr);
 
       // comp_tree need to convert unquoted atom_ids to 4char atom
@@ -1809,15 +1282,16 @@ namespace coot {
 
       // return the comp id (so that later we can associate the file name with the comp_id).
       // 
-      std::string simple_mon_lib_chem_comp   (mmdb::mmcif::PLoop mmCIFLoop);
+      std::string simple_mon_lib_chem_comp(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
       // add to simple_monomer_descriptions not dict_res_restraints.
-
 
       void add_cif_file_name(const std::string &cif_filename,
 			     const std::string &comp_id1,
-			     const std::string &comp_id2);
+			     const std::string &comp_id2,
+			     int imol_enc);
 
       void simple_mon_lib_add_chem_comp(const std::string &comp_id,
+					int imol_enc,
 					const std::string &three_letter_code,
 					const std::string &name,
 					const std::string &group,
@@ -1924,7 +1398,7 @@ namespace coot {
       // (i.e. removing some of them if they are not real chiral centres
       // (e.g. from prodrg restraints)).
       // 
-      void filter_chiral_centres(const std::vector<std::string> & comp_id_for_filtering);
+      void filter_chiral_centres(int imol, const std::vector<std::string> & comp_id_for_filtering);
 
       // Return a filtered list, that is don't include chiral centers that
       // are connected to more than one hydrogen.
@@ -1961,15 +1435,11 @@ namespace coot {
       energy_lib_t energy_lib;
 
       std::pair<bool, dictionary_residue_restraints_t>
-      get_monomer_restraints_internal(const std::string &monomer_type, bool allow_minimal_flag) const;
-
-      // created for looking up energy types cheaply (hopefully).
-      // return -1 on restraints not found.
-      // 
-      int get_monomer_restraints_index(const std::string &monomer_type, bool allow_minimal_flag) const;
+      get_monomer_restraints_internal(const std::string &monomer_type,
+				      int imol_enc,
+				      bool allow_minimal_flag) const;
 
       std::vector<std::string> non_auto_load_residue_names;
-      bool is_non_auto_load_ligand(const std::string resname) const;
       void fill_default_non_auto_load_residue_names(); // build-it defaults
 
       // return empty file name on failure.
@@ -1979,6 +1449,7 @@ namespace coot {
       ccp4srs::Manager *ccp4srs;
 #endif      
 
+      void add_molecule_number_to_entries(const std::vector<std::string> &comp_ids, int imol_enc);
 
    public:
 
@@ -1991,6 +1462,8 @@ namespace coot {
 	 fill_default_non_auto_load_residue_names();
       }
       
+      enum { IMOL_ENC_ANY = -999999, IMOL_ENC_AUTO = -999998, IMOL_ENC_UNSET = -999997 };
+
       // CCP4 SRS things
 
       int init_ccp4srs(const std::string &ccp4srs_dir); // inits CCP4SRS
@@ -2007,51 +1480,6 @@ namespace coot {
       // and fills these chem mod classes, simple container class
       // indexed with map on the mod_id
 
-
-      class chem_mod {
-
-      public:
-	 chem_mod() {};
-	 std::vector<chem_mod_atom>  atom_mods;
-	 std::vector<chem_mod_tree>  tree_mods;
-	 std::vector<chem_mod_bond>  bond_mods;
-	 std::vector<chem_mod_angle> angle_mods;
-	 std::vector<chem_mod_tor>   tor_mods;
-	 std::vector<chem_mod_plane> plane_mods;
-	 std::vector<chem_mod_chir>  chir_mods;
-	 void add_mod_atom(const chem_mod_atom &chem_atom) {
-	    atom_mods.push_back(chem_atom);
-	 }
-	 void add_mod_tree(const chem_mod_tree &chem_tree) {
-	    tree_mods.push_back(chem_tree);
-	 }
-	 void add_mod_bond(const chem_mod_bond &chem_bond) {
-	    bond_mods.push_back(chem_bond);
-	 }
-	 void add_mod_angle(const chem_mod_angle &chem_angle) {
-	    angle_mods.push_back(chem_angle);
-	 }
-	 void add_mod_tor(const chem_mod_tor &chem_tor) {
-	    tor_mods.push_back(chem_tor);
-	 }
-	 void add_mod_plane(const chem_mod_plane &chem_plane) {
-	    plane_mods.push_back(chem_plane);
-	 }
-	 void add_mod_chir(const chem_mod_chir &chem_chir) {
-	    chir_mods.push_back(chem_chir);
-	 }
-	 chem_mod_plane &operator[](const chem_mod_plane &plane) {
-	    for (unsigned int iplane=0; iplane<plane_mods.size(); iplane++) {
-	       if (plane_mods[iplane].plane_id == plane.plane_id) {
-		  return plane_mods[iplane];
-	       }
-	    }
-	    plane_mods.push_back(plane);
-	    return plane_mods.back();
-	 }
-      };
-      
-      
       std::map<std::string, chem_mod> mods;
       // can throw an std::runtime exception if there is no chem mod
       // for the link_id (and that's fine)
@@ -2064,10 +1492,11 @@ namespace coot {
       // Return the number of bond restraints
       //
       read_refmac_mon_lib_info_t
-      init_refmac_mon_lib(std::string filename, int read_number_in);
+      init_refmac_mon_lib(std::string filename, int read_number_in,
+			  int imol_enc = IMOL_ENC_ANY);
 
       unsigned int size() const { return dict_res_restraints.size(); }
-      const dictionary_residue_restraints_t & operator[](int i) const {
+      const std::pair<int, dictionary_residue_restraints_t> & operator[](int i) const {
 	 // debugging SRS compilation
 	 // std::cout << "const operator[] for a geom " << i << " of size "
 	 //           << dict_res_restraints.size() << std::endl;
@@ -2087,7 +1516,8 @@ namespace coot {
 
       // return "" on comp_id not found, else return the file name.
       // 
-      std::string get_cif_file_name(const std::string &comp_id) const;
+      std::string get_cif_file_name(const std::string &comp_id,
+				    int imol_enc) const;
       
       int link_size() const { return dict_link_res_restraints.size(); }
       void info() const;
@@ -2102,30 +1532,37 @@ namespace coot {
       // number of atoms read.
       // 
       int try_dynamic_add(const std::string &resname, int read_number);  // return success status?
-                                              // this is not const if we use dynamic add.
+      // this is not const if we use dynamic add.
+
+      bool matches_imol(int imol_dict, int imol_enc) const;
 
       // return true on having deleted;
-      bool delete_mon_lib(std::string comp_id); // delete comp_id from dict_res_restraints
-						// (if it exists there).
+      bool delete_mon_lib(const std::string &comp_id, int imol_enc); // delete comp_id from dict_res_restraints
+					   	                     // (if it exists there).
+                                                                     // 20161004 we also need to match
+                                                                     // imols before deletion occurs
 
 
 
       // return a pair, the first is status (1 if the name was found, 0 if not)
       // 
-      std::pair<bool, std::string> get_monomer_name(const std::string &comp_id) const;
+      std::pair<bool, std::string> get_monomer_name(const std::string &comp_id, int imol_enc) const;
 
       // return 2-3 filtered torsions
       std::vector <dict_torsion_restraint_t>
-      get_monomer_torsions_from_geometry(const std::string &monomer_type);
+      get_monomer_torsions_from_geometry(const std::string &monomer_type,
+					 int imol_enc);
       std::vector <dict_chiral_restraint_t>
-      get_monomer_chiral_volumes(const std::string monomer_type) const;
+      get_monomer_chiral_volumes(const std::string monomer_type,
+				 int imol_enc) const;
 
       // as above, except filter out of the returned vectors torsions
       // that move (or are based on) hydrogens.
       // return 2-3 filtered torsions
       // 
       std::vector <dict_torsion_restraint_t>
-      get_monomer_torsions_from_geometry(const std::string &monomer_type, 
+      get_monomer_torsions_from_geometry(const std::string &monomer_type,
+					 int imol_enc,
 					 bool find_hydrogen_torsions) const;
 
       // Return success status in first (0 is fail) and the second is
@@ -2134,7 +1571,8 @@ namespace coot {
       // for the first of the returned pair to be true.
       // 
       std::pair<bool, dictionary_residue_restraints_t>
-      get_monomer_restraints(const std::string &monomer_type) const;
+      get_monomer_restraints(const std::string &monomer_type,
+			     int imol_enc) const;
 
       // Return success status in first (0 is fail) and the second is
       // a whole residue's restraints so that we can use it to test if
@@ -2144,13 +1582,22 @@ namespace coot {
       // a minimal restraints description (e.g. from ccp4srs).
       // 
       std::pair<bool, dictionary_residue_restraints_t>
-      get_monomer_restraints_at_least_minimal(const std::string &monomer_type) const;
+      get_monomer_restraints_at_least_minimal(const std::string &monomer_type,
+					      int imol_enc) const;
 
       // caller ensures that idx is valid
       const dictionary_residue_restraints_t &
       get_monomer_restraints(unsigned int idx) const {
-	 return dict_res_restraints[idx];
-      } 
+	 return dict_res_restraints[idx].second;
+      }
+
+      // created for looking up energy types cheaply (hopefully).
+      // 20161007 Now used by refinement monomer restraints lookup.
+      // return -1 on restraints not found.
+      // 
+      int get_monomer_restraints_index(const std::string &monomer_type,
+				       int imol_enc,
+				       bool allow_minimal_flag) const;
 
       // non-const because we try to read in stuff from ccp4srs when
       // it's not in the dictionary yet.  ccp4srs gives us bond orders.
@@ -2173,6 +1620,7 @@ namespace coot {
       // for replaced 0 for added.
       // 
       bool replace_monomer_restraints(std::string monomer_type,
+				      int imol_enc,
 				      const dictionary_residue_restraints_t &mon_res_in);
 
       // Keep everything that we have already, replace only those
@@ -2195,6 +1643,7 @@ namespace coot {
       // this function is no longer const because it can run try_dynamic_add
       //
       bool have_dictionary_for_residue_type(const std::string &monomer_type,
+					    int imol_enc,
 					    int read_number,
 					    bool try_autoload_if_needed=true);
 
@@ -2211,19 +1660,22 @@ namespace coot {
       bool have_at_least_minimal_dictionary_for_residue_type(const std::string &monomer_type) const;
       
       // likewise not const
-      bool have_dictionary_for_residue_types(const std::vector<std::string> &residue_types);
+      bool have_dictionary_for_residue_types(const std::vector<std::string> &residue_types,
+					     int imol_enc,
+					     int read_number);
 
 
       // return a pair, overall status, and pair of residue names and
       // atom names that dont't match.
       //
       std::pair<bool, std::vector<std::pair<std::string, std::vector<std::string> > > >
-      atoms_match_dictionary(const std::vector<mmdb::Residue *> &residues,
+      atoms_match_dictionary(int imol, const std::vector<mmdb::Residue *> &residues,
 			     bool check_hydrogens_too_flag,
 			     bool apply_bond_distance_check) const;
 
       std::pair<bool, std::vector<std::string> >
-      atoms_match_dictionary(mmdb::Residue *res,
+      atoms_match_dictionary(int imol,
+			     mmdb::Residue *res,
 			     bool check_hydrogens_too_flag,
 			     bool apply_bond_distance_check) const;
 
@@ -2265,7 +1717,8 @@ namespace coot {
       // calls try_dynamic_add if needed.
       // make HETATMs if non-standard residue name.
       mmdb::Manager *mol_from_dictionary(const std::string &three_letter_code,
-					bool idealised_flag);
+					 int imol_enc,
+					 bool idealised_flag);
       
       // Used by above (or maybe you just want a residue?)
       // (Can return NULL).
@@ -2276,8 +1729,10 @@ namespace coot {
       // residue.  Something to do with atom indexing on checking
       // in...?
       // 
-      mmdb::Residue *get_residue(const std::string &comp_id, bool idealised_flag,
-			    bool try_autoload_if_needed=true, float b_factor=20.0);
+      mmdb::Residue *get_residue(const std::string &comp_id,
+				 int imol_enc,
+				 bool idealised_flag,
+				 bool try_autoload_if_needed=true, float b_factor=20.0);
 
       // Thow a std::runtime_error exception if we can't get the group of r
       std::string get_group(mmdb::Residue *r) const;
@@ -2341,23 +1796,27 @@ namespace coot {
 
       // return HB_UNASSIGNED when not found
       // 
-      hb_t get_h_bond_type(const std::string &atom_name, const std::string &monomer_name) const;
+      hb_t get_h_bond_type(const std::string &atom_name,
+			   const std::string &monomer_name,
+			   int imol_enc) const;
 
       // Find the bonded neighbours of the given atoms - throw an
       // exception if residue name is not in dictionary.
       // 
-      std::vector<std::string> get_bonded_neighbours(const std::string &comp_id,
+      std::vector<std::string> get_bonded_neighbours(const std::string &comp_id, int imol_enc,
 						     const std::string &atom_name_1,
 						     const std::string &atom_name_2,
 						     bool also_2nd_order_neighbs_flag=0) const;
 
       std::vector<std::pair<std::string, std::string> >
-      get_bonded_and_1_3_angles(const std::string &comp_id) const;
+      get_bonded_and_1_3_angles(const std::string &comp_id,
+				int imol_enc) const;
 
       // add a monomer restraints description.
       //
-      void add(const dictionary_residue_restraints_t &rest) {
-	 dict_res_restraints.push_back(rest);
+      void add(int imol_enc, const dictionary_residue_restraints_t &rest) {
+	 std::pair<int, dictionary_residue_restraints_t> restp(imol_enc, rest);
+	 dict_res_restraints.push_back(restp);
       }
 
       // a new pdb file has been read in (say).  The residue types
@@ -2368,21 +1827,28 @@ namespace coot {
       // 
       bool try_load_ccp4srs_description(const std::vector<std::string> &comp_ids);
 
+      // This is made public so that we can decide if we want to set IMOL_ENC_ANY for this cif file
+      // 
+      bool is_non_auto_load_ligand(const std::string resname) const;
+
       // expand to 4c, the atom_id, give that it should match an atom of the type comp_id.
       // Used in chem mods, when we don't know the comp_id until residue modification time.
       // 
       std::string atom_id_expand(const std::string &atom_id,
-				 const std::string &comp_id) const;
+				 const std::string &comp_id,
+				 int imol_enc) const;
 
       // return "" if not found, else return the energy type found in ener_lib.cif
       // 
       std::string get_type_energy(const std::string &atom_name,
-				  const std::string &residue_name) const;
+				  const std::string &residue_name,
+				  int imol) const;
 
       // return -1.1 on failure to look up.
       // 
       double get_vdw_radius(const std::string &atom_name,
 			    const std::string &residue_name,
+			    int imol,
 			    bool use_vdwH_flag) const;
 
 
@@ -2427,6 +1893,9 @@ namespace coot {
       // can throw a std::runtime_error
       std::string Get_SMILES_for_comp_id(const std::string &comp_id) const;
 
+      // debug
+      void debug() const;
+
       class dreiding_torsion_energy_t {
       public:
 	 double Vjk;
@@ -2442,11 +1911,14 @@ namespace coot {
 
       // can thow a std::runtime_error
       double dreiding_torsion_energy(const std::string &comp_id,
+				     int imol_enc,
 				     mmdb::Atom *atom_1,
 				     mmdb::Atom *atom_2,
 				     mmdb::Atom *atom_3,
 				     mmdb::Atom *atom_4) const;
-      double dreiding_torsion_energy(const std::string &comp_id, const atom_quad &quad) const;
+      double dreiding_torsion_energy(const std::string &comp_id,
+				     int imol_enc,
+				     const atom_quad &quad) const;
       double dreiding_torsion_energy(double phi, int sp_a1, int sp_a2,
 				     const std::string &bond_order,
 				     bool at_1_deloc_or_arom,
@@ -2455,6 +1927,7 @@ namespace coot {
 				     double Vjk, double phi0_jk, double n_jk) const;
       double dreiding_torsion_energy(double phi, dreiding_torsion_energy_t dr) const;
       dreiding_torsion_energy_t dreiding_torsion_energy_params(const std::string &comp_id,
+							       int imol_enc,
 							       const atom_quad &quad) const;
       dreiding_torsion_energy_t dreiding_torsion_energy_params(double phi, int sp_a1, int sp_a2,
 							       const std::string &bond_order,
@@ -2468,15 +1941,17 @@ namespace coot {
 					      mmdb::math::GraphMatch &match, int n_match,
 					      ccp4srs::Monomer *monomer_p) const;
       std::vector<match_results_t>
-      compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float similarity, int n_vertices) const;
+      compare_vs_ccp4srs(mmdb::math::Graph *graph_1, float similarity, int n_vertices,
+			 int srs_idx_start, int srs_idx_end,
+			 bool fill_graph_matches) const;
+      int ccp4_srs_n_entries() const;
 
       // return empty string if not available.
       std::vector<std::string> get_available_ligand_comp_id(const std::string &hoped_for_head,
 							    unsigned int n_top=10) const;
-      
 
 #endif // HAVE_CCP4SRS      
-	 
+
    };
 
 } // namespace coot

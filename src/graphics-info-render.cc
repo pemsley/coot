@@ -15,7 +15,7 @@
  * 
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
- * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA.
  */
 
 #ifdef USE_PYTHON
@@ -499,33 +499,37 @@ coot::ray_trace_molecule_info::render_molecule(std::ofstream &render_stream,
 		    << density_colour.col[2] << "\n";
    }
 
-   for (unsigned int ib=0; ib<bond_lines.size(); ib++) {
-      render_stream << "3" << "\n";
-      // coord1 radius coord2 dummy colour
-      render_stream << "  " 
-		    << bond_lines[ib].first.x() << " "
-		    << bond_lines[ib].first.y() << " "
-		    << bond_lines[ib].first.z() << " "
-		    << bond_thickness << " "
-		    << bond_lines[ib].second.x() << " "
-		    << bond_lines[ib].second.y() << " "
-		    << bond_lines[ib].second.z() << " "
-		    << bond_thickness << " "
-		    << bond_colour[ib].col[0] << " "
-		    << bond_colour[ib].col[1] << " "
-		    << bond_colour[ib].col[2] << "\n";
+   for (unsigned int iset=0; iset<bond_lines.size(); iset++) {
+      std::cout << "set " << iset << " colour " << bond_lines[iset].colour << std::endl;
+      for (unsigned int ib=0; ib<bond_lines[iset].bonds.size(); ib++) {
+         render_stream << "3" << "\n";
+         // coord1 radius coord2 dummy colour
+         render_stream << "  " 
+		       << bond_lines[iset].bonds[ib].begin_pos.x() << " "
+		       << bond_lines[iset].bonds[ib].begin_pos.y() << " "
+		       << bond_lines[iset].bonds[ib].begin_pos.z() << " "
+		       << bond_lines[iset].bonds[ib].bond_thickness << " "
+		       << bond_lines[iset].bonds[ib].end_pos.x() << " "
+		       << bond_lines[iset].bonds[ib].end_pos.y() << " "
+		       << bond_lines[iset].bonds[ib].end_pos.z() << " "
+   		       << bond_lines[iset].bonds[ib].bond_thickness << " "
+		       << bond_lines[iset].colour[0] << " "
+		       << bond_lines[iset].colour[1] << " "
+		       << bond_lines[iset].colour[2] << "\n";
+      }
    }
 
    if (graphics_info_t::renderer_show_atoms_flag) { 
-      for (unsigned int iat=0; iat<atom.size(); iat++) {
+      for (unsigned int iat=0; iat<balls.size(); iat++) {
+	 double r = balls[iat].radius;
 	 render_stream << "2" << "\n";
-	 render_stream << atom[iat].first.x() << " "
-		       << atom[iat].first.y() << " "
-		       << atom[iat].first.z() << " "
-		       << atom_radius
-		       << " " << atom[iat].second.col[0]
-		       << " " << atom[iat].second.col[1]
-		       << " " << atom[iat].second.col[2]
+	 render_stream << balls[iat].pos.x() << " "
+		       << balls[iat].pos.y() << " "
+		       << balls[iat].pos.z() << " "
+		       << r
+		       << " " << balls[iat].colour[0]
+		       << " " << balls[iat].colour[1]
+		       << " " << balls[iat].colour[2]
 		       << "\n";
       }
    }
@@ -595,44 +599,47 @@ coot::ray_trace_molecule_info::renderman_molecule(std::ofstream &render_stream,
 						  float density_thickness,
 						  float bone_thickness) {
 
-   for (unsigned int ib=0; ib<bond_lines.size(); ib++) {
-      render_stream << "# render a bond\n";
-      render_stream << "AttributeBegin\n";
-      render_stream << "   Color [" << bond_colour[ib].col[0] << " "
-		    << bond_colour[ib].col[1] << " "
-		    << bond_colour[ib].col[2] << "]\n";
-      render_stream << "   Surface \"plastic\" \"Ka\" [1] \"Kd\" [0.5] \"Ks\" 1 \"roughness\" 0.1\n";
-// 		    << bond_lines[ib].first.x() << " "
-// 		    << bond_lines[ib].first.y() << " "
-// 		    << bond_lines[ib].first.z() << " "
-// 		    << bond_lines[ib].second.x() << " "
-// 		    << bond_lines[ib].second.y() << " "
-// 		    << bond_lines[ib].second.z() << "\n";
+   for (unsigned int iset=0; iset<bond_lines.size(); iset++) {
+      for (unsigned int ib=0; ib<bond_lines[iset].bonds.size(); ib++) {
+	 render_stream << "# render a bond\n";
+	 render_stream << "AttributeBegin\n";
+	 render_stream << "   Color ["
+		       << bond_lines[iset].colour[0] << " "
+		       << bond_lines[iset].colour[1] << " "
+		       << bond_lines[iset].colour[2] << "]\n";
+	 render_stream << "   Surface \"plastic\" \"Ka\" [1] \"Kd\" [0.5] \"Ks\" 1 \"roughness\" 0.1\n";
+	 // 		    << bond_lines[ib].first.x() << " "
+	 // 		    << bond_lines[ib].first.y() << " "
+	 // 		    << bond_lines[ib].first.z() << " "
+	 // 		    << bond_lines[ib].second.x() << " "
+	 // 		    << bond_lines[ib].second.y() << " "
+	 // 		    << bond_lines[ib].second.z() << "\n";
 
-//       render_stream << "   TransformBegin\n"; // no need
-      render_stream << "   Translate "
-		    << bond_lines[ib].first.x() << " "
-		    << bond_lines[ib].first.y() << " "
-		    << bond_lines[ib].first.z() << "\n";
-      double l = (bond_lines[ib].second - bond_lines[ib].first).amplitude();
+	 //       render_stream << "   TransformBegin\n"; // no need
+	 render_stream << "   Translate "
+		       << bond_lines[iset].bonds[ib].begin_pos.x() << " "
+		       << bond_lines[iset].bonds[ib].begin_pos.y() << " "
+		       << bond_lines[iset].bonds[ib].begin_pos.z() << "\n";
+	 double l = (bond_lines[iset].bonds[ib].begin_pos - bond_lines[iset].bonds[ib].end_pos).amplitude();
 
-      coot::Cartesian v = (bond_lines[ib].second - bond_lines[ib].first);
-      v.unit_vector_yourself();
-      coot::Cartesian axis = coot::Cartesian::CrossProduct(v,Cartesian(0,0,1));
-      double dp = coot::dot_product(v,coot::Cartesian(0,0,-1));
-      // std::cout << " dot product: " << dp << std::endl;
-      if (dp > 1.0)  dp =  1.0;
-      if (dp < -1.0) dp = -1.0;
-      double angle = -180.0/M_PI*acos(dp);
-      if(fabs(axis.length())<1e-7) axis = coot::Cartesian(0,1,0);
-      render_stream << "   Rotate "
-		    << angle << " " << axis.x() << " " << axis.y() << " " << axis.z() << "\n";
-      // Think about scaling the cylinder so that far away bonds are not tiny thin.
+	 coot::Cartesian v = (bond_lines[iset].bonds[ib].begin_pos - bond_lines[iset].bonds[ib].end_pos);
+	 v.unit_vector_yourself();
+	 coot::Cartesian axis = coot::Cartesian::CrossProduct(v,Cartesian(0,0,1));
+	 double dp = coot::dot_product(v,coot::Cartesian(0,0,-1));
+	 // std::cout << " dot product: " << dp << std::endl;
+	 if (dp > 1.0)  dp =  1.0;
+	 if (dp < -1.0) dp = -1.0;
+	 double angle = -180.0/M_PI*acos(dp);
+	 if(fabs(axis.length())<1e-7) axis = coot::Cartesian(0,1,0);
+	 render_stream << "   Rotate "
+		       << angle << " " << axis.x() << " " << axis.y() << " " << axis.z() << "\n";
+	 // Think about scaling the cylinder so that far away bonds are not tiny thin.
       
       
-      render_stream << "   Cylinder 0.15 0 " << l << "  360\n";
-      //       render_stream << "   TransformEnd\n";  // no need
-      render_stream << "AttributeEnd\n";
+	 render_stream << "   Cylinder 0.15 0 " << l << "  360\n";
+	 //       render_stream << "   TransformEnd\n";  // no need
+	 render_stream << "AttributeEnd\n";
+      }
    }
 
 }
@@ -979,54 +986,57 @@ coot::ray_trace_molecule_info::povray_molecule(std::ofstream &render_stream,
 	}
       }
    }
-   for (unsigned int ib=0; ib<bond_lines.size(); ib++) {
+
+   for (unsigned int iset=0; iset<bond_lines.size(); iset++) {
+      for (unsigned int ib=0; ib<bond_lines[iset].bonds.size(); iset++) {
       
-      Cartesian v1 = bond_lines[ib].first  - front_clipping_plane_point;
-      Cartesian v2 = bond_lines[ib].second - front_clipping_plane_point;
-      Cartesian v3 = bond_lines[ib].first  -  back_clipping_plane_point;
-      Cartesian v4 = bond_lines[ib].second -  back_clipping_plane_point;
-      float dp1 = coot::dot_product(v1, front_clip_to_centre_vec);
-      float dp2 = coot::dot_product(v2, front_clip_to_centre_vec);
-      float dp3 = coot::dot_product(v3,  back_clip_to_centre_vec);
-      float dp4 = coot::dot_product(v4,  back_clip_to_centre_vec);
-      if ((dp1 > 0.0) && (dp2 > 0.0) && (dp3 > 0.0) && (dp4 > 0.0)) { 
-	 render_stream << "cylinder{ <"
-		       << bond_lines[ib].first.x() << ", "
-		       << bond_lines[ib].first.y() << ", "
-		       << bond_lines[ib].first.z() << ">\n "
-		       << "         <"
-		       << bond_lines[ib].second.x() << ", "
-		       << bond_lines[ib].second.y() << ", "
-		       << bond_lines[ib].second.z() << ">\n"
-		       << "         " << bond_thickness
-		       << "   pigment { color <"
-		       << bond_colour[ib].col[0] <<", "
-		       << bond_colour[ib].col[1] <<", "
-		       << bond_colour[ib].col[2] <<"> " << "} "
-	    // 		    << "scale " << 1.0*(100.0/zoom)
-		       << "scale " << 1.0
-		       << "}\n";
+	 Cartesian v1 = bond_lines[iset].bonds[ib].begin_pos  - front_clipping_plane_point;
+	 Cartesian v2 = bond_lines[iset].bonds[ib].end_pos    - front_clipping_plane_point;
+	 Cartesian v3 = bond_lines[iset].bonds[ib].begin_pos  -  back_clipping_plane_point;
+	 Cartesian v4 = bond_lines[iset].bonds[ib].end_pos    -  back_clipping_plane_point;
+	 float dp1 = coot::dot_product(v1, front_clip_to_centre_vec);
+	 float dp2 = coot::dot_product(v2, front_clip_to_centre_vec);
+	 float dp3 = coot::dot_product(v3,  back_clip_to_centre_vec);
+	 float dp4 = coot::dot_product(v4,  back_clip_to_centre_vec);
+	 if ((dp1 > 0.0) && (dp2 > 0.0) && (dp3 > 0.0) && (dp4 > 0.0)) { 
+	    render_stream << "cylinder{ <"
+			  << bond_lines[iset].bonds[ib].begin_pos.x() << ", "
+			  << bond_lines[iset].bonds[ib].begin_pos.y() << ", "
+			  << bond_lines[iset].bonds[ib].begin_pos.z() << ">\n "
+			  << "         <"
+			  << bond_lines[iset].bonds[ib].end_pos.x() << ", "
+			  << bond_lines[iset].bonds[ib].end_pos.y() << ", "
+			  << bond_lines[iset].bonds[ib].end_pos.z() << ">\n"
+			  << "         " << bond_thickness
+			  << "   pigment { color <"
+			  << bond_lines[iset].colour[0] <<", "
+			  << bond_lines[iset].colour[1] <<", "
+			  << bond_lines[iset].colour[2] <<"> " << "} "
+	       // 		    << "scale " << 1.0*(100.0/zoom)
+			  << "scale " << 1.0
+			  << "}\n";
+	 }
       }
    }
 
    // 		       << " " << atom[iat].second.col[0]
    // cylinder{<0,0,0>, <0,1,0>, 0.1 pigment {colour <0.1,0.2,0.3>} }
    if (graphics_info_t::renderer_show_atoms_flag) { 
-      for (unsigned int iat=0; iat<atom.size(); iat++) {
+      for (unsigned int iat=0; iat<balls.size(); iat++) {
       
-	 Cartesian v1 = atom[iat].first  - front_clipping_plane_point;
-	 Cartesian v2 = atom[iat].first  -  back_clipping_plane_point;
+	 Cartesian v1 = balls[iat].pos  - front_clipping_plane_point;
+	 Cartesian v2 = balls[iat].pos  -  back_clipping_plane_point;
 	 float dp1 = coot::dot_product(v1, front_clip_to_centre_vec);
 	 float dp2 = coot::dot_product(v2,  back_clip_to_centre_vec);
 	 if ((dp1 > 0) && (dp2 > 0)) { 
 	    render_stream << "sphere{ <"
-			  << atom[iat].first.x() << ","
-			  << atom[iat].first.y() << ","
-			  << atom[iat].first.z() << ">"
+			  << balls[iat].pos.x() << ","
+			  << balls[iat].pos.y() << ","
+			  << balls[iat].pos.z() << ">"
 			  << "0.3   pigment { color <"
-			  << atom[iat].second.col[0] <<", "
-			  << atom[iat].second.col[1] <<", "
-			  << atom[iat].second.col[2] <<">} "
+			  << balls[iat].colour[0] <<", "
+			  << balls[iat].colour[1] <<", "
+			  << balls[iat].colour[2] <<">} "
 			  << ""
 			  << "} "
 			  << "\n";

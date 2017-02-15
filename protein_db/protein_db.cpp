@@ -1,6 +1,5 @@
 /*! ProteinDB Top 500 main chain database */
-/* (C) 2008-2009 Kevin Cowtan & University of York all rights reserved */
-
+/* Copyright (C) 2008-2009 Kevin Cowtan & University of York all rights reserved */
 
 #include "protein_db.h"
 #include <algorithm>

@@ -1,7 +1,27 @@
+/* ligand/trace.cc
+ * 
+ * Copyright 2015 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #include <iomanip>
 #include <algorithm>
-#include "coot-utils/residue-and-atom-specs.hh"
+#include "geometry/residue-and-atom-specs.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "trace.hh"
@@ -618,17 +638,17 @@ coot::trace::make_fragment(std::pair<unsigned int, coot::scored_node_t> scored_n
    clipper::Coord_orth rel_line_pt_C(diff_p_unit * f_ca_ca_c + perp_unit * 0.48);
    clipper::Coord_orth rel_line_pt_N(diff_p_unit * f_ca_ca_n - perp_unit * 0.47);
 
-   clipper::Coord_orth p_N = util::rotate_round_vector(diff_p_unit,
-						       pos_1 + rel_line_pt_N,
-						       pos_1, alpha);
-
-   clipper::Coord_orth p_O = util::rotate_round_vector(diff_p_unit,
-						       pos_1 + rel_line_pt_O,
-						       pos_1, alpha);
+   clipper::Coord_orth p_N = util::rotate_around_vector(diff_p_unit,
+							pos_1 + rel_line_pt_N,
+							pos_1, alpha);
    
-   clipper::Coord_orth p_C = util::rotate_round_vector(diff_p_unit,
-						       pos_1 + rel_line_pt_C,
-						       pos_1, alpha);
+   clipper::Coord_orth p_O = util::rotate_around_vector(diff_p_unit,
+							pos_1 + rel_line_pt_O,
+							pos_1, alpha);
+   
+   clipper::Coord_orth p_C = util::rotate_around_vector(diff_p_unit,
+							pos_1 + rel_line_pt_C,
+							pos_1, alpha);
 
    minimol::residue r1(res_no_base,   "ALA");
    minimol::residue r2(res_no_base+1, "ALA");
@@ -925,28 +945,28 @@ coot::trace::spin_score(unsigned int idx_1, unsigned int idx_2) const {
 
       // direction position orig-shift angle
       // 
-      clipper::Coord_orth p_CO = util::rotate_round_vector(diff_p_unit,
-							  pos_1 + rel_line_pt_O,
-							  pos_1, alpha);
+      clipper::Coord_orth p_CO = util::rotate_around_vector(diff_p_unit,
+							    pos_1 + rel_line_pt_O,
+							    pos_1, alpha);
       
-      clipper::Coord_orth p_CO_low = util::rotate_round_vector(diff_p_unit,
-							  pos_1 + rel_line_pt_O_low,
-							  pos_1, alpha);
+      clipper::Coord_orth p_CO_low = util::rotate_around_vector(diff_p_unit,
+								pos_1 + rel_line_pt_O_low,
+								pos_1, alpha);
       
-      clipper::Coord_orth p_CO_anti = util::rotate_round_vector(diff_p_unit,
-							  pos_1 + rel_line_pt_CO_anti,
-							  pos_1, alpha);
+      clipper::Coord_orth p_CO_anti = util::rotate_around_vector(diff_p_unit,
+								 pos_1 + rel_line_pt_CO_anti,
+								 pos_1, alpha);
       
-      clipper::Coord_orth p_N = util::rotate_round_vector(diff_p_unit,
-							  pos_1 + rel_line_pt_N,
-							  pos_1, alpha);
+      clipper::Coord_orth p_N = util::rotate_around_vector(diff_p_unit,
+							   pos_1 + rel_line_pt_N,
+							   pos_1, alpha);
       
-      clipper::Coord_orth p_2 = util::rotate_round_vector(diff_p_unit,
-							  pos_1 + rel_line_pt_perp1,
-							  pos_1, alpha);
-      clipper::Coord_orth p_3 = util::rotate_round_vector(diff_p_unit,
-							  pos_1 + rel_line_pt_perp2,
-							  pos_1, alpha);
+      clipper::Coord_orth p_2 = util::rotate_around_vector(diff_p_unit,
+							   pos_1 + rel_line_pt_perp1,
+							   pos_1, alpha);
+      clipper::Coord_orth p_3 = util::rotate_around_vector(diff_p_unit,
+							   pos_1 + rel_line_pt_perp2,
+							   pos_1, alpha);
 
       // clipper::Coord_orth p_N_acceptor_1 = util::rotate_round_vector(diff_p_unit,
       // 								     pos_1 + rel_line_pt_N_accpt,

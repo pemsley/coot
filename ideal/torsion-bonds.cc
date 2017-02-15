@@ -1,3 +1,23 @@
+/* ideal/torsion-bonds.cc
+ * 
+ * Copyright 2015 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #include <algorithm>
 #include "coot-utils/coot-coord-extras.hh"
@@ -10,7 +30,7 @@
 // this can throw an exception
 // 
 std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> >
-coot::torsionable_bonds(mmdb::Manager *mol, mmdb::PPAtom atom_selection,
+coot::torsionable_bonds(int imol, mmdb::Manager *mol, mmdb::PPAtom atom_selection,
 			int n_selected_atoms,
 			coot::protein_geometry *geom_p) { 
 
@@ -30,7 +50,7 @@ coot::torsionable_bonds(mmdb::Manager *mol, mmdb::PPAtom atom_selection,
    for (unsigned int ires=0; ires<residues.size(); ires++) { 
       std::string rn = residues[ires]->GetResName();
       std::pair<bool, coot::dictionary_residue_restraints_t> rest =
-	 geom_p->get_monomer_restraints(rn);
+	 geom_p->get_monomer_restraints(rn, imol);
       if (! rest.first) {
 	 std::string m = "Restraints not found for type ";
 	 m += rn;
@@ -168,7 +188,7 @@ coot::torsionable_link_bonds(std::vector<mmdb::Residue *> residues_in,
 // this can throw an exception
 // 
 std::vector<coot::torsion_atom_quad>
-coot::torsionable_quads(mmdb::Manager *mol, mmdb::PPAtom atom_selection,
+coot::torsionable_quads(int imol, mmdb::Manager *mol, mmdb::PPAtom atom_selection,
 			int n_selected_atoms,
 			coot::protein_geometry *geom_p) {
 
@@ -181,7 +201,7 @@ coot::torsionable_quads(mmdb::Manager *mol, mmdb::PPAtom atom_selection,
 	 residues.push_back(r);
    }
    std::vector<coot::torsion_atom_quad> link_quads =
-      coot::torsionable_link_quads(residues, mol, geom_p);
+      coot::torsionable_link_quads(imol, residues, mol, geom_p);
    for (unsigned int iquad=0; iquad<link_quads.size(); iquad++)
       quads.push_back(link_quads[iquad]);
    for (unsigned int ires=0; ires<residues.size(); ires++) {
@@ -201,7 +221,8 @@ coot::torsionable_quads(mmdb::Manager *mol, mmdb::PPAtom atom_selection,
 // And the atom_quad version of that (for setting link torsions)
 // 
 std::vector<coot::torsion_atom_quad>
-coot::torsionable_link_quads(std::vector<mmdb::Residue *> residues_in,
+coot::torsionable_link_quads(int imol,
+			     std::vector<mmdb::Residue *> residues_in,
 			     mmdb::Manager *mol, coot::protein_geometry *geom_p) {
 
    std::vector<coot::torsion_atom_quad> quads;
@@ -216,7 +237,7 @@ coot::torsionable_link_quads(std::vector<mmdb::Residue *> residues_in,
    std::map<mmdb::Residue *, coot::dictionary_residue_restraints_t> res_restraints;
    for (unsigned int ires=0; ires<residues_in.size(); ires++) { 
       std::string rn = residues_in[ires]->GetResName();
-      std::pair<bool, coot::dictionary_residue_restraints_t> rest = geom_p->get_monomer_restraints(rn);
+      std::pair<bool, coot::dictionary_residue_restraints_t> rest = geom_p->get_monomer_restraints(rn, imol);
       if (! rest.first) {
 	 std::string m = "Restraints not found for type ";
 	 m += rn;
@@ -382,7 +403,8 @@ coot::torsionable_link_quads(std::vector<mmdb::Residue *> residues_in,
 
 // this can throw an exception.
 void
-coot::multi_residue_torsion_fit_map(mmdb::Manager *mol,
+coot::multi_residue_torsion_fit_map(int imol,
+				    mmdb::Manager *mol,
 				    const clipper::Xmap<float> &xmap,
 				    int n_trials,
 				    coot::protein_geometry *geom_p) {
@@ -421,7 +443,7 @@ coot::multi_residue_torsion_fit_map(mmdb::Manager *mol,
 
       if (n_selected_atoms > 0) { 
 	 std::vector<coot::torsion_atom_quad> quads = 
-	    coot::torsionable_quads(mol, atom_selection, n_selected_atoms, geom_p);
+	    coot::torsionable_quads(imol, mol, atom_selection, n_selected_atoms, geom_p);
 
 	 // FIXME for future, calculate link_angle_atom_triples, using something analoguous to
 	 // torsionable_link_quads()
@@ -438,7 +460,7 @@ coot::multi_residue_torsion_fit_map(mmdb::Manager *mol,
 			 << std::endl;
 
 
-	 coot::contact_info contacts(mol, selhnd, quads, geom_p);
+	 coot::contact_info contacts(mol, imol, selhnd, quads, geom_p);
 	 std::vector<std::vector<int> > contact_indices =
 	    contacts.get_contact_indices_with_reverse_contacts();
 	 coot::atom_tree_t tree(contact_indices, 0, mol, selhnd);

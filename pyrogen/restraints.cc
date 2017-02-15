@@ -1,3 +1,24 @@
+/* pyrogen/restraints-boost.cc
+ * 
+ * Copyright 2011 by the University of Oxford
+ * Copyright 2014, 2015 by Medical Research Council
+ * Author: Paul Emsley
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #include <boost/python.hpp>
 // #include "rdkit/RDBoost/Exceptions.h"
@@ -242,7 +263,7 @@ coot::test_ccp4srs_usage(const coot::dictionary_residue_restraints_t &restraints
 	    std::cout << "Null graph " << std::endl;
 	 } else { 
 	    std::vector<coot::match_results_t> v =
-	       pg.compare_vs_ccp4srs(graph, local_search_similarity, n_atoms);
+	       pg.compare_vs_ccp4srs(graph, local_search_similarity, n_atoms, -1, -1, false);
 	    std::cout << "got " << v.size() << " SRS matches " << std::endl;
 	 } 
       }
@@ -275,7 +296,6 @@ coot::match_restraints_to_reference_dictionaries(const coot::dictionary_residue_
    }
 
    std::string out_comp_id = restraints.residue_info.comp_id;
-   dictionary_residue_restraints_t empty_dict;
    dictionary_match_info_t best_match;
    int best_idx = -1;
 
@@ -293,12 +313,22 @@ coot::match_restraints_to_reference_dictionaries(const coot::dictionary_residue_
       std::string best_comp_id = pg.get_monomer_restraints(best_idx).residue_info.comp_id;
       std::cout << "INFO:: Matched to reference dictionary of comp-id: " << best_comp_id << std::endl;
       mmdb::Residue *returned_res = util::deep_copy_this_residue(residue_p);
-      std::pair<bool, dictionary_residue_restraints_t> rest = pg.get_monomer_restraints(best_comp_id);
+      int imol = 0; // dummy
+      std::pair<bool, dictionary_residue_restraints_t> rest =
+	 pg.get_monomer_restraints(best_comp_id, imol);
       // dictionary_match_info_t dmi = 
       // restraints.match_to_reference(rest.second, returned_res, out_comp_id, out_comp_id);
       restraints.change_names(returned_res, best_match.name_swaps, best_match.new_comp_id);
       dict = matching_dict_t(returned_res, best_match.dict);
    }
+
+   // here we need to worry about the group - should we return a dict with a group that is L-peptide
+   // that doesn't have the atoms for a peptide bond?  No.  In such a case we should change
+   // dict.group to be "non-polymer".
+   //
+   // Let's do that anyway be default.
+   //
+   dict.dict.residue_info.group = "non-polymer";
    
    return dict;
 }

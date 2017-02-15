@@ -93,7 +93,7 @@ void water_coordination_check(mmdb::Manager *mol, float max_dist) {
 		     contact, ncontacts, 0, &my_matt, i_contact_group);
 
    std::vector<contact_info_t> atom_contacts(nSelAtoms_waters);
-   for (int i=0; i<atom_contacts.size(); i++) {
+   for (unsigned int i=0; i<atom_contacts.size(); i++) {
       atom_contacts[i].this_index = i;
    }
    
@@ -124,14 +124,14 @@ void water_coordination_check(mmdb::Manager *mol, float max_dist) {
    std::sort(atom_contacts.begin(), atom_contacts.end(), contact_info_t::contacts_less);
    std::cout << "sorted" << std::endl;
 
-   for (int i=0; i<atom_contacts.size(); i++) {
+   for (unsigned int i=0; i<atom_contacts.size(); i++) {
       std::cout << "index: " << atom_contacts[i].this_index << std::endl;
       mmdb::Atom *at = waters_atom_sel[atom_contacts[i].this_index];
       std::cout << "at: " << at << std::endl;
       std::cout << atom_contacts[i].this_index << " " << at->GetResName() << " "
 		<< at->GetSeqNum() << " " << at->GetChainID() << " has "
 		<< atom_contacts[i].contact_indices.size() << " contacts\n";
-      for (int j=0; j<atom_contacts[i].contact_indices.size(); j++) {
+      for (unsigned int j=0; j<atom_contacts[i].contact_indices.size(); j++) {
 	 mmdb::Atom *pat = whole_protein_atom_sel[atom_contacts[i].contact_indices[j]];
 	 std::string p_ele(pat->element);
 	 std::cout << "   "

@@ -6,6 +6,7 @@
  * Copyright 2007,2008, 2009 by Bernhard Lohkamp
  * Copyright 2008 by Kevin Cowtan
  * Copyright 2007, 2008, 2009 The University of Oxford
+ * Copyright 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -261,368 +262,373 @@ void execute_refmac(GtkWidget *window) {
 		     // this should overwrite whatever has been set as refmac parameters before
 		     // we do it before checking for phases, so that these can be included later
 		     coot::mtz_column_types_info_t *saved_f_phi_columns
-			= (coot::mtz_column_types_info_t *) gtk_object_get_user_data(GTK_OBJECT(window));
+			= static_cast<coot::mtz_column_types_info_t *>(gtk_object_get_user_data(GTK_OBJECT(window)));
+
+		     if (! saved_f_phi_columns) {
+			std::cout << "ERROR:: Null saved_f_phi_columns" << std::endl;
+		     } else {
 		     
-		     std::string phib_string = "";
-		     std::string fom_string  = "";
-		     std::string fobs_col;
-		     std::string sigfobs_col;
+			std::string phib_string = "";
+			std::string fom_string  = "";
+			std::string fobs_col;
+			std::string sigfobs_col;
 
-		     int icol;
-		     int sensible_r_free_col = 0;
-		     std::string fiobs_col;
-		     std::string sigfiobs_col;
-		     std::string r_free_col;
+			int icol;
+			int sensible_r_free_col = 0;
+			std::string fiobs_col;
+			std::string sigfiobs_col;
+			std::string r_free_col;
 
-		     // and we need to get the column labels if we have an input mtz (not map)
-		     if (have_mtz_file) {
+			// and we need to get the column labels if we have an input mtz (not map)
+			if (have_mtz_file) {
 
-			if (refmac_use_twin_state() == 0) {
-			   // for now we only use Is in twin not in 'normal' refinement
-			   icol = saved_f_phi_columns->selected_refmac_fobs_col;
-			   if ((icol >=0 ) && (icol < int(saved_f_phi_columns->f_cols.size()))) { 
-			      fobs_col = saved_f_phi_columns->f_cols[icol].column_label;  // Minmin crash
-			   } else {
-			      std::cout << "ERROR:: trapped inappropriate access of f_cols in execute_refmac() "
-					<< icol << " " << saved_f_phi_columns->f_cols.size() << std::endl;
-			   } 
-			} else {
-			   // for twin we check both Is and Fs
-			   // first check the I
-			   icol = saved_f_phi_columns->selected_refmac_iobs_col;
-			   if (icol > -1) {
-			      fiobs_col = saved_f_phi_columns->i_cols[icol].column_label;
-			      set_refmac_use_intensities(1);
-			   } else {
-			      // we must have F/sigF then
+			   if (refmac_use_twin_state() == 0) {
+			      // for now we only use Is in twin not in 'normal' refinement
 			      icol = saved_f_phi_columns->selected_refmac_fobs_col;
-			      fiobs_col = saved_f_phi_columns->f_cols[icol].column_label;
-			      set_refmac_use_intensities(0);
+			      if ((icol >=0 ) && (icol < int(saved_f_phi_columns->f_cols.size()))) { 
+				 fobs_col = saved_f_phi_columns->f_cols[icol].column_label;  // Minmin crash
+			      } else {
+				 std::cout << "ERROR:: trapped inappropriate access of f_cols in execute_refmac() "
+					   << icol << " " << saved_f_phi_columns->f_cols.size() << std::endl;
+			      } 
+			   } else {
+			      // for twin we check both Is and Fs
+			      // first check the I
+			      icol = saved_f_phi_columns->selected_refmac_iobs_col;
+			      if (icol > -1) {
+				 fiobs_col = saved_f_phi_columns->i_cols[icol].column_label;
+				 set_refmac_use_intensities(1);
+			      } else {
+				 // we must have F/sigF then
+				 icol = saved_f_phi_columns->selected_refmac_fobs_col;
+				 fiobs_col = saved_f_phi_columns->f_cols[icol].column_label;
+				 set_refmac_use_intensities(0);
+			      }
+			      icol = saved_f_phi_columns->selected_refmac_sigfobs_col;
+			      sigfiobs_col = saved_f_phi_columns->sigf_cols[icol].column_label;
 			   }
-			   icol = saved_f_phi_columns->selected_refmac_sigfobs_col;
-			   sigfiobs_col = saved_f_phi_columns->sigf_cols[icol].column_label;
+			   icol = saved_f_phi_columns->selected_refmac_r_free_col; /* magic -1 if not set */
+			   if (icol >= 0) { 
+			      // 
+			      sensible_r_free_col = 1;
+			      r_free_col = saved_f_phi_columns->r_free_cols[icol].column_label;
+			   } else { 
+			      sensible_r_free_col = 0;
+			      r_free_col = "";
+			   }
 			}
-			icol = saved_f_phi_columns->selected_refmac_r_free_col; /* magic -1 if not set */
-			if (icol >= 0) { 
-			   // 
-			   sensible_r_free_col = 1;
-			   r_free_col = saved_f_phi_columns->r_free_cols[icol].column_label;
-			} else { 
-			   sensible_r_free_col = 0;
-			   r_free_col = "";
-			}
-		     }
 
-		     std::string phi_label = "";
-		     std::string fom_label = "";
-		     std::string hla_label = "";
-		     std::string hlb_label = "";
-		     std::string hlc_label = "";
-		     std::string hld_label = "";
+			std::string phi_label = "";
+			std::string fom_label = "";
+			std::string hla_label = "";
+			std::string hlb_label = "";
+			std::string hlc_label = "";
+			std::string hld_label = "";
 
-		     if (saved_f_phi_columns->selected_refmac_fobs_col > -1 &&
-			 saved_f_phi_columns->selected_refmac_sigfobs_col > -1) {
+			if (saved_f_phi_columns->selected_refmac_fobs_col > -1 &&
+			    saved_f_phi_columns->selected_refmac_sigfobs_col > -1) {
 
-			if (phase_combine_flag == 3) {
-			   // SAD F/sigF columns
-			   // we make F=/F- and sigF+/f- a list to pass to scripting refmac
-			   std::string fp_col;
-			   std::string fm_col;
-			   std::string sigfp_col;
-			   std::string sigfm_col;
-			   // F+
-			   icol = saved_f_phi_columns->selected_refmac_fp_col;
-			   fp_col = saved_f_phi_columns->fpm_cols[icol].column_label;
-			   // F-
-			   icol = saved_f_phi_columns->selected_refmac_fm_col;
-			   fm_col = saved_f_phi_columns->fpm_cols[icol].column_label;
-			   // sigF+
-			   icol = saved_f_phi_columns->selected_refmac_sigfp_col;
-			   sigfp_col = saved_f_phi_columns->sigfpm_cols[icol].column_label;
-			   // sigF-
-			   icol = saved_f_phi_columns->selected_refmac_sigfm_col;
-			   sigfm_col = saved_f_phi_columns->sigfpm_cols[icol].column_label;
-			   // make lists
+			   if (phase_combine_flag == 3) {
+			      // SAD F/sigF columns
+			      // we make F=/F- and sigF+/f- a list to pass to scripting refmac
+			      std::string fp_col;
+			      std::string fm_col;
+			      std::string sigfp_col;
+			      std::string sigfm_col;
+			      // F+
+			      icol = saved_f_phi_columns->selected_refmac_fp_col;
+			      fp_col = saved_f_phi_columns->fpm_cols[icol].column_label;
+			      // F-
+			      icol = saved_f_phi_columns->selected_refmac_fm_col;
+			      fm_col = saved_f_phi_columns->fpm_cols[icol].column_label;
+			      // sigF+
+			      icol = saved_f_phi_columns->selected_refmac_sigfp_col;
+			      sigfp_col = saved_f_phi_columns->sigfpm_cols[icol].column_label;
+			      // sigF-
+			      icol = saved_f_phi_columns->selected_refmac_sigfm_col;
+			      sigfm_col = saved_f_phi_columns->sigfpm_cols[icol].column_label;
+			      // make lists
 #ifdef USE_GUILE
-			   fobs_col  = "(cons ";
-			   fobs_col += single_quote(fp_col);
-			   fobs_col += " ";
-			   fobs_col += single_quote(fm_col);
-			   fobs_col += ")";
-			   sigfobs_col  = "(cons ";
-			   sigfobs_col += single_quote(sigfp_col);
-			   sigfobs_col += " ";
-			   sigfobs_col += single_quote(sigfm_col);
-			   sigfobs_col += ")";
+			      fobs_col  = "(cons ";
+			      fobs_col += single_quote(fp_col);
+			      fobs_col += " ";
+			      fobs_col += single_quote(fm_col);
+			      fobs_col += ")";
+			      sigfobs_col  = "(cons ";
+			      sigfobs_col += single_quote(sigfp_col);
+			      sigfobs_col += " ";
+			      sigfobs_col += single_quote(sigfm_col);
+			      sigfobs_col += ")";
 #else
 #ifdef USE_PYTHON
-			   fobs_col = "[";
-			   fobs_col += single_quote(fp_col);
-			   fobs_col += ", ";
-			   fobs_col += single_quote(fm_col);
-			   fobs_col += "]";
-			   sigfobs_col = "[";
-			   sigfobs_col += single_quote(sigfp_col);
-			   sigfobs_col += ", ";
-			   sigfobs_col += single_quote(sigfm_col);
-			   sigfobs_col += "]";
+			      fobs_col = "[";
+			      fobs_col += single_quote(fp_col);
+			      fobs_col += ", ";
+			      fobs_col += single_quote(fm_col);
+			      fobs_col += "]";
+			      sigfobs_col = "[";
+			      sigfobs_col += single_quote(sigfp_col);
+			      sigfobs_col += ", ";
+			      sigfobs_col += single_quote(sigfm_col);
+			      sigfobs_col += "]";
 #endif // USE_GUILE
 #endif // USE_PYTHON
-			   // now get the information about anomalous atom
-			   GtkWidget *atom_entry    = lookup_widget(window, "run_refmac_sad_atom_entry");
-			   GtkWidget *fp_entry      = lookup_widget(window, "run_refmac_sad_fp_entry");
-			   GtkWidget *fpp_entry     = lookup_widget(window, "run_refmac_sad_fpp_entry");
-			   GtkWidget *lambda_entry  = lookup_widget(window, "run_refmac_sad_lambda_entry");
-			   const gchar *atom_str  = gtk_entry_get_text(GTK_ENTRY(atom_entry));
-			   std::string fp_str     = gtk_entry_get_text(GTK_ENTRY(fp_entry));
-			   std::string fpp_str    = gtk_entry_get_text(GTK_ENTRY(fpp_entry));
-			   std::string lambda_str = gtk_entry_get_text(GTK_ENTRY(lambda_entry));
-			   float fp, fpp, lambda;
-			   if (fp_str != "") {
-			      fp = atof(fp_str.c_str());
-			   } else {
-			      fp = -9999; // magic unset
-			   }
-			   if (fpp_str != "") {
-			      fpp = atof(fpp_str.c_str());
-			   } else {
-			      fpp = -9999; // magic unset
-			   }
-			   if (lambda_str != "") {
-			      lambda = atof(lambda_str.c_str());
-			   } else {
-			      lambda = -9999; // magic unset
-			   }
-			   add_refmac_sad_atom(atom_str, fp, fpp, lambda);
+			      // now get the information about anomalous atom
+			      GtkWidget *atom_entry    = lookup_widget(window, "run_refmac_sad_atom_entry");
+			      GtkWidget *fp_entry      = lookup_widget(window, "run_refmac_sad_fp_entry");
+			      GtkWidget *fpp_entry     = lookup_widget(window, "run_refmac_sad_fpp_entry");
+			      GtkWidget *lambda_entry  = lookup_widget(window, "run_refmac_sad_lambda_entry");
+			      const gchar *atom_str  = gtk_entry_get_text(GTK_ENTRY(atom_entry));
+			      std::string fp_str     = gtk_entry_get_text(GTK_ENTRY(fp_entry));
+			      std::string fpp_str    = gtk_entry_get_text(GTK_ENTRY(fpp_entry));
+			      std::string lambda_str = gtk_entry_get_text(GTK_ENTRY(lambda_entry));
+			      float fp, fpp, lambda;
+			      if (fp_str != "") {
+				 fp = atof(fp_str.c_str());
+			      } else {
+				 fp = -9999; // magic unset
+			      }
+			      if (fpp_str != "") {
+				 fpp = atof(fpp_str.c_str());
+			      } else {
+				 fpp = -9999; // magic unset
+			      }
+			      if (lambda_str != "") {
+				 lambda = atof(lambda_str.c_str());
+			      } else {
+				 lambda = -9999; // magic unset
+			      }
+			      add_refmac_sad_atom(atom_str, fp, fpp, lambda);
 
-			} else {
-			   icol = saved_f_phi_columns->selected_refmac_fobs_col;
-			   fobs_col = saved_f_phi_columns->f_cols[icol].column_label;
+			   } else {
+			      icol = saved_f_phi_columns->selected_refmac_fobs_col;
+			      fobs_col = saved_f_phi_columns->f_cols[icol].column_label;
 
-			   icol = saved_f_phi_columns->selected_refmac_sigfobs_col;
-			   sigfobs_col = saved_f_phi_columns->sigf_cols[icol].column_label;
+			      icol = saved_f_phi_columns->selected_refmac_sigfobs_col;
+			      sigfobs_col = saved_f_phi_columns->sigf_cols[icol].column_label;
+			   }
+
+			   icol = saved_f_phi_columns->selected_refmac_r_free_col; /* magic -1 if not set */
+			   if (icol >= 0) { 
+			      // 
+			      sensible_r_free_col = 1;
+			      r_free_col = saved_f_phi_columns->r_free_cols[icol].column_label;
+			   } else { 
+			      sensible_r_free_col = 0;
+			      r_free_col = "";
+			   }
+
+			   // We save the phase and FOM as 'fourier_*_labels' too, so that they are saved!?
+			   if (phase_combine_flag == 1) {
+			      icol = saved_f_phi_columns->selected_refmac_phi_col;
+			      if (icol == -1) { 
+				 printf("INFO:: no phase available (phi/fom)! \n");
+			      } else { 
+				 phi_label = saved_f_phi_columns->phi_cols[icol].column_label; 
+				 icol = saved_f_phi_columns->selected_refmac_fom_col;
+				 fom_label = saved_f_phi_columns->weight_cols[icol].column_label;
+				 if (! have_mtz_file) {
+				    graphics_info_t::molecules[imol_map_refmac].store_refmac_phase_params(std::string(phi_label),
+													  std::string(fom_label),
+													  std::string(hla_label),
+													  std::string(hlb_label),
+													  std::string(hlc_label),
+													  std::string(hld_label));
+				 }
+			      }
+			   }
+
+			   // check the HLs
+			   if (phase_combine_flag == 2) {
+			      icol = saved_f_phi_columns->selected_refmac_hla_col;
+			      if (icol == -1) {
+				 printf("INFO:: no phase available (HLs)! \n");
+			      } else { 
+				 hla_label = saved_f_phi_columns->hl_cols[icol].column_label;
+				 icol = saved_f_phi_columns->selected_refmac_hlb_col;
+				 hlb_label = saved_f_phi_columns->hl_cols[icol].column_label;
+				 icol = saved_f_phi_columns->selected_refmac_hlc_col;
+				 hlc_label = saved_f_phi_columns->hl_cols[icol].column_label;
+				 icol = saved_f_phi_columns->selected_refmac_hld_col;
+				 hld_label = saved_f_phi_columns->hl_cols[icol].column_label;
+				 g_print("BL DEBUG:: have HLs \n");
+				 if (! have_mtz_file) {
+				    graphics_info_t::molecules[imol_map_refmac].store_refmac_phase_params(std::string(phi_label),
+													  std::string(fom_label),
+													  std::string(hla_label),
+													  std::string(hlb_label),
+													  std::string(hlc_label),
+													  std::string(hld_label));
+				 }
+			      }
+			   }
+
+			   if (have_mtz_file){
+			      graphics_info_t g;
+			      g.store_refmac_params(std::string(mtz_in_filename),
+						    std::string(fobs_col), 
+						    std::string(sigfobs_col), 
+						    std::string(r_free_col),
+						    sensible_r_free_col);
+			      set_refmac_used_mtz_file(1);
+			   } else {
+			      graphics_info_t::molecules[imol_map_refmac].store_refmac_params(std::string(mtz_in_filename),
+											      std::string(fobs_col), 
+											      std::string(sigfobs_col), 
+											      std::string(r_free_col),
+											      sensible_r_free_col);
+			      set_refmac_used_mtz_file(0);
+			   }
 			}
 
-			icol = saved_f_phi_columns->selected_refmac_r_free_col; /* magic -1 if not set */
-			if (icol >= 0) { 
-			   // 
-			   sensible_r_free_col = 1;
-			   r_free_col = saved_f_phi_columns->r_free_cols[icol].column_label;
-			} else { 
-			   sensible_r_free_col = 0;
-			   r_free_col = "";
-			}
-
-			// We save the phase and FOM as 'fourier_*_labels' too, so that they are saved!?
+			//if (g.molecules[imol_map_refmac].Fourier_weight_label() != "") {
+			//  phib_string = g.molecules[imol_map_refmac].Fourier_phi_label();
+			//  fom_string  = g.molecules[imol_map_refmac].Fourier_weight_label();
+			//} else {
 			if (phase_combine_flag == 1) {
-			   icol = saved_f_phi_columns->selected_refmac_phi_col;
-			   if (icol == -1) { 
-			      printf("INFO:: no phase available (phi/fom)! \n");
-			   } else { 
-			      phi_label = saved_f_phi_columns->phi_cols[icol].column_label; 
-			      icol = saved_f_phi_columns->selected_refmac_fom_col;
-			      fom_label = saved_f_phi_columns->weight_cols[icol].column_label;
-			      if (! have_mtz_file) {
-				 graphics_info_t::molecules[imol_map_refmac].store_refmac_phase_params(std::string(phi_label),
-												       std::string(fom_label),
-												       std::string(hla_label),
-												       std::string(hlb_label),
-												       std::string(hlc_label),
-												       std::string(hld_label));
+			   if (! have_mtz_file) {
+			      if (g.molecules[imol_map_refmac].Refmac_phi_col() != "") {
+				 phib_string = g.molecules[imol_map_refmac].Refmac_phi_col();
+				 fom_string  = g.molecules[imol_map_refmac].Refmac_fom_col();
+			      } else {
+				 std::cout << "WARNING:: Can't do phase combination if we don't use FOMs ";
+				 std::cout << "to make the map" << std::endl;
+				 std::cout << "WARNING:: Turning off phase combination." << std::endl;
+				 phase_combine_flag = 0;
 			      }
-			   }
-			}
-
-			// check the HLs
-			if (phase_combine_flag == 2) {
-			   icol = saved_f_phi_columns->selected_refmac_hla_col;
-			   if (icol == -1) {
-			      printf("INFO:: no phase available (HLs)! \n");
-			   } else { 
-			      hla_label = saved_f_phi_columns->hl_cols[icol].column_label;
-			      icol = saved_f_phi_columns->selected_refmac_hlb_col;
-			      hlb_label = saved_f_phi_columns->hl_cols[icol].column_label;
-			      icol = saved_f_phi_columns->selected_refmac_hlc_col;
-			      hlc_label = saved_f_phi_columns->hl_cols[icol].column_label;
-			      icol = saved_f_phi_columns->selected_refmac_hld_col;
-			      hld_label = saved_f_phi_columns->hl_cols[icol].column_label;
-			      g_print("BL DEBUG:: have HLs \n");
-			      if (! have_mtz_file) {
-				 graphics_info_t::molecules[imol_map_refmac].store_refmac_phase_params(std::string(phi_label),
-												       std::string(fom_label),
-												       std::string(hla_label),
-												       std::string(hlb_label),
-												       std::string(hlc_label),
-												       std::string(hld_label));
-			      }
-			   }
-			}
-			    
-			if (have_mtz_file){
-			   graphics_info_t g;
-			   g.store_refmac_params(std::string(mtz_in_filename),
-						 std::string(fobs_col), 
-						 std::string(sigfobs_col), 
-						 std::string(r_free_col),
-						 sensible_r_free_col);
-			   set_refmac_used_mtz_file(1);
-			} else {
-			   graphics_info_t::molecules[imol_map_refmac].store_refmac_params(std::string(mtz_in_filename),
-											   std::string(fobs_col), 
-											   std::string(sigfobs_col), 
-											   std::string(r_free_col),
-											   sensible_r_free_col);
-			   set_refmac_used_mtz_file(0);
-			}
-		     }
-
-		     //if (g.molecules[imol_map_refmac].Fourier_weight_label() != "") {
-		     //  phib_string = g.molecules[imol_map_refmac].Fourier_phi_label();
-		     //  fom_string  = g.molecules[imol_map_refmac].Fourier_weight_label();
-		     //} else {
-		     if (phase_combine_flag == 1) {
-			if (! have_mtz_file) {
-			   if (g.molecules[imol_map_refmac].Refmac_phi_col() != "") {
-			      phib_string = g.molecules[imol_map_refmac].Refmac_phi_col();
-			      fom_string  = g.molecules[imol_map_refmac].Refmac_fom_col();
 			   } else {
-			      std::cout << "WARNING:: Can't do phase combination if we don't use FOMs ";
-			      std::cout << "to make the map" << std::endl;
+			      if (phi_label != "" && fom_label != "") {
+				 phib_string = phi_label;
+				 fom_string  = fom_label;
+			      } else {
+				 std::cout << "WARNING:: Can't do phase combination if we don't use FOMs ";
+				 std::cout << "to make the map" << std::endl;
+				 std::cout << "WARNING:: Turning off phase combination." << std::endl;
+				 phase_combine_flag = 0;		      
+			      }
+			   }
+			}
+			// 	    std::cout << "DEBUG:: fom_string " << fom_string << " "
+			// 		      << g.molecules[imol_map_refmac].Fourier_weight_label()
+			// 		      << std::endl;
+
+			// now check for HLs
+			if (phase_combine_flag == 2) {
+			   std::string hla_string = "";
+			   std::string hlb_string;
+			   std::string hlc_string;
+			   std::string hld_string;
+			   if (! have_mtz_file && g.molecules[imol_map_refmac].Refmac_hla_col() != "") {
+			      hla_string = g.molecules[imol_map_refmac].Refmac_hla_col();
+			      hlb_string = g.molecules[imol_map_refmac].Refmac_hlb_col();
+			      hlc_string = g.molecules[imol_map_refmac].Refmac_hlc_col();
+			      hld_string = g.molecules[imol_map_refmac].Refmac_hld_col();
+			   } else {
+			      if (have_mtz_file && hla_label != ""){
+				 hla_string = hla_label;
+				 hlb_string = hlb_label;
+				 hlc_string = hlc_label;
+				 hld_string = hld_label;
+			      } else {
+				 std::cout << "WARNING:: no valid HL columns found" <<std::endl;
+			      }
+			   }
+			   if (hla_string != "") {
+			      // now save the HLs in a list string (phib) for refmac, depending on scripting
+			      std::vector<std::string> hl_list;
+			      hl_list.push_back(hla_string);
+			      hl_list.push_back(hlb_string);
+			      hl_list.push_back(hlc_string);
+			      hl_list.push_back(hld_string);
+#ifdef USE_GUILE
+			      //phib_string = "(list ";
+			      // here we pass it as a string, scheme will later make a list
+			      phib_string  = hla_string;
+			      phib_string += " ";
+			      phib_string += hlb_string;
+			      phib_string += " ";
+			      phib_string += hlc_string;
+			      phib_string += " ";
+			      phib_string += hld_string;
+			      //phib_string += ")";
+#else
+#ifdef USE_PYTHON
+			      phib_string = "[";
+			      phib_string += single_quote(hla_string);
+			      phib_string += ", ";
+			      phib_string += single_quote(hlb_string);
+			      phib_string += ", ";
+			      phib_string += single_quote(hlc_string);
+			      phib_string += ", ";
+			      phib_string += single_quote(hld_string);
+			      phib_string += "]";
+#endif // USE_GUILE
+#endif // USE_PYTHON
+			      fom_string = "";
+			   } else {
+			      std::cout << "WARNING:: Can't do phase combination if we don't have HLs " << std::endl;
 			      std::cout << "WARNING:: Turning off phase combination." << std::endl;
 			      phase_combine_flag = 0;
 			   }
-			} else {
-			   if (phi_label != "" && fom_label != "") {
-			      phib_string = phi_label;
-			      fom_string  = fom_label;
-			   } else {
-			      std::cout << "WARNING:: Can't do phase combination if we don't use FOMs ";
-			      std::cout << "to make the map" << std::endl;
-			      std::cout << "WARNING:: Turning off phase combination." << std::endl;
-			      phase_combine_flag = 0;		      
-			   }
 			}
-		     }
-		     // 	    std::cout << "DEBUG:: fom_string " << fom_string << " "
-		     // 		      << g.molecules[imol_map_refmac].Fourier_weight_label()
-		     // 		      << std::endl;
-
-		     // now check for HLs
-		     if (phase_combine_flag == 2) {
-			std::string hla_string = "";
-			std::string hlb_string;
-			std::string hlc_string;
-			std::string hld_string;
-			if (! have_mtz_file && g.molecules[imol_map_refmac].Refmac_hla_col() != "") {
-			   hla_string = g.molecules[imol_map_refmac].Refmac_hla_col();
-			   hlb_string = g.molecules[imol_map_refmac].Refmac_hlb_col();
-			   hlc_string = g.molecules[imol_map_refmac].Refmac_hlc_col();
-			   hld_string = g.molecules[imol_map_refmac].Refmac_hld_col();
-			} else {
-			   if (have_mtz_file && hla_label != ""){
-			      hla_string = hla_label;
-			      hlb_string = hlb_label;
-			      hlc_string = hlc_label;
-			      hld_string = hld_label;
-			   } else {
-			      std::cout << "WARNING:: no valid HL columns found" <<std::endl;
-			   }
-			}
-			if (hla_string != "") {
-			   // now save the HLs in a list string (phib) for refmac, depending on scripting
-			   std::vector<std::string> hl_list;
-			   hl_list.push_back(hla_string);
-			   hl_list.push_back(hlb_string);
-			   hl_list.push_back(hlc_string);
-			   hl_list.push_back(hld_string);
-#ifdef USE_GUILE
-			   //phib_string = "(list ";
-			   // here we pass it as a string, scheme will later make a list
-			   phib_string  = hla_string;
-			   phib_string += " ";
-			   phib_string += hlb_string;
-			   phib_string += " ";
-			   phib_string += hlc_string;
-			   phib_string += " ";
-			   phib_string += hld_string;
-			   //phib_string += ")";
-#else
-#ifdef USE_PYTHON
-			   phib_string = "[";
-			   phib_string += single_quote(hla_string);
-			   phib_string += ", ";
-			   phib_string += single_quote(hlb_string);
-			   phib_string += ", ";
-			   phib_string += single_quote(hlc_string);
-			   phib_string += ", ";
-			   phib_string += single_quote(hld_string);
-			   phib_string += "]";
-#endif // USE_GUILE
-#endif // USE_PYTHON
-			   fom_string = "";
-			} else {
-			   std::cout << "WARNING:: Can't do phase combination if we don't have HLs " << std::endl;
-			   std::cout << "WARNING:: Turning off phase combination." << std::endl;
+			// for TWIN we reset the flags as we dont have phase combination for twin yet
+			if (refmac_use_twin_state() == 1) {
 			   phase_combine_flag = 0;
+			   phib_string = "";
+			   fom_string = "";
 			}
-		     }
-		     // for TWIN we reset the flags as we dont have phase combination for twin yet
-		     if (refmac_use_twin_state() == 1) {
-			phase_combine_flag = 0;
-			phib_string = "";
-			fom_string = "";
-		     }
 
-		     std::string cif_lib_filename = ""; // default, none
-		     if (graphics_info_t::cif_dictionary_filename_vec->size() > 0) {
-			cif_lib_filename = (*graphics_info_t::cif_dictionary_filename_vec)[0];
-		     }
+			std::string cif_lib_filename = ""; // default, none
+			if (graphics_info_t::cif_dictionary_filename_vec->size() > 0) {
+			   cif_lib_filename = (*graphics_info_t::cif_dictionary_filename_vec)[0];
+			}
 
 
-		     // 	    std::cout << "DEBUG:: attempting to write pdb input file "
-		     // 		      << pdb_in_filename << std::endl;
-		     int ierr = g.molecules[imol_coords].write_pdb_file(pdb_in_filename);
-		     if (!ierr) { 
-			std::cout << "refmac ccp4i project dir " 
-				  << graphics_info_t::refmac_ccp4i_project_dir 
-				  << std::endl;
-			int run_refmac_with_no_labels = 0;
+			// 	    std::cout << "DEBUG:: attempting to write pdb input file "
+			// 		      << pdb_in_filename << std::endl;
+			int ierr = g.molecules[imol_coords].write_pdb_file(pdb_in_filename);
+			if (!ierr) { 
+			   std::cout << "refmac ccp4i project dir " 
+				     << graphics_info_t::refmac_ccp4i_project_dir 
+				     << std::endl;
+			   int run_refmac_with_no_labels = 0;
 
-			if (refmac_runs_with_nolabels()) {
-			   GtkWidget *nolabels_checkbutton = lookup_widget(window,
-									   "run_refmac_nolabels_checkbutton");
-			   if (GTK_TOGGLE_BUTTON(nolabels_checkbutton)->active) {
-			      run_refmac_with_no_labels = 1;
-			      fobs_col    = "";
-			      sigfobs_col = "";
-			      r_free_col  = "";
-			      sensible_r_free_col = 0;
+			   if (refmac_runs_with_nolabels()) {
+			      GtkWidget *nolabels_checkbutton = lookup_widget(window,
+									      "run_refmac_nolabels_checkbutton");
+			      if (GTK_TOGGLE_BUTTON(nolabels_checkbutton)->active) {
+				 run_refmac_with_no_labels = 1;
+				 fobs_col    = "";
+				 sigfobs_col = "";
+				 r_free_col  = "";
+				 sensible_r_free_col = 0;
+			      }
 			   }
-			}
 
-			// And finally run refmac
-			if (run_refmac_with_no_labels == 1 || fobs_col != "") {
-			   short int make_molecules_flag = 1; // not a sub-thread, (so do things
-			   // the normal/old way).
-			   execute_refmac_real(pdb_in_filename, pdb_out_filename,
-					       mtz_in_filename, mtz_out_filename,
-					       cif_lib_filename,
-					       fobs_col, sigfobs_col, r_free_col, sensible_r_free_col,
-					       make_molecules_flag,
-					       refmac_count_string,
-					       g.swap_pre_post_refmac_map_colours_flag,
-					       imol_map_refmac,
-					       diff_map_flag,
-					       phase_combine_flag, phib_string, fom_string,
-					       graphics_info_t::refmac_ccp4i_project_dir);
+			   // And finally run refmac
+			   if (run_refmac_with_no_labels == 1 || fobs_col != "") {
+			      short int make_molecules_flag = 1; // not a sub-thread, (so do things
+			      // the normal/old way).
+			      execute_refmac_real(pdb_in_filename, pdb_out_filename,
+						  mtz_in_filename, mtz_out_filename,
+						  cif_lib_filename,
+						  fobs_col, sigfobs_col, r_free_col, sensible_r_free_col,
+						  make_molecules_flag,
+						  refmac_count_string,
+						  g.swap_pre_post_refmac_map_colours_flag,
+						  imol_map_refmac,
+						  diff_map_flag,
+						  phase_combine_flag, phib_string, fom_string,
+						  graphics_info_t::refmac_ccp4i_project_dir);
+			   } else {
+
+			      std::cout << "WARNING:: we cannot run Refmac without without valid labels" <<std::endl;
+			   }
 			} else {
-
-			   std::cout << "WARNING:: we cannot run Refmac without without valid labels" <<std::endl;
+			   std::cout << "WARNING:: fatal error in writing pdb input file"
+				     << pdb_in_filename << " for refmac.  Can't run refmac"
+				     << std::endl;
 			}
-		     } else {
-			std::cout << "WARNING:: fatal error in writing pdb input file"
-				  << pdb_in_filename << " for refmac.  Can't run refmac"
-				  << std::endl;
 		     }
 		  }
 	       }

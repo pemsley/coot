@@ -1,6 +1,7 @@
 /* src/command-line.cc
  * 
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006 by The University of York
+ * Copyright 2015, 2016 by Medical Research Council
  * Author: Paul Emsley
  * 
  * This program is free software; you can redistribute it and/or modify

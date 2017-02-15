@@ -3,6 +3,7 @@
  * Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Copyright 2007 by Paul Emsley
  * Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The University of Oxford
+ * Copyright 2015, 2016 by Medical Research Council
  * 
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -303,6 +304,10 @@ GtkWidget *wrapped_create_run_state_file_dialog();
 #ifdef USE_PYTHON
 GtkWidget *wrapped_create_run_state_file_dialog_py();
 #endif /* USE_PYTHON */
+
+/* Allow the user to select a specific molecule for the ligand dictionary */
+void cif_dictionary_molecule_menu_item_select(GtkWidget *item, GtkPositionType pos);
+void fill_option_menu_with_coordinates_options_for_dictionary(GtkWidget *option_menu);
 
  void do_clipping1_activate();
 void clipping_adjustment_changed (GtkAdjustment *adj, GtkWidget *window);
@@ -610,6 +615,11 @@ int fill_vbox_with_coords_options_by_dialog_name(GtkWidget *find_ligand_dialog,
 void fill_ligands_sigma_level_entry(GtkWidget *dialog);
 void fill_ligands_expert_options(GtkWidget *find_ligand_dialog);
 void set_ligand_expert_options_from_widget(GtkWidget *button);
+
+void set_ligand_dialog_number_of_sites_sensitivity(GtkWidget *toggle_button);
+
+void set_ligand_dialog_real_space_refine_sites_checkbutton_state(GtkWidget *toggle_button);
+
 
  
 /*  info is stored in graphics_info_t beforehand */

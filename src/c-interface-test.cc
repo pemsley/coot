@@ -1,7 +1,8 @@
-/* src/c-interface.cc
+/* src/c-interface-test.cc
  * 
  * Copyright 2002, 2003, 2004, 2005, 2006, 2007 The University of York
  * Copyright 2008, 2009 by The University of Oxford
+ * Copyright 2014 by Medical Research Council
  * Author: Paul Emsley, Bernhard Lohkamp
  * 
  * This program is free software; you can redistribute it and/or
@@ -115,6 +116,7 @@
 
 
 #include "c-interface.h"
+#include "c-interface-generic-objects.h"
 #include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
 #include "c-interface-ligands.hh"
@@ -165,6 +167,7 @@ int test_function(int i, int j) {
 	 if (is_valid_map_molecule(j)) { 
 	    const clipper::Xmap<float> &xmap = g.molecules[j].xmap;
 	    mmdb::Manager *mol = g.molecules[i].atom_sel.mol;
+	    int imol = 0; // dummy
 	    std::vector<coot::residue_spec_t> v;
 	    v.push_back(coot::residue_spec_t("G", 160, ""));
 	    v.push_back(coot::residue_spec_t("G", 847, ""));
@@ -177,7 +180,7 @@ int test_function(int i, int j) {
 	       // do we need to send over the base atom too?  Or just say
 	       // that it's the first atom in moving_mol?
 	       // 
-	       coot::multi_residue_torsion_fit_map(moving_mol, xmap, 400, g.Geom_p());
+	       coot::multi_residue_torsion_fit_map(imol, moving_mol, xmap, 400, g.Geom_p());
 
 	       atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
 
@@ -228,8 +231,9 @@ int test_function(int i, int j) {
 	 mmdb::Residue *residue = g.molecules[pp.second.first].get_residue(pp.second.second);
 	 mmdb::Manager *mol = g.molecules[pp.second.first].atom_sel.mol;
 	 if (residue) {
+	    int imol = 0;
 	    std::pair<bool, coot::dictionary_residue_restraints_t> restraints =
-	       g.Geom_p()->get_monomer_restraints(residue->GetResName());
+	       g.Geom_p()->get_monomer_restraints(residue->GetResName(), imol);
 	    lig_build::molfile_molecule_t mm(residue, restraints.second);
 	    widgeted_molecule_t wm(mm, mol);
 	    topological_equivalence_t top_eq(wm.atoms, wm.bonds);
@@ -565,7 +569,8 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    if (0) {
       std::cout << "======== n monomers in dictionary: " << g.Geom_p()->size() << std::endl;
       for (unsigned int irest=0; irest<g.Geom_p()->size(); irest++) { 
-	 std::cout << "   " << irest << "  " << (*g.Geom_p())[irest].residue_info.comp_id << std::endl;
+	 std::cout << "   " << irest << "  " << (*g.Geom_p())[irest].first
+		   << " " << (*g.Geom_p())[irest].second.residue_info.comp_id << std::endl;
       }
    } 
 
@@ -615,8 +620,8 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 	    for (unsigned int iround=0; iround<n_rounds; iround++) {
 	       std::cout << "round " << iround << std::endl;
 	       mmdb::Manager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
-	       
-	       coot::multi_residue_torsion_fit_map(moving_mol, xmap, 400, g.Geom_p());
+
+	       coot::multi_residue_torsion_fit_map(imol, moving_mol, xmap, 400, g.Geom_p());
 	       atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
 	       std::pair<mmdb::Manager *, int> new_mol =
 		  coot::util::create_mmdbmanager_from_mmdbmanager(moving_mol);
@@ -724,7 +729,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 	       std::cout << "round " << iround << std::endl;
 	       mmdb::Manager *moving_mol = coot::util::create_mmdbmanager_from_residue_specs(v, mol);
 	       
-	       coot::multi_residue_torsion_fit_map(moving_mol, xmap, 400, g.Geom_p());
+	       coot::multi_residue_torsion_fit_map(imol, moving_mol, xmap, 400, g.Geom_p());
 	       atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
 	       std::pair<mmdb::Manager *, int> new_mol =
              coot::util::create_mmdbmanager_from_mmdbmanager(moving_mol);
@@ -767,8 +772,8 @@ void glyco_tree_test() {
 
       std::vector<std::string> types_with_no_dictionary =
 	 g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
-      std::cout << "glyco-test found " << types_with_no_dictionary.size() << " types with no dictionary"
-		<< std::endl;
+      std::cout << "glyco-test found " << types_with_no_dictionary.size()
+		<< " types with no dictionary" << std::endl;
       for (unsigned int i=0; i<types_with_no_dictionary.size(); i++) {
 	 std::cout << "trying to dynamic add: " << types_with_no_dictionary[i] << std::endl;
 	 g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
@@ -778,5 +783,3 @@ void glyco_tree_test() {
    } 
 
 }
-
-
