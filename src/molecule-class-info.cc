@@ -4268,6 +4268,7 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 // 				    atom->residue->seqNum,
 // 				    std::string(atom->name));
 	 if (asc.UDDOldAtomIndexHandle >= 0) { // OK for fast atom indexing
+	    // std::cout << "OK for fast atom indexing"  << std::endl;
 	    if (atom->GetUDData(asc.UDDOldAtomIndexHandle, tmp_index) == mmdb::UDDATA_Ok) {
 	       if (tmp_index >= 0) { 
 		  if (moving_atom_matches(atom, tmp_index)) { 
@@ -4297,10 +4298,10 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 			 <<  "), bad GetUDData for this atom " << std::endl;
 	    } 
 	 } else {
-	    //  	 std::cout << "DEBUG:: asc.UDDOldAtomIndexHandle is " 
-	    //   		   << asc.UDDOldAtomIndexHandle << " using full atom spec to atom index..."
-	    // 		   << std::endl;
-	    
+	    // std::cout << "DEBUG:: asc.UDDOldAtomIndexHandle is " 
+	    // << asc.UDDOldAtomIndexHandle << " using full atom spec to atom index..."
+	    // << std::endl;
+
 	    idx = full_atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
 					       atom->residue->seqNum,
 					       std::string(atom->GetInsCode()),

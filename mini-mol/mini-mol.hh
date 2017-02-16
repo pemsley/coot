@@ -57,13 +57,14 @@ namespace coot {
 	 atom(std::string atom_name, std::string ele, const clipper::Coord_orth &pos_in, const std::string &altloc, float dbf);
 	 atom(std::string atom_name, std::string ele, const clipper::Coord_orth &pos_in, const std::string &altloc, float occupancy, float b_factor);
 	 atom(mmdb::Atom *at);
-	 atom() {}
+	 atom() { int_user_data = -1; }
 	 std::string altLoc;
 	 float occupancy;
 	 float temperature_factor;
 	 clipper::Coord_orth pos;
 	 std::string name;
 	 std::string element; // " H", " N", " O" etc.
+	 int int_user_data;
 	 bool is_hydrogen_p() const;
 	 friend std::ostream&  operator<<(std::ostream&, atom);
       };
@@ -174,7 +175,7 @@ namespace coot {
       class molecule {
 	 // Return status.  If good, return 0 else (if bad) return 1.
 	 // 
-	 short int setup(mmdb::Manager *mmdb_mol_in);
+	 short int setup(mmdb::Manager *mmdb_mol_in, bool udd_atom_index_to_user_data_flag);
 	 short int have_spacegroup;
 	 short int have_cell;
 	 std::pair<bool, int> min_resno_in_chain(mmdb::Chain *chain_p) const; 
@@ -185,7 +186,7 @@ namespace coot {
 	 molecule(const std::vector<clipper::Coord_orth> &atom_list,
 		  const std::string &residue_type, std::string atom_name,
 		  std::string chain_id);
-	 molecule(mmdb::Manager *mmdb_mol_in);
+	 molecule(mmdb::Manager *mmdb_mol_in, bool udd_atom_index_to_user_data=false);
 	 molecule(const fragment &frag);
 
 	 // Ridiculous synthetic constructor.  Use the atom selection
@@ -196,7 +197,7 @@ namespace coot {
 		  const std::vector<mmdb::Atom> &atoms);
 	 
 	 
-	 short int init(mmdb::Manager *mmdb_mol_in) {return setup(mmdb_mol_in);}
+	 short int init(mmdb::Manager *mmdb_mol_in) {return setup(mmdb_mol_in, false);}
 
 	 // for setting the mmdb cell and symm
 	 std::string mmdb_spacegroup;
