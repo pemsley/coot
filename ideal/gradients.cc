@@ -464,11 +464,149 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 }
 
 void
+coot::my_df_geman_mcclure_distances_single(const gsl_vector *v,
+					   gsl_vector *df,
+					   const simple_restraint &this_restraint,
+					   const double &alpha) {
+
+   int idx;
+
+   double target_val;
+   double b_i_sqrd;
+   double weight;
+   double x_k_contrib;
+   double y_k_contrib;
+   double z_k_contrib;
+   double x_l_contrib;
+   double y_l_contrib;
+   double z_l_contrib;
+
+   if (this_restraint.restraint_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+
+      int idx_1 = 3*this_restraint.atom_index_1;
+      clipper::Coord_orth a1(gsl_vector_get(v,idx_1),
+			     gsl_vector_get(v,idx_1+1),
+			     gsl_vector_get(v,idx_1+2));
+      int idx_2 = 3*this_restraint.atom_index_2;
+      clipper::Coord_orth a2(gsl_vector_get(v,idx_2),
+			     gsl_vector_get(v,idx_2+1),
+			     gsl_vector_get(v,idx_2+2));
+
+      // what is b_i?
+      // b_i = clipper::Coord_orth::length(a1,a2);
+      b_i_sqrd = (a1-a2).lengthsq();
+      b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
+
+      weight = 1.0/(this_restraint.sigma * this_restraint.sigma);
+      double b_i = sqrt(b_i_sqrd);
+
+      // double constant_part = 2.0*weight*(b_i - target_val)/b_i;
+      // double constant_part = 2.0*weight * (1 - target_val * f_inv_fsqrt(b_i_sqrd));
+
+      double b_diff = b_i - this_restraint.target_value;
+      double z_i = b_diff * b_diff * weight;
+      double d_Si_d_zi =  alpha / ((alpha + z_i) * (alpha + z_i));
+      double d_zi_d_bi = 2.0 * weight * b_diff;
+      double d_bi_d_xm_multiplier = 1.0/b_i;
+
+      double constant_part = d_Si_d_zi * d_zi_d_bi * d_bi_d_xm_multiplier;
+
+      // The final part is dependent on the coordinates:
+      x_k_contrib = constant_part*(a1.x()-a2.x());
+      y_k_contrib = constant_part*(a1.y()-a2.y());
+      z_k_contrib = constant_part*(a1.z()-a2.z());
+      x_l_contrib = constant_part*(a2.x()-a1.x());
+      y_l_contrib = constant_part*(a2.y()-a1.y());
+      z_l_contrib = constant_part*(a2.z()-a1.z());
+
+      if (! this_restraint.fixed_atom_flags[0]) {
+	 *gsl_vector_ptr(df, idx_1  ) += x_k_contrib;
+	 *gsl_vector_ptr(df, idx_1+1) += y_k_contrib;
+	 *gsl_vector_ptr(df, idx_1+2) += z_k_contrib;
+      }
+
+      if (! this_restraint.fixed_atom_flags[1]) {
+	 *gsl_vector_ptr(df, idx_2  ) += x_l_contrib;
+	 *gsl_vector_ptr(df, idx_2+1) += y_l_contrib;
+	 *gsl_vector_ptr(df, idx_2+2) += z_l_contrib;
+      }
+   }
+}
+
+void
+coot::my_df_geman_mcclure_distances_thread_dispatcher(const gsl_vector *v,
+						      gsl_vector *df,
+						      restraints_container_t *restraints_p,
+						      int idx_start,
+						      int idx_end) {
+   for (int i=idx_start; i<idx_end; i++) {
+      const simple_restraint &this_restraint = (*restraints_p)[i];
+      if (this_restraint.restraint_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT)
+	 my_df_geman_mcclure_distances_single(v, df, this_restraint, restraints_p->geman_mcclure_alpha);
+   }
+}
+
+void
 coot::my_df_geman_mcclure_distances(const  gsl_vector *v, 
 				    void *params, 
 				    gsl_vector *df) {
 
-   restraints_container_t *restraints = (restraints_container_t *)params;
+#ifdef ANALYSE_REFINEMENT_TIMING
+   timeval start_time;
+   timeval current_time;
+   gettimeofday(&start_time, NULL);
+#endif // ANALYSE_REFINEMENT_TIMING
+
+   restraints_container_t *restraints = static_cast<restraints_container_t *> (params);
+   if (restraints->restraints_usage_flag & GEMAN_MCCLURE_DISTANCE_MASK) {
+      unsigned int restraints_size = restraints->size();
+
+#ifdef HAVE_CXX_THREAD
+
+      unsigned int n_threads = get_max_number_of_threads();
+      std::vector<std::thread> threads;
+      unsigned int n_per_thread = restraints_size/n_threads;
+
+      for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
+	 int idx_start = i_thread * n_per_thread;
+	 int idx_end   = idx_start + n_per_thread;
+	 // for the last thread, set the end atom index
+	 if (i_thread == (n_threads - 1))
+	    idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
+	 threads.push_back(std::thread(my_df_geman_mcclure_distances_thread_dispatcher, v, df, restraints, idx_start, idx_end));
+      }
+      for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
+	 threads.at(i_thread).join();
+
+#else
+      for (unsigned int i=0; i<restraints_size; i++) {
+	 const simple_restraint &this_restraint = (*restraints)[i];
+	 if (this_restraint.restraint_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+	    my_df_geman_mcclure_distances_single(v, df, this_restraint, restraints->geman_mcclure_alpha);
+	 }
+      }
+#endif
+   }
+
+#ifdef ANALYSE_REFINEMENT_TIMING
+   gettimeofday(&current_time, NULL);
+   double td = current_time.tv_sec - start_time.tv_sec;
+   td *= 1000.0;
+   td += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
+   std::cout << "------------- mark my_df_geman_mcclure_distances: " << td << std::endl;
+#endif // ANALYSE_REFINEMENT_TIMING
+
+}
+
+
+
+// only single-threaded - all in place
+void
+coot::my_df_geman_mcclure_distances_old(const  gsl_vector *v,
+					void *params,
+					gsl_vector *df) {
+
+   restraints_container_t *restraints = static_cast<restraints_container_t *> (params);
 
    // the length of gsl_vector should be equal to n_var: 
    // 
@@ -484,7 +622,6 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
       double x_k_contrib;
       double y_k_contrib;
       double z_k_contrib;
-      
       double x_l_contrib;
       double y_l_contrib;
       double z_l_contrib;
@@ -510,12 +647,12 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
 	    b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
 
 	    // if (b_i_sqrd < rest.target_value * rest.target_value) {
-	    
+
 	    if (true) {
 
 	       weight = 1.0/(rest.sigma * rest.sigma);
 	       double b_i = sqrt(b_i_sqrd);
-	       
+
 	       // double constant_part = 2.0*weight*(b_i - target_val)/b_i;
 	       // double constant_part = 2.0*weight * (1 - target_val * f_inv_fsqrt(b_i_sqrd));
 
@@ -535,25 +672,17 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
  	       x_l_contrib = constant_part*(a2.x()-a1.x());
  	       y_l_contrib = constant_part*(a2.y()-a1.y());
  	       z_l_contrib = constant_part*(a2.z()-a1.z());
-	       
-	       if (! rest.fixed_atom_flags[0]) { 
-		  idx = 3*(rest.atom_index_1 - 0); 
-		  // gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + x_k_contrib); 
-		  // gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + y_k_contrib); 
-		  // gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + z_k_contrib);
 
+	       if (! rest.fixed_atom_flags[0]) {
+		  idx = 3*rest.atom_index_1;
 		  *gsl_vector_ptr(df, idx  ) += x_k_contrib;
 		  *gsl_vector_ptr(df, idx+1) += y_k_contrib;
 		  *gsl_vector_ptr(df, idx+2) += z_k_contrib;
 		  
 	       }
 
-	       if (! rest.fixed_atom_flags[1]) { 
-		  idx = 3*(rest.atom_index_2 - 0); 
-		  // gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + x_l_contrib); 
-		  // gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + y_l_contrib); 
-		  // gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + z_l_contrib);
-
+	       if (! rest.fixed_atom_flags[1]) {
+		  idx = 3*rest.atom_index_2;
 		  *gsl_vector_ptr(df, idx  ) += x_l_contrib;
 		  *gsl_vector_ptr(df, idx+1) += y_l_contrib;
 		  *gsl_vector_ptr(df, idx+2) += z_l_contrib;
