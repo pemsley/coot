@@ -3285,3 +3285,23 @@ molecule_class_info_t::map_statistics() const {
    return mp;
 
 } 
+
+std::pair<std::vector<clipper::Coord_orth>, std::vector<std::pair<unsigned int, unsigned> > >
+molecule_class_info_t::get_contours(float contour_level,
+				    float radius,
+				    const coot::Cartesian &centre) const {
+
+   std::pair<std::vector<clipper::Coord_orth>, std::vector<std::pair<unsigned int, unsigned int> > > r;
+
+   std::vector<clipper::Coord_orth> &vertices = r.first;
+   std::vector<std::pair<unsigned int, unsigned int> > &connections = r.second;
+
+   int isample_step = 1;
+   CIsoSurface<float> my_isosurface;
+   // a pointer and a size
+   coot::CartesianPairInfo v = my_isosurface.GenerateSurface_from_Xmap(xmap,
+								       contour_level,
+								       radius, centre,
+								       isample_step);
+   return r;
+}

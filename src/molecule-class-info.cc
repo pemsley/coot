@@ -3074,52 +3074,6 @@ molecule_class_info_t::set_have_unit_cell_flag_maybe() {
    }
 }
 
-// This function is not used in anger, right?
-//
-// (a debugging function).
-// 
-void
-check_static_vecs_extents() {
-
-   //
-   int imol = 0;
-   
-   graphics_info_t g;
-
-   cout << "checking extents of the " << g.molecules[imol].n_draw_vectors
-	<< " in the graphics static" << endl;
-
-   coot::Cartesian first, second;
-   float max_x = -9999, min_x = 9999;
-   float max_y = -9999, min_y = 9999;
-   float max_z = -9999, min_z = 9999;
-   
-   for (int i=0; i<g.molecules[imol].n_draw_vectors; i++) {
-      first  = g.molecules[imol].draw_vectors[i].getStart();
-      second = g.molecules[imol].draw_vectors[i].getFinish();
-
-      if (first.get_x() < min_x) min_x = first.get_x();
-      if (first.get_y() < min_y) min_y = first.get_y();
-      if (first.get_z() < min_z) min_z = first.get_z();
-
-      if (second.get_x() < min_x) min_x = second.get_x();
-      if (second.get_y() < min_y) min_y = second.get_y();
-      if (second.get_z() < min_z) min_z = second.get_z();
-
-      if (first.get_x() > max_x) max_x = first.get_x();
-      if (first.get_y() > max_y) max_y = first.get_y();
-      if (first.get_z() > max_z) max_z = first.get_z();
-
-      if (second.get_x() > max_x) max_x = second.get_x();
-      if (second.get_y() > max_y) max_y = second.get_y();
-      if (second.get_z() > max_z) max_z = second.get_z();
-      
-   }
-   cout << min_x << " " << max_x << endl
-	<< min_y << " " << max_y << endl
-	<< min_z << " " << max_z << endl;
-}
-
 
 void
 molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p) {

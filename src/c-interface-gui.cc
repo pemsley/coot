@@ -5821,43 +5821,46 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
    GtkWidget *option_menu = lookup_widget(w, "map_sharpening_optionmenu");
 
    int imol = fill_option_menu_with_map_mtz_options(option_menu, signal_func);
-   graphics_info_t::imol_map_sharpening = imol;
 
-   std::cout << "DEBUG:: imol from fill_option_menu_with_map_options() "
-	     << imol << std::endl;
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t::imol_map_sharpening = imol;
 
-   GtkWidget *h_scale = lookup_widget(w, "map_sharpening_hscale");
-   //GtkObject *adj = gtk_adjustment_new(0.0, -sharpening_limit, 2*sharpening_limit,
-   // 0.05, 2, 30.1);
-   GtkObject *adj = gtk_adjustment_new(0.0, -sharpening_limit, 2*sharpening_limit,
-				       0.05, 0.2, (sharpening_limit+0.1));
-   gtk_range_set_adjustment(GTK_RANGE(h_scale), GTK_ADJUSTMENT(adj));
-   g_object_set_data_full(G_OBJECT (w), "map_sharpening_adjustment",
-                          g_object_ref (adj),
-                          (GDestroyNotify) g_object_unref);
+      std::cout << "DEBUG:: imol from fill_option_menu_with_map_options() "
+		<< imol << std::endl;
 
-   gtk_signal_connect(GTK_OBJECT(adj), "value_changed",
-                      GTK_SIGNAL_FUNC(map_sharpening_value_changed), NULL);
+      GtkWidget *h_scale = lookup_widget(w, "map_sharpening_hscale");
+      //GtkObject *adj = gtk_adjustment_new(0.0, -sharpening_limit, 2*sharpening_limit,
+      // 0.05, 2, 30.1);
+      GtkObject *adj = gtk_adjustment_new(0.0, -sharpening_limit, 2*sharpening_limit,
+					  0.05, 0.2, (sharpening_limit+0.1));
+      gtk_range_set_adjustment(GTK_RANGE(h_scale), GTK_ADJUSTMENT(adj));
+      g_object_set_data_full(G_OBJECT (w), "map_sharpening_adjustment",
+			     g_object_ref (adj),
+			     (GDestroyNotify) g_object_unref);
+
+      gtk_signal_connect(GTK_OBJECT(adj), "value_changed",
+			 GTK_SIGNAL_FUNC(map_sharpening_value_changed), NULL);
    
-   // set to sharpening value
-   gtk_adjustment_set_value(GTK_ADJUSTMENT(adj), graphics_info_t::molecules[imol].sharpen_b_factor());
+      // set to sharpening value
+      gtk_adjustment_set_value(GTK_ADJUSTMENT(adj), graphics_info_t::molecules[imol].sharpen_b_factor());
    
 #if (GTK_MAJOR_VERSION > 2) || (GTK_MINOR_VERSION > 14)
-   int ticks = 3;  // number of ticks on the (one) side (not including centre tick)
-   for (int i=0; i<=2*ticks; i++) {
-      float p = float (i-ticks) * (1.0/float(ticks)) * sharpening_limit;
-      std::string pos_string = coot::util::float_to_string_using_dec_pl(p,1);
-      gtk_scale_add_mark(GTK_SCALE(h_scale),
-			 p,
-			 GTK_POS_BOTTOM, pos_string.c_str());
-   }
-   gtk_scale_add_mark(GTK_SCALE(h_scale), -sharpening_limit, GTK_POS_BOTTOM, "\nSharpen");
-   gtk_scale_add_mark(GTK_SCALE(h_scale),  sharpening_limit, GTK_POS_BOTTOM, "\nBlur");
+      int ticks = 3;  // number of ticks on the (one) side (not including centre tick)
+      for (int i=0; i<=2*ticks; i++) {
+	 float p = float (i-ticks) * (1.0/float(ticks)) * sharpening_limit;
+	 std::string pos_string = coot::util::float_to_string_using_dec_pl(p,1);
+	 gtk_scale_add_mark(GTK_SCALE(h_scale),
+			    p,
+			    GTK_POS_BOTTOM, pos_string.c_str());
+      }
+      gtk_scale_add_mark(GTK_SCALE(h_scale), -sharpening_limit, GTK_POS_BOTTOM, "\nSharpen");
+      gtk_scale_add_mark(GTK_SCALE(h_scale),  sharpening_limit, GTK_POS_BOTTOM, "\nBlur");
 #endif   
 
-   // Don't display the cancel button.
-   GtkWidget *c = lookup_widget(w, "map_sharpening_cancel_button");
-   gtk_widget_hide(c);
+      // Don't display the cancel button.
+      GtkWidget *c = lookup_widget(w, "map_sharpening_cancel_button");
+      gtk_widget_hide(c);
+   }
 
    return w;
 }
