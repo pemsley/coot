@@ -130,7 +130,7 @@ public:
    mmdb::Residue *get_previous(mmdb::Residue *) const;
 };
 
-atom_selection_container_t make_asc(mmdb::Manager *mol);
+atom_selection_container_t make_asc(mmdb::Manager *mol, bool transfer_atom_indices_flag=false);
 
 atom_selection_container_t get_atom_selection(std::string t, 
 					      bool allow_duplseqnum, 
