@@ -10,6 +10,7 @@ namespace std {
 };
 
 %{
+#include <stddef.h>
 #include "pyrogen/restraints.hh"
 %} 
 

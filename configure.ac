@@ -56,6 +56,7 @@ GNOME_CXX_WARNINGS
 
 
 m4_define([v_git_revision_count], m4_esyscmd([(git rev-list --count HEAD 2>/dev/null || echo 0) | tr -d '\n']))
+#dnl m4_define([vxx_git_revision_count], m4_esyscmd([git rev-list --count HEAD]))
 # old gits can't use count with HEAD.
 # we need to make the src and pyrogen directories if they do not exist
 if test ! -d src     ; then mkdir src     ; fi
