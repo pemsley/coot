@@ -1583,19 +1583,21 @@ coot::restraints_container_t::make_restraint_types_index_limits() {
    if (restraints_limits_non_bonded_contacts.first == unset) restraints_limits_non_bonded_contacts.first = 0;
    if (restraints_limits_geman_mclure.first == unset) restraints_limits_geman_mclure.first = 0;
 
-   std::cout << "restraints limits bonds "
-	     << restraints_limits_bonds.first << " " << restraints_limits_bonds.second << std::endl;
-   std::cout << "restraints limits angles "
-	     << restraints_limits_angles.first << " " << restraints_limits_angles.second << std::endl;
-   std::cout << "restraints limits torsions "
-	     << restraints_limits_torsions.first << " " << restraints_limits_torsions.second << std::endl;
-   std::cout << "restraints limits chirals "
-	     << restraints_limits_chirals.first << " " << restraints_limits_chirals.second << std::endl;
-   std::cout << "restraints limits planes "
-	     << restraints_limits_planes.first << " " << restraints_limits_planes.second << std::endl;
-   std::cout << "restraints limits nbc "
-	     << restraints_limits_non_bonded_contacts.first << " " << restraints_limits_non_bonded_contacts.second
-	     << std::endl;
+   if (false) {
+      std::cout << "restraints limits bonds "
+	        << restraints_limits_bonds.first << " " << restraints_limits_bonds.second << std::endl;
+      std::cout << "restraints limits angles "
+	        << restraints_limits_angles.first << " " << restraints_limits_angles.second << std::endl;
+      std::cout << "restraints limits torsions "
+	        << restraints_limits_torsions.first << " " << restraints_limits_torsions.second << std::endl;
+      std::cout << "restraints limits chirals "
+	        << restraints_limits_chirals.first << " " << restraints_limits_chirals.second << std::endl;
+      std::cout << "restraints limits planes "
+	        << restraints_limits_planes.first << " " << restraints_limits_planes.second << std::endl;
+      std::cout << "restraints limits nbc "
+	        << restraints_limits_non_bonded_contacts.first << " " << restraints_limits_non_bonded_contacts.second
+	        << std::endl;
+   }
 
 }
 
