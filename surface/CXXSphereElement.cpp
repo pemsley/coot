@@ -69,11 +69,19 @@ int CXXSphereElement::calculate(){
 // 	theVertices.resize(0);
 // 	theTriangles.resize(0);
 // 	flatTriangles.resize(0);
+<<<<<<< HEAD
 	
    theVertices.clear();
    theTriangles.clear();
    flatTriangles.clear();
    
+=======
+
+   theVertices.clear();
+   theTriangles.clear();
+   flatTriangles.clear();
+
+>>>>>>> 13aefa8a4c2f6be326c47fba592902c6d0cbbc97
 	CXXCoord xAxis(1.,0.,0.,0.);
 	CXXCoord yAxis(0.,1.,0.,0.);
 	CXXCoord zAxis(0.,0.,1.,0.);

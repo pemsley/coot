@@ -7,6 +7,9 @@
    o in Ana's map after sequence assignment (which was very fast): it went into a long 
      stall - not sure what it was doing. Without fitting, the model had hideous mainchain
 
+* Done. "Fitting" means real space refinement - hideous mainchain came from non-backrub rotamer search
+  (now backrub rotamer search is enabled).
+
    o add a colour-blind-enabled constructor for the coot::colour_holder (probably should 
      be in the default constructor, then make it an optional arg).
 
