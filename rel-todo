@@ -13,7 +13,12 @@
    o Add a test for CISPEP card addition for the introduction of a cis peptide.
      Currently coot deletes wrong cispeps (only) (not adds new ones).  Needs
      thought.
+
+   o Expert mode should not reset the mtz amplitude column optionmenu
+
    o speed up accept after rigid body fit.
+
+* Done.
 
    o  can you read this: all-comp-ids/T/PDBe-TFH.cif.  Its OBS though.
 

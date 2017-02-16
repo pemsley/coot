@@ -81,6 +81,7 @@ Bond_lines_container::get_rotamer_dodecs(const atom_selection_container_t &asc) 
 	       }
 	    }
 	    catch (const std::runtime_error &rte) {
+	       std::cout << "exception caught in get_rotamer_dodecs() " << std::endl;
 	       std::cout << "    " << rte.what() << std::endl;
 	    }
 	 }

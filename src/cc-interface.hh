@@ -1262,6 +1262,21 @@ PyObject *link_info_py(int imol);
 int handle_drag_and_drop_string(const std::string &uri);
 // \}
 
+
+/* ------------------------------------------------------------------------- */
+/*                      Map Contours                                         */
+/* ------------------------------------------------------------------------- */
+
+#ifdef USE_PYTHON
+/*! \name Map Contouring */
+// \{
+//! \brief return two lists: a list of vertices and a list of indices for connection
+PyObject *map_contours(int imol, float contour_level);
+// \}
+#endif // USE_PYTHON
+
+
+
 /* ------------------------------------------------------------------------- */
 /*                      correlation maps                                     */
 /* ------------------------------------------------------------------------- */
