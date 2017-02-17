@@ -3156,11 +3156,13 @@ fi
 # mirror has gone/moved.
 # ${WGET} http://mirror.ac.uk/mirror/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
 # ${WGET} http://ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
-${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
+# ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
+# Marcin-fix version
+${WGET} $extras_place/guile-${guile_version}.tar.gz
 ${WGET} $extras_place/guile-1.8.7-updated.patch
 ${WGET} $extras_place/guile-1.8.8-gc-segment.c.patch
 
- 
+
 # if debian, unset LD_LIBRARY_PATH and set it back again when done.
 if [ "$dist_name" = "debian" ] ; then
    llp_save=$LD_LIBRARY_PATH
