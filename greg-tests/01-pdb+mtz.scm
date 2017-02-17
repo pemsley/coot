@@ -815,7 +815,7 @@
 		  (with-auto-accept
 		   (refine-zone cis-pep-mol chain-id resno (+ resno 1) ""))
 		  ;; should be repaired now.  Write it out.
-		  
+
 		  (let ((tmp-file "tmp-fixed-cis.pdb"))
 		    (write-pdb-file cis-pep-mol tmp-file)
 		    (let ((o (run-command/strings "grep" (list"-c" "CISPEP" tmp-file) '())))

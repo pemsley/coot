@@ -1,6 +1,19 @@
 
    For Release 0.8.8
 
+   o in Ana's map after sequence assignment (which was very fast): it went into a long 
+     stall - not sure what it was doing. Without fitting, the model had hideous mainchain
+
+* Done. "Fitting" means real space refinement - hideous mainchain came from non-backrub rotamer search
+  (now backrub rotamer search is enabled).
+
+   o add a colour-blind-enabled constructor for the coot::colour_holder (probably should 
+     be in the default constructor, then make it an optional arg).
+
+   o Add a test for CISPEP card addition for the introduction of a cis peptide.
+     Currently coot deletes wrong cispeps (only) (not adds new ones).  Needs
+     thought.
+
    o Expert mode should not reset the mtz amplitude column optionmenu
 
    o speed up accept after rigid body fit.
