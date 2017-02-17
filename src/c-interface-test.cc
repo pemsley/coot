@@ -384,6 +384,10 @@ int test_function(int i, int j) {
 #include "analysis/kolmogorov.hh"
 #include "analysis/stats.hh"
 
+// Martin's MoleculeToTriangles
+//
+#include "MoleculesToTriangles/MyMolecule.h"
+
 #ifdef USE_GUILE
 SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
@@ -391,10 +395,12 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    SCM r = SCM_BOOL_F;
 
    if (true) {
+      
+   }
 
+   if (false) {
       dodec d;
       d.test("dodec.xyz");
-
    }
 
    if (false) {

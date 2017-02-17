@@ -186,6 +186,7 @@ AM_CPPFLAGS = \
         $(GOOCANVAS_CFLAGS)             \
 	@GTK_CFLAGS@ 			\
 	$(GLUT_CFLAGS)			\
+	$(MOLTRIANGLES_CPPFLAGS)	\
 	$(LIBSSM_CXXFLAGS) 		\
 	$(MMDB_CXXFLAGS) 		\
 	$(CCP4SRS_CXXFLAGS) 		\
@@ -512,6 +513,7 @@ coot_bin_LDADD = $(OPENMP_CFLAGS)       \
 		$(LIBSSM_LIBS)		\
 		$(CCP4SRS_LIBS) 	\
 		$(MMDB_LIBS)		\
+		$(MOLTRIANGLES_LIBS)	\
 		$(PYTHON_LIBS)		\
 		$(GUILE_GTK_LIBS)       \
 		$(GUILE_LDFLAGS)	\
