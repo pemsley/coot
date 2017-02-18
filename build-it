@@ -1645,11 +1645,13 @@ fi
 #for Macs:
 if test "$OS" = "Darwin" ; then
    if [ -z "$DYLD_LIBRARY_PATH" ] ; then
-      DYLD_LIBRARY_PATH=$install_top_dir/lib
-      export DYLD_LIBRARY_PATH
+      # DYLD_LIBRARY_PATH=$install_top_dir/lib
+      # export DYLD_LIBRARY_PATH
+      :
    else
-      DYLD_LIBRARY_PATH=$install_top_dir/lib:$DYLD_LIBRARY_PATH
-      export DYLD_LIBRARY_PATH
+      #DYLD_LIBRARY_PATH=$install_top_dir/lib:$DYLD_LIBRARY_PATH
+      #export DYLD_LIBRARY_PATH
+      :
    fi
 fi
 
@@ -1987,6 +1989,9 @@ fi
 # fi
 
 echo atempting to run installed guile-config \(this may fail, that\'s OK\).
+
+$install_top_dir/bin/guile-config --version
+
 if $install_top_dir/bin/guile-config --version ; then 
 
     # We have a seen a situation somehow where bin/guile-config is installed 
@@ -2002,7 +2007,7 @@ if $install_top_dir/bin/guile-config --version ; then
        build_guile=1
     fi
 else
-   echo guile should be built
+   echo guile-config failed. guile should be built
    build_guile=1
 fi
 
@@ -2051,6 +2056,7 @@ fi #  ENABLE_GUILE_COOT
 #
 python_version=python2.7
 pver=2.7.12
+pver=2.7.8
 
 if [ $ENABLE_PYTHON_COOT = yes ] ; then 
    $install_top_dir/bin/python -V
@@ -3170,6 +3176,10 @@ if [ "$dist_name" = "debian" ] ; then
    extra_flags_for_debian="LD_LIBRARY_PATH=$llp_save"
 fi
 
+if [ $OS = Darwin ] ; then
+   extra_flags_for_darwin="--disable-rpath --disable-error-on-warning --enable-silent-rules --enable-shared --disable-static"
+fi
+
 ( 
 date
 pwd
@@ -3190,6 +3200,7 @@ fi
 
 # arg to guile's configure
 ./configure $generic_prefix \
+     $extra_flags_for_darwin \
      CFLAGS="-I$install_top_dir/include $additional_unused_arg -O" \
      LDFLAGS=-L$install_top_dir/lib \
      CPPFLAGS=-P \
@@ -3251,12 +3262,11 @@ if test -n "$build_greg" ; then
     ./configure $generic_prefix
     $MAKE
     $MAKE install
+
     ) > $HOSTLOGDIR/11c-greg.txt 2>&1
 else
     echo not building greg:
 fi
-
-
 
 
 if test -n "$build_guile_gtk" ; then 
@@ -3345,6 +3355,20 @@ else
     echo not building guile-gui:
 fi
 
+# on Darwin, I have to cd to $install_top_dir/lib and 
+# ln -s libgreg.2.0.0.dylib   libgreg.so
+# ln -s libguilegtk-2.0.dylib libguilegtk-2.0.so
+
+if [ $OS = Darwin ] ; then
+   cd $install_top_dir/lib
+   if [ -e libgreg.2.0.0.dylib ] ; then
+      ln -s libgreg.2.0.0.dylib   libgreg.so
+   fi
+   if [ -e libguilegtk-2.0.dylib ] ; then
+      ln -s libguilegtk-2.0.dylib libguilegtk-2.0.so
+   fi
+   cd -
+fi
 
 if test -n "$build_guile_lib" ; then
    echo BUILDING guile-lib:
@@ -3730,6 +3754,7 @@ if [ "$architecture" = x86_64 ] ; then
    #   unset CXXFLAGS
 fi
 
+
 cbis_d=$(date +'%a %d %b %H%M.%S %Z %Y')
 if finger ; then
    cbis_n=$(finger $USER | head -1 | sed 's/.*Name: //')
@@ -3744,7 +3769,8 @@ fi
 if [ $OS = Darwin ] ; then
    if [ -d /opt/X11 ] ; then
       export CPPFLAGS=-I/opt/X11/include
-      
+      # I think this is needed for COOT_OPENGL_LIBS to be correctly found/set in configure.ac on Mac
+      extra_args_for_darwin="LIBS=-L/opt/X11/lib"
    fi
 fi
 
@@ -3759,6 +3785,7 @@ echo CFLAGS: $CFLAGS
 echo CXXFLAGS: $CXXFLAGS
 echo CPPFLAGS: $CPPFLAGS
 echo LDFLAGS: $LDFLAGS
+echo PATH: $PATH
 echo using this guile:
 which guile
 
@@ -3772,7 +3799,8 @@ echo ./configure $coot_prefix \
       $sqlite_config_args \
       $shared_static_flag \
       $coot_optim_args    \
-      $coot_extra_args
+      $coot_extra_args    \
+      $extra_args_for_darwin
 
 ./configure $coot_prefix \
        --with-fftw-prefix=$install_top_dir  \
@@ -3784,7 +3812,8 @@ echo ./configure $coot_prefix \
       $sqlite_config_args \
       $shared_static_flag \
       $coot_optim_args    \
-      $coot_extra_args
+      $coot_extra_args    \
+      $extra_args_for_darwin
 
 # these are no longer used
 #         --with-mmdb-prefix=$install_top_dir 
