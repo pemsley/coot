@@ -77,6 +77,10 @@ void start_ligand_builder_gui_XXX(GtkMenuItem     *menuitem,
 void add_cif_dictionary_selector_molecule_selector(GtkWidget *fileselection,
 						   GtkWidget *aa_hbox);
 
+void add_cif_dictionary_selector_create_molecule_checkbutton(GtkWidget *fileselection,
+							     GtkWidget *aa_hbutton_box);
+void on_cif_dictionary_file_selector_create_molecule_checkbutton_toggled(GtkButton *button,
+									 gpointer user_data);
 
 
 /* ------------------------------------------------------------------------- */

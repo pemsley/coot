@@ -585,7 +585,6 @@ graphics_info_t::save_directory_from_fileselection(const GtkWidget *fileselectio
 
    const gchar *filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(fileselection));
    directory_for_fileselection = coot::util::file_name_directory(filename);
-   // std::cout << "saved directory name: " << directory_for_fileselection << std::endl;
 }
 
 void
@@ -593,7 +592,6 @@ graphics_info_t::save_directory_for_saving_from_fileselection(const GtkWidget *f
 
    const gchar *filename = gtk_file_selection_get_filename(GTK_FILE_SELECTION(fileselection));
    directory_for_saving_for_fileselection = coot::util::file_name_directory(filename);
-   // std::cout << "saved directory name: " << directory_for_fileselection << std::endl;
 }
 
 
@@ -659,8 +657,6 @@ graphics_info_t::save_directory_from_filechooser(const GtkWidget *fileselection)
 
    gchar *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
    directory_for_filechooser = coot::util::file_name_directory(filename);
-   // std::cout << "saved directory name: " << directory_for_fileselection << std::endl;
-   std::cout << "saved directory name: " << directory_for_filechooser << std::endl;
    g_free(filename);
 }
 
@@ -669,8 +665,6 @@ graphics_info_t::save_directory_for_saving_from_filechooser(const GtkWidget *fil
 
    gchar *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
    directory_for_saving_for_filechooser = coot::util::file_name_directory(filename);
-   // std::cout << "saved directory name: " << directory_for_fileselection << std::endl;
-   std::cout << "saved directory name and filename: " << directory_for_filechooser <<" "<<filename << std::endl;
    g_free(filename);
 }
 

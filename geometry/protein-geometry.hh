@@ -1083,6 +1083,7 @@ namespace coot {
       unsigned int n_atoms;
       unsigned int n_bonds;
       unsigned int n_links;
+      int monomer_idx;
       std::vector<std::string> error_messages;
       bool success;
       read_refmac_mon_lib_info_t() {
@@ -1090,6 +1091,7 @@ namespace coot {
 	 n_bonds = 0;
 	 n_links = 0;
 	 success = true;
+	 monomer_idx = -1;
       }
    };
 
@@ -1720,6 +1722,11 @@ namespace coot {
 					 int imol_enc,
 					 bool idealised_flag);
       
+      // make HETATMs if non-standard residue name.
+      mmdb::Manager *mol_from_dictionary(int monomer_index,
+					 int imol_enc,
+					 bool idealised_flag);
+
       // Used by above (or maybe you just want a residue?)
       // (Can return NULL).
       // 

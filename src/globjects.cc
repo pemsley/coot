@@ -864,7 +864,9 @@ float       graphics_info_t::residue_density_fit_scale_factor = 1.0;
 
 // cif dictionary
 std::vector<std::string> *graphics_info_t::cif_dictionary_filename_vec = NULL;
-int graphics_info_t::cif_dictionary_read_number = 1; 
+int  graphics_info_t::cif_dictionary_read_number = 1;
+bool graphics_info_t::cif_dictionary_file_selector_create_molecule_flag = true;
+
 
 // map radius slider
 float graphics_info_t::map_radius_slider_max = 50.0;

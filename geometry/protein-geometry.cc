@@ -3951,6 +3951,38 @@ coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code
    return mol;
 }
 
+mmdb::Manager *
+coot::protein_geometry::mol_from_dictionary(int monomer_index,
+					    int imol_enc,
+					    bool idealised_flag) {
+
+   mmdb::Manager *mol = NULL;
+   mmdb::Residue *residue_p = 0;
+   float b_factor = 30.0;
+   int r_size = dict_res_restraints.size();
+
+   if (monomer_index >= 0)
+      if (monomer_index < r_size)
+	 residue_p = dict_res_restraints[monomer_index].second.GetResidue(idealised_flag, b_factor);
+
+   if (residue_p) { 
+      mmdb::Chain *chain_p = new mmdb::Chain;
+      chain_p->SetChainID("A");
+      chain_p->AddResidue(residue_p);
+      mmdb::Model *model_p = new mmdb::Model;
+      model_p->AddChain(chain_p);
+      mol = new mmdb::Manager;
+      mol->AddModel(model_p);
+   } else {
+      std::cout << "WARNING:: Null residue in mol_from_dictionary() for idx "
+		<< monomer_index << std::endl;
+   }
+
+   std::cout << "DEBUG:: mol_from_dictionary() returns " << mol << std::endl;
+   return mol;
+}
+
+
 void
 coot::protein_geometry::print_chem_links() const {
 

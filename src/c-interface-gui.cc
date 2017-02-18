@@ -144,8 +144,10 @@ open_cif_dictionary_file_selector_dialog() {
       if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
 
 	 GtkWidget *aa_hbutton_box = gtk_dialog_get_action_area(GTK_DIALOG(fileselection));
-	 if (GTK_IS_HBUTTON_BOX(aa_hbutton_box))
+	 if (GTK_IS_HBUTTON_BOX(aa_hbutton_box)) {
 	    add_cif_dictionary_selector_molecule_selector(fileselection, aa_hbutton_box);
+	    add_cif_dictionary_selector_create_molecule_checkbutton(fileselection, aa_hbutton_box);
+	 }
 
       } else {
 
@@ -241,6 +243,50 @@ void cif_dictionary_molecule_menu_item_select(GtkWidget *item, GtkPositionType p
    // pos is the value stored in with GINT_TO_POINTER() in the signal connect.
    //
    // std::cout << "select menu item " << item << " pos " << pos << std::endl;
+}
+
+
+void
+add_cif_dictionary_selector_create_molecule_checkbutton(GtkWidget *fileselection,
+							GtkWidget *aa_hbox) {
+
+   // if we came from a chooser, aa_hbox is an hbutton_box
+   // if we came from a selector, aa_hbox is an hbox.
+
+   GtkWidget *frame = gtk_frame_new("Make a Molecule");
+   GtkWidget *checkbutton = gtk_check_button_new_with_label(" Generate a Molecule");
+   g_object_set_data_full(G_OBJECT(fileselection),
+			  "cif_dictionary_file_selector_create_molecule_checkbutton",
+			  gtk_widget_ref(checkbutton),
+			  (GDestroyNotify) gtk_widget_unref);
+
+   graphics_info_t g;
+
+   if (g.cif_dictionary_file_selector_create_molecule_flag)
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+
+   // do we need to connect this signal?
+   GtkSignalFunc callback_func =
+      GTK_SIGNAL_FUNC(on_cif_dictionary_file_selector_create_molecule_checkbutton_toggled);
+
+   gtk_box_pack_start(GTK_BOX(aa_hbox), frame, FALSE, TRUE, 0);
+   gtk_container_add(GTK_CONTAINER(frame), checkbutton);
+   gtk_widget_show(checkbutton);
+   gtk_widget_show(frame);
+ }
+
+ 
+
+void
+on_cif_dictionary_file_selector_create_molecule_checkbutton_toggled (GtkButton       *button,
+								     gpointer         user_data) {
+
+   if (GTK_TOGGLE_BUTTON(button)->active) {
+      std::cout << "Make a molecule after dictionary" << std::endl;
+   } else {
+      std::cout << "on_cif_dictionary_file_selector_create_molecule_checkbutton_toggled() "
+		<< "Do nothing" << std::endl;
+   }
 }
 
 
