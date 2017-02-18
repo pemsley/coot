@@ -291,7 +291,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	 add_cif_file_name(ciffilename, comp_id_1, comp_id_2, imol_enc);
       } // cif file is OK test
 
-      if (true)
+      if (false)
 	 std::cout << "returning with comp_id_1 " << comp_id_1
 		   << " comp_id_2 " << comp_id_2 << std::endl;
 

@@ -3977,6 +3977,8 @@ coot::protein_geometry::mol_from_dictionary(int monomer_index,
       std::cout << "WARNING:: Null residue in mol_from_dictionary() for idx "
 		<< monomer_index << std::endl;
    }
+
+   std::cout << "DEBUG:: mol_from_dictionary() returns " << mol << std::endl;
    return mol;
 }
 
