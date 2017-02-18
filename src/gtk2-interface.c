@@ -26451,7 +26451,7 @@ create_coords_colour_control_dialog (void)
   gtk_widget_set_name (scrolledwindow26, "scrolledwindow26");
   gtk_widget_show (scrolledwindow26);
   gtk_box_pack_start (GTK_BOX (vbox178), scrolledwindow26, TRUE, TRUE, 0);
-  gtk_widget_set_size_request (scrolledwindow26, 300, 130);
+  gtk_widget_set_size_request (scrolledwindow26, 300, 300);
   GTK_WIDGET_UNSET_FLAGS (scrolledwindow26, GTK_CAN_FOCUS);
 
   viewport20 = gtk_viewport_new (NULL, NULL);
