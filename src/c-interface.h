@@ -3006,6 +3006,8 @@ void set_found_coot_python_gui();
  */
 void get_coords_for_accession_code(const char *code);
 
+int get_monomer_for_molecule_by_index(int dict_idx, int imol_enc);
+
 
 /*  Don't let this be seen by standard c, since I am using a std::string */
 /*  and now we make it return a value, which we can decode in the calling

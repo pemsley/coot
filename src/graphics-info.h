@@ -3963,6 +3963,8 @@ string   static std::string sessionid;
    void undisplay_all_model_molecules_except(int imol);
    void undisplay_all_model_molecules_except(const std::vector<int> &keep_these);
    static GtkWidget *cfc_dialog;
+
+   static bool cif_dictionary_file_selector_create_molecule_flag;
 };
 
 

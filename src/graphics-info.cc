@@ -393,7 +393,8 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 	 molecules[i].make_bonds_type_checked();
       }
    }
-   return rmit.n_atoms;
+   // return rmit.n_atoms;
+   return rmit.monomer_idx;
 }
 
 

@@ -39,3 +39,5 @@ int get_monomer_from_dictionary(const std::string &comp_id, int idealised_flag);
 
 // return a new molecule number
 int get_monomer_molecule_by_network_and_dict_gen(const std::string &text);
+
+// int get_monomer_for_molecule_by_index() is called in callbacks.h, needs a c-interface.
