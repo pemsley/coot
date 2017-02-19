@@ -17,7 +17,7 @@ using namespace std;
 
 class CXXChargeTable;
 
-namespace CXXUtils{
+namespace CXXUtils_old {
 	
 	int assignUnitedAtomRadius(mmdb::PManager, int selHnd);
 	int assignCharge(mmdb::PManager theManager, int selHnd, CXXChargeTable *theChargeTable);
