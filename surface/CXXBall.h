@@ -52,12 +52,12 @@ public:
 	virtual const double &getRadius() const = 0;
 	virtual void initSphereElement(CXXSphereElement &, const double &delta) const = 0;	
 	
-	static int triangulateBalls(vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &ballPntrs,
-                                vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &contextBallPntrs,
+	static int triangulateBalls(vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> > &ballPntrs,
+                                vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> > &contextBallPntrs,
 								double delta, CXXSurface *aSurface, int insideOrOutside);
-	static int ballContacts(std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &ballPntrs, 
-                            std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > &contextBallPntrs, 
-							std::map<const CXXBall*, std::vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > > &contactMap);
+	static int ballContacts(std::vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> > &ballPntrs, 
+                            std::vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> > &contextBallPntrs, 
+							std::map<const CXXBall*, std::vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> > > &contactMap);
 	virtual mmdb::PAtom getAtomI() const = 0;
 };
 
@@ -99,7 +99,7 @@ private:
 	mmdb::PAtom theAtomK;
 	bool includeAtoms[3];
 	double theRadius;
-	static CXX::CXXAlloc<CXXReentrantProbeBall> allocator;
+	static CXX_old::CXXAlloc<CXXReentrantProbeBall> allocator;
 public:
 	CXXReentrantProbeBall() : CXXBall() {
 	};

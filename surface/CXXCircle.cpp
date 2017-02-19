@@ -138,7 +138,7 @@ completelyEaten(oldOne.getEaten())
 	}
 }
 */
-int CXXCircle::meetsCircle(const CXXCircle &otherCircle, vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > &nodeList) const{
+int CXXCircle::meetsCircle(const CXXCircle &otherCircle, vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > &nodeList) const{
 	
 	// check if there is an intersection between this circle and another circle
 	// return 0 if there is intersection
@@ -286,8 +286,8 @@ const CXXCoord &CXXCircle::getNormal() const {
 
 int CXXCircle::trimNodesBy(const CXXCircle &otherCircle)  {
     int deletedCount = 0;
-    list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator lastNode = theNodes.end();
-    for (list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator nodeIter = theNodes.begin();
+    list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator lastNode = theNodes.end();
+    for (list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator nodeIter = theNodes.begin();
          nodeIter != lastNode;
          ++nodeIter){
         CXXCircleNode &node(*nodeIter);
@@ -345,17 +345,17 @@ bool CXXCircle::smallabBracketsC(const CXXCircleNode &nodea,
 void CXXCircle::trimOwnNodes(){    
 	
 	//Delete all nodes that lie within any of the segments
-    list<CXXCircle, CXX::CXXAlloc<CXXCircle> > &otherCircles = theParent->getCircles();
+    list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> > &otherCircles = theParent->getCircles();
 	int nodesToDraw = countDrawnNodes();
-	list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::iterator otherCirclesEnd = otherCircles.end();
-	for (list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::iterator otherCircleIter = otherCircles.begin();
+	list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::iterator otherCirclesEnd = otherCircles.end();
+	for (list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::iterator otherCircleIter = otherCircles.begin();
 		 otherCircleIter != otherCirclesEnd && nodesToDraw > 0;
 		 ++otherCircleIter){
 		CXXCircle &otherCircle (*otherCircleIter);
 		if (!otherCircle.getEaten()  &&
 			&otherCircle != this){
-			list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator nodesEnd = theNodes.end();
-			for (list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator nodeIter = theNodes.begin();
+			list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator nodesEnd = theNodes.end();
+			for (list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator nodeIter = theNodes.begin();
 				 nodeIter != nodesEnd && nodesToDraw>0;
 				 ++nodeIter){
 				CXXCircleNode &nodec(*nodeIter);
@@ -398,8 +398,8 @@ int CXXCircle::sortNodes(){
     
     CXXCircleNode *startNode = 0;    
 	//March round till we find an undeleted class2 node
-    list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator nodesEnd = theNodes.end();
-    for (list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator nodeIter = theNodes.begin();
+    list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator nodesEnd = theNodes.end();
+    for (list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator nodeIter = theNodes.begin();
          nodeIter != nodesEnd;
          ++nodeIter){
         CXXCircleNode &theNode(*nodeIter);
@@ -417,7 +417,7 @@ int CXXCircle::sortNodes(){
 	referenceUnitRadius = startNode->getUnitRadius();
     
     nodesEnd = theNodes.end();
-    for (list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator nodeIter = theNodes.begin();
+    for (list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator nodeIter = theNodes.begin();
          nodeIter != nodesEnd;
          ++nodeIter){
         CXXCircleNode &theNode(*nodeIter);
@@ -451,8 +451,8 @@ int CXXCircle::newIdentifyArcs(){
 		return 0;
 	}
 	
-    list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator nodesEnd = theNodes.end();
-    for (list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator nodeIter = theNodes.begin();
+    list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator nodesEnd = theNodes.end();
+    for (list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator nodeIter = theNodes.begin();
          nodeIter != nodesEnd;
          ++nodeIter){
         CXXCircleNode &theNode(*nodeIter);
@@ -615,8 +615,8 @@ void CXXCircle::setArbitraryReference(){
 int CXXCircle::countDrawnNodes() const
 {
     int answer = 0;
-    list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::const_iterator nodesEnd = theNodes.end();
-    for (list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::const_iterator nodeIter = theNodes.begin();
+    list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::const_iterator nodesEnd = theNodes.end();
+    for (list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::const_iterator nodeIter = theNodes.begin();
          nodeIter != nodesEnd;
          ++nodeIter){
         const CXXCircleNode &theNode(*nodeIter);

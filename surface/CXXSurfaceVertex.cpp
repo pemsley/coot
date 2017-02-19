@@ -9,7 +9,7 @@
 
 #include "CXXSurfaceVertex.h"
 
-CXX::CXXAlloc<CXXSurfaceVertex> CXXSurfaceVertex::allocator = CXX::CXXAlloc<CXXSurfaceVertex>();
+CXX_old::CXXAlloc<CXXSurfaceVertex> CXXSurfaceVertex::allocator = CXX_old::CXXAlloc<CXXSurfaceVertex>();
 
 void CXXSurfaceVertex::init(){
   pointers.reserve(1);

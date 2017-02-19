@@ -896,9 +896,9 @@ int CXXQADSurface::toruses()
 		theNewHood.findSegments();
 		
 		//Loop over the segments that are left, using them to "eat" into the molecular volume
-		std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> > &theCircles(theNewHood.getCircles());
-		std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::iterator circlesEnd = theCircles.end();
-		for (std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::iterator circleIter = theCircles.begin();
+		std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> > &theCircles(theNewHood.getCircles());
+		std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::iterator circlesEnd = theCircles.end();
+		for (std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::iterator circleIter = theCircles.begin();
 			 circleIter != circlesEnd;
 			 ++circleIter){
 			CXXCircle &theCircle(*circleIter);
@@ -1010,14 +1010,14 @@ int CXXQADSurface::toruses()
 		}
 		//Now collect a list of points where the probes are in contact with three atoms
 		circlesEnd = theCircles.end();
-		for (std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >::iterator circleIter = theCircles.begin();
+		for (std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::iterator circleIter = theCircles.begin();
 			 circleIter != circlesEnd;
 			 ++circleIter){
 			CXXCircle &theCircle(*circleIter);
 			if (!theCircle.getEaten()){
-                const list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> > &nodes = theCircle.getNodes();
-                list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::const_iterator endNode = nodes.end();
-                for (list<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::const_iterator nodeIter = nodes.begin();
+                const list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> > &nodes = theCircle.getNodes();
+                list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::const_iterator endNode = nodes.end();
+                for (list<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::const_iterator nodeIter = nodes.begin();
                      nodeIter != endNode;
                      ++nodeIter){
 					const CXXCircleNode &aNode(*nodeIter);

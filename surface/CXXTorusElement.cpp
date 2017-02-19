@@ -226,8 +226,8 @@ int CXXTorusElement::upload(CXXSurface *aSurface){
 	{
 		int triangleBuffer[flatTriangles.size()*3];// = new int[flatTriangles.size()*3];
 		int nToDraw = 0;
-		list<CXXTriangle, CXX::CXXAlloc<CXXTriangle> >::iterator trianglesEnd(flatTriangles.end());
-		for (list<CXXTriangle, CXX::CXXAlloc<CXXTriangle> >::iterator triangle=flatTriangles.begin();
+		list<CXXTriangle, CXX_old::CXXAlloc<CXXTriangle> >::iterator trianglesEnd(flatTriangles.end());
+		for (list<CXXTriangle, CXX_old::CXXAlloc<CXXTriangle> >::iterator triangle=flatTriangles.begin();
 		     triangle != trianglesEnd;
 		     ++triangle){
 		   CXXTriangle &flatTriangle(*triangle);
@@ -256,15 +256,15 @@ void CXXTorusElement::addEdgeVertex(CXXCircleNode &aNode){
 	if (omega < omega2){
 		//This vertex falls somewhere in the range of the segment:  find which of the edgeTriagles it falls within
 		int triangleFound = 0;
-// 		list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle> >::iterator matchingTriangle;
-// 		list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle> >::iterator edgeTrianglesEnd = edgeTriangles.end();
+// 		list<CXXTriangle *, CXX_old::CXXAlloc<CXXTriangle> >::iterator matchingTriangle;
+// 		list<CXXTriangle *, CXX_old::CXXAlloc<CXXTriangle> >::iterator edgeTrianglesEnd = edgeTriangles.end();
 
 		// from the header:
-		// list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle *> > edgeTriangles;
+		// list<CXXTriangle *, CXX_old::CXXAlloc<CXXTriangle *> > edgeTriangles;
 		
-		list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle *> >::iterator matchingTriangle;
-		list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle *> >::iterator edgeTrianglesEnd = edgeTriangles.end();
-		for (list<CXXTriangle *, CXX::CXXAlloc<CXXTriangle *> >::iterator triangle = edgeTriangles.begin();
+		list<CXXTriangle *, CXX_old::CXXAlloc<CXXTriangle *> >::iterator matchingTriangle;
+		list<CXXTriangle *, CXX_old::CXXAlloc<CXXTriangle *> >::iterator edgeTrianglesEnd = edgeTriangles.end();
+		for (list<CXXTriangle *, CXX_old::CXXAlloc<CXXTriangle *> >::iterator triangle = edgeTriangles.begin();
 		     triangle != edgeTrianglesEnd && !triangleFound;
 		     ++triangle){
 

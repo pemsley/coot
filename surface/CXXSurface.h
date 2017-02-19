@@ -34,8 +34,8 @@ private:
     StringIntMap vectors;
     StringIntMap scalars;
     StringIntMap pointers;
-    vector<CXXTriangle, CXX::CXXAlloc<CXXTriangle> > triangles;
-    vector<CXXSurfaceVertex, CXX::CXXAlloc<CXXSurfaceVertex> > vertices;
+    vector<CXXTriangle, CXX_old::CXXAlloc<CXXTriangle> > triangles;
+    vector<CXXSurfaceVertex, CXX_old::CXXAlloc<CXXSurfaceVertex> > vertices;
     mmdb::PManager allAtomsManager;
     int init();
     int nTriangles;
@@ -57,10 +57,10 @@ public:
     int writeAsGrasp(const std::string &path);
     int readGraspFile(std::string fileName);
     
-    const vector<CXXTriangle, CXX::CXXAlloc<CXXTriangle> >&getTriangles() const {
+    const vector<CXXTriangle, CXX_old::CXXAlloc<CXXTriangle> >&getTriangles() const {
         return triangles;
     };
-    const vector<CXXSurfaceVertex, CXX::CXXAlloc<CXXSurfaceVertex> >&getVertices() const {
+    const vector<CXXSurfaceVertex, CXX_old::CXXAlloc<CXXSurfaceVertex> >&getVertices() const {
         return vertices;
     };
 	const StringIntMap &vectorNames() const{

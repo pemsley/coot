@@ -462,7 +462,7 @@ int CXXSurface::calculateVDWFromAtoms(mmdb::PManager allAtomsManager_in, const i
 	mmdb::PPAtom SelAtom;	
 	allAtomsManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 	cout << "Surface selection includes " << nSelAtoms << "atoms"<<endl;    
-	vector<const CXXBall *, CXX::CXXAlloc<const CXXBall*> > vdwBallPntrs;
+	vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall*> > vdwBallPntrs;
 	for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) { 
 		vdwBallPntrs.push_back(new CXXAtomBall(SelAtom[atomNr], getAtomRadius(SelAtom[atomNr])));
 	}
@@ -476,7 +476,7 @@ int CXXSurface::calculateVDWFromAtoms(mmdb::PManager allAtomsManager_in, const i
 	allAtomsManager->GetSelIndex(contextSelHnd, ContextSelAtom, nContextSelAtoms);
 	cout << "Context selection includes " << nSelAtoms << "atoms"<<endl; 
 	
-	vector<const CXXBall *, CXX::CXXAlloc<const CXXBall*> > contextBallPntrs;
+	vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall*> > contextBallPntrs;
 	int nUniqueContextAtoms = 0;
 	int nSharedContextAtoms = 0;
 	for (int atomNr = 0;atomNr < nContextSelAtoms; atomNr++) { 
@@ -514,7 +514,7 @@ int CXXSurface::calculateAccessibleFromAtoms(mmdb::PManager allAtomsManager_in, 
 	mmdb::PPAtom SelAtom;	
 	allAtomsManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 	cout << "Surface selection includes " << nSelAtoms << "atoms"<<endl;    
-	vector<const CXXBall *, CXX::CXXAlloc<const CXXBall*> > vdwBallPntrs;
+	vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall*> > vdwBallPntrs;
 	for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) { 
 		vdwBallPntrs.push_back(new CXXAtomBall(SelAtom[atomNr], probeRadius+getAtomRadius(SelAtom[atomNr])));
 	}
@@ -528,7 +528,7 @@ int CXXSurface::calculateAccessibleFromAtoms(mmdb::PManager allAtomsManager_in, 
 	allAtomsManager->GetSelIndex(contextSelHnd, ContextSelAtom, nContextSelAtoms);
 	cout << "Context selection includes " << nSelAtoms << "atoms"<<endl; 
 	
-	vector<const CXXBall *, CXX::CXXAlloc<const CXXBall*> > contextBallPntrs;
+	vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall*> > contextBallPntrs;
 	int nUniqueContextAtoms = 0;
 	int nSharedContextAtoms = 0;
 	for (int atomNr = 0;atomNr < nContextSelAtoms; atomNr++) { 
@@ -565,7 +565,7 @@ int CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, const int 
 	mmdb::PPAtom SelAtom;	
 	allAtomsManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 	cout << "Surface selection includes " << nSelAtoms << "atoms"<<endl;    
-	vector<const CXXBall *, CXX::CXXAlloc<const CXXBall*> > vdwBallPntrs;
+	vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall*> > vdwBallPntrs;
 	for (int atomNr = 0;atomNr < nSelAtoms; atomNr++) { 
 		vdwBallPntrs.push_back(new CXXAtomBall(SelAtom[atomNr], probeRadius+getAtomRadius(SelAtom[atomNr])));
 	}
@@ -573,19 +573,19 @@ int CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, const int 
 	mmdb::PPAtom ContextSelAtom;	
 	allAtomsManager->GetSelIndex(contextSelHnd, ContextSelAtom, nContextSelAtoms);
 	cout << "Context selection includes " << nSelAtoms << "atoms"<<endl;    
-	vector<const CXXBall *, CXX::CXXAlloc<const CXXBall*> > contextBallPntrs;
+	vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall*> > contextBallPntrs;
 	for (int atomNr = 0;atomNr < nContextSelAtoms; atomNr++) { 
 		contextBallPntrs.push_back(new CXXAtomBall(ContextSelAtom[atomNr], probeRadius+getAtomRadius(ContextSelAtom[atomNr])));
 	}
 	
 	//Precalculate contacts
-    std::map<const CXXBall *, std::vector<const CXXBall *, CXX::CXXAlloc<const CXXBall *> > >contactMap;
+    std::map<const CXXBall *, std::vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall *> > >contactMap;
     CXXBall::ballContacts(vdwBallPntrs, contextBallPntrs, contactMap);	
     std::cout << "Established contact map\n";
 	
     //Start up with reentrant Prbes separated per-atom...removes one locking state
     //for multi-threadig
-    std::vector<std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> > > splitReentrantProbes;
+    std::vector<std::vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> > > splitReentrantProbes;
     splitReentrantProbes.resize(nSelAtoms);
 	
     CXXSphereElement unitSphereAtOrigin(CXXCoord(0.,0.,0.), 1., delta);
@@ -603,7 +603,7 @@ int CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, const int 
         
 		//We have precalculated neighbours of the central atom, and now can use that 
 		//to our advantage
-		std::vector<const CXXBall *, CXX::CXXAlloc<const CXXBall *> > &neighbours = contactMap[vdwBallPntrs[atomNr]];
+		std::vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall *> > &neighbours = contactMap[vdwBallPntrs[atomNr]];
 		for (unsigned int sphereAtomNr = 0; sphereAtomNr < neighbours.size(); sphereAtomNr++) {
 			theNewHood.addBall(*neighbours[sphereAtomNr]);
 		}
@@ -620,10 +620,10 @@ int CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, const int 
 		}
 	}
 
-	vector<const CXXBall*, CXX::CXXAlloc<const CXXBall*> > reentrantProbes;
+	vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> > reentrantProbes;
     for (int i=0; i<nSelAtoms; i++){
-        std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator reentrantProbesEnd(splitReentrantProbes[i].end());
-        for (std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >::iterator reentrantProbe = splitReentrantProbes[i].begin();
+        std::vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator reentrantProbesEnd(splitReentrantProbes[i].end());
+        for (std::vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >::iterator reentrantProbe = splitReentrantProbes[i].begin();
              reentrantProbe != reentrantProbesEnd;
              ++reentrantProbe){
             reentrantProbes.push_back(new CXXReentrantProbeBall(*reentrantProbe, selHnd, probeRadius));
@@ -839,8 +839,8 @@ int CXXSurface::upLoadSphere(CXXSphereElement &theSphere, double probeRadius, co
     int oldVertexCount;
     CXXCoord theCentre = theSphere.centre();
     
-    vector<int, CXX::CXXAlloc<int> > equivalence(theSphere.nVertices());
-    vector<int, CXX::CXXAlloc<int> > uniqueAndDrawn(theSphere.nVertices());
+    vector<int, CXX_old::CXXAlloc<int> > equivalence(theSphere.nVertices());
+    vector<int, CXX_old::CXXAlloc<int> > uniqueAndDrawn(theSphere.nVertices());
     
     int nDrawn = 0;
     for (unsigned  i=0; i< theSphere.nVertices(); i++){
@@ -922,9 +922,9 @@ int CXXSurface::upLoadSphere(CXXSphereElement &theSphere, double probeRadius, co
     {
         int triangleBuffer[theSphere.nFlatTriangles()*3];// = new int[theSphere.nFlatTriangles()*3];
         int drawCount = 0;
-		std::list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::const_iterator trianglesEnd = 
+		std::list<CXXSphereFlatTriangle, CXX_old::CXXAlloc<CXXSphereFlatTriangle> >::const_iterator trianglesEnd = 
 		theSphere.getFlatTriangles().end();
-		for (std::list<CXXSphereFlatTriangle, CXX::CXXAlloc<CXXSphereFlatTriangle> >::const_iterator triangle = 
+		for (std::list<CXXSphereFlatTriangle, CXX_old::CXXAlloc<CXXSphereFlatTriangle> >::const_iterator triangle = 
 			 theSphere.getFlatTriangles().begin();
 			 triangle != trianglesEnd;
 			 ++triangle){
@@ -1158,8 +1158,8 @@ void CXXSurface::appendSurface(const CXXSurface &otherSurface){
     triangles.insert(triangles.end(),otherSurface.getTriangles().begin(), otherSurface.getTriangles().end());
     nTriangles = triangles.size();
     
-    vector<CXXTriangle, CXX::CXXAlloc<CXXTriangle> >::iterator triangle;
-    vector<CXXTriangle, CXX::CXXAlloc<CXXTriangle> >::iterator triangleEnd = triangles.end();
+    vector<CXXTriangle, CXX_old::CXXAlloc<CXXTriangle> >::iterator triangle;
+    vector<CXXTriangle, CXX_old::CXXAlloc<CXXTriangle> >::iterator triangleEnd = triangles.end();
     for (triangle = (triangles.begin() + oldNTriangles); triangle!=triangleEnd; ++triangle){
         for (int i=0; i<3; i++){
             (*triangle)[i] = (*triangle)[i] + oldNVertices;
@@ -1168,16 +1168,16 @@ void CXXSurface::appendSurface(const CXXSurface &otherSurface){
 }
 
 void CXXSurface::compress(double tolerance){
-	vector<CXXSurfaceVertex, CXX::CXXAlloc<CXXSurfaceVertex> > compressedVertices;
+	vector<CXXSurfaceVertex, CXX_old::CXXAlloc<CXXSurfaceVertex> > compressedVertices;
 	compressedVertices.reserve(vertices.size());
-	vector<CXXTriangle, CXX::CXXAlloc<CXXTriangle> >compressedTriangles;
+	vector<CXXTriangle, CXX_old::CXXAlloc<CXXTriangle> >compressedTriangles;
 	compressedTriangles.reserve(triangles.size());
 	
 	int vertexHandle = getVectorHandle("vertices");
 	int normalHandle = getVectorHandle("normals");
     int atomHandle = getVectorHandle("atom");
     
-	vector<int, CXX::CXXAlloc<int> >equivalences(vertices.size());
+	vector<int, CXX_old::CXXAlloc<int> >equivalences(vertices.size());
 	for (unsigned int i=0; i<vertices.size(); i++){
 		bool uniqueAndDrawn = true;
 		for (unsigned int j=0; j<compressedVertices.size() && uniqueAndDrawn; j++){

@@ -33,7 +33,7 @@ private:
 	double theRadius;
 	double theProbeRadius;
 	CXXCoord theCentre;
-	std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> >theCircles;
+	std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >theCircles;
 	void init();
 public:
 	CXXNewHood();
@@ -69,17 +69,17 @@ public:
 	
 	static bool doesNotContainDrawable(const CXXNewHood &aHood);
     
-	void identifyUniqueNodes(vector<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> >&circleNodes, int selHnd) const;
+	void identifyUniqueNodes(vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >&circleNodes, int selHnd) const;
 	
     void triangulateAsRegularHoodInto(CXXSurface *aSurface, double delta, const CXXSphereElement *unitSphereAtOrigin) const;
-	const std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> > &getCircles() const{
+	const std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> > &getCircles() const{
 		return theCircles;
 	};
-	std::list<CXXCircle, CXX::CXXAlloc<CXXCircle> > &getCircles() {
+	std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> > &getCircles() {
 		return theCircles;
 	};
 	void triangulateAsBallHoodInto(CXXSurface *aSurface, double delta,
-								   std::map<const CXXBall*, std::vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > > &raggedEdges, 
+								   std::map<const CXXBall*, std::vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > > &raggedEdges, 
 								   bool useEdges, int insideOrOutside) ;
 	
 };

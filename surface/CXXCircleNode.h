@@ -93,12 +93,12 @@ public:
 		return theCoord[i];
 	};
 
-	static int probeContacts(std::vector<CXXCircleNode, CXX::CXXAlloc<CXXCircleNode> > &probes, double probeRadius, 
-					  std::map<CXXCircleNode *, std::vector< CXXCircleNode *, CXX::CXXAlloc< CXXCircleNode *> > > &contactMap);
+	static int probeContacts(std::vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> > &probes, double probeRadius, 
+					  std::map<CXXCircleNode *, std::vector< CXXCircleNode *, CXX_old::CXXAlloc< CXXCircleNode *> > > &contactMap);
 	static bool shouldDeletePointer(CXXCircleNode* &aNodePointer);
     static bool equalsPntr(CXXCircleNode* &node1, CXXCircleNode* &node2);
     static bool equals(CXXCircleNode &node1, CXXCircleNode &node2);
-	static void filterContacts(std::map<CXXCircleNode *, std::vector< CXXCircleNode *, CXX::CXXAlloc< CXXCircleNode *> > > &contactMap);
+	static void filterContacts(std::map<CXXCircleNode *, std::vector< CXXCircleNode *, CXX_old::CXXAlloc< CXXCircleNode *> > > &contactMap);
     static bool angleLessThan(const CXXCircleNode &node1, const CXXCircleNode &node2);
 };
 

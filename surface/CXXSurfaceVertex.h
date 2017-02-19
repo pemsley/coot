@@ -17,11 +17,11 @@ using namespace std;
 
 class CXXSurfaceVertex {
 private:
-	vector<void *, CXX::CXXAlloc<void *> > pointers;
-	vector<CXXCoord, CXX::CXXAlloc<CXXCoord> > vectors;
-	vector<double, CXX::CXXAlloc<double> > scalars;
+	vector<void *, CXX_old::CXXAlloc<void *> > pointers;
+	vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > vectors;
+	vector<double, CXX_old::CXXAlloc<double> > scalars;
 	void init();
-	static CXX::CXXAlloc<CXXSurfaceVertex> allocator;
+	static CXX_old::CXXAlloc<CXXSurfaceVertex> allocator;
 public:
 	CXXSurfaceVertex() {init();};
 	
