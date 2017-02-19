@@ -14,6 +14,7 @@
 #include "CXXAlloc.h"
 
 using namespace std;
+namespace CXX_mot {
 
 class CXXSurfaceVertex {
 private:
@@ -52,6 +53,8 @@ public:
 		allocator.deallocate(static_cast<CXXSurfaceVertex *>(pntr), 0);
 	};
 };
+
+}
 #endif
 
 

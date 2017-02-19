@@ -13,6 +13,7 @@
 #include "CXXTriangle.h"
 #include "CXXCircleNode.h"
 
+namespace CXX_mot {
 
 class CXXSphereFlatTriangle : public CXXTriangle{
 private:
@@ -49,6 +50,8 @@ public:
 		return circleNodes[i];
 	};
 };
+
+}
 
 #endif
 

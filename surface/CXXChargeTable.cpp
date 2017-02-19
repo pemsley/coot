@@ -9,7 +9,7 @@
 
 #include "CXXChargeTable.h"
 
-CXXChargeTable::CXXChargeTable() {
+CXX_mot::CXXChargeTable::CXXChargeTable() {
 	
 	map<string, stringDoubleMap> atomNameToChargeMap;
 	
@@ -134,14 +134,14 @@ CXXChargeTable::CXXChargeTable() {
 
 
 
-int CXXChargeTable::addResidueMap (string theResidueName, stringDoubleMap theAtomCharges) {
+int CXX_mot::CXXChargeTable::addResidueMap (string theResidueName, stringDoubleMap theAtomCharges) {
 	
 	atomNameToChargeMap.insert(make_pair(theResidueName, theAtomCharges));
 	return 0;
 	
 }
 
-int CXXChargeTable::addChargeToResidueMap (stringDoubleMap& theResidueMap, string theAtomName, double theCharge) {
+int CXX_mot::CXXChargeTable::addChargeToResidueMap (stringDoubleMap& theResidueMap, string theAtomName, double theCharge) {
 	
 	
 	theResidueMap.insert(make_pair(theAtomName, theCharge));
@@ -150,7 +150,7 @@ int CXXChargeTable::addChargeToResidueMap (stringDoubleMap& theResidueMap, strin
 
 
 
-double CXXChargeTable::getCharge(string residueName, string atomName) {
+double CXX_mot::CXXChargeTable::getCharge(string residueName, string atomName) {
 	
 	double charge = 0;
 	stringStringDoubleMap::iterator positionInChargeMap;

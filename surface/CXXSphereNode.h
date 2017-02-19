@@ -20,6 +20,8 @@
 
 using namespace std;
 
+namespace CXX_mot {
+
 class CXXSphereNode {
 private:
 	CXXCoord theVertex;
@@ -46,6 +48,6 @@ public:
 		return theAtom;
 	};
 };
-
+}
 #endif
 

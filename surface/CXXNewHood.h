@@ -21,6 +21,8 @@ using namespace std;
 #include "CXXAlloc.h"
 #include "CXXBall.h"
 
+namespace CXX_mot {
+
 class CXXCircle;
 class CXXCircleNode;
 class CXXSurface;
@@ -83,5 +85,6 @@ public:
 								   bool useEdges, int insideOrOutside) ;
 	
 };
+}
 #endif
 

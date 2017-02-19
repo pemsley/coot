@@ -2,21 +2,20 @@
 #include <stdlib.h>
 #include <string.h>
 
-int CXXUtils_old::assignCharge(mmdb::PManager theManager, int selHnd, CXXChargeTable *theChargeTable){
+int CXXUtils_old::assignCharge(mmdb::PManager theManager, int selHnd,
+			       CXX_mot::CXXChargeTable *theChargeTable) {
 	mmdb::Atom **SelAtom;
 	int nSelAtoms;
 	theManager->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 	
 	//Assign atom charges
 	for (int iAtom = 0; iAtom < nSelAtoms; iAtom++) {
-		mmdb::Atom *theAtom = SelAtom[iAtom];
-		string atomName(theAtom->name);
-		string residueName(theAtom->residue->name);
-		double theAtomCharge;
-		theAtomCharge = theChargeTable->getCharge(residueName, atomName);		
-		theAtom->charge = theAtomCharge;
-		// std::cout << "assignCharge() " << theAtom << " was given charge "
-		// << theAtom->charge << std::endl;
+	   mmdb::Atom *theAtom = SelAtom[iAtom];
+	   string atomName(theAtom->name);
+	   string residueName(theAtom->residue->name);
+	   double theAtomCharge;
+	   theAtomCharge = theChargeTable->getCharge(residueName, atomName);		
+	   theAtom->charge = theAtomCharge;
 	}
 	return 0;
 }

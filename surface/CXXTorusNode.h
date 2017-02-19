@@ -17,6 +17,8 @@
 
 // class mmdb::Atom;
 
+namespace CXX_mot {
+
 class CXXTorusNode{
 private:
 	mmdb::Atom *theAtom;
@@ -37,4 +39,5 @@ public:
 	mmdb::Atom *getAtom() const;
 };
 
+}
 #endif

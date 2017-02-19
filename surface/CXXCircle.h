@@ -22,7 +22,9 @@
 //#include "CXXAlloc.h"
 
 using namespace std;
- 
+
+namespace CXX_mot {
+
 class CXXNewHood;
 class CXXBall;
 
@@ -139,5 +141,7 @@ public:
                      const CXXCircleNode &nodec) const;
     
 };
+
+}
 #endif
 

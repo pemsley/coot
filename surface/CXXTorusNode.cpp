@@ -10,48 +10,48 @@
 #include "CXXTorusNode.h"
 
 
-void CXXTorusNode::init(){
+void CXX_mot::CXXTorusNode::init(){
 	theAtom = 0;
 	theta = omega = 0.;
 	crd = CXXCoord(0.,0.,0.);
 }	
 
-CXXTorusNode::CXXTorusNode()
+CXX_mot::CXXTorusNode::CXXTorusNode()
 {
 	init();
 }
-CXXTorusNode::CXXTorusNode(double inTheta, double inOmega){
+CXX_mot::CXXTorusNode::CXXTorusNode(double inTheta, double inOmega){
 	init();
 	theta = inTheta;
 	omega = inOmega;
 }
-int CXXTorusNode::setTheta(const double inTheta){
+int CXX_mot::CXXTorusNode::setTheta(const double inTheta){
 	theta = inTheta;
 	return 0;
 }
-int CXXTorusNode::setOmega(const double inOmega){
+int CXX_mot::CXXTorusNode::setOmega(const double inOmega){
 	omega = inOmega;
 	return 0;
 }
-int CXXTorusNode::setCoord(const CXXCoord &aCoord){
+int CXX_mot::CXXTorusNode::setCoord(const CXXCoord &aCoord){
     crd = aCoord;
 	return 0;
 }
-const CXXCoord &CXXTorusNode::coord() const{
+const CXX_mot::CXXCoord &CXX_mot::CXXTorusNode::coord() const{
 	return crd;
 }
-const double CXXTorusNode::getTheta() const{
+const double CXX_mot::CXXTorusNode::getTheta() const{
 
 	return theta;
 }
-const double CXXTorusNode::getOmega() const{
+const double CXX_mot::CXXTorusNode::getOmega() const{
 	return omega;
 }
-int CXXTorusNode::setAtom(mmdb::Atom *anAtom){
+int CXX_mot::CXXTorusNode::setAtom(mmdb::Atom *anAtom){
 	theAtom = anAtom;
 	return 0;
 }
-mmdb::Atom *CXXTorusNode::getAtom() const{
+mmdb::Atom *CXX_mot::CXXTorusNode::getAtom() const{
 	return theAtom;
 }
 

@@ -20,8 +20,9 @@
 //#include "CXXAlloc.h"
 #include <map>
 #include <vector>
-class CXXCircle;
 
+namespace CXX_mot {
+class CXXCircle;
 
 class CXXCircleNode {
 private:
@@ -102,6 +103,6 @@ public:
     static bool angleLessThan(const CXXCircleNode &node1, const CXXCircleNode &node2);
 };
 
+}
+
 #endif
-
-

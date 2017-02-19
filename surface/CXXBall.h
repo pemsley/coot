@@ -32,6 +32,8 @@
 #include "CXXSphereElement.h"
 #include "CXXCircleNode.h"
 
+namespace CXX_mot {
+
 class CXXBall {
 protected:
 	CXXCoord theCoord;
@@ -157,5 +159,6 @@ public:
 	 */
 };
 
+}
 #endif
 

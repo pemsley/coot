@@ -19,7 +19,7 @@
 #include "CXXCircleNode.h"
 #include "CXXTorusElement.h"
 
-void CXXNewHood::init(){
+void CXX_mot::CXXNewHood::init(){
 	theAtomI = 0;
 	theRadius = 0;
     theProbeRadius = 0;
@@ -27,32 +27,32 @@ void CXXNewHood::init(){
 	theCircles.resize(0);
 }
 
-CXXNewHood::CXXNewHood(){
+CXX_mot::CXXNewHood::CXXNewHood(){
 	init();
 }
 
-CXXNewHood::CXXNewHood(mmdb::PAtom centralAtom, double radiusOfAtom1, double probeRadius) :
+CXX_mot::CXXNewHood::CXXNewHood(mmdb::PAtom centralAtom, double radiusOfAtom1, double probeRadius) :
 theAtomI(centralAtom), 
 theRadius(radiusOfAtom1+probeRadius), 
 theProbeRadius(probeRadius){
 	theCentre = CXXCoord(theAtomI->x, theAtomI->y, theAtomI->z);
 }
 
-void CXXNewHood::initWith(const CXXCircleNode &aNode, double probeRadius) {
+void CXX_mot::CXXNewHood::initWith(const CXXCircleNode &aNode, double probeRadius) {
     theAtomI= 0;
     theRadius = probeRadius;
     theProbeRadius = 0;
     theCentre = aNode.getCoord();
 }
 
-void CXXNewHood::initWith(const CXXBall *aBall){
+void CXX_mot::CXXNewHood::initWith(const CXXBall *aBall){
 	theBall = aBall;
 	theRadius = aBall->getRadius();
 	theProbeRadius = 0.;
 	theCentre = aBall->getCoord();
 };
 
-int CXXNewHood::addAtom(mmdb::PAtom anAtomJ, double radiusOfAtom2){
+int CXX_mot::CXXNewHood::addAtom(mmdb::PAtom anAtomJ, double radiusOfAtom2){
 	if (anAtomJ->serNum == theAtomI->serNum) {
 		//		std::cout << "Rejecting self " << anAtomJ->serNum << " " <<  theAtomI->serNum << endl;
 		return 0; //Worried this might not be unique
@@ -76,7 +76,7 @@ int CXXNewHood::addAtom(mmdb::PAtom anAtomJ, double radiusOfAtom2){
 	return result;
 }
 
-int CXXNewHood::addBall(const CXXBall &aBall){
+int CXX_mot::CXXNewHood::addBall(const CXXBall &aBall){
     if (!theCentre.isNearly(aBall.getCoord(), 0.0001)){
         CXXCoord separ = aBall.getCoord() - theCentre;
         double sumrad = theRadius + aBall.getRadius();
@@ -88,7 +88,7 @@ int CXXNewHood::addBall(const CXXBall &aBall){
     return 0;
 }
 
-int CXXNewHood::findSegments(){
+int CXX_mot::CXXNewHood::findSegments(){
 	vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > theIntersections(2);
     CXXCircleNode circleNode0;
     CXXCircleNode circleNode1;
@@ -181,26 +181,26 @@ int CXXNewHood::findSegments(){
 	return 0;
 }
 
-const CXXCoord &CXXNewHood::getCentre() const{
+const CXX_mot::CXXCoord &CXX_mot::CXXNewHood::getCentre() const{
 	return theCentre;
 }
 
-double CXXNewHood::getRadius() const{
+double CXX_mot::CXXNewHood::getRadius() const{
 	return theRadius;
 }
-int CXXNewHood::nCircles() const{
+int CXX_mot::CXXNewHood::nCircles() const{
 	return theCircles.size();
 }
-const mmdb::PAtom CXXNewHood::getAtomI() const {
+const mmdb::PAtom CXX_mot::CXXNewHood::getAtomI() const {
 	return theAtomI;
 }
 
-double CXXNewHood::getProbeRadius() const{
+double CXX_mot::CXXNewHood::getProbeRadius() const{
 	return theProbeRadius;
 }
 
 
-bool CXXNewHood::doesNotContainDrawable(const CXXNewHood &aHood) {
+bool CXX_mot::CXXNewHood::doesNotContainDrawable(const CXXNewHood &aHood) {
 	//Identify how many of the circles of this hood actually have active segments
 	//and hence surface elements to draw...no nodes means either no intersecting
 	//spheres, or no accessible surfce patches 
@@ -222,7 +222,7 @@ bool CXXNewHood::doesNotContainDrawable(const CXXNewHood &aHood) {
 	return !result;
 }
 
-void CXXNewHood::triangulateAsRegularHoodInto(CXXSurface *aSurface, double delta, const CXXSphereElement *unitSphereAtOrigin) const
+void CXX_mot::CXXNewHood::triangulateAsRegularHoodInto(CXXSurface *aSurface, double delta, const CXXSphereElement *unitSphereAtOrigin) const
 {    
     const CXXNewHood &theNewHood(*this);
     
@@ -294,7 +294,7 @@ void CXXNewHood::triangulateAsRegularHoodInto(CXXSurface *aSurface, double delta
     aSurface->upLoadSphere(vdwSphere, getProbeRadius(), CXXSphereElement::Contact);        
 }
 
-void CXXNewHood::identifyUniqueNodes(vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >&circleNodes, int selHnd) const {
+void CXX_mot::CXXNewHood::identifyUniqueNodes(vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> >&circleNodes, int selHnd) const {
     //Generate the equivalent hoods
 	std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::const_iterator circlesEnd = theCircles.end();
 	for (std::list<CXXCircle, CXX_old::CXXAlloc<CXXCircle> >::const_iterator circleIter = theCircles.begin();
@@ -352,7 +352,7 @@ void CXXNewHood::identifyUniqueNodes(vector<CXXCircleNode, CXX_old::CXXAlloc<CXX
     }
 }
 
-void CXXNewHood::triangulateAsBallHoodInto(CXXSurface *aSurface, double delta, 
+void CXX_mot::CXXNewHood::triangulateAsBallHoodInto(CXXSurface *aSurface, double delta, 
 										   std::map<const CXXBall*, std::vector<CXXCoord, CXX_old::CXXAlloc<CXXCoord> > > &raggedEdges, 
 										   bool useEdges, int insideOrOutside) 
 {    

@@ -19,6 +19,8 @@ class CXXSphereElement;
 //class CXXCoord;
 //class CXXSphereNode;
 
+namespace CXX_mot {
+
 class CXXSphereTriangle {
 private:
 	int triangleVertices[3];
@@ -50,4 +52,6 @@ public:
 	int setCentre(const CXXCoord &);
 	int setRadius(const double radius);
 };
+
+}
 #endif

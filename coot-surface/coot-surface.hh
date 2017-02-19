@@ -61,7 +61,7 @@ class CColourScheme {
 
    class surface {
 
-      CXXSurface *theSurface;
+      CXX_mot::CXXSurface *theSurface;
       int iEval;
       
    public:

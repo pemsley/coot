@@ -11,14 +11,14 @@
 #include "CXXNewHood.h"
 #include "CXXSurface.h"
 
-CXX_old::CXXAlloc<CXXReentrantProbeBall> CXXReentrantProbeBall::allocator = CXX_old::CXXAlloc<CXXReentrantProbeBall>();
+CXX_old::CXXAlloc<CXX_mot::CXXReentrantProbeBall> CXX_mot::CXXReentrantProbeBall::allocator = CXX_old::CXXAlloc<CXX_mot::CXXReentrantProbeBall>();
 
-int CXXBall::triangulateBalls(vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> > &ballPntrs,
+int CXX_mot::CXXBall::triangulateBalls(vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> > &ballPntrs,
                               vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> > &contextBallPntrs,
 							  double delta, CXXSurface *aSurface, int insideOrOutside)
 {
     std::map<const CXXBall *, std::vector<const CXXBall *, CXX_old::CXXAlloc<const CXXBall *> > >contactMap;
-    CXXBall::ballContacts(ballPntrs, contextBallPntrs, contactMap);	
+    ballContacts(ballPntrs, contextBallPntrs, contactMap);	
     std::cout << "Established contact map\n";
     
     //Now pass through our reentrant Probe list, triangulating them
@@ -101,7 +101,7 @@ int CXXBall::triangulateBalls(vector<const CXXBall*, CXX_old::CXXAlloc<const CXX
 	return 0;
 }
 
-int CXXBall::ballContacts(std::vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> > &balls, 
+int CXX_mot::CXXBall::ballContacts(std::vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> > &balls, 
                           std::vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> > &contextBalls, 
 						  std::map<const CXXBall*, std::vector<const CXXBall*, CXX_old::CXXAlloc<const CXXBall*> > > &contactMap) 
 {
@@ -240,5 +240,7 @@ int CXXBall::ballContacts(std::vector<const CXXBall*, CXX_old::CXXAlloc<const CX
 	return 0;
 }
 
-double CXXAtomBall::mostRecentDelta = 1.;
-CXXSphereElement CXXAtomBall::unitSphereAtOrigin = CXXSphereElement(CXXCoord(0.,0.,0.), 1., 1.);
+double CXX_mot::CXXAtomBall::mostRecentDelta = 1.;
+
+CXX_mot::CXXSphereElement CXX_mot::CXXAtomBall::unitSphereAtOrigin =
+   CXX_mot::CXXSphereElement(CXX_mot::CXXCoord(0.,0.,0.), 1., 1.);

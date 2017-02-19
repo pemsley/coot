@@ -23,17 +23,17 @@
 #include "CXXTriangle.h"
 #include "CXXSphereFlatTriangle.h"
 
-CXXSurface::CXXSurface()
+CXX_mot::CXXSurface::CXXSurface()
 {
 	init();
 }
 
-CXXSurface::~CXXSurface(){
+CXX_mot::CXXSurface::~CXXSurface(){
 	triangles.resize(0);
 	vertices.resize(0);
 }
 
-int CXXSurface::init()
+int CXX_mot::CXXSurface::init()
 {
 	nTriangles = 0;
 	triangles.resize(0);
@@ -41,13 +41,13 @@ int CXXSurface::init()
 	return (0);
 }
 
-CXXSurface::CXXSurface (string path)
+CXX_mot::CXXSurface::CXXSurface (string path)
 {
 	init();
 	readGraspFile (path);
 }
 
-int CXXSurface::readGraspFile(string path)
+int CXX_mot::CXXSurface::readGraspFile(string path)
 {
 	char buffer[1024];
 	string text;
@@ -199,7 +199,7 @@ int CXXSurface::readGraspFile(string path)
 	return 0;
 }
 
-std::string CXXSurface::report(){
+std::string CXX_mot::CXXSurface::report(){
 	double area = 0.;
 	double pMin, pMax, pMean;
 	int i;
@@ -252,7 +252,7 @@ std::string CXXSurface::report(){
 	return output.str();
 }
 
-int CXXSurface::writeAsGrasp (const std::string &path)
+int CXX_mot::CXXSurface::writeAsGrasp (const std::string &path)
 {
 	char buffer[1024];
 	string text;
@@ -399,7 +399,7 @@ int CXXSurface::writeAsGrasp (const std::string &path)
 	return 0;
 }
 
-CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const std::string selectionString,
+CXX_mot::CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const std::string selectionString,
 						const std::string contextString){
 	double delta = 30. * 2. * M_PI / 360.;
 	double probeRadius = 1.4;
@@ -408,20 +408,20 @@ CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const std::string sel
 	calculateFromAtoms( allAtomsManager_in,  selectionString,  contextString, probeRadius, delta,blend_edges);
 }
 
-CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const std::string selectionString,
+CXX_mot::CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const std::string selectionString,
                         const std::string contextString, const double delta, const double probeRadius,  const bool blend_edges){
 	init();
 	calculateFromAtoms( allAtomsManager_in,  selectionString,  contextString, probeRadius, delta, blend_edges);
 }
 
-CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const std::string selectionString){
+CXX_mot::CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const std::string selectionString){
 	double delta = 30. * 2. * M_PI / 360.;
 	double probeRadius = 1.4;
     bool blend_edges = false;
 	calculateFromAtoms( allAtomsManager_in,  selectionString, probeRadius, delta,blend_edges);
 }
 
-CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const int selHnd){
+CXX_mot::CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const int selHnd){
 	double delta = 30. * 2. * M_PI / 360.;
 	double probeRadius = 1.4;
     bool blend_edges = false;
@@ -429,33 +429,33 @@ CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const int selHnd){
 	calculateFromAtoms( allAtomsManager_in,  selHnd,  selHnd, probeRadius, delta,blend_edges);
 }
 
-CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const int selHnd, const double delta, const double probeRadius, const bool blend_edges){
+CXX_mot::CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const int selHnd, const double delta, const double probeRadius, const bool blend_edges){
 	init();
 	calculateFromAtoms( allAtomsManager_in,  selHnd,  selHnd, probeRadius, delta,blend_edges);
 }
 
-CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const int selHnd, const int contextSelHnd, 
+CXX_mot::CXXSurface::CXXSurface (mmdb::PManager allAtomsManager_in, const int selHnd, const int contextSelHnd, 
                         const double delta, const double probeRadius,const bool blend_edges ){
 	init();
 	calculateFromAtoms( allAtomsManager_in,  selHnd,  contextSelHnd, probeRadius, delta,blend_edges);
 }
 
-int CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, const std::string selectionString, const double probeRadius, const double delta, const bool blend_edges){
+int CXX_mot::CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, const std::string selectionString, const double probeRadius, const double delta, const bool blend_edges){
 	int selHnd = selectionStringToSelHnd(allAtomsManager_in, selectionString);
 	return calculateFromAtoms(allAtomsManager_in, selHnd, selHnd, probeRadius, delta,blend_edges);
 }
 
-int CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, const std::string selectionString, const std::string contextString, const double probeRadius, const double delta , const bool blend_edges ){
+int CXX_mot::CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, const std::string selectionString, const std::string contextString, const double probeRadius, const double delta , const bool blend_edges ){
 	int selHnd = selectionStringToSelHnd(allAtomsManager_in, selectionString);
 	int contextHnd = selectionStringToSelHnd(allAtomsManager_in, contextString);
 	return calculateFromAtoms(allAtomsManager_in, selHnd, contextHnd, probeRadius, delta,blend_edges );
 }
 
-int CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, const int selHnd, const double probeRadius, const double delta, const bool blend_edges){
+int CXX_mot::CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, const int selHnd, const double probeRadius, const double delta, const bool blend_edges){
 	return calculateFromAtoms(allAtomsManager_in, selHnd, selHnd, probeRadius, delta,blend_edges);
 }
 
-int CXXSurface::calculateVDWFromAtoms(mmdb::PManager allAtomsManager_in, const int selHnd, const int contextSelHnd, const double probeRadius, const double delta , const bool blend_edges){
+int CXX_mot::CXXSurface::calculateVDWFromAtoms(mmdb::PManager allAtomsManager_in, const int selHnd, const int contextSelHnd, const double probeRadius, const double delta , const bool blend_edges){
 	allAtomsManager = allAtomsManager_in;	
 	
 	int  nSelAtoms;
@@ -507,7 +507,7 @@ int CXXSurface::calculateVDWFromAtoms(mmdb::PManager allAtomsManager_in, const i
 	
 } 
 
-int CXXSurface::calculateAccessibleFromAtoms(mmdb::PManager allAtomsManager_in, const int selHnd, const int contextSelHnd, const double probeRadius, const double delta , const bool blend_edges){
+int CXX_mot::CXXSurface::calculateAccessibleFromAtoms(mmdb::PManager allAtomsManager_in, const int selHnd, const int contextSelHnd, const double probeRadius, const double delta , const bool blend_edges){
 	allAtomsManager = allAtomsManager_in;	
 	
 	int  nSelAtoms;
@@ -558,7 +558,7 @@ int CXXSurface::calculateAccessibleFromAtoms(mmdb::PManager allAtomsManager_in, 
 	return 0;
 } 
 
-int CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, const int selHnd, const int contextSelHnd, const double probeRadius, const double delta , const bool blend_edges){
+int CXX_mot::CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, const int selHnd, const int contextSelHnd, const double probeRadius, const double delta , const bool blend_edges){
 	allAtomsManager = allAtomsManager_in;	
 	
 	int  nSelAtoms;
@@ -653,7 +653,7 @@ int CXXSurface::calculateFromAtoms(mmdb::PManager allAtomsManager_in, const int 
     return 0;
 }
 
-int CXXSurface::assignAtom (mmdb::PManager allAtomsManager_in, int selHnd){
+int CXX_mot::CXXSurface::assignAtom (mmdb::PManager allAtomsManager_in, int selHnd){
     void **pointerBuffer;
     mmdb::PPAtom selAtom;
     int nSelAtoms;
@@ -689,7 +689,7 @@ int CXXSurface::assignAtom (mmdb::PManager allAtomsManager_in, int selHnd){
 }
 
 
-int CXXSurface::colorByColourArray(const std::vector<double*> &colours, mmdb::Manager *molHnd, int selHnd){
+int CXX_mot::CXXSurface::colorByColourArray(const std::vector<double*> &colours, mmdb::Manager *molHnd, int selHnd){
     double greyColour[] = {0.5,0.5,0.5};
     double Colour[] = {0.5,0.5,0.5};
     
@@ -733,7 +733,7 @@ int CXXSurface::colorByColourArray(const std::vector<double*> &colours, mmdb::Ma
     
 }
 
-int CXXSurface::colorByAssignedAtom(){
+int CXX_mot::CXXSurface::colorByAssignedAtom(){
     mmdb::PAtom theAtom;
     double redColour[] = {1.,0.,0.};
     double greenColour[] = {0.,1.,0.};
@@ -776,13 +776,13 @@ int CXXSurface::colorByAssignedAtom(){
     return 0;
 }
 
-int CXXSurface::extendWithVectorData(int count, const string name, double *vectorBuffer){
+int CXX_mot::CXXSurface::extendWithVectorData(int count, const string name, double *vectorBuffer){
     int start = vertices.size();
     updateWithVectorData( count, name,  start, vectorBuffer);
     return vertices.size();
 }
 
-int CXXSurface::updateWithVectorData(int count, const string name, int start, double *vectorBuffer){
+int CXX_mot::CXXSurface::updateWithVectorData(int count, const string name, int start, double *vectorBuffer){
     unsigned int iVector  = getVectorHandle(name);
     if (int(vertices.size()) < start + count){
         vertices.resize(start+count);
@@ -796,7 +796,7 @@ int CXXSurface::updateWithVectorData(int count, const string name, int start, do
 }
 
 
-int CXXSurface::updateWithPointerData(int count, const string name, int start, void **pointerBuffer){
+int CXX_mot::CXXSurface::updateWithPointerData(int count, const string name, int start, void **pointerBuffer){
    unsigned int iPointer = getPointerHandle(name);
    unsigned int ui_count = count;
 
@@ -811,7 +811,7 @@ int CXXSurface::updateWithPointerData(int count, const string name, int start, v
    return vertices.size();
 }
 
-int CXXSurface::extendTriangles(int *triangleBuffer, int count){
+int CXX_mot::CXXSurface::extendTriangles(int *triangleBuffer, int count){
     triangles.resize(nTriangles+count);
     for (int i=0; i<count; i++){
         int l = triangleBuffer[3*i];
@@ -823,20 +823,22 @@ int CXXSurface::extendTriangles(int *triangleBuffer, int count){
     return nTriangles;
 }
 
-int CXXSurface::numberOfTriangles() const{
+int CXX_mot::CXXSurface::numberOfTriangles() const{
     return triangles.size();
 }
 
-int CXXSurface::numberOfVertices() const{
+int CXX_mot::CXXSurface::numberOfVertices() const{
     return vertices.size();
 }
 
-int CXXSurface::vertex(int iTriangle, int iCorner) const{
+int CXX_mot::CXXSurface::vertex(int iTriangle, int iCorner) const{
     return triangles[iTriangle][iCorner];
 }
 
-int CXXSurface::upLoadSphere(CXXSphereElement &theSphere, double probeRadius, const int sense){
-    int oldVertexCount;
+int CXX_mot::CXXSurface::upLoadSphere(CXX_mot::CXXSphereElement &theSphere,
+				      double probeRadius, const int sense) {
+
+   int oldVertexCount;
     CXXCoord theCentre = theSphere.centre();
     
     vector<int, CXX_old::CXXAlloc<int> > equivalence(theSphere.nVertices());
@@ -953,7 +955,7 @@ int CXXSurface::upLoadSphere(CXXSphereElement &theSphere, double probeRadius, co
     return 0;
 }
 
-double CXXSurface::getAtomRadius(mmdb::PAtom theAtom){
+double CXX_mot::CXXSurface::getAtomRadius(mmdb::PAtom theAtom){
     //Here get handle of a radius data type from MMDB if such has been stored
     int iRadiusHandle = allAtomsManager->GetUDDHandle(mmdb::UDR_ATOM, "PerAtomRadius");
     double theRadius;
@@ -965,7 +967,7 @@ double CXXSurface::getAtomRadius(mmdb::PAtom theAtom){
     return theRadius;
 }
 
-int CXXSurface::selectionStringToSelHnd(mmdb::PManager allAtomsManager_in, std::string selectionString){
+int CXX_mot::CXXSurface::selectionStringToSelHnd(mmdb::PManager allAtomsManager_in, std::string selectionString){
     int selHnd = allAtomsManager_in->NewSelection();
     char *pstring = (char *) malloc (sizeof(selectionString.c_str())+1);
     strcpy (pstring, selectionString.c_str());
@@ -974,11 +976,11 @@ int CXXSurface::selectionStringToSelHnd(mmdb::PManager allAtomsManager_in, std::
     return selHnd;
 }
 
-mmdb::Manager *CXXSurface::getMMDBManager() const{
+mmdb::Manager *CXX_mot::CXXSurface::getMMDBManager() const{
     return allAtomsManager;
 }
 
-int CXXSurface::setCoord(const string &name, int iVertex, const CXXCoord &crd){
+int CXX_mot::CXXSurface::setCoord(const string &name, int iVertex, const CXXCoord &crd){
     int iVector = getVectorHandle(name);
     iVector = vectors[name];
     if (int(vertices.size()) <= iVertex){
@@ -990,7 +992,7 @@ int CXXSurface::setCoord(const string &name, int iVertex, const CXXCoord &crd){
     return vertices.size();
 }
 
-int CXXSurface::getIntegerUDDataOfAtom(mmdb::PAtom theAtom, int handle){
+int CXX_mot::CXXSurface::getIntegerUDDataOfAtom(mmdb::PAtom theAtom, int handle){
     int result;
     int rc = theAtom->GetUDData(handle, result);
     switch (rc)  {
@@ -1014,7 +1016,7 @@ int CXXSurface::getIntegerUDDataOfAtom(mmdb::PAtom theAtom, int handle){
     return result;
 }
 
-int CXXSurface::getVectorHandle (const string name){
+int CXX_mot::CXXSurface::getVectorHandle (const string name){
     if (vectors.find(name) == vectors.end()){
         int oldSize = vectors.size();
         vectors[name] = oldSize + 1;
@@ -1022,7 +1024,7 @@ int CXXSurface::getVectorHandle (const string name){
     return vectors[name];
 }
 
-int CXXSurface::getReadVectorHandle (const string name){
+int CXX_mot::CXXSurface::getReadVectorHandle (const string name){
     if (vectors.find(name) == vectors.end()){
         return -1;
     }
@@ -1030,7 +1032,7 @@ int CXXSurface::getReadVectorHandle (const string name){
 }
 
 
-int CXXSurface::getScalarHandle (const string name){
+int CXX_mot::CXXSurface::getScalarHandle (const string name){
     if (scalars.find(name) == scalars.end()){
         int oldSize = scalars.size();
         scalars[name] = oldSize + 1;
@@ -1038,24 +1040,24 @@ int CXXSurface::getScalarHandle (const string name){
     return scalars[name];
 }
 
-void CXXSurface::setScalar(int scalarHandle, int iVertex, double &value){
+void CXX_mot::CXXSurface::setScalar(int scalarHandle, int iVertex, double &value){
     vertices[iVertex].setScalar(scalarHandle, value);
 }
 
-void CXXSurface::setScalar(const string name, int iVertex, double &value){
+void CXX_mot::CXXSurface::setScalar(const string name, int iVertex, double &value){
     int scalarHandle=getScalarHandle(name);
     vertices[iVertex].setScalar(scalarHandle, value);
 }
 
 
-int CXXSurface::getReadScalarHandle (const string name){
+int CXX_mot::CXXSurface::getReadScalarHandle (const string name){
     if (scalars.find(name) == scalars.end()){
         return -1;
     }
     return scalars[name];
 }
 
-int CXXSurface::getPointerHandle (const string name){
+int CXX_mot::CXXSurface::getPointerHandle (const string name){
     if (pointers.find(name) == pointers.end()){
         int oldSize = pointers.size();
         pointers[name] = oldSize + 1;
@@ -1063,17 +1065,17 @@ int CXXSurface::getPointerHandle (const string name){
     return pointers[name];
 }
 
-const CXXCoord &CXXSurface::coordRef(int coordType, int iTriangle, int iCorner) const{
+const CXX_mot::CXXCoord &CXX_mot::CXXSurface::coordRef(int coordType, int iTriangle, int iCorner) const{
     const CXXTriangle &theTriangle(triangles[iTriangle]);
     int iVertex = theTriangle[iCorner];
     return vertices[iVertex].coordRef(coordType);
 }
 
-const CXXCoord &CXXSurface::coordRef(int coordType, int iVertex) const{
+const CXX_mot::CXXCoord &CXX_mot::CXXSurface::coordRef(int coordType, int iVertex) const{
     return vertices[iVertex].coordRef(coordType);
 }
 
-int CXXSurface::addPerVertexVector (const string name, double *coordBuffer){
+int CXX_mot::CXXSurface::addPerVertexVector (const string name, double *coordBuffer){
     int vectorHandle = getVectorHandle(name);
     for (int i=0; i<int(vertices.size()); i++){
         vertices[i].setXyz(vectorHandle, &(coordBuffer[3*i]));
@@ -1081,7 +1083,7 @@ int CXXSurface::addPerVertexVector (const string name, double *coordBuffer){
     return 0;
 }
 
-int CXXSurface::addPerVertexScalar (const string name, double *scalarBuffer){
+int CXX_mot::CXXSurface::addPerVertexScalar (const string name, double *scalarBuffer){
     int scalarHandle = getScalarHandle(name);
     for (int i=0; i<int(vertices.size()); i++){
         vertices[i].setScalar(scalarHandle, scalarBuffer[i]);
@@ -1089,7 +1091,7 @@ int CXXSurface::addPerVertexScalar (const string name, double *scalarBuffer){
     return 0;
 }
 
-int CXXSurface::addPerVertexPointer (const string name, void **pointerBuffer){
+int CXX_mot::CXXSurface::addPerVertexPointer (const string name, void **pointerBuffer){
     int pointerHandle = getPointerHandle(name);
     for (int i=0; i<int(vertices.size()); i++){
         vertices[i].setPointer(pointerHandle, pointerBuffer[i]);
@@ -1097,7 +1099,7 @@ int CXXSurface::addPerVertexPointer (const string name, void **pointerBuffer){
     return 0;
 }
 
-int CXXSurface::getCoord(const string &type, const int iTriangle, const int corner, double *buffer)
+int CXX_mot::CXXSurface::getCoord(const string &type, const int iTriangle, const int corner, double *buffer)
 {
     int relevantVector = getReadVectorHandle(type);
     if (relevantVector<0) return 1;
@@ -1105,14 +1107,14 @@ int CXXSurface::getCoord(const string &type, const int iTriangle, const int corn
     return getCoord(relevantVector, iVertex, buffer);
 }
 
-int CXXSurface::getCoord(const string &type, const int iVertex, double *buffer)
+int CXX_mot::CXXSurface::getCoord(const string &type, const int iVertex, double *buffer)
 {
     int relevantVector = getReadVectorHandle(type);
     if (relevantVector<0) return 1;
     return getCoord(relevantVector, iVertex, buffer);
 }
 
-int CXXSurface::getCoord(const int type, const int iVertex, double *buffer)
+int CXX_mot::CXXSurface::getCoord(const int type, const int iVertex, double *buffer)
 { 
     if (type>=0 && type <= int(vectors.size())){
         const CXXCoord &theCoord = coordRef(type, iVertex);
@@ -1124,7 +1126,7 @@ int CXXSurface::getCoord(const int type, const int iVertex, double *buffer)
     else return 1;
 }
 
-int CXXSurface::getPointer(const string &type, int iVertex, void **return_p)
+int CXX_mot::CXXSurface::getPointer(const string &type, int iVertex, void **return_p)
 {
     int relevantVector;
     if (pointers.find(type) != pointers.end()){
@@ -1136,17 +1138,17 @@ int CXXSurface::getPointer(const string &type, int iVertex, void **return_p)
     return 1;
 }
 
-int CXXSurface::getScalar  (int handle, int iVertex, double &result){
+int CXX_mot::CXXSurface::getScalar  (int handle, int iVertex, double &result){
     result = vertices[iVertex].scalar(handle);
     return 0; 
 }
 
-int CXXSurface::addTriangle (const CXXTriangle &aTriangle){
+int CXX_mot::CXXSurface::addTriangle (const CXXTriangle &aTriangle){
     triangles.push_back(aTriangle);
     return 0;
 }
 
-void CXXSurface::appendSurface(const CXXSurface &otherSurface){
+void CXX_mot::CXXSurface::appendSurface(const CXXSurface &otherSurface){
     int oldNVertices = vertices.size();
     int oldNTriangles = triangles.size();
     
@@ -1167,7 +1169,7 @@ void CXXSurface::appendSurface(const CXXSurface &otherSurface){
     }
 }
 
-void CXXSurface::compress(double tolerance){
+void CXX_mot::CXXSurface::compress(double tolerance){
 	vector<CXXSurfaceVertex, CXX_old::CXXAlloc<CXXSurfaceVertex> > compressedVertices;
 	compressedVertices.reserve(vertices.size());
 	vector<CXXTriangle, CXX_old::CXXAlloc<CXXTriangle> >compressedTriangles;

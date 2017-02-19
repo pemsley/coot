@@ -21,6 +21,8 @@ using namespace std;
 typedef map<string, double> stringDoubleMap;
 typedef map<string, stringDoubleMap> stringStringDoubleMap;
 
+namespace CXX_mot {
+
 class CXXChargeTable {
 	
 private:
@@ -37,5 +39,7 @@ public:
 	
 	
 };
+
+}
 
 #endif

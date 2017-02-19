@@ -13,30 +13,32 @@
 #include <list> 
 #include <iostream>
 #include "CXXCoord.h"
-//#include "CXXAlloc.h"
 
 using namespace std;
-class CXXSphereTriangleEdge;
-#include "CXXSphereTriangle.h"
-//class CXXSphereTriangle;
-class CXXSphereNode;
-// class mmdb::Atom;
-#include "CXXSphereFlatTriangle.h"
-//class CXXSphereFlatTriangle;
-class CXXTriangle;
-class CXXSurface;
-class CXXCircleNode;
-#include "CXXCircle.h"
-//class CXXCircle;
-class CXXTorusElement;
 
-class TriangleEdgePair{
-public:
-	int triangle;
-	int edge;
-	TriangleEdgePair(int i, int j) : triangle(i), edge(j){
-	};
-};
+// try class CXXSphereTriangleEdge;
+#include "CXXSphereTriangle.h"
+
+// try class CXXSphereNode;
+#include "CXXSphereFlatTriangle.h"
+// try class CXXTriangle;
+
+// try class CXXSurface;
+#include "CXXSurface.h"
+
+// try class CXXCircleNode;
+#include "CXXCircle.h"
+
+namespace CXX_mot {
+
+  class CXXTorusElement;
+  
+  class TriangleEdgePair{
+  public:
+     int triangle;
+     int edge;
+     TriangleEdgePair(int i, int j) : triangle(i), edge(j) {}
+  };
 
 class CXXSphereElement{
 private:
@@ -174,5 +176,6 @@ public:
 									double delta, double radius_in, const bool *includeAtoms);
 		
 };
+}
 #endif
 

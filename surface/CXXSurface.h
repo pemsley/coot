@@ -19,13 +19,15 @@
 
 using namespace std;
 
-class CXXSphereElement;
-//#include "CXXSphereElement.h"
-//#include "CXXSphereNode.h"
+
+// #include "CXXSphereElement.h"
+
 #include "CXXTriangle.h"
 #include "CXXCoord.h"
 
-//#include "CXXAlloc.h"
+namespace CXX_mot {
+
+  class CXXSphereElement; // this class depends on CXXSurface
 
 typedef map<string, int> StringIntMap;
 class CXXSurface{
@@ -108,13 +110,14 @@ public:
     int calculateAccessibleFromAtoms(mmdb::PManager, const int, const int, const double, const double, const bool );
     int calculateFromAtoms(mmdb::PManager, const std::string , const double, const double, const bool);
     int calculateFromAtoms(mmdb::PManager, const int, const double, const double, const bool);
- 	
-    int upLoadSphere(CXXSphereElement &theSphere, double probeRadius, const int sense);
+    
+    // why do I need CXX_mot here?
+    int upLoadSphere(CXX_mot::CXXSphereElement &theSphere, double probeRadius, const int sense);
     int selectionStringToSelHnd(mmdb::PManager, const std::string selectionString);
     int getIntegerUDDataOfAtom(mmdb::PAtom theAtom, int handle);
     int operator == (const CXXSurface &comparator) const{
         return (this == &comparator);
-    } 
+    }
     int getVectorHandle(const string name);
     int getReadVectorHandle(const string name);
     int getScalarHandle(const string name);
@@ -132,6 +135,7 @@ public:
     void compress(double tolerance);
 };
 
+}
 #endif
 
 

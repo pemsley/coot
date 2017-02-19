@@ -11,9 +11,12 @@
 
 #include <math.h>
 
-typedef double CXXCoord_ftype;
 	
 #include <iostream>
+
+namespace CXX_mot {
+
+typedef double CXXCoord_ftype;
 
 class CXXCoord {
 public:
@@ -178,4 +181,6 @@ public:
         return true;
     };
 };
+
+}
 #endif

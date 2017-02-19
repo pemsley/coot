@@ -12,7 +12,7 @@
 #include "CXXCircle.h"
 #include "CXXNewHood.h"
 
-CXXCircleNode::CXXCircleNode():
+CXX_mot::CXXCircleNode::CXXCircleNode():
 theParent(0),
 theOtherCircle(0),
 theCoord(CXXCoord(0.,0.,0.)),
@@ -26,7 +26,7 @@ atomK(0)
 {
 }
 
-CXXCircleNode::CXXCircleNode ( const CXXCircle *aParent, const CXXCircle *anOtherCircle, const CXXCoord &crd, int aFlag):
+CXX_mot::CXXCircleNode::CXXCircleNode ( const CXXCircle *aParent, const CXXCircle *anOtherCircle, const CXXCoord &crd, int aFlag):
 theParent(aParent),
 theOtherCircle(anOtherCircle),
 theCoord(crd),
@@ -48,11 +48,11 @@ atomK(0)
 	if (theOtherCircle) atomK=theOtherCircle->getAtomJ();
 }
 
-bool CXXCircleNode::shouldDelete(const CXXCircleNode &aNode){
+bool CXX_mot::CXXCircleNode::shouldDelete(const CXXCircleNode &aNode){
 	return (aNode.isDeleted()==1);
 }
 
-void CXXCircleNode::setParent(CXXCircle *parent){
+void CXX_mot::CXXCircleNode::setParent(CXXCircle *parent){
 	theParent = parent;
 	if (theParent) {
 		atomJ = theParent->getAtomJ();
@@ -62,23 +62,23 @@ void CXXCircleNode::setParent(CXXCircle *parent){
 	}
 };
 
-void CXXCircleNode::setOtherCircle(CXXCircle *parent){
+void CXX_mot::CXXCircleNode::setOtherCircle(CXXCircle *parent){
 	theOtherCircle = parent;
 	if (theOtherCircle) atomK = theOtherCircle->getAtomJ();
 };
 
-int CXXCircleNode::setReference(const CXXCoord &referenceVector){
+int CXX_mot::CXXCircleNode::setReference(const CXXCoord &referenceVector){
 	theAngle = theParent->getNormal().angleBetween(getUnitRadius(), referenceVector);
 	return 0; 
 };
 
-void CXXCircleNode::setCoord(const CXXCoord &coord) {
+void CXX_mot::CXXCircleNode::setCoord(const CXXCoord &coord) {
     theCoord = coord;
     unitRadius=theCoord-theParent->getCentreOfCircle();
     unitRadius /= theParent->getRadiusOfCircle();
 }
 
-int CXXCircleNode::probeContacts(std::vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> > &probes, 
+int CXX_mot::CXXCircleNode::probeContacts(std::vector<CXXCircleNode, CXX_old::CXXAlloc<CXXCircleNode> > &probes, 
 								 double probeRadius, 
 								 std::map<CXXCircleNode *, std::vector<CXXCircleNode *, CXX_old::CXXAlloc<CXXCircleNode *> > > &contactMap) 
 {
@@ -213,11 +213,11 @@ int CXXCircleNode::probeContacts(std::vector<CXXCircleNode, CXX_old::CXXAlloc<CX
 	return 0;
 }
 
-bool CXXCircleNode::shouldDeletePointer(CXXCircleNode* &aNodePointer){
+bool CXX_mot::CXXCircleNode::shouldDeletePointer(CXXCircleNode* &aNodePointer){
 	return (aNodePointer->isDeleted()==1);
 }
 
-bool CXXCircleNode::equals(CXXCircleNode &node1, CXXCircleNode &node2){
+bool CXX_mot::CXXCircleNode::equals(CXXCircleNode &node1, CXXCircleNode &node2){
     std::vector<int>ijkCentral(3);
     std::vector<int>ijkOther(3);
     ijkCentral[0] = node1.getAtomI()->serNum;
@@ -235,7 +235,7 @@ bool CXXCircleNode::equals(CXXCircleNode &node1, CXXCircleNode &node2){
     return true;
 }
 
-bool CXXCircleNode::equalsPntr(CXXCircleNode* &node1, CXXCircleNode* &node2){
+bool CXX_mot::CXXCircleNode::equalsPntr(CXXCircleNode* &node1, CXXCircleNode* &node2){
     std::vector<mmdb::Atom *>ijkCentral(3);
     std::vector<mmdb::Atom *>ijkOther(3);
     ijkCentral[0] = node1->getAtomI();
@@ -253,7 +253,7 @@ bool CXXCircleNode::equalsPntr(CXXCircleNode* &node1, CXXCircleNode* &node2){
     return true;
 }
 
-void CXXCircleNode::filterContacts(std::map<CXXCircleNode *, std::vector<CXXCircleNode *, CXX_old::CXXAlloc<CXXCircleNode *> > > &contactMap){	
+void CXX_mot::CXXCircleNode::filterContacts(std::map<CXXCircleNode *, std::vector<CXXCircleNode *, CXX_old::CXXAlloc<CXXCircleNode *> > > &contactMap){	
 	std::map< CXXCircleNode *, std::vector<CXXCircleNode *, CXX_old::CXXAlloc<CXXCircleNode *> > >::iterator contactMapEnd(contactMap.end());
 	for (std::map< CXXCircleNode *, std::vector<CXXCircleNode *, CXX_old::CXXAlloc<CXXCircleNode *> > >::iterator contactMapIter = contactMap.begin();
 		 contactMapIter != contactMap.end();
@@ -266,7 +266,7 @@ void CXXCircleNode::filterContacts(std::map<CXXCircleNode *, std::vector<CXXCirc
     return;
 }
 
-bool CXXCircleNode::angleLessThan(const CXXCircleNode &node1, const CXXCircleNode &node2){
+bool CXX_mot::CXXCircleNode::angleLessThan(const CXXCircleNode &node1, const CXXCircleNode &node2){
     return node1.getAngle() < node2.getAngle();
 }
 

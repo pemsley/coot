@@ -386,7 +386,7 @@ int test_function(int i, int j) {
 
 // Martin's MoleculeToTriangles
 //
-#include <CXXClasses/MyMolecule.h>
+// #include <CXXClasses/MyMolecule.h>
 
 #ifdef USE_GUILE
 SCM test_function_scm(SCM i_scm, SCM j_scm) {

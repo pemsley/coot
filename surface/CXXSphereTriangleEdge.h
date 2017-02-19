@@ -14,6 +14,8 @@
 #include "CXXCoord.h"
 
 using namespace std;
+
+namespace CXX_mot {
 class CXXSphereNode;
 class CXXSphereElement;
 // class CAtom;
@@ -67,4 +69,5 @@ public:
 	};
 };
 
+}
 #endif

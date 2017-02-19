@@ -8,7 +8,7 @@
  */
 #ifndef CXXTorusElement_included
 #define CXXTorusElement_included
-//#include <CXXTorusTriangle.h>
+
 #include "CXXTorusNode.h"
 #include "CXXTriangle.h"
 #include "CXXCircleNode.h"
@@ -16,13 +16,18 @@
 #include <vector>
 #include <list>
 
-class CXXSurface;
-class CXXTriangle;
-class CXXCircle;
+// try class CXXSurface;
+// try class CXXTriangle;
+// try class CXXCircle;
+
 #include "CXXCoord.h"
 
 using std::vector;
  
+namespace CXX_mot {
+
+  class CXXSurface;
+
 class CXXTorusElement {
 private:
 	static CXXCircle nullCircle;
@@ -94,4 +99,5 @@ public:
 	};
 };
 
+}
 #endif
