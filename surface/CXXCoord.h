@@ -6,8 +6,8 @@
  *  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
  *
  */
-#ifndef CXXCoord_included
-#define CXXCoord_included
+#ifndef CXX_mot_CXXCoord_included
+#define CXX_mot_CXXCoord_included
 
 #include <math.h>
 

@@ -6,8 +6,8 @@
  *  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
  *
  */
-#ifndef CXXTorusElement_included
-#define CXXTorusElement_included
+#ifndef CXX_mot_CXXTorusElement_included
+#define CXX_mot_CXXTorusElement_included
 
 #include "CXXTorusNode.h"
 #include "CXXTriangle.h"

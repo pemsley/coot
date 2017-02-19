@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef CXXCircleNode_included
-#define CXXCircleNode_included
+#ifndef CXX_mot_CXXCircleNode_included
+#define CXX_mot_CXXCircleNode_included
 // #include <string.h>
 #include <cstring>
 #ifndef  __MMDB_Manager__

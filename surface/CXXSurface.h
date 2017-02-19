@@ -6,8 +6,8 @@
  *  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
  *
  */
-#ifndef CXXSurface_included
-#define CXXSurface_included
+#ifndef CXX_mot_CXXSurface_included
+#define CXX_mot_CXXSurface_included
 #include <string>
 #include <vector>
 #include <map>

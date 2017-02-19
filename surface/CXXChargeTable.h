@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef CXXChargeTable_included
-#define CXXChargeTable_included
+#ifndef CXX_mot_CXXChargeTable_included
+#define CXX_mot_CXXChargeTable_included
 
 #include <iostream>
 #ifndef  __STRING_H

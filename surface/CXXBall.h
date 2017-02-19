@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef CXXBall_included
-#define CXXBall_included
+#ifndef CXX_mot_CXXBall_included
+#define CXX_mot_CXXBall_included
 
 // 20110217 4.3.3 on Ubuntu 9.04 needs this hack too
 #ifdef __GNUC__

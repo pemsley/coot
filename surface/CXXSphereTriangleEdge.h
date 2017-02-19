@@ -8,8 +8,8 @@
  */
 
 
-#ifndef CXXSphereTriangleEdge_included
-#define CXXSphereTriangleEdge_included
+#ifndef CXX_mot_CXXSphereTriangleEdge_included
+#define CXX_mot_CXXSphereTriangleEdge_included
 #include <vector>
 #include "CXXCoord.h"
 

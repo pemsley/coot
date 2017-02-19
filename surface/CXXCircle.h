@@ -6,8 +6,8 @@
  *  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
  *
  */
-#ifndef CXXCircle_included
-#define CXXCircle_included
+#ifndef CXX_mot_CXXCircle_included
+#define CXX_mot_CXXCircle_included
 
 #include <vector>
 #include <list>

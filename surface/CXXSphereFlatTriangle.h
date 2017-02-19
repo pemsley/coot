@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef CXXSphereFlatTriangle_included
-#define CXXSphereFlatTriangle_included
+#ifndef CXX_mot_CXXSphereFlatTriangle_included
+#define CXX_mot_CXXSphereFlatTriangle_included
 
 #include "CXXTriangle.h"
 #include "CXXCircleNode.h"

@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef CXXNewHood_included
-#define CXXNewHood_included
+#ifndef CXX_mot_CXXNewHood_included
+#define CXX_mot_CXXNewHood_included
 #include <vector>
 #include <list>
 #include <map>

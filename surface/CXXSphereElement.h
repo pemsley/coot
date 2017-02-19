@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef CXXSphereElement_included
-#define CXXSphereElement_included
+#ifndef CXX_mot_CXXSphereElement_included
+#define CXX_mot_CXXSphereElement_included
 #include <vector>
 #include <list> 
 #include <iostream>

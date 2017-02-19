@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef CXXAlloc_included
-#define CXXAlloc_included
+#ifndef CXX_mot_CXXAlloc_included
+#define CXX_mot_CXXAlloc_included
 
 #include <stddef.h>
 #include <stdlib.h>

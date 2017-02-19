@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef CXXSphereNode_included
-#define CXXSphereNode_included
+#ifndef CXX_mot_CXXSphereNode_included
+#define CXX_mot_CXXSphereNode_included
 #include <vector>
 #include <iostream>
 #include <algorithm>

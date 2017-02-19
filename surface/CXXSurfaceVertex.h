@@ -6,8 +6,8 @@
  *  Copyright (c) 2004 __MyCompanyName__. All rights reserved.
  *
  */
-#ifndef CXXSurfaceVertex_included
-#define CXXSurfaceVertex_included
+#ifndef CXX_mot_CXXSurfaceVertex_included
+#define CXX_mot_CXXSurfaceVertex_included
 #include "CXXCoord.h"
 #include <vector>
 #include <deque>
