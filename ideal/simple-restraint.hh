@@ -802,8 +802,9 @@ namespace coot {
    void my_df (const gsl_vector *v, void *params, gsl_vector *df); 
    // just the bond terms: 
    void my_df_bonds(const gsl_vector *v, void *params, gsl_vector *df); 
-   // just the bond terms: 
-   void my_df_geman_mcclure_distances(const gsl_vector *v, void *params, gsl_vector *df); 
+   // GM terms
+   void my_df_geman_mcclure_distances_old(const gsl_vector *v, void *params, gsl_vector *df);
+   void my_df_geman_mcclure_distances(const gsl_vector *v, void *params, gsl_vector *df); // possible multi-thread
    // just the angle terms: 
    void my_df_angles(const gsl_vector *v, void *params, gsl_vector *df); 
    //  just the torsion terms:
@@ -1995,11 +1996,20 @@ namespace coot {
 					   restraints_container_t *restraints_p,
 					   int idx_start,
 					   int idx_end);
+   void my_df_geman_mcclure_distances_thread_dispatcher(const gsl_vector *v,
+							gsl_vector *df,
+							restraints_container_t *restraints_p,
+							int idx_start,
+							int idx_end);
    void my_df_non_bonded_single(const gsl_vector *v,
 				gsl_vector *df,
 				const simple_restraint &this_restraint
 				// const restraints_container_t &restraints // for debugging
 				);
+   void my_df_geman_mcclure_distances_single(const gsl_vector *v,
+					     gsl_vector *df,
+					     const simple_restraint &this_restraint,
+					     const double &alpha);
 
    void simple_refine(mmdb::Residue *residue_p,
 		      mmdb::Manager *mol,

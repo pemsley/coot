@@ -315,7 +315,7 @@ coot::restraints_container_t::geometric_distortions(coot::restraint_usage_Flags 
    restraints_usage_flag = flags;
    setup_gsl_vector_variables();  //initial positions in x array
    coot::geometry_distortion_info_container_t dv = distortion_vector(x);
-   return dv;
+   return distortion_vector(x);
 }
 
 coot::geometry_distortion_info_container_t
@@ -761,7 +761,7 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 	 if (restraints_vec[i].restraint_type == coot::BOND_RESTRAINT) {
 	    idx1 = distortion_vec_container.geometry_distortion[i].restraint.atom_index_1;
 	    idx2 = distortion_vec_container.geometry_distortion[i].restraint.atom_index_2;
-	    
+
 	    this_resno1 = distortion_vec_container.atom[idx1]->GetSeqNum();
 	    this_resno2 = distortion_vec_container.atom[idx2]->GetSeqNum();
 	    if (this_resno1 < min_resno)
