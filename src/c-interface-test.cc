@@ -386,7 +386,16 @@ int test_function(int i, int j) {
 
 // Martin's MoleculeToTriangles
 //
-// #include <CXXClasses/MyMolecule.h>
+//
+#include <CXXClasses/RendererGL.h>
+#include <CXXClasses/Light.h>
+#include <CXXClasses/Camera.h>
+#include <CXXClasses/CameraPort.h>
+#include <CXXClasses/SceneSetup.h>
+#include <CXXClasses/ColorScheme.h>
+#include <CXXClasses/MyMolecule.h>
+#include <CXXClasses/RepresentationInstance.h>
+#include <CXXClasses/MolecularRepresentationInstance.h>
 
 #ifdef USE_GUILE
 SCM test_function_scm(SCM i_scm, SCM j_scm) {
@@ -395,7 +404,39 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    SCM r = SCM_BOOL_F;
 
    if (true) {
-      
+      mmdb::Manager *mol = new mmdb::Manager;
+      mol->ReadPDBASCII("test.pdb");
+      MyMolecule mymol(mol);
+
+
+      auto myMolecule= MyMolecule::create("test.pdb");
+      myMolecule->setDoDraw(true);
+      auto colorScheme = ColorScheme::colorByElementScheme();
+      auto camera = std::shared_ptr<Camera>(Camera::defaultCamera());
+      auto light0 = Light::defaultLight();
+      light0->setDrawLight(false);
+      auto renderer = RendererGL::create();
+      // std::string sel = "/*/*/*","ThirtySixToFortyFive";
+      std::string sel = "//36-45";
+      CompoundSelection comp_sel(sel);
+      auto inst1 = MolecularRepresentationInstance::create(myMolecule,
+							   colorScheme,
+							   sel,
+							   "Ribbon");
+      auto sceneSetup = SceneSetup::defaultSceneSetup();
+      sceneSetup->addLight(light0);
+      sceneSetup->addCamera(camera);
+      camera->setSceneSetup(sceneSetup);
+      sceneSetup->addRepresentationInstance(inst1);
+      CXXCoord<CXXCoord_ftype> c = myMolecule->getCentre();
+      CXXCoord<CXXCoord_ftype> minusC = c * -1.;
+      std::cout << minusC;
+      sceneSetup->setTranslation(minusC);
+      CameraPort *cameraPort = new CameraPort;
+      cameraPort->setCamera(camera);
+      cameraPort->setRendererGL(renderer);
+      // cameraPort->runLoop("Message"); hangs (not surprising)
+
    }
 
    if (false) {
