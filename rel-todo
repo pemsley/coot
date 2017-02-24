@@ -4,6 +4,10 @@
 
    o Fetch molecule: acyclovir, (edit?) click Apply
 
+   o does saving the state of backrub rotamers work?
+
+   o pyrogen -n -M -C ATP AMP.smi.  The atom names are ultra-quoted.
+
    o in Ana's map after sequence assignment (which was very fast): it went into a long 
      stall - not sure what it was doing. Without fitting, the model had hideous mainchain
 
