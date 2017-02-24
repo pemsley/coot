@@ -1483,7 +1483,6 @@ void coot::my_df_electron_density_threaded_single(int thread_idx, const gsl_vect
 #endif	 
 
 
-// restraints are modified by atomic done_count_for_threads changing.
 //
 void coot::my_df_electron_density_single(const gsl_vector *v,
 					 coot::restraints_container_t *restraints,
