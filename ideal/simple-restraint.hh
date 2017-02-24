@@ -854,7 +854,7 @@ namespace coot {
    // 
    double electron_density_score(const gsl_vector *v, void *params);
    // new style Grad_map/Grad_orth method
-   void my_df_electron_density (const gsl_vector *v, void *params, gsl_vector *df);
+   void my_df_electron_density(const gsl_vector *v, void *params, gsl_vector *df);
    // pre-threaded
    void my_df_electron_density_old_2017(const gsl_vector *v, void *params, gsl_vector *df); 
    // old style numerical method
@@ -2085,7 +2085,7 @@ namespace coot {
 					       gsl_vector *df,
 					       int atom_idx_start, int atom_idx_end,
 					       std::atomic<unsigned int> &done_count_for_threads);
-#endif // HAVE_CXX_THREA
+#endif // HAVE_CXX_THREAD
 
    void simple_refine(mmdb::Residue *residue_p,
 		      mmdb::Manager *mol,
