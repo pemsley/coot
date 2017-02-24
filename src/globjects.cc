@@ -160,7 +160,9 @@ std::vector<coot::view_info_t> *graphics_info_t::views = 0;
 bool graphics_info_t::do_expose_swap_buffers_flag = 1;
 
 
+#ifdef HAVE_CXX_THREAd
 ctpl::thread_pool graphics_info_t::static_thread_pool(coot::get_max_number_of_threads());
+#endif // HAVE_CXX_THREAd
 
 
 //WII
