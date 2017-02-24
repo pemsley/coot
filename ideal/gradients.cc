@@ -557,18 +557,23 @@ coot::my_df_geman_mcclure_distances_single(const gsl_vector *v,
    }
 }
 
+#ifdef HAVE_CXX_THREAD
 void
-coot::my_df_geman_mcclure_distances_thread_dispatcher(const gsl_vector *v,
+coot::my_df_geman_mcclure_distances_thread_dispatcher(int thread_idx,
+						      const gsl_vector *v,
 						      gsl_vector *df,
 						      restraints_container_t *restraints_p,
 						      int idx_start,
-						      int idx_end) {
+						      int idx_end,
+						      std::atomic<unsigned int> &done_count_for_threads) {
    for (int i=idx_start; i<idx_end; i++) {
       const simple_restraint &this_restraint = (*restraints_p)[i];
       if (this_restraint.restraint_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT)
 	 my_df_geman_mcclure_distances_single(v, df, this_restraint, restraints_p->geman_mcclure_alpha);
    }
+   done_count_for_threads++;
 }
+#endif // HAVE_CXX_THREAD
 
 void
 coot::my_df_geman_mcclure_distances(const  gsl_vector *v, 
@@ -581,32 +586,30 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
    gettimeofday(&start_time, NULL);
 #endif // ANALYSE_REFINEMENT_TIMING
 
-   restraints_container_t *restraints = static_cast<restraints_container_t *> (params);
-   if (restraints->restraints_usage_flag & GEMAN_MCCLURE_DISTANCE_MASK) {
-      unsigned int restraints_size = restraints->size();
+   restraints_container_t *restraints_p = static_cast<restraints_container_t *> (params);
+   if (restraints_p->restraints_usage_flag & GEMAN_MCCLURE_DISTANCE_MASK) {
+      unsigned int restraints_size = restraints_p->size();
 
 #ifdef HAVE_CXX_THREAD
 
-      unsigned int n_threads = get_max_number_of_threads();
-      std::vector<std::thread> threads;
-      unsigned int n_per_thread = restraints_size/n_threads;
+      unsigned int n_per_thread = restraints_size/restraints_p->n_threads;
+      std::atomic<unsigned int> done_count_for_threads(0);
 
-      for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
+      for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
 	 int idx_start = i_thread * n_per_thread;
 	 int idx_end   = idx_start + n_per_thread;
 	 // for the last thread, set the end atom index
-	 if (i_thread == (n_threads - 1))
+	 if (i_thread == (restraints_p->n_threads - 1))
 	    idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
-	 threads.push_back(std::thread(my_df_geman_mcclure_distances_thread_dispatcher, v, df, restraints, idx_start, idx_end));
+	 // threads.push_back(std::thread(my_df_geman_mcclure_distances_thread_dispatcher, v, df, restraints, idx_start, idx_end));
+	 restraints_p->thread_pool_p->push(my_df_geman_mcclure_distances_thread_dispatcher, v, df, restraints_p, idx_start, idx_end, std::ref(done_count_for_threads));
       }
-      for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
-	 threads.at(i_thread).join();
 
 #else
       for (unsigned int i=0; i<restraints_size; i++) {
-	 const simple_restraint &this_restraint = (*restraints)[i];
+	 const simple_restraint &this_restraint = (*restraints_p)[i];
 	 if (this_restraint.restraint_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
-	    my_df_geman_mcclure_distances_single(v, df, this_restraint, restraints->geman_mcclure_alpha);
+	    my_df_geman_mcclure_distances_single(v, df, this_restraint, restraints_p->geman_mcclure_alpha);
 	 }
       }
 #endif
