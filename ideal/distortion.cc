@@ -481,7 +481,7 @@ coot::restraints_container_t::omega_trans_distortions(const coot::protein_geomet
 
 // return value in distortion
 void
-coot::distortion_score_multithread(const gsl_vector *v, void *params,
+coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *params,
 				   int idx_start, int idx_end, double *distortion) {
 
    // first extract the object from params 
@@ -494,6 +494,7 @@ coot::distortion_score_multithread(const gsl_vector *v, void *params,
       if (restraints->restraints_usage_flag & coot::NON_BONDED_MASK) { // 16:
 	 if ( (*restraints)[i].restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
 	    d = coot::distortion_score_non_bonded_contact( (*restraints)[i], v);
+	    // std::cout << "dsm: nbc  thread_idx " << thread_id << " idx " << i << " " << d << std::endl;
 	    *distortion += d;
 	    continue;
 	 }
@@ -502,6 +503,7 @@ coot::distortion_score_multithread(const gsl_vector *v, void *params,
       if (restraints->restraints_usage_flag & coot::BONDS_MASK) { // 1: bonds
 	 if ( (*restraints)[i].restraint_type == coot::BOND_RESTRAINT) {
 	    d = coot::distortion_score_bond((*restraints)[i], v);
+	    // std::cout << "dsm: bond  thread_idx " << thread_id << " idx " << i << " " << d << std::endl;
 	    *distortion += d;
 	    continue;
 	 }
@@ -510,6 +512,7 @@ coot::distortion_score_multithread(const gsl_vector *v, void *params,
       if (restraints->restraints_usage_flag & coot::ANGLES_MASK) { // 2: angles
 	 if ( (*restraints)[i].restraint_type == coot::ANGLE_RESTRAINT) {
 	    d = coot::distortion_score_angle((*restraints)[i], v);
+	    // std::cout << "dsm: angle thread_idx " << thread_id << " idx " << i << " " << d << std::endl;
 	    *distortion += d;
 	    continue;
 	 }
@@ -567,6 +570,9 @@ coot::distortion_score_multithread(const gsl_vector *v, void *params,
          *distortion += coot::distortion_score_start_pos((*restraints)[i], params, v);
       }
    }
+#ifdef HAVE_CXX_THREAD   
+   restraints->done_count_for_threads++; // atomic operation
+#endif // HAVE_CXX_THREAD   
 }
 
 // Return the distortion score.
@@ -585,51 +591,78 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 
    // first extract the object from params 
    //
-   coot::restraints_container_t *restraints = static_cast<coot::restraints_container_t *>(params);
+   coot::restraints_container_t *restraints_p = static_cast<coot::restraints_container_t *>(params);
 
    double distortion = 0;
-
 
    // distortion += starting_structure_diff_score(v, params);
 
    // tmp debugging stuff
    double nbc_diff = 0.0;
    double d;
-   int restraints_size = restraints->size();
+   int restraints_size = restraints_p->size();
 
 
 #ifdef HAVE_CXX_THREAD
 
-   unsigned int n_threads = get_max_number_of_threads();
-   std::vector<std::thread> threads;
-   unsigned int n_per_thread = restraints_size/n_threads;
-   double distortions[n_threads];
+   if (restraints_p->thread_pool_p) {
 
-   for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
-      int idx_start = i_thread * n_per_thread;
-      int idx_end   = idx_start + n_per_thread;
-      // for the last thread, set the end restraint index
-      if (i_thread == (n_threads - 1))
-	 idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
-      distortions[i_thread] = 0;
-      threads.push_back(std::thread(distortion_score_multithread,
-				    v, params, idx_start, idx_end, &distortions[i_thread]));
+      restraints_p->done_count_for_threads = 0; // atomic, updated by distortion_score_multithread
+
+      double distortions[restraints_p->n_threads];
+      int n_per_thread = restraints_size/restraints_p->n_threads;
+
+      // restraints->thread_pool_p->public_init();
+      // restraints->thread_pool_p->resize(restraints->n_threads);
+
+      for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
+	 int idx_start = i_thread * n_per_thread;
+	 int idx_end   = idx_start + n_per_thread;
+	 // for the last thread, set the end restraint index
+	 if (i_thread == (restraints_p->n_threads - 1))
+	    idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
+	 distortions[i_thread] = 0;
+
+	 if (false)
+	    std::cout << "pushing thread doing index range " << idx_start << " " << idx_end
+		      << std::endl;
+	 restraints_p->thread_pool_p->push(distortion_score_multithread,
+					   v, params, idx_start, idx_end, &distortions[i_thread]);
+	 if (false)
+	    std::cout << "    now thread pool info: size: "
+		      << restraints_p->thread_pool_p->size() << " idle: "
+		      << restraints_p->thread_pool_p->n_idle() 
+		      << std::endl;
+      }
+
+      // restraints->thread_pool_p->stop(true); // wait
+
+      while (restraints_p->done_count_for_threads != restraints_p->n_threads) {
+	 std::this_thread::sleep_for(std::chrono::microseconds(1));
+      }
+	 
+      for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++)
+	 distortion += distortions[i_thread];
+
+      // double distortion_single;
+      // distortion_score_multithread(999, v, params, 0, restraints_size, &distortion_single);
+      // std::cout << "distortion  multi: " << distortion << std::endl;
+      // std::cout << "distortion single: " << distortion_single << std::endl;
+
+   } else {
+      distortion_score_multithread(0, v, params, 0, restraints_size, &distortion);
    }
-   for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
-      threads.at(i_thread).join();
-   for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
-      distortion += distortions[i_thread];
 
 #else
 
-   distortion_score_multithread(v, params, 0, restraints_size, &distortion);
+   distortion_score_multithread(0, v, params, 0, restraints_size, &distortion);
 
 #endif // HAVE_CXX_THREAD
 
 //     std::cout << "nbc_diff   distortion: " << nbc_diff << std::endl;
 //     std::cout << "post-terms distortion: " << distortion << std::endl;
 
-   if (restraints->include_map_terms())
+   if (restraints_p->include_map_terms())
       // multi-thread this too:
       distortion += coot::electron_density_score(v, params); // good map fit: low score
    

@@ -893,7 +893,7 @@ coot::ligand::find_clusters_internal(float z_cut_off_in,
    std::sort(cluster.begin(), cluster.end(), compare_clusters); 
 
    if (verbose_reporting)
-      print_cluster_details(); 
+      print_cluster_details(true);
 }
 
 void
@@ -1323,18 +1323,18 @@ coot::map_point_cluster::volume(const clipper::Xmap<float> &xmap_ref) const {
 } 
 
 void
-coot::ligand::print_cluster_details() const {
+coot::ligand::print_cluster_details(bool show_grid_points) const {
 
    int ncount = 0;
    int max_clusters = 10;
    if (cluster.size() < 10)
       max_clusters = 10;
    std::cout << "There are " << cluster.size() << " clusers\n";
-   std::cout << "Here are the top " << max_clusters << " clusers:\n";
+   std::cout << "Here are the top " << max_clusters << " clusters:\n";
    for (unsigned int i=0; i<cluster.size(); i++) {
       ncount++;
-      if (ncount == max_clusters) break; 
-	 
+      if (ncount == max_clusters) break;
+
       std::cout << "  Number: "  << i << " # grid points: " 
 		<< cluster[i].map_grid.size() << " score: "
 		<< cluster[i].score << "     \n"
@@ -1343,7 +1343,13 @@ coot::ligand::print_cluster_details() const {
 		<< cluster[i].eigenvalues[0] << " "
 		<< cluster[i].eigenvalues[1] << " "
 		<< cluster[i].eigenvalues[2] << " "
-		<< std::endl; 
+		<< std::endl;
+
+      if (show_grid_points) {
+	 for (unsigned int j=0; j<cluster[i].map_grid.size(); j++) {
+	    std::cout << "   " << cluster[i].map_grid[j].format() << std::endl;
+	 }
+      }
    }
 }
 

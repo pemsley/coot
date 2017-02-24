@@ -384,19 +384,23 @@ coot::my_df_non_bonded_single(const gsl_vector *v,
 }
 
 void
-coot::my_df_non_bonded_thread_dispatcher(const gsl_vector *v,
+coot::my_df_non_bonded_thread_dispatcher(int thread_idx,
+					 const gsl_vector *v,
 					 gsl_vector *df,
 					 restraints_container_t *restraints_p,
 					 int idx_start,
 					 int idx_end) {
 
-   // std::cout << "my_df_non_bonded_thread_dispatcher() start " << idx_start << " " << idx_end << std::endl;
+   // std::cout << "my_df_non_bonded_thread_dispatcher() start " << idx_start << " " << idx_end
+   // << std::endl;
    for (int i=idx_start; i<idx_end; i++) {
-      // std::cout << "dispatching i " << i << " in range " << idx_start << " to " << idx_end << std::endl;
+      // std::cout << "dispatching i " << i << " in range " << idx_start << " to " << idx_end
+      // << std::endl;
       const simple_restraint &this_restraint = (*restraints_p)[i];
       if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT)
 	 my_df_non_bonded_single(v, df, this_restraint);
    }
+   restraints_p->done_count_for_threads++;
 }
 
 void
@@ -412,7 +416,7 @@ coot::my_df_non_bonded(const  gsl_vector *v,
    
    // first extract the object from params 
    //
-   restraints_container_t *restraints = static_cast<restraints_container_t *>(params);
+   restraints_container_t *restraints_p = static_cast<restraints_container_t *>(params);
 
    // the length of gsl_vector should be equal to n_var: 
    // 
@@ -421,31 +425,50 @@ coot::my_df_non_bonded(const  gsl_vector *v,
    int idx; 
    int n_non_bonded_restr = 0; // debugging counter
 
-   if (restraints->restraints_usage_flag & coot::NON_BONDED_MASK) { 
+   if (restraints_p->restraints_usage_flag & coot::NON_BONDED_MASK) { 
 
-      unsigned int restraints_size = restraints->size();
+      unsigned int restraints_size = restraints_p->size();
 
 
 #ifdef HAVE_CXX_THREAD
 
-      unsigned int n_threads = get_max_number_of_threads();
-      std::vector<std::thread> threads;
-      unsigned int n_per_thread = restraints_size/n_threads;
+      restraints_p->done_count_for_threads = 0; // atomic,
+                                              // updated by my_df_non_bonded_thread_dispatcher
 
-      for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
-	 int idx_start = i_thread * n_per_thread;
-	 int idx_end   = idx_start + n_per_thread;
-	 // for the last thread, set the end atom index
-	 if (i_thread == (n_threads - 1))
-	    idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
-	 threads.push_back(std::thread(my_df_non_bonded_thread_dispatcher, v, df, restraints, idx_start, idx_end));
+      if (restraints_p->thread_pool_p) {
+	 // if (false) {
+	 unsigned int n_per_thread = restraints_size/restraints_p->n_threads;
+	 restraints_p->thread_pool_p->public_init();
+	 restraints_p->thread_pool_p->resize(restraints_p->n_threads);
+
+	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
+	    int idx_start = i_thread * n_per_thread;
+	    int idx_end   = idx_start + n_per_thread;
+	    // for the last thread, set the end atom index
+	    if (i_thread == (restraints_p->n_threads - 1))
+	       idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
+
+	    restraints_p->thread_pool_p->push(my_df_non_bonded_thread_dispatcher,
+					    v, df, restraints_p, idx_start, idx_end);
+
+	 }
+	 // restraints->thread_pool_p->stop(true); // wait
+	 while (restraints_p->done_count_for_threads != restraints_p->n_threads) {
+	    std::this_thread::sleep_for(std::chrono::microseconds(1));
+	 }
+	 
+      } else {
+	 for (unsigned int i=0; i<restraints_size; i++) {
+	    const simple_restraint &this_restraint = (*restraints_p)[i];
+	    if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+	       my_df_non_bonded_single(v, df, this_restraint);
+	    }
+	 }
       }
-      for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
-	 threads.at(i_thread).join();
 
 #else
       for (unsigned int i=0; i<restraints_size; i++) {
-	 const simple_restraint &this_restraint = (*restraints)[i];
+	 const simple_restraint &this_restraint = (*restraints_p)[i];
 	 if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
 	    my_df_non_bonded_single(v, df, this_restraint);
 	 }
