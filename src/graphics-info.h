@@ -3970,7 +3970,9 @@ string   static std::string sessionid;
 
    static bool cif_dictionary_file_selector_create_molecule_flag;
 
+#ifdef HAVE_CXX_THREAD
    static ctpl::thread_pool static_thread_pool;
+#endif
 
 };
 

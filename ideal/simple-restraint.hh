@@ -31,7 +31,7 @@
 #include <stdexcept>
 
 #ifdef HAVE_CXX_THREAD
-#include "ctpl_stl.h"
+#include "utils/ctpl_stl.h"
 #endif // HAVE_CXX_THREAD
 
 #include <mmdb2/mmdb_manager.h>
@@ -710,11 +710,15 @@ namespace coot {
 
 
    double distortion_score(const gsl_vector *v, void *params);
+#ifdef HAVE_CXX_THREAD
    // return value in distortion
    void distortion_score_multithread(int thread_id,
 				     const gsl_vector *v, void *params,
-				     int idx_start, int idx_end, double *distortion);
-   
+				     int idx_start, int idx_end, double *distortion,
+				     std::atomic<unsigned int> &done_count);
+#endif // HAVE_CXX_THREAD
+   void distortion_score_single_thread(const gsl_vector *v, void *params,
+				       int idx_start, int idx_end, double *distortion);
    double distortion_score_bond(const simple_restraint &bond_restraint,
 				const gsl_vector *v); 
    double distortion_score_geman_mcclure_distance(const simple_restraint &bond_restraint,
@@ -1957,11 +1961,11 @@ namespace coot {
       //
       ctpl::thread_pool *thread_pool_p;
       unsigned int n_threads;
+      // std::atomic<unsigned int> &done_count_for_threads;
       void thread_pool(ctpl::thread_pool *tp_in, int n_threads_in) {
 	 thread_pool_p = tp_in;
 	 n_threads = n_threads_in;
       }
-      std::atomic<unsigned int> done_count_for_threads;
 
       // we can't have a non-pointer thread pool because restraints are copied in
       // update_refinement_atoms() (graphics-info-modelling.cc)
@@ -1979,12 +1983,15 @@ namespace coot {
 
    }; 
 
+#ifdef HAVE_CXX_THREAD
    void my_df_non_bonded_thread_dispatcher(int thread_idx,
 					   const gsl_vector *v,
 					   gsl_vector *df,
 					   restraints_container_t *restraints_p,
 					   int idx_start,
-					   int idx_end);
+					   int idx_end,
+					   std::atomic<unsigned int> &done_count);
+#endif // HAVE_CXX_THREAD
    void my_df_non_bonded_single(const gsl_vector *v,
 				gsl_vector *df,
 				const simple_restraint &this_restraint
@@ -1997,9 +2004,16 @@ namespace coot {
 				);
 
    void my_df_electron_density_single(int thread_idx, const gsl_vector *v,
-				      coot::restraints_container_t *restriants,
+				      restraints_container_t *restraints,
 				      gsl_vector *df, int idx_start, int idx_end);
-   
+
+   // done_count_for_threads is modified
+   //
+   void my_df_electron_density_threaded_single(int thread_idx, const gsl_vector *v,
+					       restraints_container_t *restraints,
+					       gsl_vector *df,
+					       int atom_idx_start, int atom_idx_end,
+					       std::atomic<unsigned int> &done_count_for_threads);
 
    void simple_refine(mmdb::Residue *residue_p,
 		      mmdb::Manager *mol,

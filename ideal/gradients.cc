@@ -383,13 +383,15 @@ coot::my_df_non_bonded_single(const gsl_vector *v,
    }
 }
 
+#ifdef HAVE_CXX_THREAD
 void
 coot::my_df_non_bonded_thread_dispatcher(int thread_idx,
 					 const gsl_vector *v,
 					 gsl_vector *df,
 					 restraints_container_t *restraints_p,
 					 int idx_start,
-					 int idx_end) {
+					 int idx_end,
+					 std::atomic<unsigned int> &done_count_for_threads) {
 
    // std::cout << "my_df_non_bonded_thread_dispatcher() start " << idx_start << " " << idx_end
    // << std::endl;
@@ -400,8 +402,9 @@ coot::my_df_non_bonded_thread_dispatcher(int thread_idx,
       if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT)
 	 my_df_non_bonded_single(v, df, this_restraint);
    }
-   restraints_p->done_count_for_threads++;
+   done_count_for_threads++;
 }
+#endif // HAVE_CXX_THREAD
 
 void
 coot::my_df_non_bonded(const  gsl_vector *v, 
@@ -432,14 +435,11 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 
 #ifdef HAVE_CXX_THREAD
 
-      restraints_p->done_count_for_threads = 0; // atomic,
-                                              // updated by my_df_non_bonded_thread_dispatcher
+      std::atomic<unsigned int> done_count_for_threads(0); // updated by my_df_non_bonded_thread_dispatcher
 
       if (restraints_p->thread_pool_p) {
 	 // if (false) {
 	 unsigned int n_per_thread = restraints_size/restraints_p->n_threads;
-	 restraints_p->thread_pool_p->public_init();
-	 restraints_p->thread_pool_p->resize(restraints_p->n_threads);
 
 	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
 	    int idx_start = i_thread * n_per_thread;
@@ -449,11 +449,12 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 	       idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
 
 	    restraints_p->thread_pool_p->push(my_df_non_bonded_thread_dispatcher,
-					    v, df, restraints_p, idx_start, idx_end);
+					      v, df, restraints_p, idx_start, idx_end,
+					      std::ref(done_count_for_threads));
 
 	 }
 	 // restraints->thread_pool_p->stop(true); // wait
-	 while (restraints_p->done_count_for_threads != restraints_p->n_threads) {
+	 while (done_count_for_threads != restraints_p->n_threads) {
 	    std::this_thread::sleep_for(std::chrono::microseconds(1));
 	 }
 	 
@@ -568,7 +569,6 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
 		  *gsl_vector_ptr(df, idx  ) += x_k_contrib;
 		  *gsl_vector_ptr(df, idx+1) += y_k_contrib;
 		  *gsl_vector_ptr(df, idx+2) += z_k_contrib;
-		  
 	       }
 
 	       if (! rest.fixed_atom_flags[1]) { 
@@ -1460,11 +1460,9 @@ coot::my_df_planes(const gsl_vector *v,
 					       2.0 * weight * devi_len * plane_info.abcd[1],
 					       2.0 * weight * devi_len * plane_info.abcd[2]);
 
-		  if (!(*restraints)[i].fixed_atom_flags[j]) { 
-		     gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + d.dx());
-		     gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + d.dy());
-		     gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + d.dz());
-		  }
+		  *gsl_vector_ptr(df, idx  ) += d.dx();
+		  *gsl_vector_ptr(df, idx+1) += d.dy();
+		  *gsl_vector_ptr(df, idx+2) += d.dz();
 	       }
 	    }
 	 }
@@ -1500,6 +1498,8 @@ coot::my_df_parallel_planes(const gsl_vector *v,
 	    // first plane
 	    unsigned int n_plane_atoms = ppr.plane_atom_index.size();
 	    double weight = 1/(ppr.sigma * ppr.sigma);
+	    // hack the weight - needs a better fix than this
+	    weight *= 8.0;
 	    for (unsigned int j=0; j<n_plane_atoms; j++) {
 	       if (! ppr.fixed_atom_flags[j] ) { 
 		  idx = 3*ppr.plane_atom_index[j].first;

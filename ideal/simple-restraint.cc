@@ -1285,13 +1285,11 @@ void coot::my_df_electron_density(const gsl_vector *v,
       
 #ifdef HAVE_CXX_THREAD
       
-      restraints_p->done_count_for_threads = 0;
+      std::atomic<unsigned int> done_count_for_threads(0);
 
       if (restraints_p->thread_pool_p) {
 	 int idx_max = (v->size)/3;
 	 unsigned int n_per_thread = idx_max/restraints_p->n_threads;
-	 restraints_p->thread_pool_p->public_init();
-	 restraints_p->thread_pool_p->resize(restraints_p->n_threads);
 
 	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
 	    int idx_start = i_thread * n_per_thread;
@@ -1300,12 +1298,13 @@ void coot::my_df_electron_density(const gsl_vector *v,
 	    if (i_thread == (restraints_p->n_threads - 1))
 	       idx_end = idx_max; // for loop uses iat_start and tests for < iat_end
 
-	    restraints_p->thread_pool_p->push(my_df_electron_density_single,
-					      v, restraints_p, df, idx_start, idx_end);
+	    restraints_p->thread_pool_p->push(my_df_electron_density_threaded_single,
+					      v, restraints_p, df, idx_start, idx_end,
+					      std::ref(done_count_for_threads));
 
 	 }
 
-	 while (restraints_p->done_count_for_threads != restraints_p->n_threads) {
+	 while (done_count_for_threads != restraints_p->n_threads) {
 // 	    std::cout << "comparing " << restraints_p->done_count_for_threads
 // 		      << " "  << restraints_p->n_threads << std::endl;
 	    std::this_thread::sleep_for(std::chrono::microseconds(1));
@@ -1414,10 +1413,11 @@ void coot::my_df_electron_density_old_2017(const gsl_vector *v,
 
 // restraints are modified by atomic done_count_for_threads changing.
 //
-void coot::my_df_electron_density_single(int thread_idx, const gsl_vector *v,
-					 coot::restraints_container_t *restraints,
-					 gsl_vector *df,
-					 int atom_idx_start, int atom_idx_end) {
+void coot::my_df_electron_density_threaded_single(int thread_idx, const gsl_vector *v,
+						  coot::restraints_container_t *restraints,
+						  gsl_vector *df,
+						  int atom_idx_start, int atom_idx_end,
+						  std::atomic<unsigned int> &done_count_for_threads) {
 
    for (int iat=atom_idx_start; iat<atom_idx_end; ++iat) {
       if (restraints->use_map_gradient_for_atom[iat]) {
@@ -1451,7 +1451,7 @@ void coot::my_df_electron_density_single(int thread_idx, const gsl_vector *v,
 #endif	 
       }
    }
-   restraints->done_count_for_threads++;
+   ++done_count_for_threads; // atomic
 }
 
 
