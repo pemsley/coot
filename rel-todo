@@ -5,6 +5,12 @@
 
    o pyrogen -n -M -C ATP AMP.smi.  The atom names are ultra-quoted.
 
+   o Renumber residue should have 
+
+    [    ] or o N-terminus 
+           to 
+    [    ] or o C-terminus 
+
    o in Ana's map after sequence assignment (which was very fast): it went into a long 
      stall - not sure what it was doing. Without fitting, the model had hideous mainchain
 

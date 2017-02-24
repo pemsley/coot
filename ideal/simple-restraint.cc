@@ -1411,6 +1411,9 @@ void coot::my_df_electron_density_old_2017(const gsl_vector *v,
 #endif // ANALYSE_REFINEMENT_TIMING
 }
 
+
+#ifdef HAVE_CXX_THREAD
+
 // restraints are modified by atomic done_count_for_threads changing.
 //
 void coot::my_df_electron_density_threaded_single(int thread_idx, const gsl_vector *v,
@@ -1447,16 +1450,52 @@ void coot::my_df_electron_density_threaded_single(int thread_idx, const gsl_vect
 	 *gsl_vector_ptr(df, idx  ) -= zs * grad_orth.dx();
 	 *gsl_vector_ptr(df, idx+1) -= zs * grad_orth.dy();
 	 *gsl_vector_ptr(df, idx+2) -= zs * grad_orth.dz();
-#ifdef HAVE_CXX_THREAD
-#endif	 
       }
    }
    ++done_count_for_threads; // atomic
 }
+#endif	 
 
 
+//
+void coot::my_df_electron_density_single(const gsl_vector *v,
+					 coot::restraints_container_t *restraints,
+					 gsl_vector *df,
+					 int atom_idx_start, int atom_idx_end) {
+
+   for (int iat=atom_idx_start; iat<atom_idx_end; ++iat) {
+      if (restraints->use_map_gradient_for_atom[iat]) {
+
+	 int idx = 3 * iat;
+	 clipper::Coord_orth ao(gsl_vector_get(v,idx), 
+				gsl_vector_get(v,idx+1), 
+				gsl_vector_get(v,idx+2));
+	    
+	 clipper::Grad_orth<double> grad_orth = restraints->electron_density_gradient_at_point(ao);
+	 float zs = restraints->Map_weight() * restraints->atom_z_weight[iat];
+
+	 if (0) { 
+	    std::cout << "electron density df: adding "
+		      <<  - zs * grad_orth.dx() << " "
+		      <<  - zs * grad_orth.dy() << " "
+		      <<  - zs * grad_orth.dz() << " to "
+		      <<  gsl_vector_get(df, idx  ) << " "
+		      <<  gsl_vector_get(df, idx+1) << " "
+		      <<  gsl_vector_get(df, idx+2) << "\n";
+	 }
+	    
+	 // 	    gsl_vector_set(df, i,   gsl_vector_get(df, i  ) - zs * grad_orth.dx());
+	 // 	    gsl_vector_set(df, i+1, gsl_vector_get(df, i+1) - zs * grad_orth.dy());
+	 // 	    gsl_vector_set(df, i+2, gsl_vector_get(df, i+2) - zs * grad_orth.dz());
+
+	 *gsl_vector_ptr(df, idx  ) -= zs * grad_orth.dx();
+	 *gsl_vector_ptr(df, idx+1) -= zs * grad_orth.dy();
+	 *gsl_vector_ptr(df, idx+2) -= zs * grad_orth.dz();
+      }
+   }
+}
 void coot::my_df_electron_density_old (gsl_vector *v, 
-				   void *params, 
+				       void *params, 
 				       gsl_vector *df) {
 
    // first extract the object from params 
