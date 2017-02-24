@@ -1341,7 +1341,7 @@ void coot::my_df_electron_density(const gsl_vector *v,
       }
 #else
       my_df_electron_density_single(v, restraints_p, df, 0, v->size/3);
-#endif // HAVE_CXX_THREAD      
+#endif // HAVE_CXX_THREAD
 
    }
 #ifdef ANALYSE_REFINEMENT_TIMING
@@ -1437,6 +1437,10 @@ void coot::my_df_electron_density_old_2017(const gsl_vector *v,
 #endif // ANALYSE_REFINEMENT_TIMING
 }
 
+<<<<<<< Updated upstream
+=======
+
+>>>>>>> Stashed changes
 #ifdef HAVE_CXX_THREAD
 
 // restraints are modified by atomic done_count_for_threads changing.
@@ -1481,6 +1485,7 @@ void coot::my_df_electron_density_threaded_single(int thread_idx, const gsl_vect
 }
 
 #endif // HAVE_CXX_THREAD
+<<<<<<< Updated upstream
 
 
 // restraints are modified by atomic done_count_for_threads changing.
@@ -1522,6 +1527,8 @@ void coot::my_df_electron_density_single(const gsl_vector *v,
    }
 }
 
+=======
+>>>>>>> Stashed changes
 
 void coot::my_df_electron_density_old (gsl_vector *v, 
 				   void *params, 

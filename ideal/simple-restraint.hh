@@ -2085,7 +2085,7 @@ namespace coot {
 					       gsl_vector *df,
 					       int atom_idx_start, int atom_idx_end,
 					       std::atomic<unsigned int> &done_count_for_threads);
-#endif // HAVE_CXX_THREAD   
+#endif // HAVE_CXX_THREA
 
    void simple_refine(mmdb::Residue *residue_p,
 		      mmdb::Manager *mol,

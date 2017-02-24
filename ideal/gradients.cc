@@ -557,6 +557,7 @@ coot::my_df_geman_mcclure_distances_single(const gsl_vector *v,
    }
 }
 
+
 #ifdef HAVE_CXX_THREAD
 void
 coot::my_df_geman_mcclure_distances_thread_dispatcher(int thread_idx,
