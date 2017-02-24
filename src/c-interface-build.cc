@@ -4723,6 +4723,7 @@ int handle_cif_dictionary_for_molecule(const char *filename, int imol_enc) {
    short int show_dialog_flag = 0;
    if (graphics_info_t::use_graphics_interface_flag)
       show_dialog_flag = 1;
+   // add_cif_dictionary() returns the comp_id index
    int r = g.add_cif_dictionary(coot::util::intelligent_debackslash(filename),
 				imol_enc,
                                 show_dialog_flag);

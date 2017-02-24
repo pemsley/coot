@@ -143,7 +143,6 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	 cs += " reason:";
 	 cs += mmdb::mmcif::GetCIFMessage (err_buff, ierr);
 	 rmit.error_messages.push_back(cs);
-	 
 
       } else {
 	 if (verbose_mode)
@@ -273,7 +272,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		     for (unsigned int ichir=0; ichir<chirals.second.size(); ichir++)
 			comp_ids_for_chirals.push_back(chirals.second[ichir]);
 		  }
-               
+
 		  // plane
 		  if (cat_name == "_chem_comp_plane_atom")
 		     comp_plane(mmCIFLoop, imol_enc);
@@ -296,8 +295,15 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	 std::cout << "returning with comp_id_1 " << comp_id_1
 		   << " comp_id_2 " << comp_id_2 << std::endl;
 
-      if (! comp_id_1.empty()) comp_ids.push_back(comp_id_1);
-      if (! comp_id_2.empty()) comp_ids.push_back(comp_id_2);
+      bool allow_minimal_flag = true;
+      if (! comp_id_1.empty()) {
+	 comp_ids.push_back(comp_id_1);
+	 rmit.monomer_idx = get_monomer_restraints_index(comp_id_1, imol_enc, allow_minimal_flag);
+      }
+      if (! comp_id_2.empty()) {
+	 comp_ids.push_back(comp_id_2);
+	 rmit.monomer_idx = get_monomer_restraints_index(comp_id_2, imol_enc, allow_minimal_flag);
+      }
    } // is regular file test
 
    // debug_mods();

@@ -46,6 +46,10 @@
 #include <gdk/gdkgldrawable.h>
 #include <gtk/gtkgl.h>
 
+#ifdef HAVE_CXX_THREAD
+#include <utils/ctpl_stl.h>
+#endif // HAVE_CXX_THREAD
+
 #ifdef WII_INTERFACE_WIIUSE
 #include "wiiuse.h"
 #endif // WII_INTERFACE_WIIUSE
@@ -3990,6 +3994,13 @@ string   static std::string sessionid;
        rot_prob_tables.fill_tables();
      }
    }
+
+   static bool cif_dictionary_file_selector_create_molecule_flag;
+
+#ifdef HAVE_CXX_THREAD
+   static ctpl::thread_pool static_thread_pool;
+#endif
+
 
 };
 

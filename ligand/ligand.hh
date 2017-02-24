@@ -480,7 +480,7 @@ namespace coot {
       void find_centre_by_ligand_internal(int ilig); 
       
       void output_centres(); 
-      void print_cluster_details() const; 
+      void print_cluster_details(bool print_grid_points_flag=false) const; 
       clipper::Map_stats map_statistics();
       
       // a check for writability is made.

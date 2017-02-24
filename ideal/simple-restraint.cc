@@ -64,9 +64,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 						     mmdb::Manager *mol_in, 
 						     const std::vector<coot::atom_spec_t> &fixed_atom_specs) {
 
-   from_residue_vector = 0;
-   lograma.init(LogRamachandran::All, 2.0, true);
-   include_map_terms_flag = 0;
+   init();
    are_all_one_atom_residues = false;
    init_from_mol(istart_res_in, iend_res_in, 
 		 have_flanking_residue_at_start, 
@@ -79,14 +77,10 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 // Used in omega distortion graph
 // 
 coot::restraints_container_t::restraints_container_t(atom_selection_container_t asc_in,
-						     const std::string &chain_id) { 
-   from_residue_vector = 0;
-   include_map_terms_flag = 0;
-   lograma.init(LogRamachandran::All, 2.0, true);
-   verbose_geometry_reporting = NORMAL;
+						     const std::string &chain_id) {
+
+   init();
    mol = asc_in.mol;
-   have_oxt_flag = 0;
-   do_numerical_gradients_flag = 0;
    are_all_one_atom_residues = false;
 
    istart_res = 999999;
@@ -155,10 +149,9 @@ coot::restraints_container_t::restraints_container_t(mmdb::PResidue *SelResidues
 						     const std::string &chain_id,
 						     mmdb::Manager *mol_in) { 
    
-   include_map_terms_flag = 0;
-   from_residue_vector = 0;
+   init();
    are_all_one_atom_residues = false;
-   lograma.init(LogRamachandran::All, 2.0, true);
+
    std::vector<coot::atom_spec_t> fixed_atoms_dummy;
    int istart_res = 999999;
    int iend_res = -9999999;
@@ -199,8 +192,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 						     const clipper::Xmap<float> &map_in,
 						     float map_weight_in) {
 
-   from_residue_vector = 0;
-   lograma.init(LogRamachandran::All, 2.0, true);
+   init();
    init_from_mol(istart_res_in, iend_res_in, 		 
 		 have_flanking_residue_at_start, 
 		 have_flanking_residue_at_end,
@@ -224,11 +216,10 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
 						     mmdb::Manager *mol,
 						     const std::vector<atom_spec_t> &fixed_atom_specs) {
 
+   init();
    from_residue_vector = 1;
-   lograma.init(LogRamachandran::All, 2.0, true);
    are_all_one_atom_residues = false;
    init_from_residue_vec(residues, geom, mol, fixed_atom_specs);
-   include_map_terms_flag = 0;
 }
 
 
@@ -1302,9 +1293,9 @@ coot::electron_density_score(const gsl_vector *v, void *params) {
 // the atoms cooinside with the density - hence the contributions that
 // we add are negated.
 // 
-void coot::my_df_electron_density (const gsl_vector *v, 
-				   void *params, 
-				   gsl_vector *df) {
+void coot::my_df_electron_density(const gsl_vector *v, 
+				  void *params, 
+				  gsl_vector *df) {
 
 #ifdef ANALYSE_REFINEMENT_TIMING
    timeval start_time;
@@ -1314,11 +1305,79 @@ void coot::my_df_electron_density (const gsl_vector *v,
 
    // first extract the object from params 
    //
-   coot::restraints_container_t *restraints =
-      (coot::restraints_container_t *)params; 
+   coot::restraints_container_t *restraints_p = static_cast<restraints_container_t *> (params); 
+
+   if (restraints_p->include_map_terms() == 1) { 
+      
+#ifdef HAVE_CXX_THREAD
+      
+      std::atomic<unsigned int> done_count_for_threads(0);
+
+      if (restraints_p->thread_pool_p) {
+	 int idx_max = (v->size)/3;
+	 unsigned int n_per_thread = idx_max/restraints_p->n_threads;
+
+	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
+	    int idx_start = i_thread * n_per_thread;
+	    int idx_end   = idx_start + n_per_thread;
+	    // for the last thread, set the end atom index
+	    if (i_thread == (restraints_p->n_threads - 1))
+	       idx_end = idx_max; // for loop uses iat_start and tests for < iat_end
+
+	    restraints_p->thread_pool_p->push(my_df_electron_density_threaded_single,
+					      v, restraints_p, df, idx_start, idx_end,
+					      std::ref(done_count_for_threads));
+
+	 }
+
+	 while (done_count_for_threads != restraints_p->n_threads) {
+// 	    std::cout << "comparing " << restraints_p->done_count_for_threads
+// 		      << " "  << restraints_p->n_threads << std::endl;
+	    std::this_thread::sleep_for(std::chrono::microseconds(1));
+	 }
+
+      } else {
+	 my_df_electron_density_single(v, restraints_p, df, 0, v->size/3);
+      }
+#else
+      my_df_electron_density_single(v, restraints_p, df, 0, v->size/3);
+#endif // HAVE_CXX_THREAD
+
+   }
+#ifdef ANALYSE_REFINEMENT_TIMING
+   gettimeofday(&current_time, NULL);
+   double td = current_time.tv_sec - start_time.tv_sec;
+   td *= 1000.0;
+   td += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
+   std::cout << "------------- mark my_df_electron_density: " << td << std::endl;
+#endif // ANALYSE_REFINEMENT_TIMING
+}
+
+// Note that the gradient for the electron density is opposite to that
+// of the gradient for the geometry (consider a short bond on the edge
+// of a peak - in that case the geometry gradient will be negative as
+// the bond is lengthened and the electron density gradient will be
+// positive).
+//
+// So we want to change that positive gradient for a low score when
+// the atoms cooinside with the density - hence the contributions that
+// we add are negated.
+// 
+void coot::my_df_electron_density_old_2017(const gsl_vector *v, 
+					   void *params, 
+					   gsl_vector *df) {
+
+#ifdef ANALYSE_REFINEMENT_TIMING
+   timeval start_time;
+   timeval current_time;
+   gettimeofday(&start_time, NULL);
+#endif // ANALYSE_REFINEMENT_TIMING
+
+   // first extract the object from params 
+   //
+   coot::restraints_container_t *restraints = static_cast<restraints_container_t *> (params); 
 
    if (restraints->include_map_terms() == 1) { 
-
 
       clipper::Grad_orth<double> grad_orth;
       float scale = restraints->Map_weight();
@@ -1342,7 +1401,7 @@ void coot::my_df_electron_density (const gsl_vector *v,
 	    grad_orth = restraints->electron_density_gradient_at_point(ao);
 	    zs = scale * restraints->atom_z_weight[iat];
 
-	    if (0) { 
+	    if (0) {
 	       std::cout << "electron density df: adding "
 			 <<  - zs * grad_orth.dx() << " "
 			 <<  - zs * grad_orth.dy() << " "
@@ -1352,9 +1411,14 @@ void coot::my_df_electron_density (const gsl_vector *v,
 			 <<  gsl_vector_get(df, i+2) << "\n";
 	    }
 	    
-	    gsl_vector_set(df, i,   gsl_vector_get(df, i  ) - zs * grad_orth.dx());
-	    gsl_vector_set(df, i+1, gsl_vector_get(df, i+1) - zs * grad_orth.dy());
-	    gsl_vector_set(df, i+2, gsl_vector_get(df, i+2) - zs * grad_orth.dz());
+// 	    gsl_vector_set(df, i,   gsl_vector_get(df, i  ) - zs * grad_orth.dx());
+// 	    gsl_vector_set(df, i+1, gsl_vector_get(df, i+1) - zs * grad_orth.dy());
+// 	    gsl_vector_set(df, i+2, gsl_vector_get(df, i+2) - zs * grad_orth.dz());
+	    
+	    *gsl_vector_ptr(df, i  ) -= zs * grad_orth.dx();
+	    *gsl_vector_ptr(df, i+1) -= zs * grad_orth.dy();
+	    *gsl_vector_ptr(df, i+2) -= zs * grad_orth.dz();
+
 	 } else {
 	    // atom is private	    
 // 	    std::cout << "  Not adding elecron density for atom "
@@ -1373,9 +1437,94 @@ void coot::my_df_electron_density (const gsl_vector *v,
 #endif // ANALYSE_REFINEMENT_TIMING
 }
 
+
+#ifdef HAVE_CXX_THREAD
+
+// restraints are modified by atomic done_count_for_threads changing.
+//
+void coot::my_df_electron_density_threaded_single(int thread_idx, const gsl_vector *v,
+						  coot::restraints_container_t *restraints,
+						  gsl_vector *df,
+						  int atom_idx_start, int atom_idx_end,
+						  std::atomic<unsigned int> &done_count_for_threads) {
+
+   for (int iat=atom_idx_start; iat<atom_idx_end; ++iat) {
+      if (restraints->use_map_gradient_for_atom[iat]) {
+
+	 int idx = 3 * iat;
+	 clipper::Coord_orth ao(gsl_vector_get(v,idx), 
+				gsl_vector_get(v,idx+1), 
+				gsl_vector_get(v,idx+2));
+	    
+	 clipper::Grad_orth<double> grad_orth = restraints->electron_density_gradient_at_point(ao);
+	 float zs = restraints->Map_weight() * restraints->atom_z_weight[iat];
+
+	 if (0) { 
+	    std::cout << "electron density df: adding "
+		      <<  - zs * grad_orth.dx() << " "
+		      <<  - zs * grad_orth.dy() << " "
+		      <<  - zs * grad_orth.dz() << " to "
+		      <<  gsl_vector_get(df, idx  ) << " "
+		      <<  gsl_vector_get(df, idx+1) << " "
+		      <<  gsl_vector_get(df, idx+2) << "\n";
+	 }
+	    
+	 // 	    gsl_vector_set(df, i,   gsl_vector_get(df, i  ) - zs * grad_orth.dx());
+	 // 	    gsl_vector_set(df, i+1, gsl_vector_get(df, i+1) - zs * grad_orth.dy());
+	 // 	    gsl_vector_set(df, i+2, gsl_vector_get(df, i+2) - zs * grad_orth.dz());
+
+	 *gsl_vector_ptr(df, idx  ) -= zs * grad_orth.dx();
+	 *gsl_vector_ptr(df, idx+1) -= zs * grad_orth.dy();
+	 *gsl_vector_ptr(df, idx+2) -= zs * grad_orth.dz();
+      }
+   }
+   ++done_count_for_threads; // atomic
+}
+#endif	 
+
+
+// restraints are modified by atomic done_count_for_threads changing.
+//
+void coot::my_df_electron_density_single(const gsl_vector *v,
+					 coot::restraints_container_t *restraints,
+					 gsl_vector *df,
+					 int atom_idx_start, int atom_idx_end) {
+
+   for (int iat=atom_idx_start; iat<atom_idx_end; ++iat) {
+      if (restraints->use_map_gradient_for_atom[iat]) {
+
+	 int idx = 3 * iat;
+	 clipper::Coord_orth ao(gsl_vector_get(v,idx), 
+				gsl_vector_get(v,idx+1), 
+				gsl_vector_get(v,idx+2));
+	    
+	 clipper::Grad_orth<double> grad_orth = restraints->electron_density_gradient_at_point(ao);
+	 float zs = restraints->Map_weight() * restraints->atom_z_weight[iat];
+
+	 if (0) { 
+	    std::cout << "electron density df: adding "
+		      <<  - zs * grad_orth.dx() << " "
+		      <<  - zs * grad_orth.dy() << " "
+		      <<  - zs * grad_orth.dz() << " to "
+		      <<  gsl_vector_get(df, idx  ) << " "
+		      <<  gsl_vector_get(df, idx+1) << " "
+		      <<  gsl_vector_get(df, idx+2) << "\n";
+	 }
+	    
+	 // 	    gsl_vector_set(df, i,   gsl_vector_get(df, i  ) - zs * grad_orth.dx());
+	 // 	    gsl_vector_set(df, i+1, gsl_vector_get(df, i+1) - zs * grad_orth.dy());
+	 // 	    gsl_vector_set(df, i+2, gsl_vector_get(df, i+2) - zs * grad_orth.dz());
+
+	 *gsl_vector_ptr(df, idx  ) -= zs * grad_orth.dx();
+	 *gsl_vector_ptr(df, idx+1) -= zs * grad_orth.dy();
+	 *gsl_vector_ptr(df, idx+2) -= zs * grad_orth.dz();
+      }
+   }
+}
+
 void coot::my_df_electron_density_old (gsl_vector *v, 
-				   void *params, 
-				   gsl_vector *df) {
+				       void *params, 
+				       gsl_vector *df) {
 
    // first extract the object from params 
    //

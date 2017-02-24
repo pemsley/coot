@@ -1077,7 +1077,6 @@ short int do_probe_dots_post_refine_state() {
 /* state is 1 for on and 0 for off */
 void set_do_coot_probe_dots_during_refine(short int state) {
    graphics_info_t::do_coot_probe_dots_during_refine_flag = state;
-   std::cout << "set do_coot_probe_dots_during_refine_flag " << state << std::endl;
 }
 
 

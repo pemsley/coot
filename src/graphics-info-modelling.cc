@@ -792,6 +792,11 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 		  restraints.add_map(xmap, weight);
 	       }
 
+#ifdef HAVE_CXX_THREAD
+	       restraints.thread_pool(&static_thread_pool,
+				      coot::get_max_number_of_threads());
+#endif // HAVE_CXX_THREAD
+
 	       if (false)
 		  std::cout << "---------- debug:: in generate_molecule_and_refine() "
 			    << " calling restraints.make_restraints() with imol "
