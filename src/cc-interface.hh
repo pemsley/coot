@@ -769,6 +769,9 @@ PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
 					   const char *altconf);
 #endif // USE_PYTHON
 
+void set_show_intermediate_atoms_rota_markup(short int state);
+void set_show_intermediate_atoms_rama_markup(short int state);
+
 //! \}
 
 

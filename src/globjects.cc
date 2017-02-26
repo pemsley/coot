@@ -771,8 +771,12 @@ bool      graphics_info_t::do_numerical_gradients = 0; // No.
 // for Kevin Keating 
 bool      graphics_info_t::use_only_extra_torsion_restraints_for_torsions_flag = 0; 
 
-// This needs a gui presence
+//
 bool      graphics_info_t::do_trans_peptide_restraints = true;
+
+// 
+bool graphics_info_t::do_intermediate_atoms_rama_markup = true;
+bool graphics_info_t::do_intermediate_atoms_rota_markup = false;
 
 // 
 short int graphics_info_t::guile_gui_loaded_flag = FALSE;

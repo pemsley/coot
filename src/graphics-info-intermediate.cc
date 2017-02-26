@@ -76,8 +76,8 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    int draw_hydrogens_flag = 0;
    if (molecules[imol_moving_atoms].draw_hydrogens())
       draw_hydrogens_flag = 1;
-   bool do_rama_markup = true;
-   bool do_rota_markup = true;
+   bool do_rama_markup = graphics_info_t::do_intermediate_atoms_rama_markup;
+   bool do_rota_markup = graphics_info_t::do_intermediate_atoms_rota_markup;
 
    // wrap the filling of the rotamer probability tables
    //

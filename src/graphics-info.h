@@ -3988,6 +3988,9 @@ string   static std::string sessionid;
    void undisplay_all_model_molecules_except(const std::vector<int> &keep_these);
    static GtkWidget *cfc_dialog;
 
+   static bool do_intermediate_atoms_rama_markup; // true
+   static bool do_intermediate_atoms_rota_markup; // false
+
    static void fill_rotamer_probability_tables() {
 
      if (! rot_prob_tables.tried_and_failed()) {

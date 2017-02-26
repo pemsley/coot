@@ -962,3 +962,14 @@ void
 remove_initial_position_restraints(int imol, const std::vector<coot::residue_spec_t> &residue_specs) {
    delete_all_extra_restraints(imol);
 }
+
+
+
+void set_show_intermediate_atoms_rota_markup(short int state) {
+   graphics_info_t::do_intermediate_atoms_rota_markup = state;
+}
+
+
+void set_show_intermediate_atoms_rama_markup(short int state) {
+   graphics_info_t::do_intermediate_atoms_rama_markup = state;
+}
