@@ -7764,3 +7764,10 @@ Thu  1 Dec 2016 23:08:27 GMT
    https://github.com/emcrisostomo/CXX-Autoconf-Macros/blob/master/ax_cxx_have_thread.m4
 
 ---
+Sun 26 Feb 2017 14:41:03 GMT
+
+   for soft mode/hard mode, look at the way (when)
+   turn_off_when_close_target_position_restraint_eraser is evoked
+
+
+---

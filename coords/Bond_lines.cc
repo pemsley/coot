@@ -58,7 +58,7 @@ Bond_lines::Bond_lines(const graphics_line_t &line) {
 //
 // This is a tiny bit clumsy having so many constructors.
 // Heyho - historical cruft.
-// 
+//
 Bond_lines_container::Bond_lines_container(const atom_selection_container_t &SelAtom,
 					   int imol,
 					   int do_disulphide_bonds_in,   // default argument, 0
@@ -5375,8 +5375,6 @@ Bond_lines_container::add_ramachandran_goodness_spots(const atom_selection_conta
 
 void
 Bond_lines_container::add_rotamer_goodness_markup(const atom_selection_container_t &SelAtom) {
-
-   // std::vector<rotamer_markup_container_t>
 
    dodecs = get_rotamer_dodecs(SelAtom);
 }

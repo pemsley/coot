@@ -83,17 +83,19 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
    //
    coot::rotamer_probability_tables *tables_pointer = NULL;
 
-   if (! rot_prob_tables.tried_and_failed()) {
-      if (rot_prob_tables.is_well_formatted()) {
-	 tables_pointer = &rot_prob_tables;
-      } else {
-	 rot_prob_tables.fill_tables();
+   if (do_rota_markup) {
+      if (! rot_prob_tables.tried_and_failed()) {
 	 if (rot_prob_tables.is_well_formatted()) {
 	    tables_pointer = &rot_prob_tables;
+	 } else {
+	    rot_prob_tables.fill_tables();
+	    if (rot_prob_tables.is_well_formatted()) {
+	       tables_pointer = &rot_prob_tables;
+	    }
 	 }
+      } else {
+	 do_rota_markup = false;
       }
-   } else {
-      do_rota_markup = false;
    }
 
    Bond_lines_container bonds(*g.moving_atoms_asc, imol_moving_atoms,
