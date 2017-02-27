@@ -1444,10 +1444,8 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 					  &results_container_vec[i_thread]));
 
 	 }
-	 std::cout << "joining... " << std::endl;
 	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
 	    threads.at(i_thread).join();
-	 std::cout << "joined" << std::endl;
 
 	 if (false) {
 	    for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
@@ -1947,7 +1945,7 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
    mmdb::Residue *res_2 = at_2->GetResidue();
 
    if (res_1 != res_2) {
-      if (are_bonded_residues(res_1, res_2)) {
+      if (are_bonded_residues(res_1, res_2)) { // just checks seqNums
 	 if (is_main_chain_p(at_1)) {
 	    if (is_main_chain_p(at_2)) {
 	       ait = BONDED; // :-) everything mainchain is bonded to each other (for dot masking)
@@ -2279,6 +2277,28 @@ coot::atom_overlaps_container_t::are_bonded_residues(mmdb::Residue *res_1, mmdb:
 	       if (res_name_1 != "HOH")
 		  if (res_name_2 != "HOH")
 		     r = true;
+	    }
+	 }
+
+	 if (! r) {
+	    // perhaps they are next to each other by serial number but not sequence number
+	    int ser_1 = res_1->index;
+	    int ser_2 = res_2->index;
+	    if (ser_2 > ser_1) {
+	       if ((ser_2 - ser_1) == 1) {
+		  if (! res_1->isCTerminus()) {
+		     // check that the linking atoms are close enough
+		     // residue type-specific check. not for here
+		     r = true;
+		  }
+	       }
+	    }
+	    if (ser_1 > ser_2) { // backwards indexing
+	       if ((ser_1 - ser_2) == 1) {
+		  if (! res_2->isCTerminus()) {
+		     r = true;
+		  }
+	       }
 	    }
 	 }
       }
