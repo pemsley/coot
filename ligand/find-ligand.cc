@@ -385,12 +385,14 @@ main(int argc, char **argv) {
 			if (blobs_mode) { 
 			   int n_cycles = 1;
 			   wlig.water_fit(input_sigma_level, n_cycles);
-			   unsigned int n_big_blobs = wlig.big_blobs().size();
-			   if (n_big_blobs) { 
+			   std::vector<std::pair<clipper::Coord_orth, double> > big_blobs = wlig.big_blobs();
+			   unsigned int n_big_blobs = big_blobs.size();
+			   if (n_big_blobs) {
 			      std::cout << "=============== start blob-table ==========\n";
-			      for (unsigned int i=0; i<n_big_blobs; i++) { 
-				 std::cout << "  blob " << i << " " << wlig.big_blobs()[i].first.format()
-					   << " " << wlig.big_blobs()[i].second << std::endl;
+			      for (unsigned int i=0; i<n_big_blobs; i++) {
+				 std::cout << "  blob " << i << " " << big_blobs[i].first.format()
+					   << " " << big_blobs[i].second << " " << big_blobs[i].first.format()
+					   << std::endl;
 			      } 
 			      std::cout << "=============== end blob-table ==========\n";
 			   } 

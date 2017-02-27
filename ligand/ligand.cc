@@ -1346,8 +1346,13 @@ coot::ligand::print_cluster_details(bool show_grid_points) const {
 		<< std::endl;
 
       if (show_grid_points) {
+	 clipper::Cell cell = xmap_pristine.cell();
+	 clipper::Grid_sampling gs = xmap_pristine.grid_sampling();
 	 for (unsigned int j=0; j<cluster[i].map_grid.size(); j++) {
-	    std::cout << "   " << cluster[i].map_grid[j].format() << std::endl;
+	    std::cout << "   "
+		      << cluster[i].map_grid[j].format() << " "
+		      << cluster[i].map_grid[j].coord_frac(gs).coord_orth(cell).format()
+		      << std::endl;
 	 }
       }
    }
