@@ -571,6 +571,10 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
       if ( (*restraints)[i].restraint_type == coot::START_POS_RESTRAINT) {
          *distortion += coot::distortion_score_start_pos((*restraints)[i], params, v);
       }
+
+      if ( (*restraints)[i].restraint_type == coot::TARGET_POS_RESTRANT) { // atom pull restraint
+         *distortion += coot::distortion_score_target_pos((*restraints)[i], params, v);
+      }
    }
 }
 
@@ -667,7 +671,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
          *distortion += coot::distortion_score_start_pos((*restraints)[i], params, v);
       }
 
-      if ( (*restraints)[i].restraint_type == coot::TARGET_POS_RESTRANT) {
+      if ( (*restraints)[i].restraint_type == coot::TARGET_POS_RESTRANT) { // atom pull restraint
          *distortion += coot::distortion_score_target_pos((*restraints)[i], params, v);
       }
    }
@@ -704,6 +708,8 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 
 
 #ifdef HAVE_CXX_THREAD
+
+   std::future<double> eds(std::async(electron_density_score_from_restraints, v, restraints_p));
 
    if (restraints_p->thread_pool_p) {
 
@@ -748,19 +754,17 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
       distortion_score_single_thread(v, params, 0, restraints_size, &distortion);
    }
 
+   distortion += eds.get();
+
 #else
 
    distortion_score_single_thread(v, params, 0, restraints_size, &distortion);
+   if (restraints_p->include_map_terms())
+      distortion += coot::electron_density_score(v, params); // good map fit: low score
 
 #endif // HAVE_CXX_THREAD
 
-//     std::cout << "nbc_diff   distortion: " << nbc_diff << std::endl;
-//     std::cout << "post-terms distortion: " << distortion << std::endl;
 
-   if (restraints_p->include_map_terms())
-      // multi-thread this too:
-      distortion += coot::electron_density_score(v, params); // good map fit: low score
-   
 #ifdef ANALYSE_REFINEMENT_TIMING
    gettimeofday(&current_time, NULL);
    double td = current_time.tv_sec - start_time.tv_sec;

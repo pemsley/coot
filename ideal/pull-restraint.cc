@@ -74,16 +74,17 @@ void coot::my_df_target_pos(const gsl_vector *v,
 	 const simple_restraint &rest = (*restraints)[i];
 	 double sigma = 0.04; // change as above in distortion score
 	 int idx = 3*(rest.atom_index_1);
-	 clipper::Coord_orth current_pos(gsl_vector_get(v,idx), 
-					 gsl_vector_get(v,idx+1), 
-					 gsl_vector_get(v,idx+2));
+
+// 	 clipper::Coord_orth current_pos(gsl_vector_get(v,idx),
+// 					 gsl_vector_get(v,idx+1),
+// 					 gsl_vector_get(v,idx+2));
 	 
          double constant_part = 2.0 / (sigma * sigma);
          
          double dist_x = gsl_vector_get(v, idx)   - rest.atom_pull_target_pos[0];
          double dist_y = gsl_vector_get(v, idx+1) - rest.atom_pull_target_pos[1];
          double dist_z = gsl_vector_get(v, idx+2) - rest.atom_pull_target_pos[2];
-         double squared_dist = dist_x * dist_x + dist_y * dist_y + dist_z * dist_z;
+         // double squared_dist = dist_x * dist_x + dist_y * dist_y + dist_z * dist_z;
 
 	 *gsl_vector_ptr(df, idx  ) += constant_part * dist_x;
 	 *gsl_vector_ptr(df, idx+1) += constant_part * dist_y;
