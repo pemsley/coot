@@ -126,7 +126,6 @@ void coot::my_df(const gsl_vector *v,
    my_df_target_pos(v, params, df);
    my_df_parallel_planes(v, params, df);
 
-   
    if (restraints->include_map_terms()) {
       // std::cout << "Using map terms " << std::endl;
       coot::my_df_electron_density(v, params, df);
@@ -1638,7 +1637,7 @@ coot::my_df_parallel_planes(const gsl_vector *v,
 	    unsigned int n_plane_atoms = ppr.plane_atom_index.size();
 	    double weight = 1/(ppr.sigma * ppr.sigma);
 	    // hack the weight - needs a better fix than this
-	    weight *= 8.0;
+	    weight *= 0.1;
 	    for (unsigned int j=0; j<n_plane_atoms; j++) {
 	       if (! ppr.fixed_atom_flags[j] ) { 
 		  idx = 3*ppr.plane_atom_index[j].first;

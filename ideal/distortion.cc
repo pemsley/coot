@@ -571,6 +571,10 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
       if ( (*restraints)[i].restraint_type == coot::START_POS_RESTRAINT) {
          *distortion += coot::distortion_score_start_pos((*restraints)[i], params, v);
       }
+
+      if ( (*restraints)[i].restraint_type == coot::TARGET_POS_RESTRANT) { // atom pull restraint
+         *distortion += coot::distortion_score_target_pos((*restraints)[i], params, v);
+      }
    }
 }
 
@@ -667,7 +671,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
          *distortion += coot::distortion_score_start_pos((*restraints)[i], params, v);
       }
 
-      if ( (*restraints)[i].restraint_type == coot::TARGET_POS_RESTRANT) {
+      if ( (*restraints)[i].restraint_type == coot::TARGET_POS_RESTRANT) { // atom pull restraint
          *distortion += coot::distortion_score_target_pos((*restraints)[i], params, v);
       }
    }
