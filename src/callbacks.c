@@ -5793,13 +5793,12 @@ on_renumber_residue_range_radiobutton_1_toggled
                                         gpointer         user_data)
 {
 
-/*   GtkWidget *entry_1 = lookup_widget(GTK_WIDGET(togglebutton), "renumber_residue_range_resno_1_entry"); */
-/*   GtkWidget *entry_2 = lookup_widget(GTK_WIDGET(togglebutton), "renumber_residue_range_resno_2_entry"); */
-/*   if (GTK_TOGGLE_BUTTON(togglebutton)->active) { */
-/*     printf("Use the C-terminus\n"); */
-/*   } else { */
-/*     printf("Use the entry\n"); */
-/*   } */
+  GtkWidget *entry_1 = lookup_widget(GTK_WIDGET(togglebutton), "renumber_residue_range_resno_1_entry");
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) {
+    gtk_widget_set_sensitive(GTK_WIDGET(entry_1), FALSE);
+  } else {
+    gtk_widget_set_sensitive(GTK_WIDGET(entry_1), TRUE);
+  }
 }
 
 void
@@ -5808,6 +5807,12 @@ on_renumber_residue_range_radiobutton_3_toggled
                                         gpointer         user_data)
 {
 
+  GtkWidget *entry_2 = lookup_widget(GTK_WIDGET(togglebutton), "renumber_residue_range_resno_2_entry");
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) {
+    gtk_widget_set_sensitive(GTK_WIDGET(entry_2), TRUE);
+  } else {
+    gtk_widget_set_sensitive(GTK_WIDGET(entry_2), FALSE);
+  }
 }
 
 
