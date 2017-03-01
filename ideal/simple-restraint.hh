@@ -2001,6 +2001,7 @@ namespace coot {
       std::pair<unsigned int, unsigned int> restraints_limits_planes;
       std::pair<unsigned int, unsigned int> restraints_limits_non_bonded_contacts;
       std::pair<unsigned int, unsigned int> restraints_limits_geman_mclure;
+      // std::pair<unsigned int, unsigned int> restraints_limits_target_pos; // atom pull
 
 #ifdef HAVE_CXX_THREAD
       // thread pool!

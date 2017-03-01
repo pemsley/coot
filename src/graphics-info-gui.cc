@@ -1292,8 +1292,6 @@ graphics_info_t::add_drag_refine_idle_function() {
       g.continue_update_refinement_atoms_flag = true;
       g.drag_refine_idle_function_token =
 	 gtk_idle_add((GtkFunction)graphics_info_t::drag_refine_idle_function, g.glarea);
-      std::cout << "----- adding drag_refine idle function: " << g.drag_refine_idle_function_token
-		<< std::endl;
       T0 = glutGet(GLUT_ELAPSED_TIME);
       print_initial_chi_squareds_flag = 1;
    } else {
