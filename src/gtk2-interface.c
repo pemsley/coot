@@ -18786,9 +18786,25 @@ create_renumber_residue_range_dialog (void)
   GtkWidget *renumber_residue_range_chain_optionmenu;
   GtkWidget *hbox96;
   GtkWidget *label194;
+  GtkWidget *frame305;
+  GtkWidget *alignment166;
+  GtkWidget *hbox440;
+  GtkWidget *renumber_residue_range_radiobutton_1;
+  GSList *renumber_residue_range_radiobutton_1_group = NULL;
+  GtkWidget *label804;
+  GtkWidget *renumber_residue_range_radiobutton_2;
   GtkWidget *renumber_residue_range_resno_1_entry;
+  GtkWidget *label802;
   GtkWidget *label195;
+  GtkWidget *frame306;
+  GtkWidget *alignment167;
+  GtkWidget *hbox441;
+  GtkWidget *renumber_residue_range_radiobutton_3;
+  GSList *renumber_residue_range_radiobutton_3_group = NULL;
   GtkWidget *renumber_residue_range_resno_2_entry;
+  GtkWidget *label805;
+  GtkWidget *renumber_residue_range_radiobutton_4;
+  GtkWidget *label803;
   GtkWidget *label196;
   GtkWidget *hbox97;
   GtkWidget *label197;
@@ -18856,29 +18872,113 @@ create_renumber_residue_range_dialog (void)
   gtk_widget_show (hbox96);
   gtk_box_pack_start (GTK_BOX (vbox120), hbox96, TRUE, TRUE, 0);
 
-  label194 = gtk_label_new (_("  Residue numbers:  "));
+  label194 = gtk_label_new (_(" "));
   gtk_widget_set_name (label194, "label194");
   gtk_widget_show (label194);
   gtk_box_pack_start (GTK_BOX (hbox96), label194, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label194), GTK_JUSTIFY_CENTER);
 
+  frame305 = gtk_frame_new (NULL);
+  gtk_widget_set_name (frame305, "frame305");
+  gtk_widget_show (frame305);
+  gtk_box_pack_start (GTK_BOX (hbox96), frame305, FALSE, TRUE, 2);
+
+  alignment166 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_set_name (alignment166, "alignment166");
+  gtk_widget_show (alignment166);
+  gtk_container_add (GTK_CONTAINER (frame305), alignment166);
+  gtk_alignment_set_padding (GTK_ALIGNMENT (alignment166), 0, 0, 12, 0);
+
+  hbox440 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_set_name (hbox440, "hbox440");
+  gtk_widget_show (hbox440);
+  gtk_container_add (GTK_CONTAINER (alignment166), hbox440);
+
+  renumber_residue_range_radiobutton_1 = gtk_radio_button_new_with_mnemonic (NULL, _("N-terminus"));
+  gtk_widget_set_name (renumber_residue_range_radiobutton_1, "renumber_residue_range_radiobutton_1");
+  gtk_widget_show (renumber_residue_range_radiobutton_1);
+  gtk_box_pack_start (GTK_BOX (hbox440), renumber_residue_range_radiobutton_1, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (renumber_residue_range_radiobutton_1), renumber_residue_range_radiobutton_1_group);
+  renumber_residue_range_radiobutton_1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (renumber_residue_range_radiobutton_1));
+
+  label804 = gtk_label_new (_("     "));
+  gtk_widget_set_name (label804, "label804");
+  gtk_widget_show (label804);
+  gtk_box_pack_start (GTK_BOX (hbox440), label804, FALSE, FALSE, 0);
+
+  renumber_residue_range_radiobutton_2 = gtk_radio_button_new_with_mnemonic (NULL, _("Residue"));
+  gtk_widget_set_name (renumber_residue_range_radiobutton_2, "renumber_residue_range_radiobutton_2");
+  gtk_widget_show (renumber_residue_range_radiobutton_2);
+  gtk_box_pack_start (GTK_BOX (hbox440), renumber_residue_range_radiobutton_2, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (renumber_residue_range_radiobutton_2), renumber_residue_range_radiobutton_1_group);
+  renumber_residue_range_radiobutton_1_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (renumber_residue_range_radiobutton_2));
+
   renumber_residue_range_resno_1_entry = gtk_entry_new ();
   gtk_widget_set_name (renumber_residue_range_resno_1_entry, "renumber_residue_range_resno_1_entry");
   gtk_widget_show (renumber_residue_range_resno_1_entry);
-  gtk_box_pack_start (GTK_BOX (hbox96), renumber_residue_range_resno_1_entry, FALSE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox440), renumber_residue_range_resno_1_entry, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (renumber_residue_range_resno_1_entry, 40, -1);
 
-  label195 = gtk_label_new (_("  to  "));
+  label802 = gtk_label_new (_("<b>Start Residue</b>"));
+  gtk_widget_set_name (label802, "label802");
+  gtk_widget_show (label802);
+  gtk_frame_set_label_widget (GTK_FRAME (frame305), label802);
+  gtk_label_set_use_markup (GTK_LABEL (label802), TRUE);
+
+  label195 = gtk_label_new (_("       to      "));
   gtk_widget_set_name (label195, "label195");
   gtk_widget_show (label195);
   gtk_box_pack_start (GTK_BOX (hbox96), label195, FALSE, FALSE, 0);
   gtk_label_set_justify (GTK_LABEL (label195), GTK_JUSTIFY_CENTER);
 
+  frame306 = gtk_frame_new (NULL);
+  gtk_widget_set_name (frame306, "frame306");
+  gtk_widget_show (frame306);
+  gtk_box_pack_start (GTK_BOX (hbox96), frame306, FALSE, TRUE, 2);
+  gtk_frame_set_shadow_type (GTK_FRAME (frame306), GTK_SHADOW_IN);
+
+  alignment167 = gtk_alignment_new (0.5, 0.5, 1, 1);
+  gtk_widget_set_name (alignment167, "alignment167");
+  gtk_widget_show (alignment167);
+  gtk_container_add (GTK_CONTAINER (frame306), alignment167);
+
+  hbox441 = gtk_hbox_new (FALSE, 0);
+  gtk_widget_set_name (hbox441, "hbox441");
+  gtk_widget_show (hbox441);
+  gtk_container_add (GTK_CONTAINER (alignment167), hbox441);
+
+  renumber_residue_range_radiobutton_3 = gtk_radio_button_new_with_mnemonic (NULL, _("Residue"));
+  gtk_widget_set_name (renumber_residue_range_radiobutton_3, "renumber_residue_range_radiobutton_3");
+  gtk_widget_show (renumber_residue_range_radiobutton_3);
+  gtk_box_pack_start (GTK_BOX (hbox441), renumber_residue_range_radiobutton_3, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (renumber_residue_range_radiobutton_3), renumber_residue_range_radiobutton_3_group);
+  renumber_residue_range_radiobutton_3_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (renumber_residue_range_radiobutton_3));
+
   renumber_residue_range_resno_2_entry = gtk_entry_new ();
   gtk_widget_set_name (renumber_residue_range_resno_2_entry, "renumber_residue_range_resno_2_entry");
   gtk_widget_show (renumber_residue_range_resno_2_entry);
-  gtk_box_pack_start (GTK_BOX (hbox96), renumber_residue_range_resno_2_entry, FALSE, TRUE, 0);
+  gtk_box_pack_start (GTK_BOX (hbox441), renumber_residue_range_resno_2_entry, TRUE, TRUE, 0);
+  gtk_widget_set_size_request (renumber_residue_range_resno_2_entry, 40, -1);
 
-  label196 = gtk_label_new (_("  (inclusive)  "));
+  label805 = gtk_label_new (_("      "));
+  gtk_widget_set_name (label805, "label805");
+  gtk_widget_show (label805);
+  gtk_box_pack_start (GTK_BOX (hbox441), label805, FALSE, FALSE, 0);
+
+  renumber_residue_range_radiobutton_4 = gtk_radio_button_new_with_mnemonic (NULL, _("C-terminus"));
+  gtk_widget_set_name (renumber_residue_range_radiobutton_4, "renumber_residue_range_radiobutton_4");
+  gtk_widget_show (renumber_residue_range_radiobutton_4);
+  gtk_box_pack_start (GTK_BOX (hbox441), renumber_residue_range_radiobutton_4, FALSE, FALSE, 0);
+  gtk_radio_button_set_group (GTK_RADIO_BUTTON (renumber_residue_range_radiobutton_4), renumber_residue_range_radiobutton_3_group);
+  renumber_residue_range_radiobutton_3_group = gtk_radio_button_get_group (GTK_RADIO_BUTTON (renumber_residue_range_radiobutton_4));
+
+  label803 = gtk_label_new (_("<b>End Residue</b>"));
+  gtk_widget_set_name (label803, "label803");
+  gtk_widget_show (label803);
+  gtk_frame_set_label_widget (GTK_FRAME (frame306), label803);
+  gtk_label_set_use_markup (GTK_LABEL (label803), TRUE);
+
+  label196 = gtk_label_new (_("   (inclusive)  "));
   gtk_widget_set_name (label196, "label196");
   gtk_widget_show (label196);
   gtk_box_pack_start (GTK_BOX (hbox96), label196, FALSE, FALSE, 0);
@@ -18889,7 +18989,7 @@ create_renumber_residue_range_dialog (void)
   gtk_widget_show (hbox97);
   gtk_box_pack_start (GTK_BOX (vbox120), hbox97, TRUE, TRUE, 0);
 
-  label197 = gtk_label_new (_("  Offset:  "));
+  label197 = gtk_label_new (_("  Apply Offset: "));
   gtk_widget_set_name (label197, "label197");
   gtk_widget_show (label197);
   gtk_box_pack_start (GTK_BOX (hbox97), label197, FALSE, FALSE, 0);
@@ -18899,6 +18999,7 @@ create_renumber_residue_range_dialog (void)
   gtk_widget_set_name (renumber_residue_range_offset_entry, "renumber_residue_range_offset_entry");
   gtk_widget_show (renumber_residue_range_offset_entry);
   gtk_box_pack_start (GTK_BOX (hbox97), renumber_residue_range_offset_entry, FALSE, TRUE, 0);
+  gtk_widget_set_size_request (renumber_residue_range_offset_entry, 40, -1);
   gtk_tooltips_set_tip (tooltips, renumber_residue_range_offset_entry, _("e.g. an offset of -10 will renumber residues 33 to 36 as 23 to 36"), NULL);
 
   dialog_action_area60 = GTK_DIALOG (renumber_residue_range_dialog)->action_area;
@@ -18911,16 +19012,22 @@ create_renumber_residue_range_dialog (void)
   gtk_widget_show (hbox98);
   gtk_container_add (GTK_CONTAINER (dialog_action_area60), hbox98);
 
-  renumber_residue_range_ok_button = gtk_button_new_with_mnemonic (_("  Renumber  "));
+  renumber_residue_range_ok_button = gtk_button_new_from_stock ("gtk-apply");
   gtk_widget_set_name (renumber_residue_range_ok_button, "renumber_residue_range_ok_button");
   gtk_widget_show (renumber_residue_range_ok_button);
   gtk_box_pack_start (GTK_BOX (hbox98), renumber_residue_range_ok_button, FALSE, TRUE, 20);
 
-  renumber_residue_range_cancel_button = gtk_button_new_with_mnemonic (_("  Cancel  "));
+  renumber_residue_range_cancel_button = gtk_button_new_from_stock ("gtk-cancel");
   gtk_widget_set_name (renumber_residue_range_cancel_button, "renumber_residue_range_cancel_button");
   gtk_widget_show (renumber_residue_range_cancel_button);
   gtk_box_pack_start (GTK_BOX (hbox98), renumber_residue_range_cancel_button, FALSE, TRUE, 20);
 
+  g_signal_connect ((gpointer) renumber_residue_range_radiobutton_1, "toggled",
+                    G_CALLBACK (on_renumber_residue_range_radiobutton_1_toggled),
+                    NULL);
+  g_signal_connect ((gpointer) renumber_residue_range_radiobutton_3, "toggled",
+                    G_CALLBACK (on_renumber_residue_range_radiobutton_3_toggled),
+                    NULL);
   g_signal_connect ((gpointer) renumber_residue_range_ok_button, "clicked",
                     G_CALLBACK (on_renumber_residue_range_ok_button_clicked),
                     NULL);
@@ -18940,9 +19047,23 @@ create_renumber_residue_range_dialog (void)
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_chain_optionmenu, "renumber_residue_range_chain_optionmenu");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, hbox96, "hbox96");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, label194, "label194");
+  GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, frame305, "frame305");
+  GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, alignment166, "alignment166");
+  GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, hbox440, "hbox440");
+  GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_radiobutton_1, "renumber_residue_range_radiobutton_1");
+  GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, label804, "label804");
+  GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_radiobutton_2, "renumber_residue_range_radiobutton_2");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_resno_1_entry, "renumber_residue_range_resno_1_entry");
+  GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, label802, "label802");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, label195, "label195");
+  GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, frame306, "frame306");
+  GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, alignment167, "alignment167");
+  GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, hbox441, "hbox441");
+  GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_radiobutton_3, "renumber_residue_range_radiobutton_3");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_resno_2_entry, "renumber_residue_range_resno_2_entry");
+  GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, label805, "label805");
+  GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, renumber_residue_range_radiobutton_4, "renumber_residue_range_radiobutton_4");
+  GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, label803, "label803");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, label196, "label196");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, hbox97, "hbox97");
   GLADE_HOOKUP_OBJECT (renumber_residue_range_dialog, label197, "label197");
