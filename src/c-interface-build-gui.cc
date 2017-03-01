@@ -402,46 +402,73 @@ void renumber_residues_from_widget(GtkWidget *window) {
 
    int imol = graphics_info_t::renumber_residue_range_molecule;
 
-   GtkWidget *e1 = lookup_widget(window, "renumber_residue_range_resno_1_entry");
-   GtkWidget *e2 = lookup_widget(window, "renumber_residue_range_resno_2_entry");
-   GtkWidget *offent = lookup_widget(window, "renumber_residue_range_offset_entry");
-   
+   if (is_valid_model_molecule(imol)) {
 
-   std::pair<short int, int> r1  = int_from_entry(e1);
-   std::pair<short int, int> r2  = int_from_entry(e2);
-   std::pair<short int, int> off = int_from_entry(offent);
+      GtkWidget *e1 = lookup_widget(window, "renumber_residue_range_resno_1_entry");
+      GtkWidget *e2 = lookup_widget(window, "renumber_residue_range_resno_2_entry");
+      GtkWidget *offent = lookup_widget(window, "renumber_residue_range_offset_entry");
+      GtkWidget *rb1 = lookup_widget(window, "renumber_residue_range_radiobutton_1"); // N-term button
+      GtkWidget *rb4 = lookup_widget(window, "renumber_residue_range_radiobutton_4"); // C-term button
 
-   if (r1.first && r2.first && off.first) {
-      int start_res = r1.second;
-      int last_res =  r2.second;
-      int offset   = off.second;
+      std::pair<short int, int> r1  = int_from_entry(e1);
+      std::pair<short int, int> r2  = int_from_entry(e2);
+      std::pair<short int, int> off = int_from_entry(offent);
 
-      if (imol >= 0) {
-	 if (imol < graphics_info_t::n_molecules()) {
-	    if (graphics_info_t::molecules[imol].has_model()) {
-	       std::string chain = graphics_info_t::renumber_residue_range_chain;
+      std::string chain_id = graphics_info_t::renumber_residue_range_chain;
+      mmdb::Chain *chain_p = graphics_info_t::molecules[imol].get_chain(chain_id);
 
-
-           // renumber_residue_range returns 0 upon fail
-           // including overlap, so test for this here?!
-           int status;
-           status = renumber_residue_range(imol, chain.c_str(),
-                                           start_res, last_res, offset);
-           if (!status) {
-              // error of sorts
-              std::string s = "WARNING:: could not renumber residue range.\n";
-              s += "Maybe your selection overlaps with existing residues.\n";
-              s += "Please revise your selection.";
-              info_dialog(s.c_str());
-                 
-           }
-
+      if (chain_p) {
+	 if (GTK_TOGGLE_BUTTON(rb1)->active) {
+	    // use N-terminus of chain
+	    std::pair<bool, int> nt_resno = coot::util::min_resno_in_chain(chain_p);
+	    if (nt_resno.first) {
+	       r1.first = 1;
+	       r2.second = nt_resno.second;
 	    }
 	 }
+
+	 if (GTK_TOGGLE_BUTTON(rb4)->active) {
+	    // use C-terminus of chain
+	    std::pair<bool, int> ct_resno = coot::util::max_resno_in_chain(chain_p);
+	    if (ct_resno.first) {
+	       r2.first = 1;
+	       r2.second = ct_resno.second;
+	    }
+	 }
+
+	 if (r1.first && r2.first && off.first) {
+	    int start_res = r1.second;
+	    int last_res =  r2.second;
+	    int offset   = off.second;
+
+	    if (imol >= 0) {
+	       if (imol < graphics_info_t::n_molecules()) {
+		  if (graphics_info_t::molecules[imol].has_model()) {
+
+
+		     // renumber_residue_range returns 0 upon fail
+		     // including overlap, so test for this here?!
+		     int status;
+		     status = renumber_residue_range(imol, chain_id.c_str(), start_res, last_res, offset);
+		     if (!status) {
+			// error of sorts
+			std::string s = "WARNING:: could not renumber residue range.\n";
+			s += "Maybe your selection overlaps with existing residues.\n";
+			s += "Please revise your selection.";
+			info_dialog(s.c_str());
+                 
+		     }
+
+		  }
+	       }
+	    }
+	 } else {
+	    std::cout << "WARNING:: Sorry. Couldn't read residue or offset from entry widget\n";
+	 }
+      } else {
+	 std::cout << "ERROR:: missing chain" << chain_id << std::endl;
       }
-   } else {
-      std::cout << "Sorry. Couldn't read residue or offset from entry widget\n";
-   } 
+   }
 }
 
 

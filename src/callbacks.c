@@ -5784,7 +5784,29 @@ on_draw_hydrogens_no_radiobutton_toggled
   */
 }
 
+/* radio button is the N-terminal button */
+void
+on_renumber_residue_range_radiobutton_1_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
 
+/*   GtkWidget *entry_1 = lookup_widget(GTK_WIDGET(togglebutton), "renumber_residue_range_resno_1_entry"); */
+/*   GtkWidget *entry_2 = lookup_widget(GTK_WIDGET(togglebutton), "renumber_residue_range_resno_2_entry"); */
+/*   if (GTK_TOGGLE_BUTTON(togglebutton)->active) { */
+/*     printf("Use the C-terminus\n"); */
+/*   } else { */
+/*     printf("Use the entry\n"); */
+/*   } */
+}
+
+void
+on_renumber_residue_range_radiobutton_3_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+}
 
 
 void

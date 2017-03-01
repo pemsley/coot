@@ -1,6 +1,8 @@
 
    For Release 0.8.8
 
+   o quick save view on a key.
+
    o does saving the state of backrub rotamers work?
 
    o pyrogen -n -M -C ATP AMP.smi.  The atom names are ultra-quoted.

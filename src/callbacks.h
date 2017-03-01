@@ -1950,6 +1950,15 @@ on_bond_parameters_ok_button_clicked   (GtkButton       *button,
                                         gpointer         user_data);
 
 void
+on_renumber_residue_range_radiobutton_1_toggled
+                                        (GtkToggleButton *togglebutton,
+					 gpointer         user_data);
+
+void
+on_renumber_residue_range_radiobutton_3_toggled
+                                        (GtkToggleButton *togglebutton,
+					 gpointer         user_data);
+void
 on_renumber_residue_range_ok_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data);
