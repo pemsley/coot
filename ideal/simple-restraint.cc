@@ -1238,7 +1238,22 @@ coot::restraints_container_t::resolve_bonds(const gsl_vector *v) const {
 // Ah, but (c.f. distortion) we want to return a low value for a good
 // fit and a high one for a bad.
 double
-coot::electron_density_score(const gsl_vector *v, void *params) { 
+coot::electron_density_score(const gsl_vector *v, void *params) {
+
+   coot::restraints_container_t *restraints_p = static_cast<restraints_container_t *> (params);
+   if (restraints_p->include_map_terms() == 1) {
+      return electron_density_score_from_restraints(v, restraints_p);
+   } else {
+      return 0.0;
+   }
+}
+
+
+// Ah, but (c.f. distortion) we want to return a low value for a good
+// fit and a high one for a bad.
+double
+coot::electron_density_score_from_restraints(const gsl_vector *v,
+					     coot::restraints_container_t *restraints_p) {
 
    // We sum to the score and negate.  That will do?
    // 
@@ -1247,17 +1262,15 @@ coot::electron_density_score(const gsl_vector *v, void *params) {
    
    // first extract the object from params 
    //
-   coot::restraints_container_t *restraints =
-      (coot::restraints_container_t *)params; 
 
-   if (restraints->include_map_terms() == 1) { 
+   if (restraints_p->include_map_terms() == 1) { 
       
       // convert from variables to coord_orths of where the atoms are
       
       for (unsigned int i=0; i< v->size; i += 3) { 
 	 int iat = i/3;
-	 if (restraints->use_map_gradient_for_atom[iat]) {
-	    bool use_it = 1;
+	 if (restraints_p->use_map_gradient_for_atom[iat]) {
+	    bool use_it = true;
 // 	    for (unsigned int ifixed=0; ifixed<restraints->fixed_atom_indices.size(); ifixed++) {
 // 	       if (restraints->fixed_atom_indices[ifixed] == iat) { 
 // 		  std::cout << "ignoring density term for atom " << iat << std::endl;
@@ -1270,9 +1283,9 @@ coot::electron_density_score(const gsl_vector *v, void *params) {
 				      gsl_vector_get(v,i+1), 
 				      gsl_vector_get(v,i+2));
 	       
-	       score += restraints->Map_weight() *
-		  restraints->atom_z_weight[iat] *
-		  restraints->electron_density_score_at_point(ao);
+	       score += restraints_p->Map_weight() *
+		  restraints_p->atom_z_weight[iat] *
+		  restraints_p->electron_density_score_at_point(ao);
 	    }
 	 }
       }

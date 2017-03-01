@@ -2339,7 +2339,8 @@ PyObject *pathology_data(const std::string &mtz_file_name,
    // 
    if (false) { 
       int n_data = fp_vs_reso_data.size();
-      for (unsigned int i=0; i<fp_vs_reso_data.size(); i++) {
+      for (std::size_t i=0; i<fp_vs_reso_data.size(); i++) {
+	 int i_int = i;
 	 int low_lim = i-20;
 	 int high_lim = i+20;
 	 if (low_lim < 0) low_lim = 0;
@@ -2347,7 +2348,7 @@ PyObject *pathology_data(const std::string &mtz_file_name,
 	 double sum = 0;
 	 double n = 0;
 	 for (int j=low_lim; j<high_lim; j++) {
-	    if (j != i) {
+	    if (j != i_int) {
 	       sum += fp_vs_reso_data[j].second;
 	       n += 1;
 	    }
@@ -2361,7 +2362,6 @@ PyObject *pathology_data(const std::string &mtz_file_name,
 	 } 
       }
    }
-   
 
    if (  fp_vs_reso_data.size() > 0 &&
        fosf_vs_reso_data.size() > 0 && 

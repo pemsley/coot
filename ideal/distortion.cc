@@ -571,6 +571,10 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
       if ( (*restraints)[i].restraint_type == coot::START_POS_RESTRAINT) {
          *distortion += coot::distortion_score_start_pos((*restraints)[i], params, v);
       }
+
+      if ( (*restraints)[i].restraint_type == coot::TARGET_POS_RESTRANT) { // atom pull restraint
+         *distortion += coot::distortion_score_target_pos((*restraints)[i], params, v);
+      }
    }
 }
 
@@ -667,7 +671,7 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
          *distortion += coot::distortion_score_start_pos((*restraints)[i], params, v);
       }
 
-      if ( (*restraints)[i].restraint_type == coot::TARGET_POS_RESTRANT) {
+      if ( (*restraints)[i].restraint_type == coot::TARGET_POS_RESTRANT) { // atom pull restraint
          *distortion += coot::distortion_score_target_pos((*restraints)[i], params, v);
       }
    }
@@ -707,60 +711,111 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 
    if (restraints_p->thread_pool_p) {
 
-      int n_per_thread = restraints_size/restraints_p->n_threads;
-      std::atomic<unsigned int> done_count_for_threads(0);
+      if (restraints_p->n_threads > 0) {
 
-      double distortions[restraints_p->n_threads];
-      for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
-	 int idx_start = i_thread * n_per_thread;
-	 int idx_end   = idx_start + n_per_thread;
-	 // for the last thread, set the end restraint index
-	 if (i_thread == (restraints_p->n_threads - 1))
-	    idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
-	 distortions[i_thread] = 0;
+	 auto tp_1 = std::chrono::high_resolution_clock::now();
+
+	 std::future<double> eds(std::async(electron_density_score_from_restraints, v, restraints_p));
+
+	 auto tp_2 = std::chrono::high_resolution_clock::now();
+
+	 int n_per_thread = restraints_size/restraints_p->n_threads;
+	 std::atomic<unsigned int> done_count_for_threads(0);
+
+	 //std::vector<double> d32_vec(restraints_p->n_threads); time analysis of threads
+	 //result: on the Mac OSX, threas push() times are usally 2-5 us. But sometimes up
+	 // to 3000 us (possibly due to different CPU/context switch).  Setting COOT_N_THREADS
+	 // to 2 from 4 (on a 2-core hyperthreaded machine) reduces the number of large thread
+	 // push() times considerably.
+	 //
+
+	 double distortions[restraints_p->n_threads];
+	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
+	    auto time_point_1 = std::chrono::high_resolution_clock::now();
+	    int idx_start = i_thread * n_per_thread;
+	    int idx_end   = idx_start + n_per_thread;
+	    // for the last thread, set the end restraint index
+	    if (i_thread == (restraints_p->n_threads - 1))
+	       idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
+	    distortions[i_thread] = 0;
+
+	    // auto time_point_2 = std::chrono::high_resolution_clock::now();
+
+	    restraints_p->thread_pool_p->push(distortion_score_multithread,
+					      v, params, idx_start, idx_end, &distortions[i_thread],
+					      std::ref(done_count_for_threads));
+	    // auto time_point_3 = std::chrono::high_resolution_clock::now();
+
+	    // time analysis of threads.
+	    // auto d21 = chrono::duration_cast<chrono::microseconds>(time_point_2 - time_point_1).count();
+	    // auto d32 = chrono::duration_cast<chrono::microseconds>(time_point_3 - time_point_2).count();
+	    // d32_vec[i_thread] = d32;
+
+	    if (false)
+	       std::cout << " loop now thread pool info: size: "
+			 << restraints_p->thread_pool_p->size() << " idle: "
+			 << restraints_p->thread_pool_p->n_idle() << "\n";
+	 }
+
+	 auto tp_3 = std::chrono::high_resolution_clock::now();
+	 while (done_count_for_threads != restraints_p->n_threads) {
+	    std::this_thread::sleep_for(std::chrono::microseconds(1));
+	 }
+	 auto tp_4 = std::chrono::high_resolution_clock::now();
 
 	 if (false)
-	    std::cout << "pushing thread doing index range " << idx_start << " " << idx_end
-		      << std::endl;
-	 restraints_p->thread_pool_p->push(distortion_score_multithread,
-					   v, params, idx_start, idx_end, &distortions[i_thread],
-					   std::ref(done_count_for_threads));
-	 if (false)
-	    std::cout << "    now thread pool info: size: "
+	    std::cout << "post-wait thread pool info: size: "
 		      << restraints_p->thread_pool_p->size() << " idle: "
 		      << restraints_p->thread_pool_p->n_idle() 
 		      << std::endl;
-      }
-
-      while (done_count_for_threads != restraints_p->n_threads) {
-	 std::this_thread::sleep_for(std::chrono::microseconds(1));
-      }
 	 
-      for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++)
-	 distortion += distortions[i_thread];
+	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++)
+	    distortion += distortions[i_thread];
 
-      // double distortion_single;
-      // distortion_score_multithread(999, v, params, 0, restraints_size, &distortion_single);
-      // std::cout << "distortion  multi: " << distortion << std::endl;
-      // std::cout << "distortion single: " << distortion_single << std::endl;
+	 auto tp_5 = std::chrono::high_resolution_clock::now();
 
+	 // for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++)
+	 // std::cout << "thread " << i_thread << " d32: " << d32_vec[i_thread] << "\n";
+
+	 distortion += eds.get();
+
+	 auto tp_6 = std::chrono::high_resolution_clock::now();
+
+	 auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
+	 auto d32 = chrono::duration_cast<chrono::microseconds>(tp_3 - tp_2).count();
+	 auto d43 = chrono::duration_cast<chrono::microseconds>(tp_4 - tp_3).count();
+	 auto d54 = chrono::duration_cast<chrono::microseconds>(tp_5 - tp_4).count();
+	 auto d65 = chrono::duration_cast<chrono::microseconds>(tp_6 - tp_5).count();
+	 auto d61 = chrono::duration_cast<chrono::microseconds>(tp_6 - tp_1).count();
+
+	 if (false)
+	    std::cout << "d21 " << d21 << " "
+		      << "d32 " << d32 << " "
+		      << "d43 " << d43 << " "
+		      << "d54 " << d54 << " "
+		      << "d65 " << d65 << " "
+		      << "d61 " << d61 << " "
+		      << "\n";
+      } else {
+	 distortion_score_single_thread(v, params, 0, restraints_size, &distortion);
+	 if (restraints_p->include_map_terms())
+	    distortion += coot::electron_density_score(v, params); // good map fit: low score
+      }
    } else {
       distortion_score_single_thread(v, params, 0, restraints_size, &distortion);
+      if (restraints_p->include_map_terms())
+	 distortion += coot::electron_density_score(v, params); // good map fit: low score
    }
 
 #else
 
    distortion_score_single_thread(v, params, 0, restraints_size, &distortion);
+   if (restraints_p->include_map_terms())
+      distortion += coot::electron_density_score(v, params); // good map fit: low score
 
 #endif // HAVE_CXX_THREAD
 
-//     std::cout << "nbc_diff   distortion: " << nbc_diff << std::endl;
-//     std::cout << "post-terms distortion: " << distortion << std::endl;
 
-   if (restraints_p->include_map_terms())
-      // multi-thread this too:
-      distortion += coot::electron_density_score(v, params); // good map fit: low score
-   
 #ifdef ANALYSE_REFINEMENT_TIMING
    gettimeofday(&current_time, NULL);
    double td = current_time.tv_sec - start_time.tv_sec;

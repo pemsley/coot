@@ -68,22 +68,30 @@ void coot::my_df_target_pos(const gsl_vector *v,
 			    void *params, 
 			    gsl_vector *df) {
 
-   restraints_container_t *restraints = (restraints_container_t *)params;
-   for (int i=0; i<restraints->size(); i++) {
-      if ( (*restraints)[i].restraint_type == TARGET_POS_RESTRANT) {
-	 const simple_restraint &rest = (*restraints)[i];
+   restraints_container_t *restraints_p = static_cast<restraints_container_t *>(params);
+
+   // patch madness
+   // std::cout << "my_df_target_pos "
+   // << restraints_p->restraints_limits_target_pos.first << " "
+   // << restraints_p->restraints_limits_target_pos.second<< std::endl;
+
+   int restraints_size = restraints_p->size();
+   for (int i=0; i<restraints_size; i++) {
+      const simple_restraint &rest = (*restraints_p)[i];
+      if (rest.restraint_type == TARGET_POS_RESTRANT) {
 	 double sigma = 0.04; // change as above in distortion score
 	 int idx = 3*(rest.atom_index_1);
-	 clipper::Coord_orth current_pos(gsl_vector_get(v,idx), 
-					 gsl_vector_get(v,idx+1), 
-					 gsl_vector_get(v,idx+2));
+
+// 	 clipper::Coord_orth current_pos(gsl_vector_get(v,idx),
+// 					 gsl_vector_get(v,idx+1),
+// 					 gsl_vector_get(v,idx+2));
 	 
          double constant_part = 2.0 / (sigma * sigma);
          
          double dist_x = gsl_vector_get(v, idx)   - rest.atom_pull_target_pos[0];
          double dist_y = gsl_vector_get(v, idx+1) - rest.atom_pull_target_pos[1];
          double dist_z = gsl_vector_get(v, idx+2) - rest.atom_pull_target_pos[2];
-         double squared_dist = dist_x * dist_x + dist_y * dist_y + dist_z * dist_z;
+         // double squared_dist = dist_x * dist_x + dist_y * dist_y + dist_z * dist_z;
 
 	 *gsl_vector_ptr(df, idx  ) += constant_part * dist_x;
 	 *gsl_vector_ptr(df, idx+1) += constant_part * dist_y;

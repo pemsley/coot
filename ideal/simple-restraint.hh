@@ -850,17 +850,6 @@ namespace coot {
    void 
    numerical_gradients(gsl_vector *v, void *params, gsl_vector *df);
    
-   // Getting adventurous:
-   // 
-   double electron_density_score(const gsl_vector *v, void *params);
-   // new style Grad_map/Grad_orth method
-   void my_df_electron_density(const gsl_vector *v, void *params, gsl_vector *df);
-   // pre-threaded
-   void my_df_electron_density_old_2017(const gsl_vector *v, void *params, gsl_vector *df); 
-   // old style numerical method
-   void my_df_electron_density_old(gsl_vector *v, void *params, gsl_vector *df); 
-
-
    // non-refinement function: just checking geometry:
    // 
    // return a vector because there could be many alt confs to this
@@ -2012,6 +2001,7 @@ namespace coot {
       std::pair<unsigned int, unsigned int> restraints_limits_planes;
       std::pair<unsigned int, unsigned int> restraints_limits_non_bonded_contacts;
       std::pair<unsigned int, unsigned int> restraints_limits_geman_mclure;
+      // std::pair<unsigned int, unsigned int> restraints_limits_target_pos; // atom pull
 
 #ifdef HAVE_CXX_THREAD
       // thread pool!
@@ -2056,6 +2046,18 @@ namespace coot {
 							int idx_end,
 							std::atomic<unsigned int> &done_count);
 #endif // HAVE_CXX_THREAD
+
+   double electron_density_score(const gsl_vector *v, void *params);
+   // interestingly, this needs a different name to the above so that std::async()
+   // in distortion_score() refers to the correct function.
+   double electron_density_score_from_restraints(const gsl_vector *v, coot::restraints_container_t *restraints_p);
+   // new style Grad_map/Grad_orth method
+   void my_df_electron_density(const gsl_vector *v, void *params, gsl_vector *df);
+   // pre-threaded
+   void my_df_electron_density_old_2017(const gsl_vector *v, void *params, gsl_vector *df); 
+   // old style numerical method
+   void my_df_electron_density_old(gsl_vector *v, void *params, gsl_vector *df); 
+
 
    void my_df_non_bonded_single(const gsl_vector *v,
 				gsl_vector *df,
