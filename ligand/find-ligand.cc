@@ -391,8 +391,7 @@ main(int argc, char **argv) {
 			      std::cout << "=============== start blob-table ==========\n";
 			      for (unsigned int i=0; i<n_big_blobs; i++) {
 				 std::cout << "  blob " << i << " " << big_blobs[i].first.format()
-					   << " " << big_blobs[i].second << " " << big_blobs[i].first.format()
-					   << std::endl;
+					   << " sum: " << big_blobs[i].second << std::endl;
 			      } 
 			      std::cout << "=============== end blob-table ==========\n";
 			   } 
