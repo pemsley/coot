@@ -68,10 +68,17 @@ void coot::my_df_target_pos(const gsl_vector *v,
 			    void *params, 
 			    gsl_vector *df) {
 
-   restraints_container_t *restraints = (restraints_container_t *)params;
-   for (int i=0; i<restraints->size(); i++) {
-      if ( (*restraints)[i].restraint_type == TARGET_POS_RESTRANT) {
-	 const simple_restraint &rest = (*restraints)[i];
+   restraints_container_t *restraints_p = static_cast<restraints_container_t *>(params);
+
+   // patch madness
+   // std::cout << "my_df_target_pos "
+   // << restraints_p->restraints_limits_target_pos.first << " "
+   // << restraints_p->restraints_limits_target_pos.second<< std::endl;
+
+   int restraints_size = restraints_p->size();
+   for (int i=0; i<restraints_size; i++) {
+      const simple_restraint &rest = (*restraints_p)[i];
+      if (rest.restraint_type == TARGET_POS_RESTRANT) {
 	 double sigma = 0.04; // change as above in distortion score
 	 int idx = 3*(rest.atom_index_1);
 
