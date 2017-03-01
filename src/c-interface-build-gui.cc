@@ -394,6 +394,12 @@ GtkWidget *wrapped_create_renumber_residue_range_dialog() {
       graphics_info_t g;
       g.fill_renumber_residue_range_dialog(w);  // fills the coordinates option menu
       g.fill_renumber_residue_range_internal(w, imol); // fills the chain option menu
+
+      // by default the N-term button is on for the first choice
+      // (and C-term is of for the second)
+      GtkWidget *entry_1 = lookup_widget(GTK_WIDGET(w), "renumber_residue_range_resno_1_entry");
+      gtk_widget_set_sensitive(GTK_WIDGET(entry_1), FALSE);
+      
    }
    return w;
 }
@@ -423,7 +429,7 @@ void renumber_residues_from_widget(GtkWidget *window) {
 	    std::pair<bool, int> nt_resno = coot::util::min_resno_in_chain(chain_p);
 	    if (nt_resno.first) {
 	       r1.first = 1;
-	       r2.second = nt_resno.second;
+	       r1.second = nt_resno.second;
 	    }
 	 }
 
