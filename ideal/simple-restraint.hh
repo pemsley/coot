@@ -1932,6 +1932,8 @@ namespace coot {
       double geman_mcclure_alpha; // = 0.02 or something set in init_shared_pre(). // needed for derivative calculation
                                                                                    // (which is not done in this class)
       
+      bool cryo_em_mode; // for weighting fit to density of atoms (side-chains and others are down-weighted)
+
       // more debugging interface:
       //
       void set_do_numerical_gradients() { do_numerical_gradients_flag = 1;}
