@@ -126,6 +126,7 @@ namespace coot {
 
       // can throw a std::runtime_error
       // (if the dictionary/atoms are not found)
+      //
       installed_wiggly_ligand_info_t
       optimize_and_install_if_unique(const minimol::residue &wiggled_ligand_residue,
 				     coot::protein_geometry *pg,

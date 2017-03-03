@@ -1208,8 +1208,14 @@ gboolean install_simple_wiggly_ligand_idle_fn(gpointer data) {
    } else {
       coot::minimol::molecule mmol(g.molecules[ldp->imol_ligand].atom_sel.mol);
 
-      ldp->wlig->install_simple_wiggly_ligand(g.Geom_p(), mmol, ldp->imol_ligand,
-					      g.ligand_wiggly_ligand_count, true);
+      try {
+	 ldp->wlig->install_simple_wiggly_ligand(g.Geom_p(), mmol, ldp->imol_ligand,
+						 g.ligand_wiggly_ligand_count, true);
+      }
+      catch (const std::exception &e) {
+	 // this happens when there is no dictionary.
+	 std::cout << "WARNING::" << e.what() << std::endl;
+      }
       gdouble frac = double(g.ligand_wiggly_ligand_count)/double(g.ligand_wiggly_ligand_n_samples);
       gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR (ldp->progress_bar), frac);
       

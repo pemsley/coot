@@ -1,6 +1,12 @@
 
    For Release 0.8.8
 
+   o JED: read in a PDB with no dictionary:
+
+    libc++abi.dylib: terminating with uncaught exception of type std::runtime_error: WARNING:: 
+    Requested flexible molecule for ligand "RRQ"
+
+* Done. 
 
    o Fetch molecule: acyclovir, (edit?) click Apply
 

@@ -775,6 +775,7 @@ ligand_wiggly_ligand_data_t
 ligand_search_install_wiggly_ligands() {
 
    graphics_info_t g;
+   // the bool is for flag is-flexible?
    std::vector<std::pair<int, bool> > ligands = g.find_ligand_ligand_mols();
    coot::wligand *wlig_p = new coot::wligand;
    ligand_wiggly_ligand_data_t lfwd(wlig_p);
