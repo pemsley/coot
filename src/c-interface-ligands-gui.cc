@@ -432,21 +432,7 @@ int fill_ligands_dialog_ligands_bits(GtkWidget *find_ligand_dialog) {
 	    ligands_button_label += " ";
 	    ligands_button_label += g.molecules[imol].name_;
 
-	    // ligand on/off check button
-	    // 
-	    GtkWidget *find_ligand_ligands_checkbutton_imol =
-	       gtk_check_button_new_with_label (ligands_button_label.c_str());
-	    gtk_widget_ref (find_ligand_ligands_checkbutton_imol);
-	    gtk_object_set_data_full (GTK_OBJECT (find_ligand_dialog),
-				      ligands_str.c_str(),
-				      find_ligand_ligands_checkbutton_imol,
-				      (GtkDestroyNotify) gtk_widget_unref);
-
-	    gtk_widget_show (find_ligand_ligands_checkbutton_imol);
-	    gtk_box_pack_start (GTK_BOX (hbox),
-				find_ligand_ligands_checkbutton_imol, FALSE, FALSE, 0);
-
-	    // wligand on/off check button
+	    // flexible/conformer-generation on/off check button
 	    //
 	    std::string wligands_str("find_ligand_wligand_checkbutton_");
 	    wligands_str += g.int_to_string(imol);
@@ -466,6 +452,21 @@ int fill_ligands_dialog_ligands_bits(GtkWidget *find_ligand_dialog) {
 	    gtk_box_pack_start (GTK_BOX (find_ligand_ligands_vbox),
 				hbox, FALSE, FALSE, 0);
 	    gtk_widget_show(hbox);
+
+	    // ligand molecule on/off check button
+	    // 
+	    GtkWidget *find_ligand_ligands_checkbutton_imol =
+	       gtk_check_button_new_with_label (ligands_button_label.c_str());
+	    gtk_widget_ref (find_ligand_ligands_checkbutton_imol);
+	    gtk_object_set_data_full (GTK_OBJECT (find_ligand_dialog),
+				      ligands_str.c_str(),
+				      find_ligand_ligands_checkbutton_imol,
+				      (GtkDestroyNotify) gtk_widget_unref);
+
+	    gtk_widget_show (find_ligand_ligands_checkbutton_imol);
+	    gtk_box_pack_start (GTK_BOX (hbox),
+				find_ligand_ligands_checkbutton_imol, FALSE, FALSE, 0);
+
 	 }
       }
    }

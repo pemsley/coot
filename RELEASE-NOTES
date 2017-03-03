@@ -29,6 +29,8 @@
 
   o CHANGE:  Solid model lighting adjusted
 
+  o CHANGE:  The Flexible? conformer-generation checkbutton repositioned
+
   o BUG-FIX: Colour by B-factor and Occupancy modes restored [Hans Raaijmakers]
 
   o BUG-FIX: network interface to Drugbank follows server changes
@@ -40,6 +42,8 @@
   o BUG-FIX: Use XYP not XYL for carbohydrate tree additions
 
   o BUG-FIX: Restore missing waters in FLEV
+
+  o BUG-FIX: Fix crash on conformer search with no dictionary [JED]
 
 ------
 
