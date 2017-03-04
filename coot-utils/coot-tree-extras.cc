@@ -1335,11 +1335,13 @@ coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &ato
 				const std::string &atom3, const std::string &atom4,
 				double angle) {
 
-   // debugging
-//    std::map<std::string, map_index_t, std::less<std::string> >::const_iterator it;
-//    for (it=name_to_index.begin(); it!= name_to_index.end(); it++) {
-//       std::cout << "set_dihedral() :" << it->first << ": -> " <<  it->second.index() << std::endl;
-//    }
+    // debugging
+    if (false) {
+       std::map<std::string, map_index_t, std::less<std::string> >::const_iterator it;
+       for (it=name_to_index.begin(); it!= name_to_index.end(); it++) {
+          std::cout << "set_dihedral() :" << it->first << ": -> " <<  it->second.index() << std::endl;
+       }
+   }
    
    coot::map_index_t i1 = name_to_index[atom1];
    coot::map_index_t i2 = name_to_index[atom2];
@@ -1463,9 +1465,14 @@ coot::atom_tree_t::set_dihedral_multi(const std::vector<tree_dihedral_info_t> &d
    // 
    std::vector<double> v(di.size());
    for (unsigned int id=0; id<di.size(); id++) {
-      v[id] = set_dihedral(di[id].quad.atom_name(0), di[id].quad.atom_name(1),
-			   di[id].quad.atom_name(2), di[id].quad.atom_name(3),
-			   di[id].dihedral_angle);
+      try {
+         v[id] = set_dihedral(di[id].quad.atom_name(0), di[id].quad.atom_name(1),
+			      di[id].quad.atom_name(2), di[id].quad.atom_name(3),
+			      di[id].dihedral_angle);
+      }
+      catch (const std::exception &e) {
+         std::cout << "WARNING:: " << e.what() << std::endl;
+      }
    }
    return v;
 }

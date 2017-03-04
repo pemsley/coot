@@ -7691,3 +7691,14 @@ Thu  1 Dec 2016 23:08:27 GMT
    https://github.com/emcrisostomo/CXX-Autoconf-Macros/blob/master/ax_cxx_have_thread.m4
 
 ---
+Sat  4 Mar 2017 01:13:08 GMT
+
+   How to set a breakpoint in lldb:
+
+   breakpoint set --method set_dihedral
+
+   puts a breakpoint in all methods/functions called set_dihedral()
+
+
+
+---
