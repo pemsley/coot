@@ -3563,7 +3563,7 @@ else
               echo $install_top_dir/include/gd.h exists - skip libgd build
           fi
        else 
-          echo $install_top_dir/include/gd.h exists - skip libgd build
+          echo /usr/include/gd.h exists - skip libgd build
        fi
 
       ) > $HOSTLOGDIR/15-libgd.log
