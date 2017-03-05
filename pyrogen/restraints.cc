@@ -64,6 +64,14 @@ void
 coot::write_restraints(PyObject *restraints_py, const std::string &file_name) {
 
    coot::dictionary_residue_restraints_t restraints = monomer_restraints_from_python(restraints_py);
+
+   if (false) { // debug
+      std::size_t n_atoms = restraints.atom_info.size();
+      for (std::size_t iat=0; iat<n_atoms; iat++) {
+         std::cout << "write_restraints() " << iat << " " << restraints.atom_info[iat].atom_id_4c  << std::endl;
+      }
+   }
+ 
    if (restraints.is_filled()) {
       restraints.write_cif(file_name);
    } else {
@@ -303,7 +311,11 @@ coot::match_restraints_to_reference_dictionaries(const coot::dictionary_residue_
    for (unsigned int idx=0; idx<pg.size(); idx++) { 
       const dictionary_residue_restraints_t &rest = pg.get_monomer_restraints(idx);
       dictionary_match_info_t dmi = 
-	 restraints.match_to_reference(rest, NULL, out_comp_id, out_comp_id);
+	 restraints.match_to_reference(rest, NULL, out_comp_id, out_comp_id); // null residue
+      std::cout << "    match_restraints_to_reference_dictionaries() testing " 
+                << rest.residue_info.comp_id << " made " << dmi.n_matches << " atom matches " 
+      	        // not yet << dmi.n_bond_matches << " bond matches"
+		<< std::endl;
       if (dmi.n_matches > best_match.n_matches) {
 	 best_match = dmi;
 	 best_idx = idx;

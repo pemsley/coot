@@ -845,7 +845,6 @@ ligand_search_install_wiggly_ligands() {
 	 wlig_p->install_ligand(g.molecules[ligands[i].first].atom_sel.mol);
       }
    }
-   std::cout << "ligand_search_install_wiggly_ligands: returning wlig " << wlig_p << std::endl;
    return lfwd;
 }
 

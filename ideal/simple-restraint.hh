@@ -1977,6 +1977,8 @@ namespace coot {
 
       // return true when turned off
       bool turn_off_when_close_target_position_restraint();
+      
+      bool cryo_em_mode; // for weighting fit to density of atoms (side-chains and others are down-weighted)
 
       // more debugging interface:
       //

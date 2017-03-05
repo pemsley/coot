@@ -6907,8 +6907,8 @@ std::pair<int, std::string>
 molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
 				       const std::string &to_chain_id,
 				       bool use_resno_range,
-				       int start_resno,
-				       int end_resno) {
+				       int start_resno, int end_resno) {
+
    int istat = 0;
    std::string message("Nothing to say");
 

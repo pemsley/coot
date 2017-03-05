@@ -6497,9 +6497,26 @@ molecule_class_info_t::make_backup() { // changes history details
       if (atom_sel.mol) {
 	 int dirstat = make_maybe_backup_dir(backup_dir);
 
-	 // all is hunkey-dorey.  Directory exists.
-	 if (dirstat == 0) { 
-	    
+	 if (dirstat != 0) {
+	    // fallback to making a directory in $HOME
+	    const char *home_dir = getenv("HOME");
+	    if (home_dir) {
+	       backup_dir = coot::util::append_dir_dir(home_dir, "coot-backup");
+	       dirstat = make_maybe_backup_dir(backup_dir);
+	       if (dirstat != 0) {
+		  std::cout << "WARNING:: backup directory "<< backup_dir
+			    << " failure to exist or create" << std::endl;
+	       } else {
+		  std::cout << "INFO using backup directory " << backup_dir << std::endl;
+	       }
+	    } else {
+	       std::cout << "WARNING:: backup directory "<< backup_dir
+			 << " failure to exist or create" << std::endl;
+	    }
+	 }
+
+	 if (dirstat == 0) {
+	    // all is hunkey-dorey.  Directory exists.
 	    std::string backup_file_name = save_molecule_filename(backup_dir);
  	    std::cout << "INFO:: backup file " << backup_file_name << std::endl;
 
@@ -6536,9 +6553,6 @@ molecule_class_info_t::make_backup() { // changes history details
 	    if (history_index == max_history_index)
 	       max_history_index++;
 	    history_index++;
-	 } else {
-	    std::cout << "WARNING:: backup directory "<< backup_dir
-		      << " failure to exist or create" << std::endl;
 	 } 
       } else {
 	 std::cout << "BACKUP:: Ooops - no atoms to backup for this empty molecule"

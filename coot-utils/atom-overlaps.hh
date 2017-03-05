@@ -82,9 +82,10 @@ namespace coot {
 	 for (it=other.dots.begin(); it!=other.dots.end(); it++)
 	    if (it->second.size())
 	       dots[it->first].insert(dots[it->first].end(),it->second.begin(), it->second.end());
-	 if (other.clashes.positions.size()) {
-	    clashes.positions.insert(clashes.positions.end(), other.clashes.positions.begin(), other.clashes.positions.end());
-	 }
+	 if (other.clashes.positions.size())
+	    clashes.positions.insert(clashes.positions.end(),
+				     other.clashes.positions.begin(),
+				     other.clashes.positions.end());
       }
       double score() const {
 	 std::map<std::string, std::vector<dot_t> >::const_iterator it;

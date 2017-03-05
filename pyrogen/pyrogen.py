@@ -642,7 +642,7 @@ def atom_match_dictionary(restraints, sane_H_mol, comp_id_list_for_names_match, 
 
     template_comp_ids = ['CYS', 'ASP', 'GLU',        'HIS', 'ILE', 'LYS', 'LEU', 'MET',
                          'ASN', 'PRO', 'GLN', 'ARG', 'SER', 'THR', 'VAL', 'TRP', 'TYR',
-                         'G',   'C',   'GLC', 'MAN']
+                         'G',   'A',     'C',   'U',    'GLC', 'MAN']
 
     if isinstance(comp_id_list_for_names_match, basestring):
         template_comp_ids = comp_id_list_for_names_match.split(',')
@@ -657,6 +657,9 @@ def atom_match_dictionary(restraints, sane_H_mol, comp_id_list_for_names_match, 
                                                                                 template_comp_ids,
                                                                                 template_cif_dict_files_names)
     if success:
+        for at_name in at_name_list:
+            # print at_name
+            pass
         n = len(sane_H_mol.GetAtoms())
         if len(restraints['_chem_comp_atom']) == n:
             restraints = new_restraints

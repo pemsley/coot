@@ -38,6 +38,7 @@
 #include <stdexcept>
 
 #include "geometry/mol-utils.hh"
+#include "geometry/main-chain.hh"
 #include "simple-restraint.hh"
 
 //
@@ -327,6 +328,7 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
    have_oxt_flag = false; // set in mark_OXT()
    geman_mcclure_alpha = 1; // Is this a good value? Talk to Rob. FIXME.
    mol = mol_in;
+   cryo_em_mode = false;
 } 
 
 void
@@ -403,16 +405,24 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
       }
    }
 
-   // z weights
+   // z weights:
+   //
    atom_z_weight.resize(n_atoms);
    std::vector<std::pair<std::string, int> > atom_list = coot::util::atomic_number_atom_list();
    for (int i=0; i<n_atoms; i++) {
       double z = coot::util::atomic_number(atom[i]->element, atom_list);
+      double weight = 1.0;
+      if (cryo_em_mode) {
+	 // is-side-chain? would be a better test
+	 if (! is_main_chain_or_cb_p(atom[i]))
+	    weight = 0.3;
+      }
+
       if (z < 0.0) {
 	 std::cout << "Unknown element :" << atom[i]->element << ": " << std::endl;
-	 z = 6.0; // as for carbon
+	 z = weight * 6.0; // as for carbon
       } 
-      atom_z_weight[i] = z;
+      atom_z_weight[i] = weight * z;
    }
    
    // the fixed atoms:   
@@ -1255,7 +1265,7 @@ double
 coot::electron_density_score_from_restraints(const gsl_vector *v,
 					     coot::restraints_container_t *restraints_p) {
 
-   // We sum to the score and negate.  That will do?
+   // We weight and sum to get the score and negate.  That will do?
    // 
    double score = 0; 
    // double e = 2.718281828; 

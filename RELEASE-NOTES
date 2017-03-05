@@ -21,7 +21,7 @@
   o CHANGE: Jiggle fit now works by masking the out the map for neighbouring 
             residues
 
-  o FEATURE: Modern compilers will multi-thread multiple map contouring
+  o FEATURE: C++11 compilers will multi-thread multiple map contouring
 
   o CHANGE:  delete residue range speeded up [Oliver Clarke]
 
@@ -29,7 +29,15 @@
 
   o CHANGE:  Solid model lighting adjusted
 
-  o CHANGE:  The Flexible? conformer-generation checkbutton repositioned
+  o CHANGE:  The Flexible? conformer-generation checkbutton repositioned [JED]
+
+  o CHANGE:  Move molecule here checkbutton position reordered
+
+  o CHANGE:  Renumber residue range dialog improved by addition of terminii
+             checkbuttons
+
+  o BUG-FIX: Chains with non-overlapping residue numbers can now be merged
+             without specifying the residue range
 
   o BUG-FIX: Colour by B-factor and Occupancy modes restored [Hans Raaijmakers]
 
@@ -44,6 +52,8 @@
   o BUG-FIX: Restore missing waters in FLEV
 
   o BUG-FIX: Fix crash on conformer search with no dictionary [JED]
+
+  o BUG-FIX: Fix pyrogen dictionary double-quoted primed atom names [JED]
 
 ------
 
