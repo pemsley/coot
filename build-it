@@ -443,6 +443,11 @@ no_proxy=${no_proxy:=".corp.net.com"}
 #
 run_tests=${run_tests:=false}
 
+# run the second test?  Almost always passes and takes up lots of 
+# disk space
+#
+run_second_test=${run_second_test:=true}
+
 # This is where the compiled binaries/libraries/data get installed:
 # Note that the directory name must NOT end in a /
 #
@@ -3983,7 +3988,7 @@ if [ "$run_tests" = true ] ; then
 
             if [ ! -d $BINARY_TAR_DEST_DIR/holding ] ; then 
                echo WARNING:: holding directory $BINARY_TAR_DEST_DIR/holding does not exist.
-            else 
+            else
                # regular path
 
                # original full fat:
@@ -3992,24 +3997,29 @@ if [ "$run_tests" = true ] ; then
                bin_tar_file=$BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
                holding_tar_file=$BINARY_TAR_DEST_DIR/holding/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
 
-       	       make_tar `basename $slim_dir` $holding_tar_file
+       	       make_tar $(basename $slim_dir) $holding_tar_file
 
    	       # Now test the tar file by un-taring it and running the
    	       # tests.  Only if this test passes can we move tar file
 	       # from holding to the binary pre-release dir.
 
-               cd "$build_dir"
-	       mkdir test-tar
-	       cd test-tar
-	       tar xzf $holding_tar_file
-      	       echo cding into `basename $slim_dir`  from `pwd`
-               cd `basename $slim_dir` 
-	       echo ln -s ../../$coot_dir_name/greg-tests .
-	       ln -s ../../$coot_dir_name/greg-tests .
-               echo second coot test...
-               echo running second test... >&2
-	       test_coot bin/coot > $LOGS/test-2.log 2>&1
-               test2_status=$?
+	       if [ $run_second_test = true ] ; then
+                  cd "$build_dir"
+	          mkdir test-tar
+	          cd test-tar
+	          tar xzf $holding_tar_file
+      	          echo cding into `basename $slim_dir`  from `pwd`
+                  cd `basename $slim_dir` 
+   	          echo ln -s ../../$coot_dir_name/greg-tests .
+	          ln -s ../../$coot_dir_name/greg-tests .
+                  echo second coot test...
+                  echo running second test... >&2
+	          test_coot bin/coot > $LOGS/test-2.log 2>&1
+                  test2_status=$?
+               else
+                  test2_status=0 # success
+               fi
+
                if [ $test2_status = 0 ] ; then
                   echo ========================
                   echo second coot test passed
