@@ -2415,7 +2415,7 @@ public:        //                      public
    // 
    std::pair<int, std::string> change_chain_id(const std::string &from_chain_id,
 					       const std::string &to_chain_id,
-					       short int use_resno_range,
+					       bool use_resno_range,
 					       int start_resno,
 					       int end_resno);
 
