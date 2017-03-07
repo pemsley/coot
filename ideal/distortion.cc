@@ -344,7 +344,7 @@ coot::operator<<(std::ostream &s, geometry_distortion_info_t gdi) {
       s << gdi.restraint << " " << gdi.residue_spec << " distortion: " << gdi.distortion_score;
    } else {
       s << "{geometry_distortion_info-unset}";
-   } 
+   }
    return s;
 }
 
@@ -437,14 +437,15 @@ coot::restraints_container_t::omega_trans_distortions(const coot::protein_geomet
 	       }
 
 	       if (got_ca_first && got_c_first && got_n_next && got_ca_next) {
+		  // the omega angle belongs to the second residue
 		  double tors = clipper::Coord_orth::torsion(ca_first, c_first, n_next, ca_next);
 		  double torsion = clipper::Util::rad2d(tors);
 		  torsion = (torsion > 0.0) ? torsion : 360.0 + torsion;
 		  std::string info = chain_id;
 		  info += " ";
-		  info += coot::util::int_to_string(first->GetSeqNum());
+		  info += coot::util::int_to_string(second->GetSeqNum());
 		  info += " ";
-		  info += first->name;
+		  info += second->name;
 		  info += " Omega: ";
 		  info += coot::util::float_to_string(torsion);
 		  double distortion = fabs(180.0 - torsion);
@@ -463,7 +464,6 @@ coot::restraints_container_t::omega_trans_distortions(const coot::protein_geomet
 			}
 		     }
 		  distortion *= scale;
-		  // the omega angle belongs to the second residue
 		  omega_distortion_info_t odi(second->GetSeqNum(), distortion, info);
 		  dc.omega_distortions.push_back(odi);
 	       } else {

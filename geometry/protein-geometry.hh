@@ -137,22 +137,33 @@ namespace coot {
    class basic_dict_restraint_t {
       std::string atom_id_1_;
       std::string atom_id_2_;
+      std::string atom_id_1_4c_;
+      std::string atom_id_2_4c_;
 
    public:
       basic_dict_restraint_t() {} // for planes
       basic_dict_restraint_t(const std::string &at1,
-			     const std::string &at2);
+			     const std::string &at2) {
+	 set_atom_id_1(at1);
+	 set_atom_id_2(at2);
+      }
       std::string atom_id_1() const { return atom_id_1_;}
       std::string atom_id_2() const { return atom_id_2_;}
       std::string atom_id_1_4c() const {  // 4 character return;
-	 return atom_id_mmdb_expand(atom_id_1_);
+	 return atom_id_1_4c_;
       }
       std::string atom_id_2_4c() const {
-	 return atom_id_mmdb_expand(atom_id_2_);
+	 return atom_id_2_4c_;
       }
-      void set_atom_id_1(const std::string &id) { atom_id_1_ = id; } 
-      void set_atom_id_2(const std::string &id) { atom_id_2_ = id; } 
-   }; 
+      void set_atom_id_1(const std::string &id) {
+	 atom_id_1_ = id;
+	 atom_id_1_4c_ = atom_id_mmdb_expand(id);
+      }
+      void set_atom_id_2(const std::string &id) {
+	 atom_id_2_ = id;
+	 atom_id_2_4c_ = atom_id_mmdb_expand(id);
+      }
+   };
 
    class dict_bond_restraint_t : public basic_dict_restraint_t {
       std::string type_;

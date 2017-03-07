@@ -76,13 +76,17 @@ namespace coot {
       }
 
       std::map<std::string, std::vector<dot_t> > dots;
+      spikes_t clashes;
       void add(const atom_overlaps_dots_container_t &other) {
 	 std::map<std::string, std::vector<dot_t> >::const_iterator it;
 	 for (it=other.dots.begin(); it!=other.dots.end(); it++)
 	    if (it->second.size())
 	       dots[it->first].insert(dots[it->first].end(),it->second.begin(), it->second.end());
+	 if (other.clashes.positions.size())
+	    clashes.positions.insert(clashes.positions.end(),
+				     other.clashes.positions.begin(),
+				     other.clashes.positions.end());
       }
-      spikes_t clashes;
       double score() const {
 	 std::map<std::string, std::vector<dot_t> >::const_iterator it;
 	 // do these match the types in overlap_delta_to_contact_type()?

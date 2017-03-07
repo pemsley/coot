@@ -399,3 +399,33 @@
 		       (valid-model-molecule? imol))))))))))
 
 
+
+(greg-testcase "pyrogen dictionary does not make double-quoted atom names" #t
+   (lambda ()
+
+    (let ((goosh-status (goosh-command "pyrogen" (list "-nM" "-r" "UVP" 
+                                       "CO[C@@H]1[C@H](O)[C@H](O[C@H]1[n+]1ccc(O)nc1O)\\C=C\\P(O)(O)=O")
+                                       '()
+                                       "pyrogen.log" #f)))
+      (if (not (ok-goosh-status? goosh-status))
+          (begin
+             (format #t "Fail to correctly run pyrogen\n"))
+          (begin 
+            (read-cif-dictionary "UVP-pyrogen.cif")
+            (let ((imol (get-monomer "UVP")))
+               (if (not (valid-model-molecule? imol))
+                   (begin
+                      (format #t "Fail to load molecule from pyrogen dictionary\n"))
+                   (let ((atoms-info (residue-info imol "A" 1 ""))
+                         (passes #t))
+                      (for-each (lambda(atom)
+                                   (let ((atom-name (residue-atom->atom-name atom)))
+                                      ;; (format #t "Atom name ~s~%" atom-name)
+                                      (if (string-match "\"" atom-name)
+                                          (begin
+                                             (format #t "Atom name quote fail ~s~%" atom-name)
+                                             (set! passes #f)))))
+                                atoms-info)
+                      passes))))))))
+
+
