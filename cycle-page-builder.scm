@@ -901,10 +901,11 @@
        (build-list
 	(list 
 	 
-	 (list "binary-Linux-x86_64-centos-5-python-gtk2"
-	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-pcterm37.lmb.internal/" 
-	       "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
-	       #t #t)
+         ; Gone (it was an old thing)
+	 ; (list "binary-Linux-x86_64-centos-5-python-gtk2"
+	       ;"http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-pcterm37.lmb.internal/" 
+	       ;"http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/binaries/pre-releases"
+	       ;#t #t)
 
 	 (list "binary-Linux-x86_64-rhel-6-python-gtk2"
 	       (string-append "http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/build-logs/Linux-" this-host "/")
