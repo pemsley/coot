@@ -2315,7 +2315,21 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 }
       }
 
+#ifdef HAVE_CXX11
 
+      // Martin's triangular molecules
+      //
+      for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+	 if (is_valid_model_molecule(ii)) {
+	    if (graphics_info_t::molecules[ii].molrepinst) {
+	       // std::cout << "rendering imol " << ii << std::endl;
+	       auto renderer = RendererGL::create(); // I know that I don't need to do this every loop
+	       renderer->init();
+	       graphics_info_t::molecules[ii].molrepinst->renderInRenderer(renderer);
+	    }
+	 }
+      }
+#endif // CXX11
       //
       draw_crosshairs_maybe();
 

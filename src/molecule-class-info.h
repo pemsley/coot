@@ -49,6 +49,17 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #   include <GL/gl.h>
 #endif
 
+#ifdef HAVE_CXX11
+#include <CXXClasses/RendererGL.h>
+#include <CXXClasses/Light.h>
+#include <CXXClasses/Camera.h>
+// #include <CXXClasses/CameraPort.h>
+#include <CXXClasses/SceneSetup.h>
+#include <CXXClasses/ColorScheme.h>
+#include <CXXClasses/MyMolecule.h>
+#include <CXXClasses/RepresentationInstance.h>
+#include <CXXClasses/MolecularRepresentationInstance.h>
+#endif
 
 #include "clipper/ccp4/ccp4_map_io.h"
 
@@ -789,6 +800,12 @@ public:        //                      public
 
       // single model view
       single_model_view_current_model_number = 0; // all models
+
+      // need to test for moltris too, I guess
+#ifdef HAVE_CXX11
+      molrepinst = 0;
+#endif // HAVE_CXX11
+      
    }
 
    int handle_read_draw_molecule(int imol_no_in,
@@ -3065,6 +3082,11 @@ public:        //                      public
    void reduce(coot::protein_geometry *geom_p);
 
    std::pair<std::vector<clipper::Coord_orth>, std::vector<std::pair<unsigned int, unsigned int> > > get_contours(float contour_level, float radius, const coot::Cartesian &centre) const;
+
+#ifdef HAVE_CXX11
+   MolecularRepresentationInstance *molrepinst;
+   void make_molecularrepresentationinstance();
+#endif   
 
 };
 

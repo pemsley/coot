@@ -390,7 +390,7 @@ int test_function(int i, int j) {
 #include <CXXClasses/RendererGL.h>
 #include <CXXClasses/Light.h>
 #include <CXXClasses/Camera.h>
-#include <CXXClasses/CameraPort.h>
+// #include <CXXClasses/CameraPort.h>
 #include <CXXClasses/SceneSetup.h>
 #include <CXXClasses/ColorScheme.h>
 #include <CXXClasses/MyMolecule.h>
@@ -404,6 +404,13 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
    SCM r = SCM_BOOL_F;
 
    if (true) {
+      int imol = scm_to_int(i_scm);
+      if (is_valid_model_molecule(imol)) {
+	 graphics_info_t::molecules[imol].make_molecularrepresentationinstance();
+      }
+   }
+
+   if (false) {
       mmdb::Manager *mol = new mmdb::Manager;
       mol->ReadPDBASCII("test.pdb");
       MyMolecule mymol(mol);
@@ -428,13 +435,13 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       sceneSetup->addCamera(camera);
       camera->setSceneSetup(sceneSetup);
       sceneSetup->addRepresentationInstance(inst1);
-      CXXCoord<CXXCoord_ftype> c = myMolecule->getCentre();
-      CXXCoord<CXXCoord_ftype> minusC = c * -1.;
+      CXXCoord<float> c = myMolecule->getCentre();
+      CXXCoord<float> minusC = c * -1.;
       std::cout << minusC;
       sceneSetup->setTranslation(minusC);
-      CameraPort *cameraPort = new CameraPort;
-      cameraPort->setCamera(camera);
-      cameraPort->setRendererGL(renderer);
+      // CameraPort *cameraPort = new CameraPort;
+      // cameraPort->setCamera(camera);
+      // cameraPort->setRenderer(renderer);
       // cameraPort->runLoop("Message"); hangs (not surprising)
 
    }

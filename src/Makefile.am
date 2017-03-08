@@ -398,6 +398,7 @@ coot_bin_SOURCES = \
 	molecule-class-info-surface.cc 	\
 	molecule-class-info-patterson.cc \
 	molecule-class-info-ncs.cc 	\
+	molecule-class-info-mol-tris.cc 	\
 	molecule-class-info-widget-work.cc \
 	mtz-column-auto-read.hh  \
 	named-rotamer-score.hh   \
