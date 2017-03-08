@@ -289,6 +289,7 @@ coot::wligand::install_simple_wiggly_ligands(coot::protein_geometry *pg,
 }
 
 // can throw a std::runtime_error
+//
 coot::installed_wiggly_ligand_info_t
 coot::wligand::install_simple_wiggly_ligand(protein_geometry *pg,
 					    const minimol::molecule &ligand_in,

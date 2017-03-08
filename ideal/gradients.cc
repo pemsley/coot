@@ -383,21 +383,28 @@ coot::my_df_non_bonded_single(const gsl_vector *v,
    }
 }
 
+#ifdef HAVE_CXX_THREAD
 void
-coot::my_df_non_bonded_thread_dispatcher(const gsl_vector *v,
+coot::my_df_non_bonded_thread_dispatcher(int thread_idx,
+					 const gsl_vector *v,
 					 gsl_vector *df,
 					 restraints_container_t *restraints_p,
 					 int idx_start,
-					 int idx_end) {
+					 int idx_end,
+					 std::atomic<unsigned int> &done_count_for_threads) {
 
-   // std::cout << "my_df_non_bonded_thread_dispatcher() start " << idx_start << " " << idx_end << std::endl;
+   // std::cout << "my_df_non_bonded_thread_dispatcher() start " << idx_start << " " << idx_end
+   // << std::endl;
    for (int i=idx_start; i<idx_end; i++) {
-      // std::cout << "dispatching i " << i << " in range " << idx_start << " to " << idx_end << std::endl;
+      // std::cout << "dispatching i " << i << " in range " << idx_start << " to " << idx_end
+      // << std::endl;
       const simple_restraint &this_restraint = (*restraints_p)[i];
       if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT)
 	 my_df_non_bonded_single(v, df, this_restraint);
    }
+   done_count_for_threads++;
 }
+#endif // HAVE_CXX_THREAD
 
 void
 coot::my_df_non_bonded(const  gsl_vector *v, 
@@ -412,7 +419,7 @@ coot::my_df_non_bonded(const  gsl_vector *v,
    
    // first extract the object from params 
    //
-   restraints_container_t *restraints = static_cast<restraints_container_t *>(params);
+   restraints_container_t *restraints_p = static_cast<restraints_container_t *>(params);
 
    // the length of gsl_vector should be equal to n_var: 
    // 
@@ -421,31 +428,48 @@ coot::my_df_non_bonded(const  gsl_vector *v,
    int idx; 
    int n_non_bonded_restr = 0; // debugging counter
 
-   if (restraints->restraints_usage_flag & coot::NON_BONDED_MASK) { 
+   if (restraints_p->restraints_usage_flag & coot::NON_BONDED_MASK) { 
 
-      unsigned int restraints_size = restraints->size();
+      unsigned int restraints_size = restraints_p->size();
 
 
 #ifdef HAVE_CXX_THREAD
 
-      unsigned int n_threads = get_max_number_of_threads();
-      std::vector<std::thread> threads;
-      unsigned int n_per_thread = restraints_size/n_threads;
+      std::atomic<unsigned int> done_count_for_threads(0); // updated by my_df_non_bonded_thread_dispatcher
 
-      for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
-	 int idx_start = i_thread * n_per_thread;
-	 int idx_end   = idx_start + n_per_thread;
-	 // for the last thread, set the end atom index
-	 if (i_thread == (n_threads - 1))
-	    idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
-	 threads.push_back(std::thread(my_df_non_bonded_thread_dispatcher, v, df, restraints, idx_start, idx_end));
+      if (restraints_p->thread_pool_p) {
+	 // if (false) {
+	 unsigned int n_per_thread = restraints_size/restraints_p->n_threads;
+
+	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
+	    int idx_start = i_thread * n_per_thread;
+	    int idx_end   = idx_start + n_per_thread;
+	    // for the last thread, set the end atom index
+	    if (i_thread == (restraints_p->n_threads - 1))
+	       idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
+
+	    restraints_p->thread_pool_p->push(my_df_non_bonded_thread_dispatcher,
+					      v, df, restraints_p, idx_start, idx_end,
+					      std::ref(done_count_for_threads));
+
+	 }
+	 // restraints->thread_pool_p->stop(true); // wait
+	 while (done_count_for_threads != restraints_p->n_threads) {
+	    std::this_thread::sleep_for(std::chrono::microseconds(1));
+	 }
+	 
+      } else {
+	 for (unsigned int i=0; i<restraints_size; i++) {
+	    const simple_restraint &this_restraint = (*restraints_p)[i];
+	    if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+	       my_df_non_bonded_single(v, df, this_restraint);
+	    }
+	 }
       }
-      for (unsigned int i_thread=0; i_thread<n_threads; i_thread++)
-	 threads.at(i_thread).join();
 
 #else
       for (unsigned int i=0; i<restraints_size; i++) {
-	 const simple_restraint &this_restraint = (*restraints)[i];
+	 const simple_restraint &this_restraint = (*restraints_p)[i];
 	 if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
 	    my_df_non_bonded_single(v, df, this_restraint);
 	 }
@@ -545,7 +569,6 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
 		  *gsl_vector_ptr(df, idx  ) += x_k_contrib;
 		  *gsl_vector_ptr(df, idx+1) += y_k_contrib;
 		  *gsl_vector_ptr(df, idx+2) += z_k_contrib;
-		  
 	       }
 
 	       if (! rest.fixed_atom_flags[1]) { 
@@ -1437,11 +1460,9 @@ coot::my_df_planes(const gsl_vector *v,
 					       2.0 * weight * devi_len * plane_info.abcd[1],
 					       2.0 * weight * devi_len * plane_info.abcd[2]);
 
-		  if (!(*restraints)[i].fixed_atom_flags[j]) { 
-		     gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + d.dx());
-		     gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + d.dy());
-		     gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + d.dz());
-		  }
+		  *gsl_vector_ptr(df, idx  ) += d.dx();
+		  *gsl_vector_ptr(df, idx+1) += d.dy();
+		  *gsl_vector_ptr(df, idx+2) += d.dz();
 	       }
 	    }
 	 }
@@ -1477,6 +1498,8 @@ coot::my_df_parallel_planes(const gsl_vector *v,
 	    // first plane
 	    unsigned int n_plane_atoms = ppr.plane_atom_index.size();
 	    double weight = 1/(ppr.sigma * ppr.sigma);
+	    // hack the weight - needs a better fix than this
+	    weight *= 8.0;
 	    for (unsigned int j=0; j<n_plane_atoms; j++) {
 	       if (! ppr.fixed_atom_flags[j] ) { 
 		  idx = 3*ppr.plane_atom_index[j].first;

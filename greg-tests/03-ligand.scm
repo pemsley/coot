@@ -358,44 +358,80 @@
 (greg-testcase "Pyrogen Runs OK?"  #t
    (lambda ()
 
-     ;; bad things may well happen if we run the wrong version of pyrogen.
-     ;; so force pyrogen to be the one that is installed alongside this version of coot 
-     ;; that we are running. We do that by manipulation of pkglibdir (which points to xxx/lib/guile)
-     ;; 
-     (let* ((p (cdr (assoc 'pkglibdir %guile-build-info)))
-	    (lib-dir (file-name-directory p))
-	    (prefix-dir (append-dir-dir lib-dir ".."))
-	    (bin-dir (append-dir-dir prefix-dir "bin"))
-	    (pyrogen-bin (append-dir-file bin-dir "pyrogen")))
+     (if (not (enhanced-ligand-coot?))
+	 #t ;; fake a pass
 
-       (let ((smiles "C1CNC1")
-	     (tlc-text "XXX")
-	     (log-file-name "pyrogen.log"))
+	 ;; bad things may well happen if we run the wrong version of pyrogen.
+	 ;; so force pyrogen to be the one that is installed alongside this version of coot 
+	 ;; that we are running. We do that by manipulation of pkglibdir (which points to xxx/lib/guile)
+	 ;;
+	 (let* ((p (cdr (assoc 'pkglibdir %guile-build-info)))
+		(lib-dir (file-name-directory p))
+		(prefix-dir (append-dir-dir lib-dir ".."))
+		(bin-dir (append-dir-dir prefix-dir "bin"))
+		(pyrogen-bin (append-dir-file bin-dir "pyrogen")))
 
-	 (if (not (enhanced-ligand-coot?))
+	   (let ((smiles "C1CNC1")
+		 (tlc-text "XXX")
+		 (log-file-name "pyrogen.log"))
 
-	     #t ;; don't test pyrogen
+	     (if (not (enhanced-ligand-coot?))
 
-	     (let ((goosh-status
-		    (goosh-command
-		     pyrogen-bin
-		     (if *use-mogul*
-			 (list "--residue-type" tlc-text smiles)
-			 (if (command-in-path? "mogul")
-			     (list                   "--residue-type" tlc-text smiles)
-			     (list "--no-mogul" "-M" "--residue-type" tlc-text smiles)))
-		     '() log-file-name #t)))
-	       (if (not (ok-goosh-status? goosh-status))
-		   (begin
-		     (format #t "WARNING:: OOps - pyrogen exited with status: ~s~%~!" goosh-status)
-		     #f)
-		   (begin
-		     (let* ((pdb-file-name (string-append tlc-text "-pyrogen.pdb"))
-			    (cif-file-name (string-append tlc-text "-pyrogen.cif"))
-			    (imol (handle-read-draw-molecule-with-recentre pdb-file-name 0)))
+		 #t ;; don't test pyrogen
 
-		       (format #t "INFO:: pyrogen test will try to read ~s~%~!" pdb-file-name)
-		       ;; add test for chirality in the dictionary here 
-		       (valid-model-molecule? imol))))))))))
+		 (let ((goosh-status
+			(goosh-command
+			 pyrogen-bin
+			 (if *use-mogul*
+			     (list "--residue-type" tlc-text smiles)
+			     (if (command-in-path? "mogul")
+				 (list                   "--residue-type" tlc-text smiles)
+				 (list "--no-mogul" "-M" "--residue-type" tlc-text smiles)))
+			 '() log-file-name #t)))
+		   (if (not (ok-goosh-status? goosh-status))
+		       (begin
+			 (format #t "WARNING:: OOps - pyrogen exited with status: ~s~%~!" goosh-status)
+			 #f)
+		       (begin
+			 (let* ((pdb-file-name (string-append tlc-text "-pyrogen.pdb"))
+				(cif-file-name (string-append tlc-text "-pyrogen.cif"))
+				(imol (handle-read-draw-molecule-with-recentre pdb-file-name 0)))
 
+			   (format #t "INFO:: pyrogen test will try to read ~s~%~!" pdb-file-name)
+			   ;; add test for chirality in the dictionary here 
+			   (valid-model-molecule? imol)))))))))))
+
+
+
+(greg-testcase "pyrogen dictionary does not make double-quoted atom names" #t
+   (lambda ()
+
+     (if (not (enhanced-ligand-coot?))
+	 #t ;; fake a pass
+	 (let ((goosh-status (goosh-command
+			      "pyrogen"
+			      (list "-nM" "-r" "UVP"
+				    "CO[C@@H]1[C@H](O)[C@H](O[C@H]1[n+]1ccc(O)nc1O)\\C=C\\P(O)(O)=O")
+			      '()
+			      "pyrogen.log" #f)))
+	   (if (not (ok-goosh-status? goosh-status))
+	       (begin
+		 (format #t "Fail to correctly run pyrogen\n"))
+	       (begin
+		 (read-cif-dictionary "UVP-pyrogen.cif")
+		 (let ((imol (get-monomer "UVP")))
+		   (if (not (valid-model-molecule? imol))
+		       (begin
+			 (format #t "Fail to load molecule from pyrogen dictionary\n"))
+		       (let ((atoms-info (residue-info imol "A" 1 ""))
+			     (passes #t))
+			 (for-each (lambda(atom)
+				     (let ((atom-name (residue-atom->atom-name atom)))
+				       ;; (format #t "Atom name ~s~%" atom-name)
+				       (if (string-match "\"" atom-name)
+					   (begin
+                                             (format #t "Atom name quote fail ~s~%" atom-name)
+                                             (set! passes #f)))))
+				   atoms-info)
+			 passes)))))))))
 
