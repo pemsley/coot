@@ -31,6 +31,8 @@
 
   o BUG-FIX: Use XYP not XYL for carbohydrate tree additions
 
+  o BUG-FIX: Peptide Omega validation graph tool-tip label corrected [Nigel Moriarty]
+
   o BUG-FIX: Restore missing waters in FLEV
 
   o BUG-FIX: Fix crash on conformer search with no dictionary [JED]
