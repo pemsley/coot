@@ -2261,15 +2261,15 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 		  
       if (i_no_res_atoms > 0) {
 
-	 if (restraints_usage_flag & BONDS)
+	 if (restraints_usage_flag & BONDS_MASK)
 	    local.n_bond_restraints += add_bonds(idr, res_selection, i_no_res_atoms,
 						 residue_p, geom);
 	    
-	 if (restraints_usage_flag & ANGLES)
+	 if (restraints_usage_flag & ANGLES_MASK)
 	    local.n_angle_restraints += add_angles(idr, res_selection, i_no_res_atoms,
 						   residue_p, geom);
 
-	 if (restraints_usage_flag & TORSIONS) {
+	 if (restraints_usage_flag & TORSIONS_MASK) {
 	    if (do_residue_internal_torsions) {
 	       std::cout << "   torsions... " << std::endl;
 	       std::string residue_type = residue_p->GetResName();
@@ -2279,11 +2279,11 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 	    }
 	 }
 
-	 if (restraints_usage_flag & PLANES)
+	 if (restraints_usage_flag & PLANES_MASK)
 	    local.n_plane_restraints += add_planes(idr, res_selection, i_no_res_atoms,
 						   residue_p, geom);
 
-	 if (restraints_usage_flag & CHIRAL_VOLUMES)
+	 if (restraints_usage_flag & CHIRAL_VOLUME_MASK)
 	    local.n_chiral_restr += add_chirals(idr, res_selection, i_no_res_atoms, 
 						residue_p, geom);
 
