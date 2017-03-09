@@ -165,3 +165,54 @@ int get_monomer_from_dictionary(const std::string &comp_id,
    }
    return istat;
 }
+
+
+int get_monomer_for_molecule_by_index(int dict_idx, int imol_enc) {
+
+   graphics_info_t g;
+   int imol = -1;
+
+   std::cout << "::::::::::: get molecule by index " << dict_idx << " " << imol_enc
+	     << std::endl;
+
+   int idealised_flag = true;
+   mmdb::Manager *mol = g.Geom_p()->mol_from_dictionary(dict_idx, imol_enc, idealised_flag);
+   if (mol) {
+      imol = graphics_info_t::create_molecule();
+      atom_selection_container_t asc = make_asc(mol);
+      std::string name;
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (! model_p) {
+	 std::cout << "Null model" << std::endl;
+      } else { 
+	 mmdb::Chain *chain_p;
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    chain_p = model_p->GetChain(ichain);
+	    if (! chain_p) {
+	       std::cout << "Null chain" << std::endl;
+	    } else { 
+	       int nres = chain_p->GetNumberOfResidues();
+	       mmdb::Residue *residue_p;
+	       mmdb::Atom *at;
+	       for (int ires=0; ires<nres; ires++) { 
+		  residue_p = chain_p->GetResidue(ires);
+		  name = residue_p->GetResName();
+		  break;
+	       }
+	    }
+	    if (! name.empty())
+	       break;
+	 }
+      }
+      
+      name += "_from_dict";
+      graphics_info_t::molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1);
+      move_molecule_to_screen_centre_internal(imol);
+      graphics_draw();
+   }
+
+   return imol;
+
+}

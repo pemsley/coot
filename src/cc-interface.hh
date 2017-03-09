@@ -947,7 +947,7 @@ void add_animated_ligand_interaction(int imol, const coot::fle_ligand_bond_t &lb
 /*  ----------------------------------------------------------------------- */
 /*                  Cootaneer                                               */
 /*  ----------------------------------------------------------------------- */
-int cootaneer_internal(int imol_map, int imol_model, coot::atom_spec_t &atom_spec);
+int cootaneer_internal(int imol_map, int imol_model, const coot::atom_spec_t &atom_spec);
 
 #ifdef USE_GUILE
 //! \name Dock Sidechains
@@ -1241,6 +1241,21 @@ PyObject *link_info_py(int imol);
 //! \brief handle the string that get when a file or URL is dropped.
 int handle_drag_and_drop_string(const std::string &uri);
 // \}
+
+
+/* ------------------------------------------------------------------------- */
+/*                      Map Contours                                         */
+/* ------------------------------------------------------------------------- */
+
+#ifdef USE_PYTHON
+/*! \name Map Contouring */
+// \{
+//! \brief return two lists: a list of vertices and a list of indices for connection
+PyObject *map_contours(int imol, float contour_level);
+// \}
+#endif // USE_PYTHON
+
+
 
 /* ------------------------------------------------------------------------- */
 /*                      correlation maps                                     */

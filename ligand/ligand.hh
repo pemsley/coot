@@ -431,7 +431,8 @@ namespace coot {
 				  std::string phi_col,
 				  std::string weight_col,
 				  short int use_weights,
-				  short int is_diff_map);
+				  short int is_diff_map,
+				  float map_sampling_rate=1.5);
 
       // This is a console/testing function.  Use instead mask_map()
       // in a real graphics program (mask_by_atoms runs mask_map).
@@ -480,7 +481,7 @@ namespace coot {
       void find_centre_by_ligand_internal(int ilig); 
       
       void output_centres(); 
-      void print_cluster_details() const; 
+      void print_cluster_details(bool print_grid_points_flag=false) const; 
       clipper::Map_stats map_statistics();
       
       // a check for writability is made.

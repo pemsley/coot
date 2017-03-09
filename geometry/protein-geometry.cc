@@ -159,14 +159,6 @@ coot::protein_geometry::matches_imol(int imol_dict, int imol_enc) const {
 }
 
 
-coot::basic_dict_restraint_t::basic_dict_restraint_t(const std::string &at1,
-						     const std::string &at2) {
-
-   atom_id_1_ = at1;
-   atom_id_2_ = at2;
-}
-
-
 // for mmdb::math::Graph mmdb::math::Edge usage
 //
 // if the bond type is "deloc" then return a single bond.  This
@@ -2268,6 +2260,12 @@ coot::protein_geometry::filter_torsion_restraints(const std::vector <coot::dict_
 	 r.push_back(restraints_in[i]);
    }
 
+
+   // why do we crash (on the mac) in the following sort?
+   //
+   // for (unsigned int i=0; i<restraints_in.size(); i++)
+   // std::cout << " filter_torsion_restraints(): " << restraints_in[i] << std::endl;
+   //
    std::sort(r.begin(), r.end(), torsion_restraints_comparer);
    return r;
 }
@@ -2276,21 +2274,26 @@ coot::protein_geometry::filter_torsion_restraints(const std::vector <coot::dict_
 bool
 coot::protein_geometry::torsion_restraints_comparer(const coot::dict_torsion_restraint_t &a, const coot::dict_torsion_restraint_t &b) {
    
-      std::string a2 = a.atom_id_2_4c();
-      std::string a3 = a.atom_id_3_4c();
-      std::string b2 = b.atom_id_2_4c();
-      std::string b3 = b.atom_id_3_4c();
+//    const std::string &a2 = a.atom_id_2_4c();
+//    const std::string &a3 = a.atom_id_3_4c();
+//    const std::string &b2 = b.atom_id_2_4c();
+//    const std::string &b3 = b.atom_id_3_4c();
 
-      if (a2 < b2)
-	 return 0;
+   const std::string &a2 = a.atom_id_2();
+   const std::string &a3 = a.atom_id_3();
+   const std::string &b2 = b.atom_id_2();
+   const std::string &b3 = b.atom_id_3();
+
+   if (a2 < b2)
+      return false;
+   else
+      if (a2 > b2)
+	 return true;
       else
-	 if (a2 > b2)
-	    return 1;
-	 else
-	    if (a3 < b3)
-	       return 0;
+	 if (a3 < b3)
+	    return false;
 
-      return 1;
+   return true;
 }
 
 
@@ -3950,6 +3953,38 @@ coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code
    }
    return mol;
 }
+
+mmdb::Manager *
+coot::protein_geometry::mol_from_dictionary(int monomer_index,
+					    int imol_enc,
+					    bool idealised_flag) {
+
+   mmdb::Manager *mol = NULL;
+   mmdb::Residue *residue_p = 0;
+   float b_factor = 30.0;
+   int r_size = dict_res_restraints.size();
+
+   if (monomer_index >= 0)
+      if (monomer_index < r_size)
+	 residue_p = dict_res_restraints[monomer_index].second.GetResidue(idealised_flag, b_factor);
+
+   if (residue_p) { 
+      mmdb::Chain *chain_p = new mmdb::Chain;
+      chain_p->SetChainID("A");
+      chain_p->AddResidue(residue_p);
+      mmdb::Model *model_p = new mmdb::Model;
+      model_p->AddChain(chain_p);
+      mol = new mmdb::Manager;
+      mol->AddModel(model_p);
+   } else {
+      std::cout << "WARNING:: Null residue in mol_from_dictionary() for idx "
+		<< monomer_index << std::endl;
+   }
+
+   std::cout << "DEBUG:: mol_from_dictionary() returns " << mol << std::endl;
+   return mol;
+}
+
 
 void
 coot::protein_geometry::print_chem_links() const {

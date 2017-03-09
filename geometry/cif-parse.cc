@@ -143,7 +143,6 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	 cs += " reason:";
 	 cs += mmdb::mmcif::GetCIFMessage (err_buff, ierr);
 	 rmit.error_messages.push_back(cs);
-	 
 
       } else {
 	 if (verbose_mode)
@@ -273,7 +272,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		     for (unsigned int ichir=0; ichir<chirals.second.size(); ichir++)
 			comp_ids_for_chirals.push_back(chirals.second[ichir]);
 		  }
-               
+
 		  // plane
 		  if (cat_name == "_chem_comp_plane_atom")
 		     comp_plane(mmCIFLoop, imol_enc);
@@ -296,8 +295,15 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	 std::cout << "returning with comp_id_1 " << comp_id_1
 		   << " comp_id_2 " << comp_id_2 << std::endl;
 
-      if (! comp_id_1.empty()) comp_ids.push_back(comp_id_1);
-      if (! comp_id_2.empty()) comp_ids.push_back(comp_id_2);
+      bool allow_minimal_flag = true;
+      if (! comp_id_1.empty()) {
+	 comp_ids.push_back(comp_id_1);
+	 rmit.monomer_idx = get_monomer_restraints_index(comp_id_1, imol_enc, allow_minimal_flag);
+      }
+      if (! comp_id_2.empty()) {
+	 comp_ids.push_back(comp_id_2);
+	 rmit.monomer_idx = get_monomer_restraints_index(comp_id_2, imol_enc, allow_minimal_flag);
+      }
    } // is regular file test
 
    // debug_mods();
@@ -3168,9 +3174,9 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       const dict_atom &ai = atom_info[i];
 	       const char *ss =  residue_info.comp_id.c_str();
 	       mmCIFLoop->PutString(ss, "comp_id", i);
-	       ss = util::remove_whitespace(ai.atom_id).c_str();
-	       std::string qan = quoted_atom_name(ss);
-	       mmCIFLoop->PutString(qan.c_str(), "atom_id", i);
+	       std::string annw = util::remove_whitespace(ai.atom_id).c_str();
+	       std::string qan = quoted_atom_name(annw);
+	       mmCIFLoop->PutString(annw.c_str(), "atom_id", i);
 	       std::string up_type_symbol = util::upcase(atom_info[i].type_symbol);
 	       ss = up_type_symbol.c_str();
 	       mmCIFLoop->PutString(ss, "type_symbol", i);
@@ -3212,9 +3218,9 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       std::string qan_1 = quoted_atom_name(id_1);
 	       std::string qan_2 = quoted_atom_name(id_2);
 	       ss = qan_1.c_str();
-	       mmCIFLoop->PutString(ss, "atom_id_1", i);
+	       mmCIFLoop->PutString(id_1.c_str(), "atom_id_1", i);
 	       ss = qan_2.c_str();
-	       mmCIFLoop->PutString(ss, "atom_id_2", i);
+	       mmCIFLoop->PutString(id_2.c_str(), "atom_id_2", i);
 	       ss = bond_restraint[i].type().c_str();
 	       mmCIFLoop->PutString(ss, "type", i);
 	       try {
@@ -3247,16 +3253,16 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       const char *ss = residue_info.comp_id.c_str();
 	       mmCIFLoop->PutString(ss, "comp_id", i);
 	       ss = qan_1.c_str();
-	       mmCIFLoop->PutString(ss, "atom_id_1", i);
+	       mmCIFLoop->PutString(id_1.c_str(), "atom_id_1", i);
 	       ss = qan_2.c_str();
-	       mmCIFLoop->PutString(ss, "atom_id_2", i);
+	       mmCIFLoop->PutString(id_2.c_str(), "atom_id_2", i);
 
 	       // bug fix(!) intermediate value my_ss clears up casting
 	       // problem (inheritance-related?) on writing.
-	       std::string my_ss = util::remove_whitespace(angle_restraint[i].atom_id_3_4c());
-	       std::string qan_3 = quoted_atom_name(my_ss);
-	       ss = qan_3.c_str();
-	       mmCIFLoop->PutString(ss, "atom_id_3", i);
+	       std::string id_3 = util::remove_whitespace(angle_restraint[i].atom_id_3_4c());
+	       // 20170305 std::string qan_3 = quoted_atom_name(my_ss);
+	       // ss = qan_3.c_str();
+	       mmCIFLoop->PutString(id_3.c_str(), "atom_id_3", i);
 	       
 	       float v = angle_restraint[i].angle();
 	       mmCIFLoop->PutReal(v, "value_angle", i, 5);
@@ -3287,13 +3293,13 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       ss = torsion_restraint[i].id().c_str();
 	       mmCIFLoop->PutString(ss, "id", i);
 	       ss = qan_1.c_str();
-	       mmCIFLoop->PutString(ss, "atom_id_1", i);
+	       mmCIFLoop->PutString(id_1.c_str(), "atom_id_1", i);
 	       ss = qan_2.c_str();
-	       mmCIFLoop->PutString(ss, "atom_id_2", i);
+	       mmCIFLoop->PutString(id_2.c_str(), "atom_id_2", i);
 	       ss = qan_3.c_str();
-	       mmCIFLoop->PutString(ss, "atom_id_3", i);
+	       mmCIFLoop->PutString(id_3.c_str(), "atom_id_3", i);
 	       ss = qan_4.c_str();
-	       mmCIFLoop->PutString(ss, "atom_id_4", i);
+	       mmCIFLoop->PutString(id_4.c_str(), "atom_id_4", i);
 	       float v = torsion_restraint[i].angle();
 	       mmCIFLoop->PutReal(v, "value_angle", i, 5);
 	       v = torsion_restraint[i].esd();
@@ -3325,13 +3331,13 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 	       ss = chiral_restraint[i].Chiral_Id().c_str();
 	       mmCIFLoop->PutString(ss, "id", i);
 	       ss = qan_c.c_str();
-	       mmCIFLoop->PutString(ss, "atom_id_centre", i);
+	       mmCIFLoop->PutString(id_c.c_str(), "atom_id_centre", i);
 	       ss = qan_1.c_str();
-	       mmCIFLoop->PutString(ss, "atom_id_1", i);
+	       mmCIFLoop->PutString(id_1.c_str(), "atom_id_1", i);
 	       ss = qan_2.c_str();
-	       mmCIFLoop->PutString(ss, "atom_id_2", i);
+	       mmCIFLoop->PutString(id_2.c_str(), "atom_id_2", i);
 	       ss = qan_3.c_str();
-	       mmCIFLoop->PutString(ss, "atom_id_3", i);
+	       mmCIFLoop->PutString(id_3.c_str(), "atom_id_3", i);
 	       int sign = chiral_restraint[i].volume_sign;
 	       ss = "both";
 	       if (sign == 1)
@@ -3360,7 +3366,7 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
 		  std::string id = util::remove_whitespace(plane_restraint[i].atom_id(iat));
 		  std::string qan = quoted_atom_name(id);
 		  ss = qan.c_str();
-		  mmCIFLoop->PutString(ss, "atom_id", icount);
+		  mmCIFLoop->PutString(id.c_str(), "atom_id", icount);
 		  
 		  float v = plane_restraint[i].dist_esd(iat);
 		  mmCIFLoop->PutReal(v, "dist_esd", icount, 4);

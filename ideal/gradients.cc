@@ -21,12 +21,21 @@
  * 02110-1301, USA
  */
 
-#include <string.h> // for strcmp
-
+// #define ANALYSE_REFINEMENT_TIMING
 
 // we don't want to compile anything if we don't have gsl
 #ifdef HAVE_GSL
 
+#include <string.h> // for strcmp
+
+#ifdef ANALYSE_REFINEMENT_TIMING
+#include <sys/time.h> // for gettimeofday()
+#endif // ANALYSE_REFINEMENT_TIMING
+
+
+#ifdef HAVE_CXX_THREAD
+#include <thread>
+#endif
 
 #include <fstream>
 #include <algorithm> // for sort
@@ -88,6 +97,12 @@ void coot::my_df(const gsl_vector *v,
 		 void *params, 
 		 gsl_vector *df) {
 
+#ifdef ANALYSE_REFINEMENT_TIMING
+   timeval start_time;
+   timeval current_time;
+   gettimeofday(&start_time, NULL);
+#endif // ANALYSE_REFINEMENT_TIMING
+
    // first extract the object from params 
    //
    coot::restraints_container_t *restraints =
@@ -119,12 +134,20 @@ void coot::my_df(const gsl_vector *v,
    if (restraints->do_numerical_gradients_status())
       coot::numerical_gradients((gsl_vector *)v, params, df); 
 
+#ifdef ANALYSE_REFINEMENT_TIMING
+   gettimeofday(&current_time, NULL);
+   double td = current_time.tv_sec - start_time.tv_sec;
+   td *= 1000.0;
+   td += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
+   std::cout << "------------- mark my_df: " << td << std::endl;
+#endif // ANALYSE_REFINEMENT_TIMING
+
 }
    
 /* The gradients of f, df = (df/dx(k), df/dy(k) .. df/dx(l) .. ). */
-void coot::my_df_bonds (const gsl_vector *v, 
-			void *params,
-			gsl_vector *df) {
+void coot::my_df_bonds(const gsl_vector *v,
+		       void *params,
+		       gsl_vector *df) {
 
    // first extract the object from params 
    //
@@ -160,8 +183,8 @@ void coot::my_df_bonds (const gsl_vector *v,
       double y_l_contrib;
       double z_l_contrib;
 
-      for (int i=0; i<restraints->size(); i++) {
-       
+      for (unsigned int i=restraints->restraints_limits_bonds.first; i<=restraints->restraints_limits_bonds.second; i++) {
+
 	 if ( (*restraints)[i].restraint_type == coot::BOND_RESTRAINT) { 
 
 // 	    std::cout << "DEBUG bond restraint fixed flags: "
@@ -280,133 +303,188 @@ void coot::my_df_bonds (const gsl_vector *v,
    }
 }
 
+// the calling function makes sure that this_restraint is a non-bonded contact restraint
+//
+void
+coot::my_df_non_bonded_single(const gsl_vector *v,
+			      gsl_vector *df,
+			      const simple_restraint &this_restraint) {
+
+   // pass const restraints_container_t &restraints to debug atoms
+
+   const double &target_val = this_restraint.target_value;
+
+   int idx_1 = 3*this_restraint.atom_index_1;
+   int idx_2 = 3*this_restraint.atom_index_2;
+
+   // check for both-ways nbcs (seems OK)
+   //
+   // std::cout << "nbc: idx_1 " << idx_1 << " idx_2 " << idx_2 << std::endl;
+
+   clipper::Coord_orth a1(gsl_vector_get(v,idx_1),
+			  gsl_vector_get(v,idx_1+1),
+			  gsl_vector_get(v,idx_1+2));
+
+   clipper::Coord_orth a2(gsl_vector_get(v,idx_2),
+			  gsl_vector_get(v,idx_2+1),
+			  gsl_vector_get(v,idx_2+2));
+
+   double b_i_sqrd;
+   double weight;
+   double x_k_contrib;
+   double y_k_contrib;
+   double z_k_contrib;
+
+   double x_l_contrib;
+   double y_l_contrib;
+   double z_l_contrib;
+
+   b_i_sqrd = (a1-a2).lengthsq();
+
+   if (b_i_sqrd < this_restraint.target_value * this_restraint.target_value) {
+
+      weight = 1.0/(this_restraint.sigma * this_restraint.sigma);
+
+      double b_i = sqrt(b_i_sqrd);
+      // b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
+      double constant_part = 2.0*weight * (1 - target_val * f_inv_fsqrt(b_i_sqrd));
+
+      x_k_contrib = constant_part*(a1.x()-a2.x());
+      y_k_contrib = constant_part*(a1.y()-a2.y());
+      z_k_contrib = constant_part*(a1.z()-a2.z());
+
+      x_l_contrib = constant_part*(a2.x()-a1.x());
+      y_l_contrib = constant_part*(a2.y()-a1.y());
+      z_l_contrib = constant_part*(a2.z()-a1.z());
+
+      if (! this_restraint.fixed_atom_flags[0]) {
+	 idx_1 = 3*this_restraint.atom_index_1;
+
+// 	 std::cout << "df: " << this_restraint.atom_index_1 << " " << this_restraint.atom_index_2 << " "
+// 		   << x_k_contrib << " " << y_k_contrib << " " << z_k_contrib << " "
+// 		   << restraints.get_atom_spec(this_restraint.atom_index_1) << " " 
+// 		   << restraints.get_atom_spec(this_restraint.atom_index_2) << std::endl;
+
+ 	 *gsl_vector_ptr(df, idx_1  ) += x_k_contrib;
+ 	 *gsl_vector_ptr(df, idx_1+1) += y_k_contrib;
+ 	 *gsl_vector_ptr(df, idx_1+2) += z_k_contrib;
+      }
+
+      if (! this_restraint.fixed_atom_flags[1]) {
+	 idx_2 = 3*this_restraint.atom_index_2;
+
+// 	 std::cout << "df: " << this_restraint.atom_index_2 << " " << this_restraint.atom_index_1 << " "
+// 		   << x_l_contrib << " " << y_l_contrib << " " << z_l_contrib << std::endl;
+
+ 	 *gsl_vector_ptr(df, idx_2  ) += x_l_contrib;
+ 	 *gsl_vector_ptr(df, idx_2+1) += y_l_contrib;
+ 	 *gsl_vector_ptr(df, idx_2+2) += z_l_contrib;
+      }
+   }
+}
+
+#ifdef HAVE_CXX_THREAD
+void
+coot::my_df_non_bonded_thread_dispatcher(int thread_idx,
+					 const gsl_vector *v,
+					 gsl_vector *df,
+					 restraints_container_t *restraints_p,
+					 int idx_start,
+					 int idx_end,
+					 std::atomic<unsigned int> &done_count_for_threads) {
+
+   // std::cout << "my_df_non_bonded_thread_dispatcher() start " << idx_start << " " << idx_end
+   // << std::endl;
+   for (int i=idx_start; i<idx_end; i++) {
+      // std::cout << "dispatching i " << i << " in range " << idx_start << " to " << idx_end
+      // << std::endl;
+      const simple_restraint &this_restraint = (*restraints_p)[i];
+      if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT)
+	 my_df_non_bonded_single(v, df, this_restraint);
+   }
+   done_count_for_threads++;
+}
+#endif // HAVE_CXX_THREAD
+
 void
 coot::my_df_non_bonded(const  gsl_vector *v, 
 			void *params, 
 			gsl_vector *df) {
    
+#ifdef ANALYSE_REFINEMENT_TIMING
+   timeval start_time;
+   timeval current_time;
+   gettimeofday(&start_time, NULL);
+#endif // ANALYSE_REFINEMENT_TIMING
    
    // first extract the object from params 
    //
-   restraints_container_t *restraints = (restraints_container_t *)params; 
-   
+   restraints_container_t *restraints_p = static_cast<restraints_container_t *>(params);
+
    // the length of gsl_vector should be equal to n_var: 
    // 
    // int n_var = restraints->n_variables();
    // float derivative_value; 
    int idx; 
    int n_non_bonded_restr = 0; // debugging counter
-   
 
-   if (restraints->restraints_usage_flag & coot::NON_BONDED_MASK) { 
+   if (restraints_p->restraints_usage_flag & coot::NON_BONDED_MASK) { 
 
-      double target_val;
-      double b_i_sqrd;
-      double weight;
-      double x_k_contrib;
-      double y_k_contrib;
-      double z_k_contrib;
-      
-      double x_l_contrib;
-      double y_l_contrib;
-      double z_l_contrib;
+      unsigned int restraints_size = restraints_p->size();
 
-      int restraints_size = restraints->size();
 
-      for (int i=0; i< restraints_size; i++) {
+#ifdef HAVE_CXX_THREAD
 
-	 const simple_restraint &this_restraint = (*restraints)[i];
-      
-	 if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) { 
+      std::atomic<unsigned int> done_count_for_threads(0); // updated by my_df_non_bonded_thread_dispatcher
 
-	    n_non_bonded_restr++; 
-	    
-	    target_val = this_restraint.target_value;
-	    
-	    // what is the index of x_k?
-	    idx = 3*(this_restraint.atom_index_1);
+      if (restraints_p->thread_pool_p) {
+	 // if (false) {
+	 unsigned int n_per_thread = restraints_size/restraints_p->n_threads;
 
-	    clipper::Coord_orth a1(gsl_vector_get(v,idx), 
-				   gsl_vector_get(v,idx+1), 
-				   gsl_vector_get(v,idx+2));
-	    idx = 3*((*restraints)[i].atom_index_2); 
-	    clipper::Coord_orth a2(gsl_vector_get(v,idx), 
-				   gsl_vector_get(v,idx+1), 
-				   gsl_vector_get(v,idx+2));
+	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
+	    int idx_start = i_thread * n_per_thread;
+	    int idx_end   = idx_start + n_per_thread;
+	    // for the last thread, set the end atom index
+	    if (i_thread == (restraints_p->n_threads - 1))
+	       idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
 
-	    // what is b_i?
-	    // b_i = clipper::Coord_orth::length(a1,a2);
-	    b_i_sqrd = (a1-a2).lengthsq();
+	    restraints_p->thread_pool_p->push(my_df_non_bonded_thread_dispatcher,
+					      v, df, restraints_p, idx_start, idx_end,
+					      std::ref(done_count_for_threads));
 
-	    b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
-
-	    weight = 1.0/( this_restraint.sigma * this_restraint.sigma );
-
-	    if (b_i_sqrd < this_restraint.target_value * this_restraint.target_value) {
-
-	       double b_i = sqrt(b_i_sqrd);
-	       // double constant_part = 2.0*weight*(b_i - target_val)/b_i;
-	       double constant_part = 2.0*weight * (1 - target_val * f_inv_fsqrt(b_i_sqrd));
-	       
-	       x_k_contrib = constant_part*(a1.x()-a2.x());
-	       y_k_contrib = constant_part*(a1.y()-a2.y());
-	       z_k_contrib = constant_part*(a1.z()-a2.z());
-
-	       x_l_contrib = constant_part*(a2.x()-a1.x());
-	       y_l_contrib = constant_part*(a2.y()-a1.y());
-	       z_l_contrib = constant_part*(a2.z()-a1.z());
-
-	       if (! this_restraint.fixed_atom_flags[0]) { 
-		  idx = 3*((*restraints)[i].atom_index_1 - 0); 
-		  // std::cout << " nbc  first non-fixed  idx is " << idx << std::endl;
-		  
-		  *gsl_vector_ptr(df, idx  ) += x_k_contrib;
-		  *gsl_vector_ptr(df, idx+1) += y_k_contrib;
-		  *gsl_vector_ptr(df, idx+2) += z_k_contrib;
-		  
-	       } else {
-		  // debug
-		  if (0) {
-		     idx = 3*(this_restraint.atom_index_1 - 0); 
-		     std::cout << "NBC  Fixed atom[0] "
-			       << restraints->get_atom(this_restraint.atom_index_1)->GetSeqNum() << " " 
-			       << restraints->get_atom(this_restraint.atom_index_1)->name << " " 
-			       << ", Not adding " << x_k_contrib << " "
-			       << y_k_contrib << " "
-			       << z_k_contrib << " to "
-			       << gsl_vector_get(df, idx) << " "
-			       << gsl_vector_get(df, idx+1) << " "
-			       << gsl_vector_get(df, idx+2) << std::endl;
-		  }
-	       }
-
-	       if (! this_restraint.fixed_atom_flags[1]) { 
-		  idx = 3*(this_restraint.atom_index_2 - 0); 
-		  // std::cout << " nbc  second non-fixed idx is " << idx << std::endl;
-		  
-		  *gsl_vector_ptr(df, idx  ) += x_l_contrib;
-		  *gsl_vector_ptr(df, idx+1) += y_l_contrib;
-		  *gsl_vector_ptr(df, idx+2) += z_l_contrib;
-		  
-	       } else {
-		  // debug
-		  if (0) { 
-		     idx = 3*(this_restraint.atom_index_2 - 0); 
-		     std::cout << "NBC  Fixed atom[1] "
-			       << restraints->get_atom(this_restraint.atom_index_2)->GetSeqNum() << " " 
-			       << restraints->get_atom(this_restraint.atom_index_2)->name << " " 
-			       << ", Not adding " << x_k_contrib << " "
-			       << y_k_contrib << " "
-			       << z_k_contrib << " to "
-			       << gsl_vector_get(df, idx) << " "
-			       << gsl_vector_get(df, idx+1) << " "
-			       << gsl_vector_get(df, idx+2) << std::endl;
-		  }
-	       } 
+	 }
+	 // restraints->thread_pool_p->stop(true); // wait
+	 while (done_count_for_threads != restraints_p->n_threads) {
+	    std::this_thread::sleep_for(std::chrono::microseconds(1));
+	 }
+	 
+      } else {
+	 for (unsigned int i=0; i<restraints_size; i++) {
+	    const simple_restraint &this_restraint = (*restraints_p)[i];
+	    if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+	       my_df_non_bonded_single(v, df, this_restraint);
 	    }
 	 }
       }
+
+#else
+      for (unsigned int i=0; i<restraints_size; i++) {
+	 const simple_restraint &this_restraint = (*restraints_p)[i];
+	 if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
+	    my_df_non_bonded_single(v, df, this_restraint);
+	 }
+      }
+#endif
+
    }
+
+#ifdef ANALYSE_REFINEMENT_TIMING
+   gettimeofday(&current_time, NULL);
+   double td = current_time.tv_sec - start_time.tv_sec;
+   td *= 1000.0;
+   td += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
+   std::cout << "------------- mark my_df_non_bonded: " << td << std::endl;
+#endif // ANALYSE_REFINEMENT_TIMING
 }
 
 void
@@ -435,7 +513,7 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
       double y_l_contrib;
       double z_l_contrib;
 
-      for (int i=0; i<restraints->size(); i++) {
+      for (unsigned int i=restraints->restraints_limits_geman_mclure.first; i<=restraints->restraints_limits_geman_mclure.second; i++) {
 
 	 const simple_restraint &rest = (*restraints)[i];
       
@@ -491,7 +569,6 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
 		  *gsl_vector_ptr(df, idx  ) += x_k_contrib;
 		  *gsl_vector_ptr(df, idx+1) += y_k_contrib;
 		  *gsl_vector_ptr(df, idx+2) += z_k_contrib;
-		  
 	       }
 
 	       if (! rest.fixed_atom_flags[1]) { 
@@ -563,7 +640,7 @@ void coot::my_df_angles(const gsl_vector *v,
       double ds_dth;
       double w_ds_dth;
 
-      for (int i=0; i<restraints->size(); i++) {
+      for (unsigned int i=restraints->restraints_limits_angles.first; i<=restraints->restraints_limits_angles.second; i++) {
       
 	 if ( (*restraints)[i].restraint_type == coot::ANGLE_RESTRAINT) {
 
@@ -879,7 +956,7 @@ void coot::my_df_torsions_internal(const gsl_vector *v,
 
    if (restraints->restraints_usage_flag & coot::TORSIONS_MASK) { 
      
-      for (int i=0; i<restraints->size(); i++) {
+      for (unsigned int i=restraints->restraints_limits_torsions.first; i<=restraints->restraints_limits_torsions.second; i++) {
       
 	 if ( (*restraints)[i].restraint_type == coot::TORSION_RESTRAINT) {
 
@@ -1236,9 +1313,8 @@ coot::my_df_chiral_vol(const gsl_vector *v, void *params, gsl_vector *df) {
    double distortion;
    
    if (restraints->restraints_usage_flag & coot::CHIRAL_VOLUME_MASK) {
-      // if (0) {
       
-      for (int i=0; i<restraints->size(); i++) {
+      for (unsigned int i=restraints->restraints_limits_chirals.first; i<=restraints->restraints_limits_chirals.second; i++) {
 	 
 	 if ( (*restraints)[i].restraint_type == coot::CHIRAL_VOLUME_RESTRAINT) {
 
@@ -1360,7 +1436,7 @@ coot::my_df_planes(const gsl_vector *v,
       double devi_len;
       double weight;
 
-      for (int i=0; i<restraints->size(); i++) {
+      for (unsigned int i=restraints->restraints_limits_planes.first; i<=restraints->restraints_limits_planes.second; i++) {
        
 	 if ( (*restraints)[i].restraint_type == coot::PLANE_RESTRAINT) {
 
@@ -1384,11 +1460,9 @@ coot::my_df_planes(const gsl_vector *v,
 					       2.0 * weight * devi_len * plane_info.abcd[1],
 					       2.0 * weight * devi_len * plane_info.abcd[2]);
 
-		  if (!(*restraints)[i].fixed_atom_flags[j]) { 
-		     gsl_vector_set(df, idx,   gsl_vector_get(df, idx  ) + d.dx());
-		     gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + d.dy());
-		     gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + d.dz());
-		  }
+		  *gsl_vector_ptr(df, idx  ) += d.dx();
+		  *gsl_vector_ptr(df, idx+1) += d.dy();
+		  *gsl_vector_ptr(df, idx+2) += d.dz();
 	       }
 	    }
 	 }
@@ -1424,6 +1498,8 @@ coot::my_df_parallel_planes(const gsl_vector *v,
 	    // first plane
 	    unsigned int n_plane_atoms = ppr.plane_atom_index.size();
 	    double weight = 1/(ppr.sigma * ppr.sigma);
+	    // hack the weight - needs a better fix than this
+	    weight *= 8.0;
 	    for (unsigned int j=0; j<n_plane_atoms; j++) {
 	       if (! ppr.fixed_atom_flags[j] ) { 
 		  idx = 3*ppr.plane_atom_index[j].first;

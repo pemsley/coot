@@ -3006,6 +3006,8 @@ void set_found_coot_python_gui();
  */
 void get_coords_for_accession_code(const char *code);
 
+int get_monomer_for_molecule_by_index(int dict_idx, int imol_enc);
+
 
 /*  Don't let this be seen by standard c, since I am using a std::string */
 /*  and now we make it return a value, which we can decode in the calling
@@ -4835,8 +4837,8 @@ void close_molecule(int imol);
 /*  ----------------------------------------------------------------------- */
 /*                  rotamers                                                */
 /*  ----------------------------------------------------------------------- */
-/* section Rotatmer Functions */
-/*! \name Rotatmer Functions */
+/* section Rotamer Functions */
+/*! \name Rotamer Functions */
 /* \{ */
 
 /* functions defined in c-interface-build */
@@ -6076,6 +6078,9 @@ void set_do_probe_dots_post_refine(short int state);
 /*! \brief show the state of shall we run molprobity after a
   refinement has happened? */
 short int do_probe_dots_post_refine_state();
+
+/* state is 1 for on and 0 for off */
+void set_do_coot_probe_dots_during_refine(short int state);
 
 /*! \brief make an attempt to convert pdb hydrogen name to the name
   used in Coot (and the refmac dictionary, perhaps). */

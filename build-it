@@ -443,6 +443,11 @@ no_proxy=${no_proxy:=".corp.net.com"}
 #
 run_tests=${run_tests:=false}
 
+# run the second test?  Almost always passes and takes up lots of 
+# disk space
+#
+run_second_test=${run_second_test:=true}
+
 # This is where the compiled binaries/libraries/data get installed:
 # Note that the directory name must NOT end in a /
 #
@@ -1337,14 +1342,14 @@ echo "Testing version of make"
 MAKE=make
 if make --version ; then
    # let's try to set some args
-   if [ -e /proc/meminfo ] ; then 
+   if [ -e /proc/meminfo ] ; then
       memory_kb=$(awk '/MemTotal:/ {print $2} ' /proc/meminfo)
-      if [ "$memory_kb" -gt 2000512 ] ; then 
+      if [ "$memory_kb" -gt 2000512 ] ; then
          if [ -e /proc/cpuinfo ] ; then
             if np=$(grep processor /proc/cpuinfo | wc -l) ; then
-               # limit to 4 processors, not much speed up after that.
-               if [ "$np" -gt 4 ] ; then 
-                  np=4
+               # limit to 8 processors
+               if [ "$np" -gt 8 ] ; then
+                  np=8
                fi
                echo using $np processors in compilation
                MAKE="make -j$np"
@@ -1645,11 +1650,13 @@ fi
 #for Macs:
 if test "$OS" = "Darwin" ; then
    if [ -z "$DYLD_LIBRARY_PATH" ] ; then
-      DYLD_LIBRARY_PATH=$install_top_dir/lib
-      export DYLD_LIBRARY_PATH
+      # DYLD_LIBRARY_PATH=$install_top_dir/lib
+      # export DYLD_LIBRARY_PATH
+      :
    else
-      DYLD_LIBRARY_PATH=$install_top_dir/lib:$DYLD_LIBRARY_PATH
-      export DYLD_LIBRARY_PATH
+      #DYLD_LIBRARY_PATH=$install_top_dir/lib:$DYLD_LIBRARY_PATH
+      #export DYLD_LIBRARY_PATH
+      :
    fi
 fi
 
@@ -1987,6 +1994,9 @@ fi
 # fi
 
 echo atempting to run installed guile-config \(this may fail, that\'s OK\).
+
+$install_top_dir/bin/guile-config --version
+
 if $install_top_dir/bin/guile-config --version ; then 
 
     # We have a seen a situation somehow where bin/guile-config is installed 
@@ -2002,7 +2012,7 @@ if $install_top_dir/bin/guile-config --version ; then
        build_guile=1
     fi
 else
-   echo guile should be built
+   echo guile-config failed. guile should be built
    build_guile=1
 fi
 
@@ -2051,6 +2061,11 @@ fi #  ENABLE_GUILE_COOT
 #
 python_version=python2.7
 pver=2.7.12
+#
+# but more modern pythons do not compile (at least on my mac)
+if [ $OS = Darwin ] ; then
+   pver=2.7.8
+fi
 
 if [ $ENABLE_PYTHON_COOT = yes ] ; then 
    $install_top_dir/bin/python -V
@@ -2203,6 +2218,8 @@ fi
 #   test for gnomecanvas
 # ##############################################################
 
+# on new Scientific Linux (7.3) we need to test for libgnomecanvas, not libgnomecanvas-2.0
+#
 # test for gnomecanvas here
 if pkg-config --modversion libgnomecanvas-2.0 ; then
    :
@@ -2515,6 +2532,7 @@ if test -n "$build_clipper" ; then
     # is not available yet from his site.
     clipper_hack_version=2.1-110915-fixup-2
     clipper_hack_version=2.1-140110-fixup
+    clipper_hack_version=2.1-20170202.tar.gz
     # ${WGET} $extras_place/clipper-$clipper_hack_version.tar.gz
 
     # now clipper has all the bits.
@@ -2825,7 +2843,7 @@ if test -n "$build_python" ; then
    # This is a problem with old(?) wgets.  In future, we should remove this.
    if ${WGET} --no-check-certificate http://www.python.org/ftp/python/$pver/Python-$pver.tgz ; then 
      echo got Python-$pver.tgz
-   else 
+   else
      echo problem getting Python-$pver.tgz
    fi
    (
@@ -3153,16 +3171,22 @@ fi
 # mirror has gone/moved.
 # ${WGET} http://mirror.ac.uk/mirror/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
 # ${WGET} http://ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
-${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
+# ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
+# Marcin-fix version
+${WGET} $extras_place/guile-${guile_version}.tar.gz
 ${WGET} $extras_place/guile-1.8.7-updated.patch
 ${WGET} $extras_place/guile-1.8.8-gc-segment.c.patch
 
- 
+
 # if debian, unset LD_LIBRARY_PATH and set it back again when done.
 if [ "$dist_name" = "debian" ] ; then
    llp_save=$LD_LIBRARY_PATH
    unset LD_LIBRARY_PATH
    extra_flags_for_debian="LD_LIBRARY_PATH=$llp_save"
+fi
+
+if [ $OS = Darwin ] ; then
+   extra_flags_for_darwin="--disable-rpath --disable-error-on-warning --enable-silent-rules --enable-shared --disable-static"
 fi
 
 ( 
@@ -3185,6 +3209,7 @@ fi
 
 # arg to guile's configure
 ./configure $generic_prefix \
+     $extra_flags_for_darwin \
      CFLAGS="-I$install_top_dir/include $additional_unused_arg -O" \
      LDFLAGS=-L$install_top_dir/lib \
      CPPFLAGS=-P \
@@ -3246,12 +3271,11 @@ if test -n "$build_greg" ; then
     ./configure $generic_prefix
     $MAKE
     $MAKE install
+
     ) > $HOSTLOGDIR/11c-greg.txt 2>&1
 else
     echo not building greg:
 fi
-
-
 
 
 if test -n "$build_guile_gtk" ; then 
@@ -3340,6 +3364,20 @@ else
     echo not building guile-gui:
 fi
 
+# on Darwin, I have to cd to $install_top_dir/lib and 
+# ln -s libgreg.2.0.0.dylib   libgreg.so
+# ln -s libguilegtk-2.0.dylib libguilegtk-2.0.so
+
+if [ $OS = Darwin ] ; then
+   cd $install_top_dir/lib
+   if [ -e libgreg.2.0.0.dylib ] ; then
+      ln -s libgreg.2.0.0.dylib   libgreg.so
+   fi
+   if [ -e libguilegtk-2.0.dylib ] ; then
+      ln -s libguilegtk-2.0.dylib libguilegtk-2.0.so
+   fi
+   cd -
+fi
 
 if test -n "$build_guile_lib" ; then
    echo BUILDING guile-lib:
@@ -3348,7 +3386,8 @@ guile_lib_version=0.1.6
 guile_lib_version=0.2.1
 # guile-lib has moved
 # ${WGET} http://download.gna.org/guile-lib/guile-lib-$guile_lib_version.tar.gz
-${WGET} http://download.savannah.gnu.org/releases/guile-lib/guile-lib-$guile_lib_version.tar.gz
+# ${WGET} http://download.savannah.gnu.org/releases/guile-lib/guile-lib-$guile_lib_version.tar.gz
+${WGET} $extras_place/guile-lib-$guile_lib_version.tar.gz
 
 ( 
 date
@@ -3533,7 +3572,7 @@ else
               echo $install_top_dir/include/gd.h exists - skip libgd build
           fi
        else 
-          echo $install_top_dir/include/gd.h exists - skip libgd build
+          echo /usr/include/gd.h exists - skip libgd build
        fi
 
       ) > $HOSTLOGDIR/15-libgd.log
@@ -3724,6 +3763,7 @@ if [ "$architecture" = x86_64 ] ; then
    #   unset CXXFLAGS
 fi
 
+
 cbis_d=$(date +'%a %d %b %H%M.%S %Z %Y')
 if finger ; then
    cbis_n=$(finger $USER | head -1 | sed 's/.*Name: //')
@@ -3738,7 +3778,8 @@ fi
 if [ $OS = Darwin ] ; then
    if [ -d /opt/X11 ] ; then
       export CPPFLAGS=-I/opt/X11/include
-      
+      # I think this is needed for COOT_OPENGL_LIBS to be correctly found/set in configure.ac on Mac
+      extra_args_for_darwin="LIBS=-L/opt/X11/lib"
    fi
 fi
 
@@ -3753,6 +3794,7 @@ echo CFLAGS: $CFLAGS
 echo CXXFLAGS: $CXXFLAGS
 echo CPPFLAGS: $CPPFLAGS
 echo LDFLAGS: $LDFLAGS
+echo PATH: $PATH
 echo using this guile:
 which guile
 
@@ -3766,7 +3808,8 @@ echo ./configure $coot_prefix \
       $sqlite_config_args \
       $shared_static_flag \
       $coot_optim_args    \
-      $coot_extra_args
+      $coot_extra_args    \
+      $extra_args_for_darwin
 
 ./configure $coot_prefix \
        --with-fftw-prefix=$install_top_dir  \
@@ -3778,7 +3821,8 @@ echo ./configure $coot_prefix \
       $sqlite_config_args \
       $shared_static_flag \
       $coot_optim_args    \
-      $coot_extra_args
+      $coot_extra_args    \
+      $extra_args_for_darwin
 
 # these are no longer used
 #         --with-mmdb-prefix=$install_top_dir 
@@ -3948,7 +3992,7 @@ if [ "$run_tests" = true ] ; then
 
             if [ ! -d $BINARY_TAR_DEST_DIR/holding ] ; then 
                echo WARNING:: holding directory $BINARY_TAR_DEST_DIR/holding does not exist.
-            else 
+            else
                # regular path
 
                # original full fat:
@@ -3957,24 +4001,29 @@ if [ "$run_tests" = true ] ; then
                bin_tar_file=$BINARY_TAR_DEST_DIR/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
                holding_tar_file=$BINARY_TAR_DEST_DIR/holding/${coot_version}-binary-${OS}-${systype}${python_tag}${gtk2}.tar.gz
 
-       	       make_tar `basename $slim_dir` $holding_tar_file
+       	       make_tar $(basename $slim_dir) $holding_tar_file
 
    	       # Now test the tar file by un-taring it and running the
    	       # tests.  Only if this test passes can we move tar file
 	       # from holding to the binary pre-release dir.
 
-               cd "$build_dir"
-	       mkdir test-tar
-	       cd test-tar
-	       tar xzf $holding_tar_file
-      	       echo cding into `basename $slim_dir`  from `pwd`
-               cd `basename $slim_dir` 
-	       echo ln -s ../../$coot_dir_name/greg-tests .
-	       ln -s ../../$coot_dir_name/greg-tests .
-               echo second coot test...
-               echo running second test... >&2
-	       test_coot bin/coot > $LOGS/test-2.log 2>&1
-               test2_status=$?
+	       if [ $run_second_test = true ] ; then
+                  cd "$build_dir"
+	          mkdir test-tar
+	          cd test-tar
+	          tar xzf $holding_tar_file
+      	          echo cding into `basename $slim_dir`  from `pwd`
+                  cd `basename $slim_dir` 
+   	          echo ln -s ../../$coot_dir_name/greg-tests .
+	          ln -s ../../$coot_dir_name/greg-tests .
+                  echo second coot test...
+                  echo running second test... >&2
+	          test_coot bin/coot > $LOGS/test-2.log 2>&1
+                  test2_status=$?
+               else
+                  test2_status=0 # success
+               fi
+
                if [ $test2_status = 0 ] ; then
                   echo ========================
                   echo second coot test passed

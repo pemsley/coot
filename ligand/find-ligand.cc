@@ -60,6 +60,7 @@ main(int argc, char **argv) {
 		<< " --fit-fraction frac" << "\n     "
 		<< " --flexible"          << "\n     "
 		<< " --samples nsamples"  << "\n     "
+		<< " --sampling-rate map-sampling-rate"  << "\n     "
 		<< " --dictionary cif-dictionary-name" << "\n     "
 		<< " --script script-file-name\n"
 		<< "   ligand-pdb-file-name(s)\n";
@@ -74,7 +75,6 @@ main(int argc, char **argv) {
 		<< "           script-file-name is a file name of helper script suitable for use in Coot\n"
 		<< "               (default: coot-ligands.scm)."
 		<< std::endl;
-
 
    } else { 
 
@@ -96,6 +96,8 @@ main(int argc, char **argv) {
       float absolute_level = 0.0;
       std::string absolute_string = "";
       bool blobs_mode = false;
+      float map_sampling_factor = 1.5;
+      std::string map_sampling_factor_str;
 
       // These hold the coordinates of a particular position.  The
       // bool is whether they were set in the input or not.  Only of
@@ -106,22 +108,23 @@ main(int argc, char **argv) {
 
       const char *optstr = "i:h:f:p:s:c:w:n:d";
       struct option long_options[] = {
-	 {"pdbin",        1, 0, 0},
-	 {"hklin",        1, 0, 0},
-	 {"f",            1, 0, 0},
-	 {"phi",          1, 0, 0},
-	 {"sigma",        1, 0, 0},
-	 {"absolute",     1, 0, 0},
-	 {"clusters",     1, 0, 0},
-	 {"samples",      1, 0, 0},
-	 {"dictionary",   1, 0, 0},
-	 {"fit-fraction", 1, 0, 0},
-	 {"flexible",     0, 0, 0},
-	 {"script",       0, 0, 0},
-	 {"blobs",        0, 0, 0},
-	 {"pos-x",        1, 0, 0},
-	 {"pos-y",        1, 0, 0},
-	 {"pos-z",        1, 0, 0},
+	 {"pdbin",         1, 0, 0},
+	 {"hklin",         1, 0, 0},
+	 {"f",             1, 0, 0},
+	 {"phi",           1, 0, 0},
+	 {"sigma",         1, 0, 0},
+	 {"absolute",      1, 0, 0},
+	 {"clusters",      1, 0, 0},
+	 {"samples",       1, 0, 0},
+	 {"dictionary",    1, 0, 0},
+	 {"fit-fraction",  1, 0, 0},
+	 {"flexible",      0, 0, 0},
+	 {"script",        0, 0, 0},
+	 {"blobs",         0, 0, 0},
+	 {"sampling-factor", 1, 0, 0},
+	 {"pos-x",         1, 0, 0},
+	 {"pos-y",         1, 0, 0},
+	 {"pos-z",         1, 0, 0},
 	 {0, 0, 0, 0}
       };
 
@@ -184,6 +187,11 @@ main(int argc, char **argv) {
 
 	       if (arg_str == "dictionary") { 
 		  cif_file_name = optarg;
+		  n_used_args += 2;
+	       }
+
+	       if (arg_str == "sampling-factor") { 
+		  map_sampling_factor_str = optarg;
 		  n_used_args += 2;
 	       }
 
@@ -341,13 +349,25 @@ main(int argc, char **argv) {
 	    short int is_diff_map = 0; 
 	    coot::wligand wlig;
 	    wlig.set_verbose_reporting();
-	    
+
+	    // sampling rate
+	    if (! map_sampling_factor_str.empty()) {
+	       try {
+		  map_sampling_factor = coot::util::string_to_float(map_sampling_factor_str);
+	       }
+	       catch(const std::exception &e) {
+		  std::cout << "failed to convert " << map_sampling_factor_str << std::endl;
+	       }
+	    }
+	       
+
 	    if (! use_wiggly_ligand) {
 
 	       // rigid ligands path
 
 	       short int map_stat = wlig.map_fill_from_mtz(mtz_filename, f_col, phi_col, "", 
-							   use_weights, is_diff_map);
+							   use_weights, is_diff_map,
+							   map_sampling_factor);
 
 	       // Now we have the map, we can the convert absolute level (if it was set by
 	       // the user to absolute) which is what the interface to the ligand class
@@ -385,12 +405,13 @@ main(int argc, char **argv) {
 			if (blobs_mode) { 
 			   int n_cycles = 1;
 			   wlig.water_fit(input_sigma_level, n_cycles);
-			   unsigned int n_big_blobs = wlig.big_blobs().size();
-			   if (n_big_blobs) { 
+			   std::vector<std::pair<clipper::Coord_orth, double> > big_blobs = wlig.big_blobs();
+			   unsigned int n_big_blobs = big_blobs.size();
+			   if (n_big_blobs) {
 			      std::cout << "=============== start blob-table ==========\n";
-			      for (unsigned int i=0; i<n_big_blobs; i++) { 
-				 std::cout << "  blob " << i << " " << wlig.big_blobs()[i].first.format()
-					   << " " << wlig.big_blobs()[i].second << std::endl;
+			      for (unsigned int i=0; i<n_big_blobs; i++) {
+				 std::cout << "  blob " << i << " " << big_blobs[i].first.format()
+					   << " sum: " << big_blobs[i].second << std::endl;
 			      } 
 			      std::cout << "=============== end blob-table ==========\n";
 			   } 
@@ -426,7 +447,8 @@ main(int argc, char **argv) {
 		     std::cout << "Critical cif dictionary reading failure." << std::endl;
 		  } else { 
 		     short int map_stat = wlig.map_fill_from_mtz(mtz_filename, f_col, phi_col, "", 
-								 use_weights, is_diff_map);
+								 use_weights, is_diff_map,
+								 map_sampling_factor);
 
 		     // Now we have the map, we can the convert absolute level (if it was set by
 		     // the user to absolute) which is what the interface to the ligand class

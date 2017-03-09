@@ -137,22 +137,33 @@ namespace coot {
    class basic_dict_restraint_t {
       std::string atom_id_1_;
       std::string atom_id_2_;
+      std::string atom_id_1_4c_;
+      std::string atom_id_2_4c_;
 
    public:
       basic_dict_restraint_t() {} // for planes
       basic_dict_restraint_t(const std::string &at1,
-			     const std::string &at2);
+			     const std::string &at2) {
+	 set_atom_id_1(at1);
+	 set_atom_id_2(at2);
+      }
       std::string atom_id_1() const { return atom_id_1_;}
       std::string atom_id_2() const { return atom_id_2_;}
       std::string atom_id_1_4c() const {  // 4 character return;
-	 return atom_id_mmdb_expand(atom_id_1_);
+	 return atom_id_1_4c_;
       }
       std::string atom_id_2_4c() const {
-	 return atom_id_mmdb_expand(atom_id_2_);
+	 return atom_id_2_4c_;
       }
-      void set_atom_id_1(const std::string &id) { atom_id_1_ = id; } 
-      void set_atom_id_2(const std::string &id) { atom_id_2_ = id; } 
-   }; 
+      void set_atom_id_1(const std::string &id) {
+	 atom_id_1_ = id;
+	 atom_id_1_4c_ = atom_id_mmdb_expand(id);
+      }
+      void set_atom_id_2(const std::string &id) {
+	 atom_id_2_ = id;
+	 atom_id_2_4c_ = atom_id_mmdb_expand(id);
+      }
+   };
 
    class dict_bond_restraint_t : public basic_dict_restraint_t {
       std::string type_;
@@ -1083,6 +1094,7 @@ namespace coot {
       unsigned int n_atoms;
       unsigned int n_bonds;
       unsigned int n_links;
+      int monomer_idx;
       std::vector<std::string> error_messages;
       bool success;
       read_refmac_mon_lib_info_t() {
@@ -1090,6 +1102,7 @@ namespace coot {
 	 n_bonds = 0;
 	 n_links = 0;
 	 success = true;
+	 monomer_idx = -1;
       }
    };
 
@@ -1720,6 +1733,11 @@ namespace coot {
 					 int imol_enc,
 					 bool idealised_flag);
       
+      // make HETATMs if non-standard residue name.
+      mmdb::Manager *mol_from_dictionary(int monomer_index,
+					 int imol_enc,
+					 bool idealised_flag);
+
       // Used by above (or maybe you just want a residue?)
       // (Can return NULL).
       // 

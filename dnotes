@@ -7691,3 +7691,23 @@ Thu  1 Dec 2016 23:08:27 GMT
    https://github.com/emcrisostomo/CXX-Autoconf-Macros/blob/master/ax_cxx_have_thread.m4
 
 ---
+Sat  4 Mar 2017 01:13:08 GMT
+
+   How to set a breakpoint in lldb:
+
+   breakpoint set --method set_dihedral
+
+   puts a breakpoint in all methods/functions called set_dihedral()
+
+----
+Sat  4 Mar 2017 12:05:58 GMT
+
+   Can you build it better/faster? recap sequence alignment, "chainsaw" model, HOLE picture
+
+   http://science.sciencemag.org/content/355/6328/eaal4326.full
+
+   The atomic coordinates have been deposited in the Protein Data Bank (PDB) with accession 
+   code 5X0M, and the EM map has been deposited in the Electron Microscopy Data Bank 
+   with accession code EMD-6698.
+
+---

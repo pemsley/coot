@@ -159,6 +159,11 @@ std::vector<coot::generic_text_object_t> *graphics_info_t::generic_texts_p = 0;
 std::vector<coot::view_info_t> *graphics_info_t::views = 0;
 bool graphics_info_t::do_expose_swap_buffers_flag = 1;
 
+#ifdef HAVE_CXX_THREAD
+ctpl::thread_pool graphics_info_t::static_thread_pool(coot::get_max_number_of_threads());
+#endif // HAVE_CC_THREAD
+
+
 //WII
 #ifdef WII_INTERFACE_WIIUSE
 wiimote** graphics_info_t::wiimotes = NULL;
@@ -815,6 +820,7 @@ short int graphics_info_t::do_probe_dots_on_rotamers_and_chis_flag = 0;
 short int graphics_info_t::do_probe_dots_post_refine_flag = 0;
 coot::Cartesian graphics_info_t::probe_dots_on_chis_molprobity_centre = coot::Cartesian(0.0, 0.0, 0.0);
 float graphics_info_t::probe_dots_on_chis_molprobity_radius = 6.0;
+bool graphics_info_t::do_coot_probe_dots_during_refine_flag = false;
 
 float* graphics_info_t::background_colour = new float[4];
 
@@ -863,7 +869,9 @@ float       graphics_info_t::residue_density_fit_scale_factor = 1.0;
 
 // cif dictionary
 std::vector<std::string> *graphics_info_t::cif_dictionary_filename_vec = NULL;
-int graphics_info_t::cif_dictionary_read_number = 1; 
+int  graphics_info_t::cif_dictionary_read_number = 1;
+bool graphics_info_t::cif_dictionary_file_selector_create_molecule_flag = true;
+
 
 // map radius slider
 float graphics_info_t::map_radius_slider_max = 50.0;

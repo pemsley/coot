@@ -1,5 +1,15 @@
 
 
+----
+Wed  1 Mar 2017 01:19:33 GMT
+
+given this LCP.smi: the name transfer fails.
+
+[O-][Cl](=O)(=O)=O LCP
+
+
+---
+
 
    pyrogen 2XS in 4oa7 is fails - hybridization on the NAT and the
    plane restraints of CAX, OBD.

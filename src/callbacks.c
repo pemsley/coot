@@ -2729,7 +2729,9 @@ on_cif_dictionary_fileselection_ok_button_clicked (GtkButton       *button,
   GtkWidget *fileselection;
   GtkWidget *dictionary_molecule_selector_option_menu = NULL;
   GtkWidget *active_menu_item;
+  GtkWidget *checkbutton;
   GtkWidget *menu;
+  int new_compid_idx;
   int imol_enc = -3;		/* unset value */
 
   fileselection = lookup_widget(GTK_WIDGET(button), "cif_dictionary_fileselection");
@@ -2752,7 +2754,17 @@ on_cif_dictionary_fileselection_ok_button_clicked (GtkButton       *button,
 	}
       }
     }
-    handle_cif_dictionary_for_molecule(filename, imol_enc);
+    new_compid_idx = handle_cif_dictionary_for_molecule(filename, imol_enc);
+
+    checkbutton = lookup_widget(GTK_WIDGET(button), 
+				"cif_dictionary_file_selector_create_molecule_checkbutton");
+    printf("checkbutton: 0%p\n", checkbutton);
+    if (checkbutton) {
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
+	get_monomer_for_molecule_by_index(new_compid_idx, imol_enc);
+    } else {
+      printf("checkbutton: 0%p\n", checkbutton);
+    }
   }
   gtk_widget_destroy(fileselection);
 }
@@ -5772,7 +5784,34 @@ on_draw_hydrogens_no_radiobutton_toggled
   */
 }
 
+/* radio button is the N-terminal button */
+void
+on_renumber_residue_range_radiobutton_1_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
 
+  GtkWidget *entry_1 = lookup_widget(GTK_WIDGET(togglebutton), "renumber_residue_range_resno_1_entry");
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) {
+    gtk_widget_set_sensitive(GTK_WIDGET(entry_1), FALSE);
+  } else {
+    gtk_widget_set_sensitive(GTK_WIDGET(entry_1), TRUE);
+  }
+}
+
+void
+on_renumber_residue_range_radiobutton_3_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  GtkWidget *entry_2 = lookup_widget(GTK_WIDGET(togglebutton), "renumber_residue_range_resno_2_entry");
+  if (GTK_TOGGLE_BUTTON(togglebutton)->active) {
+    gtk_widget_set_sensitive(GTK_WIDGET(entry_2), TRUE);
+  } else {
+    gtk_widget_set_sensitive(GTK_WIDGET(entry_2), FALSE);
+  }
+}
 
 
 void
@@ -10857,21 +10896,54 @@ on_save_coords_filechooserdialog1_destroy
 
 
 void
-on_cif_dictionary_filechooserdialog1_response
-					(GtkDialog * dialog, 
-					gint response_id, 
-					gpointer user_data)
-{
+on_cif_dictionary_filechooserdialog1_response(GtkDialog * dialog, 
+					      gint response_id, 
+					      gpointer user_data) {
+
+  int new_compid_idx;
+  GtkWidget *checkbutton;
+  int imol_enc = -3;
+  const char *filename;
+  GtkWidget *fileselection;
+  GtkWidget *dictionary_molecule_selector_option_menu;
+  GtkWidget *menu;
+  GtkWidget *active_menu_item;
 
   if (response_id == GTK_RESPONSE_OK) {
-    const char *filename;
-    GtkWidget *fileselection;
 
     fileselection = lookup_widget(GTK_WIDGET(dialog), "cif_dictionary_filechooserdialog1");
     save_directory_from_filechooser(fileselection);
-    filename = gtk_file_chooser_get_filename 
-      (GTK_FILE_CHOOSER(fileselection));
-    handle_cif_dictionary(filename);
+    filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
+
+    // set imol_enc here
+    //
+    dictionary_molecule_selector_option_menu = 
+      lookup_widget(GTK_WIDGET(dialog),
+		    "cif_dictionary_file_selector_molecule_select_option_menu");
+    if (dictionary_molecule_selector_option_menu) {
+      menu = gtk_option_menu_get_menu(GTK_OPTION_MENU(dictionary_molecule_selector_option_menu));
+      if (menu) {
+	active_menu_item = gtk_menu_get_active(GTK_MENU(menu));
+	if (active_menu_item) {
+	  imol_enc = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(active_menu_item), 
+						       "select_molecule_number"));
+	}
+      }
+    } else {
+      printf("-------- missing dictionary_molecule_selector_option_menu ---\n");
+    }
+
+    new_compid_idx = handle_cif_dictionary_for_molecule(filename, imol_enc);
+
+    checkbutton = lookup_widget(GTK_WIDGET(dialog),
+				"cif_dictionary_file_selector_create_molecule_checkbutton");
+    if (checkbutton) {
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(checkbutton)))
+	get_monomer_for_molecule_by_index(new_compid_idx, imol_enc);
+    } else {
+      printf("checkbutton: 0%p\n", checkbutton);
+    }
+
 
     gtk_widget_destroy(fileselection);
   } else {

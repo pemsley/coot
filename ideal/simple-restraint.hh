@@ -30,12 +30,18 @@
 #include <string>
 #include <stdexcept>
 
+#ifdef HAVE_CXX_THREAD
+#include "utils/ctpl_stl.h"
+#endif // HAVE_CXX_THREAD
+
 #include <mmdb2/mmdb_manager.h>
 #include "coot-utils/bonded-pairs.hh"
 
 #include "parallel-planes.hh"
 
 #include "extra-restraints.hh"
+
+#include "model-bond-deltas.hh"
 
 // refinement_results_t is outside of the GSL test because it is
 // needed to make the accept_reject_dialog, and that can be compiled
@@ -202,11 +208,16 @@ namespace coot {
    //          restraints_usage_flag & 2 for ANGLES etc.      
    //
    enum restraint_usage_Flags { NO_GEOMETRY_RESTRAINTS = 0,
-				BONDS = 1, BONDS_AND_ANGLES = 3,
+				BONDS = 1,
+				ANGLES = 2,
+				BONDS_AND_ANGLES = 3,
 				TORSIONS = 4,
 				NON_BONDED = 16,
 				CHIRAL_VOLUMES = 32,
-				RAMA = 64, 
+				// PLANES_ANC = 8, // planes on their own are not used.
+				//                    PLANES is defined by wretched windows
+				//                    ANC: avoid name conflict
+				RAMA = 64,
 				BONDS_ANGLES_AND_TORSIONS = 7,
 				BONDS_ANGLES_TORSIONS_AND_PLANES = 15,
 				BONDS_AND_PLANES = 9,
@@ -649,7 +660,7 @@ namespace coot {
       std::vector<geometry_distortion_info_t> geometry_distortion;
       mmdb::PAtom *atom;
       int n_atoms;
-      int min_resno; 
+      int min_resno;
       int max_resno;
       geometry_distortion_info_container_t(const std::vector<geometry_distortion_info_t> &geometry_distortion_in, 
 					   mmdb::PAtom *atom_in, 
@@ -700,7 +711,16 @@ namespace coot {
    };
 
 
-   double distortion_score(const gsl_vector *v, void *params); 
+   double distortion_score(const gsl_vector *v, void *params);
+#ifdef HAVE_CXX_THREAD
+   // return value in distortion
+   void distortion_score_multithread(int thread_id,
+				     const gsl_vector *v, void *params,
+				     int idx_start, int idx_end, double *distortion,
+				     std::atomic<unsigned int> &done_count);
+#endif // HAVE_CXX_THREAD
+   void distortion_score_single_thread(const gsl_vector *v, void *params,
+				       int idx_start, int idx_end, double *distortion);
    double distortion_score_bond(const simple_restraint &bond_restraint,
 				const gsl_vector *v); 
    double distortion_score_geman_mcclure_distance(const simple_restraint &bond_restraint,
@@ -765,6 +785,7 @@ namespace coot {
    void my_df_planes(const gsl_vector *v, void *params, gsl_vector *df); 
    //  the non-bonded contacts
    void my_df_non_bonded(const gsl_vector *v, void *params, gsl_vector *df); 
+   //
    //  the chiral volumes
    void my_df_chiral_vol(const gsl_vector *v, void *params, gsl_vector *df); 
    //  the deviation from starting point terms:
@@ -790,9 +811,11 @@ namespace coot {
    // 
    double electron_density_score(const gsl_vector *v, void *params);
    // new style Grad_map/Grad_orth method
-   void my_df_electron_density (const gsl_vector *v, void *params, gsl_vector *df);
+   void my_df_electron_density(const gsl_vector *v, void *params, gsl_vector *df);
+   // pre-threaded
+   void my_df_electron_density_old_2017(const gsl_vector *v, void *params, gsl_vector *df); 
    // old style numerical method
-   void my_df_electron_density_old (gsl_vector *v, void *params, gsl_vector *df); 
+   void my_df_electron_density_old(gsl_vector *v, void *params, gsl_vector *df); 
 
 
    // non-refinement function: just checking geometry:
@@ -880,6 +903,23 @@ namespace coot {
       //
       mmdb::PPResidue SelResidue_active;
       int nSelResidues_active;
+
+      void init() {
+      	 verbose_geometry_reporting = NORMAL;
+	 n_atoms = 0;
+	 mol = 0;
+	 n_atoms = 0;
+	 atom = 0;
+	 include_map_terms_flag = 0;
+	 have_oxt_flag = 0;
+	 do_numerical_gradients_flag = 0;
+	 lograma.init(LogRamachandran::All, 2.0, true);
+	 from_residue_vector = 0;
+#ifdef HAVE_CXX_THREAD
+	 thread_pool_p = 0; // null pointer
+#endif // HAVE_CXX_THREAD
+      }
+
 
       // using residue_vector
       bool is_a_moving_residue_p(mmdb::Residue *r) const;
@@ -974,7 +1014,7 @@ namespace coot {
 			 short int have_flanking_residue_at_end,
 			 short int have_disulfide_residues,
 			 const std::string &altloc,
-			 const char *chain_id,
+			 const std::string &chain_id,
 			 mmdb::Manager *mol_in, 
 			 const std::vector<atom_spec_t> &fixed_atom_specs);
 
@@ -1169,6 +1209,8 @@ namespace coot {
 			const char *chain_id) const;
 
       int get_asc_index(const atom_spec_t &spec) const;
+
+      int get_asc_index(mmdb::Atom *at);
 
       int add_bonds(int idr, mmdb::PPAtom res_selection,
 		    int i_no_res_atoms,
@@ -1519,7 +1561,10 @@ namespace coot {
       }
 
       bonded_pair_container_t bonded_pairs_container;
-      
+
+      model_bond_deltas resolve_bonds(const gsl_vector *v) const;
+
+      void make_restraint_types_index_limits();
 
    public: 
 
@@ -1559,20 +1604,13 @@ namespace coot {
 // 	 }
 //       }
 
-      restraints_container_t(atom_selection_container_t asc_in) { 
-	 verbose_geometry_reporting = NORMAL;
+      restraints_container_t(atom_selection_container_t asc_in) {
+	 init();
 	 n_atoms = asc_in.n_selected_atoms; 
 	 mol = asc_in.mol;
 	 n_atoms = asc_in.n_selected_atoms;
 	 atom = asc_in.atom_selection;
-	 include_map_terms_flag = 0;
-	 have_oxt_flag = 0;
-	 do_numerical_gradients_flag = 0;
-	 std::cout << "asc_in.n_selected_atoms " << asc_in.n_selected_atoms
-		   << std::endl; 
 	 initial_position_params_vec.resize(3*asc_in.n_selected_atoms);
-	 lograma.init(LogRamachandran::All, 2.0, true);
-	 from_residue_vector = 0;
 
 	 for (int i=0; i<asc_in.n_selected_atoms; i++) {
 	    initial_position_params_vec[3*i  ] = asc_in.atom_selection[i]->x; 
@@ -1594,7 +1632,7 @@ namespace coot {
 			     short int have_flanking_residue_at_end,
 			     short int have_disulfide_residues,
 			     const std::string &altloc,
-			     const char *chain_id,
+			     const std::string &chain_id,
 			     mmdb::Manager *mol, // const in an ideal world
 			     const std::vector<atom_spec_t> &fixed_atom_specs);
 
@@ -1605,7 +1643,7 @@ namespace coot {
 			     short int have_flanking_residue_at_end,
 			     short int have_disulfide_residues,
 			     const std::string &altloc,
-			     const char *chain_id,
+			     const std::string &chain_id,
 			     mmdb::Manager *mol, // const in an ideal world
 			     const std::vector<atom_spec_t> &fixed_atom_specs,
 			     const clipper::Xmap<float> &map_in,
@@ -1807,7 +1845,9 @@ namespace coot {
 			  bool do_trans_peptide_restraints,
 			  float rama_plot_target_weight,
 			  bool do_rama_plot_retraints, 
-			  pseudo_restraint_bond_type sec_struct_pseudo_bonds);
+			  pseudo_restraint_bond_type sec_struct_pseudo_bonds,
+			  bool do_link_restraints=true,
+			  bool do_flank_restraints=true);
 
       unsigned int test_function(const protein_geometry &geom);
       unsigned int inline_const_test_function(const protein_geometry &geom) const {
@@ -1828,10 +1868,6 @@ namespace coot {
       void add_extra_parallel_plane_restraints(int imol,
 					       const extra_restraints_t &extra_restraints,
 					       const protein_geometry &geom);
-
-      // old code:
-      // Read restraints from the refmac .rst file
-      int make_restraints(std::string ciffilename);
 
       void update_atoms(gsl_vector *s);
       // return the WritePDBASCII() status, or -1 if mol was 0.
@@ -1898,12 +1934,92 @@ namespace coot {
       double geman_mcclure_alpha; // = 0.02 or something set in init_shared_pre(). // needed for derivative calculation
                                                                                    // (which is not done in this class)
       
+      bool cryo_em_mode; // for weighting fit to density of atoms (side-chains and others are down-weighted)
+
       // more debugging interface:
       //
       void set_do_numerical_gradients() { do_numerical_gradients_flag = 1;}
       bool do_numerical_gradients_status() { return do_numerical_gradients_flag; }
+      void debug_atoms() const;
+
+      model_bond_deltas resolve_bonds(); // calls setup_gsl_vector_variables()
+
+      // we set these so that the functions, for particular types, that loop over the restraints
+      // need only loop over the relevant range
+      // i.e. say we have 2000 restraints, only the top 100 of which might contain
+      // bond restraints. make_restraint_types_index_limits() is called at the end of
+      // make_restraints()
+      //
+      // these are public because they are used in the my_df_xxx functions
+      //
+      std::pair<unsigned int, unsigned int> restraints_limits_bonds;
+      std::pair<unsigned int, unsigned int> restraints_limits_angles;
+      std::pair<unsigned int, unsigned int> restraints_limits_torsions;
+      std::pair<unsigned int, unsigned int> restraints_limits_chirals;
+      std::pair<unsigned int, unsigned int> restraints_limits_planes;
+      std::pair<unsigned int, unsigned int> restraints_limits_non_bonded_contacts;
+      std::pair<unsigned int, unsigned int> restraints_limits_geman_mclure;
+
+#ifdef HAVE_CXX_THREAD
+      // thread pool!
+      //
+      ctpl::thread_pool *thread_pool_p;
+      unsigned int n_threads;
+      // std::atomic<unsigned int> &done_count_for_threads;
+      void thread_pool(ctpl::thread_pool *tp_in, int n_threads_in) {
+	 thread_pool_p = tp_in;
+	 n_threads = n_threads_in;
+      }
+
+      // we can't have a non-pointer thread pool because restraints are copied in
+      // update_refinement_atoms() (graphics-info-modelling.cc)
+      // and to do that we need a copy operator for thread_pool (and that is
+      // deleted in the header).
+      //
+      // ctpl::thread_pool another_thread_pool;
+
+#endif // HAVE_CXX_THREAD
+
+      void clear() {
+	 restraints_vec.clear();
+	 init();
+      }
 
    }; 
+
+#ifdef HAVE_CXX_THREAD
+   void my_df_non_bonded_thread_dispatcher(int thread_idx,
+					   const gsl_vector *v,
+					   gsl_vector *df,
+					   restraints_container_t *restraints_p,
+					   int idx_start,
+					   int idx_end,
+					   std::atomic<unsigned int> &done_count);
+#endif // HAVE_CXX_THREAD
+   void my_df_non_bonded_single(const gsl_vector *v,
+				gsl_vector *df,
+				const simple_restraint &this_restraint
+				// const restraints_container_t &restraints // for debugging
+				);
+   void my_df_non_bonded_single(const gsl_vector *v,
+				gsl_vector *df,
+				const simple_restraint &this_restraint
+				// const restraints_container_t &restraints // for debugging
+				);
+
+   void my_df_electron_density_single(const gsl_vector *v,
+				      restraints_container_t *restraints,
+				      gsl_vector *df, int idx_start, int idx_end);
+
+#ifdef HAVE_CXX_THREAD
+   // done_count_for_threads is modified
+   //
+   void my_df_electron_density_threaded_single(int thread_idx, const gsl_vector *v,
+					       restraints_container_t *restraints,
+					       gsl_vector *df,
+					       int atom_idx_start, int atom_idx_end,
+					       std::atomic<unsigned int> &done_count_for_threads);
+#endif // HAVE_CXX_THREAD
 
    void simple_refine(mmdb::Residue *residue_p,
 		      mmdb::Manager *mol,

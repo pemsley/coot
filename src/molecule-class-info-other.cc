@@ -6896,9 +6896,9 @@ molecule_class_info_t::set_b_factor_residues(const std::vector<std::pair<coot::r
 std::pair<int, std::string>
 molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
 				       const std::string &to_chain_id,
-				       short int use_resno_range,
-				       int start_resno,
-				       int end_resno) {
+				       bool use_resno_range,
+				       int start_resno, int end_resno) {
+
    int istat = 0;
    std::string message("Nothing to say");
 
@@ -6982,11 +6982,37 @@ molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
 	    std::cout << "istat: ; " << istat << std::endl;
 
 	 } else {
-	    std::cout << "WARNING:: CONFLICT: target chain id already exists "
-		      << "in this molecule" << std::endl;
-	    message = "CONFLICT: target chain id (";
-	    message += to_chain_id;
-	    message += ") already \nexists in this molecule!";
+
+	    // OK, can we do a merge? (do we have non-overlapping residue ranges?)
+	    //
+	    mmdb::Chain *chain_p_from = get_chain(from_chain_id);
+	    mmdb::Chain *chain_p_to   = get_chain(to_chain_id);
+	    bool done_merge = false;
+	    if (chain_p_from) {
+	       if (chain_p_to) {
+		  std::pair<bool, int> min_r_1 = coot::util::min_resno_in_chain(chain_p_from);
+		  std::pair<bool, int> max_r_1 = coot::util::max_resno_in_chain(chain_p_from);
+
+		  if (min_r_1.first) {
+		     if (max_r_1.first) {
+			start_resno = min_r_1.second;
+			end_resno = max_r_1.second;
+			std::pair<int, std::string> r =
+			   change_chain_id_with_residue_range(from_chain_id, to_chain_id, start_resno, end_resno);
+			istat = r.first;
+			message = r.second;
+		     }
+		  }
+	       }
+	    }
+
+	    if (! done_merge) {
+	       std::cout << "WARNING:: CONFLICT: target chain id already exists "
+			 << "in this molecule" << std::endl;
+	       message = "CONFLICT: target chain id (";
+	       message += to_chain_id;
+	       message += ") already \nexists in this molecule!";
+	    }
 	 }
       } // residue range
    } // no atoms
@@ -7000,6 +7026,12 @@ molecule_class_info_t::change_chain_id_with_residue_range(const std::string &fro
 							  const std::string &to_chain_id,
 							  int start_resno,
 							  int end_resno) {
+
+   if (false) {
+      std::cout << "-------------------- change_chain_id_with_residue_range ---- " << std::endl;
+      std::cout << "-------------------- change_chain_id_with_residue_range ---- " << start_resno << std::endl;
+      std::cout << "-------------------- change_chain_id_with_residue_range ---- " <<   end_resno << std::endl;
+   }
 
    std::string message;
    int istat = 0;

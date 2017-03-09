@@ -225,7 +225,8 @@ coot::ligand::map_fill_from_mtz(std::string mtz_file_name,
 				std::string phi_col,
 				std::string weight_col,
 				short int use_weights,
-				short int is_diff_map) {
+				short int is_diff_map,
+				float map_sampling_rate) { // 1.5 default
 
   clipper::HKL_info myhkl; 
   clipper::MTZdataset myset; 
@@ -264,10 +265,12 @@ coot::ligand::map_fill_from_mtz(std::string mtz_file_name,
   std::cout << "Number of reflections: " << myhkl.num_reflections() << "\n"; 
 
   std::cout << "finding ASU unique map points..." << std::endl;
-  xmap_pristine.init( myhkl.spacegroup(), myhkl.cell(),
-		      clipper::Grid_sampling( myhkl.spacegroup(),
-					      myhkl.cell(),
-					      myhkl.resolution()));
+  clipper::Grid_sampling gs(myhkl.spacegroup(),
+			    myhkl.cell(),
+			    myhkl.resolution(),
+			    map_sampling_rate);
+  xmap_pristine.init(myhkl.spacegroup(), myhkl.cell(), gs);
+  
   std::cout << "Grid..." << std::string(xmap_pristine.grid_sampling().format()).c_str() << "\n";
 
   std::cout << "doing fft..." << std::endl;
@@ -893,7 +896,7 @@ coot::ligand::find_clusters_internal(float z_cut_off_in,
    std::sort(cluster.begin(), cluster.end(), compare_clusters); 
 
    if (verbose_reporting)
-      print_cluster_details(); 
+      print_cluster_details(true);
 }
 
 void
@@ -1323,18 +1326,18 @@ coot::map_point_cluster::volume(const clipper::Xmap<float> &xmap_ref) const {
 } 
 
 void
-coot::ligand::print_cluster_details() const {
+coot::ligand::print_cluster_details(bool show_grid_points) const {
 
    int ncount = 0;
    int max_clusters = 10;
    if (cluster.size() < 10)
       max_clusters = 10;
    std::cout << "There are " << cluster.size() << " clusers\n";
-   std::cout << "Here are the top " << max_clusters << " clusers:\n";
+   std::cout << "Here are the top " << max_clusters << " clusters:\n";
    for (unsigned int i=0; i<cluster.size(); i++) {
       ncount++;
-      if (ncount == max_clusters) break; 
-	 
+      if (ncount == max_clusters) break;
+
       std::cout << "  Number: "  << i << " # grid points: " 
 		<< cluster[i].map_grid.size() << " score: "
 		<< cluster[i].score << "     \n"
@@ -1343,7 +1346,18 @@ coot::ligand::print_cluster_details() const {
 		<< cluster[i].eigenvalues[0] << " "
 		<< cluster[i].eigenvalues[1] << " "
 		<< cluster[i].eigenvalues[2] << " "
-		<< std::endl; 
+		<< std::endl;
+
+      if (show_grid_points) {
+	 clipper::Cell cell = xmap_pristine.cell();
+	 clipper::Grid_sampling gs = xmap_pristine.grid_sampling();
+	 for (unsigned int j=0; j<cluster[i].map_grid.size(); j++) {
+	    std::cout << "   "
+		      << cluster[i].map_grid[j].format() << " "
+		      << cluster[i].map_grid[j].coord_frac(gs).coord_orth(cell).format()
+		      << std::endl;
+	 }
+      }
    }
 }
 

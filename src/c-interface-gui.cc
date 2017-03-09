@@ -144,8 +144,10 @@ open_cif_dictionary_file_selector_dialog() {
       if (graphics_info_t::gtk2_file_chooser_selector_flag == coot::CHOOSER_STYLE) {
 
 	 GtkWidget *aa_hbutton_box = gtk_dialog_get_action_area(GTK_DIALOG(fileselection));
-	 if (GTK_IS_HBUTTON_BOX(aa_hbutton_box))
+	 if (GTK_IS_HBUTTON_BOX(aa_hbutton_box)) {
 	    add_cif_dictionary_selector_molecule_selector(fileselection, aa_hbutton_box);
+	    add_cif_dictionary_selector_create_molecule_checkbutton(fileselection, aa_hbutton_box);
+	 }
 
       } else {
 
@@ -241,6 +243,50 @@ void cif_dictionary_molecule_menu_item_select(GtkWidget *item, GtkPositionType p
    // pos is the value stored in with GINT_TO_POINTER() in the signal connect.
    //
    // std::cout << "select menu item " << item << " pos " << pos << std::endl;
+}
+
+
+void
+add_cif_dictionary_selector_create_molecule_checkbutton(GtkWidget *fileselection,
+							GtkWidget *aa_hbox) {
+
+   // if we came from a chooser, aa_hbox is an hbutton_box
+   // if we came from a selector, aa_hbox is an hbox.
+
+   GtkWidget *frame = gtk_frame_new("Make a Molecule");
+   GtkWidget *checkbutton = gtk_check_button_new_with_label(" Generate a Molecule");
+   g_object_set_data_full(G_OBJECT(fileselection),
+			  "cif_dictionary_file_selector_create_molecule_checkbutton",
+			  gtk_widget_ref(checkbutton),
+			  (GDestroyNotify) gtk_widget_unref);
+
+   graphics_info_t g;
+
+   if (g.cif_dictionary_file_selector_create_molecule_flag)
+      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+
+   // do we need to connect this signal?
+   GtkSignalFunc callback_func =
+      GTK_SIGNAL_FUNC(on_cif_dictionary_file_selector_create_molecule_checkbutton_toggled);
+
+   gtk_box_pack_start(GTK_BOX(aa_hbox), frame, FALSE, TRUE, 0);
+   gtk_container_add(GTK_CONTAINER(frame), checkbutton);
+   gtk_widget_show(checkbutton);
+   gtk_widget_show(frame);
+ }
+
+ 
+
+void
+on_cif_dictionary_file_selector_create_molecule_checkbutton_toggled (GtkButton       *button,
+								     gpointer         user_data) {
+
+   if (GTK_TOGGLE_BUTTON(button)->active) {
+      std::cout << "Make a molecule after dictionary" << std::endl;
+   } else {
+      std::cout << "on_cif_dictionary_file_selector_create_molecule_checkbutton_toggled() "
+		<< "Do nothing" << std::endl;
+   }
 }
 
 
@@ -5821,43 +5867,46 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
    GtkWidget *option_menu = lookup_widget(w, "map_sharpening_optionmenu");
 
    int imol = fill_option_menu_with_map_mtz_options(option_menu, signal_func);
-   graphics_info_t::imol_map_sharpening = imol;
 
-   std::cout << "DEBUG:: imol from fill_option_menu_with_map_options() "
-	     << imol << std::endl;
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t::imol_map_sharpening = imol;
 
-   GtkWidget *h_scale = lookup_widget(w, "map_sharpening_hscale");
-   //GtkObject *adj = gtk_adjustment_new(0.0, -sharpening_limit, 2*sharpening_limit,
-   // 0.05, 2, 30.1);
-   GtkObject *adj = gtk_adjustment_new(0.0, -sharpening_limit, 2*sharpening_limit,
-				       0.05, 0.2, (sharpening_limit+0.1));
-   gtk_range_set_adjustment(GTK_RANGE(h_scale), GTK_ADJUSTMENT(adj));
-   g_object_set_data_full(G_OBJECT (w), "map_sharpening_adjustment",
-                          g_object_ref (adj),
-                          (GDestroyNotify) g_object_unref);
+      std::cout << "DEBUG:: imol from fill_option_menu_with_map_options() "
+		<< imol << std::endl;
 
-   gtk_signal_connect(GTK_OBJECT(adj), "value_changed",
-                      GTK_SIGNAL_FUNC(map_sharpening_value_changed), NULL);
+      GtkWidget *h_scale = lookup_widget(w, "map_sharpening_hscale");
+      //GtkObject *adj = gtk_adjustment_new(0.0, -sharpening_limit, 2*sharpening_limit,
+      // 0.05, 2, 30.1);
+      GtkObject *adj = gtk_adjustment_new(0.0, -sharpening_limit, 2*sharpening_limit,
+					  0.05, 0.2, (sharpening_limit+0.1));
+      gtk_range_set_adjustment(GTK_RANGE(h_scale), GTK_ADJUSTMENT(adj));
+      g_object_set_data_full(G_OBJECT (w), "map_sharpening_adjustment",
+			     g_object_ref (adj),
+			     (GDestroyNotify) g_object_unref);
+
+      gtk_signal_connect(GTK_OBJECT(adj), "value_changed",
+			 GTK_SIGNAL_FUNC(map_sharpening_value_changed), NULL);
    
-   // set to sharpening value
-   gtk_adjustment_set_value(GTK_ADJUSTMENT(adj), graphics_info_t::molecules[imol].sharpen_b_factor());
+      // set to sharpening value
+      gtk_adjustment_set_value(GTK_ADJUSTMENT(adj), graphics_info_t::molecules[imol].sharpen_b_factor());
    
 #if (GTK_MAJOR_VERSION > 2) || (GTK_MINOR_VERSION > 14)
-   int ticks = 3;  // number of ticks on the (one) side (not including centre tick)
-   for (int i=0; i<=2*ticks; i++) {
-      float p = float (i-ticks) * (1.0/float(ticks)) * sharpening_limit;
-      std::string pos_string = coot::util::float_to_string_using_dec_pl(p,1);
-      gtk_scale_add_mark(GTK_SCALE(h_scale),
-			 p,
-			 GTK_POS_BOTTOM, pos_string.c_str());
-   }
-   gtk_scale_add_mark(GTK_SCALE(h_scale), -sharpening_limit, GTK_POS_BOTTOM, "\nSharpen");
-   gtk_scale_add_mark(GTK_SCALE(h_scale),  sharpening_limit, GTK_POS_BOTTOM, "\nBlur");
+      int ticks = 3;  // number of ticks on the (one) side (not including centre tick)
+      for (int i=0; i<=2*ticks; i++) {
+	 float p = float (i-ticks) * (1.0/float(ticks)) * sharpening_limit;
+	 std::string pos_string = coot::util::float_to_string_using_dec_pl(p,1);
+	 gtk_scale_add_mark(GTK_SCALE(h_scale),
+			    p,
+			    GTK_POS_BOTTOM, pos_string.c_str());
+      }
+      gtk_scale_add_mark(GTK_SCALE(h_scale), -sharpening_limit, GTK_POS_BOTTOM, "\nSharpen");
+      gtk_scale_add_mark(GTK_SCALE(h_scale),  sharpening_limit, GTK_POS_BOTTOM, "\nBlur");
 #endif   
 
-   // Don't display the cancel button.
-   GtkWidget *c = lookup_widget(w, "map_sharpening_cancel_button");
-   gtk_widget_hide(c);
+      // Don't display the cancel button.
+      GtkWidget *c = lookup_widget(w, "map_sharpening_cancel_button");
+      gtk_widget_hide(c);
+   }
 
    return w;
 }

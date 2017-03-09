@@ -1,6 +1,51 @@
 
    For Release 0.8.8
 
+   o JED: read in a PDB with no dictionary:
+
+    libc++abi.dylib: terminating with uncaught exception of type std::runtime_error: WARNING:: 
+    Requested flexible molecule for ligand "RRQ"
+
+* Done. 
+
+   o Fetch molecule: acyclovir, (edit?) click Apply
+
+   o quick save view on a key.
+
+   o does saving the state of backrub rotamers work? Yes, but the button doesn't show the 
+     state at startup.
+
+   o pyrogen -n -M -C ATP AMP.smi.  The atom names are ultra-quoted.
+
+* Fixed.
+
+   o Renumber residue should have 
+
+    [    ] or o N-terminus 
+           to 
+    [    ] or o C-terminus 
+
+* Done
+
+   o in Ana's map after sequence assignment (which was very fast): it went into a long 
+     stall - not sure what it was doing. Without fitting, the model had hideous mainchain
+
+* Done. "Fitting" means real space refinement - hideous mainchain came from non-backrub rotamer search
+  (now backrub rotamer search is enabled).
+
+   o add a colour-blind-enabled constructor for the coot::colour_holder (probably should 
+     be in the default constructor, then make it an optional arg).
+
+   o Add a test for CISPEP card addition for the introduction of a cis peptide.
+     Currently coot deletes wrong cispeps (only) (not adds new ones).  Needs
+     thought.
+
+   o Expert mode should not reset the mtz amplitude column optionmenu
+
+   o speed up accept after rigid body fit.
+
+* Done.
+
    o  can you read this: all-comp-ids/T/PDBe-TFH.cif.  Its OBS though.
 
 * Too obscure

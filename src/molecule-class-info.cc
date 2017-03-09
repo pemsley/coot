@@ -3074,52 +3074,6 @@ molecule_class_info_t::set_have_unit_cell_flag_maybe() {
    }
 }
 
-// This function is not used in anger, right?
-//
-// (a debugging function).
-// 
-void
-check_static_vecs_extents() {
-
-   //
-   int imol = 0;
-   
-   graphics_info_t g;
-
-   cout << "checking extents of the " << g.molecules[imol].n_draw_vectors
-	<< " in the graphics static" << endl;
-
-   coot::Cartesian first, second;
-   float max_x = -9999, min_x = 9999;
-   float max_y = -9999, min_y = 9999;
-   float max_z = -9999, min_z = 9999;
-   
-   for (int i=0; i<g.molecules[imol].n_draw_vectors; i++) {
-      first  = g.molecules[imol].draw_vectors[i].getStart();
-      second = g.molecules[imol].draw_vectors[i].getFinish();
-
-      if (first.get_x() < min_x) min_x = first.get_x();
-      if (first.get_y() < min_y) min_y = first.get_y();
-      if (first.get_z() < min_z) min_z = first.get_z();
-
-      if (second.get_x() < min_x) min_x = second.get_x();
-      if (second.get_y() < min_y) min_y = second.get_y();
-      if (second.get_z() < min_z) min_z = second.get_z();
-
-      if (first.get_x() > max_x) max_x = first.get_x();
-      if (first.get_y() > max_y) max_y = first.get_y();
-      if (first.get_z() > max_z) max_z = first.get_z();
-
-      if (second.get_x() > max_x) max_x = second.get_x();
-      if (second.get_y() > max_y) max_y = second.get_y();
-      if (second.get_z() > max_z) max_z = second.get_z();
-      
-   }
-   cout << min_x << " " << max_x << endl
-	<< min_y << " " << max_y << endl
-	<< min_z << " " << max_z << endl;
-}
-
 
 void
 molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p) {
@@ -4221,6 +4175,7 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 // 				    atom->residue->seqNum,
 // 				    std::string(atom->name));
 	 if (asc.UDDOldAtomIndexHandle >= 0) { // OK for fast atom indexing
+	    // std::cout << "OK for fast atom indexing"  << std::endl;
 	    if (atom->GetUDData(asc.UDDOldAtomIndexHandle, tmp_index) == mmdb::UDDATA_Ok) {
 	       if (tmp_index >= 0) { 
 		  if (moving_atom_matches(atom, tmp_index)) { 
@@ -4250,10 +4205,10 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 			 <<  "), bad GetUDData for this atom " << std::endl;
 	    } 
 	 } else {
-	    //  	 std::cout << "DEBUG:: asc.UDDOldAtomIndexHandle is " 
-	    //   		   << asc.UDDOldAtomIndexHandle << " using full atom spec to atom index..."
-	    // 		   << std::endl;
-	    
+	    // std::cout << "DEBUG:: asc.UDDOldAtomIndexHandle is " 
+	    // << asc.UDDOldAtomIndexHandle << " using full atom spec to atom index..."
+	    // << std::endl;
+
 	    idx = full_atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
 					       atom->residue->seqNum,
 					       std::string(atom->GetInsCode()),
@@ -6495,9 +6450,26 @@ molecule_class_info_t::make_backup() { // changes history details
       if (atom_sel.mol) {
 	 int dirstat = make_maybe_backup_dir(backup_dir);
 
-	 // all is hunkey-dorey.  Directory exists.
-	 if (dirstat == 0) { 
-	    
+	 if (dirstat != 0) {
+	    // fallback to making a directory in $HOME
+	    const char *home_dir = getenv("HOME");
+	    if (home_dir) {
+	       backup_dir = coot::util::append_dir_dir(home_dir, "coot-backup");
+	       dirstat = make_maybe_backup_dir(backup_dir);
+	       if (dirstat != 0) {
+		  std::cout << "WARNING:: backup directory "<< backup_dir
+			    << " failure to exist or create" << std::endl;
+	       } else {
+		  std::cout << "INFO using backup directory " << backup_dir << std::endl;
+	       }
+	    } else {
+	       std::cout << "WARNING:: backup directory "<< backup_dir
+			 << " failure to exist or create" << std::endl;
+	    }
+	 }
+
+	 if (dirstat == 0) {
+	    // all is hunkey-dorey.  Directory exists.
 	    std::string backup_file_name = save_molecule_filename(backup_dir);
  	    std::cout << "INFO:: backup file " << backup_file_name << std::endl;
 
@@ -6534,9 +6506,6 @@ molecule_class_info_t::make_backup() { // changes history details
 	    if (history_index == max_history_index)
 	       max_history_index++;
 	    history_index++;
-	 } else {
-	    std::cout << "WARNING:: backup directory "<< backup_dir
-		      << " failure to exist or create" << std::endl;
 	 } 
       } else {
 	 std::cout << "BACKUP:: Ooops - no atoms to backup for this empty molecule"

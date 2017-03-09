@@ -132,7 +132,7 @@ void
 debug_atom_selection_container(atom_selection_container_t asc);
 
 // create this struct:
-atom_selection_container_t make_asc(mmdb::Manager *mol); 
+atom_selection_container_t make_asc(mmdb::Manager *mol, bool transfer_atom_index_flag=false);
 
 mmdb::LinkContainer empty_links_container();
 
