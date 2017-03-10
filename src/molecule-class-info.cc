@@ -1944,21 +1944,32 @@ molecule_class_info_t::draw_molecule(short int do_zero_occ_spots,
 
    if (has_model()) { 
       if (draw_it == 1) {
-	 if (!cootsurface) { 
-	    deuterium_spots();
- 	    if (do_zero_occ_spots)
- 	       zero_occupancy_spots();
-	    display_bonds(against_a_dark_background);
-	    draw_fixed_atom_positions();
-	    if (show_ghosts_flag) {
-	       if (ncs_ghosts.size() > 0) {
-		  for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
-		     display_ghost_bonds(ighost);
+	 if (! cootsurface) {
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#ifdef HAVE_CXX11
+	    if (! molrepinst) {
+#endif
+#endif
+	       deuterium_spots();
+	       if (do_zero_occ_spots)
+		  zero_occupancy_spots();
+	       display_bonds(against_a_dark_background);
+	       draw_fixed_atom_positions();
+	       if (show_ghosts_flag) {
+		  if (ncs_ghosts.size() > 0) {
+		     for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
+			display_ghost_bonds(ighost);
+		     }
 		  }
 	       }
+	       if (show_cis_peptide_markups)
+		  cis_peptide_markups();
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#ifdef HAVE_CXX11
 	    }
-	    if (show_cis_peptide_markups)
-	       cis_peptide_markups();
+#endif
+#endif
 	 }
       }
    }

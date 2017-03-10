@@ -806,7 +806,7 @@ public:        //                      public
       // need to test for moltris too, I guess
 #ifdef USE_MOLECULES_TO_TRIANGLES
 #ifdef HAVE_CXX11
-      molrepinst = std::make_shared<MolecularRepresentationInstance> ();
+      molrepinst = 0;
 #endif // HAVE_CXX11
 #endif // USE_MOLECULES_TO_TRIANGLES
 

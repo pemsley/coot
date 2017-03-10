@@ -1714,7 +1714,6 @@ init_gl_widget(GtkWidget *widget) {
    setup_lighting(graphics_info_t::do_lighting_flag);
 
    
-   
    // set the skeleton to initially be yellow
    graphics_info_t::skeleton_colour[0] = 0.7;
    graphics_info_t::skeleton_colour[1] = 0.7;
@@ -1743,13 +1742,14 @@ setup_for_mol_triangles() {
 #ifdef HAVE_CXX11
 
    graphics_info_t::mol_tri_renderer    = RendererGLSL::create();
+   graphics_info_t::mol_tri_renderer->init();
 
-   // graphics_info_t::mol_tri_scene_setup = SceneSetup::defaultSceneSetup();
+   graphics_info_t::mol_tri_scene_setup = SceneSetup::defaultSceneSetup();
 
 //    //Add a simple light..set some parameters and move it
 //    auto simpleLight = Light::defaultLight();
-//    simpleLight->setIntensity(0.75);
-//    simpleLight->setDrawLight(false);
+//    simpleLight->setIntensity(0.8);
+//    simpleLight->setDrawLight(false); // crash on true, why is that?
 //    graphics_info_t::mol_tri_scene_setup->addLight(simpleLight);
 //    //Can retrieve reference to the light if so preferred
 //    graphics_info_t::mol_tri_scene_setup->getLight(0)->setTranslation(FCXXCoord(400.,400.,0,0.));
@@ -1757,7 +1757,7 @@ setup_for_mol_triangles() {
 //    //Add another simple light
 //    auto simpleLight2 = Light::defaultLight();
 //    graphics_info_t::mol_tri_scene_setup->addLight(simpleLight2);
-//    simpleLight2->setIntensity(0.5);
+//    simpleLight2->setIntensity(0.3);
 //    simpleLight2->setDrawLight(false);
 //    simpleLight2->setTranslation(FCXXCoord(0.,0.,400,0.));
 
@@ -1769,6 +1769,10 @@ setup_for_mol_triangles() {
 void
 setup_lighting(short int do_lighting_flag) {
 
+   // I'm not sure that this does anything other than enable the lights.
+   // The light positions are properly set in draw_mono().
+   // Needs rationalization.
+   // FIXME-lighting
 
    if (do_lighting_flag) { // set this to 1 to light a surface currently.
 
@@ -1776,9 +1780,9 @@ setup_lighting(short int do_lighting_flag) {
       //
       // GL_LIGHT2 is for cut-glass mode
       // 
-      GLfloat  light_0_position[] = { 1.0,  1.0, 1.0, 0.0};
-      GLfloat  light_1_position[] = {-1.0,  0.0, 1.0, 0.0};
-      GLfloat  light_2_position[] = { 0.0,  0.0, 0.0, 0.0};
+      GLfloat  light_0_position[] = { 1.0,  1.0,  1.0, 0.0};
+      GLfloat  light_1_position[] = {-1.0,  0.0,  1.0, 0.0};
+      GLfloat  light_2_position[] = { 0.0,  0.0, -1.0, 0.0};
 
       glClearColor(0.0, 0.0, 0.0, 0.0);
       glShadeModel(GL_SMOOTH);
@@ -2186,9 +2190,9 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       if (true) {
 	 glPushMatrix();
 	 glLoadIdentity();
-	 GLfloat  light_0_position[] = {  1.0,  1.0, 1.0, 0.0};
-	 GLfloat  light_1_position[] = {  0.6, -0.7, 1.0, 0.0};
-	 GLfloat  light_2_position[] = {  0.7, -0.7, 1.0, 0.0};
+	 GLfloat  light_0_position[] = {  21.0,  1.0, 1.0, 0.0};
+	 GLfloat  light_1_position[] = {  0.6, -20.7, 1.0, 0.0};
+	 GLfloat  light_2_position[] = {  0.7, -0.7, 21.0, 0.0};
 
 	 glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
 	 glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);
@@ -2367,12 +2371,15 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 if (graphics_info_t::mol_tri_renderer) {
 	    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
 	       if (is_valid_model_molecule(ii)) {
-		  if (graphics_info_t::molecules[ii].molrepinst) {
-		     std::cout << "have molrepinst for imol " << ii << std::endl;
-		     graphics_info_t::mol_tri_scene_setup->renderWithRendererFromViewpoint(graphics_info_t::mol_tri_renderer, pos);
+		  if (graphics_info_t::molecules[ii].draw_it) {
+		     if (graphics_info_t::molecules[ii].molrepinst) {
+			// turns on glLighting.
+			graphics_info_t::mol_tri_scene_setup->renderWithRendererFromViewpoint(graphics_info_t::mol_tri_renderer, pos);
+		     }
 		  }
 	       }
 	    }
+	    glDisable(GL_LIGHTING);
 	 }
       }
 #endif // CXX11

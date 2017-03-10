@@ -6400,6 +6400,8 @@ molecule_class_info_t::draw_display_list_objects(int GL_context) {
    GLfloat  diffuseLight[] = { 0.4f, 0.4f, 0.4f, 0.f };
    GLfloat specularLight[] = { 0.4f, 0.4f, 0.4f, 0.f };
 
+   // set light0 here too? // FIXME-lighting
+
    // Assign created components to GL_LIGHT1
    glLightfv(GL_LIGHT1, GL_AMBIENT,  ambientLight);
    glLightfv(GL_LIGHT1, GL_DIFFUSE,  diffuseLight);
@@ -6412,7 +6414,7 @@ molecule_class_info_t::draw_display_list_objects(int GL_context) {
 
 	 glEnable(GL_LIGHT0); // bright.
 	 glEnable(GL_LIGHT1); // dim, off axis
-	 glEnable(GL_LIGHT2); // very dark
+	 // glEnable(GL_LIGHT2); // very dark
 
 	 // glDisable(GL_LIGHT0);
 	 // glDisable(GL_LIGHT1);
