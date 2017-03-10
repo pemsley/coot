@@ -411,7 +411,7 @@
     ; (format #t "coot-dir: ~s~%" coot-dir)
     ; (format #t "curr-dir: ~s~%" current-dir)
     (chdir coot-dir)
-    (let ((s (shell-command-to-string "git rev-list HEAD | wc -l")))
+    (let ((s (shell-command-to-string "git rev-list --count HEAD")))
       (chdir current-dir)
       (string->number
        (car (reverse (string-split (car (cdr (reverse (string-split s #\newline)))) #\space)))))))

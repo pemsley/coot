@@ -12,9 +12,12 @@
 
    o quick save view on a key.
 
-   o does saving the state of backrub rotamers work?
+   o does saving the state of backrub rotamers work? Yes, but the button doesn't show the 
+     state at startup.
 
    o pyrogen -n -M -C ATP AMP.smi.  The atom names are ultra-quoted.
+
+* Fixed.
 
    o Renumber residue should have 
 

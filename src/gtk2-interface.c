@@ -18881,7 +18881,6 @@ create_renumber_residue_range_dialog (void)
   gtk_widget_set_name (frame306, "frame306");
   gtk_widget_show (frame306);
   gtk_box_pack_start (GTK_BOX (hbox96), frame306, FALSE, TRUE, 2);
-  gtk_frame_set_shadow_type (GTK_FRAME (frame306), GTK_SHADOW_IN);
 
   alignment167 = gtk_alignment_new (0.5, 0.5, 1, 1);
   gtk_widget_set_name (alignment167, "alignment167");
