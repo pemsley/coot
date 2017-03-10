@@ -1336,9 +1336,16 @@ std::map<std::string, std::pair<std::string, std::string> > graphics_info_t::use
 std::vector<std::pair<clipper::Coord_orth, std::string> > graphics_info_t::user_defined_interesting_positions;
 unsigned int graphics_info_t::user_defined_interesting_positions_idx = 0;
 
-
 // Chemical Feature Clusters, cfc
 GtkWidget *graphics_info_t::cfc_dialog = NULL;
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#ifdef HAVE_CXX11
+std::shared_ptr<Renderer>   graphics_info_t::mol_tri_renderer    = 0;
+std::shared_ptr<SceneSetup> graphics_info_t::mol_tri_scene_setup = 0;
+#endif
+#endif // USE_MOLECULES_TO_TRIANGLES
+
 
 // GTK2 code
 // 
@@ -1723,7 +1730,40 @@ init_gl_widget(GtkWidget *widget) {
 
    // gtk_idle_add((GtkFunction)animate, widget);
 
+   // should be in graphics_info_t?
+   setup_for_mol_triangles();
+
   return TRUE;
+}
+
+void
+setup_for_mol_triangles() {
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#ifdef HAVE_CXX11
+
+   graphics_info_t::mol_tri_renderer    = RendererGLSL::create();
+
+   // graphics_info_t::mol_tri_scene_setup = SceneSetup::defaultSceneSetup();
+
+//    //Add a simple light..set some parameters and move it
+//    auto simpleLight = Light::defaultLight();
+//    simpleLight->setIntensity(0.75);
+//    simpleLight->setDrawLight(false);
+//    graphics_info_t::mol_tri_scene_setup->addLight(simpleLight);
+//    //Can retrieve reference to the light if so preferred
+//    graphics_info_t::mol_tri_scene_setup->getLight(0)->setTranslation(FCXXCoord(400.,400.,0,0.));
+
+//    //Add another simple light
+//    auto simpleLight2 = Light::defaultLight();
+//    graphics_info_t::mol_tri_scene_setup->addLight(simpleLight2);
+//    simpleLight2->setIntensity(0.5);
+//    simpleLight2->setDrawLight(false);
+//    simpleLight2->setTranslation(FCXXCoord(0.,0.,400,0.));
+
+#endif
+#endif // USE_MOLECULES_TO_TRIANGLES
+
 }
 
 void
@@ -2315,25 +2355,33 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 }
       }
 
+#ifdef USE_MOLECULES_TO_TRIANGLES
 #ifdef HAVE_CXX11
 
       // Martin's triangular molecules
       //
-      for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
-	 if (is_valid_model_molecule(ii)) {
-	    if (graphics_info_t::molecules[ii].molrepinst) {
-	       // std::cout << "rendering imol " << ii << std::endl;
-	       auto renderer = RendererGL::create(); // I know that I don't need to do this every loop
-	       renderer->init();
-	       graphics_info_t::molecules[ii].molrepinst->renderInRenderer(renderer);
+      FCXXCoord pos(graphics_info_t::RotationCentre_x(),
+		    graphics_info_t::RotationCentre_y(),
+		    graphics_info_t::RotationCentre_z());
+      if (graphics_info_t::mol_tri_scene_setup) {
+	 if (graphics_info_t::mol_tri_renderer) {
+	    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+	       if (is_valid_model_molecule(ii)) {
+		  if (graphics_info_t::molecules[ii].molrepinst) {
+		     std::cout << "have molrepinst for imol " << ii << std::endl;
+		     graphics_info_t::mol_tri_scene_setup->renderWithRendererFromViewpoint(graphics_info_t::mol_tri_renderer, pos);
+		  }
+	       }
 	    }
 	 }
       }
 #endif // CXX11
+#endif // USE_MOLECULES_TO_TRIANGLES
+
       //
       draw_crosshairs_maybe();
 
-      // 
+      //
       display_density_level_maybe();
 
       // BL says:: not sure if we dont need to do this for 2nd Zalman view

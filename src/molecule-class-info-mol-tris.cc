@@ -3,23 +3,26 @@
 #include "graphics-info.h"
 #include "molecule-class-info.h"
 
+// make and add to the scene
 void
 molecule_class_info_t::make_molecularrepresentationinstance() {
 
+#ifdef USE_MOLECULES_TO_TRIANGLES
 #ifdef HAVE_CXX11
    if (atom_sel.mol) {
-      
-      auto mm=new MyMolecule(atom_sel.mol);
 
-      auto sp = std::shared_ptr<MyMolecule>(mm);
+      auto sp = std::make_shared<MyMolecule> (atom_sel.mol);
 
-      std::cout << "making a molpreinst" << std::endl;
-      // should be rep not pre
-      auto mri = new MolecularRepresentationInstance;
-      mri->create(sp, ColorScheme::colorBySecondaryScheme(), "ALL","Ribbon");
-      std::cout << "making a molpreinst done" << std::endl;
-      molrepinst=mri;
+      std::cout << "making a molrepinst" << std::endl;
+
+      auto cs = ColorScheme::colorBySecondaryScheme();
+      molrepinst = MolecularRepresentationInstance::create(sp, cs, "ALL", "Ribbon");
+
+      std::cout << "made a molrepinst " << molrepinst << std::endl;
+
+      graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(molrepinst);
 
    }
-#endif // AX_CXX_COMPILE_STDCXX_11   
+#endif // HAVE_CXX11
+#endif // USE_MOLECULES_TO_TRIANGLES
 }

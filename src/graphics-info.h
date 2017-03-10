@@ -51,6 +51,12 @@
 #include <utils/ctpl_stl.h>
 #endif // HAVE_CXX_THREAD
 
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#ifdef HAVE_CXX11
+#include <CXXClasses/RendererGLSL.hpp>
+#endif // HAVE_CXX11
+#endif // USE_MOLECULES_TO_TRIANGLES
+
 #ifdef WII_INTERFACE_WIIUSE
 #include "wiiuse.h"
 #endif // WII_INTERFACE_WIIUSE
@@ -924,9 +930,8 @@ public:
       lsq_plane_atom_positions = new std::vector<clipper::Coord_orth>;
 
       directory_for_fileselection = "";
-#if (GTK_MAJOR_VERSION > 1)
       directory_for_filechooser = "";
-#endif // GTK_MAJOR_VERSION
+
       baton_next_ca_options = new std::vector<coot::scored_skel_coord>;
       baton_previous_ca_positions = new std::vector<clipper::Coord_orth>;
 
@@ -1201,6 +1206,7 @@ public:
       preset_number_refmac_cycles->push_back(15);
       preset_number_refmac_cycles->push_back(20);
       preset_number_refmac_cycles->push_back(50);
+
    }
 
    static bool prefer_python;
@@ -1612,9 +1618,9 @@ public:
    
 
 
-   float X(void) { return rotation_centre_x; };
-   float Y(void) { return rotation_centre_y; };
-   float Z(void) { return rotation_centre_z; };
+   float X() { return rotation_centre_x; };
+   float Y() { return rotation_centre_y; };
+   float Z() { return rotation_centre_z; };
 
    coot::Cartesian RotationCentre() const 
       { return coot::Cartesian(rotation_centre_x,
@@ -3974,6 +3980,13 @@ string   static std::string sessionid;
 #ifdef HAVE_CXX_THREAD
    static ctpl::thread_pool static_thread_pool;
 #endif
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#ifdef HAVE_CXX11
+   static std::shared_ptr<Renderer> mol_tri_renderer;
+   static std::shared_ptr<SceneSetup>   mol_tri_scene_setup;
+#endif
+#endif // USE_MOLECULES_TO_TRIANGLES
 
 };
 

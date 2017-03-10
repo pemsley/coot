@@ -49,6 +49,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #   include <GL/gl.h>
 #endif
 
+#ifdef USE_MOLECULES_TO_TRIANGLES
 #ifdef HAVE_CXX11
 #include <CXXClasses/RendererGL.h>
 #include <CXXClasses/Light.h>
@@ -59,6 +60,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include <CXXClasses/MyMolecule.h>
 #include <CXXClasses/RepresentationInstance.h>
 #include <CXXClasses/MolecularRepresentationInstance.h>
+#endif
 #endif
 
 #include "clipper/ccp4/ccp4_map_io.h"
@@ -802,10 +804,12 @@ public:        //                      public
       single_model_view_current_model_number = 0; // all models
 
       // need to test for moltris too, I guess
+#ifdef USE_MOLECULES_TO_TRIANGLES
 #ifdef HAVE_CXX11
-      molrepinst = 0;
+      molrepinst = std::make_shared<MolecularRepresentationInstance> ();
 #endif // HAVE_CXX11
-      
+#endif // USE_MOLECULES_TO_TRIANGLES
+
    }
 
    int handle_read_draw_molecule(int imol_no_in,
@@ -3083,10 +3087,12 @@ public:        //                      public
 
    std::pair<std::vector<clipper::Coord_orth>, std::vector<std::pair<unsigned int, unsigned int> > > get_contours(float contour_level, float radius, const coot::Cartesian &centre) const;
 
+#ifdef USE_MOLECULES_TO_TRIANGLES
 #ifdef HAVE_CXX11
-   MolecularRepresentationInstance *molrepinst;
+   std::shared_ptr<MolecularRepresentationInstance> molrepinst;
    void make_molecularrepresentationinstance();
 #endif   
+#endif // USE_MOLECULES_TO_TRIANGLES
 
 };
 
