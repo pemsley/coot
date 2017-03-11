@@ -1428,7 +1428,7 @@ coot::trace::build_2_choose_1(unsigned int atom_idx,
       }
       std::cout << " and dir " << dir << std::endl;
 
-      
+
       std::vector<scored_node_t> nf =
 	 get_neighbours_of_vertex_excluding_path(atom_idx, start_path, FORWARDS);
       std::cout << "   INFO:: build_2_choose_1(): node-lev-1 " << atom_idx << " has "
@@ -1446,7 +1446,7 @@ coot::trace::build_2_choose_1(unsigned int atom_idx,
 	 std::cout << "   " << nb[j].atom_idx;
       std::cout << std::endl;
    }  // end debug
-   
+
    // this functions checks that the neighbors don't have to same atom_idx as
    // those in path 
    //
@@ -1573,7 +1573,7 @@ coot::trace::build_2_choose_1(unsigned int atom_idx,
 
    double best_score = -9999;
    scored_node_t best_scored_node;
-   
+
    if (frag_store.size() > 0) {
       for (unsigned int i=0; i<frag_store.size(); i++) { 
 	 if (frag_store[i].get_score() > best_score) {
