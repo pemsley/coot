@@ -1,5 +1,6 @@
 
 %module coot
+
 %{
 #include <cstdio>
 #include <cstddef>

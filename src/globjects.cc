@@ -1746,20 +1746,20 @@ setup_for_mol_triangles() {
 
    graphics_info_t::mol_tri_scene_setup = SceneSetup::defaultSceneSetup();
 
-//    //Add a simple light..set some parameters and move it
-//    auto simpleLight = Light::defaultLight();
-//    simpleLight->setIntensity(0.8);
-//    simpleLight->setDrawLight(false); // crash on true, why is that?
-//    graphics_info_t::mol_tri_scene_setup->addLight(simpleLight);
-//    //Can retrieve reference to the light if so preferred
-//    graphics_info_t::mol_tri_scene_setup->getLight(0)->setTranslation(FCXXCoord(400.,400.,0,0.));
+   //Add a simple light..set some parameters and move it
+   auto simpleLight = Light::defaultLight();
+   simpleLight->setIntensity(0.8);
+   simpleLight->setDrawLight(false); // crash on true, why is that?
+   graphics_info_t::mol_tri_scene_setup->addLight(simpleLight);
+   //Can retrieve reference to the light if so preferred
+   graphics_info_t::mol_tri_scene_setup->getLight(0)->setTranslation(FCXXCoord(400.,400.,0,0.));
 
-//    //Add another simple light
-//    auto simpleLight2 = Light::defaultLight();
-//    graphics_info_t::mol_tri_scene_setup->addLight(simpleLight2);
-//    simpleLight2->setIntensity(0.3);
-//    simpleLight2->setDrawLight(false);
-//    simpleLight2->setTranslation(FCXXCoord(0.,0.,400,0.));
+   //Add another simple light
+   // auto simpleLight2 = Light::defaultLight();
+   // graphics_info_t::mol_tri_scene_setup->addLight(simpleLight2);
+   // simpleLight2->setIntensity(0.3);
+   // simpleLight2->setDrawLight(false);
+   // simpleLight2->setTranslation(FCXXCoord(0.,0.,400,0.));
 
 #endif
 #endif // USE_MOLECULES_TO_TRIANGLES
@@ -1780,9 +1780,9 @@ setup_lighting(short int do_lighting_flag) {
       //
       // GL_LIGHT2 is for cut-glass mode
       // 
-      GLfloat  light_0_position[] = { 1.0,  1.0,  1.0, 0.0};
-      GLfloat  light_1_position[] = {-1.0,  0.0,  1.0, 0.0};
-      GLfloat  light_2_position[] = { 0.0,  0.0, -1.0, 0.0};
+      GLfloat  light_0_position[] = { 1.0,  1.0,  1.0, 1.0};
+      GLfloat  light_1_position[] = {-1.0,  0.0,  1.0, 1.0};
+      GLfloat  light_2_position[] = { 0.0,  0.0, -1.0, 1.0};
 
       glClearColor(0.0, 0.0, 0.0, 0.0);
       glShadeModel(GL_SMOOTH);
