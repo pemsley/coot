@@ -5308,7 +5308,9 @@ void display_only_active() {
 	    if (is_valid_model_molecule(imol)) {
 	       if (imol == imol_active) {
 		  graphics_info_t::molecules[imol].set_mol_is_active(true);
+		  graphics_info_t::molecules[imol].set_mol_is_displayed(true);
 	       } else {
+		  graphics_info_t::molecules[imol].set_mol_is_displayed(false);
 		  graphics_info_t::molecules[imol].set_mol_is_active(false);
 	       }
 	    }
