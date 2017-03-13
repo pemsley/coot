@@ -212,6 +212,10 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
       commands.push_back(state_command("set-refine-with-torsion-restraints", do_torsion_restraints, il));
 
    // Backrub rotamers?
+
+   //std::cout << "rotamer_search mode " << rotamer_search_mode << " vs " << ROTAMERSEARCHLOWRES
+   // << std::endl;
+   //
    if (rotamer_search_mode == ROTAMERSEARCHLOWRES)
       commands.push_back(state_command("set-rotamer-search-mode", ROTAMERSEARCHLOWRES, il));
    

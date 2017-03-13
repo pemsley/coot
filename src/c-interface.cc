@@ -523,7 +523,7 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 							  recentre_on_read_pdb_flag, 0,
 							  g.allow_duplseqnum,
 							  g.convert_to_v2_atom_names_flag,
-							  bw, bonds_box_type);
+							  bw, bonds_box_type, true);
 
       if (istat == 1) {
 	 std::cout << "Molecule " << imol << " read successfully\n";
@@ -5293,6 +5293,33 @@ void set_all_models_displayed_and_active(int on_or_off) {
    }
    graphics_draw();
 }
+
+/*\brief display only the active mol and the refinement map */
+void display_only_active() {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
+
+   if (aa.first) {
+      int imol_active = aa.second.first;
+      if (is_valid_model_molecule(imol_active)) {
+	 coot::atom_spec_t atom_spec = aa.second.second;
+	 int nm = graphics_info_t::n_molecules();
+	 for (int imol=0; imol<nm; imol++) {
+	    if (is_valid_model_molecule(imol)) {
+	       if (imol == imol_active) {
+		  graphics_info_t::molecules[imol].set_mol_is_active(true);
+		  graphics_info_t::molecules[imol].set_mol_is_displayed(true);
+	       } else {
+		  graphics_info_t::molecules[imol].set_mol_is_displayed(false);
+		  graphics_info_t::molecules[imol].set_mol_is_active(false);
+	       }
+	    }
+	 }
+      }
+   }
+   graphics_draw();
+}
+
 
 // Bleugh.
 char *
