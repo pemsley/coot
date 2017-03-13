@@ -328,6 +328,10 @@ on_map_and_mol_control1_activate       (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
 
 void
+on_display_only_active1_activate       (GtkMenuItem     *menuitem,
+                                        gpointer         user_data);
+
+void
 on_go_to_atom_ok_button_clicked        (GtkButton       *button,
                                         gpointer         user_data);
 
@@ -1010,11 +1014,9 @@ void
 on_reset_view_button_clicked           (GtkButton       *button,
                                         gpointer         user_data);
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_reset_view_toolbutton_clicked       (GtkToolButton   *toolbutton,
                                         gpointer         user_data);
-#endif
 
 void
 on_hints1_activate                     (GtkMenuItem     *menuitem,
@@ -1257,7 +1259,6 @@ on_run_refmac_mtz_file_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_run_refmac_mtz_filechooserdialog_response
                                         (GtkDialog       *dialog,
@@ -1268,7 +1269,6 @@ void
 on_run_refmac_mtz_filechooserdialog_destroy
                                         (GtkObject       *object,
                                         gpointer         user_data);
-#endif
 
 void
 on_run_refmac_mtz_filechooser_button_clicked
@@ -2205,7 +2205,6 @@ void
 on_preferences1_activate               (GtkMenuItem     *menuitem,
                                         gpointer         user_data);
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_preferences_general_radiotoolbutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
@@ -2235,8 +2234,6 @@ void
 on_preferences_other_radiotoolbutton_toggled
                                         (GtkToggleToolButton *toggletoolbutton,
                                         gpointer         user_data);
-
-#endif /* GTK_MAJOR_VERSION */
 
 void
 on_preferences_geometry_cis_peptide_bad_yes_radiobutton_toggled
@@ -2273,12 +2270,10 @@ on_preferences_bg_colour_own_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_preferences_bg_colour_colorbutton_color_set
                                         (GtkColorButton  *colorbutton,
                                         gpointer         user_data);
-#endif
 
 void
 on_preferences_bg_colour_colorbutton_clicked

@@ -5294,6 +5294,31 @@ void set_all_models_displayed_and_active(int on_or_off) {
    graphics_draw();
 }
 
+/*\brief display only the active mol and the refinement map */
+void display_only_active() {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
+
+   if (aa.first) {
+      int imol_active = aa.second.first;
+      if (is_valid_model_molecule(imol_active)) {
+	 coot::atom_spec_t atom_spec = aa.second.second;
+	 int nm = graphics_info_t::n_molecules();
+	 for (int imol=0; imol<nm; imol++) {
+	    if (is_valid_model_molecule(imol)) {
+	       if (imol == imol_active) {
+		  graphics_info_t::molecules[imol].set_mol_is_active(true);
+	       } else {
+		  graphics_info_t::molecules[imol].set_mol_is_active(false);
+	       }
+	    }
+	 }
+      }
+   }
+   graphics_draw();
+}
+
+
 // Bleugh.
 char *
 show_spacegroup(int imol) { 

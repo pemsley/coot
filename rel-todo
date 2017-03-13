@@ -1,6 +1,8 @@
 
    For Release 0.8.8
 
+   o Residue info should not show TER atoms
+
    o JED: read in a PDB with no dictionary:
 
     libc++abi.dylib: terminating with uncaught exception of type std::runtime_error: WARNING:: 

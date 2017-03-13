@@ -1396,6 +1396,19 @@ on_map_and_mol_control1_activate       (GtkMenuItem     *menuitem,
    gtk_widget_show(widget);
 }
 
+void
+on_display_only_active1_activate       (GtkMenuItem     *menuitem,
+                                        gpointer         user_data)
+{
+
+  /* display only the active mol and the refinement map */
+  display_only_active();
+
+}
+
+
+
+
 
 void
 on_go_to_atom_apply_button_clicked (GtkButton       *button,
@@ -9969,13 +9982,13 @@ on_display_manager_button_clicked      (GtkButton       *button,
    gtk_widget_show(widget);
 }
 
+
 void
 on_reset_view_button_clicked           (GtkButton       *button,
                                         gpointer         user_data) { 
    reset_view();
 } 
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_display_manager_toolbutton_clicked  (GtkToolButton   *toolbutton,
                                         gpointer         user_data)
@@ -9983,23 +9996,18 @@ on_display_manager_toolbutton_clicked  (GtkToolButton   *toolbutton,
    GtkWidget *widget = wrapped_create_display_control_window();
    gtk_widget_show(widget);
 }
-#endif /* GTK_MAJOR_VERSION */
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_reset_view_toolbutton_clicked       (GtkToolButton   *toolbutton,
                                         gpointer         user_data)
 {
    reset_view();
 }
-#endif /* GTK_MAJOR_VERSION */
 
-#if (GTK_MAJOR_VERSION > 1)
 void
 on_symmetry_colorbutton_color_set      (GtkColorButton  *colorbutton,
                                         gpointer         user_data) {
 }
-#endif /* GTK_MAJOR_VERSION */
 
 void
 on_display_control_all_maps_togglebutton_toggled
