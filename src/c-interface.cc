@@ -523,7 +523,7 @@ int handle_read_draw_molecule_with_recentre(const char *filename,
 							  recentre_on_read_pdb_flag, 0,
 							  g.allow_duplseqnum,
 							  g.convert_to_v2_atom_names_flag,
-							  bw, bonds_box_type);
+							  bw, bonds_box_type, true);
 
       if (istat == 1) {
 	 std::cout << "Molecule " << imol << " read successfully\n";

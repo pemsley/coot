@@ -2306,7 +2306,7 @@ int test_previous_water() {
    mci.handle_read_draw_molecule(1,
 				 greg_test("pathological-water-test.pdb"),
 				 coot::util::current_working_dir(),
-				 0, 0, true, true, 1, coot::NORMAL_BONDS);
+				 0, 0, true, true, 1, coot::NORMAL_BONDS, false);
    mci.delete_atom("D", 162, "", " O  ", "");
    coot::Cartesian rc(0,0,0); // hack?
    int iprev = mci.intelligent_previous_atom("D", 162, " O  ", "", rc);
