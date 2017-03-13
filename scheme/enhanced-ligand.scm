@@ -80,12 +80,24 @@
 
       (if (defined? 'coot-main-menubar)
 	  (let ((menu (coot-menubar-menu "Ligand")))
+
+	    (add-simple-coot-menu-menuitem
+	     menu "Find Ligands..."
+	     do-find-ligands-dialog)
+
 	    (add-simple-coot-menu-menuitem 
 	     menu "SMILES -> 2D"
 	     (lambda ()
 	       (generic-single-entry "SMILES string" "" " Send to 2D Viewer " 
 				     (lambda (text)
 				       (smiles-to-ligand-builder text)))))
+
+	    (add-simple-coot-menu-menuitem
+	     menu "SMILES -> simple 3D"
+	     (lambda ()
+	       (generic-double-entry "Residue Name" "SMILES string  " "LIG" "" #f #f "Import Molecule"
+				     (lambda (text-1 text-2 dum)
+				       (import-rdkit-mol-from-smiles text-2 text-1)))))
 
 	    (add-simple-coot-menu-menuitem 
 	     menu "Residue -> 2D"

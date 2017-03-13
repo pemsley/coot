@@ -100,8 +100,8 @@
 								      "get-recent-pdbe.scm"
 								      "extensions.scm"
 								      "shelx-extensions.scm"
-								      "ligand-check.scm"
 								      "enhanced-ligand.scm"
+								      "ligand-check.scm"
 								      "gui-ligand-sliders.scm"
 								      )))
 	      (else 

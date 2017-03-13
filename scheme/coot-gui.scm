@@ -241,12 +241,12 @@
     
     (gtk-box-pack-start vbox hbox1 #f #f 0)
     (gtk-box-pack-start vbox hbox2 #f #f 0)
-    (gtk-box-pack-start hbox3 go-button #t #f 6)
+    (gtk-box-pack-start hbox3 go-button #f #f 6)
     (gtk-box-pack-start hbox3 cancel-button #t #f 6)
     (gtk-box-pack-start hbox1 tlc-label #f #f 0)
     (gtk-box-pack-start hbox1 tlc-entry #f #f 0)
     (gtk-box-pack-start hbox2 smiles-label #f #f 0)
-    (gtk-box-pack-start hbox2 smiles-entry #f #f 0)
+    (gtk-box-pack-start hbox2 smiles-entry #t #t 0)
 
     (let ((check-button 
 	   (if (string? check-button-label)
@@ -296,6 +296,7 @@
 				  (gtk-widget-destroy window)))
 			    #f))
 
+      (gtk-window-set-default-size window 400 100)
       (gtk-widget-show-all window))))
 
 ;; generic double entry widget, now with a check button
