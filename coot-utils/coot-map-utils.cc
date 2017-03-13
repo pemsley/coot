@@ -1653,17 +1653,41 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
 		   << selection_extents.second.format() << std::endl;
 
       // double border = 4.1;
-      double border = 3; // border is used to create selection_grid.
-                         // the grid that we check at the end is +/-3 A of the X,Y,Z extends of the ligand
+      double border = 3.1; // border is used to create selection_grid.
+                           // the grid that we check at the end is +/-3 A of the X,Y,Z extends of the ligand
 
-      clipper::Coord_orth ex_pt_1_co = clipper::Coord_orth(selection_extents.first.x()-border,
-							   selection_extents.first.y()-border,
-							   selection_extents.first.z()-border);
-      clipper::Coord_orth ex_pt_2_co = clipper::Coord_orth(selection_extents.second.x()+border,
-							   selection_extents.second.y()+border,
-							   selection_extents.second.z()+border);
-      clipper::Coord_frac ex_pt_1_fc = ex_pt_1_co.coord_frac(masked_map.cell());
-      clipper::Coord_frac ex_pt_2_fc = ex_pt_2_co.coord_frac(masked_map.cell());
+      bool good_frac_coords = false;  // force loop evaluation for the first time
+
+      clipper::Coord_orth ex_pt_1_co;
+      clipper::Coord_orth ex_pt_2_co;
+      clipper::Coord_frac ex_pt_1_fc;
+      clipper::Coord_frac ex_pt_2_fc;
+      while (! good_frac_coords) {
+	 ex_pt_1_co = clipper::Coord_orth(selection_extents.first.x()-border,
+					  selection_extents.first.y()-border,
+					  selection_extents.first.z()-border);
+	 ex_pt_2_co = clipper::Coord_orth(selection_extents.second.x()+border,
+					  selection_extents.second.y()+border,
+					  selection_extents.second.z()+border);
+	 ex_pt_1_fc = ex_pt_1_co.coord_frac(reference_map.cell());
+	 ex_pt_2_fc = ex_pt_2_co.coord_frac(reference_map.cell());
+	 if (debug) {
+	    std::cout << "INFO:: Selection grid construction, ex_pt_1_co: " << ex_pt_1_co.format() << std::endl;
+	    std::cout << "INFO:: Selection grid construction, ex_pt_2_co: " << ex_pt_2_co.format() << std::endl;
+	    std::cout << "INFO:: Selection grid construction, ex_pt_1_fc: " << ex_pt_1_fc.format() << std::endl;
+	    std::cout << "INFO:: Selection grid construction, ex_pt_2_fc: " << ex_pt_2_fc.format() << std::endl;
+	    std::cout << "using cell " << reference_map.cell().descr().format() << std::endl;
+	    clipper::Mat33<double> mat = reference_map.cell().matrix_frac();
+	    std::cout << "mat: \n" << mat.format() << std::endl;
+	 }
+	 good_frac_coords = true;
+	 for (int i=0; i<3; i++) {
+	    if (ex_pt_2_fc[i] < ex_pt_1_fc[i]) {
+	       good_frac_coords = false;
+	       border += 1.2;
+	    }
+	 }
+      }
       clipper::Grid_map selection_grid(ex_pt_1_fc.coord_grid(reference_map.grid_sampling()),
 				       ex_pt_2_fc.coord_grid(reference_map.grid_sampling()));
       if (debug) {
