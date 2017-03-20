@@ -38,19 +38,25 @@ map_density_distribution(const clipper::Xmap<T> &map,
    double v; // optimised?
    double n_point = 0.0;
    T rho;
-   
+   double max_plausible =  999999999e20;
+   double min_plausible = -999999999e20;
+
    clipper::Xmap_base::Map_reference_index ix;
    for (ix=map.first(); !ix.last(); ix.next()) {
 
       n_point += 1.0;
       rho = map[ix];
       if (! clipper::Util::is_nan(rho)) { 
-	 v = double (rho); 
-	 if (v < min) min = v; 
-	 if (v > max) max = v;
+	 v = double (rho);
+	 if (v < max_plausible) {
+	    if (v > min_plausible) {
+	       if (v < min) min = v;
+	       if (v > max) max = v;
 
-	 sum += v;
-	 sum_sq += v*v;
+	       sum += v;
+	       sum_sq += v*v;
+	    }
+	 }
       }
    }
 
@@ -60,6 +66,84 @@ map_density_distribution(const clipper::Xmap<T> &map,
    float range = float( max - min );
    float inv_range = (range>0.0) ? (1.0/range) : (1.0);
 
+   min_plausible = mean - 10 * sqrt(var);
+   max_plausible = mean + 10 * sqrt(var);
+
+   std::cout << "reset max_plausible to " << max_plausible << std::endl;
+   std::cout << "reset min_plausible to " << min_plausible << std::endl;
+
+   std::cout << "debug:: Map statistics: mean: " << mean << " st.d: " << sqrt(var) << std::endl;
+   std::cout <<  "debug:: Map statistics: min: " << min << ", max: " << max << std::endl;
+
+   sum_sq = 0;
+   sum = 0;
+   n_point = 0;
+   min = 1e10; max = -1e10;
+   for (ix=map.first(); !ix.last(); ix.next()) {
+      rho = map[ix];
+      if (! clipper::Util::is_nan(rho)) {
+	 v = double (rho);
+	 if (v < max_plausible) {
+	    if (v > min_plausible) {
+	       n_point += 1.0;
+	       if (v < min) min = v;
+	       if (v > max) max = v;
+
+	       sum += v;
+	       sum_sq += v*v;
+	    } else {
+	       std::cout << "reject " << ix.coord().format() << " rho: " << rho << " implausible (low)" << std::endl;
+	    }
+	 } else {
+	    std::cout << "reject " << ix.coord().format() << " rho: " << rho << " implausible (high)" << std::endl;
+	 }
+      }
+   }
+   mean = float( sum/n_point );
+   var = float( (n_point*sum_sq - sum*sum) / (n_point*n_point) );
+   range = float( max - min );
+   inv_range = (range>0.0) ? (1.0/range) : (1.0);
+
+   std::cout << "debug 2:: Map statistics: mean: " << mean << " st.d: " << sqrt(var) << std::endl;
+   std::cout <<  "debug 2:: Map statistics: min: " << min << ", max: " << max << std::endl;
+
+   min_plausible = mean - 20 * sqrt(var);
+   max_plausible = mean + 20 * sqrt(var);
+
+   std::cout << "reset max_plausible to " << max_plausible << std::endl;
+   std::cout << "reset min_plausible to " << min_plausible << std::endl;
+
+   sum_sq = 0;
+   sum = 0;
+   n_point = 0;
+   min = 1e10; max = -1e10;
+   for (ix=map.first(); !ix.last(); ix.next()) {
+      rho = map[ix];
+      if (! clipper::Util::is_nan(rho)) { 
+	 v = double (rho);
+	 if (v < max_plausible) {
+	    if (v > min_plausible) {
+	       n_point += 1.0;
+	       if (v < min) min = v; 
+	       if (v > max) max = v;
+
+	       sum += v;
+	       sum_sq += v*v;
+	    } else {
+	       std::cout << "reject " << ix.coord().format() << " rho: " << rho << " implausible (low)" << std::endl;
+	    }
+	 } else {
+	    std::cout << "reject " << ix.coord().format() << " rho: " << rho << " implausible (high)" << std::endl;
+	 }
+      }
+   }
+   mean = float( sum/n_point );
+   var = float( (n_point*sum_sq - sum*sum) / (n_point*n_point) );
+   range = float( max - min );
+   inv_range = (range>0.0) ? (1.0/range) : (1.0);
+
+   std::cout << "debug 3:: Map statistics: mean: " << mean << " st.d: " << sqrt(var) << std::endl;
+   std::cout << "debug 3:: Map statistics: min: " << min << ", max: " << max << std::endl;
 
    mv.mean = mean;
    mv.variance = var; 
@@ -73,12 +157,16 @@ map_density_distribution(const clipper::Xmap<T> &map,
 
    for (ix=map.first(); !ix.last(); ix.next()) {
       rho = map[ix];
-      if (! clipper::Util::is_nan(rho)) { 
-	 bin_no = int (n_bins*(rho - min)*inv_range);
-	 // std::cout << "bin_no: " << bin_no << " from " << nbins << "*(" << map[ix] << "- " << min << ") * "
-	 // << inv_range << std::endl;
-	 bin[bin_no]++;
-	 // std::cout << "bin[" << bin_no << "] is now " << bin[bin_no] << std::endl;
+      if (! clipper::Util::is_nan(rho)) {
+	 if (rho < max_plausible) {
+	    if (rho > min_plausible) {
+	       bin_no = int (n_bins*(rho - min)*inv_range);
+	       // std::cout << "bin_no: " << bin_no << " from " << nbins << "*(" << map[ix] << "- " << min << ") * "
+	       // << inv_range << std::endl;
+	       bin[bin_no]++;
+	       // std::cout << "bin[" << bin_no << "] is now " << bin[bin_no] << std::endl;
+	    }
+	 }
       }
    }
 
@@ -107,9 +195,13 @@ map_density_distribution(const clipper::Xmap<T> &map,
       for (ix=map.first(); !ix.last(); ix.next()) {
 	 rho = map[ix];
 	 if (! clipper::Util::is_nan(rho)) { 
-	    bin_no = int (nbins_filter*(rho - min)*inv_range);
-	    bin[bin_no]++; 
-	    n++;
+	    if (rho < max_plausible) {
+	       if (rho > min_plausible) {
+		  bin_no = int (nbins_filter*(rho - min)*inv_range);
+		  bin[bin_no]++; 
+		  n++;
+	       }
+	    }
 	 }
       }
       double sum = 0;
