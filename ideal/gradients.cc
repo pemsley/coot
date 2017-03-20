@@ -532,19 +532,29 @@ coot::my_df_geman_mcclure_distances_single(const gsl_vector *v,
       b_i_sqrd = (a1-a2).lengthsq();
       b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
 
-      weight = 1.0/(this_restraint.sigma * this_restraint.sigma);
       double b_i = sqrt(b_i_sqrd);
+      double weight = 1.0/(this_restraint.sigma * this_restraint.sigma);
 
-      // double constant_part = 2.0*weight*(b_i - target_val)/b_i;
-      // double constant_part = 2.0*weight * (1 - target_val * f_inv_fsqrt(b_i_sqrd));
+      // Let z = (boi - bi)/sigma
+      //    S_i = z^2/(1 + alpha * z^2)
+      //
+      double bit = b_i - this_restraint.target_value;
+      double z = bit/this_restraint.sigma;
 
-      double b_diff = b_i - this_restraint.target_value;
-      double z_i = b_diff * b_diff * weight;
-      double d_Si_d_zi =  alpha / ((alpha + z_i) * (alpha + z_i));
-      double d_zi_d_bi = 2.0 * weight * b_diff;
-      double d_bi_d_xm_multiplier = 1.0/b_i;
+      double beta  = 1 + alpha * z * z;
+      double d_Si_d_zi = 2.0 * z  / (beta * beta);
+      double d_zi_d_bi = 1.0/this_restraint.sigma;
+      double d_b_d_x_m = 1.0/b_i;
 
-      double constant_part = d_Si_d_zi * d_zi_d_bi * d_bi_d_xm_multiplier;
+      double constant_part_gm = d_Si_d_zi * d_zi_d_bi * d_b_d_x_m;
+      double constant_part = constant_part_gm;
+
+      const double &target_val = this_restraint.target_value;
+      double constant_part_lsq = 2.0*weight * (1 - target_val * f_inv_fsqrt(b_i_sqrd));
+
+      constant_part = constant_part_lsq / (beta * beta);
+
+      // constant_part = constant_part_lsq; // force least squares
 
       // The final part is dependent on the coordinates:
       x_k_contrib = constant_part*(a1.x()-a2.x());
@@ -638,11 +648,6 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
    }
 
 #ifdef ANALYSE_REFINEMENT_TIMING
-   gettimeofday(&current_time, NULL);
-   double td = current_time.tv_sec - start_time.tv_sec;
-   td *= 1000.0;
-   td += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
-   std::cout << "------------- mark my_df_geman_mcclure_distances: " << td << std::endl;
 #endif // ANALYSE_REFINEMENT_TIMING
 
 }
