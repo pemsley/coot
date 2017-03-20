@@ -799,7 +799,8 @@ public:        //                      public
 				 bool allow_duplseqnum,
 				 bool convert_to_v2_atom_names_flag,
 				 float bond_width_in,
-				 int bonds_box_type);
+				 int bonds_box_type,
+				 bool warn_about_missing_symmetry_flag);
 
    void label_symmetry_atom(int i);
    
@@ -949,7 +950,7 @@ public:        //                      public
    // 
    short int show_unit_cell_flag; 
    short int have_unit_cell;
-   void set_have_unit_cell_flag_maybe();
+   void set_have_unit_cell_flag_maybe(bool warn_about_missing_symmetry_flag);
 
    void draw_molecule(short int do_zero_occ_spots,
 		      bool against_a_dark_background,
@@ -1119,14 +1120,16 @@ public:        //                      public
 		      const coot::protein_geometry *geom_p,
 		      const std::string &mol_name,
 		      short int display_in_display_control_widget_status,
-		      bool is_from_shelx_ins=0);
+		      bool is_from_shelx_ins=false,
+		      bool warn_about_missing_symmetry_flag=true);
 
    void install_model(int imol_no_in, 
 		      mmdb::Manager *mol,
 		      const coot::protein_geometry *geom_p,
 		      const std::string &mol_name,
 		      short int display_in_display_control_widget_status,
-		      bool is_from_shelx_ins=0);
+		      bool is_from_shelx_ins=false,
+		      bool warn_about_missing_symmetry_flag=true);
 
    int copy_residue_range(mmdb::Chain *from_chain, mmdb::Chain *to_chain,
 			  int residue_range_1,

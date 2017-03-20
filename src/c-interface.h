@@ -2827,6 +2827,10 @@ void set_all_maps_displayed(int on_or_off);
   for other values of on_or_off turn on all models. */
 void set_all_models_displayed_and_active(int on_or_off);
 
+/*\brief display only the active mol and the refinement map */
+void display_only_active();
+
+
 #ifdef __cplusplus
 #ifdef USE_GUILE
 /*! \brief return the spacegroup as a string, return scheme false if unable to do so. */

@@ -60,15 +60,19 @@ coot::numerical_gradients(gsl_vector *v,
 			        // seems not to depend on the
 			        // micro_step size (0.0001 vs 0.001)
 
-   std::cout << "analytical_gradients" << std::endl; 
-   for (unsigned int i=0; i<df->size; i++) {
-      tmp = gsl_vector_get(df, i); 
-      cout << tmp << "  " << i << endl; 
+   if (false) {
+      std::cout << "in numerical_gradients: df->size is " << df->size << std::endl;
+      std::cout << "in numerical_gradients: v ->size is " <<  v->size << std::endl;
    }
-   
-   std::cout << "numerical_gradients" << std::endl; 
+
+   std::vector<double> analytical_derivs(v->size);
+   std::vector<double>  numerical_derivs(v->size);
+
+   for (unsigned int i=0; i<df->size; i++)
+      analytical_derivs[i] = gsl_vector_get(df, i); 
+
    for (unsigned int i=0; i<v->size; i++) { 
-      
+
       tmp = gsl_vector_get(v, i); 
       gsl_vector_set(v, i, tmp+micro_step); 
       new_S_plus = coot::distortion_score(v, params); 
@@ -78,14 +82,20 @@ coot::numerical_gradients(gsl_vector *v,
 
       // now put v[i] back to tmp
       gsl_vector_set(v, i, tmp);
-      
-      val = (new_S_plus - new_S_minu)/(2*micro_step); 
-      cout << val << "  " << i << endl; 
-      //
+
+      val = (new_S_plus - new_S_minu)/(2*micro_step);
+
+      numerical_derivs[i] = val;
 
       // overwrite the analytical gradients with numerical ones:
       // gsl_vector_set(df, i, val);
-   } 
+   }
+   
+   for (unsigned int i=0; i<v->size; i++) {
+      std::cout << i << " analytical: " << analytical_derivs[i]
+		<< " numerical: " << numerical_derivs[i] << "\n";
+   }
+   
 } // Note to self: try 5 atoms and doctor the .rst file if necessary.
   // Comment out the bond gradients.
   // Try getting a perfect structure (from refmac idealise) and
@@ -98,9 +108,6 @@ void coot::my_df(const gsl_vector *v,
 		 gsl_vector *df) {
 
 #ifdef ANALYSE_REFINEMENT_TIMING
-   timeval start_time;
-   timeval current_time;
-   gettimeofday(&start_time, NULL);
 #endif // ANALYSE_REFINEMENT_TIMING
 
    // first extract the object from params 
@@ -114,6 +121,8 @@ void coot::my_df(const gsl_vector *v,
       gsl_vector_set(df,i,0);
    }
 
+   // std::cout << "debug:: in my_df() usage_flags " << restraints->restraints_usage_flag
+   // << std::endl;
    my_df_bonds     (v, params, df); 
    my_df_angles    (v, params, df);
    my_df_torsions  (v, params, df);
@@ -125,6 +134,7 @@ void coot::my_df(const gsl_vector *v,
    my_df_start_pos (v, params, df);
    my_df_target_pos(v, params, df);
    my_df_parallel_planes(v, params, df);
+   my_df_geman_mcclure_distances(v, params, df);
 
    if (restraints->include_map_terms()) {
       // std::cout << "Using map terms " << std::endl;
@@ -135,11 +145,6 @@ void coot::my_df(const gsl_vector *v,
       coot::numerical_gradients((gsl_vector *)v, params, df); 
 
 #ifdef ANALYSE_REFINEMENT_TIMING
-   gettimeofday(&current_time, NULL);
-   double td = current_time.tv_sec - start_time.tv_sec;
-   td *= 1000.0;
-   td += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
-   std::cout << "------------- mark my_df: " << td << std::endl;
 #endif // ANALYSE_REFINEMENT_TIMING
 
 }
@@ -153,18 +158,18 @@ void coot::my_df_bonds(const gsl_vector *v,
    //
    coot::restraints_container_t *restraints =
       (coot::restraints_container_t *)params; 
-   
+
    // the length of gsl_vector should be equal to n_var: 
    // 
    // int n_var = restraints->n_variables();
    //    float derivative_value; 
    int idx; 
    int n_bond_restr = 0; // debugging counter
-   
+
    //     for (int i=0; i<n_var; i++) { 
    //       gsl_vector_set(df, i, derivative_value); 
    //     } 
-   
+
     // Now run over the bonds
     // and add the contribution from this bond/restraint to 
     // dS/dx_k dS/dy_k dS/dz_k dS/dx_l dS/dy_l dS/dz_l for each bond
@@ -178,7 +183,7 @@ void coot::my_df_bonds(const gsl_vector *v,
       double x_k_contrib;
       double y_k_contrib;
       double z_k_contrib;
-      
+
       double x_l_contrib;
       double y_l_contrib;
       double z_l_contrib;
@@ -220,7 +225,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 	    // what is b_i?
 	    b_i_sqrd = (a1-a2).lengthsq();
 	    b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
-	    
+
 	    // b_i = clipper::Coord_orth::length(a1,a2); 
 	    // b_i = b_i > 0.1 ? b_i : 0.1;  // Garib's stabilization
 
@@ -243,12 +248,6 @@ void coot::my_df_bonds(const gsl_vector *v,
 
 	    if (!(*restraints)[i].fixed_atom_flags[0]) { 
 	       idx = 3*((*restraints)[i].atom_index_1 - 0);  
-	       // std::cout << "bond first  non-fixed  idx is " << idx << std::endl; 
-	       // cout << "first  idx is " << idx << endl;
-	       
-	       // gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + x_k_contrib); 
-	       // gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + y_k_contrib); 
-	       // gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + z_k_contrib);
 
 	       *gsl_vector_ptr(df, idx  ) += x_k_contrib;
 	       *gsl_vector_ptr(df, idx+1) += y_k_contrib;
@@ -256,7 +255,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 	       
 	    } else {
 	       // debug
-	       if (0) { 
+	       if (0) {
 		  idx = 3*((*restraints)[i].atom_index_1 - 0);  
 		  std::cout << "BOND Fixed atom[0] "
 			    << restraints->get_atom((*restraints)[i].atom_index_1)->GetSeqNum() << " " 
@@ -273,10 +272,6 @@ void coot::my_df_bonds(const gsl_vector *v,
 	       idx = 3*((*restraints)[i].atom_index_2 - 0); 
 	       // std::cout << "bond second non-fixed  idx is " << idx << std::endl; 
 	       // cout << "second idx is " << idx << endl;
-	       
-	       // gsl_vector_set(df, idx,   gsl_vector_get(df, idx)   + x_l_contrib); 
-	       // gsl_vector_set(df, idx+1, gsl_vector_get(df, idx+1) + y_l_contrib); 
-	       // gsl_vector_set(df, idx+2, gsl_vector_get(df, idx+2) + z_l_contrib);
 
 	       *gsl_vector_ptr(df, idx  ) += x_l_contrib;
 	       *gsl_vector_ptr(df, idx+1) += y_l_contrib;
@@ -285,7 +280,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 	       
 	    } else {
 	       // debug
-	       if (0) { 
+	       if (false) {
 		  idx = 3*((*restraints)[i].atom_index_2 - 0);  
 		  std::cout << "BOND Fixed atom[1] "
 			    << restraints->get_atom((*restraints)[i].atom_index_2)->GetSeqNum() << " " 
@@ -672,7 +667,6 @@ coot::my_df_geman_mcclure_distances_old(const  gsl_vector *v,
 
       double target_val;
       double b_i_sqrd;
-      double weight;
       double x_k_contrib;
       double y_k_contrib;
       double z_k_contrib;
@@ -680,11 +674,16 @@ coot::my_df_geman_mcclure_distances_old(const  gsl_vector *v,
       double y_l_contrib;
       double z_l_contrib;
 
+      if (false)
+	 std::cout << "in my_df_geman_mcclure_distances restraints limits "
+		   << restraints->restraints_limits_geman_mclure.first  << " "
+		   << restraints->restraints_limits_geman_mclure.second << std::endl;
+
       for (unsigned int i=restraints->restraints_limits_geman_mclure.first; i<=restraints->restraints_limits_geman_mclure.second; i++) {
 
 	 const simple_restraint &rest = (*restraints)[i];
       
-	 if ( rest.restraint_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT) { 
+	 if (rest.restraint_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT) { 
 
 	    idx = 3*rest.atom_index_1;
 	    clipper::Coord_orth a1(gsl_vector_get(v,idx), 
@@ -700,24 +699,48 @@ coot::my_df_geman_mcclure_distances_old(const  gsl_vector *v,
 	    b_i_sqrd = (a1-a2).lengthsq();
 	    b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
 
-	    // if (b_i_sqrd < rest.target_value * rest.target_value) {
+	    {
 
-	    if (true) {
-
-	       weight = 1.0/(rest.sigma * rest.sigma);
 	       double b_i = sqrt(b_i_sqrd);
+	       double weight = 1.0/(rest.sigma * rest.sigma);
 
-	       // double constant_part = 2.0*weight*(b_i - target_val)/b_i;
-	       // double constant_part = 2.0*weight * (1 - target_val * f_inv_fsqrt(b_i_sqrd));
+	       // Let z = (boi - bi)/sigma
+	       //    S_i = z^2/(1 + alpha * z^2)
+	       //
+	       double bit = b_i - rest.target_value;
+	       double z = bit/rest.sigma;
 
 	       const double &alpha = restraints->geman_mcclure_alpha;
-	       double b_diff = b_i - rest.target_value;
-	       double z_i = b_diff * b_diff * weight;
-	       double d_Si_d_zi =  alpha / ((alpha + z_i) * (alpha + z_i));
-	       double d_zi_d_bi = 2.0 * weight * b_diff;
-	       double d_bi_d_xm_multiplier = 1.0/b_i;
+	       double beta  = 1 + alpha * z * z;
+	       double d_Si_d_zi = 2.0 * z  / (beta * beta);
+	       double d_zi_d_bi = 1.0/rest.sigma;
+	       double d_b_d_x_m = 1.0/b_i;
 
-	       double constant_part = d_Si_d_zi * d_zi_d_bi * d_bi_d_xm_multiplier;
+	       double constant_part_gm = d_Si_d_zi * d_zi_d_bi * d_b_d_x_m;
+	       double constant_part = constant_part_gm;
+
+	       {
+		  const double &target_val = rest.target_value;
+		  double constant_part_lsq = 2.0*weight * (1 - target_val * f_inv_fsqrt(b_i_sqrd));
+
+		  if (false)
+		     std::cout << "debug compare idx " << i << " add lsq "
+			       << constant_part_lsq << " GM: " << constant_part_gm
+			       << " from beta " << beta
+			       << " d_Si_d_zi " << d_Si_d_zi
+			       << " d_zi_d_bi " << d_zi_d_bi
+			       << " d_b_d_x_m " << d_b_d_x_m
+			       << " b_i " << b_i
+			       << " target " << rest.target_value
+			       << " sigma " << rest.sigma
+			       << " z " << z
+			       << std::endl;
+
+		  constant_part = constant_part_lsq / (beta * beta);
+
+		  // constant_part = constant_part_lsq; // force least squares
+	       }
+
 
 	       // The final part is dependent on the coordinates:
  	       x_k_contrib = constant_part*(a1.x()-a2.x());

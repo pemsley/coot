@@ -1775,6 +1775,7 @@ public:
    static int         go_to_ligand_n_atoms_limit; // ligands must have at least this
 						  // number of atoms for the "go to ligand"
                                                   // button and function to see it.
+   static std::vector<std::string> go_to_ligand_non_interesting_comp_ids;
 
    void set_go_to_atom_chain_residue_atom_name(const gchar *t1, 
 					       int it2, const gchar *t3);

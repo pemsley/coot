@@ -1,7 +1,7 @@
   
 ------
 
-  Pre-release 0.8.8
+  Release 0.8.8
 
   o FEATURE: intermediate-atoms movement works with stick for atom positional 
              restraint rather than scaled all-atom movement
@@ -23,13 +23,17 @@
 
   o FEATURE: C++11 compilers will multi-thread multiple map contouring
 
-  o CHANGE:  delete residue range speeded up [Oliver Clarke]
+  o FEATURE: SMILES -> simple 3D menu item added
+
+  o CHANGE:  Delete residue range speeded up [Oliver Clarke]
 
   o CHANGE:  PG4 added to other solvent ligands
 
   o CHANGE:  Solid model lighting adjusted
 
   o CHANGE:  The Flexible? conformer-generation checkbutton repositioned [JED]
+
+  o CHANGE:  Find Ligands added to the Ligands menu
 
   o CHANGE:  Move molecule here checkbutton position reordered
 
@@ -41,13 +45,15 @@
 
   o BUG-FIX: Colour by B-factor and Occupancy modes restored [Hans Raaijmakers]
 
-  o BUG-FIX: network interface to Drugbank follows server changes
+  o BUG-FIX: Network interface to Drugbank follows server changes
 
-  o BUG-FIX: Fix the PNG image output limits from lidia
+  o BUG-FIX: Correct the PNG image output image size from Lidia
 
   o BUG-FIX: Refmac monomer library is restored (after server crash)
 
   o BUG-FIX: Use XYP not XYL for carbohydrate tree additions
+
+  o BUG-FIX: Peptide Omega validation graph tool-tip label corrected [Nigel Moriarty]
 
   o BUG-FIX: Restore missing waters in FLEV
 
