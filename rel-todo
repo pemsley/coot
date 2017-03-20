@@ -1,26 +1,20 @@
 
-   For Release 0.8.8
+   For Release 0.8.9
 
+   o many models, with maps middle mouse: scroll dialog bad
+
+   o Re: go to ligand: JED: Can I make a list of "non-interesting comp-ids?"
+
+   o (cryo-EM) map molecules should save their sigma step to the state file
+
+   o Colour-by-chain should have thin bonds to hydrogen atoms
+
+   o Residue info should not show TER atoms
 
    o Fetch molecule: acyclovir, (edit?) click Apply
 
-   o quick save view on a key.
-
-   o does saving the state of backrub rotamers work?
-
-   o pyrogen -n -M -C ATP AMP.smi.  The atom names are ultra-quoted.
-
-   o Renumber residue should have 
-
-    [    ] or o N-terminus 
-           to 
-    [    ] or o C-terminus 
-
-   o in Ana's map after sequence assignment (which was very fast): it went into a long 
-     stall - not sure what it was doing. Without fitting, the model had hideous mainchain
-
-* Done. "Fitting" means real space refinement - hideous mainchain came from non-backrub rotamer search
-  (now backrub rotamer search is enabled).
+   o does saving the state of backrub rotamers work? Yes, but the button doesn't show the 
+     state at startup.
 
    o add a colour-blind-enabled constructor for the coot::colour_holder (probably should 
      be in the default constructor, then make it an optional arg).
@@ -31,23 +25,11 @@
 
    o Expert mode should not reset the mtz amplitude column optionmenu
 
-   o speed up accept after rigid body fit.
-
-* Done.
-
-   o  can you read this: all-comp-ids/T/PDBe-TFH.cif.  Its OBS though.
-
-* Too obscure
-
    o It appears that merging coordinates (read from cif with
      multi-character label_asym_id and auth_asym_id) in to another set
      of coordinates will assign single-character chain IDs to the source
      coordinates. Might it be better to just add a prefix to those ids?
         - Wolfram Tempel
-
-   o colour by occupancy and colour by B-factor don't work [Hans Raaijmakers]
-
-* Done.
 
    o 1TE:  read CCD dictionary and get-monomer
 
@@ -55,7 +37,7 @@
 
    o bad 2D layout IXY in 3wzy
 
-   o go to ligand: JED: Can I make a list of "non-interesting comp-ids?"
+   o quick save view on a key.
 
    o coot-probe: does it work with symmetry?
 
@@ -88,7 +70,7 @@
    o comp_id C23, look at the thumbnail, or residue->2D, see that the Oxygen atom
      seems chiral - is the bond the wrong way round?
 
-   o like sphere refine, but onlyn select residues that are linearly related to
+   o like sphere refine, but only select residues that are linearly related to
      the active residue (Hmm... how to do the GUI for this...?)
      -- Chris Oubridge
 
@@ -179,3 +161,45 @@ debug:: switch for sequence_view for imol 0 is 0x0
 ==9640==    by 0x81D63B: molecule_class_info_t::handle_read_draw_molecule(int, std::string, std::string, short, short, bool, bool, float, int) (molecule-class-info.cc
 :219)
 
+<<<<<<< HEAD
+=======
+   o Fix make check on test chemical features
+
+* Done.
+
+    libc++abi.dylib: terminating with uncaught exception of type std::runtime_error: WARNING:: 
+    Requested flexible molecule for ligand "RRQ"
+
+* Done. 
+
+   o pyrogen -n -M -C ATP AMP.smi.  The atom names are ultra-quoted.
+
+* Fixed.
+
+   o Renumber residue should have 
+
+    [    ] or o N-terminus 
+           to 
+    [    ] or o C-terminus 
+
+* Done
+
+   o in Ana's map after sequence assignment (which was very fast): it went into a long 
+     stall - not sure what it was doing. Without fitting, the model had hideous mainchain
+
+* Done. "Fitting" means real space refinement - hideous mainchain came from non-backrub rotamer search
+  (now backrub rotamer search is enabled).
+
+   o speed up accept after rigid body fit.
+
+* Done.
+
+   o  can you read this: all-comp-ids/T/PDBe-TFH.cif.  Its OBS though.
+
+* Too obscure
+
+   o colour by occupancy and colour by B-factor don't work [Hans Raaijmakers]
+
+* Done.
+
+>>>>>>> master

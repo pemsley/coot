@@ -225,7 +225,8 @@ coot::ligand::map_fill_from_mtz(std::string mtz_file_name,
 				std::string phi_col,
 				std::string weight_col,
 				short int use_weights,
-				short int is_diff_map) {
+				short int is_diff_map,
+				float map_sampling_rate) { // 1.5 default
 
   clipper::HKL_info myhkl; 
   clipper::MTZdataset myset; 
@@ -264,10 +265,12 @@ coot::ligand::map_fill_from_mtz(std::string mtz_file_name,
   std::cout << "Number of reflections: " << myhkl.num_reflections() << "\n"; 
 
   std::cout << "finding ASU unique map points..." << std::endl;
-  xmap_pristine.init( myhkl.spacegroup(), myhkl.cell(),
-		      clipper::Grid_sampling( myhkl.spacegroup(),
-					      myhkl.cell(),
-					      myhkl.resolution()));
+  clipper::Grid_sampling gs(myhkl.spacegroup(),
+			    myhkl.cell(),
+			    myhkl.resolution(),
+			    map_sampling_rate);
+  xmap_pristine.init(myhkl.spacegroup(), myhkl.cell(), gs);
+  
   std::cout << "Grid..." << std::string(xmap_pristine.grid_sampling().format()).c_str() << "\n";
 
   std::cout << "doing fft..." << std::endl;

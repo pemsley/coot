@@ -1172,12 +1172,6 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_single_thread(do
 	    }
 	 }
 
-	 std::cout << "done contact map" << std::endl;
-
-	 // atom_spec_t debug_spec("A", 477, "", " OE2", "");
-	 atom_spec_t debug_spec("A", 523, "", " HE1", "");
-	 atom_spec_t debug_spec_2("A", 480, "", " O  ", "");
-
 	 for (int iat=0; iat<n_selected_atoms; iat++) {
 
 	    mmdb::Atom *at = atom_selection[iat];
@@ -1425,7 +1419,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
 	 unsigned int n_threads = get_max_number_of_threads();
 	 std::vector<std::thread> threads;
 	 unsigned int n_per_thread = n_selected_atoms/n_threads;
-	 // /std::cout << "n per thread " << n_per_thread << std::endl;
+	 // std::cout << "n per thread " << n_per_thread << std::endl;
 	 std::vector<atom_overlaps_dots_container_t> results_container_vec(n_threads);
 
 	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {

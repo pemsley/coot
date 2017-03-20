@@ -3533,7 +3533,8 @@ molecule_class_info_t::execute_restore_from_recent_backup(std::string backup_fil
 			     is_undo_or_redo,
 			     allow_duplseqnum,
 			     convert_flag,
-			     bond_width, Bonds_box_type());
+			     bond_width, Bonds_box_type(),
+			     false);
    save_state_command_strings_ = save_save_state;
    imol_no = save_imol; 
    name_ = save_name;
@@ -6298,7 +6299,7 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 								is_undo_or_redo);
 	 // std::cout << " ##### done initing coord things in read_shelx_ins_file" << std::endl;
       
-	 set_have_unit_cell_flag_maybe();
+	 set_have_unit_cell_flag_maybe(true); // but will always have symmetry
 
 	 if (molecule_is_all_c_alphas()) {
 	    ca_representation();
@@ -6907,8 +6908,8 @@ std::pair<int, std::string>
 molecule_class_info_t::change_chain_id(const std::string &from_chain_id,
 				       const std::string &to_chain_id,
 				       bool use_resno_range,
-				       int start_resno,
-				       int end_resno) {
+				       int start_resno, int end_resno) {
+
    int istat = 0;
    std::string message("Nothing to say");
 

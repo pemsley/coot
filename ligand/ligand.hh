@@ -431,7 +431,8 @@ namespace coot {
 				  std::string phi_col,
 				  std::string weight_col,
 				  short int use_weights,
-				  short int is_diff_map);
+				  short int is_diff_map,
+				  float map_sampling_rate=1.5);
 
       // This is a console/testing function.  Use instead mask_map()
       // in a real graphics program (mask_by_atoms runs mask_map).

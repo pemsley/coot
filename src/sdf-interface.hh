@@ -33,5 +33,19 @@ bool residue_to_mdl_file_for_mogul(int imol, const char *chain_id,
 // rdkit chemical features.
 bool show_feats(int imol, const char *chain_id, int resno, const char *ins_code);
 
+// This is not an sdf function, perhaps it should be somewhere else - but
+// if in rdkit-interface.hh, it would be a singleton.
+//
+
+//! \brief
+//! import a molecule from a smiles string
+//!
+//! RDKit is used to interpret the SMILES string
+//!
+//! no dictionary is generated
+//!
+//! @return a molecule number or -1 on failure
+int import_rdkit_mol_from_smiles(const std::string &smiles, const std::string &comp_id);
+
 // #endif
 

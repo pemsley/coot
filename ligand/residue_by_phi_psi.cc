@@ -116,9 +116,9 @@ coot::residue_by_phi_psi::best_fit_phi_psi(int n_trials,
 	       }
 	    }
 	 } 
-      } 
+      }
    }
-      
+
    return m;
 }
 
@@ -161,7 +161,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 
       coot::ligand_score_card s;    
       float best_score = 0.0;
-      short int two_residues_flag = 1;
+      bool two_residues_flag = true;
       if (terminus_type == "MC")
 	 two_residues_flag = 0;
       if (terminus_type == "singleton")
@@ -225,10 +225,10 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 	       frag_n_plus_1 = frag[neighb_seqnum-2][" N  "].pos;
 	    } 
 
-	    if (debug) { 
+	    if (debug) {
 	       float phi_real = clipper::Util::rad2d(clipper::Coord_orth::torsion(next_c, frag_n, frag_ca, frag_c));
 	       float psi_real = clipper::Util::rad2d(clipper::Coord_orth::torsion(frag_n, frag_ca, frag_c, frag_n_plus_1));
-	       // std::cout <<  "Rama-values:: 0000 " << phi_real << " " << psi_real << std::endl;
+	       std::cout <<  "Rama-values:: " << phi_real << " " << psi_real << std::endl;
 	    }
 	    
 	 } else {
@@ -246,7 +246,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 
 	 s = score_orientation(atoms_p, Xmap());
 
-	 // std::cout << "score-trial " << itrial << " " << s << std::endl;
+	 std::cout << "score-trial " << itrial << " " << s << std::endl;
 
 	 if (s.atom_point_score > best_score) {
 	    best_score = s.atom_point_score;
@@ -312,7 +312,8 @@ coot::residue_by_phi_psi::make_2_res_joining_frag(const std::string &chain_id,
 						 res1[" CA "].pos,
 						 res1[" C  "].pos);
       
-      // now let's tinker with (fix) the 0 atom of residue 1, now that we have residue 2.
+      // now let's tinker with (correct the position of) the O atom of residue 1,
+      // now that we have residue 2.
       //
       // double angle =  clipper::Util::d2rad(120.800);  // CA-C-O no 
       double angle = clipper::Util::d2rad(123.0); // N-C-O
@@ -355,13 +356,13 @@ coot::residue_by_phi_psi::make_2_res_joining_frag(const std::string &chain_id,
    }
    catch (const std::runtime_error &rte) {
       std::cout << "ERROR:: make_2_res_joining_frag() " << rte.what() << std::endl;
-   } 
-   
+   }
+
 
    int n_atoms1, iseqnum1;
    n_atoms1 = frag[res1.seqnum].atoms.size();
    iseqnum1 = frag[res1.seqnum].seqnum;
-   
+
    int n_atoms2, iseqnum2;
    n_atoms2 = frag[res2.seqnum].atoms.size();
    iseqnum2 = frag[res2.seqnum].seqnum;

@@ -38,6 +38,7 @@
 #include <stdexcept>
 
 #include "geometry/mol-utils.hh"
+#include "geometry/main-chain.hh"
 #include "simple-restraint.hh"
 
 //
@@ -327,7 +328,8 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
    have_oxt_flag = false; // set in mark_OXT()
    geman_mcclure_alpha = 1; // Is this a good value? Talk to Rob. FIXME.
    mol = mol_in;
-} 
+   cryo_em_mode = false;
+}
 
 void
 coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &fixed_atom_specs) {
@@ -397,22 +399,31 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
 	 if (is_a_moving_residue_p(res_p)) {
 	    if (! is_hydrogen(atom[i]))
 	       use_map_gradient_for_atom[i] = true;
-	 } else { 
+	 } else {
+	    // std::cout << "blanking out density for atom " << i << std::endl;
 	    use_map_gradient_for_atom[i] = false;
 	 }
       }
    }
 
-   // z weights
+   // z weights:
+   //
    atom_z_weight.resize(n_atoms);
    std::vector<std::pair<std::string, int> > atom_list = coot::util::atomic_number_atom_list();
    for (int i=0; i<n_atoms; i++) {
       double z = coot::util::atomic_number(atom[i]->element, atom_list);
+      double weight = 1.0;
+      if (cryo_em_mode) {
+	 // is-side-chain? would be a better test
+	 if (! is_main_chain_or_cb_p(atom[i]))
+	    weight = 0.3;
+      }
+
       if (z < 0.0) {
 	 std::cout << "Unknown element :" << atom[i]->element << ": " << std::endl;
-	 z = 6.0; // as for carbon
+	 z = weight * 6.0; // as for carbon
       } 
-      atom_z_weight[i] = z;
+      atom_z_weight[i] = weight * z;
    }
    
    // the fixed atoms:   
@@ -635,7 +646,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags) {
 #include <gsl/gsl_blas.h> // for debugging norm of gradient
  
 // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
-// 
+//
 coot::refinement_results_t
 coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags, 
 				       int nsteps_max,
@@ -643,6 +654,9 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 
 
    restraints_usage_flag = usage_flags;
+   // restraints_usage_flag = BONDS_AND_ANGLES;
+   // restraints_usage_flag = GEMAN_MCCLURE_DISTANCE_RESTRAINTS;
+   // restraints_usage_flag = NO_GEOMETRY_RESTRAINTS;
    
    const gsl_multimin_fdfminimizer_type *T;
    gsl_multimin_fdfminimizer *s;
@@ -921,6 +935,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	    n_geman_mcclure_distance++;
 	    double d = distortion_score_geman_mcclure_distance(restraints_vec[i], v, geman_mcclure_alpha);
 	    gm_distortion += d;
+	    // std::cout << "distortion_score_geman_mcclure_distance " << i << " " << d << "\n";
 	 }
       }
 
@@ -1180,7 +1195,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       if (spd > 0.0)
 	 sspd = sqrt(spd);
       if (print_summary)
-	 std::cout << "GemanMcCl:  " << sspd << " " << n_geman_mcclure_distance << std::endl;
+	 std::cout << "GemanMcCl:  " << sspd << " from " << n_geman_mcclure_distance << " distances" << std::endl;
       r += "GemanMcCl:  ";
       r += coot::util::float_to_string_using_dec_pl(sspd, 3);
       r += "\n";
@@ -1255,7 +1270,7 @@ double
 coot::electron_density_score_from_restraints(const gsl_vector *v,
 					     coot::restraints_container_t *restraints_p) {
 
-   // We sum to the score and negate.  That will do?
+   // We weight and sum to get the score and negate.  That will do?
    // 
    double score = 0; 
    // double e = 2.718281828; 
@@ -1623,6 +1638,9 @@ coot::restraints_container_t::make_restraints(int imol,
    }
    
    restraints_usage_flag = flags_in; // also set in minimize() and geometric_distortions()
+   // restraints_usage_flag = BONDS_AND_ANGLES;
+   // restraints_usage_flag = GEMAN_MCCLURE_DISTANCE_RESTRAINTS;
+   // restraints_usage_flag = NO_GEOMETRY_RESTRAINTS;
 
    if (n_atoms) {
 
@@ -2291,15 +2309,15 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 		  
       if (i_no_res_atoms > 0) {
 
-	 if (restraints_usage_flag & BONDS)
+	 if (restraints_usage_flag & BONDS_MASK)
 	    local.n_bond_restraints += add_bonds(idr, res_selection, i_no_res_atoms,
 						 residue_p, geom);
 	    
-	 if (restraints_usage_flag & ANGLES)
+	 if (restraints_usage_flag & ANGLES_MASK)
 	    local.n_angle_restraints += add_angles(idr, res_selection, i_no_res_atoms,
 						   residue_p, geom);
 
-	 if (restraints_usage_flag & TORSIONS) {
+	 if (restraints_usage_flag & TORSIONS_MASK) {
 	    if (do_residue_internal_torsions) {
 	       std::cout << "   torsions... " << std::endl;
 	       std::string residue_type = residue_p->GetResName();
@@ -2309,11 +2327,11 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 	    }
 	 }
 
-	 if (restraints_usage_flag & PLANES)
+	 if (restraints_usage_flag & PLANES_MASK)
 	    local.n_plane_restraints += add_planes(idr, res_selection, i_no_res_atoms,
 						   residue_p, geom);
 
-	 if (restraints_usage_flag & CHIRAL_VOLUMES)
+	 if (restraints_usage_flag & CHIRAL_VOLUME_MASK)
 	    local.n_chiral_restr += add_chirals(idr, res_selection, i_no_res_atoms, 
 						residue_p, geom);
 

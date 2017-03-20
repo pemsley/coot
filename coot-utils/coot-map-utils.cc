@@ -1624,7 +1624,7 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
    int SelHnd = mol->NewSelection(); // d
    bool debug = false;
 
-   if (debug) { 
+   if (debug) {
       std::cout << "INFO:: map_to_model_correlation:: there are " << specs.size()
 		<< " residues " << std::endl;
       for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++)
@@ -1709,29 +1709,57 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
       //
       // 
       std::pair<clipper::Coord_orth, clipper::Coord_orth> selection_extents = util::extents(mol, specs);
-      if (debug) 
+      if (debug)
 	 std::cout << "INFO:: mol residue set extents: "
 		   << selection_extents.first.format() << " to "
 		   << selection_extents.second.format() << std::endl;
 
       // double border = 4.1;
-      double border = 3; // border is used to create selection_grid.
-                         // the grid that we check at the end is +/-3 A of the X,Y,Z extends of the ligand
-      
-      clipper::Coord_frac ex_pt_1_fc = clipper::Coord_orth(selection_extents.first.x()-border,
-							   selection_extents.first.y()-border,
-							   selection_extents.first.z()-border).coord_frac(masked_map.cell());
-      clipper::Coord_frac ex_pt_2_fc = clipper::Coord_orth(selection_extents.second.x()+border,
-							   selection_extents.second.y()+border,
-							   selection_extents.second.z()+border).coord_frac(masked_map.cell());
+      double border = 3.1; // border is used to create selection_grid.
+                           // the grid that we check at the end is +/-3 A of the X,Y,Z extends of the ligand
+
+      bool good_frac_coords = false;  // force loop evaluation for the first time
+
+      clipper::Coord_orth ex_pt_1_co;
+      clipper::Coord_orth ex_pt_2_co;
+      clipper::Coord_frac ex_pt_1_fc;
+      clipper::Coord_frac ex_pt_2_fc;
+      while (! good_frac_coords) {
+	 ex_pt_1_co = clipper::Coord_orth(selection_extents.first.x()-border,
+					  selection_extents.first.y()-border,
+					  selection_extents.first.z()-border);
+	 ex_pt_2_co = clipper::Coord_orth(selection_extents.second.x()+border,
+					  selection_extents.second.y()+border,
+					  selection_extents.second.z()+border);
+	 ex_pt_1_fc = ex_pt_1_co.coord_frac(reference_map.cell());
+	 ex_pt_2_fc = ex_pt_2_co.coord_frac(reference_map.cell());
+	 if (debug) {
+	    std::cout << "INFO:: Selection grid construction, ex_pt_1_co: " << ex_pt_1_co.format() << std::endl;
+	    std::cout << "INFO:: Selection grid construction, ex_pt_2_co: " << ex_pt_2_co.format() << std::endl;
+	    std::cout << "INFO:: Selection grid construction, ex_pt_1_fc: " << ex_pt_1_fc.format() << std::endl;
+	    std::cout << "INFO:: Selection grid construction, ex_pt_2_fc: " << ex_pt_2_fc.format() << std::endl;
+	    std::cout << "using cell " << reference_map.cell().descr().format() << std::endl;
+	    clipper::Mat33<double> mat = reference_map.cell().matrix_frac();
+	    std::cout << "mat: \n" << mat.format() << std::endl;
+	 }
+	 good_frac_coords = true;
+	 for (int i=0; i<3; i++) {
+	    if (ex_pt_2_fc[i] < ex_pt_1_fc[i]) {
+	       good_frac_coords = false;
+	       border += 1.2;
+	    }
+	 }
+      }
       clipper::Grid_map selection_grid(ex_pt_1_fc.coord_grid(reference_map.grid_sampling()),
 				       ex_pt_2_fc.coord_grid(reference_map.grid_sampling()));
       if (debug) {
+	 std::cout << "INFO:: Selection grid construction, ex_pt_1_co: " << ex_pt_1_co.format() << std::endl;
+	 std::cout << "INFO:: Selection grid construction, ex_pt_2_co: " << ex_pt_2_co.format() << std::endl;
 	 std::cout << "INFO:: Selection grid construction, ex_pt_1_fc: " << ex_pt_1_fc.format() << std::endl;
 	 std::cout << "INFO:: Selection grid construction, ex_pt_2_fc: " << ex_pt_2_fc.format() << std::endl;
 	 std::cout << "INFO:: Selection grid: " << selection_grid.format() << std::endl;
-      } 
-      
+      }
+
       for (int iat=0; iat<n_atoms; iat++) {
 	 clipper::Coord_orth co(atom_selection[iat]->x,
 				atom_selection[iat]->y,
@@ -1759,8 +1787,8 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
 	 clipper::Xmap_base::Map_reference_coord ix(masked_map, grid.min() ), iu, iv, iw;
 
 	 if (debug) {
-	    std::cout << "INFO:: box grid: " << grid.format() << std::endl;
-	    std::cout << "INFO:: iu range: " << iu.coord().u() << " to " << grid.max().u() << std::endl;
+	    std::cout << "INFO:: masking iat " << iat << " box grid: " << grid.format() << std::endl;
+	    std::cout << "INFO:: masking iu range: " << iu.coord().u() << " to " << grid.max().u() << std::endl;
 	 }
 	 
 	 for (iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) { 
@@ -1857,6 +1885,11 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
       // scan the selection grid
       // 
       clipper::Xmap_base::Map_reference_coord iix(masked_map, selection_grid.min() ), iu, iv, iw;
+
+      if (debug) {
+	 std::cout << "INFO:: correl " << " box grid: " << selection_grid.format() << std::endl;
+	 std::cout << "INFO:: correl iu range: " << iix.coord().format() << " to " << selection_grid.max().u() << std::endl;
+      }
       for (iu = iix; iu.coord().u() <= selection_grid.max().u(); iu.next_u() ) {
 	 for (iv = iu; iv.coord().v() <= selection_grid.max().v(); iv.next_v() ) { 
 	    for (iw = iv; iw.coord().w() <= selection_grid.max().w(); iw.next_w() ) {
@@ -1892,7 +1925,7 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
 //       if (debug_grid_points)
 // 	 gp.close();
       
-      if (debug) { 
+      if (debug) {
 	 // just checking that the maps are what we expect them to be...
 	 clipper::CCP4MAPfile mapout;
 	 mapout.open_write("calc.map");

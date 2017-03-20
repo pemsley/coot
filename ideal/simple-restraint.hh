@@ -216,7 +216,9 @@ namespace coot {
 				TORSIONS = 4,
 				NON_BONDED = 16,
 				CHIRAL_VOLUMES = 32,
-				PLANES = 8,
+				// PLANES_ANC = 8, // planes on their own are not used.
+				//                    PLANES is defined by wretched windows
+				//                    ANC: avoid name conflict
 				RAMA = 64,
 				BONDS_ANGLES_AND_TORSIONS = 7,
 				BONDS_ANGLES_TORSIONS_AND_PLANES = 15,
@@ -238,6 +240,7 @@ namespace coot {
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES = 191,
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES = 255,
 
+				GEMAN_MCCLURE_DISTANCE_RESTRAINTS = 1024,
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_GEMAN_MCCLURE_DISTANCES = 63+1024,
 				// typical restraints add trans peptide restraints and geman-mcclure
 				TYPICAL_RESTRAINTS               = 1+2+  8+16+32+128+512+1024+2048,
@@ -253,9 +256,10 @@ namespace coot {
           NON_BONDED_MASK = 16,
 	  CHIRAL_VOLUME_MASK = 32,
 	  RAMA_PLOT_MASK = 64,
-	  PARALLEL_PLANES_MASK = 512,
-	  GEMAN_MCCLURE_DISTANCE_MASK = 1024,
-	  TRANS_PEPTIDE_MASK = 2048
+	  START_POS_RESTRAINT_MASK = 128,
+	  PARALLEL_PLANES_MASK = 256,
+	  GEMAN_MCCLURE_DISTANCE_MASK = 512,
+	  TRANS_PEPTIDE_MASK = 1024
    };
 
 
@@ -841,7 +845,7 @@ namespace coot {
    // replace this function, to test if things go faster with
    // alternative implementations?
    // 
-   inline double f_inv_fsqrt(double v) {
+   inline double f_inv_fsqrt(const double &v) {
       //
       return 1.0/sqrt(v);
    } 
@@ -1977,6 +1981,8 @@ namespace coot {
 
       // return true when turned off
       bool turn_off_when_close_target_position_restraint();
+      
+      bool cryo_em_mode; // for weighting fit to density of atoms (side-chains and others are down-weighted)
 
       // more debugging interface:
       //

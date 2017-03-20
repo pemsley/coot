@@ -875,8 +875,6 @@ graphics_info_t::show_select_map_dialog() {
           }
       }
       gtk_widget_destroy (widget);
-   } else {
-      std::cout << "No graphics!  Can't make Map Selection dialog.\n";
    } 
    
 }

@@ -188,6 +188,61 @@ bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code
 
 
 
+#include "c-interface.h" // for set_display_generic_object()
+#include "c-interface-widgets.hh" // for add_generic_display_object
+
+//! \brief
+//! import a molecule from a smiles string
+//!
+//! RDKit is used to interpret the SMILES string
+//!
+//! no dictionary is generated
+//!
+//! @return a molecule number or -1 on failure
+int import_rdkit_mol_from_smiles(const std::string &smiles_str, const std::string &comp_id) {
+
+   int imol = -1;
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+   RDKit::RWMol *m = RDKit::SmilesToMol(smiles_str);
+   bool explicit_only = false;
+   bool add_coords = true;
+   RDKit::MolOps::addHs(*m, explicit_only, add_coords);
+   int iconf = RDKit::DGeomHelpers::EmbedMolecule(*m);
+   if(iconf < 0) {
+      std::cout << "WARNING:: RDKit::embedding failed." << std::endl;
+   } else {
+      double vdwThresh=10.0;
+      int confId = -1;
+      bool ignoreInterfragInteractions=true; // sensible?
+      ForceFields::ForceField *ff =
+	 RDKit::UFF::constructForceField(*m,
+					 vdwThresh, confId,
+					 ignoreInterfragInteractions);
+      ff->initialize();
+      int maxIters = 500;
+      int res=ff->minimize(maxIters);
+      delete ff;
+
+      mmdb::Residue *residue_p = coot::make_residue(*m, iconf, comp_id);
+      if (residue_p) {
+	 mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
+	 if (mol) {
+	    graphics_info_t g;
+	    imol = g.create_molecule();
+	    std::string label = "Imported ";
+	    label += comp_id;
+	    g.molecules[imol].install_model(imol, mol, g.Geom_p(), label, 1, false, false);
+	 }
+	 delete residue_p;
+      }
+   }
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
+
+   return imol;
+}
+
+
 // ------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------
@@ -196,10 +251,7 @@ bool show_feats(int imol, const char *chain_id, int res_no, const char *ins_code
 // ------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------
 
-#include "c-interface.h" // for set_display_generic_object()
-#include "c-interface-widgets.hh" // for add_generic_display_object
-
-// internal - no public access
+// ---------------------------------- internal - no public access -----------------
 // 
 void chemical_features::show(int imol, const RDKit::ROMol &rdkm, std::string name) {
 

@@ -793,8 +793,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	       }
 
 #ifdef HAVE_CXX_THREAD
-	       restraints.thread_pool(&static_thread_pool,
-				      coot::get_max_number_of_threads());
+	       restraints.thread_pool(&static_thread_pool, coot::get_max_number_of_threads());
 #endif // HAVE_CXX_THREAD
 
 	       if (false)
@@ -819,6 +818,9 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	       if (atom_pull.status)
 		  restraints.add_atom_pull_restraint(atom_pull.spec, atom_pull.pos); // mouse target position
 	       
+	       if (do_numerical_gradients)
+		  restraints.set_do_numerical_gradients();
+
 	       std::string dummy_chain = ""; // not used
 		   
 	       rr = update_refinement_atoms(n_restraints, restraints, rr, local_moving_atoms_asc,
