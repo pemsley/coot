@@ -328,7 +328,7 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
    geman_mcclure_alpha = 1; // Is this a good value? Talk to Rob. FIXME.
    mol = mol_in;
    cryo_em_mode = false;
-} 
+}
 
 void
 coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &fixed_atom_specs) {
@@ -398,7 +398,8 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
 	 if (is_a_moving_residue_p(res_p)) {
 	    if (! is_hydrogen(atom[i]))
 	       use_map_gradient_for_atom[i] = true;
-	 } else { 
+	 } else {
+	    // std::cout << "blanking out density for atom " << i << std::endl;
 	    use_map_gradient_for_atom[i] = false;
 	 }
       }
@@ -644,7 +645,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags) {
 #include <gsl/gsl_blas.h> // for debugging norm of gradient
  
 // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
-// 
+//
 coot::refinement_results_t
 coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags, 
 				       int nsteps_max,
@@ -652,6 +653,9 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 
 
    restraints_usage_flag = usage_flags;
+   // restraints_usage_flag = BONDS_AND_ANGLES;
+   // restraints_usage_flag = GEMAN_MCCLURE_DISTANCE_RESTRAINTS;
+   // restraints_usage_flag = NO_GEOMETRY_RESTRAINTS;
    
    const gsl_multimin_fdfminimizer_type *T;
    gsl_multimin_fdfminimizer *s;
@@ -928,6 +932,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	    n_geman_mcclure_distance++;
 	    double d = distortion_score_geman_mcclure_distance(restraints_vec[i], v, geman_mcclure_alpha);
 	    gm_distortion += d;
+	    // std::cout << "distortion_score_geman_mcclure_distance " << i << " " << d << "\n";
 	 }
       }
 
@@ -1164,7 +1169,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       if (spd > 0.0)
 	 sspd = sqrt(spd);
       if (print_summary)
-	 std::cout << "GemanMcCl:  " << sspd << " " << n_geman_mcclure_distance << std::endl;
+	 std::cout << "GemanMcCl:  " << sspd << " from " << n_geman_mcclure_distance << " distances" << std::endl;
       r += "GemanMcCl:  ";
       r += coot::util::float_to_string_using_dec_pl(sspd, 3);
       r += "\n";
@@ -1593,6 +1598,9 @@ coot::restraints_container_t::make_restraints(int imol,
    }
    
    restraints_usage_flag = flags_in; // also set in minimize() and geometric_distortions()
+   // restraints_usage_flag = BONDS_AND_ANGLES;
+   // restraints_usage_flag = GEMAN_MCCLURE_DISTANCE_RESTRAINTS;
+   // restraints_usage_flag = NO_GEOMETRY_RESTRAINTS;
 
    if (n_atoms) {
 
