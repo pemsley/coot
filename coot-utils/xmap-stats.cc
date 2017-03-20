@@ -69,11 +69,12 @@ map_density_distribution(const clipper::Xmap<T> &map,
    min_plausible = mean - 10 * sqrt(var);
    max_plausible = mean + 10 * sqrt(var);
 
-   std::cout << "reset max_plausible to " << max_plausible << std::endl;
-   std::cout << "reset min_plausible to " << min_plausible << std::endl;
-
-   std::cout << "debug:: Map statistics: mean: " << mean << " st.d: " << sqrt(var) << std::endl;
-   std::cout <<  "debug:: Map statistics: min: " << min << ", max: " << max << std::endl;
+   if (false) { // debug
+      std::cout << "reset max_plausible to " << max_plausible << std::endl;
+      std::cout << "reset min_plausible to " << min_plausible << std::endl;
+      std::cout << "debug:: Map statistics: mean: " << mean << " st.d: " << sqrt(var) << std::endl;
+      std::cout <<  "debug:: Map statistics: min: " << min << ", max: " << max << std::endl;
+   }
 
    sum_sq = 0;
    sum = 0;
@@ -91,11 +92,7 @@ map_density_distribution(const clipper::Xmap<T> &map,
 
 	       sum += v;
 	       sum_sq += v*v;
-	    } else {
-	       std::cout << "reject " << ix.coord().format() << " rho: " << rho << " implausible (low)" << std::endl;
 	    }
-	 } else {
-	    std::cout << "reject " << ix.coord().format() << " rho: " << rho << " implausible (high)" << std::endl;
 	 }
       }
    }
@@ -104,14 +101,14 @@ map_density_distribution(const clipper::Xmap<T> &map,
    range = float( max - min );
    inv_range = (range>0.0) ? (1.0/range) : (1.0);
 
-   std::cout << "debug 2:: Map statistics: mean: " << mean << " st.d: " << sqrt(var) << std::endl;
-   std::cout <<  "debug 2:: Map statistics: min: " << min << ", max: " << max << std::endl;
-
    min_plausible = mean - 20 * sqrt(var);
    max_plausible = mean + 20 * sqrt(var);
-
-   std::cout << "reset max_plausible to " << max_plausible << std::endl;
-   std::cout << "reset min_plausible to " << min_plausible << std::endl;
+   if (false) {
+      std::cout << "debug 2:: Map statistics: mean: " << mean << " st.d: " << sqrt(var) << std::endl;
+      std::cout <<  "debug 2:: Map statistics: min: " << min << ", max: " << max << std::endl;
+      std::cout << "reset max_plausible to " << max_plausible << std::endl;
+      std::cout << "reset min_plausible to " << min_plausible << std::endl;
+   }
 
    sum_sq = 0;
    sum = 0;
@@ -142,8 +139,8 @@ map_density_distribution(const clipper::Xmap<T> &map,
    range = float( max - min );
    inv_range = (range>0.0) ? (1.0/range) : (1.0);
 
-   std::cout << "debug 3:: Map statistics: mean: " << mean << " st.d: " << sqrt(var) << std::endl;
-   std::cout << "debug 3:: Map statistics: min: " << min << ", max: " << max << std::endl;
+   std::cout << "INFO:: Map statistics: mean: " << mean << " st.d: " << sqrt(var) << std::endl;
+   std::cout << "INFO:: Map statistics:  min: " << min << "   max: " << max << std::endl;
 
    mv.mean = mean;
    mv.variance = var; 
@@ -170,7 +167,7 @@ map_density_distribution(const clipper::Xmap<T> &map,
       }
    }
 
-   if (write_output_flag) { 
+   if (write_output_flag) {
       std::cout << "Map statistics: mean: " << mean << " st.d: " << sqrt(var)
 	   << std::endl;
       std::cout <<  "Map statistics: min: " << min << ", max: " << max << std::endl;
