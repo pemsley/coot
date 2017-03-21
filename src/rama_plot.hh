@@ -212,11 +212,13 @@ class rama_plot {
    GtkWidget *kleywegt_chain_combobox2;
    GtkWidget *dialog; // the container for the canvas
    //std::vector<GtkCanvasItem *> canvas_item_vec; // we save them so that
+#ifdef HAVE_GOOCANVAS
    std::vector<GooCanvasItem *> canvas_item_vec; // we save them so that
 					         // we can destroy them.
    //GtkCanvasItem *big_box_item; 
    GooCanvasItem *green_box_item;
    GooCanvasItem *root;
+#endif // HAVE_GOOCANVAS
    float step; // the "angular" size of the background blocks
    std::vector<int> ifirst_res; // offset between actual residue number and
 		                // position in the phi_psi vector
@@ -284,7 +286,9 @@ class rama_plot {
    bool green_box_is_sensible(util::phi_psi_t gb) const; // have the phi and psi been set to
                                                          // something sensible?
    void recentre_graphics_maybe(mouse_util_t t);
+#ifdef HAVE_GOOCANVAS
    void recentre_graphics_maybe(GooCanvasItem *item);
+#endif
    mouse_util_t mouse_point_check_differences(double worldx, double worldy) const;
 
    void find_phi_psi_differences();
@@ -401,6 +405,7 @@ public:
 
    void basic_white_underlay(); // Not const because we modify canvas_item_vec. 
    void display_background();   // Likewise.
+#ifdef HAVE_GOOCANVAS
    void make_background(const clipper::Ramachandran rama_type, GooCanvasItem *bg_group);
    GooCanvasItem *bg_all;
    GooCanvasItem *bg_gly;
@@ -410,13 +415,14 @@ public:
    GooCanvasItem *residues_grp;
    GooCanvasItem *current_residue;
    GooCanvasItem *arrow_grp;
+   void make_isolines(const clipper::Ramachandran rama_type, GooCanvasItem *bg_group);
+   void show_background(GooCanvasItem *new_bg);
+#endif
    guint *current_colour;
    void hide_all_background();
-   void show_background(GooCanvasItem *new_bg);
    void setup_background(bool blocks=1, bool isolines=1);
    std::pair<int, std::vector<float> > make_isolines_internal(const clipper::Ramachandran rama_type,
                                                               double threshold, float x_in, float y_in);
-   void make_isolines(const clipper::Ramachandran rama_type, GooCanvasItem *bg_group);
    void setup_canvas(); 
    void black_border();
    void cell_border(int i, int j, int step);
@@ -438,9 +444,11 @@ public:
    void draw_zero_lines();
 
    int draw_phi_psi_point(const util::phi_psi_t &phi_psi, bool as_white_flag);
+#ifdef HAVE_GOOCANVAS
    void draw_kleywegt_arrow(const util::phi_psi_t &phi_psi_primary,
 			    const util::phi_psi_t &phi_psi_secondary,
                             GooCanvasPoints *points);
+#endif
    rama_kleywegt_wrap_info test_kleywegt_wrap(const util::phi_psi_t &phi_psi_primary,
 					      const util::phi_psi_t &phi_psi_secondary)
       const;
@@ -449,9 +457,11 @@ public:
 				   bool as_white_flag, int box_size);
 
    // which calls
+#ifdef HAVE_GOOCANVAS
    void set_data_for_phi_psi_point_item(const std::string &label,
                                         const coot::util::phi_psi_t &phi_psi,
                                         GooCanvasItem *item);
+#endif
 
    rama_stats_container_t draw_phi_psi_points();
    rama_stats_container_t draw_phi_psi_points_for_model(const coot::phi_psis_for_model_t &pp_set); 
@@ -486,15 +496,17 @@ public:
    void map_mouse_pos(double x, double y);
    void mouse_motion_notify(GdkEventMotion *event, double x, double y);
    void mouse_motion_notify_editphipsi(GdkEventMotion *event, double x, double y);
-   gint button_press (GtkWidget *widget, GdkEventButton *event);
+   gint button_press (GtkWidget *widget, GdkEventButton *event); 
+   gint button_press_conventional (GtkWidget *widget, GdkEventButton *event);
+#ifdef HAVE_GOOCANVAS
    gint item_enter_event(GooCanvasItem *item, GdkEventCrossing *event);
    gint item_motion_event(GooCanvasItem *item, GdkEventMotion *event);
-   gint button_press_conventional (GtkWidget *widget, GdkEventButton *event);
    gint button_item_press (GooCanvasItem *item, GdkEventButton *event);
    gint button_item_press_conventional (GooCanvasItem *item, GdkEventButton *event);
    gint button_press_editphipsi (GooCanvasItem *item, GdkEventButton *event);
    gint button_press_backbone_edit (GooCanvasItem *item, GdkEventButton *event);
    gint button_item_release (GooCanvasItem *item, GdkEventButton *event);
+#endif
 
    void draw_phi_psis_on_canvas(char *filename);
    // void update_canvas(mmdb::Manager *mol);  // mol was updated(?)
