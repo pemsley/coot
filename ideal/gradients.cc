@@ -614,19 +614,28 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
 
 #ifdef HAVE_CXX_THREAD
 
-      if (restraints_p->n_threads > 0) {
-	 unsigned int n_per_thread = restraints_size/restraints_p->n_threads;
-	 std::atomic<unsigned int> done_count_for_threads(0);
+      if (restraints_p->thread_pool_p) {
+	 if (restraints_p->n_threads > 0) {
+	    unsigned int n_per_thread = restraints_size/restraints_p->n_threads;
+	    std::atomic<unsigned int> done_count_for_threads(0);
 
-	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
-	    int idx_start = i_thread * n_per_thread;
-	    int idx_end   = idx_start + n_per_thread;
-	    // for the last thread, set the end atom index
-	    if (i_thread == (restraints_p->n_threads - 1))
-	       idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
+	    for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
+	       int idx_start = i_thread * n_per_thread;
+	       int idx_end   = idx_start + n_per_thread;
+	       // for the last thread, set the end atom index
+	       if (i_thread == (restraints_p->n_threads - 1))
+		  idx_end = restraints_size; // for loop uses iat_start and tests for < iat_end
 
-	    restraints_p->thread_pool_p->push(my_df_geman_mcclure_distances_thread_dispatcher,
-					      v, df, restraints_p, idx_start, idx_end, std::ref(done_count_for_threads));
+	       restraints_p->thread_pool_p->push(my_df_geman_mcclure_distances_thread_dispatcher,
+						 v, df, restraints_p, idx_start, idx_end, std::ref(done_count_for_threads));
+	    }
+	 } else {
+	    for (unsigned int i=0; i<restraints_size; i++) {
+	       const simple_restraint &this_restraint = (*restraints_p)[i];
+	       if (this_restraint.restraint_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+		  my_df_geman_mcclure_distances_single(v, df, this_restraint, restraints_p->geman_mcclure_alpha);
+	       }
+	    }
 	 }
       } else {
 	 for (unsigned int i=0; i<restraints_size; i++) {
