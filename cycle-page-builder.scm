@@ -406,7 +406,7 @@
 ;; return the revision number or #f
 ; ;
 (define (get-git-revision-count)
-  (let ((coot-dir (string-append (getenv "HOME") "/Projects/coot/git/coot"))
+  (let ((coot-dir (string-append (getenv "HOME") "/Projects/for-source-tar/coot"))
 	(current-dir (getcwd)))
     ; (format #t "coot-dir: ~s~%" coot-dir)
     ; (format #t "curr-dir: ~s~%" current-dir)

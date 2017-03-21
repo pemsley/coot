@@ -376,6 +376,12 @@ void add_refmac_extra_restraints(int imol, const char *file_name) {
    }
 }
 
+void set_cryo_em_refinement(bool mode) {
+   graphics_info_t::cryo_EM_refinement_flag = mode;
+}
+bool get_cryo_em_refinement() {
+   return graphics_info_t::cryo_EM_refinement_flag;
+}
 
 void write_interpolated_extra_restraints(int imol_1, int imol_2, int n_steps, char *file_name_stub) {
 

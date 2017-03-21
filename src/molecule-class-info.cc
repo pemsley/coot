@@ -110,8 +110,9 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 						 bool allow_duplseqnum,
 						 bool convert_to_v2_atom_names_flag,
 						 float bond_width_in,
-						 int bonds_box_type_in) {
-   
+						 int bonds_box_type_in,
+						 bool warn_about_missing_symmetry_flag) {
+
    //
    graphics_info_t g;
    imol_no = imol_no_in;
@@ -172,11 +173,11 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
       // 
       // 
       int err = atom_sel.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
-      if (err != mmdb::SYMOP_Ok) {
-	 cout << "!! Warning:: No symmetry available for this molecule"
-	      << endl;
-      } else { 
-	 cout << "Symmetry available for this molecule" << endl;
+      if (warn_about_missing_symmetry_flag) {
+	 if (err != mmdb::SYMOP_Ok) {
+	    std::cout << "WARNING:: No symmetry available for this molecule"
+		      << std::endl;
+	 }
       }
       
       // initialize some things.
@@ -185,7 +186,7 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 // 		<< imol_no << std::endl;
       initialize_coordinate_things_on_read_molecule_internal(filename, is_undo_or_redo);
 
-      set_have_unit_cell_flag_maybe();
+      set_have_unit_cell_flag_maybe(warn_about_missing_symmetry_flag);
 
       add_molecular_symmetry_matrices(); // process REMARK 350 BIOMT[123]
 
@@ -453,13 +454,17 @@ molecule_class_info_t::single_quote(const std::string &s) const {
    return r;
 }
 
+// needs show_symmetry flag also
+//
 void
 molecule_class_info_t::install_model(int imol_no_in,
 				     atom_selection_container_t asc,
 				     const coot::protein_geometry *geom_p,
 				     const std::string &name, 
 				     short int display_in_display_control_widget_status,
-				     bool is_from_shelx_ins) {
+				     bool is_from_shelx_ins, // default false
+				     bool warn_about_missing_symmetry_flag // default false
+				     ) {
 
    imol_no = imol_no_in;
    graphics_info_t g;  // pass g.Geom_p()
@@ -469,17 +474,13 @@ molecule_class_info_t::install_model(int imol_no_in,
 
    atom_sel = asc;
 
-   //    mmdb::CMMDBCryst *cryst_p =  (atom_sel.mol)->get_cell_p();
    mmdb::mat44 my_matt;
    
    int err = asc.mol->GetTMatrix(my_matt, 0, 0, 0, 0);
-   if (err != 0) {
-      std::cout << "!! Warning:: No symmetry available for this molecule"
-		<< std::endl;
-   } else { 
-      std::cout << "Symmetry available for this molecule" << std::endl;
-   }
-   set_have_unit_cell_flag_maybe();
+   if (warn_about_missing_symmetry_flag)
+      if (err != 0)
+	 std::cout << "WARNING:: No symmetry available for this molecule" << std::endl;
+   set_have_unit_cell_flag_maybe(warn_about_missing_symmetry_flag);
 
    makebonds(geom_p);
    if (g.show_symmetry == 1)
@@ -505,10 +506,12 @@ molecule_class_info_t::install_model(int imol_no_in,
 				     const coot::protein_geometry *geom_p,
 				     const std::string &mol_name,
 				     short int display_in_display_control_widget_status,
-				     bool is_from_shelx_ins) {
+				     bool is_from_shelx_ins, // default false
+				     bool warn_about_missing_symmetry_flag // default false
+				     ) {
 
    atom_selection_container_t asc = make_asc(mol);
-   install_model(imol_no_in, asc, geom_p, mol_name, display_in_display_control_widget_status, is_from_shelx_ins);
+   install_model(imol_no_in, asc, geom_p, mol_name, display_in_display_control_widget_status, is_from_shelx_ins, warn_about_missing_symmetry_flag);
 } 
 
 
@@ -3069,7 +3072,7 @@ molecule_class_info_t::label_atom(int i, int brief_atom_labels_flag) {
 
 
 void
-molecule_class_info_t::set_have_unit_cell_flag_maybe() {
+molecule_class_info_t::set_have_unit_cell_flag_maybe(bool warn_about_missing_symmetry_flag) {
    
    // mmdb::CMMDBCryst *cryst_p = atom_sel.mol->get_cell_p();
 
@@ -3079,7 +3082,8 @@ molecule_class_info_t::set_have_unit_cell_flag_maybe() {
 
    if (err != 0) {
       have_unit_cell = 0;
-      std::cout << "No Symmetry for this model" << std::endl;
+      if (warn_about_missing_symmetry_flag)
+	 std::cout << "WARNING:: No Symmetry for this model" << std::endl;
    } else { 
       have_unit_cell = 1;
    }
@@ -6581,7 +6585,8 @@ molecule_class_info_t::restore_from_backup(int history_offset,
 				   allow_duplseqnum,
 				   v2_convert_flag,
 				   bond_width,
-				   Bonds_box_type());
+				   Bonds_box_type(),
+				   false);
 	 save_state_command_strings_ = save_save_state;
 	 imol_no = save_imol; 
 	 name_ = save_name;
@@ -8310,7 +8315,12 @@ molecule_class_info_t::get_map_contour_sigma_step_strings() const {
    std::vector <std::string> s; 
    s.push_back("set-last-map-sigma-step");
    s.push_back(graphics_info_t::float_to_string(contour_sigma_step));
-   
+
+//    s.push_back("set_contour_by_sigma_step_by_mol");
+//    s.push_back(coot::util::float_to_string(contour_sigma_step));
+//    s.push_back(coot::util::int_to_string(1));
+//    s.push_back(coot::util::(imol_no));
+
    return s;
 }
 
