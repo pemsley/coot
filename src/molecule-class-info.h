@@ -3067,7 +3067,8 @@ public:        //                      public
    void switch_HIS_protonation(coot::residue_spec_t res_spec);
    void reduce(coot::protein_geometry *geom_p);
 
-   std::pair<std::vector<clipper::Coord_orth>, std::vector<std::pair<unsigned int, unsigned int> > > get_contours(float contour_level, float radius, const coot::Cartesian &centre) const;
+   std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> >
+   get_contours(float contour_level, float radius, const coot::Cartesian &centre) const;
 
 };
 
