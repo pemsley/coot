@@ -487,9 +487,12 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
 	       commands.push_back(state_command(command_strings, il));
 	       command_strings = molecules[i].get_map_contour_strings();
 	       commands.push_back(state_command(command_strings, il));
-	       if (molecules[i].contoured_by_sigma_p()) { 
+	       if (molecules[i].contoured_by_sigma_p()) {
 		  command_strings = molecules[i].get_map_contour_sigma_step_strings();
 		  commands.push_back(state_command(command_strings, il));
+		  // std::cout << "######## here 2 " << std::endl;
+		  // for (unsigned int jj=0; jj<command_strings.size(); jj++)
+		  // std::cout << "          " << jj << " " << command_strings[jj] << std::endl;
 	       }
 	       if (! molecules[i].is_displayed_p()) {
 		  display_strings.clear();

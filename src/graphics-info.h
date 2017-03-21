@@ -1724,7 +1724,8 @@ public:
 #endif    
 #ifdef USE_PYTHON
    PyObject *refinement_results_to_py(coot::refinement_results_t &rr);
-#endif    
+#endif
+   static bool cryo_EM_refinement_flag;
 
    // ligand interactions (pulsing cylindrical bonds, or whatever)
    static long time_holder_for_ligand_interactions; 
