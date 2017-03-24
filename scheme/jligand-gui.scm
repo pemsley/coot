@@ -1,4 +1,5 @@
 
+(define *jligand-home-env* #f)
 
 ;; This happens when user clicks on the "Launch JLigand" button.
 ;; It starts a jligand and puts it in the background.
