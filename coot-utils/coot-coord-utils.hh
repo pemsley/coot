@@ -817,7 +817,9 @@ namespace coot {
       std::pair<bool, int> min_resno_in_chain(mmdb::Chain *chain_p);
       std::pair<bool, int> max_resno_in_chain(mmdb::Chain *chain_p);
       std::pair<bool, int> max_resno_in_molecule(mmdb::Manager *mol);
-      
+      // like the above, but don't count ligands and waters that might have
+      // high residue numbers
+      std::pair<bool, std::pair<int, int> > min_max_residues_in_polymer_chain(mmdb::Chain *chain_p);
 
       // Return -1 on badness (actually, number of chains in the last model)
       int number_of_chains(mmdb::Manager *mol);

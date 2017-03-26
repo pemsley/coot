@@ -1789,6 +1789,44 @@ coot::util::max_resno_in_chain(mmdb::Chain *chain_p) {
    return std::pair<bool, int>(found_residues, max_resno);
 }
 
+std::pair<bool, std::pair<int, int> >
+coot::util::min_max_residues_in_polymer_chain(mmdb::Chain *chain_p) {
+
+   bool found_residues = false;
+   int max_resno = -31999;
+   int min_resno =  31999;
+
+   if (chain_p == NULL) {
+      // This should not be necessary. It seem to be a
+      // result of mmdb corruption elsewhere - possibly
+      // DeleteChain in update_molecule_to().
+      std::cout << "NULL chain in min_max_residues_in_polymer_chain: "
+		<< std::endl;
+   } else {
+      int nres = chain_p->GetNumberOfResidues();
+      if (nres > 0) {
+	 for (int ires=0; ires<nres; ires++) {
+	    mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	    int resno = residue_p->seqNum;
+	    if (resno > max_resno) {
+	       if (! residue_has_hetatms(residue_p)) {
+		  max_resno = resno;
+		  found_residues = true;
+	       }
+	    }
+	    if (resno < min_resno) {
+	       if (! residue_has_hetatms(residue_p)) {
+		  min_resno = resno;
+		  found_residues = true;
+	       }
+	    }
+	 }
+      }
+   }
+   return std::pair<bool, std::pair<int, int> > (found_residues, std::pair<int, int> (min_resno, max_resno));
+}
+
+
 std::pair<bool, int>
 coot::util::max_resno_in_molecule(mmdb::Manager *mol) {
 
