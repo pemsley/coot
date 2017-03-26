@@ -1754,14 +1754,14 @@ setup_for_mol_triangles() {
    simpleLight->setDrawLight(false); // crash on true, why is that?
    graphics_info_t::mol_tri_scene_setup->addLight(simpleLight);
    //Can retrieve reference to the light if so preferred
-   graphics_info_t::mol_tri_scene_setup->getLight(0)->setTranslation(FCXXCoord(400.,400.,0,0.));
+   graphics_info_t::mol_tri_scene_setup->getLight(0)->setTranslation(FCXXCoord(2., 0.0, 0.0));
 
    //Add another simple light
-   // auto simpleLight2 = Light::defaultLight();
-   // graphics_info_t::mol_tri_scene_setup->addLight(simpleLight2);
-   // simpleLight2->setIntensity(0.3);
-   // simpleLight2->setDrawLight(false);
-   // simpleLight2->setTranslation(FCXXCoord(0.,0.,400,0.));
+   auto simpleLight2 = Light::defaultLight();
+   graphics_info_t::mol_tri_scene_setup->addLight(simpleLight2);
+   simpleLight2->setIntensity(0.7);
+   simpleLight2->setDrawLight(false);
+   simpleLight2->setTranslation(FCXXCoord(0.0, 0.9, -20.2));
 
 #endif
 #endif // USE_MOLECULES_TO_TRIANGLES
@@ -1782,19 +1782,20 @@ setup_lighting(short int do_lighting_flag) {
       //
       // GL_LIGHT2 is for cut-glass mode
       // 
-      GLfloat  light_0_position[] = { 1.0,  1.0,  1.0, 1.0};
-      GLfloat  light_1_position[] = {-1.0,  0.0,  1.0, 1.0};
-      GLfloat  light_2_position[] = { 0.0,  0.0, -1.0, 1.0};
+      // GLfloat  light_0_position[] = { 1.0,  1.0,  1.0, 1.0};
+      // GLfloat  light_1_position[] = {-1.0,  0.0,  1.0, 1.0};
+      // GLfloat  light_2_position[] = { 0.0,  0.0, -1.0, 1.0};
 
       glClearColor(0.0, 0.0, 0.0, 0.0);
       glShadeModel(GL_SMOOTH);
 
-      glLightfv(GL_LIGHT0,   GL_POSITION, light_0_position);
-      glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
-      glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
+      // glLightfv(GL_LIGHT0,   GL_POSITION, light_0_position);
+      // glLightfv(GL_LIGHT1,   GL_POSITION, light_1_position);
+      // glLightfv(GL_LIGHT2,   GL_POSITION, light_2_position);
 
-      glEnable(GL_LIGHT0);
-      glEnable(GL_LIGHT1);
+      // glEnable(GL_LIGHT0);
+      // glEnable(GL_LIGHT1);
+
       glEnable(GL_LIGHTING);
       glEnable(GL_DEPTH_TEST);
    } else {
@@ -2188,17 +2189,38 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 // glTranslatef(fbs.x(), fbs.y(), fbs.z());
       }
 
-
       if (true) {
 	 glPushMatrix();
 	 glLoadIdentity();
-	 GLfloat  light_0_position[] = {  21.0,  1.0, 1.0, 0.0};
-	 GLfloat  light_1_position[] = {  0.6, -20.7, 1.0, 0.0};
-	 GLfloat  light_2_position[] = {  0.7, -0.7, 21.0, 0.0};
+	 GLfloat  light_0_position[] = {  21.0,   1.0, 1.0, 0.0}; // 1 is positional, 0 is directional
+	 GLfloat  light_1_position[] = {   0.6, -20.7, 1.0, 0.0};
+	 GLfloat  light_2_position[] = {   0.7, -0.7, 21.0, 0.0};
+	 GLfloat  light_3_position[] = {   0.7, -0.7, 21.0, 0.0};
+	 GLfloat  light_4_position[] = {   0.7,  0.7,-21.0, 0.0};
+	 GLfloat  light_5_position[] = {  -0.7,  0.7, 21.0, 0.0};
 
 	 glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
 	 glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);
 	 glLightfv(GL_LIGHT2, GL_POSITION, light_2_position);
+
+	 glLightfv(GL_LIGHT3, GL_POSITION, light_3_position);
+	 glLightfv(GL_LIGHT4, GL_POSITION, light_4_position);
+	 glLightfv(GL_LIGHT5, GL_POSITION, light_5_position);
+
+	 glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION,    0.0);
+	 glLightf(GL_LIGHT0, GL_QUADRATIC_ATTENUATION, 0.0);
+	 glLightf(GL_LIGHT1, GL_LINEAR_ATTENUATION,    0.0);
+	 glLightf(GL_LIGHT1, GL_QUADRATIC_ATTENUATION, 0.0);
+	 glLightf(GL_LIGHT2, GL_LINEAR_ATTENUATION,    0.0);
+	 glLightf(GL_LIGHT2, GL_QUADRATIC_ATTENUATION, 0.0);
+
+	 glLightf(GL_LIGHT3, GL_LINEAR_ATTENUATION,    0.0);
+	 glLightf(GL_LIGHT3, GL_QUADRATIC_ATTENUATION, 0.0);
+	 glLightf(GL_LIGHT4, GL_LINEAR_ATTENUATION,    0.0);
+	 glLightf(GL_LIGHT4, GL_QUADRATIC_ATTENUATION, 0.0);
+	 glLightf(GL_LIGHT5, GL_LINEAR_ATTENUATION,    0.0);
+	 glLightf(GL_LIGHT5, GL_QUADRATIC_ATTENUATION, 0.0);
+
 	 glPopMatrix();
       }
 
@@ -2222,6 +2244,8 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	    glEnable(GL_LIGHTING);
 	    glEnable(GL_LIGHT0);
 	    glEnable(GL_LIGHT1);
+	    glEnable(GL_LIGHT3);
+	    glEnable(GL_LIGHT4);
 	    glDisable(GL_LIGHT2);
  	    n_display_list_objects +=
  	       graphics_info_t::molecules[ii].draw_display_list_objects(gl_context);
@@ -2280,6 +2304,38 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 //
 	 graphics_info_t::molecules[ii].draw_skeleton(is_bb);
       }
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+#ifdef HAVE_CXX11
+
+      // Martin's triangular molecules
+      //
+      // centre of the screen
+      FCXXCoord pos(graphics_info_t::RotationCentre_x(),
+		    graphics_info_t::RotationCentre_y(),
+		    graphics_info_t::RotationCentre_z());
+      // where is the eye?  That's what we want.
+      // front plane is at z=0;
+      coot::Cartesian eye_cart = unproject_xyz(widget->allocation.width/2, widget->allocation.height/2, 1);
+      FCXXCoord eye_pos(eye_cart.x(), eye_cart.y(), eye_cart.z());
+      if (graphics_info_t::mol_tri_scene_setup) {
+	 if (graphics_info_t::mol_tri_renderer) {
+	    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
+	       if (is_valid_model_molecule(ii)) {
+		  if (graphics_info_t::molecules[ii].draw_it) {
+		     if (graphics_info_t::molecules[ii].molrepinsts.size()) {
+			// molrepinsts get added to mol_tri_scene_setup when then are made
+			// turns on glLighting.
+			graphics_info_t::mol_tri_scene_setup->renderWithRendererFromViewpoint(graphics_info_t::mol_tri_renderer, eye_pos);
+		     }
+		  }
+	       }
+	    }
+	    glDisable(GL_LIGHTING);
+	 }
+      }
+#endif // CXX11
+#endif // USE_MOLECULES_TO_TRIANGLES
 
 
       // regularize object 
@@ -2360,32 +2416,6 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	    graphics_info_t::molecules[ii].draw_solid_density_surface(do_flat);
 	 }
       }
-
-#ifdef USE_MOLECULES_TO_TRIANGLES
-#ifdef HAVE_CXX11
-
-      // Martin's triangular molecules
-      //
-      FCXXCoord pos(graphics_info_t::RotationCentre_x(),
-		    graphics_info_t::RotationCentre_y(),
-		    graphics_info_t::RotationCentre_z());
-      if (graphics_info_t::mol_tri_scene_setup) {
-	 if (graphics_info_t::mol_tri_renderer) {
-	    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
-	       if (is_valid_model_molecule(ii)) {
-		  if (graphics_info_t::molecules[ii].draw_it) {
-		     if (graphics_info_t::molecules[ii].molrepinst) {
-			// turns on glLighting.
-			graphics_info_t::mol_tri_scene_setup->renderWithRendererFromViewpoint(graphics_info_t::mol_tri_renderer, pos);
-		     }
-		  }
-	       }
-	    }
-	    glDisable(GL_LIGHTING);
-	 }
-      }
-#endif // CXX11
-#endif // USE_MOLECULES_TO_TRIANGLES
 
       //
       draw_crosshairs_maybe();
