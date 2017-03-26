@@ -752,13 +752,19 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 	       lights_vec = chi_squareds("Final Estimated RMS Z Scores", s->x);
 	    }
 	    break;
-	 } 
+	 }
 
 	 // back of envelope calculation suggests g_crit = 0.1 for
 	 // coordinate shift of 0.001:  So let's choose 0.05
-	 status = gsl_multimin_test_gradient (s->gradient, 0.5);
+	 // when we have 100 restraints, 0.5 is OK.
+	 // wehen we have 200,000 restraints, 0.5 is not OK.
+	 // grad_lim = sqrt(n_restraints) * 0.05
+	 double grad_lim = sqrt(size()) * 0.15;
+	 if (grad_lim < 0.3)
+	    grad_lim = 0.3;
+	 status = gsl_multimin_test_gradient (s->gradient, grad_lim);
 
-	 if (false) { // debug
+	 if (true) { // debug
 	    double norm = gsl_blas_dnrm2(s->gradient); 
 	    std::cout << "debug:: iteration number " << iter << " of " << nsteps_max
 		      << " status from gsl_multimin_test_gradient() " << status << " for norm "
@@ -1664,8 +1670,10 @@ coot::restraints_container_t::make_restraint_types_index_limits() {
    restraints_limits_torsions = std::pair<unsigned int, unsigned int> (unset,0);
    restraints_limits_chirals = std::pair<unsigned int, unsigned int> (unset,0);
    restraints_limits_planes =  std::pair<unsigned int, unsigned int> (unset,0);
+   restraints_limits_parallel_planes =  std::pair<unsigned int, unsigned int> (unset,0);
    restraints_limits_non_bonded_contacts = std::pair<unsigned int, unsigned int> (unset,0);
    restraints_limits_geman_mclure = std::pair<unsigned int, unsigned int> (unset,0);
+   restraints_limits_start_pos = std::pair<unsigned int, unsigned int> (unset,0);
 
    for (unsigned int i=0; i<restraints_vec.size(); i++) {
       const simple_restraint &restraint = restraints_vec[i];
@@ -1699,6 +1707,12 @@ coot::restraints_container_t::make_restraint_types_index_limits() {
 	 if (i > restraints_limits_planes.second)
 	    restraints_limits_planes.second = i;
       }
+      if (restraint.restraint_type == coot::PARALLEL_PLANES_RESTRAINT) {
+	 if (restraints_limits_parallel_planes.first == unset)
+	    restraints_limits_parallel_planes.first = i;
+	 if (i > restraints_limits_parallel_planes.second)
+	    restraints_limits_parallel_planes.second = i;
+      }
       if (restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
 	 if (restraints_limits_non_bonded_contacts.first == unset)
 	    restraints_limits_non_bonded_contacts.first = i;
@@ -1711,16 +1725,24 @@ coot::restraints_container_t::make_restraint_types_index_limits() {
 	 if (i > restraints_limits_geman_mclure.second)
 	    restraints_limits_geman_mclure.second = i;
       }
+      if (restraint.restraint_type == coot::START_POS_RESTRAINT) {
+	 if (restraints_limits_start_pos.first == unset)
+	    restraints_limits_start_pos.first = i;
+	 if (i > restraints_limits_start_pos.second)
+	    restraints_limits_start_pos.second = i;
+      }
    }
 
    // now check for unsets
-   if (restraints_limits_bonds.first  == unset) restraints_limits_bonds.first = 0;
-   if (restraints_limits_angles.first == unset) restraints_limits_angles.first = 0;
+   if (restraints_limits_bonds.first  == unset)   restraints_limits_bonds.first = 0;
+   if (restraints_limits_angles.first == unset)   restraints_limits_angles.first = 0;
    if (restraints_limits_torsions.first == unset) restraints_limits_torsions.first = 0;
-   if (restraints_limits_chirals.first == unset) restraints_limits_chirals.first = 0;
-   if (restraints_limits_planes.first == unset) restraints_limits_planes.first = 0;
+   if (restraints_limits_chirals.first == unset)  restraints_limits_chirals.first = 0;
+   if (restraints_limits_planes.first == unset)   restraints_limits_planes.first = 0;
+   if (restraints_limits_parallel_planes.first == unset) restraints_limits_parallel_planes.first = 0;
    if (restraints_limits_non_bonded_contacts.first == unset) restraints_limits_non_bonded_contacts.first = 0;
    if (restraints_limits_geman_mclure.first == unset) restraints_limits_geman_mclure.first = 0;
+   if (restraints_limits_start_pos.first == unset) restraints_limits_start_pos.first = 0;
 
    if (false) {
       std::cout << "restraints limits bonds "
@@ -3599,9 +3621,16 @@ void
 coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const coot::bonded_pair_container_t &bpc,
 									   const coot::protein_geometry &geom) {
 
+   std::chrono::time_point<std::chrono::system_clock> start, end;
+   start = std::chrono::system_clock::now();
+
    // How frequently does this function get called? - needs optimizing
-   
-   const double dist_crit = 8.0; // good number?  Needs checking. 
+
+   //  on a whole chain:
+   //  8 -> 2.9 s
+   // 11 -> 3.1 s
+   //
+   const double dist_crit = 11.0; // good number?  Needs checking. 
    
    filtered_non_bonded_atom_indices.resize(bonded_atom_indices.size());
 
@@ -3799,6 +3828,14 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
       std::cout << "--------------------------------------------------\n";
    }
    
+
+   end = std::chrono::system_clock::now();
+ 
+   std::chrono::duration<double> elapsed_seconds = end-start;
+   std::time_t end_time = std::chrono::system_clock::to_time_t(end);
+ 
+   std::cout << "finished computation at " << std::ctime(&end_time)
+	     << "elapsed time: " << elapsed_seconds.count() << "s\n";
 }
 
 // Add non-bonded contacts for atoms that are in residues that are

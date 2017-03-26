@@ -1959,8 +1959,10 @@ namespace coot {
       std::pair<unsigned int, unsigned int> restraints_limits_torsions;
       std::pair<unsigned int, unsigned int> restraints_limits_chirals;
       std::pair<unsigned int, unsigned int> restraints_limits_planes;
+      std::pair<unsigned int, unsigned int> restraints_limits_parallel_planes;
       std::pair<unsigned int, unsigned int> restraints_limits_non_bonded_contacts;
       std::pair<unsigned int, unsigned int> restraints_limits_geman_mclure;
+      std::pair<unsigned int, unsigned int> restraints_limits_start_pos;
 
 #ifdef HAVE_CXX_THREAD
       // thread pool!

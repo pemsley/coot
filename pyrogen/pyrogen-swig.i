@@ -11,6 +11,6 @@ namespace std {
 
 %{
 #include "pyrogen/restraints.hh"
-%} 
+%}
 
 %include "pyrogen/restraints.hh"

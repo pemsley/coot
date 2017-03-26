@@ -1,11 +1,15 @@
 
    For Release 0.8.9
 
+   o map_peaks*.py should make negative peaks [Oliver Smart]
+
    o many models, with maps middle mouse: scroll dialog bad
 
    o Re: go to ligand: JED: Can I make a list of "non-interesting comp-ids?"
 
    o (cryo-EM) map molecules should save their sigma step to the state file
+
+* They do.
 
    o Colour-by-chain should have thin bonds to hydrogen atoms
 
