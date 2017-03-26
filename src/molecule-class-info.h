@@ -803,13 +803,6 @@ public:        //                      public
       // single model view
       single_model_view_current_model_number = 0; // all models
 
-      // need to test for moltris too, I guess
-#ifdef USE_MOLECULES_TO_TRIANGLES
-#ifdef HAVE_CXX11
-      molrepinst = 0;
-#endif // HAVE_CXX11
-#endif // USE_MOLECULES_TO_TRIANGLES
-
    }
 
    int handle_read_draw_molecule(int imol_no_in,
@@ -917,10 +910,13 @@ public:        //                      public
    
    std::string show_spacegroup() const;
 
+   void set_mol_triangles_is_displayed(int state);
+
    void set_mol_is_displayed(int state) {
       if (atom_sel.n_selected_atoms > 0) {
 	 draw_it = state;
       }
+      set_mol_triangles_is_displayed(state);
    }
 
    void set_mol_is_active(int state) {
@@ -3093,7 +3089,7 @@ public:        //                      public
 
 #ifdef USE_MOLECULES_TO_TRIANGLES
 #ifdef HAVE_CXX11
-   std::shared_ptr<MolecularRepresentationInstance> molrepinst;
+   std::vector<std::shared_ptr<MolecularRepresentationInstance> > molrepinsts;
    void make_molecularrepresentationinstance();
 #endif   
 #endif // USE_MOLECULES_TO_TRIANGLES

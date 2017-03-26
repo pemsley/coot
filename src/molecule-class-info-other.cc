@@ -6411,10 +6411,11 @@ molecule_class_info_t::draw_display_list_objects(int GL_context) {
    int n_objects = 0;
    if (draw_it) { 
       if (display_list_tags.size() > 0) { 
-	 glEnable(GL_LIGHTING);
+	 // glEnable(GL_LIGHTING);
+	 
+	 // glEnable(GL_LIGHT0); // bright.
+	 // glEnable(GL_LIGHT1); // dim, off axis
 
-	 glEnable(GL_LIGHT0); // bright.
-	 glEnable(GL_LIGHT1); // dim, off axis
 	 // glEnable(GL_LIGHT2); // very dark
 
 	 // glDisable(GL_LIGHT0);
