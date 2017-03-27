@@ -3286,15 +3286,12 @@ molecule_class_info_t::map_statistics() const {
 
 } 
 
-std::pair<std::vector<clipper::Coord_orth>, std::vector<std::pair<unsigned int, unsigned> > >
+std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> >
 molecule_class_info_t::get_contours(float contour_level,
 				    float radius,
 				    const coot::Cartesian &centre) const {
 
-   std::pair<std::vector<clipper::Coord_orth>, std::vector<std::pair<unsigned int, unsigned int> > > r;
-
-   std::vector<clipper::Coord_orth> &vertices = r.first;
-   std::vector<std::pair<unsigned int, unsigned int> > &connections = r.second;
+   std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > r;
 
    int isample_step = 1;
    CIsoSurface<float> my_isosurface;
@@ -3303,5 +3300,17 @@ molecule_class_info_t::get_contours(float contour_level,
 								       contour_level,
 								       radius, centre,
 								       isample_step);
+   if (v.data) {
+      if (v.size > 0) {
+	 r.resize(v.size);
+	 for (int i=0; i<v.size; i++) {
+	    coot::Cartesian s = v.data[i].getStart();
+	    coot::Cartesian f = v.data[i].getFinish();
+	    clipper::Coord_orth p1(s.x(), s.y(), s.z());
+	    clipper::Coord_orth p2(f.x(), f.y(), f.z());
+	    r[i]= std::pair<clipper::Coord_orth, clipper::Coord_orth>(p1,p2);
+	 }
+      }
+   }
    return r;
 }

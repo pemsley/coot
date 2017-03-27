@@ -749,6 +749,9 @@ PyObject *refine_zone_with_full_residue_spec_py(int imol, const char *chain_id,
 					   const char *altconf);
 #endif // USE_PYTHON
 
+void set_cryo_em_refinement(bool mode);
+bool get_cryo_em_refinement();
+
 //! \}
 
 
