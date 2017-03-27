@@ -5,3 +5,7 @@
 alias __git_current_branch 'git rev-parse --abbrev-ref HEAD >& /dev/null && git rev-parse --abbrev-ref HEAD'
 
 alias precmd 'set prompt="%{[34m%}%B%m %{[32m%}`__git_current_branch`%{[34m%} %c2%{[34m%}> %b%{[33m%}"'
+
+# set the terminal title
+#
+alias cwdcmd  'echo -n "]0;${HOST}: `__git_current_branch` $cwd "'

@@ -8351,7 +8351,12 @@ molecule_class_info_t::get_map_contour_sigma_step_strings() const {
    std::vector <std::string> s; 
    s.push_back("set-last-map-sigma-step");
    s.push_back(graphics_info_t::float_to_string(contour_sigma_step));
-   
+
+//    s.push_back("set_contour_by_sigma_step_by_mol");
+//    s.push_back(coot::util::float_to_string(contour_sigma_step));
+//    s.push_back(coot::util::int_to_string(1));
+//    s.push_back(coot::util::(imol_no));
+
    return s;
 }
 
