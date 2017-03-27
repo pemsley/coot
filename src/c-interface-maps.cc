@@ -2119,31 +2119,28 @@ PyObject *map_contours(int imol, float contour_level) {
       graphics_info_t g;
       coot::Cartesian centre = g.RotationCentre();
       float radius = graphics_info_t::box_radius;
-      r = PyList_New(2);
-      std::pair<std::vector<clipper::Coord_orth>,
-	 std::vector<std::pair<unsigned int, unsigned> > > contours =
+      std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > contours =
 	 graphics_info_t::molecules[imol].get_contours(contour_level, radius, centre);
-      const std::vector<clipper::Coord_orth> &vertices = contours.first;
-      const std::vector<std::pair<unsigned int, unsigned int> > &connections = contours.second;
-      unsigned int n_vertices = vertices.size();
-      unsigned int n_connections = connections.size();
-      PyObject *vertex_list_py = PyList_New(n_vertices);
-      PyObject *connection_list_py = PyList_New(n_vertices);
-      for (unsigned int i=0; i<vertices.size(); i++) {
-	 PyObject *v = PyList_New(3);
-	 PyList_SetItem(v, 0, PyFloat_FromDouble(vertices[i].x()));
-	 PyList_SetItem(v, 1, PyFloat_FromDouble(vertices[i].y()));
-	 PyList_SetItem(v, 2, PyFloat_FromDouble(vertices[i].z()));
-	 PyList_SetItem(vertex_list_py, i, v);
+
+      std::cout << "got -------------------- " << contours.size() << " lines " << std::endl;
+      r = PyList_New(contours.size());
+
+      for (unsigned int i=0; i<contours.size(); i++) {
+	 PyObject *point_pair_py = PyList_New(2);
+	 PyObject *p1 = PyList_New(3);
+	 PyObject *p2 = PyList_New(3);
+	 PyList_SetItem(p1, 0, PyFloat_FromDouble(contours[i].first.x()));
+	 PyList_SetItem(p1, 1, PyFloat_FromDouble(contours[i].first.y()));
+	 PyList_SetItem(p1, 2, PyFloat_FromDouble(contours[i].first.z()));
+	 PyList_SetItem(p2, 0, PyFloat_FromDouble(contours[i].second.x()));
+	 PyList_SetItem(p2, 1, PyFloat_FromDouble(contours[i].second.y()));
+	 PyList_SetItem(p2, 2, PyFloat_FromDouble(contours[i].second.z()));
+
+	 PyList_SetItem(point_pair_py, 0, p1);
+	 PyList_SetItem(point_pair_py, 1, p2);
+
+	 PyList_SetItem(r, i, point_pair_py);
       }
-      for (unsigned int i=0; i<connections.size(); i++) {
-	 PyObject *v = PyList_New(2);
-	 PyList_SetItem(v, 0, PyInt_FromLong(connections[i].first));
-	 PyList_SetItem(v, 1, PyInt_FromLong(connections[i].second));
-	 PyList_SetItem(connection_list_py, 0, v);
-      }
-      PyList_SetItem(r, 0, vertex_list_py);
-      PyList_SetItem(r, 1, connection_list_py);
    }
    if (PyBool_Check(r))
       Py_XINCREF(r);
