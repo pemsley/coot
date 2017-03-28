@@ -170,7 +170,7 @@ map_density_distribution(const clipper::Xmap<T> &map,
       }
    }
 
-   if (write_output_flag) { 
+   if (write_output_flag) {
       std::cout << "Map statistics: mean: " << mean << " st.d: " << sqrt(var)
 	   << std::endl;
       std::cout <<  "Map statistics: min: " << min << ", max: " << max << std::endl;
