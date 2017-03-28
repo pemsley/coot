@@ -50,6 +50,7 @@ chain_id_for_shelxl_residue_number = chain_id_for_shelxl_residue_number_py
 gln_asn_b_factor_outliers          = gln_asn_b_factor_outliers_py
 map_peaks              = map_peaks_py
 map_peaks_near_point   = map_peaks_near_point_py
+map_peaks_around_molecule = map_peaks_around_molecule_py
 view_name              = view_name_py
 view_description       = view_description_py
 go_to_view             = go_to_view_py
