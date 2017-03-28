@@ -615,7 +615,7 @@ namespace coot {
       turn_off_when_close_target_position_restraint_eraser(mmdb::PAtom *atoms_in, int n_atoms_in) {
 	 atoms = atoms_in;
 	 n_atoms = n_atoms_in;
-	 close_dist = 0.5; // was 0.4
+	 close_dist = 0.6; // was 0.5; // was 0.4
       }
       bool operator() (const simple_restraint &r) const {
 	 bool v = false;
