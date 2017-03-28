@@ -793,9 +793,13 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	       }
 
 #ifdef HAVE_CXX_THREAD
-	       int n_threads = coot::get_max_number_of_threads();
-	       if (n_threads > 0)
-		  restraints.thread_pool(&static_thread_pool, n_threads);
+	       // This is a hack which stops the refinement crashing (note that
+	       // sphere regularization works with a valid thread pool)
+	       // but when using the electron, something goes wrong.
+	       //
+	       // int n_threads = coot::get_max_number_of_threads();
+ 	       // if (n_threads > 0)
+	       // restraints.thread_pool(&static_thread_pool, n_threads);
 #endif // HAVE_CXX_THREAD
 
 	       if (false)

@@ -1326,9 +1326,7 @@ void coot::my_df_electron_density(const gsl_vector *v,
 				  gsl_vector *df) {
 
 #ifdef ANALYSE_REFINEMENT_TIMING
-   timeval start_time;
-   timeval current_time;
-   gettimeofday(&start_time, NULL);
+   auto tp_1 = std::chrono::high_resolution_clock::now();
 #endif // ANALYSE_REFINEMENT_TIMING
 
    // first extract the object from params 
@@ -1336,48 +1334,13 @@ void coot::my_df_electron_density(const gsl_vector *v,
    coot::restraints_container_t *restraints_p = static_cast<restraints_container_t *> (params); 
 
    if (restraints_p->include_map_terms() == 1) { 
-      
-#ifdef HAVE_CXX_THREAD
-      
-      std::atomic<unsigned int> done_count_for_threads(0);
-
-      if (restraints_p->thread_pool_p) {
-	 int idx_max = (v->size)/3;
-	 unsigned int n_per_thread = idx_max/restraints_p->n_threads;
-
-	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
-	    int idx_start = i_thread * n_per_thread;
-	    int idx_end   = idx_start + n_per_thread;
-	    // for the last thread, set the end atom index
-	    if (i_thread == (restraints_p->n_threads - 1))
-	       idx_end = idx_max; // for loop uses iat_start and tests for < iat_end
-
-	    restraints_p->thread_pool_p->push(my_df_electron_density_threaded_single,
-					      v, restraints_p, df, idx_start, idx_end,
-					      std::ref(done_count_for_threads));
-
-	 }
-
-	 while (done_count_for_threads != restraints_p->n_threads) {
-// 	    std::cout << "comparing " << restraints_p->done_count_for_threads
-// 		      << " "  << restraints_p->n_threads << std::endl;
-	    std::this_thread::sleep_for(std::chrono::microseconds(1));
-	 }
-
-      } else {
-	 my_df_electron_density_single(v, restraints_p, df, 0, v->size/3);
-      }
-#else
       my_df_electron_density_single(v, restraints_p, df, 0, v->size/3);
-#endif // HAVE_CXX_THREAD
-
    }
+
 #ifdef ANALYSE_REFINEMENT_TIMING
-   gettimeofday(&current_time, NULL);
-   double td = current_time.tv_sec - start_time.tv_sec;
-   td *= 1000.0;
-   td += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
-   std::cout << "------------- mark my_df_electron_density: " << td << std::endl;
+   auto tp_2 = std::chrono::high_resolution_clock::now();
+   auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
+   std::cout << "my_df_electron_density: " << d21 << " microseconds" << std::endl;
 #endif // ANALYSE_REFINEMENT_TIMING
 }
 
@@ -1396,9 +1359,6 @@ void coot::my_df_electron_density_old_2017(const gsl_vector *v,
 					   gsl_vector *df) {
 
 #ifdef ANALYSE_REFINEMENT_TIMING
-   timeval start_time;
-   timeval current_time;
-   gettimeofday(&start_time, NULL);
 #endif // ANALYSE_REFINEMENT_TIMING
 
    // first extract the object from params 
@@ -1457,11 +1417,6 @@ void coot::my_df_electron_density_old_2017(const gsl_vector *v,
       }
    }
 #ifdef ANALYSE_REFINEMENT_TIMING
-   gettimeofday(&current_time, NULL);
-   double td = current_time.tv_sec - start_time.tv_sec;
-   td *= 1000.0;
-   td += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
-   std::cout << "------------- mark my_df_electron_density: " << td << std::endl;
 #endif // ANALYSE_REFINEMENT_TIMING
 }
 
