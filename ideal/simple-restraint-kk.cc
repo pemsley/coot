@@ -74,7 +74,7 @@ void coot::my_df_start_pos (const gsl_vector *v,
    
    double val;
    int idx;
-   for (int i=0; i<restraints->size(); i++) {
+   for (int i=restraints->restraints_limits_start_pos.first; i<=restraints->restraints_limits_start_pos.second; i++) {
       
       if ( (*restraints)[i].restraint_type == coot::START_POS_RESTRAINT) {
          
