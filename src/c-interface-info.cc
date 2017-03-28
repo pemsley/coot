@@ -2523,6 +2523,43 @@ double add_atom_geometry_distance_py(int imol_1, PyObject *atom_spec_1, int imol
 #endif
 
 
+/*  ----------------------------------------------------------------------- */
+/*                  pointer position                                        */
+/*  ----------------------------------------------------------------------- */
+/* section Pointer Position Function */
+/*! \name Pointer Position Function */
+/* \{ */
+/*! \brief return the [x,y] position of the pointer in fractional coordinates.
+
+    may return false if pointer is not available */
+#ifdef USE_PYTHON
+PyObject *get_pointer_position_frac_py() {
+
+   PyObject *r = Py_False;
+
+   if (graphics_info_t::use_graphics_interface_flag) {
+
+      graphics_info_t g;
+      double x = g.GetMouseBeginX();
+      double y = g.GetMouseBeginY();
+
+      double x_max = g.glarea->allocation.width;
+      double y_max = g.glarea->allocation.height;
+
+      double xf = x/x_max;
+      double yf = y/y_max;
+
+      r = PyList_New(2);
+      PyList_SetItem(r, 0, PyFloat_FromDouble(xf));
+      PyList_SetItem(r, 1, PyFloat_FromDouble(yf));
+
+   }
+   if (PyBool_Check(r))
+     Py_INCREF(r);
+   return r;
+}
+#endif // USE_PYTHON
+
 
 
 void set_show_pointer_distances(int istate) {
