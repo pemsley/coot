@@ -69,9 +69,6 @@ map_density_distribution(const clipper::Xmap<T> &map,
    min_plausible = mean - 10 * sqrt(var);
    max_plausible = mean + 10 * sqrt(var);
 
-   // if (min_plausible > -3) min_plausible = -3;
-   // if (max_plausible >  3) max_plausible =  3;
-
    if (false) {
       std::cout << "reset max_plausible to " << max_plausible << std::endl;
       std::cout << "reset min_plausible to " << min_plausible << std::endl;
@@ -143,7 +140,7 @@ map_density_distribution(const clipper::Xmap<T> &map,
    inv_range = (range>0.0) ? (1.0/range) : (1.0);
 
    std::cout << "INFO:: Map statistics: mean: " << mean << " st.d: " << sqrt(var) << std::endl;
-   std::cout << "INFO:: Map statistics:  min: " << min  << " max:  " << max << std::endl;
+   std::cout << "INFO:: Map statistics:  min: " << min << "   max: " << max << std::endl;
 
    mv.mean = mean;
    mv.variance = var; 
