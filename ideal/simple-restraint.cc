@@ -764,7 +764,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 	    grad_lim = 0.3;
 	 status = gsl_multimin_test_gradient (s->gradient, grad_lim);
 
-	 if (true) { // debug
+	 if (false) { // debug
 	    double norm = gsl_blas_dnrm2(s->gradient); 
 	    std::cout << "debug:: iteration number " << iter << " of " << nsteps_max
 		      << " status from gsl_multimin_test_gradient() " << status << " for norm "
