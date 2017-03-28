@@ -432,7 +432,9 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 //       std::cout << "in my_df_non_bonded restraints_p: " << restraints_p << std::endl;
 //       std::cout << "in my_df_non_bonded restraints_p->n_threads " << restraints_p->n_threads << std::endl;
 
-      if (restraints_p->thread_pool_p) {
+      if ((restraints_p->thread_pool_p) && (restraints_p->n_threads > 0)) {
+
+	 unsigned int n_per_thread = restraints_size/restraints_p->n_threads;
 
 	 if (restraints_p->n_threads > 0) {
 
@@ -1684,10 +1686,7 @@ coot::my_df_parallel_planes(const gsl_vector *v,
    coot::restraints_container_t *restraints = (coot::restraints_container_t *)params;
    
    if (restraints->restraints_usage_flag & coot::PARALLEL_PLANES_MASK) {
-
-      int restraints_size = restraints->size();
-
-      for (int i=0; i<restraints_size; i++) {
+      for (unsigned int i=restraints->restraints_limits_parallel_planes.first; i<=restraints->restraints_limits_parallel_planes.second; i++) {
        
 	 if ( (*restraints)[i].restraint_type == coot::PARALLEL_PLANES_RESTRAINT) {
 	    const simple_restraint &ppr = (*restraints)[i];

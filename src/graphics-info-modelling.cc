@@ -606,9 +606,18 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
       // std::cout << "DEBUG:: start of ref have: " << n_cis << " cis peptides"
       // << std::endl;
       bool continue_flag = true;
-      int step_count = 0; 
+      unsigned int step_count = 0; 
       print_initial_chi_squareds_flag = 1; // unset by drag_refine_idle_function
-      while ((step_count < 8000) && graphics_info_t::continue_update_refinement_atoms_flag) {
+      unsigned int step_count_lim = 5000;
+      if (restraints.size() > 10000)
+	 step_count_lim = 3000000/restraints.size();
+      std::cout << "debug:: here with restraints.size() " << restraints.size()
+		<< " and step_count_lim " << step_count_lim << std::endl;
+      while ((step_count < step_count_lim) && continue_flag) {
+
+         if (false)
+	    std::cout << ".... step_count: " << step_count
+		      << " step_count_lim " << step_count_lim << std::endl;
 
 	 int retval = drag_refine_idle_function(NULL);
 	 step_count += dragged_refinement_steps_per_frame;
@@ -625,7 +634,7 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
       // if we reach here with continue_flag == 1, then we
       // were refining (regularizing more like) and ran out
       // of steps before convergence.  We still want to give
-      // the use a dialog though.
+      // the user a dialog though.
       //
       if (graphics_info_t::continue_update_refinement_atoms_flag) {
 	 rr = graphics_info_t::saved_dragged_refinement_results;
