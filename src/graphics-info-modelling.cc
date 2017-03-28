@@ -596,7 +596,7 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
       // std::cout << "DEBUG:: start of ref have: " << n_cis << " cis peptides"
       // << std::endl;
       bool continue_flag = true;
-      int step_count = 0; 
+      unsigned int step_count = 0; 
       print_initial_chi_squareds_flag = 1; // unset by drag_refine_idle_function
       unsigned int step_count_lim = 5000;
       if (restraints.size() > 10000)
