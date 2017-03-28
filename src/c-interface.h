@@ -3575,6 +3575,22 @@ double add_atom_geometry_distance_py(int imol_1, PyObject *atom_spec_1, int imol
 /* \} */
 
 
+/*  ----------------------------------------------------------------------- */
+/*                  pointer position                                        */
+/*  ----------------------------------------------------------------------- */
+/* section Pointer Position Function */
+/*! \name Pointer Position Function */
+/* \{ */
+/*! \brief return the [x,y] position of the pointer in fractional coordinates.
+
+the origin is top-left.
+may return false if pointer is not available */
+#ifdef __cplusplus
+#ifdef USE_PYTHON
+PyObject *get_pointer_position_frac_py();
+#endif // USE_PYTHON
+#endif	/* c++ */
+/* \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  pointer distances                                      */
