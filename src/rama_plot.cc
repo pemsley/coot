@@ -951,14 +951,14 @@ coot::rama_plot::make_isolines(const clipper::Ramachandran rama_type, GooCanvasI
 
          // Make isolines. cf http://www.twodee.org/blog/?p=7595
          make_line = make_isolines_internal(rama_type, rama_threshold_allowed, i, j);
+         if (make_line.first == 0)
+            make_line = make_isolines_internal(rama_type, rama_threshold_preferred, i, j);
          config = make_line.first;
          line = make_line.second;
          x1 = line[0];
          y1 = line[1];
          x2 = line[2];
          y2 = line[3];
-
-         colour = "purple";
 
          if (config > 0) {
             // have isoline
@@ -969,37 +969,6 @@ coot::rama_plot::make_isolines(const clipper::Ramachandran rama_type, GooCanvasI
                                                 "line-width", 0.5,
 				NULL);
          }
-      }
-   }
-
-
-   // We have 2 loops so that the favoured regions are drawn last and
-   // that their borders are not stamped on by the allowed regions.
-   //
-   for (float i= -180.0; i<180.0; i += step) {
-      for (float j= start_angle; j<end_angle; j += step) {
-   
-         colour = "LightPink";
-
-         make_line = make_isolines_internal(rama_type, rama_threshold_preferred, i, j);
-         config = make_line.first;
-         line = make_line.second;
-         x1 = line[0];
-         y1 = line[1];
-         x2 = line[2];
-         y2 = line[3];
-
-         if (config > 0) {
-            // have isoline
-            item = goo_canvas_polyline_new_line(bg_group,
-                                                x1,y1,
-                                                x2,y2,
-                                                "stroke-color", "black",
-                                                "line-width", 0.5,
-                                                NULL);
-
-         }
-
       }
    }
 

@@ -702,7 +702,9 @@ low importance
 
 **** dynarama ****
 
-   o close menu could be quit in stand alone
+   o give phi-psi info in tooltip (maybe optional)
+
+   o close menu could be "quit" in stand alone
 
    o (better) exception handling when e.g. no glade file
 
