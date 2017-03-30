@@ -1,7 +1,13 @@
 
    For Release 0.8.9
 
+   o fetch Bernie branch. consider new rama
+
+   o lidia molfile.mol should Do The Right Thing
+
    o map_peaks*.py should make negative peaks [Oliver Smart]
+
+* Done.
 
    o read the comp_id cifs with CSD coords
 
