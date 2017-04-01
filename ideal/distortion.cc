@@ -715,6 +715,8 @@ coot::distortion_score_multithread(int thread_id, const gsl_vector *v, void *par
 }
 #endif // HAVE_CXX_THREAD
 
+#include <iomanip>
+
 // Return the distortion score.
 //
 double coot::distortion_score(const gsl_vector *v, void *params) {
@@ -825,12 +827,12 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	 auto d61 = chrono::duration_cast<chrono::microseconds>(tp_6 - tp_1).count();
 
 	 if (false)
-	    std::cout << "d21 " << d21 << " "
-		      << "d32 " << d32 << " "
-		      << "d43 " << d43 << " "
-		      << "d54 " << d54 << " "
-		      << "d65 " << d65 << " "
-		      << "d61 " << d61 << " "
+	    std::cout << "d21 " << std::setw(5) << d21 << " "
+		      << "d32 " << std::setw(5) << d32 << " "
+		      << "d43 " << std::setw(5) << d43 << " "
+		      << "d54 " << std::setw(5) << d54 << " "
+		      << "d65 " << std::setw(5) << d65 << " "
+		      << "d61 " << std::setw(5) << d61 << " "
 		      << "\n";
       } else {
 	 distortion_score_single_thread(v, params, 0, restraints_size, &distortion);
@@ -857,7 +859,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 #ifdef ANALYSE_REFINEMENT_TIMING
 #endif // ANALYSE_REFINEMENT_TIMING
 
-   // cout << "distortion (in distortion_score): " << distortion << endl; 
+   // std::cout << "distortion (in distortion_score): " << distortion << std::endl;
    return distortion; 
 }
 
