@@ -3575,6 +3575,22 @@ double add_atom_geometry_distance_py(int imol_1, PyObject *atom_spec_1, int imol
 /* \} */
 
 
+/*  ----------------------------------------------------------------------- */
+/*                  pointer position                                        */
+/*  ----------------------------------------------------------------------- */
+/* section Pointer Position Function */
+/*! \name Pointer Position Function */
+/* \{ */
+/*! \brief return the [x,y] position of the pointer in fractional coordinates.
+
+the origin is top-left.
+may return false if pointer is not available */
+#ifdef __cplusplus
+#ifdef USE_PYTHON
+PyObject *get_pointer_position_frac_py();
+#endif // USE_PYTHON
+#endif	/* c++ */
+/* \} */
 
 /*  ----------------------------------------------------------------------- */
 /*                  pointer distances                                      */
@@ -3774,6 +3790,8 @@ void gln_asn_b_factor_outliers_py(int imol);
 PyObject *map_peaks_py(int imol_map, float n_sigma);
 PyObject *map_peaks_near_point_py(int imol_map, float n_sigma, float x, float y, float z, float radius);
 PyObject *map_peaks_near_point_from_list_py(int imol_map, PyObject *peak_list, float x, float y, float z, float radius);
+PyObject *map_peaks_around_molecule_py(int imol_map, float sigma, int negative_also_flag, int imol_coords);
+
 /* BL says:: this probably shouldnt be here but cluster with KK code */
 PyObject *screen_vectors_py();
 #endif /*  USE_PYTHON */
