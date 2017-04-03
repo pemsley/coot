@@ -2524,6 +2524,7 @@ if test -n "$build_clipper" ; then
     clipper_version=2.1-100511-ac
     clipper_version=2.1
     clipper_version=2.1.20160708
+    clipper_version=2.1.20160809
     clipper_dir_version=2.1
     clipper_dir_version=$clipper_version
     # ${WGET} http://www.ysbl.york.ac.uk/~cowtan/clipper/clipper-$clipper_version.tar.gz
