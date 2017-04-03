@@ -195,7 +195,7 @@
 			 "refmac5"
 			 (list "XYZIN" out-file-name  ;; yes (coot out)
 			       "XYZOUT" in-file-name)
-			 (list "MAKE HOUT YES" "END")
+			 (list "MAKE HOUT YES" "NCYCLE 0" "END")
 			 "refmac-H-addition.log"
 			 #f)))
       (if (not (ok-goosh-status? goosh-status))
