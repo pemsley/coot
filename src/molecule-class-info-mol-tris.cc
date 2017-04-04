@@ -34,10 +34,9 @@ molecule_class_info_t::make_molecularrepresentationinstance() {
       int imod = 1;
       mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
       if (model_p) {
-	 mmdb::Chain *chain_p;
 	 int n_chains = model_p->GetNumberOfChains();
 	 for (int ichain=0; ichain<n_chains; ichain++) {
-	    chain_p = model_p->GetChain(ichain);
+	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
 	    std::cout << "here with chain " << chain_p << std::endl;
 	    std::pair<bool, std::pair<int, int> > residue_min_max = coot::util::min_max_residues_in_polymer_chain(chain_p);
 	    if (residue_min_max.first) {
@@ -51,16 +50,24 @@ molecule_class_info_t::make_molecularrepresentationinstance() {
 	       auto apcrr_p = std::make_shared<AtomPropertyRampColorRule> (apcrr);
 	       ribbon_ramp_cs->addRule(apcrr_p);
 	       std::string mmdb_chain = "//";
-	       mmdb_chain += chain_p->GetChainID();
-	       auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol, ribbon_ramp_cs, mmdb_chain, "Ribbon");
-	       auto molrepinst_2 = MolecularRepresentationInstance::create(my_mol,      chains_cs, mmdb_chain, "DishyBases");
+	       std::string chain_id = chain_p->GetChainID();
+	       mmdb_chain += chain_id;
+	       auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol,     cs_ss, mmdb_chain, "MolecularSurface");
+	       // auto molrepinst_2 = MolecularRepresentationInstance::create(my_mol, chains_cs, mmdb_chain, "DishyBases");
+	       auto molrepinst_2 = MolecularRepresentationInstance::create(my_mol, chains_cs, mmdb_chain, "Calpha");
 
-	       graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(molrepinst_1);
-	       graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(molrepinst_2);
+	       if (chain_id == "C") {
+		  auto molrepinst_c = MolecularRepresentationInstance::create(my_mol, cs_ss, mmdb_chain, "VdWSurface");
+		  graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(molrepinst_c);
+		  molrepinsts.push_back(molrepinst_c);
+	       } else {
+		  graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(molrepinst_1);
+		  graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(molrepinst_2);
+	       }
 	       molrepinsts.push_back(molrepinst_1);
 	       molrepinsts.push_back(molrepinst_2);
 	    } else {
-	       std::cout << "No min/max found for chain " << chain_p << std::endl;
+	       std::cout << "No min/max found for chain " << chain_p << " " << chain_p->GetChainID() << std::endl;
 	    }
 	 }
       }

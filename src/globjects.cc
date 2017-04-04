@@ -2191,13 +2191,13 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
       if (true) {
 	 glPushMatrix();
-	 glLoadIdentity();
-	 GLfloat  light_0_position[] = {  21.0,   1.0, 1.0, 0.0}; // 1 is positional, 0 is directional
-	 GLfloat  light_1_position[] = {   0.6, -20.7, 1.0, 0.0};
-	 GLfloat  light_2_position[] = {   0.7, -0.7, 21.0, 0.0};
-	 GLfloat  light_3_position[] = {   0.7, -0.7, 21.0, 0.0};
-	 GLfloat  light_4_position[] = {   0.7,  0.7,-21.0, 0.0};
-	 GLfloat  light_5_position[] = {  -0.7,  0.7, 21.0, 0.0};
+	 glLoadIdentity(); // this doesn't seem to have an effect on mol-triangles lighting
+	 GLfloat  light_0_position[] = {  1.0,   0.0,   0.0, 0.0}; // 1 is positional, 0 is directional
+	 GLfloat  light_1_position[] = {  0.6, -20.7,   1.0, 0.0};
+	 GLfloat  light_2_position[] = {  0.7,  -0.7,  21.0, 0.0};
+	 GLfloat  light_3_position[] = {  0.7,  -0.7,  21.0, 0.0};
+	 GLfloat  light_4_position[] = {  0.7,   0.7, -21.0, 0.0};
+	 GLfloat  light_5_position[] = { -0.7,   0.7,  21.0, 0.0};
 
 	 glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
 	 glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);
@@ -2316,8 +2316,12 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 		    graphics_info_t::RotationCentre_z());
       // where is the eye?  That's what we want.
       // front plane is at z=0;
-      coot::Cartesian eye_cart = unproject_xyz(widget->allocation.width/2, widget->allocation.height/2, 1);
-      FCXXCoord eye_pos(eye_cart.x(), eye_cart.y(), eye_cart.z());
+      coot::Cartesian tp_1_cart = unproject_xyz(widget->allocation.width/2, widget->allocation.height/2, 1);
+      FCXXCoord tp_1(tp_1_cart.x(), tp_1_cart.y(), tp_1_cart.z());
+      FCXXCoord diff = tp_1 - pos;
+      FCXXCoord eye_pos = pos + diff * 20.0;
+      // coot::Cartesian eye_cart = pos + 20 * diff;
+      // FCXXCoord eye_pos(eye_cart.x(), eye_cart.y(), eye_cart.z());
       if (graphics_info_t::mol_tri_scene_setup) {
 	 if (graphics_info_t::mol_tri_renderer) {
 	    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
