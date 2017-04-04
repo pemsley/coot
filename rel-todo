@@ -1,6 +1,12 @@
 
    For Release 0.8.9
 
+   o delete_all_extra_restraints() should updates the extra restraints display
+
+   o need a delete restraints menu item
+
+   o update the display of the restraints even if the molecule is not displayed
+
    o map_peaks*.py should make negative peaks [Oliver Smart]
 
    o read the comp_id cifs with CSD coords
