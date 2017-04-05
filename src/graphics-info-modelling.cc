@@ -599,10 +599,21 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
       unsigned int step_count = 0; 
       print_initial_chi_squareds_flag = 1; // unset by drag_refine_idle_function
       unsigned int step_count_lim = 5000;
-      if (restraints.size() > 10000)
-	 step_count_lim = 3000000/restraints.size();
-      std::cout << "debug:: here with restraints.size() " << restraints.size()
-		<< " and step_count_lim " << step_count_lim << std::endl;
+      // Less steps for many atoms/restraints (e.g. a domain).
+      // Not sure what I want to do here.  If we have NBC restraints for a chain
+      // or prosmart restraints for a chain, then we have many 10,000 (say 60,000)
+      // restraints - only some of which are relevant to the refinement.
+      // We don't want to sphere refine with say 50 active atoms and 60,000
+      // GM restraints.  That will give us a step lim of 50 - bad.
+      // We need to exclude non-relevant GM restraints in make_restraints().
+      if (false)  {
+         if (restraints.size() > 10000) {
+	    unsigned int new_lim = 3000000/restraints.size();
+            std::cout << "debug:: here with restraints.size() " << restraints.size()
+	              << " and step_count_lim " << step_count_lim << std::endl;
+         }
+      }
+
       while ((step_count < step_count_lim) && continue_flag) {
 
 	 std::cout << ".... step_count: " << step_count
