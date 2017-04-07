@@ -109,7 +109,7 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
 							      do_rama_markup, do_rota_markup);
 
    // debug
-   coot::geometry_distortion_info_container_t gdic = last_restraints.geometric_distortions(flags);
+   // coot::geometry_distortion_info_container_t gdic = last_restraints.geometric_distortions(flags);
 
    char *env = getenv("COOT_DEBUG_REFINEMENT");
    if (env)

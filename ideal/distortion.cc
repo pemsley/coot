@@ -315,7 +315,7 @@ coot::restraints_container_t::geometric_distortions(coot::restraint_usage_Flags 
 
    restraints_usage_flag = flags;
    setup_gsl_vector_variables();  //initial positions in x array
-   coot::geometry_distortion_info_container_t dv = distortion_vector(x);
+   // coot::geometry_distortion_info_container_t dv = distortion_vector(x);
    return distortion_vector(x);
 }
 
