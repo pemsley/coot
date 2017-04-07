@@ -37,6 +37,7 @@
 #include <stdexcept>
 #ifdef HAVE_CXX_THREAD
 #include <thread>
+#include <chrono>
 #endif // HAVE_CXX_THREAD
 
 #include "simple-restraint.hh"

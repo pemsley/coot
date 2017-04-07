@@ -1,13 +1,24 @@
 
    For Release 0.8.9
 
+
    o delete_all_extra_restraints() should updates the extra restraints display
 
    o need a delete restraints menu item
 
    o update the display of the restraints even if the molecule is not displayed
 
+   o fetch Bernie branch. consider new rama
+
+* Rama still too slow
+
+   o lidia molfile.mol should Do The Right Thing
+
+   o doing a merge and doing a chain chain ids should move over the Link records also
+
    o map_peaks*.py should make negative peaks [Oliver Smart]
+
+* Done.
 
    o read the comp_id cifs with CSD coords
 
