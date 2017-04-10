@@ -246,7 +246,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 
 	 s = score_orientation(atoms_p, Xmap());
 
-	 std::cout << "score-trial " << itrial << " " << s << std::endl;
+	 // std::cout << "score-trial " << itrial << " " << s << std::endl;
 
 	 if (s.atom_point_score > best_score) {
 	    best_score = s.atom_point_score;

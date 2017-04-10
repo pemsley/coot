@@ -2698,6 +2698,44 @@ public:        //                      public
 				     float jiggle_scale_factor,
 				     bool use_biased_density_scoring);
    
+#ifdef HAVE_CXX_THREAD
+   static void test_jiggle_fit_func(unsigned int thread_index,
+				    unsigned int i_trial,
+				    unsigned int n_trials,
+				    mmdb::PPAtom atom_selection,
+				    int n_atoms,
+				    const std::vector<mmdb::Atom *> &initial_atoms,
+				    const clipper::Coord_orth &centre_pt,
+				    const std::vector<std::pair<std::string, int> > &atom_numbers,
+				    const clipper::Xmap<float> *xmap_masked,
+				    float jiggle_scale_factor);
+   static void jiggle_fit_multi_thread_func_1(int thread_index,
+					      unsigned int i_trial,
+					      unsigned int n_trials,
+					      mmdb::PPAtom atom_selection,
+					      int n_atoms,
+					      const std::vector<mmdb::Atom *> &initial_atoms,
+					      const clipper::Coord_orth &centre_pt,
+					      float jiggle_scale_factor,
+					      const std::vector<std::pair<std::string, int> > &atom_numbers,
+					      const clipper::Xmap<float> *xmap_masked_p,
+					      float (*density_scoring_function)(const coot::minimol::molecule &mol,
+										const std::vector<std::pair<std::string, int> > &atom_number_list,
+										const clipper::Xmap<float> &map),
+					      std::pair<clipper::RTop_orth, float> *trail_results_p);
+   static void jiggle_fit_multi_thread_func_2(int thread_index,
+					      const coot::minimol::molecule &direct_mol,
+					      const clipper::Xmap<float> &xmap_masked,
+					      float map_sigma,
+					      const clipper::Coord_orth &centre_pt,
+					      const std::vector<std::pair<std::string, int> > &atom_numbers,
+					      float trial_results_pre_fit_score_for_trial,
+					      float (*density_scoring_function)(const coot::minimol::molecule &mol,
+										const std::vector<std::pair<std::string, int> > &atom_number_list,
+										const clipper::Xmap<float> &map),
+					      std::pair<clipper::RTop_orth, float> *post_fix_scores_p);
+#endif
+
    // return a fitted molecule
    coot::minimol::molecule rigid_body_fit(const coot::minimol::molecule &mol_in,
 					  const clipper::Xmap<float> &xmap,

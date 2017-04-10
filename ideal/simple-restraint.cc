@@ -37,6 +37,11 @@
 #include <algorithm> // for sort
 #include <stdexcept>
 
+#ifdef HAVE_CXX_THREAD
+#include <thread>
+#include <chrono>
+#endif // HAVE_CXX_THREAD
+
 #include "geometry/mol-utils.hh"
 #include "geometry/main-chain.hh"
 #include "simple-restraint.hh"
@@ -1344,7 +1349,7 @@ void coot::my_df_electron_density(const gsl_vector *v,
    if (restraints_p->include_map_terms() == 1) { 
       
 #ifdef HAVE_CXX_THREAD
-      
+
       std::atomic<unsigned int> done_count_for_threads(0);
 
       if (restraints_p->thread_pool_p) {
@@ -2341,7 +2346,6 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 
 	 if (restraints_usage_flag & TORSIONS_MASK) {
 	    if (do_residue_internal_torsions) {
-	       std::cout << "   torsions... " << std::endl;
 	       std::string residue_type = residue_p->GetResName();
 	       if (residue_type != "PRO")
 		  local.n_torsion_restr += add_torsions(idr, res_selection, i_no_res_atoms,
@@ -3661,8 +3665,10 @@ void
 coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const coot::bonded_pair_container_t &bpc,
 									   const coot::protein_geometry &geom) {
 
+#ifdef HAVE_CXX_THREAD
    std::chrono::time_point<std::chrono::system_clock> start, end;
    start = std::chrono::system_clock::now();
+#endif
 
    // How frequently does this function get called? - needs optimizing
 
@@ -3869,6 +3875,7 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
    }
    
 
+#ifdef HAVE_CXX_THREAD
    end = std::chrono::system_clock::now();
  
    std::chrono::duration<double> elapsed_seconds = end-start;
@@ -3876,6 +3883,8 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
  
    std::cout << "finished computation at " << std::ctime(&end_time)
 	     << "elapsed time: " << elapsed_seconds.count() << "s\n";
+#endif // HAVE_CXX_THREAD
+
 }
 
 // Add non-bonded contacts for atoms that are in residues that are

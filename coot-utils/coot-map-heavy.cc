@@ -389,6 +389,12 @@ clipper::RTop_orth
 coot::util::make_rtop_orth_for_jiggle_atoms(float jiggle_trans_scale_factor,
 					    float annealing_factor) {
 
+   // Read this:
+   // https://en.wikipedia.org/wiki/Rotation_matrix#Uniform_random_rotation_matrices
+   // make a quaternion where the 4 q values are sampled from a normal distribution
+   // normalize
+   // convert to 3x3 matrix
+
    float rmi = 1.0/float(RAND_MAX);
 
    // If these angles are small, then we get small rotations of the model

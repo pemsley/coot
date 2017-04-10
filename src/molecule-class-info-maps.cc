@@ -3025,6 +3025,80 @@ trial_results_comparer(const std::pair<clipper::RTop_orth, float> &a,
 
 }
 
+#ifdef HAVE_CXX_THREAD
+
+// static
+void
+molecule_class_info_t::test_jiggle_fit_func(unsigned int thread_index,
+					    unsigned int i_trial,
+					    unsigned int n_trials,
+					    mmdb::PPAtom atom_selection,
+					    int n_atoms,
+					    const std::vector<mmdb::Atom *> &initial_atoms,
+					    const clipper::Coord_orth &centre_pt,
+					    const std::vector<std::pair<std::string, int> > &atom_numbers,
+					    const clipper::Xmap<float> *xmap_masked,
+					    float jiggle_scale_factor) {
+
+}
+
+// static
+void
+molecule_class_info_t::jiggle_fit_multi_thread_func_1(int thread_index,
+						      unsigned int i_trial,
+						      unsigned int n_trials,
+						      mmdb::PPAtom atom_selection,
+						      int n_atoms,
+						      const std::vector<mmdb::Atom *> &initial_atoms,
+						      const clipper::Coord_orth &centre_pt,
+						      float jiggle_scale_factor,
+						      const std::vector<std::pair<std::string, int> > &atom_numbers,
+						      const clipper::Xmap<float> *xmap_masked_p,
+						      float (*density_scoring_function)(const coot::minimol::molecule &mol,
+											const std::vector<std::pair<std::string, int> > &atom_number_list,
+											const clipper::Xmap<float> &map),
+						      std::pair<clipper::RTop_orth, float> *trial_results_p) {
+   molecule_class_info_t m;
+   float annealing_factor = 1 - float(i_trial)/float(n_trials);
+   std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> > jiggled_atoms =
+      coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_scale_factor);
+   coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms.second);
+   float this_score = density_scoring_function(jiggled_mol, atom_numbers, *xmap_masked_p);
+   std::pair<clipper::RTop_orth, float> p(jiggled_atoms.first, this_score);
+   *trial_results_p = p;
+}
+#endif // HAVE_CXX_THREAD
+
+#ifdef HAVE_CXX_THREAD
+// static
+void
+molecule_class_info_t::jiggle_fit_multi_thread_func_2(int thread_index,
+						      const coot::minimol::molecule &direct_mol,
+						      const clipper::Xmap<float> &xmap_masked,
+						      float map_sigma,
+						      const clipper::Coord_orth &centre_pt,
+						      const std::vector<std::pair<std::string, int> > &atom_numbers,
+						      float trial_results_pre_fit_score_for_trial,
+						      float (*density_scoring_function)(const coot::minimol::molecule &mol,
+											const std::vector<std::pair<std::string, int> > &atom_number_list,
+											const clipper::Xmap<float> &map),
+						      std::pair<clipper::RTop_orth, float> *post_fit_scores_p) {
+
+   coot::minimol::molecule trial_mol = direct_mol;
+   trial_mol.transform(post_fit_scores_p->first, centre_pt);
+   float pre_score = density_scoring_function(trial_mol, atom_numbers, xmap_masked);
+   molecule_class_info_t m;
+   coot::minimol::molecule fitted_mol = m.rigid_body_fit(trial_mol, xmap_masked, map_sigma);
+   // sorting and selection works by sorting the score of fitted_mols.
+   float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
+   std::cout << " thread_index " << std::setw(2) << thread_index
+	     << " pre-score " << std::setw(5) << pre_score
+	     << " post-fit-score " << std::setw(5) << this_score << std::endl;
+   post_fit_scores_p->second = this_score; // hand the score back
+}
+#endif // HAVE_CXX_THREAD
+
+
 // called by above and split_water.
 float
 molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
@@ -3083,9 +3157,10 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       }
    }
 
-   for (unsigned int ii=0; ii<central_residues.size(); ii++) { 
-      std::cout << "            central residue: " << coot::residue_spec_t(central_residues[ii]) << std::endl;
-   }
+   if (false)
+      for (unsigned int ii=0; ii<central_residues.size(); ii++)
+	 std::cout << "            central residue: " << coot::residue_spec_t(central_residues[ii]) << std::endl;
+
    float radius = 4.0; 
    for (unsigned int ires=0; ires<central_residues.size(); ires++) {
       mmdb::Residue *res_ref = central_residues[ires];
@@ -3111,8 +3186,8 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    
    float best_score = initial_score;
 
-   std::cout << "------------------------- initial_score " << initial_score
-	     << " ------------------------------" << std::endl;
+   std::cout << "------------------ initial_score " << initial_score
+	     << " -----------------" << std::endl;
    bool  bested = false;
    coot::minimol::molecule best_molecule;
    clipper::RTop_orth best_rtop;
@@ -3131,37 +3206,114 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    clipper::Coord_orth centre_pt(p[0]*fact, p[1]*fact, p[2]*fact);
 
    std::vector<std::pair<clipper::RTop_orth, float> > trial_results(n_trials);
-   for (int itrial=0; itrial<n_trials; itrial++) {
+   bool do_multi_thread = false;
+#ifdef HAVE_CXX_THREAD
+   int n_threads = coot::get_max_number_of_threads();
+   if (n_threads > 0)
+      do_multi_thread = true;
+#endif
 
-      float annealing_factor = 1 - float(itrial)/float(n_trials);
-      std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> > jiggled_atoms =
-	 coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_scale_factor);
-      coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms.second);
-      float this_score = density_scoring_function(jiggled_mol, atom_numbers, xmap_masked);
-      std::pair<clipper::RTop_orth, float> p(jiggled_atoms.first, this_score);
-      trial_results[itrial] = p;
+   if (do_multi_thread) {
+#ifdef HAVE_CXX_THREAD
+      unsigned int n_threads = coot::get_max_number_of_threads();
+
+      for (int itrial=0; itrial<n_trials; itrial++) {
+
+	 auto tp_1 = std::chrono::high_resolution_clock::now();
+	 graphics_info_t::static_thread_pool.push(jiggle_fit_multi_thread_func_1, itrial, n_trials, atom_selection, n_atoms,
+						  initial_atoms, centre_pt, jiggle_scale_factor, atom_numbers,
+						  &xmap_masked,
+						  density_scoring_function, &trial_results[itrial]);
+	 auto tp_2 = std::chrono::high_resolution_clock::now();
+	 auto d21 = chrono::duration_cast<chrono::microseconds>(tp_2 - tp_1).count();
+	 // not to self: it takes 40ms to copy a const xmap reference to the function.
+	 //
+	 // std::cout << "pushing trial " << itrial << " " << d21 << " microseconds" << std::endl;
+      }
+
+      // wait for thread pool to finish jobs.
+      bool wait_continue = true;
+      while (wait_continue) {
+	 std::this_thread::sleep_for(std::chrono::milliseconds(200));
+	 if (graphics_info_t::static_thread_pool.n_idle() == graphics_info_t::static_thread_pool.size())
+	    wait_continue = false;
+      }
+
+#endif
+   } else {
+
+      for (int itrial=0; itrial<n_trials; itrial++) {
+	 float annealing_factor = 1 - float(itrial)/float(n_trials);
+	 std::pair<clipper::RTop_orth, std::vector<mmdb::Atom> > jiggled_atoms =
+	    coot::util::jiggle_atoms(initial_atoms, centre_pt, jiggle_scale_factor);
+	 coot::minimol::molecule jiggled_mol(atom_selection, n_atoms, jiggled_atoms.second);
+	 float this_score = density_scoring_function(jiggled_mol, atom_numbers, xmap_masked);
+	 std::pair<clipper::RTop_orth, float> p(jiggled_atoms.first, this_score);
+	 trial_results[itrial] = p;
+      }
    }
 
    int n_for_rigid = int(float(n_trials) * 0.1);
    if (n_for_rigid > 10) n_for_rigid = 10;
    if (n_for_rigid == 0)  n_for_rigid = 1;
 
+   if (false) {
+      unsigned int n_top = 20;
+      if (trial_results.size() < 20)
+	 n_top = trial_results.size();
+      for (unsigned int i_trial=0; i_trial<n_top; i_trial++)
+	 std::cout << " debug pre-sort trial scores: " << i_trial << " " << trial_results[i_trial].second << std::endl;
+   }
+
    std::sort(trial_results.begin(),
 	     trial_results.end(),
  	     trial_results_comparer);
    
    // sorted results (debugging)
-   // for (unsigned int i_trial=0; i_trial<trial_results.size(); i_trial++) 
-   // std::cout << "   " << i_trial << " " << trial_results[i_trial].second << std::endl;
-
+   if (false) {
+      unsigned int n_top = 20;
+      if (trial_results.size() < 20)
+	 n_top = trial_results.size();
+      for (unsigned int i_trial=0; i_trial<n_top; i_trial++) 
+	 std::cout << " debug sorted trials: " << i_trial << " " << trial_results[i_trial].second << std::endl;
+   }
 
    // Here grid-search each of top n_for_rigid solution, replacing
    // each by best of grid-search results.  {5,10} degrees x 3 angles?
 
-   // these get updated in the following loop
+   clipper::RTop_orth rtop_orth_identity;
+   std::pair<clipper::RTop_orth, float> start_pair(rtop_orth_identity, 0);
+   // these get updated in the upcoming loop
    std::vector<std::pair<clipper::RTop_orth, float> > post_fit_trial_results = trial_results;
-   //
+
    float best_score_so_far = -999999;
+
+#ifdef HAVE_CXX_THREAD
+
+   // fit and score best random jiggled results
+
+   for (int i_trial=0; i_trial<n_for_rigid; i_trial++) {
+      // does the fitting
+      graphics_info_t::static_thread_pool.push(jiggle_fit_multi_thread_func_2, direct_mol, xmap_masked, map_sigma,
+					       centre_pt, atom_numbers,
+					       trial_results[i_trial].second,
+					       density_scoring_function,
+					       &post_fit_trial_results[i_trial]);
+   }
+
+   // wait
+   std::cout << "waiting for rigid-body fits..." << std::endl;
+   bool wait_continue = true;
+   while (wait_continue) {
+      std::this_thread::sleep_for(std::chrono::milliseconds(200));
+      if (graphics_info_t::static_thread_pool.n_idle() == graphics_info_t::static_thread_pool.size())
+	 wait_continue = false;
+   }
+
+#else
+
+   // non-threaded, fit and score top jiggled results
+
    for (int i_trial=0; i_trial<n_for_rigid; i_trial++) {
       coot::minimol::molecule  trial_mol = direct_mol;
 
@@ -3169,18 +3321,19 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       coot::minimol::molecule fitted_mol = rigid_body_fit(trial_mol, xmap_masked, map_sigma);
       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
       std::cout << "INFO:: Jiggle-fit: optimizing trial "
-		<< std::setw(2) << i_trial << ": prelim-score was "
+		<< std::setw(3) << i_trial << ": prelim-score was "
 		<< std::setw(5) << trial_results[i_trial].second << " post-fit "
 		<< std::setw(5) << this_score;
       if (this_score > best_score_so_far) {
 	 best_score_so_far = this_score;
-	 if (this_score > initial_score) { 
+	 if (this_score > initial_score) {
 	    std::cout << " ***";
 	 }
       }
       std::cout << std::endl;
       post_fit_trial_results[i_trial].second = this_score;
    }
+#endif // HAVE_CXX_THREAD
 
    std::sort(post_fit_trial_results.begin(),
 	     post_fit_trial_results.end(),
