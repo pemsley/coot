@@ -37,6 +37,7 @@
 #include <stdexcept>
 #ifdef HAVE_CXX_THREAD
 #include <thread>
+#include <chrono>
 #endif // HAVE_CXX_THREAD
 
 #include "simple-restraint.hh"
@@ -314,7 +315,7 @@ coot::restraints_container_t::geometric_distortions(coot::restraint_usage_Flags 
 
    restraints_usage_flag = flags;
    setup_gsl_vector_variables();  //initial positions in x array
-   coot::geometry_distortion_info_container_t dv = distortion_vector(x);
+   // coot::geometry_distortion_info_container_t dv = distortion_vector(x);
    return distortion_vector(x);
 }
 
@@ -761,7 +762,7 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 	 std::atomic<unsigned int> done_count_for_threads(0);
 
 	 //std::vector<double> d32_vec(restraints_p->n_threads); time analysis of threads
-	 //result: on the Mac OSX, threas push() times are usally 2-5 us. But sometimes up
+	 //result: on the Mac OSX, threas push() times are usually 2-5 us. But sometimes up
 	 // to 3000 us (possibly due to different CPU/context switch).  Setting COOT_N_THREADS
 	 // to 2 from 4 (on a 2-core hyperthreaded machine) reduces the number of large thread
 	 // push() times considerably.
@@ -835,12 +836,13 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 		      << "d61 " << std::setw(5) << d61 << " "
 		      << "\n";
       } else {
+	 // this cannot happen (n_threads == 0)
 	 distortion_score_single_thread(v, params, 0, restraints_size, &distortion);
 	 if (restraints_p->include_map_terms())
 	    distortion += coot::electron_density_score(v, params); // good map fit: low score
       }
    } else {
-      // "return" value is passed pointer
+      // "return" value is passed distortion pointer
       distortion_score_single_thread(v, params, 0, restraints_size, &distortion);
       if (restraints_p->include_map_terms())
 	 distortion += coot::electron_density_score(v, params); // good map fit: low score

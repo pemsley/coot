@@ -1794,27 +1794,27 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta, boo
 	 colour = "green";
       }
 
-      if (delta > 0.10) {
+      if (delta > 0.15) {
 	 type = "small-overlap";
 	 colour = "yellow";
       }
 
-      if (delta > 0.2) {
+      if (delta > 0.25) {
 	 type = "small-overlap";
 	 colour = "orange";
       }
 
-      if (delta > 0.3) {
+      if (delta > 0.35) {
 	 type = "small-overlap";
 	 colour = "orangered";
       }
 
-      if (delta > 0.35) {        // was 0.30, not enough red
+      if (delta > 0.40) {        // was 0.30, not enough red
 	 type = "big-overlap";
 	 colour = "red";
       }
 
-      if (delta > 0.45) {         // Word: 0.4
+      if (delta > 0.5) {        // Word: 0.4
 	 type = "clash";
 	 colour = "hotpink";
       }
