@@ -4773,6 +4773,9 @@ void delete_residue_sidechain(int imol, const char *chain_id, int resno, const c
    @return number of hydrogens deleted. */
 int delete_hydrogens(int imol);
 
+void post_delete_item_dialog();
+
+
 /* toggle callbacks */
 void set_delete_atom_mode();
 void set_delete_residue_mode();

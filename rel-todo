@@ -1,12 +1,13 @@
 
    For Release 0.8.9
 
-
    o delete_all_extra_restraints() should updates the extra restraints display
 
    o need a delete restraints menu item
 
    o update the display of the restraints even if the molecule is not displayed
+
+   o --splash-screen arb-image.png - does that work?
 
    o fetch Bernie branch. consider new rama
 
