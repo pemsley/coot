@@ -669,36 +669,40 @@ coot::restraints_container_t::make_link_restraints_by_pairs(const coot::protein_
 
 	 // link_type = find_link_type(SelResidue[i], SelResidue[i+1], geom);
 
-	 n_link_bond_restr += add_link_bond(link_type,
-					    sel_res_1, sel_res_2,
-					    is_fixed_first_residue,
-					    is_fixed_second_residue,
-					    geom);
+	 if (restraints_usage_flag & BONDS_MASK)
+	    n_link_bond_restr += add_link_bond(link_type,
+					       sel_res_1, sel_res_2,
+					       is_fixed_first_residue,
+					       is_fixed_second_residue,
+					       geom);
 	 // 	    gettimeofday(&current_time, NULL);
 	 // td = time_diff(current_time, start_time);
 	 // t0 = td;
 
-	 n_link_angle_restr += add_link_angle(link_type,
-					      sel_res_1, sel_res_2,
-					      is_fixed_first_residue,
-					      is_fixed_second_residue,
-					      geom);
+	 if (restraints_usage_flag & ANGLES_MASK)
+	    n_link_angle_restr += add_link_angle(link_type,
+						 sel_res_1, sel_res_2,
+						 is_fixed_first_residue,
+						 is_fixed_second_residue,
+						 geom);
 
-	 if (do_trans_peptide_restraints)
-	    n_link_trans_peptide += add_link_trans_peptide(sel_res_1, sel_res_2,
-							   is_fixed_first_residue,
-							   is_fixed_second_residue,
-							   geom);
+	 if (restraints_usage_flag & TRANS_PEPTIDE_MASK)
+	    if (do_trans_peptide_restraints)
+	       n_link_trans_peptide += add_link_trans_peptide(sel_res_1, sel_res_2,
+							      is_fixed_first_residue,
+							      is_fixed_second_residue,
+							      geom);
 	 
 	 // 	    gettimeofday(&current_time, NULL);
 	 // td = time_diff(current_time, start_time);
 	 // t1 = td;
 
-	 n_link_plane_restr += add_link_plane(link_type,
-					      sel_res_1, sel_res_2,
-					      is_fixed_first_residue,
-					      is_fixed_second_residue,
-					      geom);
+	 if (restraints_usage_flag & PLANES_MASK)
+	    n_link_plane_restr += add_link_plane(link_type,
+						 sel_res_1, sel_res_2,
+						 is_fixed_first_residue,
+						 is_fixed_second_residue,
+						 geom);
 
 	 // 	    gettimeofday(&current_time, NULL);
 	 // td = time_diff(current_time, start_time);
