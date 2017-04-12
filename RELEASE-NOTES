@@ -10,7 +10,7 @@
 
   o FEATURE: Ball & stick mode by default
 
-  o FEATURE: intermediate-atoms movement works with stick for atom positional 
+  o FEATURE: intermediate-atoms movement works with stick for atom positional
              restraint rather than scaled all-atom movement
 
   o FEATURE: intermediate-atoms pepflip enabled
@@ -18,9 +18,6 @@
   o CHANGE: Jiggle fit now works by masking the out the map for neighbouring 
             residues
   
-  o CHANGE: Jiggle fit now works by masking the out the map for neighbouring 
-            residues
-
   o FEATURE: C++11 compilers will multi-thread multiple map contouring
 
   o FEATURE: SMILES -> simple 3D menu item added

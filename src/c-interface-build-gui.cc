@@ -170,7 +170,16 @@ void delete_object_handle_delete_dialog(short int do_delete_dialog) {
 	 }
       }
    }
-} 
+}
+
+void
+post_delete_item_dialog() {
+
+   GtkWidget *w = wrapped_create_delete_item_dialog();
+   gtk_widget_show(w);
+
+}
+
 
 
 
