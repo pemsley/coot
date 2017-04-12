@@ -429,6 +429,16 @@ namespace coot {
     Cartesian screen_z;
   };
 
+  class saved_strand_info_t {
+  public:
+    coot::residue_spec_t start;
+    coot::residue_spec_t end;
+    int strand_idx;
+    saved_strand_info_t(const coot::residue_spec_t &s, const coot::residue_spec_t &e, int idx) {
+      start = s; end = e; strand_idx = idx;
+    }
+  };
+
 
 #ifdef USE_LIBCURL
   class simple_curl_handler_t { 
@@ -3341,6 +3351,13 @@ public:
 							 mmdb::PAtom *atom_selection1, 
 							 mmdb::PAtom *atom_selection2, 
 							 int n_selected_atoms_1, int n_selected_atoms_2) const;
+
+   void map_secondary_structure_headers(ssm::Align *SSMAlign,
+					atom_selection_container_t asc_ref,
+					atom_selection_container_t asc_mov,
+					mmdb::PAtom *atom_selection1,
+					mmdb::PAtom *atom_selection2,
+					int n_selected_atoms_1, int n_selected_atoms_2) const;
    // 
    void print_horizontal_ssm_sequence_alignment(std::pair<std::string, std::string> aligned_sequences) const;
 

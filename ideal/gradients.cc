@@ -66,6 +66,8 @@ coot::numerical_gradients(gsl_vector *v,
       std::cout << "in numerical_gradients: v ->size is " <<  v->size << std::endl;
    }
 
+   coot::restraints_container_t *restraints = (coot::restraints_container_t *)params;
+
    std::vector<double> analytical_derivs(v->size);
    std::vector<double>  numerical_derivs(v->size);
 
@@ -74,18 +76,28 @@ coot::numerical_gradients(gsl_vector *v,
 
    for (unsigned int i=0; i<v->size; i++) { 
 
-      tmp = gsl_vector_get(v, i); 
-      gsl_vector_set(v, i, tmp+micro_step); 
-      new_S_plus = coot::distortion_score(v, params); 
-      gsl_vector_set(v, i, tmp-micro_step); 
-      new_S_minu = coot::distortion_score(v, params);
-      // new_S_minu = 2*tmp - new_S_plus; 
+      int iat = i/3; // if iat is a fixed atom, then we shouldn't generate val
+      bool make_val = true;
+      std::vector<int>::const_iterator it;
+      if (std::find(restraints->fixed_atom_indices.begin(),
+		    restraints->fixed_atom_indices.end(), iat) != restraints->fixed_atom_indices.end())
+	 make_val = false;
 
-      // now put v[i] back to tmp
-      gsl_vector_set(v, i, tmp);
+      if (make_val) {
+	 tmp = gsl_vector_get(v, i);
+	 gsl_vector_set(v, i, tmp+micro_step);
+	 new_S_plus = coot::distortion_score(v, params);
+	 gsl_vector_set(v, i, tmp-micro_step);
+	 new_S_minu = coot::distortion_score(v, params);
+	 // new_S_minu = 2*tmp - new_S_plus;
 
-      val = (new_S_plus - new_S_minu)/(2*micro_step);
+	 // now put v[i] back to tmp
+	 gsl_vector_set(v, i, tmp);
 
+	 val = (new_S_plus - new_S_minu)/(2*micro_step);
+      } else {
+	 val = 0; // does the constructor of numerical_derivs make this unnecessary?
+      }
       numerical_derivs[i] = val;
 
       // overwrite the analytical gradients with numerical ones:
