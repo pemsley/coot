@@ -1378,6 +1378,7 @@ void coot::my_df_electron_density(const gsl_vector *v,
       }
 #else
       my_df_electron_density_single(v, restraints_p, df, 0, v->size/3);
+#endif // HAVE_CXX_THREAD
    }
 
 #ifdef ANALYSE_REFINEMENT_TIMING
