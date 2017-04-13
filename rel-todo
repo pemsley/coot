@@ -1,7 +1,15 @@
 
    For Release 0.8.9
 
-   o many models, with maps middle mouse: scroll dialog bad
+   o update ramachanran plot after replace-fragment.
+
+   o Add fixed atom and sphere refine -> No progress
+
+* Fixed
+
+   o parallel plane restraints - are they active in refinement?
+
+   o with many maps middle mouse: scroll dialog bad
 
    o Re: go to ligand: JED: Can I make a list of "non-interesting comp-ids?"
 
