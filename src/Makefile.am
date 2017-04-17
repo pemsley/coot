@@ -102,6 +102,7 @@ EXTRA_DIST = \
 coot_wrap_guile_pre.cc:      $(top_srcdir)/src/c-interface.h    \
                              $(top_srcdir)/src/cc-interface.hh  \
                              $(top_srcdir)/src/cc-interface-ncs.hh  \
+                             $(top_srcdir)/src/cc-interface-molecular-representation.hh  \
                              $(top_srcdir)/src/coot.i           \
                              $(top_srcdir)/src/lbg-interface.hh \
                              $(top_srcdir)/src/c-interface-ligands-swig.hh \
@@ -280,6 +281,7 @@ coot_bin_SOURCES = \
 	c-interface-test.cc      \
 	cc-interface.hh		 \
 	cc-interface-ncs.hh      \
+	cc-interface-molecular-representation.cc \
 	cc-interface-network.hh  \
 	cc-interface-mogul.hh    \
 	cc-interface-scripting.hh \

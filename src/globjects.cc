@@ -1751,10 +1751,10 @@ setup_for_mol_triangles() {
    //Add a simple light..set some parameters and move it
    auto simpleLight = Light::defaultLight();
    simpleLight->setIntensity(0.8);
+   simpleLight->setAmbient(FCXXCoord(0.2, 0.2, 0.2, 0.0));
    simpleLight->setDrawLight(false); // crash on true, why is that?
+   simpleLight->setLightType(Light::Directional);
    graphics_info_t::mol_tri_scene_setup->addLight(simpleLight);
-   //Can retrieve reference to the light if so preferred
-   graphics_info_t::mol_tri_scene_setup->getLight(0)->setTranslation(FCXXCoord(2., 0.0, 0.0));
 
    //Add another simple light
    auto simpleLight2 = Light::defaultLight();
@@ -2221,6 +2221,18 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 	 glLightf(GL_LIGHT5, GL_LINEAR_ATTENUATION,    0.0);
 	 glLightf(GL_LIGHT5, GL_QUADRATIC_ATTENUATION, 0.0);
 
+// 	 GLfloat light_ambient[] =  { 0.1, 0.1, 0.1, 1.0 };
+// 	 GLfloat light_diffuse[] =  { 1.0, 1.0, 1.0, 1.0 };
+// 	 GLfloat light_specular[] = { 1.0, 1.0, 1.0, 1.0 };
+	 
+// 	 glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+// 	 glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+// 	 glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+
+// 	 glLightfv(GL_LIGHT1, GL_AMBIENT, light_ambient);
+// 	 glLightfv(GL_LIGHT1, GL_DIFFUSE, light_diffuse);
+// 	 glLightfv(GL_LIGHT1, GL_SPECULAR, light_specular);
+
 	 glPopMatrix();
       }
 
@@ -2319,11 +2331,17 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
       coot::Cartesian tp_1_cart = unproject_xyz(widget->allocation.width/2, widget->allocation.height/2, 1);
       FCXXCoord tp_1(tp_1_cart.x(), tp_1_cart.y(), tp_1_cart.z());
       FCXXCoord diff = tp_1 - pos;
-      FCXXCoord eye_pos = pos + diff * 20.0;
+      FCXXCoord eye_pos = pos + diff * 5.0;
+      // std::cout << "eye_pos: " << eye_pos << "\n";
       // coot::Cartesian eye_cart = pos + 20 * diff;
       // FCXXCoord eye_pos(eye_cart.x(), eye_cart.y(), eye_cart.z());
       if (graphics_info_t::mol_tri_scene_setup) {
 	 if (graphics_info_t::mol_tri_renderer) {
+
+	    //Can retrieve reference to the light if so preferred
+	    FCXXCoord light_pos = pos + diff * 10;
+	    // graphics_info_t::mol_tri_scene_setup->getLight(0)->setTranslation(light_pos);
+	    
 	    for (int ii=graphics_info_t::n_molecules()-1; ii>=0; ii--) {
 	       if (is_valid_model_molecule(ii)) {
 		  if (graphics_info_t::molecules[ii].draw_it) {
@@ -3327,10 +3345,11 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
 
    case GDK_d:
       
-      if (graphics_info_t::clipping_back < 10.0) { 
+      if (graphics_info_t::clipping_back < 15.0) { 
 	 set_clipping_front(graphics_info_t::clipping_front + 0.4);
 	 set_clipping_back (graphics_info_t::clipping_front + 0.4);
-	 // std::cout << graphics_info_t::clipping_front << " " << graphics_info_t::clipping_back << std::endl;
+	 std::cout << "INFO:: clipping " << graphics_info_t::clipping_front << " "
+		   << graphics_info_t::clipping_back << std::endl;
       }
       handled = TRUE; 
       break;
@@ -3341,10 +3360,11 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       
    case GDK_f:
       
-      if (graphics_info_t::clipping_back > -10.2) { 
+      if (graphics_info_t::clipping_back > -15.2) { 
 	 set_clipping_front(graphics_info_t::clipping_front - 0.4);
 	 set_clipping_back (graphics_info_t::clipping_front - 0.4);
-	 // std::cout << graphics_info_t::clipping_front << " " << graphics_info_t::clipping_back << std::endl;
+	 std::cout << "INFO:: clipping " << graphics_info_t::clipping_front << " "
+		   << graphics_info_t::clipping_back << std::endl;
       }
       handled = TRUE; 
       break;

@@ -14,11 +14,33 @@ molecule_class_info_t::make_molecularrepresentationinstance() {
       auto my_mol = std::make_shared<MyMolecule> (atom_sel.mol);
 
       // (.. (seletionText, name), "colour")
-      auto green_helix_cr = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Helix", "SSE_Helix"), "lightgreen");
-      auto red_stand_cr = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Strand", "SSE_Strand"), "indianred");
-      auto brown_dna_cr = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("NUCLEICACIDS", "NucleicAcids"), "lightseagreen");
+      // sheet colour: 130 190 170 -> #82BEAA
 
-      auto cs_ss = ColorScheme::colorBySecondaryScheme();
+//       auto init_cr        = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("/*/*/*.*/*:*", "NoSecondary"), "chocolate");
+//       auto none_cr        = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_None", "SSE_None"), "chocolate");
+//       auto dark_helix_cr  = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Helix", "SSE_Helix"), "#3A2314");
+//       auto stand_cr       = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Strand", "SSE_Strand"), "#82ce9a");
+//       auto brown_dna_cr   = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("NUCLEICACIDS", "NucleicAcids"), "brown");
+
+      auto init_cr        = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("/*/*/*.*/*:*", "NoSecondary"), "grey");
+      auto none_cr        = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_None", "SSE_None"), "grey");
+      auto dark_helix_cr  = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Helix", "SSE_Helix"), "forestgreen");
+      auto stand_cr       = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Strand", "SSE_Strand"), "firebrick");
+      auto brown_dna_cr   = SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("NUCLEICACIDS", "NucleicAcids"), "brown");
+
+      // in a molecularrepresentation, set the following:
+      // radiusOneHelix=0.95;
+      // radiusTwoHelix=0.15;
+      // radiusTwoStrand=0.3;
+      
+
+//       SolidColorRule green_mol_scr;
+//       FCXXCoord green(0.4, 0.7, 0.4);
+//       green_mol_scr.setColor(green);
+//       std::shared_ptr<SolidColorRule> green_mol_cr = std::make_shared<SolidColorRule> (green_mol_scr);
+//       std::shared_ptr<ColorScheme> green_mol_cs = std::make_shared<ColorScheme>(green_mol_cr);
+
+      auto ss_cs = ColorScheme::colorBySecondaryScheme();
 
       auto        ramp_cs = ColorScheme::colorRampChainsScheme();
       auto ribbon_ramp_cs = ColorScheme::colorRampChainsScheme();
@@ -27,8 +49,10 @@ molecule_class_info_t::make_molecularrepresentationinstance() {
       auto handles = chains_cs->prepareForMMDB(atom_sel.mol);
       auto handles_2 = ramp_cs->prepareForMMDB(atom_sel.mol);
 
-      // cs_ss->addRule(green_helix_cr);
-      // cs_ss->addRule(red_stand_cr);
+      ss_cs->addRule(init_cr);
+      ss_cs->addRule(none_cr);
+      ss_cs->addRule(dark_helix_cr);
+      ss_cs->addRule(stand_cr);
       ramp_cs->addRule(brown_dna_cr);
 
       int imod = 1;
@@ -49,23 +73,26 @@ molecule_class_info_t::make_molecularrepresentationinstance() {
 	       apcrr.setEndValue(residue_min_max.second.second);
 	       auto apcrr_p = std::make_shared<AtomPropertyRampColorRule> (apcrr);
 	       ribbon_ramp_cs->addRule(apcrr_p);
-	       std::string mmdb_chain = "//";
+	       std::string selection_str = "//";
 	       std::string chain_id = chain_p->GetChainID();
-	       mmdb_chain += chain_id;
-	       auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol,     cs_ss, mmdb_chain, "MolecularSurface");
-	       // auto molrepinst_2 = MolecularRepresentationInstance::create(my_mol, chains_cs, mmdb_chain, "DishyBases");
-	       auto molrepinst_2 = MolecularRepresentationInstance::create(my_mol, chains_cs, mmdb_chain, "Calpha");
+	       selection_str += chain_id;
 
-	       if (chain_id == "C") {
-		  auto molrepinst_c = MolecularRepresentationInstance::create(my_mol, cs_ss, mmdb_chain, "VdWSurface");
-		  graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(molrepinst_c);
-		  molrepinsts.push_back(molrepinst_c);
-	       } else {
-		  graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(molrepinst_1);
-		  graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(molrepinst_2);
-	       }
+	       FCXXCoord green(0.4, 0.7, 0.4);
+	       auto green_cr = SolidColorRule::colorRuleForSelectionStringAndColor("//", green);
+	       auto green_chains_cs      = ColorScheme::colorChainsScheme();
+	       green_chains_cs->addRule(green_cr);
+
+	       // VdWSurface and AccessibleSurface don't seem to work at the moment
+	       //
+	       // auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol, ribbon_ramp_cs, selection_str, "MolecularSurface");
+	       // auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol, ramp_cs, selection_str, "Ribbon");
+	       // auto molrepinst_2 = MolecularRepresentationInstance::create(my_mol, chains_cs, mmdb_chain, "DishyBases");
+	       // auto molrepinst_2 = MolecularRepresentationInstance::create(my_mol, chains_cs, mmdb_chain, "Calpha");
+
+	       auto molrepinst_1 = MolecularRepresentationInstance::create(my_mol, ele_cs, "//A/22-24/CA", "MolecularSurface");
+	       graphics_info_t::mol_tri_scene_setup->addRepresentationInstance(molrepinst_1);
 	       molrepinsts.push_back(molrepinst_1);
-	       molrepinsts.push_back(molrepinst_2);
+
 	    } else {
 	       std::cout << "No min/max found for chain " << chain_p << " " << chain_p->GetChainID() << std::endl;
 	    }
@@ -92,3 +119,14 @@ molecule_class_info_t::set_mol_triangles_is_displayed(int state) {
 #endif // USE_MOLECULES_TO_TRIANGLES
 
 }
+
+#ifdef USE_MOLECULES_TO_TRIANGLES
+int
+molecule_class_info_t::add_molecular_representation(const std::string &atom_selection,
+						    const std::string &colour_scheme,
+						    const std::string &style) {
+
+   int status = 0;
+   return status;
+}
+#endif // USE_MOLECULES_TO_TRIANGLES

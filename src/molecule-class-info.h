@@ -3090,9 +3090,14 @@ public:        //                      public
 #ifdef USE_MOLECULES_TO_TRIANGLES
 #ifdef HAVE_CXX11
    std::vector<std::shared_ptr<MolecularRepresentationInstance> > molrepinsts;
-   void make_molecularrepresentationinstance();
-#endif   
+#endif
 #endif // USE_MOLECULES_TO_TRIANGLES
+
+   void make_molecularrepresentationinstance();
+   int add_molecular_representation(const std::string &atom_selection,
+				    const std::string &colour_scheme,
+				    const std::string &style);
+   
 
 };
 

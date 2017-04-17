@@ -2265,9 +2265,10 @@ short int get_show_symmetry() {
 void
 set_clipping_front(float v) {
 
+   float clipping_max = 15.0; // was 10
    graphics_info_t::clipping_front = v;
-   if (graphics_info_t::clipping_front > 10)
-      graphics_info_t::clipping_front = 10;
+   if (graphics_info_t::clipping_front > clipping_max)
+      graphics_info_t::clipping_front = clipping_max;
    graphics_draw();
    std::string cmd = "set-clipping-front";
    std::vector<coot::command_arg_t> args;
@@ -2280,9 +2281,10 @@ set_clipping_front(float v) {
 void
 set_clipping_back(float v) {
 
+   float clipping_max = 15.0;
    graphics_info_t::clipping_back = v;
-   if (graphics_info_t::clipping_back > 10)
-      graphics_info_t::clipping_back = 10;
+   if (graphics_info_t::clipping_back > clipping_max)
+      graphics_info_t::clipping_back = clipping_max;
    graphics_draw();
    std::string cmd = "set-clipping-back";
    std::vector<coot::command_arg_t> args;
