@@ -74,7 +74,8 @@ display-manager.svg   pointer-distances.svg \
 koppi-green-tick-64.png rygle-red-cross-64.png forest51690-dwcheckno-incomplete-64.png \
   go-to-ligand.png go-to-atom.png azerbaijan.png add-water.png mutate.png \
   mutate-auto-fit.png edit-backbone.png torsion-general.png anchor.png regularize-1.png \
-  refine-1.png stock-zoom-follow-window-12.svg
+  refine-1.png stock-zoom-follow-window-12.svg \
+  rama_all.png rama_gly.png rama_pro.png rama_non_gly_pro.png
 
 
 

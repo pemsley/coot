@@ -188,6 +188,7 @@ class rama_plot {
    int imol;  // which molecule in mapview did this come from?
    clipper::Ramachandran rama;
    clipper::Ramachandran r_gly, r_pro, r_non_gly_pro;
+
    //GtkCanvas *canvas;
    GtkWidget *canvas;
    GtkWidget *dynarama_ok_button;
@@ -407,6 +408,8 @@ public:
    void display_background();   // Likewise.
 #ifdef HAVE_GOOCANVAS
    void make_background(const clipper::Ramachandran rama_type, GooCanvasItem *bg_group);
+   int make_background_from_image(const clipper::Ramachandran rama_type,
+                                  GooCanvasItem *bg_group, std::string file_name);
    GooCanvasItem *bg_all;
    GooCanvasItem *bg_gly;
    GooCanvasItem *bg_pro;
@@ -585,6 +588,9 @@ public:
 
    void write_pdf(std::string &file_name);
    void write_png(std::string &file_name);
+   void write_png_simple(std::string &file_name, GooCanvasItem *item = NULL);
+   void write_svg(std::string &file_name, GooCanvasItem *item = NULL);
+   void make_bg_images();
 
    void fill_kleywegt_comboboxes(int imol);
    void fill_kleywegt_comboboxes(mmdb::Manager *mol1);

@@ -62,18 +62,7 @@ void setup_rgb_reps();
 // needed?
 void setup_rgb_reps() {
 
-   // c.f. coot::package_data_dir() which now does this wrapping for us:
-
-   // For binary installers, they use the environment variable:
-   char *env = getenv("COOT_DATA_DIR");
-
-   // Fall-back:
-   std::string standard_file_name = PKGDATADIR; // xxx/share/coot
-
-   if (env)
-      standard_file_name = env;
-
-   std::string colours_file = standard_file_name + "/";
+   std::string colours_file = coot::package_data_dir() + "/";
    std::string colours_def = "colours.def";
    colours_file += colours_def;
 
@@ -99,7 +88,7 @@ void setup_rgb_reps() {
 
 
    } else {
-      std::cout << "WARNING! Can't find file: colours.def at " << standard_file_name
+      std::cout << "WARNING! Can't find file: colours.def at " << coot::package_data_dir()
                 << std::endl;
    }
 }
@@ -140,9 +129,11 @@ main(int argc, char *argv[]) {
    int n_used_args = 0;
    int is_kleywegt_plot_flag = 0;
    int psi_axis_option = coot::rama_plot::PSI_CLASSIC;
+   float block_size = 2;
    bool do_help = false;
+   bool print_bg = false;
 
-   const char *optstr = "i:s:j:t:c:d:e:kph";
+   const char *optstr = "i:s:j:t:c:d:e:b:kphx";
    struct option long_options[] = {
    {"pdbin", 1, 0, 0},
    {"selection", 1, 0, 0},
@@ -151,6 +142,7 @@ main(int argc, char *argv[]) {
    {"chain", 1, 0, 0},
    {"chain2", 1, 0, 0},
    {"edit", 1, 0, 0},   // BL Note:: maybe there should be an edit selection
+   {"blocksize", 1, 0, 0},
    {"kleywegt", 0, 0, 0},
    {"psiaxis", 0, 0, 0},
    {"help", 0, 0, 0},
@@ -196,6 +188,10 @@ main(int argc, char *argv[]) {
             }
             if (arg_str == "edit") {
                edit_res_no = coot::util::string_to_int(optarg);
+               n_used_args += 2;
+            }
+            if (arg_str == "blocksize") {
+               block_size = coot::util::string_to_float(optarg);
                n_used_args += 2;
             }
          } else {
@@ -256,6 +252,11 @@ main(int argc, char *argv[]) {
          n_used_args += 2;
          break;
 
+      case 'b':
+         block_size = coot::util::string_to_float(optarg);
+         n_used_args += 2;
+         break;
+
       case 'k':
          is_kleywegt_plot_flag = 1;
          n_used_args++;
@@ -270,6 +271,13 @@ main(int argc, char *argv[]) {
          print_help(argv[0]);
          n_used_args++;
          do_help = true;
+         break;
+
+      case 'x':
+         print_help(argv[0]);
+         n_used_args++;
+         print_bg = true;
+         do_help = false;
          break;
 
       default:
@@ -307,7 +315,6 @@ main(int argc, char *argv[]) {
 
       float level_prefered = 0.02;
       float level_allowed = 0.002;
-      float block_size = 2;
       int imol = 0; // dummy for now
       int imol2 = 0;
 
@@ -468,6 +475,12 @@ main(int argc, char *argv[]) {
                   } else {
                      g_print("BL INFO:: no mol and no selection, so no plot. Sorry.");
                   }
+               }
+            }
+
+            if (rama) {
+               if (print_bg) {
+                  rama->make_bg_images();
                }
             }
          } else {

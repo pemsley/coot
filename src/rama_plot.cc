@@ -627,26 +627,46 @@ coot::rama_plot::draw_it(mmdb::Manager *mol, int SelHnd, int primary) {
 void
 coot::rama_plot::setup_background(bool blocks, bool isolines) {
 
+   int take_bg_image = 0;
+
    bg_all = goo_canvas_group_new(root, NULL);
    bg_gly = goo_canvas_group_new(root, NULL);
    bg_pro = goo_canvas_group_new(root, NULL);
    bg_non_gly_pro = goo_canvas_group_new(root, NULL);
 
-   // do at least one:
-   if (! blocks && ! isolines)
-      blocks = 1;
-   if (blocks) {
-      make_background(rama, bg_all);
-      make_background(r_gly, bg_gly);
-      make_background(r_pro, bg_pro);
-      make_background(r_non_gly_pro, bg_non_gly_pro);
+   // if default we use images otherwise we make blocks
+
+   // use a pre-made rama picture if we have standard settings,
+   // otherwise make a block background to specifications
+   if (abs(rama_threshold_preferred - 0.02) < 0.000001 &&
+       abs(rama_threshold_allowed - 0.002) < 0.000001 &&
+       psi_axis_mode == PSI_CLASSIC)
+   {
+      take_bg_image = make_background_from_image(rama, bg_all, "rama_all.png");
+      take_bg_image += make_background_from_image(r_gly, bg_gly, "rama_gly.png");
+      take_bg_image += make_background_from_image(r_pro, bg_pro, "rama_pro.png");
+      take_bg_image += make_background_from_image(r_non_gly_pro, bg_non_gly_pro,
+                                 "rama_non_gly_pro.png");
    }
 
-   if (isolines) {
-      make_isolines(rama, bg_all);
-      make_isolines(r_gly, bg_gly);
-      make_isolines(r_pro, bg_pro);
-      make_isolines(r_non_gly_pro, bg_non_gly_pro);
+   // no bg done, so lets make the "classic" way
+   if (take_bg_image) {
+      // do at least one:
+      if (! blocks && ! isolines)
+         blocks = 1;
+      if (blocks) {
+         make_background(rama, bg_all);
+         make_background(r_gly, bg_gly);
+         make_background(r_pro, bg_pro);
+         make_background(r_non_gly_pro, bg_non_gly_pro);
+      }
+
+      if (isolines) {
+         make_isolines(rama, bg_all);
+         make_isolines(r_gly, bg_gly);
+         make_isolines(r_pro, bg_pro);
+         make_isolines(r_non_gly_pro, bg_non_gly_pro);
+      }
    }
 
    hide_all_background();
@@ -655,18 +675,17 @@ coot::rama_plot::setup_background(bool blocks, bool isolines) {
 
 }
 
-// return the canvas item (group) for the typed background
 // pass Ramachandran by type, e.g. r_gly...
 void
-coot::rama_plot::make_background(const clipper::Ramachandran rama_type, GooCanvasItem *bg_group) {
-
+coot::rama_plot::make_background(const clipper::Ramachandran rama_type,
+                                 GooCanvasItem *bg_group) {
 
    GooCanvasItem *item;
    float x;
    float y;
    float d2step;
    short int doit;
-   std::string colour; 
+   std::string colour;
    int start_angle;
    int end_angle;
 
@@ -684,7 +703,6 @@ coot::rama_plot::make_background(const clipper::Ramachandran rama_type, GooCanva
          x =  clipper::Util::d2rad(i+((float) step)/2.0);
          y =  clipper::Util::d2rad(-(j+((float) step)/2.0));
          d2step = clipper::Util::d2rad(step);
-
          doit = 0;
 
          if ( rama_type.favored(x,y) ) {
@@ -724,14 +742,44 @@ coot::rama_plot::make_background(const clipper::Ramachandran rama_type, GooCanva
                                           "fill-color", colour.c_str(),
                                           "stroke-color", colour.c_str(),
                                           "line-width",0.5,
-					 NULL);
+                                          NULL);
             }
 
          }
       }
    }
-
 }
+
+int
+coot::rama_plot::make_background_from_image(const clipper::Ramachandran rama_type,
+                                            GooCanvasItem *bg_group,
+                                            std::string file_name) {
+
+   GooCanvasItem *item;
+   GdkPixbuf *pixbuf = NULL;
+   int ret = 0;
+
+   std::string abs_file_name = coot::package_data_dir() + "/pixmaps/";
+   abs_file_name += file_name;
+
+   // check if file exists? Done by pixbuf I guess
+   pixbuf = gdk_pixbuf_new_from_file(abs_file_name.c_str(), NULL);
+   if (pixbuf) {
+      item = goo_canvas_image_new(bg_group, pixbuf,
+                                  -180.0, -180.0,
+                                  "width", 360.0,
+                                  "height", 360.0,
+                                  NULL);
+      g_object_unref(pixbuf);
+   } else {
+      g_print("BL INFO:: couldnt load rama background file %s, so rendering it with blocks.\n",
+              abs_file_name.c_str());
+      ret = 1;
+   }
+
+   return ret;
+}
+
 
 void
 coot::rama_plot::show_background(GooCanvasItem *new_bg) {
@@ -3007,6 +3055,124 @@ coot::rama_plot::write_png(std::string &file_name) {
    cairo_destroy (cr);
    //goo_canvas_item_remove(tmp);
 
+}
+
+// helper functions to create background images
+
+void
+coot::rama_plot::make_bg_images() {
+
+   std::string fn;
+   clear_canvas_items(1);
+   setup_background();
+
+   show_background(bg_all);
+//   fn = "rama_all.svg";
+//   write_svg(fn, bg_all);
+   fn = "rama_all.png";
+   write_png_simple(fn, bg_all);
+
+   show_background(bg_gly);
+   fn = "rama_gly.png";
+   write_png_simple(fn, bg_gly);
+
+   show_background(bg_non_gly_pro);
+   fn = "rama_non_gly_pro.png";
+   write_png_simple(fn, bg_non_gly_pro);
+
+   show_background(bg_pro);
+   fn = "rama_pro.png";
+   write_png_simple(fn, bg_pro);
+}
+
+void
+coot::rama_plot::write_png_simple(std::string &file_name, GooCanvasItem *item) {
+
+   gdouble x1, y1, x2, y2;
+   int size_x;
+   int size_y;
+   if (item) {
+      gdouble width, height;
+      g_object_get(GOO_CANVAS_GROUP(item),
+                   "height", &height,
+                   "width", &width,
+                   NULL);
+      if (width < 0) {
+         size_x = 360;
+         size_y = 360;
+      } else {
+         size_x = (int)width;
+         size_y = (int)height;
+      }
+   } else {
+      g_object_get(GOO_CANVAS(canvas),
+                   "x1", &x1,
+                   "y1", &y1,
+                   "x2", &x2,
+                   "y2", &y2,
+                   NULL);
+      size_x = (int)x2 - (int)x1;
+      size_y = (int)y2 - (int)y1;
+   }
+
+   cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, size_x, size_y);
+   cairo_t *cr = cairo_create (surface);
+   /* move closer to the centre
+   Not sure where to move x1, y1 or centre?!*/
+   cairo_translate (cr, size_x/2, size_y/2);
+
+   goo_canvas_render (GOO_CANVAS(canvas), cr, NULL, 1.0);
+   cairo_surface_write_to_png(surface, file_name.c_str());
+   cairo_surface_destroy (surface);
+   cairo_destroy (cr);
+   //goo_canvas_item_remove(tmp);
+
+}
+
+// BL says:: we dont use SVG. Too large files and not nice.
+void
+coot::rama_plot::write_svg(std::string &file_name, GooCanvasItem *item) {
+
+#if CAIRO_HAS_SVG_SURFACE
+   gdouble x1, y1, x2, y2;
+   int size_x;
+   int size_y;
+   if (item) {
+      gdouble width, height;
+      g_object_get(GOO_CANVAS_GROUP(item),
+                   "height", &height,
+                   "width", &width,
+                   NULL);
+      if (width < 0) {
+         size_x = 360;
+         size_y = 360;
+      } else {
+         size_x = (int)width;
+         size_y = (int)height;
+      }
+   } else {
+      g_object_get(GOO_CANVAS(canvas),
+                   "x1", &x1,
+                   "y1", &y1,
+                   "x2", &x2,
+                   "y2", &y2,
+                   NULL);
+      size_x = (int)x2 - (int)x1;
+      size_y = (int)y2 - (int)y1;
+   }
+
+   cairo_surface_t *surface = cairo_svg_surface_create(file_name.c_str(), size_x, size_y);
+   cairo_t *cr = cairo_create (surface);
+   /* move closer to the centre
+   Not sure where to move x1, y1 or centre?!*/
+   cairo_translate (cr, size_x/2, size_y/2);
+
+   goo_canvas_render (GOO_CANVAS(canvas), cr, NULL, 1.0);
+   cairo_surface_destroy (surface);
+   cairo_destroy (cr);
+   //goo_canvas_item_remove(tmp);
+
+#endif
 }
 
 void
