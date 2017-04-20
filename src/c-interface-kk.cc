@@ -126,7 +126,9 @@ void
 clear_extra_restraints(int imol) {
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].clear_extra_restraints(); 
+      graphics_info_t::molecules[imol].set_display_extra_restraints(0);
    }
+   graphics_draw();
 }
 
 #ifdef USE_PYTHON
