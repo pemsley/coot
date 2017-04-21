@@ -9,6 +9,18 @@
 
    o --splash-screen arb-image.png - does that work?
 
+   o parse Sameer's xml
+
+   o get rid of this: 
+     INFO:: setup minimol from mol: no spacegroup
+
+* Done.
+
+   o get rid of this:
+.... step_count: 880 step_count_lim 5000
+
+* Done, was fixed in refinement
+
    o fetch Bernie branch. consider new rama
 
 * Rama still too slow

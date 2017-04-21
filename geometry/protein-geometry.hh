@@ -503,6 +503,7 @@ namespace coot {
       std::pair<bool, std::string> pdbx_stereo_config;
       std::pair<bool, clipper::Coord_orth> pdbx_model_Cartn_ideal;
       std::pair<bool, clipper::Coord_orth> model_Cartn;
+      int ordinal_id;
       dict_atom(const std::string &atom_id_in,
 		const std::string &atom_id_4c_in,
 		const std::string &type_symbol_in,
@@ -517,6 +518,7 @@ namespace coot {
       }
       dict_atom() {}; // for resize(0);
       void add_pos(int pos_type, const std::pair<bool, clipper::Coord_orth> &model_pos_ideal);
+      void add_ordinal_id(int ordinal_id_in) { ordinal_id = ordinal_id_in; }
       bool is_hydrogen() const;
       friend std::ostream& operator<<(std::ostream &s, const dict_atom &at);
    };
@@ -1157,7 +1159,7 @@ namespace coot {
       // 
       std::map<std::string,dictionary_residue_restraints_t> simple_monomer_descriptions;
 
-      int  comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc); 
+      int  comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc, bool is_from_pdbx_model_atom=false); 
       std::string comp_atom_pad_atom_name(const std::string &atom_id, const std::string &type_symbol) const;
       // return the comp_id
       std::string chem_comp(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
