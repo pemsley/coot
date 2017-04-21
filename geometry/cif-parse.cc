@@ -281,6 +281,9 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		  if (cat_name == "_pdbx_chem_comp_descriptor")
 		     pdbx_chem_comp_descriptor(mmCIFLoop, imol_enc);
 
+		  // PDBx model molecule
+		  if (cat_name == "_pdbx_chem_comp_model_atom")
+		     rmit.n_atoms += comp_atom(mmCIFLoop, imol_enc, true);
 	       }
 	    }
 	    if (n_chiral) {
@@ -1250,9 +1253,12 @@ coot::protein_geometry::simple_mon_lib_chem_comp(mmdb::mmcif::PLoop mmCIFLoop, i
    return comp_id;
 }
 
+// is_from_pdbx_model_atom is a optional argument bool false default
+//
 // return the number of atoms.
 int 
-coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
+coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc,
+				  bool is_from_pdbx_model_atom) {
 
    // If the number of atoms with partial charge matches the number of
    // atoms, then set a flag in the residue that this monomer has
@@ -1266,6 +1272,9 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
    int n_origin_ideal_atoms = 0; 
    int n_origin_model_atoms = 0;
    std::string comp_id; // used to delete atoms (if needed).
+   //
+   std::string model_id; // pdbx_model_atom
+   int ordinal_id; // pdbx_model_atom
    
    std::string comp_id_for_partial_charges = "unset"; // unassigned.
 
@@ -1278,6 +1287,15 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
       std::string type_symbol; 
       std::string type_energy = "unset";
       std::pair<bool, mmdb::realtype> partial_charge(0,0);
+
+      std::string model_id; // pdbx_model_atom
+      int ierr_pdbx = 0;
+      char *pdbx_s = mmCIFLoop->GetString("model_id",j,ierr_pdbx);
+      if (pdbx_s) {
+	 model_id = pdbx_s;
+      }
+      ordinal_id = -1; // unset
+      int ierr_pdbx_2 = mmCIFLoop->GetInteger(ordinal_id, "ordinal_id", j);
 
       std::pair<bool, int> pdbx_align(0, 0);
       int xalign;
@@ -1413,7 +1431,9 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
 	    n_atoms_with_partial_charge++;
 	 }
 
-	 if (ierr_tot == 0) {
+	 // ierr_tot will not be 0 for pdbx model atoms
+	 // ...
+	 if (ierr_tot == 0 || is_from_pdbx_model_atom) {
 
 	    std::string padded_name = comp_atom_pad_atom_name(atom_id, type_symbol);
 //  	    std::cout << "comp_atom_pad_atom_name: in :" << atom_id << ": out :"
@@ -1450,6 +1470,19 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
 	    atom_info.formal_charge      = formal_charge;
 	    atom_info.aromaticity        = aromaticity;
 	    atom_info.pdbx_stereo_config = pdbx_stereo_config_flag;
+
+
+	    // ierr_tot will not be 0 for pdbx model atoms
+	    // ...
+	    if (is_from_pdbx_model_atom) {
+	       if (ierr_pdbx == 0) {
+		  if (ierr_pdbx_2 == 0) {
+		     atom_info.add_ordinal_id(ordinal_id);
+		  }
+	       }
+	       if (! model_id.empty())
+		  comp_id = model_id;  // e.g. M_010_00001
+	    }
 
 	    mon_lib_add_atom(comp_id, imol_enc, atom_info);
 
