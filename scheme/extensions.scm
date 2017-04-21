@@ -1617,5 +1617,5 @@
      ;; (wrapper-alignment-mismatches-gui imol))))))
 
      (let ((do-alignment? #t))
-     (associate-pir-with-molecule-gui do-alignment?)))))
+       (associate-pir-with-molecule-gui do-alignment?)))))
 
