@@ -67,7 +67,7 @@ namespace coot {
 	    } 
 	 }
       }
-      bonded_pair_t swap() const {
+      bonded_pair_t swapped() const {
 	 bonded_pair_t bp;
 	 bp.link_type = link_type;
 	 bp.res_1 = res_2;
@@ -75,7 +75,8 @@ namespace coot {
 	 bp.is_fixed_first  = is_fixed_second;
 	 bp.is_fixed_second = is_fixed_first;
 	 return bp;
-      } 
+      }
+      void reorder_as_needed();
       // matches?, swap-is-needed-to-match?
       std::pair<bool, bool> matches_info(mmdb::Residue *r1, mmdb::Residue *r2) const {
 	 if (r1 == res_1 && r2 == res_2) {
