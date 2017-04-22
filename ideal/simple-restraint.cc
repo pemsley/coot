@@ -36,6 +36,7 @@
 #include <fstream>
 #include <algorithm> // for sort
 #include <stdexcept>
+#include <iomanip>
 
 #ifdef HAVE_CXX_THREAD
 #include <thread>
@@ -454,6 +455,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 						    mmdb::Manager *mol,
 						    const std::vector<atom_spec_t> &fixed_atom_specs) {
 
+
    init_shared_pre(mol);
    residues_vec = residues;
 
@@ -462,7 +464,8 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    // 20090620: or do we?
 
    // debug:
-   if (false) { 
+   bool debug = false;
+   if (debug) { 
       for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
 	 mmdb::PAtom *res_atom_selection = NULL;
 	 int n_res_atoms;
@@ -484,7 +487,6 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 	 }
       }
    }
-   
 
    // what about adding the flanking residues?  How does the atom
    // indexing of that work when (say) adding a bond?
@@ -510,7 +512,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    // fixed.
    //
    // 20151128 only include the residues once (test that they are not there first)
-   // 
+   //
    int n_bonded_flankers_in_total = 0; // debug/info counter
    for (unsigned int i=0; i<bpc.size(); i++) {
       if (bpc[i].is_fixed_first) {
@@ -543,7 +545,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 	 all_residues.push_back(non_bonded_neighbour_residues[ires]);
    }
 
-   if (0) { 
+   if (0) {
       std::cout << "   DEBUG:: There are " << residues.size() << " passed residues and "
 		<< all_residues.size() << " residues total (including flankers)"
 		<< " with " << non_bonded_neighbour_residues.size()
@@ -601,6 +603,20 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    }
    
    add_fixed_atoms_from_flanking_residues(bpc);
+
+   if (debug) {
+      std::cout << "DEBUG:: Selecting residues gives " << n_atoms << " atoms " << std::endl;
+      for (int iat=0; iat<n_atoms; iat++) {
+	 bool fixed_flag = false;
+	 if (std::find(fixed_atom_indices.begin(),
+		       fixed_atom_indices.end(), iat) != fixed_atom_indices.end())
+	    fixed_flag = true;
+	 std::cout << "   " << std::setw(3) << iat << " " << atom[iat]->name << " "
+		   << atom[iat]->GetSeqNum() << " " << atom[iat]->GetChainID() << " "
+		   << atom[iat]->GetResName() << " fixed: " << fixed_flag << std::endl;
+      }
+   }
+   
    
 }
 
@@ -3728,7 +3744,6 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 		  matched_oxt = true;
 	       }
 	    }
-	    
 
 	    if (false)
 	       std::cout << "moving->moving: here with atoms "
