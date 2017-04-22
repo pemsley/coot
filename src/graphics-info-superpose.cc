@@ -296,6 +296,13 @@ graphics_info_t::superpose_with_atom_selection(atom_selection_container_t asc_re
 							     atom_selection1, atom_selection2,
 							     n_selected_atoms_1, n_selected_atoms_2);
 
+	    // map assignment of secondary structure for Ana
+	    //
+	    if (false)
+	       map_secondary_structure_headers(SSMAlign, asc_ref, asc_mov,
+					      atom_selection1, atom_selection2,
+					      n_selected_atoms_1, n_selected_atoms_2);
+
 	    graphics_info_t::molecules[imol2].transform_by(SSMAlign->TMatrix);
 	    graphics_info_t::molecules[imol2].set_show_symmetry(0); 
 	    // 
@@ -352,6 +359,122 @@ graphics_info_t::make_and_print_horizontal_ssm_sequence_alignment(ssm::Align *SS
    print_horizontal_ssm_sequence_alignment(aligned_sequences);
 }
 #endif // HAVE_SSMLIB
+
+#ifdef HAVE_SSMLIB
+void
+graphics_info_t::map_secondary_structure_headers(ssm::Align *SSMAlign,
+						 atom_selection_container_t asc_ref,
+						 atom_selection_container_t asc_mov,
+						 mmdb::PAtom *atom_selection1,
+						 mmdb::PAtom *atom_selection2,
+						 int n_selected_atoms_1, int n_selected_atoms_2) const {
+
+   bool debug = true;
+
+   mmdb::Model *model_p = asc_ref.mol->GetModel(1);
+   if (model_p) {
+      int nhelix = model_p->GetNumberOfHelices();
+      int nsheet = model_p->GetNumberOfSheets();
+      std::cout << "INFO:: From header, there are " << nhelix << " helices and "
+		<< nsheet << " sheets\n";
+      std::cout << "               Sheet info: " << std::endl;
+      std::cout << "------------------------------------------------\n";
+      for (int is=1; is<=nsheet; is++) {
+	 mmdb::Sheet *sheet_p = model_p->GetSheet(is);
+
+	 int nstrand = sheet_p->nStrands;
+	 for (int istrand=0; istrand<nstrand; istrand++) {
+	    mmdb::Strand *strand_p = sheet_p->strand[istrand];
+	    if (strand_p) { 
+	       std::cout << strand_p->sheetID << " " << strand_p->strandNo << " "
+			 << strand_p->initChainID << " " << strand_p->initSeqNum
+			 << " " << strand_p->endChainID << " " << strand_p->endSeqNum
+			 << std::endl;
+	    }
+	 }
+      }
+      std::cout << "------------------------------------------------\n";
+   
+      std::map<std::string, std::vector<coot::saved_strand_info_t> > saved_strands;
+      for (int is=1; is<=nsheet; is++) {
+	 mmdb::Sheet *sheet_p = model_p->GetSheet(is);
+         std::cout << "------- sheet " << sheet_p->sheetID << std::endl;
+	 int nstrand = sheet_p->nStrands;
+	 for (int istrand=0; istrand<nstrand; istrand++) {
+	    mmdb::Strand *strand_p = sheet_p->strand[istrand];
+	    if (strand_p) {
+	       bool start_was_found = false;
+	       bool   end_was_found = false;
+	       coot::residue_spec_t save_matched_start_mov_res;
+	       coot::residue_spec_t ref_start_res(strand_p->initChainID, strand_p->initSeqNum, "");
+	       coot::residue_spec_t   ref_end_res(strand_p->endChainID,  strand_p->endSeqNum,  "");
+
+	       for (int i1=0; i1<SSMAlign->nsel1; i1++) {
+		  int t_index = SSMAlign->Ca1[i1];
+		  // was t_index sensible?
+		  if (t_index < SSMAlign->nsel2 && t_index >= 0) {
+		     int s_index = SSMAlign->Ca2[t_index];
+		     if (s_index == i1) {
+			coot::residue_spec_t matched_atom_res_ref(atom_selection1[i1]); // SSM match, that is
+			coot::residue_spec_t matched_atom_res_mov(atom_selection2[t_index]);
+			// if we find it in mov, save the ref!  Weird...
+			if (ref_start_res == matched_atom_res_mov) {
+			   std::cout << "found start " << ref_start_res << " -> " << matched_atom_res_ref 
+                                     << " " << strand_p->sheetID << " " << strand_p->strandNo << std::endl;
+			   save_matched_start_mov_res = matched_atom_res_ref;
+			   // save_matched_start_mov_res.string_user_data = atom_selection2[t_index]->GetResName();
+			   start_was_found = true;
+			}
+			if (ref_end_res == matched_atom_res_mov) {
+			   end_was_found = true;
+			   std::cout << "found end   " << ref_end_res << " -> " << matched_atom_res_ref
+                                     << " " << strand_p->sheetID << " " << strand_p->strandNo << std::endl;
+			   if (start_was_found) {
+			      coot::saved_strand_info_t ss(save_matched_start_mov_res, matched_atom_res_ref, strand_p->strandNo);
+			      saved_strands[strand_p->sheetID].push_back(ss);
+			   }
+			}
+		     }
+		  }
+	       }
+	       if (! start_was_found)
+		  std::cout << "missing start - no match found for residue " << ref_start_res << std::endl;
+	       if (! end_was_found)
+		  std::cout << "missing end   - no match found for residue " << ref_end_res << std::endl;
+	    }
+	 }
+      }
+      std::cout << "... got " << saved_strands.size() << " saved strands" << std::endl;
+      std::map<std::string, std::vector<coot::saved_strand_info_t> >::const_iterator it;
+      for (it = saved_strands.begin(); it != saved_strands.end(); it++) {
+	 std::string key = it->first;
+         std::cout << " ---- Sheet " << key << std::endl;
+	 for (unsigned int ii=0; ii<it->second.size(); ii++) {
+	    std::cout << "   " << it->second[ii].start << " " << it->second[ii].end << " " << it->second[ii].strand_idx
+		      << std::endl;
+	 }
+      }
+      if (saved_strands.size() > 0) {
+	 mmdb::Sheet *sheet_p = new mmdb::Sheet;
+	 for (it = saved_strands.begin(); it != saved_strands.end(); it++) {
+	    std::string key = it->first;
+	    for (unsigned int ii=0; ii<it->second.size(); ii++) {
+	       mmdb::Strand *strand_p = new mmdb::Strand;
+	       strcpy(strand_p->sheetID, key.c_str());
+	       // strcpy(strand_p->initResName, it->second[ii].start.string_user_data.c_str());
+	       strcpy(strand_p->initChainID, it->second[ii].start.chain_id.c_str());
+	       strcpy(strand_p->initICode,   it->second[ii].start.ins_code.c_str());
+	       // strcpy(strand_p->endResName,  it->second[ii].end.string_user_data.c_str());
+	       strcpy(strand_p->endChainID,  it->second[ii].end.chain_id.c_str());
+	       strcpy(strand_p->endICode,    it->second[ii].end.ins_code.c_str());
+	    }
+	 }
+      }
+   }
+
+}
+#endif // HAVE_SSMLIB
+
 
 #ifdef HAVE_SSMLIB
 // 

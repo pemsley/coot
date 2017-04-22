@@ -297,8 +297,9 @@ coot::minimol::molecule::setup(mmdb::Manager *mol, bool udd_atom_index_to_user_d
 // 	 std::cout << "INFO:: setup minimol has spacegroup: "
 // 		   << mmdb_spacegroup << std::endl;
       } else {
-	 std::cout << "INFO:: setup minimol from mol: no spacegroup"
-		   << std::endl;
+	 if (false) // too noisy
+	    std::cout << "INFO:: setup minimol from mol: no spacegroup"
+		      << std::endl;
       }
    }
    return istat;

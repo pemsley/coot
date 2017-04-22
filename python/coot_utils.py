@@ -327,7 +327,7 @@ def add_hydrogens_using_refmac_inner(imol, in_file_name, out_file_name):
 
     status = popen_command("refmac5",
 			   ['XYZIN', out_file_name, 'XYZOUT', in_file_name],
-			   ['MAKE HOUT YES'],
+			   ['MAKE HOUT YES', 'NCYCLE 0', 'END'],
 			   'refmac-H-addition.log', 0)
     try:
 	if (status == 0):

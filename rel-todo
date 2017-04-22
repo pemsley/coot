@@ -1,9 +1,25 @@
 
    For Release 0.8.9
 
+   o --splash-screen arb-image.png - does that work?
+
+   o parse Sameer's xml
+
+   o get rid of this: 
+     INFO:: setup minimol from mol: no spacegroup
+
+* Done.
+
+   o get rid of this:
+.... step_count: 880 step_count_lim 5000
+
+* Done, was fixed in refinement
+
    o fetch Bernie branch. consider new rama
 
    o lidia molfile.mol should Do The Right Thing
+
+   o doing a merge and doing a chain chain ids should move over the Link records also
 
    o map_peaks*.py should make negative peaks [Oliver Smart]
 
