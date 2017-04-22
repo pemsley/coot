@@ -207,7 +207,7 @@ coot::bonded_pair_container_t::filter() {
                  // reorder is needed for to-distant-by-residue-numbering comparison filter below.
 
    std::vector<bonded_pair_t> new_bonded_residues;
-   bool debug = true;
+   bool debug = false;
 
    if (debug) {
       std::cout << ":::: we have these bonded pairs" << std::endl;
