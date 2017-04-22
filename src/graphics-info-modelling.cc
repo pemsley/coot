@@ -616,8 +616,9 @@ graphics_info_t::update_refinement_atoms(int n_restraints,
 
       while ((step_count < step_count_lim) && continue_flag) {
 
-	 std::cout << ".... step_count: " << step_count
-		   << " step_count_lim " << step_count_lim << std::endl;
+	 if (false)
+	    std::cout << ".... step_count: " << step_count << " step_count_lim "
+		      << step_count_lim << std::endl;
 
 	 int retval = drag_refine_idle_function(NULL);
 	 step_count += dragged_refinement_steps_per_frame;
