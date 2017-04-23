@@ -260,12 +260,12 @@ void coot::my_df_bonds(const gsl_vector *v,
 	    z_l_contrib = constant_part*(a2.z()-a1.z());
 
 	    if (!(*restraints)[i].fixed_atom_flags[0]) { 
-	       idx = 3*((*restraints)[i].atom_index_1 - 0);  
+	       idx = 3*(*restraints)[i].atom_index_1;
 
 	       *gsl_vector_ptr(df, idx  ) += x_k_contrib;
 	       *gsl_vector_ptr(df, idx+1) += y_k_contrib;
 	       *gsl_vector_ptr(df, idx+2) += z_k_contrib;
-	       
+
 	    } else {
 	       // debug
 	       if (0) {
@@ -279,7 +279,7 @@ void coot::my_df_bonds(const gsl_vector *v,
 			    << gsl_vector_get(df, idx+1) << " "
 			    << gsl_vector_get(df, idx+2) << std::endl;
 	       }
-	    } 
+	    }
 
 	    if (!(*restraints)[i].fixed_atom_flags[1]) { 
 	       idx = 3*((*restraints)[i].atom_index_2 - 0); 
@@ -290,7 +290,6 @@ void coot::my_df_bonds(const gsl_vector *v,
 	       *gsl_vector_ptr(df, idx+1) += y_l_contrib;
 	       *gsl_vector_ptr(df, idx+2) += z_l_contrib;
 
-	       
 	    } else {
 	       // debug
 	       if (false) {

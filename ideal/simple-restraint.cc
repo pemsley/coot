@@ -1687,7 +1687,6 @@ coot::restraints_container_t::make_restraints(int imol,
 	 bpc = make_flanking_atoms_restraints(geom,
 					      do_rama_plot_restraints,
 					      do_trans_peptide_restraints);
-      bpc.size();
       int iret_prev = restraints_vec.size();
 
       if (sec_struct_pseudo_bonds == coot::HELIX_PSEUDO_BONDS) {
@@ -2791,7 +2790,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 // e.g (if n-1 is fixed residue): C(n-1)-N(n)-Ca(n)-C(n) or C(n-1)-N(n)-Ca(n)-CB(n)
 // will not be seen as 1-4 related. So that's where strange_exception comes in.
 //
-int 
+int
 coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const coot::bonded_pair_container_t &bpc,
 								 const coot::restraints_container_t::reduced_angle_info_container_t &ai,
 								 const coot::protein_geometry &geom) {
@@ -2842,7 +2841,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
       std::string res_type = at->GetResName();
       std::map<mmdb::Residue *, std::pair<bool, dictionary_residue_restraints_t> >::const_iterator it;
       it = restraints_map.find(at->residue);
-      if (it == restraints_map.end()) { 
+      if (it == restraints_map.end()) {
+	 // have_restraints_for() is faster?
 	 std::pair<bool, dictionary_residue_restraints_t> p = geom.get_monomer_restraints(res_type, imol);
 	 // p.first is false if this is not a filled dictionary
 	 restraints_map[at->residue] = p;
@@ -3065,7 +3065,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 	          clipper::Coord_orth pt1(atom[i]->x, atom[i]->y, atom[i]->z);
 	          clipper::Coord_orth pt2(at_2->x,    at_2->y,    at_2->z);
 	          double d = sqrt((pt1-pt2).lengthsq());
-		     
+
 	          std::cout << "adding non-bonded contact restraint index " 
 			    << i << " to index " << filtered_non_bonded_atom_indices[i][j]
 			    << " "
@@ -3680,7 +3680,7 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
    //  8 -> 2.9 s
    // 11 -> 3.1 s
    //
-   const double dist_crit = 11.0; // good number?  Needs checking. 
+   const double dist_crit = 11.0;
    
    filtered_non_bonded_atom_indices.resize(bonded_atom_indices.size());
 
@@ -3693,11 +3693,11 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 		   << bpc[i].is_fixed_first << " " 
 		   << bpc[i].is_fixed_second << " " 
 		   << std::endl;
-      
+
       std::cout << "--------------- debug:: bonded_atom_indices size "
 		<< bonded_atom_indices.size() << std::endl;
       std::cout << "--------------- debug:: n_atoms " << n_atoms << std::endl;
-      
+
       std::cout << "Bonded atom indices:" << std::endl;
       for (unsigned int i=0; i<bonded_atom_indices.size(); i++) {
 	 std::cout << "  " << i << " " << atom_spec_t(atom[i]) << " " << bonded_atom_indices[i].size()
@@ -3880,11 +3880,11 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 
 #ifdef HAVE_CXX_THREAD
    end = std::chrono::system_clock::now();
- 
+
    std::chrono::duration<double> elapsed_seconds = end-start;
    std::time_t end_time = std::chrono::system_clock::to_time_t(end);
- 
-   std::cout << "finished computation at " << std::ctime(&end_time)
+
+   std::cout << "INFO:: nbc computation " // std::ctime(&end_time)
 	     << "elapsed time: " << elapsed_seconds.count() << "s\n";
 #endif // HAVE_CXX_THREAD
 
