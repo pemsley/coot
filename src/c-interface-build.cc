@@ -2425,6 +2425,23 @@ write_pdb_file(int imol, const char *file_name) {
    return istat;
 }
 
+// return 1 on error, 0 on success
+int
+write_cif_file(int imol, const char *file_name) {
+
+   graphics_info_t g;
+   int istat = 0;
+   if (is_valid_model_molecule(imol)) {
+      istat = g.molecules[imol].write_cif_file(std::string(file_name));
+   }
+   std::string cmd = "write-cif-file";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(file_name));
+   add_to_history_typed(cmd, args);
+   return istat;
+}
+
 /*! \brief write molecule number imol's residue range as a PDB to file
   file_name */
 /*  return 0 on success, -1 on error. */

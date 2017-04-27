@@ -6420,6 +6420,16 @@ coot::write_coords_pdb(mmdb::Manager *mol, const std::string &file_name) {
    return r;
 }
 
+// Perhaps this should be a class function of a class derived from mmdb::Manager?
+int
+coot::write_coords_cif(mmdb::Manager *mol, const std::string &file_name) {
+
+   util::remove_wrong_cis_peptides(mol);
+   // util::correct_link_distances(mol);  // this duplicates the molecule.  Needs investigation - GetLink()?
+   int r = mol->WriteCIFASCII(file_name.c_str());
+   return r;
+}
+
 
 // convert atoms in residue to HETATMs
 // 
