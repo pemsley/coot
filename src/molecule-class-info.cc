@@ -7162,7 +7162,25 @@ molecule_class_info_t::write_pdb_file(const std::string &filename) {
       }
    }
    return err; 
-} 
+}
+
+
+// return 0 on success
+//
+int
+molecule_class_info_t::write_cif_file(const std::string &filename) {
+
+   int err = 1; // fail
+   if (atom_sel.n_selected_atoms > 0) {
+      mmdb::byte bz = mmdb::io::GZM_NONE;
+      // err = write_atom_selection_file(atom_sel, filename, bz);
+      err = coot::write_coords_cif(atom_sel.mol, filename);
+   }
+   return err;
+}
+
+
+
 
 
 // Add this molecule (typically of waters to this molecule by trying

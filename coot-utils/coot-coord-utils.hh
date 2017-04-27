@@ -76,6 +76,7 @@ namespace coot {
 
    // Perhaps this should be a class function of a class derived from mmdb::Manager?
    int write_coords_pdb(mmdb::Manager *mol, const std::string &file_name);
+   int write_coords_cif(mmdb::Manager *mol, const std::string &file_name);
 
    std::string pad_atom_name(const std::string &atom_name_in,
 			     const std::string &element);
