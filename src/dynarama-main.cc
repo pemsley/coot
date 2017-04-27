@@ -334,7 +334,7 @@ main(int argc, char *argv[]) {
          std::vector <coot::util::phi_psi_t> vp;
          //g_print("BL DEBUG:: edit plot with chain %s and resno %i\n", chain_id.c_str(), edit_res_no);
          for (int resno=edit_res_no; resno<edit_res_no+2; resno++) {
-            SelHnd= mol->NewSelection();
+            SelHnd = mol->NewSelection();
             mol->Select(SelHnd,
                         mmdb::STYPE_RESIDUE,  // select residues
                         0,              // any model
@@ -448,6 +448,7 @@ main(int argc, char *argv[]) {
                     psi_axis_option);
          if (rama->dynawin) {
             if (is_kleywegt_plot_flag) {
+               gtk_widget_hide(rama->selection_hbox);
                if (selHnd > -1 && selHnd2 > -1) {
                   rama->draw_it(imol, imol2,
                                 mol, mol2,
@@ -467,8 +468,17 @@ main(int argc, char *argv[]) {
                   }
                }
             } else {
-               if (selHnd > -1)
+               if (selHnd > -1) {
                   rama->draw_it(mol, selHnd, 1);
+                  // FIXME:: maybe for chains too?! And for kleywegt at some point
+                  if (selection.size() > 0) {
+                     //rama->show_selection_widget(1);
+                     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rama->selection_checkbutton),
+                                                  TRUE);
+                     gtk_entry_set_text(GTK_ENTRY(rama->selection_entry),
+                                        selection.c_str());
+                  }
+               }
                else {
                   if (mol) {
                      rama->draw_it(mol);

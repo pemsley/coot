@@ -197,6 +197,7 @@ class rama_plot {
    GtkWidget *scrolled_window;
    GtkWidget *outliers_only_tooglebutton;
    GtkWidget *zoom_resize_togglebutton;
+   GtkWidget *selection_apply_button;
    GtkWidget *rama_stats_frame;
    GtkWidget *rama_stats_label1;
    GtkWidget *rama_stats_label2;
@@ -333,6 +334,10 @@ public:
    GtkWidget *rama_export_as_png_filechooserdialog;
    GtkWidget *rama_open_filechooserdialog;
    GtkWidget *rama_view_menu;
+   // FIXME:: maybe better a function rather than making public for dynarama main
+   GtkWidget *selection_hbox;
+   GtkWidget *selection_entry;
+   GtkWidget *selection_checkbutton;
 
    rama_plot() {
       green_box_item = NULL;
@@ -601,6 +606,8 @@ public:
    void show_outliers_only(int state);
    void psi_axis_changed();
    void set_rama_psi_axis(int state);
+   void show_selection_widget(int state);
+   void apply_selection_from_widget();
    void debug() const;
 
    void destroy_yourself();

@@ -48,6 +48,12 @@ on_rama_about_menuitem_activate(GtkMenuItem *item, gpointer user_data);
 
 //buttons
 void
+on_dynarama_selection_checkbutton_toggled(GtkToggleButton *button, gpointer user_data);
+void
+on_dynarama_selection_entry_activate(GtkEntry *entry, gpointer  user_data);
+void
+on_dynarama_selection_apply_button_clicked(GtkButton *button, gpointer user_data);
+void
 on_dynarama2_outliers_only_togglebutton_toggled(GtkToggleButton *button, gpointer user_data);
 void
 on_dynarama2_zoom_resize_togglebutton_toggled(GtkToggleButton *button, gpointer user_data);

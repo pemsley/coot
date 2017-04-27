@@ -126,6 +126,36 @@ on_dynarama2_outliers_only_togglebutton_toggled(GtkToggleButton *button, gpointe
 }
 
 extern "C" G_MODULE_EXPORT void
+on_dynarama_selection_checkbutton_toggled(GtkToggleButton *button, gpointer user_data){
+
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   coot::rama_plot *plot = static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (plot) {
+      plot->show_selection_widget(button->active);
+   }
+}
+
+extern "C" G_MODULE_EXPORT void
+on_dynarama_selection_entry_activate(GtkEntry *entry, gpointer  user_data) {
+
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   coot::rama_plot *plot = static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (plot) {
+      plot->apply_selection_from_widget();
+   }
+}
+
+extern "C" G_MODULE_EXPORT void
+on_dynarama_selection_apply_button_clicked(GtkButton *button, gpointer user_data){
+
+   GtkWidget *canvas = GTK_WIDGET(user_data);
+   coot::rama_plot *plot = static_cast<coot::rama_plot *> (gtk_object_get_user_data(GTK_OBJECT(canvas)));
+   if (plot) {
+      plot->apply_selection_from_widget();
+   }
+}
+
+extern "C" G_MODULE_EXPORT void
 on_psi_axis_classic_radioitem_toggled(GtkToggleButton *button, gpointer user_data) {
 
    GtkWidget *canvas = GTK_WIDGET(user_data);
