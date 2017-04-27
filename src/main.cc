@@ -190,7 +190,7 @@ main (int argc, char *argv[]) {
 
   
    if (graphics_info_t::use_graphics_interface_flag) {
-      gtk_set_locale ();    // gtk stuff
+      gtk_set_locale(); // gtk stuff
       load_gtk_resources();
       gtk_init (&argc, &argv);
       // activate to force icons in menus; cannot get it to work with 
@@ -221,7 +221,6 @@ main (int argc, char *argv[]) {
    // 
    setup_splash_screen();
 
-  
    GtkWidget *splash = NULL;
 
    if (graphics_info_t::use_graphics_interface_flag) {

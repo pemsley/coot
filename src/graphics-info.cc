@@ -326,6 +326,9 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 				    int imol_enc_in,
 				    short int show_no_bonds_dialog_maybe_flag) {
 
+   std::cout << "::: add_cif_dictionary() called with "
+	     << cif_dictionary_filename << " " << imol_enc_in << " " << show_no_bonds_dialog_maybe_flag << std::endl;
+
    int imol_enc = imol_enc_in;
 
    if (imol_enc_in == coot::protein_geometry::IMOL_ENC_AUTO) {
@@ -354,7 +357,7 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
    geom_p->init_refmac_mon_lib(cif_dictionary_filename,
 			       cif_dictionary_read_number,
 			       imol_enc);
-   
+
    cif_dictionary_read_number++; 
    if (rmit.success > 0) { 
       cif_dictionary_filename_vec->push_back(cif_dictionary_filename);
