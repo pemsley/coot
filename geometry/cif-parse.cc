@@ -304,7 +304,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 	 add_cif_file_name(ciffilename, comp_id_1, comp_id_2, imol_enc);
       } // cif file is OK test
 
-      if (true)
+      if (false)
 	 std::cout << "returning with comp_id_1 " << comp_id_1
 		   << " comp_id_2 " << comp_id_2 << std::endl;
 
@@ -1491,7 +1491,7 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc,
 	       if (! model_id.empty())
 		  comp_id = model_id;  // e.g. M_010_00001
 
-	    if (true)
+	    if (false)
 	       std::cout << "debug:: calling mon_lib_add_atom: "
 			 << ":" << comp_id << ":  "
 			 << ":" << atom_id << ":  "
@@ -1801,9 +1801,6 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc, bo
 
 	       if (is_from_pdbx_model_bond)
 		  comp_id = model_id;
-
-	       std::cout << "calling mon_lib_add_bond_no_target_geom with comp_id "
-			 << "\"" << comp_id << "\"" << std::endl;
 
 	       mon_lib_add_bond_no_target_geom(comp_id, imol_enc, atom_id_1, atom_id_2, type, aromaticity);
 	    
