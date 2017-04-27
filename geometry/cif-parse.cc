@@ -454,7 +454,6 @@ coot::protein_geometry::pdbx_chem_comp_model(mmdb::mmcif::PStruct structure, int
       if (tag == "id")
 	 id = field;
    }
-   std::cout << "--------------------------- pdbx_chem_comp_model() returns id " << id << std::endl;
    return id;
 }
 
@@ -835,8 +834,6 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
       dictionary_residue_restraints_t rest(comp_id, read_number);
       rest.atom_info.push_back(atom_info);
       std::pair<int, dictionary_residue_restraints_t> p(imol_enc, rest);
-      std::cout << "   ... adding \"" << comp_id << "\" \""
-		<< p.second.residue_info.comp_id << "\"" << std::endl;
       dict_res_restraints.push_back(p);
    }
 }
