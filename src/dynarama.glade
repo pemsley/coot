@@ -356,7 +356,69 @@ Kleywegt Plot</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <placeholder/>
+              <object class="GtkHBox" id="dynarama_selection_hbox">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkCheckButton" id="dynarama_selection_checkbutton">
+                    <property name="label" translatable="yes">Selection</property>
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">False</property>
+                    <property name="focus_on_click">False</property>
+                    <property name="draw_indicator">True</property>
+                    <signal name="toggled" handler="on_dynarama_selection_checkbutton_toggled" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="position">0</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkEntry" id="dynarama_selection_entry">
+                    <property name="visible">True</property>
+                    <property name="sensitive">False</property>
+                    <property name="can_focus">True</property>
+                    <property name="invisible_char">●</property>
+                    <property name="text" translatable="yes">//*</property>
+                    <property name="invisible_char_set">True</property>
+                    <property name="primary_icon_activatable">False</property>
+                    <property name="secondary_icon_activatable">False</property>
+                    <property name="primary_icon_sensitive">True</property>
+                    <property name="secondary_icon_sensitive">True</property>
+                    <signal name="activate" handler="on_dynarama_selection_entry_activate" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="padding">2</property>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
+                <child>
+                  <object class="GtkButton" id="dynarama_selection_apply_button">
+                    <property name="label" translatable="yes">Apply</property>
+                    <property name="visible">True</property>
+                    <property name="sensitive">False</property>
+                    <property name="can_focus">True</property>
+                    <property name="receives_default">True</property>
+                    <property name="focus_on_click">False</property>
+                    <signal name="clicked" handler="on_dynarama_selection_apply_button_clicked" swapped="no"/>
+                  </object>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">True</property>
+                    <property name="padding">2</property>
+                    <property name="position">2</property>
+                  </packing>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
             </child>
             <child>
               <object class="GtkToggleButton" id="dynarama2_zoom_resize_togglebutton">
@@ -365,6 +427,7 @@ Kleywegt Plot</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Zoom image when window size changes</property>
                 <property name="image">image3</property>
+                <property name="focus_on_click">False</property>
                 <signal name="toggled" handler="on_dynarama2_zoom_resize_togglebutton_toggled" swapped="no"/>
               </object>
               <packing>
@@ -381,6 +444,7 @@ Kleywegt Plot</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="tooltip_text" translatable="yes">Show outliers only</property>
+                <property name="focus_on_click">False</property>
                 <property name="yalign">0.56000000238418579</property>
                 <signal name="toggled" handler="on_dynarama2_outliers_only_togglebutton_toggled" swapped="no"/>
               </object>
@@ -391,6 +455,9 @@ Kleywegt Plot</property>
                 <property name="pack_type">end</property>
                 <property name="position">2</property>
               </packing>
+            </child>
+            <child>
+              <placeholder/>
             </child>
           </object>
           <packing>
@@ -486,6 +553,7 @@ Kleywegt Plot</property>
               <object class="GtkComboBox" id="kleywegt_chain_combobox1">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="focus_on_click">False</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -509,6 +577,7 @@ Kleywegt Plot</property>
               <object class="GtkComboBox" id="kleywegt_chain_combobox2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
+                <property name="focus_on_click">False</property>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -523,6 +592,7 @@ Kleywegt Plot</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
                 <property name="use_stock">True</property>
+                <property name="focus_on_click">False</property>
                 <signal name="clicked" handler="on_kleywegt_apply_chain_button_clicked" swapped="no"/>
               </object>
               <packing>
