@@ -1942,6 +1942,7 @@ public:        //                      public
    // more refmac stuff
    //
    int write_pdb_file(const std::string &filename); // not const because of shelx/name manip
+   int write_cif_file(const std::string &filename); // not const because of shelx/name manip
    short int Have_sensible_refmac_params() const { return has_xmap() && have_sensible_refmac_params; }
    short int Have_refmac_phase_params()    const { return have_refmac_phase_params; }
    void increment_refmac_count() { refmac_count++; }
