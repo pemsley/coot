@@ -1,6 +1,8 @@
 
    For Release 0.8.9
 
+   o API access to write a cif file (if input file is cif... or pdb
+
    o delete_all_extra_restraints() should updates the extra restraints display
 
    o need a delete restraints menu item
