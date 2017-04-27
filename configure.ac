@@ -61,8 +61,8 @@ m4_define([v_git_revision_count], m4_esyscmd([(git rev-list --count HEAD 2>/dev/
 if test ! -d src     ; then mkdir src     ; fi
 if test ! -d pyrogen ; then mkdir pyrogen ; fi
 echo 'extern "C" { int git_revision_count() { return v_git_revision_count ; } }' > src/git-revision-count.cc
-echo 'def revision_count():'             > pyrogen/coot_git.py
-echo '    return ' v_git_revision_count >> pyrogen/coot_git.py
+echo 'def revision_count():
+      return ' v_git_revision_count > pyrogen/coot_git.py
 
 AC_CHECK_HEADERS([sys/stdtypes.h], [COOT_STDTYPES="-DHAVE_SYS_STDTYPES_H=1"], [COOT_STDTYPES="-DHAVE_SYS_STDTYPES_H=0"])
 
