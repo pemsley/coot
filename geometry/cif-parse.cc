@@ -1513,7 +1513,7 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc,
 	    if (is_from_pdbx_model_atom)
 	       if (ierr_pdbx == 0)
 		  if (ierr_pdbx_2 == 0)
-		     atom.add_ordinal_id(ordinal_id);
+		     atom_info.add_ordinal_id(ordinal_id);
 
 	    mon_lib_add_atom(comp_id, imol_enc, atom_info);
 
