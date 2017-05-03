@@ -1976,7 +1976,7 @@ int  seqnum_from_serial_number(int imol, const char *chain_id, int serial_num) {
 	 std::string mol_chain_id(chain_p->GetChainID());
 	 if (mol_chain_id == std::string(chain_id)) {
 	    int nres = chain_p->GetNumberOfResidues();
-	    if (serial_num < nres) {
+	    if ((serial_num < nres) && (serial_num >= 0)) {
 	       int ch_n_res;
 	       mmdb::PResidue *residues;
 	       chain_p->GetResidueTable(residues, ch_n_res);
@@ -1997,7 +1997,7 @@ int  seqnum_from_serial_number(int imol, const char *chain_id, int serial_num) {
       std::cout << "WARNING molecule number " << imol << " is not a valid model molecule "
 		<< std::endl;
    } 
-   std::string cmd = "setnum-from-serial-number";
+   std::string cmd = "seqnum-from-serial-number";
    std::vector<coot::command_arg_t> args;
    args.push_back(imol);
    args.push_back(coot::util::single_quote(chain_id));
