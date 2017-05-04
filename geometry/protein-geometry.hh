@@ -84,7 +84,6 @@ namespace coot {
       std::vector<pdbx_chem_comp_descriptor_item> descriptors;
    };
    
-   
    class dict_chem_comp_t {
       void setup_internal(const std::string &comp_id_in,
 			  const std::string &three_letter_code_in,
@@ -503,6 +502,7 @@ namespace coot {
       std::pair<bool, std::string> pdbx_stereo_config;
       std::pair<bool, clipper::Coord_orth> pdbx_model_Cartn_ideal;
       std::pair<bool, clipper::Coord_orth> model_Cartn;
+      int ordinal_id;
       dict_atom(const std::string &atom_id_in,
 		const std::string &atom_id_4c_in,
 		const std::string &type_symbol_in,
@@ -517,6 +517,7 @@ namespace coot {
       }
       dict_atom() {}; // for resize(0);
       void add_pos(int pos_type, const std::pair<bool, clipper::Coord_orth> &model_pos_ideal);
+      void add_ordinal_id(int ordinal_id_in) { ordinal_id = ordinal_id_in; }
       bool is_hydrogen() const;
       friend std::ostream& operator<<(std::ostream &s, const dict_atom &at);
    };
@@ -626,19 +627,18 @@ namespace coot {
    public:
       dictionary_residue_restraints_t(std::string comp_id_in,
 				      int read_number_in) {
+	 // a dictionary_residue_restraints_t no longer has a comp_id
+	 residue_info.comp_id = comp_id_in;
 	 has_partial_charges_flag = 0;
-	 // comp_id = comp_id_in; // why is this commented?
 	 read_number = read_number_in;
 	 filled_with_bond_order_data_only_flag = 0;
       }
       dictionary_residue_restraints_t() {
-	 // comp_id = ""; /* things are unset */
 	 filled_with_bond_order_data_only_flag = 0;
 	 has_partial_charges_flag = 0;
 	 read_number = -1;
       }
       dictionary_residue_restraints_t(bool constructor_for_srs_restraints) {
-	 // comp_id = ""; /* things are unset */
 	 filled_with_bond_order_data_only_flag = 1;
 	 has_partial_charges_flag = 0;
 	 read_number = -1;
@@ -1157,12 +1157,12 @@ namespace coot {
       // 
       std::map<std::string,dictionary_residue_restraints_t> simple_monomer_descriptions;
 
-      int  comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc); 
+      int  comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc, bool is_from_pdbx_model_atom=false); 
       std::string comp_atom_pad_atom_name(const std::string &atom_id, const std::string &type_symbol) const;
       // return the comp_id
       std::string chem_comp(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
       void comp_tree   (mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
-      int  comp_bond   (mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
+      int  comp_bond   (mmdb::mmcif::PLoop mmCIFLoop, int imol_enc, bool is_from_pdbx_model_bond=false);
       void comp_angle  (mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
       void comp_torsion(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
       void comp_plane  (mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
@@ -1185,7 +1185,8 @@ namespace coot {
 
       // return the comp id (so that later we can associate the file name with the comp_id).
       // 
-      std::string chem_comp_component(mmdb::mmcif::PStruct structure, int imol_enc);
+      std::string chem_comp_component( mmdb::mmcif::PStruct structure, int imol_enc);
+      std::string pdbx_chem_comp_model(mmdb::mmcif::PStruct structure, int imol_enc);
       // non-looping (single) tor
       void chem_comp_tor_structure(mmdb::mmcif::PStruct structure, int imol_enc);
       // non-looping (single) chir

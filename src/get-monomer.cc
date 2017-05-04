@@ -77,8 +77,10 @@ int get_monomer(const std::string &comp_id_in) {
 
    if (is_valid_model_molecule(imol)) { 
       return imol;
-   } else { 
+   } else {
+      std::cout << "get_monomer(): trying non-idealized: " << comp_id_in << std::endl;
       imol = get_monomer_from_dictionary(comp_id, 0); // non-idealized
+      std::cout << "   got imol " << imol << std::endl;
       if (is_valid_model_molecule(imol)) { 
 	 return imol;
       }
@@ -171,9 +173,6 @@ int get_monomer_for_molecule_by_index(int dict_idx, int imol_enc) {
 
    graphics_info_t g;
    int imol = -1;
-
-   std::cout << "::::::::::: get molecule by index " << dict_idx << " " << imol_enc
-	     << std::endl;
 
    int idealised_flag = true;
    mmdb::Manager *mol = g.Geom_p()->mol_from_dictionary(dict_idx, imol_enc, idealised_flag);

@@ -1609,7 +1609,11 @@ PyObject *cell_py(int imol);
 
 /*! \brief write molecule number imol as a PDB to file file_name */
 /*  return 0 on success, 1 on error. */
-int write_pdb_file(int imol, const char *file_name); 
+int write_pdb_file(int imol, const char *file_name);
+
+/*! \brief write molecule number imol as a mmCIF to file file_name */
+/*  return 0 on success, 1 on error. */
+int write_cif_file(int imol, const char *file_name);
 
 /*! \brief write molecule number imol's residue range as a PDB to file
   file_name */
