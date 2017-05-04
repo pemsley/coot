@@ -179,17 +179,14 @@ Section "!WinCoot" SEC01
   File /oname=$INSTDIR\runwincoot.bat.tmp "C:\MinGW\msys\1.0\home\bernhard\Projects\coot\windows\runwincoot.bat"
 
   SetOverwrite ifnewer
-; libexec DIR
-  SetOutPath "$INSTDIR\libexec"
-  SetOverwrite on
-  File "${src_dir}\libexec\coot-bin.exe"
-  File "${src_dir}\libexec\coot-density-score-by-residue-bin.exe"
-  File "${src_dir}\libexec\findligand-bin.exe"
-  File "${src_dir}\libexec\findwaters-bin.exe"
-  File "${src_dir}\libexec\mini-rsr-bin.exe"
-  SetOverwrite ifnewer
 ; bin DIR
   SetOutPath "$INSTDIR\bin"
+  SetOverwrite on
+  File "${src_dir}\bin\coot-bin.exe"
+  File "${src_dir}\bin\coot-density-score-by-residue-bin.exe"
+  File "${src_dir}\bin\findligand-bin.exe"
+  File "${src_dir}\bin\findwaters-bin.exe"
+  File "${src_dir}\bin\mini-rsr-bin.exe"
   SetOverwrite ifnewer
   File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\coot-icon.ico"
   File "${src_dir}\bin\*.dll"
@@ -551,12 +548,7 @@ Section Uninstall
   Delete "$INSTDIR\bin\coot-bfactan.exe"
   Delete "$INSTDIR\bin\coot"
   Delete "$INSTDIR\bin\coot-real.exe"
-  Delete "$INSTDIR\libexec\coot-bin.exe"
-  Delete "$INSTDIR\libexec\density-score-by-residue-bin.exe"
-  Delete "$INSTDIR\libexec\coot-density-score-by-residue-bin.exe"
-  Delete "$INSTDIR\libexec\findligand-bin.exe"
-  Delete "$INSTDIR\libexec\findwaters-bin.exe"
-  Delete "$INSTDIR\libexec\mini-rsr-bin.exe"
+  Delete "$INSTDIR\libexec\*.exe"
   Delete "$INSTDIR\bin\coot-density-score-by-residue"
   Delete "$INSTDIR\bin\density-score-by-residue"
   Delete "$INSTDIR\bin\findligand"
