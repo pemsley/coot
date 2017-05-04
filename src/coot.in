@@ -131,14 +131,17 @@ else
 fi
 # echo COOT_PREFIX is $COOT_PREFIX
 
-coot_bin=$COOT_PREFIX/libexec/coot-bin
 
 # we need this for movable/slim directory usage
 if [ "$systype" != "${systype/MINGW32_NT/}" ] ; then
    # BL says:: is there some better cleverness possible?!
+   # I could use (if we have new bash)
+   # if [[ $systype == MINGW* ]] ; then
+   coot_bin=$COOT_PREFIX/bin/coot-bin
    PYTHONHOME=$COOT_PREFIX/python27
    PATH=$PATH:$PYTHONHOME
 else
+   coot_bin=$COOT_PREFIX/libexec/coot-bin
    PYTHONHOME=$COOT_PREFIX
 fi
 
