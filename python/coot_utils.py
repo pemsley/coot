@@ -2718,6 +2718,23 @@ def load_annotations(file_name):
                 place_text(*(ann + [0]))
             graphics_draw()
 
+def remove_annotation_here(rad=1.5):
+    args = rotation_centre() + [rad]
+    handle = text_index_near_position(*args)
+    if handle > -1:
+        remove_text(handle)
+
+def remove_annotation_at_click(rad=1.5):
+    def remove_here(*args):
+        # atom_specs for user_defined_clicks have 7 args!
+        # includes model number now too!
+        # maybe there should be a atom_spec including model no!?
+        atom_spec = atom_specs(*args[0][1:7])
+        coords = atom_spec[3:]
+        handle = text_index_near_position(*(coords + [rad]))
+        if handle > -1:
+            remove_text(handle)
+    user_defined_click(1, remove_here)
 
 # ---------- updating ---------------------
 

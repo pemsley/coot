@@ -1594,6 +1594,19 @@ if (have_coot_python):
                                          " Load ",
                                          lambda file_name: load_annotations(file_name)))
 
+     
+     add_simple_coot_menu_menuitem(
+       submenu,
+       "Remove annotation here",
+       lambda func: remove_annotation_here())
+
+     
+     add_simple_coot_menu_menuitem(
+       submenu,
+       "Remove annotation near click",
+       lambda func: remove_annotation_at_click())
+     
+
      #---------------------------------------------------------------------
      #     Other Representation Programs
      #
