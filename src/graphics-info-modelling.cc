@@ -458,9 +458,6 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	 
 	 const coot::protein_geometry &geom = *geom_p;
 
-	 if (molecules[imol_for_atoms].extra_restraints.has_restraints())
-	    restraints.add_extra_restraints(imol_for_atoms, molecules[imol_for_atoms].extra_restraints, geom);
-
 	 // 20132008: debugging CCP4 SRS inclusion.  Currently it
 	 // seems that problem is calling a member function of
 	 // restraints.  An inline version of the same test function
@@ -500,6 +497,10 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 				       rama_plot_restraint_weight,
 				       do_rama_restraints,
 				       pseudo_bonds_type);
+
+	 if (molecules[imol_for_atoms].extra_restraints.has_restraints())
+	    restraints.add_extra_restraints(imol_for_atoms, molecules[imol_for_atoms].extra_restraints,
+					    geom);
 
 	 if (do_numerical_gradients)
 	    restraints.set_do_numerical_gradients();
@@ -803,7 +804,10 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	       }
 
 #ifdef HAVE_CXX_THREAD
-	       restraints.thread_pool(&static_thread_pool, coot::get_max_number_of_threads());
+	       // this will be conflicted when refinement and master are merged
+	       unsigned int n_threads = coot::get_max_number_of_threads();
+	       if (n_threads > 1) // or 0?
+		  restraints.thread_pool(&static_thread_pool, n_threads);
 #endif // HAVE_CXX_THREAD
 
 	       if (false)
@@ -813,9 +817,6 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 			    << molecules[imol].extra_restraints.has_restraints()
 			    <<  " " << molecules[imol].extra_restraints.bond_restraints.size()
 			    << std::endl;
-	       
-	       if (molecules[imol].extra_restraints.has_restraints())
-		  restraints.add_extra_restraints(imol, molecules[imol].extra_restraints, *Geom_p());
 
 	       int n_restraints = restraints.make_restraints(imol,
 							     *Geom_p(), flags,
@@ -824,6 +825,9 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 							     rama_plot_restraint_weight,
 							     do_rama_restraints,
 							     pseudo_bonds_type);
+
+	       if (molecules[imol].extra_restraints.has_restraints())
+		  restraints.add_extra_restraints(imol, molecules[imol].extra_restraints, *Geom_p());
 	       
 	       if (do_numerical_gradients)
 		  restraints.set_do_numerical_gradients();
