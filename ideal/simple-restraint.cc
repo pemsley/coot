@@ -331,7 +331,8 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
    do_numerical_gradients_flag = 0;
    verbose_geometry_reporting = NORMAL;
    have_oxt_flag = false; // set in mark_OXT()
-   geman_mcclure_alpha = 1; // Is this a good value? Talk to Rob. FIXME.
+   // the smaller the alpha, the more like least squares
+   geman_mcclure_alpha = 0.5; // Is this a good value? Talk to Rob.
    mol = mol_in;
    cryo_em_mode = false;
 }
@@ -1556,7 +1557,7 @@ void coot::my_df_electron_density_old (gsl_vector *v,
 	 gsl_vector_set(v, i, tmp+0.01); 
 	 new_S_plus = coot::electron_density_score(v, params); 
 	 gsl_vector_set(v, i, tmp-0.01); 
-	 new_S_minu = coot::electron_density_score(v, params); 
+	 new_S_minu = coot::electron_density_score(v, params);
 	 // new_S_minu = 2*tmp - new_S_plus; 
 
 	 // restore the initial value: 
@@ -1575,6 +1576,7 @@ void coot::my_df_electron_density_old (gsl_vector *v,
 void coot::my_fdf(const gsl_vector *x, void *params, 
 		  double *f, gsl_vector *df) { 
 
+   // 20170423 these can be done in parallel? ... check the timings at least.
    *f = coot::distortion_score(x, params); 
     coot::my_df(x, params, df); 
 }
@@ -3849,7 +3851,6 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
       std::cout << "--------------------------------------------------\n";
    }
    
-
 #ifdef HAVE_CXX_THREAD
    end = std::chrono::system_clock::now();
 

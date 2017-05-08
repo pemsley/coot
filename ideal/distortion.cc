@@ -582,7 +582,7 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
       if (restraints->restraints_usage_flag & coot::GEMAN_MCCLURE_DISTANCE_MASK) {
 	 if ( (*restraints)[i].restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
 	    d = coot::distortion_score_geman_mcclure_distance((*restraints)[i], v,
-							      restraints->geman_mcclure_alpha);
+	                                                        restraints->geman_mcclure_alpha);
 	    *distortion += d;
 	    // std::cout << "dsm: geman-mcclure single-thread idx " << i << " " << d << std::endl;
 	 }
@@ -907,11 +907,18 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
    int idx1, idx2;
    int this_resno1, this_resno2;
    for (unsigned int i=0; i<distortion_vec_container.geometry_distortion.size(); i++) {
-      if (restraints_usage_flag & coot::BONDS_MASK) 
+      if (false)
+	 std::cout << "distortion_vector() restraint " << i << " of "
+		   << distortion_vec_container.geometry_distortion.size() << " "
+		   << restraints_vec[i].restraint_type << std::endl;
+      if (restraints_usage_flag & coot::BONDS_MASK)
 	 if (restraints_vec[i].restraint_type == coot::BOND_RESTRAINT) {
 	    idx1 = distortion_vec_container.geometry_distortion[i].restraint.atom_index_1;
 	    idx2 = distortion_vec_container.geometry_distortion[i].restraint.atom_index_2;
-	    
+
+	    // std::cout << "idx1 " << idx1 << std::endl;
+	    // std::cout << "idx2 " << idx2 << std::endl;
+
 	    this_resno1 = distortion_vec_container.atom[idx1]->GetSeqNum();
 	    this_resno2 = distortion_vec_container.atom[idx2]->GetSeqNum();
 	    if (this_resno1 < min_resno)
@@ -954,11 +961,11 @@ coot::distortion_score_geman_mcclure_distance(const coot::simple_restraint &rest
 					      const gsl_vector *v,
 					      const double &alpha) {
 
-   int idx = 3*(restraint.atom_index_1 - 0); 
+   int idx = 3*restraint.atom_index_1;
    clipper::Coord_orth a1(gsl_vector_get(v,idx), 
 			  gsl_vector_get(v,idx+1), 
 			  gsl_vector_get(v,idx+2));
-   idx = 3*(restraint.atom_index_2 - 0); 
+   idx = 3*restraint.atom_index_2;
    clipper::Coord_orth a2(gsl_vector_get(v,idx), 
 			  gsl_vector_get(v,idx+1), 
 			  gsl_vector_get(v,idx+2));
@@ -969,7 +976,7 @@ coot::distortion_score_geman_mcclure_distance(const coot::simple_restraint &rest
    double bit = clipper::Coord_orth::length(a1,a2) - restraint.target_value;
    double z = bit/restraint.sigma;
    double distortion = z*z/(1+alpha*z*z);
-   // return z * z; // least squaresx
+   // return z * z; // least squares
    return distortion;
 }
 
