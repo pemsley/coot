@@ -2419,14 +2419,17 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    int ndict = dict_res_restraints.size();
    read_number = read_number_in;
 
-   int idr = get_monomer_restraints_index(monomer_type, imol_enc, false);
+   // ---------------- FIXME ----------------------------------------------------
+   // ---------------- FIXME ----------------------------------------------------
+   // ---------------- FIXME ----------------------------------------------------
+   int idr = get_monomer_restraints_index(monomer_type, imol_enc, true);
    if (idr >= 0) {
       ifound = true;
    }
 
    // check synonyms before checking three-letter-codes
    
-   if (! ifound) { 
+   if (! ifound) {
       // OK, that failed to, perhaps there is a synonym?
       for (unsigned int i=0; i<residue_name_synonyms.size(); i++) { 
 	 if (residue_name_synonyms[i].comp_alternative_id == monomer_type) {
@@ -2832,7 +2835,7 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
 	    break;
       }
    }
-   
+
    if (!r.first) {
       for (unsigned int i=0; i<nrest; i++) {
 	 if (dict_res_restraints[i].second.residue_info.three_letter_code == monomer_type) {
@@ -2863,9 +2866,10 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
 	 std::cout << "in get_monomer_restraints_index() comparing \""
 		   << dict_res_restraints[i].second.residue_info.comp_id << "\" vs \"" << monomer_type
 		   << "\" and " << dict_res_restraints[i].first << " " <<  imol_enc
-		   << std::endl;
+		   << " with allow_minimal_flag " << allow_minimal_flag << std::endl;
       if (dict_res_restraints[i].second.residue_info.comp_id == monomer_type) {
-	 if (dict_res_restraints[i].first == imol_enc) {
+	 if (matches_imol(dict_res_restraints[i].first, imol_enc)) {
+	    // if (dict_res_restraints[i].first == imol_enc) {
 	    if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].second.is_bond_order_data_only())) { 
 	       r = i;
 	       break;
@@ -3919,7 +3923,7 @@ coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
    mmdb::Residue *residue_p = NULL;
 
    // might use try_dynamic_add (if needed).
-   bool r = have_dictionary_for_residue_type(comp_id, 42, try_autoload_if_needed);
+   bool r = have_dictionary_for_residue_type(comp_id, imol_enc, try_autoload_if_needed);
    if (r) {
       for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
 	 if (dict_res_restraints[i].second.residue_info.comp_id == comp_id) {

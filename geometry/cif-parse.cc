@@ -210,6 +210,14 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		     }
 		  }
 
+		  if (cat_name == "_pdbx_chem_comp_model") {
+		     handled = 1;
+		     mmdb::mmcif::PStruct structure = data->GetStructure(cat_name.c_str());
+		     if (structure) {
+			comp_id_1 = pdbx_chem_comp_model(structure, imol_enc);
+		     }
+		  }
+
 		  if (cat_name == "_chem_comp_chir") {
 		     handled = 1;
 		     mmdb::mmcif::PStruct structure = data->GetStructure(cat_name.c_str());
@@ -228,8 +236,8 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		  
 		  if (! handled)   // this can happen if there is not an atom loop, e.g. dictionary
 		                   // with one atom e.g. AM.cif (Americium ion)
-		     std::cout << "WARNING:: in init_refmac_mon_lib() null loop for catagory "
-			       << cat_name << " file: " << ciffilename << std::endl; 
+		     std::cout << "WARNING:: in init_refmac_mon_lib() unhandled catagory \""
+			       << cat_name << "\" file: " << ciffilename << std::endl; 
 		  
 	       } else {
                
@@ -237,7 +245,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
 		  // We currently want to stop adding chem comp info
 		  // if the chem_comp info comes from mon_lib_list.cif:
-		  if (cat_name == "_chem_comp") { 
+		  if (cat_name == "_chem_comp") {
 		     if (read_number_in != coot::protein_geometry::MON_LIB_LIST_CIF)
 			comp_id_2 = chem_comp(mmCIFLoop, imol_enc);
 		     else
@@ -281,6 +289,11 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 		  if (cat_name == "_pdbx_chem_comp_descriptor")
 		     pdbx_chem_comp_descriptor(mmCIFLoop, imol_enc);
 
+		  // PDBx model molecule
+		  if (cat_name == "_pdbx_chem_comp_model_atom")
+		     rmit.n_atoms += comp_atom(mmCIFLoop, imol_enc, true);
+		  if (cat_name == "_pdbx_chem_comp_model_bond")
+		     rmit.n_atoms += comp_bond(mmCIFLoop, imol_enc, true);
 	       }
 	    }
 	    if (n_chiral) {
@@ -429,6 +442,22 @@ coot::protein_geometry::chem_comp_component(mmdb::mmcif::PStruct structure, int 
    else
       return "";
 }
+
+std::string
+coot::protein_geometry::pdbx_chem_comp_model(mmdb::mmcif::PStruct structure, int imol_enc) {
+
+   std::string id;
+   int n_tags = structure->GetNofTags();
+   for (int itag=0; itag<n_tags; itag++) {
+      std::string tag = structure->GetTag(itag);
+      std::string field = structure->GetField(itag);
+      if (tag == "id")
+	 id = field;
+   }
+   return id;
+}
+
+
 
 
 // non-looping (single) tor
@@ -684,8 +713,10 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 					 const std::pair<bool, clipper::Coord_orth> &model_pos,
 					 const std::pair<bool, clipper::Coord_orth> &model_pos_ideal) { 
 
+   // Are you sure that this is the version of mon_lib_add_atom() that you want?
+
    // debugging
-   bool debug = true;
+   bool debug = false;
    
    if (debug) {
       std::cout << "   mon_lib_add_atom  " << comp_id << " atom-id:" << atom_id << ": :"
@@ -782,14 +813,19 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
    int this_index = -1; // unset
 
    for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+      if (debug)
+	 std::cout << "comparing restraints [" << i << "] \""
+		   << dict_res_restraints[i].second.residue_info.comp_id
+		   << "\" with \"" << comp_id << "\"" << std::endl;
       if (dict_res_restraints[i].second.residue_info.comp_id == comp_id) {
 	 if (dict_res_restraints[i].first == imol_enc) {
-	    if (dict_res_restraints[i].second.read_number == read_number) { 
+	    if (dict_res_restraints[i].second.read_number == read_number) {
 	       ifound = true;
 	       this_index = i;
 	       dict_res_restraints[i].second.atom_info.push_back(atom_info);
 	       break;
 	    } else {
+	       std::cout << "INFO:: delete old entry for " << comp_id << std::endl;
 	       // trash the old one then
 	       dict_res_restraints[i].second.clear_dictionary_residue();
 	    }
@@ -799,10 +835,9 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
 
    if (! ifound) {
       dictionary_residue_restraints_t rest(comp_id, read_number);
+      rest.atom_info.push_back(atom_info);
       std::pair<int, dictionary_residue_restraints_t> p(imol_enc, rest);
       dict_res_restraints.push_back(p);
-      this_index = dict_res_restraints.size()-1;
-      dict_res_restraints[this_index].second.atom_info.push_back(atom_info);
    }
 }
 
@@ -1250,9 +1285,12 @@ coot::protein_geometry::simple_mon_lib_chem_comp(mmdb::mmcif::PLoop mmCIFLoop, i
    return comp_id;
 }
 
+// is_from_pdbx_model_atom is a optional argument bool false default
+//
 // return the number of atoms.
 int 
-coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
+coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc,
+				  bool is_from_pdbx_model_atom) {
 
    // If the number of atoms with partial charge matches the number of
    // atoms, then set a flag in the residue that this monomer has
@@ -1266,10 +1304,13 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
    int n_origin_ideal_atoms = 0; 
    int n_origin_model_atoms = 0;
    std::string comp_id; // used to delete atoms (if needed).
+   //
+   std::string model_id; // pdbx_model_atom
+   int ordinal_id; // pdbx_model_atom
    
    std::string comp_id_for_partial_charges = "unset"; // unassigned.
 
-   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) { 
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
 
       // modify a reference (ierr)
       // 
@@ -1278,6 +1319,15 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
       std::string type_symbol; 
       std::string type_energy = "unset";
       std::pair<bool, mmdb::realtype> partial_charge(0,0);
+
+      std::string model_id; // pdbx_model_atom
+      int ierr_pdbx = 0;
+      char *pdbx_s = mmCIFLoop->GetString("model_id",j,ierr_pdbx);
+      if (pdbx_s) {
+	 model_id = pdbx_s;
+      }
+      ordinal_id = -1; // unset
+      int ierr_pdbx_2 = mmCIFLoop->GetInteger(ordinal_id, "ordinal_id", j);
 
       std::pair<bool, int> pdbx_align(0, 0);
       int xalign;
@@ -1289,9 +1339,12 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
       std::pair<bool, int> formal_charge(false, 0); // read from PDB cif _chem_comp_atom.charge
       std::pair<bool, clipper::Coord_orth> pdbx_model_Cartn_ideal;
       std::pair<bool, clipper::Coord_orth> model_Cartn;
+      // for cleanliness in debugging output
+      pdbx_model_Cartn_ideal.second = clipper::Coord_orth(-1, -1, -1);
+      model_Cartn.second            = clipper::Coord_orth(-1, -1, -1);
       dict_atom::aromaticity_t aromaticity = dict_atom::UNASSIGNED;
 
-      if (ierr == 0) {
+      if (ierr == 0 || (is_from_pdbx_model_atom && (ierr_pdbx_2 == 0))) {
 	 int ierr_tot = 0;
 	 if (s)
 	    comp_id = std::string(s); // e.g. "ALA"
@@ -1413,7 +1466,9 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
 	    n_atoms_with_partial_charge++;
 	 }
 
-	 if (ierr_tot == 0) {
+	 // ierr_tot will not be 0 for pdbx model atoms
+	 // ...
+	 if (ierr_tot == 0 || is_from_pdbx_model_atom) {
 
 	    std::string padded_name = comp_atom_pad_atom_name(atom_id, type_symbol);
 //  	    std::cout << "comp_atom_pad_atom_name: in :" << atom_id << ": out :"
@@ -1428,6 +1483,10 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
 		  }
 	       }
 	    }
+
+	    if (is_from_pdbx_model_atom)
+	       if (! model_id.empty())
+		  comp_id = model_id;  // e.g. M_010_00001
 
 	    if (false)
 	       std::cout << "debug:: calling mon_lib_add_atom: "
@@ -1450,6 +1509,11 @@ coot::protein_geometry::comp_atom(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
 	    atom_info.formal_charge      = formal_charge;
 	    atom_info.aromaticity        = aromaticity;
 	    atom_info.pdbx_stereo_config = pdbx_stereo_config_flag;
+
+	    if (is_from_pdbx_model_atom)
+	       if (ierr_pdbx == 0)
+		  if (ierr_pdbx_2 == 0)
+		     atom_info.add_ordinal_id(ordinal_id);
 
 	    mon_lib_add_atom(comp_id, imol_enc, atom_info);
 
@@ -1565,13 +1629,14 @@ coot::protein_geometry::atom_name_for_tree_4c(const std::string &comp_id, const 
 
 
 int
-coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
+coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc, bool is_from_pdbx_model_bond) {
 
    bool verbose_output = 0; // can be passed, perhaps.
    std::string comp_id;
    std::string atom_id_1, atom_id_2;
    std::string type;
    mmdb::realtype value_dist = -1.0, value_dist_esd = -1.0;
+   std::string model_id; // pdbx_chem_comp_model_bond
 
    char *s; 
    int nbond = 0;
@@ -1606,12 +1671,32 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
 	 }
       }
 
-      if (comp_id_index == -1 ) {
+      if (is_from_pdbx_model_bond) {
+	 int ierr_pdbx = 0;
+	 s = mmCIFLoop->GetString("model_id",j,ierr_pdbx);
+	 if (! ierr_pdbx) {
+	    if (s) {
+	       model_id = s;
+	       for (int id=(dict_res_restraints.size()-1); id >=0; id--) {
+		  if (dict_res_restraints[id].second.residue_info.comp_id == model_id) {
+		     comp_id_index = id;
+		     break;
+		  }
+	       }
+	    } else {
+	       std::cout << "oops! null s" << std::endl;
+	    }
+	 } else {
+	    std::cout << "oops ierr_pdbx is not 0" << std::endl;
+	 }
+      }
+
+      if (comp_id_index == -1) {
 
 	 std::cout << "WARNING:: failed to find dictionary entry index for "
 		   << comp_id << std::endl;
 
-      } else { 
+      } else {
 
 	 s = mmCIFLoop->GetString("atom_id_1", j, ierr);
 	 ierr_tot += ierr;
@@ -1666,7 +1751,7 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
 	    }
 	 }
 
-	 // Feilib marks aromatic bonds in this way.
+	 // Acedrg marks aromatic bonds in this way.
 	 // 
 	 s = mmCIFLoop->GetString("aromaticity", j, ierr_optional);
 	 if (s) {
@@ -1709,7 +1794,10 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
 	    nbond++;
 	 } else {
 
-	    if (! ierr_tot_for_ccd) {
+	    if (! ierr_tot_for_ccd || is_from_pdbx_model_bond) {
+
+	       if (is_from_pdbx_model_bond)
+		  comp_id = model_id;
 
 	       mon_lib_add_bond_no_target_geom(comp_id, imol_enc, atom_id_1, atom_id_2, type, aromaticity);
 	    
