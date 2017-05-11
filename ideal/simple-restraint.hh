@@ -1715,19 +1715,12 @@ namespace coot {
       restraints_container_t(){
 	 from_residue_vector = 0;
 	 include_map_terms_flag = 0;
+#ifdef HAVE_CXX_THREAD
 	 gsl_vector_atom_pos_deriv_locks = 0;
+#endif
       };
 
       ~restraints_container_t() {
-#ifdef HAVE_CXX_THREAD
-	 // we don't need to do this explicitly now that gsl_vector_atom_pos_deriv_locks
-	 // is a shared pointer.
-	 //
-	 // std::cout << "DEBUG:: deleting deriv locks ... ptr was " << gsl_vector_atom_pos_deriv_locks
-	 // << std::endl;
-	 // delete [] gsl_vector_atom_pos_deriv_locks;
-	 // gsl_vector_atom_pos_deriv_locks = 0;
-#endif
 	 if (from_residue_vector) {
 	    if (atom) { 
 	       // this is constructed manually.
