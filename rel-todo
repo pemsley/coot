@@ -3,6 +3,8 @@
 
    o when first molecule is not a protein.  Copy NCS residue range. coot-utils.scm 1533
 
+   o undo and redo should update the Ramachandran plot
+
    o API access to write a cif file (if input file is cif... or pdb
 
    o delete_all_extra_restraints() should updates the extra restraints display
