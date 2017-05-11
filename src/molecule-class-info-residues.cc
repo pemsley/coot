@@ -1946,3 +1946,29 @@ molecule_class_info_t::residue_partial_alt_locs_split_residue(coot::residue_spec
       }
    }
 }
+
+// carbohydrate validation tools
+//
+// should pass the cif read number pointer
+//
+// should this be const?
+void
+molecule_class_info_t::glyco_tree_internal_distances_fn(const coot::residue_spec_t &residue_spec,
+							coot::protein_geometry *geom_p,
+							const std::string &file_name) {
+
+   if (atom_sel.mol) {
+      mmdb::Manager *mol = atom_sel.mol;
+      mmdb::Residue *residue_p = get_residue(residue_spec);
+      if (residue_p) {
+	 int mmcif_read_number = 51;
+	 std::vector<std::string> types_with_no_dictionary =
+	    no_dictionary_for_residue_type_as_yet(*geom_p);
+	 for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
+	    geom_p->try_dynamic_add(types_with_no_dictionary[i], mmcif_read_number++);
+	 coot::glyco_tree_t t(residue_p, mol, geom_p);
+	 double dist_lim = 7;
+	 t.internal_distances(dist_lim, file_name);
+      }
+   }
+}

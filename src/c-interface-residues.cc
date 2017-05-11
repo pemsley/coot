@@ -295,11 +295,12 @@ SCM glyco_tree_scm(int imol, SCM active_residue_scm) {
 
 #ifdef USE_GUILE
 SCM glyco_tree_residues_scm(int imol, SCM active_residue_scm) {
-   
+
    SCM r = SCM_BOOL_F;
 
    if (is_valid_model_molecule(imol)) {
 
+      r = SCM_EOL;
       coot::residue_spec_t residue_spec = residue_spec_from_scm(active_residue_scm);
       graphics_info_t g;
       mmdb::Residue *residue_p = g.molecules[imol].get_residue(residue_spec);
@@ -309,15 +310,59 @@ SCM glyco_tree_residues_scm(int imol, SCM active_residue_scm) {
       for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
 	 g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
       coot::glyco_tree_t t(residue_p, mol, g.Geom_p());
-      std::vector<mmdb::Residue *> v_residues;
-      std::vector<coot::residue_spec_t> v(v_residues.size());
+      std::vector<mmdb::Residue *> v_residues = t.residues(residue_spec);
+      for (unsigned int i=0; i<v_residues.size(); i++) {
+	 if (v_residues[i]) {
+	    coot::residue_spec_t spec(v_residues[i]);
+	    SCM spec_scm = residue_spec_to_scm(spec);
+	    r = scm_cons(spec_scm, r);
+	 }
+      }
+      r = scm_reverse(r);
+   }
+
+   return r;
+}
+#endif
+
+
+#include "cc-interface.hh" // needed?
+
+#ifdef USE_GUILE
+SCM glyco_tree_residue_id_scm(int imol, SCM residue_spec_scm) {
+
+   SCM r = SCM_BOOL_F;
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t residue_spec = residue_spec_from_scm(residue_spec_scm);
+      graphics_info_t g;
+      mmdb::Residue *residue_p = g.molecules[imol].get_residue(residue_spec);
+      mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+      std::vector<std::string> types_with_no_dictionary =
+	 g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+      for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
+	 g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
+      coot::glyco_tree_t t(residue_p, mol, g.Geom_p());
+      coot::glyco_tree_t::residue_id_t id = t.get_id(residue_p);
+      if (! id.res_type.empty()) {
+	 SCM parent_spec_scm = residue_spec_to_scm(id.parent_res_spec);
+
+	 r = SCM_LIST5(SCM_MAKINUM(id.level),
+		       scm_from_locale_string(id.res_type.c_str()),
+		       scm_from_locale_string(id.link_type.c_str()),
+		       scm_from_locale_string(id.parent_res_type.c_str()),
+		       parent_spec_scm);
+      }
    }
    return r;
 }
 #endif
 
+
 #ifdef USE_PYTHON
 PyObject *glyco_tree_py(int imol, PyObject *active_residue_py) {
+
+   // incomplete, doesn't work.
 
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
@@ -360,10 +405,7 @@ PyObject *glyco_tree_residues_py(int imol, PyObject *active_residue_py) {
 	 g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
       coot::glyco_tree_t t(residue_p, mol, g.Geom_p());
       std::vector<mmdb::Residue *> v_residues = t.residues(residue_spec);
-
-      std::cout << ".... v_residues.size() "  << v_residues.size() << std::endl;
-      
-      std::vector<coot::residue_spec_t> v(v_residues.size());
+      // std::vector<coot::residue_spec_t> v(v_residues.size()); delete me
       r = PyList_New(v_residues.size());
       for (unsigned int i=0; i<v_residues.size(); i++) {
 	 std::cout << "     " << i << " " << coot::residue_spec_t(v_residues[i]) << std::endl;
@@ -379,3 +421,24 @@ PyObject *glyco_tree_residues_py(int imol, PyObject *active_residue_py) {
 
 }
 #endif /* PYTHON */
+
+#include "c-interface-scm.hh"
+
+#ifdef USE_GUILE
+SCM glyco_tree_internal_distances_fn_scm(int imol, SCM base_residue_spec_scm, const std::string &file_name) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol)) {
+      if (scm_is_true(scm_list_p(base_residue_spec_scm))) {
+	 graphics_info_t g;
+	 std::pair<bool, coot::residue_spec_t> spec = make_residue_spec(base_residue_spec_scm);
+	 if (spec.first)
+	    graphics_info_t::molecules[imol].glyco_tree_internal_distances_fn(spec.second, g.Geom_p(), file_name);
+	 else
+	    std::cout << "WARNING:: Failed to make residue spec "  << std::endl;
+      }
+   }
+   return r;
+}
+
+#endif

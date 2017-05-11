@@ -2415,7 +2415,7 @@ SCM all_molecule_ramachandran_score(int imol) {
       SCM d_scm = SCM_MAKINUM(rs.n_residues_non_sec_str());
       SCM e_scm = SCM_MAKINUM(rs.n_zeros);
       r = SCM_LIST5(a_scm, b_scm, c_scm, d_scm, e_scm);
-   } 
+   }
 
    return r;
 } 
@@ -2434,13 +2434,13 @@ PyObject *all_molecule_ramachandran_score_py(int imol) {
       PyList_SetItem(r, 0, a_py);
       PyList_SetItem(r, 1, b_py);
       PyList_SetItem(r, 2, c_py);
-   } 
+   }
 
    if (PyBool_Check(r)) {
      Py_INCREF(r);
    }
    return r;
-} 
+}
 
 PyObject *all_molecule_ramachandran_region_py(int imol) {
 
