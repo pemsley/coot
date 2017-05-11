@@ -66,6 +66,7 @@ residues_torsions_match_py(int imol_1, PyObject *res_1,
 
 #ifdef USE_GUILE
 double kolmogorov_smirnov_scm(SCM l1, SCM l2);
+double kolmogorov_smirnov_vs_normal_scm(SCM l1, double mean, double std_dev);
 #endif
 
 #ifdef USE_GUILE
@@ -74,6 +75,7 @@ SCM kullback_liebler_scm(SCM l1, SCM l2);
 
 #ifdef USE_PYTHON
 double kolmogorov_smirnov_py(PyObject *l1, PyObject *l2);
+double kolmogorov_smirnov_vs_normal_py(PyObject *l1, double mean, double std_dev);
 #endif
 
 #ifdef USE_PYTHON

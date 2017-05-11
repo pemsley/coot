@@ -1,15 +1,24 @@
 
    For Release 0.8.9
 
+   o when first molecule is not a protein.  Copy NCS residue range. coot-utils.scm 1533
+
    o API access to write a cif file (if input file is cif... or pdb
 
    o delete_all_extra_restraints() should updates the extra restraints display
 
-   o need a delete restraints menu item
+   o need a delete extra restraints menu item
 
    o update the display of the restraints even if the molecule is not displayed
 
+   o bring GM alpha to the API
+
+   o make cryo-EM mode work
+
    o --splash-screen arb-image.png - does that work?
+
+   o GM distance summary. How many too long, how many too short. And (if possible) by 
+     what amounts.
 
    o parse Sameer's xml
 

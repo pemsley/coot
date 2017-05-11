@@ -1538,8 +1538,14 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 
    // Fixup needed for PDBv3
 
-   double critical_dist = 3.0; // A, less than that and Coot should
+   bool debug = true;
+   double critical_dist = 2.4; // A, less than that and Coot should
 			       // try to make the bond.
+                               // 20170505: changed to 2.4, was 3.0.
+                               // Needed to stop the beta1-6 linked MAN
+                               // on a BMA linkinking to the NAG to which
+                               // the BMA is bonded (A605-602 in 3whe).
+                              
    mmdb::PPAtom res_selection_1 = NULL;
    mmdb::PPAtom res_selection_2 = NULL;
    int i_no_res_atoms_1;
@@ -1574,7 +1580,7 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
    // of the residues involved: the "residue 1" should have the O4 and
    // the "residue 2" (+1 residue number) should have the C1.
    // 
-   if (false) { 
+   if (debug) {
       std::cout << "DEBUG:: number of sorted distances in glycosidic_linkage: "
 		<< close.size() << std::endl;
       for (unsigned int i=0; i<close.size(); i++) {
@@ -1640,7 +1646,7 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 		  }
 	       }
       
-	       
+
 	 // This should never happen :-)
 	 // There are no biosynthetic pathways to make an BETA2-3 link for a SIA.
 	 // (SIA BETA2-3 would be axial if it existed)

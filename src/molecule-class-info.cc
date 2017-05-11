@@ -1110,7 +1110,7 @@ molecule_class_info_t::draw_extra_restraints_representation() {
 	       double d_sqd = (res.second - res.first).clipper::Coord_orth::lengthsq();
 
 	       if (res.esd > 0) {
-		  double b = (res.target_dist*res.target_dist - d_sqd)/res.esd * 0.005;
+		  double b = (res.target_dist*res.target_dist - d_sqd)/res.esd * 0.002;
 		  if (b >  0.4999) b =  0.4999;
 		  if (b < -0.4999) b = -0.4999;
 		  double b_green = b;
@@ -3461,7 +3461,7 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
    // extra_restraints_representation.clear() should be called before calling this function.
 
    // make things redraw fast - this is a hack for morph-and-refine.
-   
+
    if (! draw_it_for_extra_restraints || ! draw_it)
       return;
    

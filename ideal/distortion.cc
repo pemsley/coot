@@ -859,13 +859,21 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 	    distortion = coot::distortion_score_parallel_planes(restraints_vec[i], v);
 	    atom_index = restraints_vec[i].plane_atom_index[0].first;
 	 } 
-      if (restraints_usage_flag & coot::NON_BONDED_MASK)  
-	 if (restraints_vec[i].restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) { 
+      if (restraints_usage_flag & coot::NON_BONDED_MASK)
+	 if (restraints_vec[i].restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
 	    distortion = coot::distortion_score_non_bonded_contact(restraints_vec[i], v);
 	    atom_index = restraints_vec[i].atom_index_1;
 	    atom_indices.push_back(rest.atom_index_1);
 	    atom_indices.push_back(rest.atom_index_2);
 	    // std::cout << " NBC i " << i << " " << distortion << std::endl;
+	 }
+      if (restraints_usage_flag & coot::GEMAN_MCCLURE_DISTANCE_MASK)
+	 if (restraints_vec[i].restraint_type == coot::GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+	    distortion = coot::distortion_score_geman_mcclure_distance(restraints_vec[i], v,
+								       geman_mcclure_alpha);
+	    atom_index = restraints_vec[i].atom_index_1;
+	    atom_indices.push_back(rest.atom_index_1);
+	    atom_indices.push_back(rest.atom_index_2);
 	 }
 
       if (restraints_usage_flag & coot::CHIRAL_VOLUME_MASK)
@@ -887,7 +895,7 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 	    atom_indices.push_back(rest.atom_index_3);
 	    atom_indices.push_back(rest.atom_index_4);
 	    atom_indices.push_back(rest.atom_index_5);
-	 } 
+	 }
 
       if (atom_index != -1) {
 	 coot::residue_spec_t rs(atom[atom_index]->GetResidue());

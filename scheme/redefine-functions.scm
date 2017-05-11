@@ -109,6 +109,8 @@
 (define map-statistics         map-statistics-scm)
 (define goto-next-atom-maybe   goto-next-atom-maybe-scm)
 (define goto-prev-atom-maybe   goto-prev-atom-maybe-scm)
+(define glyco-tree-residue-id glyco-tree-residue-id-scm)
+(define add-extra-bond-restraints add-extra-bond-restraints-scm)
 
 ;; I changed the function name - save those (just a few) with scripts that I've handed out
 (define toggle-idle-ligand-interactions toggle-flev-idle-ligand-interactions)

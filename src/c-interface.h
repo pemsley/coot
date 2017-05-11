@@ -2757,6 +2757,8 @@ void glyco_tree_test();
 #ifdef USE_GUILE
 SCM glyco_tree_scm(int imol, SCM active_residue_scm);
 SCM glyco_tree_residues_scm(int imol, SCM active_residue_scm);
+SCM glyco_tree_internal_distances_fn_scm(int imol, SCM residue_spec, const std::string &file_name); // testing function
+SCM glyco_tree_residue_id_scm(int imol, SCM residue_spec_scm);
 #endif
 #ifdef USE_PYTHON
 PyObject *glyco_tree_py(int imol, PyObject *active_residue_py);
@@ -3355,12 +3357,20 @@ int delete_restraints(const char *comp_id);
    restraint was stored.  */
 
 int add_extra_bond_restraint(int imol, const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, const char *chain_id_2, int res_no_2, const char *ins_code_2, const char *atom_name_2, const char *alt_conf_2, double bond_dist, double esd);
-int add_extra_angle_restraint(int imol, 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+int add_extra_bond_restraints_scm(int imol, SCM extra_bond_restraints_scm);
+#endif // USE_GUILE
+#ifdef USE_PYTHON
+int add_extra_bond_restraints_py(int imol, PyObject *extra_bond_restraints_py);
+#endif // USE_GUILE
+#endif
+int add_extra_angle_restraint(int imol,
 				const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, 
 				const char *chain_id_2, int res_no_2, const char *ins_code_2, const char *atom_name_2, const char *alt_conf_2, 
 				const char *chain_id_3, int res_no_3, const char *ins_code_3, const char *atom_name_3, const char *alt_conf_3, 
 				double torsion_angle, double esd);
-int add_extra_torsion_restraint(int imol, 
+int add_extra_torsion_restraint(int imol,
 				const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, 
 				const char *chain_id_2, int res_no_2, const char *ins_code_2, const char *atom_name_2, const char *alt_conf_2, 
 				const char *chain_id_3, int res_no_3, const char *ins_code_3, const char *atom_name_3, const char *alt_conf_3, 

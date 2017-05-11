@@ -906,7 +906,7 @@ namespace coot {
       mmdb::PPResidue SelResidue_active;
       int nSelResidues_active;
 
-      void init() {
+      void init(bool unset_deriv_locks) {
       	 verbose_geometry_reporting = NORMAL;
 	 n_atoms = 0;
 	 mol = 0;
@@ -919,6 +919,8 @@ namespace coot {
 	 from_residue_vector = 0;
 #ifdef HAVE_CXX_THREAD
 	 thread_pool_p = 0; // null pointer
+	 if (unset_deriv_locks)
+	    gsl_vector_atom_pos_deriv_locks = 0;
 #endif // HAVE_CXX_THREAD
       }
 
@@ -1607,7 +1609,7 @@ namespace coot {
 //       }
 
       restraints_container_t(atom_selection_container_t asc_in) {
-	 init();
+	 init(true); // initially locks pointer should be null
 	 n_atoms = asc_in.n_selected_atoms; 
 	 mol = asc_in.mol;
 	 n_atoms = asc_in.n_selected_atoms;
@@ -1713,9 +1715,19 @@ namespace coot {
       restraints_container_t(){
 	 from_residue_vector = 0;
 	 include_map_terms_flag = 0;
+	 gsl_vector_atom_pos_deriv_locks = 0;
       };
 
       ~restraints_container_t() {
+#ifdef HAVE_CXX_THREAD
+	 // we don't need to do this explicitly now that gsl_vector_atom_pos_deriv_locks
+	 // is a shared pointer.
+	 //
+	 // std::cout << "DEBUG:: deleting deriv locks ... ptr was " << gsl_vector_atom_pos_deriv_locks
+	 // << std::endl;
+	 // delete [] gsl_vector_atom_pos_deriv_locks;
+	 // gsl_vector_atom_pos_deriv_locks = 0;
+#endif
 	 if (from_residue_vector) {
 	    if (atom) { 
 	       // this is constructed manually.
@@ -1794,15 +1806,27 @@ namespace coot {
 	 map_weight = mw;
       }
 
-      void setup_multimin_func() { 
+      void setup_multimin_func() {
 
 	 multimin_func.f   = &distortion_score; 
 	 multimin_func.df  = &my_df; 
 	 multimin_func.fdf = &my_fdf; 
 	 multimin_func.n = n_variables(); 
 	 multimin_func.params = (double *) this; 
-      } 
+      }
 
+#ifdef HAVE_CXX_THREAD
+      // we can't have a vector of atomic (unsigned int)s for
+      // reasons of deleted copy/delete constructors that I don't follow.
+      //
+      // std::vector<std::atomic<unsigned int> > gsl_vector_atom_pos_deriv_locks;
+      //
+      // Do it with pointers (haha) - is this what the designers of C++ atomics
+      // has in mind?
+      //
+      std::shared_ptr<std::atomic<unsigned int> > gsl_vector_atom_pos_deriv_locks;
+#endif
+      void setup_gsl_vector_atom_pos_deriv_locks();
       int n_variables() { 
 	 // return 3 * the number of atoms
 	 return 3*n_atoms; 
@@ -1986,7 +2010,7 @@ namespace coot {
 
       void clear() {
 	 restraints_vec.clear();
-	 init();
+	 init(false);
       }
 
    }; 
