@@ -1361,37 +1361,46 @@ void coot::my_df_electron_density(const gsl_vector *v,
 
    if (restraints_p->include_map_terms() == 1) { 
 
-#ifdef HAVE_CXX_THREAD
+#ifdef HAVE_CXX_THREADxx
+
+      // This doesn't work. done_count_for_threads never reaches thread_count (4 in this edited case).
+      // Why? Not sure - it seems that the thread pool is not running all the jobs that it has been given.
+      // (because the thread pool is being used elsewhere?? - maybe we can't have do thread_pool->push()
+      // in different threads without some of the work-packages getting dropped?
 
       std::atomic<unsigned int> done_count_for_threads(0);
 
       if (restraints_p->thread_pool_p) {
 	 int idx_max = (v->size)/3;
-	 unsigned int n_per_thread = idx_max/restraints_p->n_threads;
+	 unsigned int n_per_thread = idx_max/4 + 1;
+	 unsigned int thread_count = 0;
 
-	 for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
+	 for (unsigned int i_thread=0; i_thread<4; i_thread++) {
 	    int idx_start = i_thread * n_per_thread;
 	    int idx_end   = idx_start + n_per_thread;
 	    // for the last thread, set the end atom index
-	    if (i_thread == (restraints_p->n_threads - 1))
+	    if (i_thread == 3)
 	       idx_end = idx_max; // for loop uses iat_start and tests for < iat_end
+	    if (idx_start >= idx_max) break;
 
+	    // should be called threaded_inner (single is misleading)
 	    restraints_p->thread_pool_p->push(my_df_electron_density_threaded_single,
 					      v, restraints_p, df, idx_start, idx_end,
 					      std::ref(done_count_for_threads));
-
+	    //std::cout << "thread: " << thread_count << " from " << idx_start << " to " << idx_end << std::endl;
+	    ++thread_count;
 	 }
 
-	 while (done_count_for_threads != restraints_p->n_threads) {
-// 	    std::cout << "comparing " << restraints_p->done_count_for_threads
-// 		      << " "  << restraints_p->n_threads << std::endl;
-	    std::this_thread::sleep_for(std::chrono::microseconds(1));
+	 while (done_count_for_threads < thread_count) {
+	    std::this_thread::sleep_for(std::chrono::microseconds(20000));
 	 }
 
       } else {
 	 my_df_electron_density_single(v, restraints_p, df, 0, v->size/3);
       }
 #else
+      // run this code instead
+      
       my_df_electron_density_single(v, restraints_p, df, 0, v->size/3);
 #endif // HAVE_CXX_THREAD
    }
@@ -1482,7 +1491,10 @@ void coot::my_df_electron_density_old_2017(const gsl_vector *v,
 
 #ifdef HAVE_CXX_THREAD
 
+
 // restraints are modified by atomic done_count_for_threads changing.
+//
+// multi-threaded inner
 //
 void coot::my_df_electron_density_threaded_single(int thread_idx, const gsl_vector *v,
 						  coot::restraints_container_t *restraints,
@@ -1515,11 +1527,21 @@ void coot::my_df_electron_density_threaded_single(int thread_idx, const gsl_vect
 	 // 	    gsl_vector_set(df, i+1, gsl_vector_get(df, i+1) - zs * grad_orth.dy());
 	 // 	    gsl_vector_set(df, i+2, gsl_vector_get(df, i+2) - zs * grad_orth.dz());
 
+	 // use atomic lock to access derivs of atom idx
+	 unsigned int unlocked = 0;
+	 while (! restraints->gsl_vector_atom_pos_deriv_locks.get()[idx].compare_exchange_weak(unlocked, 1)) {
+	    std::this_thread::sleep_for(std::chrono::nanoseconds(10));
+	    unlocked = 0;
+	 }
 	 *gsl_vector_ptr(df, idx  ) -= zs * grad_orth.dx();
 	 *gsl_vector_ptr(df, idx+1) -= zs * grad_orth.dy();
 	 *gsl_vector_ptr(df, idx+2) -= zs * grad_orth.dz();
+	 restraints->gsl_vector_atom_pos_deriv_locks.get()[idx] = 0; // unlock
       }
    }
+
+   // int sleepy_time = 10000 + int(2000*float(coot::util::random())/float(RAND_MAX));
+   // std::this_thread::sleep_for(std::chrono::microseconds(sleepy_time));
    ++done_count_for_threads; // atomic
 }
 #endif	 

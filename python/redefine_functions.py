@@ -100,7 +100,7 @@ all_molecule_rotamer_score = all_molecule_rotamer_score_py
 all_molecule_ramachandran_score = all_molecule_ramachandran_score_py
 all_molecule_ramachandran_region = all_molecule_ramachandran_region_py
 user_defined_click     = user_defined_click_py
-add_extra_bond_restraints = add_extra_bond_restraints_py
+# add_extra_bond_restraints = add_extra_bond_restraints_py
 
 get_torsion            = get_torsion_py
 set_torsion            = set_torsion_py

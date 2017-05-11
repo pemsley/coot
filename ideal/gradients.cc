@@ -123,7 +123,7 @@ void coot::my_df(const gsl_vector *v,
 #ifdef ANALYSE_REFINEMENT_TIMING
 #endif // ANALYSE_REFINEMENT_TIMING
 
-   // first extract the object from params 
+   // first extract the object from params
    //
    coot::restraints_container_t *restraints =
       (coot::restraints_container_t *)params;
@@ -452,7 +452,7 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 
 	    std::atomic<unsigned int> done_count_for_threads(0); // updated by my_df_non_bonded_thread_dispatcher
 
-	    // if (false) {
+	    // this may not be the best value of n_per_thread
 	    unsigned int n_per_thread = restraints_size/restraints_p->n_threads;
 
 	    for (unsigned int i_thread=0; i_thread<restraints_p->n_threads; i_thread++) {
