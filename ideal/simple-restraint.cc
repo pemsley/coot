@@ -71,7 +71,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 						     mmdb::Manager *mol_in, 
 						     const std::vector<coot::atom_spec_t> &fixed_atom_specs) {
 
-   init();
+   init(true);
    are_all_one_atom_residues = false;
    init_from_mol(istart_res_in, iend_res_in, 
 		 have_flanking_residue_at_start, 
@@ -86,7 +86,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 coot::restraints_container_t::restraints_container_t(atom_selection_container_t asc_in,
 						     const std::string &chain_id) {
 
-   init();
+   init(true);
    mol = asc_in.mol;
    are_all_one_atom_residues = false;
 
@@ -156,7 +156,7 @@ coot::restraints_container_t::restraints_container_t(mmdb::PResidue *SelResidues
 						     const std::string &chain_id,
 						     mmdb::Manager *mol_in) { 
    
-   init();
+   init(true);
    are_all_one_atom_residues = false;
 
    std::vector<coot::atom_spec_t> fixed_atoms_dummy;
@@ -199,7 +199,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 						     const clipper::Xmap<float> &map_in,
 						     float map_weight_in) {
 
-   init();
+   init(true);
    init_from_mol(istart_res_in, iend_res_in, 		 
 		 have_flanking_residue_at_start, 
 		 have_flanking_residue_at_end,
@@ -223,7 +223,7 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
 						     mmdb::Manager *mol,
 						     const std::vector<atom_spec_t> &fixed_atom_specs) {
 
-   init();
+   init(true);
    from_residue_vector = 1;
    are_all_one_atom_residues = false;
    init_from_residue_vec(residues, geom, mol, fixed_atom_specs);
@@ -332,7 +332,8 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
    do_numerical_gradients_flag = 0;
    verbose_geometry_reporting = NORMAL;
    have_oxt_flag = false; // set in mark_OXT()
-   geman_mcclure_alpha = 1; // Is this a good value? Talk to Rob. FIXME.
+   // the smaller the alpha, the more like least squares
+   geman_mcclure_alpha = 0.2; // Is this a good value? Talk to Rob.
    mol = mol_in;
    cryo_em_mode = false;
 }
@@ -673,7 +674,6 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 				       int nsteps_max,
 				       short int print_initial_chi_sq_flag) {
 
-
    restraints_usage_flag = usage_flags;
    // restraints_usage_flag = BONDS_AND_ANGLES;
    // restraints_usage_flag = GEMAN_MCCLURE_DISTANCE_RESTRAINTS;
@@ -766,8 +766,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
 // 		   << " status from gsl_multimin_fdfminimizer_iterate() " << status << std::endl;
 
 	 if (status) {
-	    cout << "unexpected error from gsl_multimin_fdfminimizer_iterate"
-		 << endl;
+	    std::cout << "unexpected error from gsl_multimin_fdfminimizer_iterate" << endl;
 	    if (status == GSL_ENOPROG) {
 	       cout << "Error in gsl_multimin_fdfminimizer_iterate was GSL_ENOPROG"
 		    << endl; 
@@ -1596,7 +1595,7 @@ void coot::my_df_electron_density_old (gsl_vector *v,
 	 gsl_vector_set(v, i, tmp+0.01); 
 	 new_S_plus = coot::electron_density_score(v, params); 
 	 gsl_vector_set(v, i, tmp-0.01); 
-	 new_S_minu = coot::electron_density_score(v, params); 
+	 new_S_minu = coot::electron_density_score(v, params);
 	 // new_S_minu = 2*tmp - new_S_plus; 
 
 	 // restore the initial value: 
@@ -1615,6 +1614,7 @@ void coot::my_df_electron_density_old (gsl_vector *v,
 void coot::my_fdf(const gsl_vector *x, void *params, 
 		  double *f, gsl_vector *df) { 
 
+   // 20170423 these can be done in parallel? ... check the timings at least.
    *f = coot::distortion_score(x, params); 
     coot::my_df(x, params, df); 
 }
@@ -2951,6 +2951,22 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 		     } 
 		  }
 	       }
+	       // hack to remove C1-OD1 NBC on N-linked glycosylation
+	       //
+	       if (res_name_1 == "ASN" || res_name_2 == "NAG") {
+		  std::string atom_name_1(at_1->name);
+		  std::string atom_name_2(at_2->name);
+		  if (atom_name_1 == " OD1")
+		     if (atom_name_2 == " C1 ")
+			add_it = false;
+	       }
+	       if (res_name_1 == "NAG" || res_name_2 == "ASN") {
+		  std::string atom_name_1(at_1->name);
+		  std::string atom_name_2(at_2->name);
+		  if (atom_name_1 == " C1 ")
+		     if (atom_name_2 == " OD1")
+			add_it = false;
+	       }
 	    }
 
 	    // -------------- OK add_it was set -----
@@ -3889,7 +3905,6 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
       std::cout << "--------------------------------------------------\n";
    }
    
-
 #ifdef HAVE_CXX_THREAD
    end = std::chrono::system_clock::now();
 
@@ -4827,8 +4842,6 @@ coot::restraints_container_t::get_asc_index_old(const std::string &at_name,
 void 
 coot::restraints_container_t::setup_gsl_vector_variables() {
 
-   int idx; 
-
    // recall that x is a class variable, 
    // (so are n_atoms and atom, which were set in the constructor)
    //  
@@ -4850,13 +4863,34 @@ coot::restraints_container_t::setup_gsl_vector_variables() {
 //    } 
 
    for (int i=0; i<n_atoms; i++) {
-      idx = 3*i; 
+      int idx = 3*i;
       gsl_vector_set(x, idx,   atom[i]->x);
       gsl_vector_set(x, idx+1, atom[i]->y);
       gsl_vector_set(x, idx+2, atom[i]->z);
    }
 
+   setup_gsl_vector_atom_pos_deriv_locks();
 }
+
+void
+coot::restraints_container_t::setup_gsl_vector_atom_pos_deriv_locks() {
+
+   // setup gsl vector atom pos deriv locks.
+   // We don't lock every derivative, we lock every atom (which corresponds to 3 derivs)
+   //
+#ifdef HAVE_CXX_THREAD
+
+   // we need only do this once per instance gsl_vector_atom_pos_deriv_locks is set to 0 in init().
+   //
+   if (! gsl_vector_atom_pos_deriv_locks) {
+
+      gsl_vector_atom_pos_deriv_locks = std::shared_ptr<std::atomic<unsigned int> > (new std::atomic<unsigned int>[n_atoms]);
+      for (int ii=0; ii<n_atoms; ii++)
+	 gsl_vector_atom_pos_deriv_locks.get()[ii] = 0; // unlocked
+   }
+#endif
+}
+
 
 
 void 

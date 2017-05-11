@@ -98,9 +98,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "named-rotamer-score.hh"
 
 #include "c-interface-sequence.hh"
-
 #include "map-statistics.hh"
-
 #include "animated-ligand.hh"
 
 namespace molecule_map_type {
@@ -2784,6 +2782,7 @@ public:        //                      public
    int add_extra_bond_restraint(coot::atom_spec_t atom_1,
 				coot::atom_spec_t atom_2,
 				double bond_dist, double esd);
+   int add_extra_bond_restraints(const std::vector<coot::extra_restraints_t::extra_bond_restraint_t> &bond_specs);
    int add_extra_angle_restraint(coot::atom_spec_t atom_1,
 				 coot::atom_spec_t atom_2,
 				 coot::atom_spec_t atom_3,
@@ -3111,6 +3110,11 @@ public:        //                      public
    std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> >
    get_contours(float contour_level, float radius, const coot::Cartesian &centre) const;
 
+   // carbohydrate validation tools
+   void glyco_tree_internal_distances_fn(const coot::residue_spec_t &base_residue_spec,
+					 coot::protein_geometry *geom_p,
+					 const std::string &file_name);
+   
 };
 
 #endif // MOLECULE_CLASS_INFO_T

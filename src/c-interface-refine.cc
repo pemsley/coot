@@ -590,6 +590,67 @@ int add_extra_bond_restraint(int imol, const char *chain_id_1, int res_no_1, con
 
 }
 
+#ifdef USE_GUILE
+int add_extra_bond_restraints_scm(int imol, SCM extra_bond_restraints_scm) {
+
+   std::vector<coot::extra_restraints_t::extra_bond_restraint_t> ebr_vec;
+   if (is_valid_model_molecule(imol)) {
+      if (scm_is_true(scm_list_p(extra_bond_restraints_scm))) {
+	 SCM l_scm = scm_length(extra_bond_restraints_scm);
+	 int l = scm_to_int(l_scm);
+	 for (int i=0; i<l; i++) {
+	    SCM restr_descr_scm = scm_list_ref(extra_bond_restraints_scm, SCM_MAKINUM(i));
+	    if (scm_is_true(scm_list_p(restr_descr_scm))) {
+	       SCM r_l_scm = scm_length(restr_descr_scm);
+	       int r_l = scm_to_int(r_l_scm);
+	       if (r_l == 4) {
+		  coot::atom_spec_t atom_1_spec = atom_spec_from_scm_expression(scm_list_ref(restr_descr_scm, SCM_MAKINUM(0)));
+		  coot::atom_spec_t atom_2_spec = atom_spec_from_scm_expression(scm_list_ref(restr_descr_scm, SCM_MAKINUM(1)));
+		  SCM target_dist_scm = scm_list_ref(restr_descr_scm, SCM_MAKINUM(2));
+		  SCM dist_esd_scm    = scm_list_ref(restr_descr_scm, SCM_MAKINUM(3));
+		  double target_dist = scm_to_double(target_dist_scm);
+		  double dist_esd = scm_to_double(dist_esd_scm);
+		  coot::extra_restraints_t::extra_bond_restraint_t ebr(atom_1_spec, atom_2_spec, target_dist, dist_esd);
+		  ebr_vec.push_back(ebr);
+	       }
+	    }
+	 }
+	 int r = graphics_info_t::molecules[imol].add_extra_bond_restraints(ebr_vec);
+	 graphics_draw();
+      }
+   }
+   return ebr_vec.size();
+}
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+int add_extra_bond_restraints_py(int imol, PyObject *extra_bond_restraints_py) {
+
+   std::vector<coot::extra_restraints_t::extra_bond_restraint_t> ebr_vec;
+   if (is_valid_model_molecule(imol)) {
+      if (PyList_Check(extra_bond_restraints_py)) {
+	 int l = PyObject_Length(extra_bond_restraints_py);
+	 for (int i=0; i<l; i++) {
+	    PyObject *item_py = PyList_GetItem(extra_bond_restraints_py, i);
+	    int item_l = PyObject_Length(item_py);
+	    if (item_l == 4) {
+	       coot::atom_spec_t atom_1_spec = atom_spec_from_python_expression(PyList_GetItem(item_py, 0));
+	       coot::atom_spec_t atom_2_spec = atom_spec_from_python_expression(PyList_GetItem(item_py, 1));
+	       double d = PyFloat_AsDouble(PyList_GetItem(item_py, 2));
+	       double e = PyFloat_AsDouble(PyList_GetItem(item_py, 3));
+	       coot::extra_restraints_t::extra_bond_restraint_t ebr(atom_1_spec, atom_2_spec, d, e);
+	       ebr_vec.push_back(ebr);
+	    }
+	 }
+	 int r = graphics_info_t::molecules[imol].add_extra_bond_restraints(ebr_vec);
+	 graphics_draw();
+      }
+   }
+   return ebr_vec.size();
+}
+#endif // USE_GUILE
+
+
 int add_extra_torsion_restraint(int imol, 
 				const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, 
 				const char *chain_id_2, int res_no_2, const char *ins_code_2, const char *atom_name_2, const char *alt_conf_2, 

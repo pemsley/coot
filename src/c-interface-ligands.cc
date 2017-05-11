@@ -2645,6 +2645,29 @@ double kolmogorov_smirnov_scm(SCM l1, SCM l2) {
 }
 #endif
 
+#include "analysis/stats.hh"
+
+#ifdef USE_GUILE
+double kolmogorov_smirnov_vs_normal_scm(SCM l1, double mean, double std_dev) {
+
+   double result = -1;
+   SCM result_scm = SCM_BOOL_F;
+   if (scm_is_true(scm_list_p(l1))) {
+      SCM length_scm_1 = scm_length(l1);
+      unsigned int len_l1 = scm_to_int(length_scm_1);
+      std::vector<double> v1;
+      for (unsigned int i=0; i<len_l1; i++) {
+	 SCM item = scm_list_ref(l1, SCM_MAKINUM(i));
+	 if (scm_is_true(scm_number_p(item)))
+	    v1.push_back(scm_to_double(item));
+      }
+      result = coot::stats::get_kolmogorov_smirnov_vs_normal(v1, mean, std_dev);
+   }
+   return result;
+}
+#endif // USE_GUILE
+
+
 #ifdef USE_GUILE
 SCM kullback_liebler_scm(SCM l1, SCM l2) {
 
@@ -2698,6 +2721,26 @@ double kolmogorov_smirnov_py(PyObject *l1, PyObject *l2) {
    return result;
 }
 #endif
+
+#ifdef USE_PYTHON
+double kolmogorov_smirnov_vs_normal_py(PyObject *l1, double mean, double std_dev) {
+
+   double result = -1;
+
+   if (PyList_Check(l1)) {
+      unsigned int len_l1 = PyList_Size(l1);
+      std::vector<double> v1;
+      for (unsigned int i=0; i<len_l1; i++) {
+         PyObject *item = PyList_GetItem(l1, i);
+         if (PyFloat_Check(item))
+            v1.push_back(PyFloat_AsDouble(item));
+      }
+      result = coot::stats::get_kolmogorov_smirnov_vs_normal(v1, mean, std_dev);
+   }
+   return result;
+}
+#endif // USE_PYTHON
+
 
 #ifdef USE_PYTHON
 PyObject *kullback_liebler_py(PyObject *l1, PyObject *l2) {

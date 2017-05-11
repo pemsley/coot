@@ -96,12 +96,13 @@
 	     (begin
 	       (add-status-bar-text "No residue found"))
 
-	     (let ((aa-imol      (list-ref active-atom 0))
-		   (aa-chain-id  (list-ref active-atom 1))
-		   (aa-res-no    (list-ref active-atom 2))
-		   (aa-ins-code  (list-ref active-atom 3))
-		   (aa-atom-name (list-ref active-atom 4))
-		   (aa-alt-conf  (list-ref active-atom 5)))
+	     (let* ((aa-imol      (list-ref active-atom 0))
+		    (aa-chain-id  (list-ref active-atom 1))
+		    (aa-res-no    (list-ref active-atom 2))
+		    (aa-ins-code  (list-ref active-atom 3))
+		    (aa-atom-name (list-ref active-atom 4))
+		    (aa-alt-conf  (list-ref active-atom 5))
+                    (aa-res-spec (list aa-chain-id aa-res-no aa-ins-code)))
 
 	       ,@funcs
 	       
