@@ -6514,12 +6514,13 @@ int add_linked_residue(int imol, const char *chain_id, int resno, const char *in
 		       const char *new_residue_comp_id, const char *link_type, int n_trials);
 #ifdef __cplusplus
 #ifdef USE_GUILE
+// mode is either 1: add  2: add and fit  3: add, fit and refine
 SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char *ins_code, 
-			   const char *new_residue_comp_id, const char *link_type);
+			   const char *new_residue_comp_id, const char *link_type, int mode);
 #endif 
 #ifdef USE_PYTHON
 PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const char *ins_code, 
-				const char *new_residue_comp_id, const char *link_type);
+				const char *new_residue_comp_id, const char *link_type, int mode);
 #endif 
 #endif 		       
 void set_add_linked_residue_do_fit_and_refine(int state);

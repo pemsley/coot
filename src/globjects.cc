@@ -2239,10 +2239,10 @@ draw_mono(GtkWidget *widget, GdkEventExpose *event, short int in_stereo_flag) {
 
 
       // regularize object 
-      graphics_info_t::moving_atoms_graphics_object();
+      graphics_info_t::draw_moving_atoms_graphics_object(is_bb);
 
       // environment object
-      graphics_info_t::environment_graphics_object();
+      graphics_info_t::draw_environment_graphics_object();
 
       // flash the picked intermediate atom (Erik-mode)
       graphics_info_t::picked_intermediate_atom_graphics_object();
@@ -3058,7 +3058,7 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
    // Try to correct cntrl and shift anomalies:
    // (I don't think this code does anything useful...)
    //
-   if (event->state & GDK_CONTROL_MASK) { 
+   if (event->state & GDK_CONTROL_MASK) {
       graphics_info_t::control_is_pressed = 1;
    } else { 
       graphics_info_t::control_is_pressed = 0;
@@ -3233,6 +3233,11 @@ gint key_press_event(GtkWidget *widget, GdkEventKey *event)
       break;
 
    case GDK_e:
+      if (graphics_info_t::control_is_pressed) {
+	 
+      }
+      break;
+
    case GDK_E:
       break;
       
@@ -3677,7 +3682,7 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 
    // we are getting key release events as the key is pressed (but not
    // released) :-).
-   // 
+   //
    // std::cout << "key release event" << std::endl;
    graphics_info_t g; 
    int s = graphics_info_t::scroll_wheel_map;
@@ -3801,6 +3806,21 @@ gint key_release_event(GtkWidget *widget, GdkEventKey *event)
 	 }
       }
       g.graphics_draw();
+      break;
+
+   case GDK_e:
+      if (graphics_info_t::control_is_pressed) {
+	 std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = active_atom_spec();
+	 if (active_atom.first) {
+	    if (is_valid_model_molecule(active_atom.second.first)) {
+	       // environment graphics object doesn't work this way.  There is
+	       // only one of it and its display is controlled by having its bonds box
+	       // filled or not.
+	       // graphics_info_t::molecules[imol].toggle_display_environment_graphics_object();
+	       graphics_draw();
+	    }
+	 }
+      }
       break;
 
    case GDK_s:

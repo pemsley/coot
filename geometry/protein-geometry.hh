@@ -1465,6 +1465,9 @@ namespace coot {
 
       void add_molecule_number_to_entries(const std::vector<std::string> &comp_ids, int imol_enc);
 
+      std::vector<atom_name_torsion_quad>
+      get_reference_monomodal_torsion_quads(const std::string &res_name) const;
+
    public:
 
       protein_geometry() {
@@ -1952,7 +1955,8 @@ namespace coot {
 							       const std::string &bond_order,
 							       bool at_1_deloc_or_arom,
 							       bool at_2_deloc_or_arom) const;
-
+      // use auto-load if not present
+      void use_monomodal_ring_torsions(int imol, const std::string &res_name, int mmcif_read_number);
 
 
 #ifdef HAVE_CCP4SRS

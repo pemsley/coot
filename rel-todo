@@ -3,9 +3,24 @@
 
    o when first molecule is not a protein.  Copy NCS residue range. coot-utils.scm 1533
 
+   o in 2qc1, build a NAG, NAG, BMA. Centre on the first NAG, sphere refine or H-refine.  
+     NAG-ASN bond is not properly accounted for:
+
+bond  3231.21 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " ND2" ""]
+nbc   1162.68 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" "HD22" ""] target:  2.90  0.02
+nbc    804.52 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" "HD21" ""] target:  2.90  0.02
+nbc    556.46 [spec: model 1 "B" 468 "" " C1 " ""] [spec: model 1 "B" 467 "" " HO3" ""] target:  2.90  0.02
+bond   529.05 [spec: model 1 "B" 467 "" " O3 " ""] [spec: model 1 "B" 468 "" " C1 " ""]
+angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " ND2" ""] [spec: model 1 "B" 141 "" " CG " ""] target: 121.00  3.00
+
+   o build NAG, NAG, BMA.  In coot-reduce, HO4 should not be added at the links.
+     And check that coot-probe looks good.
+
    o undo and redo should update the Ramachandran plot
 
-   o API access to write a cif file (if input file is cif... or pdb
+   o API access to write a cif file (if input file is cif... or pdb)
+
+* Done.
 
    o delete_all_extra_restraints() should updates the extra restraints display
 
@@ -15,7 +30,7 @@
 
    o bring GM alpha to the API
 
-   o make cryo-EM mode work
+   o make cryo-EM mode in refinement work
 
    o --splash-screen arb-image.png - does that work?
 

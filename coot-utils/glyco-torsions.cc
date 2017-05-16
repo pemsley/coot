@@ -132,7 +132,7 @@ coot::link_by_torsion_t::link_by_torsion_t(const std::string &link_type,
       if (! decor.filled()) {
 	 std::cout << "Decorations not filled from " << decor_file_name
 		   << std::endl;
-      } else { 
+      } else {
 	 add(decor);
       }
    }
@@ -191,7 +191,7 @@ coot::link_by_torsion_t::make_residue(mmdb::Residue *base_residue_p) const {
       r->seqNum = new_res_no;
       for (unsigned int i=0; i<geom_atom_torsions.size(); i++) {
 	 const atom_by_torsion_t &gat = geom_atom_torsions[i];
-	 std::cout << "in make_residue() i: " << i << " " << gat << std::endl;
+	 // std::cout << "in make_residue() i: " << i << " " << gat << std::endl;
 	 clipper::Coord_orth p = geom_atom_torsions[i].pos(base_residue_p, r);
 	 mmdb::Atom *atom = new mmdb::Atom(r); // does an add atom
 	 std::string f = gat.filled_atom_name(); // FIXME PDBv3 the function call is not needed
@@ -199,7 +199,7 @@ coot::link_by_torsion_t::make_residue(mmdb::Residue *base_residue_p) const {
 	 atom->SetElementName(gat.element.c_str());
 	 atom->SetCoordinates(p.x(), p.y(), p.z(), 1.0, b_factor);
 	 atom->Het = 1;
-	 if (true)
+	 if (false)
 	    std::cout << "   " << gat.atom_name << " " << p.format()  << std::endl;
       }
    } 

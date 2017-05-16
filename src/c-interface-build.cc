@@ -5099,13 +5099,14 @@ int add_linked_residue(int imol, const char *chain_id, int resno, const char *in
    
    return status is #f for fail and the spec of the added residue on success.
 */
+// mode is either 1: add  2: add and fit  3: add, fit and refine
 #ifdef USE_GUILE
 SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char *ins_code, 
-			   const char *new_residue_comp_id, const char *link_type) {
+			   const char *new_residue_comp_id, const char *link_type, int mode) {
 
-   int n_trials = 3000;
+   int n_trials = 5000;
    SCM r = SCM_BOOL_F;
-   bool do_fit_and_refine = graphics_info_t::linked_residue_fit_and_refine_state;
+   // bool do_fit_and_refine = graphics_info_t::linked_residue_fit_and_refine_state;
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
@@ -5116,38 +5117,37 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
       if (false)
 	 std::cout << "::::::::::::: in add_linked_residue_scm() g.default_new_atoms_b_factor is  "
 		   << g.default_new_atoms_b_factor << std::endl;
-      
+
       float new_b = g.default_new_atoms_b_factor;
       // 20140429
       coot::residue_spec_t new_res_spec =
 	 g.molecules[imol].add_linked_residue_by_atom_torsions(res_spec, new_residue_comp_id,
 							       link_type, g.Geom_p(), new_b);
 
-      if (do_fit_and_refine) { 
+      if (mode > 1) {
 	 if (! new_res_spec.unset_p()) {
 	    r = residue_spec_to_scm(new_res_spec);
 	    if (is_valid_map_molecule(imol_refinement_map())) {
-	       const clipper::Xmap<float> &xmap =
-		  g.molecules[imol_refinement_map()].xmap;
+	       const clipper::Xmap<float> &xmap = g.molecules[imol_refinement_map()].xmap;
 	       std::vector<coot::residue_spec_t> residue_specs;
 	       residue_specs.push_back(res_spec);
 	       residue_specs.push_back(new_res_spec);
 
-	       // 2 rounds of fit then refine
-
 	       int n_rounds_of_fit_and_refine = 1;
 	       
-	       for (int ii=0; ii<n_rounds_of_fit_and_refine; ii++) { 
+	       for (int ii=0; ii<n_rounds_of_fit_and_refine; ii++) {
 		  g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
 
-		  // refine and re-torsion-fit
-		  int mode = graphics_info_t::refinement_immediate_replacement_flag;
-		  std::string alt_conf;
-		  graphics_info_t::refinement_immediate_replacement_flag = 1;
-		  refine_residues_with_alt_conf(imol, residue_specs, alt_conf);
-		  accept_regularizement();
-		  remove_initial_position_restraints(imol, residue_specs);
-		  graphics_info_t::refinement_immediate_replacement_flag = mode;
+		  if (mode > 2) {
+		     // refine and re-torsion-fit
+		     int replace_mode = graphics_info_t::refinement_immediate_replacement_flag;
+		     std::string alt_conf;
+		     graphics_info_t::refinement_immediate_replacement_flag = 1;
+		     refine_residues_with_alt_conf(imol, residue_specs, alt_conf);
+		     accept_regularizement();
+		     remove_initial_position_restraints(imol, residue_specs);
+		     graphics_info_t::refinement_immediate_replacement_flag = replace_mode;
+		  }
 	       }
 	    }
 	 }
@@ -5160,7 +5160,7 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
 
 #ifdef USE_PYTHON
 PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const char *ins_code, 
-				const char *new_residue_comp_id, const char *link_type) {
+				const char *new_residue_comp_id, const char *link_type, int mode) {
 
    int n_trials = 3000;
    PyObject *r = Py_False;

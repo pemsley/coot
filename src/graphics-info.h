@@ -2243,11 +2243,11 @@ public:
 
 
    // Display the graphical object of the regularization
-   static void moving_atoms_graphics_object(); // filled by flash_selection
+   static void draw_moving_atoms_graphics_object(bool against_a_dark_background); // filled by flash_selection
 
    static int mol_no_for_environment_distances;
    static bool display_environment_graphics_object_as_solid_flag;
-   static void environment_graphics_object();
+   static void draw_environment_graphics_object();
    // void symmetry_environment_graphics_object() const;
 
    // for flashing the picked intermediate atom.

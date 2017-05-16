@@ -1002,3 +1002,15 @@ void
 remove_initial_position_restraints(int imol, const std::vector<coot::residue_spec_t> &residue_specs) {
    delete_all_extra_restraints(imol);
 }
+
+// trash the multimodal (sp3) ring torsions and use
+// only monomodal restraints
+void use_monomodal_ring_torsions(const std::string &res_name) {
+
+   // uses auto-load if not already present in the store
+
+   bool minimal = false; // don't allow minimal
+   int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+   graphics_info_t::Geom_p()->use_monomodal_ring_torsions(imol_enc, res_name, minimal);
+
+}

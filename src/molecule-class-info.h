@@ -1584,9 +1584,6 @@ public:        //                      public
 							   bool is_nucleic_acid_flag = false) const;
 
 
-   // These create an object that is not specific to a molecule, there
-   // is only one environment bonds box, no matter how many molecules. Hmm.
-   // The symmetry version is now added 030624 - PE.
    //
    graphical_bonds_container make_environment_bonds_box(int atom_index,
 							coot::protein_geometry *protein_geom_p) const;

@@ -203,7 +203,7 @@ coot::protein_geometry::filter_chiral_centres(int imol, const std::vector<std::s
    for (unsigned int ichir=0; ichir<comp_ids_for_filtering.size(); ichir++) {
       bool minimal = false;
       int idx = get_monomer_restraints_index(comp_ids_for_filtering[ichir], imol, minimal);
-      if (idx != -1) { 
+      if (idx != -1) {
 	 const coot::dictionary_residue_restraints_t &restraints =
 	    dict_res_restraints[idx].second;
 	 std::vector<coot::dict_chiral_restraint_t> new_chirals =
@@ -211,7 +211,7 @@ coot::protein_geometry::filter_chiral_centres(int imol, const std::vector<std::s
 	 dict_res_restraints[idx].second.chiral_restraint = new_chirals;
       }
    }
-} 
+}
 
 // Return a filtered list, that is don't include chiral centers that
 // are connected to more than one hydrogen.
@@ -4518,6 +4518,73 @@ coot::protein_geometry::get_energy_lib_atom(const std::string &ener_type) const 
    
    return at;
    
+}
+
+// use auto-load if not present
+void
+coot::protein_geometry::use_monomodal_ring_torsions(int imol, const std::string &res_name,
+						    int mmcif_read_number) {
+
+   bool minimal = false;
+   int idx = get_monomer_restraints_index(res_name, imol, minimal);
+   if (idx == -1) {
+      try_dynamic_add(res_name, mmcif_read_number);
+      idx = get_monomer_restraints_index(res_name, imol, minimal);
+   }
+
+   if (idx != -1) {
+      // continue
+
+      // (first is the imol)
+      std::vector <dict_torsion_restraint_t> &orig_torsion_restraints =
+	 dict_res_restraints[idx].second.torsion_restraint;
+
+      orig_torsion_restraints.clear();
+      std::vector<atom_name_torsion_quad> quads = get_reference_monomodal_torsion_quads(res_name);
+      for (unsigned int i=0; i<quads.size(); i++) {
+	 const atom_name_torsion_quad &quad = quads[i];
+	 dict_torsion_restraint_t tors(quad.id,
+				       quad.atom_name(0), quad.atom_name(1), quad.atom_name(2), quad.atom_name(3),
+				       quad.torsion, 4.0, 1);
+	 orig_torsion_restraints.push_back(tors);
+      }
+   }
+}
+
+std::vector<coot::atom_name_torsion_quad>
+coot::protein_geometry::get_reference_monomodal_torsion_quads(const std::string &res_name) const {
+
+   std::vector<coot::atom_name_torsion_quad> v;
+   if (res_name == "MAN") {
+      v.push_back(coot::atom_name_torsion_quad("var_4",  "O5", "C5", "C4", "C3", -61.35));
+      v.push_back(coot::atom_name_torsion_quad("var_2",  "C1", "O5", "C5", "C4",  67.67));
+      v.push_back(coot::atom_name_torsion_quad("var_11", "C5", "O5", "C1", "C2", -67.59));
+      v.push_back(coot::atom_name_torsion_quad("var_9",  "C3", "C2", "C1", "O5",  61.20));
+      v.push_back(coot::atom_name_torsion_quad("var_6",  "C5", "C4", "C3", "C2",  53.75));
+   }
+   if (res_name == "BMA") {
+      v.push_back(coot::atom_name_torsion_quad("var_2",  "C1", "O5", "C5", "C4",  67.57));
+      v.push_back(coot::atom_name_torsion_quad("var_4",  "O5", "C5", "C4", "C3", -61.31));
+      v.push_back(coot::atom_name_torsion_quad("var_6",  "C5", "C4", "C3", "C2",  53.80));
+      v.push_back(coot::atom_name_torsion_quad("var_9",  "C3", "C2", "C1", "O5",  61.28));
+      v.push_back(coot::atom_name_torsion_quad("var_11", "C5", "O5", "C1", "C2", -67.52));
+   }
+   if (res_name == "NAG") {
+      v.push_back(coot::atom_name_torsion_quad("var_2",  "C1", "O5", "C5", "C4",  61.18));
+      v.push_back(coot::atom_name_torsion_quad("var_5",  "O5", "C5", "C4", "C3", -57.63));
+      v.push_back(coot::atom_name_torsion_quad("var_7",  "C5", "C4", "C3", "C2",  57.01));
+      v.push_back(coot::atom_name_torsion_quad("var_10", "C3", "C2", "C1", "O5",  57.60));
+      v.push_back(coot::atom_name_torsion_quad("var_1",  "C5", "O5", "C1", "C2", -61.19));
+   }
+   if (res_name == "FUC") {
+      v.push_back(coot::atom_name_torsion_quad("var_2",  "C1", "O5", "C5", "C4", -67.61));
+      v.push_back(coot::atom_name_torsion_quad("var_5",  "C5", "C4", "C3", "C2", -53.87));
+      v.push_back(coot::atom_name_torsion_quad("var_11", "C5", "O5", "C1", "C2",  67.595));
+      v.push_back(coot::atom_name_torsion_quad("var_9",  "C3", "C2", "C1", "O5", -61.26));
+      v.push_back(coot::atom_name_torsion_quad("var_4",  "O5", "C5", "C4", "C3",  61.32));
+   }
+
+   return v;
 }
 
 

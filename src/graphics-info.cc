@@ -1713,15 +1713,20 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 
 // Display the graphical object of the regularization.
 // static
+// moving atoms are intermediate atoms
 void 
-graphics_info_t::moving_atoms_graphics_object() { 
+graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_background) { 
    
    // very much most of the time, this will be zero
    // 
-   if (graphics_info_t::regularize_object_bonds_box.num_colours > 0) { 
+   if (graphics_info_t::regularize_object_bonds_box.num_colours > 0) {
 
-      // now we want to draw out our bonds in white, 
-      glColor3f (0.9, 0.9, 0.9);
+      if (against_a_dark_background) {
+	 // now we want to draw out our bonds in white, 
+	 glColor3f (0.9, 0.9, 0.9);
+      } else {
+	 glColor3f (0.6, 0.6, 0.6);
+      }
       
       glLineWidth(graphics_info_t::bond_thickness_intermediate_atoms);
       for (int i=0; i< graphics_info_t::regularize_object_bonds_box.num_colours; i++) {
@@ -1734,7 +1739,10 @@ graphics_info_t::moving_atoms_graphics_object() {
 	    glColor3f (0.95, 0.65, 0.65);
 	    break;
 	 default:
-	    glColor3f (0.8, 0.8, 0.8);
+	    if (against_a_dark_background)
+	       glColor3f (0.8, 0.8, 0.8);
+	    else
+	       glColor3f (0.5, 0.5, 0.5);
 	 }
 
 	 graphical_bonds_lines_list &ll = graphics_info_t::regularize_object_bonds_box.bonds_[i];
@@ -1777,11 +1785,11 @@ graphics_info_t::moving_atoms_graphics_object() {
 // 
 // static
 void
-graphics_info_t::environment_graphics_object() {
+graphics_info_t::draw_environment_graphics_object() {
 
    graphics_info_t g;
    if (is_valid_model_molecule(mol_no_for_environment_distances)) {
-      if (g.molecules[mol_no_for_environment_distances].is_displayed_p()) { 
+      if (g.molecules[mol_no_for_environment_distances].is_displayed_p()) {
 	 g.environment_graphics_object_internal(environment_object_bonds_box);
 	 if (g.show_symmetry)
 	    g.environment_graphics_object_internal(symmetry_environment_object_bonds_box);

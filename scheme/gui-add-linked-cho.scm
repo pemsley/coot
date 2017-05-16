@@ -18,6 +18,8 @@
 (define (add-pyranose-pseudo-ring-plane-restraints comp-id)
 
   (define (filter-out plane-name-sub-string plane-restraints)
+    (format #t "DEBUG:: in filter-out: remove ~s from ~s~%"
+	    plane-name-sub-string plane-restraints)
     plane-restraints)
 
   (let ((restraints (monomer-restraints comp-id)))
@@ -40,7 +42,7 @@
 				     (list "pseudo-ring-2" (list " C2 " " C3 " " C5 " " O5 ") 0.01)
 				     (list "pseudo-ring-3" (list " C3 " " C4 " " O5 " " C1 ") 0.01)
 				     )
-				    (filter-out "pseudo-ring-3" plane-restraints)))))
+				    (filter-out "pseudo-ring-" plane-restraints)))))
 		       (cons new-plane-restraints (f (cdr restraints)))))
 		    (else 
 		     (cons (car restraints)
@@ -49,17 +51,24 @@
 	    (set-monomer-restraints comp-id new-restraints))))))
 
 
-(define (add-synthetic-carbohydrate-planes)
+(define (add-synthetic-pyranose-planes)
   (add-pyranose-pseudo-ring-plane-restraints "NAG")
   (add-pyranose-pseudo-ring-plane-restraints "BMA")
   (add-pyranose-pseudo-ring-plane-restraints "MAN")
   (add-pyranose-pseudo-ring-plane-restraints "GAL")
+  (add-pyranose-pseudo-ring-plane-restraints "FUC")
+  (add-pyranose-pseudo-ring-plane-restraints "XYP")
   (add-pyranose-pseudo-ring-plane-restraints "GLC"))
 
+(define (use-monomodal-pyranose-ring-torsions)
+  (for-each (lambda(tlc)
+	      (use-monomodal-ring-torsions tlc))
+	    (list "NAG" "BMA" "MAN" "GAL" "GLC" "FUC" "XYP")))
 
 
 (define (multi-add-linked-residue imol res-spec residues-to-add)
 
+  (format #t "---------------- multi-add-linked-residue ~s ~s ~%~!" imol res-spec)
   (set-go-to-atom-molecule imol)
   (set-matrix 8)
 
@@ -92,11 +101,12 @@
 							    (res-spec->chain-id current-res-spec)
 							    (res-spec->res-no   current-res-spec)
 							    (res-spec->ins-code current-res-spec)
-							    new-res
-							    new-link)))
+							    new-res new-link 2))) ;; add and fit mode
 
 		      ;; residues-near-residue takes a 3-part spec and makes 3-part specs.
 		      (let* ((ls (residues-near-residue imol current-res-spec 1.9)))
+			(format #t "---------------- add-cho-restraints-for-residue ~s ~s ~%~!" imol new-res-spec)
+			(add-cho-restraints-for-residue imol new-res-spec)
 			(with-auto-accept
 			 (refine-residues imol (cons current-res-spec ls))))
 		      
@@ -165,8 +175,6 @@
       (if (list? res-centre)
 	  (apply set-rotation-centre res-centre))))
 	  
-  
-  
   (define func-test
     (let ((count 10))
       (lambda (parent res-pair)
@@ -189,7 +197,6 @@
 		    (residue-spec->chain-id spec)
 		    (residue-spec->res-no   spec)
 		    (residue-spec->ins-code spec)))
-		    
 
   (define (func parent res-pair)
     (if (not (list? parent))
@@ -221,9 +228,11 @@
 						      (res-spec->res-no   parent)
 						      (res-spec->ins-code parent)
 						      new-res-type
-						      new-link)))
+						      new-link 2))) ;; add and link mode
 		(let* ((ls (residues-near-residue imol parent 1.9))
 		       (local-ls (cons parent ls)))
+		  (format #t "---------------- add-cho-restraints-for-residue ~s ~s ~%~!" imol new-res-spec)
+		  (add-cho-restraints-for-residue imol new-res-spec)
 		  (with-auto-accept (refine-residues imol local-ls))
 		  (if (list? new-res-spec)
 		      (begin
@@ -251,9 +260,10 @@
 	(cons new-res
 	      (process-tree new-res (cdr tree) proc-func))))))
 
-  ;; main line of add-linked-residue
+  ;; main line of add-linked-residue-tree
   ;; 
-  (add-synthetic-carbohydrate-planes)
+  (add-synthetic-pyranose-planes)
+  (use-monomodal-pyranose-ring-torsions)
   (set-residue-selection-flash-frames-number 1)
   (set-go-to-atom-molecule imol)
   (let* ((previous-m (default-new-atoms-b-factor))
@@ -266,7 +276,18 @@
     (process-tree parent tree func)
     (set-default-temperature-factor-for-new-atoms previous-m)))
 
-  
+
+(define (add-linked-residue-with-extra-restraints-to-active-residue new-res-type link-type)
+  (set-matrix 8)
+  (set-add-linked-residue-do-fit-and-refine 0)
+  (using-active-atom
+   (let ((new-res-spec (add-linked-residue aa-imol aa-chain-id aa-res-no aa-ins-code new-res-type link-type 2)))
+     (add-cho-restraints-for-residue aa-imol new-res-spec)
+     ;; refine that
+     (with-auto-accept
+      (let ((residues (cons aa-res-spec (residues-near-residue aa-imol aa-res-spec 1.9))))
+	(refine-residues aa-imol residues))))))
+
 
 (define (add-module-carbohydrate) 
 
@@ -275,38 +296,28 @@
 
 	(add-simple-coot-menu-menuitem
 	 menu "Add a ASN-NAG NAG"
-	 (lambda () 
-	   (set-matrix 8)
-	   (using-active-atom
-	    (add-linked-residue aa-imol aa-chain-id aa-res-no aa-ins-code "NAG" "NAG-ASN"))))
+	 (lambda ()
+	   (add-linked-residue-with-extra-restraints-to-active-residue "NAG" "NAG-ASN")))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Add a BETA1-4 NAG"
-	 (lambda () 
-	   (set-matrix 8)
-	   (using-active-atom
-	    (add-linked-residue aa-imol aa-chain-id aa-res-no aa-ins-code "NAG" "BETA1-4"))))
+	 (lambda ()
+	   (add-linked-residue-with-extra-restraints-to-active-residue "NAG" "BETA1-4")))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Add a BETA1-4 BMA"
 	 (lambda () 
-	   (set-matrix 8)
-	   (using-active-atom
-	    (add-linked-residue aa-imol aa-chain-id aa-res-no aa-ins-code "BMA" "BETA1-4"))))
+	    (add-linked-residue-with-extra-restraints-to-active-residue "BMA" "BETA1-4")))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Add an ALPHA1-2 MAN"
 	 (lambda () 
-	   (set-matrix 8)
-	   (using-active-atom
-	    (add-linked-residue aa-imol aa-chain-id aa-res-no aa-ins-code "MAN" "ALPHA1-2"))))
+	    (add-linked-residue-with-extra-restraints-to-active-residue "MAN" "ALPHA1-2")))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Add an ALPHA1-3 MAN"
 	 (lambda () 
-	   (set-matrix 8)
-	   (using-active-atom
-	    (add-linked-residue aa-imol aa-chain-id aa-res-no aa-ins-code "MAN" "ALPHA1-3"))))
+	   (add-linked-residue-with-extra-restraints-to-active-residue "MAN" "ALPHA1-3")))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Add an ALPHA2-3 MAN"
@@ -315,52 +326,41 @@
 	   ;; we should do this only if we are sitting on an SIA.
 	   ;; Attaching a SIA to a MAN (i.e. reverse order) would be a
 	   ;; good test too...
-	   (using-active-atom
-	    (add-linked-residue aa-imol aa-chain-id aa-res-no aa-ins-code "MAN" "ALPHA2-3"))))
+	   (add-linked-residue-with-extra-restraints-to-active-residue "MAN" "ALPHA2-3")))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Add an ALPHA2-3 GAL"
-	 (lambda () 
-	   (set-matrix 8)
+	 (lambda ()
 	   ;; we should do this only if we are sitting on an SIA.
 	   ;; Attaching a SIA to a MAN (i.e. reverse order) would be a
 	   ;; good test too...
-	   (using-active-atom
-	    (add-linked-residue aa-imol aa-chain-id aa-res-no aa-ins-code "GAL" "ALPHA2-3"))))
+	   (add-linked-residue-with-extra-restraints-to-active-residue "GAL" "ALPHA2-3")))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Add an ALPHA1-6 MAN"
-	 (lambda () 
-	   (set-matrix 8)
-	   (using-active-atom
-	    (add-linked-residue aa-imol aa-chain-id aa-res-no aa-ins-code "MAN" "ALPHA1-6"))))
+	 (lambda ()
+	   (add-linked-residue-with-extra-restraints-to-active-residue "MAN" "ALPHA1-6")))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Add an ALPHA1-3 FUC"
-	 (lambda () 
-	   (set-matrix 8)
-	   (using-active-atom
-	    (add-linked-residue aa-imol aa-chain-id aa-res-no aa-ins-code "FUC" "ALPHA1-3"))))
+	 (lambda ()
+	    (add-linked-residue-with-extra-restraints-to-active-residue "FUC" "ALPHA1-3" )))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Add an ALPHA1-6 FUC"
-	 (lambda () 
-	   (set-matrix 8)
-	   (using-active-atom
-	    (add-linked-residue aa-imol aa-chain-id aa-res-no aa-ins-code "FUC" "ALPHA1-6"))))
+	 (lambda ()
+	   (add-linked-residue-with-extra-restraints-to-active-residue "FUC" "ALPHA1-6")))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Add an XYP-BMA XYP"
-	 (lambda () 
-	   (set-matrix 8)
-	   (using-active-atom
-	    (add-linked-residue aa-imol aa-chain-id aa-res-no aa-ins-code "XYP" "XYP-BMA"))))
+	 (lambda ()
+	   (add-linked-residue-with-extra-restraints-to-active-residue "XYP" "XYP-BMA")))
 
 	(add-simple-coot-menu-menuitem
 	 menu "N-link add NAG, NAG, BMA"
 	 (lambda ()
 	   (using-active-atom
-	    (multi-add-linked-residue 
+	    (multi-add-linked-residue
 	     aa-imol
 	     (list aa-chain-id aa-res-no aa-ins-code)
 	     (list 
@@ -369,15 +369,17 @@
 	      (cons "BMA" "BETA1-4")
 	      )))))
 
-	(add-simple-coot-menu-menuitem
-	 menu "Auto Fit & Refine on Link Addition"
-	 (lambda ()
-	   (set-add-linked-residue-do-fit-and-refine 1)))
+;  the mode in the function call now takes take of this
+;
+;	(add-simple-coot-menu-menuitem
+;	 menu "Auto Fit & Refine on Link Addition"
+;	 (lambda ()
+;	   (set-add-linked-residue-do-fit-and-refine 1)))
 
-	(add-simple-coot-menu-menuitem
-	 menu "Auto Fit & Refinement Off for Link Addition"
-	 (lambda ()
-	   (set-add-linked-residue-do-fit-and-refine 0)))
+;	(add-simple-coot-menu-menuitem
+;	 menu "Auto Fit & Refinement Off for Link Addition"
+;	 (lambda ()
+;	   (set-add-linked-residue-do-fit-and-refine 0)))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Add Oligomannose"
@@ -417,7 +419,11 @@
 	(add-simple-coot-menu-menuitem
 	 menu "Add synthetic pyranose plane restraints"
 	 (lambda () 
-	   (add-synthetic-carbohydrate-planes)))
+	   (add-synthetic-pyranose-planes)))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Use monomodal ring torsion restraints"
+	 (lambda () 
+	   (use-monomodal-pyranose-ring-torsions)))
 
 	)))
-

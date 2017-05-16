@@ -275,7 +275,7 @@ coot::torsionable_link_quads(int imol,
 		  // pass
 		  std::cout << "   link # " << il << " is pyranose ring torsion # PASS" << std::endl;
 
-		  if (true) { // debug
+		  if (false) { // debug
 		     mmdb::Residue *r_1 = bpc[i].res_1;
 		     mmdb::Residue *r_2 = bpc[i].res_1;
 		     mmdb::Residue *r_3 = bpc[i].res_1;
@@ -422,7 +422,7 @@ coot::multi_residue_torsion_fit_map(int imol,
    // update model so that it uses best_tree_dihedral_quads
 
    std::vector<std::pair<std::string, int> > atom_numbers = coot::util::atomic_number_atom_list();
-   
+
    try {
       mmdb::PPAtom atom_selection = 0;
       int n_selected_atoms;
@@ -448,7 +448,7 @@ coot::multi_residue_torsion_fit_map(int imol,
 	 // FIXME for future, calculate link_angle_atom_triples, using something analoguous to
 	 // torsionable_link_quads()
 
-	 if (true)
+	 if (false)
 	    for (unsigned int iquad=0; iquad<quads.size(); iquad++)
 	       std::cout << "DEBUG tosion quads:  " << iquad << " "
 			 << coot::atom_spec_t(quads[iquad].atom_1) << " " 
@@ -493,18 +493,39 @@ coot::multi_residue_torsion_fit_map(int imol,
 	       small_torsion_changes = true;
 	    } 
 	       
-	    if (0)
+	    if (false)
 	       std::cout << "Round " << itrial << " of " << n_trials << " for " << n_quads << " quads "
 			 << std::endl;
 
 	    std::vector<atom_tree_t::tree_dihedral_quad_info_t> torsion_quads;
+#ifdef HAVE_CXX11
+	    // debug, store angles in rand_angles: name current trial-value
+	    std::vector<std::tuple<std::string, double, double> > rand_angles(n_quads);
+#endif // HAVE_CXX11
 	    for (int iquad=0; iquad<n_quads; iquad++) {
 	       // quads[iquad] is passed for debugging
                double rand_angle = get_rand_angle(best_quads[iquad], quads[iquad], itrial,
 						  n_trials, allow_conformer_switch, small_torsion_changes);
+#ifdef HAVE_CXX11
+	       std::tuple<std::string, double, double> tup(quads[iquad].name, best_quads[iquad], rand_angle);
+#endif // HAVE_CXX11
+	       rand_angles[iquad] = tup;
 	       atom_tree_t::tree_dihedral_quad_info_t tor(quads[iquad], rand_angle, fixed_index);
 	       torsion_quads.push_back(tor);
 	    }
+
+#ifdef HAVE_CXX11
+	    if (false) { //debug
+	       for (int iquad=0; iquad<n_quads; iquad++) {
+		  std::cout << "debug: itrial " << itrial << " "
+			    << "iquad " << iquad << " "
+			    << std::get<0>(rand_angles[iquad]) << " "
+			    << std::get<1>(rand_angles[iquad]) << " "
+			    << std::get<2>(rand_angles[iquad]) << " ";
+	       }
+	       std::cout << std::endl;
+	    }
+#endif // HAVE_CXX11
 	    tree.set_dihedral_multi(torsion_quads);
 	    // FIXME for futures, also include link_angle_atom_triples (for excluding of bumps)
 	    double self_clash_score = get_self_clash_score(mol, atom_selection, n_selected_atoms, quads);
@@ -514,7 +535,7 @@ coot::multi_residue_torsion_fit_map(int imol,
 	    if (self_clash_score > 6 ) {
 
 	       // crash and bangs into itself (between residues)
-	       
+
 	    } else {
 
 	       // happy path
@@ -589,7 +610,6 @@ coot::get_rand_angle(double current_angle,
    double trial_factor = double(itrial)/double(n_trials);
    // double angle_scale_factor = 0.2 + 0.8*(1-trial_factor);
    double angle_scale_factor = 0.2 + 0.8 - trial_factor;
-   
 
    if (small_torsion_changes) {
       r += 5.0 * minus_one_to_one;
@@ -611,12 +631,6 @@ coot::get_rand_angle(double current_angle,
 
    if (r > 360)
       r -= 360;
-   
-   // for making graphs of torsions, grep varying
-   //
-   if (false)
-      std::cout << "   varying " << quad.name << " was " << current_angle << " now "
-		<< r << " delta: " << r - current_angle << std::endl;
    
    return r; 
 } 

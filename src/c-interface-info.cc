@@ -1069,14 +1069,24 @@ void hydrogenate_region(float radius) {
 
 #ifdef USE_GUILE
 coot::residue_spec_t residue_spec_from_scm(SCM residue_in) {
-   SCM chain_id_scm = scm_list_ref(residue_in, SCM_MAKINUM(0));
-   SCM resno_scm    = scm_list_ref(residue_in, SCM_MAKINUM(1));
-   SCM ins_code_scm = scm_list_ref(residue_in, SCM_MAKINUM(2));
-   std::string chain_id = scm_to_locale_string(chain_id_scm);
-   std::string ins_code = scm_to_locale_string(ins_code_scm);
-   int resno            = scm_to_int(resno_scm);
-   coot::residue_spec_t rspec(chain_id, resno, ins_code);
-   return rspec;
+
+   if (scm_is_true(scm_list_p(residue_in))) {
+      SCM len_scm = scm_length(residue_in);
+      int len = scm_to_int(len_scm);
+      int offset = 0;
+      if (len == 4)
+	 offset = 1;
+      SCM chain_id_scm = scm_list_ref(residue_in, SCM_MAKINUM(0+offset));
+      SCM resno_scm    = scm_list_ref(residue_in, SCM_MAKINUM(1+offset));
+      SCM ins_code_scm = scm_list_ref(residue_in, SCM_MAKINUM(2+offset));
+      std::string chain_id = scm_to_locale_string(chain_id_scm);
+      std::string ins_code = scm_to_locale_string(ins_code_scm);
+      int resno            = scm_to_int(resno_scm);
+      coot::residue_spec_t rspec(chain_id, resno, ins_code);
+      return rspec;
+   } else {
+      return coot::residue_spec_t();
+   }
 }
 #endif // USE_GUILE
 

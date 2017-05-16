@@ -1065,6 +1065,11 @@ coot::glyco_tree_t::output_internal_distances(mmdb::Residue *residue_p,
 
    double dist_min = 2.66; // A. Distances less than this are bonds or angles.
                            // No need to consider extra restraints for these.
+                           //
+                           // That's true, but here is not the place to filter it
+                           // let's filter out bonds and angles when we know the
+                           // mean distance (from all such pairs)
+
    bool include_hydrogen_atoms = false;
 
    mmdb::Atom **residue_atoms = 0;
@@ -1088,7 +1093,7 @@ coot::glyco_tree_t::output_internal_distances(mmdb::Residue *residue_p,
 			clipper::Coord_orth pos_atom_j = co(at_j);
 			double d = clipper::Coord_orth::length(pos_atom_i, pos_atom_j);
 			if (d < dist_crit)
-			   if (d > dist_min) 
+			   if (d > 0) // dist_min
 			      f << " "
 				<< coot::atom_spec_t(at_i) << " "
 				<< coot::atom_spec_t(at_j) << " " << d << std::endl;
@@ -1120,7 +1125,7 @@ coot::glyco_tree_t::output_internal_distances(mmdb::Residue *residue_p,
 			double d = clipper::Coord_orth::length(pos_atom_i, pos_atom_j);
 			if (! at_j->isTer()) {
 			   if (d < dist_crit)
-			      if (d > dist_min) 
+			      if (d > 0) // dist_min
 				 f << " "
 				   << coot::atom_spec_t(at_i) << " "
 				   << coot::atom_spec_t(at_j) << " " << d << std::endl;

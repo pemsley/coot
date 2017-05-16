@@ -1966,7 +1966,7 @@ molecule_class_info_t::glyco_tree_internal_distances_fn(const coot::residue_spec
 	 for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
 	    geom_p->try_dynamic_add(types_with_no_dictionary[i], mmcif_read_number++);
 	 coot::glyco_tree_t t(residue_p, mol, geom_p);
-	 double dist_lim = 7;
+	 double dist_lim = 20;
 	 t.internal_distances(dist_lim, file_name);
       }
    }
