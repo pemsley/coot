@@ -695,8 +695,12 @@ coot::glyco_tree_t::glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol,
       for (unsigned int ires=0; ires<linked_residues.size(); ires++) {
 	 std::string residue_name(linked_residues[ires]->name);
 	 if (residue_name == "ASN") {
-	    glyco_tree = find_ASN_rooted_tree(linked_residues[ires], linked_residues);
-	    if (glyco_tree.size() > 1) {
+	    std::cout << "... replacing glyco_tree based on " << residue_spec_t(linked_residues[ires])
+		      << std::endl;
+	    tree<linked_residue_t>  glyco_tree_new = find_ASN_rooted_tree(linked_residues[ires], linked_residues);
+	    std::cout << "    was size " << glyco_tree.size() << " now " << glyco_tree_new.size() << std::endl;
+	    if (glyco_tree_new.size() > glyco_tree.size()) {
+	       glyco_tree = glyco_tree_new;
 	       have_ASN_rooted_tree = true;
 	       compare_vs_allowed_trees(glyco_tree);
 	    }
@@ -707,7 +711,6 @@ coot::glyco_tree_t::glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol,
 	 glyco_tree = find_stand_alone_tree(linked_residues);
       }
    }
-   std::cout << "constructor glyco_tree " << &glyco_tree << std::endl;   
 }
 
 bool
@@ -746,7 +749,7 @@ tree<coot::linked_residue_t>
 coot::glyco_tree_t::find_rooted_tree(mmdb::Residue *residue_p,
 				     const std::vector<mmdb::Residue *> &residues) const {
 
-   bool debug = true;
+   bool debug = false;
    linked_residue_t first_res(residue_p, "");
    tree<linked_residue_t> glyco_tree;
    tree<linked_residue_t>::iterator top = glyco_tree.insert(glyco_tree.begin(), first_res);
@@ -818,8 +821,11 @@ coot::glyco_tree_t::find_rooted_tree(mmdb::Residue *residue_p,
 	 }
       }
    }
-   if (glyco_tree.size() > 1)
+   if (glyco_tree.size() > 1) {
+      if (debug)
+	 std::cout << "find_rooted_tree returns tree:" << std::endl;
       print(glyco_tree);
+   }
    return glyco_tree;
 }
 
@@ -901,10 +907,23 @@ coot::glyco_tree_t::print(const tree<linked_residue_t> &glyco_tree) const {
 coot::glyco_tree_t::residue_id_t
 coot::glyco_tree_t::get_id(mmdb::Residue *residue_p) const {
 
-   std::cout << "get_id from glyco_tree " << &glyco_tree << std::endl;
-
    residue_id_t id;
    tree<linked_residue_t>::iterator it;
+   bool debug = false;
+
+   int n_in_tree = 0;
+   if (debug) {
+      std::vector<residue_spec_t> specs;
+      for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
+	 if (it->residue) {
+	    n_in_tree++;
+	    specs.push_back(it->residue);
+	 }
+      }
+      std::cout << "DEBUG:: get_id() found " << n_in_tree << " residues in tree" << std::endl;
+      for (unsigned int i=0; i<specs.size(); i++)
+	 std::cout << "   " << specs[i] << std::endl;
+   }
    for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
       if (it->residue == residue_p) {
  	 std::cout << "get_id() found " << residue_spec_t(residue_p) << " in glyco tree"
@@ -1353,7 +1372,7 @@ coot::glyco_tree_t::hybrid_tree() const {
    linked_residue_t NAG_7_1("NAG", "BETA1-2");  // parent is MAN_6_1
    linked_residue_t GAL_7_2("GAL", "BETA1-4");  // parent is NAG_7_1
    linked_residue_t SIA_7_3("SIA", "ALPHA1-3"); // parent is GAL_7_2
-   linked_residue_t FUC_1  ("FUC", "BETA1-6");  // parent is NAG_1
+   linked_residue_t FUC_1  ("FUC", "ALPHA1-6");  // parent is NAG_1
    
    tree<linked_residue_t> t;
    tree<linked_residue_t>::iterator asn     = t.insert(t.begin(), ASN);
@@ -1380,8 +1399,8 @@ coot::glyco_tree_t::complex_tree() const {
 
    linked_residue_t ASN    ("ASN", "");
    linked_residue_t NAG_1  ("NAG", "NAG-ASN");  // parent is ASN
-   linked_residue_t FUC_1  ("FUC", "BETA1-6");  // parent is NAG_1
-   linked_residue_t FUC_2  ("FUC", "BETA1-3");  // parent is NAG_1
+   linked_residue_t FUC_1  ("FUC", "ALPHA1-6");  // parent is NAG_1
+   linked_residue_t FUC_2  ("FUC", "ALPHA1-3");  // parent is NAG_1
    linked_residue_t NAG_2  ("NAG", "BETA1-4");  // parent is NAG_1
    linked_residue_t MAN_3  ("BMA", "BETA1-4");  // parent is NAG_2
    linked_residue_t NAG_4  ("NAG", "BETA1-4");  // parent is MAN_3

@@ -264,6 +264,7 @@
   ;; 
   (add-synthetic-pyranose-planes)
   (use-monomodal-pyranose-ring-torsions)
+  (set-refine-with-torsion-restraints 1)
   (set-residue-selection-flash-frames-number 1)
   (set-go-to-atom-molecule imol)
   (let* ((previous-m (default-new-atoms-b-factor))
@@ -279,6 +280,7 @@
 
 (define (add-linked-residue-with-extra-restraints-to-active-residue new-res-type link-type)
   (set-matrix 8)
+  (set-refine-with-torsion-restraints 1)
   (set-add-linked-residue-do-fit-and-refine 0)
   (using-active-atom
    (let ((new-res-spec (add-linked-residue aa-imol aa-chain-id aa-res-no aa-ins-code new-res-type link-type 2)))
@@ -287,6 +289,27 @@
      (with-auto-accept
       (let ((residues (cons aa-res-spec (residues-near-residue aa-imol aa-res-spec 1.9))))
 	(refine-residues aa-imol residues))))))
+
+(define (delete-all-cho)
+   (let ((delete-cho-list '()))
+      (using-active-atom
+         (if (valid-model-molecule? aa-imol)
+            (with-no-backups aa-imol
+               (begin
+                  (for-each (lambda (chain-id)
+                     (for-each (lambda (res-serial)
+                        (let ((res-no (seqnum-from-serial-number aa-imol chain-id res-serial)))
+                           (let ((rn (residue-name aa-imol chain-id res-no "")))
+                              (if (string? rn)
+                                 (if (or (string=? rn "NAG") (string=? "MAN" rn) (string=? "BMA" rn)
+                                         (string=? "FUC" rn) (string=? "XYP" rn) (string=? "SIA" rn) (string=? "GLC" rn))
+                                    (let* ((residue-spec (list chain-id res-no "")))
+                                       (set! delete-cho-list (cons (list chain-id res-no "") delete-cho-list))))))))
+                                (range (chain-n-residues chain-id aa-imol))))
+                             (chain-ids aa-imol))
+                  (for-each (lambda(cho-res-spec)
+                      (delete-residue aa-imol (residue-spec->chain-id cho-res-spec) (residue-spec->res-no cho-res-spec) ""))
+                      delete-cho-list)))))))
 
 
 (define (add-module-carbohydrate) 
@@ -400,6 +423,11 @@
 	    (add-linked-residue-tree aa-imol
 				     (list aa-chain-id aa-res-no aa-ins-code)
 				     paucimannose-tree))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Delete All Carbohydrate"
+	 (lambda()
+	   (delete-all-cho)))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Torsion Fit this residue"

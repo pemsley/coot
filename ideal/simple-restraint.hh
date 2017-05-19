@@ -1981,6 +1981,8 @@ namespace coot {
       std::pair<unsigned int, unsigned int> restraints_limits_geman_mclure;
       std::pair<unsigned int, unsigned int> restraints_limits_start_pos;
 
+      void set_geman_mcclure_alpha(double alpha_in) { geman_mcclure_alpha = alpha_in; }
+
 #ifdef HAVE_CXX_THREAD
       // thread pool!
       //

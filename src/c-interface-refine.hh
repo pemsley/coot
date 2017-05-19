@@ -4,3 +4,5 @@ void    add_initial_position_restraints(int imol, const std::vector<coot::residu
 void remove_initial_position_restraints(int imol, const std::vector<coot::residue_spec_t> &residue_specs);
 
 void use_monomodal_ring_torsions(const std::string &res_name);
+
+void set_refinement_geman_mcclure_alpha(float alpha);

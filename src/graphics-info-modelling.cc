@@ -69,7 +69,7 @@
 #include "ligand/dunbrack.hh"
 #else 
 #include "ligand/richardson-rotamer.hh"
-#endif 
+#endif
 
 #include "clipper/core/map_utils.h" // Map_stats
 #include "skeleton/graphical_skel.h"
@@ -464,14 +464,10 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	 // doesn't cause the corruption of geom.
 	 // 
 	 if (0) { 
-	    std::cout << "------------------- copy_mol_and_refine_inner() pre calling make_restraints() geom size "
-		      << Geom_p()->size() << std::endl;
+	    std::cout << Geom_p()->size() << std::endl;
 	    std::cout << "    geom     pointer " << Geom_p() << std::endl;
-	    std::cout << "------------------- copy_mol_and_refine_inner() pre calling make_restraints() ref geom size "
-		      << geom.size() << std::endl;
+	    std::cout << geom.size() << std::endl;
 	    std::cout << "    geom ref pointer " << &geom << std::endl;
-
-	 
 
 	    unsigned int n_test = restraints.inline_const_test_function(geom);
 	    std::cout << "------------------- copy_mol_and_refine_inner() inline_const_test_function n_test: "
@@ -497,6 +493,8 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 				       rama_plot_restraint_weight,
 				       do_rama_restraints,
 				       pseudo_bonds_type);
+
+	 restraints.set_geman_mcclure_alpha(geman_mcclure_alpha);
 
 	 if (molecules[imol_for_atoms].extra_restraints.has_restraints())
 	    restraints.add_extra_restraints(imol_for_atoms, molecules[imol_for_atoms].extra_restraints,
@@ -826,6 +824,8 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 							     do_rama_restraints,
 							     pseudo_bonds_type);
 
+	       restraints.set_geman_mcclure_alpha(geman_mcclure_alpha);
+
 	       if (molecules[imol].extra_restraints.has_restraints())
 		  restraints.add_extra_restraints(imol, molecules[imol].extra_restraints, *Geom_p());
 	       
@@ -845,7 +845,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	 if (icheck.first == 0) { 
 	    info_dialog_missing_refinement_residues(icheck.second);
 	 }
-      } 
+      }
    }
    return rr;
 
@@ -854,7 +854,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
    std::cout << "Cannot refine without compilation with GSL" << std::endl;
    return coot::refinement_results_t(0, 0, "");
 
-#endif    
+#endif
 }
 
 // mol is new (not from molecules[imol]) molecule for the moving atoms.
@@ -1424,7 +1424,7 @@ graphics_info_t::refinement_results_to_scm(coot::refinement_results_t &rr) {
    }
    return r;
 }
-#endif    
+#endif
 
 #ifdef USE_PYTHON
 PyObject *
@@ -1460,7 +1460,7 @@ graphics_info_t::refinement_results_to_py(coot::refinement_results_t &rr) {
    }
    return r;
 } 
-#endif    
+#endif
 
 
 

@@ -1538,7 +1538,7 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 
    // Fixup needed for PDBv3
 
-   bool debug = true;
+   bool debug = false;
    double critical_dist = 2.4; // A, less than that and Coot should
 			       // try to make the bond.
                                // 20170505: changed to 2.4, was 3.0.
@@ -1581,7 +1581,8 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
    // the "residue 2" (+1 residue number) should have the C1.
    // 
    if (debug) {
-      std::cout << "DEBUG:: number of sorted distances in glycosidic_linkage: "
+      std::cout << "DEBUG:: find_glycosidic_linkage_type() "
+		<< "number of sorted distances: "
 		<< close.size() << std::endl;
       for (unsigned int i=0; i<close.size(); i++) {
 	 std::cout << "#### glyco close: " << close[i].distance << "  "

@@ -1014,3 +1014,9 @@ void use_monomodal_ring_torsions(const std::string &res_name) {
    graphics_info_t::Geom_p()->use_monomodal_ring_torsions(imol_enc, res_name, minimal);
 
 }
+
+void set_refinement_geman_mcclure_alpha(float alpha) {
+
+   graphics_info_t::geman_mcclure_alpha = alpha;
+
+}

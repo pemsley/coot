@@ -109,6 +109,7 @@
 (define map-statistics         map-statistics-scm)
 (define goto-next-atom-maybe   goto-next-atom-maybe-scm)
 (define goto-prev-atom-maybe   goto-prev-atom-maybe-scm)
+(define glyco-tree-residues   glyco-tree-residues-scm)
 (define glyco-tree-residue-id glyco-tree-residue-id-scm)
 (define add-extra-bond-restraints add-extra-bond-restraints-scm)
 
