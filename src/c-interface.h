@@ -3393,6 +3393,15 @@ void delete_all_extra_restraints(int imol);
 /*! \brief clear out all the extra/user-defined restraints for this residue in molecule number imol  */
 void delete_extra_restraints_for_residue(int imol, const char *chain_id, int res_no, const char *ins_code);
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
+void delete_extra_restraints_for_residue_spec_scm(int imol, SCM residue_spec_in);
+#endif // USE_GUILE
+#ifdef USE_PYTHON
+void delete_extra_restraints_for_residue_spec_py(int imol, PyObject *residue_spec_in_py);
+#endif // USE_PYTHON
+#endif // __cplusplus
+
 void delete_extra_restraints_worse_than(int imol, float n_sigma);
 
 /*! read in prosmart (typically) extra restraints */

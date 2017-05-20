@@ -5124,6 +5124,12 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
 	 g.molecules[imol].add_linked_residue_by_atom_torsions(res_spec, new_residue_comp_id,
 							       link_type, g.Geom_p(), new_b);
 
+      // this is a new residue and so we don't want to use extra restraints
+      // from an old residue (different type and different position) that might
+      // have the same spec.
+      //
+      graphics_info_t::molecules[imol].delete_extra_restraints_for_residue(new_res_spec);
+
       if (mode > 1) {
 	 if (! new_res_spec.unset_p()) {
 	    r = residue_spec_to_scm(new_res_spec);
@@ -5177,6 +5183,12 @@ PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const
       coot::residue_spec_t new_res_spec =
 	 g.molecules[imol].add_linked_residue_by_atom_torsions(res_spec, new_residue_comp_id,
 							       link_type, g.Geom_p(), new_b);
+
+      // this is a new residue and so we don't want to use extra restraints
+      // from an old residue (different type and different position) that might
+      // have the same spec.
+      //
+      graphics_info_t::molecules[imol].delete_extra_restraints_for_residue(new_res_spec);
 
       if (do_fit_and_refine) {
          if (! new_res_spec.unset_p()) {
