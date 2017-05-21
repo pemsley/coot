@@ -243,6 +243,7 @@
 			      (begin
 				(format #t "------------ That was not well-fitting. Deleting ~s: ~%"
 					preped-new-res-spec)
+				(delete-extra-restraints-for-residue-spec imol preped-new-res-spec)
 				(delete-residue-by-spec preped-new-res-spec)
 				(with-auto-accept (refine-residues imol local-ls))
 				#f))))
@@ -261,21 +262,25 @@
 	      (process-tree new-res (cdr tree) proc-func))))))
 
   ;; main line of add-linked-residue-tree
-  ;; 
+  ;;
   (add-synthetic-pyranose-planes)
   (use-monomodal-pyranose-ring-torsions)
   (set-refine-with-torsion-restraints 1)
+  (set-matrix 8)
   (set-residue-selection-flash-frames-number 1)
   (set-go-to-atom-molecule imol)
   (let* ((previous-m (default-new-atoms-b-factor))
 	(m (median-temperature-factor imol))
 	(new-m (* m 1.55)))
 
+    (set-default-temperature-factor-for-new-atoms previous-m)
+
     (if (number? m)
 	(set-default-temperature-factor-for-new-atoms new-m))
 
-    (process-tree parent tree func)
-    (set-default-temperature-factor-for-new-atoms previous-m)))
+    (let ((start-pos-view (add-view-here "Glyo Tree Start Pos")))
+      (process-tree parent tree func)
+      (go-to-view-number start-pos-view 0))))
 
 
 (define (add-linked-residue-with-extra-restraints-to-active-residue new-res-type link-type)

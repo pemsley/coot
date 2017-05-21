@@ -66,6 +66,7 @@
 (define get-map-colour get-map-colour-scm)
 (define list-extra-restraints list-extra-restraints-scm)
 (define delete-extra-restraint delete-extra-restraint-scm)
+(define delete-extra-restraints-for-residue-spec delete-extra-restraints-for-residue-spec-scm)
 (define do-clipped-surface do-clipped-surface-scm)
 (define copy-residue-range-from-ncs-master-to-chains copy-residue-range-from-ncs-master-to-chains-scm)
 (define copy-from-ncs-master-to-chains copy-from-ncs-master-to-chains-scm)
