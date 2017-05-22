@@ -508,8 +508,8 @@ coot::multi_residue_torsion_fit_map(int imol,
 						  n_trials, allow_conformer_switch, small_torsion_changes);
 #ifdef HAVE_CXX11
 	       std::tuple<std::string, double, double> tup(quads[iquad].name, best_quads[iquad], rand_angle);
-#endif // HAVE_CXX11
 	       rand_angles[iquad] = tup;
+#endif // HAVE_CXX11
 	       atom_tree_t::tree_dihedral_quad_info_t tor(quads[iquad], rand_angle, fixed_index);
 	       torsion_quads.push_back(tor);
 	    }
