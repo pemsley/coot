@@ -19263,7 +19263,7 @@ checks the value of this checkbutton</property>
 		      <child>
 			<widget class="GtkImage" id="image1519">
 			  <property name="visible">True</property>
-			  <property name="stock">gtk-cancel</property>
+			  <property name="stock">gtk-close</property>
 			  <property name="icon_size">4</property>
 			  <property name="xalign">0.5</property>
 			  <property name="yalign">0.5</property>
@@ -19280,7 +19280,7 @@ checks the value of this checkbutton</property>
 		      <child>
 			<widget class="GtkLabel" id="label375">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">  Cancel  </property>
+			  <property name="label" translatable="yes">  Close  </property>
 			  <property name="use_underline">True</property>
 			  <property name="use_markup">False</property>
 			  <property name="justify">GTK_JUSTIFY_LEFT</property>

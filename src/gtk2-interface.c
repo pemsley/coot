@@ -11249,12 +11249,12 @@ create_delete_item_dialog (void)
   gtk_widget_show (hbox201);
   gtk_container_add (GTK_CONTAINER (alignment50), hbox201);
 
-  image1519 = gtk_image_new_from_stock ("gtk-cancel", GTK_ICON_SIZE_BUTTON);
+  image1519 = gtk_image_new_from_stock ("gtk-close", GTK_ICON_SIZE_BUTTON);
   gtk_widget_set_name (image1519, "image1519");
   gtk_widget_show (image1519);
   gtk_box_pack_start (GTK_BOX (hbox201), image1519, FALSE, FALSE, 0);
 
-  label375 = gtk_label_new_with_mnemonic (_("  Cancel  "));
+  label375 = gtk_label_new_with_mnemonic (_("  Close  "));
   gtk_widget_set_name (label375, "label375");
   gtk_widget_show (label375);
   gtk_box_pack_start (GTK_BOX (hbox201), label375, FALSE, FALSE, 0);
