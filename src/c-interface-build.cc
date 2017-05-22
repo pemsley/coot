@@ -4545,9 +4545,37 @@ int new_molecule_by_residue_specs_py(int imol, PyObject *residue_spec_list_py) {
 /*! \brief create a new molecule that consists of only the atoms
   of the specified list of residues
 @return the new molecule number, -1 means an error. */
-int new_molecule_by_residue_specs_scm(int imol, SCM *residue_spec_list_scm) {
+int new_molecule_by_residue_specs_scm(int imol, SCM residue_spec_list_scm) {
 
    int imol_new = -1;
+   if (is_valid_model_molecule(imol)) {
+      if (scm_is_true(scm_list_p(residue_spec_list_scm))) {
+	 SCM len_scm = scm_length(residue_spec_list_scm);
+	 int len = scm_to_int(len_scm);
+	 if (len > 0) {
+	    std::vector<coot::residue_spec_t> residue_specs;
+	    for (int i=0; i<len; i++) {
+	       SCM spec_scm = scm_list_ref(residue_spec_list_scm, SCM_MAKINUM(i));
+	       coot::residue_spec_t spec = residue_spec_from_scm(spec_scm);
+	       if (! spec.empty()) {
+		  residue_specs.push_back(spec);
+	       }
+	    }
+	    if (! residue_specs.empty()) {
+	       mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+	       mmdb::Manager *mol_new = coot::util::create_mmdbmanager_from_residue_specs(residue_specs,mol);
+	       if (mol_new) {
+		  graphics_info_t g;
+		  imol_new = graphics_info_t::create_molecule();
+		  atom_selection_container_t asc = make_asc(mol_new);
+		  std::string label = "residues-selected-from-mol-";
+		  label += coot::util::int_to_string(imol);
+		  g.molecules[imol_new].install_model(imol_new, asc, g.Geom_p(), label, 1);
+	       }
+	    }
+	 }
+      }
+   }
    return imol_new;
 }
 #endif /* USE_GUILE */
@@ -5063,10 +5091,15 @@ int backrub_rotamer(int imol, const char *chain_id, int res_no,
 int add_linked_residue(int imol, const char *chain_id, int resno, const char *ins_code, 
 		       const char *new_residue_comp_id, const char *link_type, int n_trials) {
 
+   // Are you sure that this is the function that you want to edit?
+
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
+      if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(new_residue_comp_id)) {
+      } else {
+	 g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
+      }
       g.cif_dictionary_read_number++;
       coot::residue_spec_t res_spec(chain_id, resno, ins_code);
 // 	 g.molecules[imol].add_linked_residue(res_spec, new_residue_comp_id,
@@ -5104,13 +5137,19 @@ int add_linked_residue(int imol, const char *chain_id, int resno, const char *in
 SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char *ins_code, 
 			   const char *new_residue_comp_id, const char *link_type, int mode) {
 
-   int n_trials = 5000;
+   int n_trials = 6000;
    SCM r = SCM_BOOL_F;
    // bool do_fit_and_refine = graphics_info_t::linked_residue_fit_and_refine_state;
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
+      
+      if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(new_residue_comp_id)) {
+      } else {
+	 std::cout << "INFO:: dictionary does not already have " << new_residue_comp_id
+		   << " dynamic add it now" << std::endl;
+	 g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
+      }
       g.cif_dictionary_read_number++;
       coot::residue_spec_t res_spec(chain_id, resno, ins_code);
 
@@ -5168,13 +5207,18 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
 PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const char *ins_code, 
 				const char *new_residue_comp_id, const char *link_type, int mode) {
 
-   int n_trials = 3000;
+   int n_trials = 6000;
    PyObject *r = Py_False;
    bool do_fit_and_refine = graphics_info_t::linked_residue_fit_and_refine_state;
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
+      if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(new_residue_comp_id)) {
+      } else {
+	 std::cout << "INFO:: dictionary does not already have " << new_residue_comp_id
+		   << " dynamic add it now" << std::endl;
+	 g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
+      }
       g.cif_dictionary_read_number++;
       coot::residue_spec_t res_spec(chain_id, resno, ins_code);
       float new_b = g.default_new_atoms_b_factor;

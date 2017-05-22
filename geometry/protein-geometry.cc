@@ -4523,10 +4523,33 @@ coot::protein_geometry::get_energy_lib_atom(const std::string &ener_type) const 
 
 // use auto-load if not present
 void
-coot::protein_geometry::use_monomodal_ring_torsions(int imol, const std::string &res_name,
-						    int mmcif_read_number) {
+coot::protein_geometry::use_unimodal_ring_torsion_restraints(int imol, const std::string &res_name,
+							     int mmcif_read_number) {
 
-   bool minimal = false;
+   class restraint_eraser {
+   public:
+      std::vector<std::string> names;
+      // the constructor, can be information that needs to be used
+      // internally in the operator() function.  This is run once
+      // 
+      restraint_eraser(const std::vector<std::string> &names_in) {
+	 names = names_in;
+      }
+
+      // return true for deletion
+      bool operator()(const dict_torsion_restraint_t &r) const {
+	 int n_match = 0;
+	 for (unsigned int i=0; i<names.size(); i++) {
+	    if (r.atom_id_1_4c() == names[i]) n_match++;
+	    if (r.atom_id_2_4c() == names[i]) n_match++;
+	    if (r.atom_id_3_4c() == names[i]) n_match++;
+	    if (r.atom_id_4_4c() == names[i]) n_match++;
+	 }
+	 return (n_match == 4);
+      }
+   };
+
+ bool minimal = false;
    int idx = get_monomer_restraints_index(res_name, imol, minimal);
    if (idx == -1) {
       try_dynamic_add(res_name, mmcif_read_number);
@@ -4537,17 +4560,34 @@ coot::protein_geometry::use_monomodal_ring_torsions(int imol, const std::string 
       // continue
 
       // (first is the imol)
-      std::vector <dict_torsion_restraint_t> &orig_torsion_restraints =
+      std::vector <dict_torsion_restraint_t> &torsion_restraints =
 	 dict_res_restraints[idx].second.torsion_restraint;
 
-      orig_torsion_restraints.clear();
+      // We don't want to clear them all, just the ring torsions
+      // orig_torsion_restraints.clear();
+      std::vector<std::string> ring_atom_names;
+      ring_atom_names.push_back(" C1 "); ring_atom_names.push_back(" C2 ");
+      ring_atom_names.push_back(" C3 "); ring_atom_names.push_back(" C4 ");
+      ring_atom_names.push_back(" C5 "); ring_atom_names.push_back(" O5 ");
+
+      std::cout << "...............  pre-delete size: " << torsion_restraints.size()
+		<< " for " << res_name << std::endl;
+
+      torsion_restraints.erase(std::remove_if(torsion_restraints.begin(),
+					      torsion_restraints.end(),
+					      restraint_eraser(ring_atom_names)), torsion_restraints.end());
+
+      std::cout << "............... post-delete size: " << torsion_restraints.size()
+		<< " for " << res_name << std::endl;
+      
       std::vector<atom_name_torsion_quad> quads = get_reference_monomodal_torsion_quads(res_name);
       for (unsigned int i=0; i<quads.size(); i++) {
 	 const atom_name_torsion_quad &quad = quads[i];
 	 dict_torsion_restraint_t tors(quad.id,
 				       quad.atom_name(0), quad.atom_name(1), quad.atom_name(2), quad.atom_name(3),
 				       quad.torsion, 4.0, 1);
-	 orig_torsion_restraints.push_back(tors);
+	 std::cout << "DEBUG:: adding unimodal torsion restraint for " << res_name << " " << tors << std::endl;
+	 torsion_restraints.push_back(tors);
       }
    }
 }

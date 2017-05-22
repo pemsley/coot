@@ -698,7 +698,6 @@ coot::glyco_tree_t::glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol,
 	    std::cout << "... replacing glyco_tree based on " << residue_spec_t(linked_residues[ires])
 		      << std::endl;
 	    tree<linked_residue_t>  glyco_tree_new = find_ASN_rooted_tree(linked_residues[ires], linked_residues);
-	    std::cout << "    was size " << glyco_tree.size() << " now " << glyco_tree_new.size() << std::endl;
 	    if (glyco_tree_new.size() > glyco_tree.size()) {
 	       glyco_tree = glyco_tree_new;
 	       have_ASN_rooted_tree = true;

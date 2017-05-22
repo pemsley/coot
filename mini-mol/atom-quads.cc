@@ -293,7 +293,7 @@ coot::atom_quad::get_atom_name_quad() const {
    } else {
       throw std::runtime_error("atom_quad::atom_name_quad() Null atom(s)");
    }
-} 
+}
 
 
 double

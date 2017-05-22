@@ -5838,7 +5838,7 @@ int new_molecule_by_residue_specs_py(int imol, PyObject *residue_spec_list_py);
 /*! \brief create a new molecule that consists of only the atoms 
   of the specified list of residues
 @return the new molecule number, -1 means an error. */
-int new_molecule_by_residue_specs_scm(int imol, SCM *residue_spec_list_scm);
+int new_molecule_by_residue_specs_scm(int imol, SCM residue_spec_list_scm);
 #endif /* USE_GUILE */
 #endif /* __cplusplus */
 

@@ -2026,7 +2026,7 @@ graphics_info_t::printString_internal(const std::string &s,
 
       glLineWidth(1.0);
       glPointSize(1.0);
-      
+
       glPushMatrix();
       glTranslated(x,y,z);
 

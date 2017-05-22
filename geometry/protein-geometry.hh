@@ -1956,7 +1956,7 @@ namespace coot {
 							       bool at_1_deloc_or_arom,
 							       bool at_2_deloc_or_arom) const;
       // use auto-load if not present
-      void use_monomodal_ring_torsions(int imol, const std::string &res_name, int mmcif_read_number);
+      void use_unimodal_ring_torsion_restraints(int imol, const std::string &res_name, int mmcif_read_number);
 
 
 #ifdef HAVE_CCP4SRS

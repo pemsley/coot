@@ -645,8 +645,9 @@ coot::contact_info::contact_info(mmdb::Manager *mol, int imol,
 	       for (int j=0; j<asc.n_selected_atoms; j++) {
 		  if (asc.atom_selection[j] == link_torsions[itor].atom_3) {
 		     contacts_pair p(j, i);
-		     std::cout << "---- contact_info() constructor added link bond contact "
-			       << i << " " << j << std::endl;
+                     if (false)
+		        std::cout << "---- contact_info() constructor added link bond contact "
+			          << i << " " << j << std::endl;
 		     contacts.push_back(p);
 		     ifound = true;
 		     break;

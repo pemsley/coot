@@ -20,6 +20,7 @@
   (define (filter-out plane-name-sub-string plane-restraints)
     (format #t "DEBUG:: in filter-out: remove ~s from ~s~%"
 	    plane-name-sub-string plane-restraints)
+    ;; (filter (lambda (s) (string-match? plane-name-sub-string ...?)
     plane-restraints)
 
   (let ((restraints (monomer-restraints comp-id)))
@@ -52,17 +53,13 @@
 
 
 (define (add-synthetic-pyranose-planes)
-  (add-pyranose-pseudo-ring-plane-restraints "NAG")
-  (add-pyranose-pseudo-ring-plane-restraints "BMA")
-  (add-pyranose-pseudo-ring-plane-restraints "MAN")
-  (add-pyranose-pseudo-ring-plane-restraints "GAL")
-  (add-pyranose-pseudo-ring-plane-restraints "FUC")
-  (add-pyranose-pseudo-ring-plane-restraints "XYP")
-  (add-pyranose-pseudo-ring-plane-restraints "GLC"))
+  (for-each (lambda(comp-id)
+	      (add-pyranose-pseudo-ring-plane-restraints comp-id))
+	    (list "NAG" "BMA" "MAN" "GAL" "GLC" "FUC" "XYP")))
 
 (define (use-monomodal-pyranose-ring-torsions)
   (for-each (lambda(tlc)
-	      (use-monomodal-ring-torsions tlc))
+	      (use-unimodal-ring-torsion-restraints tlc))
 	    (list "NAG" "BMA" "MAN" "GAL" "GLC" "FUC" "XYP")))
 
 
@@ -105,8 +102,9 @@
 
 		      ;; residues-near-residue takes a 3-part spec and makes 3-part specs.
 		      (let* ((ls (residues-near-residue imol current-res-spec 1.9)))
-			(format #t "---------------- add-cho-restraints-for-residue ~s ~s ~%~!" imol new-res-spec)
+
 			(add-cho-restraints-for-residue imol new-res-spec)
+
 			(with-auto-accept
 			 (refine-residues imol (cons current-res-spec ls))))
 		      
@@ -199,6 +197,7 @@
 		    (residue-spec->ins-code spec)))
 
   (define (func parent res-pair)
+
     (if (not (list? parent))
         (begin
           (format #t "WARNING:: Oops not a proper res-spec ~s with residues-to-add: ~s~%"
@@ -223,16 +222,21 @@
 ;		      new-res-type
 ;		      new-link)
 
-	      (let ((new-res-spec (add-linked-residue imol 
-						      (res-spec->chain-id parent)
-						      (res-spec->res-no   parent)
-						      (res-spec->ins-code parent)
-						      new-res-type
-						      new-link 2))) ;; add and link mode
+	      (let* ((tree-residues (glyco-tree-residues imol parent))
+		     (imol-save (new-molecule-by-residue-specs imol tree-residues))
+		     (new-res-spec (add-linked-residue imol
+						       (res-spec->chain-id parent)
+						       (res-spec->res-no   parent)
+						       (res-spec->ins-code parent)
+						       new-res-type
+						       new-link 2))) ;; add and link mode
+
+		(set-mol-displayed imol-save 0)
+		(set-mol-active    imol-save 0)
 		(let* ((ls (residues-near-residue imol parent 1.9))
 		       (local-ls (cons parent ls)))
-		  (format #t "---------------- add-cho-restraints-for-residue ~s ~s ~%~!" imol new-res-spec)
 		  (add-cho-restraints-for-residue imol new-res-spec)
+		  (rotate-y-scene 100 0.5)
 		  (with-auto-accept (refine-residues imol local-ls))
 		  (if (list? new-res-spec)
 		      (begin
@@ -241,22 +245,27 @@
 			      (begin
 				preped-new-res-spec)
 			      (begin
+				;; ------------ bad fit -----------------
+				;; delete residue and restore others
 				(format #t "------------ That was not well-fitting. Deleting ~s: ~%"
 					preped-new-res-spec)
 				(delete-extra-restraints-for-residue-spec imol preped-new-res-spec)
 				(delete-residue-by-spec preped-new-res-spec)
-				(with-auto-accept (refine-residues imol local-ls))
+				;; restore glyco-tree residues from imol-save
+				(replace-fragment imol imol-save "//")
+				;; (with-auto-accept (refine-residues imol local-ls))
 				#f))))
-		      #f))))))) ;; oops, something bad...
+		      #f))))))
+    ) ;; oops, something bad...
 
   (define (process-tree parent tree proc-func)
-    (cond 
+    (cond
      ((null? tree) '())
      ((list? (car tree))
       (let ((part-1 (process-tree parent (car tree) proc-func))
 	    (part-2 (process-tree parent (cdr tree) proc-func)))
 	(cons part-1 part-2)))
-     (else 
+     (else
       (let ((new-res (proc-func parent (car tree))))
 	(cons new-res
 	      (process-tree new-res (cdr tree) proc-func))))))
@@ -270,8 +279,8 @@
   (set-residue-selection-flash-frames-number 1)
   (set-go-to-atom-molecule imol)
   (let* ((previous-m (default-new-atoms-b-factor))
-	(m (median-temperature-factor imol))
-	(new-m (* m 1.55)))
+	 (m (median-temperature-factor imol))
+	 (new-m (* m 1.55)))
 
     (set-default-temperature-factor-for-new-atoms previous-m)
 
@@ -280,7 +289,11 @@
 
     (let ((start-pos-view (add-view-here "Glyo Tree Start Pos")))
       (process-tree parent tree func)
-      (go-to-view-number start-pos-view 0))))
+      (go-to-view-number start-pos-view 0)
+      ;; add a test here that the tree here (centre of screen) matches a known tree.
+      ;; 
+      ;; and that each is 4C1 (or 1C4 for FUC?) (XYP?)
+      )))
 
 
 (define (add-linked-residue-with-extra-restraints-to-active-residue new-res-type link-type)
@@ -455,8 +468,8 @@
 	   (add-synthetic-pyranose-planes)))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Use monomodal ring torsion restraints"
+	 menu "Use Unimodal ring torsion restraints"
 	 (lambda () 
-	   (use-monomodal-pyranose-ring-torsions)))
+	   (use-unimodal-pyranose-ring-torsions)))
 
 	)))
