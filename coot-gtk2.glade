@@ -269,7 +269,7 @@
 		      <child>
 			<widget class="GtkMenuItem" id="fetch_pdb_and_map_using_pdbredo1">
 			  <property name="visible">True</property>
-			  <property name="label" translatable="yes">Fetch PDB &amp; Map using PDB REDO...</property>
+			  <property name="label" translatable="yes">Fetch PDB &amp; Map using PDB-REDO...</property>
 			  <property name="use_underline">True</property>
 			  <signal name="activate" handler="on_fetch_pdb_and_map_using_pdbredo1_activate" last_modification_time="Wed, 04 Dec 2013 06:57:57 GMT"/>
 			</widget>

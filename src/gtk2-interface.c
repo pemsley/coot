@@ -524,7 +524,7 @@ create_window1 (void)
   gtk_widget_show (image10939);
   gtk_image_menu_item_set_image (GTK_IMAGE_MENU_ITEM (get_pdb_and_map_using_eds1), image10939);
 
-  fetch_pdb_and_map_using_pdbredo1 = gtk_menu_item_new_with_mnemonic (_("Fetch PDB & Map using PDB REDO..."));
+  fetch_pdb_and_map_using_pdbredo1 = gtk_menu_item_new_with_mnemonic (_("Fetch PDB & Map using PDB-REDO..."));
   gtk_widget_set_name (fetch_pdb_and_map_using_pdbredo1, "fetch_pdb_and_map_using_pdbredo1");
   gtk_widget_show (fetch_pdb_and_map_using_pdbredo1);
   gtk_container_add (GTK_CONTAINER (file1_menu), fetch_pdb_and_map_using_pdbredo1);
