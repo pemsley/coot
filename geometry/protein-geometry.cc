@@ -4550,15 +4550,20 @@ coot::protein_geometry::use_unimodal_ring_torsion_restraints(int imol, const std
 	 for (unsigned int i=0; i<ring_atom_names.size(); i++)
 	    ring_atom_names[i][3] = 'B';
 
-      std::cout << "...............  pre-delete size: " << torsion_restraints.size()
-		<< " for " << res_name << std::endl;
+      if (false) {
+	 for (unsigned int i=0; i<torsion_restraints.size(); i++)
+	    std::cout << " torsion restraint: " << i << " " << torsion_restraints[i] << std::endl;
+	 std::cout << "...............  pre-delete size: " << torsion_restraints.size()
+		   << " for " << res_name << std::endl;
+      }
 
       torsion_restraints.erase(std::remove_if(torsion_restraints.begin(),
 					      torsion_restraints.end(),
 					      restraint_eraser(ring_atom_names)), torsion_restraints.end());
 
-      std::cout << "............... post-delete size: " << torsion_restraints.size()
-		<< " for " << res_name << std::endl;
+      if (false)
+	 std::cout << "............... post-delete size: " << torsion_restraints.size()
+		   << " for " << res_name << std::endl;
       
       std::vector<atom_name_torsion_quad> quads = get_reference_monomodal_torsion_quads(res_name);
       for (unsigned int i=0; i<quads.size(); i++) {
@@ -4566,7 +4571,6 @@ coot::protein_geometry::use_unimodal_ring_torsion_restraints(int imol, const std
 	 dict_torsion_restraint_t tors(quad.id,
 				       quad.atom_name(0), quad.atom_name(1), quad.atom_name(2), quad.atom_name(3),
 				       quad.torsion, 4.0, 1);
-	 std::cout << "DEBUG:: adding unimodal torsion restraint for " << res_name << " " << tors << std::endl;
 	 torsion_restraints.push_back(tors);
       }
    }
@@ -4576,7 +4580,7 @@ std::vector<coot::atom_name_torsion_quad>
 coot::protein_geometry::get_reference_monomodal_torsion_quads(const std::string &res_name) const {
 
    std::vector<coot::atom_name_torsion_quad> v;
-   if (res_name == "MAN") {
+   if (res_name == "MAN" || res_name == "GLC" || res_name == "GAL") {
       v.push_back(coot::atom_name_torsion_quad("var_4",  "O5", "C5", "C4", "C3", -61.35));
       v.push_back(coot::atom_name_torsion_quad("var_2",  "C1", "O5", "C5", "C4",  67.67));
       v.push_back(coot::atom_name_torsion_quad("var_11", "C5", "O5", "C1", "C2", -67.59));
@@ -4603,6 +4607,13 @@ coot::protein_geometry::get_reference_monomodal_torsion_quads(const std::string 
       v.push_back(coot::atom_name_torsion_quad("var_11", "C5", "O5", "C1", "C2",  67.595));
       v.push_back(coot::atom_name_torsion_quad("var_9",  "C3", "C2", "C1", "O5", -61.26));
       v.push_back(coot::atom_name_torsion_quad("var_4",  "O5", "C5", "C4", "C3",  61.32));
+   }
+   if (res_name == "XYP") {
+      v.push_back(coot::atom_name_torsion_quad("var_4",  "O5B", "C5B", "C4B", "C3B", -61.35));
+      v.push_back(coot::atom_name_torsion_quad("var_2",  "C1B", "O5B", "C5B", "C4B",  67.67));
+      v.push_back(coot::atom_name_torsion_quad("var_11", "C5B", "O5B", "C1B", "C2B", -67.59));
+      v.push_back(coot::atom_name_torsion_quad("var_9",  "C3B", "C2B", "C1B", "O5B",  61.20));
+      v.push_back(coot::atom_name_torsion_quad("var_6",  "C5B", "C4B", "C3B", "C2B",  53.75));
    }
 
    return v;
