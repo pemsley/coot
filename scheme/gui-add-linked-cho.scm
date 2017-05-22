@@ -57,7 +57,7 @@
 	      (add-pyranose-pseudo-ring-plane-restraints comp-id))
 	    (list "NAG" "BMA" "MAN" "GAL" "GLC" "FUC" "XYP")))
 
-(define (use-monomodal-pyranose-ring-torsions)
+(define (use-unimodal-pyranose-ring-torsions)
   (for-each (lambda(tlc)
 	      (use-unimodal-ring-torsion-restraints tlc))
 	    (list "NAG" "BMA" "MAN" "GAL" "GLC" "FUC" "XYP")))

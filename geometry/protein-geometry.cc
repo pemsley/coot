@@ -4526,29 +4526,6 @@ void
 coot::protein_geometry::use_unimodal_ring_torsion_restraints(int imol, const std::string &res_name,
 							     int mmcif_read_number) {
 
-   class restraint_eraser {
-   public:
-      std::vector<std::string> names;
-      // the constructor, can be information that needs to be used
-      // internally in the operator() function.  This is run once
-      // 
-      restraint_eraser(const std::vector<std::string> &names_in) {
-	 names = names_in;
-      }
-
-      // return true for deletion
-      bool operator()(const dict_torsion_restraint_t &r) const {
-	 int n_match = 0;
-	 for (unsigned int i=0; i<names.size(); i++) {
-	    if (r.atom_id_1_4c() == names[i]) n_match++;
-	    if (r.atom_id_2_4c() == names[i]) n_match++;
-	    if (r.atom_id_3_4c() == names[i]) n_match++;
-	    if (r.atom_id_4_4c() == names[i]) n_match++;
-	 }
-	 return (n_match == 4);
-      }
-   };
-
  bool minimal = false;
    int idx = get_monomer_restraints_index(res_name, imol, minimal);
    if (idx == -1) {
@@ -4569,6 +4546,9 @@ coot::protein_geometry::use_unimodal_ring_torsion_restraints(int imol, const std
       ring_atom_names.push_back(" C1 "); ring_atom_names.push_back(" C2 ");
       ring_atom_names.push_back(" C3 "); ring_atom_names.push_back(" C4 ");
       ring_atom_names.push_back(" C5 "); ring_atom_names.push_back(" O5 ");
+      if (res_name == "XYP")
+	 for (unsigned int i=0; i<ring_atom_names.size(); i++)
+	    ring_atom_names[i][3] = 'B';
 
       std::cout << "...............  pre-delete size: " << torsion_restraints.size()
 		<< " for " << res_name << std::endl;

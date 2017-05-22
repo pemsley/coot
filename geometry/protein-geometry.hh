@@ -1126,6 +1126,29 @@ namespace coot {
       enum { UNSET_NUMBER = -1 };  // An unset number, for example the
       // number of atoms.
 
+      class restraint_eraser {
+      public:
+	 std::vector<std::string> names;
+	 // the constructor, can be information that needs to be used
+	 // internally in the operator() function.  This is run once
+	 // 
+	 restraint_eraser(const std::vector<std::string> &names_in) {
+	    names = names_in;
+	 }
+
+	 // return true for deletion
+	 bool operator()(const dict_torsion_restraint_t &r) const {
+	    int n_match = 0;
+	    for (unsigned int i=0; i<names.size(); i++) {
+	       if (r.atom_id_1_4c() == names[i]) n_match++;
+	       if (r.atom_id_2_4c() == names[i]) n_match++;
+	       if (r.atom_id_3_4c() == names[i]) n_match++;
+	       if (r.atom_id_4_4c() == names[i]) n_match++;
+	    }
+	    return (n_match == 4);
+	 }
+      };
+
       //testing func
       bool close_float_p(const mmdb::realtype &f1, const mmdb::realtype &f2) const {
 	 float d = fabs(f1-f2);
