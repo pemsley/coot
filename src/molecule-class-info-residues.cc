@@ -693,7 +693,7 @@ molecule_class_info_t::get_all_molecule_rotamer_score(const coot::rotamer_probab
 			rs.n_pass++;
 		     } 
 		  }
-		  catch (std::runtime_error rte) {
+		  catch (const std::runtime_error &rte) {
 		     std::cout << "Error:: " << rte.what() << std::endl;
 		     rs.n_pass++;
 		  }
@@ -1382,7 +1382,7 @@ coot::dict_link_info_t::check_for_order_switch(mmdb::Residue *residue_ref,
 	 }
       }
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "WARNING:: check_for_order_switch() exception: " << rte.what() << std::endl;
    } 
    return order_switch_flag;
@@ -1400,8 +1400,38 @@ molecule_class_info_t::multi_residue_torsion_fit(const std::vector<coot::residue
    
    // do we need to send over the base atom too?  Or just say
    // that it's the first atom in moving_mol?
-   // 
+   //
+   std::vector<coot::residue_spec_t> neighbour_specs;
+   for (unsigned int i=0; i<residue_specs.size(); i++) {
+      std::vector<coot::residue_spec_t> this_res_neighbs = residues_near_residue(residue_specs[i], 8);
+      for (unsigned int j=0; j<this_res_neighbs.size(); j++) {
+	 if (std::find(neighbour_specs.begin(), neighbour_specs.end(),
+		       this_res_neighbs[j]) == neighbour_specs.end()) {
+	    if (std::find(residue_specs.begin(), residue_specs.end(), this_res_neighbs[j]) == residue_specs.end()) {
+	       neighbour_specs.push_back(this_res_neighbs[j]);
+	    }
+	 }
+      }
+   }
    std::vector<clipper::Coord_orth> avoid_these_atoms;
+   for (unsigned int i=0; i<neighbour_specs.size(); i++) {
+      mmdb::Residue *residue_p = get_residue(neighbour_specs[i]);
+      if (residue_p) {
+	 mmdb::Atom **residue_atoms = 0;
+	 int n_residue_atoms;
+	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	 for (int iat=0; iat<n_residue_atoms; iat++) {
+	    mmdb::Atom *at = residue_atoms[iat];
+	    std::string ele = at->element;
+	    if (ele != " H") { // PDBv3 fixme
+	       clipper::Coord_orth pt = coot::co(at);
+	       avoid_these_atoms.push_back(pt);
+	    }
+	 }
+      }
+   }
+
+
    coot::multi_residue_torsion_fit_map(imol_no, moving_mol, xmap, avoid_these_atoms, n_trials, geom_p);
 
    atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
