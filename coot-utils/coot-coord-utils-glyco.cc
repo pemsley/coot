@@ -716,12 +716,16 @@ bool
 coot::glyco_tree_t::is_pyranose(mmdb::Residue *residue_p) const {
 
    bool is_pyranose = false;
-   try { 
+   try {
+
+      // CCD and Acedrg use D-SACCHARIDE or SACCHARIDE (FUC) for monomer groups
+      //
       std::string group = geom_p->get_group(residue_p);
-      if (group == "pyranose" || group == "D-pyranose" || group == "L-pyranose")
+      if (group == "pyranose" || group == "D-pyranose" || group == "L-pyranose" ||
+	  group == "D-SACCHARIDE" || group == "SACCHARIDE")
 	 is_pyranose = true;
    }
-   catch (std::runtime_error rte) {
+   catch (const std::runtime_error &rte) {
       std::cout << "ERROR::" << rte.what() << std::endl;
    } 
 
@@ -908,7 +912,7 @@ coot::glyco_tree_t::get_id(mmdb::Residue *residue_p) const {
 
    residue_id_t id;
    tree<linked_residue_t>::iterator it;
-   bool debug = false;
+   bool debug = true;
 
    int n_in_tree = 0;
    if (debug) {

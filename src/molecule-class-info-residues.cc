@@ -1401,7 +1401,8 @@ molecule_class_info_t::multi_residue_torsion_fit(const std::vector<coot::residue
    // do we need to send over the base atom too?  Or just say
    // that it's the first atom in moving_mol?
    // 
-   coot::multi_residue_torsion_fit_map(imol_no, moving_mol, xmap, n_trials, geom_p);
+   std::vector<clipper::Coord_orth> avoid_these_atoms;
+   coot::multi_residue_torsion_fit_map(imol_no, moving_mol, xmap, avoid_these_atoms, n_trials, geom_p);
 
    atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);
    replace_coords(moving_atoms_asc, 1, 1);

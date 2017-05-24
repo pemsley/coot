@@ -406,6 +406,7 @@ void
 coot::multi_residue_torsion_fit_map(int imol,
 				    mmdb::Manager *mol,
 				    const clipper::Xmap<float> &xmap,
+				    const std::vector<clipper::Coord_orth> &avoid_these_atoms,
 				    int n_trials,
 				    coot::protein_geometry *geom_p) {
 
@@ -529,6 +530,9 @@ coot::multi_residue_torsion_fit_map(int imol,
 	    tree.set_dihedral_multi(torsion_quads);
 	    // FIXME for futures, also include link_angle_atom_triples (for excluding of bumps)
 	    double self_clash_score = get_self_clash_score(mol, atom_selection, n_selected_atoms, quads);
+
+	    double env_clash_score = get_environment_clash_score(mol, atom_selection, n_selected_atoms,
+								 avoid_these_atoms);
 
 	    // self-clash scores have mean 7.5, median 3.3 and sd 14, IRQ 0.66
 	    // 
@@ -730,3 +734,27 @@ coot::both_in_a_torsion_p(mmdb::Atom *at_1,
    }
    return in_a_tors;
 } 
+
+// return a positive number for a clash - the bigger the number the worse the clash.
+//
+double
+coot::get_environment_clash_score(mmdb::Manager *mol,
+				  mmdb::PPAtom atom_selection,
+				  int n_selected_atoms,
+				  const std::vector<clipper::Coord_orth> &avoid_these_atoms) {
+   double cs = 0;
+   double close_lim = 3.3;
+   double close_lim_sqrd = close_lim * close_lim;
+   double sf = 1.0;
+   for (int iat=0; iat<n_selected_atoms; iat++) {
+      clipper::Coord_orth at_pt = co(atom_selection[iat]);
+      for (unsigned int jat=0; jat<avoid_these_atoms.size(); jat++) {
+	 double d_sqd = (at_pt - avoid_these_atoms[jat]).lengthsq();
+	 if (d_sqd < close_lim_sqrd) {
+	    double diff = close_lim - sqrt(d_sqd);
+	    cs += diff*diff*sf;
+	 }
+      }
+   }
+   return cs;
+}

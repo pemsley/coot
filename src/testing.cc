@@ -1049,7 +1049,7 @@ int test_peptide_link() {
    try {
       std::string comp_id_1 = "MAN";
       std::string comp_id_2 = "MAN";
-      std::string group_1 = "D-pyranose";
+      std::string group_1 = "D-pyranose"; // CCD and acedrg dictionaries now use D-SACCHARIDE
       std::string group_2 = "D-pyranose";
 
       clipper::Xmap<float> xmap;
