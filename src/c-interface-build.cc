@@ -5137,13 +5137,13 @@ int add_linked_residue(int imol, const char *chain_id, int resno, const char *in
 SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char *ins_code, 
 			   const char *new_residue_comp_id, const char *link_type, int mode) {
 
-   int n_trials = 3000;
+   int n_trials = 5000;
    SCM r = SCM_BOOL_F;
    // bool do_fit_and_refine = graphics_info_t::linked_residue_fit_and_refine_state;
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      
+
       if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(new_residue_comp_id)) {
       } else {
 	 std::cout << "INFO:: dictionary does not already have " << new_residue_comp_id
