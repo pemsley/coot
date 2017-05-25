@@ -1431,7 +1431,6 @@ molecule_class_info_t::multi_residue_torsion_fit(const std::vector<coot::residue
       }
    }
 
-
    coot::multi_residue_torsion_fit_map(imol_no, moving_mol, xmap, avoid_these_atoms, n_trials, geom_p);
 
    atom_selection_container_t moving_atoms_asc = make_asc(moving_mol);

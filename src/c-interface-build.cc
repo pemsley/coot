@@ -5137,7 +5137,7 @@ int add_linked_residue(int imol, const char *chain_id, int resno, const char *in
 SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char *ins_code, 
 			   const char *new_residue_comp_id, const char *link_type, int mode) {
 
-   int n_trials = 6000;
+   int n_trials = 3000;
    SCM r = SCM_BOOL_F;
    // bool do_fit_and_refine = graphics_info_t::linked_residue_fit_and_refine_state;
 

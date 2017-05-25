@@ -540,8 +540,9 @@ coot::multi_residue_torsion_fit_map(int imol,
 	    }
 
 	    // self-clash scores have mean 7.5, median 3.3 and sd 14, IRQ 0.66
-	    // 
-	    if ((self_clash_score > 6) || (env_clash_score > 1.0)) {
+	    // Is this a good clash score lim?  Not clear, but 10.0 is better than 1.0
+	    //
+	    if ((self_clash_score > 6) || (env_clash_score > 10.0)) {
 
 	       // crash and bangs into itself (between residues)
 	       // or into its neighbours (the 1.0 might need tuning)
