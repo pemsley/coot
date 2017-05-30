@@ -745,12 +745,15 @@ gtk_thread_return_value = None
 #       data_list is ["HEAD","END"]
 #       log_file_name is "refmac.log"      
 #       screen_flag True/False to display or not in shell window
+#       local_env can be set to change the environment variables the
+#                 command is run in.
 # 
 # Return the exist status e.g. 0 or 1. Or False if cmd not found.
 #
 # uses os.popen if python version < 2.4 otherwise subprocess
 # 
-def popen_command(cmd, args, data_list, log_file, screen_flag=False):
+def popen_command(cmd, args, data_list, log_file, screen_flag=False,
+                  local_env=None):
 
     import sys, string, os
     
@@ -772,9 +775,12 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False):
             log = open(log_file, 'w')
             cmd_args = [cmd_execfile] + args
             if (screen_flag):
-                process = subprocess.Popen(cmd_args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+                process = subprocess.Popen(cmd_args, stdin=subprocess.PIPE,
+                                           stdout=subprocess.PIPE,
+                                           env=local_env)
             else:
-                process = subprocess.Popen(cmd_args, stdin=subprocess.PIPE, stdout=log)
+                process = subprocess.Popen(cmd_args, stdin=subprocess.PIPE,
+                                           stdout=log, env=local_env)
 
             for data in data_list:
                 process.stdin.write(data + "\n")
