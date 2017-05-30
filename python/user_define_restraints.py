@@ -525,13 +525,13 @@ if (have_coot_python):
     
     add_simple_coot_menu_menuitem(
       menu,
-      "Undisplay Extra Restraints...",
+      "Undisplay Extra Restraints",
       lambda func: set_prosmart_display_func(0)
       )
 
     add_simple_coot_menu_menuitem(
       menu,
-      "Display ProSMART Extra Restraints...",
+      "Display ProSMART Extra Restraints",
       lambda func: set_prosmart_display_func(1)
       )
 

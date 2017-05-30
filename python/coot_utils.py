@@ -116,7 +116,10 @@ def using_active_atom(*funcs):
                        "aa_res_no":    active_atom[2],
                        "aa_ins_code":  active_atom[3],
                        "aa_atom_name": active_atom[4],
-                       "aa_alt_conf":  active_atom[5]}
+                       "aa_alt_conf":  active_atom[5],
+                       "aa_res_spec":  [active_atom[1],  # chain_id
+                                        active_atom[2],  # res_no
+                                        active_atom[3]]} # ins_code
             
             if isinstance(item, list):
                 arg_ls = []
@@ -166,7 +169,7 @@ def using_active_atom(*funcs):
 #
 class NoBackups:
     """'Macro' to tidy up a a setup of functions to be run with no backup
-    for a particular molecule.
+    for a particular molecule (default imol=0).
 
     use with 'with', e.g.:
     
@@ -175,7 +178,7 @@ class NoBackups:
         accept_regularizement()
     """
     
-    def __init__(self, imol):
+    def __init__(self, imol=0):
         self.imol = imol
     def __enter__(self):
         self.b_state = backup_state(self.imol)
@@ -224,10 +227,17 @@ class UsingActiveAtom:
     
     > with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
           refine_zone(aa_imol, aa_chain_id, aa_res_no-2, aa_res_no+2, aa_ins_code)
+
+    alternative usage to get res_spec as well
+
+    > with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf, aa_res_spec]:
+          refine_zone(aa_imol, aa_chain_id, aa_res_no-2, aa_res_no+2, aa_ins_code)
+
     """
     
-    def __init__(self):
+    def __init__(self, with_res_spec=False):
         self.no_residue = False
+        self.res_spec = with_res_spec
         pass
     def __enter__(self):
         self.active_atom = active_residue()
@@ -242,7 +252,13 @@ class UsingActiveAtom:
             ins_code  = self.active_atom[3]
             atom_name = self.active_atom[4]
             alt_conf  = self.active_atom[5]
-            return [imol, chain_id, res_no, ins_code, atom_name, alt_conf]
+            res_spec  = [self.active_atom[1],  # chain_id
+                         self.active_atom[2],  # res_no
+                         self.active_atom[3]] # ins_code
+            if self.res_spec:
+                return [imol, chain_id, res_no, ins_code, atom_name, alt_conf, res_spec]
+            else:
+                return [imol, chain_id, res_no, ins_code, atom_name, alt_conf]
     def __exit__(self, type, value, traceback):
         if (self.no_residue):
             # internal calling of exit, ignore errors

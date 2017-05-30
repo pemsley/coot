@@ -308,9 +308,8 @@ def get_pdb_redo(text):
             print "BL WARNING:: Accession code not 4 chars."
         else:
             text = string.lower(text)
-            stub = "http://www.cmbi.ru.nl/pdb_redo/" + \
-                   text[1:3] + \
-                   "/" + text + "/" + text + "_final"
+            stub = "http://pdb-redo.eu/db/" + \
+                   text + "/" + text + "_final"
             pdb_file_name = text + "_final.pdb"
             mtz_file_name = text + "_final.mtz"
             py_file_name = text + ".py"
