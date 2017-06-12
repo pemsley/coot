@@ -624,7 +624,10 @@ coot::torsionable_bonds_monomer_internal(mmdb::Residue *residue_p,
       geom_p->get_monomer_torsions_from_geometry(rn, hydrogen_torsions);
    bool is_pyranose = false; // reset maybe
    std::string group = geom_p->get_group(residue_p);
-   if (group == "pyranose" || group == "D-pyranose" || group == "L-pyranose")
+   // CCD dictionaries are marked at D-SACCHARIDE or SACCHARIDE (FUC)
+   // SIA (sialic acid) is marked as NON-POLYMER.  Hmm..
+   if (group == "pyranose" || group == "D-pyranose" || group == "L-pyranose" ||
+       group == "D-SACCHARIDE" || group == "SACCHARIDE")
       is_pyranose = true;
 
    if (tors_restraints.size()) {
@@ -682,7 +685,8 @@ coot::torsionable_bonds_monomer_internal_quads(mmdb::Residue *residue_p,
       geom_p->get_monomer_torsions_from_geometry(rn, hydrogen_torsions);
    bool is_pyranose = false;
    std::string group = geom_p->get_group(residue_p);
-   if (group == "pyranose" || group == "D-pyranose" || group == "L-pyranose")
+   if (group == "pyranose" || group == "D-pyranose" || group == "L-pyranose" ||
+       group == "D-SACCHARIDE" || group == "SACCHARIDE")
       is_pyranose = true;
    std::vector<std::string> residue_alt_confs = coot::util::get_residue_alt_confs(residue_p);
    for (unsigned int itor=0; itor<tors_restraints.size(); itor++) {

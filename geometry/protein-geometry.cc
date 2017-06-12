@@ -1459,6 +1459,10 @@ coot::chem_link::matches_comp_ids_and_groups(const std::string &comp_id_1,
    if (local_group_2 == "M-peptide")  local_group_2 = "peptide";
    if (local_group_1 == "D-pyranose") local_group_1 = "pyranose";
    if (local_group_2 == "D-pyranose") local_group_2 = "pyranose";
+   if (local_group_1 == "D-SACCHARIDE") local_group_1 = "pyranose";  // CCD annotation for MAN, etc
+   if (local_group_1 == "SACCHARIDE") local_group_1 = "pyranose";    // CCD annotation for FUC
+   if (local_group_2 == "D-SACCHARIDE") local_group_2 = "pyranose";
+   if (local_group_2 == "SACCHARIDE") local_group_2 = "pyranose";
    
    if (((chem_link_group_comp_1 == "") || (chem_link_group_comp_1 == local_group_1)) &&
        ((chem_link_group_comp_2 == "") || (chem_link_group_comp_2 == local_group_2)))

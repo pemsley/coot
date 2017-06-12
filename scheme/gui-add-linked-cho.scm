@@ -62,6 +62,9 @@
 	      (use-unimodal-ring-torsion-restraints tlc))
 	    (list "NAG" "BMA" "MAN" "GAL" "GLC" "FUC" "XYP")))
 
+;; fill this later
+(define (add-cho-restraints-for-residue imol new-res-spec)
+  #f)
 
 (define (multi-add-linked-residue imol res-spec residues-to-add)
 

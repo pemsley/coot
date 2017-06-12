@@ -53,6 +53,11 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
 
    o parse Sameer's xml
 
+   o add a glyco, with extra GM distance restraints - delete residue
+     (undo).  Now get lots of warning about missing atoms on the
+     terminal (as coot tries to find the atoms for the extra
+     restraints).  Tricky to fix, I think.
+
    o get rid of this: 
      INFO:: setup minimol from mol: no spacegroup
 
