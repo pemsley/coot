@@ -1,6 +1,20 @@
 
    For Release 0.8.9
 
+   o if use has (add-module-carbohydrate) in ~/.coot, then coot should not
+     stop saying unbound variable... i.e. either much of gui-add-linked-cho.scm should
+     be in add-linked-cho.scm or all of it which is unconditionally
+     loaded at runtime (but (of course)) is conditionally evaluated).
+
+   o add_alt_conf interface should have something like this:
+
+      if (use_graphics_interface_flag) {
+         if (refinement_immediate_replacement_flag) {
+	    // dismiss dialog, act as if OK was pressed
+	 }
+      }
+
+
    o when first molecule is not a protein.  Copy NCS residue range. coot-utils.scm 1533
 
    o in 2qc1, build a NAG, NAG, BMA. Centre on the first NAG, sphere refine or H-refine.  

@@ -987,14 +987,14 @@ coot::minimol::molecule::pcmmdbmanager() const {
 		     if (this_atom.int_user_data >= 0)
 			atom_p->PutUDData(udd_atom_index_handle, this_atom.int_user_data);
 		  i_add = res_p->AddAtom(atom_p);
-		  if (i_add < 0) 
+		  if (i_add < 0)
 		     std::cout << "addatom addition error" << std::endl;
 	       }
 	    }
 	 }
       }
    }
-	 
+
    mol->AddModel(model_p);
    
    if (have_cell) {
