@@ -4048,9 +4048,17 @@ rigid_body_refine_by_atom_selection(int imol,
 	 //
 	 bool fill_mask = true;
 	 mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+
+	 if (false)
+	    std::cout << "debug in rigid_body_refine_by_atom_selection() start: here UDDAtomIndexHandle is "
+		      << g.molecules[imol].atom_sel.UDDAtomIndexHandle << std::endl;
+
 	 std::string atom_selection_str(atom_selection_string);
+	 // first is the atoms of the mask (not in the selection
+	 // second is the atoms of the selection
 	 std::pair<coot::minimol::molecule, coot::minimol::molecule> p = 
 	    coot::make_mols_from_atom_selection_string(mol, atom_selection_str, fill_mask);
+
 	 g.imol_rigid_body_refine = imol;
 	 g.rigid_body_fit(p.first,   // without selected region.
 			  p.second,  // selected region.

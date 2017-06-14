@@ -160,6 +160,9 @@ make_asc(mmdb::Manager *mol, bool transfer_atom_index_flag) {
 
    if (transfer_atom_index_flag) {
       int udd_atom_index_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
+      // int udd_atom_index_handle_fake = mol->GetUDDHandle(mmdb::UDR_ATOM, "fake atom index");
+      // std::cout << "debug:: in make_asc() transfering atom indices, got handle for indices : "
+      // << udd_atom_index_handle << " " << udd_atom_index_handle_fake << std::endl;
       asc.UDDOldAtomIndexHandle = udd_atom_index_handle;
    }
 

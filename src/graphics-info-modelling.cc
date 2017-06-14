@@ -2017,6 +2017,14 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
       success = 1;
       rigid_body_asc = make_asc(moved_mol.pcmmdbmanager(), true);
 
+      if (false)
+	 std::cout << "debug in rigid_fit() post-fit: here UDDOldAtomIndexHandle is "
+		   << rigid_body_asc.UDDOldAtomIndexHandle << std::endl;
+
+      // this seems fine.
+      if (debug)
+	 rigid_body_asc.mol->WritePDBASCII("post-rigid-body-refine.pdb");
+
       moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
       imol_moving_atoms = imol_rigid_body_refine;
       int imol = 0; // dummy (we don't need dictionary for rigid)

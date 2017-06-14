@@ -1282,6 +1282,8 @@ graphics_info_t::accept_moving_atoms() {
       } else {
 	 if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) {
 	    molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 0, mzo);
+	    // debug
+	    // molecules[imol_moving_atoms].atom_sel.mol->WritePDBASCII("post-accept_moving_atoms.pdb");
 	    update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
 	 } else {
 	    if (moving_atoms_asc_type == coot::NEW_COORDS_INSERT) {
