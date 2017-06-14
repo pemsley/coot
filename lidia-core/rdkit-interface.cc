@@ -1745,7 +1745,7 @@ coot::charge_guanidinos(RDKit::RWMol *rdkm) {
 	       }
 	       ++nbrIdx;
 	    }
-	    std::cout << "found " << CN_bonds.size() << " N bonds to this C " << std::endl;
+	    // std::cout << "found " << CN_bonds.size() << " N bonds to this C " << std::endl;
 	    if (CN_bonds.size() == 3) {
 	       if (C_N_double_bond) { 
 		  int idx_n = C_N_double_bond->getOtherAtomIdx(idx_c);
@@ -3005,6 +3005,8 @@ coot::charge_undelocalized_guanidinos(RDKit::RWMol *rdkm) {
 // valence on P: (1 1/2) * 3 + 1 -> 6 => problem.
 // 
 // So, in that case, +1 charge the P.  This might be a hack.
+//
+// return the number of deleted atoms
 void
 coot::charge_phosphates(RDKit::RWMol *rdkm) {
 
@@ -3041,25 +3043,30 @@ coot::charge_phosphates(RDKit::RWMol *rdkm) {
    }
 }
 
-void 
+// return the number of atoms added (e.g. -2)
+int
 coot::remove_phosphate_hydrogens(RDKit::RWMol *m, bool deloc_bonds) { 
  
-   remove_PO4_SO4_hydrogens(m, 15, deloc_bonds);
+   return remove_PO4_SO4_hydrogens(m, 15, deloc_bonds);
 
 }
 
-void coot::remove_sulphate_hydrogens(RDKit::RWMol *m, bool deloc_bonds) {
+// return the number of atoms added (e.g. -1)
+int
+coot::remove_sulphate_hydrogens(RDKit::RWMol *m, bool deloc_bonds) {
 
-   remove_PO4_SO4_hydrogens(m, 16, deloc_bonds);
+   return remove_PO4_SO4_hydrogens(m, 16, deloc_bonds);
 
 }
 
 
-void 
+// return the number of atoms added (e.g. -1)
+int
 coot::remove_PO4_SO4_hydrogens(RDKit::RWMol *m, 
                                unsigned int atomic_num, 
                                bool deloc_bonds) {
 
+   int n_added = 0;
    bool debug = false;
    RDKit::ROMol::AtomIterator ai;
    std::vector<RDKit::Atom *> H_atoms_to_be_deleted;
@@ -3069,20 +3076,20 @@ coot::remove_PO4_SO4_hydrogens(RDKit::RWMol *m,
       if (this_atomic_num == atomic_num) {
 	 RDKit::Atom *P_at = *ai;
 	 int idx_1 = P_at->getIdx();
-	 std::vector<RDKit::Bond *> single_PO_bonds;
+	 // std::cout << "new thingate centre " << P_at << " " << idx_1 << std::endl;
+	 std::vector<RDKit::Bond *> single_PO_bonds; // with a hydrogen attached
 	 std::vector<RDKit::Bond *> double_PO_bonds;
          std::vector<RDKit::Atom *> O_atoms_for_charging;
          std::vector<RDKit::Atom *> probable_phosphate_hydrogens;
 	 
 	 RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
 	 boost::tie(nbrIdx, endNbrs) = m->getAtomNeighbors(P_at);
-	 while(nbrIdx != endNbrs) {
+	 while (nbrIdx != endNbrs) {
 	    const RDKit::ATOM_SPTR at = (*m)[*nbrIdx];
 	    RDKit::Bond *bond = m->getBondBetweenAtoms(idx_1, *nbrIdx);
 	    if (bond) {
 
-               if (at->getAtomicNum() == 8) { 
-
+               if (at->getAtomicNum() == 8) {
 	          if (bond->getBondType() == RDKit::Bond::SINGLE) { 
                      const int &idx_O = *nbrIdx;
                      const RDKit::ATOM_SPTR O_at = at;
@@ -3099,7 +3106,9 @@ coot::remove_PO4_SO4_hydrogens(RDKit::RWMol *m,
 		           single_PO_bonds.push_back(bond);
                            O_atoms_for_charging.push_back(at.get());
                            probable_phosphate_hydrogens.push_back(at_other_p.get());
-                        }
+                        } else {
+			   // std::cout << at_other_p << " was not a hydrogen" << std::endl;
+			}
 	                current++;
 	             }
 
@@ -3113,27 +3122,27 @@ coot::remove_PO4_SO4_hydrogens(RDKit::RWMol *m,
 	    ++nbrIdx;
 	 }
 
-         if (debug) { 
+         if (debug) {
             std::string ele = (atomic_num == 15) ? "P" : "S";
-            std::cout << "DEBUG:: atom_idx: " << idx_1 << " Found " 
-                      << single_PO_bonds.size() << " single " << ele << "O bonds and " 
-                      << double_PO_bonds.size() << " double " << ele << "O bonds " 
+            std::cout << "DEBUG:: atom_idx: " << idx_1 << " Found "
+                      << single_PO_bonds.size() << " single " << ele << "O bonds and "
+                      << double_PO_bonds.size() << " double " << ele << "O bonds "
                       << std::endl;
          }
 
-	 bool do_strip = false;
+	 bool do_strip_Hs = false;
 	 if (atomic_num == 15)
-	    if (single_PO_bonds.size() == 2)
+	    if (single_PO_bonds.size() == 2 || single_PO_bonds.size() == 1) // terminal and mid PO4s
 	       if (double_PO_bonds.size() == 1)
-		  do_strip = true;
+		  do_strip_Hs = true;
 	 
 	 if (atomic_num == 16)
 	    if (single_PO_bonds.size() == 1)  // SO bonds of course in this case
 	       if (double_PO_bonds.size() == 2)
-		  do_strip = true;
+		  do_strip_Hs = true;
 
-	 if (do_strip) {
-	    
+	 if (do_strip_Hs) {
+
 	    if (debug) { 
 	       std::string thingate = (atomic_num== 16) ? "sulphate" : "phosphate";
 	       std::cout << " :::::: found a " << thingate << " :::::::::::::" << std::endl;
@@ -3141,19 +3150,21 @@ coot::remove_PO4_SO4_hydrogens(RDKit::RWMol *m,
 
 	    for (unsigned int ip=0; ip<probable_phosphate_hydrogens.size(); ip++)
 	       H_atoms_to_be_deleted.push_back(probable_phosphate_hydrogens[ip]);
-               
+
 	    // 20150622-PE
 	    // If we charge the Os, then (for AMP from PDBe-AMP.cif) we end up 
 	    // with 
 	    // "Explicit valence for atom # 1 O, 3, is greater than permitted"
 	    // when we call sanitizeMol() from hydrogen_transformations()
 	    // (directly after this function is called).
-	    // 
-	    // for (unsigned int ii=0; ii<O_atoms_for_charging.size(); ii++)
-	    //    O_atoms_for_charging[ii]->setFormalCharge(-1);
+	    //
+
+	    // 20170608 let's try to charge the O atoms:
+	    for (unsigned int ii=0; ii<O_atoms_for_charging.size(); ii++)
+	        O_atoms_for_charging[ii]->setFormalCharge(-1);
 
 	    if (deloc_bonds) { 
-         
+
 	       if (O_atoms_for_charging.size() == 3) {
 
 		  for (unsigned int ii=0; ii<single_PO_bonds.size(); ii++)
@@ -3167,16 +3178,44 @@ coot::remove_PO4_SO4_hydrogens(RDKit::RWMol *m,
          }
       }
    }
+
+   if (debug)
+      std::cout << " in rdkit remove_PO4_SO4_hydrogens() remove these "
+		<< H_atoms_to_be_deleted.size() << " Hydrogen atoms for atomic number "
+		<< atomic_num << std::endl;
+
    for (unsigned int idel=0; idel<H_atoms_to_be_deleted.size(); idel++) { 
+
+      // remove bonds for these atoms then delete the atom
+      //
+      RDKit::ROMol::OEDGE_ITER current, end;
+      boost::tie(current, end) = m->getAtomBonds(H_atoms_to_be_deleted[idel]);
+      while (current != end) {
+	 RDKit::BOND_SPTR bond= (*m)[*current];
+	 int idx = H_atoms_to_be_deleted[idel]->getIdx();
+	 int idx_other = bond->getOtherAtomIdx(idx);
+	 if (debug) { // debug
+	    std::string name_1;
+	    std::string name_2;
+	    RDKit::Atom *other_at = (*m)[idx_other].get();
+	    H_atoms_to_be_deleted[idel]->getProp("name", name_1);
+	    other_at->getProp("name", name_2);
+	    std::cout << "----- removeBond between " << idx << " " << idx_other << " " << name_1 << " " << name_2
+		      << std::endl;
+	 }
+	 m->removeBond(idx, idx_other);
+	 current++;
+      }
 
       if (debug) {
          std::string atom_name;
          H_atoms_to_be_deleted[idel]->getProp("name", atom_name);
-         std::cout << "----------- delete " << H_atoms_to_be_deleted[idel]
+         std::cout << "-------- delete atom " << H_atoms_to_be_deleted[idel]
                                     << " " << atom_name << std::endl;
       }
       m->removeAtom(H_atoms_to_be_deleted[idel]);
-   }  
+      n_added--;
+   }
    if (H_atoms_to_be_deleted.size() > 0) { 
 
       std::string s = (H_atoms_to_be_deleted.size() > 1) ? "s" : ""; 
@@ -3184,6 +3223,8 @@ coot::remove_PO4_SO4_hydrogens(RDKit::RWMol *m,
       std::cout << "INFO:: Deleted " << H_atoms_to_be_deleted.size()
 	        << " " << thingate << " hydrogen atom" << s  << std::endl;
    }
+   // return the number of atoms added (e.g. -1)
+   return n_added;
 }
 
 

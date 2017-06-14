@@ -164,30 +164,38 @@ void molecule_from_SMILES(const std::string &smiles_string) {
    // s = "CC12CC[C@@]3(C1)CC(=C)CC3C(C2C(C)(C)C)C(C)(C)C"; // bird
    // s = "O[V]1(O)(O)ONC(=[O]1)c1ccccc1";
    // s = "C#O";
-   s = "[H]/N=C(\\N)/NCCC[C@@H](C(=O)N[C@@H](CCc1ccccc1)/C=C/S(=O)(=O)c2ccccc2)NC(=O)N3CC[NH+](CC3)C";
-   
-   RDKit::RWMol *rdkmp = RDKit::SmilesToMol(s);
-   coot::mogulify_mol(*rdkmp);
+   // s = "[H]/N=C(\\N)/NCCC[C@@H](C(=O)N[C@@H](CCc1ccccc1)/C=C/S(=O)(=O)c2ccccc2)NC(=O)N3CC[NH+](CC3)C";
 
-   { 
-      bool includeStereo = true;
-      bool kekulize = false;
-      std::string sdf_file_name = "smiles-string.mdl";
-      int confId = -1;
-      RDDepict::compute2DCoords(*rdkmp, NULL, true);
-      std::cout << "confId: " << confId << std::endl;
-      RDKit::MolToMolFile(*rdkmp, sdf_file_name, includeStereo, confId, kekulize);
+   try {
+   
+      RDKit::RWMol *rdkmp = RDKit::SmilesToMol(s);
+      if (rdkmp) {
+	 coot::mogulify_mol(*rdkmp);
+
+	 { 
+	    bool includeStereo = true;
+	    bool kekulize = false;
+	    std::string sdf_file_name = "smiles-string.mdl";
+	    int confId = -1;
+	    RDDepict::compute2DCoords(*rdkmp, NULL, true);
+	    std::cout << "confId: " << confId << std::endl;
+	    RDKit::MolToMolFile(*rdkmp, sdf_file_name, includeStereo, confId, kekulize);
+	 }
+   
+	 coot::debug_rdkit_molecule(rdkmp);
+	 RDKit::RWMol rdkm(*rdkmp);
+
+	 cod::atom_types_t t;
+	 std::vector<cod::atom_type_t> v = t.get_cod_atom_types(rdkm);
+
+	 std::cout << "PE-TYPES:: -------- got " << v.size() << " atoms " << std::endl;
+	 for (unsigned int i=0; i<v.size(); i++)
+	    std::cout << "   " << i << " " << v[i].level_4 << "" << std::endl;
+      }
    }
-   
-   coot::debug_rdkit_molecule(rdkmp);
-   RDKit::RWMol rdkm(*rdkmp);
-
-   cod::atom_types_t t;
-   std::vector<cod::atom_type_t> v = t.get_cod_atom_types(rdkm);
-
-   std::cout << "PE-TYPES:: -------- got " << v.size() << " atoms " << std::endl;
-   for (unsigned int i=0; i<v.size(); i++)
-      std::cout << "   " << i << " " << v[i].level_4 << "" << std::endl;
+   catch (const std::runtime_error &rte) {
+      std::cout << rte.what() << std::endl;
+   }
 
 }
 
@@ -237,7 +245,8 @@ void molecule_from_mdl_mol(const std::string &file_name) {
    }
 }
 
-void read_tables(const std::string &tables_dir_name) {
+// tables_dir_name is xxx/tables/AlllOrgBondTables
+void read_tables(const std::string &tables_dir_name, bool make_db = false) {
 
    cod::bond_record_container_t brc(tables_dir_name);
 
@@ -247,15 +256,18 @@ void read_tables(const std::string &tables_dir_name) {
 	 std::cout << "   " << brc.bonds[i] << std::endl;
    }
 
-   brc.write("atom-indices.tab", "bonds.tab"); // writes atom-indices.tab too atm
+   if (make_db)
+      brc.make_db("at.db");
+   else
+      brc.write("atom-indices.tab", "bonds.tab"); // writes atom-indices.tab too atm
 
-   std::cout << "----------- reading " << std::endl;
-   cod::bond_record_container_t brc_read;
-   brc_read.read("atom-indices.tab", "bonds.tab");
-   std::cout << "----------- done reading " << std::endl;
-
-   brc_read.check();
-   
+   if (false) {
+      std::cout << "----------- reading " << std::endl;
+      cod::bond_record_container_t brc_read;
+      brc_read.read("atom-indices.tab", "bonds.tab");
+      std::cout << "----------- done reading " << std::endl;
+      brc_read.check();
+   }
 }
 
 void
@@ -348,7 +360,8 @@ int main(int argc, char **argv) {
 	 std::string file_name = argv[2];
 
 	 if (comp_id == "tables") {
-	    read_tables(file_name); // dir-name in this case
+	    bool make_db = true;
+	    read_tables(file_name, make_db); // dir-name in this case
 	 } else {
 	    if (comp_id == "mol-dir") {
 	       std::string mol_dir = file_name;

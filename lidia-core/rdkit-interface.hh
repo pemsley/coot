@@ -164,12 +164,12 @@ namespace coot {
    // These work on the valence model of sulphate and phospates: i.e. those
    // that have single bonds and a double bond to their oxygens from the P/S.
    // 
-   void remove_phosphate_hydrogens(RDKit::RWMol *m, bool deloc_bonds); 
-   void remove_sulphate_hydrogens (RDKit::RWMol *m, bool deloc_bonds); 
+   int remove_phosphate_hydrogens(RDKit::RWMol *m, bool deloc_bonds); 
+   int remove_sulphate_hydrogens (RDKit::RWMol *m, bool deloc_bonds); 
    // which are wrappers for the non-user function
-   void remove_PO4_SO4_hydrogens(RDKit::RWMol *m, 
-                                 unsigned int atomic_num, 
-                                 bool deloc_bonds);
+   int remove_PO4_SO4_hydrogens(RDKit::RWMol *m, 
+				unsigned int atomic_num, 
+				bool deloc_bonds);
 
    // account for Ns with "too many" hydrogens by assigning deleting a
    // hydrogen.

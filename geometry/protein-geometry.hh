@@ -558,6 +558,31 @@ namespace coot {
 
    class dictionary_residue_restraints_t {
 
+      class eraser {
+      public:
+	 std::vector<std::string> baddies;
+	 eraser(const std::vector<std::string> &baddies_in) : baddies(baddies_in) {}
+	 bool operator()(const dict_atom &at) const {
+	    return (std::find(baddies.begin(), baddies.end(), at.atom_id_4c) != baddies.end());
+	 }
+	 bool operator()(const dict_bond_restraint_t &br) {
+	    if (std::find(baddies.begin(), baddies.end(), br.atom_id_1_4c()) != baddies.end())
+	       return true;
+	    if (std::find(baddies.begin(), baddies.end(), br.atom_id_2_4c()) != baddies.end())
+	       return true;
+	    return false;
+	 }
+	 bool operator()(const dict_angle_restraint_t &ar) {
+	    if (std::find(baddies.begin(), baddies.end(), ar.atom_id_1_4c()) != baddies.end())
+	       return true;
+	    if (std::find(baddies.begin(), baddies.end(), ar.atom_id_2_4c()) != baddies.end())
+	       return true;
+	    if (std::find(baddies.begin(), baddies.end(), ar.atom_id_3_4c()) != baddies.end())
+	       return true;
+	    return false;
+	 }
+      };
+   
       class atom_pair_t {
       public:
 	 mmdb::Atom *at_1;
@@ -803,6 +828,10 @@ namespace coot {
       std::string get_other_H_name(const std::string &H_at_name) const;
       // return an empty vector on failure
       std::vector<std::string> get_other_H_names(const std::string &H_at_name) const;
+
+      void remove_phosphate_hydrogens();
+      void remove_sulphate_hydrogens();
+      void remove_PO4_SO4_hydrogens(const std::string &P_or_S);
 
       friend std::ostream& operator<<(std::ostream &s, const dictionary_residue_restraints_t &rest);
 

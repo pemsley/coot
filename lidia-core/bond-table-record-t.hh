@@ -30,16 +30,27 @@ namespace cod {
    
    class bond_table_record_t {
    public:
-      // std::string cod_type_1;
-      // std::string cod_type_2;
       atom_type_t cod_type_1;
       atom_type_t cod_type_2;
       double mean;
       double std_dev;
       unsigned int count;
       unsigned int approx_level;
+      // for debugging
+      std::string file_name;
+      int line_number;
+      std::string hybridization_token;
+      std::string ring_token;
 
-      bond_table_record_t() {}
+      bond_table_record_t() {
+	 cod_type_1 = atom_type_t();
+	 cod_type_2 = atom_type_t();
+	 mean = 0.0;
+	 std_dev = 0.0;
+	 count = 0;
+	 approx_level = 0;
+	 line_number = -1; // unset
+      }
       bond_table_record_t(const atom_type_t &cod_type_1_in,
 			  const atom_type_t &cod_type_2_in,
 			  const double &mean_in,
@@ -52,14 +63,33 @@ namespace cod {
 	 std_dev = std_dev_in;
 	 count = count_in;
 	 approx_level = al;
+	 line_number = -1; // unset
       }
       bool operator<(const bond_table_record_t &btr) const {
 
-	 if (cod_type_1 == btr.cod_type_1) {
-	    return (cod_type_2 < btr.cod_type_2);
+	 if (cod_type_1 < btr.cod_type_1) {
+	    return true;
 	 } else {
-	    return (cod_type_1 < btr.cod_type_1);
+	    if (cod_type_2 < btr.cod_type_2) {
+	       return true;
+	    } else {
+	       if (hybridization_token < btr.hybridization_token) {
+		  return true;
+	       } else {
+		  if (ring_token < btr.ring_token) {
+		     return true;
+		  }
+	       }
+	    }
 	 }
+	 return false;
+      }
+      bool operator==(const bond_table_record_t &btr) const {
+	 if (cod_type_1 == btr.cod_type_1)
+	    if (cod_type_2 == btr.cod_type_2)
+	       if (hybridization_token == btr.hybridization_token)
+		  return (ring_token == btr.ring_token);
+	 return false;
       }
       void write(std::ostream &s) const;
       void write(std::ostream &s,

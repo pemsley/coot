@@ -1,4 +1,4 @@
-/* lidia-core/cod-atom-type-t.hhxs
+/* lidia-core/cod-atom-type-t.hh
  * 
  * Copyright 2016 by Medical Research Council
  * Author: Paul Emsley
@@ -35,24 +35,31 @@ namespace cod {
    std::pair<int, std::string> make_ring_info_string(RDKit::Atom *atom_p);
 
    class atom_level_2_type {
-      std::string str;
-      std::string element;
-   public:
-
-      atom_level_2_type() {}
-      atom_level_2_type(const std::string &s) { str = s;} // read
-      atom_level_2_type(RDKit::Atom *p, const RDKit::ROMol &rdkm);
-
       class atom_level_2_component_type {
       public:
 	 std::string element;
 	 unsigned int number_of_rings;
 	 std::string ring_info_string;
 	 std::vector<int> neighb_hybridizations;
+	 std::vector<int> neighb_extra_elect; // same size as above needed
+	 std::string atom_name;
+	 int n_extra_elect;
 	 atom_level_2_component_type(RDKit::Atom *at, const RDKit::ROMol &rdkm);
 	 atom_level_2_component_type() {}
       };
+      std::string str;
+      std::string element;
+      std::vector<atom_level_2_component_type> components;
+      int n_extra_elect;
+   public:
+
+      atom_level_2_type() {}
+      atom_level_2_type(const std::string &s) { str = s;} // read
+      atom_level_2_type(RDKit::Atom *p, const RDKit::ROMol &rdkm);
+
       std::string string() const {return str; }
+      std::string extra_electron_type() const;
+      int n_extra_electrons() const;
       static bool level_2_component_sorter(const atom_level_2_component_type &la,
 					   const atom_level_2_component_type &lb);
       friend std::ostream &operator<<(std::ostream &s,
@@ -66,11 +73,16 @@ namespace cod {
    // with 3rd neighbour info
    //
    class atom_type_t {
+      std::string neighb_hybridizations_str_; // string set on read from tables
+      void set_neighb_hybridizations_string(); //
    public:
+      enum { COLON_HYBRIDIZATION_TYPE = 546 };
 
       atom_type_t() {}
 
-      atom_type_t(const std::string &s1, const atom_level_2_type &l2,
+      atom_type_t(const std::string &s1,
+		  const std::string &s_neigh_hybrid_colon,
+		  const atom_level_2_type &l2,
 		  const std::string &s3, const std::string &s4);
 
       atom_type_t(const std::string &l4) {
@@ -83,11 +95,23 @@ namespace cod {
 	 level_4 = s2;
 	 hash_value = -1;
       }
+      atom_type_t(const std::vector<unsigned int> &hyb) {
+	 neighb_hybridizations = hyb;
+	 set_neighb_hybridizations_string();
+      }
       std::string level_4;
       std::string level_3; // as 4 but without 3rd neighbour info
       atom_level_2_type level_2;
+      std::vector<unsigned int> neighb_hybridizations; // for "colon type" - e.g. 3:3:2
       int hash_value; // can be zero (?), so use -1 for fail.
       std::list<third_neighbour_info_t> tnil;
+
+      std::string neighb_hybridizations_str() {
+	 if (neighb_hybridizations_str_.empty())
+	    set_neighb_hybridizations_string(); // use neighb_hybridizations
+	 return neighb_hybridizations_str_;
+      }
+      std::string neighb_hybridizations_str() const { return neighb_hybridizations_str_; }
 
       // helper function
       static std::string level_4_type_to_level_3_type(const std::string &l4t);

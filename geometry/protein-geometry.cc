@@ -23,6 +23,7 @@
 
 #include <string.h>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <map>
 #include <algorithm>  // needed for sort? Yes.
@@ -362,7 +363,8 @@ coot::dictionary_residue_restraints_t::init(mmdb::Residue *residue_p) {
       // also fill atom_info with dict_atom objects
       for (int iat=0; iat<nResidueAtoms; iat++) {
 	 mmdb::Atom *at = residue_atoms[iat];
-	 dict_atom da(at->name, at->name, "", "", std::pair<bool, float> (false, 0));
+	 std::string ele(residue_atoms[iat]->element);
+	 dict_atom da(at->name, at->name, ele, "", std::pair<bool, float> (false, 0));
 	 atom_info.push_back(da);
       }
 
@@ -1251,7 +1253,7 @@ coot::operator<<(std::ostream &s, const dict_bond_restraint_t &rest) {
    s << "[bond-restraint: " 
      << rest.atom_id_1_4c() << " "
      << rest.atom_id_2_4c() << " "
-     << rest.type() << " " << rest.value_dist() << " " << rest.value_esd()
+     << rest.type() << " " << std::setw(7) << rest.value_dist() << " " << rest.value_esd()
      <<  "]";
    return s;
 }
@@ -3034,11 +3036,11 @@ coot::dictionary_residue_restraints_t::is_hydrogen(const std::string &atom_name)
 
    bool r = false;
    for (unsigned int i=0; i<atom_info.size(); i++) {
-      if (0)
-	 std::cout << "in is_hydrogen() comparing \"" << atom_info[i].atom_id_4c << "\" with \"" << atom_name
-		   << "\"" << std::endl;
+      if (false)
+	 std::cout << "in is_hydrogen() comparing \"" << atom_info[i].atom_id_4c << "\" with \""
+		   << atom_name << "\"" << std::endl;
       if (atom_info[i].atom_id_4c == atom_name) {
-	 if (0)
+	 if (false)
 	    std::cout << "in is_hydrogen found atom name " << atom_name << " and atom has type_symbol \""
 		      << atom_info[i].type_symbol << "\"" << std::endl;
 	 if (atom_info[i].type_symbol == "H" ||
@@ -4641,4 +4643,130 @@ coot::protein_geometry::debug() const {
       std::cout << "     " << i << " imol: " << imol_str << " \""
 		<< dict_res_restraints[i].second.residue_info << "\"" << std::endl;
    }
+}
+
+void
+coot::dictionary_residue_restraints_t::remove_phosphate_hydrogens() {
+
+   remove_PO4_SO4_hydrogens(" P");
+
+}
+
+void
+coot::dictionary_residue_restraints_t::remove_sulphate_hydrogens() {
+
+   remove_PO4_SO4_hydrogens(" S");
+}
+
+void
+coot::dictionary_residue_restraints_t::remove_PO4_SO4_hydrogens(const std::string &P_ele) {
+
+   // This is needed to make the dictionary match the modifications to the RDKit molecule
+   // when removing Hydrogen atoms from Oxygen atoms on phosphates (and we need to do that
+   // so that the atom types match the Acedrg tables (no bonds to Hydrogens in phosphates).
+
+   // find Ps
+   // find Os connected to Ps
+   // find Hs connected to Os.
+   // delete bond, angle, etc, restraints that contain those Hs
+   std::vector<std::string> H_atoms_to_be_deleted;
+
+   unsigned int n_atoms = atom_info.size();
+   for (unsigned int i=0; i<n_atoms; i++) {
+      if (element(atom_info[i].atom_id_4c) == P_ele) {
+
+	 // this block needs reverse indexing check also - e.g. the P can be the second atom
+	 //
+
+	 std::vector<std::string> oxygen_list;
+	 // is there a bond from an O to this P?
+	 unsigned int n_bonds = bond_restraint.size();
+	 for (unsigned int j=0; j<n_bonds; j++) {
+	    const dict_bond_restraint_t &br = bond_restraint[j];
+	    // is an atom of this bond the phosphate atom?
+	    if (br.atom_id_1_4c() == atom_info[i].atom_id_4c) {
+	       // yes it is.  Is there an oxygen atom bonded to this phosphate atom?
+	       for (unsigned int k=0; k<n_bonds; k++) {
+		  if (j != k) {
+		     const dict_bond_restraint_t &br_inner = bond_restraint[k];
+		     if (br_inner.atom_id_1_4c() == atom_info[i].atom_id_4c) {
+			// is this an oxygen on the other side of the bond?
+			if (element(br_inner.atom_id_2_4c()) == " O") {
+			   // add it if it was not already in the list:
+			   if (std::find(oxygen_list.begin(),
+					 oxygen_list.end(),
+					 br_inner.atom_id_2_4c()) == oxygen_list.end()) {
+			      if (false)
+				 std::cout << "adding " << util::single_quote(br_inner.atom_id_2_4c())
+					   << std::endl;
+			      oxygen_list.push_back(br_inner.atom_id_2_4c());
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+
+	 if (oxygen_list.size() > 1) { // 20170603 unsure about this test
+	    if (false)
+	       std::cout << "found " << oxygen_list.size() << " oxygen atoms attached to "
+			 << util::single_quote(atom_info[i].atom_id_4c) << std::endl;
+	    // All these oxygen atoms are bonded to the same phosphate atoms
+	    // delete all hydrogen atoms attached to all these oxygen atoms
+	    //
+	    std::vector<std::string> hydrogen_atom_delete_list;
+	    std::vector<std::string> oxygen_atom_charge_list;
+	    for (unsigned int j=0; j<n_bonds; j++) {
+	       const dict_bond_restraint_t &br = bond_restraint[j];
+	       if (std::find(oxygen_list.begin(),
+			     oxygen_list.end(),
+			     br.atom_id_1_4c()) != oxygen_list.end()) {
+		  if (element(br.atom_id_2_4c()) == " H") {
+		     hydrogen_atom_delete_list.push_back(br.atom_id_2_4c());
+		     oxygen_atom_charge_list.push_back(br.atom_id_1_4c());
+		  }
+	       }
+	       // reverse indexing
+	       if (std::find(oxygen_list.begin(),
+			     oxygen_list.end(),
+			     br.atom_id_2_4c()) != oxygen_list.end()) {
+		  if (element(br.atom_id_1_4c()) == " H") {
+		     hydrogen_atom_delete_list.push_back(br.atom_id_1_4c());
+		     oxygen_atom_charge_list.push_back(br.atom_id_2_4c());
+		  }
+	       }
+	    }
+	    if (false) {
+	       std::cout << "Delete these " << hydrogen_atom_delete_list.size() << " hydrogen atoms"
+			 << std::endl;
+	       std::cout << "Charge these " << oxygen_atom_charge_list.size() << " oxygen atoms"
+			 << std::endl;
+	    }
+	    if (hydrogen_atom_delete_list.size()) {
+	       for (unsigned int j=0; j<hydrogen_atom_delete_list.size(); j++) {
+		  atom_info.erase(std::remove_if(atom_info.begin(), atom_info.end(), eraser(hydrogen_atom_delete_list)),
+				  atom_info.end());
+		  bond_restraint.erase(std::remove_if(bond_restraint.begin(),
+						      bond_restraint.end(),
+						      eraser(hydrogen_atom_delete_list)),
+				       bond_restraint.end());
+		  angle_restraint.erase(std::remove_if(angle_restraint.begin(),
+						       angle_restraint.end(),
+						       eraser(hydrogen_atom_delete_list)),
+					angle_restraint.end());
+	       }
+	    }
+	    for (unsigned int j=0; j<oxygen_atom_charge_list.size(); j++) {
+	       for (unsigned int k=0; k<atom_info.size(); k++) {
+		  if (atom_info[k].atom_id_4c == oxygen_atom_charge_list[j]) {
+		     atom_info[k].formal_charge.first = true;
+		     atom_info[k].formal_charge.first = -1;
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   
 }

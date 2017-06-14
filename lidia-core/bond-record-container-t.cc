@@ -110,8 +110,8 @@ cod::bond_record_container_t::write_atom_type_indices(const std::string &file_na
 
    std::ofstream f(file_name.c_str());
    if (f) {
-      std::map<std::string, unsigned int>::const_iterator it_map = atom_types_map.begin();
-      unsigned int n = atom_types_map.size();
+      std::map<std::string, unsigned int>::const_iterator it_map = level_4_atom_types_map.begin();
+      unsigned int n = level_4_atom_types_map.size();
       for (unsigned int i=0; i<n; i++) {
 	 f << std::setw(6) << it_map->second << " " << it_map->first << "\n";
 	 it_map++;
@@ -139,8 +139,8 @@ cod::bond_record_container_t::write(const std::string &atom_indices_file_name,
 	 // btr.write(f, max_atom_type_width);
 	 // dangerous, but should not fail
 	 btr.write(f,
-		   atom_types_map.find(btr.cod_type_1.level_4)->second,
-		   atom_types_map.find(btr.cod_type_2.level_4)->second);
+		   level_4_atom_types_map.find(btr.cod_type_1.level_4)->second,
+		   level_4_atom_types_map.find(btr.cod_type_2.level_4)->second);
       }
       f.close();
       status = true;
@@ -174,14 +174,24 @@ cod::bond_record_container_t::read_acedrg_table(const std::string &file_name) {
 
       std::cout << "opened " << file_name << std::endl;
       std::string line;
+      int line_number = 0;
 
       while (std::getline(f, line)) {
+	 line_number++;
 	 std::vector<std::string> bits = coot::util::split_string_no_blanks(line);
 
 	 if (bits.size() == 18) {
 	    const std::string &cod_type_1_hash_str = bits[0];
 	    const std::string &cod_type_2_hash_str = bits[1];
-	    
+
+	    const std::string &hybridization_token = bits[2];
+	    const std::string &ring_token = bits[3];
+
+	    // 20170613 capture the colon types too.
+	    const std::string &atom_1_colon_type  = bits[4];
+	    const std::string &atom_2_colon_type  = bits[5];
+
+	    // 20170612 extra-electron types now
 	    const std::string &cod_type_1_level_2_str  = bits[6];
 	    const std::string &cod_type_2_level_2_str  = bits[7];
 
@@ -196,12 +206,18 @@ cod::bond_record_container_t::read_acedrg_table(const std::string &file_name) {
 	    std::string cod_type_2_level_3 =
 	       atom_type_t::level_4_type_to_level_3_type(cod_type_2_level_4);
 
-	    // atom_type_t cod_type_1(cod_type_1_level_3, cod_type_1_level_4);
-	    // atom_type_t cod_type_2(cod_type_2_level_3, cod_type_2_level_4);
-
-	    atom_type_t cod_type_1(cod_type_1_hash_str, cod_type_atom_1_l2,
+	    if (true) // debug
+	       std::cout << "debug:: making an cod-atom from "
+			 << cod_type_1_hash_str << " "
+			 << atom_1_colon_type << "   "
+			 << cod_type_atom_1_l2.string() << "    "
+			 << cod_type_1_level_3 << "    "
+			 << cod_type_1_level_4 << "\n";
+	    atom_type_t cod_type_1(cod_type_1_hash_str, atom_1_colon_type,
+				   cod_type_atom_1_l2,
 				   cod_type_1_level_3,  cod_type_1_level_4);
-	    atom_type_t cod_type_2(cod_type_2_hash_str, cod_type_atom_2_l2,
+	    atom_type_t cod_type_2(cod_type_2_hash_str, atom_2_colon_type,
+				   cod_type_atom_2_l2,
 				   cod_type_2_level_3,  cod_type_2_level_4);
 
 	    // const std::string &mean_str    = bits[12];
@@ -218,6 +234,10 @@ cod::bond_record_container_t::read_acedrg_table(const std::string &file_name) {
 	       int count     = coot::util::string_to_int(count_str);
 
 	       bond_table_record_t rec(cod_type_1, cod_type_2, mean, stddev, count);
+	       rec.file_name = file_name;
+	       rec.line_number = line_number;
+	       rec.hybridization_token = hybridization_token;
+	       rec.ring_token = ring_token;
 	       add(rec);
 	       status = true;
 	    }
@@ -267,32 +287,36 @@ cod::bond_record_container_t::read_acedrg_table_dir(const std::string &dir_name)
    fill_bonds_map();
    std::cout << "-- post-fill bonds map " << std::endl;
    std::cout << "--  pre-fill atoms map " << std::endl;
-   fill_atom_map(); // what does this do, I mean, why is the atom map needed?
+   // fill_level_4_atom_map(); // what does this do, I mean, why is the atom map needed?
+   fill_cod_atom_type_map();
    std::cout << "-- post-fill atoms map " << std::endl;
 }
 
-
 void
-cod::bond_record_container_t::fill_atom_map() {
+cod::bond_record_container_t::fill_cod_atom_type_map() {
 
-   // now fill the atom map
-   // v1
-   //
-//    if (false) { 
-//       std::list<std::string> l;
-//       std::cout << "pre  fill atom map" << std::endl;
-//       std::list<std::string>::const_iterator it;
-//       for (unsigned int i=0; i<bonds.size(); i++) {
-// 	 // it = l.find(bonds[i].cod_type_1);
-// 	 it = std::find(l.begin(), l.end(), bonds[i].cod_type_1);
-// 	 if (it == l.end())
-// 	    l.push_back(bonds[i].cod_type_1);
-// 	 it = std::find(l.begin(), l.end(), bonds[i].cod_type_2);
-// 	 if (it == l.end())
-// 	    l.push_back(bonds[i].cod_type_2);
-//       }
-//       std::cout << "post fill atom map" << std::endl;
-//    }
+   cod_atom_type_set.clear();
+   for (unsigned int i=0; i<bonds.size(); i++) {
+      if (false)
+	 std::cout << i << " inserting " << bonds[i].cod_type_1.level_4 << " " << bonds[i].cod_type_1.level_3
+		   << " " << bonds[i].cod_type_1.level_2.string() << " " << bonds[i].cod_type_1.hash_value
+		   << std::endl;
+      cod_atom_type_set.insert(bonds[i].cod_type_1);
+      cod_atom_type_set.insert(bonds[i].cod_type_2);
+   }
+   std::set<atom_type_t>::const_iterator it;
+   int idx = 0;
+   for (it=cod_atom_type_set.begin(); it!=cod_atom_type_set.end(); it++) {
+      cod_atom_type_map.insert(std::pair<atom_type_t, int> (*it, idx));
+      idx++;
+   }
+}
+
+// old, just level_4 strings
+void
+cod::bond_record_container_t::fill_level_4_atom_map() {
+
+   // now fill the atom map (with level_4 types)
 
    std::set<std::string> set;
    std::cout << "pre  fill atom set" << std::endl;
@@ -308,13 +332,13 @@ cod::bond_record_container_t::fill_atom_map() {
    std::cout << "pre  fill atom map" << std::endl;
    for (it=set.begin(); it!=set.end(); it++) {
       // std::cout << "    " << *it << std::endl;
-      atom_types_map[*it] = idx;
+      level_4_atom_types_map[*it] = idx;
       idx++;
    }
    std::cout << "post fill atom map" << std::endl;
 
    std::map<std::string, unsigned int>::const_iterator it_map;
-   it_map = atom_types_map.begin();
+   it_map = level_4_atom_types_map.begin();
 }
 
 void
@@ -327,8 +351,24 @@ cod::bond_record_container_t::fill_bonds_map() {
       std::string c1l2 = c1.level_2.string();
       std::string c2l2 = c2.level_2.string();
 
-      bonds_map[c1l2][c2l2][c1.level_3][c2.level_3].push_back(bonds[i]);
-      bonds_map[c2l2][c1l2][c2.level_3][c1.level_3].push_back(bonds[i]);
+      if (std::find(bonds_map[c1l2][c2l2][c1.level_3][c2.level_3].begin(),
+		    bonds_map[c1l2][c2l2][c1.level_3][c2.level_3].end(),
+		    bonds[i]) == bonds_map[c1l2][c2l2][c1.level_3][c2.level_3].end())
+	 bonds_map[c1l2][c2l2][c1.level_3][c2.level_3].push_back(bonds[i]);
+      else
+	 std::cout << "WARNING " << bonds[i] << " was already in the bonds_map" << std::endl;
+
+      // we don't need reverse lookup for bonds between atoms of the same type.
+      if (! (c1 == c2)) {
+	 bond_table_record_t reverse_bond = bonds[i];
+	 std::swap(reverse_bond.cod_type_1, reverse_bond.cod_type_2);
+	 if (std::find(bonds_map[c2l2][c1l2][c2.level_3][c1.level_3].begin(),
+		       bonds_map[c2l2][c1l2][c2.level_3][c1.level_3].end(),
+		       reverse_bond) == bonds_map[c2l2][c1l2][c2.level_3][c1.level_3].end())
+	    bonds_map[c2l2][c1l2][c2.level_3][c1.level_3].push_back(reverse_bond);
+	 else
+	    std::cout << "WARNING " << reverse_bond << " was already in the bonds_map" << std::endl;
+      }
    }
 }
 
@@ -391,10 +431,10 @@ cod::bond_record_container_t::read_bonds(const std::string &bonds_file_name,
 
 	    if (true) {
 	       double bl      = coot::util::string_to_double(line.substr( 0,10));
-	       double std_dev = coot::util::string_to_double(line.substr(11,20));
-	       int count      = coot::util::string_to_int(line.substr(21, 6));
-	       int idx_1      = coot::util::string_to_int(line.substr(28, 6));
-	       int idx_2      = coot::util::string_to_int(line.substr(36, 6));
+	       double std_dev = coot::util::string_to_double(line.substr(12,21));
+	       int count      = coot::util::string_to_int(line.substr(22, 7));
+	       int idx_1      = coot::util::string_to_int(line.substr(29, 7));
+	       int idx_2      = coot::util::string_to_int(line.substr(37, 7));
 
 	       std::string type_1_level_4 = atom_types[idx_1];
 	       std::string type_2_level_4 = atom_types[idx_2];
@@ -412,7 +452,6 @@ cod::bond_record_container_t::read_bonds(const std::string &bonds_file_name,
 
 	       if (type_2 < type_1)
 		  std::swap(type_1, type_2);
-
 	       
 	       bond_table_record_t bond(type_1, type_2, bl, std_dev, count);
 
@@ -720,6 +759,29 @@ cod::bond_record_container_t::get_cod_bond_from_table(const cod::atom_type_t &co
    return bond;
 }
 
+void
+cod::bond_record_container_t::add_table(const bond_record_container_t &brc) {
+   for (unsigned int i=0; i<brc.bonds.size(); i++) {
+      std::vector<bond_table_record_t>::const_iterator it;
+
+      if (false) { // debugging.
+	 // they are unique
+	 it = std::find(bonds.begin(), bonds.end(), brc.bonds[i]);
+	 if (it == bonds.end()) {
+	    bonds.push_back(brc.bonds[i]);
+	 } else {
+	    std::cout << "Not adding " << brc.bonds[i] << " --already-exists-- "
+		      << *it << std::endl;
+	 }
+      }
+
+      // real
+      bonds.push_back(brc.bonds[i]);
+
+   }
+}
+
+
 // select or average (consolidate)
 //
 cod::bond_table_record_t
@@ -984,5 +1046,265 @@ cod::bond_record_container_t::get_bond_distance_from_model(const std::string &at
    return d;
 
 }
+
+#ifdef USE_SQLITE3
+
+// create the database with tables (but not data)
+//
+sqlite3 *
+cod::bond_record_container_t::make_sqlite_db(const std::string &db_file_name) {
+
+   sqlite3 *db = NULL;
+   if (! coot::file_exists(db_file_name)) {
+      int rc = sqlite3_open(db_file_name.c_str(), &db);
+      char *zErrMsg = 0;
+      std::string command;
+
+      if (rc == 0) {
+	 // happy path
+	 std::vector<std::string> commands;
+	 std::string create_cmd =
+	    std::string("CREATE TABLE COD_TYPE_4_INDICES (") +
+	    std::string("level_4_atom_type NVCHAR(200) PRIMARY KEY, level_3_atom_type NVCHAR(200), level_2_atom_type NVCHAR(100), level_1_atom_type NVCHAR(100), atom_index INT )");
+
+	 rc = sqlite3_exec(db, create_cmd.c_str(), db_callback, 0, &zErrMsg);
+	 if (rc) {
+	    if (zErrMsg) {
+	       std::cout << "rc for " << create_cmd << " " << rc << " " << zErrMsg << std::endl;
+	    } else {
+	       std::cout << "rc for " << create_cmd << " " << rc << " " << std::endl;
+	    }
+	    db = NULL; // something bad happend
+	 } else {
+	    // I think the ring info is a boolean (not nvchar(10)).
+	    std::cout << "create table COD_TYPE_4_INDICES success" << std::endl;
+	    create_cmd = "CREATE TABLE COD_TYPE_4_BONDS ";
+	    create_cmd += "(atom_index_1 INT, atom_index_2 INT, hybridization NVCHAR(20), ring NVCHAR(10), mean REAL, sd REAL, count INT, PRIMARY KEY (atom_index_1, atom_index_2, hybridization, ring) )";
+	    rc = sqlite3_exec(db, create_cmd.c_str(), db_callback, 0, &zErrMsg);
+	    if (rc) {
+	       if (zErrMsg) {
+		  std::cout << "rc for " << create_cmd << " " << rc << " " << zErrMsg << std::endl;
+	       } else {
+		  std::cout << "rc for " << create_cmd << " " << rc << " " << std::endl;
+	       }
+	       db = NULL; // something bad happend
+	    } else {
+	       std::cout << "create table COD_TYPE_4_BONDS success" << std::endl;
+	    }
+	 }
+      }
+   } else {
+      std::cout << "WARNING:: database file " << db_file_name << " already exists" << std::endl;
+   }
+   return db;
+}
+#endif // USE_SQLITE3
+
+void
+cod::bond_record_container_t::make_db(const std::string &db_file_name) {
+
+#ifdef USE_SQLITE3
+   sqlite3 *db = NULL;
+   if (! coot::file_exists(db_file_name))
+      db = make_sqlite_db(db_file_name); // database empty but with ligands table
+
+   if (db) {
+      char *zErrMsg = 0;
+      sqlite3_exec(db, "BEGIN", db_callback, 0, &zErrMsg);
+      // fill level 4 types
+      db_add_level_4_types(db);
+      
+      sqlite3_exec(db, "END", db_callback, 0, &zErrMsg);
+   } else {
+      std::cout << "WARNING:: empty db in make_db() " << std::endl;
+   }
+#endif // USE_SQLITE3
+}
+
+#ifdef USE_SQLITE3
+// static
+int
+cod::bond_record_container_t::db_callback(void *NotUsed, int argc, char **argv, char **azColName) {
+   int status = 0;
+   for (int i=0; i<argc; i++) {
+      std::cout << " db_callback(): " << i << " " << argv[1];
+   }
+   std::cout << std::endl;
+   return status;
+}
+#endif // USE_SQLITE3
+
+bool
+cod::bond_record_container_t::db_add_level_4_types(sqlite3 *db) {
+
+   bool status = true;
+   std::string table_name = "COD_TYPE_4_INDICES";
+
+   // std::map<std::string, unsigned int>::const_iterator it_map = level_4_atom_types_map.begin();
+   // unsigned int n = level_4_atom_types_map.size();
+   // std::cout << "in db_add_level_4_types() adding " << n << " atom types" << std::endl;
+
+   std::map<atom_type_t, int>::const_iterator it_map = cod_atom_type_map.begin();
+   unsigned int n = cod_atom_type_map.size();
+
+   for (unsigned int i=0; i<n; i++) {
+      std::string level_4 = it_map->first.level_4;
+      std::string level_3 = it_map->first.level_3;
+      std::string level_2 = it_map->first.level_2.string();
+      int level_1 = it_map->first.hash_value;
+      std::string cmd = "INSERT INTO " + table_name + " ";
+      cmd += "(level_4_atom_type, level_3_atom_type, level_2_atom_type, level_1_atom_type, atom_index) ";
+      cmd += "VALUES (";
+      cmd += coot::util::single_quote(level_4, "'");
+      cmd += ", ";
+      cmd += coot::util::single_quote(level_3, "'");
+      cmd += ", ";
+      cmd += coot::util::single_quote(level_2, "'");
+      cmd += ", ";
+      cmd += coot::util::int_to_string(level_1);
+      cmd += ", ";
+      cmd += coot::util::int_to_string(it_map->second);
+      cmd += ");";
+      it_map++;
+      char *zErrMsg = 0;
+      int rc = sqlite3_exec(db, cmd.c_str(), db_callback, 0, &zErrMsg);
+      if (rc !=  SQLITE_OK) {
+	 if (zErrMsg) {
+	    std::cout << "ERROR: processing command: " << cmd << " " << zErrMsg << std::endl;
+	 } else {
+	    std::cout << "ERROR when processing command: " << cmd << std::endl;
+	    sqlite3_free(zErrMsg);
+	 }
+      } else {
+	 // was OK!
+	 status = true;
+	 // std::cout << "cmd " << cmd << " ran OK " << std::endl;
+      }
+   }
+
+   // ----------------------- bonds (indexed by atom type index) ----------------------
+
+   table_name = "COD_TYPE_4_BONDS";
+
+   std::map<std::string, std::map<std::string, std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > > > >::const_iterator it_1;
+   std::map<std::string, std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > > >::const_iterator it_2;
+   std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > >::const_iterator it_3;
+   std::map<std::string, std::vector<bond_table_record_t> >::const_iterator it_4;
+   std::vector<bond_table_record_t>::const_iterator it_5;
+
+   unsigned int bond_index = 0;
+   if (false) {
+      for (it_1 = bonds_map.begin(); it_1 != bonds_map.end(); it_1++) {
+	 for (it_2 = it_1->second.begin(); it_2 != it_1->second.end(); it_2++) {
+	    for (it_3 = it_2->second.begin(); it_3 != it_2->second.end(); it_3++) {
+	       for (it_4 = it_3->second.begin(); it_4 != it_3->second.end(); it_4++) {
+		  for (it_5 = it_4->second.begin(); it_5 != it_4->second.end(); it_5++) {
+		     const bond_table_record_t &btr = *it_5;
+		     unsigned int index_1 = cod_atom_type_map[btr.cod_type_1];
+		     unsigned int index_2 = cod_atom_type_map[btr.cod_type_2];
+		     std::cout << ":::bond "
+			       << btr.cod_type_1.level_4 << " "
+			       << btr.cod_type_1.level_3 << " "
+			       << btr.cod_type_1.level_2.string() << " "
+			       << btr.cod_type_1.hash_value
+			       << " index " << index_1 << " "
+			       << btr.cod_type_2.level_4 << " "
+			       << btr.cod_type_2.level_3 << " "
+			       << btr.cod_type_2.level_2.string() << " "
+			       << btr.cod_type_2.hash_value
+			       << " index " << index_2
+			       << "\n";
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   // std::cout << "restarting it_1 from begin " << bonds_map.size() << std::endl;
+   unsigned int it_1_count = 0;
+   for (it_1 = bonds_map.begin(); it_1 != bonds_map.end(); it_1++) {
+      it_1_count++;
+      // std::cout << "restarting it_2 from begin " << it_1->second.size() << std::endl;
+      unsigned int it_2_count = 0;
+      for (it_2 = it_1->second.begin(); it_2 != it_1->second.end(); it_2++) {
+	 it_2_count++;
+	 // std::cout << "restarting it_3 from begin " << it_2->second.size() << std::endl;
+	 unsigned int it_3_count = 0;
+	 for (it_3 = it_2->second.begin(); it_3 != it_2->second.end(); it_3++) {
+	    it_3_count++;
+	    // std::cout << "restarting it_4 from begin " << it_3->second.size() << std::endl;
+	    unsigned int it_4_count = 0;
+	    for (it_4 = it_3->second.begin(); it_4 != it_3->second.end(); it_4++) {
+	       it_4_count++;
+	       // std::cout << "restarting it_5 from begin " << it_4->second.size() << std::endl;
+	       unsigned int it_5_count = 0;
+	       for (it_5 = it_4->second.begin(); it_5 != it_4->second.end(); it_5++) {
+		  it_5_count++;
+
+		  const bond_table_record_t &btr = *it_5;
+		  unsigned int index_1 = cod_atom_type_map[btr.cod_type_1];
+		  unsigned int index_2 = cod_atom_type_map[btr.cod_type_2];
+		  if (false)
+		     std::cout << "insert from bond map " << index_1 << " " << index_2 << " "
+			       << btr << " counts " << it_1_count << " " << it_2_count << " "
+			       << it_3_count << " " << it_4_count << " " << it_5_count << " "
+			       << std::endl;
+		  std::string cmd = "INSERT INTO " + table_name + " ";
+		  cmd += ("(atom_index_1, atom_index_2, hybridization, ring, mean, sd, count)");
+		  cmd += " VALUES (";
+		  cmd += coot::util::int_to_string(index_1);
+		  cmd += ", ";
+		  cmd += coot::util::int_to_string(index_2);
+		  cmd += ", ";
+		  cmd += coot::util::single_quote(btr.hybridization_token, "'");
+		  cmd += ", ";
+		  cmd += coot::util::single_quote(btr.ring_token, "'");
+		  cmd += ", ";
+		  cmd += coot::util::float_to_string_using_dec_pl(btr.mean, 6);
+		  cmd += ", ";
+		  cmd += coot::util::float_to_string_using_dec_pl(btr.std_dev, 6);
+		  cmd += ", ";
+		  cmd += coot::util::int_to_string(btr.count);
+		  cmd += ");";
+      
+		  char *zErrMsg = 0;
+		  int rc = sqlite3_exec(db, cmd.c_str(), db_callback, 0, &zErrMsg);
+		  if (rc !=  SQLITE_OK) {
+		     if (zErrMsg) {
+			std::cout << "ERROR: processing command: " << cmd << " " << zErrMsg
+				  << " for "
+				  << btr.cod_type_1.level_4 << " "
+				  << btr.cod_type_2.level_4
+				  << btr.hybridization_token << " "
+				  << btr.ring_token << " from "
+				  << btr.file_name << " line " << btr.line_number
+				  << " counts "
+				  << it_1_count << " "
+				  << it_2_count << " "
+				  << it_3_count << " "
+				  << it_4_count << " "
+				  << it_5_count << std::endl;
+		     } else {
+			std::cout << "ERROR when processing command: " << cmd << std::endl;
+			sqlite3_free(zErrMsg);
+		     }
+		  } else {
+		     // was OK!
+		     status = true;
+		     if (false)
+			std::cout << "insert of            " << index_1 << " " << index_2 << " "
+				  << btr << " was OK" << std::endl;
+		  }
+
+		  bond_index++;
+	       }
+	    }
+	 }
+      }
+   }
+
+   return status;
+}
+
 
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
