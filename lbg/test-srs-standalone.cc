@@ -4,7 +4,10 @@
 #include <cstdlib>
 #include <mmdb2/mmdb_manager.h>
 #include <mmdb2/mmdb_math_graph.h>
+
+#ifdef HAVE_CCP4SRS
 #include <ccp4srs/ccp4srs_manager.h>
+#endif
 
 // a container for the results of the comparison vs CCP4SRS graph matching.
 //
@@ -29,6 +32,8 @@ public:
 #ifdef TEST_WITH_GEOMETRY
 mmdb::math::Graph *
 get_graph_1() {
+
+#ifdef HAVE_CCP4SRS
    coot::protein_geometry *geom_p = new coot::protein_geometry;
    const char *d1 = getenv(MONOMER_DIR_STR); // "COOT_CCP4SRS_DIR"
    std::string srs_dir = PKGDATADIR;
@@ -41,6 +46,9 @@ get_graph_1() {
    std::pair<bool, coot::dictionary_residue_restraints_t> rest =
       geom_p->get_monomer_restraints(monomer_type);
    mmdb::math::Graph *graph = rest.second.make_graph(inc_Hs);
+#else
+   mmdb::math::Graph *graph = 0;
+#endif
    return graph;
 }
 #endif // TEST_WITH_GEOMETRY
