@@ -1,10 +1,30 @@
 
    For Release 0.8.9
 
+   o Sat 3 Jun 2017 08:57:29 CEST should accept_moving_atoms() (which
+     can be called via scripting) dismiss the add_alt_conf dialog?  I
+     think yes at the moment. [Georg Kempf]
+
+   o "Delete All Carbohydrate" on 5fuu is very slow. Fix.  Needs delete_residue(imol, res_specs).
+
+   o Copy-molecule loses the NCS ghost info/tranformations (i.e. O doesn't work)
+
+   o how about a button that does the "Nice ligand pic" settings for me?
+
+   o do a better job of scaling the density fit analysis (say low resolution data).
+
+   o For glyco tree validation (matching vs oligomannose-tree etc) allow modes 
+     liberal (current) and correct which needs correct residue types
+     and link records. Also, tree validation needs to check the anomericity.
+
+   o copy a fragment that has a link.  The link is not copied into fragment molecule.
+
    o when first molecule is not a protein.  Copy NCS residue range. coot-utils.scm 1533
 
    o in 2qc1, build a NAG, NAG, BMA. Centre on the first NAG, sphere refine or H-refine.  
      NAG-ASN bond is not properly accounted for:
+
+   o pyrogen -Mn -c PDBe-ADP.cif -> minimation problem
 
 bond  3231.21 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " ND2" ""]
 nbc   1162.68 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" "HD22" ""] target:  2.90  0.02
