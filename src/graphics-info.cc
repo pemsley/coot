@@ -1568,8 +1568,10 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
       g.do_interactive_coot_probe();
 
    char *env = getenv("COOT_DEBUG_REFINEMENT");
-   if (env)
-      g.tabulate_geometric_distortions(last_restraints);
+   if (moving_atoms_asc)
+      if (moving_atoms_asc->mol)
+         if (env)
+            g.tabulate_geometric_distortions(last_restraints);
 
    // Update the Accept/Reject Dialog if it exists (and it should do,
    // if we are doing dragged refinement).
