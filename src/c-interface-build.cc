@@ -845,6 +845,29 @@ delete_residue_with_full_spec(int imol,
 }
 
 
+#ifdef USE_GUILE
+/*! \brief delete residues in the residue spec list */
+void delete_residues_scm(int imol, SCM residue_specs_scm) {
+   if (is_valid_model_molecule(imol)) {
+      std::vector<coot::residue_spec_t> specs = scm_to_residue_specs(residue_specs_scm);
+      graphics_info_t::molecules[imol].delete_residues(specs);
+   }
+}
+#endif
+
+#ifdef USE_PYTHON
+/*! \brief delete residues in the residue spec list */
+void delete_residues_py(int imol, PyObject *residue_specs_py) {
+   if (is_valid_model_molecule(imol)) {
+      std::vector<coot::residue_spec_t> specs = py_to_residue_specs(residue_specs_py);
+      graphics_info_t::molecules[imol].delete_residues(specs);
+   }
+}
+#endif
+
+
+
+
 /*! \brief delete all hydrogens in molecule */
 int delete_hydrogens(int imol) {
 

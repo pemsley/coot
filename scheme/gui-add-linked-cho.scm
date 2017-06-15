@@ -276,7 +276,7 @@
   ;; main line of add-linked-residue-tree
   ;;
   (add-synthetic-pyranose-planes)
-  (use-monomodal-pyranose-ring-torsions)
+  (use-unimodal-pyranose-ring-torsions)
   (set-refine-with-torsion-restraints 1)
   (set-matrix 8)
   (set-residue-selection-flash-frames-number 1)
@@ -328,9 +328,13 @@
                                        (set! delete-cho-list (cons (list chain-id res-no "") delete-cho-list))))))))
                                 (range (chain-n-residues chain-id aa-imol))))
                              (chain-ids aa-imol))
-                  (for-each (lambda(cho-res-spec)
-                      (delete-residue aa-imol (residue-spec->chain-id cho-res-spec) (residue-spec->res-no cho-res-spec) ""))
-                      delete-cho-list)))))))
+
+		  ;; now we have delete-residues, we don't need to delete them one by one
+                  ;;(for-each (lambda(cho-res-spec)
+		  ;; (delete-residue aa-imol (residue-spec->chain-id cho-res-spec) (residue-spec->res-no cho-res-spec) ""))
+		  ;;   delete-cho-list)))))))
+		  ;;
+		  (delete-residues aa-imol delete-cho-list)))))))
 
 
 (define (add-module-carbohydrate) 
