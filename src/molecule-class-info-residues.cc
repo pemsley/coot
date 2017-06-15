@@ -1413,19 +1413,29 @@ molecule_class_info_t::multi_residue_torsion_fit(const std::vector<coot::residue
 	 }
       }
    }
-   std::vector<clipper::Coord_orth> avoid_these_atoms;
+
+   // 20170613 we don't want to include the ASN to which the first NAG is attached into
+   // the atoms to be avoided. So (crudely) remove ASN residues from env neighbours
+   std::vector<std::pair<bool, clipper::Coord_orth> > avoid_these_atoms;
    for (unsigned int i=0; i<neighbour_specs.size(); i++) {
       mmdb::Residue *residue_p = get_residue(neighbour_specs[i]);
       if (residue_p) {
-	 mmdb::Atom **residue_atoms = 0;
-	 int n_residue_atoms;
-	 residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-	 for (int iat=0; iat<n_residue_atoms; iat++) {
-	    mmdb::Atom *at = residue_atoms[iat];
-	    std::string ele = at->element;
-	    if (ele != " H") { // PDBv3 fixme
-	       clipper::Coord_orth pt = coot::co(at);
-	       avoid_these_atoms.push_back(pt);
+	 std::string res_name = residue_p->GetResName();
+	 if (res_name != "ASN") {
+	    mmdb::Atom **residue_atoms = 0;
+	    int n_residue_atoms;
+	    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	    for (int iat=0; iat<n_residue_atoms; iat++) {
+	       mmdb::Atom *at = residue_atoms[iat];
+	       std::string ele = at->element;
+	       if (ele != " H") { // PDBv3 fixme
+		  clipper::Coord_orth pt = coot::co(at);
+		  bool t = false;
+		  std::string res_name = at->GetResName();
+		  if (res_name == "HOH") t = true;
+		  std::pair<bool, clipper::Coord_orth> p(t, pt);
+		  avoid_these_atoms.push_back(p);
+	       }
 	    }
 	 }
       }
