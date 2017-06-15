@@ -54,7 +54,7 @@ namespace coot {
    void multi_residue_torsion_fit_map(int imol,
 				      mmdb::Manager *mol,
 				      const clipper::Xmap<float> &xmap,
-				      const std::vector<clipper::Coord_orth> &avoid_these_atoms,
+				      const std::vector<std::pair<bool, clipper::Coord_orth> > &avoid_these_atoms, // flag is is-water?b
 				      int n_trials,
 				      coot::protein_geometry *geom_p); 
    // which calls 
@@ -73,7 +73,7 @@ namespace coot {
    double get_environment_clash_score(mmdb::Manager *mol,
 				      mmdb::PPAtom atom_selection,
 				      int n_selected_atoms,
-				      const std::vector<clipper::Coord_orth> &avoid_these_atoms);
+				      const std::vector<std::pair<bool, clipper::Coord_orth> > &avoid_these_atoms); // flag is is-water?
    bool both_in_a_torsion_p(mmdb::Atom *at_1,
 			    mmdb::Atom *at_2,
 			    const std::vector<coot::torsion_atom_quad> &quads);

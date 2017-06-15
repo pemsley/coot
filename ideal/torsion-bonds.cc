@@ -406,7 +406,7 @@ void
 coot::multi_residue_torsion_fit_map(int imol,
 				    mmdb::Manager *mol,
 				    const clipper::Xmap<float> &xmap,
-				    const std::vector<clipper::Coord_orth> &avoid_these_atoms,
+				    const std::vector<std::pair<bool, clipper::Coord_orth> > &avoid_these_atoms, // 20170613 flag is is-water
 				    int n_trials,
 				    coot::protein_geometry *geom_p) {
 
@@ -532,16 +532,16 @@ coot::multi_residue_torsion_fit_map(int imol,
 	    double self_clash_score = get_self_clash_score(mol, atom_selection, n_selected_atoms, quads);
 
 	    double env_clash_score = get_environment_clash_score(mol, atom_selection, n_selected_atoms,
-								 avoid_these_atoms);
+                                                                 avoid_these_atoms);
 
-	    if (false) {
+	    if (true) {
 	       std::cout << "DEBUG:: self_clash_score: " << self_clash_score << std::endl;
 	       std::cout << "DEBUG::  env_clash_score: " <<  env_clash_score << std::endl;
 	    }
 
 	    // self-clash scores have mean 7.5, median 3.3 and sd 14, IRQ 0.66
 	    // 
-	    if ((self_clash_score > 6) || (env_clash_score > 1.0)) {
+	    if ((self_clash_score > 6) || (env_clash_score > 100.0)) {
 
 	       // crash and bangs into itself (between residues)
 	       // or into its neighbours (the 1.0 might need tuning)
@@ -555,7 +555,7 @@ coot::multi_residue_torsion_fit_map(int imol,
 	       // debugging of scores
 	       if (false) { 
 		  std::cout << "debug trial " << itrial << " fit-score: " << this_score
-			    << " clash-score " << self_clash_score 
+			    << " self-clash-score " << self_clash_score 
 			    << " for quads "; 
 		  for (unsigned int iquad=0; iquad<quads.size(); iquad++)
 		     std::cout << "   " << quads[iquad].torsion();
@@ -656,6 +656,7 @@ coot::get_self_clash_score(mmdb::Manager *mol,
    // sum of (d-bump_max)^2 for atom pairs i,j where j<i where d < bump_max
 
    mmdb::realtype bump_max = 3.6; // find distances between atoms that are less than this.
+   bump_max = 2.8; // 20170615 try this (for less self bumping)
    double clash_score = 0;
 
    // setup for SeekContacts():
@@ -690,17 +691,24 @@ coot::get_self_clash_score(mmdb::Manager *mol,
 		  std::string e2 = at_2->element;
 
 		  if ((e1 != " H") && (e2 != " H")) {  // PDB vs 3 FIXME
-		     double d_sqd =
-			(at_1->x-at_2->x) * (at_1->x-at_2->x) +
-			(at_1->y-at_2->y) * (at_1->y-at_2->y) + 
-			(at_1->z-at_2->z) * (at_1->z-at_2->z);
+		     // ignore bumps to O5 (e.g. O4(prev)-O5(new)) on newly added residue
 
-		     // are they either in a bond, angle or torsion of any of quads?
-		     // 
-		     bool in_a_tors = both_in_a_torsion_p(at_1, at_2, quads);
-		     if (! in_a_tors) {
-			double delta = bump_max - sqrt(d_sqd);
-			clash_score += delta * delta;
+		     std::string atom_name_2 = at_2->name;
+		     if (atom_name_2 != " O5 ") {
+			double d_sqd =
+			   (at_1->x-at_2->x) * (at_1->x-at_2->x) +
+			   (at_1->y-at_2->y) * (at_1->y-at_2->y) + 
+			   (at_1->z-at_2->z) * (at_1->z-at_2->z);
+
+			// are they either in a bond, angle or torsion of any of quads?
+			// 
+			bool in_a_tors = both_in_a_torsion_p(at_1, at_2, quads);
+			if (! in_a_tors) {
+			   double delta = bump_max - sqrt(d_sqd);
+			   clash_score += delta * delta;
+			   std::cout << "adding to clash_score " << delta * delta << " for dist " << sqrt(d_sqd)
+				     << " between " << atom_spec_t(at_1) << " and " << atom_spec_t(at_2) << std::endl;
+			}
 		     }
 		  }
 	       }
@@ -747,25 +755,27 @@ double
 coot::get_environment_clash_score(mmdb::Manager *mol,
 				  mmdb::PPAtom atom_selection,
 				  int n_selected_atoms,
-				  const std::vector<clipper::Coord_orth> &avoid_these_atoms) {
+				  const std::vector<std::pair<bool, clipper::Coord_orth> > &avoid_these_atoms) {
    double cs = 0;
-   double close_lim = 3.3;
-   double close_lim_sqrd = close_lim * close_lim;
    double sf = 1.0;
    for (int iat=0; iat<n_selected_atoms; iat++) {
       // we expect that the ASN will be close to its polypeptide neighbours.  We don't want to
       // include such clashes
       std::string res_name = atom_selection[iat]->GetResName();
+      // std::cout << "res_name is " << res_name << std::endl;
       if (res_name != "ASN") {
 	 clipper::Coord_orth at_pt = co(atom_selection[iat]);
 	 for (unsigned int jat=0; jat<avoid_these_atoms.size(); jat++) {
-	    double d_sqd = (at_pt - avoid_these_atoms[jat]).lengthsq();
+	    double close_lim = 3.3;
+	    if (avoid_these_atoms[jat].first) close_lim = 2.5; // we can get close to waters without worry
+	    double close_lim_sqrd = close_lim * close_lim;
+	    double d_sqd = (at_pt - avoid_these_atoms[jat].second).lengthsq();
 	    if (d_sqd < close_lim_sqrd) {
 	       double diff = close_lim - sqrt(d_sqd);
 	       cs += diff*diff*sf;
-	       if (false)
-		  std::cout << "DEBUG:: atom " << atom_spec_t(atom_selection[iat]) << " is close to "
-			    << jat << " " << avoid_these_atoms[jat].format() << " " << sqrt(d_sqd) << std::endl;
+	       if (true)
+		  std::cout << "DEBUG:: env clash: atom " << atom_spec_t(atom_selection[iat]) << " is close to "
+			    << jat << " " << avoid_these_atoms[jat].second.format() << " " << sqrt(d_sqd) << std::endl;
 	    }
 	 }
       }
