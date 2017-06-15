@@ -4779,6 +4779,16 @@ void delete_residue_range(int imol, const char *chain_id, int resno_start, int e
 void delete_residue(int imol, const char *chain_id, int resno, const char *inscode); 
 /*! \brief delete residue with altconf  */
 void delete_residue_with_full_spec(int imol, int imodel, const char *chain_id, int resno, const char *inscode, const char *altloc); 
+#ifdef __cplusplus 
+#ifdef USE_GUILE
+/*! \brief delete residues in the residue spec list */
+void delete_residues_scm(int imol, SCM residue_specs_scm);
+#endif
+#ifdef USE_PYTHON
+/*! \brief delete residues in the residue spec list */
+void delete_residues_py(int imol, PyObject *residue_specs_py);
+#endif
+#endif	/* c++ */
 /*! \brief delete hydrogen atoms in residue  */
 void delete_residue_hydrogens(int imol, const char *chain_id, int resno, const char *inscode, const char *altloc); 
 /*! \brief delete atom in residue */

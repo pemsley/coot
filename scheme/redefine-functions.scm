@@ -114,6 +114,7 @@
 (define glyco-tree-residue-id glyco-tree-residue-id-scm)
 (define add-extra-bond-restraints add-extra-bond-restraints-scm)
 (define new-molecule-by-residue-specs new-molecule-by-residue-specs-scm)
+(define delete-residues delete-residues-scm)
 
 ;; I changed the function name - save those (just a few) with scripts that I've handed out
 (define toggle-idle-ligand-interactions toggle-flev-idle-ligand-interactions)

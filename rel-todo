@@ -34,6 +34,11 @@
       }
 
 
+   o on mutating a THR (or anything) to a PRO, remember to delete
+     H.
+
+   o I don't like fat hydrgen (bonds) in Colour by Chain mode.
+
    o when first molecule is not a protein.  Copy NCS residue range. coot-utils.scm 1533
 
    o in 2qc1, build a NAG, NAG, BMA. Centre on the first NAG, sphere refine or H-refine.  
