@@ -649,6 +649,8 @@ namespace coot {
       // -3 for unset
       // int imol_enc;
 
+      void delete_atoms_from_restraints(const std::vector<std::string> &H_atoms_to_be_deleted);
+
    public:
       dictionary_residue_restraints_t(std::string comp_id_in,
 				      int read_number_in) {
@@ -832,6 +834,7 @@ namespace coot {
       void remove_phosphate_hydrogens();
       void remove_sulphate_hydrogens();
       void remove_PO4_SO4_hydrogens(const std::string &P_or_S);
+      void remove_carboxylate_hydrogens();
 
       friend std::ostream& operator<<(std::ostream &s, const dictionary_residue_restraints_t &rest);
 

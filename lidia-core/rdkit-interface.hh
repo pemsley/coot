@@ -171,6 +171,8 @@ namespace coot {
 				unsigned int atomic_num, 
 				bool deloc_bonds);
 
+   int remove_carboxylate_hydrogens(RDKit::RWMol *m, bool deloc_bonds); 
+
    // account for Ns with "too many" hydrogens by assigning deleting a
    // hydrogen.
    // 

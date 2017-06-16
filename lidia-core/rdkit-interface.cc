@@ -3227,7 +3227,77 @@ coot::remove_PO4_SO4_hydrogens(RDKit::RWMol *m,
    return n_added;
 }
 
+int
+coot::remove_carboxylate_hydrogens(RDKit::RWMol *m, bool deloc_bonds) {
 
+   // No HO2 on O2 in BEZ (benzoic acid)
+
+   int n_added = 0;
+   bool debug = false;
+   RDKit::ROMol::AtomIterator ai;
+   std::vector<RDKit::Atom *> H_atoms_to_be_deleted;
+   for(ai=m->beginAtoms(); ai!=m->endAtoms(); ai++) {
+
+      unsigned int this_atomic_num = (*ai)->getAtomicNum(); // convert int to unsigned int
+      if (this_atomic_num == 6) {
+	 RDKit::Atom *C_at = *ai;
+	 int idx_C = C_at->getIdx();
+	 if (C_at->getDegree() == 3) {
+
+	    std::vector<RDKit::Bond *> single_CO_bonds; // with a hydrogen attached (presumably)
+	    std::vector<RDKit::Bond *> double_CO_bonds;
+	    std::vector<RDKit::Atom *> O_atoms_for_charging;
+	    std::vector<RDKit::Atom *> carboxylate_hydrogens;
+	 
+	    RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
+	    boost::tie(nbrIdx, endNbrs) = m->getAtomNeighbors(C_at);
+	    while (nbrIdx != endNbrs) {
+	       const RDKit::ATOM_SPTR at = (*m)[*nbrIdx];
+	       RDKit::Bond *bond = m->getBondBetweenAtoms(idx_C, *nbrIdx);
+	       if (bond) {
+
+		  if (at->getAtomicNum() == 8) {
+		     if (bond->getBondType() == RDKit::Bond::SINGLE) {
+			single_CO_bonds.push_back(bond);
+		     }
+		     if (bond->getBondType() == RDKit::Bond::DOUBLE) {
+			double_CO_bonds.push_back(bond);
+		     }
+		  }
+	       }
+	       nbrIdx++;
+	    }
+	    if (single_CO_bonds.size() == 1) {
+	       if (double_CO_bonds.size() == 1) {
+		  // was there an H atom on the other side of the single C-O bond?
+		  RDKit::Bond *bond = single_CO_bonds[0];
+		  RDKit::Atom *O_at = bond->getOtherAtom(C_at);
+		  if (O_at->getDegree() == 2) {
+		     int idx_O = O_at->getIdx();
+		     RDKit::ROMol::ADJ_ITER nbrIdx_inner, endNbrs_inner;
+		     boost::tie(nbrIdx_inner, endNbrs_inner) = m->getAtomNeighbors(O_at);
+		     while (nbrIdx_inner != endNbrs_inner) {
+			const RDKit::ATOM_SPTR at = (*m)[*nbrIdx_inner];
+			RDKit::Bond *bond_inner = m->getBondBetweenAtoms(idx_O, *nbrIdx_inner);
+			if (bond_inner) {
+			   RDKit::Atom *at_H = bond_inner->getOtherAtom(O_at);
+			   if (at_H->getAtomicNum() == 1) {
+			      // delete this H, charge the O
+			      m->removeAtom(at_H);
+			      O_at->setFormalCharge(-1);
+			   }
+			}
+			nbrIdx_inner++;
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return n_added;
+
+}
 
 
 void

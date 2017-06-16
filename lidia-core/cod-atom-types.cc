@@ -412,9 +412,10 @@ cod::atom_types_t::get_cod_atom_type(RDKit::Atom *atom_base_p,
 				     const RDKit::ROMol &rdkm,
 				     int nb_level) {
 
-   std::cout << "get_cod_atom_type() called with nb_level " << nb_level << std::endl;
+   // std::cout << "get_cod_atom_type() called with nb_level " << nb_level << std::endl;
 
-   if (nb_level == atom_type_t::COLON_HYBRIDIZATION_TYPE) {
+   // this could/should be in its own block
+   if (nb_level == atom_type_t::COLON_DEGREE_TYPE) {
       // c.f. the atom_level_2_component_type constructor
       RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
       boost::tie(nbrIdx, endNbrs) = rdkm.getAtomNeighbors(atom_base_p);
@@ -423,7 +424,10 @@ cod::atom_types_t::get_cod_atom_type(RDKit::Atom *atom_base_p,
 	 RDKit::ATOM_SPTR at = rdkm[*nbrIdx];
 	 RDKit::Atom *neigh_atom_p = at.get();
 	 if (neigh_atom_p != atom_parent_p) {
-	    v.push_back(hybridization_to_int(neigh_atom_p->getHybridization()));
+	    // RDKit::Atom::HybridizationType hy = neigh_atom_p->getHybridization();
+	    // int h = hybridization_to_int(hy);
+	    int h = neigh_atom_p->getDegree();
+	    v.push_back(h);
 	 }
 	 nbrIdx++;
       }
@@ -448,7 +452,7 @@ cod::atom_types_t::get_cod_atom_type(RDKit::Atom *atom_base_p,
    std::vector<int> ring_arom_vec; // key: "ring_arom"
    // std::vector<ring_info_t> ring_info_vec;
 
-   if (nb_level != 3 && nb_level != atom_type_t::COLON_HYBRIDIZATION_TYPE) {
+   if (nb_level != 3 && nb_level != atom_type_t::COLON_DEGREE_TYPE) {
 
       atom_ring_string = make_ring_info_string(atom_p).second;
       
@@ -477,15 +481,15 @@ cod::atom_types_t::get_cod_atom_type(RDKit::Atom *atom_base_p,
 	       // std::pair<std::string, std::list<third_neighbour_info_t> > s_pair =
 	       // get_cod_atom_type(atom_base_p, atom_parent_p, atom_p, neigh_atom_p,
 	       //                   rdkm, nb_level+1);
-	       atom_type_t atom_type = 
+	       atom_type_t atom_type_local =
 		  get_cod_atom_type(atom_base_p, atom_parent_p, atom_p, neigh_atom_p,
 				    rdkm, nb_level+1);
 	       
-	       neighbour_types.push_back(atom_type);
+	       neighbour_types.push_back(atom_type_local);
 
-	       if (atom_type.tnil.size()) {
+	       if (atom_type_local.tnil.size()) {
 		  std::list<third_neighbour_info_t>::const_iterator it;
-		  for (it=atom_type.tnil.begin(); it!=atom_type.tnil.end(); it++)
+		  for (it=atom_type_local.tnil.begin(); it!=atom_type_local.tnil.end(); it++)
 		     tnil.push_back(*it);
 		  tnil.sort();
 		  tnil.unique();
@@ -526,8 +530,15 @@ cod::atom_types_t::get_cod_atom_type(RDKit::Atom *atom_base_p,
       std::pair<std::string, std::string> sp =
 	 make_cod_level_3_and_4_atom_type(atom_base_p, atom_ele, nt, tnil, nb_level);
 
+      // std::cout << "reseting atom_type " << nb_level << std::endl;
       atom_type = atom_type_t(sp.first, sp.second);
       atom_type.tnil = tnil;
+   }
+
+   if (nb_level == 0) {
+      cod::atom_type_t at_for_colon = get_cod_atom_type(atom_base_p, 0, 0, 0, rdkm,
+							atom_type_t::COLON_DEGREE_TYPE);
+      atom_type.extract_degree_info(at_for_colon);
    }
 
    if (nb_level == 0) {

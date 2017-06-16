@@ -187,7 +187,7 @@ cod::bond_record_container_t::read_acedrg_table(const std::string &file_name) {
 	    const std::string &hybridization_token = bits[2];
 	    const std::string &ring_token = bits[3];
 
-	    // 20170613 capture the colon types too.
+	    // 20170613 capture the degree:colon types too
 	    const std::string &atom_1_colon_type  = bits[4];
 	    const std::string &atom_2_colon_type  = bits[5];
 
@@ -206,7 +206,7 @@ cod::bond_record_container_t::read_acedrg_table(const std::string &file_name) {
 	    std::string cod_type_2_level_3 =
 	       atom_type_t::level_4_type_to_level_3_type(cod_type_2_level_4);
 
-	    if (true) // debug
+	    if (false) // debug
 	       std::cout << "debug:: making an cod-atom from "
 			 << cod_type_1_hash_str << " "
 			 << atom_1_colon_type << "   "
@@ -250,7 +250,7 @@ cod::bond_record_container_t::read_acedrg_table(const std::string &file_name) {
       }
    } else {
       std::cout << "failed to open " << file_name << std::endl;
-   } 
+   }
 
    return status;
 }
@@ -1065,7 +1065,7 @@ cod::bond_record_container_t::make_sqlite_db(const std::string &db_file_name) {
 	 std::vector<std::string> commands;
 	 std::string create_cmd =
 	    std::string("CREATE TABLE COD_TYPE_4_INDICES (") +
-	    std::string("level_4_atom_type NVCHAR(200) PRIMARY KEY, level_3_atom_type NVCHAR(200), level_2_atom_type NVCHAR(100), level_1_atom_type NVCHAR(100), atom_index INT )");
+	    std::string("level_4_atom_type NVCHAR(200) PRIMARY KEY, level_3_atom_type NVCHAR(200), level_2_atom_type NVCHAR(100), colon_degree_atom_type NVCHAR(12), hash_code INT, atom_index INT )");
 
 	 rc = sqlite3_exec(db, create_cmd.c_str(), db_callback, 0, &zErrMsg);
 	 if (rc) {
@@ -1151,9 +1151,10 @@ cod::bond_record_container_t::db_add_level_4_types(sqlite3 *db) {
       std::string level_4 = it_map->first.level_4;
       std::string level_3 = it_map->first.level_3;
       std::string level_2 = it_map->first.level_2.string();
-      int level_1 = it_map->first.hash_value;
+      std::string degree_colon_type = it_map->first.neighb_degrees_str();
+      int hash_code = it_map->first.hash_value;
       std::string cmd = "INSERT INTO " + table_name + " ";
-      cmd += "(level_4_atom_type, level_3_atom_type, level_2_atom_type, level_1_atom_type, atom_index) ";
+      cmd += "(level_4_atom_type, level_3_atom_type, level_2_atom_type, colon_degree_atom_type, hash_code, atom_index) ";
       cmd += "VALUES (";
       cmd += coot::util::single_quote(level_4, "'");
       cmd += ", ";
@@ -1161,7 +1162,9 @@ cod::bond_record_container_t::db_add_level_4_types(sqlite3 *db) {
       cmd += ", ";
       cmd += coot::util::single_quote(level_2, "'");
       cmd += ", ";
-      cmd += coot::util::int_to_string(level_1);
+      cmd += coot::util::single_quote(degree_colon_type, "'");
+      cmd += ", ";
+      cmd += coot::util::int_to_string(hash_code);
       cmd += ", ";
       cmd += coot::util::int_to_string(it_map->second);
       cmd += ");";

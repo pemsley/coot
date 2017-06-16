@@ -120,13 +120,13 @@ cod::atom_level_2_type::atom_level_2_type(RDKit::Atom *base_atom_p,
    for (int i=0; i<n_components; i++) {
       l2 += components[i].element;
       l2 += components[i].ring_info_string;
-      if (components[i].neighb_hybridizations.size()) {
+      if (components[i].neighb_degrees.size()) {
 	 l2 += "-";
-	 int n_size = components[i].neighb_hybridizations.size(); // int for comparison below
+	 int n_size = components[i].neighb_degrees.size(); // int for comparison below
 	 for (int j=0; j<n_size; j++) { 
 	    if (j != 0)
 	       l2 += "_";
-	    l2 += coot::util::int_to_string(components[i].neighb_hybridizations[j]);
+	    l2 += coot::util::int_to_string(components[i].neighb_degrees[j]);
 	 }
 	 if (i != i_last_component)
 	    l2 += ":";
@@ -148,10 +148,10 @@ cod::atom_level_2_type::extra_electron_type() const {
       // std::cout << "s: " << s << std::endl;
       s += components[i].ring_info_string;
       // std::cout << "s: " << s << std::endl;
-      if (components[i].neighb_hybridizations.size()) {
+      if (components[i].neighb_degrees.size()) {
 	 s += "-";
 	 // std::cout << "s: " << s << std::endl;
-	 int n_size_1 = components[i].neighb_hybridizations.size(); // int for comparison below
+	 int n_size_1 = components[i].neighb_degrees.size(); // int for comparison below
 	 int n_size = components[i].neighb_extra_elect.size(); // int for comparison below
 	 if (n_size != n_size_1) {
 	    std::cout << "------ mismatch sizes: " << n_size << " " << n_size_1 << std::endl;
@@ -181,16 +181,14 @@ cod::atom_level_2_type::n_extra_electrons() const {
 }
 
 void
-cod::atom_type_t::set_neighb_hybridizations_string() {
+cod::atom_type_t::set_neighb_degrees_string() {
 
    std::string s;
-   unsigned int idx_last = neighb_hybridizations.size() -1;
-   for (unsigned int i=0; i<neighb_hybridizations.size(); i++) {
-      s += coot::util::int_to_string(neighb_hybridizations[i]);
-      if (i != idx_last)
-	 s += ":";
+   for (unsigned int i=0; i<neighb_degrees.size(); i++) {
+      s += coot::util::int_to_string(neighb_degrees[i]);
+      s += ":";
    }
-   neighb_hybridizations_str_ = s;
+   neighb_degrees_str_ = s;
 }
 
 
@@ -200,8 +198,8 @@ cod::operator<<(std::ostream &s,
 
    s << "{" << c.element << " " << c.number_of_rings << " "
      << c.ring_info_string << " ";
-   for (unsigned int i=0; i<c.neighb_hybridizations.size(); i++)
-      s << c.neighb_hybridizations[i] << " ";
+   for (unsigned int i=0; i<c.neighb_degrees.size(); i++)
+      s << c.neighb_degrees[i] << " ";
    s << "}";
    return s;
 
@@ -235,13 +233,13 @@ cod::atom_type_t::level_4_type_to_level_3_type(const std::string &l4t)  {
 
 //
 cod::atom_type_t::atom_type_t(const std::string &s1_hash,
-			      const std::string &colon_hydrid_type,
+			      const std::string &colon_degrees_type,
 			      const cod::atom_level_2_type &l2,
 			      const std::string &s3, const std::string &s4) {
    level_2 = l2;
    level_3 = s3;
    level_4 = s4;
-   neighb_hybridizations_str_ = colon_hydrid_type;
+   neighb_degrees_str_ = colon_degrees_type;
 
    try {
       hash_value = coot::util::string_to_int(s1_hash);
@@ -331,15 +329,15 @@ cod::atom_level_2_type::level_2_component_sorter(const atom_level_2_component_ty
 				       return false;
 				    } else {
 
-				       bool s = (lb.neighb_hybridizations.size() <
-						 la.neighb_hybridizations.size());
+				       bool s = (lb.neighb_degrees.size() <
+						 la.neighb_degrees.size());
 
 				       if (s) {
 					  return true;
 				       } else {
 
-					  bool sr = (lb.neighb_hybridizations.size() >
-						     la.neighb_hybridizations.size());
+					  bool sr = (lb.neighb_degrees.size() >
+						     la.neighb_degrees.size());
 
 					  if (sr) {
 					     return false;
@@ -347,7 +345,7 @@ cod::atom_level_2_type::level_2_component_sorter(const atom_level_2_component_ty
 
 					     if (extra_electron_sort) {
 
-						unsigned int n = la.neighb_hybridizations.size();
+						unsigned int n = la.neighb_degrees.size();
 						for (unsigned int i=0; i<n; i++) {
 						   if (la.neighb_extra_elect[i] < lb.neighb_extra_elect[i]) {
 						      return true;
@@ -363,14 +361,14 @@ cod::atom_level_2_type::level_2_component_sorter(const atom_level_2_component_ty
 
 						// old style hybridizations
 
-						// so la.neighb_hybridizations should be the same
-						// size as lb.neighb_hybridizations.
+						// so la.neighb_degrees should be the same
+						// size as lb.neighb_degrees.
 
-						unsigned int n_h_a = la.neighb_hybridizations.size();
+						unsigned int n_h_a = la.neighb_degrees.size();
 						for (unsigned int i=0; i<n_h_a; i++) { 
-						   if (la.neighb_hybridizations[i] < lb.neighb_hybridizations[i])
+						   if (la.neighb_degrees[i] < lb.neighb_degrees[i])
 						      return true;
-						   if (la.neighb_hybridizations[i] > lb.neighb_hybridizations[i])
+						   if (la.neighb_degrees[i] > lb.neighb_degrees[i])
 						      return false;
 						}
 
@@ -482,7 +480,7 @@ cod::atom_level_2_type::atom_level_2_component_type::atom_level_2_component_type
 
    element = tbl->getElementSymbol(at->getAtomicNum());
 
-   neighb_hybridizations = v;
+   neighb_degrees = v;
 
    // neighb extra electrons, decreasing order
    std::sort(neighb_extra_elect.begin(),

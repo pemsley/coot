@@ -4743,20 +4743,9 @@ coot::dictionary_residue_restraints_t::remove_PO4_SO4_hydrogens(const std::strin
 	       std::cout << "Charge these " << oxygen_atom_charge_list.size() << " oxygen atoms"
 			 << std::endl;
 	    }
-	    if (hydrogen_atom_delete_list.size()) {
-	       for (unsigned int j=0; j<hydrogen_atom_delete_list.size(); j++) {
-		  atom_info.erase(std::remove_if(atom_info.begin(), atom_info.end(), eraser(hydrogen_atom_delete_list)),
-				  atom_info.end());
-		  bond_restraint.erase(std::remove_if(bond_restraint.begin(),
-						      bond_restraint.end(),
-						      eraser(hydrogen_atom_delete_list)),
-				       bond_restraint.end());
-		  angle_restraint.erase(std::remove_if(angle_restraint.begin(),
-						       angle_restraint.end(),
-						       eraser(hydrogen_atom_delete_list)),
-					angle_restraint.end());
-	       }
-	    }
+
+	    delete_atoms_from_restraints(hydrogen_atom_delete_list);
+
 	    for (unsigned int j=0; j<oxygen_atom_charge_list.size(); j++) {
 	       for (unsigned int k=0; k<atom_info.size(); k++) {
 		  if (atom_info[k].atom_id_4c == oxygen_atom_charge_list[j]) {
@@ -4766,6 +4755,134 @@ coot::dictionary_residue_restraints_t::remove_PO4_SO4_hydrogens(const std::strin
 	       }
 	    }
 	 }
+      }
+   }
+   
+}
+
+void
+coot::dictionary_residue_restraints_t::remove_carboxylate_hydrogens() {
+
+   // This is a pain.
+
+   std::vector<std::string> H_atoms_to_be_deleted;
+   std::vector<std::string> oxygen_atom_charge_list;
+
+   unsigned int n_atoms = atom_info.size();
+   for (unsigned int i=0; i<n_atoms; i++) {
+
+      if (element(atom_info[i].atom_id_4c) == " C") { // PDBv3 FIXME
+	 std::vector<std::string> oxygen_list;
+	 int n_bonds_to_C = 0;
+	 int C_O_bond_idx = -1; // initially unset
+	 std::string O_with_possibly_H;
+	 int n_single_bonds = 0;
+	 int n_double_bonds = 0;
+	 unsigned int n_bonds = bond_restraint.size();
+	 for (unsigned int j=0; j<n_bonds; j++) {
+	    const dict_bond_restraint_t &br = bond_restraint[j];
+
+	    //
+	    // note to self - do reverse indexing also
+	    //
+
+	    // is an atom of this bond the C atom?
+	    //
+	    if (br.atom_id_1_4c() == atom_info[i].atom_id_4c) {
+	       // yes it is.
+	       n_bonds_to_C++;
+
+	       std::string atom_id_O = br.atom_id_2_4c();
+	       if (element(atom_id_O) == " O") {
+		  if (br.type() == "single") {
+		     C_O_bond_idx = j;
+		     O_with_possibly_H = atom_id_O;
+		     oxygen_atom_charge_list.push_back(O_with_possibly_H);
+		     n_single_bonds++;
+		  }
+		  if (br.type() == "double") {
+		     n_double_bonds++;
+		  }
+	       }
+	    }
+	    if (br.atom_id_2_4c() == atom_info[i].atom_id_4c) {
+	       // yes it is.
+	       n_bonds_to_C++;
+
+	       std::string atom_id_O = br.atom_id_1_4c();
+	       if (element(atom_id_O) == " O") {
+		  if (br.type() == "single") {
+		     C_O_bond_idx = j;
+		     O_with_possibly_H = atom_id_O;
+		     oxygen_atom_charge_list.push_back(O_with_possibly_H);
+		     n_single_bonds++;
+		  }
+		  if (br.type() == "double") {
+		     n_double_bonds++;
+		  }
+	       }
+	    }
+	 }
+
+	 if (n_bonds_to_C == 3) {
+	    if (n_single_bonds == 1) {
+	       if (n_double_bonds == 1) {
+		  if (! O_with_possibly_H.empty()) {
+		     // go through the bond restraints looking for both the named Oxygen atom
+		     // and a hydrogen.
+		     std::string delete_H_atom;
+		     for (unsigned int k=0; k<n_bonds; k++) {
+			const dict_bond_restraint_t &br = bond_restraint[k];
+			if (br.atom_id_1_4c() == O_with_possibly_H) {
+			   if (element(br.atom_id_2_4c()) == " H") {
+			      // delete this hydrogen and this bond
+			      H_atoms_to_be_deleted.push_back(br.atom_id_2_4c());
+			   }
+			}
+			if (br.atom_id_2_4c() == O_with_possibly_H) {
+			   if (element(br.atom_id_1_4c()) == " H") {
+			      // delete this hydrogen and this bond
+			      H_atoms_to_be_deleted.push_back(br.atom_id_1_4c());
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   std::cout << "Here with H_atoms_to_be_deleted size() " << H_atoms_to_be_deleted.size() << std::endl;
+   if (H_atoms_to_be_deleted.size() > 0) {
+      delete_atoms_from_restraints(H_atoms_to_be_deleted);
+      for (unsigned int j=0; j<oxygen_atom_charge_list.size(); j++) {
+	 for (unsigned int k=0; k<atom_info.size(); k++) {
+	    if (atom_info[k].atom_id_4c == oxygen_atom_charge_list[j]) {
+	       atom_info[k].formal_charge.first = true;
+	       atom_info[k].formal_charge.first = -1;
+	    }
+	 }
+      }
+   }
+}
+
+
+void
+coot::dictionary_residue_restraints_t::delete_atoms_from_restraints(const std::vector<std::string> &hydrogen_atom_delete_list) {
+
+   if (hydrogen_atom_delete_list.size()) {
+      for (unsigned int j=0; j<hydrogen_atom_delete_list.size(); j++) {
+	 atom_info.erase(std::remove_if(atom_info.begin(), atom_info.end(), eraser(hydrogen_atom_delete_list)),
+			 atom_info.end());
+	 bond_restraint.erase(std::remove_if(bond_restraint.begin(),
+					     bond_restraint.end(),
+					     eraser(hydrogen_atom_delete_list)),
+			      bond_restraint.end());
+	 angle_restraint.erase(std::remove_if(angle_restraint.begin(),
+					      angle_restraint.end(),
+					      eraser(hydrogen_atom_delete_list)),
+			       angle_restraint.end());
       }
    }
    

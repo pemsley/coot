@@ -40,7 +40,7 @@ namespace cod {
 	 std::string element;
 	 unsigned int number_of_rings;
 	 std::string ring_info_string;
-	 std::vector<int> neighb_hybridizations;
+	 std::vector<int> neighb_degrees;
 	 std::vector<int> neighb_extra_elect; // same size as above needed
 	 std::string atom_name;
 	 int n_extra_elect;
@@ -73,15 +73,15 @@ namespace cod {
    // with 3rd neighbour info
    //
    class atom_type_t {
-      std::string neighb_hybridizations_str_; // string set on read from tables
-      void set_neighb_hybridizations_string(); //
+      std::string neighb_degrees_str_; // string set on read from tables
+      void set_neighb_degrees_string(); //
    public:
-      enum { COLON_HYBRIDIZATION_TYPE = 546 };
+      enum { COLON_DEGREE_TYPE = 546 };
 
       atom_type_t() {}
 
       atom_type_t(const std::string &s1,
-		  const std::string &s_neigh_hybrid_colon,
+		  const std::string &s_neigh_degrees_colon,
 		  const atom_level_2_type &l2,
 		  const std::string &s3, const std::string &s4);
 
@@ -95,23 +95,27 @@ namespace cod {
 	 level_4 = s2;
 	 hash_value = -1;
       }
-      atom_type_t(const std::vector<unsigned int> &hyb) {
-	 neighb_hybridizations = hyb;
-	 set_neighb_hybridizations_string();
+      atom_type_t(const std::vector<unsigned int> &degrees) {
+	 neighb_degrees = degrees;
+	 set_neighb_degrees_string();
       }
       std::string level_4;
       std::string level_3; // as 4 but without 3rd neighbour info
       atom_level_2_type level_2;
-      std::vector<unsigned int> neighb_hybridizations; // for "colon type" - e.g. 3:3:2
+      std::vector<unsigned int> neighb_degrees; // for "colon type" - e.g. 3:3:2
       int hash_value; // can be zero (?), so use -1 for fail.
       std::list<third_neighbour_info_t> tnil;
 
-      std::string neighb_hybridizations_str() {
-	 if (neighb_hybridizations_str_.empty())
-	    set_neighb_hybridizations_string(); // use neighb_hybridizations
-	 return neighb_hybridizations_str_;
+      std::string neighb_degrees_str() {
+	 if (neighb_degrees_str_.empty())
+	    set_neighb_degrees_string(); // use neighb_degrees
+	 return neighb_degrees_str_;
       }
-      std::string neighb_hybridizations_str() const { return neighb_hybridizations_str_; }
+      std::string neighb_degrees_str() const { return neighb_degrees_str_; }
+      void extract_degree_info(const atom_type_t &at) {
+	 neighb_degrees = at.neighb_degrees;
+	 set_neighb_degrees_string();
+      }
 
       // helper function
       static std::string level_4_type_to_level_3_type(const std::string &l4t);
