@@ -36,6 +36,7 @@
 
 #include <map>
 #include <stdexcept>
+#include <algorithm>
 
 #include <mmdb2/mmdb_utils.h>
 #include <mmdb2/mmdb_math_graph.h>
