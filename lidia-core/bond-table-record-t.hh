@@ -30,12 +30,13 @@ namespace cod {
    
    class bond_table_record_t {
    public:
+      enum approximation_level_t { UNASSIGNED, FULL_ATOM, MAIN_SECTION, EXTRA_ELECTRON, COLON_DEGREE, HASH_CODE };
       atom_type_t cod_type_1;
       atom_type_t cod_type_2;
       double mean;
       double std_dev;
       unsigned int count;
-      unsigned int approx_level;
+      approximation_level_t approx_level;
       // for debugging
       std::string file_name;
       int line_number;
@@ -48,7 +49,7 @@ namespace cod {
 	 mean = 0.0;
 	 std_dev = 0.0;
 	 count = 0;
-	 approx_level = 0;
+	 approx_level = UNASSIGNED;
 	 line_number = -1; // unset
       }
       bond_table_record_t(const atom_type_t &cod_type_1_in,
@@ -56,7 +57,7 @@ namespace cod {
 			  const double &mean_in,
 			  const double &std_dev_in,
 			  unsigned int count_in,
-			  unsigned int al=0) {
+			  approximation_level_t al=UNASSIGNED) {
 	 cod_type_1 = cod_type_1_in;
 	 cod_type_2 = cod_type_2_in;
 	 mean = mean_in;

@@ -71,7 +71,8 @@ std::ostream &
 cod::operator<<(std::ostream &s, const cod::bond_table_record_t &btr) {
 
    s << "\"" << btr.cod_type_1.level_4 << "\" \"" << btr.cod_type_2.level_4 << "\" "
-     << btr.mean << " " << btr.std_dev << " " << btr.count << " " << btr.file_name
+     << btr.mean << " " << btr.std_dev << " " << btr.count << " "
+     << "approx-level: " << btr.approx_level << " fn: " << btr.file_name
      << " line: " << btr.line_number;
    return s;
 }

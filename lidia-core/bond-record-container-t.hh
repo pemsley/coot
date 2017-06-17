@@ -73,7 +73,7 @@ namespace cod {
       make_bond_from_level_3_vector(const atom_type_t &cod_type_1,
 				    const atom_type_t &cod_type_2,
 				    const std::vector<bond_table_record_t> &v,
-				    unsigned int approx_level) const;
+				    bond_table_record_t::approximation_level_t al) const;
 
       // generalization
       //
@@ -81,14 +81,14 @@ namespace cod {
       make_bond_from_level_2_map(const atom_type_t &cod_type_1,
 				 const atom_type_t &cod_type_2,
 				 const std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > > &l3_map,
-				 unsigned int approx_level) const;
+				 bond_table_record_t::approximation_level_t approx_level) const;
       
 
       bond_table_record_t
       consolidate_bonds(const atom_type_t &cod_type_1,
 			const atom_type_t &cod_type_2,
 			const std::vector<bond_table_record_t> &lb,
-			unsigned int approx_level) const;
+			bond_table_record_t::approximation_level_t approx_level) const;
 
       void t3_miss_diagnose(const atom_type_t &cod_type_1,
 			    const atom_type_t &cod_type_2) const;

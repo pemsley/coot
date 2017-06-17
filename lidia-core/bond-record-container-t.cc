@@ -722,7 +722,8 @@ cod::bond_record_container_t::get_cod_bond_from_table(const cod::atom_type_t &co
 	    if (it_l3_b != it_l3_a->second.end()) {
 
 	       // OK, normal case, 2 level-3 hits
-	       unsigned int approx_level = 0;
+	       // unsigned int approx_level = 0;
+	       bond_table_record_t::approximation_level_t approx_level = bond_table_record_t::FULL_ATOM;
 	       bond = make_bond_from_level_3_vector(cod_type_1, cod_type_2, it_l3_b->second,
 						    approx_level);
 	       found_bond = true;
@@ -731,7 +732,8 @@ cod::bond_record_container_t::get_cod_bond_from_table(const cod::atom_type_t &co
 
 	       // we need to accumulate a level_3 vector from level_2s.
 	       //
-	       unsigned int approx_level = 1;
+	       // unsigned int approx_level = 1;
+	       bond_table_record_t::approximation_level_t approx_level = bond_table_record_t::EXTRA_ELECTRON;
 	       bond = make_bond_from_level_2_map(cod_type_1, cod_type_2, it_l2_b->second, approx_level);
 	       found_bond = true;
 	       
@@ -740,7 +742,8 @@ cod::bond_record_container_t::get_cod_bond_from_table(const cod::atom_type_t &co
 	    }
 	 } else {
 
-	    unsigned int approx_level = 1;
+	    // unsigned int approx_level = 1;
+	    bond_table_record_t::approximation_level_t approx_level = bond_table_record_t::MAIN_SECTION;
 	    bond = make_bond_from_level_2_map(cod_type_1, cod_type_2, it_l2_b->second, approx_level);
 	    found_bond = true;
 
@@ -788,7 +791,7 @@ cod::bond_table_record_t
 cod::bond_record_container_t::make_bond_from_level_3_vector(const cod::atom_type_t &cod_type_1,
 							    const cod::atom_type_t &cod_type_2,
 							    const std::vector<cod::bond_table_record_t> &v,
-							    unsigned int approx_level) const {
+							    bond_table_record_t::approximation_level_t approx_level) const {
 
    cod::bond_table_record_t b = v[0];
    unsigned int min_count_for_l4_match = 4; // counts should be at least this value
@@ -867,7 +870,7 @@ cod::bond_table_record_t
 cod::bond_record_container_t::make_bond_from_level_2_map(const atom_type_t &cod_type_1,
 							 const atom_type_t &cod_type_2,
 							 const std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > > &l3_map,
-							 unsigned int approx_level) const {
+							 cod::bond_table_record_t::approximation_level_t approx_level) const {
 
    bond_table_record_t bond;
    std::vector<bond_table_record_t> v;
@@ -898,7 +901,7 @@ cod::bond_table_record_t
 cod::bond_record_container_t::consolidate_bonds(const cod::atom_type_t &cod_type_1,
 						const cod::atom_type_t &cod_type_2,
 						const std::vector<cod::bond_table_record_t> &lb,
-						unsigned int approx_level) const {
+						bond_table_record_t::approximation_level_t approx_level) const {
 
    double mean_sum = 0;
    double var_sum = 0;
