@@ -349,6 +349,52 @@
 		  ;;
 		  (delete-residues aa-imol delete-cho-list)))))))
 
+(define (interactive-add-cho-dialog)
+  (let ((buttons (list ;; (list label func)
+		  (list "Add a ASN-NAG NAG"
+			(lambda ()
+			  (add-linked-residue-with-extra-restraints-to-active-residue "NAG" "NAG-ASN")))
+		  (list "Add a BETA1-4 NAG"
+			(lambda ()
+			  (add-linked-residue-with-extra-restraints-to-active-residue "NAG" "BETA1-4")))
+		  (list "Add a BETA1-4 BMA"
+			(lambda ()
+			  (add-linked-residue-with-extra-restraints-to-active-residue "BMA" "BETA1-4")))
+		  (list "Add an ALPHA1-2 MAN"
+			(lambda ()
+			  (add-linked-residue-with-extra-restraints-to-active-residue "MAN" "ALPHA1-2")))
+		  (list "Add an ALPHA1-3 MAN"
+			(lambda ()
+			  (add-linked-residue-with-extra-restraints-to-active-residue "MAN" "ALPHA1-3")))
+		  (list "Add an ALPHA2-3 MAN"
+			(lambda ()
+			  (add-linked-residue-with-extra-restraints-to-active-residue "MAN" "ALPHA2-3")))
+		  (list "Add an ALPHA2-3 GAL"
+			(lambda ()
+			  (add-linked-residue-with-extra-restraints-to-active-residue "GAL" "ALPHA2-3")))
+		  (list "Add an ALPHA1-6 MAN"
+			(lambda ()
+			  (add-linked-residue-with-extra-restraints-to-active-residue "MAN" "ALPHA1-6")))
+		  (list "Add a BETA1-2 NAG"
+			(lambda ()
+			  (add-linked-residue-with-extra-restraints-to-active-residue "NAG" "BETA1-2")))
+		  (list "Add a BETA1-4 GAL"
+			(lambda ()
+			  (add-linked-residue-with-extra-restraints-to-active-residue "GAL" "BETA1-4")))
+		  (list "Add an ALPHA1-3 FUC"
+			(lambda ()
+			  (add-linked-residue-with-extra-restraints-to-active-residue "FUC" "ALPHA1-3" )))
+		  (list "Add an ALPHA1-6 FUC"
+			(lambda ()
+			  (add-linked-residue-with-extra-restraints-to-active-residue "FUC" "ALPHA1-6")))
+		  (list "Add an BETA1-6 FUL"
+			(lambda ()
+			  (add-linked-residue-with-extra-restraints-to-active-residue "FUL" "BETA1-6")))
+		  (list "Add an XYP-BMA XYP"
+			(lambda ()
+			  (add-linked-residue-with-extra-restraints-to-active-residue "XYP" "XYP-BMA"))))))
+    (dialog-box-of-buttons "Add N-linked Glycan" (cons 300 460) buttons "Close")))
+
 
 (define (add-module-carbohydrate) 
 
@@ -356,81 +402,9 @@
       (let ((menu (coot-menubar-menu "Glyco")))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Add a ASN-NAG NAG"
+	 menu "Interactive Dialog"
 	 (lambda ()
-	   (add-linked-residue-with-extra-restraints-to-active-residue "NAG" "NAG-ASN")))
-
-	(add-simple-coot-menu-menuitem
-	 menu "Add a BETA1-4 NAG"
-	 (lambda ()
-	   (add-linked-residue-with-extra-restraints-to-active-residue "NAG" "BETA1-4")))
-
-	(add-simple-coot-menu-menuitem
-	 menu "Add a BETA1-4 BMA"
-	 (lambda () 
-	    (add-linked-residue-with-extra-restraints-to-active-residue "BMA" "BETA1-4")))
-
-	(add-simple-coot-menu-menuitem
-	 menu "Add an ALPHA1-2 MAN"
-	 (lambda () 
-	    (add-linked-residue-with-extra-restraints-to-active-residue "MAN" "ALPHA1-2")))
-
-	(add-simple-coot-menu-menuitem
-	 menu "Add an ALPHA1-3 MAN"
-	 (lambda () 
-	   (add-linked-residue-with-extra-restraints-to-active-residue "MAN" "ALPHA1-3")))
-
-	(add-simple-coot-menu-menuitem
-	 menu "Add an ALPHA2-3 MAN"
-	 (lambda () 
-	   (set-matrix 8)
-	   ;; we should do this only if we are sitting on an SIA.
-	   ;; Attaching a SIA to a MAN (i.e. reverse order) would be a
-	   ;; good test too...
-	   (add-linked-residue-with-extra-restraints-to-active-residue "MAN" "ALPHA2-3")))
-
-	(add-simple-coot-menu-menuitem
-	 menu "Add an ALPHA2-3 GAL"
-	 (lambda ()
-	   ;; we should do this only if we are sitting on an SIA.
-	   ;; Attaching a SIA to a MAN (i.e. reverse order) would be a
-	   ;; good test too...
-	   (add-linked-residue-with-extra-restraints-to-active-residue "GAL" "ALPHA2-3")))
-
-	(add-simple-coot-menu-menuitem
-	 menu "Add an ALPHA1-6 MAN"
-	 (lambda ()
-	   (add-linked-residue-with-extra-restraints-to-active-residue "MAN" "ALPHA1-6")))
-
-	(add-simple-coot-menu-menuitem
-	 menu "Add a BETA1-2 NAG"
-	 (lambda ()
-	   (add-linked-residue-with-extra-restraints-to-active-residue "NAG" "BETA1-2")))
-
-	(add-simple-coot-menu-menuitem
-	 menu "Add a BETA1-4 GAL"
-	 (lambda ()
-	   (add-linked-residue-with-extra-restraints-to-active-residue "GAL" "BETA1-4")))
-
-	(add-simple-coot-menu-menuitem
-	 menu "Add an ALPHA1-3 FUC"
-	 (lambda ()
-	    (add-linked-residue-with-extra-restraints-to-active-residue "FUC" "ALPHA1-3" )))
-
-	(add-simple-coot-menu-menuitem
-	 menu "Add an ALPHA1-6 FUC"
-	 (lambda ()
-	   (add-linked-residue-with-extra-restraints-to-active-residue "FUC" "ALPHA1-6")))
-
-	(add-simple-coot-menu-menuitem
-	 menu "Add an BETA1-6 FUL"
-	 (lambda ()
-	   (add-linked-residue-with-extra-restraints-to-active-residue "FUL" "BETA1-6")))
-
-	(add-simple-coot-menu-menuitem
-	 menu "Add an XYP-BMA XYP"
-	 (lambda ()
-	   (add-linked-residue-with-extra-restraints-to-active-residue "XYP" "XYP-BMA")))
+	   (interactive-add-cho-dialog)))
 
 	(add-simple-coot-menu-menuitem
 	 menu "N-link add NAG, NAG, BMA"

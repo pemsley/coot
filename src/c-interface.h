@@ -2759,6 +2759,8 @@ SCM glyco_tree_scm(int imol, SCM active_residue_scm);
 SCM glyco_tree_residues_scm(int imol, SCM active_residue_scm);
 SCM glyco_tree_internal_distances_fn_scm(int imol, SCM residue_spec, const std::string &file_name); // testing function
 SCM glyco_tree_residue_id_scm(int imol, SCM residue_spec_scm);
+SCM glyco_tree_compare_trees_scm(int imol_1, SCM res_spec_1, int imol_2, SCM res_spec_2);
+SCM glyco_tree_matched_residue_pairs_scm(int imol_1, SCM res_spec_1, int imol_2, SCM res_spec_2);
 #endif
 #ifdef USE_PYTHON
 PyObject *glyco_tree_py(int imol, PyObject *active_residue_py);

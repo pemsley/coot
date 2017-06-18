@@ -690,7 +690,7 @@ coot::glyco_tree_t::glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol,
       std::sort(linked_residues.begin(), linked_residues.end(), residue_comparitor);
 
       bool have_ASN_rooted_tree = false;
-      std::cout << ":::::::::: " << linked_residues.size() << " glycan/ASN residues" << std::endl;
+      std::cout << "INFO:: " << linked_residues.size() << " glycan/ASN residues" << std::endl;
 
       for (unsigned int ires=0; ires<linked_residues.size(); ires++) {
 	 std::string residue_name(linked_residues[ires]->name);
@@ -701,7 +701,7 @@ coot::glyco_tree_t::glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol,
 	    if (glyco_tree_new.size() > glyco_tree.size()) {
 	       glyco_tree = glyco_tree_new;
 	       have_ASN_rooted_tree = true;
-	       compare_vs_allowed_trees(glyco_tree);
+	       // compare_vs_allowed_trees(glyco_tree);
 	    }
 	 }
       }
@@ -825,9 +825,10 @@ coot::glyco_tree_t::find_rooted_tree(mmdb::Residue *residue_p,
       }
    }
    if (glyco_tree.size() > 1) {
-      if (debug)
+      if (debug) {
 	 std::cout << "find_rooted_tree returns tree:" << std::endl;
-      print(glyco_tree);
+	 print(glyco_tree);
+      }
    }
    return glyco_tree;
 }
@@ -866,8 +867,8 @@ coot::glyco_tree_t::find_stand_alone_tree(const std::vector<mmdb::Residue *> &re
 		  something_added = true;
 		  break;
 	       }
-	    } 
-	 } 
+	    }
+	 }
       }
    }
 
@@ -1205,8 +1206,6 @@ coot::glyco_tree_t::output_internal_distances(mmdb::Residue *residue_p,
    
 }
 
-
-
 void
 coot::glyco_tree_t::compare_vs_allowed_trees(const tree<linked_residue_t> &tr_for_testing) const {
 
@@ -1237,6 +1236,13 @@ coot::glyco_tree_t::compare_vs_allowed_trees(const tree<linked_residue_t> &tr_fo
       std::cout << "This tree is not \"complex\"" << std::endl;
 
 }
+
+bool
+coot::glyco_tree_t::compare_trees(const tree<linked_residue_t> &tree_in) const {
+
+   return compare_trees(glyco_tree, tree_in);
+}
+
 
 bool
 coot::glyco_tree_t::compare_trees(const tree<linked_residue_t> &tr_for_testing,
@@ -1317,6 +1323,59 @@ coot::glyco_tree_t::compare_trees(const tree<linked_residue_t> &tr_for_testing,
 
    return success;
 }
+
+std::vector<std::pair<coot::residue_spec_t, coot::residue_spec_t> >
+coot::glyco_tree_t::matched_pairs(const tree<linked_residue_t> &t_in) const {
+
+   std::vector<std::pair<coot::residue_spec_t, coot::residue_spec_t> > pv;
+
+   tree<linked_residue_t> tree_1 = glyco_tree;
+   tree<linked_residue_t> tree_2 = t_in;
+
+   tree<linked_residue_t>::iterator it_leaf;
+   tree<linked_residue_t>::iterator it_ref;
+
+   // leaf iterators in the ref_tree that have already
+
+   // get a item in tr_for_testing
+   //    find a potential corresponding item in ref_tree
+   //      compare the parents of the item
+   //      if they are the same, add the pair
+   //
+
+   for (it_leaf=tree_2.begin(); it_leaf != tree_2.end(); it_leaf++) {
+      for (it_ref=tree_1.begin(); it_ref != tree_1.end(); it_ref++) {
+	 if (*it_leaf == *it_ref) { // test residue name and link type
+	    tree<linked_residue_t>::iterator it_p, it_p_ref;
+	    it_p = it_leaf;
+	    it_p_ref = it_ref;
+	    bool parents_match = true;
+	    while (parents_match && it_p.node->parent && it_p_ref.node->parent) {
+	       it_p = it_p.node->parent;
+	       it_p_ref = it_p_ref.node->parent;
+	       coot::residue_spec_t rs1(it_p->residue);
+	       coot::residue_spec_t rs2(it_p_ref->residue);
+	       if (*it_p == *it_p_ref) {
+		  // Good...
+	       } else {
+		  parents_match = false;
+		  break;
+	       }
+	    }
+
+	    if (parents_match) {
+	       coot::residue_spec_t rs1(it_ref->residue);
+	       coot::residue_spec_t rs2(it_leaf->residue);
+	       std::pair<coot::residue_spec_t, coot::residue_spec_t> pair(rs1, rs2);
+	       pv.push_back(pair);
+	    }
+	 }
+      }
+   }
+   std::reverse(pv.begin(), pv.end());
+   return pv;
+}
+
 
 tree<coot::linked_residue_t>
 coot::glyco_tree_t::oligomannose_tree() const {
