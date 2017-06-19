@@ -411,21 +411,30 @@
 				      (lambda ()
 					(gui-add-linked-cho-dialog-vbox-set-rotation-centre-hook vbox)))))))
       ;; add a widget to allow the user to choose the tree type
-      (let* ((hbox (gtk-hbox-new #f 2))
+      (let* ((hbox-1 (gtk-hbox-new #f 2))
+	     (hbox-2 (gtk-hbox-new #f 2))
 	     (butt-1 (gtk-radio-button-new-with-label #f "Oligomannose"))
-	     (butt-2 (gtk-radio-button-new-with-label butt-1 "Paucimannose"))
-	     (butt-3 (gtk-radio-button-new-with-label butt-1 "Complex")))
-	(gtk-box-pack-start hbox butt-1 #f #f 2)
-	(gtk-box-pack-start hbox butt-2 #f #f 2)
-	(gtk-box-pack-start hbox butt-3 #f #f 2)
+	     (butt-2 (gtk-radio-button-new-with-label butt-1 "Hybrid"))
+	     (butt-3 (gtk-radio-button-new-with-label butt-1 "Complex"))
+	     (butt-4 (gtk-radio-button-new-with-label butt-1 "Expert Mode")))
+
+	(gtk-box-pack-start hbox-1 butt-1 #f #f 2)
+	(gtk-box-pack-start hbox-1 butt-2 #f #f 2)
+	(gtk-box-pack-start hbox-2 butt-3 #f #f 2)
+	(gtk-box-pack-start hbox-2 butt-4 #f #f 2)
 
 	(gtk-widget-show butt-1)
 	(gtk-widget-show butt-2)
 	(gtk-widget-show butt-3)
-	(gtk-widget-show hbox)
-	(gtk-box-pack-start vbox hbox #f #f 2)
-	(gtk-box-set-homogeneous hbox #t)
-	(gtk-box-reorder-child vbox hbox 0))
+	(gtk-widget-show butt-4)
+	(gtk-widget-show hbox-1)
+	(gtk-widget-show hbox-2)
+	(gtk-box-pack-start vbox hbox-1 #f #f 2)
+	(gtk-box-pack-start vbox hbox-2 #f #f 2)
+	(gtk-box-set-homogeneous hbox-1 #t)
+	(gtk-box-set-homogeneous hbox-2 #t)
+	(gtk-box-reorder-child vbox hbox-1 0)
+	(gtk-box-reorder-child vbox hbox-2 1))
 
       ;; global var post-set-rotation-centre-hook
       (set! post-set-rotation-centre-hook
@@ -445,6 +454,9 @@
 	      (parent-residue-type (list-ref glyco-id 3))
 	      (residue-spec        (list-ref glyco-id 4)))
 	    (let ((active-button-label-list '()))
+
+	      (if (eq? tree-type 'expert-mode)
+		  (set! active-button-label-list 'expert-mode))
 
 	      (if (eq? tree-type 'oligomannose)
 
@@ -499,7 +511,7 @@
 			      (if (string=? link-type "ALPHA1-2")
 				  (set! active-button-label-list (list "Add an ALPHA1-2 GLC"))))))))
 
-	      ;; plant
+	      ;; hybrid
 	      (if (eq? tree-type 'paucimannose)
 
 		  (begin
@@ -510,16 +522,25 @@
 
 		    (if (= level-number 1)
 			(if (string=? residue-type "NAG")
-			    (set! active-button-label-list (list "Add a BETA1-4 NAG"))))
+			    (set! active-button-label-list (list "Add a BETA1-4 NAG"
+								 "Add an ALPHA1-3 FUC"))))
+
 		    (if (= level-number 2)
 			(if (string=? residue-type "NAG")
 			    (set! active-button-label-list (list "Add a BETA1-4 BMA"))))
+
 		    (if (= level-number 3)
 			(if (string=? residue-type "BMA")
 			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
-								 "Add an ALPHA1-6 MAN"))))))
+								 "Add an ALPHA1-6 MAN"))))
+		    (if (= level-number 4)
+			(if (string=? residue-type "MAN")
+			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
+								 "Add an ALPHA1-6 MAN"
+								 "Add an XYP-BMA XYP"))))
+		    ))
 
-	      ;; complex/mamalian
+	      ;; complex
 	      ;;
 	      (if (eq? tree-type 'complex)
 
@@ -531,13 +552,16 @@
 		    (if (= level-number 1)
 			(if (string=? residue-type "NAG")
 			    (set! active-button-label-list (list "Add a BETA1-4 NAG"))))
+
 		    (if (= level-number 2)
 			(if (string=? residue-type "NAG")
 			    (set! active-button-label-list (list "Add a BETA1-4 BMA"))))
+
 		    (if (= level-number 3)
 			(if (string=? residue-type "BMA")
 			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
-								 "Add an ALPHA1-6 MAN"))))))
+								 "Add an ALPHA1-6 MAN"
+								 "Add an XYP-BMA XYP"))))))
 
 
 	      active-button-label-list))))
@@ -546,13 +570,35 @@
   ;;
   ;; (format #t "here in glyco-tree-dialog-set-button-active-state ~s ~s ~s ~%" button glyco-id tree-type)
   (let ((l (gtk-button-get-label button)))
-    (let ((active-button-label-list (get-sensitive-button-list glyco-id 'oligomannose)))
+    (let ((active-button-label-list (get-sensitive-button-list glyco-id tree-type)))
       ;; (format #t "active-button-label-list: ~s~%" active-button-label-list)
-      (if (not (string=? l "Update for Current Residue"))
-	  (gtk-widget-set-sensitive button (string-member? l active-button-label-list))))))
+      (if (eq? active-button-label-list 'expert-mode)
+	  (gtk-widget-set-sensitive button #t)
+	  (if (not (string=? l "Update for Current Residue"))
+	      (gtk-widget-set-sensitive button (string-member? l active-button-label-list)))))))
 
 ;; return a value
 (define (gui-add-linked-cho-dialog-vbox-set-rotation-centre-hook vbox)
+
+  (define (get-tree-type)
+    (let ((tree-type 'oligomannose))
+      (let ((children (gtk-container-children vbox)))
+	(for-each (lambda (child)
+		    ;; (format #t "child: ~s~%" child)
+		    (if (gtk-box? child)
+			(begin
+			  (for-each (lambda (box-child)
+				      (if (gtk-radio-button? box-child)
+					  (if (gtk-toggle-button-get-active box-child)
+					      (let ((l (gtk-button-get-label box-child)))
+						(if (string=? l "Oligomannose") (set! tree-type 'oligomannose))
+						(if (string=? l "Hybrid")       (set! tree-type 'hybrid))
+						(if (string=? l "Expert Mode")  (set! tree-type 'expert-mode))
+						(if (string=? l "Complex")      (set! tree-type 'complex))))))
+				    (gtk-container-children child)))))
+		  children)
+	tree-type)))
+
   (using-active-atom
    (let ((glyco-id (glyco-tree-residue-id aa-imol aa-res-spec)))
      ;; (format #t "glyco-id (first): ~s~%" glyco-id)
@@ -565,10 +611,9 @@
 		   (set! glyco-id (list 0 "ASN" "" "" aa-res-spec))))))
      ;; (format #t "glyco-id (second): ~s~%" glyco-id)
      (if (list? glyco-id)
-	 (let ((tree-type 'oligomannose)) ;; extract this from a radiobutton widget
+	 (let ((tree-type (get-tree-type)))
 	   (let ((children (gtk-container-children vbox)))
 	     (for-each (lambda (child)
-			 ;; (format #t "child: ~s~%" child)
 			 (if (gtk-button? child)
 			     (glyco-tree-dialog-set-button-active-state child glyco-id tree-type)))
 		       children)
@@ -581,7 +626,7 @@
       (let ((menu (coot-menubar-menu "Glyco")))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Semi-Automated N-linked Glycan Addition Dialog..."
+	 menu "N-linked Glycan Addition Dialog..."
 	 (lambda ()
 	   (interactive-add-cho-dialog)))
 
