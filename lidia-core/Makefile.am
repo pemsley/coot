@@ -38,11 +38,12 @@ libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc \
 	cod-atom-type-t.cc cod-atom-types.cc bond-table-record-t.cc \
 	chemical-feature-clusters.cc
 
+# bond-record-container-t has sqlite3 code in it (to create the atoms database currently)
 libcoot_lidia_core_la_LIBADD =                        \
    $(top_builddir)/geometry/libcoot-geometry.la       \
    $(top_builddir)/utils/libcoot-utils.la             \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
-   $(RDKIT_LIBS)
+   $(RDKIT_LIBS) $(SQLITE3_LIBS)
 
 # interesting link failure when using -no-undefined.
 #
@@ -66,8 +67,7 @@ test_cod_atom_types_LDADD = libcoot-lidia-core.la \
 
 cod_db_access_SOURCES = cod-db-access.cc
 
-cod_db_access_LDADD = libcoot-lidia-core.la $(RDKIT_LIBS) $(SQLITE3_LIBS)
-
+cod_db_access_LDADD = libcoot-lidia-core.la $(RDKIT_LIBS)
 
 dictionary_atom_types_SOURCES = dictionary-atom-types.cc
 
