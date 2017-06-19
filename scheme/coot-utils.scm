@@ -221,6 +221,9 @@
 ;; 
 (define post-manipulation-hook #f)
 
+;; do something based on the active residue (presumably)
+(define post-set-rotation-centre-hook #f)
+
 ;; Return a boolean
 ;; 
 (define (pre-release?)

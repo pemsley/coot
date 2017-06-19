@@ -542,7 +542,7 @@ coot::multi_residue_torsion_fit_map(int imol,
 	    // self-clash scores have mean 7.5, median 3.3 and sd 14, IRQ 0.66
 	    // Is this a good clash score lim?  Not clear, but 10.0 is better than 1.0
 	    //
-	    if ((self_clash_score > 6) || (env_clash_score > 10.0)) {
+	    if ((self_clash_score > 6) || (env_clash_score > 30.0)) {
 
 	       // crash and bangs into itself (between residues)
 	       // or into its neighbours (the 1.0 might need tuning)
@@ -707,8 +707,9 @@ coot::get_self_clash_score(mmdb::Manager *mol,
 			if (! in_a_tors) {
 			   double delta = bump_max - sqrt(d_sqd);
 			   clash_score += delta * delta;
-			   std::cout << "adding to clash_score " << delta * delta << " for dist " << sqrt(d_sqd)
-				     << " between " << atom_spec_t(at_1) << " and " << atom_spec_t(at_2) << std::endl;
+			   if (false)
+			      std::cout << "adding to clash_score " << delta * delta << " for dist " << sqrt(d_sqd)
+					<< " between " << atom_spec_t(at_1) << " and " << atom_spec_t(at_2) << std::endl;
 			}
 		     }
 		  }
@@ -774,7 +775,7 @@ coot::get_environment_clash_score(mmdb::Manager *mol,
 	    if (d_sqd < close_lim_sqrd) {
 	       double diff = close_lim - sqrt(d_sqd);
 	       cs += diff*diff*sf;
-	       if (true)
+	       if (false)
 		  std::cout << "DEBUG:: env clash: atom " << atom_spec_t(atom_selection[iat]) << " is close to "
 			    << jat << " " << avoid_these_atoms[jat].second.format() << " " << sqrt(d_sqd) << std::endl;
 	    }

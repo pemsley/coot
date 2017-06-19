@@ -851,6 +851,7 @@ void delete_residues_scm(int imol, SCM residue_specs_scm) {
    if (is_valid_model_molecule(imol)) {
       std::vector<coot::residue_spec_t> specs = scm_to_residue_specs(residue_specs_scm);
       graphics_info_t::molecules[imol].delete_residues(specs);
+      graphics_draw();
    }
 }
 #endif
@@ -861,6 +862,7 @@ void delete_residues_py(int imol, PyObject *residue_specs_py) {
    if (is_valid_model_molecule(imol)) {
       std::vector<coot::residue_spec_t> specs = py_to_residue_specs(residue_specs_py);
       graphics_info_t::molecules[imol].delete_residues(specs);
+      graphics_draw();
    }
 }
 #endif

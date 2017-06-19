@@ -1,6 +1,8 @@
 
    For Release 0.8.9
 
+   o qq-plot-map-and-model - is it in the documentation (and redefines)?
+
    o Sat 3 Jun 2017 08:57:29 CEST should accept_moving_atoms() (which
      can be called via scripting) dismiss the add_alt_conf dialog?  I
      think yes at the moment. [Georg Kempf]

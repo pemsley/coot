@@ -701,6 +701,15 @@ class graphics_info_t {
    void run_post_manipulation_hook_py(int imol, int mode);
 #endif
 
+   void run_post_set_rotation_centre_hook();
+   // which uses the following...
+#ifdef USE_GUILE
+   void run_post_set_rotation_centre_hook_scm();
+#endif
+#ifdef USE_PYTHON
+   void run_post_set_rotation_centre_hook_py();
+#endif
+
    // edit ramachandran store:
    static coot::ramachandran_points_container_t rama_points;
    std::pair<std::pair<double, double>, std::pair<double, double> >

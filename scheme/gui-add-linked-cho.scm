@@ -325,33 +325,39 @@
 	      (refine-residues aa-imol residues))))))))
 
 (define (delete-all-cho)
-   (let ((delete-cho-list '()))
-      (using-active-atom
-         (if (valid-model-molecule? aa-imol)
-            (with-no-backups aa-imol
-               (begin
-                  (for-each (lambda (chain-id)
-                     (for-each (lambda (res-serial)
-                        (let ((res-no (seqnum-from-serial-number aa-imol chain-id res-serial)))
-                           (let ((rn (residue-name aa-imol chain-id res-no "")))
-                              (if (string? rn)
-                                 (if (or (string=? "NAG" rn) (string=? "MAN" rn) (string=? "BMA" rn) (string=? "FUL" rn)
-                                         (string=? "FUC" rn) (string=? "XYP" rn) (string=? "SIA" rn) (string=? "GAL" rn))
-                                    (let* ((residue-spec (list chain-id res-no "")))
-                                       (set! delete-cho-list (cons (list chain-id res-no "") delete-cho-list))))))))
-                                (range (chain-n-residues chain-id aa-imol))))
-                             (chain-ids aa-imol))
+  (let ((delete-cho-list '()))
+    (using-active-atom
+     (if (valid-model-molecule? aa-imol)
+	 (begin
+	   (for-each (lambda (chain-id)
+		       (for-each (lambda (res-serial)
+				   (let ((res-no (seqnum-from-serial-number aa-imol chain-id res-serial)))
+				     (let ((rn (residue-name aa-imol chain-id res-no "")))
+				       (if (string? rn)
+					   (if (or (string=? "NAG" rn) (string=? "MAN" rn) (string=? "BMA" rn) (string=? "FUL" rn)
+						   (string=? "FUC" rn) (string=? "XYP" rn) (string=? "SIA" rn) (string=? "GAL" rn))
+					       (let* ((residue-spec (list chain-id res-no "")))
+						 (set! delete-cho-list (cons (list chain-id res-no "") delete-cho-list))))))))
+				 (range (chain-n-residues chain-id aa-imol))))
+		     (chain-ids aa-imol))
 
-		  ;; now we have delete-residues, we don't need to delete them one by one
-                  ;;(for-each (lambda(cho-res-spec)
-		  ;; (delete-residue aa-imol (residue-spec->chain-id cho-res-spec) (residue-spec->res-no cho-res-spec) ""))
-		  ;;   delete-cho-list)))))))
-		  ;;
-		  (delete-residues aa-imol delete-cho-list)))))))
+	   ;; now we have delete-residues, we don't need to delete them one by one
+	   ;;(for-each (lambda(cho-res-spec)
+	   ;; (delete-residue aa-imol (residue-spec->chain-id cho-res-spec) (residue-spec->res-no cho-res-spec) ""))
+	   ;;   delete-cho-list)))))))
+	   ;;
+	   (delete-residues aa-imol delete-cho-list))))))
 
 (define (interactive-add-cho-dialog)
+
+  ;; (define (update-for-current-residue-inner vbox))
+  ;; (define (update-for-current-residue) (update-for-current-residue-inner vbox))
+  (add-synthetic-pyranose-planes)
+  (use-unimodal-pyranose-ring-torsions)
   (let ((buttons (list ;; (list label func)
-		  (list "Add a ASN-NAG NAG"
+		  (list "Update for Current Residue" (lambda () (format #t "dummy\n")))
+
+		  (list "Add a NAG-ASN NAG"
 			(lambda ()
 			  (add-linked-residue-with-extra-restraints-to-active-residue "NAG" "NAG-ASN")))
 		  (list "Add a BETA1-4 NAG"
@@ -393,8 +399,181 @@
 		  (list "Add an XYP-BMA XYP"
 			(lambda ()
 			  (add-linked-residue-with-extra-restraints-to-active-residue "XYP" "XYP-BMA"))))))
-    (dialog-box-of-buttons "Add N-linked Glycan" (cons 300 460) buttons "Close")))
+    (let ((vbox (dialog-box-of-buttons "Add N-linked Glycan" (cons 360 520) buttons "Close")))
+      (gui-add-linked-cho-dialog-vbox-set-rotation-centre-hook vbox)
+      ;; set the callback on the first button
+      (let ((children  (gtk-container-children vbox)))
+	(if (list? children)
+	    (if (> (length children) 0)
+		(let ((first-button (car children)))
+		  (gtk-signal-connect first-button
+				      "clicked"
+				      (lambda ()
+					(gui-add-linked-cho-dialog-vbox-set-rotation-centre-hook vbox)))))))
+      ;; add a widget to allow the user to choose the tree type
+      (let* ((hbox (gtk-hbox-new #f 2))
+	     (butt-1 (gtk-radio-button-new-with-label #f "Oligomannose"))
+	     (butt-2 (gtk-radio-button-new-with-label butt-1 "Paucimannose"))
+	     (butt-3 (gtk-radio-button-new-with-label butt-1 "Complex")))
+	(gtk-box-pack-start hbox butt-1 #f #f 2)
+	(gtk-box-pack-start hbox butt-2 #f #f 2)
+	(gtk-box-pack-start hbox butt-3 #f #f 2)
 
+	(gtk-widget-show butt-1)
+	(gtk-widget-show butt-2)
+	(gtk-widget-show butt-3)
+	(gtk-widget-show hbox)
+	(gtk-box-pack-start vbox hbox #f #f 2)
+	(gtk-box-set-homogeneous hbox #t)
+	(gtk-box-reorder-child vbox hbox 0))
+
+      ;; global var post-set-rotation-centre-hook
+      (set! post-set-rotation-centre-hook
+	    (lambda ()
+	      (gui-add-linked-cho-dialog-vbox-set-rotation-centre-hook vbox))))))
+
+;;
+(define (glyco-tree-dialog-set-button-active-state button glyco-id tree-type)
+
+  (define (get-sensitive-button-list glyco-id tree-type)
+
+    (if (not (list? glyco-id))
+	'()
+	(let ((level-number        (list-ref glyco-id 0))
+	      (residue-type        (list-ref glyco-id 1))
+	      (link-type           (list-ref glyco-id 2))
+	      (parent-residue-type (list-ref glyco-id 3))
+	      (residue-spec        (list-ref glyco-id 4)))
+	    (let ((active-button-label-list '()))
+
+	      (if (eq? tree-type 'oligomannose)
+
+		  (begin
+		    (if (= level-number 0)
+			(if (string=? residue-type "ASN")
+			    (set! active-button-label-list (list "Add a NAG-ASN NAG"))))
+
+		    (if (= level-number 1)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 NAG"))))
+		    (if (= level-number 2)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 BMA"))))
+		    (if (= level-number 3)
+			(if (string=? residue-type "BMA")
+			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
+								 "Add an ALPHA1-6 MAN"))))
+		    (if (= level-number 4)
+			(if (string=? residue-type "MAN")
+			    (begin
+			      (if (string=? link-type "ALPHA1-3")
+				  (set! active-button-label-list (list "Add an ALPHA1-2 MAN")))
+			      (if (string=? link-type "ALPHA1-6")
+				  (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
+								       "Add an ALPHA1-6 MAN"))))))
+		    (if (= level-number 5)
+			(if (string=? residue-type "MAN")
+			    (begin
+			      (if (string=? link-type "ALPHA1-2")
+				  (set! active-button-label-list (list "Add an ALPHA1-2 MAN")))
+			      (if (string=? link-type "ALPHA1-6")
+				  (set! active-button-label-list (list "Add an ALPHA1-2 MAN")))
+			      (if (string=? link-type "ALPHA1-3")
+				  (set! active-button-label-list (list "Add an ALPHA1-2 MAN"))))))
+
+		    (if (= level-number 6)
+			(if (string=? residue-type "MAN")
+			    (begin
+			      (if (string=? link-type "ALPHA1-2")
+				  (set! active-button-label-list (list "Add an ALPHA1-3 GLC"))))))
+
+		    (if (= level-number 7)
+			(if (string=? residue-type "GLC")
+			    (begin
+			      (if (string=? link-type "ALPHA1-2")
+				  (set! active-button-label-list (list "Add an ALPHA1-3 GLC"))))))
+
+		    (if (= level-number 8)
+			(if (string=? residue-type "GLC")
+			    (begin
+			      (if (string=? link-type "ALPHA1-2")
+				  (set! active-button-label-list (list "Add an ALPHA1-2 GLC"))))))))
+
+	      ;; plant
+	      (if (eq? tree-type 'paucimannose)
+
+		  (begin
+
+		    (if (= level-number 0)
+			(if (string=? residue-type "ASN")
+			    (set! active-button-label-list (list "Add a NAG-ASN NAG"))))
+
+		    (if (= level-number 1)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 NAG"))))
+		    (if (= level-number 2)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 BMA"))))
+		    (if (= level-number 3)
+			(if (string=? residue-type "BMA")
+			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
+								 "Add an ALPHA1-6 MAN"))))))
+
+	      ;; complex/mamalian
+	      ;;
+	      (if (eq? tree-type 'complex)
+
+		  (begin
+		    (if (= level-number 0)
+			(if (string=? residue-type "ASN")
+			    (set! active-button-label-list (list "Add a NAG-ASN NAG"))))
+
+		    (if (= level-number 1)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 NAG"))))
+		    (if (= level-number 2)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 BMA"))))
+		    (if (= level-number 3)
+			(if (string=? residue-type "BMA")
+			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
+								 "Add an ALPHA1-6 MAN"))))))
+
+
+	      active-button-label-list))))
+
+  ;; main line
+  ;;
+  ;; (format #t "here in glyco-tree-dialog-set-button-active-state ~s ~s ~s ~%" button glyco-id tree-type)
+  (let ((l (gtk-button-get-label button)))
+    (let ((active-button-label-list (get-sensitive-button-list glyco-id 'oligomannose)))
+      ;; (format #t "active-button-label-list: ~s~%" active-button-label-list)
+      (if (not (string=? l "Update for Current Residue"))
+	  (gtk-widget-set-sensitive button (string-member? l active-button-label-list))))))
+
+;; return a value
+(define (gui-add-linked-cho-dialog-vbox-set-rotation-centre-hook vbox)
+  (using-active-atom
+   (let ((glyco-id (glyco-tree-residue-id aa-imol aa-res-spec)))
+     ;; (format #t "glyco-id (first): ~s~%" glyco-id)
+     ;; if it was an ASP create a level-0 glyco-id for that (glyco-tree-residue-id doesn't
+     ;; do that (not sure why)).
+     (if (not glyco-id)
+	 (let ((rn (residue-name aa-imol aa-chain-id aa-res-no aa-ins-code)))
+	   (if (string? rn)
+	       (if (string=? rn "ASN")
+		   (set! glyco-id (list 0 "ASN" "" "" aa-res-spec))))))
+     ;; (format #t "glyco-id (second): ~s~%" glyco-id)
+     (if (list? glyco-id)
+	 (let ((tree-type 'oligomannose)) ;; extract this from a radiobutton widget
+	   (let ((children (gtk-container-children vbox)))
+	     (for-each (lambda (child)
+			 ;; (format #t "child: ~s~%" child)
+			 (if (gtk-button? child)
+			     (glyco-tree-dialog-set-button-active-state child glyco-id tree-type)))
+		       children)
+	     #t)
+	   #f)))))
 
 (define (add-module-carbohydrate) 
 
@@ -402,7 +581,7 @@
       (let ((menu (coot-menubar-menu "Glyco")))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Interactive Dialog"
+	 menu "Semi-Automated N-linked Glycan Addition Dialog..."
 	 (lambda ()
 	   (interactive-add-cho-dialog)))
 

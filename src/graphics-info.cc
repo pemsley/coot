@@ -577,6 +577,7 @@ graphics_info_t::setRotationCentre(int index, int imol) {
 	 molecules[imol].add_to_labelled_atom_list(index);
       }
    }
+   run_post_set_rotation_centre_hook();
 }
 
 // update the green square, where we are.
@@ -687,8 +688,7 @@ graphics_info_t::setRotationCentre(const symm_atom_info_t &symm_atom_info) {
       rotation_centre_z = z;
    } else { 
       std::cout << "ERROR:: NULL atom in setRotationCentre(symm_atom_info_t)\n";
-   } 
-
+   }
 }
 
 void
@@ -953,6 +953,7 @@ graphics_info_t::setRotationCentre(coot::Cartesian centre) {
    rotation_centre_x = centre.get_x();
    rotation_centre_y = centre.get_y();
    rotation_centre_z = centre.get_z();
+   run_post_set_rotation_centre_hook();
 }
 
 void
@@ -971,6 +972,7 @@ graphics_info_t::setRotationCentreAndZoom(coot::Cartesian centre,
    rotation_centre_y = centre.get_y();
    rotation_centre_z = centre.get_z();
    zoom = target_zoom;
+   run_post_set_rotation_centre_hook();
 }
 
 
@@ -1417,6 +1419,46 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
    Py_XDECREF(v);
 }
 #endif
+
+
+void
+graphics_info_t::run_post_set_rotation_centre_hook() {
+
+#if defined USE_GUILE
+   run_post_set_rotation_centre_hook_scm();
+#endif // GUILE
+
+#ifdef USE_PYTHON
+   run_post_set_rotation_centre_hook_py();
+#endif
+
+}
+
+#ifdef USE_GUILE
+void
+graphics_info_t::run_post_set_rotation_centre_hook_scm() {
+   std::string s = "post-set-rotation-centre-hook";
+   SCM v = safe_scheme_command(s);
+
+   if (scm_is_true(scm_procedure_p(v))) {
+      std::string ss = "(";
+      ss += s;
+      ss += ")";
+      SCM res = safe_scheme_command(ss);
+      SCM dest = SCM_BOOL_F;
+      SCM mess =  scm_makfrom0str("result: ~s\n");
+      SCM p = scm_simple_format(dest, mess, scm_list_1(res));
+      std::cout << scm_to_locale_string(p);
+   }
+}
+#endif
+
+#ifdef USE_PYTHON
+void
+graphics_info_t::run_post_set_rotation_centre_hook_py() {
+}
+#endif
+
 
 
 void

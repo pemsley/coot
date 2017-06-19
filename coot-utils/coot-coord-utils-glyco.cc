@@ -913,7 +913,7 @@ coot::glyco_tree_t::get_id(mmdb::Residue *residue_p) const {
 
    residue_id_t id;
    tree<linked_residue_t>::iterator it;
-   bool debug = true;
+   bool debug = false;
 
    int n_in_tree = 0;
    if (debug) {
@@ -924,14 +924,14 @@ coot::glyco_tree_t::get_id(mmdb::Residue *residue_p) const {
 	    specs.push_back(it->residue);
 	 }
       }
-      std::cout << "DEBUG:: get_id() found " << n_in_tree << " residues in tree" << std::endl;
-      for (unsigned int i=0; i<specs.size(); i++)
-	 std::cout << "   " << specs[i] << std::endl;
+      if (debug) {
+	 std::cout << "DEBUG:: get_id() found " << n_in_tree << " residues in tree" << std::endl;
+	 for (unsigned int i=0; i<specs.size(); i++)
+	    std::cout << "   " << specs[i] << std::endl;
+      }
    }
    for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
       if (it->residue == residue_p) {
- 	 std::cout << "get_id() found " << residue_spec_t(residue_p) << " in glyco tree"
- 		   << std::endl;
  	 if (it.node->parent) {
 	    tree<linked_residue_t>::iterator it_parent = it.node->parent;
  	    mmdb::Residue *parent_res = it_parent->residue;
