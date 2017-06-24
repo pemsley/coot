@@ -1377,7 +1377,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
             return
 
         imol_map = make_and_draw_map(rnase_mtz(), "FWT", "PHWT", "", 0, 0)
-        status = add_linked_residue(imol, "B", 141, "", "NAG", "NAG-ASN")
+        status = add_linked_residue(imol, "B", 141, "", "NAG", "NAG-ASN", 3000)
         # do something with status?!
         with_auto_accept([refine_residues, imol, [["B", 141, ""], ["B", 464, ""]]])
 
