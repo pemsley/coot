@@ -531,9 +531,14 @@ coot::distortion_score_single_thread(const gsl_vector *v, void *params,
 
       if (restraints->restraints_usage_flag & coot::TORSIONS_MASK) { // 4: torsions
 	 if ( (*restraints)[i].restraint_type == coot::TORSION_RESTRAINT) {
-	    double d =  coot::distortion_score_torsion((*restraints)[i], v);
-	    // std::cout << "dsm: torsion single-thread " << d << std::endl;
-	    *distortion += d;
+	    try {
+	       double d =  coot::distortion_score_torsion((*restraints)[i], v);
+	       // std::cout << "dsm: torsion single-thread " << d << std::endl;
+	       *distortion += d;
+	    }
+	    catch (const std::runtime_error &rte) {
+	       std::cout << "ERROR::" << rte.what() << std::endl;
+	    }
 	    continue;
 	 }
       }
@@ -899,13 +904,19 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v) const {
 	 } 
 
       if (restraints_usage_flag & coot::TORSIONS_MASK)
-	 if (restraints_vec[i].restraint_type == coot::TORSION_RESTRAINT) { 
-	    distortion = coot::distortion_score_torsion(restraints_vec[i], v);
-	    atom_index = restraints_vec[i].atom_index_1;
-	    atom_indices.push_back(rest.atom_index_1);
-	    atom_indices.push_back(rest.atom_index_2);
-	    atom_indices.push_back(rest.atom_index_3);
-	    atom_indices.push_back(rest.atom_index_4);
+	 if (restraints_vec[i].restraint_type == coot::TORSION_RESTRAINT) {
+	    // distortion_score_torsion can throw a std::runtime_error
+	    try {
+	       distortion = coot::distortion_score_torsion(restraints_vec[i], v);
+	       atom_index = restraints_vec[i].atom_index_1;
+	       atom_indices.push_back(rest.atom_index_1);
+	       atom_indices.push_back(rest.atom_index_2);
+	       atom_indices.push_back(rest.atom_index_3);
+	       atom_indices.push_back(rest.atom_index_4);
+	    }
+	    catch (const std::runtime_error &rte) {
+	       std::cout << "ERROR::" << rte.what() << std::endl;
+	    }
 	 } 
 
       if (restraints_usage_flag & coot::PLANES_MASK) 

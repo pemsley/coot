@@ -1372,7 +1372,7 @@ molecule_class_info_t::delete_residues(const std::vector<coot::residue_spec_t> &
       make_bonds_type_checked();
       update_symmetry();
    }
-
+   return something_deleted;
 }
 
 
