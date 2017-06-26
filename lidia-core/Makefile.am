@@ -41,8 +41,6 @@ libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc \
 # bond-record-container-t has sqlite3 code in it (to create the atoms database currently)
 libcoot_lidia_core_la_LIBADD =                        \
    $(top_builddir)/geometry/libcoot-geometry.la       \
-   $(top_builddir)/utils/libcoot-utils.la             \
-   $(top_builddir)/coot-utils/libcoot-coord-utils.la  \
    $(RDKIT_LIBS) $(SQLITE3_LIBS)
 
 
@@ -62,8 +60,6 @@ check_PROGRAMS = test-cod-atom-types dictionary-atom-types test-chem-feat cod-db
 test_cod_atom_types_SOURCES = test-cod-atom-types.cc
 
 test_cod_atom_types_LDADD = libcoot-lidia-core.la \
-	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
-	$(top_builddir)/coords/libcoot-coords.la \
 	$(RDKIT_LIBS)
 
 cod_db_access_SOURCES = cod-db-access.cc
@@ -81,6 +77,5 @@ test_chem_feat_SOURCES = test-chem-feat.cc
 
 test_chem_feat_LDADD = libcoot-lidia-core.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
-	$(top_builddir)/coords/libcoot-coords.la \
 	$(RDKIT_LIBS)
 

@@ -1657,8 +1657,8 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 // Display the graphical object of the regularization.
 // static
 // moving atoms are intermediate atoms
+void
 graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_background) { 
->>>>>>> master
    
    // very much most of the time, this will be zero
    // 

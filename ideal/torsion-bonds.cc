@@ -755,3 +755,37 @@ coot::both_in_a_torsion_p(mmdb::Atom *at_1,
    }
    return in_a_tors;
 }
+
+// return a positive number for a clash - the bigger the number the worse the clash.
+//
+double
+coot::get_environment_clash_score(mmdb::Manager *mol,
+				  mmdb::PPAtom atom_selection,
+				  int n_selected_atoms,
+				  const std::vector<std::pair<bool, clipper::Coord_orth> > &avoid_these_atoms) {
+   double cs = 0;
+   double sf = 1.0;
+   for (int iat=0; iat<n_selected_atoms; iat++) {
+      // we expect that the ASN will be close to its polypeptide neighbours.  We don't want to
+      // include such clashes
+      std::string res_name = atom_selection[iat]->GetResName();
+      // std::cout << "res_name is " << res_name << std::endl;
+      if (res_name != "ASN") {
+	 clipper::Coord_orth at_pt = co(atom_selection[iat]);
+	 for (unsigned int jat=0; jat<avoid_these_atoms.size(); jat++) {
+	    double close_lim = 3.3;
+	    if (avoid_these_atoms[jat].first) close_lim = 2.5; // we can get close to waters without worry
+	    double close_lim_sqrd = close_lim * close_lim;
+	    double d_sqd = (at_pt - avoid_these_atoms[jat].second).lengthsq();
+	    if (d_sqd < close_lim_sqrd) {
+	       double diff = close_lim - sqrt(d_sqd);
+	       cs += diff*diff*sf;
+	       if (false)
+		  std::cout << "DEBUG:: env clash: atom " << atom_spec_t(atom_selection[iat]) << " is close to "
+			    << jat << " " << avoid_these_atoms[jat].second.format() << " " << sqrt(d_sqd) << std::endl;
+	    }
+	 }
+      }
+   }
+   return cs;
+}
