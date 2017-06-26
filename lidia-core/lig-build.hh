@@ -1724,6 +1724,7 @@ namespace lig_build {
 		     otH.tweak = pos_t(-16, 0);
 		     ot2.tweak = pos_t(-7, 0);
 		     otN.tweak = pos_t(0, 0);
+		     id.set_atom_id("NH2");
 		     id.add(otH);
 		     id.add(ot2);
 		     id.add(otN);
