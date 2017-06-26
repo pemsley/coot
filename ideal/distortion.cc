@@ -1465,6 +1465,9 @@ coot::distortion_score_non_bonded_contact(const coot::simple_restraint &nbc_rest
 
    double r = 0.0;
 
+   if (nbc_restraint.fixed_atom_flags[0] && nbc_restraint.fixed_atom_flags[1])
+      return 0.0;
+
    if (false)
       std::cout << "in distortion_score_non_bonded_contact: " << idx_1 << " " << idx_2
 	 // << " " << atom_spec_t(atom[nbc_restraint.atom_index_1]) 

@@ -1804,6 +1804,7 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc, bo
 		  comp_id = model_id;
 
 	       mon_lib_add_bond_no_target_geom(comp_id, imol_enc, atom_id_1, atom_id_2, type, aromaticity);
+	       nbond++;
 	    
 	    } else {
 	       // Hopeless - nothing worked...
@@ -1816,7 +1817,7 @@ coot::protein_geometry::comp_bond(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc, bo
 	       }
 	    }
 	 }
-      } 
+      }
    }
 
    return nbond;

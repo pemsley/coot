@@ -1342,6 +1342,40 @@ molecule_class_info_t::delete_residue_with_full_spec(int imodel,
    return was_deleted;
 }
 
+// Return 1 if at least one atom was deleted, else 0.
+//
+short int
+molecule_class_info_t::delete_residues(const std::vector<coot::residue_spec_t> &specs) {
+
+   bool something_deleted = false;
+   for (unsigned int i=0; i<specs.size(); i++) {
+      const coot::residue_spec_t &spec = specs[i];
+      mmdb::Residue *residue_p = get_residue(spec);
+      if (residue_p) {
+	 mmdb::Chain *chain_p = residue_p->GetChain();
+	 if (chain_p) {
+	    // int res_no = residue_p->GetSeqNum();
+	    // const InsCode ins_code = residue_p->GetInsCode();
+	    // chain_p->DeleteResidue(res_no, ins_code);
+	    delete residue_p;
+	    something_deleted = true;
+	 }
+      }
+   }
+
+   if (something_deleted) {
+      atom_sel.atom_selection = NULL;
+      atom_sel.mol->FinishStructEdit();
+      trim_atom_label_table();
+      atom_sel = make_asc(atom_sel.mol);
+      have_unsaved_changes_flag = 1; 
+      make_bonds_type_checked();
+      update_symmetry();
+   }
+
+}
+
+
 short int
 molecule_class_info_t::delete_residue_sidechain(const std::string &chain_id,
 						int resno,

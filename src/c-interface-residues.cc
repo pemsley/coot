@@ -358,6 +358,86 @@ SCM glyco_tree_residue_id_scm(int imol, SCM residue_spec_scm) {
 }
 #endif
 
+#ifdef USE_GUILE
+SCM glyco_tree_compare_trees_scm(int imol_1, SCM res_spec_1_scm, int imol_2, SCM res_spec_2_scm) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol_1)) {
+      if (is_valid_model_molecule(imol_2)) {
+	 graphics_info_t g;
+
+	 coot::residue_spec_t residue_spec_1 = residue_spec_from_scm(res_spec_1_scm);
+	 mmdb::Residue *residue_1_p = g.molecules[imol_1].get_residue(residue_spec_1);
+	 mmdb::Manager *mol_1 = g.molecules[imol_1].atom_sel.mol;
+	 std::vector<std::string> types_with_no_dictionary =
+	    g.molecules[imol_1].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+	 for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
+	    g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
+
+	 coot::residue_spec_t residue_spec_2 = residue_spec_from_scm(res_spec_2_scm);
+	 mmdb::Residue *residue_2_p = g.molecules[imol_2].get_residue(residue_spec_2);
+	 mmdb::Manager *mol_2 = g.molecules[imol_2].atom_sel.mol;
+	 types_with_no_dictionary = g.molecules[imol_2].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+	 for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
+	    g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
+
+	 coot::glyco_tree_t t_1(residue_1_p, mol_1, g.Geom_p());
+	 coot::glyco_tree_t t_2(residue_2_p, mol_2, g.Geom_p());
+
+	 bool match = t_1.compare_trees(t_2.get_glyco_tree());
+
+	 if (match)
+	    r = SCM_BOOL_T;
+      }
+   }
+   return r;
+}
+#endif
+
+#ifdef USE_GUILE
+SCM glyco_tree_matched_residue_pairs_scm(int imol_1, SCM res_spec_1_scm, int imol_2, SCM res_spec_2_scm) {
+
+   SCM r = SCM_BOOL_F;
+   if (is_valid_model_molecule(imol_1)) {
+      if (is_valid_model_molecule(imol_2)) {
+	 graphics_info_t g;
+
+	 coot::residue_spec_t residue_spec_1 = residue_spec_from_scm(res_spec_1_scm);
+	 mmdb::Residue *residue_1_p = g.molecules[imol_1].get_residue(residue_spec_1);
+	 mmdb::Manager *mol_1 = g.molecules[imol_1].atom_sel.mol;
+	 std::vector<std::string> types_with_no_dictionary =
+	    g.molecules[imol_1].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+	 for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
+	    g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
+
+	 coot::residue_spec_t residue_spec_2 = residue_spec_from_scm(res_spec_2_scm);
+	 mmdb::Residue *residue_2_p = g.molecules[imol_2].get_residue(residue_spec_2);
+	 mmdb::Manager *mol_2 = g.molecules[imol_2].atom_sel.mol;
+	 types_with_no_dictionary = g.molecules[imol_2].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+	 for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
+	    g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
+
+	 coot::glyco_tree_t t_1(residue_1_p, mol_1, g.Geom_p());
+	 coot::glyco_tree_t t_2(residue_2_p, mol_2, g.Geom_p());
+
+	 std::vector<std::pair<coot::residue_spec_t, coot::residue_spec_t> > pv = t_1.matched_pairs(t_2.get_glyco_tree());
+	 if (! pv.empty()) {
+	    SCM rt = SCM_EOL;
+	    for (unsigned int i=0; i<pv.size(); i++) {
+	       SCM r_1_scm = residue_spec_to_scm(pv[i].first);
+	       SCM r_2_scm = residue_spec_to_scm(pv[i].second);
+	       SCM list_scm = scm_list_2(r_1_scm, r_2_scm);
+	       rt = scm_cons(list_scm, rt);
+	    }
+	    r = rt;
+	 }
+      }
+   }
+   return r;
+}
+#endif
+
+
 
 #ifdef USE_PYTHON
 PyObject *glyco_tree_py(int imol, PyObject *active_residue_py) {

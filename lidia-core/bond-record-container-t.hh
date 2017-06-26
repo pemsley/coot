@@ -19,6 +19,10 @@
  * 02110-1301, USA
  */
 
+#ifdef USE_SQLITE3
+#include <sqlite3.h>
+#endif // USE_SQLITE3
+
 #include "cod-atom-type-t.hh"
 #include "bond-table-record-t.hh"
 // for validation
@@ -30,13 +34,17 @@ namespace cod {
 
    class bond_record_container_t {
       std::string::size_type get_max_atom_type_width() const;
-      std::map<std::string, unsigned int> atom_types_map; // convert from acedrg-table 
-                                                          // cod string to its index
+      std::map<std::string, unsigned int> level_4_atom_types_map; // convert from acedrg-table 
+                                                                  // COD string to its index
       bool write_atom_type_indices(const std::string &file_name) const;
 
       void sort() { std::sort(bonds.begin(), bonds.end()); }
-      void fill_atom_map();
+      void fill_level_4_atom_map();
       void fill_bonds_map();
+
+      void fill_cod_atom_type_map();
+      std::set<atom_type_t> cod_atom_type_set;
+      std::map<atom_type_t, int> cod_atom_type_map; // for extraction of atom type indices
 
       std::vector<std::string>
       read_atom_type_indices(const std::string &atom_type_indices_file_name) const;
@@ -65,7 +73,7 @@ namespace cod {
       make_bond_from_level_3_vector(const atom_type_t &cod_type_1,
 				    const atom_type_t &cod_type_2,
 				    const std::vector<bond_table_record_t> &v,
-				    unsigned int approx_level) const;
+				    bond_table_record_t::approximation_level_t al) const;
 
       // generalization
       //
@@ -73,19 +81,25 @@ namespace cod {
       make_bond_from_level_2_map(const atom_type_t &cod_type_1,
 				 const atom_type_t &cod_type_2,
 				 const std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > > &l3_map,
-				 unsigned int approx_level) const;
+				 bond_table_record_t::approximation_level_t approx_level) const;
       
 
       bond_table_record_t
       consolidate_bonds(const atom_type_t &cod_type_1,
 			const atom_type_t &cod_type_2,
 			const std::vector<bond_table_record_t> &lb,
-			unsigned int approx_level) const;
+			bond_table_record_t::approximation_level_t approx_level) const;
 
       void t3_miss_diagnose(const atom_type_t &cod_type_1,
 			    const atom_type_t &cod_type_2) const;
       
-    public:
+#ifdef USE_SQLITE3
+      static int db_callback(void *NotUsed, int argc, char **argv, char **azColName);
+      sqlite3 *make_sqlite_db(const std::string &file_name);
+      bool db_add_level_4_types(sqlite3 *db);
+#endif // USE_SQLITE3
+
+   public:
       bond_record_container_t() {}
       bond_record_container_t(const std::string &table_dir_name) {
 	 read_acedrg_table_dir(table_dir_name);
@@ -115,15 +129,13 @@ namespace cod {
       // bonds_map[l2][l2][l3][l3]
       // 
       std::map<std::string, std::map<std::string, std::map<std::string, std::map<std::string, std::vector<bond_table_record_t> > > > > bonds_map;
-      
+
       void add(const bond_table_record_t &rec) {
 	 bonds.push_back(rec);
       }
-      void add_table(const bond_record_container_t &brc) {
-	 for (unsigned int i=0; i<brc.bonds.size(); i++) { 
-	    bonds.push_back(brc.bonds[i]);
-	 }
-      }
+
+      void add_table(const bond_record_container_t &brc);
+
       unsigned int size() { return bonds.size(); }
       bool write(const std::string &atom_indices_file_name,
 		 const std::string &bonds_file_name) const;
@@ -132,5 +144,6 @@ namespace cod {
 		const std::string &bonds_file_name);
       void check() const;
       void validate(mmdb::Residue *res, const coot::dictionary_residue_restraints_t &rest) const;
+      void make_db(const std::string &file_name); // probably not const
    };
 }

@@ -1586,9 +1586,6 @@ public:        //                      public
 							   bool is_nucleic_acid_flag = false) const;
 
 
-   // These create an object that is not specific to a molecule, there
-   // is only one environment bonds box, no matter how many molecules. Hmm.
-   // The symmetry version is now added 030624 - PE.
    //
    graphical_bonds_container make_environment_bonds_box(int atom_index,
 							coot::protein_geometry *protein_geom_p) const;
@@ -1659,6 +1656,11 @@ public:        //                      public
 					   int resno, 
 					   const std::string &inscode,
 					   const std::string &altconf);
+
+   // Return 1 if at least one atom was deleted, else 0.
+   //
+   short int delete_residues(const std::vector<coot::residue_spec_t> &specs);
+   
    short int delete_residue_sidechain(const std::string &chain_id,
 				      int resno,
 				      const std::string &inscode);

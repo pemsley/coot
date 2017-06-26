@@ -65,8 +65,7 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
                                                       res_spec2chain_id(current_residue_spec),
                                                       res_spec2res_no(current_residue_spec),
                                                       res_spec2ins_code(current_residue_spec),
-                                                      new_res,
-                                                      new_link)
+                                                      new_res, new_link, 3)
 
 
                     # residues_near_residue takes a 3-part spec and makes 3-part specs
@@ -172,8 +171,7 @@ def add_linked_residue_tree(imol, parent, tree):
                                               res_spec2chain_id(parent),
                                               res_spec2res_no(parent),
                                               res_spec2ins_code(parent),
-                                              new_res_type,
-                                              new_link)
+                                              new_res_type, new_link, 3)
             ls = residues_near_residue(imol, parent, 1.9)
             local_ls = [parent] + ls
             with AutoAccept():
@@ -409,7 +407,7 @@ def add_module_carbohydrate():
                 with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
                                            aa_ins_code, aa_atom_name, aa_alt_conf]:
                     add_linked_residue(aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
-                                       sugar, link)
+                                       sugar, link, 3)
                     set_matrix(current_weight)
                     
             add_simple_coot_menu_menuitem(

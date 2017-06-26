@@ -1332,7 +1332,7 @@ coot::ligand::print_cluster_details(bool show_grid_points) const {
    int max_clusters = 10;
    if (cluster.size() < 10)
       max_clusters = 10;
-   std::cout << "There are " << cluster.size() << " clusers\n";
+   std::cout << "There are " << cluster.size() << " clusters\n";
    std::cout << "Here are the top " << max_clusters << " clusters:\n";
    for (unsigned int i=0; i<cluster.size(); i++) {
       ncount++;

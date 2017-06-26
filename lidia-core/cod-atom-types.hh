@@ -120,7 +120,7 @@ namespace cod {
       static bool atomRingSorter(const std::vector<int> &r1, const std::vector<int> &r2);
 
 
-      int hybridization_to_int(RDKit::Atom::HybridizationType) const;
+      // int hybridization_to_int(RDKit::Atom::HybridizationType) const;
 
    public:
       // can throw a std::runtime_error

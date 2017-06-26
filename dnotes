@@ -6710,13 +6710,13 @@ Wed Jun 27 10:29:54 BST 2012
 #include <functional>
 
 // for erase_if()
-class erasor {
+class eraser {
 public:
    std::string s;
    // the constructor, can be information that needs to be used
    // internally in the operator() function.  This is run once
    // 
-   erasor(const std::string &s_in) {
+   eraser(const std::string &s_in) {
       s = s_in;
    }
    // The passed object type is the <type> of the vector.
@@ -6740,7 +6740,7 @@ int main(int argc, char **argv) {
 
    // remove() and remove_if() generate a useful pointer used by erase()
    v.erase(std::remove(v.begin(), v.end(), "Two"), v.end());
-   v.erase(std::remove_if(v.begin(), v.end(), erasor(bad_boy)), v.end());
+   v.erase(std::remove_if(v.begin(), v.end(), eraser(bad_boy)), v.end());
    
    for (unsigned int i=0; i<v.size(); i++)
       std::cout << "   " << i << " " << v[i] << std::endl;
@@ -7800,5 +7800,16 @@ Tue 18 Apr 2017 16:33:00 BST
 
     5jik is good/interesting for carbohydrate building - non-oligomannose
 
+
+----
+Sun 28 May 2017 17:09:21 CDT
+
+   Oleg Borbulevych's talk: ONIOM QM/MM DivCon improves clash score
+   after their refinement of Astex Diverse set.
+
+   2016 paper
+
+   What would you get (clash score deltas) you tried coot for hydrogen
+   addition and refinement?
 
 ---

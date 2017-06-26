@@ -985,6 +985,28 @@ void delete_extra_restraints_for_residue(int imol, const char *chain_id, int res
    graphics_draw();
 }
 
+#ifdef USE_GUILE
+void delete_extra_restraints_for_residue_spec_scm(int imol, SCM residue_spec_in) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t spec = residue_spec_from_scm(residue_spec_in);
+      graphics_info_t::molecules[imol].delete_extra_restraints_for_residue(spec);
+   }
+
+}
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+void delete_extra_restraints_for_residue_spec_py(int imol, PyObject *residue_spec_in_py) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t spec = residue_spec_from_py(residue_spec_in_py);
+      graphics_info_t::molecules[imol].delete_extra_restraints_for_residue(spec);
+   }
+}
+#endif // USE_PYTHON
+
+
 void delete_extra_restraints_worse_than(int imol, float n_sigma) { 
 
    if (is_valid_model_molecule(imol)) {
@@ -1040,4 +1062,23 @@ void set_show_intermediate_atoms_rota_markup(short int state) {
 
 void set_show_intermediate_atoms_rama_markup(short int state) {
    graphics_info_t::do_intermediate_atoms_rama_markup = state;
+
+}
+
+// trash the multimodal (sp3) ring torsions and use
+// only unimodal restraints
+void use_unimodal_ring_torsion_restraints(const std::string &res_name) {
+
+   // uses auto-load if not already present in the store
+
+   bool minimal = false; // don't allow minimal
+   int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+   graphics_info_t::Geom_p()->use_unimodal_ring_torsion_restraints(imol_enc, res_name, minimal);
+
+}
+
+void set_refinement_geman_mcclure_alpha(float alpha) {
+
+   graphics_info_t::geman_mcclure_alpha = alpha;
+
 }

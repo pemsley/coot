@@ -702,6 +702,15 @@ class graphics_info_t {
    void run_post_manipulation_hook_py(int imol, int mode);
 #endif
 
+   void run_post_set_rotation_centre_hook();
+   // which uses the following...
+#ifdef USE_GUILE
+   void run_post_set_rotation_centre_hook_scm();
+#endif
+#ifdef USE_PYTHON
+   void run_post_set_rotation_centre_hook_py();
+#endif
+
    // edit ramachandran store:
    static coot::ramachandran_points_container_t rama_points;
    std::pair<std::pair<double, double>, std::pair<double, double> >
@@ -2244,14 +2253,15 @@ public:
 
 
    // Display the graphical object of the regularization
-   static void draw_moving_atoms_graphics_object();
+
+   static void draw_moving_atoms_graphics_object(bool against_a_dark_background);
    static void draw_ramachandran_goodness_spots();
    static void draw_rotamer_probability_object();
    std::vector<coot::generic_display_object_t::dodec_t> get_rotamer_dodecs();
 
    static int mol_no_for_environment_distances;
    static bool display_environment_graphics_object_as_solid_flag;
-   static void environment_graphics_object();
+   static void draw_environment_graphics_object();
    // void symmetry_environment_graphics_object() const;
 
    // for flashing the picked intermediate atom.
@@ -4018,6 +4028,8 @@ string   static std::string sessionid;
    }
 
    static bool cif_dictionary_file_selector_create_molecule_flag;
+
+   static double geman_mcclure_alpha;
 
 #ifdef HAVE_CXX_THREAD
    static ctpl::thread_pool static_thread_pool;

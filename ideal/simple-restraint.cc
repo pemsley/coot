@@ -2891,25 +2891,6 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 	 timeval start_time;
 	 timeval current_time;
 	 double d;
-// 	 if (1) { 
-// 	    gettimeofday(&start_time, NULL);
-// 	    gettimeofday(&current_time, NULL);
-// 	    d = current_time.tv_sec - start_time.tv_sec;
-// 	    d *= 1000.0;
-// 	    d += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
-// 	    std::cout << "------------- mark a0: " << i << " " << j << " " << d << std::endl;
-// 	 }
-
-	 // these are cached now
-	 // std::string type_1 = get_type_energy(at_1, geom); // not time consuming, but we can 
-	 // std::string type_2 = get_type_energy(at_2, geom); // use a map for energy times
-
-// 	 gettimeofday(&current_time, NULL);
-// 	 d = current_time.tv_sec - start_time.tv_sec;
-// 	 d *= 1000.0;
-// 	 d += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
-// 	 std::cout << "------------- mark a1: " << i << " " << j << " " << d << std::endl;
-	    
          if (at_1 && at_2) {
 
 	    std::string type_1 = energy_type_cache[at_1];
@@ -3011,9 +2992,8 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 	       bool is_1_4_related = ai.is_1_4(i, filtered_non_bonded_atom_indices[i][j]);
 
 	       if (false)
-		  std::cout << "atom " << atom_spec_t(at_1) << " and atom "
-			    << atom_spec_t(at_2) << " 1-4 flag: "
-			    << is_1_4_related << std::endl;
+		  std::cout << "here C with at_1 " << atom_spec_t(at_1) << " at_2 " << atom_spec_t(at_2)
+			    << " is_1_4_related " << is_1_4_related << std::endl;
 
 	       if (is_1_4_related) {
 		  dist_min = 2.64; // was 2.7 but c.f. guanine ring distances
@@ -3031,9 +3011,9 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 
 		     // In a helix O(n) is close to C(n+1), we should allow it.
 		     // 
-		     bool is_O_C_1_5_releated = check_for_O_C_1_5_relation(at_1, at_2);
+		     bool is_O_C_1_5_related = check_for_O_C_1_5_relation(at_1, at_2);
 
-		     if (is_O_C_1_5_releated) {
+		     if (is_O_C_1_5_related) {
 			dist_min = 2.84;
 		     } else {
 
@@ -3047,10 +3027,10 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 			bool strange_exception = false;
 			int rn_diff = abs(res_no_2 - res_no_1);
 			if (rn_diff == 1) {
+			   std::string atom_name_1 = at_1->GetAtomName();
+			   std::string atom_name_2 = at_2->GetAtomName();
 			   if (fixed_atom_flags.size()) {
 			      if (fixed_atom_flags[0] || fixed_atom_flags[1]) {
-				 std::string atom_name_1 = at_1->GetAtomName();
-				 std::string atom_name_2 = at_2->GetAtomName();
 				 if (atom_name_1 == " O  ")
 				    if (atom_name_2 == " CA ") 
 				       strange_exception = true;
@@ -3070,6 +3050,49 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 			   }
 			   if (strange_exception)
 			      dist_min = 2.7;
+
+			   // Strange that these are not marked as 1-4 related.  Fix here...
+			   // HA-CA-N-C can be down to ~2.4A.
+			   // HA-CA-C-N can be down to ~2.41A.
+			   if (res_no_2 > res_no_1) {
+			      if (atom_name_1 == " C  ") {
+				 if (atom_name_2 == " HA " || atom_name_2 == "HA2" || atom_name_2 == " HA3") {
+				    strange_exception = true;
+				    dist_min = 2.4;
+				 }
+			      }
+			      if (atom_name_1 == " HA " || atom_name_1 == "HA2" || atom_name_1 == " HA3") {
+				 if (atom_name_2 == " N  ") {
+				    strange_exception = true;
+				    dist_min = 2.41;
+				 }
+			      }
+			      if (atom_name_1 == " N  ") {
+				 if (atom_name_2 == " H  ") {
+				    strange_exception = true;
+				    dist_min = 2.4;
+				 }
+			      }
+			   } else {
+			      if (atom_name_1 == " HA " || atom_name_1 == "HA2" || atom_name_1 == " HA3") {
+				 if (atom_name_2 == " C  ") {
+				    strange_exception = true;
+				    dist_min = 2.4;
+				 }
+			      }
+			      if (atom_name_1 == " N  ") {
+				 if (atom_name_2 == " HA " || atom_name_2 == "HA2" || atom_name_2 == " HA3") {
+				    strange_exception = true;
+				    dist_min = 2.41;
+				 }
+			      }
+			      if (atom_name_2 == " N  ") {
+				 if (atom_name_1 == " H  ") {
+				    strange_exception = true;
+				    dist_min = 2.4;
+				 }
+			      }
+			   }
 			}
 			if (rn_diff == 2) { 
 			   if (fixed_atom_flags.size()) {
@@ -3417,6 +3440,8 @@ coot::restraints_container_t::check_for_O_C_1_5_relation(mmdb::Atom *at_1, mmdb:
    
    bool match = false;
    if (at_2->residue != at_1->residue) {
+
+      // std::cout << "debug check_for_O_C_1_5_relation " << atom_spec_t(at_1) << " " << atom_spec_t(at_2) << std::endl;
 
       // Check first at_1 is O(n) and at_2 is C(n+1)
       // 
@@ -4970,11 +4995,11 @@ coot::restraints_container_t::write_new_atoms(std::string pdb_file_name) {
 void
 coot::restraints_container_t::info() const {
 
-   std::cout << "There are " << restraints_vec.size() << " restraints" << std::endl;
+   std::cout << "INFO:: There are " << restraints_vec.size() << " restraints" << std::endl;
 
    for (unsigned int i=0; i< restraints_vec.size(); i++) {
       if (restraints_vec[i].restraint_type == coot::TORSION_RESTRAINT) {
-	 std::cout << "restraint " << i << " is of type "
+	 std::cout << "INFO:: restraint " << i << " is of type "
 		   << restraints_vec[i].restraint_type << std::endl;
 
 	 std::cout << restraints_vec[i].atom_index_1 << " "

@@ -324,6 +324,11 @@ coot::my_df_non_bonded_single(const gsl_vector *v,
    int idx_1 = 3*this_restraint.atom_index_1;
    int idx_2 = 3*this_restraint.atom_index_2;
 
+   // no need to calculate anything if both these atoms are non-moving
+   //
+   if (this_restraint.fixed_atom_flags[0] && this_restraint.fixed_atom_flags[1])
+      return;
+
    // check for both-ways nbcs (seems OK)
    //
    // std::cout << "nbc: idx_1 " << idx_1 << " idx_2 " << idx_2 << std::endl;
@@ -486,7 +491,8 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 	      i<restraints_p->restraints_limits_non_bonded_contacts.second; i++) {
 	    const simple_restraint &this_restraint = (*restraints_p)[i];
 	    if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
-	       my_df_non_bonded_single(v, df, this_restraint);
+	       if (this_restraint.fixed_atom_flags[0]==false || this_restraint.fixed_atom_flags[1]==false)
+		  my_df_non_bonded_single(v, df, this_restraint);
 	    }
 	 }
       }
@@ -496,7 +502,10 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 	   i<restraints_p->restraints_limits_non_bonded_contacts.second; i++) {
 	 const simple_restraint &this_restraint = (*restraints_p)[i];
 	 if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
-	    my_df_non_bonded_single(v, df, this_restraint);
+	    // no need to calculate anything if both these atoms are non-moving
+	    //
+	    if (this_restraint.fixed_atom_flags[0]==false || this_restraint.fixed_atom_flags[1]==false)
+	       my_df_non_bonded_single(v, df, this_restraint);
 	 }
       }
 #endif

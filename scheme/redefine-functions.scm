@@ -66,6 +66,7 @@
 (define get-map-colour get-map-colour-scm)
 (define list-extra-restraints list-extra-restraints-scm)
 (define delete-extra-restraint delete-extra-restraint-scm)
+(define delete-extra-restraints-for-residue-spec delete-extra-restraints-for-residue-spec-scm)
 (define do-clipped-surface do-clipped-surface-scm)
 (define copy-residue-range-from-ncs-master-to-chains copy-residue-range-from-ncs-master-to-chains-scm)
 (define copy-from-ncs-master-to-chains copy-from-ncs-master-to-chains-scm)
@@ -109,8 +110,11 @@
 (define map-statistics         map-statistics-scm)
 (define goto-next-atom-maybe   goto-next-atom-maybe-scm)
 (define goto-prev-atom-maybe   goto-prev-atom-maybe-scm)
+(define glyco-tree-residues   glyco-tree-residues-scm)
 (define glyco-tree-residue-id glyco-tree-residue-id-scm)
 (define add-extra-bond-restraints add-extra-bond-restraints-scm)
+(define new-molecule-by-residue-specs new-molecule-by-residue-specs-scm)
+(define delete-residues delete-residues-scm)
 
 ;; I changed the function name - save those (just a few) with scripts that I've handed out
 (define toggle-idle-ligand-interactions toggle-flev-idle-ligand-interactions)

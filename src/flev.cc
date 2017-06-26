@@ -520,9 +520,19 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 		  RDKit::MolOps::sanitizeMol(rdkm, failed_op_1, RDKit::MolOps::SANITIZE_ALL);
 		  RDKit::MolOps::sanitizeMol(rdkm, failed_op_2, RDKit::MolOps::SANITIZE_KEKULIZE);
 
-		  std::cout << "INFO:: sanitizeMol() returned with failed_op: "
+		  std::cout << "DEBUG:: sanitizeMol() returned with failed_op: "
 			    << failed_op_1 << " " << failed_op_2
 			    << " (note 'no-failure' is value 0)." << std::endl;
+
+		  try {
+		     RDKit::RingInfo *ri = rdkm.getRingInfo();
+		     unsigned int n_rings = ri->numRings();
+		  }
+		  catch (const std::runtime_error &rte) {
+		     std::vector<std::vector<int> > ring_info;
+		     RDKit::MolOps::findSSSR(rdkm, ring_info);
+		  }
+
 
 		  int mol_2d_depict_conformer =
 		     coot::add_2d_conformer(&rdkm, weight_for_3d_distances);
