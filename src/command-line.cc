@@ -274,6 +274,21 @@ parse_command_line(int argc, char ** argv ) {
 #ifdef USE_MOLECULES_TO_TRIANGLES
 			   enableds.push_back("Molecular-triangles");
 #endif
+#ifdef HAVE_GOOCANVAS
+			   enableds.push_back("Goocanvas");
+#endif
+#ifdef HAVE_GSL
+			   enableds.push_back("GSL");
+#endif
+#ifdef USE_SQLITE3
+			   enableds.push_back("SQLite3");
+#endif
+#ifdef HAVE_CCP4SRS
+			   enableds.push_back("CCP4SRS");
+#endif
+#ifdef USE_LIBCURL
+			   enableds.push_back("LibCurl");
+#endif
 			   if (enableds.size()) {
 			      std::cout << "Enabled: ";
 			      for (unsigned int i=0; i<enableds.size(); i++)
