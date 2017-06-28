@@ -1734,6 +1734,9 @@ coot::restraints_container_t::make_restraints(int imol,
 void
 coot::restraints_container_t::make_restraint_types_index_limits() {
 
+   // 20170628 why not restraints_limits_target_pos also?
+   //          needs investigation
+
    unsigned int unset = 9999999;
    restraints_limits_bonds = std::pair<unsigned int, unsigned int> (unset,0);
    restraints_limits_angles = std::pair<unsigned int, unsigned int> (unset,0);

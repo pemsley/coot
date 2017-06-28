@@ -239,9 +239,6 @@ void coot::my_df_bonds(const gsl_vector *v,
 	    b_i_sqrd = (a1-a2).lengthsq();
 	    b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
 
-	    // b_i = clipper::Coord_orth::length(a1,a2); 
-	    // b_i = b_i > 0.1 ? b_i : 0.1;  // Garib's stabilization
-
 	    weight = 1/((*restraints)[i].sigma * (*restraints)[i].sigma);
 	    
 	    // weight = 1.0;
