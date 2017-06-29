@@ -7734,3 +7734,12 @@ Sun 28 May 2017 17:09:21 CDT
    addition and refinement?
 
 ---
+Mon Jun 19 19:46:51 BST 2017
+
+   beta strand: phi=-110, psi=120 from link-restraint.cc
+
+   can you use that with add-terminal-residue-using-phi-psi to make an
+   extended polypetide strand?
+
+
+---
