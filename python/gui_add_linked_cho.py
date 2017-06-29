@@ -14,20 +14,23 @@ def add_pyranose_pseudo_ring_plane_restraints(comp_id):
                                 [["pseudo-ring-1", [" C1 ", " C2 ", " C4 ", " C5 "], 0.01],
                                  ["pseudo-ring-2", [" C2 ", " C3 ", " C5 ", " O5 "], 0.01],
                                  ["pseudo-ring-3", [" C3 ", " C4 ", " O5 ", " C1 "], 0.01]]] + \
-                                filter_out("pseudo-ring-3", plane_restraints) #should be list already
+                                filter_out("pseudo-ring-", plane_restraints) #should be list already
         restraints["_chem_comp_plane_atom"] = new_plane_restraints
         print "BL DEBUG:: new plane restraints", new_plane_restraints
 
         set_monomer_restraints(comp_id, restraints)
         
-def add_synthetic_carbohydrate_planes():
-    add_pyranose_pseudo_ring_plane_restraints("NAG")
-    add_pyranose_pseudo_ring_plane_restraints("BMA")
-    add_pyranose_pseudo_ring_plane_restraints("MAN")
-    add_pyranose_pseudo_ring_plane_restraints("GAL")
-    add_pyranose_pseudo_ring_plane_restraints("GLC")
-    add_pyranose_pseudo_ring_plane_restraints("XYP")
-    add_pyranose_pseudo_ring_plane_restraints("FUC")
+def add_synthetic_pyranose_planes():
+    for comp_id in ["NAG", "BMA", "MAN", "GAL", "GLC", "FUC", "XYP"]:
+        add_pyranose_pseudo_ring_plane_restraints(comp_id)
+
+def use_unimodal_pyranose_ring_torsions():
+    for tlc in ["NAG", "BMA", "MAN", "GAL", "GLC", "FUC", "XYP"]:
+        use_unimodal_ring_torsion_restraints(tlc)
+
+# to be filled later
+def add_cho_restraints_for_residue(imol, new_res_spec):
+    return False
 
 
 def multi_add_linked_residue(imol, res_spec, residues_to_add):
@@ -60,20 +63,20 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
                     new_res = residue_to_add[0]
                     new_link = residue_to_add[1]
 
-
                     new_res_spec = add_linked_residue(imol,
                                                       res_spec2chain_id(current_residue_spec),
                                                       res_spec2res_no(current_residue_spec),
                                                       res_spec2ins_code(current_residue_spec),
-                                                      new_res, new_link, 3)
+                                                      new_res, new_link, 2)
 
 
                     # residues_near_residue takes a 3-part spec and makes 3-part specs
-                    ls = residues_near_residue(imol, current_residue_spec, 1.9)
-                    with AutoAccept():
-                        refine_residues(imol, [current_residue_spec] + ls)
-                    # make the new res the one to add to (remove starting bool)
-                    current_residue_spec = new_res_spec[1:]  
+                    if new_res_spec:
+                        ls = residues_near_residue(imol, current_residue_spec, 1.9)
+                        with AutoAccept():
+                            refine_residues(imol, [current_residue_spec] + ls)
+                        # make the new res the one to add to (remove starting bool)
+                        current_residue_spec = new_res_spec[1:]  
 
     # restore refinement mode and matrix weight
     set_dragged_refinement_steps_per_frame(current_refinement_rate)
@@ -143,12 +146,6 @@ def add_linked_residue_tree(imol, parent, tree):
             else:
                 return c > add_linked_residue_tree_correlation_cut_off
     
-    def delete_residue_by_spec(spec):
-        delete_residue(imol,
-                       residue_spec2chain_id(spec),
-                       residue_spec2res_no(spec),
-                       residue_spec2ins_code(spec))
-
     def func(parent, res_pair):
         if (not isinstance(parent, list)):
             print "WARNING:: OOps not a proper res_spec %s with residue_to_add: %s" %(parent, res_pair)
@@ -160,24 +157,30 @@ def add_linked_residue_tree(imol, parent, tree):
 
             centre_view_on_residue_centre(parent)
 
-            active_atom = active_residue_py()
-            active_residue = active_atom[:4]
-            save_residue_specs = glyco_tree_residues_py(imol, active_residue)
-
-            imol_glyco_pre = new_molecule_by_residue_specs_py(imol, save_residue_specs)
-            set_mol_displayed(imol_glyco_pre, 0)
-            set_mol_active(imol_glyco_pre, 0)
+            tree_residues = glyco_tree_residues_py(imol, parent)
+            imol_save = new_molecule_by_residue_specs_py(imol,
+                                                         tree_residues)
+            # old
+#            active_atom = active_residue_py()
+#            active_residue = active_atom[:4]
+#            save_residue_specs = glyco_tree_residues_py(imol, active_residue)
+#
+#            imol_glyco_pre = new_molecule_by_residue_specs_py(imol, save_residue_specs)
+#            set_mol_displayed(imol_glyco_pre, 0)
+#            set_mol_active(imol_glyco_pre, 0)
             new_res_spec = add_linked_residue(imol,
                                               res_spec2chain_id(parent),
                                               res_spec2res_no(parent),
                                               res_spec2ins_code(parent),
-                                              new_res_type, new_link, 3)
+                                              new_res_type, new_link, 2)
+            set_mol_displayed(imol_save, 0)
+            set_mol_active(imol_save, 0)
             ls = residues_near_residue(imol, parent, 1.9)
             local_ls = [parent] + ls
+            add_cho_restraints_for_residue(imol, new_res_spec)
+            rotate_y_scene(100, 0.5)
             with AutoAccept():
                 refine_residues(imol, local_ls)
-            # make this optional
-            rotate_y_scene(200, 0.5)
             if (not isinstance(new_res_spec, list)):
                 # badness
                 return False
@@ -189,13 +192,18 @@ def add_linked_residue_tree(imol, parent, tree):
                     return preped_new_res_spec
                 else:
                     print "----------- That was not well fitting. Deleting:", preped_new_res_spec
-                    delete_residue_by_spec(preped_new_res_spec)
+                    delete_extra_restraints_for_residue_spec(imol,
+                                                             preped_new_res_spec)
+                    delete_residue_by_spec(imol, preped_new_res_spec)
                     replace_residues_from_mol_py(imol, imol_glyco_pre, save_residue_specs)
-                    with AutoAccept():
-                        # Note: may not get rid of screwed up refinement from
-                        # adding a carb too much...
-                        refine_residues(imol, local_ls)
-                        return False
+                    # restore glyco-tree residues from imol_save
+                    replace_fragment(imol, imol_save, "//")
+                    return False
+#                    with AutoAccept():
+#                        # Note: may not get rid of screwed up refinement from
+#                        # adding a carb too much...
+#                        refine_residues(imol, local_ls)
+#                        return False
                     
     def process_tree(parent, tree, proc_func):
         for branch in tree:
@@ -214,7 +222,11 @@ def add_linked_residue_tree(imol, parent, tree):
 
     # main line of add_linked_residue_tree
     #
-    add_synthetic_carbohydrate_planes()
+    add_synthetic_pyranose_planes()
+    use_unimodal_ring_torsion_restraints()
+    set_refine_with_torsion_restraints(1)
+    current_weight = matrix_state()
+    set_matrix(8)
     set_residue_selection_flash_frames_number(1)
     set_go_to_atom_molecule(imol)
     previous_m = default_new_atoms_b_factor()
@@ -225,12 +237,54 @@ def add_linked_residue_tree(imol, parent, tree):
             set_default_temperature_factor_for_new_atoms(new_m)
     except:
         print "BL INFO:: not changing default B for new carb atoms"
+
+    start_pos_view = add_view_here("Glyo Tree Start Pos")
     process_tree(parent, tree, func)
+    got_to_view_number(start_pos_view, 0)
+    # validate build
     g = glyco_validate()
     g.auto_delete_residues()
     # reset
     set_default_temperature_factor_for_new_atoms(previous_m)
+    set_matrix(current_weight)
 
+
+def add_linked_residue_with_extra_restraints_to_active_residue(new_res_type,
+                                                               link_type):
+    current_weight = matrix_state()
+    set_matrix(8)
+    set_refine_with_torsion_restraints(1)
+    set_add_linked_residue_do_fit_and_refine(0)
+    with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
+                                   aa_atom_name, aa_alt_conf, aa_res_spec]:
+        new_res_spec = add_linked_residue(aa_imol, aa_chain_id, aa_res_no,
+                                          aa_ins_code, new_res_type, link_type, 2)
+        add_cho_restraints_for_residue(aa_imol, new_res_spec)
+        # refine that
+        with AutoAccept():
+            residues = [aa_res_spec] + residues_near_residue(aa_imol, aa_res_spec, 1.9)
+            refine_residues(aa_imol, residues)
+
+def delete_all_cho():
+    delete_cho_ls = []
+    with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
+                               aa_atom_name, aa_alt_conf]:
+        if valid_model_molecule_qm(aa_imol):
+            with NoBackups(aa_imol):
+                for chain_id in chain_ids(aa_imol):
+                    for res_serial in range(chain_n_residues(chain_id, aa_imol)):
+                        res_no = seqnum_from_serial_number(aa_imol,
+                                                           chain_id, res_serial)
+                        rn = residue_name(aa_imol, chain_id, res_no, "")
+                        if (isinstance(rn, str)):
+                            if rn in ["NAG", "MAN", "BMA", "FUC", "XYP",
+                                      "SIA", "GLC"]:
+                                residue_spec = [chain_id, res_no, ""]
+                                delete_cho_ls.append(residue_spec)
+                for cho_res_spec in delete_cho_ls:
+                    delete_residue(aa_imol,
+                                   residue_spec2chain_id(cho_res_spec),
+                                   residue_spec2res_no(cho_res_spec), "")            
 
 def delete_glyco_tree():
     
@@ -400,63 +454,65 @@ def add_module_carbohydrate():
     if (have_coot_python):
         if coot_python.main_menubar():
             menu = coot_menubar_menu("Glyco")
-
-            def add_carbo_link_func(sugar, link):
-                current_weight = matrix_state()
-                set_matrix(8)
-                with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
-                                           aa_ins_code, aa_atom_name, aa_alt_conf]:
-                    add_linked_residue(aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
-                                       sugar, link, 3)
-                    set_matrix(current_weight)
                     
             add_simple_coot_menu_menuitem(
                 menu, "Add a ASN-NAG NAG",
-                lambda func: add_carbo_link_func("NAG", "NAG-ASN"))
+                lambda func:
+                add_linked_residue_with_extra_restraints_to_active_residue("NAG", "NAG-ASN"))
 
             add_simple_coot_menu_menuitem(
                 menu, "Add a BETA1-4 NAG",
-                lambda func: add_carbo_link_func("NAG", "BETA1-4"))
+                lambda func:
+                add_linked_residue_with_extra_restraints_to_active_residue("NAG", "BETA1-4"))
 
             add_simple_coot_menu_menuitem(
                 menu, "Add a BETA1-4 BMA",
-                lambda func: add_carbo_link_func("BMA", "BETA1-4"))
+                lambda func:
+                add_linked_residue_with_extra_restraints_to_active_residue("BMA", "BETA1-4"))
             
             add_simple_coot_menu_menuitem(
                 menu, "Add an ALPHA1-2 MAN",
-                lambda func: add_carbo_link_func("MAN", "ALPHA1-2"))
+                lambda func:
+                add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA1-2"))
             
             add_simple_coot_menu_menuitem(
                 menu, "Add an ALPHA1-3 MAN",
-                lambda func: add_carbo_link_func("MAN", "ALPHA1-3"))
+                lambda func:
+                add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA1-3"))
 
             # we should do this only if we are sitting on an SIA.
             # Attaching a SIA to a MAN (i.e. reverse order) would be a
             # good test too...
             add_simple_coot_menu_menuitem(
                 menu, "Add an ALPHA2-3 MAN",
-                lambda func: add_carbo_link_func("MAN", "ALPHA2-3"))
+                lambda func:
+                add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA2-3"))
 
             # same consideration as above
             add_simple_coot_menu_menuitem(
                 menu, "Add an ALPHA2-3 GAL",
-                lambda func: add_carbo_link_func("GAL", "ALPHA2-3"))
+                lambda func:
+                add_linked_residue_with_extra_restraints_to_active_residue("GAL", "ALPHA2-3"))
 
             add_simple_coot_menu_menuitem(
                 menu, "Add an ALPHA1-6 MAN",
-                lambda func: add_carbo_link_func("MAN", "ALPHA1-6"))
+                lambda func:
+                add_linked_residue_with_extra_restraints_to_active_residue("MAN", "ALPHA1-6"))
 
             add_simple_coot_menu_menuitem(
                 menu, "Add an ALPHA1-3 FUC",
-                lambda func: add_carbo_link_func("FUC", "ALPHA1-3"))
+                lambda func:
+                add_linked_residue_with_extra_restraints_to_active_residue("FUC", "ALPHA1-3"))
 
             add_simple_coot_menu_menuitem(
                 menu, "Add an ALPHA1-6 FUC",
-                lambda func: add_carbo_link_func("FUC", "ALPHA1-6"))
+                lambda func:
+                add_linked_residue_with_extra_restraints_to_active_residue("FUC", "ALPHA1-6"))
 
             add_simple_coot_menu_menuitem(
                 menu, "Add an XYP-BMA XYP",
-                lambda func: add_carbo_link_func("XYP", "XYP-BMA"))
+                lambda func:
+                add_linked_residue_with_extra_restraints_to_active_residue("XYP", "XYP-BMA"))
 
             def add_multi_carbo_link_func(link_list):
                 with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
@@ -471,13 +527,14 @@ def add_module_carbohydrate():
                                                         ["NAG", "BETA1-4"],
                                                         ["BMA", "BETA1-4"]]))
 
-            add_simple_coot_menu_menuitem(
-                menu, "Auto Fit & Refine On for Link Addition",
-                lambda func: set_add_linked_residue_do_fit_and_refine(1))
+            # the mode in the function call now takes take of this
+            # add_simple_coot_menu_menuitem(
+            #     menu, "Auto Fit & Refine On for Link Addition",
+            #     lambda func: set_add_linked_residue_do_fit_and_refine(1))
 
-            add_simple_coot_menu_menuitem(
-                menu, "Auto Fit & Refine Off for Link Addition",
-                lambda func: set_add_linked_residue_do_fit_and_refine(0))
+            # add_simple_coot_menu_menuitem(
+            #     menu, "Auto Fit & Refine Off for Link Addition",
+            #     lambda func: set_add_linked_residue_do_fit_and_refine(0))
 
             def add_oligo_mannose_func():
                 with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
@@ -528,6 +585,10 @@ def add_module_carbohydrate():
                             refine_residues(aa_imol, [centre_residue])
                 
             add_simple_coot_menu_menuitem(
+                menu, "Delete All Carbohydrate",
+                lambda func: delete_all_cho())
+
+            add_simple_coot_menu_menuitem(
                 menu, "Torsion Fit this residue",
                 lambda func: torsion_fit_this_func())
 
@@ -542,5 +603,9 @@ def add_module_carbohydrate():
 
             add_simple_coot_menu_menuitem(
                 menu, "Add synthetic pyranose plane restraints",
-                lambda func: add_synthetic_carbohydrate_planes())
+                lambda func: add_synthetic_pyranose_planes())
+
+            add_simple_coot_menu_menuitem(
+                menu, "Use Unimodal ring torsion restraints",
+                lambda func: use_unimodal_pyranose_ring_torsions())
 

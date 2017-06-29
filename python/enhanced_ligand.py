@@ -24,11 +24,28 @@ if (use_gui_qm != 2):
     
         add_simple_coot_menu_menuitem(
           menu,
+          "Find Ligands...",
+          lambda func: do_find_ligands_dialog())
+
+        
+        add_simple_coot_menu_menuitem(
+          menu,
           "SMILES -> 2D",
           lambda func:
           generic_single_entry("SMILES string",
                                "", " Send to 2D Viewer ",
                                lambda text: smiles_to_ligand_builder(text)))
+
+
+        add_simple_coot_menu_menuitem(
+          menu,
+          "SMILES -> simple 3D",
+          lambda func:
+          generic_double_entry("Residue name", "SMILES string  ", "LIG", "",
+                               False, False, 
+                               "Import Molecule",
+                               lambda text_1, text_2:
+                               import_rdkit_mol_from_smiles(text_1, text_2)))
 
 
         add_simple_coot_menu_menuitem(
