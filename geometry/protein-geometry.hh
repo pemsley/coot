@@ -286,7 +286,7 @@ namespace coot {
       double angle_esd_;
       int period;
    public:
-      
+
       // dict_torsion_restraint_t() {}; 
       dict_torsion_restraint_t(std::string id_in,
 			       std::string atom_id_1,
@@ -315,7 +315,7 @@ namespace coot {
       double angle() const { return angle_; }
       double esd ()  const { return angle_esd_;}
       friend std::ostream& operator<<(std::ostream &s, const dict_torsion_restraint_t &rest);
-      bool is_pyranose_ring_torsion() const;
+      bool is_pyranose_ring_torsion(const std::string &comp_id) const;
       bool is_ring_torsion(const std::vector<std::vector<std::string> > &ring_atoms_sets) const;
       // hack for mac, ostream problems
       std::string format() const;

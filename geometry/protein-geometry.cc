@@ -812,11 +812,14 @@ coot::dictionary_residue_restraints_t::get_non_const_torsions(bool include_hydro
 }
 
 bool
-coot::dict_torsion_restraint_t::is_pyranose_ring_torsion() const {
+coot::dict_torsion_restraint_t::is_pyranose_ring_torsion(const std::string &comp_id) const {
 
    // Needs fixup for PDBv3
    bool status = false;
    std::string ring_atoms[6] = { " C1 ", " C2 ", " C3 ", " C4 ", " C5 ", " O5 " };
+   if (comp_id == "XYP")
+      for (unsigned int i=0; i<6; i++)
+	 ring_atoms[i][3] = 'B'; // danger on PDBv3 fixup.
 
    int n_matches = 0;
    for (unsigned int i=0; i<6; i++) { 
