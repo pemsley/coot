@@ -7741,4 +7741,11 @@ Sat  1 Jul 2017 17:36:03 BST
 http://rdkit.org/docs_temp/Chem/Fragments.m.html
 
 
+----
+Sat  1 Jul 2017 18:27:09 BST
+
+   Makefile variables $@ $^ $<
+
+   https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html
+
 ---
