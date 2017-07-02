@@ -212,7 +212,7 @@ coot::dots_representation_info_t::solvent_accessibilities(mmdb::Residue *res_ref
    residues.push_back(res_ref);
    
    std::pair<bool, mmdb::Manager *> mol =
-      coot::util::create_mmdbmanager_from_residue_vector(residues);
+      coot::util::create_mmdbmanager_from_residue_vector(residues, 0);
 
    if (mol.first) { 
 
@@ -245,10 +245,10 @@ coot::dots_representation_info_t::solvent_exposure_differences(mmdb::Residue *re
    residues.push_back(res_ref);
    
    std::pair<bool, mmdb::Manager *> mol_holo =
-      coot::util::create_mmdbmanager_from_residue_vector(residues);
+      coot::util::create_mmdbmanager_from_residue_vector(residues, 0);
    
    std::pair<bool, mmdb::Manager *> mol_apo =
-      coot::util::create_mmdbmanager_from_residue_vector(near_residues);
+      coot::util::create_mmdbmanager_from_residue_vector(near_residues, 0);
 
    if (mol_holo.first) { 
       if (mol_apo.first) {

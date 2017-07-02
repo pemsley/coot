@@ -2882,7 +2882,8 @@ coot::util::create_mmdbmanager_from_res_selection(mmdb::Manager *orig_mol,
 // The returned mol has the same chain ids as do the input residues.
 // 
 std::pair<bool, mmdb::Manager *>
-coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec) {
+coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec,
+						   mmdb::Manager *old_mol) {
 
    // So, first make a vector of residue sets, one residue set for each chain.
    std::vector<coot::util::chain_id_residue_vec_helper_t> residues_of_chain;
@@ -2961,8 +2962,43 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
    mmdb::Manager *mol = new mmdb::Manager;
    mol->AddModel(model_p);
 
-   return std::pair<bool, mmdb::Manager *> (1, mol);
+   if (old_mol) {
+      int imodel = 1;
+      mmdb::Model *mol_old_model_p = old_mol->GetModel(imodel);
+      if (mol_old_model_p) {
+	 int n_links = mol_old_model_p->GetNumberOfLinks();
+	 if (n_links > 0) {
+	    for (int i_link=1; i_link<=n_links; i_link++) {
+	       mmdb::Link *link = mol_old_model_p->GetLink(i_link);
+	       std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link);
+	       // are those atoms in (new) mol?
+	       mmdb::Atom *at_1 = get_atom(linked_atoms.first,  mol);
+	       mmdb::Atom *at_2 = get_atom(linked_atoms.second, mol);
+	       if (at_1 && at_2) {
+		  // add this link to mol
+		  mmdb::Link *link = new mmdb::Link; // sym ids default to 1555 1555
 
+		  strncpy(link->atName1,  at_1->GetAtomName(), 19);
+		  strncpy(link->aloc1,    at_1->altLoc, 9);
+		  strncpy(link->resName1, at_1->GetResName(), 19);
+		  strncpy(link->chainID1, at_1->GetChainID(), 9);
+		  strncpy(link->insCode1, at_1->GetInsCode(), 9);
+		  link->seqNum1         = at_1->GetSeqNum();
+
+		  strncpy(link->atName2,  at_2->GetAtomName(), 19);
+		  strncpy(link->aloc2,    at_2->altLoc, 9);
+		  strncpy(link->resName2, at_2->GetResName(), 19);
+		  strncpy(link->chainID2, at_2->GetChainID(), 9);
+		  strncpy(link->insCode2, at_2->GetInsCode(), 9);
+		  link->seqNum2         = at_2->GetSeqNum();
+
+		  model_p->AddLink(link);
+	       }
+	    }
+	 }
+      }
+   }
+   return std::pair<bool, mmdb::Manager *> (1, mol);
 }
 
 
@@ -2977,7 +3013,7 @@ coot::util::create_mmdbmanager_from_residue_specs(const std::vector<coot::residu
 	 residues.push_back(res);
       }
    }
-   mmdb::Manager *new_mol = coot::util::create_mmdbmanager_from_residue_vector(residues).second;
+   mmdb::Manager *new_mol = coot::util::create_mmdbmanager_from_residue_vector(residues, mol).second;
    return new_mol;
 }
 

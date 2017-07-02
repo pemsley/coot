@@ -1040,7 +1040,7 @@ coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
    std::vector<mmdb::Residue *> rv = residues;
    rv.push_back(ligand_res);
 
-   std::pair<bool, mmdb::Manager *> m = coot::util::create_mmdbmanager_from_residue_vector(rv);
+   std::pair<bool, mmdb::Manager *> m = coot::util::create_mmdbmanager_from_residue_vector(rv, mol);
    coot::residue_spec_t ligand_spec(ligand_res);
 
    if (m.first) { 

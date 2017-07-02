@@ -1108,7 +1108,7 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
    if (residues.size() > 0) { 
 
       std::pair<bool, mmdb::Manager *> n_mol_1 =
-	 coot::util::create_mmdbmanager_from_residue_vector(residues);
+	 coot::util::create_mmdbmanager_from_residue_vector(residues, mol_in);
       
       new_mol = n_mol_1.second;
       mmdb::Model *model_p = new_mol->GetModel(1);

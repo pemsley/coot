@@ -1009,8 +1009,11 @@ namespace coot {
       std::pair<mmdb::Manager *, int> create_mmdbmanager_from_mmdbmanager(mmdb::Manager *);
 
 
-     std::pair<bool, mmdb::Manager *>
-     create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec);
+      // we pass the mol_old so that selected header info can be transfered also
+      // currently only LINKs.
+      std::pair<bool, mmdb::Manager *>
+      create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec,
+					    mmdb::Manager *mol_old);
 
       // ignore atom index transfer, return NULL on error.
       // 

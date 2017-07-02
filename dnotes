@@ -7749,3 +7749,12 @@ Sat  1 Jul 2017 18:27:09 BST
    https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html
 
 ---
+Mon Jun 19 19:46:51 BST 2017
+
+   beta strand: phi=-110, psi=120 from link-restraint.cc
+
+   can you use that with add-terminal-residue-using-phi-psi to make an
+   extended polypetide strand?
+
+
+---

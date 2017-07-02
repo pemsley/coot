@@ -555,8 +555,8 @@
 
 		    (if (= level-number 1)
 			(if (string=? residue-type "NAG")
-			    (set! active-button-label-list (list "Add a BETA1-4 NAG"))))
-
+			    (set! active-button-label-list (list "Add a BETA1-4 NAG"
+								 "Add an ALPHA1-6 FUC"))))
 		    (if (= level-number 2)
 			(if (string=? residue-type "NAG")
 			    (set! active-button-label-list (list "Add a BETA1-4 BMA"))))
@@ -623,6 +623,12 @@
 		       children)
 	     #t)
 	   #f)))))
+
+;; return the new molecule number
+(define (new-molecule-from-this-glyco-tree)
+  (using-active-atom
+   (let* ((tree-residues (glyco-tree-residues aa-imol aa-res-spec)))
+     (new-molecule-by-residue-specs aa-imol tree-residues))))
 
 (define (add-module-carbohydrate) 
 
@@ -717,5 +723,10 @@
 	 menu "Use Unimodal ring torsion restraints"
 	 (lambda ()
 	   (use-unimodal-pyranose-ring-torsions)))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Extract this Tree"
+	 (lambda()
+	   (new-molecule-from-this-glyco-tree)))
 
 	)))
