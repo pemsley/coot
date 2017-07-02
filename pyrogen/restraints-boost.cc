@@ -55,12 +55,18 @@ namespace coot {
 
    // fiddle with mol
    void delocalize_guanidinos(RDKit::RWMol *mol);
-   
+
+   // compiling/linking problems - give up for now.
+   // PyObject *convert_rdkit_mol_to_pyobject(RDKit::ROMol *mol);
 }
 
 
 
 BOOST_PYTHON_MODULE(pyrogen_boost) {
+
+   // def("convert_rdkit_mol_to_pyobject", coot::convert_rdkit_mol_to_pyobject,
+   // return_value_policy<manage_new_object>());
+
    def("regularize",               coot::regularize,               return_value_policy<manage_new_object>());
    def("regularize_with_dict",     coot::regularize_with_dict,     return_value_policy<manage_new_object>());
    def("rdkit_mol_chem_comp_pdbx", coot::rdkit_mol_chem_comp_pdbx, return_value_policy<manage_new_object>());
@@ -103,10 +109,9 @@ BOOST_PYTHON_MODULE(pyrogen_boost) {
       ;
 }
 
-
 RDKit::ROMol*
 coot::mogulify(const RDKit::ROMol &mol) {
-   
+
    RDKit::RWMol rw(mol);
    coot::mogulify_mol(rw);
    RDKit::ROMol *ro = new RDKit::ROMol(rw);
@@ -278,7 +283,7 @@ RDKit::ROMol *
 coot::hydrogen_transformations(const RDKit::ROMol &mol) {
 
 
-   debug_rdkit_molecule(&mol);
+   // debug_rdkit_molecule(&mol);
    RDKit::RWMol *r = new RDKit::RWMol(mol);
 
    RDKit::ROMol *query_cooh = RDKit::SmartsToMol("[C^2](=O)O[H]");
