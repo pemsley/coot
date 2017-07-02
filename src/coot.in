@@ -254,7 +254,6 @@ if [ -e $COOT_PREFIX/pending-install ] ; then
    apply_pending_install $COOT_PREFIX
 fi
   
-# "Use $@ to stop word splitting" from Ben Eisenbraun.  
 if [ "$1" = --check-libs ] ; then 
    ldd $coot_bin
    if [ $systype = Darwin ] ; then
@@ -262,6 +261,7 @@ if [ "$1" = --check-libs ] ; then
    fi
 else 
    # normal path
+   # "Use $@ to stop word splitting" from Ben Eisenbraun.
    $coot_bin "$@"
    status=$?
    if [ $status != 0 ] ; then
