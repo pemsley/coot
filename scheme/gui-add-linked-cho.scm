@@ -130,7 +130,9 @@
 				(("ALPHA1-2" . "MAN"))))))))
 
 (define paucimannose-tree '(("NAG-ASN" . "NAG")
-			    (("ALPHA1-3" . "FUC"))
+			    (("ALPHA1-3" . "FUC")
+			     (("BETA1-4"  . "GAL")
+			      ("ALPHA1-2" . "FUC")))
 			    (("BETA1-4" . "NAG")
 			     (("BETA1-4" . "BMA")
 			      (("ALPHA1-6" . "MAN"))
@@ -439,7 +441,13 @@
 	(gtk-box-set-homogeneous hbox-1 #t)
 	(gtk-box-set-homogeneous hbox-2 #t)
 	(gtk-box-reorder-child vbox hbox-1 0)
-	(gtk-box-reorder-child vbox hbox-2 1))
+	(gtk-box-reorder-child vbox hbox-2 1)
+
+	(for-each (lambda (butt)
+		    (gtk-signal-connect butt "toggled"
+					(lambda ()
+					  (gui-add-linked-cho-dialog-vbox-set-rotation-centre-hook vbox))))
+		  (list butt-1 butt-2 butt-3 butt-4)))
 
       ;; global var post-set-rotation-centre-hook
       (set! post-set-rotation-centre-hook
@@ -534,11 +542,19 @@
 			(if (string=? residue-type "NAG")
 			    (set! active-button-label-list (list "Add a BETA1-4 BMA"))))
 
+		    (if (= level-number 2)
+			(if (string=? residue-type "FUC")
+			    (set! active-button-label-list (list "Add a BETA1-4 GAL"))))
+
 		    (if (= level-number 3)
 			(if (string=? residue-type "BMA")
 			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
 								 "Add an ALPHA1-6 MAN"
 								 "Add an XYP-BMA XYP"))))
+
+		    (if (= level-number 3)
+			(if (string=? residue-type "GAL")
+			    (set! active-button-label-list (list "Add an ALPHA1-2 FUC"))))
 
 		    (if (= level-number 4)
 			(if (string=? residue-type "MAN")
@@ -590,7 +606,6 @@
     (let ((tree-type 'oligomannose))
       (let ((children (gtk-container-children vbox)))
 	(for-each (lambda (child)
-		    ;; (format #t "child: ~s~%" child)
 		    (if (gtk-box? child)
 			(begin
 			  (for-each (lambda (box-child)
