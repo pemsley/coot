@@ -534,7 +534,7 @@ coot::multi_residue_torsion_fit_map(int imol,
 	    double env_clash_score = get_environment_clash_score(mol, atom_selection, n_selected_atoms,
                                                                  avoid_these_atoms);
 
-	    if (true) {
+	    if (false) {
 	       std::cout << "DEBUG:: self_clash_score: " << self_clash_score << std::endl;
 	       std::cout << "DEBUG::  env_clash_score: " <<  env_clash_score << std::endl;
 	    }

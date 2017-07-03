@@ -334,8 +334,10 @@
 				   (let ((res-no (seqnum-from-serial-number aa-imol chain-id res-serial)))
 				     (let ((rn (residue-name aa-imol chain-id res-no "")))
 				       (if (string? rn)
+					   ;; a better test is to find all the hetgroups and look at the _chem_comp group or type
 					   (if (or (string=? "NAG" rn) (string=? "MAN" rn) (string=? "BMA" rn) (string=? "FUL" rn)
-						   (string=? "FUC" rn) (string=? "XYP" rn) (string=? "SIA" rn) (string=? "GAL" rn))
+						   (string=? "FUC" rn) (string=? "XYP" rn) (string=? "SIA" rn) (string=? "GAL" rn)
+						   (string=? "A2G"))
 					       (let* ((residue-spec (list chain-id res-no "")))
 						 (set! delete-cho-list (cons (list chain-id res-no "") delete-cho-list))))))))
 				 (range (chain-n-residues chain-id aa-imol))))
