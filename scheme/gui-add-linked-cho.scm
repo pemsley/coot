@@ -306,6 +306,7 @@
     (let ((start-pos-view (add-view-here "Glyo Tree Start Pos")))
       (process-tree parent tree func)
       (go-to-view-number start-pos-view 0)
+      (with-auto-accept (using-active-atom (refine-residues aa-imol (glyco-tree-residues aa-imol aa-res-spec))))
       ;; add a test here that the tree here (centre of screen) matches a known tree.
       ;; 
       ;; and that each is 4C1 (or 1C4 for FUC?) (XYP?)
