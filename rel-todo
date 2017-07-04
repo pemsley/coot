@@ -3,6 +3,8 @@
 
    o qq-plot-map-and-model - is it in the documentation (and redefines)?
 
+   o ACE, PCA and MSE should not be considered as ligands in go-to-ligand
+
    o make benzoic acid in lidia - does it generate correctly in acedrg and
      pyrogen?
 

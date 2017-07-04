@@ -5186,10 +5186,6 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
       g.cif_dictionary_read_number++;
       coot::residue_spec_t res_spec(chain_id, resno, ins_code);
 
-      if (false)
-	 std::cout << "::::::::::::: in add_linked_residue_scm() g.default_new_atoms_b_factor is  "
-		   << g.default_new_atoms_b_factor << std::endl;
-
       float new_b = g.default_new_atoms_b_factor;
       // 20140429
       coot::residue_spec_t new_res_spec =

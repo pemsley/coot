@@ -1252,8 +1252,7 @@ molecule_class_info_t::add_linked_residue_by_atom_torsions(const coot::residue_s
 	 std::pair<bool, mmdb::Residue *> status_pair = add_residue(result, spec_in.chain_id);
 	 if (status_pair.first) {
 	    new_residue_spec = coot::residue_spec_t(status_pair.second);
-	    coot::dict_link_info_t link_info(residue_ref, status_pair.second,
-					     link_type, *geom_p);
+	    coot::dict_link_info_t link_info(residue_ref, status_pair.second, link_type, *geom_p);
 	    make_link(link_info.spec_ref, link_info.spec_new, link_type, link_info.dist, *geom_p);
 	 }
       } 
