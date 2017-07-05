@@ -1445,10 +1445,12 @@ graphics_info_t::run_post_set_rotation_centre_hook_scm() {
       ss += s;
       ss += ")";
       SCM res = safe_scheme_command(ss);
-      SCM dest = SCM_BOOL_F;
-      SCM mess =  scm_makfrom0str("result: ~s\n");
-      SCM p = scm_simple_format(dest, mess, scm_list_1(res));
-      std::cout << scm_to_locale_string(p);
+      if (false) {  // too noisy
+	 SCM dest = SCM_BOOL_F;
+	 SCM mess = scm_makfrom0str("result: ~s\n");
+	 SCM p = scm_simple_format(dest, mess, scm_list_1(res));
+	 std::cout << scm_to_locale_string(p);
+      }
    }
 }
 #endif
