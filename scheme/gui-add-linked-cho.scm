@@ -116,7 +116,11 @@
     ;; restore refinement mode
     (set-dragged-refinement-steps-per-frame current-refinement-rate))))
 
-
+;; also "precursor"
+;; high mannose was used for human
+;; high mannose is now used for human too
+;; call this "High Mannose" in the GUI
+;;
 (define oligomannose-tree '(("NAG-ASN" . "NAG")
 			    (("BETA1-4" . "NAG")
 			     (("BETA1-4" . "BMA")
@@ -127,52 +131,91 @@
 				(("ALPHA1-2" . "MAN"))))
 			      (("ALPHA1-3" . "MAN")
 			       (("ALPHA1-2" . "MAN")
-				(("ALPHA1-2" . "MAN"))))))))
+				(("ALPHA1-2" . "MAN")
+				 (("ALPHA1-3" . "GLC")
+				  (("ALPHA1-3" . "GLC")
+				   (("ALPHA1-2" . "GLC")))))))))))
 
-(define paucimannose-tree '(("NAG-ASN" . "NAG")
-			    (("ALPHA1-3" . "FUC")
-			     (("BETA1-4"  . "GAL")
-			      ("ALPHA1-2" . "FUC")))
-			    (("BETA1-4" . "NAG")
-			     (("BETA1-4" . "BMA")
-			      (("ALPHA1-6" . "MAN"))
-			      (("ALPHA1-3" . "MAN"))
-			      (("XYP-BMA"  . "XYP"))))))
+;; Hybrid is for any system
+;;
+;; Plant Hybrid als allows an alpha1-3 FUC
+;;
 
-(define complex-tree '(("NAG-ASN" . "NAG")
-		       (("BETA1-6" . "FUL"))
-		       (("BETA1-4" . "NAG")
-			(("BETA1-4" . "BMA")
-			 (("ALPHA1-6" . "MAN")
-			  (("BETA1-2" . "NAG")))))))
-;			   (("BETA1-4" . "GAL"))))
-;			 (("ALPHA1-3" . "MAN")
-;			  (("BETA1-2"  . "NAG")
-;			   (("BETA1-4" . "GAL"))))))))
+;; hybrid mammal
+;;
+(define hybrid-mammal-tree  '(("NAG-ASN" . "NAG")
+			     (("BETA1-4" . "NAG")
+			      (("BETA1-4" . "BMA")
+			       (("ALPHA1-6" . "MAN")
+				(("ALPHA1-6" . "MAN"))
+				(("ALPHA1-3" . "MAN")))
+			       (("ALPHA1-3" . "MAN")
+				(("BETA1-2" . "NAG")
+				 (("BETA1-4" . "GAL")
+				  (("ALPHA2-3" . "SIA"))
+				  (("ALPHA2-6" . "SIA")))))
+			       (("BETA1-4" "NAG"))))
+			     ("ALPHA1-6" . "FUC")))
 
 
-;(define oligomannose-tree '(("NAG-ASN" . "NAG")
-;			    (("BETA1-4" . "NAG")
-;			     (("BETA1-4" . "BMA")
-;			      (("ALPHA1-6" . "MAN"))
-;			      (("ALPHA1-3" . "MAN")
-;			       (("ALPHA1-2" . "MAN")
-;				(("ALPHA1-2" . "MAN"))))))))
+;; hybrid plant
+;;
+(define hybrid-plant-derived-tree  '(("NAG-ASN" . "NAG")
+			      (("BETA1-4" . "NAG")
+			       (("BETA1-4" . "BMA")
+				(("ALPHA1-6" . "MAN")
+				 (("ALPHA1-6" . "MAN"))
+				 (("ALPHA1-3" . "MAN")))
+				(("ALPHA1-3" . "MAN")
+				 (("BETA1-2" . "NAG")
+				  (("BETA1-4" . "GAL")
+				   (("ALPHA2-3" . "SIA"))
+				   (("ALPHA2-6" . "SIA")))))
+				(("XYP-BMA"  . "XYP"))
+				(("BETA1-4" "NAG"))))
+			      ("ALPHA1-6" . "FUC")
+			      ("ALPHA1-3" . "FUC")))
 
-;(define oligomannose-tree '(("NAG-ASN" . "NAG")
-;			    (("BETA1-4" . "NAG")
-;			     (("BETA1-4" . "BMA")
-;			      (("ALPHA1-6" . "MAN"))
-;			      (("ALPHA1-3" . "MAN")
-;			       (("ALPHA1-2" . "MAN")))))))
 
-			       
+;; complex mammal
+;; bianntennary mammal
+(define complex-mammal-tree  '(("NAG-ASN" . "NAG")
+			       (("BETA1-4" . "NAG")
+			      (("BETA1-4" . "BMA")
+			       (("ALPHA1-6" . "MAN")
+				(("BETA1-2" . "NAG")
+				 (("BETA1-4" . "GAL")
+				  (("ALPHA2-3" . "SIA"))
+				  (("ALPHA2-6" . "SIA")))))
+			       (("ALPHA1-3" . "MAN")
+				(("BETA1-2" . "NAG")
+				 (("BETA1-4" . "GAL")
+				  (("ALPHA2-3" . "SIA"))
+				  (("ALPHA2-6" . "SIA")))))
+			       (("BETA1-4" "NAG"))))
+			     ("ALPHA1-6" . "FUC")))
 
-;;; testing tree
-;(define oligomannose-tree '(("NAG-ASN" . "NAG")
-;			    (("BETA1-4" . "NAG")
-;			     (("BETA1-4" . "BMA")
-;			      (("ALPHA1-6" . "MAN"))))))
+
+;; complex plant
+;; plant bianntennary
+(define complex-plant-tree  '(("NAG-ASN" . "NAG")
+			      (("BETA1-4" . "NAG")
+			       (("BETA1-4" . "BMA")
+				(("ALPHA1-6" . "MAN")
+				 (("BETA1-2" . "NAG")
+				  (("BETA1-4" . "GAL")
+				   (("ALPHA2-3" . "SIA"))
+				   (("ALPHA2-6" . "SIA")))))
+				(("ALPHA1-3" . "MAN")
+				 (("BETA1-2" . "NAG")
+				  (("BETA1-4" . "GAL")
+				   (("ALPHA2-3" . "SIA"))
+				   (("ALPHA2-6" . "SIA")))))
+				(("BETA1-4" "NAG"))
+				(("BETA1-2" "XYP")))) ;; change the link
+			      (("ALPHA1-6" . "FUC"))
+			      (("ALPHA1-3" . "FUC"))))
+
 
 ;; (set-add-linked-residue-do-fit-and-refine 0)
 
@@ -286,6 +329,23 @@
 	(cons new-res
 	      (process-tree new-res (cdr tree) proc-func))))))
 
+  (define (is-just-an-ASN? imol glyco-tree)
+    (if (not (list? glyco-tree))
+	#f
+	(let ((l (length glyco-tree)))
+	  (if (not (= l 0))
+	      #f
+	      (using-active-atom
+	       (let ((res-spec aa-res-spec))
+		 (let ((rn (residue-name imol
+					 (residue-spec->chain-id res-spec)
+					 (residue-spec->res-no   res-spec)
+					 (residue-spec->ins-code res-spec))))
+		   (if (not (string? rn))
+		       #f
+		       (string=? rn "ASN")))))))))
+
+
   ;; main line of add-linked-residue-tree
   ;;
   (add-synthetic-pyranose-planes)
@@ -303,14 +363,26 @@
     (if (number? m)
 	(set-default-temperature-factor-for-new-atoms new-m))
 
-    (let ((start-pos-view (add-view-here "Glyo Tree Start Pos")))
-      (process-tree parent tree func)
-      (go-to-view-number start-pos-view 0)
-      (with-auto-accept (using-active-atom (refine-residues aa-imol (glyco-tree-residues aa-imol aa-res-spec))))
-      ;; add a test here that the tree here (centre of screen) matches a known tree.
-      ;; 
-      ;; and that each is 4C1 (or 1C4 for FUC?) (XYP?)
-      )))
+    ;; prevent tree building if there is already a partial tree here
+    ;; (only proceed with the one ASN)
+    ;;
+    (using-active-atom
+     (let ((start-tree (glyco-tree-residues aa-imol aa-res-spec)))
+       (format #t "::::::::::::::::: start-tree: ~s~%" start-tree)
+
+       (if (not (is-just-an-ASN? aa-imol start-tree))
+
+	   (info-dialog "Must start on Single ASN")
+
+	   ;; OK, continue
+	   (let ((start-pos-view (add-view-here "Glyo Tree Start Pos")))
+	     (process-tree parent tree func)
+	     (go-to-view-number start-pos-view 0)
+	     (with-auto-accept (refine-residues aa-imol (glyco-tree-residues aa-imol aa-res-spec)))
+	     ;; add a test here that the tree here (centre of screen) matches a known tree.
+	     ;;
+	     ;; and that each is 4C1 (or 1C4 for FUC?) (XYP?)
+	     ))))))
 
 
 (define (add-linked-residue-with-extra-restraints-to-active-residue new-res-type link-type)
@@ -694,23 +766,42 @@
 				     oligomannose-tree))))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Add Paucimannose/Hybrid"
+	 menu "Add Hybrid (Mammal)"
 	 (lambda ()
 	   (using-active-atom
 	    (make-backup aa-imol)
 	    ;; (with-no-backups aa-imol
 	    (add-linked-residue-tree aa-imol
 				     (list aa-chain-id aa-res-no aa-ins-code)
-				     paucimannose-tree))))
+				     hybrid-mammal-tree))))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Add Complex Tree"
+	 menu "Add Hybrid (Plant)"
+	 (lambda ()
+	   (using-active-atom
+	    (make-backup aa-imol)
+	    ;; (with-no-backups aa-imol
+	    (add-linked-residue-tree aa-imol
+				     (list aa-chain-id aa-res-no aa-ins-code)
+				     hybrid-plant-derived-tree))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Add Complex"
 	 (lambda ()
 	   (using-active-atom
 	    (make-backup aa-imol)
 	    (add-linked-residue-tree aa-imol
 				     (list aa-chain-id aa-res-no aa-ins-code)
-				     complex-tree))))
+				     complex-mammal-tree))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Add Complex (Plant)"
+	 (lambda ()
+	   (using-active-atom
+	    (make-backup aa-imol)
+	    (add-linked-residue-tree aa-imol
+				     (list aa-chain-id aa-res-no aa-ins-code)
+				     complex-plant-tree))))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Delete All Carbohydrate"
