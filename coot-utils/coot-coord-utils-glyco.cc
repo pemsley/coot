@@ -690,13 +690,16 @@ coot::glyco_tree_t::glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol,
       std::sort(linked_residues.begin(), linked_residues.end(), residue_comparitor);
 
       bool have_ASN_rooted_tree = false;
-      std::cout << "INFO:: " << linked_residues.size() << " glycan/ASN residues" << std::endl;
+
+      if (false) // debugging
+	 std::cout << "INFO:: " << linked_residues.size() << " glycan/ASN residues" << std::endl;
 
       for (unsigned int ires=0; ires<linked_residues.size(); ires++) {
 	 std::string residue_name(linked_residues[ires]->name);
 	 if (residue_name == "ASN") {
-	    std::cout << "... replacing glyco_tree based on " << residue_spec_t(linked_residues[ires])
-		      << std::endl;
+	    if (false)
+	       std::cout << "... replacing glyco_tree based on " << residue_spec_t(linked_residues[ires])
+			 << std::endl;
 	    tree<linked_residue_t>  glyco_tree_new = find_ASN_rooted_tree(linked_residues[ires], linked_residues);
 	    if (glyco_tree_new.size() > glyco_tree.size()) {
 	       glyco_tree = glyco_tree_new;
