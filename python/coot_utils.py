@@ -371,6 +371,11 @@ def add_hydrogens_using_refmac_inner(imol, in_file_name, out_file_name):
 #
 post_manipulation_script = False
 
+# similar for the active residue
+# do something based on the active residue (presumably)
+#
+post_set_rotation_centre_script = False
+
 # return a boolean
 #
 def pre_release_qm():
