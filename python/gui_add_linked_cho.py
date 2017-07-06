@@ -87,19 +87,12 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
     set_dragged_refinement_steps_per_frame(current_refinement_rate)
     set_matrix(current_matrix)
 
-# not sure about this one ;-)
-def complex_tree():
-    ret = [["NAG-ASN", "NAG"],
-           [
-               ["BETA1-6", "FUL"],
-               [["BETA1-4", "NAG"],
-                ["BETA1-4", "BMA"],
-                ["ALPHA1-6", "MAN"],
-                ["BETA1-2", "NAG"]
-               ]]]
 
-    return ret
-
+# also "precursor"
+# high mannose was used for human
+# high mannose is now used for human too
+# call this "High Mannose" in the GUI
+# 
 def oligomannose_tree():
     ret = [["NAG-ASN", "NAG"],
            ["BETA1-4", "NAG"],
@@ -108,7 +101,7 @@ def oligomannose_tree():
                ["ALPHA1-6", "MAN"],
                [
                    ["ALPHA1-6", "MAN"],
-                   ["ALPHA1-2", "MAN"]
+                   ["ALPHA1-3", "MAN"]
                    ],
                [
                    ["ALPHA1-3", "MAN"],
@@ -118,11 +111,154 @@ def oligomannose_tree():
            [
                ["ALPHA1-3", "MAN"],
                ["ALPHA1-2", "MAN"],
-               ["ALPHA1-2", "MAN"]
+               ["ALPHA1-2", "MAN"],
+               ["ALPHA1-3", "GLC"],
+               ["ALPHA1-3", "GLC"],
+               ["ALPHA1-2", "GLC"]
                ]
            ]
     return ret
 
+# Hybrid is for any system
+#
+# Plant Hybrid als allows an alpha1-3 FUC
+#
+
+# hybrid mammal
+#
+def hybrid_mammal_tree():
+    ret = [["NAG-ASN", "NAG"],
+           [
+               [["BETA1-4", "NAG"],
+                ["BETA1-4", "BMA"],
+                [
+                    [
+                        ["ALPHA1-6", "MAN"],
+                        [
+                            ["ALPHA1-6", "MAN"],
+                            ["ALPHA1-3", "MAN"]
+                        ]
+                    ],
+                    [
+                        ["ALPHA1-3", "MAN"],
+                        ["BETA1-2", "NAG"],
+                        ["BETA1-4", "GAL"],
+                        [
+                            ["ALPHA2-3, SIA"],
+                            ["ALPHA2-6, SIA"]
+                        ]
+                    ],
+                    ["BETA1-4", "NAG"]
+                ]
+               ],
+               ["ALPHA1-6", "FUC"]
+           ]
+    ]
+    return ret
+
+# hybrid plant
+#
+def hybrid_plant_derived_tree():
+    ret = [["NAG-ASN", "NAG"],
+           [
+               [["BETA1-4", "NAG"],
+                ["BETA1-4", "BMA"],
+                [
+                    [
+                        ["ALPHA1-6", "MAN"],
+                        [
+                            ["ALPHA1-6", "MAN"],
+                            ["ALPHA1-3", "MAN"]
+                        ]
+                    ],
+                    [
+                        ["ALPHA1-3", "MAN"],
+                        ["BETA1-2", "NAG"],
+                        ["BETA1-4", "GAL"],
+                        [
+                            ["ALPHA2-3, SIA"],
+                            ["ALPHA2-6, SIA"]
+                        ]
+                    ],
+                    ["XYP-BMA", "XYP"],
+                    ["BETA1-4", "NAG"]
+                ]
+               ],
+               ["ALPHA1-6", "FUC"]
+               ["ALPHA1-3", "FUC"]
+           ]
+    ]
+    return ret
+
+# complex mammal
+# biantennary mammal
+def complex_mammal_tree():
+    ret = [["NAG-ASN", "NAG"],
+           [
+               [["BETA1-4", "NAG"],
+                ["BETA1-4", "BMA"],
+                [
+                    ["ALPHA1-6", "MAN"],
+                    ["BETA1-2", "NAG"],
+                    ["BETA1-4", "GAL"],
+                    [["ALPHA2-3", "SIA"],
+                     ["ALPHA2-6", "SIA"]
+                    ]
+                    
+                ],
+                [
+                    ["ALPHA1-3", "MAN"],
+                    ["BETA1-2", "NAG"],
+                    ["BETA1-4", "GAL"],
+                    [["ALPHA2-3", "SIA"],
+                     ["ALPHA2-6", "SIA"]
+                    ]
+                ],
+                [
+                    ["BETA1-4", "NAG"]
+                ]
+               ],
+               ["ALPHA1-6", "FUC"]
+           ]
+    ]
+    return ret
+
+# complex plant
+# plant biantennary
+def complex_plant_tree():
+    ret = [["NAG-ASN", "NAG"],
+           [
+               [["BETA1-4", "NAG"],
+                ["BETA1-4", "BMA"],
+                [
+                    ["ALPHA1-6", "MAN"],
+                    ["BETA1-2", "NAG"],
+                    ["BETA1-4", "GAL"],
+                    [["ALPHA2-3", "SIA"],
+                     ["ALPHA2-6", "SIA"]
+                    ]
+                    
+                ],
+                [
+                    ["ALPHA1-3", "MAN"],
+                    ["BETA1-2", "NAG"],
+                    ["BETA1-4", "GAL"],
+                    [["ALPHA2-3", "SIA"],
+                     ["ALPHA2-6", "SIA"]
+                    ]
+                ],
+                [
+                    ["BETA1-4", "NAG"],
+                    ["BETA1-2", "XYP"]  # change link!?
+                ]
+               ],
+               ["ALPHA1-6", "FUC"],
+               ["ALPHA1-3", "FUC"]
+           ]
+    ]
+    return ret
+
+# old
 def paucimannose_tree():
     ret = [["NAG-ASN", "NAG"],
            [  ["ALPHA1-3", "FUC"] ],
@@ -174,9 +310,13 @@ def add_linked_residue_tree(imol, parent, tree):
 
             centre_view_on_residue_centre(parent)
 
-            tree_residues = glyco_tree_residues_py(imol, parent)
-            imol_save = new_molecule_by_residue_specs_py(imol,
-                                                         tree_residues)
+            # tree_residues is empty (excludes single ASN) on startup,
+            # so should add this
+            tree_residues = glyco_tree_residues(imol, parent)
+            if is_just_an_ASN_qm(imol, tree_residues):
+                tree_residues = [parent]
+            imol_save = new_molecule_by_residue_specs(imol,
+                                                      tree_residues)
             # old
 #            active_atom = active_residue_py()
 #            active_residue = active_atom[:4]
@@ -216,6 +356,7 @@ def add_linked_residue_tree(imol, parent, tree):
                                                              preped_new_res_spec)
                     delete_residue_by_spec(imol, preped_new_res_spec)
                     # restore glyco-tree residues from imol_save
+                    write_pdb_file(imol_save, "test_glyco.pdb")
                     replace_fragment(imol, imol_save, "//")
                     return False
 #                    with AutoAccept():
@@ -239,6 +380,25 @@ def add_linked_residue_tree(imol, parent, tree):
                 if isinstance(branch, list):
                     process_tree(parent, branch, proc_func)
 
+    def is_just_an_ASN_qm(imol, glyco_tree):
+        if not isinstance(glyco_tree, list):
+            return False
+        else:
+            if not (len(glyco_tree) == 0):
+                return False
+            else:
+                with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
+                                               aa_ins_code, aa_atom_name, aa_alt_conf, aa_res_spec]:
+                    res_spec = aa_res_spec
+                    rn = residue_name(imol,
+                                      residue_spec2chain_id(res_spec),
+                                      residue_spec2res_no(res_spec),
+                                      residue_spec2ins_code(res_spec))
+                    if not isinstance(rn, str):
+                        return False
+                    else:
+                        return rn == "ASN"
+
     # main line of add_linked_residue_tree
     #
     add_synthetic_pyranose_planes()
@@ -257,16 +417,26 @@ def add_linked_residue_tree(imol, parent, tree):
     except:
         print "BL INFO:: not changing default B for new carb atoms"
 
-    start_pos_view = add_view_here("Glyo Tree Start Pos")
-    process_tree(parent, tree, func)
-    go_to_view_number(start_pos_view, 0)
-    with AutoAccept():
-        with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
-                                       aa_atom_name, aa_alt_conf, aa_res_spec]:
-            refine_residues(aa_imol, glyco_tree_residues(aa_imol, aa_res_spec))
-    # validate build
-    g = glyco_validate()
-    g.auto_delete_residues()
+    # prevent tree building if there is already a partial tree here
+    # (only proceed with the one ASN)
+    #
+    with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
+                                   aa_atom_name, aa_alt_conf, aa_res_spec]:
+        start_tree = glyco_tree_residues(aa_imol, aa_res_spec)
+        print "::::::::::::::::: start-tree:", start_tree
+
+        if not is_just_an_ASN_qm(aa_imol, start_tree):
+            info_dialog("Must start on Single ASN")
+        else:
+            # ok, continue
+            start_pos_view = add_view_here("Glyo Tree Start Pos")
+            process_tree(parent, tree, func)
+            go_to_view_number(start_pos_view, 0)
+            with AutoAccept():
+                refine_residues(aa_imol, glyco_tree_residues(aa_imol, aa_res_spec))
+            # validate build
+            g = glyco_validate()
+            g.auto_delete_residues()
     # reset
     set_default_temperature_factor_for_new_atoms(previous_m)
     set_matrix(current_weight)
@@ -311,7 +481,7 @@ def delete_all_cho():
 #                                   residue_spec2res_no(cho_res_spec), "")
                 delete_residues(aa_imol, delete_cho_ls)
 
-def interacttive_add_cho_dialog():
+def interactive_add_cho_dialog():
 
     add_synthetic_pyranose_planes()
     use_unimodal_pyranose_ring_torsions()
@@ -763,7 +933,7 @@ def add_module_carbohydrate():
             add_simple_coot_menu_menuitem(
                 menu, "N-linked Glycan Addition Dialog...",
                 lambda func:
-                interacttive_add_cho_dialog())
+                interactive_add_cho_dialog())
             
             def add_multi_carbo_link_func(link_list):
                 with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no,
@@ -861,12 +1031,20 @@ def add_module_carbohydrate():
                 lambda func: add_oligo_tree_func(oligomannose_tree()))
 
             add_simple_coot_menu_menuitem(
-                menu, "Add Paucimannose/Hybrid",
-                lambda func: add_oligo_tree_func(paucimannose_tree()))
+                menu, "Add Hybrid (Mammal)",
+                lambda func: add_oligo_tree_func(hybrid_mammal_tree()))
 
             add_simple_coot_menu_menuitem(
-                menu, "Add Complex Tree",
-                lambda func: add_paucimannose_func(complex_tree()))
+                menu, "Add Hybrid (Plant)",
+                lambda func: add_oligo_tree_func(hybrid_plant_derived_tree()))
+
+            add_simple_coot_menu_menuitem(
+                menu, "Add Complex",
+                lambda func: add_oligo_tree_func(complex_mammal_tree()))
+
+            add_simple_coot_menu_menuitem(
+                menu, "Add Complex (Plant)",
+                lambda func: add_oligo_tree_func(complex_plant_tree()))
 
             add_simple_coot_menu_menuitem(
                 menu, "Delete All Carbohydrate",
