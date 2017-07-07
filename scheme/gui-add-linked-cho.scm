@@ -333,7 +333,7 @@
     (if (not (list? glyco-tree))
 	#f
 	(let ((l (length glyco-tree)))
-	  (if (not (= l 0))
+	  (if (not (= l 1))
 	      #f
 	      (using-active-atom
 	       (let ((res-spec aa-res-spec))
@@ -341,6 +341,7 @@
 					 (residue-spec->chain-id res-spec)
 					 (residue-spec->res-no   res-spec)
 					 (residue-spec->ins-code res-spec))))
+		   (format #t "--------- Here with rn: ~s~%" rn)
 		   (if (not (string? rn))
 		       #f
 		       (string=? rn "ASN")))))))))
