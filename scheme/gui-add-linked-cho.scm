@@ -479,7 +479,7 @@
 		  (list "Add an XYP-BMA XYP"
 			(lambda ()
 			  (add-linked-residue-with-extra-restraints-to-active-residue "XYP" "XYP-BMA"))))))
-    (let ((vbox (dialog-box-of-buttons "Add N-linked Glycan" (cons 360 520) buttons "Close")))
+    (let ((vbox (dialog-box-of-buttons "Add N-linked Glycan" (cons 400 560) buttons "Close")))
       (gui-add-linked-cho-dialog-vbox-set-rotation-centre-hook vbox)
       ;; set the callback on the first button
       (let ((children  (gtk-container-children vbox)))
@@ -491,30 +491,36 @@
 				      (lambda ()
 					(gui-add-linked-cho-dialog-vbox-set-rotation-centre-hook vbox)))))))
       ;; add a widget to allow the user to choose the tree type
-      (let* ((hbox-1 (gtk-hbox-new #f 2))
-	     (hbox-2 (gtk-hbox-new #f 2))
-	     (butt-1 (gtk-radio-button-new-with-label #f "Oligomannose"))
-	     (butt-2 (gtk-radio-button-new-with-label butt-1 "Hybrid"))
-	     (butt-3 (gtk-radio-button-new-with-label butt-1 "Complex"))
-	     (butt-4 (gtk-radio-button-new-with-label butt-1 "Expert Mode")))
-
-	(gtk-box-pack-start hbox-1 butt-1 #f #f 2)
-	(gtk-box-pack-start hbox-1 butt-2 #f #f 2)
-	(gtk-box-pack-start hbox-2 butt-3 #f #f 2)
-	(gtk-box-pack-start hbox-2 butt-4 #f #f 2)
+      (let* ((hbox-1 (gtk-hbox-new #t 2))
+	     (hbox-2 (gtk-hbox-new #t 2))
+	     (table (gtk-table-new 3 2 #f))
+	     (butt-1 (gtk-radio-button-new-with-label #f     "High Mannose"))
+	     (butt-2 (gtk-radio-button-new-with-label butt-1 "Hybrid (Mammal)"))
+	     (butt-3 (gtk-radio-button-new-with-label butt-1 "Hybrid (Plant)"))
+	     (butt-4 (gtk-radio-button-new-with-label butt-1 "Complex (Mammal)"))
+	     (butt-5 (gtk-radio-button-new-with-label butt-1 "Complex (Plant) "))
+	     (butt-6 (gtk-radio-button-new-with-label butt-1 "Expert User Mode")))
 
 	(gtk-widget-show butt-1)
 	(gtk-widget-show butt-2)
 	(gtk-widget-show butt-3)
 	(gtk-widget-show butt-4)
-	(gtk-widget-show hbox-1)
-	(gtk-widget-show hbox-2)
-	(gtk-box-pack-start vbox hbox-1 #f #f 2)
-	(gtk-box-pack-start vbox hbox-2 #f #f 2)
-	(gtk-box-set-homogeneous hbox-1 #t)
-	(gtk-box-set-homogeneous hbox-2 #t)
-	(gtk-box-reorder-child vbox hbox-1 0)
-	(gtk-box-reorder-child vbox hbox-2 1)
+	(gtk-widget-show butt-5)
+	(gtk-widget-show butt-6)
+
+; table
+
+	;; add buttons for nice(?) layout/order
+	(gtk-table-attach table butt-1 0 1 0 1 '(expand fill) '(expand fill) 0 0)
+	(gtk-table-attach table butt-2 1 2 0 1 '(expand fill) '(expand fill) 0 0)
+	(gtk-table-attach table butt-4 2 3 0 1 '(expand fill) '(expand fill) 0 0)
+	(gtk-table-attach table butt-6 0 1 1 2 '(expand fill) '(expand fill) 0 0)
+	(gtk-table-attach table butt-3 1 2 1 2 '(expand fill) '(expand fill) 0 0)
+	(gtk-table-attach table butt-5 2 3 1 2 '(expand fill) '(expand fill) 0 0)
+
+	(gtk-box-pack-start vbox table #t #t 2)
+	(gtk-widget-show table)
+	(gtk-box-reorder-child vbox table 0)
 
 	(for-each (lambda (butt)
 		    (gtk-signal-connect butt "toggled"
