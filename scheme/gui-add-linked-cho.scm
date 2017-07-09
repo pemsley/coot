@@ -757,7 +757,7 @@
 ;	   (set-add-linked-residue-do-fit-and-refine 0)))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Add Oligomannose"
+	 menu "Add High Mannose"
 	 (lambda ()
 	   (using-active-atom
 	    (make-backup aa-imol)
@@ -787,7 +787,7 @@
 				     hybrid-plant-derived-tree))))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Add Complex"
+	 menu "Add Complex (Mammal)"
 	 (lambda ()
 	   (using-active-atom
 	    (make-backup aa-imol)
