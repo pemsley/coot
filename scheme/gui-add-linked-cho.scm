@@ -771,7 +771,7 @@
 			(if (string=? residue-type "NAG")
 			    (set! active-button-label-list (list "Add a BETA1-4 GAL"))))
 
-		    (if (= level-number 5)
+		    (if (= level-number 6)
 			(if (string=? residue-type "GAL")
 			    (set! active-button-label-list (list "Add an ALPHA2-3 SIA"
 								 "Add an ALPHA2-6 SIA"
@@ -814,7 +814,7 @@
 			(if (string=? residue-type "NAG")
 			    (set! active-button-label-list (list "Add a BETA1-4 GAL"))))
 
-		    (if (= level-number 5)
+		    (if (= level-number 6)
 			(if (string=? residue-type "GAL")
 			    (set! active-button-label-list (list "Add an ALPHA2-3 SIA"
 								 "Add an ALPHA2-6 SIA"))))
