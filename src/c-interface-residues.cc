@@ -328,6 +328,10 @@ SCM glyco_tree_residues_scm(int imol, SCM active_residue_scm) {
 
 #include "cc-interface.hh" // needed?
 
+// need python version of this and glyco_tree_compare_trees_scm and
+// glyco_tree_matched_residue_pairs_scm (although those are only
+// useful for the results for the paper).
+//
 #ifdef USE_GUILE
 SCM glyco_tree_residue_id_scm(int imol, SCM residue_spec_scm) {
 
@@ -344,10 +348,18 @@ SCM glyco_tree_residue_id_scm(int imol, SCM residue_spec_scm) {
 	 g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
       coot::glyco_tree_t t(residue_p, mol, g.Geom_p());
       coot::glyco_tree_t::residue_id_t id = t.get_id(residue_p);
+      std::cout << "got id " << id.level << " " << id.prime_arm_flag << " "
+		<< id.res_type << std::endl;
       if (! id.res_type.empty()) {
 	 SCM parent_spec_scm = residue_spec_to_scm(id.parent_res_spec);
+	 SCM prime_flag_sym = scm_str2symbol("unset");
+	 if (id.prime_arm_flag == coot::glyco_tree_t::residue_id_t::PRIME)
+	    prime_flag_sym = scm_str2symbol("prime");
+	 if (id.prime_arm_flag == coot::glyco_tree_t::residue_id_t::NON_PRIME)
+	    prime_flag_sym = scm_str2symbol("non-prime");
 
-	 r = SCM_LIST5(SCM_MAKINUM(id.level),
+	 r = SCM_LIST6(SCM_MAKINUM(id.level),
+		       prime_flag_sym,
 		       scm_from_locale_string(id.res_type.c_str()),
 		       scm_from_locale_string(id.link_type.c_str()),
 		       scm_from_locale_string(id.parent_res_type.c_str()),
