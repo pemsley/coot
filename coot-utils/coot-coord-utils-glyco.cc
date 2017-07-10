@@ -985,7 +985,8 @@ coot::glyco_tree_t::get_prime(mmdb::Residue *residue_p) const {
 
    // a prime is a residue connected via a a-3 link to the BMA.
 
-   coot::glyco_tree_t::residue_id_t::prime_arm_flag_t arm(residue_id_t::prime_arm_flag_t::UNSET);
+   // scoped enums mean removal of prime_arm_flag_t (maybe fixed in C++11?)
+   residue_id_t::prime_arm_flag_t arm = residue_id_t::UNSET;
 
    int level      = -1; // unset
    int arm_level  = -1; // unset
@@ -1008,9 +1009,9 @@ coot::glyco_tree_t::get_prime(mmdb::Residue *residue_p) const {
 		  std::cout << "found a BMA parent with link_type " << this_one->link_type
 			    << std::endl;
 		  if (this_one->link_type == "ALPHA1-3")
-		     arm = residue_id_t::prime_arm_flag_t::NON_PRIME;
+		     arm = residue_id_t::NON_PRIME;
 		  if (this_one->link_type == "ALPHA1-6")
-		     arm = residue_id_t::prime_arm_flag_t::PRIME;
+		     arm = residue_id_t::PRIME;
 	       }
 	       this_one = this_one.node->parent;
 	       level++;
