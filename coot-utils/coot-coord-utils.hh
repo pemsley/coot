@@ -1006,7 +1006,7 @@ namespace coot {
 
       // We don't mess with the chain ids (give as we get), but also
       // return the handle for the atom index transfer.
-      std::pair<mmdb::Manager *, int> create_mmdbmanager_from_mmdbmanager(mmdb::Manager *);
+      std::pair<mmdb::Manager *, int> create_mmdbmanager_from_mmdbmanager(mmdb::Manager *mol);
 
 
       // we pass the mol_old so that selected header info can be transfered also
@@ -1092,6 +1092,9 @@ namespace coot {
       // deleted by calling process
       std::pair<mmdb::Manager *, std::vector<residue_spec_t> > 
       get_fragment_from_atom_spec(const atom_spec_t &atom_spec, mmdb::Manager *mol);
+
+      // return true if something was removed from header info
+      bool delete_residue_references_in_header_info(mmdb::Residue *residue_p, mmdb::Manager *mol);
 
       // transform the atoms in mol that are in moving_chain
       // it seems (for some reason) that atom::Transform(mat) now needs a (non-const)

@@ -1339,7 +1339,7 @@ coot::get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
 	       if (residue_ligand_chain_id == link->chainID1) {
 		  if (residue_ligand_res_no == link->seqNum1) {
 		     if (residue_ligand_ins_code == link->insCode1) {
-			std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link);
+			std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link, model_p);
 			mmdb::Atom *at_1 = coot::util::get_atom(linked_atoms.first,  mol);
 			mmdb::Atom *at_2 = coot::util::get_atom(linked_atoms.second, mol);
 			if (at_1 && at_2) { 
@@ -1357,7 +1357,7 @@ coot::get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
 	       if (residue_ligand_chain_id == link->chainID2) {
 		  if (residue_ligand_res_no == link->seqNum2) {
 		     if (residue_ligand_ins_code == link->insCode2) {
-			std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link);
+			std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link, model_p);
 			mmdb::Atom *at_1 = coot::util::get_atom(linked_atoms.first,  mol);
 			mmdb::Atom *at_2 = coot::util::get_atom(linked_atoms.second, mol);
 			if (at_1 && at_2) { 

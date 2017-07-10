@@ -2970,7 +2970,7 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
 	 if (n_links > 0) {
 	    for (int i_link=1; i_link<=n_links; i_link++) {
 	       mmdb::Link *link = mol_old_model_p->GetLink(i_link);
-	       std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link);
+	       std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link, mol_old_model_p);
 	       // are those atoms in (new) mol?
 	       mmdb::Atom *at_1 = get_atom(linked_atoms.first,  mol);
 	       mmdb::Atom *at_2 = get_atom(linked_atoms.second, mol);
@@ -3077,6 +3077,54 @@ coot::util::chain_id_residue_vec_helper_t::residues_sort_func(mmdb::Residue *fir
    }
    return false; // not reached.
 }
+
+// return true if something was removed from header info
+//
+ bool
+    coot::util::delete_residue_references_in_header_info(mmdb::Residue *residue_p, mmdb::Manager *mol) {
+
+    bool was_deleted = false;
+    if (residue_p) {
+       residue_spec_t residue_for_deletion_spec(residue_p);
+
+       // ----------------------------------------------------------------------------------
+       //                             Links
+       // ----------------------------------------------------------------------------------
+
+       for (int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+	  mmdb::Model *model_p = mol->GetModel(imod);
+	  if (model_p) {
+	     std::vector<mmdb::Link *> saved_links;
+	     unsigned int n_links = model_p->GetNumberOfLinks();
+	     for (unsigned int ilink=1; ilink<=n_links; ilink++) {
+		mmdb::Link *link = model_p->GetLink(ilink);
+		std::pair<atom_spec_t, atom_spec_t> la = link_atoms(link, model_p);
+		residue_spec_t r1(la.first);
+		residue_spec_t r2(la.second);
+		if (r1 == residue_for_deletion_spec)
+		   continue;
+		if (r2 == residue_for_deletion_spec)
+		   continue;
+		mmdb::Link *link_copy = new mmdb::Link(*link);
+		saved_links.push_back(link_copy);
+	     }
+	     if (saved_links.size() < n_links) {
+		was_deleted = true;
+		model_p->RemoveLinks();
+		for (unsigned int i=0; i<saved_links.size(); i++)
+		   model_p->AddLink(saved_links[i]);
+	     }
+	  }
+       }
+
+       // ------------------------------------------------------------------------------------
+       //                Others :-) CisPeps, HetCompounds, (Helix, Strand, Turn)
+       // ------------------------------------------------------------------------------------
+
+    }
+    return was_deleted;
+ }
+
 
 
 bool
@@ -4429,17 +4477,6 @@ coot::lsq_plane_info_t::lsq_plane_info_t(const std::vector<clipper::Coord_orth> 
    if (v.size() > 0)
       rms = sqrt(var/double(v.size()));
 
-}
-
-// the header for this is (in) residue-and-atom-specs.hh.  Hmm... should be fixed.
-//
-std::pair<coot::atom_spec_t, coot::atom_spec_t>
-coot::link_atoms(mmdb::Link *link) {
-
-   atom_spec_t a1(link->chainID1, link->seqNum1, link->insCode1, link->atName1, link->aloc1);
-   atom_spec_t a2(link->chainID2, link->seqNum2, link->insCode2, link->atName2, link->aloc2);
-
-   return std::pair<coot::atom_spec_t, coot::atom_spec_t> (a1, a2);
 }
 
 
@@ -6314,7 +6351,7 @@ coot::util::correct_link_distances(mmdb::Manager *mol) {
 	 if (n_links > 0) { 
 	    for (int i_link=1; i_link<=n_links; i_link++) {
 	       mmdb::Link *link = model_p->GetLink(i_link);
-	       std::pair<atom_spec_t, atom_spec_t> lp = link_atoms(link);
+	       std::pair<atom_spec_t, atom_spec_t> lp = link_atoms(link, model_p);
 	       mmdb::Atom *at_1 = get_atom(lp.first,  mol);
 	       mmdb::Atom *at_2 = get_atom(lp.second, mol);
 	       if (at_1) {

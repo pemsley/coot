@@ -2072,7 +2072,7 @@ coot::atom_overlaps_container_t::is_linked(mmdb::Atom *at_1,
    if (n_links > 0) {
       for (int i_link=1; i_link<=n_links; i_link++) {
 	 mmdb::PLink link = model_p->GetLink(i_link);
-	 std::pair<atom_spec_t, atom_spec_t> atoms = link_atoms(link);
+	 std::pair<atom_spec_t, atom_spec_t> atoms = link_atoms(link, model_p);
 	 atom_spec_t spec_1(at_1);
 	 atom_spec_t spec_2(at_2);
 	 if (spec_1 == atoms.first) {

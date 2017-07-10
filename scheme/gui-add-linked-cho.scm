@@ -138,7 +138,7 @@
 
 ;; Hybrid is for any system
 ;;
-;; Plant Hybrid als allows an alpha1-3 FUC
+;; Plant Hybrid also allows an alpha1-3 FUC
 ;;
 
 ;; hybrid mammal
@@ -161,39 +161,39 @@
 ;; hybrid plant
 ;;
 (define hybrid-plant-derived-tree  '(("NAG-ASN" . "NAG")
-			      (("BETA1-4" . "NAG")
-			       (("BETA1-4" . "BMA")
-				(("ALPHA1-6" . "MAN")
-				 (("ALPHA1-6" . "MAN"))
-				 (("ALPHA1-3" . "MAN")))
-				(("ALPHA1-3" . "MAN")
-				 (("BETA1-2" . "NAG")
-				  (("BETA1-4" . "GAL")
-				   (("ALPHA2-3" . "SIA"))
-				   (("ALPHA2-6" . "SIA")))))
-				(("XYP-BMA"  . "XYP"))
-				(("BETA1-4" "NAG"))))
-			      ("ALPHA1-6" . "FUC")
-			      ("ALPHA1-3" . "FUC")))
+				     (("BETA1-4" . "NAG")
+				      (("BETA1-4" . "BMA")
+				       (("ALPHA1-6" . "MAN")
+					(("ALPHA1-6" . "MAN"))
+					(("ALPHA1-3" . "MAN")))
+				       (("ALPHA1-3" . "MAN")
+					(("BETA1-2" . "NAG")
+					 (("BETA1-4" . "GAL")
+					  (("ALPHA2-3" . "SIA"))
+					  (("ALPHA2-6" . "SIA")))))
+				       (("XYP-BMA"  . "XYP"))
+				       (("BETA1-4" "NAG"))))
+				     ("ALPHA1-6" . "FUC")
+				     ("ALPHA1-3" . "FUC")))
 
 
 ;; complex mammal
 ;; bianntennary mammal
 (define complex-mammal-tree  '(("NAG-ASN" . "NAG")
 			       (("BETA1-4" . "NAG")
-			      (("BETA1-4" . "BMA")
-			       (("ALPHA1-6" . "MAN")
-				(("BETA1-2" . "NAG")
-				 (("BETA1-4" . "GAL")
-				  (("ALPHA2-3" . "SIA"))
-				  (("ALPHA2-6" . "SIA")))))
-			       (("ALPHA1-3" . "MAN")
-				(("BETA1-2" . "NAG")
-				 (("BETA1-4" . "GAL")
-				  (("ALPHA2-3" . "SIA"))
-				  (("ALPHA2-6" . "SIA")))))
-			       (("BETA1-4" "NAG"))))
-			     ("ALPHA1-6" . "FUC")))
+				(("BETA1-4" . "BMA")
+				 (("ALPHA1-6" . "MAN")
+				  (("BETA1-2" . "NAG")
+				   (("BETA1-4" . "GAL")
+				    (("ALPHA2-3" . "SIA"))
+				    (("ALPHA2-6" . "SIA")))))
+				 (("ALPHA1-3" . "MAN")
+				  (("BETA1-2" . "NAG")
+				   (("BETA1-4" . "GAL")
+				    (("ALPHA2-3" . "SIA"))
+				    (("ALPHA2-6" . "SIA")))))
+				 (("BETA1-4" "NAG"))))
+			       ("ALPHA1-6" . "FUC")))
 
 
 ;; complex plant
@@ -212,7 +212,7 @@
 				   (("ALPHA2-3" . "SIA"))
 				   (("ALPHA2-6" . "SIA")))))
 				(("BETA1-4" "NAG"))
-				(("BETA1-2" "XYP")))) ;; change the link
+				(("XYP-BMA" "XYP"))))
 			      (("ALPHA1-6" . "FUC"))
 			      (("ALPHA1-3" . "FUC"))))
 
@@ -479,8 +479,16 @@
 			  (add-linked-residue-with-extra-restraints-to-active-residue "FUL" "BETA1-6")))
 		  (list "Add an XYP-BMA XYP"
 			(lambda ()
-			  (add-linked-residue-with-extra-restraints-to-active-residue "XYP" "XYP-BMA"))))))
-    (let ((vbox (dialog-box-of-buttons "Add N-linked Glycan" (cons 400 560) buttons "Close")))
+			  (add-linked-residue-with-extra-restraints-to-active-residue "XYP" "XYP-BMA")))
+		  (list "Add an ALPHA2-3 SIA"
+			(lambda ()
+			  (add-linked-residue-with-extra-restraints-to-active-residue "SIA" "ALPHA2-3"))) ;; do these work?
+		  (list "Add an ALPHA2-6 SIA"
+			(lambda ()
+			  (add-linked-residue-with-extra-restraints-to-active-residue "SIA" "ALPHA2-6")))
+		  )))
+
+    (let ((vbox (dialog-box-of-buttons "Add N-linked Glycan" (cons 400 580) buttons "Close")))
       (gui-add-linked-cho-dialog-vbox-set-rotation-centre-hook vbox)
       ;; set the callback on the first button
       (let ((children  (gtk-container-children vbox)))
@@ -527,7 +535,7 @@
 		    (gtk-signal-connect butt "toggled"
 					(lambda ()
 					  (gui-add-linked-cho-dialog-vbox-set-rotation-centre-hook vbox))))
-		  (list butt-1 butt-2 butt-3 butt-4)))
+		  (list butt-1 butt-2 butt-3 butt-4 butt-5 butt-6)))
 
       ;; global var post-set-rotation-centre-hook
       (set! post-set-rotation-centre-hook
@@ -567,9 +575,14 @@
 	      (residue-spec        (glyco-id->residue-spec        glyco-id)))
 	    (let ((active-button-label-list '()))
 
-	      (if (eq? tree-type 'expert-mode)
-		  (set! active-button-label-list 'expert-mode))
+	      (if (eq? tree-type 'expert-user-mode)
+		  (set! active-button-label-list 'expert-user-mode))
 
+	      ;; ------------------------------------------------------------------------------------
+	      ;; Note the trees tested here match those from (get-tree-type) which examines the button
+	      ;; label of the active radio button in the dialog (these are not the auto-build trees)
+	      ;; ------------------------------------------------------------------------------------
+	      ;;
 	      (if (eq? tree-type 'oligomannose)
 
 		  (begin
@@ -623,8 +636,55 @@
 			      (if (string=? link-type "ALPHA1-2")
 				  (set! active-button-label-list (list "Add an ALPHA1-2 GLC"))))))))
 
-	      ;; hybrid
-	      (if (eq? tree-type 'hybrid)
+	      ;; hybrid mammal
+	      (if (eq? tree-type 'hybrid-mammal)
+
+		  (begin
+
+		    (if (= level-number 0)
+			(if (string=? residue-type "ASN")
+			    (set! active-button-label-list (list "Add a NAG-ASN NAG"))))
+
+		    (if (= level-number 1)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 NAG"
+								 "Add an ALPHA1-3 FUC"))))
+
+		    (if (= level-number 2)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 BMA"))))
+
+		    (if (= level-number 2)
+			(if (string=? residue-type "FUC")
+			    (set! active-button-label-list (list "Add a BETA1-4 GAL"))))
+
+		    (if (= level-number 3)
+			(if (string=? residue-type "BMA")
+			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
+								 "Add an ALPHA1-6 MAN"))))
+
+		    (if (= level-number 3)
+			(if (string=? residue-type "GAL")
+			    (set! active-button-label-list (list "Add an ALPHA1-2 FUC"))))
+
+		    (if (= level-number 4)
+			(if (string=? residue-type "MAN")
+			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
+								 "Add an ALPHA1-6 MAN"))))
+
+		    (if (= level-number 5)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 GAL"))))
+
+		    (if (= level-number 5)
+			(if (string=? residue-type "GAL")
+			    (set! active-button-label-list (list "Add an ALPHA2-3 SIA"
+								 "Add an ALPHA2-6 SIA"
+								 ))))
+		    ))
+
+	      ;; hybrid plant
+	      (if (eq? tree-type 'hybrid-plant)
 
 		  (begin
 
@@ -655,15 +715,29 @@
 			(if (string=? residue-type "GAL")
 			    (set! active-button-label-list (list "Add an ALPHA1-2 FUC"))))
 
+		    ;; note that level-number is not enough for complete disambiguation,
+		    ;; we need to know we are 4 or 4' (Vliegenthart et al 1983 nomenclature).
+		    ;;
 		    (if (= level-number 4)
 			(if (string=? residue-type "MAN")
 			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
-								 "Add an ALPHA1-6 MAN"))))
+								 "Add an ALPHA1-6 MAN"
+								 "Add a BETA1-2 NAG"))))
+
+		    (if (= level-number 5)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 GAL"))))
+
+		    (if (= level-number 5)
+			(if (string=? residue-type "GAL")
+			    (set! active-button-label-list (list "Add an ALPHA2-3 SIA"
+								 "Add an ALPHA2-6 SIA"
+								 ))))
 		    ))
 
-	      ;; complex
+	      ;; complex-mammal
 	      ;;
-	      (if (eq? tree-type 'complex)
+	      (if (eq? tree-type 'complex-mammal)
 
 		  (begin
 		    (if (= level-number 0)
@@ -682,9 +756,69 @@
 			(if (string=? residue-type "BMA")
 			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
 								 "Add an ALPHA1-6 MAN"
-								 "Add an XYP-BMA XYP"))))))
+								 "Add a BETA1-4 NAG"))))
+
+		    ;; note that level-number is not enough for complete disambiguation, 
+		    ;; we need to know we are 4 or 4' (Vl...? nomenclature).
+		    ;;
+		    (if (= level-number 4)
+			(if (string=? residue-type "MAN")
+			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
+								 "Add an ALPHA1-6 MAN"
+								 "Add a BETA1-2 NAG"))))
+
+		    (if (= level-number 5)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 GAL"))))
+
+		    (if (= level-number 5)
+			(if (string=? residue-type "GAL")
+			    (set! active-button-label-list (list "Add an ALPHA2-3 SIA"
+								 "Add an ALPHA2-6 SIA"
+								 ))))
+		    ))
 
 
+	      ;; complex-plant
+	      ;;
+	      (if (eq? tree-type 'complex-plant)
+
+		  (begin
+		    (if (= level-number 0)
+			(if (string=? residue-type "ASN")
+			    (set! active-button-label-list (list "Add a NAG-ASN NAG"))))
+
+		    (if (= level-number 1)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 NAG"
+								 "Add an ALPHA1-3 FUC"
+								 "Add an ALPHA1-6 FUC"))))
+		    (if (= level-number 2)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 BMA"))))
+
+		    (if (= level-number 3)
+			(if (string=? residue-type "BMA")
+			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
+								 "Add an ALPHA1-6 MAN"
+								 "Add an XYP-BMA XYP"
+								 "Add an BETA1-4 NAG"))))
+
+		    (if (= level-number 4)
+			(if (string=? residue-type "MAN")
+			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
+								 "Add an ALPHA1-6 MAN"
+								 "Add a BETA1-2 NAG"))))
+
+		    (if (= level-number 5)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 GAL"))))
+
+		    (if (= level-number 5)
+			(if (string=? residue-type "GAL")
+			    (set! active-button-label-list (list "Add an ALPHA2-3 SIA"
+								 "Add an ALPHA2-6 SIA"))))
+		    ))
 	      active-button-label-list))))
 
   ;; main line
@@ -700,30 +834,40 @@
 	  (if (not (string=? l "Update for Current Residue"))
 	      (gtk-widget-set-sensitive button (string-member? l active-button-label-list)))))))
 
-;; return a value
+
+;; vbox is the vbox of the dialog box of buttons. One of the children of the vbox
+;; is the table that contains the buttons
+;;
 (define (gui-add-linked-cho-dialog-vbox-set-rotation-centre-hook vbox)
 
   (define (get-tree-type)
     (let ((tree-type 'oligomannose))
       (let ((children (gtk-container-children vbox)))
 	(for-each (lambda (child)
-		    (if (gtk-box? child)
+		    (if (gtk-table? child)
 			(begin
-			  (for-each (lambda (box-child)
-				      (if (gtk-radio-button? box-child)
-					  (if (gtk-toggle-button-get-active box-child)
-					      (let ((l (gtk-button-get-label box-child)))
-						(if (string=? l "Oligomannose") (set! tree-type 'oligomannose))
-						(if (string=? l "Hybrid")       (set! tree-type 'hybrid))
-						(if (string=? l "Expert Mode")  (set! tree-type 'expert-mode))
-						(if (string=? l "Complex")      (set! tree-type 'complex))))))
+			  (for-each (lambda (table-child)
+				      (if (gtk-radio-button? table-child)
+					  (if (gtk-toggle-button-get-active table-child)
+					      (let ((l (gtk-button-get-label table-child)))
+						;; this is a bit ugly because we are testing that these strings
+						;; match button labels (set in interactive-add-cho-dialog)
+						(if (string=? l "High Mannose") (set! tree-type 'oligomannose))
+						(if (string=? l "Hybrid (Mammal)")  (set! tree-type 'hybrid-mammal))
+						(if (string=? l "Hybrid (Plant)")   (set! tree-type 'hybrid-plant))
+						(if (string=? l "Expert User Mode") (set! tree-type 'expert-user-mode))
+						(if (string=? l "Complex (Mammal)") (set! tree-type 'complex-mammal))
+						(if (string=? l "Complex (Plant)")  (set! tree-type 'complex-plant))
+						))))
 				    (gtk-container-children child)))))
 		  children)
 	tree-type)))
 
   (using-active-atom
    (let ((glyco-id (glyco-tree-residue-id aa-imol aa-res-spec)))
-     ;; (format #t "glyco-id (first): ~s~%" glyco-id)
+     
+     ;; debug
+     ;; (format #t "gui-add-linked-cho-dialog-vbox-set-rotation-centre-hook: glyco-id: ~s~%" glyco-id)
      ;; if it was an ASP create a level-0 glyco-id for that (glyco-tree-residue-id doesn't
      ;; do that (not sure why)).
      (if (not glyco-id)
@@ -731,7 +875,6 @@
 	   (if (string? rn)
 	       (if (string=? rn "ASN")
 		   (set! glyco-id (list 0 'unset "ASN" "" "" aa-res-spec))))))
-     ;; (format #t "glyco-id (second): ~s~%" glyco-id)
      (if (list? glyco-id)
 	 (let ((tree-type (get-tree-type)))
 	   (let ((children (gtk-container-children vbox)))

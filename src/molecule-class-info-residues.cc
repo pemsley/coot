@@ -1252,7 +1252,7 @@ molecule_class_info_t::add_linked_residue_by_atom_torsions(const coot::residue_s
 	 std::pair<bool, mmdb::Residue *> status_pair = add_residue(result, spec_in.chain_id);
 	 if (status_pair.first) {
 	    new_residue_spec = coot::residue_spec_t(status_pair.second);
-	    coot::dict_link_info_t link_info(residue_ref, status_pair.second, link_type, *geom_p);
+	    coot::dict_link_info_t link_info(residue_ref, status_pair.second, link_type, *geom_p); // exception caught
 	    make_link(link_info.spec_ref, link_info.spec_new, link_type, link_info.dist, *geom_p);
 	 }
       } 
@@ -1303,7 +1303,7 @@ coot::dict_link_info_t::dict_link_info_t(mmdb::Residue *residue_ref,
 	    if (order_switch_flag) { 
 	       std::swap(res_1, res_2);
 	    }
-	    
+
 	    // we found it (i.e. not null object)
 	    coot::residue_spec_t res_spec_ref(res_1);
 	    coot::residue_spec_t res_spec_new(res_2);
@@ -1330,6 +1330,7 @@ coot::dict_link_info_t::dict_link_info_t(mmdb::Residue *residue_ref,
 							res_spec_new.res_no,
 							res_spec_new.ins_code,
 							atom_name_2, "");
+
 			   dist = coot::distance(residue_atoms_1[iat1],
 						 residue_atoms_2[iat2]);
 			   break;

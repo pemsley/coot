@@ -1347,15 +1347,14 @@ short int
 molecule_class_info_t::delete_residues(const std::vector<coot::residue_spec_t> &specs) {
 
    bool something_deleted = false;
+   mmdb::Manager *mol = atom_sel.mol;
    for (unsigned int i=0; i<specs.size(); i++) {
       const coot::residue_spec_t &spec = specs[i];
       mmdb::Residue *residue_p = get_residue(spec);
       if (residue_p) {
 	 mmdb::Chain *chain_p = residue_p->GetChain();
 	 if (chain_p) {
-	    // int res_no = residue_p->GetSeqNum();
-	    // const InsCode ins_code = residue_p->GetInsCode();
-	    // chain_p->DeleteResidue(res_no, ins_code);
+	    bool a_link_was_deleted = coot::util::delete_residue_references_in_header_info(residue_p, mol);
 	    delete residue_p;
 	    something_deleted = true;
 	 }

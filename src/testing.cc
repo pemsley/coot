@@ -451,7 +451,7 @@ int test_output_link_distances_are_correct() {
 		     status = 1; // all OK so far
 		     for (int i_link=1; i_link<=n_links; i_link++) {
 			mmdb::Link *link = model_p->GetLink(i_link);
-			std::pair<coot::atom_spec_t, coot::atom_spec_t> lp = coot::link_atoms(link);
+			std::pair<coot::atom_spec_t, coot::atom_spec_t> lp = coot::link_atoms(link, model_p);
 			mmdb::Atom *at_1 = coot::util::get_atom(lp.first,  atom_sel.mol);
 			mmdb::Atom *at_2 = coot::util::get_atom(lp.second, atom_sel.mol);
 			if (at_1) {
