@@ -7747,6 +7747,7 @@ http://rdkit.org/docs_temp/Chem/Fragments.m.html
 Sat  1 Jul 2017 18:27:09 BST
 
    Makefile variables $@ $^ $<
+   $@ -> target,      $^ -> all dependences,   $< -> first dependency
 
    https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html
 
@@ -7758,5 +7759,13 @@ Mon Jun 19 19:46:51 BST 2017
    can you use that with add-terminal-residue-using-phi-psi to make an
    extended polypetide strand?
 
+----
+Sun  9 Jul 2017 00:52:16 BST
+
+open drug discovery toolkit - what does it do?
+
+https://iwatobipen.wordpress.com/2017/06/04/open-drug-discovery-toolkit-for-python/
+
+http://www.blopig.com/blog/2016/11/how-to-calculate-plifs-using-rdkit-and-plip/
 
 ---

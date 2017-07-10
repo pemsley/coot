@@ -537,15 +537,34 @@
 ;;
 (define (glyco-tree-dialog-set-button-active-state button glyco-id tree-type)
 
+  (define (glyco-id->level-number glyco-id)
+    (list-ref glyco-id 0))
+
+  (define (glyco-id->prime-arm-sym glyco-id)
+    (list-ref glyco-id 1))
+
+  (define (glyco-id->residue-type glyco-id)
+    (list-ref glyco-id 2))
+
+  (define (glyco-id->link-type glyco-id)
+    (list-ref glyco-id 3))
+
+  (define (glyco-id->parent-residue-type glyco-id)
+    (list-ref glyco-id 4))
+
+  (define (glyco-id->residue-spec glyco-id)
+    (list-ref glyco-id 5))
+
   (define (get-sensitive-button-list glyco-id tree-type)
 
     (if (not (list? glyco-id))
 	'()
-	(let ((level-number        (list-ref glyco-id 0))
-	      (residue-type        (list-ref glyco-id 1))
-	      (link-type           (list-ref glyco-id 2))
-	      (parent-residue-type (list-ref glyco-id 3))
-	      (residue-spec        (list-ref glyco-id 4)))
+	(let ((level-number        (glyco-id->level-number        glyco-id))
+	      (prime-arm-sym       (glyco-id->prime-arm-sym       glyco-id))
+	      (residue-type        (glyco-id->residue-type        glyco-id))
+	      (link-type           (glyco-id->link-type           glyco-id))
+	      (parent-residue-type (glyco-id->parent-residue-type glyco-id))
+	      (residue-spec        (glyco-id->residue-spec        glyco-id)))
 	    (let ((active-button-label-list '()))
 
 	      (if (eq? tree-type 'expert-mode)
@@ -670,7 +689,9 @@
 
   ;; main line
   ;;
-  ;; (format #t "here in glyco-tree-dialog-set-button-active-state ~s ~s ~s ~%" button glyco-id tree-type)
+  ;; (format #t "here in glyco-tree-dialog-set-button-active-state ~s ~s ~s ~%"
+  ;;        button glyco-id tree-type)
+  ;;
   (let ((l (gtk-button-get-label button)))
     (let ((active-button-label-list (get-sensitive-button-list glyco-id tree-type)))
       ;; (format #t "active-button-label-list: ~s~%" active-button-label-list)
@@ -709,7 +730,7 @@
 	 (let ((rn (residue-name aa-imol aa-chain-id aa-res-no aa-ins-code)))
 	   (if (string? rn)
 	       (if (string=? rn "ASN")
-		   (set! glyco-id (list 0 "ASN" "" "" aa-res-spec))))))
+		   (set! glyco-id (list 0 'unset "ASN" "" "" aa-res-spec))))))
      ;; (format #t "glyco-id (second): ~s~%" glyco-id)
      (if (list? glyco-id)
 	 (let ((tree-type (get-tree-type)))
@@ -763,7 +784,7 @@
 ;	   (set-add-linked-residue-do-fit-and-refine 0)))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Add Oligomannose"
+	 menu "Add High Mannose"
 	 (lambda ()
 	   (using-active-atom
 	    (make-backup aa-imol)
@@ -793,7 +814,7 @@
 				     hybrid-plant-derived-tree))))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Add Complex"
+	 menu "Add Complex (Mammal)"
 	 (lambda ()
 	   (using-active-atom
 	    (make-backup aa-imol)
