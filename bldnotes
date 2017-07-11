@@ -112,6 +112,11 @@ scripting exercise
 
 **** General ****
 
+   o allow export of goograph points (and/or draw these separately after
+	passing of parameters)
+
+   o revisit (re)move TER when adding a C-terminal residue
+
    o revisit anti-aliasing. Seems we need to antialias before drawing map 
 	and lines and not in general, I think.
 
@@ -551,6 +556,8 @@ low importance
 
 **** Windows ****
 
+   o write a log to file (and maybe error too).
+
    o pass args from msi to exe
 
    o make real msi at some point
@@ -595,8 +602,6 @@ low importance
    o use CCP4s lib dir rather than REF_DIR!?
 
    o ccp4 project dir not showing up (with new gtk2 chooser)
-
-   o new gtk/gtkglext disappears with Dexpot
 
    o pop up dialog if disk space is limited!!
 
@@ -1145,3 +1150,7 @@ Osaka 2010
    o fix probe/reduce from ccp4 
 
 * Done 
+
+   o new gtk/gtkglext disappears with Dexpot
+
+* not done but fixed by showing on all desktops. Nothing else can be done AFAIK.

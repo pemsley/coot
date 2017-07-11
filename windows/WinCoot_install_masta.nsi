@@ -108,6 +108,18 @@ Var STARTDIR
 !include "WordFunc.nsh"
 !insertmacro WordReplace
 
+; for error handling
+!define ErrorHandler "!insertmacro ErrorHandler"
+
+; ErrorCode is returned by the installer, ErrorText is written in log
+; AbortFlag is 1/"True" or 0/"False", (un)installer terminates upon error
+!macro ErrorHandler ErrorCode ErrorText AbortFlag
+  Push ${ErrorCode}
+  Push ${ErrorText}
+  push ${AbortFlag}
+  Call ErrorHandler
+!macroend
+
 ; MUI end ------
 
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
@@ -137,6 +149,7 @@ ShowUnInstDetails show
 #####################
 
 Section "!WinCoot" SEC01
+  ClearErrors
   SectionIn RO
   ; first check for Admin rights and if we shall install for all users
   ; change logic here. Install for everyone if possible otherwise only
@@ -378,9 +391,10 @@ Section "!WinCoot" SEC01
 !endif
 ; WITH_GUILE
   ;examples
-  SetOutPath "$INSTDIR\examples"
-  File "${src_dir}\share\coot\data\*"
-  ; 'NEW; data dir
+  ; 9/7/17 not needed any more
+  ;SetOutPath "$INSTDIR\examples"
+  ;File "${src_dir}\share\coot\data\*"
+  ; NEW data dir
   SetOutPath "$INSTDIR\share\coot\data"
   File "${src_dir}\share\coot\data\*"
   ;docs
@@ -397,20 +411,28 @@ Section "!WinCoot" SEC01
   ; set outpath to $INSTDIR so that shortcuts are started in $INSTDIR
   SetOutPath "$INSTDIR"
 
+  IfErrors 0 +2
+    ${ErrorHandler} 1 "Error in installation. Could not write files." 1
+
 SectionEnd
 
 
 Section /o "Windows feel" SEC02
+  ClearErrors
   SetOverwrite on
   SetOutPath "$INSTDIR\share\coot"
   File "C:\MinGW\msys\1.0\home\bernhard\autobuild\extras\cootrc"
   SetOverwrite ifnewer
 ;  maybe here the other guile things?!
+
+  IfErrors 0 +2
+    ${ErrorHandler} 2 "Error in installation. Could not install windows feel." 1
+
 SectionEnd
 
 ; we dont want guile for now
 ; 2nd section for guile
-!ifdef WITH_GUIL
+!ifdef WITH_GUILE
 Section /o "Guile/Scheme Add-On" SEC03
   SetOverwrite on
   SetOutPath "$INSTDIR\bin"
@@ -422,6 +444,7 @@ SectionEnd
 ; WITH_GUILE
 
 Section -AddIcons
+  ClearErrors
   ;; First install for all users, if anything fails, install
   ;; for current user only.
   ClearErrors
@@ -442,9 +465,14 @@ Section -AddIcons
   ; won't be edited.
   IfSilent 0 +2
     Call FinishPagePreFunction
+
+  IfErrors 0 +2
+    ${ErrorHandler} 3 "Error in installation. Could install icons." 0
+
 SectionEnd
 
 Section -Post
+  ClearErrors
   WriteUninstaller "$INSTDIR\uninst.exe"
 ;  NO MESSING WITH THE REGISTRY!!!!
 ;  WriteRegStr HKLM "${PRODUCT_DIR_REGKEY}" "" "$INSTDIR\uninst.exe"
@@ -454,6 +482,10 @@ Section -Post
 ;  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
 ;  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
 ;  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
+
+  IfErrors 0 +2
+    ${ErrorHandler} 4 "Error in installation. Could not write uninstaller." 0
+
 SectionEnd
 
 
@@ -470,6 +502,7 @@ SectionEnd
 
 
 Section Uninstall
+  ClearErrors
   Delete "$INSTDIR\${PRODUCT_NAME}.url"
   Delete "$INSTDIR\uninst.exe"
   Delete "$INSTDIR\share\coot\*"
@@ -702,6 +735,10 @@ Section Uninstall
 ;  DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
 ;  DeleteRegKey HKLM "${PRODUCT_DIR_REGKEY}"
   SetAutoClose true
+
+  IfErrors 0 +2
+    ${ErrorHandler} 5 "Error in uninstallation. Could not completely uninstall." 1
+
 SectionEnd
 
 ######################
@@ -718,6 +755,17 @@ FunctionEnd
 !endif
 
 Function .onInit
+
+  ClearErrors
+
+  ; logging
+  ; if old log exists save simply (could be by date)
+  ; StrCpy $INSTDIR .
+  IfFileExists $INSTDIR\install.log 0 +5
+    IfFileExists $INSTDIR\install.log.1 0 +2
+      Delete $INSTDIR\install.log.1
+    Rename $INSTDIR\install.log $INSTDIR\install.log.1
+  LogSet on
 
     ; Get Command line parameters
         var /GLOBAL INSTDIR_TMP
@@ -770,14 +818,20 @@ Function .onInit
           ${EndIf}
         ${EndIf}
 ; insert params END
+; no more examples dir (have data dir now)
+; so default start dir is $INSTDIR
   ${If} $STARTDIR == ""
-    StrCpy $STARTDIR "$INSTDIR\examples"
+    StrCpy $STARTDIR "$INSTDIR"
   ${EndIf}
+
+  IfErrors 0 +2
+    ${ErrorHandler} 6 "Error in installation. Could not initiate installation." 1
 
 FunctionEnd
 
 ; finallising
 Function .onGUIEnd
+  ClearErrors
   ; remove tmp bat file if exists (Delete wont do, need to do it via DOS shell command)
   ; possibly an anti virus thing?!?
   IfFileExists "$INSTDIR\runwincoot.bat.tmp" "" cont
@@ -800,6 +854,9 @@ Function .onGUIEnd
     SetOutPath $STARTDIR
     Exec $INSTDIR\runwincoot.bat
   ${EndIf}
+
+  IfErrors 0 +2
+    ${ErrorHandler} 7 "Error in installation. Could not write/edit runwincoot.bat." 1
 
 FunctionEnd
 
@@ -892,6 +949,7 @@ Function parseParameters
 FunctionEnd
 
 Function NoInstDirGiven
+    IfSilent 0 +2
     MessageBox MB_ICONSTOP "No installation directory given.$\n$\n\
                Please use command line option /instdir=instdir$\n$\n\
                Abort installation!"
@@ -1031,3 +1089,24 @@ ${If} $update = 0
  ${Endif}
 FunctionEnd
 
+Function ErrorHandler
+
+  Pop $0  ; Abort Flag
+  Pop $1  ; Message txt
+  Pop $2  ; error code
+
+; convert strings to ints
+  IntOp $0 $0 + 0
+  IntOp $2 $2 + 0
+
+; the message box could be rather a question to abort!?
+  IfSilent +2 0
+  MessageBox MB_OK 'Error in Installation. Aborting!$\n$\r$\n$\r$1'
+
+  DetailPrint $1
+  SetErrorLevel $2
+  ${If} $0 == 1
+    Abort $1
+  ${EndIf}
+
+FunctionEnd
