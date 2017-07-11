@@ -180,21 +180,21 @@
   ;; Return a list of 3 molecule numbers or #f.
   ;; 
   (define (get-cached-eds-files accession-code)
-    
+
     (let* ((coot-tmp-dir (get-directory "coot-download"))
 	   (down-code (string-downcase accession-code))
 	   (pdb-file-name (append-dir-file coot-tmp-dir
 					   (string-append "pdb" down-code ".ent")))
 	   (mtz-file-name (append-dir-file coot-tmp-dir
-					   (string-append down-code "_sigmaa.mtz"))))
-      
+					   (string-append down-code "_map.mtz"))))
+
       (if (not (file-exists? pdb-file-name))
 	  #f
 	  (if (not (file-exists? mtz-file-name))
 	      #f
 	      (let ((imol (read-pdb pdb-file-name))
-		    (imol-map (make-and-draw-map mtz-file-name "2FOFCWT" "PH2FOFCWT" "" 0 0))
-		    (imol-map-d (make-and-draw-map mtz-file-name "FOFCWT"  "PHFOFCWT" "" 0 1)))
+		    (imol-map (make-and-draw-map mtz-file-name "FWT" "PHWT" "" 0 0))
+		    (imol-map-d (make-and-draw-map mtz-file-name "DELFWT"  "PHDELWT" "" 0 1)))
 		(if (not (and (valid-model-molecule? imol)
 			      (valid-map-molecule? imol-map)
 			      (valid-map-molecule? imol-map-d)))
@@ -224,6 +224,7 @@
   ;; main line
   ;; 
   (let ((cached-status (get-cached-eds-files id)))
+
     (if (list? cached-status)
 
 	cached-status ;; a list of molecules
