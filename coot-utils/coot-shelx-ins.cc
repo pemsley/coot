@@ -170,7 +170,6 @@ coot::ShelxIns::read_file(const std::string &filename) {
 		     std::size_t p = res_no_string.find(':');
 		     if (p != std::string::npos) {
 			std::string r_string = res_no_string.substr(p+1);
-			std::cout << "extracting from r_string " << r_string << std::endl;
 			try {
 			   current_res_no = util::string_to_int(r_string);
 			}
