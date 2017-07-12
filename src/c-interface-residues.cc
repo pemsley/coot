@@ -332,6 +332,7 @@ SCM glyco_tree_residues_scm(int imol, SCM active_residue_scm) {
 // glyco_tree_matched_residue_pairs_scm (although those are only
 // useful for the results for the paper).
 //
+// BL says:: there is a python version below now...
 #ifdef USE_GUILE
 SCM glyco_tree_residue_id_scm(int imol, SCM residue_spec_scm) {
 
@@ -456,6 +457,7 @@ SCM glyco_tree_matched_residue_pairs_scm(int imol_1, SCM res_spec_1_scm, int imo
 PyObject *glyco_tree_py(int imol, PyObject *active_residue_py) {
 
    // incomplete, doesn't work.
+   // BL says:: should now
 
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
@@ -465,15 +467,15 @@ PyObject *glyco_tree_py(int imol, PyObject *active_residue_py) {
       mmdb::Residue *residue_p = g.molecules[imol].get_residue(residue_spec);
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
       std::vector<std::string> types_with_no_dictionary =
-	 g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+            g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
       for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
-	 g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
+         g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
       coot::glyco_tree_t t(residue_p, mol, g.Geom_p());
 
    }
 
    if (PyBool_Check(r))
-     Py_INCREF(r);
+      Py_INCREF(r);
 
    return r;
 
@@ -487,28 +489,27 @@ PyObject *glyco_tree_residues_py(int imol, PyObject *active_residue_py) {
    if (is_valid_model_molecule(imol)) {
 
       coot::residue_spec_t residue_spec = residue_spec_from_py(active_residue_py);
-
-      std::cout << "..... active residue spec: " << residue_spec << std::endl;
+//      std::cout << "..... active residue spec: " << residue_spec << std::endl;
       graphics_info_t g;
       mmdb::Residue *residue_p = g.molecules[imol].get_residue(residue_spec);
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
       std::vector<std::string> types_with_no_dictionary =
-	 g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+            g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
       for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
-	 g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
+         g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
       coot::glyco_tree_t t(residue_p, mol, g.Geom_p());
       std::vector<mmdb::Residue *> v_residues = t.residues(residue_spec);
       // std::vector<coot::residue_spec_t> v(v_residues.size()); delete me
       r = PyList_New(v_residues.size());
       for (unsigned int i=0; i<v_residues.size(); i++) {
-	 std::cout << "     " << i << " " << coot::residue_spec_t(v_residues[i]) << std::endl;
-	 coot::residue_spec_t spec(v_residues[i]);
-	 PyList_SetItem(r, i, residue_spec_to_py(spec));
+         // std::cout << "     " << i << " " << coot::residue_spec_t(v_residues[i]) << std::endl;
+         coot::residue_spec_t spec(v_residues[i]);
+         PyList_SetItem(r, i, residue_spec_to_py(spec));
       }
    }
 
    if (PyBool_Check(r))
-     Py_INCREF(r);
+      Py_INCREF(r);
 
    return r;
 
@@ -531,19 +532,27 @@ PyObject *glyco_tree_residue_id_py(int imol, PyObject *residue_spec_py) {
          g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
       coot::glyco_tree_t t(residue_p, mol, g.Geom_p());
       coot::glyco_tree_t::residue_id_t id = t.get_id(residue_p);
+      std::cout << "got id " << id.level << " " << id.prime_arm_flag << " "
+      << id.res_type << std::endl;
       if (! id.res_type.empty()) {
          PyObject *parent_spec_py = residue_spec_to_py(id.parent_res_spec);
+         PyObject *prime_flag_sym = PyString_FromString("unset");
+         if (id.prime_arm_flag == coot::glyco_tree_t::residue_id_t::PRIME)
+            prime_flag_sym = PyString_FromString("prime");
+         if (id.prime_arm_flag == coot::glyco_tree_t::residue_id_t::NON_PRIME)
+            prime_flag_sym = PyString_FromString("non-prime");
 
-         r = PyList_New(5);
          PyObject *level = PyInt_FromLong(id.level);
          PyObject *res_type = PyString_FromString(id.res_type.c_str());
          PyObject *link_type = PyString_FromString(id.link_type.c_str());
          PyObject *parent = PyString_FromString(id.parent_res_type.c_str());
+         r = PyList_New(6);
          PyList_SetItem(r, 0, level);
-         PyList_SetItem(r, 1, res_type);
-         PyList_SetItem(r, 2, link_type);
-         PyList_SetItem(r, 3, parent);
-         PyList_SetItem(r, 4, parent_spec_py);
+         PyList_SetItem(r, 1, prime_flag_sym);
+         PyList_SetItem(r, 2, res_type);
+         PyList_SetItem(r, 3, link_type);
+         PyList_SetItem(r, 4, parent);
+         PyList_SetItem(r, 5, parent_spec_py);
       }
    }
    if (PyBool_Check(r))

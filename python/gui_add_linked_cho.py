@@ -121,7 +121,7 @@ def oligomannose_tree():
 
 # Hybrid is for any system
 #
-# Plant Hybrid als allows an alpha1-3 FUC
+# Plant Hybrid also allows an alpha1-3 FUC
 #
 
 # hybrid mammal
@@ -184,7 +184,7 @@ def hybrid_plant_derived_tree():
                     ["BETA1-4", "NAG"]
                 ]
                ],
-               ["ALPHA1-6", "FUC"]
+               ["ALPHA1-6", "FUC"],
                ["ALPHA1-3", "FUC"]
            ]
     ]
@@ -532,11 +532,17 @@ def interactive_add_cho_dialog():
          add_linked_residue_with_extra_restraints_to_active_residue("FUL", "BETA1-6")],
         ["Add an XYP-BMA XYP",
          lambda func:
-         add_linked_residue_with_extra_restraints_to_active_residue("XYP", "XYP-BMA")]
+         add_linked_residue_with_extra_restraints_to_active_residue("XYP", "XYP-BMA")],
+        ["Add an ALPHA2-3 SIA",
+         lambda func:
+         add_linked_residue_with_extra_restraints_to_active_residue("SIA", "ALPHA2-3")],
+        ["Add an ALPHA2-6 SIA",
+         lambda func:
+         add_linked_residue_with_extra_restraints_to_active_residue("SIA", "ALPHA2-6")]
     ]
 
     vbox = dialog_box_of_buttons("Add N-linked Glycan",
-                                 [360, 520], buttons, "Close")
+                                 [400, 580], buttons, "Close")
     gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox)
     # set the callback on the first button
     children = vbox.get_children()
@@ -547,52 +553,86 @@ def interactive_add_cho_dialog():
                                  gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox))
 
     # add a widget to allow the user to choose the tree type
-    hbox_1 = gtk.HBox(False, 2)
-    hbox_2 = gtk.HBox(False, 2)
-    butt_1 = gtk.RadioButton(None, "Oligomannose")
-    butt_2 = gtk.RadioButton(butt_1, "Hybrid")
-    butt_3 = gtk.RadioButton(butt_1, "Complex")
-    butt_4 = gtk.RadioButton(butt_1, "Expert Mode")
-
-    hbox_1.pack_start(butt_1, False, False, 2)
-    hbox_1.pack_start(butt_2, False, False, 2)
-    hbox_2.pack_start(butt_3, False, False, 2)
-    hbox_2.pack_start(butt_4, False, False, 2)
+    table = gtk.Table(3, 2, False)
+    butt_1 = gtk.RadioButton(None, "High Mannose")
+    butt_2 = gtk.RadioButton(butt_1, "Hybrid (Mammal)")
+    butt_3 = gtk.RadioButton(butt_1, "Hybrid (Plant)")
+    butt_4 = gtk.RadioButton(butt_1, "Complex (Mammal)")
+    butt_5 = gtk.RadioButton(butt_1, "Complex (Plant)")
+    butt_6 = gtk.RadioButton(butt_1, "Expert User Mode")
 
     butt_1.show()
     butt_2.show()
     butt_3.show()
     butt_4.show()
-    hbox_1.show()
-    hbox_2.show()
-    vbox.pack_start(hbox_1, False, False, 2)
-    vbox.pack_start(hbox_2, False, False, 2)
-    hbox_1.set_homogeneous(True)
-    hbox_2.set_homogeneous(True)
-    vbox.reorder_child(hbox_1, 0)
-    vbox.reorder_child(hbox_2, 1)
+    butt_5.show()
+    butt_6.show()
+
+    # add buttons for nice(?) layout/order
+    table.attach(butt_1, 0, 1, 0, 1, gtk.EXPAND|gtk.FILL, gtk.EXPAND|gtk.FILL, 0, 0)
+    table.attach(butt_2, 1, 2, 0, 1, gtk.EXPAND|gtk.FILL, gtk.EXPAND|gtk.FILL, 0, 0)
+    table.attach(butt_4, 2, 3, 0, 1, gtk.EXPAND|gtk.FILL, gtk.EXPAND|gtk.FILL, 0, 0)
+    table.attach(butt_6, 0, 1, 1, 2, gtk.EXPAND|gtk.FILL, gtk.EXPAND|gtk.FILL, 0, 0)
+    table.attach(butt_3, 1, 2, 1, 2, gtk.EXPAND|gtk.FILL, gtk.EXPAND|gtk.FILL, 0, 0)
+    table.attach(butt_5, 2, 3, 1, 2, gtk.EXPAND|gtk.FILL, gtk.EXPAND|gtk.FILL, 0, 0)
+    
+    
+    vbox.pack_start(table, True, True, 2)
+    table.show()
+    vbox.reorder_child(table, 0)
+
+    for butt in [butt_1, butt_2, butt_3, butt_4, butt_5, butt_6]:
+        butt.connect("toggled", lambda func:
+                     gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox))
 
     # "global" var post-set-rotation-centre-hook
     # BL Note:: maybe should be a global!?
-    post_set_rotation_centre_script = gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox)
+    global post_set_rotation_centre_script
+    def post_set_rotation_centre_script():
+        gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox)
 
 #
 def glyco_tree_dialog_set_button_active_state(button, glyco_id, tree_type):
 
+    def glyco_id2level_number(glyco_id):
+        return glyco_id[0]
+
+    def glyco_id2prime_arm_sym(glyco_id):
+        return glyco_id[1]
+
+    def glyco_id2residue_type(glyco_id):
+        return glyco_id[2]
+
+    def glyco_id2link_type(glyco_id):
+        return glyco_id[3]
+
+    def glyco_id2paren_residue_type(glyco_id):
+        return glyco_id[4]
+
+    def glyco_id2residue_spec(glyco_id):
+        return glyco_id[5]
+    
     def get_sensitive_button_list(glyco_id, tree_type):
 
         if not isinstance(glyco_id, list):
             return []
         else:
-            level_number = glyco_id[0]
-            residue_type = glyco_id[1]
-            link_type = glyco_id[2]
-            parent_residue_type = glyco_id[3]
-            residue_spec = glyco_id[4]
+            level_number = glyco_id2level_number(glyco_id)
+            prim_arm_sym = glyco_id2prime_arm_sym(glyco_id)
+            residue_type = glyco_id2residue_type(glyco_id)
+            link_type = glyco_id2link_type(glyco_id)
+            parent_residue_type = glyco_id2paren_residue_type(glyco_id)
+            residue_spec = glyco_id2residue_spec(glyco_id)
             active_button_label_ls = []
             
-            if tree_type == 'expert-mode':
-                active_button_label_ls = "expert-mode" # ???
+            if tree_type == 'expert-user-mode':
+                active_button_label_ls = "expert-user-mode" # ???
+
+            # -----------------------------------------------------------------------------------
+            # Note the trees tested here match those from (get-tree-type) which examines the button
+            # label of the active radio button in the dialog (these are not the auto-build trees)
+            # ------------------------------------------------------------------------------------
+            # BL says:: test and control the trees
 
             if tree_type == 'oligomannose':
 
@@ -648,8 +688,8 @@ def glyco_tree_dialog_set_button_active_state(button, glyco_id, tree_type):
                         if link_type == "ALPHA1-2":
                             active_button_label_ls = ["Add an ALPHA1-2 GLC"]
 
-            # hybrid
-            if tree_type == 'hybrid':
+            # hybrid mammal
+            if tree_type == 'hybrid-mammal':
 
                 if level_number == 0:
                     if residue_type == "ASN":
@@ -664,18 +704,83 @@ def glyco_tree_dialog_set_button_active_state(button, glyco_id, tree_type):
                     if residue_type == "NAG":
                         active_button_label_ls = ["Add a BETA1-4 BMA"]
 
+                if level_number == 2:
+                    if residue_type == "FUC":
+                        active_button_label_ls = ["Add a BETA1-4 GAL"]
+
                 if level_number == 3:
                     if residue_type == "BMA":
                         active_button_label_ls = ["Add an ALPHA1-3 MAN",
                                                   "Add an ALPHA1-6 MAN"]
+
+                if level_number == 3:
+                    if residue_type == "GAL":
+                        active_button_label_ls = ["Add an ALPHA1-2 FUC"]
 
                 if level_number == 4:
                     if residue_type == "MAN":
                         active_button_label_ls = ["Add an ALPHA1-3 MAN",
                                                   "Add an ALPHA1-6 MAN"]
                 
-            # complex
-            if tree_type == 'complex':
+                if level_number == 5:
+                    if residue_type == "NAG":
+                        active_button_label_ls = ["Add a BETA1-4 GAL"]
+                
+                if level_number == 5:
+                    if residue_type == "GAL":
+                        active_button_label_ls = ["Add an ALPHA2-3 SIA",
+                                                  "Add an ALPHA2-6 SIA"]
+                
+            # hybrid plant
+            if tree_type == 'hybrid-plant':
+
+                if level_number == 0:
+                    if residue_type == "ASN":
+                        active_button_label_ls = ["Add a NAG-ASN NAG"]
+                        
+                if level_number == 1:
+                    if residue_type == "NAG":
+                        active_button_label_ls = ["Add a BETA1-4 NAG",
+                                                  "Add an ALPHA1-3 FUC"]
+                        
+                if level_number == 2:
+                    if residue_type == "NAG":
+                        active_button_label_ls = ["Add a BETA1-4 BMA"]
+
+                if level_number == 2:
+                    if residue_type == "FUC":
+                        active_button_label_ls = ["Add a BETA1-4 GAL"]
+
+                if level_number == 3:
+                    if residue_type == "BMA":
+                        active_button_label_ls = ["Add an ALPHA1-3 MAN",
+                                                  "Add an ALPHA1-6 MAN",
+                                                  "Add an XYP-BMA XYP"]
+
+                if level_number == 3:
+                    if residue_type == "GAL":
+                        active_button_label_ls = ["Add an ALPHA1-2 FUC"]
+
+                # note that level-number is not enough for complete disambiguation,
+                # we need to know we are 4 or 4' (Vliegenthart et al 1983 nomenclature).
+                if level_number == 4:
+                    if residue_type == "MAN":
+                        active_button_label_ls = ["Add an ALPHA1-3 MAN",
+                                                  "Add an ALPHA1-6 MAN",
+                                                  "Add a BETA1-2 NAG"]
+                
+                if level_number == 5:
+                    if residue_type == "NAG":
+                        active_button_label_ls = ["Add a BETA1-4 GAL"]
+                
+                if level_number == 5:
+                    if residue_type == "GAL":
+                        active_button_label_ls = ["Add an ALPHA2-3 SIA",
+                                                  "Add an ALPHA2-6 SIA"]
+                
+            # complex mammal
+            #
+            if tree_type == 'complex-mammal':
 
                 if level_number == 0:
                     if residue_type == "ASN":
@@ -694,7 +799,66 @@ def glyco_tree_dialog_set_button_active_state(button, glyco_id, tree_type):
                     if residue_type == "BMA":
                         active_button_label_ls = ["Add an ALPHA1-3 MAN",
                                                   "Add an ALPHA1-6 MAN",
-                                                  "Add an XYP-BMA XYP"]
+                                                  "Add a BETA1-4 NAG"]
+
+                #  note that level-number is not enough for complete disambiguation, 
+                # we need to know we are 4 or 4' (Vl...? nomenclature).
+                #
+                if level_number == 4:
+                    if residue_type == "MAN":
+                        active_button_label_ls = ["Add an ALPHA1-3 MAN",
+                                                  "Add an ALPHA1-6 MAN",
+                                                  "Add a BETA1-2 NAG"]
+
+                if level_number == 5:
+                    if residue_type == "NAG":
+                        active_button_label_ls = ["Add a BETA1-4 GAL"]
+
+                if level_number == 6:
+                    if residue_type == "GAL":
+                        active_button_label_ls = ["Add an ALPHA2-3 SIA",
+                                                  "Add an ALPHA2-6 SIA"]
+
+                        
+            # complex plant
+            #
+            if tree_type == 'complex-plant':
+
+                if level_number == 0:
+                    if residue_type == "ASN":
+                        active_button_label_ls = ["Add a NAG-ASN NAG"]
+                        
+                if level_number == 1:
+                    if residue_type == "NAG":
+                        active_button_label_ls = ["Add a BETA1-4 NAG",
+                                                  "Add an ALPHA1-3 FUC",
+                                                  "Add an ALPHA1-6 FUC"]
+                        
+                if level_number == 2:
+                    if residue_type == "NAG":
+                        active_button_label_ls = ["Add a BETA1-4 BMA"]
+
+                if level_number == 3:
+                    if residue_type == "BMA":
+                        active_button_label_ls = ["Add an ALPHA1-3 MAN",
+                                                  "Add an ALPHA1-6 MAN",
+                                                  "Add an XYP-BMA XYP",
+                                                  "Add a BETA1-4 NAG"]
+
+                if level_number == 4:
+                    if residue_type == "MAN":
+                        active_button_label_ls = ["Add an ALPHA1-3 MAN",
+                                                  "Add an ALPHA1-6 MAN",
+                                                  "Add a BETA1-2 NAG"]
+
+                if level_number == 5:
+                    if residue_type == "NAG":
+                        active_button_label_ls = ["Add a BETA1-4 GAL"]
+
+                if level_number == 6:
+                    if residue_type == "GAL":
+                        active_button_label_ls = ["Add an ALPHA2-3 SIA",
+                                                  "Add an ALPHA2-6 SIA"]
                         
             return active_button_label_ls
 
@@ -702,12 +866,14 @@ def glyco_tree_dialog_set_button_active_state(button, glyco_id, tree_type):
     #
     l = button.get_label()
     active_button_label_ls = get_sensitive_button_list(glyco_id, tree_type)
-    if (active_button_label_ls == "expert-mode"):
+    if (active_button_label_ls == "expert-user-mode"):
         button.set_sensitive(True)
+    else:
         if not (l == "Update for Current Residue"):
             button.set_sensitive(l in active_button_label_ls)
 
-# return a value!?
+# vbox is the vbox of the dialog box of buttons. One of the children of the vbox
+# is the table that contains the buttons
 #
 def gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox):
 
@@ -715,19 +881,25 @@ def gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox):
         tree_type = "oligomannose"
         children = vbox.get_children()
         for child in children:
-            if type(child) == gtk.Box:
-                for box_child in child:
-                    if type(box_child) == gtk.RadioButton:
-                        if box_child.get_active():
-                            l = box_child.get_label()
-                            if l == "Oligomannose":
+            if type(child) == gtk.Table:
+                for table_child in child:
+                    if type(table_child) == gtk.RadioButton:
+                        if table_child.get_active():
+                            l = table_child.get_label()
+                            # this is a bit ugly because we are testing that these strings
+                            # match button labels (set in interactive-add-cho-dialog)
+                            if l == "High Mannose":
                                 tree_type = 'oligomannose'
-                            if l == "Hybrid":
-                                tree_type = 'hybrid'
-                            if l == "Expert Mode":
-                                tree_type = 'expert-mode'
-                            if l == "Complex":
-                                tree_type = 'complex'
+                            if l == "Hybrid (Mammal)":
+                                tree_type = 'hybrid-mammal'
+                            if l == "Hybrid (Plant)":
+                                tree_type = 'hybrid-plant'
+                            if l == "Expert User Mode":
+                                tree_type = 'expert-user-mode'
+                            if l == "Complex (Mammal)":
+                                tree_type = 'complex-mammal'
+                            if l == "Complex (Plant)":
+                                tree_type = 'complex-plant'
         return tree_type
 
     with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
@@ -740,7 +912,7 @@ def gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox):
             rn = residue_name(aa_imol, aa_chain_id, aa_res_no, aa_ins_code)
             if isinstance(rn, str):
                 if rn == "ASN":
-                    glyco_id = [0, "ASN", "", "", aa_res_spec]
+                    glyco_id = [0, "unset", "ASN", "", "", aa_res_spec]
         if isinstance(glyco_id, list):
             tree_type = get_tree_type()
             children = vbox.get_children()
@@ -1027,7 +1199,7 @@ def add_module_carbohydrate():
                                             oligo_tree)
                 
             add_simple_coot_menu_menuitem(
-                menu, "Add Oligomannose",
+                menu, "Add High Mannose",
                 lambda func: add_oligo_tree_func(oligomannose_tree()))
 
             add_simple_coot_menu_menuitem(
@@ -1039,7 +1211,7 @@ def add_module_carbohydrate():
                 lambda func: add_oligo_tree_func(hybrid_plant_derived_tree()))
 
             add_simple_coot_menu_menuitem(
-                menu, "Add Complex",
+                menu, "Add Complex (Mammal)",
                 lambda func: add_oligo_tree_func(complex_mammal_tree()))
 
             add_simple_coot_menu_menuitem(

@@ -1096,43 +1096,28 @@ coot::residue_spec_t residue_spec_from_py(PyObject *residue_in) {
    // What about make_residue_spec_py()?
 
    coot::residue_spec_t rspec; // default
+   int offset = 0;
 
    if (PyList_Check(residue_in)) {
-
-      if (PyList_Size(residue_in) == 3) { 
-	 PyObject *chain_id_py = PyList_GetItem(residue_in, 0);
-	 PyObject *resno_py    = PyList_GetItem(residue_in, 1);
-	 PyObject *ins_code_py = PyList_GetItem(residue_in, 2);
-	 if (PyString_Check(chain_id_py)) {
-	    if (PyString_Check(ins_code_py)) {
-	       if (PyInt_Check(resno_py)) {
-		  std::string chain_id  = PyString_AsString(chain_id_py);
-		  std::string ins_code  = PyString_AsString(ins_code_py);
-		  long resno            = PyInt_AsLong(resno_py);
-		  rspec = coot::residue_spec_t(chain_id, resno, ins_code);
-	       }
-	    }
-	 }
+      if (PyList_Size(residue_in) == 4)
+         offset = 1;
+      PyObject *chain_id_py = PyList_GetItem(residue_in, 0+offset);
+      PyObject *resno_py    = PyList_GetItem(residue_in, 1+offset);
+      PyObject *ins_code_py = PyList_GetItem(residue_in, 2+offset);
+      if (PyString_Check(chain_id_py)) {
+         if (PyString_Check(ins_code_py)) {
+            if (PyInt_Check(resno_py)) {
+               std::string chain_id  = PyString_AsString(chain_id_py);
+               std::string ins_code  = PyString_AsString(ins_code_py);
+               long resno            = PyInt_AsLong(resno_py);
+               rspec = coot::residue_spec_t(chain_id, resno, ins_code);
+               return rspec;
+            }
+         }
       }
-
-      if (PyList_Size(residue_in) == 4) {
-	 PyObject *chain_id_py = PyList_GetItem(residue_in, 1);
-	 PyObject *resno_py    = PyList_GetItem(residue_in, 2);
-	 PyObject *ins_code_py = PyList_GetItem(residue_in, 3);
-	 if (PyString_Check(chain_id_py)) {
-	    if (PyString_Check(ins_code_py)) {
-	       if (PyInt_Check(resno_py)) {
-		  std::string chain_id  = PyString_AsString(chain_id_py);
-		  std::string ins_code  = PyString_AsString(ins_code_py);
-		  long resno            = PyInt_AsLong(resno_py);
-		  rspec = coot::residue_spec_t(chain_id, resno, ins_code);
-	       }
-	    }
-	 }
-      }
-
    }
-   return rspec;
+   return coot::residue_spec_t();
+
 }
 #endif // USE_PYTHON
 
