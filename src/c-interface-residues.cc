@@ -348,8 +348,9 @@ SCM glyco_tree_residue_id_scm(int imol, SCM residue_spec_scm) {
 	 g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
       coot::glyco_tree_t t(residue_p, mol, g.Geom_p());
       coot::glyco_tree_t::residue_id_t id = t.get_id(residue_p);
-      std::cout << "got id " << id.level << " " << id.prime_arm_flag << " "
-		<< id.res_type << std::endl;
+      if (false)
+	 std::cout << "got id " << id.level << " " << id.prime_arm_flag << " "
+		   << id.res_type << std::endl;
       if (! id.res_type.empty()) {
 	 SCM parent_spec_scm = residue_spec_to_scm(id.parent_res_spec);
 	 SCM prime_flag_sym = scm_str2symbol("unset");

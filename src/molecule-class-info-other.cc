@@ -6954,6 +6954,24 @@ molecule_class_info_t::set_b_factor_residues(const std::vector<std::pair<coot::r
    make_bonds_type_checked();
 }
 
+void
+molecule_class_info_t::set_b_factor_residue(coot::residue_spec_t spec, float bf) {
+
+   mmdb::Residue *residue_p = get_residue(spec);
+   if (residue_p) {
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int j=0; j<n_residue_atoms; j++) {
+	 residue_atoms[j]->tempFactor = bf;
+      }
+   }
+   have_unsaved_changes_flag = 1;
+   atom_sel.mol->FinishStructEdit();
+   make_bonds_type_checked();
+}
+
+
 
 
 // Change chain id

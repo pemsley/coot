@@ -1064,12 +1064,15 @@ molecule_class_info_t::new_ligand_centre(const clipper::Coord_orth &current_cent
    }
 
    int current_centre_index = -1; // unset
+   double closest_middle = 9999.9;
    if (ligand_centres.size()) {
       for (unsigned int ilig=0; ilig<ligand_centres.size(); ilig++) { 
 	 double d = clipper::Coord_orth::length(current_centre, ligand_centres[ilig].first);
 	 if (d < 5) {
-	    current_centre_index = ilig;
-	    break;
+	    if (d < closest_middle) {
+	       current_centre_index = ilig;
+	       closest_middle = d;
+	    }
 	 } 
       }
 

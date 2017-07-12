@@ -962,6 +962,7 @@ public:        //                      public
    void set_b_factor_residue_range(const std::string &chain_id, int ires1, int ires2, float b_val);
    void set_b_factor_atom_selection(const atom_selection_container_t &asc, float b_val, bool moving_atoms);
    void set_b_factor_residues(const std::vector<std::pair<coot::residue_spec_t, double> > &rbs); // all atoms of specified
+   void set_b_factor_residue(coot::residue_spec_t spec, float bf);
 
 
    std::vector<coot::atom_spec_t> fixed_atom_specs;

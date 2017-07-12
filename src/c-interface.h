@@ -2377,6 +2377,12 @@ void set_reset_b_factor_moved_atoms(int state);
   moved atoms */
 int get_reset_b_factor_moved_atoms_state();
 
+#ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_GUILE
+void set_temperature_factors_for_atoms_in_residue_scm(int imol, SCM residue_spec_scm, float bf);
+#endif
+#endif
+
 /*! \brief set a numberical attibute to the atom with the given specifier.
 
 Attributes can be "x", "y","z", "B", "occ" and the attribute val is a floating point number*/
