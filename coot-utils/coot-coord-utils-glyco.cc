@@ -1006,8 +1006,6 @@ coot::glyco_tree_t::get_prime(mmdb::Residue *residue_p) const {
 	       has_parent = false;
 	    } else {
 	       if (this_one.node->parent->data.residue_name == "BMA") {
-		  std::cout << "found a BMA parent with link_type " << this_one->link_type
-			    << std::endl;
 		  if (this_one->link_type == "ALPHA1-3")
 		     arm = residue_id_t::NON_PRIME;
 		  if (this_one->link_type == "ALPHA1-6")
