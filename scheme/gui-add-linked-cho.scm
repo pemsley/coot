@@ -18,10 +18,10 @@
 (define (add-pyranose-pseudo-ring-plane-restraints comp-id)
 
   (define (filter-out plane-name-sub-string plane-restraints)
-    (format #t "DEBUG:: in filter-out: remove ~s from ~s~%"
-	    plane-name-sub-string plane-restraints)
-    ;; (filter (lambda (s) (string-match? plane-name-sub-string ...?)
-    plane-restraints)
+    (filter (lambda (s)
+	      (let ((v (regexp-match? (string-match plane-name-sub-string (car s)))))
+		(not v))) ;; filter function keeps items that for func(s) is true
+	    plane-restraints))
 
   (let ((restraints (monomer-restraints comp-id)))
 
@@ -220,7 +220,7 @@
 ;; (set-add-linked-residue-do-fit-and-refine 0)
 
 ;; now users can set this
-(define *add-linked-residue-tree-correlation-cut-off* 0.6)
+(define *add-linked-residue-tree-correlation-cut-off* 0.50)
 
 (define (add-linked-residue-tree imol parent tree)
 
@@ -330,13 +330,17 @@
 	      (process-tree new-res (cdr tree) proc-func))))))
 
   (define (is-just-an-ASN? imol glyco-tree)
+
+    (format #t "glyco-tree: ~s~%" glyco-tree)
     (if (not (list? glyco-tree))
 	#f
 	(let ((l (length glyco-tree)))
+	  (format #t "l: ~s~%" l)
 	  (if (not (= l 1))
 	      #f
 	      (using-active-atom
 	       (let ((res-spec aa-res-spec))
+		 (format #t "res-spec: ~s~%" res-spec)
 		 (let ((rn (residue-name imol
 					 (residue-spec->chain-id res-spec)
 					 (residue-spec->res-no   res-spec)
@@ -369,11 +373,17 @@
     ;;
     (using-active-atom
      (let ((start-tree (glyco-tree-residues aa-imol aa-res-spec)))
-       (format #t "::::::::::::::::: start-tree: ~s~%" start-tree)
+       
+       ;; why do I need both test here? 
+       ;; 5n11 needs the is-just-an-ASN? test
+       ;; 5n09/5wzy needs the null test. 
+       ;; Hmmm.
+       (if (not (or (null? start-tree)
+		    (is-just-an-ASN? aa-imol start-tree)))
 
-       (if (not (is-just-an-ASN? aa-imol start-tree))
-
-	   (info-dialog "Must start on Single ASN")
+	   (begin
+	     (info-dialog "Must start on Single ASN")
+	     (format #t "start-tree: ~s~%" start-tree))
 
 	   ;; OK, continue
 	   (let ((start-pos-view (add-view-here "Glyo Tree Start Pos")))
@@ -435,6 +445,12 @@
   (let ((buttons (list ;; (list label func)
 		  (list "Update for Current Residue" (lambda () (format #t "dummy\n")))
 
+		  (list "Refine Tree" (lambda ()
+					(with-auto-accept
+					 (refine-residues aa-imol
+							  (glyco-tree-residues
+							   aa-imol aa-res-spec)))))
+
 		  (list "Add a NAG-ASN NAG"
 			(lambda ()
 			  (add-linked-residue-with-extra-restraints-to-active-residue "NAG" "NAG-ASN")))
@@ -488,7 +504,7 @@
 			  (add-linked-residue-with-extra-restraints-to-active-residue "SIA" "ALPHA2-6")))
 		  )))
 
-    (let ((vbox (dialog-box-of-buttons "Add N-linked Glycan" (cons 400 580) buttons "Close")))
+    (let ((vbox (dialog-box-of-buttons "Add N-linked Glycan" (cons 420 600) buttons "Close")))
       (gui-add-linked-cho-dialog-vbox-set-rotation-centre-hook vbox)
       ;; set the callback on the first button
       (let ((children  (gtk-container-children vbox)))
@@ -900,6 +916,20 @@
 	 menu "N-linked Glycan Addition Dialog..."
 	 (lambda ()
 	   (interactive-add-cho-dialog)))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Set Default N-linked CHO Atoms B-factor"
+	 (lambda ()
+	   (using-active-atom
+	    (let ((residues (residues-near-residue aa-imol aa-res-spec 10)))
+	      (let ((imol-region (new-molecule-by-residue-specs aa-imol residues)))
+		(let ((m (median-temperature-factor imol-region)))
+		  (close-molecule imol-region)
+		  (if (number? m)
+		      (let ((new-m  (* m 1.55)))
+			(set-default-temperature-factor-for-new-atoms new-m)
+			(let ((s (format #f "New Temperature Factor set to ~6,2f" new-m)))
+			  (info-dialog s))))))))))
 
 	(add-simple-coot-menu-menuitem
 	 menu "N-link add NAG, NAG, BMA"
