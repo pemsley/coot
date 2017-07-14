@@ -5528,7 +5528,7 @@ void citation_notice_off();
 
 Superpose all residues of imol2 onto imol1.  imol1 is reference, we
 can either move imol2 or copy it to generate a new molecule depending
-on the vaule of move_imol2_flag (1 for move 0 for copy). */
+on the vaule of move_imol2_flag (1 for copy 0 for move). */
 void superpose(int imol1, int imol2, short int move_imol2_flag); 
 
 

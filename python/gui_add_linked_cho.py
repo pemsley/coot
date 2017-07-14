@@ -1,9 +1,11 @@
 
 def add_pyranose_pseudo_ring_plane_restraints(comp_id):
 
+    import re
+    
     def filter_out(plane_name_sub_string, plane_restraints):
-        # BL says:: still something missing!?
-        return plane_restraints
+        return filter(lambda s: not plane_name_sub_string in s[0],
+                      plane_restraints)
         
     restraints = monomer_restraints(comp_id)
 
@@ -11,11 +13,10 @@ def add_pyranose_pseudo_ring_plane_restraints(comp_id):
         print "failed to get %s restraints" %comp_id
     else:
         plane_restraints = restraints["_chem_comp_plane_atom"]
-        new_plane_restraints = ["_chem_comp_plane_atom",
-                                [["pseudo-ring-1", [" C1 ", " C2 ", " C4 ", " C5 "], 0.01],
-                                 ["pseudo-ring-2", [" C2 ", " C3 ", " C5 ", " O5 "], 0.01],
-                                 ["pseudo-ring-3", [" C3 ", " C4 ", " O5 ", " C1 "], 0.01]]] + \
-                                filter_out("pseudo-ring-", plane_restraints) #should be list already
+        new_plane_restraints = [["pseudo-ring-1", [" C1 ", " C2 ", " C4 ", " C5 "], 0.01],
+                                ["pseudo-ring-2", [" C2 ", " C3 ", " C5 ", " O5 "], 0.01],
+                                ["pseudo-ring-3", [" C3 ", " C4 ", " O5 ", " C1 "], 0.01]] + \
+                                filter_out("pseudo-ring-", plane_restraints) # should be list already 
         restraints["_chem_comp_plane_atom"] = new_plane_restraints
         print "BL DEBUG:: new plane restraints", new_plane_restraints
 
@@ -273,7 +274,7 @@ def paucimannose_tree():
 
 # now can be user defined
 global add_linked_residue_tree_correlation_cut_off
-add_linked_residue_tree_correlation_cut_off = 0.6
+add_linked_residue_tree_correlation_cut_off = 0.50
 
 def add_linked_residue_tree(imol, parent, tree):
 
@@ -425,8 +426,13 @@ def add_linked_residue_tree(imol, parent, tree):
         start_tree = glyco_tree_residues(aa_imol, aa_res_spec)
         print "::::::::::::::::: start-tree:", start_tree
 
-        if not is_just_an_ASN_qm(aa_imol, start_tree):
+        # why do we need both test here? 
+        # 5n11 needs the is-just-an-ASN? test
+        # 5n09/5wzy needs the null test. 
+        # Hmmm.
+        if ((not start_tree) or (not is_just_an_ASN_qm(aa_imol, start_tree))):
             info_dialog("Must start on Single ASN")
+            print "start_tree:", start_tree
         else:
             # ok, continue
             start_pos_view = add_view_here("Glyo Tree Start Pos")
@@ -483,11 +489,18 @@ def delete_all_cho():
 
 def interactive_add_cho_dialog():
 
+    def refine_tree_func():
+        with AutoAccept():
+            with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code,
+                                           aa_atom_name, aa_alt_conf, aa_res_spec]:
+                refine_residues(aa_imol, glyco_tree_residues(aa_imol, aa_res_spec))
+
     add_synthetic_pyranose_planes()
     use_unimodal_pyranose_ring_torsions()
     # button list with [label, function]
     buttons = [
         ["Update for Current Residue", lambda func: printf("dummy")],
+        ["Refine Tree", lambda func: refine_tree_func()],
         ["Add a NAG-ASN NAG",
          lambda func:
          add_linked_residue_with_extra_restraints_to_active_residue("NAG", "NAG-ASN")],
@@ -542,7 +555,7 @@ def interactive_add_cho_dialog():
     ]
 
     vbox = dialog_box_of_buttons("Add N-linked Glycan",
-                                 [400, 580], buttons, "Close")
+                                 [420, 600], buttons, "Close")
     gui_add_linked_cho_dialog_vbox_set_rotation_centre_hook(vbox)
     # set the callback on the first button
     children = vbox.get_children()
@@ -869,7 +882,7 @@ def glyco_tree_dialog_set_button_active_state(button, glyco_id, tree_type):
     if (active_button_label_ls == "expert-user-mode"):
         button.set_sensitive(True)
     else:
-        if not (l == "Update for Current Residue"):
+        if not (l == "Update for Current Residue") and not (l == "Refine Tree"):
             button.set_sensitive(l in active_button_label_ls)
 
 # vbox is the vbox of the dialog box of buttons. One of the children of the vbox
@@ -1113,7 +1126,29 @@ def add_module_carbohydrate():
                     multi_add_linked_residue(aa_imol,
                                              [aa_chain_id, aa_res_no, aa_ins_code],
                                              link_list)
+
+
+            def set_default_cho_b_factor_func():
+                with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no,
+                                               aa_ins_code, aa_atom_name,
+                                               aa_alt_conf, aa_res_spec]:
+                    residues = residues_near_residue(aa_imol, aa_res_spec, 10)
+                    imol_region = new_molecule_by_residue_specs(aa_imol, residues)
+                    # BL says:: why not do a new mol by sphere selection?!
+                    m = median_temperature_factor(imol_region)
+                    close_molecule(imol_region)
+                    if isNumber(m):
+                        new_m = m* 1.55
+                        set_default_temperature_factor_for_new_atoms(new_m)
+                        s = "New Temperature Factor set to " + str(new_m)
+                        info_dialog(s)
                 
+            add_simple_coot_menu_menuitem(
+                menu, "Set Default N-linked CHO Atoms B-factor",
+                lambda func: set_default_cho_b_factor_func()
+            )
+
+            
             add_simple_coot_menu_menuitem(
                 menu, "N-link add NAG, NAG, BMA",
                 lambda func: add_multi_carbo_link_func([["NAG", "NAG-ASN"],
