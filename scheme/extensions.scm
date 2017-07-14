@@ -1219,6 +1219,17 @@
 				 (lambda (imol)
 				   (clear-ball-and-stick imol)))))
 
+	(add-simple-coot-menu-menuitem
+	 submenu-representation "Grey Carbons for Molecule"
+	 (lambda()
+	   (using-active-atom
+	    (set-use-grey-carbons-for-molecule aa-imol 1))))
+
+	(add-simple-coot-menu-menuitem
+	 submenu-representation "Coloured Carbons for Molecule"
+	 (lambda()
+	   (using-active-atom
+	    (set-use-grey-carbons-for-molecule aa-imol 0))))
 
 	(add-simple-coot-menu-menuitem
 	 submenu-representation "Electrostatic Surface..."
