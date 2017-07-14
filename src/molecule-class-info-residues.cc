@@ -1430,14 +1430,47 @@ molecule_class_info_t::multi_residue_torsion_fit(const std::vector<coot::residue
 	    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 	    for (int iat=0; iat<n_residue_atoms; iat++) {
 	       mmdb::Atom *at = residue_atoms[iat];
-	       std::string ele = at->element;
-	       if (ele != " H") { // PDBv3 fixme
-		  clipper::Coord_orth pt = coot::co(at);
-		  bool t = false;
-		  std::string res_name = at->GetResName();
-		  if (res_name == "HOH") t = true;
-		  std::pair<bool, clipper::Coord_orth> p(t, pt);
-		  avoid_these_atoms.push_back(p);
+	       clipper::Coord_orth pt = coot::co(at);
+
+	       // if an atom of the residue specs is right now close to a neighbour residue
+	       // atom, then that neighbour is likely to be bonded (or angle-related)
+	       // so don't add such atoms to the avoid_these_atoms - yes, this is a
+	       // hack, but it's better than it was.
+	       //
+	       bool already_close = false;
+	       //
+	       mmdb::Model *model_p = moving_mol->GetModel(1);
+	       if (model_p) {
+		  int n_chains = model_p->GetNumberOfChains();
+		  for (int ichain=0; ichain<n_chains; ichain++) {
+		     mmdb::Chain *chain_p = model_p->GetChain(ichain);
+		     int nres = chain_p->GetNumberOfResidues();
+		     for (int ires=0; ires<nres; ires++) {
+			mmdb::Residue *moving_residue_p = chain_p->GetResidue(ires);
+			int n_atoms = moving_residue_p->GetNumberOfAtoms();
+			for (int iat=0; iat<n_atoms; iat++) {
+			   mmdb::Atom *moving_at = moving_residue_p->GetAtom(iat);
+			   clipper::Coord_orth pt_moving = coot::co(moving_at);
+			   if ((pt - pt_moving).lengthsq() < 2.8*2.8) {
+			      already_close = true;
+			      break;
+			   }
+			}
+			if (already_close)
+			   break;
+		     }
+		  }
+	       }
+
+	       if (! already_close) {
+		  std::string ele = at->element;
+		  if (ele != " H") { // PDBv3 fixme
+		     bool t = false;
+		     std::string res_name = at->GetResName();
+		     if (res_name == "HOH") t = true;
+		     std::pair<bool, clipper::Coord_orth> p(t, pt);
+		     avoid_these_atoms.push_back(p);
+		  }
 	       }
 	    }
 	 }

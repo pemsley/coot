@@ -440,7 +440,7 @@ coot::multi_residue_torsion_fit_map(int imol,
 	 if (atomic_number == -1)
 	    z = 6.0f;
 	 atoms[iat] = std::pair<mmdb::Atom *, float> (atom_selection[iat], z);
-      } 
+      }
 
       if (n_selected_atoms > 0) { 
 	 std::vector<coot::torsion_atom_quad> quads = 
