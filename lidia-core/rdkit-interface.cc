@@ -173,7 +173,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
    if (debug) { 
       std::cout << "DEBUG:: number of bonded atoms with alt conf \"" << alt_conf << "\" found: "
 		<< bonded_atoms.size() << std::endl;
-   } 
+   }
 
    if (! bonded_atoms.empty()) {
 
@@ -190,7 +190,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	 if (std::find(added_atom_names.begin(), added_atom_names.end(), atom_name) != added_atom_names.end()) {
 	    std::cout << "!!!! Problem? atom name \"" << atom_name
 		      << "\" was already added" << std::endl;
-	    
+
 	 } else { 
 	    RDKit::Atom *rdkit_at = new RDKit::Atom;
 	    try {
@@ -204,6 +204,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 
 	       // formal charge
 	       const coot::dict_atom &atom_info = restraints.atom_info[bonded_atoms[iat].second];
+	       if (false) {
+		  std::cout << "in rdkit_mol() using atom_info " << atom_info << std::endl;
+	       }
 	       if (atom_info.formal_charge.first)
 		  rdkit_at->setFormalCharge(atom_info.formal_charge.second);
 
@@ -212,7 +215,21 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	       std::string type_energy = restraints.type_energy(at->name);
 	       if (type_energy != "") {
 		  if (type_energy == "NT") {
-		     rdkit_at->setFormalCharge(1);
+		     bool charge_it = true;
+		     // but don't charge it if there are 3 non-hydrogen bonds.
+
+		     // Actually, not charging is good for layout, but is it
+		     // good for pyrogen? Hmmm.
+		     //
+		     // A better test would be to check any of the bonds to this
+		     // atom for aromaticity (in which case, don't charge)
+		     //
+		     bool include_H_neighb_bonds = false;
+		     if (restraints.neighbours(atom_name, include_H_neighb_bonds).size() == 3)
+			charge_it = false;
+
+		     if (charge_it)
+			rdkit_at->setFormalCharge(1);
 		  }
 		  
 		  // other NT*s will drop hydrogens in RDKit, no need to
@@ -2065,9 +2082,9 @@ coot::delete_excessive_hydrogens(RDKit::RWMol *rdkm) {
 void
 coot::assign_formal_charges(RDKit::RWMol *rdkm) {
 
-   
+   bool debug = false;
    int n_mol_atoms = rdkm->getNumAtoms();
-   if (0)
+   if (debug)
       std::cout << "---------------------- in assign_formal_charges() with " << n_mol_atoms
 		<< " atoms -----------" << std::endl;
 
@@ -2083,20 +2100,24 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
    
    for (int iat=0; iat<n_mol_atoms; iat++) {
       RDKit::ATOM_SPTR at_p = (*rdkm)[iat];
-      if (0) 
+      if (debug) 
 	 std::cout << "atom " << iat << "/" << n_mol_atoms << "  " << at_p->getAtomicNum()
 		   << " with valence " << at_p->getExplicitValence()
 		   << std::endl;
       if (at_p->getAtomicNum() == 7) { // N
+	 if (debug)
+	    std::cout << " incoming atom N has charge: " << at_p->getFormalCharge() << std::endl;
 	 int e_valence = at_p->getExplicitValence();
-	 if (0) 
+	 if (debug)
 	    std::cout << " atom N has explicit valence: " << e_valence << std::endl;
 	 if (e_valence == 4) {
-	    if (0)
-	       std::cout << ".......... assign_formal_charges: found one! "
+	    if (debug)
+	       std::cout << ".......... assign_formal_charges: found a N with valence 4..."
 			 << at_p << std::endl;
 	    at_p->setFormalCharge(1);
 	 }
+	 if (debug)
+	    std::cout << " atom N has charge: " << at_p->getFormalCharge() << std::endl;
       }
       if (at_p->getAtomicNum() == 12) { // Mg
 	 at_p->setFormalCharge(2);
@@ -2105,7 +2126,7 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
 
    charge_phosphates(rdkm);
    
-   if (0) 
+   if (debug) 
       std::cout << "----------- normal completion of assign_formal_charges()" << std::endl;
 }
 

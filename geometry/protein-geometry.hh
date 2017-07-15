@@ -717,7 +717,7 @@ namespace coot {
       // compares atoms of torsion_restraint vs the ring atoms.
       // bool is_ring_torsion(const dict_torsion_restraint_t &torsion_restraint) const;
       bool is_ring_torsion(const atom_name_quad &quad) const;
-      
+
       void write_cif(const std::string &filename) const;
       // look up the atom id in the atom_info (dict_atom vector)
       std::string atom_name_for_tree_4c(const std::string &atom_id) const;
