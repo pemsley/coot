@@ -5212,6 +5212,11 @@ coot::util::mutate_internal(mmdb::Residue *residue,
 	    if (to_residue_type == "MSE") {
 	       residue_atoms[i]->Het = 1;
 	    }
+	    if (to_residue_type == "PRO") {
+	       std::string atom_name(residue_atoms[i]->name);
+	       if (atom_name == " H  ")
+		  residue->DeleteAtom(i);
+	    }
 	 } else { 
 	    residue->DeleteAtom(i);
 	 }

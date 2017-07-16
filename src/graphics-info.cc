@@ -1458,6 +1458,32 @@ graphics_info_t::run_post_set_rotation_centre_hook_scm() {
 #ifdef USE_PYTHON
 void
 graphics_info_t::run_post_set_rotation_centre_hook_py() {
+
+      // Same as for the post manipulation "hook", i.e. script (maybe
+      // could become an extra function then...
+      // BL says:: we can do it all in python API or use the 'lazy' method
+      // and check in the python layer (which we will do...)
+      PyObject *v;
+      int ret;
+      std::string ps = "post_set_rotation_centre_script";
+      std::string check_ps = "callable(";
+      check_ps += ps;
+      check_ps += ")";
+      v = safe_python_command_with_return(check_ps);
+      ret = PyInt_AsLong(v);
+      if (ret == 1) {
+        std::string ss = ps;
+        ss += "()";
+        PyObject *res = safe_python_command_with_return(ss);
+        PyObject *fmt =  PyString_FromString("result: \%s");
+        PyObject *tuple = PyTuple_New(1);
+        PyTuple_SetItem(tuple, 0, res);
+        PyObject *msg = PyString_Format(fmt, tuple);
+
+        std::cout << PyString_AsString(msg)<<std::endl;;
+        Py_DECREF(msg);
+      }
+      Py_XDECREF(v);
 }
 #endif
 

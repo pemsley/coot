@@ -332,6 +332,7 @@ SCM glyco_tree_residues_scm(int imol, SCM active_residue_scm) {
 // glyco_tree_matched_residue_pairs_scm (although those are only
 // useful for the results for the paper).
 //
+// BL says:: there is a python version below now...
 #ifdef USE_GUILE
 SCM glyco_tree_residue_id_scm(int imol, SCM residue_spec_scm) {
 
@@ -456,6 +457,7 @@ SCM glyco_tree_matched_residue_pairs_scm(int imol_1, SCM res_spec_1_scm, int imo
 PyObject *glyco_tree_py(int imol, PyObject *active_residue_py) {
 
    // incomplete, doesn't work.
+   // BL says:: should now
 
    PyObject *r = Py_False;
    if (is_valid_model_molecule(imol)) {
@@ -465,15 +467,15 @@ PyObject *glyco_tree_py(int imol, PyObject *active_residue_py) {
       mmdb::Residue *residue_p = g.molecules[imol].get_residue(residue_spec);
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
       std::vector<std::string> types_with_no_dictionary =
-	 g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+            g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
       for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
-	 g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
+         g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
       coot::glyco_tree_t t(residue_p, mol, g.Geom_p());
 
    }
 
    if (PyBool_Check(r))
-     Py_INCREF(r);
+      Py_INCREF(r);
 
    return r;
 
@@ -487,33 +489,166 @@ PyObject *glyco_tree_residues_py(int imol, PyObject *active_residue_py) {
    if (is_valid_model_molecule(imol)) {
 
       coot::residue_spec_t residue_spec = residue_spec_from_py(active_residue_py);
-
-      std::cout << "..... active residue spec: " << residue_spec << std::endl;
+//      std::cout << "..... active residue spec: " << residue_spec << std::endl;
       graphics_info_t g;
       mmdb::Residue *residue_p = g.molecules[imol].get_residue(residue_spec);
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
       std::vector<std::string> types_with_no_dictionary =
-	 g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+            g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
       for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
-	 g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
+         g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
       coot::glyco_tree_t t(residue_p, mol, g.Geom_p());
       std::vector<mmdb::Residue *> v_residues = t.residues(residue_spec);
       // std::vector<coot::residue_spec_t> v(v_residues.size()); delete me
       r = PyList_New(v_residues.size());
       for (unsigned int i=0; i<v_residues.size(); i++) {
-	 std::cout << "     " << i << " " << coot::residue_spec_t(v_residues[i]) << std::endl;
-	 coot::residue_spec_t spec(v_residues[i]);
-	 PyList_SetItem(r, i, residue_spec_to_py(spec));
+         // std::cout << "     " << i << " " << coot::residue_spec_t(v_residues[i]) << std::endl;
+         coot::residue_spec_t spec(v_residues[i]);
+         PyList_SetItem(r, i, residue_spec_to_py(spec));
       }
    }
 
    if (PyBool_Check(r))
-     Py_INCREF(r);
+      Py_INCREF(r);
 
    return r;
 
 }
 #endif /* PYTHON */
+
+#ifdef USE_PYTHON
+PyObject *glyco_tree_residue_id_py(int imol, PyObject *residue_spec_py) {
+
+   PyObject *r = Py_False;
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t residue_spec = residue_spec_from_py(residue_spec_py);
+      graphics_info_t g;
+      mmdb::Residue *residue_p = g.molecules[imol].get_residue(residue_spec);
+      mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+      std::vector<std::string> types_with_no_dictionary =
+            g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+      for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
+         g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
+      coot::glyco_tree_t t(residue_p, mol, g.Geom_p());
+      coot::glyco_tree_t::residue_id_t id = t.get_id(residue_p);
+      std::cout << "got id " << id.level << " " << id.prime_arm_flag << " "
+      << id.res_type << std::endl;
+      if (! id.res_type.empty()) {
+         PyObject *parent_spec_py = residue_spec_to_py(id.parent_res_spec);
+         PyObject *prime_flag_sym = PyString_FromString("unset");
+         if (id.prime_arm_flag == coot::glyco_tree_t::residue_id_t::PRIME)
+            prime_flag_sym = PyString_FromString("prime");
+         if (id.prime_arm_flag == coot::glyco_tree_t::residue_id_t::NON_PRIME)
+            prime_flag_sym = PyString_FromString("non-prime");
+
+         PyObject *level = PyInt_FromLong(id.level);
+         PyObject *res_type = PyString_FromString(id.res_type.c_str());
+         PyObject *link_type = PyString_FromString(id.link_type.c_str());
+         PyObject *parent = PyString_FromString(id.parent_res_type.c_str());
+         r = PyList_New(6);
+         PyList_SetItem(r, 0, level);
+         PyList_SetItem(r, 1, prime_flag_sym);
+         PyList_SetItem(r, 2, res_type);
+         PyList_SetItem(r, 3, link_type);
+         PyList_SetItem(r, 4, parent);
+         PyList_SetItem(r, 5, parent_spec_py);
+      }
+   }
+   if (PyBool_Check(r))
+        Py_INCREF(r);
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *glyco_tree_compare_trees_py(int imol_1, PyObject *res_spec_1_py,
+                                      int imol_2, PyObject *res_spec_2_py) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol_1)) {
+      if (is_valid_model_molecule(imol_2)) {
+         graphics_info_t g;
+
+         coot::residue_spec_t residue_spec_1 = residue_spec_from_py(res_spec_1_py);
+         mmdb::Residue *residue_1_p = g.molecules[imol_1].get_residue(residue_spec_1);
+         mmdb::Manager *mol_1 = g.molecules[imol_1].atom_sel.mol;
+         std::vector<std::string> types_with_no_dictionary =
+               g.molecules[imol_1].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+         for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
+            g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
+
+         coot::residue_spec_t residue_spec_2 = residue_spec_from_py(res_spec_2_py);
+         mmdb::Residue *residue_2_p = g.molecules[imol_2].get_residue(residue_spec_2);
+         mmdb::Manager *mol_2 = g.molecules[imol_2].atom_sel.mol;
+         types_with_no_dictionary = g.molecules[imol_2].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+         for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
+            g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
+
+         coot::glyco_tree_t t_1(residue_1_p, mol_1, g.Geom_p());
+         coot::glyco_tree_t t_2(residue_2_p, mol_2, g.Geom_p());
+
+         bool match = t_1.compare_trees(t_2.get_glyco_tree());
+
+         if (match)
+            r = Py_True;
+      }
+   }
+
+   if (PyBool_Check(r))
+      Py_XINCREF(r);
+
+   return r;
+}
+#endif
+
+#ifdef USE_PYTHON
+PyObject *glyco_tree_matched_residue_pairs_py(int imol_1, PyObject *res_spec_1_py,
+                                              int imol_2, PyObject *res_spec_2_py) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol_1)) {
+      if (is_valid_model_molecule(imol_2)) {
+         graphics_info_t g;
+
+         coot::residue_spec_t residue_spec_1 = residue_spec_from_py(res_spec_1_py);
+         mmdb::Residue *residue_1_p = g.molecules[imol_1].get_residue(residue_spec_1);
+         mmdb::Manager *mol_1 = g.molecules[imol_1].atom_sel.mol;
+         std::vector<std::string> types_with_no_dictionary =
+               g.molecules[imol_1].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+         for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
+            g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
+
+         coot::residue_spec_t residue_spec_2 = residue_spec_from_py(res_spec_2_py);
+         mmdb::Residue *residue_2_p = g.molecules[imol_2].get_residue(residue_spec_2);
+         mmdb::Manager *mol_2 = g.molecules[imol_2].atom_sel.mol;
+         types_with_no_dictionary = g.molecules[imol_2].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+         for (unsigned int i=0; i<types_with_no_dictionary.size(); i++)
+            g.Geom_p()->try_dynamic_add(types_with_no_dictionary[i], 41);
+
+         coot::glyco_tree_t t_1(residue_1_p, mol_1, g.Geom_p());
+         coot::glyco_tree_t t_2(residue_2_p, mol_2, g.Geom_p());
+
+         std::vector<std::pair<coot::residue_spec_t, coot::residue_spec_t> > pv = t_1.matched_pairs(t_2.get_glyco_tree());
+         if (! pv.empty()) {
+            PyObject *rt = PyList_New(0);
+            for (unsigned int i=0; i<pv.size(); i++) {
+               PyObject *r_1_py = residue_spec_to_py(pv[i].first);
+               PyObject *r_2_py = residue_spec_to_py(pv[i].second);
+               PyObject *list_py = PyList_New(2);
+               PyList_SetItem(list_py, 0, r_1_py);
+               PyList_SetItem(list_py, 1, r_2_py);
+               PyList_Append(rt, list_py);
+            }
+            r = rt;
+         }
+      }
+   }
+   if (PyBool_Check(r))
+        Py_INCREF(r);
+   return r;
+}
+#endif
 
 #include "c-interface-scm.hh"
 
@@ -529,6 +664,26 @@ SCM glyco_tree_internal_distances_fn_scm(int imol, SCM base_residue_spec_scm, co
 	    graphics_info_t::molecules[imol].glyco_tree_internal_distances_fn(spec.second, g.Geom_p(), file_name);
 	 else
 	    std::cout << "WARNING:: Failed to make residue spec "  << std::endl;
+      }
+   }
+   return r;
+}
+
+#endif
+
+#ifdef USE_PYTHON
+PyObject *glyco_tree_internal_distances_fn_py(int imol, PyObject *base_residue_spec_py,
+                                              const std::string &file_name) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      if (PyList_Check(base_residue_spec_py)) {
+         graphics_info_t g;
+         std::pair<bool, coot::residue_spec_t> spec = make_residue_spec_py(base_residue_spec_py);
+         if (spec.first)
+            graphics_info_t::molecules[imol].glyco_tree_internal_distances_fn(spec.second, g.Geom_p(), file_name);
+         else
+            std::cout << "WARNING:: Failed to make residue spec "  << std::endl;
       }
    }
    return r;

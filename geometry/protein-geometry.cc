@@ -1239,8 +1239,16 @@ coot::operator<<(std::ostream &s, const dict_atom &at) {
    s << "dict_atom: "
      << "atom_id :" << at.atom_id << ":  "
      << "atom-id-4c :" << at.atom_id_4c << ":  "
-     << "type-symbol :" << at.type_symbol << ":  "
-     << "model-pos " << at.model_Cartn.first << " ";
+     << "type-symbol :" << at.type_symbol << ":  ";
+   if (at.formal_charge.first)
+      s << "formal-charge " << at.formal_charge.second << " ";
+   else 
+      s << "no-formal-charge ";
+   if (at.partial_charge.first)
+      s << "partial-charge " << at.partial_charge.second << " ";
+   else 
+      s << "no-partial-charge ";
+   s << "model-pos " << at.model_Cartn.first << " ";
    if (at.model_Cartn.first)
       s << at.model_Cartn.second.format() << " ";
    s << "ideal-pos " << at.pdbx_model_Cartn_ideal.first << " ";

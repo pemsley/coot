@@ -2771,6 +2771,10 @@ SCM glyco_tree_matched_residue_pairs_scm(int imol_1, SCM res_spec_1, int imol_2,
 #ifdef USE_PYTHON
 PyObject *glyco_tree_py(int imol, PyObject *active_residue_py);
 PyObject *glyco_tree_residues_py(int imol, PyObject *active_residue_py);
+PyObject *glyco_tree_internal_distances_fn_py(int imol, PyObject *residue_spec, const std::string &file_name); // testing function
+PyObject *glyco_tree_residue_id_py(int imol, PyObject *residue_spec_py);
+PyObject *glyco_tree_compare_trees_py(int imol_1, PyObject *res_spec_1, int imol_2, PyObject *res_spec_2);
+PyObject *glyco_tree_matched_residue_pairs_py(int imol_1, PyObject *res_spec_1, int imol_2, PyObject *res_spec_2);
 #endif /* PYTHON */
 #endif
 
@@ -5524,7 +5528,7 @@ void citation_notice_off();
 
 Superpose all residues of imol2 onto imol1.  imol1 is reference, we
 can either move imol2 or copy it to generate a new molecule depending
-on the vaule of move_imol2_flag (1 for move 0 for copy). */
+on the vaule of move_imol2_flag (1 for copy 0 for move). */
 void superpose(int imol1, int imol2, short int move_imol2_flag); 
 
 

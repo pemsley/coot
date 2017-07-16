@@ -369,7 +369,16 @@ def add_hydrogens_using_refmac_inner(imol, in_file_name, out_file_name):
 # if (mode == DELETED):
 #      display/print "Something was deleted"
 #
+# This is a global variable now, so that it can be used within other functions
+#
+global post_manipulation_script
 post_manipulation_script = False
+
+# similar for the active residue
+# do something based on the active residue (presumably)
+#
+global post_set_rotation_centre_script
+post_set_rotation_centre_script = False
 
 # return a boolean
 #
