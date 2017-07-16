@@ -24,6 +24,7 @@
 #include <GraphMol/GraphMol.h>
 
 #include <boost/python.hpp>
+
 using namespace boost::python;
 
 #define HAVE_GSL
@@ -50,11 +51,10 @@ namespace coot {
    RDKit::ROMol *hydrogen_transformations(const RDKit::ROMol &r);
    RDKit::ROMol *mogulify(const RDKit::ROMol &r);
 
-   // delete 
-   // mmff_b_a_restraints_container_t *mmff_bonds_and_angles(RDKit::ROMol &mol_in);
-
    // fiddle with mol
    void delocalize_guanidinos(RDKit::RWMol *mol);
+
+   boost::python::list extract_ligands_from_coords_file(const std::string &file_name);
 
    // compiling/linking problems - give up for now.
    // PyObject *convert_rdkit_mol_to_pyobject(RDKit::ROMol *mol);
@@ -73,6 +73,9 @@ BOOST_PYTHON_MODULE(pyrogen_boost) {
    def("hydrogen_transformations", coot::hydrogen_transformations, return_value_policy<manage_new_object>());
    def("mogulify",                 coot::mogulify,                 return_value_policy<manage_new_object>());
    def("mmff_bonds_and_angles",    coot::mmff_bonds_and_angles,    return_value_policy<manage_new_object>());
+
+   def("extract_ligands_from_coords_file",
+       coot::extract_ligands_from_coords_file);
 
    class_<coot::mmff_bond_restraint_info_t>("mmff_bond_restraint_info_t")
       .def("get_idx_1",         &coot::mmff_bond_restraint_info_t::get_idx_1)
@@ -107,6 +110,49 @@ BOOST_PYTHON_MODULE(pyrogen_boost) {
       .def("get_bond",    &coot::mmff_b_a_restraints_container_t::get_bond)
       .def("get_angle",   &coot::mmff_b_a_restraints_container_t::get_angle)
       ;
+}
+
+boost::python::list
+coot::extract_ligands_from_coords_file(const std::string &file_name) {
+
+   boost::python::list rdkit_mols_list;
+   protein_geometry geom;
+
+   if (coot::file_exists(file_name)) {
+      mmdb::Manager *mol = new mmdb::Manager;
+      mol->ReadCoorFile(file_name.c_str());
+      std::vector<mmdb::Residue *> v = util::get_hetgroups(mol); // no waters
+
+      std::cout << "Found " << v.size() << " hetgroups " << std::endl;
+      if (v.size() > 0) {
+	 int read_number = 0;
+	 for (std::size_t i=0; i<v.size(); i++) {
+	    std::string res_name = v[i]->GetResName();
+	    int imol = 0;
+	    if (geom.have_dictionary_for_residue_type(res_name, imol, read_number++)) { // autoloads
+	       std::pair<bool, coot::dictionary_residue_restraints_t> rp =
+		  geom.get_monomer_restraints(res_name, imol);
+	       if (rp.first) {
+		  try {
+		     RDKit::RWMol rdkm = rdkit_mol(v[i], rp.second);
+		     RDKit::ROMol *cm_p = new RDKit::ROMol(rdkm);
+		     boost::shared_ptr<RDKit::ROMol> xx(cm_p);
+		     // maybe I can append(xx) rather than needing this step:
+		     boost::python::object obj(xx);
+		     rdkit_mols_list.append(obj);
+		  }
+		  catch (const std::runtime_error &rte) {
+		     std::cout << "WARNING:: " << rte.what() << std::endl;
+		  }
+		  catch (const std::exception &e) {
+		     std::cout << "WARNING:: " << e.what() << std::endl;
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return rdkit_mols_list;
 }
 
 RDKit::ROMol*

@@ -752,6 +752,8 @@ namespace coot {
 
       mmdb::Residue *get_first_residue(mmdb::Manager *mol);
 
+      std::vector<mmdb::Residue *> get_hetgroups(mmdb::Manager *mol, bool include_waters=false);
+
       mmdb::Residue *get_biggest_hetgroup(mmdb::Manager *mol);
 
       // Trivial helper function.

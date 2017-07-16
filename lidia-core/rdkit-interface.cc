@@ -88,7 +88,8 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 
    std::string n = coot::util::remove_trailing_whitespace(restraints.residue_info.name);
    m.setProp("_Name", n);
-   
+   m.setProp("ResName", std::string(residue_p->GetResName()));
+
    const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;

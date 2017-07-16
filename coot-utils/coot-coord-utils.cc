@@ -2513,6 +2513,40 @@ coot::util::get_first_residue(mmdb::Manager *mol) {
    return res;
 }
 
+std::vector<mmdb::Residue *>
+coot::util::get_hetgroups(mmdb::Manager *mol, bool include_waters) {
+
+   std::vector<mmdb::Residue *> het_residues;
+   if (mol) {
+      mmdb::Model *model_p = mol->GetModel(1);
+      if (model_p) {
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int i_chain=0; i_chain<n_chains; i_chain++) {
+	    mmdb::Chain *chain_p = model_p->GetChain(i_chain);
+	    int nres = chain_p->GetNumberOfResidues();
+	    for (int ires=0; ires<nres; ires++) {
+	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	       if (residue_p) {
+		  std::string res_name = residue_p->GetResName();
+		  if (include_waters || res_name != "HOH") {
+		     int n_atoms = residue_p->GetNumberOfAtoms();
+		     for (int iat=0; iat<n_atoms; iat++) {
+			mmdb::Atom *atom_p = residue_p->GetAtom(iat);
+			if (atom_p->Het) {
+			   het_residues.push_back(residue_p);
+			   break;
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return het_residues;
+}
+
+
 mmdb::Residue *
 coot::util::get_biggest_hetgroup(mmdb::Manager *mol) {
 
