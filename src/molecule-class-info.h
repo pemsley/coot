@@ -724,7 +724,7 @@ public:        //                      public
 
       // bespoke colouring
       use_bespoke_grey_colour_for_carbon_atoms = false;
-      bespoke_carbon_atoms_colour = coot::colour_t(0.6, 0.6, 0.6);
+      bespoke_carbon_atoms_colour = coot::colour_t(0.4, 0.4, 0.4);
 
       // 
       rotate_colour_map_for_difference_map = 240.0; // degrees
