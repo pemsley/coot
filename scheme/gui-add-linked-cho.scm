@@ -447,9 +447,9 @@
 
 		  (list "Refine Tree" (lambda ()
 					(with-auto-accept
-					 (refine-residues aa-imol
-							  (glyco-tree-residues
-							   aa-imol aa-res-spec)))))
+					 (using-active-atom
+					  (refine-residues aa-imol
+							   (glyco-tree-residues aa-imol aa-res-spec))))))
 
 		  (list "Add a NAG-ASN NAG"
 			(lambda ()
