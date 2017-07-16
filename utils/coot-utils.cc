@@ -208,10 +208,18 @@ coot::util::remove_trailing_slash(const std::string &s) {
       if (s.back() == '\\')
          scratch.erase(scratch.end()-1);
 #else
-      if (scratch.substr(scratch.length()-1) == "/")
-         scratch.erase(scratch.end()-1);
-      if (scratch.substr(scratch.length()-1) == "\\")
-         scratch.erase(scratch.end()-1);
+      std::string g = scratch.substr(scratch.length()-1);
+      if (scratch.substr(scratch.length()-1) == "/") {
+	 std::string::iterator it = scratch.end();
+         // scratch.erase(it-1);
+	 std::string::size_type l = scratch.length();
+	 scratch=scratch.substr(0,l-1);
+      } else {
+	 // we need an else, because above makes "/" -> ""
+	 // so scratch.length would be 0
+	 if (scratch.substr(scratch.length()-1) == "\\")
+	    scratch.erase(scratch.end()-1);
+      }
 #endif
    }
    return scratch;

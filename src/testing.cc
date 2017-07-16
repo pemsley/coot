@@ -2809,6 +2809,14 @@ int test_trailing_slash() {
    if (coot::util::remove_trailing_slash(s) != "ss") {
       status = 0;
    }
+   s = "\\"; // single
+   if (coot::util::remove_trailing_slash(s) != "") {
+      status = 0;
+   }
+   s = "";
+   if (coot::util::remove_trailing_slash(s) != "") {
+      status = 0;
+   }
    return status;
 }
 
