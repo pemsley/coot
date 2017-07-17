@@ -8,7 +8,7 @@ AM_CPPFLAGS = \
 
 lib_LTLIBRARIES=libcoot-pli.la
 
-libcoot_pli_la_SOURCES = protein-ligand-interactions.cc
+libcoot_pli_la_SOURCES = protein-ligand-interactions.cc flev-annotations.cc
 
 pkginclude_HEADERS = flev-annotations.hh protein-ligand-interactions.hh 
 

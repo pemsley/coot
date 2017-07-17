@@ -35,7 +35,7 @@
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb-crystal.h"
 
-#include "lbg/flev-annotations.hh" // animated ligand interactions
+#include "pli/flev-annotations.hh" // animated ligand interactions
 #include "named-rotamer-score.hh"
 
 #include "coords/phenix-geo.hh"
