@@ -55,6 +55,8 @@ namespace coot {
    void delocalize_guanidinos(RDKit::RWMol *mol);
 
    boost::python::list extract_ligands_from_coords_file(const std::string &file_name);
+   boost::python::object process_ligand(const std::string &file_name,
+					PyObject *ligand_spec);
 
    // compiling/linking problems - give up for now.
    // PyObject *convert_rdkit_mol_to_pyobject(RDKit::ROMol *mol);
@@ -74,8 +76,8 @@ BOOST_PYTHON_MODULE(pyrogen_boost) {
    def("mogulify",                 coot::mogulify,                 return_value_policy<manage_new_object>());
    def("mmff_bonds_and_angles",    coot::mmff_bonds_and_angles,    return_value_policy<manage_new_object>());
 
-   def("extract_ligands_from_coords_file",
-       coot::extract_ligands_from_coords_file);
+   def("extract_ligands_from_coords_file", coot::extract_ligands_from_coords_file);
+   def("process_ligand", coot::process_ligand);
 
    class_<coot::mmff_bond_restraint_info_t>("mmff_bond_restraint_info_t")
       .def("get_idx_1",         &coot::mmff_bond_restraint_info_t::get_idx_1)
@@ -153,6 +155,94 @@ coot::extract_ligands_from_coords_file(const std::string &file_name) {
       }
    }
    return rdkit_mols_list;
+}
+
+#include "coot-utils/reduce.hh"
+#include "coot-utils/coot-h-bonds.hh"
+
+// Pass also filename for the CCD for the ligand (or its neighbours)
+// or (probably better) a directory.
+//
+boost::python::object
+coot::process_ligand(const std::string &file_name,
+		     PyObject *ligand_spec_py) {
+
+   boost::python::object o(0);
+   float h_bond_dist_max = 3.6;
+
+   if (PyList_Check(ligand_spec_py)) {
+      if (PyObject_Length(ligand_spec_py) == 3) {
+	 PyObject  *chain_id_py = PyList_GetItem(ligand_spec_py, 0);
+	 PyObject     *resno_py = PyList_GetItem(ligand_spec_py, 1);
+	 PyObject  *ins_code_py = PyList_GetItem(ligand_spec_py, 2);
+	 if (PyInt_Check(resno_py)) {
+	    int res_no = PyInt_AsLong(resno_py);
+	    std::string chain_id = PyString_AsString(chain_id_py);
+	    std::string ins_code  = PyString_AsString(ins_code_py);
+	    residue_spec_t rs(chain_id, res_no, ins_code);
+	    mmdb::Manager *mol = new mmdb::Manager;
+	    mol->ReadCoorFile(file_name.c_str());
+	    mmdb::Residue *residue_p = util::get_residue(rs, mol);
+	    if (residue_p) {
+	       // read in a dictionary
+	       int imol = 0; // dummy
+	       int read_number = 0;
+	       protein_geometry geom;
+	       geom.init_standard();
+	       std::string rn = residue_p->GetResName();
+	       geom.try_dynamic_add("MG", read_number++);
+	       if (geom.have_dictionary_for_residue_type(rn, imol, read_number++)) { // autoloads
+		  std::pair<bool, coot::dictionary_residue_restraints_t> rp =
+		     geom.get_monomer_restraints(rn, imol);
+		  if (rp.first) {
+		     reduce r(mol, imol);
+		     r.add_geometry(&geom);
+		     r.add_hydrogen_atoms();
+		     int SelHnd_all = mol->NewSelection(); // d
+		     int SelHnd_lig = mol->NewSelection(); // d
+		     mol->SelectAtoms(SelHnd_all, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES,
+				      "*", "*", "*", "*", "*");
+		     mol->SelectAtoms(SelHnd_lig, 0, chain_id.c_str(),
+				      res_no, ins_code.c_str(),
+				      res_no, ins_code.c_str(),
+				      "*", "*", "*", "*");
+
+		     coot::h_bonds hb;
+		     std::pair<bool, int> status = hb.check_hb_status(SelHnd_lig, mol, geom);
+		     if (! status.first)
+			std::cout << "WARNING:: no HB status on atoms of ligand\n";
+		     std::vector<h_bond> hbonds = hb.get_mcdonald_and_thornton(SelHnd_lig,
+									       SelHnd_all,
+									       mol, geom, h_bond_dist_max);
+
+		     for (unsigned int i=0; i<hbonds.size(); i++) {
+			if (true)
+			   std::cout << "DEBUG:: in process_ligand() hbond [" << i << "] donor "
+				     << coot::atom_spec_t(hbonds[i].donor) << "...to... "
+				     << coot::atom_spec_t(hbonds[i].acceptor) << " with ligand donor flag "
+				     << hbonds[i].ligand_atom_is_donor << std::endl;
+
+			// override these 2 if ligand atom is donor
+			//
+			mmdb::Atom      *ligand_atom = hbonds[i].acceptor;
+			mmdb::Atom *env_residue_atom = hbonds[i].donor;
+			if (hbonds[i].ligand_atom_is_donor) {
+			   ligand_atom = hbonds[i].donor;
+			   env_residue_atom = hbonds[i].acceptor;
+			}
+
+			// ... other stuff
+
+		     }
+		     mol->DeleteSelection(SelHnd_all);
+		     mol->DeleteSelection(SelHnd_lig);
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return o;
 }
 
 RDKit::ROMol*
