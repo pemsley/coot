@@ -1,17 +1,102 @@
 
    For Release 0.8.9
 
-   o API access to write a cif file (if input file is cif... or pdb
+   o qq-plot-map-and-model - is it in the documentation (and redefines)?
+
+   o ACE, PCA and MSE should not be considered as ligands in go-to-ligand
+
+   o make benzoic acid in lidia - does it generate correctly in acedrg and
+     pyrogen?
+
+   o pyrogen -nM -w -r Y03 fails
+
+   o chemical diagram for Acedrg dictionary for this molecule:
+     COC(=O)C(=COC)c1ccccc1COC(N1C)=CC(=N1)C(=C2O)C=C(Cl)C=C2"
+     Disable the conversion to NH+ if any bond to the nitrogen is aromatic.
+
+   o Sat 3 Jun 2017 08:57:29 CEST should accept_moving_atoms() (which
+     can be called via scripting) dismiss the add_alt_conf dialog?  I
+     think yes at the moment. [Georg Kempf]
+
+   o "Delete All Carbohydrate" on 5fuu is very slow. Fix.  Needs delete_residues(imol, res_specs).
+
+* Done.
+
+   o Copy-molecule loses the NCS ghost info/tranformations (i.e. O doesn't work)
+
+   o how about a button that does the "Nice ligand pic" settings for me?
+
+   o do a better job of scaling the density fit analysis (say low resolution data).
+
+   o For glyco tree validation (matching vs oligomannose-tree etc) allow modes 
+     liberal (current) and correct which needs correct residue types
+     and link records. Also, tree validation needs to check the anomericity.
+
+   o copy a fragment that has a link.  The link is not copied into fragment molecule.
+
+* Done.
+
+   o if use has (add-module-carbohydrate) in ~/.coot, then coot should not
+     stop saying unbound variable... i.e. either much of gui-add-linked-cho.scm should
+     be in add-linked-cho.scm or all of it which is unconditionally
+     loaded at runtime (but (of course)) is conditionally evaluated).
+
+   o add_alt_conf interface should have something like this:
+
+      if (use_graphics_interface_flag) {
+         if (refinement_immediate_replacement_flag) {
+	    // dismiss dialog, act as if OK was pressed
+	 }
+      }
+
+   o on mutating a THR (or anything) to a PRO, remember to delete H.
+
+   o I don't like fat hydrogen (bonds) in Colour by Chain mode.
+
+   o when first molecule is not a protein.  Copy NCS residue range. coot-utils.scm 1533
+
+   o in 2qc1, build a NAG, NAG, BMA. Centre on the first NAG, sphere refine or H-refine.  
+     NAG-ASN bond is not properly accounted for:
+
+   o pyrogen -Mn -c PDBe-ADP.cif -> minimation problem
+
+bond  3231.21 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " ND2" ""]
+nbc   1162.68 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" "HD22" ""] target:  2.90  0.02
+nbc    804.52 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" "HD21" ""] target:  2.90  0.02
+nbc    556.46 [spec: model 1 "B" 468 "" " C1 " ""] [spec: model 1 "B" 467 "" " HO3" ""] target:  2.90  0.02
+bond   529.05 [spec: model 1 "B" 467 "" " O3 " ""] [spec: model 1 "B" 468 "" " C1 " ""]
+angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " ND2" ""] [spec: model 1 "B" 141 "" " CG " ""] target: 121.00  3.00
+
+   o build NAG, NAG, BMA.  In coot-reduce, HO4 should not be added at the links.
+     And check that coot-probe looks good.
+
+   o undo and redo should update the Ramachandran plot
+
+   o API access to write a cif file (if input file is cif... or pdb)
+
+* Done.
 
    o delete_all_extra_restraints() should updates the extra restraints display
 
-   o need a delete restraints menu item
+   o need a delete extra restraints menu item
 
    o update the display of the restraints even if the molecule is not displayed
 
+   o bring GM alpha to the API
+
+   o make cryo-EM mode in refinement work
+
    o --splash-screen arb-image.png - does that work?
 
+   o GM distance summary. How many too long, how many too short. And (if possible) by 
+     what amounts.
+
    o parse Sameer's xml
+
+   o add a glyco, with extra GM distance restraints - delete residue
+     (undo).  Now get lots of warning about missing atoms on the
+     terminal (as coot tries to find the atoms for the extra
+     restraints).  Tricky to fix, I think.
 
    o get rid of this: 
      INFO:: setup minimol from mol: no spacegroup

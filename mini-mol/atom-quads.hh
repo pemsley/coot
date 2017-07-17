@@ -86,6 +86,24 @@ namespace coot {
    };
    std::ostream& operator<<(std::ostream &o, const atom_name_quad &q);
 
+   class atom_name_torsion_quad : public atom_name_quad {
+   public:
+      std::string id;
+      double torsion;
+      atom_name_torsion_quad(const std::string &id_in,
+			     const std::string &at_name_1_in,
+			     const std::string &at_name_2_in,
+			     const std::string &at_name_3_in,
+			     const std::string &at_name_4_in,
+			     double tors_in) : atom_name_quad(at_name_1_in,
+							      at_name_2_in,
+							      at_name_3_in,
+							      at_name_4_in) {
+	 torsion = tors_in;
+	 id = id_in;
+      }
+   };
+
    class atom_index_quad {
    public:
       int index1;

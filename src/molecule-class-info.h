@@ -98,9 +98,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "named-rotamer-score.hh"
 
 #include "c-interface-sequence.hh"
-
 #include "map-statistics.hh"
-
 #include "animated-ligand.hh"
 
 namespace molecule_map_type {
@@ -726,7 +724,7 @@ public:        //                      public
 
       // bespoke colouring
       use_bespoke_grey_colour_for_carbon_atoms = false;
-      bespoke_carbon_atoms_colour = coot::colour_t(0.6, 0.6, 0.6);
+      bespoke_carbon_atoms_colour = coot::colour_t(0.4, 0.4, 0.4);
 
       // 
       rotate_colour_map_for_difference_map = 240.0; // degrees
@@ -964,6 +962,7 @@ public:        //                      public
    void set_b_factor_residue_range(const std::string &chain_id, int ires1, int ires2, float b_val);
    void set_b_factor_atom_selection(const atom_selection_container_t &asc, float b_val, bool moving_atoms);
    void set_b_factor_residues(const std::vector<std::pair<coot::residue_spec_t, double> > &rbs); // all atoms of specified
+   void set_b_factor_residue(coot::residue_spec_t spec, float bf);
 
 
    std::vector<coot::atom_spec_t> fixed_atom_specs;
@@ -1586,9 +1585,6 @@ public:        //                      public
 							   bool is_nucleic_acid_flag = false) const;
 
 
-   // These create an object that is not specific to a molecule, there
-   // is only one environment bonds box, no matter how many molecules. Hmm.
-   // The symmetry version is now added 030624 - PE.
    //
    graphical_bonds_container make_environment_bonds_box(int atom_index,
 							coot::protein_geometry *protein_geom_p) const;
@@ -1659,6 +1655,11 @@ public:        //                      public
 					   int resno, 
 					   const std::string &inscode,
 					   const std::string &altconf);
+
+   // Return 1 if at least one atom was deleted, else 0.
+   //
+   short int delete_residues(const std::vector<coot::residue_spec_t> &specs);
+   
    short int delete_residue_sidechain(const std::string &chain_id,
 				      int resno,
 				      const std::string &inscode);
@@ -2744,6 +2745,7 @@ public:        //                      public
    int add_extra_bond_restraint(coot::atom_spec_t atom_1,
 				coot::atom_spec_t atom_2,
 				double bond_dist, double esd);
+   int add_extra_bond_restraints(const std::vector<coot::extra_restraints_t::extra_bond_restraint_t> &bond_specs);
    int add_extra_angle_restraint(coot::atom_spec_t atom_1,
 				 coot::atom_spec_t atom_2,
 				 coot::atom_spec_t atom_3,
@@ -3071,6 +3073,11 @@ public:        //                      public
    std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> >
    get_contours(float contour_level, float radius, const coot::Cartesian &centre) const;
 
+   // carbohydrate validation tools
+   void glyco_tree_internal_distances_fn(const coot::residue_spec_t &base_residue_spec,
+					 coot::protein_geometry *geom_p,
+					 const std::string &file_name);
+   
 };
 
 #endif // MOLECULE_CLASS_INFO_T

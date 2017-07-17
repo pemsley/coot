@@ -553,6 +553,10 @@ low importance
 
 **** Windows ****
 
+   o pass args from msi to exe
+
+   o make real msi at some point
+
    o distribute probe and reduce (from Richardsons? if not ccp4)
 
    o make batch msi (using msiwrapperbatch and config file)

@@ -160,6 +160,9 @@ make_asc(mmdb::Manager *mol, bool transfer_atom_index_flag) {
 
    if (transfer_atom_index_flag) {
       int udd_atom_index_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
+      // int udd_atom_index_handle_fake = mol->GetUDDHandle(mmdb::UDR_ATOM, "fake atom index");
+      // std::cout << "debug:: in make_asc() transfering atom indices, got handle for indices : "
+      // << udd_atom_index_handle << " " << udd_atom_index_handle_fake << std::endl;
       asc.UDDOldAtomIndexHandle = udd_atom_index_handle;
    }
 
@@ -177,8 +180,13 @@ atom_selection_container_t::fill_links(mmdb::Manager *mol_other) {
 	    links.resize(n_links);
 	    for (unsigned int i=0; i<n_links; i++) { 
 	       mmdb::Link l;
-	       l.Copy(model_p->GetLink(i));
-	       links[i] = l;
+	       mmdb::Link *ref_link = model_p->GetLink(i);
+	       if (! ref_link) {
+		  std::cout << "ERROR:: null link " << i << " in ref" << std::endl;
+	       } else {
+		  l.Copy(ref_link);
+		  links[i] = l;
+	       }
 	    }
 	 } 
       }
@@ -645,8 +653,9 @@ coot::contact_info::contact_info(mmdb::Manager *mol, int imol,
 	       for (int j=0; j<asc.n_selected_atoms; j++) {
 		  if (asc.atom_selection[j] == link_torsions[itor].atom_3) {
 		     contacts_pair p(j, i);
-		     std::cout << "---- contact_info() constructor added link bond contact "
-			       << i << " " << j << std::endl;
+                     if (false)
+		        std::cout << "---- contact_info() constructor added link bond contact "
+			          << i << " " << j << std::endl;
 		     contacts.push_back(p);
 		     ifound = true;
 		     break;

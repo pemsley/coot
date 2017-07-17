@@ -6709,13 +6709,13 @@ Wed Jun 27 10:29:54 BST 2012
 #include <functional>
 
 // for erase_if()
-class erasor {
+class eraser {
 public:
    std::string s;
    // the constructor, can be information that needs to be used
    // internally in the operator() function.  This is run once
    // 
-   erasor(const std::string &s_in) {
+   eraser(const std::string &s_in) {
       s = s_in;
    }
    // The passed object type is the <type> of the vector.
@@ -6739,7 +6739,7 @@ int main(int argc, char **argv) {
 
    // remove() and remove_if() generate a useful pointer used by erase()
    v.erase(std::remove(v.begin(), v.end(), "Two"), v.end());
-   v.erase(std::remove_if(v.begin(), v.end(), erasor(bad_boy)), v.end());
+   v.erase(std::remove_if(v.begin(), v.end(), eraser(bad_boy)), v.end());
    
    for (unsigned int i=0; i<v.size(); i++)
       std::cout << "   " << i << " " << v[i] << std::endl;
@@ -7250,6 +7250,8 @@ http://www.youtube.com/watch?v=aMSPwFvlICM
 
    o 4q8j many cis-peptides
 
+   o 4d72 real non-pro cis
+
 ---
 
    Read this paper: 
@@ -7720,6 +7722,96 @@ Thu 23 Mar 2017 12:04:12 GMT
 Tue 18 Apr 2017 16:33:00 BST
 
     5jik is good/interesting for carbohydrate building - non-oligomannose
+
+
+----
+Sun 28 May 2017 17:09:21 CDT
+
+   Oleg Borbulevych's talk: ONIOM QM/MM DivCon improves clash score
+   after their refinement of Astex Diverse set.
+
+   2016 paper
+
+   What would you get (clash score deltas) you tried coot for hydrogen
+   addition and refinement?
+
+----
+Sat  1 Jul 2017 17:36:03 BST
+
+   rdkit fragments:
+
+http://rdkit.org/docs_temp/Chem/Fragments.m.html
+
+
+----
+Sat  1 Jul 2017 18:27:09 BST
+
+   Makefile variables $@ $^ $<
+   $@ -> target,      $^ -> all dependences,   $< -> first dependency
+
+   https://www.gnu.org/software/make/manual/html_node/Automatic-Variables.html
+
+---
+Mon Jun 19 19:46:51 BST 2017
+
+   beta strand: phi=-110, psi=120 from link-restraint.cc
+
+   can you use that with add-terminal-residue-using-phi-psi to make an
+   extended polypetide strand?
+
+----
+Sun  9 Jul 2017 00:52:16 BST
+
+open drug discovery toolkit - what does it do?
+
+https://iwatobipen.wordpress.com/2017/06/04/open-drug-discovery-toolkit-for-python/
+
+http://www.blopig.com/blog/2016/11/how-to-calculate-plifs-using-rdkit-and-plip/
+
+---
+Wed 12 Jul 2017 21:55:28 BST
+
+look this up:
+
+Ho, B. K. & Gruswitz, F. HOLLOW: generating accurate representations
+of channel and interior surfaces in molecular structures. BMC
+Struct. Biol. 8, 49 (2008).
+
+---
+Sun 16 Jul 2017 14:57:51 BST
+
+http://www.boost.org/doc/libs/1_64_0/libs/python/doc/html/tutorial/tutorial/object.html
+
+   Creating boost::python::object from PyObject*
+
+   When you want a boost::python::object to manage a pointer to
+   PyObject* pyobj one does:
+
+   boost::python::object o(boost::python::handle<>(pyobj)); In this
+   case, the object, manages the pyobj, it won’t increase the
+   reference count on construction.
+
+    Otherwise, to use a borrowed reference:
+
+    boost::python::object
+    o(boost::python::handle<>(boost::python::borrowed(pyobj)));
+    In this case, Py_INCREF is called, so pyobj is not destructed when
+    object goes out of scope.
+
+----
+Sun 16 Jul 2017 22:43:37 BST
+
+    convert an RDKit molecule to boost::python::object
+
+   	             std::pair<bool, coot::dictionary_residue_restraints_t> rp = 
+		        geom.get_monomer_restraints(res_name, imol);
+		     RDKit::RWMol rdkm = rdkit_mol(residue_p, rp.second);
+                     boost::python::list rdkit_mols_list;
+		     RDKit::ROMol *cm_p = new RDKit::ROMol(rdkm);
+		     boost::shared_ptr<RDKit::ROMol> xx(cm_p);
+		     // maybe I can append(xx) rather than needing this step:
+		     boost::python::object obj(xx);
+		     rdkit_mols_list.append(obj);
 
 
 ---

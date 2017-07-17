@@ -279,6 +279,10 @@ class LigandTestFunctions(unittest.TestCase):
     def test10_0(self):
         """Pyrogen Runs OK?"""
 
+        if self.skip_test(not enhanced_ligand_coot_p(),
+                          "No ligand enhaced version, skipping Pyrogen test"):
+            return
+
         # bad things may well happen if we run the wrong version of pyrogen.
         # so force pyrogen to be the one that is installed alongside this version of coot 
         # that we are running. We do that by looking and manipulating sys.argv[0]
@@ -299,7 +303,8 @@ class LigandTestFunctions(unittest.TestCase):
         # do we have pass now?
         if not enhanced_ligand_coot_p():
             # dont test pyrogen
-            pass
+            # not needed any more. Tested above.
+            return
         else:
             global use_mogul
 
@@ -316,7 +321,45 @@ class LigandTestFunctions(unittest.TestCase):
                              "WARNING:: pyrogen exited with status %i\n" %popen_status)
             pdb_file_name = tlc_text + "-pyrogen.pdb"
             cif_file_name = tlc_text + "-pyrogen.cif"
-            print "INFO:: pyrogen will try to read pdb file %s" %pdb_file_name
             imol = handle_read_draw_molecule_with_recentre(pdb_file_name, 0)
+            print "INFO:: pyrogen will try to read pdb file %s" %pdb_file_name
             # add test for chirality in the dictionary here
             self.assertTrue(valid_model_molecule_qm(imol))
+
+    def test11_0(self):
+        """pyrogen dictionary does not make double-quoted atom names"""
+
+        # untested - no mogul
+
+        # make sure that you are running the correct pyrogen
+        
+        if self.skip_test(not enhanced_ligand_coot_p(),
+                          "No ligand enhaced version, skipping Pyrogen test"):
+            return
+
+        import os
+        if os.path.isfile("UVP-pyrogen.cif"):
+            os.remove("UVP-pyrogen.cif")
+        
+        popen_status = popen_command("pyrogen",
+                                     ["-nM", "-r", "UVP",
+                                      "CO[C@@H]1[C@H](O)[C@H](O[C@H]1[n+]1ccc(O)nc1O)\\C=C\\P(O)(O)=O"],
+                                     [], "pyrogen.log", False)
+        self.assertEqual(popen_status, 0,
+                         "Fail to correctly run pyrogen\n")
+        read_cif_dictionary("UVP-pyrogen.cif")
+        imol = get_monomer("UVP")
+        self.failUnless(valid_model_molecule_qm(imol),
+                        "Fail to load molecule from pyrogen dictionary\n")
+        atom_info = residue_info(imol, "A", 1, "")
+        # ok
+        for atom in atom_info:
+            atom_name = residue_atom2atom_name(atom)
+            self.failIf("\"" in atom_name,
+                        "Atom name quote fail %s" %atom_name)
+    
+        
+        
+
+                         
+

@@ -1110,7 +1110,7 @@ molecule_class_info_t::draw_extra_restraints_representation() {
 	       double d_sqd = (res.second - res.first).clipper::Coord_orth::lengthsq();
 
 	       if (res.esd > 0) {
-		  double b = (res.target_dist*res.target_dist - d_sqd)/res.esd * 0.005;
+		  double b = (res.target_dist*res.target_dist - d_sqd)/res.esd * 0.002;
 		  if (b >  0.4999) b =  0.4999;
 		  if (b < -0.4999) b = -0.4999;
 		  double b_green = b;
@@ -3461,7 +3461,7 @@ molecule_class_info_t::update_extra_restraints_representation_bonds() {
    // extra_restraints_representation.clear() should be called before calling this function.
 
    // make things redraw fast - this is a hack for morph-and-refine.
-   
+
    if (! draw_it_for_extra_restraints || ! draw_it)
       return;
    
@@ -4013,10 +4013,10 @@ molecule_class_info_t::full_atom_spec_to_atom_index(const std::string &chain,
 bool
 molecule_class_info_t::moving_atom_matches(mmdb::Atom *at, int this_mol_index_maybe) const {
 
-   bool matches = 0;
+   bool matches = false;
    if (atom_sel.n_selected_atoms > 0) { 
       if (this_mol_index_maybe >= atom_sel.n_selected_atoms) {
-	 return 0;
+	 return false;
       } else {
 	 std::string atom_name_mov = at->name;
 	 std::string ins_code_mov  = at->GetInsCode();
@@ -4034,7 +4034,9 @@ molecule_class_info_t::moving_atom_matches(mmdb::Atom *at, int this_mol_index_ma
 	    if (ins_code_ref == ins_code_mov) {
 	       if (resno_ref == resno_mov) {
 		  if (alt_conf_ref == alt_conf_mov) {
-		     matches = 1;
+		     if (chain_id_mov == chain_id_ref) { // 20170612 extra condition added, Oliver Clarke bug
+			matches = true;
+		     }
 		  }
 	       }
 	    }
@@ -4175,25 +4177,27 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
       int idx = -1;
       mmdb::Atom *atom = asc.atom_selection[i];
       if (! atom->isTer()) { 
+//       std::cout << "considering replacement for selected atom " << coot::atom_spec_t(atom) << std::endl;
 //       idx = atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
 // 				    atom->residue->seqNum,
 // 				    std::string(atom->name));
 	 if (asc.UDDOldAtomIndexHandle >= 0) { // OK for fast atom indexing
-	    // std::cout << "OK for fast atom indexing"  << std::endl;
+	    if (false)
+	       std::cout << "... OK for fast atom indexing, asc.UDDOldAtomIndexHandle: " << asc.UDDOldAtomIndexHandle
+			 << std::endl;
 	    if (atom->GetUDData(asc.UDDOldAtomIndexHandle, tmp_index) == mmdb::UDDATA_Ok) {
 	       if (tmp_index >= 0) { 
 		  if (moving_atom_matches(atom, tmp_index)) { 
-		     // std::cout << "DEBUG:: successfully found old atom index" << std::endl;
+		     // std::cout << "      DEBUG:: successfully found old atom index" << std::endl;
 		     idx = tmp_index;
 		  } else {
-		     // std::cout << "DEBUG:: atom index mismatch (this molecule was changed)"
-		     // << std::endl;
+		     // std::cout << "      DEBUG:: atom index mismatch" << std::endl;
 		     idx = full_atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
 							atom->residue->seqNum,
 							std::string(atom->GetInsCode()),
 							std::string(atom->name),
 							std::string(atom->altLoc));
-		     // std::cout << "full_atom_spec_to_atom_index gives index: " << idx << std::endl;
+		     // std::cout << "      DEBUG:: full_atom_spec_to_atom_index gives index: " << idx << std::endl;
 		  }
 	       } else {
 		  // This shouldn't happen.
@@ -4209,9 +4213,11 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 			 <<  "), bad GetUDData for this atom " << std::endl;
 	    } 
 	 } else {
-	    // std::cout << "DEBUG:: asc.UDDOldAtomIndexHandle is " 
-	    // << asc.UDDOldAtomIndexHandle << " using full atom spec to atom index..."
-	    // << std::endl;
+
+	    if (false)
+	       std::cout << "DEBUG:: asc.UDDOldAtomIndexHandle is "
+			 << asc.UDDOldAtomIndexHandle << " using full atom spec to atom index..."
+			 << std::endl;
 
 	    idx = full_atom_spec_to_atom_index(std::string(atom->residue->GetChainID()),
 					       atom->residue->seqNum,
@@ -4283,12 +4289,16 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
 
 	    // don't change alt confs.
 
-	    // 	    std::cout << "DEBUG:: no change of alt conf occs for atom index "
-	    // 		      << idx << std::endl;
-
 	    if (idx != -1 ) {  // enable this text when fixed.
 	       mmdb::Atom *mol_atom = atom_sel.atom_selection[idx];
-	       if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag)) { 
+	       if (movable_atom(mol_atom, replace_coords_with_zero_occ_flag)) {
+		  if (false) {
+		     coot::Cartesian old_pos(mol_atom->x, mol_atom->y, mol_atom->z);
+		     coot::Cartesian new_pos(atom->x, atom->y, atom->z);
+		     double d = (new_pos - old_pos).amplitude();
+		     std::cout << "    changing coords for atom " << coot::atom_spec_t(mol_atom) << std::endl;
+		     std::cout << "   " << old_pos << " " << new_pos << " moved-by " << d << std::endl;
+		  }
 		  mol_atom->SetCoordinates(atom->x,
 					   atom->y,
 					   atom->z,
@@ -6834,30 +6844,34 @@ molecule_class_info_t::model_view_residue_tree_labels() const {
    if (atom_sel.n_selected_atoms > 0) {
 
       mmdb::Chain *chain_p;
-      int im = 1;
-      int nchains = atom_sel.mol->GetNumberOfChains(im);
-      for (int ichain=0; ichain<nchains; ichain++) {
+      int imodel = 1;
+      for(int imodel = 1; imodel<=atom_sel.mol->GetNumberOfModels(); imodel++) {
+	 int nchains = atom_sel.mol->GetNumberOfChains(imodel);
+	 for (int ichain=0; ichain<nchains; ichain++) {
 
-	 chain_p = atom_sel.mol->GetChain(im, ichain);
-	 std::string chain_label("Chain ");
-	 chain_label += chain_p->GetChainID();
-	 v.push_back(coot::model_view_atom_tree_chain_t(chain_label));
+	    chain_p = atom_sel.mol->GetChain(imodel, ichain);
+	    if (chain_p) {
+	       std::string chain_label("Chain ");
+	       chain_label += chain_p->GetChainID();
+	       v.push_back(coot::model_view_atom_tree_chain_t(chain_label));
 	 
-	 if (! chain_p) {
-	    std::cout << "ERROR getting chain in model_view_residue_tree_labels\n";
-	 } else {
-	    int nres = chain_p->GetNumberOfResidues();
-	    mmdb::PResidue residue_p;
-	    for (int ires=0; ires<nres; ires++) {
-	       residue_p = chain_p->GetResidue(ires);
-	       std::string label = residue_p->GetChainID();
-	       label += " ";
-	       label += coot::util::int_to_string(residue_p->GetSeqNum());
-	       label += residue_p->GetInsCode();
-	       label += " ";
-	       label += residue_p->name;
-	       coot::model_view_atom_tree_item_info_t res(label, residue_p);
-	       v.back().add_residue(res);
+	       if (! chain_p) {
+		  std::cout << "ERROR getting chain in model_view_residue_tree_labels\n";
+	       } else {
+		  int nres = chain_p->GetNumberOfResidues();
+		  mmdb::PResidue residue_p;
+		  for (int ires=0; ires<nres; ires++) {
+		     residue_p = chain_p->GetResidue(ires);
+		     std::string label = residue_p->GetChainID();
+		     label += " ";
+		     label += coot::util::int_to_string(residue_p->GetSeqNum());
+		     label += residue_p->GetInsCode();
+		     label += " ";
+		     label += residue_p->name;
+		     coot::model_view_atom_tree_item_info_t res(label, residue_p);
+		     v.back().add_residue(res);
+		  }
+	       }
 	    }
 	 }
       }

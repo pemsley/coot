@@ -275,7 +275,7 @@ coot::torsionable_link_quads(int imol,
 		  // pass
 		  std::cout << "   link # " << il << " is pyranose ring torsion # PASS" << std::endl;
 
-		  if (true) { // debug
+		  if (false) { // debug
 		     mmdb::Residue *r_1 = bpc[i].res_1;
 		     mmdb::Residue *r_2 = bpc[i].res_1;
 		     mmdb::Residue *r_3 = bpc[i].res_1;
@@ -406,6 +406,7 @@ void
 coot::multi_residue_torsion_fit_map(int imol,
 				    mmdb::Manager *mol,
 				    const clipper::Xmap<float> &xmap,
+				    const std::vector<std::pair<bool, clipper::Coord_orth> > &avoid_these_atoms, // 20170613 flag is is-water
 				    int n_trials,
 				    coot::protein_geometry *geom_p) {
 
@@ -422,7 +423,7 @@ coot::multi_residue_torsion_fit_map(int imol,
    // update model so that it uses best_tree_dihedral_quads
 
    std::vector<std::pair<std::string, int> > atom_numbers = coot::util::atomic_number_atom_list();
-   
+
    try {
       mmdb::PPAtom atom_selection = 0;
       int n_selected_atoms;
@@ -439,7 +440,7 @@ coot::multi_residue_torsion_fit_map(int imol,
 	 if (atomic_number == -1)
 	    z = 6.0f;
 	 atoms[iat] = std::pair<mmdb::Atom *, float> (atom_selection[iat], z);
-      } 
+      }
 
       if (n_selected_atoms > 0) { 
 	 std::vector<coot::torsion_atom_quad> quads = 
@@ -448,7 +449,7 @@ coot::multi_residue_torsion_fit_map(int imol,
 	 // FIXME for future, calculate link_angle_atom_triples, using something analoguous to
 	 // torsionable_link_quads()
 
-	 if (true)
+	 if (false)
 	    for (unsigned int iquad=0; iquad<quads.size(); iquad++)
 	       std::cout << "DEBUG tosion quads:  " << iquad << " "
 			 << coot::atom_spec_t(quads[iquad].atom_1) << " " 
@@ -493,28 +494,59 @@ coot::multi_residue_torsion_fit_map(int imol,
 	       small_torsion_changes = true;
 	    } 
 	       
-	    if (0)
+	    if (false)
 	       std::cout << "Round " << itrial << " of " << n_trials << " for " << n_quads << " quads "
 			 << std::endl;
 
 	    std::vector<atom_tree_t::tree_dihedral_quad_info_t> torsion_quads;
+#ifdef HAVE_CXX11
+	    // debug, store angles in rand_angles: name current trial-value
+	    std::vector<std::tuple<std::string, double, double> > rand_angles(n_quads);
+#endif // HAVE_CXX11
 	    for (int iquad=0; iquad<n_quads; iquad++) {
 	       // quads[iquad] is passed for debugging
                double rand_angle = get_rand_angle(best_quads[iquad], quads[iquad], itrial,
 						  n_trials, allow_conformer_switch, small_torsion_changes);
+#ifdef HAVE_CXX11
+	       std::tuple<std::string, double, double> tup(quads[iquad].name, best_quads[iquad], rand_angle);
+	       rand_angles[iquad] = tup;
+#endif // HAVE_CXX11
 	       atom_tree_t::tree_dihedral_quad_info_t tor(quads[iquad], rand_angle, fixed_index);
 	       torsion_quads.push_back(tor);
 	    }
+
+#ifdef HAVE_CXX11
+	    if (false) { //debug
+	       for (int iquad=0; iquad<n_quads; iquad++) {
+		  std::cout << "debug: itrial " << itrial << " "
+			    << "iquad " << iquad << " "
+			    << std::get<0>(rand_angles[iquad]) << " "
+			    << std::get<1>(rand_angles[iquad]) << " "
+			    << std::get<2>(rand_angles[iquad]) << " ";
+	       }
+	       std::cout << std::endl;
+	    }
+#endif // HAVE_CXX11
 	    tree.set_dihedral_multi(torsion_quads);
 	    // FIXME for futures, also include link_angle_atom_triples (for excluding of bumps)
 	    double self_clash_score = get_self_clash_score(mol, atom_selection, n_selected_atoms, quads);
 
+	    double env_clash_score = get_environment_clash_score(mol, atom_selection, n_selected_atoms,
+                                                                 avoid_these_atoms);
+
+	    if (false) {
+	       std::cout << "DEBUG:: self_clash_score: " << self_clash_score << std::endl;
+	       std::cout << "DEBUG::  env_clash_score: " <<  env_clash_score << std::endl;
+	    }
+
 	    // self-clash scores have mean 7.5, median 3.3 and sd 14, IRQ 0.66
-	    // 
-	    if (self_clash_score > 6 ) {
+	    // Is this a good clash score lim?  Not clear, but 10.0 is better than 1.0
+	    //
+	    if ((self_clash_score > 6) || (env_clash_score > 30.0)) {
 
 	       // crash and bangs into itself (between residues)
-	       
+	       // or into its neighbours (the 1.0 might need tuning)
+
 	    } else {
 
 	       // happy path
@@ -524,7 +556,7 @@ coot::multi_residue_torsion_fit_map(int imol,
 	       // debugging of scores
 	       if (false) { 
 		  std::cout << "debug trial " << itrial << " fit-score: " << this_score
-			    << " clash-score " << self_clash_score 
+			    << " self-clash-score " << self_clash_score 
 			    << " for quads "; 
 		  for (unsigned int iquad=0; iquad<quads.size(); iquad++)
 		     std::cout << "   " << quads[iquad].torsion();
@@ -589,7 +621,6 @@ coot::get_rand_angle(double current_angle,
    double trial_factor = double(itrial)/double(n_trials);
    // double angle_scale_factor = 0.2 + 0.8*(1-trial_factor);
    double angle_scale_factor = 0.2 + 0.8 - trial_factor;
-   
 
    if (small_torsion_changes) {
       r += 5.0 * minus_one_to_one;
@@ -612,12 +643,6 @@ coot::get_rand_angle(double current_angle,
    if (r > 360)
       r -= 360;
    
-   // for making graphs of torsions, grep varying
-   //
-   if (false)
-      std::cout << "   varying " << quad.name << " was " << current_angle << " now "
-		<< r << " delta: " << r - current_angle << std::endl;
-   
    return r; 
 } 
 
@@ -632,6 +657,7 @@ coot::get_self_clash_score(mmdb::Manager *mol,
    // sum of (d-bump_max)^2 for atom pairs i,j where j<i where d < bump_max
 
    mmdb::realtype bump_max = 3.6; // find distances between atoms that are less than this.
+   bump_max = 2.8; // 20170615 try this (for less self bumping)
    double clash_score = 0;
 
    // setup for SeekContacts():
@@ -666,17 +692,25 @@ coot::get_self_clash_score(mmdb::Manager *mol,
 		  std::string e2 = at_2->element;
 
 		  if ((e1 != " H") && (e2 != " H")) {  // PDB vs 3 FIXME
-		     double d_sqd =
-			(at_1->x-at_2->x) * (at_1->x-at_2->x) +
-			(at_1->y-at_2->y) * (at_1->y-at_2->y) + 
-			(at_1->z-at_2->z) * (at_1->z-at_2->z);
+		     // ignore bumps to O5 (e.g. O4(prev)-O5(new)) on newly added residue
 
-		     // are they either in a bond, angle or torsion of any of quads?
-		     // 
-		     bool in_a_tors = both_in_a_torsion_p(at_1, at_2, quads);
-		     if (! in_a_tors) {
-			double delta = bump_max - sqrt(d_sqd);
-			clash_score += delta * delta;
+		     std::string atom_name_2 = at_2->name;
+		     if (atom_name_2 != " O5 ") {
+			double d_sqd =
+			   (at_1->x-at_2->x) * (at_1->x-at_2->x) +
+			   (at_1->y-at_2->y) * (at_1->y-at_2->y) + 
+			   (at_1->z-at_2->z) * (at_1->z-at_2->z);
+
+			// are they either in a bond, angle or torsion of any of quads?
+			// 
+			bool in_a_tors = both_in_a_torsion_p(at_1, at_2, quads);
+			if (! in_a_tors) {
+			   double delta = bump_max - sqrt(d_sqd);
+			   clash_score += delta * delta;
+			   if (false)
+			      std::cout << "adding to clash_score " << delta * delta << " for dist " << sqrt(d_sqd)
+					<< " between " << atom_spec_t(at_1) << " and " << atom_spec_t(at_2) << std::endl;
+			}
 		     }
 		  }
 	       }
@@ -716,3 +750,37 @@ coot::both_in_a_torsion_p(mmdb::Atom *at_1,
    }
    return in_a_tors;
 } 
+
+// return a positive number for a clash - the bigger the number the worse the clash.
+//
+double
+coot::get_environment_clash_score(mmdb::Manager *mol,
+				  mmdb::PPAtom atom_selection,
+				  int n_selected_atoms,
+				  const std::vector<std::pair<bool, clipper::Coord_orth> > &avoid_these_atoms) {
+   double cs = 0;
+   double sf = 1.0;
+   for (int iat=0; iat<n_selected_atoms; iat++) {
+      // we expect that the ASN will be close to its polypeptide neighbours.  We don't want to
+      // include such clashes
+      std::string res_name = atom_selection[iat]->GetResName();
+      // std::cout << "res_name is " << res_name << std::endl;
+      if (res_name != "ASN") {
+	 clipper::Coord_orth at_pt = co(atom_selection[iat]);
+	 for (unsigned int jat=0; jat<avoid_these_atoms.size(); jat++) {
+	    double close_lim = 3.3;
+	    if (avoid_these_atoms[jat].first) close_lim = 2.5; // we can get close to waters without worry
+	    double close_lim_sqrd = close_lim * close_lim;
+	    double d_sqd = (at_pt - avoid_these_atoms[jat].second).lengthsq();
+	    if (d_sqd < close_lim_sqrd) {
+	       double diff = close_lim - sqrt(d_sqd);
+	       cs += diff*diff*sf;
+	       if (false)
+		  std::cout << "DEBUG:: env clash: atom " << atom_spec_t(atom_selection[iat]) << " is close to "
+			    << jat << " " << avoid_these_atoms[jat].second.format() << " " << sqrt(d_sqd) << std::endl;
+	    }
+	 }
+      }
+   }
+   return cs;
+}

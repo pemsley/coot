@@ -69,7 +69,7 @@
 #include "ligand/dunbrack.hh"
 #else 
 #include "ligand/richardson-rotamer.hh"
-#endif 
+#endif
 
 #include "clipper/core/map_utils.h" // Map_stats
 #include "skeleton/graphical_skel.h"
@@ -458,23 +458,16 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	 
 	 const coot::protein_geometry &geom = *geom_p;
 
-	 if (molecules[imol_for_atoms].extra_restraints.has_restraints())
-	    restraints.add_extra_restraints(imol_for_atoms, molecules[imol_for_atoms].extra_restraints, geom);
-
 	 // 20132008: debugging CCP4 SRS inclusion.  Currently it
 	 // seems that problem is calling a member function of
 	 // restraints.  An inline version of the same test function
 	 // doesn't cause the corruption of geom.
 	 // 
 	 if (0) { 
-	    std::cout << "------------------- copy_mol_and_refine_inner() pre calling make_restraints() geom size "
-		      << Geom_p()->size() << std::endl;
+	    std::cout << Geom_p()->size() << std::endl;
 	    std::cout << "    geom     pointer " << Geom_p() << std::endl;
-	    std::cout << "------------------- copy_mol_and_refine_inner() pre calling make_restraints() ref geom size "
-		      << geom.size() << std::endl;
+	    std::cout << geom.size() << std::endl;
 	    std::cout << "    geom ref pointer " << &geom << std::endl;
-
-	 
 
 	    unsigned int n_test = restraints.inline_const_test_function(geom);
 	    std::cout << "------------------- copy_mol_and_refine_inner() inline_const_test_function n_test: "
@@ -500,6 +493,12 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 				       rama_plot_restraint_weight,
 				       do_rama_restraints,
 				       pseudo_bonds_type);
+
+	 restraints.set_geman_mcclure_alpha(geman_mcclure_alpha);
+
+	 if (molecules[imol_for_atoms].extra_restraints.has_restraints())
+	    restraints.add_extra_restraints(imol_for_atoms, molecules[imol_for_atoms].extra_restraints,
+					    geom);
 
 	 if (do_numerical_gradients)
 	    restraints.set_do_numerical_gradients();
@@ -803,7 +802,10 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	       }
 
 #ifdef HAVE_CXX_THREAD
-	       restraints.thread_pool(&static_thread_pool, coot::get_max_number_of_threads());
+	       // this will be conflicted when refinement and master are merged
+	       unsigned int n_threads = coot::get_max_number_of_threads();
+	       if (n_threads > 1) // or 0?
+		  restraints.thread_pool(&static_thread_pool, n_threads);
 #endif // HAVE_CXX_THREAD
 
 	       if (false)
@@ -813,9 +815,6 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 			    << molecules[imol].extra_restraints.has_restraints()
 			    <<  " " << molecules[imol].extra_restraints.bond_restraints.size()
 			    << std::endl;
-	       
-	       if (molecules[imol].extra_restraints.has_restraints())
-		  restraints.add_extra_restraints(imol, molecules[imol].extra_restraints, *Geom_p());
 
 	       int n_restraints = restraints.make_restraints(imol,
 							     *Geom_p(), flags,
@@ -824,6 +823,11 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 							     rama_plot_restraint_weight,
 							     do_rama_restraints,
 							     pseudo_bonds_type);
+
+	       restraints.set_geman_mcclure_alpha(geman_mcclure_alpha);
+
+	       if (molecules[imol].extra_restraints.has_restraints())
+		  restraints.add_extra_restraints(imol, molecules[imol].extra_restraints, *Geom_p());
 	       
 	       if (do_numerical_gradients)
 		  restraints.set_do_numerical_gradients();
@@ -841,7 +845,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	 if (icheck.first == 0) { 
 	    info_dialog_missing_refinement_residues(icheck.second);
 	 }
-      } 
+      }
    }
    return rr;
 
@@ -850,7 +854,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
    std::cout << "Cannot refine without compilation with GSL" << std::endl;
    return coot::refinement_results_t(0, 0, "");
 
-#endif    
+#endif
 }
 
 // mol is new (not from molecules[imol]) molecule for the moving atoms.
@@ -1104,7 +1108,7 @@ graphics_info_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Resi
    if (residues.size() > 0) { 
 
       std::pair<bool, mmdb::Manager *> n_mol_1 =
-	 coot::util::create_mmdbmanager_from_residue_vector(residues);
+	 coot::util::create_mmdbmanager_from_residue_vector(residues, mol_in);
       
       new_mol = n_mol_1.second;
       mmdb::Model *model_p = new_mol->GetModel(1);
@@ -1420,7 +1424,7 @@ graphics_info_t::refinement_results_to_scm(coot::refinement_results_t &rr) {
    }
    return r;
 }
-#endif    
+#endif
 
 #ifdef USE_PYTHON
 PyObject *
@@ -1456,7 +1460,7 @@ graphics_info_t::refinement_results_to_py(coot::refinement_results_t &rr) {
    }
    return r;
 } 
-#endif    
+#endif
 
 
 
@@ -2012,6 +2016,14 @@ graphics_info_t::rigid_body_fit(const coot::minimol::molecule &mol_without_movin
 
       success = 1;
       rigid_body_asc = make_asc(moved_mol.pcmmdbmanager(), true);
+
+      if (false)
+	 std::cout << "debug in rigid_fit() post-fit: here UDDOldAtomIndexHandle is "
+		   << rigid_body_asc.UDDOldAtomIndexHandle << std::endl;
+
+      // this seems fine.
+      if (debug)
+	 rigid_body_asc.mol->WritePDBASCII("post-rigid-body-refine.pdb");
 
       moving_atoms_asc_type = coot::NEW_COORDS_REPLACE;
       imol_moving_atoms = imol_rigid_body_refine;

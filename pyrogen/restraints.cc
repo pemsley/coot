@@ -1851,3 +1851,12 @@ coot::regularize_inner(RDKit::ROMol &mol,
    return std::pair<mmdb::Manager *, mmdb::Residue *> (cmmdbmanager, residue_p);
 } 
 
+
+
+// PyObject *
+// coot::convert_rdkit_mol_to_pyobject(RDKit::ROMol *mol) {
+
+//    PyObject *r = Py_False;
+
+//    return r;
+// }

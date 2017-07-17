@@ -1,4 +1,4 @@
-/* canyon/phenix-geo-bonds.cc
+/* coords/phenix-geo-bonds.cc
  * 
  * Copyright 2014 by Medical Research Council
  * Author: Paul Emsley

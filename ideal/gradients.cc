@@ -323,6 +323,11 @@ coot::my_df_non_bonded_single(const gsl_vector *v,
    int idx_1 = 3*this_restraint.atom_index_1;
    int idx_2 = 3*this_restraint.atom_index_2;
 
+   // no need to calculate anything if both these atoms are non-moving
+   //
+   if (this_restraint.fixed_atom_flags[0] && this_restraint.fixed_atom_flags[1])
+      return;
+
    // check for both-ways nbcs (seems OK)
    //
    // std::cout << "nbc: idx_1 " << idx_1 << " idx_2 " << idx_2 << std::endl;
@@ -468,7 +473,8 @@ coot::my_df_non_bonded(const  gsl_vector *v,
 	 for (unsigned int i=0; i<restraints_size; i++) {
 	    const simple_restraint &this_restraint = (*restraints_p)[i];
 	    if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
-	       my_df_non_bonded_single(v, df, this_restraint);
+	       if (this_restraint.fixed_atom_flags[0]==false || this_restraint.fixed_atom_flags[1]==false)
+		  my_df_non_bonded_single(v, df, this_restraint);
 	    }
 	 }
       }
@@ -477,7 +483,10 @@ coot::my_df_non_bonded(const  gsl_vector *v,
       for (unsigned int i=0; i<restraints_size; i++) {
 	 const simple_restraint &this_restraint = (*restraints_p)[i];
 	 if (this_restraint.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
-	    my_df_non_bonded_single(v, df, this_restraint);
+	    // no need to calculate anything if both these atoms are non-moving
+	    //
+	    if (this_restraint.fixed_atom_flags[0]==false || this_restraint.fixed_atom_flags[1]==false)
+	       my_df_non_bonded_single(v, df, this_restraint);
 	 }
       }
 #endif
@@ -504,7 +513,7 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
    // 
    // int n_var = restraints->n_variables();
    // float derivative_value; 
-   int idx; 
+   int idx;
 
    if (restraints->restraints_usage_flag & GEMAN_MCCLURE_DISTANCE_MASK) { 
 
@@ -597,19 +606,45 @@ coot::my_df_geman_mcclure_distances(const  gsl_vector *v,
  	       y_l_contrib = constant_part*(a2.y()-a1.y());
  	       z_l_contrib = constant_part*(a2.z()-a1.z());
 
-	       if (! rest.fixed_atom_flags[0]) { 
+	       if (! rest.fixed_atom_flags[0]) {
+#ifdef HAVE_CXX_THREAD
+		  // use atomic lock to access derivs of atom atom_idx_1
+		  unsigned int unlocked = 0;
+		  while (! restraints->gsl_vector_atom_pos_deriv_locks.get()[rest.atom_index_1].compare_exchange_weak(unlocked, 1)) {
+		     std::cout << "oops locked! [0] " << rest.atom_index_1 << std::endl;
+		     std::this_thread::sleep_for(std::chrono::nanoseconds(10));
+		     unlocked = 0;
+		  }
+#endif
 		  idx = 3*rest.atom_index_1;
 		  *gsl_vector_ptr(df, idx  ) += x_k_contrib;
 		  *gsl_vector_ptr(df, idx+1) += y_k_contrib;
 		  *gsl_vector_ptr(df, idx+2) += z_k_contrib;
+		  // std::cout << "unlock [0] " << rest.atom_index_1 << std::endl;
+#ifdef HAVE_CXX_THREAD
+		  restraints->gsl_vector_atom_pos_deriv_locks.get()[rest.atom_index_1] = 0; // unlock
+#endif
 	       }
 
 	       if (! rest.fixed_atom_flags[1]) { 
+#ifdef HAVE_CXX_THREAD
+		  // use atomic lock to access derivs of atom atom_idx_2
+		  unsigned int unlocked = 0;
+		  while (! restraints->gsl_vector_atom_pos_deriv_locks.get()[rest.atom_index_2].compare_exchange_weak(unlocked, 1)) {
+		     std::cout << "oops locked! [1] " << rest.atom_index_2 << std::endl;
+		     std::this_thread::sleep_for(std::chrono::nanoseconds(10));
+		     unlocked = 0;
+		  }
+#endif
 		  idx = 3*rest.atom_index_2;
 		  *gsl_vector_ptr(df, idx  ) += x_l_contrib;
 		  *gsl_vector_ptr(df, idx+1) += y_l_contrib;
 		  *gsl_vector_ptr(df, idx+2) += z_l_contrib;
-	       } 
+		  // std::cout << "unlock [1] " << rest.atom_index_1 << std::endl;
+#ifdef HAVE_CXX_THREAD
+		  restraints->gsl_vector_atom_pos_deriv_locks.get()[rest.atom_index_2] = 0; // unlock
+#endif
+	       }
 	    }
 	 }
       }

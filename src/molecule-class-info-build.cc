@@ -303,7 +303,7 @@ molecule_class_info_t::delete_any_link_containing_residue(const coot::residue_sp
 	       if (link_p) { 
 
 		  // must pass a valid link_p
-		  std::pair<coot::atom_spec_t, coot::atom_spec_t> link_atoms = coot::link_atoms(link_p);
+		  std::pair<coot::atom_spec_t, coot::atom_spec_t> link_atoms = coot::link_atoms(link_p, model_p);
 		  coot::residue_spec_t res_1(link_atoms.first);
 		  coot::residue_spec_t res_2(link_atoms.second);
 		  // std::cout << "found link " << res_1 << " to "  << res_2 << std::endl;
@@ -326,7 +326,7 @@ void
 molecule_class_info_t::delete_link(mmdb::Link *link, mmdb::Model *model_p) {
 
    // Copy out the links, delete all links and add the saved links back
-   
+
    std::vector<mmdb::Link *> saved_links;
    int n_links = model_p->GetNumberOfLinks();
    for (int ilink=1; ilink<=n_links; ilink++) {
@@ -336,6 +336,7 @@ molecule_class_info_t::delete_link(mmdb::Link *link, mmdb::Model *model_p) {
 	 saved_links.push_back(copy_link);
       }
    }
+
    model_p->RemoveLinks();
    for (unsigned int i=0; i<saved_links.size(); i++) { 
       model_p->AddLink(saved_links[i]);

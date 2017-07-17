@@ -365,7 +365,7 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 	 display_density_level_this_image = 1;
 	 std::string s;
 	 s = "Read ";
-	 s += int_to_string(rmit.n_atoms);
+    s += int_to_string(rmit.n_atoms + rmit.n_links);
 	 s += " atoms/links in restraints from ";
 	 s += cif_dictionary_filename;
 	 display_density_level_screen_string = s;
@@ -577,6 +577,7 @@ graphics_info_t::setRotationCentre(int index, int imol) {
 	 molecules[imol].add_to_labelled_atom_list(index);
       }
    }
+   run_post_set_rotation_centre_hook();
 }
 
 // update the green square, where we are.
@@ -687,8 +688,7 @@ graphics_info_t::setRotationCentre(const symm_atom_info_t &symm_atom_info) {
       rotation_centre_z = z;
    } else { 
       std::cout << "ERROR:: NULL atom in setRotationCentre(symm_atom_info_t)\n";
-   } 
-
+   }
 }
 
 void
@@ -953,6 +953,7 @@ graphics_info_t::setRotationCentre(coot::Cartesian centre) {
    rotation_centre_x = centre.get_x();
    rotation_centre_y = centre.get_y();
    rotation_centre_z = centre.get_z();
+   run_post_set_rotation_centre_hook();
 }
 
 void
@@ -971,6 +972,7 @@ graphics_info_t::setRotationCentreAndZoom(coot::Cartesian centre,
    rotation_centre_y = centre.get_y();
    rotation_centre_z = centre.get_z();
    zoom = target_zoom;
+   run_post_set_rotation_centre_hook();
 }
 
 
@@ -1282,6 +1284,8 @@ graphics_info_t::accept_moving_atoms() {
       } else {
 	 if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) {
 	    molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 0, mzo);
+	    // debug
+	    // molecules[imol_moving_atoms].atom_sel.mol->WritePDBASCII("post-accept_moving_atoms.pdb");
 	    update_geometry_graphs(*moving_atoms_asc, imol_moving_atoms);
 	 } else {
 	    if (moving_atoms_asc_type == coot::NEW_COORDS_INSERT) {
@@ -1415,6 +1419,74 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
    Py_XDECREF(v);
 }
 #endif
+
+
+void
+graphics_info_t::run_post_set_rotation_centre_hook() {
+
+#if defined USE_GUILE
+   run_post_set_rotation_centre_hook_scm();
+#endif // GUILE
+
+#ifdef USE_PYTHON
+   run_post_set_rotation_centre_hook_py();
+#endif
+
+}
+
+#ifdef USE_GUILE
+void
+graphics_info_t::run_post_set_rotation_centre_hook_scm() {
+   std::string s = "post-set-rotation-centre-hook";
+   SCM v = safe_scheme_command(s);
+
+   if (scm_is_true(scm_procedure_p(v))) {
+      std::string ss = "(";
+      ss += s;
+      ss += ")";
+      SCM res = safe_scheme_command(ss);
+      if (false) {  // too noisy
+	 SCM dest = SCM_BOOL_F;
+	 SCM mess = scm_makfrom0str("result: ~s\n");
+	 SCM p = scm_simple_format(dest, mess, scm_list_1(res));
+	 std::cout << scm_to_locale_string(p);
+      }
+   }
+}
+#endif
+
+#ifdef USE_PYTHON
+void
+graphics_info_t::run_post_set_rotation_centre_hook_py() {
+
+      // Same as for the post manipulation "hook", i.e. script (maybe
+      // could become an extra function then...
+      // BL says:: we can do it all in python API or use the 'lazy' method
+      // and check in the python layer (which we will do...)
+      PyObject *v;
+      int ret;
+      std::string ps = "post_set_rotation_centre_script";
+      std::string check_ps = "callable(";
+      check_ps += ps;
+      check_ps += ")";
+      v = safe_python_command_with_return(check_ps);
+      ret = PyInt_AsLong(v);
+      if (ret == 1) {
+        std::string ss = ps;
+        ss += "()";
+        PyObject *res = safe_python_command_with_return(ss);
+        PyObject *fmt =  PyString_FromString("result: \%s");
+        PyObject *tuple = PyTuple_New(1);
+        PyTuple_SetItem(tuple, 0, res);
+        PyObject *msg = PyString_Format(fmt, tuple);
+
+        std::cout << PyString_AsString(msg)<<std::endl;;
+        Py_DECREF(msg);
+      }
+      Py_XDECREF(v);
+}
+#endif
+
 
 
 void
@@ -1568,8 +1640,10 @@ graphics_info_t::drag_refine_refine_intermediate_atoms() {
       g.do_interactive_coot_probe();
 
    char *env = getenv("COOT_DEBUG_REFINEMENT");
-   if (env)
-      g.tabulate_geometric_distortions(last_restraints);
+   if (moving_atoms_asc)
+      if (moving_atoms_asc->mol)
+         if (env)
+            g.tabulate_geometric_distortions(last_restraints);
 
    // Update the Accept/Reject Dialog if it exists (and it should do,
    // if we are doing dragged refinement).
@@ -1713,15 +1787,20 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 
 // Display the graphical object of the regularization.
 // static
+// moving atoms are intermediate atoms
 void 
-graphics_info_t::moving_atoms_graphics_object() { 
+graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_background) { 
    
    // very much most of the time, this will be zero
    // 
-   if (graphics_info_t::regularize_object_bonds_box.num_colours > 0) { 
+   if (graphics_info_t::regularize_object_bonds_box.num_colours > 0) {
 
-      // now we want to draw out our bonds in white, 
-      glColor3f (0.9, 0.9, 0.9);
+      if (against_a_dark_background) {
+	 // now we want to draw out our bonds in white, 
+	 glColor3f (0.9, 0.9, 0.9);
+      } else {
+	 glColor3f (0.6, 0.6, 0.6);
+      }
       
       glLineWidth(graphics_info_t::bond_thickness_intermediate_atoms);
       for (int i=0; i< graphics_info_t::regularize_object_bonds_box.num_colours; i++) {
@@ -1734,7 +1813,10 @@ graphics_info_t::moving_atoms_graphics_object() {
 	    glColor3f (0.95, 0.65, 0.65);
 	    break;
 	 default:
-	    glColor3f (0.8, 0.8, 0.8);
+	    if (against_a_dark_background)
+	       glColor3f (0.8, 0.8, 0.8);
+	    else
+	       glColor3f (0.5, 0.5, 0.5);
 	 }
 
 	 graphical_bonds_lines_list &ll = graphics_info_t::regularize_object_bonds_box.bonds_[i];
@@ -1777,11 +1859,11 @@ graphics_info_t::moving_atoms_graphics_object() {
 // 
 // static
 void
-graphics_info_t::environment_graphics_object() {
+graphics_info_t::draw_environment_graphics_object() {
 
    graphics_info_t g;
    if (is_valid_model_molecule(mol_no_for_environment_distances)) {
-      if (g.molecules[mol_no_for_environment_distances].is_displayed_p()) { 
+      if (g.molecules[mol_no_for_environment_distances].is_displayed_p()) {
 	 g.environment_graphics_object_internal(environment_object_bonds_box);
 	 if (g.show_symmetry)
 	    g.environment_graphics_object_internal(symmetry_environment_object_bonds_box);
@@ -2018,7 +2100,7 @@ graphics_info_t::printString_internal(const std::string &s,
 
       glLineWidth(1.0);
       glPointSize(1.0);
-      
+
       glPushMatrix();
       glTranslated(x,y,z);
 

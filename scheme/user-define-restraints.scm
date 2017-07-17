@@ -487,13 +487,13 @@
 	  (set-extra-restraints-prosmart-sigma-limits aa-imol -2.5 2.5))))
 
       (add-simple-coot-menu-menuitem
-       menu "Undisplay Extra Restraints..."
+       menu "Undisplay Extra Restraints"
        (lambda ()
          (using-active-atom
           (set-show-extra-restraints aa-imol 0))))
          
       (add-simple-coot-menu-menuitem
-       menu "Display ProSMART Extra Restraints..."
+       menu "Display ProSMART Extra Restraints"
        (lambda ()
          (using-active-atom
           (set-show-extra-restraints aa-imol 1))))

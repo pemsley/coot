@@ -1,9 +1,9 @@
 REM pyrogen version for windows
 
-set RDKIT_DIR=C:\boost\RDKit_2014_03_1
+set RDKIT_DIR=C:\boost\rdkit-master
 set RDKIT_LIBDIR=%RDKIT_DIR%\build\lib
 set RDKIT_BINDIR=%RDKIT_DIR%\build\bin
-set RDBASE=C:\boost\RDKit_2014_03_1
+set RDBASE=C:\boost\rdkit-master
 set PYTHONPATH=%RDBASE%
 set PATH=%PATH%;%RDBASE%\lib;C:\boost\boost_1_55_0\stage\lib
 

@@ -76,7 +76,11 @@ dist_cootdata_DATA = \
 	ligands-2016.db
 
 
+if OS_WIN32
+bin_PROGRAMS = findligand-bin findwaters-bin coot-make-ligands-db
+else
 libexec_PROGRAMS = findligand-bin findwaters-bin coot-make-ligands-db
+endif
 
 # check_PROGRAMS = test-helix-placement test-fffear-in-coot testdunbrack 
 #                  test-random test-ligand test-rotamer-tables-sql

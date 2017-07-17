@@ -116,7 +116,10 @@ def using_active_atom(*funcs):
                        "aa_res_no":    active_atom[2],
                        "aa_ins_code":  active_atom[3],
                        "aa_atom_name": active_atom[4],
-                       "aa_alt_conf":  active_atom[5]}
+                       "aa_alt_conf":  active_atom[5],
+                       "aa_res_spec":  [active_atom[1],  # chain_id
+                                        active_atom[2],  # res_no
+                                        active_atom[3]]} # ins_code
             
             if isinstance(item, list):
                 arg_ls = []
@@ -166,7 +169,7 @@ def using_active_atom(*funcs):
 #
 class NoBackups:
     """'Macro' to tidy up a a setup of functions to be run with no backup
-    for a particular molecule.
+    for a particular molecule (default imol=0).
 
     use with 'with', e.g.:
     
@@ -175,7 +178,7 @@ class NoBackups:
         accept_regularizement()
     """
     
-    def __init__(self, imol):
+    def __init__(self, imol=0):
         self.imol = imol
     def __enter__(self):
         self.b_state = backup_state(self.imol)
@@ -224,10 +227,17 @@ class UsingActiveAtom:
     
     > with UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
           refine_zone(aa_imol, aa_chain_id, aa_res_no-2, aa_res_no+2, aa_ins_code)
+
+    alternative usage to get res_spec as well
+
+    > with UsingActiveAtom(True) as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf, aa_res_spec]:
+          refine_zone(aa_imol, aa_chain_id, aa_res_no-2, aa_res_no+2, aa_ins_code)
+
     """
     
-    def __init__(self):
+    def __init__(self, with_res_spec=False):
         self.no_residue = False
+        self.res_spec = with_res_spec
         pass
     def __enter__(self):
         self.active_atom = active_residue()
@@ -242,7 +252,13 @@ class UsingActiveAtom:
             ins_code  = self.active_atom[3]
             atom_name = self.active_atom[4]
             alt_conf  = self.active_atom[5]
-            return [imol, chain_id, res_no, ins_code, atom_name, alt_conf]
+            res_spec  = [self.active_atom[1],  # chain_id
+                         self.active_atom[2],  # res_no
+                         self.active_atom[3]] # ins_code
+            if self.res_spec:
+                return [imol, chain_id, res_no, ins_code, atom_name, alt_conf, res_spec]
+            else:
+                return [imol, chain_id, res_no, ins_code, atom_name, alt_conf]
     def __exit__(self, type, value, traceback):
         if (self.no_residue):
             # internal calling of exit, ignore errors
@@ -353,7 +369,16 @@ def add_hydrogens_using_refmac_inner(imol, in_file_name, out_file_name):
 # if (mode == DELETED):
 #      display/print "Something was deleted"
 #
+# This is a global variable now, so that it can be used within other functions
+#
+global post_manipulation_script
 post_manipulation_script = False
+
+# similar for the active residue
+# do something based on the active residue (presumably)
+#
+global post_set_rotation_centre_script
+post_set_rotation_centre_script = False
 
 # return a boolean
 #
@@ -729,12 +754,15 @@ gtk_thread_return_value = None
 #       data_list is ["HEAD","END"]
 #       log_file_name is "refmac.log"      
 #       screen_flag True/False to display or not in shell window
+#       local_env can be set to change the environment variables the
+#                 command is run in.
 # 
 # Return the exist status e.g. 0 or 1. Or False if cmd not found.
 #
 # uses os.popen if python version < 2.4 otherwise subprocess
 # 
-def popen_command(cmd, args, data_list, log_file, screen_flag=False):
+def popen_command(cmd, args, data_list, log_file, screen_flag=False,
+                  local_env=None):
 
     import sys, string, os
     
@@ -756,9 +784,12 @@ def popen_command(cmd, args, data_list, log_file, screen_flag=False):
             log = open(log_file, 'w')
             cmd_args = [cmd_execfile] + args
             if (screen_flag):
-                process = subprocess.Popen(cmd_args, stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+                process = subprocess.Popen(cmd_args, stdin=subprocess.PIPE,
+                                           stdout=subprocess.PIPE,
+                                           env=local_env)
             else:
-                process = subprocess.Popen(cmd_args, stdin=subprocess.PIPE, stdout=log)
+                process = subprocess.Popen(cmd_args, stdin=subprocess.PIPE,
+                                           stdout=log, env=local_env)
 
             for data in data_list:
                 process.stdin.write(data + "\n")
@@ -1206,8 +1237,9 @@ def toggle_active_mol(imol):
 
 # return a python (list) representation of molecule imol, or False if we can't
 # do it (imol is a map, say)
+# optional arg: chain
 #
-def python_representation(imol):
+def python_representation(imol, chains=[]):
 
     if (not valid_model_molecule_qm(imol)):
         return False
@@ -1219,7 +1251,10 @@ def python_representation(imol):
             ins_code = insertion_code_from_serial_number(imol, chain_id, n)
             return [res_no, ins_code, res_name, residue_info(imol, chain_id, res_no, ins_code)]
 
-        ls = [map(lambda chain_id: [chain_id, map(lambda serial_number: r_info(imol, chain_id, serial_number), range(chain_n_residues(chain_id, imol)))], chain_ids(imol))]
+        if not chains:
+            # use all
+            chains = chain_ids(imol)
+        ls = [map(lambda chain_id: [chain_id, map(lambda serial_number: r_info(imol, chain_id, serial_number), range(chain_n_residues(chain_id, imol)))], chains)]
         return ls
 
 # reorder chains
@@ -2714,6 +2749,23 @@ def load_annotations(file_name):
                 place_text(*(ann + [0]))
             graphics_draw()
 
+def remove_annotation_here(rad=1.5):
+    args = rotation_centre() + [rad]
+    handle = text_index_near_position(*args)
+    if handle > -1:
+        remove_text(handle)
+
+def remove_annotation_at_click(rad=1.5):
+    def remove_here(*args):
+        # atom_specs for user_defined_clicks have 7 args!
+        # includes model number now too!
+        # maybe there should be a atom_spec including model no!?
+        atom_spec = atom_specs(*args[0][1:7])
+        coords = atom_spec[3:]
+        handle = text_index_near_position(*(coords + [rad]))
+        if handle > -1:
+            remove_text(handle)
+    user_defined_click(1, remove_here)
 
 # ---------- updating ---------------------
 
@@ -3798,7 +3850,24 @@ def merge_solvent_chains(imol):
         if (is_solvent_chain_qm(imol, chain_id)):
             solvent_chains.append(chain_id)
 
-    # now renumber
+    # now check for overlapping waters and remove
+    # maybe this should rather be done in general when merging molecules
+    # as well.
+    for chain_id in solvent_chains:
+        residue_ls = python_representation(imol, [chain_id])[0][0][1]
+        for res in residue_ls:
+            res_spec = [chain_id, res[0], res[1]]
+            if residue_exists_qm(imol, *res_spec):
+                near_residues = residues_near_residue(imol, res_spec, 0.05)
+                if near_residues:
+                    # delete
+                    for del_res in near_residues:
+                        delete_residue_by_spec(imol, del_res)
+
+    # renumber chains after removal:
+    renumber_waters(imol)
+
+    # now merge and renumber
     if (len(solvent_chains) > 1):
         master_chain = solvent_chains[0]
         last_prev_water = chain_n_residues(master_chain, imol)
@@ -3811,7 +3880,9 @@ def merge_solvent_chains(imol):
             change_chain_id(imol, chain_id, master_chain, 1,
                             new_start, new_end)
             last_prev_water = new_end
-            
+
+          
+    
 
 # helper to comvert functions to strings
 def cmd2str(*args):
@@ -4143,6 +4214,13 @@ def rename_alt_confs_active_residue():
         inscode  = active_atom[3]
 
         rename_alt_confs(imol, chain_id, resno, inscode)
+
+# Moved from gui_add_linked_cho.py to make a global function.
+def delete_residue_by_spec(imol, spec):
+    delete_residue(imol,
+                   residue_spec2chain_id(spec),
+                   residue_spec2res_no(spec),
+                   residue_spec2ins_code(spec))
 
 
 ####### Back to Paul's scripting.

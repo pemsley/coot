@@ -520,9 +520,19 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 		  RDKit::MolOps::sanitizeMol(rdkm, failed_op_1, RDKit::MolOps::SANITIZE_ALL);
 		  RDKit::MolOps::sanitizeMol(rdkm, failed_op_2, RDKit::MolOps::SANITIZE_KEKULIZE);
 
-		  std::cout << "INFO:: sanitizeMol() returned with failed_op: "
+		  std::cout << "DEBUG:: sanitizeMol() returned with failed_op: "
 			    << failed_op_1 << " " << failed_op_2
 			    << " (note 'no-failure' is value 0)." << std::endl;
+
+		  try {
+		     RDKit::RingInfo *ri = rdkm.getRingInfo();
+		     unsigned int n_rings = ri->numRings();
+		  }
+		  catch (const std::runtime_error &rte) {
+		     std::vector<std::vector<int> > ring_info;
+		     RDKit::MolOps::findSSSR(rdkm, ring_info);
+		  }
+
 
 		  int mol_2d_depict_conformer =
 		     coot::add_2d_conformer(&rdkm, weight_for_3d_distances);
@@ -1030,7 +1040,7 @@ coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
    std::vector<mmdb::Residue *> rv = residues;
    rv.push_back(ligand_res);
 
-   std::pair<bool, mmdb::Manager *> m = coot::util::create_mmdbmanager_from_residue_vector(rv);
+   std::pair<bool, mmdb::Manager *> m = coot::util::create_mmdbmanager_from_residue_vector(rv, mol);
    coot::residue_spec_t ligand_spec(ligand_res);
 
    if (m.first) { 
@@ -1329,7 +1339,7 @@ coot::get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
 	       if (residue_ligand_chain_id == link->chainID1) {
 		  if (residue_ligand_res_no == link->seqNum1) {
 		     if (residue_ligand_ins_code == link->insCode1) {
-			std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link);
+			std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link, model_p);
 			mmdb::Atom *at_1 = coot::util::get_atom(linked_atoms.first,  mol);
 			mmdb::Atom *at_2 = coot::util::get_atom(linked_atoms.second, mol);
 			if (at_1 && at_2) { 
@@ -1347,7 +1357,7 @@ coot::get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
 	       if (residue_ligand_chain_id == link->chainID2) {
 		  if (residue_ligand_res_no == link->seqNum2) {
 		     if (residue_ligand_ins_code == link->insCode2) {
-			std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link);
+			std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link, model_p);
 			mmdb::Atom *at_1 = coot::util::get_atom(linked_atoms.first,  mol);
 			mmdb::Atom *at_2 = coot::util::get_atom(linked_atoms.second, mol);
 			if (at_1 && at_2) { 

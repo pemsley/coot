@@ -64,6 +64,8 @@ coot::operator<<(std::ostream &o, const atom_by_torsion_t &abt) {
 } 
 
 
+// ext_residue_p is the residue being added.
+//
 clipper::Coord_orth
 coot::atom_by_torsion_t::pos(mmdb::Residue *base_residue_p, mmdb::Residue *ext_residue_p) const {
 
@@ -71,10 +73,12 @@ coot::atom_by_torsion_t::pos(mmdb::Residue *base_residue_p, mmdb::Residue *ext_r
    mmdb::Atom *at_2 = NULL;
    mmdb::Atom *at_3 = NULL;
 
-   if (0) { 
-      mmdb::PPAtom residue_atoms = 0;
-      int n_residue_atoms;
-      base_residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   mmdb::PPAtom residue_atoms = 0;
+   int n_residue_atoms;
+   base_residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+
+   if (false) {
+      std::cout << "positioning atom " << atom_name << std::endl;
       for (int iat=0; iat<n_residue_atoms; iat++) { 
 	 mmdb::Atom *at = residue_atoms[iat];
 	 std::cout << "   " << coot::atom_spec_t(at) << " vs "
@@ -105,10 +109,22 @@ coot::atom_by_torsion_t::pos(mmdb::Residue *base_residue_p, mmdb::Residue *ext_r
 							clipper::Util::d2rad(torsion));
       return new_pos;
    } else {
+      unsigned int n_missing = 0;
+      if (! at_1) n_missing++;
+      if (! at_2) n_missing++;
+      if (! at_3) n_missing++;
       std::string m = "missing atom";
+      if (n_missing>1)
+	 m += "s";
+      m += " in atom_by_torsion_t::pos() when positioning ";
+      m += atom_name;
+      m += " : ";
       if (! at_1) m += " at_1 " + prior_atom_1.second;
       if (! at_2) m += " at_2 " + prior_atom_2.second;
       if (! at_3) m += " at_3 " + prior_atom_3.second;
+      m += " of ";
+      m += util::int_to_string(n_residue_atoms);
+      m += " base atoms";
       throw std::runtime_error(m);
    }
 }
@@ -132,7 +148,7 @@ coot::link_by_torsion_t::link_by_torsion_t(const std::string &link_type,
       if (! decor.filled()) {
 	 std::cout << "Decorations not filled from " << decor_file_name
 		   << std::endl;
-      } else { 
+      } else {
 	 add(decor);
       }
    }
@@ -155,7 +171,7 @@ coot::link_by_torsion_t::link_type_to_file_name(const std::string &link_type,
    } else {
       f = "link-by-torsion-to-pyranose-core-" + link_type + ".tab";
       ff = util::append_dir_file(p,f);
-      std::cout << "......... fail... trying  " << ff << std::endl;
+      std::cout << "..that failed - trying  " << ff << std::endl;
    }
    return ff;
 } 
@@ -191,15 +207,15 @@ coot::link_by_torsion_t::make_residue(mmdb::Residue *base_residue_p) const {
       r->seqNum = new_res_no;
       for (unsigned int i=0; i<geom_atom_torsions.size(); i++) {
 	 const atom_by_torsion_t &gat = geom_atom_torsions[i];
-	 std::cout << "in make_residue() i: " << i << " " << gat << std::endl;
-	 clipper::Coord_orth p = geom_atom_torsions[i].pos(base_residue_p, r);
-	 mmdb::Atom *atom = new mmdb::Atom(r); // does an add atom
+	 // std::cout << "in make_residue() i: " << i << " " << gat << std::endl;
 	 std::string f = gat.filled_atom_name(); // FIXME PDBv3 the function call is not needed
+	 clipper::Coord_orth p = gat.pos(base_residue_p, r);
+	 mmdb::Atom *atom = new mmdb::Atom(r); // does an add atom
 	 atom->SetAtomName(f.c_str());
 	 atom->SetElementName(gat.element.c_str());
 	 atom->SetCoordinates(p.x(), p.y(), p.z(), 1.0, b_factor);
 	 atom->Het = 1;
-	 if (true)
+	 if (false)
 	    std::cout << "   " << gat.atom_name << " " << p.format()  << std::endl;
       }
    } 
@@ -212,7 +228,7 @@ coot::atom_by_torsion_t::atom_by_torsion_t(const atom_by_torsion_base_t &names,
 					   mmdb::Residue *residue_2_p   // extension residue
 					   ) {
    
-   if (0) 
+   if (false)
       std::cout << "get "
 		<< names.prior_atom_1.first << " " << names.prior_atom_1.second << " "
 		<< names.prior_atom_2.first << " " << names.prior_atom_2.second << " "
@@ -453,7 +469,8 @@ coot::get_decorations(const std::string &new_comp_id) {
    if (new_comp_id == "MAN") return mannose_decorations();
    if (new_comp_id == "BMA") return mannose_decorations();
    if (new_comp_id == "GLC") return glucose_decorations();
-   if (new_comp_id == "FUC") return glucose_decorations();
+   if (new_comp_id == "FUC") return fucose_decorations(); // was glucose_decorations()!
+   if (new_comp_id == "FUL") return fucose_decorations();
    if (new_comp_id == "GAL") return galactose_decorations();
    if (new_comp_id == "NAG") return NAG_decorations();
    link_by_torsion_base_t empty;
@@ -479,17 +496,17 @@ coot::get_decorations(const std::string &new_comp_id) {
 coot::link_by_torsion_base_t
 coot::get_names_for_link_type(const std::string &link_type) {
 
-   std::cout << "here in get_names_for_link_type() " << link_type << std::endl;
+   // std::cout << "here in get_names_for_link_type() " << link_type << std::endl;
    
    link_by_torsion_base_t r;
    if (link_type == "ALPHA1-6") r = pyranose_link_1_6_to_core();
    if (link_type == "ALPHA1-2") r = pyranose_link_1_2_to_core();
-   if (link_type == "ALPHA1-3") { r = pyranose_link_1_3_to_core();
-      std::cout << "found ALPHA1-3" << std::endl;
-   }
+   if (link_type == "ALPHA1-3") r = pyranose_link_1_3_to_core();
    if (link_type == "ALPHA2-3") r = pyranose_link_2_3_to_core();
+   if (link_type == "BETA1-2")  r = pyranose_link_1_2_to_core();
    if (link_type == "BETA1-3")  r = pyranose_link_1_3_to_core();
    if (link_type == "BETA1-4")  r = pyranose_link_1_4_to_core();
+   if (link_type == "BETA1-6")  r = pyranose_link_1_6_to_core();
    if (link_type == "NAG-ASN")  r = asn_pyranose_link_to_core();
    return r;
 }
@@ -578,8 +595,6 @@ coot::link_by_torsion_t::write(const std::string &file_name) const {
 // read what is written by write() function
 void
 coot::link_by_torsion_t::read(const std::string &file_name) {
-
-   std::cout << "........... here in read() " << file_name << std::endl;
 
    if (! file_exists(file_name)) {
       std::cout << "ERROR:: file not found " << file_name << std::endl;

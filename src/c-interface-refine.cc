@@ -249,7 +249,7 @@ void do_refine(short int state) {
 	    std::cout << "click on 2 atoms (in the same molecule)" << std::endl; 
 	    g.pick_cursor_maybe();
 	    g.pick_pending_flag = 1;
-	    std::string s = "Pick 2 atoms or Autozone (pick 1 atom the press the A key)";
+	    std::string s = "Pick 2 atoms or Autozone (pick 1 atom then press the A key)";
 	    s += " [Ctrl Left-mouse rotates the view]";
 	    s += "...";
 	    g.add_status_bar_text(s);
@@ -562,6 +562,67 @@ int add_extra_bond_restraint(int imol, const char *chain_id_1, int res_no_1, con
    return r;
 
 }
+
+#ifdef USE_GUILE
+int add_extra_bond_restraints_scm(int imol, SCM extra_bond_restraints_scm) {
+
+   std::vector<coot::extra_restraints_t::extra_bond_restraint_t> ebr_vec;
+   if (is_valid_model_molecule(imol)) {
+      if (scm_is_true(scm_list_p(extra_bond_restraints_scm))) {
+	 SCM l_scm = scm_length(extra_bond_restraints_scm);
+	 int l = scm_to_int(l_scm);
+	 for (int i=0; i<l; i++) {
+	    SCM restr_descr_scm = scm_list_ref(extra_bond_restraints_scm, SCM_MAKINUM(i));
+	    if (scm_is_true(scm_list_p(restr_descr_scm))) {
+	       SCM r_l_scm = scm_length(restr_descr_scm);
+	       int r_l = scm_to_int(r_l_scm);
+	       if (r_l == 4) {
+		  coot::atom_spec_t atom_1_spec = atom_spec_from_scm_expression(scm_list_ref(restr_descr_scm, SCM_MAKINUM(0)));
+		  coot::atom_spec_t atom_2_spec = atom_spec_from_scm_expression(scm_list_ref(restr_descr_scm, SCM_MAKINUM(1)));
+		  SCM target_dist_scm = scm_list_ref(restr_descr_scm, SCM_MAKINUM(2));
+		  SCM dist_esd_scm    = scm_list_ref(restr_descr_scm, SCM_MAKINUM(3));
+		  double target_dist = scm_to_double(target_dist_scm);
+		  double dist_esd = scm_to_double(dist_esd_scm);
+		  coot::extra_restraints_t::extra_bond_restraint_t ebr(atom_1_spec, atom_2_spec, target_dist, dist_esd);
+		  ebr_vec.push_back(ebr);
+	       }
+	    }
+	 }
+	 int r = graphics_info_t::molecules[imol].add_extra_bond_restraints(ebr_vec);
+	 graphics_draw();
+      }
+   }
+   return ebr_vec.size();
+}
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+int add_extra_bond_restraints_py(int imol, PyObject *extra_bond_restraints_py) {
+
+   std::vector<coot::extra_restraints_t::extra_bond_restraint_t> ebr_vec;
+   if (is_valid_model_molecule(imol)) {
+      if (PyList_Check(extra_bond_restraints_py)) {
+	 int l = PyObject_Length(extra_bond_restraints_py);
+	 for (int i=0; i<l; i++) {
+	    PyObject *item_py = PyList_GetItem(extra_bond_restraints_py, i);
+	    int item_l = PyObject_Length(item_py);
+	    if (item_l == 4) {
+	       coot::atom_spec_t atom_1_spec = atom_spec_from_python_expression(PyList_GetItem(item_py, 0));
+	       coot::atom_spec_t atom_2_spec = atom_spec_from_python_expression(PyList_GetItem(item_py, 1));
+	       double d = PyFloat_AsDouble(PyList_GetItem(item_py, 2));
+	       double e = PyFloat_AsDouble(PyList_GetItem(item_py, 3));
+	       coot::extra_restraints_t::extra_bond_restraint_t ebr(atom_1_spec, atom_2_spec, d, e);
+	       ebr_vec.push_back(ebr);
+	    }
+	 }
+	 int r = graphics_info_t::molecules[imol].add_extra_bond_restraints(ebr_vec);
+	 graphics_draw();
+      }
+   }
+   return ebr_vec.size();
+}
+#endif // USE_GUILE
+
 
 int add_extra_torsion_restraint(int imol, 
 				const char *chain_id_1, int res_no_1, const char *ins_code_1, const char *atom_name_1, const char *alt_conf_1, 
@@ -896,6 +957,28 @@ void delete_extra_restraints_for_residue(int imol, const char *chain_id, int res
    graphics_draw();
 }
 
+#ifdef USE_GUILE
+void delete_extra_restraints_for_residue_spec_scm(int imol, SCM residue_spec_in) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t spec = residue_spec_from_scm(residue_spec_in);
+      graphics_info_t::molecules[imol].delete_extra_restraints_for_residue(spec);
+   }
+
+}
+#endif // USE_GUILE
+
+#ifdef USE_PYTHON
+void delete_extra_restraints_for_residue_spec_py(int imol, PyObject *residue_spec_in_py) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t spec = residue_spec_from_py(residue_spec_in_py);
+      graphics_info_t::molecules[imol].delete_extra_restraints_for_residue(spec);
+   }
+}
+#endif // USE_PYTHON
+
+
 void delete_extra_restraints_worse_than(int imol, float n_sigma) { 
 
    if (is_valid_model_molecule(imol)) {
@@ -940,4 +1023,22 @@ add_initial_position_restraints(int imol, const std::vector<coot::residue_spec_t
 void
 remove_initial_position_restraints(int imol, const std::vector<coot::residue_spec_t> &residue_specs) {
    delete_all_extra_restraints(imol);
+}
+
+// trash the multimodal (sp3) ring torsions and use
+// only unimodal restraints
+void use_unimodal_ring_torsion_restraints(const std::string &res_name) {
+
+   // uses auto-load if not already present in the store
+
+   bool minimal = false; // don't allow minimal
+   int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+   graphics_info_t::Geom_p()->use_unimodal_ring_torsion_restraints(imol_enc, res_name, minimal);
+
+}
+
+void set_refinement_geman_mcclure_alpha(float alpha) {
+
+   graphics_info_t::geman_mcclure_alpha = alpha;
+
 }

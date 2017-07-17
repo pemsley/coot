@@ -140,6 +140,9 @@ def three_letter_code2single_letter(residue_type):
     return res_type_1lc
 
 
+# Mutate a residue range of nucleotides
+# where sequence is a string (for example: "atgccgta")
+#
 def mutate_nucleotide_range(imol, chain_id, resno_start, resno_end, sequence):
 
    from types import StringType

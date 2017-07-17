@@ -434,7 +434,7 @@ coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(mmdb::Residue *resi
 	 }
 						    
       } else {
-	 std::cout << "WARNING:: missing atoms in " << residue_p->GetChainID() << " "
+	 std::cout << "WARNING:: PHE/TYR nomenc: missing atoms in " << residue_p->GetChainID() << " "
 		   << residue_p->GetSeqNum() << " " << residue_p->GetResName()
 		   << std::endl;
       }

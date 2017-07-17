@@ -53,8 +53,10 @@ cod::atom_level_2_type::atom_level_2_type(RDKit::Atom *base_atom_p,
    // e.g. 2,"C[5a,6a]"  1,"N[6a]"
    // 
    // second is the  vector of hybridization of the neighbours, e.g.(2,2,3)
-   // 
-   std::vector<atom_level_2_component_type> components;
+   //
+   // 20170606 this is now a member data item
+   // std::vector<atom_level_2_component_type> components;
+   //
    const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
 
    RDKit::ROMol::ADJ_ITER nbrIdx, endNbrs;
@@ -91,7 +93,25 @@ cod::atom_level_2_type::atom_level_2_type(RDKit::Atom *base_atom_p,
 	 std::cout << " component  " << i << "   " << components[i] << std::endl;
    }
 
-   int n = base_atom_p->getAtomicNum();
+   // todo:
+   // N with degree 3 in aromatic ring or sp2 ring should have n_extra_elect = 2
+   //
+   std::string name;
+   base_atom_p->getProp("name", name);
+   int base_valence = tbl->getDefaultValence(base_atom_p->getAtomicNum());
+   int e_valence = base_atom_p->getExplicitValence();
+   n_extra_elect = e_valence - base_atom_p->getDegree() + base_atom_p->getFormalCharge();
+
+   if (false)
+      std::cout << "debug-elec " << name
+		<< " base-val: " << base_valence
+		<< " e_val " << e_valence
+		<< " degree: " << base_atom_p->getDegree()
+		<< " totalDegree: " << base_atom_p->getTotalDegree()
+		<< " formal-charge: " << std::setw(2) << base_atom_p->getFormalCharge()
+		<< " totalvalence " << base_atom_p->getTotalValence() << " "
+		<< " ->  " << n_extra_elect << "\n"
+		<< std::endl;
 
    std::string l2;
 
@@ -100,13 +120,13 @@ cod::atom_level_2_type::atom_level_2_type(RDKit::Atom *base_atom_p,
    for (int i=0; i<n_components; i++) {
       l2 += components[i].element;
       l2 += components[i].ring_info_string;
-      if (components[i].neighb_hybridizations.size()) {
+      if (components[i].neighb_degrees.size()) {
 	 l2 += "-";
-	 int n_size = components[i].neighb_hybridizations.size(); // int for comparison below
+	 int n_size = components[i].neighb_degrees.size(); // int for comparison below
 	 for (int j=0; j<n_size; j++) { 
 	    if (j != 0)
 	       l2 += "_";
-	    l2 += coot::util::int_to_string(components[i].neighb_hybridizations[j]);
+	    l2 += coot::util::int_to_string(components[i].neighb_degrees[j]);
 	 }
 	 if (i != i_last_component)
 	    l2 += ":";
@@ -116,14 +136,70 @@ cod::atom_level_2_type::atom_level_2_type(RDKit::Atom *base_atom_p,
    str = l2;
 }
 
+std::string
+cod::atom_level_2_type::extra_electron_type() const {
+
+   std::string s;
+
+   int i_last_component = components.size() -1;
+   int n_components = components.size();
+   for (int i=0; i<n_components; i++) {
+      s += components[i].element;
+      // std::cout << "s: " << s << std::endl;
+      s += components[i].ring_info_string;
+      // std::cout << "s: " << s << std::endl;
+      if (components[i].neighb_degrees.size()) {
+	 s += "-";
+	 // std::cout << "s: " << s << std::endl;
+	 int n_size_1 = components[i].neighb_degrees.size(); // int for comparison below
+	 int n_size = components[i].neighb_extra_elect.size(); // int for comparison below
+	 if (n_size != n_size_1) {
+	    std::cout << "------ mismatch sizes: " << n_size << " " << n_size_1 << std::endl;
+	 }
+	 int idx_last = n_size - 1;
+	 for (int j=0; j<n_size; j++) { 
+	    if (j != 0) {
+	       s += "_";
+	       // std::cout << "s: " << s << std::endl;
+	    }
+	    int nee = components[i].neighb_extra_elect[j];
+	    s += coot::util::int_to_string(nee);
+	 }
+	 if (i != i_last_component) {
+	    s += ":";
+	    // std::cout << "s: " << s << std::endl;
+	 }
+      }
+   }
+   return s;
+}
+
+int
+cod::atom_level_2_type::n_extra_electrons() const {
+
+   return n_extra_elect;
+}
+
+void
+cod::atom_type_t::set_neighb_degrees_string() {
+
+   std::string s;
+   for (unsigned int i=0; i<neighb_degrees.size(); i++) {
+      s += coot::util::int_to_string(neighb_degrees[i]);
+      s += ":";
+   }
+   neighb_degrees_str_ = s;
+}
+
+
 std::ostream &
 cod::operator<<(std::ostream &s,
 		const atom_level_2_type::atom_level_2_component_type &c) {
 
    s << "{" << c.element << " " << c.number_of_rings << " "
      << c.ring_info_string << " ";
-   for (unsigned int i=0; i<c.neighb_hybridizations.size(); i++)
-      s << c.neighb_hybridizations[i] << " ";
+   for (unsigned int i=0; i<c.neighb_degrees.size(); i++)
+      s << c.neighb_degrees[i] << " ";
    s << "}";
    return s;
 
@@ -156,16 +232,17 @@ cod::atom_type_t::level_4_type_to_level_3_type(const std::string &l4t)  {
 
 
 //
-// also maybe this is the wrong file for this function
-// 
-cod::atom_type_t::atom_type_t(const std::string &s1, const cod::atom_level_2_type &l2,
+cod::atom_type_t::atom_type_t(const std::string &s1_hash,
+			      const std::string &colon_degrees_type,
+			      const cod::atom_level_2_type &l2,
 			      const std::string &s3, const std::string &s4) {
    level_2 = l2;
    level_3 = s3;
    level_4 = s4;
+   neighb_degrees_str_ = colon_degrees_type;
 
    try {
-      hash_value = coot::util::string_to_int(s1);
+      hash_value = coot::util::string_to_int(s1_hash);
    }
    catch (const std::runtime_error &rte) {
       hash_value = -1;
@@ -201,6 +278,12 @@ cod::atom_level_2_type::level_2_component_sorter(const atom_level_2_component_ty
    // 5-mem ring before 6-mem ring
    //
    // neighb hybrids: _2_0 before _2_2
+   //
+   // C[5a]-2_1_1 before C[5a]-1_0_0 
+
+   // std::cout << "comparing l2 components: " << la << " " << lb << std::endl;
+
+   bool extra_electron_sort = true; // 20170613: inner sort by extra electrons, not hybridization
 
    bool status = false;
    if (la.element < lb.element) {
@@ -211,22 +294,6 @@ cod::atom_level_2_type::level_2_component_sorter(const atom_level_2_component_ty
       } else {
 
 	 // same element
-	 
-	 bool s = (lb.neighb_hybridizations.size() <
-		   la.neighb_hybridizations.size());
-
-	 if (s) {
-	    return true;
-	 } else {
-
-	    bool sr = (lb.neighb_hybridizations.size() >
-		       la.neighb_hybridizations.size());
-
-	    if (sr) {
-	       return false;
-	    } else {
-
-	       // same hybridization (of 1st neighb)
 
 	       if ((la.number_of_rings == 0) && (lb.number_of_rings > 0)) {
 		  return true;
@@ -234,8 +301,7 @@ cod::atom_level_2_type::level_2_component_sorter(const atom_level_2_component_ty
 		  if ((la.number_of_rings > 0) && (lb.number_of_rings == 0)) {
 		     return false;
 		  } else { 
-		  
-	       
+
 		     if (la.number_of_rings > lb.number_of_rings) {
 			return true;
 		     } else {
@@ -244,54 +310,98 @@ cod::atom_level_2_type::level_2_component_sorter(const atom_level_2_component_ty
 			} else {
 
 			   // same number of rings
-	       
-			   if (la.ring_info_string < lb.ring_info_string) {
-			      return true;
+
+			   // std::cout << "comparing ring info strings: "
+			   // << la.ring_info_string << " " << lb.ring_info_string << std::endl;
+
+			   // aromatic rings come first, "6a" is longer than "6"
+			   if (lb.ring_info_string.length() > la.ring_info_string.length()) {
+			      return false;
 			   } else {
-			      if (la.ring_info_string > lb.ring_info_string) {
-				 return false;
+			      if (lb.ring_info_string.length() < la.ring_info_string.length()) {
+				 return true;
 			      } else {
 
-				 // so la.neighb_hybridizations should be the same
-				 // size as lb.neighb_hybridizations.
-
-				 unsigned int n = la.neighb_hybridizations.size();
-
-				 for (unsigned int i=0; i<n; i++) { 
-				    if (la.neighb_hybridizations[i] < lb.neighb_hybridizations[i])
-				       return true;
-				    if (la.neighb_hybridizations[i] > lb.neighb_hybridizations[i])
+				 if (la.ring_info_string < lb.ring_info_string) {
+				    return true;
+				 } else {
+				    if (la.ring_info_string > lb.ring_info_string) {
 				       return false;
-				 }
+				    } else {
 
-				 return false; // or something.
+				       bool s = (lb.neighb_degrees.size() <
+						 la.neighb_degrees.size());
+
+				       if (s) {
+					  return true;
+				       } else {
+
+					  bool sr = (lb.neighb_degrees.size() >
+						     la.neighb_degrees.size());
+
+					  if (sr) {
+					     return false;
+					  } else {
+
+					     if (extra_electron_sort) {
+
+						unsigned int n = la.neighb_degrees.size();
+						for (unsigned int i=0; i<n; i++) {
+						   if (la.neighb_extra_elect[i] < lb.neighb_extra_elect[i]) {
+						      return true;
+						   } else {
+						      if (la.neighb_extra_elect[i] > lb.neighb_extra_elect[i]) {
+							 return false;
+						      }
+						   }
+						}
+						return false; // or something.
+
+					     } else {
+
+						// old style hybridizations
+
+						// so la.neighb_degrees should be the same
+						// size as lb.neighb_degrees.
+
+						unsigned int n_h_a = la.neighb_degrees.size();
+						for (unsigned int i=0; i<n_h_a; i++) { 
+						   if (la.neighb_degrees[i] < lb.neighb_degrees[i])
+						      return true;
+						   if (la.neighb_degrees[i] > lb.neighb_degrees[i])
+						      return false;
+						}
+
+						return false; // or something.
+					     }
+					  }
+				       }
+				    }
+				 }
 			      }
 			   }
 			}
 		     }
 		  }
 	       }
-	    }
-	 }
       }
    }
    return status;
 }
    
 
-
+// return number_of_ring,atom_ring_string
 std::pair<int, std::string>
 cod::make_ring_info_string(RDKit::Atom *atom_p) {
 
-   int n_rings = 0;
    std::string atom_ring_string;
    
    std::vector<int> ring_size_vec;
-   std::vector<int> ring_arom_vec;
+   std::vector<int> ring_is_arom_vec; // flags
 
    try {
       atom_p->getProp("ring_size", ring_size_vec);
-      atom_p->getProp("ring_arom", ring_arom_vec);
+      atom_p->getProp("ring_arom", ring_is_arom_vec);
 
       // sort ring_info so that the rings with more atoms are at
       // the top.  Practically 6-rings should come above 5-rings.
@@ -312,7 +422,7 @@ cod::make_ring_info_string(RDKit::Atom *atom_p) {
 	 int n_atoms_in_ring = ring_size_vec[i_ring];
 
 	 atom_ring_string += coot::util::int_to_string(n_atoms_in_ring);
-	 int arom = ring_arom_vec[i_ring];
+	 int arom = ring_is_arom_vec[i_ring];
 	 if (arom) {
 	    atom_ring_string += "a";
 	 }
@@ -342,9 +452,16 @@ cod::atom_level_2_type::atom_level_2_component_type::atom_level_2_component_type
    while(nbrIdx_n != endNbrs_n) {
       RDKit::ATOM_SPTR at_neighb_n = rdkm[*nbrIdx_n];
       hv.push_back(at_neighb_n->getHybridization());
+      int n_extra_elect = at_neighb_n->getExplicitValence() - at_neighb_n->getDegree() + at_neighb_n->getFormalCharge();
+      neighb_extra_elect.push_back(n_extra_elect);
       nbrIdx_n++;
    }
    std::pair<int,std::string> ring_info = make_ring_info_string(at);
+
+   const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
+   int base_valence = tbl->getDefaultValence(at->getAtomicNum());
+   int e_valence = at->getExplicitValence();
+   n_extra_elect = e_valence - at->getDegree() + at->getFormalCharge();
 
    number_of_rings = ring_info.first;
    ring_info_string = ring_info.second;
@@ -361,13 +478,22 @@ cod::atom_level_2_type::atom_level_2_component_type::atom_level_2_component_type
 
    // std::pair<std::pair<int, std::string>, std::vector<int> > c(ring_info,v);
 
-   const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
    element = tbl->getElementSymbol(at->getAtomicNum());
 
-   neighb_hybridizations = v;
+   neighb_degrees = v;
+
+   // neighb extra electrons, decreasing order
+   std::sort(neighb_extra_elect.begin(),
+	     neighb_extra_elect.end());
+   std::reverse(neighb_extra_elect.begin(),
+		neighb_extra_elect.end());
+
+   // debugging, let's also extract the atom name:
+   if (true) {
+      at->getProp("name", atom_name);
+   }
 
 }
-
 
 
 #endif // MAKE_ENHANCED_LIGAND_TOOLS

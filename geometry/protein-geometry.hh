@@ -36,6 +36,7 @@
 
 #include <map>
 #include <stdexcept>
+#include <algorithm>
 
 #include <mmdb2/mmdb_utils.h>
 #include <mmdb2/mmdb_math_graph.h>
@@ -285,7 +286,7 @@ namespace coot {
       double angle_esd_;
       int period;
    public:
-      
+
       // dict_torsion_restraint_t() {}; 
       dict_torsion_restraint_t(std::string id_in,
 			       std::string atom_id_1,
@@ -314,7 +315,7 @@ namespace coot {
       double angle() const { return angle_; }
       double esd ()  const { return angle_esd_;}
       friend std::ostream& operator<<(std::ostream &s, const dict_torsion_restraint_t &rest);
-      bool is_pyranose_ring_torsion() const;
+      bool is_pyranose_ring_torsion(const std::string &comp_id) const;
       bool is_ring_torsion(const std::vector<std::vector<std::string> > &ring_atoms_sets) const;
       // hack for mac, ostream problems
       std::string format() const;
@@ -558,6 +559,31 @@ namespace coot {
 
    class dictionary_residue_restraints_t {
 
+      class eraser {
+      public:
+	 std::vector<std::string> baddies;
+	 eraser(const std::vector<std::string> &baddies_in) : baddies(baddies_in) {}
+	 bool operator()(const dict_atom &at) const {
+	    return (std::find(baddies.begin(), baddies.end(), at.atom_id_4c) != baddies.end());
+	 }
+	 bool operator()(const dict_bond_restraint_t &br) {
+	    if (std::find(baddies.begin(), baddies.end(), br.atom_id_1_4c()) != baddies.end())
+	       return true;
+	    if (std::find(baddies.begin(), baddies.end(), br.atom_id_2_4c()) != baddies.end())
+	       return true;
+	    return false;
+	 }
+	 bool operator()(const dict_angle_restraint_t &ar) {
+	    if (std::find(baddies.begin(), baddies.end(), ar.atom_id_1_4c()) != baddies.end())
+	       return true;
+	    if (std::find(baddies.begin(), baddies.end(), ar.atom_id_2_4c()) != baddies.end())
+	       return true;
+	    if (std::find(baddies.begin(), baddies.end(), ar.atom_id_3_4c()) != baddies.end())
+	       return true;
+	    return false;
+	 }
+      };
+   
       class atom_pair_t {
       public:
 	 mmdb::Atom *at_1;
@@ -624,6 +650,8 @@ namespace coot {
       // -3 for unset
       // int imol_enc;
 
+      void delete_atoms_from_restraints(const std::vector<std::string> &H_atoms_to_be_deleted);
+
    public:
       dictionary_residue_restraints_t(std::string comp_id_in,
 				      int read_number_in) {
@@ -689,7 +717,7 @@ namespace coot {
       // compares atoms of torsion_restraint vs the ring atoms.
       // bool is_ring_torsion(const dict_torsion_restraint_t &torsion_restraint) const;
       bool is_ring_torsion(const atom_name_quad &quad) const;
-      
+
       void write_cif(const std::string &filename) const;
       // look up the atom id in the atom_info (dict_atom vector)
       std::string atom_name_for_tree_4c(const std::string &atom_id) const;
@@ -803,6 +831,11 @@ namespace coot {
       std::string get_other_H_name(const std::string &H_at_name) const;
       // return an empty vector on failure
       std::vector<std::string> get_other_H_names(const std::string &H_at_name) const;
+
+      void remove_phosphate_hydrogens();
+      void remove_sulphate_hydrogens();
+      void remove_PO4_SO4_hydrogens(const std::string &P_or_S);
+      void remove_carboxylate_hydrogens();
 
       friend std::ostream& operator<<(std::ostream &s, const dictionary_residue_restraints_t &rest);
 
@@ -1125,6 +1158,29 @@ namespace coot {
 
       enum { UNSET_NUMBER = -1 };  // An unset number, for example the
       // number of atoms.
+
+      class restraint_eraser {
+      public:
+	 std::vector<std::string> names;
+	 // the constructor, can be information that needs to be used
+	 // internally in the operator() function.  This is run once
+	 // 
+	 restraint_eraser(const std::vector<std::string> &names_in) {
+	    names = names_in;
+	 }
+
+	 // return true for deletion
+	 bool operator()(const dict_torsion_restraint_t &r) const {
+	    int n_match = 0;
+	    for (unsigned int i=0; i<names.size(); i++) {
+	       if (r.atom_id_1_4c() == names[i]) n_match++;
+	       if (r.atom_id_2_4c() == names[i]) n_match++;
+	       if (r.atom_id_3_4c() == names[i]) n_match++;
+	       if (r.atom_id_4_4c() == names[i]) n_match++;
+	    }
+	    return (n_match == 4);
+	 }
+      };
 
       //testing func
       bool close_float_p(const mmdb::realtype &f1, const mmdb::realtype &f2) const {
@@ -1464,6 +1520,9 @@ namespace coot {
 #endif      
 
       void add_molecule_number_to_entries(const std::vector<std::string> &comp_ids, int imol_enc);
+
+      std::vector<atom_name_torsion_quad>
+      get_reference_monomodal_torsion_quads(const std::string &res_name) const;
 
    public:
 
@@ -1952,7 +2011,8 @@ namespace coot {
 							       const std::string &bond_order,
 							       bool at_1_deloc_or_arom,
 							       bool at_2_deloc_or_arom) const;
-
+      // use auto-load if not present
+      void use_unimodal_ring_torsion_restraints(int imol, const std::string &res_name, int mmcif_read_number);
 
 
 #ifdef HAVE_CCP4SRS
