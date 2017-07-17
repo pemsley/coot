@@ -109,7 +109,8 @@ libcoot_py_restraints_la_LIBADD =  \
 libcoot_py_restraints_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # The name of this starts with lib so it fits with boost::python wrapper
-pyrogen_boost_la_SOURCES = restraints-boost.cc restraints.hh
+pyrogen_boost_la_SOURCES = restraints-boost.cc restraints.hh \
+                           protein-ligand-interactions.hh protein-ligand-interactions.cc
 pyrogen_boost_la_LIBADD = libcoot_py_restraints.la \
                                 $(top_builddir)/ideal/libcoot-ideal.la             \
                                 $(top_builddir)/geometry/libcoot-geometry.la       \

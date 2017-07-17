@@ -157,8 +157,8 @@ coot::extract_ligands_from_coords_file(const std::string &file_name) {
    return rdkit_mols_list;
 }
 
+#include "protein-ligand-interactions.hh"
 #include "coot-utils/reduce.hh"
-#include "coot-utils/coot-h-bonds.hh"
 
 // Pass also filename for the CCD for the ligand (or its neighbours)
 // or (probably better) a directory.
@@ -198,44 +198,9 @@ coot::process_ligand(const std::string &file_name,
 		     reduce r(mol, imol);
 		     r.add_geometry(&geom);
 		     r.add_hydrogen_atoms();
-		     int SelHnd_all = mol->NewSelection(); // d
-		     int SelHnd_lig = mol->NewSelection(); // d
-		     mol->SelectAtoms(SelHnd_all, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES,
-				      "*", "*", "*", "*", "*");
-		     mol->SelectAtoms(SelHnd_lig, 0, chain_id.c_str(),
-				      res_no, ins_code.c_str(),
-				      res_no, ins_code.c_str(),
-				      "*", "*", "*", "*");
 
-		     coot::h_bonds hb;
-		     std::pair<bool, int> status = hb.check_hb_status(SelHnd_lig, mol, geom);
-		     if (! status.first)
-			std::cout << "WARNING:: no HB status on atoms of ligand\n";
-		     std::vector<h_bond> hbonds = hb.get_mcdonald_and_thornton(SelHnd_lig,
-									       SelHnd_all,
-									       mol, geom, h_bond_dist_max);
-
-		     for (unsigned int i=0; i<hbonds.size(); i++) {
-			if (true)
-			   std::cout << "DEBUG:: in process_ligand() hbond [" << i << "] donor "
-				     << coot::atom_spec_t(hbonds[i].donor) << "...to... "
-				     << coot::atom_spec_t(hbonds[i].acceptor) << " with ligand donor flag "
-				     << hbonds[i].ligand_atom_is_donor << std::endl;
-
-			// override these 2 if ligand atom is donor
-			//
-			mmdb::Atom      *ligand_atom = hbonds[i].acceptor;
-			mmdb::Atom *env_residue_atom = hbonds[i].donor;
-			if (hbonds[i].ligand_atom_is_donor) {
-			   ligand_atom = hbonds[i].donor;
-			   env_residue_atom = hbonds[i].acceptor;
-			}
-
-			// ... other stuff
-
-		     }
-		     mol->DeleteSelection(SelHnd_all);
-		     mol->DeleteSelection(SelHnd_lig);
+		     // consider where a peptide is the ligand
+		     protein_ligand_interactions(residue_p, mol, &geom, h_bond_dist_max);
 		  }
 	       }
 	    }
