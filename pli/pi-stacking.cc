@@ -57,7 +57,6 @@ coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_re
 coot::pi_stacking_container_t::pi_stacking_container_t(const coot::dictionary_residue_restraints_t &monomer_restraints,
 						       const std::vector<mmdb::Residue *> &residues,
 						       mmdb::Residue *res_ref, const RDKit::ROMol &mol) {
-
    // get a list of aromatic bonds, so that they can be used to find
    // aromatic rings.
    std::vector<std::vector<std::string> > aromatic_ring_list_atom_names =

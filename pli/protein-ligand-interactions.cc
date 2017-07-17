@@ -494,13 +494,14 @@ coot::is_a_metal(mmdb::Residue *res) {
 
 // consider where a peptide is the ligand
 std::vector<coot::fle_ligand_bond_t>
-coot::protein_ligand_interactions(mmdb::Residue *residue_p, mmdb::Manager *mol,
+coot::protein_ligand_interactions(mmdb::Residue *ligand_residue_p, mmdb::Manager *mol,
 				  coot::protein_geometry *geom_p,
 				  float h_bond_dist_max) {
 
-   std::vector<coot::fle_ligand_bond_t> bonds;
+   float water_dist_max = 3.6; // pass this
+   float residues_near_radius = 5.0; // pass this
 
-   residue_spec_t spec(residue_p);
+   residue_spec_t spec(ligand_residue_p);
 
    int SelHnd_all = mol->NewSelection(); // d
    int SelHnd_lig = mol->NewSelection(); // d
@@ -510,6 +511,14 @@ coot::protein_ligand_interactions(mmdb::Residue *residue_p, mmdb::Manager *mol,
 		    spec.res_no, spec.ins_code.c_str(),
 		    spec.res_no, spec.ins_code.c_str(),
 		    "*", "*", "*", "*");
+
+   std::vector<mmdb::Residue *> residues =
+      coot::residues_near_residue(ligand_residue_p, mol, residues_near_radius);
+
+   std::map<std::string, std::string> dummy_name_map;
+   std::vector<fle_ligand_bond_t> bonds = get_fle_ligand_bonds(ligand_residue_p, residues, mol,
+							       dummy_name_map, *geom_p,
+							       water_dist_max, h_bond_dist_max);
 
    coot::h_bonds hb;
    std::pair<bool, int> status = hb.check_hb_status(SelHnd_lig, mol, *geom_p);
@@ -603,5 +612,3 @@ coot::find_water_protein_length(mmdb::Residue *ligand_residue, mmdb::Manager *mo
 
    return dist;
 }
-
-   

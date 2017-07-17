@@ -80,7 +80,7 @@
 #include <ccp4srs/ccp4srs_defs.h>
 #endif
 
-#include "lbg/pi-stacking.hh"
+#include "pli/pi-stacking.hh"
 
 
 bool close_float_p(float f1, float f2) {

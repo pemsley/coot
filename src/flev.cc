@@ -50,7 +50,7 @@
 // because we need it to compile flev if we don't HAVE_GOOCANVAS
 // (pi-stacking.hh is included from lbg.hh if HAVE_GOOCANVAS).
 // 
-#include "lbg/pi-stacking.hh"
+#include "pli/pi-stacking.hh"
 
 #include "flev.hh"
 
@@ -344,7 +344,7 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 		     // ----------- residue infos ----------
 		     // 
 		     coot::pi_stacking_container_t pi_stack_info(p.second, filtered_residues, res_ref);
-		     
+
 #ifdef VERY_OLD_FLEV_FUNCTIONS		     
 		     write_fle_centres(centres, bonds_to_ligand, sed, pi_stack_info, flat_res);
 #endif		     

@@ -61,7 +61,7 @@ n * This program is distributed in the hope that it will be useful, but
 
 #include "solvent-exposure-difference.hh"
 #include "pli/flev-annotations.hh"
-#include "pi-stacking.hh"
+#include "pli/pi-stacking.hh"
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "graphics-c-interface-functions.hh"

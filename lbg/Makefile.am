@@ -38,7 +38,7 @@ AM_CXXFLAGS = \
 bin_PROGRAMS = lidia
 
 libcoot_lidia_la_SOURCES = lbg.cc lbg-flev.cc wmolecule.cc  \
-    lbg-search.cc  residue-circles.cc pi-stacking.cc \
+    lbg-search.cc  residue-circles.cc  \
     lbg-drag-and-drop.cc qed-interface.cc alerts.cc alerts-list.cc \
     qed-properties.cc
 
@@ -60,7 +60,7 @@ lidia_SOURCES = lidia-main.cc lbg-callbacks-outer.cc
 
 pkginclude_HEADERS = lbg.hh w-atom.hh w-bond.hh wmolecule.hh topological-equivalence.hh \
         graphics-c-interface-functions.hh \
-	lbg-drag-and-drop.hh qed-interface.hh alerts.hh pi-stacking.hh solvent-exposure-difference.hh
+	lbg-drag-and-drop.hh qed-interface.hh alerts.hh solvent-exposure-difference.hh
 pkgincludedir = $(includedir)/coot/lbg
 
 # 20140521
