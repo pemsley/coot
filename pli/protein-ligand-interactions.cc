@@ -24,10 +24,12 @@
 #include "protein-ligand-interactions.hh"
 
 // consider where a peptide is the ligand
-void
+std::vector<coot::fle_ligand_bond_t>
 coot::protein_ligand_interactions(mmdb::Residue *residue_p, mmdb::Manager *mol,
 				  coot::protein_geometry *geom_p,
 				  float h_bond_dist_max) {
+
+   std::vector<coot::fle_ligand_bond_t> bonds;
 
    residue_spec_t spec(residue_p);
 
@@ -70,4 +72,5 @@ coot::protein_ligand_interactions(mmdb::Residue *residue_p, mmdb::Manager *mol,
    mol->DeleteSelection(SelHnd_all);
    mol->DeleteSelection(SelHnd_lig);
 
+   return bonds;
 }

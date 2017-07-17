@@ -157,7 +157,7 @@ coot::extract_ligands_from_coords_file(const std::string &file_name) {
    return rdkit_mols_list;
 }
 
-#include "protein-ligand-interactions.hh"
+#include "pli/protein-ligand-interactions.hh"
 #include "coot-utils/reduce.hh"
 
 // Pass also filename for the CCD for the ligand (or its neighbours)
@@ -200,7 +200,8 @@ coot::process_ligand(const std::string &file_name,
 		     r.add_hydrogen_atoms();
 
 		     // consider where a peptide is the ligand
-		     protein_ligand_interactions(residue_p, mol, &geom, h_bond_dist_max);
+		     std::vector<fle_ligand_bond_t> v =
+			protein_ligand_interactions(residue_p, mol, &geom, h_bond_dist_max);
 		  }
 	       }
 	    }

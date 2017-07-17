@@ -382,6 +382,7 @@ pixmaps/Makefile
 pixmaps/icons/Makefile
 rama-data/Makefile
 man/Makefile
+pli/Makefile
 pyrogen/Makefile
 pyrogen/pyrogen
 auxil/Makefile
