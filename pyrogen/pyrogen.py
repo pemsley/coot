@@ -25,8 +25,11 @@ from rdkit import Chem
 from rdkit.Chem import AllChem
 
 import coot_git
-import pyrogen_swig as pysw
-import pyrogen_boost
+
+# Hello from 20170701, library resolution problems?
+# $ otool -L .libs/_pyrogen_swig.so -> @rpath substition... how does that work?
+import pyrogen_swig as pysw # relies on above rdkit.Chem import AllChem (but ideally should not)
+import pyrogen_boost        # ditto
 import atom_types
 
 from optparse import OptionParser

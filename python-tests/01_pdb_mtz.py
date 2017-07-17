@@ -1345,7 +1345,7 @@ class PdbMtzTestFunctions(unittest.TestCase):
     def test30_0(self):
         """Make a glycosidic linkage"""
 
-        carbo = "multi-carbo-coot-2.pdb"
+        carbo = "multi-carbo-coot-3.pdb"
         imol = unittest_pdb(carbo)
 
         if self.skip_test(not valid_model_molecule_qm(imol),
@@ -2308,6 +2308,28 @@ class PdbMtzTestFunctions(unittest.TestCase):
         # now unzip and read the file
         gz_imol = handle_read_draw_molecule("rnase_zip_test.pdb.gz")
         self.failUnless(valid_model_molecule_qm(gz_imol))
+
+        
+    def test62_0(self):
+        """Fix for Oliver Clarke fit by atom selection bug"""
+
+        imol_rnase = unittest_pdb("tutorial-modern.pdb")
+        imol_map = make_and_draw_map(rnase_mtz(), "FWT", "PHWT", "", 0, 0)
+
+        set_imol_refinement_map(imol_map)
+
+        with AutoAccept():
+            rigid_body_refine_by_atom_selection(imol_rnase, "//B")
+
+        # did we get silly superposition?
+        # test that the A-chain atom is close to where it should be
+
+        atom = get_atom(imol_rnase, "A", 43, "", " CA ", "")
+        self.failUnless(isinstance(atom, list), "Failure to extract atom")
+        atom_pos = atom[2]
+        bl = bond_length(atom_pos, [46.4, 11.6, 12.1])
+        print "bl:", bl
+        self.failIf(bl > 1.0, "Fail: moved atom %s" %bl)
 
 
     def test999_0(self):

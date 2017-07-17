@@ -207,7 +207,7 @@ coot::link_by_torsion_t::make_residue(mmdb::Residue *base_residue_p) const {
       r->seqNum = new_res_no;
       for (unsigned int i=0; i<geom_atom_torsions.size(); i++) {
 	 const atom_by_torsion_t &gat = geom_atom_torsions[i];
-	 std::cout << "in make_residue() i: " << i << " " << gat << std::endl;
+	 // std::cout << "in make_residue() i: " << i << " " << gat << std::endl;
 	 std::string f = gat.filled_atom_name(); // FIXME PDBv3 the function call is not needed
 	 clipper::Coord_orth p = gat.pos(base_residue_p, r);
 	 mmdb::Atom *atom = new mmdb::Atom(r); // does an add atom
@@ -228,7 +228,7 @@ coot::atom_by_torsion_t::atom_by_torsion_t(const atom_by_torsion_base_t &names,
 					   mmdb::Residue *residue_2_p   // extension residue
 					   ) {
    
-   if (0) 
+   if (false)
       std::cout << "get "
 		<< names.prior_atom_1.first << " " << names.prior_atom_1.second << " "
 		<< names.prior_atom_2.first << " " << names.prior_atom_2.second << " "

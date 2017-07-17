@@ -4770,73 +4770,11 @@ void fill_go_to_atom_window(GtkWidget *widget) {
 				     "go_to_atom_residue_scrolledwindow");
      residue_gtklist=gtk_list_new();
 
-#if (GTK_MAJOR_VERSION == 1)
-
-     GtkWidget *residue_tree = gtk_tree_new();
-     gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(scrolled_window),
-					   residue_tree);
-     gtk_tree_set_selection_mode (GTK_TREE(residue_tree),
-				  GTK_SELECTION_SINGLE);
-     gtk_widget_show(residue_tree);
-
-     // now set the adjustment of the viewport/scrolledwindow to the
-     // gtklist for residue
-     // 
-     // This bit of magic took 2 full days to find and is necessary
-     // for well-formed ajustments on the residue list, which means
-     // that gtk_list_scroll_vertical GTK_SCROLL_JUMP works! (See
-     // make_synthetic_select_on_residue_list). The $1000 feature.
-     // Jan, I hope you are satisfied - it was a struggle.
-
-//      gtk_container_set_focus_vadjustment(GTK_CONTAINER(residue_tree), 
-// 					 gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW (scrolled_window)));
-     
-     gtk_widget_ref(residue_tree);
-     gtk_object_set_data_full(GTK_OBJECT(widget), "go_to_atom_residue_tree",
-			      residue_tree, 
-			      (GtkDestroyNotify) gtk_widget_unref);
-
-     gtk_signal_connect(GTK_OBJECT(residue_tree),
-  			"selection_changed",
-  			GTK_SIGNAL_FUNC(on_go_to_atom_residue_tree_selection_changed_gtk1),
-  			NULL);
-     
-     /* The atom list */
-     scrolled_window = lookup_widget(GTK_WIDGET(widget),
-				     "go_to_atom_atom_scrolledwindow");
-     GtkWidget *atom_gtklist=gtk_list_new();
-     gtk_scrolled_window_add_with_viewport( GTK_SCROLLED_WINDOW(scrolled_window),
-					    atom_gtklist);
-     /* attach the name to the widget (by hand (as interface.c does
-	it) so that we can look it up in the callback of residue selection changed */
-     gtk_widget_ref(atom_gtklist);
-     gtk_object_set_data_full(GTK_OBJECT(widget), "go_to_atom_atom_list", 
-			      atom_gtklist, 
-			      (GtkDestroyNotify) gtk_widget_unref);
-
-     gtk_widget_show(atom_gtklist);
-
-
-      gtk_signal_connect(GTK_OBJECT(atom_gtklist),
- 			"selection_changed",
- 			GTK_SIGNAL_FUNC(on_go_to_atom_atom_list_selection_changed_gtk1),
- 			NULL);
-
-     /* fill those atom and residue lists (which uses
-	graphics_info_t::go_to_atom_residue()) */
-      g.fill_go_to_atom_residue_list_gtk1(residue_tree);
-
-#else
-     // -----------------------------------------------------------------
-     //                GTK2 path
-     // -----------------------------------------------------------------
      GtkWidget *atom_list_scrolled_window =
 	lookup_widget(GTK_WIDGET(widget), "go_to_atom_atom_scrolledwindow");
      g.fill_go_to_atom_window_gtk2(widget, // the go to atom window
 				   scrolled_window,
 				   atom_list_scrolled_window);
-
-#endif      
 
      /* store the widget */
      save_go_to_atom_widget(widget);

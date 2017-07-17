@@ -99,8 +99,13 @@ atom_selection_container_t::fill_links(mmdb::Manager *mol_other) {
 	    links.resize(n_links);
 	    for (unsigned int i=0; i<n_links; i++) { 
 	       mmdb::Link l;
-	       l.Copy(model_p->GetLink(i));
-	       links[i] = l;
+	       mmdb::Link *ref_link = model_p->GetLink(i);
+	       if (! ref_link) {
+		  std::cout << "ERROR:: null link " << i << " in ref" << std::endl;
+	       } else {
+		  l.Copy(ref_link);
+		  links[i] = l;
+	       }
 	    }
 	 } 
       }

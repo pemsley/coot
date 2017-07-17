@@ -365,7 +365,7 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
 	 display_density_level_this_image = 1;
 	 std::string s;
 	 s = "Read ";
-	 s += int_to_string(rmit.n_atoms);
+    s += int_to_string(rmit.n_atoms + rmit.n_links);
 	 s += " atoms/links in restraints from ";
 	 s += cif_dictionary_filename;
 	 display_density_level_screen_string = s;
@@ -1441,10 +1441,12 @@ graphics_info_t::run_post_set_rotation_centre_hook_scm() {
       ss += s;
       ss += ")";
       SCM res = safe_scheme_command(ss);
-      SCM dest = SCM_BOOL_F;
-      SCM mess =  scm_makfrom0str("result: ~s\n");
-      SCM p = scm_simple_format(dest, mess, scm_list_1(res));
-      std::cout << scm_to_locale_string(p);
+      if (false) {  // too noisy
+	 SCM dest = SCM_BOOL_F;
+	 SCM mess = scm_makfrom0str("result: ~s\n");
+	 SCM p = scm_simple_format(dest, mess, scm_list_1(res));
+	 std::cout << scm_to_locale_string(p);
+      }
    }
 }
 #endif
@@ -1452,6 +1454,32 @@ graphics_info_t::run_post_set_rotation_centre_hook_scm() {
 #ifdef USE_PYTHON
 void
 graphics_info_t::run_post_set_rotation_centre_hook_py() {
+
+      // Same as for the post manipulation "hook", i.e. script (maybe
+      // could become an extra function then...
+      // BL says:: we can do it all in python API or use the 'lazy' method
+      // and check in the python layer (which we will do...)
+      PyObject *v;
+      int ret;
+      std::string ps = "post_set_rotation_centre_script";
+      std::string check_ps = "callable(";
+      check_ps += ps;
+      check_ps += ")";
+      v = safe_python_command_with_return(check_ps);
+      ret = PyInt_AsLong(v);
+      if (ret == 1) {
+        std::string ss = ps;
+        ss += "()";
+        PyObject *res = safe_python_command_with_return(ss);
+        PyObject *fmt =  PyString_FromString("result: \%s");
+        PyObject *tuple = PyTuple_New(1);
+        PyTuple_SetItem(tuple, 0, res);
+        PyObject *msg = PyString_Format(fmt, tuple);
+
+        std::cout << PyString_AsString(msg)<<std::endl;;
+        Py_DECREF(msg);
+      }
+      Py_XDECREF(v);
 }
 #endif
 

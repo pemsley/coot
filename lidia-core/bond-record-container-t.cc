@@ -1137,6 +1137,7 @@ cod::bond_record_container_t::db_callback(void *NotUsed, int argc, char **argv, 
 }
 #endif // USE_SQLITE3
 
+#ifdef USE_SQLITE3
 bool
 cod::bond_record_container_t::db_add_level_4_types(sqlite3 *db) {
 
@@ -1311,6 +1312,7 @@ cod::bond_record_container_t::db_add_level_4_types(sqlite3 *db) {
 
    return status;
 }
+#endif // USE_SQLITE3
 
 
 #endif // MAKE_ENHANCED_LIGAND_TOOLS

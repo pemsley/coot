@@ -249,7 +249,7 @@ void do_refine(short int state) {
 	    std::cout << "click on 2 atoms (in the same molecule)" << std::endl; 
 	    g.pick_cursor_maybe();
 	    g.pick_pending_flag = 1;
-	    std::string s = "Pick 2 atoms or Autozone (pick 1 atom the press the A key)";
+	    std::string s = "Pick 2 atoms or Autozone (pick 1 atom then press the A key)";
 	    s += " [Ctrl Left-mouse rotates the view]";
 	    s += "...";
 	    g.add_status_bar_text(s);

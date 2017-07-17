@@ -36,7 +36,6 @@
 
 #include "restraints-private.hh"
 
-
 namespace coot {
 
    class quartet_set {

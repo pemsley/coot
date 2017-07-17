@@ -76,7 +76,7 @@ def coot_urlretrieve(url, file_name):
 
 # check the directory and get url url_string.
 #
-def check_dir_and_get_url(dir,file_name,url_string):
+def check_dir_and_get_url(dir, file_name, url_string):
     import os,urllib
 
     # FIXME logic, can be done better
@@ -181,6 +181,10 @@ def get_eds_pdb_and_mtz(id):
     # 
     # URL:: "http://eds.bmc.uu.se/eds/sfd/sa/2sar/pdb2sar.ent"
     # URL:: "http://eds.bmc.uu.se/eds/sfd/sa/2sar/2sar_sigmaa.mtz"
+    #
+    # 20161010 new prefix
+    # http://www.ebi.ac.uk/pdbe/coordinates/
+    # http://www.ebi.ac.uk/pdbe/coordinates/files/1cbs_map.mtz
 
     def get_cached_eds_files(accession_code):
         down_code = string.lower(accession_code)
@@ -188,7 +192,7 @@ def get_eds_pdb_and_mtz(id):
         pdb_file_name = os.path.join(dir_name,
                                      "pdb" + down_code + ".ent")
         mtz_file_name = os.path.join(dir_name,
-                                     down_code + "_sigmaa.mtz")
+                                     down_code + "_map.mtz")
 
         if not os.path.isfile(pdb_file_name):
             return False
@@ -197,8 +201,8 @@ def get_eds_pdb_and_mtz(id):
                 return False
             else:
                 imol = read_pdb(pdb_file_name)
-                imol_map = make_and_draw_map(mtz_file_name, "2FOFCWT", "PH2FOFCWT", "", 0, 0)
-                imol_map_d = make_and_draw_map(mtz_file_name, "FOFCWT", "PHFOFCWT", "", 0, 1)
+                imol_map = make_and_draw_map(mtz_file_name, "FWT", "PHWT", "", 0, 0)
+                imol_map_d = make_and_draw_map(mtz_file_name, "DELFWT", "PHDELWT", "", 0, 1)
                 if not (valid_model_molecule_qm(imol) and
                         valid_map_molecule_qm(imol_map) and
                         valid_map_molecule_qm(imol_map_d)):
@@ -304,9 +308,8 @@ def get_pdb_redo(text):
             print "BL WARNING:: Accession code not 4 chars."
         else:
             text = string.lower(text)
-            stub = "http://www.cmbi.ru.nl/pdb_redo/" + \
-                   text[1:3] + \
-                   "/" + text + "/" + text + "_final"
+            stub = "http://pdb-redo.eu/db/" + \
+                   text + "/" + text + "_final"
             pdb_file_name = text + "_final.pdb"
             mtz_file_name = text + "_final.mtz"
             py_file_name = text + ".py"

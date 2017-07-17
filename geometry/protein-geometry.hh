@@ -286,7 +286,7 @@ namespace coot {
       double angle_esd_;
       int period;
    public:
-      
+
       // dict_torsion_restraint_t() {}; 
       dict_torsion_restraint_t(std::string id_in,
 			       std::string atom_id_1,
@@ -315,7 +315,7 @@ namespace coot {
       double angle() const { return angle_; }
       double esd ()  const { return angle_esd_;}
       friend std::ostream& operator<<(std::ostream &s, const dict_torsion_restraint_t &rest);
-      bool is_pyranose_ring_torsion() const;
+      bool is_pyranose_ring_torsion(const std::string &comp_id) const;
       bool is_ring_torsion(const std::vector<std::vector<std::string> > &ring_atoms_sets) const;
       // hack for mac, ostream problems
       std::string format() const;
@@ -717,7 +717,7 @@ namespace coot {
       // compares atoms of torsion_restraint vs the ring atoms.
       // bool is_ring_torsion(const dict_torsion_restraint_t &torsion_restraint) const;
       bool is_ring_torsion(const atom_name_quad &quad) const;
-      
+
       void write_cif(const std::string &filename) const;
       // look up the atom id in the atom_info (dict_atom vector)
       std::string atom_name_for_tree_4c(const std::string &atom_id) const;

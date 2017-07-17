@@ -1065,12 +1065,15 @@ molecule_class_info_t::new_ligand_centre(const clipper::Coord_orth &current_cent
    }
 
    int current_centre_index = -1; // unset
+   double closest_middle = 9999.9;
    if (ligand_centres.size()) {
       for (unsigned int ilig=0; ilig<ligand_centres.size(); ilig++) { 
 	 double d = clipper::Coord_orth::length(current_centre, ligand_centres[ilig].first);
 	 if (d < 5) {
-	    current_centre_index = ilig;
-	    break;
+	    if (d < closest_middle) {
+	       current_centre_index = ilig;
+	       closest_middle = d;
+	    }
 	 } 
       }
 
@@ -1253,8 +1256,7 @@ molecule_class_info_t::add_linked_residue_by_atom_torsions(const coot::residue_s
 	 std::pair<bool, mmdb::Residue *> status_pair = add_residue(result, spec_in.chain_id);
 	 if (status_pair.first) {
 	    new_residue_spec = coot::residue_spec_t(status_pair.second);
-	    coot::dict_link_info_t link_info(residue_ref, status_pair.second,
-					     link_type, *geom_p);
+	    coot::dict_link_info_t link_info(residue_ref, status_pair.second, link_type, *geom_p); // exception caught
 	    make_link(link_info.spec_ref, link_info.spec_new, link_type, link_info.dist, *geom_p);
 	 }
       } 
@@ -1305,7 +1307,7 @@ coot::dict_link_info_t::dict_link_info_t(mmdb::Residue *residue_ref,
 	    if (order_switch_flag) { 
 	       std::swap(res_1, res_2);
 	    }
-	    
+
 	    // we found it (i.e. not null object)
 	    coot::residue_spec_t res_spec_ref(res_1);
 	    coot::residue_spec_t res_spec_new(res_2);
@@ -1332,6 +1334,7 @@ coot::dict_link_info_t::dict_link_info_t(mmdb::Residue *residue_ref,
 							res_spec_new.res_no,
 							res_spec_new.ins_code,
 							atom_name_2, "");
+
 			   dist = coot::distance(residue_atoms_1[iat1],
 						 residue_atoms_2[iat2]);
 			   break;
@@ -1428,14 +1431,47 @@ molecule_class_info_t::multi_residue_torsion_fit(const std::vector<coot::residue
 	    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 	    for (int iat=0; iat<n_residue_atoms; iat++) {
 	       mmdb::Atom *at = residue_atoms[iat];
-	       std::string ele = at->element;
-	       if (ele != " H") { // PDBv3 fixme
-		  clipper::Coord_orth pt = coot::co(at);
-		  bool t = false;
-		  std::string res_name = at->GetResName();
-		  if (res_name == "HOH") t = true;
-		  std::pair<bool, clipper::Coord_orth> p(t, pt);
-		  avoid_these_atoms.push_back(p);
+	       clipper::Coord_orth pt = coot::co(at);
+
+	       // if an atom of the residue specs is right now close to a neighbour residue
+	       // atom, then that neighbour is likely to be bonded (or angle-related)
+	       // so don't add such atoms to the avoid_these_atoms - yes, this is a
+	       // hack, but it's better than it was.
+	       //
+	       bool already_close = false;
+	       //
+	       mmdb::Model *model_p = moving_mol->GetModel(1);
+	       if (model_p) {
+		  int n_chains = model_p->GetNumberOfChains();
+		  for (int ichain=0; ichain<n_chains; ichain++) {
+		     mmdb::Chain *chain_p = model_p->GetChain(ichain);
+		     int nres = chain_p->GetNumberOfResidues();
+		     for (int ires=0; ires<nres; ires++) {
+			mmdb::Residue *moving_residue_p = chain_p->GetResidue(ires);
+			int n_atoms = moving_residue_p->GetNumberOfAtoms();
+			for (int iat=0; iat<n_atoms; iat++) {
+			   mmdb::Atom *moving_at = moving_residue_p->GetAtom(iat);
+			   clipper::Coord_orth pt_moving = coot::co(moving_at);
+			   if ((pt - pt_moving).lengthsq() < 2.8*2.8) {
+			      already_close = true;
+			      break;
+			   }
+			}
+			if (already_close)
+			   break;
+		     }
+		  }
+	       }
+
+	       if (! already_close) {
+		  std::string ele = at->element;
+		  if (ele != " H") { // PDBv3 fixme
+		     bool t = false;
+		     std::string res_name = at->GetResName();
+		     if (res_name == "HOH") t = true;
+		     std::pair<bool, clipper::Coord_orth> p(t, pt);
+		     avoid_these_atoms.push_back(p);
+		  }
 	       }
 	    }
 	 }

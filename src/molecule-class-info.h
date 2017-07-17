@@ -724,7 +724,7 @@ public:        //                      public
 
       // bespoke colouring
       use_bespoke_grey_colour_for_carbon_atoms = false;
-      bespoke_carbon_atoms_colour = coot::colour_t(0.6, 0.6, 0.6);
+      bespoke_carbon_atoms_colour = coot::colour_t(0.4, 0.4, 0.4);
 
       // 
       rotate_colour_map_for_difference_map = 240.0; // degrees
@@ -962,6 +962,7 @@ public:        //                      public
    void set_b_factor_residue_range(const std::string &chain_id, int ires1, int ires2, float b_val);
    void set_b_factor_atom_selection(const atom_selection_container_t &asc, float b_val, bool moving_atoms);
    void set_b_factor_residues(const std::vector<std::pair<coot::residue_spec_t, double> > &rbs); // all atoms of specified
+   void set_b_factor_residue(coot::residue_spec_t spec, float bf);
 
 
    std::vector<coot::atom_spec_t> fixed_atom_specs;

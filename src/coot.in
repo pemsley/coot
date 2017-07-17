@@ -131,14 +131,17 @@ else
 fi
 # echo COOT_PREFIX is $COOT_PREFIX
 
-coot_bin=$COOT_PREFIX/libexec/coot-bin
 
 # we need this for movable/slim directory usage
 if [ "$systype" != "${systype/MINGW32_NT/}" ] ; then
    # BL says:: is there some better cleverness possible?!
+   # I could use (if we have new bash)
+   # if [[ $systype == MINGW* ]] ; then
+   coot_bin=$COOT_PREFIX/bin/coot-bin
    PYTHONHOME=$COOT_PREFIX/python27
    PATH=$PATH:$PYTHONHOME
 else
+   coot_bin=$COOT_PREFIX/libexec/coot-bin
    PYTHONHOME=$COOT_PREFIX
 fi
 
@@ -251,7 +254,6 @@ if [ -e $COOT_PREFIX/pending-install ] ; then
    apply_pending_install $COOT_PREFIX
 fi
   
-# "Use $@ to stop word splitting" from Ben Eisenbraun.  
 if [ "$1" = --check-libs ] ; then 
    ldd $coot_bin
    if [ $systype = Darwin ] ; then
@@ -259,6 +261,7 @@ if [ "$1" = --check-libs ] ; then
    fi
 else 
    # normal path
+   # "Use $@ to stop word splitting" from Ben Eisenbraun.
    $coot_bin "$@"
    status=$?
    if [ $status != 0 ] ; then

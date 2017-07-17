@@ -40,7 +40,7 @@ graphics_ligand_molecule::~graphics_ligand_molecule() {}
 // template<class Tgraphics_ligand_atom, class Tgraphics_ligand_bond> lig_build::molecule_t<graphics_ligand_atom, graphics_ligand_bond>::~molecule_t() {}
 template<class graphics_ligand_atom, class graphics_ligand_bond> lig_build::molecule_t<graphics_ligand_atom, graphics_ligand_bond>::~molecule_t() {}
 
-void 
+void
 graphics_ligand_molecule::generate_display_list(bool dark_background_flag) {
 
    if (0)
@@ -127,13 +127,15 @@ void graphics_ligand_molecule::gl_bonds(bool dark_background) {
       }
    }
 
-
    for (unsigned int iat=0; iat<atoms.size(); iat++) { 
       std::string ele = atoms[iat].element;
       if (ele != "C") { 
 	 std::vector<unsigned int> local_bonds = bonds_having_atom_with_atom_index(iat);
 	 bool gl_flag = true;
 	 lig_build::atom_id_info_t atom_id_info = make_atom_id_by_using_bonds(iat, ele, local_bonds, gl_flag);
+	 if (false)
+	    std::cout << "in gl_bonds() atom_index " << iat << " with charge " << atoms[iat].charge
+		      << " made atom_id_info " << atom_id_info << std::endl;
 	 // atoms[iat].set_atom_id(atom_id_info.atom_id); // quick hack
 	 bool background_black = true;
 	 coot::colour_t col = atoms[iat].get_colour(background_black); // using ele
@@ -288,6 +290,9 @@ graphics_ligand_atom::make_text_item(const lig_build::atom_id_info_t &atom_id_in
    if (atom_id_info_in.atom_id != "C") {
       glColor3f(fc.col[0], fc.col[1], fc.col[2]);
 
+      if (false)
+	 std::cout << "make_text_item() called for atom_id_info_in " << atom_id_info_in << std::endl;
+
       for (unsigned int i=0; i<atom_id_info_in.n_offsets(); i++) {
 	 double x_o = -0.25; 
 	 double y_o = -0.25;
@@ -299,7 +304,7 @@ graphics_ligand_atom::make_text_item(const lig_build::atom_id_info_t &atom_id_in
 	 double x_pos = atom_position.x + 0.06 * atom_id_info_in.offsets[i].tweak.x + x_o;
 	 double y_pos = atom_position.y + 0.06 * atom_id_info_in.offsets[i].tweak.y + y_o;
 
-	 if (0)
+	 if (false)
 	    std::cout << "Rendering tweak " << i << " :" << atom_id_info_in[i].text
 		      << ": with tweak " << atom_id_info_in[i].tweak << std::endl;
 
@@ -311,7 +316,7 @@ graphics_ligand_atom::make_text_item(const lig_build::atom_id_info_t &atom_id_in
 	 double screen_z = -1.5;
 	 glRasterPos3d(x_pos, y_pos, screen_z);
 
-	 if (0) {  // Yes the 0,0 position is bottom left of the letter
+	 if (false) {  // Yes the 0,0 position is bottom left of the letter
 	    double screen_z = 0.0;
 	    glLineWidth(1.0);
 	    glBegin(GL_LINES);
@@ -371,7 +376,7 @@ graphics_ligand_molecule::setup_from(int imol_in, mmdb::Residue *residue_p,
 	 } else {
 	    const coot::dictionary_residue_restraints_t &restraints = p.second;
 	    RDKit::RWMol rdkm = coot::rdkit_mol(residue_p, restraints, alt_conf);
-
+	    
 	    // std::cout << "--------------------- graphics-ligand-view setup_from() 1 " << std::endl;
 	    // coot::debug_rdkit_molecule(&rdkm);
 
@@ -410,6 +415,12 @@ graphics_ligand_molecule::setup_from(int imol_in, mmdb::Residue *residue_p,
 	 
 	       lig_build::molfile_molecule_t m =
 		  coot::make_molfile_molecule(rdk_mol_with_no_Hs, mol_2d_depict_conformer);
+
+	       if (false) {
+		  std::cout << "make_molfile_molecule() makes molecule: " << std::endl;
+		  m.debug();
+	       }
+
 	       init_from_molfile_molecule(m, against_a_dark_background);
 
 	       status = true; // OK, if we got to here...
@@ -443,6 +454,10 @@ graphics_ligand_molecule::init_from_molfile_molecule(const lig_build::molfile_mo
       graphics_ligand_atom at(lig_build::pos_t(at_in.atom_position.x() + x_offset_fiddle,
 					       at_in.atom_position.y()),
 			      at_in.element, at_in.formal_charge);
+      if (false) {
+	 std::cout << "init_from_molfile_molecule(): adding to atoms name :"
+		   << at.atom_name << ":" << std::endl;
+      }
       at.atom_name = at_in.name;
       at.aromatic = at_in.aromatic;
       // what about chiral here (a lig_build::atom_t does not have chiral information).
