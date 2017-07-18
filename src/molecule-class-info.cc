@@ -6891,30 +6891,34 @@ molecule_class_info_t::model_view_residue_tree_labels() const {
    if (atom_sel.n_selected_atoms > 0) {
 
       mmdb::Chain *chain_p;
-      int im = 1;
-      int nchains = atom_sel.mol->GetNumberOfChains(im);
-      for (int ichain=0; ichain<nchains; ichain++) {
+      int imodel = 1;
+      for(int imodel = 1; imodel<=atom_sel.mol->GetNumberOfModels(); imodel++) {
+	 int nchains = atom_sel.mol->GetNumberOfChains(imodel);
+	 for (int ichain=0; ichain<nchains; ichain++) {
 
-	 chain_p = atom_sel.mol->GetChain(im, ichain);
-	 std::string chain_label("Chain ");
-	 chain_label += chain_p->GetChainID();
-	 v.push_back(coot::model_view_atom_tree_chain_t(chain_label));
+	    chain_p = atom_sel.mol->GetChain(imodel, ichain);
+	    if (chain_p) {
+	       std::string chain_label("Chain ");
+	       chain_label += chain_p->GetChainID();
+	       v.push_back(coot::model_view_atom_tree_chain_t(chain_label));
 	 
-	 if (! chain_p) {
-	    std::cout << "ERROR getting chain in model_view_residue_tree_labels\n";
-	 } else {
-	    int nres = chain_p->GetNumberOfResidues();
-	    mmdb::PResidue residue_p;
-	    for (int ires=0; ires<nres; ires++) {
-	       residue_p = chain_p->GetResidue(ires);
-	       std::string label = residue_p->GetChainID();
-	       label += " ";
-	       label += coot::util::int_to_string(residue_p->GetSeqNum());
-	       label += residue_p->GetInsCode();
-	       label += " ";
-	       label += residue_p->name;
-	       coot::model_view_atom_tree_item_info_t res(label, residue_p);
-	       v.back().add_residue(res);
+	       if (! chain_p) {
+		  std::cout << "ERROR getting chain in model_view_residue_tree_labels\n";
+	       } else {
+		  int nres = chain_p->GetNumberOfResidues();
+		  mmdb::PResidue residue_p;
+		  for (int ires=0; ires<nres; ires++) {
+		     residue_p = chain_p->GetResidue(ires);
+		     std::string label = residue_p->GetChainID();
+		     label += " ";
+		     label += coot::util::int_to_string(residue_p->GetSeqNum());
+		     label += residue_p->GetInsCode();
+		     label += " ";
+		     label += residue_p->name;
+		     coot::model_view_atom_tree_item_info_t res(label, residue_p);
+		     v.back().add_residue(res);
+		  }
+	       }
 	    }
 	 }
       }

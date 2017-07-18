@@ -217,6 +217,7 @@ int greg_internal_tests() {
    functions.push_back(named_func(test_COO_mod, "test COO modification"));
    functions.push_back(named_func(test_remove_whitespace, "remove whitespace"));
    functions.push_back(named_func(test_new_comp_id, "New comp_ids are sane"));
+   functions.push_back(named_func(test_trailing_slash, "Remove Trailing Slash"));
 
    // restore this at some stage
    // functions.push_back(named_func(test_copy_cell_symm_orig_scale_headers, "test copy cell, symm, orig, scale cards"));
@@ -450,7 +451,7 @@ int test_output_link_distances_are_correct() {
 		     status = 1; // all OK so far
 		     for (int i_link=1; i_link<=n_links; i_link++) {
 			mmdb::Link *link = model_p->GetLink(i_link);
-			std::pair<coot::atom_spec_t, coot::atom_spec_t> lp = coot::link_atoms(link);
+			std::pair<coot::atom_spec_t, coot::atom_spec_t> lp = coot::link_atoms(link, model_p);
 			mmdb::Atom *at_1 = coot::util::get_atom(lp.first,  atom_sel.mol);
 			mmdb::Atom *at_2 = coot::util::get_atom(lp.second, atom_sel.mol);
 			if (at_1) {
@@ -2769,31 +2770,55 @@ int test_COO_mod() {
    return status;
 }
 
-// I'm not going to fight the tab key
-// 
- int test_new_comp_id() {
+int test_new_comp_id() {
 
-    int status = 1;
+   int status = 1;
 
-    std::vector<std::pair<std::string, std::string> > comp_ids;
-    comp_ids.push_back(std::pair<std::string, std::string> ("L19", "L20"));
-    comp_ids.push_back(std::pair<std::string, std::string> ("LIG", "LI2"));
-    comp_ids.push_back(std::pair<std::string, std::string> ("L01", "L02"));
-    comp_ids.push_back(std::pair<std::string, std::string> ("119", "120"));
-    comp_ids.push_back(std::pair<std::string, std::string> ("120", "121"));
-    comp_ids.push_back(std::pair<std::string, std::string> ("D99", "")); // failure case
+   std::vector<std::pair<std::string, std::string> > comp_ids;
+   comp_ids.push_back(std::pair<std::string, std::string> ("L19", "L20"));
+   comp_ids.push_back(std::pair<std::string, std::string> ("LIG", "LI2"));
+   comp_ids.push_back(std::pair<std::string, std::string> ("L01", "L02"));
+   comp_ids.push_back(std::pair<std::string, std::string> ("119", "120"));
+   comp_ids.push_back(std::pair<std::string, std::string> ("120", "121"));
+   comp_ids.push_back(std::pair<std::string, std::string> ("D99", "")); // failure case
 
-    for (unsigned int i=0; i<comp_ids.size(); i++) {
-       std::string n = coot::suggest_new_comp_id(comp_ids[i].first);
-       if (n != comp_ids[i].second) {
-	  std::cout << "New comp_id fail on " << comp_ids[i].first << " wanted " << comp_ids[i].second
-	  << " but got \"" << n << "\"" << std::endl;
-	  status = 0; // fail
-	  break;
-       }
-    }
-    return status;
- } 
+   for (unsigned int i=0; i<comp_ids.size(); i++) {
+      std::string n = coot::suggest_new_comp_id(comp_ids[i].first);
+      if (n != comp_ids[i].second) {
+	 std::cout << "New comp_id fail on " << comp_ids[i].first << " wanted " << comp_ids[i].second
+		   << " but got \"" << n << "\"" << std::endl;
+	 status = 0; // fail
+	 break;
+      }
+   }
+   return status;
+}
+
+int test_trailing_slash() {
+
+   int status = 1; // OK
+   std::string s = "x/";
+   if (coot::util::remove_trailing_slash(s) != "x") {
+      status = 0;
+   }
+   s = "/";
+   if (coot::util::remove_trailing_slash(s) != "") {
+      status = 0;
+   }
+   s = "ss";
+   if (coot::util::remove_trailing_slash(s) != "ss") {
+      status = 0;
+   }
+   s = "\\"; // single
+   if (coot::util::remove_trailing_slash(s) != "") {
+      status = 0;
+   }
+   s = "";
+   if (coot::util::remove_trailing_slash(s) != "") {
+      status = 0;
+   }
+   return status;
+}
 
  
 

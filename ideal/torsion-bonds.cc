@@ -445,7 +445,7 @@ coot::multi_residue_torsion_fit_map(int imol,
 	 if (atomic_number == -1)
 	    z = 6.0f;
 	 atoms[iat] = std::pair<mmdb::Atom *, float> (atom_selection[iat], z);
-      } 
+      }
 
       if (n_selected_atoms > 0) { 
 	 std::vector<torsion_atom_quad> quads = 
@@ -539,7 +539,7 @@ coot::multi_residue_torsion_fit_map(int imol,
 	    double env_clash_score = get_environment_clash_score(mol, atom_selection, n_selected_atoms,
                                                                  avoid_these_atoms);
 
-	    if (true) {
+	    if (false) {
 	       std::cout << "DEBUG:: self_clash_score: " << self_clash_score << std::endl;
 	       std::cout << "DEBUG::  env_clash_score: " <<  env_clash_score << std::endl;
 	    }

@@ -510,12 +510,12 @@ def generic_double_entry(label_1, label_2,
 
     vbox.pack_start(hbox1, False, False, 0)
     vbox.pack_start(hbox2, False, False, 0)
-    hbox3.pack_start(go_button, True, False, 6)
+    hbox3.pack_start(go_button, False, False, 6)
     hbox3.pack_start(cancel_button, True, False, 6)
     hbox1.pack_start(tlc_label, False, False, 0)
     hbox1.pack_start(tlc_entry, False, False, 0)
     hbox2.pack_start(smiles_label, False, False, 0)
-    hbox2.pack_start(smiles_entry, False, False, 0)
+    hbox2.pack_start(smiles_entry, True, True, 0)
 
     if type(check_button_label) is StringType:
 
@@ -550,6 +550,7 @@ def generic_double_entry(label_1, label_2,
 
     smiles_entry.connect("key-press-event", key_press_event, tlc_entry, smiles_entry, check_button)
 
+    window.set_default_size(400, 100)
     window.show_all()
 
     # return the widget

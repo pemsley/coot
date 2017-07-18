@@ -3,14 +3,24 @@
 
    o qq-plot-map-and-model - is it in the documentation (and redefines)?
 
+   o ACE, PCA and MSE should not be considered as ligands in go-to-ligand
+
    o make benzoic acid in lidia - does it generate correctly in acedrg and
      pyrogen?
+
+   o pyrogen -nM -w -r Y03 fails
+
+   o chemical diagram for Acedrg dictionary for this molecule:
+     COC(=O)C(=COC)c1ccccc1COC(N1C)=CC(=N1)C(=C2O)C=C(Cl)C=C2"
+     Disable the conversion to NH+ if any bond to the nitrogen is aromatic.
 
    o Sat 3 Jun 2017 08:57:29 CEST should accept_moving_atoms() (which
      can be called via scripting) dismiss the add_alt_conf dialog?  I
      think yes at the moment. [Georg Kempf]
 
    o "Delete All Carbohydrate" on 5fuu is very slow. Fix.  Needs delete_residues(imol, res_specs).
+
+* Done.
 
    o Copy-molecule loses the NCS ghost info/tranformations (i.e. O doesn't work)
 
@@ -24,6 +34,7 @@
 
    o copy a fragment that has a link.  The link is not copied into fragment molecule.
 
+* Done.
 
    o if use has (add-module-carbohydrate) in ~/.coot, then coot should not
      stop saying unbound variable... i.e. either much of gui-add-linked-cho.scm should
@@ -38,11 +49,9 @@
 	 }
       }
 
+   o on mutating a THR (or anything) to a PRO, remember to delete H.
 
-   o on mutating a THR (or anything) to a PRO, remember to delete
-     H.
-
-   o I don't like fat hydrgen (bonds) in Colour by Chain mode.
+   o I don't like fat hydrogen (bonds) in Colour by Chain mode.
 
    o when first molecule is not a protein.  Copy NCS residue range. coot-utils.scm 1533
 

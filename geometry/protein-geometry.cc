@@ -812,11 +812,14 @@ coot::dictionary_residue_restraints_t::get_non_const_torsions(bool include_hydro
 }
 
 bool
-coot::dict_torsion_restraint_t::is_pyranose_ring_torsion() const {
+coot::dict_torsion_restraint_t::is_pyranose_ring_torsion(const std::string &comp_id) const {
 
    // Needs fixup for PDBv3
    bool status = false;
    std::string ring_atoms[6] = { " C1 ", " C2 ", " C3 ", " C4 ", " C5 ", " O5 " };
+   if (comp_id == "XYP")
+      for (unsigned int i=0; i<6; i++)
+	 ring_atoms[i][3] = 'B'; // danger on PDBv3 fixup.
 
    int n_matches = 0;
    for (unsigned int i=0; i<6; i++) { 
@@ -1238,8 +1241,16 @@ coot::operator<<(std::ostream &s, const dict_atom &at) {
      << "atom-id-4c :" << at.atom_id_4c << ":  "
      << "type-symbol :" << at.type_symbol << ":  "
      << "pdbx_stereo_config: " << at.pdbx_stereo_config.first
-     << " \"" << at.pdbx_stereo_config.second << "\" "
-     << "model-pos " << at.model_Cartn.first << " ";
+     << " \"" << at.pdbx_stereo_config.second << "\" ";
+   if (at.formal_charge.first)
+      s << "formal-charge " << at.formal_charge.second << " ";
+   else 
+      s << "no-formal-charge ";
+   if (at.partial_charge.first)
+      s << "partial-charge " << at.partial_charge.second << " ";
+   else 
+      s << "no-partial-charge ";
+   s << "model-pos " << at.model_Cartn.first << " ";
    if (at.model_Cartn.first)
       s << at.model_Cartn.second.format() << " ";
    s << "ideal-pos " << at.pdbx_model_Cartn_ideal.first << " ";

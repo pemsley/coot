@@ -1096,43 +1096,28 @@ coot::residue_spec_t residue_spec_from_py(PyObject *residue_in) {
    // What about make_residue_spec_py()?
 
    coot::residue_spec_t rspec; // default
+   int offset = 0;
 
    if (PyList_Check(residue_in)) {
-
-      if (PyList_Size(residue_in) == 3) { 
-	 PyObject *chain_id_py = PyList_GetItem(residue_in, 0);
-	 PyObject *resno_py    = PyList_GetItem(residue_in, 1);
-	 PyObject *ins_code_py = PyList_GetItem(residue_in, 2);
-	 if (PyString_Check(chain_id_py)) {
-	    if (PyString_Check(ins_code_py)) {
-	       if (PyInt_Check(resno_py)) {
-		  std::string chain_id  = PyString_AsString(chain_id_py);
-		  std::string ins_code  = PyString_AsString(ins_code_py);
-		  long resno            = PyInt_AsLong(resno_py);
-		  rspec = coot::residue_spec_t(chain_id, resno, ins_code);
-	       }
-	    }
-	 }
+      if (PyList_Size(residue_in) == 4)
+         offset = 1;
+      PyObject *chain_id_py = PyList_GetItem(residue_in, 0+offset);
+      PyObject *resno_py    = PyList_GetItem(residue_in, 1+offset);
+      PyObject *ins_code_py = PyList_GetItem(residue_in, 2+offset);
+      if (PyString_Check(chain_id_py)) {
+         if (PyString_Check(ins_code_py)) {
+            if (PyInt_Check(resno_py)) {
+               std::string chain_id  = PyString_AsString(chain_id_py);
+               std::string ins_code  = PyString_AsString(ins_code_py);
+               long resno            = PyInt_AsLong(resno_py);
+               rspec = coot::residue_spec_t(chain_id, resno, ins_code);
+               return rspec;
+            }
+         }
       }
-
-      if (PyList_Size(residue_in) == 4) {
-	 PyObject *chain_id_py = PyList_GetItem(residue_in, 1);
-	 PyObject *resno_py    = PyList_GetItem(residue_in, 2);
-	 PyObject *ins_code_py = PyList_GetItem(residue_in, 3);
-	 if (PyString_Check(chain_id_py)) {
-	    if (PyString_Check(ins_code_py)) {
-	       if (PyInt_Check(resno_py)) {
-		  std::string chain_id  = PyString_AsString(chain_id_py);
-		  std::string ins_code  = PyString_AsString(ins_code_py);
-		  long resno            = PyInt_AsLong(resno_py);
-		  rspec = coot::residue_spec_t(chain_id, resno, ins_code);
-	       }
-	    }
-	 }
-      }
-
    }
-   return rspec;
+   return coot::residue_spec_t();
+
 }
 #endif // USE_PYTHON
 
@@ -4364,8 +4349,6 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 #ifdef USE_PYTHON
 PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restraints) {
 
-   int imol = 0; // maybe this should be passed?
-   
    PyObject *retval = Py_False;
 
    if (!PyDict_Check(restraints)) {
@@ -4578,50 +4561,50 @@ PyObject *set_monomer_restraints_py(const char *monomer_type, PyObject *restrain
 	 }
 
 
-	 if (key_string == "_chem_comp_plane_atom") {
-	    PyObject *plane_restraint_list = value;
-	    if (PyList_Check(plane_restraint_list)) {
-	       int n_planes = PyObject_Length(plane_restraint_list);
-	       for (int i_plane=0; i_plane<n_planes; i_plane++) {
-		  PyObject *plane_restraint = PyList_GetItem(plane_restraint_list, i_plane);
-		  if (PyObject_Length(plane_restraint) == 3) {
-		     std::vector<std::string> atoms;
-		     PyObject *plane_id_py = PyList_GetItem(plane_restraint, 0);
-		     PyObject *esd_py      = PyList_GetItem(plane_restraint, 2);
-		     PyObject *py_atoms_py = PyList_GetItem(plane_restraint, 1);
+    if (key_string == "_chem_comp_plane_atom") {
+       PyObject *plane_restraint_list = value;
+       if (PyList_Check(plane_restraint_list)) {
+          int n_planes = PyObject_Length(plane_restraint_list);
+          for (int i_plane=0; i_plane<n_planes; i_plane++) {
+             PyObject *plane_restraint = PyList_GetItem(plane_restraint_list, i_plane);
+             if (PyObject_Length(plane_restraint) == 3) {
+                std::vector<std::string> atoms;
+                PyObject *plane_id_py = PyList_GetItem(plane_restraint, 0);
+                PyObject *esd_py      = PyList_GetItem(plane_restraint, 2);
+                PyObject *py_atoms_py = PyList_GetItem(plane_restraint, 1);
 
-		     bool atoms_pass = 1;
-		     if (PyList_Check(py_atoms_py)) {
-			int n_atoms = PyObject_Length(py_atoms_py);
-			for (int iat=0; iat<n_atoms; iat++) {
-			   PyObject *at_py = PyList_GetItem(py_atoms_py, iat);
-			   if (PyString_Check(at_py)) {
-			      atoms.push_back(PyString_AsString(at_py));
-			   } else {
-			      atoms_pass = 0;
-			   }
-			}
-			if (atoms_pass) {
-			   if (PyString_Check(plane_id_py)) {
-			      if (PyFloat_Check(esd_py)) {
-				 std::string plane_id = PyString_AsString(plane_id_py);
-				 float esd = PyFloat_AsDouble(esd_py);
-				 if (atoms.size() > 0) { 
-				    coot::dict_plane_restraint_t rest(plane_id, atoms[0], esd);
-				    for (unsigned int i=1; i<atoms.size(); i++) {
-				       double esd = 0.02;
-				       rest.push_back_atom(atoms[i], esd);
-				    }
-				    plane_restraints.push_back(rest);
-				 }
-			      }
-			   }
-			}
-		     }
-		  }
-	       }
-	    }
-	 }
+                bool atoms_pass = 1;
+                if (PyList_Check(py_atoms_py)) {
+                   int n_atoms = PyObject_Length(py_atoms_py);
+                   for (int iat=0; iat<n_atoms; iat++) {
+                      PyObject *at_py = PyList_GetItem(py_atoms_py, iat);
+                      if (PyString_Check(at_py)) {
+                         atoms.push_back(PyString_AsString(at_py));
+                      } else {
+                         atoms_pass = 0;
+                      }
+                   }
+                   if (atoms_pass) {
+                      if (PyString_Check(plane_id_py)) {
+                         if (PyFloat_Check(esd_py)) {
+                            std::string plane_id = PyString_AsString(plane_id_py);
+                            float esd = PyFloat_AsDouble(esd_py);
+                            if (atoms.size() > 0) {
+                               coot::dict_plane_restraint_t rest(plane_id, atoms[0], esd);
+                               for (unsigned int i=1; i<atoms.size(); i++) {
+                                  rest.push_back_atom(atoms[i], esd);
+                               }
+                               plane_restraints.push_back(rest);
+                               std::cout << "plane restraint: " << rest <<std::endl;
+                            }
+                         }
+                      }
+                   }
+                }
+             }
+          }
+       }
+    }
       }
 	
       coot::dictionary_residue_restraints_t monomer_restraints(monomer_type, 1);
@@ -5122,7 +5105,7 @@ SCM link_info_scm(int imol) {
 	       for (int i_link=1; i_link<=n_links; i_link++) {
 		  mmdb::PLink link = model_p->GetLink(i_link);
 
-		  std::pair<coot::atom_spec_t, coot::atom_spec_t> atoms = coot::link_atoms(link);
+		  std::pair<coot::atom_spec_t, coot::atom_spec_t> atoms = coot::link_atoms(link, model_p);
 		  SCM l = scm_list_3(SCM_MAKINUM(imod),
 				     atom_spec_to_scm(atoms.first),
 				     atom_spec_to_scm(atoms.second));
@@ -5154,7 +5137,7 @@ PyObject *link_info_py(int imol) {
 	    if (n_links > 0) { 
 	       for (int i_link=1; i_link<=n_links; i_link++) {
 		  mmdb::PLink link = model_p->GetLink(i_link);
-		  std::pair<coot::atom_spec_t, coot::atom_spec_t> atoms = coot::link_atoms(link);
+		  std::pair<coot::atom_spec_t, coot::atom_spec_t> atoms = coot::link_atoms(link, model_p);
 		  PyObject *l = PyList_New(3);
 		  PyList_SetItem(l, 0, PyInt_FromLong(imod));
 		  PyList_SetItem(l, 1, atom_spec_to_py(atoms.first));

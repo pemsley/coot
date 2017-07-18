@@ -650,7 +650,7 @@ coot::torsionable_bonds_monomer_internal(mmdb::Residue *residue_p,
 			   if (atom_name_2 == tr_atom_name_3) {
 
 			      if ((include_pyranose_ring_torsions_flag == 1) ||
-				  (is_pyranose && !tors_restraints[itor].is_pyranose_ring_torsion()) ||
+				  (is_pyranose && !tors_restraints[itor].is_pyranose_ring_torsion(rn)) ||
 				  (! is_pyranose)) { 
 
 				 std::pair<mmdb::Atom *, mmdb::Atom *> p(atom_selection[iat1],
@@ -699,7 +699,7 @@ coot::torsionable_bonds_monomer_internal_quads(mmdb::Residue *residue_p,
 	 tor_atom_name[3] = tors_restraints[itor].atom_id_3_4c();
 	 tor_atom_name[4] = tors_restraints[itor].atom_id_4_4c();
 	 if ((include_pyranose_ring_torsions_flag == 1) ||
-	     (is_pyranose && !tors_restraints[itor].is_pyranose_ring_torsion()) ||
+	     (is_pyranose && !tors_restraints[itor].is_pyranose_ring_torsion(rn)) ||
 	     (! is_pyranose)) { 
 	    for (unsigned int ialt=0; ialt<residue_alt_confs.size(); ialt++) { 
 	       for (int iat=0; iat<n_selected_atoms; iat++) {

@@ -101,4 +101,8 @@ export DYLD_LIBRARY_PATH
 export LD_LIBRARY_PATH
 export LD_LIBRARYN32_PATH
 
-exec $COOT_PREFIX/libexec/density-score-by-residue-bin $*
+if [[ $systype == MINGW* ]] ; then 
+  exec $COOT_PREFIX/bin/coot-density-score-by-residue-bin $*
+else
+  exec $COOT_PREFIX/libexec/coot-density-score-by-residue-bin $*
+fi

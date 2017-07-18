@@ -1573,13 +1573,13 @@ namespace lig_build {
 	    }
 	    if (charge == +1) { // very typical
 	       if (sum_neigb_bond_order == 0)
-		  atom_id = "N+H4"; // ammonium
+		  atom_id = "NH4+"; // ammonium
 	       if (sum_neigb_bond_order == 1)
-		  atom_id = "N+H3"; // lys
+		  atom_id = "NH3+"; // lys
 	       if (sum_neigb_bond_order == 2)
-		  atom_id = "N+H2";
+		  atom_id = "NH2+";
 	       if (sum_neigb_bond_order == 3)
-		  atom_id = "N+H";
+		  atom_id = "NH+";
 	       if (sum_neigb_bond_order == 4)
 		  atom_id = "N+";
 	       if (sum_neigb_bond_order == 5)
@@ -1591,9 +1591,9 @@ namespace lig_build {
 	       if (sum_neigb_bond_order == 1)
 		  atom_id = "N+2H3";
 	       if (sum_neigb_bond_order == 2)
-		  atom_id = "N+2H2";
+		  atom_id = "N2H2+";
 	       if (sum_neigb_bond_order == 3)
-		  atom_id = "N+2H";
+		  atom_id = "NH+2";
 	       if (sum_neigb_bond_order == 4)
 		  atom_id = "N+2";
 	    }
@@ -1833,7 +1833,7 @@ namespace lig_build {
 			} else {
 			   // what is the madness?
 			   return atom_id_info_t("NH+");
-			} 
+			}
 		     } 
 		  } else {
 		     

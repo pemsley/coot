@@ -36,16 +36,37 @@ AM_CXXFLAGS = -DPKGDATADIR='"$(pkgdatadir)"' $(COOT_WINDOWS_CFLAGS)
 
 pyrogen_swig.py: pyrogen-swig.cc
 
+mmdb2.py: mmdb2.cc
+
+#_mmdb2_la_SOURCES = mmdb2.cc
+#
+#_mmdb2_la_LIBADD = ../lidia-core/libcoot-lidia-core.la $(MMDB_LIBS)
+#
+#_mmdb2_la_LDFLAGS = -module $(SHARED_LDFLAGS)
+
+# EXTRA_DIST = pyrogen-swig.i mmdb2.i mmdb-typemaps.i pointers.i mmdb2-interface.cc
 EXTRA_DIST = pyrogen-swig.i
 
 pyrogen-swig.cc: $(top_srcdir)/pyrogen/pyrogen-swig.i $(top_srcdir)/pyrogen/restraints.hh
-	swig $(AM_CPPFLAGS) -o pyrogen-swig.cc -python -shadow -c++ $(top_srcdir)/pyrogen/pyrogen-swig.i
+	swig $(AM_CPPFLAGS) -o $@ -python -shadow -c++ $<
 
+# weird:
+# mmdb2-interface.cc doesn't have its own object code - it is compiled at the end
+# of mmdb2.cc - because it relies on mmdb2.cc "header" code that is not in a header.
+#    SWIG_ConvertPtr(swigged_lig_res, (void **) &residue_p,
+#		   SWIGTYPE_p_mmdb__Residue, SWIG_POINTER_EXCEPTION);
+#
+# We need to consider where to put this when mmdb2-interface.cc depends on the RDKit.
+#
+#mmdb2.cc: mmdb2.i mmdb2-interface.cc
+#	swig $(AM_CPPFLAGS) -o $@ -python -shadow -c++ $<
+#	echo '#include "mmdb2-interface.cc"' >> $@
 
 if COOT_USE_PYTHON
 if MAKE_ENHANCED_LIGAND_TOOLS
 
 pyexec_LTLIBRARIES += _pyrogen_swig.la pyrogen_boost.la
+# add these when it works geometry-store.cc geometry-store.hh geometry-store-private.hh
 _pyrogen_swig_la_SOURCES = pyrogen-swig.cc restraints.cc restraints.hh
 
 ## _pyrogen_swig_la_CFLAGS = $(PYTHON_CFLAGS) -I$(top_srcdir)/include $(PYTHON_CPPFLAGS) 
@@ -88,7 +109,8 @@ libcoot_py_restraints_la_LIBADD =  \
 libcoot_py_restraints_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # The name of this starts with lib so it fits with boost::python wrapper
-pyrogen_boost_la_SOURCES = restraints-boost.cc restraints.hh
+pyrogen_boost_la_SOURCES = restraints-boost.cc restraints.hh \
+                           protein-ligand-interactions.hh protein-ligand-interactions.cc
 pyrogen_boost_la_LIBADD = libcoot_py_restraints.la \
                                 $(top_builddir)/ideal/libcoot-ideal.la             \
                                 $(top_builddir)/geometry/libcoot-geometry.la       \

@@ -369,7 +369,7 @@ specs=${specs:=$HOME/autobuild/build-scripts/${HOST}-specials}
 do_nightlies=${do_nightlies:=1}
 # if you do want to build them where should they go?
 # NIGHTLY_DEST_DIR=$AUTOBUILD_BUILD
-NIGHTLY_DEST_DIR=${NIGHTLY_DEST_DIR:=${HOME}/public_html/software/binaries/nightlies/pre-release}
+NIGHTLY_DEST_DIR=${NIGHTLY_DEST_DIR:=${HOME}/public_html/software/binaries/pre-release}
 # if we are not building a nightly/pre-release, i.e. this is a binary 
 # for a stable release, they go somewhere else:
 #
@@ -379,7 +379,7 @@ STABLE_DEST_DIR=${STABLE_DEST_DIR:=${HOME}/public_html/software/binaries/stable}
 # When we fail to extract the correct tar file from the web site, what
 # shall we build instead?
 #
-fallback_coot_version=coot-0.7
+fallback_coot_version=coot-0.8
 
 # ----------------------------------------------------------------
 #   End of tinkering with parameters.
@@ -851,9 +851,13 @@ if test $OS = OSF1 ; then
    systype=${osversion}-OSF1
 fi
 
-if test "$OS" = MINGW* ; then
-   systype=`uname -m`
-fi
+# maybe all can be case
+case "$OS" in
+   MINGW*) 
+     systype=`uname -m`
+     architecture=`uname -m`
+   ;;
+esac
 
 echo systype: $systype
 
@@ -1270,10 +1274,11 @@ else
          if test "$OS" = Darwin ; then
             ccp4_system_type=Darwin
 	 else
-	    if test "$OS" = MINGW* ; then
-	       # not sure if really needed later?!
-	       ccp4_system_type=MinGW
-	    fi
+	    case "$OS" in 
+               MINGW*) 
+	         # not sure if really needed later?!
+	         ccp4_system_type=MinGW
+            esac
          fi
       fi
    fi
@@ -2229,9 +2234,9 @@ cp bin/freeglut.dll	$install_top_dir/bin/
 mkdir_maybe	$install_top_dir/lib
 cp lib/libfreeglut.a	$install_top_dir/lib/
 # and whilst we are here let's get the openGL extensions as well
-${WGET} --no-check-certificate http://www.opengl.org/registry/api/glext.h
-${WGET} --no-check-certificate http://www.opengl.org/registry/api/glxext.h
-${WGET} --no-check-certificate http://www.opengl.org/registry/api/wglext.h
+${WGET} --no-check-certificate https://khronos.org/registry/OpenGL/api/GL/glext.h
+${WGET} --no-check-certificate https://khronos.org/registry/OpenGL/api/GL/glxext.h
+${WGET} --no-check-certificate https://khronos.org/registry/OpenGL/api/GL/wglext.h
 cp ${AUTOBUILD_SOURCES}/glext.h  $install_top_dir/include/GL/
 cp ${AUTOBUILD_SOURCES}/glxext.h $install_top_dir/include/GL/
 cp ${AUTOBUILD_SOURCES}/wglext.h $install_top_dir/include/GL/

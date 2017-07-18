@@ -144,7 +144,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 	 // std::cout << card.card << std::endl;
 	 
 	 if (card.words.size() > 0) {
-	    std::string card_word_0 = coot::util::upcase(card.words[0]);
+	    std::string card_word_0 = util::upcase(card.words[0]);
 	    if (card_word_0 == "RESI") {
 	       encountered_atoms_flag = 1;
 	       resi_count++;
@@ -156,8 +156,31 @@ coot::ShelxIns::read_file(const std::string &filename) {
 		  chain->AddResidue(residue);
 	       }
 	       // now update
-	       if (card.words.size() > 1) 
-		  current_res_no   = atoi(card.words[1].c_str());
+	       if (card.words.size() > 1) {
+		  // current_res_no   = atoi(.c_str());
+		  std::string res_no_string = card.words[1];
+		  // res_no_string can be "1001" or "A:1001"
+		  // first try a simple string -> int
+		  try {
+		     current_res_no = util::string_to_int(res_no_string);
+		  }
+		  catch (const std::runtime_error &rte) {
+		     // OK, was it "A:1001" style?
+		     // find the colon and try string -> int on the rest of the string
+		     std::size_t p = res_no_string.find(':');
+		     if (p != std::string::npos) {
+			std::string r_string = res_no_string.substr(p+1);
+			try {
+			   current_res_no = util::string_to_int(r_string);
+			}
+			catch (const std::runtime_error &rte) {
+			   std::cout << "WARNING failed to parse residue from line " << card.card << std::endl;
+			}
+		     } else {
+			std::cout << "WARNING failed to parse residue from line " << card.card << std::endl;
+		     }
+		  }
+	       }
 	       if (card.words.size() > 2) 
 		  current_res_name = card.words[2];
 	       else

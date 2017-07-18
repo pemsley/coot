@@ -18,10 +18,10 @@
 (define (add-pyranose-pseudo-ring-plane-restraints comp-id)
 
   (define (filter-out plane-name-sub-string plane-restraints)
-    (format #t "DEBUG:: in filter-out: remove ~s from ~s~%"
-	    plane-name-sub-string plane-restraints)
-    ;; (filter (lambda (s) (string-match? plane-name-sub-string ...?)
-    plane-restraints)
+    (filter (lambda (s)
+	      (let ((v (regexp-match? (string-match plane-name-sub-string (car s)))))
+		(not v))) ;; filter function keeps items that for func(s) is true
+	    plane-restraints))
 
   (let ((restraints (monomer-restraints comp-id)))
 
@@ -116,7 +116,11 @@
     ;; restore refinement mode
     (set-dragged-refinement-steps-per-frame current-refinement-rate))))
 
-
+;; also "precursor"
+;; high mannose was used for human
+;; high mannose is now used for human too
+;; call this "High Mannose" in the GUI
+;;
 (define oligomannose-tree '(("NAG-ASN" . "NAG")
 			    (("BETA1-4" . "NAG")
 			     (("BETA1-4" . "BMA")
@@ -127,55 +131,96 @@
 				(("ALPHA1-2" . "MAN"))))
 			      (("ALPHA1-3" . "MAN")
 			       (("ALPHA1-2" . "MAN")
-				(("ALPHA1-2" . "MAN"))))))))
+				(("ALPHA1-2" . "MAN")
+				 (("ALPHA1-3" . "GLC")
+				  (("ALPHA1-3" . "GLC")
+				   (("ALPHA1-2" . "GLC")))))))))))
 
-(define paucimannose-tree '(("NAG-ASN" . "NAG")
-			    (("ALPHA1-3" . "FUC"))
-			    (("BETA1-4" . "NAG")
-			     (("BETA1-4" . "BMA")
-			      (("ALPHA1-6" . "MAN"))
-			      (("ALPHA1-3" . "MAN"))
-			      (("XYP-BMA"  . "XYP"))))))
+;; Hybrid is for any system
+;;
+;; Plant Hybrid also allows an alpha1-3 FUC
+;;
 
-(define complex-tree '(("NAG-ASN" . "NAG")
-		       (("BETA1-6" . "FUL"))
-		       (("BETA1-4" . "NAG")
-			(("BETA1-4" . "BMA")
-			 (("ALPHA1-6" . "MAN")
-			  (("BETA1-2" . "NAG")))))))
-;			   (("BETA1-4" . "GAL"))))
-;			 (("ALPHA1-3" . "MAN")
-;			  (("BETA1-2"  . "NAG")
-;			   (("BETA1-4" . "GAL"))))))))
+;; hybrid mammal
+;;
+(define hybrid-mammal-tree  '(("NAG-ASN" . "NAG")
+			     (("BETA1-4" . "NAG")
+			      (("BETA1-4" . "BMA")
+			       (("ALPHA1-6" . "MAN")
+				(("ALPHA1-6" . "MAN"))
+				(("ALPHA1-3" . "MAN")))
+			       (("ALPHA1-3" . "MAN")
+				(("BETA1-2" . "NAG")
+				 (("BETA1-4" . "GAL")
+				  (("ALPHA2-3" . "SIA"))
+				  (("ALPHA2-6" . "SIA")))))
+			       (("BETA1-4" "NAG"))))
+			     ("ALPHA1-6" . "FUC")))
 
 
-;(define oligomannose-tree '(("NAG-ASN" . "NAG")
-;			    (("BETA1-4" . "NAG")
-;			     (("BETA1-4" . "BMA")
-;			      (("ALPHA1-6" . "MAN"))
-;			      (("ALPHA1-3" . "MAN")
-;			       (("ALPHA1-2" . "MAN")
-;				(("ALPHA1-2" . "MAN"))))))))
+;; hybrid plant
+;;
+(define hybrid-plant-derived-tree  '(("NAG-ASN" . "NAG")
+				     (("BETA1-4" . "NAG")
+				      (("BETA1-4" . "BMA")
+				       (("ALPHA1-6" . "MAN")
+					(("ALPHA1-6" . "MAN"))
+					(("ALPHA1-3" . "MAN")))
+				       (("ALPHA1-3" . "MAN")
+					(("BETA1-2" . "NAG")
+					 (("BETA1-4" . "GAL")
+					  (("ALPHA2-3" . "SIA"))
+					  (("ALPHA2-6" . "SIA")))))
+				       (("XYP-BMA"  . "XYP"))
+				       (("BETA1-4" "NAG"))))
+				     ("ALPHA1-6" . "FUC")
+				     ("ALPHA1-3" . "FUC")))
 
-;(define oligomannose-tree '(("NAG-ASN" . "NAG")
-;			    (("BETA1-4" . "NAG")
-;			     (("BETA1-4" . "BMA")
-;			      (("ALPHA1-6" . "MAN"))
-;			      (("ALPHA1-3" . "MAN")
-;			       (("ALPHA1-2" . "MAN")))))))
 
-			       
+;; complex mammal
+;; bianntennary mammal
+(define complex-mammal-tree  '(("NAG-ASN" . "NAG")
+			       (("BETA1-4" . "NAG")
+				(("BETA1-4" . "BMA")
+				 (("ALPHA1-6" . "MAN")
+				  (("BETA1-2" . "NAG")
+				   (("BETA1-4" . "GAL")
+				    (("ALPHA2-3" . "SIA"))
+				    (("ALPHA2-6" . "SIA")))))
+				 (("ALPHA1-3" . "MAN")
+				  (("BETA1-2" . "NAG")
+				   (("BETA1-4" . "GAL")
+				    (("ALPHA2-3" . "SIA"))
+				    (("ALPHA2-6" . "SIA")))))
+				 (("BETA1-4" "NAG"))))
+			       ("ALPHA1-6" . "FUC")))
 
-;;; testing tree
-;(define oligomannose-tree '(("NAG-ASN" . "NAG")
-;			    (("BETA1-4" . "NAG")
-;			     (("BETA1-4" . "BMA")
-;			      (("ALPHA1-6" . "MAN"))))))
+
+;; complex plant
+;; plant bianntennary
+(define complex-plant-tree  '(("NAG-ASN" . "NAG")
+			      (("BETA1-4" . "NAG")
+			       (("BETA1-4" . "BMA")
+				(("ALPHA1-6" . "MAN")
+				 (("BETA1-2" . "NAG")
+				  (("BETA1-4" . "GAL")
+				   (("ALPHA2-3" . "SIA"))
+				   (("ALPHA2-6" . "SIA")))))
+				(("ALPHA1-3" . "MAN")
+				 (("BETA1-2" . "NAG")
+				  (("BETA1-4" . "GAL")
+				   (("ALPHA2-3" . "SIA"))
+				   (("ALPHA2-6" . "SIA")))))
+				(("BETA1-4" "NAG"))
+				(("XYP-BMA" "XYP"))))
+			      (("ALPHA1-6" . "FUC"))
+			      (("ALPHA1-3" . "FUC"))))
+
 
 ;; (set-add-linked-residue-do-fit-and-refine 0)
 
 ;; now users can set this
-(define *add-linked-residue-tree-correlation-cut-off* 0.6)
+(define *add-linked-residue-tree-correlation-cut-off* 0.50)
 
 (define (add-linked-residue-tree imol parent tree)
 
@@ -284,6 +329,28 @@
 	(cons new-res
 	      (process-tree new-res (cdr tree) proc-func))))))
 
+  (define (is-just-an-ASN? imol glyco-tree)
+
+    (format #t "glyco-tree: ~s~%" glyco-tree)
+    (if (not (list? glyco-tree))
+	#f
+	(let ((l (length glyco-tree)))
+	  (format #t "l: ~s~%" l)
+	  (if (not (= l 1))
+	      #f
+	      (using-active-atom
+	       (let ((res-spec aa-res-spec))
+		 (format #t "res-spec: ~s~%" res-spec)
+		 (let ((rn (residue-name imol
+					 (residue-spec->chain-id res-spec)
+					 (residue-spec->res-no   res-spec)
+					 (residue-spec->ins-code res-spec))))
+		   (format #t "--------- Here with rn: ~s~%" rn)
+		   (if (not (string? rn))
+		       #f
+		       (string=? rn "ASN")))))))))
+
+
   ;; main line of add-linked-residue-tree
   ;;
   (add-synthetic-pyranose-planes)
@@ -301,13 +368,32 @@
     (if (number? m)
 	(set-default-temperature-factor-for-new-atoms new-m))
 
-    (let ((start-pos-view (add-view-here "Glyo Tree Start Pos")))
-      (process-tree parent tree func)
-      (go-to-view-number start-pos-view 0)
-      ;; add a test here that the tree here (centre of screen) matches a known tree.
-      ;; 
-      ;; and that each is 4C1 (or 1C4 for FUC?) (XYP?)
-      )))
+    ;; prevent tree building if there is already a partial tree here
+    ;; (only proceed with the one ASN)
+    ;;
+    (using-active-atom
+     (let ((start-tree (glyco-tree-residues aa-imol aa-res-spec)))
+       
+       ;; why do I need both test here? 
+       ;; 5n11 needs the is-just-an-ASN? test
+       ;; 5n09/5wzy needs the null test. 
+       ;; Hmmm.
+       (if (not (or (null? start-tree)
+		    (is-just-an-ASN? aa-imol start-tree)))
+
+	   (begin
+	     (info-dialog "Must start on Single ASN")
+	     (format #t "start-tree: ~s~%" start-tree))
+
+	   ;; OK, continue
+	   (let ((start-pos-view (add-view-here "Glyo Tree Start Pos")))
+	     (process-tree parent tree func)
+	     (go-to-view-number start-pos-view 0)
+	     (with-auto-accept (refine-residues aa-imol (glyco-tree-residues aa-imol aa-res-spec)))
+	     ;; add a test here that the tree here (centre of screen) matches a known tree.
+	     ;;
+	     ;; and that each is 4C1 (or 1C4 for FUC?) (XYP?)
+	     ))))))
 
 
 (define (add-linked-residue-with-extra-restraints-to-active-residue new-res-type link-type)
@@ -334,8 +420,10 @@
 				   (let ((res-no (seqnum-from-serial-number aa-imol chain-id res-serial)))
 				     (let ((rn (residue-name aa-imol chain-id res-no "")))
 				       (if (string? rn)
+					   ;; a better test is to find all the hetgroups and look at the _chem_comp group or type
 					   (if (or (string=? "NAG" rn) (string=? "MAN" rn) (string=? "BMA" rn) (string=? "FUL" rn)
-						   (string=? "FUC" rn) (string=? "XYP" rn) (string=? "SIA" rn) (string=? "GAL" rn))
+						   (string=? "FUC" rn) (string=? "XYP" rn) (string=? "SIA" rn) (string=? "GAL" rn)
+						   (string=? "A2G" rn))
 					       (let* ((residue-spec (list chain-id res-no "")))
 						 (set! delete-cho-list (cons (list chain-id res-no "") delete-cho-list))))))))
 				 (range (chain-n-residues chain-id aa-imol))))
@@ -356,6 +444,12 @@
   (use-unimodal-pyranose-ring-torsions)
   (let ((buttons (list ;; (list label func)
 		  (list "Update for Current Residue" (lambda () (format #t "dummy\n")))
+
+		  (list "Refine Tree" (lambda ()
+					(with-auto-accept
+					 (using-active-atom
+					  (refine-residues aa-imol
+							   (glyco-tree-residues aa-imol aa-res-spec))))))
 
 		  (list "Add a NAG-ASN NAG"
 			(lambda ()
@@ -387,6 +481,9 @@
 		  (list "Add a BETA1-4 GAL"
 			(lambda ()
 			  (add-linked-residue-with-extra-restraints-to-active-residue "GAL" "BETA1-4")))
+		  (list "Add an ALPHA1-2 FUC"
+			(lambda ()
+			  (add-linked-residue-with-extra-restraints-to-active-residue "FUC" "ALPHA1-2" )))
 		  (list "Add an ALPHA1-3 FUC"
 			(lambda ()
 			  (add-linked-residue-with-extra-restraints-to-active-residue "FUC" "ALPHA1-3" )))
@@ -398,8 +495,16 @@
 			  (add-linked-residue-with-extra-restraints-to-active-residue "FUL" "BETA1-6")))
 		  (list "Add an XYP-BMA XYP"
 			(lambda ()
-			  (add-linked-residue-with-extra-restraints-to-active-residue "XYP" "XYP-BMA"))))))
-    (let ((vbox (dialog-box-of-buttons "Add N-linked Glycan" (cons 360 520) buttons "Close")))
+			  (add-linked-residue-with-extra-restraints-to-active-residue "XYP" "XYP-BMA")))
+		  (list "Add an ALPHA2-3 SIA"
+			(lambda ()
+			  (add-linked-residue-with-extra-restraints-to-active-residue "SIA" "ALPHA2-3"))) ;; do these work?
+		  (list "Add an ALPHA2-6 SIA"
+			(lambda ()
+			  (add-linked-residue-with-extra-restraints-to-active-residue "SIA" "ALPHA2-6")))
+		  )))
+
+    (let ((vbox (dialog-box-of-buttons "Add N-linked Glycan" (cons 420 600) buttons "Close")))
       (gui-add-linked-cho-dialog-vbox-set-rotation-centre-hook vbox)
       ;; set the callback on the first button
       (let ((children  (gtk-container-children vbox)))
@@ -411,30 +516,42 @@
 				      (lambda ()
 					(gui-add-linked-cho-dialog-vbox-set-rotation-centre-hook vbox)))))))
       ;; add a widget to allow the user to choose the tree type
-      (let* ((hbox-1 (gtk-hbox-new #f 2))
-	     (hbox-2 (gtk-hbox-new #f 2))
-	     (butt-1 (gtk-radio-button-new-with-label #f "Oligomannose"))
-	     (butt-2 (gtk-radio-button-new-with-label butt-1 "Hybrid"))
-	     (butt-3 (gtk-radio-button-new-with-label butt-1 "Complex"))
-	     (butt-4 (gtk-radio-button-new-with-label butt-1 "Expert Mode")))
-
-	(gtk-box-pack-start hbox-1 butt-1 #f #f 2)
-	(gtk-box-pack-start hbox-1 butt-2 #f #f 2)
-	(gtk-box-pack-start hbox-2 butt-3 #f #f 2)
-	(gtk-box-pack-start hbox-2 butt-4 #f #f 2)
+      (let* ((hbox-1 (gtk-hbox-new #t 2))
+	     (hbox-2 (gtk-hbox-new #t 2))
+	     (table (gtk-table-new 3 2 #f))
+	     (butt-1 (gtk-radio-button-new-with-label #f     "High Mannose"))
+	     (butt-2 (gtk-radio-button-new-with-label butt-1 "Hybrid (Mammal)"))
+	     (butt-3 (gtk-radio-button-new-with-label butt-1 "Hybrid (Plant)"))
+	     (butt-4 (gtk-radio-button-new-with-label butt-1 "Complex (Mammal)"))
+	     (butt-5 (gtk-radio-button-new-with-label butt-1 "Complex (Plant) "))
+	     (butt-6 (gtk-radio-button-new-with-label butt-1 "Expert User Mode")))
 
 	(gtk-widget-show butt-1)
 	(gtk-widget-show butt-2)
 	(gtk-widget-show butt-3)
 	(gtk-widget-show butt-4)
-	(gtk-widget-show hbox-1)
-	(gtk-widget-show hbox-2)
-	(gtk-box-pack-start vbox hbox-1 #f #f 2)
-	(gtk-box-pack-start vbox hbox-2 #f #f 2)
-	(gtk-box-set-homogeneous hbox-1 #t)
-	(gtk-box-set-homogeneous hbox-2 #t)
-	(gtk-box-reorder-child vbox hbox-1 0)
-	(gtk-box-reorder-child vbox hbox-2 1))
+	(gtk-widget-show butt-5)
+	(gtk-widget-show butt-6)
+
+; table
+
+	;; add buttons for nice(?) layout/order
+	(gtk-table-attach table butt-1 0 1 0 1 '(expand fill) '(expand fill) 0 0)
+	(gtk-table-attach table butt-2 1 2 0 1 '(expand fill) '(expand fill) 0 0)
+	(gtk-table-attach table butt-4 2 3 0 1 '(expand fill) '(expand fill) 0 0)
+	(gtk-table-attach table butt-6 0 1 1 2 '(expand fill) '(expand fill) 0 0)
+	(gtk-table-attach table butt-3 1 2 1 2 '(expand fill) '(expand fill) 0 0)
+	(gtk-table-attach table butt-5 2 3 1 2 '(expand fill) '(expand fill) 0 0)
+
+	(gtk-box-pack-start vbox table #t #t 2)
+	(gtk-widget-show table)
+	(gtk-box-reorder-child vbox table 0)
+
+	(for-each (lambda (butt)
+		    (gtk-signal-connect butt "toggled"
+					(lambda ()
+					  (gui-add-linked-cho-dialog-vbox-set-rotation-centre-hook vbox))))
+		  (list butt-1 butt-2 butt-3 butt-4 butt-5 butt-6)))
 
       ;; global var post-set-rotation-centre-hook
       (set! post-set-rotation-centre-hook
@@ -444,20 +561,44 @@
 ;;
 (define (glyco-tree-dialog-set-button-active-state button glyco-id tree-type)
 
+  (define (glyco-id->level-number glyco-id)
+    (list-ref glyco-id 0))
+
+  (define (glyco-id->prime-arm-sym glyco-id)
+    (list-ref glyco-id 1))
+
+  (define (glyco-id->residue-type glyco-id)
+    (list-ref glyco-id 2))
+
+  (define (glyco-id->link-type glyco-id)
+    (list-ref glyco-id 3))
+
+  (define (glyco-id->parent-residue-type glyco-id)
+    (list-ref glyco-id 4))
+
+  (define (glyco-id->residue-spec glyco-id)
+    (list-ref glyco-id 5))
+
   (define (get-sensitive-button-list glyco-id tree-type)
 
     (if (not (list? glyco-id))
 	'()
-	(let ((level-number        (list-ref glyco-id 0))
-	      (residue-type        (list-ref glyco-id 1))
-	      (link-type           (list-ref glyco-id 2))
-	      (parent-residue-type (list-ref glyco-id 3))
-	      (residue-spec        (list-ref glyco-id 4)))
+	(let ((level-number        (glyco-id->level-number        glyco-id))
+	      (prime-arm-sym       (glyco-id->prime-arm-sym       glyco-id))
+	      (residue-type        (glyco-id->residue-type        glyco-id))
+	      (link-type           (glyco-id->link-type           glyco-id))
+	      (parent-residue-type (glyco-id->parent-residue-type glyco-id))
+	      (residue-spec        (glyco-id->residue-spec        glyco-id)))
 	    (let ((active-button-label-list '()))
 
-	      (if (eq? tree-type 'expert-mode)
-		  (set! active-button-label-list 'expert-mode))
+	      (if (eq? tree-type 'expert-user-mode)
+		  (set! active-button-label-list 'expert-user-mode))
 
+	      ;; ------------------------------------------------------------------------------------
+	      ;; Note the trees tested here match those from (get-tree-type) which examines the button
+	      ;; label of the active radio button in the dialog (these are not the auto-build trees)
+	      ;; ------------------------------------------------------------------------------------
+	      ;;
 	      (if (eq? tree-type 'oligomannose)
 
 		  (begin
@@ -511,8 +652,8 @@
 			      (if (string=? link-type "ALPHA1-2")
 				  (set! active-button-label-list (list "Add an ALPHA1-2 GLC"))))))))
 
-	      ;; hybrid
-	      (if (eq? tree-type 'paucimannose)
+	      ;; hybrid mammal
+	      (if (eq? tree-type 'hybrid-mammal)
 
 		  (begin
 
@@ -529,20 +670,90 @@
 			(if (string=? residue-type "NAG")
 			    (set! active-button-label-list (list "Add a BETA1-4 BMA"))))
 
+		    (if (= level-number 2)
+			(if (string=? residue-type "FUC")
+			    (set! active-button-label-list (list "Add a BETA1-4 GAL"))))
+
 		    (if (= level-number 3)
 			(if (string=? residue-type "BMA")
 			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
 								 "Add an ALPHA1-6 MAN"))))
+
+		    (if (= level-number 3)
+			(if (string=? residue-type "GAL")
+			    (set! active-button-label-list (list "Add an ALPHA1-2 FUC"))))
+
+		    (if (= level-number 4)
+			(if (string=? residue-type "MAN")
+			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
+								 "Add an ALPHA1-6 MAN"))))
+
+		    (if (= level-number 5)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 GAL"))))
+
+		    (if (= level-number 5)
+			(if (string=? residue-type "GAL")
+			    (set! active-button-label-list (list "Add an ALPHA2-3 SIA"
+								 "Add an ALPHA2-6 SIA"
+								 ))))
+		    ))
+
+	      ;; hybrid plant
+	      (if (eq? tree-type 'hybrid-plant)
+
+		  (begin
+
+		    (if (= level-number 0)
+			(if (string=? residue-type "ASN")
+			    (set! active-button-label-list (list "Add a NAG-ASN NAG"))))
+
+		    (if (= level-number 1)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 NAG"
+								 "Add an ALPHA1-3 FUC"))))
+
+		    (if (= level-number 2)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 BMA"))))
+
+		    (if (= level-number 2)
+			(if (string=? residue-type "FUC")
+			    (set! active-button-label-list (list "Add a BETA1-4 GAL"))))
+
+		    (if (= level-number 3)
+			(if (string=? residue-type "BMA")
+			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
+								 "Add an ALPHA1-6 MAN"
+								 "Add an XYP-BMA XYP"))))
+
+		    (if (= level-number 3)
+			(if (string=? residue-type "GAL")
+			    (set! active-button-label-list (list "Add an ALPHA1-2 FUC"))))
+
+		    ;; note that level-number is not enough for complete disambiguation,
+		    ;; we need to know we are 4 or 4' (Vliegenthart et al 1983 nomenclature).
+		    ;;
 		    (if (= level-number 4)
 			(if (string=? residue-type "MAN")
 			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
 								 "Add an ALPHA1-6 MAN"
-								 "Add an XYP-BMA XYP"))))
+								 "Add a BETA1-2 NAG"))))
+
+		    (if (= level-number 5)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 GAL"))))
+
+		    (if (= level-number 5)
+			(if (string=? residue-type "GAL")
+			    (set! active-button-label-list (list "Add an ALPHA2-3 SIA"
+								 "Add an ALPHA2-6 SIA"
+								 ))))
 		    ))
 
-	      ;; complex
+	      ;; complex-mammal
 	      ;;
-	      (if (eq? tree-type 'complex)
+	      (if (eq? tree-type 'complex-mammal)
 
 		  (begin
 		    (if (= level-number 0)
@@ -551,8 +762,8 @@
 
 		    (if (= level-number 1)
 			(if (string=? residue-type "NAG")
-			    (set! active-button-label-list (list "Add a BETA1-4 NAG"))))
-
+			    (set! active-button-label-list (list "Add a BETA1-4 NAG"
+								 "Add an ALPHA1-6 FUC"))))
 		    (if (= level-number 2)
 			(if (string=? residue-type "NAG")
 			    (set! active-button-label-list (list "Add a BETA1-4 BMA"))))
@@ -561,14 +772,76 @@
 			(if (string=? residue-type "BMA")
 			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
 								 "Add an ALPHA1-6 MAN"
-								 "Add an XYP-BMA XYP"))))))
+								 "Add a BETA1-4 NAG"))))
+
+		    ;; note that level-number is not enough for complete disambiguation, 
+		    ;; we need to know we are 4 or 4' (Vl...? nomenclature).
+		    ;;
+		    (if (= level-number 4)
+			(if (string=? residue-type "MAN")
+			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
+								 "Add an ALPHA1-6 MAN"
+								 "Add a BETA1-2 NAG"))))
+
+		    (if (= level-number 5)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 GAL"))))
+
+		    (if (= level-number 6)
+			(if (string=? residue-type "GAL")
+			    (set! active-button-label-list (list "Add an ALPHA2-3 SIA"
+								 "Add an ALPHA2-6 SIA"
+								 ))))
+		    ))
 
 
+	      ;; complex-plant
+	      ;;
+	      (if (eq? tree-type 'complex-plant)
+
+		  (begin
+		    (if (= level-number 0)
+			(if (string=? residue-type "ASN")
+			    (set! active-button-label-list (list "Add a NAG-ASN NAG"))))
+
+		    (if (= level-number 1)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 NAG"
+								 "Add an ALPHA1-3 FUC"
+								 "Add an ALPHA1-6 FUC"))))
+		    (if (= level-number 2)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 BMA"))))
+
+		    (if (= level-number 3)
+			(if (string=? residue-type "BMA")
+			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
+								 "Add an ALPHA1-6 MAN"
+								 "Add an XYP-BMA XYP"
+								 "Add an BETA1-4 NAG"))))
+
+		    (if (= level-number 4)
+			(if (string=? residue-type "MAN")
+			    (set! active-button-label-list (list "Add an ALPHA1-3 MAN"
+								 "Add an ALPHA1-6 MAN"
+								 "Add a BETA1-2 NAG"))))
+
+		    (if (= level-number 5)
+			(if (string=? residue-type "NAG")
+			    (set! active-button-label-list (list "Add a BETA1-4 GAL"))))
+
+		    (if (= level-number 6)
+			(if (string=? residue-type "GAL")
+			    (set! active-button-label-list (list "Add an ALPHA2-3 SIA"
+								 "Add an ALPHA2-6 SIA"))))
+		    ))
 	      active-button-label-list))))
 
   ;; main line
   ;;
-  ;; (format #t "here in glyco-tree-dialog-set-button-active-state ~s ~s ~s ~%" button glyco-id tree-type)
+  ;; (format #t "here in glyco-tree-dialog-set-button-active-state ~s ~s ~s ~%"
+  ;;        button glyco-id tree-type)
+  ;;
   (let ((l (gtk-button-get-label button)))
     (let ((active-button-label-list (get-sensitive-button-list glyco-id tree-type)))
       ;; (format #t "active-button-label-list: ~s~%" active-button-label-list)
@@ -577,39 +850,47 @@
 	  (if (not (string=? l "Update for Current Residue"))
 	      (gtk-widget-set-sensitive button (string-member? l active-button-label-list)))))))
 
-;; return a value
+
+;; vbox is the vbox of the dialog box of buttons. One of the children of the vbox
+;; is the table that contains the buttons
+;;
 (define (gui-add-linked-cho-dialog-vbox-set-rotation-centre-hook vbox)
 
   (define (get-tree-type)
     (let ((tree-type 'oligomannose))
       (let ((children (gtk-container-children vbox)))
 	(for-each (lambda (child)
-		    ;; (format #t "child: ~s~%" child)
-		    (if (gtk-box? child)
+		    (if (gtk-table? child)
 			(begin
-			  (for-each (lambda (box-child)
-				      (if (gtk-radio-button? box-child)
-					  (if (gtk-toggle-button-get-active box-child)
-					      (let ((l (gtk-button-get-label box-child)))
-						(if (string=? l "Oligomannose") (set! tree-type 'oligomannose))
-						(if (string=? l "Hybrid")       (set! tree-type 'hybrid))
-						(if (string=? l "Expert Mode")  (set! tree-type 'expert-mode))
-						(if (string=? l "Complex")      (set! tree-type 'complex))))))
+			  (for-each (lambda (table-child)
+				      (if (gtk-radio-button? table-child)
+					  (if (gtk-toggle-button-get-active table-child)
+					      (let ((l (gtk-button-get-label table-child)))
+						;; this is a bit ugly because we are testing that these strings
+						;; match button labels (set in interactive-add-cho-dialog)
+						(if (string=? l "High Mannose") (set! tree-type 'oligomannose))
+						(if (string=? l "Hybrid (Mammal)")  (set! tree-type 'hybrid-mammal))
+						(if (string=? l "Hybrid (Plant)")   (set! tree-type 'hybrid-plant))
+						(if (string=? l "Expert User Mode") (set! tree-type 'expert-user-mode))
+						(if (string=? l "Complex (Mammal)") (set! tree-type 'complex-mammal))
+						(if (string=? l "Complex (Plant)")  (set! tree-type 'complex-plant))
+						))))
 				    (gtk-container-children child)))))
 		  children)
 	tree-type)))
 
   (using-active-atom
    (let ((glyco-id (glyco-tree-residue-id aa-imol aa-res-spec)))
-     ;; (format #t "glyco-id (first): ~s~%" glyco-id)
+     
+     ;; debug
+     ;; (format #t "gui-add-linked-cho-dialog-vbox-set-rotation-centre-hook: glyco-id: ~s~%" glyco-id)
      ;; if it was an ASP create a level-0 glyco-id for that (glyco-tree-residue-id doesn't
      ;; do that (not sure why)).
      (if (not glyco-id)
 	 (let ((rn (residue-name aa-imol aa-chain-id aa-res-no aa-ins-code)))
 	   (if (string? rn)
 	       (if (string=? rn "ASN")
-		   (set! glyco-id (list 0 "ASN" "" "" aa-res-spec))))))
-     ;; (format #t "glyco-id (second): ~s~%" glyco-id)
+		   (set! glyco-id (list 0 'unset "ASN" "" "" aa-res-spec))))))
      (if (list? glyco-id)
 	 (let ((tree-type (get-tree-type)))
 	   (let ((children (gtk-container-children vbox)))
@@ -620,6 +901,12 @@
 	     #t)
 	   #f)))))
 
+;; return the new molecule number
+(define (new-molecule-from-this-glyco-tree)
+  (using-active-atom
+   (let* ((tree-residues (glyco-tree-residues aa-imol aa-res-spec)))
+     (new-molecule-by-residue-specs aa-imol tree-residues))))
+
 (define (add-module-carbohydrate) 
 
   (if (defined? 'coot-main-menubar)
@@ -629,6 +916,20 @@
 	 menu "N-linked Glycan Addition Dialog..."
 	 (lambda ()
 	   (interactive-add-cho-dialog)))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Set Default N-linked CHO Atoms B-factor"
+	 (lambda ()
+	   (using-active-atom
+	    (let ((residues (residues-near-residue aa-imol aa-res-spec 10)))
+	      (let ((imol-region (new-molecule-by-residue-specs aa-imol residues)))
+		(let ((m (median-temperature-factor imol-region)))
+		  (close-molecule imol-region)
+		  (if (number? m)
+		      (let ((new-m  (* m 1.55)))
+			(set-default-temperature-factor-for-new-atoms new-m)
+			(let ((s (format #f "New Temperature Factor set to ~6,2f" new-m)))
+			  (info-dialog s))))))))))
 
 	(add-simple-coot-menu-menuitem
 	 menu "N-link add NAG, NAG, BMA"
@@ -656,7 +957,7 @@
 ;	   (set-add-linked-residue-do-fit-and-refine 0)))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Add Oligomannose"
+	 menu "Add High Mannose"
 	 (lambda ()
 	   (using-active-atom
 	    (make-backup aa-imol)
@@ -666,23 +967,42 @@
 				     oligomannose-tree))))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Add Paucimannose"
+	 menu "Add Hybrid (Mammal)"
 	 (lambda ()
 	   (using-active-atom
 	    (make-backup aa-imol)
 	    ;; (with-no-backups aa-imol
 	    (add-linked-residue-tree aa-imol
 				     (list aa-chain-id aa-res-no aa-ins-code)
-				     paucimannose-tree))))
+				     hybrid-mammal-tree))))
 
 	(add-simple-coot-menu-menuitem
-	 menu "Add Complex Tree"
+	 menu "Add Hybrid (Plant)"
+	 (lambda ()
+	   (using-active-atom
+	    (make-backup aa-imol)
+	    ;; (with-no-backups aa-imol
+	    (add-linked-residue-tree aa-imol
+				     (list aa-chain-id aa-res-no aa-ins-code)
+				     hybrid-plant-derived-tree))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Add Complex (Mammal)"
 	 (lambda ()
 	   (using-active-atom
 	    (make-backup aa-imol)
 	    (add-linked-residue-tree aa-imol
 				     (list aa-chain-id aa-res-no aa-ins-code)
-				     complex-tree))))
+				     complex-mammal-tree))))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Add Complex (Plant)"
+	 (lambda ()
+	   (using-active-atom
+	    (make-backup aa-imol)
+	    (add-linked-residue-tree aa-imol
+				     (list aa-chain-id aa-res-no aa-ins-code)
+				     complex-plant-tree))))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Delete All Carbohydrate"
@@ -713,5 +1033,10 @@
 	 menu "Use Unimodal ring torsion restraints"
 	 (lambda ()
 	   (use-unimodal-pyranose-ring-torsions)))
+
+	(add-simple-coot-menu-menuitem
+	 menu "Extract this Tree"
+	 (lambda()
+	   (new-molecule-from-this-glyco-tree)))
 
 	)))

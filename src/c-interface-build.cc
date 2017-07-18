@@ -405,6 +405,7 @@ int replace_fragment(int imol_target, int imol_fragment,
    std::vector<std::string> command_strings;
    command_strings.push_back("replace-fragement");
    command_strings.push_back(graphics_info_t::int_to_string(imol_target));
+   command_strings.push_back(graphics_info_t::int_to_string(imol_fragment));
    command_strings.push_back(single_quote(mmdb_atom_selection_str));
    add_to_history(command_strings);
    return istate;
@@ -4566,6 +4567,7 @@ int new_molecule_by_residue_specs_py(int imol, PyObject *residue_spec_list_py) {
 	    std::string label = "residues-selected-from-mol-";
 	    label += coot::util::int_to_string(imol);
 	    g.molecules[imol_new].install_model(imol_new, asc, g.Geom_p(), label, 1);
+	    graphics_draw();
 	 }
       }
    }
@@ -4604,6 +4606,7 @@ int new_molecule_by_residue_specs_scm(int imol, SCM residue_spec_list_scm) {
 		  std::string label = "residues-selected-from-mol-";
 		  label += coot::util::int_to_string(imol);
 		  g.molecules[imol_new].install_model(imol_new, asc, g.Geom_p(), label, 1);
+		  graphics_draw();
 	       }
 	    }
 	 }
@@ -4637,6 +4640,20 @@ int get_reset_b_factor_moved_atoms_state() {
   
     return graphics_info_t::reset_b_factor_moved_atoms_flag;
 }
+
+#ifdef USE_GUILE
+void set_temperature_factors_for_atoms_in_residue_scm(int imol, SCM residue_spec_scm, float b_factor) {
+
+   if (is_valid_model_molecule(imol)) {
+      std::pair<bool, coot::residue_spec_t> res_spec = make_residue_spec(residue_spec_scm);
+      if (res_spec.first) {
+	 std::vector<coot::residue_spec_t> res_spec_vec;
+	 res_spec_vec.push_back(res_spec.second);
+	 graphics_info_t::molecules[imol].set_b_factor_residue(res_spec.second, b_factor);
+      }
+   }
+}
+#endif // USE_GUILE
 
 /*  ----------------------------------------------------------------------- */
 /*                  SHELX stuff                                             */
@@ -5184,10 +5201,6 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
       }
       g.cif_dictionary_read_number++;
       coot::residue_spec_t res_spec(chain_id, resno, ins_code);
-
-      if (false)
-	 std::cout << "::::::::::::: in add_linked_residue_scm() g.default_new_atoms_b_factor is  "
-		   << g.default_new_atoms_b_factor << std::endl;
 
       float new_b = g.default_new_atoms_b_factor;
       // 20140429

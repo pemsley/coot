@@ -690,13 +690,16 @@ coot::glyco_tree_t::glyco_tree_t(mmdb::Residue *residue_p, mmdb::Manager *mol,
       std::sort(linked_residues.begin(), linked_residues.end(), residue_comparitor);
 
       bool have_ASN_rooted_tree = false;
-      std::cout << "INFO:: " << linked_residues.size() << " glycan/ASN residues" << std::endl;
+
+      if (false) // debugging
+	 std::cout << "INFO:: " << linked_residues.size() << " glycan/ASN residues" << std::endl;
 
       for (unsigned int ires=0; ires<linked_residues.size(); ires++) {
 	 std::string residue_name(linked_residues[ires]->name);
 	 if (residue_name == "ASN") {
-	    std::cout << "... replacing glyco_tree based on " << residue_spec_t(linked_residues[ires])
-		      << std::endl;
+	    if (false)
+	       std::cout << "... replacing glyco_tree based on " << residue_spec_t(linked_residues[ires])
+			 << std::endl;
 	    tree<linked_residue_t>  glyco_tree_new = find_ASN_rooted_tree(linked_residues[ires], linked_residues);
 	    if (glyco_tree_new.size() > glyco_tree.size()) {
 	       glyco_tree = glyco_tree_new;
@@ -939,7 +942,9 @@ coot::glyco_tree_t::get_id(mmdb::Residue *residue_p) const {
 	    std::string link_type = it->link_type;
 	    std::string res_type = residue_p->GetResName();
 	    unsigned int level = get_level(residue_p);
-	    id = residue_id_t(level, res_type, link_type, parent_res_type, residue_spec_t(parent_res));
+	    residue_id_t::prime_arm_flag_t prime_flag = get_prime(residue_p);
+	    id = residue_id_t(level, prime_flag, res_type, link_type, parent_res_type,
+			      residue_spec_t(parent_res));
 	    break;
  	 }
       }
@@ -972,6 +977,48 @@ coot::glyco_tree_t::get_level(mmdb::Residue *residue_p) const {
    return level;
 }
 
+// in future, if you are fixing this, consider to combine it with the above
+// to return a simple class that contains both the level and the prime flag.
+//
+coot::glyco_tree_t::residue_id_t::prime_arm_flag_t
+coot::glyco_tree_t::get_prime(mmdb::Residue *residue_p) const {
+
+   // a prime is a residue connected via a a-3 link to the BMA.
+
+   // scoped enums mean removal of prime_arm_flag_t (maybe fixed in C++11?)
+   residue_id_t::prime_arm_flag_t arm = residue_id_t::UNSET;
+
+   int level      = -1; // unset
+   int arm_level  = -1; // unset
+   int base_level = -1; // unset
+
+   tree<linked_residue_t>::iterator it;
+   for (it=glyco_tree.begin(); it != glyco_tree.end(); it++) {
+      if (it->residue == residue_p) {
+	 level = 0;
+	 tree<linked_residue_t>::iterator this_one = it;
+	 bool has_parent = true;
+	 bool it_has_parent = true;
+	 tree<linked_residue_t>::iterator parent_node = it.node->parent;
+	 while (has_parent) {
+
+	    if (! this_one.node->parent) { 
+	       has_parent = false;
+	    } else {
+	       if (this_one.node->parent->data.residue_name == "BMA") {
+		  if (this_one->link_type == "ALPHA1-3")
+		     arm = residue_id_t::NON_PRIME;
+		  if (this_one->link_type == "ALPHA1-6")
+		     arm = residue_id_t::PRIME;
+	       }
+	       this_one = this_one.node->parent;
+	       level++;
+	    }
+	 }
+      }
+   }
+   return arm;
+}
 
 std::vector<mmdb::Residue *>
 coot::glyco_tree_t::residues(const tree<linked_residue_t> &glyco_tree) const {

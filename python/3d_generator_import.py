@@ -1,3 +1,10 @@
+
+# Dont prejudice (well we do later anyway)
+# this could be e.g. "acedrg" or "cprodrg" or "pyrogen" at the moment
+global my_favourite_3d_generator
+my_favourite_3d_generator=None
+
+
 cprodrg = "cprodrg"
 # we cannot use full path as cprodrg is spawning refmac...
 #cprodrg = "c:/Programs/CCP4-Packages/ccp4-6.1.13/bin/cprodrg.exe"
@@ -49,6 +56,30 @@ else:
     print "BL WARNING:: Problem: home is", home  # FIXME
 sbase_to_coot_tlc = "../../build-xp-python/lbg/.sbase-to-coot-comp-id"
 
+
+# Need to play with the env variables to make sure acedrg runs in
+# (Win)Coot setting since acedrg has a different python
+#
+def acedrg_env():
+    
+    import os
+
+    # copy what we have
+    my_env = os.environ.copy()
+    # then we need:
+    # disable python home
+    # put ccp4 bin ahead of coot
+    dir_name = False
+    for ccp4_dir in ["CBIN", "CCP4_BIN"]:
+        dir_name = os.environ[ccp4_dir]
+        if os.path.isdir(dir_name):
+            break
+    if dir_name:
+        my_env["PATH"] = dir_name + ";" + my_env["PATH"]
+    my_env["PYTHONHOME"] = ""
+    
+    return my_env
+
 # this is latest!!!!
 prodrg_xyzin      = "prodrg-in.mdl"
 sbase_to_coot_tlc = ".sbase-to-coot-comp-id"
@@ -59,8 +90,9 @@ def import_from_3d_generator_from_mdl_using_acedrg(mdl_file_name, comp_id):
     cif_out_file_name = "acedrg-" + comp_id + ".cif"
     stub = "acedrg-" + comp_id
 
-    status = popen_command("acedrg", ["-m", mdl_file_name, "-r", comp_id, "-o", stub],
-      [], "acedrg.log", False)
+    status = popen_command("acedrg",
+                           ["-m", mdl_file_name, "-r", comp_id, "-o", stub],
+                           [], "acedrg.log", False, local_env=acedrg_env())
     if status:
         info_dialog("Bad exit status for Acedrg\n - see pyrogen.log")
     else:
@@ -100,15 +132,27 @@ def import_from_3d_generator_from_mdl_using_pyrogen(mdl_file_name, comp_id):
 #
 def import_from_3d_generator_from_mdl(mdl_file_name, comp_id):
 
-    # if acedrg is in the path use that (not available on Windows - yet)
-    if command_in_path_qm("acedrg"):
-        import_from_3d_generator_from_mdl_using_acedrg(mdl_file_name, comp_id)
-    else:
-        if command_in_path_qm("pyrogen"):
-            import_from_3d_generator_from_mdl_using_pyrogen(mdl_file_name, comp_id)
+    global my_favourite_3d_generator
+    # if acedrg is in the path use that
+    if not my_favourite_3d_generator:
+        if command_in_path_qm("acedrg"):
+            import_from_3d_generator_from_mdl_using_acedrg(mdl_file_name, comp_id)
         else:
-            # fallback, to prodrg for now
+            if command_in_path_qm("pyrogen"):
+                import_from_3d_generator_from_mdl_using_pyrogen(mdl_file_name, comp_id)
+            else:
+                # fallback, to prodrg for now
+                import_from_prodrg("mini-no", comp_id)
+    else:
+        if (my_favourite_3d_generator == "pyrogen"):
+            import_from_3d_generator_from_mdl_using_pyrogen(mdl_file_name,
+                                                            comp_id)
+        else:
+            if (not my_favourite_3d_generator in "cprodrg"):
+                print "BL WARNING:: couldnt find a matching function for " + \
+                    "your favourite generator, so use prodrg as default!"
             import_from_prodrg("mini-no", comp_id)
+                
 
 
 def import_ligand_with_overlay(prodrg_xyzout, prodrg_cif):
@@ -307,7 +351,11 @@ def new_molecule_by_smiles_string(tlc_text, smiles_text, force_libcheck=False):
         stub = comp_id + "-" + generator
         log_file_name = os.path.join(working_dir, stub + ".log")
         print "::::::::: args", args
-        status = popen_command(generator, args, [], log_file_name, True)
+        if (generator == "acedrg"):
+            status = popen_command(generator, args, [], log_file_name, True,
+                                   local_env=acedrg_env())
+        else:
+            status = popen_command(generator, args, [], log_file_name, True)
         if not status == 0:
             return -1 # bad mol
         else:
@@ -456,7 +504,8 @@ def new_molecule_by_smiles_string_by_acedrg(tlc_str, smiles_str):
     args = ["-i", smi_file, "-r", tlc_str, "-o", stub]
     log_file_name = "acedrg-" + tlc_str + ".log"
     if command_in_path_qm("acedrg"):
-        status = popen_command("acedrg", args, [], log_file_name, True)
+        status = popen_command("acedrg", args, [], log_file_name, True,
+                               local_env=acedrg_env())
         if (ok_popen_status_qm(status)):
             handle_read_draw_molecule_and_move_molecule_here(pdb_out_file_name)
             read_cif_dictionary(cif_out_file_name)
