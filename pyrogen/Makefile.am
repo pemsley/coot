@@ -30,7 +30,9 @@ pyexec_LTLIBRARIES =
 
 # rdkit includes are in the rdkit directory, boost includes are the (normal) prefix above that
 #
-AM_CPPFLAGS = $(CCP4SRS_CXXFLAGS) $(BOOST_CPPFLAGS) $(RDKIT_CXXFLAGS) $(PYTHON_CFLAGS) -I$(top_srcdir)
+# ENHANCED_LIGAND_TOOLS_CFLAGS is needed to compile with pli pi-stacking header
+AM_CPPFLAGS = $(CCP4SRS_CXXFLAGS) $(BOOST_CPPFLAGS) $(RDKIT_CXXFLAGS) $(PYTHON_CFLAGS) \
+                      $(ENHANCED_LIGAND_TOOLS_CFLAGS) -I$(top_srcdir)
 
 AM_CXXFLAGS = -DPKGDATADIR='"$(pkgdatadir)"' $(COOT_WINDOWS_CFLAGS)
 

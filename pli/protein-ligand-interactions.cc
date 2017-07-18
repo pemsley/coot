@@ -543,10 +543,10 @@ coot::protein_ligand_interactions(mmdb::Residue *ligand_residue_p, mmdb::Manager
 	 ligand_atom = hbonds[i].donor;
 	 env_residue_atom = hbonds[i].acceptor;
       }
-
-      // ... other stuff
-
    }
+
+   // Other stuff
+
    mol->DeleteSelection(SelHnd_all);
    mol->DeleteSelection(SelHnd_lig);
 

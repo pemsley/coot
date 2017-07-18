@@ -166,7 +166,7 @@ namespace coot {
 	     H_BOND_ACCEPTOR_SIDECHAIN,
 	     METAL_CONTACT_BOND,
 	     BOND_COVALENT,
-	     BOND_OTHER };  // must sync this to lbg.hh
+	     BOND_OTHER };  // must sync this to lbg.hh (why not extract it? (you can do it now))
       atom_spec_t ligand_atom_spec;
       int bond_type; // acceptor/donor
 
