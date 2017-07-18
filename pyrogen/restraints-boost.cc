@@ -55,8 +55,8 @@ namespace coot {
    void delocalize_guanidinos(RDKit::RWMol *mol);
 
    boost::python::list extract_ligands_from_coords_file(const std::string &file_name);
-   boost::python::object process_ligand(const std::string &file_name,
-					PyObject *ligand_spec);
+   boost::python::object get_ligand_interactions(const std::string &file_name,
+						 PyObject *ligand_spec);
 
    // compiling/linking problems - give up for now.
    // PyObject *convert_rdkit_mol_to_pyobject(RDKit::ROMol *mol);
@@ -77,7 +77,7 @@ BOOST_PYTHON_MODULE(pyrogen_boost) {
    def("mmff_bonds_and_angles",    coot::mmff_bonds_and_angles,    return_value_policy<manage_new_object>());
 
    def("extract_ligands_from_coords_file", coot::extract_ligands_from_coords_file);
-   def("process_ligand", coot::process_ligand);
+   def("get_ligand_interactions", coot::get_ligand_interactions);
 
    class_<coot::mmff_bond_restraint_info_t>("mmff_bond_restraint_info_t")
       .def("get_idx_1",         &coot::mmff_bond_restraint_info_t::get_idx_1)
@@ -165,8 +165,8 @@ coot::extract_ligands_from_coords_file(const std::string &file_name) {
 // or (probably better) a directory.
 //
 boost::python::object
-coot::process_ligand(const std::string &file_name,
-		     PyObject *ligand_spec_py) {
+coot::get_ligand_interactions(const std::string &file_name,
+			      PyObject *ligand_spec_py) {
 
    // this is how to convert (any) PyObject * to a boost::python::object
    // (consider if ref-counting is an issue).
