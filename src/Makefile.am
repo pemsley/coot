@@ -201,6 +201,17 @@ AM_CPPFLAGS = \
 
 pkginclude_HEADERS = crunch-model.hh
 
+if COOT_USE_PYTHON
+if MAKE_ENHANCED_LIGAND_TOOLS
+coot_boost_la_SOURCES = rdkit-boost.cc
+coot_boost_la_LDFLAGS = -module $(SHARED_LDFLAGS)
+coot_boost_la_LIBADD = \
+                       $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
+                       $(RDKIT_LIBS) $(L_BOOST_PYTHON)
+pyexec_LTLIBRARIES = coot_boost.la
+endif
+endif
+
 if OS_WIN32
 # no more libexec for windows
 bin_PROGRAMS =  coot-bin coot-density-score-by-residue-bin \
