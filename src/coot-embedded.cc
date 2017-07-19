@@ -7,17 +7,25 @@
 #include "lidia-core/rdkit-interface.hh"
 #include "graphics-info.h"
 
-int import_rdkit_molecule(const RDKit::ROMol &m, int conf_id, const std::string &new_comp_id);
+namespace coot {
+   int import_rdkit_molecule(const RDKit::ROMol &m, int conf_id, const std::string &new_comp_id);
+   boost::python::list extract_ligands_from_coords_file(const std::string &file_name);
+   boost::python::object get_ligand_interactions(const std::string &file_name,
+						 PyObject *ligand_spec);
+}
 
-BOOST_PYTHON_MODULE(coot_boost) {
 
-   boost::python::def("import_rdkit_molecule", import_rdkit_molecule);
+//                      Functions that are importable only from coot
+
+BOOST_PYTHON_MODULE(coot_embedded) {
+
+   boost::python::def("import_rdkit_molecule", coot::import_rdkit_molecule);
 
 }
 
 // if the m has an Property "ResName" then use that for the residue,
 // else
-int import_rdkit_molecule(const RDKit::ROMol &m, int conf_id, const std::string &new_comp_id) {
+int coot::import_rdkit_molecule(const RDKit::ROMol &m, int conf_id, const std::string &new_comp_id) {
 
    graphics_info_t g;
    int imol = -1;
