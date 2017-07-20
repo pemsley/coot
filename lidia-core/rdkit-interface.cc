@@ -22,6 +22,7 @@
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 #include <cstring>  // Fixes ::strchr complaints on 4.4.7 (hal)
+#include <queue>
 #include "utils/coot-utils.hh"
 #include "rdkit-interface.hh"
 #include <GraphMol/Chirality.h>  // for CIP ranks
