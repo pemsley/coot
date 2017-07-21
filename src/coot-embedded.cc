@@ -9,9 +9,6 @@
 
 namespace coot {
    int import_rdkit_molecule(const RDKit::ROMol &m, int conf_id, const std::string &new_comp_id);
-   boost::python::list extract_ligands_from_coords_file(const std::string &file_name);
-   boost::python::object get_ligand_interactions(const std::string &file_name,
-						 PyObject *ligand_spec);
 }
 
 
@@ -27,8 +24,10 @@ BOOST_PYTHON_MODULE(coot_embedded) {
 // else
 int coot::import_rdkit_molecule(const RDKit::ROMol &m, int conf_id, const std::string &new_comp_id) {
 
-   graphics_info_t g;
    int imol = -1;
+#ifdef COOT_LINKING_BIG_LIB
+   // graphics_info_t needs to resolve (by being in a lib that we link against for this lib)
+   graphics_info_t g;
    int n_conf  = m.getNumConformers();
    if (n_conf == 0) {
       std::cout << "WARNING:: no conformers in input rdkit molecule " << std::endl;
@@ -44,6 +43,7 @@ int coot::import_rdkit_molecule(const RDKit::ROMol &m, int conf_id, const std::s
 	 std::cout << "WARNING:: null residue" << std::endl;
       }
    }
+#endif
    return imol;
 }
 
