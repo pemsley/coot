@@ -5,12 +5,14 @@ AM_CPPFLAGS = \
 	$(ENHANCED_LIGAND_TOOLS_CFLAGS) \
 	$(COOT_GSL_FLAGS)		\
 	$(GSL_CFLAGS)			\
-	$(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) \
+	$(CLIPPER_CXXFLAGS)             \
+        $(MMDB_CXXFLAGS) \
+        $(PYTHON_CFLAGS)  \
 	$(RDKIT_CXXFLAGS)
 
 lib_LTLIBRARIES=libcoot-pli.la
 
-libcoot_pli_la_SOURCES = protein-ligand-interactions.cc flev-annotations.cc pi-stacking.cc
+libcoot_pli_la_SOURCES = protein-ligand-interactions.cc flev-annotations.cc pi-stacking.cc specs.cc
 
 libcoot_pli_la_LIBADD = \
                        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \

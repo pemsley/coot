@@ -12,6 +12,7 @@
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "lidia-core/rdkit-interface.hh"
+#include "pli/specs.hh"
 
 namespace coot {
    int import_rdkit_molecule(const RDKit::ROMol &m, int conf_id, const std::string &new_comp_id);
@@ -56,6 +57,7 @@ coot::extract_ligands_from_coords_file(const std::string &file_name) {
 		     boost::shared_ptr<RDKit::ROMol> xx(cm_p);
 		     // maybe I can append(xx) rather than needing this step:
 		     boost::python::object obj(xx);
+		     PyObject *spec_py = py_residue_spec_t(v[i]).pyobject();
 		     rdkit_mols_list.append(obj);
 		  }
 		  catch (const std::runtime_error &rte) {
@@ -74,6 +76,7 @@ coot::extract_ligands_from_coords_file(const std::string &file_name) {
 
 #include "pli/protein-ligand-interactions.hh"
 #include "pli/pi-stacking.hh"
+#include "pli/specs.hh"
 #include "coot-utils/reduce.hh"
 
 // Pass also filename for the CCD for the ligand (or its neighbours)
@@ -134,10 +137,14 @@ coot::get_ligand_interactions(const std::string &file_name,
 		     PyList_SetItem(new_o_py, 1, Py_False); // replaced later maybe
 		     PyObject *list_py = PyList_New(v.size());
 		     for (std::size_t i=0; i<v.size(); i++) {
-			PyObject *item_py = PyList_New(2);
+			PyObject *item_py = PyList_New(4);
 			// transfer ligand-atom-spec, interacting-atom-spec, bond-type, bond-length
+			py_atom_spec_t pas_1(v[i].ligand_atom_spec);
+			py_atom_spec_t pas_2(v[i].interacting_residue_atom_spec);
 			PyList_SetItem(item_py, 0, PyInt_FromLong(v[i].bond_type));
 			PyList_SetItem(item_py, 1, PyFloat_FromDouble(v[i].bond_length));
+			PyList_SetItem(item_py, 2, pas_1.pyobject());
+			PyList_SetItem(item_py, 3, pas_2.pyobject());
 			PyList_SetItem(list_py, i, item_py);
 		     }
 		     PyList_SetItem(new_o_py, 0, list_py);
