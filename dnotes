@@ -7788,13 +7788,13 @@ http://www.boost.org/doc/libs/1_64_0/libs/python/doc/html/tutorial/tutorial/obje
    PyObject* pyobj one does:
 
    boost::python::object o(boost::python::handle<>(pyobj)); In this
-   case, the object, manages the pyobj, it won’t increase the
+   case, the object, manages the pyobj, it won't increase the
    reference count on construction.
 
     Otherwise, to use a borrowed reference:
 
     boost::python::object
-    o(boost::python::handle<>(boost::python::borrowed(pyobj)));
+    boost::python::handle<>(boost::python::borrowed(pyobj)));
     In this case, Py_INCREF is called, so pyobj is not destructed when
     object goes out of scope.
 
@@ -7804,7 +7804,7 @@ Sun 16 Jul 2017 22:43:37 BST
     convert an RDKit molecule to boost::python::object
 
    	             std::pair<bool, coot::dictionary_residue_restraints_t> rp = 
-		        geom.get_monomer_restraints(res_name, imol);
+		     geom.get_monomer_restraints(res_name, imol);
 		     RDKit::RWMol rdkm = rdkit_mol(residue_p, rp.second);
                      boost::python::list rdkit_mols_list;
 		     RDKit::ROMol *cm_p = new RDKit::ROMol(rdkm);
@@ -7812,6 +7812,17 @@ Sun 16 Jul 2017 22:43:37 BST
 		     // maybe I can append(xx) rather than needing this step:
 		     boost::python::object obj(xx);
 		     rdkit_mols_list.append(obj);
+
+---
+Wed 19 Jul 2017 23:41:43 BST
+
+what's this?
+
+   Dixon, S. L. et al.
+   PHASE: a new engine for pharmacophore perception, 3D QSAR model development,
+   and 3D database screening: 1. Methodology and preliminary results.
+   J. Comput. Aided Mol. Des. 20, 647-671,
+   doi: 10.1007/s10822-006-9087-6   (2006).
 
 
 ---
