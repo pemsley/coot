@@ -1,6 +1,9 @@
 
    For Release 0.8.9
 
+   o make a mode "don't recontour the map on recentre". Add a "recontour" 
+     toolbar button.
+
    o qq-plot-map-and-model - is it in the documentation (and redefines)?
 
    o ACE, PCA and MSE should not be considered as ligands in go-to-ligand

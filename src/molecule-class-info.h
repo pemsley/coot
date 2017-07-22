@@ -90,7 +90,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "density-contour/density-contour-triangles.hh"
 
 #include "gl-bits.hh"
-#include "lbg/flev-annotations.hh" // animated ligand interactions
+#include "pli/flev-annotations.hh" // animated ligand interactions
 
 #include "pick.h"
 
