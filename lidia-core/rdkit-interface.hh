@@ -215,6 +215,9 @@ namespace coot {
    // 
    std::vector<RDKit::ROMol *> join_molecules(const RDKit::ROMol &mol, int atom_index,
 					      const RDKit::ROMol &trial_fragment);
+
+   // test calling with bad conf_id
+   mmdb::Residue *residue_from_rdkit_mol(const RDKit::ROMol &mol_in, int conf_id, const std::string &new_comp_id);
 }
 
 #endif // RDKIT_INTERFACE_HH

@@ -22,6 +22,7 @@
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 #include <cstring>  // Fixes ::strchr complaints on 4.4.7 (hal)
+#include <queue>
 #include "utils/coot-utils.hh"
 #include "rdkit-interface.hh"
 #include <GraphMol/Chirality.h>  // for CIP ranks
@@ -1920,6 +1921,10 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 //
 mmdb::Residue *
 coot::make_residue(const RDKit::ROMol &rdkm, int iconf, const std::string &res_name) {
+
+   // replace this function by making a residue directly instead of via a molfile.
+   // If there are no atom names, make them from the element and atom number
+   
 
    mmdb::Residue *residue_p = NULL;
    lig_build::molfile_molecule_t mol = coot::make_molfile_molecule(rdkm, iconf);
