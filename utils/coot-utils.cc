@@ -202,7 +202,7 @@ coot::util::remove_trailing_slash(const std::string &s) {
    std::string scratch = s;
 
    if (s.length() > 0) {
-#ifdef HAVE_CXX_11
+#ifdef HAVE_CXX11
       if (s.back() == '/')
          scratch.erase(scratch.end()-1);
       if (s.back() == '\\')
