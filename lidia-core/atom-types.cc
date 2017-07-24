@@ -1,6 +1,7 @@
 
-#include <cctype>
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include <cctype>
 #include "utils/coot-utils.hh"
 #include "rdkit-interface.hh"
 
@@ -263,3 +264,5 @@ coot::set_energy_lib_atom_types(RDKit::ROMol *mol) {
    std::cout << "No set_atom_type() for this build/compiler" << std::endl;
 #endif // HAVE_CXX11
 }
+
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
