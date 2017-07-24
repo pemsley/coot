@@ -285,9 +285,17 @@ coot::get_covalent_bonds_by_distance(mmdb::Manager *mol,
 	 for (int i=0; i<n_contacts; i++) {
 	    mmdb::Atom *at_1 =   lig_atom_selection[pscontact[i].id1];
 	    mmdb::Atom *at_2 = other_atom_selection[pscontact[i].id2];
-// 	    std::cout << "DEUBG:: Covalent test "
-// 		      << coot::atom_spec_t(at_1) << "..."
-// 		      << coot::atom_spec_t(at_2) << std::endl;
+
+	    // move on if these are interacting atoms
+	    std::string alt_conf_1 = at_1->altLoc;
+	    std::string alt_conf_2 = at_2->altLoc;
+	    if (!alt_conf_1.empty() && ! alt_conf_2.empty())
+	       if (alt_conf_1 != alt_conf_2)
+		  continue;
+
+	    // 	    std::cout << "DEUBG:: Covalent test "
+	    // 		      << coot::atom_spec_t(at_1) << "..."
+	    // 		      << coot::atom_spec_t(at_2) << std::endl;
 	    std::pair<mmdb::Residue *, mmdb::Residue *> pair(at_1->GetResidue(),
 						   at_2->GetResidue());
 
@@ -358,7 +366,15 @@ coot::get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
 			std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link, model_p);
 			mmdb::Atom *at_1 = coot::util::get_atom(linked_atoms.first,  mol);
 			mmdb::Atom *at_2 = coot::util::get_atom(linked_atoms.second, mol);
-			if (at_1 && at_2) { 
+			if (at_1 && at_2) {
+
+			   // move on if these are interacting atoms
+			   std::string alt_conf_1 = at_1->altLoc;
+			   std::string alt_conf_2 = at_2->altLoc;
+			   if (!alt_conf_1.empty() && ! alt_conf_2.empty())
+			      if (alt_conf_1 != alt_conf_2)
+				 continue;
+
 			   double dist = distance(at_1, at_2);
 			   fle_ligand_bond_t b(linked_atoms.first, linked_atoms.second,
 					       fle_ligand_bond_t::BOND_COVALENT,
@@ -377,6 +393,14 @@ coot::get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
 			mmdb::Atom *at_1 = coot::util::get_atom(linked_atoms.first,  mol);
 			mmdb::Atom *at_2 = coot::util::get_atom(linked_atoms.second, mol);
 			if (at_1 && at_2) { 
+
+			   // move on if these are interacting atoms
+			   std::string alt_conf_1 = at_1->altLoc;
+			   std::string alt_conf_2 = at_2->altLoc;
+			   if (!alt_conf_1.empty() && ! alt_conf_2.empty())
+			      if (alt_conf_1 != alt_conf_2)
+				 continue;
+
 			   double dist = distance(at_1, at_2);
 			   fle_ligand_bond_t b(linked_atoms.second, linked_atoms.first,
 					       fle_ligand_bond_t::BOND_COVALENT,
@@ -417,6 +441,16 @@ coot::get_metal_bonds(mmdb::Residue *ligand_residue, const std::vector<mmdb::Res
 	 residues[i]->GetAtomTable(residue_atoms, n_residue_atoms);
 	 for (int irat=0; irat<n_residue_atoms; irat++) {
 	    for (int ilat=0; ilat<n_residue_atoms; ilat++) {
+
+	       // move on if these are interacting atoms
+	       mmdb::Atom *at_1 = ligand_residue_atoms[ilat];
+	       mmdb::Atom *at_2 = residue_atoms[irat];
+	       std::string alt_conf_1 = at_1->altLoc;
+	       std::string alt_conf_2 = at_2->altLoc;
+	       if (!alt_conf_1.empty() && ! alt_conf_2.empty())
+		  if (alt_conf_1 != alt_conf_2)
+		     continue;
+
 	       std::string ele(residue_atoms[irat]->element);
 	       if ((ele == " H") || (ele == " C")) { 
 		  clipper::Coord_orth pt_1(ligand_residue_atoms[ilat]->x,

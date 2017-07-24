@@ -351,6 +351,13 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manag
 	    mmdb::Atom *at_1 = sel_1_atoms[pscontact[i_contact].id1];
 	    mmdb::Atom *at_2 = sel_2_atoms[pscontact[i_contact].id2];
 
+	    // move on if these are interacting atoms
+	    std::string alt_conf_1 = at_1->altLoc;
+	    std::string alt_conf_2 = at_2->altLoc;
+	    if (!alt_conf_1.empty() && ! alt_conf_2.empty())
+	       if (alt_conf_1 != alt_conf_2)
+		  continue;
+
 	    if (at_1->residue != at_2->residue) { 
 
 	       // are they HB_HYDROGEN and HB_ACCEPTOR?

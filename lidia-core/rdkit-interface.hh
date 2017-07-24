@@ -195,6 +195,10 @@ namespace coot {
    //
    bool is_aromatic_ring(const std::vector<int> &ring_atom_indices,
 			 RDKit::ROMol &rdkm);
+
+
+   // add "energy_type" properties to the atoms
+   void set_energy_lib_atom_types(RDKit::ROMol *mol);
    
 
    // update the atom positions of the rdkit_molecule from residue_p

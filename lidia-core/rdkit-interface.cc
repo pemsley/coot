@@ -90,6 +90,8 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
    std::string n = coot::util::remove_trailing_whitespace(restraints.residue_info.name);
    m.setProp("_Name", n);
    m.setProp("ResName", std::string(residue_p->GetResName()));
+   m.setProp("ResNumber", residue_p->GetSeqNum());
+   m.setProp("ChainID", std::string(residue_p->GetChainID()));
 
    const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
    mmdb::PPAtom residue_atoms = 0;
@@ -818,6 +820,8 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	 if (debug) 
 	    std::cout << "ending construction of rdkit mol: n_atoms " << m.getNumAtoms()
 		      << std::endl;
+
+	 set_energy_lib_atom_types(&m);
 
 	 // debugging
 	 // RDKit::MolToMolFile(m, "rdkit.mol");

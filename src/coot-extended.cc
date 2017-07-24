@@ -15,9 +15,20 @@
 #include "pli/specs.hh"
 
 namespace coot {
-   boost::python::list extract_ligands_from_coords_file(const std::string &file_name);
+   boost::python::list extract_ligands_from_coords_file(const std::string &file_name,
+							const std::string &ccd_dir_or_cif_file_name);
    boost::python::object get_ligand_interactions(const std::string &file_name,
-						 PyObject *ligand_spec);
+						 PyObject *ligand_spec,
+						 const std::string &dirname_or_cif_file_name);
+   // helper function
+   void get_ligand_interactions_read_cifs(const std::string &residue_name,
+					  const std::string &ccd_dir_or_cif_file_name,
+					  protein_geometry *geom_p);
+
+   // helper function
+   void extract_ligands_from_coords_file_try_read_cif(const std::string &ccd_dir_or_cif_file_name,
+						      const std::string &res_name,
+						      protein_geometry *geom_p);
 }
 
 //                      Functions that are importable from python
@@ -29,35 +40,59 @@ BOOST_PYTHON_MODULE(coot_extended) {
 
 }
 
+
 boost::python::list
-coot::extract_ligands_from_coords_file(const std::string &file_name) {
+coot::extract_ligands_from_coords_file(const std::string &file_name,
+				       const std::string &ccd_dir_or_cif_file_name) {
 
    boost::python::list rdkit_mols_list;
    protein_geometry geom;
+   geom.set_verbose(false);
 
    if (coot::file_exists(file_name)) {
       mmdb::Manager *mol = new mmdb::Manager;
       mol->ReadCoorFile(file_name.c_str());
       std::vector<mmdb::Residue *> v = util::get_hetgroups(mol); // no waters
 
-      std::cout << "Found " << v.size() << " hetgroups " << std::endl;
+      // std::cout << "Found " << v.size() << " hetgroups " << std::endl;
       if (v.size() > 0) {
 	 int read_number = 0;
 	 for (std::size_t i=0; i<v.size(); i++) {
-	    std::string res_name = v[i]->GetResName();
+	    mmdb::Residue *residue_p = v[i];
+	    std::string res_name = residue_p->GetResName();
 	    int imol = 0;
-	    if (geom.have_dictionary_for_residue_type(res_name, imol, read_number++)) { // autoloads
-	       std::pair<bool, coot::dictionary_residue_restraints_t> rp =
+	    extract_ligands_from_coords_file_try_read_cif(ccd_dir_or_cif_file_name, res_name, &geom);
+	    if (! geom.have_dictionary_for_residue_type(res_name, imol, read_number++)) { // autoloads
+	       std::string message = "Missing dictionary for type " + res_name;
+	       rdkit_mols_list.append(message);
+	    } else {
+	       std::pair<bool, dictionary_residue_restraints_t> rp =
 		  geom.get_monomer_restraints(res_name, imol);
-	       if (rp.first) {
+	       if (! rp.first) {
+		  std::string message = "Missing dictionary for type " + res_name;
+		  rdkit_mols_list.append(message);
+	       } else {
 		  try {
-		     RDKit::RWMol rdkm = rdkit_mol(v[i], rp.second);
-		     RDKit::ROMol *cm_p = new RDKit::ROMol(rdkm);
-		     boost::shared_ptr<RDKit::ROMol> xx(cm_p);
-		     // maybe I can append(xx) rather than needing this step:
-		     boost::python::object obj(xx);
-		     PyObject *spec_py = py_residue_spec_t(v[i]).pyobject();
-		     rdkit_mols_list.append(obj);
+		     // rdkit_mol() will return a molecule with no atoms if
+		     // there is only atoms with a non-blank alt conf
+		     //
+		     // so loop over the residue alt confs and make new molecules.
+		     // I suppose the another/better way is to add conformers for
+		     // every alt conf - not pass the alt conf as an arg
+		     // Maybe later.
+		     //
+		     std::vector<std::string> ac = util::get_residue_alt_confs(residue_p);
+		     for (std::size_t iac=0; iac<ac.size(); iac++) {
+			RDKit::RWMol rdkm = rdkit_mol(residue_p, rp.second, ac[iac]);
+			RDKit::ROMol *cm_p = new RDKit::ROMol(rdkm);
+			boost::shared_ptr<RDKit::ROMol> xx(cm_p);
+			// maybe I can append(xx) rather than needing this step:
+			boost::python::object obj(xx);
+			rdkit_mols_list.append(boost::python::object(obj));
+			if (false)
+			   std::cout << "added to list from residue "
+				     << residue_spec_t(v[i]) << " " << res_name << std::endl;
+		     }
 		  }
 		  catch (const std::runtime_error &rte) {
 		     std::cout << "WARNING:: " << rte.what() << std::endl;
@@ -83,20 +118,30 @@ coot::extract_ligands_from_coords_file(const std::string &file_name) {
 //
 boost::python::object
 coot::get_ligand_interactions(const std::string &file_name,
-			      PyObject *ligand_spec_py) {
+			      PyObject *ligand_spec_py,
+			      const std::string &dirname_or_cif_file_name) {
 
    // this is how to convert (any) PyObject * to a boost::python::object
    // (consider if ref-counting is an issue).
    boost::python::object o(boost::python::handle<>(Py_False));
    float h_bond_dist_max = 3.6;
    float residues_near_radius = 5.0; // pass this
+   std::string ligand_spec_py_str = PyString_AsString(PyObject_Str(ligand_spec_py));
 
-   if (PyList_Check(ligand_spec_py)) {
-      if (PyObject_Length(ligand_spec_py) == 3) {
+   if (! PyList_Check(ligand_spec_py)) {
+      // tell me what it was
+      std::cout << "WARNING:: ligand spec was not a spec " << ligand_spec_py_str << std::endl;
+   } else {
+      Py_ssize_t sl = PyObject_Length(ligand_spec_py);
+      if (sl != 3) {
+	 std::cout << "WARNING:: ligand spec was not a triple list " << ligand_spec_py_str << std::endl;
+      } else {
 	 PyObject  *chain_id_py = PyList_GetItem(ligand_spec_py, 0);
 	 PyObject     *resno_py = PyList_GetItem(ligand_spec_py, 1);
 	 PyObject  *ins_code_py = PyList_GetItem(ligand_spec_py, 2);
-	 if (PyInt_Check(resno_py)) {
+	 if (! PyInt_Check(resno_py)) {
+	    std::cout << "WARNING:: resno in spec is not Int in " << ligand_spec_py_str << std::endl;
+	 } else {
 	    int res_no = PyInt_AsLong(resno_py);
 	    std::string chain_id = PyString_AsString(chain_id_py);
 	    std::string ins_code  = PyString_AsString(ins_code_py);
@@ -104,14 +149,16 @@ coot::get_ligand_interactions(const std::string &file_name,
 	    mmdb::Manager *mol = new mmdb::Manager;
 	    mol->ReadCoorFile(file_name.c_str());
 	    mmdb::Residue *residue_p = util::get_residue(rs, mol);
-	    if (residue_p) {
+	    if (! residue_p) {
+	       std::cout << "WARNING:: ligand spec was not found " << residue_spec_t(residue_p) << std::endl;
+	    } else {
 	       // read in a dictionary
 	       int imol = 0; // dummy
 	       int read_number = 0;
 	       protein_geometry geom;
 	       geom.init_standard();
 	       std::string rn = residue_p->GetResName();
-	       geom.try_dynamic_add("MG", read_number++);
+	       get_ligand_interactions_read_cifs(rn, dirname_or_cif_file_name, &geom);
 	       if (geom.have_dictionary_for_residue_type(rn, imol, read_number++)) { // autoloads
 		  std::pair<bool, coot::dictionary_residue_restraints_t> rp =
 		     geom.get_monomer_restraints(rn, imol);
@@ -188,5 +235,52 @@ coot::get_ligand_interactions(const std::string &file_name,
    }
    return o;
 }
+
+void
+coot::get_ligand_interactions_read_cifs(const std::string &residue_name,
+					const std::string &ccd_dir_or_cif_file_name,
+					protein_geometry *geom_p) {
+
+   if (file_exists(ccd_dir_or_cif_file_name)) {
+      std::string cif_file_name = ccd_dir_or_cif_file_name;
+      if (is_directory_p(ccd_dir_or_cif_file_name)) {
+	 std::string dir_name = ccd_dir_or_cif_file_name;
+	 //
+	 // all files in this directory of just the one...?
+	 // comma-separated list?
+	 //
+	 cif_file_name = util::append_dir_file(dir_name, residue_name + ".cif");
+      }
+      if (file_exists(cif_file_name)) {
+	 int rn = 42;
+	 geom_p->init_refmac_mon_lib(cif_file_name, rn++);
+      }
+   }
+}
+
+// helper function
+void
+coot::extract_ligands_from_coords_file_try_read_cif(const std::string &ccd_dir_or_cif_file_name,
+						    const std::string &residue_name,
+						    protein_geometry *geom_p) {
+
+   if (file_exists(ccd_dir_or_cif_file_name)) {
+      std::string cif_file_name = ccd_dir_or_cif_file_name;
+      if (is_directory_p(ccd_dir_or_cif_file_name)) {
+	 std::string dir_name = ccd_dir_or_cif_file_name;
+
+	 std::string cif_file_name = util::append_dir_file(dir_name, residue_name + ".cif");
+	 if (file_exists(cif_file_name)) {
+	    int rn = 42;
+	    geom_p->init_refmac_mon_lib(cif_file_name, rn++);
+	 }
+      } else {
+	 int rn = 42;
+	 geom_p->init_refmac_mon_lib(ccd_dir_or_cif_file_name, rn++);
+      }
+   }
+}
+
+
 
 #endif // MAKE_ENHANCED_LIGAND_TOOLS

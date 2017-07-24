@@ -512,7 +512,7 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
          charge = atom.GetProp('_GasteigerCharge') # string?
          name   = atom.GetProp('name')
          try:
-            atom_type   = atom.GetProp('atom_type')
+            atom_type   = atom.GetProp('type_energy')
             is_aromatic = atom.GetIsAromatic()
             hybrid      = atom.GetHybridization()
             f_charge    = float(charge)
