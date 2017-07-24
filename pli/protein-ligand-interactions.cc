@@ -34,7 +34,7 @@ coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 			   float h_bond_dist_max) {
 
    std::vector<coot::fle_ligand_bond_t> v; // returned value
-   bool debug = true;
+   bool debug = false;
 
    if (debug) {
       std::cout << "::::::::::::::::::::: get_fle_ligand_bonds() inputs: " << std::endl;

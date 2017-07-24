@@ -259,5 +259,7 @@ coot::set_energy_lib_atom_types(RDKit::ROMol *mol) {
       }
    }
 
+#else
+   std::cout << "No set_atom_type() for this build/compiler" << std::endl;
 #endif // HAVE_CXX11
 }
