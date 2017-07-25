@@ -116,11 +116,14 @@ coot::extract_ligands_from_coords_file(const std::string &file_name,
 // Pass also filename for the CCD for the ligand (or its neighbours)
 // or (probably better) a directory.
 //
+// This needs to do a better job handling ligand residues with alt confs (5pb7)
+//
 boost::python::object
 coot::get_ligand_interactions(const std::string &file_name,
 			      PyObject *ligand_spec_py,
 			      const std::string &dirname_or_cif_file_name) {
 
+   std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^ Here in get_ligand_interactions " << file_name << std::endl;
    // this is how to convert (any) PyObject * to a boost::python::object
    // (consider if ref-counting is an issue).
    boost::python::object o(boost::python::handle<>(Py_False));
@@ -156,77 +159,101 @@ coot::get_ligand_interactions(const std::string &file_name,
 	       int imol = 0; // dummy
 	       int read_number = 0;
 	       protein_geometry geom;
+	       geom.set_verbose(false);
 	       geom.init_standard();
 	       std::string rn = residue_p->GetResName();
 	       get_ligand_interactions_read_cifs(rn, dirname_or_cif_file_name, &geom);
 	       if (geom.have_dictionary_for_residue_type(rn, imol, read_number++)) { // autoloads
 		  std::pair<bool, coot::dictionary_residue_restraints_t> rp =
 		     geom.get_monomer_restraints(rn, imol);
+
+		  // we want to add energy types to the dictionary (if it was a dictionary from the CCD).
+		  //
 		  if (rp.first) {
-		     reduce r(mol, imol);
-		     r.add_geometry(&geom);
-		     r.add_hydrogen_atoms();
-
-		     // protein-ligand interactions (various sorts of bonds) are calculated without
-		     // needing rdkit.
-
-		     // consider where a peptide is the ligand
-		     std::vector<fle_ligand_bond_t> v =
-			protein_ligand_interactions(residue_p, mol, &geom, h_bond_dist_max);
-
-		     std::cout << "INFO:: found " << v.size() << " bonds/interactions " << std::endl;
-		     for (std::size_t i=0; i<v.size(); i++)
-			std::cout << "INFO::    " << v[i] << std::endl;
-
-		     // now replace o:
-		     PyObject *new_o_py = PyList_New(2);
-		     PyList_SetItem(new_o_py, 1, Py_False); // replaced later maybe
-		     PyObject *list_py = PyList_New(v.size());
-		     for (std::size_t i=0; i<v.size(); i++) {
-			PyObject *item_py = PyList_New(4);
-			// transfer ligand-atom-spec, interacting-atom-spec, bond-type, bond-length
-			py_atom_spec_t pas_1(v[i].ligand_atom_spec);
-			py_atom_spec_t pas_2(v[i].interacting_residue_atom_spec);
-			PyList_SetItem(item_py, 0, PyInt_FromLong(v[i].bond_type));
-			PyList_SetItem(item_py, 1, PyFloat_FromDouble(v[i].bond_length));
-			PyList_SetItem(item_py, 2, pas_1.pyobject());
-			PyList_SetItem(item_py, 3, pas_2.pyobject());
-			PyList_SetItem(list_py, i, item_py);
-		     }
-		     PyList_SetItem(new_o_py, 0, list_py);
-
-		     std::vector<mmdb::Residue *> neighb_residues =
-			coot::residues_near_residue(residue_p, mol, residues_near_radius);
-
-		     // pi-stacking interactions, using the CCD (or current refmac monomer
-		     // library, I think) needs an rdkit molecule
-		     //
 		     try {
-			RDKit::ROMol rdkm = rdkit_mol(residue_p, rp.second);
-			pi_stacking_container_t pi_stack_info(rp.second, neighb_residues, residue_p, rdkm);
-			std::cout << "INFO:: found " << pi_stack_info.stackings.size()
-				  << " pi-stacking interactions" << std::endl;
-			if (pi_stack_info.stackings.size() > 0) {
-			   PyObject *pi_stack_info_py = PyList_New(pi_stack_info.stackings.size());
-			   for (std::size_t j=0; j<pi_stack_info.stackings.size(); j++) {
-			      PyObject *pi_stack_instance_py = PyList_New(1); // transfer more info
-			      const pi_stacking_instance_t &stack_instance = pi_stack_info.stackings[j];
-			      PyObject *pi_stack_py = PyList_New(1); // transfer more info
-			      std::vector<std::string> lran = stack_instance.ligand_ring_atom_names;
-			      PyObject *atom_name_list_py = PyList_New(lran.size());
-			      for (std::size_t k=0; k<lran.size(); k++)
-				 PyList_SetItem(atom_name_list_py, k, PyString_FromString(lran[k].c_str()));
-			      PyList_SetItem(pi_stack_instance_py, 0, atom_name_list_py);
-			      PyList_SetItem(pi_stack_info_py, j, pi_stack_instance_py);
+			// rdkit_mol() will return a molecule with no atoms if
+			// there is only atoms with a non-blank alt conf
+			//
+			// so loop over the residue alt confs and make new molecules.
+			// I suppose the another/better way is to add conformers for
+			// every alt conf - not pass the alt conf as an arg
+			// Maybe later.
+			//
+			std::vector<std::string> ac = util::get_residue_alt_confs(residue_p);
+			for (std::size_t iac=0; iac<ac.size(); iac++) {
+			   RDKit::ROMol rdkm = rdkit_mol(residue_p, rp.second, ac[iac]);
+			   // set_dictionary_atom_types(&rp.second);
+			   set_dictionary_atom_types_from_mol(&rp.second, &rdkm);
+			   geom.replace_monomer_restraints(rn, protein_geometry::IMOL_ENC_ANY, rp.second);
+
+			   reduce r(mol, imol);
+			   r.set_verbose_output(false); // don't tell me about missing atoms
+			   r.add_geometry(&geom);
+			   r.add_hydrogen_atoms();
+
+			   // protein-ligand interactions (various sorts of bonds) are calculated without
+			   // needing rdkit.
+
+			   // consider where a peptide is the ligand
+			   std::vector<fle_ligand_bond_t> v =
+			      protein_ligand_interactions(residue_p, mol, &geom, h_bond_dist_max);
+
+			   std::cout << "INFO:: found " << v.size() << " bonds/interactions " << std::endl;
+			   for (std::size_t i=0; i<v.size(); i++)
+			      std::cout << "INFO::    " << v[i] << std::endl;
+
+			   // now replace o:
+			   PyObject *new_o_py = PyList_New(2);
+			   PyList_SetItem(new_o_py, 1, Py_False); // replaced later maybe
+			   PyObject *list_py = PyList_New(v.size());
+			   for (std::size_t i=0; i<v.size(); i++) {
+			      PyObject *item_py = PyList_New(5);
+			      // transfer ligand-atom-spec, interacting-atom-spec, bond-type, bond-length
+			      py_atom_spec_t pas_1(v[i].ligand_atom_spec);
+			      py_atom_spec_t pas_2(v[i].interacting_residue_atom_spec);
+			      PyObject *is_water_py = Py_False;
+			      if (v[i].is_H_bond_to_water)
+				 is_water_py = Py_True;
+			      PyList_SetItem(item_py, 0, PyInt_FromLong(v[i].bond_type));
+			      PyList_SetItem(item_py, 1, PyFloat_FromDouble(v[i].bond_length));
+			      PyList_SetItem(item_py, 2, pas_1.pyobject());
+			      PyList_SetItem(item_py, 3, pas_2.pyobject());
+			      PyList_SetItem(item_py, 4, is_water_py);
+			      PyList_SetItem(list_py, i, item_py);
 			   }
-			   PyList_SetItem(new_o_py, 1, pi_stack_info_py);
+			   PyList_SetItem(new_o_py, 0, list_py);
+
+			   // stackings
+			
+			   std::vector<mmdb::Residue *> neighb_residues =
+			      coot::residues_near_residue(residue_p, mol, residues_near_radius);
+
+			   pi_stacking_container_t pi_stack_info(rp.second, neighb_residues, residue_p, rdkm);
+			   std::cout << "INFO:: found " << pi_stack_info.stackings.size()
+				     << " pi-stacking interactions" << std::endl;
+			   if (pi_stack_info.stackings.size() > 0) {
+			      PyObject *pi_stack_info_py = PyList_New(pi_stack_info.stackings.size());
+			      for (std::size_t j=0; j<pi_stack_info.stackings.size(); j++) {
+				 PyObject *pi_stack_instance_py = PyList_New(1); // transfer more info
+				 const pi_stacking_instance_t &stack_instance = pi_stack_info.stackings[j];
+				 PyObject *pi_stack_py = PyList_New(1); // transfer more info
+				 std::vector<std::string> lran = stack_instance.ligand_ring_atom_names;
+				 PyObject *atom_name_list_py = PyList_New(lran.size());
+				 for (std::size_t k=0; k<lran.size(); k++)
+				    PyList_SetItem(atom_name_list_py, k, PyString_FromString(lran[k].c_str()));
+				 PyList_SetItem(pi_stack_instance_py, 0, atom_name_list_py);
+				 PyList_SetItem(pi_stack_info_py, j, pi_stack_instance_py);
+			      }
+			      PyList_SetItem(new_o_py, 1, pi_stack_info_py);
+			   }
+
+			   o = boost::python::object(boost::python::handle<>(new_o_py));
+
 			}
 		     }
 		     catch (const std::runtime_error &rte) {
+			std::cout << "WARNING:: " << rte.what() << std::endl;
 		     }
-
-		     o = boost::python::object(boost::python::handle<>(new_o_py));
-
 		  }
 	       }
 	    }

@@ -199,7 +199,20 @@ namespace coot {
 
    // add "energy_type" properties to the atoms
    void set_energy_lib_atom_types(RDKit::ROMol *mol);
-   
+
+   // dicitionaries from CCDs don't have energy atom types. We need them for ligand
+   // environment analysis (flev).  It is presumed that mol has energy_type atom types
+   // (e.g. set from the above function). mol is not modified.
+   //
+   void set_dictionary_atom_types_from_mol(dictionary_residue_restraints_t *dictionary,
+					   const RDKit::ROMol *mol);
+
+   // make an rdkit molecule from dictionary and use the above function to the energy types
+   // why is this here and not in protein-geometry? (e.g. after having parsed a cif file
+   // check for the existance of atom types and if they are not there, add them)
+   // Currently protein-geometry doesn't know about the RDKit.  This is the lowest
+   // level of Coot that know about the RDKit.
+   void set_dictionary_atom_types(dictionary_residue_restraints_t *dictionary);
 
    // update the atom positions of the rdkit_molecule from residue_p
    // 

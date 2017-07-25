@@ -1,5 +1,4 @@
 
-
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include <cctype>
 #include "utils/coot-utils.hh"
@@ -251,8 +250,11 @@ coot::set_energy_lib_atom_types(RDKit::ROMol *mol) {
 	       try {
 		  std::string e;
 		  at_p->getProp("type_energy", e);
+		  // std::cout << "already has type_energy \"" << e << "\""<< std::endl;
 	       }
 	       catch (const KeyErrorException &e) {
+		  // std::cout << "setting type_energy " << smarts_type.energy_type
+		  // << " for atom " << idx_this_atom_2 << std::endl;
 		  at_p->setProp("type_energy", smarts_type.energy_type);
 	       }
 	    }
@@ -263,6 +265,53 @@ coot::set_energy_lib_atom_types(RDKit::ROMol *mol) {
 #else
    std::cout << "No set_atom_type() for this build/compiler" << std::endl;
 #endif // HAVE_CXX11
+}
+
+// dicitionaries from CCDs don't have energy atom types. We need them for ligand
+// environment analysis (flev).  It is presumed that mol has energy_type atom types
+// (e.g. set from the above function). mol is not modified.
+//
+void
+coot::set_dictionary_atom_types_from_mol(dictionary_residue_restraints_t *dictionary,
+					 const RDKit::ROMol *mol) {
+
+   unsigned int n_mol_atoms = mol->getNumAtoms();
+
+   if (false)
+      std::cout << "here in set_dictionary_atom_types_from_mol() with "
+		<< n_mol_atoms << " atoms" << std::endl;
+
+   for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
+      const RDKit::Atom *at_p = mol->getAtomWithIdx(iat);
+      try {
+	 std::string type;
+	 std::string atom_id;
+	 at_p->getProp("type_energy", type);
+	 // std::cout << "debug:: here with type " << type << std::endl;
+	 // at_p->getProp("atom_id", atom_id);
+	 at_p->getProp("name", atom_id); // should be atom_id
+	 for (std::size_t j=0; j<dictionary->atom_info.size(); j++) {
+	    if (dictionary->atom_info[j].atom_id_4c == atom_id) {
+	       dictionary->atom_info[j].type_energy = type;
+	       // std::cout << "debug:: for atom " << atom_id << " added type " << type << std::endl;
+	       break;
+	    }
+	 }
+      }
+      catch (const KeyErrorException &ke) {
+	 std::cout << "WARNING:: " << ke.what() << " in set_dictionary_atom_types_from_mol() for atom index "
+		   << iat << std::endl;
+      }
+   }
+}
+
+// make an rdkit molecule from dictionary and use the above function to the energy types
+void
+coot::set_dictionary_atom_types(dictionary_residue_restraints_t *dictionary) {
+
+   RDKit::RWMol m = rdkit_mol(*dictionary);
+   set_dictionary_atom_types_from_mol(dictionary, &m);
+
 }
 
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
