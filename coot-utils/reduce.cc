@@ -898,7 +898,7 @@ coot::reduce::add_guanidinium_hydrogens(mmdb::Residue *residue_p) {
       } else {
 	 std::cout << "Fail Residue " << residue_spec_t(residue_p) << " " << residue_p->GetResName()
 		   << " alt-conf \"" << alt_confs[i] << "\""
-		   << " failed in add_aromatic_hydrogen " << std::endl;
+		   << " failed in add_guanidinium_hydrogens " << std::endl;
 	 std::cout << "Fail to add guanidinium-H " << " CD " << " at_1: " << at_n_1 << std::endl;
 	 std::cout << "                          " << " NE " << " at_2: " << at_n_2 << std::endl;
 	 std::cout << "                          " << " CZ " << " at_3: " << at_n_3 << std::endl;
