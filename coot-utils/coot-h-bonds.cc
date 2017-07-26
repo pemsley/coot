@@ -409,8 +409,9 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manag
 			make_h_bond_from_environment_residue_hydrogen(at_1, at_2, nb_1, nb_2);
 
 		     if (b_hbond.first) {
-			std::cout << "DEBUG:: ===> in get_m&d: pushing back b_hbond "
-				  << b_hbond.second << std::endl;
+			if (false)
+			   std::cout << "DEBUG:: ===> in get_m&d: pushing back b_hbond "
+				     << b_hbond.second << std::endl;
 			v.push_back(b_hbond.second);
 		     }
 		  }
@@ -529,18 +530,21 @@ coot::h_bonds::make_h_bond_from_environment_residue_hydrogen(mmdb::Atom *at_1, /
 							     const std::vector<std::pair<mmdb::Atom *, float> > &nb_1,
 							     const std::vector<std::pair<mmdb::Atom *, float> > &nb_2) const {
 
-   std::cout << "DEBUG:: start make_h_bond_from_environment_residue_hydrogen() with"
-	     << " at_1: " << atom_spec_t(at_1) << " " << at_1->GetResName()
-	     << " at_2: " << atom_spec_t(at_2) << " " << at_2->GetResName()
-	     << " nb_1.size(): " << nb_1.size() << " nb_2.size() " << nb_2.size()
-	     << std::endl;
+   if (false)
+      std::cout << "DEBUG:: start make_h_bond_from_environment_residue_hydrogen() with"
+		<< " at_1: " << atom_spec_t(at_1) << " " << at_1->GetResName()
+		<< " at_2: " << atom_spec_t(at_2) << " " << at_2->GetResName()
+		<< " nb_1.size(): " << nb_1.size() << " nb_2.size() " << nb_2.size()
+		<< std::endl;
 
    double water_dist_max = 3.25; // pass this
 
-   for (unsigned int i=0; i<nb_1.size(); i++)
-      std::cout << "    nb of at_1: " << atom_spec_t(nb_1[i].first) << std::endl;
-   for (unsigned int i=0; i<nb_2.size(); i++)
-      std::cout << "    nb of at_2: " << atom_spec_t(nb_2[i].first) << std::endl;
+   if (false) {
+      for (unsigned int i=0; i<nb_1.size(); i++)
+	 std::cout << "    nb of at_1: " << atom_spec_t(nb_1[i].first) << std::endl;
+      for (unsigned int i=0; i<nb_2.size(); i++)
+	 std::cout << "    nb of at_2: " << atom_spec_t(nb_2[i].first) << std::endl;
+   }
 
 
    bool ligand_atom_is_H_flag = false;
@@ -649,9 +653,10 @@ coot::h_bonds::make_h_bond_from_environment_residue_hydrogen(mmdb::Atom *at_1, /
       }
    }
 
-   std::cout << "DEBUG:: in make_h_bond_from_environment_residue_hydrogen() neighbour_distances_and_angles_are_good "
-	     << neighbour_distances_and_angles_are_good << " good_donor_acceptor_dist " << good_donor_acceptor_dist
-	     << std::endl;
+   if (false)
+      std::cout << "DEBUG:: in make_h_bond_from_environment_residue_hydrogen() neighbour_distances_and_angles_are_good "
+		<< neighbour_distances_and_angles_are_good << " good_donor_acceptor_dist " << good_donor_acceptor_dist
+		<< std::endl;
 
    return std::pair<bool, h_bond> (neighbour_distances_and_angles_are_good && good_donor_acceptor_dist, bond);
 

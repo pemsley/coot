@@ -1,6 +1,7 @@
 
 #ifdef USE_PYTHON
 
+#include<iostream>
 #include "specs.hh"
 
 coot::py_atom_spec_t::py_atom_spec_t(PyObject *obj) {
@@ -43,17 +44,21 @@ coot::py_atom_spec_t::pyobject() const {
 coot::py_residue_spec_t::py_residue_spec_t(PyObject *obj) {
 
    if (PyList_Check(obj)) {
-      int len_view = PyList_Size(obj);
-      int offset = 3;
-      if (len_view == 4)
+      int len = PyList_Size(obj);
+      int offset = 0;
+      if (len == 4)
 	 int offset = 1;
 
-      PyObject *chain_id_py = PyList_GetItem(obj,  0+offset);
-      chain_id = PyString_AsString(chain_id_py);
-      PyObject *resno_python = PyList_GetItem(obj, 1+offset);
-      res_no = PyInt_AsLong(resno_python);
-      PyObject *ins_code_py = PyList_GetItem(obj,  2+offset);
-      ins_code = PyString_AsString(ins_code_py);
+      if (len > 2) {
+	 PyObject *chain_id_py = PyList_GetItem(obj,  0+offset);
+	 chain_id = PyString_AsString(chain_id_py);
+	 PyObject *resno_python = PyList_GetItem(obj, 1+offset);
+	 res_no = PyInt_AsLong(resno_python);
+	 PyObject *ins_code_py = PyList_GetItem(obj,  2+offset);
+	 ins_code = PyString_AsString(ins_code_py);
+      }
+   } else {
+      std::cout << "WARNING:: oops in py_residue_spec_t() obj is not a list " << std::endl;
    }
 }
 
