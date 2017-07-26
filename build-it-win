@@ -1046,7 +1046,7 @@ release_server_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/re
 release_server_dir=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/source/releases/
 #
 extras_place=http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/dependencies
-win_extras_place=http://www.ysbl.york.ac.uk/~lohkamp/software/extras
+win_extras_place=http://bernhardcl.github.io/coot/software/extras
 
 
 ${WGETO} -O ${AUTOBUILD_SOURCES}/index.html -o ${AUTOBUILD_SOURCES}/wget-e.s.p.log $release_server_dir
@@ -2137,7 +2137,8 @@ if test -n "$build_clipper" ; then
     #${WGET} $extras_place/clipper-$clipper_hack_version.tar.gz
 
     # fix mean and lean on windows, i.e. disable
-    ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/clipper_win32.patch
+    # ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/clipper_win32.patch
+    ${WGET} $win_extras_place/clipper_win32.patch
 
     # now clipper has all the bits.
     # ${WGET} $extras_place/clipper-$clipper_version.tar.gz
@@ -2593,7 +2594,8 @@ if test -n "$build_gtkglext" ; then
     gtkglext_version=1.2.0
     #${WGET} http://surfnet.dl.sourceforge.net/sourceforge/gtkglext/gtkglext-$gtkglext_version.tar.gz
     ${WGET} http://downloads.sourceforge.net/gtkglext/gtkglext-1.2.0.tar.gz
-    ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/gtkglext_configure.patch
+    # ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/gtkglext_configure.patch
+    ${WGET} $win_extras_place/gtkglext_configure.patch
     (date
      pwd
      gzip -dc ${AUTOBUILD_SOURCES}/gtkglext-$gtkglext_version.tar.gz | tar xf -
@@ -3048,7 +3050,8 @@ guile_version=1.8.3
 # not yet...
 # lets try...
 ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile/guile-${guile_version}.tar.gz
-${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/guile-${guile_version}.patch
+# ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/guile-${guile_version}.patch
+${WGET} $win_extras_place/guile-${guile_version}.patch
 
 cd $build_dir
 ( 
@@ -3127,7 +3130,8 @@ if test -n "$build_guile_gtk" ; then
 #
 guile_gtk_version=2.1
 ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile-gtk/guile-gtk-$guile_gtk_version.tar.gz
-${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/guile-gtk-win32.patch
+#${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/guile-gtk-win32.patch
+${WGET} $win_extras_place/guile-gtk-win32.patch
 ( 
 date
 pwd
@@ -3247,8 +3251,10 @@ if [ -n "$shared_flag" ] ; then
 else
   ${WGET} http://downloads.sourceforge.net/gnuwin32/gsl-$gsl_version-bin.zip
   ${WGET} http://downloads.sourceforge.net/gnuwin32/gsl-$gsl_version-lib.zip
-  ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/gsl-config
-  ${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/gsl.m4
+  #${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/gsl-config
+  #${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/gsl.m4
+  ${WGET} $win_extras_place/gsl-config
+  ${WGET} $win_extras_place/gsl.m4
 fi
 
 ( 
@@ -3364,7 +3370,8 @@ echo replacing syminfo.lib with windows version
 mv syminfo.lib syminfo.lib.orig
 cp windows/syminfo.lib syminfo.lib
 # get windows cootrc
-wget -N -P ${HOME}/autobuild/extras http://www.ysbl.york.ac.uk/~lohkamp/software/extras/cootrc
+#wget -N -P ${HOME}/autobuild/extras http://www.ysbl.york.ac.uk/~lohkamp/software/extras/cootrc
+wget -N -P ${HOME}/autobuild/extras $win_extras_place/cootrc
 
 if test -n "$glib_installed" ; then
     coot_extra_args="$coot_extra_args --with-glib-prefix=$install_top_dir"
