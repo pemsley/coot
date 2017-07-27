@@ -124,7 +124,8 @@ namespace coot {
 			       const std::vector<mmdb::Residue *> &filtered_residues,
 			       mmdb::Residue *res_ref,
 			       const RDKit::ROMol &mol);
-#endif // MAKE_ENHANCED_LIGAND_TOOLS      
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
+      std::size_t size() const { return stackings.size(); }
    };
 
 }

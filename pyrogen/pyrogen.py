@@ -483,7 +483,8 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
 
    # This makes UFF types, which can fail sometimes.
    # n_conformers is n_attempts
-   conf_id = AllChem.EmbedMolecule(sane_H_mol, maxAttempts=n_attempts)
+   # conf_id = AllChem.EmbedMolecule(sane_H_mol, AllChem.ETKDG(), maxAttempts=n_attempts)
+   conf_id = AllChem.EmbedMolecule(sane_H_mol, AllChem.ETKDG())
 
    if use_mmff:
       AllChem.MMFFOptimizeMolecule(sane_H_mol, confId=conf_id)
@@ -549,7 +550,7 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
          charge = atom.GetProp('_GasteigerCharge') # string?
          name   = atom.GetProp('name')
          try:
-            atom_type   = atom.GetProp('atom_type')
+            atom_type   = atom.GetProp('type_energy')
             is_aromatic = atom.GetIsAromatic()
             hybrid      = atom.GetHybridization()
             f_charge    = float(charge)

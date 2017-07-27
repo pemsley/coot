@@ -22,6 +22,7 @@
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 #include <cstring>  // Fixes ::strchr complaints on 4.4.7 (hal)
+#include <queue>
 #include "utils/coot-utils.hh"
 #include "rdkit-interface.hh"
 #include <GraphMol/Chirality.h>  // for CIP ranks
@@ -97,6 +98,8 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
    std::string n = coot::util::remove_trailing_whitespace(restraints.residue_info.name);
    m.setProp("_Name", n);
    m.setProp("ResName", std::string(residue_p->GetResName()));
+   m.setProp("ResNumber", residue_p->GetSeqNum());
+   m.setProp("ChainID", std::string(residue_p->GetChainID()));
 
    const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
    mmdb::PPAtom residue_atoms = 0;
@@ -126,11 +129,12 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
       mmdb::Atom *at_1 = residue_atoms[iat_1];
       if (! at_1->Ter) {
 	 std::string atom_name_1(at_1->name);
+	 std::string atom_alt_conf(at_1->altLoc);
 	 if (debug)
 	    std::cout << "rdkit_mol() handling atom " << iat_1 << " of " << n_residue_atoms
-		      << " with mmdb::Residue atom name " << atom_name_1 << std::endl;
-	 std::string atom_alt_conf(at_1->altLoc);
-	 if (atom_alt_conf == alt_conf) { 
+		      << " with mmdb::Residue atom name " << atom_name_1
+		      << " alt-conf \"" << atom_alt_conf << "\""<< std::endl;
+	 if (atom_alt_conf == alt_conf) {
 	    bool found_a_bonded_atom = false;
 	    for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
 	       if (restraints.bond_restraint[ib].atom_id_1_4c() == atom_name_1) {
@@ -825,6 +829,8 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    std::cout << "ending construction of rdkit mol: n_atoms " << m.getNumAtoms()
 		      << std::endl;
 
+	 set_energy_lib_atom_types(&m);
+
 	 // debugging
 	 // RDKit::MolToMolFile(m, "rdkit.mol");
       
@@ -1179,6 +1185,8 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
                                   // pdbx_stereo_config R to CW and S to CCW.
                                   // which presumes that the pdbx CIP codes are the
                                   // same as RDKit's.
+
+   set_energy_lib_atom_types(&m); // Refmac types used for H-bonding
    return m;
 }
 
@@ -1838,7 +1846,7 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 
    if (n_conf) {
       const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
-      
+
       RDKit::Conformer conf = rdkm.getConformer(iconf);
       int n_mol_atoms = rdkm.getNumAtoms();
 
@@ -1920,6 +1928,10 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 //
 mmdb::Residue *
 coot::make_residue(const RDKit::ROMol &rdkm, int iconf, const std::string &res_name) {
+
+   // replace this function by making a residue directly instead of via a molfile.
+   // If there are no atom names, make them from the element and atom number
+   
 
    mmdb::Residue *residue_p = NULL;
    lig_build::molfile_molecule_t mol = coot::make_molfile_molecule(rdkm, iconf);

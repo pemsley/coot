@@ -80,7 +80,6 @@ coot::pi_stacking_container_t::init(const coot::dictionary_residue_restraints_t 
    float pi_cation_overlap_thresh = 30;  // ZZG in 2wot is 27, close but spurious interaction,
                                          // a bit more than that then.
 
-   
    for (unsigned int iring=0; iring<aromatic_ring_list.size(); iring++) {
       try {
 	 std::pair<clipper::Coord_orth, clipper::Coord_orth> ligand_ring_pi_pts = 
@@ -109,7 +108,7 @@ coot::pi_stacking_container_t::init(const coot::dictionary_residue_restraints_t 
 	    std::pair<float, pi_stacking_instance_t::stacking_t> pi_overlap_2 =
 	       get_pi_overlap_to_ligand_ring(residues[ires], ligand_ring_pi_pts.second);
 
-	    if (debug) 
+	    if (debug)
 	       std::cout << "    protein cation:ligand ring: Overlaps:  score "
 			 << pi_overlap_1.first << " type: " << pi_overlap_1.second << "  score: "
 			 << pi_overlap_2.first << " type: " << pi_overlap_2.second << std::endl;
