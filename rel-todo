@@ -1,9 +1,21 @@
 
    For Release 0.8.9
 
-   o the hydrogen is not drawn correctly on AC6 in Colour by Atoms
+
+   o the hydrogen is not drawn correctly on AC6 in Colour by Atoms. Additional half-bond.
 
    o FLEV fail on A2005 in 5pb8 failure to construct rdkit molecule (in alt conf D)
+
+   o what about this interaction in refinement: N(n) - HA2(n+1) GLY (an H on the CA)?
+     simple-restraint.cc: make_non_bonded_contact_restraints().  Is the HA2-CA-C angle
+     in reduced_angle_info_container_t? 1iei, residue 19 A.
+     Also 1-4 NBC: A 22 C (SER) -- A 23 ND3 (PRO)
+
+    (define (linear-refine-residues imol chain-id r1 r2)
+        (refine-residues imol (map (lambda(r) (list chain-id r "")) (range r1 (+ r2 1)))))
+
+   o repeat previous refinement: wrap refine-zone using (stored) atom indices
+     residue_range_atom_index_1 and residue_range_atom_index_2
 
    o make a mode "don't recontour the map on recentre". Add a "recontour" 
      toolbar button.
@@ -16,6 +28,9 @@
      pyrogen?
 
    o pyrogen -nM -w -r Y03 fails
+
+   o thumbnail chemical diagram for ZES in 1iei - Carboxyl O should be O- or OH. Check others.
+     (Interestingly FLEV has a O-).
 
    o chemical diagram for Acedrg dictionary for this molecule:
      COC(=O)C(=COC)c1ccccc1COC(N1C)=CC(=N1)C(=C2O)C=C(Cl)C=C2"

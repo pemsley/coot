@@ -2428,6 +2428,7 @@ coot::protein_geometry::standard_protein_monomer_files() const {
    s.push_back("d/DT.cif");
    
    s.push_back("h/HOH.cif");
+   s.push_back("n/NA.cif"); // for quiet
 
    return s;
 }
