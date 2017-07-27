@@ -1,4 +1,4 @@
-/* ideal/flev-annotations.hh
+/* pli/flev-annotations.hh
  * 
  * Copyright 2010 by The University of Oxford
  * Author: Paul Emsley

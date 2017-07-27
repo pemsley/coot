@@ -28,7 +28,8 @@ namespace coot {
    // helper function
    void extract_ligands_from_coords_file_try_read_cif(const std::string &ccd_dir_or_cif_file_name,
 						      const std::string &res_name,
-						      protein_geometry *geom_p);
+						      protein_geometry *geom_p,
+						      int *cif_read_number_p);
 }
 
 //                      Functions that are importable from python
@@ -45,7 +46,10 @@ boost::python::list
 coot::extract_ligands_from_coords_file(const std::string &file_name,
 				       const std::string &ccd_dir_or_cif_file_name) {
 
+   int rn = 42; // pass this and pass it back.
+
    boost::python::list rdkit_mols_list;
+   bool debug = true;
    protein_geometry geom;
    geom.set_verbose(false);
 
@@ -54,14 +58,20 @@ coot::extract_ligands_from_coords_file(const std::string &file_name,
       mol->ReadCoorFile(file_name.c_str());
       std::vector<mmdb::Residue *> v = util::get_hetgroups(mol); // no waters
 
-      // std::cout << "Found " << v.size() << " hetgroups " << std::endl;
+      if (debug) {
+	 std::cout << "Found " << v.size() << " hetgroups " << std::endl;
+	 for (std::size_t i=0; i<v.size(); i++)
+	    std::cout << " " << i << " " << residue_spec_t(v[i]) << " "
+		      << v[i]->GetResName() << std::endl;
+      }
       if (v.size() > 0) {
 	 int read_number = 0;
 	 for (std::size_t i=0; i<v.size(); i++) {
 	    mmdb::Residue *residue_p = v[i];
 	    std::string res_name = residue_p->GetResName();
 	    int imol = 0;
-	    extract_ligands_from_coords_file_try_read_cif(ccd_dir_or_cif_file_name, res_name, &geom);
+	    extract_ligands_from_coords_file_try_read_cif(ccd_dir_or_cif_file_name, res_name, &geom, &rn);
+	    rn++; // increment the cif read number (to prevent double-addition of bonds etc)
 	    if (! geom.have_dictionary_for_residue_type(res_name, imol, read_number++)) { // autoloads
 	       std::string message = "Missing dictionary for type " + res_name;
 	       rdkit_mols_list.append(message);
@@ -124,6 +134,11 @@ coot::get_ligand_interactions(const std::string &file_name,
 			      const std::string &dirname_or_cif_file_name) {
 
    std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^ Here in get_ligand_interactions " << file_name << std::endl;
+   // debug
+   py_residue_spec_t debug = (ligand_spec_py);
+   std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^ Here in get_ligand_interactions " << file_name << " "
+	     << debug << std::endl;
+   
    // this is how to convert (any) PyObject * to a boost::python::object
    // (consider if ref-counting is an issue).
    boost::python::object o(boost::python::handle<>(Py_False));
@@ -200,7 +215,7 @@ coot::get_ligand_interactions(const std::string &file_name,
 
 			   std::cout << "INFO:: found " << v.size() << " bonds/interactions " << std::endl;
 			   for (std::size_t i=0; i<v.size(); i++)
-			      std::cout << "INFO::    " << v[i] << std::endl;
+			      std::cout << "INFO::  " << i << "  " << v[i] << std::endl;
 
 			   // now replace o:
 			   PyObject *new_o_py = PyList_New(2);
@@ -289,21 +304,27 @@ coot::get_ligand_interactions_read_cifs(const std::string &residue_name,
 void
 coot::extract_ligands_from_coords_file_try_read_cif(const std::string &ccd_dir_or_cif_file_name,
 						    const std::string &residue_name,
-						    protein_geometry *geom_p) {
+						    protein_geometry *geom_p,
+						    int *cif_read_number_p) {
 
-   if (file_exists(ccd_dir_or_cif_file_name)) {
-      std::string cif_file_name = ccd_dir_or_cif_file_name;
-      if (is_directory_p(ccd_dir_or_cif_file_name)) {
-	 std::string dir_name = ccd_dir_or_cif_file_name;
+   // test that geom has restraints for residue_name first
+   if (geom_p->have_dictionary_for_residue_type_no_dynamic_add(residue_name)) {
+      // nothing
+   } else {
+      if (file_exists(ccd_dir_or_cif_file_name)) {
+	 std::string cif_file_name = ccd_dir_or_cif_file_name;
+	 if (is_directory_p(ccd_dir_or_cif_file_name)) {
+	    std::string dir_name = ccd_dir_or_cif_file_name;
 
-	 std::string cif_file_name = util::append_dir_file(dir_name, residue_name + ".cif");
-	 if (file_exists(cif_file_name)) {
-	    int rn = 42;
-	    geom_p->init_refmac_mon_lib(cif_file_name, rn++);
+	    std::string cif_file_name = util::append_dir_file(dir_name, residue_name + ".cif");
+	    if (file_exists(cif_file_name)) {
+	       geom_p->init_refmac_mon_lib(cif_file_name, *cif_read_number_p);
+	       *cif_read_number_p++;
+	    }
+	 } else {
+	    geom_p->init_refmac_mon_lib(ccd_dir_or_cif_file_name, *cif_read_number_p);
+	    *cif_read_number_p++;
 	 }
-      } else {
-	 int rn = 42;
-	 geom_p->init_refmac_mon_lib(ccd_dir_or_cif_file_name, rn++);
       }
    }
 }
