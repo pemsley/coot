@@ -10,6 +10,7 @@
 #include <boost/python.hpp>
 
 #include "utils/coot-utils.hh"
+#include "geometry/mol-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "lidia-core/rdkit-interface.hh"
 #include "pli/specs.hh"
