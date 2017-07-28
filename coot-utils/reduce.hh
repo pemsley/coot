@@ -274,16 +274,20 @@ namespace coot {
 
       bool is_ss_bonded(mmdb::Residue *residue_p) const;
 
+      bool verbose_output;
+
    public:
       reduce(mmdb::Manager *mol_in, int imol_in) {
 	 mol = mol_in;
 	 imol = imol_in;
+         verbose_output = true;
       }
       void add_hydrogen_atoms(); // changes mol
       void delete_hydrogen_atoms();
       void add_geometry(protein_geometry *geom_p_in) { geom_p = geom_p_in; }
       // change HE2 to HD1 and vice versa
       void switch_his_protonation(mmdb::Residue *residue_p, mmdb::Atom *current_H_atom);
+      void set_verbose_output(bool flag) { verbose_output = flag; }
       
    };
 

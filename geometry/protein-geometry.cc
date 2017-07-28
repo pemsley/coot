@@ -2404,6 +2404,7 @@ coot::protein_geometry::standard_protein_monomer_files() const {
    s.push_back("s/SO4.cif");
    s.push_back("g/GOL.cif");
    s.push_back("c/CIT.cif");
+   s.push_back("e/EDO.cif");
    // s.push_back("e/ETH.cif");
 
    // s.push_back("a/AR.cif"); // argon
@@ -2429,6 +2430,7 @@ coot::protein_geometry::standard_protein_monomer_files() const {
    s.push_back("d/DT.cif");
    
    s.push_back("h/HOH.cif");
+   s.push_back("n/NA.cif"); // for quiet
 
    return s;
 }

@@ -2852,10 +2852,10 @@ if test -n "$build_python" ; then
 
    cd Python-$pver
 
-   echo INFO:: ./configure $generic_prefix $python_spec_flags $python_lib_flags for python
+   echo INFO:: ./configure $generic_prefix $python_lib_flags $python_spec_flags for python
    # 
    # do we also need to use --with-threads=dir?
-   if ./configure $generic_prefix --enable-shared $python_spec_flags $python_lib_flags ; then
+   if ./configure $generic_prefix --enable-shared $python_lib_flags $python_spec_flags ; then
      echo INFO:: make for python
      if $MAKE ; then
         echo INFO:: make install for python

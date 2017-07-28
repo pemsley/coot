@@ -516,8 +516,8 @@ coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 	    std::string atom_type_2;
 	    std::string atom_name_1;
 	    std::string atom_name_2;
-	    at_1->getProp("atom_type", atom_type_1);
-	    at_2->getProp("atom_type", atom_type_2);
+	    at_1->getProp("type_energy", atom_type_1);
+	    at_2->getProp("type_energy", atom_type_2);
 	    at_1->getProp("name", atom_name_1);
 	    at_2->getProp("name", atom_name_2);
 	    try {
@@ -576,9 +576,9 @@ coot::fill_with_energy_lib_angles(const RDKit::ROMol &mol,
 		  std::string atom_name_1;
 		  std::string atom_name_2;
 		  std::string atom_name_3;
-		  at_1->getProp("atom_type", atom_type_1);
-		  at_2->getProp("atom_type", atom_type_2);
-		  at_3->getProp("atom_type", atom_type_3);
+		  at_1->getProp("type_energy", atom_type_1);
+		  at_2->getProp("type_energy", atom_type_2);
+		  at_3->getProp("type_energy", atom_type_3);
 		  at_1->getProp("name", atom_name_1);
 		  at_2->getProp("name", atom_name_2);
 		  at_3->getProp("name", atom_name_3);
@@ -771,10 +771,10 @@ coot::add_torsion_to_restraints(coot::dictionary_residue_restraints_t *restraint
       std::string atom_name_2;
       std::string atom_name_3;
       std::string atom_name_4;
-      at_1->getProp("atom_type", atom_type_1);
-      at_2->getProp("atom_type", atom_type_2);
-      at_3->getProp("atom_type", atom_type_3);
-      at_4->getProp("atom_type", atom_type_4);
+      at_1->getProp("type_energy", atom_type_1);
+      at_2->getProp("type_energy", atom_type_2);
+      at_3->getProp("type_energy", atom_type_3);
+      at_4->getProp("type_energy", atom_type_4);
       at_1->getProp("name", atom_name_1);
       at_2->getProp("name", atom_name_2);
       at_3->getProp("name", atom_name_3);
@@ -975,7 +975,7 @@ coot::add_chem_comp_atoms(const RDKit::ROMol &mol, coot::dictionary_residue_rest
 	 bool have_charge = true; // can be clever with GetProp() KeyErrorException
 	                          // if you like
 	 at_p->getProp("name", name);
-	 at_p->getProp("atom_type", atom_type);
+	 at_p->getProp("type_energy", atom_type);
 	 at_p->getProp("_GasteigerCharge", charge);
 	 std::pair<bool, float> charge_pair(have_charge, charge);
 	 dict_atom atom(name, name, at_p->getSymbol(), atom_type, charge_pair);

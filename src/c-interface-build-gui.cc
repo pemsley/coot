@@ -519,10 +519,10 @@ void apply_add_OXT_from_widget(GtkWidget *w) {
 
    if (resno > -9999) { 
       if (is_valid_model_molecule(imol)) { 
-	 if (graphics_info_t::molecules[imol].has_model()) { 
-	    std::cout << "DEBUG:: adding OXT to " << imol << " "
-		      << chain_id << " " << resno << std::endl;
-	    
+	 if (graphics_info_t::molecules[imol].has_model()) {
+	    if (false)
+	       std::cout << "DEBUG:: adding OXT to " << imol << " "
+			 << chain_id << " " << resno << std::endl;
 	    add_OXT_to_residue(imol, resno, "", chain_id.c_str());
 	 }
       }

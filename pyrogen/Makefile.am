@@ -30,7 +30,9 @@ pyexec_LTLIBRARIES =
 
 # rdkit includes are in the rdkit directory, boost includes are the (normal) prefix above that
 #
-AM_CPPFLAGS = $(CCP4SRS_CXXFLAGS) $(BOOST_CPPFLAGS) $(RDKIT_CXXFLAGS) $(PYTHON_CFLAGS) -I$(top_srcdir)
+# ENHANCED_LIGAND_TOOLS_CFLAGS is needed to compile with pli pi-stacking header
+AM_CPPFLAGS = $(CCP4SRS_CXXFLAGS) $(BOOST_CPPFLAGS) $(RDKIT_CXXFLAGS) $(PYTHON_CFLAGS) \
+                      $(ENHANCED_LIGAND_TOOLS_CFLAGS) -I$(top_srcdir)
 
 AM_CXXFLAGS = -DPKGDATADIR='"$(pkgdatadir)"' $(COOT_WINDOWS_CFLAGS)
 
@@ -109,9 +111,10 @@ libcoot_py_restraints_la_LIBADD =  \
 libcoot_py_restraints_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # The name of this starts with lib so it fits with boost::python wrapper
-pyrogen_boost_la_SOURCES = restraints-boost.cc restraints.hh \
-                           protein-ligand-interactions.hh protein-ligand-interactions.cc
+pyrogen_boost_la_SOURCES = restraints-boost.cc restraints.hh
+
 pyrogen_boost_la_LIBADD = libcoot_py_restraints.la \
+                                $(top_builddir)/pli/libcoot-pli.la                 \
                                 $(top_builddir)/ideal/libcoot-ideal.la             \
                                 $(top_builddir)/geometry/libcoot-geometry.la       \
                                 $(top_builddir)/coords/libcoot-coords.la           \

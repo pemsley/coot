@@ -270,6 +270,14 @@ AC_ARG_WITH(enhanced-ligand-tools, [  --with-enhanced-ligand-tools with optional
  coot_enhanced_ligand_additions="true",
  coot_enhanced_ligand_additions="false")
 
+# but we can't use enhanced-ligand-tools without python:
+if $coot_enhanced_ligand_additions = true ; then
+   if test -n "$COOT_USE_PYTHON_TRUE" ; then
+      echo Configuration error: cant use enhanced-ligand-tools without python
+      exit 1
+   fi
+fi
+
 if test x$coot_enhanced_ligand_additions = xtrue ; then
    ENHANCED_LIGAND_TOOLS_CFLAGS="-DMAKE_ENHANCED_LIGAND_TOOLS"
 else 	
@@ -397,6 +405,7 @@ pixmaps/Makefile
 pixmaps/icons/Makefile
 rama-data/Makefile
 man/Makefile
+pli/Makefile
 pyrogen/Makefile
 pyrogen/pyrogen
 auxil/Makefile

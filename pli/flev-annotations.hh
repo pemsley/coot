@@ -1,4 +1,4 @@
-/* ideal/flev-annotations.hh
+/* pli/flev-annotations.hh
  * 
  * Copyright 2010 by The University of Oxford
  * Author: Paul Emsley
@@ -166,25 +166,28 @@ namespace coot {
 	     H_BOND_ACCEPTOR_SIDECHAIN,
 	     METAL_CONTACT_BOND,
 	     BOND_COVALENT,
-	     BOND_OTHER };  // must sync this to lbg.hh
+	     BOND_OTHER };  // must sync this to lbg.hh (why not extract it? (you can do it now))
       atom_spec_t ligand_atom_spec;
       int bond_type; // acceptor/donor
 
       residue_spec_t res_spec;
       atom_spec_t interacting_residue_atom_spec; // contains res_spec obviously.
-      
+
+      bool is_H_bond_to_water;
       double bond_length;  // from residue atom to ligand atom
       double water_protein_length; // if residue is a water, this is the closest
                                    // distance to protein (100 if very far).
       fle_ligand_bond_t(const atom_spec_t &ligand_atom_spec_in,
 			const atom_spec_t &interacting_residue_atom_spec_in,
 			int bond_type_in,
-			double bl_in) {
+			double bl_in,
+			bool is_water) {
 	 ligand_atom_spec = ligand_atom_spec_in;
 	 interacting_residue_atom_spec = interacting_residue_atom_spec_in;
 	 res_spec = residue_spec_t(interacting_residue_atom_spec_in);
 	 bond_type = bond_type_in;
 	 bond_length = bl_in;
+	 is_H_bond_to_water = is_water;
       }
       static int get_bond_type(mmdb::Atom *at_donor, mmdb::Atom *at_acceptor, bool ligand_atom_is_donor_flag) {
 	 int r_bond_type = BOND_OTHER;
