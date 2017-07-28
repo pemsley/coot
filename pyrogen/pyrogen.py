@@ -175,14 +175,23 @@ def get_pdbe_cif_for_comp_id(comp_id):
 
    try:
       file_name = "PDBe-" + comp_id + ".cif"
-      url = 'ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/' + comp_id + '.cif'
-      status = urllib.urlretrieve(url, file_name)
-      return file_name
+      if os.path.isfile(file_name):
+         return file_name
+      else:
+         url = 'ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/' + comp_id + '.cif'
+         status = urllib.urlretrieve(url, file_name)
+         print('urllib.urllib returned with status', status)
+         return file_name
    except IOError as e:
       print e
-      print "Failed: Can't ftp fr", url, "and write file", file_name
-      exit(2)
+      print "Failed: Can't ftp from", url, "and write file", file_name
+      # exit(2)
 
+def MolFromFetchedCode(code):
+   f = get_pdbe_cif_for_comp_id(code)
+   m = pyrogen_boost.MolFromPDBXr(f, code)
+   m.Compute2DCoords()
+   return m
         
 def make_restraints_for_bond_orders(mol):
     restraints = {}
