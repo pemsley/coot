@@ -48,22 +48,14 @@ Building and Installing
 
 Which binary tar file shall I use?
 
-* Additional Note for Slackware Users::
-* Additional Note for Mandrake users::
-* Additional Note for Fedora Core 4 users::
-* Additional Note for RedHat Enterprise 3 Users::
 * Coot on 64-bit RHEL 6::
 * Additional Note for SuSE 9.1::
 * Additional Note for SuSE 9.3::
 * Additional Note for SuSE 10.1::
-* Additional Note for Debian Users::
-* Additional Note for sgi IRIX64 Users::
 
 Configuration Problems
 
-* I get an ice-9 error when I try to start coot on Fedora Core 2::
 * I get a strange message when I use coot-scheme files::
-* I just started Coot on my new Mandrake system.  The font are messy and ugly! How do I fix it?::
 * I get bizarre connectivity and other weirdness on reading files::
 
 Using Coot
@@ -92,7 +84,6 @@ Using Coot
 * My sidechains are being sucked into the density for metal - how do I stop that?::
 * How do I bind a function to a key?::
 * I can't mutate my broken residue::
-* How do I get rid of the ``Old Coot'' dialog?::
 * Can I make the spin mode rotate slower?::
 * Does Coot use CONNECT records?::
 * Does Coot use LINK records?::
@@ -200,16 +191,10 @@ See Bill Scott's Coot Page:
 @comment  node-name,  next,  previous,  up
 
 @menu
-* Additional Note for Slackware Users::
-* Additional Note for Mandrake users::
-* Additional Note for Fedora Core 4 users::
-* Additional Note for RedHat Enterprise 3 Users::
 * Coot on 64-bit RHEL 6::
 * Additional Note for SuSE 9.1::
 * Additional Note for SuSE 9.3::
 * Additional Note for SuSE 10.1::
-* Additional Note for Debian Users::
-* Additional Note for sgi IRIX64 Users::
 @end menu
 
 Download the appropriate tar file for you system. Untar it. Add the bin
@@ -217,49 +202,6 @@ directory (the one that contains coot and coot-real) to your path and
 you are ready to go...  You should not need to edit or use the
 setup/coot* files
 
-@node Additional Note for Slackware Users
-@subsection Additional Note for Slackware Users 
-
-Nancy Vogelaar used the RedHat 8 binary distribution and needed to do
-some extra fiddling - documented here:
-
-@itemize
-@item @url{http://www.ysbl.york.ac.uk/%7Eemsley/coot/nancy-slackware.txt}
-@end itemize
-
-
-@node Additional Note for Mandrake users
-@subsection Additional Note for Mandrake users
-
-Raji Edayathumangalam used the RedHat 7.2 binary distribution on
-Mandrake Linux 8.2 and needed to do some extra fiddling, documented
-here:
-
-@url{http://www.ysbl.york.ac.uk/%7Eemsley/coot/raji-mandrake.txt}
-
-@node Additional Note for Fedora Core 4 users
-@subsection Additional Note for Fedora Core 4 users
-
-Coot runs on Fedora Core 4, using the Fedora Core 3 binaries after making the following link:
-
-@cartouche
-  $ ln -s /usr/lib/libpt_linux_x86_r.so.1.8.4 $COOT_PREFIX/lib/libpt.so.1.6.5
-@end cartouche
-
-@node Additional Note for RedHat Enterprise 3 Users
-@subsection Additional Note for RedHat Enterprise 3 Users
-
-   Kay Diederichs reports that
-   coot-0.0.18-binary-Linux-Fedora-Core-1.tar.gz works with RedHat
-   Enterprise 3 if
-   one makes the following link first:
-
-@cartouche
-  $ ln -s /usr/lib/libpt.so.1.4.7 $COOT_PREFIX/lib/libpt.so.1.5.0
-@end cartouche
-
-  Dirk Kostrewa thought that it was not necessary to make this link
-  using the current Red Hat 8 binary tar.
 
 
 
@@ -325,23 +267,6 @@ I presume that this would also work:
 ln -s /opt/gnome/lib/libImlib.so.1.9.14 $COOT_PREFIX/lib/libImlib.so.11
 @end cartouche
 
-
-@node Additional Note for Debian Users
-@subsection Additional Note for Debian Users
-
-Dirk Kostrewa has got coot working on his Debian system.
-Here are his notes:
-
-@url{dirk-notes.txt}
-
-@node Additional Note for sgi IRIX64 Users
-@subsection Additional Note for sgi IRIX64 Users 
-
-
-You will need (if you don't alread have them)
-            fw_gcc fw_urt fw_libungif (i.e. libungif) and imlib from 
-
-@url{http://freeware.sgi.com/fw-6.2/index-by-alpha.html}
 
 
 @node What are the md5sums?
@@ -427,7 +352,7 @@ follow the autobuilder:
 @url{http://coot.googlecode.com/svn/trunk/build-it-gtk2-simple} 
 
 Coot
-requires mmdb, clipper, glut, gtk, gtkglext.  gtkglext requires GTK
+requires mmdb, clipper, glut, gtk, gtkglext.  gtkglext requires GTK+
 and OpenGL.  gtk requires glib. clipper requires fftw, mccp4 and
 mmdb. Optionally you can enhance coot using gtk-canvas, libSSM,
 guile/guile-gtk/guile-gui/guile-www or python (the support for python
@@ -461,35 +386,11 @@ Also, the last several lines of the console output is often useful.
 
 
 @menu
-* I get an ice-9 error when I try to start coot on Fedora Core 2::
 * I get a strange message when I use coot-scheme files::
-* I just started Coot on my new Mandrake system.  The font are messy and ugly! How do I fix it?::
 * I get bizarre connectivity and other weirdness on reading files::
 * On my Mac the menu fonts are too big - how can I make them smaller?::
 @end menu
 
-
-@node    I get an ice-9 error when I try to start coot on Fedora Core 2
-@section I get an ice-9 error when I try to start coot on Fedora Core 2
-
-@verbatim
-$ coot
-Acquiring application resources from /usr/programs/COOT/Linux-utonium.chem.york.ac.uk/share/coot/cootrc
-INFO:: splash_screen_pixmap_dir /usr/programs/COOT/Linux-utonium.chem.york.ac.uk/share/coot/pixmaps
-[snip]
-initializing molecules...done
-ERROR: In procedure primitive-load-path:
-ERROR: Unable to find file "ice-9/boot-9.scm" in load path
-@end verbatim
-
-
-You need to install guile.  We have the following guile packages:
-
-@verbatim
-umb-scheme-3.2-32
-guile-devel-1.6.4-11
-guile-1.6.4-11
-@end verbatim
 
 
 @node I get a strange message when I use coot-scheme files
@@ -506,13 +407,6 @@ You need to install guile-gtk.  Here is the source, but your
 distribution may have rpms or debs.
 
 @url{http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/guile-gtk/guile-gtk-0.41.tar.gz}
-
-@node I just started Coot on my new Mandrake system.  The font are messy and ugly! How do I fix it?
-@section I just started Coot on my new Mandrake system.  The font are messy and ugly! How do I fix it?
-
-Martin Moncrieffe found a way:
-
-@url{http://www.biop.ox.ac.uk/coot/doc/martin-moncrieffe.txt}
 
 @node I get bizarre connectivity and other weirdness on reading files
 @section I get bizarre connectivity and other weirdness on reading files
@@ -574,8 +468,6 @@ Edit @file{/Library/Coot/etc/gtk-2.0/gtkrc} and set
 * How do I bind a function to a key?::
 * How do I force Coot to clean up all the time?::
 * I can't mutate my broken residue::
-* Where has the Rotate/Translate function gone?::
-* How do I get rid of the ``Old Coot'' dialog?::
 * Can I make the spin mode rotate slower?::
 * Does Coot use CONNECT records?::
 * Does Coot use LINK records?::
@@ -752,7 +644,7 @@ Yes.  Remember to use the DVI cable (not VGA) [thanks Allen Sickmier].
 
 @quotation Warren DeLano
    A line width of 2 pixels wide or greater is essential for achieving
-a good stereo effort with electron density meshes, "wire" bonds, etc.
+   a good stereo effort with electron density meshes, "wire" bonds, etc.
 @end quotation
 
 You can achieve this in Coot using:
@@ -968,34 +860,6 @@ one with "Add Terminal Residue..." then "Mutate -> Auto Fit..." to the
 required type, then Refine Zone.
 @end quotation
 
-@node    Where has the Rotate/Translate function gone?
-@section Where has the Rotate/Translate function gone?
-
-Coot is built on many different OS types, using the given (or supplied)
-version of GTK+.  Some old operating systems have a version of GTK+ that
-does not include a ``ToolMenuButton'' (newer operating systems do, of
-course) - and the toolbar menu Rotate/Translate function has uses such a
-widget.  The Coot build sytem detects old versions of GTK+ and skips
-over the ToolMenuButton code, so the button does not appear in the main
-window.  However, on all systems, the Rotate/Translate mode selector can
-be found as a menu to the right of the ``Rotate/Translate Zone'' button
-on the Model/Fit/Refine dialog.
-
-So, if you want a Rotate/Translate Tool Menu Button in the main window,
-don't use an old OS (or more accurately, don't use a Coot binary built
-for an old OS).
-
-@node How do I get rid of the ``Old Coot'' dialog?
-@section How do I get rid of the ``Old Coot'' dialog?
-
-You can also remove it by hand: edit @t{xxx/share/coot/scheme/coot-gui.scm}
-and comment out (with a "@t{;}") the "@t{(old-coot?)}" line.
-
-You can also remove the old coot warning by running this script:
-
-@url{http://www.biop.ox.ac.uk/coot/extras/remove-old-coot-warning.sh}
-
-
 
 @node Can I make the spin mode rotate slower?
 @section Can I make the spin mode rotate slower?
@@ -1016,7 +880,7 @@ Yes.
 @node How do I read many PDB files on the command line?
 @section How do I read many PDB files on the command line?
 
-@t{$ coot --pdb pdb-1.pdb --pdb pdb-2.pdb --pdb pdb-3.pdb} @emph{etc.}
+@t{$ coot --pdb pdb-1.pdb --pdb pdb-2.pdb --pdb pdb-3.pdb *.pdb} @emph{etc.}
 
 @node How do I setup auto-completion of command line options?
 @section How do I setup auto-completion of command line options?
@@ -1172,7 +1036,7 @@ The Richardsons' (Son of Penultimate) Rotamer Library.
 By using google. For example, if you wanted to make a search for
 Coot's "virtual trackball", use the google search:
 
-@t{virtual trackball coot site:www.biop.ox.ac.uk}
+@t{virtual trackball coot site:www2.mrc-lmb.cam.ac.uk}
 
 
 @node    What do those abreviations mean?
