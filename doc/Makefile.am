@@ -37,7 +37,7 @@ coot.html: $(top_srcdir)/doc/coot-user-manual.texi
 	makeinfo --html            --force $^
 
 # and similarly for the coot FAQ
-# makeinfo --html --no-split --force coot-faq.texi
+# makeinfo --html --no-split --force $(top_srcdir)/doc/coot-faq.texi
 
 
 # old target

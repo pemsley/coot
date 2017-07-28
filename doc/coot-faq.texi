@@ -1153,18 +1153,13 @@ Typical usage:
 @node Coot for Microsoft Windows systems?
 @section Coot for Microsoft Windows systems?
 
-Bernhard Lohkamp has a web page for WinCoot @url{http://www.chem.gla.ac.uk/%7Ebernhard/coot/wincoot.html} and a FAQ @url{http://www.chem.gla.ac.uk/%7Ebernhard/coot/wincoot-faq.html}
-
-You can find links to WinCoot (and other) pre-release binaries here:
-@url{http://www.biop.ox.ac.uk/coot/devel/build-info.html}.
-
+Bernhard Lohkamp has a web page for WinCoot @url{http://bernhardcl.github.io/coot/ }.
 
 @node What database do you use for the Ramachandran plot?
 @section What database do you use for the Ramachandran plot?
 
 Coot uses clipper's Ramachadran data - which is the Richardson's
 Top500: @url{http://kinemage.biochem.duke.edu/databases/top500.php}
-
 
 @node What library do you use for the Rotamers?
 @section What library do you use for the Rotamers?
