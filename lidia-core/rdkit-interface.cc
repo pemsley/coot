@@ -634,7 +634,6 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 			       << " atoms" << std::endl;
 		  } else {
 		     // happy path
-		     std::cout << "idx_iat " << idx_iat << " of " << n_atoms << std::endl;
 		     RDKit::Atom *rdkit_at = m[idx_iat].get();  // probably - or always?
 
 		     RDKit::ROMol::OEDGE_ITER beg,end;
