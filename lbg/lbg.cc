@@ -4902,7 +4902,7 @@ lbg_info_t::get_drug(const std::string &drug_name) {
       }
       catch (const std::runtime_error &rte) {
 	 std::cout << "WARNING:: " << rte.what() << std::endl;
-      } 
+      }
    } else {
 
       PyObject *pName = PyString_FromString("lidia.fetch");

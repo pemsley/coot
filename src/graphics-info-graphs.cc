@@ -1512,10 +1512,17 @@ graphics_info_t::density_fit_from_residues(mmdb::PResidue *SelResidues, int nSel
 
 	    if (residue_density_score < 0.01)
 	       residue_density_score = 0.01;
-	    double distortion = residue_density_fit_scale_factor * 2.0/(max_grid_factor * residue_density_score); 
-	    distortion *= distortion; // non-linear, provides distinction.
 
-	    if (distortion > distortion_max * 1.2)
+	    // std::cout << "DEBUG::          max_grid_factor " << max_grid_factor
+	    // << " score " << residue_density_score << std::endl;
+	    double sf = residue_density_fit_scale_factor * 1.0;
+	    // high resolution maps have high grid factors (say 0.5) and high
+	    // residue_density_ scores (say 2.0)
+	    double distortion =  sf/(pow(max_grid_factor,3) * residue_density_score); 
+
+	    // distortion *= distortion; // non-linear, provides distinction.
+
+	    if (distortion > distortion_max)
 	       distortion = distortion_max;
 	    // use intelligent atom name here, if you can.
 	    std::string chain_id = SelResidues[ir]->GetChainID();
