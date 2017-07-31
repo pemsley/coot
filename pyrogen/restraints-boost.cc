@@ -72,6 +72,9 @@ BOOST_PYTHON_MODULE(pyrogen_boost) {
    def("hydrogen_transformations", coot::hydrogen_transformations, return_value_policy<manage_new_object>());
    def("mogulify",                 coot::mogulify,                 return_value_policy<manage_new_object>());
    def("mmff_bonds_and_angles",    coot::mmff_bonds_and_angles,    return_value_policy<manage_new_object>());
+   // rdkit-like function name
+   def("MolFromPDBXr", coot::rdkit_mol_chem_comp_pdbx, return_value_policy<manage_new_object>());
+
 
    class_<coot::mmff_bond_restraint_info_t>("mmff_bond_restraint_info_t")
       .def("get_idx_1",         &coot::mmff_bond_restraint_info_t::get_idx_1)
@@ -264,14 +267,16 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 
 	    // debug.  OK, so the bond orders are undelocalized here.
 	    // debug_rdkit_molecule(&mol_rw);
-      
+
+	    // Happy Path return
+
 	    return m;
 	 }
 
 	 catch (const std::runtime_error &rte) {
 	    std::cout << "ERROR:: " << rte.what() << std::endl;
 	 }
-	 
+
       } else {
 
 	 // Are you here unexpectedly?  That's because the input cif dictionary doesn't have
@@ -293,7 +298,9 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	 delete mol;
 	 return m;
       }
-   } 
+   }
+
+   // this is not the normal (happy path) return
    return mol;
 }
      
@@ -349,9 +356,9 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
 
       std::string at_c_name, at_o1_name, at_o2_name, at_h_name;
 
-      at_c->setProp( "atom_type", "C");
-      at_o1->setProp("atom_type", "OC");
-      at_o2->setProp("atom_type", "OC");
+      at_c->setProp( "type_energy", "C");
+      at_o1->setProp("type_energy", "OC");
+      at_o2->setProp("type_energy", "OC");
 
       RDKit::Bond *bond_1 = r->getBondBetweenAtoms(at_c.get()->getIdx(), at_o1.get()->getIdx());
       RDKit::Bond *bond_2 = r->getBondBetweenAtoms(at_c.get()->getIdx(), at_o2.get()->getIdx());
@@ -393,11 +400,11 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
 
       if (degree == 4) { 
          // it has its 2 hydrogens already
-         at_n->setProp("atom_type", "NT2"); // also set to NT3 by SMARTS match in pyrogen.py
+         at_n->setProp("type_energy", "NT2"); // also set to NT3 by SMARTS match in pyrogen.py
       }
 
       if (degree == 3) { 
-         at_n->setProp("atom_type", "NT3"); // also set to NT3 by SMARTS match in pyrogen.py
+         at_n->setProp("type_energy", "NT3"); // also set to NT3 by SMARTS match in pyrogen.py
          // add a hydrogen atom and a bond to the nitrogen.
          // 
          RDKit::Atom *new_h_at = new RDKit::Atom(1);

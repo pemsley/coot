@@ -100,7 +100,7 @@ coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 	 mmdb::Atom      *ligand_atom = hbonds[i].acceptor;
 	 mmdb::Atom *env_residue_atom = hbonds[i].donor;
 	 double explict_H_bond_fudge_factor = 0.0; // for H-bonds with no Hs.
-	 // 
+	 //
 	 if (hbonds[i].ligand_atom_is_donor) {
 	    ligand_atom = hbonds[i].donor;
 	    env_residue_atom = hbonds[i].acceptor;
@@ -117,7 +117,7 @@ coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 	       env_residue_atom = hbonds[i].hb_hydrogen;
 	    }
 	    explict_H_bond_fudge_factor = 1.2;
-	 } 
+	 }
 
 	 // This map no longer works because we don't pass ligand atom
 	 // name any more (we pass a spec).
@@ -142,29 +142,32 @@ coot::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 		      << env_residue_atom->GetResName()
 		      << std::endl;
 
-	 // we want to pass the atom specifics (not just the environ residue spec)
-	 // 
-	 // coot::fle_ligand_bond_t bond(ligand_atom_name, bond_type, hbonds[i].dist, res_spec);
-	 // 
-	 coot::fle_ligand_bond_t bond(coot::atom_spec_t(ligand_atom),
-				      coot::atom_spec_t(env_residue_atom), 
-				      bond_type,
-				      hbonds[i].dist+explict_H_bond_fudge_factor);
-	 
-	 std::string residue_name = ligand_atom->GetResName();
-	 if (residue_name == "HOH")
-	    bond.water_protein_length = find_water_protein_length(ligand_atom->residue, mol);
-	 
-	 bool ok_to_add = 1; // reset to 0 for certain waters
-	 if (ligand_atom) {
-	    std::string ligand_residue_name(ligand_atom->GetResName());
-	    if (ligand_residue_name == "HOH") {
+	 bool is_bond_to_water = false;
+	 bool ok_to_add = true; // reset to 0 for certain waters
+	 if (env_residue_atom) {
+	    std::string env_residue_name(env_residue_atom->GetResName());
+	    if (env_residue_name == "HOH") {
+	       is_bond_to_water = true;
 	       if (hbonds[i].dist > water_dist_max)
-		  ok_to_add = 0;
+		  ok_to_add = false;
 	    }
 	 }
-	 if (ok_to_add)
+	 if (ok_to_add) {
+	    // we want to pass the atom specifics (not just the environ residue spec)
+	    //
+	    // coot::fle_ligand_bond_t bond(ligand_atom_name, bond_type, hbonds[i].dist, res_spec);
+	    //
+	    coot::fle_ligand_bond_t bond(coot::atom_spec_t(ligand_atom),
+					 coot::atom_spec_t(env_residue_atom), 
+					 bond_type,
+					 hbonds[i].dist+explict_H_bond_fudge_factor, is_bond_to_water);
+
+	    std::string residue_name = ligand_atom->GetResName();
+	    if (residue_name == "HOH")
+	       bond.water_protein_length = find_water_protein_length(ligand_atom->residue, mol);
+
 	    v.push_back(bond);
+	 }
       }
 
       if (debug)
@@ -285,9 +288,17 @@ coot::get_covalent_bonds_by_distance(mmdb::Manager *mol,
 	 for (int i=0; i<n_contacts; i++) {
 	    mmdb::Atom *at_1 =   lig_atom_selection[pscontact[i].id1];
 	    mmdb::Atom *at_2 = other_atom_selection[pscontact[i].id2];
-// 	    std::cout << "DEUBG:: Covalent test "
-// 		      << coot::atom_spec_t(at_1) << "..."
-// 		      << coot::atom_spec_t(at_2) << std::endl;
+
+	    // move on if these are interacting atoms
+	    std::string alt_conf_1 = at_1->altLoc;
+	    std::string alt_conf_2 = at_2->altLoc;
+	    if (!alt_conf_1.empty() && ! alt_conf_2.empty())
+	       if (alt_conf_1 != alt_conf_2)
+		  continue;
+
+	    // 	    std::cout << "DEUBG:: Covalent test "
+	    // 		      << coot::atom_spec_t(at_1) << "..."
+	    // 		      << coot::atom_spec_t(at_2) << std::endl;
 	    std::pair<mmdb::Residue *, mmdb::Residue *> pair(at_1->GetResidue(),
 						   at_2->GetResidue());
 
@@ -313,7 +324,7 @@ coot::get_covalent_bonds_by_distance(mmdb::Manager *mol,
 			int bond_type = coot::fle_ligand_bond_t::BOND_COVALENT;
 			coot::fle_ligand_bond_t bond(coot::atom_spec_t(at_1), // ligand
 						     coot::atom_spec_t(at_2), // env residue
-						     bond_type, d);
+						     bond_type, d, false);
 			v.push_back(bond);
 		     }
 		  }
@@ -358,11 +369,19 @@ coot::get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
 			std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link, model_p);
 			mmdb::Atom *at_1 = coot::util::get_atom(linked_atoms.first,  mol);
 			mmdb::Atom *at_2 = coot::util::get_atom(linked_atoms.second, mol);
-			if (at_1 && at_2) { 
+			if (at_1 && at_2) {
+
+			   // move on if these are interacting atoms
+			   std::string alt_conf_1 = at_1->altLoc;
+			   std::string alt_conf_2 = at_2->altLoc;
+			   if (!alt_conf_1.empty() && ! alt_conf_2.empty())
+			      if (alt_conf_1 != alt_conf_2)
+				 continue;
+
 			   double dist = distance(at_1, at_2);
 			   fle_ligand_bond_t b(linked_atoms.first, linked_atoms.second,
 					       fle_ligand_bond_t::BOND_COVALENT,
-					       dist);
+					       dist, false);
 			   v.push_back(b);
 			}
 		     }
@@ -377,10 +396,18 @@ coot::get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
 			mmdb::Atom *at_1 = coot::util::get_atom(linked_atoms.first,  mol);
 			mmdb::Atom *at_2 = coot::util::get_atom(linked_atoms.second, mol);
 			if (at_1 && at_2) { 
+
+			   // move on if these are interacting atoms
+			   std::string alt_conf_1 = at_1->altLoc;
+			   std::string alt_conf_2 = at_2->altLoc;
+			   if (!alt_conf_1.empty() && ! alt_conf_2.empty())
+			      if (alt_conf_1 != alt_conf_2)
+				 continue;
+
 			   double dist = distance(at_1, at_2);
 			   fle_ligand_bond_t b(linked_atoms.second, linked_atoms.first,
 					       fle_ligand_bond_t::BOND_COVALENT,
-					       dist);
+					       dist, false);
 			   v.push_back(b);
 			}
 		     }
@@ -417,6 +444,16 @@ coot::get_metal_bonds(mmdb::Residue *ligand_residue, const std::vector<mmdb::Res
 	 residues[i]->GetAtomTable(residue_atoms, n_residue_atoms);
 	 for (int irat=0; irat<n_residue_atoms; irat++) {
 	    for (int ilat=0; ilat<n_residue_atoms; ilat++) {
+
+	       // move on if these are interacting atoms
+	       mmdb::Atom *at_1 = ligand_residue_atoms[ilat];
+	       mmdb::Atom *at_2 = residue_atoms[irat];
+	       std::string alt_conf_1 = at_1->altLoc;
+	       std::string alt_conf_2 = at_2->altLoc;
+	       if (!alt_conf_1.empty() && ! alt_conf_2.empty())
+		  if (alt_conf_1 != alt_conf_2)
+		     continue;
+
 	       std::string ele(residue_atoms[irat]->element);
 	       if ((ele == " H") || (ele == " C")) { 
 		  clipper::Coord_orth pt_1(ligand_residue_atoms[ilat]->x,
@@ -438,7 +475,7 @@ coot::get_metal_bonds(mmdb::Residue *ligand_residue, const std::vector<mmdb::Res
 	    coot::fle_ligand_bond_t bond(ligand_atom,
 					 env_residue_atom,
  					 coot::fle_ligand_bond_t::METAL_CONTACT_BOND,
- 					 sqrt(best_dist_sqrd));
+ 					 sqrt(best_dist_sqrd), false);
 	    v.push_back(bond);
 	 }
       }

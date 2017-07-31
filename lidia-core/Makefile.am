@@ -36,7 +36,7 @@ AM_CPPFLAGS = \
 libcoot_lidia_core_la_SOURCES = lbg-shared.cc lbg-molfile.cc lig-build.cc \
 	rdkit-interface.cc cod-types.cc bond-record-container-t.cc \
 	cod-atom-type-t.cc cod-atom-types.cc bond-table-record-t.cc \
-	chemical-feature-clusters.cc
+	chemical-feature-clusters.cc atom-types.cc
 
 # bond-record-container-t has sqlite3 code in it (to create the atoms database currently)
 libcoot_lidia_core_la_LIBADD =                        \
