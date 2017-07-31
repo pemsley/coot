@@ -490,11 +490,6 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
 
    AllChem.AssignStereochemistry(sane_H_mol);
 
-<<<<<<< HEAD
-   # This makes UFF types, which can fail sometimes.
-   # n_conformers is n_attempts
-=======
->>>>>>> refs/remotes/origin/refinement
    # conf_id = AllChem.EmbedMolecule(sane_H_mol, maxAttempts=n_attempts)
    conf_id = AllChem.EmbedMolecule(sane_H_mol, AllChem.ETKDG())
 
