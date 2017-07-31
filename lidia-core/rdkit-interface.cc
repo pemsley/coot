@@ -161,7 +161,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		     if (atom_name_2 == restraints.bond_restraint[ib].atom_id_1_4c()) {
 			found_a_bonded_atom = true;
 			break;
-		     } 
+		     }
 		  }
 	       }
 	    }
@@ -351,7 +351,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		  bond->setEndAtomIdx(  idx_1);
 	       } 
 
-	       if (type == RDKit::Bond::AROMATIC) { 
+	       if (type == RDKit::Bond::AROMATIC) {
 		  bond->setIsAromatic(true);
 		  m[idx_1]->setIsAromatic(true);
 		  m[idx_2]->setIsAromatic(true);
@@ -438,7 +438,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
       for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) { 
 
 	 RDKit::Bond::BondType type = convert_bond_type(restraints.bond_restraint[ib].type());
-	 if (type == RDKit::Bond::AROMATIC) { 
+	 if (type == RDKit::Bond::AROMATIC) {
 	    std::string atom_name_1 = restraints.bond_restraint[ib].atom_id_1_4c();
 	    std::string atom_name_2 = restraints.bond_restraint[ib].atom_id_2_4c();
 	    std::string ele_1 = restraints.element(atom_name_1);
@@ -1127,6 +1127,7 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
    
    // ------------------------------------ Bonds -----------------------------
 
+   int n_atoms = m.getNumAtoms();
    std::map<std::string, int>::const_iterator it_1;
    std::map<std::string, int>::const_iterator it_2;
    int idx_1, idx_2;
@@ -1140,32 +1141,40 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	    idx_2 = it_2->second;
 	    RDKit::Bond::BondType type = convert_bond_type(br.type());
 	    RDKit::Bond *bond = new RDKit::Bond(type);
-	    
-	    // wedge bonds should have the chiral centre as the first atom.
-	    //
-	    bool swap_order = false;
 
-	    if (r.chiral_restraint.size()) {
-	       swap_order = chiral_check_order_swap(m[idx_1], m[idx_2], r.chiral_restraint);
-	    } else {
-	       // use the atoms rdkit chiral status
-	       swap_order = chiral_check_order_swap(m[idx_1], m[idx_2]);
-	    }
-	    if (! swap_order) {  // normal
-	       bond->setBeginAtomIdx(idx_1);
-	       bond->setEndAtomIdx(  idx_2);
-	    } else {
-	       bond->setBeginAtomIdx(idx_2);
-	       bond->setEndAtomIdx(  idx_1);
-	    } 
+	    if (idx_1 < n_atoms) {
+	       if (idx_2 < n_atoms) {
 	    
-	    if (type == RDKit::Bond::AROMATIC) { 
-	       bond->setIsAromatic(true);
-	       m[idx_1]->setIsAromatic(true);
-	       m[idx_2]->setIsAromatic(true);
-	    }
-	    m.addBond(bond); // worry about ownership or memory leak.
+		  // wedge bonds should have the chiral centre as the first atom.
+		  //
+		  bool swap_order = false;
+
+		  if (r.chiral_restraint.size()) {
+		     swap_order = chiral_check_order_swap(m[idx_1], m[idx_2], r.chiral_restraint);
+		  } else {
+		     // use the atoms rdkit chiral status
+		     swap_order = chiral_check_order_swap(m[idx_1], m[idx_2]);
+		  }
+		  if (! swap_order) {  // normal
+		     bond->setBeginAtomIdx(idx_1);
+		     bond->setEndAtomIdx(  idx_2);
+		  } else {
+		     bond->setBeginAtomIdx(idx_2);
+		     bond->setEndAtomIdx(  idx_1);
+		  } 
 	    
+		  if (type == RDKit::Bond::AROMATIC) {
+		     bond->setIsAromatic(true);
+		     m[idx_1]->setIsAromatic(true);
+		     m[idx_2]->setIsAromatic(true);
+		  }
+		  m.addBond(bond); // worry about ownership or memory leak.
+	       } else {
+		  std::cout << "ERROR:: atom indexing problem " << idx_2 << " " << n_atoms << std::endl;
+	       }
+	    } else {
+	       std::cout << "ERROR:: atom indexing problem " << idx_1 << " " << n_atoms << std::endl;
+	    }
 	 }
       }
    }
