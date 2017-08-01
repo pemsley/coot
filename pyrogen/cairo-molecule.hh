@@ -1,5 +1,6 @@
 
 #include <iostream> // for lig-build.hh - hmm.
+#include <cairo/cairo.h>
 #include "lidia-core/lig-build.hh"
 #include "utils/coot-utils.hh"
 
@@ -61,4 +62,8 @@ namespace coot {
       void render(const std::string &png_file_name);
 
    };
+
+   void cairo_png_depict(const std::string &mmcif_file_name,
+			 const std::string &comp_id,
+			 const std::string png_file_name);
 }

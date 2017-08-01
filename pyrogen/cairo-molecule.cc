@@ -1,6 +1,10 @@
 
-#include <cairo.h>
 #include "cairo-molecule.hh"
+
+// this needs to be here (also).  It is in wmolecule.cc and hence the library also.
+// But if this is not here I get unresovled symbol for this destructor when compiling
+// this exectuable on the mac (clang).
+template<class cairo_atom_t, class cairo_bond_t> lig_build::molecule_t<cairo_atom_t, cairo_bond_t>::~molecule_t() {}
 
 // coot::cairo_molecule_t::~cairo_molecule_t() { }
 
@@ -41,7 +45,7 @@ coot::cairo_molecule_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) {
 	 const RDKit::Bond *bond_p = rdkm->getBondWithIdx(i);
 	 int idx_1 = bond_p->getBeginAtomIdx();
 	 int idx_2 = bond_p->getEndAtomIdx();
-	 if ( (*rdkm)[idx_1]->getAtomicNum() != 1) { 
+	 if ( (*rdkm)[idx_1]->getAtomicNum() != 1) {
 	    if ( (*rdkm)[idx_2]->getAtomicNum() != 1) {
 	       RDGeom::Point3D &r_pos_1 = conf.getAtomPos(idx_1);
 	       RDGeom::Point3D &r_pos_2 = conf.getAtomPos(idx_2);
@@ -550,5 +554,41 @@ coot::cairo_molecule_t::render(const std::string &png_file_name) {
    cairo_surface_write_to_png (surface, png_file_name.c_str());
    cairo_destroy (cr);
    cairo_surface_destroy (surface);
+
+}
+
+void
+coot::cairo_png_depict(const std::string &mmcif_file_name,
+		       const std::string &comp_id,
+		       const std::string png_file_name) {
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
+   int rn = 42;
+   coot::protein_geometry geom;
+   geom.set_verbose(false);
+   geom.init_refmac_mon_lib(mmcif_file_name, rn);
+
+   if (geom.have_dictionary_for_residue_type_no_dynamic_add(comp_id)) {
+      std::pair<bool, coot::dictionary_residue_restraints_t> dp =
+	 geom.get_monomer_restraints(comp_id, coot::protein_geometry::IMOL_ENC_ANY);
+      if (dp.first) {
+	 const coot::dictionary_residue_restraints_t &d = dp.second;
+	 try {
+	    RDKit::RWMol rdkm = coot::rdkit_mol(d);
+	    RDKit::MolOps::removeHs(rdkm);
+	    // coot::remove_non_polar_Hs(&rdkm); either is good.
+	    RDKit::MolOps::Kekulize(rdkm);
+	    int iconf = RDDepict::compute2DCoords(rdkm, NULL, true);
+	    RDKit::Conformer &conf = rdkm.getConformer(iconf);
+	    RDKit::WedgeMolBonds(rdkm, &conf);
+	    coot::cairo_molecule_t mol(&rdkm, iconf);
+	    mol.render(png_file_name);
+	 }
+	 catch (...) {
+	 }
+      }
+   }
+#endif
 
 }

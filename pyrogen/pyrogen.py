@@ -235,6 +235,7 @@ def make_restraints_for_bond_orders(mol):
 # return True if mogul is not run or mogul exe is in place.
 # return False if mogul is expected but not found.
 def test_for_mogul():
+   global run_mogul
    if run_mogul:
       mogol_exe = which('mogul')
       if (mogol_exe == None):
@@ -304,13 +305,7 @@ def make_picture_to_file(mol, conf_id, output_file_name):
          drawer = Draw.MolDraw2DCairo(300,300)
          drawer.DrawMolecule(mol, confId=conf_id)
          drawer.FinishDrawing()
-         c = drawer.GetDrawingText()
-
-      cairo_file_name = 'cairo.png'
-      f = open(cairo_file_name, 'w')
-      f.write(c)
-      f.close()
-
+         # c = drawer.GetDrawingText()
       
    except ImportError as e:
       print 'ImportError:', e
@@ -445,6 +440,15 @@ def n_hydrogens(mol):
 	    n_H += 1
     return n_H
 
+def checked_mkdir(dirname):
+    if not os.path.exists(dirname):
+       os.makedirs(dirname)
+    else:
+       if os.path.isdir(dirname):
+          pass # this happens most of the time, I imagine
+       else:
+          print 'Stop:: File', dirname, 'exists but is not a directory'
+
 
 # return sane_H_mol
 # 
@@ -510,7 +514,7 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
 		 angle = ba.get_angle(i_angle)
 		 print angle.get_idx_1(), angle.get_idx_2(), angle.get_idx_3(), \
 		       angle.get_resting_angle(), angle.get_sigma()
-         
+
    else:
       AllChem.UFFOptimizeMolecule(sane_H_mol, confId=conf_id)
 
@@ -538,7 +542,7 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
 
       moguled_mol = pyrogen_boost.mogulify(sane_H_mol) # Nitro bond orders (and other things?)
       if not os.path.isdir(mogul_dir):
-	  checked_mkdir(mogul_dir)
+          checked_mkdir(mogul_dir)
 	  if os.path.isdir(mogul_dir):
 	      mb = Chem.MolToMolBlock(moguled_mol)
 	      print >> file(sdf_file_name,'w'), mb
@@ -682,6 +686,37 @@ def atom_match_dictionary(restraints, sane_H_mol, comp_id_list_for_names_match, 
 
     return restraints
 
+def simple_make(mmcif_file_name, comp_id):
+
+   global run_mogul
+   run_mogul = False
+   mmcif_restraints_out_file_name = comp_id + "-pyrogen.cif"
+   pdb_fn = comp_id + "-pyrogen.pdb"
+   mol_pairs = make_restraints_from_mmcif_dict(mmcif_file_name,
+                                               comp_id,
+                                               ".', ",'.', 'postfix', False, True, True, pdb_fn,
+                                               mmcif_restraints_out_file_name)
+   for mol_info in mol_pairs:
+      (mol, comp_id) = mol_info
+   if not mol:
+      print 'No molecule'
+
+def depict(mmcif_file_name_in, comp_id, png_file_name):
+   m = pyrogen_boost.rdkit_mol_chem_comp_pdbx(mmcif_file_name_in, comp_id)
+   conf_id = 0
+   n = m.GetNumConformers()
+   if n == 0:
+      conf_id = AllChem.Compute2DCoords(m)
+   conf = m.GetConformer(conf_id)
+   if conf.Is3D():
+      mol_for_drawing = Chem.RemoveHs(m, implicitOnly=False)
+      conf2D_id = AllChem.Compute2DCoords(mol_for_drawing)
+      make_picture_to_file(mol_for_drawing, conf2D_id, png_file_name)
+   else:
+      make_picture_to_file(mol_for_drawing, -1, png_file_name)
+
+def coot_depict(mmcif_file_name_in, comp_id, png_file_name):
+   pyrogen_boost.cairo_png_depict(mmcif_file_name_in, comp_id, png_file_name)
 
 
 def score_and_print_tautomers(mol, comp_id, output_postfix, do_drawings):
@@ -708,15 +743,6 @@ def score_and_print_tautomers(mol, comp_id, output_postfix, do_drawings):
    
 
 if __name__ == "__main__":
-
-    def checked_mkdir(dirname):
-        if not os.path.exists(dirname):
-           os.makedirs(dirname)
-	else:
-	   if os.path.isdir(dirname):
-	       pass # this happens most of the time, I imagine
-	   else:
-	       print 'Stop:: File', dirname, 'exists but is not a directory'
 
     def smiles_and_name_from(smi_raw):
        extension = os.path.splitext(smi_raw)[1]
@@ -874,6 +900,7 @@ if __name__ == "__main__":
         match_names_flag = True
         if options.no_match_names_flag:
             match_names_flag = False
+
 
 	if mmcif_file_name:
 	    mol_pairs = make_restraints_from_mmcif_dict(mmcif_file_name,

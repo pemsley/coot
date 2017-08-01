@@ -37,6 +37,8 @@ using namespace boost::python;
 
 #include "mmff-restraints.hh"
 
+#include "cairo-molecule.hh"
+
 namespace coot {
 
    RDKit::ROMol *regularize(RDKit::ROMol &r);
@@ -74,6 +76,7 @@ BOOST_PYTHON_MODULE(pyrogen_boost) {
    def("mmff_bonds_and_angles",    coot::mmff_bonds_and_angles,    return_value_policy<manage_new_object>());
    // rdkit-like function name
    def("MolFromPDBXr", coot::rdkit_mol_chem_comp_pdbx, return_value_policy<manage_new_object>());
+   def("cairo_png_depict",         coot::cairo_png_depict);
 
 
    class_<coot::mmff_bond_restraint_info_t>("mmff_bond_restraint_info_t")
