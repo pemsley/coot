@@ -27,13 +27,17 @@ def set_atom_type(match, match_atom_index, mol, atom_type):
     try:
         this_atom = match[match_atom_index]
         try:
-            current_type = mol.GetAtomWithIdx(this_atom).GetProp("atom_type")
+            current_type = mol.GetAtomWithIdx(this_atom).GetProp("type_energy")
         except KeyError:
-            mol.GetAtomWithIdx(this_atom).SetProp("atom_type", atom_type)
-            name = mol.GetAtomWithIdx(this_atom).GetProp("name")
-	    if False:
-		print '    set atom number %s having name %s with type %s ' % (str(this_atom).rjust(2),
-									       repr(name), repr(atom_type))
+            try:
+                mol.GetAtomWithIdx(this_atom).SetProp("type_energy", atom_type)
+                name = mol.GetAtomWithIdx(this_atom).GetProp("name")
+                if False:
+                    print '    set atom number %s having name %s with type %s ' % (str(this_atom).rjust(2),
+                                                                                   repr(name), repr(atom_type))
+            except KeyError as e:
+                print('No name for atom idx', match_atom_index)
+
     except TypeError:
         for match_atom in match_atom_index:
             set_atom_type(match, match_atom, mol, atom_type)
@@ -86,6 +90,7 @@ def set_atom_types(mol):
         # Carbon SP2
         ('CR56', 'c12aaaac1aaa2',  (0,5)), # works on indole
         ('CR56', 'c12aaaan1aaa2',  0), # same pattern as (below) N56, but catching first 56 atom
+        ('CR56', 'c12AAAAc1aaa2',  0), # 6-ring doesn't have to aromatic (8UG)
         ('CR66', 'c12aaaac1aaaa2', (0,5)),
         ('CR6',  'c12ccccc1OCO2',  (0,5)),   # mouse, fused atoms in 6-ring not non-arom 5-ring
         ('CR66', 'c12aaaac1AAAA2', (0,5)),   # one 6-ring aromatic, other not. Needed for XXX?
@@ -239,7 +244,7 @@ def set_atom_types(mol):
     #
     for atom in mol.GetAtoms():
        try:
-          atom_type = atom.GetProp('atom_type')
+          atom_type = atom.GetProp('type_energy')
        except KeyError:
           is_aromatic = atom.GetIsAromatic()
           hybrid      = atom.GetHybridization()

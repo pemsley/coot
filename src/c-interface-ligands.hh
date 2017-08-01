@@ -30,7 +30,7 @@
 #include "geometry/protein-geometry.hh"
 #include "lidia-core/lbg-shared.hh"
 
-#include "lbg/flev-annotations.hh"
+#include "pli/flev-annotations.hh"
 #include "ligand-check.hh"
 
 // not for swig
@@ -43,38 +43,6 @@ namespace coot {
    
    std::map<std::string, std::string> make_flat_ligand_name_map(mmdb::Residue *flat_res);
 
-   // return 100 if no other contact found (strange!)
-   // 
-   double find_water_protein_length(mmdb::Residue *ligand_residue, mmdb::Manager *mol);
-
-
-   std::vector<fle_ligand_bond_t> get_covalent_bonds(mmdb::Manager *mol,
-						     int SelHnd_lig,
-						     int SelHnd_all,
-						     const residue_spec_t &ligand_spec,
-						     const protein_geometry &geom);
-   // which calls 
-   std::vector<fle_ligand_bond_t> get_covalent_bonds_by_distance(mmdb::Manager *mol,
-						     int SelHnd_lig,
-						     int SelHnd_all,
-						     const residue_spec_t &ligand_spec,
-						     const protein_geometry &geom);
-   std::vector<fle_ligand_bond_t> get_covalent_bonds_by_links(mmdb::Residue *residue_ligand_p,
-							      mmdb::Manager *mol);
-
-   std::vector<fle_ligand_bond_t> get_metal_bonds(mmdb::Residue *ligand_res,
-						  const std::vector<mmdb::Residue *> &residues);
-
-
-   // uses the coot::h_bond class (which uses the dictionary).
-   // 
-   std::vector<fle_ligand_bond_t> get_fle_ligand_bonds(mmdb::Residue *res_ref,
-						       const std::vector<mmdb::Residue *> &residues,
-						       mmdb::Manager *mol,
-						       const std::map<std::string, std::string> &name_map,
-						       const protein_geometry &geom,
-						       float water_dist_max,
-						       float h_bond_dist_max);
 
    bool standard_residue_name_p(const std::string &rn);
 

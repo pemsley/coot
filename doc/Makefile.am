@@ -6,7 +6,7 @@ EXTRA_DIST = coot.tex derivatives.tex tutorial.tex coot-plain-2.ps \
         xml2texi.xsl
 
 # why doesn't this pick up the script for the dist tar file?  I don't know. 
-# let's give up and add xm2texi.xsl to EXTRA_DIST
+# let's give up and add xml2texi.xsl to EXTRA_DIST
 noinst_SCRIPTS = $(top_srcdir)/doc/xml2texi.xsl
 
 coot-user-manual.dvi: $(top_srcdir)/doc/coot-user-manual.texi c-interface_8h.texi cc-interface_8hh.texi \
@@ -37,7 +37,7 @@ coot.html: $(top_srcdir)/doc/coot-user-manual.texi
 	makeinfo --html            --force $^
 
 # and similarly for the coot FAQ
-# makeinfo --html --no-split --force coot-faq.texi
+# makeinfo --html --no-split --force $(top_srcdir)/doc/coot-faq.texi
 
 
 # old target
@@ -59,7 +59,7 @@ booklet.ps: coot-user-manual.dvi
 c-interface_8h.texi: $(top_srcdir)/src/doxygen/xml/c-interface_8h.xml
 	xsltproc $(top_srcdir)/doc/xml2texi.xsl $< > $@
 
-cc-interface_8hh.texi: $(top_srcdir)/src/doxygen/xml/cc-interface_8hh.xml
+cc-interface_8hh.texi: $(top_builddir)/src/doxygen/xml/cc-interface_8hh.xml
 	xsltproc $(top_srcdir)/doc/xml2texi.xsl $< > $@
 
 coot-scheme-functions.texi:
