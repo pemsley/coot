@@ -101,7 +101,7 @@ graphics_ligand_atom::get_colour(bool against_a_dark_background) const {
 }
 
 // c.f. lbg_info_t::render_from_molecule()
-// 
+//
 void graphics_ligand_molecule::gl_bonds(bool dark_background) {
 
    for (unsigned int ib=0; ib<bonds.size(); ib++) {

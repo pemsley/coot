@@ -819,6 +819,12 @@ namespace lig_build {
       // not const because it now caches the return value;
       //
       bool have_cached_bond_ring_centres_flag;
+      //
+      // ring centres should incorporate the number of atoms contributing to the
+      // ring, i.e. std::vector<std::pair<unsigned int, pos_t> >
+      // so that the ring centre info can be used to calculate the correct
+      // position of the inner bond of a ring double bond
+      //
       std::vector<pos_t> cached_bond_ring_centres;
 
    public:

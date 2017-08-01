@@ -471,15 +471,25 @@ coot::cairo_molecule_t::render(const std::string &png_file_name) {
    double delta_x = ext.second.x - ext.first.x;
    double delta_y = ext.second.y - ext.first.y;
    double delta = (delta_x > delta_y) ? delta_x : delta_y;
-   double scale = 0.09;
+   // The scale transforms from molecule coordinates to the 0->1 square
+   // (centering is also applied of course)
+   // What makes this tricky is that atom labels (e.g. "NH2") can go beyond
+   // the limits of the atoms. So we need to make space for them by making
+   // the molecules a bit smaller that exact fit to the box. How much smaller?
+   // Not clear. A bit less than 0.75? BHH falls off the edge at 0.75 (with
+   // scale 0.09).
+   // So let's make the scale limit a bit smaller (was 0.09, now 0.089).
+   // Also, we don't want massive "zoomed in" representation of tiny molecules
+   // (e.g. ALM).
+   double scale_lim = 0.089; // heuristic
+   double scale = scale_lim;
    // we could be more clever here by looking at the atoms on the edge of the molecle
    // if they are non-carbon, reduce the scale a bit. 0.75 is a safe value that
    // allows non-C edge atom representation.
    if (delta > 1)
       scale = 0.75/delta;
-   // We don't want massive "zoomed in" representation of tiny molecules (e.g. ALM)
-   if (scale > 0.09)
-      scale = 0.09;
+   if (scale > scale_lim)
+      scale = scale_lim;
 
    // std::cout << "scale: " << scale << std::endl;
 

@@ -133,6 +133,20 @@ lig_build::pos_t::operator==(const pos_t &pos) const {
 std::pair<lig_build::pos_t, lig_build::pos_t>
 lig_build::bond_t::make_double_aromatic_short_stick(const pos_t &pos_1, const pos_t &pos_2) const {
 
+   // for 5-membered (also, 4-membered and 3-membered which are shorter still)
+   // rings, the cuttened fraction is larger than 6-membered. So in order
+   // to find the right amount to reduce the bond length we need the number
+   // of atoms in the ring. Hmm...
+   //
+   // More rigourous still, the cut fraction should not be fixed, but the coordinates
+   // of the end should be calculated from the positions of the other atoms - e.g. for
+   // cut point at B in molecule A-B=C-D, the end point lies along the line of the
+   // projection of B onto A-D (by whatever is the distance between the outside and
+   // inside lines)
+   //
+   // 0.1 and 0.9 look pretty good for 6-membered ring, but too long for
+   // 5-membered.  I'll decrease it a bit (to 0.14 and 0.86).
+
    std::pair<lig_build::pos_t, lig_build::pos_t> p;
    lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
    lig_build::pos_t buv_90 = buv.rotate(90);
@@ -157,9 +171,9 @@ lig_build::bond_t::make_double_aromatic_short_stick(const pos_t &pos_1, const po
    lig_build::pos_t inner_end_point = inner_start_point + buv * bond_length;
 
    lig_build::pos_t cutened_inner_start_point =
-      lig_build::pos_t::fraction_point(inner_start_point, inner_end_point, 0.1);
+      lig_build::pos_t::fraction_point(inner_start_point, inner_end_point, 0.14);
    lig_build::pos_t cutened_inner_end_point =
-      lig_build::pos_t::fraction_point(inner_start_point, inner_end_point, 0.9);
+      lig_build::pos_t::fraction_point(inner_start_point, inner_end_point, 0.86);
 
    return std::pair<lig_build::pos_t, lig_build::pos_t>(cutened_inner_start_point,
 							cutened_inner_end_point);
