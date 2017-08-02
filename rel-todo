@@ -4,6 +4,12 @@
 
    o the hydrogen is not drawn correctly on AC6 in Colour by Atoms. Additional half-bond.
 
+   o fix the oxygen charge on the ligand thumbnail of 3GP
+
+   o the hydrogen is not drawn correctly on AC6 in Colour by Atoms
+
+   o make cfc work again
+
    o FLEV fail on A2005 in 5pb8 failure to construct rdkit molecule (in alt conf D)
 
    o what about this interaction in refinement: N(n) - HA2(n+1) GLY (an H on the CA)?
@@ -40,11 +46,12 @@
      can be called via scripting) dismiss the add_alt_conf dialog?  I
      think yes at the moment. [Georg Kempf]
 
-   o "Delete All Carbohydrate" on 5fuu is very slow. Fix.  Needs delete_residues(imol, res_specs).
-
-* Done.
-
    o Copy-molecule loses the NCS ghost info/tranformations (i.e. O doesn't work)
+
+   o Fix the documentation generation (coot-dox.cfg needs to be generated from coot-dox.cfg.in)
+     because the source header files are not in the build directory. Useful?
+
+     http://chris-miceli.blogspot.co.uk/2011/01/integrating-doxygen-with-autotools.html
 
    o how about a button that does the "Nice ligand pic" settings for me?
 
@@ -53,10 +60,6 @@
    o For glyco tree validation (matching vs oligomannose-tree etc) allow modes 
      liberal (current) and correct which needs correct residue types
      and link records. Also, tree validation needs to check the anomericity.
-
-   o copy a fragment that has a link.  The link is not copied into fragment molecule.
-
-* Done.
 
    o if use has (add-module-carbohydrate) in ~/.coot, then coot should not
      stop saying unbound variable... i.e. either much of gui-add-linked-cho.scm should
@@ -73,7 +76,12 @@
 
    o on mutating a THR (or anything) to a PRO, remember to delete H.
 
+* Done (I think).
+
    o I don't like fat hydrogen (bonds) in Colour by Chain mode.
+
+   o I don't like atom colours not matching bond colours in Colour by Chain mode 
+     (refinement, I guess).
 
    o when first molecule is not a protein.  Copy NCS residue range. coot-utils.scm 1533
 
@@ -93,10 +101,6 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
      And check that coot-probe looks good.
 
    o undo and redo should update the Ramachandran plot
-
-   o API access to write a cif file (if input file is cif... or pdb)
-
-* Done.
 
    o delete_all_extra_restraints() should updates the extra restraints display
 
@@ -149,18 +153,6 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
    o Re: go to ligand: JED: Can I make a list of "non-interesting comp-ids?"
 
    o Colour-by-chain should have thin bonds to hydrogen atoms
-
-   o (cryo-EM) map molecules should save their sigma step to the state file
-
-* They do.
-
-   o Residue info should not show TER atoms
-
-* It doesn't.
-
-   o version-full should say if we are compiled with modern-language and enhanced-ligand tools
-
-* It does now.
 
    o Fetch molecule: acyclovir, (edit?) click Apply
 
@@ -254,7 +246,7 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
 
    o remove debugging:
 
-debug:: switch for sequence_view for imol 0 is 0x0
+   debug:: switch for sequence_view for imol 0 is 0x0
 
    o resolve the GSL problem. If no GSL fail in configure?  Or perhaps correctly 
      conditionally compile without it (not usage of $prefix/bin/gsl-config)
@@ -294,6 +286,14 @@ debug:: switch for sequence_view for imol 0 is 0x0
 ==9640==    by 0x81D63B: molecule_class_info_t::handle_read_draw_molecule(int, std::string, std::string, short, short, bool, bool, float, int) (molecule-class-info.cc
 :219)
 
+--------------
+
+   o chemical diagram for Acedrg dictionary for this molecule:
+     COC(=O)C(=COC)c1ccccc1COC(N1C)=CC(=N1)C(=C2O)C=C(Cl)C=C2"
+     Disable the conversion to NH+ if any bond to the nitrogen is aromatic.
+
+* Done. Actually, disabled when 3 non-H bonds to N.
+
    o Fix make check on test chemical features
 
 * Done.
@@ -332,4 +332,29 @@ debug:: switch for sequence_view for imol 0 is 0x0
    o colour by occupancy and colour by B-factor don't work [Hans Raaijmakers]
 
 * Done.
+
+   o Residue info should not show TER atoms
+
+* It doesn't.
+
+   o version-full should say if we are compiled with modern-language and enhanced-ligand tools
+
+* It does now.
+
+   o "Delete All Carbohydrate" on 5fuu is very slow. Fix. Needs 
+      delete_residues(imol, res_specs).
+
+* Done.
+
+   o copy a fragment that has a link.  The link is not copied into fragment molecule.
+
+* Done.
+
+   o API access to write a cif file (if input file is cif... or pdb)
+
+* Done.
+
+   o (cryo-EM) map molecules should save their sigma step to the state file
+
+* They do.
 

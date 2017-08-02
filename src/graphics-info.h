@@ -4000,6 +4000,8 @@ string   static std::string sessionid;
 
    static double geman_mcclure_alpha;
 
+   static bool update_maps_on_recentre_flag;
+
 #ifdef HAVE_CXX_THREAD
    static ctpl::thread_pool static_thread_pool;
 #endif
