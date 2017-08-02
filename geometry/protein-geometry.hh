@@ -105,10 +105,29 @@ namespace coot {
       std::string comp_id;
       std::string three_letter_code;
       std::string name;
-      std::string group; // e.g. "L-peptide"
+      std::string group; // e.g. "L-peptide" (pdbx calls this "type")
+      std::string pdbx_type; // e.g. HETAIN
+      std::string formula;
+      std::string mon_nstd_parent_comp_id;
+      std::string pdbx_synonyms;
+      std::string pdbx_initial_date;
+      std::string pdbx_modified_date;
+      std::string pdbx_ambiguous_flag;
+      std::string pdbx_release_status;
+      std::string pdbx_replaced_by;
+      std::string pdbx_replaces;
+      std::string formula_weight;
+      std::string one_letter_code;
+      std::string pdbx_model_coordinates_missing_flag;
+      std::string pdbx_ideal_coordinates_missing_flag;
+      std::string pdbx_ideal_coordinates_details; // e.g. Corina
+      std::string pdbx_model_coordinates_db_code;
+      std::string pdbx_subcomponent_list;
+      std::string pdbx_processing_site; // e.g. RCSB
       int number_atoms_all;
       int number_atoms_nh;
       std::string description_level;
+      int pdb_formal_charge;
       dict_chem_comp_t(const std::string &comp_id_in,
 		       const std::string &three_letter_code_in,
 		       const std::string &name_in,

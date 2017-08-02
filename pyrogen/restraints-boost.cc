@@ -37,6 +37,8 @@ using namespace boost::python;
 
 #include "mmff-restraints.hh"
 
+#include "cairo-molecule.hh"
+
 namespace coot {
 
    RDKit::ROMol *regularize(RDKit::ROMol &r);
@@ -53,10 +55,6 @@ namespace coot {
 
    // fiddle with mol
    void delocalize_guanidinos(RDKit::RWMol *mol);
-
-   boost::python::list extract_ligands_from_coords_file(const std::string &file_name);
-   boost::python::object process_ligand(const std::string &file_name,
-					PyObject *ligand_spec);
 
    // compiling/linking problems - give up for now.
    // PyObject *convert_rdkit_mol_to_pyobject(RDKit::ROMol *mol);
@@ -76,9 +74,10 @@ BOOST_PYTHON_MODULE(pyrogen_boost) {
    def("hydrogen_transformations", coot::hydrogen_transformations, return_value_policy<manage_new_object>());
    def("mogulify",                 coot::mogulify,                 return_value_policy<manage_new_object>());
    def("mmff_bonds_and_angles",    coot::mmff_bonds_and_angles,    return_value_policy<manage_new_object>());
+   // rdkit-like function name
+   def("MolFromPDBXr", coot::rdkit_mol_chem_comp_pdbx, return_value_policy<manage_new_object>());
+   def("cairo_png_depict",         coot::cairo_png_depict);
 
-   def("extract_ligands_from_coords_file", coot::extract_ligands_from_coords_file);
-   def("process_ligand", coot::process_ligand);
 
    class_<coot::mmff_bond_restraint_info_t>("mmff_bond_restraint_info_t")
       .def("get_idx_1",         &coot::mmff_bond_restraint_info_t::get_idx_1)
@@ -115,101 +114,6 @@ BOOST_PYTHON_MODULE(pyrogen_boost) {
       ;
 }
 
-boost::python::list
-coot::extract_ligands_from_coords_file(const std::string &file_name) {
-
-   boost::python::list rdkit_mols_list;
-   protein_geometry geom;
-
-   if (coot::file_exists(file_name)) {
-      mmdb::Manager *mol = new mmdb::Manager;
-      mol->ReadCoorFile(file_name.c_str());
-      std::vector<mmdb::Residue *> v = util::get_hetgroups(mol); // no waters
-
-      std::cout << "Found " << v.size() << " hetgroups " << std::endl;
-      if (v.size() > 0) {
-	 int read_number = 0;
-	 for (std::size_t i=0; i<v.size(); i++) {
-	    std::string res_name = v[i]->GetResName();
-	    int imol = 0;
-	    if (geom.have_dictionary_for_residue_type(res_name, imol, read_number++)) { // autoloads
-	       std::pair<bool, coot::dictionary_residue_restraints_t> rp =
-		  geom.get_monomer_restraints(res_name, imol);
-	       if (rp.first) {
-		  try {
-		     RDKit::RWMol rdkm = rdkit_mol(v[i], rp.second);
-		     RDKit::ROMol *cm_p = new RDKit::ROMol(rdkm);
-		     boost::shared_ptr<RDKit::ROMol> xx(cm_p);
-		     // maybe I can append(xx) rather than needing this step:
-		     boost::python::object obj(xx);
-		     rdkit_mols_list.append(obj);
-		  }
-		  catch (const std::runtime_error &rte) {
-		     std::cout << "WARNING:: " << rte.what() << std::endl;
-		  }
-		  catch (const std::exception &e) {
-		     std::cout << "WARNING:: " << e.what() << std::endl;
-		  }
-	       }
-	    }
-	 }
-      }
-   }
-   return rdkit_mols_list;
-}
-
-#include "protein-ligand-interactions.hh"
-#include "coot-utils/reduce.hh"
-
-// Pass also filename for the CCD for the ligand (or its neighbours)
-// or (probably better) a directory.
-//
-boost::python::object
-coot::process_ligand(const std::string &file_name,
-		     PyObject *ligand_spec_py) {
-
-   boost::python::object o(0);
-   float h_bond_dist_max = 3.6;
-
-   if (PyList_Check(ligand_spec_py)) {
-      if (PyObject_Length(ligand_spec_py) == 3) {
-	 PyObject  *chain_id_py = PyList_GetItem(ligand_spec_py, 0);
-	 PyObject     *resno_py = PyList_GetItem(ligand_spec_py, 1);
-	 PyObject  *ins_code_py = PyList_GetItem(ligand_spec_py, 2);
-	 if (PyInt_Check(resno_py)) {
-	    int res_no = PyInt_AsLong(resno_py);
-	    std::string chain_id = PyString_AsString(chain_id_py);
-	    std::string ins_code  = PyString_AsString(ins_code_py);
-	    residue_spec_t rs(chain_id, res_no, ins_code);
-	    mmdb::Manager *mol = new mmdb::Manager;
-	    mol->ReadCoorFile(file_name.c_str());
-	    mmdb::Residue *residue_p = util::get_residue(rs, mol);
-	    if (residue_p) {
-	       // read in a dictionary
-	       int imol = 0; // dummy
-	       int read_number = 0;
-	       protein_geometry geom;
-	       geom.init_standard();
-	       std::string rn = residue_p->GetResName();
-	       geom.try_dynamic_add("MG", read_number++);
-	       if (geom.have_dictionary_for_residue_type(rn, imol, read_number++)) { // autoloads
-		  std::pair<bool, coot::dictionary_residue_restraints_t> rp =
-		     geom.get_monomer_restraints(rn, imol);
-		  if (rp.first) {
-		     reduce r(mol, imol);
-		     r.add_geometry(&geom);
-		     r.add_hydrogen_atoms();
-
-		     // consider where a peptide is the ligand
-		     protein_ligand_interactions(residue_p, mol, &geom, h_bond_dist_max);
-		  }
-	       }
-	    }
-	 }
-      }
-   }
-   return o;
-}
 
 RDKit::ROMol*
 coot::mogulify(const RDKit::ROMol &mol) {
@@ -366,14 +270,16 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 
 	    // debug.  OK, so the bond orders are undelocalized here.
 	    // debug_rdkit_molecule(&mol_rw);
-      
+
+	    // Happy Path return
+
 	    return m;
 	 }
 
 	 catch (const std::runtime_error &rte) {
 	    std::cout << "ERROR:: " << rte.what() << std::endl;
 	 }
-	 
+
       } else {
 
 	 // Are you here unexpectedly?  That's because the input cif dictionary doesn't have
@@ -395,7 +301,9 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	 delete mol;
 	 return m;
       }
-   } 
+   }
+
+   // this is not the normal (happy path) return
    return mol;
 }
      
@@ -451,9 +359,9 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
 
       std::string at_c_name, at_o1_name, at_o2_name, at_h_name;
 
-      at_c->setProp( "atom_type", "C");
-      at_o1->setProp("atom_type", "OC");
-      at_o2->setProp("atom_type", "OC");
+      at_c->setProp( "type_energy", "C");
+      at_o1->setProp("type_energy", "OC");
+      at_o2->setProp("type_energy", "OC");
 
       RDKit::Bond *bond_1 = r->getBondBetweenAtoms(at_c.get()->getIdx(), at_o1.get()->getIdx());
       RDKit::Bond *bond_2 = r->getBondBetweenAtoms(at_c.get()->getIdx(), at_o2.get()->getIdx());
@@ -495,11 +403,11 @@ coot::hydrogen_transformations(const RDKit::ROMol &mol) {
 
       if (degree == 4) { 
          // it has its 2 hydrogens already
-         at_n->setProp("atom_type", "NT2"); // also set to NT3 by SMARTS match in pyrogen.py
+         at_n->setProp("type_energy", "NT2"); // also set to NT3 by SMARTS match in pyrogen.py
       }
 
       if (degree == 3) { 
-         at_n->setProp("atom_type", "NT3"); // also set to NT3 by SMARTS match in pyrogen.py
+         at_n->setProp("type_energy", "NT3"); // also set to NT3 by SMARTS match in pyrogen.py
          // add a hydrogen atom and a bond to the nitrogen.
          // 
          RDKit::Atom *new_h_at = new RDKit::Atom(1);

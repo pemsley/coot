@@ -4607,6 +4607,8 @@ lbg_info_t::import_via_rdkit_from_restraints_dictionary(const coot::dictionary_r
 widgeted_molecule_t
 lbg_info_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) const {
 
+   // see that this returns a widgeted_molecule_t, it doesn't fill the class's mol data item.
+
    // transfer atom names if you can.
 
    widgeted_molecule_t m;
@@ -4902,7 +4904,7 @@ lbg_info_t::get_drug(const std::string &drug_name) {
       }
       catch (const std::runtime_error &rte) {
 	 std::cout << "WARNING:: " << rte.what() << std::endl;
-      } 
+      }
    } else {
 
       PyObject *pName = PyString_FromString("lidia.fetch");

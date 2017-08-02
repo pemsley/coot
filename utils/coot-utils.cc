@@ -202,7 +202,7 @@ coot::util::remove_trailing_slash(const std::string &s) {
    std::string scratch = s;
 
    if (s.length() > 0) {
-#ifdef HAVE_CXX_11
+#ifdef HAVE_CXX11
       if (s.back() == '/')
          scratch.erase(scratch.end()-1);
       if (s.back() == '\\')
@@ -735,7 +735,9 @@ coot::util::file_name_non_directory(const std::string &file_name) {
 
    if (slash_char != -1) 
       rstring = file_name.substr(slash_char+1);
-   
+   else
+      rstring = file_name;
+
    // std::cout << "DEBUG:: non-directory of " << file_name << " is " << rstring << std::endl;
    return rstring;
 }

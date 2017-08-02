@@ -22,6 +22,7 @@
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 #include <cstring>  // Fixes ::strchr complaints on 4.4.7 (hal)
+#include <queue>
 #include "utils/coot-utils.hh"
 #include "rdkit-interface.hh"
 #include <GraphMol/Chirality.h>  // for CIP ranks
@@ -86,7 +87,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
       std::cout << "=========== in rdkit_mol() with restraints that have "
 		<< restraints.atom_info.size() << " atoms, "
 		<< restraints.bond_restraint.size() << " bond restraints with do_undelocalize "
-		<< do_undelocalize << std::endl;
+		<< do_undelocalize
+		<< " for residue " << residue_spec_t(residue_p) << " and alt conf "
+		<< "\"" << alt_conf << "\"" << std::endl;
 
    if (debug)
       for (unsigned int ii=0; ii<restraints.atom_info.size(); ii++)
@@ -97,6 +100,9 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
    std::string n = coot::util::remove_trailing_whitespace(restraints.residue_info.name);
    m.setProp("_Name", n);
    m.setProp("ResName", std::string(residue_p->GetResName()));
+   m.setProp("ResNumber", residue_p->GetSeqNum());
+   m.setProp("ChainID", std::string(residue_p->GetChainID()));
+   m.setProp("alt_id", alt_conf);
 
    const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
    mmdb::PPAtom residue_atoms = 0;
@@ -120,17 +126,18 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
                                        // We don't want to add atoms that are
 				       // not bonded to anything (e.g. hydrogens with mismatching
                                        // names).
-   
+  
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
    for (int iat_1=0; iat_1<n_residue_atoms; iat_1++) {
       mmdb::Atom *at_1 = residue_atoms[iat_1];
       if (! at_1->Ter) {
 	 std::string atom_name_1(at_1->name);
+	 std::string atom_alt_conf(at_1->altLoc);
 	 if (debug)
 	    std::cout << "rdkit_mol() handling atom " << iat_1 << " of " << n_residue_atoms
-		      << " with mmdb::Residue atom name " << atom_name_1 << std::endl;
-	 std::string atom_alt_conf(at_1->altLoc);
-	 if (atom_alt_conf == alt_conf) { 
+		      << " with mmdb::Residue atom name " << atom_name_1
+		      << " alt-conf \"" << atom_alt_conf << "\""<< std::endl;
+	 if (atom_alt_conf == alt_conf) {
 	    bool found_a_bonded_atom = false;
 	    for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
 	       if (restraints.bond_restraint[ib].atom_id_1_4c() == atom_name_1) {
@@ -154,7 +161,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		     if (atom_name_2 == restraints.bond_restraint[ib].atom_id_1_4c()) {
 			found_a_bonded_atom = true;
 			break;
-		     } 
+		     }
 		  }
 	       }
 	    }
@@ -283,7 +290,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
       // So this code needs to be moved down.
    
       for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
-	 if (debug)
+	 if (false)
 	    std::cout << "   handling bond " << ib << " of " << restraints.bond_restraint.size()
 		      << " :" << restraints.bond_restraint[ib].atom_id_1_4c() << ": " 
 		      << " :" << restraints.bond_restraint[ib].atom_id_2_4c() << ": " 
@@ -344,13 +351,21 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		  bond->setEndAtomIdx(  idx_1);
 	       } 
 
-	       if (type == RDKit::Bond::AROMATIC) { 
+	       if (type == RDKit::Bond::AROMATIC) {
 		  bond->setIsAromatic(true);
 		  m[idx_1]->setIsAromatic(true);
 		  m[idx_2]->setIsAromatic(true);
 	       }
+	       // Are you here again?
+	       // You're here because the dictionary for this ligand was double-read
+	       // and added to, not replaced, the previous dictionary.  There are two
+	       // sets of atoms and bonds. Use have_dictionary_for_residue_type_no_dynamic_add()
+	       // to check before adding the restraints. Or pre-trash the current restraints
+	       // Or increment the read number.
+	       //
+	       //
 	       m.addBond(bond); // worry about ownership or memory leak.
-	    
+
 	    } else {
 	       if (ele_2 != " H") {
 
@@ -423,7 +438,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
       for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) { 
 
 	 RDKit::Bond::BondType type = convert_bond_type(restraints.bond_restraint[ib].type());
-	 if (type == RDKit::Bond::AROMATIC) { 
+	 if (type == RDKit::Bond::AROMATIC) {
 	    std::string atom_name_1 = restraints.bond_restraint[ib].atom_id_1_4c();
 	    std::string atom_name_2 = restraints.bond_restraint[ib].atom_id_2_4c();
 	    std::string ele_1 = restraints.element(atom_name_1);
@@ -618,164 +633,172 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		  std::vector<std::pair<const RDKit::Atom *, unsigned int> > neighbs;
 	    
 		  // what are the atoms bonded to this rdkit atom?
-		  RDKit::Atom *rdkit_at = m[bonded_atoms[iat].first].get();  // probably - or always?
-
-		  RDKit::ROMol::OEDGE_ITER beg,end;
-		  boost::tie(beg,end) = m.getAtomBonds(rdkit_at);
-		  while(beg!=end){
-		     const RDKit::Bond *bond=m[*beg].get();
-		     ++beg;
-		     const RDKit::Atom *nbr=bond->getOtherAtom(rdkit_at);
-		     unsigned int cip_rank = 0;
-		     nbr->getProp(RDKit::common_properties::_CIPRank, cip_rank);
-		     std::pair<const RDKit::Atom *, unsigned int> p(nbr, cip_rank);
-		     neighbs.push_back(p);
-		  }
-
-		  if (false) { 
-		     std::cout << "atom " << rdkit_at << " has stereoconfig "
-			       << atom_info.pdbx_stereo_config.second << " and "
-			       << neighbs.size() << " non-H neighbours " << std::endl;
-		     std::cout << "---------- unsorted neighbs: " << std::endl;
-		     for (unsigned int jj=0; jj<neighbs.size(); jj++) {
-			std::cout << neighbs[jj].first << " " << neighbs[jj].second << std::endl;
-		     }
-		  }
-
-		  std::vector<std::pair<const RDKit::Atom *, unsigned int> > sorted_neighbs = neighbs;
-		  std::sort(sorted_neighbs.begin(), sorted_neighbs.end(), cip_rank_sorter);
-
-		  if (false) {
-		     std::cout << "---------- sorted neighbs: " << std::endl;
-		     for (unsigned int jj=0; jj<sorted_neighbs.size(); jj++) { 
-			std::cout << jj << " " << sorted_neighbs[jj].first << " "
-				  << sorted_neighbs[jj].second << std::endl;
-		     }
-		  }
-	    
-		  bool inverted = true; // set this using cleverness
-
-		  if (neighbs.size() == 3) {
-
-		     neighbs.resize(3);
-		     sorted_neighbs.resize(3);
-
-		     if (neighbs[0] == sorted_neighbs[0])
-			if (neighbs[1] == sorted_neighbs[1])
-			   if (neighbs[2] == sorted_neighbs[2])
-			      inverted = false;
-		     
-		     if (neighbs[0] == sorted_neighbs[1])
-			if (neighbs[1] == sorted_neighbs[2])
-			   if (neighbs[2] == sorted_neighbs[0])
-			      inverted = false;
-
-		     if (neighbs[0] == sorted_neighbs[2])
-			if (neighbs[1] == sorted_neighbs[0])
-			   if (neighbs[2] == sorted_neighbs[1])
-			      inverted = false;
-
+		  unsigned int idx_iat = bonded_atoms[iat].first;
+		  if (idx_iat >= n_atoms) {
+		     // bad!
+		     std::cout << "ERROR:: rdkit_mol() chiral-check: trying to get atom with "
+			       << "index  " << idx_iat << " but molecule has " << n_atoms
+			       << " atoms" << std::endl;
 		  } else {
+		     // happy path
+		     RDKit::Atom *rdkit_at = m[idx_iat].get();  // probably - or always?
 
-		     if (neighbs.size() == 4) { // what else can it be?
+		     RDKit::ROMol::OEDGE_ITER beg,end;
+		     boost::tie(beg,end) = m.getAtomBonds(rdkit_at);
+		     while(beg!=end){
+			const RDKit::Bond *bond=m[*beg].get();
+			++beg;
+			const RDKit::Atom *nbr=bond->getOtherAtom(rdkit_at);
+			unsigned int cip_rank = 0;
+			nbr->getProp(RDKit::common_properties::_CIPRank, cip_rank);
+			std::pair<const RDKit::Atom *, unsigned int> p(nbr, cip_rank);
+			neighbs.push_back(p);
+		     }
 
-			// are the first 3 atoms of neighbour list the three atoms of highest CIP rank?
-		  
-			bool atom_sets_match = false;
-			std::vector<const RDKit::Atom *> needed_atoms(3);
-			needed_atoms[0] = sorted_neighbs[1].first;
-			needed_atoms[1] = sorted_neighbs[2].first;
-			needed_atoms[2] = sorted_neighbs[3].first;
-
-			unsigned int n_found = 0;
-			for (unsigned int jj=0; jj<3; jj++) {
-			   for (unsigned int ii=0; ii<3; ii++) {
-			      if (needed_atoms[ii] == neighbs[jj].first)
-				 n_found += 1;
-			   }
+		     if (false) {
+			std::cout << "atom " << rdkit_at << " has stereoconfig "
+				  << atom_info.pdbx_stereo_config.second << " and "
+				  << neighbs.size() << " non-H neighbours " << std::endl;
+			std::cout << "---------- unsorted neighbs: " << std::endl;
+			for (unsigned int jj=0; jj<neighbs.size(); jj++) {
+			   std::cout << neighbs[jj].first << " " << neighbs[jj].second << std::endl;
 			}
+		     }
 
-			if (n_found == 3) {
+		     std::vector<std::pair<const RDKit::Atom *, unsigned int> > sorted_neighbs = neighbs;
+		     std::sort(sorted_neighbs.begin(), sorted_neighbs.end(), cip_rank_sorter);
 
-			   // as above
+		     if (false) {
+			std::cout << "---------- sorted neighbs: " << std::endl;
+			for (unsigned int jj=0; jj<sorted_neighbs.size(); jj++) { 
+			   std::cout << jj << " " << sorted_neighbs[jj].first << " "
+				     << sorted_neighbs[jj].second << std::endl;
+			}
+		     }
+	    
+		     bool inverted = true; // set this using cleverness
 
-			   if (neighbs[0] == sorted_neighbs[0])
-			      if (neighbs[1] == sorted_neighbs[1])
-				 if (neighbs[2] == sorted_neighbs[2])
-				    inverted = false;
+		     if (neighbs.size() == 3) {
 
-			   if (neighbs[0] == sorted_neighbs[1])
-			      if (neighbs[1] == sorted_neighbs[2])
-				 if (neighbs[2] == sorted_neighbs[0])
-				    inverted = false;
+			neighbs.resize(3);
+			sorted_neighbs.resize(3);
 
-			   if (neighbs[0] == sorted_neighbs[2])
-			      if (neighbs[1] == sorted_neighbs[0])
-				 if (neighbs[2] == sorted_neighbs[1])
-				    inverted = false;
-
-			   if (atom_info.pdbx_stereo_config.second == "R") {
-			      if (inverted)
-				 rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CCW);
-			      else
-				 rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CW);
-			   }
-	       
-			   if (atom_info.pdbx_stereo_config.second == "S") {
-			      if (inverted)
-				 rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CW);
-			      else
-				 rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CCW);
-			   }
+			if (neighbs[0] == sorted_neighbs[0])
+			   if (neighbs[1] == sorted_neighbs[1])
+			      if (neighbs[2] == sorted_neighbs[2])
+				 inverted = false;
 		     
-			} else {
+			if (neighbs[0] == sorted_neighbs[1])
+			   if (neighbs[1] == sorted_neighbs[2])
+			      if (neighbs[2] == sorted_neighbs[0])
+				 inverted = false;
 
-			   // tricky case: the high CIP ranked atoms are not the first 3 neighbours of rdkit_at
-			   unsigned int idx_cip_rank_lowest = 0;
-			   unsigned int cip_rank_lowest = 99999;
-			   for (unsigned int jj=0; jj<4; jj++) {
-			      if (neighbs[jj].second < cip_rank_lowest) {
-				 cip_rank_lowest = neighbs[jj].second;
-				 idx_cip_rank_lowest = jj;
+			if (neighbs[0] == sorted_neighbs[2])
+			   if (neighbs[1] == sorted_neighbs[0])
+			      if (neighbs[2] == sorted_neighbs[1])
+				 inverted = false;
+
+		     } else {
+
+			if (neighbs.size() == 4) { // what else can it be?
+
+			   // are the first 3 atoms of neighbour list the three atoms of highest CIP rank?
+		  
+			   bool atom_sets_match = false;
+			   std::vector<const RDKit::Atom *> needed_atoms(3);
+			   needed_atoms[0] = sorted_neighbs[1].first;
+			   needed_atoms[1] = sorted_neighbs[2].first;
+			   needed_atoms[2] = sorted_neighbs[3].first;
+
+			   unsigned int n_found = 0;
+			   for (unsigned int jj=0; jj<3; jj++) {
+			      for (unsigned int ii=0; ii<3; ii++) {
+				 if (needed_atoms[ii] == neighbs[jj].first)
+				    n_found += 1;
 			      }
 			   }
 
-			   // idx_cip_rank_lowest should be something other than 0 now
-			   //
-			   // This part needs testing
-			   //
-			   if (false)
-			      std::cout << "debug idx_cip_rank_lowest " << idx_cip_rank_lowest << std::endl;
-			   //
-			   // these need checking
-			   if (idx_cip_rank_lowest == 1)
-			      inverted = true;
-			   if (idx_cip_rank_lowest == 2)
-			      inverted = false;
-			   if (idx_cip_rank_lowest == 3)
-			      inverted = true;
+			   if (n_found == 3) {
 
+			      // as above
+
+			      if (neighbs[0] == sorted_neighbs[0])
+				 if (neighbs[1] == sorted_neighbs[1])
+				    if (neighbs[2] == sorted_neighbs[2])
+				       inverted = false;
+
+			      if (neighbs[0] == sorted_neighbs[1])
+				 if (neighbs[1] == sorted_neighbs[2])
+				    if (neighbs[2] == sorted_neighbs[0])
+				       inverted = false;
+
+			      if (neighbs[0] == sorted_neighbs[2])
+				 if (neighbs[1] == sorted_neighbs[0])
+				    if (neighbs[2] == sorted_neighbs[1])
+				       inverted = false;
+
+			      if (atom_info.pdbx_stereo_config.second == "R") {
+				 if (inverted)
+				    rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CCW);
+				 else
+				    rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CW);
+			      }
+	       
+			      if (atom_info.pdbx_stereo_config.second == "S") {
+				 if (inverted)
+				    rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CW);
+				 else
+				    rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CCW);
+			      }
+		     
+			   } else {
+
+			      // tricky case: the high CIP ranked atoms are not the first 3 neighbours of rdkit_at
+			      unsigned int idx_cip_rank_lowest = 0;
+			      unsigned int cip_rank_lowest = 99999;
+			      for (unsigned int jj=0; jj<4; jj++) {
+				 if (neighbs[jj].second < cip_rank_lowest) {
+				    cip_rank_lowest = neighbs[jj].second;
+				    idx_cip_rank_lowest = jj;
+				 }
+			      }
+
+			      // idx_cip_rank_lowest should be something other than 0 now
+			      //
+			      // This part needs testing
+			      //
+			      if (false)
+				 std::cout << "debug idx_cip_rank_lowest " << idx_cip_rank_lowest << std::endl;
+			      //
+			      // these need checking
+			      if (idx_cip_rank_lowest == 1)
+				 inverted = true;
+			      if (idx_cip_rank_lowest == 2)
+				 inverted = false;
+			      if (idx_cip_rank_lowest == 3)
+				 inverted = true;
+
+			   }
+			} else {
+			   std::cout << "WARNING:: crazy atom - too many connections " << atom_info << std::endl;
 			}
-		     } else {
-			std::cout << "WARNING:: crazy atom - too many connections " << atom_info << std::endl;
+
 		     }
 
-		  }
-
-		  if (atom_info.pdbx_stereo_config.second == "R") {
-		     if (inverted)
-			rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CCW);
-		     else
-			rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CW);
-		  }
+		     if (atom_info.pdbx_stereo_config.second == "R") {
+			if (inverted)
+			   rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CCW);
+			else
+			   rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CW);
+		     }
 	       
-		  if (atom_info.pdbx_stereo_config.second == "S") {
-		     if (inverted)
-			rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CW);
-		     else
-			rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CCW);
+		     if (atom_info.pdbx_stereo_config.second == "S") {
+			if (inverted)
+			   rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CW);
+			else
+			   rdkit_at->setChiralTag(RDKit::Atom::CHI_TETRAHEDRAL_CCW);
+		     }
 		  }
-
 	       }
 	    }
 	 }
@@ -824,6 +847,8 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	 if (debug) 
 	    std::cout << "ending construction of rdkit mol: n_atoms " << m.getNumAtoms()
 		      << std::endl;
+
+	 set_energy_lib_atom_types(&m);
 
 	 // debugging
 	 // RDKit::MolToMolFile(m, "rdkit.mol");
@@ -1102,6 +1127,7 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
    
    // ------------------------------------ Bonds -----------------------------
 
+   int n_atoms = m.getNumAtoms();
    std::map<std::string, int>::const_iterator it_1;
    std::map<std::string, int>::const_iterator it_2;
    int idx_1, idx_2;
@@ -1115,32 +1141,40 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	    idx_2 = it_2->second;
 	    RDKit::Bond::BondType type = convert_bond_type(br.type());
 	    RDKit::Bond *bond = new RDKit::Bond(type);
-	    
-	    // wedge bonds should have the chiral centre as the first atom.
-	    //
-	    bool swap_order = false;
 
-	    if (r.chiral_restraint.size()) {
-	       swap_order = chiral_check_order_swap(m[idx_1], m[idx_2], r.chiral_restraint);
-	    } else {
-	       // use the atoms rdkit chiral status
-	       swap_order = chiral_check_order_swap(m[idx_1], m[idx_2]);
-	    }
-	    if (! swap_order) {  // normal
-	       bond->setBeginAtomIdx(idx_1);
-	       bond->setEndAtomIdx(  idx_2);
-	    } else {
-	       bond->setBeginAtomIdx(idx_2);
-	       bond->setEndAtomIdx(  idx_1);
-	    } 
+	    if (idx_1 < n_atoms) {
+	       if (idx_2 < n_atoms) {
 	    
-	    if (type == RDKit::Bond::AROMATIC) { 
-	       bond->setIsAromatic(true);
-	       m[idx_1]->setIsAromatic(true);
-	       m[idx_2]->setIsAromatic(true);
-	    }
-	    m.addBond(bond); // worry about ownership or memory leak.
+		  // wedge bonds should have the chiral centre as the first atom.
+		  //
+		  bool swap_order = false;
+
+		  if (r.chiral_restraint.size()) {
+		     swap_order = chiral_check_order_swap(m[idx_1], m[idx_2], r.chiral_restraint);
+		  } else {
+		     // use the atoms rdkit chiral status
+		     swap_order = chiral_check_order_swap(m[idx_1], m[idx_2]);
+		  }
+		  if (! swap_order) {  // normal
+		     bond->setBeginAtomIdx(idx_1);
+		     bond->setEndAtomIdx(  idx_2);
+		  } else {
+		     bond->setBeginAtomIdx(idx_2);
+		     bond->setEndAtomIdx(  idx_1);
+		  } 
 	    
+		  if (type == RDKit::Bond::AROMATIC) {
+		     bond->setIsAromatic(true);
+		     m[idx_1]->setIsAromatic(true);
+		     m[idx_2]->setIsAromatic(true);
+		  }
+		  m.addBond(bond); // worry about ownership or memory leak.
+	       } else {
+		  std::cout << "ERROR:: atom indexing problem " << idx_2 << " " << n_atoms << std::endl;
+	       }
+	    } else {
+	       std::cout << "ERROR:: atom indexing problem " << idx_1 << " " << n_atoms << std::endl;
+	    }
 	 }
       }
    }
@@ -1179,6 +1213,8 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
                                   // pdbx_stereo_config R to CW and S to CCW.
                                   // which presumes that the pdbx CIP codes are the
                                   // same as RDKit's.
+
+   set_energy_lib_atom_types(&m); // Refmac types used for H-bonding
    return m;
 }
 
@@ -1838,7 +1874,7 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 
    if (n_conf) {
       const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
-      
+
       RDKit::Conformer conf = rdkm.getConformer(iconf);
       int n_mol_atoms = rdkm.getNumAtoms();
 
@@ -1920,6 +1956,10 @@ coot::make_molfile_molecule(const RDKit::ROMol &rdkm, int iconf) {
 //
 mmdb::Residue *
 coot::make_residue(const RDKit::ROMol &rdkm, int iconf, const std::string &res_name) {
+
+   // replace this function by making a residue directly instead of via a molfile.
+   // If there are no atom names, make them from the element and atom number
+   
 
    mmdb::Residue *residue_p = NULL;
    lig_build::molfile_molecule_t mol = coot::make_molfile_molecule(rdkm, iconf);

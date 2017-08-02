@@ -128,7 +128,7 @@ namespace lig_build {
 	 return pos_t(new_x, new_y);
       }
       
-      pos_t operator*(float sc) {
+      pos_t operator*(float sc) const {
 	 return pos_t(x*sc, y*sc);
       }
       double length() const {
@@ -819,6 +819,12 @@ namespace lig_build {
       // not const because it now caches the return value;
       //
       bool have_cached_bond_ring_centres_flag;
+      //
+      // ring centres should incorporate the number of atoms contributing to the
+      // ring, i.e. std::vector<std::pair<unsigned int, pos_t> >
+      // so that the ring centre info can be used to calculate the correct
+      // position of the inner bond of a ring double bond
+      //
       std::vector<pos_t> cached_bond_ring_centres;
 
    public:
@@ -1669,7 +1675,9 @@ namespace lig_build {
 		     h_count = "2";
 
 		  pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
-		  if (sum_delta.x < 3.2) { // prefer CH3 to H3C when (nearly) vertical.
+		  double theta = (180.0/M_PI) * atan2(sum_delta.y, sum_delta.x);
+		  if (! (theta > -95.0 && theta < 95.0)) {
+		     // if (sum_delta.x < 3.2) { // prefer CH3 to H3C when (nearly) vertical. (old)
 		     atom_id_info_t id("CH");
 		     offset_text_t ot(h_count);
 		     ot.tweak = pos_t(18, 0);
@@ -1712,9 +1720,13 @@ namespace lig_build {
 		  // H2N, with the 2 subscripted.
 		  // 
 		  pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
-		  if (sum_delta.x < 3.2) { // prefer NH2 to H2N when (nearly) vertical.
-		     return atom_id_info_t("NH", "2");
-		  } else {
+		  double theta = (180.0/M_PI) * atan2(sum_delta.y, sum_delta.x);
+		  // std::cout << "::: here for NH2 with sum_delta " << sum_delta
+		  // << " theta " << theta << std::endl;
+		  // old (dependent on molecule scaling)
+		  // if (sum_delta.x < 3.2) { // prefer NH2 to H2N when (nearly) vertical.
+
+		  if (theta > -95.0 && theta < 95.0) {
 		     // more tricky case then...
 		     atom_id_info_t id;
 		     offset_text_t otH("H");
@@ -1729,6 +1741,8 @@ namespace lig_build {
 		     id.add(ot2);
 		     id.add(otN);
 		     return id;
+		  } else {
+		     return atom_id_info_t("NH", "2");
 		  }
 	       }
 
