@@ -203,6 +203,9 @@ def get_pdbe_cif_for_comp_id(comp_id):
       print "Failed: Can't ftp from", url, "and write file", file_name
       # exit(2)
 
+def fetch(comp_id):
+    return get_pdbe_cif_for_comp_id(comp_id)
+
 def MolFromFetchedCode(code):
    f = get_pdbe_cif_for_comp_id(code)
    m = pyrogen_boost.MolFromPDBXr(f, code)
@@ -708,8 +711,8 @@ def depict(mmcif_file_name_in, comp_id, png_file_name):
    if n == 0:
       conf_id = AllChem.Compute2DCoords(m)
    conf = m.GetConformer(conf_id)
+   mol_for_drawing = Chem.RemoveHs(m, implicitOnly=False)
    if conf.Is3D():
-      mol_for_drawing = Chem.RemoveHs(m, implicitOnly=False)
       conf2D_id = AllChem.Compute2DCoords(mol_for_drawing)
       make_picture_to_file(mol_for_drawing, conf2D_id, png_file_name)
    else:
@@ -740,7 +743,7 @@ def score_and_print_tautomers(mol, comp_id, output_postfix, do_drawings):
 		make_picture_to_file(mol_for_drawing, conf2D_id, file_name)
 	    else:
 		make_picture_to_file(m, -1, file_name)
-   
+
 
 if __name__ == "__main__":
 
@@ -813,6 +816,8 @@ if __name__ == "__main__":
                       default=False)
     parser.add_option('-w', '--wwPDB', default=False, dest="wwPDB", action="store_true",
                       help='Fetch the wwPDB ligand definition and use that')
+    parser.add_option('-f', dest="fetch", default=False,
+		      help='(Just) fetch from the PDBe the CCD entry for the given compound-id')
     parser.add_option("-q", "--quiet",
                       action="store_false", dest="verbose", default=True,
                       help="print less messages")
@@ -822,6 +827,9 @@ if __name__ == "__main__":
 
     if options.show_version:
        print 'pyrogen-' + pyrogen_version, "revision", coot_git.revision_count()
+
+    if options.fetch:
+	fetch(options.fetch)
 
     comp_id = options.comp_id
     if options.comp_id == 'default':
