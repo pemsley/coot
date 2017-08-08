@@ -210,7 +210,7 @@ coot::cairo_atom_t::make_text_item(cairo_t *cr,
 	 p.y -= 0.3 * scale;
       }
 
-      if (true)
+      if (false)
 	 std::cout << "Rendering tweak " << i << " :" << atom_id_info[i].text
 		   << ": with tweak " << atom_id_info[i].tweak
 		   << ": with size_hint " << atom_id_info.size_hint
