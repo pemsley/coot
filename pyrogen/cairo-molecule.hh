@@ -71,7 +71,10 @@ namespace coot {
       void import_rdkit_mol(RDKit::ROMol *mol, int iconf);
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 
-      void render(const std::string &png_file_name, unsigned int npx=300);
+      // render to file
+      void render_to_file(const std::string &png_file_name, unsigned int npx=300);
+      // render to string
+      std::string render_to_string(unsigned int npx=300);
 
       // helper function
       static
@@ -85,5 +88,9 @@ namespace coot {
 			 const std::string &comp_id,
 			 const std::string png_file_name,
 			 unsigned int npx=300);
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+   std::string cairo_png_from_mol_raw(RDKit::ROMol *m, int iconf = -1, unsigned int npx=300);
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 
 }

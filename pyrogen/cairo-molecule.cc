@@ -327,25 +327,23 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
 	 lig_build::pos_t p5 = pos_1 - buv_90 * small;
 	 lig_build::pos_t p6 = pos_2 - buv_90 * small;
 
-	 {
 
-	    lig_build::pos_t sc_p1 = cairo_molecule_t::mol_coords_to_cairo_coords(p1, centre, scale);
-	    lig_build::pos_t sc_p2 = cairo_molecule_t::mol_coords_to_cairo_coords(p1, centre, scale);
-	    lig_build::pos_t sc_p3 = cairo_molecule_t::mol_coords_to_cairo_coords(p1, centre, scale);
-	    lig_build::pos_t sc_p4 = cairo_molecule_t::mol_coords_to_cairo_coords(p1, centre, scale);
-	    lig_build::pos_t sc_p5 = cairo_molecule_t::mol_coords_to_cairo_coords(p1, centre, scale);
-	    lig_build::pos_t sc_p6 = cairo_molecule_t::mol_coords_to_cairo_coords(p1, centre, scale);
+	 lig_build::pos_t sc_p1 = cairo_molecule_t::mol_coords_to_cairo_coords(p1, centre, scale);
+	 lig_build::pos_t sc_p2 = cairo_molecule_t::mol_coords_to_cairo_coords(p2, centre, scale);
+	 lig_build::pos_t sc_p3 = cairo_molecule_t::mol_coords_to_cairo_coords(p3, centre, scale);
+	 lig_build::pos_t sc_p4 = cairo_molecule_t::mol_coords_to_cairo_coords(p4, centre, scale);
+	 lig_build::pos_t sc_p5 = cairo_molecule_t::mol_coords_to_cairo_coords(p5, centre, scale);
+	 lig_build::pos_t sc_p6 = cairo_molecule_t::mol_coords_to_cairo_coords(p6, centre, scale);
 
-	    cairo_move_to(cr, sc_p1.x, sc_p1.y);
-	    cairo_line_to(cr, sc_p2.x, sc_p2.y);
-	    cairo_stroke(cr);
-	    cairo_move_to(cr, sc_p3.x, sc_p3.y);
-	    cairo_line_to(cr, sc_p4.x, sc_p4.y);
-	    cairo_stroke(cr);
-	    cairo_move_to(cr, sc_p5.x, sc_p5.y);
-	    cairo_line_to(cr, sc_p6.x, sc_p6.y);
-	    cairo_stroke(cr);
-	 }
+	 cairo_move_to(cr, sc_p1.x, sc_p1.y);
+	 cairo_line_to(cr, sc_p2.x, sc_p2.y);
+	 cairo_stroke(cr);
+	 cairo_move_to(cr, sc_p3.x, sc_p3.y);
+	 cairo_line_to(cr, sc_p4.x, sc_p4.y);
+	 cairo_stroke(cr);
+	 cairo_move_to(cr, sc_p5.x, sc_p5.y);
+	 cairo_line_to(cr, sc_p6.x, sc_p6.y);
+	 cairo_stroke(cr);
       }
       break;
 
@@ -521,15 +519,15 @@ coot::cairo_bond_t::draw_double_bond(cairo_t *cr,
 }
 
 void
-coot::cairo_molecule_t::render(const std::string &png_file_name, unsigned int npx) {
+coot::cairo_molecule_t::render_to_file(const std::string &png_file_name, unsigned int npx) {
 
    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, npx, npx);
-   cairo_t *cr = cairo_create (surface);
+   cairo_t *cr = cairo_create(surface);
 
    // Drawing space is 0->1 with 0,0 top left
    // if cairo_image_surface_create called with 240,240, then cairo_scale called with
    // 120,120 puts the image, half-size in top left quadrant
-   cairo_scale (cr, npx, npx);
+   cairo_scale(cr, npx, npx);
 
 
    // ------------ the font size and the line width depend on the size of the
@@ -611,7 +609,7 @@ coot::cairo_molecule_t::render(const std::string &png_file_name, unsigned int np
 	    make_atom_id_by_using_bonds(iat, ele, local_bonds, gl_flag);
 	 atoms[iat].set_atom_id(atom_id_info.atom_id); // quick hack
 	 if (false)
-	    std::cout << "in render() atom_index " << iat << " with charge "
+	    std::cout << "in render_to_file() atom_index " << iat << " with charge "
 		      << atoms[iat].charge
 		      << " made atom_id_info " << atom_id_info << std::endl;
 	 atoms[iat].set_colour(cr);
@@ -628,10 +626,26 @@ coot::cairo_molecule_t::render(const std::string &png_file_name, unsigned int np
    }
 
    /* Write output and clean up */
-   cairo_surface_write_to_png (surface, png_file_name.c_str());
-   cairo_destroy (cr);
-   cairo_surface_destroy (surface);
+   cairo_surface_write_to_png(surface, png_file_name.c_str());
+   cairo_destroy(cr);
+   cairo_surface_destroy(surface);
 
+}
+
+std::string
+coot::cairo_molecule_t::render_to_string(unsigned int npx) {
+
+   std::string s;
+
+   cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, npx, npx);
+   cairo_t *cr = cairo_create(surface);
+   cairo_scale(cr, npx, npx);
+
+   // cairo_write_func_t write_func();
+   // cairo_surface_write_to_png_stream(surface, write_func, NULL);
+   cairo_destroy(cr);
+   cairo_surface_destroy(surface);
+   return s;
 }
 
 void
@@ -664,7 +678,7 @@ coot::cairo_png_depict(const std::string &mmcif_file_name,
 	       RDKit::Conformer &conf = rdkm.getConformer(iconf);
 	       RDKit::WedgeMolBonds(rdkm, &conf);
 	       coot::cairo_molecule_t mol(&rdkm, iconf);
-	       mol.render(png_file_name, npx);
+	       mol.render_to_file(png_file_name, npx);
 	    }
 	    catch (...) {
 	    }
@@ -694,7 +708,7 @@ coot::cairo_png_depict(const std::string &mmcif_file_name,
 		  RDKit::Conformer &conf = mol_rw.getConformer(iconf);
 		  RDKit::WedgeMolBonds(mol_rw, &conf);
 		  coot::cairo_molecule_t mol(&mol_rw, iconf);
-		  mol.render(png_file_name, npx);
+		  mol.render_to_file(png_file_name, npx);
 	       }
 	    }
 	 }
@@ -705,4 +719,26 @@ coot::cairo_png_depict(const std::string &mmcif_file_name,
    }
 #endif
 
+}
+
+
+std::string
+coot::cairo_png_from_mol_raw(RDKit::ROMol *m, int iconf, unsigned int npx) {
+
+   std::string s;
+   int n_confs = m->getNumConformers();
+
+   if (n_confs > 0) {
+      if (iconf == -1) {
+	 // use the most recent one
+	 iconf = n_confs -1;
+      }
+      RDKit::Conformer &conf = m->getConformer(iconf);
+      RDKit::WedgeMolBonds(*m, &conf);
+      coot::cairo_molecule_t mol(m, iconf);
+      mol.render_to_string(npx);
+
+   }
+
+   return s;
 }
