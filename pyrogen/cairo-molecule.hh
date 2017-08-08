@@ -9,6 +9,7 @@
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 
 namespace coot {
+
    class cairo_atom_t : public lig_build::atom_t {
    
    public:
@@ -35,10 +36,13 @@ namespace coot {
       void draw_bond(cairo_t *cr, const lig_build::pos_t &pos_1, const lig_build::pos_t &pos_2,
 		     bool shorten_first, bool shorten_second, lig_build::bond_t::bond_type_t bt,
 		     const lig_build::pos_t &centre, double scale);
-      void draw_double_or_aromatic_bond(cairo_t *cr,
-					const lig_build::pos_t &pos_1,
-					const lig_build::pos_t &pos_2,
-					const lig_build::pos_t &centre, double scale);
+      void draw_double_in_ring_bond(cairo_t *cr,
+				    const lig_build::pos_t &pos_1,
+				    const lig_build::pos_t &pos_2,
+				    bool shorten_first,
+				    bool shorten_second,
+				    const lig_build::pos_t &centre,
+				    double scale, bool dashed_inner=false);
       void draw_double_bond(cairo_t *cr,
 			    const lig_build::pos_t &pos_1, const lig_build::pos_t &pos_2,
 			    const lig_build::pos_t &centre, double scale);
@@ -59,11 +63,19 @@ namespace coot {
       void import_rdkit_mol(RDKit::ROMol *mol, int iconf);
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 
-      void render(const std::string &png_file_name);
+      void render(const std::string &png_file_name, unsigned int npx=300);
+
+      // helper function
+      static
+      lig_build::pos_t mol_coords_to_cairo_coords(const lig_build::pos_t &pos_1,
+						  const lig_build::pos_t &centre,
+						  double scale);
 
    };
 
    void cairo_png_depict(const std::string &mmcif_file_name,
 			 const std::string &comp_id,
-			 const std::string png_file_name);
+			 const std::string png_file_name,
+			 unsigned int npx=300);
+
 }

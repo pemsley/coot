@@ -3,6 +3,8 @@
 
    o the hydrogen is not drawn correctly on AC6 in Colour by Atoms
 
+   o CLD, CL6: bond to central ("chiral") atom is facing the wrong way
+
    o FLEV fail on A2005 in 5pb8 failure to construct rdkit molecule (in alt conf D)
 
    o make a mode "don't recontour the map on recentre". Add a "recontour" 

@@ -175,6 +175,7 @@ coot::cairo_atom_t::set_colour(cairo_t *cr) const {
    if (element == "O")  cairo_set_source_rgb(cr, 0.8, 0.0, 0);
    if (element == "N")  cairo_set_source_rgb(cr, 0.2, 0.2, 0.8);
    if (element == "S")  cairo_set_source_rgb(cr, 0.5, 0.5, 0);
+   if (element == "F") cairo_set_source_rgb (cr, 0,   0.5, 0);
    if (element == "Cl") cairo_set_source_rgb(cr, 0,   0.5, 0);
    if (element == "Br") cairo_set_source_rgb(cr, 0.5, 0.2, 0);
    if (element == "I")  cairo_set_source_rgb(cr, 0.3, 0.0, 0.3);
@@ -189,14 +190,13 @@ coot::cairo_atom_t::make_text_item(cairo_t *cr,
    for (unsigned int i=0; i<atom_id_info.n_offsets(); i++) {
 
       cairo_set_font_size(cr, 0.66 * scale);
-      lig_build::pos_t p = (atom_position - centre) * scale;
-      p += atom_id_info.offsets[i].tweak * scale * 0.043;
-      p += lig_build::pos_t(0.5, 0.5);
+      lig_build::pos_t p = cairo_molecule_t::mol_coords_to_cairo_coords(atom_position, centre, scale);
+      p += atom_id_info.offsets[i].tweak * scale * 0.045;
 
       if (atom_id_info[i].text_pos_offset == lig_build::offset_text_t::UP)
-	 p.y += 0.55 * scale;
-      if (atom_id_info[i].text_pos_offset == lig_build::offset_text_t::DOWN)
 	 p.y -= 0.55 * scale;
+      if (atom_id_info[i].text_pos_offset == lig_build::offset_text_t::DOWN)
+	 p.y += 0.55 * scale;
 
       if (atom_id_info.size_hint == -1)
 	 cairo_set_font_size(cr, 0.66 * scale * 0.7);
@@ -210,7 +210,7 @@ coot::cairo_atom_t::make_text_item(cairo_t *cr,
 	 p.y -= 0.3 * scale;
       }
 
-      if (false)
+      if (true)
 	 std::cout << "Rendering tweak " << i << " :" << atom_id_info[i].text
 		   << ": with tweak " << atom_id_info[i].tweak
 		   << ": with size_hint " << atom_id_info.size_hint
@@ -279,13 +279,13 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
    case lig_build::bond_t::SINGLE_OR_AROMATIC:
    case lig_build::bond_t::DELOC_ONE_AND_A_HALF:
    case lig_build::bond_t::BOND_ANY:
-      p1 = (pos_1 - centre) * scale;
-      p2 = (pos_2 - centre) * scale;
-      p1 += lig_build::pos_t(0.5,0.5);
-      p2 += lig_build::pos_t(0.5,0.5);
-      cairo_move_to(cr, p1.x, p1.y);
-      cairo_line_to(cr, p2.x, p2.y);
-      cairo_stroke(cr);
+      {
+	 p1 = cairo_molecule_t::mol_coords_to_cairo_coords(pos_1, centre, scale);
+	 p2 = cairo_molecule_t::mol_coords_to_cairo_coords(pos_2, centre, scale);
+	 cairo_move_to(cr, p1.x, p1.y);
+	 cairo_line_to(cr, p2.x, p2.y);
+	 cairo_stroke(cr);
+      }
       break;
 
    case lig_build::bond_t::DOUBLE_BOND:
@@ -293,7 +293,8 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
    case lig_build::bond_t::DOUBLE_OR_AROMATIC:
       {
 	 if (have_centre_pos()) {
-	    draw_double_or_aromatic_bond(cr, pos_1, pos_2, centre, scale);
+	    draw_double_in_ring_bond(cr, pos_1_in, pos_2_in, shorten_first, shorten_second,
+				     centre, scale);
 	 } else {
 	    draw_double_bond(cr, pos_1, pos_2, centre, scale);
 	 }
@@ -304,10 +305,16 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
 
    case lig_build::bond_t::AROMATIC_BOND:
       std::cout << "draw aromatic bond with single and dashed inner - fixme" << std::endl;
+      if (have_centre_pos()) {
+	 bool dashed_inner = false;
+	 draw_double_in_ring_bond(cr, pos_1_in, pos_2_in, shorten_first, shorten_second,
+				  centre, scale, dashed_inner);
+      }
+
       break;
 
    case lig_build::bond_t::TRIPLE_BOND:
-      { 
+      {
 	 lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
 	 lig_build::pos_t buv_90 = buv.rotate(90);
 	 double small = 0.0125/scale;
@@ -319,19 +326,13 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
 	 lig_build::pos_t p6 = pos_2 - buv_90 * small;
 
 	 {
-	    lig_build::pos_t sc_p1 = (p1 - centre) * scale;
-	    lig_build::pos_t sc_p2 = (p2 - centre) * scale;
-	    lig_build::pos_t sc_p3 = (p3 - centre) * scale;
-	    lig_build::pos_t sc_p4 = (p4 - centre) * scale;
-	    lig_build::pos_t sc_p5 = (p5 - centre) * scale;
-	    lig_build::pos_t sc_p6 = (p6 - centre) * scale;
-	    lig_build::pos_t middling(0.5,0.5);
-	    sc_p1 += middling;
-	    sc_p2 += middling;
-	    sc_p3 += middling;
-	    sc_p4 += middling;
-	    sc_p5 += middling;
-	    sc_p6 += middling;
+
+	    lig_build::pos_t sc_p1 = cairo_molecule_t::mol_coords_to_cairo_coords(p1, centre, scale);
+	    lig_build::pos_t sc_p2 = cairo_molecule_t::mol_coords_to_cairo_coords(p1, centre, scale);
+	    lig_build::pos_t sc_p3 = cairo_molecule_t::mol_coords_to_cairo_coords(p1, centre, scale);
+	    lig_build::pos_t sc_p4 = cairo_molecule_t::mol_coords_to_cairo_coords(p1, centre, scale);
+	    lig_build::pos_t sc_p5 = cairo_molecule_t::mol_coords_to_cairo_coords(p1, centre, scale);
+	    lig_build::pos_t sc_p6 = cairo_molecule_t::mol_coords_to_cairo_coords(p1, centre, scale);
 
 	    cairo_move_to(cr, sc_p1.x, sc_p1.y);
 	    cairo_line_to(cr, sc_p2.x, sc_p2.y);
@@ -354,13 +355,16 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
 	 if (vp.size()) {
 	    cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
 	    for (unsigned int i=0; i<vp.size(); i++) { 
-	       // glVertex3d(vp[i].first.x,  vp[i].first.y,  screen_z);
-	       // glVertex3d(vp[i].second.x, vp[i].second.y, screen_z);
-	       lig_build::pos_t p1 = (vp[i].first  - centre) * scale;
-	       lig_build::pos_t p2 = (vp[i].second - centre) * scale;
-	       lig_build::pos_t middling(0.5,0.5);
-	       p1 += middling;
-	       p2 += middling;
+
+// 	       lig_build::pos_t p1 = (vp[i].first  - centre) * scale;
+// 	       lig_build::pos_t p2 = (vp[i].second - centre) * scale;
+// 	       lig_build::pos_t middling(0.5,0.5);
+// 	       p1 += middling;
+// 	       p2 += middling;
+
+	       lig_build::pos_t p1 = cairo_molecule_t::mol_coords_to_cairo_coords(vp[i].first,  centre, scale);
+	       lig_build::pos_t p2 = cairo_molecule_t::mol_coords_to_cairo_coords(vp[i].second, centre, scale);
+
 	       cairo_move_to(cr, p1.x, p1.y);
 	       cairo_line_to(cr, p2.x, p2.y);
 	    }
@@ -374,15 +378,12 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
 	 // filled shape
 	 std::vector<lig_build::pos_t> v =
 	    lig_build::pos_t::make_wedge_out_bond(pos_1, pos_2);
-	 lig_build::pos_t p = (v[0]  - centre) * scale;
-	 lig_build::pos_t middling(0.5,0.5);
-	 p += middling;
+
+	 lig_build::pos_t p = cairo_molecule_t::mol_coords_to_cairo_coords(v[0], centre, scale);
 	 cairo_move_to(cr, p.x, p.y);
 	 cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
 	 for (unsigned int i=1; i<v.size(); i++) {
-	    lig_build::pos_t p_i = (v[i]  - centre) * scale;
-	    lig_build::pos_t middling(0.5,0.5);
-	    p_i += middling;
+	    lig_build::pos_t p_i = cairo_molecule_t::mol_coords_to_cairo_coords(v[i], centre, scale);
 	    cairo_line_to(cr, p_i.x, p_i.y);
 	 }
 	 cairo_close_path(cr);
@@ -395,31 +396,65 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
    }
 }
 
-
-void
-coot::cairo_bond_t::draw_double_or_aromatic_bond(cairo_t *cr,
-						 const lig_build::pos_t &pos_1,
-						 const lig_build::pos_t &pos_2,
-						 const lig_build::pos_t &centre, double scale) {
+// static
+lig_build::pos_t
+coot::cairo_molecule_t::cairo_molecule_t::mol_coords_to_cairo_coords(const lig_build::pos_t &pos_1,
+						   const lig_build::pos_t &centre,
+						   double scale) {
 
    lig_build::pos_t p1 = (pos_1 - centre) * scale;
-   lig_build::pos_t p2 = (pos_2 - centre) * scale;
+   p1.y = -p1.y; // canvas is upside down c.f. normal/real-world/molecule coordinates
    p1 += lig_build::pos_t(0.5,0.5);
-   p2 += lig_build::pos_t(0.5,0.5);
+   return p1;
+
+}
+
+
+// This is for a double bond in a ring
+//
+// pos_1 and pos_2 are the coordinates of the atoms, not the pre-shorted
+// coordinates
+//
+void
+coot::cairo_bond_t::draw_double_in_ring_bond(cairo_t *cr,
+					     const lig_build::pos_t &pos_1_in,
+					     const lig_build::pos_t &pos_2_in,
+					     bool shorten_first,
+					     bool shorten_second,
+					     const lig_build::pos_t &centre,
+					     double scale, bool dashed_inner) {
+   lig_build::pos_t pos_1 = pos_1_in;
+   lig_build::pos_t pos_2 = pos_2_in;
+
+   double shorten_fraction = 0.74;
+   if (shorten_first)
+      pos_1 = lig_build::pos_t::fraction_point(pos_2_in, pos_1_in, shorten_fraction);
+   if (shorten_second)
+      pos_2 = lig_build::pos_t::fraction_point(pos_1_in, pos_2_in, shorten_fraction);
+
+   // outside "normal" bond
+   lig_build::pos_t p1 = cairo_molecule_t::mol_coords_to_cairo_coords(pos_1, centre, scale);
+   lig_build::pos_t p2 = cairo_molecule_t::mol_coords_to_cairo_coords(pos_2, centre, scale);
+
+   // for inner bond
+   std::pair<lig_build::pos_t, lig_build::pos_t> p = 
+      make_double_aromatic_short_stick(pos_1_in, pos_2_in, shorten_first, shorten_second);
+
    cairo_move_to(cr, p1.x, p1.y);
    cairo_line_to(cr, p2.x, p2.y);
    cairo_stroke(cr);
 
-   std::pair<lig_build::pos_t, lig_build::pos_t> p = 
-      make_double_aromatic_short_stick(pos_1, pos_2);
-   
-   p1 = (p.first - centre) * scale;
-   p2 = (p.second - centre) * scale;
-   p1 += lig_build::pos_t(0.5,0.5);
-   p2 += lig_build::pos_t(0.5,0.5);
+   if (dashed_inner) {
+      double dashlength = 0.01;
+      cairo_set_dash (cr, &dashlength, 1, 0);
+   }
+   p1 = cairo_molecule_t::mol_coords_to_cairo_coords(p.first,  centre, scale);
+   p2 = cairo_molecule_t::mol_coords_to_cairo_coords(p.second, centre, scale);
    cairo_move_to(cr, p1.x, p1.y);
    cairo_line_to(cr, p2.x, p2.y);
    cairo_stroke(cr);
+   if (dashed_inner)
+      cairo_set_dash(cr, NULL, 0, 0); // restore
 }
 
 void
@@ -430,17 +465,16 @@ coot::cairo_bond_t::draw_double_bond(cairo_t *cr,
 
    std::pair<std::pair<lig_build::pos_t, lig_build::pos_t>, std::pair<lig_build::pos_t, lig_build::pos_t> > p = make_double_bond(pos_1, pos_2);
 
-   lig_build::pos_t p1 = (p.first.first - centre) * scale;
-   lig_build::pos_t p2 = (p.first.second - centre) * scale;
-   p1 += lig_build::pos_t(0.5,0.5);
-   p2 += lig_build::pos_t(0.5,0.5);
+   lig_build::pos_t p1 = cairo_molecule_t::mol_coords_to_cairo_coords(p.first.first,  centre, scale);
+   lig_build::pos_t p2 = cairo_molecule_t::mol_coords_to_cairo_coords(p.first.second, centre, scale);
+
    cairo_move_to(cr, p1.x, p1.y);
    cairo_line_to(cr, p2.x, p2.y);
    cairo_stroke(cr);
-   p1 = (p.second.first - centre) * scale;
-   p2 = (p.second.second - centre) * scale;
-   p1 += lig_build::pos_t(0.5,0.5);
-   p2 += lig_build::pos_t(0.5,0.5);
+
+   p1 = cairo_molecule_t::mol_coords_to_cairo_coords(p.second.first,  centre, scale);
+   p2 = cairo_molecule_t::mol_coords_to_cairo_coords(p.second.second, centre, scale);
+
    cairo_move_to(cr, p1.x, p1.y);
    cairo_line_to(cr, p2.x, p2.y);
    cairo_stroke(cr);
@@ -448,15 +482,15 @@ coot::cairo_bond_t::draw_double_bond(cairo_t *cr,
 }
 
 void
-coot::cairo_molecule_t::render(const std::string &png_file_name) {
+coot::cairo_molecule_t::render(const std::string &png_file_name, unsigned int npx) {
 
-   cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, 300, 300);
+   cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, npx, npx);
    cairo_t *cr = cairo_create (surface);
 
    // Drawing space is 0->1 with 0,0 top left
    // if cairo_image_surface_create called with 240,240, then cairo_scale called with
    // 120,120 puts the image, half-size in top left quadrant
-   cairo_scale (cr, 300, 300);
+   cairo_scale (cr, npx, npx);
 
 
    // ------------ the font size and the line width depend on the size of the
@@ -560,7 +594,8 @@ coot::cairo_molecule_t::render(const std::string &png_file_name) {
 void
 coot::cairo_png_depict(const std::string &mmcif_file_name,
 		       const std::string &comp_id,
-		       const std::string png_file_name) {
+		       const std::string png_file_name,
+		       unsigned int npx) {
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
@@ -569,25 +604,61 @@ coot::cairo_png_depict(const std::string &mmcif_file_name,
    geom.set_verbose(false);
    geom.init_refmac_mon_lib(mmcif_file_name, rn);
 
-   if (geom.have_dictionary_for_residue_type_no_dynamic_add(comp_id)) {
-      std::pair<bool, coot::dictionary_residue_restraints_t> dp =
-	 geom.get_monomer_restraints(comp_id, coot::protein_geometry::IMOL_ENC_ANY);
-      if (dp.first) {
-	 const coot::dictionary_residue_restraints_t &d = dp.second;
-	 try {
-	    RDKit::RWMol rdkm = coot::rdkit_mol(d);
-	    RDKit::MolOps::removeHs(rdkm);
-	    // coot::remove_non_polar_Hs(&rdkm); either is good.
-	    RDKit::MolOps::Kekulize(rdkm);
-	    int iconf = RDDepict::compute2DCoords(rdkm, NULL, true);
-	    RDKit::Conformer &conf = rdkm.getConformer(iconf);
-	    RDKit::WedgeMolBonds(rdkm, &conf);
-	    coot::cairo_molecule_t mol(&rdkm, iconf);
-	    mol.render(png_file_name);
-	 }
-	 catch (...) {
+   bool dictionary_only = false;
+
+   if (dictionary_only) {
+      if (geom.have_dictionary_for_residue_type_no_dynamic_add(comp_id)) {
+	 std::pair<bool, coot::dictionary_residue_restraints_t> dp =
+	    geom.get_monomer_restraints(comp_id, coot::protein_geometry::IMOL_ENC_ANY);
+	 if (dp.first) {
+	    const coot::dictionary_residue_restraints_t &d = dp.second;
+	    try {
+	       RDKit::RWMol rdkm = coot::rdkit_mol(d);
+	       RDKit::MolOps::removeHs(rdkm);
+	       // coot::remove_non_polar_Hs(&rdkm); either is good.
+	       RDKit::MolOps::Kekulize(rdkm);
+	       int iconf = RDDepict::compute2DCoords(rdkm, NULL, true);
+	       RDKit::Conformer &conf = rdkm.getConformer(iconf);
+	       RDKit::WedgeMolBonds(rdkm, &conf);
+	       coot::cairo_molecule_t mol(&rdkm, iconf);
+	       mol.render(png_file_name, npx);
+	    }
+	    catch (...) {
+	    }
 	 }
       }
+
+   } else {
+
+      try {
+	 if (geom.have_dictionary_for_residue_type_no_dynamic_add(comp_id)) {
+	    std::pair<bool, coot::dictionary_residue_restraints_t> dp =
+	       geom.get_monomer_restraints(comp_id, coot::protein_geometry::IMOL_ENC_ANY);
+	    if (dp.first) {
+
+	       const coot::dictionary_residue_restraints_t &rest = dp.second;
+	       bool idealized = false;
+	       bool try_autoload_if_needed = false;
+	       mmdb::Residue *r = geom.get_residue(comp_id, idealized, try_autoload_if_needed);
+	       if (r) {
+		  bool undelocalize_flag = true;
+		  RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest, "", undelocalize_flag);
+
+		  // coot::remove_non_polar_Hs(&rdkm); either is good.
+		  RDKit::MolOps::removeHs(mol_rw);
+		  RDKit::MolOps::Kekulize(mol_rw);
+		  int iconf = RDDepict::compute2DCoords(mol_rw, NULL, true);
+		  RDKit::Conformer &conf = mol_rw.getConformer(iconf);
+		  RDKit::WedgeMolBonds(mol_rw, &conf);
+		  coot::cairo_molecule_t mol(&mol_rw, iconf);
+		  mol.render(png_file_name, npx);
+	       }
+	    }
+	 }
+      }
+      catch (...) {
+      }
+      
    }
 #endif
 

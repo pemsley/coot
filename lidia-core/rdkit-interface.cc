@@ -669,13 +669,13 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 		     std::sort(sorted_neighbs.begin(), sorted_neighbs.end(), cip_rank_sorter);
 
 		     if (false) {
-			std::cout << "---------- sorted neighbs: " << std::endl;
+			std::cout << "---------- CIP sorted neighbs: " << std::endl;
 			for (unsigned int jj=0; jj<sorted_neighbs.size(); jj++) { 
 			   std::cout << jj << " " << sorted_neighbs[jj].first << " "
 				     << sorted_neighbs[jj].second << std::endl;
 			}
 		     }
-	    
+
 		     bool inverted = true; // set this using cleverness
 
 		     if (neighbs.size() == 3) {
@@ -918,7 +918,10 @@ coot::set_atom_chirality(RDKit::Atom *rdkit_at, const coot::dict_atom &dict_atom
    bool debug = false;
 
    if (dict_atom.pdbx_stereo_config.first) {
+
       if (dict_atom.pdbx_stereo_config.second == "R") {
+
+	 // std::cout << "here in R: set_atom_chirality() for a dict_atom " << dict_atom << std::endl;
 
 	 // "work it out later" using rdkit sanitize doesn't seem to work
 	 //
@@ -932,6 +935,7 @@ coot::set_atom_chirality(RDKit::Atom *rdkit_at, const coot::dict_atom &dict_atom
 	 rdkit_at->setProp("_CIPCode", cip);
       }
       if (dict_atom.pdbx_stereo_config.second == "S") {
+	 std::cout << "here in S: set_atom_chirality() for a dict_atom " << dict_atom << std::endl;
 	 RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
 	 std::string cip = "S";
 	 rdkit_at->setProp("_CIPCode", cip);
@@ -1025,6 +1029,8 @@ coot::chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2) {
 RDKit::RWMol
 coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 
+   // std::cout << "===== rdkit_mol(dict) " << std::endl;
+
    RDKit::RWMol m;
    const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
 
@@ -1078,7 +1084,6 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 	 if (! done_chiral) {
 	    set_atom_chirality(at, r.atom_info[iat]);
 	 }
-
 
          if (false) {
 	    RDKit::Atom::ChiralType ct = at->getChiralTag();

@@ -411,9 +411,10 @@ namespace lig_build {
       unsigned int atom_2;
    private:
       bond_type_t bond_type;
-      pos_t centre_pos_; // the position of the polygen of
-				  // which this bond is a part
+      pos_t centre_pos_; // the position of the polygen (i.e. ring of atoms) of
+	   	         // which this bond is a part
       bool have_centre_pos_;  // was the bond from a polygon or just an external bond?
+      int n_ring_atoms_; // ring double bond shortening factor depends on this
       bool is_closed_;
    public:
       bond_t() {
@@ -452,13 +453,14 @@ namespace lig_build {
       void set_bond_type(bond_type_t bt) { bond_type = bt; }
       bool have_centre_pos() const { return have_centre_pos_; }
       // post-hoc bond modification
-      void set_centre_pos(const pos_t &pos_in) {
+      void set_centre_pos(const pos_t &pos_in, int n_ring_atoms_in) {
 	 centre_pos_ = pos_in;
 	 have_centre_pos_ = true;
+	 n_ring_atoms_ = n_ring_atoms_in;
       } 
       pos_t centre_pos() const { return centre_pos_; }
-      void add_centre(const pos_t &centre_in) {
-	 set_centre_pos(centre_in);
+      void add_centre(const pos_t &centre_in, int n_ring_atoms_in) {
+	 set_centre_pos(centre_in, n_ring_atoms_in);
       }
       bool operator==(const bond_t &bond_in) const {
 	 bool status = 0;
@@ -493,9 +495,11 @@ namespace lig_build {
 	 return idx;
       }
 
-      // (the long/normal stick for this is just pos_1 to pos_2)
+      // (the long/normal stick for this is just pos_1_in to pos_2_in)
       std::pair<pos_t, pos_t>
-      make_double_aromatic_short_stick(const pos_t &pos_1, const pos_t &pos_2) const;
+      make_double_aromatic_short_stick(const pos_t &pos_1_in, const pos_t &pos_2_in,
+				       bool shorten_first,
+				       bool shorten_second) const;
 
       std::pair<std::pair<pos_t, pos_t>, std::pair<pos_t, pos_t> >
       make_double_bond(const pos_t &pos_1, const pos_t &pos_2) const;
@@ -1054,8 +1058,9 @@ namespace lig_build {
 		  for (it=rings[fav_ring_id].begin(); it != rings[fav_ring_id].end(); it ++) {
 		     centre_pos_sum += atoms[*it].atom_position;
 		  }
-		  lig_build::pos_t centre_pos = centre_pos_sum * (1.0/double(rings[fav_ring_id].size()));
-		  bonds[ib].add_centre(centre_pos);
+		  lig_build::pos_t centre_pos =
+		     centre_pos_sum * (1.0/double(rings[fav_ring_id].size()));
+		  bonds[ib].add_centre(centre_pos, rings[fav_ring_id].size());
 		  if (debug) {
 		     std::cout << "   adding centre at " << centre_pos
 			       << " generated from (";

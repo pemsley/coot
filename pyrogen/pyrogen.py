@@ -211,7 +211,7 @@ def MolFromFetchedCode(code):
    m = pyrogen_boost.MolFromPDBXr(f, code)
    m.Compute2DCoords()
    return m
-        
+
 def make_restraints_for_bond_orders(mol):
     restraints = {}
     bond_list = []
@@ -713,13 +713,15 @@ def depict(mmcif_file_name_in, comp_id, png_file_name):
    conf = m.GetConformer(conf_id)
    mol_for_drawing = Chem.RemoveHs(m, implicitOnly=False)
    if conf.Is3D():
+      print '3D path'
       conf2D_id = AllChem.Compute2DCoords(mol_for_drawing)
       make_picture_to_file(mol_for_drawing, conf2D_id, png_file_name)
    else:
+      print 'Non-3D path'
       make_picture_to_file(mol_for_drawing, -1, png_file_name)
 
-def coot_depict(mmcif_file_name_in, comp_id, png_file_name):
-   pyrogen_boost.cairo_png_depict(mmcif_file_name_in, comp_id, png_file_name)
+def coot_depict(mmcif_file_name_in, comp_id, png_file_name, n_pixels=300):
+   pyrogen_boost.cairo_png_depict(mmcif_file_name_in, comp_id, png_file_name, n_pixels)
 
 
 def score_and_print_tautomers(mol, comp_id, output_postfix, do_drawings):

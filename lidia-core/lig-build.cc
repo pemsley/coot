@@ -130,8 +130,13 @@ lig_build::pos_t::operator==(const pos_t &pos) const {
 }
 
 
+// pos_1_in and pos_2_in are now real atom coordinate - no longer shorted.
+// Do the shortening here
 std::pair<lig_build::pos_t, lig_build::pos_t>
-lig_build::bond_t::make_double_aromatic_short_stick(const pos_t &pos_1, const pos_t &pos_2) const {
+lig_build::bond_t::make_double_aromatic_short_stick(const pos_t &pos_1_in,
+						    const pos_t &pos_2_in,
+						    bool shorten_first,
+						    bool shorten_second) const {
 
    // for 5-membered (also, 4-membered and 3-membered which are shorter still)
    // rings, the cuttened fraction is larger than 6-membered. So in order
@@ -147,18 +152,33 @@ lig_build::bond_t::make_double_aromatic_short_stick(const pos_t &pos_1, const po
    // 0.1 and 0.9 look pretty good for 6-membered ring, but too long for
    // 5-membered.  I'll decrease it a bit (to 0.14 and 0.86).
 
+   lig_build::pos_t pos_1 = pos_1_in;
+   lig_build::pos_t pos_2 = pos_2_in;
+
+   // shorten_fraction should depend on the angle of the bond (which we can work out)
+   // and the letter/element (which needs to be passed)
+   //
+   // fraction_point() returns a point that is (say) 0.8 of the way
+   // from p1 (first arg) to p2 (second arg).
+   //
+   double shorten_fraction = 0.74;
+   if (shorten_first)
+      pos_1 = lig_build::pos_t::fraction_point(pos_2_in, pos_1_in, shorten_fraction);
+   if (shorten_second)
+      pos_2 = lig_build::pos_t::fraction_point(pos_1_in, pos_2_in, shorten_fraction);
+
    std::pair<lig_build::pos_t, lig_build::pos_t> p;
    lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
    lig_build::pos_t buv_90 = buv.rotate(90);
 
    // Which side of the pos_1 -> pos_2 vector shall we put this bond?
-   // 
+   //
    // So create a T piece, and measure the distance to the centre
    // point, if we are on the inside then the distance to the centre
    // will be shorter.
    //
-   double bond_length = lig_build::pos_t::length(pos_2, pos_1); // shortened possibly.
-   double nice_dist = bond_length * 0.18;
+   double bond_length = lig_build::pos_t::length(pos_2_in, pos_1_in);
+   double nice_dist = bond_length * 0.2;
    lig_build::pos_t test_pt_1 = pos_1 + buv_90 * nice_dist;
    lig_build::pos_t test_pt_2 = pos_1 - buv_90 * nice_dist;
    double d_1 = lig_build::pos_t::length(test_pt_1, centre_pos());
@@ -168,7 +188,12 @@ lig_build::bond_t::make_double_aromatic_short_stick(const pos_t &pos_1, const po
    if (d_2 < d_1)
       inner_start_point = test_pt_2;
 
-   lig_build::pos_t inner_end_point = inner_start_point + buv * bond_length;
+   double inner_bond_bl = bond_length;
+   if (shorten_first)
+      inner_bond_bl *= 0.67;
+   if (shorten_second)
+      inner_bond_bl *= 0.67;
+   lig_build::pos_t inner_end_point = inner_start_point + buv * inner_bond_bl;
 
    lig_build::pos_t cutened_inner_start_point =
       lig_build::pos_t::fraction_point(inner_start_point, inner_end_point, 0.14);
