@@ -253,6 +253,8 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
 			      const lig_build::pos_t &pos_2_in,
 			      bool shorten_first, bool shorten_second,
 			      lig_build::bond_t::bond_type_t bt,
+			      const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
+			      const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 			      const lig_build::pos_t &centre, double scale) {
 
    lig_build::pos_t pos_1 = pos_1_in;
@@ -356,12 +358,6 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
 	    cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
 	    for (unsigned int i=0; i<vp.size(); i++) { 
 
-// 	       lig_build::pos_t p1 = (vp[i].first  - centre) * scale;
-// 	       lig_build::pos_t p2 = (vp[i].second - centre) * scale;
-// 	       lig_build::pos_t middling(0.5,0.5);
-// 	       p1 += middling;
-// 	       p2 += middling;
-
 	       lig_build::pos_t p1 = cairo_molecule_t::mol_coords_to_cairo_coords(vp[i].first,  centre, scale);
 	       lig_build::pos_t p2 = cairo_molecule_t::mol_coords_to_cairo_coords(vp[i].second, centre, scale);
 
@@ -375,26 +371,69 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
 
    case OUT_BOND:
       {
-	 // filled shape
-	 std::vector<lig_build::pos_t> v =
-	    lig_build::pos_t::make_wedge_out_bond(pos_1, pos_2);
 
-	 lig_build::pos_t p = cairo_molecule_t::mol_coords_to_cairo_coords(v[0], centre, scale);
-	 cairo_move_to(cr, p.x, p.y);
-	 cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
-	 for (unsigned int i=1; i<v.size(); i++) {
-	    lig_build::pos_t p_i = cairo_molecule_t::mol_coords_to_cairo_coords(v[i], centre, scale);
-	    cairo_line_to(cr, p_i.x, p_i.y);
+	 if (other_connections_to_second_atom.size() > 0) {
+	    draw_sheared_or_darted_wedge_bond(cr, pos_1, pos_2, other_connections_to_second_atom, centre, scale);
+	 } else {
+	    // filled shape
+	    std::vector<lig_build::pos_t> v =
+	       lig_build::pos_t::make_wedge_out_bond(pos_1, pos_2);
+
+	    lig_build::pos_t p = cairo_molecule_t::mol_coords_to_cairo_coords(v[0], centre, scale);
+	    cairo_move_to(cr, p.x, p.y);
+	    cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
+	    for (unsigned int i=1; i<v.size(); i++) {
+	       lig_build::pos_t p_i = cairo_molecule_t::mol_coords_to_cairo_coords(v[i], centre, scale);
+	       cairo_line_to(cr, p_i.x, p_i.y);
+	    }
+	    cairo_close_path(cr);
+	    cairo_fill(cr);
+	    cairo_stroke(cr);
 	 }
-	 cairo_close_path(cr);
-	 cairo_fill(cr);
-	 cairo_stroke(cr);
       }
       break;
    case BOND_UNDEFINED:
       break;
    }
 }
+
+
+void
+coot::cairo_bond_t::draw_sheared_or_darted_wedge_bond(cairo_t *cr,
+						      const lig_build::pos_t &pos_1,
+						      const lig_build::pos_t &pos_2,
+						      const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
+						      const lig_build::pos_t &centre,
+						      double scale) const {
+   std::vector<lig_build::pos_t> v =
+      coords_for_sheared_or_darted_wedge_bond(pos_1, pos_2,
+					      other_connections_to_second_atom);
+
+   // stroked shape
+   //
+   lig_build::pos_t p = cairo_molecule_t::mol_coords_to_cairo_coords(v[0], centre, scale);
+   cairo_move_to(cr, p.x, p.y);
+   for (unsigned int i=1; i<v.size(); i++) {
+      lig_build::pos_t p_i = cairo_molecule_t::mol_coords_to_cairo_coords(v[i], centre, scale);
+      cairo_line_to(cr, p_i.x, p_i.y);
+   }
+   cairo_close_path(cr);
+   cairo_stroke(cr);
+
+   // filled shape
+   //
+   p = cairo_molecule_t::mol_coords_to_cairo_coords(v[0], centre, scale);
+   cairo_move_to(cr, p.x, p.y);
+   for (unsigned int i=1; i<v.size(); i++) {
+      lig_build::pos_t p_i = cairo_molecule_t::mol_coords_to_cairo_coords(v[i], centre, scale);
+      cairo_line_to(cr, p_i.x, p_i.y);
+   }
+   cairo_close_path(cr);
+   cairo_fill(cr);
+   cairo_stroke(cr);
+   
+}
+
 
 // static
 lig_build::pos_t
@@ -542,19 +581,23 @@ coot::cairo_molecule_t::render(const std::string &png_file_name, unsigned int np
    for (unsigned int ib=0; ib<bonds.size(); ib++) {
       int idx_1 = bonds[ib].get_atom_1_index();
       int idx_2 = bonds[ib].get_atom_2_index();
-      if ((idx_1 != UNASSIGNED_INDEX) && (idx_2 != UNASSIGNED_INDEX)) { 
+      if ((idx_1 != UNASSIGNED_INDEX) && (idx_2 != UNASSIGNED_INDEX)) {
 	 lig_build::bond_t::bond_type_t bt = bonds[ib].get_bond_type();
 
-	 bool shorten_first  = false;
-	 bool shorten_second = false;
 	 std::pair<bool, bool> shorten = shorten_flags(ib);
-	 shorten_first = shorten.first;
-	 shorten_second = shorten.second;
 
 	 lig_build::pos_t pos_1 =  atoms[idx_1].atom_position;
 	 lig_build::pos_t pos_2 =  atoms[idx_2].atom_position;
 	 // c.f. canvas_item_for_bond
-	 bonds[ib].draw_bond(cr, pos_1, pos_2, shorten_first, shorten_second, bt,
+
+	 std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > other_connections_to_first_atom =
+	    make_other_connections_to_first_atom_info(ib);
+	 std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > other_connections_to_second_atom =
+	    make_other_connections_to_second_atom_info(ib);
+
+	 bonds[ib].draw_bond(cr, pos_1, pos_2, shorten.first, shorten.second, bt,
+			     other_connections_to_first_atom,
+			     other_connections_to_second_atom,
 			     centre, scale);
       }
    }

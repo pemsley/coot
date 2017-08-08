@@ -27,6 +27,12 @@ namespace coot {
    };
 
    class cairo_bond_t : public lig_build::bond_t {
+      void draw_sheared_or_darted_wedge_bond(cairo_t *cr,
+					     const lig_build::pos_t &pos_1,
+					     const lig_build::pos_t &pos_2,
+					     const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
+					     const lig_build::pos_t &centre,
+					     double scale) const;
    public:
       cairo_bond_t(int first, int second, lig_build::bond_t::bond_type_t type) :
 	 lig_build::bond_t(first, second, type) {}
@@ -35,6 +41,8 @@ namespace coot {
 
       void draw_bond(cairo_t *cr, const lig_build::pos_t &pos_1, const lig_build::pos_t &pos_2,
 		     bool shorten_first, bool shorten_second, lig_build::bond_t::bond_type_t bt,
+		     const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
+		     const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 		     const lig_build::pos_t &centre, double scale);
       void draw_double_in_ring_bond(cairo_t *cr,
 				    const lig_build::pos_t &pos_1,

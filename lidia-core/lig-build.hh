@@ -495,6 +495,81 @@ namespace lig_build {
 	 return idx;
       }
 
+      std::vector<lig_build::pos_t>
+      coords_for_sheared_or_darted_wedge_bond(const lig_build::pos_t &pos_1,
+					      const lig_build::pos_t &pos_2,
+					      const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom) const {
+
+	 std::vector<lig_build::pos_t> pts;
+
+	 if (other_connections_to_second_atom.size() > 0) {
+
+	    if (other_connections_to_second_atom.size() == 1) {
+
+	       const lig_build::pos_t  &third_atom_pos = other_connections_to_second_atom[0].first.atom_position;
+	       const lig_build::bond_t &third_bond     = other_connections_to_second_atom[0].second;
+
+	       lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
+	       lig_build::pos_t buv_90 = buv.rotate(90);
+	       lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.04);
+
+	       lig_build::pos_t sharp_point_1 = sharp_point + buv_90 * 0.03;
+	       lig_build::pos_t sharp_point_2 = sharp_point - buv_90 * 0.03;
+
+	       lig_build::pos_t bfrom3rd = pos_2 - third_atom_pos;
+	       lig_build::pos_t bond_from_3rd_atom_extension   = pos_2 + bfrom3rd*0.1;
+	       lig_build::pos_t bond_from_3rd_atom_contraction = pos_2 - bfrom3rd*0.18;
+
+	       if (third_bond.get_bond_type() == lig_build::bond_t::DOUBLE_BOND) {
+		  // we need to make this shorter.
+		  bond_from_3rd_atom_extension   -= buv * 2.6;
+		  bond_from_3rd_atom_contraction -= buv * 2.6;
+	       }
+
+	       if (false) {
+		  std::cout << " buv             " << buv << std::endl;
+		  std::cout << " pos_2           " << pos_2 << std::endl;
+		  std::cout << " 3rd atom pos    " << third_atom_pos << std::endl;
+		  std::cout << " bfrom3rd        " << bfrom3rd << std::endl;
+		  std::cout << " sheared points: " << sharp_point_2 << std::endl;
+		  std::cout << "                 " << sharp_point_1 << std::endl;
+		  std::cout << "                 " << bond_from_3rd_atom_extension   << std::endl;
+		  std::cout << "                 " << bond_from_3rd_atom_contraction << std::endl;
+	       }
+
+	       pts.push_back(sharp_point_2);
+	       pts.push_back(sharp_point_1);
+	       pts.push_back(bond_from_3rd_atom_extension);
+	       pts.push_back(bond_from_3rd_atom_contraction);
+
+	    } else {
+
+	       // make a dart (there are 2 third atoms)
+	 
+	       const lig_build::pos_t  &third_atom_1_pos = other_connections_to_second_atom[0].first.atom_position;
+	       const lig_build::pos_t  &third_atom_2_pos = other_connections_to_second_atom[1].first.atom_position;
+
+	       lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
+	       lig_build::pos_t buv_90 = buv.rotate(90);
+	       lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.04);
+	       lig_build::pos_t sharp_point_1 = sharp_point + buv_90 * 0.03;
+	       lig_build::pos_t sharp_point_2 = sharp_point - buv_90 * 0.03;
+
+	       lig_build::pos_t bfrom3rd_1 = pos_2 - third_atom_1_pos;
+	       lig_build::pos_t bfrom3rd_2 = pos_2 - third_atom_2_pos;
+	       lig_build::pos_t bond_from_3rd_atom_1_contraction = pos_2 - bfrom3rd_1*0.15;
+	       lig_build::pos_t bond_from_3rd_atom_2_contraction = pos_2 - bfrom3rd_2*0.15;
+
+	       pts.push_back(sharp_point_2);
+	       pts.push_back(sharp_point_1);
+	       pts.push_back(bond_from_3rd_atom_1_contraction);
+	       pts.push_back(pos_2);
+	       pts.push_back(bond_from_3rd_atom_2_contraction);
+
+	    }
+	 }
+	 return pts;
+      }
       // (the long/normal stick for this is just pos_1_in to pos_2_in)
       std::pair<pos_t, pos_t>
       make_double_aromatic_short_stick(const pos_t &pos_1_in, const pos_t &pos_2_in,
@@ -1493,6 +1568,66 @@ namespace lig_build {
 	 return sum_delta;
       }
 
+      // to draw double bonds without centre correctly (and below)
+      std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
+      make_other_connections_to_first_atom_info(unsigned int bond_index) const {
+	 std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > v;
+	 int atom_1_ref_idx = bonds[bond_index].get_atom_1_index();
+	 int atom_2_ref_idx = bonds[bond_index].get_atom_2_index();
+
+	 for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
+	    if (ibond != bond_index) {
+	       int at_1_idx = bonds[ibond].get_atom_1_index();
+	       int at_2_idx = bonds[ibond].get_atom_2_index();
+	       if (at_1_idx == atom_1_ref_idx) {
+		  if (at_2_idx != atom_2_ref_idx) {
+		     std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_2_idx], bonds[ibond]);
+		     v.push_back(p);
+		  }
+	       }
+	       if (at_2_idx == atom_1_ref_idx) {
+		  if (at_1_idx != atom_2_ref_idx) {
+		     std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_1_idx], bonds[ibond]);
+		     v.push_back(p);
+		  }
+	       }
+	    }
+	 }
+	 return v;
+      }
+
+      // to draw wedge bonds correctly
+      std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> >
+      make_other_connections_to_second_atom_info(unsigned int bond_index) const {
+	 std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > v;
+	 int atom_chiral_idx = bonds[bond_index].get_atom_1_index();
+	 int atom_other_idx  = bonds[bond_index].get_atom_2_index();
+
+	 for (unsigned int ibond=0; ibond<bonds.size(); ibond++) {
+	    if (ibond != bond_index) {
+	       int at_1_idx = bonds[ibond].get_atom_1_index();
+	       int at_2_idx = bonds[ibond].get_atom_2_index();
+	       if (at_1_idx == atom_other_idx) {
+		  if (at_2_idx != atom_chiral_idx) { // should always be
+		     std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_2_idx], bonds[ibond]);
+		     v.push_back(p);
+		  }
+	       }
+	       if (at_2_idx == atom_other_idx) {
+		  if (at_1_idx != atom_chiral_idx) {
+		     std::pair<lig_build::atom_t, lig_build::bond_t> p(atoms[at_1_idx], bonds[ibond]);
+		     v.push_back(p);
+		  }
+	       }
+	    }
+	 }
+
+	 // std::cout << "from make_other_connections_to_second_atom_info() returning v of size "
+	 // << v.size() << std::endl;
+
+	 return v;
+      }
+      
       std::pair<bool, bool> shorten_flags(unsigned int bond_idx) const {
 	 bool shorten_first  = false;
 	 bool shorten_second = false;
