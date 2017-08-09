@@ -804,7 +804,7 @@ widgeted_bond_t::make_sheared_or_darted_wedge_bond(const lig_build::pos_t &pos_1
 					     bond_from_3rd_atom_extension.y,
 					     bond_from_3rd_atom_contraction.x,
 					     bond_from_3rd_atom_contraction.y,
-					     "#bbaacc", "#ccbbbb");
+					     dark, dark);
 
       } else {
 
