@@ -306,9 +306,8 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
    // other bond types
 
    case lig_build::bond_t::AROMATIC_BOND:
-      std::cout << "draw aromatic bond with single and dashed inner - fixme" << std::endl;
       if (have_centre_pos()) {
-	 bool dashed_inner = false;
+	 bool dashed_inner = true;
 	 draw_double_in_ring_bond(cr, pos_1_in, pos_2_in, shorten_first, shorten_second,
 				  centre, scale, dashed_inner);
       }
@@ -482,8 +481,8 @@ coot::cairo_bond_t::draw_double_in_ring_bond(cairo_t *cr,
    cairo_stroke(cr);
 
    if (dashed_inner) {
-      double dashlength = 0.01;
-      cairo_set_dash (cr, &dashlength, 1, 0);
+      double dashlength = 0.008;
+      cairo_set_dash(cr, &dashlength, 1, 0);
    }
    p1 = cairo_molecule_t::mol_coords_to_cairo_coords(p.first,  centre, scale);
    p2 = cairo_molecule_t::mol_coords_to_cairo_coords(p.second, centre, scale);
@@ -518,17 +517,9 @@ coot::cairo_bond_t::draw_double_bond(cairo_t *cr,
 
 }
 
+// not const because it changes atom ids.
 void
-coot::cairo_molecule_t::render_to_file(const std::string &png_file_name, unsigned int npx) {
-
-   cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, npx, npx);
-   cairo_t *cr = cairo_create(surface);
-
-   // Drawing space is 0->1 with 0,0 top left
-   // if cairo_image_surface_create called with 240,240, then cairo_scale called with
-   // 120,120 puts the image, half-size in top left quadrant
-   cairo_scale(cr, npx, npx);
-
+coot::cairo_molecule_t::render(cairo_t *cr) {
 
    // ------------ the font size and the line width depend on the size of the
    //              extents (and here, scale), the smaller the scale the smaller
@@ -609,9 +600,9 @@ coot::cairo_molecule_t::render_to_file(const std::string &png_file_name, unsigne
 	    make_atom_id_by_using_bonds(iat, ele, local_bonds, gl_flag);
 	 atoms[iat].set_atom_id(atom_id_info.atom_id); // quick hack
 	 if (false)
-	    std::cout << "in render_to_file() atom_index " << iat << " with charge "
-		      << atoms[iat].charge
-		      << " made atom_id_info " << atom_id_info << std::endl;
+	    std::cout << "in render(): atom_index " << iat << " with charge "
+		      << atoms[iat].charge << " made atom_id_info "
+		      << atom_id_info << std::endl;
 	 atoms[iat].set_colour(cr);
 	 atoms[iat].make_text_item(cr, atom_id_info, centre, scale);
       } else {
@@ -624,6 +615,19 @@ coot::cairo_molecule_t::render_to_file(const std::string &png_file_name, unsigne
 	 }
       }
    }
+}
+
+void
+coot::cairo_molecule_t::render_to_file(const std::string &png_file_name, unsigned int npx) {
+
+   cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, npx, npx);
+   cairo_t *cr = cairo_create(surface);
+
+   // Drawing space is 0->1 with 0,0 top left
+   // if cairo_image_surface_create called with 240,240, then cairo_scale called with
+   // 120,120 puts the image, half-size in top left quadrant
+   cairo_scale(cr, npx, npx);
+   render(cr);
 
    /* Write output and clean up */
    cairo_surface_write_to_png(surface, png_file_name.c_str());
@@ -632,17 +636,28 @@ coot::cairo_molecule_t::render_to_file(const std::string &png_file_name, unsigne
 
 }
 
+// static
+cairo_status_t
+coot::cairo_molecule_t::png_stream_writer(void *closure_in,
+					  const unsigned char *data,
+					  unsigned int length) {
+
+   std::string *s_ptr = static_cast<std::string *>(closure_in);
+   *s_ptr += std::string(reinterpret_cast<const char *>(data), length); // it's safe!
+   return CAIRO_STATUS_SUCCESS;
+}
+
 std::string
 coot::cairo_molecule_t::render_to_string(unsigned int npx) {
 
    std::string s;
+   s.reserve(12000);
 
    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, npx, npx);
    cairo_t *cr = cairo_create(surface);
    cairo_scale(cr, npx, npx);
-
-   // cairo_write_func_t write_func();
-   // cairo_surface_write_to_png_stream(surface, write_func, NULL);
+   render(cr);
+   cairo_surface_write_to_png_stream(surface, png_stream_writer, (void *) &s);
    cairo_destroy(cr);
    cairo_surface_destroy(surface);
    return s;
@@ -722,8 +737,9 @@ coot::cairo_png_depict(const std::string &mmcif_file_name,
 }
 
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 std::string
-coot::cairo_png_from_mol_raw(RDKit::ROMol *m, int iconf, unsigned int npx) {
+coot::cairo_png_string_from_mol(RDKit::ROMol *m, int iconf, unsigned int npx) {
 
    std::string s;
    int n_confs = m->getNumConformers();
@@ -736,9 +752,8 @@ coot::cairo_png_from_mol_raw(RDKit::ROMol *m, int iconf, unsigned int npx) {
       RDKit::Conformer &conf = m->getConformer(iconf);
       RDKit::WedgeMolBonds(*m, &conf);
       coot::cairo_molecule_t mol(m, iconf);
-      mol.render_to_string(npx);
-
+      s = mol.render_to_string(npx);
    }
-
    return s;
+#endif
 }

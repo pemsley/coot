@@ -1673,6 +1673,8 @@ namespace lig_build {
 	 // Have we added an NH2, an NH or an N (for example)
 	 //
 	 int sum_neigb_bond_order = 0;
+	 // This is a hack to deal with aromatic bonds (non-integers - doh!)
+	 int n_aromatic = 0;
 
 	 // 20160701: This was commented out.  I wonder why.  I have
 	 //           now uncommented it.
@@ -1693,7 +1695,17 @@ namespace lig_build {
 	       sum_neigb_bond_order += 2;
 	    if (bonds[bond_indices[ib]].get_bond_type() == bond_t::TRIPLE_BOND)
 	       sum_neigb_bond_order += 3;
+	    if (bonds[bond_indices[ib]].get_bond_type() == bond_t::AROMATIC_BOND)
+	       n_aromatic++;
 	 }
+
+	 // hack
+	 if (n_aromatic == 3) // unusual
+	    sum_neigb_bond_order += 3;
+	 if (n_aromatic == 2) // pyridine
+	    sum_neigb_bond_order += 3;
+	 if (n_aromatic == 1) // weird
+	    sum_neigb_bond_order += 2;
 
 	 if (ele == "N") {
 
@@ -1831,7 +1843,7 @@ namespace lig_build {
 		     offset_text_t otN("C");
 		     ot2.subscript = true;
 		     otH.tweak = pos_t(-16, 0);
-		     ot2.tweak = pos_t(-7, 0);
+		     ot2.tweak = pos_t(-8, 0);
 		     otN.tweak = pos_t(0, 0);
 		     id.add(otH);
 		     id.add(ot2);

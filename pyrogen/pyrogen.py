@@ -721,7 +721,10 @@ def depict(mmcif_file_name_in, comp_id, png_file_name):
       make_picture_to_file(mol_for_drawing, -1, png_file_name)
 
 def coot_depict(mmcif_file_name_in, comp_id, png_file_name, n_pixels=300):
-   pyrogen_boost.cairo_png_depict(mmcif_file_name_in, comp_id, png_file_name, n_pixels)
+   return pyrogen_boost.cairo_png_depict(mmcif_file_name_in, comp_id, png_file_name, n_pixels)
+
+def coot_depict_to_string(m, n_px=300):
+   return pyrogen_boost.cairo_png_depict_to_string(m, -1, n_px)
 
 
 def score_and_print_tautomers(mol, comp_id, output_postfix, do_drawings):

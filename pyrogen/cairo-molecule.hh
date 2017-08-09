@@ -61,6 +61,7 @@ namespace coot {
 
       std::pair<bool, double> scale_correction;
       void draw_bonds();
+      void render(cairo_t *cr);
 
    public:
       cairo_molecule_t() {}
@@ -82,6 +83,9 @@ namespace coot {
 						  const lig_build::pos_t &centre,
 						  double scale);
 
+      static cairo_status_t png_stream_writer(void *closure_in,
+					      const unsigned char *data,
+					      unsigned int length);
    };
 
    void cairo_png_depict(const std::string &mmcif_file_name,
@@ -90,7 +94,7 @@ namespace coot {
 			 unsigned int npx=300);
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-   std::string cairo_png_from_mol_raw(RDKit::ROMol *m, int iconf = -1, unsigned int npx=300);
+   std::string cairo_png_string_from_mol(RDKit::ROMol *m, int iconf = -1, unsigned int npx=300);
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 
 }
