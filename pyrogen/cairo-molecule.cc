@@ -300,6 +300,7 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
 				     centre, scale);
 	 } else {
 	    draw_double_bond(cr, pos_1, pos_2,
+			     shorten_first, shorten_second,
 			     other_connections_to_first_atom,
 			     other_connections_to_second_atom,
 			     centre, scale);
@@ -374,19 +375,16 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
 
 	 bool done_darted = false;
 	 if (other_connections_to_second_atom.size() > 0) {
-	    // don't make sheared or darted wedge bonds to atoms that are in ring
+	    // don't make sheared or darted wedge bonds to atoms that are not Carbon
 	    //
 	    if (! at_2_in_ring_flag) {
-	       std::cout << "avoiding ring dart " << pos_1 << " " << pos_2 << std::endl;
 	       draw_sheared_or_darted_wedge_bond(cr, pos_1, pos_2, other_connections_to_second_atom, centre, scale);
 	       done_darted = true;
-	    } else {
-	       std::cout << "avoiding ring dart " << pos_1 << " " << pos_2 << std::endl;
 	    }
 	 }
 
 	 if (! done_darted) {
-	    // filled shape
+	    // filled shape (normal wedge)
 	    std::vector<lig_build::pos_t> v =
 	       lig_build::pos_t::make_wedge_out_bond(pos_1, pos_2);
 
@@ -507,10 +505,13 @@ coot::cairo_bond_t::draw_double_in_ring_bond(cairo_t *cr,
       cairo_set_dash(cr, NULL, 0, 0); // restore
 }
 
+// not in-ring
+//
 void
 coot::cairo_bond_t::draw_double_bond(cairo_t *cr,
 				     const lig_build::pos_t &pos_1,
 				     const lig_build::pos_t &pos_2,
+				     bool shorten_first, bool shorten_second,
 				     const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
 				     const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 				     const lig_build::pos_t &centre, double scale) {
@@ -520,17 +521,36 @@ coot::cairo_bond_t::draw_double_bond(cairo_t *cr,
    lig_build::pos_t p1 = cairo_molecule_t::mol_coords_to_cairo_coords(p.first.first,  centre, scale);
    lig_build::pos_t p2 = cairo_molecule_t::mol_coords_to_cairo_coords(p.first.second, centre, scale);
 
-   cairo_move_to(cr, p1.x, p1.y);
-   cairo_line_to(cr, p2.x, p2.y);
-   cairo_stroke(cr);
+   if ((other_connections_to_second_atom.size() == 0) ||
+       (other_connections_to_first_atom.size()  == 0)) {
 
-   p1 = cairo_molecule_t::mol_coords_to_cairo_coords(p.second.first,  centre, scale);
-   p2 = cairo_molecule_t::mol_coords_to_cairo_coords(p.second.second, centre, scale);
+      // boring case :-)
+      //
+      cairo_move_to(cr, p1.x, p1.y);
+      cairo_line_to(cr, p2.x, p2.y);
+      cairo_stroke(cr);
 
-   cairo_move_to(cr, p1.x, p1.y);
-   cairo_line_to(cr, p2.x, p2.y);
-   cairo_stroke(cr);
+      p1 = cairo_molecule_t::mol_coords_to_cairo_coords(p.second.first,  centre, scale);
+      p2 = cairo_molecule_t::mol_coords_to_cairo_coords(p.second.second, centre, scale);
 
+      cairo_move_to(cr, p1.x, p1.y);
+      cairo_line_to(cr, p2.x, p2.y);
+      cairo_stroke(cr);
+
+   } else {
+      // elegant case, shorten a bond
+      std::pair<std::pair<lig_build::pos_t, lig_build::pos_t>, std::pair<lig_build::pos_t, lig_build::pos_t> > bonds =
+	 make_double_bond(pos_1, pos_2, shorten_first, shorten_second, other_connections_to_first_atom, other_connections_to_second_atom);
+      p1 = cairo_molecule_t::mol_coords_to_cairo_coords(bonds.first.first,  centre, scale);
+      p2 = cairo_molecule_t::mol_coords_to_cairo_coords(bonds.first.second, centre, scale);
+      cairo_move_to(cr, p1.x, p1.y);
+      cairo_line_to(cr, p2.x, p2.y);
+      p1 = cairo_molecule_t::mol_coords_to_cairo_coords(bonds.second.first,  centre, scale);
+      p2 = cairo_molecule_t::mol_coords_to_cairo_coords(bonds.second.second, centre, scale);
+      cairo_move_to(cr, p1.x, p1.y);
+      cairo_line_to(cr, p2.x, p2.y);
+      cairo_stroke(cr);
+   }
 }
 
 // not const because it changes atom ids.

@@ -219,7 +219,98 @@ lig_build::bond_t::make_double_bond(const pos_t &pos_1, const pos_t &pos_2) cons
    std::pair<lig_build::pos_t, lig_build::pos_t> pair1(p1, p2);
    std::pair<lig_build::pos_t, lig_build::pos_t> pair2(p3, p4);
    return std::pair<std::pair<lig_build::pos_t, lig_build::pos_t>, std::pair<lig_build::pos_t, lig_build::pos_t> > (pair1, pair2);
-} 
+}
+
+
+std::pair<std::pair<lig_build::pos_t, lig_build::pos_t>, std::pair<lig_build::pos_t, lig_build::pos_t> >
+lig_build::bond_t::make_double_bond(const pos_t &pos_1_in, const pos_t &pos_2_in,
+				    bool shorten_first, bool shorten_second,
+				    const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
+				    const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom) const {
+
+   std::pair<lig_build::pos_t, lig_build::pos_t> first_bond;
+   std::pair<lig_build::pos_t, lig_build::pos_t> second_bond;
+
+   lig_build::pos_t pos_1 = pos_1_in;
+   lig_build::pos_t pos_2 = pos_2_in;
+
+   double shorten_fraction_1 = 0.72;
+   double shorten_fraction_2 = 0.72;
+   if (shorten_first)
+      pos_1 = lig_build::pos_t::fraction_point(pos_2_in, pos_1_in, shorten_fraction_1);
+   if (shorten_second)
+      pos_2 = lig_build::pos_t::fraction_point(pos_1_in, pos_2_in, shorten_fraction_2);
+
+   first_bond.first  = pos_1;
+   first_bond.second = pos_2;
+
+   double bond_length = lig_build::pos_t::length(pos_2, pos_1); // shortened possibly.
+   lig_build::pos_t buv = (pos_2_in-pos_1_in).unit_vector();
+   lig_build::pos_t buv_90 = buv.rotate(90);
+
+   // if the bond is cis, we want to be on the inside of that, if it's trans, it doesn't matter.
+   // So does pos_1 and pos_2 have neighbours that are on the same side as each other?
+
+   double delta_x = pos_2.x-pos_1.x;
+   if (delta_x == 0) delta_x = 0.01; // don't divide by zero
+   double m = (pos_2.y-pos_1.y)/delta_x;
+   double c = - m * pos_2.x + pos_2.y;
+
+   bool done = false; // true when pos_neighb_ref is set
+   lig_build::pos_t pos_neighb_ref;
+
+   for (unsigned int ib1=0; ib1<other_connections_to_first_atom.size(); ib1++) {
+      for (unsigned int ib2=0; ib2<other_connections_to_second_atom.size(); ib2++) {
+	 const lig_build::pos_t &p_1 = other_connections_to_first_atom[ib1].first.atom_position;
+	 const lig_build::pos_t &p_2 = other_connections_to_second_atom[ib2].first.atom_position;
+
+	 double r1 = m * p_1.x - p_1.y + c;  // ax + by + c > 0 ? where a = m, b = -1
+	 double r2 = m * p_2.x - p_2.y + c;
+	 double r1r2 = r1 * r2;
+	 if (r1r2 > 0) { // on same side
+
+	    pos_neighb_ref = p_1;
+	    done = true;
+	 }
+	 if (done) break;
+      }
+      if (done) break;
+   }
+   if (! done) {
+      // we had a trans bond (only) - either side will do
+      if (other_connections_to_first_atom.size()) {
+	 pos_neighb_ref = other_connections_to_first_atom[0].first.atom_position;
+	 done = true;
+      } else {
+	 if (other_connections_to_second_atom.size()) {
+	    pos_neighb_ref = other_connections_to_second_atom[0].first.atom_position;
+	    done = true;
+	 }
+      }
+   }
+
+   if (done) {
+      double nice_dist = bond_length * 0.15;
+      lig_build::pos_t pos_offset_bond_start_t1 = pos_1 + buv_90 * nice_dist;
+      lig_build::pos_t pos_offset_bond_start_t2 = pos_1 - buv_90 * nice_dist;
+      double d1 = lig_build::pos_t::length(pos_neighb_ref, pos_offset_bond_start_t1);
+      double d2 = lig_build::pos_t::length(pos_neighb_ref, pos_offset_bond_start_t2);
+
+      lig_build::pos_t sp = pos_offset_bond_start_t1;
+      if (d2 < d1)
+	 sp = pos_offset_bond_start_t2;
+      lig_build::pos_t ep = sp + buv * bond_length;
+
+      lig_build::pos_t cutened_inner_start_point = lig_build::pos_t::fraction_point(sp, ep, 0.14);
+      lig_build::pos_t cutened_inner_end_point   = lig_build::pos_t::fraction_point(sp, ep, 0.86);
+
+      second_bond.first  = cutened_inner_start_point;
+      second_bond.second = cutened_inner_end_point;
+   }
+
+   return std::pair<std::pair<lig_build::pos_t, lig_build::pos_t>, std::pair<lig_build::pos_t, lig_build::pos_t> > (first_bond, second_bond);
+}
+
 
 
 

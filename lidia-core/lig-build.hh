@@ -579,6 +579,12 @@ namespace lig_build {
       std::pair<std::pair<pos_t, pos_t>, std::pair<pos_t, pos_t> >
       make_double_bond(const pos_t &pos_1, const pos_t &pos_2) const;
 
+      std::pair<std::pair<pos_t, pos_t>, std::pair<pos_t, pos_t> >
+			       make_double_bond(const pos_t &pos_1, const pos_t &pos_2,
+						bool shorten_first, bool shorten_second,
+						const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
+						const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom) const;
+
    };
    std::ostream& operator<<(std::ostream &s, bond_t);
 

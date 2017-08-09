@@ -935,7 +935,6 @@ coot::set_atom_chirality(RDKit::Atom *rdkit_at, const coot::dict_atom &dict_atom
 	 rdkit_at->setProp("_CIPCode", cip);
       }
       if (dict_atom.pdbx_stereo_config.second == "S") {
-	 std::cout << "here in S: set_atom_chirality() for a dict_atom " << dict_atom << std::endl;
 	 RDKit::Atom::ChiralType chiral_tag = RDKit::Atom::CHI_TETRAHEDRAL_CCW;
 	 std::string cip = "S";
 	 rdkit_at->setProp("_CIPCode", cip);

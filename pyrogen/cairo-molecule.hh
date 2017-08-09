@@ -55,6 +55,7 @@ namespace coot {
 				    double scale, bool dashed_inner=false);
       void draw_double_bond(cairo_t *cr,
 			    const lig_build::pos_t &pos_1, const lig_build::pos_t &pos_2,
+			    bool shorten_first, bool shorten_second,
 			    const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
 			    const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 			    const lig_build::pos_t &centre, double scale);
