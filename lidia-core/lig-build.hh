@@ -993,7 +993,18 @@ namespace lig_build {
 						      empty_no_pass_atoms, MAX_SEARCH_DEPTH);
          return v;
       }
-      
+
+      bool in_ring_p(unsigned int atom_index) const {
+	 bool in_ring = false;
+	 std::vector<std::set<unsigned int> > v = rings_including_atom(atom_index);
+	 for (unsigned int i=0; i<v.size(); i++) {
+	    if (v[i].find(atom_index) != v[i].end()) {
+	       in_ring = true;
+	       break;
+	    }
+	 }
+	 return in_ring;
+      }
       
       // "Put the template class method definitions in the .h file" - Thanks, Kevin!
       // 

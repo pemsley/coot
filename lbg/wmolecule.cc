@@ -504,7 +504,7 @@ widgeted_bond_t::canvas_item_double_bond(const lig_build::pos_t &pos_1,
 					 const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 					 GooCanvasItem *root) const {
 
-   if ((other_connections_to_second_atom.size() == 0)||
+   if ((other_connections_to_second_atom.size() == 0) ||
        (other_connections_to_first_atom.size()  == 0)) {
       return canvas_item_double_bond_simple(pos_1, pos_2, root);
 

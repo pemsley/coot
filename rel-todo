@@ -5,6 +5,10 @@
 
    o CLD, CL6: bond to central ("chiral") atom is facing the wrong way
 
+   o in FAP is CH3 is chopped
+
+   o FAK chiral FC wedge is round the wrong way
+
    o FLEV fail on A2005 in 5pb8 failure to construct rdkit molecule (in alt conf D)
 
    o make a mode "don't recontour the map on recentre". Add a "recontour" 

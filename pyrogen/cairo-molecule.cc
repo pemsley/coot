@@ -252,6 +252,7 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
 			      const lig_build::pos_t &pos_1_in,
 			      const lig_build::pos_t &pos_2_in,
 			      bool shorten_first, bool shorten_second,
+			      bool at_1_in_ring_flag, bool at_2_in_ring_flag,
 			      lig_build::bond_t::bond_type_t bt,
 			      const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
 			      const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
@@ -298,7 +299,10 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
 	    draw_double_in_ring_bond(cr, pos_1_in, pos_2_in, shorten_first, shorten_second,
 				     centre, scale);
 	 } else {
-	    draw_double_bond(cr, pos_1, pos_2, centre, scale);
+	    draw_double_bond(cr, pos_1, pos_2,
+			     other_connections_to_first_atom,
+			     other_connections_to_second_atom,
+			     centre, scale);
 	 }
       }
       break;
@@ -325,7 +329,6 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
 	 lig_build::pos_t p4 = pos_2;
 	 lig_build::pos_t p5 = pos_1 - buv_90 * small;
 	 lig_build::pos_t p6 = pos_2 - buv_90 * small;
-
 
 	 lig_build::pos_t sc_p1 = cairo_molecule_t::mol_coords_to_cairo_coords(p1, centre, scale);
 	 lig_build::pos_t sc_p2 = cairo_molecule_t::mol_coords_to_cairo_coords(p2, centre, scale);
@@ -369,9 +372,20 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
    case OUT_BOND:
       {
 
+	 bool done_darted = false;
 	 if (other_connections_to_second_atom.size() > 0) {
-	    draw_sheared_or_darted_wedge_bond(cr, pos_1, pos_2, other_connections_to_second_atom, centre, scale);
-	 } else {
+	    // don't make sheared or darted wedge bonds to atoms that are in ring
+	    //
+	    if (! at_2_in_ring_flag) {
+	       std::cout << "avoiding ring dart " << pos_1 << " " << pos_2 << std::endl;
+	       draw_sheared_or_darted_wedge_bond(cr, pos_1, pos_2, other_connections_to_second_atom, centre, scale);
+	       done_darted = true;
+	    } else {
+	       std::cout << "avoiding ring dart " << pos_1 << " " << pos_2 << std::endl;
+	    }
+	 }
+
+	 if (! done_darted) {
 	    // filled shape
 	    std::vector<lig_build::pos_t> v =
 	       lig_build::pos_t::make_wedge_out_bond(pos_1, pos_2);
@@ -497,6 +511,8 @@ void
 coot::cairo_bond_t::draw_double_bond(cairo_t *cr,
 				     const lig_build::pos_t &pos_1,
 				     const lig_build::pos_t &pos_2,
+				     const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
+				     const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 				     const lig_build::pos_t &centre, double scale) {
 
    std::pair<std::pair<lig_build::pos_t, lig_build::pos_t>, std::pair<lig_build::pos_t, lig_build::pos_t> > p = make_double_bond(pos_1, pos_2);
@@ -584,7 +600,13 @@ coot::cairo_molecule_t::render(cairo_t *cr) {
 	 std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > other_connections_to_second_atom =
 	    make_other_connections_to_second_atom_info(ib);
 
-	 bonds[ib].draw_bond(cr, pos_1, pos_2, shorten.first, shorten.second, bt,
+	 bool at_1_in_ring_flag = in_ring_p(idx_1);
+	 bool at_2_in_ring_flag = in_ring_p(idx_2);
+
+	 bonds[ib].draw_bond(cr, pos_1, pos_2, shorten.first, shorten.second,
+			     at_1_in_ring_flag,
+			     at_2_in_ring_flag,
+			     bt,
 			     other_connections_to_first_atom,
 			     other_connections_to_second_atom,
 			     centre, scale);
