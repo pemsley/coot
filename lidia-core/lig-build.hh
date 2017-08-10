@@ -513,12 +513,13 @@ namespace lig_build {
 	       lig_build::pos_t buv_90 = buv.rotate(90);
 	       lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.04);
 
-	       lig_build::pos_t sharp_point_1 = sharp_point + buv_90 * 0.03;
-	       lig_build::pos_t sharp_point_2 = sharp_point - buv_90 * 0.03;
+	       // 0.02 is nice, but make it 0.5 to highlight the sheared wedge strangeness
+	       lig_build::pos_t sharp_point_1 = sharp_point + buv_90 * 0.03; // was 0.03
+	       lig_build::pos_t sharp_point_2 = sharp_point - buv_90 * 0.03; // ditto
 
 	       lig_build::pos_t bfrom3rd = pos_2 - third_atom_pos;
-	       lig_build::pos_t bond_from_3rd_atom_extension   = pos_2 + bfrom3rd*0.1;
-	       lig_build::pos_t bond_from_3rd_atom_contraction = pos_2 - bfrom3rd*0.18;
+	       lig_build::pos_t bond_from_3rd_atom_extension   = pos_2 + bfrom3rd*0.08;  // was 0.1
+	       lig_build::pos_t bond_from_3rd_atom_contraction = pos_2 - bfrom3rd*0.16;  // was 0.18
 
 	       if (third_bond.get_bond_type() == lig_build::bond_t::DOUBLE_BOND) {
 		  // we need to make this shorter.
@@ -576,8 +577,10 @@ namespace lig_build {
 				       bool shorten_first,
 				       bool shorten_second) const;
 
+      // symmetric offset version
       std::pair<std::pair<pos_t, pos_t>, std::pair<pos_t, pos_t> >
-      make_double_bond(const pos_t &pos_1, const pos_t &pos_2) const;
+			       make_double_bond(const pos_t &pos_1, const pos_t &pos_2,
+						bool shorten_first, bool shorten_second) const;
 
       std::pair<std::pair<pos_t, pos_t>, std::pair<pos_t, pos_t> >
 			       make_double_bond(const pos_t &pos_1, const pos_t &pos_2,

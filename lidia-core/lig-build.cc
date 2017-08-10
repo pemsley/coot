@@ -204,13 +204,28 @@ lig_build::bond_t::make_double_aromatic_short_stick(const pos_t &pos_1_in,
 							cutened_inner_end_point);
 }
 
+// symmetric displaced version
+//
 std::pair<std::pair<lig_build::pos_t, lig_build::pos_t>, std::pair<lig_build::pos_t, lig_build::pos_t> >
-lig_build::bond_t::make_double_bond(const pos_t &pos_1, const pos_t &pos_2) const {
+lig_build::bond_t::make_double_bond(const pos_t &pos_1_in, const pos_t &pos_2_in,
+				    bool shorten_first, bool shorten_second) const {
+
+   lig_build::pos_t pos_1 = pos_1_in;
+   lig_build::pos_t pos_2 = pos_2_in;
+
+   // fraction_point() returns a point that is (say) 0.8 of the way
+   // from p1 (first arg) to p2 (second arg).
+   //
+   double shorten_fraction = 0.74;
+   if (shorten_first)
+      pos_1 = lig_build::pos_t::fraction_point(pos_2_in, pos_1_in, shorten_fraction);
+   if (shorten_second)
+      pos_2 = lig_build::pos_t::fraction_point(pos_1_in, pos_2_in, shorten_fraction);
 
    lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
    lig_build::pos_t buv_90 = buv.rotate(90);
 
-   double small = lig_build::pos_t::length(pos_1, pos_2) * 0.1;
+   double small = lig_build::pos_t::length(pos_1_in, pos_2_in) * 0.1;
    lig_build::pos_t p1 = pos_1 + buv_90 * small;
    lig_build::pos_t p2 = pos_2 + buv_90 * small;
    lig_build::pos_t p3 = pos_1 - buv_90 * small;
@@ -222,6 +237,8 @@ lig_build::bond_t::make_double_bond(const pos_t &pos_1, const pos_t &pos_2) cons
 }
 
 
+// shorten_first and shorten_second are set depending on the element of the atoms and number of bonds.
+//
 std::pair<std::pair<lig_build::pos_t, lig_build::pos_t>, std::pair<lig_build::pos_t, lig_build::pos_t> >
 lig_build::bond_t::make_double_bond(const pos_t &pos_1_in, const pos_t &pos_2_in,
 				    bool shorten_first, bool shorten_second,
@@ -234,8 +251,8 @@ lig_build::bond_t::make_double_bond(const pos_t &pos_1_in, const pos_t &pos_2_in
    lig_build::pos_t pos_1 = pos_1_in;
    lig_build::pos_t pos_2 = pos_2_in;
 
-   double shorten_fraction_1 = 0.72;
-   double shorten_fraction_2 = 0.72;
+   double shorten_fraction_1 = 0.75;
+   double shorten_fraction_2 = 0.75;
    if (shorten_first)
       pos_1 = lig_build::pos_t::fraction_point(pos_2_in, pos_1_in, shorten_fraction_1);
    if (shorten_second)
@@ -244,7 +261,7 @@ lig_build::bond_t::make_double_bond(const pos_t &pos_1_in, const pos_t &pos_2_in
    first_bond.first  = pos_1;
    first_bond.second = pos_2;
 
-   double bond_length = lig_build::pos_t::length(pos_2, pos_1); // shortened possibly.
+   double bond_length = lig_build::pos_t::length(pos_2_in, pos_1_in); // shortened possibly.
    lig_build::pos_t buv = (pos_2_in-pos_1_in).unit_vector();
    lig_build::pos_t buv_90 = buv.rotate(90);
 
@@ -290,12 +307,14 @@ lig_build::bond_t::make_double_bond(const pos_t &pos_1_in, const pos_t &pos_2_in
    }
 
    if (done) {
-      double nice_dist = bond_length * 0.15;
+      double nice_dist = bond_length * 0.16; // distance between bond lines
       lig_build::pos_t pos_offset_bond_start_t1 = pos_1 + buv_90 * nice_dist;
       lig_build::pos_t pos_offset_bond_start_t2 = pos_1 - buv_90 * nice_dist;
       double d1 = lig_build::pos_t::length(pos_neighb_ref, pos_offset_bond_start_t1);
       double d2 = lig_build::pos_t::length(pos_neighb_ref, pos_offset_bond_start_t2);
 
+      if (shorten_first)  bond_length *= shorten_fraction_1;
+      if (shorten_second) bond_length *= shorten_fraction_2;
       lig_build::pos_t sp = pos_offset_bond_start_t1;
       if (d2 < d1)
 	 sp = pos_offset_bond_start_t2;
@@ -304,8 +323,16 @@ lig_build::bond_t::make_double_bond(const pos_t &pos_1_in, const pos_t &pos_2_in
       lig_build::pos_t cutened_inner_start_point = lig_build::pos_t::fraction_point(sp, ep, 0.14);
       lig_build::pos_t cutened_inner_end_point   = lig_build::pos_t::fraction_point(sp, ep, 0.86);
 
-      second_bond.first  = cutened_inner_start_point;
-      second_bond.second = cutened_inner_end_point;
+      if (other_connections_to_first_atom.size() > 0) {
+	 second_bond.first = cutened_inner_start_point;
+      } else {
+	 second_bond.first  = sp;
+      }
+      if (other_connections_to_second_atom.size() > 0) {
+	 second_bond.second = cutened_inner_end_point;
+      } else {
+	 second_bond.second = ep;
+      }
    }
 
    return std::pair<std::pair<lig_build::pos_t, lig_build::pos_t>, std::pair<lig_build::pos_t, lig_build::pos_t> > (first_bond, second_bond);

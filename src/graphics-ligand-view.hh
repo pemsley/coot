@@ -47,7 +47,7 @@ public:
 		bool shorten_first, bool shorten_second, lig_build::bond_t::bond_type_t bt);
    void gl_bond_double_aromatic_bond(const lig_build::pos_t &pos_1, const lig_build::pos_t &pos_2,
 				     bool shorten_first, bool shorten_second);
-   void gl_bond_double_bond(const lig_build::pos_t &pos_1, const lig_build::pos_t &pos_2);
+   void gl_bond_double_bond(const lig_build::pos_t &pos_1, const lig_build::pos_t &pos_2, bool shorten_first, bool shorten_second);
 };
 
 // for graphics ligand view (bottom left)

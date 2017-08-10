@@ -1,13 +1,19 @@
 
    For Release 0.8.9
 
+   o master branch: in rdkit_mol() // wedge bonds sould have the chiral centre as the first atom
+     do an additional chiral check based on pdbx_stereo_config (currently the check is 
+     based only on chiral restraints). Look at FAX - why even is the P-OH bond wedged?
+     what is marking either of these atoms as chiral?
+
    o the hydrogen is not drawn correctly on AC6 in Colour by Atoms
 
    o CLD, CL6: bond to central ("chiral") atom is facing the wrong way
 
    o in FAP is CH3 is chopped
 
-   o FAK chiral FC wedge is round the wrong way
+   o FAK chiral FC wedge is round the wrong way,
+     FAI chiral P  wedge is round the wrong way,
 
    o FLEV fail on A2005 in 5pb8 failure to construct rdkit molecule (in alt conf D)
 

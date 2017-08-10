@@ -39,10 +39,10 @@ namespace coot {
       //
       // maybe we want yet more sophisticated bond_t constructors? (like wmolecule.hh)
 
-      void draw_bond(cairo_t *cr, const lig_build::pos_t &pos_1, const lig_build::pos_t &pos_2,
-		     bool shorten_first, bool shorten_second,
+      void draw_bond(cairo_t *cr, const cairo_atom_t &at_1, const cairo_atom_t &at_2,
 		     bool at_1_in_ring_flag, bool at_2_in_ring_flag,
 		     lig_build::bond_t::bond_type_t bt,
+		     bool shorten_first, bool shorten_second,
 		     const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
 		     const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
 		     const lig_build::pos_t &centre, double scale);
@@ -54,7 +54,8 @@ namespace coot {
 				    const lig_build::pos_t &centre,
 				    double scale, bool dashed_inner=false);
       void draw_double_bond(cairo_t *cr,
-			    const lig_build::pos_t &pos_1, const lig_build::pos_t &pos_2,
+			    const lig_build::atom_t &at_1,
+			    const lig_build::atom_t &at_2,
 			    bool shorten_first, bool shorten_second,
 			    const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_first_atom,
 			    const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,

@@ -191,7 +191,7 @@ graphics_ligand_bond::gl_bond(const lig_build::pos_t &pos_1_raw, const lig_build
 	 if (have_centre_pos()) {
 	    gl_bond_double_aromatic_bond(pos_1_raw, pos_2_raw, shorten_first, shorten_second);
 	 } else {
-	    gl_bond_double_bond(pos_1, pos_2);
+	    gl_bond_double_bond(pos_1, pos_2, shorten_first, shorten_second);
 	 } 
       }
       break;
@@ -284,9 +284,10 @@ graphics_ligand_bond::gl_bond_double_aromatic_bond(const lig_build::pos_t &pos_1
 }
 
 void
-graphics_ligand_bond::gl_bond_double_bond(const lig_build::pos_t &pos_1, const lig_build::pos_t &pos_2) {
+graphics_ligand_bond::gl_bond_double_bond(const lig_build::pos_t &pos_1, const lig_build::pos_t &pos_2, bool shorten_first, bool shorten_second) {
 
-   std::pair<std::pair<lig_build::pos_t, lig_build::pos_t>, std::pair<lig_build::pos_t, lig_build::pos_t> > p = make_double_bond(pos_1, pos_2);
+   std::pair<std::pair<lig_build::pos_t, lig_build::pos_t>, std::pair<lig_build::pos_t, lig_build::pos_t> > p =
+      make_double_bond(pos_1, pos_2, shorten_first, shorten_second);
 
    double screen_z = -1.5;
    glBegin(GL_LINES);
