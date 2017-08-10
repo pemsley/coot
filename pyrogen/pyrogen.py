@@ -726,6 +726,32 @@ def coot_depict(mmcif_file_name_in, comp_id, png_file_name, n_pixels=300):
 def coot_depict_to_string(m, n_px=300):
    return pyrogen_boost.cairo_png_depict_to_string(m, -1, n_px)
 
+def MolsToGrid(mols, mols_per_row=3, sub_image_size=(200,200), legends=None):
+    import IPython
+    import Image
+    import io
+    n_rows=(len(mols) // mols_per_row) + 1
+    full_size=(sub_image_size[0]*mols_per_row, sub_image_size[1]*n_rows)
+    composite=composite = Image.new('RGBA', full_size)
+    for count,mol in enumerate(mols):
+        try:
+            # print('mol:', mol)
+            s = pyrogen_boost.cairo_png_depict_to_string(mol, -1, sub_image_size[0])
+            sio = io.BytesIO(s)
+            im = Image.open(sio)
+            region = im.crop((0,0,sub_image_size[0], sub_image_size[0]))
+            i_row = count // mols_per_row
+            i_col = count - i_row * mols_per_row
+            x_off = i_col * sub_image_size[0]
+            y_off = i_row * sub_image_size[0]
+            composite.paste(region,(x_off, y_off, x_off+sub_image_size[0], y_off+sub_image_size[0]))
+        except IOError as e:
+            print(e, "for mol", mol)
+        except Exception, e:
+            print(e, "for mol", mol)
+    b = io.BytesIO()
+    composite.save(b, 'png')
+    IPython.display.display(IPython.display.Image(b.getvalue()))
 
 def score_and_print_tautomers(mol, comp_id, output_postfix, do_drawings):
 
