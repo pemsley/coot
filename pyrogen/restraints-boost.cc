@@ -211,7 +211,7 @@ coot::rdkit_mol_chem_comp_pdbx(const std::string &chem_comp_dict_file_name,
 	    RDKit::RWMol mol_rw = coot::rdkit_mol(r, rest.second, "", undelocalize_flag);
 	    RDKit::ROMol *m = new RDKit::ROMol(mol_rw);
 
-	    // Let's skip this step here if we can (because the chiral centres should have been
+	    // Let's skip this step here if we can - because the chiral centres should have been
 	    // assigned in rdkit_mol() and we don't want to wipe them out here.
 	    // 
 	    bool clean = false;

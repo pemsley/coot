@@ -704,7 +704,8 @@ def simple_make(mmcif_file_name, comp_id):
    if not mol:
       print 'No molecule'
 
-def depict(mmcif_file_name_in, comp_id, png_file_name):
+
+def png_from_mmcif_file(mmcif_file_name_in, comp_id, png_file_name):
    m = pyrogen_boost.rdkit_mol_chem_comp_pdbx(mmcif_file_name_in, comp_id)
    conf_id = 0
    n = m.GetNumConformers()
@@ -713,22 +714,42 @@ def depict(mmcif_file_name_in, comp_id, png_file_name):
    conf = m.GetConformer(conf_id)
    mol_for_drawing = Chem.RemoveHs(m, implicitOnly=False)
    if conf.Is3D():
-      print '3D path'
+      # print '3D path'
       conf2D_id = AllChem.Compute2DCoords(mol_for_drawing)
       make_picture_to_file(mol_for_drawing, conf2D_id, png_file_name)
    else:
-      print 'Non-3D path'
+      # print 'Non-3D path'
       make_picture_to_file(mol_for_drawing, -1, png_file_name)
 
-def coot_depict(mmcif_file_name_in, comp_id, png_file_name, n_pixels=300):
+def coot_png_from_mmcif_file(mmcif_file_name_in, comp_id, png_file_name, n_pixels=300):
+   # change the name of cairo_png_depict
    return pyrogen_boost.cairo_png_depict(mmcif_file_name_in, comp_id, png_file_name, n_pixels)
+
+def depict(mol, iconf = -1, npx=300):
+    import IPython
+    import Image
+    import io
+    s = pyrogen_boost.cairo_png_depict_to_string(mol, -1, npx)
+    sio = io.BytesIO(s)
+    im = Image.open(sio)
+    bo = io.BytesIO()
+    im.save(bo, 'png')
+    IPython.display.display(IPython.display.Image(bo.getvalue()))
+    
 
 def coot_depict_to_string(m, n_px=300):
    return pyrogen_boost.cairo_png_depict_to_string(m, -1, n_px)
 
+# make MolFromPDBXr available in pyrogen
+def MolFromPDBXr(cif_file_name, comp_id):
+    return pyrogen_boost.MolFromPDBXr(cif_file_name, comp_id)
+
 def MolsToGrid(mols, mols_per_row=3, sub_image_size=(200,200), legends=None):
     import IPython
     import Image
+    import ImageFont
+    import PIL
+    import PIL.ImageDraw
     import io
     n_rows=(len(mols) // mols_per_row) + 1
     full_size=(sub_image_size[0]*mols_per_row, sub_image_size[1]*n_rows)
@@ -739,12 +760,31 @@ def MolsToGrid(mols, mols_per_row=3, sub_image_size=(200,200), legends=None):
             s = pyrogen_boost.cairo_png_depict_to_string(mol, -1, sub_image_size[0])
             sio = io.BytesIO(s)
             im = Image.open(sio)
+	    # add label if possible
+	    try:
+		lab = legends[count]
+		text_x_pos = sub_image_size[0]/2 - 10
+		if text_x_pos < 0:
+		    text_x_pos = 0
+		text_y_pos = 0.9 * sub_image_size[0]
+		draw = PIL.ImageDraw.Draw(im)
+		# this ttf file is hard-coded and copied from dials base/share/fonts
+		# we need to install that directory as part of coot and find
+		# the file in the installation
+		font= ImageFont.truetype("VeraMono.ttf", 16)
+		# we don't have this attribute (multiline_text). Hmm. Maybe old version of PIL?
+		# draw.multiline_text((text_x_pos, text_y_pos), lab, fill=(10,10,10,255), font=font, align="center")
+		draw.text((text_x_pos, text_y_pos), lab, fill=(10,10,10,255), font=font)
+	    except NameError as e:
+		print(e)
             region = im.crop((0,0,sub_image_size[0], sub_image_size[0]))
             i_row = count // mols_per_row
             i_col = count - i_row * mols_per_row
             x_off = i_col * sub_image_size[0]
             y_off = i_row * sub_image_size[0]
             composite.paste(region,(x_off, y_off, x_off+sub_image_size[0], y_off+sub_image_size[0]))
+        except ValueError as e:
+            print(e, "for mol", mol)
         except IOError as e:
             print(e, "for mol", mol)
         except Exception, e:

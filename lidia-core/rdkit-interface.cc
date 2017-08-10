@@ -334,13 +334,22 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    if (idx_2 != -1) {
 
 	       // wedge bonds should have the chiral centre as the first atom.
-	       // 
+	       //
 	       bool swap_order = false;
 	       if (restraints.chiral_restraint.size()) {
 		  swap_order = chiral_check_order_swap(m[idx_1], m[idx_2], restraints.chiral_restraint);
 	       } else {
 		  // use the atoms rdkit chiral status
+		  // 20170810: this makes sense for atoms that are marked as S/R in the pdbx_stereo_config
+		  //           but not for other ones that RDKit conjures up for as yet unknown reason
+		  //           e.g. CT in FAK
 		  swap_order = chiral_check_order_swap(m[idx_1], m[idx_2]);
+	       }
+
+	       // Finally, heuristic: so that atoms with more than 1 bond are end atom if the
+	       // other atom has just 1 bond (this one).
+	       if (! swap_order) {
+		  swap_order = chiral_check_order_swap_singleton(m[idx_1], m[idx_2], restraints);
 	       }
 
 	       if (! swap_order) {  // normal
@@ -952,6 +961,8 @@ coot::set_atom_chirality(RDKit::Atom *rdkit_at, const coot::dict_atom &dict_atom
    }
 }
 
+
+
 // sorts atoms so that the smallest ranks are at the top (close to index 0).
 //
 bool
@@ -1021,6 +1032,38 @@ coot::chiral_check_order_swap(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2) {
 
    return status;
 }
+
+bool
+coot::chiral_check_order_swap_singleton(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR at_2,
+					const dictionary_residue_restraints_t  &restraints) {
+
+   // This improves things, but needs further improvement because it doesn't correct the
+   // atom order of a bond of a CH3 connected to a C that is connected to 3 other CH3s -
+   // e.g. GN5
+   //
+
+   bool status = false;
+
+   try {
+      std::string name_1;
+      std::string name_2;
+      at_1->getProp("name", name_1);
+      at_2->getProp("name", name_2);
+
+      bool allow_H = true;
+      std::vector<std::string> n_1 = restraints.neighbours(name_1, allow_H);
+      std::vector<std::string> n_2 = restraints.neighbours(name_2, allow_H);
+
+      if (n_1.size() == 1)
+	 if (n_2.size() > 1)
+	    status = true;
+   }
+   catch (...) {
+      // this should not catch anything, the names should be set as properties
+   }
+   return status;
+}
+
 
 
 // fill the coords from the dictionary if you can.

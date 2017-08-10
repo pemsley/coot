@@ -172,14 +172,19 @@ coot::cairo_molecule_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) {
 void
 coot::cairo_atom_t::set_colour(cairo_t *cr) const {
 
+   if (element == "C")  cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
    if (element == "O")  cairo_set_source_rgb(cr, 0.8, 0.0, 0);
    if (element == "N")  cairo_set_source_rgb(cr, 0.2, 0.2, 0.8);
-   if (element == "S")  cairo_set_source_rgb(cr, 0.5, 0.5, 0);
-   if (element == "F") cairo_set_source_rgb (cr, 0,   0.5, 0);
+   if (element == "S")  cairo_set_source_rgb(cr, 0.6, 0.4, 0.2);
+   if (element == "F")  cairo_set_source_rgb(cr, 0,   0.5, 0);
    if (element == "Cl") cairo_set_source_rgb(cr, 0,   0.5, 0);
    if (element == "Br") cairo_set_source_rgb(cr, 0.5, 0.2, 0);
    if (element == "I")  cairo_set_source_rgb(cr, 0.3, 0.0, 0.3);
-   if (element == "C")  cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
+   if (element == "P")  cairo_set_source_rgb(cr, 0.9, 0.6, 0.0); // orange
+   if (element == "Fe") cairo_set_source_rgb(cr, 0.7, 0.4, 0.0); // dark orange
+   if (element == "H")  cairo_set_source_rgb(cr, 0.5, 0.5, 0.5); // not white
+
+   // else: pink: 0.7 0.3 0.9
 }
 
 void
@@ -425,20 +430,25 @@ coot::cairo_bond_t::draw_sheared_or_darted_wedge_bond(cairo_t *cr,
       coords_for_sheared_or_darted_wedge_bond(pos_1, pos_2,
 					      other_connections_to_second_atom);
 
-   // stroked shape
+   // darts have 5 points, sheared bonds have 4 points. We don't want to stroke the
+   // darts (I think).
    //
-   lig_build::pos_t p = cairo_molecule_t::mol_coords_to_cairo_coords(v[0], centre, scale);
-   cairo_move_to(cr, p.x, p.y);
-   for (unsigned int i=1; i<v.size(); i++) {
-      lig_build::pos_t p_i = cairo_molecule_t::mol_coords_to_cairo_coords(v[i], centre, scale);
-      cairo_line_to(cr, p_i.x, p_i.y);
+   if (v.size() == 4) {
+      // stroked shape
+      //
+      lig_build::pos_t p = cairo_molecule_t::mol_coords_to_cairo_coords(v[0], centre, scale);
+      cairo_move_to(cr, p.x, p.y);
+      for (unsigned int i=1; i<v.size(); i++) {
+	 lig_build::pos_t p_i = cairo_molecule_t::mol_coords_to_cairo_coords(v[i], centre, scale);
+	 cairo_line_to(cr, p_i.x, p_i.y);
+      }
+      cairo_close_path(cr);
+      cairo_stroke(cr);
    }
-   cairo_close_path(cr);
-   cairo_stroke(cr);
 
    // filled shape
    //
-   p = cairo_molecule_t::mol_coords_to_cairo_coords(v[0], centre, scale);
+   lig_build::pos_t p = cairo_molecule_t::mol_coords_to_cairo_coords(v[0], centre, scale);
    cairo_move_to(cr, p.x, p.y);
    for (unsigned int i=1; i<v.size(); i++) {
       lig_build::pos_t p_i = cairo_molecule_t::mol_coords_to_cairo_coords(v[i], centre, scale);
