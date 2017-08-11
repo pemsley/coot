@@ -23,6 +23,10 @@
    o FAK chiral FC wedge is round the wrong way,
      FAI chiral P  wedge is round the wrong way,
 
+   o 8RV, the bond runs into the Br.  We need to bring the atom_t to the bond coords generator.
+
+   o 8RP, the bond runs into the +
+
    o ING has twisted sheared bond - why?
 
    o FLEV fail on A2005 in 5pb8 failure to construct rdkit molecule (in alt conf D)
@@ -51,6 +55,9 @@
      http://chris-miceli.blogspot.co.uk/2011/01/integrating-doxygen-with-autotools.html
 
    o how about a button that does the "Nice ligand pic" settings for me?
+
+   o I don't like atom colours not matching bond colours in Colour by Chain mode
+     (refinement branch, I guess).
 
    o do a better job of scaling the density fit analysis (say low resolution data).
 

@@ -406,6 +406,7 @@ pixmaps/icons/Makefile
 rama-data/Makefile
 man/Makefile
 pli/Makefile
+fonts/Makefile
 pyrogen/Makefile
 pyrogen/pyrogen
 auxil/Makefile

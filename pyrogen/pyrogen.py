@@ -17,6 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
+from __future__ import print_function
 import sys
 import os
 import copy
@@ -113,13 +114,12 @@ def add_atom_names(mol):
           inc = 0
           name = atom_name_from_atomic_number_and_count(ele, nz[z], inc)
           p_name = pad_atom_name(name, ele)
-          print 'c.f.', name, " atom names", atom_names
+          print('c.f.', name, " atom names", atom_names)
           while p_name in atom_names :
-             print 'in while'
              inc += 1
              name = atom_name_from_atomic_number_and_count(ele, nz[z], inc)
              p_name = pad_atom_name(name, ele)
-          print atom, 'made-name', p_name, ":"
+          print(atom, 'made-name', p_name, ":")
 
           atom.SetProp("name", p_name)
           atom_names.append(p_name)
@@ -199,8 +199,8 @@ def get_pdbe_cif_for_comp_id(comp_id):
          print('urllib.urllib returned with status', status)
          return file_name
    except IOError as e:
-      print e
-      print "Failed: Can't ftp from", url, "and write file", file_name
+      print(e)
+      print("Failed: Can't ftp from", url, "and write file", file_name)
       # exit(2)
 
 def fetch(comp_id):
@@ -242,7 +242,7 @@ def test_for_mogul():
    if run_mogul:
       mogol_exe = which('mogul')
       if (mogol_exe == None):
-         print "mogul not found in path"
+         print("mogul not found in path")
          return False
       else:
          return True
@@ -311,9 +311,9 @@ def make_picture_to_file(mol, conf_id, output_file_name):
          # c = drawer.GetDrawingText()
       
    except ImportError as e:
-      print 'ImportError:', e
+      print('ImportError:', e)
    except ValueError as e:
-      print 'ValueError in make_picture():', e
+      print('ValueError in make_picture():', e)
 
 def make_restraints_from_smiles(smiles_string, comp_id, compound_name, mogul_dir, name_stub, pdb_out_file_name, mmcif_dict_name, quartet_planes, quartet_hydrogen_planes, use_mmff, match_atom_names_to_dict_flag, comp_id_list_for_names_match, dict_file_for_names_match):
 
@@ -334,7 +334,7 @@ def make_restraints_from_mdl(mol_file_name, comp_id, mogul_dir, name_stub, pdb_o
       exit(1)
 
    if not os.path.exists(mol_file_name):
-      print "No such file:", mol_file_name
+      print("No such file:", mol_file_name)
       exit(1)
 
    compound_name = '.'
@@ -406,22 +406,22 @@ def make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir,
          try:
             name    = atom.GetProp('name')
             cipcode = atom.GetProp('_CIPCode')
-            print 'DEBUG:: make_restraints_from_mmcif_dict_single atom', \
-               atom, 'name', name, 'cip-code ', cipcode
+            print('DEBUG:: make_restraints_from_mmcif_dict_single atom', \
+               atom, 'name', name, 'cip-code ', cipcode)
          except KeyError as e:
-            print 'DEBUG:: pyrogen.py:: make_restraints_from_mmcif_dict_single atom', \
-               atom, " with name ", name, ' has no _CIPCode property'
+            print('DEBUG:: pyrogen.py:: make_restraints_from_mmcif_dict_single atom', \
+               atom, " with name ", name, ' has no _CIPCode property')
          try:
             r = atom.GetProp('_CIPRank')
-            print atom, "DEBUG:: pyrogen.py:: make_restraints_from_mmcif_dict_single atom cip rank", r
+            print(atom, "DEBUG:: pyrogen.py:: make_restraints_from_mmcif_dict_single atom cip rank", r)
          except KeyError as e:
-            print 'DEBUG:: pyrogen.py:: make_restraints_from_mmcif_dict_single atom', \
-               atom, "has no _CIPRank"
+            print('DEBUG:: pyrogen.py:: make_restraints_from_mmcif_dict_single atom', \
+               atom, "has no _CIPRank")
             pass
 
    # maybe user didn't select the correct comp_id for the given dictionary mmcif
    if m.GetNumAtoms() == 0:
-      print 'No atoms for comp_id', comp_id
+      print('No atoms for comp_id', comp_id)
       return False
    else :
 
@@ -429,7 +429,7 @@ def make_restraints_from_mmcif_dict_single(cif_file_name_in, comp_id, mogul_dir,
       try:
          name = m.GetProp('_Name')
       except KeyError:
-         print 'caught KeyError in make_restraints_from_mmcif_dict_single() trying GetProp _Name'
+         print('caught KeyError in make_restraints_from_mmcif_dict_single() trying GetProp _Name')
 
       return make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub,
                              pdb_out_file_name, mmcif_restraints_out_file_name,
@@ -450,7 +450,7 @@ def checked_mkdir(dirname):
        if os.path.isdir(dirname):
           pass # this happens most of the time, I imagine
        else:
-          print 'Stop:: File', dirname, 'exists but is not a directory'
+          print('Stop:: File', dirname, 'exists but is not a directory')
 
 
 # return sane_H_mol
@@ -464,7 +464,7 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
    # test here (or in calling functions) if m is sane (i.e. is an rdkit molecule)
 
    if not isinstance(m, Chem.rdchem.Mol):
-      print 'ERROR:: not a molecule'
+      print('ERROR:: not a molecule')
       return False
 
    n_attempts = 20 * m.GetNumAtoms() # default is 10 * number of atoms.
@@ -509,14 +509,14 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
 	 if n_bonds > 0:
 	    for i_bond in range(n_bonds):
 	       bond = ba.get_bond(i_bond)
-	       print bond.get_idx_1(), bond.get_idx_2(), bond.get_type(), \
-		     bond.get_resting_bond_length(), bond.get_sigma()
+	       print(bond.get_idx_1(), bond.get_idx_2(), bond.get_type(), \
+		     bond.get_resting_bond_length(), bond.get_sigma())
          n_angles = ba.angles_size()
 	 if n_angles > 0:
 	     for i_angle in range(n_angles):
 		 angle = ba.get_angle(i_angle)
-		 print angle.get_idx_1(), angle.get_idx_2(), angle.get_idx_3(), \
-		       angle.get_resting_angle(), angle.get_sigma()
+		 print(angle.get_idx_1(), angle.get_idx_2(), angle.get_idx_3(), \
+		       angle.get_resting_angle(), angle.get_sigma())
 
    else:
       AllChem.UFFOptimizeMolecule(sane_H_mol, confId=conf_id)
@@ -527,8 +527,8 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
    # debug sane_H_mol
    if True:
       molblock = Chem.MolToMolBlock(sane_H_mol)
-      print >> file("sane_H_mol.mol",'w'), molblock
-
+      # print >> file("sane_H_mol.mol",'w'), molblock
+      print(molblock, file=file("sane_H_mol.mol",'w'))
 
    if (all_set != True):
       return False
@@ -548,10 +548,12 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
           checked_mkdir(mogul_dir)
 	  if os.path.isdir(mogul_dir):
 	      mb = Chem.MolToMolBlock(moguled_mol)
-	      print >> file(sdf_file_name,'w'), mb
+	      # print >> file(sdf_file_name,'w'), mb
+              print(m, file=file(sdf_file_name,'w'))
       else:
 	  mb = Chem.MolToMolBlock(moguled_mol)
-	  print >> file(sdf_file_name,'w'), mb
+	  # print >> file(sdf_file_name,'w'), mb
+	  print(mb, file=file(sdf_file_name,'w'))
 
       
       bor = make_restraints_for_bond_orders(sane_H_mol)
@@ -559,7 +561,7 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
       # print out the set types:
       print_atom_props = False
       if print_atom_props:
-	  print '--- Atom Props ---'
+	  print('--- Atom Props ---')
       for atom in sane_H_mol.GetAtoms():
          charge = atom.GetProp('_GasteigerCharge') # string?
          name   = atom.GetProp('name')
@@ -569,13 +571,13 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
             hybrid      = atom.GetHybridization()
             f_charge    = float(charge)
 	    if print_atom_props:
-		print "  atom: %s %s type: %s arom: %s hybrid: %s charge: %6.3f" % (name, atom.GetSymbol(),
+		print("  atom: %s %s type: %s arom: %s hybrid: %s charge: %6.3f" % (name, atom.GetSymbol(),
 										    atom_type.ljust(4),
 										    str(is_aromatic).ljust(5),
 										    str(hybrid).rjust(3),
-										    f_charge)
+										    f_charge))
          except KeyError:
-            print "miss", name, atom.GetSymbol(), charge
+            print("miss", name, atom.GetSymbol(), charge)
 
       #
       replace_with_mmff_b_a_restraints = False
@@ -619,16 +621,15 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
 	      # ... but that's OK if we told pyrogen to run without mogul
 
               # sane_H_mol:
-              print >>file('debug_sane_H.mol','w+'),Chem.MolToMolBlock(sane_H_mol)
+              print(Chem.MolToMolBlock(sane_H_mol), file=file('debug_sane_H.mol','w+'))
 
               # debug
               for atom in sane_H_mol.GetAtoms():
                  try:
                     r = atom.GetProp('_CIPRank')
-                    print atom, "DEBUG:: pyrogen.py::make_restraints(): atom cip rank", r
+                    print(atom, "DEBUG:: pyrogen.py::make_restraints(): atom cip rank", r)
                  except KeyError as e:
-                    print 'DEBUG:: pyrogen.py::make_restraints() atom', \
-                       atom, "has no _CIPRank"
+                    print('DEBUG:: pyrogen.py::make_restraints() atom', atom, "has no _CIPRank")
              
 
 	      restraints = pysw.mmcif_dict_from_mol(comp_id, compound_name, sane_H_mol,
@@ -637,7 +638,7 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
 						    replace_with_mmff_b_a_restraints)
               
 	      if restraints == None:
-		  print "No restraints"
+		  print("No restraints")
 		  return True # hacked in value
 
               if match_atom_names_to_dict_flag:
@@ -702,7 +703,7 @@ def simple_make(mmcif_file_name, comp_id):
    for mol_info in mol_pairs:
       (mol, comp_id) = mol_info
    if not mol:
-      print 'No molecule'
+      print('No molecule')
 
 
 def png_from_mmcif_file(mmcif_file_name_in, comp_id, png_file_name):
@@ -745,6 +746,30 @@ def MolFromPDBXr(cif_file_name, comp_id):
     return pyrogen_boost.MolFromPDBXr(cif_file_name, comp_id)
 
 def MolsToGrid(mols, mols_per_row=3, sub_image_size=(200,200), legends=None):
+
+    # return None on failure to find the font.
+    # Locate the ttf font file on disk somewhere and make a truetype
+    # font from that (if you can)
+    def find_font():
+
+       import distutils
+       import distutils.sysconfig
+       prfx=distutils.sysconfig.PREFIX
+
+       # this ttf file is hard-coded and copied from dials base/share/fonts
+       # we need to install that directory as part of coot and find
+       # the file in the installation
+       font_file_base_name = "VeraMono.ttf"
+       dir_1 = os.path.join(prfx,  'share')
+       dir_2 = os.path.join(dir_1, 'coot')
+       dir_3 = os.path.join(dir_2, 'fonts')
+       font_file=os.path.join(dir_3, font_file_base_name)
+       if os.path.isfile(font_file):
+          font=ImageFont.truetype(font_file, 16)
+          return font
+       else:
+          return None
+
     import IPython
     import Image
     import ImageFont
@@ -754,6 +779,8 @@ def MolsToGrid(mols, mols_per_row=3, sub_image_size=(200,200), legends=None):
     n_rows=(len(mols) // mols_per_row) + 1
     full_size=(sub_image_size[0]*mols_per_row, sub_image_size[1]*n_rows)
     composite=composite = Image.new('RGBA', full_size)
+    font=find_font()
+
     for count,mol in enumerate(mols):
         try:
             # print('mol:', mol)
@@ -762,21 +789,27 @@ def MolsToGrid(mols, mols_per_row=3, sub_image_size=(200,200), legends=None):
             im = Image.open(sio)
 	    # add label if possible
 	    try:
-		lab = legends[count]
-		text_x_pos = sub_image_size[0]/2 - 10
-		if text_x_pos < 0:
-		    text_x_pos = 0
-		text_y_pos = 0.9 * sub_image_size[0]
-		draw = PIL.ImageDraw.Draw(im)
-		# this ttf file is hard-coded and copied from dials base/share/fonts
-		# we need to install that directory as part of coot and find
-		# the file in the installation
-		font= ImageFont.truetype("VeraMono.ttf", 16)
-		# we don't have this attribute (multiline_text). Hmm. Maybe old version of PIL?
-		# draw.multiline_text((text_x_pos, text_y_pos), lab, fill=(10,10,10,255), font=font, align="center")
-		draw.text((text_x_pos, text_y_pos), lab, fill=(10,10,10,255), font=font)
+               if font:
+                  lab = legends[count]
+                  text_x_pos = sub_image_size[0]/2 - 10
+                  if text_x_pos < 0:
+                     text_x_pos = 0
+                  text_y_pos = 0.9 * sub_image_size[0]
+                  min_to_fit = 15
+                  if sub_image_size[1]-text_y_pos < min_to_fit:
+                     text_y_pos = sub_image_size[1] - min_to_fit
+                  draw = PIL.ImageDraw.Draw(im)
+                  # we don't have this attribute (multiline_text). Hmm. Maybe old version of PIL?
+                  # draw.multiline_text((text_x_pos, text_y_pos), lab, fill=(10,10,10,255), font=font, align="center")
+                  draw.text((text_x_pos, text_y_pos), lab, fill=(10,10,10,255), font=font)
+                  # debug print(text_x_pos, text_y_pos)
+            except TypeError as e:
+               # labels was not a list
+               pass
 	    except NameError as e:
-		print(e)
+		print(e, "in legends", legends)
+            except IOError as e:
+               print("something label-related:", e)
             region = im.crop((0,0,sub_image_size[0], sub_image_size[0]))
             i_row = count // mols_per_row
             i_col = count - i_row * mols_per_row
@@ -784,11 +817,11 @@ def MolsToGrid(mols, mols_per_row=3, sub_image_size=(200,200), legends=None):
             y_off = i_row * sub_image_size[0]
             composite.paste(region,(x_off, y_off, x_off+sub_image_size[0], y_off+sub_image_size[0]))
         except ValueError as e:
-            print(e, "for mol", mol)
+            print(e, 'count ', count, " for mol", mol)
         except IOError as e:
-            print(e, "for mol", mol)
+            print(e, 'count ', count, " for mol", mol)
         except Exception, e:
-            print(e, "for mol", mol)
+            print(e, 'count ', count, " for mol", mol)
     b = io.BytesIO()
     composite.save(b, 'png')
     IPython.display.display(IPython.display.Image(b.getvalue()))
@@ -799,7 +832,7 @@ def score_and_print_tautomers(mol, comp_id, output_postfix, do_drawings):
     for i in range(len(results)):
 	m = results[i]
 	s = Chem.MolToSmiles(m)
-	print "comp_id :", comp_id, ": SMILES", s, 'score:', tautomer.tautomer_score(m)
+	print("comp_id :", comp_id, ": SMILES", s, 'score:', tautomer.tautomer_score(m))
 	if do_drawings:
 	    file_name = comp_id + '-tautomer-' + str(i)
 	    file_name += '-' + options.output_postfix + '.png'
@@ -824,7 +857,7 @@ if __name__ == "__main__":
        name=''
        if extension == '.smi' or extension == '.smiles':
 	   if not os.path.exists(smi_raw):
-	       print "File not found:", smi_raw
+	       print("File not found:", smi_raw)
 	       exit(1)
 	   else: 
 	       smiles_string,name = get_smiles_from_file(smi_raw)
@@ -897,7 +930,7 @@ if __name__ == "__main__":
     # print 'DEBUG:: options:', options
 
     if options.show_version:
-       print 'pyrogen-' + pyrogen_version, "revision", coot_git.revision_count()
+       print('pyrogen-' + pyrogen_version, "revision", coot_git.revision_count())
 
     if options.fetch:
 	fetch(options.fetch)
@@ -925,7 +958,7 @@ if __name__ == "__main__":
     if run_mogul:
        if len(options.mogul_dir) > 0:
           if options.mogul_dir[0] == '-':
-             print 'Stop:: you probably didn\'t mean that you wanted',options.mogul_dir, 'as your tmp directory.'
+             print('Stop:: you probably didn\'t mean that you wanted',options.mogul_dir, 'as your tmp directory.')
              exit(1)
           checked_mkdir(options.mogul_dir)
 
@@ -944,7 +977,7 @@ if __name__ == "__main__":
 	    else:
 		if options.mmcif_file_name != None:
 		    types = pysw.types_from_mmcif_dictionary(options.mmcif_file_name)
-		    print '-- tautomer mode: mmcif file types:', types
+		    print('-- tautomer mode: mmcif file types:', types)
 		    for type in types:
 			mol_local = pyrogen_boost.rdkit_mol_chem_comp_pdbx(options.mmcif_file_name, type)
 			score_and_print_tautomers(mol_local, type, options.output_postfix, options.drawing)
@@ -954,7 +987,7 @@ if __name__ == "__main__":
               score_and_print_tautomers(mol, comp_id, options.output_postfix, options.drawing)
            if options.show_smiles:
               s = Chem.MolToSmiles(mol);
-              print s
+              print(s)
 
     else:
 
@@ -967,7 +1000,7 @@ if __name__ == "__main__":
            if os.path.isfile(mmcif_file_name):
               pass # good
            else:
-              print "Missing downloaded file for comp-id:",  comp_id
+              print("Missing downloaded file for comp-id:",  comp_id)
               exit(2)
 
         # JED mode for hydrogen planes
@@ -999,7 +1032,7 @@ if __name__ == "__main__":
 	    for mol_info in mol_pairs:
 		(mol, comp_id) = mol_info
 		if not mol:
-		    print 'No molecule'
+		    print('No molecule')
 		else:
 		    # Happy path
 		    if options.drawing:
