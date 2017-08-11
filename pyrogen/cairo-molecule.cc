@@ -510,7 +510,7 @@ coot::cairo_bond_t::draw_double_in_ring_bond(cairo_t *cr,
    cairo_stroke(cr);
 
    if (dashed_inner) {
-      double dashlength = 0.008;
+      double dashlength = 0.015; // 0.01 is also fine
       cairo_set_dash(cr, &dashlength, 1, 0);
    }
    p1 = cairo_molecule_t::mol_coords_to_cairo_coords(p.first,  centre, scale);
