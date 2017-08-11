@@ -659,7 +659,7 @@ coot::cairo_molecule_t::render(cairo_t *cr) {
    // std::cout << "scale: " << scale << std::endl;
 
    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
-   cairo_set_line_width(cr, 0.11 * scale);
+   cairo_set_line_width(cr, 0.10 * scale);
    cairo_set_font_size(cr,  0.66 * scale);
    cairo_font_extents_t fe;
    cairo_text_extents_t te;
