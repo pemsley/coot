@@ -776,7 +776,9 @@ def MolsToGrid(mols, mols_per_row=3, sub_image_size=(200,200), legends=None):
     import PIL
     import PIL.ImageDraw
     import io
-    n_rows=(len(mols) // mols_per_row) + 1
+    n_rows=(len(mols) // mols_per_row)
+    if len(mols) > n_rows*mols_per_row:
+       n_rows += 1
     full_size=(sub_image_size[0]*mols_per_row, sub_image_size[1]*n_rows)
     composite=composite = Image.new('RGBA', full_size)
     font=find_font()
