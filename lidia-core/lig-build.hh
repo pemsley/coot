@@ -583,11 +583,11 @@ namespace lig_build {
 	       const pos_t  &third_atom_pos = other_connections_to_second_atom[0].first.atom_position;
 	       const bond_t &third_bond     = other_connections_to_second_atom[0].second;
 
-	       pos_t buv = (pos_2-pos_1).unit_vector();
+	       pos_t b = pos_2-pos_1;
+	       pos_t buv = b.unit_vector();
 	       pos_t buv_90 = buv.rotate(90);
 	       pos_t sharp_point = pos_t::fraction_point(pos_1, pos_2, 0.04);
 
-	       // 0.02 is nice, but make it 0.5 to highlight the sheared wedge strangeness
 	       pos_t sharp_point_1 = sharp_point + buv_90 * 0.03; // was 0.03
 	       pos_t sharp_point_2 = sharp_point - buv_90 * 0.03; // ditto
 
@@ -596,14 +596,15 @@ namespace lig_build {
 	       pos_t bond_from_3rd_atom_contraction = pos_2 - bfrom3rd*0.16;  // was 0.18
 
 	       if (third_bond.get_bond_type() == bond_t::DOUBLE_BOND) {
-		  // we need to make this shorter.
-		  bond_from_3rd_atom_extension   -= buv * 2.6;
-		  bond_from_3rd_atom_contraction -= buv * 2.6;
+		  // do we need to make this shorter? (Looks OK in cairo-molecule)
+		  // bond_from_3rd_atom_extension   -= b * 0.05;
+		  // bond_from_3rd_atom_contraction -= b * 0.05;
 	       }
 
 	       if (false) {
-		  std::cout << " buv             " << buv << std::endl;
+		  std::cout << " pos_1           " << pos_1 << std::endl;
 		  std::cout << " pos_2           " << pos_2 << std::endl;
+		  std::cout << " buv             " << buv << std::endl;
 		  std::cout << " 3rd atom pos    " << third_atom_pos << std::endl;
 		  std::cout << " bfrom3rd        " << bfrom3rd << std::endl;
 		  std::cout << " sheared points: " << sharp_point_2 << std::endl;
@@ -611,6 +612,13 @@ namespace lig_build {
 		  std::cout << "                 " << bond_from_3rd_atom_extension   << std::endl;
 		  std::cout << "                 " << bond_from_3rd_atom_contraction << std::endl;
 	       }
+
+	       // is bfrom3rd_2 in the same direction as buv_90?
+	       // If not, then we need to swap around sharp_point_1 and sharp_point_2.
+	       //
+	       double dp = pos_t::dot(bfrom3rd, buv_90);
+	       if (dp < 0)
+		  std::swap(sharp_point_1, sharp_point_2);
 
 	       pts.push_back(sharp_point_2);
 	       pts.push_back(sharp_point_1);
@@ -639,7 +647,6 @@ namespace lig_build {
 	       // If not, then we need to swap around sharp_point_1 and sharp_point_2.
 	       //
 	       double dp = pos_t::dot(bfrom3rd_2, buv_90);
-	       std::cout << "dp: " << dp << std::endl;
 	       if (dp < 0)
 		  std::swap(sharp_point_1, sharp_point_2);
 
@@ -1801,7 +1808,6 @@ namespace lig_build {
 	       n_aromatic++;
 	 }
 
-	 // hack
 	 if (n_aromatic == 3) // unusual
 	    sum_neigb_bond_order += 3;
 	 if (n_aromatic == 2) // pyridine
@@ -2005,8 +2011,6 @@ namespace lig_build {
 	       // not NH2...
 	       // 
 	       // still in the [not NH, OH, SH] block.
-	       // 
-	       // There's lot's more that could go here.
 
 	       if (atom_id == "N+") {
 		  // nitro
@@ -2022,7 +2026,7 @@ namespace lig_build {
 
 	       } else {
 
-		  if (atom_id == "N+H") {
+		  if (atom_id == "NH+") {
 
 		     pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
 		     if (bond_indices.size() == 1) {
@@ -2051,7 +2055,7 @@ namespace lig_build {
 			   if (fabs(sum_delta.y) > fabs(sum_delta.x)) {
 
 			      if (sum_delta.y > 0) {
-		  
+
 				 //    \   /
 				 //      N+
 				 //      H
@@ -2099,13 +2103,14 @@ namespace lig_build {
 			   }
 			   
 			} else {
+			   // number of bond_indices is not 2.
 			   // what is the madness?
 			   return atom_id_info_t("NH+");
 			}
 		     } 
 		  } else {
 		     
-		     if (atom_id == "N+H2") {
+		     if (atom_id == "NH2+") {
 
 			pos_t sum_delta = get_sum_delta_neighbours(atom_index, bond_indices);
 
@@ -2148,14 +2153,18 @@ namespace lig_build {
 			      // normal sideways of N+H2
 
 			      if (sum_delta.x < 0) {
-				 atom_id_info_t id("N", 1);
+				 atom_id_info_t id("N"); // No charge set here
+				 offset_text_t plus("+"); // the plus goes after the H
 				 offset_text_t h("H");
 				 offset_text_t t("2");
-				 h.tweak = pos_t(16, 0);
-				 t.tweak = pos_t(24, 0);
+				 h.tweak = pos_t(10, 0);
+				 t.tweak = pos_t(18, 0);
+				 plus.tweak = pos_t(18, 0);
 				 t.subscript = true;
+				 plus.superscript = true;
 				 id.add(h);
 				 id.add(t);
+				 id.add(plus);
 				 return id;
 			      } else {
 				 atom_id_info_t id;
