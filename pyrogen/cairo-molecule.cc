@@ -283,7 +283,7 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
    lig_build::pos_t p1;
    lig_build::pos_t p2;
 
-   // std::cout << "draw_bond for bt " << bt << std::endl;
+   // std::cout << "draw_bond for bt " << bt << " between " << at_1 << " and " << at_2 << std::endl;
 
    switch (bt) {
    case lig_build::bond_t::SINGLE_BOND:
@@ -292,6 +292,15 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
    case lig_build::bond_t::DELOC_ONE_AND_A_HALF:
    case lig_build::bond_t::BOND_ANY:
       {
+	 // push down the decision making for the shortening
+	 bool at_1_is_singleton = false;
+	 bool at_2_is_singleton = false;
+	 if (other_connections_to_first_atom.size()  == 0) at_1_is_singleton = true;
+	 if (other_connections_to_second_atom.size() == 0) at_2_is_singleton = true;
+	 std::pair<lig_build::pos_t, lig_build::pos_t> bp =
+	    coords_for_single_bond(at_1, at_2, at_1_is_singleton, at_2_is_singleton);
+	 pos_1 = bp.first;
+	 pos_2 = bp.second;
 	 p1 = cairo_molecule_t::mol_coords_to_cairo_coords(pos_1, centre, scale);
 	 p2 = cairo_molecule_t::mol_coords_to_cairo_coords(pos_2, centre, scale);
 	 cairo_move_to(cr, p1.x, p1.y);

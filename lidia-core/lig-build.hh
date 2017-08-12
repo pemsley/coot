@@ -372,6 +372,14 @@ namespace lig_build {
 	 // std::cout << " closing base class atom" << std::endl;
 	 is_closed_ = 1;
       }
+      // return the angle in degrees relative to the horizontal axis.
+      // Recall that molecules are drawn upside down (inverted Y)
+      // these are molecule coordinates though, not canvas coordinates.
+      static double angle_of_bond(const atom_t &at_1, const atom_t &at_2) {
+	 pos_t delta = at_2.atom_position - at_1.atom_position;
+	 double theta = atan2(delta.y, delta.x);
+	 return theta;
+      }
    };
    
    std::ostream& operator<<(std::ostream &s, atom_t);
@@ -457,7 +465,7 @@ namespace lig_build {
 	 centre_pos_ = pos_in;
 	 have_centre_pos_ = true;
 	 n_ring_atoms_ = n_ring_atoms_in;
-      } 
+      }
       pos_t centre_pos() const { return centre_pos_; }
       void add_centre(const pos_t &centre_in, int n_ring_atoms_in) {
 	 set_centre_pos(centre_in, n_ring_atoms_in);
@@ -495,33 +503,99 @@ namespace lig_build {
 	 return idx;
       }
 
-      std::vector<lig_build::pos_t>
-      coords_for_sheared_or_darted_wedge_bond(const lig_build::pos_t &pos_1,
-					      const lig_build::pos_t &pos_2,
-					      const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom) const {
+      std::pair<pos_t, pos_t> coords_for_single_bond(const atom_t &at_1,
+						     const atom_t &at_2,
+						     bool at_1_is_singleton,
+						     bool at_2_is_singleton) const {
+	 pos_t pos_1_in = at_1.atom_position;
+	 pos_t pos_2_in = at_2.atom_position;
+	 pos_t pos_1 = pos_1_in;
+	 pos_t pos_2 = pos_2_in;
+	 bool shorten_first  = false;
+	 bool shorten_second = false;
 
-	 std::vector<lig_build::pos_t> pts;
+	 if (at_1.element != "C") {
+	    shorten_first = true;
+	 } else {
+	    // Does this C have one bond?
+	    if (at_1_is_singleton)
+	       shorten_first = true;
+	 }
+	 if (at_2.element != "C") {
+	    shorten_second = true;
+	 } else {
+	    // Does this C have one bond?
+	    if (at_2_is_singleton)
+	       shorten_second = true;
+	 }
+	 if (shorten_first) {
+	    double shorten_fraction = 0.76; // standard
+	    if (at_1.element == "Cl" || at_1.element == "Br" ||
+		at_1.element == "As") {
+	       double theta = atom_t::angle_of_bond(at_1, at_2); // radians
+	       // std::cout << "got angle for " << at_1 << " " << at_2 << " " << a << std::endl;
+	       // Actually, it would be better to have a more severe cut
+	       // when the bond comes from the right (because of the l of the Cl)
+	       // i.e. when theta is beteen -90 and 90 (-M_PI_4 -> M_PI_4)
+	       double sc_1 = 0.5 * (1.0 + cos(theta - M_PI_4)); // 0 -> 1, max at the corners
+	       shorten_fraction -= sc_1 * 0.25;
+	    }
+	    if (at_1.element == "N") {
+	       double theta = atom_t::angle_of_bond(at_1, at_2);
+	       double sc_1 = 0.5 * (1.0 + cos(theta - M_PI_4));
+	       shorten_fraction -= sc_1 * 0.05; // need optimization
+	    }
+
+	    pos_1 = pos_t::fraction_point(pos_2_in, pos_1_in, shorten_fraction);
+
+	 }
+	 if (shorten_second) {
+	    double shorten_fraction = 0.74; // standard
+	    if (at_2.element == "Cl" || at_2.element == "Br" ||
+		at_2.element == "As") {
+	       double theta = atom_t::angle_of_bond(at_2, at_1); // radians
+	       // std::cout << "got angle for " << at_1 << " " << at_2 << " " << a << std::endl;
+	       double sc_1 = 0.5 * (1.0 + cos(theta - M_PI_4)); // 0 -> 1, max at the corners
+	       shorten_fraction -= sc_1 * 0.25;
+	    }
+	    if (at_2.element == "N") {
+	       double theta = atom_t::angle_of_bond(at_2, at_1);
+	       double sc_1 = 0.5 * (1.0 + cos(theta - M_PI_4));
+	       shorten_fraction -= sc_1 * 0.05;
+	    }
+	    pos_2 = pos_t::fraction_point(pos_1_in, pos_2_in, shorten_fraction);
+	 }
+
+	 return std::pair<pos_t, pos_t> (pos_1, pos_2);
+      }
+
+      std::vector<pos_t>
+      coords_for_sheared_or_darted_wedge_bond(const pos_t &pos_1,
+					      const pos_t &pos_2,
+					      const std::vector<std::pair<atom_t, bond_t> > &other_connections_to_second_atom) const {
+
+	 std::vector<pos_t> pts;
 
 	 if (other_connections_to_second_atom.size() > 0) {
 
 	    if (other_connections_to_second_atom.size() == 1) {
 
-	       const lig_build::pos_t  &third_atom_pos = other_connections_to_second_atom[0].first.atom_position;
-	       const lig_build::bond_t &third_bond     = other_connections_to_second_atom[0].second;
+	       const pos_t  &third_atom_pos = other_connections_to_second_atom[0].first.atom_position;
+	       const bond_t &third_bond     = other_connections_to_second_atom[0].second;
 
-	       lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
-	       lig_build::pos_t buv_90 = buv.rotate(90);
-	       lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.04);
+	       pos_t buv = (pos_2-pos_1).unit_vector();
+	       pos_t buv_90 = buv.rotate(90);
+	       pos_t sharp_point = pos_t::fraction_point(pos_1, pos_2, 0.04);
 
 	       // 0.02 is nice, but make it 0.5 to highlight the sheared wedge strangeness
-	       lig_build::pos_t sharp_point_1 = sharp_point + buv_90 * 0.03; // was 0.03
-	       lig_build::pos_t sharp_point_2 = sharp_point - buv_90 * 0.03; // ditto
+	       pos_t sharp_point_1 = sharp_point + buv_90 * 0.03; // was 0.03
+	       pos_t sharp_point_2 = sharp_point - buv_90 * 0.03; // ditto
 
-	       lig_build::pos_t bfrom3rd = pos_2 - third_atom_pos;
-	       lig_build::pos_t bond_from_3rd_atom_extension   = pos_2 + bfrom3rd*0.08;  // was 0.1
-	       lig_build::pos_t bond_from_3rd_atom_contraction = pos_2 - bfrom3rd*0.16;  // was 0.18
+	       pos_t bfrom3rd = pos_2 - third_atom_pos;
+	       pos_t bond_from_3rd_atom_extension   = pos_2 + bfrom3rd*0.08;  // was 0.1
+	       pos_t bond_from_3rd_atom_contraction = pos_2 - bfrom3rd*0.16;  // was 0.18
 
-	       if (third_bond.get_bond_type() == lig_build::bond_t::DOUBLE_BOND) {
+	       if (third_bond.get_bond_type() == bond_t::DOUBLE_BOND) {
 		  // we need to make this shorter.
 		  bond_from_3rd_atom_extension   -= buv * 2.6;
 		  bond_from_3rd_atom_contraction -= buv * 2.6;
@@ -560,6 +634,14 @@ namespace lig_build {
 	       lig_build::pos_t bfrom3rd_2 = pos_2 - third_atom_2_pos;
 	       lig_build::pos_t bond_from_3rd_atom_1_contraction = pos_2 - bfrom3rd_1*0.15;
 	       lig_build::pos_t bond_from_3rd_atom_2_contraction = pos_2 - bfrom3rd_2*0.15;
+
+	       // is bfrom3rd_2 in the same direction as buv_90?
+	       // If not, then we need to swap around sharp_point_1 and sharp_point_2.
+	       //
+	       double dp = pos_t::dot(bfrom3rd_2, buv_90);
+	       std::cout << "dp: " << dp << std::endl;
+	       if (dp < 0)
+		  std::swap(sharp_point_1, sharp_point_2);
 
 	       pts.push_back(sharp_point_2);
 	       pts.push_back(sharp_point_1);

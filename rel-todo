@@ -12,9 +12,9 @@
 
    o CLD, CL6: bond to central ("chiral") atom is facing the wrong way
 
-   o GGD has no atoms in pyrogen.MolFromPDBXr(). Why?
-
    o IN5: OH on the P, chiral is round the wrong way.
+
+   o GGD has no atoms in pyrogen.MolFromPDBXr(). Why?
 
    o HNI causes a crash
 

@@ -177,7 +177,7 @@ def is_mdl_file(file_name):
              return True
           else:
              return False
-        
+
 
 # return the contents of file_name
 def read_file(file_name):
@@ -745,7 +745,7 @@ def coot_depict_to_string(m, n_px=300):
 def MolFromPDBXr(cif_file_name, comp_id):
     return pyrogen_boost.MolFromPDBXr(cif_file_name, comp_id)
 
-def MolsToGrid(mols, mols_per_row=3, sub_image_size=(200,200), legends=None):
+def MolsToGridImage(mols, mols_per_row=3, sub_image_size=(200,200), legends=None):
 
     # return None on failure to find the font.
     # Locate the ttf font file on disk somewhere and make a truetype
@@ -759,7 +759,7 @@ def MolsToGrid(mols, mols_per_row=3, sub_image_size=(200,200), legends=None):
        # this ttf file is hard-coded and copied from dials base/share/fonts
        # we need to install that directory as part of coot and find
        # the file in the installation
-       font_file_base_name = "VeraMono.ttf"
+       font_file_base_name = "Vera.ttf" # VeraMono
        dir_1 = os.path.join(prfx,  'share')
        dir_2 = os.path.join(dir_1, 'coot')
        dir_3 = os.path.join(dir_2, 'fonts')
@@ -827,6 +827,16 @@ def MolsToGrid(mols, mols_per_row=3, sub_image_size=(200,200), legends=None):
     b = io.BytesIO()
     composite.save(b, 'png')
     IPython.display.display(IPython.display.Image(b.getvalue()))
+
+def prep(mol):
+   m_sh = Chem.RemoveHs(mol)
+   m_sh.Compute2DCoords()
+   Chem.Kekulize(m_sh)
+   return m_sh
+
+def d(mol, npx=300):
+   m_sh = prep(mol)
+   depict(m_sh, npx=npx)
 
 def score_and_print_tautomers(mol, comp_id, output_postfix, do_drawings):
 

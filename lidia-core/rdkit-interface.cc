@@ -1053,10 +1053,24 @@ coot::chiral_check_order_swap_singleton(RDKit::ATOM_SPTR at_1, RDKit::ATOM_SPTR 
       bool allow_H = true;
       std::vector<std::string> n_1 = restraints.neighbours(name_1, allow_H);
       std::vector<std::string> n_2 = restraints.neighbours(name_2, allow_H);
-
       if (n_1.size() == 1)
 	 if (n_2.size() > 1)
 	    status = true;
+
+      // perhaps it was an OH?
+      if (! status) {
+	 allow_H = false;
+	 n_1 = restraints.neighbours(name_1, allow_H);
+	 n_2 = restraints.neighbours(name_2, allow_H);
+	 if (n_1.size() == 1)
+	    if (n_2.size() > 1)
+	       status = true;
+
+	 // actually, let's turn around everything where the second atom has more
+	 // non-H bonds than the first
+	 if (n_2.size() > n_1.size())
+	    status = true;
+      }
    }
    catch (...) {
       // this should not catch anything, the names should be set as properties

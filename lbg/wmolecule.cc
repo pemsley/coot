@@ -428,11 +428,18 @@ widgeted_bond_t::canvas_item_for_bond(const lig_build::atom_t &at_1,
    case AROMATIC_BOND:        // this should not happen 
    case DELOC_ONE_AND_A_HALF: // this should not happen either
    case BOND_ANY:
-
-      ci = wrap_goo_canvas_polyline_new_line(root,
-					     pos_1.x, pos_1.y,
-					     pos_2.x, pos_2.y,
-					     "stroke-color", dark);
+      {
+	 bool at_1_is_singleton = false;
+	 bool at_2_is_singleton = false;
+	 if (other_connections_to_first_atom.size()  == 0) at_1_is_singleton = true;
+	 if (other_connections_to_second_atom.size() == 0) at_2_is_singleton = true;
+	 std::pair<lig_build::pos_t, lig_build::pos_t> bp =
+	    coords_for_single_bond(at_1, at_2, at_1_is_singleton, at_2_is_singleton);
+	 ci = wrap_goo_canvas_polyline_new_line(root,
+						pos_1.x, pos_1.y,
+						pos_2.x, pos_2.y,
+						"stroke-color", dark);
+      }
       break;
    case DOUBLE_BOND:
    case DOUBLE_OR_AROMATIC:
