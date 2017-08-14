@@ -408,7 +408,8 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
 	       if (other_connections_to_second_atom.size() <= 2)
 		  draw_dart_or_wedge = true;
 	    if (draw_dart_or_wedge) {
-	       draw_sheared_or_darted_wedge_bond(cr, pos_1, pos_2, other_connections_to_second_atom, centre, scale);
+	       draw_sheared_or_darted_wedge_bond(cr, pos_1, pos_2, other_connections_to_second_atom,
+						 centre, scale);
 	       done_darted = true;
 	    }
 	 }
@@ -447,6 +448,23 @@ coot::cairo_bond_t::draw_sheared_or_darted_wedge_bond(cairo_t *cr,
    std::vector<lig_build::pos_t> v =
       coords_for_sheared_or_darted_wedge_bond(pos_1, pos_2,
 					      other_connections_to_second_atom);
+
+   // if there is a triple bond connected to the second atom, we want to draw an ordinary
+   // bond between the atom postions as well as the wedge (because the wedge is shortened
+   // for aesthetic reasons).
+   //
+   if (other_connections_to_second_atom.size() == 1) {
+      const lig_build::pos_t  &third_atom_pos = other_connections_to_second_atom[0].first.atom_position;
+      const lig_build::bond_t &third_bond     = other_connections_to_second_atom[0].second;
+      if (third_bond.get_bond_type() == lig_build::bond_t::TRIPLE_BOND) {
+	 lig_build::pos_t p1 = cairo_molecule_t::mol_coords_to_cairo_coords(pos_1, centre, scale);
+	 lig_build::pos_t p2 = cairo_molecule_t::mol_coords_to_cairo_coords(pos_2, centre, scale);
+	 cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
+	 cairo_move_to(cr, p1.x, p1.y);
+	 cairo_line_to(cr, p2.x, p2.y);
+	 cairo_stroke(cr);
+      }
+   }
 
    // darts have 5 points, sheared bonds have 4 points. We don't want to stroke the
    // darts (I think).

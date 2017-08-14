@@ -625,47 +625,55 @@ namespace lig_build {
 	       const pos_t  &third_atom_pos = other_connections_to_second_atom[0].first.atom_position;
 	       const bond_t &third_bond     = other_connections_to_second_atom[0].second;
 
-	       pos_t b = pos_2-pos_1;
-	       pos_t buv = b.unit_vector();
-	       pos_t buv_90 = buv.rotate(90);
-	       pos_t sharp_point = pos_t::fraction_point(pos_1, pos_2, 0.04);
+	       if (third_bond.bond_type == TRIPLE_BOND) {
+		  // make an ordinary wedge (but shortened)
+		  pos_t pos_2_cut = pos_t::fraction_point(pos_2, pos_1, 0.16);
+		  pts = pos_t::make_wedge_out_bond(pos_1, pos_2_cut);
 
-	       pos_t sharp_point_1 = sharp_point + buv_90 * 0.03; // was 0.03
-	       pos_t sharp_point_2 = sharp_point - buv_90 * 0.03; // ditto
+	       } else {
 
-	       pos_t bfrom3rd = pos_2 - third_atom_pos;
-	       pos_t bond_from_3rd_atom_extension   = pos_2 + bfrom3rd*0.08;  // was 0.1
-	       pos_t bond_from_3rd_atom_contraction = pos_2 - bfrom3rd*0.16;  // was 0.18
+		  pos_t b = pos_2-pos_1;
+		  pos_t buv = b.unit_vector();
+		  pos_t buv_90 = buv.rotate(90);
+		  pos_t sharp_point = pos_t::fraction_point(pos_1, pos_2, 0.04);
 
-	       if (third_bond.get_bond_type() == bond_t::DOUBLE_BOND) {
-		  // do we need to make this shorter? (Looks OK in cairo-molecule)
-		  // bond_from_3rd_atom_extension   -= b * 0.05;
-		  // bond_from_3rd_atom_contraction -= b * 0.05;
+		  pos_t sharp_point_1 = sharp_point + buv_90 * 0.03; // was 0.03
+		  pos_t sharp_point_2 = sharp_point - buv_90 * 0.03; // ditto
+
+		  pos_t bfrom3rd = pos_2 - third_atom_pos;
+		  pos_t bond_from_3rd_atom_extension   = pos_2 + bfrom3rd*0.08;  // was 0.1
+		  pos_t bond_from_3rd_atom_contraction = pos_2 - bfrom3rd*0.16;  // was 0.18
+
+		  if (third_bond.get_bond_type() == bond_t::DOUBLE_BOND) {
+		     // do we need to make this shorter? (Looks OK in cairo-molecule)
+		     // bond_from_3rd_atom_extension   -= b * 0.05;
+		     // bond_from_3rd_atom_contraction -= b * 0.05;
+		  }
+
+		  if (false) {
+		     std::cout << " pos_1           " << pos_1 << std::endl;
+		     std::cout << " pos_2           " << pos_2 << std::endl;
+		     std::cout << " buv             " << buv << std::endl;
+		     std::cout << " 3rd atom pos    " << third_atom_pos << std::endl;
+		     std::cout << " bfrom3rd        " << bfrom3rd << std::endl;
+		     std::cout << " sheared points: " << sharp_point_2 << std::endl;
+		     std::cout << "                 " << sharp_point_1 << std::endl;
+		     std::cout << "                 " << bond_from_3rd_atom_extension   << std::endl;
+		     std::cout << "                 " << bond_from_3rd_atom_contraction << std::endl;
+		  }
+
+		  // is bfrom3rd_2 in the same direction as buv_90?
+		  // If not, then we need to swap around sharp_point_1 and sharp_point_2.
+		  //
+		  double dp = pos_t::dot(bfrom3rd, buv_90);
+		  if (dp < 0)
+		     std::swap(sharp_point_1, sharp_point_2);
+
+		  pts.push_back(sharp_point_2);
+		  pts.push_back(sharp_point_1);
+		  pts.push_back(bond_from_3rd_atom_extension);
+		  pts.push_back(bond_from_3rd_atom_contraction);
 	       }
-
-	       if (false) {
-		  std::cout << " pos_1           " << pos_1 << std::endl;
-		  std::cout << " pos_2           " << pos_2 << std::endl;
-		  std::cout << " buv             " << buv << std::endl;
-		  std::cout << " 3rd atom pos    " << third_atom_pos << std::endl;
-		  std::cout << " bfrom3rd        " << bfrom3rd << std::endl;
-		  std::cout << " sheared points: " << sharp_point_2 << std::endl;
-		  std::cout << "                 " << sharp_point_1 << std::endl;
-		  std::cout << "                 " << bond_from_3rd_atom_extension   << std::endl;
-		  std::cout << "                 " << bond_from_3rd_atom_contraction << std::endl;
-	       }
-
-	       // is bfrom3rd_2 in the same direction as buv_90?
-	       // If not, then we need to swap around sharp_point_1 and sharp_point_2.
-	       //
-	       double dp = pos_t::dot(bfrom3rd, buv_90);
-	       if (dp < 0)
-		  std::swap(sharp_point_1, sharp_point_2);
-
-	       pts.push_back(sharp_point_2);
-	       pts.push_back(sharp_point_1);
-	       pts.push_back(bond_from_3rd_atom_extension);
-	       pts.push_back(bond_from_3rd_atom_contraction);
 
 	    } else {
 
