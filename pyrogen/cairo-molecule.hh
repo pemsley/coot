@@ -1,5 +1,7 @@
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "Python.h"
+#endif
 
 #include <iostream> // for lig-build.hh - hmm.
 #include <cairo/cairo.h>
