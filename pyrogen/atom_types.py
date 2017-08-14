@@ -17,24 +17,28 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
+from __future__ import print_function
 from rdkit import Chem
 
 # match_atom_index can be of type int or a list - otherwise trouble.
 #
 # Note that atom_type properties can also have been set in hydrogen_transformations():
 #
-def set_atom_type(match, match_atom_index, mol, atom_type):
+def set_atom_type(match, match_atom_index, mol, atom_type, types_type='Refmac'):
+    prop_str = 'type_energy'
+    if types_type == 'Amber':
+        prop_str = 'amber_atom_type'
     try:
         this_atom = match[match_atom_index]
         try:
-            current_type = mol.GetAtomWithIdx(this_atom).GetProp("type_energy")
+            current_type = mol.GetAtomWithIdx(this_atom).GetProp(prop_str)
         except KeyError:
             try:
-                mol.GetAtomWithIdx(this_atom).SetProp("type_energy", atom_type)
+                mol.GetAtomWithIdx(this_atom).SetProp(prop_str, atom_type)
                 name = mol.GetAtomWithIdx(this_atom).GetProp("name")
                 if False:
-                    print '    set atom number %s having name %s with type %s ' % (str(this_atom).rjust(2),
-                                                                                   repr(name), repr(atom_type))
+                    print('    set atom number %s having name %s with type %s ' % (str(this_atom).rjust(2),
+                                                                                   repr(name), repr(atom_type)))
             except KeyError as e:
                 print('No name for atom idx', match_atom_index)
 
@@ -86,7 +90,7 @@ def set_atom_types(mol):
         ("CSP1", '[H][C]#*',  1), # e.g. in 2GT
         ("CSP",  '[C]#[C]',   (0,1)),
         ("CSP",  '[C]#*',     0),
-        
+
         # Carbon SP2
         ('CR56', 'c12aaaac1aaa2',  (0,5)), # works on indole
         ('CR56', 'c12aaaan1aaa2',  0), # same pattern as (below) N56, but catching first 56 atom
@@ -113,7 +117,7 @@ def set_atom_types(mol):
         ('C',    '[$([CX2](=C)=C)]',   0), # bonded to 3 things not hydrogen
 
         # Carbon SP3
-        ('CT',   '[CX4H0]', 0), # single bonded to 4 things not hydrogen
+        ('CT',   '[CX4H0]', 0),     # single bonded to 4 things not hydrogen
         ('CH3',  '[C;H3;^3]',   0), # bonded to something via single bond and 3 Hs
         ('CH2',  '[C;^3;H2]',   0), # standard aliphatic C.
         ('CH1',  '*[C;H1](*)*', 1), # bonded to H and 3 things 
@@ -232,8 +236,8 @@ def set_atom_types(mol):
         if mol.HasSubstructMatch(pattern):
             matches = mol.GetSubstructMatches(pattern)
 	    if True:
-		print "SMARTS ", smarts
-		print "  ", atom_type, ": ", matches
+		print("SMARTS ", smarts)
+		print("  ", atom_type, ": ", matches)
             for match in matches:
                 set_atom_type(match, match_atom_index, mol, atom_type)
         else:
@@ -248,7 +252,102 @@ def set_atom_types(mol):
        except KeyError:
           is_aromatic = atom.GetIsAromatic()
           hybrid      = atom.GetHybridization()
-          print "Error:: Missing type for atom \"", atom.GetProp('name'), "\" is_aromatic: ", is_aromatic, " hybridization: ", hybrid
+          print("Error:: Missing type for atom \"", atom.GetProp('name'), "\" is_aromatic: ", is_aromatic, " hybridization: ", hybrid)
+          return False
+    # we got to the end, good
+    return True
+
+
+def set_amber_atom_types(mol):
+
+    smarts_list = [
+
+        # Hydrogen
+        ('H', '[H][NX3;H1;^2]',    0),
+        ('HC', '[H][c,CH1]',    0),
+        ('HC', '[H][c,CH2]',    0),
+        ('HC', '[H][c,CH3]',    0),
+        ('HO', '[H][O;H1]',   0),
+        ('HS', '[H][S]',      0),
+        ('HW', '[H][O;H2]',   0),
+        ('H2', '[H][NX3;H2;^2]',    0),
+        ('H3', '[N^3;H3][H]',   1),
+
+        # Carbon
+        ('CT', '[CX4]', 0), # bonded to 4 things
+        ('C',  '[CX3]=[OX1]', 0),
+        ('CA', '[cr6;X3]', 0),
+        ('CB', 'c12aaaac1aaa2', 0),
+        ('CB', 'c12aaaac1aaaa2', (0,5)),
+        ('CC', '[cr5;X3]~[n]', 0), # is this allowed?
+        ('CK', '[cr5;H1;N2]', 0),
+        ('CM', 'n1cnccc1', (3,4,5)), # positions 5 or 6 in pyrimidine # or 4 presumably!
+        ('CJ', 'n1n[cX3]cc1', (3,4,5)), # positions 5 or 6 in pyrimidine # or 4 presumably!
+#        ('CN', '[C]'), # how is this different to CB?
+        ('CQ', 'n1[cH1]nccc1', 1),
+        ('CR', 'n1[cH1]ncc1', 0), # NE2 HIS
+        ('CV', '[cr5;^2;H1]~n', 0),
+        ('CW', '[cr5;^2]~[nH]', 0),
+        ('C*', '[cr5;^2;X3]', 0),
+        # Carbon fallback
+        ('C-unknown', '[C,c]', 0), # sp hybrizided. Hmmm.
+
+        # Oxygen
+        ('OS',  "[OX2;H0]", 0), # ester
+        ('OH',  "[OH1]", 0), # alcohol
+        ('OW',  "[OH2]", 0), # water
+        ('O',   'O=*',   0), # carbonyl oxygen
+        ('O2',  'O~P',   0), # O on a phosphate
+        ('O2',  'O~S',   0), # guess based on above
+
+        # Nitrogen
+        ('N',    '[NX3;H1;^2]',      0), # amide
+        ('NA',   '[NR5;H1]',      0),
+        ('NB',   '[NR5;X2;H0]',      0),
+        ('NC',   '[NR6;X2;H0]',      0),
+        ('NT',   '[N^3;X3]',      0),
+        ('N2',   '[NX3;H2^2]', 0),     # N of sp2 NH2 (as in ARG).
+        ('N3',   '[N^3;X4]',   0),
+        ('N*',   '[nr6;X3;H0]',      0),
+        # fall-back nitrogen
+        ('N',    '[N,n]',      0),
+
+        # P
+        ('P',    'P', 0),
+        # Cl
+        ('CL',   '[Cl]', 0),
+        # F
+        ('F',    '[F]',  0),
+        # Br
+        ('BR',   '[Br]',  0),
+
+        ]
+
+    for smarts_info in smarts_list:
+        atom_type, smarts, match_atom_index = smarts_info
+        pattern = Chem.MolFromSmarts(smarts)
+        if mol.HasSubstructMatch(pattern):
+            matches = mol.GetSubstructMatches(pattern)
+	    if True:
+		# print("SMARTS ", smarts)
+		# print("  ", atom_type, ": ", matches)
+                pass
+            for match in matches:
+                set_atom_type(match, match_atom_index, mol, atom_type, types_type='Amber')
+        else:
+            # print "SMARTS ", smarts, " --- No hits  "
+            pass
+
+    # do we return success (everything has a type) or not?
+    #
+    for atom in mol.GetAtoms():
+       try:
+          atom_type = atom.GetProp('amber_atom_type')
+          # print("atom name", atom.GetProp('name'), ' amber type', atom_type)
+       except KeyError:
+          is_aromatic = atom.GetIsAromatic()
+          hybrid      = atom.GetHybridization()
+          print("Error:: Missing type for atom ", atom.GetProp('name'), " is_aromatic: ", is_aromatic, " hybridization: ", hybrid)
           return False
     # we got to the end, good
     return True
