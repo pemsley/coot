@@ -503,6 +503,48 @@ namespace lig_build {
 	 return idx;
       }
 
+      // for double bonds.  We need more info to get this right.
+      // Need connections to at_2
+      //
+      // pass const atom_t &at_1, const atom_t &at_2,
+      bool draw_as_asymmetry_shortened(unsigned int n_neigh_1,
+				       unsigned int n_neigh_2) const {
+	 bool state = false;
+	 if (bond_type == DOUBLE_BOND) {
+	    if (have_centre_pos()) {
+	       state = true;
+	    } else {
+	       // non-ring double bond
+	       unsigned int n_C = 0;
+
+	       // if (at_1.element == "C") n_C++;
+	       // if (at_2.element == "C") n_C++;
+
+	       bool do_symmetric_case = false;
+	       if (n_C == 0) {
+		  do_symmetric_case = true;
+	       } else {
+		  // more than 1 Carbon
+		  if (n_C == 2) {
+		     if (n_neigh_1 == 0)
+			if (n_neigh_2 == 0)
+			   do_symmetric_case = true;
+		  }
+		  if (n_C == 1) {
+		     // if (at_1.element == "C")
+		     if (n_neigh_1 > 1)
+			do_symmetric_case = true;
+		     // if (at_2.element == "C")
+		     if (n_neigh_2 > 1)
+			do_symmetric_case = true;
+		  }
+	       }
+	       state = ! do_symmetric_case;
+	    }
+	 }
+	 return state;
+      }
+
       std::pair<pos_t, pos_t> coords_for_single_bond(const atom_t &at_1,
 						     const atom_t &at_2,
 						     bool at_1_is_singleton,
@@ -632,7 +674,10 @@ namespace lig_build {
 	       const lig_build::pos_t  &third_atom_1_pos = other_connections_to_second_atom[0].first.atom_position;
 	       const lig_build::pos_t  &third_atom_2_pos = other_connections_to_second_atom[1].first.atom_position;
 
-	       lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
+	       const bond_t &third_bond_1     = other_connections_to_second_atom[0].second;
+	       const bond_t &third_bond_2     = other_connections_to_second_atom[1].second;
+	       lig_build::pos_t b = pos_2-pos_1;
+	       lig_build::pos_t buv = b.unit_vector();
 	       lig_build::pos_t buv_90 = buv.rotate(90);
 	       lig_build::pos_t sharp_point = lig_build::pos_t::fraction_point(pos_1, pos_2, 0.04);
 	       lig_build::pos_t sharp_point_1 = sharp_point + buv_90 * 0.03;
@@ -649,6 +694,33 @@ namespace lig_build {
 	       double dp = pos_t::dot(bfrom3rd_2, buv_90);
 	       if (dp < 0)
 		  std::swap(sharp_point_1, sharp_point_2);
+
+	       // for double bonds, we don't want to have the dart point along the bond,
+	       // we want it to be on the line of the inner bond
+	       //
+	       // but we don't want to do this for double bonds in rings
+	       // (because those double bonds are not draw with symmetric offset)
+	       // in fact, there are non-ring double bonds drawn with offset
+	       // Hmmm... How do we know if the third bonds are drawn with offset?
+	       //
+	       // atom_t third_bond_1_atom_1 = atoms[third_bond_1.get_atom_1_index()];
+	       // atom_t third_bond_1_atom_2 = atoms[third_bond_1.get_atom_2_index()];
+	       // atom_t third_bond_2_atom_1 = atoms[third_bond_2.get_atom_1_index()];
+	       // atom_t third_bond_2_atom_2 = atoms[third_bond_2.get_atom_2_index()];
+	       // I don't know what is first or second - baah - needs some
+	       // clear thinking.
+	       // std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > oc =
+	       // make_other_connections_to_second_atom_info(bond_index);
+               unsigned int n_1 = other_connections_to_second_atom.size(); // yes TIWIM
+	       unsigned int n_2 = 1;
+	       if (third_bond_1.get_bond_type() == bond_t::DOUBLE_BOND)
+		  if (! third_bond_1.draw_as_asymmetry_shortened(n_1, n_2))
+		     // change by half of the separation between double bonds
+		     bond_from_3rd_atom_1_contraction -= b * 0.1;
+	       if (third_bond_2.get_bond_type() == bond_t::DOUBLE_BOND)
+		  if (! third_bond_2.draw_as_asymmetry_shortened(n_1, n_2))
+		     // change by half of the separation between double bonds
+		     bond_from_3rd_atom_2_contraction -= b * 0.1;
 
 	       pts.push_back(sharp_point_2);
 	       pts.push_back(sharp_point_1);
@@ -1505,6 +1577,29 @@ namespace lig_build {
 	       centre = centre_sum * (1.0/double(atoms.size()));
 	 }
 	 return centre;
+      }
+
+      double median_bond_length() const {
+	 double bl = -1;
+	 double sum = 0;
+	 std::vector<double> bls;
+	 bls.reserve(bonds.size());
+	 for (unsigned int ib=0; ib<bonds.size(); ib++) {
+	    int idx_1 = bonds[ib].get_atom_1_index();
+	    int idx_2 = bonds[ib].get_atom_2_index();
+	    if ((idx_1 != UNASSIGNED_INDEX) && (idx_2 != UNASSIGNED_INDEX)) {
+	       const pos_t &pos_1 = atoms[idx_1].atom_position;
+	       const pos_t &pos_2 = atoms[idx_2].atom_position;
+	       pos_t delta = pos_2 - pos_1;
+	       bls.push_back(delta.length());
+	    }
+	 }
+	 if (bls.size() > 0) {
+	    std::sort(bls.begin(), bls.end());
+	    unsigned int idx = bls.size() / 2;
+	    bl = bls[idx];
+	 }
+	 return bl;
       }
 
       bool

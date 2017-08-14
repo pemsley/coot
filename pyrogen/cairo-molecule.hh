@@ -1,4 +1,6 @@
 
+#include "Python.h"
+
 #include <iostream> // for lig-build.hh - hmm.
 #include <cairo/cairo.h>
 #include "lidia-core/lig-build.hh"
@@ -21,7 +23,8 @@ namespace coot {
 
       // needs to pass a colour attribute too
       void make_text_item(cairo_t *cr, const lig_build::atom_id_info_t &atom_id_info_in,
-			  const lig_build::pos_t &centre, double scale) const;
+			  const lig_build::pos_t &centre,
+			  double scale, double median_bond_length) const;
       void set_colour(cairo_t *cr) const; // depending on ele
 
    };
@@ -68,9 +71,13 @@ namespace coot {
       std::pair<bool, double> scale_correction;
       void draw_bonds();
       void render(cairo_t *cr);
+      double median_bond_length_;
+      void set_highlight_colour(cairo_t *cr, unsigned int idx);
+      double get_scale() const;
+      std::vector<unsigned int> find_bonds_for_atoms(const std::vector<unsigned int> &highlight_atom_indices) const;
 
    public:
-      cairo_molecule_t() {}
+      cairo_molecule_t() { median_bond_length_ = 1.5; }
       ~cairo_molecule_t() {}
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
       // the passed mol can't be const because we use getConformer() which is not const.
@@ -78,10 +85,18 @@ namespace coot {
       void import_rdkit_mol(RDKit::ROMol *mol, int iconf);
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 
+      void draw_atom_highlights(cairo_t *cr, const lig_build::pos_t &centre,
+				double scale,
+				const std::vector<unsigned int> &highlight_atom_indices,
+				const std::vector<unsigned int> &highlight_bond_indices,
+				bool use_highlight_bond_indices_flag);
       // render to file
       void render_to_file(const std::string &png_file_name, unsigned int npx=300);
       // render to string
-      std::string render_to_string(unsigned int npx=300);
+      std::string render_to_string(const std::vector<unsigned int> &atom_highlight_list,
+				   const std::vector<unsigned int> &bond_highlight_list,
+				   bool use_highlight_bond_indices_flag,
+				   unsigned int npx=300);
 
       // helper function
       static
@@ -100,7 +115,12 @@ namespace coot {
 			 unsigned int npx=300);
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-   std::string cairo_png_string_from_mol(RDKit::ROMol *m, int iconf = -1, unsigned int npx=300);
+   std::string cairo_png_string_from_mol(RDKit::ROMol *m, int iconf = -1,
+					 PyObject *highlight_atom_list=0,
+					 PyObject *highlight_bond_list=0,
+					 PyObject *highlight_atom_colours_dict=0,
+					 PyObject *highlight_bond_colours_dict=0,
+					 unsigned int npx=300);
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 
 }

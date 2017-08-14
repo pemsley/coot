@@ -124,3 +124,13 @@ pyrogen -n -M -o DB00225 drugbank/DB00225.smiles
 * Done.
 
 ----
+Sun 13 Aug 2017 01:43:50 BST
+
+   5SA looks interesting for the next ligand puzzles
+
+---
+Sun 13 Aug 2017 11:20:37 BST
+
+   7UZ spurious chirality
+
+   7FK is a macrocycle - it is a good test case for layout.

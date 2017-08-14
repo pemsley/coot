@@ -114,12 +114,12 @@ def add_atom_names(mol):
           inc = 0
           name = atom_name_from_atomic_number_and_count(ele, nz[z], inc)
           p_name = pad_atom_name(name, ele)
-          print('c.f.', name, " atom names", atom_names)
+          # print('c.f.', name, " atom names", atom_names)
           while p_name in atom_names :
              inc += 1
              name = atom_name_from_atomic_number_and_count(ele, nz[z], inc)
              p_name = pad_atom_name(name, ele)
-          print(atom, 'made-name', p_name, ":")
+          # print(atom, 'made-name', p_name, ":")
 
           atom.SetProp("name", p_name)
           atom_names.append(p_name)
@@ -726,20 +726,26 @@ def coot_png_from_mmcif_file(mmcif_file_name_in, comp_id, png_file_name, n_pixel
    # change the name of cairo_png_depict
    return pyrogen_boost.cairo_png_depict(mmcif_file_name_in, comp_id, png_file_name, n_pixels)
 
-def depict(mol, iconf = -1, npx=300):
+def depict(mol, iconf = -1, npx=300, highlightAtoms=[], highlightBonds=None, highlightAtomColours=None, highlightBondColours=None):
     import IPython
     import Image
     import io
-    s = pyrogen_boost.cairo_png_depict_to_string(mol, -1, npx)
-    sio = io.BytesIO(s)
-    im = Image.open(sio)
-    bo = io.BytesIO()
-    im.save(bo, 'png')
-    IPython.display.display(IPython.display.Image(bo.getvalue()))
-    
+    n_confs = mol.GetNumConformers()
+    if n_confs == 0:
+       iconf = mol.Compute2DCoords()
+    s = pyrogen_boost.cairo_png_depict_to_string(mol, iconf, highlightAtoms, highlightBonds, highlightAtomColours, highlightBondColours, npx)
+    if len(s) > 0:
+       sio = io.BytesIO(s)
+       im = Image.open(sio)
+       bo = io.BytesIO()
+       im.save(bo, 'png')
+       IPython.display.display(IPython.display.Image(bo.getvalue()))
+    else:
+       print('Null image')
+
 
 def coot_depict_to_string(m, n_px=300):
-   return pyrogen_boost.cairo_png_depict_to_string(m, -1, n_px)
+   return pyrogen_boost.cairo_png_depict_to_string(m, -1, [], n_px)
 
 # make MolFromPDBXr available in pyrogen
 def MolFromPDBXr(cif_file_name, comp_id):
@@ -786,7 +792,7 @@ def MolsToGridImage(mols, mols_per_row=3, sub_image_size=(200,200), legends=None
     for count,mol in enumerate(mols):
         try:
             # print('mol:', mol)
-            s = pyrogen_boost.cairo_png_depict_to_string(mol, -1, sub_image_size[0])
+            s = pyrogen_boost.cairo_png_depict_to_string(mol, -1, None, None, None, None, sub_image_size[0])
             sio = io.BytesIO(s)
             im = Image.open(sio)
 	    # add label if possible

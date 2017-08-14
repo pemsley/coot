@@ -166,53 +166,60 @@ coot::cairo_molecule_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) {
       
       assign_ring_centres();
    }
+
+   median_bond_length_ = median_bond_length();
+   // std::cout << "median_bond_length: " << median_bond_length_ << std::endl;
 }
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
 
 void
 coot::cairo_atom_t::set_colour(cairo_t *cr) const {
 
-   if (element == "C")  cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
-   if (element == "O")  cairo_set_source_rgb(cr, 0.8, 0.0, 0);
-   if (element == "N")  cairo_set_source_rgb(cr, 0.2, 0.2, 0.8);
-   if (element == "S")  cairo_set_source_rgb(cr, 0.6, 0.4, 0.2);
-   if (element == "F")  cairo_set_source_rgb(cr, 0,   0.5, 0);
-   if (element == "Cl") cairo_set_source_rgb(cr, 0,   0.5, 0);
-   if (element == "Br") cairo_set_source_rgb(cr, 0.5, 0.2, 0);
-   if (element == "I")  cairo_set_source_rgb(cr, 0.3, 0.0, 0.3);
-   if (element == "P")  cairo_set_source_rgb(cr, 0.9, 0.6, 0.0); // orange
-   if (element == "Fe") cairo_set_source_rgb(cr, 0.7, 0.4, 0.0); // dark orange
-   if (element == "H")  cairo_set_source_rgb(cr, 0.5, 0.5, 0.5); // not white
+   if (element == "C")  { cairo_set_source_rgb(cr, 0.1, 0.1, 0.1); } else {
+   if (element == "O")  { cairo_set_source_rgb(cr, 0.8, 0.0, 0.0); } else {
+   if (element == "N")  { cairo_set_source_rgb(cr, 0.2, 0.2, 0.8); } else {
+   if (element == "S")  { cairo_set_source_rgb(cr, 0.6, 0.4, 0.2); } else {
+   if (element == "F")  { cairo_set_source_rgb(cr, 0.0, 0.5, 0.0); } else {
+   if (element == "Cl") { cairo_set_source_rgb(cr, 0.0, 0.5, 0.0); } else {
+   if (element == "Br") { cairo_set_source_rgb(cr, 0.5, 0.2, 0.0); } else {
+   if (element == "I")  { cairo_set_source_rgb(cr, 0.3, 0.0, 0.3); } else {
+   if (element == "P")  { cairo_set_source_rgb(cr, 0.8, 0.5, 0.0); } else { // orange
+   if (element == "Fe") { cairo_set_source_rgb(cr, 0.6, 0.3, 0.0); } else { // dark orange
+   if (element == "H")  { cairo_set_source_rgb(cr, 0.5, 0.5, 0.5); } else { // not white
 
-   // else: pink: 0.7 0.3 0.9
+      cairo_set_source_rgb(cr, 0.7, 0.3, 0.9);
+   }}}}}}}}}}}
 }
 
 void
 coot::cairo_atom_t::make_text_item(cairo_t *cr,
 				   const lig_build::atom_id_info_t &atom_id_info,
-				   const lig_build::pos_t &centre, double scale) const {
+				   const lig_build::pos_t &centre, double scale,
+				   double median_bond_length) const {
 
    for (unsigned int i=0; i<atom_id_info.n_offsets(); i++) {
 
-      cairo_set_font_size(cr, 0.66 * scale);
+      cairo_set_font_size(cr, 0.44 * scale * median_bond_length);
       lig_build::pos_t p = cairo_molecule_t::mol_coords_to_cairo_coords(atom_position, centre, scale);
-      p += atom_id_info.offsets[i].tweak * scale * 0.045;
+      p += atom_id_info.offsets[i].tweak * scale * 0.030 * median_bond_length;
+
+      // should these positions depend on the median_bond_length_?
 
       if (atom_id_info[i].text_pos_offset == lig_build::offset_text_t::UP)
-	 p.y -= 0.55 * scale;
+	 p.y -= 0.36 * scale * median_bond_length;
       if (atom_id_info[i].text_pos_offset == lig_build::offset_text_t::DOWN)
-	 p.y += 0.55 * scale;
+	 p.y += 0.36 * scale * median_bond_length;
 
       if (atom_id_info.size_hint == -1)
-	 cairo_set_font_size(cr, 0.66 * scale * 0.7);
+	 cairo_set_font_size(cr, 0.44 * scale * 0.7 * median_bond_length);
 
       if (atom_id_info.offsets[i].subscript) {
-	 p.y += 0.3 * scale;
-	 cairo_set_font_size(cr, 0.66 * scale * 0.8);
+	 p.y += 0.2 * scale * median_bond_length;
+	 cairo_set_font_size(cr, 0.66 * scale * 0.533 * median_bond_length);
       }
       if (atom_id_info.offsets[i].superscript) {
-	 cairo_set_font_size(cr, 0.66 * scale * 0.8);
-	 p.y -= 0.3 * scale;
+	 cairo_set_font_size(cr, 0.66 * scale * 0.533 * median_bond_length);
+	 p.y -= 0.2 * scale * median_bond_length;
       }
 
       if (false)
@@ -303,6 +310,7 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
 	 pos_2 = bp.second;
 	 p1 = cairo_molecule_t::mol_coords_to_cairo_coords(pos_1, centre, scale);
 	 p2 = cairo_molecule_t::mol_coords_to_cairo_coords(pos_2, centre, scale);
+	 cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
 	 cairo_move_to(cr, p1.x, p1.y);
 	 cairo_line_to(cr, p2.x, p2.y);
 	 cairo_stroke(cr);
@@ -394,11 +402,12 @@ coot::cairo_bond_t::draw_bond(cairo_t *cr,
 	 bool done_darted = false;
 	 if (other_connections_to_second_atom.size() > 0) {
 	    // don't make sheared or darted wedge bonds to atoms that are not Carbon
-	    //
-	    bool at_2_is_C = false;
+	    // don't make sheared or darted wedge bond to a C that is tetrahedral
+	    bool draw_dart_or_wedge = false;
 	    if (at_2.element == "C")
-	       at_2_is_C = true;
-	    if (at_2_is_C) {
+	       if (other_connections_to_second_atom.size() <= 2)
+		  draw_dart_or_wedge = true;
+	    if (draw_dart_or_wedge) {
 	       draw_sheared_or_darted_wedge_bond(cr, pos_1, pos_2, other_connections_to_second_atom, centre, scale);
 	       done_darted = true;
 	    }
@@ -514,6 +523,7 @@ coot::cairo_bond_t::draw_double_in_ring_bond(cairo_t *cr,
    std::pair<lig_build::pos_t, lig_build::pos_t> p = 
       make_double_aromatic_short_stick(pos_1_in, pos_2_in, shorten_first, shorten_second);
 
+   cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
    cairo_move_to(cr, p1.x, p1.y);
    cairo_line_to(cr, p2.x, p2.y);
    cairo_stroke(cr);
@@ -596,6 +606,7 @@ coot::cairo_bond_t::draw_double_bond(cairo_t *cr,
       lig_build::pos_t p1 = cairo_molecule_t::mol_coords_to_cairo_coords(p.first.first,  centre, scale);
       lig_build::pos_t p2 = cairo_molecule_t::mol_coords_to_cairo_coords(p.first.second, centre, scale);
 
+      cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
       cairo_move_to(cr, p1.x, p1.y);
       cairo_line_to(cr, p2.x, p2.y);
       cairo_stroke(cr);
@@ -615,6 +626,7 @@ coot::cairo_bond_t::draw_double_bond(cairo_t *cr,
 
       lig_build::pos_t p1 = cairo_molecule_t::mol_coords_to_cairo_coords(bonds.first.first,  centre, scale);
       lig_build::pos_t p2 = cairo_molecule_t::mol_coords_to_cairo_coords(bonds.first.second, centre, scale);
+      cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
       cairo_move_to(cr, p1.x, p1.y);
       cairo_line_to(cr, p2.x, p2.y);
       p1 = cairo_molecule_t::mol_coords_to_cairo_coords(bonds.second.first,  centre, scale);
@@ -625,21 +637,9 @@ coot::cairo_bond_t::draw_double_bond(cairo_t *cr,
    }
 }
 
-// not const because it changes atom ids.
-void
-coot::cairo_molecule_t::render(cairo_t *cr) {
 
-   // ------------ the font size and the line width depend on the size of the
-   //              extents (and here, scale), the smaller the scale the smaller
-   //              the font
-   //
-   // cairo_set_source_rgb (cr, 0, 0, 0);
-   // cairo_rectangle (cr, 0.25, 0.25, 0.5, 0.5);
-   // cairo_set_source_rgb(cr, 0, 0.5, 0);
-   // cairo_rectangle (cr, 0.01, 0.01, 0.98, 0.98);
-   // cairo_stroke(cr);
-   cairo_set_source_rgb(cr, 0, 0, 0);
-
+double
+coot::cairo_molecule_t::get_scale() const {
    lig_build::pos_t centre = get_ligand_centre();
    std::pair<lig_build::pos_t, lig_build::pos_t> ext = ligand_extents();
    double delta_x = ext.second.x - ext.first.x;
@@ -665,11 +665,32 @@ coot::cairo_molecule_t::render(cairo_t *cr) {
    if (scale > scale_lim)
       scale = scale_lim;
 
-   // std::cout << "scale: " << scale << std::endl;
+   return scale;
+}
+
+
+// not const because it changes atom ids.
+void
+coot::cairo_molecule_t::render(cairo_t *cr) {
+
+   double scale = get_scale();
+   lig_build::pos_t centre = get_ligand_centre();
+
+   // ------------ the font size and the line width depend on the size of the
+   //              extents (and here, scale), the smaller the scale the smaller
+   //              the font
+   //
+   // cairo_set_source_rgb (cr, 0, 0, 0);
+   // cairo_rectangle (cr, 0.25, 0.25, 0.5, 0.5);
+   // cairo_set_source_rgb(cr, 0, 0.5, 0);
+   // cairo_rectangle (cr, 0.01, 0.01, 0.98, 0.98);
+   // cairo_stroke(cr);
+   cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
+
+   std::cout << "in render: scale: " << scale << std::endl;
 
    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
-   cairo_set_line_width(cr, 0.10 * scale);
-   cairo_set_font_size(cr,  0.66 * scale);
+   cairo_set_line_width(cr, 0.07 * scale * median_bond_length_);
    cairo_font_extents_t fe;
    cairo_text_extents_t te;
    cairo_select_font_face (cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_BOLD);
@@ -719,14 +740,14 @@ coot::cairo_molecule_t::render(cairo_t *cr) {
 		      << atoms[iat].charge << " made atom_id_info "
 		      << atom_id_info << std::endl;
 	 atoms[iat].set_colour(cr);
-	 atoms[iat].make_text_item(cr, atom_id_info, centre, scale);
+	 atoms[iat].make_text_item(cr, atom_id_info, centre, scale, median_bond_length_);
       } else {
 	 // a super-atom carbon
 	 if (local_bonds.size() == 1) {
 	    atoms[iat].set_colour(cr);
 	    lig_build::atom_id_info_t atom_id_info =
 	       make_atom_id_by_using_bonds(iat, ele, local_bonds, gl_flag);
-	    atoms[iat].make_text_item(cr, atom_id_info, centre, scale);
+	    atoms[iat].make_text_item(cr, atom_id_info, centre, scale, median_bond_length_);
 	 }
       }
    }
@@ -763,20 +784,116 @@ coot::cairo_molecule_t::png_stream_writer(void *closure_in,
 }
 
 std::string
-coot::cairo_molecule_t::render_to_string(unsigned int npx) {
+coot::cairo_molecule_t::render_to_string(const std::vector<unsigned int> &atom_highlight_list,
+					 const std::vector<unsigned int> &bond_highlight_list,
+					 bool use_highlight_bond_indices_flag,
+					 unsigned int npx) {
 
+   bool set_background = false; // this (or a non-None background colour) should be passed
    std::string s;
    s.reserve(12000);
 
    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, npx, npx);
    cairo_t *cr = cairo_create(surface);
    cairo_scale(cr, npx, npx);
+   double scale = get_scale();
+   lig_build::pos_t centre = get_ligand_centre();
+
+   // background colour:
+   if (set_background) {
+      cairo_set_source_rgb (cr, 1, 1, 0.9);
+      cairo_paint (cr);
+   }
+
+   draw_atom_highlights(cr, centre, scale, atom_highlight_list,
+			bond_highlight_list, use_highlight_bond_indices_flag);
    render(cr);
    cairo_surface_write_to_png_stream(surface, png_stream_writer, (void *) &s);
    cairo_destroy(cr);
    cairo_surface_destroy(surface);
    return s;
 }
+
+void
+coot::cairo_molecule_t::set_highlight_colour(cairo_t *cr, unsigned int idx) {
+
+   // cairo_set_source_rgba(cr, 0.8, 0.2, 0.2, 0.5); // not sure that it needs to be transparent
+                                                     // if it's drawn first
+
+   cairo_set_source_rgb(cr, 0.9, 0.7, 0.7);
+
+}
+
+std::vector<unsigned int>
+coot::cairo_molecule_t::find_bonds_for_atoms(const std::vector<unsigned int> &highlight_atom_indices) const {
+
+   std::vector<unsigned int> v;
+   for (std::size_t ib=0; ib<bonds.size(); ib++) {
+      unsigned int idx_1 = bonds[ib].get_atom_1_index();
+      unsigned int idx_2 = bonds[ib].get_atom_2_index();
+      if (std::find(highlight_atom_indices.begin(),
+		    highlight_atom_indices.end(), idx_1) != highlight_atom_indices.end()) {
+	 if (std::find(highlight_atom_indices.begin(),
+		       highlight_atom_indices.end(), idx_2) != highlight_atom_indices.end()) {
+	    v.push_back(ib);
+	 }
+      }
+   }
+   return v;
+}
+
+void
+coot::cairo_molecule_t::draw_atom_highlights(cairo_t *cr,
+					     const lig_build::pos_t &centre,
+					     double scale,
+					     const std::vector<unsigned int> &highlight_atom_indices,
+					     const std::vector<unsigned int> &highlight_bond_indices,
+					     bool use_highlight_bond_indices_flag) {
+
+   // if use_highlight_bond_indices_flag then use the bonds in the vector
+   // possibly none
+   // else
+   // work out the bonds yourself.
+
+   // what is the line width now?
+   cairo_set_line_width(cr, 0.07 * scale * median_bond_length_);
+   unsigned int n_atoms = get_number_of_atoms_including_hydrogens();
+   for (std::size_t i=0; i<highlight_atom_indices.size(); i++) {
+      unsigned int idx = highlight_atom_indices[i];
+      if (idx < n_atoms) {
+	 set_highlight_colour(cr, i);
+
+	 lig_build::pos_t pos_at = atoms[idx].atom_position;
+	 lig_build::pos_t p = cairo_molecule_t::mol_coords_to_cairo_coords(pos_at, centre, scale);
+
+	 cairo_new_sub_path(cr);
+	 cairo_arc(cr, p.x, p.y, 0.03, 0, 2 * M_PI);
+	 cairo_close_path(cr);
+	 cairo_fill(cr);
+	 cairo_stroke(cr);
+	 // cairo_stroke_preserve(cr);
+      }
+   }
+   std::vector<unsigned int> bond_indices;
+   if (! use_highlight_bond_indices_flag) {
+      bond_indices = find_bonds_for_atoms(highlight_atom_indices);
+   } else {
+      bond_indices = highlight_bond_indices;
+   }
+   for (std::size_t ib=0; ib<bond_indices.size(); ib++) {
+      lig_build::pos_t pos_1 = atoms[bonds[bond_indices[ib]].get_atom_1_index()].atom_position;
+      lig_build::pos_t pos_2 = atoms[bonds[bond_indices[ib]].get_atom_2_index()].atom_position;
+      // set the colour
+      lig_build::pos_t p1 = cairo_molecule_t::mol_coords_to_cairo_coords(pos_1, centre, scale);
+      lig_build::pos_t p2 = cairo_molecule_t::mol_coords_to_cairo_coords(pos_2, centre, scale);
+      std::cout << "line: " << p1 << " " << p2 << std::endl;
+      cairo_set_line_width(cr, 0.3 * scale * median_bond_length_);
+      cairo_move_to(cr, p1.x, p1.y);
+      cairo_line_to(cr, p2.x, p2.y);
+      cairo_stroke(cr);
+   }
+}
+
 
 void
 coot::cairo_png_depict(const std::string &mmcif_file_name,
@@ -853,8 +970,22 @@ coot::cairo_png_depict(const std::string &mmcif_file_name,
 
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
+// highlightAtoms default arg null pointer.
+// draw_atom_highlights is optional arg, default true
+//
+// If highlight_atom_indices comes from a GetSubstructMatch, then
+// the result will be a tuple.  We should allow that too.
 std::string
-coot::cairo_png_string_from_mol(RDKit::ROMol *m, int iconf, unsigned int npx) {
+coot::cairo_png_string_from_mol(RDKit::ROMol *m, int iconf,
+				PyObject *highlight_atom_list,
+				PyObject *highlight_bond_list,
+				PyObject *highlight_atom_colours_dict,
+				PyObject *highlight_bond_colours_dict,
+				unsigned int npx) {
+
+   // we need to distinguish between highlight_bond_list being
+   // an empty list (which was set by the user)
+   // and None (default value)
 
    std::string s;
    int n_confs = m->getNumConformers();
@@ -864,10 +995,75 @@ coot::cairo_png_string_from_mol(RDKit::ROMol *m, int iconf, unsigned int npx) {
 	 // use the most recent one
 	 iconf = n_confs -1;
       }
+
+      if (highlight_atom_colours_dict) {
+	 if (PyDict_Check(highlight_atom_colours_dict)) {
+	    unsigned int l = PyDict_Size(highlight_atom_colours_dict);
+	    if (l > 0) {
+	       for (std::size_t i=0; i<l; i++) {
+		  // PyObject *obj_py = PyDict_GetItem(highlight_atom_colours_dict, i);
+	       }
+	    }
+	 }
+      }
+
       RDKit::Conformer &conf = m->getConformer(iconf);
       RDKit::WedgeMolBonds(*m, &conf);
       coot::cairo_molecule_t mol(m, iconf);
-      s = mol.render_to_string(npx);
+      std::vector<unsigned int> highlight_atom_indices;
+      std::vector<unsigned int> highlight_bond_indices;
+      bool use_highlight_bond_indices_flag = false;
+      if (highlight_atom_list) {
+	 if (PyList_Check(highlight_atom_list)) {
+	    unsigned int l = PyList_Size(highlight_atom_list);
+	    if (l > 0) {
+	       for (std::size_t i=0; i<l; i++) {
+		  PyObject *obj_py = PyList_GetItem(highlight_atom_list, i);
+		  if PyInt_Check(obj_py) {
+		     long item = PyInt_AsLong(obj_py);
+		     if (item >= 0) {
+			highlight_atom_indices.push_back(static_cast<unsigned int>(item));
+		     }
+		  }
+	       }
+	    }
+	 } else {
+	    if (PyTuple_Check(highlight_atom_list)) {
+	       unsigned int l = PyTuple_Size(highlight_atom_list);
+	       if (l > 0) {
+		  for (std::size_t i=0; i<l; i++) {
+		     PyObject *obj_py = PyTuple_GetItem(highlight_atom_list, i);
+		     if PyInt_Check(obj_py) {
+			long item = PyInt_AsLong(obj_py);
+			if (item >= 0) {
+			   highlight_atom_indices.push_back(static_cast<unsigned int>(item));
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+      if (highlight_bond_list) {
+	 if (PyList_Check(highlight_bond_list)) {
+	    // user has set
+	    use_highlight_bond_indices_flag = true;
+	    unsigned int l = PyList_Size(highlight_bond_list);
+	    if (l > 0) {
+	       for (std::size_t i=0; i<l; i++) {
+		  PyObject *obj_py = PyList_GetItem(highlight_bond_list, i);
+		  if PyInt_Check(obj_py) {
+		     long item = PyInt_AsLong(obj_py);
+		     if (item >= 0) {
+			highlight_bond_indices.push_back(static_cast<unsigned int>(item));
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+      s = mol.render_to_string(highlight_atom_indices, highlight_bond_indices,
+			       use_highlight_bond_indices_flag, npx);
    }
    return s;
 #endif
