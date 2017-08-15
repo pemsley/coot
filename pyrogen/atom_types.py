@@ -26,25 +26,26 @@ from rdkit import Chem
 #
 def set_atom_type(match, match_atom_index, mol, atom_type, types_type='Refmac'):
     prop_str = 'type_energy'
-    if types_type == 'Amber':
-        prop_str = 'amber_atom_type'
+    if types_type == 'Parm@Frosst':
+        prop_str = 'pf_atom_type'
     try:
-        this_atom = match[match_atom_index]
+        this_atom_idx = match[match_atom_index]
         try:
-            current_type = mol.GetAtomWithIdx(this_atom).GetProp(prop_str)
+            current_type = mol.GetAtomWithIdx(this_atom_idx).GetProp(prop_str)
         except KeyError:
             try:
-                mol.GetAtomWithIdx(this_atom).SetProp(prop_str, atom_type)
-                name = mol.GetAtomWithIdx(this_atom).GetProp("name")
+                mol.GetAtomWithIdx(this_atom_idx).SetProp(prop_str, atom_type)
+                name = mol.GetAtomWithIdx(this_atom_idx).GetProp("name")
                 if False:
-                    print('    set atom number %s having name %s with type %s ' % (str(this_atom).rjust(2),
-                                                                                   repr(name), repr(atom_type)))
+                    print('   actually have set atom number %s having name %s with type %s ' %
+                          (str(this_atom_idx).rjust(2), repr(name), repr(atom_type)))
             except KeyError as e:
                 print('No name for atom idx', match_atom_index)
 
     except TypeError:
         for match_atom in match_atom_index:
-            set_atom_type(match, match_atom, mol, atom_type)
+            # print('   set_atom_type ', match, match_atom, mol, atom_type, types_type)
+            set_atom_type(match, match_atom, mol, atom_type, types_type)
 
 def ele_to_smart(v):
     return (v.upper(), '['+v+']', 0)
@@ -230,12 +231,13 @@ def set_atom_types(mol):
     for item in smarts_by_element():
        full_list.append(item)
 
+    # print('----------------------------refmac-----------------------------------------')
     for smarts_info in full_list:
         atom_type, smarts, match_atom_index = smarts_info
         pattern = Chem.MolFromSmarts(smarts)
         if mol.HasSubstructMatch(pattern):
             matches = mol.GetSubstructMatches(pattern)
-	    if True:
+	    if False:
 		print("SMARTS ", smarts)
 		print("  ", atom_type, ": ", matches)
             for match in matches:
@@ -258,60 +260,150 @@ def set_atom_types(mol):
     return True
 
 
-def set_amber_atom_types(mol):
+def set_parmfrosst_atom_types(mol):
+
+    electroneg = '[N,O,F,S,Cl,Br]' # does this also need aromtics?
 
     smarts_list = [
 
         # Hydrogen
-        ('H', '[H][NX3;H1;^2]',    0),
-        ('HC', '[H][c,CH1]',    0),
-        ('HC', '[H][c,CH2]',    0),
-        ('HC', '[H][c,CH3]',    0),
-        ('HO', '[H][O;H1]',   0),
-        ('HS', '[H][S]',      0),
-        ('HW', '[H][O;H2]',   0),
-        ('H2', '[H][NX3;H2;^2]',    0),
-        ('H3', '[N^3;H3][H]',   1),
+        # initally from http://www.chem.cmu.edu/courses/09-560/docs/msi/ffbsim/B_AtomTypes.html
+        ('H2', '[H][C^3;H1][O]', 0), # O is an example electroneg, more specific than H1
+        ('H1', '[H][C^3][N]',    0),
+        ('H1', '[H][C^3][O]',    0),
+        ('H1', '[H][C^3][S]',    0),
+        ('HA', '[H][C^2]',       0),
+        ('H5', '[H][c^2;H1]([n])[n]', 0),
+        ('H4', '[H][c^2;H1][n]', 0), # was '[H][c^2;H1][n][H]'
+        ('H4', '[H][c^2;H1][s]', 0), # H4 is H-C&sp2~elneg
+        ('H4', '[H][C^2;H1]O',  0),
+        ('HA', '[H][cr;^2]',     0), # aromatic H, HA also bonds to [C^2]
+        ('H',  '[H][NX3;H1;^2]', 0), # both this  and the one below? Checkme
+        ('H',  '[H][nX3;H1;^2]', 0),
+        ('HC', '[H][CH3;^3]',    0),
+        ('HC', '[H][c,CH1]',     0),
+        ('HC', '[H][c,CH2]',     0),
+        ('HO', '[H][O;H1]',      0),
+        ('HS', '[H][S]',         0),
+        ('HW', '[H][O;H2]',      0),
+        ('H2', '[H][NX3;H2;^2]', 0),
+        ('H3', '[N^3;H3][H]',    1),
+        # fallback
+        ('H', '[H]',    0),
 
         # Carbon
         ('CT', '[CX4]', 0), # bonded to 4 things
-        ('C',  '[CX3]=[OX1]', 0),
-        ('CA', '[cr6;X3]', 0),
+        ('C',  '[CX3]=[O]', 0),
+        ('C',  '[cX3]=[O]', 0),
+        ('C',  '[c]~[cX3]=[N]', 1), # C10 in PF7
         ('CB', 'c12aaaac1aaa2', 0),
         ('CB', 'c12aaaac1aaaa2', (0,5)),
-        ('CC', '[cr5;X3]~[n]', 0), # is this allowed?
+        ('CWd', '[cr5;X3;^2][c]=O', 0),
+        ('CWa', 'n[cr5;R2][cr5;R2]c', 1), # C4 in PF4
+
+        # by the book, pathological specialities
+        ('CR',   '[cr5]1[nr5;H0][ar5][ar5][ar5]1', 0), # this is useful
+        ('CWb',  '[cr5;R1]1[cr5][cr5][ar5][nr5;H1]1', 0),
+        ('CCa',  '[cr5]1[cr5][cr5][ar5][ar5]1', 1),
+        ('CC@',  '[cr5]1[cr5][ar5][ar5][ar5]1', 0),
+        ('CWd',  '[cr5;H0]1@[cr5;H1]@[sr5]@[ar5]@[ar5]1', 1), # heuristic C5 in PF5
+        ('CWe',  '[cr5;H0]1@[cr5;H0]([I,F,Cl,Br])@[sr5]@[ar5]@[ar5]1', 1), # heuristic C6 in PF5
+        ('CC!',  '[cr5;H0]1[sr5][ar5][ar5][cr5]1', 0),
+
+        ('CCb',  '[R]1:[c]:[R]:[R]:[R]:1', 1), # hits things that should be CR or CW
+        ('CR',   'n[cr5;R2]n', 1),
+        ('CRb',  'n[cr5;R1;H0]n', 1),
+        ('CCc',   '[cr5][c;H0;X3;r5][cr5][nr5][cr5]', 1),
+
+        # atom CG of a TYR has type CA
+        #
+        # comes before CB - bleugh
+        # and CC
+        ('CAa', '[a][cr6;H0;R1]([C,c,N,n])[a]', 1),
+        ('CAb', 'c', 0),  # CA on fusion atoms in PF6
+
+        ('CCd', '[cr5;X3;^2]', 0), # 5 ring unsaturated
+
+        ('CB', '[a][cr6;H0][a]', 1), # before CA
+
+        ('CAc', '[cr6;X3]', 0),
+        ('CAd', '[cr6;H1]', 0),
+        ('CAe', '[cr6]',    0), # Does this work? (PF6)
+        ('CAf', 'c',        0), # this is above CC (PF6)
+
         ('CK', '[cr5;H1;N2]', 0),
         ('CM', 'n1cnccc1', (3,4,5)), # positions 5 or 6 in pyrimidine # or 4 presumably!
+        ('CM', '[C]=[C]', (0,1)),   # by validation
+        ('CM', '[C]=A', 0),   # by validation
+        ('C2', '[CX2]#[CX2]', (0,1)),   # by validation
+        ('C2', '[CX2]#A', 0),   # by validation
+        ('C2', 'A#[CX2]', 1),   # by validation [1]
         ('CJ', 'n1n[cX3]cc1', (3,4,5)), # positions 5 or 6 in pyrimidine # or 4 presumably!
 #        ('CN', '[C]'), # how is this different to CB?
         ('CQ', 'n1[cH1]nccc1', 1),
         ('CR', 'n1[cH1]ncc1', 0), # NE2 HIS
         ('CV', '[cr5;^2;H1]~n', 0),
-        ('CW', '[cr5;^2]~[nH]', 0),
         ('C*', '[cr5;^2;X3]', 0),
         # Carbon fallback
-        ('C-unknown', '[C,c]', 0), # sp hybrizided. Hmmm.
+        ('C',  '[C,c]', 0), # sp hybrizided. Hmmm.
+
+        # [1] needed because above [CX2]#A doesn't find the bond both ways.  I suppose
+        #     that's the way SMARTS work.
+
 
         # Oxygen
         ('OS',  "[OX2;H0]", 0), # ester
+        ('OS',  "[oX2;H0]", 0), # aromatic, should I add [n]?
         ('OH',  "[OH1]", 0), # alcohol
         ('OW',  "[OH2]", 0), # water
+        # O2 should match sulphate (and phosphates, I think) but not
+        # O=S-{non-oxygen}
+        ('O2',  'OP(~O)~O',   0), # O on a phosphate
+        ('O2',  'OS(~O)~O',   0), # guess based on above
+        ('O2',  'O=P',   0), # O on a phosphate
+        ('O2',  'O=S=O',   (0,2)), # guess based on above
         ('O',   'O=*',   0), # carbonyl oxygen
-        ('O2',  'O~P',   0), # O on a phosphate
-        ('O2',  'O~S',   0), # guess based on above
+        # fallback
+        ('O',  'O',   0),
+        ('O',  'o',   0),
+
 
         # Nitrogen
-        ('N',    '[NX3;H1;^2]',      0), # amide
-        ('NA',   '[NR5;H1]',      0),
-        ('NB',   '[NR5;X2;H0]',      0),
-        ('NC',   '[NR6;X2;H0]',      0),
-        ('NT',   '[N^3;X3]',      0),
+        #
+        # T
+#       ('N2',   '[R][NX3;H1;^2]',   1), # {sp2 amino N} - sigh
+        ('N2',   '[NX3;!R]=[R]',     0), # {sp2 amino N} - sigh PF7 - N1 is not N!
+        ('N',    '[NX3;H1;^2]C=O',   0), # amide
+        ('N',    '[NX3;H0;^2]C=O',   0), # PF5
+        ('NA',   '[nr5;H1]',      0), # both this and the one below? Checkme
+        ('NC',   '[nr6;X2;H0]',   0), # pyridine
+        ('NB',  '[c][nr;X2;H0]',  0), # {e.g. HIS C=N-C} # does this catch anything? checkme
+        ('NB',   '[c,s][nr5;R1;H0]c',  1),
+        ('NB',   '[c;H1,s][nr5;R1;H0]n',  1), # hits N4, N5 in PF4.
+        ('NB',   '[cr5;R2][nr5;R1;H0]n',  1), # hits N4, N5 in PF4.
+        ('N*',   '[nr5;X2;H0]',   0),
+        ('N*',   '[nr6;X2;H0]',   0),
+        ('N*',   '[nr5;R2;X3;H0]', 0), # N3 in PF4
+        ('NT',   '[N^3;X4]',      0),
+        ('N3',   '[N^3;X3]',      0),
         ('N2',   '[NX3;H2^2]', 0),     # N of sp2 NH2 (as in ARG).
-        ('N3',   '[N^3;X4]',   0),
-        ('N*',   '[nr6;X3;H0]',      0),
+        ('N2',   'aN', 1),     # book
+        ('N2',   '[NX3][C][NX3]', (0,2)),     # book
+        ('N2',   '[H][NX3]CO', 1),     # book
+        ('N2',   '[H][NX3]C=O', 1),     # book
+        ('Nc',    '[NX3;H1;^2]',   0), # amide
+        ('NC',   '[NR6;X2;H0]',   0),
+        ('NL',   '[NX1]#A',   0), # triple bond N
         # fall-back nitrogen
         ('N',    '[N,n]',      0),
 
+        ('SO', '[S](=O)[N]', 0),  # hypervalent sulfur
+        ('S',  '[S,s][S,s]', (0,1)), # sulfide
+        ('S',  '[s]', 0), # "sulfide" - hmm. PF5
+        # sulfur
+        ('Su', 'S', 0),
+        ('Su', 's', 0), # yikes
+        
         # P
         ('P',    'P', 0),
         # Cl
@@ -323,17 +415,18 @@ def set_amber_atom_types(mol):
 
         ]
 
+    # print('----------------------------amber-----------------------------------------')
     for smarts_info in smarts_list:
         atom_type, smarts, match_atom_index = smarts_info
         pattern = Chem.MolFromSmarts(smarts)
         if mol.HasSubstructMatch(pattern):
             matches = mol.GetSubstructMatches(pattern)
-	    if True:
-		# print("SMARTS ", smarts)
-		# print("  ", atom_type, ": ", matches)
-                pass
+	    if False:
+		print("SMARTS ", smarts)
+		print("  ", atom_type, ": ", matches)
             for match in matches:
-                set_atom_type(match, match_atom_index, mol, atom_type, types_type='Amber')
+                # print('set_atom_type', match, match_atom_index, mol, atom_type)
+                set_atom_type(match, match_atom_index, mol, atom_type, types_type='Parm@Frosst')
         else:
             # print "SMARTS ", smarts, " --- No hits  "
             pass
@@ -342,8 +435,7 @@ def set_amber_atom_types(mol):
     #
     for atom in mol.GetAtoms():
        try:
-          atom_type = atom.GetProp('amber_atom_type')
-          # print("atom name", atom.GetProp('name'), ' amber type', atom_type)
+          atom_type = atom.GetProp('pf_atom_type')
        except KeyError:
           is_aromatic = atom.GetIsAromatic()
           hybrid      = atom.GetHybridization()

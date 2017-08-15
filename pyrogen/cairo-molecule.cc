@@ -679,7 +679,7 @@ coot::cairo_molecule_t::get_scale() const {
    // if they are non-carbon, reduce the scale a bit. 0.75 is a safe value that
    // allows non-C edge atom representation.
    if (delta > 1)
-      scale = 0.75/delta;
+      scale = 0.74/delta; // was 0.75 (0.75 cuts atom labels on occassion e.g. 1386433)
    if (scale > scale_lim)
       scale = scale_lim;
 
