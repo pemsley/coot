@@ -29,6 +29,7 @@ def set_atom_type(match, match_atom_index, mol, atom_type, types_type='Refmac'):
     if types_type == 'Parm@Frosst':
         prop_str = 'pf_atom_type'
     try:
+        # print('match {} match_atom_index {} types_type {} '.format(match, match_atom_index, types_type))
         this_atom_idx = match[match_atom_index]
         try:
             current_type = mol.GetAtomWithIdx(this_atom_idx).GetProp(prop_str)
@@ -263,13 +264,15 @@ def set_atom_types(mol):
 def set_parmfrosst_atom_types(mol):
 
     electroneg = '[N,O,F,S,Cl,Br]' # does this also need aromtics?
-
+    branched_electroneg = '(' + electroneg + ')'
     smarts_list = [
 
         # Hydrogen
         # initally from http://www.chem.cmu.edu/courses/09-560/docs/msi/ffbsim/B_AtomTypes.html
-        ('H2', '[H][C^3;H1][O]', 0), # O is an example electroneg, more specific than H1
-        ('H1', '[H][C^3][N]',    0),
+        #('H2', '[H][C^3;H1][O]', 0), # O is an example electroneg, more specific than H1
+        ('H2a', '[H][C^3;H1]'+electroneg, 0),
+        ('HP', '[H][C^3;X4][+]',    0), # H on a CT next to atom with formal positive charge
+        ('H1', '[H][C^3][N,n]',  0),
         ('H1', '[H][C^3][O]',    0),
         ('H1', '[H][C^3][S]',    0),
         ('HA', '[H][C^2]',       0),
@@ -286,8 +289,8 @@ def set_parmfrosst_atom_types(mol):
         ('HO', '[H][O;H1]',      0),
         ('HS', '[H][S]',         0),
         ('HW', '[H][O;H2]',      0),
-        ('H2', '[H][NX3;H2;^2]', 0),
-        ('H3', '[N^3;H3][H]',    1),
+        ('H2b', '[H][C^3]'+branched_electroneg+electroneg, 0), # not sure this works
+        ('H3a', electroneg+'[C^3]'+'([H])'+branched_electroneg+electroneg, 2), # or this
         # fallback
         ('H', '[H]',    0),
 
@@ -338,7 +341,7 @@ def set_parmfrosst_atom_types(mol):
         ('C2', '[CX2]#[CX2]', (0,1)),   # by validation
         ('C2', '[CX2]#A', 0),   # by validation
         ('C2', 'A#[CX2]', 1),   # by validation [1]
-        ('CJ', 'n1n[cX3]cc1', (3,4,5)), # positions 5 or 6 in pyrimidine # or 4 presumably!
+        ('CJ', 'n1n[cX3]cc1', (2,3,4)), # positions 5 or 6 in pyrimidine # or 4 presumably!
 #        ('CN', '[C]'), # how is this different to CB?
         ('CQ', 'n1[cH1]nccc1', 1),
         ('CR', 'n1[cH1]ncc1', 0), # NE2 HIS
@@ -415,7 +418,6 @@ def set_parmfrosst_atom_types(mol):
 
         ]
 
-    # print('----------------------------amber-----------------------------------------')
     for smarts_info in smarts_list:
         atom_type, smarts, match_atom_index = smarts_info
         pattern = Chem.MolFromSmarts(smarts)
@@ -425,7 +427,7 @@ def set_parmfrosst_atom_types(mol):
 		print("SMARTS ", smarts)
 		print("  ", atom_type, ": ", matches)
             for match in matches:
-                # print('set_atom_type', match, match_atom_index, mol, atom_type)
+                # print('set_atom_type', match, match_atom_index, mol, pattern, atom_type)
                 set_atom_type(match, match_atom_index, mol, atom_type, types_type='Parm@Frosst')
         else:
             # print "SMARTS ", smarts, " --- No hits  "
