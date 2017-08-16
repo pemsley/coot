@@ -26,6 +26,7 @@
 #include <math.h>  // for fabs, cos, sin
 #include <string>
 #include <vector>
+#include <algorithm>
 #include <set>
 #include <stdexcept>
 
