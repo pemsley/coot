@@ -225,7 +225,7 @@ lig_build::bond_t::make_double_bond(const pos_t &pos_1_in, const pos_t &pos_2_in
    lig_build::pos_t buv = (pos_2-pos_1).unit_vector();
    lig_build::pos_t buv_90 = buv.rotate(90);
 
-   double small = lig_build::pos_t::length(pos_1_in, pos_2_in) * 0.1;
+   double small = lig_build::pos_t::length(pos_1_in, pos_2_in) * 0.08; // was 0.1
    lig_build::pos_t p1 = pos_1 + buv_90 * small;
    lig_build::pos_t p2 = pos_2 + buv_90 * small;
    lig_build::pos_t p3 = pos_1 - buv_90 * small;
