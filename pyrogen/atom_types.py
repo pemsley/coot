@@ -263,23 +263,30 @@ def set_atom_types(mol):
 
 def set_parmfrosst_atom_types(mol):
 
-    electroneg = '[N,O,F,S,Cl,Br]' # does this also need aromtics?
-    branched_electroneg = '(' + electroneg + ')'
+    electroneg = '[N,n,O,o,F,S,s,Cl,Br]'
+    branched_electroneg = '(~' + electroneg + ')'
+
+    # print('debug H3a: {}'.format('[H][C^3;H1]'+branched_electroneg+branched_electroneg+electroneg))
     smarts_list = [
 
         # Hydrogen
         # initally from http://www.chem.cmu.edu/courses/09-560/docs/msi/ffbsim/B_AtomTypes.html
         #('H2', '[H][C^3;H1][O]', 0), # O is an example electroneg, more specific than H1
-        ('H2a', '[H][C^3;H1]'+electroneg, 0),
-        ('HP', '[H][C^3;X4][+]',    0), # H on a CT next to atom with formal positive charge
-        ('H1', '[H][C^3][N,n]',  0),
-        ('H1', '[H][C^3][O]',    0),
-        ('H1', '[H][C^3][S]',    0),
+        ('HP',  '[H][C^3;X4][+]',    0), # H on a CT next to atom with formal positive charge
+        ('H3a', '[H][C^3;H1]'+branched_electroneg+branched_electroneg+'~'+electroneg, 0),
+        ('H2a', '[H][C^3;H1]'+branched_electroneg+electroneg, 0),
+        ('H2a', '[H][C^3;H2]'+branched_electroneg+electroneg, 0),
+        # ('H5',  '[H][c^2;H1]([n])[n]', 0),
+        ('H5',  '[H][c^2;H1]'+branched_electroneg+'~'+electroneg, 0),
+        ('H5',  '[H][C^2;H1]'+branched_electroneg+'~'+electroneg, 0),
+        ('H1a', '[H][C^3;H1]'+electroneg, 0),
+        ('H1b', '[H][C^3][N,n]',  0), # {aliph H; 1 elneg grp}
+        ('H1e', '[H][C^3]' + electroneg,  0), # {aliph H; 1 elneg grp}
+        ('H4a', '[H][C^2,c^2]'+electroneg, 0), # H4 is H-C&sp2~elneg
+        ('H4b', '[H][C^2,c^2]~'+electroneg, 0),
+        ('H4c', '[H][C^2,c^2;H1][n]', 0), # was '[H][c^2;H1][n][H]'
+        ('H4d', '[H][c^2;H1][s]', 0), # not electroneg! parm_Frosst.pcp inconsistent!
         ('HA', '[H][C^2]',       0),
-        ('H5', '[H][c^2;H1]([n])[n]', 0),
-        ('H4', '[H][c^2;H1][n]', 0), # was '[H][c^2;H1][n][H]'
-        ('H4', '[H][c^2;H1][s]', 0), # H4 is H-C&sp2~elneg
-        ('H4', '[H][C^2;H1]O',  0),
         ('HA', '[H][cr;^2]',     0), # aromatic H, HA also bonds to [C^2]
         ('H',  '[H][NX3;H1;^2]', 0), # both this  and the one below? Checkme
         ('H',  '[H][nX3;H1;^2]', 0),
@@ -290,7 +297,6 @@ def set_parmfrosst_atom_types(mol):
         ('HS', '[H][S]',         0),
         ('HW', '[H][O;H2]',      0),
         ('H2b', '[H][C^3]'+branched_electroneg+electroneg, 0), # not sure this works
-        ('H3a', electroneg+'[C^3]'+'([H])'+branched_electroneg+electroneg, 2), # or this
         # fallback
         ('H', '[H]',    0),
 
