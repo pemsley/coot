@@ -93,7 +93,8 @@ namespace coot {
 				const std::vector<unsigned int> &highlight_bond_indices,
 				bool use_highlight_bond_indices_flag);
       // render to file
-      void render_to_file(const std::string &png_file_name, unsigned int npx=300);
+      void render_to_file(const std::string &png_file_name, unsigned int npx=300,
+			  const std::pair<bool, colour_holder> &bg_col=std::pair<bool, colour_holder>(false, colour_holder()));
       // render to string
       std::string render_to_string(const std::vector<unsigned int> &atom_highlight_list,
 				   const std::vector<unsigned int> &bond_highlight_list,
@@ -114,7 +115,8 @@ namespace coot {
    void cairo_png_depict(const std::string &mmcif_file_name,
 			 const std::string &comp_id,
 			 const std::string png_file_name,
-			 unsigned int npx=300);
+			 unsigned int npx=300,
+			 PyObject *background_colour=0);
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
    std::string cairo_png_string_from_mol(RDKit::ROMol *m, int iconf = -1,

@@ -705,7 +705,7 @@ coot::cairo_molecule_t::render(cairo_t *cr) {
    // cairo_stroke(cr);
    cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
 
-   std::cout << "in render: scale: " << scale << std::endl;
+   // std::cout << "in render: scale: " << scale << std::endl;
 
    cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
    cairo_set_line_width(cr, 0.07 * scale * median_bond_length_);
@@ -772,7 +772,8 @@ coot::cairo_molecule_t::render(cairo_t *cr) {
 }
 
 void
-coot::cairo_molecule_t::render_to_file(const std::string &png_file_name, unsigned int npx) {
+coot::cairo_molecule_t::render_to_file(const std::string &png_file_name, unsigned int npx,
+				       const std::pair<bool, colour_holder> &bg_col) {
 
    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, npx, npx);
    cairo_t *cr = cairo_create(surface);
@@ -781,6 +782,11 @@ coot::cairo_molecule_t::render_to_file(const std::string &png_file_name, unsigne
    // if cairo_image_surface_create called with 240,240, then cairo_scale called with
    // 120,120 puts the image, half-size in top left quadrant
    cairo_scale(cr, npx, npx);
+   // background colour:
+   if (bg_col.first) {
+      cairo_set_source_rgb(cr, bg_col.second.red, bg_col.second.green, bg_col.second.blue);
+      cairo_paint (cr);
+   }
    render(cr);
 
    /* Write output and clean up */
@@ -913,11 +919,14 @@ coot::cairo_molecule_t::draw_atom_highlights(cairo_t *cr,
 }
 
 
+// npx is a option arg, default 300
+// background_colour is an option arg, default Null
 void
 coot::cairo_png_depict(const std::string &mmcif_file_name,
 		       const std::string &comp_id,
 		       const std::string png_file_name,
-		       unsigned int npx) {
+		       unsigned int npx,
+		       PyObject *background_colour_py) {
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
@@ -973,7 +982,18 @@ coot::cairo_png_depict(const std::string &mmcif_file_name,
 		  RDKit::Conformer &conf = mol_rw.getConformer(iconf);
 		  RDKit::WedgeMolBonds(mol_rw, &conf);
 		  coot::cairo_molecule_t mol(&mol_rw, iconf);
-		  mol.render_to_file(png_file_name, npx);
+		  std::pair<bool, colour_holder> bg_col;
+		  bg_col.first = false;
+		  if (background_colour_py) {
+		     if  (PyString_Check(background_colour_py)) {
+			std::string s = PyString_AsString(background_colour_py);
+			bg_col.second = colour_holder(s);
+			bg_col.first = true;
+		     } else {
+			// std::cout << "cairo_png_depict(): No background colour " << std::endl;
+		     }
+		  }
+		  mol.render_to_file(png_file_name, npx, bg_col);
 	       }
 	    }
 	 }

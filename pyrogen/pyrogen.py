@@ -722,27 +722,32 @@ def png_from_mmcif_file(mmcif_file_name_in, comp_id, png_file_name):
       # print 'Non-3D path'
       make_picture_to_file(mol_for_drawing, -1, png_file_name)
 
-def coot_png_from_mmcif_file(mmcif_file_name_in, comp_id, png_file_name, n_pixels=300):
+def coot_png_from_mmcif_file(mmcif_file_name_in, comp_id, png_file_name, n_pixels=300, BackgroundColor=None):
    # change the name of cairo_png_depict
-   return pyrogen_boost.cairo_png_depict(mmcif_file_name_in, comp_id, png_file_name, n_pixels)
+   # BackgroundColor is a hash colour, for example use '#ffffff' for white
+   #
+   return pyrogen_boost.cairo_png_depict(mmcif_file_name_in, comp_id, png_file_name, n_pixels, BackgroundColor)
 
 def depict(mol, iconf = -1, npx=300, highlightAtoms=[], highlightBonds=None, highlightAtomColours=None, highlightBondColours=None):
     import IPython
     import Image
     import io
-    n_confs = mol.GetNumConformers()
-    if n_confs == 0:
-       iconf = mol.Compute2DCoords()
-    s = pyrogen_boost.cairo_png_depict_to_string(mol, iconf, highlightAtoms, highlightBonds, highlightAtomColours, highlightBondColours, npx)
-    if len(s) > 0:
-       sio = io.BytesIO(s)
-       im = Image.open(sio)
-       bo = io.BytesIO()
-       im.save(bo, 'png')
-       IPython.display.display(IPython.display.Image(bo.getvalue()))
-    else:
-       print('Null image')
-
+    try:
+       n_confs = mol.GetNumConformers()
+       if n_confs == 0:
+	   iconf = mol.Compute2DCoords()
+       s = pyrogen_boost.cairo_png_depict_to_string(mol, iconf, highlightAtoms, highlightBonds, highlightAtomColours, highlightBondColours, npx)
+       if len(s) > 0:
+          sio = io.BytesIO(s)
+          im = Image.open(sio)
+          bo = io.BytesIO()
+          im.save(bo, 'png')
+          IPython.display.display(IPython.display.Image(bo.getvalue()))
+       else:
+          print('Null image')
+    except AttributeError as e:
+	# maybe mol was not a RDKit molecule
+	print('ERROR::', e)
 
 def coot_depict_to_string(m, n_px=300):
    return pyrogen_boost.cairo_png_depict_to_string(m, -1, [], n_px)
