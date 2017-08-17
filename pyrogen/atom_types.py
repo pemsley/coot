@@ -263,7 +263,8 @@ def set_atom_types(mol):
 
 def set_parmfrosst_atom_types(mol):
 
-    electroneg = '[N,n,O,o,F,S,s,Cl,Br]'
+    electroneg      = '[N,n,O,o,F,S,s,Cl,Br]'
+    ring_electroneg = '[N,n,O,o,s,S]' # are the non-arom needed?
     branched_electroneg = '(~' + electroneg + ')'
 
     # print('debug H3a: {}'.format('[H][C^3;H1]'+branched_electroneg+branched_electroneg+electroneg))
@@ -300,59 +301,129 @@ def set_parmfrosst_atom_types(mol):
         # fallback
         ('H', '[H]',    0),
 
-        # Carbon
-        ('CT', '[CX4]', 0), # bonded to 4 things
-        ('C',  '[CX3]=[O]', 0),
-        ('C',  '[cX3]=[O]', 0),
-        ('C',  '[c]~[cX3]=[N]', 1), # C10 in PF7
-        ('CB', 'c12aaaac1aaa2', 0),
-        ('CB', 'c12aaaac1aaaa2', (0,5)),
-        ('CWd', '[cr5;X3;^2][c]=O', 0),
-        ('CWa', 'n[cr5;R2][cr5;R2]c', 1), # C4 in PF4
+        # -------------------------------pathological specialities ------------------------------
+	#
+	# fused 5,6 unsat systems
+	# the v and ws go together (the same SMART) for normal 5,6 ring and "his-like" sets:
+	# normal 5,6 ring
+        ('CBv', 'c12aaaac1ccn2',  (0,5)), # indole, hit the C[5,6] carbons
+        ('CCv', 'c12aaaac1ccn2',  6),     # indole, hits a non-fused carbon
+        ('CWv', 'c12aaaac1ccn2',  7),     # indole, hits a non-fused carbon
 
-        # by the book, pathological specialities
-        ('CR',   '[cr5]1[nr5;H0][ar5][ar5][ar5]1', 0), # this is useful
-        ('CWb',  '[cr5;R1]1[cr5][cr5][ar5][nr5;H1]1', 0),
+        ('CBw', 'c12aaaac1aaa2',  (0,5)), # hit the C[5,6] carbons # which way round do we go?
+        ('CCw', 'c12aaaac1caa2',  6),     # hits a non-fused carbon
+        ('CWw', 'c12aaaac1aca2',  7),     # hits a non-fused carbon
+        # 5,6 ring with "HIS-like" 5-ring
+	('CBx', '[cr5]12aaaa[c5]2-'+electroneg+'=[cr5]-'+ring_electroneg+'1', (0,5)),
+	('CRx', '[cr5]12aaaa[c5]2-'+electroneg+'=[cr5]-'+ring_electroneg+'1', 7),
+
+	# real histidine-like
+        ('CWy', '[cr5]1[cr5]'+ring_electroneg+'[cr5]'+ring_electroneg+'1', 0), # HIS
+        ('CCy', '[cr5]1[cr5]'+ring_electroneg+'[cr5]'+ring_electroneg+'1', 1), # HIS
+        ('CRy', '[cr5]1[cr5]'+ring_electroneg+'[cr5]'+ring_electroneg+'1', 3), # HIS # success - all hits!
+	#
+	# maybe we should allow CWy to match CC and CCy to match CW - 2 way rounds an imidazole
+
+        ('CWb',  '[cr5;R1]1[cr5][cr5][ar5][nr5;H1]1', 0), # correct - all hits
         ('CCa',  '[cr5]1[cr5][cr5][ar5][ar5]1', 1),
-        ('CC@',  '[cr5]1[cr5][ar5][ar5][ar5]1', 0),
         ('CWd',  '[cr5;H0]1@[cr5;H1]@[sr5]@[ar5]@[ar5]1', 1), # heuristic C5 in PF5
         ('CWe',  '[cr5;H0]1@[cr5;H0]([I,F,Cl,Br])@[sr5]@[ar5]@[ar5]1', 1), # heuristic C6 in PF5
         ('CC!',  '[cr5;H0]1[sr5][ar5][ar5][cr5]1', 0),
 
-        ('CCb',  '[R]1:[c]:[R]:[R]:[R]:1', 1), # hits things that should be CR or CW
-        ('CR',   'n[cr5;R2]n', 1),
-        ('CRb',  'n[cr5;R1;H0]n', 1),
+        # 5-ring unsat C&ar5=N&ar5-g&ar5~g&ar5~g&ar5-@1	-> CR NB * * *
+        ('CR-5ring-a',  '[C,c;^2]1~[N]~[r5;^3]~[r5]~[C,c]1', 0),
+        ('NB-5ring-a',  '[C,c;^2]1~[N]~[r5;^3]~[r5]~[C,c]1', 1),
+
+	# 5-ring unsat C&ar5=C&ar5-C&ar5=C&ar5-g&ar5-@1 -> CW CC CC CW
+        ('CW-5ring-b',  '[cr5]1[cr5][cr5][cr5][ar5]1', (0,3)),
+        ('CC-5ring-b',  '[cr5]1[cr5][cr5][cr5][ar5]1', (1,2)),
+
+	# 5-ring unsat
+        ('NBz',  '[nr5;R1]1[cr5;R1][cr5R1][nr5R1][ar5R1]1', (0,3)), # should this be here?
+        ('CRz',  '[nr5;R1]1[cr5;R1][cr5R1][nr5R1][ar5R1]1', (1,2)),
+
+
+	# ------------------------------ back to sanity ---------------------------
+
+        # Carbon
+
+	# carbon order: CP {rings/fused-rings} C CR CB C* CA CM C2 CJ CT
+	#
+
+        ('CPa', '[cr6]-[cr6]', 0), # biphenyl bridge
+        ('CPb', '[cr6]-[CR6]', 0), # biphenyl bridge, doesn't hit anything
+        ('CPc', '[cr6]=[cr6]', 0), # biphenyl bridge, doesn't hit anything
+        ('CPd', '[CR6]-[cr6]', 0), # biphenyl bridge, doesn't hit anything
+        ('CPe', 'c1c(cccccc)aacc1', 1), # biphenyl bridge, hits C7 in PF23 (CP[abcd] does not).
+
+        # ('CCb',  '[R]1:[c]:[R]:[R]:[R]:1', 1), # hits things that should be CR or CW
         ('CCc',   '[cr5][c;H0;X3;r5][cr5][nr5][cr5]', 1),
+
+        # ('CCd', '[cr5;X3;^2]', 0), # 5 ring unsaturated
+
+        ('CRa',   '[cr5]1[nr5;H0][ar5][ar5][ar5]1', 0), # this is useful
+        ('CRb',   'n[cr5;R2]n', 1),
+        ('CRc',  'n[cr5;R1;H0]n', 1),
+        ('CRd', 'n1[cH1]ncc1', 1), # NE2 HIS
+
+        # ('Ca',  '[c]:[cX3]=[N]', 1), # was '[c]~[cX3]=[N]' for C10 in PF7, but hits CRs
+        ('Ca',  '[C]-[CX3]=[N]', 1),
+        ('Cb',  '[CX3]=[O]',  0),
+        ('Cc',  '[cX3]=[O]',  0),
+        ('Cd',  '[H][CR0]=[N]', 1),
+        ('Ce',  '[H][CR0]=[N]', 1), # also conyl
+        ('Cf',  '[!C][CR0]=[N]', 1), # also conyl
+
+	# CB is fused aromatic bridge-head
+        ('CBa', 'c12aaaac1aaa2', 0), # doesn't hit anything
+        ('CBb', 'c12aaaac1aaaa2', (0,5)),
+        ('CBc', 'c12aaaac1aan2',  (0,5)), # indole
 
         # atom CG of a TYR has type CA
         #
-        # comes before CB - bleugh
-        # and CC
         ('CAa', '[a][cr6;H0;R1]([C,c,N,n])[a]', 1),
         ('CAb', 'c', 0),  # CA on fusion atoms in PF6
-
-        ('CCd', '[cr5;X3;^2]', 0), # 5 ring unsaturated
-
-        ('CB', '[a][cr6;H0][a]', 1), # before CA
-
         ('CAc', '[cr6;X3]', 0),
         ('CAd', '[cr6;H1]', 0),
         ('CAe', '[cr6]',    0), # Does this work? (PF6)
-        ('CAf', 'c',        0), # this is above CC (PF6)
+        ('CAf', '[Cr6]',    0), #  [CR6] means in 6 rings :-)
+        ('CAg', 'c1ccccc1',  (0,1,2,3,4,5)),
+        ('CAh', 'c1ccccn1',  (0,1,2,3,4)),
+        ('CAg', '[C^2]1~[C^2]~[C^2]~[C^2]~[C^2]~[C^2]1',  (0,1,2,3,4,5)),
+        ('CAh', '[C^2]1~[C^2]~[C^2]~[C^2]~[C^2]~N1',  (0,1,2,3,4)),
+        #('CAi', '[C^2]1~[N^2]~[C^2]~[A]~[N^2]~N1',  0,), No hits
+        #('CAj', '[C^2]1~[A^2]~[A^2]~[A]~[A]~N1',  0,), # going backwards
+        #('CAk', '[C^2]1~[A^2]~[A^2]~[A]~[A]~A1',  0,), # going backwards
 
-        ('CK', '[cr5;H1;N2]', 0),
-        ('CM', 'n1cnccc1', (3,4,5)), # positions 5 or 6 in pyrimidine # or 4 presumably!
-        ('CM', '[C]=[C]', (0,1)),   # by validation
-        ('CM', '[C]=A', 0),   # by validation
+	# SMARTS put an atom in a 5 ring before a 6 ring. but CA is 6-ring
+        ('C*', '[cr5;^2;X3]', 0),
+
+        ('CMa', 'n1cnccc1', (3,4,5)), # positions 5 or 6 in pyrimidine # or 4 presumably!
+        ('CMb', '[C^2]=[C^2]', (0,1)),  # by validation
+        ('CMc', '[C]=A', 0),   # by validation
+        ('CMd', '[C]=a', 0),   # by validation
+
         ('C2', '[CX2]#[CX2]', (0,1)),   # by validation
         ('C2', '[CX2]#A', 0),   # by validation
         ('C2', 'A#[CX2]', 1),   # by validation [1]
-        ('CJ', 'n1n[cX3]cc1', (2,3,4)), # positions 5 or 6 in pyrimidine # or 4 presumably!
-#        ('CN', '[C]'), # how is this different to CB?
-        ('CQ', 'n1[cH1]nccc1', 1),
-        ('CR', 'n1[cH1]ncc1', 0), # NE2 HIS
-        ('CV', '[cr5;^2;H1]~n', 0),
-        ('C*', '[cr5;^2;X3]', 0),
+
+        ('CWd', '[cr5;X3;^2][c]=O', 0),
+        ('CWa', 'n[cr5;R2][cr5;R2]c', 1), # C4 in PF4
+
+        # ('CK', '[cr5;H1;N2]', 0), CK is not a thing in parm@Frosst
+
+        # ('CJ', 'n1n[cX3]cc1', (2,3,4)), # positions 5 or 6 in pyrimidine # or 4 presumably! - not Amber
+
+	# cyclopropyl and epoxide
+	('CJa',   '[CX4]1[CX4][CX4]1',  (0,1,2)),
+	('CJb',   '[CX4]1[CX4]A1', (0,1)), # remove unindex symmetry
+
+        # ('CN', '[C]'), # how is this different to CB? CN is not a thing in parm@Frosst
+
+        # ('CQ', 'n1[cH1]nccc1', 1),  # CQ is not a thing in parm@Frosst
+        # ('CV', '[cr5;^2;H1]~n', 0), # CV is not a thing in parm@Frosst
+
+        ('CT', '[CX4]', 0), # bonded to 4 things
         # Carbon fallback
         ('C',  '[C,c]', 0), # sp hybrizided. Hmmm.
 
@@ -373,20 +444,26 @@ def set_parmfrosst_atom_types(mol):
         ('O2',  'O=S=O',   (0,2)), # guess based on above
         ('O',   'O=*',   0), # carbonyl oxygen
         # fallback
-        ('O',  'O',   0),
-        ('O',  'o',   0),
+        ('Ou',  'O',   0),
+        ('Ou',  'o',   0),
 
 
         # Nitrogen
+	#
+	# Order: NJ NL N3 NC N2 NB N N2 N NA N3 N2 N3 ND N2 N N* N3 Nu
         #
-        # T
-#       ('N2',   '[R][NX3;H1;^2]',   1), # {sp2 amino N} - sigh
+        # Amber pathological cases first:
+        # C&ar5=N&ar5-g&ar5~g&ar5~g&ar5-@1        > CR NB * * * ; { 5-ring unsat }
+        # N&ar5=C&ar5-C&ar5=N&ar5~g&ar5-@1        > NB CR CR NB * ; { 5-ring unsat }
+        ('NB', '[CR5]1[NR5][AR5][AR5][AR5]1', 1),
+        ('NB', '[NR5]1[AR5][AR5][NR5][AR5]1', (0,3)),
+ 
         ('N2',   '[NX3;!R]=[R]',     0), # {sp2 amino N} - sigh PF7 - N1 is not N!
         ('N',    '[NX3;H1;^2]C=O',   0), # amide
         ('N',    '[NX3;H0;^2]C=O',   0), # PF5
         ('NA',   '[nr5;H1]',      0), # both this and the one below? Checkme
         ('NC',   '[nr6;X2;H0]',   0), # pyridine
-        ('NB',  '[c][nr;X2;H0]',  0), # {e.g. HIS C=N-C} # does this catch anything? checkme
+        ('NB',   '[c][nr;X2;H0]',  0), # {e.g. HIS C=N-C} # does this catch anything? checkme
         ('NB',   '[c,s][nr5;R1;H0]c',  1),
         ('NB',   '[c;H1,s][nr5;R1;H0]n',  1), # hits N4, N5 in PF4.
         ('NB',   '[cr5;R2][nr5;R1;H0]n',  1), # hits N4, N5 in PF4.
@@ -404,7 +481,7 @@ def set_parmfrosst_atom_types(mol):
         ('NC',   '[NR6;X2;H0]',   0),
         ('NL',   '[NX1]#A',   0), # triple bond N
         # fall-back nitrogen
-        ('N',    '[N,n]',      0),
+        ('Nu',    '[N,n]',      0),
 
         ('SO', '[S](=O)[N]', 0),  # hypervalent sulfur
         ('S',  '[S,s][S,s]', (0,1)), # sulfide
@@ -426,6 +503,7 @@ def set_parmfrosst_atom_types(mol):
 
     for smarts_info in smarts_list:
         atom_type, smarts, match_atom_index = smarts_info
+	# print("SMARTS: {}".format(smarts))
         pattern = Chem.MolFromSmarts(smarts)
         if mol.HasSubstructMatch(pattern):
             matches = mol.GetSubstructMatches(pattern)
