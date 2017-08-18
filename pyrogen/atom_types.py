@@ -483,9 +483,12 @@ def set_parmfrosst_atom_types(mol):
         # fall-back nitrogen
         ('Nu',    '[N,n]',      0),
 
+        ('Su', 'N[S](=O)(O)=N', 1), # Hmm! PF56
         ('SO', '[S](=O)[N]', 0),  # hypervalent sulfur
         ('S',  '[S,s][S,s]', (0,1)), # sulfide
         ('S',  '[s]', 0), # "sulfide" - hmm. PF5
+        ('S',  '[c,C]S[c]', 1), # PF15
+        ('S',  '[c,C]SN', 1), # PF85
         # sulfur
         ('Su', 'S', 0),
         ('Su', 's', 0), # yikes
