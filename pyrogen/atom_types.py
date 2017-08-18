@@ -432,6 +432,11 @@ def set_parmfrosst_atom_types(mol):
 
 
         # Oxygen
+        # first is the carboxylate special:
+        ('O2-carboxylate', '[C,c][CX3](=O)[O-]', (2,3)),
+        # and presumably this too, but not come across it yet)
+        # ('O2-carboxylic-acid', '[C,c][CX3](=O)[OH1]', (2,3)),
+        #
         ('OS',  "[OX2;H0]", 0), # ester
         ('OS',  "[oX2;H0]", 0), # aromatic, should I add [n]?
         ('OH',  "[OH1]", 0), # alcohol
