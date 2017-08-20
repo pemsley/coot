@@ -310,9 +310,11 @@ def set_parmfrosst_atom_types(mol):
         ('CCv', 'c12aaaac1ccn2',  6),     # indole, hits a non-fused carbon
         ('CWv', 'c12aaaac1ccn2',  7),     # indole, hits a non-fused carbon
 
-        ('CBw', 'c12aaaac1aaa2',  (0,5)), # hit the C[5,6] carbons # which way round do we go?
-        ('CCw', 'c12aaaac1caa2',  6),     # hits a non-fused carbon
-        ('CWw', 'c12aaaac1aca2',  7),     # hits a non-fused carbon
+        # As it stands c12aaaac1aaa2 has ~50% wrong hits
+        # ('CBw', 'c12aaaac1aaa2',  (0,5)), # hit the C[5,6] carbons # which way round do we go?
+        # ('CCw', 'c12aaaac1caa2',  6),     # hits a non-fused carbon
+        # ('CWw', 'c12aaaac1aca2',  7),     # hits a non-fused carbon
+
         # 5,6 ring with "HIS-like" 5-ring
 	('CBx', '[cr5]12aaaa[c5]2-'+electroneg+'=[cr5]-'+ring_electroneg+'1', (0,5)),
 	('CRx', '[cr5]12aaaa[c5]2-'+electroneg+'=[cr5]-'+ring_electroneg+'1', 7),
@@ -324,22 +326,27 @@ def set_parmfrosst_atom_types(mol):
 	#
 	# maybe we should allow CWy to match CC and CCy to match CW - 2 way rounds an imidazole
 
-        ('CWb',  '[cr5;R1]1[cr5][cr5][ar5][nr5;H1]1', 0), # correct - all hits
-        ('CCa',  '[cr5]1[cr5][cr5][ar5][ar5]1', 1),
-        ('CWd',  '[cr5;H0]1@[cr5;H1]@[sr5]@[ar5]@[ar5]1', 1), # heuristic C5 in PF5
-        ('CWe',  '[cr5;H0]1@[cr5;H0]([I,F,Cl,Br])@[sr5]@[ar5]@[ar5]1', 1), # heuristic C6 in PF5
-        ('CC!',  '[cr5;H0]1[sr5][ar5][ar5][cr5]1', 0),
-
-        # 5-ring unsat C&ar5=N&ar5-g&ar5~g&ar5~g&ar5-@1	-> CR NB * * *
-        ('CR-5ring-a',  '[C,c;^2]1~[N]~[r5;^3]~[r5]~[C,c]1', 0),
-        ('NB-5ring-a',  '[C,c;^2]1~[N]~[r5;^3]~[r5]~[C,c]1', 1),
+        # 5-ring unsat C&ar5=N&ar5-g&ar5~g&ar5~g&ar5-@1	-> CR NB * * * (above the comment)
+        #
+        # the C=N double bond above is tested for here by X2 on the N (atom index 1)
+        ('CR-5ring-a',  '[C,c;^2;R1]1~[n;R1;X2]~[r5;^2;R1;!n]~[ar5;R1]~[C,c;^2;R1]1', 0),
+        ('NB-5ring-a',  '[C,c;^2;R1]1~[n;R1;X2]~[r5;^2;R1;!n]~[ar5;R1]~[C,c;^2;R1]1', 1),
+        # with a sp3 - bridging C atoms can be aromatic
+        ('CR-5ring-b',  '[C,c;^2]1~[N]~[r5;^3]~[r5]~[C,c]1', 0),
+        ('NB-5ring-b',  '[C,c;^2]1~[N]~[r5;^3]~[r5]~[C,c]1', 1),
 
 	# 5-ring unsat C&ar5=C&ar5-C&ar5=C&ar5-g&ar5-@1 -> CW CC CC CW
         ('CW-5ring-b',  '[cr5]1[cr5][cr5][cr5][ar5]1', (0,3)),
         ('CC-5ring-b',  '[cr5]1[cr5][cr5][cr5][ar5]1', (1,2)),
 
+        # 5-ring unsat C&ar5=C&ar5-C&ar5=C&ar5-g&ar5-@1	> CW CC CC CW
+        ('CWc',  '[cr5;R1]1[cr5][cr5][cr5][nr5]1', (0,3)),
+        ('CCc',  '[cr5;R1]1[cr5][cr5][cr5][nr5]1', (1,2)),
+        ('CWd',  '[cr5;R1]1[cr5][cr5][cr5][ar5]1', (0,3)),
+        ('CCd',  '[cr5;R1]1[cr5][cr5][cr5][ar5]1', (1,2)),
+
 	# 5-ring unsat
-        ('NBz',  '[nr5;R1]1[cr5;R1][cr5R1][nr5R1][ar5R1]1', (0,3)), # should this be here?
+        ('NBz',  '[nr5;R1]1[cr5;R1][cr5R1][nr5R1][ar5R1]1', (0,3)),
         ('CRz',  '[nr5;R1]1[cr5;R1][cr5R1][nr5R1][ar5R1]1', (1,2)),
 
 
@@ -351,10 +358,8 @@ def set_parmfrosst_atom_types(mol):
 	#
 
         ('CPa', '[cr6]-[cr6]', 0), # biphenyl bridge
-        ('CPb', '[cr6]-[CR6]', 0), # biphenyl bridge, doesn't hit anything
-        ('CPc', '[cr6]=[cr6]', 0), # biphenyl bridge, doesn't hit anything
-        ('CPd', '[CR6]-[cr6]', 0), # biphenyl bridge, doesn't hit anything
-        ('CPe', 'c1c(cccccc)aacc1', 1), # biphenyl bridge, hits C7 in PF23 (CP[abcd] does not).
+        ('CPb', '[cr5]-[cr5]', 0), # biphenyl bridge
+        ('CPe', 'c1c(cccccc)aacc1', 1), # biphenyl bridge, hits C7 in PF23
 
         # ('CCb',  '[R]1:[c]:[R]:[R]:[R]:1', 1), # hits things that should be CR or CW
         ('CCc',   '[cr5][c;H0;X3;r5][cr5][nr5][cr5]', 1),
@@ -363,15 +368,15 @@ def set_parmfrosst_atom_types(mol):
 
         ('CRa',   '[cr5]1[nr5;H0][ar5][ar5][ar5]1', 0), # this is useful
         ('CRb',   'n[cr5;R2]n', 1),
-        ('CRc',  'n[cr5;R1;H0]n', 1),
-        ('CRd', 'n1[cH1]ncc1', 1), # NE2 HIS
+        ('CRc',   'n[cr5;R1;H0]n', 1),
+        ('CRd',   'n1[cH1]ncc1', 1), # NE2 HIS
 
         # ('Ca',  '[c]:[cX3]=[N]', 1), # was '[c]~[cX3]=[N]' for C10 in PF7, but hits CRs
         ('Ca',  '[C]-[CX3]=[N]', 1),
-        ('Cb',  '[CX3]=[O]',  0),
-        ('Cc',  '[cX3]=[O]',  0),
-        ('Cd',  '[H][CR0]=[N]', 1),
-        ('Ce',  '[H][CR0]=[N]', 1), # also conyl
+        ('Cb',  '[CX3]=[O]',     0),
+        ('Cc',  '[cX3]=[O]',     0),
+        ('Cd',  '[H][CR0]=[N]',  1),
+        ('Ce',  '[H][CR0]=[N]',  1), # also conyl
         ('Cf',  '[!C][CR0]=[N]', 1), # also conyl
 
 	# CB is fused aromatic bridge-head
@@ -410,18 +415,9 @@ def set_parmfrosst_atom_types(mol):
         ('CWd', '[cr5;X3;^2][c]=O', 0),
         ('CWa', 'n[cr5;R2][cr5;R2]c', 1), # C4 in PF4
 
-        # ('CK', '[cr5;H1;N2]', 0), CK is not a thing in parm@Frosst
-
-        # ('CJ', 'n1n[cX3]cc1', (2,3,4)), # positions 5 or 6 in pyrimidine # or 4 presumably! - not Amber
-
 	# cyclopropyl and epoxide
 	('CJa',   '[CX4]1[CX4][CX4]1',  (0,1,2)),
 	('CJb',   '[CX4]1[CX4]A1', (0,1)), # remove unindex symmetry
-
-        # ('CN', '[C]'), # how is this different to CB? CN is not a thing in parm@Frosst
-
-        # ('CQ', 'n1[cH1]nccc1', 1),  # CQ is not a thing in parm@Frosst
-        # ('CV', '[cr5;^2;H1]~n', 0), # CV is not a thing in parm@Frosst
 
         ('CT', '[CX4]', 0), # bonded to 4 things
         # Carbon fallback
@@ -439,15 +435,23 @@ def set_parmfrosst_atom_types(mol):
         #
         ('OS',  "[OX2;H0]", 0), # ester
         ('OS',  "[oX2;H0]", 0), # aromatic, should I add [n]?
+        ('OS',  "[O;-][CX4]", 0), # alkoxide ion
         ('OH',  "[OH1]", 0), # alcohol
         ('OW',  "[OH2]", 0), # water
+
+        ('O2',  "[O;-]-*", 0), # oxide ion - deloc
         # O2 should match sulphate (and phosphates, I think) but not
         # O=S-{non-oxygen}
         ('O2',  'OP(~O)~O',   0), # O on a phosphate
         ('O2',  'OS(~O)~O',   0), # guess based on above
-        ('O2',  'O=P',   0), # O on a phosphate
+        ('O2',  'O=P',   0),      # O on a phosphate
         ('O2',  'O=S=O',   (0,2)), # guess based on above
-        ('O',   'O=*',   0), # carbonyl oxygen
+
+        # horrible hacking c.f. PF2:  O1=S1 -> O
+        #                       PF56  O1-S1 -> Ou
+        ('O',   'O=[C]-*',   0), # carbonyl oxygen
+        ('O',   'O=[c]',     0), # weird ring in PF-3
+        ('O',   'O=[S;X3]([N])C',   0), # weird
         # fallback
         ('Ou',  'O',   0),
         ('Ou',  'o',   0),
@@ -457,39 +461,66 @@ def set_parmfrosst_atom_types(mol):
 	#
 	# Order: NJ NL N3 NC N2 NB N N2 N NA N3 N2 N3 ND N2 N N* N3 Nu
         #
-        # Amber pathological cases first:
-        # C&ar5=N&ar5-g&ar5~g&ar5~g&ar5-@1        > CR NB * * * ; { 5-ring unsat }
-        # N&ar5=C&ar5-C&ar5=N&ar5~g&ar5-@1        > NB CR CR NB * ; { 5-ring unsat }
-        ('NB', '[CR5]1[NR5][AR5][AR5][AR5]1', 1),
-        ('NB', '[NR5]1[AR5][AR5][NR5][AR5]1', (0,3)),
- 
-        ('N2',   '[NX3;!R]=[R]',     0), # {sp2 amino N} - sigh PF7 - N1 is not N!
-        ('N',    '[NX3;H1;^2]C=O',   0), # amide
-        ('N',    '[NX3;H0;^2]C=O',   0), # PF5
-        ('NA',   '[nr5;H1]',      0), # both this and the one below? Checkme
-        ('NC',   '[nr6;X2;H0]',   0), # pyridine
-        ('NB',   '[c][nr;X2;H0]',  0), # {e.g. HIS C=N-C} # does this catch anything? checkme
-        ('NB',   '[c,s][nr5;R1;H0]c',  1),
-        ('NB',   '[c;H1,s][nr5;R1;H0]n',  1), # hits N4, N5 in PF4.
-        ('NB',   '[cr5;R2][nr5;R1;H0]n',  1), # hits N4, N5 in PF4.
-        ('N*',   '[nr5;X2;H0]',   0),
-        ('N*',   '[nr6;X2;H0]',   0),
-        ('N*',   '[nr5;R2;X3;H0]', 0), # N3 in PF4
-        ('NT',   '[N^3;X4]',      0),
-        ('N3',   '[N^3;X3]',      0),
-        ('N2',   '[NX3;H2^2]', 0),     # N of sp2 NH2 (as in ARG).
-        ('N2',   'aN', 1),     # book
-        ('N2',   '[NX3][C][NX3]', (0,2)),     # book
-        ('N2',   '[H][NX3]CO', 1),     # book
-        ('N2',   '[H][NX3]C=O', 1),     # book
-        ('Nc',    '[NX3;H1;^2]',   0), # amide
-        ('NC',   '[NR6;X2;H0]',   0),
+        # N(-H)-C=O,S		> N * * *	; {explicitly reset amide N to type N}
+
+        # N=N-C&x4-@1 > NJ NJ *	; {aziridine}
+        ('NJ',    'N=N[CX4]',      (0,1)),
+
+        # N&x1#g > NL *		; {univalent triple-bonded N}
         ('NL',   '[NX1]#A',   0), # triple bond N
+
+        # N&x4 > N3		; {+ve tetrahedral N}
+        ('N3b',   '[N^3;X3]',    0),
+        ('N3c',   '[NX4;+]',     0),
+
+        # g=N&ar6-g		> * NC *	; {pyridine N}
+        ('NC',   '[nr6;X2;H0]',  0), # pyridine
+
+        # N&x3(-H)-Acy2-C         > N2 * C        ; {protonated imine}
+        ('N2b',   '[NX3;H](=C)C',   0),   # fixme - don-t forget the C here too.
+
+        # N&x3-C!ar=N&x3		> N2 C N2	; {amidine}
+        ('N2ax',   'A[C;^2](=N)N',   (2,3)),
+        ('Cax',    'A[C;^2](=N)N',   1),  # NOTE! C here
+
+        # Nitro > N2 ; {nitro group - guess jan 1999 CIBayly}
+        ('N2f', 'C[N^2](~[O;X1])~[OX1]', 1),
+
+        #g&ar-N&ar(-H)-g > * NA * * ; {e.g. HIS C-NH-C}
+        ('NAe', 'A[nH]a', 1),
+
+        # Nsulfon > N3 ; {sulfonamide-type N is pyramidal. Ordered after aromatic amine}
+        # N&x3-S,P(~O&x1)~O&x1
+        ('N3a', '[nX3]-[S]([OX1])~[OX1]', 0),
+        ('N3b', '[nX3]-[S](=[OX1])~[OX1]', 0),
+        # N&x2&fcm1-S,P(~O&x1)~O&x1
+        ('N3c', '[nX2;+]-[S,P]([OX1])~[OX1]', 0),
+        ('N3d', '[nX2;+]-[S,P](=[OX1])~[OX1]', 0),
+
+        # g&ar-Acy1-N(-H,g)-g&ar > * N2 * * ; {more delocalized aniline-type N oct2004 CIBayly}
+        ('N2d', '[a][N;H]a', 1),
+
+        # g&ar-Acy1-N(-!H)-!H	> * N3 * *      ; {disubst aniline-type N apr2005 CIBayly}
+        ('N3d', 'a[N;H0]([!H])[!H]', 1),
+
+        # g&ar-N!ar > * N2 ; {sp2 amino N}
+        ('N2e', 'a-[N]', 1),
+
+        # g&sp2-N!ar-H	> * N  * ; {sp2 amino N}
+        ('N2f', '[A;^2][N][H]', 1),
+
+        # N&ar > Nstar		; {sp2 N}
+        ('N*', 'n', 0),
+
+        # N&sp3	> N3		; {regular sp3 N, not charged}
+        ('N3', '[N;0;^3]', 0),
+
         # fall-back nitrogen
         ('Nu',    '[N,n]',      0),
 
         ('Su', 'N[S](=O)(O)=N', 1), # Hmm! PF56
         ('SO', '[S](=O)[N]', 0),  # hypervalent sulfur
+        ('SO', '[C^3][S](=O)(=O)[C^2,c^2]', 1),  # hypervalent sulfur, matches PF-22, 22 is aromic C in position 4, 75 is not (although it looks close)
         ('S',  '[S,s][S,s]', (0,1)), # sulfide
         ('S',  '[s]', 0), # "sulfide" - hmm. PF5
         ('S',  '[c,C]S[c]', 1), # PF15
@@ -497,7 +528,7 @@ def set_parmfrosst_atom_types(mol):
         # sulfur
         ('Su', 'S', 0),
         ('Su', 's', 0), # yikes
-        
+
         # P
         ('P',    'P', 0),
         # Cl

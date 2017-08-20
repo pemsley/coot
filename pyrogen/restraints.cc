@@ -392,8 +392,9 @@ coot::mmcif_dict_from_mol(const std::string &comp_id,
 					   quartet_planes, quartet_hydrogen_planes);
 
 
-   std::cout << "in mmcif_dict_from_mol, mmcif_dict_from_mol_using_energy_lib returns with status "
-	     << restraints.first << std::endl;
+   if (false)
+      std::cout << "in mmcif_dict_from_mol, mmcif_dict_from_mol_using_energy_lib "
+		<< "returns with status " << restraints.first << std::endl;
 
    if (restraints.first) { 
       if (replace_with_mmff_b_a_restraints) {
@@ -464,8 +465,6 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
       // restraints.is_fillled() is false
       std::cout << "ERROR:: no ENERGY_LIB_CIF env var" << std::endl;
    } else {
-
-      std::cout << "here 1 in mmcif_dict_from_mol_using_energy_lib() " << env_as_string << std::endl;
 
       // number of atom first
       // 
@@ -564,7 +563,7 @@ coot::fill_with_energy_lib_bonds(const RDKit::ROMol &mol,
 	 }
       }
    }
-   std::cout << "returnging form fill_with_energy_lib_bonds() " << n_bonds << std::endl;
+   // std::cout << "returnging form fill_with_energy_lib_bonds() " << n_bonds << std::endl;
    return (n_bonds == restraints->bond_restraint.size());
 }
 
