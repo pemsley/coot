@@ -10,7 +10,9 @@ from rdkit.Chem import AllChem
 import rdkit.Chem.Draw
 from rdkit.Chem.Draw import IPythonConsole
 import enum
+from enum import Enum
 
+# for dictionaries
 import pyrogen_swig as pysw
 
 def write_mols(suppl):
@@ -20,8 +22,6 @@ def write_mols(suppl):
         print(Chem.MolToMolBlock(mol), file=file(fn, 'w'))
 
 # return True or Less or Greater or Confused_T_1 or Confused_T_2
-import enum
-from enum import Enum
 match_type = Enum('match', 'MATCH ABOVE BELOW CONFUSED_T1A CONFUSED_T1B CONFUSED_T2A CONFUSED_T2B UNKNOWN WRONG_ELEMENT')
 
 # for example CT, CJ returns BELOW because CT (check_coot_amber_type) is below CJ (ref_type)

@@ -294,10 +294,26 @@ def set_parmfrosst_atom_types(mol):
         ('HC', '[H][CH3;^3]',    0),
         ('HC', '[H][c,CH1]',     0),
         ('HC', '[H][c,CH2]',     0),
+
+        # Amber weirdness:
+        # H-O&x2-C&sp3-O&x2-H	> HX * * * HX	; {acetal hydroxyl must have vdW rad}
+        # H-O&x2-C&sp3-N&sp3	> HX * * *	; {acetal hydroxyl must have vdW rad}
+        ('HXa', '[H]-[OX2]-[C^3]-[OX2]-[H]',  (0,4)), # these are by the book
+        ('HXb', '[H]-[OX2]-[C^3]-[N^3]',      0),
+        ('HXc', '[H]-[OX2]-[C^3](N)(N)',      0), # this is to match H14 in PF-113 -
+                                                  # it's not the book acetal pattern
+        ('HXe', '[H]-[OX2]-[C^3]([N^3])[c]', 0),  # ;H1 on N added to distinguish
+                                                  # PF-345 and PF-261 (they look very close
+                                                  # to me.
+
+        # test
+        ('HXf', '[H]-[OX2]-[C^3][N;X3]', 0), # this is acetal hydroxyl
+
         ('HO', '[H][O;H1]',      0),
         ('HS', '[H][S]',         0),
         ('HW', '[H][O;H2]',      0),
         ('H2b', '[H][C^3]'+branched_electroneg+electroneg, 0), # not sure this works
+
         # fallback
         ('H', '[H]',    0),
 
@@ -396,9 +412,6 @@ def set_parmfrosst_atom_types(mol):
         ('CAh', 'c1ccccn1',  (0,1,2,3,4)),
         ('CAg', '[C^2]1~[C^2]~[C^2]~[C^2]~[C^2]~[C^2]1',  (0,1,2,3,4,5)),
         ('CAh', '[C^2]1~[C^2]~[C^2]~[C^2]~[C^2]~N1',  (0,1,2,3,4)),
-        #('CAi', '[C^2]1~[N^2]~[C^2]~[A]~[N^2]~N1',  0,), No hits
-        #('CAj', '[C^2]1~[A^2]~[A^2]~[A]~[A]~N1',  0,), # going backwards
-        #('CAk', '[C^2]1~[A^2]~[A^2]~[A]~[A]~A1',  0,), # going backwards
 
 	# SMARTS put an atom in a 5 ring before a 6 ring. but CA is 6-ring
         ('C*', '[cr5;^2;X3]', 0),
@@ -433,9 +446,10 @@ def set_parmfrosst_atom_types(mol):
         # and presumably this too, but not come across it yet)
         # ('O2-carboxylic-acid', '[C,c][CX3](=O)[OH1]', (2,3)),
         #
-        ('OS',  "[OX2;H0]", 0), # ester
-        ('OS',  "[oX2;H0]", 0), # aromatic, should I add [n]?
-        ('OS',  "[O;-][CX4]", 0), # alkoxide ion
+        ('OSa',  "[OX2;H0;R0]", 0), # ester
+        ('OSb',  "[OX2;H0;R1]", 0), # ester
+        ('OSc',  "[oX2;H0;r5]", 0), # aromatic, should I add [n]?
+        ('OSd',  "[O;-][CX4]", 0), # alkoxide ion
         ('OH',  "[OH1]", 0), # alcohol
         ('OW',  "[OH2]", 0), # water
 
@@ -451,6 +465,7 @@ def set_parmfrosst_atom_types(mol):
         #                       PF56  O1-S1 -> Ou
         ('O',   'O=[C]-*',   0), # carbonyl oxygen
         ('O',   'O=[c]',     0), # weird ring in PF-3
+        ('O',   'O=[S;X4]C',   0),
         ('O',   'O=[S;X3]([N])C',   0), # weird
         # fallback
         ('Ou',  'O',   0),
@@ -518,16 +533,27 @@ def set_parmfrosst_atom_types(mol):
         # fall-back nitrogen
         ('Nu',    '[N,n]',      0),
 
-        ('Su', 'N[S](=O)(O)=N', 1), # Hmm! PF56
-        ('SO', '[S](=O)[N]', 0),  # hypervalent sulfur
-        ('SO', '[C^3][S](=O)(=O)[C^2,c^2]', 1),  # hypervalent sulfur, matches PF-22, 22 is aromic C in position 4, 75 is not (although it looks close)
+        ('Sua', 'N[S](=O)(O)=N', 1), # Hmm! PF56
+
+        # many flavours of hypervalent sulfur
+        #
+        ('SOa', '[S](=O)[N]', 0),  # hypervalent sulfur
+        ('SOb', '[C^3][S](=O)(=O)[C^2,c^2]', 1),  # hypervalent sulfur, matches PF-22, 22 is aromic C in position 4, 75 is not (although it looks close)
+        ('SOc', '[c][S](=O)(=O)[c]', 1),  # hypervalent sulfur
+        ('SOd', '[c]-[S;X4](=O)(C)=[N]', 1),   # hypervalent sulfur
+        ('SOe', '[n]-[S;X4](=O)(=O)[C]', 1),   # hypervalent sulfur
+
         ('S',  '[S,s][S,s]', (0,1)), # sulfide
         ('S',  '[s]', 0), # "sulfide" - hmm. PF5
         ('S',  '[c,C]S[c]', 1), # PF15
         ('S',  '[c,C]SN', 1), # PF85
+#        ('S',  '[S]1[CX3][NX2]=[NX3;+][CX3]1', 1), # aromaticity model gone astray? PF-343
+
+        ('S',  '[S]1[CX3][NX2]=[NX3][CX3]1', 0), # aromaticity model gone astray? PF-343
+
         # sulfur
-        ('Su', 'S', 0),
-        ('Su', 's', 0), # yikes
+        ('Sub', 'S', 0),
+        ('Suc', 's', 0), # yikes
 
         # P
         ('P',    'P', 0),
