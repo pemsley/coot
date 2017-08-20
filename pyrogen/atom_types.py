@@ -445,11 +445,31 @@ def set_parmfrosst_atom_types(mol):
         ('O2-carboxylate', '[C,c][CX3](=O)[O-]', (2,3)),
         # and presumably this too, but not come across it yet)
         # ('O2-carboxylic-acid', '[C,c][CX3](=O)[OH1]', (2,3)),
-        #
+        # what's the point of using R0 and R1 and R2!?
         ('OSa',  "[OX2;H0;R0]", 0), # ester
         ('OSb',  "[OX2;H0;R1]", 0), # ester
-        ('OSc',  "[oX2;H0;r5]", 0), # aromatic, should I add [n]?
-        ('OSd',  "[O;-][CX4]", 0), # alkoxide ion
+        ('OSc',  "[OX2;H0;R2]", 0), # ester PF-85 - in two rings!
+        ('OSd',  "[oX2;H0;r5]", 0), # aromatic, should I add [n]?
+        ('OSe',  "[O;-][CX4]", 0),  # alkoxide ion
+        ('OSf',  "[cX3][o][cX3](=O)c", 1), # aromatic in ring with ketone oxygen
+
+        # this is too liberal - it matches O1 in PF 319 (10 other good matches though)
+        # ('OSd6', "[oX2;H0;r6]", 0), # aromatic, should I add [n]?
+        ('OSd6a', "[oX2;H0;r6]1[cR2][cR2]c(=O)cc1", 0), # a couple
+        ('OSd6b', "[oX2;H0;r6]1[c](=O)[n]ccc1", 0), # PF-115
+        ('OSd6c', "[oX2;H0;r6]1ccc(=O)cc1", 0), # PF-333
+        ('OSd6d', "[oX2;H0;r6]1ccc(=O)cc1", 0), #
+
+        # this matches O1 in 319 - bad!
+        # ('OSf',  "[cX3]1[o][cX3;R2][cX3R2]cc1", 1), # aromatic in ring with ketone oxygen
+        ('OSg',  "[cX3]1[o][cX3;R2][cX3R2]c(=O)c1", 1), # aromatic in ring with ketone oxygen
+        ('OSh',  "[cX3]1[o][cX3][nX3]c(=O)c1", 1), # PF-76 ring is aromatic
+        ('OSi',  "[cX3]1[o][cX3](=N)ccc1", 1), # PF7
+
+
+        # should be 'O'? c.f. 319 vs 333
+        #('OSg',  "[cX3]1[o][cX3;R2][cX3R2]cc1", 1), # aromatic in ring with ketone oxygen
+
         ('OH',  "[OH1]", 0), # alcohol
         ('OW',  "[OH2]", 0), # water
 
@@ -464,9 +484,14 @@ def set_parmfrosst_atom_types(mol):
         # horrible hacking c.f. PF2:  O1=S1 -> O
         #                       PF56  O1-S1 -> Ou
         ('O',   'O=[C]-*',   0), # carbonyl oxygen
-        ('O',   'O=[c]',     0), # weird ring in PF-3
+        ('O',   'O=[c]',     0), # weird ring iiin PF-3
         ('O',   'O=[S;X4]C',   0),
         ('O',   'O=[S;X3]([N])C',   0), # weird
+        # this looks very like one of the OSs to me.
+        ('O',   'c12occcc1cccc2',   1), # hit PF-319, seems pretty pervers to do this though
+                                        # why isn't it another "ester"? We have
+                                        # to have ultra-specific OS types so that
+                                        # we don't hit this - grump.
         # fallback
         ('Ou',  'O',   0),
         ('Ou',  'o',   0),
