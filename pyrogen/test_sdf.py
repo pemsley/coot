@@ -106,7 +106,15 @@ class compare_types:
                r = self.check(self.Ns)
                return r
            else:
-               return match_type.WRONG_ELEMENT # unknown element
+	       if ele == 'O':
+		   r = self.check(self.Ns)
+		   return r
+	       else:
+		   if ele == 'S':
+		       r = self.check(self.Ns)
+		       return r
+		   else:
+		       return match_type.WRONG_ELEMENT # unknown element
 
 
     def __init__(self):
@@ -115,6 +123,8 @@ class compare_types:
            'CR', 'CB', 'C*', 'CA', 'CM', 'C2', 'CJ', 'CT']
        self.Ns = ['NB', 'NJ', 'NL', 'N3',  'N3', 'NC', 'N2', 'NB', 'N', 'N2', 'N',
           'NA', 'N3', 'ND', "N2", "N", "N*", "N3", "Nu"]
+       self.Os = ['OW', 'OH', 'OS', 'O2', 'OS', 'O2', 'O', 'Ou']
+       self.Ss = ['SH', 'S', 'SO', 'SD', 'Su']
 
        # self.test_compare_2()
 
@@ -145,6 +155,8 @@ def get_amber_types(m, mol_idx, ref_types=None, check_2_chars_only=True, make_di
 		# C -> Ca or Cb or Cc etc is a special case
                 if coot_amber_type in ["Ca", "Cax", "Cb", "Cc", "Cd", "Ce", "Cf", "Cg", "Ch", "Ci", "Cj"]:
 		    check_coot_amber_type = "C"
+                if coot_amber_type in ["Sa", "Sax", "Sb", "Sc", "Sd", "Se", "Sf", "Sg", "Sh", "Si", "Sj"]:
+		    check_coot_amber_type = "S"
             if check_coot_amber_type != ref_type:
                 ct = compare_types()
                 match_result = ct.compare(check_coot_amber_type, ref_type)

@@ -305,9 +305,8 @@ def set_parmfrosst_atom_types(mol):
         ('HXe', '[H]-[OX2]-[C^3]([N^3])[c]', 0),  # ;H1 on N added to distinguish
                                                   # PF-345 and PF-261 (they look very close
                                                   # to me.
-
-        # test
         ('HXf', '[H]-[OX2]-[C^3][N;X3]', 0), # this is acetal hydroxyl
+        ('HXg', '[H]-[OX2]-[C^3][n;X3]', 0), # aromatic N
 
         ('HO', '[H][O;H1]',      0),
         ('HS', '[H][S]',         0),
@@ -470,8 +469,8 @@ def set_parmfrosst_atom_types(mol):
         # should be 'O'? c.f. 319 vs 333
         #('OSg',  "[cX3]1[o][cX3;R2][cX3R2]cc1", 1), # aromatic in ring with ketone oxygen
 
-        ('OH',  "[OH1]", 0), # alcohol
         ('OW',  "[OH2]", 0), # water
+        ('OH',  "[OH1]", 0), # alcohol
 
         ('O2',  "[O;-]-*", 0), # oxide ion - deloc
         # O2 should match sulphate (and phosphates, I think) but not
@@ -488,7 +487,7 @@ def set_parmfrosst_atom_types(mol):
         ('O',   'O=[S;X4]C',   0),
         ('O',   'O=[S;X3]([N])C',   0), # weird
         # this looks very like one of the OSs to me.
-        ('O',   'c12occcc1cccc2',   1), # hit PF-319, seems pretty pervers to do this though
+        ('O',   'c12occcc1cccc2',   1), # hit PF-319, seems pretty perverse to do this though.
                                         # why isn't it another "ester"? We have
                                         # to have ultra-specific OS types so that
                                         # we don't hit this - grump.
@@ -567,14 +566,21 @@ def set_parmfrosst_atom_types(mol):
         ('SOc', '[c][S](=O)(=O)[c]', 1),  # hypervalent sulfur
         ('SOd', '[c]-[S;X4](=O)(C)=[N]', 1),   # hypervalent sulfur
         ('SOe', '[n]-[S;X4](=O)(=O)[C]', 1),   # hypervalent sulfur
+        ('SOh', '[c]-[S;X4](=O)(=O)[c]', 1),   # should hit 699, 567
+        ('SOi', '[c]-[S;X4](=O)(=O)[O]', 1),   # should hit 521
+        ('SOj', '[C;^3][S;X4](=O)(=O)[O]', 1), # hits 416
 
-        ('S',  '[S,s][S,s]', (0,1)), # sulfide
-        ('S',  '[s]', 0), # "sulfide" - hmm. PF5
-        ('S',  '[c,C]S[c]', 1), # PF15
-        ('S',  '[c,C]SN', 1), # PF85
-#        ('S',  '[S]1[CX3][NX2]=[NX3;+][CX3]1', 1), # aromaticity model gone astray? PF-343
+        ('Sa',  '[S,s][S,s]', (0,1)), # sulfide
+        ('Sb',  '[s]', 0), # "sulfide" - hmm. PF5
+        ('Sc',  '[c,C]S[c]', 1), # PF15
+        ('Sd',  '[c,C]SN', 1), # PF85
 
-        ('S',  '[S]1[CX3][NX2]=[NX3][CX3]1', 0), # aromaticity model gone astray? PF-343
+        # let's try something less specific than that
+        ('Se',  '[S]1[CX3][AX2]=[AX3][C]1', 0), # does this hit anything?
+        ('Sf',  '[S]1[CX3]=[A][A][C]1', 0), # does this hit anything?
+        ('Sg',  '[C^3][SX2][n]', 1), # should hit 609
+        ('Sh',  '[C^3][SX2][c]', 1), # should hit 598
+        ('Si',  '[C^3;R1]1[SX2;R1][CR1]AAA[C^2]1', 1), # should hit 496
 
         # sulfur
         ('Sub', 'S', 0),
