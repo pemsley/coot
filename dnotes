@@ -7901,7 +7901,14 @@ what's this?
    PHASE: a new engine for pharmacophore perception, 3D QSAR model development,
    and 3D database screening: 1. Methodology and preliminary results.
    J. Comput. Aided Mol. Des. 20, 647-671,
-   doi: 10.1007/s10822-006-9087-6   (2006).
+  doi: 10.1007/s10822-006-9087-6   (2006).
+
+---
+Sat 19 Aug 2017 00:09:10 BST
+
+   jupyter notebook intereting rdkit and pymol usage from years ago
+
+   http://nbviewer.jupyter.org/gist/greglandrum/4316435
 
 
 ---

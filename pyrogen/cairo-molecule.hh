@@ -77,6 +77,7 @@ namespace coot {
       void set_highlight_colour(cairo_t *cr, unsigned int idx);
       double get_scale() const;
       std::vector<unsigned int> find_bonds_for_atoms(const std::vector<unsigned int> &highlight_atom_indices) const;
+      void debug_box(cairo_t *cr);
 
    public:
       cairo_molecule_t() { median_bond_length_ = 1.5; }
@@ -112,11 +113,11 @@ namespace coot {
 					      unsigned int length);
    };
 
-   void cairo_png_depict(const std::string &mmcif_file_name,
-			 const std::string &comp_id,
-			 const std::string png_file_name,
-			 unsigned int npx=300,
-			 PyObject *background_colour=0);
+   void cairo_png_depict_from_mmcif(const std::string &mmcif_file_name,
+				    const std::string &comp_id,
+				    const std::string png_file_name,
+				    unsigned int npx=300,
+				    PyObject *background_colour=0);
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
    std::string cairo_png_string_from_mol(RDKit::ROMol *m, int iconf = -1,

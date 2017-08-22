@@ -691,6 +691,7 @@ coot::cairo_molecule_t::get_scale() const {
 void
 coot::cairo_molecule_t::render(cairo_t *cr) {
 
+   bool debug = true;
    double scale = get_scale();
    lig_build::pos_t centre = get_ligand_centre();
 
@@ -745,7 +746,7 @@ coot::cairo_molecule_t::render(cairo_t *cr) {
       }
    }
 
-   for (unsigned int iat=0; iat<atoms.size(); iat++) { 
+   for (unsigned int iat=0; iat<atoms.size(); iat++) {
       std::string ele = atoms[iat].element;
       std::vector<unsigned int> local_bonds = bonds_having_atom_with_atom_index(iat);
       bool gl_flag = false;
@@ -769,6 +770,39 @@ coot::cairo_molecule_t::render(cairo_t *cr) {
 	 }
       }
    }
+   if (false)
+      debug_box(cr);
+}
+
+void
+coot::cairo_molecule_t::debug_box(cairo_t *cr) {
+
+   cairo_set_line_width(cr, 0.02);
+
+   cairo_set_source_rgb(cr, 1, 0, 0); // red
+   cairo_move_to(cr, 0.01, 0.01);
+   cairo_line_to(cr, 0.01, 0.99);
+   cairo_stroke(cr);
+
+   cairo_set_source_rgb(cr, 0.6, 0.4, 0); // darker red
+   cairo_move_to(cr, 0.01, 0.99);
+   cairo_line_to(cr, 0.99, 0.99);
+   cairo_stroke(cr);
+
+   cairo_set_source_rgb(cr, 0, 1, 1); // cyan
+   cairo_move_to(cr, 0.99, 0.99);
+   cairo_line_to(cr, 0.99, 0.01);
+   cairo_stroke(cr);
+
+   cairo_set_source_rgb(cr, 0.3, 0.4, 0.5); // dark cyan
+   cairo_move_to(cr, 0.99, 0.01);
+   cairo_line_to(cr, 0.01, 0.01);
+   cairo_stroke(cr);
+
+   cairo_rectangle (cr, 0.25, 0.25, 0.5, 0.5);
+   // cairo_set_source_rgb(cr, 0, 0.5, 0);
+   // ncairo_rectangle (cr, 0.02, 0.02, 0.98, 0.98);
+   cairo_stroke(cr);
 }
 
 void
@@ -922,11 +956,11 @@ coot::cairo_molecule_t::draw_atom_highlights(cairo_t *cr,
 // npx is a option arg, default 300
 // background_colour is an option arg, default Null
 void
-coot::cairo_png_depict(const std::string &mmcif_file_name,
-		       const std::string &comp_id,
-		       const std::string png_file_name,
-		       unsigned int npx,
-		       PyObject *background_colour_py) {
+coot::cairo_png_depict_from_mmcif(const std::string &mmcif_file_name,
+				  const std::string &comp_id,
+				  const std::string png_file_name,
+				  unsigned int npx,
+				  PyObject *background_colour_py) {
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 

@@ -1,6 +1,13 @@
 
    For Release 0.8.9
 
+   o read in dictionary for PF-56. The bond lines of the O-S are too close.
+
+   o I want to be able to see the formal charge of atoms (e.g. from sdf - does that
+     come via RDKit?) and (probably more importantly) dictionaries.
+
+   o pyrogen.depict pf-3.sdf - the aromatic bond is drawn on the wrong side.
+
    o master branch: in rdkit_mol() // wedge bonds should have the chiral centre as the first atom
      do an additional chiral check based on pdbx_stereo_config (currently the check is
      based only on chiral restraints). Look at FAX - why even is the P-OH bond wedged?
@@ -15,6 +22,8 @@
    o IN5: OH on the P, chiral is round the wrong way.
 
    o GGD has no atoms in pyrogen.MolFromPDBXr(). Why?
+
+   o pf-43.sdf aromatic bonds drawn wrongly.
 
    o HNI causes a crash
 

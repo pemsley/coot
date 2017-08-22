@@ -749,8 +749,9 @@ def depict(mol, iconf = -1, npx=300, highlightAtoms=[], highlightBonds=None, hig
 	# maybe mol was not a RDKit molecule
 	print('ERROR::', e)
 
-def coot_depict_to_string(m, n_px=300):
-   return pyrogen_boost.cairo_png_depict_to_string(m, -1, [], n_px)
+def coot_depict_to_png_string(mol, iconf=-1, n_px=300, highlightAtoms=[], highlightBonds=None, highlightAtomColours=None, highlightBondColours=None):
+       s = pyrogen_boost.cairo_png_depict_to_string(mol, iconf, highlightAtoms, highlightBonds, highlightAtomColours, highlightBondColours, n_px)
+       return s
 
 # make MolFromPDBXr available in pyrogen
 def MolFromPDBXr(cif_file_name, comp_id):
