@@ -1184,6 +1184,25 @@ namespace lig_build {
 	 }
 	 return in_ring;
       }
+
+      // return a vector of bond indices
+      //
+      std::vector<unsigned int> ring_atoms_to_ring_bonds(const std::set<unsigned int> &atom_indices) const {
+	 std::vector<unsigned int> ring_bonds;
+	 for (std::size_t iat=0; iat<atom_indices.size(); iat++) {
+	    // what are the bonds that contain iat?
+	    std::vector<unsigned int> bds = bonds_having_atom_with_atom_index(iat);
+	    for (std::size_t ibd=0; ibd<bds.size(); ibd++) {
+	       int idx_other = bonds[bds[ibd]].get_other_index(iat);
+	       if (std::find(atom_indices.begin(),
+			     atom_indices.end(), idx_other) != atom_indices.end()) {
+		  if (std::find(ring_bonds.begin(), ring_bonds.end(), ibd) == ring_bonds.end())
+		     ring_bonds.push_back(ibd);
+	       }
+	    }
+	 }
+	 return ring_bonds;
+      }
       
       // "Put the template class method definitions in the .h file" - Thanks, Kevin!
       // 
@@ -1355,21 +1374,32 @@ namespace lig_build {
       // calling function should ensure that there should be at least one ring passed in rings.
       // 
       unsigned int favourite_ring_id(const std::vector<std::set<unsigned int> > &rings) const {
+
 	 unsigned int id = 0;
 	 unsigned int n_best = 0;
+
 	 for (unsigned int i=0; i<rings.size(); i++) {
-	    if (rings[i].size() == 6) {
-	       id = i;
-	       break;
+	    std::vector<unsigned int> ring_bonds = ring_atoms_to_ring_bonds(rings[i]);
+	    unsigned int n_bonds_double = 0;
+	    for (std::size_t ib=0; ib<ring_bonds.size(); ib++) {
+	       if (false)
+		  std::cout << "in favourite_ring_id() iring " << i << " ib " << ib
+			    << " ring_bonds[ " << ib << "] = " << ring_bonds[ib]
+			    << " " << bonds[ring_bonds[ib]] << std::endl;
+	       if (bonds[ring_bonds[ib]].get_bond_type() == bond_t::DOUBLE_BOND ||
+		   bonds[ring_bonds[ib]].get_bond_type() == bond_t::AROMATIC_BOND ||
+		   bonds[ring_bonds[ib]].get_bond_type() == bond_t::DOUBLE_OR_AROMATIC ||
+		   bonds[ring_bonds[ib]].get_bond_type() == bond_t::SINGLE_OR_AROMATIC) {
+		  n_bonds_double++;
+	       }
 	    }
-	    if (rings[i].size() > n_best) {
+	    if (n_bonds_double > n_best) {
+	       n_best = n_bonds_double;
 	       id = i;
-	       n_best = rings.size();
 	    }
 	 }
 	 return id;
       }
-      
 
       // 
       std::vector<pos_t> get_ring_centres() {
