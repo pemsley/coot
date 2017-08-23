@@ -2632,6 +2632,7 @@ public:        //                      public
    void set_show_all_additional_representations(bool on_off_flag);
    void all_additional_representations_off_except(int rep_no,
 						  bool ball_and_sticks_off_too_flag);
+   graphical_bonds_container get_bonds_represenation() {return bonds_box; }
    // 
    std::vector<coot::residue_spec_t> residues_near_residue(const coot::residue_spec_t &rspec, float radius) const; 
 
