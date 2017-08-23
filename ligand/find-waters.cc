@@ -57,7 +57,7 @@ void show_usage(std::string pname) {
 	     << " --pdbout waters-filename"
 	     << " --sigma sigma-level"
 	     << " --min-dist min-dist-to-protein"
-	     << " --max-dist min-dist-to-protein"
+	     << " --max-dist max-dist-to-protein"
 	     << " --flood"
 	     << " --flood-atom-radius"
 	     << " --chop"
@@ -344,7 +344,7 @@ main(int argc, char **argv) {
 		     // 			    << input_sigma_level << std::endl;
 
 		     if (set_wpdl)
-			lig.set_water_to_protein_distance_limits(wpdl_max, wpdl_max);
+			lig.set_water_to_protein_distance_limits(wpdl_max, wpdl_min); // max min
 		     
 		     lig.water_fit(input_sigma_level, 3); // e.g. 2.0 sigma for 3 cycles 
 		     coot::minimol::molecule water_mol = lig.water_mol();

@@ -1524,6 +1524,10 @@ coot::my_df_planes(const gsl_vector *v,
 					       2.0 * weight * devi_len * plane_info.abcd[1],
 					       2.0 * weight * devi_len * plane_info.abcd[2]);
 
+		  if (plane_restraint.plane_atom_index.size() == 5) {
+		     std::cout << "gradients plane_restraint " << plane_restraint << " " << d.format() << std::endl;
+		  }
+
 		  *gsl_vector_ptr(df, idx  ) += d.dx();
 		  *gsl_vector_ptr(df, idx+1) += d.dy();
 		  *gsl_vector_ptr(df, idx+2) += d.dz();
