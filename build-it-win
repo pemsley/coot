@@ -1029,6 +1029,7 @@ echo which wget
 which wget
 WGET="wget -N -P ${AUTOBUILD_SOURCES}"
 WGETO="wget   -P ${AUTOBUILD_SOURCES}"
+WGETS="wget --no-check-certificate -N -P ${AUTOBUILD_SOURCES}"
 
 # latest version (without .tar.gz extension)
 coot_version=$fallback_coot_version
@@ -3245,22 +3246,24 @@ if test -n "$build_gsl" ; then
 gsl_version=1.8
 # not yet
 # gsl_version=1.12
-if [ -n "$shared_flag" ] ; then
-  gsl_version=1.16
-  ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
-else
-  ${WGET} http://downloads.sourceforge.net/gnuwin32/gsl-$gsl_version-bin.zip
-  ${WGET} http://downloads.sourceforge.net/gnuwin32/gsl-$gsl_version-lib.zip
-  #${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/gsl-config
-  #${WGET} http://www.ysbl.york.ac.uk/~lohkamp/software/extras/gsl.m4
-  ${WGET} $win_extras_place/gsl-config
-  ${WGET} $win_extras_place/gsl.m4
-fi
+# lets try 2.2.1 binaries shared for both!
+gsl_version=2.2.1
+#if [ -n "$shared_flag" ] ; then
+#  gsl_version=1.16
+#  ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gsl/gsl-$gsl_version.tar.gz
+#else
+#  ${WGET} http://downloads.sourceforge.net/gnuwin32/gsl-$gsl_version-bin.zip
+#  ${WGET} http://downloads.sourceforge.net/gnuwin32/gsl-$gsl_version-lib.zip
+#  ${WGET} $win_extras_place/gsl-config
+#  ${WGET} $win_extras_place/gsl.m4
+  ${WGETS} http://sourceforge.net/projects/gnu-scientific-library-windows/files/gsl-2.2.1_mingw-6.2.0.zip
+#fi
 
 ( 
 date
 pwd
-if [ -n "$shared_flag" ] ; then
+#if [ -n "$shared_flag" ] ; then
+if [ 0 == 1 ] ; then
 gzip -dc ${AUTOBUILD_SOURCES}/gsl-$gsl_version.tar.gz | tar xf -
 cd gsl-$gsl_version
 ./configure $generic_prefix $shared_flag
@@ -3277,19 +3280,32 @@ else
 fi  
 else
 cd $install_top_dir
-7z x -y ${AUTOBUILD_SOURCES}/gsl-$gsl_version-bin.zip
-7z x -y ${AUTOBUILD_SOURCES}/gsl-$gsl_version-lib.zip
+#7z x -y ${AUTOBUILD_SOURCES}/gsl-$gsl_version-bin.zip
+#7z x -y ${AUTOBUILD_SOURCES}/gsl-$gsl_version-lib.zip
 # gsl binaries dont have gsl-config, so we have to make our own
-cp ${AUTOBUILD_SOURCES}/gsl-config bin/
-sed "s?^prefix=.*?prefix=$install_top_dir?" bin/gsl-config >gsl-config.tmp
-mv gsl-config.tmp bin/gsl-config
+#cp ${AUTOBUILD_SOURCES}/gsl-config bin/
+#sed "s?^prefix=.*?prefix=$install_top_dir?" bin/gsl-config >gsl-config.tmp
+#mv gsl-config.tmp bin/gsl-config
 # somehow need to 'remove' the dll libs as these cause access violations
 # i.e. use static linking
-mv lib/libgsl.dll.a lib/libgsl.dll.a.orig
-mv lib/libgslcblas.dll.a lib/libgslcblas.dll.a.orig
-status=$?
+#mv lib/libgsl.dll.a lib/libgsl.dll.a.orig
+#mv lib/libgslcblas.dll.a lib/libgslcblas.dll.a.orig
+#status=$?
 # and there is no gsl.m4, so copy that
-cp ${AUTOBUILD_SOURCES}/gsl.m4 $install_top_dir/share/aclocal/
+#cp ${AUTOBUILD_SOURCES}/gsl.m4 $install_top_dir/share/aclocal/
+# END OLD
+7z x -y ${AUTOBUILD_SOURCES}/gsl-2.2.1_mingw-6.2.0.zip -o${AUTOBUILD_SOURCES} gsl-2.2.1_mingw-6.2.0\\gsl-2.2.1-shared\\*
+# now copy to install_top_dir
+cp -r ${AUTOBUILD_SOURCES}/gsl-2.2.1_mingw-6.2.0/gsl-2.2.1-shared/* $install_top_dir/
+# now adjust the path for gsl-config and *la files
+sed "s?/home/Mesh/gsl_mingw/package/gsl-2.2.1-shared?$install_top_dir?" bin/gsl-config >gsl-config.tmp
+mv gsl-config.tmp bin/gsl-config
+
+sed "s?/home/Mesh/gsl_mingw/package/gsl-2.2.1-shared?$install_top_dir?" lib/libgsl.la >libgsl.la.tmp
+mv libgsl.la.tmp lib/libgsl.la
+
+sed "s?/home/Mesh/gsl_mingw/package/gsl-2.2.1-shared?$install_top_dir?" lib/libgslcblas.la >libgslcblas.la.tmp
+mv libgslcblas.la.tmp lib/libgslcblas.la
 if [ "$status" != 0 ] ; then 
     echo ERROR:: GSL make failed.
     exit 2
