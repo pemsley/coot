@@ -464,7 +464,6 @@ void execute_refmac(GtkWidget *window) {
 			   }
 
 			   if (have_mtz_file){
-			      graphics_info_t g;
 			      g.store_refmac_params(std::string(mtz_in_filename),
 						    std::string(fobs_col), 
 						    std::string(sigfobs_col), 

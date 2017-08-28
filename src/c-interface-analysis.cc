@@ -118,8 +118,8 @@ void hole(int imol, float start_x, float start_y, float start_z,
 	 if (!f) {
 	    std::cout << "WARNING:: Failed to open " << export_dots_file_name << std::endl;
 	 } else {
-	    unsigned int n = hole_path_and_surface.second.size();
-	    for (unsigned int i=0; i<n; i++) {
+	    unsigned int n_path = hole_path_and_surface.second.size();
+	    for (unsigned int i=0; i<n_path; i++) {
 	       f << "    "
 		 << std::fixed << std::setprecision(5) << std::setw(10)
 		 << hole_path_and_surface.second[i].position.x() << " " 

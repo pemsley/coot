@@ -1305,6 +1305,15 @@ int export_map_fragment(int imol, float x, float y, float z, float radius, const
    return rv;
 }
 
+int export_map_fragment_to_plain_file(int imol, float x, float y, float z, float radius, const char *file_name) {
+
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t g;
+      clipper::Coord_orth pos(x,y,z);
+      g.molecules[imol].export_map_fragment_to_plain_file(radius, pos, file_name);
+   }
+}
+
 /*! convenience function, called from callbacks.c */
 void export_map_fragment_with_text_radius(int imol, const char *radius_text, const char *filename) {
 

@@ -3054,6 +3054,10 @@ public:        //                      public
 
    void update_bonds_using_phenix_geo(const coot::phenix_geo_bonds &b);
 
+   void export_map_fragment_to_plain_file(float radius,
+					  clipper::Coord_orth centre,
+					  const std::string &filename) const;
+
    void globularize();
 
    bool is_EM_map() const;
@@ -3078,6 +3082,10 @@ public:        //                      public
    void glyco_tree_internal_distances_fn(const coot::residue_spec_t &base_residue_spec,
 					 coot::protein_geometry *geom_p,
 					 const std::string &file_name);
+
+   // hacky function to retrive the atom based on the position
+   // (silly thing to do)
+   mmdb::Atom *get_atom_at_pos(const coot::Cartesian &pt) const;
    
 };
 
