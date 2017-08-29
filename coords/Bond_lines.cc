@@ -264,7 +264,7 @@ Bond_lines_container::construct_from_atom_selection(const atom_selection_contain
 // 	<< my_matt[3][2] << " "  << my_matt[3][3] << " "  << endl; 
 
 //    std::cout << "Here are the atoms for which we will seek contacts\n";
-//    for (int ii=0; ii<n_selected_atoms_1; ii++) { 
+//    for (int ii=0; ii<n_selected_atoms_1; ii++) {
 //       std::cout << atom_selection_1[ii] << std::endl;
 //    } 
 
@@ -2259,7 +2259,7 @@ Bond_lines_container::addSymmetry(const atom_selection_container_t &SelAtom,
 	 gbc = addSymmetry_whole_chain(SelAtom, imol, point,
 				       symm_distance, symm_trans);
       } else {
-      
+
 	 mmdb::Contact *contact = NULL;
 	 int ncontacts;
 
@@ -2270,11 +2270,10 @@ Bond_lines_container::addSymmetry(const atom_selection_container_t &SelAtom,
 
 	    for(unsigned int ii=0; ii<symm_trans.size(); ii++) { // i.e. boxes
 
-	       // 	 cout << "---------------------------- "
-	       // 	      << symm_trans[ii]  
-	       // 	      << " ---------------------------- "
-	       // 	      << endl;
-	 
+	       if (false)
+		  std::cout << "-- " << ii << " " << symm_trans[ii].first << " "
+			    << symm_trans[ii].second << std::endl;
+
 	       // now get an atom selection where all the atoms are moved
 	       // by symm_trans[ii]
 	       //
@@ -2290,7 +2289,7 @@ Bond_lines_container::addSymmetry(const atom_selection_container_t &SelAtom,
 					 0.0, symm_distance,
 					 0,  // seqDist
 					 contact, ncontacts);
-	 
+
 	       if (ncontacts > 0 ) {
 
 		  // the atom_selection of Contact_Sel is allocated.
@@ -2728,6 +2727,14 @@ Bond_lines_container::add_NCS(const atom_selection_container_t &SelAtom,
 			      std::vector<std::pair<coot::coot_mat44, symm_trans_t> > &strict_ncs_mats,
 			      short int symmetry_as_ca_flag,
 			      short int symmetry_whole_chain_flag) {
+
+   if (false) {
+      std::cout << "in add_NCS() " << strict_ncs_mats.size() << std::endl;
+      for(unsigned int ii=0; ii<strict_ncs_mats.size(); ii++) { // i.e. boxes
+	 std::cout << "-- " << ii << " "
+		   << strict_ncs_mats[ii].second << std::endl;
+      }
+   }
 
    std::vector<std::pair<graphical_bonds_container, symm_trans_t> > r;
    for (unsigned int i=0; i<strict_ncs_mats.size(); i++) {
@@ -5281,7 +5288,7 @@ Bond_lines_container::add_ramachandran_goodness_spots(const atom_selection_conta
    }
 
    if (sorted_residues_vec.size() > 2) { 
-      for (unsigned int ii=1; ii<(sorted_residues_vec.size()-1); ii++) { 
+      for (ii=1; ii<(sorted_residues_vec.size()-1); ii++) {
 	 prev_res = sorted_residues_vec[ii-1];
 	 this_res = sorted_residues_vec[ii];
 	 next_res = sorted_residues_vec[ii+1];

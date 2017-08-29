@@ -7,8 +7,6 @@
 
    o does pyrogen -p work? (after cairo fiddling) ::: 1
 
-   o the hydrogen is not drawn correctly on AC6 in Colour by Atoms ::: 1
-
    o make cfc work again ::: 1
 
    o FLEV fail on A2005 in 5pb8 failure to construct rdkit molecule (in alt conf D) ::: 1

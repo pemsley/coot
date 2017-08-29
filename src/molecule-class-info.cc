@@ -2434,7 +2434,7 @@ molecule_class_info_t::display_symmetry_bonds() {
 
 	       // std::cout << "display_symmetry_bonds() here 6 " << std::endl;
 	       
-	       if (true) 
+	       if (false)
 		  std::cout << "num_colours: " << gbc.num_colours
 			    << std::endl;
 	       
