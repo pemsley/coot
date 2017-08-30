@@ -124,7 +124,6 @@ void delete_residue_sidechain(int imol, const char *chain_id, int resno, const c
       mmdb::Residue *residue_p =
 	 graphics_info_t::molecules[imol].get_residue(chain_id, resno, ins_code);
       if (residue_p) {
-	 graphics_info_t g;
 	 coot::residue_spec_t spec(residue_p);
 	 g.delete_residue_from_geometry_graphs(imol, spec);
       }

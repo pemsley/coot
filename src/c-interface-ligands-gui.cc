@@ -666,7 +666,6 @@ void execute_get_mols_ligand_search(GtkWidget *button) {
       // create_find_ligand_many_atoms_dialog() widget.  We don't want
       // to mess with set_user_data for many data.
       // 
-      graphics_info_t g;
       g.set_find_ligands_mols(find_ligand_map_mol,
 			      find_ligand_protein_mol,
 			      wiggly_ligand_info);

@@ -1424,7 +1424,9 @@ void
 molecule_class_info_t::update_strict_ncs_symmetry(const coot::Cartesian &centre_point,
 						  const molecule_extents_t &extents) {
 
-   if (true)
+   bool debug = false;
+
+   if (debug)
       std::cout << "DEBUG:: Update ncs symmetry for " << strict_ncs_matrices.size()
 		<< " NCS matrices" << std::endl;
 
@@ -1442,7 +1444,7 @@ molecule_class_info_t::update_strict_ncs_symmetry(const coot::Cartesian &centre_
 
 
    // guarenteed to be at least one.
-   if (true)
+   if (debug)
       std::cout << "There were " << ncs_mat_indices.size() << " touching molecules\n";
 
    Bond_lines_container bonds;
@@ -2406,7 +2408,7 @@ molecule_class_info_t::ncs_master_chains() const {
 
 void
 molecule_class_info_t::add_strict_ncs_from_mtrix_from_file(const std::string &file_name) {
-   
+
    std::vector<clipper::RTop_orth> mv = coot::mtrix_info(file_name);
    for (unsigned int i=0; i<mv.size(); i++) {
       const clipper::RTop_orth &rt = mv[i];
@@ -2653,13 +2655,15 @@ molecule_class_info_t::add_molecular_symmetry_matrices() {
 	 }
       }
 
-      // std::cout << "made " << biomt_matrices.size() << " biomt matrices" << std::endl;
+      std::cout << "in add_molecular_symmetry_matrices() made "
+		<< biomt_matrices.size() << " biomt matrices" << std::endl;
 
       for (unsigned int jj=0; jj<biomt_chain_ids.size(); jj++) { 
 	 for (unsigned int ii=0; ii<biomt_matrices.size(); ii++) {
-	    add_strict_ncs_matrix(biomt_chain_ids[jj],
-				  biomt_chain_ids[jj],
-				  biomt_matrices[ii]);
+	    if (! biomt_matrices[ii].is_close_to_unit_matrix())
+	       add_strict_ncs_matrix(biomt_chain_ids[jj],
+				     biomt_chain_ids[jj],
+				     biomt_matrices[ii]);
 	 }
       }
    }
