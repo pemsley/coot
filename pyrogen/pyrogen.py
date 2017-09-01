@@ -753,6 +753,11 @@ def coot_depict_to_png_string(mol, iconf=-1, n_px=300, highlightAtoms=[], highli
        s = pyrogen_boost.cairo_png_depict_to_string(mol, iconf, highlightAtoms, highlightBonds, highlightAtomColours, highlightBondColours, n_px)
        return s
 
+
+def coot_depict_to_svg_string(mol, iconf=-1, n_px=300, highlightAtoms=[], highlightBonds=None, highlightAtomColours=None, highlightBondColours=None):
+       s = pyrogen_boost.cairo_svg_depict_to_string(mol, iconf, highlightAtoms, highlightBonds, highlightAtomColours, highlightBondColours, n_px)
+       return s
+
 # make MolFromPDBXr available in pyrogen
 def MolFromPDBXr(cif_file_name, comp_id):
     return pyrogen_boost.MolFromPDBXr(cif_file_name, comp_id)
