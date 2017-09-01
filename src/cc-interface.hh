@@ -719,6 +719,10 @@ PyObject *residues_near_residue_py(int imol, PyObject *residue_in, float radius)
 //!
 PyObject *residues_near_position_py(int imol, PyObject *pos_in, float radius);
 
+//! \brief return a Python object for the bonds
+//
+PyObject *get_bonds_represenation(int imol);
+
 #endif // USE_PYTHON
 
 //! \}

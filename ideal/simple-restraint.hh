@@ -220,6 +220,7 @@ namespace coot {
 				//                    PLANES is defined by wretched windows
 				//                    ANC: avoid name conflict
 				RAMA = 64,
+				TRANS_PEPTIDE_RESTRAINTS=1024,
 				BONDS_ANGLES_AND_TORSIONS = 7,
 				BONDS_ANGLES_TORSIONS_AND_PLANES = 15,
 				BONDS_AND_PLANES = 9,

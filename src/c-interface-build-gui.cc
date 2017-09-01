@@ -1012,10 +1012,8 @@ GtkWidget *wrapped_fit_loop_rama_search_dialog() {
    gtk_widget_hide(mutate_ok_button);
    gtk_widget_hide(checkbutton);
    gtk_widget_show(fit_loop_ok_button);
-#if (GTK_MAJOR_VERSION > 1)
    gtk_widget_show(rama_checkbutton);
    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(rama_checkbutton), TRUE);
-#endif
 
    gtk_widget_show(method_frame);
 
@@ -1102,11 +1100,9 @@ void fit_loop_from_widget(GtkWidget *dialog) {
 
    // use Ramachandran restraints?
    int use_rama_restraints = 0;
-#if (GTK_MAJOR_VERSION > 1)   
    GtkWidget *rama_checkbutton   = lookup_widget(dialog, "mutate_sequence_use_ramachandran_restraints_checkbutton");
    if (GTK_TOGGLE_BUTTON(rama_checkbutton)->active) 
       use_rama_restraints = 1;
-#endif   
 
    if (imol>= 0) { // redundant
       if (is_valid_model_molecule(imol)) {
@@ -1115,14 +1111,6 @@ void fit_loop_from_widget(GtkWidget *dialog) {
 	 GtkWidget *text = lookup_widget(dialog, "mutate_molecule_sequence_text");
 	 char *txt = NULL;
 
-
-#if (GTK_MAJOR_VERSION == 1) 
-	 gint start_pos = 0;
-	 gint end_pos = -1;
-	 txt = gtk_editable_get_chars(GTK_EDITABLE(text), start_pos, end_pos);
-#else
-	 // std::cout << "Gtk2 text view code... " << std::endl;
-	 // text is a GtkTextView in GTK2
 	 GtkTextView *tv = GTK_TEXT_VIEW(text);
 	 GtkTextBuffer* tb = gtk_text_view_get_buffer(tv);
 	 GtkTextIter startiter;
@@ -1130,7 +1118,6 @@ void fit_loop_from_widget(GtkWidget *dialog) {
 	 gtk_text_buffer_get_iter_at_offset(tb, &startiter, 0);
 	 gtk_text_buffer_get_iter_at_offset(tb, &enditer, -1);
 	 txt = gtk_text_buffer_get_text(tb, &startiter, &enditer, 0);
-#endif
 	 
 	 if (txt) {
 	    std::string sequence(txt);
@@ -1611,7 +1598,6 @@ void   place_strand_here_dialog() {
 GtkWidget *
 wrapped_create_fast_ss_search_dialog() {
 
-#if (GTK_MAJOR_VERSION > 1)
   GtkWidget *dialog;
   GtkWidget *helix_temp_combobox;
   GtkWidget *strand_temp_combobox;
@@ -1635,8 +1621,4 @@ wrapped_create_fast_ss_search_dialog() {
   gtk_combo_box_set_active(GTK_COMBO_BOX(radius_combobox),1);
 
   return dialog;
-#else
-  GtkWidget *w = 0;
-  return w;
-#endif // GTK_MAJOR_VERSION
 }

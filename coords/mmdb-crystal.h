@@ -40,6 +40,22 @@ namespace coot {
 	 for (int i=0; i<4; i++)
 	    m[i].v4.resize(4);
       }
+      bool is_close_to_unit_matrix() const {
+	 float sum_dist = 0.0;
+	 for (int i=0; i<4; i++) {
+	    for (int j=0; j<4; j++) {
+	       if (i==j) {
+		  if (i==3)
+		     sum_dist += fabsf(m[i].v4[j]);
+		  else
+		     sum_dist += fabsf(m[i].v4[j]-1);
+	       } else{
+		  sum_dist += fabsf(m[i].v4[j]);
+	       }
+	    }
+	 }
+	 return (sum_dist < 0.001);
+      }
    };
 
    class trans_selection_t {

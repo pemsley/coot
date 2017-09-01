@@ -220,13 +220,13 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 coot::restraints_container_t::restraints_container_t(const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
 						     const std::vector<mmdb::Link> &links,
 						     const coot::protein_geometry &geom,
-						     mmdb::Manager *mol,
+						     mmdb::Manager *mol_in,
 						     const std::vector<atom_spec_t> &fixed_atom_specs) {
 
    init(true);
    from_residue_vector = 1;
    are_all_one_atom_residues = false;
-   init_from_residue_vec(residues, geom, mol, fixed_atom_specs);
+   init_from_residue_vec(residues, geom, mol_in, fixed_atom_specs);
 }
 
 
@@ -335,7 +335,7 @@ coot::restraints_container_t::init_shared_pre(mmdb::Manager *mol_in) {
    // the smaller the alpha, the more like least squares
    geman_mcclure_alpha = 0.2; // Is this a good value? Talk to Rob.
    mol = mol_in;
-   cryo_em_mode = false;
+   cryo_em_mode = true;
 }
 
 void
@@ -423,7 +423,10 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
       if (cryo_em_mode) {
 	 // is-side-chain? would be a better test
 	 if (! is_main_chain_or_cb_p(atom[i]))
-	    weight = 0.3;
+	    {
+	       // std::cout << "downweighting atom " << coot::atom_spec_t(atom[i]) << std::endl;
+	       weight = 0.1;
+	    }
       }
 
       if (z < 0.0) {

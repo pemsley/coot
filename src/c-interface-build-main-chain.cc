@@ -218,7 +218,6 @@ int add_terminal_residue(int imol,
 	 // molecule_class_info_t class.
 	 //
 
-	 graphics_info_t g;
 	 int atom_indx = atom_index(imol, chain_id, residue_number, " CA ");
 	 if (atom_indx >= 0) {
 	    std::string term_type = g.molecules[imol].get_term_type(atom_indx);

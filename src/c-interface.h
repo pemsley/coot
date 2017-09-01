@@ -1216,6 +1216,8 @@ void export_map_fragment_with_text_radius(int imol, const char *radius_text, con
 /*! \brief export a fragment of the map about (x,y,z)  */
 int export_map_fragment_with_origin_shift(int imol, float x, float y, float z, float radius, const char *filename);
 
+/*! \brief tmp interface for Hamish */
+int export_map_fragment_to_plain_file(int imol, float x, float y, float z, float radius, const char *filename);
 
 /* return the new molecule number. The cell is given in Angstroms and
    the angles in degrees.  The ref_space_group can be a H-M symbol or

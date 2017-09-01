@@ -2634,6 +2634,7 @@ public:        //                      public
    void set_show_all_additional_representations(bool on_off_flag);
    void all_additional_representations_off_except(int rep_no,
 						  bool ball_and_sticks_off_too_flag);
+   graphical_bonds_container get_bonds_represenation() {return bonds_box; }
    // 
    std::vector<coot::residue_spec_t> residues_near_residue(const coot::residue_spec_t &rspec, float radius) const; 
 
@@ -3093,6 +3094,10 @@ public:        //                      public
 
    void update_bonds_using_phenix_geo(const coot::phenix_geo_bonds &b);
 
+   void export_map_fragment_to_plain_file(float radius,
+					  clipper::Coord_orth centre,
+					  const std::string &filename) const;
+
    void globularize();
 
    bool is_EM_map() const;
@@ -3117,6 +3122,10 @@ public:        //                      public
    void glyco_tree_internal_distances_fn(const coot::residue_spec_t &base_residue_spec,
 					 coot::protein_geometry *geom_p,
 					 const std::string &file_name);
+
+   // hacky function to retrive the atom based on the position
+   // (silly thing to do)
+   mmdb::Atom *get_atom_at_pos(const coot::Cartesian &pt) const;
    
 };
 

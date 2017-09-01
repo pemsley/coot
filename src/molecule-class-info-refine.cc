@@ -1178,12 +1178,12 @@ molecule_class_info_t::morph_fit_by_secondary_structure_elements(const std::stri
 		  residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 		  clipper::Coord_orth centre = it_ss->second.first;
 		  for (int iat=0; iat<n_residue_atoms; iat++) {
-		     mmdb::Atom *at = residue_atoms[iat];
-		     clipper::Coord_orth pt_1 = coot::co(at);
+		     mmdb::Atom *at_l = residue_atoms[iat];
+		     clipper::Coord_orth pt_1 = coot::co(at_l);
 		     clipper::Coord_orth pt_2 = pt_1 - centre;
 		     clipper::Coord_orth pt_3 = pt_2.transform(it_ss->second.second);
 		     clipper::Coord_orth pt_4 = pt_3 + centre;
-		     coot::update_position(at, pt_4);
+		     coot::update_position(at_l, pt_4);
 		  }
 		  
 	       } else {

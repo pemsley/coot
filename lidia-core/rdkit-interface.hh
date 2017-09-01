@@ -34,6 +34,9 @@ namespace coot {
    //
    RDKit::RWMol rdkit_mol_sanitized(mmdb::Residue *residue_p, int imol_enc,
 				    const protein_geometry &geom);
+
+   // sets properties _Name, ResName ResName ChainID alt_id
+   //
    RDKit::RWMol rdkit_mol(mmdb::Residue *residue_p, int imol_enc,
 			  const protein_geometry &geom);
 
