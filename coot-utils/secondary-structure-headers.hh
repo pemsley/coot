@@ -1,5 +1,6 @@
 
 #include <cstdio>
+#include <string.h>
 
 #include <mmdb2/mmdb_manager.h>
 
