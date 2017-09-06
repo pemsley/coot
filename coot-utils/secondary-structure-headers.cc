@@ -3,6 +3,8 @@
 #include <string>
 #include <vector>
 #include <set>
+#include <algorithm> // std::find()
+#include <stdlib.h> // abs()
 #include "secondary-structure-headers.hh"
 #include "geometry/residue-and-atom-specs.hh"
 
