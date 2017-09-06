@@ -122,7 +122,7 @@ molecule_class_info_t::export_map_fragment_to_plain_file(float radius,
       std::cout << " xmap gr1:    " << gr1.format() << std::endl;
       std::cout << "nxmap Offset: " << offset.format() << std::endl; // start grid points
 
-      std::ofstream f(filename);
+      std::ofstream f(filename.c_str());
       if (f) {
 	 typedef clipper::NXmap<float>::Map_reference_index NRI;
 	 int count = 0;
