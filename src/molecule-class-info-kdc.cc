@@ -23,6 +23,7 @@
 
 #include <string>
 #include <iomanip>
+#include <fstream>
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
