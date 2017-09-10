@@ -13,7 +13,7 @@ coot::secondary_structure_header_records::secondary_structure_header_records(mmd
    if (mol) {
       int ss_status = 0; // OK
 
-      {
+      if (false) {
 	 int sse_as_int = mmdb::SSE_Strand;
 	 std::cout << "debug: SSE_Strand " << sse_as_int << std::endl;
 	 sse_as_int = mmdb::SSE_Bulge;
@@ -37,7 +37,7 @@ coot::secondary_structure_header_records::secondary_structure_header_records(mmd
 	    if (needsCalcSecStructure) {
 	       ss_status = model_p->CalcSecStructure(1);
 	       // c.f. mmdb::SSERC_Ok
-	       std::cout << "debug:: ss_status: " << ss_status << std::endl;
+	       // std::cout << "debug:: ss_status: " << ss_status << std::endl;
 	    }
 	    std::vector<helix_info_t> helices;
 	    std::vector<std::pair<mmdb::Residue *, mmdb::Residue *> > strands;
@@ -83,9 +83,12 @@ coot::secondary_structure_header_records::secondary_structure_header_records(mmd
 			   running_residues.clear();
 			}
 			if (current_type_as_int == 1) {
-			   std::pair<mmdb::Residue *, mmdb::Residue *> p(start_res_p, running_res_p);
-			   strands.push_back(p);
-			   strands_with_residues.push_back(running_residues);
+			   if (running_residues.size() > 1) {
+			      std::pair<mmdb::Residue *, mmdb::Residue *> p(start_res_p, running_res_p);
+			      strands.push_back(p);
+			      // std::cout << "saving a strand of size " << running_residues.size() << std::endl;
+			      strands_with_residues.push_back(running_residues);
+			   }
 			   running_residues.clear();
 			}
 
@@ -102,9 +105,11 @@ coot::secondary_structure_header_records::secondary_structure_header_records(mmd
 			helices_with_residues.push_back(running_residues);
 		     }
 		     if (current_type_as_int == 1) {
-			std::pair<mmdb::Residue *, mmdb::Residue *> p(start_res_p, running_res_p);
-			strands.push_back(p);
-			strands_with_residues.push_back(running_residues);
+			if (running_residues.size() > 1) {
+			   std::pair<mmdb::Residue *, mmdb::Residue *> p(start_res_p, running_res_p);
+			   strands.push_back(p);
+			   strands_with_residues.push_back(running_residues);
+			}
 		     }
 		  }
 
@@ -117,20 +122,25 @@ coot::secondary_structure_header_records::secondary_structure_header_records(mmd
 	       }
 	    }
 
-	    std::cout << "for model number " << imod << std::endl;
+	    // std::cout << "for model number " << imod << std::endl;
 	    for (std::size_t ihel=0; ihel<helices_with_residues.size(); ihel++) {
-	       std::cout << "  helix number  " << ihel << " with "
-			 << helices_with_residues[ihel].size() << " residues" << std::endl;
+               if (false)
+	          std::cout << "  helix number  " << ihel << " with "
+			    << helices_with_residues[ihel].size() << " residues" << std::endl;
 	       if (false)
 		  for (std::size_t ii=0; ii<helices_with_residues[ihel].size(); ii++)
 		     std::cout << "      " << residue_spec_t(helices_with_residues[ihel][ii]) << std::endl;
 	    }
-	    for (std::size_t ihel=0; ihel<strands_with_residues.size(); ihel++) {
-	       std::cout << "   strand number " << ihel << " with "
-			 << strands_with_residues[ihel].size() << " residues " << std::endl;
+	    for (std::size_t istrand=0; istrand<strands_with_residues.size(); istrand++) {
 	       if (false)
-		  for (std::size_t ii=0; ii<strands_with_residues[ihel].size(); ii++)
-		     std::cout << "      " << residue_spec_t(strands_with_residues[ihel][ii]) << std::endl;
+	          std::cout << "   strand number " << istrand << " with "
+			    << strands_with_residues[istrand].size() << " residues "
+			    << " from " << residue_spec_t(strands_with_residues[istrand].front()) << " to "
+			    << residue_spec_t(strands_with_residues[istrand].back())
+			    << std::endl;
+	       if (false)
+		  for (std::size_t ii=0; ii<strands_with_residues[istrand].size(); ii++)
+		     std::cout << "      " << residue_spec_t(strands_with_residues[istrand][ii]) << std::endl;
 	    }
 	    make_sheets(mol, model_p, strands_with_residues);
 	    make_helices(mol, model_p, helices);
@@ -183,50 +193,63 @@ coot::secondary_structure_header_records::make_sheets(mmdb::Manager *mol,
 						      mmdb::Model *model_p,
 						      const std::vector<std::vector<mmdb::Residue *> > &strands_with_residues) {
 
-   std::vector<std::vector<unsigned int> > order = get_sheet_order(mol, model_p, strands_with_residues);
+   std::vector<std::vector<strand_relation_t> > order = get_sheet_order(mol, model_p, strands_with_residues);
 
    mmdb::Sheets *sheets = new mmdb::Sheets;
    sheets->nSheets = order.size();
    sheets->sheet = new mmdb::PSheet[order.size()];
+   unsigned int n_added_sheets = 0;
 
    for (std::size_t isheet=0; isheet<order.size(); isheet++) {
-      const std::vector<unsigned int> &sheet_order = order[isheet];
-      std::string id = sheet_index_to_sheet_id(isheet);
-      mmdb::Sheet *sheet = new mmdb::Sheet;
-      std::vector<mmdb::Strand *> vec_of_strands;
-      for (std::size_t istrand=0; istrand<sheet_order.size(); istrand++) {
-	 mmdb::Strand *strand = new mmdb::Strand;
-	 strcpy(strand->sheetID, id.c_str());
-	 strand->strandNo = istrand+1;
-	 mmdb::Residue *first_res = NULL;
-	 mmdb::Residue *last_res = NULL;
-	 if (strands_with_residues[sheet_order[istrand]].size() > 0) {
-	    first_res = strands_with_residues[sheet_order[istrand]][0];
-	    last_res  = strands_with_residues[sheet_order[istrand]].back();
+      const std::vector<strand_relation_t> &sheet_order = order[isheet];
+      std::string id = sheet_index_to_sheet_id(n_added_sheets);
+      // std::cout << "made an empty new sheet..." << " for isheet " << n_added_sheets << " with id " << id << std::endl;
+      if (true) {
+         mmdb::Sheet *sheet = new mmdb::Sheet;
+         std::vector<mmdb::Strand *> vec_of_strands;
+         // std::cout << "debug:: sheet_order has size " << sheet_order.size() << std::endl;
+         for (std::size_t istrand=0; istrand<sheet_order.size(); istrand++) {
+	    mmdb::Strand *strand = new mmdb::Strand;
+	    strcpy(strand->sheetID, id.c_str());
+	    strand->strandNo = istrand+1;
+	    mmdb::Residue *first_res = NULL;
+	    mmdb::Residue *last_res = NULL;
+            if (false)
+	       std::cout << "   debug:: strands_with_residues[sheet_order[" << istrand
+		         << "].strand_idx] has size "
+		         << strands_with_residues[sheet_order[istrand].strand_idx].size() << std::endl;
+	    if (strands_with_residues[sheet_order[istrand].strand_idx].size() > 0) {
+	       first_res = strands_with_residues[sheet_order[istrand].strand_idx][0];
+	       last_res  = strands_with_residues[sheet_order[istrand].strand_idx].back();
 
-	    strcpy(strand->initResName, first_res->GetResName());
-	    strcpy(strand->initChainID, first_res->GetChainID());
-	    strand->initSeqNum  = first_res->GetSeqNum();
-	    strcpy(strand->initICode, first_res->GetInsCode());
+	       strcpy(strand->initResName, first_res->GetResName());
+	       strcpy(strand->initChainID, first_res->GetChainID());
+	       strand->initSeqNum  = first_res->GetSeqNum();
+	       strcpy(strand->initICode, first_res->GetInsCode());
 
-	    strcpy(strand->endResName, last_res->GetResName());
-	    strcpy(strand->endChainID, last_res->GetChainID());
-	    strand->endSeqNum  = last_res->GetSeqNum();
-	    strcpy(strand->endICode, last_res->GetInsCode());
+	       strcpy(strand->endResName, last_res->GetResName());
+	       strcpy(strand->endChainID, last_res->GetChainID());
+	       strand->endSeqNum  = last_res->GetSeqNum();
+	       strcpy(strand->endICode, last_res->GetInsCode());
 
-	    vec_of_strands.push_back(strand);
+	       strand->sense = strand_relation_t::sense_to_pdb_sense(sheet_order[istrand].sense);
+
+	       // std::cout << "added strand to vec of strands " << std::endl;
+	       vec_of_strands.push_back(strand);
+	    }
 	 }
-      }
-      // add strands to sheet
-      mmdb::PStrand *sheet_strands = new mmdb::PStrand[vec_of_strands.size()];
-      for (std::size_t istrand=0; istrand<vec_of_strands.size(); istrand++)
-	 sheet_strands[istrand] = vec_of_strands[istrand];
-      sheet->strand = sheet_strands;
-      strcpy(sheet->sheetID, id.c_str());
-      sheet->nStrands = vec_of_strands.size();
+         // add strands to sheet
+         mmdb::PStrand *sheet_strands = new mmdb::PStrand[vec_of_strands.size()];
+         for (std::size_t istrand=0; istrand<vec_of_strands.size(); istrand++)
+	    sheet_strands[istrand] = vec_of_strands[istrand];
+         sheet->strand = sheet_strands;
+         strcpy(sheet->sheetID, id.c_str());
+         sheet->nStrands = vec_of_strands.size();
 
-      // sheet needs to be added to sheets
-      sheets->sheet[isheet] = sheet;
+         // sheet needs to be added to sheets
+         sheets->sheet[isheet] = sheet;
+         n_added_sheets++;
+      }
    }
 
    // add sheet to model_p
@@ -239,12 +262,12 @@ coot::secondary_structure_header_records::make_sheets(mmdb::Manager *mol,
    am->add_sheets(sheets);
 }
 
-std::vector<std::vector<unsigned int> >
+std::vector<std::vector<coot::secondary_structure_header_records::strand_relation_t> >
 coot::secondary_structure_header_records::get_sheet_order(mmdb::Manager *mol,
 							  mmdb::Model *model_p,
 							  const std::vector<std::vector<mmdb::Residue *> > &strands_with_residues) {
 
-   std::vector<std::vector<unsigned int> > ordered_strands; // fill and return this
+   std::vector<std::vector<strand_relation_t> > ordered_strands; // fill and return this
 
    int model_number = model_p->GetSerNum();
    std::vector<mmdb::Atom *> N_atoms_vec;
@@ -278,10 +301,8 @@ coot::secondary_structure_header_records::get_sheet_order(mmdb::Manager *mol,
    for (std::size_t i=0; i<O_atoms_vec.size(); i++)
       O_atoms[i] = O_atoms_vec[i];
 
-
-   std::cout << "strands_with_residues has size " << strands_with_residues.size() << std::endl;
-   // I think set is probably the wrong container.  Use std::vector
-   std::vector<std::set<unsigned int> > strand_ordering(strands_with_residues.size());
+   // every sheet has a strand relation set
+   std::vector<std::set<strand_relation_t> > strand_ordering(strands_with_residues.size());
 
    {
       mmdb::Contact *pscontact = NULL;
@@ -328,11 +349,17 @@ coot::secondary_structure_header_records::get_sheet_order(mmdb::Manager *mol,
 						 << " connected by " << residue_spec_t(r_1)
 						 << " and " << residue_spec_t(r_2)
 						 << std::endl;
-				    if (strand_ordering[i].find(j) == strand_ordering[i].end()) {
-				       strand_ordering[i].insert(j);
-				    }
-				    if (strand_ordering[j].find(i) == strand_ordering[j].end()) {
-				       strand_ordering[j].insert(i);
+				    bool found = false;
+				    // std::cout << "calling get_strand_sense() for " << i << " " << j << std::endl;
+				    strand_relation_t::sense_t sense = strand_relation_t::get_strand_sense(strands_with_residues[i], strands_with_residues[j]);
+				    strand_relation_t sr_1(j, sense);
+				    strand_relation_t sr_2(i, sense);
+				    
+				    // either both or neither are found
+				    
+				    if (! found) {
+				       strand_ordering[i].insert(sr_1);
+				       strand_ordering[j].insert(sr_2);
 				    }
 				 }
 			      }
@@ -350,48 +377,53 @@ coot::secondary_structure_header_records::get_sheet_order(mmdb::Manager *mol,
 
    // for a sane sheet, there should be 2 strands with 1 neighbour and all the others should have 2.
 
-   unsigned int n_with_1_neigh = 0;
-   unsigned int n_with_2_neigh = 0;
-
-   for (std::size_t i=0; i<strand_ordering.size(); i++) {
-      if (false) {
-	 std::cout << "i: " << i << " ";
-	 std::set<unsigned int>::const_iterator it;
+   if (false) { // debug
+      for (std::size_t i=0; i<strand_ordering.size(); i++) {
+	 std::cout << "strand_ordering i: " << i << " ";
+	 std::set<strand_relation_t>::const_iterator it;
 	 for (it=strand_ordering[i].begin(); it!=strand_ordering[i].end(); it++)
-	    std::cout << "   " << *it;
+	    std::cout << "  (" << it->strand_idx << " " << it->sense << ")";
 	 std::cout << std::endl;
       }
-      if (strand_ordering[i].size() == 1) n_with_1_neigh++;
-      if (strand_ordering[i].size() == 2) n_with_2_neigh++;
    }
 
    std::vector<unsigned int> done_strands;
+
+   // search the strands for a strand with 1 neighbour.  When you find it - start a sheet.
+   //
    for (std::size_t i=0; i<strand_ordering.size(); i++) {
 
       // thought needed for barrels - strands of which all have 2 neighbours.
       // Use a function get_first_strand() which tries to find
       // a strand with 1 neighbour, but if it fails will try any with 2.
       // What about multiple barrels? Hmm. Quite tricky.
-      std::vector<unsigned int> sheet_order_local;
+      std::vector<strand_relation_t> sheet_order_local;
+
+      // note: strand_ordering[i] is a strand-relation set. Every strand i has a strand_ordering[i]
+      //
       if (strand_ordering[i].size() == 1) { // start of a sheet
 	 if (std::find(done_strands.begin(),
 		       done_strands.end(), i) == done_strands.end()) {
-	    sheet_order_local.push_back(i);
+	    strand_relation_t sr_first(i, strand_relation_t::FIRST);
+	    sheet_order_local.push_back(sr_first);
 	    done_strands.push_back(i);
 	    unsigned int this_strand = i;
 	    bool cont = true;
 	    while (cont) {
-	       const std::set<unsigned int> &s = strand_ordering[this_strand];
+	       const std::set<strand_relation_t> &sr = strand_ordering[this_strand];
 	       // find the strand in the set that is not already in ordered_strands -
 	       // that's where we will go next
-	       std::set<unsigned int>::const_iterator it;
+	       std::set<strand_relation_t>::const_iterator it;
 	       bool found_one = false;
-	       for (it=s.begin(); it!=s.end(); it++) {
+	       for (it=sr.begin(); it!=sr.end(); it++) {
+
+		  bool found = false;
 		  if (std::find(sheet_order_local.begin(), sheet_order_local.end(), *it) ==
-		      sheet_order_local.end()) {
+		  sheet_order_local.end()) {
+
 		     sheet_order_local.push_back(*it);
-		     done_strands.push_back(*it);
-		     this_strand = *it;
+		     done_strands.push_back(it->strand_idx);
+		     this_strand = it->strand_idx;
 		     found_one = true;
 		     break;
 		  }
@@ -402,7 +434,49 @@ coot::secondary_structure_header_records::get_sheet_order(mmdb::Manager *mol,
 	    }
 	 }
       }
-      ordered_strands.push_back(sheet_order_local);
+      if (sheet_order_local.size() > 0) {
+         // std::cout << "pushing back a sheet of size " << sheet_order_local.size() << std::endl;
+         ordered_strands.push_back(sheet_order_local);
+      }
    }
    return ordered_strands;
 }
+
+#include <clipper/core/coords.h>
+#include "coot-coord-utils.hh"
+
+// static
+coot::secondary_structure_header_records::strand_relation_t::sense_t coot::secondary_structure_header_records::strand_relation_t::get_strand_sense(const std::vector<mmdb::Residue *> &strand_1,
+																		   const std::vector<mmdb::Residue *> &strand_2) {
+
+   strand_relation_t::sense_t s(coot::secondary_structure_header_records::strand_relation_t::NO_RESULT);
+
+   if (strand_1.size() > 1) {
+      if (strand_2.size() > 1) {
+	 mmdb::Residue *sr10 = strand_1[0];
+	 mmdb::Residue *sr1e = strand_1.back();
+	 mmdb::Residue *sr20 = strand_2[0];
+	 mmdb::Residue *sr2e = strand_2.back();
+
+	 clipper::Coord_orth sr10_pt = util::average_position(sr10);
+	 clipper::Coord_orth sr1e_pt = util::average_position(sr1e);
+	 clipper::Coord_orth sr20_pt = util::average_position(sr20);
+	 clipper::Coord_orth sr2e_pt = util::average_position(sr2e);
+
+	 clipper::Coord_orth v1 = sr1e_pt - sr10_pt;
+	 clipper::Coord_orth v2 = sr2e_pt - sr20_pt;
+	 clipper::Coord_orth v1u(v1.unit());
+	 clipper::Coord_orth v2u(v2.unit());
+
+	 double cos_theta = clipper::Coord_orth::dot(v1u, v2u);
+	 // std::cout << "cos_theta for strands " << cos_theta << std::endl;
+	 if (cos_theta > 0)
+	    s = strand_relation_t::PARALLEL;
+	 else 
+	    s = strand_relation_t::ANTI_PARALLEL;
+      }
+   }
+   return s;
+
+}
+   

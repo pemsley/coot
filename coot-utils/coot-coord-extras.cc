@@ -705,9 +705,9 @@ coot::torsionable_bonds_monomer_internal_quads(mmdb::Residue *residue_p,
 		  std::string atom_name = atom_selection[iat]->name;
 		  std::string alt_conf  = atom_selection[iat]->altLoc;
 		  if (alt_conf == residue_alt_confs[ialt]) { 
-		     for (unsigned int itor=1; itor<5; itor++) { 
-			if (atom_name == tor_atom_name[itor])
-			   ats[itor] = atom_selection[iat];
+		     for (unsigned int jtor=1; jtor<5; jtor++) { 
+			if (atom_name == tor_atom_name[jtor])
+			   ats[jtor] = atom_selection[iat];
 		     }
 		  }
 	       }

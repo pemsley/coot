@@ -31,11 +31,33 @@ namespace coot {
 	 helix_info_t(mmdb::Residue *r1, mmdb::Residue *r2, unsigned int l) : start_res(r1), end_res(r2), length(l) {}
       };
 
+      class strand_relation_t {
+      public:
+	 unsigned int strand_idx;
+	 enum sense_t { FIRST, PARALLEL, ANTI_PARALLEL, NO_RESULT };
+	 sense_t sense;
+	 strand_relation_t(unsigned int idx, sense_t s) : strand_idx(idx), sense(s) {}
+	 bool operator==(const strand_relation_t &sr_in) const {
+	    return (sr_in.strand_idx == strand_idx);
+	 }
+	 bool operator<(const strand_relation_t &sr_in) const {
+	    return (sr_in.strand_idx < strand_idx);
+	 }
+	 static sense_t get_strand_sense(const std::vector<mmdb::Residue *> &strand_1,
+					 const std::vector<mmdb::Residue *> &strand_2);
+	 static int sense_to_pdb_sense(const sense_t &s) {
+	    if (s == FIRST)    return 0;
+	    if (s == PARALLEL) return 1;
+	    if (s == ANTI_PARALLEL) return -1;
+	    return -2; // Haha.
+	 }
+      };
+
 
    private:
 
       // the order of all the sheets
-      std::vector<std::vector<unsigned int> >
+      std::vector<std::vector<strand_relation_t> >
       get_sheet_order(mmdb::Manager *mol,
 		      mmdb::Model *model_p,
 		      const std::vector<std::vector<mmdb::Residue *> > &strands_with_residues);
@@ -53,7 +75,10 @@ namespace coot {
 						  const std::vector<std::vector<mmdb::Residue *> > &strands_with_residues);
 
       std::string sheet_index_to_sheet_id(unsigned int idx) {
-	 return std::string("A");
+         char c = 'A';
+         c += idx;
+	 std::string r(1,c);
+         return r;
       }
       std::string helix_index_to_helix_id(unsigned int idx) {
 	 // C++-11:
