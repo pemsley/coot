@@ -2270,9 +2270,6 @@ void print_header_secondary_structure_info(int imol) {
 
 #include "coot-utils/secondary-structure-headers.hh"
 
-// Placeholder only.  Not documented, it doesn't work yet, because
-// CalcSecStructure() creates SS type on the residues, it does not
-// build and store CHelix, CStrand, CSheet records.
 // 
 void write_header_secondary_structure_info(int imol, const char *file_name) {
 
@@ -2299,7 +2296,14 @@ void write_header_secondary_structure_info(int imol, const char *file_name) {
 	 }
       }
    } 
-} 
+}
+
+void add_header_secondary_structure_info(int imol) {
+
+   if (is_valid_model_molecule(imol))
+      graphics_info_t::molecules[imol].add_secondary_structure_header_records();
+}
+
 
 
 

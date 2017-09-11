@@ -3086,6 +3086,8 @@ public:        //                      public
    // hacky function to retrive the atom based on the position
    // (silly thing to do)
    mmdb::Atom *get_atom_at_pos(const coot::Cartesian &pt) const;
+
+   void add_secondary_structure_header_records();
    
 };
 

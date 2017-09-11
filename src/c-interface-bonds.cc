@@ -33,7 +33,7 @@
 
 //! \brief return a Python object for the bonds
 //
-PyObject *get_bonds_represenation(int imol) {
+PyObject *get_bonds_representation(int imol) {
 
    PyObject *r = Py_False;
 

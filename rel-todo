@@ -1,7 +1,7 @@
 
    For Release 0.8.9
 
-   o unhide edit restraints window
+   o unhide (unsubmarine) Edit Restraints window
 
    o Copy fragment dialog should not dismiss if a new molecule is not created because it
      failed find atoms.

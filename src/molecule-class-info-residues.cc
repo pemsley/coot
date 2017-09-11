@@ -2047,3 +2047,21 @@ molecule_class_info_t::glyco_tree_internal_distances_fn(const coot::residue_spec
       }
    }
 }
+
+#include "coot-utils/secondary-structure-headers.hh"
+
+void
+molecule_class_info_t::add_secondary_structure_header_records() {
+
+   int n_models = atom_sel.mol->GetNumberOfModels();
+   for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      int ss_status = model_p->CalcSecStructure(1);
+      coot::secondary_structure_header_records ssr(atom_sel.mol, false);
+      if (ss_status == mmdb::SSERC_Ok) {
+	 std::cout << "INFO:: SSE status was OK\n";
+      } else {
+	 std::cout << "INFO:: SSE status was not OK\n";
+      }
+   }
+}
