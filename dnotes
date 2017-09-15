@@ -7824,11 +7824,57 @@ what's this?
    J. Comput. Aided Mol. Des. 20, 647-671,
    doi: 10.1007/s10822-006-9087-6   (2006).
 
+---
+Thu Jul 27 19:48:52 BST 2017
+
+   To compile newest Python 2.7.x on Mac, use additional configure argument
+   MACOSX_DEPLOYMENT_TARGET=10.10
+   to get past
+   compile python configure: error cannot compute sizeof size_t
+
+---
+Thu Jul 27 20:07:08 BST 2017
+
+   to upgrade ipython using pip:
+
+   $ pip install ipython --upgrade
+
 
 ---
 Sat 29 Jul 2017 15:37:06 BST
 
   read this: https://autotools.io/index.html
+
+
+---
+Fri Aug 11 14:19:34 BST 2017
+
+https://stackoverflow.com/questions/21971449/how-do-i-increase-the-cell-width-of-the-jupyter-ipython-notebook-in-my-browser
+
+~/.ipython/profile_default/static/custom/custom.css (iPython) or ~/.jupyter/custom/custom.css (Jupyter) with content
+
+.container { width:100% !important; }
+
+
+---
+Fri  1 Sep 2017 05:52:26 BST
+
+   server threaded:
+
+   https://stackoverflow.com/questions/15074393/python-multithreading-xmlrpc-server
+
+
+---
+Fri  1 Sep 2017 17:51:38 BST
+
+   WebVR and Coot - I discover:
+
+   https://forums.oculus.com/community/discussion/4232/visualizing-protein-structures
+
+   unitymol, molvr
+
+   http://www.molvr.org/category/downloads/
+
 
 
 

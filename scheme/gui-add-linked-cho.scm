@@ -521,7 +521,7 @@
 	     (table (gtk-table-new 3 2 #f))
 	     (butt-1 (gtk-radio-button-new-with-label #f     "High Mannose"))
 	     (butt-2 (gtk-radio-button-new-with-label butt-1 "Hybrid (Mammal)"))
-	     (butt-3 (gtk-radio-button-new-with-label butt-1 "Hybrid (Plant)"))
+	     ;; (butt-3 (gtk-radio-button-new-with-label butt-1 "Hybrid (Plant)"))
 	     (butt-4 (gtk-radio-button-new-with-label butt-1 "Complex (Mammal)"))
 	     (butt-5 (gtk-radio-button-new-with-label butt-1 "Complex (Plant) "))
 	     (butt-6 (gtk-radio-button-new-with-label butt-1 "Expert User Mode")))
@@ -976,15 +976,16 @@
 				     (list aa-chain-id aa-res-no aa-ins-code)
 				     hybrid-mammal-tree))))
 
-	(add-simple-coot-menu-menuitem
-	 menu "Add Hybrid (Plant)"
-	 (lambda ()
-	   (using-active-atom
-	    (make-backup aa-imol)
-	    ;; (with-no-backups aa-imol
-	    (add-linked-residue-tree aa-imol
-				     (list aa-chain-id aa-res-no aa-ins-code)
-				     hybrid-plant-derived-tree))))
+; in practice, no one will be doing this.
+; 	(add-simple-coot-menu-menuitem
+; 	 menu "Add Hybrid (Plant)"
+; 	 (lambda ()
+; 	   (using-active-atom
+; 	    (make-backup aa-imol)
+; 	    ;; (with-no-backups aa-imol
+; 	    (add-linked-residue-tree aa-imol
+; 				     (list aa-chain-id aa-res-no aa-ins-code)
+; 				     hybrid-plant-derived-tree))))
 
 	(add-simple-coot-menu-menuitem
 	 menu "Add Complex (Mammal)"

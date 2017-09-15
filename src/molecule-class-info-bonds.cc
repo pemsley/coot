@@ -105,3 +105,43 @@ molecule_class_info_t::clear_user_defined_atom_colours() {
       }
    }
 }
+
+// This is used in getting atom specs from a bonds box. Not a sensible thing to do
+//
+// instead the bonds box should contain atom specs
+//
+mmdb::Atom *
+molecule_class_info_t::get_atom_at_pos(const coot::Cartesian &pt) const {
+
+   mmdb::Atom *at = NULL;
+
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	 int nres = chain_p->GetNumberOfResidues();
+	 for (int ires=0; ires<nres; ires++) {
+	    mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+	    int n_atoms = residue_p->GetNumberOfAtoms();
+	    for (int iat=0; iat<n_atoms; iat++) {
+	       mmdb::Atom *atl = residue_p->GetAtom(iat);
+	       coot::Cartesian at_pos(atl->x, atl->y, atl->z);
+	       at_pos -= pt;
+	       float d = at_pos.amplitude_squared();
+	       if (d < 0.001) {
+		  at = atl;
+		  break;
+	       }
+	    }
+	    if (at) break;
+	 }
+	 if (at) break;
+      }
+   }
+
+   return at;
+
+
+}

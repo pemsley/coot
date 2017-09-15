@@ -1353,6 +1353,8 @@ namespace coot {
 
       clipper::Coord_orth average_position(std::vector<clipper::Coord_orth> &pts);
 
+      clipper::Coord_orth average_position(mmdb::Residue *r);
+
       // Return the median position.  Throw an exception on failure
       // (e.g no atoms).
       // 

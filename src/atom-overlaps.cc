@@ -92,19 +92,21 @@ PyObject *ligand_atom_overlaps_py(int imol, PyObject *ligand_spec, double neighb
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       coot::residue_spec_t rs = residue_spec_from_py(ligand_spec);
-      mmdb::Residue *r = g.molecules[imol].get_residue(rs);
-      if (r) {
+      mmdb::Residue *residue_p = g.molecules[imol].get_residue(rs);
+      if (residue_p) {
 	 mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
 	 std::vector<mmdb::Residue *> neighb_residues =
-	    coot::residues_near_residue(r, mol, neighb_radius);
+	    coot::residues_near_residue(residue_p, mol, neighb_radius);
 	 
 	 if (neighb_residues.size()) {
-	    coot::atom_overlaps_container_t ol(r, neighb_residues, mol, g.Geom_p());
+	    coot::atom_overlaps_container_t ol(residue_p, neighb_residues, mol, g.Geom_p());
 	    ol.make_overlaps();
+
+	    // convert ol to a python object.  FIXME
 	 }
       } 
    };
-   
+
    if (PyBool_Check(r)) {
      Py_INCREF(r);
    }
@@ -155,8 +157,8 @@ graphics_info_t::do_interactive_coot_probe() {
 	    int point_size = 2;
 	    if (type == "vdw-surface") point_size = 1;
 	    for (unsigned int i=0; i<v.size(); i++) {
-	       const std::string &col = v[i].col;
-	       (*g.generic_objects_p)[obj].add_point(colour_map[col], col, point_size, v[i].pos);
+	       const std::string &col_inner = v[i].col;
+	       (*g.generic_objects_p)[obj].add_point(colour_map[col], col_inner, point_size, v[i].pos);
 	    }
 	    if (type != "vdw-surface")
 	       (*g.generic_objects_p)[obj].is_displayed_flag = true;

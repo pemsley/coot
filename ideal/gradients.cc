@@ -1491,9 +1491,6 @@ coot::my_df_planes(const gsl_vector *v,
    
    int idx; 
 
-   coot::plane_distortion_info_t plane_info;
-
-   
    if (restraints->restraints_usage_flag & coot::PLANES_MASK) {
       
       int n_plane_atoms;
@@ -1505,11 +1502,12 @@ coot::my_df_planes(const gsl_vector *v,
 	 if ( (*restraints)[i].restraint_type == coot::PLANE_RESTRAINT) {
 
 	    const simple_restraint &plane_restraint = (*restraints)[i];
-	    plane_info = distortion_score_plane_internal(plane_restraint, v);
+	    coot::plane_distortion_info_t plane_info =
+	       distortion_score_plane_internal(plane_restraint, v);
 	    n_plane_atoms = plane_restraint.plane_atom_index.size();
 	    // weight = 1/((*restraints)[i].sigma * (*restraints)[i].sigma);
 	    for (int j=0; j<n_plane_atoms; j++) {
-	       if (! (*restraints)[i].fixed_atom_flags[j] ) { 
+	       if (! plane_restraint.fixed_atom_flags[j] ) {
 		  idx = 3*plane_restraint.plane_atom_index[j].first;
 		  devi_len =
 		     plane_info.abcd[0]*gsl_vector_get(v,idx  ) + 
@@ -1523,6 +1521,17 @@ coot::my_df_planes(const gsl_vector *v,
 		  clipper::Grad_orth<double> d(2.0 * weight * devi_len * plane_info.abcd[0],
 					       2.0 * weight * devi_len * plane_info.abcd[1],
 					       2.0 * weight * devi_len * plane_info.abcd[2]);
+
+		  if (false) { // debug
+		     if (plane_restraint.plane_atom_index.size() >= 4) {
+			std::cout << "   gradients plane_restraint " << plane_restraint << " "
+				  << d.format() << std::endl;
+			int idxp = plane_restraint.plane_atom_index[j].first;
+			mmdb::Atom *at = restraints->get_atom(idxp);
+			std::cout << "   plane atom " << j << " " << atom_spec_t(at) << std::endl;
+		     }
+		  }
+
 
 		  *gsl_vector_ptr(df, idx  ) += d.dx();
 		  *gsl_vector_ptr(df, idx+1) += d.dy();

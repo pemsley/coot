@@ -1580,6 +1580,11 @@ if [ "$build_coot_prerelease" = 1 ] ; then
       # python seems to link OK on Darwin, so no need for this jiggery pokery
       if [ $(uname) != Darwin ] ; then
          python_lib_flags=LDFLAGS="-Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release-${build_type}/lib"
+      else
+         pv=$(sw_vers -productVersion)
+         # e.g. 10.10
+         os_minor_version="${pv%.*}"
+         python_spec_flags="MACOSX_DEPLOYMENT_TARGET=$os_minor_version"
       fi
     else 
       # don't use pre-release
@@ -1597,6 +1602,11 @@ else
    coot_prefix="$generic_prefix"
    if [ $(uname) != Darwin ] ; then
       python_lib_flags=LDFLAGS="-Wl,--rpath=${AUTOBUILD_INSTALLED}-${build_type}/lib"
+   else
+      pv=$(sw_vers -productVersion)
+      # e.g. 10.10
+      os_minor_version="${pv%.*}"
+      python_spec_flags="MACOSX_DEPLOYMENT_TARGET=$os_minor_version"
    fi
 fi
 PATH=$install_top_dir/bin:$PATH

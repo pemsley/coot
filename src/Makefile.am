@@ -245,6 +245,7 @@ coot_bin_SOURCES = \
 	scm-boot-guile.cc 	 \
 	c-interface.h            \
 	c-interface-analysis.cc	 \
+	c-interface-bonds.cc	 \
 	c-interface-build.cc	 \
 	c-interface-build-morph.cc	 \
 	c-interface-build-main-chain.cc	 \

@@ -1463,7 +1463,9 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 
    if (n_atoms > 0) { 
       for (int i=0; i<n_atoms; i++) {
+
 	 idx = 3*(plane_restraint.plane_atom_index[i].first);
+
 // 	 std::cout << "atom_index vs n_atom " << plane_restraint.atom_index[i]
 // 		   << " " << n_atoms << std::endl;
 	 if (plane_restraint.plane_atom_index[i].first < 0) {
@@ -1556,9 +1558,13 @@ coot::distortion_score_plane_internal(const coot::simple_restraint &plane_restra
 	       abcd[1]*gsl_vector_get(v,idx+1) +
 	       abcd[2]*gsl_vector_get(v,idx+2) -
 	       abcd[3];
-	    double r = val/plane_restraint.plane_atom_index[i].second;
+	    double r = val/plane_restraint.plane_atom_index[i].second; // .second is the weight
 	    sum_devi += r*r;
 	 }
+      }
+
+      if (false) {
+	 std::cout << plane_restraint << " " << sum_devi << std::endl;
       }
    }
 

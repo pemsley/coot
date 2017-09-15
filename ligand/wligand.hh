@@ -105,7 +105,7 @@ namespace coot {
       void setup_normal_cumulative_table() {
 
 	 // set up cumulative 
-	 float cumulative_step=0.01;
+	 cumulative_step=0.01;
 	 float sigma_lim = 4.0; // from -4.0 to +4.0 sigma.
 	 float sum = 0.0;
 	 for (float v= -sigma_lim; v<sigma_lim; v+=cumulative_step) {

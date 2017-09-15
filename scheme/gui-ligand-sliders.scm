@@ -147,7 +147,7 @@
       (add-simple-coot-menu-menuitem
        menu "Ligand Metric Sliders"
        (lambda ()
-	 
+
 	 (let ((imol-map (imol-refinement-map)))
 
 	   (if (not (valid-map-molecule? imol-map))

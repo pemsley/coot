@@ -210,7 +210,7 @@ namespace coot {
 	 points_set.clear();
       } 
       void close_yourself() { 
-	 std::string name = "Closed Generic Display Object";
+	 name = "Closed Generic Display Object";
 	 clear();
 	 is_closed_flag = true;
       } 

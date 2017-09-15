@@ -2434,7 +2434,7 @@ molecule_class_info_t::display_symmetry_bonds() {
 
 	       // std::cout << "display_symmetry_bonds() here 6 " << std::endl;
 	       
-	       if (true) 
+	       if (false)
 		  std::cout << "num_colours: " << gbc.num_colours
 			    << std::endl;
 	       
@@ -8508,6 +8508,7 @@ molecule_class_info_t::debug() const {
    mmdb::Chain *chain_p;
    // run over chains of the existing mol
    int nchains = model_p->GetNumberOfChains();
+   std::cout << "debug:: debug(): model 1 has " << nchains << " chaina" << std::endl;
    for (int ichain=0; ichain<nchains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       int nres = chain_p->GetNumberOfResidues();
@@ -8515,7 +8516,7 @@ molecule_class_info_t::debug() const {
       for (int ires=0; ires<nres; ires++) { 
 	 residue_p = chain_p->GetResidue(ires);
 	 if (residue_p) {
-	    std::cout << "   " << chain_p->GetChainID() << " " << residue_p->GetSeqNum()
+	    std::cout << "debug:: debug():    " << chain_p->GetChainID() << " " << residue_p->GetSeqNum()
 		      << " " << residue_p->index << std::endl;
 	 }
       }

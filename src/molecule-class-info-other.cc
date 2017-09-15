@@ -733,7 +733,7 @@ molecule_class_info_t::make_environment_bonds_box(int atom_index,
 						  coot::protein_geometry *protein_geom_p) const {
 
    graphics_info_t g;
-   graphical_bonds_container bonds_box;
+   graphical_bonds_container bonds_box_env;
 
    if ((atom_index >= atom_sel.n_selected_atoms) || (atom_index < 0)) {
 
@@ -773,13 +773,13 @@ molecule_class_info_t::make_environment_bonds_box(int atom_index,
 				       draw_bonds_to_hydrogens_flag,
 				       g.environment_min_distance,
 				       g.environment_max_distance);
-	    bonds_box = bonds.make_graphical_bonds();
+	    bonds_box_env = bonds.make_graphical_bonds();
 	 }
       } else {
 	 std::cout << "ERROR:: NULL residue_p in make_environment_bonds_box() " << std::endl;
       }
    }
-   return bonds_box;
+   return bonds_box_env;
 }
 
 graphical_bonds_container
@@ -6322,10 +6322,11 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
    } else {
 
       int udd_afix_handle = p.mol->GetUDDHandle(mmdb::UDR_ATOM, "shelx afix");
-      // std::cout << "DEBUG:: in  get_atom_selection udd_afix_handle is "
-      // << udd_afix_handle << " and srf.udd_afix_handle was "
-      // << udd_afix_handle << std::endl;
-
+      if (false)
+	 std::cout << "DEBUG:: in  get_atom_selection udd_afix_handle is "
+		   << udd_afix_handle << " and srf.udd_afix_handle was "
+		   << udd_afix_handle << std::endl;
+      
       if (p.udd_afix_handle == -1) {
 	 std::cout << "ERROR:: bad udd_afix_handle in read_shelx_ins_file"
 		   << std::endl;
@@ -6366,14 +6367,14 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 
 	    // Hmmm... why is this commented?  Possibly from ncs ghost
 	    // toubles from many months ago?
-	    
+
 	    // 0.7 is not used (I think) if do_rtops_flag is 0
 	    // int nghosts = fill_ghost_info(do_rtops_flag, 0.7);
 	    // std::cout << "INFO:: found " << nghosts << " ghosts\n";
 
 	    // I'll reinstate it.
 	    int nmodels = atom_sel.mol->GetNumberOfModels();
-	    if (nmodels == 1) { 
+	    if (nmodels == 1) {
 	       // int nghosts =
 	       fill_ghost_info(do_rtops_flag, 0.7);
 	    }
@@ -6385,10 +6386,10 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 	    // 
 	    // 20080126 Let reactivate the hydrogens.
 	    // 
-// 	    if (p.is_protein_flag)
-// 	       set_draw_hydrogens_state(0);
+	    // 	    if (p.is_protein_flag)
+	    // 	       set_draw_hydrogens_state(0);
 
-	    if (! is_undo_or_redo) 
+	    if (! is_undo_or_redo)
 	       bond_width = g.default_bond_width; // bleugh, perhaps this should
 	                                          // be a passed parameter?
 	    
@@ -6398,20 +6399,22 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 	    if (bonds_box_type == coot::UNSET_TYPE)
 	       bonds_box_type = coot::NORMAL_BONDS;
 	    make_bonds_type_checked();
-
 	 }
+
 	 // debug();
 
 	 short int reset_rotation_centre = 1;
 	 //
-	 if (g.recentre_on_read_pdb || g.n_molecules() == 0)  // n_molecules
-	    // is updated
-	    // in
-	    // c-interface.cc
+	 if (g.recentre_on_read_pdb || g.n_molecules() == 0) {
+	    // n_molecules is updated in c-interface.cc
 	    // std::cout << " ##### setting rotation centre in read_shelx_ins_file" << std::endl;
-	    if (reset_rotation_centre) 
-	       g.setRotationCentre(::centre_of_molecule(atom_sel)); 
-	 // std::cout << " ##### done setting rotation centre in read_shelx_ins_file" << std::endl;
+	    coot::Cartesian c = ::centre_of_molecule(atom_sel);
+	    // std::cout << "debug:: n atoms " << atom_sel.n_selected_atoms << std::endl;
+	    // std::cout << "debug:: rotation centre " << c << std::endl;
+	    if (reset_rotation_centre)
+	       g.setRotationCentre(c); 
+	    // std::cout << " ##### done setting rotation centre in read_shelx_ins_file" << std::endl;
+	 }
 
 	 draw_it = 1;
 	 if (graphics_info_t::show_symmetry == 1) {
@@ -7698,9 +7701,10 @@ molecule_class_info_t::cis_trans_convert(mmdb::PResidue *mol_residues,
 	    mmdb::Atom *converted_residues_residue_N_2  = NULL;
       
 	    mmdb::PPAtom converted_residues_residue_atoms = NULL;
+	    int n_residue_atoms_converted;
 	    converted_residues[0]->GetAtomTable(converted_residues_residue_atoms,
-						n_residue_atoms);
-	    for (int i=0; i<n_residue_atoms; i++) {
+						n_residue_atoms_converted);
+	    for (int i=0; i<n_residue_atoms_converted; i++) {
 	       std::string atom_name = converted_residues_residue_atoms[i]->name;
 	       if (atom_name == " CA ") {
 		  converted_residues_residue_CA_1 = converted_residues_residue_atoms[i];
@@ -7714,10 +7718,9 @@ molecule_class_info_t::cis_trans_convert(mmdb::PResidue *mol_residues,
 	    }
 
 	    converted_residues_residue_atoms = NULL;
-	    int n_residue_atoms;
 	    converted_residues[1]->GetAtomTable(converted_residues_residue_atoms,
-						n_residue_atoms);
-	    for (int i=0; i<n_residue_atoms; i++) {
+						n_residue_atoms_converted);
+	    for (int i=0; i<n_residue_atoms_converted; i++) {
 	       std::string atom_name = converted_residues_residue_atoms[i]->name;
 	       if (atom_name == " CA ") {
 		  converted_residues_residue_CA_2 = converted_residues_residue_atoms[i];
