@@ -1677,6 +1677,7 @@ public:        //                      public
 
    int delete_hydrogens(); // return status of atoms deleted (0 -> none deleted).
 
+   int delete_chain(const std::string &chain_id);
 
    // closing molecules, delete maps and atom sels as appropriate
    // and unset "filled" variables.  Set name_ to "".

@@ -3344,6 +3344,20 @@ on_delete_item_sidechain_radiobutton_toggled
 
 
 void
+on_delete_item_chain_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data)
+{
+
+  if (GTK_TOGGLE_BUTTON(lookup_widget(GTK_WIDGET(togglebutton),
+				      "delete_item_chain_radiobutton"))->active)
+    set_delete_chain_mode();
+}
+
+
+
+
+void
 on_delete_item_residue_hydrogens_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
