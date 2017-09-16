@@ -135,8 +135,8 @@ namespace coot {
 
 class graphics_line_t {
 public:
-   enum cylinder_class_t { SINGLE, DOUBLE, TRIPLE }; // so that double bonds can be drawn thinner
-                                                     // than single bonds (likewise triple)
+   enum cylinder_class_t { UNK, SINGLE, DOUBLE, TRIPLE }; // so that double bonds can be drawn thinner
+                                                          // than single bonds (likewise triple)
    cylinder_class_t cylinder_class;
    coot::CartesianPair positions;
    bool has_begin_cap;
