@@ -2058,6 +2058,7 @@ public:
    // Was private, but need to be used by auto_fit_best_rotamer() scripting function.
    void update_geometry_graphs(mmdb::PResidue *SelResidues, int nSelResidues, int imol_coords, int imol_map);
    void delete_residue_from_geometry_graphs(int imol, coot::residue_spec_t res_spec); 
+   void delete_chain_from_geometry_graphs(int imol, const std::string &chain_id);
 
 
    void execute_rotate_translate_ready(); // manual movement
@@ -2633,13 +2634,14 @@ public:
    static int   ligand_water_n_cycles;
    static short int ligand_water_write_peaksearched_atoms; 
 
-   // Delete item mode:
+   // Delete item mode: (this is a terrible way of doing it). Use one variable!
    static short int delete_item_atom; 
    static short int delete_item_residue;
    static short int delete_item_residue_zone;
    static short int delete_item_residue_hydrogens;
    static short int delete_item_water;
    static short int delete_item_sidechain;
+   static short int delete_item_chain;
    // must save the widget so that it can be deleted when the item is selected.
    static GtkWidget *delete_item_widget;
    static int keep_delete_item_active_flag;

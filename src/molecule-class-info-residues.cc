@@ -2022,6 +2022,38 @@ molecule_class_info_t::residue_partial_alt_locs_split_residue(coot::residue_spec
    }
 }
 
+
+int
+molecule_class_info_t::delete_chain(const std::string &chain_id) {
+
+   int done = false;
+   for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      if (model_p) {
+	 int n_chains = model_p->GetNumberOfChains();
+	 for (int ichain=0; ichain<n_chains; ichain++) {
+	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	    if (chain_p) {
+	       std::string this_chain_id = chain_p->GetChainID();
+	       if (this_chain_id == chain_id) {
+		  model_p->DeleteChain(ichain);
+		  done = true;
+	       }
+	    }
+	 }
+      }
+   }
+
+   if (done) {
+      atom_sel.mol->FinishStructEdit();
+      update_molecule_after_additions();
+   }
+
+   return done;
+
+}
+
+
 // carbohydrate validation tools
 //
 // should pass the cif read number pointer

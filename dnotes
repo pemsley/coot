@@ -7884,5 +7884,13 @@ Tue 12 Sep 2017 12:19:45 BST
 
    It takes forever (copying the map).
 
+----
+Mon Sep 11 13:06:17 BST 2017
+
+Thunderbird says this:
+
+(firefox:11665): Gdk-WARNING **: Native children wider or taller than 65535 pixels are not supported
+
+(firefox:11665): Gdk-WARNING **: Native children wider or taller than 65535 pixels are not supported
 
 ---
