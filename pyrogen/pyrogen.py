@@ -218,8 +218,8 @@ def get_pdbe_cif_for_comp_id(comp_id):
             return file_name
 
       except OSError as e:
-         print e
-         print "Failed: Can't ftp from", url, "and write file", file_name
+         print(e)
+         print("Failed: Can't ftp from", url, "and write file", file_name)
 
    except IOError as e:
       print(e)
@@ -752,7 +752,7 @@ def coot_png_from_mmcif_file(mmcif_file_name_in, comp_id, png_file_name, n_pixel
 
 def depict(mol, iconf = -1, npx=300, highlightAtoms=[], highlightBonds=None, highlightAtomColours=None, highlightBondColours=None):
     import IPython
-    import Image
+    # import Image
     import io
     try:
        n_confs = mol.GetNumConformers()
@@ -810,8 +810,10 @@ def MolsToGridImage(mols, mols_per_row=3, sub_image_size=(200,200), legends=None
           return None
 
     import IPython
-    import Image
-    import ImageFont
+    # import Image
+    # import ImageFont
+    from PIL import Image
+    from PIL import ImageFont
     import PIL
     import PIL.ImageDraw
     import io

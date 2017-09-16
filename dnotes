@@ -7925,6 +7925,13 @@ Thu Jul 27 20:07:08 BST 2017
 
    $ pip install ipython --upgrade
 
+   to force PIL (say)
+
+   $ pip install --upgrade --force-reinstall PIL
+
+   (this didn't work for version-related issues)
+  
+   $ pip install --upgrade --force-reinstall pillow
 
 ---
 Sat 29 Jul 2017 15:37:06 BST
