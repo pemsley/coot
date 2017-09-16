@@ -1120,7 +1120,7 @@ parse_ccp4i_defs(const std::string &filename) {
    // variable is declared and if directory exists
    char *scratch = getenv("CCP4_SCR");
    if (scratch) {
-      struct stat buf;
+      // struct stat buf; no shadow
       // in Windows stat needs to have a last / or \ removed, if existent
 #ifdef WINDOWS_MINGW
       if (scratch[strlen(scratch) - 1] == '/') {
@@ -1242,8 +1242,8 @@ parse_ccp4i_defs(const std::string &filename) {
 		  // widget, we go into the directory, rather than being in the
 		  // directory above with the tail as the selected file.
 		  //
-		  struct stat buf;
-		  int status = stat(path_str.c_str(), &buf);
+		  struct stat buf_l;
+		  int status = stat(path_str.c_str(), &buf_l);
 	       
 		  // valgrind says that buf.st_mode is uninitialised here
 		  // strangely.  Perhaps we should first test for status?
@@ -1254,7 +1254,7 @@ parse_ccp4i_defs(const std::string &filename) {
 		  // std::cout << "stating "<< path_str << std::endl;
 
 		  if (status == 0) { 
-		     if (S_ISDIR(buf.st_mode)) {
+		     if (S_ISDIR(buf_l.st_mode)) {
 			path_str += "/";
 
 			if (alias_str == "\"\"") {
