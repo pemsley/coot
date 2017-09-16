@@ -41,7 +41,7 @@
 
    o FLEV fail on A2005 in 5pb8 failure to construct rdkit molecule (in alt conf D)
 
-   o unhide edit restraints window
+   o unhide (unsubmarine) Edit Restraints window
 
    o Copy fragment dialog should not dismiss if a new molecule is not created because it
      failed find atoms.

@@ -1307,11 +1307,14 @@ int export_map_fragment(int imol, float x, float y, float z, float radius, const
 
 int export_map_fragment_to_plain_file(int imol, float x, float y, float z, float radius, const char *file_name) {
 
+   int rv = 0;
    if (is_valid_map_molecule(imol)) {
       graphics_info_t g;
       clipper::Coord_orth pos(x,y,z);
       g.molecules[imol].export_map_fragment_to_plain_file(radius, pos, file_name);
+      rv = 1;
    }
+   return rv;
 }
 
 /*! convenience function, called from callbacks.c */

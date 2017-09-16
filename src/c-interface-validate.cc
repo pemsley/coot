@@ -1533,8 +1533,8 @@ int do_ramachandran_plot_differences_by_widget(GtkWidget *w) {
       } else {
 	 std::cout << "INFO:: incomprehensible molecule/chain selection" << std::endl;
 	 std::string s = "Can't make sense of chain selection.  Try again?";
-	 GtkWidget *w = wrapped_nothing_bad_dialog(s);
-	 gtk_widget_show(w);
+	 GtkWidget *nbd = wrapped_nothing_bad_dialog(s);
+	 gtk_widget_show(nbd);
       }
    }
    return istat;

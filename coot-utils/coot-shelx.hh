@@ -209,6 +209,7 @@ namespace coot {
       std::vector<shelx_rtab_chi_info_t> rtab_chi;
       shelx_sump_info_t sump;
       std::vector<std::string> symm_cards;
+      std::vector<std::string> disp_cards;
       void init() { shel_1 = -10; shel2 = -1.0;
 	 fmap = -1; plan_1 = -1; plan_2 = -1.0;
 	 list = -1;
@@ -238,6 +239,7 @@ namespace coot {
 	 return r;
       }
       void write_sfac_line(std::ostream &f) const;
+      void write_disp_lines(std::ostream &f) const;
 
       shelx_card_info_t read_line(std::ifstream &f);
       shelx_card_info_t read_card(std::ifstream &f);
@@ -295,7 +297,7 @@ namespace coot {
       }
       std::string message_for_atom(const std::string &in_string, mmdb::Atom *at) const;
       std::map<std::string, unsigned int> get_atomic_contents(mmdb::Manager *mol) const;
-
+      bool mol_needs_shelx_transfer(mmdb::Manager *mol) const;
       
    public:
       ShelxIns() {init(); }

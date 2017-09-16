@@ -169,7 +169,6 @@ int morph_fit_residues(int imol, const std::vector<coot::residue_spec_t> &residu
    int imol_ref_map = g.Imol_Refinement_Map();
    if (is_valid_map_molecule(imol_ref_map)) {
       if (is_valid_model_molecule(imol)) {
-	 graphics_info_t g;
 	 const clipper::Xmap<float> &xmap = g.molecules[imol_ref_map].xmap;
 	 success = g.molecules[imol].morph_fit_residues(residue_specs, xmap,
 							transformation_averaging_radius);
@@ -190,7 +189,6 @@ int morph_fit_by_secondary_structure_elements(int imol, const std::string &chain
    int imol_ref_map = g.Imol_Refinement_Map();
    if (is_valid_map_molecule(imol_ref_map)) {
       if (is_valid_model_molecule(imol)) {
-	 graphics_info_t g;
 	 const clipper::Xmap<float> &xmap = g.molecules[imol_ref_map].xmap;
 	 float map_rmsd                   = g.molecules[imol_ref_map].map_sigma();
 	 success = g.molecules[imol].morph_fit_by_secondary_structure_elements(chain_id, xmap, map_rmsd);

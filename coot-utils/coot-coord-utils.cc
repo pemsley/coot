@@ -7185,6 +7185,28 @@ coot::util::average_position(std::vector<clipper::Coord_orth> &pts) {
    }
 }
 
+clipper::Coord_orth
+coot::util::average_position(mmdb::Residue *residue_p) {
+
+   mmdb::Atom **residue_atoms = 0;
+   int n_residue_atoms;
+   clipper::Coord_orth sum(0,0,0);
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (int i=0; i<n_residue_atoms; i++) {
+      mmdb::Atom *at = residue_atoms[i];
+      clipper::Coord_orth atom_pos = co(at);
+      sum += atom_pos;
+   }
+   if (n_residue_atoms > 0) {
+      double r = 1.0/double(n_residue_atoms);
+      clipper::Coord_orth pt(sum.x() * r, sum.y() * r, sum.z() * r);
+      return pt;
+   } else {
+      return sum;
+   }
+}
+
+
 
 
 // caller must check that others has some points in it.

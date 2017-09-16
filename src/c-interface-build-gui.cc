@@ -1262,7 +1262,6 @@ int do_align_mutate_sequence(GtkWidget *w) {
 	    std::string sequence(txt);
 
 	    if (is_valid_model_molecule(imol)) {
-	       graphics_info_t g;
 	       g.mutate_chain(imol, chain_id, sequence, do_auto_fit, renumber_residues_flag);
 	       g.update_geometry_graphs(g.molecules[imol].atom_sel, imol);
 	       graphics_draw();
@@ -1464,8 +1463,8 @@ show_fix_nomenclature_errors_gui(int imol,
 	       s = nomenclature_errors[i].first; // the residue type
 	       s += " ";
 	       s += nomenclature_errors[i].second.format();
-	       GtkWidget *label = gtk_label_new(s.c_str());
-	       gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(label), FALSE, FALSE, 2);
+	       GtkWidget *l = gtk_label_new(s.c_str());
+	       gtk_box_pack_start(GTK_BOX(box), GTK_WIDGET(l), FALSE, FALSE, 2);
 	       gtk_widget_show(GTK_WIDGET(label));
 	    }
 	 }

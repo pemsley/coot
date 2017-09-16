@@ -24,7 +24,6 @@ pyrogen contains tools for converting molecules to mmcif restraints dictionaries
 utilities for retrival, extraction and depction.
 """
 
->>>>>>> origin/master
 import sys
 import os
 import copy
