@@ -89,7 +89,8 @@ GraphicalSkel::make_graphical_bonds(const clipper::Xmap<float> &map,
 		       coot::CartesianPair line(f, s); 
 			  
 		       level = clipper::Util::max( l1[iy], l1[iw] ); // -1
-		       cp_vec[level].push_back(graphics_line_t(line, false, false));
+		       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+		       cp_vec[level].push_back(graphics_line_t(line, cc, false, false));
 		       //cp_vec[0].push_back(line);
 		     }
 		   }
@@ -117,6 +118,7 @@ graphical_bonds_container
 GraphicalSkel::make_graphical_bonds( const clipper::Xmap<float> &map,
 				     const clipper::Xmap<int>   &l1 ) const {
 
+   graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
    vector<graphics_line_t> cp_vec; 
 
    int n_lines = 0;
@@ -154,8 +156,8 @@ GraphicalSkel::make_graphical_bonds( const clipper::Xmap<float> &map,
 		     coot::Cartesian s(c_o_2.x(), c_o_2.y(), c_o_2.z());
 		  
 		     coot::CartesianPair line(f, s); 
-		  
-		     cp_vec.push_back(graphics_line_t(line, false, false));
+
+		     cp_vec.push_back(graphics_line_t(line, cc, false, false));
 		  }
 	       }
 	    }

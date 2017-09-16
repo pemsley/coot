@@ -43,7 +43,7 @@ PyObject *get_bonds_representation(int imol) {
 
       // write a class that also returns atom specs for the atom. Possibly use inheritance
       // or encapsulation.
-      graphical_bonds_container bonds_box = graphics_info_t::molecules[imol].get_bonds_represenation();
+      graphical_bonds_container bonds_box = graphics_info_t::molecules[imol].get_bonds_representation();
       if (bonds_box.atom_centres_) {
 	 PyObject *all_atom_positions_py = PyTuple_New(bonds_box.n_consolidated_atom_centres);
 	 for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
@@ -80,18 +80,21 @@ PyObject *get_bonds_representation(int imol) {
 	 graphical_bonds_lines_list &ll = bonds_box.bonds_[i];
 	 PyObject *line_set_py = PyTuple_New(bonds_box.bonds_[i].num_lines);
 	 for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
+	    const graphics_line_t::cylinder_class_t &cc = ll.pair_list[j].cylinder_class;
 	    PyObject *p0_py   = PyTuple_New(3);
 	    PyObject *p1_py   = PyTuple_New(3);
-	    PyObject *pair_py = PyTuple_New(2);
+	    PyObject *positions_and_order_py = PyTuple_New(3);
+	    PyObject *order_py = PyInt_FromLong(cc);
 	    PyTuple_SetItem(p0_py, 0, PyFloat_FromDouble(ll.pair_list[j].positions.getStart().get_x()));
 	    PyTuple_SetItem(p0_py, 1, PyFloat_FromDouble(ll.pair_list[j].positions.getStart().get_y()));
 	    PyTuple_SetItem(p0_py, 2, PyFloat_FromDouble(ll.pair_list[j].positions.getStart().get_z()));
 	    PyTuple_SetItem(p1_py, 0, PyFloat_FromDouble(ll.pair_list[j].positions.getFinish().get_x()));
 	    PyTuple_SetItem(p1_py, 1, PyFloat_FromDouble(ll.pair_list[j].positions.getFinish().get_y()));
 	    PyTuple_SetItem(p1_py, 2, PyFloat_FromDouble(ll.pair_list[j].positions.getFinish().get_z()));
-	    PyTuple_SetItem(pair_py, 0, p0_py);
-	    PyTuple_SetItem(pair_py, 1, p1_py);
-	    PyTuple_SetItem(line_set_py, j, pair_py);
+	    PyTuple_SetItem(positions_and_order_py, 0, p0_py);
+	    PyTuple_SetItem(positions_and_order_py, 1, p1_py);
+	    PyTuple_SetItem(positions_and_order_py, 2, order_py);
+	    PyTuple_SetItem(line_set_py, j, positions_and_order_py);
 	 }
 	 PyTuple_SetItem(bonds_tuple, i, line_set_py);
       }

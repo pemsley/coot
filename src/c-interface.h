@@ -398,9 +398,13 @@ void sort_residues(int imol);
 /*! \brief a gui dialog showing remarks header info (for a model molecule). */
 void remarks_dialog(int imol);
 
-/*! \brief simply print secondardy structure info to the
+/*! \brief simply print secondary structure info to the
   terminal/console.  In future, this could/should return the info.  */
 void print_header_secondary_structure_info(int imol);
+
+/*! \brief add secondary structure info to the
+  internal representation of the model */
+void add_header_secondary_structure_info(int imol);
 
 
 /*  Placeholder only.
@@ -4435,7 +4439,7 @@ float get_bond_colour_rotation_for_molecule(int imol);
 
 void set_unbonded_atom_star_size(float f);
 
-/*! \brief set the default represenation type (default 1).*/
+/*! \brief set the default representation type (default 1).*/
 void set_default_representation_type(int type);
 
 /*! \brief get the default thickness for bonds*/

@@ -785,7 +785,7 @@ molecule_class_info_t::make_environment_bonds_box(int atom_index,
 graphical_bonds_container
 molecule_class_info_t::make_symmetry_environment_bonds_box(int atom_index,
 							   coot::protein_geometry *protein_geom_p) const {
-   graphical_bonds_container bonds_box;
+   graphical_bonds_container env_bonds_box;
 
    // std::cout << ":: entering make_symmetry_environment_bonds_box" << std::endl;
    if (atom_sel.atom_selection != NULL) {
@@ -842,13 +842,13 @@ molecule_class_info_t::make_symmetry_environment_bonds_box(int atom_index,
 					  g.environment_min_distance,
 					  draw_bonds_to_hydrogens_flag,
 					  do_symmetry);
-	       bonds_box = bonds.make_graphical_bonds();
+	       env_bonds_box = bonds.make_graphical_bonds();
 	    }
 	 }
 	 atom_sel.mol->DeleteSelection(selHnd);
       }
    }
-   return bonds_box;
+   return env_bonds_box;
 }
 
 // return "N', "C" or "not-terminal-residue"
@@ -2100,7 +2100,7 @@ molecule_class_info_t::score_rotamers(const std::string &chain_id,
 				      const std::string &alt_conf,
 				      int clash_flag,
 				      float lowest_probability,
-				      const clipper::Xmap<float> &xmap,
+				      const clipper::Xmap<float> &xmap_in,
 				      const coot::protein_geometry &pg) {
 
    std::vector<coot::named_rotamer_score> v;
@@ -2143,7 +2143,7 @@ molecule_class_info_t::score_rotamers(const std::string &chain_id,
 		  }
 		  
 		  std::vector<std::pair<std::string, float> > atom_densities =
-		     coot::util::score_atoms(residue_res, xmap);
+		     coot::util::score_atoms(residue_res, xmap_in);
 		  float rot_prob = rpi.probability;
 		  float total_atom_density_score = 0.0;
 		  for (unsigned int iat=0; iat<atom_densities.size(); iat++)
@@ -6591,7 +6591,6 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	 dloi.tag_1 = bonds_tag;
 	 // std::cout << "debug:: adding first  context tag to dloi " << bonds_tag << std::endl;
       } 
-      
 
       GLfloat bgcolor[4]={0.8, 0.8, 0.8, 0.8};
       
@@ -6634,9 +6633,14 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 			 ll.pair_list[j].positions.getFinish().get_z());
 	    double base = bond_thickness;
 	    double top = bond_thickness;
-	    if (ll.thin_lines_flag) { 
+	    if (ll.thin_lines_flag) {
 	       base *= 0.55;
 	       top  *= 0.55;
+	    }
+	    if (ll.pair_list[j].cylinder_class == graphics_line_t::DOUBLE ||
+		ll.pair_list[j].cylinder_class == graphics_line_t::TRIPLE) {
+	       base *= 0.65; // needs optimizing
+	       top  *= 0.65;
 	    }
 	    coot::Cartesian bond_height =
 	       ll.pair_list[j].positions.getFinish() - ll.pair_list[j].positions.getStart();
@@ -6710,7 +6714,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	    if (bonds_box_local.atom_centres_[i].first)
 	       local_sphere_size = 0.11; // small (and cute)
 	    if (bonds_box_local.atom_centres_colour_[i] == HYDROGEN_GREY_BOND)
-	       local_sphere_size *= 0.5;
+	       local_sphere_size *= 0.55; // matches thin_lines_flag test above
 	    set_bond_colour_by_mol_no(bonds_box_local.atom_centres_colour_[i],
 				      against_a_dark_background);
 	    glPushMatrix();

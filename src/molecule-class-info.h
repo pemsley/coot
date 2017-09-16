@@ -2620,19 +2620,19 @@ public:        //                      public
 				     const gl_context_info_t &glci,
 				     const coot::protein_geometry *geom); 
 
-   int adjust_additional_representation(int represenation_number, 
+   int adjust_additional_representation(int representation_number,
 					const int &bonds_box_type_in, 
 					float bonds_width,
 					bool draw_hydrogens_flag,
 					const coot::atom_selection_info_t &info, 
-					bool show_it_flag_in); 
+					bool show_it_flag_in);
 
    void clear_additional_representation(int representation_number);
    void set_show_additional_representation(int representation_number, bool on_off_flag);
    void set_show_all_additional_representations(bool on_off_flag);
    void all_additional_representations_off_except(int rep_no,
 						  bool ball_and_sticks_off_too_flag);
-   graphical_bonds_container get_bonds_represenation() {return bonds_box; }
+   graphical_bonds_container get_bonds_representation() {return bonds_box; }
    // 
    std::vector<coot::residue_spec_t> residues_near_residue(const coot::residue_spec_t &rspec, float radius) const; 
 
@@ -2740,8 +2740,8 @@ public:        //                      public
    coot::extra_restraints_representation_t extra_restraints_representation;
    void draw_extra_restraints_representation();
    void draw_parallel_plane_restraints_representation();
-   void set_extra_restraints_prosmart_sigma_limits(double limit_low, double limit_high);   
-   
+   void set_extra_restraints_prosmart_sigma_limits(double limit_low, double limit_high);
+
    // return an index of the new restraint
    int add_extra_bond_restraint(coot::atom_spec_t atom_1,
 				coot::atom_spec_t atom_2,
@@ -2935,7 +2935,7 @@ public:        //                      public
    // single model view
    void single_model_view_model_number(int imodel);
    int single_model_view_this_model_number() const;
-   int single_model_view_next_model_number(); // changes the represenation
+   int single_model_view_next_model_number(); // changes the representation
    int single_model_view_prev_model_number(); //    ditto.
 
    // multi-residue torsion map fitting interface
@@ -3087,7 +3087,7 @@ public:        //                      public
    // (silly thing to do)
    mmdb::Atom *get_atom_at_pos(const coot::Cartesian &pt) const;
 
-   void add_secondary_structure_header_records();
+   void add_secondary_structure_header_records(bool overwrite=false);
    
 };
 

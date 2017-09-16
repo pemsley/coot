@@ -1989,7 +1989,7 @@ graphics_info_t::environment_graphics_object_internal_tubes(const graphical_bond
 	 float dark_bg_cor = 0.0;
 	 if (! background_is_black_p())
 	    dark_bg_cor = 0.29;
-	 
+
 	 glEnable(GL_COLOR_MATERIAL);
 
 	 for (int i=0; i< env_bonds_box.num_colours; i++) {

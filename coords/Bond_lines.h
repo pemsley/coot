@@ -111,7 +111,7 @@ namespace coot {
    // set of short sticks (particularly for the ring representing
    // aromaticity).  So now (20100831 Bond_lines_container contains a
    // number of torus descriptions).
-   // 
+   //
    class torus_description_t {
    public:
       double inner_radius;
@@ -135,28 +135,41 @@ namespace coot {
 
 class graphics_line_t {
 public:
+   enum cylinder_class_t { SINGLE, DOUBLE, TRIPLE }; // so that double bonds can be drawn thinner
+                                                     // than single bonds (likewise triple)
+   cylinder_class_t cylinder_class;
    coot::CartesianPair positions;
    bool has_begin_cap;
    bool has_end_cap;
+   // restore this when finished
+#if 0
+   // default single bond constructor
    graphics_line_t(const coot::CartesianPair &p, bool b, bool e) {
       positions = p;
       has_begin_cap = b;
       has_end_cap = e;
+      cylinder_class = SINGLE;
+   }
+#endif
+   graphics_line_t(const coot::CartesianPair &p, cylinder_class_t cc, bool b, bool e) {
+      positions = p;
+      has_begin_cap = b;
+      has_end_cap = e;
+      cylinder_class = cc;
    }
    graphics_line_t() { }
 };
  
-// A poor man's vector.  For use when we can't use vectors
+// A poor man's vector. Contains the set of lines for each element (well,
+// basically colour) type.
 // 
 class graphical_bonds_lines_list { 
 
- public:   
-   // contain a number of elements
+ public:
    int num_lines;
-   // CartesianPair *pair_list;
    graphics_line_t *pair_list;
    bool thin_lines_flag;
-   
+
    graphical_bonds_lines_list() { 
       pair_list = NULL;
       thin_lines_flag = 0;
@@ -397,6 +410,7 @@ class Bond_lines {
    Bond_lines(int col);
 
    void add_bond(const coot::CartesianPair &p,
+		 graphics_line_t::cylinder_class_t cc,
 		 bool begin_end_cap,
 		 bool end_end_cap);
    int size() const; 
@@ -475,7 +489,7 @@ class Bond_lines_container {
    void write(std::string) const;
 
    mmdb::PPAtom trans_sel(atom_selection_container_t AtomSel, 
-		     const std::pair<symm_trans_t, Cell_Translation> &symm_trans) const;
+			  const std::pair<symm_trans_t, Cell_Translation> &symm_trans) const;
 
    void add_zero_occ_spots(const atom_selection_container_t &SelAtom);
    void add_deuterium_spots(const atom_selection_container_t &SelAtom);
@@ -533,6 +547,7 @@ class Bond_lines_container {
    std::vector<std::pair<bool, coot::Cartesian> >  atom_centres;
    std::vector<int>        atom_centres_colour;
    void addBond(int colour, const coot::Cartesian &first, const coot::Cartesian &second,
+		graphics_line_t::cylinder_class_t cc,		
 		bool add_begin_end_cap = false,
 		bool add_end_end_cap = false);
    void addBondtoHydrogen(const coot::Cartesian &first, const coot::Cartesian &second);
@@ -541,7 +556,8 @@ class Bond_lines_container {
    void add_dashed_bond(int col,
 			const coot::Cartesian &start,
 			const coot::Cartesian &end,
-			int half_bond_type_flag);
+			int half_bond_type_flag,
+			graphics_line_t::cylinder_class_t cc);
    void addAtom(int colour, const coot::Cartesian &pos);
    int atom_colour(mmdb::Atom *at, int bond_colour_type, coot::my_atom_colour_map_t *atom_colour_map = 0);
    void bonds_size_colour_check(int icol) {

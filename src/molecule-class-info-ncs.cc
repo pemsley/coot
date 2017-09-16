@@ -173,6 +173,8 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
 //     std::cout << "updating ghost bonds...(which has " << bonds_box.num_colours
 // 	      << " colours and " << ilines << " lines)\n";
 
+   graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
+   
    for (int i=0; i<bonds_box.num_colours; i++) {
       for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
 
@@ -189,7 +191,7 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
 
 	 coot::CartesianPair p(Cartesian(at.x(), at.y(), at.z()),
 			       Cartesian(bt.x(), bt.y(), bt.z()));
-	 bonds_box.bonds_[i].pair_list[j] = graphics_line_t(p, false, false);
+	 bonds_box.bonds_[i].pair_list[j] = graphics_line_t(p, cc, false, false);
       }
    }
 }

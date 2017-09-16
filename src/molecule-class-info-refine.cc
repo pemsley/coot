@@ -1086,6 +1086,9 @@ molecule_class_info_t::morph_fit_by_secondary_structure_elements(const std::stri
 
 	 int nhelix = model_p->GetNumberOfHelices();
 	 int nsheet = model_p->GetNumberOfSheets();
+
+	 if (nhelix == 0 && nsheet == 0)
+	    add_secondary_structure_header_records(true);
 	mmdb::Helix * helix_p;
 	mmdb::Sheet * sheet_p;
 	mmdb::Strand * strand_p;
@@ -1214,12 +1217,12 @@ molecule_class_info_t::morph_fit_by_secondary_structure_elements(const std::stri
 		  // cache).
 		  std::vector<mmdb::Residue *> env_residues =
 		     coot::residues_near_residue(residue_p, atom_sel.mol, local_radius);
-		  for (unsigned int ires=0; ires<env_residues.size(); ires++) { 
-		     if (residue_centres.find(env_residues[ires]) == residue_centres.end()) {
+		  for (unsigned int jres=0; jres<env_residues.size(); jres++) {
+		     if (residue_centres.find(env_residues[jres]) == residue_centres.end()) {
 			std::pair<bool, clipper::Coord_orth> pp =
-			   coot::util::get_residue_centre(env_residues[ires]);
+			   coot::util::get_residue_centre(env_residues[jres]);
 			if (pp.first)
-			   residue_centres[env_residues[ires]] = pp.second;
+			   residue_centres[env_residues[jres]] = pp.second;
 		     }
 		  }
 
