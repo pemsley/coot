@@ -3538,6 +3538,10 @@ on_delete_item_sidechain_radiobutton_toggled
                                         gpointer         user_data);
 
 void
+on_delete_item_chain_radiobutton_toggled
+                                        (GtkToggleButton *togglebutton,
+                                        gpointer         user_data);
+void
 on_residue_type_chooser_stub_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data);

@@ -4820,6 +4820,9 @@ void delete_residue_sidechain(int imol, const char *chain_id, int resno, const c
    @return number of hydrogens deleted. */
 int delete_hydrogens(int imol);
 
+/*! \brief delete the chain  */
+void delete_chain(int imol, const char *chain_id);
+
 void post_delete_item_dialog();
 
 
@@ -4830,10 +4833,12 @@ void set_delete_residue_zone_mode();
 void set_delete_residue_hydrogens_mode();
 void set_delete_water_mode();
 void set_delete_sidechain_mode();
+void set_delete_chain_mode();
 short int delete_item_mode_is_atom_p(); /* (predicate) a boolean */
 short int delete_item_mode_is_residue_p(); /* predicate again */
 short int delete_item_mode_is_water_p();
 short int delete_item_mode_is_sidechain_p();
+short int delete_item_mode_is_chain_p();
 void clear_pending_delete_item(); /* for when we cancel with picking an atom */
 void clear_delete_item_widget();
 void store_delete_item_widget_position();

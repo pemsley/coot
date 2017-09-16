@@ -201,8 +201,22 @@ GtkWidget *wrapped_create_delete_item_dialog() {
 							"delete_item_water_radiobutton");
 	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(water_toggle_button), TRUE);
       } else { 
+	 if (delete_item_mode_is_sidechain_p()) {
+	 GtkWidget *sidechain_toggle_button = lookup_widget(widget,
+							"delete_item_sidechain_radiobutton");
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(sidechain_toggle_button), TRUE);
 	 set_delete_residue_mode(); // The widget default radio button
 	 std::cout << "Click on an atom in the residue that you wish to delete\n";
+	 } else {
+	    if (delete_item_mode_is_chain_p()) {
+	       GtkWidget *chain_toggle_button = lookup_widget(widget,
+								  "delete_item_chain_radiobutton");
+	       gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(chain_toggle_button), TRUE);
+	    } else {
+	       set_delete_residue_mode(); // The widget default radio button
+	       std::cout << "Click on an atom in the residue that you wish to delete\n";
+	    }
+	 }
       }
    }
    graphics_info_t::pick_pending_flag = 1;

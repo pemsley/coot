@@ -749,12 +749,15 @@ void
 graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 						const GdkModifierType &state) {
 
-//    std::cout << "DEBUG:: delete_item atom " << delete_item_atom
-// 	     << " residue " << delete_item_residue
-// 	     << " water " << delete_item_water
-// 	     << " range " << delete_item_residue_zone
-// 	     << " hydrogens " << delete_item_residue_hydrogens
-// 	     << std::endl;
+   if (true)
+      std::cout << "DEBUG:: delete_item atom " << delete_item_atom
+		<< " residue " << delete_item_residue
+		<< " water " << delete_item_water
+		<< " sidechain " << delete_item_sidechain
+		<< " chain " << delete_item_chain
+		<< " range " << delete_item_residue_zone
+		<< " hydrogens " << delete_item_residue_hydrogens
+		<< std::endl;
 
    graphics_info_t g;
    short int destroy_delete_dialog_flag_by_ctrl_press = 1;
@@ -894,7 +897,20 @@ graphics_info_t::check_if_in_delete_item_define(GdkEventButton *event,
 	       run_post_manipulation_hook(naii.imol, DELETED);
 	    }
 	 }
-      } 
+      }
+
+      // chain
+      if (g.delete_item_chain) {
+	 pick_info naii = atom_pick(event);
+	 if (naii.success == GL_TRUE) {
+	    normal_cursor();
+	    mmdb::Atom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
+	    std::string chain_id = at->residue->chain->GetChainID();
+	    delete_chain(naii.imol, chain_id.c_str()); // handles dialog
+	    graphics_draw();
+	    run_post_manipulation_hook(naii.imol, DELETED);
+	 }
+      }
 
       // residue
       if (g.delete_item_residue) {

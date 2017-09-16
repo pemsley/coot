@@ -881,7 +881,37 @@ int delete_hydrogens(int imol) {
 	 graphics_draw();
    }
    return n_deleted;
-} 
+}
+
+void delete_chain(int imol, const char *chain_id_in) {
+
+   std::string chain_id(chain_id_in);
+   graphics_info_t g;
+   if (is_valid_model_molecule(imol)) {
+      g.delete_chain_from_geometry_graphs(imol, chain_id);
+      short int istat = g.molecules[imol].delete_chain(std::string(chain_id));
+      if (istat) {
+	 g.update_go_to_atom_window_on_changed_mol(imol);
+	 graphics_draw();
+      }
+
+      if (delete_item_widget_is_being_shown()) {
+	 if (delete_item_widget_keep_active_on()) { 
+	    // dont destroy it
+	 } else {
+	    store_delete_item_widget_position(); // and destroy it.
+	 }
+      }
+      std::string cmd = "delete-chain";
+      std::vector<coot::command_arg_t> args;
+      args.push_back(imol);
+      args.push_back(coot::util::single_quote(chain_id));
+      add_to_history_typed(cmd, args);
+      graphics_draw();
+   }
+
+}
+
 
 
 
@@ -1579,10 +1609,14 @@ void set_delete_atom_mode() {
    g.delete_item_residue_hydrogens = 0;
    g.delete_item_residue = 0;
    g.delete_item_sidechain = 0;
+   g.delete_item_chain = 0;
    add_to_history_simple("set-delete-atom-mode");
 }
 
 void set_delete_residue_mode() {
+
+   std::cout << "in set_delete_residue_mode()! " << std::endl;
+
    graphics_info_t g;
    g.delete_item_atom = 0;
    g.delete_item_residue_zone = 0;
@@ -1590,6 +1624,7 @@ void set_delete_residue_mode() {
    g.delete_item_water = 0;
    g.delete_item_residue = 1;
    g.delete_item_sidechain = 0; 
+   g.delete_item_chain = 0;
    add_to_history_simple("set-delete-residue-mode");
 }
 
@@ -1602,6 +1637,7 @@ void set_delete_residue_hydrogens_mode() {
    g.delete_item_water = 0;
    g.delete_item_residue_hydrogens = 1;
    g.delete_item_sidechain = 0; 
+   g.delete_item_chain = 0;
    add_to_history_simple("set-delete-residue-hydrogens-mode");
 
 }
@@ -1615,8 +1651,9 @@ void set_delete_residue_zone_mode() {
    g.delete_item_water = 0;
    g.delete_item_residue_hydrogens = 0;
    g.delete_item_sidechain = 0; 
+   g.delete_item_chain = 0;
    add_to_history_simple("set-delete-residue-zone-mode");
-} 
+}
 
 void set_delete_water_mode() {
 
@@ -1627,6 +1664,7 @@ void set_delete_water_mode() {
    g.delete_item_atom = 0;
    g.delete_item_residue_hydrogens = 0;
    g.delete_item_sidechain = 0; 
+   g.delete_item_chain = 0;
    add_to_history_simple("set-delete-residue-water-mode");
 
 } 
@@ -1639,7 +1677,23 @@ void set_delete_sidechain_mode() {
    g.delete_item_water = 0;
    g.delete_item_atom = 0;
    g.delete_item_residue_hydrogens = 0;
+   g.delete_item_chain = 0;
    g.delete_item_sidechain = 1; 
+   add_to_history_simple("set-delete-sidechain-mode");
+
+}
+
+void set_delete_chain_mode() {
+
+   std::cout << "in set_delete_chain_mode()! " << std::endl;
+   graphics_info_t g;
+   g.delete_item_residue = 0;
+   g.delete_item_residue_zone = 0;
+   g.delete_item_water = 0;
+   g.delete_item_atom = 0;
+   g.delete_item_residue_hydrogens = 0;
+   g.delete_item_sidechain = 0;
+   g.delete_item_chain = 1;
    add_to_history_simple("set-delete-sidechain-mode");
 
 }
@@ -1678,6 +1732,13 @@ short int delete_item_mode_is_water_p() {
 short int delete_item_mode_is_sidechain_p() {
    short int v=0;
    if (graphics_info_t::delete_item_sidechain == 1)
+      v = 1;
+   return v;
+}
+
+short int delete_item_mode_is_chain_p() {
+   short int v=0;
+   if (graphics_info_t::delete_item_chain == 1)
       v = 1;
    return v;
 }
