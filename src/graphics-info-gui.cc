@@ -4078,12 +4078,12 @@ graphics_info_t::on_multi_residue_torsion_button_clicked(GtkButton *button,
 	 if (moving_atoms_asc->mol) {
 	    int index_1 = -1; // unset
 	    int index_2 = -1; // unset
-	    for (int i=0; i<g.moving_atoms_asc->n_selected_atoms; i++) { 
-	       coot::atom_spec_t moving_spec_1(moving_atoms_asc->atom_selection[i]);
+	    for (int ii=0; ii<g.moving_atoms_asc->n_selected_atoms; ii++) { 
+	       coot::atom_spec_t moving_spec_1(moving_atoms_asc->atom_selection[ii]);
 	       if (moving_spec_1 == atom_spec_pair->first)
-		  index_1 = i;
+		  index_1 = ii;
 	       if (moving_spec_1 == atom_spec_pair->second)
-		  index_2 = i;
+		  index_2 = ii;
 	       if (index_1 != -1)
 		  if (index_2 != -1)
 		     break;

@@ -2173,7 +2173,7 @@ molecule_class_info_t::display_bonds(const graphical_bonds_container &bonds_box,
 
    for (int i=0; i<bonds_box.num_colours; i++) {
 
-      graphical_bonds_lines_list &ll = bonds_box.bonds_[i];
+      graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
 
       if (bonds_box.bonds_[i].thin_lines_flag)
  	 glLineWidth(p_bond_width * 0.5);
@@ -2291,8 +2291,8 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 	    set_bond_colour_by_mol_no(icol, against_a_dark_background);
 	    for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) { 
 	       // no points for hydrogens
-	       if (! bonds_box.consolidated_atom_centres[icol].points[i].first) {
-		  coot::Cartesian fake_pt = bonds_box.consolidated_atom_centres[icol].points[i].second;
+	       if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
+		  coot::Cartesian fake_pt = bonds_box.consolidated_atom_centres[icol].points[i].position;
 		  fake_pt += z_delta;
 		  glVertex3f(fake_pt.x(), fake_pt.y(), fake_pt.z());
 	       }
@@ -2365,8 +2365,8 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 		  glColor3f(cc[0], cc[1], cc[2]);
 		  for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) { 
 		     // no points for hydrogens
-		     if (! bonds_box.consolidated_atom_centres[icol].points[i].first) {
-			const coot::Cartesian &pos = bonds_box.consolidated_atom_centres[icol].points[i].second;
+		     if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
+			const coot::Cartesian &pos = bonds_box.consolidated_atom_centres[icol].points[i].position;
 			coot::Cartesian pt = pos + offset;
 		  
 			glVertex3f(pt.x(), pt.y(), pt.z());
@@ -2382,8 +2382,8 @@ void molecule_class_info_t::display_bonds_stick_mode_atoms(const graphical_bonds
 	       for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
 		  for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) { 
 		     // no points for hydrogens
-		     if (! bonds_box.consolidated_atom_centres[icol].points[i].first) {
-			const coot::Cartesian &pos = bonds_box.consolidated_atom_centres[icol].points[i].second;
+		     if (! bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom) {
+			const coot::Cartesian &pos = bonds_box.consolidated_atom_centres[icol].points[i].position;
 			coot::Cartesian pt = pos + offset + z_delta;
 		  
 			glVertex3f(pt.x(), pt.y(), pt.z());
@@ -2440,7 +2440,7 @@ molecule_class_info_t::display_symmetry_bonds() {
 	       set_symm_bond_colour_mol_and_symop(icol, isymop);
 	       int linesdrawn = 0;
 	    
-	       graphical_bonds_lines_list &ll = symmetry_bonds_box[isym].first.symmetry_bonds_[icol];
+	       graphical_bonds_lines_list<graphics_line_t> &ll = symmetry_bonds_box[isym].first.symmetry_bonds_[icol];
 	 
 	       glBegin(GL_LINES); 
 	       for (int j=0; j< symmetry_bonds_box[isym].first.symmetry_bonds_[icol].num_lines; j++) {
@@ -2496,7 +2496,7 @@ molecule_class_info_t::display_symmetry_bonds() {
 		  set_symm_bond_colour_mol_and_symop(icol, isn);
 		  int linesdrawn = 0;
 	    
-		  graphical_bonds_lines_list &ll = gbc.symmetry_bonds_[icol];
+		  graphical_bonds_lines_list<graphics_line_t> &ll = gbc.symmetry_bonds_[icol];
 	 
 		  glBegin(GL_LINES); 
 		  for (int j=0; j< gbc.symmetry_bonds_[icol].num_lines; j++) {
@@ -3127,7 +3127,8 @@ molecule_class_info_t::set_have_unit_cell_flag_maybe(bool warn_about_missing_sym
 
 
 void
-molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p) {
+molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p,
+				 bool add_residue_indices) {
 
    // std::cout << "------------ this makebonds() " << max_dist << " " << max_dist << std::endl;
    //
@@ -3135,7 +3136,7 @@ molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::pro
 
    Bond_lines_container bonds(atom_sel, min_dist, max_dist);
    bonds_box.clear_up();
-   bonds_box = bonds.make_graphical_bonds();
+   bonds_box = bonds.make_graphical_bonds(add_residue_indices);
    bonds_box_type = coot::NORMAL_BONDS;
    if (! draw_hydrogens_flag)
       bonds_box_type = coot::BONDS_NO_HYDROGENS;
@@ -3143,7 +3144,8 @@ molecule_class_info_t::makebonds(float min_dist, float max_dist, const coot::pro
 }
 
 void
-molecule_class_info_t::makebonds(float max_dist, const coot::protein_geometry *geom_p) {
+molecule_class_info_t::makebonds(float max_dist, const coot::protein_geometry *geom_p,
+				 bool add_residue_indices) {
    
    Bond_lines_container bonds(atom_sel, max_dist);
 
@@ -3157,7 +3159,8 @@ molecule_class_info_t::makebonds(float max_dist, const coot::protein_geometry *g
 // 
 // 
 void
-molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p) {
+molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
+				 bool add_residue_indices) {
 
    int do_disulphide_flag = 1;
    int model_number = 0; // flag for all models
@@ -3168,7 +3171,7 @@ molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p) {
    Bond_lines_container bonds(atom_sel, imol_no, geom_p, do_disulphide_flag, draw_hydrogens_flag,
 			      model_number);
    bonds_box.clear_up();
-   bonds_box = bonds.make_graphical_bonds();
+   bonds_box = bonds.make_graphical_bonds(add_residue_indices);
    bonds_box_type = coot::NORMAL_BONDS;
    if (! draw_hydrogens_flag)
       bonds_box_type = coot::BONDS_NO_HYDROGENS;
@@ -3180,7 +3183,8 @@ molecule_class_info_t::make_ca_bonds(float min_dist, float max_dist) {
 
    Bond_lines_container bonds(graphics_info_t::Geom_p());
    bonds.do_Ca_bonds(atom_sel, min_dist, max_dist);
-   bonds_box = bonds.make_graphical_bonds_no_thinning();
+   bool add_residue_indices = true;
+   bonds_box = bonds.make_graphical_bonds_no_thinning(add_residue_indices);
    bonds_box_type = coot::CA_BONDS;
    // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
 
@@ -3196,7 +3200,8 @@ molecule_class_info_t::make_ca_plus_ligands_bonds(coot::protein_geometry *geom_p
 
    Bond_lines_container bonds(geom_p);
    bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7, draw_hydrogens_flag);
-   bonds_box = bonds.make_graphical_bonds_no_thinning();
+   bool add_residue_indices = true;
+   bonds_box = bonds.make_graphical_bonds_no_thinning(add_residue_indices);
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
    
    // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
@@ -3208,7 +3213,8 @@ molecule_class_info_t::make_ca_plus_ligands_and_sidechains_bonds(coot::protein_g
    Bond_lines_container bonds(geom_p);
    bonds.do_Ca_plus_ligands_and_sidechains_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7,
                                                  0.01, 1.9, draw_hydrogens_flag);
-   bonds_box = bonds.make_graphical_bonds_no_thinning();
+   bool add_residue_indices = true;
+   bonds_box = bonds.make_graphical_bonds_no_thinning(add_residue_indices);
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS;
    
    // std::cout << "ca: bonds_box_type is now " << bonds_box_type << std::endl;
@@ -3219,13 +3225,14 @@ molecule_class_info_t::make_colour_by_chain_bonds(short int change_c_only_flag) 
    // 
    Bond_lines_container bonds(graphics_info_t::Geom_p());
    bonds.do_colour_by_chain_bonds(atom_sel, imol_no, draw_hydrogens_flag, change_c_only_flag);
-   bonds_box = bonds.make_graphical_bonds_no_thinning(); // make_graphical_bonds() is pretty stupid
-                                                         // when it comes to thining.
+   bool add_residue_indices = true;
+   bonds_box = bonds.make_graphical_bonds_no_thinning(add_residue_indices); // make_graphical_bonds() is pretty stupid
+                                                                            // when it comes to thining.
    bonds_box_type = coot::COLOUR_BY_CHAIN_BONDS;
 
    if (graphics_info_t::glarea) 
       graphics_info_t::graphics_draw();
-} 
+}
 
 void
 molecule_class_info_t::make_colour_by_molecule_bonds() { 
@@ -3244,7 +3251,7 @@ molecule_class_info_t::make_colour_by_molecule_bonds() {
 
 
 void 
-molecule_class_info_t::make_bonds_type_checked() {
+molecule_class_info_t::make_bonds_type_checked(bool add_residue_indices) {
 
    bool debug = false;
    if (debug) 
@@ -3263,9 +3270,9 @@ molecule_class_info_t::make_bonds_type_checked() {
    coot::protein_geometry *geom_p = g.Geom_p();
    
    if (bonds_box_type == coot::NORMAL_BONDS)
-      makebonds(geom_p);
+      makebonds(geom_p, add_residue_indices);
    if (bonds_box_type == coot::BONDS_NO_HYDROGENS)
-      makebonds(geom_p);
+      makebonds(geom_p, add_residue_indices);
    if (bonds_box_type == coot::CA_BONDS)
       make_ca_bonds();
    if (bonds_box_type == coot::COLOUR_BY_CHAIN_BONDS)
@@ -6891,7 +6898,6 @@ molecule_class_info_t::model_view_residue_tree_labels() const {
    if (atom_sel.n_selected_atoms > 0) {
 
       mmdb::Chain *chain_p;
-      int imodel = 1;
       for(int imodel = 1; imodel<=atom_sel.mol->GetNumberOfModels(); imodel++) {
 	 int nchains = atom_sel.mol->GetNumberOfChains(imodel);
 	 for (int ichain=0; ichain<nchains; ichain++) {

@@ -436,7 +436,8 @@ molecule_class_info_t::bonds_sec_struct_representation() {
    // 
    Bond_lines_container bonds;
    bonds.do_colour_sec_struct_bonds(atom_sel, imol_no, 0.01, 1.9);
-   bonds_box = bonds.make_graphical_bonds_no_thinning();
+   bool add_residue_indices = false;
+   bonds_box = bonds.make_graphical_bonds_no_thinning(add_residue_indices);
    bonds_box_type = coot::BONDS_SEC_STRUCT_COLOUR;
 } 
   
@@ -460,7 +461,8 @@ molecule_class_info_t::ca_plus_ligands_rainbow_representation(coot::protein_geom
 				  2.4, 4.7,
 				  coot::COLOUR_BY_RAINBOW,
 				  draw_hydrogens_flag); // not COLOUR_BY_RAINBOW_BONDS
-   bonds_box = bonds.make_graphical_bonds_no_thinning();
+   bool add_residue_indices = false;
+   bonds_box = bonds.make_graphical_bonds_no_thinning(add_residue_indices);
    bonds_box_type = coot::COLOUR_BY_RAINBOW_BONDS;
 }
 
@@ -471,7 +473,8 @@ molecule_class_info_t::b_factor_representation() {
       Bond_lines_container::COLOUR_BY_B_FACTOR;
 
    Bond_lines_container bonds(atom_sel, imol_no, bond_type);
-   bonds_box = bonds.make_graphical_bonds_no_thinning();
+   bool add_residue_indices = false;
+   bonds_box = bonds.make_graphical_bonds_no_thinning(add_residue_indices);
    bonds_box_type = coot::COLOUR_BY_B_FACTOR_BONDS;
 } 
 
@@ -786,7 +789,7 @@ molecule_class_info_t::make_environment_bonds_box(int atom_index,
 graphical_bonds_container
 molecule_class_info_t::make_symmetry_environment_bonds_box(int atom_index,
 							   coot::protein_geometry *protein_geom_p) const {
-   graphical_bonds_container bonds_box;
+   graphical_bonds_container env_bonds_box;
 
    // std::cout << ":: entering make_symmetry_environment_bonds_box" << std::endl;
    if (atom_sel.atom_selection != NULL) {
@@ -843,13 +846,13 @@ molecule_class_info_t::make_symmetry_environment_bonds_box(int atom_index,
 					  g.environment_min_distance,
 					  draw_bonds_to_hydrogens_flag,
 					  do_symmetry);
-	       bonds_box = bonds.make_graphical_bonds();
+	       env_bonds_box = bonds.make_graphical_bonds();
 	    }
 	 }
 	 atom_sel.mol->DeleteSelection(selHnd);
       }
    }
-   return bonds_box;
+   return env_bonds_box;
 }
 
 // return "N', "C" or "not-terminal-residue"
@@ -2101,7 +2104,7 @@ molecule_class_info_t::score_rotamers(const std::string &chain_id,
 				      const std::string &alt_conf,
 				      int clash_flag,
 				      float lowest_probability,
-				      const clipper::Xmap<float> &xmap,
+				      const clipper::Xmap<float> &xmap_in,
 				      const coot::protein_geometry &pg) {
 
    std::vector<coot::named_rotamer_score> v;
@@ -2144,7 +2147,7 @@ molecule_class_info_t::score_rotamers(const std::string &chain_id,
 		  }
 		  
 		  std::vector<std::pair<std::string, float> > atom_densities =
-		     coot::util::score_atoms(residue_res, xmap);
+		     coot::util::score_atoms(residue_res, xmap_in);
 		  float rot_prob = rpi.probability;
 		  float total_atom_density_score = 0.0;
 		  for (unsigned int iat=0; iat<atom_densities.size(); iat++)
@@ -4162,7 +4165,7 @@ molecule_class_info_t::fill_raster_model_info(bool against_a_dark_background) {
 	    if (bonds_box.atom_centres_colour_[i] == HYDROGEN_GREY_BOND)
 	       r *= 0.5;
 
-	    coot::ray_trace_molecule_info::ball_t b(bonds_box.atom_centres_[i].second, c, r);
+	    coot::ray_trace_molecule_info::ball_t b(bonds_box.atom_centres_[i].position, c, r);
 	    rtmi.balls.push_back(b);
 	 }
 	 rtmi.molecule_name = name_;
@@ -6601,7 +6604,6 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	 dloi.tag_1 = bonds_tag;
 	 // std::cout << "debug:: adding first  context tag to dloi " << bonds_tag << std::endl;
       } 
-      
 
       GLfloat bgcolor[4]={0.8, 0.8, 0.8, 0.8};
       
@@ -6629,7 +6631,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       glEnable(GL_NORMALIZE);
       
       for (int ii=0; ii<bonds_box_local.num_colours; ii++) {
-	 graphical_bonds_lines_list &ll = bonds_box_local.bonds_[ii];
+	 graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box_local.bonds_[ii];
 	 set_bond_colour_by_mol_no(ii, against_a_dark_background);
 
 	 GLfloat bgcolor[4]={bond_colour_internal[0],
@@ -6644,9 +6646,14 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 			 ll.pair_list[j].positions.getFinish().get_z());
 	    double base = bond_thickness;
 	    double top = bond_thickness;
-	    if (ll.thin_lines_flag) { 
+	    if (ll.thin_lines_flag) {
 	       base *= 0.55;
 	       top  *= 0.55;
+	    }
+	    if (ll.pair_list[j].cylinder_class == graphics_line_t::DOUBLE ||
+		ll.pair_list[j].cylinder_class == graphics_line_t::TRIPLE) {
+	       base *= 0.65; // needs optimizing
+	       top  *= 0.65;
 	    }
 	    coot::Cartesian bond_height =
 	       ll.pair_list[j].positions.getFinish() - ll.pair_list[j].positions.getStart();
@@ -6717,10 +6724,10 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	 int stacks = 20;
 	 for (int i=0; i<bonds_box_local.n_atom_centres_; i++) {
 	    float local_sphere_size = sphere_size;
-	    if (bonds_box_local.atom_centres_[i].first)
+	    if (bonds_box_local.atom_centres_[i].is_hydrogen_atom)
 	       local_sphere_size = 0.11; // small (and cute)
 	    if (bonds_box_local.atom_centres_colour_[i] == HYDROGEN_GREY_BOND)
-	       local_sphere_size *= 0.5;
+	       local_sphere_size *= 0.55; // matches thin_lines_flag test above
 	    set_bond_colour_by_mol_no(bonds_box_local.atom_centres_colour_[i],
 				      against_a_dark_background);
 	    glPushMatrix();
@@ -6729,9 +6736,9 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 				bond_colour_internal[2],
 				1.0};
 	    glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
-	    glTranslatef(bonds_box_local.atom_centres_[i].second.get_x(),
-			 bonds_box_local.atom_centres_[i].second.get_y(),
-			 bonds_box_local.atom_centres_[i].second.get_z());
+	    glTranslatef(bonds_box_local.atom_centres_[i].position.get_x(),
+			 bonds_box_local.atom_centres_[i].position.get_y(),
+			 bonds_box_local.atom_centres_[i].position.get_z());
 
 	    GLUquadric* quad = gluNewQuadric();
 

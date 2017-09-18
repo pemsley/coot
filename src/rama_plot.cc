@@ -126,15 +126,15 @@ coot::rama_plot::init(const std::string &type) {
 void
 coot::rama_plot::resize_rama_canvas_internal(GtkWidget *widget, 
                                              GdkEventConfigure *even) {
-    GtkWidget *canvas = lookup_widget(widget, "canvas");
-    float wf = GTK_WIDGET(canvas)->allocation.width;
-    float hf = GTK_WIDGET(canvas)->allocation.height;
-    float mini = std::min(wf, hf);
-    coot::rama_plot *plot =
-        (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(canvas));
-    float new_zoom = mini/400.0*0.8;
-    plot->zoom=new_zoom;
-    gtk_canvas_set_pixels_per_unit(GNOME_CANVAS(canvas), new_zoom);
+   GtkWidget *canvas_local = lookup_widget(widget, "canvas");
+   float wf = GTK_WIDGET(canvas_local)->allocation.width;
+   float hf = GTK_WIDGET(canvas_local)->allocation.height;
+   float mini = std::min(wf, hf);
+   coot::rama_plot *plot =
+      (coot::rama_plot *) gtk_object_get_user_data(GTK_OBJECT(canvas_local));
+   float new_zoom = mini/400.0*0.8;
+   plot->zoom=new_zoom;
+   gtk_canvas_set_pixels_per_unit(GNOME_CANVAS(canvas_local), new_zoom);
 }
 
 //  The mapview entry point
@@ -600,7 +600,7 @@ coot::rama_plot::black_border() {
 
 
 void
-coot::rama_plot::cell_border(int i, int j, int step) {
+coot::rama_plot::cell_border(int i, int j, int step_in) {
 
    // put a border round the canvas one pixel shifted right and up
    //
@@ -610,14 +610,14 @@ coot::rama_plot::cell_border(int i, int j, int step) {
    points->coords[0] = i+1;
    points->coords[1] = j+1;
 
-   points->coords[2] = i+step+1;
+   points->coords[2] = i+step_in+1;
    points->coords[3] = j+1;
 
-   points->coords[4] = i+step+1;
-   points->coords[5] = j+step+1;
+   points->coords[4] = i+step_in+1;
+   points->coords[5] = j+step_in+1;
 
    points->coords[6] = i+1;
-   points->coords[7] = j+step+1;
+   points->coords[7] = j+step_in+1;
 
    points->coords[8] = i+1;
    points->coords[9] = j+1;
@@ -634,7 +634,6 @@ coot::rama_plot::cell_border(int i, int j, int step) {
 
    gtk_canvas_points_free(points); 
 
-   
 } 
 
 // return the region of the point

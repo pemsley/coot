@@ -42,8 +42,7 @@
 void 
 Bond_lines_ext::find_skel_atom_bonds(atom_selection_container_t SelAtom) {
 
-   // a cut and paste jobby, surely.
-
+   graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
    
    // initialize each colour in the Bond_lines_container
    //
@@ -52,7 +51,6 @@ Bond_lines_ext::find_skel_atom_bonds(atom_selection_container_t SelAtom) {
    Bond_lines a(col);
    bonds.push_back(a);
 
-   
    if (SelAtom.n_selected_atoms <= 0) {
       cout << "No skeleton atoms found" << endl;
       return;
@@ -102,7 +100,7 @@ Bond_lines_ext::find_skel_atom_bonds(atom_selection_container_t SelAtom) {
 			     atom_sel[ contact[i].id2 ]->y,
 			     atom_sel[ contact[i].id2 ]->z);
 
-	    addBond(col, atom_1, atom_2);
+	    addBond(col, atom_1, atom_2, cc);
 
 	 } // contact atom is higher up the list check.
       } // i over ncontacts
