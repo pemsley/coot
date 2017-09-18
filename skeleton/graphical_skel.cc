@@ -64,16 +64,16 @@ GraphicalSkel::make_graphical_bonds(const clipper::Xmap<float> &map,
 		 clipper::Coord_grid gb0 = iw.coord() - grid_bit;
 		 clipper::Coord_grid gb1 = iw.coord() + grid_bit;
 
-		 clipper::Xmap_base::Map_reference_coord iy = iw;
+		 clipper::Xmap_base::Map_reference_coord iyc = iw;
 
 		 for ( int in = 0; in < neigh.size(); in++ ) {
-		   iy.set_coord( iw.coord() + neigh[in] );
+		   iyc.set_coord( iw.coord() + neigh[in] );
 
-		   if (l1[iy] > 0) {
+		   if (l1[iyc] > 0) {
 		       
-		     if (map[iy] > cut_off) { 
+		     if (map[iyc] > cut_off) { 
 		       clipper::Coord_grid c_g_1 = iw.coord();
-		       clipper::Coord_grid c_g_2 = iy.coord(); 
+		       clipper::Coord_grid c_g_2 = iyc.coord(); 
 			  
 		       clipper::Coord_frac c_f_1 =
 			 c_g_1.coord_frac(l1.grid_sampling());
@@ -88,9 +88,9 @@ GraphicalSkel::make_graphical_bonds(const clipper::Xmap<float> &map,
 			  
 		       coot::CartesianPair line(f, s); 
 			  
-		       level = clipper::Util::max( l1[iy], l1[iw] ); // -1
+		       level = clipper::Util::max( l1[iyc], l1[iw] ); // -1
 		       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-		       cp_vec[level].push_back(graphics_line_t(line, cc, false, false));
+		       cp_vec[level].push_back(graphics_line_t(line, cc, false, false, 0));
 		       //cp_vec[0].push_back(line);
 		     }
 		   }
@@ -157,7 +157,7 @@ GraphicalSkel::make_graphical_bonds( const clipper::Xmap<float> &map,
 		  
 		     coot::CartesianPair line(f, s); 
 
-		     cp_vec.push_back(graphics_line_t(line, cc, false, false));
+		     cp_vec.push_back(graphics_line_t(line, cc, false, false, 0));
 		  }
 	       }
 	    }

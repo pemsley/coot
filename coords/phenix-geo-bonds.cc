@@ -169,7 +169,7 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
 
 	 atom_1 = coot::util::get_atom(atom_1_spec, mol);
 	 res_1_spec = coot::residue_spec_t(atom_1);
-	 
+
 	 if (atom_1) {
 
 	    atom_1_res=atom_1->residue;
@@ -191,16 +191,16 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
 		  bonded_atom_pairs.push_back(ap);
 	       } else {
 		  std::cout << "Null atom 2 - [H path] this should not happen " << std::endl;
-	       } 
-	       
-	    } 
-	    
+	       }
+
+	    }
+
 	 } else {
 	    std::cout << "Null atom_1 - Path Z " << atom_1_spec << " mol: " << mol 
 		      << " - this should not happen" << std::endl;
 	 }
       }
-      
+
       // for next round 
       previous_atom_spec = atom_1_spec;
       previous_atom_1 = atom_1;
@@ -229,7 +229,7 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
       a1->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
       a2->PutUDData(uddHnd, BONDED_WITH_STANDARD_ATOM_BOND);
       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-      bonds[0].add_bond(p, cc, true, true);
+      bonds[0].add_bond(p, cc, true, true, 0); // no residue_p addition
    }
 
    stars_for_unbonded_atoms(mol, uddHnd);

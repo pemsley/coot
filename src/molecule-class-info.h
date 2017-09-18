@@ -1050,9 +1050,9 @@ public:        //                      public
       return draw_hydrogens_flag;
    }
 
-   void makebonds(const coot::protein_geometry *geom_p);
-   void makebonds(float max_dist, const coot::protein_geometry *geom_p); // maximum distance for bond (search)
-   void makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p); 
+   void makebonds(const coot::protein_geometry *geom_p, bool add_residue_indices=false);
+   void makebonds(float max_dist, const coot::protein_geometry *geom_p, bool add_residue_indices=false); // maximum distance for bond (search)
+   void makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p, bool add_residue_indices=false); 
    void make_ca_bonds(float min_dist, float max_dist); 
    void make_ca_bonds();
    void make_ca_plus_ligands_bonds(coot::protein_geometry *pg);
@@ -1071,7 +1071,7 @@ public:        //                      public
    void occupancy_representation();
    void user_defined_colours_representation(coot::protein_geometry *geom_p, bool all_atoms_mode); // geom needed for ligands
 
-   void make_bonds_type_checked(); 
+   void make_bonds_type_checked(bool add_residue_indices=false);
 
 
    void label_atoms(int brief_atom_labels_flag);
@@ -2633,7 +2633,7 @@ public:        //                      public
    void set_show_all_additional_representations(bool on_off_flag);
    void all_additional_representations_off_except(int rep_no,
 						  bool ball_and_sticks_off_too_flag);
-   graphical_bonds_container get_bonds_representation() {return bonds_box; }
+   graphical_bonds_container get_bonds_representation() { make_bonds_type_checked(true); return bonds_box; }
    // 
    std::vector<coot::residue_spec_t> residues_near_residue(const coot::residue_spec_t &rspec, float radius) const; 
 

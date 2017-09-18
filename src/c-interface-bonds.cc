@@ -35,9 +35,44 @@
 //
 PyObject *get_bonds_representation(int imol) {
 
+   // Because "residue picking/selection" is crucial for so many coot tools, we want to support
+   // a mechanism that allows the client-side display of the "active" residue, we do that by providing
+   // a "residue-index" for every atom and bond.
+
+   // currently we use get_at_pos() to convert from coordinates to a atom.
+   // This is easier to program, but slow and really a silly thing to do.  It would be better
+   // to add the residue_index for the atoms and bonds when the 
+   // bonds and atom positions are created.
+   // if get_bonds_respresenation() is slow, go back and fix it.
+   // 3wj7 takes 0.78s for just the atom loop get_at_pos().
+
+   // Carteian doesn't yet work as key of a map
+   // std::map<coot::Cartesian, mmdb::Residue *> residue_map;
+
+
    PyObject *r = Py_False;
 
    if (is_valid_model_molecule(imol)) {
+
+      std::vector<mmdb::Residue *> residue_indices;
+      // first fill the residues indices
+      // 
+      for(int imod = 1; imod<=graphics_info_t::molecules[imol].atom_sel.mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = graphics_info_t::molecules[imol].atom_sel.mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int nres = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<nres; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p)
+                     residue_indices.push_back(residue_p);
+               }
+            }
+         }
+      }
+
 
       r = PyTuple_New(2);
 
@@ -49,24 +84,35 @@ PyObject *get_bonds_representation(int imol) {
 	 for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
 	    PyObject *atom_set_py = PyTuple_New(bonds_box.consolidated_atom_centres[icol].num_points);
 	    for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
-	       const coot::Cartesian &pt = bonds_box.consolidated_atom_centres[icol].points[i].second;
-	       bool is_H_flag     = bonds_box.consolidated_atom_centres[icol].points[i].first;
-	       PyObject *atom_triple_py = PyTuple_New(3);
+	       const coot::Cartesian &pt = bonds_box.consolidated_atom_centres[icol].points[i].position;
+	       bool is_H_flag     = bonds_box.consolidated_atom_centres[icol].points[i].is_hydrogen_atom;
+	       long residue_index = bonds_box.consolidated_atom_centres[icol].points[i].residue_index;
+	       PyObject *atom_info_quad_py = PyTuple_New(4);
 	       PyObject *coords_py = PyTuple_New(3);
 	       std::string s = "attrib-filled-later";
 	       // hack!
 	       mmdb::Atom *at = graphics_info_t::molecules[imol].get_atom_at_pos(pt);
+               // set the spec and the residue_index
 	       if (at) {
+                  // std::cout << "successful atom residue-index lookup " << coot::atom_spec_t(at) << " at " << pt << "\n";
 		  coot::atom_spec_t spec(at);
 		  s = spec.format();
+                  for (std::size_t ires=0; ires<residue_indices.size(); ires++) {
+                      if (at->residue == residue_indices[ires]) {
+                         residue_index = ires;
+                         break;
+                      }
+                  }
 	       }
+	       PyObject *residue_index_py = PyInt_FromLong(residue_index);
 	       PyTuple_SetItem(coords_py, 0, PyFloat_FromDouble(pt.x()));
 	       PyTuple_SetItem(coords_py, 1, PyFloat_FromDouble(pt.y()));
 	       PyTuple_SetItem(coords_py, 2, PyFloat_FromDouble(pt.z()));
-	       PyTuple_SetItem(atom_triple_py, 0, coords_py);
-	       PyTuple_SetItem(atom_triple_py, 1, PyBool_FromLong(is_H_flag));
-	       PyTuple_SetItem(atom_triple_py, 2, PyString_FromString(s.c_str()));
-	       PyTuple_SetItem(atom_set_py, i, atom_triple_py);
+	       PyTuple_SetItem(atom_info_quad_py, 0, coords_py);
+	       PyTuple_SetItem(atom_info_quad_py, 1, PyBool_FromLong(is_H_flag));
+	       PyTuple_SetItem(atom_info_quad_py, 2, PyString_FromString(s.c_str()));
+	       PyTuple_SetItem(atom_info_quad_py, 3, residue_index_py);
+	       PyTuple_SetItem(atom_set_py, i, atom_info_quad_py);
 	    }
 	    PyTuple_SetItem(all_atom_positions_py, icol, atom_set_py);
 	 }
@@ -77,14 +123,17 @@ PyObject *get_bonds_representation(int imol) {
       }
       PyObject *bonds_tuple = PyTuple_New(bonds_box.num_colours);
       for (int i=0; i<bonds_box.num_colours; i++) {
-	 graphical_bonds_lines_list &ll = bonds_box.bonds_[i];
+	 graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[i];
 	 PyObject *line_set_py = PyTuple_New(bonds_box.bonds_[i].num_lines);
 	 for (int j=0; j< bonds_box.bonds_[i].num_lines; j++) {
 	    const graphics_line_t::cylinder_class_t &cc = ll.pair_list[j].cylinder_class;
+            int ri = ll.pair_list[j].residue_index; // set to -1 by constructor, overwite if possible
+
 	    PyObject *p0_py   = PyTuple_New(3);
 	    PyObject *p1_py   = PyTuple_New(3);
-	    PyObject *positions_and_order_py = PyTuple_New(3);
+	    PyObject *positions_and_order_py = PyTuple_New(4);
 	    PyObject *order_py = PyInt_FromLong(cc);
+            PyObject *residue_index_py = PyInt_FromLong(ri);
 	    PyTuple_SetItem(p0_py, 0, PyFloat_FromDouble(ll.pair_list[j].positions.getStart().get_x()));
 	    PyTuple_SetItem(p0_py, 1, PyFloat_FromDouble(ll.pair_list[j].positions.getStart().get_y()));
 	    PyTuple_SetItem(p0_py, 2, PyFloat_FromDouble(ll.pair_list[j].positions.getStart().get_z()));
@@ -94,6 +143,7 @@ PyObject *get_bonds_representation(int imol) {
 	    PyTuple_SetItem(positions_and_order_py, 0, p0_py);
 	    PyTuple_SetItem(positions_and_order_py, 1, p1_py);
 	    PyTuple_SetItem(positions_and_order_py, 2, order_py);
+	    PyTuple_SetItem(positions_and_order_py, 3, residue_index_py);
 	    PyTuple_SetItem(line_set_py, j, positions_and_order_py);
 	 }
 	 PyTuple_SetItem(bonds_tuple, i, line_set_py);

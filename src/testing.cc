@@ -1889,7 +1889,6 @@ mmdb::Residue *test_get_residue(mmdb::Manager *mol, const std::string &chain_id_
       std::string chain_id = chain_p->GetChainID();
       if (chain_id == chain_id_ref) {
 	 int nres = chain_p->GetNumberOfResidues();
-	 mmdb::PResidue res;
 	 for (int ires=0; ires<nres; ires++) { 
 	    res = chain_p->GetResidue(ires);
 	    int resno = res->GetSeqNum();
