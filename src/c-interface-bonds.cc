@@ -54,26 +54,6 @@ PyObject *get_bonds_representation(int imol) {
 
    if (is_valid_model_molecule(imol)) {
 
-      std::vector<mmdb::Residue *> residue_indices;
-      // first fill the residues indices
-      // 
-      for(int imod = 1; imod<=graphics_info_t::molecules[imol].atom_sel.mol->GetNumberOfModels(); imod++) {
-         mmdb::Model *model_p = graphics_info_t::molecules[imol].atom_sel.mol->GetModel(imod);
-         if (model_p) {
-            int n_chains = model_p->GetNumberOfChains();
-            for (int ichain=0; ichain<n_chains; ichain++) {
-               mmdb::Chain *chain_p = model_p->GetChain(ichain);
-               int nres = chain_p->GetNumberOfResidues();
-               for (int ires=0; ires<nres; ires++) {
-                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-                  if (residue_p)
-                     residue_indices.push_back(residue_p);
-               }
-            }
-         }
-      }
-
-
       r = PyTuple_New(2);
 
       // write a class that also returns atom specs for the atom. Possibly use inheritance
@@ -90,20 +70,26 @@ PyObject *get_bonds_representation(int imol) {
 	       PyObject *atom_info_quad_py = PyTuple_New(4);
 	       PyObject *coords_py = PyTuple_New(3);
 	       std::string s = "attrib-filled-later";
-	       // hack!
-	       mmdb::Atom *at = graphics_info_t::molecules[imol].get_atom_at_pos(pt);
-               // set the spec and the residue_index
-	       if (at) {
-                  // std::cout << "successful atom residue-index lookup " << coot::atom_spec_t(at) << " at " << pt << "\n";
-		  coot::atom_spec_t spec(at);
+	       // Hmm.
+	       // Perhaps we actually want the atom spec (as a python object).
+	       // In that case, graphical_bonds_atom_info_t should store the atom, not the residue
+	       //
+	       if (bonds_box.consolidated_atom_centres[icol].points[i].residue_p) {
+		  coot::residue_spec_t spec(bonds_box.consolidated_atom_centres[icol].points[i].residue_p);
 		  s = spec.format();
-                  for (std::size_t ires=0; ires<residue_indices.size(); ires++) {
-                      if (at->residue == residue_indices[ires]) {
-                         residue_index = ires;
-                         break;
-                      }
-                  }
 	       }
+
+	       // looking up the atoms takes ~1s for a reasonable-sized protein (3jw7)
+	       if (false) { 	       // hack!
+		  mmdb::Atom *at = graphics_info_t::molecules[imol].get_atom_at_pos(pt);
+		  if (at) {
+		     // std::cout << "successful atom residue-index lookup " << coot::atom_spec_t(at)
+		     // << " at " << pt << "\n";
+		     coot::atom_spec_t spec(at);
+		     s = spec.format();
+		  }
+	       }
+
 	       PyObject *residue_index_py = PyInt_FromLong(residue_index);
 	       PyTuple_SetItem(coords_py, 0, PyFloat_FromDouble(pt.x()));
 	       PyTuple_SetItem(coords_py, 1, PyFloat_FromDouble(pt.y()));

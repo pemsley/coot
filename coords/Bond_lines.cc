@@ -3201,7 +3201,14 @@ Bond_lines_container::make_graphical_bonds_with_thinning_flag(bool do_thinning_f
    box.add_zero_occ_spots(zero_occ_spots);
    box.add_deuterium_spots(deuterium_spots);
    // box.add_ramachandran_goodness_spots(ramachandran_goodness_spots); not in this function (I guess)
-   box.add_atom_centres(atom_centres, atom_centres_colour);
+
+   // add the residue_index to atom_centres.  But this is a const function, we can't edit atom_centres
+   //
+   std::vector<graphical_bonds_atom_info_t>  atom_centres_local = atom_centres;
+   for (std::size_t i=0; i<atom_centres_local.size(); i++)
+      atom_centres_local[i].residue_index = residue_index_map[atom_centres_local[i].residue_p];
+
+   box.add_atom_centres(atom_centres_local, atom_centres_colour);
    box.rings = rings;
    box.add_cis_peptide_markup(cis_peptide_quads);
    return box;
@@ -5438,6 +5445,7 @@ Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom
 	 graphical_bonds_atom_info_t p(coot::Cartesian(SelAtom.atom_selection[i]->x,
 						       SelAtom.atom_selection[i]->y,
 						       SelAtom.atom_selection[i]->z), is_H_flag);
+	 p.residue_p = SelAtom.atom_selection[i]->residue;
 	 atom_centres.push_back(p);
 	 atom_centres_colour.push_back(atom_colour(SelAtom.atom_selection[i], atom_colour_type));
       }

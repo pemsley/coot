@@ -188,15 +188,18 @@ class graphical_bonds_atom_info_t {
 public:
    bool is_hydrogen_atom;
    coot::Cartesian position;
+   mmdb::Residue *residue_p;
    int residue_index;
    graphical_bonds_atom_info_t(const coot::Cartesian &pos, bool is_hydrogen_atom_in) {
       position = pos;
       is_hydrogen_atom = is_hydrogen_atom_in;
       residue_index = -1; // unset
+      residue_p = 0;
    }
    graphical_bonds_atom_info_t() {
       is_hydrogen_atom = false;
       residue_index = -1; // unset
+      residue_p = 0;
    }
 };
 
