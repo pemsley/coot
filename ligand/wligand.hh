@@ -183,7 +183,7 @@ namespace coot {
 				    bool optimize_geometry_flag,
 				    bool fill_returned_molecules_vector_flag);
 
-      // install one by one for diallog updating
+      // install one by one for dialog updating
       installed_wiggly_ligand_info_t
       install_simple_wiggly_ligand(protein_geometry *pg,
 				   const minimol::molecule &ligand,
