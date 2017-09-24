@@ -24,17 +24,20 @@
 
 namespace coot { 
 
-   class phi_psi_pair { 
+   class phi_psi_pair {
+      // and now with tau!
    public:
-      phi_psi_pair(float a, float b) { 
+      phi_psi_pair(float a, float b, float c) {
 	 phi = a;
 	 psi = b;
+	 tau = c;
       }
       float phi;
       float psi;
-   }; 
+      float tau;
+   };
 
-  class residue_by_phi_psi : public ligand { 
+  class residue_by_phi_psi : public ligand {
 
      int ires_terminus;
      std::string chain_id;
@@ -55,15 +58,17 @@ namespace coot {
      void init_phi_psi_plot(); 
 
      minimol::residue 
-     construct_next_res_from_rama_angles(float phi, float psi, int seqno,
-				const clipper::Coord_orth &previous_n,
-				const clipper::Coord_orth &previous_ca,
-				const clipper::Coord_orth &previous_c) const; 
+     construct_next_res_from_rama_angles(float phi, float psi, float tau,
+					 int seqno,
+					 const clipper::Coord_orth &previous_n,
+					 const clipper::Coord_orth &previous_ca,
+					 const clipper::Coord_orth &previous_c) const; 
      minimol::residue 
-     construct_prev_res_from_rama_angles(float phi, float psi, int seqno,
-				const clipper::Coord_orth &next_n,
-				const clipper::Coord_orth &next_ca,
-				const clipper::Coord_orth &next_c) const; 
+     construct_prev_res_from_rama_angles(float phi, float psi, float tau,
+					 int seqno,
+					 const clipper::Coord_orth &next_n,
+					 const clipper::Coord_orth &next_ca,
+					 const clipper::Coord_orth &next_c) const; 
 
      
      minimol::residue construct_joining_res(const phi_psi_pair &pp,
@@ -107,13 +112,13 @@ namespace coot {
 
   };
 
-  minimol::residue 
+  minimol::residue
   build_N_terminal_ALA(float phi, float psi, int seqno,
 		       const clipper::Coord_orth &previous_n,
 		       const clipper::Coord_orth &previous_ca,
 		       const clipper::Coord_orth &previous_c,
 		       float b_factor); 
-   minimol::residue 
+   minimol::residue
    build_C_terminal_ALA(float phi, float psi, int seqno,
 			const clipper::Coord_orth &next_n,
 			const clipper::Coord_orth &next_ca,

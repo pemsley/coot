@@ -237,7 +237,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 						  next_n,
 						  next_ca,
 						  next_c), 0);
-	 } 
+	 }
 
 	 std::vector<minimol::atom *> atoms_p = frag.select_atoms_serial();
 	       
@@ -263,7 +263,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
  	    tmp_filename += ".pdb";
  	    m_tmp.write_file(tmp_filename, 10);
          }
-      }
+      } // ends the n_trials for-loop
    }
    if (best_fragment.residues.size() == 0) { 
       std::cout << "WARNING! fit_terminal_residue_generic:"
@@ -277,7 +277,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 // depending on offset.
 // 
 coot::minimol::fragment
-coot::residue_by_phi_psi::make_2_res_joining_frag(const std::string &chain_id,
+coot::residue_by_phi_psi::make_2_res_joining_frag(const std::string &chain_id_in,
 						  const phi_psi_pair &pp1,
 						  const phi_psi_pair &pp2,
 						  int seqnum,
@@ -285,7 +285,7 @@ coot::residue_by_phi_psi::make_2_res_joining_frag(const std::string &chain_id,
 						  const clipper::Coord_orth &next_n_in,
 						  const clipper::Coord_orth &next_ca_in,
 						  const clipper::Coord_orth &next_c) const {
-   minimol::fragment frag(chain_id);
+   minimol::fragment frag(chain_id_in);
    minimol::residue res1;
    minimol::residue res2;
 
@@ -303,10 +303,10 @@ coot::residue_by_phi_psi::make_2_res_joining_frag(const std::string &chain_id,
    // std::cout << "seed N " << next_n.x() << " " << next_n.y() << " " << next_n.z() << std::endl;
 
    if (terminus_type == "C" || terminus_type == "MC" || terminus_type == "singleton") { 
-      res1 = construct_next_res_from_rama_angles(pp1.phi, pp1.psi,
+      res1 = construct_next_res_from_rama_angles(pp1.phi, pp1.psi, pp1.tau,
 						 seqnum + offset,
 						 next_n, next_ca, next_c);
-      res2 = construct_next_res_from_rama_angles(pp2.phi, pp2.psi,
+      res2 = construct_next_res_from_rama_angles(pp2.phi, pp2.psi, pp2.tau,
 						 seqnum + offset + offset,
 						 res1[" N  "].pos,
 						 res1[" CA "].pos,
@@ -340,10 +340,10 @@ coot::residue_by_phi_psi::make_2_res_joining_frag(const std::string &chain_id,
 	 }
       
    } else { // terminus_type == "N"
-      res1 = construct_prev_res_from_rama_angles(pp1.phi, pp1.psi,
+      res1 = construct_prev_res_from_rama_angles(pp1.phi, pp1.psi, pp1.tau,
 						 seqnum + offset,
 						 next_n, next_ca, next_c);
-      res2 = construct_prev_res_from_rama_angles(pp2.phi, pp2.psi,
+      res2 = construct_prev_res_from_rama_angles(pp2.phi, pp2.psi, pp2.tau,
 						 seqnum + offset + offset,
 						 res1[" N  "].pos,
 						 res1[" CA "].pos,
@@ -446,12 +446,12 @@ coot::residue_by_phi_psi::get_connecting_residue_atoms() const {
       std::cout << "ERROR: missing atoms in get_connecting_residue_atoms: we found "
 		<< pos.size() << " atoms\n";
       if (residue_p) {
-	 mmdb::PPAtom residue_atoms;
-	 int nResidueAtoms;
-	 residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
-	 std::cout << "residue has " << nResidueAtoms << " atoms " << std::endl;
-	 for (int i=0; i<nResidueAtoms; i++) { 
-	    std::cout << i << " " << residue_atoms[i] << std::endl;
+	 mmdb::PPAtom residue_atoms_l;
+	 int nResidueAtoms_l;
+	 residue_p->GetAtomTable(residue_atoms_l, nResidueAtoms_l);
+	 std::cout << "residue has " << nResidueAtoms_l << " atoms " << std::endl;
+	 for (int i=0; i<nResidueAtoms_l; i++) { 
+	    std::cout << i << " " << residue_atoms_l[i] << std::endl;
 	 } 
       } else { 
 	 std::cout << "ERROR: missing atoms in get_connecting_residue_atoms: we have "
@@ -468,7 +468,7 @@ coot::residue_by_phi_psi::get_connecting_residue_atoms() const {
 
 
 coot::minimol::residue
-coot::residue_by_phi_psi::construct_next_res_from_rama_angles(float phi, float psi, 
+coot::residue_by_phi_psi::construct_next_res_from_rama_angles(float phi, float psi, float tau,
 						     int seqno,
 						     const clipper::Coord_orth &previous_n,
 						     const clipper::Coord_orth &previous_ca,
@@ -490,7 +490,7 @@ coot::residue_by_phi_psi::construct_next_res_from_rama_angles(float phi, float p
    clipper::Coord_orth ca_pos(previous_ca, previous_c, n_pos,
 			      1.458, angle, torsion); // N-CA bond
 
-   angle = clipper::Util::d2rad(111.200); // N-CA-C
+   angle = clipper::Util::d2rad(tau); // N-CA-C  // was 111.200
    torsion = clipper::Util::d2rad(phi);
    clipper::Coord_orth c_pos(previous_c, n_pos, ca_pos,
 			     1.525, angle, torsion); // CA-C bond
@@ -512,7 +512,7 @@ coot::residue_by_phi_psi::construct_next_res_from_rama_angles(float phi, float p
 }   
 
 coot::minimol::residue
-coot::residue_by_phi_psi::construct_prev_res_from_rama_angles(float phi, float psi, 
+coot::residue_by_phi_psi::construct_prev_res_from_rama_angles(float phi, float psi, float tau,
 							      int seqno,
 							      const clipper::Coord_orth &next_n,
 							      const clipper::Coord_orth &next_ca,
@@ -538,7 +538,7 @@ coot::residue_by_phi_psi::construct_prev_res_from_rama_angles(float phi, float p
 			      1.525, angle, torsion); // Ca-C bond
 
    // N
-   angle = clipper::Util::d2rad(111.200); // N-Ca-C
+   angle = clipper::Util::d2rad(tau); // N-Ca-C
    torsion = clipper::Util::d2rad(psi);
    clipper::Coord_orth n_pos(next_n, c_pos, ca_pos,
 			     1.458, angle, torsion); // Ca-N
@@ -569,10 +569,10 @@ coot::residue_by_phi_psi::construct_joining_res(const phi_psi_pair &pp,
 						const clipper::Coord_orth &next_c) const { 
 
    if (terminus_type == "C" || terminus_type == "MC" || terminus_type == "singleton") 
-      return construct_next_res_from_rama_angles(pp.phi, pp.psi,
+      return construct_next_res_from_rama_angles(pp.phi, pp.psi, pp.tau,
 						 seqno, next_n, next_ca, next_c);
    else // terminus_type == "N" or "MN"
-      return construct_prev_res_from_rama_angles(pp.phi, pp.psi,
+      return construct_prev_res_from_rama_angles(pp.phi, pp.psi, pp.tau,
 						 seqno, next_n, next_ca, next_c);
 }
 						
@@ -607,16 +607,19 @@ coot::residue_by_phi_psi::get_phi_psi_by_random() const {
    float phi, psi, prob, r;
    
    for (;;) {
-      phi = 360.0 * float (coot::util::random())/float (RAND_MAX); 
+      phi = 360.0 * float (coot::util::random())/float (RAND_MAX);
       psi = 360.0 * float (coot::util::random())/float (RAND_MAX);
 
       r = rama_max * coot::util::random()/ float (RAND_MAX);
-      prob = rama.probability(clipper::Util::d2rad(phi), 
+      prob = rama.probability(clipper::Util::d2rad(phi),
 			      clipper::Util::d2rad(psi));
       
       if (prob > r) break;
    }
-   return phi_psi_pair(phi, psi);
+   float u1 = static_cast<float>(coot::util::random())/static_cast<float>(RAND_MAX);
+   float u2 = 2.0 * u1 - 1.0; // -1 -> 1.
+   float tau = 111.2 + u2 * 2.0; // 2.0 needs investigation
+   return phi_psi_pair(phi, psi, tau);
 } 
 
 

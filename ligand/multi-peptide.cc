@@ -254,8 +254,8 @@ coot::refine_end(coot::minimol::fragment *many_residues,
    restraints.minimize(flags);
 
    for (unsigned int ii=0; ii<moving_residues.size(); ii++) {
-      int seqnum = moving_residues[ii]->GetSeqNum();
-      (*many_residues)[seqnum].update_positions_from(moving_residues[ii]);
+      int seqnum_l = moving_residues[ii]->GetSeqNum();
+      (*many_residues)[seqnum_l].update_positions_from(moving_residues[ii]);
    }
 
    delete mol;
