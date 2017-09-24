@@ -320,15 +320,27 @@ coot::Cartesian
 molecule_class_info_t::centre_of_molecule() const {
 
    double xs=0, ys=0, zs=0;
-   if (atom_sel.n_selected_atoms > 0) {
-      for (int i=0; i<atom_sel.n_selected_atoms; i++) {
-	 xs += atom_sel.atom_selection[i]->x;
-	 ys += atom_sel.atom_selection[i]->y;
-	 zs += atom_sel.atom_selection[i]->z;
-      }
-      xs /= double(atom_sel.n_selected_atoms);
-      ys /= double(atom_sel.n_selected_atoms);
-      zs /= double(atom_sel.n_selected_atoms);
+   int n_atoms = 0;
+   for (int i=0; i<atom_sel.n_selected_atoms; i++) {
+      mmdb::realtype x = atom_sel.atom_selection[i]->x;
+      mmdb::realtype y = atom_sel.atom_selection[i]->y;
+      mmdb::realtype z = atom_sel.atom_selection[i]->z;
+      if (x > -9999.9)
+	 if (x < 9999.9)
+	    if (y > -9999.9)
+	       if (y < 9999.9)
+		  if (z > -9999.9)
+		     if (z < 9999.9) {
+			xs += x;
+			ys += y;
+			zs += z;
+			n_atoms++;
+		     }
+   }
+   if (n_atoms > 0) {
+      xs /= double(n_atoms);
+      ys /= double(n_atoms);
+      zs /= double(n_atoms);
    }
    return coot::Cartesian(xs, ys, zs);
 }
@@ -6739,7 +6751,7 @@ molecule_class_info_t::model_view_residue_button_labels() const {
 
 	 mmdb::Chain *chain;
 	 // run over chains of the existing mol
-	 int nchains = model_p->GetNumberOfChains();
+	 nchains = model_p->GetNumberOfChains();
 	 if (nchains <= 0) { 
 	    std::cout << "bad nchains in model_view_residue_button_info_t: "
 		      << nchains << std::endl;

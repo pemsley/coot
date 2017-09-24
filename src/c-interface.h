@@ -4737,6 +4737,7 @@ void set_add_terminal_residue_n_phi_psi_trials(int n);
 /* Add Terminal Residues actually build 2 residues, this allows us to
    see both residues - default is 0 (off). */
 void set_add_terminal_residue_add_other_residue_flag(int i);
+void set_add_terminal_residue_do_rigid_body_refine(short int v); 
 void set_terminal_residue_do_rigid_body_refine(short int v); 
 int add_terminal_residue_immediate_addition_state(); 
 

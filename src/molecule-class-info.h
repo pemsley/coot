@@ -3089,6 +3089,9 @@ public:        //                      public
    mmdb::Atom *get_atom_at_pos(const coot::Cartesian &pt) const;
 
    void add_secondary_structure_header_records(bool overwrite=false);
+
+   // angle in degrees.
+   void spin_N(const coot::residue_spec_t &residue_spec, float angle);
    
 };
 

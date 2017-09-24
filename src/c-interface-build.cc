@@ -736,6 +736,32 @@ void spin_search_py(int imol_map, int imol, const char *chain_id, int resno,
 }
 #endif // PYTHON
 
+/*  ----------------------------------------------------------------------- */
+/*                  Spin around N and CB for N-termal addition              */
+/*  ----------------------------------------------------------------------- */
+
+#ifdef USE_PYTHON
+void spin_N_py(int imol, PyObject *residue_spec_py, float angle) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t residue_spec = residue_spec_from_py(residue_spec_py);
+      graphics_info_t::molecules[imol].spin_N(residue_spec, angle);
+      graphics_draw();
+   }
+}
+#endif // USE_PYTHON
+
+#ifdef USE_GUILE
+void spin_N_scm(int imol, SCM residue_spec_scm, float angle) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t residue_spec = residue_spec_from_scm(residue_spec_scm);
+      graphics_info_t::molecules[imol].spin_N(residue_spec, angle);
+      graphics_draw();
+   }
+}
+#endif // USE_GUILE
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  delete residue                                          */
