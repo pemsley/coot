@@ -90,8 +90,8 @@ void ranks(const std::string &database_name) {
       const std::string &metric_name = metric_names[i];
       std::vector<double> v = lm.get_values(metric_name);
       if (metric_name == "coot_diff_map_correlation")
-	 for (unsigned int i=0; i<v.size(); i++)
-	    v[i] = fabs(v[i]);
+	 for (unsigned int ii=0; ii<v.size(); ii++)
+	    v[ii] = fabs(v[ii]);
       std::sort(v.begin(), v.end());
       values_store[metric_name] = v;
    }
@@ -129,8 +129,8 @@ void ranks(const std::string &database_name) {
 
       if (rank_indices.size() == metric_names.size()) {
  	 double vi = 0;
- 	 for (unsigned int i=0; i<metric_names.size(); i++) {
- 	    vi += rank_indices[i] * rank_indices[i];
+ 	 for (unsigned int ii=0; ii<metric_names.size(); ii++) {
+ 	    vi += rank_indices[ii] * rank_indices[ii];
  	 }
 	 ligand_index_score_t lis(rank_indices[0], rank_indices[1], rank_indices[2], rank_indices[3], vi);
  	 tri_ranks.push_back(std::pair<std::string, ligand_index_score_t> (code, lis));
