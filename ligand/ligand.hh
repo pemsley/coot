@@ -292,11 +292,6 @@ namespace coot {
       // tinker with mmmol (minimol molecule)
       void set_cell_and_symm(coot::minimol::molecule *mmmol) const; 
 
-      // keep a record of the map rms so that we can kludge the
-      // gradient scale factor.
-
-      float map_rms;
-
       int n_grid_limit_for_water_cluster() const;
 
       // blobs that are too big to be waters
@@ -306,7 +301,12 @@ namespace coot {
    protected:
 
       float default_b_factor;
-      const clipper::Xmap<float> & Xmap() { return xmap_cluster;}
+      const clipper::Xmap<float> & Xmap() const { return xmap_cluster;}
+
+      // keep a record of the map rms so that we can kludge the
+      // gradient scale factor.
+
+      float map_rms;
 
       // So that we only sample the coords once, not for every round
       // of water picking.

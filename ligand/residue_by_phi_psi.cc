@@ -32,6 +32,10 @@ coot::residue_by_phi_psi::residue_by_phi_psi(const std::string &terminus,
 					     const std::string &res_type,
 					     float b_factor_in) {
    
+#ifdef HAVE_CXX_THREAD
+   thread_pool_p = 0;
+   n_threads = 0;
+#endif // HAVE_CXX_THREAD
    chain_id      = chain_id_in;
    residue_type  = res_type;
    terminus_type = terminus;
@@ -68,21 +72,22 @@ coot::residue_by_phi_psi::best_fit_phi_psi(int n_trials,
 	       if (terminus_type == "singleton")
 		  offset = 1;
    
-   std::cout << "--- in best_fit_phi_psi() with offset " << offset << std::endl;
+   // std::cout << "--- in best_fit_phi_psi() with offset " << offset << std::endl;
    
    if (offset == 0) {
       std::cout <<  "not a terminal residue\n";
    } else {
-      std::cout << "INFO:: Fitting terminal residue ";
-      if (do_rigid_body_refinement)
-	 std::cout << " with individual rigid body fitting.\n";
-      else 
-	 std::cout << " without individual rigid body fitting.\n";
+      if (false) { // debug
+	 std::cout << "INFO:: Fitting terminal residue ";
+	 if (do_rigid_body_refinement)
+	    std::cout << " with individual rigid body fitting.\n";
+	 else
+	    std::cout << " without individual rigid body fitting.\n";
 
-      std::cout << "--- in best_fit_phi_psi() calling fit_terminal_residue_generic() with n_trials "
-		<< n_trials << std::endl;
-      minimol::fragment frag = fit_terminal_residue_generic(n_trials, offset,
-							    do_rigid_body_refinement);
+	 std::cout << "--- in best_fit_phi_psi() calling fit_terminal_residue_generic() with n_trials "
+		   << n_trials << std::endl;
+      }
+      minimol::fragment frag = fit_terminal_residue_generic(n_trials, offset, do_rigid_body_refinement);
       if (add_other_residue_flag) {
 	 m.fragments.push_back(frag);
       } else {
@@ -111,7 +116,7 @@ coot::residue_by_phi_psi::best_fit_phi_psi(int n_trials,
 		  }
 		  catch (const std::runtime_error &rte) {
 		     std::cout << "ERROR:: best_fit_phi_psi() " << rte.what() << std::endl;
-		  } 
+		  }
 		  break;
 	       }
 	    }
@@ -151,15 +156,12 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
       std::cout << "WARNING:: Failed to find atoms of terminal residue, found "
 		<< pos.size() << " atoms" << std::endl;
       std::cout << "WARNING:: Something strange in coordinates!? " << std::endl;
-   } else { 
+   } else {
 
       clipper::Coord_orth next_n  = pos[0];
       clipper::Coord_orth next_c  = pos[1];
-      clipper::Coord_orth next_ca = pos[2]; 
+      clipper::Coord_orth next_ca = pos[2];
 
-      // std::cout << "DEBUG:: previous Ca at: " << next_ca.format() << std::endl;
-
-      coot::ligand_score_card s;    
       float best_score = 0.0;
       bool two_residues_flag = true;
       if (terminus_type == "MC")
@@ -173,103 +175,251 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 	 next_residue_seq_num = residue_p->GetSeqNum() + 1;
       } else {
 	 next_residue_seq_num = residue_p->GetSeqNum() - 1;
-      } 
+      }
 
-      for (int itrial=0; itrial<n_trials; itrial++) {
+#ifdef HAVE_CXX_THREAD
 
-	 coot::minimol::fragment frag;
+      if (n_threads > 1) {
+	 auto tp_1 = std::chrono::high_resolution_clock::now();
+	 std::vector<std::pair<ligand_score_card, minimol::fragment> > results(n_trials);
+	 int n_per_thread = n_trials/n_threads;
+	 for (unsigned int i_thread=0; i_thread<n_threads; i_thread++) {
+	    int trial_idx_start = i_thread * n_per_thread;
+	    int trial_idx_end   = trial_idx_start + n_per_thread;
+	    if (i_thread == (n_threads - 1))
+	       trial_idx_end = n_trials; // for loop uses iat_start and tests for < iat_end
 
-	 if (two_residues_flag) { // the majority of times
-	    phi_psi_pair p1 = get_phi_psi_by_random();
-	    phi_psi_pair p2 = get_phi_psi_by_random();
-// 	    std::cout << "00000 " << p1.phi << " " << p1.psi << std::endl;
-// 	    std::cout << "00000 " << p2.phi << " " << p2.psi << std::endl;
-	    frag = make_2_res_joining_frag(chain_id, p1, p2,
-					   residue_p->GetSeqNum(),
-					   offset,  // + or - 1
-					   next_n,
-					   next_ca,
-					   next_c);
-
-// 	    std::cout << "DEBUG:: back from make_2: checking " << std::endl;
-// 	    frag.check();
-// 	    std::cout << "DEBUG:: (back from make_2) make_2_res_joining_frag returns "
-// 		      << "fragment of size " <<  frag.residues.size()
-// 		      << " residues " << std::endl;
-
-// 	    std::cout << "Here is some residue information about frag (residues_offset: " <<
-// 		      frag.min_res_no() -1 << "):\n";
-// 	    for (int ii=0; ii<frag.residues.size(); ii++)
-// 	       std::cout << "   residue index " << ii << " has seqnum: "
-// 			 << frag.residues[ii].seqnum << " and "
-// 			 << frag.residues[ii].atoms.size()
-// 			 << " atoms" << std::endl;
-
-	    int neighb_seqnum = residue_p->GetSeqNum();
-
-	    clipper::Coord_orth frag_n;
-	    clipper::Coord_orth frag_ca;
-	    clipper::Coord_orth frag_c;
-	    clipper::Coord_orth frag_n_plus_1;
-	    if (offset == 1) { 
-	       frag_n        = frag[neighb_seqnum+1][" N  "].pos;
-	       frag_ca       = frag[neighb_seqnum+1][" CA "].pos;
-	       frag_c        = frag[neighb_seqnum+1][" C  "].pos;
-	       frag_n_plus_1 = frag[neighb_seqnum+2][" N  "].pos;
-	    } else { 
-	       // std::cout << "CHECKME! getting atoms from residues "
-	       // << neighb_seqnum-1 << " and " << neighb_seqnum - 2 << std::endl;
-	       frag_n        = frag[neighb_seqnum-1][" N  "].pos;
-	       frag_ca       = frag[neighb_seqnum-1][" CA "].pos;
-	       frag_c        = frag[neighb_seqnum-1][" C  "].pos;
-	       frag_n_plus_1 = frag[neighb_seqnum-2][" N  "].pos;
-	    } 
-
-	    if (debug) {
-	       float phi_real = clipper::Util::rad2d(clipper::Coord_orth::torsion(next_c, frag_n, frag_ca, frag_c));
-	       float psi_real = clipper::Util::rad2d(clipper::Coord_orth::torsion(frag_n, frag_ca, frag_c, frag_n_plus_1));
-	       std::cout <<  "Rama-values:: " << phi_real << " " << psi_real << std::endl;
-	    }
-	    
-	 } else {
-	    frag.addresidue(construct_joining_res(get_phi_psi_by_random(),
-						  next_residue_seq_num,
-						  next_n,
-						  next_ca,
-						  next_c), 0);
+	    // do_rigid_body_refinement is ignored
+	    //
+	    std::cout << "dispatching set " << trial_idx_start << " " << trial_idx_end << std::endl;
+	    thread_pool_p->push(fit_terminal_residue_generic_trial_inner_multithread,
+				trial_idx_start, trial_idx_end, offset, residue_p, next_residue_seq_num,
+				terminus_type, residue_type, b_factor,
+				pos, Xmap(), map_rms, &results);
 	 }
 
-	 std::vector<minimol::atom *> atoms_p = frag.select_atoms_serial();
-	       
-	 if (do_rigid_body_refinement)
-	    rigid_body_refine_ligand(&atoms_p, Xmap()); // tinker with atoms_p
+	 auto tp_2 = std::chrono::high_resolution_clock::now();
+	 // wait for thread pool to finish jobs.
+	 bool wait_continue = true;
+	 while (wait_continue) {
+	    std::this_thread::sleep_for(std::chrono::milliseconds(20));
+	    if (thread_pool_p->n_idle() == thread_pool_p->size())
+	       wait_continue = false;
+	 }
+	 auto tp_3 = std::chrono::high_resolution_clock::now();
+	 // std::cout << "multithread results: " << std::endl;
+	 for (int itrial=0; itrial<n_trials; itrial++) {
+	    // std::cout << "mt   " << itrial << " " << results[itrial].first.atom_point_score << std::endl;
+	    if (results[itrial].first.atom_point_score > best_score) {
+	       best_score = results[itrial].first.atom_point_score;
+	       best_fragment = results[itrial].second;
+	    }
+	 }
+	 auto tp_4 = std::chrono::high_resolution_clock::now();
+	 auto d21 = chrono::duration_cast<chrono::milliseconds>(tp_2 - tp_1).count();
+	 auto d32 = chrono::duration_cast<chrono::milliseconds>(tp_3 - tp_2).count();
+	 auto d43 = chrono::duration_cast<chrono::milliseconds>(tp_4 - tp_3).count();
+	 std::cout << "Timings: " << d21 << " " << d32 << " " << d43 << " ms" << std::endl;
+      } else {
+	 // standard non-threaded
+	 auto tp_1 = std::chrono::high_resolution_clock::now();
+	 for (int itrial=0; itrial<n_trials; itrial++) {
+	    std::pair<ligand_score_card, minimol::fragment> fitted_thing =
+	       fit_terminal_residue_generic_trial_inner(itrial, offset, next_residue_seq_num, pos, two_residues_flag, do_rigid_body_refinement);
 
-	 s = score_orientation(atoms_p, Xmap());
+	    const ligand_score_card &s = fitted_thing.first;
+	    const minimol::fragment &frag = fitted_thing.second;
+	    if (s.atom_point_score > best_score) {
+	       best_score = s.atom_point_score;
+	       best_fragment = frag;
+	    }
+	 }
+	 auto tp_2 = std::chrono::high_resolution_clock::now();
+	 auto d21 = chrono::duration_cast<chrono::milliseconds>(tp_2 - tp_1).count();
+	 std::cout << "Timings: " << d21 << " ms " << std::endl;
+      }
 
-	 // std::cout << "score-trial " << itrial << " " << s << std::endl;
+#else
 
+      for (int itrial=0; itrial<n_trials; itrial++) {
+	 std::pair<ligand_score_card, minimol::fragment> fitted_thing = 
+	    fit_terminal_residue_generic_trial_inner(itrial, offset, next_residue_seq_num, pos, two_residues_flag, do_rigid_body_refinement);
+
+	 const ligand_score_card &s = fitted_thing.first;
+	 const minimol::fragment &frag = fitted_thing.second;
 	 if (s.atom_point_score > best_score) {
 	    best_score = s.atom_point_score;
 	    best_fragment = frag;
 	 }
-
-	 if (debug) {
-	    // DEBUGGING:  Let's write a pdb file for this fragment
-	    // Then look at them all.  Are they sensibly placed?
- 	    coot::minimol::molecule m_tmp;
- 	    m_tmp.fragments.push_back(frag);
- 	    std::string tmp_filename = "phi-psi-";
-	    tmp_filename += util::int_to_string(itrial); 
- 	    tmp_filename += ".pdb";
- 	    m_tmp.write_file(tmp_filename, 10);
-         }
       } // ends the n_trials for-loop
+#endif
+
    }
    if (best_fragment.residues.size() == 0) { 
       std::cout << "WARNING! fit_terminal_residue_generic:"
 		<< " best_fragment is empty" << std::endl;
-   } 
+   }
    return best_fragment;
+}
+
+// The function will do no rigid body refinement and only to the 2 residue addition version
+//
+// static
+void
+coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner_multithread(int ithread_idx,
+									       int itrial_start,
+									       int itrial_end,
+									       int offset,
+									       mmdb::Residue *res_p,
+									       int next_residue_seq_num,
+									       const std::string &terminus_type,
+									       const std::string &residue_type,
+									       float b_factor_in,
+									       const std::vector<clipper::Coord_orth> &pos,
+									       const clipper::Xmap<float> &xmap_in,
+									       float map_rms_in,
+									       std::vector<std::pair<ligand_score_card, minimol::fragment> > *results) {
+
+   // I copied the contents of generic_trial here - the idea is that
+   // score_orientation() doesn't need a map that has been imported into a residue_by_phi_psi.
+   //
+
+   std::string chain_id = res_p->GetChainID();
+   residue_by_phi_psi rphipsi(terminus_type, res_p, chain_id, residue_type, b_factor_in);
+
+   for (int itrial=itrial_start; itrial<itrial_end; itrial++) {
+      // std::pair<coot::ligand_score_card, coot::minimol::fragment> result;
+
+      // replaced this with explicit function details
+      // rphipsi.fit_terminal_residue_generic_trial_inner(itrial, offset, next_residue_seq_num, pos, true, true);
+      // to use the reference xmap_in.
+
+      coot::minimol::fragment frag;
+      clipper::Coord_orth next_n  = pos[0];
+      clipper::Coord_orth next_c  = pos[1];
+      clipper::Coord_orth next_ca = pos[2];
+
+      phi_psi_pair p1 = rphipsi.get_phi_psi_by_random();
+      phi_psi_pair p2 = rphipsi.get_phi_psi_by_random();
+      frag = rphipsi.make_2_res_joining_frag(chain_id, p1, p2,
+					     res_p->GetSeqNum(),
+					     offset,  // + or - 1
+					     next_n,
+					     next_ca,
+					     next_c);
+
+      std::vector<minimol::atom *> atoms_p = frag.select_atoms_serial();
+      coot::ligand_score_card s = rphipsi.score_orientation(atoms_p, xmap_in);
+      std::pair<coot::ligand_score_card, coot::minimol::fragment> result(s, frag);
+      (*results)[itrial] = result;
+   }
+
+}
+
+std::pair<coot::ligand_score_card, coot::minimol::fragment>
+coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner(int itrial,
+								   int offset,
+								   int next_residue_seq_num,
+								   const std::vector<clipper::Coord_orth> &pos,
+								   bool two_residues_flag,
+								   bool do_rigid_body_refinement
+								   ) const {
+
+   bool debug = false;
+   coot::minimol::fragment frag;
+   clipper::Coord_orth next_n  = pos[0];
+   clipper::Coord_orth next_c  = pos[1];
+   clipper::Coord_orth next_ca = pos[2];
+
+   if (two_residues_flag) { // the majority of times
+      phi_psi_pair p1 = get_phi_psi_by_random();
+      phi_psi_pair p2 = get_phi_psi_by_random();
+
+      if (false) {
+	 std::ofstream out("phi-psis.tab", std::ios::app);
+	 out << "phi-psi 1 " << p1.phi << " " << p1.psi << " " << p1.tau << std::endl;
+	 // out << "phi-psi 2 " << p2.phi << " " << p2.psi << " " << p2.tau << std::endl;
+      }
+
+      frag = make_2_res_joining_frag(chain_id, p1, p2,
+				     residue_p->GetSeqNum(),
+				     offset,  // + or - 1
+				     next_n,
+				     next_ca,
+				     next_c);
+
+      // 	    std::cout << "DEBUG:: back from make_2: checking " << std::endl;
+      // 	    frag.check();
+      // 	    std::cout << "DEBUG:: (back from make_2) make_2_res_joining_frag returns "
+      // 		      << "fragment of size " <<  frag.residues.size()
+      // 		      << " residues " << std::endl;
+
+      // 	    std::cout << "Here is some residue information about frag (residues_offset: " <<
+      // 		      frag.min_res_no() -1 << "):\n";
+      // 	    for (int ii=0; ii<frag.residues.size(); ii++)
+      // 	       std::cout << "   residue index " << ii << " has seqnum: "
+      // 			 << frag.residues[ii].seqnum << " and "
+      // 			 << frag.residues[ii].atoms.size()
+      // 			 << " atoms" << std::endl;
+
+      if (debug) {
+	 int neighb_seqnum = residue_p->GetSeqNum();
+
+	 clipper::Coord_orth frag_n;
+	 clipper::Coord_orth frag_ca;
+	 clipper::Coord_orth frag_c;
+	 clipper::Coord_orth frag_n_plus_1;
+	 if (offset == 1) {
+	    frag_n        = frag[neighb_seqnum+1][" N  "].pos;
+	    frag_ca       = frag[neighb_seqnum+1][" CA "].pos;
+	    frag_c        = frag[neighb_seqnum+1][" C  "].pos;
+	    frag_n_plus_1 = frag[neighb_seqnum+2][" N  "].pos;
+	 } else {
+	    // std::cout << "CHECKME! getting atoms from residues "
+	    // << neighb_seqnum-1 << " and " << neighb_seqnum - 2 << std::endl;
+	    frag_n        = frag[neighb_seqnum-1][" N  "].pos;
+	    frag_ca       = frag[neighb_seqnum-1][" CA "].pos;
+	    frag_c        = frag[neighb_seqnum-1][" C  "].pos;
+	    frag_n_plus_1 = frag[neighb_seqnum-2][" N  "].pos;
+	 }
+
+	 float phi_real = clipper::Util::rad2d(clipper::Coord_orth::torsion(next_c, frag_n, frag_ca, frag_c));
+	 float psi_real = clipper::Util::rad2d(clipper::Coord_orth::torsion(frag_n, frag_ca, frag_c, frag_n_plus_1));
+	 std::cout <<  "Rama-values:: " << phi_real << " " << psi_real << std::endl;
+      } // end debug
+
+   } else {
+      frag.addresidue(construct_joining_res(get_phi_psi_by_random(),
+					    next_residue_seq_num,
+					    next_n,
+					    next_ca,
+					    next_c), 0);
+   }
+
+   std::vector<minimol::atom *> atoms_p = frag.select_atoms_serial();
+
+   // we can't call this because rigid_body_refine_ligand() is not cont
+   //
+   // if (do_rigid_body_refinement)
+   //     rigid_body_refine_ligand(&atoms_p, Xmap()); // tinker with atoms_p
+
+   coot::ligand_score_card s = score_orientation(atoms_p, Xmap());
+
+   // std::cout << "score-trial " << itrial << " " << s << std::endl;
+
+   if (debug) {
+      // DEBUGGING:  Let's write a pdb file for this fragment
+      // Then look at them all.  Are they sensibly placed?
+      coot::minimol::molecule m_tmp;
+      m_tmp.fragments.push_back(frag);
+      std::string tmp_filename = "phi-psi-";
+      tmp_filename += util::int_to_string(itrial);
+      tmp_filename += ".pdb";
+      m_tmp.write_file(tmp_filename, 10);
+   }
+
+   return std::pair<ligand_score_card, minimol::fragment> (s, frag);
+
 }
 
 // Return a 2 residue fragment that attaches to the starting residue.

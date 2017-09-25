@@ -18,6 +18,15 @@
  * 02110-1301, USA.
  */
 
+#ifndef RESIDUE_BY_PHI_PSI_HH
+#define RESIDUE_BY_PHI_PSI_HH
+
+#ifdef HAVE_CXX_THREAD
+#include <thread>
+#include <chrono>
+#include "utils/ctpl_stl.h"
+#endif // HAVE_CXX_THREAD
+
 #include "ligand.hh"
 #include "clipper/core/ramachandran.h"
 
@@ -70,7 +79,6 @@ namespace coot {
 					 const clipper::Coord_orth &next_ca,
 					 const clipper::Coord_orth &next_c) const; 
 
-     
      minimol::residue construct_joining_res(const phi_psi_pair &pp,
 						  int seqno,
 						  const clipper::Coord_orth &next_n,
@@ -78,9 +86,32 @@ namespace coot {
 						  const clipper::Coord_orth &next_c) const;
 	
      std::vector<clipper::Coord_orth> get_connecting_residue_atoms() const; 
-     minimol::fragment fit_terminal_residue_generic(int n_trials,
-						    int offset, 
+     minimol::fragment fit_terminal_residue_generic(int n_trials, int offset,
 						    bool do_rigid_body_refinement);
+
+     // should this be static?
+     std::pair<ligand_score_card, coot::minimol::fragment>
+     fit_terminal_residue_generic_trial_inner(int itrial,
+					      int offset,
+					      int next_residue_seq_num,
+					      const std::vector<clipper::Coord_orth> &pos,
+					      bool two_residues_flag,
+					      bool do_rigid_body_refinement) const;
+
+     static
+     void fit_terminal_residue_generic_trial_inner_multithread(int ithread_idx,
+							       int itrial_start,
+							       int itrial_end,
+							       int offset,
+							       mmdb::Residue *res_p,
+							       int next_residue_seq_num,
+							       const std::string &terminus_type,
+							       const std::string &residue_type,
+							       float b_factor_in,
+							       const std::vector<clipper::Coord_orth> &pos,
+							       const clipper::Xmap<float> &xmap_in,
+							       float map_rms_in,
+							       std::vector<std::pair<ligand_score_card, minimol::fragment> > *results);
 
      minimol::fragment
      make_2_res_joining_frag(const std::string &chain_id,
@@ -110,6 +141,17 @@ namespace coot {
      // offset: N or C addition (-1 or 1).
      minimol::fragment best_fit_phi_psi(int n_trials, int offset); 
 
+#ifdef HAVE_CXX_THREAD
+     ctpl::thread_pool *thread_pool_p;
+     unsigned int n_threads;
+     void thread_pool(ctpl::thread_pool *tp_in, int n_threads_in) {
+	thread_pool_p = tp_in;
+	n_threads = n_threads_in;
+     }
+   
+#endif // HAVE_CXX_THREAD
+   
+
   };
 
   minimol::residue
@@ -133,6 +175,6 @@ namespace coot {
 			      const std::string &res_type,
 			      float b_factor_in,
 			      int n_trials);
-
-
 } // namespace coot
+
+#endif // RESIDUE_BY_PHI_PSI_HH
