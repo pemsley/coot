@@ -521,14 +521,12 @@
 	     (table (gtk-table-new 3 2 #f))
 	     (butt-1 (gtk-radio-button-new-with-label #f     "High Mannose"))
 	     (butt-2 (gtk-radio-button-new-with-label butt-1 "Hybrid (Mammal)"))
-	     ;; (butt-3 (gtk-radio-button-new-with-label butt-1 "Hybrid (Plant)"))
 	     (butt-4 (gtk-radio-button-new-with-label butt-1 "Complex (Mammal)"))
 	     (butt-5 (gtk-radio-button-new-with-label butt-1 "Complex (Plant) "))
 	     (butt-6 (gtk-radio-button-new-with-label butt-1 "Expert User Mode")))
 
 	(gtk-widget-show butt-1)
 	(gtk-widget-show butt-2)
-	(gtk-widget-show butt-3)
 	(gtk-widget-show butt-4)
 	(gtk-widget-show butt-5)
 	(gtk-widget-show butt-6)
@@ -536,12 +534,11 @@
 ; table
 
 	;; add buttons for nice(?) layout/order
-	(gtk-table-attach table butt-1 0 1 0 1 '(expand fill) '(expand fill) 0 0)
-	(gtk-table-attach table butt-2 1 2 0 1 '(expand fill) '(expand fill) 0 0)
-	(gtk-table-attach table butt-4 2 3 0 1 '(expand fill) '(expand fill) 0 0)
-	(gtk-table-attach table butt-6 0 1 1 2 '(expand fill) '(expand fill) 0 0)
-	(gtk-table-attach table butt-3 1 2 1 2 '(expand fill) '(expand fill) 0 0)
-	(gtk-table-attach table butt-5 2 3 1 2 '(expand fill) '(expand fill) 0 0)
+	(gtk-table-attach table butt-1 0 1 0 1 '(expand fill) '(expand fill) 0 0) ;; high mannose
+	(gtk-table-attach table butt-4 1 2 0 1 '(expand fill) '(expand fill) 0 0) ;; complex mammal
+	(gtk-table-attach table butt-6 0 1 1 2 '(expand fill) '(expand fill) 0 0) ;; Expert
+	(gtk-table-attach table butt-5 1 2 1 2 '(expand fill) '(expand fill) 0 0) ;; complex plant
+	(gtk-table-attach table butt-2 2 3 0 1 '(expand fill) '(expand fill) 0 0) ;; hybrid mammal
 
 	(gtk-box-pack-start vbox table #t #t 2)
 	(gtk-widget-show table)
@@ -551,7 +548,7 @@
 		    (gtk-signal-connect butt "toggled"
 					(lambda ()
 					  (gui-add-linked-cho-dialog-vbox-set-rotation-centre-hook vbox))))
-		  (list butt-1 butt-2 butt-3 butt-4 butt-5 butt-6)))
+		  (list butt-1 butt-2 butt-4 butt-5 butt-6)))
 
       ;; global var post-set-rotation-centre-hook
       (set! post-set-rotation-centre-hook

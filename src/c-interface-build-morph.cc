@@ -191,6 +191,7 @@ int morph_fit_by_secondary_structure_elements(int imol, const std::string &chain
       if (is_valid_model_molecule(imol)) {
 	 const clipper::Xmap<float> &xmap = g.molecules[imol_ref_map].xmap;
 	 float map_rmsd                   = g.molecules[imol_ref_map].map_sigma();
+	 g.molecules[imol].add_secondary_structure_header_records();
 	 success = g.molecules[imol].morph_fit_by_secondary_structure_elements(chain_id, xmap, map_rmsd);
 	 graphics_draw();
       } else {

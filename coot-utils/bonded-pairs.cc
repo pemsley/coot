@@ -204,13 +204,13 @@ coot::bonded_pair_container_t::filter() {
                  // the residues are currently in the correct order (with say, the NAG as res_1
                  // and the ASN as res_2).  Why did I think I needed this?
                  // 20170422 use reorder. But reorder now only reorders protein and nucleotides.
-                 // reorder is needed for to-distant-by-residue-numbering comparison filter below.
+                 // reorder is needed for too-distant-by-residue-numbering comparison filter below.
 
    std::vector<bonded_pair_t> new_bonded_residues;
    bool debug = false;
 
    if (debug) {
-      std::cout << ":::: we have these bonded pairs" << std::endl;
+      std::cout << "DEBUG::: bonded_pair_container_t::filter(): we have these bonded pairs" << std::endl;
       for (unsigned int i=0; i<bonded_residues.size(); i++) {
 	 const bonded_pair_t &bp_i = bonded_residues[i];
 	 std::cout << i << "   "

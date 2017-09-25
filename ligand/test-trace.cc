@@ -38,7 +38,7 @@ int main(int argc, char **argv) {
 
    if (coot::file_exists(map_file_name)) {
 
-      try { 
+      try {
 	 clipper::CCP4MAPfile file;
 	 clipper::Xmap<float> xmap;
 	 file.open_read(map_file_name);
@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
 
 	 coot::trace t(xmap);
 
-	 if (argc > 3) { 
+	 if (argc > 3) {
 	    std::string pdb_name = argv[2];
 	    mmdb::Manager *mol = new mmdb::Manager;
 	    std::cout << "Reading coordinate file: " << pdb_name.c_str() << "\n";

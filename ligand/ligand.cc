@@ -2405,7 +2405,7 @@ coot::ligand::rigid_body_refine_ligand(std::vector<minimol::atom *> *atoms_p,
 				       const clipper::Xmap<float> &xmap_fitting) {
 
    int n_atoms = atoms_p->size();
-   int round_max = 500;
+   int round_max = 300;
    int iround = 0;
    double move_by_length = 1.0; // just to past test initially
    double angle_sum = 1.0;      // as above
@@ -2657,18 +2657,14 @@ coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
 
    coot::ligand_score_card score_card;
    int n_positive_atoms = 0; 
-      
-   float dv; 
 
    int n_non_hydrogens = 0;
    
    for (unsigned int ii=0; ii<atoms.size(); ii++) {
-      clipper::Coord_orth atom_pos(atoms[ii]->pos.x(),
-				   atoms[ii]->pos.y(),
-				   atoms[ii]->pos.z());
-      clipper::Coord_frac atom_pos_frc = atom_pos.coord_frac(xmap_pristine.cell());
+      const clipper::Coord_orth &atom_pos = atoms[ii]->pos;
+      clipper::Coord_frac atom_pos_frc = atom_pos.coord_frac(xmap_fitting.cell());
       if (!atoms[ii]->is_hydrogen_p()) {
-	 dv = xmap_fitting.interp<clipper::Interp_cubic>(atom_pos_frc);
+	 float dv = xmap_fitting.interp<clipper::Interp_cubic>(atom_pos_frc);
 	 score_card.atom_point_score += dv;
 	 n_non_hydrogens++; 
 	 if (dv > 0)
@@ -2741,10 +2737,9 @@ coot::ligand::cluster_centres() const {
    float d;
    for (unsigned int ic=0; ic<cluster.size(); ic++) {
 
-      clipper::Coord_orth pos(cluster[ic].eigenvectors_and_centre.trn());
-      d = density_at_point(pos, xmap_cluster);
-      
-      std::pair<clipper::Coord_orth, float> p(pos, d);
+      clipper::Coord_orth pos_l(cluster[ic].eigenvectors_and_centre.trn());
+      d = density_at_point(pos_l, xmap_cluster);
+      std::pair<clipper::Coord_orth, float> p(pos_l, d);
       c.push_back(p);
    }
 

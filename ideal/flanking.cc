@@ -246,7 +246,12 @@ coot::bonded_pair_container_t
 coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const coot::protein_geometry &geom) const {
 
    coot::bonded_pair_container_t bpc;
-   float dist_crit = 3.0;
+   float dist_crit = 2.0; // 20170924-PE was 3.0 but this made a horrible link in a tight turn
+                          // (which I suspect is not uncommon) crazy-neighbour-refine-519.pdb
+                          // for EMDB 6224.
+                          // 520 was bonded to 522 in a neighb (3-residue) refine on 519.
+                          // This function is called by init (and (I think) make_restraints)
+                          // init doesn't set bonded_pairs_container (make_restraints does that).
 
    // Don't forget to consider the case were we refine one residue,
    // and that is the ASN for a glycosylation.  So the neighbouring
@@ -255,6 +260,9 @@ coot::restraints_container_t::bonded_flanking_residues_by_residue_vector(const c
    // But that is a really hard thing - isn't it? To find a GLC that
    // is connected to this residue?
 
+   if (false)
+      std::cout << "DEBUG:: here in bonded_flanking_residues_by_residue_vector() bonded_pairs_container has size "
+		<< bonded_pairs_container.size() << std::endl;
    
    for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
 

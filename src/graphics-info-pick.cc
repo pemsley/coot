@@ -618,7 +618,7 @@ graphics_info_t::move_moving_atoms_by_shear_internal(const coot::Cartesian &diff
    double dr;
    for (int i=0; i<moving_atoms_asc->n_selected_atoms; i++) {
 
-      mmdb::Atom *at = moving_atoms_asc->atom_selection[i];
+      at = moving_atoms_asc->atom_selection[i];
       coot::Cartesian atom_pt(at->x, at->y, at->z);
       if (linear_movement_scaling_flag == 0) {
 	 // 	 frac = (1.0 - d_to_moving_at[i]/d_to_moving_at_max); old

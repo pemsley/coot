@@ -426,6 +426,9 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
 	       // std::cout << "downweighting atom " << coot::atom_spec_t(atom[i]) << std::endl;
 	       weight = 0.1;
 	    }
+	 std::string at_name = atom[i]->name;
+	 if (at_name == " O  ")
+	    weight = 0.2;
       }
 
       if (z < 0.0) {
@@ -459,6 +462,9 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 						    const std::vector<atom_spec_t> &fixed_atom_specs) {
 
 
+   // This function is called from the constructor.
+   // make_restraints() is called after this function by the user of this class.
+   
    init_shared_pre(mol);
    residues_vec = residues;
 
@@ -493,6 +499,11 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 
    // what about adding the flanking residues?  How does the atom
    // indexing of that work when (say) adding a bond?
+
+   if (false)
+      std::cout << "debug::info in init_from_residue_vec() calling bonded_flanking_residues_by_residue_vector() "
+		<< std::endl;
+
    bonded_pair_container_t bpc = bonded_flanking_residues_by_residue_vector(geom);
 
    // internal variable non_bonded_neighbour_residues is set by this
@@ -535,7 +546,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 	    all_residues.push_back(bpc[i].res_2);
 	    n_bonded_flankers_in_total++;
 	 }
-      } 
+      }
    }
 
    // Finally add the neighbour residues that are not bonded:
@@ -1626,7 +1637,7 @@ coot::restraints_container_t::make_restraints(int imol,
       std::cout << "----- make restraints() called with geom of size : " << geom.size() << std::endl;
       std::cout << "    geom ref pointer " << &geom << std::endl;
    }
-   
+
    restraints_usage_flag = flags_in; // also set in minimize() and geometric_distortions()
    // restraints_usage_flag = BONDS_AND_ANGLES;
    // restraints_usage_flag = GEMAN_MCCLURE_DISTANCE_RESTRAINTS;
@@ -1652,10 +1663,14 @@ coot::restraints_container_t::make_restraints(int imol,
       if (! do_flank_restraints)
 	 do_flank_restraints_internal = false;
 
+      // sets bonded_pairs_container
       if (do_link_restraints_internal)
 	 make_link_restraints(geom, do_rama_plot_restraints, do_trans_peptide_restraints);
 
-      // don't do torsions, ramas maybe.   
+      std::cout << "after make_link_restraints() bonded_pairs_container has size "
+		<< bonded_pairs_container.size() << std::endl;
+
+      // don't do torsions, ramas maybe.
       coot::bonded_pair_container_t bpc;
 
       if (do_flank_restraints_internal)
@@ -3078,7 +3093,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 	       if (false) { // debug.
 	          clipper::Coord_orth pt1(atom[i]->x, atom[i]->y, atom[i]->z);
 	          clipper::Coord_orth pt2(at_2->x,    at_2->y,    at_2->z);
-	          double d = sqrt((pt1-pt2).lengthsq());
+	          double dd = sqrt((pt1-pt2).lengthsq());
 
 	          std::cout << "adding non-bonded contact restraint index " 
 			    << i << " to index " << filtered_non_bonded_atom_indices[i][j]
@@ -3086,7 +3101,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 			    << atom_spec_t(atom[i]) << " to " 
 			    << atom_spec_t(atom[filtered_non_bonded_atom_indices[i][j]])
 			    << "  types: " << type_1 <<  " " << type_2 <<  " fixed: "
-			    << fixed_atom_flags[0] << " " << fixed_atom_flags[1] << "   current: " << d
+			    << fixed_atom_flags[0] << " " << fixed_atom_flags[1] << "   current: " << dd
 			    << " dist_min: " << dist_min << std::endl;
 	       }
 
@@ -4889,10 +4904,10 @@ coot::restraints_container_t::update_atoms(gsl_vector *s) {
    if (false) { 
       std::cout << "update_atom(0): from " << atom[0]->x  << " " << atom[0]->y << " " << atom[0]->z
 		<< std::endl;
-      double x = gsl_vector_get(s, 0);
-      double y = gsl_vector_get(s, 1);
-      double z = gsl_vector_get(s, 2);
-      std::cout << "                  to " << x  << " " << y << " " << z << std::endl;
+      double xx = gsl_vector_get(s, 0);
+      double yy = gsl_vector_get(s, 1);
+      double zz = gsl_vector_get(s, 2);
+      std::cout << "                  to " << xx  << " " << yy << " " << zz << std::endl;
    }
    
    for (int i=0; i<n_atoms; i++) { 

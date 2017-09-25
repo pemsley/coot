@@ -1490,18 +1490,18 @@ graphics_info_t::run_post_set_rotation_centre_hook_py() {
 
 
 void
-graphics_info_t::update_environment_distances_by_rotation_centre_maybe(int imol_moving_atoms) {
+graphics_info_t::update_environment_distances_by_rotation_centre_maybe(int imol_in) {
    
    // Oh this is grimly "long hand".
    graphics_info_t g;
    if (g.environment_show_distances) {
-      coot::at_dist_info_t at_d_i = g.molecules[imol_moving_atoms].closest_atom(RotationCentre());
+      coot::at_dist_info_t at_d_i = g.molecules[imol_in].closest_atom(RotationCentre());
       if (at_d_i.atom) {
 	 int atom_index;
-	 if (at_d_i.atom->GetUDData(g.molecules[imol_moving_atoms].atom_sel.UDDAtomIndexHandle,
+	 if (at_d_i.atom->GetUDData(g.molecules[imol_in].atom_sel.UDDAtomIndexHandle,
 				    atom_index) == mmdb::UDDATA_Ok) {
-	    g.mol_no_for_environment_distances = imol_moving_atoms;
-	    g.update_environment_distances_maybe(atom_index, imol_moving_atoms);
+	    g.mol_no_for_environment_distances = imol_in;
+	    g.update_environment_distances_maybe(atom_index, imol_in);
 	 }
       }
    }
@@ -1819,7 +1819,7 @@ graphics_info_t::draw_moving_atoms_graphics_object(bool against_a_dark_backgroun
 	       glColor3f (0.5, 0.5, 0.5);
 	 }
 
-	 graphical_bonds_lines_list &ll = graphics_info_t::regularize_object_bonds_box.bonds_[i];
+	 graphical_bonds_lines_list<graphics_line_t> &ll = graphics_info_t::regularize_object_bonds_box.bonds_[i];
 
 	 glBegin(GL_LINES); 
 	 for (int j=0; j< graphics_info_t::regularize_object_bonds_box.bonds_[i].num_lines; j++) {
@@ -1915,7 +1915,7 @@ graphics_info_t::environment_graphics_object_internal_lines(const graphical_bond
 
       if (env_bonds_box.num_colours > 0) {
 
-	 graphical_bonds_lines_list ll;
+	 graphical_bonds_lines_list<graphics_line_t> ll;
 	 coot::Cartesian text_pos;
 	 float dist;
 
@@ -1989,7 +1989,7 @@ graphics_info_t::environment_graphics_object_internal_tubes(const graphical_bond
 	 float dark_bg_cor = 0.0;
 	 if (! background_is_black_p())
 	    dark_bg_cor = 0.29;
-	 
+
 	 glEnable(GL_COLOR_MATERIAL);
 
 	 for (int i=0; i< env_bonds_box.num_colours; i++) {
@@ -2003,7 +2003,7 @@ graphics_info_t::environment_graphics_object_internal_tubes(const graphical_bond
 		  display_these_distances_flag = 0;
 
 	    if (display_these_distances_flag) { 
-	       graphical_bonds_lines_list ll = env_bonds_box.bonds_[i]; // lightweight
+	       graphical_bonds_lines_list<graphics_line_t> ll = env_bonds_box.bonds_[i]; // lightweight
 	       float it = float(i);
 	       if (it > 1.0) 
 		  it = 1.0;
@@ -3244,7 +3244,7 @@ graphics_info_t::start_baton_here() {
 // 
 void
 graphics_info_t::baton_next_directions(int imol_for_skel, mmdb::Atom *latest_atom,
-				       const coot::Cartesian &baton_root,
+				       const coot::Cartesian &baton_root_in,
 				       const clipper::Coord_grid &cg_start,
 				       short int use_cg_start) {
 
@@ -3255,14 +3255,14 @@ graphics_info_t::baton_next_directions(int imol_for_skel, mmdb::Atom *latest_ato
    std::vector<clipper::Coord_orth> previous_ca_positions;
    // store the position of the just accepted atom as a previous atom
    // 
-   // previous_ca_positions.push_back(to_coord_orth(baton_root));
+   // previous_ca_positions.push_back(to_coord_orth(baton_root_in));
    int imol_baton_atoms = baton_build_atoms_molecule();
 
 
    // std::cout << "DEBUG INFO:::::: latest_atom is " << latest_atom << std::endl;
 
    if (latest_atom == NULL) {
-      previous_ca_positions.push_back(to_coord_orth(baton_root));
+      previous_ca_positions.push_back(to_coord_orth(baton_root_in));
    } else {
       previous_ca_positions = molecules[imol_baton_atoms].previous_baton_atom(latest_atom, 
 									      baton_build_direction_flag);
@@ -5119,8 +5119,8 @@ graphics_info_t::check_chiral_volumes(int imol) {
 	 if (w) 
 	    gtk_widget_show(w);
 	 if (v.first.size() != 0) { // bad, there was at least one residue not found in dic.
-	    GtkWidget *w = wrapped_create_chiral_restraints_problem_dialog(v.first);
-	    gtk_widget_show(w);
+	    GtkWidget *wcc = wrapped_create_chiral_restraints_problem_dialog(v.first);
+	    gtk_widget_show(wcc);
 	 }
       }
    }

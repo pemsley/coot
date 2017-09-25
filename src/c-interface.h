@@ -398,9 +398,13 @@ void sort_residues(int imol);
 /*! \brief a gui dialog showing remarks header info (for a model molecule). */
 void remarks_dialog(int imol);
 
-/*! \brief simply print secondardy structure info to the
+/*! \brief simply print secondary structure info to the
   terminal/console.  In future, this could/should return the info.  */
 void print_header_secondary_structure_info(int imol);
+
+/*! \brief add secondary structure info to the
+  internal representation of the model */
+void add_header_secondary_structure_info(int imol);
 
 
 /*  Placeholder only.
@@ -4435,7 +4439,7 @@ float get_bond_colour_rotation_for_molecule(int imol);
 
 void set_unbonded_atom_star_size(float f);
 
-/*! \brief set the default represenation type (default 1).*/
+/*! \brief set the default representation type (default 1).*/
 void set_default_representation_type(int type);
 
 /*! \brief get the default thickness for bonds*/
@@ -4733,6 +4737,7 @@ void set_add_terminal_residue_n_phi_psi_trials(int n);
 /* Add Terminal Residues actually build 2 residues, this allows us to
    see both residues - default is 0 (off). */
 void set_add_terminal_residue_add_other_residue_flag(int i);
+void set_add_terminal_residue_do_rigid_body_refine(short int v); 
 void set_terminal_residue_do_rigid_body_refine(short int v); 
 int add_terminal_residue_immediate_addition_state(); 
 
@@ -4815,6 +4820,9 @@ void delete_residue_sidechain(int imol, const char *chain_id, int resno, const c
    @return number of hydrogens deleted. */
 int delete_hydrogens(int imol);
 
+/*! \brief delete the chain  */
+void delete_chain(int imol, const char *chain_id);
+
 void post_delete_item_dialog();
 
 
@@ -4825,10 +4833,12 @@ void set_delete_residue_zone_mode();
 void set_delete_residue_hydrogens_mode();
 void set_delete_water_mode();
 void set_delete_sidechain_mode();
+void set_delete_chain_mode();
 short int delete_item_mode_is_atom_p(); /* (predicate) a boolean */
 short int delete_item_mode_is_residue_p(); /* predicate again */
 short int delete_item_mode_is_water_p();
 short int delete_item_mode_is_sidechain_p();
+short int delete_item_mode_is_chain_p();
 void clear_pending_delete_item(); /* for when we cancel with picking an atom */
 void clear_delete_item_widget();
 void store_delete_item_widget_position();
