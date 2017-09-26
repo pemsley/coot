@@ -2212,8 +2212,9 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	     terminus_type == "singleton")
 	    masked_map_val = 0.0;
 	 addres.set_masked_map_value(masked_map_val);   
-	 addres.import_map_from(molecules[imol_map].xmap,
-				molecules[imol_map].map_sigma());
+
+	 // addres.import_map_from(molecules[imol_map].xmap,
+	 // molecules[imol_map].map_sigma());
 
 	 // This masked map will be the one that is used for rigid
 	 // body refinement, unlike normal ligand class usage which
@@ -2254,7 +2255,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 							  radius, mmdb::SKEY_NEW);
 	       molecules[imol].atom_sel.mol->GetSelIndex(SelHndSphere, atom_sel, n_selected_atoms);
 	       int invert_flag = 0;
-	       addres.mask_map(molecules[imol].atom_sel.mol, SelHndSphere, invert_flag);
+	       // addres.mask_map(molecules[imol].atom_sel.mol, SelHndSphere, invert_flag);
 	       molecules[imol].atom_sel.mol->DeleteSelection(SelHndSphere);
 	    }
 	 } else {
@@ -2273,10 +2274,15 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 		      << add_terminal_residue_n_phi_psi_trials << " random trials" 
 		      << std::endl;
 
+	 // old
+  	 // coot::minimol::molecule mmol = 
+	 // addres.best_fit_phi_psi(add_terminal_residue_n_phi_psi_trials, 
+	 // terminal_residue_do_rigid_body_refine,
+	 // add_terminal_residue_add_other_residue_flag);
+
   	 coot::minimol::molecule mmol = 
 	    addres.best_fit_phi_psi(add_terminal_residue_n_phi_psi_trials, 
-				    terminal_residue_do_rigid_body_refine,
-				    add_terminal_residue_add_other_residue_flag);
+				    molecules[imol_map].xmap);
 
 	 std::vector<coot::minimol::atom *> mmatoms = mmol.select_atoms_serial();
 	 // mmol.check();
@@ -2303,7 +2309,6 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	    } else {
 
 	       atom_selection_container_t terminal_res_asc;
-	       float bf = default_new_atoms_b_factor;
 
 	       // if this is begin added to a shelx molecule, then we
 	       // need to set the occs to 11.0
@@ -2509,8 +2514,7 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
 
 	       atom_selection_container_t asc = make_asc(residue_mol);
 	       // set the chain id of the chain that contains interesting_residue_p:
-	       mmdb::Model *model_p = residue_mol->GetModel(imod);
-	       mmdb::Chain *chain_p;
+	       model_p = residue_mol->GetModel(imod);
 	       // run over chains of the existing mol
 	       nchains = model_p->GetNumberOfChains();
 	       for (int ichain=0; ichain<nchains; ichain++) {

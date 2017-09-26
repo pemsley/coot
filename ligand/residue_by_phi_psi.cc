@@ -46,12 +46,22 @@ coot::residue_by_phi_psi::residue_by_phi_psi(const std::string &terminus,
    set_dont_write_solutions();
 }  
 
+// This is the new externally called function
+// 
+coot::minimol::molecule
+coot::residue_by_phi_psi::best_fit_phi_psi(int n_trials,
+					   const clipper::Xmap<float> &xmap_in) {
+
+   return best_fit_phi_psi(n_trials, false, false, xmap_in);
+
+}
 // This is the externally called function
 // 
 coot::minimol::molecule
 coot::residue_by_phi_psi::best_fit_phi_psi(int n_trials,
 					   bool do_rigid_body_refinement,
-					   bool add_other_residue_flag) { 
+					   bool add_other_residue_flag,
+					   const clipper::Xmap<float> &xmap_in) {
 
    coot::minimol::molecule m;
    int offset = 0;
@@ -87,7 +97,7 @@ coot::residue_by_phi_psi::best_fit_phi_psi(int n_trials,
 	 std::cout << "--- in best_fit_phi_psi() calling fit_terminal_residue_generic() with n_trials "
 		   << n_trials << std::endl;
       }
-      minimol::fragment frag = fit_terminal_residue_generic(n_trials, offset, do_rigid_body_refinement);
+      minimol::fragment frag = fit_terminal_residue_generic(n_trials, offset, do_rigid_body_refinement, xmap_in);
       if (add_other_residue_flag) {
 	 m.fragments.push_back(frag);
       } else {
@@ -131,14 +141,15 @@ coot::minimol::fragment
 coot::residue_by_phi_psi::best_fit_phi_psi(int n_trials, int offset) {
 
    std::cout << "                      called (fragment) best_fit_phi_psi() with offset "
-	     << offset << std::endl;
-   minimol::fragment f = fit_terminal_residue_generic(n_trials, offset, false);
+	     << offset << " -- is this even used? " << std::endl;
+   minimol::fragment f = fit_terminal_residue_generic(n_trials, offset, false, Xmap());
    return f;
-} 
+}
 
 coot::minimol::fragment
 coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset, 
-						       bool do_rigid_body_refinement) {
+						       bool do_rigid_body_refinement,
+						       const clipper::Xmap<float> &xmap_in) {
 
    coot::minimol::fragment best_fragment; // the returned thing
    bool debug = false; // shall we write out hypothesis di-peptides?
@@ -195,7 +206,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 	    thread_pool_p->push(fit_terminal_residue_generic_trial_inner_multithread,
 				trial_idx_start, trial_idx_end, offset, residue_p, next_residue_seq_num,
 				terminus_type, residue_type, b_factor,
-				pos, Xmap(), map_rms, &results);
+				pos, xmap_in, map_rms, &results);
 	 }
 
 	 auto tp_2 = std::chrono::high_resolution_clock::now();

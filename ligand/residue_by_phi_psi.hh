@@ -87,7 +87,8 @@ namespace coot {
 	
      std::vector<clipper::Coord_orth> get_connecting_residue_atoms() const; 
      minimol::fragment fit_terminal_residue_generic(int n_trials, int offset,
-						    bool do_rigid_body_refinement);
+						    bool do_rigid_body_refinement,
+						    const clipper::Xmap<float> &xmap_in);
 
      // should this be static?
      std::pair<ligand_score_card, coot::minimol::fragment>
@@ -135,8 +136,12 @@ namespace coot {
 			float b_factor_in);
 
      minimol::molecule best_fit_phi_psi(int n_trials,
+					const clipper::Xmap<float> &xmap_in);
+
+     minimol::molecule best_fit_phi_psi(int n_trials,
 					bool do_rigid_body_refinement,
-					bool add_other_residue_flag);
+					bool add_other_residue_flag,
+					const clipper::Xmap<float> &xmap_in);
 
      // offset: N or C addition (-1 or 1).
      minimol::fragment best_fit_phi_psi(int n_trials, int offset); 
