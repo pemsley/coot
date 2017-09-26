@@ -2112,9 +2112,9 @@ coot::ligand::similar_eigen_values(int iclust, int ilig) const {
 		<< sqrt(cluster[iclust].eigenvalues[i]) << std::endl;
    }
    
-   for (int i=0; i<3; i++) {
-      if (initial_ligand_eigenvalues[ilig][i] > (1.0+fac)*sqrt(cluster[iclust].eigenvalues[i]) ||
-	  initial_ligand_eigenvalues[ilig][i] < (1.0-fac)*sqrt(cluster[iclust].eigenvalues[i])) {
+   for (int ii=0; ii<3; ii++) {
+      if (initial_ligand_eigenvalues[ilig][ii] > (1.0+fac)*sqrt(cluster[iclust].eigenvalues[ii]) ||
+	  initial_ligand_eigenvalues[ilig][ii] < (1.0-fac)*sqrt(cluster[iclust].eigenvalues[ii])) {
 	 return 0;
       }
    }
