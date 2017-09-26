@@ -202,11 +202,11 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 
 	    // do_rigid_body_refinement is ignored
 	    //
-	    std::cout << "dispatching set " << trial_idx_start << " " << trial_idx_end << std::endl;
+	    std::cout << "dispatching trial set " << trial_idx_start << " to " << trial_idx_end << std::endl;
 	    thread_pool_p->push(fit_terminal_residue_generic_trial_inner_multithread,
 				trial_idx_start, trial_idx_end, offset, residue_p, next_residue_seq_num,
 				terminus_type, residue_type, b_factor,
-				pos, xmap_in, map_rms, &results);
+				pos, std::ref(xmap_in), map_rms, &results);
 	 }
 
 	 auto tp_2 = std::chrono::high_resolution_clock::now();
@@ -274,6 +274,14 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 }
 
 // The function will do no rigid body refinement and only to the 2 residue addition version
+//
+// For the second time it seems that passing a pointer to a xmap doesn't do a copy (when used
+// with *xmap) but having a const ref &xmap *does* do a copy.  i.e. pushing threads is
+// realllly slow with const ref xmaps!
+// Why?
+//
+// [Later] Oh... it's because threads copy their const ref arguments by default. To force
+// a reference, use std::ref.  Done.  Super-fast thread pushing now.
 //
 // static
 void

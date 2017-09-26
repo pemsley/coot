@@ -953,7 +953,7 @@ graphics_info_t::check_dictionary_for_residue_restraints(int imol, mmdb::PResidu
    for (int ires=0; ires<nSelResidues; ires++) {
       std::string resn(SelResidues[ires]->GetResName());
       std::string resname = adjust_refinement_residue_name(resn);
-      int status = geom_p->have_dictionary_for_residue_type(resname, imol, cif_dictionary_read_number);
+      status = geom_p->have_dictionary_for_residue_type(resname, imol, cif_dictionary_read_number);
       cif_dictionary_read_number++;
       if (! status) { 
 	 status_OK = 0;
@@ -1471,64 +1471,63 @@ graphics_info_t::flash_selection(int imol,
 				 int resno_2, 
 				 std::string ins_code_2,
 				 std::string altconf,
-				 std::string chain_id_1) { 
+				 std::string chain_id_1) {
+
+   // std::cout << "----------------- flash_selection() " << std::endl;
 
    // First make an atom selection of the residues selected to regularize.
    // 
-   int selHnd = ((mmdb::Manager *)molecules[imol].atom_sel.mol)->NewSelection();
+   int selHnd = molecules[imol].atom_sel.mol->NewSelection();
    int nSelAtoms;
    mmdb::PPAtom SelAtom;
    const char *chn  = chain_id_1.c_str();
    const char *ins1 = ins_code_1.c_str();
    const char *ins2 = ins_code_2.c_str();
 
-   ((mmdb::Manager *)molecules[imol].atom_sel.mol)->SelectAtoms(selHnd, 0, 
-							       chn,
-							       resno_1, ins1,
-							       resno_2, ins2,
-							       "*",      // RNames
-							       "*","*",  // ANames, Elements
-							       "*" );    // Alternate locations.
+   molecules[imol].atom_sel.mol->SelectAtoms(selHnd, 0,
+					     chn,
+					     resno_1, ins1,
+					     resno_2, ins2,
+					     "*",      // RNames
+					     "*","*",  // ANames, Elements
+					     "*" );    // Alternate locations.
 
+   molecules[imol].atom_sel.mol->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 
-   ((mmdb::Manager *)molecules[imol].atom_sel.mol)->GetSelIndex(selHnd,
-							       SelAtom,
-							       nSelAtoms);
-//    cout << nSelAtoms << " atoms selected to regularize from residue "
-// 	<< resno_1 << " to " << resno_2 << " chain " << chn << endl;
+   if (glarea) {
+      if (nSelAtoms) {
+	 // now we can make an atom_selection_container_t with our new
+	 // atom selection that we will use to find bonds.
 
-   if (nSelAtoms) { 
-      // now we can make an atom_selection_container_t with our new
-      // atom selection that we will use to find bonds.
+	 atom_selection_container_t asc;
+	 asc.mol = molecules[imol].atom_sel.mol;
+	 asc.atom_selection = SelAtom;
+	 asc.n_selected_atoms = nSelAtoms;
 
-      atom_selection_container_t asc; 
-      asc.mol = molecules[imol].atom_sel.mol; 
-      asc.atom_selection = SelAtom; 
-      asc.n_selected_atoms = nSelAtoms; 
+	 int fld = 0;
+	 Bond_lines_container bonds(asc, fld); // don't flash disulfides
 
-      int fld = 0;
-      Bond_lines_container bonds(asc, fld); // don't flash disulfides
-
-      graphical_bonds_container empty_box; 
-      graphical_bonds_container regular_box = bonds.make_graphical_bonds();
+	 graphical_bonds_container empty_box;
+	 graphical_bonds_container regular_box = bonds.make_graphical_bonds();
       
-      int flash_length = residue_selection_flash_frames_number;
+	 int flash_length = residue_selection_flash_frames_number;
 
-      if (glarea) { 
-	 for (int iflash=0; iflash<2; iflash++) { 
-	    regularize_object_bonds_box = regular_box; 
+	 // std::cout << "--------------- flash_length " << flash_length << std::endl;
+
+	 for (int iflash=0; iflash<flash_length; iflash++) {
+	    regularize_object_bonds_box = regular_box;
 	    for (int i=0; i<flash_length; i++)
 	       graphics_draw();
-	    regularize_object_bonds_box = empty_box; 
+	    regularize_object_bonds_box = empty_box;
 	    for (int i=0; i<flash_length; i++)
 	       graphics_draw();
 	 }
-      }
-      regularize_object_bonds_box = empty_box; 
 
-   } // atoms selected
-   molecules[imol].atom_sel.mol->DeleteSelection(selHnd);
-   graphics_draw();
+	 regularize_object_bonds_box = empty_box;
+	 molecules[imol].atom_sel.mol->DeleteSelection(selHnd);
+	 graphics_draw();
+      }
+   }
 }
 
 // static
