@@ -1,10 +1,18 @@
 
    For Release 0.8.9
 
-   o unhide (unsubmarine) Edit Restraints window
+   o unhide (unsubmarine) Edit Restraints window ::: 1
+
+   o click-click refinement with fixed atoms gives NOPROGRESS. Must fix. ::: 5
+
+   o In refinement, pull the structure arround to create a cis peptide, then fix it.
+     Is the dialog message removed? ::: 1
+
+   o segment_map(0, 0.03) for EMD-6224 doesn't do good things (300 empty (?) maps). 
+     (puntable) ::: 6
 
    o Copy fragment dialog should not dismiss if a new molecule is not created because it
-     failed find atoms.
+     failed find atoms. ::: 1
 
    o the hydrogen is not drawn correctly on AC6 in Colour by Atoms. Additional half-bond. ::: 2
 
@@ -12,7 +20,7 @@
 
    o does pyrogen -p work? (after cairo fiddling) ::: 1
 
-   o make cfc work again ::: 1
+   o make cfc work again ::: 2
 
    o FLEV fail on A2005 in 5pb8 failure to construct rdkit molecule (in alt conf D) ::: 1
 
@@ -377,4 +385,9 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
    o map_peaks*.py should make negative peaks [Oliver Smart] ::: 1
 
 * Done.
+
+   o delete_sidechain_range() needs to turn off backups - or consolidate the function
+     into C++. ::: 0.5
+
+* Done
 
