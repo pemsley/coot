@@ -850,16 +850,16 @@ def add_extra_restraints_to_other_molecule(imol, chain_id,
 def add_extra_start_pos_restraints(imol, residue_spec, esd):
 
     ri = residue_info(imol,
-                      residue_spec2chain_id(residue_spec),
-                      residue_spec2res_no(residue_spec),
-                      residue_spec2ins_code(residue_spec))
+                      residue_spec_to_chain_id(residue_spec),
+                      residue_spec_to_res_no(residue_spec),
+                      residue_spec_to_ins_code(residue_spec))
     for atom_info in ri:
         atom_name = residue_atom2atom_name(atom_info)
         alt_conf  = residue_atom2alt_conf(atom_info)
         add_extra_start_pos_restraint(imol,
-                                      residue_spec2chain_id(residue_spec),
-                                      residue_spec2res_no(residue_spec),
-                                      residue_spec2ins_code(residue_spec),
+                                      residue_spec_to_chain_id(residue_spec),
+                                      residue_spec_to_res_no(residue_spec),
+                                      residue_spec_to_ins_code(residue_spec),
                                       atom_name, alt_conf, esd)
 
         
