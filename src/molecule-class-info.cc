@@ -5799,8 +5799,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
 		     // number 1 because there are no chains.  We need to
 		     // make the residue number bigger than the biggest
 		     // residue number so far.
-		     std::pair<short int, int> ires_prev_pair =
-			coot::util::max_resno_in_molecule(atom_sel.mol);
+		     ires_prev_pair = coot::util::max_resno_in_molecule(atom_sel.mol);
 		     if (ires_prev_pair.first) {
 			res_p->seqNum = ires_prev_pair.second + 1;
 		     } else {
@@ -5868,7 +5867,6 @@ molecule_class_info_t::unused_chain_id() const {
    if (atom_sel.n_selected_atoms > 0) { 
       mmdb::Model *model_p = atom_sel.mol->GetModel(1);
       int nchains = model_p->GetNumberOfChains();
-      int idx;
    
       for (int ich=0; ich<nchains; ich++) {
 	 chain_p = model_p->GetChain(ich);
