@@ -172,6 +172,7 @@ void show_usage() {
    std::cout << "Usage: " << prog_name << "\n"
 	     << "       --pdbin pdb-in-filename\n"
 	     << "       --hklin mtz-filename\n"
+	     << "       --dictin cif-filename\n"
 	     << "       --f f_col_label\n"
 	     << "       --phi phi_col_label\n"
 	     << "       --pdbout output-filename\n"
