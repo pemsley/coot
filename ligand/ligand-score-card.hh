@@ -5,10 +5,11 @@ namespace coot {
       int ligand_no;
    public:
       // consider using a member function here:
-      short int many_atoms_fit;
-      double atom_point_score;
+      bool many_atoms_fit;
+      double atom_point_score; // the ranking metric
       double score_per_atom;
       std::pair<bool, double> correlation;
+      std::vector<std::pair<clipper::Coord_orth, float> > scored_characteristic_low_density_points;
       
       ligand_score_card() {
 	 ligand_no = -1; // unset
@@ -24,6 +25,9 @@ namespace coot {
       }
       void set_n_ligand_atoms(int n) {
 	 n_ligand_atoms = n;
+      }
+      bool operator<(const ligand_score_card &other) const {
+	 return (other.atom_point_score < atom_point_score);
       }
       friend std::ostream& operator<<(std::ostream &s, const ligand_score_card &lsc);
    };

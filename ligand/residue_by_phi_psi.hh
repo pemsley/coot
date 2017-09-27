@@ -97,7 +97,8 @@ namespace coot {
 					      int next_residue_seq_num,
 					      const std::vector<clipper::Coord_orth> &pos,
 					      bool two_residues_flag,
-					      bool do_rigid_body_refinement) const;
+					      bool do_rigid_body_refinement,
+					      const clipper::Xmap<float> &xmap_in) const;
 
      static
      void fit_terminal_residue_generic_trial_inner_multithread(int ithread_idx,
@@ -123,6 +124,16 @@ namespace coot {
 			     const clipper::Coord_orth &next_n,
 			     const clipper::Coord_orth &next_ca,
 			     const clipper::Coord_orth &next_c) const;
+
+     void
+     add_characteristic_low_points(coot::ligand_score_card *s,
+				   int itrial,
+				   const coot::phi_psi_pair &p1,
+				   const coot::phi_psi_pair &p2,
+				   mmdb::Residue *residue_p,
+				   const clipper::Coord_orth &next_n,
+				   const coot::minimol::fragment &frag,
+				   const clipper::Xmap<float> &xmap_in) const;
 
      void debug_compare_check(const coot::minimol::residue &mres,
 			      std::vector<minimol::atom *> atoms_p);

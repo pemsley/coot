@@ -97,7 +97,15 @@ coot::residue_by_phi_psi::best_fit_phi_psi(int n_trials,
 	 std::cout << "--- in best_fit_phi_psi() calling fit_terminal_residue_generic() with n_trials "
 		   << n_trials << std::endl;
       }
-      minimol::fragment frag = fit_terminal_residue_generic(n_trials, offset, do_rigid_body_refinement, xmap_in);
+      minimol::fragment frag = fit_terminal_residue_generic(n_trials, offset,
+							    do_rigid_body_refinement, xmap_in);
+
+      if (false) {
+	 std::string file_name = "frag-best-fit.pdb";
+	 minimol::molecule mmm(frag);
+	 mmm.write_file(file_name, 10);
+      }
+
       if (add_other_residue_flag) {
 	 m.fragments.push_back(frag);
       } else {
@@ -202,7 +210,7 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 
 	    // do_rigid_body_refinement is ignored
 	    //
-	    std::cout << "dispatching trial set " << trial_idx_start << " to " << trial_idx_end << std::endl;
+	    std::cout << "dispatching trial set " << trial_idx_start << " to " << trial_idx_end << "\n";
 	    thread_pool_p->push(fit_terminal_residue_generic_trial_inner_multithread,
 				trial_idx_start, trial_idx_end, offset, residue_p, next_residue_seq_num,
 				terminus_type, residue_type, b_factor,
@@ -236,8 +244,9 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 	 auto tp_1 = std::chrono::high_resolution_clock::now();
 	 for (int itrial=0; itrial<n_trials; itrial++) {
 	    std::pair<ligand_score_card, minimol::fragment> fitted_thing =
-	       fit_terminal_residue_generic_trial_inner(itrial, offset, next_residue_seq_num, pos, two_residues_flag, do_rigid_body_refinement);
-
+	       fit_terminal_residue_generic_trial_inner(itrial, offset, next_residue_seq_num,
+							pos, two_residues_flag, do_rigid_body_refinement,
+							xmap_in);
 	    const ligand_score_card &s = fitted_thing.first;
 	    const minimol::fragment &frag = fitted_thing.second;
 	    if (s.atom_point_score > best_score) {
@@ -254,9 +263,9 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic(int n_trials, int offset,
 
       for (int itrial=0; itrial<n_trials; itrial++) {
 	 std::pair<ligand_score_card, minimol::fragment> fitted_thing = 
-	    fit_terminal_residue_generic_trial_inner(itrial, offset, next_residue_seq_num, pos, two_residues_flag, do_rigid_body_refinement);
+	    fit_terminal_residue_generic_trial_inner(itrial, offset, next_residue_seq_num, pos, two_residues_flag, do_rigid_body_refinement, xmap_in);
 
-	 const ligand_score_card &s = fitted_thing.first;
+	 const ligand_score_card &s    = fitted_thing.first;
 	 const minimol::fragment &frag = fitted_thing.second;
 	 if (s.atom_point_score > best_score) {
 	    best_score = s.atom_point_score;
@@ -330,10 +339,64 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner_multithread(i
       std::vector<minimol::atom *> atoms_p = frag.select_atoms_serial();
       coot::ligand_score_card s = rphipsi.score_orientation(atoms_p, xmap_in);
       std::pair<coot::ligand_score_card, coot::minimol::fragment> result(s, frag);
+
+      bool do_low_density_fingerprint_positions = false;
+      if (do_low_density_fingerprint_positions) {
+	 rphipsi.add_characteristic_low_points(&s, itrial, p1, p2, res_p, next_n, frag, xmap_in);
+      }
+
       (*results)[itrial] = result;
    }
 
 }
+
+
+// change the score card
+void
+coot::residue_by_phi_psi::add_characteristic_low_points(coot::ligand_score_card *s,
+							int itrial,
+							const coot::phi_psi_pair &p1,
+							const coot::phi_psi_pair &p2,
+							mmdb::Residue *res_p,
+							const clipper::Coord_orth &next_n,
+							const coot::minimol::fragment &frag,
+							const clipper::Xmap<float> &xmap_in) const {
+
+   bool debug = false;
+   if (debug) {
+      std::string file_name = "frag-" + util::int_to_string(itrial) + ".pdb";
+      minimol::molecule m(frag);
+      m.write_file(file_name, 10);
+   }
+   // the ~HA point (more extended than an H bond distance of course)
+   double a = clipper::Util::d2rad(p1.tau-5); // maybe more like 120?
+   double t = clipper::Util::d2rad(p1.psi-125);
+   // this is for N-terminal addition
+   int neighb_seqnum = res_p->GetSeqNum();
+   int subject_res_num = neighb_seqnum-1;
+   if (frag[subject_res_num].atoms.size() > 0) {
+      clipper::Coord_orth c_pos  = frag[subject_res_num][" C  "].pos;
+      clipper::Coord_orth ca_pos = frag[subject_res_num][" CA "].pos;
+      clipper::Coord_orth ld_pos(next_n, c_pos, ca_pos, 1.8, a, t);
+      float db = score_position(ld_pos, xmap_in);
+
+      if (false) {
+	 std::cout << "ld_pos: " << ld_pos << " scores " << db << " c.f. " << s->score_per_atom
+		   << std::endl;
+	 std::ofstream f("debug-pos.txt");
+	 f << "set_rotation_centre( " << ld_pos.x() << ", " << ld_pos.y() << ", " << ld_pos.z()
+	   << ")\n";
+      }
+
+      std::pair<clipper::Coord_orth, float> sp(ld_pos, db);
+      s->scored_characteristic_low_density_points.push_back(sp);
+      s->atom_point_score -= db;
+   } else {
+      std::cout << "DEBUG:: oops residue subject_res_num " << subject_res_num << " - No atoms"
+		<< std::endl;
+   }
+}
+
 
 std::pair<coot::ligand_score_card, coot::minimol::fragment>
 coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner(int itrial,
@@ -341,8 +404,8 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner(int itrial,
 								   int next_residue_seq_num,
 								   const std::vector<clipper::Coord_orth> &pos,
 								   bool two_residues_flag,
-								   bool do_rigid_body_refinement
-								   ) const {
+								   bool do_rigid_body_refinement,
+								   const clipper::Xmap<float> &xmap_in) const {
 
    bool debug = false;
    coot::minimol::fragment frag;
@@ -350,9 +413,10 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner(int itrial,
    clipper::Coord_orth next_c  = pos[1];
    clipper::Coord_orth next_ca = pos[2];
 
+   phi_psi_pair p1 = get_phi_psi_by_random();
+   phi_psi_pair p2 = get_phi_psi_by_random();
+
    if (two_residues_flag) { // the majority of times
-      phi_psi_pair p1 = get_phi_psi_by_random();
-      phi_psi_pair p2 = get_phi_psi_by_random();
 
       if (false) {
 	 std::ofstream out("phi-psis.tab", std::ios::app);
@@ -422,9 +486,45 @@ coot::residue_by_phi_psi::fit_terminal_residue_generic_trial_inner(int itrial,
    // if (do_rigid_body_refinement)
    //     rigid_body_refine_ligand(&atoms_p, Xmap()); // tinker with atoms_p
 
-   coot::ligand_score_card s = score_orientation(atoms_p, Xmap());
+   coot::ligand_score_card s = score_orientation(atoms_p, xmap_in);
 
-   // std::cout << "score-trial " << itrial << " " << s << std::endl;
+   bool do_low_density_fingerprint_positions = true;
+   if (do_low_density_fingerprint_positions) {
+
+      if (debug) {
+	 std::string file_name = "frag-" + util::int_to_string(itrial) + ".pdb";
+	 minimol::molecule m(frag);
+	 m.write_file(file_name, 10);
+      }
+      // the ~HA point (more extended than an H bond distance of course)
+      double a = clipper::Util::d2rad(p1.tau-5); // maybe more like 120?
+      double t = clipper::Util::d2rad(p1.psi-125);
+      // this is for N-terminal addition
+      int neighb_seqnum = residue_p->GetSeqNum();
+      int subject_res_num = neighb_seqnum-1;
+      if (frag[subject_res_num].atoms.size() > 0) {
+	 clipper::Coord_orth c_pos  = frag[subject_res_num][" C  "].pos;
+	 clipper::Coord_orth ca_pos = frag[subject_res_num][" CA "].pos;
+	 clipper::Coord_orth ld_pos(next_n, c_pos, ca_pos, 1.8, a, t);
+	 float db = score_position(ld_pos, xmap_in);
+
+	 if (true) {
+	    std::cout << "ld_pos: " << ld_pos << " scores " << db << " c.f. " << s.score_per_atom
+		      << std::endl;
+	    std::ofstream f("debug-pos.txt");
+	    f << "set_rotation_centre( " << ld_pos.x() << ", " << ld_pos.y() << ", " << ld_pos.z()
+	      << ")\n";
+	 }
+
+	 std::pair<clipper::Coord_orth, float> sp(ld_pos, db);
+	 s.scored_characteristic_low_density_points.push_back(sp);
+	 s.atom_point_score -= db;
+      } else {
+	 std::cout << "DEBUG:: oops residue subject_res_num " << subject_res_num << " - No atoms"
+		   << std::endl;
+      }
+   }
+
 
    if (debug) {
       // DEBUGGING:  Let's write a pdb file for this fragment
@@ -454,6 +554,7 @@ coot::residue_by_phi_psi::make_2_res_joining_frag(const std::string &chain_id_in
 						  const clipper::Coord_orth &next_n_in,
 						  const clipper::Coord_orth &next_ca_in,
 						  const clipper::Coord_orth &next_c) const {
+   bool debug = false;
    minimol::fragment frag(chain_id_in);
    minimol::residue res1;
    minimol::residue res2;
@@ -461,7 +562,7 @@ coot::residue_by_phi_psi::make_2_res_joining_frag(const std::string &chain_id_in
    clipper::Coord_orth next_n   = next_n_in;
    clipper::Coord_orth next_ca = next_ca_in;
 
-   double rand_lim = 0.7; 
+   double rand_lim = 0.0;
    next_n += clipper::Coord_orth(rand_lim * (util::random()/float (RAND_MAX) - 0.5),
 				 rand_lim * (util::random()/float (RAND_MAX) - 0.5),
 				 rand_lim * (util::random()/float (RAND_MAX) - 0.5));
@@ -507,7 +608,7 @@ coot::residue_by_phi_psi::make_2_res_joining_frag(const std::string &chain_id_in
 // 		      << res2[iat].pos.format() << " to " << o_pos2.format() << std::endl;;
 	    res2[iat].pos = o_pos2;
 	 }
-      
+
    } else { // terminus_type == "N"
       res1 = construct_prev_res_from_rama_angles(pp1.phi, pp1.psi, pp1.tau,
 						 seqnum + offset,
@@ -536,16 +637,17 @@ coot::residue_by_phi_psi::make_2_res_joining_frag(const std::string &chain_id_in
    n_atoms2 = frag[res2.seqnum].atoms.size();
    iseqnum2 = frag[res2.seqnum].seqnum;
    
-   
-//    std::cout << "DEBUG:: terminus_type == N: frag[" << res2.seqnum << "] has "
-// 	     << n_atoms2 << " atoms and seqnum " << iseqnum2 << "\n";
+   if (debug) {
+      std::cout << "DEBUG:: terminus_type == N: frag[" << res2.seqnum << "] has "
+		<< n_atoms2 << " atoms and seqnum " << iseqnum2 << "\n";
 
    
-//    std::cout << "END of make_2_res_joining_frag frag has " << frag.residues.size()
-// 	     << " residues - it should have 3" << std::endl;
+      std::cout << "END of make_2_res_joining_frag frag has " << frag.residues.size()
+		<< " residues - it should have 3" << std::endl;
 
-//    std::cout << "END of make_2_res_joining_frag: check..." << std::endl;
-   // frag.check();
+      std::cout << "END of make_2_res_joining_frag: check..." << std::endl;
+      frag.check();
+   }
 
    return frag;
 } 
@@ -720,12 +822,25 @@ coot::residue_by_phi_psi::construct_prev_res_from_rama_angles(float phi, float p
    clipper::Coord_orth o_pos(next_ca, next_n, c_pos,
 			     1.231, angle, torsion); // C=0
 
+
+   // 20170925 there is no CBs. Why? The get added in execute_add_terminal_residue()
+   // add_side_chain_to_terminal_res().
+   // I've added it here now.
+
+   // CB
+   angle = clipper::Util::d2rad(tau);
+   torsion = clipper::Util::d2rad(psi+123.4);
+   clipper::Coord_orth cb_pos(next_n, c_pos, ca_pos,
+			     1.52, angle, torsion); // Ca-Cb
+
+
    // ---------------------------
 
    mres.addatom(coot::minimol::atom(" N  ", " N", n_pos,  "", b_factor));
    mres.addatom(coot::minimol::atom(" C  ", " C", c_pos,  "", b_factor));
    mres.addatom(coot::minimol::atom(" CA ", " C", ca_pos, "", b_factor));
    mres.addatom(coot::minimol::atom(" O  ", " O", o_pos,  "", b_factor));
+   mres.addatom(coot::minimol::atom(" CB ", " C", cb_pos, "", b_factor));
 
    return mres;
 }

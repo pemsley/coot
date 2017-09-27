@@ -289,7 +289,9 @@ namespace coot {
       ligand_score_card
       score_orientation(const std::vector<minimol::atom*> &atoms, 
 			const clipper::Xmap<float> &xmap_fitting) const; 
-
+      float
+      score_position(const clipper::Coord_orth &pt,
+		     const clipper::Xmap<float> &xmap_fitting) const;
 
       // Here's a function that someone else might want to use:
       //
