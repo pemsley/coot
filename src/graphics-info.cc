@@ -87,9 +87,9 @@
 #include "manipulation-modes.hh"
 #include "guile-fixups.h"
 
+#include "cc-interface.hh" // needed for display_all_model_molecules()
+
 #ifdef USE_PYTHON
-// #include "Python.h" included above now.
-#include "cc-interface.hh"
 #include "cc-interface-scripting.hh"
 #endif
 
