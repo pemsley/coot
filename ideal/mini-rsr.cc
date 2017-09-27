@@ -172,7 +172,7 @@ void show_usage() {
    std::cout << "Usage: " << prog_name << "\n"
 	     << "       --pdbin pdb-in-filename\n"
 	     << "       --hklin mtz-filename\n"
-	     << "       --dictin cif-filename\n"
+	     << "       --dictin cif-dictionary-filename\n"
 	     << "       --f f_col_label\n"
 	     << "       --phi phi_col_label\n"
 	     << "       --pdbout output-filename\n"
@@ -576,6 +576,7 @@ get_input_details(int argc, char **argv) {
       {"phi",    1, 0, 0},
       {"pdbout", 1, 0, 0},
       {"dictin", 1, 0, 0},
+      {"dictionary", 1, 0, 0},
       {"mapin",  1, 0, 0}, 
       {"resno-start", 1, 0, 0},
       {"resno-end",   1, 0, 0},
@@ -624,6 +625,9 @@ get_input_details(int argc, char **argv) {
                d.given_map_flag = 1;
 	    }
 	    if (arg_str == "dictin") {
+	       d.dictionary_file_names.push_back(optarg);
+	    }
+	    if (arg_str == "dictionary") {
 	       d.dictionary_file_names.push_back(optarg);
 	    }
 	    if (arg_str == "chain-id") {
