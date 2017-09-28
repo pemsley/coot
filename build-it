@@ -381,7 +381,8 @@
 # 5.23 20141210 libreadline needs to be linked with -lcurses (on Debian)
 # 5.25 20141212
 # 5.26 20150215 Use /opt/X11 and COOT_CCP4_PACKAGES for dependences on Darwin.
-script_version=5.26
+# 5.27 20170925 bump libccp4 version to 6.5.1 - this has libccp4.pc for pkg-config
+script_version=5.27
 
 
 
@@ -2346,7 +2347,8 @@ fi
 
 # shall we build libccp4c?
 if [ -e $install_top_dir/lib/libccp4c.la ] ; then
-    if [ -e $install_top_dir/include/ccp4/cmtzlib.h ] ; then
+    # 20170925 test for the pkg-config file
+    if [ -e $install_top_dir/lib/pkgconfig/libccp4c.pc ] ; then
         # no need to rebuild
         build_ccp4c=
     else 
@@ -2373,7 +2375,7 @@ fi
 # libccp4: (not fortran)
 if test -n "$build_ccp4c" ; then 
     echo BUILDING: libccp4
-    libccp4_version=6.4.6
+    libccp4_version=6.5.1
     # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-2.tar.gz
     # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-3.tar.gz
     #${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/martyn-extras.tar.gz
