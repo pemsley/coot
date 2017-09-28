@@ -717,7 +717,7 @@ std::vector<std::vector<int> > graphics_info_t::torsion_general_contact_indices;
 
 //
 short int graphics_info_t::in_residue_info_define = 0;
-int graphics_info_t::residue_selection_flash_frames_number = 3;
+int graphics_info_t::residue_selection_flash_frames_number = 2; // was 3
 short int graphics_info_t::in_torsion_general_define = 0;
 
 short int graphics_info_t::in_save_symmetry_define = 0; 

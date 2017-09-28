@@ -35,6 +35,11 @@
 #include "clipper/contrib/skeleton.h" // neighbs is in the recursive function call
 #include "clipper/core/map_utils.h" // map stats (returned value)
 
+#include "scored-coord.hh"
+#include "ligand-score-card.hh"
+#include "scored-molecule.hh"
+#include "map-point-cluster.hh"
+
 namespace coot {
 
    // return a molecule of atoms (first) used to mask the map
@@ -45,85 +50,6 @@ namespace coot {
       make_mols_from_atom_selection_string(mmdb::Manager *mol,
 					   std::string atom_selection_string,
 					   bool fill_masking_molecule_flag);
-
-   class scored_coord {
-   public:
-      float score; 
-      clipper::Coord_orth pt; 
-   };
-
-   class ligand_score_card {
-      int n_ligand_atoms; // non-H.
-      int ligand_no;
-   public:
-      // consider using a member function here:
-      short int many_atoms_fit;
-      double atom_point_score;
-      double score_per_atom;
-      std::pair<bool, double> correlation;
-      
-      ligand_score_card() {
-	 ligand_no = -1; // unset
-	 atom_point_score = 0.0;
-	 many_atoms_fit = 0;
-	 n_ligand_atoms = 0;
-	 score_per_atom = 0.0;
-	 correlation.first = false;
-	 correlation.second = -1;
-      }
-      void set_ligand_number(int ilig) {
-	 ligand_no = ilig;
-      }
-      void set_n_ligand_atoms(int n) {
-	 n_ligand_atoms = n;
-      }
-      friend std::ostream& operator<<(std::ostream &s, const ligand_score_card &lsc);
-   };
-   std::ostream& operator<<(std::ostream &s, const ligand_score_card &lsc);
-
-   class scored_ligand_eraser {
-   public:
-      float max_correl;
-      scored_ligand_eraser(float max_correl_in) {
-	 max_correl = max_correl_in;
-      }
-      // return shall-we-delete? status
-      bool operator() (const std::pair<minimol::molecule, ligand_score_card> &sl) {
-	 if (! sl.second.correlation.first) 
-	    return true;
-	 if (sl.second.correlation.second < max_correl)
-	    return true;
-	 return false;
-      }
-   };
-
-   // Trivial class so that we can pass the (best orientation) ligand
-   // back to fit_ligands_to_clusters()
-   // 
-   class scored_molecule {
-   public:
-      minimol::molecule mol;
-      ligand_score_card score_card;
-   }; 
-
-   class map_point_cluster {
-   public:
-      map_point_cluster() { score = 0.0;}; 
-      std::vector<clipper::Coord_grid> map_grid;
-      float score;
-      // clipper::Coord_orth centre;
-      // clipper::Mat33<double> eigenvectors;
-      clipper::Coord_orth std_dev;
-      clipper::RTop_orth eigenvectors_and_centre;
-      std::vector<double> eigenvalues;
-      bool operator==(const map_point_cluster &mpc) const {
-	 return (mpc.map_grid == map_grid);
-      }
-      double volume(const clipper::Xmap<float> &xmap_ref) const;
-   }; 
-
-   bool compare_clusters(const map_point_cluster &a,
-			 const map_point_cluster &b);
 
    class ligand {
 
@@ -363,7 +289,9 @@ namespace coot {
       ligand_score_card
       score_orientation(const std::vector<minimol::atom*> &atoms, 
 			const clipper::Xmap<float> &xmap_fitting) const; 
-
+      float
+      score_position(const clipper::Coord_orth &pt,
+		     const clipper::Xmap<float> &xmap_fitting) const;
 
       // Here's a function that someone else might want to use:
       //

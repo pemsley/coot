@@ -2107,14 +2107,14 @@ coot::ligand::similar_eigen_values(int iclust, int ilig) const {
    short int i = 1;
 
    std::cout << "comparing eigens: " << std::endl;
-   for (int i=0; i<3; i++) {
-      std::cout << initial_ligand_eigenvalues[ilig][i] << " "
-		<< sqrt(cluster[iclust].eigenvalues[i]) << std::endl;
+   for (int ii=0; ii<3; ii++) {
+      std::cout << initial_ligand_eigenvalues[ilig][ii] << " "
+		<< sqrt(cluster[iclust].eigenvalues[ii]) << std::endl;
    }
    
-   for (int i=0; i<3; i++) {
-      if (initial_ligand_eigenvalues[ilig][i] > (1.0+fac)*sqrt(cluster[iclust].eigenvalues[i]) ||
-	  initial_ligand_eigenvalues[ilig][i] < (1.0-fac)*sqrt(cluster[iclust].eigenvalues[i])) {
+   for (int ii=0; ii<3; ii++) {
+      if (initial_ligand_eigenvalues[ilig][ii] > (1.0+fac)*sqrt(cluster[iclust].eigenvalues[ii]) ||
+	  initial_ligand_eigenvalues[ilig][ii] < (1.0-fac)*sqrt(cluster[iclust].eigenvalues[ii])) {
 	 return 0;
       }
    }
@@ -2709,6 +2709,15 @@ coot::ligand::score_orientation(const std::vector<minimol::atom *> &atoms,
    }
    return score_card;
 }
+
+float
+coot::ligand::score_position(const clipper::Coord_orth &atom_pos,
+			     const clipper::Xmap<float> &xmap_fitting) const {
+
+   clipper::Coord_frac atom_pos_frc = atom_pos.coord_frac(xmap_fitting.cell());
+   return xmap_fitting.interp<clipper::Interp_cubic>(atom_pos_frc);
+}
+
 
 
 short int

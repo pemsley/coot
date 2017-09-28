@@ -329,6 +329,18 @@
 (define delete-sidechain-range
    (lambda (imol chain-id resno-start resno-end)
      
-    (map (lambda (resno)
-	   (delete-residue-sidechain imol chain-id resno "" 0))
-         (number-list resno-start resno-end))))
+  (if (valid-model-molecule? imol)
+      (begin
+	(make-backup imol)
+	(let ((backup-mode (backup-state imol))
+	      (imol-map (imol-refinement-map)))
+	  
+	  (turn-off-backup imol)
+	  
+	  (map (lambda (resno)
+		 (delete-residue-sidechain imol chain-id resno "" 0))
+	       (number-list resno-start resno-end))
+
+	  (if (= backup-mode 1)
+	      (turn-on-backup imol)))))))
+

@@ -953,7 +953,7 @@ graphics_info_t::check_dictionary_for_residue_restraints(int imol, mmdb::PResidu
    for (int ires=0; ires<nSelResidues; ires++) {
       std::string resn(SelResidues[ires]->GetResName());
       std::string resname = adjust_refinement_residue_name(resn);
-      int status = geom_p->have_dictionary_for_residue_type(resname, imol, cif_dictionary_read_number);
+      status = geom_p->have_dictionary_for_residue_type(resname, imol, cif_dictionary_read_number);
       cif_dictionary_read_number++;
       if (! status) { 
 	 status_OK = 0;
@@ -1471,64 +1471,63 @@ graphics_info_t::flash_selection(int imol,
 				 int resno_2, 
 				 std::string ins_code_2,
 				 std::string altconf,
-				 std::string chain_id_1) { 
+				 std::string chain_id_1) {
+
+   // std::cout << "----------------- flash_selection() " << std::endl;
 
    // First make an atom selection of the residues selected to regularize.
    // 
-   int selHnd = ((mmdb::Manager *)molecules[imol].atom_sel.mol)->NewSelection();
+   int selHnd = molecules[imol].atom_sel.mol->NewSelection();
    int nSelAtoms;
    mmdb::PPAtom SelAtom;
    const char *chn  = chain_id_1.c_str();
    const char *ins1 = ins_code_1.c_str();
    const char *ins2 = ins_code_2.c_str();
 
-   ((mmdb::Manager *)molecules[imol].atom_sel.mol)->SelectAtoms(selHnd, 0, 
-							       chn,
-							       resno_1, ins1,
-							       resno_2, ins2,
-							       "*",      // RNames
-							       "*","*",  // ANames, Elements
-							       "*" );    // Alternate locations.
+   molecules[imol].atom_sel.mol->SelectAtoms(selHnd, 0,
+					     chn,
+					     resno_1, ins1,
+					     resno_2, ins2,
+					     "*",      // RNames
+					     "*","*",  // ANames, Elements
+					     "*" );    // Alternate locations.
 
+   molecules[imol].atom_sel.mol->GetSelIndex(selHnd, SelAtom, nSelAtoms);
 
-   ((mmdb::Manager *)molecules[imol].atom_sel.mol)->GetSelIndex(selHnd,
-							       SelAtom,
-							       nSelAtoms);
-//    cout << nSelAtoms << " atoms selected to regularize from residue "
-// 	<< resno_1 << " to " << resno_2 << " chain " << chn << endl;
+   if (glarea) {
+      if (nSelAtoms) {
+	 // now we can make an atom_selection_container_t with our new
+	 // atom selection that we will use to find bonds.
 
-   if (nSelAtoms) { 
-      // now we can make an atom_selection_container_t with our new
-      // atom selection that we will use to find bonds.
+	 atom_selection_container_t asc;
+	 asc.mol = molecules[imol].atom_sel.mol;
+	 asc.atom_selection = SelAtom;
+	 asc.n_selected_atoms = nSelAtoms;
 
-      atom_selection_container_t asc; 
-      asc.mol = molecules[imol].atom_sel.mol; 
-      asc.atom_selection = SelAtom; 
-      asc.n_selected_atoms = nSelAtoms; 
+	 int fld = 0;
+	 Bond_lines_container bonds(asc, fld); // don't flash disulfides
 
-      int fld = 0;
-      Bond_lines_container bonds(asc, fld); // don't flash disulfides
-
-      graphical_bonds_container empty_box; 
-      graphical_bonds_container regular_box = bonds.make_graphical_bonds();
+	 graphical_bonds_container empty_box;
+	 graphical_bonds_container regular_box = bonds.make_graphical_bonds();
       
-      int flash_length = residue_selection_flash_frames_number;
+	 int flash_length = residue_selection_flash_frames_number;
 
-      if (glarea) { 
-	 for (int iflash=0; iflash<2; iflash++) { 
-	    regularize_object_bonds_box = regular_box; 
+	 // std::cout << "--------------- flash_length " << flash_length << std::endl;
+
+	 for (int iflash=0; iflash<flash_length; iflash++) {
+	    regularize_object_bonds_box = regular_box;
 	    for (int i=0; i<flash_length; i++)
 	       graphics_draw();
-	    regularize_object_bonds_box = empty_box; 
+	    regularize_object_bonds_box = empty_box;
 	    for (int i=0; i<flash_length; i++)
 	       graphics_draw();
 	 }
-      }
-      regularize_object_bonds_box = empty_box; 
 
-   } // atoms selected
-   molecules[imol].atom_sel.mol->DeleteSelection(selHnd);
-   graphics_draw();
+	 regularize_object_bonds_box = empty_box;
+	 molecules[imol].atom_sel.mol->DeleteSelection(selHnd);
+	 graphics_draw();
+      }
+   }
 }
 
 // static
@@ -2212,8 +2211,9 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	     terminus_type == "singleton")
 	    masked_map_val = 0.0;
 	 addres.set_masked_map_value(masked_map_val);   
-	 addres.import_map_from(molecules[imol_map].xmap,
-				molecules[imol_map].map_sigma());
+
+	 // addres.import_map_from(molecules[imol_map].xmap,
+	 // molecules[imol_map].map_sigma());
 
 	 // This masked map will be the one that is used for rigid
 	 // body refinement, unlike normal ligand class usage which
@@ -2254,7 +2254,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 							  radius, mmdb::SKEY_NEW);
 	       molecules[imol].atom_sel.mol->GetSelIndex(SelHndSphere, atom_sel, n_selected_atoms);
 	       int invert_flag = 0;
-	       addres.mask_map(molecules[imol].atom_sel.mol, SelHndSphere, invert_flag);
+	       // addres.mask_map(molecules[imol].atom_sel.mol, SelHndSphere, invert_flag);
 	       molecules[imol].atom_sel.mol->DeleteSelection(SelHndSphere);
 	    }
 	 } else {
@@ -2273,10 +2273,15 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 		      << add_terminal_residue_n_phi_psi_trials << " random trials" 
 		      << std::endl;
 
+	 // old
+  	 // coot::minimol::molecule mmol = 
+	 // addres.best_fit_phi_psi(add_terminal_residue_n_phi_psi_trials, 
+	 // terminal_residue_do_rigid_body_refine,
+	 // add_terminal_residue_add_other_residue_flag);
+
   	 coot::minimol::molecule mmol = 
 	    addres.best_fit_phi_psi(add_terminal_residue_n_phi_psi_trials, 
-				    terminal_residue_do_rigid_body_refine,
-				    add_terminal_residue_add_other_residue_flag);
+				    molecules[imol_map].xmap);
 
 	 std::vector<coot::minimol::atom *> mmatoms = mmol.select_atoms_serial();
 	 // mmol.check();
@@ -2303,7 +2308,6 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	    } else {
 
 	       atom_selection_container_t terminal_res_asc;
-	       float bf = default_new_atoms_b_factor;
 
 	       // if this is begin added to a shelx molecule, then we
 	       // need to set the occs to 11.0
@@ -2509,8 +2513,7 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
 
 	       atom_selection_container_t asc = make_asc(residue_mol);
 	       // set the chain id of the chain that contains interesting_residue_p:
-	       mmdb::Model *model_p = residue_mol->GetModel(imod);
-	       mmdb::Chain *chain_p;
+	       model_p = residue_mol->GetModel(imod);
 	       // run over chains of the existing mol
 	       nchains = model_p->GetNumberOfChains();
 	       for (int ichain=0; ichain<nchains; ichain++) {

@@ -1281,7 +1281,7 @@ void
 graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol, mmdb::PAtom atom,
 						      int iatom) {
 
-   GtkWidget *residue_info_dialog = lookup_widget(table, "residue_info_dialog");
+   GtkWidget *residue_info_dialog_local = lookup_widget(table, "residue_info_dialog");
    gint left_attach = 0;
    gint right_attach = 1;
    gint top_attach = iatom;
@@ -1320,7 +1320,7 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol
 		    left_attach, right_attach, top_attach, bottom_attach,
 		    xopt, yopt, xpad, ypad);
    gtk_widget_ref (residue_info_atom_info_label);
-   gtk_object_set_data_full (GTK_OBJECT (residue_info_dialog),
+   gtk_object_set_data_full (GTK_OBJECT (residue_info_dialog_local),
 			     "residue_info_atom_info_label", residue_info_atom_info_label,
 			     (GtkDestroyNotify) gtk_widget_unref);
    gtk_widget_show (residue_info_atom_info_label);
@@ -1342,7 +1342,7 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol
    // 
    GtkWidget *residue_info_occ_entry = gtk_entry_new ();
    gtk_widget_ref (residue_info_occ_entry);
-   gtk_object_set_data_full (GTK_OBJECT (residue_info_dialog),
+   gtk_object_set_data_full (GTK_OBJECT (residue_info_dialog_local),
 			     widget_name.c_str(), residue_info_occ_entry,
 			     (GtkDestroyNotify) gtk_widget_unref);
 #if (GTK_MAJOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION > 6))
@@ -1371,7 +1371,7 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol
 
    GtkWidget *residue_info_b_factor_entry = gtk_entry_new ();
    gtk_widget_ref (residue_info_b_factor_entry);
-   gtk_object_set_data_full (GTK_OBJECT (residue_info_dialog),
+   gtk_object_set_data_full (GTK_OBJECT (residue_info_dialog_local),
 			     widget_name.c_str(), residue_info_b_factor_entry,
 			     (GtkDestroyNotify) gtk_widget_unref);
 #if (GTK_MAJOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION > 6))
@@ -1415,12 +1415,12 @@ graphics_info_t::fill_output_residue_info_widget_atom(GtkWidget *table, int imol
    // 
    GtkWidget *residue_info_altloc_entry = gtk_entry_new ();
    gtk_widget_ref (residue_info_altloc_entry);
-   gtk_object_set_data_full (GTK_OBJECT (residue_info_dialog),
+   gtk_object_set_data_full (GTK_OBJECT (residue_info_dialog_local),
 			     widget_name.c_str(), residue_info_altloc_entry,
 			     (GtkDestroyNotify) gtk_widget_unref);
 #if (GTK_MAJOR_VERSION > 2 || (GTK_MAJOR_VERSION == 2 && GTK_MINOR_VERSION > 6))
    gtk_widget_set_size_request(residue_info_altloc_entry, 60, -1);
-#endif   
+#endif
    gtk_widget_show (residue_info_altloc_entry);
    gtk_object_set_user_data(GTK_OBJECT(residue_info_altloc_entry), ai);
    gtk_entry_set_text(GTK_ENTRY(residue_info_altloc_entry), atom->altLoc);
@@ -2247,7 +2247,7 @@ graphics_info_t::on_change_current_chi_button_clicked(GtkButton *button,
 	     << " i_bond " << i_bond << std::endl;
 
    if (mode == RESIDUE_PARTIAL_ALT_LOCS) {
-      graphics_info_t g;
+
       // wag the dog: when true, split the large fragment, not the small one.
       bool wag_the_dog = false; // test for Ctrl pressed to set true
 

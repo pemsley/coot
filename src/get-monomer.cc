@@ -86,31 +86,54 @@ int get_monomer(const std::string &comp_id_in) {
       }
    }
 
-   // OK, the slow path, using LIBCHECK.
+   if (coot::util::is_standard_residue_name(comp_id_in)) {
 
-   std::string function_name = "monomer-molecule-from-3-let-code";
-   std::vector<coot::command_arg_t> args;
-   args.push_back(coot::util::single_quote(comp_id));
+      // this is ugly. get_standard_residue_instance should be in coot-utils
+      //
+      molecule_class_info_t molci;
+      mmdb::Residue *std_res = molci.get_standard_residue_instance(comp_id_in);
 
-   // now add in the bespoke cif library if it was given.  It is
-   // ignored in the libcheck script if cif_lib_filename is "".
-   //
-   // However, we only want to pass the bespoke cif library if the
-   // monomer to be generated is in the cif file.
-   // 
-   std::string cif_lib_filename = "";
-   if (graphics_info_t::cif_dictionary_filename_vec->size() > 0) {
-      std::string dict_name = (*graphics_info_t::cif_dictionary_filename_vec)[0];
-      coot::simple_cif_reader r(dict_name);
-      if (r.has_restraints_for(comp_id))
-	 cif_lib_filename = dict_name;
+      if (std_res == NULL) {
+	 std::cout << "WARNING:: Can't find standard residue for "
+                   << comp_id_in << "\n";
+      } else {
+	 // happy path
+	 graphics_info_t g;
+	 std_res->seqNum = 1;
+	 mmdb::Manager *std_res_mol = coot::util::create_mmdbmanager_from_residue(std_res);
+	 atom_selection_container_t asc = make_asc(std_res_mol);
+	 imol = g.create_molecule();
+	 g.molecules[imol].install_model(imol, asc, g.Geom_p(), comp_id_in, true);
+	 move_molecule_to_screen_centre_internal(imol);
+	 graphics_draw();
+      }
+
+   } else {
+
+      // OK, the slow path, using LIBCHECK.
+
+      std::string function_name = "monomer-molecule-from-3-let-code";
+      std::vector<coot::command_arg_t> args;
+      args.push_back(coot::util::single_quote(comp_id));
+
+      // now add in the bespoke cif library if it was given.  It is
+      // ignored in the libcheck script if cif_lib_filename is "".
+      //
+      // However, we only want to pass the bespoke cif library if the
+      // monomer to be generated is in the cif file.
+      //
+      std::string cif_lib_filename = "";
+      if (graphics_info_t::cif_dictionary_filename_vec->size() > 0) {
+	 std::string dict_name = (*graphics_info_t::cif_dictionary_filename_vec)[0];
+	 coot::simple_cif_reader r(dict_name);
+	 if (r.has_restraints_for(comp_id))
+	    cif_lib_filename = dict_name;
+      }
+      coot::command_arg_t retval = coot::scripting_function(function_name, args);
+      if (retval.type == coot::command_arg_t::INT) {
+	 imol = retval.i;
+      }
    }
-   args.push_back(coot::util::single_quote(cif_lib_filename));
-
-   coot::command_arg_t retval = coot::scripting_function(function_name, args);
-   if (retval.type == coot::command_arg_t::INT) {
-      imol = retval.i;
-   } 
 
    std::vector<std::string> command_strings;
    command_strings.push_back("get-monomer");

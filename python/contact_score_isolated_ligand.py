@@ -14,9 +14,9 @@ def contact_score_ligand(imol, res_spec):
 
     deactivate_molecules_except(imol)
 
-    chain_id = res_spec2chain_id(res_spec)
-    res_no = res_spec2res_no(res_spec)
-    ins_code = res_spec2ins_code(res_spec)
+    chain_id = res_spec_to_chain_id(res_spec)
+    res_no = res_spec_to_res_no(res_spec)
+    ins_code = res_spec_to_ins_code(res_spec)
     ss = "//" + chain_id + "/" + str(res_no)
     imol_selection = new_molecule_by_atom_selection(imol, ss)
     coot_molprobity_dir = get_directory("coot-molprobity")

@@ -87,7 +87,8 @@ namespace coot {
 	
      std::vector<clipper::Coord_orth> get_connecting_residue_atoms() const; 
      minimol::fragment fit_terminal_residue_generic(int n_trials, int offset,
-						    bool do_rigid_body_refinement);
+						    bool do_rigid_body_refinement,
+						    const clipper::Xmap<float> &xmap_in);
 
      // should this be static?
      std::pair<ligand_score_card, coot::minimol::fragment>
@@ -96,7 +97,8 @@ namespace coot {
 					      int next_residue_seq_num,
 					      const std::vector<clipper::Coord_orth> &pos,
 					      bool two_residues_flag,
-					      bool do_rigid_body_refinement) const;
+					      bool do_rigid_body_refinement,
+					      const clipper::Xmap<float> &xmap_in) const;
 
      static
      void fit_terminal_residue_generic_trial_inner_multithread(int ithread_idx,
@@ -123,6 +125,16 @@ namespace coot {
 			     const clipper::Coord_orth &next_ca,
 			     const clipper::Coord_orth &next_c) const;
 
+     void
+     add_characteristic_low_points(coot::ligand_score_card *s,
+				   int itrial,
+				   const coot::phi_psi_pair &p1,
+				   const coot::phi_psi_pair &p2,
+				   mmdb::Residue *residue_p,
+				   const clipper::Coord_orth &next_n,
+				   const coot::minimol::fragment &frag,
+				   const clipper::Xmap<float> &xmap_in) const;
+
      void debug_compare_check(const coot::minimol::residue &mres,
 			      std::vector<minimol::atom *> atoms_p);
 
@@ -135,8 +147,12 @@ namespace coot {
 			float b_factor_in);
 
      minimol::molecule best_fit_phi_psi(int n_trials,
+					const clipper::Xmap<float> &xmap_in);
+
+     minimol::molecule best_fit_phi_psi(int n_trials,
 					bool do_rigid_body_refinement,
-					bool add_other_residue_flag);
+					bool add_other_residue_flag,
+					const clipper::Xmap<float> &xmap_in);
 
      // offset: N or C addition (-1 or 1).
      minimol::fragment best_fit_phi_psi(int n_trials, int offset); 
