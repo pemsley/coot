@@ -382,7 +382,8 @@
 # 5.25 20141212
 # 5.26 20150215 Use /opt/X11 and COOT_CCP4_PACKAGES for dependences on Darwin.
 # 5.27 20170925 bump libccp4 version to 6.5.1 - this has libccp4.pc for pkg-config
-script_version=5.27
+# 5.28 20170925 Fixes for clipper and guile and gmp version update (gcc-7.2)
+script_version=5.28
 
 
 
@@ -1441,6 +1442,12 @@ echo checking wget
 echo which wget
 which wget
 # use -P for timestamping
+# Note that now wget depends on libhogweed and that depends on libgmp
+# but we are compiling an old version of gmp (not sure that we need
+# an old version) and libhogweed refers to a (now) non-existant
+# functions and the dynamic loading fails.
+# WGET="LD_LIBRARY_PATH=/usr/lib wget -N -P ${AUTOBUILD_SOURCES}"
+# WGETO="LD_LIBRARY_PATH=/usr/lib wget   -P ${AUTOBUILD_SOURCES}"
 WGET="wget -N -P ${AUTOBUILD_SOURCES}"
 WGETO="wget   -P ${AUTOBUILD_SOURCES}"
 
@@ -2603,7 +2610,7 @@ if test -n "$build_clipper" ; then
 	--enable-ccp4    \
 	--enable-minimol \
 	--enable-cns     \
-       CXXFLAGS="-g -O2 -fno-strict-aliasing"
+       CXXFLAGS="-g -O2 -fno-strict-aliasing -Wno-narrowing"
     export LIBS="$save_libs"
     # 20110921 I don't think we need these flags any longer
     #        CCP4_CXXFLAGS=-I$install_top_dir/include CCP4_LIBS=$install_top_dir/lib/libccp4c.la
@@ -3058,7 +3065,8 @@ if test -n "$build_gmp" ; then
     # gmp_version=4.2.4
     # gmp_version=5.1.2
     # gmp_version=6.0.0a # it doesn't untar into this directory
-    gmp_version=5.1.3
+    # gmp_version=5.1.3
+    gmp_version=6.1.2
     ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gmp/gmp-$gmp_version.tar.bz2
     (date
      pwd
@@ -3222,7 +3230,7 @@ fi
 # arg to guile's configure
 ./configure $generic_prefix \
      $extra_flags_for_darwin \
-     CFLAGS="-I$install_top_dir/include $additional_unused_arg -O" \
+     CFLAGS="-I$install_top_dir/include $additional_unused_arg -O -Wno-deprecated-declarations" \
      LDFLAGS=-L$install_top_dir/lib \
      CPPFLAGS=-P \
      $extra_flags_for_debian
