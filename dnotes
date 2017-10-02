@@ -7893,4 +7893,10 @@ Thunderbird says this:
 
 (firefox:11665): Gdk-WARNING **: Native children wider or taller than 65535 pixels are not supported
 
----
+----
+Fri 29 Sep 2017 06:03:42 BST
+
+ Use -Wl,-rpath (if passing to cc) or -rpath (if passing to ld) as more portable than -R. – ephemient Mar 30 '09 at 17:35
+ also
+ https://www.eyrie.org/~eagle/notes/rpath.html
+
