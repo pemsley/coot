@@ -1441,6 +1441,13 @@ echo checking wget
 echo which wget
 which wget
 # use -P for timestamping
+# Note that now wget depends on libhogweed and that depends on libgmp
+# but we are compiling an old version of gmp (not sure that we need
+# an old version) and libhogweed refers to a (now) non-existant
+# functions and the dynamic loading fails.
+# This setting of the alias fails.  It works on the command line.
+WGET="LD_LIBRARY_PATH= wget -N -P ${AUTOBUILD_SOURCES}"
+WGETO="LD_LIBRARY_PATH= wget   -P ${AUTOBUILD_SOURCES}"
 WGET="wget -N -P ${AUTOBUILD_SOURCES}"
 WGETO="wget   -P ${AUTOBUILD_SOURCES}"
 
