@@ -99,7 +99,7 @@ void inner_main(void *closure, int argc, char **argv) {
      scm_c_eval_string(full_extra_load_path_cmd.c_str());
      
      std::string ee = "(lambda (key . args) ";
-     ee += "(display (list \"Error in proc:\" key \" args: \" args)) (newline))"; 
+     ee += "(display (list \"Error in proc:\" key \" args: \" args)) (newline))";
      SCM handler = scm_c_eval_string(ee.c_str());
      std::string thunk_str = "(lambda ()";
      thunk_str += "(let ((f (%search-load-path \"coot.scm\")))";
