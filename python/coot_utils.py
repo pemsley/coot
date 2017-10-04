@@ -459,7 +459,7 @@ def most_recently_created_file(glob_str, dir):
 # Convert a residue_spec to an mmdb atom selection string.
 # FIXME:: to be tested
 #
-def residue_spec2atom_selection_string(centre_residue_spec):
+def residue_spec_to_atom_selection_string(centre_residue_spec):
     ret = "//" + centre_residue_spec[0] + \
           "/" + str(centre_residue_spec[1])
     return ret
@@ -488,7 +488,7 @@ def residue_atom2position(ra):
     else:
         return ra[2]
 
-def residue_spec2chain_id(rs):
+def residue_spec_to_chain_id(rs):
     if not isinstance(rs, list):
         return False
     else:
@@ -500,7 +500,7 @@ def residue_spec2chain_id(rs):
             else:
                 return False
 
-def residue_spec2res_no(rs):
+def residue_spec_to_res_no(rs):
     if not isinstance(rs, list):
         return False
     else:
@@ -511,7 +511,7 @@ def residue_spec2res_no(rs):
                 return rs[2]
         return False
             
-def residue_spec2ins_code(rs):
+def residue_spec_to_ins_code(rs):
     if not isinstance(rs, list):
         return False
     else:
@@ -522,7 +522,7 @@ def residue_spec2ins_code(rs):
                 return rs[3]
         return False
 
-def atom_spec2imol(atom_spec):
+def atom_spec_to_imol(atom_spec):
     import types
     if not (isinstance(atom_spec, types.ListType)):
         return False
@@ -533,11 +533,12 @@ def atom_spec2imol(atom_spec):
             return atom_spec[1]
         return False
 
-def residue_spec2residue_name(imol, spec):
+def residue_spec_to_residue_name(imol, spec):
     return residue_name(imol,
                         spec[1],
                         spec[2],
                         spec[3])
+
 
 # Return a list of molecules that are maps
 # 
@@ -1524,8 +1525,19 @@ def atom_specs(imol, chain_id, resno, ins_code, atom_name, alt_conf):
 
     return atom_info_string(imol, chain_id, resno, ins_code, atom_name, alt_conf)
 
-def atom_spec2residue_spec(atom_spec):
+# I don't like this function name
+def atom_spec_to_residue_spec(atom_spec):
     return atom_spec[2:][0:3]
+
+def atom_spec_to_residue_spec(atom_spec):
+    l = len(atom_spec)
+    if l == 5:
+        return atom_spec[:3]
+    else:
+       if l == 6: # active_residue give an atom-spec prepended by the imol
+          return atom_spec[1:][:3]
+       else:
+          return None
 
 # return a guess at the map to be refined (usually called after
 # imol_refinement_map returns -1)
@@ -1934,7 +1946,7 @@ def atoms_with_zero_occ(imol):
 
 
 # simple extraction function
-def res_spec2chain_id(res_spec):
+def res_spec_to_chain_id(res_spec):
 
     """simple extraction function"""
 
@@ -1947,7 +1959,7 @@ def res_spec2chain_id(res_spec):
     return False
 
 # simple extraction function
-def res_spec2res_no(res_spec):
+def res_spec_to_res_no(res_spec):
 
     """simple extraction function"""
 
@@ -1960,7 +1972,7 @@ def res_spec2res_no(res_spec):
     return False
 
 # simple extraction function
-def res_spec2ins_code(res_spec):
+def res_spec_to_ins_code(res_spec):
 
     """simple extraction function"""
 
@@ -1979,7 +1991,7 @@ def res_spec2ins_code(res_spec):
 # Choose an atom that is called " CA ".  Failing that choose the
 # first atom.
 # 
-def residue_spec2atom_for_centre(imol, chain_id, res_no, ins_code):
+def residue_spec_to_atom_for_centre(imol, chain_id, res_no, ins_code):
 
     from types import ListType
     # residue-info can return False
@@ -2003,8 +2015,8 @@ def residue_spec2atom_for_centre(imol, chain_id, res_no, ins_code):
 
 def set_go_to_atom(res_spec):
     set_go_to_atom_chain_residue_atom_name(
-        res_spec2chain_id(res_spec),
-        res_spec2res_no(res_spec),
+        res_spec_to_chain_id(res_spec),
+        res_spec_to_res_no(res_spec),
         " CA ")
 
     
@@ -2493,7 +2505,7 @@ def hilight_binding_site(imol, centre_residue_spec, hilight_colour, radius):
     if (valid_model_molecule_qm(imol)):
 
         other_residues = residues_near_residue(imol, centre_residue_spec, radius)
-        atom_sel_str = residue_spec2atom_selection_string(centre_residue_spec)
+        atom_sel_str = residue_spec_to_atom_selection_string(centre_residue_spec)
 
         imol_new = new_molecule_by_atom_selection(imol, atom_sel_str)
         bb_type = 1
@@ -4218,9 +4230,9 @@ def rename_alt_confs_active_residue():
 # Moved from gui_add_linked_cho.py to make a global function.
 def delete_residue_by_spec(imol, spec):
     delete_residue(imol,
-                   residue_spec2chain_id(spec),
-                   residue_spec2res_no(spec),
-                   residue_spec2ins_code(spec))
+                   residue_spec_to_chain_id(spec),
+                   residue_spec_to_res_no(spec),
+                   residue_spec_to_ins_code(spec))
 
 
 ####### Back to Paul's scripting.

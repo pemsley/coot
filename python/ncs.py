@@ -214,7 +214,7 @@ def update_ncs_ghosts_by_local_sphere():
                                                           6)
                     sphere_residues = [active_residue_spec, near_residues]
                     for residue_spec in sphere_residues:
-                        res_no = residue_spec2res_no(residue_spec)
+                        res_no = residue_spec_to_res_no(residue_spec)
                         add_lsq_match(res_no, res_no, ghost_chain_id_list[0],
                                       res_no, res_no, chain_id, 1)
 

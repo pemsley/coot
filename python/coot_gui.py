@@ -1406,7 +1406,7 @@ def interesting_residues_gui(imol, title, interesting_residues):
       residues = interesting_residues
       for spec in residues:
          if (type(spec) is ListType):
-            centre_atoms.append(residue_spec2atom_for_centre(imol, *spec))
+            centre_atoms.append(residue_spec_to_atom_for_centre(imol, *spec))
          else:
             centre_atoms.append([False])
 
@@ -3403,7 +3403,7 @@ def cootaneer_gui_bl():
             res_no = seqnum_from_serial_number(imol, chain_id, 0)
             ins_code = insertion_code_from_serial_number(imol, chain_id, 0)
             alt_conf = ""
-            at_name = residue_spec2atom_for_centre(imol, chain_id, res_no, ins_code)[0]
+            at_name = residue_spec_to_atom_for_centre(imol, chain_id, res_no, ins_code)[0]
             cootaneer_result = cootaneer(imol_map, imol, [chain_id, res_no, ins_code, 
                                                           at_name, alt_conf])
             if (cootaneer_result == 0):
@@ -4566,7 +4566,7 @@ def solvent_ligands_gui():
 def user_mods_gui(imol, pdb_file_name):
 
    # no alt conf, no inscode
-   def atom_spec2string(atom_spec):
+   def atom_spec_to_string(atom_spec):
       chain_id  = atom_spec[1]
       res_no    = atom_spec[2]
       ins_code  = atom_spec[3]
@@ -4606,7 +4606,7 @@ def user_mods_gui(imol, pdb_file_name):
          specs = no_flip_item[0]
          info_string = no_flip_item[1]
          label = "No Adjustment " + \
-                 " ".join(map(atom_spec2string, specs)) + \
+                 " ".join(map(atom_spec_to_string, specs)) + \
                  " " + \
                  info_string
          atom_spec = specs[0]
@@ -4880,7 +4880,7 @@ def water_coordination_gui():
          if d:
             update_water_results(imol, n, d)
       
-   def atom_spec2text(atom_spec):
+   def atom_spec_to_text(atom_spec):
       return " ".join(map(str, atom_spec))
 
    def get_ele(imol, atom_spec):
@@ -4973,7 +4973,7 @@ def water_coordination_gui():
             # a water spec is a central-atom spec and a list
             # of its neighbours.
             atom_spec = water_info[0]
-            t = atom_spec2text(atom_spec)
+            t = atom_spec_to_text(atom_spec)
             bump_text = make_bump_text(imol, water_info)
             button = gtk.Button(t + bump_text)
             if not is_a_metal_site_too_qm(atom_spec, metal_results):
@@ -4991,7 +4991,7 @@ def water_coordination_gui():
          # now handle metal results
          for metal_site in metal_results:
             metal_text = metal_site[1]
-            t = atom_spec2text(metal_site[0])
+            t = atom_spec_to_text(metal_site[0])
             button_text = t + " Potential " + metal_text
             button = gtk.Button(button_text)
             metal_results_vbox.pack_start(button, False, False, 1)
@@ -5100,7 +5100,7 @@ def click_protein_db_loop_gui():
    global db_loop_preserve_residue_names
    def pick_loop_func(n):
       def pick_func(*atom_specs):
-         residue_specs = map(atom_spec2residue_spec, atom_specs)
+         residue_specs = map(atom_spec_to_residue_spec, atom_specs)
          imol = atom_specs[0][1]
          min_max_and_chain_id = min_max_residues_from_atom_specs(atom_specs)
 
@@ -5365,7 +5365,7 @@ def duplicate_range_by_atom_pick():
 
    def pick_range_func(*atom_specs):
 
-      residue_specs = map(atom_spec2residue_spec, atom_specs)
+      residue_specs = map(atom_spec_to_residue_spec, atom_specs)
       imol_1 = atom_specs[0][1]
       imol_2 = atom_specs[1][1]
       chain_id1 = atom_specs[0][2]

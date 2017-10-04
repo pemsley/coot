@@ -87,9 +87,9 @@
 #include "manipulation-modes.hh"
 #include "guile-fixups.h"
 
+#include "cc-interface.hh" // needed for display_all_model_molecules()
+
 #ifdef USE_PYTHON
-// #include "Python.h" included above now.
-#include "cc-interface.hh"
 #include "cc-interface-scripting.hh"
 #endif
 
@@ -729,6 +729,10 @@ graphics_info_t::smooth_scroll_maybe_sinusoidal_acceleration(float x, float y, f
    //
    // v   = -cos(istep/nsteps * pi)
 
+   // for theta (0->2pi) for frac (0,1)
+   // how about acc = sin(theta) + pi * 0.032 * sin(3 * theta)
+   // so v  = ? -cos(theta) + pi * 0.032 * 3 * -cos(3*theta)
+   
    float xd = x - rotation_centre_x;
    float yd = y - rotation_centre_y;
    float zd = z - rotation_centre_z;

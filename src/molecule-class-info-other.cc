@@ -1352,6 +1352,17 @@ molecule_class_info_t::delete_residues(const std::vector<coot::residue_spec_t> &
 
    bool something_deleted = false;
    mmdb::Manager *mol = atom_sel.mol;
+
+   // make a backup if there are residues to delete
+   for (unsigned int i=0; i<specs.size(); i++) {
+      const coot::residue_spec_t &spec = specs[i];
+      mmdb::Residue *residue_p = get_residue(spec);
+      if (residue_p) {
+	 make_backup();
+	 break;
+      }
+   }
+
    for (unsigned int i=0; i<specs.size(); i++) {
       const coot::residue_spec_t &spec = specs[i];
       mmdb::Residue *residue_p = get_residue(spec);

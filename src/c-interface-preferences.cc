@@ -1114,7 +1114,7 @@ parse_ccp4i_defs(const std::string &filename) {
      return v;
    } 
 
-   std::ifstream cin(filename.c_str());
+   std::ifstream c_in(filename.c_str());
 
    // Let's also add ccp4_scratch to the list if the environment
    // variable is declared and if directory exists
@@ -1139,7 +1139,7 @@ parse_ccp4i_defs(const std::string &filename) {
       }
    }
 
-   if (! cin) {
+   if (! c_in) {
       std::cout << "WARNING:: failed to open " << filename << std::endl;
    } else {
       // std::string s;
@@ -1153,8 +1153,8 @@ parse_ccp4i_defs(const std::string &filename) {
       short int path_coming = 0;
       short int alias_coming = 0;
       bool alias_flag = 0;
-      while (! cin.eof()) {
-	 cin >> s;
+      while (! c_in.eof()) {
+	 c_in >> s;
 	 std::string ss(s);
 	 // std::cout << "parsing:" << ss << std::endl;
 	 if (path_coming == 2) {

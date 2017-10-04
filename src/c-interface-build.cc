@@ -736,6 +736,32 @@ void spin_search_py(int imol_map, int imol, const char *chain_id, int resno,
 }
 #endif // PYTHON
 
+/*  ----------------------------------------------------------------------- */
+/*                  Spin around N and CB for N-termal addition              */
+/*  ----------------------------------------------------------------------- */
+
+#ifdef USE_PYTHON
+void spin_N_py(int imol, PyObject *residue_spec_py, float angle) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t residue_spec = residue_spec_from_py(residue_spec_py);
+      graphics_info_t::molecules[imol].spin_N(residue_spec, angle);
+      graphics_draw();
+   }
+}
+#endif // USE_PYTHON
+
+#ifdef USE_GUILE
+void spin_N_scm(int imol, SCM residue_spec_scm, float angle) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t residue_spec = residue_spec_from_scm(residue_spec_scm);
+      graphics_info_t::molecules[imol].spin_N(residue_spec, angle);
+      graphics_draw();
+   }
+}
+#endif // USE_GUILE
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  delete residue                                          */
@@ -3792,10 +3818,14 @@ int place_strand_here(int n_residues, int n_sample_strands) {
    int imol_map = g.Imol_Refinement_Map();
    if (imol_map != -1) {
 
-      float s = graphics_info_t::molecules[imol_map].map_sigma();
       coot::helix_placement p(graphics_info_t::molecules[imol_map].xmap);
+      float s = graphics_info_t::molecules[imol_map].map_sigma();
+      float ff = graphics_info_t::place_helix_here_fudge_factor;
+      if (graphics_info_t::molecules[imol_map].is_EM_map())
+	 ff = 3.0;
+      float s_with_ff = s * ff;
       coot::helix_placement_info_t si =
-	 p.place_strand(pt, n_residues, n_sample_strands, s * graphics_info_t::place_helix_here_fudge_factor);
+	 p.place_strand(pt, n_residues, n_sample_strands, s_with_ff);
       if (si.success) {
 	 // nice to refine the fragment here, but the interface
 	 // doesn't work that way, so put the refinement after the

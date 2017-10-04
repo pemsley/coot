@@ -907,6 +907,13 @@ void spin_search_by_atom_vectors(int imol_map, int imol, const std::string &chai
 //!   fit to density of imol_map map of the first atom in
 //!   moving_atom_list.  Works (only) with atoms in altconf "" 
 void spin_search(int imol_map, int imol, const char *chain_id, int resno, const char *ins_code, SCM direction_atoms_list, SCM moving_atoms_list);
+//! \brief Spin N and CB (and the rest of the side chain if extant)
+//!
+//!  Sometime on N-terminal addition, then N ends up pointing the wrong way.
+//!  The allows us to (more or less) interchange the positions of the CB and the N.
+//!  angle is in degrees.
+//!
+void spin_N_scm(int imol, SCM residue_spec_scm, float angle);
 #endif
 
 #ifdef USE_PYTHON
@@ -915,7 +922,15 @@ void spin_search(int imol_map, int imol, const char *chain_id, int resno, const 
 //!   fit to density of imom_map map of the first atom in
 //!   moving_atom_list.  Works (only) with atoms in altconf ""
 void spin_search_py(int imol_map, int imol, const char *chain_id, int resno, const char *ins_code, PyObject *direction_atoms_list, PyObject *moving_atoms_list);
+//! \brief Spin N and CB (and the rest of the side chain if extant)
+//!
+//!  Sometime on N-terminal addition, then N ends up pointing the wrong way.
+//!  The allows us to (more or less) interchange the positions of the CB and the N.
+//!  angle is in degrees.
+//!
+void spin_N_py(int imol, PyObject *residue_spec, float angle);
 #endif
+
 //! \}
 
 

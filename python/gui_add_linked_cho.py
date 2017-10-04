@@ -67,9 +67,9 @@ def multi_add_linked_residue(imol, res_spec, residues_to_add):
                     new_link = residue_to_add[1]
 
                     new_res_spec = add_linked_residue(imol,
-                                                      res_spec2chain_id(current_residue_spec),
-                                                      res_spec2res_no(current_residue_spec),
-                                                      res_spec2ins_code(current_residue_spec),
+                                                      res_spec_to_chain_id(current_residue_spec),
+                                                      res_spec_to_res_no(current_residue_spec),
+                                                      res_spec_to_ins_code(current_residue_spec),
                                                       new_res, new_link, 2)
 
 
@@ -282,9 +282,9 @@ def add_linked_residue_tree(imol, parent, tree):
     
     def centre_view_on_residue_centre(res_spec):
         res_centre = residue_centre(imol,
-                                    residue_spec2chain_id(res_spec),
-                                    residue_spec2res_no(res_spec),
-                                    residue_spec2ins_code(res_spec))
+                                    residue_spec_to_chain_id(res_spec),
+                                    residue_spec_to_res_no(res_spec),
+                                    residue_spec_to_ins_code(res_spec))
         if (isinstance(res_centre, list)):
             set_rotation_centre(*res_centre)
     
@@ -328,9 +328,9 @@ def add_linked_residue_tree(imol, parent, tree):
 #            set_mol_active(imol_glyco_pre, 0)
 
             new_res_spec = add_linked_residue(imol,
-                                              res_spec2chain_id(parent),
-                                              res_spec2res_no(parent),
-                                              res_spec2ins_code(parent),
+                                              res_spec_to_chain_id(parent),
+                                              res_spec_to_res_no(parent),
+                                              res_spec_to_ins_code(parent),
                                               new_res_type, new_link, 2)
             set_mol_displayed(imol_save, 0)
             set_mol_active(imol_save, 0)
@@ -392,9 +392,9 @@ def add_linked_residue_tree(imol, parent, tree):
                                                aa_ins_code, aa_atom_name, aa_alt_conf, aa_res_spec]:
                     res_spec = aa_res_spec
                     rn = residue_name(imol,
-                                      residue_spec2chain_id(res_spec),
-                                      residue_spec2res_no(res_spec),
-                                      residue_spec2ins_code(res_spec))
+                                      residue_spec_to_chain_id(res_spec),
+                                      residue_spec_to_res_no(res_spec),
+                                      residue_spec_to_ins_code(res_spec))
                     if not isinstance(rn, str):
                         return False
                     else:
@@ -483,8 +483,8 @@ def delete_all_cho():
 #                now we have delete_residues, we don't need to delete them one by one
 #                for cho_res_spec in delete_cho_ls:
 #                    delete_residue(aa_imol,
-#                                   residue_spec2chain_id(cho_res_spec),
-#                                   residue_spec2res_no(cho_res_spec), "")
+#                                   residue_spec_to_chain_id(cho_res_spec),
+#                                   residue_spec_to_res_no(cho_res_spec), "")
                 delete_residues(aa_imol, delete_cho_ls)
 
 def interactive_add_cho_dialog():

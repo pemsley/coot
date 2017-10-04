@@ -381,7 +381,9 @@
 # 5.23 20141210 libreadline needs to be linked with -lcurses (on Debian)
 # 5.25 20141212
 # 5.26 20150215 Use /opt/X11 and COOT_CCP4_PACKAGES for dependences on Darwin.
-script_version=5.26
+# 5.27 20170925 bump libccp4 version to 6.5.1 - this has libccp4.pc for pkg-config
+# 5.28 20170925 Fixes for clipper and guile and gmp version update (gcc-7.2)
+script_version=5.28
 
 
 
@@ -1440,6 +1442,13 @@ echo checking wget
 echo which wget
 which wget
 # use -P for timestamping
+# Note that now wget depends on libhogweed and that depends on libgmp
+# but we are compiling an old version of gmp (not sure that we need
+# an old version) and libhogweed refers to a (now) non-existant
+# functions and the dynamic loading fails.
+# This setting of the alias fails.  It works on the command line.
+# WGET="LD_LIBRARY_PATH=/usr/lib wget -N -P ${AUTOBUILD_SOURCES}"
+# WGETO="LD_LIBRARY_PATH=/usr/lib wget   -P ${AUTOBUILD_SOURCES}"
 WGET="wget -N -P ${AUTOBUILD_SOURCES}"
 WGETO="wget   -P ${AUTOBUILD_SOURCES}"
 
@@ -2346,7 +2355,8 @@ fi
 
 # shall we build libccp4c?
 if [ -e $install_top_dir/lib/libccp4c.la ] ; then
-    if [ -e $install_top_dir/include/ccp4/cmtzlib.h ] ; then
+    # 20170925 test for the pkg-config file
+    if [ -e $install_top_dir/lib/pkgconfig/libccp4c.pc ] ; then
         # no need to rebuild
         build_ccp4c=
     else 
@@ -2373,7 +2383,7 @@ fi
 # libccp4: (not fortran)
 if test -n "$build_ccp4c" ; then 
     echo BUILDING: libccp4
-    libccp4_version=6.4.6
+    libccp4_version=6.5.1
     # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-2.tar.gz
     # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-3.tar.gz
     #${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/martyn-extras.tar.gz
@@ -2601,7 +2611,7 @@ if test -n "$build_clipper" ; then
 	--enable-ccp4    \
 	--enable-minimol \
 	--enable-cns     \
-       CXXFLAGS="-g -O2 -fno-strict-aliasing"
+       CXXFLAGS="-g -O2 -fno-strict-aliasing -Wno-narrowing"
     export LIBS="$save_libs"
     # 20110921 I don't think we need these flags any longer
     #        CCP4_CXXFLAGS=-I$install_top_dir/include CCP4_LIBS=$install_top_dir/lib/libccp4c.la
@@ -3056,7 +3066,8 @@ if test -n "$build_gmp" ; then
     # gmp_version=4.2.4
     # gmp_version=5.1.2
     # gmp_version=6.0.0a # it doesn't untar into this directory
-    gmp_version=5.1.3
+    # gmp_version=5.1.3
+    gmp_version=6.1.2
     ${WGET} http://www.mirrorservice.org/sites/ftp.gnu.org/gnu/gmp/gmp-$gmp_version.tar.bz2
     (date
      pwd
@@ -3220,7 +3231,7 @@ fi
 # arg to guile's configure
 ./configure $generic_prefix \
      $extra_flags_for_darwin \
-     CFLAGS="-I$install_top_dir/include $additional_unused_arg -O" \
+     CFLAGS="-I$install_top_dir/include $additional_unused_arg -O -Wno-deprecated-declarations" \
      LDFLAGS=-L$install_top_dir/lib \
      CPPFLAGS=-P \
      $extra_flags_for_debian

@@ -160,16 +160,16 @@ coot::restraints_container_t::restraints_container_t(mmdb::PResidue *SelResidues
    are_all_one_atom_residues = false;
 
    std::vector<coot::atom_spec_t> fixed_atoms_dummy;
-   int istart_res = 999999;
-   int iend_res = -9999999;
+   int istart_res_l = 999999;
+   int iend_res_l = -9999999;
    int resno;
    
    for (int i=0; i<nSelResidues; i++) { 
       resno = SelResidues[i]->seqNum;
-      if (resno < istart_res)
-	 istart_res = resno;
-      if (resno > iend_res)
-	 iend_res = resno;
+      if (resno < istart_res_l)
+	 istart_res_l = resno;
+      if (resno > iend_res_l)
+	 iend_res_l = resno;
    }
    
    short int have_flanking_residue_at_start = 0;
@@ -180,7 +180,7 @@ coot::restraints_container_t::restraints_container_t(mmdb::PResidue *SelResidues
    // std::cout << "DEBUG:  ==== istart_res iend_res " << istart_res << " "
    // << iend_res << std::endl; 
 
-   init_from_mol(istart_res, iend_res, 
+   init_from_mol(istart_res_l, iend_res_l,
 		 have_flanking_residue_at_start,
 		 have_flanking_residue_at_end,
 		 have_disulfide_residues, 
@@ -194,7 +194,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 						     short int have_disulfide_residues,
 						     const std::string &altloc,
 						     const std::string &chain_id,
-						     mmdb::Manager *mol,
+						     mmdb::Manager *mol_in,
 						     const std::vector<coot::atom_spec_t> &fixed_atom_specs,
 						     const clipper::Xmap<float> &map_in,
 						     float map_weight_in) {
@@ -205,7 +205,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 		 have_flanking_residue_at_end,
 		 have_disulfide_residues,
 		 altloc,
-		 chain_id, mol, fixed_atom_specs);
+		 chain_id, mol_in, fixed_atom_specs);
    are_all_one_atom_residues = false;
    map = map_in;
    map_weight = map_weight_in;
@@ -427,6 +427,9 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
 	       // std::cout << "downweighting atom " << coot::atom_spec_t(atom[i]) << std::endl;
 	       weight = 0.1;
 	    }
+	 std::string at_name = atom[i]->name;
+	 if (at_name == " O  ")
+	    weight = 0.2;
       }
 
       if (z < 0.0) {
@@ -456,11 +459,14 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
 void
 coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
 						    const coot::protein_geometry &geom,
-						    mmdb::Manager *mol,
+						    mmdb::Manager *mol_in,
 						    const std::vector<atom_spec_t> &fixed_atom_specs) {
 
 
-   init_shared_pre(mol);
+   // This function is called from the constructor.
+   // make_restraints() is called after this function by the user of this class.
+   
+   init_shared_pre(mol_in);
    residues_vec = residues;
 
    // Need to set class members mmdb::PPAtom atom and int n_atoms.
@@ -494,6 +500,11 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 
    // what about adding the flanking residues?  How does the atom
    // indexing of that work when (say) adding a bond?
+
+   if (false)
+      std::cout << "debug::info in init_from_residue_vec() calling bonded_flanking_residues_by_residue_vector() "
+		<< std::endl;
+
    bonded_pair_container_t bpc = bonded_flanking_residues_by_residue_vector(geom);
 
    // internal variable non_bonded_neighbour_residues is set by this
@@ -536,7 +547,7 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
 	    all_residues.push_back(bpc[i].res_2);
 	    n_bonded_flankers_in_total++;
 	 }
-      } 
+      }
    }
 
    // Finally add the neighbour residues that are not bonded:
@@ -1488,6 +1499,11 @@ void coot::my_df_electron_density_old_2017(const gsl_vector *v,
       }
    }
 #ifdef ANALYSE_REFINEMENT_TIMING
+   gettimeofday(&current_time, NULL);
+   double td = current_time.tv_sec - start_time.tv_sec;
+   td *= 1000.0;
+   td += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
+   // std::cout << "------------- mark my_df_electron_density: " << td << std::endl;
 #endif // ANALYSE_REFINEMENT_TIMING
 }
 
@@ -1676,7 +1692,7 @@ coot::restraints_container_t::make_restraints(int imol,
       std::cout << "----- make restraints() called with geom of size : " << geom.size() << std::endl;
       std::cout << "    geom ref pointer " << &geom << std::endl;
    }
-   
+
    restraints_usage_flag = flags_in; // also set in minimize() and geometric_distortions()
    // restraints_usage_flag = BONDS_AND_ANGLES;
    // restraints_usage_flag = GEMAN_MCCLURE_DISTANCE_RESTRAINTS;
@@ -1702,10 +1718,15 @@ coot::restraints_container_t::make_restraints(int imol,
       if (! do_flank_restraints)
 	 do_flank_restraints_internal = false;
 
+      // sets bonded_pairs_container
       if (do_link_restraints_internal)
 	 make_link_restraints(geom, do_rama_plot_restraints, do_trans_peptide_restraints);
 
-      // don't do torsions, ramas maybe.   
+      if (false)
+	 std::cout << "after make_link_restraints() bonded_pairs_container has size "
+		   << bonded_pairs_container.size() << std::endl;
+
+      // don't do torsions, ramas maybe.
       coot::bonded_pair_container_t bpc;
 
       if (do_flank_restraints_internal)
@@ -3131,7 +3152,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 	       if (false) { // debug.
 	          clipper::Coord_orth pt1(atom[i]->x, atom[i]->y, atom[i]->z);
 	          clipper::Coord_orth pt2(at_2->x,    at_2->y,    at_2->z);
-	          double d = sqrt((pt1-pt2).lengthsq());
+	          double dd = sqrt((pt1-pt2).lengthsq());
 
 	          std::cout << "adding non-bonded contact restraint index " 
 			    << i << " to index " << filtered_non_bonded_atom_indices[i][j]
@@ -3139,7 +3160,7 @@ coot::restraints_container_t::make_non_bonded_contact_restraints(int imol, const
 			    << atom_spec_t(atom[i]) << " to " 
 			    << atom_spec_t(atom[filtered_non_bonded_atom_indices[i][j]])
 			    << "  types: " << type_1 <<  " " << type_2 <<  " fixed: "
-			    << fixed_atom_flags[0] << " " << fixed_atom_flags[1] << "   current: " << d
+			    << fixed_atom_flags[0] << " " << fixed_atom_flags[1] << "   current: " << dd
 			    << " dist_min: " << dist_min << std::endl;
 	       }
 
@@ -4942,10 +4963,10 @@ coot::restraints_container_t::update_atoms(gsl_vector *s) {
    if (false) { 
       std::cout << "update_atom(0): from " << atom[0]->x  << " " << atom[0]->y << " " << atom[0]->z
 		<< std::endl;
-      double x = gsl_vector_get(s, 0);
-      double y = gsl_vector_get(s, 1);
-      double z = gsl_vector_get(s, 2);
-      std::cout << "                  to " << x  << " " << y << " " << z << std::endl;
+      double xx = gsl_vector_get(s, 0);
+      double yy = gsl_vector_get(s, 1);
+      double zz = gsl_vector_get(s, 2);
+      std::cout << "                  to " << xx  << " " << yy << " " << zz << std::endl;
    }
    
    for (int i=0; i<n_atoms; i++) { 

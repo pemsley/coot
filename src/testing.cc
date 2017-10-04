@@ -443,7 +443,7 @@ int test_output_link_distances_are_correct() {
 	    filename = "pdb4rqd-with-moved-CA.pdb";
 	    coot::write_coords_pdb(atom_sel.mol, filename);
 	    if (coot::file_exists(filename)) {
-	       atom_selection_container_t atom_sel = get_atom_selection(filename, true, true);
+	       atom_sel = get_atom_selection(filename, true, true);
 	       if (atom_sel.mol) {
 		  mmdb::Model *model_p = atom_sel.mol->GetModel(1);
 		  int n_links = model_p->GetNumberOfLinks();
