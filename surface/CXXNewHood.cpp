@@ -24,7 +24,8 @@ void CXXNewHood::init(){
 	theRadius = 0;
     theProbeRadius = 0;
 	theCentre = CXXCoord(0.,0.,0.);
-	theCircles.resize(0);
+	// theCircles.resize(0);
+	theCircles.clear();
 }
 
 CXXNewHood::CXXNewHood(){
