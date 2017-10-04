@@ -181,7 +181,9 @@ coot_gtk2=TRUE
 
 # AM_PATH_GTK(2.4.14)
 PKG_CHECK_MODULES(GTK, gtk+-2.0 >= 2.4.12)
-PKG_CHECK_MODULES(GNOME_CANVAS, libgnomecanvas-2.0 >= 0.15.0)
+
+# libgnomecanvas is not provided on new GNU/Linux systems
+# PKG_CHECK_MODULES(GNOME_CANVAS, libgnomecanvas-2.0 >= 0.15.0)
 if test -n "$GNOME_CANVAS_CFLAGS" ; then 
    GNOME_CANVAS_CFLAGS="-DHAVE_GNOME_CANVAS $GNOME_CANVAS_CFLAGS"
 fi
