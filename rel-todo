@@ -8,8 +8,7 @@
 
    o Make it easy for me to re-run the previous refinement ::: 1
 
-   o run lidia -> hydrogenate, then coot reduce - don't ::: 1
-     double protonate atoms
+   o run lidia -> hydrogenate, then coot reduce - don't double protonate atoms  ::: 1
 
    o segment_map(0, 0.03) for EMD-6224 doesn't do good things (300 empty (?) maps). 
      segment EMD-1832. (puntable) ::: 6

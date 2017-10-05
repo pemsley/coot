@@ -3508,8 +3508,8 @@ void coot_all_atom_contact_dots(int imol) {
 	 int point_size = 2;
 	 if (type == "vdw-surface") point_size = 1;
 	 for (unsigned int i=0; i<v.size(); i++) {
-	    const std::string &col = v[i].col;
-	    to_generic_object_add_point_internal(obj, col, colour_map[col], point_size, v[i].pos);
+	    const std::string &col_inner = v[i].col;
+	    to_generic_object_add_point_internal(obj, col_inner, colour_map[col_inner], point_size, v[i].pos);
 	 }
 	 if (type != "vdw-surface")
 	    set_display_generic_object_simple(obj, 1); // should be a function with no redraw

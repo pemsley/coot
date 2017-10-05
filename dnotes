@@ -7896,7 +7896,23 @@ Thunderbird says this:
 ----
 Fri 29 Sep 2017 06:03:42 BST
 
- Use -Wl,-rpath (if passing to cc) or -rpath (if passing to ld) as more portable than -R. – ephemient Mar 30 '09 at 17:35
+ Use -Wl,-rpath (if passing to cc) or -rpath (if passing to ld) as more portable than 
+       -R. ephemient Mar 30 '09 at 17:35
+
  also
+
  https://www.eyrie.org/~eagle/notes/rpath.html
 
+----
+Tue  3 Oct 2017 11:49:21 BST
+
+   Tristan Croll mentions PyOpenCL
+
+   https://mathema.tician.de/software/pyopencl/
+
+----
+Wed  4 Oct 2017 06:36:53 BST
+
+   sounds
+
+   https://freesound.org/browse/tags/effect/?page=13#sound

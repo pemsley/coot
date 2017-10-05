@@ -891,14 +891,14 @@ graphics_info_t::update_refmac_column_labels_frame(GtkWidget *map_optionmenu,
     std::string tmp_mtz;
     for (int i=0; i<n_molecules(); i++) {
       if (molecules[i].Refmac_file_mtz_filename().size() > 0) {
-	std::string tmp_mtz = molecules[i].Refmac_file_mtz_filename();
-	if (tmp_mtz == file_mtz_filename) {
-	  g_print("INFO:: update the labels based on map %i\n", i);
-	  imol_map_refmac = i;
-	}
+	 std::string tmp_mtz_inner = molecules[i].Refmac_file_mtz_filename();
+	 if (tmp_mtz_inner == file_mtz_filename) {
+	    g_print("INFO:: update the labels based on map %i\n", i);
+	    imol_map_refmac = i;
+	 }
       }
     }
-  } 
+  }
 
   // get existing refmac parameters and refmac phase parameters and set active
   // otherwise default to first elements.
