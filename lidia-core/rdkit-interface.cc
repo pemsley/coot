@@ -261,14 +261,14 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	       }
 
 	       set_atom_chirality(rdkit_at, at, residue_p, restraints);
-	    
+
 	       m.addAtom(rdkit_at);
 	       
 	       if (debug)
 		  std::cout << "     adding atom with name \"" << atom_name
 			    << "\" to added_atom_names which is currently of size "
 			    << added_atom_names.size();
-	       
+
 	       added_atom_names.push_back(atom_name);
 	       added_atoms.push_back(residue_atoms[iat]);
 	       atom_index[atom_name] = current_atom_id;

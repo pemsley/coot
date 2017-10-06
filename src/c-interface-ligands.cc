@@ -2762,7 +2762,7 @@ PyObject *kullback_liebler_py(PyObject *l1, PyObject *l2) {
             v2.push_back(PyFloat_AsDouble(item));
       }
       std::pair<double, double> result = nicholls::get_KL(v1, v2);
-      PyObject *result_py = PyList_New(2);
+      result_py = PyList_New(2);
       PyList_SetItem(result_py, 0, PyFloat_FromDouble(result.first));
       PyList_SetItem(result_py, 1, PyFloat_FromDouble(result.second));
    }

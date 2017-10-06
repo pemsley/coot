@@ -17,6 +17,11 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
+"""
+pyrogen contains tools for converting molecules to mmcif restraints dictionaries,
+utilities for retrival, extraction and depction.
+"""
+
 import sys
 import os
 import copy
@@ -187,21 +192,38 @@ def read_file(file_name):
 
 # return False or a file_name
 #
+# downloaded file is put in the CCD directory as CCD/x/xyz.cif
+#
 def get_pdbe_cif_for_comp_id(comp_id):
 
    try:
-      file_name = "PDBe-" + comp_id + ".cif"
-      if os.path.isfile(file_name):
-         return file_name
-      else:
-         url = 'ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/' + comp_id + '.cif'
-         status = urllib.urlretrieve(url, file_name)
-         print('urllib.urllib returned with status', status)
-         return file_name
+      url = 'ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/' + comp_id + '.cif'
+      CCD_dir = 'CCD'
+      # file_name = "PDBe-" + comp_id + ".cif"
+      first_char = comp_id[0]
+      try:
+         sub_dir = os.path.join(CCD_dir, first_char)
+         file_name = os.path.join(sub_dir, comp_id + ".cif")
+         if not os.path.isdir(CCD_dir):
+            os.mkdir(CCD_dir)
+         if not os.path.isdir(sub_dir):
+            os.mkdir(sub_dir)
+         if os.path.isfile(file_name):
+            return file_name
+         else:
+            url = 'ftp://ftp.ebi.ac.uk/pub/databases/msd/pdbechem/files/mmcif/' + comp_id + '.cif'
+            status = urllib.urlretrieve(url, file_name)
+            print('urllib.urllib returned with status', status)
+            return file_name
+
+      except OSError as e:
+         print e
+         print "Failed: Can't ftp from", url, "and write file", file_name
+
    except IOError as e:
       print e
       print "Failed: Can't ftp from", url, "and write file", file_name
-      # exit(2)
+
 
 def MolFromFetchedCode(code):
    f = get_pdbe_cif_for_comp_id(code)

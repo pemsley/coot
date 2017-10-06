@@ -120,6 +120,7 @@ public:
    std::string map_file_name;
    std::string  input_pdb_file_name;
    std::string output_pdb_file_name;
+   std::vector<std::string> dictionary_file_names;
    std::vector<coot::residue_spec_t> single_residue_specs; // not used as yet.
 };
 
@@ -242,7 +243,7 @@ main(int argc, char **argv) {
       if (inputs.is_good) { 
 
 	 string pdb_file_name(inputs.input_pdb_file_name);
-	 bool map_is_good = 0;
+	 bool map_is_good = false; // currently
 
 	 // if pdb_file_name does not exist -> crash?
 	 atom_selection_container_t asc = get_atom_selection(pdb_file_name, true, true);
@@ -288,8 +289,16 @@ main(int argc, char **argv) {
 	    std::cout << "INFO:: using weight " << map_weight << std::endl;
 	 }
 
-	 if (map_is_good) { 
+	 if (map_is_good) {
 	    std::string altloc("");
+
+	    // load up the protein_geometry with user-supplied dictionaries
+	    int read_number = 55;
+	    for (std::size_t i=0; i<inputs.dictionary_file_names.size(); i++) {
+	       coot::read_refmac_mon_lib_info_t mli = geom.init_refmac_mon_lib(inputs.dictionary_file_names[i],
+									       read_number++,
+									       coot::protein_geometry::IMOL_ENC_ANY);
+	    }
 
 	    // the bool is to annotate for "fixed" residue - here nothing is fixed.
 	    // 
@@ -560,16 +569,17 @@ get_input_details(int argc, char **argv) {
 
    struct option long_options[] = {
       {"version",0, 0, 0},
-      {"pdbin",  1, 0, 0}, 
-      {"hklin",  1, 0, 0}, 
-      {"f",      1, 0, 0}, 
-      {"phi",    1, 0, 0}, 
-      {"pdbout", 1, 0, 0}, 
+      {"pdbin",  1, 0, 0},
+      {"hklin",  1, 0, 0},
+      {"f",      1, 0, 0},
+      {"phi",    1, 0, 0},
+      {"pdbout", 1, 0, 0},
+      {"dictin", 1, 0, 0},
       {"mapin",  1, 0, 0}, 
-      {"resno-start", 1, 0, 0}, 
-      {"resno-end",   1, 0, 0}, 
+      {"resno-start", 1, 0, 0},
+      {"resno-end",   1, 0, 0},
       // {"residue",     2, 0, 0}, // can't give 2 args to one keyword, it seems?
-      {"residues-around",   1, 0, 0}, 
+      {"residues-around",   1, 0, 0},
       {"chain-id",    1, 0, 0},
       {"weight",    1, 0, 0},
       {"radius",    1, 0, 0},
@@ -608,29 +618,32 @@ get_input_details(int argc, char **argv) {
 	    if (arg_str == "phi") { 
 	       d.phi_col = optarg;
 	    } 
-	    if (arg_str == "mapin") { 
+	    if (arg_str == "mapin") {
 	       d.map_file_name = optarg;
                d.given_map_flag = 1;
 	    }
-	    if (arg_str == "chain-id") { 
+	    if (arg_str == "dictin") {
+	       d.dictionary_file_names.push_back(optarg);
+	    }
+	    if (arg_str == "chain-id") {
 	       d.chain_id = optarg;
 	    }
-	    if (arg_str == "chain") { 
+	    if (arg_str == "chain") {
 	       d.chain_id = optarg;
 	    }
-	    if (arg_str == "resno-start") { 
+	    if (arg_str == "resno-start") {
 	       d.resno_start = atoi(optarg);
 	    }
-	    if (arg_str == "resno-end") { 
+	    if (arg_str == "resno-end") {
 	       d.resno_end = atoi(optarg);
 	    }
-	    if (arg_str == "residues-around") { 
+	    if (arg_str == "residues-around") {
 	       d.residues_around = atoi(optarg);
 	    }
-	    if (arg_str == "weight") { 
+	    if (arg_str == "weight") {
 	       d.map_weight = atof(optarg);
 	    }
-	    if (arg_str == "radius") { 
+	    if (arg_str == "radius") {
 	       d.radius = atof(optarg);
 	    }
 	 } else {

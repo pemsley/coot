@@ -1,4 +1,4 @@
-/* coot-utils/coot-shelx-ins.cc
+/*
  * 
  * Copyright 2005, 2006, 2007 by The University of York
  * Copyright 2008 by The University of Oxford
@@ -100,8 +100,10 @@ coot::ShelxIns::read_file(const std::string &filename) {
       mmdb::InitMatType();
       mol = new mmdb::Manager;
       mmdb::Model *model = new mmdb::Model;
-      mmdb::Chain *chain = new mmdb::Chain;
+      mmdb::Chain *chain = new mmdb::Chain; // possibly ends up empty?
+      std::map<std::string, mmdb::Chain *> chain_map;
       chain->SetChainID("");
+      chain_map[""] = chain;
       model->AddChain(chain);
       std::vector<mmdb::Atom *> atom_vector;
       std::vector<std::string> symm_vec;
@@ -154,12 +156,13 @@ coot::ShelxIns::read_file(const std::string &filename) {
 				       current_res_name,
 				       current_res_no);
 		  chain->AddResidue(residue);
+		  // std::cout << "adding residue to chain " << residue_spec_t(residue) << std::endl;
 	       }
 	       // now update
 	       if (card.words.size() > 1) {
-		  // current_res_no   = atoi(.c_str());
-		  std::string res_no_string = card.words[1];
+
 		  // res_no_string can be "1001" or "A:1001"
+		  std::string res_no_string = card.words[1];
 		  // first try a simple string -> int
 		  try {
 		     current_res_no = util::string_to_int(res_no_string);
@@ -169,7 +172,18 @@ coot::ShelxIns::read_file(const std::string &filename) {
 		     // find the colon and try string -> int on the rest of the string
 		     std::size_t p = res_no_string.find(':');
 		     if (p != std::string::npos) {
+                        std::string res_chain_id = res_no_string.substr(0,p);
 			std::string r_string = res_no_string.substr(p+1);
+                        std::map<std::string, mmdb::Chain *>::iterator it = chain_map.find(res_chain_id);
+                        if (it == chain_map.end()) {
+                           chain = new mmdb::Chain;
+                           chain->SetChainID(res_chain_id.c_str());
+			   model->AddChain(chain);
+                           chain_map[res_chain_id] = chain;
+			   std::cout << "debug:: ## new chain wiith chain-id " << res_chain_id << std::endl;
+                        } else {
+                           chain = it->second;
+                        }
 			try {
 			   current_res_no = util::string_to_int(r_string);
 			}
@@ -286,8 +300,9 @@ coot::ShelxIns::read_file(const std::string &filename) {
 		     } 
 		     // Push back all pre-atom lines, except FVARs
 		     // which are handled differently.
-		     bool is_fvar_line = 0;
-		     bool is_sfac_line = 0; 
+		     bool is_fvar_line = false;
+		     bool is_sfac_line = false;
+		     bool is_disp_line = false;
 		     if (card.words.size() > 0)
 			if (card_word_0 == "FVAR")
 			   is_fvar_line = 1; // flag for later
@@ -331,147 +346,156 @@ coot::ShelxIns::read_file(const std::string &filename) {
 				       s += " ";
 				    }
 				    symm_vec.push_back(s);
+
 				 } else {
-				    if (card_word_0 == "HKLF") {
-				       post_atoms_flag = 1;
-				       post_atom_lines.push_back(card.card); // special case, first post atom line
-				       mmdb::Residue *residue = add_shelx_residue(atom_vector,
-									     current_res_name,
-									     current_res_no);
-				       chain->AddResidue(residue);
-				       atom_vector.clear();
+
+				    if (card_word_0 == "DISP") {
+				       disp_cards.push_back(card.card);
+				       is_disp_line = true;
+
 				    } else {
-				       if (card_word_0.substr(0, 4) == "WGHT") {
-					  // handle WGHT
-					  // post_atoms_flag = 1; // Definately not, e.g. T.RES
+				       if (card_word_0 == "HKLF") {
+					  post_atoms_flag = 1;
+					  post_atom_lines.push_back(card.card); // special case, first post atom line
+					  mmdb::Residue *residue = add_shelx_residue(atom_vector,
+										     current_res_name,
+										     current_res_no);
+					  chain->AddResidue(residue);
+					  atom_vector.clear();
 				       } else {
-					  if (card_word_0.substr(0, 3) == "END") {
-					     // handle END
-					     mmdb::Residue *residue = add_shelx_residue(atom_vector,
-										   current_res_name,
-										   current_res_no);
-					     chain->AddResidue(residue);
-					     atom_vector.clear();
-					     post_atoms_flag = 1;
-					     post_END_flag = 1;
-
+					  if (card_word_0.substr(0, 4) == "WGHT") {
+					     // handle WGHT
+					     // post_atoms_flag = 1; // Definately not, e.g. T.RES
 					  } else {
+					     if (card_word_0.substr(0, 3) == "END") {
+						// handle END
+						mmdb::Residue *residue = add_shelx_residue(atom_vector,
+											   current_res_name,
+											   current_res_no);
+						chain->AddResidue(residue);
+						atom_vector.clear();
+						post_atoms_flag = 1;
+						post_END_flag = 1;
 
-					     if (card_word_0.substr(0, 4) == "ZERR") { // zerror 
-					     
 					     } else {
 
-						if (card_word_0.substr(0, 3) == "REM") { // REM
-						   // Special case:
-						   // we have a REM after atoms but before HKL 4 line
-						   // e.g. insulin.res from GMS
-						   if (encountered_atoms_flag)
-						      if (!post_atoms_flag)
-							 post_atom_lines.push_back(card.card);
-						
+						if (card_word_0.substr(0, 4) == "ZERR") { // zerror 
+					     
 						} else {
-						   if (card_word_0.substr(0, 4) == "FVAR") {
 
-						      save_fvars(card); 
-
+						   if (card_word_0.substr(0, 3) == "REM") { // REM
+						      // Special case:
+						      // we have a REM after atoms but before HKL 4 line
+						      // e.g. insulin.res from GMS
+						      if (encountered_atoms_flag)
+							 if (!post_atoms_flag)
+							    post_atom_lines.push_back(card.card);
+						
 						   } else {
+						      if (card_word_0.substr(0, 4) == "FVAR") {
 
-						      if ( (card_word_0.substr(0, 4) == "DEFS") || // DEFS and others
-							   (card_word_0.substr(0, 4) == "CGLS") ||
-							   (card_word_0.substr(0, 4) == "SHEL") ||
-							   (card_word_0.substr(0, 4) == "FMAP") ||
-							   (card_word_0.substr(0, 4) == "SIZE") ||
-							   (card_word_0.substr(0, 4) == "STIR") ||
-							   (card_word_0.substr(0, 4) == "TEMP") ||
-							   (card_word_0.substr(0, 4) == "BLOC") ||
-							   (card_word_0.substr(0, 4) == "SADI") ||
-							   (card_word_0.substr(0, 4) == "DISP") ||
-							   (card_word_0.substr(0, 4) == "SPEC") ||
-							   (card_word_0.substr(0, 4) == "PLAN") ||
-							   (card_word_0.substr(0, 4) == "LIST") ||
-							   (card_word_0.substr(0, 4) == "FREE") ||
-							   (card_word_0.substr(0, 4) == "HTAB") ||
-							   (card_word_0.substr(0, 4) == "DELU") ||
-							   (card_word_0.substr(0, 4) == "SIMU") ||
-							   (card_word_0.substr(0, 4) == "CONN") ||
-							   (card_word_0.substr(0, 4) == "EQIV") ||
-							   (card_word_0.substr(0, 4) == "BUMP") ||
-							   (card_word_0.substr(0, 4) == "MORE") ||
-							   (card_word_0.substr(0, 4) == "ISOR") ||
-							   (card_word_0.substr(0, 4) == "MERG") ||
-							   (card_word_0.substr(0, 4) == "TREF") ||
-							   (card_word_0.substr(0, 4) == "ACTA") ||
-							   (card_word_0.substr(0, 4) == "TWIN") ||
-							   (card_word_0.substr(0, 4) == "OMIT") ||
-							   (card_word_0.substr(0, 4) == "SWAT") ||
-							   (card_word_0.substr(0, 4) == "ANIS") ||
-							   (card_word_0.substr(0, 4) == "BASF") ||
-							   (card_word_0.substr(0, 4) == "SAME") ||
-							   (card_word_0.substr(0, 4) == "MOLE") ||
-							   (card_word_0.substr(0, 4) == "BIND") ||
-							   (card_word_0.substr(0, 4) == "L.S.") ||
-							   (card_word_0.substr(0, 4) == "SUMP") ||
-							   (card_word_0.substr(0, 4) == "BOND") ||
-							   (card_word_0.substr(0, 4) == "RIGU") ||
-							   (card_word_0.substr(0, 4) == "CONF") ||
-							   (card_word_0.substr(0, 4) == "MPLA") ||
-							   (card_word_0.substr(0, 4) == "HOPE") ||
-							   (card_word_0.substr(0, 4) == "EXTI") ||
-							   (card_word_0.substr(0, 4) == "XNPD") ||
-							   (card_word_0.substr(0, 4) == "WPDB")) { 
+							 save_fvars(card); 
+
 						      } else {
-							 if (card_word_0.substr(0, 4) == "LATT") {
-							    std::cout << "LATT LINE: " << card.card << std::endl;
-							    latt = atoi(card.words[1].c_str());  // potential crash here
-							 } else { 
-							    if ( (card_word_0.substr(0, 4) == "DFIX" ) || 
-								 (card_word_0.substr(0, 5) == "DFIX_")) {
-							    } else {
-							       if ((card_word_0.substr(0, 4) == "FLAT") ||
-								   (card_word_0.substr(0, 5) == "SADI_")) {
-							       
-							       } else {
-								  if (card_word_0.substr(0, 5) == "CHIV_") {
-								  } else {
-								     if ( (card_word_0.substr(0, 4) == "DANG" ) ||
-									  (card_word_0.substr(0, 5) == "DANG_") ||
-								       (card_word_0.substr(0, 4) == "RTAB")  ||
-								       (card_word_0.substr(0, 5) == "RTAB_") ) {
-								  } else {
 
-									if (card.words.size() <= 4) {
-									   //
-									   // A dos file has ^Ms for blank lines.  We don't want to
-									   // say that those are bad atoms
-									   short int handled_dos = 0;
-									   if (card.words.size() == 1) {
-									      if (card_word_0.length() == 1) {
-										 handled_dos = 1;
-									      }
-									   }
-									   if (!handled_dos) 
-									      std::cout << "WARNING:: BAD ATOM line " << nlines << " " 
-											<< card.words.size()
-											<< " field(s) :" << card.card << ":"
-											<< std::endl;
-									   
+							 if ( (card_word_0.substr(0, 4) == "DEFS") || // DEFS and others
+							      (card_word_0.substr(0, 4) == "CGLS") ||
+							      (card_word_0.substr(0, 4) == "SHEL") ||
+							      (card_word_0.substr(0, 4) == "FMAP") ||
+							      (card_word_0.substr(0, 4) == "SIZE") ||
+							      (card_word_0.substr(0, 4) == "STIR") ||
+							      (card_word_0.substr(0, 4) == "TEMP") ||
+							      (card_word_0.substr(0, 4) == "BLOC") ||
+							      (card_word_0.substr(0, 4) == "SADI") ||
+							      // (card_word_0.substr(0, 4) == "DISP") ||
+							      (card_word_0.substr(0, 4) == "SPEC") ||
+							      (card_word_0.substr(0, 4) == "PLAN") ||
+							      (card_word_0.substr(0, 4) == "LIST") ||
+							      (card_word_0.substr(0, 4) == "FREE") ||
+							      (card_word_0.substr(0, 4) == "HTAB") ||
+							      (card_word_0.substr(0, 4) == "DELU") ||
+							      (card_word_0.substr(0, 4) == "SIMU") ||
+							      (card_word_0.substr(0, 4) == "CONN") ||
+							      (card_word_0.substr(0, 4) == "EQIV") ||
+							      (card_word_0.substr(0, 4) == "BUMP") ||
+							      (card_word_0.substr(0, 4) == "MORE") ||
+							      (card_word_0.substr(0, 4) == "ISOR") ||
+							      (card_word_0.substr(0, 4) == "MERG") ||
+							      (card_word_0.substr(0, 4) == "TREF") ||
+							      (card_word_0.substr(0, 4) == "ACTA") ||
+							      (card_word_0.substr(0, 4) == "TWIN") ||
+							      (card_word_0.substr(0, 4) == "OMIT") ||
+							      (card_word_0.substr(0, 4) == "SWAT") ||
+							      (card_word_0.substr(0, 4) == "ANIS") ||
+							      (card_word_0.substr(0, 4) == "BASF") ||
+							      (card_word_0.substr(0, 4) == "SAME") ||
+							      (card_word_0.substr(0, 4) == "MOLE") ||
+							      (card_word_0.substr(0, 4) == "BIND") ||
+							      (card_word_0.substr(0, 4) == "L.S.") ||
+							      (card_word_0.substr(0, 4) == "SUMP") ||
+							      (card_word_0.substr(0, 4) == "BOND") ||
+							      (card_word_0.substr(0, 4) == "RIGU") ||
+							      (card_word_0.substr(0, 4) == "CONF") ||
+							      (card_word_0.substr(0, 4) == "MPLA") ||
+							      (card_word_0.substr(0, 4) == "HOPE") ||
+							      (card_word_0.substr(0, 4) == "EXTI") ||
+							      (card_word_0.substr(0, 4) == "XNPD") ||
+							      (card_word_0.substr(0, 4) == "WPDB")) { 
+							 } else {
+							    if (card_word_0.substr(0, 4) == "LATT") {
+							       std::cout << "LATT LINE: " << card.card << std::endl;
+							       latt = atoi(card.words[1].c_str());  // potential crash here
+							    } else { 
+							       if ( (card_word_0.substr(0, 4) == "DFIX" ) || 
+								    (card_word_0.substr(0, 5) == "DFIX_")) {
+							       } else {
+								  if ((card_word_0.substr(0, 4) == "FLAT") ||
+								      (card_word_0.substr(0, 5) == "SADI_")) {
+							       
+								  } else {
+								     if (card_word_0.substr(0, 5) == "CHIV_") {
+								     } else {
+									if ( (card_word_0.substr(0, 4) == "DANG" ) ||
+									     (card_word_0.substr(0, 5) == "DANG_") ||
+									     (card_word_0.substr(0, 4) == "RTAB")  ||
+									     (card_word_0.substr(0, 5) == "RTAB_") ) {
 									} else {
-									   if (! post_END_flag) { 
-									      // it's an atom
-									      mmdb::Atom *at = make_atom(card, altconf,
-												    udd_afix_handle,
-												    udd_non_riding_atom_flag_handle,
-												    udd_riding_atom_negative_u_value_handle,
-												    have_udd_atoms, current_afix,
-												    cell, atom_vector);
-									      if (at)
-										 atom_vector.push_back(at);
-									      else
-										 std::cout << "WARNING:: BAD ATOM on line #" << nlines << " " 
-											   << " #fields: " << card.words.size()
+
+									   if (card.words.size() <= 4) {
+									      //
+									      // A dos file has ^Ms for blank lines.  We don't want to
+									      // say that those are bad atoms
+									      short int handled_dos = 0;
+									      if (card.words.size() == 1) {
+										 if (card_word_0.length() == 1) {
+										    handled_dos = 1;
+										 }
+									      }
+									      if (!handled_dos) 
+										 std::cout << "WARNING:: BAD ATOM line " << nlines << " " 
+											   << card.words.size()
 											   << " field(s) :" << card.card << ":"
 											   << std::endl;
-									      encountered_atoms_flag = 1; // stop adding to pre_atom lines
+									   
+									   } else {
+									      if (! post_END_flag) { 
+										 // it's an atom
+										 // std::cout << "it's an atom! " << std::endl;
+										 mmdb::Atom *at = make_atom(card, altconf,
+													    udd_afix_handle,
+													    udd_non_riding_atom_flag_handle,
+													    udd_riding_atom_negative_u_value_handle,
+													    have_udd_atoms, current_afix,
+													    cell, atom_vector);
+										 if (at)
+										    atom_vector.push_back(at);
+										 else
+										    std::cout << "WARNING:: BAD ATOM on line #" << nlines << " " 
+											      << " #fields: " << card.words.size()
+											      << " field(s) :" << card.card << ":"
+											      << std::endl;
+										 encountered_atoms_flag = 1; // stop adding to pre_atom lines
+									      }
 									   }
 									}
 								     }
@@ -491,7 +515,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 			   }
 			}
 		     }
-		     if ((!is_fvar_line) && (!encountered_atoms_flag) &&(!is_sfac_line))
+		     if ((!is_fvar_line) && (!encountered_atoms_flag) && (!is_sfac_line) && (!is_disp_line))
 			pre_atom_lines.push_back(card.card);
 		  }
 	       }
@@ -511,7 +535,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
       // reason.  Let's pop it off:
       if (!post_atom_lines.empty()) 
 	 post_atom_lines.pop_back();
-      
+
       if (cell_local.size() == 6) { 
 	 clipper::Cell_descr cell_d(cell_local[0], cell_local[1], cell_local[2], 
 				    clipper::Util::d2rad(cell_local[3]),
@@ -599,16 +623,13 @@ coot::ShelxIns::read_file(const std::string &filename) {
 	 }
       }
 
-      std::cout << "INFO:: chain has " << chain->GetNumberOfResidues() << " residues"
-		<< std::endl;
+      std::cout << "INFO:: read_file() chain with chain id " << chain->GetChainID() << " has "
+		<< chain->GetNumberOfResidues() << " residues" << std::endl;
       mol->AddModel(model);
-      // we do these things below.      
-//       mol->FinishStructEdit();
-//       mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 
       if (cell_local.size() != 6) { // found a cell?
 	 std::cout << "WARNING:: no cell found in shelx file\n";
-      } else { 
+      } else {
 	 int n_models = mol->GetNumberOfModels();
 	 for (int imod=1; imod<=n_models; imod++) { 
       
@@ -626,7 +647,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 		     // This should not be necessary. It seem to be a
 		     // result of mmdb corruption elsewhere - possibly
 		     // DeleteChain in update_molecule_to().
-		     std::cout << "NULL chain in ... " << std::endl;
+		     std::cout << "NULL chain in read_file() " << imod << std::endl;
 		  } else { 
 		     int nres = chain_p->GetNumberOfResidues();
 		     mmdb::PResidue residue_p;
@@ -642,7 +663,7 @@ coot::ShelxIns::read_file(const std::string &filename) {
 					<< iat << " of residue " << coot::residue_spec_t(residue_p)
 					<< std::endl;
 			   } else {
-			      if (0) // debug
+			      if (false) // debug
 				 std::cout << "Mol Hierarchy atom: " << iat << " "
 					   << " " << at->name << " "
 					   << at->GetResName() << " " << at->GetSeqNum() << " "
@@ -662,19 +683,52 @@ coot::ShelxIns::read_file(const std::string &filename) {
       }
       mol->FinishStructEdit();
       mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-      // mol->WritePDBASCII("testing.pdb");
-      // write_ins_file(mol, "new.res");
+      // mol->WritePDBASCII("testing-shelx-read-file.pdb");
+      // write_ins_file(mol, "just-read-this.res");
    }
 
+   // SHELX ins files now can have chain ids attached to the residue numbers
+   // If that was the case, the molecule is already split into chains and we
+   // don't need to unshelx.  Which did we read? If there are more than 1 chains
+   // or the chain-id is not blank then we read new style
+   //
    mmdb::Manager *shelx_mol = 0;
-   if (mol) // maybe file not found?
-      shelx_mol = unshelx(mol);
+   if (mol) { // maybe file not found?
 
-   // same thing?
+      // shall we turn off needs_unshelx?
+      bool needs_unshelx = mol_needs_shelx_transfer(mol);
+
+      if (needs_unshelx) 
+	 shelx_mol = unshelx(mol);
+      else
+	 shelx_mol = mol;
+   }
+
    if (shelx_mol) {
-      coot::shelx_read_file_info_t ri(istate, udd_afix_handle, shelx_mol);
+      shelx_read_file_info_t ri(istate, udd_afix_handle, shelx_mol);
       if (resi_count > 10)
 	 ri.is_protein_flag = 1;
+
+      if (false) { // debugging block
+	 std::cout << "debug:: shelx read_file() returns mol: " << std::endl;
+	 int imod = 1;
+	 mmdb::Model *model_p = mol->GetModel(imod);
+	 if (! model_p) {
+	    std::cout << "debug:: shelx read_file() No model for 1 " << std::endl;
+	 } else {
+	    int n_chains = model_p->GetNumberOfChains();
+	    std::cout << "debug:: shelx read_file() n_chains: " << n_chains << std::endl;
+	    for (int ichain=0; ichain<n_chains; ichain++) {
+	       mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	       int nres = chain_p->GetNumberOfResidues();
+	       for (int ires=0; ires<nres; ires++) {
+		  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+		  std::cout << "debug:: shelx read_file() " << residue_spec_t(residue_p) << std::endl;
+	       }
+	    }
+	 }
+      }
+
       return ri;
    } else {
       return coot::shelx_read_file_info_t(istate, udd_afix_handle, mol);
@@ -684,11 +738,11 @@ coot::ShelxIns::read_file(const std::string &filename) {
 
 mmdb::Atom *
 coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string &altconf,
-			  int udd_afix_handle,
-			  int udd_non_riding_atom_flag_handle,
-			  int udd_riding_atom_negative_u_value_handle,
+			  int udd_afix_handle_in,
+			  int udd_non_riding_atom_flag_handle_in,
+			  int udd_riding_atom_negative_u_value_handle_in,
 			  bool have_udd_atoms, int current_afix,
-			  clipper::Cell &cell, const std::vector<mmdb::Atom *> &atom_vector) const {
+			  clipper::Cell &cell_in, const std::vector<mmdb::Atom *> &atom_vector) const {
 
    mmdb::Atom *at = new mmdb::Atom;  // returned
 
@@ -713,7 +767,7 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
       float occupancy = 1.0;
       float b_synth= 10.0;
 
-      try { 
+      try {
 	 if (card.words.size() > 5)
 	    occupancy = util::string_to_float(card.words[5]); // 11.0
 	 
@@ -744,7 +798,7 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
 	       if (u_factor_from_card > 0.0 ) { 
 		  at->tempFactor = u_to_b * u_factor_from_card;
 		  at->WhatIsSet = at->WhatIsSet | 4; // is isotropic
-		  at->PutUDData(udd_non_riding_atom_flag_handle, 1);
+		  at->PutUDData(udd_non_riding_atom_flag_handle_in, 1);
 	       } else {
 		  // negative U:
 		  // 
@@ -753,9 +807,9 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
 		  if ((u_factor_from_card <= -0.5) && (u_factor_from_card >= -5.0)) {
 		     // Find previous non-riding atom and use that to determine b for this atom
 
-		     mmdb::Atom *prev = previous_non_riding_atom(atom_vector, udd_non_riding_atom_flag_handle);
+		     mmdb::Atom *prev = previous_non_riding_atom(atom_vector, udd_non_riding_atom_flag_handle_in);
 		     if (prev) {
-			int status = at->PutUDData(udd_riding_atom_negative_u_value_handle, u_factor_from_card);
+			int status = at->PutUDData(udd_riding_atom_negative_u_value_handle_in, u_factor_from_card);
 			at->tempFactor = prev->tempFactor * -u_factor_from_card;
 		     } else {
 			// Don't know what to do.  Does this ever happen?
@@ -777,16 +831,16 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
 		  at->u13 = atof(card.words[10].c_str());
 		  at->u12 = atof(card.words[11].c_str());
 
-		  double a = cell.a();
-		  double b = cell.b();
-		  double c = cell.c();
+		  double a = cell_in.a();
+		  double b = cell_in.b();
+		  double c = cell_in.c();
 
 		  // Now othogonalize the U values:
 		  // clipper::U_aniso_frac ocaf(at->u11, at->u22, at->u33,
 		  //                            at->u12, at->u13, at->u23);
 		  clipper::U_aniso_frac caf(at->u11/(a*a), at->u22/(b*b), at->u33/(c*c),
 					    at->u12/(a*b), at->u13/(a*c), at->u23/(b*c));
-		  clipper::U_aniso_orth cao = caf.u_aniso_orth(cell);
+		  clipper::U_aniso_orth cao = caf.u_aniso_orth(cell_in);
 
 		  at->u11 = cao(0,0);
 		  at->u22 = cao(1,1);
@@ -802,7 +856,7 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
 		  float u_synth = (at->u11 + at->u22 + at->u33)/3.0;
 		  at->WhatIsSet |= mmdb::ASET_tempFactor; // has synthetic B factor
 		  at->tempFactor = 8.0 * M_PI * M_PI * u_synth;
-		  at->PutUDData(udd_non_riding_atom_flag_handle, 1);
+		  at->PutUDData(udd_non_riding_atom_flag_handle_in, 1);
 	       }
 	    }
 	 } else {
@@ -814,7 +868,7 @@ coot::ShelxIns::make_atom(const coot::shelx_card_info_t &card, const std::string
 // 	 std::cout << "on setting WhatIsSet is "
 // 		   << at->WhatIsSet << "\n";
 	 if (have_udd_atoms) { 
-	    at->PutUDData(udd_afix_handle, current_afix);
+	    at->PutUDData(udd_afix_handle_in, current_afix);
 	 }
       
       } else {
@@ -1113,21 +1167,71 @@ coot::ShelxIns::try_assign_cell(mmdb::Manager *mol) {
    return have_cell_flag;
 }
 
+// mol_is_from_shelx_ins is default arg with default value true
+//
+// This is the API from code using this class (e.g. in molecule-class-info)
+//
 std::pair<int, std::string>
 coot::ShelxIns::write_ins_file(mmdb::Manager *mol_in,
 			       const std::string &filename,
 			       bool mol_is_from_shelx_ins) {
+
+   std::pair<int, std::string> r(-1,"");
+
    if (!have_cell_flag) { // Need cell for orth->frac convertion for atoms
       have_cell_flag = try_assign_cell(mol_in);
    }
-   if (mol_is_from_shelx_ins) { 
-      mmdb::Manager *mol = reshelx(mol_in);
-      std::pair<int, std::string> r = write_ins_file_internal(mol, filename, mol_is_from_shelx_ins);
-      delete mol;
-      return r;
+   if (mol_is_from_shelx_ins) {
+      bool mol_needs_reshelx = mol_needs_shelx_transfer(mol_in);
+      if (mol_needs_reshelx) {
+	 mmdb::Manager *mol = reshelx(mol_in);
+	 r = write_ins_file_internal(mol, filename, true);
+	 delete mol;
+      } else {
+	 r = write_ins_file_internal(mol_in, filename, true);
+      }
    } else {
-      return write_ins_file_internal(mol_in, filename, mol_is_from_shelx_ins);
-   } 
+      r = write_ins_file_internal(mol_in, filename, false);
+   }
+   return r;
+}
+
+bool
+coot::ShelxIns::mol_needs_shelx_transfer(mmdb::Manager *mol) const {
+
+   // the test is the same for unshelx or re-shelx
+
+   bool needs_unshelx = true;
+   if (! mol) {
+      std::cout << "   ERROR:: mol_needs_shelx_transfer() was passed a null mol " << std::endl;
+   } else {
+      int n_models = mol->GetNumberOfModels();
+      // std::cout << "   debug:: mol_needs_shelx_transfer() mol has " << n_models
+      // << " models " << std::endl;
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (! model_p) {
+	 std::cout << "   ERROR:: shelx read_file() No model for 1 " << std::endl;
+      } else {
+	 int n_chains = model_p->GetNumberOfChains();
+	 if (n_chains > 1) {
+	    needs_unshelx = false;
+	 } else {
+	    for (int ichain=0; ichain<n_chains; ichain++) {
+	       mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	       std::string chain_id = chain_p->GetChainID();
+	       if (false)
+		  std::cout << "   DEBUG:: in mol_needs_shelx_transfer() chain_p "
+			    << chain_p << " has " << chain_p->GetNumberOfResidues()
+			    << " and chain id :" << chain_p->GetChainID() << ":" << std::endl;
+	       if (chain_id.length() > 0)
+		  needs_unshelx = false;
+	    }
+	 }
+      }
+   }
+   // std::cout << "   DEBUG:: mol_needs_shelx_transfer() returns " << needs_unshelx << std::endl;
+   return needs_unshelx;
 }
 
 void
@@ -1137,10 +1241,9 @@ coot::ShelxIns::write_orthodox_pre_atom_lines(std::ofstream &f) const {
    for (unsigned int i=0; i<pre_atom_lines.size(); i++) {
       if (is_unit_line(pre_atom_lines[i])) {
 	 write_sfac_line(f);
+	 write_disp_lines(f);
 	 sfac_done = true;
 	 f << pre_atom_lines[i];
-	 // BL says:: maybe only if size unit > sfac !?! or absolute value?!
-	 // lets say only when positive (FIXME!?)
 	 if (sfac.size() >= unit.size()) {
 	    // std::cout << "INFO :: padding UNIT card from size "
 	    // << unit.size() << " to " << sfac.size() << std::endl;
@@ -1491,15 +1594,33 @@ coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol,
 			try { 
 			   f <<  "RESI ";
 			   // format to look like shelx resi:
+			   bool output_old_style = false;
 			   int resno = residue_p->GetSeqNum();
 			   int resno_out = resno + resno_offset;
-			   if (resno_out < 1000)
-			      f << " ";
-			   if (resno_out < 100)
-			      f << " ";
-			   if (resno_out < 10)
-			      f << " ";
-			   f << resno_out << "   " << residue_p->GetResName() << "\n";
+			   if (output_old_style) {
+			      if (resno_out < 1000)
+				 f << " ";
+			      if (resno_out < 100)
+				 f << " ";
+			      if (resno_out < 10)
+				 f << " ";
+			      f << resno_out << "   " << residue_p->GetResName() << "\n";
+			   } else {
+			      if (resno_out < 1000)
+				 f << " ";
+			      if (resno_out < 100)
+				 f << " ";
+			      if (resno_out < 10)
+				 f << " ";
+			      std::string chain_id = residue_p->GetChainID();
+			      if (! chain_id.empty()) {
+				 f << chain_id <<  ":";
+			      } else {
+				 std::cout << "in write_ins_file_internal() residue " << residue_spec_t(residue_p)
+					   << " had empty chain id " << std::endl;
+			      }
+			      f << resno_out << " " << residue_p->GetResName() << "\n";
+			   }
 			}
 			catch (const std::ios::failure &e) { 
 			   std::cout << "WARNING:: IOS exception caught on RESI start "
@@ -1588,6 +1709,8 @@ coot::ShelxIns::write_ins_file_internal(mmdb::Manager *mol,
 				      << site_occ_factor << "    "
 				      << negative_u << "\n";
 				 } else {
+				    f.setf(std::ios::fixed);
+				    f.precision(7);
 				    if (b_factor > 0.0) // (riding?) hydrogens are not (-1.2)
 				       b_factor /= u_to_b;
 				    f << coot::util::remove_leading_spaces(at_name)
@@ -1694,6 +1817,12 @@ coot::ShelxIns::write_sfac_line(std::ostream &f) const {
       }
       f << "\n";
    }
+}
+
+void
+coot::ShelxIns::write_disp_lines(std::ostream &f) const {
+   for (std::size_t i=0; i<disp_cards.size(); i++)
+      f << disp_cards[i] << "\n";
 }
 
 
@@ -2165,6 +2294,8 @@ coot::symm_card_composition_t::symm_card_composition_t(const std::string &symm_c
 std::vector<std::string>
 coot::symm_card_composition_t::symm_cards_from_lat(int latt) {
 
+   // This function has been unshadowed - perhaps not in the most intelligent way
+
    std::vector<std::string> r;
    std::vector<std::vector<int> > latt_additions;
    
@@ -2175,40 +2306,40 @@ coot::symm_card_composition_t::symm_cards_from_lat(int latt) {
    latt_additions.push_back(a);
 
    if (abs_latt == 2) {
-      std::vector<int> a(3);
-      a[0] = ONE_HALF;  a[1] = ONE_HALF; a[2] = ONE_HALF;
-      latt_additions.push_back(a);
+      std::vector<int> aa(3);
+      aa[0] = ONE_HALF;  aa[1] = ONE_HALF; aa[2] = ONE_HALF;
+      latt_additions.push_back(aa);
    }
    if (abs_latt == 3) { 
-      std::vector<int> a(3);
-      a[0] = TWO_THIRDS;  a[1] = ONE_THIRD; a[2] = ONE_THIRD;
-      latt_additions.push_back(a);
-      a[0] = ONE_THIRD;  a[1] = TWO_THIRDS; a[2] = TWO_THIRDS;
-      latt_additions.push_back(a);
+      std::vector<int> aa(3);
+      aa[0] = TWO_THIRDS;  aa[1] = ONE_THIRD; aa[2] = ONE_THIRD;
+      latt_additions.push_back(aa);
+      aa[0] = ONE_THIRD;  aa[1] = TWO_THIRDS; aa[2] = TWO_THIRDS;
+      latt_additions.push_back(aa);
    }
    if (abs_latt == 4) { 
-      std::vector<int> a(3);
-      a[0] = 0;  a[1] = ONE_HALF; a[2] = ONE_HALF;
-      latt_additions.push_back(a);
-      a[0] = 0;  a[1] = ONE_HALF; a[2] = ONE_HALF;
-      latt_additions.push_back(a);
-      a[0] = ONE_HALF;  a[1] = ONE_HALF; a[2] = NONE;
-      latt_additions.push_back(a);
+      std::vector<int> aa(3);
+      aa[0] = 0;  aa[1] = ONE_HALF; aa[2] = ONE_HALF;
+      latt_additions.push_back(aa);
+      aa[0] = 0;  aa[1] = ONE_HALF; aa[2] = ONE_HALF;
+      latt_additions.push_back(aa);
+      aa[0] = ONE_HALF;  aa[1] = ONE_HALF; aa[2] = NONE;
+      latt_additions.push_back(aa);
    }
    if (abs_latt == 5) { 
-      std::vector<int> a(3);
-      a[0] = 0;  a[1] = ONE_HALF; a[2] = ONE_HALF;
-      latt_additions.push_back(a);
+      std::vector<int> aa(3);
+      aa[0] = 0;  aa[1] = ONE_HALF; aa[2] = ONE_HALF;
+      latt_additions.push_back(aa);
    }
-   if (abs_latt == 6) { 
-      std::vector<int> a(3);
-      a[0] = ONE_HALF;  a[1] = NONE; a[2] = ONE_HALF;
-      latt_additions.push_back(a);
+   if (abs_latt == 6) {
+      std::vector<int> aa(3);
+      aa[0] = ONE_HALF;  aa[1] = NONE; aa[2] = ONE_HALF;
+      latt_additions.push_back(aa);
    }
-   if (abs_latt == 7) { 
-      std::vector<int> a(3);
-      a[0] = ONE_HALF;  a[1] = ONE_HALF; a[2] = NONE;
-      latt_additions.push_back(a);
+   if (abs_latt == 7) {
+      std::vector<int> aa(3);
+      aa[0] = ONE_HALF;  aa[1] = ONE_HALF; aa[2] = NONE;
+      latt_additions.push_back(aa);
    }
 
    for (unsigned int i=0; i<latt_additions.size(); i++) {
@@ -2397,6 +2528,10 @@ coot::unshelx(mmdb::Manager *shelx_mol) {
    
    int imod = 1;
    mmdb::Model *shelx_model_p = shelx_mol->GetModel(imod);
+   if (! shelx_model_p) {
+      std::cout << "ERROR: unshelx() no model 1 in molecule " << std::endl;
+      return NULL;
+   }
    mmdb::Chain *chain_p = NULL;
    std::string r("ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz");
    int r_index = 0;
@@ -2435,7 +2570,7 @@ coot::unshelx(mmdb::Manager *shelx_mol) {
 	    model_p->AddChain(chain_p);
 	    need_new_chain = 0;
 	 }
-	 
+
 	 mmdb::Residue *copy_residue_p = coot::util::deep_copy_this_residue(shelx_residue_p);
 	 chain_p->AddResidue(copy_residue_p);
 
@@ -2475,8 +2610,8 @@ coot::unshelx(mmdb::Manager *shelx_mol) {
 
       // Fix the index of the residues
       // run over chains of the existing mol
-      int nchains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<nchains; ichain++) {
+      int nchains_local = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<nchains_local; ichain++) {
 	 chain_p = model_p->GetChain(ichain);
 	 chain_p->TrimResidueTable();
 	 mmdb::PResidue residue_p;
@@ -2533,8 +2668,8 @@ coot::reshelx(mmdb::Manager *mol) {
    // run over chains of the existing mol
    mmdb::Model *model_p = mol->GetModel(imod);
    mmdb::Chain *chain_p;
-   int nchains = model_p->GetNumberOfChains();
-   for (int ichain=0; ichain<nchains; ichain++) {
+   int nchains_local = model_p->GetNumberOfChains();
+   for (int ichain=0; ichain<nchains_local; ichain++) {
       // int residue_offset = ichain*ins_info.new_chain_offset;
       int residue_offset = 0; // no need to mess with the residue numbers, I think.
       chain_p = model_p->GetChain(ichain);

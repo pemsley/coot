@@ -1052,9 +1052,9 @@ public:        //                      public
       return draw_hydrogens_flag;
    }
 
-   void makebonds(const coot::protein_geometry *geom_p);
-   void makebonds(float max_dist, const coot::protein_geometry *geom_p); // maximum distance for bond (search)
-   void makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p); 
+   void makebonds(const coot::protein_geometry *geom_p, bool add_residue_indices=false);
+   void makebonds(float max_dist, const coot::protein_geometry *geom_p, bool add_residue_indices=false); // maximum distance for bond (search)
+   void makebonds(float min_dist, float max_dist, const coot::protein_geometry *geom_p, bool add_residue_indices=false); 
    void make_ca_bonds(float min_dist, float max_dist); 
    void make_ca_bonds();
    void make_ca_plus_ligands_bonds(coot::protein_geometry *pg);
@@ -1073,7 +1073,7 @@ public:        //                      public
    void occupancy_representation();
    void user_defined_colours_representation(coot::protein_geometry *geom_p, bool all_atoms_mode); // geom needed for ligands
 
-   void make_bonds_type_checked(); 
+   void make_bonds_type_checked(bool add_residue_indices=false);
 
 
    void label_atoms(int brief_atom_labels_flag);
@@ -1679,6 +1679,7 @@ public:        //                      public
 
    int delete_hydrogens(); // return status of atoms deleted (0 -> none deleted).
 
+   int delete_chain(const std::string &chain_id);
 
    // closing molecules, delete maps and atom sels as appropriate
    // and unset "filled" variables.  Set name_ to "".
@@ -2622,18 +2623,19 @@ public:        //                      public
 				     const gl_context_info_t &glci,
 				     const coot::protein_geometry *geom); 
 
-   int adjust_additional_representation(int represenation_number, 
+   int adjust_additional_representation(int representation_number,
 					const int &bonds_box_type_in, 
 					float bonds_width,
 					bool draw_hydrogens_flag,
 					const coot::atom_selection_info_t &info, 
-					bool show_it_flag_in); 
+					bool show_it_flag_in);
 
    void clear_additional_representation(int representation_number);
    void set_show_additional_representation(int representation_number, bool on_off_flag);
    void set_show_all_additional_representations(bool on_off_flag);
    void all_additional_representations_off_except(int rep_no,
 						  bool ball_and_sticks_off_too_flag);
+   graphical_bonds_container get_bonds_representation() { make_bonds_type_checked(true); return bonds_box; }
    // 
    std::vector<coot::residue_spec_t> residues_near_residue(const coot::residue_spec_t &rspec, float radius) const; 
 
@@ -2779,8 +2781,8 @@ public:        //                      public
    coot::extra_restraints_representation_t extra_restraints_representation;
    void draw_extra_restraints_representation();
    void draw_parallel_plane_restraints_representation();
-   void set_extra_restraints_prosmart_sigma_limits(double limit_low, double limit_high);   
-   
+   void set_extra_restraints_prosmart_sigma_limits(double limit_low, double limit_high);
+
    // return an index of the new restraint
    int add_extra_bond_restraint(coot::atom_spec_t atom_1,
 				coot::atom_spec_t atom_2,
@@ -2974,7 +2976,7 @@ public:        //                      public
    // single model view
    void single_model_view_model_number(int imodel);
    int single_model_view_this_model_number() const;
-   int single_model_view_next_model_number(); // changes the represenation
+   int single_model_view_next_model_number(); // changes the representation
    int single_model_view_prev_model_number(); //    ditto.
 
    // multi-residue torsion map fitting interface
@@ -3093,6 +3095,10 @@ public:        //                      public
 
    void update_bonds_using_phenix_geo(const coot::phenix_geo_bonds &b);
 
+   void export_map_fragment_to_plain_file(float radius,
+					  clipper::Coord_orth centre,
+					  const std::string &filename) const;
+
    void globularize();
 
    bool is_EM_map() const;
@@ -3117,6 +3123,15 @@ public:        //                      public
    void glyco_tree_internal_distances_fn(const coot::residue_spec_t &base_residue_spec,
 					 coot::protein_geometry *geom_p,
 					 const std::string &file_name);
+
+   // hacky function to retrive the atom based on the position
+   // (silly thing to do)
+   mmdb::Atom *get_atom_at_pos(const coot::Cartesian &pt) const;
+
+   void add_secondary_structure_header_records(bool overwrite=false);
+
+   // angle in degrees.
+   void spin_N(const coot::residue_spec_t &residue_spec, float angle);
    
 };
 

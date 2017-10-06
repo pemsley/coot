@@ -258,12 +258,17 @@ atom_pick(GdkEventButton *event) {
 		      << "\n";
 	 }
       }
-      
-      if (n_pickable == 0) {
-	 std::string s = "There were no pickable (\"Active\") molecules!";
-	 GtkWidget *w = graphics_info_t::wrapped_nothing_bad_dialog(s);
-	 gtk_widget_show(w);
-      } 
+
+      // we don't want to do this now that we have middle mouse panning
+      //
+      if (false) {
+	 if (n_pickable == 0) {
+	    std::string s = "There were no pickable (\"Active\") molecules!";
+	    GtkWidget *w = graphics_info_t::wrapped_nothing_bad_dialog(s);
+	    gtk_widget_show(w);
+	 }
+      }
+
       //cout << "There were " << i_outside_count << " atoms outside "
       //	<< "the limits" << endl;
 

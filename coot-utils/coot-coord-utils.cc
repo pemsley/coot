@@ -980,11 +980,11 @@ coot::util::quaternion::centroid_rtop(const std::vector<std::pair<clipper::RTop_
 	 if (n > 0) {
 
 	    normalize();
-	    double inv_n = 1.0/double(n);
+	    double inv_n_local = 1.0/double(n);
 	    clipper::Mat33<double> m = matrix();
-	    clipper::Coord_orth td(sum_trn_filtered_dev.x() * inv_n,
-				   sum_trn_filtered_dev.y() * inv_n,
-				   sum_trn_filtered_dev.z() * inv_n);
+	    clipper::Coord_orth td(sum_trn_filtered_dev.x() * inv_n_local,
+				   sum_trn_filtered_dev.y() * inv_n_local,
+				   sum_trn_filtered_dev.z() * inv_n_local);
 	    return clipper::RTop_orth(m, td);
 	 } else { 
        
@@ -7184,6 +7184,28 @@ coot::util::average_position(std::vector<clipper::Coord_orth> &pts) {
       return clipper::Coord_orth(0,0,0);
    }
 }
+
+clipper::Coord_orth
+coot::util::average_position(mmdb::Residue *residue_p) {
+
+   mmdb::Atom **residue_atoms = 0;
+   int n_residue_atoms;
+   clipper::Coord_orth sum(0,0,0);
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   for (int i=0; i<n_residue_atoms; i++) {
+      mmdb::Atom *at = residue_atoms[i];
+      clipper::Coord_orth atom_pos = co(at);
+      sum += atom_pos;
+   }
+   if (n_residue_atoms > 0) {
+      double r = 1.0/double(n_residue_atoms);
+      clipper::Coord_orth pt(sum.x() * r, sum.y() * r, sum.z() * r);
+      return pt;
+   } else {
+      return sum;
+   }
+}
+
 
 
 

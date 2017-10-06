@@ -736,6 +736,32 @@ void spin_search_py(int imol_map, int imol, const char *chain_id, int resno,
 }
 #endif // PYTHON
 
+/*  ----------------------------------------------------------------------- */
+/*                  Spin around N and CB for N-termal addition              */
+/*  ----------------------------------------------------------------------- */
+
+#ifdef USE_PYTHON
+void spin_N_py(int imol, PyObject *residue_spec_py, float angle) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t residue_spec = residue_spec_from_py(residue_spec_py);
+      graphics_info_t::molecules[imol].spin_N(residue_spec, angle);
+      graphics_draw();
+   }
+}
+#endif // USE_PYTHON
+
+#ifdef USE_GUILE
+void spin_N_scm(int imol, SCM residue_spec_scm, float angle) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t residue_spec = residue_spec_from_scm(residue_spec_scm);
+      graphics_info_t::molecules[imol].spin_N(residue_spec, angle);
+      graphics_draw();
+   }
+}
+#endif // USE_GUILE
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  delete residue                                          */
@@ -881,7 +907,37 @@ int delete_hydrogens(int imol) {
 	 graphics_draw();
    }
    return n_deleted;
-} 
+}
+
+void delete_chain(int imol, const char *chain_id_in) {
+
+   std::string chain_id(chain_id_in);
+   graphics_info_t g;
+   if (is_valid_model_molecule(imol)) {
+      g.delete_chain_from_geometry_graphs(imol, chain_id);
+      short int istat = g.molecules[imol].delete_chain(std::string(chain_id));
+      if (istat) {
+	 g.update_go_to_atom_window_on_changed_mol(imol);
+	 graphics_draw();
+      }
+
+      if (delete_item_widget_is_being_shown()) {
+	 if (delete_item_widget_keep_active_on()) { 
+	    // dont destroy it
+	 } else {
+	    store_delete_item_widget_position(); // and destroy it.
+	 }
+      }
+      std::string cmd = "delete-chain";
+      std::vector<coot::command_arg_t> args;
+      args.push_back(imol);
+      args.push_back(coot::util::single_quote(chain_id));
+      add_to_history_typed(cmd, args);
+      graphics_draw();
+   }
+
+}
+
 
 
 
@@ -1265,11 +1321,11 @@ SCM refine_residues_with_modes_with_alt_conf_scm(int imol, SCM residues_spec_lis
 #endif // USE_GUILE
 
 #ifdef USE_GUILE
-SCM regularize_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf) {
+SCM regularize_residues_with_alt_conf_scm(int imol, SCM res_spec_scm, const char *alt_conf) {
    
    SCM rv = SCM_BOOL_F;
    if (is_valid_model_molecule(imol)) {
-      std::vector<coot::residue_spec_t> residue_specs = scm_to_residue_specs(r);
+      std::vector<coot::residue_spec_t> residue_specs = scm_to_residue_specs(res_spec_scm);
 
       if (residue_specs.size() > 0) {
 	 std::vector<mmdb::Residue *> residues;
@@ -1342,7 +1398,7 @@ PyObject *refine_residues_with_alt_conf_py(int imol, PyObject *r,
 #endif // USE_PYTHON
 
 #ifdef USE_PYTHON
-PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *r,
+PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *res_specs_py,
 						      const char *alt_conf,
 						      PyObject *mode_1,
 						      PyObject *mode_2,
@@ -1350,7 +1406,7 @@ PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *r,
 
    PyObject *rv = Py_False;
    if (is_valid_model_molecule(imol)) {
-     std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(r);
+     std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(res_specs_py);
 
       if (residue_specs.size() > 0) {
         std::vector<mmdb::Residue *> residues;
@@ -1410,11 +1466,11 @@ PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *r,
 #endif // USE_PYTHON
 
 #ifdef USE_PYTHON
-PyObject *regularize_residues_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf) {
+PyObject *regularize_residues_with_alt_conf_py(int imol, PyObject *res_specs_py, const char *alt_conf) {
    
    PyObject *rv = Py_False;
    if (is_valid_model_molecule(imol)) {
-      std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(r);
+      std::vector<coot::residue_spec_t> residue_specs = py_to_residue_specs(res_specs_py);
 
       if (residue_specs.size() > 0) {
 	 std::vector<mmdb::Residue *> residues;
@@ -1579,10 +1635,14 @@ void set_delete_atom_mode() {
    g.delete_item_residue_hydrogens = 0;
    g.delete_item_residue = 0;
    g.delete_item_sidechain = 0;
+   g.delete_item_chain = 0;
    add_to_history_simple("set-delete-atom-mode");
 }
 
 void set_delete_residue_mode() {
+
+   std::cout << "in set_delete_residue_mode()! " << std::endl;
+
    graphics_info_t g;
    g.delete_item_atom = 0;
    g.delete_item_residue_zone = 0;
@@ -1590,6 +1650,7 @@ void set_delete_residue_mode() {
    g.delete_item_water = 0;
    g.delete_item_residue = 1;
    g.delete_item_sidechain = 0; 
+   g.delete_item_chain = 0;
    add_to_history_simple("set-delete-residue-mode");
 }
 
@@ -1602,6 +1663,7 @@ void set_delete_residue_hydrogens_mode() {
    g.delete_item_water = 0;
    g.delete_item_residue_hydrogens = 1;
    g.delete_item_sidechain = 0; 
+   g.delete_item_chain = 0;
    add_to_history_simple("set-delete-residue-hydrogens-mode");
 
 }
@@ -1615,8 +1677,9 @@ void set_delete_residue_zone_mode() {
    g.delete_item_water = 0;
    g.delete_item_residue_hydrogens = 0;
    g.delete_item_sidechain = 0; 
+   g.delete_item_chain = 0;
    add_to_history_simple("set-delete-residue-zone-mode");
-} 
+}
 
 void set_delete_water_mode() {
 
@@ -1627,6 +1690,7 @@ void set_delete_water_mode() {
    g.delete_item_atom = 0;
    g.delete_item_residue_hydrogens = 0;
    g.delete_item_sidechain = 0; 
+   g.delete_item_chain = 0;
    add_to_history_simple("set-delete-residue-water-mode");
 
 } 
@@ -1639,7 +1703,23 @@ void set_delete_sidechain_mode() {
    g.delete_item_water = 0;
    g.delete_item_atom = 0;
    g.delete_item_residue_hydrogens = 0;
+   g.delete_item_chain = 0;
    g.delete_item_sidechain = 1; 
+   add_to_history_simple("set-delete-sidechain-mode");
+
+}
+
+void set_delete_chain_mode() {
+
+   std::cout << "in set_delete_chain_mode()! " << std::endl;
+   graphics_info_t g;
+   g.delete_item_residue = 0;
+   g.delete_item_residue_zone = 0;
+   g.delete_item_water = 0;
+   g.delete_item_atom = 0;
+   g.delete_item_residue_hydrogens = 0;
+   g.delete_item_sidechain = 0;
+   g.delete_item_chain = 1;
    add_to_history_simple("set-delete-sidechain-mode");
 
 }
@@ -1678,6 +1758,13 @@ short int delete_item_mode_is_water_p() {
 short int delete_item_mode_is_sidechain_p() {
    short int v=0;
    if (graphics_info_t::delete_item_sidechain == 1)
+      v = 1;
+   return v;
+}
+
+short int delete_item_mode_is_chain_p() {
+   short int v=0;
+   if (graphics_info_t::delete_item_chain == 1)
       v = 1;
    return v;
 }
@@ -1744,7 +1831,6 @@ void delete_residue_by_atom_index(int imol, int index, short int do_delete_dialo
    mmdb::Residue *residue_p =
       graphics_info_t::molecules[imol].get_residue(chain_id, resno, inscode);
    if (residue_p) {
-      graphics_info_t g;
       coot::residue_spec_t spec(residue_p);
       g.delete_residue_from_geometry_graphs(imol, spec);
    }
@@ -2269,9 +2355,8 @@ void print_header_secondary_structure_info(int imol) {
    } 
 }
 
-// Placeholder only.  Not documented, it doesn't work yet, because
-// CalcSecStructure() creates SS type on the residues, it does not
-// build and store CHelix, CStrand, CSheet records.
+#include "coot-utils/secondary-structure-headers.hh"
+
 // 
 void write_header_secondary_structure_info(int imol, const char *file_name) {
 
@@ -2285,18 +2370,27 @@ void write_header_secondary_structure_info(int imol, const char *file_name) {
 	 int imod = 1;
 	 mmdb::Model *model_p = mol->GetModel(imod);
 	 int ss_status = model_p->CalcSecStructure(1);
-	 
+
 	 // now do something clever with the residues of model_p to
 	 // build mmdb sheet and strand objects and attach them to the
 	 // model (should be part of mmdb).
-	 
+
+	 coot::secondary_structure_header_records ssr(mol, false);
+
 	 if (ss_status == mmdb::SSERC_Ok) {
 	    std::cout << "INFO:: SSE status was OK\n";
 	    model_p->PDBASCIIDumpPS(f); // dump CHelix and CStrand records.
 	 }
       }
    } 
-} 
+}
+
+void add_header_secondary_structure_info(int imol) {
+
+   if (is_valid_model_molecule(imol))
+      graphics_info_t::molecules[imol].add_secondary_structure_header_records();
+}
+
 
 
 
@@ -3740,7 +3834,6 @@ int place_strand_here(int n_residues, int n_sample_strands) {
 	 // Now refine.
 	 coot::minimol::zone_info_t zi = si.mol[0].zone_info();
 	 if (zi.is_simple_zone) {
-	    graphics_info_t g;
 	    int save_rirf = g.refinement_immediate_replacement_flag;
 #ifdef HAVE_GSL	    
 	    coot::pseudo_restraint_bond_type save_pseudos = g.pseudo_bonds_type;
@@ -5110,7 +5203,6 @@ int backrub_rotamer(int imol, const char *chain_id, int res_no,
      int imol_map = g.Imol_Refinement_Map();
      if (is_valid_map_molecule(imol_map)) {
 
-	graphics_info_t g;
 	std::pair<bool,float> brs  =
 	   g.molecules[imol].backrub_rotamer(chain_id, res_no, ins_code, alt_conf,
 					     *g.Geom_p());
@@ -5294,13 +5386,13 @@ PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const
                   g.molecules[imol].multi_residue_torsion_fit(residue_specs, xmap, n_trials, g.Geom_p());
 
                   // refine and re-torsion-fit
-                  int mode = graphics_info_t::refinement_immediate_replacement_flag;
+                  int rep_mode = graphics_info_t::refinement_immediate_replacement_flag;
                   std::string alt_conf;
                   graphics_info_t::refinement_immediate_replacement_flag = 1;
                   refine_residues_with_alt_conf(imol, residue_specs, alt_conf);
                   accept_regularizement();
                   remove_initial_position_restraints(imol, residue_specs);
-                  graphics_info_t::refinement_immediate_replacement_flag = mode;
+                  graphics_info_t::refinement_immediate_replacement_flag = rep_mode;
                }
             }
          }

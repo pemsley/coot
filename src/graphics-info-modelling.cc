@@ -2206,6 +2206,12 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	 float bf = default_new_atoms_b_factor;
 	 coot::residue_by_phi_psi addres(terminus_type, res_p, chain_id, res_type, bf);
 
+#ifdef HAVE_CXX_THREAD
+	 unsigned int n_threads = coot::get_max_number_of_threads();
+	 if (n_threads > 1)
+	    addres.thread_pool(&static_thread_pool, n_threads);
+#endif
+
 	 // std::cout << "DEBUG:: term_type: " << terminus_type << std::endl;
 
 	 // This was for debugging, so that we get *some* solutions at least.
@@ -2226,7 +2232,7 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	 addres.set_map_atom_mask_radius(1.2);
 	 if (terminus_type == "MC" || terminus_type == "MN" ||
 	     terminus_type == "singleton")
-	    masked_map_val = 0.0; 
+	    masked_map_val = 0.0;
 	 addres.set_masked_map_value(masked_map_val);   
 	 addres.import_map_from(molecules[imol_map].xmap,
 				molecules[imol_map].map_sigma());
@@ -2528,7 +2534,7 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
 	       mmdb::Model *model_p = residue_mol->GetModel(imod);
 	       mmdb::Chain *chain_p;
 	       // run over chains of the existing mol
-	       int nchains = model_p->GetNumberOfChains();
+	       nchains = model_p->GetNumberOfChains();
 	       for (int ichain=0; ichain<nchains; ichain++) {
 		  chain_p = model_p->GetChain(ichain);
 		  int nres = chain_p->GetNumberOfResidues();
@@ -2958,7 +2964,6 @@ graphics_info_t::rot_trans_adjustment_changed(GtkAdjustment *adj, gpointer user_
       // But! maybe we have a different rotation centre
       if (rot_trans_zone_rotates_about_zone_centre) {
 	 if (moving_atoms_asc->n_selected_atoms  > 0) {
-	    graphics_info_t g;
 	    rotation_centre = g.moving_atoms_centre();
 	 } 
       } else { 

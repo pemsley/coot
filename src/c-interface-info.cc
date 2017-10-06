@@ -4239,7 +4239,7 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 
 			   if (plane_restraint_length == 3) {
 
-			      std::vector<SCM> atoms;
+			      std::vector<SCM> plane_atoms;
 			      SCM plane_id_scm   = scm_list_ref(plane_restraint, SCM_MAKINUM(0));
 			      SCM esd_scm        = scm_list_ref(plane_restraint, SCM_MAKINUM(2));
 			      SCM atom_list_scm  = scm_list_ref(plane_restraint, SCM_MAKINUM(1));
@@ -4248,15 +4248,15 @@ SCM set_monomer_restraints(const char *monomer_type, SCM restraints) {
 			      bool atoms_pass = 1;
 			      for (int iat=0; iat<atom_list_length; iat++) { 
 				 SCM atom_scm   = scm_list_ref(atom_list_scm, SCM_MAKINUM(iat));
-				 atoms.push_back(atom_scm);
+				 plane_atoms.push_back(atom_scm);
 				 if (!scm_string_p(atom_scm))
 				    atoms_pass = 0;
 			      }
 			   
 			      if (atoms_pass && scm_string_p(plane_id_scm) &&  scm_number_p(esd_scm)) { 
 				 std::vector<std::string> atom_names;
-				 for (unsigned int i=0; i<atoms.size(); i++)
-				    atom_names.push_back(std::string(scm_to_locale_string(atoms[i])));
+				 for (unsigned int i=0; i<plane_atoms.size(); i++)
+				    atom_names.push_back(std::string(scm_to_locale_string(plane_atoms[i])));
 
 				 std::string plane_id = scm_to_locale_string(plane_id_scm);
 				 double esd           = scm_to_double(esd_scm);

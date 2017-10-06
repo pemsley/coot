@@ -436,7 +436,8 @@ molecule_class_info_t::bonds_sec_struct_representation() {
    // 
    Bond_lines_container bonds;
    bonds.do_colour_sec_struct_bonds(atom_sel, imol_no, 0.01, 1.9);
-   bonds_box = bonds.make_graphical_bonds_no_thinning();
+   bool add_residue_indices = false;
+   bonds_box = bonds.make_graphical_bonds_no_thinning(add_residue_indices);
    bonds_box_type = coot::BONDS_SEC_STRUCT_COLOUR;
 } 
   
@@ -460,7 +461,8 @@ molecule_class_info_t::ca_plus_ligands_rainbow_representation(coot::protein_geom
 				  2.4, 4.7,
 				  coot::COLOUR_BY_RAINBOW,
 				  draw_hydrogens_flag); // not COLOUR_BY_RAINBOW_BONDS
-   bonds_box = bonds.make_graphical_bonds_no_thinning();
+   bool add_residue_indices = false;
+   bonds_box = bonds.make_graphical_bonds_no_thinning(add_residue_indices);
    bonds_box_type = coot::COLOUR_BY_RAINBOW_BONDS;
 }
 
@@ -471,7 +473,8 @@ molecule_class_info_t::b_factor_representation() {
       Bond_lines_container::COLOUR_BY_B_FACTOR;
 
    Bond_lines_container bonds(atom_sel, imol_no, bond_type);
-   bonds_box = bonds.make_graphical_bonds_no_thinning();
+   bool add_residue_indices = false;
+   bonds_box = bonds.make_graphical_bonds_no_thinning(add_residue_indices);
    bonds_box_type = coot::COLOUR_BY_B_FACTOR_BONDS;
 } 
 
@@ -734,7 +737,7 @@ molecule_class_info_t::make_environment_bonds_box(int atom_index,
 						  coot::protein_geometry *protein_geom_p) const {
 
    graphics_info_t g;
-   graphical_bonds_container bonds_box;
+   graphical_bonds_container bonds_box_env;
 
    if ((atom_index >= atom_sel.n_selected_atoms) || (atom_index < 0)) {
 
@@ -774,19 +777,19 @@ molecule_class_info_t::make_environment_bonds_box(int atom_index,
 				       draw_bonds_to_hydrogens_flag,
 				       g.environment_min_distance,
 				       g.environment_max_distance);
-	    bonds_box = bonds.make_graphical_bonds();
+	    bonds_box_env = bonds.make_graphical_bonds();
 	 }
       } else {
 	 std::cout << "ERROR:: NULL residue_p in make_environment_bonds_box() " << std::endl;
       }
    }
-   return bonds_box;
+   return bonds_box_env;
 }
 
 graphical_bonds_container
 molecule_class_info_t::make_symmetry_environment_bonds_box(int atom_index,
 							   coot::protein_geometry *protein_geom_p) const {
-   graphical_bonds_container bonds_box;
+   graphical_bonds_container env_bonds_box;
 
    // std::cout << ":: entering make_symmetry_environment_bonds_box" << std::endl;
    if (atom_sel.atom_selection != NULL) {
@@ -843,13 +846,13 @@ molecule_class_info_t::make_symmetry_environment_bonds_box(int atom_index,
 					  g.environment_min_distance,
 					  draw_bonds_to_hydrogens_flag,
 					  do_symmetry);
-	       bonds_box = bonds.make_graphical_bonds();
+	       env_bonds_box = bonds.make_graphical_bonds();
 	    }
 	 }
 	 atom_sel.mol->DeleteSelection(selHnd);
       }
    }
-   return bonds_box;
+   return env_bonds_box;
 }
 
 // return "N', "C" or "not-terminal-residue"
@@ -1349,6 +1352,17 @@ molecule_class_info_t::delete_residues(const std::vector<coot::residue_spec_t> &
 
    bool something_deleted = false;
    mmdb::Manager *mol = atom_sel.mol;
+
+   // make a backup if there are residues to delete
+   for (unsigned int i=0; i<specs.size(); i++) {
+      const coot::residue_spec_t &spec = specs[i];
+      mmdb::Residue *residue_p = get_residue(spec);
+      if (residue_p) {
+	 make_backup();
+	 break;
+      }
+   }
+
    for (unsigned int i=0; i<specs.size(); i++) {
       const coot::residue_spec_t &spec = specs[i];
       mmdb::Residue *residue_p = get_residue(spec);
@@ -2101,7 +2115,7 @@ molecule_class_info_t::score_rotamers(const std::string &chain_id,
 				      const std::string &alt_conf,
 				      int clash_flag,
 				      float lowest_probability,
-				      const clipper::Xmap<float> &xmap,
+				      const clipper::Xmap<float> &xmap_in,
 				      const coot::protein_geometry &pg) {
 
    std::vector<coot::named_rotamer_score> v;
@@ -2144,7 +2158,7 @@ molecule_class_info_t::score_rotamers(const std::string &chain_id,
 		  }
 		  
 		  std::vector<std::pair<std::string, float> > atom_densities =
-		     coot::util::score_atoms(residue_res, xmap);
+		     coot::util::score_atoms(residue_res, xmap_in);
 		  float rot_prob = rpi.probability;
 		  float total_atom_density_score = 0.0;
 		  for (unsigned int iat=0; iat<atom_densities.size(); iat++)
@@ -4162,7 +4176,7 @@ molecule_class_info_t::fill_raster_model_info(bool against_a_dark_background) {
 	    if (bonds_box.atom_centres_colour_[i] == HYDROGEN_GREY_BOND)
 	       r *= 0.5;
 
-	    coot::ray_trace_molecule_info::ball_t b(bonds_box.atom_centres_[i].second, c, r);
+	    coot::ray_trace_molecule_info::ball_t b(bonds_box.atom_centres_[i].position, c, r);
 	    rtmi.balls.push_back(b);
 	 }
 	 rtmi.molecule_name = name_;
@@ -6332,10 +6346,11 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
    } else {
 
       int udd_afix_handle = p.mol->GetUDDHandle(mmdb::UDR_ATOM, "shelx afix");
-      // std::cout << "DEBUG:: in  get_atom_selection udd_afix_handle is "
-      // << udd_afix_handle << " and srf.udd_afix_handle was "
-      // << udd_afix_handle << std::endl;
-
+      if (false)
+	 std::cout << "DEBUG:: in  get_atom_selection udd_afix_handle is "
+		   << udd_afix_handle << " and srf.udd_afix_handle was "
+		   << udd_afix_handle << std::endl;
+      
       if (p.udd_afix_handle == -1) {
 	 std::cout << "ERROR:: bad udd_afix_handle in read_shelx_ins_file"
 		   << std::endl;
@@ -6376,14 +6391,14 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 
 	    // Hmmm... why is this commented?  Possibly from ncs ghost
 	    // toubles from many months ago?
-	    
+
 	    // 0.7 is not used (I think) if do_rtops_flag is 0
 	    // int nghosts = fill_ghost_info(do_rtops_flag, 0.7);
 	    // std::cout << "INFO:: found " << nghosts << " ghosts\n";
 
 	    // I'll reinstate it.
 	    int nmodels = atom_sel.mol->GetNumberOfModels();
-	    if (nmodels == 1) { 
+	    if (nmodels == 1) {
 	       // int nghosts =
 	       fill_ghost_info(do_rtops_flag, 0.7);
 	    }
@@ -6395,10 +6410,10 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 	    // 
 	    // 20080126 Let reactivate the hydrogens.
 	    // 
-// 	    if (p.is_protein_flag)
-// 	       set_draw_hydrogens_state(0);
+	    // 	    if (p.is_protein_flag)
+	    // 	       set_draw_hydrogens_state(0);
 
-	    if (! is_undo_or_redo) 
+	    if (! is_undo_or_redo)
 	       bond_width = g.default_bond_width; // bleugh, perhaps this should
 	                                          // be a passed parameter?
 	    
@@ -6408,20 +6423,22 @@ molecule_class_info_t::read_shelx_ins_file(const std::string &filename) {
 	    if (bonds_box_type == coot::UNSET_TYPE)
 	       bonds_box_type = coot::NORMAL_BONDS;
 	    make_bonds_type_checked();
-
 	 }
+
 	 // debug();
 
 	 short int reset_rotation_centre = 1;
 	 //
-	 if (g.recentre_on_read_pdb || g.n_molecules() == 0)  // n_molecules
-	    // is updated
-	    // in
-	    // c-interface.cc
+	 if (g.recentre_on_read_pdb || g.n_molecules() == 0) {
+	    // n_molecules is updated in c-interface.cc
 	    // std::cout << " ##### setting rotation centre in read_shelx_ins_file" << std::endl;
-	    if (reset_rotation_centre) 
-	       g.setRotationCentre(::centre_of_molecule(atom_sel)); 
-	 // std::cout << " ##### done setting rotation centre in read_shelx_ins_file" << std::endl;
+	    coot::Cartesian c = ::centre_of_molecule(atom_sel);
+	    // std::cout << "debug:: n atoms " << atom_sel.n_selected_atoms << std::endl;
+	    // std::cout << "debug:: rotation centre " << c << std::endl;
+	    if (reset_rotation_centre)
+	       g.setRotationCentre(c); 
+	    // std::cout << " ##### done setting rotation centre in read_shelx_ins_file" << std::endl;
+	 }
 
 	 draw_it = 1;
 	 if (graphics_info_t::show_symmetry == 1) {
@@ -6598,7 +6615,6 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	 dloi.tag_1 = bonds_tag;
 	 // std::cout << "debug:: adding first  context tag to dloi " << bonds_tag << std::endl;
       } 
-      
 
       GLfloat bgcolor[4]={0.8, 0.8, 0.8, 0.8};
       
@@ -6626,7 +6642,7 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
       glEnable(GL_NORMALIZE);
       
       for (int ii=0; ii<bonds_box_local.num_colours; ii++) {
-	 graphical_bonds_lines_list &ll = bonds_box_local.bonds_[ii];
+	 graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box_local.bonds_[ii];
 	 set_bond_colour_by_mol_no(ii, against_a_dark_background);
 
 	 GLfloat bgcolor[4]={bond_colour_internal[0],
@@ -6641,9 +6657,14 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 			 ll.pair_list[j].positions.getFinish().get_z());
 	    double base = bond_thickness;
 	    double top = bond_thickness;
-	    if (ll.thin_lines_flag) { 
+	    if (ll.thin_lines_flag) {
 	       base *= 0.55;
 	       top  *= 0.55;
+	    }
+	    if (ll.pair_list[j].cylinder_class == graphics_line_t::DOUBLE ||
+		ll.pair_list[j].cylinder_class == graphics_line_t::TRIPLE) {
+	       base *= 0.65; // needs optimizing
+	       top  *= 0.65;
 	    }
 	    coot::Cartesian bond_height =
 	       ll.pair_list[j].positions.getFinish() - ll.pair_list[j].positions.getStart();
@@ -6714,10 +6735,10 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 	 int stacks = 20;
 	 for (int i=0; i<bonds_box_local.n_atom_centres_; i++) {
 	    float local_sphere_size = sphere_size;
-	    if (bonds_box_local.atom_centres_[i].first)
+	    if (bonds_box_local.atom_centres_[i].is_hydrogen_atom)
 	       local_sphere_size = 0.11; // small (and cute)
 	    if (bonds_box_local.atom_centres_colour_[i] == HYDROGEN_GREY_BOND)
-	       local_sphere_size *= 0.5;
+	       local_sphere_size *= 0.55; // matches thin_lines_flag test above
 	    set_bond_colour_by_mol_no(bonds_box_local.atom_centres_colour_[i],
 				      against_a_dark_background);
 	    glPushMatrix();
@@ -6726,9 +6747,9 @@ molecule_class_info_t::make_ball_and_stick(const std::string &atom_selection_str
 				bond_colour_internal[2],
 				1.0};
 	    glMaterialfv(GL_FRONT, GL_SPECULAR, bgcolor);
-	    glTranslatef(bonds_box_local.atom_centres_[i].second.get_x(),
-			 bonds_box_local.atom_centres_[i].second.get_y(),
-			 bonds_box_local.atom_centres_[i].second.get_z());
+	    glTranslatef(bonds_box_local.atom_centres_[i].position.get_x(),
+			 bonds_box_local.atom_centres_[i].position.get_y(),
+			 bonds_box_local.atom_centres_[i].position.get_z());
 
 	    GLUquadric* quad = gluNewQuadric();
 
@@ -7708,9 +7729,10 @@ molecule_class_info_t::cis_trans_convert(mmdb::PResidue *mol_residues,
 	    mmdb::Atom *converted_residues_residue_N_2  = NULL;
       
 	    mmdb::PPAtom converted_residues_residue_atoms = NULL;
+	    int n_residue_atoms_converted;
 	    converted_residues[0]->GetAtomTable(converted_residues_residue_atoms,
-						n_residue_atoms);
-	    for (int i=0; i<n_residue_atoms; i++) {
+						n_residue_atoms_converted);
+	    for (int i=0; i<n_residue_atoms_converted; i++) {
 	       std::string atom_name = converted_residues_residue_atoms[i]->name;
 	       if (atom_name == " CA ") {
 		  converted_residues_residue_CA_1 = converted_residues_residue_atoms[i];
@@ -7724,10 +7746,9 @@ molecule_class_info_t::cis_trans_convert(mmdb::PResidue *mol_residues,
 	    }
 
 	    converted_residues_residue_atoms = NULL;
-	    int n_residue_atoms;
 	    converted_residues[1]->GetAtomTable(converted_residues_residue_atoms,
-						n_residue_atoms);
-	    for (int i=0; i<n_residue_atoms; i++) {
+						n_residue_atoms_converted);
+	    for (int i=0; i<n_residue_atoms_converted; i++) {
 	       std::string atom_name = converted_residues_residue_atoms[i]->name;
 	       if (atom_name == " CA ") {
 		  converted_residues_residue_CA_2 = converted_residues_residue_atoms[i];
