@@ -421,8 +421,8 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	 // coot::restraint_usage_Flags flags = coot::BONDS;
 	 // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES;
 	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
-	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES; 
 	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
+	 // flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES;
 	 // flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED; 20071124
 	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
 	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES;
@@ -2178,7 +2178,9 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 
 
       if (terminus_type == "not-terminal-residue") {
-	 std::cout << "that residue was not at a terminus" << std::endl;
+	 std::string s = "That residue was not at a terminus";
+	 std::cout << s << std::endl;
+	 add_status_bar_text(s);
       } else {
 
 	 imol_moving_atoms = imol;

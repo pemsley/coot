@@ -105,14 +105,14 @@ namespace coot {
 
    public:
       int model_number;
-      std::map<residue_spec_t, util::phi_psi_t> phi_psi;
+      std::map<residue_spec_t, util::phi_psi_with_residues_t> phi_psi;
       phi_psis_for_model_t(int model_number_in) {
 	 model_number = model_number_in;
       }
-      void add_phi_psi(const residue_spec_t &spec, const util::phi_psi_t &phi_psi_in) {
+      void add_phi_psi(const residue_spec_t &spec, const util::phi_psi_with_residues_t &phi_psi_in) {
 	 phi_psi[spec] = phi_psi_in;
       }
-      util::phi_psi_t operator[](const residue_spec_t &spec) {
+      util::phi_psi_with_residues_t operator[](const residue_spec_t &spec) {
  	 return phi_psi[spec];
       }
       unsigned int size() { return phi_psi.size(); } 

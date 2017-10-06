@@ -252,8 +252,8 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 		  // those Hs were just attached with non-good geometry, we
 		  // need to minimise.  Keep all atoms fixed except all hydrogens.
 		  std::vector<std::pair<bool,mmdb::Residue *> > residues;
-		  std::pair<bool, mmdb::Residue *> p(0, residue_cp_p);
-		  residues.push_back(p);
+		  std::pair<bool, mmdb::Residue *> pp(0, residue_cp_p);
+		  residues.push_back(pp);
 
 		  coot::restraints_container_t restraints(residues,
 							  atom_sel.links,
@@ -564,7 +564,7 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
    ftype level_prefered = graphics_info_t::rama_level_prefered;
    ftype level_allowed = graphics_info_t::rama_level_allowed;
    
-   //clipper defaults: 0.01 0.0005
+   // clipper defaults: 0.01 0.0005
 
    r_gly.init(clipper::Ramachandran::Gly5);
    r_gly.set_thresholds(level_prefered, level_allowed);
@@ -586,23 +586,22 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
 
    for (int imod=1; imod<n; imod++) {
       if (imod<=atom_sel.mol->GetNumberOfModels()) {
-	 
+
          coot::phi_psis_for_model_t pp = rp.get_phi_psis_for_model(imod);
          atom_sel.mol->GetModel(pp.model_number)->CalcSecStructure();
-         std::map<coot::residue_spec_t, coot::util::phi_psi_t>::const_iterator it;
+         std::map<coot::residue_spec_t, coot::util::phi_psi_with_residues_t>::const_iterator it;
          for (it=pp.phi_psi.begin(); it!=pp.phi_psi.end(); it++) {
             mmdb::Residue *residue_p = get_residue(it->first);
-            if (residue_p) { 
+            if (residue_p) {
                bool do_it = true; // unset for secondary structure
                int sse = residue_p->SSE;
-               // std::cout << "residue->SSE is " << sse << " vs " <<mmdb::SSE_Strand << " and " <<mmdb::SSE_Helix
-               // << std::endl;
+
                switch (residue_p->SSE)  {
                case mmdb::SSE_Strand:
-                  do_it = 0;
+                  do_it = false;
                   break;
                case mmdb::SSE_Helix:
-                  do_it = 0;
+                  do_it = false;
                   break;
                }
 	    
@@ -635,13 +634,19 @@ molecule_class_info_t::get_all_molecule_rama_score() const {
                   // std::cout << "........ was a zero" << std::endl;
                   rs.n_zeros++;
                } else {
-                  std::pair<coot::residue_spec_t, double> pair(it->first, p);
-                  rs.scores.push_back(pair);
+		  // old
+                  // std::pair<coot::residue_spec_t, double> pair(it->first, p);
+                  // rs.scores.push_back(pair);
+
+		  coot::rama_score_t::scored_phi_psi_t scored_phi_psi(it->first, p, it->second);
+		  scored_phi_psi.set_residues(it->second);
+
+                  rs.scores.push_back(scored_phi_psi);
                   log_p_sum += log(p);
                   if (do_it) {
-                     rs.scores_non_sec_str.push_back(pair);
+                     rs.scores_non_sec_str.push_back(scored_phi_psi);
                      log_p_non_sec_str_sum += log(p);
-                  } 
+                  }
                }
             }
          }

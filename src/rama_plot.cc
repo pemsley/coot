@@ -868,7 +868,7 @@ coot::rama_plot::draw_phi_psi_points_for_model(const coot::phi_psis_for_model_t 
    coot::rama_stats_container_t counts;
    bool as_white_flag = 0;
 
-   std::map<coot::residue_spec_t, coot::util::phi_psi_t>::const_iterator it;
+   std::map<coot::residue_spec_t, coot::util::phi_psi_with_residues_t>::const_iterator it;
    
    for (it=pp_set.phi_psi.begin(); it!=pp_set.phi_psi.end(); it++) {
       int type = draw_phi_psi_point(it->second, as_white_flag);
@@ -937,7 +937,7 @@ coot::rama_plot::generate_phi_psis(mmdb::Manager *mol_in, bool is_primary) {
 			// coot::phi_psi_t constructor can throw an error
 			// (e.g. bonding atoms too far apart).
 			coot::residue_spec_t spec(residue_p);
-			coot::util::phi_psi_t pp(res_prev, residue_p, res_next);
+			coot::util::phi_psi_with_residues_t pp(res_prev, residue_p, res_next);
 			model_phi_psis.add_phi_psi(spec, pp);
 		     }
 		     catch (const std::runtime_error &rte) {
@@ -1045,7 +1045,7 @@ coot::rama_plot::map_mouse_pos(double x, double y) {
 					    t.spec.res_no+1,
 					    t.spec.ins_code);
 
-	 std::map<residue_spec_t, util::phi_psi_t>::const_iterator it = 
+	 std::map<residue_spec_t, util::phi_psi_with_residues_t>::const_iterator it = 
 	    phi_psi_model_sets[t.model_number].phi_psi.find(next_res_spec);
 
 	 if (it != phi_psi_model_sets[t.model_number].phi_psi.end()) { 
@@ -1253,7 +1253,7 @@ coot::rama_plot::mouse_point_check_internal(const coot::phi_psis_for_model_t &ph
 					    bool is_secondary) const {
 
    coot::mouse_util_t t;
-   std::map<coot::residue_spec_t, coot::util::phi_psi_t>::const_iterator it;
+   std::map<coot::residue_spec_t, coot::util::phi_psi_with_residues_t>::const_iterator it;
    double diff1x, diff1y;
    double smallest_diff = 999999; 
    for (it=phi_psi_set.phi_psi.begin(); it!=phi_psi_set.phi_psi.end(); it++) {
@@ -1854,7 +1854,7 @@ coot::rama_plot::find_phi_psi_differences_internal(const std::string &chain_id1,
 
    double d1, d2;
 
-   std::map<coot::residue_spec_t, coot::util::phi_psi_t>::const_iterator it;
+   std::map<coot::residue_spec_t, coot::util::phi_psi_with_residues_t>::const_iterator it;
 
    diff_sq.clear();
    for (unsigned int imod=1; imod<phi_psi_model_sets.size(); imod++) {
