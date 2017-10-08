@@ -1956,7 +1956,11 @@ fi
 if test -e /usr/include/libgnomecanvas-2.0/libgnomecanvas/gnome-canvas-line.h ; then
     echo system has libgnomecanvas
 else
-    build_libgnomecanvas=1
+    if test -e ${install_top_dir}/include/libgnomecanvas-2.0/libgnomecanvas/gnome-canvas-line.h ; then
+       echo installation has libgnomecanvas - you clever fellow
+    else
+       build_libgnomecanvas=1
+    fi
 fi
 
 
