@@ -1166,39 +1166,6 @@ case $dist_name in
 
 esac
 
-# for SuSe 11.3, we need to install the following:
-# g++ patch m4 make libgnomecanvas-dev gtk-dev swig
-
-# Redhat 7.3 doesn't have libgnomecanvas*-devel because they don't support 
-# development using this lib.  Move to libcairo they say (I think).  
-# Well, maybe later.
-# Get libgnomecanvas here if needed:
-# http://ftp.gnome.org/pub/gnome/sources/libgnomecanvas/2.30/libgnomecanvas-2.30.3.tar.bz2
-# depends on
-# https://ftp.gnome.org/pub/gnome/sources/libart_lgpl/2.3/libart_lgpl-2.3.21.tar.gz
-# test for libgnomecanvas and if the system doesn't have it then
-# build it
-if [ "$build_libgnomecanvas" = 1 ] ; then
-
-   # do both libart_lgpl and libgnomecanvas
-
-   libart_lgpl_version=2.3.21
-   ${WGET} https://ftp.gnome.org/pub/gnome/sources/libart_lgpl/2.3/libart_lgpl-2.3.21.tar.gz
-   tar xf $SOURCES/libart_lgpl-2.3.21.tar.gz
-   cd libart_lgpl-$libart_lgpl_version
-   ./configure $generic_prefix
-   ${MAKE} && make install
-   cd -
-
-   libgnomecanvas_version=2.30.3.
-   ${WGET} http://ftp.gnome.org/pub/gnome/sources/libgnomecanvas/2.30/libgnomecanvas-$version.tar.bz2
-   tar xf $SOURCES/libgnomecanvas-$version.tar.bz2
-   cd libgnomecanvas-$version
-   ./configure $generic_prefix
-   ${MAKE} && make install
-   cd -
-fi
-
 
 # give us some diagnostic shell information:
 # (what extra things did $specs give us?)
@@ -2278,21 +2245,23 @@ fi
 
 # on new Scientific Linux (7.3) we need to test for libgnomecanvas, not libgnomecanvas-2.0
 #
-# test for gnomecanvas here
+# test for libgnomecanvas here
 if pkg-config --modversion libgnomecanvas-2.0 ; then
    :
 else 
-   echo this builder does not build libgnomecanvas
-   echo pkg-config does not find libgnomecanvas-2.0.  Exiting.
-   pkg_hnd=yum
-   if [ "$dist_name" = debian ] ; then 
-      pkg_hnd=apt-get
-   fi
-   if [ "$dist_name" = ubuntu ] ; then 
-      pkg_hnd=apt-get
-   fi
-   echo consider: $pkg_hnd install libgnomecanvas-devel
-   my_exit 2
+   # echo pkg-config does not find libgnomecanvas-2.0.  Exiting.
+   # pkg_hnd=yum
+   # if [ "$dist_name" = debian ] ; then 
+   #    pkg_hnd=apt-get
+   # fi
+   # if [ "$dist_name" = ubuntu ] ; then 
+   #    pkg_hnd=apt-get
+   # fi
+   # echo consider: $pkg_hnd install libgnomecanvas-devel
+   # my_exit 2
+
+   echo ================ set build_libgnomecanvas=1
+   build_libgnomecanvas=1
 fi
 
 # ##############################################################
@@ -2849,6 +2818,47 @@ if [ "$build_gtkglext" = 1 ] ; then
 else
     echo not building gtkglext:
 fi 
+
+
+##################### libgnome #####################################
+#
+# for SuSe 11.3, we need to install the following:
+# g++ patch m4 make libgnomecanvas-dev gtk-dev swig
+
+# Redhat 7.3 doesn't have libgnomecanvas*-devel because they don't support 
+# development using this lib.  Move to libcairo they say (I think).  
+# Well, maybe later.
+# Get libgnomecanvas here if needed:
+# http://ftp.gnome.org/pub/gnome/sources/libgnomecanvas/2.30/libgnomecanvas-2.30.3.tar.bz2
+# depends on
+# https://ftp.gnome.org/pub/gnome/sources/libart_lgpl/2.3/libart_lgpl-2.3.21.tar.gz
+# test for libgnomecanvas and if the system doesn't have it then
+# build it
+if [ "$build_libgnomecanvas" = 1 ] ; then
+
+   # do both libart_lgpl and libgnomecanvas
+
+   libart_lgpl_version=2.3.21
+   ${WGET} https://ftp.gnome.org/pub/gnome/sources/libart_lgpl/2.3/libart_lgpl-2.3.21.tar.gz
+   (
+   tar xf ${AUTOBUILD_SOURCES}/libart_lgpl-2.3.21.tar.gz
+   cd libart_lgpl-$libart_lgpl_version
+   ./configure $generic_prefix
+   ${MAKE} && make install
+   cd -
+   ) > $HOSTLOGDIR/06-libart_lgpl.txt
+
+   libgnomecanvas_version=2.30.3
+   ${WGET} http://ftp.gnome.org/pub/gnome/sources/libgnomecanvas/2.30/libgnomecanvas-$libgnomecanvas_version.tar.bz2
+   (
+   tar xf ${AUTOBUILD_SOURCES}/libgnomecanvas-$libgnomecanvas_version.tar.bz2
+   cd libgnomecanvas-$libgnomecanvas_version
+   ./configure $generic_prefix
+   ${MAKE} && make install
+   cd -
+   ) > $HOSTLOGDIR/06-libgnomecanvas.txt
+fi
+
 
 
 ##################### goocanvas #####################################
