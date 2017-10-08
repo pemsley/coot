@@ -383,7 +383,8 @@
 # 5.26 20150215 Use /opt/X11 and COOT_CCP4_PACKAGES for dependences on Darwin.
 # 5.27 20170925 bump libccp4 version to 6.5.1 - this has libccp4.pc for pkg-config
 # 5.28 20170925 Fixes for clipper and guile and gmp version update (gcc-7.2)
-script_version=5.28
+# 5.29 20171006 Test for libgnomecanvas devel (now not available in system for Redhat 7.3)
+script_version=5.29
 
 
 
@@ -1167,6 +1168,36 @@ esac
 
 # for SuSe 11.3, we need to install the following:
 # g++ patch m4 make libgnomecanvas-dev gtk-dev swig
+
+# Redhat 7.3 doesn't have libgnomecanvas*-devel because they don't support 
+# development using this lib.  Move to libcairo they say (I think).  
+# Well, maybe later.
+# Get libgnomecanvas here if needed:
+# http://ftp.gnome.org/pub/gnome/sources/libgnomecanvas/2.30/libgnomecanvas-2.30.3.tar.bz2
+# depends on
+# https://ftp.gnome.org/pub/gnome/sources/libart_lgpl/2.3/libart_lgpl-2.3.21.tar.gz
+# test for libgnomecanvas and if the system doesn't have it then
+# build it
+if [ "$build_libgnomecanvas" = 1 ] ; then
+
+   # do both libart_lgpl and libgnomecanvas
+
+   libart_lgpl_version=2.3.21
+   ${WGET} https://ftp.gnome.org/pub/gnome/sources/libart_lgpl/2.3/libart_lgpl-2.3.21.tar.gz
+   tar xf $SOURCES/libart_lgpl-2.3.21.tar.gz
+   cd libart_lgpl-$libart_lgpl_version
+   ./configure $generic_prefix
+   ${MAKE} && make install
+   cd -
+
+   libgnomecanvas_version=2.30.3.
+   ${WGET} http://ftp.gnome.org/pub/gnome/sources/libgnomecanvas/2.30/libgnomecanvas-$version.tar.bz2
+   tar xf $SOURCES/libgnomecanvas-$version.tar.bz2
+   cd libgnomecanvas-$version
+   ./configure $generic_prefix
+   ${MAKE} && make install
+   cd -
+fi
 
 
 # give us some diagnostic shell information:
@@ -1953,6 +1984,14 @@ if test -z "$build_libtool" ; then
 else 
     echo libtool should be built
 fi
+
+# test for libgnomecanvas
+if test -e /usr/include/libgnomecanvas-2.0/libgnomecanvas/gnome-canvas-line.h ; then
+    echo system has libgnomecanvas
+else
+    build_libgnomecanvas=1
+fi
+
 
 # ========== guile etc ==========
 # FIXME indent
