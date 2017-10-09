@@ -43,7 +43,7 @@ molecule and refine and validate the ligand.
  So let's load the protein coordinates
  \texttt{ligand-fitting-no-ligand.pdb} and the associated MTZ file
  which is \texttt{ligand-fitting.mtz}\footnote{available, as usual, 
-from \texttt{\small http://http://www2.mrc-lmb.cam.ac.uk/groups/murshudov/coot/files/}}.  
+from \texttt{\small http://http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/tutorial/}}.
 Use \textsf{File $\rightarrow$ AutoOpen MTZ}.
 
 \section{SMILES}
@@ -64,42 +64,43 @@ Use \textsf{File $\rightarrow$ AutoOpen MTZ}.
 \begin{trivlist}
 \item  How do we make a 3D model of this ligand?
 
-\textsf{We use a SMILES string (and LIBCHECK)\footnote{Alternatively use the Ligand Builder in Coot (\textsf{Calculate $\rightarrow$ Ligand Builder}) which will use PRODRG for restraint generation or even JLigand}.}
+\textsf{Use the Ligand Builder in Coot (\textsf{Calculate $\rightarrow$ Ligand Builder}) which will use a 2D to 3D converter for restraint generation.}
+
 \end{trivlist}
 
 
-\begin{trivlist}
-\item So what is the SMILES string for 3-aminobenzamide?
-\end{trivlist}
+%\begin{trivlist}
+%\item So what is the SMILES string for 3-aminobenzamide?
+%\end{trivlist}
 
  %% [Draw out the SMILES string].
  %%  NC(=O)c1cccc(N)c1
 
- If you can't draw out the SMILES string, try this link in your browser:
+ %% If you can't draw out the SMILES string, try this link in your browser:
 
-\texttt{ http://www.molinspiration.com/cgi-bin/properties}
+%\texttt{ http://www.molinspiration.com/cgi-bin/properties}
+%\begin{trivlist}
+%\item  draw the molecule there and hit the ``Calculate Properties'' button - the
+% next pages gives you the SMILES string.
+%% \end{trivlist}
+
+%We need to convert this SMILES string representation to a molecule.
+%In Coot we do that using \textsf{File $\rightarrow$ SMILES...}
+%\footnote{ Note that the first line is the three letter code,
+%  conventionally this is 3 uppercase letters, e.g. \texttt{LIG, DRG,
+%    XXX}.  Note that if you use several different SMILES strings, they
+%  each should have a different 3-letter-code.} Enter you SMILES string
+%in the second of the two entry boxes. Press "Go".
+
+%\textsl{ After a few moments (in which Coot runs LIBCHECK) a molecule
+%  will appear at the centre of the screen.}
+
 \begin{trivlist}
-\item  draw the molecule there and hit the ``Calculate Properties'' button - the
- next pages gives you the SMILES string.
-
-\end{trivlist}
-
-We need to convert this SMILES string representation to a molecule.
-In Coot we do that using \textsf{File $\rightarrow$ SMILES...}
-\footnote{ Note that the first line is the three letter code,
-  conventionally this is 3 uppercase letters, e.g. \texttt{LIG, DRG,
-    XXX}.  Note that if you use several different SMILES strings, they
-  each should have a different 3-letter-code.} Enter you SMILES string
-in the second of the two entry boxes. Press "Go".
-
-\textsl{ After a few moments (in which Coot runs LIBCHECK) a molecule
-  will appear at the centre of the screen.}
-
- \begin{trivlist}
- \item Is it the molecule that you wanted?  
+\item Is it the molecule that you wanted?
 
  \textsf{Note: check the hydrogens and planarity.}
  \end{trivlist}
+
 
 
 \section{Fitting Ligands}
@@ -110,7 +111,7 @@ entities of this kind.
  \textsf{Calculate $\rightarrow$ Other Modelling Tools $\rightarrow$ Find Ligands...}
 
  We have 2 maps from which to choose.  For now, let's choose the
- 2mFo-DFc map and find density clusters above 1.0 sigma.  Make sure
+ 2mFo-DFc map and find density clusters above 1.0 r.m.s.d.  Make sure
  that you select the correct map and protein molecule and have
  selected the ligand that you made with the SMILES string.
 
