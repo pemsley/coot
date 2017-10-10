@@ -362,8 +362,8 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
   std::string label;
   std::string tmp;
   coot::mtz_column_types_info_t a;
-  for (unsigned i=0; i<col_labs.f_cols.size(); i++) {
-     fobs_pos = col_labs.f_cols[i].column_position;
+  for (unsigned ii=0; ii<col_labs.f_cols.size(); ii++) {
+     fobs_pos = col_labs.f_cols[ii].column_position;
      /* Sig Fobs */
      for (unsigned int j=0; j<col_labs.sigf_cols.size(); j++) {
        sigfobs_pos = col_labs.sigf_cols[j].column_position;
@@ -371,15 +371,15 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
 	 // matching f sigf pair
 	 tmp = col_labs.sigf_cols[j].column_label;
 	 islash = tmp.find_last_of("/");
-	 label = col_labs.f_cols[i].column_label;
+	 label = col_labs.f_cols[ii].column_label;
 	 label += "  ";
 	 label += tmp.substr(islash + 1);
 	 menuitem  = make_menu_item((gchar *) label.c_str(),
 				   GTK_SIGNAL_FUNC(refmac_dialog_f_button_select),
-				   GINT_TO_POINTER(i));
+				   GINT_TO_POINTER(ii));
 	 menuitem2 = make_menu_item((gchar *) label.c_str(),
 				   GTK_SIGNAL_FUNC(refmac_dialog_f_button_select),
-				   GINT_TO_POINTER(i));
+				   GINT_TO_POINTER(ii));
 	 gtk_menu_append(GTK_MENU(fobs_menu), menuitem);
 	 // append to the combined one too
 	 gtk_menu_append(GTK_MENU(fiobs_menu), menuitem2);
@@ -404,21 +404,21 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
     std::cout << "WARNING:: inconsistent number of F+/F- and or sigF+/sigF-, i.e. not multiple of 2.\n" << std::endl;
     std::cout << "Detection of F+/F- and associated sigmas may be screwed!" << std::endl;
   }
-  for (unsigned i=0; i<col_labs.fpm_cols.size(); i++) {
-     fp_pos = col_labs.fpm_cols[i].column_position;
-     if (i+1 < col_labs.fpm_cols.size()) {
-       fm_pos = col_labs.fpm_cols[i+1].column_position;
+  for (unsigned icol=0; icol<col_labs.fpm_cols.size(); icol++) {
+     fp_pos = col_labs.fpm_cols[icol].column_position;
+     if (icol+1 < col_labs.fpm_cols.size()) {
+       fm_pos = col_labs.fpm_cols[icol+1].column_position;
        /* Sig F+/- */
        for (unsigned int j=0; j<col_labs.sigfpm_cols.size(); j++) {
 	 sigfp_pos = col_labs.sigfpm_cols[j].column_position;
 	 if (j+1 < col_labs.sigfpm_cols.size()) {
-	   sigfm_pos = col_labs.sigfpm_cols[i+1].column_position;
+	   sigfm_pos = col_labs.sigfpm_cols[icol+1].column_position;
 	   if ((fm_pos == fp_pos+2 && sigfp_pos == fp_pos+1 && sigfm_pos == fm_pos+1) ||
 	       (fm_pos == fp_pos+1 && sigfp_pos == fp_pos+2 && sigfm_pos == fm_pos+2)) {
 	     // matching f/f- sigf+/- pairs
-	     label = col_labs.fpm_cols[i].column_label;
+	     label = col_labs.fpm_cols[icol].column_label;
 	     label += "  ";
-	     tmp = col_labs.fpm_cols[i+1].column_label;
+	     tmp = col_labs.fpm_cols[icol+1].column_label;
 	     islash = tmp.find_last_of("/");
 	     label += tmp.substr(islash + 1);
 	     label += "  ";
@@ -431,7 +431,7 @@ coot::setup_refmac_parameters_from_file(GtkWidget *window) {
 	     label += tmp.substr(islash + 1);
 	     menuitem = make_menu_item((gchar *) label.c_str(),
 				       GTK_SIGNAL_FUNC(refmac_dialog_fpm_button_select),
-				       GINT_TO_POINTER(i));
+				       GINT_TO_POINTER(icol));
 	     gtk_menu_append(GTK_MENU(fpm_menu), menuitem);
 	     gtk_widget_show(menuitem);
 	   }

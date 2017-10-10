@@ -37,7 +37,7 @@ def go_to_residue_by_spec(imol, spec):
                                            atom_name)
 
 # consider for coot_utils
-def residue_spec2string(spec):
+def residue_spec_to_string(spec):
     return (spec[0] + str(spec[1]) + spec[2])
 
 # make this internal 
@@ -96,7 +96,7 @@ def problem_residues2dialog(imol, problemed_res_list_list):
                     button_label   = flip_res_info[1]
                     action_func    = flip_res_info[2]
                     problem_string = flip_res_info[0]
-                    ret.append([[problem_string + " " + residue_spec2string(flip_res_spec),
+                    ret.append([[problem_string + " " + residue_spec_to_string(flip_res_spec),
                                  "go_to_residue_by_spec(" + str(imol) + ", " + str(flip_res_spec) + ")"],
                                 [button_label,
                                  str(action_func) + "(" + str(imol) + ", " + str(flip_res_spec) + ")"]])

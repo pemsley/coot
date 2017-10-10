@@ -160,16 +160,16 @@ coot::restraints_container_t::restraints_container_t(mmdb::PResidue *SelResidues
    are_all_one_atom_residues = false;
 
    std::vector<coot::atom_spec_t> fixed_atoms_dummy;
-   int istart_res = 999999;
-   int iend_res = -9999999;
+   int istart_res_l = 999999;
+   int iend_res_l = -9999999;
    int resno;
    
    for (int i=0; i<nSelResidues; i++) { 
       resno = SelResidues[i]->seqNum;
-      if (resno < istart_res)
-	 istart_res = resno;
-      if (resno > iend_res)
-	 iend_res = resno;
+      if (resno < istart_res_l)
+	 istart_res_l = resno;
+      if (resno > iend_res_l)
+	 iend_res_l = resno;
    }
    
    short int have_flanking_residue_at_start = 0;
@@ -180,7 +180,7 @@ coot::restraints_container_t::restraints_container_t(mmdb::PResidue *SelResidues
    // std::cout << "DEBUG:  ==== istart_res iend_res " << istart_res << " "
    // << iend_res << std::endl; 
 
-   init_from_mol(istart_res, iend_res, 
+   init_from_mol(istart_res_l, iend_res_l,
 		 have_flanking_residue_at_start,
 		 have_flanking_residue_at_end,
 		 have_disulfide_residues, 
@@ -194,7 +194,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 						     short int have_disulfide_residues,
 						     const std::string &altloc,
 						     const std::string &chain_id,
-						     mmdb::Manager *mol,
+						     mmdb::Manager *mol_in,
 						     const std::vector<coot::atom_spec_t> &fixed_atom_specs,
 						     const clipper::Xmap<float> &map_in,
 						     float map_weight_in) {
@@ -205,7 +205,7 @@ coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend
 		 have_flanking_residue_at_end,
 		 have_disulfide_residues,
 		 altloc,
-		 chain_id, mol, fixed_atom_specs);
+		 chain_id, mol_in, fixed_atom_specs);
    are_all_one_atom_residues = false;
    map = map_in;
    map_weight = map_weight_in;
@@ -459,14 +459,14 @@ coot::restraints_container_t::init_shared_post(const std::vector<atom_spec_t> &f
 void
 coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
 						    const coot::protein_geometry &geom,
-						    mmdb::Manager *mol,
+						    mmdb::Manager *mol_in,
 						    const std::vector<atom_spec_t> &fixed_atom_specs) {
 
 
    // This function is called from the constructor.
    // make_restraints() is called after this function by the user of this class.
    
-   init_shared_pre(mol);
+   init_shared_pre(mol_in);
    residues_vec = residues;
 
    // Need to set class members mmdb::PPAtom atom and int n_atoms.
@@ -1499,6 +1499,11 @@ void coot::my_df_electron_density_old_2017(const gsl_vector *v,
       }
    }
 #ifdef ANALYSE_REFINEMENT_TIMING
+   gettimeofday(&current_time, NULL);
+   double td = current_time.tv_sec - start_time.tv_sec;
+   td *= 1000.0;
+   td += double(current_time.tv_usec - start_time.tv_usec)/1000.0;
+   // std::cout << "------------- mark my_df_electron_density: " << td << std::endl;
 #endif // ANALYSE_REFINEMENT_TIMING
 }
 
@@ -1717,8 +1722,9 @@ coot::restraints_container_t::make_restraints(int imol,
       if (do_link_restraints_internal)
 	 make_link_restraints(geom, do_rama_plot_restraints, do_trans_peptide_restraints);
 
-      std::cout << "after make_link_restraints() bonded_pairs_container has size "
-		<< bonded_pairs_container.size() << std::endl;
+      if (false)
+	 std::cout << "after make_link_restraints() bonded_pairs_container has size "
+		   << bonded_pairs_container.size() << std::endl;
 
       // don't do torsions, ramas maybe.
       coot::bonded_pair_container_t bpc;

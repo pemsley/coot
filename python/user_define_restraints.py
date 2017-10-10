@@ -343,16 +343,16 @@ def write_refmac_parallel_plane_restraint(file_name,
 
   fout = open(file_name, 'w')
   fout.write("EXTE STACK PLAN 1 FIRST RESIDUE ")
-  fout.write(str(residue_spec2res_no(res_spec_0)))
+  fout.write(str(residue_spec_to_res_no(res_spec_0)))
   fout.write(" CHAIN ")
-  fout.write(residue_spec2chain_id(res_spec_0))
+  fout.write(residue_spec_to_chain_id(res_spec_0))
   fout.write(" ATOMS { ")
   for atom_name in atom_list_0:
     fout.write(" " + atom_name + " ")
   fout.write(" } PLAN 2 FIRST RESIDUE ")
-  fout.write(str(residue_spec2res_no(res_spec_1)))
+  fout.write(str(residue_spec_to_res_no(res_spec_1)))
   fout.write(" CHAIN ")
-  fout.write(residue_spec2chain_id(res_spec_1))
+  fout.write(residue_spec_to_chain_id(res_spec_1))
   fout.write(" ATOMS { ")
   for atom_name in atom_list_1:
     fout.write(" " + atom_name + " ")
@@ -365,8 +365,8 @@ def add_parallel_planes_restraint(imol, rs_0, rs_1):
 
   print "in add_parallel_planes_restraint: rs_0: %s rs_1 %s" %(rs_0, rs_1)
 
-  rn_0 = residue_spec2residue_name(imol, rs_0)
-  rn_1 = residue_spec2residue_name(imol, rs_1)
+  rn_0 = residue_spec_to_residue_name(imol, rs_0)
+  rn_1 = residue_spec_to_residue_name(imol, rs_1)
   atom_ls_0 = res_name2plane_atom_name_list(rn_0)
   atom_ls_1 = res_name2plane_atom_name_list(rn_1)
 
@@ -382,18 +382,18 @@ def user_defined_add_planes_restraint():
   def make_restr(*args):
     atom_0 = args[0]
     atom_1 = args[1]
-    rs_0 = atom_spec2residue_spec(atom_0)
-    rs_1 = atom_spec2residue_spec(atom_1)
-    imol = atom_spec2imol(atom_0)
+    rs_0 = atom_spec_to_residue_spec(atom_0)
+    rs_1 = atom_spec_to_residue_spec(atom_1)
+    imol = atom_spec_to_imol(atom_0)
 
     rn_0 = residue_name(imol,
-                        residue_spec2chain_id(atom_spec2residue_spec(atom_0)),
-                        residue_spec2res_no(atom_spec2residue_spec(atom_0)),
-                        residue_spec2ins_code(atom_spec2residue_spec(atom_0)))
+                        residue_spec_to_chain_id(atom_spec_to_residue_spec(atom_0)),
+                        residue_spec_to_res_no(atom_spec_to_residue_spec(atom_0)),
+                        residue_spec_to_ins_code(atom_spec_to_residue_spec(atom_0)))
     rn_1 = residue_name(imol,
-                        residue_spec2chain_id(atom_spec2residue_spec(atom_1)),
-                        residue_spec2res_no(atom_spec2residue_spec(atom_1)),
-                        residue_spec2ins_code(atom_spec2residue_spec(atom_1)))
+                        residue_spec_to_chain_id(atom_spec_to_residue_spec(atom_1)),
+                        residue_spec_to_res_no(atom_spec_to_residue_spec(atom_1)),
+                        residue_spec_to_ins_code(atom_spec_to_residue_spec(atom_1)))
 
     print "BL DEBUG:: got resname 0", rn_0
     print "BL DEBUG:: got resname 1", rn_1

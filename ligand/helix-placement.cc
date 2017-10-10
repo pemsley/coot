@@ -1283,6 +1283,7 @@ coot::helix_placement_info_t
 coot::helix_placement::place_strand(const clipper::Coord_orth &pt, int strand_length,
 				    int n_strand_samples, float sigma_level) {
 
+   bool debug = false;
    float map_rmsd = sigma_level / 3; // hack (used in rigid body fitting shift scaling).
    coot::minimol::molecule rm;
    coot::helix_placement_info_t r(rm, 0, "Not Done");
@@ -1296,9 +1297,11 @@ coot::helix_placement::place_strand(const clipper::Coord_orth &pt, int strand_le
    clipper::RTop_orth best_op = find_best_tube_orientation(pt, cyl_len, cyl_rad, dd);
 
    clipper::RTop_orth op_plus_trans(best_op.rot(), pt);
-   
-//    std::cout << "DEBUG:: best_op for strand orientation:\n" << best_op.format() << std::endl;
-//    std::cout << "DEBUG:: best_op with translation :\n" << op_plus_trans.format() << std::endl;
+
+   if (debug) {
+      std::cout << "DEBUG:: best_op for strand orientation:\n" << best_op.format() << std::endl;
+      std::cout << "DEBUG:: best_op with translation :\n" << op_plus_trans.format() << std::endl;
+   }
 
    // get some strands of that length
    //

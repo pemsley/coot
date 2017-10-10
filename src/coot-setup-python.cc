@@ -24,6 +24,8 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
+#include <cstring>
+
 #include "compat/coot-sysdep.h"
 #include <gtk/gtk.h>
 #include "coot-setup-python.hh"
