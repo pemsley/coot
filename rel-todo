@@ -1,7 +1,10 @@
 
    For Release 0.8.9
  
-   o run lidia -> hydrogenate, then coot reduce - don't double protonate atoms  ::: 1
+   o make cryo-EM mode in refinement work ::: 4
+
+   o build NAG, NAG, BMA.  In coot-reduce, HO4 should not be added at the links.
+     And check that coot-probe looks good.  ::: 1
 
    o click-click refinement with fixed atoms gives NOPROGRESS. Must fix. ::: 5
 
@@ -104,9 +107,6 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
 
    ::: 4
 
-   o build NAG, NAG, BMA.  In coot-reduce, HO4 should not be added at the links.
-     And check that coot-probe looks good.  ;:: 1
-
    o undo and redo should update the Ramachandran plot ::: 1
 
    o delete_all_extra_restraints() should updates the extra restraints display ::: 1
@@ -114,8 +114,6 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
    o need a delete extra restraints menu item ::: 1
 
    o update the display of the restraints even if the molecule is not displayed ::: 1
-
-   o make cryo-EM mode in refinement work ::: 4
 
    o --splash-screen arb-image.png - does that work? ::: 1
 
@@ -128,18 +126,6 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
      (undo).  Now get lots of warning about missing atoms on the
      terminal (as coot tries to find the atoms for the extra
      restraints).  Tricky to fix, I think. ::: 4
-
-   o get rid of this: 
-     INFO:: setup minimol from mol: no spacegroup
-     ::: 1
-
-* Done.
-
-   o get rid of this:
-.... step_count: 880 step_count_lim 5000
-     ::: 1
-
-* Done, was fixed in refinement
 
    o fetch Bernie branch. consider new rama ::: 6
 
@@ -411,3 +397,20 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
      failed find atoms. ::: 1
 
 * Done.
+
+   o run lidia -> hydrogenate, then coot reduce - don't double protonate atoms  ::: 1
+
+* Done.
+
+   o get rid of this: 
+     INFO:: setup minimol from mol: no spacegroup
+     ::: 1
+
+* Done.
+
+   o get rid of this:
+.... step_count: 880 step_count_lim 5000
+     ::: 1
+
+* Done, was fixed in refinement
+
