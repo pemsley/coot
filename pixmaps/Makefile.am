@@ -47,8 +47,8 @@ azerbaijan.svg	      gln-asn-b-factors.svg	   rigid-body.png                 \
 calculate-ghosts.svg  gln-asn-b-factorssvg.svg	   rigid-body.svg                 \
 cell+symm.png	      glyco-structures.svg	   rotamers.png                   \
 cell+symm.svg	      gnome-run.png		   rotamers.svg                   \
-change-chain-id.svg   go-to-atom.svg		   rtz.png                        \
-chiral.png	      go-to-ligand.svg		   rtz.svg                        \
+change-chain-id.svg   go-to-atom.svg		   rtz.png  rrz.png               \
+chiral.png	      go-to-ligand.svg		   rtz.svg  rrz.svg               \
 chiral.svg	      gtk-connect-16.png	   scroll-wheel.svg               \
 connect-to-ccp4.svg   gtk-font.png		   secondary-structure.svg        \
 connect-to-oca.svg    gtk-open-16.png		   sequence-view.png              \

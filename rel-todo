@@ -1,10 +1,6 @@
 
    For Release 0.8.9
  
-   o Make it easy for me to re-run the previous refinement ::: 1
-   o repeat previous refinement: wrap refine-zone using (stored) atom indices
-     residue_range_atom_index_1 and residue_range_atom_index_2
-
    o click-click refinement with fixed atoms gives NOPROGRESS. Must fix. ::: 5
 
    o In refinement, pull the structure arround to create a cis peptide, then fix it.
@@ -408,3 +404,8 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
 
 * Done.
 
+   o Make it easy for me to re-run the previous refinement ::: 1
+   o repeat previous refinement: wrap refine-zone using (stored) atom indices
+     residue_range_atom_index_1 and residue_range_atom_index_2
+
+* Done.
