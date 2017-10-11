@@ -1,18 +1,15 @@
 
    For Release 0.8.9
  
+   o run lidia -> hydrogenate, then coot reduce - don't double protonate atoms  ::: 1
+
    o click-click refinement with fixed atoms gives NOPROGRESS. Must fix. ::: 5
 
    o In refinement, pull the structure arround to create a cis peptide, then fix it.
      Is the dialog message removed? ::: 1
 
-   o run lidia -> hydrogenate, then coot reduce - don't double protonate atoms  ::: 1
-
    o segment_map(0, 0.03) for EMD-6224 doesn't do good things (300 empty (?) maps). 
      segment EMD-1832. (puntable) ::: 6
-
-   o Copy fragment dialog should not dismiss if a new molecule is not created because it
-     failed find atoms. ::: 1
 
    o the hydrogen is not drawn correctly on AC6 in Colour by Atoms. Additional half-bond. ::: 2
 
@@ -74,7 +71,7 @@
 
    o do a better job of scaling the density fit analysis (say low resolution data).
 
-     ::: 1
+     ::: 2
 
    o For glyco tree validation (matching vs oligomannose-tree etc) allow modes 
      liberal (current) and correct which needs correct residue types
@@ -407,5 +404,10 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
    o Make it easy for me to re-run the previous refinement ::: 1
    o repeat previous refinement: wrap refine-zone using (stored) atom indices
      residue_range_atom_index_1 and residue_range_atom_index_2
+
+* Done.
+
+   o Copy fragment dialog should not dismiss if a new molecule is not created because it
+     failed find atoms. ::: 1
 
 * Done.

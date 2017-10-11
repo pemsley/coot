@@ -423,8 +423,15 @@
 	   (generic-chooser-and-entry "Create a new Molecule\nFrom which molecule shall we seed?"
 				      "Atom selection for fragment"
 				      "//A/1-10" 
+
+				      ;; this function needs to return false when
+				      ;; a new molecule is not created.
+				      ;;
 				      (lambda (imol text)
-					(new-molecule-by-atom-selection imol text)))))
+					(let ((imol (new-molecule-by-atom-selection imol text)))
+					  (valid-model-molecule? imol)))
+				      #f
+				      )))
 
 	;; --- D --- 
 
