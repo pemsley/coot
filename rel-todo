@@ -1,5 +1,9 @@
 
    For Release 0.8.9
+ 
+   o draw seqnece view: which molecule number are we looking at?
+
+   o all atom contact dots labels should have a molecule number attached.
 
    o click-click refinement with fixed atoms gives NOPROGRESS. Must fix. ::: 5
 
