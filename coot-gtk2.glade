@@ -59602,7 +59602,7 @@ Bumps</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
   <property name="modal">False</property>
   <property name="default_width">330</property>
-  <property name="default_height">220</property>
+  <property name="default_height">360</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
   <property name="decorated">True</property>

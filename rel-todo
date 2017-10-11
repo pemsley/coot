@@ -1,14 +1,12 @@
 
    For Release 0.8.9
  
-   o all atom contact dots labels should have a molecule number attached.
+   o Make it easy for me to re-run the previous refinement ::: 1
 
    o click-click refinement with fixed atoms gives NOPROGRESS. Must fix. ::: 5
 
    o In refinement, pull the structure arround to create a cis peptide, then fix it.
      Is the dialog message removed? ::: 1
-
-   o Make it easy for me to re-run the previous refinement ::: 1
 
    o run lidia -> hydrogenate, then coot reduce - don't double protonate atoms  ::: 1
 
@@ -406,3 +404,7 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
    o draw sequence view: which molecule number are we looking at? ::: 1
 
 * Done
+
+   o all atom contact dots labels should have a molecule number attached. ::: 1
+
+* Done.

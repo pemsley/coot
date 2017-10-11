@@ -3388,7 +3388,8 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
       for (it=c.dots.begin(); it!=c.dots.end(); it++) {
 	 const std::string &type = it->first;
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
-	 std::string obj_name = type;
+	 std::string obj_name = "Molecule ";
+	 obj_name += coot::util::int_to_string(imol) + ": " + type;
 	 int obj = new_generic_object_number(obj_name.c_str());
 	 int point_size = 2;
 	 if (type == "vdw-surface") point_size = 1;
@@ -3399,7 +3400,9 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
 	 if (type != "vdw-surface")
 	    set_display_generic_object(obj, 1); // should be a function with no redraw
       }
-      int clashes_obj = new_generic_object_number("clashes");
+      std::string clashes_name = "Molecule " + coot::util::int_to_string(imol) + ":";
+      clashes_name += " clashes";
+      int clashes_obj = new_generic_object_number(clashes_name.c_str()); // change this func to use std::string arg
       for (unsigned int i=0; i<c.clashes.size(); i++) {
 	 to_generic_object_add_line(clashes_obj, "#ff59b4", 2,
 				    c.clashes[i].first.x(),  c.clashes[i].first.y(),  c.clashes[i].first.z(),
@@ -3502,7 +3505,8 @@ void coot_all_atom_contact_dots(int imol) {
       for (it=c.dots.begin(); it!=c.dots.end(); it++) {
 	 const std::string &type = it->first;
 	 const std::vector<coot::atom_overlaps_dots_container_t::dot_t> &v = it->second;
-	 std::string obj_name = type;
+	 std::string obj_name = "Molecule ";
+	 obj_name += coot::util::int_to_string(imol) + ": " + type;
 	 int obj = new_generic_object_number(obj_name.c_str());
 	 std::string col = "#445566";
 	 int point_size = 2;
@@ -3514,7 +3518,9 @@ void coot_all_atom_contact_dots(int imol) {
 	 if (type != "vdw-surface")
 	    set_display_generic_object_simple(obj, 1); // should be a function with no redraw
       }
-      int clashes_obj = new_generic_object_number("clashes");
+      std::string clashes_name = "Molecule " + coot::util::int_to_string(imol) + ":";
+      clashes_name += " clashes";
+      int clashes_obj = new_generic_object_number(clashes_name.c_str());
       for (unsigned int i=0; i<c.clashes.size(); i++) {
 	 to_generic_object_add_line(clashes_obj, "#ff59b4", 2,
 				    c.clashes[i].first.x(),  c.clashes[i].first.y(),  c.clashes[i].first.z(),
