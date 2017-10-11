@@ -2,6 +2,8 @@
    For Release 0.8.9
  
    o Make it easy for me to re-run the previous refinement ::: 1
+   o repeat previous refinement: wrap refine-zone using (stored) atom indices
+     residue_range_atom_index_1 and residue_range_atom_index_2
 
    o click-click refinement with fixed atoms gives NOPROGRESS. Must fix. ::: 5
 
@@ -28,9 +30,6 @@
    o make cfc work again ::: 3
 
    o FLEV fail on A2005 in 5pb8 failure to construct rdkit molecule (in alt conf D) ::: 1
-
-   o repeat previous refinement: wrap refine-zone using (stored) atom indices
-     residue_range_atom_index_1 and residue_range_atom_index_2
 
    o make a mode "don't recontour the map on recentre". Add a "recontour" 
      toolbar button ::: 2
@@ -93,10 +92,6 @@
      loaded at runtime (but (of course)) is conditionally evaluated).
 
      ::: 1
-
-   o on mutating a THR (or anything) to a PRO, remember to delete H. ::: 1
-
-* Done (I think).
 
    o I don't like fat hydrogen (bonds) in Colour by Chain mode. ::: 2
 
@@ -408,3 +403,8 @@ angle  292.05 [spec: model 1 "B" 464 "" " C1 " ""] [spec: model 1 "B" 141 "" " N
    o all atom contact dots labels should have a molecule number attached. ::: 1
 
 * Done.
+
+   o on mutating a THR (or anything) to a PRO, remember to delete H. ::: 1
+
+* Done.
+

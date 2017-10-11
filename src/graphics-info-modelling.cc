@@ -1769,6 +1769,16 @@ graphics_info_t::refine_residue_range(int imol,
    return rr;
 }
 
+void
+graphics_info_t::repeat_refine_zone() {
+
+   if (is_valid_model_molecule(residue_range_mol_no)) {
+      refine(residue_range_mol_no, false, residue_range_atom_index_1, residue_range_atom_index_2);
+   }
+
+}
+
+
 
 // Question to self: Are you sure that imol_rigid_body_refine (the
 // coordinates molecule) is set when we get here?
