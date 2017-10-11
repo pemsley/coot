@@ -188,18 +188,20 @@ class graphical_bonds_atom_info_t {
 public:
    bool is_hydrogen_atom;
    coot::Cartesian position;
-   mmdb::Residue *residue_p;
+   mmdb::Atom *atom_p; // this should be a shared pointer I think.
+                       // we don't want to be looking at this pointer
+                       // if some other part of the code has deleted the atom.
    int residue_index;
    graphical_bonds_atom_info_t(const coot::Cartesian &pos, bool is_hydrogen_atom_in) {
       position = pos;
       is_hydrogen_atom = is_hydrogen_atom_in;
       residue_index = -1; // unset
-      residue_p = 0;
+      atom_p = 0;
    }
    graphical_bonds_atom_info_t() {
       is_hydrogen_atom = false;
       residue_index = -1; // unset
-      residue_p = 0;
+      atom_p = 0;
    }
 };
 

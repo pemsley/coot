@@ -3206,7 +3206,7 @@ Bond_lines_container::make_graphical_bonds_with_thinning_flag(bool do_thinning_f
    //
    std::vector<graphical_bonds_atom_info_t>  atom_centres_local = atom_centres;
    for (std::size_t i=0; i<atom_centres_local.size(); i++)
-      atom_centres_local[i].residue_index = residue_index_map[atom_centres_local[i].residue_p];
+      atom_centres_local[i].residue_index = residue_index_map[atom_centres_local[i].atom_p->residue];
 
    box.add_atom_centres(atom_centres_local, atom_centres_colour);
    box.rings = rings;
@@ -5445,7 +5445,7 @@ Bond_lines_container::add_atom_centres(const atom_selection_container_t &SelAtom
 	 graphical_bonds_atom_info_t p(coot::Cartesian(SelAtom.atom_selection[i]->x,
 						       SelAtom.atom_selection[i]->y,
 						       SelAtom.atom_selection[i]->z), is_H_flag);
-	 p.residue_p = SelAtom.atom_selection[i]->residue;
+	 p.atom_p = SelAtom.atom_selection[i];
 	 atom_centres.push_back(p);
 	 atom_centres_colour.push_back(atom_colour(SelAtom.atom_selection[i], atom_colour_type));
       }
