@@ -3,6 +3,10 @@
  
    o make cryo-EM mode in refinement work ::: 4
 
+   o add an arg to init_from_residue_vec() and so the restraints_container_t constructor from 
+     which it is called that says "don't make links to residues that have a residue number 
+     difference greater than 1" - which will stop annoying linking in add_terminal_residue_complicado.
+
    o build NAG, NAG, BMA.  In coot-reduce, HO4 should not be added at the links.
      And check that coot-probe looks good.  ::: 1
 

@@ -62,8 +62,8 @@
 //				residues_mol for disphide restraints.
 // 
 coot::restraints_container_t::restraints_container_t(int istart_res_in, int iend_res_in,
-						     short int have_flanking_residue_at_start,
-						     short int have_flanking_residue_at_end,
+						     bool have_flanking_residue_at_start,
+						     bool have_flanking_residue_at_end,
 						     short int have_disulfide_residues,
 						     const std::string &altloc,
 						     const std::string &chain_id,
@@ -241,8 +241,8 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
 // 
 void
 coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
-					    short int have_flanking_residue_at_start,
-					    short int have_flanking_residue_at_end,
+					    bool have_flanking_residue_at_start,
+					    bool have_flanking_residue_at_end,
 					    short int have_disulfide_residues,
 					    const std::string &altloc,
 					    const std::string &chain_id,
@@ -263,9 +263,9 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
    int iselection_end_res   = iend_res;
    // std::cout << "start res range: " << istart_res << " " << iend_res << " " << chain_id << "\n";
 
-   // Are the flanking atoms available in mol_in?  (mol_in was
-   // constrcted outside so the mol_in constructing routine know if
-   // they were there or not.
+   // Are the flanking atoms available in mol_in?
+   // mol_in was constructed outside of this class, so the mol_in constructing
+   // routine knows if they were there or not.
    // 
    if (have_flanking_residue_at_start) iselection_start_res--;
    if (have_flanking_residue_at_end)   iselection_end_res++;
@@ -286,12 +286,19 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
    // 
    mol->GetSelIndex(SelHnd_atom, atom, n_atoms);
 
-   if (0) // debugging
+   if (false) { // debugging;
+      std::cout << "debug:: in init_from_mol() here are the " << fixed_atom_indices.size()
+		<< " fixed_atom indices: \n";
+      for (std::size_t ii=0; ii<fixed_atom_indices.size(); ii++)
+	 std::cout << " " << fixed_atom_indices[ii];
+      std::cout << "\n";
+
       for (int iat=0; iat<n_atoms; iat++)
 	 std::cout << "   " << iat << "  "  << coot::atom_spec_t(atom[iat]) << "  with altloc :"
 		   << altloc << ":" << std::endl;
+   }
 
-   bool debug = 0;
+   bool debug = false;
    if (debug) { 
       std::cout << "DEBUG:: Selecting residues in chain \"" << chain_id << "\" gives "
 		<< n_atoms << " atoms " << std::endl;
@@ -322,7 +329,12 @@ coot::restraints_container_t::init_from_mol(int istart_res_in, int iend_res_in,
 		<< " " << have_flanking_residue_at_end << std::endl;
    }
 
-   init_shared_post(fixed_atom_specs);
+   init_shared_post(fixed_atom_specs); // clears fixed_atom_indices
+
+   add_fixed_atoms_from_flanking_residues(have_flanking_residue_at_start,
+					  have_flanking_residue_at_end,
+					  iselection_start_res, iselection_end_res);
+
 }
 
 void
@@ -1634,6 +1646,9 @@ coot::restraints_container_t::make_restraints(int imol,
 
    // debugging SRS inclusion.
    if (false) {
+
+      std::cout << "------- debug:: here in make_restraints() do_trans_peptide_restraints is "
+		<< do_trans_peptide_restraints << std::endl;
       std::cout << "----- make restraints() called with geom of size : " << geom.size() << std::endl;
       std::cout << "    geom ref pointer " << &geom << std::endl;
    }

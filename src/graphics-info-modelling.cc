@@ -426,11 +426,25 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	 // flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED; 20071124
 	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
 	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES;
-	 coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
+
+	 // debugging
+	 coot::restraint_usage_Flags flags = coot::TYPICAL_NO_PLANES; // fail
+	 flags = coot::BONDS_AND_ANGLES;            // pass
+	 flags = coot::BONDS_ANGLES_AND_NON_BONDED; // pass
+	 flags = coot::BONDS_ANGLES_AND_PLANES;     // fail
+	 flags = coot::BONDS_ANGLES_AND_CHIRALS;    // pass
+	 flags = coot::BONDS_ANGLES_AND_TORSIONS;   // pass
+	 flags = coot::BONDS_ANGLES_TORSIONS_NON_BONDED_AND_CHIRALS; // pass
+	 flags = coot::BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS;
+	 flags = coot::TYPICAL_RESTRAINTS;
+	 // flags = coot::BONDS_ANGLES_AND_CHIRALS;
+	 // flags = coot::TYPICAL_NO_PLANES; // OK, so there is a problem with both flanking planes
+                                             // (but only planar peptide restraints CA-CA).
+	                                     // And trans-peptide torsions.
 
 	 short int do_residue_internal_torsions = 0;
 
-	 if (do_torsion_restraints) { 
+	 if (do_torsion_restraints) {
 	    do_residue_internal_torsions = 1;
 	    // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS; // fail
 	    // flags = coot::BONDS_ANGLES_AND_TORSIONS; // OK
@@ -441,12 +455,12 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	    flags = coot::TYPICAL_RESTRAINTS_WITH_TORSIONS;
 	 }
 
-	 if (do_rama_restraints) 
+	 if (do_rama_restraints)
 	    // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA;
 	    // flags = coot::BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_RAMA_AND_PARALLEL_PLANES;
 	    flags = coot::ALL_RESTRAINTS;
-	 
 
+	 
 	 // coot::pseudo_restraint_bond_type pseudos = coot::NO_PSEUDO_BONDS;
 
 	 // 20080108 Recall that we do secondary structure restraints
@@ -484,7 +498,7 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	    n_test = restraints.const_test_function(geom);
 	    std::cout << "------------------- copy_mol_and_refine_inner() const test_function n_test: "
 		      << n_test << std::endl;
-	 } 
+	 }
 
 	 int nrestraints = 
 	    restraints.make_restraints(imol_for_atoms, geom, flags,
@@ -808,7 +822,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 		  restraints.thread_pool(&static_thread_pool, n_threads);
 #endif // HAVE_CXX_THREAD
 
-	       if (false)
+	       if (true)
 		  std::cout << "---------- debug:: in generate_molecule_and_refine() "
 			    << " calling restraints.make_restraints() with imol "
 			    << imol << " "

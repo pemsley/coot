@@ -214,15 +214,16 @@ namespace coot {
 				TORSIONS = 4,
 				NON_BONDED = 16,
 				CHIRAL_VOLUMES = 32,
-				// PLANES_ANC = 8, // planes on their own are not used.
-				//                    PLANES is defined by wretched windows
-				//                    ANC: avoid name conflict
+				PLANES_ANC = 8, // planes on their own are not used.
+				//                 PLANES is defined by wretched windows
+				//                 ANC: avoid name conflict
 				RAMA = 64,
 				TRANS_PEPTIDE_RESTRAINTS=1024,
 				BONDS_ANGLES_AND_TORSIONS = 7,
 				BONDS_ANGLES_TORSIONS_AND_PLANES = 15,
 				BONDS_AND_PLANES = 9,
 				BONDS_ANGLES_AND_PLANES = 11, // no torsions
+				BONDS_ANGLES_AND_CHIRALS = 35, // no torsions
 				BONDS_AND_NON_BONDED = 17,
 				BONDS_ANGLES_AND_NON_BONDED = 19,
 				BONDS_ANGLES_TORSIONS_AND_NON_BONDED = 23,
@@ -232,6 +233,8 @@ namespace coot {
 				BONDS_ANGLES_TORSIONS_PLANES_AND_CHIRALS = 47,
 				BONDS_ANGLES_PLANES_AND_CHIRALS = 43,
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_AND_CHIRALS = 63,
+				BONDS_ANGLES_TORSIONS_NON_BONDED_AND_CHIRALS = 55,
+				BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS = 55+1024,
 				
 				BONDS_ANGLES_TORSIONS_PLANES_NON_BONDED_CHIRALS_AND_RAMA = 127,
 				
@@ -245,6 +248,7 @@ namespace coot {
 				// typical restraints add trans-peptide restraints
 				TYPICAL_RESTRAINTS               = 1+2+  8+16+32+128+256+512+1024,
 				TYPICAL_RESTRAINTS_WITH_TORSIONS = 1+2+4+8+16+32+128+256+512+1024,
+				TYPICAL_NO_PLANES = 1+2+4 +16+32+128+256+512+1024,
 				ALL_RESTRAINTS = 1+2+4+8+16+32+64+128+256+512+1024
    };
 
@@ -1015,8 +1019,8 @@ namespace coot {
 
       // internal function, most of the job of the constructor:
       void init_from_mol(int istart_res_in, int iend_res_in,
-			 short int have_flanking_residue_at_start,
-			 short int have_flanking_residue_at_end,
+			 bool have_flanking_residue_at_start,
+			 bool have_flanking_residue_at_end,
 			 short int have_disulfide_residues,
 			 const std::string &altloc,
 			 const std::string &chain_id,
@@ -1034,6 +1038,12 @@ namespace coot {
       // neighbour residues already are fixed.
       void add_fixed_atoms_from_flanking_residues(const bonded_pair_container_t &bpc);
 
+      // 20171012 - to help with debugging gradients, we want to know what the fixed
+      // atoms are in the atom list when we have a linear residue selection. So
+      // set them with the function - called from init_from_mol().
+      void add_fixed_atoms_from_flanking_residues(bool have_flanking_residue_at_start,
+						  bool have_flanking_residue_at_end,
+						  int iselection_start_res, int iselection_end_res);
    
       // 
       clipper::Xmap<float> map; 
@@ -1633,8 +1643,8 @@ namespace coot {
       // Interface used by Regularize button callback:
       // 
       restraints_container_t(int istart_res, int iend_res,
-			     short int have_flanking_residue_at_start,
-			     short int have_flanking_residue_at_end,
+			     bool have_flanking_residue_at_start,
+			     bool have_flanking_residue_at_end,
 			     short int have_disulfide_residues,
 			     const std::string &altloc,
 			     const std::string &chain_id,
