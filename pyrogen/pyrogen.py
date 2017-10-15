@@ -769,6 +769,10 @@ if __name__ == "__main__":
 
     (options, args) = parser.parse_args()
     # print 'DEBUG:: options:', options
+    # print 'DEBUG:: args:', args
+
+    if len(args) == 0:
+       print("Usage: pyrogen --help")
 
     if options.show_version:
        print 'pyrogen-' + pyrogen_version, "revision", coot_git.revision_count()
