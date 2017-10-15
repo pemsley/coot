@@ -422,25 +422,8 @@ graphics_info_t::copy_mol_and_refine_inner(int imol_for_atoms,
 	 // coot::restraint_usage_Flags flags = coot::BONDS_AND_ANGLES;
 	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_AND_PLANES;
 	 // coot::restraint_usage_Flags flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED;
-	 // flags = coot::BONDS_ANGLES_TORSIONS_AND_PLANES;
-	 // flags = coot::BONDS_ANGLES_PLANES_AND_NON_BONDED; 20071124
-	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_AND_CHIRALS;
-	 // flags = coot::BONDS_ANGLES_PLANES_NON_BONDED_CHIRALS_AND_PARALLEL_PLANES;
-
-	 // debugging
-	 coot::restraint_usage_Flags flags = coot::TYPICAL_NO_PLANES; // fail
-	 flags = coot::BONDS_AND_ANGLES;            // pass
-	 flags = coot::BONDS_ANGLES_AND_NON_BONDED; // pass
-	 flags = coot::BONDS_ANGLES_AND_PLANES;     // fail
-	 flags = coot::BONDS_ANGLES_AND_CHIRALS;    // pass
-	 flags = coot::BONDS_ANGLES_AND_TORSIONS;   // pass
-	 flags = coot::BONDS_ANGLES_TORSIONS_NON_BONDED_AND_CHIRALS; // pass
-	 flags = coot::BONDS_ANGLES_TORSIONS_NON_BONDED_CHIRALS_AND_TRANS_PEPTIDE_RESTRAINTS;
-	 flags = coot::TYPICAL_RESTRAINTS;
-	 // flags = coot::BONDS_ANGLES_AND_CHIRALS;
-	 // flags = coot::TYPICAL_NO_PLANES; // OK, so there is a problem with both flanking planes
-                                             // (but only planar peptide restraints CA-CA).
-	                                     // And trans-peptide torsions.
+	 // 
+	 coot::restraint_usage_Flags flags = coot::TYPICAL_RESTRAINTS;
 
 	 short int do_residue_internal_torsions = 0;
 
