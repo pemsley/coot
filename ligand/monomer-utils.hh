@@ -31,11 +31,14 @@
 
 #include <mmdb2/mmdb_manager.h>
 
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb.h"
+// no dependency on coords files
+// #include "coords/mmdb-extras.h"
+// #include "coords/mmdb.h"
 
 #include "clipper/core/coords.h"
 #include "mini-mol/atom-quads.hh"
+
+#include "coot-utils/contact-info.hh"
 
 namespace coot {
 
@@ -100,20 +103,22 @@ namespace coot {
       std::vector<coot::atom_name_pair>
       atom_name_pairs(const std::string &res_type) const; 
 
-      coot::contact_info getcontacts(const atom_selection_container_t &asc) const; 
+      contact_info getcontacts(const atom_selection_container_t &asc) const; 
 
-      std::vector<coot::atom_index_pair> 
-      get_atom_index_pairs(const std::vector<coot::atom_name_pair> &atom_name_pairs,
+      std::vector<atom_index_pair> 
+      get_atom_index_pairs(const std::vector<atom_name_pair> &atom_name_pairs,
 			   const mmdb::PPAtom atoms, int nresatoms) const;
 
-      std::vector<coot::atom_index_quad> 
-      get_atom_index_quads(const std::vector<coot::atom_name_quad> &atom_name_pairs,
+      std::vector<atom_index_quad> 
+      get_atom_index_quads(const std::vector<atom_name_quad> &atom_name_pairs,
 			   const mmdb::PPAtom atoms, int nresatoms) const;
 
-      static Cartesian coord_orth_to_cartesian(const clipper::Coord_orth &c);
-      static clipper::Coord_orth coord_orth_to_cart(const Cartesian &c);
-      std::vector<coot::atom_index_quad>
-      get_quads(const std::vector<coot::atom_name_quad> &atom_name_quads,
+      // files in ligand directory cannot depend on coords headers!
+      //
+      // static Cartesian coord_orth_to_cartesian(const clipper::Coord_orth &c);
+      // static clipper::Coord_orth coord_orth_to_cart(const Cartesian &c);
+      std::vector<atom_index_quad>
+      get_quads(const std::vector<atom_name_quad> &atom_name_quads,
 		mmdb::Residue *residue) const;
       std::vector<std::pair<int, float> > get_chi_angles(mmdb::Residue *res) const; // [1-indexed]
    };
